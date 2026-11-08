@@ -4,6 +4,8 @@
 import { T as t } from '../../../shell/i18n.js'
 
 export const DISPLAYS = {
+  appleDecision: { about: t('检查苹果选择并解释错误', 'check the apple selection and explain a wrong choice') },
+  appleChannels: { about: t('两只苹果在白光下的 R、G、B 灰度图和数值', 'grayscale R, G and B images and values for two apples under neutral light') },
   obscura: { about: t('暗箱的侧视图：拖动孔板和屏幕（旋钮 Z、s）', 'the camera obscura from the side: drag the plate and the screen (knobs Z, s)') },
   obscuraScreen: { about: t('屏幕正面：像的大小、模糊和亮度，目标高度画成一条线', 'the screen from the front: the image’s size, blur and brightness, with the goal height as a line') },
   houghPlanes: { about: t('边缘点和找到的线，旁边是 (θ, ρ) 累加器，可放大', 'the edge points and the lines found, beside the (θ, ρ) accumulator, which zooms') },

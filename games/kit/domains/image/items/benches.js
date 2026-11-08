@@ -13,8 +13,9 @@ import { hough } from '../benches/hough.js'
 import { ransac } from '../benches/ransac.js'
 import { cover } from '../benches/cover.js'
 import { gan } from '../benches/gan.js'
+import { appleLight } from '../benches/apple-light.js'
 
-export const BENCH_MODELS = { obscura, racer, wave, sum, probe, alias, stop, contrast, hough, ransac, cover, gan }
+export const BENCH_MODELS = { obscura, racer, wave, sum, probe, alias, stop, contrast, hough, ransac, cover, gan, appleLight }
 
 /** A bench level's bench with its model made, and its check (verify: '' when the lesson holds). */
 export function benchOf(bench) {

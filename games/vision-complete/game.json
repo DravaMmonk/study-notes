@@ -1,6 +1,6 @@
 {
   "domain": "image",
-  "vocabulary": 2,
+  "vocabulary": 4,
   "title": { "zh": "视觉完备", "en": "Vision Complete" },
   "kicker": { "zh": "COMP90086 · 计算机视觉", "en": "COMP90086 · Computer Vision" },
   "lede": {

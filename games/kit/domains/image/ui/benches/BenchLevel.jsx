@@ -1,3 +1,4 @@
+import { AppleChannels, AppleDecision } from './AppleChannels.jsx'
 import Bench from '../../../../shell/bench/Bench.jsx'
 import { ObscuraScreen, ObscuraSide } from './Obscura.jsx'
 import { HoughPlanes } from './Hough.jsx'
@@ -10,6 +11,8 @@ import { KernelChoices, KernelRound } from './Kernels.jsx'
 // A bench level (kind: 'board') on the kernel's parameter bench, with the image domain's own display items (their
 // schemas and what each is for: ../../items/displays.js). Loaded lazily, with every bench's pictures.
 const DISPLAYS = {
+  appleChannels: AppleChannels,
+  appleDecision: AppleDecision,
   obscura: ObscuraSide,
   obscuraScreen: ObscuraScreen,
   houghPlanes: HoughPlanes,
