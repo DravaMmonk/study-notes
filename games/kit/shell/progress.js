@@ -76,6 +76,15 @@ export function firstTask(game, p, id) {
   return n - 1
 }
 
+/** The next unfinished required task, preferring later tasks before revisiting earlier ones. */
+export function nextRequiredTask(game, p, id, current) {
+  const tasks = game.byId[id].tasks
+  const pending = (k) => k !== current && !tasks[k].optional && !taskPassed(game, p, id, k)
+  for (let k = current + 1; k < tasks.length; k += 1) if (pending(k)) return k
+  for (let k = 0; k < current; k += 1) if (pending(k)) return k
+  return -1
+}
+
 /** Progress with level `id` opened at task k: the tasks before it passed, it and the level not. */
 export function openAt(game, p, id, k) {
   const level = game.byId[id]

@@ -2,7 +2,7 @@
 // on other puzzles read as a fresh start.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, passed, requiredLevels, taskOpen, taskPassed } from './progress.js'
+import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, nextRequiredTask, passed, requiredLevels, taskOpen, taskPassed } from './progress.js'
 
 const storage = new Map()
 globalThis.window = { localStorage: { getItem: (k) => storage.get(k) ?? null, setItem: (k, v) => storage.set(k, v) } }
@@ -37,6 +37,14 @@ test('passing the last task early neither completes the level nor earns its rewa
   assert.deepEqual(complete.solved, [level.id])
   assert.deepEqual(complete.flags, ['part'])
   assert.deepEqual(complete.best[level.id], { count: 4 })
+})
+
+test('next required task prefers later tasks and revisits earlier ones only when needed', () => {
+  const start = { ...fresh(), all: true }
+  assert.equal(nextRequiredTask(game, start, level.id, 1), 2)
+  assert.equal(nextRequiredTask(game, start, level.id, 2), 0)
+  const earlier = passed(game, passed(game, start, level, 0), level, 1)
+  assert.equal(nextRequiredTask(game, earlier, level.id, 2), -1)
 })
 
 

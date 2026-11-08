@@ -11,7 +11,7 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { earnedUnlocks, firstTask as openTask, flagsIn, passed, saved as savedAt, taskKey, taskOpen, taskPassed } from './progress.js'
+import { earnedUnlocks, firstTask as openTask, flagsIn, nextRequiredTask, passed, saved as savedAt, taskKey, taskOpen, taskPassed } from './progress.js'
 import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { playFrame } from './viewport.js'
@@ -180,7 +180,7 @@ export default function GameShell({ game, store, author = null }) {
   const solve = (score) => {
     setProgress((p) => passed(game, p, level, taskAt, score))
     setFailure(null)
-    const next = tasks.findIndex((task, k) => k !== taskAt && !task.optional && !isPassed(k))
+    const next = nextRequiredTask(game, progress, level.id, taskAt)
     if (next >= 0) setTaskWon({ index: taskAt, next })
     else setWon(level.id)
   }
@@ -380,7 +380,7 @@ export default function GameShell({ game, store, author = null }) {
           </EditContext.Provider>
         )}
         {taskWon !== null && (
-          <TaskDoneDialog game={game} level={level} task={tasks[taskWon.index]} index={taskWon.index} next={tasks[taskWon.next]} onStay={() => setTaskWon(null)} onNext={() => goTask(taskWon.next)} />
+          <TaskDoneDialog game={game} level={level} task={tasks[taskWon.index]} index={taskWon.index} next={tasks[taskWon.next]} revisit={taskWon.next < taskWon.index} onStay={() => setTaskWon(null)} onNext={() => goTask(taskWon.next)} />
         )}
         {won && level && won === level.id && (
           <SolvedDialog game={game} level={{ ...level, unlocks: earnedUnlocks(level, progress) }} onStay={() => setWon(null)} onExit={() => open(null)} />

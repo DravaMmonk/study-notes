@@ -41,7 +41,7 @@ export function Dialog({ title, lines, actions, intro, top, onClose }) {
 }
 
 /** A task of a level passed (GameShell tasks): what it taught, and the way on to the next task. */
-export function TaskDoneDialog({ game, level, task, index, next, onStay, onNext }) {
+export function TaskDoneDialog({ game, level, task, index, next, revisit, onStay, onNext }) {
   useEscape(onStay)
   return (
     <div className="dialog-scrim">
@@ -49,9 +49,10 @@ export function TaskDoneDialog({ game, level, task, index, next, onStay, onNext 
         <div className="solved-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" /><path d="M12 20.5l5.5 5.5L28.5 14" /></svg></div>
         <h2>{game.levelLabel(level)} {L(level.title)} · {tr(`任务 ${index + 1} 完成`, `Task ${index + 1} complete`)}</h2>
         <Paragraphs text={task.after} />
+        {revisit && <p>{tr('本关还有未完成的必做任务，完成后才能通过整关。', 'This level still has required tasks to complete before it can be passed.')}</p>}
         <div className="dialog-actions">
           <button onClick={onStay}>{tr('留在这里', 'Stay here')}</button>
-          <button className="is-primary" onClick={onNext} autoFocus>{next.step ? tr(`下一个任务：${L(next.step)}`, `Next task: ${L(next.step)}`) : tr('下一个任务', 'Next task')}</button>
+          <button className="is-primary" onClick={onNext} autoFocus>{revisit ? (next.step ? tr(`返回未完成任务：${L(next.step)}`, `Return to unfinished task: ${L(next.step)}`) : tr('返回未完成任务', 'Return to unfinished task')) : (next.step ? tr(`下一个任务：${L(next.step)}`, `Next task: ${L(next.step)}`) : tr('下一个任务', 'Next task'))}</button>
         </div>
       </div>
     </div>
