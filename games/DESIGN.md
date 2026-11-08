@@ -1,6 +1,6 @@
 # 类图灵完备游戏设计手册
 
-这份手册适用于建在共享 kit（`games/kit`）上的所有游戏，包括已有的《视觉完备》《状态之图》《证明完毕》《句法之图》，以及以后的新游戏。各游戏自己的设计文档（例如 `games/vision-complete/DESIGN.md`）记录本专题的内容；本手册定下它们共同遵守的结构、规则，以及引擎替作者做的检查。
+这份手册适用于建在共享 kit（`games/kit`）上的所有游戏，包括已有的《视觉完备》《状态之图》《证明完毕》《句法之图》，以及以后的新游戏。各游戏自己的设计文档（例如 `games/vision-complete/DESIGN.md`）记录本专题的内容；本手册汇总设计经验、现有引擎结构和自动检查；教学设计建议供判断参考，具体实现及检查行为单独说明。
 
 **目标**：引擎和视图做好以后，作者只需填入一个专题的教学内容，学习者就能用《图灵完备》的方式学会它：从少量能力起步，用预设承载固定计算，亲手设计有实现选择的组合，逐层建立可复用的机器。
 
@@ -8,93 +8,18 @@
 
 ---
 
-## 1. 原则
+## 1. 设计取向
 
-1. **只从一个或几个元件起步。** 起点尽可能小，但组合起来足以达成全部目标。起点越少，学习者越能感到"一切都由我从这里造出"。
-2. **造出来就能一直用。** 需要保存玩家实现的组装元件，在完成构建后才解锁；后续运行的就是通过规格的电路。固定计算采用代码预设，按任务引入。两种元件都要说明输入、输出和约定。
-3. **逐层抽象，每层一个新概念。** 从元件到最终系统分成若干层，每层只引入一个新概念。每层的产物必须在后面被真实使用，不设孤立关卡。层与层之间要有明显的视角跃迁时刻。
-4. **用规格定义目标，而不是给解法。** 目标以输入输出要求、样例或测试集给出，不规定实现路径。满足规格的任何方案都算对。失败时展示具体的反例，让调试本身成为学习。
-5. **按最终用途决定元件的运行方式。** 只有用途广泛、运行复杂度或效率可以由实现结构优化、或运行细节本身需要展示的元件，才作为运行玩家电路的组装元件。其余元件提供代码预设，一步出结果；教学任务可以拆解其原理，但不因此保存成可复用的玩家实现。
-6. **把关键设计权交给学习者。** 在某些层只给接口约定，内部完全由学习者决定；这个决定的后果在后面的层里显现。
+这些是辅助判断的经验，不是关卡的验收模板。面向具体主题、玩家和用户要求选择合适的形式；不要为了满足条目制造关卡、限制解法或掩盖更好的设计。自动检查的现有行为见第 5 节：检查结果是需要理解和处理的工程事实，并不代替教学判断。
 
-**Interface density.** Let layout and controls establish context before adding labels or descriptions. Name data
-once; avoid generic reading labels and repeated metadata. Keep the working surface primary, use direct selection
-for sibling results, and disclose supporting inputs or explanations on demand. Preserve readable values and usable
-touch targets when reducing space. Component names and selected settings must remain readable in both languages:
-keep card actions on the first title line, wrap only long names, and place long-choice controls below their labels.
-Wide input and output cards occupy separate outer columns, with working parts between them. Inside each card,
-port rails flank the configuration/value area; their first rows align, rather than reserving a blank port-only band.
-Use concise domain wording rather than truncating distinguishing terms. Preset circuit positions are only initial anchors:
-once cards are measured, separate overlapping siblings using their actual dimensions and a wiring gap. Recheck when
-previews or settings change card sizes; do not repack a board merely because the player dragged a card. Layout-only
-adjustments preserve connections, settings and the current run.
+- **让玩家在行动中理解问题。** 从领域目标和学习者已有知识出发，选择构建、实验、观察、调试、推理或其他适合的互动；让玩家能从材料和反馈得到作答所需的证据。
+- **把复杂问题拆到可理解。** 看实际的概念、表示、约定和推理负担，再决定一个任务、一组任务还是几关。简单内容可以直接说明；难点可用对比、支架、反例和逐步组合引入。数量和顺序由学习价值决定。
+- **让课程有方向。** 按依赖组织能力和应用；对于确实独立的内容，可用并行路线。让玩家理解为什么需要新能力，以及以前学到的东西在哪里继续有用；不强求每个主题都表现成一台机器。
+- **保留有意义的选择。** 规格和测试描述要解决的问题，让不同正确方案成立。工具、预设和提示服务于知识目标，是否让玩家自行实现、实验或直接使用，要看它带来的学习价值。
+- **解释原理，而非假定接法。** 文案给出必要的情境、条件与操作入口；通关后总结发现了什么、为何成立以及适用范围，不把参考解写成玩家的解法。
+- **以实际体验为准。** 兼顾中英文、屏幕空间、可访问性和手机操作。自动检查证明它能检查的性质；教学效果、图示清晰度和交互仍需结合内容及实际页面评估。
 
-**玩的过程就是学的过程。** 这一条压过下面所有的规矩。玩家拼一块板、转一个旋钮、判一句话，做的每一步都应当是在弄懂本领域的一样东西；通关时他学会的，是能用本领域的话讲出来的知识，不是这款游戏的操作。所以：
-
-- **主线只讲讲义的理论，技术内容全部放到主线外。** 主线（地基关和练习关）的骨架是讲义（lecture）讲的理论：概念、模型、方法和它们之间的关系（针孔投影、景深、最近邻和双线性插值、语义分割和实例分割的区别）。主线上不放任何技术内容：库和工具的做法（OpenCV 按 BGR 读图、`uint8` 存像素、函数叫什么）、文件格式、实验课（workshop）的操作步骤——不做成任务，不写进引言、点题，也不链接它们的词条。它们只出现在可选的拓展专题里：挂在它要用到的那块理论之后，或挂在这一章主线最后一关之后（第 2.4 节的专题，`after`）。判断时问：讲义讲它是在讲原理，还是在讲某个工具怎么用？
-- **关卡花在难的地方，不是把知识点覆盖一遍。** 《图灵完备》的价值在于把一个复杂的知识体系拆开，从简单直白的东西当基础元件，一层层抽象上去，最后让学习者看懂复杂、困难的核心（那张复杂的电路图）。所以排关之前先给知识点定位：它是这一章的**核心**吗（讲义花力气讲、后面的章建在它上面、学生容易错）？它**难**在哪（抽象、离日常远、名词难懂），还是一句话就懂？它由哪些更浅的知识点**搭成**？一句话就懂、符合直觉的点（「不同的视觉任务交出不同形式的答案」）没有值得练的东西，人不会被它难住：它只在引言、总结或词条里提到，不做成关。离生活远、抽象难懂的点要拆碎，从更底层、更浅显的原点开始，用一个系列的关一步步逼近；一章的关卡大多应当在通往这一章核心的阶梯上。
-- **每关教本领域的一个知识点。** 知识点是课程材料里的一个概念、方法、约定或事实（最近邻插值、针孔投影、景深），有本领域的名字和出处（哪份讲义、哪一节）。原始元件、运算、旋钮、题型是工具，不是知识点（玩家搭出的元件倒可以就是一个知识点：裁剪、最近邻插值）：「常数」「向下取整」「取较大值」不单独成关，它们跟着第一次需要它们的知识点进来（几块元件同属一个知识点时，课程的 `concept` 把它们算成一个新东西）。
-- **每关是一个问题，玩的过程是回答它的思维链。** 问题用本领域的话问（「放大一张图时，新像素的值从哪里来？」），不是一句操作说明。玩家从问题走到答案要经过几步：试什么、看到什么、因此想到什么；每一步都落在屏幕上能做、能看到的东西上（一个任务、一条测试、一次反馈、一个反例）。只有一步的关多半不是一关，而是别的关里的一个任务或一条测试。
-- **答案依赖所给的东西。** 玩家必须读图、读数据、看反馈才能答对。光看题面的措辞、把题目和选项的字对上、按选项的排列猜、或者把滑块拖到读数变绿就能过的关，什么也没教。
-- **先做成，再命名。** 引言不先讲术语的定义；玩家做成以后，过关时用本领域的术语说出他刚做成的是什么，链接到百科词条。词条用本领域的话下定义、注明出处，并说清它和相邻概念的区别。学完一章，玩家能用术语把这一章讲一遍。
-- **关卡数跟着难度走。** 目的是深入：难的知识点拆到最浅的原点，从原点起一步一关；一个知识点的每个侧面（一个约定、一个边界、一种失效、一个易混的近亲）都练到。但一关没有自己的知识点、也没有一个新侧面，就是凑数，删掉；只换数字的变化写成测试或同一关里的任务，不单独成关。不设关数上限，也不为满足检查补关：检查报出「练得不够」时，补的是新的侧面，不是新的关。
-
-下面几条是在各款游戏里落实这五条原则的规矩。
-
-**Construction-led visual learning.**
-
-For a construction-led computer-vision course, plan machine -> capabilities -> parts -> construction and reuse,
-then audit how much lecture knowledge these activities cover. Source knowledge constrains the meaning and scope;
-it does not require lecture order, one gate per concept, or an optics preface before image processing. First try
-to cover a point in construction, application, debugging, a constraint or an upgrade. Only important residual
-knowledge that cannot be meaningfully carried by that path receives an additional lesson.
-
-Supply arithmetic evaluation, index/rounding helpers, traversal, repeated layout and other execution support.
-Preserve the learner's field-relevant decomposition. A complete sampler, Gaussian/Sobel filter, attention block,
-matcher or evaluator is an earned abstraction when constructing that method is the course's purpose. Giving it
-first and grading its mode setting is not an equivalent shortcut. Prerequisite formulas and worked examples are
-legitimate support, but the task must retain a meaningful construction beyond transcription.
-
-A numeric exercise with automatic fill has no assessment value without another learner decision. Use computed
-values as evidence inside construction and debugging. Keep physical-model experiments for knowledge the circuit
-path cannot expose, and place them after their actual prerequisites. Camera projection can support a later
-geometry machine without blocking the opening image processor.
-
-**Task-scoped introductions.** A level may introduce tools in individual tasks. Its aggregate inventory is the
-union for map/audit purposes; the current tray, fresh markers and component-book access follow the stable task
-keys and only preceding/current task introductions. A future tool must not leak through a folded tray or an
-already saved board. Setting choices that need explanation follow the same prerequisite discipline.
-
-**封装与跨章：**
-
-- **封装件跑的是学习者自己的电路。** 和《图灵完备》的元件工坊一样，一个元件由学习者亲手搭出才解锁，解锁后运行的就是他通过搭建关时的那块电路（外壳在通关时记下它，`progress.built`，一关几段任务的每段记一块；关卡的 `keeps` 说哪些关要记，默认是搭出元件的关；没记下板的，比如「全部解锁」开着却没通过的关、通过时还没记板的旧存档，用参考解），而不是一个一步出结果的内置函数。所以运行时能步进到元件里面：每一步写明它在哪块元件里（`auto › 拆目标 · 第 3 步 › 用规则`），打开元件的详情（手机上点开它）就看到那块电路里每个元件此刻的值。元件里面的东西改不了，要改就回到搭它的那一关（升级过的元件：它现在指向的那一关）重新通过，通过后的电路替换旧的。元件上的设置原样传给里面有同一个设置的元件（化简上的「改哪里」传给里面的每一张改写）；电路里接死的一个选择要做成元件的参数时（规则对已知用哪条规则），搭建关把它做成板上的一个输入（「规则」输入元件），学习者把它接进去，搭出的电路就带着这个口。
-- **一个元件可以一关一关升级。** 同一个元件可以由一串关卡接着搭（每关都写 `builds` 同一个元件，按课程先后排成一条升级链；链上后一关以前一关为先修，审计 `upgrade-order`；链排在同一段关卡里，不为后面的结构优化隔章回来升级，见排章的硬规则）：第一关搭出它，之后每一关是一次升级。升级关打开时，板上就是这个元件此刻跑的那块电路（链上在它之前、学习者最后通过的那一关的电路，没通过就用那一关的参考解），学习者直接在上面改；通过后，元件改为跑这一关的电路，「编辑」也跳到这一关。关卡树上只有搭出它的第一关在连线上标出这个元件，升级关不再标。升级关自己的托盘里没有它正在升级的这个元件。一关用到这个元件时，跑的是链上在它之前的那一段里学习者最后通过的电路。
-- **元件见过之后，后面每一关都能用，只要这一关的托盘上有它。用不着的折叠起来。** 这是硬性规则，关卡规格不写可用元件：一个元件出现或被搭出后，树上它之后的每一关都能用，除非被升级或合并取代（比如《视觉完备》第 1 章起，相加、相减、相乘合并成「四则运算」；在课程里用 `replaces` 声明）。这样关卡设计有统一的前提，玩家也知道手里的东西一直算数。哪些元件摆得出来，由托盘决定：
-  - **托盘**（`game.json` 的 `trays`）：每套托盘是一串元件，在托盘上的先后就是显示的先后。关卡写它用哪一套（`tray`；一关几个任务换了板的，任务各写自己的），拿到的是这套托盘上、此刻已经见过的元件。一种板一套托盘：《证明完毕》的真值电路、证明板、机器板各一套，第 2 章起证明板接手，门留在真值电路的托盘上，之后翻译岛民的话时原样回来。一章大幅换了话题，就给它一套自己的托盘，只列它带过去的元件（《视觉完备》第 6 章从网络转到几何，第 8 章转到潜空间生成）。一个场景只该用自己的几块元件时，也单独一套（《证明完毕》只用归结的证明）。
-  - 决定时问一句：这一关的板和上一关是不是同一种板、同一台机器？不是，就换托盘。只有一套托盘的游戏，关卡不用写 `tray`；不写托盘的游戏，每关拿到见过的所有元件，按见到的先后排。审计查两头：用托盘的关带来或搭出的元件不在任何托盘上（`off-tray`；留在原地的、关卡自己给定的除外），托盘列了、却没有哪一关带来或搭出的元件（`tray-unmet`）。
-  关卡规格只写这一关新带来的原始元件（`adds`）和它用的托盘。为了不让玩家面对一长排元件不知所措，每个任务只展开它自己的参考解用到的元件（按概念算，同一概念的几个型号一起展开），其余的折叠在「更多」后面，照样能放。没有参考解，或参考解用到玩家此刻还拿不到的元件时，全部展开。规则在 `kit/course.js` 的 `met`、`reach` 和 `offer`，各款游戏共用。关卡树上，每关下面的连线上标着它新带来的原始元件和通过它会解锁什么，还没到时显示为锁定。元件箱里也有原始元件：从带来它的那一关打开时起算拿到。元件箱和地图一样按章分组，每章标题照地图写（「第 n 章 · 章名」），章里按拿到的先后排。
-- **有的元件留在带来它的关里（`local`）。** 一个元件标成留在原地后，通关不会把它解锁给玩家，后面的关也不带它；哪一关要用，就在那一关再带来（`adds`，或摆在板上预置）。它照样是见过的元件，元件箱里有它，文案可以链接它；再带来时不算新元件。两种情况用它：很快被封装件取代、后面几乎不再用的中间件（《证明完毕》的「归结一圈」，搭出饱和器以后就不再用）；只为一关的场景准备的元件（「别人的证明器」）。关卡自己给定的东西做成元件时（《证明完毕》机器板上，关卡的公理、数据类型的规则、定义的等式），也留在原地，而且不算新概念（课程的 `concept` 给 `null`）：它们和题目里的已知一样是题目的一部分，不标「新」，托盘只展开参考解用到的那几条。
-- **不是每个专题都像造电脑。** 造电脑是一条链，每层都是下一层的零件。很多专题（比如动态规划）的"机器"其实很小，功夫在于用这台机器去解各种平行的问题。所以课程结构是"代际 + 专题"，而不是一条长链（见第 2 节）。
-
-**练习与抽象链：**
-
-- **一个新知识点后面要练它的各个侧面。** 专题越抽象，"会用"和"见过"之间的距离越远。知识点出现的那一关只是第一次接触；之后要练，练的是它前面没露出来的侧面（见 2.3 的维度表），由易到难，最后和已有的知识点组合，然后才引入下一个。一个侧面是一关；同一个侧面换几组数据是这一关的测试或任务。课程不能排成「一关一条定理」的清单：那样学习者通关的是一张定理表，练出的只是照着提示接线。
-- **抽象链要连续：每个新东西有前因，每个造出的东西有后果。** 《图灵完备》的核心是"把过去学会的组合抽象成新元件，用在后面的谜题里"。所以：
-  - 新元件或新能力不能凭空出现。在它出现之前，要有一关让学习者用现有的东西做到它，或撞上没有它就做不到的墙；它出现时，是把学习者已经做过的那件事收成一个元件（参照初号的演绎定理专题之于二号的假设框）。
-  - 学习者造出的元件，后面的关要真的用到，而且要用在"不用它会很长"的地方，让学习者体会到抽象的价值。
-  - 后面的题要逐渐依赖越来越高层的元件。如果后期的参考解仍然只用最早那批原始元件，就说明中间造出的东西没有进入抽象链。
-  - 换代时，如果新一代延续上一代，上一代造出的东西要么带过去，要么在新机体上用新能力重新搭一遍（升级），不能就此作废；如果换了话题，就换一套托盘，把用不着的一批留在上一代的托盘上。
-
-**排章的硬规则**（每一章写完都要逐条对一遍；实例见第 11 节）：
-
-- **不依赖的就分支。** 一串关不需要排在它前面那一串解锁的元件或讲过的概念，就不能排在它后面，而要和它并行（并行组），或挂在它真正需要的那一关之后。检查办法：对每个系列，写出它的关和参考解真正用到的东西出自哪几关；排在它前面、却不在这张单子上的系列，就是该分开的地方。一路可以很长（几个系列连成一路），并行组最多三路；放不下时，按依赖把最独立的一路挪到别处，而不是全部串成一条线。（例：《证明完毕》合一器造好以后，「倒着用规则」和「高阶模式」互不依赖；策略一章的「组合子」和「回溯」互不依赖，「搜索」和「按形状拆」又互不依赖。）
-- **引言写的是组装，不是新元件说明书。** 《图灵完备》的精神是自下而上积累，一步步把一台大机器装起来。每一关的引言回答三件事：手上的机器（或上一关做到的事）在这里卡在哪里、缺什么；这一关补上的那一块是什么；它装在机器的哪个位置、和已经有的部分怎么接。「新元件 X：……」这句话只能出现在前面已经把需要它的理由说出来之后；只有一句「新元件 X 做什么」的引言就是偷懒。没有新元件的练习关，引言说出它和前一关差在哪个维度。每章第一关说这一章要给机器装上什么模块、上一章的机器为什么还不够。
-- **元件的运行方式按最终用途一次定好。** 对每个元件问三件事：它是不是用途广泛，后面有许多关和机器建在它上面？它的正确实现在算法、复杂度或运行效率上是否有实质差异，课程要不要让玩家优化它？它的运行过程（逐轮迭代、采样投票、逐层细化）是不是这个知识点本身，玩家要看着它一步步跑？至少一条成立，才设搭建关、保存玩家电路，运行时能步进进去；仅有交换律、接线顺序、变量名或等价展开的差别不算实现差异。三条都不成立的，提供代码预设，在需要它的任务中说明输入、输出和约定；可以让玩家拆解或验证预设的原理，但这样的任务不写 `builds`。判断按这个元件在整门课里的最终用途，不按它第一次出现时的用途；一个元件不在课程中途从预设改成玩家电路，也不反过来。组装元件的参数在输入口显式暴露；预设元件只运行领域代码，不读取教学任务的存档板。新增或重构元件时，在专题设计中记录它满足哪一条。
-- **后面要优化的元件，推迟到需要它最终形态时才引入。** 一个运行玩家电路的元件，引入它的那段关卡要已经用到它的最终形态。后面的章若还要对它做结构性改造（换算法、换复杂度，而不是同一结构的参数化推广），就是引入得太早：把它挪到需要那次改造的地方，在那里一次造成。这不排斥升级链：升级链是在同一段关卡里逐步搭到最终形态，不是隔几章回来改结构。在那之前要用到它的地方有两种办法：只是要看见它算出的东西，就做成数据的一种显示方式，在结果区切换着看，不进托盘（直方图在直方图均衡之前只是图像的一种显示）；必须接线用它，就在那一关给一个留在原地的预置元件（`local`），正式引入时由学习者从头造出完整版本。排章时对每个运行玩家电路的元件对一遍：它引入的那段关卡是否已经覆盖了它的全部用途。
-
-- **一个机制放在它被核心用到的地方，不放在最早能做出它的地方。** 能早证出来、早搭出来，不等于该早放：一个元件或定律离第一次真正用上它的关越远，学习者越记不住它为什么存在，中间那段也只是在攒用不上的东西。排章时对每个机制问一句「哪里第一次非它不可」，把它和那里放在一起，最好就是那里撞上的墙（《证明完毕》：排中律和反证法放在 auto 证不出排中律之后，德摩根放在化简器把否定推进去的那一章，证明项放在建在它上面的归纳类型和依赖类型之前）。一章里只是换一种眼光重看前面做过的东西时，同一个点的小任务并进同一关，只给真正新的动作单独成关。
-
----
+**现有实现。** 学习者搭出的封装件可运行其通过时保存的电路；固定计算可由预设提供。课程用 `trays`、`adds`、`replaces` 和 `local` 描述元件的提供、沿用和替换；参考解未使用的可用元件一般折叠在「更多」中。任务、存档和关卡树的具体行为见第 2、4、6 节。
 
 ## 2. 课程结构
 
@@ -115,23 +40,7 @@ already saved board. Setting choices that need explanation follow the same prere
 - **专题和挑战是支线**，可选，不是任何必修关的先修。它们挂在**刚好具备前置**的那一关之后（`after`）：一串题只要某几关的元件和知识就能做，就直接挂在那一关后面，不必排到时代最后。不写 `after` 时挂在主线末尾。
 - **下一代机体在本代主线走完后开放**，与支线做没做完无关。
 
-**哪些关能并行，按元件依赖判断**：一关用到的元件，搭出它的关必须是它的先修；互不依赖的几串关才排成并行组。概念上的依赖也算：引言里接着某一关往下讲（"在<那一关的链接>里，机器替你找出了反例"），这两关就只能前后排。
-
-**"学习者此时见过什么"按先修关系算，不按游玩顺序算。** 有了并行组和支线，地图上的排列只是一种展开方式，学习者可能先走另一路。所以凡是"这一关之前学习者有什么"的判断，都取这一关先修关系的全部祖先（`requires` 一路往上），不取扁平顺序里排在它前面的关：
-- 托盘里元件的"新"标记、画法（地形、频谱……）是否已解锁；
-- "全部解锁"模式下给这一关的开关和选项；
-- 文案里引述的关卡（必须是先修）和"又是一个""新元件"这类说法（见第 4 节）。
-
-专题的关沿用上一关的电路（专题是同一个问题在长大）；主线上一关若是在前一关的电路上升级（比如两路汇合 → 认出起点），也可以写明 `carry: '<那一关>'`，从玩家在那一关留下的电路开始，那一关必须是它的先修（审计 `carry-unseen`）。其余主线的系列和并行组，每关从空板开始。
-
-An assembly upgrade series publishes one part key across its builders. Each upgrade starts from the preceding
-passed circuit and edits its internal parts directly. Passing publishes that revision's circuit and interface;
-unsaved edits do not change callers. Callers select the deepest passed revision on their prerequisite path,
-while replay and checks use the interface available there. An upgrade never calls its own assembled part.
-Fixed intermediate computations are code presets; a new level does not imply a new assembled part.
-Carrying a published board into the next upgrade counts as reuse, and editing that board is not an abstraction
-bypass. A terminal assembled instrument may state its standalone purpose in `showcase` when it has no later
-consumer in the current course.
+设计路线时同时考虑概念、元件和文案依赖。地图顺序不等于玩家实际经历：并行或可选路线中的先修内容，应按 `requires` 判断。专题可用 `carry` 从先修关的已保存电路继续；封装件升级按先修路线选择玩家通过的版本。
 
 **存档按任务记。** 外壳存下的（`kit/shell/progress.js`，浏览器里 `<游戏 id>.v2`）分两层：关卡层面的是通过的关（`solved`，一关通过了就一直算通过，后来多了任务也不收回）、得分（`best`）；谜题层面的全部按**任务 key** 记：每个任务的板和它的几块存档（`data`、`slots`）、通过了哪些任务（`passed`）、元件跑的那块板（`built`）。任务 key 就是任务的 id（第 4 节），每个领域的关都是一串任务、每个任务都必须有 id（契约检查）；只有一个任务的关，任务 id 通常就是关的 id。所以任务在关内换位置、插进新任务、挪进别的关、几关合成一关，存下的都跟着任务走。
 
@@ -152,86 +61,25 @@ consumer in the current course.
 
 ### 2.1 机体与时代
 
-**机体**是学习者编程的那台机器，它有一组固定的**外部能力**：能感知什么、能伸到哪里、能在哪些格子上工作。在《状态之图》里机体是机器人（视野、伸缩臂、扫描臂、分层），在《视觉完备》里是相机和流水线，在《图灵完备》里是计算机。
-
-**一代机体就是一个时代。** 换一代，就更新、增加或增强一些外部能力。新机制只在需要它的那一代出现，不在开头就一次性摆出来。时代顺序同时是故事线（机体升级）和知识线（新机制）。
-
-也可以只有一台机体：每一章给它装上一个模块（《证明完毕》：玩家自己的证明器）。这时各章的 era 写同一个 `machine`；装上的模块一直在机体里，板换了种类时换托盘（第 1 节）。
-
-元件见过之后一直能用，一关摆得出哪些，看它的托盘。专属某种外部能力的输入（比如只有带手臂的机器人才有的臂格），只在有这种能力的机体上出现。
-
-**机体要写明自己会什么。** 每台机体列出它的能力（看多远、能不能换扫描顺序、有没有手臂……）；审计从每关的参考解读出它用到的机制，机体必须都会。最早的机体要刻意做得窄：它不会的东西，就是后面几代存在的理由。
-
-**哪些关由本代机体来做。** 地基、练习、专题的终极谜题和挑战，都由本代机体来做，这样每一代的关都在展示这台机体；只有专题的引入和过渡关可以借用更早的机体（它们是终极谜题的简化版，有时用不上新能力）。
+机体描述学习者能操作的环境和外部能力，时代是课程分组；一门课也可以围绕同一机体逐章扩展能力。设计时说明能力的来历和变化，让玩家理解已有工具在新问题中的作用。
 
 ### 2.2 地基关
 
-地基关是这一代机体的教程：
-
-- 展示并教会它的**外部能力**（新传感器、新视野、新手臂……）；
-- 每关解锁一个它能用的**中层元件**，而且这个元件必须由学习者在这一关亲手搭出；
-- 线性推进，每关只新增一个能力或一个元件。
-
-**概念靠发现，不靠照着公式接线。** 把公式写在说明里、让学习者用元件拼出来，练到的只是抄写。一个量有几个参数时，做成机关台：每一步只开一个旋钮，让学习者把自己的曲线和目标叠在一起，看清每个参数管什么（《视觉完备》的「一道波」）。真正值得学习者亲手搭的，是"知道要什么、但不知道怎么接"的电路。
-
-**难的机制拆开引入。** 一关里同时出现两个新想法，后一关就会难到劝退（《视觉完备》第一版的频率探针）。把每个难点单独做成一关引入，排成带名字的系列（乘了再平均 → 错开的波 → 频率探针），最后一关再把它们合起来。一个新主题的第二关不能比第一关难一大截。
-
-一代机体可用的东西有三种来源：固定的外部能力（随机体给出，靠地基关教会）、基础元件（课程起点的原始元件，或前几代解锁的）、需要特定地基关搭出才解锁的中层元件。
+地基关为后续问题建立必要的概念和能力。根据主题选择直接说明、示范、实验或构建；注意新模型、表示和操作之间的认知跨度。什么时候介绍工具、是否保存玩家实现，以课程目标和后续用途决定。
 
 ### 2.3 练习关
 
-练习关是这一代机体能解的各种问题，彼此独立，按难度曲线排成一条线：从刚学完地基就能做的，到需要把几个机制组合起来的。练习关不要求"同一个问题在长大"；那是专题系列的事。
-
-**地基和练习交替，不要先把机制全摆完再练。** 每个新知识点后面紧跟它自己的练习（可以做成主线上的系列或并行组）。一关练习露出这个知识点的一个新侧面（蓝图里 slot 的 `facet`：一个约定、一个边界、一种失效、一个易混的近亲），按下面几个维度变化，每关只动一个维度。只换素材、换数字的变化不算维度：它们是同一关的测试或任务。练习有几关由侧面有几个决定，不凑数：
-
-| 维度 | 做法 | 例子（《证明完毕》的假设框） |
-|---|---|---|
-| 换方向 | 正着用 ↔ 倒着用，从已知出发 ↔ 从目标倒推 | 由 A→B 推出东西 ↔ 要证出 A→B |
-| 加层数 | 嵌套、重复、更长的链 | 框套框：A→(B→A) |
-| 去支架 | 少给提示、少给已知，或多给干扰项 | 已知里混入用不着的前提 |
-| 组合 | 和之前的机制一起用 | 框里用分离，框里拆 ∧ |
-| 辨真伪 | 一个看起来能做、其实做不到的目标，看反例 | 证 (A→B)→(B→A)，反模型面板画出那一行 |
-
-一组练习的最后一关应当是"组合"或"辨真伪"，它是这一组的小毕业。难度曲线看的是整个时代：前半段每组都很短、很直白，后半段的组更少、但每关跨更多机制。
+练习帮助玩家迁移和辨别，而非重复同一道题。可变化方向、复杂度、提示、组合和边界情况；同一关的多个任务或测试也能承担这些变化。不必为每个知识点或维度规定固定数量。
 
 ### 2.4 专题系列
 
-专题系列让学习者用这一代机体（加上已解锁的元件）做一项完整的应用，并以一道**终极谜题**收尾。专题是可选支线，挂在它需要的那一关之后。**一章（代）可以有零个到多个专题**，不必每章都有：只有有意义的业务问题（一项真实的应用，比如图里的缝、拼写纠错），或者值得长线拓展的方向，才做成专题，各自挂在自己的位置。为了凑数而设的专题，宁可不要；一个机制本身的概念，放进主线的地基关去讲（《证明完毕》的演绎定理，就放在假设框一章的第一关里讲，不另设专题）。
-
-**设计时从终极谜题倒推：**
-
-1. 先定终极谜题：这个专题的大问题、它的世界、它的测试数据。
-2. 拆出它依赖的机制。
-3. 每一关都是终极谜题"去掉若干机制"的版本，或者其中一个机制单独实现。关卡的顺序就是把机制一个个加回去。
-
-| 位置 | 是什么 | 产出 |
-|---|---|---|
-| 引入关 | 终极谜题的简化版（规模小、约束少），或者复杂系统里一个核心机制的单独实现 | 往往就是后面要复用的那个元件 |
-| 递进关 | 每关加回一个机制或一个维度 | 有时是一个中间元件 |
-| 终极谜题 | 完整的问题 | 专题的求解器：整个流程（比如整张表）封装成的一个元件 |
-
-**不设单独讲故事的动机关。** 专题的第一关就是终极谜题的引入版，所以一个专题从头到尾是同一个问题在长大，学习者始终知道自己在往哪里走。
-
-**专题内保持一致：** 同一个世界（或同一族世界）、相同的输入输出接口，只是数据规模和约束不同。
-
-专题互相独立，可以任选顺序。一个专题可以接着更早一章的专题往下讲（《证明完毕》的岛民：真值电路一章的谜题 → 连接词一章的骑士与无赖 → 归结一章的岛民变多），这时把前一个专题的最后一关也写进 `after`：它是先修，地图仍把专题挂在本章那一关下面。主线不能依赖专题搭出的元件（专题是可选的）。确实要借用另一个专题的求解器时（比如拼写纠错要用编辑距离），写成明确的先修关系，借用方也只能是可选的。
-
-**原理系列**是另一种可选系列：主线把一个机制讲到理解（它做什么、为什么需要、在哪里失效，用有名字的元件装进机器），原理系列把它讲到实现（拆回原语，推出约定、等价形式、代价和边界）。它挂在主线上那个机制第一次出现的关之后，主线不依赖它，也不重复主线已经做过的关。拆预设的任务不写 `builds`，测试对照那块预设；系列内部要复用的仪器在系列里搭出、只给本系列用，最后一关可以是只为展示的仪器（`showcase`）。原理系列不升级主线的元件：升级会让主线和支线跑两版电路。一条原理路线一个字母，跨章接续。讲义以外的技术内容（库、工具、实验课）并进讲同一机制的原理系列或专题，不另开一串。实例：《视觉实验室》（`docs/Unimelb/26S2/CV/vision-game-specs/chapter-map.md`）的主线按课程概念走，给的是滤波器、卷积层这一层的预设；原理系列 K 把滤波器拆回平移和四则运算，F、B 拆频谱和反向传播；真实场景（单据、货架、全景）都在应用支线里。
+专题适合承载完整应用、延伸问题或机制原理。可以从目标倒推简化问题和需要的能力，也可以依主题采取其他结构。主线、并行路线与可选专题按实际依赖安排；现有 `parallel` 的汇合要求各路完成，不表示任选一路。专题的 `after`、`requires`、`carry` 和 `code` 由课程布局及检查解释。
 
 ### 2.5 挑战关
 
-挑战关在既定机制上展现机体的能力边界，可以跳过：
+挑战可以在熟悉的能力上增加推理、组合或资源约束；依据目标提供反例、提示和足够有区分力的测试。当前引擎将挑战作为可选支线，具体审计见第 5 节。
 
-- **只用已出现的机制**：元件、传感器、世界都不超出它挂靠位置之前已解锁的范围。挑战的是理解，不是新知识。
-- **难在跳跃，而不是繁琐**：关键是一个"啊哈"，比如换个角度看表、把两件事塞进一格、换一个计算方向。拼几十个元件那种难不算。
-- **可跳过**：不是任何必修关的先修。它若产出元件，这个元件后面也只能是可选的。
-- **规格更严**：参考解必须通过；"直觉上的简单解法"（naive 解）必须失败；再加隐藏测试防止凑巧过关。
-- **提示更少，反例照给。** 通关后的点题讲清那个跳跃。
 
-两类挑战：
-
-- **新题型挑战**：全新规格，只用已有元件，靠对机制更深的理解解出。
-- **约束挑战**：拿一道已有的关，加更紧的预算（元件数、读取次数、表的大小）。普通解法能过关，想达到预算就得更深入。这一类需要代价度量（第 6 节）。
 
 地图把关卡画成按钮节点组成的树（`kit/shell/LevelMap.jsx` 的 `LevelTree`），规则是：
 - 居中排列；几个关卡并排时整组居中。
@@ -251,9 +99,7 @@ consumer in the current course.
 
 ### 2.6 时代之间
 
-不另设过渡关。上一代的挑战关本来就在探能力边界，学习者在那里撞上"做不到"。新一代第一关的引言里提一句"上一台为什么不够"，再配上机体升级的展示，就是这一次的视角跃迁。
-
----
+时代之间可用新的问题、能力或情境说明学习方向；是否设置过渡任务取决于它是否有教学作用。
 
 ## 3. 基本元素和引擎里的对应
 
@@ -274,70 +120,33 @@ consumer in the current course.
 
 ## 4. 一关怎么写
 
-### 4.1 一关的知识契约
+### 4.1 设计一关
 
-动手写一关之前，先写清它教什么、玩家怎样想到。课程蓝图里每个 slot 都带着这几样（`kit/pipeline/blueprint.js`），关卡和文案照着它写，评审拿它核对：
+先想清楚玩家要理解什么、已有怎样的基础，以及要通过什么观察或操作得到结论。一个任务可以承载几个相关步骤；多个任务也可以围绕同一个问题。依据实际难度决定拆分，不以每关概念数量、任务数量或公式形式机械判断质量。
 
-- **知识点**（`teaches`，指向蓝图的 `knowledge`）：它有多难（`difficulty`：`intuitive` 一句话就懂，只在文案和词条里提到——slot 的 `mentions`；`learnable` 要一个例子或一关练习；`hard` 抽象、离日常远，要从更浅的点起一串关逼近）、是不是这一章的核心（`core`）、由哪些更浅的知识点搭成（`depends`），本领域的术语（`term`，课程材料里的叫法）、它说的是什么（`about`）、出处（`source`：讲义、章节、页或幻灯片）、不懂它就答不上的问题（`wall`）、它纠正的直觉错误（`misconception`）、它是讲义的理论还是技术内容（`basis`：`lecture` / `technical`）。主线上的关只带来、只用讲义的理论；技术内容的知识点由可选的拓展专题带来。练习关不带新知识点，写它露出的新侧面（`facet`）。
-- **问题**（`question`）：玩家玩这一关是在回答什么，用本领域的话问。引言的落点就是这个问题。
-- **思维链**（`chain`）：玩家从问题走到答案的几步，一步一句：试了什么、看到什么、因此想到什么。每一步要在屏幕上有落点：一个任务、一条测试、一次反馈、一个反例、一个能转的旋钮。写不出两步的，多半不是一关。
-- **误解和反例**：知识点要纠正的那个直觉错误，就是这一关的 naive 答案；测试里要有一条让它失败，失败时的反馈说出它错在哪（不是「没有达到目标」）。
-- **命名**：过关时用 `term` 说出玩家刚做成的东西，链接它的词条（`<wiki-ref to="知识点 id">`，词条 id 就是知识点 id，在这一关打开）。
+审阅时可问：题目是否有清楚的情境、已知条件和目标？玩家能否看到需要比较的材料、调整适当的控制，并从失败或反例中理解问题？测试能否区分典型误解、边界和不同正确解法？通关后能否说清领域里的原理及其适用范围？
 
-**几种做不出学习的关**（审查时一条条对；能机械看出的已经是检查，第 5 节、第 7.2 节）：
+蓝图（`blueprint.json`）可记录知识点的术语、出处、依赖、难度和误解，以及关卡的 `question`、`chain`、`teaches` 和 `facet`；字段和当前流水线的检查见第 7.2 节。把这些记录当作设计与沟通工具，而不是代替对玩家体验的判断。
 
-- **工具关**：一关的全部内容是认识一块元件或一个运算（「取较大值」「向下取整」），和本领域的知识没有关系。元件跟着需要它的知识点进来。
-- **练一个人人都懂的点**：一关训练的是一句话就懂的道理（「问在哪里，答案要带位置」），玩家照着常识就能答对，什么也没学到。这样的点写进引言、总结或词条（`bp-trivial`）。
-- **一步跳到难点**：抽象的核心知识（景深、透视投影、反问题）在一关里直接出现，前面没有铺垫它依赖的更浅的东西（`bp-shallow`）。
-- **技术内容上了主线**：主线上的一关讲的是某个库或工具的做法（OpenCV 的通道顺序、`uint8` 换算），或者在引言、点题里顺带提它、链接它的词条。挪到可选的拓展专题里（`bp-main-tech`、`bp-main-link`）。
-- **重复关**：参考解和别的关是同一块板，或者题面、提示、引言一字不差地出现在别的关（`pd-repeat-board`、`pd-repeat-text`）。
-- **不看材料的判断题**：答案只取决于题面措辞，题目和选项的字面一一对上（「框出它的位置」对「一个位置框」），选项标签直接说出区别，或者每轮的正确选项排在同样的位置。题目要让玩家去看图、看数据、看场景才答得出：选项用中性的名字，区别藏在材料里。
-- **纯答题**：一个任务只让玩家从几个选项里点一个答案，没有搭、没有试、没有算（`pd-quiz`）。它要教的东西写进引言和点题；要练的，换成动手的任务：在实验台上造一个反例、手算一格、接一块电路。判断一张图能说明什么，就让玩家亲手另造一个拍出同一张图的场景。
-- **拖到变绿的实验台**：只有一个旋钮能动、目标的读数实时显示，玩家把旋钮拖到读数变绿就过（`pd-slide`）。实验台要让玩家先想再试：开两个以上互相牵制的旋钮（像高够了却太暗）、先写下预测再看结果、或者只在提交时判定（`check: 'submit'`，第 6.4 节）。
-- **只有一步的关**：思维链只有「照题面做」一步。并进相邻的关当一个任务，或者把它做成那一关的测试。
-- **术语缺席**：一关做完，玩家说不出它在本领域叫什么。
+### 4.2 示例：从问题到体验
 
-### 4.2 示范：同一个知识点，一关教得会，一关教不会
+例如教授最近邻插值，可以让玩家面对新像素落在原像素之间的情形，比较不同取值及边界约定，再通过不同尺寸的测试检验。是否采用手算、电路或图示，取决于学习目标；通关后解释方法的领域含义，而不是假定玩家采用了参考电路。
 
-知识点：**最近邻插值**（nearest-neighbour interpolation；COMP90086 第 2 讲「重采样」：放大或缩小时，每个新像素复制原图里离它最近的那个像素的值）。它回答的问题：放大一张图时，新多出来的像素的值从哪里来？它纠正的直觉错误：新位置的下标就是原图的下标（或者一律向下取整）。
+#### 关卡数据与玩法
 
-**教不会的一关**（《视觉实验室》第一版的写法）：引言「新位置不一定落在旧像素上。先尝试从最近的像素取值。」——方法已经在引言里说完；目标把首尾对齐、只有一个位置取中心、等距取较大坐标三条约定全写出来；托盘里正好是公式要的那几块元件。玩家做的是把一句话翻译成元件，通关时说不出这叫什么；此前还有五关分别认识「常数」「乘」「除」「取整」「比较」，每关都和图像无关。
+以下字段和玩法描述当前实现；具体字段由领域词汇表决定：
 
-**教得会的一关**：
+**常见内容：**
 
-- 问题（引言的落点）：「流水线要把 2 格宽的一行放大成 3 格。新的中间那一格在原图里没有对应的像素：它该是多少？」引言先说情境（缩放和裁剪不同：裁剪只取已有的像素，缩放要给新位置算出值），再说手里有什么（坐标网格、取像素），最后说怎样算对（三组测试里的输出图）。
-- 思维链，每一步落在屏幕上：
-  1. 第一个任务是一张格子题：在 `[0, 1]` 放大到 3 格的格子上，写出三个新位置在原图里的坐标（0、0.5、1）。玩家第一次看到「新位置落在两个旧像素之间」。
-  2. 第二个任务是电路：先照直觉把新下标当成原下标去取像素，测试 1 的输出出错，反馈画出新旧两排格子的对应（naive 解就是这个直觉）。
-  3. 玩家改成按比例映射坐标，再取整去读像素；`[0, 1] → 3` 的测试在中间那格卡住：0.5 离两边一样远，取哪一边？测试说按约定取较大的坐标，玩家补上「加 0.5 再向下取整」。
-  4. 隐藏测试里有缩小（4 → 1，取中心）和彩色图，确认这块电路对每种尺寸都成立。
-- 新元件（取整、比较）在第 3 步第一次需要时才出现，是这一关的工具，不各占一关。
-- 过关点题：「你搭出的是<wiki-ref to="nearest-neighbour">最近邻插值</wiki-ref>：每个新像素照抄离它最近的旧像素，所以放大后能看到一块块的方格。下一种做法会让新像素介于两边之间。」——前一句命名并说它在本领域里是什么，没有复述接法；后一句不该写（往后透露），删掉。
-- 词条 `nearest-neighbour`：标题「最近邻插值」，正文用讲义的话下定义，注出第 2 讲，说清它和双线性插值、和裁剪的区别。OpenCV 里它叫什么、默认怎样对齐，是技术内容，放进主线后的拓展专题，不写在这里。
-
-两关用的元件差不多，差别在于：教得会的那一关里，玩家自己撞上了「新位置落在旧像素之间」和「一样远时取哪边」两堵墙，每一步都是测试或反馈逼出来的，通关时手里有一个名字。
-
-**拆一个难点：景深。** 「景深」是第 2 讲的核心之一，名词抽象、离日常远：直接给玩家一个光圈旋钮和一条模糊曲线，他只能拖到变绿。它由更浅的东西搭成，从原点排起，一关一步：
-
-1. **一个点成一个点**（针孔，`learnable`）：针孔相机里，每个物点在像平面上只落一个点，所以远近都清楚，但很暗。
-2. **孔开大，点变成斑**（模糊圈，`learnable`）：把孔开大，像更亮，可每个物点落成一块斑，斑越大越糊。玩家自己看到「亮」和「清楚」在这里互相牵制。
-3. **透镜把斑收回一个点，但只对一个距离**（对焦，`learnable`）：加上透镜，某一个距离上的物点又收成一个点；别的距离仍是斑。
-4. **斑多小算清楚**（容许模糊圈，`learnable`）：斑小到一定程度，眼睛（或传感器的一个像素）分不出来，就算清楚。
-5. **景深**（`hard`、`core`）：在对焦距离前后，斑都还小于那个门槛的一段距离；光圈越小，斑长得越慢，这段越长。到这一关，玩家已经亲手经历过前面每一样，景深只是把它们放在一起看。
-
-「相机有光圈、能调焦」这样一说就懂的事不单独成关，写在第 1 步的引言里。前 4 步每一步都只多一样东西，都能在台上动手试；第 5 步是这一串的毕业关。
-
-每关只写规格，不写解法：
-
-- **目标**：一两句话。
+- **目标**：描述任务及所需条件。
 - **传感器和输出**：读什么，写什么。
-- **测试**：小规模的可以穷举；大的用有代表性的例子，覆盖边界；再加隐藏测试。
-- **参考解**：必须通过。挑战关另带一个 naive 解，必须失败。
+- **测试**：选取有代表性的例子和边界；领域可支持隐藏测试。
+- **参考解和 naive 解**：当前检查会运行参考解及提供的 naive 解；检查行为见第 5 节。
 - **新元件和托盘**：不写可用元件（之前出现或搭出的元件自动带过来）；只写这一关新带来的原始元件（`adds`），游戏有几套托盘时写这一关用哪一套（`tray`）。参考解用不着的元件自动折叠。
 - **预置**（可选）：板上一开始就摆好的元件，或拼好的一段电路（`preset`，取参考解里的几个元件：它们之间、它们和关卡给的输入输出之间的线一起摆上）。玩家能挪动这些元件（只在它所在的区域里），不能删，也不能改这些线；预置元件空着的口由玩家接。元件上的设置默认由玩家改，每个预置元件可以单独固定它的设置：全部（`{ id, fixed: true }`），或其中几项（`fixed: [设置名]`），固定的设置在元件上只显示、不能改。用在一关的谜题围着一块现成的东西转的时候：别人给的证明器，摆在板上让玩家接上核去查它。
 - **产出**（如果有）：通过后解锁的元件和它的接口（板上的输入就是它的输入口）。
-- **提示**：逐级给出，第一级只指方向，不给接线。
-- **过关点题**：用本领域的术语命名玩家刚做成的东西（链接词条），一两句说它在本领域里是什么、用在哪里；不复述接法（见下面的文字纪律）。
+- **提示**：按需要提供观察方向、支架或示例。
+- **过关点题**：解释玩家理解的领域知识、作用及适用范围，参照下方文案建议。
 - **按电路图检验或修正**（可选的玩法，所有游戏都能用，和拼电路并列）：关卡不让玩家从空板拼起，而是给出几块电路（`play` 加 `boards: [{ label?, board }]`），每块就是一个测试案例，测试条上的标签就是它们，点一个标签，画布上就换成那一块；运行时逐块检验。标签用共用的 `TestTabs`，放在和拼电路关的测试一样的位置：桌面在测试条的头部，手机在界面顶部（滚动区之外）。两种：
   - **纠错**（`play: 'audit'`）：每块电路固定、不能改，各错在一处。玩家改的是这一关的一份配置（领域给出它的编辑器：《证明完毕》是一张检验条例表，写下手里有哪些证明、按需求该不该证得出），一块电路在这份配置上暴露出错误，这个测试就通过。配置本身要合需求（期望写错时停下并指出哪一条不符），所以不能靠乱填过关；配置越小越好。判定有三种（关卡的 `want`）：默认是**抓住**（至少一处和预期不符）；**相符**（`want: 'agree'`：每一处的结果都和预期相符，用来练「怎样检验一块对的电路」）；**全部暴露**（`want: 'expose'`：每一处都和预期不符）。配置可以事先摆好几条（《证明完毕》的 `slots: [条例]`），每条写明哪些格子已经填好、不能改（`fixed`），或者一格里哪几项必须留着、玩家还能再加（《证明完毕》条例的 `keep`：前提里固定有某一句），玩家只填空着的格子；全部填好的那几条不用运行，一开始就显示结果。电路也可以是玩家在先修关里自己拼的那块（`carry`：那一关的 id；没有存档时用那一关的参考解）。
   - **修正**（`play: 'repair'`）：每块电路是要改对的起点，玩家逐块修改，每块各自存档；一块改到满足这一关的规格（领域原有的判定），这个测试就通过。
@@ -345,117 +154,29 @@ consumer in the current course.
 - **填表格**（可选的玩法部件，所有游戏共用）：玩家逐行填写的表（《证明完毕》的检验条例）用 `kit/shell/RowTable.jsx`。桌面上直接在表格里改：能改的列给出就地编辑器（列的 `edit(row, set, k)`：游戏自己的编辑器，或 `FormFields.jsx` 里的小号字段 `InlineChoice`；《证明完毕》的前提和目标是一句话，点开后在旁边的提示框里用填句子条拼），行尾 × 删除，表下的小按钮添一行空的。手机上表格本身只显示，列表式的列（`align: 'start'`）靠左，其余列和列头居中，放在固定窗口里可以左右滚动，每列按文字撑宽、超过约 16 个字才换行，每行加高便于点按，添加按钮是表下一个大按钮。桌面上是紧凑的表，添加按钮是表下一个小的虚线按钮。手机上点一行就弹出这一行的底部单子，和别的弹窗（假设框等）一样：改了立即生效，没有保存按钮，× 或点遮罩关闭，底部一个「删除」；「添加」先添一行空的再打开它的单子。游戏只给出列（`columns`）和表单的字段（`form(row, set, k)`、新行 `blank()`），字段用共用的 `kit/shell/FormFields.jsx`：`Field`（带标签的一块，里面放游戏自己的编辑器）、`ChoiceField`（几项并排的按钮选一项）。`fixed`：行数事先定好（关卡预先摆好几行空的），不能添加也不能删除，只能填写。手机上表格下方提示一句「点按任意一行即可修改」（`tip` 可以换成游戏自己的说法）。运行结果这类只读的列，由游戏在单元格里显示，表单不管。
 - **一关是一串任务。** 一关说一次的东西（标题、引言、点题、带来和搭出的元件）写在关上，谜题（目标、提示、板的口、测试、参考解和 naive 解）是它的任务（`tasks`，至少一个），按顺序做：前一个通过才能做下一个，最后一个过了才算过关。只有一个任务的关就是普通的一关，任务条不显示；关长出第二个任务，就是在列表里加一个。词汇表用 `kit/engine/tasks.js` 的 `taskLevel(一次的字段, 任务的字段)` 写一关的 schema，领域读一关时用 `taskLevels(关)` 一个任务一个任务地读（每个任务是关的字段上盖着任务自己的字段），外壳也这样玩（`kit/shell/GameShell.jsx`）；搭出的元件跑最后一个任务的板。拆成几个任务用在同一个问题换一种机器再做一遍的时候，比如骑士与无赖先把岛民的话翻译成真值电路，再用证明器证出来；也用在同一个想法用到两处的时候，比如《视觉完备》的补边，先给平移补边，再给滤波补边，不拆成两关。每个任务有 id（`id`）：整款游戏里唯一，也不能是别的关的 id；只有一个任务的关通常就用关的 id，新任务由操作集起名（`<关>_<n>`，以后可以 `task.rename`）。玩家存下的东西按任务 id 记（`kit/shell/progress.js`：每个任务的板、通过了哪些任务），所以任务在关内换位置、插进新的、挪进别的关，板和通过与否都跟着它走；几关合成一关就是把任务挪过去、删掉空了的关。任务有名字（`step`，写在任务条上）；前一个任务搭出的能力，后一个马上能用（`opens`），整关通过才作为解锁列出；从上一个任务的板接着做的写 `carries`。每个任务的点题（任务的 `after`）只说这一个任务得到了什么，可以带出下一个要做的事，但不透露它的做法。一个任务要交代新东西（新元件、新规则、上一个任务留下的问题）时，写自己的引言（任务的 `intro`）：第一次做到它时弹出，之后随时能从引言按钮重看；第一个任务的引言接在整关引言后面。每个领域都是这个形状，内核里只有这一种关卡遍历（`taskLevel` 是领域词汇表里唯一的关卡 schema，契约检查）：一关的玩法（`kind`、`mode`）写在任务上，几种玩法就是任务的 `S.by`，判别可以再套一层（《视觉完备》先按 `kind` 再按 `scene`，《状态之图》先按 `mode` 再按 `world`）。《状态之图》原来的「阶段」就是任务：一个阶段一个任务，接着上一阶段的板做的写 `carries`。领域读课程时不往内容里写（检查、操作集和开发页面都把内容深冻结了再读），它推出来的东西另起对象。
 
-**文字纪律：**
+**文案建议。** 引言交代情境、必要的术语和假设，任务说明目标，提示依据玩家需要提供观察方向或适当支架。通关文字围绕问题的原理、名称、作用和边界展开；对多解问题，不把一种参考解说成玩家的做法。深度和篇幅按内容决定，适度示例或公式可服务于理解。
 
-Component descriptions are plain text in both languages: write terminology and names directly, without HTML or
-reference chips. They are exempt from the reference and terminology-annotation rules below. Introductions, task
-text and encyclopedia entries retain those rules. The components box, tray and tooltips show the same plain text.
+中文和英文各自自然、准确；共享手机和桌面文案时用控件名称而非依赖屏幕位置。名称、术语和引用要与内容一致，重排后检查先修关系和链接的可用性。元件说明以功能、输入输出及相关约定为主。
 
-- **入门教约定，不考常识。** 指出高亮格的坐标、照抄一个数、按指令改颜色等只需说明的内容，不单独设通关任务。难度递进增加的是推理、组合或约束，每一步都要有新问题；能够用已有元件探索的关系直接放进搭建关。只有实验干预本身不可替代时保留工作台，且用可辨认的具体场景呈现被操作的对象。
-- **题面不替玩家判断。** 目标、题目和选项不用答案里的词：题目写「框出它的位置」、选项写「一个位置框」，就是把答案告诉了玩家。选项用中性的名字，区别要从材料里看出来。
-- **目标只陈述任务。** 每关、每段的目标（`brief`）只说要做成什么：从哪些已知证出哪句、接一台什么样的机器、找出哪一行。背景、动机、新元件的介绍放进引言（关的或段的），做法的点拨放进提示，等价的另一种写法也放进提示。谜题本身的陈述（岛民说了什么、理发师的规矩）是任务的一部分，留在目标里。规格写错、要玩家检验或写出的关（《证明完毕》的声明关），目标先写自然语言的需求（「需求：……」），再写这一段要做的事；引言不再重复需求。界面上有放原话的位置时（填句子板顶上的那句话，《证明完毕》的翻译关和反例板），需求就写在那里，目标只说要做的事。
-- 引言里不能出现做法。"把上面和左边加起来"就是在给解法。
-- 新概念在引言里只讲"它是什么"，不讲"该怎么用在这一关"。
-- 失败时优先给反例；文字提示只是补充。
-- **文案用标准书面语，不写翻译腔。** 适用于全部文字：引言、目标、提示、判错说明、过关点题、元件说明、百科和界面上的字。
-  - 书面、准确，不口语化：不写「搞定」「接一下」「啥」，也不用「就行」「没事」这类随口的收尾。用词谨慎，条件和因果的连接词要合逻辑：「只要……就……」和「只有……才……」不混用，「所以」「因此」之前要真有理由。
-  - 不写翻译腔：主动句优先，不用「得到证明」「得到揭示」「被引入」这类被动式（写「证出了」「找出了错误」「引入」）；不用「进行」「对……进行」撑动词；不把「当……的时候」「在……的情况下」套在每一句前面；「的」字定语不叠成长链，长句拆短；不加英文冠词式的「一个」「一种」；不堆「其」「之」「该」一类文言虚词凑庄重。
-  - 不过于直白：提示和判错说明指出哪里不符、该重新考虑什么，引导玩家自己想到，不直接给出答案或接法。
-  - 英文一面按英文的习惯写，不照中文的语序和句式直译；术语用学科通行的说法。
-- **游戏简介**（地图顶部的 lede）只讲这款游戏教什么、学完能亲手做成什么，不写有多少关：关卡数会变，进度条已经显示。
-- **元件名用书面语，并说明作用。** 元件名用标准书面用语，尽量写成「动作 + 对象」（替换结论、分解目标、逆用规则），让人一眼看出它做什么；学科里有通行术语的用通行术语（德摩根律、全称实例化、回溯搜索），成对的元件用成对的名称（全称概括 / 全称实例化，分解目标 / 分解假设）。口语化的说法（「已知里有」「几条路」「去掉箭头」）不做元件名；关卡标题可以保留日常说法。
-- **元件说明只写功能。** 原始元件和搭出的封装件一样：读哪些口、输出什么、碰到「—」怎么办，直白写清。不写「你拼出的电路板，现在是一个元件」「你在某关里搭的」这类没有信息的话，也不写它能用在哪些题上；过关点题也不必再宣布「电路现在是元件」，通关窗口已经列出解锁的元件。
-- **文本随课程更新。** 元件的介绍可以随关卡推进改写：文本带 `revisions: [{ at: 关卡 id, …字段 }]`，从 `at` 那一关起（以及它之后的关）用新写法；元件箱按玩家已打开的关显示（`defineGame` 的 `textAt` / `textFor`）。一个元件在某一关得到新用法时（《证明完毕》「矛盾」一关起，套用也能接 ¬A 和 A 得到 ⊥），就在那一关更新它的介绍，不在一开始把后面的用法写进去。`at` 必须是主线上的关，而且是新用法第一次在任务里出现的那一关：挂在可选专题或挑战上，跳过它的玩家就永远看不到新写法（《证明完毕》的「消去 ∧ 也能拆 ↔」原先挂在可选的骑士与无赖上，后来在主线补了一关「两个方向」，改挂在那里）。
-- **元件说明随开放的选项一起长。** 一个可配置的元件，说明只写所有选项共有的功能，每个选项特有的作用写在选项的 `about` 里；说明显示时接上此刻开放的那几个选项的 `about`（`kit/engine/parts/define.js` 的 `partDesc`）：详情、托盘按这一关这个任务开放的选项，元件箱按玩家已打开的关开放过的选项。还没开放的选项不出现在任何文案里。
-- **元件升级与形状。** 元件可以随关卡升级，文字和能力一起长：`revisions` 里的一条可以写 `by: 关卡 id`（过了那一关才算，玩家挣来的升级），除了 `desc` 还能带 `forms`，给元件添新的形状（累加，`shell/index.js` 的 `textAt` / `textFor` 按关卡和进度读出）。一个元件可以有几种形状（`engine/forms.js` 的 `formed`：每种形状是一个完整的元件，有自己的输入口、设置和计算），元件上用和其他设置同一种选择框切换（`node.params.form`，默认第一种）；只给出这一关已经挣到的形状（`kit/course.js` 的 `formsAt`，`npm run check` 查参考答案用的形状这一关有没有）。同一条规律的几个方向、几种推广做成一个元件的几种形状，不拆成几个元件（《证明完毕》的德摩根：命题的四个方向证完后一次解锁，量词的四个方向各由证出它的那一关添上）。几个方向一起解锁时，元件由证出最后一个方向的那一关造出，其余形状用一条 `by` 这一关的升级一次给齐；每种形状的证明项取自证出那个形状的关。
-- **不剧透核心思路。** 元件说明、引言、提示、百科只说一个东西"做什么"，不说"为什么这样就能解题"。带着专题核心思考点的句子一律删掉（比如动态规划里"走不通的路，加多少都走不通"这类解释、该选哪种汇合操作、一张表的递推）。简单的机械关可以手把手。
-- **通关点题命名知识，不谈答案（硬性标准）。** 带来知识点的关，过关点题（`after`）用本领域的术语说出玩家刚做成的是什么，链接词条，再用一两句说它在本领域里的位置（它解决什么问题、和哪个相近的概念不同；库和工具里怎么叫是技术内容，主线上不写）。一关可以有不同的正确解法，点题不把参考解的公式、具体答案、接法或操作顺序当作玩家的做法；应解释各种解法共同依靠的原理、适用条件及边界，不能把“不剧透”当作省略分析的理由。练习关可以不写点题。审查时对每一句问：它说的是这道题怎么做的吗？是就删；它说出了本领域的叫法吗？带来知识点的关，没说就补。
-- **说全，不凑字。** 引言要让一个没学过的人读完就知道：机器在这里卡在哪（用本领域的话说情境）、这一关要回答的问题、手里有什么、怎样算答对。这几样缺一样，玩家就只能照着目标操作，想不起来为什么。前后关卡的文案要衔接，同一个知识点只在第一次出现的地方讲一次，后面不再重复；不写空话、套话（「现有流水线需要处理新的数值条件」这种放在哪一关都成立的句子，等于没写），不为凑满引言或点题硬写一句。
-- **不往后透露。** 引言和过关点题都不描述后面的关（"下一关会……""后面你会用到……"）。过关点题只总结这一关学到了什么。
-- **板上的东西都叫元件。** 文案里不说「卡片」「块」：放在板上的、托盘里的、元件箱里的都是元件。手机上也不报格子的序号：放元件时说「放在这一格」「放下了「① 套用」」，用元件的编号和名字指它。
-- **文案里不手写第几关。** 关卡号会随重排变化：文案里指代前面学过的东西，用元件名，或者链接到那一关；链接自己显示关卡号，重排后跟着变。
-- **引述关卡、元件、百科词条一律用链接。** 关卡写 `<level-ref to="关卡 id"></level-ref>`，元件箱里的元件写 `<part-ref to="元件的 key"></part-ref>`，百科词条写 `<wiki-ref to="词条 id"></wiki-ref>`（`kit/shell/refs.js`），中英两面都写。它们显示成带图标的名字（关卡还带关卡号），显示时从游戏里读，重排、改名都不用改文案。玩家点关卡，确认后跳过去；点元件或词条，直接打开元件箱或百科翻到那一条；还没解锁的，告诉玩家玩到哪一关时打开。不写「名字」，也不写"上一关""前两关""下一关""the last level"这类按位置的说法：顺序会变，按位置的说法会悄悄变错，链接不会。泛指一段经历时（"到这里为止""前面练过的几步"）不算引述，不用链接。被引述的关卡应当是这一关的先修；引述后面的关就是往后透露。`npm run check` 查：引用的东西存在、中英两面引用同一批、没有按位置指关卡、没有用「名字」代替链接；一个名字在某处说的是别的东西时（一句口头禅、一个按钮），在规格的 `quotes` 里列出，引号里的它就照字面用。
-- **Explain terminology through clickable entries (manual review).** Each professional term in player-facing prose uses an available `<wiki-ref>`; its glossary body supplies the meaning. Do not require a definition in the intro, brief, hint or summary, or evidence that the player has already read it. Keep definitions, terminology distinctions and reference detail in the entry; copy supplies the situation, actions, reasoning support and synthesis of the discovered relationship without paraphrasing the entry. A diagram label must identify the visible referent and offer a clickable entry or an adjacent term tag. Review both languages and each task for entry availability and usable access. Missing, empty, locked or inaccessible explanations block review under `terminology-before-use`; repeated definitions block under `term-definition-duplication`. Links provide meaning, not the practical reasoning steps needed for a hard puzzle.
-- **专有名词都有词条，并在引入它的地方链接。** 术语用课程材料和本领域通行的说法，不自造（「坐标网格」不能代替「采样网格」，如果课程这样叫）；英文用学科里的原词。每个知识点的词条 id 就是蓝图里知识点的 id，在带来它的那一关打开，正文用本领域的话下定义、注出处、说清它和相邻概念的区别。学科的每个专有名词在百科里有自己的一条，标题就是这个词，写成它在句子里的样子（英文小写，人名、专名除外；列表和标题里首字母自动大写），因为链接在正文里显示的就是标题。文案里原来加粗定义一个词的地方，换成 `<wiki-ref>`；中英两面的句子要写成链接放进去读得通（「这叫[逆否]」「This is the [contrapositive]」），英文不要在链接后面加 s。概括性的词条拆成一个词一条，用 `see` 互相连起来。
-- **链接打开的必须是已经解锁的东西。** 词条在 `at` 那一关打开，元件在搭出它（或带来它）的那一关拿到；关卡文案里链接的词条或元件，必须在这一关或它的先修关里解锁，词条正文里链接的词条也不能比它自己晚开，否则点开只得到一句「还没解锁」。并行组里只有一条路经过的关不算先修。`npm run check` 查这一条。点链接时，百科和元件箱直接翻到那一条（手机上也不停在列表），列表滚到它的位置。
-- **改了顺序就重核文案。** 链接到的关卡要仍是先修，"又是一个""新元件「…」"这类说法要在每一条先修路线上都成立（第 2 节）；并行组里先走另一路的学习者，不能读到一句不成立的话。
+**现有内容能力。** 元件说明使用双语纯文本；正文可用 `<level-ref>`、`<part-ref>` 和 `<wiki-ref>` 引用已注册的关卡、元件和词条，链接显示的名字随内容更新。`revisions` 可按 `at` 或 `by` 更新说明与可用形状；选项说明由元件定义提供。词汇表中的引用和可用性由 `npm run check` 检查。
+
+### 4.3 术语、路线与互动评审
+
+`glossary.json` 保存术语名称、解释、别名和开放位置；`npm run pipeline -- <game> terminology` 可以辅助发现注册与引用问题。词条、正文和图示各自承担适合的解释，不要把链接当作理解的替代，也不必机械地避免必要的说明。
+
+审阅路线时，检查各路径实际依赖的知识与能力；审阅任务时，检查新概念、单位、表示、可见证据和迁移机会。实验或选择题同样应让玩家有可观察的依据和有意义的判断。适当时可用 `.agents/skills/turing-complete-games/references/learning-review.md` 中的检查视角；桌面与手机上的可读性和操作需要实际查看。
 
 ---
 
-### Registered terminology
-
-Each game's `glossary.json` is its sole professional-term registry. An entry's existing `title` is the canonical
-name and its existing `body` is the explanation; do not add a second definition or summary field. Optional
-`aliases` is a list of bilingual text pairs (a language-neutral abbreviation may be a string). Canonical names and
-aliases identify one entry unambiguously within each language. `at` retains its current meaning: the entry is
-available on entering that level and its guaranteed successors; omitted `at` means available from the start.
-
-Use `<wiki-ref>` for professional terms in prose. One tag per term in an independently visible paragraph, hint or
-summary is sufficient; repeated mentions in the same field may stay plain to avoid duplicate chips. The referenced entry must exist, contain nonempty explanatory
-text in both languages, and be available where it is referenced. Clicking the term is the way to learn its meaning;
-no inline definition or proof of prior reading is required. Keep definitions, distinctions and reference detail in
-the entry. Intros, hints and summaries must not repeat or paraphrase that explanation: they establish the situation,
-support the next inference and synthesise the discovered relationship. A link does not replace an observation or
-practice needed for a hard reasoning step. Titles may use registered names directly; diagram/control labels must
-identify their visible referents and provide a clickable term or adjacent term tag. A required route cannot depend
-on an explanation locked behind an optional or parallel route.
-
-`npm run check` checks registry integrity. `npm run pipeline -- <game> terminology` additionally checks references
-through schema-declared content, reports literal unlinked occurrences of known names/aliases, and supplies the
-registry for semantic review (`--json` for the full record). A literal occurrence can be an ordinary word, so it is a
-candidate, not an automatic semantic failure. Reviewers must also extract professional terms missing from the
-registry, including terms in domain UI/diagram text, and report confirmed unregistered or unlinked technical usage
-as blockers. Automated success is not a proof that all prose uses only registered terms. No closed-word-list regex
-claims to classify arbitrary Chinese or English technical language.
-
-### 4.3 Learning routes, guidance and bench acceptance
-
-Required parallel routes let the learner choose study order, not skip core knowledge: each route develops an
-independent ability and a later join requires the abilities it actually uses. Peripheral topics are optional and
-cannot gate a required route. Serial edges need a knowledge/part dependency, not a chapter number. Review a wholly
-serial chapter for avoidable dependencies without forcing cosmetic branches. The shared `parallel` layout is an
-AND join; do not treat it as an OR-choice feature.
-
-Open each chapter with a shared situation and a usable first task before offering route choices. Establish what
-the player is building, why it matters and how to try it. A fork is justified by learning dependencies, not by
-symmetry on the map; an experiment that only explores a limitation must not gate an unrelated composition.
-
-Review the actual conceptual load of every task, not only its `teaches` field or new-part count. New terminology,
-physical-to-pixel units, coordinate-origin shifts and angular reasoning can be independent learning steps. Establish
-the needed meanings and small observable operations before combining them; group small tasks only when they answer
-one coherent question. Do not replace a missing foundation with the final formula in a hint.
-Deleting a low-value task does not delete its instructional responsibility: move essential conventions and
-observations into the introduction or a smaller meaningful task before the combined challenge.
-
-Guidance includes model assumptions, named objects and conventions, known quantities and a usable observation.
-A discovery hint must point to evidence visible at that moment and to controls available in that task. Afterwards,
-a core introduction explains the principle, causal relationship and scope the player has discovered. This analysis
-is required where it completes the learning; the no-spoiler rule forbids pre-solving the target and replaying a
-particular solution, not explaining the model after discovery.
-
-Non-assembly puzzles have the same burden of meaningful reasoning as assembly. Specify the competing explanations,
-controlled intervention, observable contrast and transfer check. A submit button plus an unlabelled schematic is
-not enough. Discovery must expose the evidence it requests; assessment can withhold a result only with adequate
-prior support and explanatory feedback. Domain displays identify relevant objects, dimensions, units, coordinate
-origins and state changes, with a coherent visual hierarchy and legible labels. New terms and controls appear only
-when needed. Static inspection checks the contract; actual composition and touch/keyboard usability require visual
-and interaction evidence and cannot be certified by source inspection alone.
-
-Use `.agents/skills/turing-complete-games/references/learning-review.md` for the evidence worksheet and finding IDs.
-The vision domain's concrete acceptance contract is `kit/domains/vision/DESIGN.md`. These requirements apply before
-content authoring and during review; missing domain capabilities return to the domain step rather than being hidden
-inside prose or executable content.
-
-
 ## 5. 规则与自动检查
 
-规则尽量交给引擎检查，作者写偏了能被直接发现。
+下表记录现有检查和实现，并非逐条规定关卡的教学形式。部分自动检查目前会拒绝内容；其行为不会因文档精简而改变，需结合实际结果判断与处理。
 
 | 规则 | 检查 | 状态 |
 |---|---|---|
 | A wholly serial chapter has justified concept/part dependencies | `pd-serial-chapter` reports the topology; review decides whether required parallel routes are missing | Structural report, not a forced branch quota |
-| Task concepts, guidance, principle synthesis and bench display satisfy §4.3 | Static semantic review with task-level evidence and domain ownership | Required review; visual/interaction acceptance remains separate |
-| Professional terms open available entries; copy does not repeat entry definitions; diagram referents are identified | Terminology checks plus semantic review of access, definition duplication and reasoning support | Registry/reference errors are automatic; access, duplication and explanation quality require review |
+| Task concepts, guidance, synthesis and bench displays | Manual review using §4.3 | Review as relevant; visual/interaction evidence is separate |
+| Terminology registry and references | Terminology checks plus contextual review of explanations and diagram labels | Registry/reference errors are automatic; explanatory quality requires judgment |
 | 关卡新带来的每个元件，要么是原始元件，要么已被更早的关卡搭出 | `npm run check`（kit/course.js 的 `audit`） | 已实现 |
 | 一个元件不能在"搭出它"的那一关就直接给出 | 同上（`own-level`） | 已实现 |
 | 不由关卡直接发放元件（`grants`） | 同上（`granted`） | 已实现 |
@@ -1062,31 +783,13 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 ## 7. 作者流程
 
-**先改文档，再改代码。** 课程的每一次演进（加章、重排、拆合元件、改机制），先把这份手册和游戏自己的设计文档改成新的样子，再照着文档动手。文档只写现在的设计和接下来的计划，不写「原来……后来改成……」：过时的内容随改随删，变更的来龙去脉在 git 历史里。一份要做的重排可以先写成文档里的工作单，做完就删。手册和 skill 也一样：每次做完一件事，想一想有没有新的、更一般的规矩，有就写进去，旧的说法不再成立就改掉，不照抄上一次的写法。
+先理解主题、学习者、已有课程和当前实现，再决定需要哪些目标、交互、路线与内容。设计和实现应保持对应，变更时更新受影响的设计文档。可以用蓝图、依赖图（`npm run deps -- <游戏>`）、原型和参考解帮助判断，但不必为每项工作套用同一套设计步骤。
 
-下面是作者（人或 agent）做一个专题的顺序；由 agent 做时，第 1–8 步、10 步分给流水线的几步，每步一份 brief 和一道闸门（第 7.2 节）。
-
-1. **定终点和知识点，给知识点定位**：学完能亲手造出、能测试的那个东西；从讲义逐节列出要教的理论知识点，标出每一章的核心和每个点的难度，画出由浅到深的知识图（`depends`），难点拆到最浅的原点；一句话就懂的点只在文案里提到。每个写本领域的术语、出处、它回答的问题和它纠正的错误（第 4.1 节）；库和工具的做法、文件格式、实验课的操作列为技术内容，只进可选的拓展专题。关卡从知识点排出来，不从元件排出来。新专题还要选机制（第 6.5 节），领域从脚手架开始（`npm run new-domain`，第 6.3 节）。
-2. **定代际**：机体的升级序列，每一代多出哪些外部能力。
-3. **每一代列出原始元件和中层元件**：逐个问"去掉它，能不能用剩下的搭出来"，能就改成一关去搭。
-4. **按核心用处排机制**：对每个机制问「哪里第一次非它不可」，把它放到那里，最好就是那里撞上的墙（第 1 节）。
-5. **画抽象链**：`npm run deps -- <游戏>` 从课程数据画出元件依赖图：每个元件（原始、搭出的、升级的）在哪一章、哪一关出现（并行组和专题的名字跟在后面），搭出的元件由哪些元件搭成，几关的参考解用到它；加 `--levels` 把每一关也画上，连着它用到和带来的元件。逐个检查：它出现前有没有前因？出现后有没有关用到它？后期的关是不是越来越多地站在高层元件上？换代时上一代的产物去了哪里？
-6. **关卡花在难的地方**：一章的关卡大多在通往核心的阶梯上；每个知识点练它的侧面：列出它前面没露出来的侧面（约定、边界、失效、易混的近亲），一个侧面一关，按 2.3 的维度变化，排在下一个知识点之前；同一侧面的几组数据写成测试或任务。
-7. **定专题（如果有）**：这一章有没有值得做成专题的业务问题或长线拓展？有的话，先写终极谜题，再倒推出引入关和递进关；没有就不设。
-8. **写规格**：先写这一关的问题和思维链（第 4.1 节），再写参考解和 naive 解（naive 解就是知识点要纠正的那个错误），再写测试：每一步思维链都要有一条测试或一次反馈落在它上面。都用下面的操作写进内容。
-9. **Scope verification**: follow §7.0. Reuse the operation set's successful check for unchanged content; name affected games and test files when additional verification is needed.
-10. **核对文案**：按第 4 节的文字纪律逐条看引言、提示、过关点题和元件说明（studio 的文案表：一章或整款游戏的每段文字一行、中英并排、就地改，可以只看有问题的行；一个说法要全游戏统一时用搜索替换）；改过顺序的，按先修关系重核引述的关卡和"又是一个"之类的说法。
-11. **Review affected UI**: inspect changed visual or interaction flows on desktop and phone. Shared UI changes add representative consumers; documentation and pure model edits do not automatically require browser review. To inspect execution, load the reference board and exercise the changed run behaviour.
-12. **最后写挑战关**：从每一代能力的边界上找题。
+内容经第 7.1 节的操作集修改；新专题可使用第 7.2 节流水线。检查的范围按第 7.0 节选择；改动界面或交互时观察相应桌面、手机流程。对流水线和自动检查报告，结合实现及教学目标判断，并说明仍未解决的限制。
 
 ### Task-scoped capability introduction
 
-Introduce a component or configuration at the first task that uses it, including folded trays, detail sheets and
-headless play. A prerequisite must establish unfamiliar representation changes or model assumptions before a
-combined construction assesses them. Use meaningful partial constructions and contrasting cases; familiar
-arithmetic and simple controls need concise guidance rather than filler tasks. A newly earned component must
-execute the player's passed circuit. A chapter number, all-unlocked mode or unrelated sibling route does not
-supply missing prerequisites. Unavailable settings are omitted, and a single available choice needs no selector.
+评估任务边界时，留意玩家在每条先修路线实际见过的概念、工具和设置。必要时先提供观察、解释或练习，避免多个陌生表示同时成为障碍；工具的开放和存档行为按相应领域与内核实现核对。
 
 ### 7.0 Verification by impact
 
@@ -1216,38 +919,15 @@ npm run op -- <游戏> log                                    看修改日志
 
 ---
 
-## 8. 常见的坑
+## 8. 常见问题
 
-- **原始元件选得太低**：学习者被琐碎细节拖住，离开了专题本身（比如让学动态规划的人先搭加法器）。
-- **原始元件选得太高**：直接给现成的高级元件，就失去了"亲手造出"的感觉。
-- **一关多个新想法**：审计里的 `many-new`。
-- **孤立关**：做完的东西后面的参考解都用不上。
-- **规格泄露解法**：引言写成了说明书。
-- **专题跑题**：引入关和终极谜题不是同一个问题。
-- **挑战关靠繁琐取胜**：难在元件多，而不是在理解。
-- **后期机制提前出现**：某个能力在它的那一代之前就出现在托盘或引言里。
-- **凑数**：为了满足「一关一个新东西」「每个机制配几关练习」这类检查，把一块元件、一个运算拆成一关（「取较大值」「向下取整」各占一关，引言都是同一句套话），或者把同一道题换个数字再出一关。检查报出不够时，要找的是新的知识点或新的侧面；找不到，说明这里本来就不需要那么多关。《视觉实验室》第一版的两章 59 关里，大约一半是这样的关（第 4.1 节列的几种都出现了）。
-- **课程排成知识点清单**：一关一个定律或一个新规则，每个机制只练一次就换下一个。学习者记住了每关的接法，却没练出这个机制的思维。专题越抽象，这个坑越深。
-- **新元件不是必需的**：引入一个原始元件的那一关，用已有的元件也能过（《状态之图》的最省力：两个汇合器就能代替加法器）。引入关要找一个只有新元件才做得到的规格（走不到的路口：「加起来」会跳过「—」，加法器不会）。
-- **很快被顶替的元件**：一个封装件出现后一两关就被更大的封装件吞掉（起点值很快被路线计数器取代），就不必单独造它；把它并进下一关的电路里升级出来。一个原始元件只是搭某个封装件的中间件、之后几乎不再用时，标成留在原地（`local`），不让它一直挂在托盘里。
-- **元件凭空出现**：一个新元件在它那一关直接发下来，提示是"新元件正是做这件事的"，一步就过。学习者既不知道为什么需要它，也没有亲手接近过它。
-- **主线的动机挂在支线上**：必修关的引言接着一道可选挑战往下讲；跳过挑战的学习者读不懂。
-- **照着公式接线**：说明里写好公式，学习者只是把它翻译成元件。改成机关台去发现，或者只给规格（第 2.2 节）。
-- **难点挤在一关**：一关里两个新想法，后面一关难到劝退。拆成带名字的引入系列。
-- **按游玩顺序判断"见过"**：并行组里先走另一路的学习者，看到错的"新"标记、拿不到该有的画法，或读到一句不成立的"又是一个"。
-- **文案剧透或后透**：元件说明讲出了解法的关键，或者过关点题预告了下一关。
-- **互不依赖的关排成一条线**：后一串关不需要前一串的任何元件和概念，却要等它通关才开放（第 1 节「不依赖的就分支」）。
-- **引言只是新元件说明书**：引言只说「新元件 X：做什么」，不说机器在这里缺什么、这一块装在哪里；关卡变成一道道互不相干的题。
-- **重看旧东西的章节一个点一关**：一章不带新机制，只是换一种眼光重看前面做过的东西（《证明完毕》的证明即程序：把连接词一章的证明读成证明项），却仍按「一个知识点一关、读一关写一关」排，学习者等于把旧关重做一遍。这样的章把同一种眼光下的小任务并进同一关（`tasks`），只给真正新的动作（新的板、新的元件）单独的关。
-- **合并步骤做成原始元件**：一个新原始元件其实是「先 X 再 Y」，或者一个设置项把几个已有元件的组合藏了起来；它应该是搭建关造出的封装件（第 1 节「基础元件保持最少」）。
-- **造出的东西沉底**：早期搭出的元件后面没有关用到，后期仍然一直用最基础的一批元件做题；或者换代时把上一代的产物全部丢下，没有升级版接上。
-- **封装件比造它的电路多做一步**：后面的关需要流水线里多一道工序（《证明完毕》的化成子句要先 Skolem 化），就把这道工序放进造它的那一关之前、接进参考电路，而不是让元件悄悄多做。
-- **故意给错的元件留在托盘里**：一关发下一块错的元件让学习者抓出来（别人的证明器），它只属于这一关：标成留在原地（`local`），最好直接预置在板上，不放进托盘；否则后面的关都多一块不该用的元件。
-- **会失败的步骤被当成运行出错**：框里的元件失败（让框停下、换路、回头）、搜索里走不通的一步、要求「证不出来」的测试里的失败，都是正常的结果；步进回放只在没有框接住的地方、而且测试不要求失败时，才把失败的一步当成停下来的理由。
+评审时可留意：学习目标被琐碎操作掩盖；引入的能力没有动机或后续用途；难点与前置知识之间跨度过大；重复关卡缺乏新的判断；材料或反馈不足以支持推理；题目只靠猜选项或拖动到绿灯；点题把参考解当成唯一做法；并行与可选路线的文案假定玩家走过其他路线。这些都是调查线索，结合具体关卡判断，不是按形式一律否定。
 
 ---
 
 ## 9. 实例：《状态之图》按代际重排（`game.json` 的 `eras`）
+
+以下实例记录各课程曾采用的设计选择，供比较，不是其他课程必须照搬的模板。
 
 按本手册从头设计的新关卡树见 [`state-graph/CURRICULUM.md`](state-graph/CURRICULUM.md)。下面是现有关卡按代际重排后的样子，在新关卡树做出来之前它是线上的版本。
 
