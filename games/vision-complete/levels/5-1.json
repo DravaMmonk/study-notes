@@ -2,34 +2,43 @@
   "title": { "zh": "两块谁更像", "en": "Which patch is more alike" },
   "tray": "pipeline",
   "after": {
-    "zh": "分数是点积 q·k 除以 √d（这里 d = 16）；取 e 的指数再归一化叫 softmax，权重都是正的，加起来是 1，最像的那块分得最多。让图里的每个图块都向所有图块这样提问，就是注意力。",
-    "en": "The score is the dot product q·k divided by √d (here d = 16); taking e to the power and normalising is called softmax, so the weights are positive, add up to 1, and the most alike patch gets the most. Let every patch of a picture ask every patch like this and you have attention."
+    "zh": "本关的图块有 16 个像素，因此 4 × 平均(a × 图块) 等于点积 q·k 除以 √16。Softmax 将分数转换为总和为 1 的权重，输出是对应值的加权和。自注意力对每个图块都进行这样的计算，从而汇总整张图像的信息。",
+    "en": "Each patch has 16 pixels, so 4 × average(a × patch) equals the dot product q·k divided by √16. Softmax converts scores into weights that sum to 1, and the output is the weighted sum of the corresponding values. Self-attention performs this calculation for each patch, combining information across the image."
   },
   "intro": [
     {
       "t": {
-        "zh": "到目前为止的元件都只看自己周围一小圈：3×3 平均、Sobel 都是这样。如果要补的东西，线索在图的另一头，它们要走多少步才够得着？",
-        "en": "Every part so far only looks at a small ring around itself: 3×3 average and Sobel both work that way. If the clue for what needs filling in sits at the other end of the image, how many steps would they need to reach it?"
+        "zh": "卷积一次只处理像素附近的局部区域。视觉任务有时需要结合相距较远的图像内容，例如用另一处完整的图案补全缺失部分。",
+        "en": "A convolution processes a local neighbourhood at a time. Vision tasks can also require combining information from distant image regions, such as using an intact pattern elsewhere to restore a missing part."
       }
     },
     {
       "t": {
-        "zh": "人看图时常拿远处作参照：一排窗户少了一扇，你会照着别的窗户把它想出来。2020 年的 ViT 把图切成小块，让每块直接和所有块比较，按「像不像」决定从谁那里取多少。这叫<part-ref to=\"attention\"></part-ref>。",
-        "en": "When people look at a picture they often use distant parts as a reference: if a row of windows is missing one, you imagine it from the others. ViT (2020) cuts the image into small patches and lets each patch compare itself directly with every other, taking more from the ones it looks more like. This is called <part-ref to=\"attention\"></part-ref>."
+        "zh": "自注意力将图像划分为图块，对各图块之间的关联程度打分，再用这些分数计算权重，汇总图块的信息。Vision Transformer（ViT）使用这种方式处理图像。",
+        "en": "Self-attention divides an image into patches, scores the relationships between patches, and uses those scores to weight and combine their information. Vision Transformer (ViT) uses this approach to process images."
       }
     },
     {
       "t": {
-        "zh": "先只做两块的版本。图块 a 是提问的一方，它给 a、b 各打一个分，分数换成权重，再按权重把两块混在一起。说明里写清了打分和换算的规则。",
-        "en": "Start with just two patches. Patch a does the asking: it gives a score to a and to b, the scores become weights, and the two patches are mixed by those weights. The brief spells out the rules for the scores and the weights."
+        "zh": "注意力通常用查询（query，q）、键（key，k）和值（value，v）表示：查询与各个键计算分数，分数经过 Softmax 得到权重，再对对应的值加权求和。查询用于确定各个值在输出中所占的权重。",
+        "en": "Attention is commonly expressed using queries (q), keys (k), and values (v): a query is scored against each key, Softmax converts the scores into weights, and the corresponding values are summed using those weights. The query helps determine the weight of each value in the output."
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：照着规则，用乘、平均、exp 和除，算出 a 问完两块之后得到的那一块。",
-        "en": "Your task in this level: following the rules, use multiply, average, exp and divide to work out the patch a gets back after asking both."
+        "zh": "本关只计算图块 a 的输出：用 a 作为查询，a 和 b 各自既作为键，也作为值。不另做特征投影，直接使用图块的像素数值。",
+        "en": "This level computes the output for patch a only: use a as the query, and use both a and b as keys and values. The pixel values are used directly, without separate feature projections."
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：X 问 C", "en": "Set 1: X asks C" } }
+      "fig": {
+        "test": 0,
+        "caption": { "zh": "第一组：查询图块 X，候选图块 X 和 C", "en": "Set 1: query patch X, candidate patches X and C" }
+      }
+    },
+    {
+      "t": {
+        "zh": "分别计算 a 与 a、a 与 b 的分数，将两个分数转换成权重，再用权重合并图块 a 和 b。具体计算规则见任务简报。",
+        "en": "Compute the scores for a with a and a with b, convert the scores to weights, then combine patches a and b using those weights. The task brief gives the calculation rules."
+      }
     }
   ],
   "unlocks": ["attention"],
@@ -38,42 +47,45 @@
       "id": "5-1",
       "kind": "graph",
       "brief": {
-        "zh": "图块 a 向 a、b 两块提问。每块的分数 = 4 × 平均(a × 这一块)；权重 = e^分数 ÷ 两个 e^分数之和；输出 = 两块按权重的加权平均。",
-        "en": "Patch a asks patches a and b. Each patch scores 4 × average(a × that patch); its weight is e^score ÷ the sum of both e^score; the output is the two patches averaged with those weights."
+        "zh": "以图块 a 为查询，分别计算 a 与 a、a 与 b 的注意力分数：分数 = 4 × 平均(a × 对应图块)。对两个分数做 Softmax：权重 = e^分数 ÷ 两个 e^分数之和。输出图块 a 和 b 的加权和。",
+        "en": "Use patch a as the query and compute attention scores for a with a and a with b: score = 4 × average(a × corresponding patch). Apply Softmax to the two scores: weight = e^score ÷ the sum of both e^score. Output the weighted sum of patches a and b."
       },
       "hint": {
-        "zh": "一个数和一整块相乘时，这个数用在每一格上。先把两个分数算出来。",
-        "en": "When a single number multiplies a whole patch, it applies to every cell. Work out the two scores first."
+        "zh": "先逐格相乘，再对整块图取平均，分别得到两个分数。一个数与图块相乘时，该数会作用于图块的每个像素。",
+        "en": "Multiply pixel by pixel and average over each patch to obtain the two scores. When a number multiplies a patch, it applies to every pixel."
       },
       "inputs": ["a", "b"],
-      "inputLabels": { "a": { "zh": "图块 a（提问）", "en": "Patch a (asking)" }, "b": { "zh": "图块 b", "en": "Patch b" } },
+      "inputLabels": {
+        "a": { "zh": "图块 a（查询）", "en": "Patch a (query)" },
+        "b": { "zh": "图块 b", "en": "Patch b" }
+      },
       "scene": "filter",
       "setup": { "target": "ask" },
       "tests": [
         {
-          "label": { "zh": "X 问 C", "en": "X asks C" },
+          "label": { "zh": "X、C", "en": "X, C" },
           "inputs": { "a": { "tile": { "name": "X" } }, "b": { "tile": { "name": "C" } } }
         },
         {
-          "label": { "zh": "P 问 K", "en": "P asks K" },
+          "label": { "zh": "P、K", "en": "P, K" },
           "inputs": { "a": { "tile": { "name": "P" } }, "b": { "tile": { "name": "K" } } }
         },
         {
-          "label": { "zh": "R 问 S", "en": "R asks S" },
+          "label": { "zh": "R、S", "en": "R, S" },
           "inputs": { "a": { "tile": { "name": "R" } }, "b": { "tile": { "name": "S" } } }
         },
         {
-          "label": { "zh": "淡的 S 问 X", "en": "A faint S asks X" },
+          "label": { "zh": "淡 S、X", "en": "Faint S, X" },
           "inputs": { "a": { "tile": { "name": "S", "hi": 0.5 } }, "b": { "tile": { "name": "X" } } }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "K 问 R", "en": "K asks R" },
+          "label": { "zh": "K、R", "en": "K, R" },
           "inputs": { "a": { "tile": { "name": "K" } }, "b": { "tile": { "name": "R" } } }
         },
         {
-          "label": { "zh": "C 问淡的 P", "en": "C asks a faint P" },
+          "label": { "zh": "C、淡 P", "en": "C, faint P" },
           "inputs": { "a": { "tile": { "name": "C" } }, "b": { "tile": { "name": "P", "hi": 0.6 } } }
         }
       ],
