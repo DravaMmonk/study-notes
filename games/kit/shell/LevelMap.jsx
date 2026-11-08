@@ -290,7 +290,7 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
       <button key={level.id} data-level={level.id} style={style} title={L(level.title)} aria-current={here ? 'page' : undefined} className={`map-node ${state} ${game.core(level) ? '' : 'is-minor'} ${optional || level.optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''} ${here ? 'is-here' : ''} ${needed?.ids.has(level.id) ? 'is-needed' : ''} ${needed?.asked === level.id ? 'is-asked' : ''}`} aria-disabled={!open} onClick={() => (open ? onOpen(level.id) : needed?.ask(level.id))}>
         <span className="map-pad" aria-hidden="true">{won ? <Check size={11} strokeWidth={2.6} /> : open ? null : <Lock size={9} />}</span>
         <span className="map-node-id">{game.levelLabel(level)}</span>
-        <span className="map-node-title">{L(level.title)}</span>{level.optional && <small className="map-optional">{tr('可选', 'optional')}</small>}
+        <span className="map-node-title">{L(level.title)}</span>
         {score ? <span className="map-node-best">{score}</span> : kind?.icon && !compact && <span className="map-node-kind" aria-label={L(kind.label)}>{createElement(kind.icon, { size: game.core(level) ? 13 : 12 })}</span>}
       </button>
     )
