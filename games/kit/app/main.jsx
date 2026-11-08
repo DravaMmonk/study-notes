@@ -15,27 +15,24 @@ import { createProgress } from '../shell/progress.js'
 import { contentStamp } from '../engine/stamp.js'
 import { checkContent } from '../engine/vocabulary.js'
 import { deepFreeze } from '../engine/content.js'
-import { tr } from '../shell/i18n.js'
 import { loadDomain } from 'virtual:game'
+import { assetSignature, cleanRefreshURL } from './release.js'
+import { ReleaseWatch, Unreadable } from './ReleaseWatch.jsx'
 
-/** What is wrong with the content the page read, one problem a line. */
-function Unreadable({ problems }) {
-  return (
-    <main className="content-problems">
-      <h1>{tr('这款游戏的内容读不进来', 'This game’s content cannot be read')}</h1>
-      <ul>{problems.map((p, k) => <li key={k}><code>{p}</code></li>)}</ul>
-    </main>
-  )
-}
+const loadedAssets = assetSignature(document, window.location.href)
 
 async function open() {
   const [{ define, vocabulary }, response] = await Promise.all([loadDomain(), fetch(new URL('content.json', window.location.href), { cache: 'no-store' })])
-  if (!response.ok) return <Unreadable problems={[`content.json: ${response.status} ${response.statusText}`]} />
+  if (!response.ok) return { page: <Unreadable problems={[`content.json: ${response.status} ${response.statusText}`]} />, content: null }
   // On the dev server the content is frozen, so a domain that writes into it fails at once (its checks read it so too).
-  const content = import.meta.env.DEV ? deepFreeze(await response.json()) : await response.json()
+  const contentText = await response.text()
+  const parsed = JSON.parse(contentText)
+  const content = import.meta.env.DEV ? deepFreeze(parsed) : parsed
   const problems = checkContent({ vocabulary }, content).map((p) => `${p.at}: ${p.says}`)
-  if (problems.length) return <Unreadable problems={problems} />
-  return <GameShell game={define(content)} store={createProgress({ id: content.id, stamp: contentStamp(vocabulary, content) })} />
+  if (problems.length) return { page: <Unreadable problems={problems} />, content: contentText }
+  return { page: <GameShell game={define(content)} store={createProgress({ id: content.id, stamp: contentStamp(vocabulary, content) })} />, content: contentText }
 }
 
-open().then((page) => createRoot(document.getElementById('root')).render(<StrictMode>{page}</StrictMode>))
+
+if (new URL(window.location.href).searchParams.has('_refresh')) window.history.replaceState(window.history.state, '', cleanRefreshURL(window.location.href))
+open().catch((error) => ({ page: <Unreadable problems={[String(error)]} />, content: null })).then(({ page, content }) => createRoot(document.getElementById('root')).render(<StrictMode><ReleaseWatch page={page} content={content} loadedAssets={loadedAssets} /></StrictMode>))

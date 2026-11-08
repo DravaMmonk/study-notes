@@ -971,6 +971,8 @@ choice with every value and results row through `views/choice.js`. Results view 
 cycles the available views. Defaults give the simplest experience. New settings may alter presentation or editing,
 never the puzzle, judging or amount of hints. Content and domains cannot register settings.
 
+**版本更新**：发布版游戏在打开、回到前台和停留期间检查页面资源与内容；发现新版本就提示刷新，刷新后去关卡导航页，不沿用网址里的关卡参数。网络错误不当作更新。开发服务器不检查发布版本。游戏进度仍由存档版本规则管理。
+
 **原则**
 
 - **布局自己说话。** 不加次要的标签和说明：一块东西是什么，由它的位置和样子说清楚。结果区不加「测试 N」之类的标题，测试标签已经说了是哪一个；同一件事不说两遍：预期和结果里一样的输入只写一次。说明只在不写就看不懂时才写。
