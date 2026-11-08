@@ -17,7 +17,7 @@ export function partsFor(kit, { sensors, outputLabels } = {}) {
       if (node.type === 'output') return outputLabels?.[node.params.name] ?? tr('输出', 'Output')
       return kit.types[node.type].label
     },
-    portLabel: (node, port) => PORT_LABELS[port] ?? port,
+    portLabel: (node, port) => node.type === 'output' ? (port === 'in' ? { zh: '图', en: 'Image' } : port.toUpperCase()) : PORT_LABELS[port] ?? port,
     family: (node) => familyOf(node.type ?? 'input'),
     icon: (node) => (node.type === 'input' ? ArrowRightFromLine : node.type === 'output' ? ArrowRightToLine : iconOf(node.type)),
   }

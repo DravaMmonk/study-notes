@@ -2,8 +2,8 @@
   "title": { "zh": "白平衡", "en": "White balance" },
   "tray": "pipeline",
   "after": {
-    "zh": "每个通道除以白纸在这个通道的读数，灯的颜色就抵消了。相机的「白平衡」做的就是这件事：找一个应该是白色的东西，按它把三个通道拉齐。照片里最亮的东西当白色，叫「白块假设」；照片里没有白东西时，它就会出错。",
-    "en": "Divide each channel by the white paper's reading in that channel, and the colour of the lamp cancels out. A camera's \"white balance\" does exactly this: find something that ought to be white and even up the three channels by it. Taking the brightest thing as white is called the \"white patch\" assumption; it fails when nothing in the photo is white."
+    "zh": "白平衡利用场景中对颜色的假设，估计并校正光源带来的偏色。本关假设白纸在三个通道中各自最亮；如果画面没有白色物体，或者光源、表面的情况更复杂，这种假设可能不成立。",
+    "en": "White balance uses assumptions about scene colours to estimate and correct a light source’s colour cast. Here the white paper is assumed brightest in each channel; this can fail without a white object or under more complicated lighting and surfaces."
   },
   "intro": [
     {
@@ -21,8 +21,8 @@
     },
     {
       "t": {
-        "zh": "这一关你要做的：每张照片里都有一块白纸，它在 R、G、B 里都是最亮的。让白纸变回纯白，其余颜色跟着还原。",
-        "en": "Your task in this level: every photo has a patch of white paper, the brightest thing in each of R, G and B. Make the paper pure white again and let every other colour be restored with it."
+        "zh": "这一关你要做的：每张彩色照片里都有白纸，它在 R、G、B 通道中都是最亮的。用<part-ref to=\"part:channel\"></part-ref>分出三个通道，调整后接入输出的 R、G、B 口，让白纸变回纯白。",
+        "en": "Each colour photo contains white paper, brightest in each R, G and B channel. Use <part-ref to=\"part:channel\"></part-ref> to separate the channels, adjust them, and connect them to the matching output ports to make the paper white."
       }
     }
   ],
@@ -35,11 +35,9 @@
         "en": "These photos were taken under a yellowish lamp, so white paper looks yellow. Every photo has a patch of white paper in it, the brightest thing in each of R, G and B. Adjust each channel so the paper becomes pure white (1, 1, 1), and every other colour is restored along with it."
       },
       "hint": { "zh": "白纸本来应该是什么颜色？", "en": "What colour should the white paper really be?" },
-      "inputs": ["r", "g", "b"],
-      "inputLabels": { "r": "R", "g": "G", "b": "B" },
-      "outputs": ["ro", "go", "bo"],
-      "outputLabels": { "ro": "R", "go": "G", "bo": "B" },
-      "scene": "whiteBalance",
+      "inputs": ["photo"],
+      "inputLabels": { "photo": { "zh": "照片", "en": "Photo" } },
+      "scene": "whiteBalanceColour",
       "tests": [
         { "label": { "zh": "书桌", "en": "A desk" }, "layout": "desk", "strength": 1 },
         { "label": { "zh": "集市", "en": "A market" }, "layout": "market", "strength": 0.8 },
@@ -50,24 +48,30 @@
         { "label": { "zh": "厨房", "en": "A kitchen" }, "layout": "kitchen", "strength": 0.5 }
       ],
       "solution": [
+        "r = channel[channel=r](photo)",
+        "g = channel[channel=g](photo)",
+        "b = channel[channel=b](photo)",
         "mr = globalMax(r)",
         "mg = globalMax(g)",
         "mb = globalMax(b)",
         "dr = arith[op=div](r, mr)",
         "dg = arith[op=div](g, mg)",
         "db = arith[op=div](b, mb)",
-        "ro <- dr",
-        "go <- dg",
-        "bo <- db"
+        "out.r <- dr",
+        "out.g <- dg",
+        "out.b <- db"
       ],
       "naive": [
+        "r = channel[channel=r](photo)",
+        "g = channel[channel=g](photo)",
+        "b = channel[channel=b](photo)",
         "m = globalMax(r)",
         "dr = arith[op=div](r, m)",
         "dg = arith[op=div](g, m)",
         "db = arith[op=div](b, m)",
-        "ro <- dr",
-        "go <- dg",
-        "bo <- db"
+        "out.r <- dr",
+        "out.g <- dg",
+        "out.b <- db"
       ]
     }
   ]

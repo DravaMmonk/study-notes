@@ -5,6 +5,7 @@ import { S } from '../../../../engine/schema.js'
 import { correlate, fromFn, image, map, random, zip } from '../../engine/image.js'
 import { NODE_TYPES } from '../../engine/nodes.js'
 import { CURVES } from '../../engine/parts/light.js'
+import { compose } from '../../engine/colour.js'
 import { picture } from '../pictures.js'
 import { T as t } from '../../../../shell/i18n.js'
 
@@ -170,6 +171,14 @@ export const LIGHT = {
     test: S.obj({ light: SPECTRUM }),
     make: ({ light }) => ({ inputs: { in: row(light), sr: row(CURVES.R), sg: row(CURVES.G), sb: row(CURVES.B) }, expected: reading(row(light)) }),
   },
+  spectrumColour: {
+    about: t('光谱和感光曲线：将三个传感器读数组成彩色像素', 'a spectrum and sensitivity curves: combine the three sensor readings into a colour pixel'),
+    test: S.obj({ light: SPECTRUM }),
+    make: ({ light }) => {
+      const values = reading(row(light))
+      return { inputs: { in: row(light), sr: row(CURVES.R), sg: row(CURVES.G), sb: row(CURVES.B) }, expected: { out: compose(values.ro, values.go, values.bo) } }
+    },
+  },
   metamer: {
     about: t('两块布（日光下一样）和一盏灯；期望是相机读出的两块布 R、G、B 之差', 'two cloths that match in daylight, and a lamp; what the camera reads of their R, G and B differences is expected'),
     test: S.obj({ cloth: SPECTRUM, lamp: SPECTRUM }),
@@ -190,6 +199,16 @@ export const LIGHT = {
       return { inputs: { photo: zip(colour, lit, (p, q) => p * q), light: lit }, expected: { out: colour } }
     },
   },
+  shadowColour: {
+    about: t('彩色照片与已知光照；期望是每个通道的表面反射率', 'a colour photograph and known illumination; the surface reflectance in each channel is expected'),
+    test: S.obj({ layout: S.oneOf(Object.keys(LAYOUTS)), light: S.oneOf(Object.keys(LIGHTS)) }),
+    make: ({ layout, light }) => {
+      const lighting = fromFn(N, N, LIGHTS[light])
+      const lit = coloured(layout, LIGHTS[light])
+      const original = coloured(layout, () => 1)
+      return { inputs: { photo: compose(lit.r, lit.g, lit.b), light: lighting }, expected: { out: compose(original.r, original.g, original.b) } }
+    },
+  },
   redObjects: {
     about: t('一个彩色场景（R、G、B 三张图），光照不均；期望是红色东西的掩膜（R 占三者之和一半以上）', 'a coloured scene (R, G, B), lit unevenly; the mask of what is red (R over half of the three’s sum) is expected'),
     test: S.obj({ layout: S.oneOf(Object.keys(LAYOUTS)), light: S.oneOf(Object.keys(COLOUR_LIGHTS)) }),
@@ -207,6 +226,16 @@ export const LIGHT = {
       const ins = { r: tint(0, s.r), g: tint(1, s.g), b: tint(2, s.b) }
       const peak = (img) => Math.max(...img.data)
       return { inputs: ins, expected: { ro: map(ins.r, (v) => v / peak(ins.r)), go: map(ins.g, (v) => v / peak(ins.g)), bo: map(ins.b, (v) => v / peak(ins.b)) } }
+    },
+  },
+  whiteBalanceColour: {
+    about: t('暖黄灯下的彩色照片；期望是各通道分别按最大值校正', 'a colour photograph under a warm lamp; each channel is corrected by its own maximum'),
+    test: S.obj({ layout: S.oneOf(Object.keys(LAYOUTS)), strength: num }),
+    make: ({ layout, strength }) => {
+      const s = coloured(layout, () => strength)
+      const planes = [s.r, s.g, s.b].map((img, k) => map(img, (v) => v * LAMP_TINT[k]))
+      const normal = planes.map((img) => { const peak = Math.max(...img.data); return map(img, (v) => v / peak) })
+      return { inputs: { photo: compose(...planes) }, expected: { out: compose(...normal) } }
     },
   },
   relit: {

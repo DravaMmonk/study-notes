@@ -48,7 +48,7 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
     const actual = result?.outputs[name]
     const check = result?.checks.find((c) => c.name === name)
     const kind = kindOf(expected)
-    const fits = actual?.w === expected.w && actual?.h === expected.h
+    const fits = actual?.w === expected.w && actual?.h === expected.h && (actual?.c ?? 1) === (expected.c ?? 1)
     const label = L(level.outputLabels?.[name]) ?? name
     const prefix = many ? `${label} · ` : ''
     if (kind === 'number') {
@@ -112,7 +112,7 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
     if (!img) return null
     const x = Math.min(img.w - 1, Math.floor(((probe.x + 0.5) * img.w) / probe.w))
     const y = Math.min(img.h - 1, Math.floor(((probe.y + 0.5) * img.h) / probe.h))
-    return { value: img.data[y * img.w + x], at: img.w === probe.w && img.h === probe.h ? '' : ` (${x}, ${y})` }
+    return { value: img.c === 3 ? Array.from(img.data.slice((y * img.w + x) * 3, (y * img.w + x) * 3 + 3)) : img.data[y * img.w + x], at: img.w === probe.w && img.h === probe.h ? '' : ` (${x}, ${y})` }
   }
   const readings = probe && !probe.frequency && probe.w
     ? [
@@ -120,15 +120,15 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
         ...Object.entries(test.expected).flatMap(([name, expected]) => {
           const actual = result?.outputs[name]
           const prefix = many ? `${L(level.outputLabels?.[name]) ?? name} ` : ''
-          return [[`${prefix}${L(WORDS.wanted)}`, valueAt(expected)], [`${prefix}${L(WORDS.result)}`, actual?.w === expected.w && actual?.h === expected.h ? valueAt(actual) : null]]
+          return [[`${prefix}${L(WORDS.wanted)}`, valueAt(expected)], [`${prefix}${L(WORDS.result)}`, actual?.w === expected.w && actual?.h === expected.h && (actual?.c ?? 1) === (expected.c ?? 1) ? valueAt(actual) : null]]
         }),
       ]
     : null
   const readout = !probe
     ? tr('将指针悬停在图上即可读取数值', 'Hover over a picture to read its values')
     : readings
-      ? <>({probe.x}, {probe.y}) {readings.map(([label, v], k) => <span key={label}>{k ? ' · ' : ''}{label}{v?.at} <b>{v ? v.value.toFixed(3) : '—'}</b></span>)}</>
-      : <>{tr('频率 ', 'frequency ')}({probe.x}, {probe.y}) <b>{probe.value.toFixed(3)}</b></>
+      ? <>({probe.x}, {probe.y}) {readings.map(([label, v], k) => <span key={label}>{k ? ' · ' : ''}{label}{v?.at} <b>{v ? (Array.isArray(v.value) ? v.value.map((x) => x.toFixed(3)).join(', ') : v.value.toFixed(3)) : '—'}</b></span>)}</>
+      : <>{tr('频率 ', 'frequency ')}({probe.x}, {probe.y}) <b>{Array.isArray(probe.value) ? probe.value.map((v) => v.toFixed(3)).join(', ') : probe.value.toFixed(3)}</b></>
   const probeLine = (inputsAreImages || Object.values(test.expected).some((img) => kindOf(img) === 'image')) && <p className="pixel-probe">{readout}</p>
 
   if (part === 'tests') return list

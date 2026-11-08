@@ -26,6 +26,7 @@ function Drawing({ img, view = 'pixels', size = 112, range, theme, onHover, labe
   if (!kind) return <div className="image-empty" style={{ width: size, height: size * 0.62 }}>{label ?? '—'}</div>
   if (kind === 'number') return <NumberView value={img.data[0]} size={size} />
   if (kind === 'signal') return <CurveView img={img} width={size} height={Math.round(size * 0.62)} range={range} />
+  if (img.c === 3) return <ImageView img={img} size={size} theme={theme} onHover={onHover} label={label} grid={grid} />
   if (view === 'terrain') return <TerrainView img={img} range={range} size={size} theme={theme} />
   if (view === 'slope') return <SlopeView img={img} range={range} size={size} theme={theme} onHover={onHover} />
   if (view === 'profile') return <ProfileView img={img} range={range} size={size} theme={theme} onHover={onHover} scan={scan} onScan={onScan} compact={compact} />

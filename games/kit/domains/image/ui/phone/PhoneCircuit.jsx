@@ -23,7 +23,7 @@ const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 // Tray, Notice, the same editing as 状态之图) with this game's tests along the top, its task, its blocks' pictures,
 // and its sheets for a block, a slot and a setting. Wiring is done on the board only, as in every game.
 // An output and its expected value can only be compared cell by cell when they are the same size.
-const fits = (img, expected) => img.w === expected.w && img.h === expected.h
+const fits = (img, expected) => img.w === expected.w && img.h === expected.h && (img.c ?? 1) === (expected.c ?? 1)
 
 export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, onClear, run, onTest, testIndex, onTestIndex, flags, sensors, outputLabels, ioKinds, views, theme, scan, onScan, brief, training, footer, testDetails }) {
   const [sheet, setSheet] = useState(null)

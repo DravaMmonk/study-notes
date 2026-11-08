@@ -1,6 +1,6 @@
 {
   "domain": "image",
-  "vocabulary": 4,
+  "vocabulary": 5,
   "title": { "zh": "视觉完备", "en": "Vision Complete" },
   "kicker": { "zh": "COMP90086 · 计算机视觉", "en": "COMP90086 · Computer Vision" },
   "lede": {
@@ -46,7 +46,8 @@
     "dg_decode",
     "dg_mu",
     "dg_sigma",
-    "dg_sample"
+    "dg_sample",
+    "channel"
   ],
   "trays": {
     "pipeline": [
@@ -90,7 +91,8 @@
       "maxpool",
       "lrnRes",
       "attention",
-      "embed"
+      "embed",
+      "channel"
     ],
     "geometry": [
       "shift",

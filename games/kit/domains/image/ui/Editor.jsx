@@ -77,7 +77,7 @@ export default function Editor({ kit, graph, onChange, run, testIndex, flags, se
               <span>{L(IMAGE_VIEWS[shown].label)}</span>
             </button>
           )}
-          {peek?.id === node.id && <span className="node-peek">{peek.frequency ? tr('频率 ', 'frequency ') : ''}({peek.x}, {peek.y}) = {peek.value.toFixed(3)}</span>}
+          {peek?.id === node.id && <span className="node-peek">{peek.frequency ? tr('频率 ', 'frequency ') : ''}({peek.x}, {peek.y}) = {Array.isArray(peek.value) ? peek.value.map((v) => v.toFixed(3)).join(', ') : peek.value.toFixed(3)}</span>}
           {menu === node.id && (
             <div className="view-menu" role="menu" aria-label={tr('显示方式', 'Display')} onPointerDown={(e) => e.stopPropagation()}>
               {offered.map(([key, option]) => (

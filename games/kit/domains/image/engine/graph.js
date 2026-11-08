@@ -2,6 +2,7 @@ import { PartError } from '../../../engine/circuit.js'
 import { runBoard, sink, source } from '../../../engine/boards.js'
 import { runLevel as runTests } from '../../../engine/tests.js'
 import { compare, image } from './image.js'
+import { compose } from './colour.js'
 
 // A graph is { nodes: [{ id, type, x, y, params }], wires: [{ from, to, port }] } where `from` and
 // `to` are node ids and `port` is the input port name on `to`. Each node has a single output.
@@ -30,7 +31,12 @@ export function prepare(ins, node, part) {
   if (new Set(big.map((img) => `${img.w}×${img.h}`)).size > 1) throw new PartError({ zh: '输入尺寸不同', en: 'Inputs differ in size' })
   if (!big.length) return ins
   const out = { ...ins }
-  for (const [port, img] of Object.entries(ins)) if (img.w * img.h === 1) out[port] = image(big[0].w, big[0].h, img.data[0])
+  for (const [port, img] of Object.entries(ins)) if (img.w * img.h === 1) {
+    const c = img.c ?? 1
+    const expanded = image(big[0].w, big[0].h, 0, c)
+    for (let i = 0; i < expanded.w * expanded.h; i++) for (let k = 0; k < c; k++) expanded.data[i * c + k] = img.data[k]
+    out[port] = expanded
+  }
   return out
 }
 
@@ -61,7 +67,13 @@ export function runnerOf(types) {
       wrapped.set(spec, type === 'input'
         ? source({ spec })
         : type === 'output'
-          ? sink({ spec })
+          ? sink({ spec, inputs: spec.inputs, optional: spec.optional, collect: (ins) => {
+              const planes = ['r', 'g', 'b'].map((key) => ins[key])
+              const sample = planes.find(Boolean)
+              if (!sample) return ins.in
+              const filled = prepare(Object.fromEntries(planes.map((plane, i) => [i, plane ?? image(1, 1)])), null, {})
+              return compose(filled[0], filled[1], filled[2])
+            } })
           : { spec, inputs: spec.inputs, optional: spec.optional, eval: (ins, node, ctx) => spec.eval(ins, node.params ?? {}, ctx.variant ?? null) })
     }
     return wrapped.get(spec)
@@ -119,7 +131,7 @@ export function runnerOf(types) {
         const outputs = outputImages(graph, values)
         for (const [name, expected] of Object.entries(test.expected)) {
           const actual = outputs[name]
-          if (!actual || actual.w !== expected.w || actual.h !== expected.h) return Infinity
+          if (!actual || actual.w !== expected.w || actual.h !== expected.h || (actual.c ?? 1) !== (expected.c ?? 1)) return Infinity
           for (let i = 0; i < expected.data.length; i++) sum += (actual.data[i] - expected.data[i]) ** 2
           count += expected.data.length
         }

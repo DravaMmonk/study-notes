@@ -6,7 +6,7 @@ import { piText } from '../../engine/pi.js'
 // as a terrain (brightness = height), as a slope map (contours, and arrows that point uphill: the
 // gradient), as a profile (the brightness along one row, as a curve) or as its spectrum.
 
-export const kindOf = (img) => (!img ? null : img.w * img.h === 1 ? 'number' : img.h === 1 ? 'signal' : 'image')
+export const kindOf = (img) => (!img ? null : img.c === 3 ? 'image' : img.w * img.h === 1 ? 'number' : img.h === 1 ? 'signal' : 'image')
 
 export const IMAGE_VIEWS = {
   pixels: { label: { zh: '像素', en: 'Pixels' }, icon: Grid3x3, hint: { zh: '亮度显示为灰度', en: 'brightness as grey level' } },

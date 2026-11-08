@@ -24,11 +24,14 @@ export default function ImageView({ img, range, size = 112, against, tolerance =
     const { lo, hi } = range ?? rangeOf(img)
     const wrong = cssColour('--fail', [184, 87, 63])
     const faint = cssColour('--line', [222, 219, 209])
-    for (let i = 0; i < img.data.length; i++) {
+    const channels = img.c ?? 1
+    for (let i = 0; i < img.w * img.h; i++) {
       let rgb
       if (against) {
-        const error = Math.abs(img.data[i] - against.data[i])
+        const error = Math.max(...Array.from({ length: channels }, (_, c) => Math.abs(img.data[i * channels + c] - against.data[i * channels + c])))
         rgb = error <= tolerance ? faint : wrong
+      } else if (channels === 3) {
+        rgb = Array.from({ length: 3 }, (_, c) => Math.round(255 * Math.min(1, Math.max(0, img.data[i * 3 + c]))))
       } else {
         const g = Math.round(255 * Math.min(1, Math.max(0, (img.data[i] - lo) / (hi - lo))))
         rgb = [g, g, g]
@@ -46,7 +49,7 @@ export default function ImageView({ img, range, size = 112, against, tolerance =
     const x = Math.floor(((event.clientX - box.left) / box.width) * img.w)
     const y = Math.floor(((event.clientY - box.top) / box.height) * img.h)
     if (x < 0 || y < 0 || x >= img.w || y >= img.h) return
-    onHover({ x, y, w: img.w, h: img.h, value: img.data[y * img.w + x], expected: against?.data[y * img.w + x] })
+    onHover({ x, y, w: img.w, h: img.h, value: img.c === 3 ? Array.from(img.data.slice((y * img.w + x) * 3, (y * img.w + x) * 3 + 3)) : img.data[y * img.w + x], expected: against?.data[y * img.w + x] })
   }
 
   const canvasEl = (

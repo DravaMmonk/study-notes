@@ -116,8 +116,13 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
     // A part whose inputs are all optional still needs one of them.
     if (!missing && !part.bare && ports.length && part.optional && ports.every((p) => part.optional.includes(p)) && !connected) missing = true
     if (part.sink) {
-      if (ins.in !== undefined) values.set(id, ins.in)
-      if (ids) ids.set(id, inIds.in ?? null)
+      try {
+        const value = part.collect ? part.collect(ins, node) : ins.in
+        if (value !== undefined) values.set(id, value)
+        if (ids) ids.set(id, inIds.in ?? null)
+      } catch (error) {
+        fault(id, error instanceof PartError ? error.label : BROKEN, key)
+      }
       return
     }
     if (missing) {

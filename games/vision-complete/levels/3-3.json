@@ -30,8 +30,8 @@
     },
     {
       "t": {
-        "zh": "这一关你要做的：输出相机读到的 R、G、B 三个数。要想的问题：一整条光谱只记成三个数，丢掉了什么？",
-        "en": "Your task in this level: output the three numbers the camera reads, R, G and B. Something to think about: when a whole spectrum is kept as three numbers, what is thrown away?"
+        "zh": "这一关你要做的：算出相机读到的 R、G、B 三个数，分别接到输出的 R、G、B 口，看它们组成的彩色像素。 没接的颜色通道按 0 处理；直接接「图」口则输出整张图。",
+        "en": "Calculate the R, G and B readings and connect them to the matching output ports to see the resulting colour pixel. Unconnected colour channels are zero; connect the Image port to output a whole image directly."
       }
     }
   ],
@@ -41,8 +41,8 @@
       "id": "3-3",
       "kind": "graph",
       "brief": {
-        "zh": "「光谱」是从紫（400 nm）到红（700 nm）的 10 个波段各有多少光。相机有三种感光元件，各有一条灵敏度曲线。每种的读数 = 光谱乘上它的灵敏度曲线，再求平均。输出 R、G、B 三个读数。",
-        "en": "The \"Spectrum\" is how much light there is in each of 10 bands from violet (400 nm) to red (700 nm). The camera has three kinds of sensor, each with a sensitivity curve. Each sensor reads the spectrum times its sensitivity curve, averaged. Output the three readings, R, G and B."
+        "zh": "「光谱」是从紫（400 nm）到红（700 nm）的 10 个波段各有多少光。相机有三种感光元件，各有一条灵敏度曲线。每种的读数 = 光谱乘上它的灵敏度曲线，再求平均。将三个读数接入输出的 R、G、B 口。",
+        "en": "The \"Spectrum\" is how much light there is in each of 10 bands from violet (400 nm) to red (700 nm). The camera has three kinds of sensor, each with a sensitivity curve. Each sensor reads the spectrum times its sensitivity curve, averaged. Connect the three readings to the R, G and B output ports."
       },
       "inputs": ["in", "sr", "sg", "sb"],
       "inputLabels": {
@@ -51,10 +51,8 @@
         "sg": { "zh": "G 灵敏度", "en": "G sensitivity" },
         "sb": { "zh": "B 灵敏度", "en": "B sensitivity" }
       },
-      "outputs": ["ro", "go", "bo"],
-      "outputLabels": { "ro": "R", "go": "G", "bo": "B" },
       "check": { "tolerance": 0.01 },
-      "scene": "spectrum",
+      "scene": "spectrumColour",
       "tests": [
         { "label": { "zh": "日光", "en": "Daylight" }, "light": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
         {
@@ -75,11 +73,11 @@
         "ar = fqMean(mr)",
         "ag = fqMean(mg)",
         "ab = fqMean(mb)",
-        "ro <- ar",
-        "go <- ag",
-        "bo <- ab"
+        "out.r <- ar",
+        "out.g <- ag",
+        "out.b <- ab"
       ],
-      "naive": ["m = fqMean(in)", "ro <- m", "go <- m", "bo <- m"]
+      "naive": ["m = fqMean(in)", "out.r <- m", "out.g <- m", "out.b <- m"]
     }
   ]
 }
