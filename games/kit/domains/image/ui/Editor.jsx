@@ -6,6 +6,7 @@ import { WORDS } from '../../../shell/words.js'
 import ParamControl from './ParamControl.jsx'
 import { partsFor } from './parts.js'
 import ValueView from './views/ValueView.jsx'
+import ColourPreview from './ColourPreview.jsx'
 import { IMAGE_VIEWS, KIND_NAMES, kindOf, nodeView, viewsIn } from './views/views.js'
 
 // Vision Complete's desktop board: the shared circuit editor (games/kit/circuit CanvasEditor), whose cards here show
@@ -70,8 +71,8 @@ export default function Editor({ kit, graph, onChange, run, testIndex, flags, se
         ))}
         {node.type === 'input' && sensors?.[node.params.name]?.description && <details className="node-description" onPointerDown={(event) => event.stopPropagation()}><summary>{tr('说明', 'About')}</summary><p>{L(sensors[node.params.name].description)}</p></details>}
         <div className="node-preview">
-          {error ? <span className="node-error">{L(error)}</span> : <ValueView img={value} view={shown} size={NODE_W - 22} theme={theme} label={L(WORDS.notWired)} grid scan={scan} onScan={onScan} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
-          {!error && kindOf(value) === 'image' && offered.length > 1 && (
+          {error ? <span className="node-error">{L(error)}</span> : node.type === 'input' && value?.c === 3 ? <ColourPreview img={value} theme={theme} labels onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} /> : <ValueView img={value} view={shown} size={NODE_W - 22} theme={theme} label={L(WORDS.notWired)} grid scan={scan} onScan={onScan} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
+          {!error && kindOf(value) === 'image' && !(node.type === 'input' && value?.c === 3) && offered.length > 1 && (
             <button className={`node-view ${menu === node.id ? 'is-open' : ''}`} aria-haspopup="menu" aria-expanded={menu === node.id} aria-label={tr(`显示方式：${L(IMAGE_VIEWS[shown].label)}`, `Display: ${L(IMAGE_VIEWS[shown].label)}`)} title={tr('切换显示方式', 'Change display')} onPointerDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === node.id ? null : node.id)}>
               {createElement(IMAGE_VIEWS[shown].icon, { size: 12, strokeWidth: 1.8 })}
               <span>{L(IMAGE_VIEWS[shown].label)}</span>

@@ -90,6 +90,11 @@
 
 
 .image-view { display: block; image-rendering: pixelated; border-radius: 4px; box-shadow: 0 0 0 1px var(--line); background: var(--canvas); }
+.colour-preview { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: start; width: 100%; }
+.colour-preview-item { min-width: 0; display: grid; justify-items: center; gap: 3px; }
+.colour-preview-item .image-view { width: min(64px, 100%) !important; height: auto !important; aspect-ratio: 1; }
+.colour-preview.has-labels { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
+.colour-preview-item small { color: var(--muted); font: 10px/1 var(--mono); }
 .image-grid { position: relative; display: inline-block; line-height: 0; }
 .image-view.is-readable, .image-grid.is-readable, .slope-view.is-readable, .spectrum-view.is-readable { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .image-grid::after { content: ''; position: absolute; inset: 0; border-radius: 4px; pointer-events: none; background-image: linear-gradient(to right, rgba(128, 128, 128, .16) 1px, transparent 1px), linear-gradient(to bottom, rgba(128, 128, 128, .16) 1px, transparent 1px); background-size: calc(100% / var(--cells)) calc(100% / var(--rows)); }

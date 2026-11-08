@@ -8,6 +8,7 @@ import { familyOf, iconOf } from '../catalog.js'
 import { describe } from '../../words.js'
 import { partsFor } from '../parts.js'
 import ImageView from '../ImageView.jsx'
+import ColourPreview from '../ColourPreview.jsx'
 import { rangeOf } from '../display.js'
 import ValueView from '../views/ValueView.jsx'
 import ViewSwitch from '../views/ViewSwitch.jsx'
@@ -68,6 +69,7 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
     if (open) return <i className="pb-empty" style={{ width: size, height: size }}>{tr('待接线', 'unwired')}</i>
     if (errors?.get(node.id)) return <i className="pb-error" style={{ width: size, height: size }}>!</i>
     if (!value) return <i className="pb-empty" style={{ width: size, height: size }} />
+    if (node.type === 'input' && value.c === 3) return <ColourPreview img={value} theme={theme} />
     return <ValueView img={value} view={nodeView(node, views)} size={kindOf(value) === 'signal' ? size * 1.6 : size} theme={theme} />
   }
   const sinkCheck = (node) => checks?.find((c) => c.name === node.params.name)
@@ -130,6 +132,7 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
         thumb={boardThumb}
         tileExtra={tileExtra}
         sinkBody={sinkBody}
+        nodeClass={(node) => node.type === 'input' && sensors?.[node.params.name]?.colour ? 'is-rgb-source' : ''}
         sinkClass={(node) => {
           const check = sinkCheck(node)
           return check && check.pass !== null ? (check.pass ? 'is-pass' : 'is-fail') : ''

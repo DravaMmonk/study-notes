@@ -86,6 +86,11 @@
 
 
 
+.level-graph .pb-board { grid-template-columns: minmax(0, 1fr); }
+.pb-terms.is-sources > .pb-term.is-rgb-source { flex: 0 1 320px; width: 320px; max-width: 100%; }
+.is-rgb-source .pb-thumb { width: calc(100% + 16px); max-width: none; }
+.is-rgb-source > .pb-out.is-many { left: 0; right: 0; width: 100%; gap: 0; transform: translateY(50%); }
+.is-rgb-source > .pb-out.is-many > .pb-o { flex: 1 1 0; min-width: 0; }
 .pb-compare { max-width: 100%; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 10px; }
 .pb-compare figure { margin: 0; display: grid; justify-items: center; gap: 2px; line-height: 0; }
 .pb-compare figcaption { color: var(--muted); font-family: var(--mono); font-size: 10px; line-height: 1.4; }
