@@ -99,7 +99,7 @@
 .pc-label { color: var(--muted); font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; }
 .pc-result { justify-items: center; }
 .pc-result .pc-label { justify-self: start; }
-.pc-compare { display: flex; gap: 14px; }
+.pc-compare { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 .pc-compare figure { margin: 0; display: grid; justify-items: center; gap: 4px; }
 .pc-compare figcaption { color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
 .pb-below { margin-top: 4px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }

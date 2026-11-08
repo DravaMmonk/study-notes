@@ -16,7 +16,7 @@ export const WORDS = {
   deleteBlock: T('删除区块', 'Delete block'),
   moveBlock: T('拖动区块', 'Move block'),
   result: T('结果', 'Result'),
-  wanted: T('应得', 'Wanted'),
+  wanted: T('目标', 'Target'),
   // The run key: a board run step by step is run, one checked at once is checked; once passed, it says so.
   run: T('运行', 'Run'),
   check: T('检查', 'Check'),

@@ -8,6 +8,7 @@ import { familyOf, iconOf } from '../catalog.js'
 import { describe } from '../../words.js'
 import { partsFor } from '../parts.js'
 import ImageView from '../ImageView.jsx'
+import { rangeOf } from '../display.js'
 import ValueView from '../views/ValueView.jsx'
 import ViewSwitch from '../views/ViewSwitch.jsx'
 import { KIND_NAMES, kindOf, nodeView } from '../views/views.js'
@@ -80,11 +81,8 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
       <>
         <span className="pb-compare">
           <figure>{want && <ValueView img={want} view={view} size={big} theme={theme} />}<figcaption>{L(WORDS.wanted)}</figcaption></figure>
-          {kindOf(want) === 'image' ? (
-            <figure>{got && fits(got, want) ? <ImageView img={got} against={want} tolerance={tolerance} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>{tr('误差', 'Error')}</figcaption></figure>
-          ) : (
-            <figure>{got ? <ValueView img={got} view={view} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>{L(WORDS.result)}</figcaption></figure>
-          )}
+          <figure>{got ? <ValueView img={got} view={view} range={want && kindOf(want) === 'image' ? rangeOf(want) : undefined} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>{L(WORDS.result)}</figcaption></figure>
+          {kindOf(want) === 'image' && <figure>{got && fits(got, want) ? <ImageView img={got} against={want} tolerance={tolerance} size={big} theme={theme} /> : <i className="pb-empty" style={{ width: big, height: 64 }} />}<figcaption>{tr('误差', 'Error')}</figcaption></figure>}
         </span>
         {check && check.pass !== null && <span className="pb-verdict">{check.pass ? <Check size={13} /> : <X size={13} />}</span>}
       </>
@@ -231,12 +229,9 @@ function PartPanel({ kit, node, description, flags, ioKinds, value, error, check
           <p className="ph-error">{L(error)}</p>
         ) : node.type === 'output' && expected ? (
           <div className="pc-compare">
-            <figure><ValueView img={expected} view={shown} size={kindOf(expected) === 'image' ? 140 : 150} theme={theme} /><figcaption>{L(WORDS.wanted)}</figcaption></figure>
-            {kindOf(expected) === 'image' ? (
-              <figure><ImageView img={value && fits(value, expected) ? value : null} against={expected} tolerance={tolerance} size={140} theme={theme} label={value ? tr('尺寸不对', 'Wrong size') : L(WORDS.notWired)} /><figcaption>{tr('误差', 'Error')}</figcaption></figure>
-            ) : (
-              <figure><ValueView img={value} view={shown} size={150} theme={theme} label={L(WORDS.notWired)} /><figcaption>{L(WORDS.result)}</figcaption></figure>
-            )}
+            <figure><ValueView img={expected} view={shown} size={kindOf(expected) === 'image' ? 88 : 150} theme={theme} /><figcaption>{L(WORDS.wanted)}</figcaption></figure>
+            <figure><ValueView img={value} view={shown} range={kindOf(expected) === 'image' ? rangeOf(expected) : undefined} size={kindOf(expected) === 'image' ? 88 : 150} theme={theme} label={L(WORDS.notWired)} /><figcaption>{L(WORDS.result)}</figcaption></figure>
+            {kindOf(expected) === 'image' && <figure><ImageView img={value && fits(value, expected) ? value : null} against={expected} tolerance={tolerance} size={88} theme={theme} label={value ? tr('尺寸不对', 'Wrong size') : L(WORDS.notWired)} /><figcaption>{tr('误差', 'Error')}</figcaption></figure>}
           </div>
         ) : (
           <ValueView img={value} view={shown} size={kindOf(value) === 'image' ? 200 : 300} theme={theme} label={tr('尚无结果', 'No result yet')} grid scan={scan} onScan={onScan} />
