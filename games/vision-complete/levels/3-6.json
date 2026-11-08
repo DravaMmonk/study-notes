@@ -69,8 +69,8 @@
       "step": { "zh": "找红色", "en": "Find red" },
       "kind": "graph",
       "brief": {
-        "zh": "三张输入是同一个场景的 R、G、B。标出红色的东西：亮处的、阴影里的都要；白纸、黄花不算。",
-        "en": "The three inputs are the R, G and B of one scene. Mark the red things, in the light and in the shade alike; white paper and yellow flowers do not count."
+        "zh": "标出场景中所有红色区域，包括亮处和阴影里的红色区域。",
+        "en": "Mark every red area in the scene, including red areas in both light and shade."
       },
       "hint": {
         "zh": "阴影里的红苹果，R 并不大；阳光下的白纸，R 却很大。光照把三个数一起放大缩小，什么量不受它影响？",
