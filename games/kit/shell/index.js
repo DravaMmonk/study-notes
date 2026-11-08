@@ -1,3 +1,4 @@
+import { earnedUnlocks, requiredLevels } from './progress.js'
 // The game shell shared by every game in the study notes (React). A game is content on top of it: see defineGame.
 
 export { default as GameShell } from './GameShell.jsx'
@@ -59,7 +60,8 @@ export function defineGame(def) {
   const index = new Map(levels.map((level, i) => [level.id, i]))
   // Without `requires`, a level opens once the one before it is passed.
   const requiresOf = (level) => level.requires ?? (index.get(level.id) > 0 ? [levels[index.get(level.id) - 1].id] : [])
-  const isOpen = def.isOpen ?? ((level, solved, all = false) => all || requiresOf(level).every((id) => solved.has(id)))
+  const required = (level) => requiredLevels(level, byId, requiresOf)
+  const isOpen = def.isOpen ?? ((level, solved, all = false) => all || required(level).every((id) => solved.has(id)))
   // Every level `level` comes after: what it requires, and what those require in turn.
   const before = new Map()
   const ancestors = (level) => {
@@ -77,16 +79,16 @@ export function defineGame(def) {
     ...def,
     byId,
     isOpen,
-    missing: (level, solved) => requiresOf(level).filter((id) => !solved.has(id)).map((id) => byId[id]),
+    missing: (level, solved) => required(level).filter((id) => !solved.has(id)).map((id) => byId[id]),
     // Every level still to pass before `level` opens: the unsolved ones among all it comes after.
-    needed: (level, solved) => [...ancestors(level)].filter((id) => !solved.has(id)).map((id) => byId[id]),
+    needed: (level, solved) => [...ancestors(level)].filter((id) => !byId[id]?.optional && !solved.has(id)).map((id) => byId[id]),
     // Everything a player has unlocked by the time `level` opens: the unlocks of every level it comes after.
     unlocksBefore: (level) => [...ancestors(level)].flatMap((id) => byId[id].unlocks ?? []),
     // What a player has unlocked: every solved level's unlocks (so a level that has since come to unlock something gives
     // it to whoever solved it already), and the flags the save holds.
     /** Is level `id` the level `at`, or one that comes after it? */
     after: (id, at) => id === at || (byId[id] ? ancestors(byId[id]).has(at) : false),
-    flagsOf: (progress) => [...new Set([...progress.flags, ...progress.solved.flatMap((id) => byId[id]?.unlocks ?? [])])],
+    flagsOf: (progress) => [...new Set([...progress.flags, ...progress.solved.flatMap((id) => byId[id] ? earnedUnlocks(byId[id], progress) : [])])],
   }
   // A text as it reads in level `id`, and as it reads for a player's progress (every revision whose level is open).
   const revise = (text, applies) => {
@@ -115,7 +117,7 @@ export function defineGame(def) {
           const level = byId[id]
           if (!level || !isOpen(level, solved)) return false
           if (!part.atTasks || solved.has(id)) return true
-          return level.tasks?.some((task, k) => part.atTasks.includes(task.key) && level.tasks.slice(0,k).every((prior) => progress.passed.includes(prior.key)))
+          return level.tasks?.some((task, k) => part.atTasks.includes(task.key) && level.tasks.slice(0,k).every((prior) => prior.optional || progress.passed.includes(prior.key)))
         }
         const met = def.parts.all.filter((part) => part.at?.some((id) => introduced(part, id)))
         return [...game.flagsOf(progress), ...met.map((part) => part.key)]

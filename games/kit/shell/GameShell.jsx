@@ -11,7 +11,7 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { firstTask as openTask, flagsIn, passed, saved as savedAt, taskKey, taskOpen, taskPassed } from './progress.js'
+import { earnedUnlocks, firstTask as openTask, flagsIn, passed, saved as savedAt, taskKey, taskOpen, taskPassed } from './progress.js'
 import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { playFrame } from './viewport.js'
@@ -164,7 +164,12 @@ export default function GameShell({ game, store, author = null }) {
     setFailure(null)
     setFails(0)
   }
-  const played = level && { ...level, ...tasks[taskAt], steps: { names: tasks.map((t) => t.step), at: taskAt, passed: tasks.map((_, k) => isPassed(k)), open: tasks.map((_, k) => taskOpen(game, progress, level.id, k)), go: goTask } }
+  const skipTask = (k) => {
+    const skipped = taskKey(level, k)
+    setProgress((p) => ({ ...p, skippedTasks: [...new Set([...(p.skippedTasks ?? []), skipped])] }))
+    goTask(k + 1)
+  }
+  const played = level && { ...level, ...tasks[taskAt], optionalLevel: Boolean(level.optional), skipLevel: () => open(null), steps: { names: tasks.map((t) => t.step), optional: tasks.map((t) => Boolean(t.optional)), at: taskAt, passed: tasks.map((_, k) => isPassed(k)), open: tasks.map((_, k) => taskOpen(game, progress, level.id, k)), go: goTask, skip: skipTask } }
   // A task that goes on from the one before (`carries`) opens on that task's board until it has one of its own.
   const key = level ? taskKey(level, taskAt) : null
   const kept = () => progress.data[key] ?? (tasks[taskAt].carries && taskAt > 0 ? progress.data[taskKey(level, taskAt - 1)] : undefined)
@@ -175,7 +180,7 @@ export default function GameShell({ game, store, author = null }) {
   const solve = (score) => {
     setProgress((p) => passed(game, p, level, taskAt, score))
     setFailure(null)
-    const next = tasks.findIndex((_, k) => k !== taskAt && !isPassed(k))
+    const next = tasks.findIndex((task, k) => k !== taskAt && !task.optional && !isPassed(k))
     if (next >= 0) setTaskWon({ index: taskAt, next })
     else setWon(level.id)
   }
@@ -378,7 +383,7 @@ export default function GameShell({ game, store, author = null }) {
           <TaskDoneDialog game={game} level={level} task={tasks[taskWon.index]} index={taskWon.index} next={tasks[taskWon.next]} onStay={() => setTaskWon(null)} onNext={() => goTask(taskWon.next)} />
         )}
         {won && level && won === level.id && (
-          <SolvedDialog game={game} level={level} onStay={() => setWon(null)} onExit={() => open(null)} />
+          <SolvedDialog game={game} level={{ ...level, unlocks: earnedUnlocks(level, progress) }} onStay={() => setWon(null)} onExit={() => open(null)} />
         )}
         {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
         {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}

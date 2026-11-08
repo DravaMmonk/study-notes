@@ -25,6 +25,7 @@
       "id": "4-16-features",
       "step": { "zh": "学习大范围特征", "en": "Learn a wider feature" },
       "kind": "graph",
+      "optional": true,
       "brief": {
         "zh": "训练两层 3×3 卷积，让输出呈现较大范围的亮度分布。目标等于连续做两次 3×3 平均；先观察亮点测试中，每一层的结果覆盖了多大范围。",
         "en": "Train two 3×3 convolution layers to show brightness over a wider area. The target is two successive 3×3 averages; first observe how wide an area each layer covers in the bright-dot test."

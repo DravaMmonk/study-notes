@@ -1,5 +1,6 @@
 {
   "title": { "zh": "分拣机", "en": "Sorting machine" },
+  "optional": true,
   "tray": "pipeline",
   "after": {
     "zh": "这台分拣机把局部特征汇总成类别判断：卷积可以找不同的笔画，非线性和池化帮助处理位置变化，分类部分根据特征给各类打分。它在这些新零件上也通过了检查，说明它不只适用于训练例子；要了解它在实际使用中是否可靠，还需要更多有代表性的测试。",
@@ -27,8 +28,8 @@
     },
     {
       "t": {
-        "zh": "通过<level-ref to=\"4-20\"></level-ref>后解锁了 Softmax 元件：把三类分数接进去，从三个出口分别得到概率。",
-        "en": "Passing <level-ref to=\"4-20\"></level-ref> unlocked the Softmax part: connect the three class scores and get their probabilities from its three outputs."
+        "zh": "如果通过了<level-ref to=\"4-20\"></level-ref>，可以使用解锁的 Softmax 元件，把三类分数变成概率。也可以自己搭出这一步。",
+        "en": "If you passed <level-ref to=\"4-20\"></level-ref>, you can use the unlocked Softmax part to turn the three scores into probabilities. You can also build this step yourself."
       }
     },
     {

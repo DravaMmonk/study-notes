@@ -64,6 +64,7 @@ const INTRO = S.list(S.obj({ t: TEXT, fig: S.opt(FIGURE) }), { section: 'read', 
 // What a level says once: its title, its intro, its pass text and its place in the course.
 const ONCE = {
   title: TEXT,
+  optional: S.opt(S.bool({ section: 'course', about: t('可跳过的关卡', 'a skippable level') })),
   after: S.text({ about: t('通过这一关时说的话（最后一个任务的点题）', 'what passing the level says (its last task’s pass text)') }),
   intro: INTRO,
   unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course' })),
@@ -76,6 +77,7 @@ const ONCE = {
 // What every task says: what it asks, how to start, and what passing it says before the next (the last task's is the
 // level's); what it opens for the tasks after it, and what it keeps from a player who holds it already.
 const TASK = {
+  optional: S.opt(S.bool({ section: 'course', about: t('可跳过的任务', 'a skippable task') })),
   brief: TEXT,
   hint: S.opt(TEXT),
   after: S.opt(S.text({ about: t('这个任务通过时说的话（最后一个任务用这一关的点题）', 'what passing the task says (the last task says the level’s pass text)') })),
@@ -150,7 +152,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 9,
+  version: 10,
   kinds: {
     part: PARTS,
     unlock: UNLOCKS,

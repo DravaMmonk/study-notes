@@ -628,3 +628,7 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .typeset-math .katex { font-size: 1em; }
 .typeset-math.is-display { display: block; max-width: 100%; padding-block: calc(var(--stage-gap) / 2); overflow-x: auto; overflow-y: hidden; }
 .typeset-math .katex-display { margin: 0; }
+
+.map-optional { color: var(--muted); font-size: 10px; font-weight: 400; }
+.brief-skip { padding: 6px 10px; border: 1px solid var(--rule); border-radius: 8px; background: transparent; color: var(--muted); font: inherit; cursor: pointer; }
+.map-optional { margin-left: 4px; }

@@ -83,6 +83,7 @@ export function Brief({ game, level, text, tip, hint, children }) {
         <span className="brief-id">{game.levelLabel(level)}</span>
         <h1 {...mark('title', 'level')}>{L(level.title)}</h1>
       </header>
+      {level.optionalLevel && !edit && <button type="button" className="brief-skip" onClick={level.skipLevel}>{tr('跳过此关', 'Skip this level')}</button>}
       {level.steps && (edit || level.steps.names.length > 1) && <TaskSteps steps={level.steps} />}
       {paragraphs.map((p, k) => <Text key={k} className="brief-text" text={p} mark={mark(many ? `brief[${k}]` : 'brief')} />)}
       {tip && <Text className="brief-tip" text={tip} mark={mark('tip')} />}
@@ -119,11 +120,12 @@ function TaskSteps({ steps }) {
           <li key={k}>
             <button type="button" {...(k === steps.at ? mark('step') : {})} className={`${k === steps.at ? 'is-on' : ''} ${done ? 'is-done' : ''}`} disabled={!open} aria-current={k === steps.at ? 'step' : undefined} onClick={() => k !== steps.at && steps.go(k)} title={open ? undefined : tr('请先完成前一个任务', 'Complete the previous task first')}>
               <i>{done ? <Check size={12} strokeWidth={2.6} /> : open ? k + 1 : <Lock size={11} strokeWidth={2.2} />}</i>
-              <span>{name ? L(name) : tr(`任务 ${k + 1}`, `Task ${k + 1}`)}</span>
+              <span>{name ? L(name) : tr(`任务 ${k + 1}`, `Task ${k + 1}`)}{steps.optional?.[k] && ` · ${tr('可选', 'optional')}`}</span>
             </button>
           </li>
         )
       })}
+      {!edit && steps.optional?.[steps.at] && !steps.passed[steps.at] && steps.at + 1 < steps.names.length && steps.open[steps.at + 1] && <li><button type="button" onClick={() => steps.skip(steps.at)}>{tr('跳过此任务', 'Skip this task')}</button></li>}
       {edit && <li><AddMark at="tasks" scope="level" label={{ zh: '任务', en: 'a task' }} /></li>}
     </ol>
   )

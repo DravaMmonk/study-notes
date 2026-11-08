@@ -36,9 +36,11 @@
 
 整个时代是一棵**关卡树**（参照《图灵完备》的关卡树）：
 
-- **主线**按顺序开放。主线上可以有**并行组**：主线在这里分成几路，每一路是一个小系列（路内按顺序）；几路的先后随意，全部通过后才汇回主线继续。适合"几个机制各自单独练，再合起来用"的地方。
+- **主线**按顺序开放；关卡可标为 `optional`，可以跳过，完成后才获得奖励，后续关卡仍可继续。主线上可以有**并行组**：主线在这里分成几路，每一路是一个小系列（路内按顺序）；几路的先后随意，全部通过后才汇回主线继续。适合"几个机制各自单独练，再合起来用"的地方。
 - **专题和挑战是支线**，可选，不是任何必修关的先修。它们挂在**刚好具备前置**的那一关之后（`after`）：一串题只要某几关的元件和知识就能做，就直接挂在那一关后面，不必排到时代最后。不写 `after` 时挂在主线末尾。
 - **下一代机体在本代主线走完后开放**，与支线做没做完无关。
+
+关卡内的任务也可以标为 `optional`：可跳过并返回补做，未完成不算通过、不发放该任务奖励；所有必做任务完成即通过关卡。可选关卡仍在主线的学习顺序中，因此完成后解锁的元件能按托盘规则在后续使用；跳过时后续关卡不能依赖这些元件作为唯一解法。
 
 设计路线时同时考虑概念、元件和文案依赖。地图顺序不等于玩家实际经历：并行或可选路线中的先修内容，应按 `requires` 判断。专题可用 `carry` 从先修关的已保存电路继续；封装件升级按先修路线选择玩家通过的版本。
 
@@ -608,8 +610,7 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 ### 6.10 界面
 
 **Unlock all.** The progress dialog offers a one-way action that opens all levels, tasks, parts and encyclopedia
-entries without marking any task passed. Clearing play progress retains this choice. A level is complete only
-when every task has passed, even if tasks are played out of order.
+entries without marking any task passed. Clearing play progress retains this choice. A level is complete once every required task has passed, even if tasks are played out of order. Optional tasks may be skipped and are only marked passed, and grant their own rewards, when actually completed.
 
 所有游戏共用的界面原则和交互约定，改界面时照着做、改动时保持。颜色、字号、间距、圆角取 `kit/tokens.css` 的变量（几套主题都在那里调），这里不抄数值；某一款游戏特有的界面写在那款游戏自己的设计文档里。
 

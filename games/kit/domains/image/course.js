@@ -110,11 +110,11 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
   // A task as the shell plays it (../../shell/GameShell.jsx): the domain's defaults under it, its level's place in the
   // course, its key and name (`step`, from the content's task `given`), and what it opens for the tasks after it. A level
   // unlocks what any of its tasks does, and is of its last task's kind.
-  const read = (id, task, given) => ({ inputs: ['in'], outputs: ['out'], adds: [], check: { tolerance: 0.02 }, ...task, chapter: chapterOf.get(id), ...viewsAt(id), unlocks: unlocksOf(task), requires: requires.get(id) ?? [], carry: carry.get(id), step: given.step, opens: given.unlocks ?? [], key: task.taskId })
+  const read = (id, task, given) => ({ inputs: ['in'], outputs: ['out'], adds: [], check: { tolerance: 0.02 }, ...task, chapter: chapterOf.get(id), ...viewsAt(id), unlocks: unlocksOf(task), requires: requires.get(id) ?? [], carry: carry.get(id), step: given.step, optional: given.optional ?? false, opens: given.unlocks ?? [], key: task.taskId })
   const placed = plan.order.map((id) => {
     const { tasks, intro: _, ...once } = content[id]
     const all = played.get(id).map((task, k) => read(id, task, tasks[k]))
-    return { ...once, id, kind: all.at(-1).kind, chapter: chapterOf.get(id), requires: requires.get(id) ?? [], adds: once.adds ?? [], unlocks: [...new Set([...unlocksOf({ ...once, id }), ...all.flatMap((t) => t.unlocks)])], tasks: all }
+    return { ...once, id, levelUnlocks: unlocksOf({ ...once, id }), kind: all.at(-1).kind, chapter: chapterOf.get(id), requires: requires.get(id) ?? [], adds: once.adds ?? [], unlocks: [...new Set([...unlocksOf({ ...once, id }), ...all.flatMap((t) => t.unlocks)])], tasks: all }
   })
   for (const level of levels) if (!placed.some((l) => l.id === level.id)) throw new Error(`level ${level.id} is not on the route`)
   const placedById = Object.fromEntries(placed.map((level) => [level.id, level]))

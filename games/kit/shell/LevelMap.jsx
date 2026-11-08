@@ -287,10 +287,10 @@ export function LevelTree({ game, track, byId, solved, all, best = () => null, c
     const score = won && best(level.id) && game.bestLabel?.(best(level.id))
     const here = level.id === current
     return (
-      <button key={level.id} data-level={level.id} style={style} title={L(level.title)} aria-current={here ? 'page' : undefined} className={`map-node ${state} ${game.core(level) ? '' : 'is-minor'} ${optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''} ${here ? 'is-here' : ''} ${needed?.ids.has(level.id) ? 'is-needed' : ''} ${needed?.asked === level.id ? 'is-asked' : ''}`} aria-disabled={!open} onClick={() => (open ? onOpen(level.id) : needed?.ask(level.id))}>
+      <button key={level.id} data-level={level.id} style={style} title={L(level.title)} aria-current={here ? 'page' : undefined} className={`map-node ${state} ${game.core(level) ? '' : 'is-minor'} ${optional || level.optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''} ${here ? 'is-here' : ''} ${needed?.ids.has(level.id) ? 'is-needed' : ''} ${needed?.asked === level.id ? 'is-asked' : ''}`} aria-disabled={!open} onClick={() => (open ? onOpen(level.id) : needed?.ask(level.id))}>
         <span className="map-pad" aria-hidden="true">{won ? <Check size={11} strokeWidth={2.6} /> : open ? null : <Lock size={9} />}</span>
         <span className="map-node-id">{game.levelLabel(level)}</span>
-        <span className="map-node-title">{L(level.title)}</span>
+        <span className="map-node-title">{L(level.title)}</span>{level.optional && <small className="map-optional">{tr('可选', 'optional')}</small>}
         {score ? <span className="map-node-best">{score}</span> : kind?.icon && !compact && <span className="map-node-kind" aria-label={L(kind.label)}>{createElement(kind.icon, { size: game.core(level) ? 13 : 12 })}</span>}
       </button>
     )
@@ -365,7 +365,7 @@ export function NeededNote({ game, needed, onOpen }) {
 export default function LevelMap({ game, progress, solved, onAll, onOpen, focus, onReset, onParts, partsNew = 0, onWiki, unread = 0, theme }) {
   const levels = game.levels
   const done = levels.filter((level) => solved.has(level.id)).length
-  const next = levels.find((level) => !solved.has(level.id) && game.isOpen(level, solved, progress.all))
+  const next = levels.find((level) => !level.optional && !solved.has(level.id) && game.isOpen(level, solved, progress.all)) ?? levels.find((level) => !solved.has(level.id) && game.isOpen(level, solved, progress.all))
   const [progressOpen, setProgressOpen] = useState(false)
   const phone = useMedia(PHONE)
   const needed = useNeeded(game, solved, progress.all)

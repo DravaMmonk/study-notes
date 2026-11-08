@@ -1,5 +1,6 @@
 {
   "title": { "zh": "三选一", "en": "One of three" },
+  "optional": true,
   "unlocks": ["softmax"],
   "tray": "pipeline",
   "after": {
@@ -9,8 +10,8 @@
   "intro": [
     {
       "t": {
-        "zh": "这一章最后三关，要搭一台零件分拣机：传送带上有 X、O、+ 三种零件，相机拍一张，机器说是哪一种。<level-ref to=\"4-19\"></level-ref>看到，模型要在新样本上也准才算数。",
-        "en": "The last three levels of this chapter build a parts sorter: X, O and + parts ride the belt, the camera takes a picture and the machine says which kind it is. <level-ref to=\"4-19\"></level-ref> showed that a model only counts if it is right on new samples too."
+        "zh": "分拣机要辨认 X、O、+ 三种零件。相机拍一张，网络先给每一类打一个分，再判断它是哪一种。",
+        "en": "The sorting machine needs to recognise X, O and + parts. From a camera image, the network first gives each class a score and then decides which kind it is."
       }
     },
     {
