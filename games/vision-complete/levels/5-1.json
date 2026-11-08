@@ -2,14 +2,14 @@
   "title": { "zh": "图块的注意力", "en": "Attention between patches" },
   "tray": "pipeline",
   "after": {
-    "zh": "查询 Q 与键 K 的比较决定权重，值 V 提供被加权汇总的内容。这里使用缩放点积和 Softmax 计算权重；真实视觉模型通常学习 Q、K、V 的特征表示，让各个图块汇总有用的信息。",
-    "en": "Comparisons between query Q and keys K determine the weights; values V provide the information being combined. This experiment uses scaled dot products and Softmax for the weights. Vision models usually learn the Q, K and V representations so each patch can combine useful information."
+    "zh": "本关的图块有 16 个像素，因此 4 × 平均(a × 图块) 等于点积 Q·K 除以 √16。Softmax 把分数转换为权重，输出是对应 V 的加权和。自注意力对每个图块进行这样的计算；真实视觉模型通常学习 Q、K、V 的特征表示。",
+    "en": "Each patch has 16 pixels, so 4 × average(a × patch) equals the dot product Q·K divided by √16. Softmax converts scores into weights, and the output is the weighted sum of the corresponding V. Self-attention performs this calculation for each patch; vision models usually learn the Q, K and V representations."
   },
   "intro": [
     {
       "t": {
-        "zh": "卷积一次处理局部区域；注意力可以让一个图块汇总来自其他图块的信息。先通过三段实验观察它如何选择信息、如何形成输出。",
-        "en": "A convolution processes a local region at a time; attention lets a patch combine information from other patches. Three experiments show how attention selects information and forms an output."
+        "zh": "卷积一次处理局部区域；注意力可以让一个图块汇总来自其他图块的信息。先通过实验观察注意力如何选择和汇总信息，再亲手搭出两个图块的注意力电路。",
+        "en": "A convolution processes a local region at a time; attention lets a patch combine information from other patches. First experiment with how attention selects and combines information, then build an attention circuit for two patches."
       }
     },
     {
@@ -28,20 +28,20 @@
   "unlocks": ["attention"],
   "tasks": [
     {
-      "id": "5-1-query",
-      "step": { "zh": "查询 Q", "en": "Query Q" },
+      "id": "5-1-experiment",
+      "step": { "zh": "观察 Q、K、V", "en": "Explore Q, K and V" },
       "kind": "board",
       "brief": {
-        "zh": "切换查询 Q，比较两个键的权重怎样变化。然后将 Q 设为 O，选择权重较大的键。",
-        "en": "Switch query Q and compare how the weights of the two keys change. Then set Q to O and select the key with the greater weight."
+        "zh": "切换 Q、交换 K 或 V，比较权重和输出的变化。然后将 Q 设为 X、K 保持原来、交换 V，选出输出中更明显的图案。",
+        "en": "Change Q and swap K or V to compare the weights and output. Then set Q to X, keep K in its original arrangement, swap V, and select the more prominent pattern in the output."
       },
       "hint": {
-        "zh": "键 A 是 X，键 B 是 O。查询与每个键分别比较，匹配程度影响对应的权重。",
-        "en": "Key A is X and key B is O. The query is compared with each key; the match affects the corresponding weight."
+        "zh": "Q 与 K 的比较决定权重；每个权重作用于同一位置的 V。只交换 V 时，权重不变，但输出内容会改变。",
+        "en": "Comparing Q with K determines the weights; each weight applies to the V in the same position. Swapping only V leaves the weights unchanged but changes the output."
       },
       "bench": {
         "model": "attentionRoles",
-        "setup": { "role": "query" },
+        "setup": { "role": "value" },
         "knobs": {
           "query": {
             "label": { "zh": "查询图块 Q", "en": "Query patch Q" },
@@ -51,41 +51,6 @@
             ],
             "start": "cross"
           },
-          "pick": {
-            "label": { "zh": "权重较大的键", "en": "Key with greater weight" },
-            "choices": [
-              { "value": "a", "label": { "zh": "A", "en": "A" } },
-              { "value": "b", "label": { "zh": "B", "en": "B" } }
-            ],
-            "start": null
-          }
-        },
-        "goal": [{ "of": "correct", "is": true }],
-        "win": { "zh": "观察完成。", "en": "Observation complete." },
-        "status": { "zh": "调整图块并选择答案。", "en": "Adjust the patches and select an answer." },
-        "layout": { "main": ["attentionRoles", { "panel": ["knobs", "verdict"] }] }
-      },
-      "after": {
-        "zh": "Q 是当前图块用于寻找相关信息的表示。改变 Q，即使候选键不变，分配给各个值的权重也会变化。",
-        "en": "Q represents the current patch when finding relevant information. Changing Q can change the weights assigned to the values even when the candidate keys stay fixed."
-      }
-    },
-    {
-      "id": "5-1-key",
-      "step": { "zh": "键 K", "en": "Key K" },
-      "kind": "board",
-      "brief": {
-        "zh": "查询 Q 固定为 X。交换键 A、B，观察权重如何变化，选择交换后权重较大的键。值的位置保持不变。",
-        "en": "Query Q is fixed as X. Swap keys A and B, observe the weights, and select the key with the greater weight after the swap. The values stay in place."
-      },
-      "hint": {
-        "zh": "键用于与查询比较；每个键的权重会分配给同一位置的值。",
-        "en": "Keys are compared with the query; each key’s weight is assigned to the value in the same position."
-      },
-      "bench": {
-        "model": "attentionRoles",
-        "setup": { "role": "key" },
-        "knobs": {
           "keys": {
             "label": { "zh": "键的排列", "en": "Key arrangement" },
             "choices": [
@@ -94,41 +59,6 @@
             ],
             "start": "normal"
           },
-          "pick": {
-            "label": { "zh": "权重较大的键", "en": "Key with greater weight" },
-            "choices": [
-              { "value": "a", "label": { "zh": "A", "en": "A" } },
-              { "value": "b", "label": { "zh": "B", "en": "B" } }
-            ],
-            "start": null
-          }
-        },
-        "goal": [{ "of": "correct", "is": true }],
-        "win": { "zh": "观察完成。", "en": "Observation complete." },
-        "status": { "zh": "调整图块并选择答案。", "en": "Adjust the patches and select an answer." },
-        "layout": { "main": ["attentionRoles", { "panel": ["knobs", "verdict"] }] }
-      },
-      "after": {
-        "zh": "K 是候选信息用于匹配的表示。改变 K 会改变分数和权重，也会改变对应位置的 V 对输出的贡献。",
-        "en": "K represents candidate information for matching. Changing K changes the scores and weights, and therefore the contribution of the V at the corresponding position."
-      }
-    },
-    {
-      "id": "5-1",
-      "step": { "zh": "值 V", "en": "Value V" },
-      "kind": "board",
-      "brief": {
-        "zh": "查询和键保持不变。交换值 A、B，观察权重和输出图块，选择输出中更明显的图案。",
-        "en": "Keep the query and keys fixed. Swap values A and B, observe the weights and output patch, and select the more prominent pattern in the output."
-      },
-      "hint": {
-        "zh": "权重由 Q 和 K 决定；输出的每个像素是两个值在对应位置的加权和。",
-        "en": "Q and K determine the weights; each output pixel is the weighted sum of the corresponding pixels in the two values."
-      },
-      "bench": {
-        "model": "attentionRoles",
-        "setup": { "role": "value" },
-        "knobs": {
           "values": {
             "label": { "zh": "值的排列", "en": "Value arrangement" },
             "choices": [
@@ -150,7 +80,93 @@
         "win": { "zh": "观察完成。", "en": "Observation complete." },
         "status": { "zh": "调整图块并选择答案。", "en": "Adjust the patches and select an answer." },
         "layout": { "main": ["attentionRoles", { "panel": ["knobs", "verdict"] }] }
+      },
+      "after": {
+        "zh": "Q 和 K 决定各处信息的权重，V 提供被汇总的内容。接下来用电路实现一次这样的计算：这次两个图块自身同时作为键和值。",
+        "en": "Q and K determine the weights for the information, while V supplies the content to combine. Next, build a circuit for this calculation using each of two patches as both a key and a value."
       }
+    },
+    {
+      "id": "5-1",
+      "kind": "graph",
+      "brief": {
+        "zh": "以图块 a 为查询，a 和 b 各自作为键和值。分别计算 a 与 a、a 与 b 的注意力分数：分数 = 4 × 平均(a × 对应图块)。对两个分数做 Softmax：权重 = e^分数 ÷ 两个 e^分数之和。输出图块 a 和 b 的加权和。",
+        "en": "Use patch a as the query, with a and b each acting as a key and a value. Compute scores for a with a and a with b: score = 4 × average(a × corresponding patch). Apply Softmax to the two scores: weight = e^score ÷ the sum of both e^score. Output the weighted sum of patches a and b."
+      },
+      "hint": {
+        "zh": "先逐格相乘，再对整块图取平均，分别得到两个分数。一个数与图块相乘时，该数会作用于图块的每个像素。",
+        "en": "Multiply pixel by pixel and average over each patch to obtain the two scores. When a number multiplies a patch, it applies to every pixel."
+      },
+      "inputs": ["a", "b"],
+      "inputLabels": {
+        "a": { "zh": "图块 a（查询）", "en": "Patch a (query)" },
+        "b": { "zh": "图块 b", "en": "Patch b" }
+      },
+      "scene": "filter",
+      "setup": { "target": "ask" },
+      "tests": [
+        {
+          "label": { "zh": "X、C", "en": "X, C" },
+          "inputs": { "a": { "tile": { "name": "X" } }, "b": { "tile": { "name": "C" } } }
+        },
+        {
+          "label": { "zh": "P、K", "en": "P, K" },
+          "inputs": { "a": { "tile": { "name": "P" } }, "b": { "tile": { "name": "K" } } }
+        },
+        {
+          "label": { "zh": "R、S", "en": "R, S" },
+          "inputs": { "a": { "tile": { "name": "R" } }, "b": { "tile": { "name": "S" } } }
+        },
+        {
+          "label": { "zh": "淡 S、X", "en": "Faint S, X" },
+          "inputs": { "a": { "tile": { "name": "S", "hi": 0.5 } }, "b": { "tile": { "name": "X" } } }
+        }
+      ],
+      "hidden": [
+        {
+          "label": { "zh": "K、R", "en": "K, R" },
+          "inputs": { "a": { "tile": { "name": "K" } }, "b": { "tile": { "name": "R" } } }
+        },
+        {
+          "label": { "zh": "C、淡 P", "en": "C, faint P" },
+          "inputs": { "a": { "tile": { "name": "C" } }, "b": { "tile": { "name": "P", "hi": 0.6 } } }
+        }
+      ],
+      "solution": [
+        "aa = arith[op=mul](a, a)",
+        "ab = arith[op=mul](a, b)",
+        "ma = fqMean(aa)",
+        "mb = fqMean(ab)",
+        "sa = arith[op=mul,constantSide=b,constant=4](ma)",
+        "sb = arith[op=mul,constantSide=b,constant=4](mb)",
+        "ea = exp(sa)",
+        "eb = exp(sb)",
+        "wa = arith[op=mul](ea, a)",
+        "wb = arith[op=mul](eb, b)",
+        "den = merge(ea, eb)",
+        "num = merge(wa, wb)",
+        "q = arith[op=div](num, den)",
+        "out <- q"
+      ],
+      "naive": ["out <- a"],
+      "alsoFails": [
+        [
+          "k = const[c=4]()",
+          "aa = arith[op=mul](a, a)",
+          "ab = arith[op=mul](a, b)",
+          "ma = fqMean(aa)",
+          "mb = fqMean(ab)",
+          "sa = arith[op=mul](ma, k)",
+          "sb = arith[op=mul](mb, k)",
+          "wa = arith[op=mul](sa, a)",
+          "wb = arith[op=mul](sb, b)",
+          "den = merge(sa, sb)",
+          "num = merge(wa, wb)",
+          "q = arith[op=div](num, den)",
+          "out <- q"
+        ]
+      ],
+      "step": { "zh": "搭建注意力", "en": "Build attention" }
     }
   ]
 }

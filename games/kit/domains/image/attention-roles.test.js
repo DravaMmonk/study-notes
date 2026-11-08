@@ -17,4 +17,5 @@ test('queries and keys change weights, values change the output without changing
   assert.equal(model.view({ ...base, query: 'ring', pick: 'b' }).correct, true)
   assert.equal(attentionRoles.make({ role: 'key' }).view({ ...base, keys: 'swapped', pick: 'b' }).correct, true)
   assert.equal(attentionRoles.make({ role: 'value' }).view({ ...base, values: 'swapped', pick: 'horizontal' }).correct, true)
+  assert.equal(attentionRoles.make({ role: 'value' }).view({ ...base, query: 'ring', values: 'swapped', pick: 'horizontal' }).correct, false)
 })

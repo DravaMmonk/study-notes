@@ -20,7 +20,7 @@ export const attentionRoles = {
         const output = values[0].map((a, i) => weights[0] * a + weights[1] * values[1][i])
         const correct = role === 'query' ? v.query === 'ring' && v.pick === 'b'
           : role === 'key' ? v.keys === 'swapped' && v.pick === 'b'
-            : v.values === 'swapped' && v.pick === 'horizontal'
+            : (v.query ?? 'cross') === 'cross' && (v.keys ?? 'normal') === 'normal' && v.values === 'swapped' && v.pick === 'horizontal'
         return { query, keys, values, weights, output, correct }
       },
     }
