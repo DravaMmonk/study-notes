@@ -9,6 +9,7 @@ import { describe } from '../../words.js'
 import { partsFor, visibleSettings } from '../parts.js'
 import ImageView from '../ImageView.jsx'
 import ColourPreview from '../ColourPreview.jsx'
+import MultiOutputPreview from '../MultiOutputPreview.jsx'
 import { rangeOf } from '../display.js'
 import ValueView from '../views/ValueView.jsx'
 import ViewSwitch from '../views/ViewSwitch.jsx'
@@ -68,6 +69,8 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
     const open = node.type !== 'input' && parts.inputs(node).some((port) => !feeding(graph, node.id, port) && !(node.type === 'arith' && node.params.constantSide === port))
     if (open) return <i className="pb-empty" style={{ width: size, height: size }}>{tr('待接线', 'unwired')}</i>
     if (errors?.get(node.id)) return <i className="pb-error" style={{ width: size, height: size }}>!</i>
+    const outputs = node.type !== 'input' ? parts.outputs(node) : null
+    if (outputs?.length > 1) return <MultiOutputPreview node={node} outputs={outputs} values={values} view={nodeView(node, views)} theme={theme} size={40} compact />
     if (!value) return <i className="pb-empty" style={{ width: size, height: size }} />
     if (node.type === 'input' && value.c === 3) return <ColourPreview img={value} theme={theme} />
     return <ValueView img={value} view={nodeView(node, views)} size={kindOf(value) === 'signal' ? size * 1.6 : size} theme={theme} />
@@ -176,6 +179,8 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
               flags={flags}
               ioKinds={ioKinds}
               value={values?.get(node.id)}
+              multiOutputs={node.type !== 'input' ? parts.outputs(node) : null}
+              values={values}
               error={errors?.get(node.id)}
               check={node.type === 'output' ? checks?.find((c) => c.name === node.params.name) : null}
               expected={node.type === 'output' ? level.tests[testIndex].expected[node.params.name] : null}
@@ -209,7 +214,7 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
 }
 
 // One block in a sheet: what it is, its settings, and what it makes on this test (its wires are on the board).
-function PartPanel({ kit, node, description, flags, ioKinds, value, error, check, expected, tolerance, views, theme, scan, onScan, onParam, onSetParam, onView, onRemove, onMove }) {
+function PartPanel({ kit, node, description, flags, ioKinds, value, multiOutputs, values, error, check, expected, tolerance, views, theme, scan, onScan, onParam, onSetParam, onView, onRemove, onMove }) {
   const params = visibleSettings(kit, node, flags)
   const shown = nodeView(node, views)
   const [probe, setProbe] = useState(null)
@@ -245,6 +250,8 @@ function PartPanel({ kit, node, description, flags, ioKinds, value, error, check
         <span className="pc-label">{node.type === 'output' ? (check?.pass === null ? tr('尚未测试：点击「运行测试」查看是否通过', 'Not tested yet: run the tests to check') : check?.pass ? tr('这组通过', 'This test passes') : L(check?.reason) || tr('尚未通过', 'Not passing yet')) : tr('计算结果（当前测试）', 'Result (current test)')}</span>
         {error ? (
           <p className="ph-error">{L(error)}</p>
+        ) : multiOutputs?.length > 1 ? (
+          <MultiOutputPreview node={node} outputs={multiOutputs} values={values} view={shown} theme={theme} size={72} />
         ) : node.type === 'output' && expected ? (
           <div className="pc-compare">
             <figure><ValueView img={expected} view={shown} size={kindOf(expected) === 'image' ? 88 : 150} theme={theme} onHover={setProbe} selected={probe} /><figcaption>{L(WORDS.wanted)}</figcaption></figure>

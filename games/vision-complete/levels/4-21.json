@@ -27,6 +27,12 @@
     },
     {
       "t": {
+        "zh": "通过<level-ref to=\"4-20\"></level-ref>后解锁了 Softmax 元件：把三类分数接进去，从三个出口分别得到概率。",
+        "en": "Passing <level-ref to=\"4-20\"></level-ref> unlocked the Softmax part: connect the three class scores and get their probabilities from its three outputs."
+      }
+    },
+    {
+      "t": {
         "zh": "这一关你要做的：输出三个概率，正确那一类大于 0.55，另两类小于 0.45。要想的问题：三类零件靠哪些笔画区分？网络要看出几种笔画？",
         "en": "Your task in this level: output three probabilities, above 0.55 for the right class and below 0.45 for the other two. Something to think about: which strokes tell the three kinds apart? How many kinds of stroke must the network see?"
       }
@@ -164,17 +170,10 @@
         "sx = arith[op=add](dx0, dx1)",
         "so = arith[op=add](do0, do1)",
         "sp = arith[op=add](dp0, dp1)",
-        "ex = exp(sx)",
-        "eo = exp(so)",
-        "ep = exp(sp)",
-        "s1 = arith[op=add](ex, eo)",
-        "s2 = arith[op=add](s1, ep)",
-        "qx = arith[op=div](ex, s2)",
-        "qo = arith[op=div](eo, s2)",
-        "qp = arith[op=div](ep, s2)",
-        "px <- qx",
-        "po <- qo",
-        "pp <- qp"
+        "prob = softmax(sx, so, sp)",
+        "px <- prob.p1",
+        "po <- prob.p2",
+        "pp <- prob.p3"
       ],
       "naive": [
         "c0 = lrnConv(in)",
@@ -194,17 +193,10 @@
         "sx = arith[op=add](dx0, dx1)",
         "so = arith[op=add](do0, do1)",
         "sp = arith[op=add](dp0, dp1)",
-        "ex = exp(sx)",
-        "eo = exp(so)",
-        "ep = exp(sp)",
-        "s1 = arith[op=add](ex, eo)",
-        "s2 = arith[op=add](s1, ep)",
-        "qx = arith[op=div](ex, s2)",
-        "qo = arith[op=div](eo, s2)",
-        "qp = arith[op=div](ep, s2)",
-        "px <- qx",
-        "po <- qo",
-        "pp <- qp"
+        "prob = softmax(sx, so, sp)",
+        "px <- prob.p1",
+        "po <- prob.p2",
+        "pp <- prob.p3"
       ]
     }
   ]

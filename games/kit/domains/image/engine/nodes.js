@@ -82,6 +82,22 @@ export const NODE_TYPES = {
     },
     cost: 1,
   },
+  softmax: {
+    label: 'Softmax',
+    inputs: ['s1', 's2', 's3'],
+    inputLabels: { s1: 'S1', s2: 'S2', s3: 'S3' },
+    outputLabels: { p1: 'P1', p2: 'P2', p3: 'P3' },
+    outputs: () => ['p1', 'p2', 'p3'],
+    eval: ({ s1, s2, s3 }, _params, _variant, key) => {
+      const peak = zip(zip(s1, s2, Math.max), s3, Math.max)
+      const exps = [s1, s2, s3].map((score) => zip(score, peak, (v, max) => Math.exp(v - max)))
+      const sum = zip(zip(exps[0], exps[1], (a, b) => a + b), exps[2], (a, b) => a + b)
+      const numerator = exps[{ p1: 0, p2: 1, p3: 2 }[key]]
+      return zip(numerator, sum, (a, b) => a / b)
+    },
+    cost: 8,
+    unlock: 'softmax',
+  },
   // Adds whatever is wired into its three inputs; an empty input is skipped.
   merge: {
     label: { zh: '汇合器', en: 'Merger' },
@@ -268,7 +284,7 @@ export function specsOf(types) {
   }
   return {
     types,
-    outputsOf: (type) => types[type].outputs ?? ['out'],
+    outputsOf: (type) => typeof types[type].outputs === 'function' ? types[type].outputs() : types[type].outputs ?? ['out'],
     inputsOf: (type) => types[type].inputs ?? [],
     snapSetting,
     settingsOf: (type, flags) => paramsOf(type)

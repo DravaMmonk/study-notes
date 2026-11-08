@@ -9,6 +9,7 @@ import { KernelEditor, NumberEditor } from './phone/Editors.jsx'
 import { setParam } from './phone/ops.js'
 import { ParamChip } from './phone/parts.jsx'
 import ValueView from './views/ValueView.jsx'
+import MultiOutputPreview from './MultiOutputPreview.jsx'
 import { kindOf, nodeView, viewFor } from './views/views.js'
 import './phone/phone.css'
 
@@ -46,13 +47,15 @@ function benchFor(kit, levels, box, flag, type, home, sample = false) {
   } else {
     const inputs = names.map((name, k) => ({ id: `in-${name}`, type: 'input', params: { name }, x: 40, y: 40 + k * 200 }))
     const feed = (port, k) => inputs[ports.length === names.length ? k : 0]
+    const keys = typeof spec.outputs === 'function' ? spec.outputs() : [null]
+    const sinks = keys.map((key, k) => ({ id: key === null ? 'out' : `out-${key}`, type: 'output', params: { name: key ?? 'out' }, x: 520, y: 40 + k * 200 }))
     graph = {
-      nodes: [...inputs, { id: 'part', type: nodeType, params, x: 280, y: 40 }, { id: 'out', type: 'output', params: { name: 'out' }, x: 520, y: 40 }],
-      wires: [...(inputs.length ? ports.map((port, k) => ({ from: feed(port, k).id, to: 'part', port })) : []), { from: 'part', to: 'out', port: 'in' }],
+      nodes: [...inputs, { id: 'part', type: nodeType, params, x: 280, y: 40 }, ...sinks],
+      wires: [...(inputs.length ? ports.map((port, k) => ({ from: feed(port, k).id, to: 'part', port })) : []), ...sinks.map((sink, k) => ({ from: keys[k] === null ? 'part' : `part#${keys[k]}`, to: sink.id, port: 'in' }))],
     }
   }
   const outputs = graph.nodes.filter((n) => n.type === 'output').map((n) => n.params.name)
-  const bench = { kind: 'graph', inputs: names, outputs, tests, check: source.check, views: source.views, inputLabels: source.inputLabels, outputLabels: source.outputLabels ?? {} }
+  const bench = { kind: 'graph', inputs: names, outputs, tests, check: source.check, views: source.views, inputLabels: source.inputLabels, outputLabels: { ...source.outputLabels, ...spec.outputLabels } }
   const first = runLevel(bench, graph).results[0]
   // A part its level's own tests do not suit (the spectrum, met on a 1-D signal, is a 2-D part) is tried on the
   // sample pictures instead.
@@ -116,6 +119,8 @@ export default function PartDemo({ kit, flag, type, home, flags, phone, levels, 
   const picture = (node, size) => {
     if (errors?.get(node.id)) return <i className="pb-error" style={{ width: size, height: size }}>!</i>
     const value = valueOf(node)
+    const outputs = node.type !== 'input' ? parts.outputs(node) : null
+    if (outputs?.length > 1) return <MultiOutputPreview node={node} outputs={outputs} values={values} view={nodeView(node, made.views)} theme={theme} size={40} compact />
     if (!value) return <i className="pb-empty" style={{ width: size, height: size }} />
     return <ValueView img={value} view={nodeView(node, made.views)} size={kindOf(value) === 'signal' ? size * 1.6 : size} theme={theme} />
   }

@@ -18,7 +18,7 @@ export const FAMILIES = {
 const FAMILY_OF = {
   input: 'io', output: 'io',
   add: 'pixel', sub: 'pixel', mul: 'pixel', arith: 'pixel', merge: 'pixel', const: 'pixel', threshold: 'pixel', invert: 'pixel',
-  square: 'pixel', sqrt: 'pixel', cos: 'pixel', exp: 'pixel', relu: 'pixel', max: 'pixel', lrnSigmoid: 'pixel',
+  softmax: 'pixel', square: 'pixel', sqrt: 'pixel', cos: 'pixel', exp: 'pixel', relu: 'pixel', max: 'pixel', lrnSigmoid: 'pixel',
   mystery: 'neighbour', shift: 'neighbour', blur3h: 'neighbour', box3: 'neighbour', gauss: 'neighbour', diffx: 'neighbour',
   sobelx: 'neighbour', sobely: 'neighbour', kernel3: 'neighbour', gradmag: 'neighbour', harris: 'neighbour',
   downsample: 'size', maxpool: 'size', lrnGap: 'size', zeroUp: 'size',

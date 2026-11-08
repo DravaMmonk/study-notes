@@ -1,0 +1,8 @@
+.image-multi-output { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+.image-multi-output figure { margin: 0; min-width: 0; text-align: center; }
+.image-multi-output figcaption { color: var(--muted); font-size: 11px; }
+.image-multi-output .number-view { min-width: 0; }
+
+.image-multi-output.is-compact { flex-wrap: nowrap; gap: 3px; }
+.image-multi-output.is-compact .number-view { min-height: 34px; padding: 0 2px; }
+.image-multi-output.is-compact .number-view b { font-size: 11px; }

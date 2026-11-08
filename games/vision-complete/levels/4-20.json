@@ -1,5 +1,6 @@
 {
   "title": { "zh": "三选一", "en": "One of three" },
+  "unlocks": ["softmax"],
   "tray": "pipeline",
   "after": {
     "zh": "这叫 Softmax：先用 e 的几次方把分变成正数，再除以总和。分差 1，概率就差 e 倍，最高分会被放大。分类网络的最后一步几乎都是它。",
@@ -43,8 +44,8 @@
       "id": "4-20",
       "kind": "graph",
       "brief": {
-        "zh": "分拣机要把零件分成三类：X、O 和 +。网络先给每类打一个分，分可正可负。把三个分变成三个概率：每个都在 0 到 1 之间，加起来是 1，分越高的概率越大。期望用的是 e^分 ÷ 三个 e^分 之和。",
-        "en": "The sorting machine has to put parts into three classes: X, O and +. The network first gives each class a score, which may be positive or negative. Turn the three scores into three probabilities, each between 0 and 1, adding up to 1, with a higher score getting a higher probability. The expected output uses e^score ÷ the sum of the three e^score."
+        "zh": "分拣机要把零件分成三类：X、O 和 +。网络先给每类打一个分，S1、S2、S3 依次对应 X、O、+，分可正可负。把三个分变成三个概率：每个都在 0 到 1 之间，加起来是 1，分越高的概率越大。期望用的是 e^分 ÷ 三个 e^分 之和。",
+        "en": "The sorting machine has to put parts into three classes: X, O and +. The network first gives each class a score: S1, S2 and S3 correspond to X, O and +. Scores may be positive or negative. Turn the three scores into three probabilities, each between 0 and 1, adding up to 1, with a higher score getting a higher probability. The expected output uses e^score ÷ the sum of the three e^score."
       },
       "hint": {
         "zh": "分可能是负数，直接除以总和会出错。exp 把任何数变成正数。",
@@ -52,12 +53,16 @@
       },
       "inputs": ["sx", "so", "sp"],
       "inputLabels": {
-        "sx": { "zh": "X 的分", "en": "Score X" },
-        "so": { "zh": "O 的分", "en": "Score O" },
-        "sp": { "zh": "+ 的分", "en": "Score +" }
+        "sx": { "zh": "S1", "en": "S1" },
+        "so": { "zh": "S2", "en": "S2" },
+        "sp": { "zh": "S3", "en": "S3" }
       },
       "outputs": ["px", "po", "pp"],
-      "outputLabels": { "px": { "zh": "是 X", "en": "Is X" }, "po": { "zh": "是 O", "en": "Is O" }, "pp": { "zh": "是 +", "en": "Is +" } },
+      "outputLabels": {
+        "px": { "zh": "P1", "en": "P1" },
+        "po": { "zh": "P2", "en": "P2" },
+        "pp": { "zh": "P3", "en": "P3" }
+      },
       "check": { "tolerance": 0.01 },
       "scene": "scores",
       "tests": [

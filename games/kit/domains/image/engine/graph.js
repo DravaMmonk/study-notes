@@ -78,7 +78,7 @@ export function runnerOf(types) {
               const filled = prepare(Object.fromEntries(planes.map((plane, i) => [i, plane ?? image(1, 1)])), null, {})
               return compose(filled[0], filled[1], filled[2])
             } })
-          : { spec, inputs: spec.inputs, optional: spec.optional, eval: (ins, node, ctx) => spec.eval(ins, node.params ?? {}, ctx.variant ?? null) })
+          : { spec, inputs: spec.inputs, optional: spec.optional, ...(typeof spec.outputs === 'function' ? { outputs: spec.outputs } : {}), eval: (ins, node, ctx, key) => spec.eval(ins, node.params ?? {}, ctx.variant ?? null, key) })
     }
     return wrapped.get(spec)
   }
