@@ -6,13 +6,13 @@ import { Notice, PartActions, SlotBoard, Tray, feeding, useSlotEditing } from '.
 import { PhonePage, RunDock, TestTabs } from '../../../../shell/index.js'
 import { familyOf, iconOf } from '../catalog.js'
 import { describe } from '../../words.js'
-import { partsFor } from '../parts.js'
+import { partsFor, visibleSettings } from '../parts.js'
 import ImageView from '../ImageView.jsx'
 import ColourPreview from '../ColourPreview.jsx'
 import { rangeOf } from '../display.js'
 import ValueView from '../views/ValueView.jsx'
 import ViewSwitch from '../views/ViewSwitch.jsx'
-import { KIND_NAMES, kindOf, nodeView } from '../views/views.js'
+import { KIND_NAMES, formatNumber, kindOf, nodeView } from '../views/views.js'
 import { InlineParam, KernelEditor, NumberEditor } from './Editors.jsx'
 import { placeAt, setParam } from './ops.js'
 import { AddSheet, ParamChip } from './parts.jsx'
@@ -65,7 +65,7 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
   // A block on the board: "unwired" while an input is open, ! on an error, else its picture.
   const boardThumb = (node, size) => {
     const value = values?.get(node.id)
-    const open = node.type !== 'input' && parts.inputs(node).some((port) => !feeding(graph, node.id, port))
+    const open = node.type !== 'input' && parts.inputs(node).some((port) => !feeding(graph, node.id, port) && !(node.type === 'arith' && node.params.constantSide === port))
     if (open) return <i className="pb-empty" style={{ width: size, height: size }}>{tr('待接线', 'unwired')}</i>
     if (errors?.get(node.id)) return <i className="pb-error" style={{ width: size, height: size }}>!</i>
     if (!value) return <i className="pb-empty" style={{ width: size, height: size }} />
@@ -92,6 +92,11 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
   }
   const tileExtra = (node) => {
     const param = (types[node.type].params ?? [])[0]
+    if (node.type === 'arith' && ['a', 'b'].includes(node.params.constantSide) && !feeding(graph, node.id, node.params.constantSide)) {
+      const op = L(param.options.find(([key]) => key === node.params.op)?.[1])
+      const value = formatNumber(node.params.constant ?? 1)
+      return node.params.constantSide === 'a' ? `${value} ${op} b` : `a ${op} ${value}`
+    }
     return param ? <ParamChip param={param} value={node.params[param.key]} /> : null
   }
   const trayItem = (type) => ({ type, label: types[type].label, icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) })
@@ -205,7 +210,7 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
 
 // One block in a sheet: what it is, its settings, and what it makes on this test (its wires are on the board).
 function PartPanel({ kit, node, description, flags, ioKinds, value, error, check, expected, tolerance, views, theme, scan, onScan, onParam, onSetParam, onView, onRemove, onMove }) {
-  const params = kit.settingsOf(node.type, flags)
+  const params = visibleSettings(kit, node, flags)
   const shown = nodeView(node, views)
   const [probe, setProbe] = useState(null)
   const atProbe = (img) => {

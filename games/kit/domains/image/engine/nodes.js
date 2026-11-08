@@ -1,3 +1,4 @@
+import { MISSING, PartError } from '../../../engine/circuit.js'
 import { correlate, downsample, fromFn, gaussianKernel, image, map, maxPool, shift, zip } from './image.js'
 import { piText } from './pi.js'
 import { FREQUENCY } from './parts/frequency.js'
@@ -66,8 +67,19 @@ export const NODE_TYPES = {
   arith: {
     label: { zh: '四则运算', en: 'Arithmetic' },
     inputs: ['a', 'b'],
-    params: [{ key: 'op', label: { zh: '运算', en: 'Operation' }, kind: 'select', buttons: 'grid', options: Object.keys(ARITH).map((op) => [op, ARITH[op][0]]), default: 'add' }],
-    eval: ({ a, b }, p) => zip(a, b, ARITH[p.op ?? 'add'][1]),
+    optional: ['a', 'b'],
+    params: [
+      { key: 'op', label: { zh: '运算', en: 'Operation' }, kind: 'select', buttons: 'grid', options: Object.keys(ARITH).map((op) => [op, ARITH[op][0]]), default: 'add' },
+      { key: 'constantSide', label: { zh: '常数位置', en: 'Constant side' }, kind: 'select', options: [['none', { zh: '关闭', en: 'Off' }], ['a', { zh: '左 a', en: 'Left' }], ['b', { zh: '右 b', en: 'Right' }]], default: 'none' },
+      { key: 'constant', label: { zh: '常数', en: 'Constant' }, kind: 'number', min: -100, max: 100, step: 0.01, default: 1, pi: true },
+    ],
+    eval: ({ a, b }, p) => {
+      const op = ARITH[p.op ?? 'add'][1]
+      if (a && b) return zip(a, b, op)
+      if (!a && b && p.constantSide === 'a') return map(b, (x) => op(p.constant ?? 1, x))
+      if (a && !b && p.constantSide === 'b') return map(a, (x) => op(x, p.constant ?? 1))
+      throw new PartError(MISSING)
+    },
     cost: 1,
   },
   // Adds whatever is wired into its three inputs; an empty input is skipped.

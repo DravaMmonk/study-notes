@@ -24,3 +24,6 @@ export function partsFor(kit, { sensors, outputLabels, colourOutputs = [] } = {}
     icon: (node) => (node.type === 'input' ? ArrowRightFromLine : node.type === 'output' ? ArrowRightToLine : iconOf(node.type)),
   }
 }
+
+/** Hide the constant value until a side has been selected. */
+export const visibleSettings = (kit, node, flags) => kit.settingsOf(node.type, flags).filter((p) => !(node.type === 'arith' && p.key === 'constant' && (node.params.constantSide ?? 'none') === 'none'))

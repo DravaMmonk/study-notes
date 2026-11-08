@@ -4,7 +4,7 @@ import { CanvasEditor, sensorCaption } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { WORDS } from '../../../shell/words.js'
 import ParamControl from './ParamControl.jsx'
-import { partsFor } from './parts.js'
+import { partsFor, visibleSettings } from './parts.js'
 import ValueView from './views/ValueView.jsx'
 import ColourPreview from './ColourPreview.jsx'
 import { IMAGE_VIEWS, KIND_NAMES, kindOf, nodeView, viewsIn } from './views/views.js'
@@ -21,7 +21,7 @@ export default function Editor({ kit, graph, onChange, run, testIndex, flags, se
   const [menu, setMenu] = useState(null) // id of the card whose view menu is open
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
-  const { inputsOf, settingsOf, snapSetting } = kit
+  const { inputsOf, snapSetting } = kit
   const parts = useMemo(() => partsFor(kit, { sensors, outputLabels, colourOutputs }), [kit, sensors, outputLabels, colourOutputs])
 
   // Choosing a view changes nothing in the circuit: it is saved, but tests do not re-run.
@@ -66,7 +66,7 @@ export default function Editor({ kit, graph, onChange, run, testIndex, flags, se
     const shown = viewOf(node)
     return (
       <>
-        {settingsOf(node.type, flags).map((param, index) => (
+        {visibleSettings(kit, node, flags).map((param, index) => (
           <ParamControl key={param.key} param={param} value={node.params[param.key]} onChange={(v) => setParam(node, param.key, v)} style={index === 0 && param.buttons ? { marginTop: -PORT_ROW * Math.max(1, inputsOf(node.type).length) } : undefined} />
         ))}
         {node.type === 'input' && sensors?.[node.params.name]?.description && <details className="node-description" onPointerDown={(event) => event.stopPropagation()}><summary>{tr('说明', 'About')}</summary><p>{L(sensors[node.params.name].description)}</p></details>}
