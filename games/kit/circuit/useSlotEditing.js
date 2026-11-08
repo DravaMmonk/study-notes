@@ -3,7 +3,7 @@ import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
 import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, lockedRefusal, outPort, outputsOf, parsePort, placement, removeNode, srcNode, srcOf } from './model.js'
 import { drawWires } from './SlotBoard.jsx'
-import { newPartSlot, blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
+import { blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
 import { useHistory } from './useHistory.js'
 import { visibleSlot } from './visibleSlot.js'
 
@@ -190,16 +190,17 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
   const placeFirstFree = (type) => {
     const pane = scroller.current
     const board = root.current?.querySelector('.pb-board')
-    if (!pane || !board) return place(type, newPartSlot(graph, parts))
+    if (!pane || !board) return
     const bounds = pane.getBoundingClientRect()
     const tools = board.querySelector('.pb-tools')?.getBoundingClientRect()
     const top = Math.max(0, bounds.top, tools && tools.top <= bounds.top ? tools.bottom : bounds.top)
     const bottom = Math.min(window.innerHeight, bounds.bottom)
     const slots = [...board.querySelectorAll('.pb-cell[data-region=""] > .pb-slot')].map((button) => {
       const rect = button.getBoundingClientRect()
-      return { slot: Number(button.parentElement.dataset.slot), top: rect.top, bottom: rect.bottom }
+      return { slot: Number(button.parentElement.dataset.slot), top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right }
     })
-    place(type, visibleSlot(slots, top, bottom, placement(graph, parts).size))
+    const slot = visibleSlot(slots, { top, bottom, left: Math.max(0, bounds.left), right: Math.min(window.innerWidth, bounds.right) })
+    if (slot !== undefined) place(type, slot)
   }
   const remove = (id) => {
     if (byId(graph, id)?.locked) return

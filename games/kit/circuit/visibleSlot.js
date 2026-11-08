@@ -1,6 +1,6 @@
-// Pick a root-board slot in reading order, preferring the visible scroll area over what follows it.
-export function visibleSlot(slots, top, bottom, append) {
-  const ordered = [...slots].sort((a, b) => a.top - b.top || a.slot - b.slot)
-  return (ordered.find((s) => s.bottom > top && s.top < bottom)
-    ?? ordered.find((s) => s.top >= bottom))?.slot ?? append
+// Pick the topmost, leftmost root-board slot intersecting the visible area.
+export function visibleSlot(slots, bounds) {
+  if (bounds.top >= bounds.bottom || bounds.left >= bounds.right) return undefined
+  return slots.filter((s) => s.bottom > bounds.top && s.top < bounds.bottom && s.right > bounds.left && s.left < bounds.right)
+    .sort((a, b) => a.top - b.top || a.left - b.left)[0]?.slot
 }

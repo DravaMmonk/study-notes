@@ -665,9 +665,8 @@ dropping outside detaches it rather than extending the old block. Swaps transfer
 positions. Preset-block members cannot be moved on phones while Manual partitioning is off, including moves
 from the detail sheet; their ports remain operable. Hidden phone headers retain the shared grey group background without container padding.
 Phone members occupy contiguous two-column rows.
-Tapping a tray part fills the first visible root-board slot in reading order, or the first slot below the viewport;
-if none remains below, it appends a slot. Slots above the viewport are left untouched. Explicit drops still choose
-their destination, including slots within frames.
+Tapping a tray part fills the topmost, leftmost visible root-board slot. If none is visible, nothing is placed and
+no message is shown. Explicit drops still choose their destination, including slots within frames.
 Gaps, padding and header sizes use shared tokens. Initial layout and newly carried/added components may be
 placed; existing saved coordinates are retained. View changes make temporary room after the changed unit while
 holding its anchor, without saving those shifts. The headless SVG renderer retains its original column layout.
