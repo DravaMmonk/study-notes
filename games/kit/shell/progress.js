@@ -64,7 +64,7 @@ export function requiredLevels(level, byId, requiresOf) {
 }
 
 /** Whether task k of level `id` is passed (all of them once it is solved). */
-export const taskPassed = (game, p, id, k) => p.passed.includes(taskKey(game.byId[id], k)) || (!game.byId[id].tasks[k].optional && p.solved.includes(id))
+export const taskPassed = (game, p, id, k) => p.passed.includes(taskKey(game.byId[id], k)) || (!p.all && !game.byId[id].tasks[k].optional && p.solved.includes(id))
 
 /** Opening tasks is separate from completing them. */
 export const taskOpen = (game, p, id, k) => Boolean(p.all || taskPassed(game, p, id, k) || game.byId[id].tasks.slice(0, k).every((task, i) => task.optional || taskPassed(game, p, id, i)))
@@ -72,6 +72,7 @@ export const taskOpen = (game, p, id, k) => Boolean(p.all || taskPassed(game, p,
 /** The task a level opens at: the first not yet passed (the last, once all are). */
 export function firstTask(game, p, id) {
   const n = game.byId[id].tasks.length
+  if (p.all && p.solved.includes(id)) return n - 1
   for (let k = 0; k < n; k += 1) if (!taskPassed(game, p, id, k) && !(game.byId[id].tasks[k].optional && (p.skippedTasks ?? []).includes(taskKey(game.byId[id], k)))) return k
   return n - 1
 }
@@ -81,8 +82,25 @@ export function nextRequiredTask(game, p, id, current) {
   const tasks = game.byId[id].tasks
   const pending = (k) => k !== current && !tasks[k].optional && !taskPassed(game, p, id, k)
   for (let k = current + 1; k < tasks.length; k += 1) if (pending(k)) return k
+  if (p.all) return -1
   for (let k = 0; k < current; k += 1) if (pending(k)) return k
   return -1
+}
+
+/** A prerequisite's last passed board, or its reference when all content is open. */
+export function inheritedBoard(progress, task) {
+  if (!task) return undefined
+  const key = task.key ?? task.taskId
+  const completed = progress.passed.includes(key) || (!progress.all && progress.solved.includes(task.id))
+  const saved = completed && (progress.built?.[key] ?? progress.data?.[key])
+  const board = saved?.nodes ? saved : progress.all ? (task.source?.solution ?? task.solution) : undefined
+  return board?.nodes ? structuredClone(board) : undefined
+}
+
+function isCarried(game, level, at) {
+  if (level.tasks[at + 1]?.carries) return true
+  if (at !== level.tasks.length - 1) return false
+  return Object.values(game.byId).some((other) => other.carry === level.id || other.tasks.some((task) => (task.carry ?? task.source?.carry) === level.id))
 }
 
 /** Progress with level `id` opened at task k: the tasks before it passed, it and the level not. */
@@ -97,10 +115,10 @@ export const saved = (p, level, taskAt, data) => ({ ...p, data: { ...p.data, [ta
 
 /** The boards kept for the parts that run them, once `level` passes at `taskAt` (`keeps`, by default a level that
  *  unlocks something). */
-function kept(p, level, taskAt) {
+function kept(game, p, level, taskAt) {
   const key = taskKey(level, taskAt)
   const board = p.data[key]
-  if (!(level.keeps ?? level.unlocks?.length) || !board) return p.built
+  if ((!((level.keeps ?? level.unlocks?.length)) && !isCarried(game, level, taskAt)) || !board) return p.built
   return { ...p.built, [key]: board }
 }
 
@@ -115,13 +133,15 @@ export function earnedUnlocks(level, progress) {
 
 /** Record the task and its board; solve the level once every task has actually passed. */
 export function passed(game, p, level, taskAt, score = null) {
-  const built = kept(p, level, taskAt)
+  const built = kept(game, p, level, taskAt)
   const best = taskAt === level.tasks.length - 1 && score && game.better(score, p.best[level.id])
     ? { ...p.best, [level.id]: score } : p.best
   const taskRewards = level.tasks[taskAt].optional ? level.tasks[taskAt].opens ?? [] : []
   const now = { ...p, built, best, flags: [...new Set([...p.flags, ...taskRewards])], passed: [...new Set([...p.passed, taskKey(level, taskAt)])], skippedTasks: (p.skippedTasks ?? []).filter((key) => key !== taskKey(level, taskAt)) }
   const required = level.tasks.map((task, k) => task.optional ? null : k).filter((k) => k !== null)
-  if (!(required.length ? required : level.tasks.map((_, k) => k)).every((k) => taskPassed(game, now, level.id, k))) return now
+  const allRequiredPassed = (required.length ? required : level.tasks.map((_, k) => k)).every((k) => taskPassed(game, now, level.id, k))
+  const mayFinish = p.all && !level.tasks[taskAt].optional ? nextRequiredTask(game, now, level.id, taskAt) === -1 : allRequiredPassed
+  if (!mayFinish) return now
   return {
     ...now,
     solved: [...new Set([...p.solved, level.id])],

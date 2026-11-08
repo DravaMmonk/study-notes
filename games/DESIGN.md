@@ -610,7 +610,7 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 ### 6.10 界面
 
 **Unlock all.** The progress dialog offers a one-way action that opens all levels, tasks, parts and encyclopedia
-entries without marking any task passed. Clearing play progress retains this choice. A level is complete once every required task has passed, even if tasks are played out of order. After a task passes, later unfinished required tasks come first; if only earlier tasks remain, the dialog explains that they are unfinished and labels the action as a return. Optional tasks may be skipped and are only marked passed, and grant their own rewards, when actually completed.
+entries without marking any task passed. Clearing play progress retains this choice. Normally a level is complete once every required task has passed. With all content unlocked, passing the last required task completes the level without returning to earlier tasks. A carried circuit opens on the prerequisite's passed board; if all content is unlocked and that prerequisite has not been passed, it opens on the reference board instead. A later pass replaces this starting point with the player's passing board, while a board already edited in the destination remains the player's own. Optional tasks are only recorded and grant their own rewards when actually completed.
 
 所有游戏共用的界面原则和交互约定，改界面时照着做、改动时保持。颜色、字号、间距、圆角取 `kit/tokens.css` 的变量（几套主题都在那里调），这里不抄数值；某一款游戏特有的界面写在那款游戏自己的设计文档里。
 

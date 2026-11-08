@@ -11,7 +11,7 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { earnedUnlocks, firstTask as openTask, flagsIn, nextRequiredTask, passed, saved as savedAt, taskKey, taskOpen, taskPassed } from './progress.js'
+import { earnedUnlocks, firstTask as openTask, flagsIn, inheritedBoard, nextRequiredTask, passed, saved as savedAt, taskKey, taskOpen, taskPassed } from './progress.js'
 import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { playFrame } from './viewport.js'
@@ -172,17 +172,18 @@ export default function GameShell({ game, store, author = null }) {
   const played = level && { ...level, ...tasks[taskAt], optionalLevel: Boolean(level.optional), skipLevel: () => open(null), steps: { names: tasks.map((t) => t.step), optional: tasks.map((t) => Boolean(t.optional)), at: taskAt, passed: tasks.map((_, k) => isPassed(k)), open: tasks.map((_, k) => taskOpen(game, progress, level.id, k)), go: goTask, skip: skipTask } }
   // A task that goes on from the one before (`carries`) opens on that task's board until it has one of its own.
   const key = level ? taskKey(level, taskAt) : null
-  const kept = () => progress.data[key] ?? (tasks[taskAt].carries && taskAt > 0 ? progress.data[taskKey(level, taskAt - 1)] : undefined)
+  const kept = () => progress.data[key] ?? (tasks[taskAt].carries && taskAt > 0 ? inheritedBoard(progress, { ...tasks[taskAt - 1], id: level.id }) : undefined)
 
   // What a level screen can do to the shell.
   const save = (data) => setProgress((p) => savedAt(p, level, taskAt, data))
   // Keep each passed board; out-of-order play can finish a level on any task.
   const solve = (score) => {
+    const done = passed(game, progress, level, taskAt, score)
     setProgress((p) => passed(game, p, level, taskAt, score))
     setFailure(null)
     const next = nextRequiredTask(game, progress, level.id, taskAt)
-    if (next >= 0) setTaskWon({ index: taskAt, next })
-    else setWon(level.id)
+    if (done.solved.includes(level.id)) setWon(level.id)
+    else setTaskWon({ index: taskAt, next })
   }
   const fail = (info) => {
     const count = fails + 1
@@ -380,7 +381,7 @@ export default function GameShell({ game, store, author = null }) {
           </EditContext.Provider>
         )}
         {taskWon !== null && (
-          <TaskDoneDialog game={game} level={level} task={tasks[taskWon.index]} index={taskWon.index} next={tasks[taskWon.next]} revisit={taskWon.next < taskWon.index} onStay={() => setTaskWon(null)} onNext={() => goTask(taskWon.next)} />
+          <TaskDoneDialog game={game} level={level} task={tasks[taskWon.index]} index={taskWon.index} next={tasks[taskWon.next]} revisit={taskWon.next >= 0 && taskWon.next < taskWon.index} onStay={() => setTaskWon(null)} onNext={taskWon.next >= 0 ? () => goTask(taskWon.next) : () => open(null)} />
         )}
         {won && level && won === level.id && (
           <SolvedDialog game={game} level={{ ...level, unlocks: earnedUnlocks(level, progress) }} onStay={() => setWon(null)} onExit={() => open(null)} />

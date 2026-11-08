@@ -59,6 +59,18 @@ const twoLevels = () => ({
   ],
 });
 
+test('carried boards use the reference until the prerequisite has passed', async () => {
+  const { tableCourse } = await import('./course.js');
+  const content = twoLevels();
+  content.levels[1].carry = 'build';
+  const table = tableCourse(content), source = table.played.get('build')[0], target = table.played.get('reuse')[0];
+  const modified = { ...source.solution, nodes: source.solution.nodes.map(n => n.id === 'k' ? { ...n, params: { value: 7 } } : n) };
+  const progress = { all: true, passed: [], solved: [], data: { build: modified }, built: {} };
+  assert.equal(table.opening(target, progress).nodes.find(n => n.id === 'k').params.value, 1);
+  const passed = { ...progress, passed: ['build'], built: { build: modified } };
+  assert.equal(table.opening(target, passed).nodes.find(n => n.id === 'k').params.value, 7);
+});
+
 test('a task’s answers are written, and the reference board is checked against them', async () => {
   const { tableCourse } = await import('./course.js');
   const { validate } = await import('./validate.js');

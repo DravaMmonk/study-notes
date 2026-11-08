@@ -11,6 +11,7 @@ import { withHidden } from '../../engine/tests.js'
 import { startBoard } from './engine/board.js'
 import { INPUT_LABELS, descriptionOf } from './words.js'
 import { T } from '../../shell/i18n.js'
+import { inheritedBoard } from '../../shell/progress.js'
 
 const pick = (v, lang) => (v && typeof v === 'object' ? v[lang] ?? v.zh : v)
 
@@ -34,7 +35,9 @@ function opening({ game, level, progress }) {
   const L = level
   const names = (board, type) => board.nodes.filter((n) => n.type === type).map((n) => n.params.name).sort().join()
   const fits = (board) => board?.nodes && names(board, 'input') === [...L.inputs].sort().join() && names(board, 'output') === [...L.outputs].sort().join() && board.nodes.every((n) => game.image.kit.types[n.type])
-  const carried = L.carry && progress.solved.includes(L.carry) && progress.data[L.carry]
+  const priorLevel = L.carries ? L.id : L.carry
+  const prior = L.carries ? game.image.levelById[L.id]?.tasks[L.task - 1] : game.image.levelById[L.carry]?.tasks.at(-1)
+  const carried = inheritedBoard(progress, prior && { ...prior, id: priorLevel })
   const offers = (board) => board.nodes.every((n) => n.type === 'input' || n.type === 'output' || L.palette.includes(n.type))
   return fits(carried) && offers(carried) ? carried : startBoard(L)
 }

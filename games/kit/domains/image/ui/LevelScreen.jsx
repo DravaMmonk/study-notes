@@ -16,6 +16,7 @@ import { describe } from '../words.js'
 import { kindOf, nodeView, viewFor } from './views/views.js'
 import { levelSensors } from './sensors.js'
 import { pruneUnavailableWires } from './parameters.js'
+import { inheritedBoard } from '../../../shell/progress.js'
 
 // Every bench level plays on the kernel's parameter bench, loaded only when one is opened.
 const BenchLevel = lazy(() => import('./benches/BenchLevel.jsx'))
@@ -46,7 +47,8 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
     const names = (board, type) => board.nodes.filter((n) => n.type === type).map((n) => n.params.name).sort().join()
     const fits = (board) => board?.nodes && names(board, 'input') === [...level.inputs].sort().join() && names(board, 'output') === [...level.outputs].sort().join() && board.nodes.every((n) => types[n.type])
     // A new series level starts from the player's solved circuit for the level before it, if this level offers its parts.
-    const carried = level.carry && progress.solved.includes(level.carry) && progress.data[level.carry]
+    const prior = level.carry && game.image.levelById[level.carry]?.tasks.at(-1)
+    const carried = inheritedBoard(progress, prior && { ...prior, id: level.carry })
     const offers = (board) => board.nodes.every((n) => n.type === 'input' || n.type === 'output' || level.palette.includes(n.type))
     const initial = pruneUnavailableWires(kit, fits(saved) ? saved : fits(carried) && offers(carried) ? carried : startBoard(level))
     return { board: initial, run: level.kind === 'graph' ? runLevel(solved ? withHidden(level) : level, initial) : null }

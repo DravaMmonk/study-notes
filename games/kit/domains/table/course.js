@@ -5,6 +5,7 @@
 // and the course audit's view of it. Everything it works out is a new object: the content it reads is never written.
 
 import { packed } from '../../engine/boards.js';
+import { inheritedBoard } from '../../shell/progress.js';
 import { deepFreeze } from '../../engine/content.js';
 import { taskLevels } from '../../engine/tasks.js';
 import { trayIn } from '../../engine/trays.js';
@@ -288,8 +289,9 @@ export function tableCourse(content) {
   /** The board circuit task `s` opens on before it has one of its own, from the boards the player keeps by task
    *  (`data`): the first task's of a level that starts from another (`carry`) is that level's last task's, a task that
    *  goes on from the task before (`carries`) has that one's, else it is empty; fitted to what the task gives. */
-  const opening = (s, data = {}) => {
-    const from = s.task === 0 ? s.carry && data[played.get(s.carry)?.at(-1).taskId] : s.carries && data[played.get(s.id)[s.task - 1].taskId];
+  const opening = (s, progress) => {
+    const prior = s.task === 0 ? s.carry && played.get(s.carry)?.at(-1) : s.carries && played.get(s.id)[s.task - 1];
+    const from = inheritedBoard(progress, prior);
     return fitted(from?.nodes ? clone(from) : blank(), s.given);
   };
 

@@ -22,7 +22,7 @@ const CONSTS = [0, 1, 2, 3, 4, 5]
 const str = (v) => (v === null || v === undefined ? '' : String(v))
 
 /** The board the task opens on (course.js opening): carried from an earlier level or from the task before, else empty. */
-const opening = (ctx) => ctx.game.table.opening(ctx.level.source, ctx.progress.data)
+const opening = (ctx) => ctx.game.table.opening(ctx.level.source, ctx.progress)
 
 export const play = {
   open(ctx) {

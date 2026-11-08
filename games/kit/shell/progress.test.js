@@ -2,7 +2,7 @@
 // on other puzzles read as a fresh start.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, nextRequiredTask, passed, requiredLevels, taskOpen, taskPassed } from './progress.js'
+import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, requiredLevels, taskOpen, taskPassed } from './progress.js'
 
 const storage = new Map()
 globalThis.window = { localStorage: { getItem: (k) => storage.get(k) ?? null, setItem: (k, v) => storage.set(k, v) } }
@@ -28,23 +28,49 @@ test('unlocking all opens later tasks without passing them', () => {
   assert.equal(taskPassed(game, { ...p, all: true }, level.id, 2), false)
 })
 
-test('passing the last task early neither completes the level nor earns its reward', () => {
+test('passing the last task early completes an all-unlocked level without passing earlier tasks', () => {
   const last = passed(game, { ...fresh(), all: true }, level, 2, { count: 4 })
   assert.deepEqual(last.passed, ['last'])
-  assert.deepEqual(last.solved, [])
-  assert.deepEqual(last.flags, [])
-  const complete = passed(game, passed(game, last, level, 0), level, 1)
-  assert.deepEqual(complete.solved, [level.id])
-  assert.deepEqual(complete.flags, ['part'])
-  assert.deepEqual(complete.best[level.id], { count: 4 })
+  assert.deepEqual(last.solved, [level.id])
+  assert.equal(taskPassed(game, last, level.id, 0), false)
+  assert.equal(firstTask(game, last, level.id), 2)
+  assert.deepEqual(last.flags, ['part'])
+  assert.deepEqual(last.best[level.id], { count: 4 })
+  const normal = passed(game, fresh(), level, 2)
+  assert.deepEqual(normal.solved, [])
 })
 
 test('next required task prefers later tasks and revisits earlier ones only when needed', () => {
   const start = { ...fresh(), all: true }
   assert.equal(nextRequiredTask(game, start, level.id, 1), 2)
-  assert.equal(nextRequiredTask(game, start, level.id, 2), 0)
+  assert.equal(nextRequiredTask(game, start, level.id, 2), -1)
+  assert.equal(nextRequiredTask(game, fresh(), level.id, 2), 0)
   const earlier = passed(game, passed(game, start, level, 0), level, 1)
   assert.equal(nextRequiredTask(game, earlier, level.id, 2), -1)
+})
+
+test('all-unlocked inheritance uses the reference until the prerequisite is passed', () => {
+  const reference = { nodes: [{ id: 'reference' }], wires: [] }
+  const attempted = { nodes: [{ id: 'attempt' }], wires: [] }
+  const passedBoard = { nodes: [{ id: 'passed' }], wires: [] }
+  const task = { id: 'earlier', key: 'earlier-task', source: { solution: reference } }
+  const start = { ...fresh(), all: true, data: { 'earlier-task': attempted } }
+  assert.deepEqual(inheritedBoard(start, task), reference)
+  const completed = { ...start, passed: ['earlier-task'], built: { 'earlier-task': passedBoard } }
+  const inherited = inheritedBoard(completed, task)
+  assert.deepEqual(inherited, passedBoard)
+  assert.notEqual(inherited, passedBoard)
+  assert.equal(inheritedBoard({ ...fresh(), data: start.data }, task), undefined)
+})
+
+test('passing a carried task retains its passing circuit when the working board changes later', () => {
+  const source = { id: 'source', tasks: [{ key: 'source-task' }], unlocks: [] }
+  const target = { id: 'target', tasks: [{ key: 'target-task', source: { carry: 'source' } }], unlocks: [] }
+  const g = { byId: { source, target }, better: () => true }
+  const board = { nodes: [{ id: 'passed' }], wires: [] }
+  const done = passed(g, { ...fresh(), data: { 'source-task': board } }, source, 0)
+  assert.deepEqual(done.built['source-task'], board)
+  assert.deepEqual(inheritedBoard({ ...done, data: { 'source-task': { nodes: [], wires: [] } } }, { id: 'source', ...source.tasks[0] }), board)
 })
 
 
@@ -70,6 +96,14 @@ test('optional tasks can be skipped without granting their rewards or appearing 
   assert.equal(flagsIn(g, extraDone, l, 1).has('extra-part'), true)
   assert.deepEqual(extraDone.flags, ['level-part', 'extra-part'])
   assert.deepEqual(extraDone.skippedTasks, [])
+})
+
+test('passing only an optional task does not complete the required tasks in all-unlocked mode', () => {
+  const l = { id: 'mixed', tasks: [{ key: 'required' }, { key: 'extra', optional: true }], unlocks: [] }
+  const g = { byId: { mixed: l }, better: () => true }
+  const p = passed(g, { ...fresh(), all: true }, l, 1)
+  assert.deepEqual(p.solved, [])
+  assert.deepEqual(p.passed, ['extra'])
 })
 
 test('optional levels do not block the route and never count as solved', () => {

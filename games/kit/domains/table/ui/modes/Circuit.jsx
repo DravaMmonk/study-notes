@@ -64,7 +64,7 @@ const itemsOf = (def, all) => {
 /** The task as it opens: its board as saved (else as course.js opening starts it), and the run kept from the last
  *  visit, replayed as it ended. */
 function opening(table, L, saved, progress, lastRun) {
-  const board = saved?.nodes ? fitted(saved, L.given) : table.opening(L, progress.data)
+  const board = saved?.nodes ? fitted(saved, L.given) : table.opening(L, progress)
   const st = { board, ti: 0, status: L.tests.map(() => null), view: null, typed: {}, robot: null, sel: null, input: '' }
   if (lastRun && lastRun.test < L.tests.length) {
     for (let k = 0; k <= lastRun.test; k++) {
