@@ -167,7 +167,6 @@
   .board-views-label, .board-views button span { display: none; }
   .board-views button { width: 32px; padding: 0; justify-content: center; }
   .node-view span { display: none; }
-  .test-images.is-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   .probe { padding: 20px 16px; gap: 22px; }
   .probe-machine { gap: 12px; }
