@@ -78,13 +78,12 @@
         }
       ],
       "solution": [
-        "k = const[c=4]()",
         "aa = arith[op=mul](a, a)",
         "ab = arith[op=mul](a, b)",
         "ma = fqMean(aa)",
         "mb = fqMean(ab)",
-        "sa = arith[op=mul](ma, k)",
-        "sb = arith[op=mul](mb, k)",
+        "sa = arith[op=mul,constantSide=b,constant=4](ma)",
+        "sb = arith[op=mul,constantSide=b,constant=4](mb)",
         "ea = exp(sa)",
         "eb = exp(sb)",
         "wa = arith[op=mul](ea, a)",

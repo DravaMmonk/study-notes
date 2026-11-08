@@ -5,6 +5,7 @@ import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, 
 import { drawWires } from './SlotBoard.jsx'
 import { newPartSlot, blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
 import { useHistory } from './useHistory.js'
+import { visibleSlot } from './visibleSlot.js'
 
 const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
 export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱⑲⑳'
@@ -186,7 +187,20 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     buzz()
     edit(next, note)
   }
-  const placeFirstFree = (type) => place(type, newPartSlot(graph, parts))
+  const placeFirstFree = (type) => {
+    const pane = scroller.current
+    const board = root.current?.querySelector('.pb-board')
+    if (!pane || !board) return place(type, newPartSlot(graph, parts))
+    const bounds = pane.getBoundingClientRect()
+    const tools = board.querySelector('.pb-tools')?.getBoundingClientRect()
+    const top = Math.max(0, bounds.top, tools && tools.top <= bounds.top ? tools.bottom : bounds.top)
+    const bottom = Math.min(window.innerHeight, bounds.bottom)
+    const slots = [...board.querySelectorAll('.pb-cell[data-region=""] > .pb-slot')].map((button) => {
+      const rect = button.getBoundingClientRect()
+      return { slot: Number(button.parentElement.dataset.slot), top: rect.top, bottom: rect.bottom }
+    })
+    place(type, visibleSlot(slots, top, bottom, placement(graph, parts).size))
+  }
   const remove = (id) => {
     if (byId(graph, id)?.locked) return
     buzz([6, 40, 6])
