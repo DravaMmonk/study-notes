@@ -49,7 +49,7 @@
         "zh": "不知道灯暗了多少，能不能在图里找一把跟着灯光一起变长变短的尺子？",
         "en": "You don't know how much the light dimmed. Can you find a ruler inside the image that grows and shrinks with the light?"
       },
-      "views": { "in": "slope", "out": "pixels", "mid": "terrain" },
+      "views": { "in": "pixels", "out": "pixels", "mid": "terrain" },
       "scene": "relit",
       "tests": [
         {
