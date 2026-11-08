@@ -33,11 +33,11 @@ export function AddSheet({ kit, level, graph, previewFrom, test, title, theme, o
   }
   return (
     <Sheet title={title} onClose={onClose}>
-      {groups.map(([family, types]) => (
+      {groups.map(([family, familyTypes]) => (
         <section key={keyOf(family.label)} className="ph-group">
           <h3>{L(family.label)}</h3>
           <div className="ph-parts">
-            {types.map((type) => {
+            {familyTypes.map((type) => {
               const value = previewOf(type)
               return (
                 <button key={type} className="ph-part" data-family={familyOf(type)} onClick={() => onAdd(type)}>
