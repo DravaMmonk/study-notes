@@ -2,14 +2,14 @@
   "title": { "zh": "多通道", "en": "Multiple channels" },
   "tray": "pipeline",
   "after": {
-    "zh": "一个卷积核要同时覆盖所有输入通道：这里是 3×3×3 = 27 个权重，三份乘积加成一张激活图。训练出的红通道核和绿通道核正好相反，蓝通道的是 0，于是同时变亮的部分互相抵消，只剩颜色对比。CNN 第一层学到的颜色对比滤波器就是这样来的。",
-    "en": "A convolution kernel has to cover all the input channels at once: here that is 3×3×3 = 27 weights, and the three sets of products add up to one activation map. The trained red-channel and green-channel kernels come out exactly opposite and the blue one is 0, so whatever brightens in every channel cancels out and only the colour contrast is left. This is where the colour-contrast filters in a CNN's first layer come from."
+    "zh": "多通道卷积同时利用各通道及其邻域的信息。颜色发生变化而整体明暗不变时，合并成一张灰度图可能丢掉区别；保留通道之间的关系，就能识别这样的颜色边界。",
+    "en": "Multichannel convolution uses each channel and its neighbourhood together. A colour boundary can disappear when channels are combined into one greyscale image; keeping their relationships makes such boundaries detectable."
   },
   "intro": [
     {
       "t": {
-        "zh": "彩色照片其实是三张图叠在一起：红、绿、蓝各一张，每格记着这种颜色有多亮。到现在为止，电路只处理过一张灰度图。",
-        "en": "A colour photo is really three images stacked together: one each for red, green and blue, each cell recording how bright that colour is. So far your circuits have only handled a single greyscale image."
+        "zh": "第三章里，彩色照片的每个像素都有 R、G、B 三个数。这一关要把它们作为三个通道一起处理：照片的 R、G、B 出口分别给出各自的数值图。",
+        "en": "In chapter 3, each pixel of a colour photo had R, G and B values. Here you will process them as three channels: the photo’s R, G and B outputs provide the individual value maps."
       }
     },
     {
@@ -32,17 +32,17 @@
       "id": "4-13",
       "kind": "graph",
       "brief": {
-        "zh": "输入把红、绿、蓝分成三张图送来（都已减去 0.5）。只描出红与绿交界处的边，只是变亮变暗、或只有蓝色在变的地方输出 0。",
-        "en": "The input arrives as three images, red, green and blue (each with 0.5 already subtracted). Trace only the edges where red meets green; output 0 where things only get brighter or darker, or where only blue changes."
+        "zh": "输入是一张彩色照片，可以从 R、G、B 出口分别取出三个通道。只描出红与绿交界处的边，只是变亮变暗、或只有蓝色在变的地方输出 0。",
+        "en": "The input is a colour photo; its R, G and B outputs provide the three channels. Trace only the edges where red meets green; output 0 where things only get brighter or darker, or where only blue changes."
       },
       "hint": {
-        "zh": "加成灰度图试试：红和绿一样亮时，交界就消失了。那三个通道该怎样处理，才不会丢掉这条边？",
-        "en": "Try adding them into a greyscale image: when red and green are equally bright, the border disappears. So how should the three channels be handled so this edge is not lost?"
+        "zh": "加成灰度图试试：红和绿一样亮时，交界就消失了。那三个通道该怎样处理，才不会丢掉这条边？ 训练时可以先给每个通道减去 0.5，让数据围绕 0 分布。",
+        "en": "Try adding them into a greyscale image: when red and green are equally bright, the border disappears. So how should the three channels be handled so this edge is not lost? For training, you can first subtract 0.5 from each channel to centre the data around zero."
       },
-      "inputs": ["r", "g", "b"],
-      "inputLabels": { "r": { "zh": "红 R", "en": "Red R" }, "g": { "zh": "绿 G", "en": "Green G" }, "b": { "zh": "蓝 B", "en": "Blue B" } },
+      "inputs": ["photo"],
+      "inputLabels": { "photo": { "zh": "彩色照片", "en": "Colour photo" } },
       "trainRate": 8,
-      "scene": "colour",
+      "scene": "rgbContrast",
       "setup": { "mix": "redGreen" },
       "tests": [
         { "label": { "zh": "红绿对半，一样亮", "en": "Half red, half green, equally bright" }, "paint": "halves" },
@@ -57,27 +57,31 @@
         { "label": { "zh": "灰色渐变上的蓝条", "en": "Blue bar on a grey gradient" }, "paint": "blueBar" }
       ],
       "solution": [
-        "r3 = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](r)",
-        "g3 = learn3[w=[0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0]](g)",
-        "b3 = learn3(b)",
+        "half = const[c=0.5]()",
+        "r0 = arith[op=sub](photo.r, half)",
+        "g0 = arith[op=sub](photo.g, half)",
+        "b0 = arith[op=sub](photo.b, half)",
+        "r3 = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](r0)",
+        "g3 = learn3[w=[0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0]](g0)",
+        "b3 = learn3(b0)",
         "s1 = arith[op=add](r3, g3)",
         "s2 = arith[op=add](s1, b3)",
         "out <- s2"
       ],
       "naive": [
         "kN = const[c=0.33]()",
-        "s1 = arith[op=add](r, g)",
-        "s2 = arith[op=add](s1, b)",
+        "s1 = arith[op=add](photo.r, photo.g)",
+        "s2 = arith[op=add](s1, photo.b)",
         "k = arith[op=mul](s2, kN)",
         "l = learn3[w=[0, -0.75, 0, -0.75, 3, -0.75, 0, -0.75, 0]](k)",
         "out <- l"
       ],
       "alsoFails": [
-        ["l = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](r)", "out <- l"],
+        ["l = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](photo.r)", "out <- l"],
         [
-          "r3 = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](r)",
-          "g3 = learn3(g)",
-          "b3 = learn3[w=[0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0]](b)",
+          "r3 = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](photo.r)",
+          "g3 = learn3(photo.g)",
+          "b3 = learn3[w=[0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0]](photo.b)",
           "s1 = arith[op=add](r3, g3)",
           "s2 = arith[op=add](s1, b3)",
           "out <- s2"

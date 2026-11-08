@@ -4,6 +4,7 @@
 import { S } from '../../../../engine/schema.js'
 import { GLYPHS, addNoise, correlate, fromFn, image, map, maxPool, patterns, random, zip } from '../../engine/image.js'
 import { T as t } from '../../../../shell/i18n.js'
+import { compose } from '../../engine/colour.js'
 
 const num = (v) => image(1, 1, v)
 const PT = S.list(S.int(), { min: 2 })
@@ -165,3 +166,27 @@ export const LEARNING = {
     },
   },
 }
+
+// RGB versions keep the same targets while exposing the original colour pixels as one input.
+const asColourInput = (made, restore = false) => {
+  const planes = ['r', 'g', 'b'].map((key) => restore ? map(made.inputs[key], (v) => v + 0.5) : made.inputs[key])
+  return { inputs: { photo: compose(...planes) }, expected: made.expected }
+}
+Object.assign(LEARNING, {
+  rgbContrast: {
+    about: t('彩色图像；期望是一种颜色对比的边', 'a colour image; edges of a colour contrast are expected'),
+    setup: LEARNING.colour.setup,
+    test: LEARNING.colour.test,
+    make: (test, setup) => asColourInput(LEARNING.colour.make(test, setup), true),
+  },
+  rgbStreet: {
+    about: t('彩色街景；期望是红灯的掩膜', 'a colour street scene; the red lights’ mask is expected'),
+    test: LEARNING.street.test,
+    make: (test) => asColourInput(LEARNING.street.make(test)),
+  },
+  rgbMix: {
+    about: t('彩色图像；期望是两种模糊通道组合', 'a colour image; two mixes of blurred channels are expected'),
+    test: LEARNING.colourMix.test,
+    make: (test) => asColourInput(LEARNING.colourMix.make(test)),
+  },
+})
