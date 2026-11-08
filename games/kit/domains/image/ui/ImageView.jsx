@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { rangeOf } from './display.js'
 
 const cssColour = (name, fallback) => {
@@ -11,8 +11,9 @@ const cssColour = (name, fallback) => {
 
 // One image drawn pixel-for-pixel. With `against` it draws the error map instead: wrong pixels in
 // the accent colour, right ones faint.
-export default function ImageView({ img, range, size = 112, against, tolerance = 0.02, onHover, label, theme, grid }) {
+export default function ImageView({ img, range, size = 112, against, tolerance = 0.02, onHover, selected, label, theme, grid }) {
   const canvas = useRef(null)
+  const [ownSelection, setOwnSelection] = useState(null)
 
   useEffect(() => {
     const node = canvas.current
@@ -49,6 +50,7 @@ export default function ImageView({ img, range, size = 112, against, tolerance =
     const x = Math.floor(((event.clientX - box.left) / box.width) * img.w)
     const y = Math.floor(((event.clientY - box.top) / box.height) * img.h)
     if (x < 0 || y < 0 || x >= img.w || y >= img.h) return
+    if (selected === undefined) setOwnSelection({ x, y, w: img.w, h: img.h })
     onHover({ x, y, w: img.w, h: img.h, value: img.c === 3 ? Array.from(img.data.slice((y * img.w + x) * 3, (y * img.w + x) * 3 + 3)) : img.data[y * img.w + x], expected: against?.data[y * img.w + x] })
   }
 
@@ -61,15 +63,20 @@ export default function ImageView({ img, range, size = 112, against, tolerance =
       onDragStart={onHover ? (event) => event.preventDefault() : undefined}
       onPointerMove={hover}
       onPointerDown={hover}
-      onPointerLeave={(event) => { if (event.pointerType !== 'touch') onHover?.(null) }}
+      onPointerLeave={(event) => { if (event.pointerType !== 'touch') { setOwnSelection(null); onHover?.(null) } }}
       aria-label={label}
     />
   )
-  // A faint pixel grid once each pixel is big enough to read on its own.
-  if (!grid || size / img.w < 6) return canvasEl
+  // The selection is shared with other previews when provided by the parent.
+  const point = selected === undefined ? ownSelection : selected
+  const x = point && !point.frequency ? Math.min(img.w - 1, Math.max(0, Math.floor(((point.x + 0.5) * img.w) / (point.w ?? img.w)))) : null
+  const y = point && !point.frequency ? Math.min(img.h - 1, Math.max(0, Math.floor(((point.y + 0.5) * img.h) / (point.h ?? img.h)))) : null
+  const showGrid = grid && size / img.w >= 6
+  if (!showGrid && !onHover && !point) return canvasEl
   return (
-    <span className={`image-grid ${onHover ? 'is-readable' : ''}`} style={{ '--cells': img.w, '--rows': img.h }}>
+    <span className={`image-frame ${showGrid ? 'image-grid' : ''} ${onHover ? 'is-readable' : ''}`} style={{ '--cells': img.w, '--rows': img.h }}>
       {canvasEl}
+      {x !== null && y !== null && <span className="pixel-selection" aria-hidden="true" style={{ left: `${(x / img.w) * 100}%`, top: `${(y / img.h) * 100}%`, width: `${100 / img.w}%`, height: `${100 / img.h}%` }} />}
     </span>
   )
 }

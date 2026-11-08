@@ -6,7 +6,7 @@ import { rowOf } from './views.js'
 // A 2-D value with one row picked out: the picture with a scan line, and under it that row's
 // brightness as a curve. Drag on the picture to move the line; every card that shows a profile
 // follows the same row, so the row can be traced through the whole circuit.
-export default function ProfileView({ img, range, size = 112, theme, scan = 0.5, onScan, onHover, compact }) {
+export default function ProfileView({ img, range, size = 112, theme, scan = 0.5, onScan, onHover, selected, compact }) {
   const dragging = useRef(false)
   const row = Math.min(img.h - 1, Math.max(0, Math.round(scan * (img.h - 1))))
 
@@ -38,7 +38,7 @@ export default function ProfileView({ img, range, size = 112, theme, scan = 0.5,
           dragging.current = false
         }}
       >
-        <ImageView img={img} range={range} size={size} theme={theme} onHover={onHover} />
+        <ImageView img={img} range={range} size={size} theme={theme} onHover={onHover} selected={selected} />
         <span className="profile-line" style={{ top: `${((row + 0.5) / img.h) * 100}%` }} aria-hidden="true" />
         <span className="profile-tag" style={{ top: `${((row + 0.5) / img.h) * 100}%` }}>y = {row}</span>
       </div>

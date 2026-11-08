@@ -39,7 +39,7 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
   const list = <TestTabs tests={level.tests} states={states} index={testIndex} onSelect={onSelect} />
   const inputFigures = Object.entries(test.inputs).map(([name, img]) => (
     <figure key={name} className={kindOf(img) === 'signal' ? 'is-wide' : ''}>
-      <ValueView img={img} view={inView} size={kindOf(img) === 'image' ? 132 : 280} theme={theme} onHover={setProbe} scan={scan} onScan={onScan} grid />
+      <ValueView img={img} view={inView} size={kindOf(img) === 'image' ? 132 : 280} theme={theme} onHover={setProbe} selected={probe} scan={scan} onScan={onScan} grid />
       <figcaption>{L(sensors?.[name]?.label) ?? tr('输入', 'Input')}</figcaption>
     </figure>
   ))
@@ -67,7 +67,7 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
         </figure>
       )
     }
-    return <OutputImages expected={expected} actual={actual} fits={fits} view={outView} tolerance={tolerance} theme={theme} onHover={setProbe} scan={scan} onScan={onScan} prefix={prefix} />
+    return <OutputImages expected={expected} actual={actual} fits={fits} view={outView} tolerance={tolerance} theme={theme} onHover={setProbe} selected={probe} scan={scan} onScan={onScan} prefix={prefix} />
   }
   const verdictOf = (checks) => {
     if (!checks.length || checks.some((c) => c?.pass === null || c?.pass === undefined)) return <p className="test-verdict">{tr('点击「运行测试」查看这组是否通过', 'Run the tests to check this one')}</p>
@@ -156,7 +156,7 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
 }
 
 
-function OutputImages({ expected, actual, fits, view, tolerance, theme, onHover, scan, onScan, prefix = '' }) {
+function OutputImages({ expected, actual, fits, view, tolerance, theme, onHover, selected, scan, onScan, prefix = '' }) {
   const range = rangeOf(expected)
   const missing = actual ? tr('尺寸不对', 'Wrong size') : L(WORDS.notWired)
   const profile = view === 'profile'
@@ -164,15 +164,15 @@ function OutputImages({ expected, actual, fits, view, tolerance, theme, onHover,
   return (
     <>
       <figure>
-        {profile ? <ProfileView img={expected} range={range} size={132} theme={theme} scan={scan} onScan={onScan} onHover={onHover} compact /> : <ValueView img={expected} view={view} range={range} size={132} theme={theme} onHover={onHover} grid />}
+        {profile ? <ProfileView img={expected} range={range} size={132} theme={theme} scan={scan} onScan={onScan} onHover={onHover} selected={selected} compact /> : <ValueView img={expected} view={view} range={range} size={132} theme={theme} onHover={onHover} selected={selected} grid />}
         <figcaption>{prefix}{L(WORDS.wanted)}</figcaption>
       </figure>
       <figure>
-        {!fits ? <ImageView img={null} label={missing} /> : profile ? <ProfileView img={actual} range={range} size={132} theme={theme} scan={scan} onScan={onScan} onHover={onHover} compact /> : <ValueView img={actual} view={view} range={range} size={132} theme={theme} onHover={onHover} grid />}
+        {!fits ? <ImageView img={null} label={missing} /> : profile ? <ProfileView img={actual} range={range} size={132} theme={theme} scan={scan} onScan={onScan} onHover={onHover} selected={selected} compact /> : <ValueView img={actual} view={view} range={range} size={132} theme={theme} onHover={onHover} selected={selected} grid />}
         <figcaption>{prefix}{L(WORDS.result)}</figcaption>
       </figure>
       <figure>
-        <ImageView img={fits ? actual : null} against={expected} tolerance={tolerance} theme={theme} onHover={onHover} label="—" grid />
+        <ImageView img={fits ? actual : null} against={expected} tolerance={tolerance} theme={theme} onHover={onHover} selected={selected} label="—" grid />
         <figcaption>{prefix}{tr('误差', 'Error')}</figcaption>
       </figure>
       {profile && (

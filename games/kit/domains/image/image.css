@@ -92,11 +92,13 @@
 .image-view { display: block; image-rendering: pixelated; border-radius: 4px; box-shadow: 0 0 0 1px var(--line); background: var(--canvas); }
 .colour-preview { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: start; width: 100%; }
 .colour-preview-item { min-width: 0; display: grid; justify-items: center; gap: 3px; }
+.colour-preview-item .image-frame { width: min(64px, 100%); }
 .colour-preview-item .image-view { width: min(64px, 100%) !important; height: auto !important; aspect-ratio: 1; }
 .colour-preview.has-labels { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
 .colour-preview-item small { color: var(--muted); font: 10px/1 var(--mono); }
-.image-grid { position: relative; display: inline-block; line-height: 0; }
-.image-view.is-readable, .image-grid.is-readable, .slope-view.is-readable, .spectrum-view.is-readable { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.image-frame { position: relative; display: inline-block; max-width: 100%; line-height: 0; }
+.pixel-selection { position: absolute; z-index: 2; box-sizing: border-box; border: 2px solid var(--accent); box-shadow: 0 0 0 1px var(--ink); pointer-events: none; }
+.image-view.is-readable, .image-frame.is-readable, .slope-view.is-readable, .spectrum-view.is-readable { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .image-grid::after { content: ''; position: absolute; inset: 0; border-radius: 4px; pointer-events: none; background-image: linear-gradient(to right, rgba(128, 128, 128, .16) 1px, transparent 1px), linear-gradient(to bottom, rgba(128, 128, 128, .16) 1px, transparent 1px); background-size: calc(100% / var(--cells)) calc(100% / var(--rows)); }
 .image-empty { display: grid; place-items: center; color: var(--faint); border-radius: 4px; font-size: 11px; box-shadow: inset 0 0 0 1px var(--line); background: repeating-linear-gradient(135deg, transparent 0 6px, var(--hairline) 6px 7px); }
 
@@ -114,7 +116,7 @@
 }
 .test-strip figure { margin: 0; }
 .test-strip .value-view { display: block; width: 100%; place-items: normal; }
-.test-strip .image-grid { display: block; }
+.test-strip .image-frame { display: block; }
 .test-strip .image-view, .test-strip .image-empty, .test-strip .profile-view, .test-strip .spectrum-view, .test-strip .slope-view { width: 100% !important; height: auto !important; aspect-ratio: 1; }
 .test-strip .curve-wrap, .test-strip .terrain-view, .test-strip .number-view { width: 100% !important; height: auto !important; }
 .test-strip figcaption { margin-top: 5px; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; }
@@ -141,7 +143,7 @@
 .test-block-label { display: block; margin-bottom: 8px; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .14em; }
 .test-images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-items: start; }
 .test-images figure { margin: 0; }
-.test-images .image-grid { display: block; }
+.test-images .image-frame { display: block; }
 .test-images .image-view, .test-images .image-empty { width: 100% !important; height: auto !important; aspect-ratio: 1; }
 .test-images figcaption { margin-top: 5px; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; }
 .test-verdict { margin: 10px 0 0; display: flex; align-items: center; gap: 6px; font-size: 12.5px; }

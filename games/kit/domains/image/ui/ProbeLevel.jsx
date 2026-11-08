@@ -36,12 +36,12 @@ export default function ProbeLevel({ level, onSolve, theme }) {
       </div>
       <div className="probe-machine">
         <figure>
-          <ImageView img={input} size={176} theme={theme} grid onHover={read} />
+          <ImageView img={input} size={176} theme={theme} grid onHover={read} selected={cell} />
           <figcaption>{tr('输入', 'Input')}</figcaption>
         </figure>
         <div className="probe-box" aria-hidden="true">？？？</div>
         <figure>
-          <ImageView img={output} size={176} theme={theme} grid onHover={read} />
+          <ImageView img={output} size={176} theme={theme} grid onHover={read} selected={cell} />
           <figcaption>{tr('输出', 'Output')}</figcaption>
         </figure>
       </div>

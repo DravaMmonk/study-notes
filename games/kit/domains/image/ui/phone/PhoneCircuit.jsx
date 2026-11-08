@@ -242,12 +242,12 @@ function PartPanel({ kit, node, description, flags, ioKinds, value, error, check
           <p className="ph-error">{L(error)}</p>
         ) : node.type === 'output' && expected ? (
           <div className="pc-compare">
-            <figure><ValueView img={expected} view={shown} size={kindOf(expected) === 'image' ? 88 : 150} theme={theme} onHover={setProbe} /><figcaption>{L(WORDS.wanted)}</figcaption></figure>
-            <figure>{!value && kindOf(expected) === 'image' ? <ImageView img={null} size={88} label={L(WORDS.notWired)} /> : <ValueView img={value} view={shown} range={kindOf(expected) === 'image' ? rangeOf(expected) : undefined} size={kindOf(expected) === 'image' ? 88 : 150} theme={theme} label={L(WORDS.notWired)} onHover={setProbe} />}<figcaption>{L(WORDS.result)}</figcaption></figure>
-            {kindOf(expected) === 'image' && <figure><ImageView img={value && fits(value, expected) ? value : null} against={expected} tolerance={tolerance} size={88} theme={theme} onHover={setProbe} label={value ? tr('尺寸不对', 'Wrong size') : L(WORDS.notWired)} /><figcaption>{tr('误差', 'Error')}</figcaption></figure>}
+            <figure><ValueView img={expected} view={shown} size={kindOf(expected) === 'image' ? 88 : 150} theme={theme} onHover={setProbe} selected={probe} /><figcaption>{L(WORDS.wanted)}</figcaption></figure>
+            <figure>{!value && kindOf(expected) === 'image' ? <ImageView img={null} size={88} label={L(WORDS.notWired)} /> : <ValueView img={value} view={shown} range={kindOf(expected) === 'image' ? rangeOf(expected) : undefined} size={kindOf(expected) === 'image' ? 88 : 150} theme={theme} label={L(WORDS.notWired)} onHover={setProbe} selected={probe} />}<figcaption>{L(WORDS.result)}</figcaption></figure>
+            {kindOf(expected) === 'image' && <figure><ImageView img={value && fits(value, expected) ? value : null} against={expected} tolerance={tolerance} size={88} theme={theme} onHover={setProbe} selected={probe} label={value ? tr('尺寸不对', 'Wrong size') : L(WORDS.notWired)} /><figcaption>{tr('误差', 'Error')}</figcaption></figure>}
           </div>
         ) : (
-          <ValueView img={value} view={shown} size={kindOf(value) === 'image' ? 200 : 300} theme={theme} label={tr('尚无结果', 'No result yet')} grid scan={scan} onScan={onScan} onHover={setProbe} />
+          <ValueView img={value} view={shown} size={kindOf(value) === 'image' ? 200 : 300} theme={theme} label={tr('尚无结果', 'No result yet')} grid scan={scan} onScan={onScan} onHover={setProbe} selected={probe} />
         )}
         {probe && <p className="pixel-probe pc-probe">{probe.frequency ? tr('频率 ', 'Frequency ') : ''}({probe.x}, {probe.y}) {node.type === 'output' && !probe.frequency ? <>{L(WORDS.wanted)} {formatted(target)} · {L(WORDS.result)} {formatted(result)} · {tr('误差', 'Error')} {formatted(difference)}</> : formatted(Array.isArray(probe.value) ? probe.value : [probe.value])}</p>}
         {kindOf(value ?? expected) === 'image' && <ViewSwitch value={shown} onChange={onView} shows={views?.shows} fresh={views?.fresh} compact />}
