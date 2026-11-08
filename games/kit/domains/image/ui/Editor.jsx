@@ -5,6 +5,7 @@ import { L, tr } from '../../../shell/i18n.js'
 import { WORDS } from '../../../shell/words.js'
 import ParamControl from './ParamControl.jsx'
 import { partsFor, visibleSettings } from './parts.js'
+import { setParam } from './parameters.js'
 import ValueView from './views/ValueView.jsx'
 import ColourPreview from './ColourPreview.jsx'
 import MultiOutputPreview from './MultiOutputPreview.jsx'
@@ -22,7 +23,6 @@ export default function Editor({ kit, graph, onChange, run, testIndex, flags, se
   const [menu, setMenu] = useState(null) // id of the card whose view menu is open
   const values = run?.results[testIndex]?.values
   const errors = run?.results[testIndex]?.errors
-  const { inputsOf, snapSetting } = kit
   const parts = useMemo(() => partsFor(kit, { sensors, outputLabels, colourOutputs }), [kit, sensors, outputLabels, colourOutputs])
 
   // Choosing a view changes nothing in the circuit: it is saved, but tests do not re-run.
@@ -41,7 +41,6 @@ export default function Editor({ kit, graph, onChange, run, testIndex, flags, se
     })
     onChange({ ...graph, nodes }, { keep: true })
   }
-  const setParam = (node, key, value) => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, params: { ...n.params, [key]: snapSetting(n.type, key, value) } } : n)) })
   const checkOf = (node) => (node.type === 'output' ? run?.results[testIndex]?.checks.find((c) => c.name === node.params.name) : null)
 
   useEffect(() => {
@@ -69,7 +68,7 @@ export default function Editor({ kit, graph, onChange, run, testIndex, flags, se
     return (
       <>
         {visibleSettings(kit, node, flags).map((param, index) => (
-          <ParamControl key={param.key} param={param} value={node.params[param.key]} onChange={(v) => setParam(node, param.key, v)} style={index === 0 && param.buttons ? { marginTop: -PORT_ROW * Math.max(1, inputsOf(node.type).length) } : undefined} />
+          <ParamControl key={param.key} param={param} value={node.params[param.key]} onChange={(v) => onChange(setParam(kit, graph, node.id, param.key, v))} style={index === 0 && param.buttons ? { marginTop: -PORT_ROW * Math.max(1, parts.inputs(node).length) } : undefined} />
         ))}
         {node.type === 'input' && sensors?.[node.params.name]?.description && <details className="node-description" onPointerDown={(event) => event.stopPropagation()}><summary>{tr('说明', 'About')}</summary><p>{L(sensors[node.params.name].description)}</p></details>}
         <div className="node-preview">

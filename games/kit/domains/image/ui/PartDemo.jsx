@@ -6,7 +6,7 @@ import { describe } from '../words.js'
 import { partsFor } from './parts.js'
 import { levelSensors } from './sensors.js'
 import { KernelEditor, NumberEditor } from './phone/Editors.jsx'
-import { setParam } from './phone/ops.js'
+import { setParam } from './parameters.js'
 import { ParamChip } from './phone/parts.jsx'
 import ValueView from './views/ValueView.jsx'
 import MultiOutputPreview from './MultiOutputPreview.jsx'
@@ -80,8 +80,13 @@ export default function PartDemo({ kit, flag, type, home, flags, phone, levels, 
 
   // Cards move freely and settings change; the circuit itself stays as it is.
   const onChange = (next, { keep } = {}) => {
-    const same = next.nodes.map((n) => n.id).join() === graph.nodes.map((n) => n.id).join() && JSON.stringify(next.wires) === JSON.stringify(graph.wires)
-    if (!same) return
+    const sameNodes = next.nodes.map((n) => n.id).join() === graph.nodes.map((n) => n.id).join()
+    const oldWires = new Set(graph.wires.map((w) => JSON.stringify(w)))
+    const added = next.wires.some((w) => !oldWires.has(JSON.stringify(w)))
+    const retained = new Set(next.wires.map((w) => JSON.stringify(w)))
+    const removed = graph.wires.filter((w) => !retained.has(JSON.stringify(w)))
+    const validRemoval = removed.every((w) => { const node = next.nodes.find((n) => n.id === w.to); return node?.type === 'arith' && node.params.constantSide === w.port })
+    if (!sameNodes || added || !validRemoval) return
     setGraph(next)
     if (!keep && run && JSON.stringify(next.nodes.map((n) => n.params)) !== JSON.stringify(graph.nodes.map((n) => n.params))) setStale(true)
   }

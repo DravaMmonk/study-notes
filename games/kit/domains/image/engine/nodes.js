@@ -75,9 +75,9 @@ export const NODE_TYPES = {
     ],
     eval: ({ a, b }, p) => {
       const op = ARITH[p.op ?? 'add'][1]
-      if (a && b) return zip(a, b, op)
-      if (!a && b && p.constantSide === 'a') return map(b, (x) => op(p.constant ?? 1, x))
-      if (a && !b && p.constantSide === 'b') return map(a, (x) => op(x, p.constant ?? 1))
+      if (b && p.constantSide === 'a') return map(b, (x) => op(p.constant ?? 1, x))
+      if (a && p.constantSide === 'b') return map(a, (x) => op(x, p.constant ?? 1))
+      if (a && b && (p.constantSide ?? 'none') === 'none') return zip(a, b, op)
       throw new PartError(MISSING)
     },
     cost: 1,

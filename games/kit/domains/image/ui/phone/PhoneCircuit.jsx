@@ -15,7 +15,8 @@ import ValueView from '../views/ValueView.jsx'
 import ViewSwitch from '../views/ViewSwitch.jsx'
 import { KIND_NAMES, formatNumber, kindOf, nodeView } from '../views/views.js'
 import { InlineParam, KernelEditor, NumberEditor } from './Editors.jsx'
-import { placeAt, setParam } from './ops.js'
+import { placeAt } from './ops.js'
+import { setParam } from '../parameters.js'
 import { AddSheet, ParamChip } from './parts.jsx'
 import Sheet from '../../../../shell/Sheet.jsx'
 import './phone.css'
@@ -66,7 +67,7 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
   // A block on the board: "unwired" while an input is open, ! on an error, else its picture.
   const boardThumb = (node, size) => {
     const value = values?.get(node.id)
-    const open = node.type !== 'input' && parts.inputs(node).some((port) => !feeding(graph, node.id, port) && !(node.type === 'arith' && node.params.constantSide === port))
+    const open = node.type !== 'input' && parts.inputs(node).some((port) => !feeding(graph, node.id, port))
     if (open) return <i className="pb-empty" style={{ width: size, height: size }}>{tr('待接线', 'unwired')}</i>
     if (errors?.get(node.id)) return <i className="pb-error" style={{ width: size, height: size }}>!</i>
     const outputs = node.type !== 'input' ? parts.outputs(node) : null
@@ -95,7 +96,7 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
   }
   const tileExtra = (node) => {
     const param = (types[node.type].params ?? [])[0]
-    if (node.type === 'arith' && ['a', 'b'].includes(node.params.constantSide) && !feeding(graph, node.id, node.params.constantSide)) {
+    if (node.type === 'arith' && ['a', 'b'].includes(node.params.constantSide) ) {
       const op = L(param.options.find(([key]) => key === node.params.op)?.[1])
       const value = formatNumber(node.params.constant ?? 1)
       return node.params.constantSide === 'a' ? `${value} ${op} b` : `a ${op} ${value}`

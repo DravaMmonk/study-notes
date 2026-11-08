@@ -71,7 +71,7 @@ export function blueprintOf({ types, inputsOf, defaultParams, snapSetting }) {
     read: (node, key, v) => (typeof v === 'string' && takesPi(node.type, key) && parsePi(v) !== null ? parsePi(v) : v),
   }
   /** The board's nodes as the shared circuit model sees them. */
-  const BOARD_PARTS = { role: roleOf, inputs: (node) => (node.type ? inputsOf(node.type) : []), outputs: (node) => node.type === 'input' ? [{ key: null, label: 'Image' }, ...['r', 'g', 'b'].map((key) => ({ key, label: key.toUpperCase() }))] : (typeof types[node.type]?.outputs === 'function' ? types[node.type].outputs(node).map((key) => ({ key, label: types[node.type].outputLabels?.[key] ?? key })) : null), text: BOARD_TEXT }
+  const BOARD_PARTS = { role: roleOf, inputs: (node) => (node.type ? inputsOf(node.type).filter((port) => !(node.type === 'arith' && node.params?.constantSide === port)) : []), outputs: (node) => node.type === 'input' ? [{ key: null, label: 'Image' }, ...['r', 'g', 'b'].map((key) => ({ key, label: key.toUpperCase() }))] : (typeof types[node.type]?.outputs === 'function' ? types[node.type].outputs(node).map((key) => ({ key, label: types[node.type].outputLabels?.[key] ?? key })) : null), text: BOARD_TEXT }
 
   /**
    * A board as blueprint lines (content writes reference boards this way): each part after what it reads,

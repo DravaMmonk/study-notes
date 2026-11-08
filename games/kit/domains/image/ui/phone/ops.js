@@ -35,5 +35,3 @@ export function placeAt(kit, graph, type, at) {
   const [x, y] = placeNear(graph, graph.nodes.at(-1))
   return { graph: { ...graph, nodes: [...graph.nodes, { id, type, x, y, slot: at, params: kit.defaultParams(type) }] }, id }
 }
-
-export const setParam = (kit, graph, id, key, value) => ({ ...graph, nodes: graph.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, [key]: kit.snapSetting(n.type, key, value) } } : n)) })

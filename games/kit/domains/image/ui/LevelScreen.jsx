@@ -15,6 +15,7 @@ import { familyOf, iconOf } from './catalog.js'
 import { describe } from '../words.js'
 import { kindOf, nodeView, viewFor } from './views/views.js'
 import { levelSensors } from './sensors.js'
+import { pruneUnavailableWires } from './parameters.js'
 
 // Every bench level plays on the kernel's parameter bench, loaded only when one is opened.
 const BenchLevel = lazy(() => import('./benches/BenchLevel.jsx'))
@@ -47,7 +48,7 @@ export default function LevelScreen({ game, level, saved, save, solved, solve, f
     // A new series level starts from the player's solved circuit for the level before it, if this level offers its parts.
     const carried = level.carry && progress.solved.includes(level.carry) && progress.data[level.carry]
     const offers = (board) => board.nodes.every((n) => n.type === 'input' || n.type === 'output' || level.palette.includes(n.type))
-    const initial = fits(saved) ? saved : fits(carried) && offers(carried) ? carried : startBoard(level)
+    const initial = pruneUnavailableWires(kit, fits(saved) ? saved : fits(carried) && offers(carried) ? carried : startBoard(level))
     return { board: initial, run: level.kind === 'graph' ? runLevel(solved ? withHidden(level) : level, initial) : null }
   })
   // A circuit level's hidden tests are checked by every run but shown only once the level is solved; from then on

@@ -18,7 +18,7 @@ const DESCRIPTIONS = {
   sub: { zh: '两张图逐像素相减：a − b', en: 'Subtracts two pictures pixel by pixel: a − b' },
   mul: { zh: '两张图逐像素相乘：a × b', en: 'Multiplies two pictures pixel by pixel: a × b' },
   softmax: { zh: '把三个分数转成总和为 1 的概率，每个输入对应一个输出。', en: 'Turns three scores into probabilities that sum to 1, one output per input.' },
-  arith: { zh: '两张图逐像素相加、相减、相乘或相除。可设置左侧或右侧在未接线时使用常数；接线时使用接入的值', en: 'Adds, subtracts, multiplies or divides two pictures pixel by pixel. Either side can use a constant when unwired; a connected value takes precedence' },
+  arith: { zh: '两张图逐像素相加、相减、相乘或相除。可将左侧或右侧设为常数，另一侧接线输入', en: 'Adds, subtracts, multiplies or divides two pictures pixel by pixel. Either side can be set to a constant; the other receives a wire' },
   merge: { zh: '有三个输入口，将接入的图逐像素相加；空置的输入口不计入', en: 'Has three inputs and adds the pictures wired into them pixel by pixel; an empty input is skipped' },
   const: { zh: '始终输出同一个数。与图相加或相乘时，这个数作用于每一格', en: 'Always outputs the same number. Added to or multiplied with a picture, it applies to every cell' },
   threshold: { zh: '大于阈值输出 1，否则输出 0', en: '1 above the threshold, 0 otherwise' },
