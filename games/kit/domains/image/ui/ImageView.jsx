@@ -55,18 +55,20 @@ export default function ImageView({ img, range, size = 112, against, tolerance =
   const canvasEl = (
     <canvas
       ref={canvas}
-      className="image-view"
+      className={`image-view ${onHover ? 'is-readable' : ''}`}
       style={{ width: size, height: size * (img.h / img.w) }}
+      onContextMenu={onHover ? (event) => event.preventDefault() : undefined}
+      onDragStart={onHover ? (event) => event.preventDefault() : undefined}
       onPointerMove={hover}
       onPointerDown={hover}
-      onPointerLeave={() => onHover?.(null)}
+      onPointerLeave={(event) => { if (event.pointerType !== 'touch') onHover?.(null) }}
       aria-label={label}
     />
   )
   // A faint pixel grid once each pixel is big enough to read on its own.
   if (!grid || size / img.w < 6) return canvasEl
   return (
-    <span className="image-grid" style={{ '--cells': img.w, '--rows': img.h }}>
+    <span className={`image-grid ${onHover ? 'is-readable' : ''}`} style={{ '--cells': img.w, '--rows': img.h }}>
       {canvasEl}
     </span>
   )
