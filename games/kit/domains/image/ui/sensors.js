@@ -11,6 +11,6 @@ export function levelSensors(level, tests = level.tests) {
   const labels = level.inputLabels ?? (many ? INPUT_LABELS : {})
   return Object.fromEntries(level.inputs.map((name) => {
     const value = tests?.[0]?.inputs?.[name]
-    return [name, sensor(name, labels[name] ?? (many ? name : { zh: '输入', en: 'Input' }), value ? kindOf(value) : null, { named: Boolean(labels[name]), description: level.inputDescriptions?.[name] })]
+    return [name, sensor(name, labels[name] ?? (many ? name : { zh: '输入', en: 'Input' }), value ? kindOf(value) : null, { named: Boolean(labels[name]), colour: value?.c === 3, description: level.inputDescriptions?.[name] })]
   }))
 }

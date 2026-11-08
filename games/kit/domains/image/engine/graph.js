@@ -2,7 +2,8 @@ import { PartError } from '../../../engine/circuit.js'
 import { runBoard, sink, source } from '../../../engine/boards.js'
 import { runLevel as runTests } from '../../../engine/tests.js'
 import { compare, image } from './image.js'
-import { compose } from './colour.js'
+import { channel, compose } from './colour.js'
+import { srcNode } from '../../../circuit/model.js'
 
 // A graph is { nodes: [{ id, type, x, y, params }], wires: [{ from, to, port }] } where `from` and
 // `to` are node ids and `port` is the input port name on `to`. Each node has a single output.
@@ -16,7 +17,7 @@ export function order(graph) {
     const id = ready.shift()
     result.push(id)
     for (const wire of graph.wires) {
-      if (wire.from !== id) continue
+      if (srcNode(wire.from) !== id) continue
       incoming.set(wire.to, incoming.get(wire.to) - 1)
       if (!incoming.get(wire.to)) ready.push(wire.to)
     }
@@ -65,7 +66,10 @@ export function runnerOf(types) {
     if (spec.kit) return spec
     if (!wrapped.has(spec)) {
       wrapped.set(spec, type === 'input'
-        ? source({ spec })
+        ? source({ spec, eval: (_, node, ctx, key) => {
+            const value = ctx.bind?.[node.params?.name]
+            return key == null || value == null ? value : channel(value, { r: 0, g: 1, b: 2 }[key])
+          } })
         : type === 'output'
           ? sink({ spec, inputs: spec.inputs, optional: spec.optional, collect: (ins) => {
               const planes = ['r', 'g', 'b'].map((key) => ins[key])

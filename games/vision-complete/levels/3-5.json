@@ -20,8 +20,8 @@
     },
     {
       "t": {
-        "zh": "这一关你要做的：两个输入，一张照片和一张光照图（每一点照到多少光，1 是满光）。输出表面本来的颜色，阴影和明暗都要去掉。 彩色图可以直接参与运算，也可以用<part-ref to=\"part:channel\"></part-ref>分出通道。",
-        "en": "Your task: two inputs, a photo and a lighting map (how much light reaches each point; 1 is full light). Output the surface's own colour, with the shadows and shading removed. A colour image can be used directly in arithmetic, or split into channels with <part-ref to=\"part:channel\"></part-ref>."
+        "zh": "这一关你要做的：两个输入，一张彩色照片和一张光照图（每一点照到多少光，1 是满光）。照片的「图」出口给出整张彩色图，R、G、B 出口分别给出三个通道。输出表面本来的颜色，去掉阴影和明暗。",
+        "en": "Your task: use a colour photo and a lighting map (how much light reaches each point; 1 is full light). The photo’s Image output gives the full colour image; its R, G and B outputs give individual channels. Output the surface’s own colour without shadows or shading."
       },
       "fig": { "test": 0, "caption": { "zh": "第一组测试：照片、光照 → 期望", "en": "Set 1: photo, lighting → expected" } }
     }
@@ -81,19 +81,11 @@
         }
       ],
       "solution": [
-        "r = channel[channel=r](photo)",
-        "g = channel[channel=g](photo)",
-        "b = channel[channel=b](photo)",
-        "dr = arith[op=div](r, light)",
-        "dg = arith[op=div](g, light)",
-        "db = arith[op=div](b, light)",
-        "out.r <- dr",
-        "out.g <- dg",
-        "out.b <- db"
+        "d = arith[op=div](photo, light)",
+        "out <- d"
       ],
       "naive": ["oN = const()", "s = arith[op=sub](photo, light)", "o = arith[op=add](s, oN)", "out <- o"],
       "alsoFails": [["out <- photo"], ["m = arith[op=mul](photo, light)", "out <- m"]]
     }
-  ],
-  "adds": ["channel"]
+  ]
 }

@@ -46,8 +46,7 @@
     "dg_decode",
     "dg_mu",
     "dg_sigma",
-    "dg_sample",
-    "channel"
+    "dg_sample"
   ],
   "trays": {
     "pipeline": [
@@ -91,8 +90,7 @@
       "maxpool",
       "lrnRes",
       "attention",
-      "embed",
-      "channel"
+      "embed"
     ],
     "geometry": [
       "shift",

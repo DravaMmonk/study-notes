@@ -12,6 +12,7 @@ export const PORT_LABELS = { a: 'a', b: 'b', in: '', left: { zh: '左', en: 'lef
 export function partsFor(kit, { sensors, outputLabels } = {}) {
   return {
     ...kit.BOARD_PARTS,
+    outputs: (node) => node.type === 'input' && sensors?.[node.params.name]?.colour ? [{ key: null, label: tr('图', 'Image') }, ...['r', 'g', 'b'].map((key) => ({ key, label: key.toUpperCase() }))] : null,
     label: (node) => {
       if (node.type === 'input') return sensors?.[node.params.name]?.label ?? tr('输入', 'Input')
       if (node.type === 'output') return outputLabels?.[node.params.name] ?? tr('输出', 'Output')

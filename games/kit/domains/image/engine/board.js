@@ -7,6 +7,7 @@
 // each with its id and params.name the level's name for it ('in', 'out', 'scene'); every other node is a part, its
 // settings in params. A wire runs from a node into one of the ports of another.
 import { parse, print } from '../../../circuit/text.js'
+import { srcNode } from '../../../circuit/model.js'
 import { parsePi, piText } from './pi.js'
 
 /** A setting that takes π, as the blueprint spells it ('pi/2', '-3pi/4'), or null when the value is no multiple of π. */
@@ -25,7 +26,7 @@ function arrange(board) {
   const depth = new Map()
   const of = (id, path = new Set()) => {
     if (depth.has(id)) return depth.get(id)
-    const node = board.nodes.find((n) => n.id === id)
+    const node = board.nodes.find((n) => n.id === srcNode(id))
     if (!node || node.type === 'input' || path.has(id)) return 0
     path.add(id)
     const d = 1 + Math.max(0, ...board.wires.filter((w) => w.to === id).map((w) => of(w.from, path)))
@@ -70,7 +71,7 @@ export function blueprintOf({ types, inputsOf, defaultParams, snapSetting }) {
     read: (node, key, v) => (typeof v === 'string' && takesPi(node.type, key) && parsePi(v) !== null ? parsePi(v) : v),
   }
   /** The board's nodes as the shared circuit model sees them. */
-  const BOARD_PARTS = { role: roleOf, inputs: (node) => (node.type ? inputsOf(node.type) : []), text: BOARD_TEXT }
+  const BOARD_PARTS = { role: roleOf, inputs: (node) => (node.type ? inputsOf(node.type) : []), outputs: (node) => node.type === 'input' ? [{ key: null, label: 'Image' }, ...['r', 'g', 'b'].map((key) => ({ key, label: key.toUpperCase() }))] : null, text: BOARD_TEXT }
 
   /**
    * A board as blueprint lines (content writes reference boards this way): each part after what it reads,
@@ -84,7 +85,7 @@ export function blueprintOf({ types, inputsOf, defaultParams, snapSetting }) {
       return Boolean(param?.buttons) || !same(v, defaultParams(type)[key])
     }
     const nodes = board.nodes.map((n) => (BOARD_PARTS.role(n) === 'part' ? { ...n, params: Object.fromEntries(Object.entries(n.params ?? {}).filter(([k, v]) => shown(n.type, k, v))) } : n))
-    return print({ ...board, nodes }, BOARD_PARTS).split('\n').filter((line) => line && !line.startsWith('#'))
+    return print({ ...board, nodes }, BOARD_PARTS).split('\n').filter((line) => line && !line.startsWith('#')).map((line) => line.replace(/^([A-Za-z_][A-Za-z0-9_-]*)\.in <- /, '$1 <- '))
   }
 
   /**
@@ -111,7 +112,7 @@ export function blueprintOf({ types, inputsOf, defaultParams, snapSetting }) {
     for (const w of wires) {
       const to = board.nodes.find((n) => n.id === w.to)
       if (!to) fail(w.line, `没有叫「${w.to}」的元件。`, `There is no node called “${w.to}”.`)
-      if (!board.nodes.some((n) => n.id === w.from)) fail(w.line, `没有叫「${w.from}」的元件。`, `There is no node called “${w.from}”.`)
+      if (!board.nodes.some((n) => n.id === srcNode(w.from))) fail(w.line, `没有叫「${w.from}」的元件。`, `There is no node called “${w.from}”.`)
       const ports = BOARD_PARTS.inputs(to)
       const port = typeof w.port === 'number' ? ports[w.port] : w.port
       if (!ports.includes(port)) fail(w.line, `「${w.to}」没有这个输入口。`, `“${w.to}” has no such input.`)

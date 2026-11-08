@@ -23,7 +23,8 @@ const items = (all) => Object.fromEntries(Object.entries(all).map(([name, it]) =
 
 /* ---------- the parts, what levels unlock, how a picture is drawn ---------- */
 
-const PARTS = Object.fromEntries(Object.entries(NODE_TYPES).filter(([, spec]) => !spec.fixed && !spec.kit).map(([type, spec]) => [type, { about: spec.label }]))
+// Vocabulary versions are additive: keep the retired name in the schema, without a runtime part.
+const PARTS = Object.fromEntries(Object.entries(NODE_TYPES).filter(([, spec]) => !spec.fixed && !spec.kit).flatMap(([type, spec]) => type === 'merge' ? [['channel', { about: { zh: '提取颜色通道', en: 'Extract colour channel' } }], [type, { about: spec.label }]] : [[type, { about: spec.label }]]))
 // What a level may unlock: a part (its flag), one of a part's settings, or one option of a setting.
 const FLAGS = new Map()
 for (const spec of Object.values(NODE_TYPES)) {

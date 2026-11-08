@@ -53,3 +53,18 @@ test('an RGB image can be corrected directly with a single-channel illumination 
   ] }
   assert.equal(compare(runner.evaluate(graph, { photo, light }).values.get('out'), original).pass, true)
 })
+
+test('colour input exposes the full image and independent RGB outputs', async () => {
+  const { imageKit } = await import('./engine/kit.js')
+  const kit = imageKit(NODE_TYPES)
+  const lines = ['out.r <- photo.r', 'out.g <- photo.g', 'out.b <- photo.b']
+  const graph = kit.fromText(lines, { inputs: ['photo'] })
+  assert.deepEqual(kit.toText(graph), lines)
+  const rgb = compose(plane([0.2, 0.4]), plane([0.3, 0.5]), plane([0.6, 0.7]))
+  const values = kit.evaluate(graph, { photo: rgb }).values
+  assert.equal(values.get('photo'), rgb)
+  assert.deepEqual([...values.get('photo#r').data], [...channel(rgb, 0).data])
+  assert.deepEqual([...values.get('photo#g').data], [...channel(rgb, 1).data])
+  assert.deepEqual([...values.get('photo#b').data], [...channel(rgb, 2).data])
+  assert.equal(compare(values.get('out'), rgb).pass, true)
+})

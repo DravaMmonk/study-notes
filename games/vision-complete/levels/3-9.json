@@ -21,8 +21,8 @@
     },
     {
       "t": {
-        "zh": "这一关你要做的：每张彩色照片里都有白纸，它在 R、G、B 通道中都是最亮的。用<part-ref to=\"part:channel\"></part-ref>分出三个通道，调整后接入输出的 R、G、B 口，让白纸变回纯白。",
-        "en": "Each colour photo contains white paper, brightest in each R, G and B channel. Use <part-ref to=\"part:channel\"></part-ref> to separate the channels, adjust them, and connect them to the matching output ports to make the paper white."
+        "zh": "这一关你要做的：每张彩色照片里都有白纸，它在 R、G、B 通道中都是最亮的。从照片的 R、G、B 出口分别取出通道，调整后接入输出的对应接口，让白纸变回纯白。",
+        "en": "Each colour photo contains white paper, brightest in each R, G and B channel. Take the channels from the photo’s R, G and B outputs, adjust them, and connect them to the matching output ports to make the paper white."
       }
     }
   ],
@@ -48,27 +48,21 @@
         { "label": { "zh": "厨房", "en": "A kitchen" }, "layout": "kitchen", "strength": 0.5 }
       ],
       "solution": [
-        "r = channel[channel=r](photo)",
-        "g = channel[channel=g](photo)",
-        "b = channel[channel=b](photo)",
-        "mr = globalMax(r)",
-        "mg = globalMax(g)",
-        "mb = globalMax(b)",
-        "dr = arith[op=div](r, mr)",
-        "dg = arith[op=div](g, mg)",
-        "db = arith[op=div](b, mb)",
+        "mr = globalMax(photo.r)",
+        "mg = globalMax(photo.g)",
+        "mb = globalMax(photo.b)",
+        "dr = arith[op=div](photo.r, mr)",
+        "dg = arith[op=div](photo.g, mg)",
+        "db = arith[op=div](photo.b, mb)",
         "out.r <- dr",
         "out.g <- dg",
         "out.b <- db"
       ],
       "naive": [
-        "r = channel[channel=r](photo)",
-        "g = channel[channel=g](photo)",
-        "b = channel[channel=b](photo)",
-        "m = globalMax(r)",
-        "dr = arith[op=div](r, m)",
-        "dg = arith[op=div](g, m)",
-        "db = arith[op=div](b, m)",
+        "m = globalMax(photo.r)",
+        "dr = arith[op=div](photo.r, m)",
+        "dg = arith[op=div](photo.g, m)",
+        "db = arith[op=div](photo.b, m)",
         "out.r <- dr",
         "out.g <- dg",
         "out.b <- db"

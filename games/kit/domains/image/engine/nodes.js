@@ -1,6 +1,5 @@
 import { correlate, downsample, fromFn, gaussianKernel, image, map, maxPool, shift, zip } from './image.js'
 import { piText } from './pi.js'
-import { channel } from './colour.js'
 import { FREQUENCY } from './parts/frequency.js'
 import { GENERATIVE } from './parts/generative.js'
 import { GLOBAL } from './parts/global.js'
@@ -70,12 +69,6 @@ export const NODE_TYPES = {
     params: [{ key: 'op', label: { zh: '运算', en: 'Operation' }, kind: 'select', buttons: 'grid', options: Object.keys(ARITH).map((op) => [op, ARITH[op][0]]), default: 'add' }],
     eval: ({ a, b }, p) => zip(a, b, ARITH[p.op ?? 'add'][1]),
     cost: 1,
-  },
-  channel: {
-    label: { zh: '提取颜色通道', en: 'Extract colour channel' },
-    description: { zh: '从彩色图取出 R、G 或 B 通道', en: 'Extract the R, G or B channel from a colour image' },
-    inputs: ['in'], params: [{ key: 'channel', label: { zh: '通道', en: 'Channel' }, kind: 'select', options: [['r', 'R'], ['g', 'G'], ['b', 'B']], default: 'r' }],
-    eval: ({ in: a }, p) => channel(a, { r: 0, g: 1, b: 2 }[p.channel ?? 'r']), cost: 0,
   },
   // Adds whatever is wired into its three inputs; an empty input is skipped.
   merge: {
