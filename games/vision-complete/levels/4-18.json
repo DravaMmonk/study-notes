@@ -2,63 +2,132 @@
   "title": { "zh": "省一点算", "en": "A little cheaper" },
   "tray": "pipeline",
   "after": {
-    "zh": "先把每个通道单独卷一次，再按每张输出要的比例混起来（1×1 的混合，几乎不花计算量）。这叫深度可分离卷积：MobileNet 靠它在手机上跑得动。输出通道越多，省得越多。",
-    "en": "Convolve each channel once on its own, then mix them in the proportions each output needs (a 1×1 mix, which costs almost nothing). This is a depthwise separable convolution: it is what lets MobileNet run on a phone. The more output channels, the more it saves."
+    "zh": "深度可分离卷积把空间处理和通道混合分开。它可以减少计算，但一个输入通道对应的空间核要供各输出共享；普通卷积可以为不同输出选择不同的空间核。在这个单输入、一个空间核的例子中，两个独立方向无法同时由同一个核产生。增加中间通道可以改变这种限制，也会增加计算。",
+    "en": "Depthwise separable convolution separates spatial processing from channel mixing. It can reduce computation, but the spatial kernel for an input channel is shared across outputs; ordinary convolution can choose different spatial kernels for each output. In this one-input, one-spatial-kernel example, two independent directions cannot both come from the same kernel. More intermediate channels can change this limit, at additional cost."
   },
   "intro": [
     {
       "t": {
-        "zh": "这是一道挑战关，可以跳过。它不需要新元件。",
-        "en": "This is a challenge level, and you can skip it. It needs no new parts."
+        "zh": "手机需要省计算，但省下的计算会不会带来代价？这次比较两种卷积结构，看看它们能做出什么样的空间特征。",
+        "en": "Phones need to save computation, but does saving computation have a cost? Compare two convolution structures and see which spatial features they can produce."
       }
     },
     {
       "t": {
-        "zh": "手机上的网络要省电。这一关要两张输出，都由三个通道各自做过 3×3 平均之后混出来。两个多通道核要花 58 的计算量，这一关只给 30。",
-        "en": "Networks on phones must save power. This level wants two outputs, both mixed from the three channels after each has had a 3×3 average. Two multichannel kernels cost 58, and this level allows only 30."
-      },
-      "fig": { "test": 0, "caption": { "zh": "第一组：红绿对半", "en": "Set 1: half red, half green" } }
+        "zh": "实验简化为一个输入通道、两个输出通道。图中每个 3×3 方格表示输入通道对一个输出的空间核，亮格的权重为 1，暗格为 0，灰格为 0.5。",
+        "en": "This experiment uses one input channel and two output channels. Each 3×3 grid is the spatial kernel from the input to one output: white has weight 1, black 0 and grey 0.5."
+      }
+    },
+    {
+      "t": {
+        "zh": "普通卷积给两个输出各用一个空间核；深度可分离卷积先用一个空间核处理输入，再送到两个输出。这里两个逐点混合权重固定为 1；空间核可以选择。",
+        "en": "Ordinary convolution uses a separate spatial kernel for each output. Depthwise separable convolution first applies one spatial kernel to the input, then sends the result to both outputs. Here the two pointwise mixing weights are fixed at 1; you can choose the spatial kernels."
+      }
+    },
+    {
+      "t": {
+        "zh": "台上的计算量只数每个位置的乘法：普通卷积两个 3×3 核需要 18 次；分离结构一个 3×3 核加两个逐点乘法需要 11 次。真实网络还有加法等开销。",
+        "en": "The bench counts only multiplications per position: two ordinary 3×3 kernels need 18; one spatial kernel plus two pointwise multiplications needs 11. Real networks also have additions and other costs."
+      }
     }
   ],
   "tasks": [
     {
       "id": "4-18",
-      "kind": "graph",
+      "kind": "board",
       "brief": {
-        "zh": "输入是一张彩色图，R、G、B 出口分别提供三个通道。两张输出：输出 1 = R − G，输出 2 = R + G − 2B，其中每个通道都先做 3×3 平均。计算量不能超过 30。",
-        "en": "The input is a colour image with separate R, G and B outputs. Two outputs: output 1 = R − G and output 2 = R + G − 2B, where every channel is first given a 3×3 average. The cost must not exceed 30."
+        "zh": "比较两种卷积结构：先在计算预算内做出相同的两个空间核，再尝试做出不同的两个核。",
+        "en": "Compare two convolution structures: first make two identical spatial kernels within a computation budget, then try to make two different kernels."
       },
-      "hint": { "zh": "多通道核每张输出都要把三个通道各卷一遍。", "en": "A multichannel kernel convolves all three channels again for every output." },
-      "inputs": ["photo"],
-      "inputLabels": { "photo": { "zh": "彩色照片", "en": "Colour photo" } },
-      "outputs": ["o1", "o2"],
-      "outputLabels": { "o1": { "zh": "输出 1", "en": "Output 1" }, "o2": { "zh": "输出 2", "en": "Output 2" } },
-      "constraint": { "cost": { "max": 30 } },
-      "scene": "rgbMix",
-      "tests": [
-        { "label": { "zh": "红绿对半", "en": "Half red, half green" }, "paint": "halves" },
-        { "label": { "zh": "蓝色方块", "en": "A blue square" }, "paint": "blueSquare" },
-        { "label": { "zh": "彩色纹理", "en": "Colour texture" }, "paint": "texture" }
-      ],
-      "hidden": [{ "label": { "zh": "黄色圆盘", "en": "A yellow disc" }, "paint": "yellowDisc" }],
-      "solution": [
-        "b2N = const[c=2]()",
-        "R = box3(photo.r)",
-        "G = box3(photo.g)",
-        "B = box3(photo.b)",
-        "d1 = arith[op=sub](R, G)",
-        "s = arith[op=add](R, G)",
-        "b2 = arith[op=mul](B, b2N)",
-        "d2 = arith[op=sub](s, b2)",
-        "o1 <- d1",
-        "o2 <- d2"
-      ],
-      "naive": [
-        "k1 = lrnRgb[w=[0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, -0.1111111111111111, 0, 0, 0, 0, 0, 0, 0, 0, 0]](photo.r, photo.g, photo.b)",
-        "k2 = lrnRgb[w=[0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, 0.1111111111111111, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222, -0.2222222222222222]](photo.r, photo.g, photo.b)",
-        "o1 <- k1",
-        "o2 <- k2"
-      ]
+      "hint": {
+        "zh": "深度可分离结构中，两个输出共享空间核 1；普通卷积的两个空间核可以分别选择。",
+        "en": "In the separable structure both outputs share spatial kernel 1; ordinary convolution can choose its two spatial kernels independently."
+      },
+      "bench": {
+        "model": "separable",
+        "knobs": {
+          "mode": {
+            "label": { "zh": "结构", "en": "Structure" },
+            "choices": [
+              { "value": "separable", "label": { "zh": "深度可分离", "en": "Depthwise separable" } },
+              { "value": "ordinary", "label": { "zh": "普通卷积", "en": "Ordinary convolution" } }
+            ],
+            "start": "separable"
+          },
+          "first": {
+            "label": { "zh": "空间核 1", "en": "Spatial kernel 1" },
+            "choices": [
+              { "value": "horizontal", "label": { "zh": "横向", "en": "Horizontal" } },
+              { "value": "vertical", "label": { "zh": "纵向", "en": "Vertical" } },
+              { "value": "cross", "label": { "zh": "十字", "en": "Cross" } }
+            ],
+            "start": "cross"
+          },
+          "second": {
+            "label": { "zh": "空间核 2（普通卷积）", "en": "Spatial kernel 2 (ordinary convolution)" },
+            "choices": [
+              { "value": "horizontal", "label": { "zh": "横向", "en": "Horizontal" } },
+              { "value": "vertical", "label": { "zh": "纵向", "en": "Vertical" } },
+              { "value": "cross", "label": { "zh": "十字", "en": "Cross" } }
+            ],
+            "start": "cross"
+          }
+        },
+        "stages": [
+          {
+            "title": { "zh": "相同的空间特征", "en": "The same spatial feature" },
+            "note": {
+              "zh": "两张目标都需要横向的空间核。调整结构和核，让结果符合目标，乘法次数不超过 11。",
+              "en": "Both targets need a horizontal spatial kernel. Adjust the structure and kernels to match them using at most 11 multiplications."
+            },
+            "target": "shared",
+            "opens": ["mode", "first", "second"],
+            "start": { "mode": "ordinary", "first": "cross", "second": "cross" },
+            "goal": [{ "of": "error", "is": 0 }, { "of": "cost", "atMost": 11 }],
+            "win": {
+              "zh": "共享空间核可以满足两个相同的目标，再分别送到两个输出。",
+              "en": "A shared spatial kernel meets both identical targets, then feeds both outputs."
+            }
+          },
+          {
+            "title": { "zh": "不同的空间特征", "en": "Different spatial features" },
+            "note": {
+              "zh": "现在第一张目标要横向核，第二张要纵向核。先试试深度可分离结构：调整空间核 1 时，两张结果怎样变化？再选出能同时满足目标的结构。",
+              "en": "Now the first target needs a horizontal kernel and the second a vertical one. Try the separable structure first: what happens to both results when you change spatial kernel 1? Then choose a structure that meets both targets."
+            },
+            "target": "different",
+            "opens": ["mode", "first", "second"],
+            "start": { "mode": "separable", "first": "horizontal", "second": "vertical" },
+            "goal": [{ "of": "error", "is": 0 }],
+            "win": {
+              "zh": "这个例子中，一个共享空间核不能同时变成横向和纵向；普通卷积可以分别选择两个核。",
+              "en": "In this example one shared spatial kernel cannot be both horizontal and vertical; ordinary convolution can choose two kernels independently."
+            }
+          }
+        ],
+        "layout": {
+          "main": [
+            "separableKernels",
+            {
+              "stats": {
+                "of": [
+                  {
+                    "of": "cost",
+                    "label": { "zh": "每个位置的乘法次数", "en": "Multiplications per position" },
+                    "format": "int"
+                  },
+                  {
+                    "of": "error",
+                    "label": { "zh": "与目标的差异", "en": "Difference from targets" },
+                    "format": "fixed1"
+                  }
+                ]
+              }
+            }
+          ],
+          "side": [{ "panel": ["step", "knobs", "verdict"] }, "stages"]
+        }
+      }
     }
   ]
 }

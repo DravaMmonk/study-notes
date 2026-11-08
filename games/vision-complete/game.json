@@ -365,8 +365,10 @@
         "4-16",
         "4-17"
       ],
-      "challenges": [{ "level": "4-18", "after": "4-13" }],
-      "topics": [{ "id": "sorter", "levels": ["4-19", "4-20", "4-21"] }],
+      "topics": [
+        { "id": "sorter", "levels": ["4-19", "4-20", "4-21"] },
+        { "id": "separable", "levels": ["4-18"], "after": "4-13" }
+      ],
       "chapter": {
         "title": { "zh": "学会看", "en": "Learning to See" },
         "lecture": { "zh": "第 6–8 讲", "en": "Lectures 6–8" },
