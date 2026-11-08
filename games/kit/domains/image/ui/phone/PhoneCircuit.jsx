@@ -161,6 +161,7 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
         return (
           <Sheet title={nameOf(node)} onClose={() => setSheet(null)}>
             <PartPanel
+              key={`${node.id}:${testIndex}`}
               kit={kit}
               node={node}
               description={node.type === 'input' ? sensors?.[node.params.name]?.description : null}
@@ -203,6 +204,15 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
 function PartPanel({ kit, node, description, flags, ioKinds, value, error, check, expected, tolerance, views, theme, scan, onScan, onParam, onSetParam, onView, onRemove, onMove }) {
   const params = kit.settingsOf(node.type, flags)
   const shown = nodeView(node, views)
+  const [probe, setProbe] = useState(null)
+  const atProbe = (img) => {
+    if (!probe || !img || probe.frequency || probe.w !== img.w || probe.h !== img.h) return null
+    const c = img.c ?? 1, index = (probe.y * img.w + probe.x) * c
+    return Array.from(img.data.slice(index, index + c))
+  }
+  const target = atProbe(expected), result = atProbe(value)
+  const difference = target && result && target.length === result.length ? result.map((v, i) => Math.abs(v - target[i])) : null
+  const formatted = (values) => values ? values.map((v) => v.toFixed(3)).join(', ') : '—'
   return (
     <div className="pc-inspect" data-family={familyOf(node.type)}>
       <header className="pc-inspect-head">
@@ -229,13 +239,14 @@ function PartPanel({ kit, node, description, flags, ioKinds, value, error, check
           <p className="ph-error">{L(error)}</p>
         ) : node.type === 'output' && expected ? (
           <div className="pc-compare">
-            <figure><ValueView img={expected} view={shown} size={kindOf(expected) === 'image' ? 88 : 150} theme={theme} /><figcaption>{L(WORDS.wanted)}</figcaption></figure>
-            <figure><ValueView img={value} view={shown} range={kindOf(expected) === 'image' ? rangeOf(expected) : undefined} size={kindOf(expected) === 'image' ? 88 : 150} theme={theme} label={L(WORDS.notWired)} /><figcaption>{L(WORDS.result)}</figcaption></figure>
-            {kindOf(expected) === 'image' && <figure><ImageView img={value && fits(value, expected) ? value : null} against={expected} tolerance={tolerance} size={88} theme={theme} label={value ? tr('尺寸不对', 'Wrong size') : L(WORDS.notWired)} /><figcaption>{tr('误差', 'Error')}</figcaption></figure>}
+            <figure><ValueView img={expected} view={shown} size={kindOf(expected) === 'image' ? 88 : 150} theme={theme} onHover={setProbe} /><figcaption>{L(WORDS.wanted)}</figcaption></figure>
+            <figure>{!value && kindOf(expected) === 'image' ? <ImageView img={null} size={88} label={L(WORDS.notWired)} /> : <ValueView img={value} view={shown} range={kindOf(expected) === 'image' ? rangeOf(expected) : undefined} size={kindOf(expected) === 'image' ? 88 : 150} theme={theme} label={L(WORDS.notWired)} onHover={setProbe} />}<figcaption>{L(WORDS.result)}</figcaption></figure>
+            {kindOf(expected) === 'image' && <figure><ImageView img={value && fits(value, expected) ? value : null} against={expected} tolerance={tolerance} size={88} theme={theme} onHover={setProbe} label={value ? tr('尺寸不对', 'Wrong size') : L(WORDS.notWired)} /><figcaption>{tr('误差', 'Error')}</figcaption></figure>}
           </div>
         ) : (
-          <ValueView img={value} view={shown} size={kindOf(value) === 'image' ? 200 : 300} theme={theme} label={tr('尚无结果', 'No result yet')} grid scan={scan} onScan={onScan} />
+          <ValueView img={value} view={shown} size={kindOf(value) === 'image' ? 200 : 300} theme={theme} label={tr('尚无结果', 'No result yet')} grid scan={scan} onScan={onScan} onHover={setProbe} />
         )}
+        {probe && <p className="pixel-probe pc-probe">{probe.frequency ? tr('频率 ', 'Frequency ') : ''}({probe.x}, {probe.y}) {node.type === 'output' && !probe.frequency ? <>{L(WORDS.wanted)} {formatted(target)} · {L(WORDS.result)} {formatted(result)} · {tr('误差', 'Error')} {formatted(difference)}</> : formatted(Array.isArray(probe.value) ? probe.value : [probe.value])}</p>}
         {kindOf(value ?? expected) === 'image' && <ViewSwitch value={shown} onChange={onView} shows={views?.shows} fresh={views?.fresh} compact />}
       </div>
 

@@ -91,7 +91,7 @@
 
 .image-view { display: block; image-rendering: pixelated; border-radius: 4px; box-shadow: 0 0 0 1px var(--line); background: var(--canvas); }
 .image-grid { position: relative; display: inline-block; line-height: 0; }
-.image-view.is-readable, .image-grid.is-readable { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.image-view.is-readable, .image-grid.is-readable, .slope-view.is-readable, .spectrum-view.is-readable { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .image-grid::after { content: ''; position: absolute; inset: 0; border-radius: 4px; pointer-events: none; background-image: linear-gradient(to right, rgba(128, 128, 128, .16) 1px, transparent 1px), linear-gradient(to bottom, rgba(128, 128, 128, .16) 1px, transparent 1px); background-size: calc(100% / var(--cells)) calc(100% / var(--rows)); }
 .image-empty { display: grid; place-items: center; color: var(--faint); border-radius: 4px; font-size: 11px; box-shadow: inset 0 0 0 1px var(--line); background: repeating-linear-gradient(135deg, transparent 0 6px, var(--hairline) 6px 7px); }
 
