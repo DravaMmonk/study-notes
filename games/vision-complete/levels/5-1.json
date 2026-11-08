@@ -2,26 +2,26 @@
   "title": { "zh": "图块的注意力", "en": "Attention between patches" },
   "tray": "pipeline",
   "after": {
-    "zh": "本关的图块有 16 个像素，因此 4 × 平均(a × 图块) 等于点积 Q·K 除以 √16。Softmax 把分数转换为权重，输出是对应 V 的加权和。自注意力对每个图块进行这样的计算；真实视觉模型通常学习 Q、K、V 的特征表示。",
-    "en": "Each patch has 16 pixels, so 4 × average(a × patch) equals the dot product Q·K divided by √16. Softmax converts scores into weights, and the output is the weighted sum of the corresponding V. Self-attention performs this calculation for each patch; vision models usually learn the Q, K and V representations."
+    "zh": "Q、K、V 可以从同一组图块通过不同的可学习变换得到。这里每个变换只有一个标量，训练用输出误差更新三个参数；实际模型通常使用更丰富的矩阵投影。不同参数组合也可能产生相同的注意力结果。",
+    "en": "Q, K and V can be produced from the same patches by different learnable transformations. Here each transformation has one scalar, and training updates all three parameters from the output error; real models usually use richer matrix projections. Different parameter combinations can also produce the same attention result."
   },
   "intro": [
     {
       "t": {
-        "zh": "卷积一次处理局部区域；注意力可以让一个图块汇总来自其他图块的信息。先通过实验观察注意力如何选择和汇总信息，再亲手搭出两个图块的注意力电路。",
-        "en": "A convolution processes a local region at a time; attention lets a patch combine information from other patches. First experiment with how attention selects and combines information, then build an attention circuit for two patches."
+        "zh": "卷积一次处理局部区域；注意力可以让一个图块汇总来自其他图块的信息。本关先观察 Q、K、V，再搭出注意力电路，最后训练生成 Q、K、V 的简化变换。",
+        "en": "Convolution processes a local region at a time; attention lets a patch combine information from other patches. First explore Q, K and V, then build an attention circuit, and finally train simplified transformations that produce Q, K and V."
       }
     },
     {
       "t": {
-        "zh": "图中有一个查询 Q、两个键 K 和对应的值 V。Q 与两个 K 分别比较，得到两个权重；这两个权重用于汇总对应的 V。",
-        "en": "The experiment has one query Q, two keys K and their corresponding values V. Q is compared with both keys to obtain two weights, which are used to combine the corresponding values."
+        "zh": "查询 Q 与各个键 K 分别比较，得到权重；这些权重用于汇总对应的值 V。先用图块直接观察这三个角色。",
+        "en": "A query Q is compared with each key K to obtain weights, which combine the corresponding values V. First use patches directly to observe these three roles."
       }
     },
     {
       "t": {
-        "zh": "本实验用 4×4 的像素图块直接表示 Q、K 和 V。真实视觉模型通常先将图块变成特征，并用可学习的投影生成 Q、K、V。",
-        "en": "This experiment uses 4×4 pixel patches directly as Q, K and V. Vision models usually first turn patches into features and use learned projections to produce Q, K and V."
+        "zh": "实际视觉模型通常从同一组图块特征，通过不同的可学习变换生成 Q、K、V。最后一段会训练一个简化例子。",
+        "en": "Vision models usually generate Q, K and V from the same patch features using different learnable transformations. The final task trains a simplified example."
       }
     }
   ],
@@ -97,6 +97,10 @@
         "zh": "先逐格相乘，再对整块图取平均，分别得到两个分数。一个数与图块相乘时，该数会作用于图块的每个像素。",
         "en": "Multiply pixel by pixel and average over each patch to obtain the two scores. When a number multiplies a patch, it applies to every pixel."
       },
+      "after": {
+        "zh": "注意力先比较查询和键，再用得到的权重汇总值。接下来保持这个计算过程，训练生成 Q、K、V 的变换。",
+        "en": "Attention first compares a query with keys, then combines values using the resulting weights. Next, keep this calculation and train the transformations that produce Q, K and V."
+      },
       "inputs": ["a", "b"],
       "inputLabels": {
         "a": { "zh": "图块 a（查询）", "en": "Patch a (query)" },
@@ -167,6 +171,41 @@
         ]
       ],
       "step": { "zh": "搭建注意力", "en": "Build attention" }
+    },
+    {
+      "id": "5-1-training",
+      "step": { "zh": "训练 Q、K、V", "en": "Train Q, K and V" },
+      "kind": "board",
+      "brief": {
+        "zh": "两块输入图像分别经过三个共享的线性变换，得到 Q、K、V。训练参数，让三组输入的平均输出平方误差降到 0.001 以下；切换输入组观察图块和输出。",
+        "en": "The two input patches pass through three shared linear transformations to produce Q, K and V. Train the parameters until the mean squared output error across all three input pairs is below 0.001; switch pairs to inspect the patches and output."
+      },
+      "hint": {
+        "zh": "每按一次训练，模型根据三组输入的输出误差更新 Q、K、V 的参数。目标图块来自一组固定的变换；参数不一定只有一种组合。",
+        "en": "Each press updates the Q, K and V parameters using output errors from all three input pairs. The target patches come from fixed transformations; the parameters need not have a unique solution."
+      },
+      "bench": {
+        "model": "attentionTraining",
+        "knobs": {
+          "sample": {
+            "label": { "zh": "查看输入组", "en": "Input pair" },
+            "choices": [
+              { "value": 0, "label": { "zh": "X、O", "en": "X, O" } },
+              { "value": 1, "label": { "zh": "O、竖条", "en": "O, vertical bars" } },
+              { "value": 2, "label": { "zh": "竖条、X", "en": "Vertical bars, X" } }
+            ],
+            "start": 0
+          }
+        },
+        "actions": [
+          { "act": "train", "label": { "zh": "训练 20 步", "en": "Train 20 steps" }, "primary": true },
+          { "act": "reset", "label": { "zh": "重置参数", "en": "Reset parameters" } }
+        ],
+        "goal": [{ "of": "loss", "atMost": 0.001 }],
+        "win": { "zh": "训练误差已达标。", "en": "Training error meets the target." },
+        "status": { "zh": "训练参数并观察输出。", "en": "Train the parameters and observe the output." },
+        "layout": { "main": ["attentionRoles", { "panel": ["knobs", "actions", "verdict"] }] }
+      }
     }
   ]
 }
