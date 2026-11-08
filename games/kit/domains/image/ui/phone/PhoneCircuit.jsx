@@ -165,6 +165,7 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
             <PartPanel
               kit={kit}
               node={node}
+              description={node.type === 'input' ? sensors?.[node.params.name]?.description : null}
               flags={flags}
               ioKinds={ioKinds}
               value={values?.get(node.id)}
@@ -201,14 +202,14 @@ export default function PhoneCircuit({ kit, level, hiddenMiss, graph, onChange, 
 }
 
 // One block in a sheet: what it is, its settings, and what it makes on this test (its wires are on the board).
-function PartPanel({ kit, node, flags, ioKinds, value, error, check, expected, tolerance, views, theme, scan, onScan, onParam, onSetParam, onView, onRemove, onMove }) {
+function PartPanel({ kit, node, description, flags, ioKinds, value, error, check, expected, tolerance, views, theme, scan, onScan, onParam, onSetParam, onView, onRemove, onMove }) {
   const params = kit.settingsOf(node.type, flags)
   const shown = nodeView(node, views)
   return (
     <div className="pc-inspect" data-family={familyOf(node.type)}>
       <header className="pc-inspect-head">
         <span className="ph-node">{node.type === 'output' ? <ArrowDownToLine size={15} /> : createElement(iconOf(node.type), { size: 15, strokeWidth: 1.8 })}</span>
-        <small>{node.type === 'input' || node.type === 'output' ? L(KIND_NAMES[ioKinds?.[node.params.name]]) : describe(kit.types, node.type)}</small>
+        <small>{description ? L(description) : node.type === 'input' || node.type === 'output' ? L(KIND_NAMES[ioKinds?.[node.params.name]]) : describe(kit.types, node.type)}</small>
       </header>
 
       {params.length > 0 && (

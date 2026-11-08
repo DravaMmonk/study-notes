@@ -177,3 +177,7 @@
 .pl-play .bk { padding-top: 12px; }
 .ph-footer .train-buttons button { min-height: 44px; flex: 1; }
 
+
+.node-description { position: relative; margin: 4px 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.node-description summary { cursor: pointer; }
+.node-description p { position: absolute; z-index: 5; top: 100%; left: 0; width: 220px; margin: 2px 0 0; padding: 10px; color: var(--ink); background: var(--surface); border: 1px solid var(--hairline); border-radius: 8px; box-shadow: 0 4px 14px #0003; }

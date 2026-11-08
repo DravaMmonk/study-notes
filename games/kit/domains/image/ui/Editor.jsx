@@ -68,6 +68,7 @@ export default function Editor({ kit, graph, onChange, run, testIndex, flags, se
         {settingsOf(node.type, flags).map((param, index) => (
           <ParamControl key={param.key} param={param} value={node.params[param.key]} onChange={(v) => setParam(node, param.key, v)} style={index === 0 && param.buttons ? { marginTop: -PORT_ROW * Math.max(1, inputsOf(node.type).length) } : undefined} />
         ))}
+        {node.type === 'input' && sensors?.[node.params.name]?.description && <details className="node-description" onPointerDown={(event) => event.stopPropagation()}><summary>{tr('说明', 'About')}</summary><p>{L(sensors[node.params.name].description)}</p></details>}
         <div className="node-preview">
           {error ? <span className="node-error">{L(error)}</span> : <ValueView img={value} view={shown} size={NODE_W - 22} theme={theme} label={L(WORDS.notWired)} grid scan={scan} onScan={onScan} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
           {!error && kindOf(value) === 'image' && offered.length > 1 && (

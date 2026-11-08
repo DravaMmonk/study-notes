@@ -86,6 +86,7 @@ const TASK = {
 const BOARD_FIELDS = {
   inputs: S.opt(ids),
   inputLabels: S.opt(S.map(TEXT)),
+  inputDescriptions: S.opt(S.map(TEXT, { about: t('输入元件的说明，按输入名填写', 'descriptions of input parts, keyed by input name') })),
   outputs: S.opt(ids),
   outputLabels: S.opt(S.map(TEXT)),
   views: S.opt(VIEWS_OF),
@@ -148,7 +149,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 1,
+  version: 2,
   kinds: {
     part: PARTS,
     unlock: UNLOCKS,
