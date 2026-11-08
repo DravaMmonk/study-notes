@@ -26,6 +26,12 @@
     },
     {
       "t": {
+        "zh": "训练分类器时，也可以把训练图做适合任务的变化，例如轻微平移、改变亮度，再让模型学习它们仍属于同一类。这叫数据增强；变化不能把类别或答案改变。",
+        "en": "When training a classifier, we can also make task-appropriate changes to training images, such as small shifts or brightness changes, and teach the model that they still belong to the same class. This is data augmentation; the changes must preserve the correct label."
+      }
+    },
+    {
+      "t": {
         "zh": "这一关你要做的：输出一个数，X 大于 0.6，O 小于 0.4。要想的问题：X 和 O 到底差在哪里，什么信息该留下？",
         "en": "Your task: output one number, above 0.6 for X and below 0.4 for O. Something to think about: what really is the difference between X and O, and which information should be kept?"
       },

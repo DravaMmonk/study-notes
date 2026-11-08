@@ -2,8 +2,8 @@
   "title": { "zh": "分拣机", "en": "Sorting machine" },
   "tray": "pipeline",
   "after": {
-    "zh": "这台分拣机就是一个完整的分类网络：几个卷积通道找不同的笔画，ReLU 和池化让答案不怕挪位置，平均把每个通道变成一个特征，全连接给每类打分，Softmax 把分变成概率。它在没见过的新零件上也对，说明学到的是笔画，而不是背下了那几张图。",
-    "en": "This sorting machine is a complete classification network: a few convolution channels find different strokes, ReLU and pooling make the answer indifferent to position, averaging turns each channel into one feature, dense layers score each class, and the softmax turns scores into probabilities. It is right on new parts it has never seen, which shows it learned strokes rather than memorising a handful of pictures."
+    "zh": "这台分拣机把局部特征汇总成类别判断：卷积可以找不同的笔画，非线性和池化帮助处理位置变化，分类部分根据特征给各类打分。它在这些新零件上也通过了检查，说明它不只适用于训练例子；要了解它在实际使用中是否可靠，还需要更多有代表性的测试。",
+    "en": "This sorting machine combines local features into a class decision: convolutions can find different strokes, nonlinearities and pooling help with changes in position, and the classifier scores each class from the features. Passing on these new parts shows it works beyond the training examples; assessing reliability in practice requires more representative tests."
   },
   "intro": [
     {
@@ -12,6 +12,18 @@
         "en": "The sorter goes live: parts sit in different places, at different strengths, some with noise. The last few sets are \"new parts\" that take no part in training and are only checked."
       },
       "fig": { "test": 0, "caption": { "zh": "第一组：一个 X", "en": "Set 1: an X" } }
+    },
+    {
+      "t": {
+        "zh": "从图片到类别，网络先提取局部特征，再把特征汇总成类别分数。AlexNet 把卷积、激活、池化和分类层组合起来，用大量图片训练；这一关是缩小后的分类例子。",
+        "en": "From image to class, a network first extracts local features and then combines them into class scores. AlexNet combined convolution, activation, pooling and classification layers and trained on many images; this level is a much smaller classification example."
+      }
+    },
+    {
+      "t": {
+        "zh": "换一批新零件时，不一定从零开始：可以复用已经训练好的特征提取部分，只训练新的分类头；如果旧特征不够适合，也可以解冻部分层继续训练，这叫微调。这里仍然从当前任务训练。",
+        "en": "For a new set of parts, we do not always have to start from scratch: we can reuse a trained feature extractor and train only a new classification head. If the old features do not fit well enough, we can unfreeze some layers and train them further; this is fine-tuning. This level still trains on its current task."
+      }
     },
     {
       "t": {

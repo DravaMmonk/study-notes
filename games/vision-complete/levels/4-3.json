@@ -19,6 +19,18 @@
     },
     {
       "t": {
+        "zh": "训练时先用当前参数算出结果，和答案比较得到损失，再根据每个参数对损失的影响更新参数。这里用微小改动估计影响；真实神经网络通常用反向传播，把损失的影响逐层传回去。",
+        "en": "Training first computes an output with the current parameters and compares it with the answer to obtain a loss. It then updates each parameter according to its effect on that loss. Here small changes estimate that effect; real neural networks usually use backpropagation to pass the effect of the loss backwards through the layers."
+      }
+    },
+    {
+      "t": {
+        "zh": "真实训练常把样本分成小批次：一批样本算一次更新；整个训练集遍历一遍叫一个 epoch（训练轮）。批次大小和训练轮数是训练安排，不是网络学到的权重。",
+        "en": "Real training often divides samples into mini-batches: one batch contributes to an update; one pass through the training set is an epoch. Batch size and the number of epochs are training choices, not weights learned by the network."
+      }
+    },
+    {
+      "t": {
         "zh": "这一关的输入是一片随机噪点，期望是某个没人告诉你的核压过它的结果。你要做的：让输出和期望对上。",
         "en": "The input in this level is random noise, and the expected output is what you get by pressing some kernel nobody tells you about over it. Your task: make the output match the expected."
       },

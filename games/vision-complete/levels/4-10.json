@@ -21,6 +21,18 @@
     },
     {
       "t": {
+        "zh": "有时同一张图里既有小物体，也有大物体。除了叠起来看得更远，还可以让几条路同时看不同大小的范围，再把结果合在一起。Inception 网络就用这样的多尺度分支。",
+        "en": "A single image can contain both small and large objects. Besides stacking layers to see farther, several paths can look at different-sized regions at the same time and combine their results. Inception networks use such multi-scale branches."
+      }
+    },
+    {
+      "t": {
+        "zh": "模型可以加深、增加通道，或者看更高分辨率的图；这些选择都可能增加计算量，效果也要用新样本检查。EfficientNet 研究如何在计算预算下共同调整深度、宽度和分辨率。",
+        "en": "A model can be made deeper, given more channels, or shown higher-resolution images. Each choice can increase computation, and its benefit must be checked on new samples. EfficientNet studies how to adjust depth, width and resolution together within a computing budget."
+      }
+    },
+    {
+      "t": {
         "zh": "这一关你要做的：手里只有看 3×3 的元件，做出看 7×7 的判断。要想的问题：「7×7」能从哪里来？",
         "en": "Your task: using only parts that look at 3×3, make a judgement about 7×7. Something to think about: where can \"7×7\" come from?"
       },

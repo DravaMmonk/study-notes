@@ -20,6 +20,18 @@
     },
     {
       "t": {
+        "zh": "这里用新样本选择停止时机和正则化强度，所以它们相当于验证集。真实项目还要留一份测试集，等选择完成后再评估；反复看测试集来调模型，会让最终成绩不再可靠。",
+        "en": "Here the new samples help choose when to stop and how much to regularise, so they act as a validation set. Real projects also keep a test set for evaluation after those choices are made. Repeatedly tuning against the test set makes the final score unreliable."
+      }
+    },
+    {
+      "t": {
+        "zh": "还有一种正则化叫 Dropout：训练时随机暂时关掉一些神经元，让网络不要过度依赖某条固定路径；验证和测试时不再随机关掉。这个机关台演示的是提前停止和 L2，不模拟 Dropout。",
+        "en": "Another kind of regularisation is dropout: during training, randomly switch off some neurons temporarily so the network does not rely too heavily on a fixed path. Validation and testing do not randomly switch them off. This bench demonstrates early stopping and L2, not dropout."
+      }
+    },
+    {
+      "t": {
         "zh": "这一关你要做的：决定训练到哪一步该停，再试另一种管住模型的办法。要想的问题：训练误差越来越小时，模型在新样本上是不是也越来越好？",
         "en": "Your task: decide at which step training should stop, then try another way of keeping the model in check. Something to think about: as the training error keeps shrinking, does the model keep getting better on new samples too?"
       }

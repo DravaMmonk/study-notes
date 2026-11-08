@@ -20,6 +20,18 @@
     },
     {
       "t": {
+        "zh": "训练分类器还需要衡量预测有多错。常用的交叉熵关注正确类别的概率：给正确类别的概率越低，损失越大。游戏里的训练器使用平方误差，这是另一种损失。",
+        "en": "Training a classifier also needs a measure of how wrong a prediction is. Cross-entropy, a common choice, looks at the probability assigned to the correct class: the lower that probability, the larger the loss. The game trainer uses squared error, a different loss."
+      }
+    },
+    {
+      "t": {
+        "zh": "类别很多时，除了看第一名是否正确（Top-1），还可以看正确类别是否在前五名里（Top-5）。例如正确答案排第二，Top-1 算错，Top-5 算对；两者回答的问题不同。",
+        "en": "With many classes, we can check whether the top prediction is correct (top-1) or whether the correct class is among the top five (top-5). If the answer ranks second, top-1 counts it wrong and top-5 counts it right; they answer different questions."
+      }
+    },
+    {
+      "t": {
         "zh": "这一关你要做的：把三个分变成三个概率，规则在说明里。要想的问题：负的分该怎么办？",
         "en": "Your task in this level: turn the three scores into three probabilities, by the rule in the brief. Something to think about: what should happen to a negative score?"
       },
