@@ -1,9 +1,9 @@
 /* The GAN duel's chart (Gan.jsx). Layout, panels, goals, buttons and choices come from the bench
    (games/kit/shell/bench/bench.css). */
-.gan-stage { display: grid; gap: 8px; }
-.gan-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; color: var(--muted); font-family: var(--mono); font-size: 11px; }
-.gan-key { display: inline-flex; align-items: center; gap: 6px; }
-.gan-key i { width: 12px; height: 10px; border-radius: 2px; }
+.gan-stage { display: grid; gap: var(--sp-4); }
+.gan-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-5); color: var(--muted); font-family: var(--mono); font-size: 11px; }
+.gan-key { display: inline-flex; align-items: center; gap: var(--gap-local); }
+.gan-key i { width: 12px; height: 10px; border-radius: var(--r-xs); }
 .gan-key i.is-real { background: color-mix(in srgb, var(--muted) 40%, transparent); }
 .gan-key i.is-fake { background: color-mix(in srgb, var(--accent) 22%, transparent); box-shadow: inset 0 0 0 1.5px var(--accent); }
 .gan-key i.is-pen0, .gan-key i.is-pen1 { width: 0; height: 0; border-radius: 0; border: 6px solid transparent; border-top: 0; border-bottom: 10px solid var(--accent); }
@@ -31,6 +31,6 @@
 .gan-pen-dot { stroke: var(--paper); stroke-width: 1.5px; }
 
 @media (max-width: 760px) {
-  .gan-head { gap: 4px 10px; font-size: 10.5px; }
+  .gan-head { gap: var(--sp-2) var(--sp-4); font-size: 10.5px; }
   .gan-turn { min-width: 0; }
 }

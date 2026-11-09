@@ -97,76 +97,76 @@ button:disabled{cursor:not-allowed}
 
 /* ---------- map ---------- */
 .hero-fig{margin:0;}
-.hero-fig figcaption{font:12px/1.5 var(--f-mono);color:var(--ink-3);margin:6px 4px 2px}
+.hero-fig figcaption{font:12px/1.5 var(--f-mono);color:var(--ink-3);margin:var(--sp-3) var(--sp-2) var(--sp-1)}
 
 /* ---------- level ---------- */
-.bcard{background:var(--board);border:1px solid var(--line);border-radius:18px;padding:12px;display:flex;flex-direction:column;gap:10px;scroll-margin-top:10px}
-.tests{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -12px;padding:0 12px}
+.bcard{background:var(--board);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--sp-5);display:flex;flex-direction:column;gap:var(--sp-4);scroll-margin-top:var(--sp-4)}
+.tests{display:flex;gap:var(--sp-3);overflow-x:auto;scrollbar-width:none;margin:0 calc(var(--sp-5) * -1);padding:0 var(--sp-5)}
 .tests::-webkit-scrollbar{display:none}
-.tchip{flex:none;min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);display:inline-flex;align-items:center;gap:8px;font:600 12.5px var(--f-mono);color:var(--ink-2);white-space:nowrap}
+.tchip{flex:none;min-height:36px;padding:0 var(--sp-5);border-radius:var(--r-full);border:1px solid var(--line);background:var(--panel);display:inline-flex;align-items:center;gap:var(--sp-4);font:600 12.5px var(--f-mono);color:var(--ink-2);white-space:nowrap}
 .tchip[aria-selected="true"]{border-color:var(--ink-2);color:var(--ink)}
-.sd{width:8px;height:8px;border-radius:50%;background:var(--wire);flex:none}
+.sd{width:8px;height:8px;border-radius:var(--r-full);background:var(--wire);flex:none}
 .sd.pass{background:var(--good)} .sd.fail{background:var(--bad)} .sd.run{background:var(--signal)}
-.board{overflow-x:auto;margin:0 -12px;padding:0 12px}
+.board{overflow-x:auto;margin:0 calc(var(--sp-5) * -1);padding:0 var(--sp-5)}
 .board:empty{display:none}
 .bnote{margin:0;font-size:13px;color:var(--ink-2);text-wrap:pretty}
 .bnote:empty{display:none}
-.panel{display:flex;flex-direction:column;gap:12px}
-.pcard{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;gap:10px}
-.pcard h3{margin:0;font:600 16px var(--f-display);display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.panel{display:flex;flex-direction:column;gap:var(--sp-5)}
+.pcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--sp-5) var(--sp-6);display:grid;gap:var(--sp-4)}
+.pcard h3{margin:0;font:600 16px var(--f-display);display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-4)}
 .pcard h3 small{font:600 11.5px var(--f-body);color:var(--ink-3)}
 .pcard p{margin:0;font-size:14px;color:var(--ink-2);text-wrap:pretty}
 .pcard p b{color:var(--ink)}
-.rule{font:600 14px/1.6 var(--f-mono);color:var(--ink);background:var(--panel-2);border-radius:10px;padding:10px 12px}
-.tag{justify-self:start;display:inline-flex;align-items:center;gap:6px;font:600 11.5px var(--f-mono);padding:5px 8px;border-radius:7px;background:var(--signal-soft);color:var(--signal)}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
+.rule{font:600 14px/1.6 var(--f-mono);color:var(--ink);background:var(--panel-2);border-radius:var(--r-md);padding:var(--sp-4) var(--sp-5)}
+.tag{justify-self:start;display:inline-flex;align-items:center;gap:var(--gap-local);font:600 11.5px var(--f-mono);padding:var(--sp-2) var(--sp-4);border-radius:var(--r-md);background:var(--signal-soft);color:var(--signal)}
+.chips{display:flex;flex-wrap:wrap;gap:var(--sp-4)}
 .chips.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
-.chip{min-height:44px;padding:9px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--panel-2);font-weight:600;font-size:14px;line-height:1.35;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center;transition:transform .12s,background .15s,border-color .15s}
+.chip{min-height:44px;padding:var(--sp-4) var(--sp-5);border-radius:var(--r-md);border:1.5px solid var(--line);background:var(--panel-2);font-weight:600;font-size:14px;line-height:1.35;display:inline-flex;align-items:center;justify-content:center;gap:var(--sp-4);text-align:center;transition:transform .12s,background .15s,border-color .15s}
 .chip:active:not(:disabled){transform:scale(.96)}
 .chip[aria-checked="true"]{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink)}
 .optlabel{font-weight:700;font-size:14px}
 .opthint{font-size:13px;color:var(--ink-3)}
 
-.routes{display:grid;gap:6px}
-.route{font:600 13px var(--f-mono);padding:8px 10px;border-radius:9px;background:var(--good-soft);color:var(--good);overflow-wrap:anywhere}
+.routes{display:grid;gap:var(--sp-3)}
+.route{font:600 13px var(--f-mono);padding:var(--sp-4) var(--sp-4);border-radius:var(--r-md);background:var(--good-soft);color:var(--good);overflow-wrap:anywhere}
 .route.now{background:var(--cyan-soft);color:var(--cyan)}
 .route.empty{background:var(--panel-2);color:var(--ink-3)}
-.msg{padding:12px 14px;border-radius:12px;background:var(--panel-2);font-size:14px;color:var(--ink-2)}
+.msg{padding:var(--sp-5) var(--sp-5);border-radius:var(--r-md);background:var(--panel-2);font-size:14px;color:var(--ink-2)}
 .msg.good{background:var(--good-soft);color:var(--ink)}
 .msg.bad{background:var(--bad-soft);color:var(--ink)}
 .msg b{color:var(--ink);font-family:var(--f-mono)}
 
-.sec-btn{flex:none;min-height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);font-weight:600;font-size:14px}
-.pad{max-width:520px;margin:0 auto;width:100%;display:grid;gap:8px}
-.pad-top{display:flex;align-items:center;gap:10px}
+.sec-btn{flex:none;min-height:44px;padding:0 var(--sp-5);border-radius:var(--r-md);border:1px solid var(--line);font-weight:600;font-size:14px}
+.pad{max-width:520px;margin:0 auto;width:100%;display:grid;gap:var(--sp-4)}
+.pad-top{display:flex;align-items:center;gap:var(--sp-4)}
 .pad-top span{flex:1;min-width:0;font-size:13.5px;color:var(--ink-2)}
 .pad-top b{color:var(--ink)}
-.pad-val{min-width:76px;text-align:center;font:700 24px/44px var(--f-mono);background:var(--board);border:1.5px solid var(--cyan);border-radius:12px;color:var(--ink)}
-.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.key{min-height:46px;border-radius:12px;background:var(--panel-2);border:1px solid var(--line);font:700 19px var(--f-mono)}
+.pad-val{min-width:76px;text-align:center;font:700 24px/44px var(--f-mono);background:var(--board);border:1.5px solid var(--cyan);border-radius:var(--r-md);color:var(--ink)}
+.keys{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--sp-3)}
+.key{min-height:46px;border-radius:var(--r-md);background:var(--panel-2);border:1px solid var(--line);font:700 19px var(--f-mono)}
 .key:active{background:var(--chip-lit)}
 .key.wide{grid-column:span 2;font:700 15px var(--f-body)}
 .key.full{grid-column:1/-1;font:700 15px var(--f-body);background:var(--signal-soft);border-color:var(--signal);color:var(--signal)}
 .key.ok{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink);font:800 15px var(--f-body)}
 
 /* ---------- inside a sheet a level opens (modes/Circuit.jsx, in the shell's bottom sheet) ---------- */
-.sg-sheet{display:flex;flex-direction:column;gap:16px;padding-bottom:6px}
+.sg-sheet{display:flex;flex-direction:column;gap:var(--sp-6);padding-bottom:var(--sp-3)}
 .kicker{font:700 12px var(--f-mono);letter-spacing:.08em;color:var(--ink-3)}
 .kicker.good{color:var(--good)} .kicker.bad{color:var(--bad)} .kicker.sig{color:var(--signal)}
-.sh{margin:4px 0 0;font:600 25px/1.3 var(--f-display);text-wrap:balance}
-.prose{display:grid;gap:10px}
+.sh{margin:var(--sp-2) 0 0;font:600 25px/1.3 var(--f-display);text-wrap:balance}
+.prose{display:grid;gap:var(--sp-4)}
 .prose p{margin:0;color:var(--ink-2);font-size:15.5px;text-wrap:pretty}
 .prose p b{color:var(--ink)}
 .prose p strong{color:var(--signal);font-weight:700}
-.fig{border-radius:16px;background:var(--board);border:1px solid var(--line);padding:10px;}
+.fig{border-radius:var(--r-md);background:var(--board);border:1px solid var(--line);padding:var(--sp-4);}
 .fig svg{max-height:240px;margin:0 auto}
-.acts{display:flex;gap:10px;flex-wrap:wrap}
-.btn{flex:1 1 140px;min-height:50px;border-radius:14px;font-weight:700;padding:0 18px}
+.acts{display:flex;gap:var(--sp-4);flex-wrap:wrap}
+.btn{flex:1 1 140px;min-height:50px;border-radius:var(--r-md);font-weight:700;padding:0 var(--sp-6)}
 .btn.pri{background:var(--signal);color:var(--signal-ink)}
 .btn.sec{border:1px solid var(--line)}
 .btn:disabled{opacity:.35}
-.list{display:grid;gap:10px}
-.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:60;max-width:calc(100% - 32px);transform:translate(-50%,calc(-100% - 24px));padding:11px 16px;border-radius:12px;background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;box-shadow:0 10px 30px -10px rgba(0,0,0,.7);transition:transform .3s cubic-bezier(.2,.85,.25,1);text-align:center}
+.list{display:grid;gap:var(--sp-4)}
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:60;max-width:calc(100% - 32px);transform:translate(-50%,calc(-100% - 24px));padding:var(--sp-5) var(--sp-6);border-radius:var(--r-lg);background:var(--ink);color:var(--bg);font-weight:600;font-size:14px;box-shadow:0 10px 30px -10px rgba(0,0,0,.7);transition:transform .3s cubic-bezier(.2,.85,.25,1);text-align:center}
 .toast.show{transform:translate(-50%,0)}
 /* ---------- chapter 7–10 ---------- */
 .sg-after:empty{display:none}
@@ -178,23 +178,23 @@ button:disabled{cursor:not-allowed}
 .route.rb-line{background:var(--signal-soft);color:var(--signal)}
 .cap{margin:0;font-size:13.5px;color:var(--ink-2);text-wrap:pretty}
 .cap b{color:var(--ink);font-family:var(--f-mono)}
-.afterbox{display:grid;gap:10px;padding:12px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
-.diff{display:flex;flex-wrap:wrap;gap:6px}
-.dt{min-width:40px;padding:6px 9px;border-radius:9px;text-align:center;font:700 15px/1.25 var(--f-mono);border:1.5px solid var(--line);background:var(--panel-2)}
+.afterbox{display:grid;gap:var(--sp-4);padding:var(--sp-5) var(--sp-5);border-radius:var(--r-md);background:var(--panel);border:1px solid var(--line)}
+.diff{display:flex;flex-wrap:wrap;gap:var(--sp-3)}
+.dt{min-width:40px;padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);text-align:center;font:700 15px/1.25 var(--f-mono);border:1.5px solid var(--line);background:var(--panel-2)}
 .dt small{display:block;font:600 10.5px var(--f-body);color:var(--ink-3)}
 .dt.rep{border-color:var(--signal);color:var(--signal)}
 .dt.del{border-color:var(--bad);color:var(--bad)}
 .dt.ins{border-color:var(--good);color:var(--good)}
 .dt.on{background:var(--signal);border-color:var(--signal);color:var(--signal-ink)}
 .dt.on small{color:var(--signal-ink)}
-.cx{border:1.5px solid var(--bad);border-radius:16px;padding:14px;display:grid;gap:12px;background:var(--bad-soft)}
+.cx{border:1.5px solid var(--bad);border-radius:var(--r-md);padding:var(--sp-5);display:grid;gap:var(--sp-5);background:var(--bad-soft)}
 .cx-p{margin:0;font-size:14.5px;color:var(--ink-2);text-wrap:pretty}
 .cx-p b{color:var(--ink)}
-.cx-row{display:grid;gap:8px;background:var(--panel);border-radius:12px;padding:10px 12px}
-.cx-row header{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font:600 12.5px var(--f-mono);color:var(--ink-2)}
+.cx-row{display:grid;gap:var(--sp-4);background:var(--panel);border-radius:var(--r-md);padding:var(--sp-4) var(--sp-5)}
+.cx-row header{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-4);font:600 12.5px var(--f-mono);color:var(--ink-2)}
 .cx-row header b{color:var(--ink);font-family:var(--f-body)}
-.houses{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.hs{width:48px;padding:5px 0;border-radius:10px;border:1.5px solid var(--line);background:var(--panel-2);display:grid;justify-items:center;font:700 16px var(--f-mono);color:var(--signal)}
+.houses{display:flex;gap:var(--sp-3);align-items:center;flex-wrap:wrap}
+.hs{width:48px;padding:var(--sp-2) 0;border-radius:var(--r-md);border:1.5px solid var(--line);background:var(--panel-2);display:grid;justify-items:center;font:700 16px var(--f-mono);color:var(--signal)}
 .hs small{font:500 10.5px var(--f-body);color:var(--ink-3)}
 .hs.on{background:var(--signal);color:var(--signal-ink);border-color:var(--signal)}
 .hs.on small{color:var(--signal-ink)}
@@ -202,38 +202,38 @@ button:disabled{cursor:not-allowed}
 .houses .arrow{font:700 16px var(--f-mono);color:var(--ink-3)}
 .verdict{font:700 13px var(--f-body)}
 .verdict.no{color:var(--bad)} .verdict.yes{color:var(--good)}
-.pack{display:grid;gap:14px;padding-block:4px}
-.bag{display:grid;gap:8px}
-.bag-meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font:600 13px var(--f-mono);color:var(--ink-2)}
+.pack{display:grid;gap:var(--sp-5);padding-block:var(--sp-2)}
+.bag{display:grid;gap:var(--sp-4)}
+.bag-meta{display:flex;justify-content:space-between;gap:var(--sp-4);flex-wrap:wrap;font:600 13px var(--f-mono);color:var(--ink-2)}
 .bag-meta b{color:var(--ink);font-size:16px}
 .bag-meta .hit{color:var(--good)}
-.bag-bar{display:flex;height:42px;border-radius:12px;border:1.5px solid var(--chip-line);background:var(--panel-2);overflow:hidden;gap:2px;padding:2px}
-.bag-bar i{display:flex;align-items:center;justify-content:center;min-width:0;border-radius:8px;font-style:normal}
-.bag-bar i span{font:700 12px var(--f-body);color:var(--t-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.bag-bar{display:flex;height:42px;border-radius:var(--r-md);border:1.5px solid var(--chip-line);background:var(--panel-2);overflow:hidden;gap:var(--sp-1);padding:var(--sp-1)}
+.bag-bar i{display:flex;align-items:center;justify-content:center;min-width:0;border-radius:var(--r-md);font-style:normal}
+.bag-bar i span{font:700 12px var(--f-body);color:var(--t-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 var(--sp-2)}
 .bag-bar i.free{background:repeating-linear-gradient(45deg,transparent 0 6px,var(--dot) 6px 9px)}
-.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:8px}
-.itm{text-align:left;padding:10px 12px;border-radius:14px;border:1.5px solid var(--line);background:var(--panel);display:grid;gap:8px;transition:border-color .15s,background .15s,transform .12s}
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:var(--sp-4)}
+.itm{text-align:left;padding:var(--sp-4) var(--sp-5);border-radius:var(--r-md);border:1.5px solid var(--line);background:var(--panel);display:grid;gap:var(--sp-4);transition:border-color .15s,background .15s,transform .12s}
 .itm:active{transform:scale(.97)}
 .itm[aria-pressed="true"]{border-color:var(--c);background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--c)}
-.itm-top{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.itm-top{display:flex;justify-content:space-between;align-items:baseline;gap:var(--sp-3)}
 .itm-top b{font:600 16px var(--f-display)}
 .itm .v{font:700 13px var(--f-mono);color:var(--signal);white-space:nowrap}
-.kg{display:flex;align-items:center;gap:3px;flex-wrap:wrap}
-.kg i{width:11px;height:11px;border-radius:3px;background:var(--c)}
-.kg em{font:600 12px var(--f-mono);color:var(--ink-3);font-style:normal;margin-left:4px}
+.kg{display:flex;align-items:center;gap:var(--sp-1);flex-wrap:wrap}
+.kg i{width:11px;height:11px;border-radius:var(--r-xs);background:var(--c)}
+.kg em{font:600 12px var(--f-mono);color:var(--ink-3);font-style:normal;margin-left:var(--sp-2)}
 /* ---------- the robot's window (the circuit board itself is the shared editor, ../kit/circuit) ---------- */
-.vwins{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 16px}
-.tag{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 4px;border-radius:5px;background:var(--c);color:var(--tag-ink);font:700 10px/1 var(--f-body);white-space:nowrap}
-.cview{--vc:32px;display:grid;gap:7px;justify-items:center;align-content:start;padding:8px 6px;border-radius:14px;background:var(--panel-2);border:1px solid var(--line);max-width:150px}
-.vpart{width:100%;display:grid;gap:7px;justify-items:center;align-content:start}
+.vwins{display:flex;flex-wrap:wrap;justify-content:center;gap:var(--sp-4) var(--sp-6)}
+.tag{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:16px;padding:0 var(--sp-2);border-radius:var(--r-sm);background:var(--c);color:var(--tag-ink);font:700 10px/1 var(--f-body);white-space:nowrap}
+.cview{--vc:32px;display:grid;gap:var(--sp-3);justify-items:center;align-content:start;padding:var(--sp-4) var(--sp-3);border-radius:var(--r-md);background:var(--panel-2);border:1px solid var(--line);max-width:150px}
+.vpart{width:100%;display:grid;gap:var(--sp-3);justify-items:center;align-content:start}
 @media (min-width:420px){.cview{--vc:38px;max-width:200px}}
-.vblock{display:grid;gap:3px;justify-items:center}
+.vblock{display:grid;gap:var(--sp-1);justify-items:center}
 .vsub{font:600 10px var(--f-body);color:var(--ink-3);text-align:center}
-.vwin{display:grid;gap:3px;grid-template-columns:repeat(3,var(--vc));grid-auto-rows:var(--vc)}
-.vwin.n5{--vc:22px;gap:2px;grid-template-columns:repeat(5,var(--vc))}
+.vwin{display:grid;gap:var(--sp-1);grid-template-columns:repeat(3,var(--vc));grid-auto-rows:var(--vc)}
+.vwin.n5{--vc:22px;gap:var(--sp-1);grid-template-columns:repeat(5,var(--vc))}
 @media (min-width:420px){.vwin.n5{--vc:27px}}
-.vcell{position:relative;width:var(--vc);height:var(--vc);border-radius:6px;background:var(--chip);border:1.5px solid var(--chip-line);display:grid;place-items:center;font:700 12px var(--f-mono);color:var(--ink);opacity:.55}
-.n5 .vcell{border-radius:5px;font-size:10px;border-width:1.2px}
+.vcell{position:relative;width:var(--vc);height:var(--vc);border-radius:var(--r-sm);background:var(--chip);border:1.5px solid var(--chip-line);display:grid;place-items:center;font:700 12px var(--f-mono);color:var(--ink);opacity:.55}
+.n5 .vcell{border-radius:var(--r-sm);font-size:10px;border-width:1.2px}
 .vcell .vv{font-variant-numeric:tabular-nums}
 .vcell .vc{position:absolute;left:2px;top:0;font:600 8px var(--f-mono);color:var(--ink-3)}
 /* A special cell's icon (svg.js MARKS) in the view's cells, as on the test board. */
@@ -266,17 +266,17 @@ button:disabled{cursor:not-allowed}
 .vbot{position:absolute;width:20px;height:20px;right:-9px;bottom:-10px;filter:var(--drop);z-index:3;pointer-events:none}
 .vcell .tag,.vcell .vl{pointer-events:none}
 .n5 .vbot{width:16px;height:16px;right:-7px;bottom:-8px}
-.varm{display:grid;gap:3px;justify-items:center;padding-bottom:12px}
-.varm-row{display:flex;gap:6px}
-.vfacts{display:grid;gap:4px;width:100%}
-.vfact{position:relative;display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:4px;padding:4px 6px;border-radius:9px;border:1.5px dashed var(--wire);font:600 11px/1.2 var(--f-body);text-align:left}
+.varm{display:grid;gap:var(--sp-1);justify-items:center;padding-bottom:var(--sp-5)}
+.varm-row{display:flex;gap:var(--sp-3)}
+.vfacts{display:grid;gap:var(--sp-2);width:100%}
+.vfact{position:relative;display:grid;grid-template-columns:20px minmax(0,1fr) auto;align-items:center;gap:var(--sp-2);padding:var(--sp-2) var(--sp-3);border-radius:var(--r-md);border:1.5px dashed var(--wire);font:600 11px/1.2 var(--f-body);text-align:left}
 /* The window on the left, the cell's facts on the right: tall, narrow buttons, easy to tap. */
-.vtop{width:100%;display:grid;gap:14px;justify-items:center;align-items:start}
+.vtop{width:100%;display:grid;gap:var(--sp-5);justify-items:center;align-items:start}
 .vtop.has-facts{grid-template-columns:auto minmax(0,1fr)}
 .vtop.has-facts .vfacts{min-width:0;align-content:start;justify-items:stretch;max-width:170px}
 .vtop.has-facts .vfact{min-width:0}
 .vtop.has-facts .vwins{flex-direction:column;align-items:center}
-.vtop .vfact{min-height:30px;padding:3px 10px;gap:6px;font-size:12.5px;line-height:1.3}
+.vtop .vfact{min-height:30px;padding:var(--sp-1) var(--sp-4);gap:var(--sp-3);font-size:12.5px;line-height:1.3}
 .vtop .vfact .vv{font-size:12px}
 .cview:empty{display:none}
 .vfact .glyph{width:20px;height:14px}
@@ -309,16 +309,16 @@ svg.plook{display:block;flex:none;overflow:visible}
 .pal-ic svg.plook{width:32px;height:32px}
 /* In the kit's part chips the look stands on its own, without the tinted square behind a letter. */
 .family-chip:has(> svg.plook){background:none;box-shadow:none;overflow:visible}
-.pb-glyph:has(> svg.plook){margin-right:4px;vertical-align:-4px}
+.pb-glyph:has(> svg.plook){margin-right:var(--sp-2);vertical-align:-4px}
 .robot{overflow:visible;filter:var(--drop)}
 .cell.self rect{stroke:var(--bad);stroke-width:3}
 .cell.typed .val{fill:var(--signal)}
 .backbench{justify-self:start}
 .cell.on rect{stroke:var(--cyan);stroke-width:3;fill:var(--cyan-soft)}
-.pal{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:var(--panel-2)}
+.pal{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--sp-5);align-items:center;text-align:left;padding:var(--sp-5) var(--sp-5);border-radius:var(--r-md);border:1px solid var(--line);background:var(--panel-2)}
 .pal:active{transform:scale(.98)}
-.pal-ic{width:42px;height:42px;border-radius:12px;background:var(--chip);border:1px solid var(--chip-line);display:grid;place-items:center;font:600 16px var(--f-display);color:var(--ink)}
-.pal-tx{display:grid;gap:2px}
+.pal-ic{width:42px;height:42px;border-radius:var(--r-md);background:var(--chip);border:1px solid var(--chip-line);display:grid;place-items:center;font:600 16px var(--f-display);color:var(--ink)}
+.pal-tx{display:grid;gap:var(--sp-1)}
 .pal-tx b{font:600 15px var(--f-display)}
 .pal-tx small{font-size:13px;color:var(--ink-2);line-height:1.5}
 .cell.ctap rect{fill:var(--panel-2);stroke:var(--line)}
@@ -350,16 +350,16 @@ img{max-width:100%}
 
 
   /* the stage: plain; only the circuit board of a circuit level (the kit's editor) is dotted */
-  .sg-level:not(.panel-stage) .stage-pane .bcard{border:0;border-radius:0;padding:22px 28px 28px;gap:14px;align-content:start;background:none}
+  .sg-level:not(.panel-stage) .stage-pane .bcard{border:0;border-radius:0;padding:var(--sp-7) var(--sp-7) var(--sp-7);gap:var(--sp-5);align-content:start;background:none}
   .sg-level:not(.panel-stage) .tests{margin:0;padding:0;flex-wrap:wrap}
   .sg-level:not(.panel-stage) .board{margin:0;padding:0;overflow:visible}
   .sg-level:not(.panel-stage) .board-svg{max-height:calc(100dvh - 220px)}
   /* the canvas is the circuit board: parts, terminals and wires sit straight on the dotted stage */
-  .cview{--vc:42px;max-width:none;padding:12px 10px}
+  .cview{--vc:42px;max-width:none;padding:var(--sp-5) var(--sp-4)}
   .vwin.n5{--vc:32px}
 
   /* the brief's cards: the rules, the tests */
-  .sg-level:not(.panel-stage) .brief .panel{padding:0;gap:12px}
+  .sg-level:not(.panel-stage) .brief .panel{padding:0;gap:var(--sp-5)}
   .sg-level:not(.panel-stage) .panel .pcard{background:var(--board)}
 }
 
@@ -367,9 +367,9 @@ img{max-width:100%}
 @media (max-width:760px){
   /* No boxes on a phone page: the test board, the level's cards and the robot's view sit straight on the page,
      one after another, a hairline between them. */
-  .sg-level .bcard{padding:12px 0 0;border:0;border-radius:0;background:none}
+  .sg-level .bcard{padding:var(--sp-5) 0 0;border:0;border-radius:0;background:none}
   .sg-level .pcard{padding:0;border:0;border-radius:0;background:none}
-  .sg-level .pl-scroll>.panel:has(.pcard){padding-top:16px;border-top:1px solid var(--hairline)}
+  .sg-level .pl-scroll>.panel:has(.pcard){padding-top:var(--sp-6);border-top:1px solid var(--hairline)}
   .sg-level.is-circuit .pl-scroll>.sg-slots{padding-inline:0}
   .sg-level .pl-results .bcard{padding:0}
 }
@@ -383,12 +383,12 @@ img{max-width:100%}
 .cell.void .val{fill:var(--ink-3);font-size:14px}
 .cell.coin .cn{fill:var(--signal);font-size:12px}
 .cell .bar{fill:var(--cyan);opacity:.8}
-.varm.sweeps{width:100%;justify-items:stretch;gap:6px;padding-bottom:4px}
-.vsweep{position:relative;display:grid;gap:4px;padding:6px 8px;border-radius:10px;border:1.5px dashed var(--wire);text-align:left;background:var(--panel)}
+.varm.sweeps{width:100%;justify-items:stretch;gap:var(--sp-3);padding-bottom:var(--sp-2)}
+.vsweep{position:relative;display:grid;gap:var(--sp-2);padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md);border:1.5px dashed var(--wire);text-align:left;background:var(--panel)}
 .vsweep.on{border:2px solid var(--cyan);background:var(--cyan-soft)}
 .vsweep .tag{position:absolute;right:-6px;top:-8px;transform:scale(.85)}
 .vsl{font:600 10.5px var(--f-body);color:var(--ink-3)}
-.vstrip{display:flex;flex-wrap:wrap;gap:3px}
+.vstrip{display:flex;flex-wrap:wrap;gap:var(--sp-1)}
 .vcell.sm{--vc:30px;opacity:1;font-size:10.5px}
 .vcell.sm .vc{max-width:calc(100% - 2px);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:7.5px}
 .vcell.v-out{opacity:.28}
@@ -397,8 +397,8 @@ img{max-width:100%}
 .cell.kblue rect{stroke:var(--w0)} .cell.kblue .lb{fill:var(--w0)}
 .cell.kgreen rect{stroke:var(--w3)} .cell.kgreen .lb{fill:var(--w3)}
 .vcell.v-kred{border-color:var(--w1)} .vcell.v-kblue{border-color:var(--w0)} .vcell.v-kgreen{border-color:var(--w3)}
-.orders{display:flex;gap:22px;flex-wrap:wrap}
-.orders figure{margin:0;display:grid;gap:6px;justify-items:center}
+.orders{display:flex;gap:var(--sp-7);flex-wrap:wrap}
+.orders figure{margin:0;display:grid;gap:var(--sp-3);justify-items:center}
 .orders figcaption{font-size:12.5px;color:var(--ink-2)}
 .chip svg{flex:none}
 .cell.gold rect{fill:var(--signal-soft);stroke:var(--signal);stroke-width:2.4}
@@ -423,10 +423,10 @@ img{max-width:100%}
    hidden, so focusing a part in a floating window can never scroll the board under it. */
 .sg-canvas .kit-board { position: absolute; inset: 0; height: auto; margin: 0; padding: 0; overflow: clip; }
 /* The whole middle column is the board: no frame around it. */
-.sg-body { margin: 6px 10px 0; display: grid; gap: 4px; }
+.sg-body { margin: var(--sp-3) var(--sp-4) 0; display: grid; gap: var(--sp-2); }
 .sg-body .param { margin: 0; }
 .sg-tag { color: var(--muted); font: 600 11px var(--f-mono); }
-.sg-val, .sg-thumb { min-width: 44px; min-height: 30px; padding: 2px 8px; display: grid; place-items: center; border-radius: 8px; color: var(--ink-3); background: var(--panel-2); font: 700 15px var(--f-mono); font-style: normal; font-variant-numeric: tabular-nums; }
+.sg-val, .sg-thumb { min-width: 44px; min-height: 30px; padding: var(--sp-1) var(--sp-4); display: grid; place-items: center; border-radius: var(--r-md); color: var(--ink-3); background: var(--panel-2); font: 700 15px var(--f-mono); font-style: normal; font-variant-numeric: tabular-nums; }
 .sg-val.is-on, .sg-thumb.is-on { color: var(--ink); background: color-mix(in srgb, var(--fam, var(--accent)) 14%, var(--paper)); }
 .sg-thumb { min-width: 60px; min-height: 40px; font-size: 18px; }
 .pb-thumb:empty { display: none; }
@@ -434,20 +434,20 @@ img{max-width:100%}
 /* A run that stopped on a cell not computed yet: that input reads 未算, and the cards it never got to 未算到. */
 .sg-val.is-unreached, .sg-thumb.is-unreached { color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, var(--panel-2)); font: 600 12px var(--f-body); letter-spacing: .02em; }
 /* Ports by the signal they carry: a number is round, a yes / no a diamond, a whole segment a bar, either dashed. */
-.port.look-bool, .pb-dot.look-bool i { --port-mark-radius: 1px; border-radius: 2px; transform: rotate(45deg) scale(.86); }
-.port.look-list, .pb-dot.look-list i { --port-mark-radius: 1.5px; border-radius: 3px; }
+.port.look-bool, .pb-dot.look-bool i { --port-mark-radius: 1px; border-radius: var(--r-xs); transform: rotate(45deg) scale(.86); }
+.port.look-list, .pb-dot.look-list i { --port-mark-radius: 1.5px; border-radius: var(--r-xs); }
 .port.look-any, .pb-dot.look-any i { outline: 1.5px dashed var(--fam, var(--ink)); outline-offset: 1px; }
 /* Phone: the robot's view runs the width of the page, like the test board above it. */
-.sg-level.is-circuit .cview { margin: 0 12px; max-width: none; padding: 16px 0 0; border-radius: 0; background: none; border: 0; }
+.sg-level.is-circuit .cview { margin: 0 var(--sp-5); max-width: none; padding: var(--sp-6) 0 0; border-radius: 0; background: none; border: 0; }
 .sg-level.is-circuit .cview { --vc: 52px; }
-.sg-level.is-circuit .cview .vwin.n5 { --vc: clamp(34px, calc((100vw - 90px) / 5.6), 52px); gap: 4px; }
+.sg-level.is-circuit .cview .vwin.n5 { --vc: clamp(34px, calc((100vw - 90px) / 5.6), 52px); gap: var(--sp-2); }
 .sg-level.is-circuit .cview .n5 .vcell { font-size: 12px; }
-.sg-slots { min-width: 0; padding: 8px 12px 16px; overflow-x: clip; }
+.sg-slots { min-width: 0; padding: var(--sp-4) var(--sp-5) var(--sp-6); overflow-x: clip; }
 /* An input card on a phone holds what it reads (BoardView.jsx): the robot's window or the cell's facts, each
    tapped to add or remove its output. The two cards share a row, each as wide as half of it. */
 .sg-slots .pb-terms.is-sources > .pb-term { max-width: none; }
-.sg-cardview { --vc: 34px; width: 100%; display: grid; justify-items: center; gap: 6px; line-height: 1.25; }
-.sg-cardview .varm-row { gap: 22px; }
+.sg-cardview { --vc: 34px; width: 100%; display: grid; justify-items: center; gap: var(--sp-3); line-height: 1.25; }
+.sg-cardview .varm-row { gap: var(--sp-7); }
 .sg-slots .pb-terms.is-sources > .pb-term:has(.sg-cardview) { display: flex; flex-direction: column; align-items: center; }
 /* What a card reads takes the card's spare height, so its name sits at the bottom, level with its neighbour's. */
 .sg-slots .pb-term:has(.sg-cardview) > .pb-thumb { width: 100%; flex: 1 0 auto; }
@@ -463,8 +463,8 @@ img{max-width:100%}
    never make the row taller. */
 .sg-slots .pb-term:has([data-cardview=facts]) > .pb-thumb { flex: 1 1 0; min-height: 118px; contain: size; }
 .sg-cardview[data-cardview=facts] { height: 100%; }
-.sg-cardview .vfacts { display: grid; gap: 5px; justify-items: stretch; align-content: start; height: 100%; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 1px; }
-.sg-cardview .vfact { min-height: 34px; padding: 6px 8px; gap: 5px; font-size: 12px; border-width: 1.2px; border-radius: 8px; }
+.sg-cardview .vfacts { display: grid; gap: var(--sp-2); justify-items: stretch; align-content: start; height: 100%; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 1px; }
+.sg-cardview .vfact { min-height: 34px; padding: var(--sp-3) var(--sp-4); gap: var(--sp-2); font-size: 12px; border-width: 1.2px; border-radius: var(--r-md); }
 .sg-cardview .vfact .vv { font-size: 12px; }
 .sg-cardview .vfact .tag { display: none; }
 .sg-cardview .vsub { font-size: 10px; }
@@ -474,13 +474,13 @@ img{max-width:100%}
    (fitBoard). */
 @media (min-width: 761px) {
   .wb-results > .wb-pane-body { display: flex; flex-direction: column; }
-  .wb-results .bcard { margin: auto 0; padding: 0; gap: 8px; justify-items: center; align-content: center; border: 0; border-radius: 0; background: none; box-shadow: none; }
+  .wb-results .bcard { margin: auto 0; padding: 0; gap: var(--sp-4); justify-items: center; align-content: center; border: 0; border-radius: 0; background: none; box-shadow: none; }
   .wb-results .board { margin: 0; padding: 0; overflow: visible; background: none; box-shadow: none; }
   .wb-results .board-svg { display: block; margin: 0 auto !important; }
   .wb-results .wb-pane-head .bnote { margin: 0; }
   /* The tests, as Vision Complete's: quiet pills, the one shown outlined; a ring that fills when it passes or fails. */
-  .wb-tests .tests { margin: 0; padding: 0; flex-wrap: nowrap; gap: 6px; }
-  .wb-tests .tchip { flex: none; min-height: 30px; padding: 0 10px 0 8px; gap: 6px; border: 0; border-radius: 15px; color: var(--ink); background: var(--canvas); font: 400 12px var(--sans); cursor: pointer; }
+  .wb-tests .tests { margin: 0; padding: 0; flex-wrap: nowrap; gap: var(--sp-3); }
+  .wb-tests .tchip { flex: none; min-height: 30px; padding: 0 var(--sp-4) 0 var(--sp-4); gap: var(--sp-3); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--canvas); font: 400 12px var(--sans); cursor: pointer; }
   .wb-tests .tchip[aria-selected="true"] { background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
   .wb-tests .tchip .sd { width: 9px; height: 9px; background: none; box-shadow: inset 0 0 0 1.5px currentColor; }
   .wb-tests .tchip .sd.pass { background: var(--status); box-shadow: none; }
@@ -491,20 +491,20 @@ img{max-width:100%}
 }
 /* A part's bench in the parts box (PartDemo.jsx): the test board and the robot's view side by side, the
    circuit under them, as in a level. */
-.sg-bench-scene { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 12px; align-items: start; margin-bottom: 12px; }
-.sg-bench-board { min-width: 0; padding: 10px; border-radius: 12px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.sg-bench-scene { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: var(--sp-5); align-items: start; margin-bottom: var(--sp-5); }
+.sg-bench-board { min-width: 0; padding: var(--sp-4); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .sg-bench-board .board-svg { display: block; margin: 0 auto; max-height: 320px; }
 .sg-bench-board [data-cell] { cursor: pointer; }
-.sg-bench-view .cview { --vc: 30px; max-width: none; margin: 0; padding: 10px 8px; border: 0; border-radius: 12px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.sg-bench-view .cview { --vc: 30px; max-width: none; margin: 0; padding: var(--sp-4) var(--sp-4); border: 0; border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .sg-bench-view .cview .vwin.n5 { --vc: 24px; }
-.sg-bench-canvas { position: relative; overflow: clip; border-radius: 12px; background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
+.sg-bench-canvas { position: relative; overflow: clip; border-radius: var(--r-md); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); }
 .sg-bench-canvas .kit-board { position: absolute; inset: 0; height: auto; margin: 0; padding: 0; overflow: clip; }
 /* A built part opened on its bench: the board it runs, and the way back out, named after the part. */
-.sg-inside-back { position: absolute; z-index: 5; top: 10px; left: 10px; min-height: 30px; padding: 0 12px 0 9px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 9px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); font: 600 13px var(--sans); cursor: pointer; }
+.sg-inside-back { position: absolute; z-index: 5; top: 10px; left: 10px; min-height: 30px; padding: 0 var(--sp-5) 0 var(--sp-4); display: inline-flex; align-items: center; gap: var(--gap-local); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); font: 600 13px var(--sans); cursor: pointer; }
 .sg-inside-back:hover { background: var(--hover); }
 .sg-inside { position: relative; }
-.sg-inside:not(.sg-bench-canvas) > .sg-inside-back { position: static; margin-bottom: 10px; }
-.sg-open { justify-self: start; min-height: 36px; padding: 0 14px 0 11px; display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 9px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font: 600 13px var(--sans); cursor: pointer; }
+.sg-inside:not(.sg-bench-canvas) > .sg-inside-back { position: static; margin-bottom: var(--sp-4); }
+.sg-open { justify-self: start; min-height: 36px; padding: 0 var(--sp-5) 0 var(--sp-5); display: inline-flex; align-items: center; gap: var(--gap-local); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--rule); font: 600 13px var(--sans); cursor: pointer; }
 @media (max-width: 760px) {
   .sg-bench-scene { grid-template-columns: minmax(0, 1fr); }
   .sg-bench-view .cview { --vc: 38px; }
@@ -518,9 +518,9 @@ img{max-width:100%}
 
 /* 视野's box (modes/Circuit.jsx, the phone's part sheet): blank squares for the cells the robot sees; the ones
    being read are lit, the robot's own square is framed red, and one the card cannot read is dashed. */
-.rgrid{--rs:18px;display:grid;grid-template-columns:repeat(var(--rn),var(--rs));grid-auto-rows:var(--rs);gap:4px;justify-content:center;padding:4px 0}
-.rgrid[style*="--rn: 5"],.rgrid[style*="--rn:5"]{--rs:14px;gap:3px}
-.rcell{width:var(--rs);height:var(--rs);padding:0;border:1.5px solid var(--ink-3);border-radius:4px;background:color-mix(in srgb,var(--ink) 10%,transparent);cursor:pointer}
+.rgrid{--rs:18px;display:grid;grid-template-columns:repeat(var(--rn),var(--rs));grid-auto-rows:var(--rs);gap:var(--sp-2);justify-content:center;padding:var(--sp-2) 0}
+.rgrid[style*="--rn: 5"],.rgrid[style*="--rn:5"]{--rs:14px;gap:var(--sp-1)}
+.rcell{width:var(--rs);height:var(--rs);padding:0;border:1.5px solid var(--ink-3);border-radius:var(--r-sm);background:color-mix(in srgb,var(--ink) 10%,transparent);cursor:pointer}
 @media (hover: hover){.rcell:hover:not(:disabled){border-color:var(--cyan)}}
 .rcell.on{border:2px solid var(--cyan);background:color-mix(in srgb,var(--cyan) 45%,transparent)}
 .rcell.self{border-color:var(--bad)}
@@ -530,16 +530,16 @@ img{max-width:100%}
 /* An input card on the desktop board holds what it reads, as on a phone (BoardView.jsx): the robot's window
    and arm, or the cell's facts, each clicked to add or remove its output; the outputs run down the card's right edge. */
 .sg-body.is-reader{align-items:stretch}
-.sg-body.is-reader .sg-cardview{width:auto;margin-right:74px;justify-items:start;container-type:normal}
+.sg-body.is-reader .sg-cardview{--reader-room:74px;width:auto;margin-right:var(--reader-room);justify-items:start;container-type:normal}
 .sg-body.is-reader .sg-cardview .vwin{--vc:30px}
 .sg-body.is-reader .sg-cardview .vwin.n5{--vc:24px}
 .sg-body.is-reader .sg-cardview .vcell{font-size:11px}
 .sg-body.is-reader .sg-cardview .vwins{justify-content:flex-start}
 .sg-body.is-reader [data-cardview=facts]{height:auto}
 .sg-body.is-reader .sg-cardview .vfacts{height:auto;overflow:visible}
-.sg-body.is-reader .sg-cardview .vfact{min-height:26px;padding:3px 8px}
+.sg-body.is-reader .sg-cardview .vfact{min-height:26px;padding:var(--sp-1) var(--sp-4)}
 /* What each of a reader's outputs carries, beside its dot. */
-.sg-oval{min-width:22px;padding:1px 5px;border-radius:5px;background:var(--panel-2);color:var(--ink);font:700 10.5px var(--f-mono);text-align:center;font-variant-numeric:tabular-nums}
+.sg-oval{min-width:22px;padding:1px var(--sp-2);border-radius:var(--r-sm);background:var(--panel-2);color:var(--ink);font:700 10.5px var(--f-mono);text-align:center;font-variant-numeric:tabular-nums}
 
 
 /* What the robot reads, as buttons in the inputs window: a click adds or removes that output on 视野 or 本格信息. */

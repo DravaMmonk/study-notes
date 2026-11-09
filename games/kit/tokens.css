@@ -11,14 +11,6 @@
 
   /* Type scale. Labels are small spaced mono; interface text is sans; reading text and titles are serif. */
   --fs-label: 11px;
-  --stage-gap: 12px;
-  --port-radius: 6px;
-  --stage-pad: 12px;
-  --settings-width: 360px;
-  --section-gutter: 30px;
-  --section-line-height: 28px;
-  --slot-height: 112px;
-  --compact-slot-height: 64px;
   --fs-ui: 13px;
   --fs-touch-input: 16px;
   --fs-small: 14.5px;
@@ -33,12 +25,39 @@
   --track-label: 0.14em;
   --measure: 690px;
 
-  /* Shape and rhythm. */
-  --bar-h: 52px;
-  --gutter: max(16px, env(safe-area-inset-left));
+  /* Spacing (games/DESIGN.md 6.10). Every padding, margin and gap inside a region is a step of this scale; a
+     hairline nudge of 1px or less is the only literal. Three levels name what the space separates: within one item,
+     between peers of a group, between concerns. */
+  --sp-1: 2px;
+  --sp-2: 4px;
+  --sp-3: 6px;
+  --sp-4: 8px;
+  --sp-5: 12px;
+  --sp-6: 16px;
+  --sp-7: 24px;
+  --sp-8: 32px;
+  --sp-9: 48px;
+  --sp-10: 64px;
+  --sp-11: 96px;
+  --gap-local: var(--sp-3);
+  --gap-group: var(--sp-5);
+  --gap-section: var(--sp-7);
+
+  /* Corners by role: marks in text and the notes' engraved blocks, small pieces, controls and part cards, panels and
+     sheets, dots and pills. A nested corner is its container's less the space between them. */
+  --r-xs: 2px;
   --r-sm: 6px;
   --r-md: 8px;
   --r-lg: 16px;
+  --r-full: 999px;
+
+  /* Structure: the named sizes of regions and parts. */
+  --bar-h: 52px;
+  --gutter: max(var(--sp-6), env(safe-area-inset-left));
+  --settings-width: 360px;
+  --slot-height: 112px;
+  --compact-slot-height: 64px;
+  --port-radius: 6px;
 
   --ink: #282824;
   --heading: #272723;
@@ -145,14 +164,12 @@
 
 /* ---- game layer ---- */
 :root {
-  --board-gap-x: 24px;
-  --board-gap-y: 16px;
-  --block-pad: 12px;
+  --board-gap-x: var(--sp-7);
+  --board-gap-y: var(--sp-6);
+  --block-pad: var(--sp-5);
   --block-head-height: 40px;
   --block-rule-width: 1px;
   --block-rule: var(--rule);
-  --group-pad: 16px;
-  --group-title: 24px;
   --group: color-mix(in srgb, var(--ink) 4%, transparent);
   --fail: #b8573f;
   --select: #3f7fb5;

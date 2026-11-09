@@ -8,18 +8,18 @@
 [data-family='end'] { --fam: var(--accent); }
 
 /* ---- cards ---- */
-.lg-card { padding: 4px 10px 0; display: grid; gap: 6px; }
-.lg-formula { min-width: 0; display: grid; gap: 2px; }
+.lg-card { padding: var(--sp-2) var(--sp-4) 0; display: grid; gap: var(--sp-3); }
+.lg-formula { min-width: 0; display: grid; gap: var(--sp-1); }
 .lg-formula b { font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
 /* A proof term (chapter 6): Lean's notation, in the mono face, under what it proves. */
 .lg-term { font-family: var(--mono); font-size: 11px; color: var(--accent-ink); overflow-wrap: anywhere; }
 .lg-formula small { color: var(--muted); font-family: var(--sans); font-size: 10px; line-height: 1.4; overflow-wrap: anywhere; }
 .lg-formula.is-small b { font-size: 11px; font-weight: 500; }
-.lg-out { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 6px; }
+.lg-out { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: var(--sp-3); }
 .lg-out em { color: var(--muted); font: normal 10px var(--mono); }
 .lg-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
 /* A clause set on the machine board: one clause a line, ⊥ standing out once it is in, and how many. */
-.lg-clauses { min-width: 0; display: grid; gap: 2px; }
+.lg-clauses { min-width: 0; display: grid; gap: var(--sp-1); }
 .lg-clauses code { font: 500 12px/1.4 var(--sans); color: var(--ink); overflow-wrap: anywhere; }
 .lg-clauses small { color: var(--muted); font-size: 10.5px; }
 .lg-clauses .lg-bot { color: var(--status); font-size: 12px; }
@@ -31,15 +31,15 @@
 .lg-node.is-fail { box-shadow: 0 0 0 2px var(--fail), var(--card); }
 .node-verdict { margin-left: auto; font-style: normal; font-size: 11px; color: var(--muted); }
 
-.lg-field { display: grid; gap: 4px; }
-.lg-field label { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 6px; }
+.lg-field { display: grid; gap: var(--sp-2); }
+.lg-field label { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--sp-3); }
 .lg-field label > span { color: var(--muted); font-size: 11px; }
-.lg-field select { min-width: 0; height: 26px; padding: 0 7px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12.5px var(--mono); }
+.lg-field select { min-width: 0; height: 26px; padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12.5px var(--mono); }
 .lg-field select:focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
 
-.lg-side { display: flex; align-items: center; gap: 4px; color: var(--muted); font-size: 11px; }
+.lg-side { display: flex; align-items: center; gap: var(--sp-2); color: var(--muted); font-size: 11px; }
 .lg-side span { margin-right: auto; }
-.lg-side button { height: 24px; padding: 0 9px; border: 0; border-radius: 12px; color: var(--muted); background: var(--canvas); font: inherit; cursor: pointer; }
+.lg-side button { height: 24px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-full); color: var(--muted); background: var(--canvas); font: inherit; cursor: pointer; }
 .lg-side button[aria-pressed='true'] { color: var(--paper); background: var(--ink); }
 /* A folded box: how much it holds. */
 .lg-held { color: var(--muted); font-size: 11.5px; }
@@ -48,56 +48,56 @@
 .frame-region-result .lg-formula { font-family: var(--sans, inherit); font-size: 11.5px; }
 
 /* ---- the strip and the brief ---- */
-.lg-strip { display: grid; gap: 6px; }
-.lg-strip.is-tables { gap: 14px; }
+.lg-strip { display: grid; gap: var(--sp-3); }
+.lg-strip.is-tables { gap: var(--sp-5); }
 .lg-sequent { margin: 0; font-size: 13px; color: var(--muted); }
-.lg-sequent b { margin: 0 4px; color: var(--ink); }
+.lg-sequent b { margin: 0 var(--sp-2); color: var(--ink); }
 .lg-verdict { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .lg-verdict.is-pass { color: var(--status); }
 .lg-verdict.is-fail { color: var(--fail); }
 
 /* ---- phone ---- */
-.lg-chips { display: grid; gap: 2px; }
+.lg-chips { display: grid; gap: var(--sp-1); }
 .lg-mark { color: var(--faint); font-style: normal; font-size: 11px; }
-.lg-sink { display: grid; gap: 2px; }
+.lg-sink { display: grid; gap: var(--sp-1); }
 /* A machine's input and result: no taller than a step's result in the run (shell.css .step-log-value), shorter when it
    holds less, scrolling past it. A long line wraps inside the card's width rather than widening the card, so the box
    only ever scrolls one way. */
 .lg-io { min-width: 0; max-width: 100%; font-size: 13px; line-height: 1.4; }
 .lg-io b, .lg-io code { white-space: normal; overflow-wrap: anywhere; }
 .cl-phone.lg-level .pb-thumb .lg-formula b { font-size: 14px; font-weight: 600; }
-.cl-phone.lg-level .pb-thumb .lg-chips { gap: 4px; }
-.cl-sheet .lg-card { padding: 0; gap: 12px; }
+.cl-phone.lg-level .pb-thumb .lg-chips { gap: var(--sp-2); }
+.cl-sheet .lg-card { padding: 0; gap: var(--sp-5); }
 .cl-sheet .lg-field select { height: 40px; font-size: 16px; }
 
 /* ---- truth tables ---- */
-.lg-truth { max-width: 720px; margin: 0 auto; padding: 28px 24px 40px; display: grid; gap: 18px; }
+.lg-truth { max-width: 720px; margin: 0 auto; padding: var(--sp-7) var(--sp-7) var(--sp-8); display: grid; gap: var(--sp-6); }
 .lg-table { border-collapse: separate; border-spacing: 0; font-size: 14px; background: var(--paper); border-radius: var(--r-md); box-shadow: var(--card); overflow: hidden; }
-.lg-table th, .lg-table td { min-width: 44px; height: 40px; padding: 0 12px; text-align: center; border-bottom: 1px solid var(--hairline); }
+.lg-table th, .lg-table td { min-width: 44px; height: 40px; padding: 0 var(--sp-5); text-align: center; border-bottom: 1px solid var(--hairline); }
 .lg-table th { color: var(--muted); font-weight: 500; background: var(--canvas); }
 .lg-table th.is-formula, .lg-table td.is-formula { border-left: 1px solid var(--line); min-width: 120px; }
 .lg-table td.is-t { color: var(--status); }
 .lg-table td.is-f { color: var(--fail); }
 .lg-table tr.is-wrong td { background: color-mix(in srgb, var(--fail) 10%, var(--paper)); }
-.lg-cell { min-width: 64px; height: 30px; padding: 0 10px; border: 0; border-radius: 15px; color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13px; cursor: pointer; }
+.lg-cell { min-width: 64px; height: 30px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-full); color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13px; cursor: pointer; }
 .lg-cell.is-t { color: var(--paper); background: var(--status); box-shadow: none; }
 .lg-cell.is-f { color: var(--paper); background: var(--fail); box-shadow: none; }
 .lg-cell.is-shown { display: inline-grid; place-items: center; cursor: default; }
-.lg-claim { padding: 12px 14px; display: grid; gap: 10px; border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--card); }
+.lg-claim { padding: var(--sp-5) var(--sp-5); display: grid; gap: var(--sp-4); border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--card); }
 .lg-claim.is-wrong { box-shadow: 0 0 0 2px var(--fail), var(--card); }
-.lg-claim header { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.lg-claim header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); }
 .lg-claim header b { margin-right: auto; font-size: 16px; font-weight: 600; color: var(--ink); }
 .lg-claim summary { color: var(--muted); font-size: 12.5px; cursor: pointer; }
-.lg-claim details .lg-table { margin-top: 10px; box-shadow: none; outline: 1px solid var(--hairline); }
-.lg-mark-pick { display: flex; gap: 6px; }
-.lg-mark-pick button { height: 32px; padding: 0 12px; border: 0; border-radius: 16px; color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13px; cursor: pointer; }
+.lg-claim details .lg-table { margin-top: var(--sp-4); box-shadow: none; outline: 1px solid var(--hairline); }
+.lg-mark-pick { display: flex; gap: var(--sp-3); }
+.lg-mark-pick button { height: 32px; padding: 0 var(--sp-5); border: 0; border-radius: var(--r-full); color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13px; cursor: pointer; }
 .lg-mark-pick button[aria-pressed='true'] { color: var(--paper); background: var(--ink); box-shadow: none; }
 
 /* ---- map art ---- */
 
 @media (max-width: 760px) {
   .lg-table { width: 100%; }
-  .lg-table th, .lg-table td { min-width: 0; padding: 0 6px; }
+  .lg-table th, .lg-table td { min-width: 0; padding: 0 var(--sp-3); }
 }
 .lg-field select { font-family: var(--sans); }
 
@@ -107,7 +107,7 @@
 .lg-tv.is-false { color: var(--fail); }
 .lg-scroll-x { overflow-x: auto; max-width: 100%; }
 .lg-rows { border-collapse: collapse; font-size: 12.5px; width: max-content; max-width: 100%; }
-.lg-rows th, .lg-rows td { padding: 3px 10px; text-align: center; border-bottom: 1px solid var(--line, rgba(0,0,0,.08)); }
+.lg-rows th, .lg-rows td { padding: var(--sp-1) var(--sp-4); text-align: center; border-bottom: 1px solid var(--line, rgba(0,0,0,.08)); }
 .lg-rows th { color: var(--muted); font-weight: 500; }
 .lg-rows tbody tr { cursor: pointer; }
 .lg-rows tbody tr.is-on { background: var(--hover, rgba(0,0,0,.05)); }
@@ -122,66 +122,66 @@
 
 /* First-order levels (ui/WorldScreens.jsx): sentences to write, the vocabulary as buttons, worlds in words, and a world
    to build. */
-.fo-stage { max-width: 760px; margin: 0 auto; padding: 20px 20px 24px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.fo-stage { max-width: 760px; margin: 0 auto; padding: var(--sp-6) var(--sp-6) var(--sp-7); display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-6); }
 /* A long sentence wraps, and a choice of long sentences narrows to the page: nothing makes the page wider. */
 .fo-stage select { max-width: 100%; text-overflow: ellipsis; }
 .fo-stage b, .fo-stage code { overflow-wrap: anywhere; }
 /* On a phone the page already has its margins. */
 .level-phone .fo-stage, .level-phone .lg-truth, .level-phone .lg-define { width: 100%; margin: 0; padding: 0; }
-.fo-item { display: grid; gap: 8px; padding: 14px 16px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.fo-item { display: grid; gap: var(--sp-4); padding: var(--sp-5) var(--sp-6); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .fo-item.is-pass { box-shadow: inset 0 0 0 1.5px var(--status); }
 .fo-item.is-fail { box-shadow: inset 0 0 0 1.5px var(--fail); }
-.fo-say { margin: 0; display: flex; align-items: baseline; gap: 6px; font-family: var(--serif); font-size: 17px; color: var(--heading); }
+.fo-say { margin: 0; display: flex; align-items: baseline; gap: var(--sp-3); font-family: var(--serif); font-size: 17px; color: var(--heading); }
 .fo-item.is-pass .fo-say svg { color: var(--status); }
 .fo-item.is-fail .fo-say svg { color: var(--fail); }
-.fo-input { box-sizing: border-box; width: 100%; height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 15px var(--mono); }
+.fo-input { box-sizing: border-box; width: 100%; height: 40px; padding: 0 var(--sp-5); border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 15px var(--mono); }
 .fo-input:focus { outline: none; border-color: var(--accent); background: var(--paper); }
 .fo-read { margin: 0; min-height: 1.4em; color: var(--muted); font-size: 13px; }
 .fo-read b { color: var(--ink); font-weight: 600; }
-.fo-why { display: grid; gap: 6px; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--fail) 6%, var(--paper)); font-size: 13px; }
+.fo-why { display: grid; gap: var(--sp-3); padding: var(--sp-4) var(--sp-5); border-radius: var(--r-md); background: color-mix(in srgb, var(--fail) 6%, var(--paper)); font-size: 13px; }
 .fo-why p { margin: 0; }
-.fo-world { display: grid; gap: 4px; font-size: 13px; line-height: 1.6; color: var(--body, var(--ink)); }
+.fo-world { display: grid; gap: var(--sp-2); font-size: 13px; line-height: 1.6; color: var(--body, var(--ink)); }
 .fo-world p { margin: 0; }
 .fo-world .fo-not { color: var(--muted); }
-.fo-worlds { display: grid; gap: 8px; }
-.fo-worlds details { padding: 10px 14px; border-radius: 12px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.fo-worlds { display: grid; gap: var(--sp-4); }
+.fo-worlds details { padding: var(--sp-4) var(--sp-5); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .fo-worlds summary { cursor: pointer; font-weight: 600; font-size: 13.5px; }
-.fo-vocab { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 0; background: var(--canvas); }
-.fo-vocab button { min-height: 34px; padding: 0 10px; border: 0; border-radius: 9px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--sans); cursor: pointer; }
+.fo-vocab { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; gap: var(--sp-3); padding: var(--sp-4) 0; background: var(--canvas); }
+.fo-vocab button { min-height: 34px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--sans); cursor: pointer; }
 .fo-vocab button:hover { background: var(--hover); }
-.fo-claim { display: grid; gap: 8px; }
-.fo-claim-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; border-radius: 10px; }
+.fo-claim { display: grid; gap: var(--sp-4); }
+.fo-claim-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--sp-4); border-radius: var(--r-md); }
 .fo-claim-row .ks-strip { margin: 0; }
 .fo-claim-row.is-step { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent); }
-.fo-claim-line { margin: 2px 0; border: 0; border-top: 1.5px solid var(--ink); }
-.fo-build { display: grid; gap: 12px; padding: 14px 16px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
-.fo-size, .fo-const, .fo-pred { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13.5px; }
+.fo-claim-line { margin: var(--sp-1) 0; border: 0; border-top: 1.5px solid var(--ink); }
+.fo-build { display: grid; gap: var(--sp-5); padding: var(--sp-5) var(--sp-6); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
+.fo-size, .fo-const, .fo-pred { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); font-size: 13.5px; }
 .fo-pred-name { min-width: 7em; color: var(--muted); }
-.fo-cells { display: flex; gap: 6px; }
-.fo-build button { min-width: 36px; height: 34px; padding: 0 8px; border: 0; border-radius: 9px; color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font: 14px var(--sans); cursor: pointer; }
+.fo-cells { display: flex; gap: var(--sp-3); }
+.fo-build button { min-width: 36px; height: 34px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-md); color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font: 14px var(--sans); cursor: pointer; }
 .fo-build button[aria-pressed='true'] { color: var(--paper); background: var(--accent); box-shadow: none; }
 .fo-grid { border-collapse: separate; border-spacing: 4px; }
 .fo-grid td { padding: 0; }
 
 /* A rewrite card's choice: the sentence with each s in a box; a ticked box becomes t. */
-.lg-occ { display: grid; gap: 4px; }
+.lg-occ { display: grid; gap: var(--sp-2); }
 .lg-occ small { color: var(--muted); font-size: 11.5px; }
 .lg-occ-text { font-weight: 600; line-height: 2; overflow-wrap: anywhere; }
-.lg-occ-text button { margin: 0 2px; padding: 1px 6px; border: 1.5px dashed var(--muted); border-radius: 6px; color: var(--ink); background: transparent; font: inherit; cursor: pointer; }
+.lg-occ-text button { margin: 0 var(--sp-1); padding: 1px var(--sp-3); border: 1.5px dashed var(--muted); border-radius: var(--r-sm); color: var(--ink); background: transparent; font: inherit; cursor: pointer; }
 .lg-occ-text button[aria-pressed='true'] { border-style: solid; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, transparent); }
 
 /* A rule part's rules, in the order it gives them, each written out with × to take it off; a menu under them adds
    one. A long list scrolls. */
-.lg-rules { display: grid; gap: 4px; max-height: 13em; overflow-y: auto; overscroll-behavior: contain; }
-.lg-rule { display: flex; align-items: flex-start; gap: 4px; padding: 3px 4px 3px 8px; border-radius: 6px; background: color-mix(in srgb, var(--accent) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
+.lg-rules { display: grid; gap: var(--sp-2); max-height: 13em; overflow-y: auto; overscroll-behavior: contain; }
+.lg-rule { display: flex; align-items: flex-start; gap: var(--sp-2); padding: var(--sp-1) var(--sp-2) var(--sp-1) var(--sp-4); border-radius: var(--r-sm); background: color-mix(in srgb, var(--accent) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
 .lg-rule code { flex: 1; min-width: 0; padding: 1px 0; font: 12px/1.45 var(--mono); color: var(--ink); overflow-wrap: anywhere; }
-.lg-rule button { flex: none; width: 20px; height: 20px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 5px; color: var(--muted); background: none; cursor: pointer; }
+.lg-rule button { flex: none; width: 20px; height: 20px; padding: 0; display: grid; place-items: center; border: 0; border-radius: var(--r-sm); color: var(--muted); background: none; cursor: pointer; }
 .lg-rule button:hover { color: var(--fail); background: var(--hover); }
-.lg-rules select { width: 100%; padding: 4px 6px; border: 1.5px dashed var(--muted); border-radius: 6px; color: var(--muted); background: transparent; font: 12px var(--mono); }
+.lg-rules select { width: 100%; padding: var(--sp-2) var(--sp-3); border: 1.5px dashed var(--muted); border-radius: var(--r-sm); color: var(--muted); background: transparent; font: 12px var(--mono); }
 
 /* The phone's preview under the result: the run's steps and its verdict, in a window of one fixed size that shows
    once the run has a step to show. */
-.lg-preview { box-sizing: border-box; height: 280px; margin: 12px 0 4px; padding: 10px 12px 12px; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 6px; scroll-margin-bottom: 12px; overflow: hidden; }
+.lg-preview { box-sizing: border-box; height: 280px; margin: var(--sp-5) 0 var(--sp-2); padding: var(--sp-4) var(--sp-5) var(--sp-5); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: var(--sp-3); scroll-margin-bottom: var(--sp-5); overflow: hidden; }
 .lg-preview h3 { margin: 0; color: var(--muted); font: 600 12px var(--mono); letter-spacing: .08em; }
 .lg-preview .step-log { margin: 0; height: auto; max-height: none; min-height: 0; align-content: start; }
 .lg-preview .lg-preview-empty { margin: 0; display: grid; place-items: center; text-align: center; }
@@ -198,9 +198,9 @@
 .fo-level [data-family='conn'] { --fam: var(--fam-conn); }
 
 /* Term tasks (TermScreen.jsx): the named premises, the sentence to prove, and a colour per kind of piece. */
-.tm-given { display: grid; gap: 6px; }
+.tm-given { display: grid; gap: var(--sp-3); }
 .tm-given p { margin: 0; }
-.tm-premise { margin-right: 14px; }
+.tm-premise { margin-right: var(--sp-5); }
 .tm-premise code { font-family: var(--mono); color: var(--code-ink); }
 .tm-level .ks-strip { font-family: var(--mono); font-size: 20px; }
 .tm-level { --fam-fun: #b4579a; --fam-app: #b98516; --fam-pairs: #3f7fb5; --fam-or: #2f918f; --fam-absurd: #b4523f; }
@@ -216,29 +216,29 @@
 
 /* Script tasks (ScriptScreen.jsx): rows written as Isar writes them, each indented by the block it is in; a script read
    only (ScriptView), as a brief shows it on the proof board. */
-.sc-rows { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
-.sc-row { padding: 8px 10px 8px calc(10px + var(--depth, 0) * 22px); border-radius: 10px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); cursor: pointer; }
+.sc-rows { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-3); }
+.sc-row { padding: var(--sp-4) var(--sp-4) var(--sp-4) calc(var(--sp-4) + var(--depth, 0) * var(--sp-7)); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); cursor: pointer; }
 .sc-row.is-on { box-shadow: inset 0 0 0 1.5px var(--accent); }
 .sc-row.is-fail { box-shadow: inset 0 0 0 1.5px var(--fail); }
-.sc-row .lg-error { margin: 6px 0 0; font-size: 13px; }
-.sc-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font: 14px var(--mono); }
+.sc-row .lg-error { margin: var(--sp-3) 0 0; font-size: 13px; }
+.sc-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-4); font: 14px var(--mono); }
 .sc-kw { color: var(--accent); font-weight: 600; }
 .sc-name { color: var(--code-ink); }
-.sc-line select { max-width: 100%; height: 32px; padding: 0 6px; border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 14px var(--sans); }
+.sc-line select { max-width: 100%; height: 32px; padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 14px var(--sans); }
 .sc-line > * { min-width: 0; }
 .sc-stmt { flex: 0 1 auto; }
-.sc-using { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; }
-.sc-using button { min-width: 30px; height: 28px; padding: 0 7px; border: 0; border-radius: 8px; color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--mono); cursor: pointer; }
+.sc-using { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
+.sc-using button { min-width: 30px; height: 28px; padding: 0 var(--sp-3); border: 0; border-radius: var(--r-md); color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--mono); cursor: pointer; }
 .sc-using button[aria-pressed='true'] { color: var(--paper); background: var(--accent); box-shadow: none; }
-.sc-by { display: inline-flex; align-items: center; gap: 6px; }
+.sc-by { display: inline-flex; align-items: center; gap: var(--gap-local); }
 .sc-by { max-width: 100%; min-width: 0; }
 .sc-by select { width: 15em; min-width: 0; }
-.sc-remove { margin-left: auto; display: inline-grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 8px; color: var(--muted); background: transparent; cursor: pointer; }
+.sc-remove { margin-left: auto; display: inline-grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: var(--r-md); color: var(--muted); background: transparent; cursor: pointer; }
 .sc-remove:hover { background: var(--hover); }
-.sc-add { display: flex; flex-wrap: wrap; gap: 6px; }
-.sc-add button { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 10px; border: 0; border-radius: 9px; color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--mono); cursor: pointer; }
+.sc-add { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+.sc-add button { display: inline-flex; align-items: center; gap: var(--sp-2); height: 32px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--mono); cursor: pointer; }
 .sc-add button:hover { background: var(--hover); }
-.sc-view { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); font: 12px/1.6 var(--mono); white-space: pre; overflow-x: auto; color: var(--ink); }
+.sc-view { margin: var(--sp-4) 0 0; padding: var(--sp-4) var(--sp-5); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); font: 12px/1.6 var(--mono); white-space: pre; overflow-x: auto; color: var(--ink); }
 
 /* The board a built part runs, read only (circuit/Inside.jsx): a sheet over it shows its settings without changing them. */
 .cl-readonly :is(.lg-rules, .lg-occ button) { pointer-events: none; }
@@ -247,13 +247,13 @@
 .kit-board.is-readonly .lg-rules :is(select, button) { display: none; }
 
 /* The definition board (ui/DefineScreen.jsx): a row a case, its right side picked; the tests under them. */
-.lg-define { max-width: 720px; margin: 0 auto; padding: 28px 24px 40px; display: grid; gap: 18px; }
+.lg-define { max-width: 720px; margin: 0 auto; padding: var(--sp-7) var(--sp-7) var(--sp-8); display: grid; gap: var(--sp-6); }
 .lg-define .lg-rows { width: 100%; }
-.lg-defs { display: grid; gap: 10px; }
-.lg-def-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 15px; }
+.lg-defs { display: grid; gap: var(--sp-4); }
+.lg-def-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-4); font-size: 15px; }
 .lg-def-when { color: var(--muted); }
 .lg-def-lhs { font-weight: 600; color: var(--ink); }
-.lg-def-row select { min-width: 10em; max-width: 100%; padding: 6px 8px; border: 1px solid var(--line, rgba(0,0,0,.15)); border-radius: 8px; background: var(--panel, transparent); color: var(--ink); font: inherit; }
+.lg-def-row select { min-width: 10em; max-width: 100%; padding: var(--sp-3) var(--sp-4); border: 1px solid var(--line, rgba(0,0,0,.15)); border-radius: var(--r-md); background: var(--panel, transparent); color: var(--ink); font: inherit; }
 
 /* The test cases of a declaration (ui/IsoCases.jsx, on the shared RowTable): a result that disagrees, a run's rows. */
 .lg-wrong { color: var(--fail); font-weight: 600; }
@@ -267,53 +267,53 @@
    one after another with the add button at the end of the last; a little larger than the test-case table. */
 /* The rule table (ui/RuleTable.jsx): a card of rows, the conclusion on top, then each condition with its premises as
    sentences to press; the rules it declares under it (ui/IsoScreen.jsx DeclRules). */
-.lg-rule-table { display: grid; overflow: hidden; border-radius: 14px; background: var(--paper); box-shadow: inset 0 0 0 1px var(--line), 0 1px 2px rgba(30, 26, 18, .04); font-size: 15px; }
-.lg-rt-row { position: relative; display: grid; grid-template-columns: 6.8em minmax(0, 1fr) 28px; align-items: center; gap: 8px 12px; padding: 12px 10px 12px 16px; border-top: 1px solid var(--hairline); }
+.lg-rule-table { display: grid; overflow: hidden; border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line), 0 1px 2px rgba(30, 26, 18, .04); font-size: 15px; }
+.lg-rt-row { position: relative; display: grid; grid-template-columns: 6.8em minmax(0, 1fr) 28px; align-items: center; gap: var(--sp-4) var(--sp-5); padding: var(--sp-5) var(--sp-4) var(--sp-5) var(--sp-6); border-top: 1px solid var(--hairline); }
 .lg-rt-row:first-child { border-top: 0; }
-.lg-rt-row.is-goal { grid-template-columns: 6.8em minmax(0, 1fr); padding-block: 14px; background: color-mix(in srgb, var(--accent) 6%, var(--paper)); }
-.lg-rt-name { display: inline-flex; align-items: baseline; gap: 5px; color: var(--muted); font: 500 12.5px var(--sans); letter-spacing: .02em; white-space: nowrap; }
-.lg-rt-name i { min-width: 18px; height: 18px; padding: 0 4px; display: inline-grid; place-items: center; border-radius: 6px; color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 14%, transparent); font: 600 11px var(--mono); font-style: normal; }
+.lg-rt-row.is-goal { grid-template-columns: 6.8em minmax(0, 1fr); padding-block: var(--sp-5); background: color-mix(in srgb, var(--accent) 6%, var(--paper)); }
+.lg-rt-name { display: inline-flex; align-items: baseline; gap: var(--sp-2); color: var(--muted); font: 500 12.5px var(--sans); letter-spacing: .02em; white-space: nowrap; }
+.lg-rt-name i { min-width: 18px; height: 18px; padding: 0 var(--sp-2); display: inline-grid; place-items: center; border-radius: var(--r-sm); color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 14%, transparent); font: 600 11px var(--mono); font-style: normal; }
 .lg-rt-goal { color: var(--heading, var(--ink)); font-family: var(--serif); font-size: 17px; font-weight: 600; }
-.lg-rt-needs { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 0; }
+.lg-rt-needs { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) 0; }
 .lg-rt-need { display: inline-flex; align-items: center; }
-.lg-rt-sep { padding: 0 6px 0 3px; color: var(--faint); }
-.lg-rt-true { margin-left: 8px; color: var(--muted); font-size: 13.5px; white-space: nowrap; }
-.lg-rt-premise { min-height: 34px; padding: 3px 12px; border: 0; border-radius: 10px; color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font: 15.5px var(--serif); text-align: left; cursor: pointer; transition: box-shadow 140ms ease, background 140ms ease; }
+.lg-rt-sep { padding: 0 var(--sp-3) 0 var(--sp-1); color: var(--faint); }
+.lg-rt-true { margin-left: var(--sp-4); color: var(--muted); font-size: 13.5px; white-space: nowrap; }
+.lg-rt-premise { min-height: 34px; padding: var(--sp-1) var(--sp-5); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font: 15.5px var(--serif); text-align: left; cursor: pointer; transition: box-shadow 140ms ease, background 140ms ease; }
 .lg-rt-premise:hover { box-shadow: inset 0 0 0 1.5px var(--rule); }
 .lg-rt-premise[aria-expanded='true'] { background: color-mix(in srgb, var(--accent) 9%, var(--paper)); box-shadow: inset 0 0 0 2px var(--accent); }
 .lg-rt-premise.is-blank { color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1px var(--rule); font-size: 13.5px; }
 .lg-rt-premise.is-bad { color: var(--fail); background: color-mix(in srgb, var(--fail) 7%, var(--paper)); box-shadow: inset 0 0 0 1.5px var(--fail); }
 .lg-rt-premise:disabled { padding: 0; background: none; box-shadow: none; cursor: default; }
-.lg-rt-add { min-width: 34px; min-height: 34px; margin-left: 8px; padding: 0 9px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border: 1px dashed var(--rule); border-radius: 10px; color: var(--muted); background: transparent; font: 13px var(--sans); cursor: pointer; transition: color 140ms ease, border-color 140ms ease, background 140ms ease; }
-.lg-rt-needs > .lg-rt-add:first-child, .lg-rt-any + .lg-rt-add { margin-left: 0; padding: 0 12px; }
+.lg-rt-add { min-width: 34px; min-height: 34px; margin-left: var(--sp-4); padding: 0 var(--sp-4); display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); border: 1px dashed var(--rule); border-radius: var(--r-md); color: var(--muted); background: transparent; font: 13px var(--sans); cursor: pointer; transition: color 140ms ease, border-color 140ms ease, background 140ms ease; }
+.lg-rt-needs > .lg-rt-add:first-child, .lg-rt-any + .lg-rt-add { margin-left: 0; padding: 0 var(--sp-5); }
 .lg-rt-add:hover, .lg-rt-more:hover { color: var(--accent-ink); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
-.lg-rt-any { min-height: 30px; margin-right: 10px; padding: 0 11px; border: 0; border-radius: 999px; color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1px var(--line); font: 500 13px var(--sans); cursor: pointer; }
+.lg-rt-any { min-height: 30px; margin-right: var(--sp-4); padding: 0 var(--sp-5); border: 0; border-radius: var(--r-full); color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1px var(--line); font: 500 13px var(--sans); cursor: pointer; }
 .lg-rt-any[aria-pressed='true'] { color: var(--ink); background: color-mix(in srgb, var(--fam-quant, var(--accent)) 13%, transparent); box-shadow: inset 0 0 0 1.5px var(--fam-quant, var(--accent)); }
 .lg-rt-any:disabled { cursor: default; }
-.lg-rt-drop { width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: 8px; color: var(--faint); background: transparent; cursor: pointer; opacity: 0; transition: opacity 140ms ease; }
+.lg-rt-drop { width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: var(--r-md); color: var(--faint); background: transparent; cursor: pointer; opacity: 0; transition: opacity 140ms ease; }
 .lg-rt-row:hover .lg-rt-drop, .lg-rt-drop:focus-visible { opacity: 1; }
 .lg-rt-drop:hover { color: var(--fail); background: var(--hover); }
-.lg-rt-more { min-height: 44px; padding: 0 16px; display: flex; align-items: center; gap: 6px; border: 0; border-top: 1px dashed var(--line); color: var(--muted); background: transparent; font: 500 13.5px var(--sans); text-align: left; cursor: pointer; transition: color 140ms ease, background 140ms ease; }
-.level-phone .lg-rt-row { grid-template-columns: minmax(0, 1fr) 28px; padding: 10px 6px 12px 14px; }
+.lg-rt-more { min-height: 44px; padding: 0 var(--sp-6); display: flex; align-items: center; gap: var(--sp-3); border: 0; border-top: 1px dashed var(--line); color: var(--muted); background: transparent; font: 500 13.5px var(--sans); text-align: left; cursor: pointer; transition: color 140ms ease, background 140ms ease; }
+.level-phone .lg-rt-row { grid-template-columns: minmax(0, 1fr) 28px; padding: var(--sp-4) var(--sp-3) var(--sp-5) var(--sp-5); }
 .level-phone .lg-rt-row.is-goal { grid-template-columns: minmax(0, 1fr); }
 .level-phone .lg-rt-name { grid-column: 1 / -1; }
 .level-phone .lg-rt-drop { position: absolute; top: 6px; right: 6px; opacity: 1; }
 .level-phone .lg-rt-premise { min-height: 38px; }
 /* The rules a declaration gives, as they stand: each named at the left, written out beside it. */
-.lg-decl-rules { margin: 0; padding: 10px 16px; display: grid; gap: 6px; border-radius: 12px; background: color-mix(in srgb, var(--paper) 55%, transparent); box-shadow: inset 0 0 0 1px var(--hairline); }
-.lg-decl-rules > div { display: grid; grid-template-columns: 4.6em minmax(0, 1fr); align-items: baseline; gap: 12px; }
-.lg-decl-rules dt { display: inline-flex; align-items: baseline; gap: 4px; color: var(--muted); font: 500 12px var(--sans); white-space: nowrap; }
+.lg-decl-rules { margin: 0; padding: var(--sp-4) var(--sp-6); display: grid; gap: var(--sp-3); border-radius: var(--r-md); background: color-mix(in srgb, var(--paper) 55%, transparent); box-shadow: inset 0 0 0 1px var(--hairline); }
+.lg-decl-rules > div { display: grid; grid-template-columns: 4.6em minmax(0, 1fr); align-items: baseline; gap: var(--sp-5); }
+.lg-decl-rules dt { display: inline-flex; align-items: baseline; gap: var(--sp-2); color: var(--muted); font: 500 12px var(--sans); white-space: nowrap; }
 .lg-decl-rules dt i { color: var(--faint); font: 500 11px var(--mono); font-style: normal; }
 .lg-decl-rules dd { margin: 0; min-width: 0; color: var(--ink); font-size: 13.5px; line-height: 1.6; overflow-wrap: anywhere; }
 /* A sentence being built for one of them (ui/SentencePick.jsx, ui/RuleTable.jsx). */
-.lg-sentence-box { display: grid; gap: 10px; }
-.lg-pick-sentence { max-width: 100%; min-height: 28px; padding: 2px 8px; border: 1px solid var(--hairline); border-radius: 7px; color: var(--ink); background: var(--paper); font: inherit; text-align: left; cursor: pointer; }
+.lg-sentence-box { display: grid; gap: var(--sp-4); }
+.lg-pick-sentence { max-width: 100%; min-height: 28px; padding: var(--sp-1) var(--sp-4); border: 1px solid var(--hairline); border-radius: var(--r-md); color: var(--ink); background: var(--paper); font: inherit; text-align: left; cursor: pointer; }
 .lg-pick-sentence.is-empty { color: var(--muted); border-style: dashed; }
 .lg-pick-sentence:disabled { border-color: transparent; background: transparent; cursor: default; }
-.lg-pick-list { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
-.lg-pick-item { display: inline-flex; align-items: center; gap: 2px; }
-.lg-pick-drop { display: inline-flex; padding: 2px; border: 0; color: var(--muted); background: transparent; cursor: pointer; }
+.lg-pick-list { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2); }
+.lg-pick-item { display: inline-flex; align-items: center; gap: var(--sp-1); }
+.lg-pick-drop { display: inline-flex; padding: var(--sp-1); border: 0; color: var(--muted); background: transparent; cursor: pointer; }
 .lg-pick-drop:hover { color: var(--fail); }
-.lg-pick-add { min-height: 26px; padding: 0 8px; display: inline-flex; align-items: center; gap: 3px; border: 1px dashed var(--rule); border-radius: 7px; color: var(--muted); background: transparent; font: inherit; font-size: 12px; cursor: pointer; }
-.level-phone .lg-pick-sentence { min-height: 38px; padding: 4px 10px; }
+.lg-pick-add { min-height: 26px; padding: 0 var(--sp-4); display: inline-flex; align-items: center; gap: var(--sp-1); border: 1px dashed var(--rule); border-radius: var(--r-md); color: var(--muted); background: transparent; font: inherit; font-size: 12px; cursor: pointer; }
+.level-phone .lg-pick-sentence { min-height: 38px; padding: var(--sp-2) var(--sp-4); }
 .level-phone .lg-pick-add { min-height: 38px; }
