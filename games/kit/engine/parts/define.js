@@ -1,4 +1,4 @@
-// A game's parts.json made into parts (games/DESIGN.md 6.9): what the shared engine runs (../circuit.js), what a new
+// A game's parts.json made into parts (games/DESIGN.md 6.8): what the shared engine runs (../circuit.js), what a new
 // part starts with, and every place the file does not hold together. The part definitions are content; the engine
 // resources they call (the domain's `op` items, run by its ops.js) are the domain's code.
 //

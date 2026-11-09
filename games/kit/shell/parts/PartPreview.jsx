@@ -7,7 +7,7 @@ import { evalSettings } from '../../engine/parts/define.js'
 import PartFace from './PartFace.jsx'
 import { definedParts, nextParams } from './faces.jsx'
 
-// A defined part as the studio designs it (games/DESIGN.md 6.7, 6.9): its three faces side by side — the desktop
+// A defined part as the studio designs it (games/DESIGN.md 6.7, 6.8): its three faces side by side — the desktop
 // card on the game's own canvas, the phone tile on its slot board, the detail both share — drawn by the game's page
 // (studio.html?play), so its icons, colours and controls are the player's; under them what it computes and its
 // interaction, as the expressions parts.json writes. Its settings move as a player would move them (rules followed,

@@ -2,7 +2,7 @@ import { tr } from '../../shell/i18n.js'
 import { mix, rgba, token, useCanvas } from './paint.js'
 import { rangeOf } from './range.js'
 
-// A grey grid as a map (the view `slope`, games/DESIGN.md 6.10): the picture faded, contour lines of equal value, and
+// A grey grid as a map (the view `slope`, games/DESIGN.md 6.9): the picture faded, contour lines of equal value, and
 // arrows for the gradient (Sobel): each points toward larger values, as long as it is steep there. Arrows cross the
 // contours at right angles and are longest where contours crowd.
 

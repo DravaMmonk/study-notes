@@ -1,4 +1,4 @@
-// How the kit shows a value (games/DESIGN.md 6.10), as data: a value's shape, the views that draw each shape, and the
+// How the kit shows a value (games/DESIGN.md 6.9), as data: a value's shape, the views that draw each shape, and the
 // scenes a value is drawn in. The drawing is the kit's (../views/); which views are used where is content: a game's
 // `views` (a default per shape), a task's `results` (its rows), and the values an introduction page or a pass text
 // shows (`show`).

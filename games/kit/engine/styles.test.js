@@ -21,7 +21,6 @@ const CEILING = {
   net: { sizes: 0, colours: 3 },
   syntax: { sizes: 6, colours: 14 },
   table: { sizes: 97, colours: 5 },
-  vision: { sizes: 67, colours: 98 },
 }
 
 test('sizes, spacing and radii written in pixels count in a style sheet; a colour written out counts in a style sheet or a string in code', () => {

@@ -1,4 +1,4 @@
-// The kernel's own engine resources (games/DESIGN.md 6.9): the logic every domain's part definitions share for
+// The kernel's own engine resources (games/DESIGN.md 6.8): the logic every domain's part definitions share for
 // interaction — when a setting shows, what a rule sets, whether a check holds — over plain numbers, words and true or
 // false. A domain's own resources (its vocabulary's `op` kind) work on its values (images, frames…); no domain resource
 // may take one of these names.

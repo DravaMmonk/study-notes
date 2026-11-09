@@ -1,4 +1,4 @@
-/* Defined parts (games/DESIGN.md 6.9): their faces and setting controls, the same in every game. A card is compact;
+/* Defined parts (games/DESIGN.md 6.8): their faces and setting controls, the same in every game. A card is compact;
    a sheet (`.is-roomy`) and a phone take touch-sized targets. The domain's colour for a part's family is --fam. */
 .pf-face { display: grid; gap: var(--sp-3); min-width: 0; }
 .pf-face.is-card { padding: var(--sp-2) var(--sp-4) 0; }

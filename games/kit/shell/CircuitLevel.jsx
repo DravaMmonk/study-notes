@@ -143,7 +143,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *
  *   screen          the level screen's props (GameShell)          board, run    useLevelBoard, useLevelRun
  *   parts           the editor's description of the cards (circuit/model.js)
- *   defined         the parts a game defines as data (games/DESIGN.md 6.9, parts/faces.jsx): { of(type) → the part
+ *   defined         the parts a game defines as data (games/DESIGN.md 6.8, parts/faces.jsx): { of(type) → the part
  *                   resolved or null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) };
  *                   their cards, tiles, details, settings and new nodes are the kernel's, `parts` and `card` only the
  *                   domain's other nodes'

@@ -25,7 +25,7 @@
   --track-label: 0.14em;
   --measure: 690px;
 
-  /* Spacing (games/DESIGN.md 6.10). Every padding, margin and gap inside a region is a step of this scale; a
+  /* Spacing (games/DESIGN.md 6.9). Every padding, margin and gap inside a region is a step of this scale; a
      hairline nudge of 1px or less is the only literal. Three levels name what the space separates: within one item,
      between peers of a group, between concerns. */
   --sp-1: 2px;

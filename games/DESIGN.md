@@ -239,7 +239,7 @@ games/kit/
 ├── circuit/   电路编辑器（桌面画布、手机格位）、托盘、浮窗、线的种类、框（元件里还能摆元件）、蓝图文本、无头的 SVG 画法（svg.js）
 ├── strip/     词序条：按顺序排好的类型化位置，括号标出成分，点词填入；给"搭一个序列或一棵小树"而不是"搭数据流"的关卡（《证明完毕》拼公式和证明项：自然书写，块填进去就写成字，空位画成框；上方一行工具和电路板一致：左边清空（二次确认），右边撤销、重做，每点一次块是一步）
 ├── shell/     游戏外壳：顶栏、地图、关卡抽屉、引言、通关窗口、元件箱、百科、存档；参数台（bench/，第 6.4 节）
-├── views/     值的显示：一个值按形状、显示方式和场景画出来（板上元件、详情、结果区、引言和点题旁的图、文字里），玩家对显示方式的选择（第 6.10 节）
+├── views/     值的显示：一个值按形状、显示方式和场景画出来（板上元件、详情、结果区、引言和点题旁的图、文字里），玩家对显示方式的选择（第 6.9 节）
 ├── course.js  课程规则：代际、关卡树、解锁、审计
 ├── engine/    与领域无关的引擎（见下），包括内容层的契约：schema、词汇表、数据游戏的组装
 ├── scaffold/  新领域的模板，一个机制一份（第 6.3 节、6.5 节）
@@ -251,9 +251,7 @@ games/kit/
 │   ├── unix/    模拟内核与字节流（《一切皆文件》，只有引擎部分）
 │   ├── agent/   模拟模型、抽象仓库与逐轮跑板的机器（《软件工厂》）
 │   ├── can/     线性与的总线、CAN 帧（填充、CRC-15）、逐拍跑板和逐拍检查（《车在说话》）
-│   ├── net/     点对点的线、线那头的格式（起止位、校验、旗标帧、CRC、汉明块）、取用的队列（《从一根线开始》）
-│   └── vision/  计算机视觉重做用的领域（第 6.8 节）：灰度与彩色图像值、逐像素的取样电路、读图填格、选择题的判定、
-│                受控的三维小场景、针孔和薄透镜参数台；能力已备，还没有用它的游戏
+│   └── net/     点对点的线、线那头的格式（起止位、校验、旗标帧、CRC、汉明块）、取用的队列（《从一根线开始》）
 ├── pipeline/  agent 流水线：每一步的 brief 和闸门、课程蓝图的 schema 和审计、文案 lint、npm run pipeline（第 7.2 节）
 ├── studio/    studio：审、改、玩内容的页面，schema 驱动，操作集上的一层皮（第 6.7 节）
 └── app/       每款游戏的页面入口和构建；studio 在开发服务器上的桥（studio.js）
@@ -271,7 +269,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 | `game.json` | `domain`（交给哪个领域）、`vocabulary`（写它时对的词汇表版本）、`open`（可选：课程还没做到的审计结果，第 5 节）、标题、简介、课程（`eras`、`primitives`、`concept`、搭出的元件的名字和说明）、领域要的其余全局设置 |
 | `levels/<id>.json` | 一关一个文件，文件名就是关卡 id；字段由领域按玩法给出 schema |
 | `glossary.json` | 百科：`{ groups, entries }` |
-| `parts.json` | 这款游戏的元件（第 6.9 节）：每个元件的口、设置、运算（对领域引擎资源的调用）和三面视图，加上几个元件共用的设置预设；元件定义成数据的领域才有 |
+| `parts.json` | 这款游戏的元件（第 6.8 节）：每个元件的口、设置、运算（对领域引擎资源的调用）和三面视图，加上几个元件共用的设置预设；元件定义成数据的领域才有 |
 | `changes.jsonl` | 修改日志（操作集写，只追加，`kit/engine/ops/log.js`）：每次修改一行，记下它跑了哪些操作、为什么、改了的每个文件改前改后的哈希、撤销它的变更集（第 7 节）；`adopt` 一行把游戏的全部文件照现状收进日志（手改、git 改过之后） |
 | `blueprint.json` | 课程蓝图（第 7.2 节，流水线做出的游戏才有）：机体阶梯、要教的知识点（术语、出处、撞上的墙）、原始元件和搭出的元件、每章的系列和每关的位置（slot：问题、思维链、带来的知识点），向领域提的需求；schema 是内核的 `BLUEPRINT`（`kit/pipeline/blueprint.js`），经操作集写（`blueprint.put`、`blueprint.set`）；`check` 按 schema 查它，页面不读它 |
 | `pipeline.json` | 流水线的记录（第 7.2 节）：每一步跑过的 agent（模型、用量、调用了几次命令、写下的变更集）、每次闸门的结果、评审队列里的那一项；只由 `npm run pipeline` 写 |
@@ -310,7 +308,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 | `validate(spec)` | `[{ text, fail?, level? }]`：参考解通过、naive 解失败、封装件单独放在搭它的那一关上通过；说某一关的行写明 `level` | 把内容里每关的 naive 解放到参考解的位置（不动搭建关），这些关都要查不过，别的关只有排在它们后面的可以跟着不过（后面的关可以建在前面的答案上：声明的类型、定义的函数） |
 | `game.jsx` | `default (content) → defineGame(…)`：外壳的游戏描述，关卡界面放在 `kinds` | 在 node 下经 vite 载入（`kit/engine/games.mjs`，和 `check` 一样）：关卡就是 `spec` 的关卡、同样的顺序，每关的 `kind` 有 `Screen`，章、元件箱、百科、存档都在 |
 
-**关卡界面不在契约里，但有共用的件：** 电路关用 `kit/shell/CircuitLevel.jsx`（第 6.10 节），领域只写一个适配器：给出元件描述、元件的几面、结果区、封装件怎么打开；建在电路底座上的领域连适配器也不写，用 `kit/shell/CircuitScreen.jsx`，只交卡片目录、怎么跑、值怎么显示、卡片自己的设置和结果区（逐拍的板交波形的几条线，跑一次的板交一个测试的结果；脚手架生成的 `ui/Screen.jsx` 是最小的样子）；参数台用 `kit/shell/bench/`（第 6.4 节），领域只给模型项和画不出来的显示项。其余玩法（词序条、填表、纠错与修正、手动关）现在各领域自己接，见第 6.5 节的机制目录。
+**关卡界面不在契约里，但有共用的件：** 电路关用 `kit/shell/CircuitLevel.jsx`（第 6.9 节），领域只写一个适配器：给出元件描述、元件的几面、结果区、封装件怎么打开；建在电路底座上的领域连适配器也不写，用 `kit/shell/CircuitScreen.jsx`，只交卡片目录、怎么跑、值怎么显示、卡片自己的设置和结果区（逐拍的板交波形的几条线，跑一次的板交一个测试的结果；脚手架生成的 `ui/Screen.jsx` 是最小的样子）；参数台用 `kit/shell/bench/`（第 6.4 节），领域只给模型项和画不出来的显示项。其余玩法（词序条、填表、纠错与修正、手动关）现在各领域自己接，见第 6.5 节的机制目录。
 
 **领域模块**给出：值和比较、原始元件（engine 的注册表）、世界、画法、关卡界面、参数台的模型和领域自己的显示项、词汇表和它的解释（每一项怎么算、怎么画），以及上面的契约。领域之间不互相依赖，也不读任何一款游戏的文件。**元件严格按游戏隔离，机制可以共用。** 两款游戏里意思一样的元件（加法、常数、放行闸、重复框……）也各自在自己的领域里定义，不抽成跨游戏的元件库：元件的名字、说明、口、碰到「—」怎么办、出现在哪一关，都是这款游戏课程的一部分，改一款不能牵动另一款。能共用的是元件底下的机制：求值、封装件、形状、框的区域与作用域、逐步运行的机器、内容的 schema，这些放在 `kit/engine`、`kit/circuit`，领域在上面定义自己的元件（比如用 `framePart` 造自己的框）。
 
@@ -343,7 +341,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 
 **框（`kit/circuit/frames.js`），所有游戏共用。** 《证明完毕》的假设框是它的第一个用法：一个元件里有几个区域，元件可以摆进区域里，区域在左边给出一个值（比如假设），或者几个值（区域写 `gives: [键…]`，每个值一个圆点：《证明完毕》的消去 ∧ 一个区域同时假设左右两边）；区域也可以不收结果（`closes: false`，没有结果口：《证明完毕》消去板上的一种情况，结论由用规则的人推出），区域里得出的东西接回框右边的口，框再给出自己的结果。领域只需要用 `framePart(自己的输入, [{ name, opens }])` 造出这种元件，在求值时按 `key` 区分「区域给出的值」和「框的结果」，并在元件描述里给区域起名（`parts.frames(node)` 返回带 `label` 的区域）；其余都由 kit 负责：两个编辑器画出区域、拖进拖出、折叠，`model.js` 保证线只往里走（框里得出的东西只能在框里用），`engine/circuit.js` 按 `reads` 让区域的值只读框自己的输入，`regionsFit` 检查存档里的元件还在存在的区域里。桌面画布上拖着元件悬到一个能放进去的区域上时，那个区域的底色和虚线框会亮起来。手机格位上，框占它所在格子网格的若干行：每个区域一行头（区域名和它给出的假设，框名在第一个区域的头上）、区域自己的几行、一行尾（结果接进来的点），用子网格和外面的格子按行对齐；框的边就是格子的边，和普通元件一样，框名和内边距在框里，所以框的第一行和最后一行稍高一些。框默认两列宽，右上角一个按钮点一下在两列和一列之间切换（像接线显示的按钮一样只有一个，图标显示现在的宽度；存在元件的 `narrow` 上），它的区域和里面的框也随之一列。以后需要"局部作用域"的游戏（比如程序里的函数体、循环体）都用它。
 
-**内容可以：** 在词汇表里选项、填参数；写测试数据、参考解和 naive 解（蓝图文本）、文案和百科；在 `parts.json` 里定义元件：口、设置、用领域的引擎资源（`op`）组合出的运算、三面视图（第 6.9 节）。**不可以：** 写任何函数；定义新的引擎资源、新世界、新的参数台模型或显示项、新界面。需要新东西时，加到领域的词汇表和实现里。
+**内容可以：** 在词汇表里选项、填参数；写测试数据、参考解和 naive 解（蓝图文本）、文案和百科；在 `parts.json` 里定义元件：口、设置、用领域的引擎资源（`op`）组合出的运算、三面视图（第 6.8 节）。**不可以：** 写任何函数；定义新的引擎资源、新世界、新的参数台模型或显示项、新界面。需要新东西时，加到领域的词汇表和实现里。
 
 **单元测试不认识关卡。** 测试跟着三层分开：`npm test` 只测内核和领域的机制，用的内容是测试里现写的小内容，或领域的 `starter/`（契约测试和 `new-game` 共用的最小样例），不读任何一款真实游戏，也不写死某一关、某个任务或一款游戏有几关；把所有游戏的文件夹拿走，测试照样全过。契约、文件的写法这类对每款游戏都成立的性质，在每个领域的 `starter/` 上查；要列例外时，例外由领域或内容自己声明，不写在测试里。一款游戏的内容对不对（契约、参考解、naive 解、审计、文案）由 studio 和操作集在每次写入前查（第 7.1 节），也可以手动跑 `npm run check`，不进 CI。所以改关卡不用改测试；改了关卡测试就失败，说明那条测试写错了层。
 
@@ -360,7 +358,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick；loo
 - 桌面画布拒绝一根线时，会在板子上说出 `parts.refuse` 给的原因（手机格位原本就有），所有电路游戏都受益。
 - 《一切皆文件》的领域模块只有引擎部分（模拟内核、逐行机器、一致性用例，都有单元测试），还没有关卡界面和 `defineXGame`；第一个原型关卡做出来时再加。
 - 电路关界面（`kit/shell/CircuitLevel.jsx`）：《软件工厂》的板、《车在说话》、《证明完毕》的证明板、机器板和真值电路已经用它；《视觉完备》（`image/ui/LevelScreen.jsx`）和《状态之图》（`table/ui/modes/Circuit.jsx`）还是各写一份。这两款游戏按专题重做时换上它，不再单独迁移；新游戏的电路关一开始就用它。
-- 最后一次运行（第 6.10 节）：只差《视觉完备》的电路关，它按专题重做时换上 `CircuitLevel` 就接上了。同一处还要改：《视觉完备》的探针关和参数台画在它的电路关界面里，手机上多套一层 `PinnedPlay`，窗口跨过手机宽度时它们被重新打开，运行和参数台的旋钮都回到开头。
+- 最后一次运行（第 6.9 节）：只差《视觉完备》的电路关，它按专题重做时换上 `CircuitLevel` 就接上了。同一处还要改：《视觉完备》的探针关和参数台画在它的电路关界面里，手机上多套一层 `PinnedPlay`，窗口跨过手机宽度时它们被重新打开，运行和参数台的旋钮都回到开头。
 - 代价度量：引擎有 `score` 钩子，《视觉完备》算计算量，证明按步数；《状态之图》还没有。
 - 封装件跑学习者的电路、步进到元件里面：契约测试查每个搭建关的元件是不是真的跑交给它的板，内置实现由领域的 `spec.builtIn` 声明（`image`：关卡解锁、不打包电路的元件；`logic`：门只跑通过了那一关的板，带 `card` 的引理照 kit 的卡片跑，比如归结）。《视觉完备》、《证明完毕》的机器板和真值电路、《状态之图》和《车在说话》已经跑电路；《证明完毕》的机器板能步进进去，真值电路上搭出的门和《车在说话》搭出的元件能在详情里打开（只读，元件上是这一行、这一拍的值），元件箱里也能看门跑的那块电路；《视觉完备》的封装件还不能展开；《状态之图》的封装件在元件箱里能打开，看它跑的那块电路（只读，元件上是试一试最近一次运行的值），关卡里运行时还不能步进进去；证明板上的引理跑证明，但还不能展开看里面。
 - 机体升级的呈现。
@@ -407,8 +405,6 @@ opens them to show the resulting feedback.
 | 填表 | 逐行写一张表，每格一个编辑器 | 写清单式的规格：检验条例、情形、规则行 | `shell/RowTable.jsx`、`shell/FormFields.jsx` | 《证明完毕》的检验条例 | 只是界面件，放在领域的关卡界面里 |
 | 参数台 | 转旋钮、按按钮，看模拟怎么变 | 拼不出电路的机制：连续量、采样、几万步训练、随机试验、物理传感器、对抗 | `engine/bench.js`、`shell/bench/`（第 6.4 节） | 《视觉完备》的暗箱、波、训练、RANSAC 等 | 只有一个领域用过；没有脚手架模板 |
 | 纠错 / 修正 | 拿到几块别人的板，写一份配置去暴露错误，或逐块改对 | 检验和评审：找出错的证明、错的规格、错的实现 | `shell/useBoardCases.js`、`shell/TestTabs.jsx` | 《证明完毕》的 `play: 'audit'`、`'repair'` | 每块的判定在领域里，只有一个领域用过 |
-| 读图填格 | 看一张小图的格子和坐标轴，填数、点格、报坐标、改一个像素 | 数据本身就是要学的东西：像素网格、坐标约定、通道、显示和存储的区别 | `vision/ui/GridScreen.jsx`（第 6.8 节） | vision 领域的 `grid` 任务 | 只在 vision 领域；别的领域要用时搬进内核 |
-| 选择判定 | 把几个问题配到选项、选出一组情形、给论断归类；对错由领域按数据算出，不由作者逐条写死 | 判断题背后有可计算的事实：输出里有哪些字段、哪些场景与图像相容、哪组测试覆盖了要求 | `vision/judges.js`、`vision/ui/ChoiceScreen.jsx` | vision 领域的 `choice` 任务 | 同上 |
 | 手动关 | 玩家自己当机器，一步步做机器以后要做的事 | 机器出现之前的前因：先手做，再搭 | 无专门的件（`StepLog` 列出步骤） | 《软件工厂》第 0 章（`domains/agent/hand.js`）、《状态之图》的纸笔一代 | 没有内核的件，每次是领域代码 |
 
 **给新专题选机制。** 按专题的核心动作逐条问，一个专题常常用到几种，各放在需要它的章里：
@@ -458,7 +454,7 @@ opens them to show the resulting feedback.
 
 **命令面板和快捷键。** Ctrl/⌘+K 打开命令面板（`kit/studio/palette.js` 编索引和排序，`Palette.jsx`）：每一关（id、地图上的关号、两面的标题）、每一章、正在改的这一关的每个字段、百科的每个词条、检查的每一处问题、最近改过的字段，和 studio 的每个动作（搜索替换、文案表、比较、试玩、载入参考解试玩、复制成新的一关……要一个新 id 的动作在同一个框里问、移动、换 id、下一处 / 上一处问题、去掉 / 放回操作、收起左栏 / 检查栏、快捷键表）；打字时按开头、词首、中间、按顺序出现的字母排序；`>` 只搜动作，`@` 只搜这一关的字段。? 打开快捷键表（`Shortcuts.jsx`），面板里每个动作旁边写着同一个键。
 
-**通用控件是内核的，领域不写编辑器。** 画面上的标记也是内核的：外壳的共用部件（`Brief`、`TestTabs`、`IntroSheet`、电路关的元件栏）标出它们画的字段，领域的关卡界面用这些部件就自动有了，不另写。 控件在 `kit/studio/`（`Fields.jsx`、`TextField.jsx`、`Picker.jsx`、`Cells.jsx`），由内核维护；一个值用哪个控件由 `form.js` 的 `formOf` 按 schema 的形状决定，形状说不清的地方由词汇表在 schema 上写**提示**（`kit/engine/schema.js` 的 `HINTS`，是数据，不改变值能是什么，契约测试查它的取值）：`view: 'expr'`（元件的式子，第 6.9 节）、`view: 'icon'`（图标表里的一个名字）、`view: 'grid'`（一串串数是矩阵；一串数按 `cols` 一行，不写就是方阵）、`view: 'ticks'`（每拍一个值的列表、一串 0 和 1 的字符串，或它们的映射，一个信号一行）、`step`（数一次加减多少）、`section`（一关的字段归哪一段；不写时按形状：有板的是答案，提到关的是课程，只有文字和插图的是文案，其余是谜题）。按值的种类：
+**通用控件是内核的，领域不写编辑器。** 画面上的标记也是内核的：外壳的共用部件（`Brief`、`TestTabs`、`IntroSheet`、电路关的元件栏）标出它们画的字段，领域的关卡界面用这些部件就自动有了，不另写。 控件在 `kit/studio/`（`Fields.jsx`、`TextField.jsx`、`Picker.jsx`、`Cells.jsx`），由内核维护；一个值用哪个控件由 `form.js` 的 `formOf` 按 schema 的形状决定，形状说不清的地方由词汇表在 schema 上写**提示**（`kit/engine/schema.js` 的 `HINTS`，是数据，不改变值能是什么，契约测试查它的取值）：`view: 'expr'`（元件的式子，第 6.8 节）、`view: 'icon'`（图标表里的一个名字）、`view: 'grid'`（一串串数是矩阵；一串数按 `cols` 一行，不写就是方阵）、`view: 'ticks'`（每拍一个值的列表、一串 0 和 1 的字符串，或它们的映射，一个信号一行）、`step`（数一次加减多少）、`section`（一关的字段归哪一段；不写时按形状：有板的是答案，提到关的是课程，只有文字和插图的是文案，其余是谜题）。按值的种类：
 
 | 值 | schema 的形状（和提示） | 控件 |
 |---|---|---|
@@ -491,47 +487,9 @@ opens them to show the resulting feedback.
 
 **还没有的**：画面上的标记只有外壳的共用部件画的那些：领域自己画的东西（参数台的旋钮、表格领域的世界参数、总线的波形）没有标记，在「字段」里改；手机宽度上的托盘也没有「带来的元件」的标记（studio 是桌面上用的）。百科的文字能在文案表里改，词条的其余字段（分组、`at`、`see`）和加删词条还只能经命令行和 MCP 的操作；评审里写给 agent 的意见还没有去处（决策五的「驳回并写意见」要等阶段 5 的流水线来读它）；拖动和槽位只覆盖 `level.move` 能放的位置（不能新建并行组或专题，那要先改 `game.json` 的那一章）。
 
-### 6.8 vision 领域
+### 6.8 元件定义（`parts.json`）
 
-**计算机视觉按专题重做时用的领域**（`kit/domains/vision/`，从数据流电路模板起步，一关是一串有 id 的任务）。领域展示与学习验收还需遵守 `kit/domains/vision/DESIGN.md`；教学可用性不由数值测试代替。它把课程规格（`docs/Unimelb/26S2/CV/vision-game-specs/`，第 0、1 章）要的能力都备好：值、元件、四种任务、判定、场景和参数台；`vision-lab` 已有前两章试做内容；`starter/` 只放每种任务各一个的最小样例，给 `new-game` 和契约测试用，不是教学质量样板。原型《视觉完备》的 `image` 领域不动，随阶段 6.5 退下。
-
-**值。** 线上走的是数（`null` 是「—」）、二维向量 `{ x, y }` 或图像 `{ w, h, c, data }`。成对出现的坐标量（位移 dx、dy，每轴的半径）是一个向量输入、一个输出口，不拆成两张输入元件；测试里写成 `{ "x": 1, "y": 0 }`，任务输入标 `type: "vector"`。图像 `c` 为 1 是灰度、3 是 RGB，按行存、同一像素的通道挨着（`vision/image.js`）。内容里一张图写成行：灰度是数的行，彩色是 `[R, G, B]` 的行；坐标零起，x 向右、y 向下，读 `I[y, x]`。值是实数，计算里不偷偷截断；只在画出来时把 [0, 1] 之外的值截到两端（显示和存的数分开，`1F1`）。测试按尺寸、通道数和每个值比，容差默认 `1e-5`（任务可写 `tolerance`），不对时说出第一个不同的格子：哪一格、应当是多少、板给了多少。
-
-**逐像素取样是成片算的。** 不另做「每个像素跑一遍板」的机器：一张图上的每个坐标排成两张坐标图，算术逐元素作用在整张图上，取样按坐标图一次取完。基础运算和理论工具由课程按学习目标选择；裁剪等坐标关系可以由玩家搭建，采样与邻域计算可直接提供（`vision/parts.js`）：
-
-| 元件 | 做什么 |
-|---|---|
-| 常数 `const` | 设定的数 |
-| `add`、`sub`、`mul`、`div`、四则运算 `arithmetic` | 逐元素的加减乘除；数和图、图和图（尺寸相同；单通道可以对上三通道）、向量和向量、向量和数（逐分量）都行；向量和图不能混算；除以 0 报错 |
-| `floor`、`min`、`max` | 向下取整、取小、取大（用于需要研究这些运算的课程，不要求视觉理论课程考核其实现） |
-| `less` | a < b 为 1，否则为 0 |
-| `select` | 条件不为 0 取「是」一路，否则「否」一路（逐元素） |
-| `size` | 图的宽 `w`、高 `h`（两个输出） |
-| `grid` | 给定宽高，出两张坐标图 `x`、`y`：每格的值就是它自己的坐标 |
-| `lookup` | 在图上按坐标取值：坐标是数就取一个值，是坐标图就取出同样大小的一张图；坐标必须是整数；出界时按设置 `outside`：报错（默认）、取 0、取最近的边 |
-| `channel` | 彩色像素里第 c 个位置（元件上的设置 `c`：0、1、2）组成的灰度图；位置不是颜色：RGB 图的 0 是红，BGR 图（OpenCV 读进来的）的 0 是蓝 |
-| `compose` | 三张同样大小的灰度图拼成彩色图；尺寸不同时报错 |
-
-**四种任务**（任务的 `kind`；一关的任务可以混用）：
-
-| 任务 | 玩家做什么 | 怎么判 |
-|---|---|---|
-| `circuit` 电路 | 接一块板，输入口和输出口由任务给，测试和隐藏测试是数或图 | 每个输出的尺寸和值。「—」是元件给出的值，可以是期望；输出没有值（没接线、上游缺输入、某块元件停下报错）不算「—」，任何期望下都不过，并说出是哪块元件、为什么停。搭出的元件跑玩家通过时的板 |
-| `grid` 读图填格 | 看一张图（数字、画面或两样都看），按 `ask` 做：`copy` 把它的数照抄进空格子，`pick` 点出给定坐标的格子，`locate` 写出高亮格子的坐标，`set` 把一个像素改成给定的值，`fill` 填一张按任务答案大小的格子（采样位置、显示值……；可带 `strip`：画出新旧两排等长的像素条，玩家填的 x 标在旧像素条上）。格子里能填小数、负数和分数（−1/6） | 按领域算出的答案比：照抄的是图本身，点格和坐标按约定换算，改像素要别的格子不变 |
-| `choice` 选择判定 | 一轮一轮回答（第一轮公开，后面几轮换了数据，答对一轮才出下一轮）：每个问题选一个或几个选项 | 判定是词汇项（`vision/judges.js`），由数据算出正确答案，不靠作者逐条写死：`answer`（写明的答案）、`fields`（选项给出的字段够不够、是不是刚好）、`match`（问题的某个属性等于选项的值）、`claims`（一句论断在每个候选场景里真假：都真是成立，都假是不成立，有真有假是无法确定）、`cover`（选出的情形合起来覆盖要求的变化）、`refute`（选出推翻「每个预测都对」的情形，没有就选「没有」）、`pair`（两边量的是同一种东西）、`same`（候选场景和参照场景只差在 `vary` 那一样：视角或光照）、`project`（几组物高和距离在同一焦距下成像一样高、距离又不同）。答错时说出哪一题错、为什么（论断的话给出两个意见相反的场景）。读图填格和选择判定都可以写 naive 答案（`naive`：读图填格是一个答案，选择判定是每一轮每题的选项）和它为什么错：`npm run check` 查它确实判错，玩家交出同样的答案时，屏幕在判错之外说出这条为什么错 |
-| `bench` 参数台 | 内核的参数台（第 6.4 节），模型是领域的 | 目标限制。`npm run check` 查这一课成立（`vision/benches/lesson.js`）：每一步的起始设置不过、有设置能过；任务必须写出玩家容易试的错误设置（`naive`，带为什么错），每个都过不了；写了 `holds`（这一课要教的关系）时，把能动旋钮的每个取值都试一遍，每个过关的设置也都得满足它，免得目标能绕开所教的关系达成 |
-
-**受控的三维小场景**（`vision/scene.js`）：几个由长方体拼成的物体（类别、颜色、位置），可选的不透明挡板和地面，一架绕目标转的相机（方位、俯仰、距离、焦距）和一束平行光（方位、高度、强度，加环境光）。领域用光线投射把它渲成一张小的彩色图，带阴影。场景同时是事实：每个物体在不在画面里（有没有像素落在它上面）、深度、大小、颜色，`claims` 就在这些事实上算。`choice` 的一轮可以带一个能转视角、调光的场景（玩家自己去试），候选项可以带场景（画成图给玩家看）。`claims` 一轮的候选场景必须渲出同一张图（`npm run check` 查），玩家看到的就是这张图；这一轮除图以外让玩家知道的事（一个已知的大小、一个渲得出这张图的场景）写在这一轮的 `given` 里，显示在图旁边，不塞进某一题的题干；论断里的数要能由图和 `given` 推出或推翻，玩家算不出来的数不进题目。一句论断在一个候选场景里成立、在另一个里不成立时，领域找出一个能把两者分开的视角（绕目标转相机），答错时把这两个场景从这个视角画给玩家看——找不到这样的视角，`npm run check` 报错。
-
-**参数台模型**：`pinhole` 针孔相机，用虚像平面（不倒像）：相机在原点，光轴是 +Z，像平面在 f，`u = fX/Z`、像高 `h = fH/Z`，旋钮是 X、H、Z、f（任务定哪几个能动），显示是侧视的光线图和像平面；可以放几个物体（`objects`，各从 X 到 X + H，各在自己的深度或旋钮 Z 上），可以加一块传感器（`sensor`：高、宽的毫米数和像素数，主点在中心），这时像平面上画出传感器的边，像跑出边外的物体虚着画、标出不在画面里，每个位置和像高另以像素读出（`u_px`、`h_px`），还读出像素焦距 `fpx`、竖直和水平视场 `fov`、`fovW`，以及画面里有几个物体（`inView`、`allIn`），目标可以用像素给出；`lens` 薄透镜：焦距 F、光圈直径 A、对焦距离，算出进光量（与 A² 成正比）、每个物体的模糊圈直径和是否清晰（不超过 `cMax`）、清晰的深度范围，显示是光线图和「模糊对深度」的曲线带清晰门槛。两个模型都说明自己是简化的教学模型，单位和适用范围写在任务的参数里。
-
-**`play` 钩子**：只给玩家在屏幕上看得到的东西。电路任务用内核的 `circuitPlay`，图像写成数的行；读图填格给数表，只给画面时给每格看上去的亮度（0 到 9）；选择判定的场景写成画面里看得到的色块（颜色、范围、像素数，不给名字、类别和被挡住的东西），选项只给编号和文字，判定读的字段不给；论断答错时和屏幕一样，把分开两个场景的视角描述出来。参数台给出台上画的东西（显示项的说明，不给模型自己的说明：那里可能写着这一课要找的公式）、旋钮、每一步的目标和起始读数，一次尝试是依次试的几个设置，每个都回给屏幕上读得到的数：旋钮的值和目标里的量。还没覆盖的：带情形、按钮或要在图上点的台子（跳过并写明），以及选择题里转视角、调光的探索（只给起始的样子）。
-
-**页面**：每种任务一个屏（`vision/ui/`）：电路任务在内核的电路编辑器上，卡片上的图画成小图；测试、结果和元件详情里的每张图放进同样大小的固定窗口（大小随屏幕定），有两种视图：简略（整张图等比缩放到刚好放进窗口，只画像素不写数）和信息（每格写数、按数字看得清的格子大小画、不缩放，手机上每格点得中），窗口里拖动看局部；结果区里一个开关（桌面在结果区头部，手机在输出那一行）同时切换屏上所有图像的视图，起初是信息，按玩家记住；读图填格画出图的数和画面（带坐标轴），下面是答案的格子、可点的格子或坐标框；选择判定一轮一轮出题，场景渲成像素图，可转的场景带滑块；参数台用内核的台子，领域只补三张图（针孔侧视、透镜光线、模糊对深度）。`vision/starter/` 是最小的游戏，四种任务各一个，只供 `npm run new-game` 和契约测试用，不是课程关卡。
-
-### 6.9 元件定义（`parts.json`）
-
-**元件是内容，引擎资源是领域。** 一款游戏的原始元件写在它自己的 `parts.json` 里：口、设置、运算、三面视图都是数据，studio 能直接改，`npm run check` 能查。领域只给**引擎资源**（词汇表的 `op` 种类，实现在领域的 `ops.js`）：一个有名字、有参数的基本运算，比如 vision 的逐值相加、按坐标采样、按核滤波；和**自定义控件**（`widget` 种类）：内核的控件画不出来的设置或显示。元件按游戏隔离（第 6.3 节）在这里是自然的：同一个领域的两款游戏各有自己的 `parts.json`，名字、说明、口、默认值互不牵动。关卡给的节点（输入、输出、线）和搭出的封装件不在 `parts.json` 里：前者是领域的，后者是关卡的。
+**元件是内容，引擎资源是领域。** 一款游戏的原始元件写在它自己的 `parts.json` 里：口、设置、运算、三面视图都是数据，studio 能直接改，`npm run check` 能查。领域只给**引擎资源**（词汇表的 `op` 种类，实现在领域的 `ops.js`）：一个有名字、有参数的基本运算，比如逐值相加、按坐标采样、按核滤波；和**自定义控件**（`widget` 种类）：内核的控件画不出来的设置或显示。元件按游戏隔离（第 6.3 节）在这里是自然的：同一个领域的两款游戏各有自己的 `parts.json`，名字、说明、口、默认值互不牵动。关卡给的节点（输入、输出、线）和搭出的封装件不在 `parts.json` 里：前者是领域的，后者是关卡的。
 
 ```json
 {
@@ -597,17 +555,17 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 | `widget` | 领域的显示项 | `widget`、`params` |
 | `row` | 几个块排成一行 | `blocks: [块…]` |
 
-例：vision 的「邻域加权」卡片上画方向、三个权重和边界，下面一个读数「权重和」（`plus(plus($a, $b), $c)`）和一个按钮「使权重和为 1」（`set: { a: over($a, plus(plus($a, $b), $c)), … }`，`when: ne(plus(plus($a, $b), $c), 0)`）；格位上一行 `{axis} [{a}, {b}, {c}]`。
+例：一张「邻域加权」卡片上画方向、三个权重和边界，下面一个读数「权重和」（`plus(plus($a, $b), $c)`）和一个按钮「使权重和为 1」（`set: { a: over($a, plus(plus($a, $b), $c)), … }`，`when: ne(plus(plus($a, $b), $c), 0)`）；格位上一行 `{axis} [{a}, {b}, {c}]`。
 
-**内核替领域做的**：`kit/engine/parts/define.js` 的 `defineParts(file, ops)` 把 `parts.json` 变成引擎的元件表（`inputs`、`outputs`、`params`、`settings`、`eval`），给出每个元件的默认设置；`kit/shell/parts/` 的 `faces.jsx` 给出编辑器的元件描述（名字、口、口名、类别、图标、卡片宽）、托盘的条目和卡片的三面（`PartFace.jsx` 画块，`SettingField.jsx` 画设置）。电路关用 `CircuitLevel` 的 `defined`：领域交出 `{ of(type) → 定义或 null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) }`，定义了的元件的卡片、格位、详情、设置和新元件的默认值都由内核画、内核给，封装件里面的板也一样；领域只画关卡给的节点和封装件。封装件的设置是 `parts.json` 里的预设（vision 关卡的 `builds.settings`），领域用同一个 `SettingField` 画。领域的 `game.jsx` 在游戏描述上挂 `defined = { of, defaults, ops, widgets? }`，studio 的元件页用它画元件（第 6.7 节）。领域的词汇表有 `op` 种类时，内容里的 `S.ref('part')` 指 `parts.json` 的元件（`kit/engine/parts/define.js` 的 `withParts` 把它们放进词汇表的 `part` 种类，检查和 studio 都用它）。
+**内核替领域做的**：`kit/engine/parts/define.js` 的 `defineParts(file, ops)` 把 `parts.json` 变成引擎的元件表（`inputs`、`outputs`、`params`、`settings`、`eval`），给出每个元件的默认设置；`kit/shell/parts/` 的 `faces.jsx` 给出编辑器的元件描述（名字、口、口名、类别、图标、卡片宽）、托盘的条目和卡片的三面（`PartFace.jsx` 画块，`SettingField.jsx` 画设置）。电路关用 `CircuitLevel` 的 `defined`：领域交出 `{ of(type) → 定义或 null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) }`，定义了的元件的卡片、格位、详情、设置和新元件的默认值都由内核画、内核给，封装件里面的板也一样；领域只画关卡给的节点和封装件。封装件的设置是 `parts.json` 里的预设（关卡的 `builds.settings`），领域用同一个 `SettingField` 画。领域的 `game.jsx` 在游戏描述上挂 `defined = { of, defaults, ops, widgets? }`，studio 的元件页用它画元件（第 6.7 节）。领域的词汇表有 `op` 种类时，内容里的 `S.ref('part')` 指 `parts.json` 的元件（`kit/engine/parts/define.js` 的 `withParts` 把它们放进词汇表的 `part` 种类，检查和 studio 都用它）。
 
 **操作**：`part.add`（新元件，或复制一个）、`part.remove`（还有关卡、课程或板用到它时拒绝）、`part.rename`（改到课程、关卡、板和 `configurations` 里的每一处）、`parts.set` / `parts.unset`（`parts.json` 里的一个字段，路径如 `parts.arithmetic.settings[0].options`、`presets.outside.default`），`text.set` 的 `in: 'parts'`。
 
 **内容的形状**：`kit/engine/content.js` 把 `parts.json` 组装成内容的 `partDefs`（不叫 `parts`：原型游戏的 `game.json` 有自己的 `parts` 字段）。
 
-**现状**：数据流电路的脚手架（`kit/scaffold/circuit/`）和 vision 领域的元件定义成数据，《视觉实验室》和两个 `starter/` 各有 `parts.json`。逐拍总线的脚手架和 `net`、`can` 领域的寄存卡、说话卡是有状态的元件，要等内核给出「有状态的引擎资源」（寄存、跨拍保存）再搬；原型领域（`table`、`image`、`logic`、`agent`、`syntax`）的元件仍在领域代码里，随阶段 6.5 按专题重做时换成 `parts.json`。自定义控件的机制已在内核（`widget` 种类、`SettingField` 的 `custom`），还没有领域用到它。
+**现状**：数据流电路的脚手架（`kit/scaffold/circuit/`）的元件定义成数据，它生成的游戏和它的 `starter/` 各有 `parts.json`。逐拍总线的脚手架和 `net`、`can` 领域的寄存卡、说话卡是有状态的元件，要等内核给出「有状态的引擎资源」（寄存、跨拍保存）再搬；原型领域（`table`、`image`、`logic`、`agent`、`syntax`）的元件仍在领域代码里，随阶段 6.5 按专题重做时换成 `parts.json`。自定义控件的机制已在内核（`widget` 种类、`SettingField` 的 `custom`），还没有领域用到它。
 
-### 6.10 界面
+### 6.9 界面
 
 **Unlock all.** The progress dialog offers a one-way action that opens all levels, tasks, parts and encyclopedia
 entries without marking any task passed. Clearing play progress retains this choice. Normally a level is complete once every required task has passed. With all content unlocked, passing the last required task completes the level without returning to earlier tasks. A carried circuit opens on the prerequisite's passed board; if all content is unlocked and that prerequisite has not been passed, it opens on the reference board instead. A later pass replaces this starting point with the player's passing board, while a board already edited in the destination remains the player's own. Optional tasks are only recorded and grant their own rewards when actually completed.
@@ -670,8 +628,7 @@ no message is shown. Explicit drops still choose their destination, including sl
 Gaps, padding and header sizes use shared tokens. Initial layout and newly carried/added components may be
 placed; existing saved coordinates are retained. View changes make temporary room after the changed unit while
 holding its anchor, without saving those shifts. The headless SVG renderer retains its original column layout.
-Synthetic layout tests bound area, longest wire, crossings and total wire length. Scanner measurements and the
-comparison protocol are recorded in `vision-lab/BLOCKS-REVIEW.md`.
+Synthetic layout tests bound area, longest wire, crossings and total wire length.
 
 Wiring is unchanged: graph connections, port interaction, ordinary port placement and the original curve renderer
 are preserved. Block presentation may substitute boundary stubs only while hidden. The shared existing label
@@ -766,7 +723,7 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 **编排是内容**
 
 - `game.json` 的 `views` 给每种形状默认的显示方式（`{ "grid": ["numbers", "pixels"] }`），没写的形状用库里的第一种。
-- 任务的 `views`（同样的写法）换掉它写到的形状的默认显示方式，管这个任务的板上元件、详情和结果区：《视觉实验室》第 2 章的一行信号写 `{ "grid": ["plot", "numbers", "pixels"] }`，从函数图像起。
+- 任务的 `views`（同样的写法）换掉它写到的形状的默认显示方式，管这个任务的板上元件、详情和结果区。
 - 任务的一个输入或输出可以写 `view`：它的值起初画成哪种（在列出的里面才算）。在工作室的画面编辑模式里，换一个输入、输出元件或它结果行的显示方式，就是写它的 `view`（作为一条待定的变更），不记成设备上的选择。
 - **结果区**：领域只说一个任务的结果区能显示哪些东西（`entries`：每个口一项，形状、给出的值、结果、应得），不排它们；任务的 `results` 是结果区的几行 `[{ of: 口, views?, label? }]`，按顺序。任务不写 `results` 时是领域给的默认几行：输出；逐拍的板在前面再加进线和输入。
 - **引言和点题**：引言的一页可以带 `show`，一关可以带 `afterShow`（显示在点题旁），写一个值：`{ shape, value, views?, label? }`，值按内容的写法写（网格写成一行行的数或 [R, G, B]，位写成 0、1、. 组成的字符串），kit 在 `figure` 场景里画它。
@@ -792,7 +749,7 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 关卡界面只交各块内容，版面和交互由下面这几样给（第 6.3 节「关卡界面不在契约里」那一段说领域怎么接）。版面是 `kit/shell/Workbench.jsx` 和 `Layout.jsx` 的 `PhonePage`：关卡给 `results` 就有结果区（还没有内容时传 `null`：桌面上留着空的结果区，手机上不显示），不给就没有；运行栏交 `dock`（一个 `RunDock`），版面替它套上 `run-foot`。
 
-- **电路关是一个内核界面。** 拼电路的关卡用 `kit/shell/CircuitLevel.jsx`：`useLevelBoard(屏幕, { open, fresh, clearable? })` 管板（打开时用哪块：存档合不合、升级、带过来的板由领域的 `open` 决定；清空回到 `fresh()`；`change(板, { keep })` 里 `keep` 的改动——挪元件、换显示——只存档，不算改了板，运行和结论留着）；`useLevelRun(屏幕, 板, { tests, steps | judge, hidden?, score?, onSolve?, onFail?, guard? })` 管运行和判定：测试标签后面可以跟一个「样张」（`tests` 里 `sample: true` 的一项，只用于一次判完的关）：一张较大的图，板也在上面跑，只看效果、不判定，不计入通过数；`steps`（每个测试的步骤、检查、`final`）逐步跑（`usePlayback`），`judge` 一次判完（`useKeptVerdict`），两种都把最后一次运行留在板上。**默认一次判完、直接出结果**；只有一步一步的运算过程本身就是要看的东西时才用 `steps`（证明的推导、一拍一拍的总线、一轮一轮的循环），像《视觉实验室》这样逐像素算一整张图的电路关用 `judge`；隐藏测试每次一并跑、只说几个没过，通关后再打开这一关时列出来；`onSolve` 让领域在全过时另做打算（还有下一段、板还不能做成元件），`onFail` 在逐步运行停在失败上时调用，`guard` 在还不能运行时拦下。`<CircuitLevel>` 管版面和其余一切：桌面工作台（元件栏、画布、存档切换、测试标签、通过情况、结果条、运行栏）和手机页（格位板、板下的结果区、托盘、元件的单子和空格的单子、清空、撤销）、框的区域里加元件、简介和提示、封装件的「编辑」和详情。领域只交：元件描述（`parts`）、元件目录（`items`、`folded`）、新元件的设置（`defaults`，或整个 `create`）、此刻板上的值（`view`）、元件的几面（`card`：`body`、`head`、`cardClass`、`outNote`、`wireState`、`regionNote`、`resultNote`，手机上 `thumb`、`tileExtra`、`sinkBody`、`sinkClass`、`nodeClass`，每面都拿 `(node, ctx)`，`ctx` 是 `{ view, board, path, readOnly }`：同一套画法既画关卡的板，也画封装件里面的板）、结果区（`results` 等）、手机上板下面的东西（`below`，`follow` 让页面跟着跑到底）、单子里的说明和内容（`describe`、`sheet`，或整个 `addSheet`）、封装件（`packed`：`open(node, board)` 给出它跑的那块板和画它的 `parts`，`edit` 去搭它的那一关，`trace()` 给出板上此刻显示的那次求值的轨迹）和运行键的字。领域自己的面板放进简介（`brief.children`）、结果区或单子里，不另排版面。
+- **电路关是一个内核界面。** 拼电路的关卡用 `kit/shell/CircuitLevel.jsx`：`useLevelBoard(屏幕, { open, fresh, clearable? })` 管板（打开时用哪块：存档合不合、升级、带过来的板由领域的 `open` 决定；清空回到 `fresh()`；`change(板, { keep })` 里 `keep` 的改动——挪元件、换显示——只存档，不算改了板，运行和结论留着）；`useLevelRun(屏幕, 板, { tests, steps | judge, hidden?, score?, onSolve?, onFail?, guard? })` 管运行和判定：测试标签后面可以跟一个「样张」（`tests` 里 `sample: true` 的一项，只用于一次判完的关）：一张较大的图，板也在上面跑，只看效果、不判定，不计入通过数；`steps`（每个测试的步骤、检查、`final`）逐步跑（`usePlayback`），`judge` 一次判完（`useKeptVerdict`），两种都把最后一次运行留在板上。**默认一次判完、直接出结果**；只有一步一步的运算过程本身就是要看的东西时才用 `steps`（证明的推导、一拍一拍的总线、一轮一轮的循环），逐像素算一整张图的电路关用 `judge`；隐藏测试每次一并跑、只说几个没过，通关后再打开这一关时列出来；`onSolve` 让领域在全过时另做打算（还有下一段、板还不能做成元件），`onFail` 在逐步运行停在失败上时调用，`guard` 在还不能运行时拦下。`<CircuitLevel>` 管版面和其余一切：桌面工作台（元件栏、画布、存档切换、测试标签、通过情况、结果条、运行栏）和手机页（格位板、板下的结果区、托盘、元件的单子和空格的单子、清空、撤销）、框的区域里加元件、简介和提示、封装件的「编辑」和详情。领域只交：元件描述（`parts`）、元件目录（`items`、`folded`）、新元件的设置（`defaults`，或整个 `create`）、此刻板上的值（`view`）、元件的几面（`card`：`body`、`head`、`cardClass`、`outNote`、`wireState`、`regionNote`、`resultNote`，手机上 `thumb`、`tileExtra`、`sinkBody`、`sinkClass`、`nodeClass`，每面都拿 `(node, ctx)`，`ctx` 是 `{ view, board, path, readOnly }`：同一套画法既画关卡的板，也画封装件里面的板）、结果区（`results` 等）、手机上板下面的东西（`below`，`follow` 让页面跟着跑到底）、单子里的说明和内容（`describe`、`sheet`，或整个 `addSheet`）、封装件（`packed`：`open(node, board)` 给出它跑的那块板和画它的 `parts`，`edit` 去搭它的那一关，`trace()` 给出板上此刻显示的那次求值的轨迹）和运行键的字。领域自己的面板放进简介（`brief.children`）、结果区或单子里，不另排版面。
 - **步进运行用共用的 kit。** React 界面的关卡用 `shell/usePlayback.jsx`：给它每个测试的步骤和检查，它管运行、步进、暂停/继续、跳到结果、第一个测试慢后面快、遇到失败的一步或不对的测试立刻停、全过才通关，并生成运行栏的控制按钮（`dock()`，手机上小按钮只剩图标，和运行键同一行）。当前这一步的元件加 `is-step` 类（桌面画布和手机格位都有样式，出错时加 `is-step-fail`），输出区用 `shell/StepLog.jsx` 列出每一步的结果，列表和每条结果都限高、超出滚动。电路类的板用 `engine/circuit.js` 的轨迹直接得到步骤。现在用它的：《证明完毕》的机器板（规则与元变量一章起）和真值电路板，《软件工厂》的板（一轮一步），《车在说话》（一拍一步），都经 `CircuitLevel`。《状态之图》的电路关用领域自己的 `usePlayer`（`domains/table/ui/play.jsx`：运行一个测试一个测试地在测试棋盘上走，单步、暂停、继续、跳过动画和 `usePlayback` 一样，测试之间停一拍）；它的每次等待也取 `paceOf`，所以出结果的速度和别的游戏一样。不论一张表几行、一块板几步，玩家看到的都是同一个速度。
 
 ---
@@ -825,17 +782,17 @@ Commands use existing entry points; no new validation runner is needed:
 
 ```sh
 # From the repository root: run only the relevant test file(s).
-node --test games/kit/domains/vision/calculation.test.js
+node --test games/kit/domains/image/image.test.js
 
 # From trace-viewer/: name the game for checks and builds.
-npm run check -- vision-lab
-GAME=vision-lab npm run build:game
+npm run check -- vision-complete
+GAME=vision-complete npm run build:game
 ```
 
 A successful operation-set check counts as the affected game's content check until relevant content or validation
 code changes. Reuse passed results for an unchanged scope; committing, amending or pushing alone does not invalidate
 them. A failure expands verification along the failing dependency, rather than automatically selecting every suite.
-Linux syscall conformance belongs to Unix model changes, not unrelated vision or interface edits.
+Linux syscall conformance belongs to Unix model changes, not unrelated domain or interface edits.
 
 Finish implementation and necessary review before submitting one release. Add late changes only when they block
 correctness or the requested behaviour. Report the selected checks and any unverified boundary accurately.
@@ -1032,13 +989,13 @@ npm run op -- <游戏> log                                    看修改日志
 | 原型 | 读者动什么 → 看到什么 | 适合的核心思想 | 在内核里 |
 |---|---|---|---|
 | 仪器台 `bench` | 拨参数 → 实物和读数跟着变 | 连续的因果关系 | 已有：参数台（第 6.4 节），`check: 'submit'` 就是先预测 |
-| 探针 `probe` | 在真实图上移动一个窗口 → 旁边放大窗口里的数和算出的响应 | 局部运算在整图上的效果 | 部分：vision 的样张能点格读数；缺随指针移动的窗口和旁边的放大计算 |
+| 探针 `probe` | 在真实图上移动一个窗口 → 旁边放大窗口里的数和算出的响应 | 局部运算在整图上的效果 | 缺：随指针移动的窗口和旁边的放大计算 |
 | 联动 `linked` | 改一个视图 → 另一个视图跟着变 | 表示之间的变换（频谱、潜空间、颜色空间） | 缺：两个视图共用一个可编辑的值；显示方式有 `spectrum`，没有在频谱上画掩码 |
 | 场景 `scene` | 在图上或三维场景里拖点、线、相机 → 几何关系跟着变 | 投影和多视图几何 | 部分：参数台的 `drawn`、`list` 旋钮能在图上拖和点 |
 | 回放 `replay` | 单步、拖时间轴、中途插手 → 过程一步步走 | 迭代、搜索和随机过程 | 部分：参数台的模型有状态和动作，能单步；缺可拖的时间轴 |
 | 度量 `measure` | 在真实样例上拖框、拖阈值 → 指标实时算出 | 评价指标与判定 | 部分：`drawn` 旋钮能拖；缺真实照片上的框和阈值线 |
-| 对照 `contrast` | 选出两个情形中哪个成立 → 并排看两者 | 歧义、不变性、概念边界 | 已有：vision 的选择判定（`claims`、`same`）和三维小场景 |
-| 追踪 `trace` | 点流水线的一段 → 那里的值和形状 | 网络和流水线里数据怎样流 | 缺：vision 的值只有 1 或 3 个通道，追踪网络要任意通道数的张量（H×W×C） |
+| 对照 `contrast` | 选出两个情形中哪个成立 → 并排看两者 | 歧义、不变性、概念边界 | 缺：选择判定（由数据算出哪个情形成立） |
+| 追踪 `trace` | 点流水线的一段 → 那里的值和形状 | 网络和流水线里数据怎样流 | 缺：任意通道数的张量值（H×W×C） |
 | 拼电路 `circuit` | 补一块、接两根、改一处 → 结果对上 | 由什么构成 | 已有：`CircuitLevel`，起始板（`starter`）；锁住的预置（第 4 节）只在 logic 领域，电路底座还没有 |
 
 ### 12.4 现实锚点与检查
@@ -1048,5 +1005,5 @@ npm run op -- <游戏> log                                    看修改日志
 - **真实模型输出**：注意力图、CLIP 相似度、SAM 掩码、扩散的轨迹这类在浏览器里跑不动的，预先算好存成数据，只能在这组数据里选；交互不假装能接受任意输入。
 - **每个交互都有一个检查**：判定由数据算出（参数台的目标、选择判定的判据、电路的测试），不由作者逐条写死；先预测的答案和读者交的答案按同一个判定走。只演示、没有检查的不算做完。先预测常常是这一关的第一个任务（选择判定），动手是第二个。
 - **检查问的是要推理的东西**：答案要从核心思想推出来，最好是直觉会答错的情形（只许挪孔板时暗箱的像怎样放大一倍、拆不开的拉普拉斯能不能由一维核算出、两道波只差哪一个数）。看一眼就知道的事（图里有没有红箱子）、照着题面就能答的不算。
-- **不搬原型的关**：原型游戏的关卡（《视觉完备》《视觉实验室》）只当参考，笔记关按词条的核心思想重新设计。
+- **不搬原型的关**：原型游戏的关卡（《视觉完备》）只当参考，笔记关按词条的核心思想重新设计。
 - **布局自己说话**：交互里只有一句先预测的问题，不加标题和说明；它是什么、在讲什么，由上下文的正文说。

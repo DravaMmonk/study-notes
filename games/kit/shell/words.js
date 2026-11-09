@@ -1,4 +1,4 @@
-// The words every game's screens use for the same things (games/DESIGN.md 6.10): a domain takes these and coins no
+// The words every game's screens use for the same things (games/DESIGN.md 6.9): a domain takes these and coins no
 // other.
 import { T } from './i18n.js'
 

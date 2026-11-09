@@ -8,7 +8,7 @@ import GridInspector from './grid/GridInspector.jsx'
 import { DRAWN, SIZE, overlays } from './plots/drawn.js'
 import ViewSwitch from './ViewSwitch.jsx'
 
-// A results area (games/DESIGN.md 6.10): the verdict first, then the rows content laid out (../../engine/views.js
+// A results area (games/DESIGN.md 6.9): the verdict first, then the rows content laid out (../../engine/views.js
 // rowsOf), each in the view kept for its value (./picks.js: an input's or output's, the one its card and detail draw),
 // switched in the row's head. Rows of values a tick (bits, ticks) share one
 // time axis; one-value rows (scalar) run on one line; a grid or a list is a row of its own. An output shows the

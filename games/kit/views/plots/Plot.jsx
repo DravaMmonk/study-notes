@@ -4,7 +4,7 @@ import { L } from '../../shell/i18n.js'
 import { WORDS } from '../../shell/words.js'
 import { rangeOf, rowOf } from './range.js'
 
-// A grey grid of one or two rows as functions (the view `plot`, games/DESIGN.md 6.10): each row a function of its column, a
+// A grey grid of one or two rows as functions (the view `plot`, games/DESIGN.md 6.9): each row a function of its column, a
 // sample a dot on a stem from zero, the samples joined faintly to show the shape. With `want`, the values wanted are
 // rings on the same axes and a result that misses one (beyond `tolerance`) is marked. With `curve(x, row)`, the samples
 // are of a function known between them too (a wave, an example): it is drawn whole in grey behind them, x in columns. Pointing at a column reads it, `xOf(column)` the x written (the column itself by default). `card`

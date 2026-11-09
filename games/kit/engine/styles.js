@@ -1,6 +1,6 @@
 /* global process */
 // npm run styles — how far the kit's styles still write sizes, colours, spacing and corners out instead of taking the
-// tokens (../tokens.css, games/DESIGN.md 6.10): in style sheets, every font size written in pixels (`font-size: 13px`,
+// tokens (../tokens.css, games/DESIGN.md 6.9): in style sheets, every font size written in pixels (`font-size: 13px`,
 // or in a `font:` shorthand), every padding, margin or gap written in pixels (`padding: 10px`) and every corner radius
 // written in pixels; in style sheets and screens, every colour written out (`#3f7fb5`, `rgb(…)`). A `var(--…)`
 // fallback counts too: the token is what a style names. A hairline nudge of 1px or less is not spacing, and a custom

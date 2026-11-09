@@ -2,7 +2,7 @@ import { tr } from '../../shell/i18n.js'
 import { mix, rgba, token, useCanvas } from './paint.js'
 import { rangeOf } from './range.js'
 
-// A grey grid as a landscape seen from above at an angle (the view `surface`, games/DESIGN.md 6.10): each cell's
+// A grey grid as a landscape seen from above at an angle (the view `surface`, games/DESIGN.md 6.9): each cell's
 // value is a height. Smoothing rounds hills off, an edge is a cliff, a derivative a ridge (positive) or a trench
 // (negative, in the fail colour); signed values stand on a mid-level plane.
 

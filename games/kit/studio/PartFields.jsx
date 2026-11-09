@@ -1,4 +1,4 @@
-// The studio's controls for a part definition's own fields (games/DESIGN.md 6.7, 6.9): an expression — what a part
+// The studio's controls for a part definition's own fields (games/DESIGN.md 6.7, 6.8): an expression — what a part
 // computes, a rule's or a check's logic, a readout — and an icon of the kernel's table. An expression is code over the
 // engine's resources and nothing else: it is read and checked as it is typed (where it is wrong, the resources, inputs
 // and settings it may name), and a list beside it offers every resource of the domain (and the kernel's builtins), the

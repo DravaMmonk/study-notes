@@ -1,4 +1,4 @@
-// The expressions a part definition computes with (games/DESIGN.md 6.9): one line of ASCII that calls the domain's
+// The expressions a part definition computes with (games/DESIGN.md 6.8): one line of ASCII that calls the domain's
 // engine resources (its vocabulary's `op` kind) on the part's inputs and settings, and nothing else.
 //
 //   a                       the value at input a

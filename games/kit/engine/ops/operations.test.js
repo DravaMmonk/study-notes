@@ -269,7 +269,7 @@ test('tasks by id: task.add, task.move in a level and across levels, task.rename
   assert.equal(JSON.stringify([...ws.levels]), before)
 })
 
-// A toy whose parts are data (games/DESIGN.md 6.9): engine resources in its vocabulary, its parts in parts.json.
+// A toy whose parts are data (games/DESIGN.md 6.8): engine resources in its vocabulary, its parts in parts.json.
 const PVOCAB = defineVocabulary({
   domain: 'ptoy',
   version: 1,

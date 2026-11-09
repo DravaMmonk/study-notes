@@ -1,5 +1,5 @@
 // What the cards a __name__ level puts on its board are called and what they do. A game's own parts are described in
-// its parts.json (games/DESIGN.md 6.9).
+// its parts.json (games/DESIGN.md 6.8).
 import { ArrowRightFromLine } from 'lucide-react'
 import { T } from '../../../shell/i18n.js'
 

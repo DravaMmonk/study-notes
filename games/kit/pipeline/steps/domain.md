@@ -22,7 +22,7 @@ observable feedback. Separate discovery evidence from withheld assessment result
 measurement or comparison hidden at that moment. Stable scales and explicit schematics must preserve the intended
 geometric reasoning. A working model is not visual acceptance; desktop/phone labels, contrast and interaction need
 screenshots and actual inspection. Record missing capabilities as open domain work instead of treating explanatory
-copy as an implementation. For vision use `games/kit/domains/vision/DESIGN.md`.
+copy as an implementation.
 
 Content stays data: nothing in this step writes a level.
 

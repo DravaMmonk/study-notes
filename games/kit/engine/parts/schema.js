@@ -1,4 +1,4 @@
-// The schema of a game's parts.json (games/DESIGN.md 6.9): the parts a game's course starts from, as data — their
+// The schema of a game's parts.json (games/DESIGN.md 6.8): the parts a game's course starts from, as data — their
 // ports, their settings (one of six kernel controls), what they compute (an expression over the domain's engine
 // resources, expr.js) and their three views — and setting presets several parts share. The schema is the kernel's, the
 // same in every domain whose vocabulary has engine resources (the `op` kind); what it names (resources, families,

@@ -8,7 +8,7 @@ import GridView, { GridPicture } from './grid/GridView.jsx'
 import { DRAWN, SIZE } from './plots/drawn.js'
 import ViewSwitch from './ViewSwitch.jsx'
 
-// One value drawn in a scene (games/DESIGN.md 6.10, ../engine/views.js): every place a game shows a value — a part on
+// One value drawn in a scene (games/DESIGN.md 6.9, ../engine/views.js): every place a game shows a value — a part on
 // the board, its detail, a figure beside an introduction or a pass text, a line of text — draws it through here, among
 // the views offered (`views`, by default the game's for its shape); the results area is Results.jsx. How large, whether
 // it has axes, whether a cell can be read or picked: the scene's, not the caller's. A value the screen keeps a view for
