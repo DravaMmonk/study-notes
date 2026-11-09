@@ -4055,6 +4055,8 @@ S_y=
 <li>Then apply a 1D filter along every column.</li>
 </ol>
 <p>A <span class="arithmatex">\(k\times k\)</span> kernel originally needs about <span class="arithmatex">\(k^2\)</span> multiplications per pixel; after splitting it needs about <span class="arithmatex">\(2k\)</span> , and the difference is significant when <span class="arithmatex">\(k\)</span> is large. Gaussian kernels are often close to separable, or can be constructed as separable kernels.</p>
+<iframe class="task-embed" data-src="https://dravammonk.github.io/games/comp90086/index.html?embed&amp;level=separable" title="comp90086 · separable" loading="lazy"></iframe>
+
 <p><img alt="Slide 40 - Separable filter calculation" src="assets/03-filters/slide-40.png" /></p>
 <p>Associativity also allows several linear filters to be combined first and then applied to the image in a single pass. This can be faster, but it is not necessarily worthwhile if intermediate results must be kept, or if the combined kernel becomes too large.</p>
 <p><a id="topic-4"></a></p>

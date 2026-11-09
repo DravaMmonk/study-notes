@@ -4409,6 +4409,8 @@ S_y=
 <li>再对每一列做一次一维滤波。</li>
 </ol>
 <p>原本一个 <span class="arithmatex">\(k\times k\)</span> 卷积核每个像素约需 <span class="arithmatex">\(k^2\)</span> 次乘法；拆开后约需 <span class="arithmatex">\(2k\)</span> 次， <span class="arithmatex">\(k\)</span> 较大时差别很明显。高斯卷积核常常接近或可以构造成可分离卷积核。</p>
+<iframe class="task-embed" data-src="https://dravammonk.github.io/games/comp90086/index.html?embed&amp;level=separable" title="comp90086 · separable" loading="lazy"></iframe>
+
 <p><img alt="Slide 40 - Separable filter calculation" src="assets/03-filters/slide-40.png" /></p>
 <p>Associativity 还允许先合并多个线性滤波器，再对图像扫描一次。这样可以更快，但如果需要保留中间结果，或者合并后卷积核变得太大，就不一定值得。</p>
 <p><a id="topic-4"></a></p>

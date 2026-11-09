@@ -113,8 +113,20 @@
     });
   }
 
+  // A level of a notes edition (<!-- task: game/level -->, hooks/ui.py; games/DESIGN.md 12.1): the game's page,
+  // embedded in the page's language, as tall as it says it is.
+  function embedTasks() {
+    const frames = [...document.querySelectorAll('iframe.task-embed[data-src]')];
+    frames.forEach((frame) => { frame.src = `${frame.dataset.src}&lang=${data.lang === 'en' ? 'en' : 'zh'}`; });
+    window.addEventListener('message', (event) => {
+      const frame = frames.find((f) => f.contentWindow === event.source);
+      if (frame && event.data && event.data.kit === 'kit-embed-height') frame.style.height = `${event.data.height}px`;
+    });
+  }
+
   function start() {
     applyTheme(currentTheme());
+    embedTasks();
     document.querySelectorAll('a[href]').forEach(retarget);
     titleSections();
     translateChrome();
