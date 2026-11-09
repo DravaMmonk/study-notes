@@ -116,8 +116,12 @@
   // A level of a notes edition (<!-- task: game/level -->, hooks/ui.py; games/DESIGN.md 12.1): the game's page,
   // embedded in the page's language, as tall as it says it is.
   function embedTasks() {
-    const frames = [...document.querySelectorAll('iframe.task-embed[data-src]')];
-    frames.forEach((frame) => { frame.src = `${frame.dataset.src}&lang=${data.lang === 'en' ? 'en' : 'zh'}`; });
+    const frames = [...document.querySelectorAll('iframe.task-embed[data-game]')];
+    frames.forEach((frame) => {
+      const url = new URL('index.html', frame.dataset.game);
+      url.search = new URLSearchParams({ embed: '', level: frame.dataset.level, lang: data.lang === 'en' ? 'en' : 'zh' });
+      frame.src = url.href;
+    });
     window.addEventListener('message', (event) => {
       const frame = frames.find((f) => f.contentWindow === event.source);
       if (frame && event.data && event.data.kit === 'kit-embed-height') frame.style.height = `${event.data.height}px`;
