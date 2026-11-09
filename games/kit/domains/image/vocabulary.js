@@ -127,7 +127,12 @@ const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.int({ min: 0 }),
   foundation: S.list(ITEM),
-  topics: S.opt(S.list(S.obj({ id: S.str(), levels, after: S.opt(AFTER) }))),
+  topics: S.opt(S.list(S.obj({
+    id: S.str(),
+    code: S.opt(S.str({ pattern: '^[A-Z]$', about: t('地图上这个系列的字母，一个系列一个', 'the letter of this series on the map, one per series') })),
+    levels,
+    after: S.opt(AFTER),
+  }))),
   challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
   chapter: S.obj({ title: TEXT, lecture: TEXT, question: TEXT }),
 })
@@ -152,7 +157,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 14,
+  version: 15,
   kinds: {
     part: PARTS,
     unlock: UNLOCKS,

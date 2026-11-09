@@ -40,6 +40,11 @@
       "setup": { "target": "diffx" },
       "tests": [
         { "label": { "zh": "台阶", "en": "Step" }, "in": { "stepX": { "edge": 8 } } },
+        {
+          "label": { "zh": "反过来的台阶", "en": "The step reversed" },
+          "in": { "stepX": { "edge": 8, "lo": 0.85, "hi": 0.15 } }
+        },
+        { "label": { "zh": "平坦", "en": "Flat" }, "in": { "blank": { "v": 0.6 } } },
         { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
         { "label": { "zh": "斜坡", "en": "Ramp" }, "in": "rampX" },
         { "label": { "zh": "字母 L", "en": "Letter L" }, "in": { "glyph": { "letter": "L" } } }

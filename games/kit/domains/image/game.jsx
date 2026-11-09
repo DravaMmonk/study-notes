@@ -7,7 +7,7 @@ import './image.css'
 import '../../shell/bench/bench.css'
 import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
-import { introductions, isCore } from '../../course.js'
+import { introductions, isCore, levelLabels } from '../../course.js'
 import { imageCourse } from './course.js'
 import LevelScreen from './ui/LevelScreen.jsx'
 import PartDemo from './ui/PartDemo.jsx'
@@ -61,6 +61,7 @@ export default function imageGame(content) {
     inLevel: content.box.inLevel,
     boards: Object.fromEntries(Object.entries(content.box.boards ?? {}).map(([flag, lines]) => [flag, kit.fromText(lines, image.levelById[content.box.inLevel[flag]].tasks.at(-1))])),
   }
+  const labels = levelLabels(content.eras)
   const game = defineGame({
     id: content.id,
     glossary: content.glossary,
@@ -80,6 +81,7 @@ export default function imageGame(content) {
     },
     unlocked: (level) => shownUnlocks(level).map(unlockOf),
     core: (level) => isCore(course, level),
+    levelLabel: (level) => labels.get(level.id) ?? level.id,
     parts: { all: [...primitives, ...allFlags.map(unlockOf)], demo: (part, { phone }) => createElement(PartDemo, { key: part.key, kit, flag: part.key, type: part.type ?? PART_OF_FLAG[part.key], home: part.at?.[0], flags: allFlagSet, phone, levels: LEVELS, box }) },
     // A better circuit costs less, or as much with fewer parts.
     better: (score, best) => !best || score.cost < best.cost || (score.cost === best.cost && score.nodes < best.nodes),

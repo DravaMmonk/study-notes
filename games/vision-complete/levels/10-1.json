@@ -8,8 +8,8 @@
   "intro": [
     {
       "t": {
-        "zh": "检测器不光要说出「有一只狗」，还要用一个框圈出它在哪。框得准不准，要和人标注的框比。",
-        "en": "A detector must not only say \"there is a dog\" but draw a box round where it is. How good the box is gets judged against a box a person labelled."
+        "zh": "检测器的每个结果有三样：类别（是什么）、置信度（有多确定）和边界框（在哪、多大）。框得准不准，要和人标注的框比。",
+        "en": "Each result of a detector has three things: a class (what it is), a confidence (how sure it is) and a bounding box (where it is and how big). How good the box is gets judged against a box a person labelled."
       }
     },
     {

@@ -1,6 +1,6 @@
 {
   "domain": "image",
-  "vocabulary": 6,
+  "vocabulary": 15,
   "title": { "zh": "视觉完备", "en": "Vision Complete" },
   "kicker": { "zh": "COMP90086 · 计算机视觉", "en": "COMP90086 · Computer Vision" },
   "lede": {
@@ -256,7 +256,7 @@
         "0-8"
       ],
       "challenges": [{ "level": "0-9", "after": "0-7" }],
-      "topics": [{ "id": "inspection", "levels": ["0-10", "0-11", "0-12"], "after": "0-7" }],
+      "topics": [{ "id": "inspection", "code": "I", "levels": ["0-10", "0-11", "0-12"], "after": "0-7" }],
       "chapter": {
         "title": { "zh": "睁眼", "en": "Opening Eyes" },
         "lecture": { "zh": "第 1–2 讲", "en": "Lectures 1–2" },
@@ -284,7 +284,7 @@
         }
       ],
       "challenges": [{ "level": "1-12", "after": "1-3" }],
-      "topics": [{ "id": "scanner", "levels": ["1-13", "1-14", "1-15"] }],
+      "topics": [{ "id": "scanner", "code": "S", "levels": ["1-13", "1-14", "1-15"] }],
       "chapter": {
         "title": { "zh": "邻居", "en": "Neighbours" },
         "lecture": { "zh": "第 3 讲", "en": "Lecture 3" },
@@ -308,7 +308,7 @@
         }
       ],
       "challenges": [{ "level": "2-12", "after": "2-10" }],
-      "topics": [{ "id": "thumbnails", "levels": ["2-13", "2-14", "2-15", "2-16"] }],
+      "topics": [{ "id": "thumbnails", "code": "T", "levels": ["2-13", "2-14", "2-15", "2-16"] }],
       "chapter": {
         "title": { "zh": "频率", "en": "Frequency" },
         "lecture": { "zh": "第 4 讲", "en": "Lecture 4" },
@@ -336,7 +336,7 @@
         }
       ],
       "challenges": [{ "level": "3-9" }],
-      "topics": [{ "id": "photometric", "levels": ["3-10", "3-11", "3-12"], "after": "3-7" }],
+      "topics": [{ "id": "photometric", "code": "P", "levels": ["3-10", "3-11", "3-12"], "after": "3-7" }],
       "chapter": {
         "title": { "zh": "光与边", "en": "Light and Edges" },
         "lecture": { "zh": "第 5 讲", "en": "Lecture 5" },
@@ -391,7 +391,7 @@
         }
       ],
       "challenges": [{ "level": "5-6" }],
-      "topics": [{ "id": "dedup", "levels": ["5-7", "5-8", "5-9"], "after": "5-1" }],
+      "topics": [{ "id": "dedup", "code": "D", "levels": ["5-7", "5-8", "5-9"], "after": "5-1" }],
       "chapter": {
         "title": { "zh": "全局视野", "en": "The Whole Picture" },
         "lecture": { "zh": "第 9–10 讲", "en": "Lectures 9–10" },
@@ -401,22 +401,19 @@
     {
       "id": 6,
       "foundation": [
-        {
-          "parallel": [
-            { "id": "corners", "title": { "zh": "角点", "en": "Corners" }, "levels": ["6-1", "6-2", "6-3"] },
-            { "id": "match", "title": { "zh": "匹配", "en": "Matching" }, "levels": ["6-4", "6-5"] }
-          ]
-        },
-        {
-          "parallel": [
-            { "id": "vote", "title": { "zh": "投票", "en": "Voting" }, "levels": ["6-6", "6-7"] },
-            { "id": "consensus", "title": { "zh": "共识", "en": "Consensus" }, "levels": ["6-8"] }
-          ]
-        },
-        "6-9"
+        "6-1",
+        "6-2",
+        "6-3",
+        "6-4",
+        "6-5",
+        "6-8",
+        "6-9",
+        "6-11",
+        "6-12",
+        "6-13"
       ],
       "challenges": [{ "level": "6-10", "after": "6-5" }],
-      "topics": [{ "id": "cover", "levels": ["6-11", "6-12", "6-13"], "after": "6-8" }],
+      "topics": [{ "id": "hough", "code": "H", "levels": ["6-6", "6-7"], "after": "6-2" }],
       "chapter": {
         "title": { "zh": "认出同一个点", "en": "The Same Point Again" },
         "lecture": { "zh": "第 11–12 讲", "en": "Lectures 11–12" },
@@ -436,7 +433,7 @@
         "7-8"
       ],
       "challenges": [{ "level": "7-9", "after": "7-7" }],
-      "topics": [{ "id": "avoid", "levels": ["7-10", "7-11", "7-12"], "after": "7-3" }],
+      "topics": [{ "id": "avoid", "code": "A", "levels": ["7-10", "7-11", "7-12"], "after": "7-3" }],
       "chapter": {
         "title": { "zh": "第三个维度", "en": "The Third Dimension" },
         "lecture": { "zh": "第 13–14 讲", "en": "Lectures 13–14" },
@@ -447,21 +444,22 @@
       "id": 8,
       "foundation": [
         "8-1",
-        {
-          "parallel": [
-            { "id": "autoencoder", "title": { "zh": "自编码器", "en": "Autoencoders" }, "levels": ["8-2", "8-3"] },
-            { "id": "sample", "title": { "zh": "抽样", "en": "Sampling" }, "levels": ["8-4", "8-5"] }
-          ]
-        },
+        "8-2",
+        "8-3",
+        "8-4",
+        "8-5",
         {
           "parallel": [
             { "id": "adversary", "title": { "zh": "对抗", "en": "Adversaries" }, "levels": ["8-6"] },
-            { "id": "diffusion", "title": { "zh": "扩散", "en": "Diffusion" }, "levels": ["8-7", "8-8"] }
+            {
+              "id": "diffusion",
+              "title": { "zh": "扩散", "en": "Diffusion" },
+              "levels": ["8-7", "8-8", "8-10", "8-11"]
+            }
           ]
         }
       ],
       "challenges": [{ "level": "8-9", "after": "8-5" }],
-      "topics": [{ "id": "restore", "levels": ["8-10", "8-11"] }],
       "chapter": {
         "title": { "zh": "画出没见过的图", "en": "Drawing the Unseen" },
         "lecture": { "zh": "第 15–17 讲", "en": "Lectures 15–17" },
@@ -471,14 +469,15 @@
     {
       "id": 9,
       "foundation": [
+        "9-10",
         {
           "parallel": [
-            { "id": "upsample", "title": { "zh": "放大", "en": "Upsampling" }, "levels": ["9-1", "9-2", "9-3", "9-4"] },
-            { "id": "cluster", "title": { "zh": "分类", "en": "Grouping" }, "levels": ["9-5", "9-6"] }
+            { "id": "cluster", "title": { "zh": "分类", "en": "Grouping" }, "levels": ["9-5", "9-6"] },
+            { "id": "upsample", "title": { "zh": "放大", "en": "Upsampling" }, "levels": ["9-1", "9-2", "9-3", "9-4"] }
           ]
         }
       ],
-      "topics": [{ "id": "cells", "levels": ["9-7", "9-8", "9-9"] }],
+      "topics": [{ "id": "cells", "code": "M", "levels": ["9-7", "9-8", "9-9"] }],
       "chapter": {
         "title": { "zh": "每个像素是什么", "en": "What Every Pixel Is" },
         "lecture": { "zh": "第 19–20 讲", "en": "Lectures 19–20" },
@@ -488,21 +487,23 @@
     {
       "id": 10,
       "foundation": [
+        "10-1",
         {
           "parallel": [
-            { "id": "iou", "title": { "zh": "重叠", "en": "Overlap" }, "levels": ["10-1", "10-2"] },
-            { "id": "ap", "title": { "zh": "排名", "en": "Ranking" }, "levels": ["10-3", "10-4"] }
+            {
+              "id": "propose",
+              "title": { "zh": "产生和筛选框", "en": "Proposing and pruning boxes" },
+              "levels": ["10-7", "10-5", "10-6", "10-8"]
+            },
+            {
+              "id": "evaluate",
+              "title": { "zh": "匹配和评测框", "en": "Matching and scoring boxes" },
+              "levels": ["10-2", "10-3", "10-4"]
+            }
           ]
-        },
-        {
-          "parallel": [
-            { "id": "anchors", "title": { "zh": "锚框", "en": "Anchor boxes" }, "levels": ["10-5", "10-6"] },
-            { "id": "window", "title": { "zh": "滑窗", "en": "Sliding window" }, "levels": ["10-7"] }
-          ]
-        },
-        "10-8"
+        }
       ],
-      "topics": [{ "id": "shelf", "levels": ["10-9", "10-10", "10-11"], "after": "10-7" }],
+      "topics": [{ "id": "shelf", "code": "G", "levels": ["10-9", "10-10", "10-11"] }],
       "chapter": {
         "title": { "zh": "框出来", "en": "Boxing Things In" },
         "lecture": { "zh": "第 21–22 讲", "en": "Lectures 21–22" },
@@ -520,7 +521,7 @@
           ]
         }
       ],
-      "topics": [{ "id": "checkup", "levels": ["11-6", "11-7"], "after": ["11-3", "11-4"] }],
+      "topics": [{ "id": "checkup", "code": "R", "levels": ["11-6", "11-7"], "after": ["11-3", "11-4"] }],
       "chapter": {
         "title": { "zh": "看它在看哪", "en": "Where Is It Looking?" },
         "lecture": { "zh": "第 23 讲", "en": "Lecture 23" },
