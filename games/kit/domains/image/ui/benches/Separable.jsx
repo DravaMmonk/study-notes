@@ -1,4 +1,5 @@
 import { tr } from '../../../../shell/i18n.js'
+import { grey } from '../views/views.js'
 import './separable.css'
 
 export function SeparableKernels({ ctx }) {
@@ -12,7 +13,7 @@ export function SeparableKernels({ ctx }) {
       <figcaption>{label}</figcaption>
       <div className="separable-kernel" aria-label={label}>
         {[0, 1, 2].map((row) => q[key + row].map((v, col) => (
-          <span key={`${row}-${col}`} style={{ background: `rgb(${Math.round(v * 255)}, ${Math.round(v * 255)}, ${Math.round(v * 255)})` }} />
+          <span key={`${row}-${col}`} style={{ background: grey(v) }} />
         )))}
       </div>
     </figure>

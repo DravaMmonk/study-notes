@@ -1,4 +1,5 @@
 import { tr } from '../../../../shell/i18n.js'
+import { grey } from '../views/views.js'
 import './apple-light.css'
 
 // Each grayscale image uses the same 0–1 scale, so channels remain comparable as the light changes.
@@ -12,16 +13,15 @@ export function AppleChannels({ ctx }) {
         {values.map((colour, index) => (
           <div className="apple-row" key={index}>
             <b>{index === 0 ? 'A' : 'B'}</b>
-            {colour.map((value, channel) => {
-              const gray = Math.round(value * 255)
-              return <figure key={channel}>
+            {colour.map((value, channel) => (
+              <figure key={channel}>
                 <svg viewBox="0 0 64 64" role="img" aria-label={`${index === 0 ? 'A' : 'B'} ${['R', 'G', 'B'][channel]} ${value.toFixed(2)}`}>
-                  <path d="M32 19 C26 12 12 14 10 29 C8 42 17 56 25 56 C28 56 30 54 32 54 C34 54 36 56 39 56 C47 56 56 42 54 29 C52 14 38 12 32 19 Z" fill={`rgb(${gray},${gray},${gray})`} stroke="var(--rule)" strokeWidth="1.5" />
+                  <path d="M32 19 C26 12 12 14 10 29 C8 42 17 56 25 56 C28 56 30 54 32 54 C34 54 36 56 39 56 C47 56 56 42 54 29 C52 14 38 12 32 19 Z" fill={grey(value)} stroke="var(--rule)" strokeWidth="1.5" />
                   <path d="M32 19 Q31 11 35 7" fill="none" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" />
                 </svg>
                 <figcaption>{value.toFixed(2)}</figcaption>
               </figure>
-            })}
+            ))}
           </div>
         ))}
       </div>

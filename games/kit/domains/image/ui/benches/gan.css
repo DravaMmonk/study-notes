@@ -1,7 +1,7 @@
 /* The GAN duel's chart (Gan.jsx). Layout, panels, goals, buttons and choices come from the bench
    (games/kit/shell/bench/bench.css). */
 .gan-stage { display: grid; gap: var(--sp-4); }
-.gan-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-5); color: var(--muted); font-family: var(--mono); font-size: 11px; }
+.gan-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-5); color: var(--muted); font-family: var(--mono); font-size: var(--fs-label); }
 .gan-key { display: inline-flex; align-items: center; gap: var(--gap-local); }
 .gan-key i { width: 12px; height: 10px; border-radius: var(--r-xs); }
 .gan-key i.is-real { background: color-mix(in srgb, var(--muted) 40%, transparent); }
@@ -14,7 +14,7 @@
 .gan-real { fill: var(--muted); fill-opacity: .4; }
 .gan-fake { fill: var(--accent); fill-opacity: .2; stroke: var(--accent); stroke-width: 1.2px; }
 .gan-axis { stroke: var(--rule); stroke-width: 1px; }
-.gan-tick { fill: var(--muted); font-family: var(--mono); font-size: 11px; font-variant-numeric: tabular-nums; }
+.gan-tick { fill: var(--muted); font-family: var(--mono); font-size: var(--fs-label); font-variant-numeric: tabular-nums; }
 .gan-title { fill: var(--muted); font-family: var(--sans); font-size: 11.5px; paint-order: stroke; stroke: var(--paper); stroke-width: 4px; stroke-linejoin: round; }
 .gan-band { fill: var(--canvas); }
 .gan-title.is-on-band { stroke: var(--canvas); }

@@ -20,13 +20,13 @@
 .racer-choice.is-right { box-shadow: inset 0 0 0 2px var(--status); background: color-mix(in srgb, var(--status) 8%, var(--paper)); }
 .racer-choice.is-wrong { box-shadow: inset 0 0 0 2px var(--fail); }
 .racer-choice.is-dim { opacity: .4; }
-.racer-key { position: absolute; top: 8px; left: 10px; color: var(--faint); font-family: var(--mono); font-size: 11px; }
+.racer-key { position: absolute; top: 8px; left: 10px; color: var(--faint); font-family: var(--mono); font-size: var(--fs-label); }
 .racer-mark { position: absolute; top: 8px; right: 8px; }
 .racer-choice.is-right .racer-mark { color: var(--status); }
 .racer-choice.is-wrong .racer-mark { color: var(--fail); }
 .racer-kernel { display: grid; justify-items: center; gap: var(--sp-2); }
 .racer-grid { display: grid; grid-template-columns: repeat(3, 34px); gap: var(--sp-1); }
-.racer-grid i { height: 30px; display: grid; place-items: center; border-radius: var(--r-sm); box-shadow: inset 0 0 0 1px var(--hairline); color: var(--ink); font-family: var(--mono); font-size: 13px; font-style: normal; font-variant-numeric: tabular-nums; }
+.racer-grid i { height: 30px; display: grid; place-items: center; border-radius: var(--r-sm); box-shadow: inset 0 0 0 1px var(--hairline); color: var(--ink); font-family: var(--mono); font-size: var(--fs-ui); font-style: normal; font-variant-numeric: tabular-nums; }
 .racer-grid i.is-zero { color: var(--faint); }
 .racer-kernel small { min-height: 16px; color: var(--muted); font-family: var(--mono); font-size: 11.5px; }
 

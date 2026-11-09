@@ -1,9 +1,10 @@
 import { tr } from '../../../../shell/i18n.js'
+import { grey } from '../views/views.js'
 import './attention-roles.css'
 
 function Patch({ label, pixels, note }) {
   return <figure><figcaption>{label}</figcaption><div className="attention-pixels" role="img" aria-label={label}>
-    {pixels.map((value, i) => <span key={i} style={{ background: `rgb(${Math.round(value * 255)}, ${Math.round(value * 255)}, ${Math.round(value * 255)})` }} />)}
+    {pixels.map((value, i) => <span key={i} style={{ background: grey(value) }} />)}
   </div>{note && <small>{note}</small>}</figure>
 }
 

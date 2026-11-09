@@ -29,7 +29,7 @@
 .mb-acc canvas { width: 100%; height: auto; aspect-ratio: 3 / 2; display: block; border-radius: var(--r-sm); image-rendering: pixelated; box-shadow: 0 0 0 1px var(--rule); }
 .mb-acc svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .mb-acc-target path { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 3 2; }
-.mb-acc-target text { fill: var(--muted); font-size: 11px; font-weight: 600; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; }
+.mb-acc-target text { fill: var(--muted); font-size: var(--fs-label); font-weight: 600; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; }
 .mb-acc-peak { transition: transform 320ms cubic-bezier(.2, .8, .2, 1); }
 .mb-acc-peak circle { fill: none; stroke: var(--accent); stroke-width: 2; }
 .mb-acc-peak text { fill: var(--accent-ink); font-size: 12px; font-weight: 600; paint-order: stroke; stroke: var(--paper); stroke-width: 3px; }
@@ -49,7 +49,7 @@
 .mb-dot.is-in { fill: var(--accent); }
 .mb-dot.is-out { fill: var(--faint); }
 .mb-sample { fill: none; stroke: var(--ink); stroke-width: 1.6; vector-effect: non-scaling-stroke; }
-.mb-trial-verdict { margin: var(--sp-4) 0 0; min-height: 22px; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); font-size: 13px; }
+.mb-trial-verdict { margin: var(--sp-4) 0 0; min-height: 22px; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-4); font-size: var(--fs-ui); }
 .mb-trial-verdict .mb-readout { margin-left: auto; }
 .mb-cards { gap: var(--sp-4); }
 .mb-card { display: grid; gap: var(--sp-2); cursor: default; transition: box-shadow 200ms ease; }
@@ -58,7 +58,7 @@
 .mb-card.is-pass.is-active { box-shadow: inset 0 0 0 1.5px var(--status); }
 .mb-card-head { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; align-items: center; gap: var(--sp-4); font-size: 14px; }
 .mb-card-head small { color: var(--muted); font-size: 10.5px; }
-.mb-card-head .mb-readout { font-size: 13px; }
+.mb-card-head .mb-readout { font-size: var(--fs-ui); }
 .mb-card .bk-field output { min-width: 5.2em; }
 .mb-card-foot { margin: var(--sp-1) 0 0; color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
 .mb-card-foot.mb-bad { color: var(--fail); }

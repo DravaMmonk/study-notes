@@ -3,7 +3,7 @@
 
 .optics-figure { margin: 0; }
 .optics-figure svg { display: block; width: 100%; height: auto; }
-.optics-figure svg text { font-family: var(--mono); font-size: var(--fs, 11px); }
+.optics-figure svg text { font-family: var(--mono); font-size: var(--fs, var(--fs-label)); }
 .optics-drag { touch-action: none; user-select: none; -webkit-user-select: none; }
 
 .optics-axis { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; }

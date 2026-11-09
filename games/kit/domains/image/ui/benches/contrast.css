@@ -14,7 +14,7 @@
 .plane-label { fill: var(--muted); font-family: var(--mono); font-size: 0.095px; text-anchor: middle; }
 
 .contrast-matrix { margin: 0; min-width: 0; }
-.contrast-matrix table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 2px; font-family: var(--mono); font-size: 11px; font-variant-numeric: tabular-nums; }
+.contrast-matrix table { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 2px; font-family: var(--mono); font-size: var(--fs-label); font-variant-numeric: tabular-nums; }
 .contrast-matrix thead th:first-child { width: 52px; }
 .contrast-matrix th { padding: 0 0 var(--sp-1); color: var(--muted); font-size: 10px; font-weight: 400; white-space: nowrap; }
 .contrast-matrix th[scope='row'] { padding: 0 var(--sp-1) 0 0; text-align: left; }

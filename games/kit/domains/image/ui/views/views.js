@@ -47,6 +47,8 @@ export function tokenRGB(name, fallback) {
 
 export const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t)
 export const css = (rgb, alpha = 1) => `rgba(${rgb.map((v) => Math.round(Math.max(0, Math.min(255, v)))).join(',')},${alpha})`
+// A value on the 0–1 scale as the grey it shows: 0 black, 1 white.
+export const grey = (v) => css([v * 255, v * 255, v * 255])
 
 export const formatNumber = (v) => piText(v) ?? (!Number.isFinite(v) ? '—' : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(3))
 

@@ -16,7 +16,7 @@ const CEILING = {
   strip: { sizes: 5, colours: 0 },
   agent: { sizes: 26, colours: 0 },
   can: { sizes: 0, colours: 3 },
-  image: { sizes: 95, colours: 24 },
+  image: { sizes: 67, colours: 24 },
   logic: { sizes: 69, colours: 24 },
   net: { sizes: 0, colours: 3 },
   syntax: { sizes: 6, colours: 14 },

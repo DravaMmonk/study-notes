@@ -1,9 +1,9 @@
-.apple-channels p { margin: 0 0 var(--sp-5); color: var(--muted); font-size: 13px; line-height: 1.5; }
+.apple-channels p { margin: 0 0 var(--sp-5); color: var(--muted); font-size: var(--fs-ui); line-height: 1.5; }
 .apple-grid, .apple-row { display: grid; grid-template-columns: 32px repeat(3, minmax(0, 1fr)); align-items: center; gap: var(--sp-3); text-align: center; }
-.apple-grid > strong { color: var(--muted); font-size: 13px; }
+.apple-grid > strong { color: var(--muted); font-size: var(--fs-ui); }
 .apple-row { grid-column: 1 / -1; }
 .apple-row figure { min-width: 0; margin: 0; padding: var(--sp-2); border-radius: var(--r-md); background: var(--canvas); }
 .apple-row svg { display: block; width: 100%; height: auto; max-height: 100px; }
 .apple-row figcaption { color: var(--muted); font: 12px var(--mono); }
 
-.apple-feedback { margin: 0; color: var(--ink); font-size: 13px; line-height: 1.5; }
+.apple-feedback { margin: 0; color: var(--ink); font-size: var(--fs-ui); line-height: 1.5; }
