@@ -1,1 +1,217 @@
-IyBCeXRlLWNvbXBpbGVkIC8gb3B0aW1pemVkIC8gRExMIGZpbGVzCl9fcHljYWNoZV9fLwoqLnB5W2NvZF0KKiRweS5jbGFzcwoKIyBDIGV4dGVuc2lvbnMKKi5zbwoKIyBEaXN0cmlidXRpb24gLyBwYWNrYWdpbmcKLlB5dGhvbgpidWlsZC8KZGV2ZWxvcC1lZ2dzLwpkaXN0Lwp0cmFjZS12aWV3ZXIvZGlzdC1nYW1lcy8KZG93bmxvYWRzLwplZ2dzLwouZWdncy8KbGliLwohdHJhY2Utdmlld2VyL3NyYy9saWIvCiF0cmFjZS12aWV3ZXIvc3JjL2xpYi8qKgpsaWI2NC8KcGFydHMvCiFnYW1lcy9raXQvZG9tYWlucy9pbWFnZS9lbmdpbmUvcGFydHMvCiFnYW1lcy9raXQvZW5naW5lL3BhcnRzLwohZ2FtZXMva2l0L3NoZWxsL3BhcnRzLwpzZGlzdC8KdmFyLwp3aGVlbHMvCnNoYXJlL3B5dGhvbi13aGVlbHMvCiouZWdnLWluZm8vCi5pbnN0YWxsZWQuY2ZnCiouZWdnCk1BTklGRVNUCgojIFB5SW5zdGFsbGVyCiMgIFVzdWFsbHkgdGhlc2UgZmlsZXMgYXJlIHdyaXR0ZW4gYnkgYSBweXRob24gc2NyaXB0IGZyb20gYSB0ZW1wbGF0ZQojICBiZWZvcmUgUHlJbnN0YWxsZXIgYnVpbGRzIHRoZSBleGUsIHNvIGFzIHRvIGluamVjdCBkYXRlL290aGVyIGluZm9zIGludG8gaXQuCioubWFuaWZlc3QKKi5zcGVjCgojIEluc3RhbGxlciBsb2dzCnBpcC1sb2cudHh0CnBpcC1kZWxldGUtdGhpcy1kaXJlY3RvcnkudHh0CgojIFVuaXQgdGVzdCAvIGNvdmVyYWdlIHJlcG9ydHMKaHRtbGNvdi8KLnRveC8KLm5veC8KLmNvdmVyYWdlCi5jb3ZlcmFnZS4qCi5jYWNoZQpub3NldGVzdHMueG1sCmNvdmVyYWdlLnhtbAoqLmNvdmVyCioucHksY292ZXIKLmh5cG90aGVzaXMvCi5weXRlc3RfY2FjaGUvCmNvdmVyLwoKIyBUcmFuc2xhdGlvbnMKKi5tbwoqLnBvdAoKIyBEamFuZ28gc3R1ZmY6CioubG9nCmxvY2FsX3NldHRpbmdzLnB5CmRiLnNxbGl0ZTMKZGIuc3FsaXRlMy1qb3VybmFsCgojIEZsYXNrIHN0dWZmOgppbnN0YW5jZS8KLndlYmFzc2V0cy1jYWNoZQoKIyBTY3JhcHkgc3R1ZmY6Ci5zY3JhcHkKCiMgU3BoaW54IGRvY3VtZW50YXRpb24KZG9jcy9fYnVpbGQvCgojIFB5QnVpbGRlcgoucHlidWlsZGVyLwp0YXJnZXQvCgojIEp1cHl0ZXIgTm90ZWJvb2sKLmlweW5iX2NoZWNrcG9pbnRzCgojIElQeXRob24KcHJvZmlsZV9kZWZhdWx0LwppcHl0aG9uX2NvbmZpZy5weQoKIyBweWVudgojICAgRm9yIGEgbGlicmFyeSBvciBwYWNrYWdlLCB5b3UgbWlnaHQgd2FudCB0byBpZ25vcmUgdGhlc2UgZmlsZXMgc2luY2UgdGhlIGNvZGUgaXMKIyAgIGludGVuZGVkIHRvIHJ1biBpbiBtdWx0aXBsZSBlbnZpcm9ubWVudHM7IG90aGVyd2lzZSwgY2hlY2sgdGhlbSBpbjoKIyAucHl0aG9uLXZlcnNpb24KCiMgcGlwZW52CiMgICBBY2NvcmRpbmcgdG8gcHlwYS9waXBlbnYjNTk4LCBpdCBpcyByZWNvbW1lbmRlZCB0byBpbmNsdWRlIFBpcGZpbGUubG9jayBpbiB2ZXJzaW9uIGNvbnRyb2wuCiMgICBIb3dldmVyLCBpbiBjYXNlIG9mIGNvbGxhYm9yYXRpb24sIGlmIGhhdmluZyBwbGF0Zm9ybS1zcGVjaWZpYyBkZXBlbmRlbmNpZXMgb3IgZGVwZW5kZW5jaWVzCiMgICBoYXZpbmcgbm8gY3Jvc3MtcGxhdGZvcm0gc3VwcG9ydCwgcGlwZW52IG1heSBpbnN0YWxsIGRlcGVuZGVuY2llcyB0aGF0IGRvbid0IHdvcmssIG9yIG5vdAojICAgaW5zdGFsbCBhbGwgbmVlZGVkIGRlcGVuZGVuY2llcy4KI1BpcGZpbGUubG9jawoKIyBVVgojICAgU2ltaWxhciB0byBQaXBmaWxlLmxvY2ssIGl0IGlzIGdlbmVyYWxseSByZWNvbW1lbmRlZCB0byBpbmNsdWRlIHV2LmxvY2sgaW4gdmVyc2lvbiBjb250cm9sLgojICAgVGhpcyBpcyBlc3BlY2lhbGx5IHJlY29tbWVuZGVkIGZvciBiaW5hcnkgcGFja2FnZXMgdG8gZW5zdXJlIHJlcHJvZHVjaWJpbGl0eSwgYW5kIGlzIG1vcmUKIyAgIGNvbW1vbmx5IGlnbm9yZWQgZm9yIGxpYnJhcmllcy4KI3V2LmxvY2sKCiMgcG9ldHJ5CiMgICBTaW1pbGFyIHRvIFBpcGZpbGUubG9jaywgaXQgaXMgZ2VuZXJhbGx5IHJlY29tbWVuZGVkIHRvIGluY2x1ZGUgcG9ldHJ5LmxvY2sgaW4gdmVyc2lvbiBjb250cm9sLgojICAgVGhpcyBpcyBlc3BlY2lhbGx5IHJlY29tbWVuZGVkIGZvciBiaW5hcnkgcGFja2FnZXMgdG8gZW5zdXJlIHJlcHJvZHVjaWJpbGl0eSwgYW5kIGlzIG1vcmUKIyAgIGNvbW1vbmx5IGlnbm9yZWQgZm9yIGxpYnJhcmllcy4KIyAgIGh0dHBzOi8vcHl0aG9uLXBvZXRyeS5vcmcvZG9jcy9iYXNpYy11c2FnZS8jY29tbWl0LXlvdXItcG9ldHJ5bG9jay1maWxlLXRvLXZlcnNpb24tY29udHJvbAojcG9ldHJ5LmxvY2sKCiMgcGRtCiMgICBTaW1pbGFyIHRvIFBpcGZpbGUubG9jaywgaXQgaXMgZ2VuZXJhbGx5IHJlY29tbWVuZGVkIHRvIGluY2x1ZGUgcGRtLmxvY2sgaW4gdmVyc2lvbiBjb250cm9sLgojcGRtLmxvY2sKIyAgIHBkbSBzdG9yZXMgcHJvamVjdC13aWRlIGNvbmZpZ3VyYXRpb25zIGluIC5wZG0udG9tbCwgYnV0IGl0IGlzIHJlY29tbWVuZGVkIHRvIG5vdCBpbmNsdWRlIGl0CiMgICBpbiB2ZXJzaW9uIGNvbnRyb2wuCiMgICBodHRwczovL3BkbS5mbWluZy5kZXYvbGF0ZXN0L3VzYWdlL3Byb2plY3QvI3dvcmtpbmctd2l0aC12ZXJzaW9uLWNvbnRyb2wKLnBkbS50b21sCi5wZG0tcHl0aG9uCi5wZG0tYnVpbGQvCgojIFBFUCA1ODI7IHVzZWQgYnkgZS5nLiBnaXRodWIuY29tL0RhdmlkLU9Db25ub3IvcHlmbG93IGFuZCBnaXRodWIuY29tL3BkbS1wcm9qZWN0L3BkbQpfX3B5cGFja2FnZXNfXy8KCiMgQ2VsZXJ5IHN0dWZmCmNlbGVyeWJlYXQtc2NoZWR1bGUKY2VsZXJ5YmVhdC5waWQKCiMgU2FnZU1hdGggcGFyc2VkIGZpbGVzCiouc2FnZS5weQoKIyBFbnZpcm9ubWVudHMKLmVudgoudmVudgplbnYvCnZlbnYvCkVOVi8KZW52LmJhay8KdmVudi5iYWsvCgojIFNweWRlciBwcm9qZWN0IHNldHRpbmdzCi5zcHlkZXJwcm9qZWN0Ci5zcHlwcm9qZWN0CgojIFJvcGUgcHJvamVjdCBzZXR0aW5ncwoucm9wZXByb2plY3QKCiMgbWtkb2NzIGRvY3VtZW50YXRpb24KL3NpdGUKCiMgbXlweQoubXlweV9jYWNoZS8KLmRteXB5Lmpzb24KZG15cHkuanNvbgoKIyBQeXJlIHR5cGUgY2hlY2tlcgoucHlyZS8KCiMgcHl0eXBlIHN0YXRpYyB0eXBlIGFuYWx5emVyCi5weXR5cGUvCgojIEN5dGhvbiBkZWJ1ZyBzeW1ib2xzCmN5dGhvbl9kZWJ1Zy8KCiMgUHlDaGFybQojICBKZXRCcmFpbnMgc3BlY2lmaWMgdGVtcGxhdGUgaXMgbWFpbnRhaW5lZCBpbiBhIHNlcGFyYXRlIEpldEJyYWlucy5naXRpZ25vcmUgdGhhdCBjYW4KIyAgYmUgZm91bmQgYXQgaHR0cHM6Ly9naXRodWIuY29tL2dpdGh1Yi9naXRpZ25vcmUvYmxvYi9tYWluL0dsb2JhbC9KZXRCcmFpbnMuZ2l0aWdub3JlCiMgIGFuZCBjYW4gYmUgYWRkZWQgdG8gdGhlIGdsb2JhbCBnaXRpZ25vcmUgb3IgbWVyZ2VkIGludG8gdGhpcyBmaWxlLiAgRm9yIGEgbW9yZSBudWNsZWFyCiMgIG9wdGlvbiAobm90IHJlY29tbWVuZGVkKSB5b3UgY2FuIHVuY29tbWVudCB0aGUgZm9sbG93aW5nIHRvIGlnbm9yZSB0aGUgZW50aXJlIGlkZWEgZm9sZGVyLgojLmlkZWEvCgojIFJ1ZmYgc3R1ZmY6Ci5ydWZmX2NhY2hlLwoKIyBQeVBJIGNvbmZpZ3VyYXRpb24gZmlsZQoucHlwaXJjCgojIEN1cnNvciAgCiMgIEN1cnNvciBpcyBhbiBBSS1wb3dlcmVkIGNvZGUgZWRpdG9yLmAuY3Vyc29yaWdub3JlYCBzcGVjaWZpZXMgZmlsZXMvZGlyZWN0b3JpZXMgdG8gCiMgIGV4Y2x1ZGUgZnJvbSBBSSBmZWF0dXJlcyBsaWtlIGF1dG9jb21wbGV0ZSBhbmQgY29kZSBhbmFseXNpcy4gUmVjb21tZW5kZWQgZm9yIHNlbnNpdGl2ZSBkYXRhCiMgIHJlZmVyIHRvIGh0dHBzOi8vZG9jcy5jdXJzb3IuY29tL2NvbnRleHQvaWdub3JlLWZpbGVzCi5jdXJzb3JpZ25vcmUKLmN1cnNvcmluZGV4aW5naWdub3JlCgoKCiMgSWdub3JlIFNtYXJ0IEVudmlyb25tZW50IGZvbGRlcgouc21hcnQtZW52CgojIExvY2FsIGNvdXJzZSBtYXRlcmlhbHMgYW5kIGV4dGVybmFsIHJlYWRpbmdzCmRvY3MvKiovbGVjdHVyZS8KZG9jcy8qKi90cmFuc2NyaXB0Lwpkb2NzLyoqL3dvcmtzaG9wLwpkb2NzLyoqL3R1dG9yaWFsLwpkb2NzLyoqL3JlYWRpbmdzLwpkb2NzLyoqL2Fzc2lnbm1lbnQvCmRvY3MvKiovZXhhbS8KCiMgQ291cnNlIGZpZ3VyZXMgYW5kIGRvY3VtZW50cyBhcmUga2VwdCBmb3IgdGhlIHByaXZhdGUgYnVpbGQuCmRvY3MvVW5pbWVsYi8qKi9hc3NldHMvCmRvY3MvVW5pbWVsYi8qKi9TY3JlZW5zaG90Kgpkb2NzLyoqLyouW3BQXVtkRF1bZkZdCmRvY3MvKiovKi5bcFBdW3BQXVt0VF0KZG9jcy8qKi8qLltwUF1bcFBdW3RUXVt4WF0KZG9jcy8qKi8qLltwUF1bcFBdW3NTXQpkb2NzLyoqLyouW3BQXVtwUF1bc1NdW3hYXQovc2l0ZS1wcml2YXRlLwoKIyBIZWxkIHdoaWxlIGFuIG9wZXJhdGlvbiB3cml0ZXMgYSBnYW1lIChnYW1lcy9raXQvZW5naW5lL29wcy9sb2cuanMpCmdhbWVzLyovY2hhbmdlcy5sb2NrCgojIEJhY2t1cCBvZiBjb3Vyc2UgZmlsZXMgcmVtb3ZlZCBmcm9tIHB1YmxpYyBHaXQKLy5wcml2YXRlLWNvdXJzZS1tYXRlcmlhbHMvCg==
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+trace-viewer/dist-games/
+downloads/
+eggs/
+.eggs/
+lib/
+!trace-viewer/src/lib/
+!trace-viewer/src/lib/**
+lib64/
+parts/
+!games/kit/domains/image/engine/parts/
+!games/kit/engine/parts/
+!games/kit/shell/parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+#   For a library or package, you might want to ignore these files since the code is
+#   intended to run in multiple environments; otherwise, check them in:
+# .python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# UV
+#   Similar to Pipfile.lock, it is generally recommended to include uv.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#uv.lock
+
+# poetry
+#   Similar to Pipfile.lock, it is generally recommended to include poetry.lock in version control.
+#   This is especially recommended for binary packages to ensure reproducibility, and is more
+#   commonly ignored for libraries.
+#   https://python-poetry.org/docs/basic-usage/#commit-your-poetrylock-file-to-version-control
+#poetry.lock
+
+# pdm
+#   Similar to Pipfile.lock, it is generally recommended to include pdm.lock in version control.
+#pdm.lock
+#   pdm stores project-wide configurations in .pdm.toml, but it is recommended to not include it
+#   in version control.
+#   https://pdm.fming.dev/latest/usage/project/#working-with-version-control
+.pdm.toml
+.pdm-python
+.pdm-build/
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# PyCharm
+#  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
+#  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
+#  and can be added to the global gitignore or merged into this file.  For a more nuclear
+#  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+#.idea/
+
+# Ruff stuff:
+.ruff_cache/
+
+# PyPI configuration file
+.pypirc
+
+# Cursor  
+#  Cursor is an AI-powered code editor.`.cursorignore` specifies files/directories to 
+#  exclude from AI features like autocomplete and code analysis. Recommended for sensitive data
+#  refer to https://docs.cursor.com/context/ignore-files
+.cursorignore
+.cursorindexingignore
+
+
+
+# Ignore Smart Environment folder
+.smart-env
+
+# Local course materials and external readings
+docs/**/lecture/
+docs/**/transcript/
+docs/**/workshop/
+docs/**/tutorial/
+docs/**/readings/
+docs/**/assignment/
+docs/**/exam/
+
+# Course figures and documents are kept for the private build.
+docs/Unimelb/**/assets/
+docs/Unimelb/**/Screenshot*
+docs/**/*.[pP][dD][fF]
+docs/**/*.[pP][pP][tT]
+docs/**/*.[pP][pP][tT][xX]
+docs/**/*.[pP][pP][sS]
+docs/**/*.[pP][pP][sS][xX]
+/site-private/
+
+# Held while an operation writes a game (games/kit/engine/ops/log.js)
+games/*/changes.lock
+
+# Backup of course files removed from public Git
+/.private-course-materials/
