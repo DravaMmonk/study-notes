@@ -78,3 +78,5 @@ extra_css:
 
 extra:
   manifest: assets/manifest.webmanifest
+  # Where the games are published (.github/workflows/deploy-games.yml): notes embed levels of a notes edition from it.
+  games: https://dravammonk.github.io/games/

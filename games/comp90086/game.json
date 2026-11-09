@@ -1,0 +1,33 @@
+{
+  "domain": "vision",
+  "vocabulary": 13,
+  "title": { "zh": "计算机视觉笔记", "en": "Computer Vision Notes" },
+  "kicker": { "zh": "COMP90086 笔记版", "en": "COMP90086 notes edition" },
+  "lede": {
+    "zh": "嵌在 COMP90086 笔记里的交互：每个知识点动手一次，先预测，再看结果。",
+    "en": "The interactions inside the COMP90086 notes: try each idea once, predicting first and then seeing what happens."
+  },
+  "mode": "notes",
+  "views": { "grid": ["pixels", "numbers"] },
+  "primitives": ["kernel", "filter", "arithmetic"],
+  "eras": [
+    {
+      "id": 1,
+      "title": { "zh": "图像怎样形成和表示", "en": "How images form and are represented" },
+      "question": { "zh": "一张图里的数从哪里来？", "en": "Where do the numbers in an image come from?" },
+      "foundation": ["projection"]
+    },
+    {
+      "id": 2,
+      "title": { "zh": "怎样用固定规则处理图像", "en": "Processing images with fixed rules" },
+      "question": { "zh": "一个核怎样改变一张图？", "en": "How does a kernel change an image?" },
+      "foundation": ["separable"]
+    },
+    {
+      "id": 4,
+      "title": { "zh": "怎样匹配并恢复三维", "en": "Matching and recovering 3D" },
+      "question": { "zh": "从图里能知道多远吗？", "en": "Can an image tell how far away things are?" },
+      "foundation": ["depth-cues"]
+    }
+  ]
+}

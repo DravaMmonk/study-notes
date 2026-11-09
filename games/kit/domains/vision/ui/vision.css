@@ -150,7 +150,7 @@
 .vi-round { margin: 0; color: var(--muted); font-size: 12px; }
 .vi-about { display: flex; flex-wrap: wrap; gap: var(--sp-6); align-items: start; }
 .vi-about:empty { display: none; }
-.vi-about figure { margin: 0; display: grid; gap: var(--sp-2); }
+.vi-about figure { flex: 1 1 280px; min-width: 0; margin: 0; display: grid; gap: var(--sp-2); }
 .vi-about figcaption { color: var(--muted); font-size: 12px; }
 .vi-item { display: grid; gap: var(--sp-4); padding: var(--sp-5) var(--sp-5); border: 1px solid var(--line); border-radius: var(--r-md, var(--r-md)); background: var(--paper); }
 .vi-item.is-wrong { border-color: var(--fail); }

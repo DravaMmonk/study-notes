@@ -159,6 +159,7 @@
 @keyframes note-in { from { opacity: 0; transform: translateY(8px); } }
 .markdown-body { position: relative; isolation: isolate; max-width: var(--measure); }
 .markdown-body .figure-host { font-family: var(--sans); }
+.markdown-body .task-embed { display: block; width: 100%; min-height: 160px; margin: var(--sp-9) 0 var(--sp-9); border: 0; border-radius: var(--r-lg); box-shadow: 0 0 0 1px var(--hairline); }
 /* Preserve text metrics; draw each visible line as a continuous translucent band. */
 .markdown-body .annotation-mark { margin: 0; padding: 0; color: inherit; background: transparent; cursor: pointer; }
 .markdown-body .annotation-highlight { position: absolute; z-index: 1; pointer-events: none; border-radius: var(--r-xs); background: var(--mark-color); opacity: var(--mark-opacity); mix-blend-mode: var(--mark-blend); }

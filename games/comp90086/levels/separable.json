@@ -1,0 +1,115 @@
+{
+  "title": { "zh": "空间可分离滤波与计算量", "en": "Separable filters and their cost" },
+  "adds": ["kernel", "filter", "arithmetic"],
+  "tasks": [
+    {
+      "id": "separable-which",
+      "kind": "choice",
+      "step": { "zh": "哪些能拆", "en": "Which split" },
+      "brief": {
+        "zh": "每个 3×3 核，能不能写成一列乘一行，拆成先横后竖的两次一维滤波？",
+        "en": "Can each 3×3 kernel be written as a column times a row, split into a pass across and a pass down?"
+      },
+      "judge": "answer",
+      "rounds": [
+        {
+          "items": [
+            {
+              "prompt": {
+                "zh": "高斯：1 2 1 ／ 2 4 2 ／ 1 2 1（再除以 16）",
+                "en": "Gaussian: 1 2 1 / 2 4 2 / 1 2 1 (over 16)"
+              },
+              "answer": ["yes"]
+            },
+            {
+              "prompt": { "zh": "Sobel：−1 0 1 ／ −2 0 2 ／ −1 0 1", "en": "Sobel: −1 0 1 / −2 0 2 / −1 0 1" },
+              "answer": ["yes"]
+            },
+            {
+              "prompt": { "zh": "拉普拉斯：0 1 0 ／ 1 −4 1 ／ 0 1 0", "en": "Laplacian: 0 1 0 / 1 −4 1 / 0 1 0" },
+              "answer": ["no"]
+            }
+          ],
+          "options": [
+            { "id": "yes", "label": { "zh": "能拆", "en": "Splits" } },
+            { "id": "no", "label": { "zh": "不能拆", "en": "Does not" } }
+          ]
+        }
+      ],
+      "naive": {
+        "picks": [[["yes"], ["yes"], ["yes"]]],
+        "why": {
+          "zh": "以为拉普拉斯也能拆：它的三行不成比例（中间一行有 −4，上下两行只有中间是 1），不是一列乘一行。",
+          "en": "Thinking the Laplacian splits too: its rows are not multiples of one another (the middle row holds −4, the others a lone 1), so it is no column times a row."
+        }
+      }
+    },
+    {
+      "id": "separable",
+      "kind": "circuit",
+      "step": { "zh": "用一维核算拉普拉斯", "en": "The Laplacian from 1D kernels" },
+      "brief": {
+        "zh": "拉普拉斯核拆不开，但只用一维的「1 −2 1」也能算出它。让输出和拉普拉斯核一次滤出的一样。",
+        "en": "The Laplacian does not split, yet the 1D kernel “1 −2 1” alone can still compute it. Make the output match filtering with the Laplacian in one go."
+      },
+      "inputs": [{ "name": "photo", "label": { "zh": "图", "en": "Image" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "拉普拉斯", "en": "Laplacian" } }],
+      "views": { "grid": ["numbers", "pixels"] },
+      "tests": [
+        {
+          "inputs": {
+            "photo": [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
+          },
+          "expect": {
+            "out": [[0, 0, 0, 0, 0], [0, 0, 1, 0, 0], [0, 1, -4, 1, 0], [0, 0, 1, 0, 0], [0, 0, 0, 0, 0]]
+          }
+        },
+        {
+          "inputs": {
+            "photo": [
+              [0.57, 0.63, 0.82, 0.28, 0.65, 0.4],
+              [0.91, 0.19, 0.65, 0.62, 0.5, 0.33],
+              [0.53, 0.45, 0.94, 0.64, 0.3, 0.71],
+              [0.5, 0.05, 0.61, 0.74, 0.43, 0.2],
+              [0.93, 0.56, 0.68, 0.12, 0.06, 0.88]
+            ]
+          },
+          "expect": {
+            "out": [
+              [0.4, -0.31, -0.9, 1.25, -0.77, 0.18],
+              [-1.44, 1.88, -0.03, -0.41, -0.1, 0.62],
+              [0.27, -0.09, -1.41, 0.04, 1.08, -1.3],
+              [0.01, 1.92, -0.03, -1.16, -0.42, 1.42],
+              [-0.8, -0.02, -0.75, 1.12, 1.25, -1.5]
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "photo": [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 1, 1], [0, 0, 1, 1]] },
+          "expect": { "out": [[0, 0, 0, 0], [0, 0, 1, 1], [0, 1, -2, -1], [0, 1, -1, 0]] }
+        }
+      ],
+      "solution": [
+        "kx = kernel[k4=1,k5=-2,k6=1]()",
+        "ky = kernel[k2=1,k5=-2,k8=1]()",
+        "fx = filter(photo,kx)",
+        "fy = filter(photo,ky)",
+        "s = arithmetic[op=add](fx,fy)",
+        "out <- s"
+      ],
+      "naive": [
+        "kx = kernel[k4=1,k5=-2,k6=1]()",
+        "ky = kernel[k2=1,k5=-2,k8=1]()",
+        "fx = filter(photo,kx)",
+        "fy = filter(fx,ky)",
+        "out <- fy"
+      ],
+      "naiveWhy": {
+        "zh": "先横后竖地串起来：算出的是两个一维核的乘积，不是它们的和。",
+        "en": "Across, then down, one after the other: that is the product of the two 1D kernels, not their sum."
+      }
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "presets": {
+    "outside": {
+      "control": "select",
+      "label": { "zh": "图外", "en": "Outside" },
+      "options": [
+        {
+          "value": "zero",
+          "label": { "zh": "取 0", "en": "Zero" },
+          "about": { "zh": "图外读作 0。", "en": "Outside reads as 0." }
+        },
+        {
+          "value": "clamp",
+          "label": { "zh": "延续边缘", "en": "Edge continued" },
+          "about": { "zh": "图外读最近的边上那一格。", "en": "Outside reads the nearest edge cell." }
+        },
+        {
+          "value": "wrap",
+          "label": { "zh": "循环", "en": "Wrap around" },
+          "about": { "zh": "图外接着另一边。", "en": "Outside continues from the opposite side." }
+        },
+        {
+          "value": "reflect",
+          "label": { "zh": "镜像", "en": "Mirror" },
+          "about": { "zh": "图外照着边缘镜像，边上那一格也算一次。", "en": "Outside mirrors the edge, the edge cell included." }
+        }
+      ],
+      "default": "clamp"
+    }
+  },
+  "parts": {
+    "kernel": {
+      "name": { "zh": "核", "en": "Kernel" },
+      "desc": {
+        "zh": "一张 3×3 的核：九个权重按邻居的位置排，整张除以「÷」。",
+        "en": "A 3×3 kernel: nine weights laid out where the neighbours are, the whole divided by “÷”."
+      },
+      "icon": "Grid3x3",
+      "family": "value",
+      "inputs": [],
+      "settings": [
+        { "key": "k1", "control": "number", "about": { "zh": "上左", "en": "top left" }, "default": 0 },
+        { "key": "k2", "control": "number", "about": { "zh": "上中", "en": "top" }, "default": 0 },
+        { "key": "k3", "control": "number", "about": { "zh": "上右", "en": "top right" }, "default": 0 },
+        { "key": "k4", "control": "number", "about": { "zh": "中左", "en": "left" }, "default": 0 },
+        { "key": "k5", "control": "number", "about": { "zh": "中间", "en": "centre" }, "default": 1 },
+        { "key": "k6", "control": "number", "about": { "zh": "中右", "en": "right" }, "default": 0 },
+        { "key": "k7", "control": "number", "about": { "zh": "下左", "en": "bottom left" }, "default": 0 },
+        { "key": "k8", "control": "number", "about": { "zh": "下中", "en": "bottom" }, "default": 0 },
+        { "key": "k9", "control": "number", "about": { "zh": "下右", "en": "bottom right" }, "default": 0 },
+        { "key": "divide", "control": "number", "label": "÷", "default": 1 }
+      ],
+      "compute": "div(kernel3($k1, $k2, $k3, $k4, $k5, $k6, $k7, $k8, $k9), $divide)",
+      "views": {
+        "card": [
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k1" },
+              { "show": "setting", "key": "k2" },
+              { "show": "setting", "key": "k3" }
+            ]
+          },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k4" },
+              { "show": "setting", "key": "k5" },
+              { "show": "setting", "key": "k6" }
+            ]
+          },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k7" },
+              { "show": "setting", "key": "k8" },
+              { "show": "setting", "key": "k9" }
+            ]
+          },
+          { "show": "setting", "key": "divide" }
+        ],
+        "detail": [
+          { "show": "desc" },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k1" },
+              { "show": "setting", "key": "k2" },
+              { "show": "setting", "key": "k3" }
+            ]
+          },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k4" },
+              { "show": "setting", "key": "k5" },
+              { "show": "setting", "key": "k6" }
+            ]
+          },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k7" },
+              { "show": "setting", "key": "k8" },
+              { "show": "setting", "key": "k9" }
+            ]
+          },
+          { "show": "setting", "key": "divide" }
+        ],
+        "tile": [
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k1", "as": "label" },
+              { "show": "setting", "key": "k2", "as": "label" },
+              { "show": "setting", "key": "k3", "as": "label" }
+            ]
+          },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k4", "as": "label" },
+              { "show": "setting", "key": "k5", "as": "label" },
+              { "show": "setting", "key": "k6", "as": "label" }
+            ]
+          },
+          {
+            "show": "row",
+            "blocks": [
+              { "show": "setting", "key": "k7", "as": "label" },
+              { "show": "setting", "key": "k8", "as": "label" },
+              { "show": "setting", "key": "k9", "as": "label" }
+            ]
+          },
+          { "show": "summary", "text": { "zh": "÷ {divide}", "en": "÷ {divide}" } }
+        ]
+      }
+    },
+    "filter": {
+      "name": { "zh": "滤波器", "en": "Filter" },
+      "desc": {
+        "zh": "每格换成它周围九格按核加权的和：核的中间乘这一格，左上角乘左上方的邻居。",
+        "en": "Each cell replaced by the nine around it weighted by the kernel: the kernel’s centre weighs the cell itself, its top left the neighbour above left."
+      },
+      "icon": "Blend",
+      "family": "image",
+      "inputs": [
+        { "name": "image", "label": { "zh": "图", "en": "Image" } },
+        { "name": "kernel", "label": { "zh": "核", "en": "Kernel" } }
+      ],
+      "settings": [{ "key": "outside", "use": "outside" }],
+      "compute": "filter(image, kernel, outside=$outside)"
+    },
+    "arithmetic": {
+      "name": { "zh": "四则运算", "en": "Arithmetic" },
+      "desc": {
+        "zh": "a 和 b 逐格运算；一个数和一张图运算时，这个数用在每一格上。",
+        "en": "a and b cell by cell; a number with an image applies to every cell."
+      },
+      "icon": "Plus",
+      "family": "value",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "settings": [
+        {
+          "key": "op",
+          "control": "buttons",
+          "options": [
+            { "value": "add", "label": "+", "about": { "zh": "加。", "en": "Add." } },
+            { "value": "sub", "label": "−", "about": { "zh": "减。", "en": "Subtract." } },
+            { "value": "mul", "label": "×", "about": { "zh": "乘。", "en": "Multiply." } },
+            {
+              "value": "div",
+              "label": "÷",
+              "about": { "zh": "除；除以 0 报错。", "en": "Divide; dividing by 0 stops." }
+            }
+          ],
+          "default": "add"
+        }
+      ],
+      "compute": "match $op { add: add(a, b), sub: sub(a, b), mul: mul(a, b), div: div(a, b) }",
+      "views": { "tile": [{ "show": "value" }, { "show": "setting", "key": "op", "as": "label" }] }
+    }
+  }
+}

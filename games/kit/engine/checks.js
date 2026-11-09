@@ -34,7 +34,9 @@ export async function checkGame(content, { domain, listed }) {
   for (const f of termRegistry(content.glossary).failures) fail(`terminology ${f.rule} ${f.at}: ${f.says}`)
   const spec = domain.spec(content)
 
-  for (const { rule, fresh, left, gone } of againstOpen([...audit(spec.course), ...(spec.audit?.() ?? [])], content.open ?? {})) {
+  // A notes course is no machine growing level by level: its course is not audited (games/DESIGN.md 12.1).
+  const findings = spec.course.notes ? [] : [...audit(spec.course), ...(spec.audit?.() ?? [])]
+  for (const { rule, fresh, left, gone } of againstOpen(findings, content.open ?? {})) {
     const text = RULE_TEXT[rule]
     if (!text) { fail(`game.json.open: ${rule} is no rule of the audit`); continue }
     if (fresh.length) fail(`course: ${text} (${fresh.length}): ${fresh.join('  ')}`)

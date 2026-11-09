@@ -71,7 +71,7 @@ $$
 
 真实相机还要把世界坐标转成相机坐标，再考虑主点、像素尺寸和镜头畸变；但这个小模型是之后所有相机 geometry 的基础。
 
-<!-- figure: pinhole-camera -->
+<!-- task: comp90086/projection -->
 
 <a id="topic-2"></a>
 ## 2. 镜头：视野与清晰范围

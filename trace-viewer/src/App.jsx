@@ -24,6 +24,7 @@ import { mountBarMenus } from '../../games/kit/menu.js'
 import sections from '../../docs/.sections.json'
 import AnnotationEntry from './components/AnnotationEntry'
 import { createFigureHost } from './figures/host'
+import { createTaskHost } from './figures/task'
 import { annotationAtPoint } from './lib/highlightGeometry'
 import { buildDocumentTree, libraryDocuments, noteDocuments, renderMarkdown, versionOf } from './lib/content'
 import { translate } from './lib/strings'
@@ -201,9 +202,10 @@ function App() {
     const hosts = figureHosts.current
     const used = new Set()
     article.querySelectorAll('.figure-slot').forEach((slot, index) => {
-      const key = `${activeDocument.path}#${index}#${slot.dataset.figure}`
+      const key = `${activeDocument.path}#${index}#${slot.dataset.figure ?? slot.dataset.task}`
       used.add(key)
-      if (!hosts.has(key)) hosts.set(key, createFigureHost(slot.dataset.figure, themeRef.current, { lang: activeDocument.lang ?? langRef.current }))
+      const lang = activeDocument.lang ?? langRef.current
+      if (!hosts.has(key)) hosts.set(key, slot.dataset.task ? createTaskHost(...slot.dataset.task.split('/'), { lang }) : createFigureHost(slot.dataset.figure, themeRef.current, { lang }))
       slot.replaceWith(hosts.get(key).host)
     })
     hosts.forEach((figure, key) => {

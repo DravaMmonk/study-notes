@@ -31,6 +31,9 @@ export const CLAIMS = {
   colour: item(t('某个物体是某种颜色', 'an object is of a colour'), S.obj({ object: S.str(), is: S.ref('colour') }), { test: (facts, p) => factOf(facts, p.object)?.colour === p.is }),
   class: item(t('某个物体属于某一类', 'an object is of a class'), S.obj({ object: S.str(), is: S.str() }), { test: (facts, p) => factOf(facts, p.object)?.class === p.is }),
   depth: item(t('某个物体离相机（沿光轴）这么远', 'an object is this far from the camera (along its axis)'), S.obj({ object: S.str(), z: S.num(), tol: S.opt(S.num()) }), { test: (facts, p) => factOf(facts, p.object) !== null && near(factOf(facts, p.object).depth, p.z, p.tol) }),
+  // Relations between two objects hold under a change of scale that leaves the picture as it is; their sizes do not.
+  nearer: item(t('某个物体比另一个离相机（沿光轴）近', 'an object is nearer the camera (along its axis) than another'), S.obj({ object: S.str(), than: S.str() }), { test: (facts, p) => factOf(facts, p.object) !== null && factOf(facts, p.than) !== null && factOf(facts, p.object).depth < factOf(facts, p.than).depth }),
+  taller: item(t('某个物体实际比另一个高', 'an object is really taller than another'), S.obj({ object: S.str(), than: S.str() }), { test: (facts, p) => factOf(facts, p.object) !== null && factOf(facts, p.than) !== null && factOf(facts, p.object).height > factOf(facts, p.than).height }),
   height: item(t('某个物体这么高', 'an object is this tall'), S.obj({ object: S.str(), h: S.num(), tol: S.opt(S.num()) }), { test: (facts, p) => factOf(facts, p.object) !== null && near(factOf(facts, p.object).height, p.h, p.tol) }),
 }
 

@@ -6,7 +6,7 @@ Learning path: the [pinhole camera](#1-pinhole-camera-lecture-2) decides "where 
 
 ## 1. Pinhole camera (Lecture 2)
 
-<!-- figure: pinhole-camera -->
+<!-- task: comp90086/projection -->
 
 **What this device is**: a pinhole camera on an optical bench. The front plate has nothing but a small hole, behind it is a ground-glass screen that slides back and forth, and far down the rail stands an arrow 100 mm tall.
 

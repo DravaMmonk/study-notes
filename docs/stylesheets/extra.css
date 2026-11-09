@@ -139,3 +139,6 @@ body { color: var(--ink); background: var(--paper); -webkit-font-smoothing: anti
 .md-footer__direction { color: var(--faint); font: var(--fs-label) var(--mono); letter-spacing: .1em; opacity: 1; }
 .md-footer-meta { display: none; }
 .md-top { color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--line), var(--lift); font: var(--fs-label) var(--mono); }
+
+/* A level of a notes edition (hooks/ui.py, games/DESIGN.md 12.1), as tall as its page says it is. */
+.md-typeset .task-embed { display: block; width: 100%; min-height: 160px; margin: var(--sp-9) 0; border: 0; border-radius: var(--r-lg); box-shadow: 0 0 0 1px var(--hairline); }

@@ -14,7 +14,7 @@ function extents(ctx) {
   const corners = ranged.reduce((all, [name, k]) => all.flatMap((c) => [{ ...c, [name]: k.min }, { ...c, [name]: k.max }]), [{}])
   const setup = ctx.model.setup
   const states = [...corners.map((v) => pinholeView(setup, { ...ctx.values, ...v })), ...(ctx.bench.stages ?? []).map((s) => pinholeView(setup, startValues(ctx.bench, s))), ...(setup.reference ? [pinholeView(setup, setup.reference)] : [])]
-  const objects = (q) => setup.objects?.map((o) => [o.Z ?? q.Z, o.X - q.aim, o.X + o.H - q.aim]) ?? [[q.Z, setup.object === 'point' ? q.X : 0, setup.object === 'point' ? q.X : q.H]]
+  const objects = (q) => setup.objects?.map((o) => [(o.Z ?? q.Z) + q.back, o.X - q.aim, o.X + o.H - q.aim]) ?? [[q.Z, setup.object === 'point' ? q.X : 0, setup.object === 'point' ? q.X : q.H]]
   return {
     depth: Math.max(...states.flatMap((q) => [q.f, ...objects(q).map(([z]) => z)])) * 1.14,
     height: Math.max(1, ...states.flatMap((q) => objects(q).flatMap(([z, a, b]) => [Math.abs(a), Math.abs(b), Math.abs(q.f * a / z), Math.abs(q.f * b / z)])), Math.abs((setup.target?.value ?? 0) * (setup.target?.of.endsWith('_px') ? states[0].pitch : 1)), setup.sensor ? (setup.axis === 'horizontal' ? setup.sensor.width : setup.sensor.height) / 2 : 0) * 1.3,

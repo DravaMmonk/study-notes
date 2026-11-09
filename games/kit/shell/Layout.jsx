@@ -6,6 +6,7 @@ import { RunResults } from './RunDock.jsx'
 import { useEdit, useMark } from './edit.js'
 import { AddMark } from './EditMarks.jsx'
 import Workbench from './Workbench.jsx'
+import { useEmbed } from './embed.js'
 
 // The level screen's frame on a phone (PhonePage; on a desktop, Workbench.jsx), and what goes in it in every game:
 // the brief, the text it is written in.
@@ -27,15 +28,19 @@ export function Level({ phone, stage, ...props }) {
  * scrolls: the task in its foldable 任务 card, the play area, and below it what a run or check gives (`results`); at the
  * bottom the tray (parts to place) and the run bar, pinned. A run, a step or a check brings the results into view
  * (RunDock). `results` null or left out: nothing below the play area.
+ *
+ * Embedded in a note (embed.js), the page is a block in the note's flow: nothing pinned and nothing scrolling of its
+ * own, the task open above the play area, the tray and the run bar under the results.
  */
 export function PhonePage({ rootRef, scrollRef, onScroll, className = '', brief, tests, children, tray, results, dock }) {
   const box = useRef(null)
+  const embed = useEmbed()
   const shown = useMemo(() => ({ show: () => requestAnimationFrame(() => box.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' })) }), [])
   return (
-    <div ref={rootRef} className={`level-phone ${className}`}>
+    <div ref={rootRef} className={`level-phone ${embed ? 'is-embed' : ''} ${className}`}>
       {tests}
       <div ref={scrollRef} className="pl-scroll" onScroll={onScroll}>
-        <TaskCard>{brief}</TaskCard>
+        {embed ? <div className="task-body">{brief}</div> : <TaskCard>{brief}</TaskCard>}
         {children}
         {results && <section ref={box} className="pl-results" aria-label={tr('结果', 'Results')}>{results}</section>}
       </div>
@@ -64,9 +69,11 @@ export function TaskCard({ children }) {
  * (one text, or several paragraphs), an
  * optional tip, the hints behind a 提示 button (several are shown one at a time), then whatever the level adds below
  * (parts, score…). On a phone the page wraps it in the 任务 card (PhonePage) and the top bar carries the title.
+ * Embedded in a note (embed.js), the note names the level: no label or title.
  */
 export function Brief({ game, level, text, tip, hint, children }) {
   const [shown, setShown] = useState(0) // how many hints are open
+  const embed = useEmbed()
   const edit = useEdit()
   const mark = useMark()
   const body = text ?? level.brief
@@ -79,10 +86,12 @@ export function Brief({ game, level, text, tip, hint, children }) {
   const more = shown < hints.length
   return (
     <>
-      <header className="brief-head">
-        <span className="brief-id">{game.levelLabel(level)}</span>
-        <h1 {...mark('title', 'level')}>{L(level.title)}</h1>
-      </header>
+      {!embed && (
+        <header className="brief-head">
+          <span className="brief-id">{game.levelLabel(level)}</span>
+          <h1 {...mark('title', 'level')}>{L(level.title)}</h1>
+        </header>
+      )}
       {level.optionalLevel && !edit && <button type="button" className="brief-skip" onClick={level.skipLevel}>{tr('跳过此关', 'Skip this level')}</button>}
       {level.steps && (edit || level.steps.names.length > 1) && <TaskSteps steps={level.steps} />}
       {paragraphs.map((p, k) => <Text key={k} className="brief-text" text={p} mark={mark(many ? `brief[${k}]` : 'brief')} />)}

@@ -19,7 +19,7 @@ export default function CameraScene({ setup, q, bounds, revealed }) {
   const plane = x(q.f)
   const sensorSpan = setup.sensor ? setup.axis === 'horizontal' ? setup.sensor.width : setup.sensor.height : null
   const sensorHalf = sensorSpan === null ? null : sensorSpan / 2 / bounds.height * 165
-  const objects = setup.objects?.map((o) => ({ ...o, Z: o.Z ?? q.Z, a: o.X - q.aim, b: o.X + o.H - q.aim })) ?? [{ Z: q.Z, a: setup.object === 'point' ? q.X : 0, b: setup.object === 'point' ? q.X : q.H }]
+  const objects = setup.objects?.map((o) => ({ ...o, Z: (o.Z ?? q.Z) + (q.back ?? 0), a: o.X - q.aim, b: o.X + o.H - q.aim })) ?? [{ Z: q.Z, a: setup.object === 'point' ? q.X : 0, b: setup.object === 'point' ? q.X : q.H }]
   const ruler = (a, b, at, label) => <g className="vp-lab-ruler">
     <path d={`M ${a} ${at - 5} v 10 M ${a} ${at} H ${b} M ${b} ${at - 5} v 10`} />
     <text x={(a + b) / 2} y={at - 9}>{label}</text>

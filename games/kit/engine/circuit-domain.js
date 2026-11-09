@@ -147,9 +147,10 @@ export const primitivesOnly = (board, parts) => ({ BUILT: {}, partOf: (t) => boa
 
 export function circuitCourse(content, { board, parts, read: readOwn = (task) => task, test: readTest = (t) => t, kinds = {}, pack = () => ({}), holds = false, replaces = () => [], unwanted = () => [] }) {
   const { eras, trays, primitives, levels, concept = {} } = content
+  const notes = content.mode === 'notes'
   const wrong = []
   const say = (where, text) => wrong.push(`${where}: ${text}`)
-  const plan = layout(eras)
+  const plan = layout(eras, { notes })
   const given = new Map(levels.map((l) => [l.id, l]))
   const eraOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era])))
   for (const l of levels) if (!eraOf.has(l.id)) say(l.id, 'the level is in no era')
@@ -293,6 +294,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       return { task: task.taskId, staged: shown.stages.length > 0, count: shown.loose.length }
     }),
     abstraction: true,
+    notes,
   })
   const series = assemblySeries(revisions, { before: course.before, passed: (task) => own.has(task.id) })
   wrong.push(...series.problems())
@@ -470,6 +472,7 @@ export const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
+  mode: S.opt(S.oneOf(['notes'], { about: t('笔记版：一关对应一个笔记词条，所有关打开，不跑课程审计（手册第 12 节）', 'the notes edition: a level per notes entry, every level open, no course audit (handbook section 12)') })),
   primitives: S.list(S.ref('part')),
   trays: TRAYS,
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),

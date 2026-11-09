@@ -71,7 +71,7 @@ The intuition behind the formula is simple: for objects of the same size, the la
 
 A real camera also has to convert world coordinates into camera coordinates and then account for the principal point, pixel size and lens distortion; but this small model is the foundation of all the camera geometry that follows.
 
-<!-- figure: pinhole-camera -->
+<!-- task: comp90086/projection -->
 
 <a id="topic-2"></a>
 ## 2. Lenses: field of view and the in-focus range

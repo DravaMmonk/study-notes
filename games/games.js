@@ -75,4 +75,10 @@ export const GAMES = [
     levels: 17, art: 'pipeline', dev: true,
     page: { icon: 'M16 32h32M32 16v32', description: '视觉实验室 Vision Lab：从基础元件搭建比较仪、扫描器与频率分析仪。Build visual machines from reusable image circuits.' },
   },
+  {
+    id: 'comp90086', href: 'comp90086/index.html', title: '计算机视觉笔记', en: 'Computer Vision Notes', topic: { zh: 'COMP90086 笔记版', en: 'COMP90086 notes edition' },
+    desc: { zh: '嵌在 COMP90086 笔记里的交互：每个知识点动手一次，先预测，再看结果。', en: 'The interactions inside the COMP90086 notes: try each idea once, predicting first and then seeing what happens.' },
+    levels: 3, art: 'pipeline', hidden: true,
+    page: { icon: 'M16 32h32M32 16v32', description: '计算机视觉笔记 Computer Vision Notes：COMP90086 笔记里的交互。The interactions inside the COMP90086 notes.' },
+  },
 ];

@@ -58,6 +58,8 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
    with room around them for a node's glow and its lift on hover. */
 .map-tree-scroll { margin-top: var(--sp-1); padding: var(--sp-3) 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; }
 .map-tree { position: relative; margin: 0 auto; }
+.map-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(var(--node-w), 100%), 1fr)); gap: var(--sp-4); padding: var(--sp-3) 0; }
+.map-list .map-node { position: relative; width: 100%; }
 .map-wires { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
 .map-wires path { fill: none; stroke: var(--rule); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .map-wires path.is-optional { stroke-dasharray: 5 5; }
@@ -89,18 +91,18 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .map-node-best { flex: none; color: var(--faint); font-family: var(--mono); font-size: 10px; }
 /* A compact tree (a phone, the level drawer): nodes narrow enough for three columns, the label above a title of up to
    two lines. */
-.map-tree.is-compact .map-node { display: grid; grid-template-columns: 14px minmax(0, 1fr); column-gap: var(--sp-3); align-content: center; padding: 0 var(--sp-4); }
-.map-tree.is-compact .map-pad { grid-row: span 2; width: 14px; height: 14px; }
-.map-tree.is-compact .map-node-id { font-size: 9.5px; line-height: 1.2; }
-.map-tree.is-compact .map-node-title { display: -webkit-box; font-size: 12.5px; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.map-tree.is-compact .map-node-best { display: none; }
+.map-list.is-compact .map-node, .map-tree.is-compact .map-node { display: grid; grid-template-columns: 14px minmax(0, 1fr); column-gap: var(--sp-3); align-content: center; padding: 0 var(--sp-4); }
+.map-list.is-compact .map-pad, .map-tree.is-compact .map-pad { grid-row: span 2; width: 14px; height: 14px; }
+.map-list.is-compact .map-node-id, .map-tree.is-compact .map-node-id { font-size: 9.5px; line-height: 1.2; }
+.map-list.is-compact .map-node-title, .map-tree.is-compact .map-node-title { display: -webkit-box; font-size: 12.5px; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.map-list.is-compact .map-node-best, .map-tree.is-compact .map-node-best { display: none; }
 .map-node.is-minor { gap: var(--sp-3); padding: 0 var(--sp-4) 0 var(--sp-4); border-radius: var(--r-md); }
 .map-node.is-minor .map-pad { width: 12px; height: 12px; }
 .map-node.is-minor .map-node-title { font-size: 12px; }
-.map-tree.is-compact .map-node.is-minor { grid-template-columns: 12px minmax(0, 1fr); column-gap: var(--sp-3); padding: 0 var(--sp-3); }
-.map-tree.is-compact .map-node.is-minor .map-pad { width: 12px; height: 12px; }
-.map-tree.is-compact .map-node.is-minor .map-node-id { font-size: 9px; }
-.map-tree.is-compact .map-node.is-minor .map-node-title { font-size: 11px; }
+.map-list.is-compact .map-node.is-minor, .map-tree.is-compact .map-node.is-minor { grid-template-columns: 12px minmax(0, 1fr); column-gap: var(--sp-3); padding: 0 var(--sp-3); }
+.map-list.is-compact .map-node.is-minor .map-pad, .map-tree.is-compact .map-node.is-minor .map-pad { width: 12px; height: 12px; }
+.map-list.is-compact .map-node.is-minor .map-node-id, .map-tree.is-compact .map-node.is-minor .map-node-id { font-size: 9px; }
+.map-list.is-compact .map-node.is-minor .map-node-title, .map-tree.is-compact .map-node.is-minor .map-node-title { font-size: 11px; }
 .map-node.is-here { box-shadow: 0 0 0 2px var(--ink); }
 .map-unlock { position: absolute; z-index: 2; transform: translate(-50%, -50%); height: 20px; padding: 0 var(--sp-4); display: inline-flex; align-items: center; gap: var(--sp-2); overflow: hidden; border-radius: var(--r-full); font-size: 11px; line-height: 1; white-space: nowrap; pointer-events: auto; }
 .map-unlock span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
@@ -630,3 +632,20 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .typeset-math .katex-display { margin: 0; }
 
 .brief-skip { padding: var(--sp-3) var(--sp-4); border: 1px solid var(--rule); border-radius: var(--r-md); background: transparent; color: var(--muted); font: inherit; cursor: pointer; }
+
+/* ---------- a level embedded in a note (EmbedShell.jsx, embed.js): a block in the note's flow, as tall as what it
+   holds; a board stands at a set height. The note names the level and introduces it, so the task is the one line on
+   top. ---------- */
+.game.is-embed { position: relative; min-height: 0; display: block; }
+.embed-open { position: absolute; z-index: 5; top: var(--sp-4); right: var(--sp-4); width: 28px; height: 28px; display: grid; place-items: center; border-radius: var(--r-md); color: var(--muted); }
+.embed-open:hover { color: var(--ink); background: var(--hairline); }
+.level.is-embed { --embed-board-h: 400px; grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+.level.is-embed > .brief { grid-row: auto; padding: var(--sp-5) var(--sp-9) var(--sp-5) var(--sp-6); gap: var(--gap-group); overflow: visible; border-right: 0; border-bottom: 1px solid var(--hairline); }
+.level.is-embed > .brief > .brief-text:first-child { margin: 0; }
+.level.is-embed > .stage-pane { grid-column: 1; grid-row: auto; }
+.level.is-embed > .stage-pane.is-board { height: var(--embed-board-h); }
+.level.is-embed > .stage-pane.is-scroll { overflow: visible; }
+.level.is-embed > .wb-strip { grid-column: 1; grid-row: auto; height: auto; max-height: none; }
+.level-phone.is-embed { overflow: visible; }
+.level-phone.is-embed > .pl-scroll { flex: none; overflow: visible; padding-top: var(--sp-6); }
+.level-phone.is-embed .task-body { padding: 0 var(--sp-9) 0 0; }

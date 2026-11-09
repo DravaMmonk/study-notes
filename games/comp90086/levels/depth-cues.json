@@ -1,0 +1,129 @@
+{
+  "title": { "zh": "单视图深度线索", "en": "Single-view depth cues" },
+  "tasks": [
+    {
+      "id": "depth-cues",
+      "kind": "choice",
+      "brief": {
+        "zh": "只凭这张照片和已知的事，每句话成立、不成立，还是无法确定？",
+        "en": "From this photo and what is known, is each claim supported, contradicted or undetermined?"
+      },
+      "judge": "claims",
+      "rounds": [
+        {
+          "given": {
+            "zh": "两个箱子都放在平地上；相机离地多高不知道。",
+            "en": "Both boxes stand on flat ground; how high the camera is, is not known."
+          },
+          "scenes": [
+            {
+              "size": [64, 48],
+              "camera": { "yaw": 0, "pitch": 7.66, "distance": 9, "f": 1.6, "at": [0, 0.3, 0] },
+              "light": { "azimuth": 35, "elevation": 55 },
+              "floor": "white",
+              "background": "grey",
+              "objects": [
+                {
+                  "id": "red",
+                  "class": "box",
+                  "colour": "red",
+                  "boxes": [{ "at": [-0.5, 0.3, 4], "size": [0.6, 0.6, 0.6] }]
+                },
+                {
+                  "id": "blue",
+                  "class": "box",
+                  "colour": "blue",
+                  "boxes": [{ "at": [0.6, 0.6, -1.5], "size": [0.9, 1.2, 0.9] }]
+                }
+              ]
+            },
+            {
+              "size": [64, 48],
+              "camera": {
+                "yaw": 0,
+                "pitch": 7.66,
+                "distance": 18,
+                "f": 1.6,
+                "at": [0, 0.6, -8.919688483927448]
+              },
+              "light": { "azimuth": 35, "elevation": 55 },
+              "floor": "white",
+              "background": "grey",
+              "objects": [
+                {
+                  "id": "red",
+                  "class": "box",
+                  "colour": "red",
+                  "boxes": [{ "at": [-1, 0.6, -0.9196884839274482], "size": [1.2, 1.2, 1.2] }]
+                },
+                {
+                  "id": "blue",
+                  "class": "box",
+                  "colour": "blue",
+                  "boxes": [{ "at": [1.2, 1.2, -11.919688483927448], "size": [1.8, 2.4, 1.8] }]
+                }
+              ]
+            }
+          ],
+          "items": [
+            {
+              "prompt": { "zh": "红箱子比蓝箱子离相机近", "en": "The red box is nearer the camera than the blue one" },
+              "claim": { "nearer": { "object": "red", "than": "blue" } }
+            },
+            {
+              "prompt": { "zh": "蓝箱子实际比红箱子高", "en": "The blue box is really taller than the red one" },
+              "claim": { "taller": { "object": "blue", "than": "red" } }
+            },
+            {
+              "prompt": { "zh": "红箱子离相机约 5 米", "en": "The red box is about 5 m from the camera" },
+              "claim": { "depth": { "object": "red", "z": 5.0356940071433565, "tol": 0.1 } }
+            }
+          ]
+        },
+        {
+          "given": { "zh": "现在知道：相机离地 1.5 米。", "en": "Now you know: the camera is 1.5 m above the ground." },
+          "scenes": [
+            {
+              "size": [64, 48],
+              "camera": { "yaw": 0, "pitch": 7.66, "distance": 9, "f": 1.6, "at": [0, 0.3, 0] },
+              "light": { "azimuth": 35, "elevation": 55 },
+              "floor": "white",
+              "background": "grey",
+              "objects": [
+                {
+                  "id": "red",
+                  "class": "box",
+                  "colour": "red",
+                  "boxes": [{ "at": [-0.5, 0.3, 4], "size": [0.6, 0.6, 0.6] }]
+                },
+                {
+                  "id": "blue",
+                  "class": "box",
+                  "colour": "blue",
+                  "boxes": [{ "at": [0.6, 0.6, -1.5], "size": [0.9, 1.2, 0.9] }]
+                }
+              ]
+            }
+          ],
+          "items": [
+            {
+              "prompt": { "zh": "红箱子离相机约 5 米", "en": "The red box is about 5 m from the camera" },
+              "claim": { "depth": { "object": "red", "z": 5.0356940071433565, "tol": 0.1 } }
+            },
+            {
+              "prompt": { "zh": "蓝箱子高约 1.2 米", "en": "The blue box is about 1.2 m tall" },
+              "claim": { "height": { "object": "blue", "h": 1.2 } }
+            }
+          ]
+        }
+      ],
+      "naive": {
+        "picks": [[["undetermined"], ["contradicted"], ["undetermined"]], [["undetermined"], ["undetermined"]]],
+        "why": {
+          "zh": "以为单张照片什么都定不下，或者像小就是物体小：箱子都在地上时，谁近谁远、谁实际更高在任何尺度下都一样；缺的只是一个已知的长度，相机离地的高度就够了。",
+          "en": "Thinking one photo settles nothing, or that a small image means a small object: with both boxes on the ground, which is nearer and which is really taller hold at any scale; all that is missing is one known length, and the camera’s height will do."
+        }
+      }
+    }
+  ]
+}

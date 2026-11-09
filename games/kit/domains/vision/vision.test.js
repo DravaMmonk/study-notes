@@ -237,6 +237,8 @@ test('claims over candidate scenes: supported, contradicted, undetermined (0B3, 
   assert.equal(verdictOf({ colour: { object: 'cube', is: 'red' } }, scenes).verdict, 'supported')
   assert.equal(verdictOf({ visible: { object: 'ball' } }, scenes).verdict, 'contradicted')
   assert.equal(verdictOf({ colour: { object: 'ball', is: 'blue' } }, scenes).verdict, 'undetermined')
+  assert.equal(verdictOf({ nearer: { object: 'screen', than: 'ball' } }, scenes).verdict, 'supported')
+  assert.equal(verdictOf({ taller: { object: 'ball', than: 'cube' } }, scenes).verdict, 'contradicted')
   const round = { scenes, items: [{ claim: { colour: { object: 'ball', is: 'blue' } } }], options: [] }
   assert.match(JUDGES.claims.check(round, [['supported']], {})[0].why.en, /holds in scene 1 and fails in scene 2/)
   assert.deepEqual(JUDGES.claims.check(round, JUDGES.claims.reference(round, {}), {}), [])

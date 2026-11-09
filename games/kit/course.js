@@ -22,8 +22,9 @@
 // topic may also name levels of earlier eras there (a topic that goes on from one in an earlier chapter): it requires
 // them, and hangs on its own era's track at its last `after`.
 // A part, once met, is usable in every level after it on the tree that plays with a tray listing it (see trays).
-// layout(eras) gives the play order, each level's place ({ era, role, topic | branch }), what it requires and each
-// era's track for the map; the shell opens a level once everything it requires is solved.
+// layout(eras, { notes }) gives the play order, each level's place ({ era, role, topic | branch }), what it requires
+// and each era's track for the map; the shell opens a level once everything it requires is solved. A notes course
+// requires nothing anywhere.
 //
 // defineCourse({
 //   levels      [{ id, unlocks: [flag] }]  in play order (layout(eras).order when the course has eras)
@@ -69,6 +70,8 @@
 //                                          growing); without it, topics are not checked so
 //   abstraction                            also audit the abstraction chain (bare-intro, unused); a course turns it on
 //                                          once its curriculum keeps it
+//   notes                                  a notes course (games/DESIGN.md 12): every level open, nothing requiring
+//                                          anything, and no audit (the checks skip it)
 // })
 // met(course, level) is every part a level has met; reach(course, level) those of them its tray holds;
 // usable(course, level, flags) what it holds for a player;
@@ -141,8 +144,8 @@ export function numbered(items, requires) {
  * letter) and place ('N2'), an era's challenges 'C1.1' …. A domain with its own numbering (the logic domain's topic
  * codes running across chapters) gives its own.
  */
-export function levelLabels(eras) {
-  const { requires } = layout(eras)
+export function levelLabels(eras, options) {
+  const { requires } = layout(eras, options)
   return new Map(eras.flatMap((era) => [
     ...numbered([...era.foundation, ...(era.practice ?? [])], requires).map((id, k) => [id, `${era.id}-${k + 1}`]),
     ...(era.topics ?? []).flatMap((t) => t.levels.map((id, k) => [id, `${t.code ?? t.id[0].toUpperCase()}${k + 1}`])),
@@ -162,7 +165,7 @@ export const eraLevels = (era) => [...pathLevels([...era.foundation, ...(era.pra
  * where `branches` are the optional topics and challenges hanging there ({ kind, id, title, levels, after }, after: the
  * levels they follow).
  */
-export function layout(eras) {
+export function layout(eras, { notes = false } = {}) {
   const place = new Map(), requires = new Map(), tracks = new Map()
   let before = [] // where the previous era's main path ended
   for (const era of eras) {
@@ -216,6 +219,8 @@ export function layout(eras) {
     tracks.set(era.id, track)
     before = ends
   }
+  // A notes course (games/DESIGN.md 12.1) opens every level: none requires another.
+  if (notes) for (const id of requires.keys()) requires.set(id, [])
   // Play order: each era's track, every branch right after the place it hangs from.
   const order = [...tracks.values()].flatMap((track) => track.flatMap((entry) => [...(entry.level ? [entry.level] : entry.parallel.flatMap((b) => b.levels)), ...entry.branches.flatMap((b) => b.levels)]))
   return { order, place, requires, tracks }
@@ -224,13 +229,13 @@ export function layout(eras) {
 // A showcase's reason, written plainly or in each language.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], finale = null, abstraction = false }) {
+export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], finale = null, abstraction = false, notes = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
   /** The level that builds a part: the first to set the flag it needs. */
   const builder = (part) => (needs(part) ? setBy.get(needs(part)) ?? null : null)
-  const plan = eras ? layout(eras) : null
+  const plan = eras ? layout(eras, { notes }) : null
   // Everything solved before a level can open: with eras, what it requires, all the way back; without, every level
   // before it in play order.
   const ancestors = new Map()
@@ -247,7 +252,7 @@ export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = (
     if (name !== null && !trays[name]) throw new Error(`level ${level.id} is played with the tray ${name}, which the game has not`)
     return name
   }
-  return { levels, eras, plan, trays, tray, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, boards, showcase, declares, carries, openParts, finale, abstraction, index, builder, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, trays, tray, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, boards, showcase, declares, carries, openParts, finale, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
 }
 
 /**

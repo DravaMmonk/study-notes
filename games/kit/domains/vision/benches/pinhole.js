@@ -4,7 +4,8 @@
 // offset X and depth Z > 0 projects to u = f·X / Z; an upright object of height H at depth Z projects to h = f·H / Z.
 //
 // One object (the setup's X, H, or knobs of those names), or several (`objects`: each an upright arrow from X to X + H
-// at its own depth or the knob Z). With a `sensor` (its height and width in millimetres and in pixels, the principal
+// at its own depth or the knob Z). A knob `back` moves the camera back along its axis: every depth grows by it (a
+// dolly). With a `sensor` (its height and width in millimetres and in pixels, the principal
 // point at its centre), the plane has edges: an object whose image runs past them is out of view, and every image
 // position and height is read in pixels too; the focal length in pixels uses the chosen axis pitch. The vertical
 // and horizontal fields of view remain tied to sensor height and width respectively.
@@ -27,7 +28,8 @@ const deg = (rad) => (rad * 180) / Math.PI
  */
 export function pinholeView(setup, values) {
   const v = { ...setup, ...values }
-  const out = { ...project(v), aim: v.aim ?? 0 }
+  const back = v.back ?? 0
+  const out = { ...project({ ...v, Z: (v.Z ?? 1) + back }), aim: v.aim ?? 0, back }
   const sensor = setup.sensor
   const horizontal = setup.axis === 'horizontal'
   const pixels = sensor && (horizontal ? sensor.pxWidth : sensor.pxHeight)
@@ -38,7 +40,7 @@ export function pinholeView(setup, values) {
   if (setup.objects) {
     let seen = 0
     for (const o of setup.objects) {
-      const Z = o.Z ?? v.Z
+      const Z = (o.Z ?? v.Z) + back
       const [bottom, top] = [(v.f * (o.X - out.aim)) / Z, (v.f * (o.X + o.H - out.aim)) / Z]
       out[`u_${o.id}`] = bottom
       out[`h_${o.id}`] = top - bottom

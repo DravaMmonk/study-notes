@@ -22,7 +22,7 @@ export function circuitGame(content, circuit, { kind, Screen, cards, Hero, kinds
     return { key: `part:${type}`, name, desc, ...defined({ revisions }), icon, at, atTasks: at.flatMap((id) => circuit.introductions(type, id)) }
   })
   const built = [...new Map(LEVELS.filter((L) => L.builds).map((L) => [L.builds.type, { key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }])).values()]
-  const labels = levelLabels(content.eras)
+  const labels = levelLabels(content.eras, { notes: course.notes })
   const kindOf = (T) => (kinds[T.kind] ? T.kind : kind.id)
   const game = defineGame({
     id: content.id,
@@ -32,6 +32,7 @@ export function circuitGame(content, circuit, { kind, Screen, cards, Hero, kinds
     glossary: content.glossary,
     views: content.views,
     Hero,
+    notes: course.notes,
     chapters: CHAPTERS,
     core: (level) => isCore(course, level),
     levelLabel: (level) => labels.get(level.id) ?? level.id,

@@ -141,12 +141,16 @@ function slugify(value, seen) {
   return count ? `${base}-${count + 1}` : base
 }
 
-// An HTML comment on its own line, <!-- figure: name -->, marks where an interactive figure goes.
-// Obsidian and MkDocs hide the comment; here it becomes an empty slot the app fills.
+// An HTML comment on its own line, <!-- figure: name -->, marks where an interactive figure goes; <!-- task: game/level
+// --> where a level of a notes edition goes (games/DESIGN.md 12.1). Obsidian hides the comment; here it becomes an
+// empty slot the app fills.
 const figurePattern = /^[ \t]*<!--\s*figure:\s*([a-z0-9-]+)\s*-->[ \t]*$/gm
+const taskPattern = /^[ \t]*<!--\s*task:\s*([a-z0-9-]+)\/([a-z0-9-]+)\s*-->[ \t]*$/gm
 
 export function renderMarkdown(markdown, sourcePath) {
-  const withFigures = markdown.replace(figurePattern, (_, name) => `<div class="figure-slot" data-figure="${name}"></div>`)
+  const withFigures = markdown
+    .replace(figurePattern, (_, name) => `<div class="figure-slot" data-figure="${name}"></div>`)
+    .replace(taskPattern, (_, game, level) => `<div class="figure-slot" data-task="${game}/${level}"></div>`)
   const preparedMarkdown = resolveAssetReferences(withFigures, sourcePath)
   const unsafeHtml = markdownRenderer.parse(preparedMarkdown, { breaks: false, gfm: true })
   const parser = new DOMParser()
