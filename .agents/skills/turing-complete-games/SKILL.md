@@ -16,7 +16,7 @@ adding or reordering levels, adding parts or machine abilities, or changing the 
 The design rules live in the repository, not in this skill. Before designing or reviewing, read:
 
 1. `games/DESIGN.md` — the shared handbook: principles (§1), course structure and practice clusters (§2,
-   especially §2.3), level spec (§4), audit rules (§5), engine layering (§6), interface (§6.10), author workflow (§7), pitfalls (§8)
+   especially §2.3), level spec (§4), audit rules (§5), engine layering (§6), interface (§6.9), author workflow (§7), pitfalls (§8)
    and case studies (§9–11).
 2. `games/<game>/DESIGN.md` (or `CURRICULUM.md`) — the topic's own design.
 3. The game's content (`games/DESIGN.md` §6.1): `games/<game>/game.json` (eras, parts), `levels/<id>.json`
@@ -32,7 +32,7 @@ changes and general lessons where they help future work; use the user's scope an
   and writes tests, copy and reference / naive boards as blueprint text, never a function. Anything new (an engine
   resource, a world, a check, a panel) goes into the domain's vocabulary and implementation.
 - Where the domain gives engine resources (`op` kind), a game's primitive parts are content: `games/<game>/parts.json`
-  (`games/DESIGN.md` §6.9) — ports, settings in the six kernel controls, an ASCII expression calling only resources
+  (`games/DESIGN.md` §6.8) — ports, settings in the six kernel controls, an ASCII expression calling only resources
   and kernel builtins, interaction rules and checks, and the card / tile / detail views. Change a part there (studio's
   parts tab, or `part.*`, `parts.set`), never in domain code; a computation no resource can express is a new resource.
 - A level is a list of tasks (`games/DESIGN.md` §4, `kit/engine/tasks.js`): what it says once (title, intro, pass
@@ -92,7 +92,7 @@ pedagogical quality.
 
 ## Interface checklist
 
-Read `games/DESIGN.md` §6.10 before changing any interface, and §2.5 for the map's level tree. Above all: let the
+Read `games/DESIGN.md` §6.9 before changing any interface, and §2.5 for the map's level tree. Above all: let the
 layout speak — no secondary labels or descriptions, nothing said twice, dense use of space; every game gets the same
 layout and interactions from the shared kit; on phone, operability comes before a complete picture. Also: a left
 drawer of level trees inside a level; the pass dialog returns to the map and the map lands on that level; input cards
