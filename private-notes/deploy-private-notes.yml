@@ -1,0 +1,61 @@
+# Install as .github/workflows/deploy-private-notes.yml in the private course repository.
+name: Deploy private notes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'course-assets.json'
+      - '.github/workflows/deploy-private-notes.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-private-notes
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main' && github.event.repository.private
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out private course materials
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          path: course
+          persist-credentials: false
+      - name: Check out public notes
+        uses: actions/checkout@v4
+        with:
+          repository: DravaMmonk/study-notes
+          ref: main
+          path: notes
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: notes/requirements-docs.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: pip install -r notes/requirements-docs.txt
+      - name: Build and verify private notes
+        working-directory: notes
+        run: |
+          python private-notes/course_assets.py import ../course
+          mkdocs build -f mkdocs.private.yml
+          python private-notes/course_assets.py verify ../course
+      - name: Deploy to Cloudflare Workers
+        working-directory: notes
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+          test -n "$CLOUDFLARE_API_TOKEN"
+          npx --yes wrangler@4 deploy --config private-notes/wrangler.toml

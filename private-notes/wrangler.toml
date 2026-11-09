@@ -1,0 +1,10 @@
+name = "study-notes-private"
+main = "worker.mjs"
+compatibility_date = "2026-11-09"
+workers_dev = true
+preview_urls = false
+
+[assets]
+directory = "../site-private"
+binding = "ASSETS"
+run_worker_first = true
