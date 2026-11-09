@@ -9,6 +9,8 @@ Learning path: [Adding noise](#topic-1) → [Training and generation](#topic-2) 
 <a id="topic-1"></a>
 ## 1. Key point: first learn how to destroy an image
 
+**Practice · Vision Complete:** [8-7 Straight to step t](https://dravammonk.github.io/games/vision-complete/index.html?level=8-7) · [8-8 Twice is once](https://dravammonk.github.io/games/vision-complete/index.html?level=8-8)
+
 ![PDF 11 - Forward diffusion](assets/17-diffusion/slide-11.png)
 
 Look along the dog photos from left to right: the outline gradually disappears and noise gradually dominates. Each small picture here is a whole image sample, not the trajectory of some pixel.
@@ -36,6 +38,8 @@ $$
 <a id="topic-2"></a>
 ## 2. What training learns, and what generation does
 
+**Practice · Vision Complete:** [8-10 Getting x₀ back](https://dravammonk.github.io/games/vision-complete/index.html?level=8-10)
+
 | Stage | What the network receives | What it has to do |
 | --- | --- | --- |
 | Training | Noisy image $x_t$ and timestep $t$ | Estimate the added noise, or estimate the original image |
@@ -49,6 +53,8 @@ Week 10's `workshop/week-10/worksheet10-diffusion.ipynb` practises, in order, Ga
 
 <a id="topic-3"></a>
 ## 3. How to reduce computation, and how to specify what to generate
+
+**Practice · Vision Complete:** [8-9 Draw it on the side asked for](https://dravammonk.github.io/games/vision-complete/index.html?level=8-9)
 
 ![PDF 30 - Latent diffusion](assets/17-diffusion/slide-30.png)
 

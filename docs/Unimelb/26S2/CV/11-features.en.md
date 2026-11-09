@@ -48,6 +48,8 @@ A corner here is a property of local intensity variation; it does not have to be
 <a id="topic-2"></a>
 ## 2. Hard part: Harris, from shift cost to corners
 
+**Practice · Vision Complete:** [6-1 Corners](https://dravammonk.github.io/games/vision-complete/index.html?level=6-1) · [6-2 Keep only the strongest](https://dravammonk.github.io/games/vision-complete/index.html?level=6-2) · [6-3 One point per corner](https://dravammonk.github.io/games/vision-complete/index.html?level=6-3)
+
 ### Writing "changes a lot after moving" as a formula
 
 ![PPT 12 - Weighted squared difference](assets/11-features/slide-12.png)
@@ -175,6 +177,8 @@ A **blob detector** looks for local regional structure; a **learned detector** u
 
 <a id="topic-4"></a>
 ## 4. Describing appearance: how SIFT makes comparison easy
+
+**Practice · Vision Complete:** [6-8 Orientation histogram](https://dravammonk.github.io/games/vision-complete/index.html?level=6-8)
 
 ### Detecting a corner does not tell you what it matches
 

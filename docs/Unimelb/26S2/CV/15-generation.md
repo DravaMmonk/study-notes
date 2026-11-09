@@ -42,6 +42,8 @@ $p(y)$ 是类别先验， $p(x)$ 是图像的总体分布。只有分类器 $p(y
 <a id="topic-2"></a>
 ## 2. 普通自编码器：先压缩，再重建
 
+**动手练习 · 视觉完备：**[8-1 两个数记住一张图](https://dravammonk.github.io/games/vision-complete/index.html?level=8-1) · [8-2 潜空间走一走](https://dravammonk.github.io/games/vision-complete/index.html?level=8-2)
+
 ### 输入自己就是学习目标
 
 ![PDF 24 - Autoencoder structure](assets/15-generation/slide-24.png)
@@ -72,6 +74,8 @@ $M$ 是参与比较的像素通道数， $j$ 标记其中一个数值。网络�
 
 <a id="topic-3"></a>
 ## 3. 难点：VAE 怎样把潜变量组织成可采样的分布
+
+**动手练习 · 视觉完备：**[8-4 随机也能求导](https://dravammonk.github.io/games/vision-complete/index.html?level=8-4) · [8-5 画一个新斑点](https://dravammonk.github.io/games/vision-complete/index.html?level=8-5)
 
 ### 编码器不再只输出一个固定点
 

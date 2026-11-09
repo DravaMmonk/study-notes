@@ -15,6 +15,8 @@ These notes are written for learners who are new to computer vision. Each lectur
 
 While following the course, read the notes in file order 01–22 (21 content lectures; Lecture 18 was cancelled, so the original numbering skips it); when revising, read by topic using the table above. For a hands-on feel for the concepts, see the [Device Gallery](topics/README.en.md): 16 interactive devices cover the first 16 lectures, grouped into five topic notes, and each is also embedded in the matching section of its lecture (they are only visible when reading in Fieldnotes). A concept that recurs across lectures is explained in detail only in its main section; other places link back to it.
 
+Relevant sections link directly to Vision Complete levels. Some levels need parts unlocked in earlier levels; start from the [level map](https://dravammonk.github.io/games/vision-complete/index.html) if needed.
+
 ## Where the workshops fit
 
 Workshops are numbered by the week in their package; some Canvas pages have mismatched topic names. The links below follow what the notebooks actually contain.

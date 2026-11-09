@@ -9,6 +9,8 @@
 <a id="topic-1"></a>
 ## 1. 重点：先学会怎样破坏图像
 
+**动手练习 · 视觉完备：**[8-7 一步加到第 t 步](https://dravammonk.github.io/games/vision-complete/index.html?level=8-7) · [8-8 两次等于一次](https://dravammonk.github.io/games/vision-complete/index.html?level=8-8)
+
 ![PDF 11 - Forward diffusion](assets/17-diffusion/slide-11.png)
 
 沿狗的照片从左往右看：轮廓逐渐消失，噪声逐渐占主导。这里的每张小图是一整个图像样本，不是某个像素的运动轨迹。
@@ -42,6 +44,8 @@ $$
 <a id="topic-2"></a>
 ## 2. 训练学什么，生成又做什么
 
+**动手练习 · 视觉完备：**[8-10 还原 x₀](https://dravammonk.github.io/games/vision-complete/index.html?level=8-10)
+
 | 阶段 | 网络拿到什么 | 要做什么 |
 | --- | --- | --- |
 | 训练 | 带噪图 $x_t$ 和时间步 $t$ | 估计加入的噪声，或估计原图 |
@@ -72,6 +76,8 @@ $$
 
 <a id="topic-3"></a>
 ## 3. 怎样减少计算，怎样指定生成内容
+
+**动手练习 · 视觉完备：**[8-9 指定画哪边](https://dravammonk.github.io/games/vision-complete/index.html?level=8-9)
 
 ![PDF 30 - Latent diffusion](assets/17-diffusion/slide-30.png)
 

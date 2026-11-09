@@ -11,6 +11,8 @@ Key points: causes of brightness, gradients, invariance and equivariance. Hard p
 <a id="topic-1"></a>
 ## 1. Brightness and colour: where observations come from
 
+**Practice · Vision Complete:** [3-1 Facing the light](https://dravammonk.github.io/games/vision-complete/index.html?level=3-1) · [3-2 Different paints, same light](https://dravammonk.github.io/games/vision-complete/index.html?level=3-2)
+
 ### The Lambertian model: light, colour and surface orientation jointly determine brightness
 
 ![Slide 5 - Image formation model](assets/05-image-formation-ii/slide-05.png)
@@ -96,6 +98,8 @@ Swapping R and G directly in RGB may change the brightness relationships as well
 <a id="topic-2"></a>
 ## 2. Inferring the surface: why the answer is not unique
 
+**Practice · Vision Complete:** [3-6 A new lamp gives it away](https://dravammonk.github.io/games/vision-complete/index.html?level=3-6) · [3-7 Shadow or colour](https://dravammonk.github.io/games/vision-complete/index.html?level=3-7)
+
 ### Shape from shading: why one brightness image is not enough to recover 3D
 
 ![Slide 23 - Recovering surface reflectance](assets/05-image-formation-ii/slide-23.png)
@@ -163,6 +167,8 @@ Anisotropic surfaces, because of tiny grooves, also make reflection vary with di
 
 <a id="topic-3"></a>
 ## 3. Edges: computing brightness changes
+
+**Practice · Vision Complete:** [3-9 Gradient magnitude](https://dravammonk.github.io/games/vision-complete/index.html?level=3-9)
 
 ### Gradients: writing "changes quickly" as numbers
 

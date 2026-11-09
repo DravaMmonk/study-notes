@@ -11,6 +11,8 @@
 <a id="topic-1"></a>
 ## 1. 从拍照到投影
 
+**动手练习 · 视觉完备：**[0-8 暗箱](https://dravammonk.github.io/games/vision-complete/index.html?level=0-8)
+
 ### 先记住：电脑看到的像素不一定可靠
 
 ![Slide 2 - Adversarial demo](assets/02-basics/slide-02.png)
@@ -132,6 +134,8 @@ $$
 <a id="topic-3"></a>
 ## 3. 图像数组：存储与坐标
 
+**动手练习 · 视觉完备：**[0-1 睁眼](https://dravammonk.github.io/games/vision-complete/index.html?level=0-1)
+
 ### 数字图像是怎样存储的
 
 ![Slide 22 - Image tensor](assets/02-basics/slide-22.png)
@@ -187,6 +191,8 @@ $$
 
 <a id="topic-4"></a>
 ## 4. 重采样与 Workshop 实作
+
+**动手练习 · 视觉完备：**[2-11 采样](https://dravammonk.github.io/games/vision-complete/index.html?level=2-11) · [2-13 缩小一半](https://dravammonk.github.io/games/vision-complete/index.html?level=2-13)
 
 ### 裁剪与缩放不是一回事
 

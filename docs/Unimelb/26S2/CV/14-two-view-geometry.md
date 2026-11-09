@@ -11,6 +11,8 @@
 <a id="topic-1"></a>
 ## 1. 坐标工具：多写一个数，简化计算
 
+**动手练习 · 视觉完备：**[7-5 三个数的叉积](https://dravammonk.github.io/games/vision-complete/index.html?level=7-5) · [7-6 两线交点](https://dravammonk.github.io/games/vision-complete/index.html?level=7-6)
+
 ### 齐次坐标为什么允许整体缩放
 
 ![PDF 6 - Homogeneous coordinates](assets/14-two-view-geometry/slide-06.png)
@@ -88,6 +90,8 @@ $r_1,r_2$ 是 $R$ 的前两列。于是平面坐标到图像坐标由一个 $H$ 
 
 <a id="topic-3"></a>
 ## 3. 难点：为什么一个点约束另一图中的一条线
+
+**动手练习 · 视觉完备：**[7-7 极线计算器](https://dravammonk.github.io/games/vision-complete/index.html?level=7-7) · [7-8 点在线上吗](https://dravammonk.github.io/games/vision-complete/index.html?level=7-8) · [7-9 极点在哪](https://dravammonk.github.io/games/vision-complete/index.html?level=7-9)
 
 ### 先看共面关系，再看公式
 

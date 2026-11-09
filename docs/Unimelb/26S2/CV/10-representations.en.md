@@ -11,6 +11,8 @@ Key points: positive/negative pairs, the contrastive loss and the CLIP classific
 <a id="topic-1"></a>
 ## 1. Learning representations: setting up the training problem
 
+**Practice · Vision Complete:** [5-6 The same question](https://dravammonk.github.io/games/vision-complete/index.html?level=5-6) · [5-7 Pull close, push apart](https://dravammonk.github.io/games/vision-complete/index.html?level=5-7)
+
 ### What representations and self-supervised learning are
 
 ![PPT 5 - Self-supervised learning](assets/10-representations/slide-05.png)
@@ -105,6 +107,8 @@ PPT 15–16 show comparisons between zero-shot CLIP and a trained ResNet-50 on s
 
 <a id="topic-3"></a>
 ## 3. Inspecting representations: neighbours, regions and components
+
+**Practice · Vision Complete:** [5-8 Nearest neighbour](https://dravammonk.github.io/games/vision-complete/index.html?level=5-8) · [11-1 Cover a block](https://dravammonk.github.io/games/vision-complete/index.html?level=11-1)
 
 ### Which images are close in representation space
 

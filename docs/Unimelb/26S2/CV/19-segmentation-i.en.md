@@ -16,6 +16,8 @@ Clustering by colour alone may group green leaves with green clothing, or split 
 <a id="topic-2"></a>
 ## 2. Key point: which features to use to judge pixel similarity
 
+**Practice · Vision Complete:** [9-3 Segmenting by brightness](https://dravammonk.github.io/games/vision-complete/index.html?level=9-3)
+
 K-means first fixes the number of clusters $K$ , then alternates between assigning pixels to the nearest centre and updating the centres. Using only RGB, it groups pixels by how close their colours are, regardless of whether two pixels are adjacent.
 
 ![PDF 25 - Spatial and colour features](assets/19-segmentation-i/slide-25.png)

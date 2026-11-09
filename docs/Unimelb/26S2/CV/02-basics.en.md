@@ -11,6 +11,8 @@ Key points: the projection relation, array coordinates and interpolation. Hard p
 <a id="topic-1"></a>
 ## 1. From taking a photo to projection
 
+**Practice · Vision Complete:** [0-8 Camera obscura](https://dravammonk.github.io/games/vision-complete/index.html?level=0-8)
+
 ### Remember first: the pixels a computer sees are not necessarily reliable
 
 ![Slide 2 - Adversarial demo](assets/02-basics/slide-02.png)
@@ -132,6 +134,8 @@ The factors that affect an image fall into two groups:
 <a id="topic-3"></a>
 ## 3. Image arrays: storage and coordinates
 
+**Practice · Vision Complete:** [0-1 Open your eyes](https://dravammonk.github.io/games/vision-complete/index.html?level=0-1)
+
 ### How digital images are stored
 
 ![Slide 22 - Image tensor](assets/02-basics/slide-22.png)
@@ -187,6 +191,8 @@ A JPEG thumbnail may look fine, yet high-frequency content such as edges, textur
 
 <a id="topic-4"></a>
 ## 4. Resampling and the workshop exercises
+
+**Practice · Vision Complete:** [2-11 Sampling](https://dravammonk.github.io/games/vision-complete/index.html?level=2-11) · [2-13 Half the size](https://dravammonk.github.io/games/vision-complete/index.html?level=2-13)
 
 ### Cropping and resizing are not the same thing
 

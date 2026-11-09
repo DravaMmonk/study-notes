@@ -42,6 +42,8 @@ PPT 9 introduces **voting**: let the data support the models compatible with it,
 <a id="topic-2"></a>
 ## 2. Hough: turning consistency into voting
 
+**Practice · Vision Complete:** [6-9 Voting](https://dravammonk.github.io/games/vision-complete/index.html?level=6-9)
+
 ### Hough turns "find a line" into "find a peak"
 
 ![PPT 12 - Image space and parameter space](assets/12-feature-matching/slide-12.png)
@@ -104,6 +106,8 @@ Next we switch approach: instead of enumerating the whole grid in advance, let a
 
 <a id="topic-3"></a>
 ## 3. Hard part: sampling and probability in RANSAC
+
+**Practice · Vision Complete:** [6-6 Consensus](https://dravammonk.github.io/games/vision-complete/index.html?level=6-6) · [6-7 A line that will not be dragged](https://dravammonk.github.io/games/vision-complete/index.html?level=6-7)
 
 ### What one round of RANSAC actually does
 
@@ -169,6 +173,8 @@ so at least **17 rounds** are needed, not 16. This means the probability of "dra
 
 <a id="topic-4"></a>
 ## 4. Planar alignment: filter candidates, estimate, check
+
+**Practice · Vision Complete:** [6-4 A match you can trust](https://dravammonk.github.io/games/vision-complete/index.html?level=6-4) · [6-11 Four corners](https://dravammonk.github.io/games/vision-complete/index.html?level=6-11)
 
 ### First use the distance ratio test to reduce ambiguous matches
 

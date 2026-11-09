@@ -11,6 +11,8 @@
 <a id="topic-1"></a>
 ## 1. 输入表示：图块与位置
 
+**动手练习 · 视觉完备：**[5-3 切多大](https://dravammonk.github.io/games/vision-complete/index.html?level=5-3) · [5-5 顺序盲](https://dravammonk.github.io/games/vision-complete/index.html?level=5-5)
+
 ### 归纳偏置：模型在看数据前已经相信什么
 
 **Inductive bias（归纳偏置）** 是模型在训练前就带有的假设或限制。它会让学习算法优先选择某些解，而不是把所有可能的解都同等对待。
@@ -89,6 +91,8 @@ $$
 
 <a id="topic-2"></a>
 ## 2. 重点：注意力怎样传递信息
+
+**动手练习 · 视觉完备：**[5-1 图块的注意力](https://dravammonk.github.io/games/vision-complete/index.html?level=5-1) · [5-4 两个头](https://dravammonk.github.io/games/vision-complete/index.html?level=5-4)
 
 ### 自注意力到底在算什么
 

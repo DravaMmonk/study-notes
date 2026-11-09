@@ -39,6 +39,8 @@ Going deeper or wider usually increases expressive power, but also increases par
 <a id="topic-2"></a>
 ## 2. Architecture design: receptive fields, multiple scales and residuals
 
+**Practice · Vision Complete:** [4-9 Seeing further](https://dravammonk.github.io/games/vision-complete/index.html?level=4-9) · [4-17 Twice as deep](https://dravammonk.github.io/games/vision-complete/index.html?level=4-17)
+
 ### From AlexNet to VGG, Inception and ResNet
 
 #### AlexNet: making large-scale CNNs feasible

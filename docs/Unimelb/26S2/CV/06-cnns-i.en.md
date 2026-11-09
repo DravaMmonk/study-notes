@@ -62,6 +62,8 @@ So when evaluating a model, also look at per-class results, the confusion matrix
 <a id="topic-2"></a>
 ## 2. Network computation: from fully-connected to convolution
 
+**Practice · Vision Complete:** [4-5 One neuron](https://dravammonk.github.io/games/vision-complete/index.html?level=4-5) · [4-7 Both kinds of edge](https://dravammonk.github.io/games/vision-complete/index.html?level=4-7)
+
 ### How a fully-connected network computes
 
 ![Slide 20 - Multilayer perceptron](assets/06-cnns-i/slide-20.png)
@@ -159,6 +161,8 @@ There is no need to be intimidated by this formula. It simply writes "multiply e
 
 <a id="topic-3"></a>
 ## 3. Key point: channels, parameter counts and output sizes
+
+**Practice · Vision Complete:** [4-11 Taking strides](https://dravammonk.github.io/games/vision-complete/index.html?level=4-11) · [4-12 Multiple channels](https://dravammonk.github.io/games/vision-complete/index.html?level=4-12)
 
 ### Colour channels, filters and activation maps
 
