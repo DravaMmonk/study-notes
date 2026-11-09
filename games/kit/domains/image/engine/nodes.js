@@ -157,6 +157,23 @@ export const NODE_TYPES = {
 
   // ---- components earned by solving levels ----
   blur3h: { label: { zh: '横向三点平均', en: '3-point horizontal average' }, inputs: ['in'], params: [borderParam], eval: ({ in: a }, p) => correlate(a, [0, 0, 0, 1 / 3, 1 / 3, 1 / 3, 0, 0, 0], borderOf(p)), cost: 3, unlock: 'blur3h' },
+  // A 1D kernel of three weights, across or down: a kernel that is one row (or one column) of a 3×3.
+  line3: {
+    label: { zh: '一维三点核', en: '1D 3-point kernel' },
+    inputs: ['in'],
+    params: [
+      { key: 'axis', label: { zh: '方向', en: 'Direction' }, kind: 'select', options: [['x', { zh: '横', en: 'Across' }], ['y', { zh: '竖', en: 'Down' }]], default: 'x' },
+      ...['a', 'b', 'c'].map((key, k) => ({ key, label: key, kind: 'number', min: -4, max: 4, step: 1, default: k === 1 ? 1 : 0 })),
+      borderParam,
+    ],
+    eval: ({ in: a }, p) => {
+      const w = [p.a ?? 0, p.b ?? 1, p.c ?? 0]
+      const kernel = (p.axis ?? 'x') === 'x' ? [0, 0, 0, ...w, 0, 0, 0] : [0, w[0], 0, 0, w[1], 0, 0, w[2], 0]
+      return correlate(a, kernel, borderOf(p))
+    },
+    cost: 3,
+    unlock: 'line3',
+  },
   box3: { label: { zh: '3×3 平均', en: '3×3 average' }, inputs: ['in'], params: [borderParam], eval: ({ in: a }, p) => correlate(a, BOX3, borderOf(p)), cost: 6, unlock: 'box3' },
   gauss: {
     label: { zh: '高斯模糊', en: 'Gaussian blur' },

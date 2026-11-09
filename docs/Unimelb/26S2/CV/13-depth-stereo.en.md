@@ -19,8 +19,6 @@ Reading the figure from left to right: lines that are originally parallel seem t
 
 **Understanding example (my own)**: a small toy car close to the camera can occupy the same pixel extent as a large car far away. From size alone, we cannot distinguish "the object is small" from "the object is far away". So monocular cues are useful, but can be fooled by special staging.
 
-<!-- task: comp90086/depth-cues -->
-
 Two cameras viewing the same point from different positions obtain different projections. If the camera parameters and the distance between the two cameras are known, the position can be found from the two lines of sight. We still have to find the same physical point correctly; the geometric formula will not automatically fix a wrong correspondence.
 
 <a id="topic-2"></a>

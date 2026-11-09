@@ -1,5 +1,5 @@
 import { useId, useRef, useState } from 'react'
-import { limitOf } from '../../../../engine/bench.js'
+import { goalOf, limitOf } from '../../../../engine/bench.js'
 import { tr } from '../../../../shell/i18n.js'
 import { useTween } from './optics-motion.js'
 import './optics.css'
@@ -138,7 +138,7 @@ export function ObscuraScreen({ ctx }) {
   const v = useShown(ctx, false)
   const glow = Math.min(1, Math.max(0.06, v.light * 0.7))
   const image = arrowShape(m.ARROW, m.SHAFT).map(([x, y]) => [(-x * v.f) / v.Z, (-y * v.f) / v.Z])
-  const goal = limitOf(ctx.bench.goal, 'height').near
+  const goal = limitOf(goalOf(ctx.bench, ctx.stage), 'height')?.near
   return (
     <figure className="bk-panel is-quiet optics-inset">
       <svg viewBox="-26 -12 52 72" role="img" aria-label={tr('屏幕正面', 'Screen, front view')}>

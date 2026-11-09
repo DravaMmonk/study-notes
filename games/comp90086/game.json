@@ -1,6 +1,6 @@
 {
-  "domain": "vision",
-  "vocabulary": 13,
+  "domain": "image",
+  "vocabulary": 16,
   "title": { "zh": "计算机视觉笔记", "en": "Computer Vision Notes" },
   "kicker": { "zh": "COMP90086 笔记版", "en": "COMP90086 notes edition" },
   "lede": {
@@ -8,26 +8,33 @@
     "en": "The interactions inside the COMP90086 notes: try each idea once, predicting first and then seeing what happens."
   },
   "mode": "notes",
-  "views": { "grid": ["pixels", "numbers"] },
-  "primitives": ["kernel", "filter", "arithmetic"],
+  "power": {
+    "title": { "zh": "计算机视觉笔记", "en": "Computer Vision Notes" },
+    "lines": [{ "zh": "每一关对应笔记里的一个知识点。", "en": "Each level goes with one idea of the notes." }]
+  },
+  "primitives": ["line3", "add"],
+  "concept": {},
+  "replaces": {},
+  "views": {},
   "eras": [
     {
       "id": 1,
-      "title": { "zh": "图像怎样形成和表示", "en": "How images form and are represented" },
-      "question": { "zh": "一张图里的数从哪里来？", "en": "Where do the numbers in an image come from?" },
-      "foundation": ["projection"]
+      "foundation": ["projection"],
+      "chapter": {
+        "title": { "zh": "图像怎样形成和表示", "en": "How images form and are represented" },
+        "lecture": { "zh": "第 2 讲", "en": "Lecture 2" },
+        "question": { "zh": "一张图里的数从哪里来？", "en": "Where do the numbers in an image come from?" }
+      }
     },
     {
       "id": 2,
-      "title": { "zh": "怎样用固定规则处理图像", "en": "Processing images with fixed rules" },
-      "question": { "zh": "一个核怎样改变一张图？", "en": "How does a kernel change an image?" },
-      "foundation": ["separable"]
-    },
-    {
-      "id": 4,
-      "title": { "zh": "怎样匹配并恢复三维", "en": "Matching and recovering 3D" },
-      "question": { "zh": "从图里能知道多远吗？", "en": "Can an image tell how far away things are?" },
-      "foundation": ["depth-cues"]
+      "foundation": ["separable", "sinusoid"],
+      "chapter": {
+        "title": { "zh": "怎样用固定规则处理图像", "en": "Processing images with fixed rules" },
+        "lecture": { "zh": "第 3–4 讲", "en": "Lectures 3–4" },
+        "question": { "zh": "一个核、一道波怎样改变一张图？", "en": "How do a kernel and a wave change an image?" }
+      }
     }
-  ]
+  ],
+  "box": { "sample": "separable", "inLevel": {} }
 }

@@ -29,6 +29,8 @@ $$
 
 ![Slide 8 - Sinusoid parameters](assets/04-fourier/slide-08.png)
 
+<!-- task: comp90086/sinusoid -->
+
 对图像来说，缓慢变化的大轮廓是低频率；边缘、细纹理和小细节是高频。频域的价值是：有些变化在空间图像中不明显，但在频率分布中很明显。
 
 ### 傅里叶变换输出什么
@@ -153,8 +155,6 @@ $$
 $$
 H_{\mathrm{HP}}=1-H_{\mathrm{LP}}.
 $$
-
-<!-- figure: harmonic-analyser -->
 
 ### 频域与图像压缩
 

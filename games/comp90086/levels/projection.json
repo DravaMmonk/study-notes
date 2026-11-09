@@ -1,144 +1,105 @@
 {
   "title": { "zh": "针孔投影与深度歧义", "en": "Pinhole projection and depth ambiguity" },
+  "intro": [],
+  "after": {
+    "zh": "像高是 f·H/Z：只看 f 和 Z 的比；亮度只看孔径和 f。孔板一动，Z 和 f 一起变。",
+    "en": "The image is f·H/Z tall: only the ratio of f to Z counts, and the brightness only the hole and f. Moving the plate changes Z and f together."
+  },
   "tasks": [
     {
-      "id": "projection-guess",
-      "kind": "choice",
-      "step": { "zh": "先猜", "en": "Guess" },
-      "brief": {
-        "zh": "相机离近处的灯塔模型 3 米，远处的灯塔在它后面 20 米。相机往后退 3 米，同时把焦距从 6.9 毫米调到让模型的像高不变（电影里的推拉变焦）。",
-        "en": "The camera is 3 m from the near lighthouse model; the far lighthouse stands 20 m behind it. The camera moves back 3 m while the focal length is turned up from 6.9 mm until the model’s image is as tall as before (the dolly zoom of films)."
-      },
-      "judge": "answer",
-      "rounds": [
-        {
-          "items": [
-            {
-              "prompt": {
-                "zh": "远处灯塔的像高变成原来的多少？",
-                "en": "What does the far lighthouse’s image height become?"
-              },
-              "answer": ["grow"]
-            },
-            {
-              "prompt": {
-                "zh": "远处的灯塔若在 2 公里外，它的像高变成原来的多少？",
-                "en": "If the far lighthouse were 2 km away, what would its image height become?"
-              },
-              "answer": ["double"]
-            }
-          ],
-          "options": [
-            { "id": "same", "label": { "zh": "几乎不变", "en": "Much the same" } },
-            { "id": "grow", "label": { "zh": "约 1.8 倍", "en": "About 1.8 times" } },
-            { "id": "double", "label": { "zh": "约 2 倍", "en": "About twice" } },
-            { "id": "half", "label": { "zh": "约一半", "en": "About half" } }
-          ]
-        }
-      ],
-      "naive": {
-        "picks": [[["same"], ["same"]]],
-        "why": {
-          "zh": "以为调焦只是把整张图放大，模型没变整张图就没变：像高与 f/Z 成正比，模型的 Z 翻了倍、f 也翻倍；远处灯塔的 Z 只多了一点，f 却翻了倍。",
-          "en": "Thinking zooming just enlarges the whole picture, so the picture stays as the model does: an image height goes with f/Z. The model’s Z doubled and so did f; the far lighthouse’s Z grew only a little while f still doubled."
-        }
-      }
-    },
-    {
       "id": "projection",
-      "kind": "bench",
-      "step": { "zh": "推拉变焦", "en": "Dolly zoom" },
+      "kind": "board",
       "brief": {
-        "zh": "退后之前，近处模型的像高 1715 像素，远处灯塔 746 像素。相机已经退后 3 米：把焦距调到模型的像回到原来那么高，再看远处的灯塔。",
-        "en": "Before moving back, the near model’s image was 1715 pixels tall and the far lighthouse’s 746. The camera is now 3 m further back: turn the focal length until the model’s image is as tall as before, then look at the far lighthouse."
+        "zh": "暗箱里的像高 20 毫米。每一步把它变成 40 毫米，但只能动这一步开着的旋钮。先算好位置，再检查。",
+        "en": "The image in the camera obscura is 20 mm tall. Each step makes it 40 mm using only the knobs the step opens. Work out where first, then check."
       },
       "bench": {
-        "model": "pinhole",
-        "setup": {
-          "f": 6.9,
-          "objects": [
-            {
-              "id": "near",
-              "X": -1500,
-              "H": 1800,
-              "Z": 3000,
-              "label": { "zh": "近处的灯塔模型", "en": "The near lighthouse model" }
-            },
-            {
-              "id": "far",
-              "X": -1500,
-              "H": 6000,
-              "Z": 23000,
-              "label": { "zh": "远处的灯塔", "en": "The far lighthouse" }
-            }
-          ],
-          "sensor": { "height": 7.3, "width": 9.8, "pxHeight": 3024, "pxWidth": 4032 }
-        },
+        "model": "obscura",
+        "setup": { "arrow": 40, "shaft": 3, "table": 640, "gap": 20 },
         "knobs": {
-          "back": {
-            "label": { "zh": "相机后退", "en": "Camera back" },
-            "min": 0,
-            "max": 3000,
-            "step": 500,
-            "start": 3000,
+          "Z": { "min": 150, "max": 520, "step": 1, "start": 300, "drawn": true },
+          "s": { "min": 170, "max": 640, "step": 1, "start": 450, "drawn": true },
+          "D": {
+            "label": { "zh": "孔径 D", "en": "Aperture D" },
+            "min": 1,
+            "max": 1,
+            "step": 1,
+            "start": 1,
             "fixed": true,
-            "format": "int",
-            "unit": "mm"
-          },
-          "f": {
-            "label": { "zh": "焦距 f", "en": "Focal length f" },
-            "min": 4,
-            "max": 30,
-            "step": 0.1,
-            "start": 6.9,
-            "format": "fixed1",
-            "unit": "mm"
+            "unit": " mm"
           }
         },
         "check": "submit",
-        "goal": [
+        "stages": [
           {
-            "of": "h_near_px",
-            "label": { "zh": "近处模型的像高", "en": "The near model’s image" },
-            "near": 1715,
-            "atMost": 2,
-            "format": "int",
-            "unit": "px"
+            "title": { "zh": "只挪屏幕", "en": "The screen only" },
+            "note": {
+              "zh": "孔板不动，屏幕挪到哪里，像高正好 40 毫米？",
+              "en": "With the plate where it is, where must the screen go for a 40 mm image?"
+            },
+            "opens": ["s"],
+            "start": { "Z": 300, "s": 450, "D": 1 },
+            "goal": [
+              {
+                "of": "height",
+                "label": { "zh": "像高", "en": "Image height" },
+                "near": 40,
+                "atMost": 0.5,
+                "format": "fixed1",
+                "unit": " mm"
+              }
+            ]
+          },
+          {
+            "title": { "zh": "只挪孔板", "en": "The plate only" },
+            "note": {
+              "zh": "屏幕回到原处，这次只挪孔板，像高还是要 40 毫米。",
+              "en": "The screen back where it was; this time move only the plate, for a 40 mm image again."
+            },
+            "opens": ["Z"],
+            "start": { "Z": 300, "s": 450, "D": 1 },
+            "goal": [
+              {
+                "of": "height",
+                "label": { "zh": "像高", "en": "Image height" },
+                "near": 40,
+                "atMost": 0.5,
+                "format": "fixed1",
+                "unit": " mm"
+              }
+            ]
+          },
+          {
+            "title": { "zh": "不许变暗", "en": "No darker" },
+            "note": {
+              "zh": "两样都能挪：像高 40 毫米，而且屏上不比开始时暗。",
+              "en": "Both move now: a 40 mm image, and the screen no darker than at the start."
+            },
+            "opens": ["Z", "s"],
+            "start": { "Z": 300, "s": 450, "D": 1 },
+            "goal": [
+              {
+                "of": "height",
+                "label": { "zh": "像高", "en": "Image height" },
+                "near": 40,
+                "atMost": 0.5,
+                "format": "fixed1",
+                "unit": " mm"
+              },
+              {
+                "of": "light",
+                "label": { "zh": "亮度", "en": "Brightness" },
+                "atLeast": 0.16,
+                "format": "fixed2"
+              }
+            ]
           }
         ],
         "layout": {
-          "main": ["pinholeField"],
-          "foot": [
-            { "panel": ["knobs", "verdict"] },
-            {
-              "row": [
-                "goals",
-                {
-                  "stats": {
-                    "of": [
-                      {
-                        "of": "h_far_px",
-                        "label": { "zh": "远处灯塔的像高", "en": "The far lighthouse’s image" },
-                        "format": "int",
-                        "unit": "px"
-                      }
-                    ]
-                  }
-                }
-              ]
-            }
-          ]
+          "main": ["obscura"],
+          "foot": [{ "panel": ["step", "verdict"] }, { "row": ["obscuraScreen", "goals"], "narrow": true }]
         }
-      },
-      "naive": [
-        {
-          "set": { "f": 6.9 },
-          "why": {
-            "zh": "焦距没动：相机退后，模型的像就小了。",
-            "en": "The focal length unchanged: with the camera back, the model images smaller."
-          }
-        }
-      ]
+      }
     }
   ]
 }

@@ -3,7 +3,7 @@
 // x = −f·X/Z. A hole of diameter D lets every object point through as a cone, which lands on the screen as a disc
 // D·(Z + f)/Z wide; the screen's brightness goes as (D / f)².
 import { S } from '../../../engine/schema.js'
-import { goalOf, judge, knobValues, startValues } from '../../../engine/bench.js'
+import { goalOf, judge, knobValues, openKnobs, startValues } from '../../../engine/bench.js'
 import { T as t } from '../../../shell/i18n.js'
 
 const num = S.num()
@@ -37,6 +37,21 @@ export const obscura = {
     return { ...optics, view: (v) => optics.view(v) }
   },
   verify(model, bench) {
+    // A stepped bench: every step starts unsolved and some setting of the knobs it opens solves it.
+    if (bench.stages) {
+      for (const [i, stage] of bench.stages.entries()) {
+        const goal = goalOf(bench, stage)
+        const start = startValues(bench, stage)
+        const solves = (v) => judge(goal, model.view(v)).pass
+        if (solves(start)) return `step ${i + 1} already passes as it starts`
+        const open = openKnobs(bench, stage)
+        const range = (knob, lo, hi) => (open.includes(knob) ? Array.from({ length: hi - lo + 1 }, (_, k) => lo + k) : [start[knob]])
+        let found = false
+        for (const Z of range('Z', model.PLATE[0], model.PLATE[1])) for (const s of range('s', Z + model.GAP, model.TABLE)) if (!found && s >= Z + model.GAP && solves({ ...start, Z, s })) found = true
+        if (!found) return `no setting of step ${i + 1}’s knobs passes it`
+      }
+      return ''
+    }
     const solved = (v) => judge(goalOf(bench), model.view(v)).pass
     if (solved(startValues(bench))) return 'the starting setting already passes'
     const holes = knobValues(bench.knobs.D)

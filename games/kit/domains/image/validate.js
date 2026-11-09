@@ -16,9 +16,9 @@ const FIGURE_IDS = { conv: 'conv-press', stereo: 'stereo-rangefinder', ransac: '
 const figuresDir = new URL('../../../../trace-viewer/src/figures/', import.meta.url)
 const FIGURES = readdirSync(figuresDir).filter((name) => existsSync(new URL(`${name}/figure.js`, figuresDir))).map((name) => FIGURE_IDS[name] ?? name)
 
-/** spec: { levels, intros, kit } (kit: the course's, engine/kit.js). Returns [{ text, fail?, level? }]: a line about one
- *  level names it. */
-export function validate({ levels, intros, kit }) {
+/** spec: { levels, intros, kit, course } (kit: the course's, engine/kit.js). Returns [{ text, fail?, level? }]: a line
+ *  about one level names it. A notes edition's levels may go without an intro: the note introduces them. */
+export function validate({ levels, intros, kit, course }) {
   const { runLevel } = kit
   const out = []
   const failAt = (text, level) => out.push({ text, fail: true, ...(level ? { level } : {}) })
@@ -27,7 +27,10 @@ export function validate({ levels, intros, kit }) {
   const parts = Object.fromEntries(Object.entries(kit.types).map(([type, spec]) => [type, { label: spec.label, description: spec.description, params: spec.params }]))
   for (const problem of untranslated(parts, 'parts')) failAt(`text ${problem}`)
 
-  for (const level of levels) for (const problem of introProblems(intros[level.id], level, FIGURES)) failAt(`${level.id}: 引言：${problem}`, level.id)
+  for (const level of levels) {
+    if (course.notes && !intros[level.id]?.length) continue
+    for (const problem of introProblems(intros[level.id], level, FIGURES)) failAt(`${level.id}: 引言：${problem}`, level.id)
+  }
 
   // Every task is checked as a level of its own, a task of a level of several named by its place (`1-11/1`); `home` is
   // its level, `last` whether it is the level's last task (the one a packed part runs).

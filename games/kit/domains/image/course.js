@@ -55,7 +55,7 @@ function playable({ intro: _, ...task }, kit, keep) {
  * eras give the order), views: { view: level id } the level each way of drawing a picture comes with (pixels is there
  * from the start), primitives (the parts no circuit builds), trays: { tray: [part] } (../../course.js trays),
  * concept: { part: idea } parts that are one new idea together, replaces: { part: [part] } the parts a part supersedes
- * once met }.
+ * once met }, mode: 'notes' for a notes edition (every level open, no audit).
  * A level is a list of tasks (../../engine/tasks.js), each read as the level with the task's fields over it. A level
  * names only the parts it brings in (`adds`) and the tray it plays with (`tray`): every part met or built before it
  * carries into it, as far as its tray lists it; see ../../course.js reach and offer. What a task unlocks, the tasks after it hold at once (`opens`); a
@@ -66,8 +66,10 @@ function playable({ intro: _, ...task }, kit, keep) {
  * (engine/kit.js: NODE_TYPES and the parts its levels pack), so two courses read in one process never run each other's
  * packed parts. All of it is built anew: nothing that came from the content is written to.
  */
-export function imageCourse({ eras, levels, views = {}, primitives, trays, concept = {}, replaces = {} }) {
-  const plan = layout(eras)
+export function imageCourse({ eras, levels, views = {}, primitives, trays, concept = {}, replaces = {}, mode }) {
+  // A notes edition (games/DESIGN.md 12.1) opens every level.
+  const notes = mode === 'notes'
+  const plan = layout(eras, { notes })
   // Levels are read in play order: a level that packs its circuit is a part (engine/own.js) before the levels after
   // it, whose boards may hold it, are read.
   const content = Object.fromEntries(levels.map((level) => [level.id, level]))
@@ -155,6 +157,7 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
     boards: answers,
     showcase: (l) => placedById[l.id].showcase ?? null,
     abstraction: true,
+    notes,
   })
   // A circuit level's palette is everything it can hold (../../course.js reach), in its tray's order; a board or probe
   // level has only what it brings in. Its tasks hold the same.

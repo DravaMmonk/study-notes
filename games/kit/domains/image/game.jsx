@@ -61,9 +61,10 @@ export default function imageGame(content) {
     inLevel: content.box.inLevel,
     boards: Object.fromEntries(Object.entries(content.box.boards ?? {}).map(([flag, lines]) => [flag, kit.fromText(lines, image.levelById[content.box.inLevel[flag]].tasks.at(-1))])),
   }
-  const labels = levelLabels(content.eras)
+  const labels = levelLabels(content.eras, { notes: course.notes })
   const game = defineGame({
     id: content.id,
+    notes: course.notes,
     glossary: content.glossary,
     title: content.title,
     kicker: content.kicker,

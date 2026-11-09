@@ -140,6 +140,7 @@ const GAME = S.obj({
   title: TEXT,
   kicker: TEXT,
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
+  mode: S.opt(S.oneOf(['notes'], { about: t('笔记版：一关对应一个笔记词条，所有关打开，不跑课程审计（手册第 12 节）', 'the notes edition: a level per notes entry, every level open, no course audit (handbook section 12)') })),
   power: S.obj({ title: TEXT, lines: S.list(TEXT) }, { about: t('第一次打开时的上电台词', 'the power-on lines on first opening') }),
   primitives: S.list(S.ref('part'), { about: t('没有电路能搭出的元件', 'the parts no circuit builds') }),
   trays: TRAYS,
@@ -157,7 +158,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 15,
+  version: 16,
   kinds: {
     part: PARTS,
     unlock: UNLOCKS,
