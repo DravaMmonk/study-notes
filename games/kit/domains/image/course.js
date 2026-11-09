@@ -128,7 +128,7 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
       const { key } = level.tasks.at(-1)
       const data = progress.solved.includes(level.id) ? progress.data[key] : null
       const waiting = progress.slots?.[key]?.list.find((slot) => slot.data?.passed)?.data
-      const circuit = data?.passed ?? waiting?.passed ?? data
+      const circuit = progress.built?.[key] ?? data?.passed ?? waiting?.passed ?? data
       if (circuit?.nodes) own.set(level.id, circuit)
       else own.delete(level.id)
     }

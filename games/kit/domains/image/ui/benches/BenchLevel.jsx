@@ -1,5 +1,6 @@
 import { SeparableKernels } from './Separable.jsx'
 import { AppleChannels, AppleDecision } from './AppleChannels.jsx'
+import { PickMark } from '../../../../shell/EditMarks.jsx'
 import Bench from '../../../../shell/bench/Bench.jsx'
 import { ObscuraScreen, ObscuraSide } from './Obscura.jsx'
 import { HoughPlanes } from './Hough.jsx'
@@ -32,5 +33,9 @@ const DISPLAYS = {
 }
 
 export default function BenchLevel({ level, onSolve, theme }) {
-  return <Bench bench={level.bench} model={level.model} displays={DISPLAYS} onSolve={onSolve} theme={theme} />
+  return <>
+    {level.bench.setup && <PickMark at="bench.setup" label={{ zh: '实验设置', en: 'Experiment setup' }} />}
+    <PickMark at="bench.layout" label={{ zh: '实验布局', en: 'Experiment layout' }} />
+    <Bench bench={level.bench} model={level.model} displays={DISPLAYS} onSolve={onSolve} theme={theme} />
+  </>
 }

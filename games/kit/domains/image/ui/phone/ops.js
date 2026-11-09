@@ -28,10 +28,3 @@ export function insertAfter(kit, graph, after, type, nextInLine) {
   }
   return { graph: { ...graph, nodes: [...graph.nodes, node], wires }, id }
 }
-
-/** A new part of `type` in phone slot `at`, unwired. */
-export function placeAt(kit, graph, type, at) {
-  const id = freshId(graph, type)
-  const [x, y] = placeNear(graph, graph.nodes.at(-1))
-  return { graph: { ...graph, nodes: [...graph.nodes, { id, type, x, y, slot: at, params: kit.defaultParams(type) }] }, id }
-}
