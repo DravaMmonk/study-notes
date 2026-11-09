@@ -125,6 +125,11 @@ body { color: var(--ink); background: var(--paper); -webkit-font-smoothing: anti
 .md-typeset .tabbed-labels > label { font: var(--fs-label) var(--mono); letter-spacing: .06em; }
 .md-typeset .arithmatex { overflow-x: auto; }
 
+/* ---- bilingual reading (javascripts/site.js): each Chinese block sits close above its English one ---- */
+.md-typeset .bi-lead { margin-bottom: .35em; }
+.md-typeset .bi-lead + .bi-en { margin-top: .35em; }
+.md-typeset .bi-en { color: var(--muted); }
+
 /* ---- the home page: kit hero and cards (their prose spacing is in games/kit/prose.css) ---- */
 .md-typeset .kit-title::before { display: none; }
 .md-typeset .kit-section .headerlink { display: none; }

@@ -2,11 +2,12 @@
 // both games. Each is an icon button that opens a small menu of choices, the current one ticked. Plain DOM, so
 // pages without a framework use it directly and React pages mount it into an element they leave empty.
 //
-//   const menus = mountBarMenus(container, { onLang, onTheme })   // fills `container` (usually .kit-actions)
+//   const menus = mountBarMenus(container, { onLang, onTheme, lang })   // fills `container` (usually .kit-actions)
 //   menus.update()                                                // repaint after a change made elsewhere
 //   menus.destroy()
 //
-// onLang(id) applies the language choice (applyLang by default). Themes apply immediately; onTheme(id)
+// onLang(id) applies the language choice (applyLang by default); `lang: { now, extra }` lets a page offer more
+// reading modes than the two languages (the notes site's bilingual reading). Themes apply immediately; onTheme(id)
 // and the window themechange event notify page state after the theme and its menu agree.
 
 import { currentLang, applyLang, tr } from './lang.js';
@@ -52,8 +53,9 @@ const close = (focus = false) => {
 addEventListener('pointerdown', e => { if (openMenu && !openMenu.root.contains(e.target)) close(); }, true);
 addEventListener('keydown', e => { if (e.key === 'Escape' && openMenu) { e.stopPropagation(); close(true); } }, true);
 
-function build(kind, pick) {
-  const spec = MENUS[kind];
+function build(kind, pick, more) {
+  const base = MENUS[kind];
+  const spec = more ? { ...base, now: more.now || base.now, options: () => [...base.options(), ...(more.extra || [])] } : base;
   const root = document.createElement('div');
   root.className = 'kit-menu';
   root.dataset.kitMenu = kind;
@@ -106,8 +108,8 @@ function build(kind, pick) {
 }
 
 /** Put the language and theme menus into `container`, replacing what is there. */
-export function mountBarMenus(container, { onLang = applyLang, onTheme } = {}) {
-  const lang = build('lang', id => onLang(id));
+export function mountBarMenus(container, { onLang = applyLang, onTheme, lang: langMore } = {}) {
+  const lang = build('lang', id => onLang(id), langMore);
   const theme = build('theme', id => { applyTheme(id); onTheme?.(id); dispatchEvent(new CustomEvent('themechange', { detail: id })); });
   container.replaceChildren(lang.root, theme.root);
   const update = () => { lang.paint(); theme.paint(); };
