@@ -96,6 +96,18 @@ export const TARGETS = {
       return zip(a, b, (x, y) => 0.9 * (wa * x + wb * y))
     },
   },
+  gradientEnergy: {
+    about: t('3×3 邻域内两个方向的梯度平方平均之和', 'sum of the mean squared gradients in both directions over a 3×3 neighbourhood'),
+    make: () => (img) => {
+      const gx = correlate(img, SOBEL_X), gy = correlate(img, SOBEL_Y)
+      const energy = zip(gx, gy, (x, y) => x * x + y * y)
+      return correlate(energy, Array(9).fill(1 / 9))
+    },
+  },
+  cornerResponse: {
+    about: t('Harris 角点响应图', 'Harris corner response map'),
+    make: () => (img) => harrisResponse(img),
+  },
   corners: {
     about: t('角点：Harris 响应大于 threshold 的地方', 'corners: where the Harris response is over threshold'),
     params: S.obj({ threshold: S.num() }),
