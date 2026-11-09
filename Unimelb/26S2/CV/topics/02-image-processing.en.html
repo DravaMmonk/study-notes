@@ -3932,7 +3932,7 @@
 <p><strong>Common misconceptions</strong>: convolution and cross-correlation differ only in whether the kernel is first rotated by 180°. Symmetric kernels such as mean and Gaussian look the same after rotation, so switching shows no change; Sobel is antisymmetric left to right, so switching swaps the signs of the left and right columns. Also, the kernel size is not the Gaussian scale σ, and the output size is not necessarily the input size.</p>
 <p>Lecture notes: <a href="../03-filters.en.html">Lecture 3 · Linear filtering and borders</a>; <a href="../06-cnns-i.en.html">Lecture 6 · Output size, stride and padding</a></p>
 <h2 id="2-harmonic-synthesiser-lecture-4">2. Harmonic synthesiser (Lecture 4)<a class="headerlink" href="#2-harmonic-synthesiser-lecture-4" title="Permanent link">&para;</a></h2>
-<!-- figure: harmonic-analyser -->
+<iframe class="task-embed" data-src="https://dravammonk.github.io/games/comp90086/index.html?embed&amp;level=sinusoid" title="comp90086 · sinusoid" loading="lazy"></iframe>
 
 <p><strong>What this device is</strong>: a mechanical synthesiser. Eight wheels turn at different multiples of a base speed, and a cord adds up their up-and-down motion and passes it to a pen that draws on moving paper.</p>
 <p><strong>The concept</strong>: a signal is a sum of sine waves; a square wave = Σ (4/πk)·sin kt. Low-pass / high-pass filtering multiplies each frequency by a mask H(k): the kept wheels turn as usual, while the filtered-out wheels have their pins pushed back to the wheel centre and contribute nothing.</p>

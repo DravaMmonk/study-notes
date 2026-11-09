@@ -4229,6 +4229,8 @@ y=A\sin(\omega x+\varphi).
 </ul>
 <p>提高 <span class="arithmatex">\(\omega\)</span> ，波纹更密；提高 <span class="arithmatex">\(A\)</span> ，波峰波谷更高；改变 <span class="arithmatex">\(\varphi\)</span> ，形状整体移动，但频率不变。</p>
 <p><img alt="Slide 8 - Sinusoid parameters" src="assets/04-fourier/slide-08.png" /></p>
+<iframe class="task-embed" data-src="https://dravammonk.github.io/games/comp90086/index.html?embed&amp;level=sinusoid" title="comp90086 · sinusoid" loading="lazy"></iframe>
+
 <p>对图像来说，缓慢变化的大轮廓是低频率；边缘、细纹理和小细节是高频。频域的价值是：有些变化在空间图像中不明显，但在频率分布中很明显。</p>
 <h3 id="_2">傅里叶变换输出什么<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
 <p><img alt="Slide 18 - Fourier transform" src="assets/04-fourier/slide-18.png" /></p>
@@ -4309,8 +4311,6 @@ y=A\sin(\omega x+\varphi).
 <div class="arithmatex">\[
 H_{\mathrm{HP}}=1-H_{\mathrm{LP}}.
 \]</div>
-<!-- figure: harmonic-analyser -->
-
 <h3 id="_12">频域与图像压缩<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
 <p><img alt="Slide 52 - Frequency-domain compression" src="assets/04-fourier/slide-52.png" /></p>
 <p>人眼通常对某些高频率差异不太敏感，所以压缩可以减少一部分高频信息而不让缩略图明显变样。但对计算机视觉来说，高频可能正是边缘、小目标和纹理，不能简单当成“没用的信息”。</p>

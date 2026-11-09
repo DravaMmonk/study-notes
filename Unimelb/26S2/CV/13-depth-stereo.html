@@ -4164,8 +4164,6 @@
 <p><img alt="PDF 6 - Single-view depth cues" src="assets/13-depth-stereo/slide-06.png" /></p>
 <p>从左到右看图：原本平行的线似乎汇聚，地砖越远显得越密，遮挡和熟悉的物体大小也会提示前后。这些判断都用到了假设，例如地砖实际一样大、线在现实中确实平行。</p>
 <p><strong>理解用例（自拟）</strong>：一辆小玩具车靠近相机，可能和一辆远处的大车占据相同像素范围。仅看大小，无法区分“物体小”还是“离得远”。因此单目线索有用，却可能被特殊布景欺骗。</p>
-<iframe class="task-embed" data-src="https://dravammonk.github.io/games/comp90086/index.html?embed&amp;level=depth-cues" title="comp90086 · depth-cues" loading="lazy"></iframe>
-
 <p>两台相机从不同位置看同一个点，会得到不同投影。若相机参数和两相机的间距已知，就能利用两条视线求位置。这里仍须找对同一个物理点；几何公式不会自动纠正错误对应。</p>
 <p><a id="topic-2"></a></p>
 <h2 id="2">2. 重点：从视差计算深度<a class="headerlink" href="#2" title="Permanent link">&para;</a></h2>

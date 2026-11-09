@@ -3937,6 +3937,8 @@ y=A\sin(\omega x+\varphi).
 </ul>
 <p>Increasing <span class="arithmatex">\(\omega\)</span> makes the ripples denser; increasing <span class="arithmatex">\(A\)</span> makes the peaks and troughs higher; changing <span class="arithmatex">\(\varphi\)</span> shifts the whole shape but leaves the frequency unchanged.</p>
 <p><img alt="Slide 8 - Sinusoid parameters" src="assets/04-fourier/slide-08.png" /></p>
+<iframe class="task-embed" data-src="https://dravammonk.github.io/games/comp90086/index.html?embed&amp;level=sinusoid" title="comp90086 · sinusoid" loading="lazy"></iframe>
+
 <p>For images, slowly varying large-scale outlines are low frequencies; edges, fine textures and small details are high frequencies. The value of the frequency domain is that some variations which are not obvious in the spatial image become very obvious in the frequency distribution.</p>
 <h3 id="what-the-fourier-transform-outputs">What the Fourier transform outputs<a class="headerlink" href="#what-the-fourier-transform-outputs" title="Permanent link">&para;</a></h3>
 <p><img alt="Slide 18 - Fourier transform" src="assets/04-fourier/slide-18.png" /></p>
@@ -4017,8 +4019,6 @@ y=A\sin(\omega x+\varphi).
 <div class="arithmatex">\[
 H_{\mathrm{HP}}=1-H_{\mathrm{LP}}.
 \]</div>
-<!-- figure: harmonic-analyser -->
-
 <h3 id="the-frequency-domain-and-image-compression">The frequency domain and image compression<a class="headerlink" href="#the-frequency-domain-and-image-compression" title="Permanent link">&para;</a></h3>
 <p><img alt="Slide 52 - Frequency-domain compression" src="assets/04-fourier/slide-52.png" /></p>
 <p>The human eye is usually not very sensitive to certain high-frequency differences, so compression can discard some high-frequency information without making a thumbnail look noticeably different. For computer vision, however, high frequencies may be exactly the edges, small objects and textures, and cannot simply be treated as "useless information".</p>

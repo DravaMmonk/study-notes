@@ -4023,7 +4023,7 @@
 <p><strong>常见误区</strong>：卷积和互相关只差"核要不要先转 180°"。均值、高斯这类对称核转了也一样，所以切换时看不出变化；Sobel 左右反对称，切换后左右两列的正负会互换。另外，核大小不等于高斯的尺度 σ，输出尺寸也不一定等于原图尺寸。</p>
 <p>原文：<a href="../03-filters.html">第 3 讲 · 线性滤波与边界</a>；<a href="../06-cnns-i.html">第 6 讲 · 输出大小、步幅和补边</a></p>
 <h2 id="2-4">2. 谐波合成机（第 4 讲）<a class="headerlink" href="#2-4" title="Permanent link">&para;</a></h2>
-<!-- figure: harmonic-analyser -->
+<iframe class="task-embed" data-src="https://dravammonk.github.io/games/comp90086/index.html?embed&amp;level=sinusoid" title="comp90086 · sinusoid" loading="lazy"></iframe>
 
 <p><strong>这台装置是什么</strong>：一台机械合成机。八个轮子各以不同的倍速转动，一根绳把它们的上下运动加起来，交给记录笔画在走纸上。</p>
 <p><strong>对应的概念</strong>：信号是正弦波之和，方波 = Σ (4/πk)·sin kt。低通／高通滤波就是给每个频率乘一个掩膜 H(k)：保留的轮子照常转，被滤掉的轮子把销子推回轮心、不再贡献。</p>

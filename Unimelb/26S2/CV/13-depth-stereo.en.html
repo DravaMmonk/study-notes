@@ -3928,8 +3928,6 @@
 <p><img alt="PDF 6 - Single-view depth cues" src="assets/13-depth-stereo/slide-06.png" /></p>
 <p>Reading the figure from left to right: lines that are originally parallel seem to converge, floor tiles look denser the farther away they are, and occlusion and the familiar size of objects also hint at what is in front and behind. All of these judgements rely on assumptions, e.g. that the tiles are actually the same size, or that the lines really are parallel in the world.</p>
 <p><strong>Understanding example (my own)</strong>: a small toy car close to the camera can occupy the same pixel extent as a large car far away. From size alone, we cannot distinguish "the object is small" from "the object is far away". So monocular cues are useful, but can be fooled by special staging.</p>
-<iframe class="task-embed" data-src="https://dravammonk.github.io/games/comp90086/index.html?embed&amp;level=depth-cues" title="comp90086 · depth-cues" loading="lazy"></iframe>
-
 <p>Two cameras viewing the same point from different positions obtain different projections. If the camera parameters and the distance between the two cameras are known, the position can be found from the two lines of sight. We still have to find the same physical point correctly; the geometric formula will not automatically fix a wrong correspondence.</p>
 <p><a id="topic-2"></a></p>
 <h2 id="2-key-point-computing-depth-from-disparity">2. Key point: computing depth from disparity<a class="headerlink" href="#2-key-point-computing-depth-from-disparity" title="Permanent link">&para;</a></h2>
