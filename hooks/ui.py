@@ -25,6 +25,6 @@ TASK = re.compile(r"^[ \t]*<!--\s*task:\s*([a-z0-9-]+)/([a-z0-9-]+)\s*-->[ \t]*$
 def on_page_markdown(markdown, page, config, **kwargs):
     games = config["extra"]["games"]
     return TASK.sub(
-        lambda m: f'<iframe class="task-embed" data-src="{games}{m[1]}/index.html?embed&amp;level={m[2]}" title="{m[1]} · {m[2]}" loading="lazy"></iframe>',
+        lambda m: f'<iframe class="task-embed" data-game="{games}{m[1]}/" data-level="{m[2]}" loading="lazy"></iframe>',
         markdown,
     )
