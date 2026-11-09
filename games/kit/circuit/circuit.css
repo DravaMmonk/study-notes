@@ -578,7 +578,7 @@
 .block-selection { position: absolute; z-index: 5; pointer-events: none; }
 .board-zoom button[aria-pressed='true'], .pb-partition[aria-pressed='true'] { color: var(--accent); background: var(--hover); }
 .pb-partition { display: grid; place-items: center; border: var(--block-rule-width) solid var(--line); border-radius: var(--r-md); padding: var(--sp-3); background: var(--paper); color: var(--muted); cursor: pointer; }
-.pb-grid.is-blocks { isolation: isolate; row-gap: calc(var(--board-gap-y) * 1.5); column-gap: var(--sp-6); }
+.pb-grid.is-blocks { isolation: isolate; row-gap: var(--sp-10); column-gap: var(--sp-6); }
 .pb-block-head { position: relative; padding: 0; }
 .pb-block-head.is-rule, .pb-block-end { width: 100vw; margin-inline-start: calc((100% - 100vw) / 2); border-top: var(--block-rule-width) solid var(--block-rule); }
 .pb-block-head.is-rule > .block-header { padding-inline: var(--gutter); }

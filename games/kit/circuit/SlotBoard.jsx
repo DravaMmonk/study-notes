@@ -202,7 +202,8 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   const regionsOf = (node) => parts.frames?.(node) ?? []
   const own = (node) => new Set(regionsOf(node).map((r) => r.name))
 
-  // Wires are drawn after layout from where the dots really are, and again while a wire is dragged.
+  // Wires are drawn after layout from where the dots really are, and again while a wire is dragged. A card's entry
+  // animation moves its dots without resizing the board, so wires are drawn again once it ends.
   useLayoutEffect(() => {
     const el = board.current
     if (!el) return undefined
@@ -210,7 +211,11 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     draw()
     const observer = new ResizeObserver(draw)
     observer.observe(el)
-    return () => observer.disconnect()
+    el.addEventListener('animationend', draw)
+    return () => {
+      observer.disconnect()
+      el.removeEventListener('animationend', draw)
+    }
   })
 
   const dotClass = (p, extra = '') => {
