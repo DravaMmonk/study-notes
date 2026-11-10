@@ -11,5 +11,5 @@ import { CARDS, PORT_LABELS } from './catalog.js'
 const { settings, defaults } = registerCards({ registers: REGISTERS, top: 9, numbers: true })
 
 export default function Screen(screen) {
-  return <CircuitScreen screen={screen} cards={CARDS} portLabels={PORT_LABELS} run={runLevel} show={valueText} entries={entries} settings={settings} defaults={defaults} />
+  return <CircuitScreen screen={screen} cards={CARDS} portLabels={PORT_LABELS} run={runLevel} says={(r) => r.error} show={valueText} entries={entries} settings={settings} defaults={defaults} />
 }
