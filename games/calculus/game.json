@@ -2,40 +2,62 @@
   "domain": "calculus",
   "vocabulary": 1,
   "title": {
-    "zh": "calculus",
-    "en": "calculus"
+    "zh": "差分机",
+    "en": "The Difference Engine"
   },
   "kicker": {
-    "zh": "开发中",
-    "en": "In development"
+    "zh": "高等数学",
+    "en": "Calculus"
   },
   "lede": {
-    "zh": "第 n 拍算第 n 项。先逐项相加，再记住上一项。",
-    "en": "Tick n computes term n. Add term by term first, then remember the term before."
+    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出计数、求和与差分，看它们互相撤销；这一对就是微积分的两半。",
+    "en": "A machine that can only add and multiply computes a term of a sequence each tick. Wire up counting, summing and differencing yourself and watch them undo each other: the two halves of calculus."
   },
   "primitives": [
     "add",
     "reg",
-    "keep"
+    "keep",
+    "const",
+    "mul"
   ],
   "concept": {
     "keep": "reg"
   },
   "eras": [
     {
-      "id": 1,
+      "id": 0,
       "title": {
         "zh": "一拍一项",
         "en": "A term a tick"
       },
       "question": {
-        "zh": "板每拍算出数列的一项：怎样逐项运算，怎样用上前一项？",
-        "en": "The board computes a term a tick: how does it work term by term, and use the term before?"
+        "zh": "只会加和乘，怎样算出数列的任意一项、到这一项为止的和、相邻两项的差？",
+        "en": "With only addition and multiplication, how do you compute any term of a sequence, the sum so far, and the gap between neighbouring terms?"
       },
       "foundation": [
-        "1-1",
-        "1-2"
+        "sum3",
+        "prev",
+        "arith",
+        "count",
+        "square",
+        "double",
+        {
+          "parallel": [
+            {
+              "id": "sums",
+              "title": { "zh": "求和", "en": "Summing" },
+              "levels": ["sum", "tri", "tetra", "dsum"]
+            },
+            {
+              "id": "diffs",
+              "title": { "zh": "差分", "en": "Differencing" },
+              "levels": ["diff", "dsq", "ddsq", "ddouble"]
+            }
+          ]
+        },
+        "inverse"
       ]
     }
-  ]
+  ],
+  "views": { "ticks": ["terms", "dots"] }
 }

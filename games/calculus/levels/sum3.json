@@ -1,0 +1,67 @@
+{
+  "title": { "zh": "三列合一", "en": "Three into one" },
+  "intro": [
+    {
+      "t": {
+        "zh": "这台机器按拍工作：第 n 拍，每个输入数列交来它的第 n 项，板从头算一遍，交出每个输出数列的第 n 项。拍数从 0 数起，所以第一项是 a₀。",
+        "en": "This machine works in ticks: at tick n each input sequence hands over its n-th term, and the board computes afresh and gives the n-th term of each output sequence. Ticks count from 0, so the first term is a₀."
+      }
+    },
+    {
+      "t": {
+        "zh": "板上还什么都没有。第一件元件是<part-ref to=\"part:add\"></part-ref>：它把两个数加起来。",
+        "en": "The board holds nothing yet. The first part is <part-ref to=\"part:add\"></part-ref>: it adds two numbers."
+      }
+    }
+  ],
+  "after": {
+    "zh": "数列逐项相加：和的第 n 项只取决于各数列的第 n 项。",
+    "en": "Sequences add term by term: the n-th term of the sum depends only on the n-th terms."
+  },
+  "adds": ["add"],
+  "showcase": {
+    "zh": "第一次往板上放元件：一拍一项、逐项相加",
+    "en": "The first part placed on a board: a term a tick, added term by term"
+  },
+  "tasks": [
+    {
+      "id": "sum3",
+      "brief": {
+        "zh": "三个输入数列逐项相加，交出它们的和。",
+        "en": "Add the three input sequences term by term and give their sum."
+      },
+      "hint": [{ "zh": "一件加只收两个数。", "en": "One add takes two numbers." }],
+      "inputs": [
+        { "name": "a", "label": "aₙ" },
+        { "name": "b", "label": "bₙ" },
+        { "name": "c", "label": "cₙ" }
+      ],
+      "outputs": [{ "name": "s", "label": "aₙ + bₙ + cₙ" }],
+      "tests": [
+        {
+          "inputs": {
+            "a": [3, 1, 4, 1, 5, 9, 2, 6],
+            "b": [2, 7, 1, 8, 2, 8, 1, 8],
+            "c": [0, -1, 2, -3, 4, -5, 6, -7]
+          },
+          "want": { "s": [5, 7, 7, 6, 11, 12, 9, 7] }
+        },
+        {
+          "inputs": { "a": [10, 0, -4, 7, 7, 2], "b": [1, 1, 1, 1, 1, 1], "c": [5, 3, 0, -2, 9, 4] },
+          "want": { "s": [16, 4, -3, 6, 17, 7] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "a": [6, -2, 0, 5, 3, 3, 8, -1, 4, 2],
+            "b": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            "c": [9, 9, -9, 0, 1, -1, 2, 2, 0, 5]
+          },
+          "want": { "s": [16, 9, -6, 9, 9, 8, 17, 9, 13, 17] }
+        }
+      ],
+      "solution": ["p = add(a, b)", "q = add(p, c)", "s <- q"]
+    }
+  ]
+}

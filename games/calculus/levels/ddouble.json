@@ -1,0 +1,32 @@
+{
+  "title": { "zh": "翻倍的差分", "en": "Differences of doubling" },
+  "intro": [
+    {
+      "t": {
+        "zh": "平方数越差越平。翻倍的数列呢？",
+        "en": "The squares flatten as they are differenced. What about a doubling sequence?"
+      }
+    }
+  ],
+  "after": {
+    "zh": "除了开头一项，1, 2, 4, 8, … 的差分就是它自己晚了一项：差分不能把它变平。以后会看到，eˣ 的导数就是它自己。",
+    "en": "Apart from the first term, the differences of 1, 2, 4, 8, … are the sequence itself, a term late: differencing does not flatten it. Later you will see eˣ is its own derivative."
+  },
+  "tasks": [
+    {
+      "id": "ddouble",
+      "brief": { "zh": "交出 1, 2, 4, 8, … 的差分。", "en": "Give the differences of 1, 2, 4, 8, …" },
+      "outputs": [{ "name": "d", "label": "Δ(2ⁿ)" }],
+      "tests": [{ "want": { "d": [1, 1, 2, 4, 8, 16, 32, 64] } }],
+      "hidden": [{ "want": { "d": [1, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024] } }],
+      "solution": [
+        "r = reg[reg=A, start=1]()",
+        "c = const[value=2]()",
+        "m = mul(r, c)",
+        "k = keep[reg=A](m)",
+        "e = diff(r)",
+        "d <- e"
+      ]
+    }
+  ]
+}

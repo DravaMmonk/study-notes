@@ -89,6 +89,17 @@
           "reports": []
         }
       ]
+    },
+    "levels": {
+      "runs": [],
+      "gates": [
+        {
+          "at": "2026-11-10T06:10:50.596Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        }
+      ]
     }
   }
 }

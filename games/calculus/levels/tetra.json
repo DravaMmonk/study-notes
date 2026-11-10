@@ -1,0 +1,28 @@
+{
+  "title": { "zh": "堆球", "en": "Stacked balls" },
+  "intro": [
+    {
+      "t": {
+        "zh": "把<level-ref to=\"tri\"></level-ref>里的每一层三角形叠起来，堆成一座三棱锥：堆到第 n 层一共多少个球？",
+        "en": "Stack the triangles of <level-ref to=\"tri\"></level-ref> into a pyramid, one layer each: how many balls are there once layer n is down?"
+      }
+    }
+  ],
+  "after": {
+    "zh": "部分和的部分和：每求一次和，数列就长快一档。",
+    "en": "Partial sums of partial sums: each summing makes a sequence grow a degree faster."
+  },
+  "tasks": [
+    {
+      "id": "tetra",
+      "brief": {
+        "zh": "交出三角形数的部分和：0, 1, 4, 10, 20, …",
+        "en": "Give the partial sums of the triangular numbers: 0, 1, 4, 10, 20, …"
+      },
+      "outputs": [{ "name": "P", "label": "T₀ + … + Tₙ" }],
+      "tests": [{ "want": { "P": [0, 1, 4, 10, 20, 35, 56, 84] } }],
+      "hidden": [{ "want": { "P": [0, 1, 4, 10, 20, 35, 56, 84, 120, 165, 220, 286] } }],
+      "solution": ["n = count()", "s = sum(n)", "t = sum(s)", "P <- t"]
+    }
+  ]
+}

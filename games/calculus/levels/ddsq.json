@@ -1,0 +1,18 @@
+{
+  "title": { "zh": "再差一次", "en": "Once more" },
+  "intro": [{ "t": { "zh": "奇数本身每一步又变了多少？", "en": "And how much do the odd numbers change at each step?" } }],
+  "after": {
+    "zh": "开头几项之后，平方数的二阶差分一直是 2。差分机正是反过来用这件事：从常数起一次次累加，只用加法就印出整张平方表。",
+    "en": "After the first terms, the second differences of the squares are 2 throughout. The difference engine used this backwards: summing again and again from a constant, it printed a whole table of squares with additions alone."
+  },
+  "tasks": [
+    {
+      "id": "ddsq",
+      "brief": { "zh": "交出 n² 的差分的差分。", "en": "Give the differences of the differences of n²." },
+      "outputs": [{ "name": "e", "label": "Δ²(n²)" }],
+      "tests": [{ "want": { "e": [0, 1, 2, 2, 2, 2, 2, 2] } }],
+      "hidden": [{ "want": { "e": [0, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2] } }],
+      "solution": ["n = count()", "q = mul(n, n)", "d = diff(q)", "f = diff(d)", "e <- f"]
+    }
+  ]
+}

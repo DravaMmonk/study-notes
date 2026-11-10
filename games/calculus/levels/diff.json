@@ -1,0 +1,64 @@
+{
+  "title": { "zh": "差分", "en": "Difference" },
+  "intro": [
+    {
+      "t": {
+        "zh": "数列每一步变了多少？相邻两项一减就知道，可板上没有减法。",
+        "en": "How much does a sequence change at each step? Subtract neighbouring terms and you know; but the board has no subtraction."
+      }
+    },
+    { "t": { "zh": "搭好以后，差分 Δ 成为一件元件。", "en": "Built, the difference Δ becomes a part." } }
+  ],
+  "after": {
+    "zh": "Δaₙ = aₙ − aₙ₋₁ 叫差分：数列每一步变了多少，变大为正，变小为负。",
+    "en": "Δaₙ = aₙ − aₙ₋₁ is the difference: how much the sequence changes at each step, positive as it grows and negative as it shrinks."
+  },
+  "builds": {
+    "type": "diff",
+    "name": { "zh": "差分 Δ", "en": "Difference Δ" },
+    "desc": {
+      "zh": "交出输入这一项减上一项；第一拍减 0。",
+      "en": "Gives its input’s term minus the one before; minus 0 on the first tick."
+    }
+  },
+  "tasks": [
+    {
+      "id": "diff",
+      "brief": {
+        "zh": "每一拍交出输入这一项减上一项；第一拍减 0。",
+        "en": "Each tick give the input’s term minus the one before; minus 0 on the first tick."
+      },
+      "hint": [
+        { "zh": "减去一个数，和加上它的多少倍一样？", "en": "Subtracting a number is the same as adding how many times it?" }
+      ],
+      "inputs": [{ "name": "a", "label": "aₙ" }],
+      "outputs": [{ "name": "d", "label": "Δaₙ" }],
+      "tests": [
+        { "inputs": { "a": [5, 7, 4, 4, 9, 1, 0, 6] }, "want": { "d": [5, 2, -3, 0, 5, -8, -1, 6] } },
+        { "inputs": { "a": [0, 3, 6, 9, 12, 15] }, "want": { "d": [0, 3, 3, 3, 3, 3] } }
+      ],
+      "hidden": [
+        {
+          "inputs": { "a": [2, -2, 2, -2, 10, 11, 13, 16, 20, 25] },
+          "want": { "d": [2, -4, 4, -4, 12, 1, 2, 3, 4, 5] }
+        }
+      ],
+      "solution": [
+        "r = reg[reg=A, start=0]()",
+        "k = keep[reg=A](a)",
+        "c = const[value=-1]()",
+        "m = mul(r, c)",
+        "p = add(a, m)",
+        "d <- p"
+      ],
+      "naive": [
+        "r = reg[reg=A, start=0]()",
+        "k = keep[reg=A](a)",
+        "c = const[value=-1]()",
+        "m = mul(a, c)",
+        "p = add(r, m)",
+        "d <- p"
+      ]
+    }
+  ]
+}

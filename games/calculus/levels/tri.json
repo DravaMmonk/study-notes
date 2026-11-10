@@ -1,0 +1,25 @@
+{
+  "title": { "zh": "三角形数", "en": "Triangular numbers" },
+  "intro": [
+    {
+      "t": {
+        "zh": "把 0, 1, 2, 3, … 个球一排排摆下去，摆到第 n 排一共用了多少个？这一回要求和的数列不由测试交来。",
+        "en": "Lay out rows of 0, 1, 2, 3, … balls: how many are there once row n is down? This time the sequence to sum is not handed over by the test."
+      }
+    }
+  ],
+  "after": {
+    "zh": "0 + 1 + … + n = n(n + 1)/2：传说高斯小时候把这一串首尾配对，一眼算出了它。",
+    "en": "0 + 1 + … + n = n(n + 1)/2: the young Gauss is said to have paired the ends of the row and seen it at once."
+  },
+  "tasks": [
+    {
+      "id": "tri",
+      "brief": { "zh": "交出 0 + 1 + … + n。", "en": "Give 0 + 1 + … + n." },
+      "outputs": [{ "name": "T", "label": "Tₙ" }],
+      "tests": [{ "want": { "T": [0, 1, 3, 6, 10, 15, 21, 28] } }],
+      "hidden": [{ "want": { "T": [0, 1, 3, 6, 10, 15, 21, 28, 36, 45, 55, 66] } }],
+      "solution": ["n = count()", "s = sum(n)", "T <- s"]
+    }
+  ]
+}
