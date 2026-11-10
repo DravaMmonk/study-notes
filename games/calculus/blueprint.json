@@ -1605,7 +1605,7 @@
     {
       "id": "tolerance",
       "kind": "domain",
-      "status": "open",
+      "status": "done",
       "for": [
         "recip",
         "halves",
@@ -1623,6 +1623,10 @@
       "about": {
         "zh": "原始元件加上倒数（1/0 给「—」）和比较（a < b 给 1，否则 0）；测试的项按相对误差 10⁻⁹ 对照，运算顺序造成的末位差别不算错。",
         "en": "Primitives gain reciprocal (「—」 for 1/0) and less (1 when a < b, else 0); a test’s terms are compared within a relative error of 10⁻⁹, so differences in the last bits from the order of operations are no error."
+      },
+      "note": {
+        "zh": "kit/domains/calculus：原始元件 recip、less；run.js 的 same 按相对误差 10⁻⁹ 对照。",
+        "en": "kit/domains/calculus: primitives recip and less; run.js same compares within a relative error of 10⁻⁹."
       }
     }
   ],

@@ -18,6 +18,8 @@ const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 const PARTS = {
   add: item(t('加：a + b', 'Add: a + b')),
   mul: item(t('乘：a × b', 'Multiply: a × b')),
+  recip: item(t('倒数：1/a，a 为 0 时给「—」', 'Reciprocal: 1/a, 「—」 when a is 0')),
+  less: item(t('比较：a < b 时给 1，否则给 0', 'Less: 1 when a < b, else 0')),
   const: item(t('常数：设定的数', 'Constant: the number it is set to')),
   reg: item(t('读寄存卡：同名寄存卡里存的值，存入之前给初值', 'Register: what the register of the same name holds, its start value before')),
   keep: item(t('存寄存卡：接入的值存进同名寄存卡，下一拍读得出', 'Keep: its input stored in the register of the same name, read from the next tick')),
@@ -25,6 +27,7 @@ const PARTS = {
 
 /* ---------- a level ---------- */
 
+// Terms are compared within a relative error of 10⁻⁹ (run.js same).
 const TERMS = S.list(S.num(), { about: t('一拍一项：第 n 个数是第 n 项', 'a term a tick: the n-th number is term n') })
 const TEST = S.obj({
   inputs: S.opt(S.map(TERMS, { about: t('每个输入数列的各项', 'each input sequence’s terms') })),
@@ -38,7 +41,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'calculus',
-  version: 3,
+  version: 4,
   kinds: { part: PARTS },
   game: GAME,
   level: LEVEL,

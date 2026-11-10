@@ -8,6 +8,8 @@
 // The parts a course may start from (game.json primitives, vocabulary.js part):
 //   add      a + b
 //   mul      a × b
+//   recip    1/a (「—」 for 1/0)
+//   less     1 when a < b, else 0
 //   const    a number (params.value)
 //   reg      what register params.reg holds (params.start until something is kept in it)
 //   keep     keeps what reaches it in register params.reg, from the next tick on
@@ -25,6 +27,8 @@ const number = (text) => (text === undefined || text === '' ? null : Number(text
 export const PARTS = {
   add: { inputs: ['a', 'b'], eval: strict(({ a, b }) => a + b) },
   mul: { inputs: ['a', 'b'], eval: strict(({ a, b }) => a * b) },
+  recip: { inputs: ['a'], eval: strict(({ a }) => (a === 0 ? null : 1 / a)) },
+  less: { inputs: ['a', 'b'], eval: strict(({ a, b }) => (a < b ? 1 : 0)) },
   const: { inputs: [], params: ['value'], eval: (_, node) => number(node.params?.value) ?? 0 },
   reg: register({ start: (node) => number(node.params?.start), params: ['reg', 'start'] }),
   keep: store({ params: ['reg'] }),

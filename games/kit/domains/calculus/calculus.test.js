@@ -75,3 +75,14 @@ test('a task that withholds a part keeps it from the tray and from its answer', 
   const caught = calculusCourse(content(['count'], ['p = count()', 'n <- p']))
   assert.ok(caught.wrong.some((w) => w.includes('uses count, which it withholds')))
 })
+
+test('reciprocal and less, and terms compared within a relative error', async () => {
+  const { same } = await import('./run.js')
+  assert.equal(PARTS.recip.eval({ a: 4 }), 0.25)
+  assert.equal(PARTS.recip.eval({ a: 0 }), null)
+  assert.equal(PARTS.less.eval({ a: 1, b: 2 }), 1)
+  assert.equal(PARTS.less.eval({ a: 2, b: 2 }), 0)
+  assert.ok(same(0.1 + 0.2, 0.3))
+  assert.ok(!same(0.3, 0.3001))
+  assert.ok(!same(null, 0))
+})
