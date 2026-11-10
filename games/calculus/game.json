@@ -18,7 +18,9 @@
     "reg",
     "keep",
     "const",
-    "mul"
+    "mul",
+    "recip",
+    "less"
   ],
   "concept": {
     "keep": "reg"
@@ -58,6 +60,47 @@
         "inverse"
       ],
       "challenges": [{ "level": "cdouble", "after": "ddouble" }]
+    },
+    {
+      "id": 1,
+      "title": { "zh": "越来越近", "en": "Getting closer" },
+      "question": {
+        "zh": "1/2 + 1/4 + … 加到哪一项都不等于 1：「趋于」一个数究竟是什么意思？",
+        "en": "1/2 + 1/4 + … equals 1 at no term: what exactly does tending to a number mean?"
+      },
+      "foundation": [
+        {
+          "parallel": [
+            { "id": "small", "title": { "zh": "越来越小", "en": "Ever smaller" }, "levels": ["recip", "halves"] },
+            {
+              "id": "close",
+              "title": { "zh": "多近才算近", "en": "How close is close" },
+              "levels": ["max", "dist", "near"]
+            },
+            { "id": "since", "title": { "zh": "从此以后", "en": "From then on" }, "levels": ["since"] }
+          ]
+        },
+        "limit",
+        "ratio",
+        "wobble",
+        "diverge",
+        "series",
+        "harmonic"
+      ],
+      "topics": [
+        {
+          "id": "e-topic",
+          "title": { "zh": "算出 e", "en": "Computing e" },
+          "levels": ["fact", "euler"],
+          "after": "series"
+        },
+        {
+          "id": "root-topic",
+          "title": { "zh": "巴比伦开方", "en": "The Babylonian root" },
+          "levels": ["babylon", "babylon-fast", "any-root"],
+          "after": "limit"
+        }
+      ]
     }
   ],
   "views": { "ticks": ["terms", "dots"] }

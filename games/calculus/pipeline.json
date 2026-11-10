@@ -446,6 +446,121 @@
               "report": true
             }
           ]
+        },
+        {
+          "at": "2026-11-10T09:21:20.514Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "bp-bare",
+              "at": "sum3",
+              "says": "its answer stands only on what it brings (add)",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "square",
+              "says": "general-term comes back first at dsq, after double, diff bring two more points",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "inverse",
+              "says": "no slot after it uses inverse",
+              "report": true
+            },
+            {
+              "rule": "bp-heavy",
+              "at": "partial-sum",
+              "says": "5 slots: sum, tri, tetra, dsum, halves",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "sum3",
+              "says": "sequence has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "prev",
+              "says": "shift has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "arith",
+              "says": "recurrence has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "count",
+              "says": "index has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "square",
+              "says": "general-term has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "double",
+              "says": "geometric has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "inverse",
+              "says": "inverse has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "max",
+              "says": "inequality has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "dist",
+              "says": "distance has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "near",
+              "says": "neighbourhood has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "since",
+              "says": "eventually has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "diverge",
+              "says": "divergence has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "series",
+              "says": "series has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "harmonic",
+              "says": "harmonic has no practice slot before the next point",
+              "report": true
+            }
+          ]
         }
       ]
     },
@@ -489,6 +604,34 @@
         },
         {
           "at": "2026-11-10T08:50:34.230Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-10T09:20:44.042Z",
+          "ok": false,
+          "failures": [
+            {
+              "rule": "bp-eras",
+              "at": "game.json",
+              "says": "its eras differ from the blueprint’s"
+            },
+            {
+              "rule": "bp-naive",
+              "at": "diverge",
+              "says": "its slot has a naive answer, no task of the level has one"
+            },
+            {
+              "rule": "bp-naive",
+              "at": "harmonic",
+              "says": "its slot has a naive answer, no task of the level has one"
+            }
+          ],
+          "reports": []
+        },
+        {
+          "at": "2026-11-10T09:21:20.336Z",
           "ok": true,
           "failures": [],
           "reports": []

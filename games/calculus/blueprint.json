@@ -1346,8 +1346,7 @@
                 { "zh": "L 取别的数也一样：没有哪个 L 让 N 停下。", "en": "Any other L does the same: no L lets N stop." }
               ],
               "uses": ["near", "since", "reg", "keep", "mul", "const", "divergence", "limit"],
-              "teaches": "divergence",
-              "naive": { "zh": "看到 N 偶尔停一拍，就当找到了。", "en": "Taking N standing still for a tick as found." }
+              "teaches": "divergence"
             }
           ]
         },
@@ -1413,11 +1412,7 @@
                 "infinitesimal",
                 "divergence"
               ],
-              "teaches": "harmonic",
-              "naive": {
-                "zh": "项趋于 0，就当和趋于某个数：对它找 N。",
-                "en": "Taking terms tending to 0 to mean the sum tends to something, and looking for its N."
-              }
+              "teaches": "harmonic"
             }
           ]
         },

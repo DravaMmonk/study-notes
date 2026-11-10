@@ -1,0 +1,71 @@
+{
+  "title": { "zh": "从此一直", "en": "Ever since" },
+  "intro": [
+    {
+      "t": {
+        "zh": "「越来越近」不能只看某一项：前面近了又跑远，就不算。要问的是从哪一项起一直近，不管它之前怎样。",
+        "en": "“Getting closer” cannot rest on one term: close, then far again, does not count. The question is from which term on it stays close, whatever happened before."
+      }
+    },
+    {
+      "t": {
+        "zh": "先不管近不近，只看一串 0 和 1：最近这段连续的 1 从哪一项开始？",
+        "en": "Leave closeness aside for now and look at a run of 0s and 1s: where did the latest unbroken stretch of 1s begin?"
+      }
+    }
+  ],
+  "after": {
+    "zh": "一件事从某一项起一直成立，前面有几项不成立也不要紧。",
+    "en": "Something can hold from some term on, whatever the terms before it did."
+  },
+  "builds": {
+    "type": "since",
+    "name": { "zh": "从此一直", "en": "Since" },
+    "desc": {
+      "zh": "输入最近一段连续为 1 从第几项起；这一拍为 0 时给 n + 1。",
+      "en": "Where the latest unbroken run of 1s in its input began; n + 1 when this tick is 0."
+    }
+  },
+  "tasks": [
+    {
+      "id": "since",
+      "brief": {
+        "zh": "输入每拍是 0 或 1：交出最近一段连续为 1 从第几项起；这一拍是 0 时交出 n + 1。",
+        "en": "The input is 0 or 1 each tick: give where the latest unbroken run of 1s began; give n + 1 when this tick is 0."
+      },
+      "hint": [
+        { "zh": "这一拍是 1 时，开头和上一拍说的一样。", "en": "When this tick is 1, the start is what the tick before said." },
+        {
+          "zh": "输入本身就是 1 或 0，可以拿它在两个数里挑。",
+          "en": "The input is itself 1 or 0: it can pick between two numbers."
+        }
+      ],
+      "inputs": [{ "name": "f", "label": "0 / 1" }],
+      "outputs": [{ "name": "N", "label": "N" }],
+      "tests": [
+        { "inputs": { "f": [0, 1, 1, 0, 1, 1, 1, 1] }, "want": { "N": [1, 1, 1, 4, 4, 4, 4, 4] } },
+        { "inputs": { "f": [1, 1, 1, 0, 0, 1, 1, 0, 1, 1] }, "want": { "N": [0, 0, 0, 4, 5, 5, 5, 8, 8, 8] } }
+      ],
+      "hidden": [
+        {
+          "inputs": { "f": [0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1] },
+          "want": { "N": [1, 2, 3, 3, 5, 5, 5, 8, 8, 8, 8, 8, 8, 8] }
+        }
+      ],
+      "solution": [
+        "r = reg[reg=A, start=0]()",
+        "n = count()",
+        "o = const[value=1]()",
+        "m = add(n, o)",
+        "k = const[value=-1]()",
+        "x = mul(f, k)",
+        "g = add(o, x)",
+        "p = mul(f, r)",
+        "q = mul(g, m)",
+        "s = add(p, q)",
+        "w = keep[reg=A](s)",
+        "N <- s"
+      ]
+    }
+  ]
+}

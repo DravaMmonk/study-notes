@@ -1,0 +1,57 @@
+{
+  "title": { "zh": "来回跳", "en": "Back and forth" },
+  "intro": [
+    {
+      "t": {
+        "zh": "1, −1, 1, −1, …：它从不跑远，总在 1 和 −1 之间。它趋于 1？趋于 0？",
+        "en": "1, −1, 1, −1, …: it never wanders off, always between 1 and −1. Does it tend to 1? To 0?"
+      }
+    }
+  ],
+  "after": {
+    "zh": "不管 L 取几，总有某个 ε 让 N 一直被往后推：找不到它趋于的数，这样的数列叫发散。",
+    "en": "Whatever L is, some ε keeps pushing N later: there is no number it tends to, and such a sequence diverges."
+  },
+  "tasks": [
+    {
+      "id": "diverge",
+      "brief": { "zh": "aₙ = (−1)ⁿ：测试给出 L 和 ε，交出 N。", "en": "aₙ = (−1)ⁿ: the test gives L and ε; give N." },
+      "inputs": [{ "name": "L", "label": "L" }, { "name": "e", "label": "ε" }],
+      "outputs": [{ "name": "N", "label": "N" }],
+      "tests": [
+        {
+          "inputs": {
+            "L": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "e": [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+          },
+          "want": { "N": [0, 2, 2, 4, 4, 6, 6, 8, 8, 10] }
+        },
+        {
+          "inputs": {
+            "L": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "e": [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+          },
+          "want": { "N": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "L": [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+            "e": [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+          },
+          "want": { "N": [1, 1, 3, 3, 5, 5, 7, 7, 9, 9, 11, 11, 13, 13] }
+        }
+      ],
+      "solution": [
+        "g = reg[reg=A, start=1]()",
+        "k = const[value=-1]()",
+        "h = mul(g, k)",
+        "w = keep[reg=A](h)",
+        "x = near(g, L, e)",
+        "s = since(x)",
+        "N <- s"
+      ]
+    }
+  ]
+}
