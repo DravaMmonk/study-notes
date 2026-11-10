@@ -1124,10 +1124,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_9" class="md-nav__link">
+  <a href="#workshop-7" class="md-nav__link">
     <span class="md-ellipsis">
       
-        可选应用
+        Workshop 7：把窗口参数与评分参数分开
       
     </span>
   </a>
@@ -1140,7 +1140,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_10" class="md-nav__link">
+  <a href="#_9" class="md-nav__link">
     <span class="md-ellipsis">
       
         本讲自测
@@ -1151,7 +1151,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_11" class="md-nav__link">
+  <a href="#_10" class="md-nav__link">
     <span class="md-ellipsis">
       
         词条与学习任务
@@ -3975,15 +3975,15 @@ R=\det(M)-k\left(\operatorname{tr}(M)\right)^2
 <p><strong>Dominant orientation（主方向）</strong> 是局部较突出的梯度方向。构造描述时以主方向为参考，而不是一直以整张图的水平轴为参考。相机转动后，如果区域和主方向一起转，描述中的相对方向便能较稳定。</p>
 <p>这两步分别对付“同一局部结构有多大”和“朝哪里”，再用梯度统计描述外观。它们提高稳定性，不保证严重遮挡、任意三维视角或重复纹理下都能唯一匹配。</p>
 <p>下一讲会将描述子比较产生的候选匹配放进同一个几何模型检查。<strong>外观相似是候选证据，空间关系一致才进一步支持对应关系。</strong></p>
-<h3 id="_9">可选应用<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
-<p>原 Workshop 练习单列在 <a href="encyclopedia/08-optional.html#harris-api-practice">Workshop 7：把窗口参数与评分参数分开</a>，不作为本讲必修前置。</p>
-<h2 id="_10">本讲自测<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<h3 id="workshop-7">Workshop 7：把窗口参数与评分参数分开<a class="headerlink" href="#workshop-7" title="Permanent link">&para;</a></h3>
+<p><code>workshop/week-07/worksheet07.ipynb</code> 使用 <code>cornerHarris</code>。其中 <code>blockSize</code> 控制汇总梯度的邻域，<code>ksize</code> 控制求导算子大小，<code>k</code> 控制 Harris 评分中的惩罚项。它们对应本讲不同步骤，不能都理解为“角点灵敏度”。</p>
+<h2 id="_9">本讲自测<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
 <ol>
 <li>为什么直线边缘上的位置，比角点更难唯一确定？</li>
 <li>Harris 矩阵的两个特征值都大，意味着什么？</li>
 <li>SIFT 的 128 维怎样数出来，尺度与主方向分别对付什么变化？</li>
 </ol>
-<h2 id="_11">词条与学习任务<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<h2 id="_10">词条与学习任务<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
 <p>本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 <a href="encyclopedia/08-optional.html">可选专题</a>。</p>
 <p><a href="encyclopedia/04-geometry.html#keypoint">关键点、检测器与描述子</a> · <a href="encyclopedia/04-geometry.html#harris">结构张量与 Harris 角点</a> · <a href="encyclopedia/04-geometry.html#sift">SIFT 描述与尺度方向对齐</a></p>
 

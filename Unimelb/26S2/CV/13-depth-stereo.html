@@ -1158,10 +1158,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_9" class="md-nav__link">
+  <a href="#workshop-8" class="md-nav__link">
     <span class="md-ellipsis">
       
-        可选应用
+        Workshop 8：调窗口时观察什么
       
     </span>
   </a>
@@ -1174,7 +1174,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_10" class="md-nav__link">
+  <a href="#_9" class="md-nav__link">
     <span class="md-ellipsis">
       
         本讲自测
@@ -1185,7 +1185,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_11" class="md-nav__link">
+  <a href="#_10" class="md-nav__link">
     <span class="md-ellipsis">
       
         词条与学习任务
@@ -3870,15 +3870,15 @@ E(D)=\sum_i C_i(D_i)
 <h3 id="_8">学到的尺度不能脱离训练条件<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
 <p>单目网络会借助数据中的大小、透视和场景规律。室内训练数据不保证覆盖远处室外物体；边界处也容易预测得模糊。若焦距或场景尺度假设不匹配，输出的米数可能整体偏离。</p>
 <p>本周阅读见 <a href="READING-LINKS.html">Reading Links</a>。先能解释视差公式与匹配失败，再看单目深度演示。</p>
-<h3 id="_9">可选应用<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
-<p>原 Workshop 练习单列在 <a href="encyclopedia/08-optional.html#stereo-practice">Workshop 8：调窗口时观察什么</a>，不作为本讲必修前置。</p>
-<h2 id="_10">本讲自测<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
+<h3 id="workshop-8">Workshop 8：调窗口时观察什么<a class="headerlink" href="#workshop-8" title="Permanent link">&para;</a></h3>
+<p><code>workshop/week-08/worksheet08.ipynb</code> 要求改变 <code>numDisparities</code> 与 <code>blockSize</code>，并比较 BM 与 SGBM。前者改变搜索的视差范围，后者改变局部匹配窗口；分别观察漏匹配、杂点与深度边界。<strong>易错</strong>：算法给出的视差图不是天然以米计的深度图，需结合本讲相机参数换算。第 8 周答案已归档在同一目录，本次未运行练习。</p>
+<h2 id="_9">本讲自测<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
 <ol>
 <li>相同相机下，视差减半，深度怎样变？距离加倍时同样的视差误差又怎样放大？</li>
 <li>为什么大匹配窗口能减少噪声，却可能破坏物体边界？</li>
 <li>无深度标签的双目训练，究竟用什么判断网络预测好不好？</li>
 </ol>
-<h2 id="_11">词条与学习任务<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
+<h2 id="_10">词条与学习任务<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
 <p>本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 <a href="encyclopedia/08-optional.html">可选专题</a>。</p>
 <p><a href="encyclopedia/04-geometry.html#depth-cues">单视图深度线索</a> · <a href="encyclopedia/04-geometry.html#disparity">校正双目的视差与深度</a> · <a href="encyclopedia/04-geometry.html#stereo-matching">双目窗口代价与全局约束</a> · <a href="encyclopedia/04-geometry.html#learned-depth">监督与双目自监督深度</a></p>
 

@@ -1019,10 +1019,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_3" class="md-nav__link">
+  <a href="#workshop-5-cnn" class="md-nav__link">
     <span class="md-ellipsis">
       
-        可选应用
+        Workshop 5 补充：保留原设计的可分离 CNN
       
     </span>
   </a>
@@ -1063,7 +1063,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_4" class="md-nav__link">
+  <a href="#_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         迁移学习：不要每个任务都从零开始
@@ -1075,7 +1075,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_5" class="md-nav__link">
+  <a href="#_4" class="md-nav__link">
     <span class="md-ellipsis">
       
         为什么特征比原始像素更适合迁移
@@ -1086,7 +1086,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_6" class="md-nav__link">
+  <a href="#_5" class="md-nav__link">
     <span class="md-ellipsis">
       
         三种常见用法
@@ -1107,7 +1107,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
+  <a href="#_6" class="md-nav__link">
     <span class="md-ellipsis">
       
         本讲自测
@@ -1118,7 +1118,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_8" class="md-nav__link">
+  <a href="#_7" class="md-nav__link">
     <span class="md-ellipsis">
       
         词条与学习任务
@@ -3926,8 +3926,10 @@ y=F(x)+x.
 <li><strong>逐点卷积</strong>：用 <span class="arithmatex">\(1\times1\)</span> 卷积核混合通道。</li>
 </ol>
 <p><strong>易错</strong>：这里分开的是空间计算与通道混合；第 3 讲的可分离滤波器分开的是横向与纵向，两者不是同一种拆法。这样参数和 FLOPs（浮点运算次数）更少，适合手机和实时应用，但限制了可学习的卷积核形式，准确率可能低于较重的 VGG/ResNet。</p>
-<h4 id="_3">可选应用<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h4>
-<p>原 Workshop 练习单列在 <a href="encyclopedia/08-optional.html#separable-cnn-practice">Workshop 5 补充：保留原设计的可分离 CNN</a>，不作为本讲必修前置。</p>
+<h4 id="workshop-5-cnn">Workshop 5 补充：保留原设计的可分离 CNN<a class="headerlink" href="#workshop-5-cnn" title="Permanent link">&para;</a></h4>
+<p>练习本在 MNIST 灰度输入上使用 8、16 个输出通道的两层 <span class="arithmatex">\(5\times5\)</span> 可分离卷积，中间配合池化，最后接 10 类输出。沿用上面两步，下面只代入原题尺寸。</p>
+<p>按原解答，第一层参数为 <span class="arithmatex">\(5\times5\times1+1\times1\times1\times8+8=41\)</span> ；第二层为 <span class="arithmatex">\(5\times5\times8+1\times1\times8\times16+16=344\)</span> ；全连接为 <span class="arithmatex">\(256\times10+10=2570\)</span> ；合计 <span class="arithmatex">\(2955\)</span> 。这不是开头 RGB 参数题的原网络，不能直接把 2955 与 48770 的差全部归因于可分离卷积。</p>
+<p>原练习要求对照较早的 CNN 比较参数量与测试准确率，参考解答的文字结论是参数减少、准确率相近，但这次小模型运行时间更长。它提醒我们额外操作开销可能抵消计算量节省；这是原解答中的观察，本次没有重新跑实验。</p>
 <h4 id="efficientnet">EfficientNet：共同缩放深度、宽度、分辨率<a class="headerlink" href="#efficientnet" title="Permanent link">&para;</a></h4>
 <p>增加深度、宽度或分辨率都可能提高准确率，但收益会逐渐变小。EfficientNet 把这三个因素一起考虑，在固定计算预算下搜索合适的比例。课程讲义页用近似关系说明成本随深度线性增长，而宽度和分辨率的影响更接近平方：</p>
 <div class="arithmatex">\[
@@ -3938,14 +3940,14 @@ d\times w^2\times r^2\approx 2.
 <p>读图时先分清三项： <span class="arithmatex">\(d\)</span> 是层数的缩放倍数， <span class="arithmatex">\(w\)</span> 是通道宽度的倍数， <span class="arithmatex">\(r\)</span> 是输入分辨率的倍数。这个近似式是在约束计算预算，不能据此把准确率也算成同样比例。</p>
 <p><a id="topic-4"></a></p>
 <h2 id="4">4. 迁移学习：哪些参数需要更新<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
-<h3 id="_4">迁移学习：不要每个任务都从零开始<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
-<h4 id="_5">为什么特征比原始像素更适合迁移<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
+<h3 id="_3">迁移学习：不要每个任务都从零开始<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<h4 id="_4">为什么特征比原始像素更适合迁移<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h4>
 <p><img alt="Slide 37 - Pixels" src="assets/08-cnns-iii/slide-37.png" /></p>
 <p>一张 <span class="arithmatex">\(256\times256\times3\)</span> 图片有 <span class="arithmatex">\(196{,}608\)</span> 个像素数值。平移、缩放、光照和旋转会让像素数值大幅改变，但类别通常没有改变。因此原始像素是高维且对无关变化敏感的空间。</p>
 <p>CNN 的中间层把像素转换成特征向量：它的维度更低，而且同一类别的图片即使外观不同，也可能落在相近的特征空间区域。</p>
 <p><img alt="Slide 40 - Using pretrained networks" src="assets/08-cnns-iii/slide-40.png" /></p>
 <p><strong>transfer learning（迁移学习）</strong> 就是使用一个在大数据集（例如 ImageNet）上预训练的 CNN 作为特征提取器或初始化模型，再把它用于新任务。</p>
-<h4 id="_6">三种常见用法<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h4>
+<h4 id="_5">三种常见用法<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h4>
 <p><img alt="Slide 44 - Replace output layer" src="assets/08-cnns-iii/slide-44.png" /></p>
 <ol>
 <li><strong>直接使用预训练特征</strong>：取预训练 CNN 较后层的激活，当作每张图的特征，再训练 SVM、K-NN 等外部分类器。</li>
@@ -3959,13 +3961,13 @@ d\times w^2\times r^2\approx 2.
 <li>新数据集越小，训练很多层越容易过拟合，通常应冻结更多层。</li>
 </ul>
 <p>因此“预训练模型一定直接适用”是不准确的。它提供好的起点，但仍要检查输入预处理、类别定义、数据领域差异和验证表现。</p>
-<h2 id="_7">本讲自测<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
+<h2 id="_6">本讲自测<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
 <ol>
 <li>残差块怎样更容易表示“保持输入不变”？</li>
 <li>深度可分离卷积的两个步骤分别处理空间还是通道？</li>
 <li>只有少量新任务数据时，冻结骨干与微调整网有什么取舍？</li>
 </ol>
-<h2 id="_8">词条与学习任务<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<h2 id="_7">词条与学习任务<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
 <p>本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 <a href="encyclopedia/08-optional.html">可选专题</a>。</p>
 <p><a href="encyclopedia/03-learning.html#receptive-field">小核堆叠与多尺度结构</a> · <a href="encyclopedia/03-learning.html#residual">残差连接</a> · <a href="encyclopedia/03-learning.html#depthwise">深度可分离卷积与模型缩放</a> · <a href="encyclopedia/03-learning.html#transfer">迁移学习与微调</a> · <a href="encyclopedia/03-learning.html#classification-metrics">分类准确率与错误分析</a></p>
 

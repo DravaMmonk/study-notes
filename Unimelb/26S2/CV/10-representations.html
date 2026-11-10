@@ -1058,10 +1058,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_7" class="md-nav__link">
+  <a href="#workshop-6" class="md-nav__link">
     <span class="md-ellipsis">
       
-        可选应用
+        Workshop 6：同一张图，换一个目标类别
       
     </span>
   </a>
@@ -1074,10 +1074,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_8" class="md-nav__link">
+  <a href="#workshop-5" class="md-nav__link">
     <span class="md-ellipsis">
       
-        可选应用
+        Workshop 5 补充：滤波器与特征图不是同一件事
       
     </span>
   </a>
@@ -1085,7 +1085,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_9" class="md-nav__link">
+  <a href="#_7" class="md-nav__link">
     <span class="md-ellipsis">
       
         一个注意力头在贡献什么
@@ -1113,7 +1113,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#_10" class="md-nav__link">
+  <a href="#_8" class="md-nav__link">
     <span class="md-ellipsis">
       
         分类准确，不代表按人的方式理解形状
@@ -1124,7 +1124,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#_11" class="md-nav__link">
+  <a href="#_9" class="md-nav__link">
     <span class="md-ellipsis">
       
         训练分布并不等于整个世界
@@ -1140,7 +1140,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_12" class="md-nav__link">
+  <a href="#_10" class="md-nav__link">
     <span class="md-ellipsis">
       
         本讲自测
@@ -1151,7 +1151,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#_13" class="md-nav__link">
+  <a href="#_11" class="md-nav__link">
     <span class="md-ellipsis">
       
         词条与学习任务
@@ -3931,18 +3931,20 @@
 <p><img alt="PPT 29 - Grad-CAM for cat and dog" src="assets/10-representations/slide-29.png" /></p>
 <p><strong>Gradient（梯度）</strong> 描述类别分数对某个中间响应的敏感程度。<strong>Grad-CAM</strong> 使用这种梯度来估计各特征图对类别的作用，因此不必为 CAM 特意改成 GAP 接分类层的结构。看 PPT 猫狗同框的例子：询问 cat 和 dog，会突出不同区域。</p>
 <p>这三种方法分别是遮挡后重新预测、使用分类层权重、使用类别分数的梯度。先理解它们如何得到图，不需要在本讲之外补学完整实现。</p>
-<h4 id="_7">可选应用<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h4>
-<p>原 Workshop 练习单列在 <a href="encyclopedia/08-optional.html#gradcam-practice">Workshop 6：同一张图，换一个目标类别</a>，不作为本讲必修前置。</p>
-<h3 id="_8">可选应用<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
-<p>原 Workshop 练习单列在 <a href="encyclopedia/08-optional.html#feature-map-practice">Workshop 5 补充：滤波器与特征图不是同一件事</a>，不作为本讲必修前置。</p>
-<h3 id="_9">一个注意力头在贡献什么<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
+<h4 id="workshop-6">Workshop 6：同一张图，换一个目标类别<a class="headerlink" href="#workshop-6" title="Permanent link">&para;</a></h4>
+<p><code>workshop/week-06/worksheet06.ipynb</code> 要求对含多种水果的图像，分别为预测靠前的两个类别生成 Grad-CAM。比较热区是否跟随目标类别变化；若不换目标类别，就无法检验“这张热图在解释谁”。这是练习任务，不是本次运行所得结论。</p>
+<h3 id="workshop-5">Workshop 5 补充：滤波器与特征图不是同一件事<a class="headerlink" href="#workshop-5" title="Permanent link">&para;</a></h3>
+<p>练习本原设计先加载预训练 VGG16，再查看第一层前六个滤波器的三个输入通道，随后将 <code>harry.png</code> 输入网络，显示第一层的 64 张特征图。</p>
+<p><strong>Filter</strong> 是训练得到的权重；<strong>特征图</strong> 是这些权重作用于某张图的结果。换输入图片会改变特征图，不会因此改掉已经加载的滤波器。原练习第一层输出是 <span class="arithmatex">\(224\times224\times64\)</span> ；64 张空间图按 <span class="arithmatex">\(8\times8\)</span> 排列只是为了显示。</p>
+<p>Workshop 最后一部分加载 ResNet50，设置 <code>include_top=False</code>，取 <code>conv3_block4_out</code> 作为输出，并对 <code>wallaby.jpeg</code> 提取特征。残差结构见 <a href="08-cnns-iii.html">CNNs III</a>，此处只关注取哪一层的输出。这些是练习本的原始任务，本次没有重新训练或运行模型，也没有把中间特征图称为类别预测。</p>
+<h3 id="_7">一个注意力头在贡献什么<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
 <p><img alt="PPT 31 - Decomposing the class token" src="assets/10-representations/slide-31.png" /></p>
 <p>回忆 ViT 的分类 token：它通过各层注意力与 MLP 不断吸收信息。PPT 的表达式将最终分类 token 写成初始 token、各注意力贡献与各 MLP 贡献的相加。</p>
 <p>图中 <span class="arithmatex">\(L\)</span> 是层数， <span class="arithmatex">\(H\)</span> 是每层注意力头数， <span class="arithmatex">\(N\)</span> 是参与分解的图块数； <span class="arithmatex">\(y_{i,h,l}\)</span> 表示第 <span class="arithmatex">\(l\)</span> 层、第 <span class="arithmatex">\(h\)</span> 个注意力头中来自第 <span class="arithmatex">\(i\)</span> 个图块的贡献。 <span class="arithmatex">\(Q,K,V\)</span> 仍是上一讲的查询、键、数值， <span class="arithmatex">\(W_O\)</span> 是输出投影， <span class="arithmatex">\(D\)</span> 是缩放使用的维度。沿图块、注意力头、层分组求和，就能分别问“哪个位置”“哪个注意力头”贡献了什么。</p>
 <p>CLIP 的文字和图像处于可比较空间，因此课件展示用文字描述这些贡献，例如 pyramid 与 camel。这是 PPT 中的特定解释方法；并不是每个注意力头都被预先指定了一个人类词语。先读懂“总和可以按来源拆开”即可。</p>
 <p><a id="topic-4"></a></p>
 <h2 id="4">4. 能力边界：形状、扰动与数据来源<a class="headerlink" href="#4" title="Permanent link">&para;</a></h2>
-<h3 id="_10">分类准确，不代表按人的方式理解形状<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<h3 id="_8">分类准确，不代表按人的方式理解形状<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
 <p><img alt="PPT 36 - BagNet local patches" src="assets/10-representations/slide-36.png" /></p>
 <p><a href="05-image-formation-ii.html">第 5 讲</a> 已区分不变性与容忍度。这里用实验检查它们，而不是再次定义。本讲依次讨论光照、平移、平面旋转、尺度和三维姿态变化。三维姿态改变可能露出新表面，不能仅当成二维图片旋转。</p>
 <p><strong>BagNet</strong> 用独立的小图块作判断再汇总，仍能在 PPT 所示分类任务上取得较好结果。图中狗的局部区域已能提供类别线索；分类不一定需要完整全局形状。</p>
@@ -3951,7 +3953,7 @@
 <p>PPT 38 的特定 VGG-16 实验中，纹理化图片打乱布局后准确率由 90% 变成 79%。这个例子说明局部线索可以承担很大一部分判断，不代表所有视觉任务都能忽略布局；下一讲做几何匹配就需要精确位置。</p>
 <p><img alt="PPT 40 - Training distortion and test distortion" src="assets/10-representations/slide-40.png" /></p>
 <p>读这类矩阵时，一条轴表示训练时使用的扰动，另一条表示测试时使用的扰动。<strong>Distortion（失真／扰动）</strong> 包括灰度、对比度、滤波和噪声等改变。模型在一种扰动上训练后改善，不保证改善其他扰动。要检查实际要面对的变化，不能把“做过数据增强”当作获得了所有不变性。</p>
-<h3 id="_11">训练分布并不等于整个世界<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<h3 id="_9">训练分布并不等于整个世界<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h3>
 <p><img alt="PPT 41 - Geographic distribution of images" src="assets/10-representations/slide-41.png" /></p>
 <p><strong>Distribution（分布）</strong> 在这里包括图片来自哪里、展示什么物体、以什么条件拍摄。地图显示训练图片来源不均衡。如果常见训练外观只覆盖一部分环境，新环境的物体可能难以识别。</p>
 <p><img alt="PPT 42 - Household appearance and recognition" src="assets/10-representations/slide-42.png" /></p>
@@ -3960,13 +3962,13 @@
 <p><strong>老师原话</strong>：“you should be worried about where your data comes from.”</p>
 <p><strong>理解</strong>：检查新场景是否被训练数据覆盖，比只记住总准确率更能帮助判断模型是否适用。</p>
 </blockquote>
-<h2 id="_12">本讲自测<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h2>
+<h2 id="_10">本讲自测<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h2>
 <ol>
 <li>四张原图各生成两个视图，一个 SimCLR 基准视图有几个正对和负对？</li>
 <li>CLIP 的 zero-shot 分类还需要提供什么候选信息？</li>
 <li>最近邻、遮挡和 Grad-CAM 分别回答什么问题？</li>
 </ol>
-<h2 id="_13">词条与学习任务<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h2>
+<h2 id="_11">词条与学习任务<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h2>
 <p>本讲按概念拆分的独立词条如下；出处、直接依赖和关卡／任务目标见各词条。应用实验单列在 <a href="encyclopedia/08-optional.html">可选专题</a>。</p>
 <p><a href="encyclopedia/03-learning.html#contrastive">自监督与对比学习</a> · <a href="encyclopedia/03-learning.html#clip">CLIP 与零样本分类</a> · <a href="encyclopedia/03-learning.html#interpretability">遮挡、CAM 与表示检查</a> · <a href="encyclopedia/03-learning.html#robustness">纹理偏置与分布变化</a> · <a href="encyclopedia/03-learning.html#embedding-view">PCA、t-SNE 与表示邻居</a></p>
 
