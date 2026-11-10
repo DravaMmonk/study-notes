@@ -196,7 +196,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const top = { circuit, parts, top: true }
   // The boards inside packed parts hold defined parts too.
   const opened = packed && defined ? { ...packed, open: (node, at) => { const r = packed.open(node, at); return r && { ...r, parts: definedParts(r.parts, defined.of) } } } : packed
-  const inside = packed ? insideOf({ top, ...opened, card, dense, describe: describeOf, sheet: detailOf }) : null
+  const inside = packed ? insideOf({ top, ...opened, card, describe: describeOf, sheet: detailOf }) : null
   const isPacked = (node, at) => Boolean(inside?.is(node, at))
   const ctx = { view, board: top, path: [], readOnly: false }
   const step = packed?.trace?.()?.step

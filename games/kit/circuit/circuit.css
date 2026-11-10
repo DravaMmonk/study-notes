@@ -522,16 +522,42 @@
 .cl-sheet .cs-field select, .cl-sheet .cs-field input { height: 40px; font-size: 16px; }
 
 /* ---- the board inside a packed part (circuit/Inside.jsx), opened read only ---- */
-/* On a phone, in the part's sheet: a window of a fixed height that scrolls; a block on it opens its own sheet, whose
-   settings only show. */
-.cl-inside-phone { margin-top: var(--sp-4); }
-.cl-inside-scroll { height: 360px; overflow-y: auto; overscroll-behavior: contain; border-radius: var(--r-md); box-shadow: inset 0 0 0 1px var(--hairline); }
+/* A schematic (Schematic.jsx), the same on a desktop and a phone, in a window that scrolls once it outgrows it. */
+.cl-inside { max-height: 360px; overflow: auto; overscroll-behavior: contain; border-radius: var(--r-md); box-shadow: inset 0 0 0 1px var(--hairline); }
 .cl-readonly :is(select, input) { pointer-events: none; }
-/* Its inputs and its result are the part's own ports: on a desktop, small terminals at the board's left and right edges
-   (their name and dot, no card); on a phone, the slot board's top and bottom rows, as thin. */
-.cl-inside-scroll .pb-term { min-height: 0; padding: var(--sp-3) var(--sp-4); background: none; box-shadow: inset 0 0 0 1px var(--hairline); }
-.cl-inside-scroll .pb-term::after, .cl-inside-scroll .pb-term .pb-thumb { display: none; }
-.cl-inside-scroll .pb-term .pb-name { color: var(--muted); font-size: 12px; }
+.sk-board { position: relative; box-sizing: border-box; width: max-content; min-width: 100%; padding: var(--sp-5); }
+.sk-wires { position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; }
+.sk-wires .pb-wire { stroke-width: 1.6; }
+.sk-rows { display: grid; gap: var(--sp-7); }
+.sk-row { display: flex; align-items: center; justify-content: center; gap: var(--sp-5); }
+.sk-via { align-self: stretch; width: var(--sp-3); }
+/* A chip: its name over what it holds. Wires meet it at pins on its top and bottom edges, which take no room. */
+.sk-chip, .sk-end, .sk-frame { position: relative; box-sizing: border-box; min-width: 0; padding: var(--sp-3) var(--sp-4); display: grid; justify-items: center; gap: var(--sp-1); text-align: center; }
+.sk-chip { max-width: 168px; border-radius: var(--r-sm); background: var(--paper); box-shadow: inset 0 2px 0 var(--fam, var(--rule)), inset 0 0 0 1px var(--hairline); }
+.sk-chip[role='button'] { cursor: pointer; }
+.sk-chip.is-step, .sk-frame.is-step { box-shadow: 0 0 0 2px var(--accent); }
+.sk-name { color: var(--muted); font-size: var(--fs-label); line-height: 1.3; overflow-wrap: anywhere; }
+.sk-value { font-size: var(--fs-ui); line-height: 1.4; overflow-wrap: anywhere; }
+.sk-value .number-view { min-height: 0; padding: 0; }
+/* The board's own inputs and results: a name in a ring of its colour, no card. */
+.sk-end { --io: var(--fam, var(--accent)); border-radius: var(--r-full); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--io) 55%, transparent); }
+.sk-end.is-out { --io: var(--accent); }
+.sk-end .sk-name { color: var(--ink); }
+.sk-ins, .sk-outs { justify-self: stretch; min-height: var(--sp-3); display: flex; justify-content: space-evenly; gap: var(--sp-4); color: var(--muted); font-size: var(--fs-label); line-height: 1.3; }
+.sk-ins { margin-top: calc(var(--sp-3) * -1); }
+.sk-outs { margin-bottom: calc(var(--sp-3) * -1); }
+.sk-ins > span, .sk-outs > span { position: relative; display: grid; justify-items: center; }
+.sk-ins.is-named > span { padding-top: var(--sp-1); }
+.sk-outs.is-named > span { padding-bottom: var(--sp-3); font-family: var(--mono); }
+.sk-outs em, .sk-region em { font-style: normal; }
+.sk-pin { position: absolute; left: 50%; }
+.sk-ins .sk-pin, .sk-region footer .sk-pin { top: 0; }
+.sk-outs .sk-pin, .sk-region header .sk-pin { bottom: 0; }
+/* A frame: a tinted box around its regions, each a board of its own between the value it opens and its result. */
+.sk-frame { border-radius: var(--r-md); background: color-mix(in srgb, var(--fam, var(--accent)) 5%, var(--paper)); box-shadow: inset 0 2px 0 var(--fam, var(--rule)), inset 0 0 0 1px color-mix(in srgb, var(--fam, var(--accent)) 30%, transparent); }
+.sk-region { justify-self: stretch; display: grid; gap: var(--sp-5); border-radius: var(--r-sm); outline: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 35%, var(--rule)); outline-offset: -1px; }
+.sk-region > :is(header, footer) { position: relative; min-height: var(--sp-5); padding: var(--sp-2) var(--sp-4); display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: var(--sp-1) var(--sp-3); color: var(--muted); font-size: var(--fs-label); }
+.sk-region > .sk-rows { padding: 0 var(--sp-4); }
 /* Sections are passive backdrops under real cards and wires, with one fold control. */
 .wire-tags { pointer-events: auto; cursor: pointer; }
 .wire-tags path { stroke: var(--muted); fill: none; }

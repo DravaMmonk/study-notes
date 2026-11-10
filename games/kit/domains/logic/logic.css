@@ -243,7 +243,6 @@
 /* The board a built part runs, read only (circuit/Inside.jsx): a sheet over it shows its settings without changing them. */
 .cl-readonly :is(.lg-rules, .lg-occ button) { pointer-events: none; }
 .cl-readonly .lg-rules :is(select, button) { display: none; }
-.cl-inside-scroll .pb-term .lg-sink { display: none; }
 .kit-board.is-readonly .lg-rules :is(select, button) { display: none; }
 
 /* The definition board (ui/DefineScreen.jsx): a row a case, its right side picked; the tests under them. */
