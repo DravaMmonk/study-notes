@@ -10,8 +10,8 @@
     "en": "Calculus"
   },
   "lede": {
-    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出计数、求和与差分，看它们互相撤销；这一对就是微积分的两半。",
-    "en": "A machine that can only add and multiply computes a term of a sequence each tick. Wire up counting, summing and differencing yourself and watch them undo each other: the two halves of calculus."
+    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出求和与差分，看它们互相撤销；再把「越来越近」拼成电路，判断一个数列、一个级数究竟趋于什么。",
+    "en": "A machine that can only add and multiply computes a term of a sequence each tick. Wire up summing and differencing and watch them undo each other; then wire “getting closer” itself, and judge what a sequence or a series really tends to."
   },
   "primitives": [
     "add",

@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "xₙ₊₁ = (xₙ + c/xₙ)/2 从任何正数起都趋于 √c，这就是巴比伦开方。",
-    "en": "xₙ₊₁ = (xₙ + c/xₙ)/2 tends to √c from any positive start: this is the Babylonian square root."
+    "zh": "xₙ₊₁ = (xₙ + c/xₙ)/2 从任何正数起都趋于 √c，这就是<wiki-ref to=\"babylonian\"></wiki-ref>。",
+    "en": "xₙ₊₁ = (xₙ + c/xₙ)/2 tends to √c from any positive start: this is the <wiki-ref to=\"babylonian\"></wiki-ref>."
   },
   "tasks": [
     {

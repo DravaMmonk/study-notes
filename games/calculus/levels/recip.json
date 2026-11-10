@@ -15,8 +15,8 @@
     }
   ],
   "after": {
-    "zh": "1/(n+1) 每一项都不是 0，却能小过任何给定的正数。",
-    "en": "No term of 1/(n+1) is 0, yet it gets smaller than any positive number you name."
+    "zh": "1/(n+1) 每一项都不是 0，却能小过任何给定的正数：这样的数列叫<wiki-ref to=\"infinitesimal\"></wiki-ref>。",
+    "en": "No term of 1/(n+1) is 0, yet it gets smaller than any positive number named: such a sequence is an <wiki-ref to=\"infinitesimal\"></wiki-ref>."
   },
   "adds": ["recip"],
   "tasks": [

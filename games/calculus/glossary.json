@@ -154,6 +154,158 @@
         }
       ],
       "see": ["partial-sum", "difference"]
+    },
+    {
+      "id": "infinitesimal",
+      "group": "sequences",
+      "title": { "zh": "无穷小", "en": "infinitesimal" },
+      "at": "recip",
+      "body": [
+        {
+          "zh": "越来越接近 0 的数列，如 1/(n+1)、1/2ⁿ：每一项都不是 0，却能小过任何给定的正数。它不是一个很小的数，而是一个数列的走向。",
+          "en": "A sequence closing in on 0, such as 1/(n+1) or 1/2ⁿ: no term is 0, yet it gets smaller than any positive number named. It is not a very small number but the way a sequence goes."
+        }
+      ],
+      "see": ["limit"]
+    },
+    {
+      "id": "inequality",
+      "group": "sequences",
+      "title": { "zh": "比较", "en": "comparison" },
+      "at": "max",
+      "body": [
+        {
+          "zh": "a < b 的真假写成 1 和 0，就是一个数列。乘上去，就能在两个数里挑一个：max(a, b) = a + [a < b]·(b − a)，方括号是真为 1、假为 0。",
+          "en": "Writing whether a < b as 1 or 0 gives a sequence. Multiplied in, it picks one of two numbers: max(a, b) = a + [a < b]·(b − a), where the bracket is 1 when true and 0 when false."
+        }
+      ],
+      "see": ["distance"]
+    },
+    {
+      "id": "distance",
+      "group": "sequences",
+      "title": { "zh": "距离", "en": "distance" },
+      "at": "dist",
+      "body": [
+        {
+          "zh": "|a − b|：数轴上两点隔多远，不看谁在左边。它是 a − b 和 b − a 里较大的那个，从不为负，只在 a = b 时为 0。",
+          "en": "|a − b|: how far apart two points of the number line are, whichever is on the left. It is the larger of a − b and b − a, never negative, and 0 only when a = b."
+        }
+      ],
+      "see": ["neighbourhood"]
+    },
+    {
+      "id": "neighbourhood",
+      "group": "sequences",
+      "title": { "zh": "邻域", "en": "neighbourhood" },
+      "at": "near",
+      "body": [
+        {
+          "zh": "离 L 不到 ε 的所有数，|x − L| < ε，叫 L 的 ε 邻域。ε 是事先说好的「多近才算近」，取多小都可以，但必须大于 0。",
+          "en": "Every number less than ε from L, |x − L| < ε, is L’s ε-neighbourhood. ε is the agreed answer to how close counts as close: as small as you like, but above 0."
+        }
+      ],
+      "see": ["distance", "limit"]
+    },
+    {
+      "id": "eventually",
+      "group": "sequences",
+      "title": { "zh": "从某项起", "en": "eventually" },
+      "at": "since",
+      "body": [
+        {
+          "zh": "一件事从某一项起一直成立，前面有几项不成立也不要紧。板只跑有限拍：在这些拍以内，那一项就是最近一段连续成立的开头。",
+          "en": "Something holding from some term on, whatever the terms before it did. The board runs finitely many ticks: within them, that term is where the latest unbroken stretch began."
+        }
+      ],
+      "see": ["limit"]
+    },
+    {
+      "id": "limit",
+      "group": "sequences",
+      "title": { "zh": "极限", "en": "limit" },
+      "at": "limit",
+      "body": [
+        {
+          "zh": "数列 aₙ 趋于 L：不管 ε 多小，总有一项 N，从它起每一项都在 L 的 ε 邻域里。L 叫数列的极限，记作 lim aₙ = L。",
+          "en": "aₙ tends to L: however small ε is, there is a term N from which every term lies in L’s ε-neighbourhood. L is the sequence’s limit, written lim aₙ = L."
+        },
+        {
+          "zh": "这个定义不要求哪一项等于 L，也不要求越来越近；只要求「从某项起一直够近」，而「够近」由别人随便挑。机器只能跑有限拍，所以它找到的 N 只在这些拍以内成立，不是证明。",
+          "en": "The definition asks no term to equal L, nor the terms to keep getting closer; only that from some term on they stay close enough, with “enough” chosen by someone else. The machine runs finitely many ticks, so the N it finds holds within them only and proves nothing."
+        }
+      ],
+      "see": ["neighbourhood", "eventually", "divergence"]
+    },
+    {
+      "id": "divergence",
+      "group": "sequences",
+      "title": { "zh": "发散", "en": "divergence" },
+      "at": "diverge",
+      "body": [
+        {
+          "zh": "找不到任何 L 让数列趋于它，数列就发散。(−1)ⁿ 从不跑远，仍然发散：不管 L 取几，ε 取 1/2，N 总被往后推。",
+          "en": "A sequence diverges when there is no L it tends to. (−1)ⁿ never wanders off and still diverges: whatever L is, with ε = 1/2, N keeps being pushed back."
+        }
+      ],
+      "see": ["limit"]
+    },
+    {
+      "id": "series",
+      "group": "sequences",
+      "title": { "zh": "级数收敛", "en": "convergent series" },
+      "at": "series",
+      "body": [
+        {
+          "zh": "无穷多项 a₀ + a₁ + … 相加的值，定义为部分和 Sₙ 的极限。部分和有极限，就说级数收敛，那个极限就是它的和：1 + 1/2 + 1/4 + … = 2。",
+          "en": "The value of a₀ + a₁ + … with infinitely many terms is defined as the limit of the partial sums Sₙ. When that limit exists the series converges, and the limit is its sum: 1 + 1/2 + 1/4 + … = 2."
+        }
+      ],
+      "see": ["partial-sum", "harmonic"]
+    },
+    {
+      "id": "harmonic",
+      "group": "sequences",
+      "title": { "zh": "调和级数", "en": "harmonic series" },
+      "at": "harmonic",
+      "body": [
+        {
+          "zh": "1 + 1/2 + 1/3 + …：每一项都趋于 0，部分和却越过任何界，所以发散。它长得极慢，前一百项的和才约 5.19。",
+          "en": "1 + 1/2 + 1/3 + …: its terms tend to 0, yet its partial sums pass every bound, so it diverges. It grows extremely slowly: the first hundred terms add up to only about 5.19."
+        },
+        {
+          "zh": "所以项趋于 0 只是级数收敛的必要条件，不是充分条件。",
+          "en": "So terms tending to 0 is necessary for a series to converge, not sufficient."
+        }
+      ],
+      "see": ["series", "divergence"]
+    },
+    {
+      "id": "e",
+      "group": "sequences",
+      "title": { "zh": "自然常数 e", "en": "Euler’s number e" },
+      "at": "euler",
+      "body": [
+        {
+          "zh": "e = 1 + 1/1! + 1/2! + 1/3! + … ≈ 2.718281828。阶乘长得极快，这个级数几项就准到小数点后好几位。",
+          "en": "e = 1 + 1/1! + 1/2! + 1/3! + … ≈ 2.718281828. Factorials grow so fast that a few terms are right to several decimal places."
+        }
+      ],
+      "see": ["series"]
+    },
+    {
+      "id": "babylonian",
+      "group": "sequences",
+      "title": { "zh": "巴比伦开方", "en": "Babylonian square root" },
+      "at": "any-root",
+      "body": [
+        {
+          "zh": "xₙ₊₁ = (xₙ + c/xₙ)/2 从任意正数起趋于 √c：猜得大了，c/xₙ 就小了，平均两者。误差每步大约平方一次，有效数字一步翻一倍。",
+          "en": "xₙ₊₁ = (xₙ + c/xₙ)/2 tends to √c from any positive start: if a guess is too large, c/xₙ is too small, and the average takes both. The error roughly squares each step, doubling the correct digits."
+        },
+        { "zh": "它是牛顿法用在 x² − c = 0 上的一个特例。", "en": "It is Newton’s method applied to x² − c = 0." }
+      ],
+      "see": ["limit"]
     }
   ]
 }

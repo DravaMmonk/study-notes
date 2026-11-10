@@ -8,7 +8,10 @@
       }
     }
   ],
-  "after": { "zh": "离 L 不到 ε 的数，叫 L 的 ε 邻域。", "en": "The numbers less than ε from L are L’s ε-neighbourhood." },
+  "after": {
+    "zh": "离 L 不到 ε 的数，叫 L 的 ε <wiki-ref to=\"neighbourhood\"></wiki-ref>。",
+    "en": "The numbers less than ε from L are L’s ε-<wiki-ref to=\"neighbourhood\"></wiki-ref>."
+  },
   "builds": {
     "type": "near",
     "name": { "zh": "邻域", "en": "Near" },

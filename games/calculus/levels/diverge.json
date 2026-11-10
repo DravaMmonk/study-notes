@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "不管 L 取几，总有某个 ε 让 N 一直被往后推：找不到它趋于的数，这样的数列叫发散。",
-    "en": "Whatever L is, some ε keeps pushing N later: there is no number it tends to, and such a sequence diverges."
+    "zh": "不管 L 取几，总有某个 ε 让 N 一直被往后推：找不到它趋于的数，这样的数列<wiki-ref to=\"divergence\"></wiki-ref>。",
+    "en": "Whatever L is, some ε keeps pushing N later: there is no number it tends to. This is <wiki-ref to=\"divergence\"></wiki-ref>."
   },
   "tasks": [
     {

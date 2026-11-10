@@ -15,8 +15,8 @@
     }
   ],
   "after": {
-    "zh": "一件事从某一项起一直成立，前面有几项不成立也不要紧。",
-    "en": "Something can hold from some term on, whatever the terms before it did."
+    "zh": "一件事可以<wiki-ref to=\"eventually\"></wiki-ref>一直成立，前面有几项不成立也不要紧。",
+    "en": "Something can hold <wiki-ref to=\"eventually\"></wiki-ref>, whatever the terms before it did."
   },
   "builds": {
     "type": "since",

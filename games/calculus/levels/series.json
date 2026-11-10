@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "无穷多项相加的值，就是部分和的极限：这样的级数叫收敛。",
-    "en": "The value of infinitely many terms added is the limit of the partial sums: such a series converges."
+    "zh": "部分和有极限，就说<wiki-ref to=\"series\"></wiki-ref>，和就是这个极限。",
+    "en": "When the partial sums have a limit, it is a <wiki-ref to=\"series\"></wiki-ref>, and the limit is its sum."
   },
   "tasks": [
     {

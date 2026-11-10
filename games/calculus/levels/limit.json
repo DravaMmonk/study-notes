@@ -15,8 +15,8 @@
     }
   ],
   "after": {
-    "zh": "不管 ε 多小，总有一项 N，从它起每一项都离 L 不到 ε：这就是数列趋于 L。这里只跑了有限拍，N 只在这些拍以内成立。",
-    "en": "However small ε is, there is a term N from which every term is less than ε from L: that is what tending to L means. Only finitely many ticks ran here, so N holds within them only."
+    "zh": "不管 ε 多小，总有一项 N，从它起每一项都离 L 不到 ε：L 就是数列的<wiki-ref to=\"limit\"></wiki-ref>。只跑了有限拍，N 只在这些拍以内成立。",
+    "en": "However small ε is, some term N has every term from it on less than ε from L: L is the sequence’s <wiki-ref to=\"limit\"></wiki-ref>. Only finitely many ticks ran, so N holds within them only."
   },
   "tasks": [
     {

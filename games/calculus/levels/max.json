@@ -15,8 +15,8 @@
     }
   ],
   "after": {
-    "zh": "真假写成 1 和 0，乘上去就能挑选：比较也成了算术。",
-    "en": "Truth written as 1 and 0 picks by multiplying: comparison has become arithmetic."
+    "zh": "真假写成 1 和 0，乘上去就能挑选：<wiki-ref to=\"inequality\"></wiki-ref>也成了算术。",
+    "en": "Truth written as 1 and 0 picks by multiplying: <wiki-ref to=\"inequality\"></wiki-ref> has become arithmetic."
   },
   "adds": ["less"],
   "builds": {

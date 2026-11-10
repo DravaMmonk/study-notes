@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "项趋于 0，和仍然越过任何界：调和级数发散。项趋于 0 只是级数收敛的必要条件。",
-    "en": "The terms tend to 0 and the sum still passes every bound: the harmonic series diverges. Terms tending to 0 is only a necessary condition for convergence."
+    "zh": "项趋于 0，和仍越过任何界：<wiki-ref to=\"harmonic\"></wiki-ref>发散。项趋于 0 只是级数收敛的必要条件。",
+    "en": "The terms tend to 0, yet the sum passes every bound: the <wiki-ref to=\"harmonic\"></wiki-ref> diverges. Terms tending to 0 is only necessary for convergence."
   },
   "tasks": [
     {

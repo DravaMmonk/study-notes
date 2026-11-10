@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "1 + 1/1! + 1/2! + … 趋于 e ≈ 2.71828：阶乘长得飞快，几项就准到小数点后好几位。",
-    "en": "1 + 1/1! + 1/2! + … tends to e ≈ 2.71828: factorials grow so fast that a few terms are right to several decimal places."
+    "zh": "1 + 1/1! + 1/2! + … 趋于<wiki-ref to=\"e\"></wiki-ref> ≈ 2.71828：阶乘长得飞快，几项就准到小数点后好几位。",
+    "en": "1 + 1/1! + 1/2! + … tends to <wiki-ref to=\"e\"></wiki-ref> ≈ 2.71828: factorials grow so fast that a few terms are right to several decimal places."
   },
   "tasks": [
     {

@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "|a − b| 只量隔多远，不看谁在左边。",
-    "en": "|a − b| measures only how far apart, never which is on the left."
+    "zh": "|a − b| 叫两数的<wiki-ref to=\"distance\"></wiki-ref>：只量隔多远，不看谁在左边。",
+    "en": "|a − b| is the <wiki-ref to=\"distance\"></wiki-ref> between two numbers: how far apart, never which is on the left."
   },
   "builds": {
     "type": "dist",
