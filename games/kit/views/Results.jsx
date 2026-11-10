@@ -1,5 +1,6 @@
 import { isGrid, pixel } from '../engine/grid.js'
 import { numberText } from '../engine/number.js'
+import { VIEWS } from '../engine/views.js'
 import { L } from '../shell/i18n.js'
 import Timeline from '../shell/Timeline.jsx'
 import { WORDS } from '../shell/words.js'
@@ -93,8 +94,10 @@ function ListRow({ entry, text, tool }) {
 /** Rows of values a tick, on one time axis: a lane a value given, or a result and the values wanted under it. */
 function Track({ rows, text, at, count, marks }) {
   const lanes = rows.flatMap(({ entry, view, tool }) => {
-    const kind = view === 'wave' ? 'wave' : 'value'
+    const kind = VIEWS[view]?.lane ?? 'value'
     if (!isOutput(entry)) return [{ key: entry.of, label: entry.label, kind, ticks: entry.given, tool }]
+    // A plot draws the values wanted as rings on the result's own lane, one scale for both.
+    if (kind === 'dots') return [{ key: entry.of, label: entry.label, kind, ticks: entry.got ?? [], want: Array.isArray(entry.want) ? entry.want : undefined, tool }]
     return [
       { key: entry.of, label: entry.label, kind, ticks: entry.got ?? [], tool },
       ...(Array.isArray(entry.want) ? [{ key: `${entry.of}:want`, label: WORDS.wanted, kind, ticks: entry.want.map((v) => (v === undefined ? null : v)) }] : []),

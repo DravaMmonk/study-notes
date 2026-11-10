@@ -1,5 +1,5 @@
 import { isGrid } from '../engine/grid.js'
-import { shapeOf, valueText } from '../engine/views.js'
+import { VIEWS, shapeOf, valueText } from '../engine/views.js'
 import { L } from '../shell/i18n.js'
 import Timeline from '../shell/Timeline.jsx'
 import { useOffered, useViewPicks } from './choice.js'
@@ -63,7 +63,7 @@ export default function Show({ value, shape = shapeOf(value), scene, views, of, 
     )
   }
   if (shape === 'bits' || shape === 'ticks') {
-    const lane = { key: 'value', label: label ?? '', kind: view === 'wave' ? 'wave' : 'value', ticks: value, text: (v) => L(text(v)) }
+    const lane = { key: 'value', label: label ?? '', kind: VIEWS[view]?.lane ?? 'value', ticks: value, text: (v) => L(text(v)) }
     return <div className={`vw-${scene}`}>{tool && <header className="vw-head">{tool}</header>}<Timeline lanes={[lane]} count={value.length} /></div>
   }
   if (shape === 'list') return <div className={`vw-${scene}`}>{head}<p className="vw-seq">{value.length ? value.map((v) => L(text(v))).join(' ') : '—'}</p></div>

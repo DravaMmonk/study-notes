@@ -531,7 +531,11 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .tl-base { stroke: var(--rule); }
 .tl-wave { fill: none; stroke: var(--ink); stroke-width: 1.6; stroke-linejoin: round; }
 .tl-band { fill: var(--surface); stroke: var(--line); }
-.tl-band-text { font: 11px var(--mono); fill: var(--ink); dominant-baseline: central; }
+.tl-band-text, .tl-term { font: 11px var(--mono); fill: var(--ink); dominant-baseline: central; }
+.tl-term { text-anchor: middle; }
+.tl-dot { fill: var(--ink); }
+.tl-ring { fill: none; stroke: var(--muted); stroke-width: 1.6; }
+.tl-zero { stroke: var(--line); stroke-dasharray: 3 3; }
 .tl-at { fill: var(--accent); opacity: 0.18; }
 .tl-mark { fill: var(--fail); opacity: 0.22; }
 

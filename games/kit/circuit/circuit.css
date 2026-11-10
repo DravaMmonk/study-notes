@@ -513,13 +513,13 @@
 .cs-error.is-missing { color: var(--faint); }
 .cs-field { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--sp-3); }
 .cs-field > span { color: var(--muted); font-size: 11px; }
-.cs-field select { min-width: 0; height: 26px; padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12px var(--mono); }
-.cs-field select:focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
+.cs-field select, .cs-field input { min-width: 0; height: 26px; padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12px var(--mono); }
+.cs-field select:focus, .cs-field input:focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
 .cs-strip { display: grid; gap: var(--sp-4); min-width: 0; }
 .cs-verdict { margin: 0; font-size: 13px; line-height: 1.55; }
 .cs-verdict.is-fail { color: var(--fail); }
 .cl-sheet .cs-card { padding: 0; }
-.cl-sheet .cs-field select { height: 40px; font-size: 16px; }
+.cl-sheet .cs-field select, .cl-sheet .cs-field input { height: 40px; font-size: 16px; }
 
 /* ---- the board inside a packed part (circuit/Inside.jsx), opened read only ---- */
 /* On a phone, in the part's sheet: a window of a fixed height that scrolls; a block on it opens its own sheet, whose

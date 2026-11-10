@@ -6,7 +6,8 @@
 //   shapes   scalar  one value, written as words (a number, yes or no, a vector)
 //            grid    { w, h, c, data }: a matrix, an image, a row of numbers (c channels a cell, row by row)
 //            bits    one 0 or 1 a tick (a wire)
-//            ticks   one value a tick
+//            ticks   one value a tick: bands of equal values, every term in its column (terms), or a sequence plot
+//                    (dots, the values wanted as rings)
 //            list    a few values in order
 //   scenes   card     on a part on the board: as small as it reads, nothing to point at
 //            detail   in a part's detail: whole, its cells numbered on their axes, every cell read by pointing at it
@@ -52,8 +53,10 @@ export const VIEWS = {
   slope: { shapes: ['grid'], label: t('坡度', 'Slope'), fits: (g) => grey(g) && g.h >= 3 && g.w >= 3 },
   spectrum: { shapes: ['grid'], label: t('频谱', 'Spectrum'), fits: (g) => grey(g) && g.w >= 2 && g.w * g.h <= 128 * 128 },
   centredBins: { shapes: ['grid'], label: t('零频居中的幅度', 'Centred magnitudes'), fits: (g) => grey(g) && g.w >= 2 },
-  wave: { shapes: ['bits'], label: t('波形', 'Wave') },
-  bands: { shapes: ['bits', 'ticks'], label: t('数值', 'Values') },
+  wave: { shapes: ['bits'], label: t('波形', 'Wave'), lane: 'wave' },
+  bands: { shapes: ['bits', 'ticks'], label: t('数值', 'Values'), lane: 'value' },
+  terms: { shapes: ['ticks'], label: t('逐项', 'Terms'), lane: 'terms' },
+  dots: { shapes: ['ticks'], label: t('数列图', 'Plot'), lane: 'dots' },
   sequence: { shapes: ['list'], label: t('序列', 'Sequence') },
 }
 

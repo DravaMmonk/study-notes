@@ -1,0 +1,20 @@
+{
+  "domain": "calculus",
+  "vocabulary": 1,
+  "title": { "zh": "__title__", "en": "__title__" },
+  "kicker": { "zh": "开发中", "en": "In development" },
+  "lede": {
+    "zh": "第 n 拍算第 n 项。先逐项相加，再记住上一项。",
+    "en": "Tick n computes term n. Add term by term first, then remember the term before."
+  },
+  "primitives": ["add", "reg", "keep"],
+  "concept": { "keep": "reg" },
+  "eras": [
+    {
+      "id": 1,
+      "title": { "zh": "一拍一项", "en": "A term a tick" },
+      "question": { "zh": "板每拍算出数列的一项：怎样逐项运算，怎样用上前一项？", "en": "The board computes a term a tick: how does it work term by term, and use the term before?" },
+      "foundation": ["1-1", "1-2"]
+    }
+  ]
+}

@@ -17,6 +17,8 @@ import { WORDS } from './words.js'
 import { openRef } from './refs.js'
 import { definedItem } from './parts/faces.jsx'
 import { useEdit } from './edit.js'
+import NumberField from './NumberField.jsx'
+import { PHONE, useMedia } from './useMedia.js'
 
 // The level screen of a domain on the circuit base (engine/circuit-domain.js, the game's course read as
 // `game.circuit`), on the kit's circuit level (CircuitLevel.jsx): the level's fixed cards down the left and right
@@ -55,6 +57,17 @@ import { useEdit } from './edit.js'
 
 const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
 
+/** A number typed on a card: a keypad on a phone (NumberField). */
+function CardNumber({ label, value, onChange }) {
+  const phone = useMedia(PHONE)
+  return (
+    <label className="cs-field">
+      <span>{L(label)}</span>
+      <NumberField label={label} value={value} phone={phone} onChange={onChange} />
+    </label>
+  )
+}
+
 /** A setting picked from a list, on a card. */
 export function CardField({ label, value, options, onChange }) {
   return (
@@ -70,22 +83,24 @@ export function CardField({ label, value, options, onChange }) {
 /**
  * The settings of the cards a tick board keeps registers with (../engine/ticks.js register, store), as a domain's
  * screen gives them: `reg` and `keep` name one of `registers`, `reg` has a start value (「—」, 0 or 1), `const` a number
- * from 0 to `top`, and a part with forms (`forms`: { type: { form: label } }) one of them. A new card's settings are
+ * from 0 to `top`, and a part with forms (`forms`: { type: { form: label } }) one of them. With `numbers`, a constant
+ * and a start value are any number, typed (NumberField), and a start value is 0 until set. A new card's settings are
  * its defaults written in (the first register, 0, the first form), so the card shows them.
  */
-export function registerCards({ registers, top, forms = {} }) {
+export function registerCards({ registers, top, forms = {}, numbers = false }) {
   const names = registers.map((r) => [r, r])
   const starts = [['', '—'], ['0', '0'], ['1', '1']]
-  const numbers = Array.from({ length: top + 1 }, (_, k) => [String(k), String(k)])
+  const values = Array.from({ length: top + 1 }, (_, k) => [String(k), String(k)])
   const first = (type) => Object.keys(forms[type])[0]
   return {
-    defaults: (type) => (type === 'reg' || type === 'keep' ? { reg: registers[0] } : type === 'const' ? { value: '0' } : forms[type] ? { form: first(type) } : {}),
+    defaults: (type) => (type === 'reg' ? { reg: registers[0], ...(numbers ? { start: '0' } : {}) } : type === 'keep' ? { reg: registers[0] } : type === 'const' ? { value: '0' } : forms[type] ? { form: first(type) } : {}),
     settings: (node, set) => {
       const p = node.params ?? {}
       const reg = <CardField label={T('名字', 'Name')} value={p.reg ?? registers[0]} options={names} onChange={set('reg')} />
-      if (node.type === 'reg') return <>{reg}<CardField label={T('初值', 'Start')} value={p.start ?? ''} options={starts} onChange={set('start')} /></>
+      const start = numbers ? <CardNumber label={T('初值', 'Start')} value={p.start ?? ''} onChange={set('start')} /> : <CardField label={T('初值', 'Start')} value={p.start ?? ''} options={starts} onChange={set('start')} />
+      if (node.type === 'reg') return <>{reg}{start}</>
       if (node.type === 'keep') return reg
-      if (node.type === 'const') return <CardField label={T('数值', 'Value')} value={p.value ?? '0'} options={numbers} onChange={set('value')} />
+      if (node.type === 'const') return numbers ? <CardNumber label={T('数值', 'Value')} value={p.value ?? '0'} onChange={set('value')} /> : <CardField label={T('数值', 'Value')} value={p.value ?? '0'} options={values} onChange={set('value')} />
       if (forms[node.type]) return <CardField label={T('形状', 'Form')} value={p.form ?? first(node.type)} options={Object.entries(forms[node.type])} onChange={set('form')} />
       return null
     },
