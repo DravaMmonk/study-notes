@@ -52,3 +52,26 @@ test('the starter game passes its checks', async () => {
   const lines = await domain.validate(domain.spec(content))
   assert.deepEqual(lines.filter((l) => l.fail), [])
 })
+
+test('a task that withholds a part keeps it from the tray and from its answer', async () => {
+  const { assemble } = await import('../../engine/content.js')
+  const { calculusCourse } = await import('./course.js')
+  const level = (title, task) => ({ title: { zh: title, en: title }, tasks: [{ id: title, brief: { zh: 'b', en: 'b' }, outputs: [{ name: 'n', label: 'n' }], tests: [{ want: { n: [0, 1, 2] } }], ...task }] })
+  const counter = ['r = reg[reg=A, start=0]()', 'c = const[value=1]()', 's = add(r, c)', 'k = keep[reg=A](s)', 'n <- r']
+  const content = (withhold, solution) => assemble({
+    id: 't',
+    game: { domain: 'calculus', vocabulary: 1, title: { zh: 't', en: 't' }, kicker: { zh: 't', en: 't' }, lede: { zh: 't', en: 't' }, primitives: ['add', 'const', 'reg', 'keep'], concept: { keep: 'reg' }, eras: [{ id: 0, title: { zh: 't', en: 't' }, question: { zh: 't', en: 't' }, foundation: ['a', 'b'] }] },
+    levels: [
+      ['a', { ...level('a', { solution: counter }), adds: ['add', 'const', 'reg', 'keep'], builds: { type: 'count', name: { zh: 'n', en: 'n' }, desc: { zh: 'n', en: 'n' } } }],
+      ['b', level('b', { withhold: withhold, solution })],
+    ],
+    glossary: { groups: [], entries: [] },
+  })
+  const fair = calculusCourse(content(['count'], counter))
+  const task = fair.played.get('b')[0]
+  const tray = Object.values(fair.offerIn(task, new Set(['count']))).flat()
+  assert.ok(!tray.includes('count') && tray.includes('reg'))
+  assert.deepEqual(fair.wrong, [])
+  const caught = calculusCourse(content(['count'], ['p = count()', 'n <- p']))
+  assert.ok(caught.wrong.some((w) => w.includes('uses count, which it withholds')))
+})

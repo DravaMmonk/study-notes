@@ -56,7 +56,8 @@
           ]
         },
         "inverse"
-      ]
+      ],
+      "challenges": [{ "level": "cdouble", "after": "ddouble" }]
     }
   ],
   "views": { "ticks": ["terms", "dots"] }

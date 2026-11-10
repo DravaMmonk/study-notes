@@ -213,6 +213,11 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     out.solution = boardOf(task.solution, 'the answer')
     if (task.starter) out.starter = boardOf(task.starter, 'the starter')
     if (task.naive) out.naive = boardOf(task.naive, 'the naive answer', true)
+    if (task.withhold) out.withhold = task.withhold
+    for (const type of task.withhold ?? []) {
+      if (!parts[type] && !builderOf.has(type)) say(where, `it withholds ${type}, which is no part`)
+      if (out.solution.nodes.some((n) => n.type === type)) say(where, `its answer uses ${type}, which it withholds`)
+    }
     return out
   }
   const isBoard = (task) => !kinds[task.kind]
@@ -320,7 +325,10 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     if (!scopes.has(task.taskId)) {
       const built = {}
       refresh(built, task)
-      scopes.set(task.taskId, { task, view: { ...result, BUILT: built, partOf: (type) => board.FIXED_PARTS[type] ?? parts[type] ?? built[type], builtBy: (type, params) => builderFor(type, params, task) } })
+      // A part the task withholds is no part on its boards: written in their text, it is refused like an unknown one.
+      const withheld = new Set(task.withhold ?? [])
+      const partOf = (type) => board.FIXED_PARTS[type] ?? (withheld.has(type) ? undefined : parts[type] ?? built[type])
+      scopes.set(task.taskId, { task, view: { ...result, BUILT: built, partOf, builtBy: (type, params) => builderFor(type, params, task) } })
     }
     return scopes.get(task.taskId).view
   }
@@ -343,7 +351,8 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       const builds = byId.get(task.id)?.builds
       const publisher = builds?.task && played.get(task.id).find(t => t.taskId === builds.task)
       const self = publisher && publisher.task < task.task ? null : builds?.type
-      return Object.fromEntries(Object.entries(offered).map(([key, types]) => [key, types.filter((type) => type !== self)]))
+      const withheld = new Set(played.get(task.id)?.[task.task]?.withhold ?? [])
+      return Object.fromEntries(Object.entries(offered).map(([key, types]) => [key, types.filter((type) => type !== self && !withheld.has(type))]))
     },
     // The tasks of level `id` that bring in part `type`.
     introductions: (type, id) => (played.get(id) ?? []).filter((T) => T.fresh.includes(type)).map((T) => T.taskId),
@@ -433,6 +442,7 @@ export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text(), show:
     ...checks,
     solution: S.board({ about: t('一块板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') }),
     naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败', 'the naive answer: a board that looks right and is not, which must fail') })),
+    withhold: S.opt(S.list(S.str(), { section: 'course', about: t('这个任务不给的元件：玩家已经有了也从托盘收起，参考解不能用它', 'parts this task is played without: kept from the tray even when the player holds them, and not in its answer') })),
     results: RESULTS,
     views: TASK_VIEWS,
     ...more,

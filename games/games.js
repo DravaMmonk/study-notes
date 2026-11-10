@@ -78,7 +78,7 @@ export const GAMES = [
       zh: '只会加和乘的机器，一拍算出数列的一项。亲手接出计数、求和与差分，看它们互相撤销；再一步步取极限，走到导数和积分。',
       en: 'A machine that can only add and multiply computes a term of a sequence each tick. Wire up counting, summing and differencing yourself and watch them undo each other; then take limits, step by step, up to derivatives and integrals.',
     },
-    levels: 15, dev: true,
+    levels: 16, dev: true,
     page: { icon: 'M12 46h40M18 46V34M28 46V26M38 46V20M48 46V16', description: '差分机 The Difference Engine：从一拍一项的数列机器搭起微积分。Calculus built up from a machine that computes a term a tick.' },
   },
   {

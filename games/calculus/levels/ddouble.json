@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "除了开头一项，1, 2, 4, 8, … 的差分就是它自己晚了一项：差分不能把它变平。",
-    "en": "Apart from the first term, the differences of 1, 2, 4, 8, … are the sequence itself, a term late: differencing does not flatten it."
+    "zh": "平方数差两次就平了；1, 2, 4, 8, … 却怎么差分都平不下来。",
+    "en": "The squares flatten after two differences; 1, 2, 4, 8, … never flattens, however often it is differenced."
   },
   "tasks": [
     {

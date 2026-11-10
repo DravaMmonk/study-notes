@@ -754,6 +754,46 @@
               }
             }
           ]
+        },
+        {
+          "id": "stretch",
+          "title": { "zh": "挑战", "en": "Challenge" },
+          "kind": "challenge",
+          "after": "ddouble",
+          "slots": [
+            {
+              "id": "cdouble",
+              "title": { "zh": "不用差分", "en": "No difference" },
+              "task": {
+                "zh": "不用差分元件、也不用乘，交出 1, 2, 4, 8, … 的差分。",
+                "en": "Without the difference part or multiplication, give the differences of 1, 2, 4, 8, …"
+              },
+              "role": "challenge",
+              "uses": ["reg", "keep", "add", "shift", "geometric", "difference"],
+              "question": {
+                "zh": "减不了，也乘不了 −1，差分还算得出来吗？",
+                "en": "With no way to subtract or multiply by −1, can the differences still be computed?"
+              },
+              "chain": [
+                {
+                  "zh": "先看要交出的数列本身：1, 1, 2, 4, 8, …",
+                  "en": "Look at the sequence wanted itself: 1, 1, 2, 4, 8, …"
+                },
+                {
+                  "zh": "从第二项起，它是翻倍数列晚了一项；第一项是 1 − 0。",
+                  "en": "From its second term on it is the doubling sequence a term late; its first term is 1 − 0."
+                },
+                {
+                  "zh": "翻倍也不必乘：一个数加上它自己。",
+                  "en": "Doubling needs no multiplication either: a number plus itself."
+                }
+              ],
+              "naive": {
+                "zh": "把翻倍数列晚一项交出，初值照旧写 0：第一项就错了。",
+                "en": "Giving the doubling sequence a term late with the usual start value 0: the first term is wrong."
+              }
+            }
+          ]
         }
       ]
     }
