@@ -149,7 +149,7 @@ button:disabled{cursor:not-allowed}
 .key.full{grid-column:1/-1;font:700 15px var(--f-body);background:var(--signal-soft);border-color:var(--signal);color:var(--signal)}
 .key.ok{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink);font:800 15px var(--f-body)}
 
-/* ---------- inside a sheet a level opens (modes/Circuit.jsx, in the shell's bottom sheet) ---------- */
+/* ---------- inside a sheet a level opens (modes/Circuit.jsx, in the shell's sheet) ---------- */
 .sg-sheet{display:flex;flex-direction:column;gap:var(--sp-6);padding-bottom:var(--sp-3)}
 .kicker{font:700 12px var(--f-mono);letter-spacing:.08em;color:var(--ink-3)}
 .kicker.good{color:var(--good)} .kicker.bad{color:var(--bad)} .kicker.sig{color:var(--signal)}

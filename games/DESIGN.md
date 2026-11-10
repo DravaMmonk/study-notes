@@ -637,7 +637,7 @@ Wiring is unchanged: graph connections, port interaction, ordinary port placemen
 are preserved. Block presentation may substitute boundary stubs only while hidden. The shared existing label
 policy and the player's label preference remain in force; this revision does not reroute or bundle the wires.
 
-**Player settings.** A gear in the shared game bar opens a desktop popover or phone bottom sheet on both maps
+**Player settings.** A gear in the shared game bar opens a desktop popover or phone sheet on both maps
 and levels. Language and theme are choices inside this panel, retaining the site-wide `fieldnotes.lang` and
 `fieldnotes.theme` preferences. Their separate top-bar menus are removed from games. The kit alone registers presentation/editing
 preferences in `shell/settings.js`; `useSetting` supplies reactive reads and writes. `when(game)` hides irrelevant

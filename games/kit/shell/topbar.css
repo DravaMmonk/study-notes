@@ -1,19 +1,5 @@
 @keyframes fade-in { from { opacity: 0; } }
 @keyframes sheet-in { from { transform: translateY(100%); } }
-/* Bottom sheet (Sheet.jsx). */
-.ph-scrim { position: fixed; z-index: 50; inset: 0; display: flex; align-items: flex-end; background: var(--scrim); animation: fade-in 160ms ease; }
-.ph-sheet { width: 100%; max-height: 88dvh; display: flex; flex-direction: column; border-radius: var(--r-lg) var(--r-lg) 0 0; background: var(--paper); box-shadow: 0 -12px 30px -12px rgba(0, 0, 0, .35); animation: sheet-in 260ms cubic-bezier(.2, .8, .2, 1); transition: transform 120ms ease; }
-.ph-handle { padding: var(--sp-4) 0 var(--sp-2); display: grid; place-items: center; touch-action: none; cursor: grab; }
-.ph-handle i { width: 40px; height: 5px; border-radius: var(--r-full); background: var(--rule); }
-.ph-sheet-head { padding: 0 var(--sp-4) var(--sp-3) var(--sp-6); display: flex; align-items: center; justify-content: space-between; gap: var(--sp-4); }
-.ph-sheet-head h2 { margin: 0; font-family: var(--serif); font-size: 18px; font-weight: 500; }
-.ph-sheet-head h2 + .ph-sheet-actions { margin-inline-start: auto; }
-.ph-sheet-actions { display: flex; align-items: center; gap: var(--sp-2); }
-.ph-head-action { height: 30px; display: inline-flex; align-items: center; gap: var(--sp-2); padding: 0 var(--sp-4); border: 1px solid var(--hairline); border-radius: var(--r-full); color: var(--body); background: none; font: 500 12.5px var(--sans); cursor: pointer; }
-.ph-head-action:hover { color: var(--ink); background: var(--canvas); }
-.ph-icon { width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: var(--r-md); color: var(--muted); background: transparent; }
-.ph-sheet-body { padding: var(--sp-2) var(--sp-6) var(--sp-6); overflow-y: auto; overscroll-behavior: contain; }
-.ph-sheet-foot { padding: var(--sp-4) var(--sp-6) calc(var(--sp-5) + env(safe-area-inset-bottom)); border-top: 1px solid var(--hairline); }
 /* A box pointing at the button it belongs to (Popover.jsx), on a desktop: an editor in a tooltip. */
 .kit-pop { position: fixed; z-index: 60; width: min(600px, calc(100vw - 24px)); display: flex; flex-direction: column; border-radius: var(--r-lg); background: var(--paper); box-shadow: 0 0 0 1px var(--line), 0 22px 48px -18px rgba(30, 26, 18, .45); animation: pop-in 140ms cubic-bezier(.2, .8, .2, 1); }
 .kit-pop::before { content: ''; position: absolute; left: calc(var(--arrow) - 7px); top: -7px; width: 14px; height: 14px; border-radius: var(--r-xs) 0 0 0; background: var(--paper); box-shadow: -1px -1px 0 var(--line); transform: rotate(45deg); }
