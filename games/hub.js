@@ -14,12 +14,13 @@ import { mountStick } from './stick/stick.js';
 import { mountLoop } from './loop/loop.js';
 import { mountWave } from './wave/wave.js';
 import { mountShear } from './shear/shear.js';
+import { mountEngine } from './engine/engine.js';
 
-// Card art: each game's illustration, mounted live into its row. All four are anatomy-kit figures built into plain
-// modules for this page (each folder's build.mjs): State Graph's robot Boxy, Vision Complete's filter press, Q.E.D.'s
-// Detach press and Syntax Graph's composing stick; Software Factory's agent loop (loop/) and The Car Talks' bus (wave/)
-// are plain line drawings.
-const ART = { grid: mountBoxy, pipeline: mountPress, detach: mountDetach, stick: mountStick, loop: mountLoop, wave: mountWave, shear: mountShear };
+// Card art: each game's illustration, mounted live into its row. The anatomy-kit figures are built into plain modules
+// for this page (each folder's build.mjs): State Graph's robot Boxy, Vision Complete's filter press, Q.E.D.'s Detach
+// press, Syntax Graph's composing stick and The Difference Engine's engine; Software Factory's agent loop (loop/),
+// The Car Talks' bus (wave/) and The Linear Grid's sheared grid (shear/) are plain line drawings.
+const ART = { grid: mountBoxy, pipeline: mountPress, detach: mountDetach, stick: mountStick, loop: mountLoop, wave: mountWave, shear: mountShear, engine: mountEngine };
 let unmount = [];
 
 function render() {

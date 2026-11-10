@@ -1,0 +1,5 @@
+/* The Difference Engine on top of the shared inks (kit/anatomy.css): the column being added into lights its digits in
+   the accent while its addition runs. */
+.eg-stage{touch-action:pan-y}
+.eg .eg-digit{transition:fill .35s}
+.eg[data-adding="a"] .eg-digit[data-col="a"],.eg[data-adding="d1"] .eg-digit[data-col="d1"]{fill:var(--accent)}
