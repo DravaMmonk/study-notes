@@ -11,8 +11,6 @@ Key points: homogeneous coordinates, the camera matrix, and what $H/E/F$ are use
 <a id="topic-1"></a>
 ## 1. Coordinate tools: write one extra number to simplify computation
 
-**Practice · Vision Complete:** [7-5 Cross product of three numbers](https://dravammonk.github.io/games/vision-complete/index.html?level=7-5) · [7-6 Where two lines meet](https://dravammonk.github.io/games/vision-complete/index.html?level=7-6)
-
 ### Why homogeneous coordinates allow overall scaling
 
 ![PDF 6 - Homogeneous coordinates](assets/14-two-view-geometry/slide-06.png)
@@ -90,8 +88,6 @@ Another case is when the camera only rotates and its centre does not translate. 
 
 <a id="topic-3"></a>
 ## 3. Hard part: why a point constrains a line in the other image
-
-**Practice · Vision Complete:** [7-7 Epipolar line calculator](https://dravammonk.github.io/games/vision-complete/index.html?level=7-7) · [7-8 Is the point on the line?](https://dravammonk.github.io/games/vision-complete/index.html?level=7-8) · [7-9 Where is the epipole?](https://dravammonk.github.io/games/vision-complete/index.html?level=7-9)
 
 ### Look at coplanarity first, then the formula
 

@@ -9,8 +9,6 @@ Learning path: [Encoding and decoding](#topic-1) → [Upsampling](#topic-2) → 
 <a id="topic-1"></a>
 ## 1. From whole-image classification to per-pixel classification
 
-**Practice · Vision Complete:** [9-1 One label per pixel](https://dravammonk.github.io/games/vision-complete/index.html?level=9-1) · [9-2 Into classes](https://dravammonk.github.io/games/vision-complete/index.html?level=9-2)
-
 A classification network usually gives the whole image one class; semantic segmentation must output a class map whose positions correspond to the input. Cropping a patch for every pixel and running the network on each would recompute a great deal of overlapping content.
 
 An FCN (fully convolutional network) lets the whole image share convolutional computation and keeps spatial feature maps. At the end, a $1\times1$ convolution can turn the feature channels at each position into class scores; it mixes channel information rather than squeezing the whole image into one pixel.
@@ -24,8 +22,6 @@ During training, the cross-entropy of the class prediction can be computed at ev
 <a id="topic-2"></a>
 ## 2. Hard part: how to enlarge a feature map
 
-**Practice · Vision Complete:** [9-4 Twice the size](https://dravammonk.github.io/games/vision-complete/index.html?level=9-4) · [9-5 Bilinear enlargement](https://dravammonk.github.io/games/vision-complete/index.html?level=9-5)
-
 Interpolation fills in intermediate positions by a fixed rule; max unpooling uses the max locations remembered during pooling to put values back in their corresponding positions; transposed convolution uses learnable weights to produce a larger feature map.
 
 ![PDF 23 - Transposed convolution as a matrix operation](assets/20-segmentation-ii/slide-23.png)
@@ -36,8 +32,6 @@ The slide example shows the connection pattern. The actual output size also depe
 
 <a id="topic-3"></a>
 ## 3. U-Net: sending early localisation information back
-
-**Practice · Vision Complete:** [9-8 Shrink, then enlarge](https://dravammonk.github.io/games/vision-complete/index.html?level=9-8) · [9-9 The thin line is gone](https://dravammonk.github.io/games/vision-complete/index.html?level=9-9)
 
 ![PDF 33 - U-Net architecture](assets/20-segmentation-ii/slide-33.png)
 

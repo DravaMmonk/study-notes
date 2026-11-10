@@ -39,8 +39,6 @@ CNN 网络结构是层的排列和每层的设计。常见可调因素包括：
 <a id="topic-2"></a>
 ## 2. 结构设计：感受野、多尺度与残差
 
-**动手练习 · 视觉完备：**[4-9 看得更大](https://dravammonk.github.io/games/vision-complete/index.html?level=4-9) · [4-17 再深一倍](https://dravammonk.github.io/games/vision-complete/index.html?level=4-17)
-
 ### 从 AlexNet 到 VGG、Inception、ResNet
 
 #### AlexNet：让大规模 CNN 变得可行

@@ -11,8 +11,6 @@
 <a id="topic-1"></a>
 ## 1. 两个网络：一个生成，一个判断
 
-**动手练习 · 视觉完备：**[8-6 骗过鉴定员](https://dravammonk.github.io/games/vision-complete/index.html?level=8-6)
-
 ![PDF 8 - GAN architecture](assets/16-gans/slide-08.png)
 
 沿图读：**generator（生成器）** $G$ 把随机潜变量 $z$ 变成假图像 $G(z)$ ；**discriminator（判别器）** $D$ 同时接收生成图与训练集真图，判断输入是否真实。

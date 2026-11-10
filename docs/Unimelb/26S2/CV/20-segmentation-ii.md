@@ -9,8 +9,6 @@
 <a id="topic-1"></a>
 ## 1. 从整图分类变成逐像素分类
 
-**动手练习 · 视觉完备：**[9-1 一格一个标签](https://dravammonk.github.io/games/vision-complete/index.html?level=9-1) · [9-2 分成几类](https://dravammonk.github.io/games/vision-complete/index.html?level=9-2)
-
 分类网络通常给整张图一个类别；语义分割要输出一张与输入位置对应的类别图。若为每个像素单独裁剪一块图再运行网络，会重复计算大量相邻内容。
 
 FCN（全卷积网络）让整张图共享卷积计算，保留空间特征图。最后可以用 $1\times1$ 卷积把每个位置的特征通道转成各类别分数；它混合通道信息，不是把整幅图压成一个像素。
@@ -24,8 +22,6 @@ FCN（全卷积网络）让整张图共享卷积计算，保留空间特征图�
 <a id="topic-2"></a>
 ## 2. 难点：怎样把特征图放大
 
-**动手练习 · 视觉完备：**[9-4 放大一倍](https://dravammonk.github.io/games/vision-complete/index.html?level=9-4) · [9-5 双线性放大](https://dravammonk.github.io/games/vision-complete/index.html?level=9-5)
-
 插值按固定规则补出中间位置；max unpooling 利用池化时记住的最大值位置，把传入值放回对应位置，其余位置常置零；转置卷积用可学习的权重生成输出。**反池化的索引只记录最大值曾在哪里，没有记录其余原始值。** 因此不同输入可得到相同池化值和索引，反池化并不是完整逆过程。第 15 页对应的 [索引还原任务](encyclopedia/06-segmentation.md#unpooling) 独立于转置卷积，不省略。
 
 ![PDF 23 - Transposed convolution as a matrix operation](assets/20-segmentation-ii/slide-23.png)
@@ -38,8 +34,6 @@ FCN（全卷积网络）让整张图共享卷积计算，保留空间特征图�
 
 <a id="topic-3"></a>
 ## 3. U-Net：把早期的定位信息送回来
-
-**动手练习 · 视觉完备：**[9-8 先缩小再放大](https://dravammonk.github.io/games/vision-complete/index.html?level=9-8) · [9-9 细线不见了](https://dravammonk.github.io/games/vision-complete/index.html?level=9-9)
 
 ![PDF 33 - U-Net architecture](assets/20-segmentation-ii/slide-33.png)
 

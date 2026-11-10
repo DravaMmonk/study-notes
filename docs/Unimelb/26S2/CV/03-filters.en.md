@@ -11,8 +11,6 @@ Key points: sliding weighted sums and what different filters do. Hard parts: the
 <a id="topic-1"></a>
 ## 1. Local computation: how one output is computed
 
-**Practice · Vision Complete:** [1-1 Three-point average](https://dravammonk.github.io/games/vision-complete/index.html?level=1-1) · [1-8 Build a weighted sum](https://dravammonk.github.io/games/vision-complete/index.html?level=1-8)
-
 ### Three kinds of operation: look at one point, look at the neighbours, take a weighted sum
 
 ![Slide 6 - Pixel operator](assets/03-filters/slide-06.png)
@@ -86,8 +84,6 @@ If the kernel is only allowed to lie entirely inside the image, this is **valid 
 <a id="topic-2"></a>
 ## 2. Choosing a filter: smoothing, edges and channels
 
-**Practice · Vision Complete:** [1-4 A rounder blur](https://dravammonk.github.io/games/vision-complete/index.html?level=1-4) · [1-5 Sharpen](https://dravammonk.github.io/games/vision-complete/index.html?level=1-5) · [1-6 Where is the step?](https://dravammonk.github.io/games/vision-complete/index.html?level=1-6)
-
 ### Common filters: what each one is trying to do
 
 #### Blurring: making changes slower
@@ -151,8 +147,6 @@ A common mistake is to treat `height × width × channel` as an ordinary 2D imag
 <a id="topic-3"></a>
 ## 3. Extent and efficiency
 
-**Practice · Vision Complete:** [1-2 Up and down too](https://dravammonk.github.io/games/vision-complete/index.html?level=1-2) · [1-3 Box blur](https://dravammonk.github.io/games/vision-complete/index.html?level=1-3)
-
 ### Kernel size, support and Gaussian scale
 
 ![Slide 32 - Filter support](assets/03-filters/slide-32.png)
@@ -195,8 +189,6 @@ Associativity also allows several linear filters to be combined first and then a
 
 <a id="topic-4"></a>
 ## 4. Borders: size and padding
-
-**Practice · Vision Complete:** [1-11 Padding](https://dravammonk.github.io/games/vision-complete/index.html?level=1-11)
 
 ### Output size: why the borders disappear
 

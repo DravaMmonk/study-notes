@@ -11,8 +11,6 @@ Key points: the objectives of the generator and the discriminator, realism and d
 <a id="topic-1"></a>
 ## 1. Two networks: one generates, one judges
 
-**Practice · Vision Complete:** [8-6 Fool the judge](https://dravammonk.github.io/games/vision-complete/index.html?level=8-6)
-
 ![PDF 8 - GAN architecture](assets/16-gans/slide-08.png)
 
 Reading the figure: the **generator** $G$ turns a random latent variable $z$ into a fake image $G(z)$ ; the **discriminator** $D$ receives both generated images and real training images and judges whether the input is real.

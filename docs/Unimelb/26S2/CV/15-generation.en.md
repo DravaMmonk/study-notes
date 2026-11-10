@@ -42,8 +42,6 @@ $p(y)$ is the class prior and $p(x)$ the overall image distribution. With only a
 <a id="topic-2"></a>
 ## 2. Ordinary autoencoder: compress first, then reconstruct
 
-**Practice · Vision Complete:** [8-1 Two numbers to remember an image](https://dravammonk.github.io/games/vision-complete/index.html?level=8-1) · [8-2 A walk in latent space](https://dravammonk.github.io/games/vision-complete/index.html?level=8-2)
-
 ### The input itself is the learning target
 
 ![PDF 24 - Autoencoder structure](assets/15-generation/slide-24.png)
@@ -74,8 +72,6 @@ This page emphasises gaps in the latent space: training only requires that "seen
 
 <a id="topic-3"></a>
 ## 3. Hard part: how a VAE organises latent variables into a samplable distribution
-
-**Practice · Vision Complete:** [8-4 Differentiating through randomness](https://dravammonk.github.io/games/vision-complete/index.html?level=8-4) · [8-5 Draw a new blob](https://dravammonk.github.io/games/vision-complete/index.html?level=8-5)
 
 ### The encoder no longer outputs just one fixed point
 

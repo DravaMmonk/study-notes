@@ -11,8 +11,6 @@
 <a id="topic-1"></a>
 ## 1. 读懂频谱：频率、幅度与相位
 
-**动手练习 · 视觉完备：**[2-1 一道波](https://dravammonk.github.io/games/vision-complete/index.html?level=2-1) · [2-4 错开的波](https://dravammonk.github.io/games/vision-complete/index.html?level=2-4) · [2-5 频率探针](https://dravammonk.github.io/games/vision-complete/index.html?level=2-5)
-
 ### 为什么要看频率
 
 ![Slide 6 - Signals as sinusoids](assets/04-fourier/slide-06.png)
@@ -88,8 +86,6 @@ $$
 
 <a id="topic-2"></a>
 ## 2. 频域滤波：从公式到效果
-
-**动手练习 · 视觉完备：**[2-7 两条路](https://dravammonk.github.io/games/vision-complete/index.html?level=2-7) · [2-8 低通](https://dravammonk.github.io/games/vision-complete/index.html?level=2-8)
 
 ### 卷积定理：两种滤波做法可以互换
 

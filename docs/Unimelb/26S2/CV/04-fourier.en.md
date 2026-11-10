@@ -11,8 +11,6 @@ Key points: reading spectra, the convolution theorem, low-pass and high-pass fil
 <a id="topic-1"></a>
 ## 1. Reading a spectrum: frequency, magnitude and phase
 
-**Practice · Vision Complete:** [2-1 One wave](https://dravammonk.github.io/games/vision-complete/index.html?level=2-1) · [2-4 A shifted wave](https://dravammonk.github.io/games/vision-complete/index.html?level=2-4) · [2-5 Frequency probe](https://dravammonk.github.io/games/vision-complete/index.html?level=2-5)
-
 ### Why look at frequency
 
 ![Slide 6 - Signals as sinusoids](assets/04-fourier/slide-06.png)
@@ -88,8 +86,6 @@ This does not mean magnitude is useless; it is a reminder that **phase cannot si
 
 <a id="topic-2"></a>
 ## 2. Frequency-domain filtering: from formula to effect
-
-**Practice · Vision Complete:** [2-7 Two roads](https://dravammonk.github.io/games/vision-complete/index.html?level=2-7) · [2-8 Low-pass](https://dravammonk.github.io/games/vision-complete/index.html?level=2-8)
 
 ### The convolution theorem: two ways of filtering are interchangeable
 

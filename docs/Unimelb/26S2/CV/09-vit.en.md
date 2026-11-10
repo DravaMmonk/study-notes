@@ -11,8 +11,6 @@ Key points: patches, positions, Q/K/V and the class token. Hard part: what the r
 <a id="topic-1"></a>
 ## 1. Input representation: patches and positions
 
-**Practice · Vision Complete:** [5-3 How big a patch](https://dravammonk.github.io/games/vision-complete/index.html?level=5-3) · [5-5 Blind to order](https://dravammonk.github.io/games/vision-complete/index.html?level=5-5)
-
 ### Inductive bias: what a model believes before it sees the data
 
 **Inductive bias** is the set of assumptions or constraints a model carries before training. It makes the learning algorithm prefer certain solutions instead of treating all possible solutions as equally likely.
@@ -91,8 +89,6 @@ Think of $p_i$ as an "address label" each patch carries with it. Even if the tok
 
 <a id="topic-2"></a>
 ## 2. Key idea: how attention passes information
-
-**Practice · Vision Complete:** [5-1 Attention between patches](https://dravammonk.github.io/games/vision-complete/index.html?level=5-1) · [5-4 Two heads](https://dravammonk.github.io/games/vision-complete/index.html?level=5-4)
 
 ### What self-attention actually computes
 

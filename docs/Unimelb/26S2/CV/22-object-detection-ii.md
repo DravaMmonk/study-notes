@@ -33,8 +33,6 @@
 <a id="topic-3"></a>
 ## 3. NMS：只根据预测框去除重复
 
-**动手练习 · 视觉完备：**[10-5 一只狗三个框](https://dravammonk.github.io/games/vision-complete/index.html?level=10-5)
-
 ![PDF 19 - NMS example](assets/22-object-detection-ii/slide-19.png)
 
 蓝框分数 0.9，橙框 0.8，二者 IoU 为 0.78。阈值取课件示例的 0.7 时先保留蓝框、删除橙框，再从剩下的框中选最高分继续。被删除的框不再参与后续抑制；第 20–21 页继续演示剩余框的筛选。
@@ -43,8 +41,6 @@ NMS 通常按类别做，不需要真实框。它使用预测与预测的重叠�
 
 <a id="topic-4"></a>
 ## 4. 先匹配真值，再计算 Precision、Recall 与 AP
-
-**动手练习 · 视觉完备：**[10-1 重叠多少](https://dravammonk.github.io/games/vision-complete/index.html?level=10-1) · [10-6 合格的框](https://dravammonk.github.io/games/vision-complete/index.html?level=10-6) · [10-7 排名表](https://dravammonk.github.io/games/vision-complete/index.html?level=10-7) · [10-8 两类求平均](https://dravammonk.github.io/games/vision-complete/index.html?level=10-8)
 
 按一个类别汇总整个测试集的预测，按置信度从高到低处理。每个预测只与**同一图像、同一类别且未被占用**的真值框匹配；达到评价协议的 IoU 阈值才记 TP，否则记 FP。一个真值只能被成功检测一次，重复框不能重复加分。
 

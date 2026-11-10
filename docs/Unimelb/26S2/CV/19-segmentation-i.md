@@ -16,8 +16,6 @@
 <a id="topic-2"></a>
 ## 2. 重点：选哪些特征来判断像素相似
 
-**动手练习 · 视觉完备：**[9-3 颜色分割](https://dravammonk.github.io/games/vision-complete/index.html?level=9-3)
-
 第 10–13 页并排展示 K-means、GMM 与 Mean shift。GMM 用多个高斯成分表达颜色分布，可给软归属；课件没有展开参数估计推导。K-means 先给定簇数 $K$ ，交替把像素分给最近中心、再更新中心。只使用 RGB 时，它按颜色接近程度分组，不关心两个像素是否相邻。
 
 ![PDF 25 - Spatial and colour features](assets/19-segmentation-i/slide-25.png)

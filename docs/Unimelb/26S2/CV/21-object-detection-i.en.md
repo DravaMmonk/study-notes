@@ -9,8 +9,6 @@ Learning path: [Boxes and IoU](#topic-1) → [R-CNN](#topic-2) → [Fast and Fas
 <a id="topic-1"></a>
 ## 1. Detection needs a class and also a location
 
-**Practice · Vision Complete:** [10-2 Nudging the box](https://dravammonk.github.io/games/vision-complete/index.html?level=10-2) · [10-3 A row of anchors](https://dravammonk.github.io/games/vision-complete/index.html?level=10-3) · [10-4 Sliding window](https://dravammonk.github.io/games/vision-complete/index.html?level=10-4)
-
 A detector outputs object classes, confidence scores and bounding boxes. The most direct approach is to scan the image with windows of different sizes and positions and decide whether each window contains a target; the more windows, the worse the repeated computation.
 
 ![PDF 14 - Bounding-box overlap](assets/21-object-detection-i/slide-14.png)

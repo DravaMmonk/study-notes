@@ -24,8 +24,6 @@ Two cameras viewing the same point from different positions obtain different pro
 <a id="topic-2"></a>
 ## 2. Key point: computing depth from disparity
 
-**Practice · Vision Complete:** [7-3 Disparity to distance](https://dravammonk.github.io/games/vision-complete/index.html?level=7-3) · [7-4 A different camera](https://dravammonk.github.io/games/vision-complete/index.html?level=7-4)
-
 ### The formula for aligned cameras
 
 ![PDF 10 - Stereo geometry and uncertainty](assets/13-depth-stereo/slide-10.png)
@@ -69,8 +67,6 @@ Here $\Delta d$ is a small disparity measurement error. If the distance doubles 
 
 <a id="topic-3"></a>
 ## 3. Correspondences: compare appearance first, then require global plausibility
-
-**Practice · Vision Complete:** [7-1 Find the disparity](https://dravammonk.github.io/games/vision-complete/index.html?level=7-1) · [7-2 How big a window?](https://dravammonk.github.io/games/vision-complete/index.html?level=7-2)
 
 ### Why only one row needs to be searched
 

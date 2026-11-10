@@ -11,8 +11,6 @@
 <a id="topic-1"></a>
 ## 1. 学习表示：构造训练问题
 
-**动手练习 · 视觉完备：**[5-6 同一个问题](https://dravammonk.github.io/games/vision-complete/index.html?level=5-6) · [5-7 拉近与推开](https://dravammonk.github.io/games/vision-complete/index.html?level=5-7)
-
 ### 什么是表示与自监督学习
 
 ![PPT 5 - Self-supervised learning](assets/10-representations/slide-05.png)
@@ -107,8 +105,6 @@ PPT 15–16 展示特定评测中 zero-shot CLIP 与训练过的 ResNet-50 的�
 
 <a id="topic-3"></a>
 ## 3. 检查表示：邻居、区域和组件
-
-**动手练习 · 视觉完备：**[5-8 找近邻](https://dravammonk.github.io/games/vision-complete/index.html?level=5-8) · [11-1 遮住一块](https://dravammonk.github.io/games/vision-complete/index.html?level=11-1)
 
 ### 表示空间里，哪些图像靠近
 

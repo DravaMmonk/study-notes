@@ -42,8 +42,6 @@ PPT 9 引入 **voting（投票）**：让数据支持与自己相容的模型，
 <a id="topic-2"></a>
 ## 2. Hough：把一致性变成投票
 
-**动手练习 · 视觉完备：**[6-9 投票](https://dravammonk.github.io/games/vision-complete/index.html?level=6-9)
-
 ### Hough 把“找一条线”变成“找一个峰”
 
 ![PPT 12 - Image space and parameter space](assets/12-feature-matching/slide-12.png)
@@ -106,8 +104,6 @@ PPT 的单应变换有 8 个自由度，即使每维只取 10 个区间，也有
 
 <a id="topic-3"></a>
 ## 3. 难点：RANSAC 的采样与概率
-
-**动手练习 · 视觉完备：**[6-6 共识](https://dravammonk.github.io/games/vision-complete/index.html?level=6-6) · [6-7 拽不歪的线](https://dravammonk.github.io/games/vision-complete/index.html?level=6-7)
 
 ### RANSAC 的一轮到底做什么
 
@@ -173,8 +169,6 @@ $$
 
 <a id="topic-4"></a>
 ## 4. 平面对齐：筛候选、估计、检查
-
-**动手练习 · 视觉完备：**[6-4 可信的匹配](https://dravammonk.github.io/games/vision-complete/index.html?level=6-4) · [6-11 四个角](https://dravammonk.github.io/games/vision-complete/index.html?level=6-11)
 
 ### 先用距离比值检验减少模糊匹配
 

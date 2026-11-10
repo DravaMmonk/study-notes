@@ -48,8 +48,6 @@
 <a id="topic-2"></a>
 ## 2. 难点：Harris 从位移代价到角点
 
-**动手练习 · 视觉完备：**[6-1 角点](https://dravammonk.github.io/games/vision-complete/index.html?level=6-1) · [6-2 只留最强的](https://dravammonk.github.io/games/vision-complete/index.html?level=6-2) · [6-3 一个角一个点](https://dravammonk.github.io/games/vision-complete/index.html?level=6-3)
-
 ### 把“移动以后变化大”写成公式
 
 ![PPT 12 - Weighted squared difference](assets/11-features/slide-12.png)
@@ -177,8 +175,6 @@ $$
 
 <a id="topic-4"></a>
 ## 4. 描述外观：SIFT 怎样便于比较
-
-**动手练习 · 视觉完备：**[6-8 方向直方图](https://dravammonk.github.io/games/vision-complete/index.html?level=6-8)
 
 ### 检测到角点，不等于知道匹配谁
 

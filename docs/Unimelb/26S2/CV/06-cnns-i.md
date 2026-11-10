@@ -62,8 +62,6 @@ PPT 8–9 连接 [第 1 讲的识别难题](01-introduction.md)：先比较同�
 <a id="topic-2"></a>
 ## 2. 网络计算：从全连接到卷积
 
-**动手练习 · 视觉完备：**[4-5 一个神经元](https://dravammonk.github.io/games/vision-complete/index.html?level=4-5) · [4-7 两种边都要](https://dravammonk.github.io/games/vision-complete/index.html?level=4-7)
-
 ### 全连接网络是怎样计算的
 
 ![Slide 20 - Multilayer perceptron](assets/06-cnns-i/slide-20.png)
@@ -161,8 +159,6 @@ $$
 
 <a id="topic-3"></a>
 ## 3. 重点：通道、参数量和输出尺寸
-
-**动手练习 · 视觉完备：**[4-11 跳着走](https://dravammonk.github.io/games/vision-complete/index.html?level=4-11) · [4-12 多通道](https://dravammonk.github.io/games/vision-complete/index.html?level=4-12)
 
 ### 颜色通道、滤波器与激活图
 

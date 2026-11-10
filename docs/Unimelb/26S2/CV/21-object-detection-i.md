@@ -9,8 +9,6 @@
 <a id="topic-1"></a>
 ## 1. 检测需要类别，也需要位置
 
-**动手练习 · 视觉完备：**[10-2 挪框](https://dravammonk.github.io/games/vision-complete/index.html?level=10-2) · [10-3 一排锚框](https://dravammonk.github.io/games/vision-complete/index.html?level=10-3) · [10-4 滑窗](https://dravammonk.github.io/games/vision-complete/index.html?level=10-4)
-
 检测器输出物体类别、置信分数和边界框。最直接的办法是用不同大小、位置的窗口扫描图像，判断每个窗口里是否存在目标；窗口越多，重复计算越严重。
 
 ![PDF 14 - Bounding-box overlap](assets/21-object-detection-i/slide-14.png)

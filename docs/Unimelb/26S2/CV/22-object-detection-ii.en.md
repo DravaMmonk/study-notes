@@ -23,16 +23,12 @@ The original DETR formulation learns to avoid duplicate detections through set p
 <a id="topic-3"></a>
 ## 3. Non-maximum suppression
 
-**Practice · Vision Complete:** [10-5 One dog, three boxes](https://dravammonk.github.io/games/vision-complete/index.html?level=10-5)
-
 ![PDF 19 - NMS](assets/22-object-detection-ii/slide-19.png)
 
 Keep the highest-scoring box and suppress lower-scoring boxes whose overlap with it exceeds the threshold; repeat on the remaining boxes. In the example, the 0.9 blue box suppresses the 0.8 orange box because their IoU is 0.78 and the threshold is 0.7. Suppressed boxes do not suppress other boxes in later iterations. NMS usually runs per class and needs no ground-truth boxes. It can remove distinct but heavily overlapping objects.
 
 <a id="topic-4"></a>
 ## 4. Matching, precision, recall and AP
-
-**Practice · Vision Complete:** [10-1 How much overlap](https://dravammonk.github.io/games/vision-complete/index.html?level=10-1) · [10-6 A box that counts](https://dravammonk.github.io/games/vision-complete/index.html?level=10-6) · [10-7 The ranking](https://dravammonk.github.io/games/vision-complete/index.html?level=10-7) · [10-8 Averaging two classes](https://dravammonk.github.io/games/vision-complete/index.html?level=10-8)
 
 For each class, rank detections across the test set by confidence. Match only to unused, same-class ground-truth boxes in the same image, under the specified IoU protocol. Each true object contributes at most one TP; duplicate detections are FP.
 

@@ -11,8 +11,6 @@ Key points: pooling, regularisation and classification losses. Hard part: keepin
 <a id="topic-1"></a>
 ## 1. Reducing computation: downsampling and a parameter exercise
 
-**Practice · Vision Complete:** [4-8 The larger one](https://dravammonk.github.io/games/vision-complete/index.html?level=4-8)
-
 ### Downsampling: why shrink the feature maps
 
 ![Slide 7 - Strided convolution](assets/07-cnns-ii/slide-07.png)
@@ -78,8 +76,6 @@ The exercise finally proposes reducing parameters with separable convolutions or
 <a id="topic-2"></a>
 ## 2. Reducing overfitting: training constraints and when to stop
 
-**Practice · Vision Complete:** [4-19 When to stop](https://dravammonk.github.io/games/vision-complete/index.html?level=4-19)
-
 ### Regularisation: why high training accuracy is not enough
 
 CNNs have many parameters and are prone to **overfitting**: the model performs very well on the training set, but treats incidental details of the training images as general rules, and its performance drops on the validation or test set. The goal of regularisation is to make the model learn a more stable, simpler representation.
@@ -117,8 +113,6 @@ Split the data into three parts: training, validation and test sets. Use the tra
 
 <a id="topic-3"></a>
 ## 3. Classification training: losses, batches and data
-
-**Practice · Vision Complete:** [4-3 Let the machine turn the knobs](https://dravammonk.github.io/games/vision-complete/index.html?level=4-3) · [4-20 One of three](https://dravammonk.github.io/games/vision-complete/index.html?level=4-20)
 
 ### How a CNN for image recognition is trained
 

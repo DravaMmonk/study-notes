@@ -24,8 +24,6 @@
 <a id="topic-2"></a>
 ## 2. 重点：从视差计算深度
 
-**动手练习 · 视觉完备：**[7-3 视差变距离](https://dravammonk.github.io/games/vision-complete/index.html?level=7-3) · [7-4 换一台相机](https://dravammonk.github.io/games/vision-complete/index.html?level=7-4)
-
 ### 对齐相机的公式
 
 ![PDF 10 - Stereo geometry and uncertainty](assets/13-depth-stereo/slide-10.png)
@@ -69,8 +67,6 @@ $$
 
 <a id="topic-3"></a>
 ## 3. 对应点：先比较外观，再要求整体合理
-
-**动手练习 · 视觉完备：**[7-1 找视差](https://dravammonk.github.io/games/vision-complete/index.html?level=7-1) · [7-2 窗口多大](https://dravammonk.github.io/games/vision-complete/index.html?level=7-2)
 
 ### 为什么只需搜索一行
 

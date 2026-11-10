@@ -11,8 +11,6 @@
 <a id="topic-1"></a>
 ## 1. 亮度与颜色：观察值从哪里来
 
-**动手练习 · 视觉完备：**[3-1 朝向光的表面](https://dravammonk.github.io/games/vision-complete/index.html?level=3-1) · [3-2 同一束光，不同的漆](https://dravammonk.github.io/games/vision-complete/index.html?level=3-2)
-
 ### Lambertian（朗伯）模型：光、颜色和表面方向一起决定亮度
 
 ![Slide 5 - Image formation model](assets/05-image-formation-ii/slide-05.png)
@@ -98,8 +96,6 @@ $\mathbf M$ 由具体 RGB 基色和白点决定。实际程序库还要处理 en
 <a id="topic-2"></a>
 ## 2. 反推表面：为什么答案不唯一
 
-**动手练习 · 视觉完备：**[3-6 换灯露馅](https://dravammonk.github.io/games/vision-complete/index.html?level=3-6) · [3-7 阴影还是颜色](https://dravammonk.github.io/games/vision-complete/index.html?level=3-7)
-
 ### 从明暗恢复形状：为什么一张亮度图不够恢复 3D
 
 ![Slide 23 - Recovering surface reflectance](assets/05-image-formation-ii/slide-23.png)
@@ -167,8 +163,6 @@ $$
 
 <a id="topic-3"></a>
 ## 3. 边缘：把亮度变化算出来
-
-**动手练习 · 视觉完备：**[3-9 梯度大小](https://dravammonk.github.io/games/vision-complete/index.html?level=3-9)
 
 ### 梯度：把“变化快”写成数字
 

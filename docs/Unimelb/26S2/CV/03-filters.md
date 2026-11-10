@@ -11,8 +11,6 @@
 <a id="topic-1"></a>
 ## 1. 局部计算：一个输出怎样得到
 
-**动手练习 · 视觉完备：**[1-1 三点平均](https://dravammonk.github.io/games/vision-complete/index.html?level=1-1) · [1-8 拼出加权和](https://dravammonk.github.io/games/vision-complete/index.html?level=1-8)
-
 ### 三种运算：看一个点、看邻居、做加权和
 
 ![Slide 6 - Pixel operator](assets/03-filters/slide-06.png)
@@ -86,8 +84,6 @@ $$
 <a id="topic-2"></a>
 ## 2. 滤波器选择：平滑、边缘与通道
 
-**动手练习 · 视觉完备：**[1-4 更圆的模糊](https://dravammonk.github.io/games/vision-complete/index.html?level=1-4) · [1-5 锐化](https://dravammonk.github.io/games/vision-complete/index.html?level=1-5) · [1-6 台阶在哪](https://dravammonk.github.io/games/vision-complete/index.html?level=1-6)
-
 ### 常见滤波器：它们各自想做什么
 
 #### 模糊：让变化变慢
@@ -151,8 +147,6 @@ $$
 <a id="topic-3"></a>
 ## 3. 计算范围与效率
 
-**动手练习 · 视觉完备：**[1-2 竖着也来](https://dravammonk.github.io/games/vision-complete/index.html?level=1-2) · [1-3 方块模糊](https://dravammonk.github.io/games/vision-complete/index.html?level=1-3)
-
 ### 滤波核大小、影响范围和高斯尺度
 
 ![Slide 32 - Filter support](assets/03-filters/slide-32.png)
@@ -195,8 +189,6 @@ Associativity 还允许先合并多个线性滤波器，再对图像扫描一次
 
 <a id="topic-4"></a>
 ## 4. 边界：尺寸与补值
-
-**动手练习 · 视觉完备：**[1-11 补边](https://dravammonk.github.io/games/vision-complete/index.html?level=1-11)
 
 ### 输出大小：为什么边缘会消失
 

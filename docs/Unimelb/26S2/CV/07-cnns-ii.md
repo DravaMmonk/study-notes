@@ -11,8 +11,6 @@
 <a id="topic-1"></a>
 ## 1. 减少计算：下采样与参数练习
 
-**动手练习 · 视觉完备：**[4-8 取较大](https://dravammonk.github.io/games/vision-complete/index.html?level=4-8)
-
 ### 下采样：为什么要缩小特征图
 
 ![Slide 7 - Strided convolution](assets/07-cnns-ii/slide-07.png)
@@ -78,8 +76,6 @@
 <a id="topic-2"></a>
 ## 2. 减少过拟合：训练约束与停止时机
 
-**动手练习 · 视觉完备：**[4-19 什么时候停](https://dravammonk.github.io/games/vision-complete/index.html?level=4-19)
-
 ### 正则化：为什么训练集准确率高还不够
 
 CNN 参数很多，容易出现 **过拟合**：模型在训练集上表现很好，却把训练图片的偶然细节当成规律，到了验证集或测试集就下降。正则化的目标是让模型学到更稳定、较简单的表示。
@@ -117,8 +113,6 @@ $$
 
 <a id="topic-3"></a>
 ## 3. 分类训练：损失、批次与数据
-
-**动手练习 · 视觉完备：**[4-3 让机器调旋钮](https://dravammonk.github.io/games/vision-complete/index.html?level=4-3) · [4-20 三选一](https://dravammonk.github.io/games/vision-complete/index.html?level=4-20)
 
 ### 一个图像识别 CNN 如何训练
 
