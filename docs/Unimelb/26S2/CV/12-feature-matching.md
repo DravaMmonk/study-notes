@@ -244,9 +244,16 @@ PPT 参数栏给出 $\delta=3$ px、150 次迭代。这是该演示的设置，�
 
 </details>
 
-### 可选应用
+### Workshop 7：从描述子候选到书封面定位
 
-原 Workshop 练习单列在 [Workshop 7：从描述子候选到书封面定位](encyclopedia/08-optional.md#matching-practice)，不作为本讲必修前置。
+`workshop/week-07/worksheet07.ipynb` 把 Hough、Harris、SIFT、近邻检索与单应估计接在一起。FLANN 是加快近邻查找的工具；它提出候选，不负责证明几何对应。
+
+<details>
+<summary>延伸内容：练习中的 ratio test 文字方向</summary>
+
+<p>原练习文字有“比值大于阈值才保留”的表述；应按本讲公式及练习代码理解为最近距离显著小于次近距离才接受。距离比接近 1 表示候选难分，不是更可靠。</p>
+
+</details>
 
 ## 本讲自测
 
