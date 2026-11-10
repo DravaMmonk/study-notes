@@ -133,9 +133,9 @@ $\lambda$ 太小，杂点难去除；太大，真实的物体边界也会被抹�
 
 本周阅读见 [Reading Links](READING-LINKS.md)。先能解释视差公式与匹配失败，再看单目深度演示。
 
-### 可选应用
+### Workshop 8：调窗口时观察什么
 
-原 Workshop 练习单列在 [Workshop 8：调窗口时观察什么](encyclopedia/08-optional.md#stereo-practice)，不作为本讲必修前置。
+`workshop/week-08/worksheet08.ipynb` 要求改变 `numDisparities` 与 `blockSize`，并比较 BM 与 SGBM。前者改变搜索的视差范围，后者改变局部匹配窗口；分别观察漏匹配、杂点与深度边界。**易错**：算法给出的视差图不是天然以米计的深度图，需结合本讲相机参数换算。第 8 周答案已归档在同一目录，本次未运行练习。
 
 ## 本讲自测
 

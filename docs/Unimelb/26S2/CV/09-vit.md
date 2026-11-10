@@ -267,9 +267,9 @@ $$
 
 </details>
 
-### 可选应用
+### Workshop 6：全局可见之后，模型实际看多远
 
-原 Workshop 练习单列在 [Workshop 6：全局可见之后，模型实际看多远](encyclopedia/08-optional.md#attention-distance)，不作为本讲必修前置。
+来源：`workshop/week-06/worksheet06.ipynb`。原练习用预训练 ViT 分类，再计算各层各个 head 的平均注意距离：用注意力权重加权图块之间的空间距离。它让你检查“结构允许看远处”是否真的变成“这张图上关注远处”。换图后再比较，不能把单张图的结果当成所有输入的固定规律。本次未重新运行模型。
 
 ## 本讲自测
 

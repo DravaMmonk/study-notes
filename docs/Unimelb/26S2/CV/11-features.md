@@ -224,9 +224,9 @@ PPT 与 transcript 将归一化讲成“归一化 → 大值截到 0.2 → 再�
 
 下一讲会将描述子比较产生的候选匹配放进同一个几何模型检查。**外观相似是候选证据，空间关系一致才进一步支持对应关系。**
 
-### 可选应用
+### Workshop 7：把窗口参数与评分参数分开
 
-原 Workshop 练习单列在 [Workshop 7：把窗口参数与评分参数分开](encyclopedia/08-optional.md#harris-api-practice)，不作为本讲必修前置。
+`workshop/week-07/worksheet07.ipynb` 使用 `cornerHarris`。其中 `blockSize` 控制汇总梯度的邻域，`ksize` 控制求导算子大小，`k` 控制 Harris 评分中的惩罚项。它们对应本讲不同步骤，不能都理解为“角点灵敏度”。
 
 ## 本讲自测
 
