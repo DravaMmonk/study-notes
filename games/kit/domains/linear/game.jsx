@@ -1,5 +1,5 @@
 // A linear game on the circuit base's game (../../shell/circuit-game.js), its levels played on the domain's circuit
-// level (ui/Screen.jsx), its map drawn with the plane's grid pushed aslant (ui/Hero.jsx).
+// level (ui/Screen.jsx), its map drawn with a shear rack (ui/Hero.jsx).
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   ops.js        the engine resources a game's parts.json calls

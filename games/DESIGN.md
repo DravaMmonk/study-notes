@@ -260,7 +260,7 @@ games/kit/
 ├── studio/    studio：审、改、玩内容的页面，schema 驱动，操作集上的一层皮（第 6.7 节）
 └── app/       每款游戏的页面入口和构建；studio 在开发服务器上的桥（studio.js）
 games/<游戏>/   内容：game.json、levels/<关卡 id>.json、glossary.json，操作集的修改日志 changes.jsonl
-games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、engine；loop、wave、shear 是简单的线描）：用 anatomy 技能的等距套件画的一台机器，build.mjs 生成一个模块，
+games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、engine、shear；loop、wave 是简单的线描）：用 anatomy 技能的等距套件画的一台机器，build.mjs 生成一个模块，
                 同时挂在游戏列表的卡片和关卡地图上；配色取自 kit/tokens.css（kit/anatomy.css）
 ```
 

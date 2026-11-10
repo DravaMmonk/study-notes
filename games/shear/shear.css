@@ -1,0 +1,5 @@
+/* The Linear Grid's shear table on top of the shared inks (kit/anatomy.css): the marks where ĵ's line crosses the rows
+   in the accent, the x-axis along the middle row in ink. */
+.sh-stage{touch-action:pan-y}
+.sh .sh-j{stroke:var(--accent);stroke-width:1.1}
+.sh .sh-i{stroke:var(--anatomy-hi);stroke-width:.9}
