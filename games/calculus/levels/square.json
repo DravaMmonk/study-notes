@@ -15,8 +15,8 @@
     }
   ],
   "after": {
-    "zh": "第 n 项直接由 n 算出，不经过前面任何一项：这叫通项公式。",
-    "en": "The n-th term computed straight from n, through none of the terms before: this is a general term."
+    "zh": "第 n 项直接由 n 算出，不经过前面任何一项：这叫<wiki-ref to=\"general-term\"></wiki-ref>。",
+    "en": "The n-th term computed straight from n, through none of the terms before: this is a <wiki-ref to=\"general-term\"></wiki-ref>."
   },
   "adds": ["mul"],
   "tasks": [

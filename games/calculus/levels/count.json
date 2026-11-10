@@ -9,8 +9,8 @@
     },
     {
       "t": {
-        "zh": "第几项本身就是一个数列：0, 1, 2, 3, …。搭好它，下标 n 就成了一件元件，以后随取随用。",
-        "en": "Which term it is forms a sequence of its own: 0, 1, 2, 3, …. Built, the index n becomes a part, there for later levels to take."
+        "zh": "第几项本身就是一个数列：0, 1, 2, 3, …。搭好它，<wiki-ref to=\"index\"></wiki-ref> n 就成了一件元件。",
+        "en": "Which term it is forms a sequence of its own: 0, 1, 2, 3, …. Built, the <wiki-ref to=\"index\"></wiki-ref> n becomes a part."
       }
     }
   ],

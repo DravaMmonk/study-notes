@@ -3,8 +3,8 @@
   "intro": [
     {
       "t": {
-        "zh": "这台机器按拍工作：第 n 拍，每个输入数列交来它的第 n 项，板从头算一遍，交出每个输出数列的第 n 项。拍数从 0 数起，所以第一项是 a₀。",
-        "en": "This machine works in ticks: at tick n each input sequence hands over its n-th term, and the board computes afresh and gives the n-th term of each output sequence. Ticks count from 0, so the first term is a₀."
+        "zh": "这台机器按拍工作：第 n 拍，每个输入的<wiki-ref to=\"sequence\"></wiki-ref>交来它的第 n 项，板从头算一遍，交出每个输出的第 n 项。拍数从 0 数起，所以第一项是 a₀。",
+        "en": "This machine works in ticks: at tick n each input <wiki-ref to=\"sequence\"></wiki-ref> hands over its n-th term, and the board computes afresh and gives the n-th term of each output. Ticks count from 0, so the first term is a₀."
       }
     },
     {

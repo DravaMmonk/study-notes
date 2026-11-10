@@ -1,4 +1,159 @@
 {
   "groups": [{ "id": "sequences", "title": { "zh": "数列", "en": "Sequences" } }],
-  "entries": []
+  "entries": [
+    {
+      "id": "sequence",
+      "group": "sequences",
+      "title": { "zh": "数列", "en": "sequence" },
+      "at": "sum3",
+      "body": [
+        {
+          "zh": "按顺序排好的一串数 a₀, a₁, a₂, …，第 n 个叫第 n 项，n 叫下标。这台机器第 n 拍算出第 n 项，所以拍数就是下标，从 0 数起。",
+          "en": "Numbers in order, a₀, a₁, a₂, …; the n-th is called term n, and n is its index. This machine computes term n at tick n, so the tick is the index, counted from 0."
+        },
+        {
+          "zh": "两个数列逐项相加（或相乘），得到的仍是数列：它的第 n 项只取决于两者的第 n 项。",
+          "en": "Adding (or multiplying) two sequences term by term gives a sequence again: its n-th term depends only on their n-th terms."
+        }
+      ],
+      "see": ["index"]
+    },
+    {
+      "id": "shift",
+      "group": "sequences",
+      "title": { "zh": "下标平移", "en": "index shift" },
+      "at": "prev",
+      "body": [
+        {
+          "zh": "把数列整体挪一项：aₙ₋₁ 在第 n 拍交出原数列的第 n − 1 项，第一拍交出约定的初值。它让一项能用上前一项。",
+          "en": "Moving a sequence along by a term: aₙ₋₁ gives term n − 1 of the original at tick n, and an agreed start value on the first tick. It lets a term use the one before."
+        }
+      ],
+      "see": ["recurrence"]
+    },
+    {
+      "id": "recurrence",
+      "group": "sequences",
+      "title": { "zh": "递推", "en": "recurrence" },
+      "at": "arith",
+      "body": [
+        {
+          "zh": "用首项和「怎样由上一项算出这一项」来给出数列，例如 a₀ = 3，aₙ = aₙ₋₁ + 2。有限的一条规则，定出无穷多项。",
+          "en": "Giving a sequence by its first term and how each term comes from the one before, e.g. a₀ = 3, aₙ = aₙ₋₁ + 2. One finite rule fixes infinitely many terms."
+        },
+        {
+          "zh": "在板上，首项是读寄存卡的初值，规则是接进存寄存卡的那段电路。",
+          "en": "On the board, the first term is a register’s start value, and the rule is the circuit wired into its keep."
+        }
+      ],
+      "see": ["shift", "arithmetic", "geometric"]
+    },
+    {
+      "id": "arithmetic",
+      "group": "sequences",
+      "title": { "zh": "等差数列", "en": "arithmetic sequence" },
+      "at": "arith",
+      "body": [
+        {
+          "zh": "每一项比上一项多同一个数（公差 d）：aₙ = aₙ₋₁ + d，通项 aₙ = a₀ + n·d。",
+          "en": "Each term is the one before plus the same number, the common difference d: aₙ = aₙ₋₁ + d, with general term aₙ = a₀ + n·d."
+        }
+      ],
+      "see": ["geometric"]
+    },
+    {
+      "id": "index",
+      "group": "sequences",
+      "title": { "zh": "下标", "en": "index" },
+      "at": "count",
+      "body": [
+        {
+          "zh": "一项在数列里的位置 n。下标本身也是数列 0, 1, 2, …：首项 0、每项加 1 的递推。通项公式以它为自变量。",
+          "en": "A term’s place n in the sequence. The indices themselves form a sequence, 0, 1, 2, …: the recurrence starting at 0 and adding 1. A general term takes it as its variable."
+        }
+      ],
+      "see": ["general-term"]
+    },
+    {
+      "id": "general-term",
+      "group": "sequences",
+      "title": { "zh": "通项公式", "en": "general term" },
+      "at": "square",
+      "body": [
+        {
+          "zh": "把第 n 项直接写成 n 的式子 aₙ = f(n)，例如 aₙ = n²。它不经过前面的项，任何一项都能单独算出。",
+          "en": "The n-th term written straight as an expression in n, aₙ = f(n), such as aₙ = n². It goes through none of the terms before, so any term can be computed on its own."
+        },
+        {
+          "zh": "同一个数列常常既有递推又有通项：等差数列 aₙ = aₙ₋₁ + 2 也就是 aₙ = 3 + 2n。",
+          "en": "One sequence often has both a recurrence and a general term: aₙ = aₙ₋₁ + 2 starting at 3 is also aₙ = 3 + 2n."
+        }
+      ],
+      "see": ["recurrence"]
+    },
+    {
+      "id": "geometric",
+      "group": "sequences",
+      "title": { "zh": "等比数列", "en": "geometric sequence" },
+      "at": "double",
+      "body": [
+        {
+          "zh": "每一项是上一项乘同一个数（公比 r）：aₙ = r·aₙ₋₁，通项 aₙ = a₀·rⁿ。r > 1 时它比任何等差数列长得都快。",
+          "en": "Each term is the one before times the same number, the ratio r: aₙ = r·aₙ₋₁, with general term aₙ = a₀·rⁿ. With r > 1 it outgrows every arithmetic sequence."
+        }
+      ],
+      "see": ["arithmetic"]
+    },
+    {
+      "id": "partial-sum",
+      "group": "sequences",
+      "title": { "zh": "部分和", "en": "partial sum" },
+      "at": "sum",
+      "body": [
+        {
+          "zh": "数列到第 n 项为止的和 Sₙ = a₀ + a₁ + … + aₙ。部分和本身是数列，由递推 Sₙ = Sₙ₋₁ + aₙ 算出：寄存卡里只需记着到上一项为止的和。",
+          "en": "The sum of a sequence up to term n, Sₙ = a₀ + a₁ + … + aₙ. The partial sums form a sequence, made by the recurrence Sₙ = Sₙ₋₁ + aₙ: a register need only hold the sum up to the term before."
+        },
+        {
+          "zh": "把一个数列的各项一直加下去叫级数；级数是什么，就看它的部分和这个数列。",
+          "en": "Adding up all the terms of a sequence is a series; what a series is, is told by the sequence of its partial sums."
+        }
+      ],
+      "see": ["difference", "inverse"]
+    },
+    {
+      "id": "difference",
+      "group": "sequences",
+      "title": { "zh": "差分", "en": "difference" },
+      "at": "diff",
+      "body": [
+        {
+          "zh": "Δaₙ = aₙ − aₙ₋₁：数列每一步变了多少（这里约定 a₋₁ = 0）。变大为正，变小为负，不变为 0。",
+          "en": "Δaₙ = aₙ − aₙ₋₁: how much a sequence changes at each step (taking a₋₁ = 0 here). Positive as it grows, negative as it shrinks, 0 where it stays."
+        },
+        {
+          "zh": "多项式的数列每差分一次降一次：平方数差一次是奇数，再差一次是常数。",
+          "en": "A polynomial sequence drops a degree each time it is differenced: the squares difference to the odd numbers, and again to a constant."
+        }
+      ],
+      "see": ["partial-sum", "inverse"]
+    },
+    {
+      "id": "inverse",
+      "group": "sequences",
+      "title": { "zh": "求和与差分互逆", "en": "summation and difference are inverse" },
+      "at": "inverse",
+      "body": [
+        {
+          "zh": "先累加再差分，或先差分再累加，都回到原数列（约定 a₋₁ = 0、和从 0 起）。所以只知道一个数列的差分，或只知道它的部分和，都能把它找回来。",
+          "en": "Summing then differencing, or differencing then summing, gives back the sequence (with a₋₁ = 0 and sums starting from 0). So a sequence can be recovered from its differences alone, or from its partial sums alone."
+        },
+        {
+          "zh": "这是微积分基本定理的离散形式：在连续的世界里，求和变成积分，差分变成导数。",
+          "en": "This is the discrete form of the fundamental theorem of calculus: in the continuous world, summing becomes integration and differencing becomes differentiation."
+        }
+      ],
+      "see": ["partial-sum", "difference"]
+    }
+  ]
 }

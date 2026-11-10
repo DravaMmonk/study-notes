@@ -10,8 +10,8 @@
     { "t": { "zh": "搭好以后，差分 Δ 成为一件元件。", "en": "Built, the difference Δ becomes a part." } }
   ],
   "after": {
-    "zh": "Δaₙ = aₙ − aₙ₋₁ 叫差分：数列每一步变了多少，变大为正，变小为负。",
-    "en": "Δaₙ = aₙ − aₙ₋₁ is the difference: how much the sequence changes at each step, positive as it grows and negative as it shrinks."
+    "zh": "Δaₙ = aₙ − aₙ₋₁ 叫<wiki-ref to=\"difference\"></wiki-ref>：数列每一步变了多少，变大为正，变小为负。",
+    "en": "Δaₙ = aₙ − aₙ₋₁ is the <wiki-ref to=\"difference\"></wiki-ref>: how much the sequence changes at each step, positive as it grows and negative as it shrinks."
   },
   "builds": {
     "type": "diff",

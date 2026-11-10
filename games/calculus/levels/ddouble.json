@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "除了开头一项，1, 2, 4, 8, … 的差分就是它自己晚了一项：差分不能把它变平。以后会看到，eˣ 的导数就是它自己。",
-    "en": "Apart from the first term, the differences of 1, 2, 4, 8, … are the sequence itself, a term late: differencing does not flatten it. Later you will see eˣ is its own derivative."
+    "zh": "除了开头一项，1, 2, 4, 8, … 的差分就是它自己晚了一项：差分不能把它变平。",
+    "en": "Apart from the first term, the differences of 1, 2, 4, 8, … are the sequence itself, a term late: differencing does not flatten it."
   },
   "tasks": [
     {

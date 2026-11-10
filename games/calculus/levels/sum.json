@@ -10,8 +10,8 @@
     { "t": { "zh": "搭好以后，累加 Σ 成为一件元件。", "en": "Built, the sum Σ becomes a part." } }
   ],
   "after": {
-    "zh": "Sₙ = a₀ + a₁ + … + aₙ 叫部分和；部分和本身也是数列，由 Sₙ = Sₙ₋₁ + aₙ 递推出来。",
-    "en": "Sₙ = a₀ + a₁ + … + aₙ is a partial sum; the partial sums form a sequence too, made by the recurrence Sₙ = Sₙ₋₁ + aₙ."
+    "zh": "Sₙ = a₀ + … + aₙ 叫<wiki-ref to=\"partial-sum\"></wiki-ref>；部分和本身也是数列，由 Sₙ = Sₙ₋₁ + aₙ 递推出来。",
+    "en": "Sₙ = a₀ + … + aₙ is a <wiki-ref to=\"partial-sum\"></wiki-ref>; the partial sums form a sequence too, made by the recurrence Sₙ = Sₙ₋₁ + aₙ."
   },
   "builds": {
     "type": "sum",

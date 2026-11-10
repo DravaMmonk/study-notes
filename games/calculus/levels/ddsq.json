@@ -2,8 +2,8 @@
   "title": { "zh": "再差一次", "en": "Once more" },
   "intro": [{ "t": { "zh": "奇数本身每一步又变了多少？", "en": "And how much do the odd numbers change at each step?" } }],
   "after": {
-    "zh": "开头几项之后，平方数的二阶差分一直是 2。差分机正是反过来用这件事：从常数起一次次累加，只用加法就印出整张平方表。",
-    "en": "After the first terms, the second differences of the squares are 2 throughout. The difference engine used this backwards: summing again and again from a constant, it printed a whole table of squares with additions alone."
+    "zh": "平方数的二阶差分从第三项起一直是 2。差分机反过来用它：从常数起一次次累加，只用加法就印出平方表。",
+    "en": "From the third term on, the second differences of the squares are all 2. The difference engine ran this backwards: summing again and again from a constant, it printed squares with additions alone."
   },
   "tasks": [
     {

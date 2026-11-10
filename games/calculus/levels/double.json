@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "每一项是上一项乘同一个数：这叫等比数列，那个数叫公比。它比任何等差数列长得都快。",
-    "en": "Each term the one before times the same number: this is a geometric sequence, and the number is its ratio. It outgrows every arithmetic sequence."
+    "zh": "每一项是上一项乘同一个数：这叫<wiki-ref to=\"geometric\"></wiki-ref>，那个数叫公比。它比任何等差数列长得都快。",
+    "en": "Each term the one before times the same number: this is a <wiki-ref to=\"geometric\"></wiki-ref>, and the number is its ratio. It outgrows every arithmetic sequence."
   },
   "tasks": [
     {

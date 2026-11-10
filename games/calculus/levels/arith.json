@@ -15,8 +15,8 @@
     }
   ],
   "after": {
-    "zh": "首项加上「怎样由上一项算出这一项」，整个数列就定了：这叫递推。",
-    "en": "A first term plus how each term comes from the one before fixes the whole sequence: this is a recurrence."
+    "zh": "首项加上由上一项算出这一项的规则，整个数列就定了：这叫<wiki-ref to=\"recurrence\"></wiki-ref>。每一步加同一个数的，叫<wiki-ref to=\"arithmetic\"></wiki-ref>。",
+    "en": "A first term plus a rule taking each term from the one before fixes the whole sequence: this is a <wiki-ref to=\"recurrence\"></wiki-ref>. When every step adds the same number, it is an <wiki-ref to=\"arithmetic\"></wiki-ref>."
   },
   "adds": ["const"],
   "tasks": [

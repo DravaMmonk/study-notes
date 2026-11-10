@@ -9,8 +9,8 @@
     }
   ],
   "after": {
-    "zh": "先差分再累加，先累加再差分，都回到原来的数列：求和与差分互为逆运算。连续的版本叫微积分基本定理，后面几章就走向它。",
-    "en": "Difference then sum, or sum then difference, and the sequence comes back: summation and difference are inverse operations. Their continuous form is the fundamental theorem of calculus, where the chapters ahead are going."
+    "zh": "先差分再累加、先累加再差分，都回到原数列：<wiki-ref to=\"inverse\"></wiki-ref>。它的连续形式是微积分基本定理。",
+    "en": "Difference then sum, or sum then difference, and the sequence comes back: <wiki-ref to=\"inverse\"></wiki-ref>. Its continuous form is the fundamental theorem of calculus."
   },
   "tasks": [
     {
