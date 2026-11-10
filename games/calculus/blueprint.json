@@ -12,8 +12,8 @@
     "en": "Hand the machine they built a function, and it computes its derivative, integral and Taylor polynomial and solves an ordinary differential equation, with the error’s fall as the step shrinks explained."
   },
   "scope": {
-    "zh": "这份蓝图只写第 0 章「一拍一项」：数列、递推、部分和与差分，到两者互逆为止。第 1–7 章各记一句，留待后续。",
-    "en": "This blueprint covers chapter 0, “A term a tick”: sequences, recurrences, partial sums and differences, up to their being inverse. Chapters 1–7 get one line each, for later."
+    "zh": "这份蓝图写第 0 章「一拍一项」和第 1 章「越来越近」：数列、递推、求和与差分，到极限、级数收敛与发散，带两个专题。第 2–7 章各记一句，留待后续。",
+    "en": "This blueprint covers chapter 0, “A term a tick”, and chapter 1, “Getting closer”: sequences, recurrences, sums and differences, up to limits and convergent and divergent series, with two topics. Chapters 2–7 get one line each, for later."
   },
   "sources": [
     "games/calculus/DESIGN.md",
@@ -50,6 +50,15 @@
       "lacks": {
         "zh": "它算得出任意多项，却说不出一个数列「趋于」什么：1/2 + 1/4 + … 加到哪一项为止都不是 1。没有倒数，也比较不了两个数的大小。第 1 章加上倒数和比较，问「越来越近」是什么意思。",
         "en": "It computes as many terms as asked, but cannot say what a sequence tends to: 1/2 + 1/4 + … never equals 1 at any term. It has no reciprocal and cannot compare two numbers. Chapter 1 adds both and asks what “getting closer” means."
+      }
+    },
+    {
+      "id": "approacher",
+      "title": { "zh": "逼近机", "en": "Approach machine" },
+      "can": ["tick"],
+      "lacks": {
+        "zh": "它沿着下标一项项走，只认得数列；函数 f(x) 要在任意实数 x 上取值，相邻两点要能任意近。第 2 章把函数放到步长 h 的网格上取样，让步长本身趋于 0。",
+        "en": "It walks term by term along an index and knows only sequences; a function f(x) takes values at any real x, with points as close as wanted. Chapter 2 samples functions on a grid of step h and lets the step itself tend to 0."
       }
     }
   ],
@@ -225,6 +234,193 @@
         "en": "Knowing only how much a sequence changes each step (or its running total), how do you recover the sequence itself?"
       },
       "misconception": { "zh": "要撤销差分，就再差分一次。", "en": "Undoing a difference means taking another difference." }
+    },
+    {
+      "id": "infinitesimal",
+      "term": { "zh": "无穷小", "en": "infinitesimal" },
+      "depends": ["general-term"],
+      "about": {
+        "zh": "越来越接近 0 的数列，如 1/(n+1)：每一项都不是 0，却能小过任何给定的正数。",
+        "en": "A sequence closing in on 0, like 1/(n+1): no term is 0, yet it gets smaller than any positive number given."
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.1",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "1, 1/2, 1/3, …：没有除法，怎样算出 1/(n+1)？",
+        "en": "1, 1/2, 1/3, …: with no division, how do you compute 1/(n+1)?"
+      },
+      "misconception": { "zh": "越来越小的数最后会等于 0。", "en": "Numbers that keep shrinking end up at 0." }
+    },
+    {
+      "id": "inequality",
+      "term": { "zh": "比较", "en": "comparison" },
+      "depends": ["sequence"],
+      "about": {
+        "zh": "a < b 的真假写成 1 和 0，就是一个数列；乘上去，就能在两个数里挑一个：max(a, b) = a + [a < b]·(b − a)。",
+        "en": "Writing whether a < b as 1 or 0 gives a sequence; multiplied in, it picks one of two numbers: max(a, b) = a + [a < b]·(b − a)."
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e Appendix A",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "板只会加和乘，算不出两个数里哪个大。",
+        "en": "The board only adds and multiplies; it cannot tell which of two numbers is larger."
+      }
+    },
+    {
+      "id": "distance",
+      "term": { "zh": "距离", "en": "distance" },
+      "depends": ["inequality"],
+      "about": {
+        "zh": "|a − b| 是数轴上两点隔多远，不看谁在左边：它是 a − b 和 b − a 里较大的那个。",
+        "en": "|a − b| is how far apart two points of the number line are, whichever is on the left: the larger of a − b and b − a."
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e Appendix A",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "a − b 时正时负；要的只是隔多远。",
+        "en": "a − b is sometimes positive and sometimes negative; what is wanted is only how far apart."
+      },
+      "misconception": { "zh": "距离就是 a − b。", "en": "The distance is a − b." }
+    },
+    {
+      "id": "neighbourhood",
+      "term": { "zh": "邻域", "en": "neighbourhood" },
+      "depends": ["distance"],
+      "about": {
+        "zh": "离 L 不到 ε 的所有数：|x − L| < ε。ε 是事先说好的「多近才算近」。",
+        "en": "Every number less than ε from L: |x − L| < ε. ε is the agreed answer to how close counts as close."
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §2.4",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "「很近」没有尺度：先说好近到多少才算。", "en": "“Very close” has no scale: first agree how close counts." }
+    },
+    {
+      "id": "eventually",
+      "term": { "zh": "从某项起", "en": "eventually" },
+      "depends": ["recurrence"],
+      "about": {
+        "zh": "一件事从某一项起一直成立，前面有几项不成立也不要紧。这一拍以内，那一项就是最近一段连续成立的开头。",
+        "en": "Something holding from some term on, whatever happens before it. Within the ticks so far, that term is where the latest unbroken run of it began."
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.1",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "一串 0 和 1：最近这段 1 从哪一项开始？一出现 0 就得重算。",
+        "en": "A run of 0s and 1s: where did the latest stretch of 1s begin? A 0 starts the count again."
+      }
+    },
+    {
+      "id": "limit",
+      "term": { "zh": "极限", "en": "limit" },
+      "depends": ["neighbourhood", "eventually", "infinitesimal"],
+      "core": true,
+      "about": {
+        "zh": "数列 aₙ 趋于 L：不管 ε 多小，总有一项 N，从它起每一项都在 L 的 ε 邻域里。记作 lim aₙ = L。",
+        "en": "aₙ tends to L: however small ε is, there is a term N from which every term lies in the ε-neighbourhood of L. Written lim aₙ = L."
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.1",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": {
+        "zh": "1/2 + 1/4 + … 加到哪一项都不是 1，凭什么说它趋于 1？",
+        "en": "1/2 + 1/4 + … is never 1 at any term: on what grounds does it tend to 1?"
+      },
+      "misconception": {
+        "zh": "趋于 L 就是越来越近，或者最后等于 L。",
+        "en": "Tending to L means getting ever closer, or finally equalling L."
+      }
+    },
+    {
+      "id": "divergence",
+      "term": { "zh": "发散", "en": "divergence" },
+      "depends": ["limit"],
+      "about": {
+        "zh": "找不到任何 L 让数列趋于它：不管 L 取几，总有某个 ε，N 一直被往后推。",
+        "en": "No L the sequence tends to: whatever L is, some ε keeps pushing N later and later."
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.1",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "(−1)ⁿ 总在 1 和 −1 之间跳：它趋于什么？",
+        "en": "(−1)ⁿ keeps jumping between 1 and −1: what does it tend to?"
+      },
+      "misconception": {
+        "zh": "不跑到无穷大的数列都收敛。",
+        "en": "Every sequence that does not run off to infinity converges."
+      }
+    },
+    {
+      "id": "series",
+      "term": { "zh": "级数收敛", "en": "convergent series" },
+      "depends": ["limit", "partial-sum"],
+      "core": true,
+      "about": {
+        "zh": "无穷多项相加的值，就是部分和数列的极限：1 + 1/2 + 1/4 + … = 2，因为 Sₙ 趋于 2。",
+        "en": "The value of adding infinitely many terms is the limit of the partial sums: 1 + 1/2 + 1/4 + … = 2 because Sₙ tends to 2."
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.2",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "加无穷多项，永远加不完：等号右边的 2 从哪里来？",
+        "en": "Adding infinitely many terms never finishes: where does the 2 on the right come from?"
+      }
+    },
+    {
+      "id": "harmonic",
+      "term": { "zh": "调和级数", "en": "harmonic series" },
+      "depends": ["series", "divergence", "infinitesimal"],
+      "core": true,
+      "about": {
+        "zh": "1 + 1/2 + 1/3 + …：每一项都趋于 0，部分和却超过任何界，发散。项趋于 0 只是级数收敛的必要条件。",
+        "en": "1 + 1/2 + 1/3 + …: its terms tend to 0, yet the partial sums pass every bound; it diverges. Terms tending to 0 is only necessary for a series to converge."
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.3",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": {
+        "zh": "每一项都越来越小，和还会无限变大吗？",
+        "en": "Every term keeps shrinking: can the sum still grow without bound?"
+      },
+      "misconception": { "zh": "项趋于 0，级数就收敛。", "en": "If the terms tend to 0, the series converges." }
+    },
+    {
+      "id": "e",
+      "term": { "zh": "自然常数 e", "en": "Euler’s number e" },
+      "depends": ["series", "general-term"],
+      "about": {
+        "zh": "e = 1 + 1/1! + 1/2! + 1/3! + … ≈ 2.71828：阶乘长得极快，这个级数几项就稳定下来。",
+        "en": "e = 1 + 1/1! + 1/2! + 1/3! + … ≈ 2.71828: factorials grow so fast that this series settles in a few terms."
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.10",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "一个由无穷多项定义的数，怎样一位位算出来？",
+        "en": "A number defined by infinitely many terms: how is it computed digit by digit?"
+      }
+    },
+    {
+      "id": "babylonian",
+      "term": { "zh": "巴比伦开方", "en": "Babylonian square root" },
+      "depends": ["limit", "recurrence"],
+      "about": {
+        "zh": "xₙ₊₁ = (xₙ + c/xₙ)/2 从任意正数起趋于 √c：猜得大了，c/xₙ 就小了，取两者的平均。收敛极快，每一步有效数字约翻一倍。",
+        "en": "xₙ₊₁ = (xₙ + c/xₙ)/2 tends to √c from any positive start: when a guess is too large, c/xₙ is too small, and the average takes both. It converges very fast, roughly doubling the correct digits each step."
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §3.8",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "只会加、乘和取倒数，怎样算出 √2？",
+        "en": "With only add, multiply and reciprocal, how do you compute √2?"
+      }
     }
   ],
   "primitives": [
@@ -270,6 +466,22 @@
         "zh": "加法重复 n 次要 n 块元件，而 n 每拍在变；乘法接不出来。",
         "en": "Repeating an addition n times takes n parts, and n changes every tick; multiplication cannot be wired."
       }
+    },
+    {
+      "part": "recip",
+      "about": { "zh": "倒数：1/x，x 为 0 时给「—」。", "en": "Reciprocal: 1/x, 「—」 when x is 0." },
+      "why": {
+        "zh": "加和乘从整数出发只得到整数；1/(n+1) 这样越来越小的数接不出来。",
+        "en": "Adding and multiplying whole numbers gives whole numbers; something like 1/(n+1), shrinking ever smaller, cannot be wired."
+      }
+    },
+    {
+      "part": "less",
+      "about": { "zh": "比较：a < b 时给 1，否则给 0。", "en": "Less: 1 when a < b, else 0." },
+      "why": {
+        "zh": "加、乘、倒数都是光滑的运算，接不出「哪个大」这种跳变。",
+        "en": "Add, multiply and reciprocal are smooth operations; no wiring of them makes a jump like which one is larger."
+      }
     }
   ],
   "built": [
@@ -290,6 +502,29 @@
         "en": "Difference Δ: its input’s term minus the one before (minus 0 on the first tick)."
       },
       "from": ["reg", "keep", "add", "mul", "const"]
+    },
+    {
+      "part": "max",
+      "about": { "zh": "较大者：a、b 里大的那个。", "en": "Max: the larger of a and b." },
+      "from": ["less", "mul", "add", "const"]
+    },
+    {
+      "part": "dist",
+      "about": { "zh": "距离：|a − b|。", "en": "Distance: |a − b|." },
+      "from": ["max", "mul", "add", "const"]
+    },
+    {
+      "part": "near",
+      "about": { "zh": "邻域：|a − L| < ε 时为 1，否则为 0。", "en": "Near: 1 when |a − L| < ε, else 0." },
+      "from": ["dist", "less"]
+    },
+    {
+      "part": "since",
+      "about": {
+        "zh": "从此一直：输入最近一段连续为 1 从第几项起；这一拍为 0 时给 n + 1。",
+        "en": "Since: where the latest unbroken run of 1s in its input began; n + 1 when this tick is 0."
+      },
+      "from": ["reg", "keep", "count", "mul", "add", "const"]
     }
   ],
   "eras": [
@@ -796,6 +1031,530 @@
           ]
         }
       ]
+    },
+    {
+      "id": 1,
+      "machine": "approacher",
+      "title": { "zh": "越来越近", "en": "Getting closer" },
+      "question": {
+        "zh": "1/2 + 1/4 + … 加到哪一项都不等于 1：「趋于」一个数究竟是什么意思？",
+        "en": "1/2 + 1/4 + … equals 1 at no term: what exactly does tending to a number mean?"
+      },
+      "why": {
+        "zh": "数列机算得出任意多项，却判断不了「越来越近」。这一章加上倒数和比较，把 ε-N 定义拆成几件元件——距离、邻域、从此一直——拼起来检查极限，再用它分清收敛和发散的级数。",
+        "en": "The sequence machine computes as many terms as asked but cannot judge “getting closer”. This chapter adds reciprocal and comparison and takes the ε-N definition apart into parts — distance, neighbourhood, ever since — that wire together to check a limit, and then to tell convergent series from divergent ones."
+      },
+      "series": [
+        {
+          "id": "small",
+          "title": { "zh": "越来越小", "en": "Ever smaller" },
+          "kind": "foundation",
+          "parallel": "three-ways",
+          "slots": [
+            {
+              "id": "recip",
+              "title": { "zh": "倒数", "en": "Reciprocal" },
+              "task": {
+                "zh": "交出 1, 1/2, 1/3, …：第 n 项是 1/(n+1)。",
+                "en": "Give 1, 1/2, 1/3, …: term n is 1/(n+1)."
+              },
+              "role": "foundation",
+              "question": { "zh": "没有除法，怎样算出 1/(n+1)？", "en": "With no division, how do you compute 1/(n+1)?" },
+              "chain": [
+                {
+                  "zh": "除以一个数，就是乘它的倒数；这里只要倒数本身。",
+                  "en": "Dividing by a number is multiplying by its reciprocal; here the reciprocal alone is wanted."
+                },
+                {
+                  "zh": "1/n 在第一拍是 1/0：从 n+1 取倒数。",
+                  "en": "1/n is 1/0 on the first tick: take the reciprocal of n+1."
+                }
+              ],
+              "uses": ["recip", "count", "add", "const", "infinitesimal", "general-term"],
+              "teaches": "infinitesimal",
+              "adds": ["recip"],
+              "naive": {
+                "zh": "直接取下标的倒数：第一拍是 1/0，没有值。",
+                "en": "The reciprocal of the index itself: 1/0 on the first tick, no value."
+              }
+            },
+            {
+              "id": "halves",
+              "title": { "zh": "一半再一半", "en": "Half and half again" },
+              "task": {
+                "zh": "交出 1/2 + 1/4 + … 的部分和，和它与 1 的差距。",
+                "en": "Give the partial sums of 1/2 + 1/4 + … and their gap from 1."
+              },
+              "role": "practice",
+              "question": {
+                "zh": "部分和离 1 还差多少？这个差距会变成 0 吗？",
+                "en": "How far are the partial sums from 1? Does the gap ever reach 0?"
+              },
+              "chain": [
+                {
+                  "zh": "1/2, 1/4, … 是公比 1/2 的等比数列，累加起来。",
+                  "en": "1/2, 1/4, … is geometric with ratio 1/2; sum it."
+                },
+                {
+                  "zh": "1 减去部分和：乘 −1 再加 1。差距每步减半，永远不是 0。",
+                  "en": "1 minus the partial sum: times −1, plus 1. The gap halves each step and is never 0."
+                }
+              ],
+              "uses": [
+                "reg",
+                "keep",
+                "mul",
+                "const",
+                "sum",
+                "add",
+                "infinitesimal",
+                "geometric",
+                "partial-sum"
+              ],
+              "facet": {
+                "zh": "部分和与 1 的差距本身是无穷小：部分和逼近 1，却没有哪一项等于 1。",
+                "en": "The gap between the partial sums and 1 is itself infinitesimal: the sums close in on 1 though none equals it."
+              },
+              "dimension": "combine"
+            }
+          ]
+        },
+        {
+          "id": "close",
+          "title": { "zh": "多近才算近", "en": "How close is close" },
+          "kind": "foundation",
+          "parallel": "three-ways",
+          "slots": [
+            {
+              "id": "max",
+              "title": { "zh": "较大者", "en": "The larger" },
+              "task": { "zh": "每一拍交出两个输入里大的那个。", "en": "Each tick give the larger of the two inputs." },
+              "role": "foundation",
+              "question": {
+                "zh": "板只会算，怎样在两个数里挑出大的？",
+                "en": "The board only computes: how can it pick the larger of two numbers?"
+              },
+              "chain": [
+                { "zh": "比较给出 1 或 0：b 更大时是 1。", "en": "Comparing gives 1 or 0: 1 when b is larger." },
+                {
+                  "zh": "a 加上 (b − a) 乘这个 1 或 0：是 1 就变成 b，是 0 就还是 a。",
+                  "en": "a plus (b − a) times that 1 or 0: with 1 it becomes b, with 0 it stays a."
+                }
+              ],
+              "uses": ["less", "mul", "add", "const", "inequality"],
+              "teaches": "inequality",
+              "adds": ["less"],
+              "builds": "max"
+            },
+            {
+              "id": "dist",
+              "title": { "zh": "距离", "en": "Distance" },
+              "task": {
+                "zh": "每一拍交出两个输入隔多远：|a − b|。",
+                "en": "Each tick give how far apart the two inputs are: |a − b|."
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "a − b 时正时负，怎样只要隔多远？",
+                "en": "a − b is sometimes negative: how do you get just how far apart?"
+              },
+              "chain": [
+                {
+                  "zh": "a − b 和 b − a 一正一负（或都是 0）。",
+                  "en": "a − b and b − a are one positive and one negative (or both 0)."
+                },
+                { "zh": "取两者里大的那个。", "en": "Take the larger of the two." }
+              ],
+              "uses": ["max", "mul", "add", "const", "distance"],
+              "teaches": "distance",
+              "builds": "dist",
+              "naive": { "zh": "只算 a − b：b 更大时成了负数。", "en": "Just a − b: negative when b is larger." }
+            },
+            {
+              "id": "near",
+              "title": { "zh": "邻域", "en": "Neighbourhood" },
+              "task": {
+                "zh": "aₙ 离 L 不到 ε 时交出 1，否则交出 0。",
+                "en": "Give 1 when aₙ is less than ε from L, else 0."
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "怎样把「够近」变成一个能检查的 0 或 1？",
+                "en": "How does “close enough” become a 0 or 1 that can be checked?"
+              },
+              "chain": [
+                { "zh": "先量 aₙ 和 L 隔多远。", "en": "First measure how far aₙ is from L." },
+                { "zh": "再和 ε 比较：小于 ε 就是够近。", "en": "Then compare with ε: less than ε is close enough." }
+              ],
+              "uses": ["dist", "less", "neighbourhood", "distance"],
+              "teaches": "neighbourhood",
+              "builds": "near"
+            }
+          ]
+        },
+        {
+          "id": "since",
+          "title": { "zh": "从此以后", "en": "From then on" },
+          "kind": "foundation",
+          "parallel": "three-ways",
+          "slots": [
+            {
+              "id": "since",
+              "title": { "zh": "从此一直", "en": "Ever since" },
+              "task": {
+                "zh": "输入每拍是 0 或 1：交出最近一段连续为 1 从第几项起；这一拍是 0 时交出 n + 1。",
+                "en": "The input is 0 or 1 each tick: give where the latest unbroken run of 1s began; give n + 1 when this tick is 0."
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "一串 0 和 1，最近这段 1 从哪一项开始？",
+                "en": "In a run of 0s and 1s, where did the latest stretch of 1s begin?"
+              },
+              "chain": [
+                {
+                  "zh": "这一拍是 1：开头和上一拍说的一样，由寄存卡记着。",
+                  "en": "This tick is 1: the start is what the tick before said, held in a register."
+                },
+                {
+                  "zh": "这一拍是 0：开头最早也得是下一项，n + 1。",
+                  "en": "This tick is 0: the start can be no earlier than the next term, n + 1."
+                },
+                {
+                  "zh": "用输入当 1 和 0 在两者里挑：f·旧值 + (1 − f)·(n + 1)。",
+                  "en": "Use the input as 1 and 0 to pick between them: f·old + (1 − f)·(n + 1)."
+                }
+              ],
+              "uses": ["reg", "keep", "count", "mul", "add", "const", "eventually", "recurrence"],
+              "teaches": "eventually",
+              "builds": "since"
+            }
+          ]
+        },
+        {
+          "id": "limits",
+          "title": { "zh": "极限", "en": "Limits" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "limit",
+              "title": { "zh": "极限", "en": "Limit" },
+              "task": {
+                "zh": "aₙ 趋于 L：测试给出 ε，每一拍交出到这一拍为止的 N。",
+                "en": "aₙ tends to L: the test gives ε; each tick give N as found so far."
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "加到哪一项都不等于 L，凭什么说它趋于 L？",
+                "en": "No term equals L: on what grounds does the sequence tend to L?"
+              },
+              "chain": [
+                { "zh": "先说好多近才算近：ε。", "en": "First agree how close counts: ε." },
+                {
+                  "zh": "每一拍检查 aₙ 在不在邻域里，看这段「在」从哪一项起。",
+                  "en": "Each tick check whether aₙ is in the neighbourhood, and where the current stretch of “in” began."
+                },
+                {
+                  "zh": "N 停住了，就是这一拍以内找到了 N；ε 越小，N 越往后。",
+                  "en": "When N stops moving, an N has been found within these ticks; the smaller ε, the later N."
+                }
+              ],
+              "uses": ["near", "since", "limit", "neighbourhood", "eventually", "infinitesimal"],
+              "teaches": "limit",
+              "naive": {
+                "zh": "只看这一拍在不在邻域里：前面掉出去过也不管。",
+                "en": "Looking only at whether this tick is in the neighbourhood, ignoring any earlier escape."
+              }
+            },
+            {
+              "id": "ratio",
+              "title": { "zh": "趋于 3", "en": "Towards 3" },
+              "task": {
+                "zh": "aₙ = (3n + 1)/(n + 2)，L = 3：交出 N。",
+                "en": "aₙ = (3n + 1)/(n + 2), L = 3: give N."
+              },
+              "role": "practice",
+              "question": {
+                "zh": "极限不是 0 时，ε-N 照样适用吗？",
+                "en": "Does ε-N work the same when the limit is not 0?"
+              },
+              "chain": [
+                {
+                  "zh": "数列要自己算：分子乘分母的倒数。",
+                  "en": "Compute the sequence yourself: the numerator times the reciprocal of the denominator."
+                },
+                { "zh": "邻域以 3 为中心，其余照旧。", "en": "The neighbourhood is centred on 3; the rest is as before." }
+              ],
+              "uses": ["near", "since", "recip", "mul", "add", "count", "const", "limit"],
+              "facet": {
+                "zh": "被检查的数列由板自己算出，极限不是 0。",
+                "en": "The sequence checked is made on the board, and its limit is not 0."
+              },
+              "dimension": "scaffold"
+            },
+            {
+              "id": "wobble",
+              "title": { "zh": "摆动着靠近", "en": "Closing in, side to side" },
+              "task": { "zh": "aₙ = (−1)ⁿ/(n + 1)，L = 0：交出 N。", "en": "aₙ = (−1)ⁿ/(n + 1), L = 0: give N." },
+              "role": "practice",
+              "question": {
+                "zh": "一会儿在左、一会儿在右，还算趋于 0 吗？",
+                "en": "Now left, now right: does it still tend to 0?"
+              },
+              "chain": [
+                {
+                  "zh": "(−1)ⁿ 是首项 1、公比 −1 的等比数列。",
+                  "en": "(−1)ⁿ is geometric with first term 1 and ratio −1."
+                },
+                {
+                  "zh": "距离不看方向：两边的项一样算近。",
+                  "en": "Distance ignores direction: terms on either side are close alike."
+                }
+              ],
+              "uses": [
+                "near",
+                "since",
+                "recip",
+                "reg",
+                "keep",
+                "mul",
+                "add",
+                "count",
+                "const",
+                "limit",
+                "distance"
+              ],
+              "facet": {
+                "zh": "数列在 L 两侧来回摆动；邻域只看距离，摆动不妨碍收敛。",
+                "en": "The sequence swings from side to side of L; the neighbourhood only sees distance, so swinging does not stop convergence."
+              },
+              "dimension": "combine"
+            },
+            {
+              "id": "diverge",
+              "title": { "zh": "来回跳", "en": "Back and forth" },
+              "task": {
+                "zh": "aₙ = (−1)ⁿ：测试给出 L 和 ε，交出 N。",
+                "en": "aₙ = (−1)ⁿ: the test gives L and ε; give N."
+              },
+              "role": "foundation",
+              "question": { "zh": "一个数列能不能哪儿也不趋于？", "en": "Can a sequence tend nowhere at all?" },
+              "chain": [
+                {
+                  "zh": "L 取 1：每隔一项就掉出邻域，N 一直被往后推。",
+                  "en": "With L = 1: every other term falls out, and N keeps being pushed back."
+                },
+                { "zh": "L 取别的数也一样：没有哪个 L 让 N 停下。", "en": "Any other L does the same: no L lets N stop." }
+              ],
+              "uses": ["near", "since", "reg", "keep", "mul", "const", "divergence", "limit"],
+              "teaches": "divergence",
+              "naive": { "zh": "看到 N 偶尔停一拍，就当找到了。", "en": "Taking N standing still for a tick as found." }
+            }
+          ]
+        },
+        {
+          "id": "series",
+          "title": { "zh": "加不完的和", "en": "Sums without end" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "series",
+              "title": { "zh": "加得完的无穷", "en": "An infinity that adds up" },
+              "task": {
+                "zh": "1 + 1/2 + 1/4 + … 趋于 2：测试给出 ε，交出 N。",
+                "en": "1 + 1/2 + 1/4 + … tends to 2: the test gives ε; give N."
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "无穷多项相加，等号右边的 2 是什么意思？",
+                "en": "Infinitely many terms added: what does the 2 on the right mean?"
+              },
+              "chain": [
+                {
+                  "zh": "无穷多项加不完；能算的只有部分和。",
+                  "en": "Infinitely many terms never finish adding; only partial sums can be computed."
+                },
+                {
+                  "zh": "问部分和这个数列趋于什么：对它找 N。",
+                  "en": "Ask what the sequence of partial sums tends to: find N for it."
+                }
+              ],
+              "uses": ["sum", "near", "since", "reg", "keep", "mul", "const", "series", "limit", "partial-sum"],
+              "teaches": "series"
+            },
+            {
+              "id": "harmonic",
+              "title": { "zh": "调和级数", "en": "The harmonic series" },
+              "task": {
+                "zh": "交出 1 + 1/2 + 1/3 + … 的部分和；再对测试给出的界 K，交出部分和从第几项起一直大于 K。",
+                "en": "Give the partial sums of 1 + 1/2 + 1/3 + …; then, for a bound K the test gives, give where the partial sums start staying above K."
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "每一项都趋于 0，和还会无限变大吗？",
+                "en": "Every term tends to 0: can the sum still grow without bound?"
+              },
+              "chain": [
+                { "zh": "部分和长得很慢，看起来像停了。", "en": "The partial sums grow so slowly they look stuck." },
+                {
+                  "zh": "给它一个界 K，比较「K 小于部分和」，从此一直：K 再大也找得到那一项。",
+                  "en": "Give it a bound K, compare “K less than the sum”, and take ever since: however large K, that term is found."
+                }
+              ],
+              "uses": [
+                "sum",
+                "recip",
+                "count",
+                "add",
+                "const",
+                "less",
+                "since",
+                "harmonic",
+                "series",
+                "infinitesimal",
+                "divergence"
+              ],
+              "teaches": "harmonic",
+              "naive": {
+                "zh": "项趋于 0，就当和趋于某个数：对它找 N。",
+                "en": "Taking terms tending to 0 to mean the sum tends to something, and looking for its N."
+              }
+            }
+          ]
+        },
+        {
+          "id": "e-topic",
+          "title": { "zh": "算出 e", "en": "Computing e" },
+          "kind": "topic",
+          "after": "series",
+          "slots": [
+            {
+              "id": "fact",
+              "title": { "zh": "阶乘倒数", "en": "Reciprocal factorials" },
+              "task": {
+                "zh": "交出 1, 1, 1/2, 1/6, 1/24, …：第 n 项是 1/n!。",
+                "en": "Give 1, 1, 1/2, 1/6, 1/24, …: term n is 1/n!."
+              },
+              "role": "intro",
+              "question": { "zh": "1/n! 不必先算出 n! 再取倒数吗？", "en": "Must 1/n! wait for n! to be computed first?" },
+              "chain": [
+                {
+                  "zh": "n! = n·(n − 1)!：相邻两项只差一个因子。",
+                  "en": "n! = n·(n − 1)!: neighbouring terms differ by one factor."
+                },
+                {
+                  "zh": "于是 1/n! = 1/(n − 1)! · 1/n：递推，每步乘一个倒数。",
+                  "en": "So 1/n! = 1/(n − 1)! · 1/n: a recurrence, multiplying by one reciprocal each step."
+                }
+              ],
+              "uses": ["reg", "keep", "recip", "mul", "count", "add", "const", "recurrence", "general-term"]
+            },
+            {
+              "id": "euler",
+              "title": { "zh": "算出 e", "en": "Computing e" },
+              "task": {
+                "zh": "交出 1 + 1/1! + 1/2! + … 的部分和，和它离 e 不到 ε 的 N。",
+                "en": "Give the partial sums of 1 + 1/1! + 1/2! + … and the N at which they come within ε of e."
+              },
+              "role": "finale",
+              "question": {
+                "zh": "一个由无穷多项定义的数，几项才算得准？",
+                "en": "A number defined by infinitely many terms: how many terms make it accurate?"
+              },
+              "chain": [
+                { "zh": "把阶乘倒数接进累加。", "en": "Feed the reciprocal factorials into the sum." },
+                { "zh": "对 e 找 N：阶乘长得飞快，N 很小。", "en": "Find N for e: factorials grow so fast that N is small." }
+              ],
+              "uses": [
+                "sum",
+                "near",
+                "since",
+                "reg",
+                "keep",
+                "recip",
+                "mul",
+                "count",
+                "add",
+                "const",
+                "e",
+                "series"
+              ],
+              "teaches": "e"
+            }
+          ]
+        },
+        {
+          "id": "root-topic",
+          "title": { "zh": "巴比伦开方", "en": "The Babylonian root" },
+          "kind": "topic",
+          "after": "limit",
+          "slots": [
+            {
+              "id": "babylon",
+              "title": { "zh": "巴比伦开方", "en": "The Babylonian root" },
+              "task": {
+                "zh": "从 x₀ = 1 起，交出 xₙ₊₁ = (xₙ + 2/xₙ)/2。",
+                "en": "From x₀ = 1, give xₙ₊₁ = (xₙ + 2/xₙ)/2."
+              },
+              "role": "intro",
+              "question": {
+                "zh": "只会加、乘和取倒数，怎样逼近 √2？",
+                "en": "With only add, multiply and reciprocal, how do you close in on √2?"
+              },
+              "chain": [
+                {
+                  "zh": "猜 x 大了，2/x 就小了；√2 夹在两者之间。",
+                  "en": "If a guess x is too large, 2/x is too small; √2 lies between them."
+                },
+                { "zh": "取两者的平均当下一次的猜测，存回寄存卡。", "en": "Take their average as the next guess and keep it." }
+              ],
+              "uses": ["reg", "keep", "recip", "mul", "add", "const", "recurrence"]
+            },
+            {
+              "id": "babylon-fast",
+              "title": { "zh": "快得多", "en": "Much faster" },
+              "task": {
+                "zh": "交出 |xₙ² − 2| 和它小于 ε 的 N。",
+                "en": "Give |xₙ² − 2| and the N at which it drops below ε."
+              },
+              "role": "step",
+              "question": { "zh": "巴比伦的猜测逼近得有多快？", "en": "How fast do the Babylonian guesses close in?" },
+              "chain": [
+                { "zh": "误差用距离量：xₙ² 离 2 多远。", "en": "Measure the error with distance: how far xₙ² is from 2." },
+                {
+                  "zh": "和 1/(n+1) 比：ε 缩小十倍，N 几乎不动。",
+                  "en": "Compare with 1/(n+1): ε ten times smaller hardly moves N."
+                }
+              ],
+              "uses": ["dist", "less", "since", "reg", "keep", "recip", "mul", "add", "const", "limit"]
+            },
+            {
+              "id": "any-root",
+              "title": { "zh": "任意开方", "en": "Any root" },
+              "task": {
+                "zh": "测试给出正数 c：从 1 起，交出逼近 √c 的猜测。",
+                "en": "The test gives a positive c: from 1, give guesses closing in on √c."
+              },
+              "role": "finale",
+              "question": {
+                "zh": "换成别的数，同一台机器还能开方吗？",
+                "en": "With another number, does the same machine still take the root?"
+              },
+              "chain": [
+                {
+                  "zh": "把 2 换成输入 c：c 乘 xₙ 的倒数。",
+                  "en": "Replace 2 by the input c: c times the reciprocal of xₙ."
+                },
+                {
+                  "zh": "c 小于 1 时，第一次猜测大了，照样收回来。",
+                  "en": "When c is below 1 the first guess is too large, and it still comes back."
+                }
+              ],
+              "uses": ["reg", "keep", "recip", "mul", "add", "const", "babylonian", "limit"],
+              "teaches": "babylonian"
+            }
+          ]
+        }
+      ]
     }
   ],
   "parallel": [
@@ -804,6 +1563,13 @@
       "why": {
         "zh": "求和与差分都只建在寄存卡、递推和下标上，彼此不需要；先做哪一路都行，汇合在互逆。",
         "en": "Summing and differencing each stand only on the register, recurrences and the index, not on each other; either may come first, and they meet at undoing."
+      }
+    },
+    {
+      "id": "three-ways",
+      "why": {
+        "zh": "倒数、比较和「从此一直」各建在第 0 章的元件上，彼此不需要；在极限汇合。",
+        "en": "Reciprocal, comparison and “ever since” each stand on chapter 0’s parts, not on each other; they meet at the limit."
       }
     }
   ],
@@ -835,19 +1601,32 @@
         "zh": "逐拍的数值多了两种显示方式：逐项（每拍一列写出数）和数列图（每项一个点，应当的项画成圈，同一刻度）；游戏的 views 选用它们。",
         "en": "Values a tick gain two views: terms (each tick’s number in its column) and plot (a dot a term, the wanted terms as rings on one scale); the game’s views pick them."
       }
+    },
+    {
+      "id": "tolerance",
+      "kind": "domain",
+      "status": "open",
+      "for": [
+        "recip",
+        "halves",
+        "limit",
+        "ratio",
+        "wobble",
+        "series",
+        "harmonic",
+        "fact",
+        "euler",
+        "babylon",
+        "babylon-fast",
+        "any-root"
+      ],
+      "about": {
+        "zh": "原始元件加上倒数（1/0 给「—」）和比较（a < b 给 1，否则 0）；测试的项按相对误差 10⁻⁹ 对照，运算顺序造成的末位差别不算错。",
+        "en": "Primitives gain reciprocal (「—」 for 1/0) and less (1 when a < b, else 0); a test’s terms are compared within a relative error of 10⁻⁹, so differences in the last bits from the order of operations are no error."
+      }
     }
   ],
   "deferred": [
-    {
-      "about": {
-        "zh": "第 1 章「越来越近」：倒数、比较；绝对值、ε-N 的对抗",
-        "en": "Chapter 1, “Getting closer”: reciprocal, compare; absolute value, the ε-N game"
-      },
-      "why": {
-        "zh": "第 0 章的试玩先验证数列机这一套能不能玩",
-        "en": "The chapter-0 trial first shows whether the sequence machine plays"
-      }
-    },
     {
       "about": {
         "zh": "第 2–7 章：取样、导数、积分、基本定理、泰勒、微分方程",
