@@ -1,0 +1,43 @@
+{
+  "title": { "zh": "先后两次", "en": "One after the other" },
+  "intro": [
+    {
+      "t": {
+        "zh": "两个变换接连作用：先 B，再 A。每一支箭头都要经过两次变换。",
+        "en": "Two maps one after the other: first B, then A. Every arrow goes through two maps."
+      }
+    }
+  ],
+  "after": {
+    "zh": "先 B 后 A 写作 A(Bx)：后作用的写在左边，和函数的复合一样。",
+    "en": "First B, then A is written A(Bx): the map applied last stands on the left, as with composed functions."
+  },
+  "tasks": [
+    {
+      "id": "2-3",
+      "brief": { "zh": "交出 x 先经 B、再经 A 变换后的落点。", "en": "Give where x lands after B and then A." },
+      "inputs": [{ "name": "A", "label": "A" }, { "name": "B", "label": "B" }, { "name": "x", "label": "x" }],
+      "outputs": [{ "name": "out", "label": "A(Bx)" }],
+      "tests": [
+        {
+          "inputs": { "A": [[1, 1], [0, 1]], "B": [[0, -1], [1, 0]], "x": [1, 0] },
+          "expect": { "out": [1, 1] }
+        },
+        {
+          "inputs": { "A": [[0, -1], [1, 0]], "B": [[1, 1], [0, 1]], "x": [1, 0] },
+          "expect": { "out": [0, 1] }
+        },
+        {
+          "inputs": { "A": [[2, 0], [0, 3]], "B": [[0, 1], [1, 0]], "x": [1, 2] },
+          "expect": { "out": [4, 3] }
+        },
+        {
+          "inputs": { "A": [[1, 0], [0, -1]], "B": [[0, -1], [1, 0]], "x": [2, 1] },
+          "expect": { "out": [-1, -2] }
+        }
+      ],
+      "solution": ["y = apply(B, x)", "z = apply(A, y)", "out <- z"],
+      "naive": ["y = apply(A, x)", "z = apply(B, y)", "out <- z"]
+    }
+  ]
+}

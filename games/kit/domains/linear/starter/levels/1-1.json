@@ -1,0 +1,32 @@
+{
+  "title": { "zh": "首尾相接", "en": "Tip to tail" },
+  "intro": [
+    {
+      "t": {
+        "zh": "向量是一支有方向的箭头，也是一列数。两支箭头<wiki-ref to=\"sum\"></wiki-ref>，就是后一支接在前一支的箭头尖上。",
+        "en": "A vector is an arrow with a direction, and a column of numbers. Two arrows make a <wiki-ref to=\"sum\"></wiki-ref> when the second starts at the tip of the first."
+      }
+    }
+  ],
+  "adds": ["add"],
+  "builds": {
+    "type": "trip",
+    "name": { "zh": "三段路", "en": "Three legs" },
+    "desc": { "zh": "给出 u + v + w。", "en": "Gives u + v + w." }
+  },
+  "tasks": [
+    {
+      "id": "1-1",
+      "brief": { "zh": "交出 u、v、w 三支箭头首尾相接后的总位移。", "en": "Give the whole move of u, v and w laid tip to tail." },
+      "inputs": [{ "name": "u", "label": "u" }, { "name": "v", "label": "v" }, { "name": "w", "label": "w" }],
+      "outputs": [{ "name": "out", "label": { "zh": "总位移", "en": "Whole move" } }],
+      "tests": [
+        { "inputs": { "u": [2, 1], "v": [-1, 2], "w": [0, -4] }, "expect": { "out": [1, -1] } },
+        { "inputs": { "u": [3, 0], "v": [0, 3], "w": [-3, -3] }, "expect": { "out": [0, 0] } }
+      ],
+      "solution": ["s = add(u, v)", "t = add(s, w)", "out <- t"],
+      "naive": ["s = add(u, v)", "out <- s"]
+    }
+  ],
+  "showcase": { "zh": "第一次往板上放元件、接线", "en": "the first parts placed and wired on a board" }
+}

@@ -69,7 +69,7 @@ export const FACES = ['card', 'tile', 'detail']
 const RULE = S.obj({ on: S.opt(NAME), when: S.opt(EXPR), set: S.map(EXPR, { about: t('设置 → 新值的式子', 'setting → the expression of its new value') }) })
 /** A check: the settings must make `holds` true; else the card says `say`. */
 const CHECK = S.obj({ holds: EXPR, say: S.text() })
-const PORT = S.obj({ name: NAME, label: S.opt(S.text()), about: S.opt(S.text()) })
+const PORT = S.obj({ name: NAME, label: S.opt(S.text()), about: S.opt(S.text()), optional: S.opt(S.bool({ about: t('可以不接：不接时运算在这里读到「—」', 'may be left unwired: the computation reads 「—」 there when it is') })) })
 export const PART = S.obj({
   name: S.text(),
   desc: S.text({ about: t('只写功能：读哪些口、给出什么、碰到「—」怎么办', 'what it does only: what it reads, what it gives, what 「—」 does') }),

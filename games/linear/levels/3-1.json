@@ -1,0 +1,107 @@
+{
+  "title": { "zh": "面积的倍数", "en": "How much area" },
+  "intro": [
+    {
+      "t": {
+        "zh": "看 î、ĵ 围成的单位正方形被变换成什么：一个平行四边形。格线变换后仍然平行等距，每一格都变成同样大的平行四边形，所以任何图形的面积都放大同一个倍数。",
+        "en": "See what the unit square on î and ĵ becomes: a parallelogram. The grid lines stay parallel and evenly spaced, so every cell becomes a parallelogram of the same size, and every shape's area grows by the same factor."
+      },
+      "show": { "shape": "grid", "value": [[2, 1], [0, 1.5]], "views": ["plane"] }
+    },
+    {
+      "t": {
+        "zh": "平面翻了面（î 转到 ĵ 的顺时针一侧）时，这个倍数记为负。这个带符号的倍数叫矩阵的<wiki-ref to=\"determinant\"></wiki-ref>。<part-ref to=\"part:arith\"></part-ref>对两个数做加、减、乘、除。",
+        "en": "When the plane is turned over (î ending up clockwise of ĵ), the factor is counted negative. This signed factor is the matrix's <wiki-ref to=\"determinant\"></wiki-ref>. <part-ref to=\"part:arith\"></part-ref> adds, subtracts, multiplies or divides two numbers."
+      }
+    }
+  ],
+  "after": {
+    "zh": "行列式为 0，平面被压扁成一条直线，甚至一个点。",
+    "en": "A determinant of 0 means the plane is squashed onto a line, or even a point."
+  },
+  "adds": ["arith"],
+  "builds": {
+    "type": "det",
+    "name": { "zh": "行列式", "en": "Determinant" },
+    "desc": {
+      "zh": "给出 2 × 2 矩阵 M 的行列式：它把面积放大的倍数，翻面时为负。",
+      "en": "Gives the determinant of the 2 × 2 matrix M: the factor it scales area by, negative when it turns the plane over."
+    }
+  },
+  "tasks": [
+    {
+      "id": "3-1a",
+      "step": { "zh": "沿轴伸缩", "en": "Along the axes" },
+      "brief": { "zh": "M 是对角矩阵，交出它的行列式。", "en": "M is a diagonal matrix: give its determinant." },
+      "inputs": [{ "name": "M", "label": "M" }],
+      "outputs": [{ "name": "d", "label": "det M" }],
+      "tests": [
+        { "inputs": { "M": [[2, 0], [0, 3]] }, "expect": { "d": 6 } },
+        { "inputs": { "M": [[-1, 0], [0, 2]] }, "expect": { "d": -2 } },
+        { "inputs": { "M": [[0.5, 0], [0, 4]] }, "expect": { "d": 2 } }
+      ],
+      "solution": [
+        "a = column[j=\"1\"](M)",
+        "b = column[j=\"2\"](M)",
+        "x = entry[i=\"1\"](a)",
+        "y = entry[i=\"2\"](b)",
+        "d0 = arith[op=mul](x, y)",
+        "d <- d0"
+      ],
+      "naive": [
+        "a = column[j=\"1\"](M)",
+        "b = column[j=\"2\"](M)",
+        "x = entry[i=\"1\"](a)",
+        "y = entry[i=\"2\"](b)",
+        "d0 = arith[op=add](x, y)",
+        "d <- d0"
+      ]
+    },
+    {
+      "id": "3-1",
+      "step": { "zh": "一般情形", "en": "Any matrix" },
+      "brief": { "zh": "交出任意 2 × 2 矩阵 M 的行列式。", "en": "Give the determinant of any 2 × 2 matrix M." },
+      "intro": [
+        { "t": { "zh": "这一次 M 不再只沿坐标轴伸缩。", "en": "This time M does more than stretch along the axes." } }
+      ],
+      "hint": [
+        { "zh": "剪切把正方形推歪，面积却没有变。", "en": "A shear pushes the square aslant, yet its area does not change." },
+        {
+          "zh": "把平行四边形沿一条边推回长方形，看留下了哪些量。",
+          "en": "Push the parallelogram back into a rectangle along one of its sides, and see which quantities are left."
+        }
+      ],
+      "inputs": [{ "name": "M", "label": "M" }],
+      "outputs": [{ "name": "d", "label": "det M" }],
+      "tests": [
+        { "inputs": { "M": [[1, 1], [0, 1]] }, "expect": { "d": 1 } },
+        { "inputs": { "M": [[0, -1], [1, 0]] }, "expect": { "d": 1 } },
+        { "inputs": { "M": [[3, 1], [2, 4]] }, "expect": { "d": 10 } },
+        { "inputs": { "M": [[1, 2], [2, 4]] }, "expect": { "d": 0 } },
+        { "inputs": { "M": [[0, 1], [1, 0]] }, "expect": { "d": -1 } },
+        { "inputs": { "M": [[2, 0], [0, 3]] }, "expect": { "d": 6 } }
+      ],
+      "hidden": [{ "inputs": { "M": [[2, -1], [3, 0.5]] }, "expect": { "d": 4 } }],
+      "solution": [
+        "a = column[j=\"1\"](M)",
+        "b = column[j=\"2\"](M)",
+        "a1 = entry[i=\"1\"](a)",
+        "a2 = entry[i=\"2\"](a)",
+        "b1 = entry[i=\"1\"](b)",
+        "b2 = entry[i=\"2\"](b)",
+        "p = arith[op=mul](a1, b2)",
+        "q = arith[op=mul](b1, a2)",
+        "d0 = arith[op=sub](p, q)",
+        "d <- d0"
+      ],
+      "naive": [
+        "a = column[j=\"1\"](M)",
+        "b = column[j=\"2\"](M)",
+        "a1 = entry[i=\"1\"](a)",
+        "b2 = entry[i=\"2\"](b)",
+        "d0 = arith[op=mul](a1, b2)",
+        "d <- d0"
+      ]
+    }
+  ]
+}

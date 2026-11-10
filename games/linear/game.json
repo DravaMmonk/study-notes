@@ -1,0 +1,92 @@
+{
+  "domain": "linear",
+  "vocabulary": 1,
+  "title": {
+    "zh": "线性之格",
+    "en": "The Linear Grid"
+  },
+  "kicker": {
+    "zh": "开发中",
+    "en": "In development"
+  },
+  "lede": {
+    "zh": "从相加和伸缩两个动作起步，亲手搭出矩阵、矩阵乘法、行列式和解方程的元件，看清每一个矩阵怎样推动整张格子。",
+    "en": "Starting from adding and stretching arrows, build the parts for matrices, the matrix product, determinants and solving equations yourself, and see how every matrix carries the whole grid along."
+  },
+  "primitives": [
+    "add",
+    "scale",
+    "num",
+    "entry",
+    "vec",
+    "column",
+    "join",
+    "arith"
+  ],
+  "concept": {
+    "num": "scale"
+  },
+  "views": {
+    "grid": [
+      "plane",
+      "numbers"
+    ]
+  },
+  "eras": [
+    {
+      "id": 1,
+      "title": {
+        "zh": "箭头",
+        "en": "Arrows"
+      },
+      "question": {
+        "zh": "只会相加和伸缩，能拼出哪些箭头？",
+        "en": "Adding and stretching alone: which arrows can they make?"
+      },
+      "foundation": [
+        "1-1",
+        "1-2",
+        "1-3",
+        "1-4",
+        "1-5",
+        "1-6",
+        "1-7"
+      ]
+    },
+    {
+      "id": 2,
+      "title": { "zh": "矩阵", "en": "Matrices" },
+      "question": {
+        "zh": "每换一个变换就重接一遍板；能不能把变换本身当作一个值？",
+        "en": "Each new map means wiring the board again: can a map itself be a value?"
+      },
+      "foundation": [
+        "2-1",
+        "2-2",
+        "2-3",
+        "2-4",
+        {
+          "parallel": [
+            { "id": "order", "title": { "zh": "先后", "en": "Order" }, "levels": ["2-5"] },
+            { "id": "power", "title": { "zh": "连做", "en": "Powers" }, "levels": ["2-6"] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": { "zh": "行列式", "en": "Determinants" },
+      "question": { "zh": "一个变换把面积放大了多少倍？", "en": "By how much does a map scale area?" },
+      "foundation": [
+        "3-1",
+        {
+          "parallel": [
+            { "id": "product", "title": { "zh": "乘积", "en": "Products" }, "levels": ["3-2"] },
+            { "id": "triangle", "title": { "zh": "三角形", "en": "Triangles" }, "levels": ["3-3"] },
+            { "id": "cramer", "title": { "zh": "解方程", "en": "Solving" }, "levels": ["3-4", "3-5"] }
+          ]
+        }
+      ]
+    }
+  ]
+}

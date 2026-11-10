@@ -6,6 +6,7 @@
 // entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): each input given
 //   (left out by default: the input cards show it), each output against what the test expects
 import { runBoard } from '../../engine/boards.js'
+import { runTests } from '../../engine/circuit-domain.js'
 import { numberText } from '../../engine/number.js'
 import { T } from '../../shell/i18n.js'
 
@@ -27,10 +28,7 @@ export function runTest(level, circuit, test, partOf) {
 }
 
 /** Every test of a level on a board: { runs, pass }. */
-export function runLevel(level, circuit, partOf) {
-  const runs = level.tests.map((test) => runTest(level, circuit, test, partOf))
-  return { runs, pass: runs.every((r) => !r.fail) }
-}
+export const runLevel = runTests(runTest)
 
 export const entries = ({ task, test, run }) => [
   ...task.inputs.map((i) => ({ of: i.name, label: i.label, shape: 'scalar', given: test.inputs[i.name], shown: false })),

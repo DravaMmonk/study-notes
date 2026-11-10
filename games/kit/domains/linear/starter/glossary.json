@@ -1,0 +1,17 @@
+{
+  "groups": [{ "id": "arrows", "title": { "zh": "箭头", "en": "Arrows" } }],
+  "entries": [
+    {
+      "id": "sum",
+      "group": "arrows",
+      "title": { "zh": "向量的和", "en": "sum of vectors" },
+      "at": "1-1",
+      "body": [
+        {
+          "zh": "两个向量逐个分量相加；画出来，后一支箭头接在前一支的箭头尖上。",
+          "en": "Two vectors added entry by entry; drawn, the second arrow starts at the tip of the first."
+        }
+      ]
+    }
+  ]
+}

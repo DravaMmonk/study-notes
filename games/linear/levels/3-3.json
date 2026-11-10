@@ -1,0 +1,49 @@
+{
+  "title": { "zh": "三角形", "en": "Triangles" },
+  "intro": [
+    {
+      "t": {
+        "zh": "三点 p、q、r 围成一个三角形。沿 p → q → r 绕行是逆时针时，面积记为正，顺时针时记为负：这叫有向面积。",
+        "en": "Three points p, q, r make a triangle. Its area counts positive when p → q → r runs anticlockwise and negative when clockwise: its signed area."
+      }
+    }
+  ],
+  "after": { "zh": "有向面积为 0，三点在同一条直线上。", "en": "A signed area of 0 means the three points lie on one line." },
+  "tasks": [
+    {
+      "id": "3-3",
+      "brief": { "zh": "交出三角形 pqr 的有向面积。", "en": "Give the signed area of the triangle pqr." },
+      "hint": [
+        { "zh": "把三角形平移，让 p 落到原点。", "en": "Slide the triangle so that p lands on the origin." },
+        { "zh": "三角形是平行四边形的一半。", "en": "A triangle is half a parallelogram." }
+      ],
+      "inputs": [{ "name": "p", "label": "p" }, { "name": "q", "label": "q" }, { "name": "r", "label": "r" }],
+      "outputs": [{ "name": "s", "label": { "zh": "有向面积", "en": "Signed area" } }],
+      "tests": [
+        { "inputs": { "p": [0, 0], "q": [4, 0], "r": [0, 3] }, "expect": { "s": 6 } },
+        { "inputs": { "p": [1, 1], "q": [3, 1], "r": [1, 4] }, "expect": { "s": 3 } },
+        { "inputs": { "p": [0, 0], "q": [0, 3], "r": [4, 0] }, "expect": { "s": -6 } },
+        { "inputs": { "p": [0, 0], "q": [1, 1], "r": [3, 3] }, "expect": { "s": 0 } }
+      ],
+      "hidden": [{ "inputs": { "p": [-1, -1], "q": [2, 0], "r": [0, 2] }, "expect": { "s": 4 } }],
+      "solution": [
+        "o = num[value=\"1\"]()",
+        "n = num[value=\"-1\"]()",
+        "u = combo(o, n, q, p)",
+        "v = combo(o, n, r, p)",
+        "m = join(u, v)",
+        "d = det(m)",
+        "h = num[value=\"0.5\"]()",
+        "s0 = arith[op=mul](h, d)",
+        "s <- s0"
+      ],
+      "naive": [
+        "m = join(q, r)",
+        "d = det(m)",
+        "h = num[value=\"0.5\"]()",
+        "s0 = arith[op=mul](h, d)",
+        "s <- s0"
+      ]
+    }
+  ]
+}

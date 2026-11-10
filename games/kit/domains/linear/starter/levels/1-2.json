@@ -1,0 +1,19 @@
+{
+  "title": { "zh": "走两遍", "en": "Twice over" },
+  "intro": [{ "t": { "zh": "同样的三段路走两遍。", "en": "The same three legs, walked twice." } }],
+  "adds": ["scale", "num"],
+  "tasks": [
+    {
+      "id": "1-2",
+      "brief": { "zh": "交出把 u、v、w 走两遍的总位移。", "en": "Give the whole move of walking u, v and w twice." },
+      "inputs": [{ "name": "u", "label": "u" }, { "name": "v", "label": "v" }, { "name": "w", "label": "w" }],
+      "outputs": [{ "name": "out", "label": { "zh": "总位移", "en": "Whole move" } }],
+      "tests": [
+        { "inputs": { "u": [2, 1], "v": [-1, 2], "w": [0, -4] }, "expect": { "out": [2, -2] } },
+        { "inputs": { "u": [1, 0], "v": [0, 1], "w": [1, 1] }, "expect": { "out": [4, 4] } }
+      ],
+      "solution": ["t = trip(u, v, w)", "k = num[value=\"2\"]()", "d = scale(k, t)", "out <- d"],
+      "naive": ["t = trip(u, v, w)", "out <- t"]
+    }
+  ]
+}

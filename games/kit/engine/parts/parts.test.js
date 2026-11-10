@@ -66,6 +66,18 @@ test('parts.json becomes engine parts: settings with their presets, one or sever
   assert.throws(() => PARTS.scaled.eval({ a: 1 }, { params: { k: 4 } }), /too big/)
 })
 
+test('an optional input left unwired reads 「—」 and does not make the part give 「—」; wired to 「—」 it does', () => {
+  const some = { parts: { first: { name: 'First', desc: 'a, else b', icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b', optional: true }], compute: 'add(a, b)' } } }
+  const { PARTS } = defineParts(some, { add: { args: [{ name: 'a' }, { name: 'b' }], run: ([a, b]) => (b === undefined ? a : a + b) } })
+  assert.deepEqual(PARTS.first.optional, ['b'])
+  const registry = { ...PARTS, in: { inputs: [], eval: () => 5 }, none: { inputs: [], eval: () => null } }
+  const alone = { nodes: [{ id: 'x', type: 'in' }, { id: 'f', type: 'first' }], wires: [{ from: 'x', to: 'f', port: 'a' }] }
+  assert.equal(run(alone, { parts: registry }).values.get('f'), 5)
+  const blank = { nodes: [...alone.nodes, { id: 'n', type: 'none' }], wires: [...alone.wires, { from: 'n', to: 'f', port: 'b' }] }
+  assert.equal(run(blank, { parts: registry }).values.get('f'), null)
+  assert.deepEqual(partProblems(some, vocabulary), [])
+})
+
 test('interaction: rules follow a change, checks say what fails, settings-only expressions', () => {
   const { defs } = defineParts(file, OPS)
   assert.deepEqual(applyRules(defs.scaled, { k: 2, how: 'down' }, 'how', OPS), { k: 3, how: 'down' })

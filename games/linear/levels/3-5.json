@@ -1,0 +1,60 @@
+{
+  "title": { "zh": "两条直线", "en": "Two lines" },
+  "intro": [
+    {
+      "t": {
+        "zh": "平面上一条直线可以写成 ax + by = c，记下三个数 (a, b, c) 就是这条直线。两条直线不平行时，交于一点。",
+        "en": "A line in the plane can be written ax + by = c, so three numbers (a, b, c) are the line. Two lines that are not parallel meet in one point."
+      }
+    }
+  ],
+  "after": {
+    "zh": "求两条直线的交点，就是解一个两元一次方程组。",
+    "en": "Where two lines meet is the solution of a system of two linear equations in two unknowns."
+  },
+  "tasks": [
+    {
+      "id": "3-5",
+      "brief": {
+        "zh": "两条直线 l₁、l₂ 各以 (a, b, c) 给出，交出它们的交点。",
+        "en": "The lines l₁ and l₂ are each given as (a, b, c); give the point where they meet."
+      },
+      "inputs": [{ "name": "l1", "label": "l₁" }, { "name": "l2", "label": "l₂" }],
+      "outputs": [{ "name": "p", "label": { "zh": "交点", "en": "Meeting point" } }],
+      "tests": [
+        { "inputs": { "l1": [1, 1, 3], "l2": [1, -1, 1] }, "expect": { "p": [2, 1] } },
+        { "inputs": { "l1": [3, -2, 12], "l2": [2, 1, 1] }, "expect": { "p": [2, -3] } },
+        { "inputs": { "l1": [1, 0, 2], "l2": [0, 1, -1] }, "expect": { "p": [2, -1] } },
+        { "inputs": { "l1": [2, 1, 4], "l2": [1, 3, 7] }, "expect": { "p": [1, 2] } }
+      ],
+      "solution": [
+        "a1 = entry[i=\"1\"](l1)",
+        "b1 = entry[i=\"2\"](l1)",
+        "c1 = entry[i=\"3\"](l1)",
+        "a2 = entry[i=\"1\"](l2)",
+        "b2 = entry[i=\"2\"](l2)",
+        "c2 = entry[i=\"3\"](l2)",
+        "u = vec(a1, a2)",
+        "v = vec(b1, b2)",
+        "A = join(u, v)",
+        "b = vec(c1, c2)",
+        "x = solve(A, b)",
+        "p <- x"
+      ],
+      "naive": [
+        "a1 = entry[i=\"1\"](l1)",
+        "b1 = entry[i=\"2\"](l1)",
+        "c1 = entry[i=\"3\"](l1)",
+        "a2 = entry[i=\"1\"](l2)",
+        "b2 = entry[i=\"2\"](l2)",
+        "c2 = entry[i=\"3\"](l2)",
+        "u = vec(a1, b1)",
+        "v = vec(a2, b2)",
+        "A = join(u, v)",
+        "b = vec(c1, c2)",
+        "x = solve(A, b)",
+        "p <- x"
+      ]
+    }
+  ]
+}

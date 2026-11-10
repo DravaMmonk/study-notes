@@ -1,0 +1,89 @@
+{
+  "title": {
+    "zh": "中点",
+    "en": "Halfway"
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "一个点也可以看成从原点指向它的箭头。<part-ref to=\"part:add\"></part-ref>只能把给定的箭头整段接上；要走到一半，得把箭头缩短。<wiki-ref to=\"scalar-multiple\"></wiki-ref>让箭头沿它所在的直线伸缩，乘的数为负时掉头；<part-ref to=\"part:num\"></part-ref>给出一个固定的数。",
+        "en": "A point can be read as the arrow from the origin to it. <part-ref to=\"part:add\"></part-ref> can only lay the given arrows end to end, whole; to go halfway, an arrow must be shortened. A <wiki-ref to=\"scalar-multiple\"></wiki-ref> stretches or shrinks an arrow along its own line, turning it round when the number is negative; <part-ref to=\"part:num\"></part-ref> gives a fixed number."
+      }
+    }
+  ],
+  "after": {
+    "zh": "数乘只改变箭头的长短和朝向，不让它离开所在的直线。",
+    "en": "Scaling changes only an arrow's length and sense; it never leaves its line."
+  },
+  "adds": [
+    "scale",
+    "num"
+  ],
+  "tasks": [
+    {
+      "id": "1-2",
+      "brief": {
+        "zh": "交出 p、q 两点连线的中点。",
+        "en": "Give the midpoint of the segment from p to q."
+      },
+      "hint": [{ "zh": "中点的箭头与 p + q 方向相同。", "en": "The midpoint's arrow points the same way as p + q." }],
+      "inputs": [
+        {
+          "name": "p",
+          "label": "p"
+        },
+        {
+          "name": "q",
+          "label": "q"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "m",
+          "label": {
+            "zh": "中点",
+            "en": "Midpoint"
+          }
+        }
+      ],
+      "tests": [
+        {
+          "inputs": {
+            "p": [0, 0],
+            "q": [4, 2]
+          },
+          "expect": {
+            "m": [
+              2,
+              1
+            ]
+          }
+        },
+        {
+          "inputs": {
+            "p": [-2, 3],
+            "q": [4, -1]
+          },
+          "expect": {
+            "m": [
+              1,
+              1
+            ]
+          }
+        },
+        { "inputs": { "p": [3, 3], "q": [-1, 1] }, "expect": { "m": [1, 2] } }
+      ],
+      "hidden": [{ "inputs": { "p": [1, 1], "q": [2, 2] }, "expect": { "m": [1.5, 1.5] } }],
+      "solution": [
+        "s = add(p, q)",
+        "h = num[value=\"0.5\"]()",
+        "m0 = scale(h, s)",
+        "m <- m0"
+      ],
+      "naive": [
+        "s = add(p, q)",
+        "m <- s"
+      ]
+    }
+  ]
+}

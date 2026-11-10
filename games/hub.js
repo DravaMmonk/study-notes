@@ -13,12 +13,13 @@ import { mountDetach } from './detach/detach.js';
 import { mountStick } from './stick/stick.js';
 import { mountLoop } from './loop/loop.js';
 import { mountWave } from './wave/wave.js';
+import { mountShear } from './shear/shear.js';
 
 // Card art: each game's illustration, mounted live into its row. All four are anatomy-kit figures built into plain
 // modules for this page (each folder's build.mjs): State Graph's robot Boxy, Vision Complete's filter press, Q.E.D.'s
 // Detach press and Syntax Graph's composing stick; Software Factory's agent loop (loop/) and The Car Talks' bus (wave/)
 // are plain line drawings.
-const ART = { grid: mountBoxy, pipeline: mountPress, detach: mountDetach, stick: mountStick, loop: mountLoop, wave: mountWave };
+const ART = { grid: mountBoxy, pipeline: mountPress, detach: mountDetach, stick: mountStick, loop: mountLoop, wave: mountWave, shear: mountShear };
 let unmount = [];
 
 function render() {

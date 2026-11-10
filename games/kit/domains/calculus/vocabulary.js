@@ -38,7 +38,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'calculus',
-  version: 1,
+  version: 2,
   kinds: { part: PARTS },
   game: GAME,
   level: LEVEL,

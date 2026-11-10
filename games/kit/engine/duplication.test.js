@@ -1,6 +1,7 @@
 // node --test (npm test) — what the domains on the circuit base still write out the same (duplication.js): for each
 // kind of file, at most as many lines of one domain's file stand word for word in three domains' as the kind allows.
-// What is left is the call into the base (`return checkCircuitTasks(circuit, {`) and the head of a hook the base calls
+// What is left is the calls into the base (`return checkCircuitTasks(circuit, {`, `export const runLevel = runTests(runTest)`)
+// and the head of a hook the base calls
 // (`export const entries = ({ task, test, run }) => [`); a line more is a piece of the base written out again, to be
 // moved into it. Two kinds of file hold more that is no piece of the base: a vocabulary's
 // shape (`const PARTS = {`, `kinds: { part: PARTS, want: WANTS }`…), and what the tick domains' own register and
@@ -10,7 +11,7 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { FILES, duplicated, measure } from './duplication.js'
 
-const CEILING = { 'board.js': 2, 'course.js': 2, 'run.js': 1, 'validate.js': 3, 'vocabulary.js': 16, 'domain.js': 0, 'play.js': 2, 'game.jsx': 0, 'ui/Screen.jsx': 1, 'ui/catalog.js': 4 }
+const CEILING = { 'board.js': 2, 'course.js': 2, 'run.js': 2, 'validate.js': 3, 'vocabulary.js': 16, 'domain.js': 0, 'play.js': 2, 'game.jsx': 0, 'ui/Screen.jsx': 1, 'ui/catalog.js': 4 }
 
 test('a line counts as written out again when three domains have it, their names aside, comments and imports left out', () => {
   const file = (name, text) => ({ key: name, name, text })

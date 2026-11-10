@@ -24,9 +24,9 @@ import ViewSwitch from './ViewSwitch.jsx'
 // default valueText); curve(x, row) the function a plot's samples were taken from (plots/Plot.jsx).
 
 /** A grid on a card: in the view picked, drawn small (a plot, a profile, a terrain…), else numbered while it is small
- * and numbers are picked, else a small picture; its size under it. */
+ * and numbers are picked, else a small picture; its size under it (arrows in the plane need none). */
 function CardGrid({ value, view }) {
-  const size = <small>{value.w} × {value.h}</small>
+  const size = view !== 'plane' && <small>{value.w} × {value.h}</small>
   const Drawn = DRAWN[view]
   if (Drawn) return <span className="vw-thumb"><Drawn value={value} card size={SIZE.card} />{size}</span>
   if (view === 'pixels' || value.w * value.h > 64) return <span className="vw-thumb"><GridPicture value={value} scale={Math.max(1, Math.floor(96 / Math.max(value.w, value.h)))} />{size}</span>

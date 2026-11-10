@@ -81,4 +81,13 @@ export const GAMES = [
     levels: 15, dev: true,
     page: { icon: 'M12 46h40M18 46V34M28 46V26M38 46V20M48 46V16', description: '差分机 The Difference Engine：从一拍一项的数列机器搭起微积分。Calculus built up from a machine that computes a term a tick.' },
   },
+  {
+    id: 'linear', href: 'linear/index.html', title: '线性之格', en: 'The Linear Grid', topic: { zh: '线性代数', en: 'Linear Algebra' },
+    desc: {
+      zh: '不需要线性代数基础。从相加和伸缩两个动作开始，亲手搭出矩阵、矩阵乘法、行列式和解方程的元件，看每个矩阵怎样推动整张格子。',
+      en: 'No linear algebra needed. Starting from adding and stretching arrows, build the parts for matrices, the matrix product, determinants and solving equations yourself, and watch how every matrix carries the whole grid along.',
+    },
+    levels: 18, art: 'shear', dev: true,
+    page: { icon: 'M14 44l10-24h26l-10 24zM19 32h26M37 20l-10 24', description: '线性之格 The Linear Grid：从箭头搭起线性代数的解谜关卡。Linear algebra built up from arrows, as puzzle levels.' },
+  },
 ];

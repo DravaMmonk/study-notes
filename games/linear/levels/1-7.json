@@ -1,0 +1,40 @@
+{
+  "title": { "zh": "斜推", "en": "Push sideways" },
+  "intro": [
+    {
+      "t": {
+        "zh": "这一次平面不转，而是横着推：x 轴上的点不动，越往上的点推得越远，ĵ 被推到 (k, 1)。推多远由输入 k 决定。",
+        "en": "This time the plane is not turned but pushed sideways: points on the x-axis stay put, points higher up move further, and ĵ is pushed to (k, 1). How far is the input k."
+      }
+    }
+  ],
+  "after": {
+    "zh": "这种变换叫<wiki-ref to=\"shear\"></wiki-ref>。",
+    "en": "A map like this is a <wiki-ref to=\"shear\"></wiki-ref>."
+  },
+  "tasks": [
+    {
+      "id": "1-7",
+      "brief": { "zh": "交出 v 被推过之后的箭头。", "en": "Give v after the push." },
+      "inputs": [{ "name": "k", "label": "k" }, { "name": "v", "label": "v" }],
+      "outputs": [{ "name": "out", "label": { "zh": "推后", "en": "Pushed" } }],
+      "tests": [
+        { "inputs": { "k": 1, "v": [0, 1] }, "expect": { "out": [1, 1] } },
+        { "inputs": { "k": 2, "v": [1, 1] }, "expect": { "out": [3, 1] } },
+        { "inputs": { "k": -1, "v": [2, 3] }, "expect": { "out": [-1, 3] } },
+        { "inputs": { "k": 0.5, "v": [-2, 2] }, "expect": { "out": [-1, 2] } }
+      ],
+      "solution": [
+        "x = entry[i=\"1\"](v)",
+        "y = entry[i=\"2\"](v)",
+        "z = num[value=\"0\"]()",
+        "o = num[value=\"1\"]()",
+        "i = vec(o, z)",
+        "j = vec(k, o)",
+        "r = combo(x, y, i, j)",
+        "out <- r"
+      ],
+      "naive": ["out <- v"]
+    }
+  ]
+}

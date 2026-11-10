@@ -130,15 +130,18 @@ export function defineParts(file, ops) {
   const PARTS = Object.fromEntries(Object.entries(defs).map(([type, def]) => {
     const trees = treesOf(def)
     const names = def.inputs.map((p) => p.name)
+    // An optional input left unwired reads 「—」 (undefined) and never makes the part give 「—」 by itself.
+    const optional = new Set(def.inputs.filter((p) => p.optional).map((p) => p.name))
     const part = {
       inputs: names,
+      ...(optional.size ? { optional: [...optional] } : {}),
       params: def.settings.map((s) => s.key),
       defaults: Object.fromEntries(def.settings.map((s) => [s.key, defaultOf(s)])),
       settings: Object.fromEntries(def.settings.filter((s) => OPTIONED.has(s.control)).map((s) => [s.key, s.options.map((o) => o.value)])),
       eval: (ins, node, ctx, key) => {
         const failed = failedCheck(def, node?.params ?? {}, ops)
         if (failed) throw new PartError(failed)
-        if (def.nulls !== 'pass' && names.some((n) => ins[n] === null || ins[n] === undefined)) return null
+        if (def.nulls !== 'pass' && names.some((n) => ins[n] === null || (ins[n] === undefined && !optional.has(n)))) return null
         const tree = trees[def.outputNames ? key : '']
         if (!tree) throw new PartError({ zh: '这个元件的运算写错了', en: 'this part’s computation does not parse' })
         const env = { ins, settings: settingsFor(def, node?.params), run: runner(ops, ctx), noCase }

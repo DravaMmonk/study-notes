@@ -38,7 +38,8 @@ import { T as t } from '../shell/i18n.js'
 export const SHAPES = ['scalar', 'grid', 'bits', 'ticks', 'list']
 export const SCENES = ['card', 'detail', 'results', 'figure', 'inline']
 
-// A grey grid of one or two rows reads as functions; one of several rows and columns as a surface, a slope map (three
+// A grey grid of two rows and a few columns reads as arrows in the plane (a vector, a 2 × 2 matrix carrying the grid);
+// one of one or two rows as functions; one of several rows and columns as a surface, a slope map (three
 // cells a side at least, for a gradient) or a picture of its spectrum (a row's spectrum is a plot; at most 128 × 128,
 // so it is quick to work out).
 const grey = (g) => isGrid(g) && (g.c ?? 1) === 1
@@ -47,6 +48,7 @@ export const VIEWS = {
   value: { shapes: ['scalar'], label: t('数值', 'Value') },
   numbers: { shapes: ['grid'], label: t('数值', 'Numbers') },
   pixels: { shapes: ['grid'], label: t('图像', 'Picture') },
+  plane: { shapes: ['grid'], label: t('平面', 'Plane'), fits: (g) => grey(g) && g.h === 2 && g.w >= 1 && g.w <= 6 },
   plot: { shapes: ['grid'], label: t('函数图像', 'Plot'), fits: (g) => grey(g) && g.h <= 2 && g.w >= 2 },
   profile: { shapes: ['grid'], label: t('剖面', 'Profile'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },
   surface: { shapes: ['grid'], label: t('地形', 'Terrain'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },
