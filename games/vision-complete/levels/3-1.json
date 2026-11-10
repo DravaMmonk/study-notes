@@ -1,37 +1,36 @@
 {
-  "title": { "zh": "画一个球", "en": "Draw a ball" },
+  "title": { "zh": "朝向光的表面", "en": "Facing the light" },
   "tray": "pipeline",
-  "after": {
-    "zh": "这就是朗伯模型：哑光表面的亮度 = 灯 × 反射率 × cos θ。正对着灯最亮，越斜越暗，因为同一束光铺到了更大的面积上；背着灯的地方是 0。",
-    "en": "This is the Lambertian model: the brightness of a matte surface = lamp × reflectance × cos θ. Facing the lamp is brightest, and the more it turns away the darker it gets, because the same beam spreads over a larger area; where the surface faces away it is 0."
-  },
   "intro": [
     {
       "t": {
-        "zh": "正面光下，你已经把表面朝向和反射率结合成亮度。现在灯移到右上方：只看法线的 z 分量不再足够，需要考虑灯与表面的完整方向。",
-        "en": "With frontal light, you combined surface orientation and reflectance into brightness. Now the lamp moves to the upper right: the normal’s z component alone is no longer enough, and the full directions matter."
-      }
+        "zh": "照片的明暗从哪里来？先从一块白色哑光表面开始：灯从相机方向照来，表面不同位置的倾斜程度会影响收到的光。",
+        "en": "Where does light and shade in a photograph come from? Start with a white matte surface lit from the camera direction. Its orientation affects how much light reaches each point."
+      },
+      "fig": { "figure": "surface-bump" }
     },
     {
       "t": {
-        "zh": "输入是每一点的单位法线和反射率。灯的方向为 (0.48, −0.36, 0.8)，x 向右、y 向下、z 朝向相机。画出相机拍到的样子。",
-        "en": "The inputs are each point’s unit normal and reflectance. The lamp direction is (0.48, −0.36, 0.8), with x right, y down and z toward the camera. Draw what the camera sees."
-      },
-      "fig": { "test": 0, "caption": { "zh": "第一组测试：一个白球", "en": "Set 1: a white ball" } }
+        "zh": "表面每一点都有一根垂直于表面的单位法线，表示它的朝向。把这根方向分成三个分量：x 指向右，y 指向下，z 指向相机；正负表示沿轴的哪个方向，大小表示朝那个方向的程度。这三张分量图已经作为输入给出。",
+        "en": "At each point, a unit normal points perpendicular to the surface and describes its orientation. Its three components follow the axes: x points right, y down, and z toward the camera. Their signs give direction along each axis, and their magnitudes show how much of the normal points along it. The three component images are given as inputs."
+      }
     }
   ],
-  "unlocks": ["lambert"],
+  "after": {
+    "zh": "正面光下，法线的 z 分量给出表面朝向光的程度：正对光的地方最亮，倾斜的地方较暗。",
+    "en": "Under frontal light, the normal’s z component measures how directly the surface faces the light: points facing it are brightest and tilted points are darker."
+  },
   "tasks": [
     {
       "id": "3-1",
       "kind": "graph",
       "brief": {
-        "zh": "输入是一块表面每一点的朝向（法线的 x、y、z 三个分量）和它的反射率。灯从右上方照来，方向是 (0.48, −0.36, 0.8)（x 向右，y 向下，z 朝着相机）。画出相机拍到的样子：亮度 = 反射率 × cos θ，θ 是法线和灯的方向的夹角。",
-        "en": "The inputs are which way each point of a surface faces (the x, y and z of its normal) and its reflectance. The lamp shines from the upper right, from direction (0.48, −0.36, 0.8) (x to the right, y down, z towards the camera). Draw what the camera sees: brightness = reflectance × cos θ, where θ is the angle between the normal and the lamp direction."
+        "zh": "灯从正面照来，方向是 (0, 0, 1)。白色表面各点的亮度等于法线与灯方向夹角的余弦。用给出的法线分量画出亮度图；这一关不需要添加任何元件。",
+        "en": "The light shines from the front, in direction (0, 0, 1). Each point on the white surface has brightness equal to the cosine of the angle between its normal and the light direction. Draw the brightness image from the given normal components; you do not need to add any parts."
       },
       "hint": {
-        "zh": "两个单位长度的方向，夹角的 cos 等于它们的分量两两相乘再相加。",
-        "en": "For two directions of unit length, the cos of the angle between them is their components multiplied pairwise and added."
+        "zh": "灯的方向只有 z 分量；两个单位方向夹角的余弦，是对应分量相乘后相加。",
+        "en": "The light direction has only a z component. The cosine between two unit directions is the sum of their pairwise component products."
       },
       "inputs": ["nx", "ny", "nz", "albedo"],
       "inputLabels": {
@@ -40,51 +39,50 @@
         "nz": { "zh": "法线 z", "en": "Normal z" },
         "albedo": { "zh": "反射率", "en": "Reflectance" }
       },
+      "inputDescriptions": {
+        "nx": {
+          "zh": "法线在左右方向上的分量。鼓包两侧的朝向相反，所以图中一边暗、一边亮。",
+          "en": "The normal's left–right component. Opposite sides of the bump face opposite ways, so one side of the image is dark and the other light."
+        },
+        "ny": {
+          "zh": "法线在上下方向上的分量。鼓包上下两侧的朝向相反。",
+          "en": "The normal's up–down component. The upper and lower sides of the bump face opposite ways."
+        },
+        "nz": {
+          "zh": "法线朝向相机的分量。鼓包顶部和平板正对相机，图中较亮；鼓包斜坡较暗。",
+          "en": "The component of the normal toward the camera. The top of the bump and the flat plate face the camera and appear brighter in this image; the slopes appear darker."
+        },
+        "albedo": {
+          "zh": "表面反射多少光。这里整块表面都是白色，反射率为 1，所以图中全白。",
+          "en": "How much light the surface reflects. Here the entire surface is white, with reflectance 1, so the image is white throughout."
+        }
+      },
       "views": { "in": "pixels", "out": "pixels", "mid": "pixels" },
       "scene": "surface",
-      "setup": { "lamp": [0.48, -0.36, 0.8] },
+      "setup": { "lamp": [0, 0, 1] },
       "tests": [
         {
-          "label": { "zh": "白球", "en": "White ball" },
-          "height": [{ "dome": [7.5, 7.5, 7, 3] }],
-          "paint": { "blank": { "v": 0.9 } }
+          "label": { "zh": "白色鼓包", "en": "White bump" },
+          "height": [{ "dome": [8, 8, 6, 3] }],
+          "paint": { "blank": { "v": 1 } }
         },
         {
-          "label": { "zh": "两个鼓包", "en": "Two bumps" },
-          "height": [{ "dome": [4.5, 5, 4, 1.5] }, { "dome": [11, 10, 4.5, 2] }],
-          "paint": { "stripes": { "period": 8, "lo": 0.4, "hi": 0.9 } }
-        },
-        {
-          "label": { "zh": "横梁", "en": "A ridge" },
-          "height": [{ "ridge": [8, 5, 2.5] }],
-          "paint": { "glyph": { "letter": "T", "lo": 0.85, "hi": 0.35 } }
+          "label": { "zh": "白色斜板", "en": "White tilted board" },
+          "height": [{ "tilt": [0.5, 0] }],
+          "paint": { "blank": { "v": 1 } }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "斜板", "en": "Tilted board" },
-          "height": [{ "tilt": [0.3, -0.2] }],
-          "paint": { "checker": { "cell": 4, "lo": 0.45, "hi": 0.85 } }
-        },
-        {
-          "label": { "zh": "一对鼓包", "en": "A pair of bumps" },
-          "height": [{ "dome": [5, 8, 4, 2.5] }, { "dome": [11, 8, 4, 2.5] }],
-          "paint": { "blank": { "v": 0.9 } }
+          "label": { "zh": "白色横梁", "en": "White ridge" },
+          "height": [{ "ridge": [8, 5, 2.5] }],
+          "paint": { "blank": { "v": 1 } }
         }
       ],
       "solution": [
-        "xN = const[c=0.48]()",
-        "yN = const[c=-0.36]()",
-        "zN = const[c=0.8]()",
-        "x = arith[op=mul](nx, xN)",
-        "y = arith[op=mul](ny, yN)",
-        "z = arith[op=mul](nz, zN)",
-        "a = arith[op=add](x, y)",
-        "b = arith[op=add](a, z)",
-        "m = arith[op=mul](b, albedo)",
-        "out <- m"
+        "out <- nz"
       ],
-      "naive": ["m = arith[op=mul](nz, albedo)", "out <- m"]
+      "naive": ["out <- albedo"]
     }
   ]
 }

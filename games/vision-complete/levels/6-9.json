@@ -1,47 +1,132 @@
 {
-  "title": { "zh": "拽不歪的线", "en": "A line that will not be dragged" },
+  "title": { "zh": "投票", "en": "Voting" },
   "tray": "geometry",
   "after": {
-    "zh": "最小二乘会被每个杂点往外拽一点；RANSAC 只信得到最多支持的那条线，再用它的内点重新拟合，杂点再多也拽不歪。要几轮由杂点的比例决定，δ 由线上点的抖动决定。",
-    "en": "Least squares gets pulled a little by every speck; RANSAC trusts only the line with the most support and refits it on its inliers, so however many specks there are they cannot drag it. The number of rounds is set by the share of specks, and δ by how much the points on the line wobble."
+    "zh": "Hough 把“找一条线”变成“在累加器里找峰”。分箱太细，噪声把一条线的票拆成许多小峰；太粗，相近的两条线合成一个峰。合适的分箱取决于噪声和线的间距。",
+    "en": "Hough turns \"find a line\" into \"find a peak in the accumulator\". With bins too fine, noise splits one line's votes into many small peaks; too coarse, and two nearby lines merge into one peak. The right bin size depends on the noise and on how far apart the lines are."
   },
   "intro": [
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"ransac\"></part-ref>，轮数 k 和 δ 都能调。",
-        "en": "The <part-ref to=\"ransac\"></part-ref> in the tray has the rounds k and δ to set."
+        "zh": "很多时候要找的是一条线：车道线、纸张的边、楼房的轮廓。边缘检测给的只是一堆零散的点，还夹着噪声和不相干的点。怎样从中认出直线？",
+        "en": "Often what you are looking for is a line: a lane marking, the edge of a sheet of paper, the outline of a building. Edge detection only gives a scatter of loose points, mixed with noise and unrelated points. How do you pick out straight lines from that?"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：边缘图里有一条直线和一堆杂点，把这条线画出来。",
-        "en": "Your task in this level: an edge map holds one straight line and a heap of specks; draw the line."
-      },
-      "fig": { "test": 1, "caption": { "zh": "杂点更多的那组", "en": "The set with more specks" } }
+        "zh": "Hough 变换让点来投票。一条直线可以用两个数记下：方向 θ，和它离中心的距离 ρ。每个点给所有穿过它的直线投票，真有的那条线会收到很多票。",
+        "en": "The Hough transform lets the points vote. A straight line can be written down with two numbers: its direction θ and its distance ρ from the centre. Every point votes for all the lines passing through it, and a line that is really there collects lots of votes."
+      }
+    },
+    {
+      "t": {
+        "zh": "票要落进格子里才能数：(θ, ρ) 的平面被切成一格格，这叫分箱。台上右边就是这些格子，颜色越浓票越多，标出的 1、2 是票最多的两个峰。",
+        "en": "Votes can only be counted once they land in cells: the (θ, ρ) plane is cut into a grid, which is called binning. These cells are on the right of the bench; the darker the colour, the more votes, and the marked 1 and 2 are the two peaks with the most votes."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要调分箱的大小，让三组图里票最多的两个峰正好是那两条线。动手前想想：格子的大小，会影响票怎样聚在一起？",
+        "en": "In this level you tune the bin size so that, in all three sets, the two peaks with the most votes are exactly the two lines. Before you start, think: how does the cell size affect the way votes gather together?"
+      }
     }
   ],
+  "unlocks": ["hough"],
   "tasks": [
     {
       "id": "6-9",
-      "kind": "graph",
+      "kind": "board",
       "brief": {
-        "zh": "边缘图里有一条直线和一堆杂点。画出这条直线（离线不到 0.7 的格子为 1）。",
-        "en": "An edge map holds one straight line and a heap of specks. Draw the line (cells closer than 0.7 are 1)."
+        "zh": "每个边缘点给所有经过它的直线 (θ, ρ) 各投一票。调分箱大小，让三张图里票数最高的两个峰正好是那两条线。",
+        "en": "Each edge point casts one vote for every line (θ, ρ) that passes through it. Adjust the bin size so that in all three images the two peaks with the most votes are exactly the two lines."
       },
       "hint": {
-        "zh": "杂点越多，一轮抽中两个线上点的机会越小。",
-        "en": "The more specks, the smaller the chance that a round draws two points on the line."
+        "zh": "格子太细，同一条线带噪声的票落不进同一格；太粗，两条相近的线挤进同一个峰。",
+        "en": "With cells too fine, one line's noisy votes do not land in the same cell; too coarse, and two nearby lines squeeze into one peak."
       },
-      "check": { "tolerance": 0.1, "mismatches": 3 },
-      "scene": "clutter",
-      "tests": [
-        { "label": { "zh": "斜线和杂点", "en": "A slant and specks" }, "line": [1, 14, 14, 3], "seed": 41, "outliers": 10 },
-        { "label": { "zh": "杂点更多", "en": "More specks" }, "line": [2, 2, 13, 12], "seed": 42, "outliers": 16 },
-        { "label": { "zh": "陡的线", "en": "A steep line" }, "line": [6, 0, 9, 15], "seed": 43, "outliers": 12 }
-      ],
-      "hidden": [{ "label": { "zh": "平的线", "en": "A flat line" }, "line": [0, 9, 15, 7], "seed": 44, "outliers": 14 }],
-      "solution": ["r = ransac[k=60](in)", "out <- r"],
-      "naive": ["r = ransac[k=1](in)", "out <- r"]
+      "bench": {
+        "model": "hough",
+        "setup": { "rhoMax": 34, "tol": { "theta": 4, "rho": 1.5 } },
+        "knobs": {
+          "bin": {
+            "label": { "zh": "分箱大小", "en": "Bin size" },
+            "values": [[1, 0.25], [1.5, 0.5], [2, 0.75], [3, 1], [4.5, 1.5], [6, 2], [9, 3], [12, 4], [18, 6]],
+            "start": 1,
+            "ends": [{ "zh": "细", "en": "Fine" }, { "zh": "粗", "en": "Coarse" }]
+          }
+        },
+        "cases": [
+          {
+            "label": { "zh": "两条轨道", "en": "Two rails" },
+            "seed": 6,
+            "lines": [{ "theta": 60, "rho": -2, "n": 32 }, { "theta": 63, "rho": 3, "n": 24 }],
+            "outliers": 16
+          },
+          {
+            "label": { "zh": "一长一短", "en": "One long, one short" },
+            "seed": 22,
+            "lines": [
+              { "theta": 150, "rho": 9, "n": 34 },
+              { "theta": 100, "rho": -15, "n": 20, "from": -14, "to": 14 }
+            ],
+            "outliers": 16
+          },
+          {
+            "label": { "zh": "挨得很近", "en": "Close together" },
+            "seed": 4,
+            "lines": [{ "theta": 15, "rho": 4, "n": 30 }, { "theta": 10, "rho": 13, "n": 22 }],
+            "outliers": 18
+          }
+        ],
+        "goal": [
+          { "of": "matched", "label": { "zh": "已匹配", "en": "matched" }, "atLeast": 2, "format": "outOf" }
+        ],
+        "layout": {
+          "head": [{ "cases": { "passed": { "zh": "张图通过", "en": "images passed" } } }],
+          "main": ["houghPlanes"],
+          "foot": [
+            {
+              "row": [
+                {
+                  "panel": [
+                    { "text": { "text": { "zh": "分箱大小", "en": "Bin size" }, "look": "label" } },
+                    "knobs",
+                    {
+                      "stats": {
+                        "of": [
+                          { "of": "dTheta", "label": "Δθ" },
+                          { "of": "dRho", "label": "Δρ" },
+                          { "of": "cells", "label": { "zh": "格", "en": "cells" } }
+                        ],
+                        "phone": "line"
+                      }
+                    }
+                  ],
+                  "dock": true
+                },
+                {
+                  "panel": [
+                    {
+                      "text": {
+                        "text": { "zh": "目标 · 前两个峰分别匹配 A 和 B", "en": "Goal · the top two peaks match A and B" },
+                        "look": "label"
+                      }
+                    },
+                    "goals"
+                  ]
+                },
+                {
+                  "panel": [
+                    { "text": { "of": "peaksTitle", "look": "label" } },
+                    { "table": { "of": "peaks" } },
+                    { "text": { "of": "tolerance", "look": "note" } }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
     }
   ]
 }

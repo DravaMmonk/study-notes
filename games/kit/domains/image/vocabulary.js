@@ -9,6 +9,7 @@ import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
 import { TRAY, TRAYS } from '../../engine/trays.js'
 import { benchSchema, displayItems } from '../../engine/bench.js'
+import { IMAGE_OPS } from './engine/definitions.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { PICTURES } from './items/pictures.js'
 import { SCENES } from './items/scenes/index.js'
@@ -152,9 +153,22 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 14,
+  version: 15,
+  partOverrides: true,
   kinds: {
     part: PARTS,
+    op: Object.fromEntries(Object.entries(IMAGE_OPS).map(([name, { about, args }]) => [name, { about, args }])),
+    family: {
+      pixel: { about: t('逐像素', 'Per-pixel') },
+      neighbour: { about: t('看邻居', 'Neighbours') },
+      size: { about: t('改尺寸', 'Resize') },
+      search: { about: t('搜索与比较', 'Search and compare') },
+      frequency: { about: t('频率', 'Frequency') },
+      global: { about: t('看全局', 'Global') },
+      learned: { about: t('可学习', 'Learnable') },
+      other: { about: t('元件', 'Parts') },
+    },
+    widget: { imageKernel: { about: t('图像运算的权重表', 'Weight grid for image operations') } },
     unlock: UNLOCKS,
     view: VIEWS,
     picture: items(PICTURES),

@@ -40,8 +40,8 @@ export const GLOSSARY = S.obj({
 export const OPEN = S.map(S.list(S.str({ pattern: '^[^@]*@[^@]+$' })))
 
 
-export function defineVocabulary({ domain, version, kinds, game, level, languages = {} }) {
-  return { domain, version, kinds, game, level, languages }
+export function defineVocabulary({ domain, version, kinds, game, level, languages = {}, partOverrides = false }) {
+  return { domain, version, kinds, game, level, languages, ...(partOverrides && { partOverrides }) }
 }
 
 /** The vocabulary as plain data: its kinds and items with what they are and their parameters, and the content schemas. */
@@ -123,8 +123,8 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   add(validate(GLOSSARY, glossary, { vocabulary, levels: ids, names }), 'glossary.json')
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
   if (definesParts(domainVocabulary)) {
-    if (parts === undefined) out.push({ at: 'parts.json', says: `the ${domainVocabulary.domain} domain defines its parts as data: the game needs a parts.json` })
-    else out.push(...partProblems(parts, domainVocabulary))
+    if (parts === undefined && !domainVocabulary.partOverrides) out.push({ at: 'parts.json', says: `the ${domainVocabulary.domain} domain defines its parts as data: the game needs a parts.json` })
+    else if (parts !== undefined) out.push(...partProblems(parts, domainVocabulary))
   } else if (parts !== undefined) out.push({ at: 'parts.json', says: `the ${domainVocabulary.domain} domain defines its parts in code: parts.json is not read` })
   return out
 }

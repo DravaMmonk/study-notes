@@ -1,106 +1,113 @@
 {
-  "title": { "zh": "排名表", "en": "The ranking" },
+  "title": { "zh": "一排锚框", "en": "A row of anchors" },
   "tray": "recognition",
   "after": {
-    "zh": "累加只要 4 次「平移再相加」就覆盖了 16 格：每次挪的格数翻倍。AP 是精确率—召回率曲线下的面积：对的越靠前，分越高；漏掉的标注拉低分母。",
-    "en": "The running total covers 16 cells with only 4 rounds of \"shift and add\", the shift doubling each time. AP is the area under the precision–recall curve: the earlier the right ones, the higher the score, and missed labels raise the denominator."
+    "zh": "同一套修正，在小锚框上挪得少，在大锚框上挪得多：修正量是相对的。检测器在每个位置都放几种大小、几种宽高比的锚框，一起回归、一起打分。",
+    "en": "The same corrections move a small anchor a little and a large one a lot: the corrections are relative. A detector places anchors of several sizes and aspect ratios at every position, regressing and scoring them all together."
   },
   "intro": [
     {
       "t": {
-        "zh": "检测器给出一串框，每个带一个分数。按分数排好，逐个看是对是错，就能给检测器打一个总分。",
-        "en": "A detector gives a list of boxes, each with a score. Sort them by score, check each in turn for right or wrong, and the detector can be given an overall mark."
+        "zh": "同一个位置常放好几个锚框，大小不同。",
+        "en": "Several anchors of different sizes often sit at the same position."
       }
     },
     {
       "t": {
-        "zh": "这一关的输入是排好的对错（一行 16 个 0 或 1）、名次 1 到 16，和一共标注了几个。",
-        "en": "The inputs of this level are the sorted rights and wrongs (a row of sixteen 0s and 1s), the ranks 1 to 16, and how many were labelled in all."
-      }
-    },
-    {
-      "t": { "zh": "这一关你要做的：按说明里的公式算出 AP。", "en": "Your task in this level: work out AP by the formula in the brief." },
-      "fig": { "test": 1, "caption": { "zh": "对错交替", "en": "Right and wrong in turn" } }
+        "zh": "这一关你要做的：同一组修正作用到一排锚框上，输出一排框。",
+        "en": "Your task in this level: apply the same corrections to a row of anchors and output a row of boxes."
+      },
+      "fig": { "test": 0, "caption": { "zh": "往右挪", "en": "Nudged right" } }
     }
   ],
-  "unlocks": ["long-shift"],
-  "packs": {
-    "name": { "zh": "AP 计", "en": "AP meter" },
-    "desc": {
-      "zh": "读按分数排好的对错、名次和标注数 G，输出 AP。",
-      "en": "Reads right or wrong in score order, the ranks and the number labelled G, and outputs the AP."
-    }
-  },
-  "grants": ["long-shift"],
   "tasks": [
     {
       "id": "10-3",
       "kind": "graph",
       "brief": {
-        "zh": "检测结果按分数从高到低排好，每一个标了对（1）错（0）。第 k 名的精确率 = 前 k 名里对的个数 ÷ k。AP = 每个对的那一名的精确率加起来 ÷ G。",
-        "en": "The detections are sorted by score, high to low, each marked right (1) or wrong (0). The precision at rank k = the number right in the top k ÷ k. AP = the precisions at each right rank, added up, ÷ G."
+        "zh": "同一处放了大中小三个锚框，排成一行。同一组修正作用到每一个上，输出三个框。",
+        "en": "Three anchors, small, medium and large, sit at the same place in a row. The same corrections apply to each; output the three boxes."
       },
       "hint": {
-        "zh": "「前 k 名里对的个数」是一个累加：每一格加上它左边所有格。平移多了一个「格数」设置：先加左边 1 格的，再加左边 2 格的……",
-        "en": "\"The number right in the top k\" is a running total: every cell plus all the cells to its left. Shift now has a \"Steps\" setting: add the one 1 cell to the left, then the one 2 cells to the left…"
+        "zh": "一个数和一整行运算时，这个数用在每一格上。",
+        "en": "When a single number meets a whole row, it applies to every cell."
       },
-      "inputs": ["f", "k", "g"],
+      "inputs": ["cx", "cy", "w", "h", "tx", "ty", "tw", "th"],
       "inputLabels": {
-        "f": { "zh": "按分数排好的对错", "en": "Right or wrong, by score" },
-        "k": { "zh": "名次 1 … 16", "en": "Rank 1 … 16" },
-        "g": { "zh": "标注了几个 G", "en": "Number labelled, G" }
+        "cx": { "zh": "锚框中心 x（一排）", "en": "Anchor centres x (a row)" },
+        "cy": { "zh": "锚框中心 y（一排）", "en": "Anchor centres y (a row)" },
+        "w": { "zh": "锚框宽（一排）", "en": "Anchor widths (a row)" },
+        "h": { "zh": "锚框高（一排）", "en": "Anchor heights (a row)" },
+        "tx": { "zh": "修正 tx", "en": "Correction tx" },
+        "ty": { "zh": "修正 ty", "en": "Correction ty" },
+        "tw": { "zh": "修正 tw", "en": "Correction tw" },
+        "th": { "zh": "修正 th", "en": "Correction th" }
+      },
+      "outputs": ["bx", "by", "bw", "bh"],
+      "outputLabels": {
+        "bx": { "zh": "框中心 x", "en": "Box centre x" },
+        "by": { "zh": "框中心 y", "en": "Box centre y" },
+        "bw": { "zh": "框宽", "en": "Box width" },
+        "bh": { "zh": "框高", "en": "Box height" }
       },
       "check": { "tolerance": 0.005 },
-      "scene": "ranking",
+      "scene": "nudge",
       "tests": [
         {
-          "label": { "zh": "前面都对", "en": "All right at the top" },
-          "flags": [1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-          "g": 8
+          "label": { "zh": "往右挪", "en": "Nudged right" },
+          "anchors": [
+            { "cx": 8, "cy": 8, "w": 2, "h": 2 },
+            { "cx": 8, "cy": 8, "w": 4, "h": 4 },
+            { "cx": 8, "cy": 8, "w": 8, "h": 8 }
+          ],
+          "t": { "tx": 0.5, "ty": 0, "tw": 0, "th": 0 }
         },
         {
-          "label": { "zh": "对错交替", "en": "Right and wrong in turn" },
-          "flags": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0],
-          "g": 6
-        },
-        {
-          "label": { "zh": "漏了几个", "en": "A few missed" },
-          "flags": [0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-          "g": 7
+          "label": { "zh": "都变大", "en": "All bigger" },
+          "anchors": [
+            { "cx": 8, "cy": 8, "w": 2, "h": 2 },
+            { "cx": 8, "cy": 8, "w": 4, "h": 4 },
+            { "cx": 8, "cy": 8, "w": 8, "h": 8 }
+          ],
+          "t": { "tx": 0, "ty": 0.2, "tw": 0.3, "th": 0.3 }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "最后才对", "en": "Right only at the end" },
-          "flags": [0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1],
-          "g": 6
+          "label": { "zh": "变扁", "en": "Flattened" },
+          "anchors": [
+            { "cx": 8, "cy": 8, "w": 2, "h": 2 },
+            { "cx": 8, "cy": 8, "w": 4, "h": 4 },
+            { "cx": 8, "cy": 8, "w": 8, "h": 8 }
+          ],
+          "t": { "tx": -0.2, "ty": 0.1, "tw": 0.4, "th": -0.4 }
         }
       ],
       "solution": [
-        "kN = const[c=16]()",
-        "h1 = shift[dir=right](f)",
-        "p1 = arith[op=add](f, h1)",
-        "h2 = shift[dir=right, n=2](p1)",
-        "p2 = arith[op=add](p1, h2)",
-        "h4 = shift[dir=right, n=4](p2)",
-        "p4 = arith[op=add](p2, h4)",
-        "h8 = shift[dir=right, n=8](p4)",
-        "p8 = arith[op=add](p4, h8)",
-        "pr = arith[op=div](p8, k)",
-        "m = arith[op=mul](pr, f)",
-        "a = fqMean(m)",
-        "s = arith[op=mul](a, kN)",
-        "q = arith[op=div](s, g)",
-        "out <- q"
+        "mx = arith[op=mul](tx, w)",
+        "my = arith[op=mul](ty, h)",
+        "ew = exp(tw)",
+        "eh = exp(th)",
+        "ax = arith[op=add](cx, mx)",
+        "ay = arith[op=add](cy, my)",
+        "sw = arith[op=mul](ew, w)",
+        "sh = arith[op=mul](eh, h)",
+        "bx <- ax",
+        "by <- ay",
+        "bw <- sw",
+        "bh <- sh"
       ],
       "naive": [
-        "kN = const[c=16]()",
-        "pr = arith[op=div](f, k)",
-        "m = arith[op=mul](pr, f)",
-        "a = fqMean(m)",
-        "s = arith[op=mul](a, kN)",
-        "q = arith[op=div](s, g)",
-        "out <- q"
+        "mx = arith[op=mul](tx, w)",
+        "my = arith[op=mul](ty, h)",
+        "sw = arith[op=mul](tw, w)",
+        "sh = arith[op=mul](th, h)",
+        "ax = arith[op=add](cx, mx)",
+        "ay = arith[op=add](cy, my)",
+        "bw <- sw",
+        "bh <- sh",
+        "bx <- ax",
+        "by <- ay"
       ]
     }
   ]

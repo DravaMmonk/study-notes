@@ -1,71 +1,99 @@
 {
-  "title": { "zh": "白平衡", "en": "White balance" },
+  "title": { "zh": "梯度大小", "en": "Gradient magnitude" },
   "tray": "pipeline",
   "after": {
-    "zh": "白平衡利用场景中对颜色的假设，估计并校正光源带来的偏色。本关假设白纸在三个通道中各自最亮；如果画面没有白色物体，或者光源、表面的情况更复杂，这种假设可能不成立。",
-    "en": "White balance uses assumptions about scene colours to estimate and correct a light source’s colour cast. Here the white paper is assumed brightest in each channel; this can fail without a white object or under more complicated lighting and surfaces."
+    "zh": "两个方向的坡度合成一个长度，边缘强度就和边的方向无关了：横边、竖边、斜边一样亮。方向本身是 atan2(gy, gx)，箭头总指向变亮最快的方向，在边上和边垂直。切到「坡度」画法看输入：箭头就画在每个像素上。",
+    "en": "Combining the slopes in two directions into one length makes edge strength independent of edge direction: horizontal, vertical and diagonal edges are equally bright. The direction itself is atan2(gy, gx); the arrow always points where the brightness rises fastest, and on an edge it is perpendicular to the edge. Draw the input in the \"Slope\" view: the arrows are drawn at every pixel."
   },
   "intro": [
     {
       "t": {
-        "zh": "这是一道挑战关，可以跳过。它不需要新元件。",
-        "en": "This is a challenge level, and you can skip it. It needs no new parts."
+        "zh": "明暗从哪来已经讲完，这一关转向<b>边</b>：明暗变化很快的地方。要找它，先得说清每一点「变得有多快」。",
+        "en": "So much for where light and shade come from. This level turns to <b>edges</b>: places where brightness changes fast. To find them, first say how fast the brightness changes at each point."
       }
     },
     {
       "t": {
-        "zh": "在偏黄的灯下拍照，白纸会发黄，整张照片都带着灯的颜色。人眼会自动纠正，相机得靠「白平衡」。",
-        "en": "Photographed under a yellowish lamp, white paper looks yellow and the whole picture takes on the lamp's colour. Your eyes correct for it automatically; a camera needs \"white balance\"."
+        "zh": "坡度有两个分量：往右走亮度变多少（gx），往下走变多少（gy），两个合起来是一个箭头，叫<b>梯度</b>。Sobel x 在每个像素量 gx，Sobel y 量 gy。",
+        "en": "A slope has two components: how much the brightness changes going right (gx), and going down (gy). Together they make an arrow called the <b>gradient</b>. Sobel x measures gx at every pixel, and Sobel y measures gy."
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组测试：黄灯下的书桌", "en": "Set 1: a desk under a yellow lamp" } }
+      "fig": {
+        "part": "sobelx",
+        "params": {},
+        "caption": {
+          "zh": "Sobel x 处理圆盘：左右两侧反应强，上下几乎没有",
+          "en": "Sobel x on a disc: strong on the left and right, almost nothing at the top and bottom"
+        },
+        "input": "disk"
+      }
     },
     {
       "t": {
-        "zh": "这一关你要做的：每张彩色照片里都有白纸，它在 R、G、B 通道中都是最亮的。从照片的 R、G、B 出口分别取出通道，调整后接入输出的对应接口，让白纸变回纯白。",
-        "en": "Each colour photo contains white paper, brightest in each R, G and B channel. Take the channels from the photo’s R, G and B outputs, adjust them, and connect them to the matching output ports to make the paper white."
+        "zh": "难处在方向。物体的边有横有竖有斜，只量一个方向的坡度会漏掉另一些边。一个好的边缘强度，不该因为边转了个方向就变弱。",
+        "en": "The difficulty is direction. Object edges run horizontally, vertically and diagonally; measuring the slope in one direction only misses some of them. A good edge strength should not get weaker just because an edge turns."
       }
+    },
+    {
+      "t": {
+        "zh": "新画法「坡度」：画出等高线，再在各处画一个箭头，指向变亮最快的方向。",
+        "en": "A new way of drawing, \"Slope\": contour lines, with an arrow at each place pointing where the picture brightens fastest."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：在每个像素输出梯度箭头有多长。测试里有方块、圆盘、字母 X 和一个角，边朝着各个方向。",
+        "en": "Your task in this level: at every pixel, output how long the gradient arrow is. The tests have a square, a disc, a letter X and a corner, with edges facing every way."
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：方块 → 期望", "en": "Set 1: square → expected" } }
     }
   ],
+  "unlocks": ["gradmag"],
   "tasks": [
     {
       "id": "3-9",
       "kind": "graph",
       "brief": {
-        "zh": "这些照片是在偏黄的灯下拍的，白纸看上去发黄。每张照片里都有一块白纸，而且它在 R、G、B 里都是最亮的。把三个通道各自调整，让白纸变成纯白 (1, 1, 1)，其余颜色跟着一起还原。",
-        "en": "These photos were taken under a yellowish lamp, so white paper looks yellow. Every photo has a patch of white paper in it, the brightest thing in each of R, G and B. Adjust each channel so the paper becomes pure white (1, 1, 1), and every other colour is restored along with it."
+        "zh": "坡度有两个分量：Sobel x 量往右走亮度变多少（gx），Sobel y 量往下走（gy）。两个合成一个箭头，在每个像素输出箭头有多长：√(gx² + gy²)。不管边是横的、竖的还是斜的，越陡的地方越亮。",
+        "en": "A slope has two components: Sobel x measures how much the brightness changes going right (gx), and Sobel y going down (gy). Together they make an arrow; at every pixel, output how long that arrow is: √(gx² + gy²). Whether an edge is horizontal, vertical or diagonal, the steeper it is, the brighter."
       },
-      "hint": { "zh": "白纸本来应该是什么颜色？", "en": "What colour should the white paper really be?" },
-      "inputs": ["photo"],
-      "inputLabels": { "photo": { "zh": "照片", "en": "Photo" } },
-      "scene": "whiteBalanceColour",
+      "hint": {
+        "zh": "箭头的长度怎么从两个分量算出来？想想勾股定理。",
+        "en": "How do you get the arrow's length from its two components? Think of Pythagoras."
+      },
+      "views": { "in": "slope", "out": "terrain", "mid": "terrain" },
+      "scene": "filter",
+      "setup": { "target": "gradmag" },
       "tests": [
-        { "label": { "zh": "书桌", "en": "A desk" }, "layout": "desk", "strength": 1 },
-        { "label": { "zh": "集市", "en": "A market" }, "layout": "market", "strength": 0.8 },
-        { "label": { "zh": "海报", "en": "A poster" }, "layout": "poster", "strength": 0.6 }
+        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
+        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+        { "label": { "zh": "字母 X", "en": "Letter X" }, "in": { "glyph": { "letter": "X" } } },
+        { "label": { "zh": "角", "en": "Corner" }, "in": "corner" }
       ],
       "hidden": [
-        { "label": { "zh": "花园", "en": "A garden" }, "layout": "garden", "strength": 0.9 },
-        { "label": { "zh": "厨房", "en": "A kitchen" }, "layout": "kitchen", "strength": 0.5 }
+        {
+          "label": { "zh": "低对比圆盘", "en": "Low-contrast disc" },
+          "in": { "disk": { "cx": 9, "cy": 6, "r": 4, "lo": 0.4, "hi": 0.65 } }
+        },
+        {
+          "label": { "zh": "挪开的字母 T", "en": "Shifted letter T" },
+          "in": { "glyph": { "letter": "T", "lo": 0.2, "hi": 0.75, "ox": 5, "oy": 4 } }
+        },
+        { "label": { "zh": "斜坡", "en": "Ramp" }, "in": { "ramp": { "c": 0.1, "dx": 0.03, "dy": 0.02 } } }
       ],
       "solution": [
-        "mr = globalMax(photo.r)",
-        "mg = globalMax(photo.g)",
-        "mb = globalMax(photo.b)",
-        "dr = arith[op=div](photo.r, mr)",
-        "dg = arith[op=div](photo.g, mg)",
-        "db = arith[op=div](photo.b, mb)",
-        "out.r <- dr",
-        "out.g <- dg",
-        "out.b <- db"
+        "x = sobelx(in)",
+        "y = sobely(in)",
+        "xx = arith[op=mul](x, x)",
+        "yy = arith[op=mul](y, y)",
+        "a = arith[op=add](xx, yy)",
+        "r = sqrt(a)",
+        "out <- r"
       ],
       "naive": [
-        "m = globalMax(photo.r)",
-        "dr = arith[op=div](photo.r, m)",
-        "dg = arith[op=div](photo.g, m)",
-        "db = arith[op=div](photo.b, m)",
-        "out.r <- dr",
-        "out.g <- dg",
-        "out.b <- db"
+        "x = sobelx(in)",
+        "y = sobely(in)",
+        "a = arith[op=add](x, y)",
+        "out <- a"
       ]
     }
   ]

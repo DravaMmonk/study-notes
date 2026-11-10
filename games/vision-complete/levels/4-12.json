@@ -1,117 +1,105 @@
 {
-  "title": { "zh": "分辨 X 和 O", "en": "Tell X from O" },
+  "title": { "zh": "多通道", "en": "Multiple channels" },
+  "tray": "pipeline",
   "after": {
-    "zh": "这是一个最小的卷积网络：卷积找局部笔画，ReLU 把“有”和“没有”分开，池化和全局平均让答案不管字母在哪，全连接加 Sigmoid 把特征变成分数。要是一路全是线性运算（没有 ReLU，也没有最大池化），最后只剩“整张图有多亮”，而淡的 X 和浓的 O 一样亮。",
-    "en": "This is the smallest convolutional network: the convolution finds local strokes, ReLU separates \"there\" from \"not there\", pooling and global average make the answer the same wherever the letter is, and the dense layer plus sigmoid turns features into a score. If every operation along the way were linear (no ReLU and no max pooling), all that would be left is \"how bright the whole image is\", and a faint X is as bright as a strong O."
+    "zh": "多通道卷积同时利用各通道及其邻域的信息。颜色发生变化而整体明暗不变时，合并成一张灰度图可能丢掉区别；保留通道之间的关系，就能识别这样的颜色边界。",
+    "en": "Multichannel convolution uses each channel and its neighbourhood together. A colour boundary can disappear when channels are combined into one greyscale image; keeping their relationships makes such boundaries detectable."
   },
   "intro": [
     {
       "t": {
-        "zh": "手写数字识别、拍照认花、相册按人脸分组，问的都是「这是什么」。这类问题叫分类，是视觉里最常见的任务。这一关做最小的一个：只有两类，X 或 O。",
-        "en": "Reading handwritten digits, identifying a flower from a photo, grouping an album by face: they all ask \"what is this?\". This kind of problem is called classification, the most common task in vision. This level does the smallest one: just two classes, X or O."
+        "zh": "第三章里，彩色照片的每个像素都有 R、G、B 三个数。这一关要把它们作为三个通道一起处理：照片的 R、G、B 出口分别给出各自的数值图。",
+        "en": "In chapter 3, each pixel of a colour photo had R, G and B values. Here you will process them as three channels: the photo’s R, G and B outputs provide the individual value maps."
       }
     },
     {
       "t": {
-        "zh": "<level-ref to=\"4-5\"></level-ref>里的神经元拿到的是现成的两个数：斜笔画多少、弯笔画多少。这一关没人替你算，网络只拿到像素，字母还会挪位置、变深浅、带噪点。",
-        "en": "The neuron in <level-ref to=\"4-5\"></level-ref> was handed two ready-made numbers: how many diagonal strokes, how many curved strokes. This time nobody computes them for you. The network gets only pixels, and the letters move around, get lighter or darker, and carry noise."
+        "zh": "有些边只有颜色在变，亮度不变，比如一样亮的红和绿挨在一起。色盲检测图就是这样画的：只看明暗的眼睛，看不出里面的数字。",
+        "en": "Some edges change only in colour, not in brightness, such as equally bright red and green side by side. Colour-blindness test plates are drawn this way: an eye that only sees light and dark cannot make out the number inside."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：只描出红和绿的交界，单纯变亮变暗、或只有蓝色在变的地方都要是 0。要想的问题：三张图各自看得到什么，看不到什么？",
+        "en": "Your task: trace only the boundary between red and green. Places that just get brighter or darker, or where only blue changes, must be 0. Something to think about: what can each of the three images see, and what can it not?"
       },
-      "fig": { "test": 2, "caption": { "zh": "一组测试：挪了位置、带噪点的 O", "en": "One test set: an O that has moved and has noise" } }
-    },
-    {
-      "t": {
-        "zh": "手里的元件：<part-ref to=\"part:lrnConv\"></part-ref>是从很小的随机数开始的可学习 3×3 核；<part-ref to=\"mean\"></part-ref>把整张图变成一个数；「全连接」和<part-ref to=\"sigmoid\"></part-ref>是你在前面搭出来的。",
-        "en": "The parts to hand: <part-ref to=\"part:lrnConv\"></part-ref> is a learnable 3×3 kernel that starts from very small random numbers; <part-ref to=\"mean\"></part-ref> turns a whole picture into one number; \"Dense\" and <part-ref to=\"sigmoid\"></part-ref> are what you built earlier."
+      "fig": {
+        "test": 0,
+        "caption": { "zh": "第一组：红绿对半，一样亮", "en": "Set 1: half red, half green, equally bright" }
       }
-    },
-    {
-      "t": {
-        "zh": "训练分类器时，也可以把训练图做适合任务的变化，例如轻微平移、改变亮度，再让模型学习它们仍属于同一类。这叫数据增强；变化不能把类别或答案改变。",
-        "en": "When training a classifier, we can also make task-appropriate changes to training images, such as small shifts or brightness changes, and teach the model that they still belong to the same class. This is data augmentation; the changes must preserve the correct label."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关你要做的：输出一个数，X 大于 0.6，O 小于 0.4。要想的问题：X 和 O 到底差在哪里，什么信息该留下？",
-        "en": "Your task: output one number, above 0.6 for X and below 0.4 for O. Something to think about: what really is the difference between X and O, and which information should be kept?"
-      },
-      "fig": { "test": 1, "caption": { "zh": "一组 X：期望 1", "en": "A set with X: expected 1" } }
     }
   ],
-  "adds": ["lrnConv"],
-  "tray": "pipeline",
+  "unlocks": ["lrn-rgb"],
   "tasks": [
     {
       "id": "4-12",
       "kind": "graph",
       "brief": {
-        "zh": "输出一个数：是 X 就大于 0.6，是 O 就小于 0.4。字母会挪位置、变深浅、带噪点。",
-        "en": "Output one number: above 0.6 for an X, below 0.4 for an O. The letters move around, vary in strength and carry noise."
+        "zh": "输入是一张彩色照片，可以从 R、G、B 出口分别取出三个通道。只描出红与绿交界处的边，只是变亮变暗、或只有蓝色在变的地方输出 0。",
+        "en": "The input is a colour photo; its R, G and B outputs provide the three channels. Trace only the edges where red meets green; output 0 where things only get brighter or darker, or where only blue changes."
       },
       "hint": {
-        "zh": "最后的全连接加 Sigmoid 就是<level-ref to=\"4-5\"></level-ref>里那个神经元，把特征变成分数。字母会挪位置、会变深浅，前面要怎样把图变成这样的特征？搭好后按训练。",
-        "en": "The final dense layer plus sigmoid is the neuron from <level-ref to=\"4-5\"></level-ref>, turning features into a score. The letters move around and vary in strength: how should the parts before it turn the image into such features? Once it is built, press Train."
+        "zh": "加成灰度图试试：红和绿一样亮时，交界就消失了。那三个通道该怎样处理，才不会丢掉这条边？ 训练时可以先给每个通道减去 0.5，让数据围绕 0 分布。",
+        "en": "Try adding them into a greyscale image: when red and green are equally bright, the border disappears. So how should the three channels be handled so this edge is not lost? For training, you can first subtract 0.5 from each channel to centre the data around zero."
       },
-      "check": { "tolerance": 0.4 },
-      "trainRate": 80,
-      "scene": "xo",
+      "inputs": ["photo"],
+      "inputLabels": { "photo": { "zh": "彩色照片", "en": "Colour photo" } },
+      "trainRate": 8,
+      "scene": "rgbContrast",
+      "setup": { "mix": "redGreen" },
       "tests": [
-        { "label": { "zh": "O 1", "en": "O 1" }, "letter": "O", "ox": 1, "oy": 4, "ink": 0.89, "seed": 0 },
-        { "label": { "zh": "X 1", "en": "X 1" }, "letter": "X", "ox": 4, "oy": 1, "ink": 0.76, "seed": 0 },
-        { "label": { "zh": "O 2 噪点", "en": "O 2 noisy" }, "letter": "O", "ox": 2, "oy": 4, "ink": 0.85, "seed": 239 },
-        { "label": { "zh": "X 2", "en": "X 2" }, "letter": "X", "ox": 1, "oy": 2, "ink": 0.86, "seed": 0 },
-        { "label": { "zh": "O 3", "en": "O 3" }, "letter": "O", "ox": 1, "oy": 5, "ink": 0.78, "seed": 0 },
-        { "label": { "zh": "X 3", "en": "X 3" }, "letter": "X", "ox": 3, "oy": 5, "ink": 0.86, "seed": 0 },
-        { "label": { "zh": "O 4", "en": "O 4" }, "letter": "O", "ox": 4, "oy": 3, "ink": 0.7, "seed": 0 },
-        { "label": { "zh": "X 4", "en": "X 4" }, "letter": "X", "ox": 3, "oy": 3, "ink": 0.9, "seed": 0 },
-        { "label": { "zh": "O 5", "en": "O 5" }, "letter": "O", "ox": 2, "oy": 4, "ink": 0.86, "seed": 0 },
-        { "label": { "zh": "X 5", "en": "X 5" }, "letter": "X", "ox": 4, "oy": 5, "ink": 0.91, "seed": 0 },
-        { "label": { "zh": "O 6", "en": "O 6" }, "letter": "O", "ox": 5, "oy": 4, "ink": 0.89, "seed": 0 },
-        { "label": { "zh": "X 6", "en": "X 6" }, "letter": "X", "ox": 2, "oy": 1, "ink": 0.81, "seed": 0 },
-        { "label": { "zh": "O 7", "en": "O 7" }, "letter": "O", "ox": 1, "oy": 5, "ink": 0.8, "seed": 0 },
-        { "label": { "zh": "X 7", "en": "X 7" }, "letter": "X", "ox": 2, "oy": 4, "ink": 0.95, "seed": 0 },
-        { "label": { "zh": "O 8 噪点", "en": "O 8 noisy" }, "letter": "O", "ox": 3, "oy": 3, "ink": 0.78, "seed": 570 },
-        { "label": { "zh": "X 8", "en": "X 8" }, "letter": "X", "ox": 3, "oy": 3, "ink": 0.93, "seed": 0 }
+        { "label": { "zh": "红绿对半，一样亮", "en": "Half red, half green, equally bright" }, "paint": "halves" },
+        { "label": { "zh": "只有明暗", "en": "Only light and dark" }, "paint": "greyBlock" },
+        {
+          "label": { "zh": "绿底红点，旁边一块蓝", "en": "Red spot on green, with a blue patch beside it" },
+          "paint": "redSpot"
+        },
+        { "label": { "zh": "彩色噪点 A", "en": "Colour noise A" }, "noise": 9 },
+        { "label": { "zh": "彩色噪点 B", "en": "Colour noise B" }, "noise": 11 }
       ],
       "hidden": [
-        { "label": { "zh": "新的 X", "en": "New X" }, "letter": "X", "ox": 3, "oy": 2, "ink": 0.85, "seed": 0 },
-        { "label": { "zh": "新的 O", "en": "New O" }, "letter": "O", "ox": 4, "oy": 1, "ink": 0.78, "seed": 0 },
         {
-          "label": { "zh": "新的 X 带噪点", "en": "New X with noise" },
-          "letter": "X",
-          "ox": 5,
-          "oy": 4,
-          "ink": 0.89,
-          "seed": 160
+          "label": { "zh": "红绿斜分，上暗下亮", "en": "Red and green split diagonally, darker at the top" },
+          "paint": "slanted"
+        },
+        { "label": { "zh": "彩色噪点 C", "en": "Colour noise C" }, "noise": 13 },
+        {
+          "label": { "zh": "灰色渐变上的蓝条", "en": "Blue bar on a grey gradient" },
+          "paint": "blueBar"
         }
       ],
       "solution": [
-        "c = lrnConv[w=[2.1414, 1.9876, -3.8059, -2.6066, -1.9976, 2.9058, -0.944, -1.5222, 0.9997]](in)",
-        "r = relu(c)",
-        "m = maxpool(r)",
-        "g = fqMean(m)",
-        "d = lrnDense[p=[6.6784, -4.1486]](g)",
-        "s = lrnSigmoid(d)",
-        "out <- s"
+        "half = const[c=0.5]()",
+        "r0 = arith[op=sub](photo.r, half)",
+        "g0 = arith[op=sub](photo.g, half)",
+        "b0 = arith[op=sub](photo.b, half)",
+        "r3 = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](r0)",
+        "g3 = learn3[w=[0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0]](g0)",
+        "b3 = learn3(b0)",
+        "s1 = arith[op=add](r3, g3)",
+        "s2 = arith[op=add](s1, b3)",
+        "out <- s2"
       ],
       "naive": [
-        "c = lrnConv[w=[1.4764, 1.5599, 1.4452, 1.5596, 1.7468, 1.5528, 1.4841, 1.5482, 1.4974]](in)",
-        "g = fqMean(c)",
-        "d = lrnDense[p=[-4.8973, 14.4896]](g)",
-        "s = lrnSigmoid(d)",
-        "out <- s"
+        "kN = const[c=0.33]()",
+        "s1 = arith[op=add](photo.r, photo.g)",
+        "s2 = arith[op=add](s1, photo.b)",
+        "k = arith[op=mul](s2, kN)",
+        "l = learn3[w=[0, -0.75, 0, -0.75, 3, -0.75, 0, -0.75, 0]](k)",
+        "out <- l"
       ],
       "alsoFails": [
         [
-          "c = lrnConv[w=[2.1414, 1.9876, -3.8059, -2.6066, -1.9976, 2.9058, -0.944, -1.5222, 0.9997]](in)",
-          "r = relu(c)",
-          "s0 = downsample(r)",
-          "s1 = downsample(s0)",
-          "s2 = downsample(s1)",
-          "s3 = downsample(s2)",
-          "d = lrnDense[p=[6.6784, -4.1486]](s3)",
-          "s = lrnSigmoid(d)",
-          "out <- s"
+          "l = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](photo.r)",
+          "out <- l"
+        ],
+        [
+          "r3 = learn3[w=[0, -0.25, 0, -0.25, 1, -0.25, 0, -0.25, 0]](photo.r)",
+          "g3 = learn3(photo.g)",
+          "b3 = learn3[w=[0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0]](photo.b)",
+          "s1 = arith[op=add](r3, g3)",
+          "s2 = arith[op=add](s1, b3)",
+          "out <- s2"
         ]
       ]
     }

@@ -1,3 +1,4 @@
+import { iconOf as definedIcon } from '../../../shell/parts/icons.js'
 import { ArrowRightFromLine, ArrowRightToLine, AudioWaveform, Box, Calculator, Grid3x3, Minimize2, Network, Package, Search, Sparkles } from 'lucide-react'
 
 // How each part looks on the board and in the parts list: a family (colour and icon); families group parts by what they
@@ -29,5 +30,5 @@ const FAMILY_OF = {
   dg_encode: 'learned', dg_decode: 'learned', dg_decoder: 'learned', dg_mu: 'learned', dg_sigma: 'learned', dg_sample: 'learned', dg_reparam: 'learned',
 }
 
-export const familyOf = (type) => (type.startsWith('own-') ? 'own' : FAMILY_OF[type] ?? 'other')
-export const iconOf = (type) => (type === 'output' ? ArrowRightToLine : FAMILIES[familyOf(type)].icon)
+export const familyOf = (type, types) => types?.[type]?.definition?.family ?? (type.startsWith('own-') ? 'own' : FAMILY_OF[type] ?? 'other')
+export const iconOf = (type, types) => definedIcon(types?.[type]?.definition?.icon) ?? (type === 'output' ? ArrowRightToLine : FAMILIES[familyOf(type, types)].icon)

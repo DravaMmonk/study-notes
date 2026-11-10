@@ -8,6 +8,12 @@
   "intro": [
     {
       "t": {
+        "zh": "前面用重建误差训练编码器和解码器。对抗训练换了一个训练信号：判别器尝试区分真样本和生成样本，生成器则根据判别器的判断改进输出。",
+        "en": "Earlier, reconstruction error trained the encoder and decoder. Adversarial training uses a different signal: a discriminator tries to tell real and generated samples apart, and the generator improves its output using that judgement."
+      }
+    },
+    {
+      "t": {
         "zh": "另一种生成办法是让两个模型对练：生成器画假样本，鉴定员判断真假。鉴定员越会认，生成器就得画得越像。这叫生成对抗网络（GAN），网上那些「不存在的人脸」就是这样画的。",
         "en": "Another way to generate is to have two models spar: a generator draws fake samples and a judge decides which are real. The better the judge gets at telling, the more convincing the generator has to be. This is called a generative adversarial network (GAN), and the \"faces of people who don't exist\" you see online are drawn this way."
       }

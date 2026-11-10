@@ -1,20 +1,23 @@
 {
-  "title": { "zh": "一排锚框", "en": "A row of anchors" },
+  "title": { "zh": "合格的框", "en": "A box that counts" },
   "tray": "recognition",
   "after": {
-    "zh": "同一套修正，在小锚框上挪得少，在大锚框上挪得多：修正量是相对的。检测器在每个位置都放几种大小、几种宽高比的锚框，一起回归、一起打分。",
-    "en": "The same corrections move a small anchor a little and a large one a lot: the corrections are relative. A detector places anchors of several sizes and aspect ratios at every position, regressing and scoring them all together."
+    "zh": "0.5 是 PASCAL VOC 的标准；COCO 把 0.5 到 0.95 的十个门槛都算一遍再平均，框要画得更准才拿得到分。",
+    "en": "0.5 is the PASCAL VOC standard; COCO computes ten thresholds from 0.5 to 0.95 and averages them, so boxes have to be drawn more precisely to score."
   },
   "intro": [
     {
-      "t": { "zh": "同一个位置常放好几个锚框，大小不同。", "en": "Several anchors of different sizes often sit at the same position." }
+      "t": {
+        "zh": "托盘里的<part-ref to=\"own-10-1\"></part-ref>输出两个框掩膜的交并比：重叠面积除以合起来的面积。",
+        "en": "The <part-ref to=\"own-10-1\"></part-ref> in the tray outputs the intersection over union of two box masks: the overlap divided by the area they cover together."
+      }
     },
     {
       "t": {
-        "zh": "这一关你要做的：同一组修正作用到一排锚框上，输出一排框。",
-        "en": "Your task in this level: apply the same corrections to a row of anchors and output a row of boxes."
+        "zh": "这一关你要做的：IoU 够大就算找对了，输出 1。",
+        "en": "Your task in this level: if the IoU is large enough the detection counts as right; output 1."
       },
-      "fig": { "test": 0, "caption": { "zh": "往右挪", "en": "Nudged right" } }
+      "fig": { "test": 3, "caption": { "zh": "差不多", "en": "Nearly the same" } }
     }
   ],
   "tasks": [
@@ -22,86 +25,54 @@
       "id": "10-6",
       "kind": "graph",
       "brief": {
-        "zh": "同一处放了大中小三个锚框，排成一行。同一组修正作用到每一个上，输出三个框。",
-        "en": "Three anchors, small, medium and large, sit at the same place in a row. The same corrections apply to each; output the three boxes."
+        "zh": "检测出的框和标注的框 IoU 大于 0.5 时输出 1，否则 0。",
+        "en": "Output 1 when the IoU of the detected box and the labelled box is above 0.5, otherwise 0."
       },
-      "hint": { "zh": "一个数和一整行运算时，这个数用在每一格上。", "en": "When a single number meets a whole row, it applies to every cell." },
-      "inputs": ["cx", "cy", "w", "h", "tx", "ty", "tw", "th"],
+      "hint": {
+        "zh": "<level-ref to=\"10-1\"></level-ref>的<part-ref to=\"own-10-1\"></part-ref>接一个门槛。",
+        "en": "<level-ref to=\"10-1\"></level-ref>'s <part-ref to=\"own-10-1\"></part-ref>, then a threshold."
+      },
+      "inputs": ["a", "b"],
       "inputLabels": {
-        "cx": { "zh": "锚框中心 x（一排）", "en": "Anchor centres x (a row)" },
-        "cy": { "zh": "锚框中心 y（一排）", "en": "Anchor centres y (a row)" },
-        "w": { "zh": "锚框宽（一排）", "en": "Anchor widths (a row)" },
-        "h": { "zh": "锚框高（一排）", "en": "Anchor heights (a row)" },
-        "tx": { "zh": "修正 tx", "en": "Correction tx" },
-        "ty": { "zh": "修正 ty", "en": "Correction ty" },
-        "tw": { "zh": "修正 tw", "en": "Correction tw" },
-        "th": { "zh": "修正 th", "en": "Correction th" }
+        "a": { "zh": "检测出的框", "en": "Detected box" },
+        "b": { "zh": "标注的框", "en": "Labelled box" }
       },
-      "outputs": ["bx", "by", "bw", "bh"],
+      "outputs": ["ok"],
       "outputLabels": {
-        "bx": { "zh": "框中心 x", "en": "Box centre x" },
-        "by": { "zh": "框中心 y", "en": "Box centre y" },
-        "bw": { "zh": "框宽", "en": "Box width" },
-        "bh": { "zh": "框高", "en": "Box height" }
+        "ok": { "zh": "算找对", "en": "Counts as right" }
       },
-      "check": { "tolerance": 0.005 },
-      "scene": "nudge",
+      "scene": "boxPair",
+      "setup": { "expect": "good" },
       "tests": [
         {
-          "label": { "zh": "往右挪", "en": "Nudged right" },
-          "anchors": [
-            { "cx": 8, "cy": 8, "w": 2, "h": 2 },
-            { "cx": 8, "cy": 8, "w": 4, "h": 4 },
-            { "cx": 8, "cy": 8, "w": 8, "h": 8 }
-          ],
-          "t": { "tx": 0.5, "ty": 0, "tw": 0, "th": 0 }
+          "label": { "zh": "错开一点", "en": "Slightly off" },
+          "a": [2, 2, 10, 10],
+          "b": [4, 3, 12, 11]
         },
         {
-          "label": { "zh": "都变大", "en": "All bigger" },
-          "anchors": [
-            { "cx": 8, "cy": 8, "w": 2, "h": 2 },
-            { "cx": 8, "cy": 8, "w": 4, "h": 4 },
-            { "cx": 8, "cy": 8, "w": 8, "h": 8 }
-          ],
-          "t": { "tx": 0, "ty": 0.2, "tw": 0.3, "th": 0.3 }
-        }
+          "label": { "zh": "大框套小框", "en": "A big box round a small one" },
+          "a": [1, 1, 15, 15],
+          "b": [5, 5, 10, 10]
+        },
+        { "label": { "zh": "只碰到边", "en": "Barely touching" }, "a": [0, 0, 8, 8], "b": [6, 6, 14, 14] },
+        { "label": { "zh": "差不多", "en": "Nearly the same" }, "a": [2, 2, 12, 12], "b": [3, 3, 13, 13] }
       ],
       "hidden": [
         {
-          "label": { "zh": "变扁", "en": "Flattened" },
-          "anchors": [
-            { "cx": 8, "cy": 8, "w": 2, "h": 2 },
-            { "cx": 8, "cy": 8, "w": 4, "h": 4 },
-            { "cx": 8, "cy": 8, "w": 8, "h": 8 }
-          ],
-          "t": { "tx": -0.2, "ty": 0.1, "tw": 0.4, "th": -0.4 }
-        }
+          "label": { "zh": "一模一样", "en": "Identical" },
+          "a": [3, 4, 9, 12],
+          "b": [3, 4, 9, 12]
+        },
+        { "label": { "zh": "不重叠", "en": "Not overlapping" }, "a": [0, 0, 5, 5], "b": [8, 8, 14, 14] }
       ],
       "solution": [
-        "mx = arith[op=mul](tx, w)",
-        "my = arith[op=mul](ty, h)",
-        "ew = exp(tw)",
-        "eh = exp(th)",
-        "ax = arith[op=add](cx, mx)",
-        "ay = arith[op=add](cy, my)",
-        "sw = arith[op=mul](ew, w)",
-        "sh = arith[op=mul](eh, h)",
-        "bx <- ax",
-        "by <- ay",
-        "bw <- sw",
-        "bh <- sh"
+        "i = own-10-1(a, b)",
+        "t = threshold(i)",
+        "ok <- t"
       ],
       "naive": [
-        "mx = arith[op=mul](tx, w)",
-        "my = arith[op=mul](ty, h)",
-        "sw = arith[op=mul](tw, w)",
-        "sh = arith[op=mul](th, h)",
-        "ax = arith[op=add](cx, mx)",
-        "ay = arith[op=add](cy, my)",
-        "bw <- sw",
-        "bh <- sh",
-        "bx <- ax",
-        "by <- ay"
+        "i = own-10-1(a, b)",
+        "ok <- i"
       ]
     }
   ]

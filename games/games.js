@@ -12,7 +12,7 @@ export const GAMES = [
       zh: '没有讲解，只有元件、测试和一组输入输出。从“把图挪一格”开始，自己搭出模糊、边缘、角点和视差，最后让机器学会看。',
       en: 'No lectures, just components, tests and a set of inputs and outputs. Start from “shift the image by one pixel”, build blur, edges, corners and disparity yourself, and end up teaching the machine to see.',
     },
-    levels: 150, art: 'pipeline',
+    levels: 151, art: 'pipeline',
     page: { icon: 'M14 20h10v10H14zM40 34h10v10H40zM24 25h16v14', description: '视觉完备 Vision Complete：把计算机视觉课程做成一套解谜关卡。A computer vision course turned into a set of puzzle levels.' },
   },
   {
@@ -65,14 +65,5 @@ export const GAMES = [
     desc: { zh: '一根线，一拍一位，还会出错。从传一位话开始，一层层搭出自己的网卡。', en: 'One wire, one bit a tick, and some bits go wrong. Start by passing a bit on, and build a network adapter of your own, layer by layer.' },
     levels: 34, art: 'wave', dev: true,
     page: { icon: 'M10 32h14l4-10 8 20 4-10h14', description: '从一根线开始 From One Wire：从一根会出错的线搭起计算机网络。Computer networking built up from one wire that gets bits wrong.' },
-  },
-  {
-    id: 'vision-lab', href: 'vision-lab/index.html', title: '视觉实验室', en: 'Vision Lab', topic: { zh: '计算机视觉', en: 'Computer Vision' },
-    desc: {
-      zh: '给一台仓库机器人装上眼睛。从一格格的数开始，自己搭出去噪、找边、读单据的机器，再一路走到会学习、会测距、会画图的视觉系统。',
-      en: 'Give a warehouse robot its eyes. Start from a grid of numbers, build the machines that denoise, find edges and read documents, and go on to a vision system that learns, measures distance and draws.',
-    },
-    levels: 17, art: 'pipeline', dev: true,
-    page: { icon: 'M16 32h32M32 16v32', description: '视觉实验室 Vision Lab：从基础元件搭建比较仪、扫描器与频率分析仪。Build visual machines from reusable image circuits.' },
   },
 ];

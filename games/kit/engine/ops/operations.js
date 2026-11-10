@@ -367,9 +367,12 @@ export const OPERATIONS = {
   'part.rename': {
     about: t('给一个元件换类型名：课程、关卡、板、链接里的每一处一起改，存下的板也跟着改', 'give a part a new type name: every place in the course, levels, boards and links, and the saved boards'),
     params: S.obj({ part: PART_NAME, to: PART_NAME }),
-    apply(ws, { part, to }, { vocabulary }) {
+    apply(ws, { part, to }, { vocabulary, domain }) {
       partsOf(ws, vocabulary)
       if (!ws.partDefs.parts[part]) fail(`no part ${part}`)
+      if (domain?.vocabulary.partOverrides && Object.hasOwn(domain.vocabulary.kinds.part, part)) {
+        fail(`the engine uses the part id ${part}; edit its name instead`)
+      }
       if (ws.partDefs.parts[to]) fail(`there is a part ${to} already`)
       ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries(Object.entries(ws.partDefs.parts).map(([type, def]) => [type === part ? to : type, def])) }
       const n = renamePartRefs(ws, vocabulary, part, to)
@@ -383,6 +386,13 @@ export const OPERATIONS = {
       partsOf(ws, vocabulary)
       const keys = parsePath(path)
       if (keys.length < 3 && keys[0] === 'parts') fail('a whole part is added with part.add, renamed with part.rename')
+      // A first face can be written independently even before the part has a views object.
+      const parent = keys.slice(0, -1)
+      if (keys.length === 4 && keys[0] === 'parts' && keys[2] === 'views' && getAt(ws.partDefs, parent) === undefined) {
+        const inverse = [restore('parts', ws.partDefs, parent, {})]
+        ws.partDefs = setAt(ws.partDefs, parent, { [keys[3]]: value }, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
+        return { says: `parts.json: set ${showPath(keys)}`, inverse }
+      }
       const inverse = [restore('parts', ws.partDefs, keys, {})]
       ws.partDefs = setAt(ws.partDefs, keys, value, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
       return { says: `parts.json: set ${showPath(keys)}`, inverse }

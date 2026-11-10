@@ -1,0 +1,29 @@
+name: Request private notes deployment
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'overrides/**'
+      - 'hooks/**'
+      - 'mkdocs*.yml'
+      - 'requirements-docs.txt'
+      - 'games/kit/*.css'
+      - 'games/kit/*.js'
+      - 'private-notes/**'
+      - '.github/workflows/deploy-private-notes.yml'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  dispatch:
+    if: github.ref == 'refs/heads/main' && vars.PRIVATE_COURSE_REPOSITORY != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger the private repository workflow
+        env:
+          GH_TOKEN: ${{ secrets.PRIVATE_NOTES_DISPATCH_TOKEN }}
+          COURSE_REPOSITORY: ${{ vars.PRIVATE_COURSE_REPOSITORY }}
+        run: gh workflow run deploy-private-notes.yml --repo "$COURSE_REPOSITORY" --ref main

@@ -44,6 +44,6 @@ const DESCRIPTIONS = {
 }
 
 /** What a part of a course's part table (`types`, engine/kit.js) does, as a { zh, en } pair (the parts box). */
-export const descriptionOf = (types, type) => DESCRIPTIONS[type] ?? types[type]?.description
+export const descriptionOf = (types, type) => types[type]?.definition?.desc ?? DESCRIPTIONS[type] ?? types[type]?.description
 // The same, resolved in the current language.
 export const describe = (types, type) => L(descriptionOf(types, type) ?? '')

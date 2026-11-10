@@ -20,10 +20,11 @@ export function partsFor(kit, { sensors, outputLabels, colourOutputs = [] } = {}
       return kit.types[node.type].label
     },
     portLabel: (node, port) => node.type === 'output' && colourOutputs.includes(node.params.name) ? (port === 'in' ? { zh: '图', en: 'Image' } : port.toUpperCase()) : kit.types[node.type]?.inputLabels?.[port] ?? PORT_LABELS[port] ?? port,
-    family: (node) => familyOf(node.type ?? 'input'),
-    icon: (node) => (node.type === 'input' ? ArrowRightFromLine : node.type === 'output' ? ArrowRightToLine : iconOf(node.type)),
+    family: (node) => familyOf(node.type ?? 'input', kit.types),
+    icon: (node) => (node.type === 'input' ? ArrowRightFromLine : node.type === 'output' ? ArrowRightToLine : iconOf(node.type, kit.types)),
+    cardWidth: (node) => kit.types[node.type]?.definition?.width,
   }
 }
 
 /** Hide the constant value until a side has been selected. */
-export const visibleSettings = (kit, node, flags) => kit.settingsOf(node.type, flags).filter((p) => !(node.type === 'arith' && p.key === 'constant' && (node.params.constantSide ?? 'none') === 'none'))
+export const visibleSettings = (kit, node, flags) => kit.settingsOf(node.type, flags).filter((p) => p.options?.length !== 0 && (kit.shows?.(node.type, p.key, node.params) ?? true) && !(node.type === 'arith' && p.key === 'constant' && (node.params.constantSide ?? 'none') === 'none'))

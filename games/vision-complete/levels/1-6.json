@@ -2,8 +2,8 @@
   "title": { "zh": "台阶在哪", "en": "Where is the step?" },
   "tray": "pipeline",
   "after": {
-    "zh": "边缘就是相邻像素的差。平坦处差为 0，台阶处差最大。「右边邻居 − 自己」只看得见竖着的边；横着的边，要看「下边邻居 − 自己」。真实的边朝哪个方向都有，两个方向都得量。",
-    "en": "An edge is the difference between neighbouring pixels. On flat ground the difference is 0; at a step it is largest. \"Right neighbour − self\" only sees vertical edges; horizontal ones need \"neighbour below − self\". Real edges run every way, so both directions have to be measured."
+    "zh": "这是沿 x 方向的有符号前向差分。平坦处为 0，暗到亮为正，亮到暗为负。斜坡也有响应：每格亮度增加得一样多，差分就处处一样（图像边界除外）。差分量出局部亮度变化，可用来定位边缘。要量上下方向的变化，再做一次「下方像素 − 当前像素」。",
+    "en": "This is the signed forward difference along x. Flat areas give zero, dark-to-bright steps give a positive response, and bright-to-dark steps give a negative one. A ramp also responds: equal increases between pixels give a constant difference away from the image boundary. These differences measure local intensity change and help locate edges. To measure changes along y, subtract the current pixel from the pixel below."
   },
   "intro": [
     {
@@ -32,21 +32,32 @@
       "id": "1-6",
       "kind": "graph",
       "brief": {
-        "zh": "在亮度突然变化的地方输出变化量：输出 = 右边邻居 − 自己。",
-        "en": "Where the brightness suddenly changes, output the amount of change: output = right neighbour − self."
+        "zh": "接出「右边像素 − 当前像素」，再比较前两组台阶。亮暗对调后，边缘的输出会怎样变？",
+        "en": "Wire up “right pixel − current pixel,” then compare the first two steps. What happens to the edge response when light and dark swap?"
       },
       "views": { "in": "slope", "out": "terrain", "mid": "terrain" },
       "scene": "filter",
       "setup": { "target": "diffx" },
       "tests": [
-        { "label": { "zh": "台阶", "en": "Step" }, "in": { "stepX": { "edge": 8 } } },
+        {
+          "label": { "zh": "暗到亮的台阶", "en": "Dark-to-bright step" },
+          "in": { "stepX": { "edge": 8, "lo": 0.15, "hi": 0.85 } }
+        },
+        {
+          "label": { "zh": "亮到暗的台阶", "en": "Bright-to-dark step" },
+          "in": { "stepX": { "edge": 8, "lo": 0.85, "hi": 0.15 } }
+        },
+        {
+          "label": { "zh": "平坦区域", "en": "Flat field" },
+          "in": { "stepX": { "edge": 8, "lo": 0.4, "hi": 0.4 } }
+        },
         { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
         { "label": { "zh": "斜坡", "en": "Ramp" }, "in": "rampX" },
         { "label": { "zh": "字母 L", "en": "Letter L" }, "in": { "glyph": { "letter": "L" } } }
       ],
       "hidden": [
         {
-          "label": { "zh": "亮到暗的台阶", "en": "Bright-to-dark step" },
+          "label": { "zh": "移位的亮到暗台阶", "en": "Shifted bright-to-dark step" },
           "in": { "stepX": { "edge": 5, "lo": 0.85, "hi": 0.15 } }
         },
         {

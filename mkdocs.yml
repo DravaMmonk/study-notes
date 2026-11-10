@@ -1,6 +1,23 @@
 site_name: Drava's Study Notes
 site_url: https://dravammonk.github.io/study-notes/
 
+# Git ignore rules do not control MkDocs output.
+exclude_docs: |
+  /Unimelb/**/lecture/
+  /Unimelb/**/transcript/
+  /Unimelb/**/workshop/
+  /Unimelb/**/tutorial/
+  /Unimelb/**/readings/
+  /Unimelb/**/assignment/
+  /Unimelb/**/exam/
+  /Unimelb/**/assets/
+  /Unimelb/**/Screenshot*
+  *.[pP][dD][fF]
+  *.[pP][pP][tT]
+  *.[pP][pP][tT][xX]
+  *.[pP][pP][sS]
+  *.[pP][pP][sS][xX]
+
 theme:
   name: material
   custom_dir: overrides

@@ -6,7 +6,7 @@
 import { defineCourse, eraLevels, layout, offer, reach, usable } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
 import { trayIn } from '../../engine/trays.js'
-import { NODE_TYPES } from './engine/nodes.js'
+import { imageDefinitions } from './engine/definitions.js'
 import { ownPart } from './engine/own.js'
 import { imageKit } from './engine/kit.js'
 import { picture } from './items/pictures.js'
@@ -66,13 +66,14 @@ function playable({ intro: _, ...task }, kit, keep) {
  * (engine/kit.js: NODE_TYPES and the parts its levels pack), so two courses read in one process never run each other's
  * packed parts. All of it is built anew: nothing that came from the content is written to.
  */
-export function imageCourse({ eras, levels, views = {}, primitives, trays, concept = {}, replaces = {} }) {
+export function imageCourse({ eras, levels, views = {}, primitives, trays, concept = {}, replaces = {}, partDefs }) {
   const plan = layout(eras)
   // Levels are read in play order: a level that packs its circuit is a part (engine/own.js) before the levels after
   // it, whose boards may hold it, are read.
   const content = Object.fromEntries(levels.map((level) => [level.id, level]))
-  const types = { ...NODE_TYPES }
-  const kit = imageKit(types)
+  const definitions = imageDefinitions(partDefs)
+  const { types } = definitions
+  const kit = { ...imageKit(types), ...definitions }
   // The circuits the player passed the packing levels with, by level id (syncOwn).
   const own = new Map()
   // Every level's tasks made playable, by level id.
@@ -128,7 +129,7 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
       const { key } = level.tasks.at(-1)
       const data = progress.solved.includes(level.id) ? progress.data[key] : null
       const waiting = progress.slots?.[key]?.list.find((slot) => slot.data?.passed)?.data
-      const circuit = data?.passed ?? waiting?.passed ?? data
+      const circuit = progress.built?.[key] ?? data?.passed ?? waiting?.passed ?? data
       if (circuit?.nodes) own.set(level.id, circuit)
       else own.delete(level.id)
     }

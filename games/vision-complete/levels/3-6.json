@@ -1,102 +1,120 @@
 {
-  "title": { "zh": "只认颜色", "en": "Colour, not brightness" },
+  "title": { "zh": "换灯露馅", "en": "A new lamp gives it away" },
   "tray": "pipeline",
   "after": {
-    "zh": "在本关的白光模型里，光照强弱会让 R、G、B 按相同比例变化。辨认颜色时，要看各通道的相对关系，而不是只看某个通道的亮度；这种描述颜色的相对关系称为色度。光源颜色变化或接近全黑时，仅靠这种关系可能无法可靠判断。",
-    "en": "In this level's neutral-light model, changing illumination scales R, G and B together. Identifying colour calls for comparing the channels relative to one another, rather than relying on the brightness of one channel alone. Such a description of colour is called chromaticity. When the light's colour changes or the signal is near black, this relationship alone may not be reliable."
+    "zh": "两块布在日光下读数一样，换一盏灯就不一样了：它们的光谱不同，只是差别正好落在三种感光都看不见的地方。这叫同色异谱。买衣服时在店里灯下配好的颜色，到了太阳底下对不上，就是这个原因。感光是线性的，所以「先相减再读数」和「分别读数再相减」一样。",
+    "en": "The two cloths read the same in daylight and differently under another lamp: their spectra differ, but only where none of the three sensors can see. This is metamerism. It is why colours that match under the shop's lights can clash in the sun. Sensing is linear, so \"subtract, then read\" is the same as \"read each, then subtract\"."
   },
   "intro": [
     {
       "t": {
-        "zh": "要找红色物体，单看 R 够吗？红苹果在阴影里可能比强光下的浅色苹果有更小的 R。先用两只苹果做实验，再让电路在整个场景里找红色。",
-        "en": "Is R alone enough to find red objects? A red apple in shade can have a smaller R than a pale apple in bright light. First experiment with two apples, then build a circuit to find red throughout a scene."
+        "zh": "布是什么颜色，要看它把每个波长的光反射回来多少，这也是一条曲线。照到布上的光 × 布的反射，才是进到相机里的光谱。",
+        "en": "What colour a cloth is depends on how much light it reflects at each wavelength, which is another curve. The light falling on the cloth × the cloth's reflectance is the spectrum that enters the camera."
       }
     },
     {
       "t": {
-        "zh": "先比较两只苹果各自的 R、G、B 图。滑动光照强度，观察三张图和数值怎么变化；灯是白光，只改变强弱。再选出红苹果。",
-        "en": "First compare each apple's R, G and B images. Slide the light intensity and watch the three images and values change. The lamp is neutral white; only its strength changes. Then select the red apple."
+        "zh": "<level-ref to=\"3-5\"></level-ref>的电路现在是<part-ref to=\"sense\"></part-ref>元件：选 R、G 或 B，它就按那条灵敏度曲线读一条光谱。",
+        "en": "<level-ref to=\"3-5\"></level-ref>'s circuit is now the <part-ref to=\"sense\"></part-ref> part: choose R, G or B and it reads a spectrum with that sensitivity curve."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关有两块布，在日光下相机读到的 R、G、B 一模一样。这一关你要做的：在各种灯下，输出相机读到的布 A 减去布 B。要想的问题：两块布的光谱明明不同，为什么日光下分不出来？",
+        "en": "This level has two cloths whose R, G and B readings are exactly the same in daylight. Your task in this level: under various lamps, output what the camera reads for cloth A minus cloth B. Something to think about: the two cloths' spectra are plainly different, so why can daylight not tell them apart?"
+      },
+      "fig": {
+        "test": 1,
+        "caption": { "zh": "第二组测试：暖白灯下的两块布", "en": "Set 2: the two cloths under a warm white lamp" }
       }
     }
   ],
   "tasks": [
     {
-      "id": "3-6-light",
-      "step": { "zh": "观察光照", "en": "Observe the light" },
-      "kind": "board",
-      "brief": {
-        "zh": "两只苹果的颜色不同，在同一盏白灯下。调节光照强度，比较各自的 R、G、B 图与数值，找出红苹果。",
-        "en": "Two differently coloured apples sit under the same neutral white lamp. Adjust the light intensity, compare their R, G and B images and values, and find the red apple."
-      },
-      "hint": {
-        "zh": "不要只比较两只苹果的 R；分别看看每只苹果的 R 与自己的 G、B 有什么关系，再改变光照试试。",
-        "en": "Do not compare only the apples' R values. Compare each apple's R with its own G and B, then change the light and try again."
-      },
-      "after": {
-        "zh": "在这个白光模型里，光照把同一个物体的三个通道按相同比例改变，因此可以比较通道之间的比例。接下来把这个想法用于整张图。",
-        "en": "In this neutral-light model, illumination scales all three channels of the same object together, so their proportions can be compared. Next, apply the idea to a whole image."
-      },
-      "bench": {
-        "model": "appleLight",
-        "setup": { "colours": [[0.8, 0.18, 0.15], [0.75, 0.72, 0.65]], "red": 0 },
-        "knobs": {
-          "light": {
-            "label": { "zh": "白光强度", "en": "White light intensity" },
-            "min": 0.2,
-            "max": 1,
-            "step": 0.05,
-            "start": 0.55,
-            "format": "fixed2"
-          },
-          "pick": {
-            "label": { "zh": "红苹果", "en": "Red apple" },
-            "start": null,
-            "choices": [{ "value": 0, "label": "A" }, { "value": 1, "label": "B" }]
-          }
-        },
-        "goal": [{ "of": "correct", "label": { "zh": "找到红苹果", "en": "Find the red apple" }, "is": true }],
-        "check": "submit",
-        "win": {
-          "zh": "找到了。比较每只苹果三个通道的相对大小，再试试不同的光强。",
-          "en": "Found it. Compare each apple's three channels with one another, then try different light strengths."
-        },
-        "status": { "zh": "比较各通道后选择苹果，再检查。", "en": "Compare the channels, choose an apple, and check." },
-        "layout": { "main": ["appleChannels", { "panel": ["knobs", "appleDecision"] }] }
-      }
-    },
-    {
       "id": "3-6",
-      "step": { "zh": "找红色", "en": "Find red" },
       "kind": "graph",
       "brief": {
-        "zh": "标出场景中所有红色区域，包括亮处和阴影里的红色区域。",
-        "en": "Mark every red area in the scene, including red areas in both light and shade."
+        "zh": "「布 A」「布 B」是两块布在每个波段反射多少光，「灯」是灯的光谱。照到布上再反射进相机的光 = 灯 × 布。输出这盏灯下，相机读到的布 A 减去布 B：R、G、B 三个差。",
+        "en": "\"Cloth A\" and \"Cloth B\" are how much light two cloths reflect in each band, and \"Lamp\" is the lamp's spectrum. The light that reaches the camera off a cloth = lamp × cloth. Output what the camera reads for cloth A minus cloth B under this lamp: three differences, R, G and B."
       },
       "hint": {
-        "zh": "阴影里的红苹果，R 并不大；阳光下的白纸，R 却很大。光照把三个数一起放大缩小，什么量不受它影响？",
-        "en": "A red apple in the shade has a small R; white paper in the sun has a big one. Lighting scales all three numbers together, so what stays the same?"
+        "zh": "日光那一组的答案全是 0。两块布的光谱明明不一样，相机为什么分不出来？",
+        "en": "The daylight test expects all zeros. The two cloths' spectra are plainly different, so why can the camera not tell them apart?"
       },
-      "inputs": ["r", "g", "b"],
-      "inputLabels": { "r": "R", "g": "G", "b": "B" },
-      "scene": "redObjects",
+      "inputs": ["a", "b", "lamp"],
+      "inputLabels": {
+        "a": { "zh": "布 A", "en": "Cloth A" },
+        "b": { "zh": "布 B", "en": "Cloth B" },
+        "lamp": { "zh": "灯", "en": "Lamp" }
+      },
+      "outputs": ["ro", "go", "bo"],
+      "outputLabels": { "ro": "R", "go": "G", "bo": "B" },
+      "check": { "tolerance": 0.01 },
+      "scene": "metamer",
       "tests": [
-        { "label": { "zh": "苹果", "en": "Apples" }, "layout": "apples", "light": "window" },
-        { "label": { "zh": "旗子", "en": "Flags" }, "layout": "flags", "light": "shade" },
-        { "label": { "zh": "花丛", "en": "Flowers" }, "layout": "flowers", "light": "dusk" }
+        {
+          "label": { "zh": "赭色 · 日光", "en": "Ochre · daylight" },
+          "cloth": [0.3, 0.3, 0.32, 0.38, 0.45, 0.52, 0.56, 0.58, 0.6, 0.6],
+          "lamp": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        {
+          "label": { "zh": "赭色 · 暖白灯", "en": "Ochre · warm white" },
+          "cloth": [0.3, 0.3, 0.32, 0.38, 0.45, 0.52, 0.56, 0.58, 0.6, 0.6],
+          "lamp": [
+            0.3,
+            0.37777777777777777,
+            0.45555555555555555,
+            0.5333333333333332,
+            0.6111111111111112,
+            0.6888888888888889,
+            0.7666666666666666,
+            0.8444444444444443,
+            0.9222222222222223,
+            1
+          ]
+        },
+        {
+          "label": { "zh": "赭色 · 绿灯", "en": "Ochre · green LED" },
+          "cloth": [0.3, 0.3, 0.32, 0.38, 0.45, 0.52, 0.56, 0.58, 0.6, 0.6],
+          "lamp": [0, 0, 0, 1, 1, 0.2, 0, 0, 0, 0]
+        },
+        {
+          "label": { "zh": "灰绿 · 红灯", "en": "Sage · red LED" },
+          "cloth": [0.4, 0.42, 0.45, 0.5, 0.52, 0.5, 0.46, 0.42, 0.4, 0.4],
+          "lamp": [0, 0, 0, 0, 0, 0, 0.3, 1, 1, 0.5]
+        }
       ],
       "hidden": [
-        { "label": { "zh": "水果摊", "en": "A fruit stall" }, "layout": "stall", "light": "patchy" },
-        { "label": { "zh": "街道", "en": "A street" }, "layout": "street", "light": "noon" }
+        {
+          "label": { "zh": "灰绿 · 日光", "en": "Sage · daylight" },
+          "cloth": [0.4, 0.42, 0.45, 0.5, 0.52, 0.5, 0.46, 0.42, 0.4, 0.4],
+          "lamp": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        },
+        {
+          "label": { "zh": "灰绿 · 蓝灯", "en": "Sage · blue LED" },
+          "cloth": [0.4, 0.42, 0.45, 0.5, 0.52, 0.5, 0.46, 0.42, 0.4, 0.4],
+          "lamp": [1, 1, 0.6, 0.2, 0, 0, 0, 0, 0, 0]
+        }
       ],
       "solution": [
-        "s1 = arith[op=add](r, g)",
-        "s2 = arith[op=add](s1, b)",
-        "q = arith[op=div](r, s2)",
-        "t = threshold(q)",
-        "out <- t"
+        "d = arith[op=sub](a, b)",
+        "m = arith[op=mul](d, lamp)",
+        "sr = sense(m)",
+        "sg = sense[channel=G](m)",
+        "sb = sense[channel=B](m)",
+        "ro <- sr",
+        "go <- sg",
+        "bo <- sb"
       ],
-      "naive": ["t = threshold[t=0.4](r)", "out <- t"],
-      "alsoFails": [["d = arith[op=sub](r, g)", "t = threshold[t=0.25](d)", "out <- t"]]
+      "naive": [
+        "d = arith[op=sub](a, b)",
+        "sr = sense(d)",
+        "sg = sense[channel=G](d)",
+        "sb = sense[channel=B](d)",
+        "ro <- sr",
+        "go <- sg",
+        "bo <- sb"
+      ]
     }
   ]
 }

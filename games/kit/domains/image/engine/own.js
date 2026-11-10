@@ -9,6 +9,7 @@ export function ownPart(level, circuitOf, types) {
   return {
     ...packed({ circuit: circuitOf, inputs: level.inputs ?? ['in'], outputs: [level.outputs?.[0] ?? 'out'] }),
     kit: true,
+    circuitOf,
     label: level.packs.name,
     description: level.packs.desc,
     // The circuit inside checks its own sizes: a packed part may take a small picture and a big one.

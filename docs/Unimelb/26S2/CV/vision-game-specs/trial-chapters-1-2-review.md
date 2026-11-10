@@ -2,7 +2,7 @@
 
 Reviewed 2026-11-04. The executable trial contains 13 levels and 16 tasks. Sources are COMP90086 lectures 1–3
 and lecture 5 gradient material. This is a source/content/interaction review, not a study of novice learning outcomes.
-The course contract is [Vision Lab DESIGN](../../../../../games/vision-lab/DESIGN.md).
+This review records the course contract of the retired Vision Lab prototype.
 
 ## Learning sequence and decisions
 

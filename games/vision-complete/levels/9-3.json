@@ -1,64 +1,77 @@
 {
-  "title": { "zh": "放回原处", "en": "Back where it came from" },
+  "title": { "zh": "颜色分割", "en": "Segmenting by brightness" },
   "tray": "recognition",
   "after": {
-    "zh": "这叫最大反池化：编码器池化时记下最大值在哪，解码器放大时放回原处，细节就不会被抹到整块上。SegNet 就是这么做的。",
-    "en": "This is max unpooling: the encoder remembers where each maximum was when pooling, and the decoder puts it back there when enlarging, so details are not smeared over the whole block. SegNet works like this."
+    "zh": "不用告诉它什么是前景，k 均值自己把像素分成两堆。可它只看亮度：亮度一样的两样东西，它分不开。",
+    "en": "Without being told what the foreground is, k-means splits the pixels into two heaps by itself. But it looks only at brightness: two things of the same brightness, it cannot tell apart."
   },
   "intro": [
     {
       "t": {
-        "zh": "最大池化留下每个 2×2 块里最大的那个数，却没记下它在块里的哪一格。放大回来时，它该放在哪？",
-        "en": "Max pooling keeps the largest number of each 2×2 block, but does not record which cell of the block it was in. When enlarging back, where should it go?"
+        "zh": "托盘里的<part-ref to=\"own-9-2\"></part-ref>按分界 m 把值分成两类，输出两类平均值的正中间。",
+        "en": "The <part-ref to=\"own-9-2\"></part-ref> in the tray splits the values into two classes at the boundary m and outputs halfway between the two class averages."
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：把池化后的值放回它原来的那一格，块里其余格子是 0。池化前的图也给你。",
-        "en": "Your task in this level: put each pooled value back in the cell it came from, with the rest of the block 0. The picture before pooling is given too."
+        "zh": "这一关你要做的：从起始分界出发走三步，再把每个像素分成两类。",
+        "en": "Your task in this level: take three steps from the starting boundary, then split every pixel into two classes."
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组", "en": "Set 1" } }
+      "fig": { "test": 1, "caption": { "zh": "第二组：右边一条", "en": "Set 2: a strip on the right" } }
     }
   ],
-  "packs": {
-    "name": { "zh": "反池化", "en": "Unpool" },
-    "desc": {
-      "zh": "把池化后的每个值放回池化前它所在的那一格，其余格子为 0。",
-      "en": "Puts each pooled value back in the cell it came from before pooling; every other cell is 0."
-    }
-  },
   "tasks": [
     {
       "id": "9-3",
       "kind": "graph",
       "brief": {
-        "zh": "每个 2×2 块的最大值被池化成了一格。把它放回块里原来那一格，块里其余三格是 0。",
-        "en": "Each 2×2 block's largest value was pooled into one cell. Put it back in the cell of the block it came from, with the other three cells of the block 0."
+        "zh": "从给定的起始分界出发做三步 k 均值，再按最后的分界把每个像素分成两类：亮的一类输出 1。",
+        "en": "Starting from the given boundary, take three k-means steps, then split every pixel into two classes by the final boundary: output 1 for the bright class."
       },
       "hint": {
-        "zh": "先把小图放大到块那么大；块里哪一格和放大后的值一样大？",
-        "en": "First enlarge the small picture to block size; which cell of the block equals the enlarged value?"
+        "zh": "起始的分界可能离得很远。",
+        "en": "The starting boundary may be a long way off."
       },
-      "inputs": ["small", "big"],
+      "inputs": ["img", "m"],
       "inputLabels": {
-        "small": { "zh": "池化后的 8×8", "en": "Pooled 8×8" },
-        "big": { "zh": "池化前的 16×16", "en": "The 16×16 before pooling" }
+        "img": { "zh": "图", "en": "Picture" },
+        "m": { "zh": "起始的分界", "en": "Starting boundary" }
       },
-      "scene": "pooled",
+      "scene": "kmeans",
+      "setup": { "expect": "segment" },
       "tests": [
-        { "label": { "zh": "第 1 组", "en": "Set 1" }, "seed": 41 },
-        { "label": { "zh": "第 2 组", "en": "Set 2" }, "seed": 42 },
-        { "label": { "zh": "第 3 组", "en": "Set 3" }, "seed": 43 }
+        {
+          "label": { "zh": "圆斑", "en": "A round patch" },
+          "img": { "twoTone": { "seed": 51, "dark": 0.25, "bright": 0.75, "disc": [5, 6, 16] } },
+          "m": 0.28
+        },
+        {
+          "label": { "zh": "右边一条", "en": "A strip on the right" },
+          "img": { "twoTone": { "seed": 52, "dark": 0.2, "bright": 0.6, "rightOf": 10 } },
+          "m": 0.55
+        },
+        {
+          "label": { "zh": "斜纹", "en": "Slanted stripes" },
+          "img": { "twoTone": { "seed": 53, "dark": 0.4, "bright": 0.9, "stripes": [7, 3] } },
+          "m": 0.45
+        }
       ],
-      "hidden": [{ "label": { "zh": "第 4 组", "en": "Set 4" }, "seed": 44 }],
+      "hidden": [
+        {
+          "label": { "zh": "暗一些的圆斑", "en": "A darker round patch" },
+          "img": { "twoTone": { "seed": 54, "dark": 0.15, "bright": 0.5, "disc": [10, 9, 20] } },
+          "m": 0.2
+        }
+      ],
       "solution": [
-        "u = tconv(small)",
-        "d = arith[op=sub](big, u)",
-        "e = threshold[t=-0.02](d)",
-        "m = arith[op=mul](u, e)",
-        "out <- m"
+        "a = own-9-2(img, m)",
+        "b = own-9-2(img, a)",
+        "c = own-9-2(img, b)",
+        "d = arith[op=sub](img, c)",
+        "t = threshold[t=0](d)",
+        "out <- t"
       ],
-      "naive": ["u = tconv(small)", "out <- u"]
+      "naive": ["d = arith[op=sub](img, m)", "t = threshold[t=0](d)", "out <- t"]
     }
   ]
 }

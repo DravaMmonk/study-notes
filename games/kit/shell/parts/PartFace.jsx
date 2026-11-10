@@ -28,7 +28,7 @@ const optionCount = (s, allowed) => (s.options ? s.options.filter((o) => !allowe
 
 /** The settings a node shows: their `when` holds, and the course offers more than one value of an option setting. */
 export function visibleSettings(def, params, defined) {
-  return def.settings.map((s, k) => [s, k]).filter(([s]) => shows(s, def, params, defined.ops) && optionCount(s, defined.allowed?.(def.type, s.key)) > 1)
+  return def.settings.map((s, k) => [s, k]).filter(([s]) => (defined.visible?.(def.type, s.key) ?? true) && shows(s, def, params, defined.ops) && optionCount(s, defined.allowed?.(def.type, s.key)) > 1)
 }
 
 const fmt = (v, digits) => (typeof v === 'number' ? (digits === undefined ? numberText(v) : v.toFixed(digits)) : v === true ? '✓' : v === false ? '✗' : String(v ?? '—'))

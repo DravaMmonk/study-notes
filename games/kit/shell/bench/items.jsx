@@ -1,6 +1,7 @@
 import { ArrowRight, Check, Circle, RotateCcw, X } from 'lucide-react'
 import { formatValue, knobKind, knobStart, needText, rowValue } from '../../engine/bench.js'
 import { L, keyOf, tr } from '../i18n.js'
+import { useMark } from '../edit.js'
 import Plot, { Legend } from './Plot.jsx'
 import { Rich } from './Rich.jsx'
 
@@ -22,15 +23,16 @@ export function Knob({ name, ctx, value = ctx.values[name], onChange = (x) => ct
   const disabled = ctx.busy || knob.fixed
   const title = label ?? knob.label
   const kind = knobKind(knob)
+  const editKnob = useMark()(`bench.knobs.${name}`)
   if (kind === 'toggle') {
-    return <label className="bk-check"><input type="checkbox" checked={Boolean(value)} disabled={disabled} onChange={(e) => onChange(e.target.checked)} /> <Rich text={title} /></label>
+    return <label className="bk-check"><input type="checkbox" checked={Boolean(value)} disabled={disabled} onChange={(e) => onChange(e.target.checked)} /> <span {...editKnob}><Rich text={title} /></span></label>
   }
   if (kind === 'choice') {
     const dot = knob.look === 'dot'
     const biggest = Math.max(...knob.choices.map((c) => Math.abs(Number(c.value)) || 0))
     return (
       <div className="bench-choice">
-        {title && <span className="bk-label"><Rich text={title} /></span>}
+        {title && <span className="bk-label" {...editKnob}><Rich text={title} /></span>}
         <div className={`bk-seg bench-seg ${dot ? 'is-dots' : ''}`} role="radiogroup" aria-label={L(title) ?? name}>
           {knob.choices.map((c) => (
             <button key={String(c.value)} type="button" role="radio" aria-checked={value === c.value} aria-pressed={value === c.value} disabled={disabled} onClick={() => onChange(c.value)}>
@@ -46,10 +48,10 @@ export function Knob({ name, ctx, value = ctx.values[name], onChange = (x) => ct
   const [min, max, step] = index ? [0, knob.values.length - 1, 1] : [knob.min, knob.max, knob.step]
   const range = <input className="bk-range" type="range" min={min} max={max} step={step} value={value} disabled={disabled} aria-label={L(title) ?? name} style={{ '--fill': `${((value - min) / (max - min)) * 100}%` }} onChange={(e) => onChange(Number(e.target.value))} />
   const input = mark === undefined ? range : <span className="bench-track" style={{ '--mark': mark }}><i />{range}</span>
-  if (knob.ends) return <label className="bk-field bench-ends"><span><Rich text={knob.ends[0]} /></span>{input}<span><Rich text={knob.ends[1]} /></span></label>
+  if (knob.ends) return <label className="bk-field bench-ends"><span {...editKnob}><Rich text={knob.ends[0]} /></span>{input}<span><Rich text={knob.ends[1]} /></span></label>
   return (
     <label className="bk-field">
-      <span><Rich text={title} /></span>
+      <span {...editKnob}><Rich text={title} /></span>
       {input}
       {output ?? <output>{formatValue(index ? knob.values[value] : value, knob.format ?? 'raw', knob.unit ?? '')}</output>}
     </label>

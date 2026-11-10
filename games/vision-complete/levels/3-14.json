@@ -1,67 +1,93 @@
 {
-  "title": { "zh": "同一束光，不同的漆", "en": "Different paints, same light" },
+  "title": { "zh": "凹坑检测", "en": "Dent detector" },
   "tray": "pipeline",
+  "after": {
+    "zh": "凹坑检测台用的就是光度立体：几盏灯轮流打光，解出每一点的朝向，坑和划痕在朝向图里一目了然，漆色深浅完全不影响。手机拍证件、工厂查钢板表面，都有这样的做法。",
+    "en": "This dent detector is photometric stereo at work: a few lamps light the part in turn, the facing at every point is solved, and dents and scratches stand out in the map of facings, whatever the paint does. Document scanning on phones and steel-sheet inspection in factories use the same approach."
+  },
   "intro": [
     {
       "t": {
-        "zh": "正面光下，表面朝向决定光照的强弱；但即使朝向相同，白漆和深色漆也不会一样亮。现在把不同的漆涂到表面上。",
-        "en": "Under frontal light, surface orientation determines illumination; even at the same orientation, white and dark paint do not look equally bright. Now paint the surface with different reflectances."
+        "zh": "检测仪的最后一关。金属板本该是平的，允许它轻微弯曲；磕出的坑和划痕会让表面明显倾斜。",
+        "en": "The inspection machine's final level. A sheet should be flat, though a slight bend is allowed; dents and scratches make the surface tilt clearly."
       }
     },
     {
       "t": {
-        "zh": "反射率表示表面反回的光所占比例，输入为每一点的反射率和单位法线。灯仍从相机方向照来。",
-        "en": "Reflectance is the fraction of incident light returned by a surface. The inputs are each point’s reflectance and unit normal; the lamp still shines from the camera direction."
-      }
+        "zh": "这一关你要做的：标出坡度超过 0.3 的地方，漆色深浅不能误报。",
+        "en": "Your task in this level: mark where the slope is above 0.3; uneven paint must not raise an alarm."
+      },
+      "fig": { "test": 2, "caption": { "zh": "第三组测试：一个坑和一道划痕", "en": "Set 3: a dent and a scratch" } }
     }
   ],
-  "after": {
-    "zh": "同样的照射下，反射率低的表面返回的光更少；亮度同时取决于照射和反射率。",
-    "en": "Under the same illumination, a lower-reflectance surface returns less light. Brightness depends on both illumination and reflectance."
-  },
   "tasks": [
     {
       "id": "3-14",
       "kind": "graph",
       "brief": {
-        "zh": "灯的方向为 (0, 0, 1)。把表面朝向光的程度与反射率结合，画出不同漆色和不同朝向共同产生的亮度。",
-        "en": "The light direction is (0, 0, 1). Combine how directly the surface faces the light with its reflectance to draw the brightness produced by both paint and orientation."
+        "zh": "同样的三盏灯。金属板本该是平的（允许轻微弯曲），磕出的凹坑和划痕都会让表面倾斜。标出倾斜得太厉害的地方：表面的坡度（法线水平分量的长度 ÷ nz）超过 0.3。漆色深浅不能误报。",
+        "en": "The same three lamps. A sheet should be flat (a slight bend is allowed); dents and scratches make the surface tilt. Mark where it tilts too much: where the slope (the length of the normal's horizontal part ÷ nz) is above 0.3. Uneven paint must not raise an alarm."
       },
       "hint": {
-        "zh": "先用法线的 z 分量表示正面光的照射程度，再想想表面只反回其中一部分光。",
-        "en": "Use the normal’s z component for frontal illumination, then consider that the surface returns only a fraction of that light."
+        "zh": "上两关各求出了一部分。坡度只和朝向有关。",
+        "en": "The last two levels each worked out part of it. The slope depends only on the facing."
       },
-      "inputs": ["nx", "ny", "nz", "albedo"],
+      "inputs": ["p1", "p2", "p3"],
       "inputLabels": {
-        "nx": { "zh": "法线 x", "en": "Normal x" },
-        "ny": { "zh": "法线 y", "en": "Normal y" },
-        "nz": { "zh": "法线 z", "en": "Normal z" },
-        "albedo": { "zh": "反射率", "en": "Reflectance" }
+        "p1": { "zh": "右灯", "en": "Lamp right" },
+        "p2": { "zh": "下灯", "en": "Lamp below" },
+        "p3": { "zh": "正面灯", "en": "Lamp front" }
       },
-      "views": { "in": "pixels", "out": "pixels", "mid": "pixels" },
-      "scene": "surface",
-      "setup": { "lamp": [0, 0, 1] },
+      "check": { "tolerance": 0.02, "mismatches": 3 },
+      "scene": "photometric",
+      "setup": { "expect": "steep", "above": 0.3 },
       "tests": [
         {
-          "label": { "zh": "条纹鼓包", "en": "Striped bump" },
-          "height": [{ "dome": [8, 8, 6, 3] }],
-          "paint": { "stripes": { "period": 8, "lo": 0.35, "hi": 0.9 } }
+          "label": { "zh": "一个坑", "en": "One dent" },
+          "height": [{ "bend": 0.004 }, { "bowl": [7, 8, 4, 1.6] }],
+          "seed": 13
         },
         {
-          "label": { "zh": "棋盘斜板", "en": "Checkerboard tilt" },
-          "height": [{ "tilt": [0.3, -0.2] }],
-          "paint": { "checker": { "cell": 4, "lo": 0.4, "hi": 0.85 } }
+          "label": { "zh": "一道划痕", "en": "A scratch" },
+          "height": [{ "bend": 0.004 }, { "groove": [2, 4, 14, 11, 2, 0.8] }],
+          "seed": 14
+        },
+        {
+          "label": { "zh": "坑和划痕", "en": "A dent and a scratch" },
+          "height": [{ "bend": 0.004 }, { "bowl": [4, 4, 3, 1.2] }, { "groove": [9, 3, 9, 14, 2, 0.8] }],
+          "seed": 15
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "双色横梁", "en": "Two-tone ridge" },
-          "height": [{ "ridge": [8, 5, 2.5] }],
-          "paint": { "stripes": { "period": 6, "lo": 0.3, "hi": 0.8 } }
+          "label": { "zh": "合格的板", "en": "A good sheet" },
+          "height": [{ "bend": 0.004 }],
+          "seed": 16
+        },
+        {
+          "label": { "zh": "两个小坑", "en": "Two small dents" },
+          "height": [{ "bend": 0.004 }, { "bowl": [4, 11, 3, 1] }, { "bowl": [12, 5, 3, 1] }],
+          "seed": 17
         }
       ],
-      "solution": ["m = arith[op=mul](nz, albedo)", "out <- m"],
-      "naive": ["out <- nz"]
+      "solution": [
+        "f8N = const[c=0.8]()",
+        "gxN = const[c=1.67]()",
+        "gyN = const[c=1.67]()",
+        "f8 = arith[op=mul](p3, f8N)",
+        "zz = arith[op=mul](p3, p3)",
+        "ux = arith[op=sub](p1, f8)",
+        "uy = arith[op=sub](p2, f8)",
+        "gx = arith[op=mul](ux, gxN)",
+        "gy = arith[op=mul](uy, gyN)",
+        "xx = arith[op=mul](gx, gx)",
+        "yy = arith[op=mul](gy, gy)",
+        "a = arith[op=add](xx, yy)",
+        "q = arith[op=div](a, zz)",
+        "t = threshold[t=0.09](q)",
+        "out <- t"
+      ],
+      "naive": ["g = gradmag[border=edge](p3)", "t = threshold[t=0.05](g)", "out <- t"]
     }
   ]
 }

@@ -1,23 +1,23 @@
 {
-  "title": { "zh": "细胞分割", "en": "Segmenting cells" },
+  "title": { "zh": "细线不见了", "en": "The thin line is gone" },
   "tray": "recognition",
   "after": {
-    "zh": "自适应的分界、去噪的粗路径、保细节的跳连：一个小小的 U-Net 式流水线。真实的细胞分割网络把每一步都换成学出来的卷积，结构还是这个样子。",
-    "en": "An adaptive boundary, a coarse path that removes grain, a skip connection that keeps detail: a small U-Net-style pipeline. Real cell-segmentation networks replace every step with learnt convolutions, but the structure stays the same."
+    "zh": "把放大回来的粗结果和原尺寸的细结果合起来：粗的一路挡住噪点，细的一路留下细节。这条从编码器直接连到解码器的线叫跳连，U-Net 每一层都有。",
+    "en": "Combine the coarse result enlarged back with the fine result at full size: the coarse path keeps out the grain, the fine path keeps the detail. This line straight from encoder to decoder is called a skip connection, and U-Net has one at every level."
   },
   "intro": [
     {
       "t": {
-        "zh": "一批切片来自不同的显微镜、不同的染色，有的整体暗，有的整体亮。",
-        "en": "A batch of slides comes from different microscopes and stains: some dark overall, some bright."
+        "zh": "细胞常常挤在一起，中间只隔一条极细的缝。数细胞时，缝丢了，两个就算成一个。",
+        "en": "Cells often crowd together with only a very thin gap between them. When counting, lose the gap and two count as one."
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：每张切片都标出细胞，缝要留着。",
-        "en": "Your task in this level: mark the cells on every slide, keeping the gaps."
+        "zh": "这一关你要做的：标出细胞，细胞之间的缝要留着。",
+        "en": "Your task in this level: mark the cells, keeping the gaps between them."
       },
-      "fig": { "test": 1, "caption": { "zh": "第二组：亮的切片", "en": "Set 2: a bright slide" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组：两个挨着", "en": "Set 1: two touching" } }
     }
   ],
   "tasks": [
@@ -25,77 +25,62 @@
       "id": "9-9",
       "kind": "graph",
       "brief": {
-        "zh": "一批显微镜切片，每张的亮度和对比度都不一样，细胞挨在一起。标出细胞，细胞之间的缝要留着。",
-        "en": "A batch of microscope slides, each with its own brightness and contrast, with cells touching. Mark the cells, and keep the gaps between them."
+        "zh": "挨在一起的细胞之间只隔一条一像素的暗缝。标出细胞，缝要留着（0）。",
+        "en": "Touching cells are separated only by a dark gap one pixel wide. Mark the cells, and keep the gaps (0)."
       },
-      "hint": { "zh": "固定的门槛，在暗的切片上和亮的切片上不会都对。", "en": "A fixed threshold cannot be right on both dark slides and bright ones." },
-      "check": { "tolerance": 0.1, "mismatches": 4 },
+      "hint": {
+        "zh": "缩小再放大的那条路看不见一像素的缝。原图里还看得见。",
+        "en": "The shrink-then-enlarge path cannot see a one-pixel gap. The original picture still can."
+      },
+      "check": { "tolerance": 0.1, "mismatches": 3 },
       "scene": "cells",
       "tests": [
         {
-          "label": { "zh": "暗的切片", "en": "A dark slide" },
-          "rects": [[2, 2, 14, 9]],
+          "label": { "zh": "两个挨着", "en": "Two touching" },
+          "rects": [[2, 3, 14, 11]],
           "gapX": [7],
-          "seed": 81,
-          "cell": 0.5,
-          "back": 0.2,
-          "grain": 0.1
+          "seed": 71,
+          "grain": 0.2
         },
         {
-          "label": { "zh": "亮的切片", "en": "A bright slide" },
-          "rects": [[1, 3, 9, 15], [11, 1, 15, 7]],
-          "gapY": [9],
-          "seed": 82,
-          "cell": 0.95,
-          "back": 0.55,
-          "grain": 0.1
+          "label": { "zh": "上下挨着", "en": "One above the other" },
+          "rects": [[3, 1, 11, 15]],
+          "gapY": [7],
+          "seed": 72,
+          "grain": 0.2
         },
         {
-          "label": { "zh": "一排细胞", "en": "A row of cells" },
-          "rects": [[1, 5, 15, 12]],
-          "gapX": [5, 9],
-          "seed": 83,
-          "cell": 0.7,
-          "back": 0.35,
-          "grain": 0.1
+          "label": { "zh": "一排三个", "en": "Three in a row" },
+          "rects": [[1, 4, 15, 10]],
+          "gapX": [5, 11],
+          "seed": 73,
+          "grain": 0.2
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "对比度低", "en": "Low contrast" },
-          "rects": [[2, 2, 14, 14]],
-          "gapX": [7],
-          "gapY": [7],
-          "seed": 84,
-          "cell": 0.6,
-          "back": 0.35,
-          "grain": 0.08
+          "label": { "zh": "一排两个，缝在别处", "en": "Two in a row, gap elsewhere" },
+          "rects": [[0, 2, 14, 8]],
+          "gapX": [9],
+          "seed": 74,
+          "grain": 0.2
         }
       ],
       "solution": [
-        "k0 = const[c=0.5]()",
-        "a1 = own-9-5(in, k0)",
-        "a2 = own-9-5(in, a1)",
-        "a3 = own-9-5(in, a2)",
-        "n = arith[op=sub](in, a3)",
-        "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](n)",
-        "f = threshold[t=0](n)",
+        "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](in)",
+        "f = threshold(in)",
         "s = downsample(a)",
-        "c = threshold[t=-0.13](s)",
+        "c = threshold[t=0.3](s)",
         "u = tconv(c)",
         "m = arith[op=mul](u, f)",
         "out <- m"
       ],
       "naive": [
-        "k0 = const[c=0.5]()",
-        "n = arith[op=sub](in, k0)",
-        "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](n)",
-        "f = threshold[t=0](n)",
+        "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](in)",
         "s = downsample(a)",
-        "c = threshold[t=-0.13](s)",
+        "c = threshold[t=0.3](s)",
         "u = tconv(c)",
-        "m = arith[op=mul](u, f)",
-        "out <- m"
+        "out <- u"
       ]
     }
   ]

@@ -1,125 +1,112 @@
 {
-  "title": { "zh": "投票", "en": "Voting" },
+  "title": { "zh": "共识", "en": "Consensus" },
   "tray": "geometry",
   "after": {
-    "zh": "Hough 把“找一条线”变成“在累加器里找峰”。分箱太细，噪声把一条线的票拆成许多小峰；太粗，相近的两条线合成一个峰。合适的分箱取决于噪声和线的间距。",
-    "en": "Hough turns \"find a line\" into \"find a peak in the accumulator\". With bins too fine, noise splits one line's votes into many small peaks; too coarse, and two nearby lines merge into one peak. The right bin size depends on the noise and on how far apart the lines are."
+    "zh": "一轮两点都是内点的概率是 p²，k 轮全落空的概率是 (1 − p²)ᵏ。要成功率达到 P，就要 k ≥ log(1 − P) / log(1 − pⁿ)：p = 0.5、n = 2、P = 0.99 时是 17 轮，内点只剩 30% 时要 49 轮。轮数由内点比例决定，δ 由噪声决定，两者不能互相代替。",
+    "en": "The chance that both points of a round are inliers is p², and the chance that all k rounds miss is (1 − p²)ᵏ. To reach a success rate P you need k ≥ log(1 − P) / log(1 − pⁿ): with p = 0.5, n = 2 and P = 0.99 that is 17 rounds, and with only 30% inliers it takes 49. The number of rounds is set by the inlier ratio and δ by the noise; neither can stand in for the other."
   },
   "intro": [
     {
       "t": {
-        "zh": "很多时候要找的是一条线：车道线、纸张的边、楼房的轮廓。边缘检测给的只是一堆零散的点，还夹着噪声和不相干的点。怎样从中认出直线？",
-        "en": "Often what you are looking for is a line: a lane marking, the edge of a sheet of paper, the outline of a building. Edge detection only gives a scatter of loose points, mixed with noise and unrelated points. How do you pick out straight lines from that?"
+        "zh": "配对、找线时总会混进错的点，叫外点；对的点叫内点。用一条线去贴合所有点，几个离得远的外点就能把线拽歪。全景拼接、车道识别都要先对付它们。",
+        "en": "When matching points or finding lines, wrong points always creep in; these are called outliers, and the right ones inliers. If you fit one line to all the points, a few far-off outliers can drag it askew. Panorama stitching and lane detection both have to deal with them first."
       }
     },
     {
       "t": {
-        "zh": "Hough 变换让点来投票。一条直线可以用两个数记下：方向 θ，和它离中心的距离 ρ。每个点给所有穿过它的直线投票，真有的那条线会收到很多票。",
-        "en": "The Hough transform lets the points vote. A straight line can be written down with two numbers: its direction θ and its distance ρ from the centre. Every point votes for all the lines passing through it, and a line that is really there collects lots of votes."
+        "zh": "RANSAC 换了个思路：随机抽两个点连成线，数有多少点离它够近，算作支持；反复抽很多轮，留下支持最多的那条。",
+        "en": "RANSAC takes a different approach: pick two points at random and join them with a line, then count how many points lie close enough to it to count as support. Repeat for many rounds and keep the line with the most support."
+      },
+      "fig": {
+        "figure": "ransac-pegboard",
+        "caption": {
+          "zh": "RANSAC 钉板：每轮抽两根钉，落在导轨之间的钉投票",
+          "en": "RANSAC pegboard: each round draws two pegs, and the pegs between the rails vote"
+        }
       }
     },
     {
       "t": {
-        "zh": "票要落进格子里才能数：(θ, ρ) 的平面被切成一格格，这叫分箱。台上右边就是这些格子，颜色越浓票越多，标出的 1、2 是票最多的两个峰。",
-        "en": "Votes can only be counted once they land in cells: the (θ, ρ) plane is cut into a grid, which is called binning. These cells are on the right of the bench; the darker the colour, the more votes, and the marked 1 and 2 are the two peaks with the most votes."
+        "zh": "台上要定两个数：抽几轮 k，以及离线多近才算支持 δ。每种设置都会跑 200 次试验，看找对的比例。外点比例有三种，每种的轮数都有上限。",
+        "en": "On the bench you set two numbers: the number of rounds k, and δ, how close to the line a point must be to count as support. Each setting is run for 200 trials to see how often it finds the right line. There are three outlier ratios, and each has a cap on the number of rounds."
       }
     },
     {
       "t": {
-        "zh": "这一关你要调分箱的大小，让三组图里票最多的两个峰正好是那两条线。动手前想想：格子的大小，会影响票怎样聚在一起？",
-        "en": "In this level you tune the bin size so that, in all three sets, the two peaks with the most votes are exactly the two lines. Before you start, think: how does the cell size affect the way votes gather together?"
+        "zh": "这一关你要为三种外点比例各选一个 k，再选一个共用的 δ，让成功率都达到 99%。要想的是：外点越多，轮数该怎样变？δ 又该由什么决定？",
+        "en": "In this level you choose a k for each of the three outlier ratios, plus one shared δ, so that every success rate reaches 99%. The questions are: as outliers increase, how should the number of rounds change? And what should decide δ?"
       }
     }
   ],
-  "unlocks": ["hough"],
+  "unlocks": ["ransac"],
   "tasks": [
     {
       "id": "6-6",
       "kind": "board",
       "brief": {
-        "zh": "每个边缘点给所有经过它的直线 (θ, ρ) 各投一票。调分箱大小，让三张图里票数最高的两个峰正好是那两条线。",
-        "en": "Each edge point casts one vote for every line (θ, ρ) that passes through it. Adjust the bin size so that in all three images the two peaks with the most votes are exactly the two lines."
+        "zh": "每轮随机抽 2 个点连成直线，数离它不到 δ 的点，k 轮后留下支持最多的一条。三种外点比例下，各用不超过预算的 k，让 200 次试验的成功率都 ≥ 99%。",
+        "en": "Each round draws 2 random points, joins them into a line and counts the points closer than δ to it; after k rounds the line with the most support is kept. For each of the three outlier ratios, use a k within the budget so that the success rate over 200 trials is ≥ 99%."
       },
       "hint": {
-        "zh": "格子太细，同一条线带噪声的票落不进同一格；太粗，两条相近的线挤进同一个峰。",
-        "en": "With cells too fine, one line's noisy votes do not land in the same cell; too coarse, and two nearby lines squeeze into one peak."
+        "zh": "外点越多，一轮抽中两个内点的机会越小。δ 只和噪声有关：太小漏掉真内点，太大把外点也算进来。",
+        "en": "The more outliers, the smaller the chance that a round draws two inliers. δ depends only on the noise: too small misses true inliers, too large counts outliers in as well."
       },
       "bench": {
-        "model": "hough",
-        "setup": { "rhoMax": 34, "tol": { "theta": 4, "rho": 1.5 } },
+        "model": "ransac",
+        "setup": {
+          "n": 80,
+          "sigma": 0.5,
+          "trials": 200,
+          "tol": { "theta": 5, "rho": 2 },
+          "solution": { "delta": 1, "k": [10, 25, 66] }
+        },
         "knobs": {
-          "bin": {
-            "label": { "zh": "分箱大小", "en": "Bin size" },
-            "values": [[1, 0.25], [1.5, 0.5], [2, 0.75], [3, 1], [4.5, 1.5], [6, 2], [9, 3], [12, 4], [18, 6]],
-            "start": 1,
-            "ends": [{ "zh": "细", "en": "Fine" }, { "zh": "粗", "en": "Coarse" }]
-          }
+          "delta": {
+            "label": "δ",
+            "min": 0.1,
+            "max": 6,
+            "step": 0.05,
+            "start": 3,
+            "format": "fixed2",
+            "unit": " px"
+          },
+          "k": { "label": "k", "min": 1, "max": 120, "step": 1, "start": 5, "perCase": true, "drawn": true }
         },
         "cases": [
           {
-            "label": { "zh": "两条轨道", "en": "Two rails" },
-            "seed": 6,
-            "lines": [{ "theta": 60, "rho": -2, "n": 32 }, { "theta": 63, "rho": 3, "n": 24 }],
-            "outliers": 16
+            "label": { "zh": "外点 25%", "en": "Outliers 25%" },
+            "outliers": 0.25,
+            "budget": 10
           },
           {
-            "label": { "zh": "一长一短", "en": "One long, one short" },
-            "seed": 22,
-            "lines": [{ "theta": 150, "rho": 9, "n": 34 }, { "theta": 100, "rho": -15, "n": 20, "from": -14, "to": 14 }],
-            "outliers": 16
+            "label": { "zh": "外点 50%", "en": "Outliers 50%" },
+            "outliers": 0.5,
+            "budget": 25
           },
           {
-            "label": { "zh": "挨得很近", "en": "Close together" },
-            "seed": 4,
-            "lines": [{ "theta": 15, "rho": 4, "n": 30 }, { "theta": 10, "rho": 13, "n": 22 }],
-            "outliers": 18
+            "label": { "zh": "外点 70%", "en": "Outliers 70%" },
+            "outliers": 0.7,
+            "budget": 66
           }
         ],
-        "goal": [{ "of": "matched", "label": { "zh": "已匹配", "en": "matched" }, "atLeast": 2, "format": "outOf" }],
+        "goal": [{ "of": "rate", "atLeast": 0.99 }, { "of": "overBudget", "atMost": 0 }],
         "layout": {
-          "head": [{ "cases": { "passed": { "zh": "张图通过", "en": "images passed" } } }],
-          "main": ["houghPlanes"],
-          "foot": [
+          "head": [{ "cases": { "passed": { "zh": "种比例通过", "en": "ratios passed" } } }],
+          "main": [
+            "ransacTrial",
+            "knobs",
             {
-              "row": [
-                {
-                  "panel": [
-                    { "text": { "text": { "zh": "分箱大小", "en": "Bin size" }, "look": "label" } },
-                    "knobs",
-                    {
-                      "stats": {
-                        "of": [
-                          { "of": "dTheta", "label": "Δθ" },
-                          { "of": "dRho", "label": "Δρ" },
-                          { "of": "cells", "label": { "zh": "格", "en": "cells" } }
-                        ],
-                        "phone": "line"
-                      }
-                    }
-                  ],
-                  "dock": true
+              "text": {
+                "text": {
+                  "zh": "δ 由三种比例共用。色带是与直线距离小于 δ 的范围；虚线是真实直线，圆圈标出抽中的两点",
+                  "en": "δ is shared by all three ratios. The band covers everything closer than δ to the line; the dashed line is the true line, and the circled points are the two drawn"
                 },
-                {
-                  "panel": [
-                    {
-                      "text": {
-                        "text": { "zh": "目标 · 前两个峰分别匹配 A 和 B", "en": "Goal · the top two peaks match A and B" },
-                        "look": "label"
-                      }
-                    },
-                    "goals"
-                  ]
-                },
-                {
-                  "panel": [
-                    { "text": { "of": "peaksTitle", "look": "label" } },
-                    { "table": { "of": "peaks" } },
-                    { "text": { "of": "tolerance", "look": "note" } }
-                  ]
-                }
-              ]
+                "look": "caption"
+              }
             }
-          ]
+          ],
+          "side": ["ransacCases"],
+          "split": "even"
         }
       }
     }

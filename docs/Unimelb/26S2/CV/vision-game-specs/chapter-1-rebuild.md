@@ -1,6 +1,6 @@
 # Vision Lab chapter 1 rebuild and chapter 2 migration
 
-Status: implemented in the [playable course](../../../../../games/vision-lab/DESIGN.md). The
+Archived design for the retired Vision Lab prototype. The
 [chapter map](chapter-map.md) sets the teaching sequence and the runtime policy. Lecture references below
 use the local PDF page order and must be confirmed against the PDFs, which are not committed. The machine
 scenarios, test values and acceptance rules are design fixtures.

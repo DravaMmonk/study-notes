@@ -1,23 +1,29 @@
 {
-  "title": { "zh": "三盏灯", "en": "Three lamps" },
+  "title": { "zh": "白平衡", "en": "White balance" },
   "tray": "pipeline",
   "after": {
-    "zh": "三张照片按固定的系数相减，得到反射率乘上法线的三个分量 ρ·(nx, ny, nz)。法线长度是 1，所以这个向量的长度就是反射率 ρ，方向就是法线。三盏灯，三个方程，三个未知数（加上 ρ 一共四个数，靠「长度为 1」补上最后一个）。",
-    "en": "Subtracting the three photos with fixed weights gives the reflectance times each component of the normal: ρ·(nx, ny, nz). A normal has length 1, so the length of this vector is the reflectance ρ and its direction is the normal. Three lamps, three equations, three unknowns (with ρ there are four numbers, and \"length 1\" supplies the last one)."
+    "zh": "白平衡利用场景中对颜色的假设，估计并校正光源带来的偏色。本关假设白纸在三个通道中各自最亮；如果画面没有白色物体，或者光源、表面的情况更复杂，这种假设可能不成立。",
+    "en": "White balance uses assumptions about scene colours to estimate and correct a light source’s colour cast. Here the white paper is assumed brightest in each channel; this can fail without a white object or under more complicated lighting and surfaces."
   },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"3-10\"></level-ref>只问了朝右还是朝左。三盏灯其实能告诉你更多：每一点的漆色和朝向，都能解出来。",
-        "en": "<level-ref to=\"3-10\"></level-ref> only asked left or right. Three lamps can tell you more: the paint and the facing at every point can both be solved."
+        "zh": "这是一道挑战关，可以跳过。它不需要新元件。",
+        "en": "This is a challenge level, and you can skip it. It needs no new parts."
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：同样的三张照片，输出漆色本身，也就是每一点的反射率，和表面朝哪边无关。",
-        "en": "Your task in this level: from the same three photos, output the paint itself, the reflectance at every point, whichever way the surface faces."
+        "zh": "在偏黄的灯下拍照，白纸会发黄，整张照片都带着灯的颜色。人眼会自动纠正，相机得靠「白平衡」。",
+        "en": "Photographed under a yellowish lamp, white paper looks yellow and the whole picture takes on the lamp's colour. Your eyes correct for it automatically; a camera needs \"white balance\"."
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组测试：鼓包上的漆", "en": "Set 1: the paint on a bump" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：黄灯下的书桌", "en": "Set 1: a desk under a yellow lamp" } }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：每张彩色照片里都有白纸，它在 R、G、B 通道中都是最亮的。从照片的 R、G、B 出口分别取出通道，调整后接入输出的对应接口，让白纸变回纯白。",
+        "en": "Each colour photo contains white paper, brightest in each R, G and B channel. Take the channels from the photo’s R, G and B outputs, adjust them, and connect them to the matching output ports to make the paper white."
+      }
     }
   ],
   "tasks": [
@@ -25,56 +31,55 @@
       "id": "3-11",
       "kind": "graph",
       "brief": {
-        "zh": "同样的三张照片。这次输出漆色本身：每一点的反射率，和表面朝哪边无关。",
-        "en": "The same three photos. This time output the paint itself: the reflectance at every point, whichever way the surface faces."
+        "zh": "这些照片是在偏黄的灯下拍的，白纸看上去发黄。每张照片里都有一块白纸，而且它在 R、G、B 里都是最亮的。把三个通道各自调整，让白纸变成纯白 (1, 1, 1)，其余颜色跟着一起还原。",
+        "en": "These photos were taken under a yellowish lamp, so white paper looks yellow. Every photo has a patch of white paper in it, the brightest thing in each of R, G and B. Adjust each channel so the paper becomes pure white (1, 1, 1), and every other colour is restored along with it."
       },
       "hint": {
-        "zh": "正面灯的照片是反射率 × nz。另两张各多了一个分量。",
-        "en": "The front lamp's photo is reflectance × nz. The other two each bring in one more component."
+        "zh": "白纸本来应该是什么颜色？",
+        "en": "What colour should the white paper really be?"
       },
-      "inputs": ["p1", "p2", "p3"],
+      "inputs": ["photo"],
       "inputLabels": {
-        "p1": { "zh": "右灯", "en": "Lamp right" },
-        "p2": { "zh": "下灯", "en": "Lamp below" },
-        "p3": { "zh": "正面灯", "en": "Lamp front" }
+        "photo": { "zh": "照片", "en": "Photo" }
       },
-      "scene": "photometric",
-      "setup": { "expect": "albedo" },
+      "scene": "whiteBalanceColour",
       "tests": [
-        { "label": { "zh": "一个鼓包", "en": "A bump" }, "height": [{ "dome": [7.5, 7.5, 6, 2.5] }], "seed": 8 },
+        { "label": { "zh": "书桌", "en": "A desk" }, "layout": "desk", "strength": 1 },
         {
-          "label": { "zh": "斜着的板", "en": "A sloping sheet" },
-          "height": [{ "tilt": [0.2, -0.25] }, { "dome": [11, 5, 3, 1] }],
-          "seed": 9
+          "label": { "zh": "集市", "en": "A market" },
+          "layout": "market",
+          "strength": 0.8
         },
-        { "label": { "zh": "一道沟", "en": "A groove" }, "height": [{ "groove": [2, 12, 13, 3, 3, 1.5] }], "seed": 10 }
+        { "label": { "zh": "海报", "en": "A poster" }, "layout": "poster", "strength": 0.6 }
       ],
       "hidden": [
         {
-          "label": { "zh": "两个坑", "en": "Two dents" },
-          "height": [{ "bowl": [5, 10, 4, 1.2] }, { "bowl": [11, 5, 4, 1.2] }],
-          "seed": 11
+          "label": { "zh": "花园", "en": "A garden" },
+          "layout": "garden",
+          "strength": 0.9
         },
-        { "label": { "zh": "平板", "en": "A flat sheet" }, "height": [], "seed": 12 }
+        { "label": { "zh": "厨房", "en": "A kitchen" }, "layout": "kitchen", "strength": 0.5 }
       ],
       "solution": [
-        "f8N = const[c=0.8]()",
-        "gxN = const[c=1.67]()",
-        "gyN = const[c=1.67]()",
-        "f8 = arith[op=mul](p3, f8N)",
-        "zz = arith[op=mul](p3, p3)",
-        "ux = arith[op=sub](p1, f8)",
-        "uy = arith[op=sub](p2, f8)",
-        "gx = arith[op=mul](ux, gxN)",
-        "gy = arith[op=mul](uy, gyN)",
-        "xx = arith[op=mul](gx, gx)",
-        "yy = arith[op=mul](gy, gy)",
-        "a = arith[op=add](xx, yy)",
-        "b = arith[op=add](a, zz)",
-        "r = sqrt(b)",
-        "out <- r"
+        "mr = globalMax(photo.r)",
+        "mg = globalMax(photo.g)",
+        "mb = globalMax(photo.b)",
+        "dr = arith[op=div](photo.r, mr)",
+        "dg = arith[op=div](photo.g, mg)",
+        "db = arith[op=div](photo.b, mb)",
+        "out.r <- dr",
+        "out.g <- dg",
+        "out.b <- db"
       ],
-      "naive": ["out <- p3"]
+      "naive": [
+        "m = globalMax(photo.r)",
+        "dr = arith[op=div](photo.r, m)",
+        "dg = arith[op=div](photo.g, m)",
+        "db = arith[op=div](photo.b, m)",
+        "out.r <- dr",
+        "out.g <- dg",
+        "out.b <- db"
+      ]
     }
   ]
 }

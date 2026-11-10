@@ -1,83 +1,93 @@
 {
-  "title": { "zh": "相机的三个数", "en": "A camera's three numbers" },
+  "title": { "zh": "画一个球", "en": "Draw a ball" },
   "tray": "pipeline",
   "after": {
-    "zh": "一整条光谱，被三种感光元件压成三个数，这就是相机（和人眼）看到的颜色。",
-    "en": "A whole spectrum, squeezed by three kinds of sensor into three numbers: that is the colour a camera (and an eye) sees."
+    "zh": "这就是朗伯模型：哑光表面的亮度 = 灯 × 反射率 × cos θ。正对着灯最亮，越斜越暗，因为同一束光铺到了更大的面积上；背着灯的地方是 0。",
+    "en": "This is the Lambertian model: the brightness of a matte surface = lamp × reflectance × cos θ. Facing the lamp is brightest, and the more it turns away the darker it gets, because the same beam spreads over a larger area; where the surface faces away it is 0."
   },
   "intro": [
     {
       "t": {
-        "zh": "彩色照片每个像素有三个数：R、G、B。可现实里的光不止三种，而是像彩虹那样一整条，从紫到红连成一片，叫<b>光谱</b>。",
-        "en": "Each pixel of a colour photo has three numbers: R, G and B. But real light is not three kinds; it is a whole band like a rainbow, from violet to red, called a <b>spectrum</b>."
+        "zh": "正面光下，你已经把表面朝向和反射率结合成亮度。现在灯移到右上方：只看法线的 z 分量不再足够，需要考虑灯与表面的完整方向。",
+        "en": "With frontal light, you combined surface orientation and reflectance into brightness. Now the lamp moves to the upper right: the normal’s z component alone is no longer enough, and the full directions matter."
       }
     },
     {
       "t": {
-        "zh": "相机和人眼一样，只有三种感光元件，各自对一段波长敏感。每种元件对每个波长有多敏感，画出来是一条灵敏度曲线。",
-        "en": "A camera, like the human eye, has only three kinds of sensor, each sensitive to a range of wavelengths. How sensitive each is at each wavelength, drawn out, is its sensitivity curve."
+        "zh": "输入是每一点的单位法线和反射率。灯的方向为 (0.48, −0.36, 0.8)，x 向右、y 向下、z 朝向相机。画出相机拍到的样子。",
+        "en": "The inputs are each point’s unit normal and reflectance. The lamp direction is (0.48, −0.36, 0.8), with x right, y down and z toward the camera. Draw what the camera sees."
       },
       "fig": {
         "test": 0,
-        "caption": { "zh": "第一组测试：日光的光谱和三条灵敏度曲线", "en": "Set 1: the daylight spectrum and the three sensitivity curves" }
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关的输入都是波形：一条光谱和三条灵敏度曲线，每条 10 个点，从紫到红。<part-ref to=\"mean\"></part-ref>把一行数平均成一个数。",
-        "en": "This level's inputs are all waveforms: a spectrum and three sensitivity curves, 10 points each, from violet to red. <part-ref to=\"mean\"></part-ref> turns a row of numbers into one number."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关你要做的：算出相机读到的 R、G、B 三个数，分别接到输出的 R、G、B 口，看它们组成的彩色像素。 没接的颜色通道按 0 处理；直接接「图」口则输出整张图。",
-        "en": "Calculate the R, G and B readings and connect them to the matching output ports to see the resulting colour pixel. Unconnected colour channels are zero; connect the Image port to output a whole image directly."
+        "caption": { "zh": "第一组测试：一个白球", "en": "Set 1: a white ball" }
       }
     }
   ],
-  "unlocks": ["sense"],
+  "unlocks": ["lambert"],
   "tasks": [
     {
       "id": "3-3",
       "kind": "graph",
       "brief": {
-        "zh": "「光谱」是从紫（400 nm）到红（700 nm）的 10 个波段各有多少光。相机有三种感光元件，各有一条灵敏度曲线。每种的读数 = 光谱乘上它的灵敏度曲线，再求平均。将三个读数接入输出的 R、G、B 口。",
-        "en": "The \"Spectrum\" is how much light there is in each of 10 bands from violet (400 nm) to red (700 nm). The camera has three kinds of sensor, each with a sensitivity curve. Each sensor reads the spectrum times its sensitivity curve, averaged. Connect the three readings to the R, G and B output ports."
+        "zh": "输入是一块表面每一点的朝向（法线的 x、y、z 三个分量）和它的反射率。灯从右上方照来，方向是 (0.48, −0.36, 0.8)（x 向右，y 向下，z 朝着相机）。画出相机拍到的样子：亮度 = 反射率 × cos θ，θ 是法线和灯的方向的夹角。",
+        "en": "The inputs are which way each point of a surface faces (the x, y and z of its normal) and its reflectance. The lamp shines from the upper right, from direction (0.48, −0.36, 0.8) (x to the right, y down, z towards the camera). Draw what the camera sees: brightness = reflectance × cos θ, where θ is the angle between the normal and the lamp direction."
       },
-      "inputs": ["in", "sr", "sg", "sb"],
+      "hint": {
+        "zh": "两个单位长度的方向，夹角的 cos 等于它们的分量两两相乘再相加。",
+        "en": "For two directions of unit length, the cos of the angle between them is their components multiplied pairwise and added."
+      },
+      "inputs": ["nx", "ny", "nz", "albedo"],
       "inputLabels": {
-        "in": { "zh": "光谱", "en": "Spectrum" },
-        "sr": { "zh": "R 灵敏度", "en": "R sensitivity" },
-        "sg": { "zh": "G 灵敏度", "en": "G sensitivity" },
-        "sb": { "zh": "B 灵敏度", "en": "B sensitivity" }
+        "nx": { "zh": "法线 x", "en": "Normal x" },
+        "ny": { "zh": "法线 y", "en": "Normal y" },
+        "nz": { "zh": "法线 z", "en": "Normal z" },
+        "albedo": { "zh": "反射率", "en": "Reflectance" }
       },
-      "check": { "tolerance": 0.01 },
-      "scene": "spectrumColour",
+      "views": { "in": "pixels", "out": "pixels", "mid": "pixels" },
+      "scene": "surface",
+      "setup": { "lamp": [0.48, -0.36, 0.8] },
       "tests": [
-        { "label": { "zh": "日光", "en": "Daylight" }, "light": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
         {
-          "label": { "zh": "苹果", "en": "An apple" },
-          "light": [0.095, 0.076, 0.056999999999999995, 0.076, 0.095, 0.19, 0.57, 0.8075, 0.855, 0.855]
+          "label": { "zh": "白球", "en": "White ball" },
+          "height": [{ "dome": [7.5, 7.5, 7, 3] }],
+          "paint": { "blank": { "v": 0.9 } }
         },
-        { "label": { "zh": "树叶", "en": "A leaf" }, "light": [0.05, 0.08, 0.15, 0.45, 0.6, 0.4, 0.15, 0.1, 0.1, 0.15] },
-        { "label": { "zh": "天空", "en": "The sky" }, "light": [0.9, 0.85, 0.75, 0.6, 0.45, 0.35, 0.3, 0.25, 0.2, 0.2] }
+        {
+          "label": { "zh": "两个鼓包", "en": "Two bumps" },
+          "height": [{ "dome": [4.5, 5, 4, 1.5] }, { "dome": [11, 10, 4.5, 2] }],
+          "paint": { "stripes": { "period": 8, "lo": 0.4, "hi": 0.9 } }
+        },
+        {
+          "label": { "zh": "横梁", "en": "A ridge" },
+          "height": [{ "ridge": [8, 5, 2.5] }],
+          "paint": { "glyph": { "letter": "T", "lo": 0.85, "hi": 0.35 } }
+        }
       ],
       "hidden": [
-        { "label": { "zh": "钠灯", "en": "A sodium lamp" }, "light": [0, 0, 0, 0, 0.1, 0.4, 1, 0.3, 0, 0] },
-        { "label": { "zh": "紫色", "en": "Purple" }, "light": [0.8, 0.5, 0.1, 0, 0, 0, 0.1, 0.4, 0.7, 0.6] }
+        {
+          "label": { "zh": "斜板", "en": "Tilted board" },
+          "height": [{ "tilt": [0.3, -0.2] }],
+          "paint": { "checker": { "cell": 4, "lo": 0.45, "hi": 0.85 } }
+        },
+        {
+          "label": { "zh": "一对鼓包", "en": "A pair of bumps" },
+          "height": [{ "dome": [5, 8, 4, 2.5] }, { "dome": [11, 8, 4, 2.5] }],
+          "paint": { "blank": { "v": 0.9 } }
+        }
       ],
       "solution": [
-        "mr = arith[op=mul](in, sr)",
-        "mg = arith[op=mul](in, sg)",
-        "mb = arith[op=mul](in, sb)",
-        "ar = fqMean(mr)",
-        "ag = fqMean(mg)",
-        "ab = fqMean(mb)",
-        "out.r <- ar",
-        "out.g <- ag",
-        "out.b <- ab"
+        "xN = const[c=0.48]()",
+        "yN = const[c=-0.36]()",
+        "zN = const[c=0.8]()",
+        "x = arith[op=mul](nx, xN)",
+        "y = arith[op=mul](ny, yN)",
+        "z = arith[op=mul](nz, zN)",
+        "a = arith[op=add](x, y)",
+        "b = arith[op=add](a, z)",
+        "m = arith[op=mul](b, albedo)",
+        "out <- m"
       ],
-      "naive": ["m = fqMean(in)", "out.r <- m", "out.g <- m", "out.b <- m"]
+      "naive": ["m = arith[op=mul](nz, albedo)", "out <- m"]
     }
   ]
 }

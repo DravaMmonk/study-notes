@@ -11,16 +11,23 @@
 import { useEffect, useRef } from 'react'
 import { ArrowDown, ArrowUp, ArrowRightLeft, ChevronRight, Copy, MousePointerClick, Plus, Trash2, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
-import { getAt, showPath } from '../engine/ops/edit.js'
+import { getAt, setAt, showPath } from '../engine/ops/edit.js'
 import { blank, fieldAt, fileForm, moved, opFor, placeFindings, taskListOps } from './form.js'
 import { Field } from './Fields.jsx'
 import { Picker } from './Picker.jsx'
 
-export default function Inspector({ content, vocab, at, field, ctx, places, onEdit, onOps, onPick, onClose, onLevel }) {
+export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, onEdit, onOps, onPick, onClose, onLevel }) {
   const { vocabulary } = vocab
   const order = ctx.levels
   const file = at?.level ? { level: at.level } : at?.parts ? { parts: true } : { game: true }
-  const shown = field?.path && fileForm(content, vocabulary, at, order)
+  const pathToFace = pendingFace && field.path.slice(0, 4)
+  const partDefs = content.partDefs
+  const part = pathToFace && partDefs?.parts?.[pathToFace[1]]
+  const face = pathToFace && pathToFace[3]
+  const preview = part && (part.views?.[face]?.length ?? -1) < pendingFace.length
+    ? { ...content, partDefs: setAt(partDefs, pathToFace.slice(0, 3), { ...part.views, [face]: pendingFace }) }
+    : content
+  const shown = field?.path && fileForm(preview, vocabulary, at, order)
   const hit = shown ? fieldAt(shown.form, field.path) : null
   const tasked = Boolean(at?.level)
   const edit = (path, change, type) => {

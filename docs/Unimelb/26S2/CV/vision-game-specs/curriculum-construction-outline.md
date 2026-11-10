@@ -1,7 +1,6 @@
 # COMP90086: machines, parts and knowledge coverage
 
-Status: stages 0–2 implemented in Vision Lab, 2026-11-04; later chapters are planned in [the chapter map](chapter-map.md). See
-[the executable stage design](../../../../../games/vision-lab/DESIGN.md) and
+Historical outline for Vision Lab, now retired. Stages 0–2 were prototyped on 2026-11-04. See [the chapter map](chapter-map.md) and
 [the stage review](stages-0-2-review.md) for actual tasks, contracts and verification limits.
 Capability labels in this outline are not executable level IDs.
 
@@ -190,5 +189,5 @@ Before implementation:
 5. Validate mathematical cases and characteristic wrong methods, source/prerequisite access, actual interactions
    and fresh-player learning separately. Automated checks cannot establish understanding or enjoyment.
 
-The executable Vision Lab now covers stages 0–2 through its own blueprint, task data and domain implementations.
+The Vision Lab prototype covered stages 0–2 through its own blueprint, task data and domain implementations.
 Later stages remain machine-level proposals and require the source, interface and interaction work listed above.

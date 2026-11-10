@@ -8,6 +8,12 @@
   "intro": [
     {
       "t": {
+        "zh": "从同一张干净图出发，改变时间步 t，比较原图和噪声各占多少。先看懂扩散怎样破坏图像，后面才谈怎样用预测的噪声还原图像。",
+        "en": "Start from one clean image and vary timestep t to compare how much original signal and noise remain. Understand how diffusion corrupts the image before using predicted noise to recover it."
+      }
+    },
+    {
+      "t": {
         "zh": "现在最好的图像生成模型叫扩散模型。它的训练从反方向开始：先把一张图一点点加噪，直到只剩噪声。",
         "en": "The best image generators today are called diffusion models. Their training starts the other way round: noise is added to a picture little by little until only noise is left."
       }

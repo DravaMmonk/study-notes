@@ -2,8 +2,8 @@
   "title": { "zh": "猜核", "en": "Guess the kernel" },
   "tray": "pipeline",
   "after": {
-    "zh": "亮点的输出就是核本身（冲激响应）。但它是“卷积”的结果，而你的元件做的是“互相关”：要把核旋转 180° 才对得上。",
-    "en": "The output for a bright dot is the kernel itself (the impulse response). But that is the result of a \"convolution\", while your part does \"cross-correlation\": you have to rotate the kernel by 180° to make them match."
+    "zh": "一个亮点是离散冲激。它的输出是滤波器的冲激响应，可以用来找回权重。卷积把核按原方向铺在亮点周围；本关的元件做互相关，输出是绕亮点旋转 180° 的核。亮点测试让你读出这种方向差异，方块和字母再检验同一组权重。",
+    "en": "A single bright pixel is a discrete impulse. Its output is the filter’s impulse response and lets you recover the weights. Convolution places the kernel around the impulse in its original orientation. This part performs cross-correlation, so its output is the kernel rotated 180° around the impulse. The dot reveals the orientation, and the square and letter test the same weights."
   },
   "intro": [
     {

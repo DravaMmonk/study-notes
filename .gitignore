@@ -200,8 +200,18 @@ docs/**/readings/
 docs/**/assignment/
 docs/**/exam/
 
-# Slide screenshots rendered page-by-page from lecture PDFs
-docs/Unimelb/26S2/CV/assets/
+# Course figures and documents are kept for the private build.
+docs/Unimelb/**/assets/
+docs/Unimelb/**/Screenshot*
+docs/**/*.[pP][dD][fF]
+docs/**/*.[pP][pP][tT]
+docs/**/*.[pP][pP][tT][xX]
+docs/**/*.[pP][pP][sS]
+docs/**/*.[pP][pP][sS][xX]
+/site-private/
 
 # Held while an operation writes a game (games/kit/engine/ops/log.js)
 games/*/changes.lock
+
+# Backup of course files removed from public Git
+/.private-course-materials/

@@ -1,23 +1,23 @@
 {
-  "title": { "zh": "细线不见了", "en": "The thin line is gone" },
+  "title": { "zh": "先缩小再放大", "en": "Shrink, then enlarge" },
   "tray": "recognition",
   "after": {
-    "zh": "把放大回来的粗结果和原尺寸的细结果合起来：粗的一路挡住噪点，细的一路留下细节。这条从编码器直接连到解码器的线叫跳连，U-Net 每一层都有。",
-    "en": "Combine the coarse result enlarged back with the fine result at full size: the coarse path keeps out the grain, the fine path keeps the detail. This line straight from encoder to decoder is called a skip connection, and U-Net has one at every level."
+    "zh": "缩小时几格平均，噪点互相抵消；判断完再放大回来：这就是编码器—解码器。代价是边界只能对齐到块：比块还细的东西，缩小时就丢了。",
+    "en": "Shrinking averages several cells so the grain cancels out; decide, then enlarge back: this is an encoder–decoder. The price is that boundaries can only line up with the blocks: anything finer than a block is lost in the shrinking."
   },
   "intro": [
     {
       "t": {
-        "zh": "细胞常常挤在一起，中间只隔一条极细的缝。数细胞时，缝丢了，两个就算成一个。",
-        "en": "Cells often crowd together with only a very thin gap between them. When counting, lose the gap and two count as one."
+        "zh": "显微镜下数细胞、量细胞，第一步是标出每个像素是不是细胞。可切片上满是噪点。",
+        "en": "To count and measure cells under a microscope, the first step is marking whether every pixel is a cell. But the slide is full of grain."
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：标出细胞，细胞之间的缝要留着。",
-        "en": "Your task in this level: mark the cells, keeping the gaps between them."
+        "zh": "这一关你要做的：标出细胞（1）和背景（0）。",
+        "en": "Your task in this level: mark the cells (1) and the background (0)."
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：两个挨着", "en": "Set 1: two touching" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组：两个细胞", "en": "Set 1: two cells" } }
     }
   ],
   "tasks": [
@@ -25,62 +25,49 @@
       "id": "9-8",
       "kind": "graph",
       "brief": {
-        "zh": "挨在一起的细胞之间只隔一条一像素的暗缝。标出细胞，缝要留着（0）。",
-        "en": "Touching cells are separated only by a dark gap one pixel wide. Mark the cells, and keep the gaps (0)."
+        "zh": "显微镜下的细胞，噪点很重。标出细胞（1）和背景（0）。",
+        "en": "Cells under a microscope, with heavy grain. Mark the cells (1) and the background (0)."
       },
       "hint": {
-        "zh": "缩小再放大的那条路看不见一像素的缝。原图里还看得见。",
-        "en": "The shrink-then-enlarge path cannot see a one-pixel gap. The original picture still can."
+        "zh": "一格一格看，噪点会骗过门槛。几格一起看呢？",
+        "en": "Looked at cell by cell, the grain fools the threshold. What about several cells at once?"
       },
-      "check": { "tolerance": 0.1, "mismatches": 3 },
+      "check": { "tolerance": 0.1, "mismatches": 4 },
       "scene": "cells",
       "tests": [
         {
-          "label": { "zh": "两个挨着", "en": "Two touching" },
-          "rects": [[2, 3, 14, 11]],
-          "gapX": [7],
-          "seed": 71,
-          "grain": 0.2
+          "label": { "zh": "两个细胞", "en": "Two cells" },
+          "rects": [[2, 2, 8, 8], [10, 6, 14, 14]],
+          "seed": 61
         },
         {
-          "label": { "zh": "上下挨着", "en": "One above the other" },
-          "rects": [[3, 1, 11, 15]],
-          "gapY": [7],
-          "seed": 72,
-          "grain": 0.2
+          "label": { "zh": "长条", "en": "A long cell" },
+          "rects": [[2, 10, 14, 14]],
+          "seed": 62
         },
         {
-          "label": { "zh": "一排三个", "en": "Three in a row" },
-          "rects": [[1, 4, 15, 10]],
-          "gapX": [5, 11],
-          "seed": 73,
-          "grain": 0.2
+          "label": { "zh": "三个细胞", "en": "Three cells" },
+          "rects": [[0, 0, 4, 6], [6, 2, 12, 8], [4, 10, 10, 16]],
+          "seed": 63
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "一排两个，缝在别处", "en": "Two in a row, gap elsewhere" },
-          "rects": [[0, 2, 14, 8]],
-          "gapX": [9],
-          "seed": 74,
-          "grain": 0.2
+          "label": { "zh": "一大一小", "en": "One big, one small" },
+          "rects": [[2, 2, 12, 10], [12, 12, 16, 16]],
+          "seed": 64
         }
       ],
       "solution": [
         "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](in)",
-        "f = threshold(in)",
         "s = downsample(a)",
-        "c = threshold[t=0.3](s)",
-        "u = tconv(c)",
-        "m = arith[op=mul](u, f)",
-        "out <- m"
-      ],
-      "naive": [
-        "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](in)",
-        "s = downsample(a)",
-        "c = threshold[t=0.3](s)",
+        "c = threshold(s)",
         "u = tconv(c)",
         "out <- u"
+      ],
+      "naive": [
+        "t = threshold(in)",
+        "out <- t"
       ]
     }
   ]

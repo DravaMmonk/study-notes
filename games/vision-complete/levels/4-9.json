@@ -1,32 +1,45 @@
 {
-  "title": { "zh": "跳着走", "en": "Taking strides" },
+  "title": { "zh": "看得更大", "en": "Seeing further" },
   "tray": "pipeline",
   "after": {
-    "zh": "步幅为 2，输出就隔一个取一个。一般地，输出边长 = ⌊(N + 2p − k) / s⌋ + 1：N 是输入边长，k 是窗口大小，p 是补边宽度，s 是步幅。这一层只有 9 个要学的数，图变大变小都一样，因为同一组权重在每个位置都用：这叫权重共享。看评分里的「参数」。",
-    "en": "With a stride of 2, the output keeps every other position. In general, output width = ⌊(N + 2p − k) / s⌋ + 1, with N the input width, k the window size, p the padding and s the stride. This layer has only 9 numbers to learn, however big or small the picture, because the same weights are used at every position: this is called weight sharing. See \"Parameters\" in the score."
+    "zh": "每层只看 3×3，可第二层看的是第一层的输出，等于看到了 5×5；第三层看到 7×7。这叫感受野：叠 L 层 3×3，感受野是 (2L+1)×(2L+1)。VGG 就靠堆小核看大范围，而且三层 3×3 只有 27 个权重，一个 7×7 核要 49 个。",
+    "en": "Each layer looks at only 3×3, but the second layer looks at the first layer's output, so in effect it sees 5×5; the third sees 7×7. This is the receptive field: stack L layers of 3×3 and the receptive field is (2L+1)×(2L+1). VGG sees large areas by stacking small kernels, and three 3×3 layers have only 27 weights, while a single 7×7 kernel needs 49."
   },
   "intro": [
     {
       "t": {
-        "zh": "到现在为止，元件的输出都和输入一样大。真正的卷积网络里，图往往一层层变小：一张照片几百万个像素，缩小之后，后面的层才算得动。",
-        "en": "So far every part's output has been as big as its input. In a real convolutional network the picture usually shrinks layer by layer: a photo has millions of pixels, and only after shrinking can the later layers keep up."
+        "zh": "3×3 的元件只看得见自己和身边一圈，一共 9 格。可一张脸、一个车轮，在图上远比 3×3 大。网络怎样认出大的东西？",
+        "en": "A 3×3 part only sees its own pixel and the ring around it, 9 cells in all. But a face or a wheel is far bigger than 3×3 in an image. How does a network recognise big things?"
       }
     },
     {
       "t": {
-        "zh": "卷积层的窗口就是你熟悉的 3×3 核：停在图上一处，算出一个数，再挪到下一处。每次挪几格，叫<b>步幅</b>。",
-        "en": "A convolution layer's window is the familiar 3×3 kernel: it stops at one place, works out a number, then moves on. How far it moves each time is the <b>stride</b>."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关你要做的：做出一层步幅为 2 的卷积，权重由训练找出来。测试图有两种大小。要想的问题：图变大时，这一层要学的数会不会跟着变多？",
-        "en": "Your task in this level: make a convolution layer with stride 2, with its weights found by training. The test pictures come in two sizes. Something to think about: when the picture gets bigger, does this layer have more numbers to learn?"
+        "zh": "这一关要判断：一个格子周围 7×7 的范围是不是全亮。测试里特意放了小一些的方块、长条，还有缺了一个角的 7×7。",
+        "en": "This level asks: is the 7×7 area around a cell entirely bright? The tests deliberately include smaller squares, long bars, and a 7×7 square with one corner missing."
       },
       "fig": {
-        "test": 0,
-        "caption": { "zh": "第一组：字母 F，输出只有一半大", "en": "Set 1: the letter F, with an output half the size" }
+        "test": 1,
+        "caption": { "zh": "另一组：一个 5×5、一个 3×3 的方块", "en": "Another set: a 5×5 square and a 3×3 square" }
       }
+    },
+    {
+      "t": {
+        "zh": "有时同一张图里既有小物体，也有大物体。除了叠起来看得更远，还可以让几条路同时看不同大小的范围，再把结果合在一起。Inception 网络就用这样的多尺度分支。",
+        "en": "A single image can contain both small and large objects. Besides stacking layers to see farther, several paths can look at different-sized regions at the same time and combine their results. Inception networks use such multi-scale branches."
+      }
+    },
+    {
+      "t": {
+        "zh": "模型可以加深、增加通道，或者看更高分辨率的图；这些选择都可能增加计算量，效果也要用新样本检查。EfficientNet 研究如何在计算预算下共同调整深度、宽度和分辨率。",
+        "en": "A model can be made deeper, given more channels, or shown higher-resolution images. Each choice can increase computation, and its benefit must be checked on new samples. EfficientNet studies how to adjust depth, width and resolution together within a computing budget."
+      }
+    },
+    {
+      "t": {
+        "zh": "这一关你要做的：手里只有看 3×3 的元件，做出看 7×7 的判断。要想的问题：「7×7」能从哪里来？",
+        "en": "Your task: using only parts that look at 3×3, make a judgement about 7×7. Something to think about: where can \"7×7\" come from?"
+      },
+      "fig": { "test": 0, "caption": { "zh": "第一组：7×7 的亮方块", "en": "Set 1: a bright 7×7 square" } }
     }
   ],
   "tasks": [
@@ -34,34 +47,73 @@
       "id": "4-9",
       "kind": "graph",
       "brief": {
-        "zh": "一层卷积的窗口每次挪两格，输出边长只有输入的一半。窗口里的 3×3 权重不知道，要训练出来。测试图有 16×16 的，也有 12×12 的：同一个电路都要对。",
-        "en": "A convolution layer whose window moves two pixels at a time, so the output is half the input's width. The 3×3 weights in the window are unknown and have to be trained. Some test pictures are 16×16 and some 12×12: the same circuit must be right for both."
+        "zh": "只在“周围 7×7 全是亮的”格子输出 1，其余输出 0。手里只有 3×3 的元件。",
+        "en": "Output 1 only at pixels where \"the whole 7×7 around it is bright\", and 0 everywhere else. You only have 3×3 parts."
       },
       "hint": {
-        "zh": "窗口每次挪两格，等于先在每个位置都算一遍，再隔一个留一个。",
-        "en": "Moving the window two pixels at a time is the same as computing at every position and then keeping every other one."
+        "zh": "一个 3×3 只看得到身边一圈。如果第二层看的是第一层的结果，它其实看到了多大？",
+        "en": "A 3×3 sees only the ring of pixels right around it. If a second layer looks at the first layer's result, how much does it really see?"
       },
-      "trainRate": 8,
-      "scene": "filter",
-      "setup": { "target": { "stride": { "kernel": [0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0] } } },
+      "check": { "tolerance": 0.02 },
+      "scene": "blocks",
       "tests": [
-        { "label": { "zh": "字母 F", "en": "Letter F" }, "in": { "glyph": { "letter": "F" } } },
-        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
-        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 61 } } },
+        { "label": { "zh": "7×7 方块", "en": "7×7 block" }, "rects": [[4, 5, 7, 7]], "seed": 1 },
         {
-          "label": { "zh": "12×12 的纹理", "en": "Texture at 12×12" },
-          "in": { "scaled": { "of": { "noise": { "seed": 62 } }, "size": 12 } }
+          "label": { "zh": "5×5 和 3×3", "en": "5×5 and 3×3" },
+          "rects": [[1, 1, 5, 5], [10, 9, 3, 3]],
+          "seed": 2
+        },
+        {
+          "label": { "zh": "9×7 方块和长条", "en": "9×7 block and a long bar" },
+          "rects": [[1, 1, 9, 7], [2, 11, 12, 3]],
+          "seed": 3
+        },
+        {
+          "label": { "zh": "缺一角的 7×7", "en": "7×7 missing a corner" },
+          "rects": [[1, 1, 7, 7], [8, 8, 7, 7]],
+          "notches": [[7, 7]],
+          "seed": 4
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "12×12 的字母 T", "en": "Letter T at 12×12" },
-          "in": { "scaled": { "of": { "glyph": { "letter": "T" } }, "size": 12 } }
+          "label": { "zh": "L 形", "en": "L shape" },
+          "rects": [[1, 1, 7, 13], [1, 7, 14, 7]],
+          "seed": 5
         },
-        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": { "checker": { "cell": 3 } } }
+        {
+          "label": { "zh": "边上缺一点的 9×9", "en": "9×9 missing a pixel on one edge" },
+          "rects": [[3, 3, 9, 9]],
+          "notches": [[7, 3]],
+          "seed": 6
+        },
+        {
+          "label": { "zh": "中间一道缝", "en": "Seam down the middle" },
+          "rects": [[1, 4, 14, 8]],
+          "notches": [[8, 4], [8, 5], [8, 6], [8, 7], [8, 8], [8, 9], [8, 10], [8, 11]],
+          "seed": 7
+        }
       ],
-      "solution": ["k = learn3[w=[0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0]](in)", "d = downsample(k)", "out <- d"],
-      "naive": ["d = downsample(in)", "k = learn3[w=[0, 0.25, 0, 0.25, -1, 0.25, 0, 0.25, 0]](d)", "out <- k"]
+      "solution": [
+        "b0 = box3(in)",
+        "t0 = threshold[t=0.85](b0)",
+        "b1 = box3(t0)",
+        "t1 = threshold[t=0.95](b1)",
+        "b2 = box3(t1)",
+        "t2 = threshold[t=0.95](b2)",
+        "out <- t2"
+      ],
+      "naive": ["b0 = box3(in)", "t0 = threshold[t=0.85](b0)", "out <- t0"],
+      "alsoFails": [
+        [
+          "b0 = box3(in)",
+          "t0 = threshold[t=0.85](b0)",
+          "b1 = box3(t0)",
+          "t1 = threshold[t=0.95](b1)",
+          "out <- t1"
+        ],
+        ["a = box3(in)", "b = box3(a)", "c = box3(b)", "t = threshold[t=0.9](c)", "out <- t"]
+      ]
     }
   ]
 }

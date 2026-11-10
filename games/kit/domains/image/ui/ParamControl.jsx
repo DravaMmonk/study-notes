@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import SettingField from '../../../shell/parts/SettingField.jsx'
 import { Choice } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { parsePi, piText, timesPi } from '../engine/pi.js'
@@ -46,6 +47,9 @@ export function NumberInput({ value, onChange, label, className, onFocus }) {
 }
 
 export default function ParamControl({ param, value, onChange, roomy, style }) {
+  if (param.authored && (['toggle', 'slider'].includes(param.kind) || (param.fixed && param.kind !== 'kernel'))) {
+    return <SettingField setting={param.authored} allowed={param.options?.map(([value]) => String(value))} value={value} onChange={onChange} roomy={roomy} readOnly={param.fixed} />
+  }
   if (param.kind === 'select' && param.buttons) return <Choice options={param.options} value={value ?? param.default} onChange={onChange} label={param.label} layout={param.buttons} style={style} />
   if (param.kind === 'select') {
     return (
@@ -58,7 +62,7 @@ export default function ParamControl({ param, value, onChange, roomy, style }) {
     )
   }
   if (param.kind === 'kernel') {
-    if (param.learnable) {
+    if (param.learnable || param.fixed) {
       return (
         <div className={`param-kernel is-learned ${roomy ? 'is-roomy' : ''}`} onPointerDown={stop}>
           {value.map((w, i) => <output key={i} style={{ '--w': Math.max(-1, Math.min(1, w)) }}>{w.toFixed(2)}</output>)}

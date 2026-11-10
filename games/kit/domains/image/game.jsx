@@ -14,6 +14,7 @@ import PartDemo from './ui/PartDemo.jsx'
 import Hero from './ui/Hero.jsx'
 import IntroFigure from './ui/IntroFigure.jsx'
 import { familyOf, iconOf } from './ui/catalog.js'
+import { IMAGE_WIDGETS } from './ui/PartWidgets.jsx'
 import { descriptionOf } from './words.js'
 
 // Unlock flags → the part (or option) they give in a course's part table, for the passed dialog and the parts box.
@@ -43,7 +44,7 @@ export default function imageGame(content) {
   const PART_OF_FLAG = partOfFlag(types)
   const unlockOf = (flag) => {
     const type = PART_OF_FLAG[flag]
-    if (type && types[type]) return { key: flag, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type), icon: iconOf(type) }
+    if (type && types[type]) return { key: flag, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types) }
     return { key: flag, label: OPTION_NAMES[flag] ?? flag, name: OPTION_NAMES[flag] ?? flag, desc: OPTION_DESCRIPTIONS[flag] }
   }
   // A level of several tasks shows what it unlocks as one: a flag an earlier task opens on the way (the Shift part's
@@ -51,7 +52,7 @@ export default function imageGame(content) {
   const shownUnlocks = (level) => level.unlocks.filter((flag) => !level.tasks.slice(0, -1).some((task) => task.opens.includes(flag)))
   const allFlags = [...new Set(LEVELS.flatMap(shownUnlocks))]
   // The primitives, each from the levels that bring it in.
-  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type), icon: iconOf(type), at }))
+  const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types), at }))
   // A part on a bench in the parts box shows every setting, whatever the player has unlocked so far.
   const allFlagSet = new Set(allFlags)
   // The boards the parts box tries a part on, where a level's own reference (its last task's) spells it out in smaller
@@ -86,5 +87,6 @@ export default function imageGame(content) {
     bestLabel: (best) => `${best.nodes} · ${best.cost}`,
   })
   game.image = image
+  game.defined = { of: (type) => kit.defs[type] ?? null, defaults: kit.defaultParams, ops: kit.ops, widgets: IMAGE_WIDGETS }
   return game
 }

@@ -2,8 +2,8 @@
   "title": { "zh": "有噪声的边", "en": "A noisy edge" },
   "tray": "pipeline",
   "after": {
-    "zh": "先平滑、再求导，噪声被压下去，真正的边留下来。这正是 Sobel 算子：一个方向求导，另一个方向平滑。",
-    "en": "Smooth first, then differentiate: the noise is pushed down and the real edge stays. This is exactly the Sobel operator: differentiate in one direction, smooth in the other."
+    "zh": "你先用 3×3 平均减弱噪声，再用横向差分量亮度变化，最后用阈值留下强响应。接下来解锁的 Sobel 也结合了差分与平滑：Sobel x 沿水平方向求差，同时沿竖直方向做加权平滑，Sobel y 则交换两个方向。",
+    "en": "You used a 3×3 average to reduce noise, a horizontal difference to measure intensity change, and a threshold to keep strong responses. The Sobel filters you unlock also combine differentiation and smoothing. Sobel x takes a horizontal difference with weighted vertical smoothing, while Sobel y swaps the two directions."
   },
   "intro": [
     {

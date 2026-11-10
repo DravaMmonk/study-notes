@@ -1,102 +1,103 @@
 {
-  "title": { "zh": "看得更大", "en": "Seeing further" },
+  "title": { "zh": "挪一格也不变", "en": "Unchanged by a one-pixel shift" },
   "tray": "pipeline",
   "after": {
-    "zh": "每层只看 3×3，可第二层看的是第一层的输出，等于看到了 5×5；第三层看到 7×7。这叫感受野：叠 L 层 3×3，感受野是 (2L+1)×(2L+1)。VGG 就靠堆小核看大范围，而且三层 3×3 只有 27 个权重，一个 7×7 核要 49 个。",
-    "en": "Each layer looks at only 3×3, but the second layer looks at the first layer's output, so in effect it sees 5×5; the third sees 7×7. This is the receptive field: stack L layers of 3×3 and the receptive field is (2L+1)×(2L+1). VGG sees large areas by stacking small kernels, and three 3×3 layers have only 27 weights, while a single 7×7 kernel needs 49."
+    "zh": "先让每格和右边、下边的邻居比一比，留下最大的，再隔点取样：每个 2×2 块只留下块里最强的那个数，点在块内挪动，答案不变。这就是最大池化。代价是丢掉了块内的精确位置。",
+    "en": "First let each pixel compare itself with its neighbours to the right and below and keep the largest, then downsample: each 2×2 block keeps only its strongest value, and a point moving within its block does not change the answer. This is max pooling. The price is losing the exact position inside the block."
   },
   "intro": [
     {
       "t": {
-        "zh": "3×3 的元件只看得见自己和身边一圈，一共 9 格。可一张脸、一个车轮，在图上远比 3×3 大。网络怎样认出大的东西？",
-        "en": "A 3×3 part only sees its own pixel and the ring around it, 9 cells in all. But a face or a wheel is far bigger than 3×3 in an image. How does a network recognise big things?"
+        "zh": "同一个东西拍两次，总会差一点：手一抖，它就往旁边偏了一两个像素。可它还是那个东西，识别的结果不该跟着变。",
+        "en": "Photograph the same thing twice and the shots always differ a little: your hand shakes and it moves a pixel or two to the side. But it is still the same thing, and what it is recognised as should not change."
       }
     },
     {
       "t": {
-        "zh": "这一关要判断：一个格子周围 7×7 的范围是不是全亮。测试里特意放了小一些的方块、长条，还有缺了一个角的 7×7。",
-        "en": "This level asks: is the 7×7 area around a cell entirely bright? The tests deliberately include smaller squares, long bars, and a 7×7 square with one corner missing."
+        "zh": "网络还要不断把图缩小。这一关的输入是几个亮的特征点，要把 16×16 缩成 8×8。",
+        "en": "A network also keeps shrinking the image. The input in this level is a few bright feature points, and you have to shrink 16×16 down to 8×8."
       },
-      "fig": { "test": 1, "caption": { "zh": "另一组：一个 5×5、一个 3×3 的方块", "en": "Another set: a 5×5 square and a 3×3 square" } }
-    },
-    {
-      "t": {
-        "zh": "有时同一张图里既有小物体，也有大物体。除了叠起来看得更远，还可以让几条路同时看不同大小的范围，再把结果合在一起。Inception 网络就用这样的多尺度分支。",
-        "en": "A single image can contain both small and large objects. Besides stacking layers to see farther, several paths can look at different-sized regions at the same time and combine their results. Inception networks use such multi-scale branches."
+      "fig": {
+        "test": 0,
+        "caption": { "zh": "第一组：特征点在原位", "en": "Set 1: the feature points in their original place" }
       }
     },
     {
       "t": {
-        "zh": "模型可以加深、增加通道，或者看更高分辨率的图；这些选择都可能增加计算量，效果也要用新样本检查。EfficientNet 研究如何在计算预算下共同调整深度、宽度和分辨率。",
-        "en": "A model can be made deeper, given more channels, or shown higher-resolution images. Each choice can increase computation, and its benefit must be checked on new samples. EfficientNet studies how to adjust depth, width and resolution together within a computing budget."
-      }
-    },
-    {
-      "t": {
-        "zh": "这一关你要做的：手里只有看 3×3 的元件，做出看 7×7 的判断。要想的问题：「7×7」能从哪里来？",
-        "en": "Your task: using only parts that look at 3×3, make a judgement about 7×7. Something to think about: where can \"7×7\" come from?"
+        "zh": "有时特征点会整体偏一格。这一关的要求是：偏了一格，缩小后的结果也要和原位时完全一样。",
+        "en": "Sometimes all the feature points are off by one pixel. This level's requirement: off by one pixel, the shrunk result must be exactly the same as in place. "
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：7×7 的亮方块", "en": "Set 1: a bright 7×7 square" } }
+      "fig": {
+        "test": 1,
+        "caption": {
+          "zh": "另一组：整体偏到右下，期望不变",
+          "en": "Another set: everything shifted down and to the right, same expected output"
+        }
+      }
     }
   ],
+  "unlocks": ["maxpool"],
   "tasks": [
     {
       "id": "4-10",
       "kind": "graph",
       "brief": {
-        "zh": "只在“周围 7×7 全是亮的”格子输出 1，其余输出 0。手里只有 3×3 的元件。",
-        "en": "Output 1 only at pixels where \"the whole 7×7 around it is bright\", and 0 everywhere else. You only have 3×3 parts."
+        "zh": "同一组特征点有时会偏一格。把 16×16 缩成 8×8，偏一格时结果必须完全一样。",
+        "en": "The same set of keypoints is sometimes off by one pixel. Shrink 16×16 to 8×8; when they shift by one pixel, the result must be exactly the same."
       },
       "hint": {
-        "zh": "一个 3×3 只看得到身边一圈。如果第二层看的是第一层的结果，它其实看到了多大？",
-        "en": "A 3×3 sees only the ring of pixels right around it. If a second layer looks at the first layer's result, how much does it really see?"
+        "zh": "隔点取样会因为偏一格而错过亮点。能不能在扔掉点之前，让每个点先「知道」它旁边有没有亮点？",
+        "en": "Downsampling misses bright points when they shift by one pixel. Before throwing pixels away, can each one first \"know\" whether there is a bright point beside it?"
       },
-      "check": { "tolerance": 0.02 },
-      "scene": "blocks",
+      "scene": "movedDots",
       "tests": [
-        { "label": { "zh": "7×7 方块", "en": "7×7 block" }, "rects": [[4, 5, 7, 7]], "seed": 1 },
-        { "label": { "zh": "5×5 和 3×3", "en": "5×5 and 3×3" }, "rects": [[1, 1, 5, 5], [10, 9, 3, 3]], "seed": 2 },
         {
-          "label": { "zh": "9×7 方块和长条", "en": "9×7 block and a long bar" },
-          "rects": [[1, 1, 9, 7], [2, 11, 12, 3]],
-          "seed": 3
+          "label": { "zh": "原位", "en": "In place" },
+          "dots": [[4, 4], [10, 6], [6, 12]],
+          "home": [[4, 4], [10, 6], [6, 12]]
         },
         {
-          "label": { "zh": "缺一角的 7×7", "en": "7×7 missing a corner" },
-          "rects": [[1, 1, 7, 7], [8, 8, 7, 7]],
-          "notches": [[7, 7]],
-          "seed": 4
+          "label": { "zh": "偏右下", "en": "Shifted down-right" },
+          "dots": [[5, 5], [11, 7], [7, 13]],
+          "home": [[4, 4], [10, 6], [6, 12]]
+        },
+        {
+          "label": { "zh": "偏右", "en": "Shifted right" },
+          "dots": [[5, 4], [11, 6], [7, 12]],
+          "home": [[4, 4], [10, 6], [6, 12]]
+        },
+        {
+          "label": { "zh": "偏下", "en": "Shifted down" },
+          "dots": [[4, 5], [10, 7], [6, 13]],
+          "home": [[4, 4], [10, 6], [6, 12]]
         }
       ],
       "hidden": [
-        { "label": { "zh": "L 形", "en": "L shape" }, "rects": [[1, 1, 7, 13], [1, 7, 14, 7]], "seed": 5 },
         {
-          "label": { "zh": "边上缺一点的 9×9", "en": "9×9 missing a pixel on one edge" },
-          "rects": [[3, 3, 9, 9]],
-          "notches": [[7, 3]],
-          "seed": 6
+          "label": { "zh": "另一组 · 原位", "en": "Another set · in place" },
+          "dots": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]],
+          "home": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
         },
         {
-          "label": { "zh": "中间一道缝", "en": "Seam down the middle" },
-          "rects": [[1, 4, 14, 8]],
-          "notches": [[8, 4], [8, 5], [8, 6], [8, 7], [8, 8], [8, 9], [8, 10], [8, 11]],
-          "seed": 7
+          "label": { "zh": "另一组 · 偏右下", "en": "Another set · shifted down-right" },
+          "dots": [[3, 3], [13, 5], [9, 9], [15, 11], [5, 15]],
+          "home": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
+        },
+        {
+          "label": { "zh": "另一组 · 偏下", "en": "Another set · shifted down" },
+          "dots": [[2, 3], [12, 5], [8, 9], [14, 11], [4, 15]],
+          "home": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
         }
       ],
       "solution": [
-        "b0 = box3(in)",
-        "t0 = threshold[t=0.85](b0)",
-        "b1 = box3(t0)",
-        "t1 = threshold[t=0.95](b1)",
-        "b2 = box3(t1)",
-        "t2 = threshold[t=0.95](b2)",
-        "out <- t2"
+        "l = shift[dir=left](in)",
+        "m1 = max(in, l)",
+        "u = shift[dir=up](m1)",
+        "m2 = max(m1, u)",
+        "d = downsample(m2)",
+        "out <- d"
       ],
-      "naive": ["b0 = box3(in)", "t0 = threshold[t=0.85](b0)", "out <- t0"],
-      "alsoFails": [
-        ["b0 = box3(in)", "t0 = threshold[t=0.85](b0)", "b1 = box3(t0)", "t1 = threshold[t=0.95](b1)", "out <- t1"],
-        ["a = box3(in)", "b = box3(a)", "c = box3(b)", "t = threshold[t=0.9](c)", "out <- t"]
-      ]
+      "naive": ["d = downsample(in)", "out <- d"]
     }
   ]
 }

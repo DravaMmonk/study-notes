@@ -90,7 +90,7 @@ export function vocabularyProblems(name, v) {
   if (v.level && !tasks) say('a level is a list of tasks (tasks.js taskLevel)')
   if (tasks && taskShapes(tasks).some((shape) => !shape.fields?.id || shape.fields.id.optional)) say('a level’s tasks need an id each (tasks.js TASK_ID_FIELD)')
   for (const [lang, it] of Object.entries(v.languages ?? {})) if (!isText(it?.about)) say(`the language ${lang} says nothing of what it is (about)`)
-  if (v.kinds?.op && v.kinds.part) say('it gives engine resources and parts in code: a domain with resources defines its parts in each game’s parts.json')
+  if (v.kinds?.op && v.kinds.part && !v.partOverrides) say('it gives engine resources and parts in code: a domain with resources defines its parts in each game’s parts.json')
   if (v.kinds?.op && !v.kinds.family) say('it gives engine resources but no families to colour parts by')
   for (const [where, schema] of schemas) {
     if (!schema) { say(`no ${where} schema`); continue }

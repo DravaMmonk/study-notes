@@ -8,8 +8,8 @@
   "intro": [
     {
       "t": {
-        "zh": "检测器不光要说出「有一只狗」，还要用一个框圈出它在哪。框得准不准，要和人标注的框比。",
-        "en": "A detector must not only say \"there is a dog\" but draw a box round where it is. How good the box is gets judged against a box a person labelled."
+        "zh": "目标检测器用一个类别、一个置信度分数和一个边界框描述每个候选物体。类别回答是什么，分数用来给候选排序，框的坐标表示位置与大小。这一关固定类别，只比较预测框和标注框的位置。",
+        "en": "An object detector describes each candidate with a class, a confidence score and a bounding box. The class tells you what it is, the score ranks candidates, and the box coordinates give location and size. This level holds the class fixed and compares the predicted box with a labelled box."
       }
     },
     {

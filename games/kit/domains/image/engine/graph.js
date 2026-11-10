@@ -78,15 +78,15 @@ export function runnerOf(types) {
               const filled = prepare(Object.fromEntries(planes.map((plane, i) => [i, plane ?? image(1, 1)])), null, {})
               return compose(filled[0], filled[1], filled[2])
             } })
-          : { spec, inputs: spec.inputs, optional: spec.optional, ...(typeof spec.outputs === 'function' ? { outputs: spec.outputs } : {}), eval: (ins, node, ctx, key) => spec.eval(ins, node.params ?? {}, ctx.variant ?? null, key) })
+          : { spec, inputs: spec.inputs, optional: spec.optional, ...(typeof spec.outputs === 'function' ? { outputs: spec.outputs } : {}), eval: (ins, node, ctx, key) => spec.evaluate ? spec.evaluate(ins, node, ctx, key) : spec.eval(ins, node.params ?? {}, ctx.variant ?? null, key) })
     }
     return wrapped.get(spec)
   }
 
   // Run the graph on one test's inputs. Returns every node's output image (or an error). `variant` picks one of the
   // copies a training-only part (an augmentation) makes of its input; without it those parts pass it through.
-  function evaluate(graph, inputs, variant = null) {
-    return runBoard(graph, { parts: partOf, prepare, bind: inputs, ctx: { variant } })
+  function evaluate(graph, inputs, variant = null, trace = null) {
+    return runBoard(graph, { parts: partOf, prepare, bind: inputs, ctx: { variant, trace } })
   }
 
   const placedNodes = (graph) => graph.nodes.filter((node) => !types[node.type].fixed)

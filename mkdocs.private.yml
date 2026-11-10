@@ -1,0 +1,25 @@
+INHERIT: mkdocs.yml
+site_name: Drava's Study Notes (Private)
+site_url: null
+site_dir: site-private
+
+# Keep the lecture documents, exam PDFs and slide images. Omit raw workspace
+# data such as transcripts, workshop packages and assignment submissions.
+exclude_docs: |
+  **/transcript/
+  **/workshop/
+  **/tutorial/
+  **/readings/
+  **/assignment/
+  /assets/sw.js
+
+plugins:
+  - search
+  - awesome-pages
+  - tags
+  - obsidian-support
+
+hooks:
+  - hooks/ui.py
+  - hooks/i18n.py
+  - hooks/private_materials.py

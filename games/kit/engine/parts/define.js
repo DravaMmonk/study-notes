@@ -179,7 +179,7 @@ export function partDesc(def, allowed = () => null) {
 export function withParts(vocabulary, file) {
   if (!definesParts(vocabulary)) return vocabulary
   const part = Object.fromEntries(Object.entries(file?.parts ?? {}).map(([type, def]) => [type, { about: def.desc ?? def.name ?? type }]))
-  return { ...vocabulary, kinds: { ...vocabulary.kinds, part } }
+  return { ...vocabulary, kinds: { ...vocabulary.kinds, part: vocabulary.partOverrides ? { ...vocabulary.kinds.part, ...part } : part } }
 }
 
 /** Every place a parts.json does not hold together, as [{ at, says }] (at: parts.json and the path in it). */

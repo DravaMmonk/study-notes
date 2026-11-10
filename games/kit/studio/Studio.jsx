@@ -115,7 +115,7 @@ function Resizer({ side, size, open, setLayout }) {
 }
 
 export default function Studio() {
-  const [game, setGame] = useState(QUERY.get('game') ?? GAMES[0].id)
+  const [game, setGame] = useState(() => GAMES.find(({ id }) => id === QUERY.get('game'))?.id ?? GAMES[0].id)
   const [domainVocab, setVocab] = useState(null) // the domain's vocabulary; `vocab` below adds the game's parts
   const [ops, setOps] = useState([])
   const [redo, setRedo] = useState([]) // operations taken back, the last first to come back
@@ -328,9 +328,9 @@ export default function Studio() {
     else setField(null)
   }
   /** A field into the side panel (opened if folded); a field of another task has the page play that task. */
-  const pickField = (path, focus = false) => {
+  const pickField = (path, focus = false, pendingFace = null) => {
     setLayout((l) => (l.sideOpen ? l : { ...l, sideOpen: true }))
-    setField({ path, ...(focus && { focus }) })
+    setField({ path, ...(focus && { focus }), ...(pendingFace && { pendingFace }) })
     if (path[0] === 'tasks' && Number.isInteger(path[1])) setGo({ task: path[1] })
   }
   /** Go to what a finding of the check is about: the field it names, else its level. */
@@ -417,17 +417,21 @@ export default function Studio() {
     if (!def) return undefined
     const base = ['parts', m.part]
     const [key, face] = m.path
-    // A face is written as a whole list of blocks (the views object too, when the part has none yet).
-    const setFace = (list) => edit(def.views ? { op: 'parts.set', path: [...base, 'views', face], value: list } : { op: 'parts.set', path: [...base, 'views'], value: { [face]: list } })
-    const shownOf = () => JSON.parse(JSON.stringify(def.views?.[face] ?? DEFAULT_VIEWS[face]))
-    // A face still drawn by default is written out as its default blocks when it is first picked.
-    if (m.type === 'pick' && key === 'views' && face && !def.views?.[face]) setFace(shownOf())
-    if (m.type === 'pick') return pickField([...base, ...m.path], true)
-    if (key === 'views') {
-      const list = shownOf()
-      setFace([...list, { show: 'text', text: { zh: '', en: '' } }])
-      return pickField([...base, 'views', face, list.length], true)
+    if (key === 'views' && face) {
+      const path = [...base, 'views', face]
+      const pending = [...ops].reverse().find((op) => op.op === 'parts.set' && !shown?.ops.includes(op) && showPath(op.path) === showPath(path))
+      const existing = pending?.value ?? def.views?.[face]
+      const list = existing ?? DEFAULT_VIEWS[face]
+      const write = (value) => edit({ op: 'parts.set', path, value })
+      if (m.type === 'pick') {
+        if (!existing) write(list)
+        return pickField([...base, ...m.path], true, list)
+      }
+      const next = [...list, { show: 'text', text: { zh: '', en: '' } }]
+      write(next)
+      return pickField([...path, list.length], true, next)
     }
+    if (m.type === 'pick') return pickField([...base, ...m.path], true)
     const list = def[key] ?? []
     const blankOf = { rules: { set: {} }, checks: { holds: 'eq(1, 1)', say: { zh: '', en: '' } } }
     edit({ op: 'parts.set', path: [...base, key], value: [...list, blankOf[key]] })
@@ -480,6 +484,7 @@ export default function Studio() {
   const togglePanel = (which) => setLayout((l) => ({ ...l, [`${which}Open`]: !l[`${which}Open`] }))
   // The side panel's field: its control's context (as the forms had it), and the mark the page draws it with.
   const sideFile = at?.level && content?.levels.some((l) => l.id === at.level) ? { level: at.level } : atPart ? { parts: true } : at ? { game: true } : null
+  const pendingFace = field?.pendingFace && ops.some((op) => op.op === 'parts.set' && op.value === field.pendingFace && !shown?.ops.includes(op)) ? field.pendingFace : null
   const pageMark = field?.path && sideFile?.level && sideFile.level === play?.level ? { ...markOf(levelValue(sideFile.level), field.path), level: sideFile.level }
     : field?.path && at?.part !== undefined && field.path[0] === 'parts' && field.path[1] === at.part ? JSON.stringify(field.path.slice(2)) : null
   const sideCtx = vocab && content && {
@@ -642,7 +647,7 @@ export default function Studio() {
           </main>
           <Resizer side="side" size={layout.side} open={layout.sideOpen} setLayout={setLayout} />
           <aside className="studio-side">
-            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onClose={() => setField(null)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} />}
+            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} pendingFace={pendingFace} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onClose={() => setField(null)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} />}
           </aside>
           {layout.auditOpen && <Resizer side="audit" size={layout.audit} open setLayout={setLayout} />}
           <aside className="studio-audit">
