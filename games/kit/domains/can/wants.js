@@ -753,6 +753,10 @@ const WANTS = {
   fleetSessionTargets: () => (test) => fleetSessionPlan(test).targets,
   fleetSessionRequests: () => (test) => fleetSessionPlan(test).requests,
   fleetSessionVersions: () => (test) => fleetSessionPlan(test).versions,
+  fleetExamTargets: () => (test) => fleetExamPlan(test).targets,
+  fleetExamRequests: () => (test) => fleetExamPlan(test).requests,
+  fleetExamReport: () => (test) => fleetExamPlan(test).report,
+  fleetExamAny: () => (test) => fleetExamPlan(test).report.map((value) => value === null ? null : value.some((flag, index) => index % 3 === 2 && flag === 1)),
   transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
   transportTimeoutAbort: () => (test) => test.bus.bits.map((_, tick) => test.transport.silent && tick === test.transport.timeout ? true : null),
   inputPresent: ({ input }) => (test) => test.inputs[input].map((value) => value !== null && value !== undefined),
@@ -1086,6 +1090,25 @@ function fleetSessionPlan(test) {
   }
   if (tick + 1 < versions.length) versions[tick + 1] = result
   return { targets, requests, versions }
+}
+
+// Inspect one controller at a time, including the confirmed-status fault filter.
+function fleetExamPlan(test) {
+  const targets = test.bus.bits.map(() => null), requests = [...targets], report = [...targets]
+  const result = []
+  let tick = 0
+  const send = (at, target, request) => { if (at < targets.length) { targets[at] = target; requests[at] = request } }
+  for (const [index, ecu] of test.fleet.entries()) {
+    send(tick, index, [0x10, 3])
+    if (ecu.online) {
+      send(tick + 1, index, [0x22, 0xf1, 0x88])
+      send(tick + 3 + (ecu.waits ?? 0), index, [0x19, 2, 8])
+      result.push(index, ecu.version, Number(ecu.dtcs.some(({ status }) => status & 8)))
+      tick += 5 + (ecu.waits ?? 0)
+    } else tick += 2
+  }
+  if (tick + 1 < report.length) report[tick + 1] = result
+  return { targets, requests, report }
 }
 
 /** A level's `want` as the function run.js checks a test by: test → { output name: [value per tick] }. */

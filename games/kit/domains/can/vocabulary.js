@@ -96,6 +96,10 @@ const WANTS = {
   fleetSessionTargets: item(t('依次与控制器建立会话并读取版本', 'open a session and read each controller version in order')),
   fleetSessionRequests: item(t('逐个建立会话、读取版本并等待回答', 'open sessions, read versions and wait for replies in order')),
   fleetSessionVersions: item(t('汇总经过会话读取的版本', 'collect versions read after opening sessions')),
+  fleetExamTargets: item(t('依次体检各控制器', 'examine controllers in order')),
+  fleetExamRequests: item(t('依次读取版本与已确认故障', 'read versions and confirmed faults in order')),
+  fleetExamReport: item(t('汇总控制器版本和已确认故障状态', 'collect controller versions and confirmed fault status')),
+  fleetExamAny: item(t('是否有控制器报告已确认故障', 'whether any controller reports a confirmed fault')),
   transportFrames: item(t('按流控和间隔发送消息的帧', 'frames sent according to flow control and separation')),
   transportGapReady: item(t('按流控间隔等待后续帧的发送时机', 'wait for the consecutive-frame separation before allowing the next send'), S.obj({ set: INPUT, separation: INPUT, sent: INPUT })),
   transportTimeoutAbort: item(t('接收方不回答时在等待上限终止', 'abort at the waiting limit when the receiver is silent')),
@@ -353,7 +357,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 103,
+  version: 105,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
