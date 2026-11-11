@@ -757,6 +757,9 @@ const WANTS = {
   fleetExamRequests: () => (test) => fleetExamPlan(test).requests,
   fleetExamReport: () => (test) => fleetExamPlan(test).report,
   fleetExamAny: () => (test) => fleetExamPlan(test).report.map((value) => value === null ? null : value.some((flag, index) => index % 3 === 2 && flag === 1)),
+  fleetUpdateTargets: () => (test) => fleetUpdatePlan(test).targets,
+  fleetUpdateRequests: () => (test) => fleetUpdatePlan(test).requests,
+  fleetUpdateVersions: () => (test) => fleetUpdatePlan(test).versions,
   transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
   transportTimeoutAbort: () => (test) => test.bus.bits.map((_, tick) => test.transport.silent && tick === test.transport.timeout ? true : null),
   inputPresent: ({ input }) => (test) => test.inputs[input].map((value) => value !== null && value !== undefined),
@@ -1109,6 +1112,21 @@ function fleetExamPlan(test) {
   }
   if (tick + 1 < report.length) report[tick + 1] = result
   return { targets, requests, report }
+}
+
+// Program two controllers in dependency order and read back both versions.
+function fleetUpdatePlan(test) {
+  const targets = test.bus.bits.map(() => null), requests = [...targets], versions = [...targets]
+  const first = dynamicFlashPlan({ ecu: test.fleet[0] }), second = dynamicFlashPlan({ ecu: test.fleet[1] })
+  const send = (tick, target, request) => { if (tick < targets.length) { targets[tick] = target; requests[tick] = request } }
+  first.forEach((request, tick) => send(tick, 0, request))
+  const start = first.length + 1
+  second.forEach((request, tick) => send(start + tick, 1, request))
+  const reread = start + second.length
+  send(reread, 0, [0x22, 0xf1, 0x88])
+  send(reread + 1, 1, [0x22, 0xf1, 0x88])
+  if (reread + 2 < versions.length) versions[reread + 2] = [test.fleet[0].flash.versionAfter[0], test.fleet[1].flash.versionAfter[0]]
+  return { targets, requests, versions }
 }
 
 /** A level's `want` as the function run.js checks a test by: test → { output name: [value per tick] }. */
