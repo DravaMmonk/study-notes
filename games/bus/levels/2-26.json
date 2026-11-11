@@ -1,0 +1,62 @@
+{
+  "title": { "zh": "有请求也要等" },
+  "intro": [{ "t": { "zh": "发送请求可能在节点尚未等完时到达。把刚搭出的发送暂停元件接到请求上，让节点只在允许时启动。" } }],
+  "after": { "zh": "等待和请求是两个条件：被动节点不能因为有请求而跳过额外的八位。" },
+  "tasks": [
+    {
+      "id": "2-26",
+      "brief": { "zh": "在空闲总线上，只有收到发送请求并且发送暂停已经结束，才回答「是」。状态在每次间隔结束时取样。" },
+      "hint": [{ "zh": "用发送暂停元件判断是否已等够，再与发送请求组合。" }],
+      "inputs": [
+        { "name": "end", "label": { "zh": "间隔结束" } },
+        { "name": "mode", "label": { "zh": "状态" } },
+        { "name": "request", "label": { "zh": "发送请求" } }
+      ],
+      "outputs": [{ "name": "allowed", "label": { "zh": "允许发送" } }],
+      "tests": [
+        {
+          "bus": { "idle": 16, "frames": [], "tail": 0 },
+          "inputs": { "mode": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+          "pulses": { "end": [1], "request": [2, 9, 10, 12] }
+        },
+        {
+          "bus": { "idle": 10, "frames": [], "tail": 0 },
+          "inputs": { "mode": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+          "pulses": { "end": [2], "request": [2, 3, 4] }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 28, "frames": [], "tail": 0 },
+          "inputs": {
+            "mode": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          },
+          "pulses": { "end": [1, 6, 17], "request": [5, 6, 7, 18, 24] }
+        },
+        {
+          "bus": { "idle": 14, "frames": [], "tail": 0 },
+          "inputs": { "mode": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2] },
+          "pulses": { "end": [0], "request": [0, 1, 12] }
+        }
+      ],
+      "want": { "allowed": { "suspendRequest": { "end": "end", "mode": "mode", "request": "request" } } },
+      "solution": [
+        "p = suspend(end, mode)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "false = compare[form=eq](zero, one)",
+        "result = select(request, p, false)",
+        "allowed <- result"
+      ],
+      "naive": [
+        "p = suspend(end, mode)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "false = compare[form=eq](zero, one)",
+        "yes = compare[form=eq](one, one)",
+        "result = select(request, yes, false)",
+        "allowed <- result"
+      ]
+    }
+  ]
+}

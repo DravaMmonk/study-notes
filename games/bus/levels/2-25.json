@@ -1,0 +1,101 @@
+{
+  "title": { "zh": "再等八拍" },
+  "intro": [{ "t": { "zh": "错误被动节点发送完一帧或错误帧后，帧间隔结束还要多等八位，才可以再次主动发送。主动节点在帧间隔结束后无需这段额外等待；下线节点不能发送。" } }],
+  "builds": {
+    "type": "suspend",
+    "name": { "zh": "发送暂停" },
+    "desc": { "zh": "记住帧间隔结束时的状态；空闲总线上，被动发送方额外等待八拍，主动发送方无需额外等待，下线节点不能发送。" }
+  },
+  "after": { "zh": "被动节点的额外八位称为发送暂停。这里总线保持空闲；若别的节点先开口，真实节点会先接收它的帧。" },
+  "tasks": [
+    {
+      "id": "2-25",
+      "brief": {
+        "zh": "「间隔结束」为 1 时记住状态并重新开始等待。状态 0 表示主动、1 表示被动、2 表示下线。总线保持空闲：主动节点从下一拍起可以发送，被动节点等完随后的八拍，从第九拍起可以发送；下线节点始终不可以。下一次间隔结束重新开始。"
+      },
+      "hint": [{ "zh": "记住是否已经遇到间隔结束，以及当时的状态。计数器在每次间隔结束时重来。" }],
+      "inputs": [{ "name": "end", "label": { "zh": "间隔结束" } }, { "name": "mode", "label": { "zh": "状态" } }],
+      "outputs": [{ "name": "ready", "label": { "zh": "可以发送" } }],
+      "tests": [
+        {
+          "bus": { "idle": 16, "frames": [], "tail": 0 },
+          "inputs": { "mode": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] },
+          "pulses": { "end": [1] }
+        },
+        {
+          "bus": { "idle": 16, "frames": [], "tail": 0 },
+          "inputs": { "mode": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+          "pulses": { "end": [1] }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 28, "frames": [], "tail": 0 },
+          "inputs": {
+            "mode": [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          },
+          "pulses": { "end": [1, 6, 17] }
+        },
+        {
+          "bus": { "idle": 14, "frames": [], "tail": 0 },
+          "inputs": { "mode": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+          "pulses": { "end": [] }
+        },
+        {
+          "bus": { "idle": 14, "frames": [], "tail": 0 },
+          "inputs": { "mode": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2] },
+          "pulses": { "end": [0] }
+        }
+      ],
+      "want": { "ready": { "suspendReady": { "end": "end", "mode": "mode" } } },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "seven = const[value=7]()",
+        "false = compare[form=eq](zero, one)",
+        "true = compare[form=eq](one, one)",
+        "seen = reg[reg=A, start=0]()",
+        "seenNext = select(end, one, seen)",
+        "ka = keep[reg=A](seenNext)",
+        "state = reg[reg=B, start=2]()",
+        "stateNext = select(end, mode, state)",
+        "kb = keep[reg=B](stateNext)",
+        "counting = select(end, zero, seen)",
+        "count = counter(counting)",
+        "enough = compare[form=lt](seven, count)",
+        "active = compare[form=eq](state, zero)",
+        "passive = compare[form=eq](state, one)",
+        "delayed = select(passive, enough, false)",
+        "allowed = select(active, true, delayed)",
+        "known = select(seen, allowed, false)",
+        "result = select(end, false, known)",
+        "ready <- result"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "seven = const[value=7]()",
+        "false = compare[form=eq](zero, one)",
+        "true = compare[form=eq](one, one)",
+        "seen = reg[reg=A, start=0]()",
+        "seenNext = select(end, one, seen)",
+        "ka = keep[reg=A](seenNext)",
+        "state = reg[reg=B, start=2]()",
+        "stateNext = select(end, mode, state)",
+        "kb = keep[reg=B](stateNext)",
+        "counting = select(end, zero, seen)",
+        "count = counter(counting)",
+        "enough = compare[form=lt](seven, count)",
+        "active = compare[form=eq](state, zero)",
+        "passive = compare[form=eq](state, one)",
+        "delayed = select(passive, true, false)",
+        "allowed = select(active, true, delayed)",
+        "known = select(seen, allowed, false)",
+        "result = select(end, false, known)",
+        "ready <- result"
+      ]
+    }
+  ]
+}

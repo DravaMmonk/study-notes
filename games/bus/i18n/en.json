@@ -387,5 +387,21 @@
   "缺应答会使错误主动的发送方增加发送错误计数，并中断当前帧。错误处理之后，发送方重试原帧。本关不覆盖错误被动时的例外。": "A missing ACK increases an error-active sender’s transmit error count and interrupts the current frame. After error handling the sender retries the original frame. The error-passive exception is outside this exercise.",
   "重置队列": "Rewind queue",
   "发送开始": "Start attempt",
-  "发送错误计数": "Transmit error count"
+  "发送错误计数": "Transmit error count",
+  "再等八拍": "Wait eight more bits",
+  "错误被动节点发送完一帧或错误帧后，帧间隔结束还要多等八位，才可以再次主动发送。主动节点在帧间隔结束后无需这段额外等待；下线节点不能发送。": "After an error-passive node transmits a frame or error frame, it must wait another eight bits after intermission before initiating another transmission. An error-active node needs no extra wait; a bus-off node cannot transmit.",
+  "「间隔结束」为 1 时记住状态并重新开始等待。状态 0 表示主动、1 表示被动、2 表示下线。总线保持空闲：主动节点从下一拍起可以发送，被动节点等完随后的八拍，从第九拍起可以发送；下线节点始终不可以。下一次间隔结束重新开始。": "When Intermission end is 1, remember the state and restart the wait. State 0 is active, 1 is passive, and 2 is bus-off. The bus remains idle: active nodes can send from the next tick; passive nodes wait the following eight ticks and can send from the ninth. Bus-off nodes cannot send. Another intermission end restarts the wait.",
+  "记住是否已经遇到间隔结束，以及当时的状态。计数器在每次间隔结束时重来。": "Remember whether intermission has ended and the state at that moment. Restart the counter on every intermission end.",
+  "被动节点的额外八位称为发送暂停。这里总线保持空闲；若别的节点先开口，真实节点会先接收它的帧。": "The passive node’s extra eight bits are called suspend transmission. Here the bus stays idle; if another node starts first, a real node receives that frame.",
+  "记住帧间隔结束时的状态；空闲总线上，被动发送方额外等待八拍，主动发送方无需额外等待，下线节点不能发送。": "Remembers the state at intermission end. On an idle bus, passive senders wait eight extra ticks, active senders need no extra wait, and bus-off nodes cannot transmit.",
+  "发送暂停": "Suspend transmission",
+  "间隔结束": "Intermission end",
+  "可以发送": "May transmit",
+  "有请求也要等": "Wait even when requested",
+  "发送请求可能在节点尚未等完时到达。把刚搭出的发送暂停元件接到请求上，让节点只在允许时启动。": "A transmit request may arrive before the node has waited long enough. Connect your suspend-transmission component to the request so the node starts only when allowed.",
+  "在空闲总线上，只有收到发送请求并且发送暂停已经结束，才回答「是」。状态在每次间隔结束时取样。": "On an idle bus, answer yes only when a transmission is requested and suspend transmission has ended. Sample state at each intermission end.",
+  "用发送暂停元件判断是否已等够，再与发送请求组合。": "Use the suspend-transmission component to determine when the wait is over, and combine it with the transmit request.",
+  "等待和请求是两个条件：被动节点不能因为有请求而跳过额外的八位。": "Waiting and a request are separate conditions: a passive node cannot skip its extra eight bits just because a request is pending.",
+  "发送请求": "Transmit request",
+  "允许发送": "Transmission allowed"
 }
