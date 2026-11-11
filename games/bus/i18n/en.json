@@ -78,5 +78,22 @@
   "两块计数器各数各的：一块数总线安静了多久，一块数进帧以后过了几拍。": "The two counters count on their own: one how long the bus was quiet, one how many ticks since the frame began.",
   "帧起始后面的 11 位是这一帧的标识符。在它最后一位到达的那一拍交出标识符，其余每一拍交出「—」。": "The 11 bits after the start of frame are the frame’s identifier. Give it out on the tick its last bit arrives, and 「—」 on every other tick.",
   "帧起始那一拍，在寄存卡里记下\"进帧了\"，之后一直记着。": "On the start of frame, keep “in a frame” in a register, and keep it there.",
-  "进帧以后的拍数，用一块<part-ref to=\"counter\"></part-ref>数。": "Count the ticks since then with a <part-ref to=\"counter\"></part-ref>."
+  "进帧以后的拍数，用一块<part-ref to=\"counter\"></part-ref>数。": "Count the ticks since then with a <part-ref to=\"counter\"></part-ref>.",
+  "读错了": "A bit too many",
+  "刚才读标识符时，试的是开头没有填充位的帧。换一条消息，连续相同的位之间会多出一位：发送方每说完连续五个相同的位，就插入一个相反的位。": "The identifiers read so far had no stuff bits at the start. Other messages contain an extra bit: after five equal bits in a row, the sender inserts one opposite bit.",
+  "接收方要跳过填充位。注意，填充位本身也算线上连续位的第一位；后面若再有四位与它相同，又要跳过下一位。": "The receiver skips the stuff bit. The stuff bit itself starts the next run on the line; if four more bits match it, the following bit is stuffed too.",
+  "去除填充位": "Remove stuff bits",
+  "数的是线上连续的位，包括被跳过的填充位。": "The run is counted on the line, including the stuff bit that was skipped.",
+  "记住上一拍的位和连着相同的位数。": "Remember the previous bit and the length of its run.",
+  "上一拍刚数到五，这一拍就是填充位；仍要把它记作新的一段的第一位。": "If the run reached five on the previous tick, this tick is stuffed; still count it as the first bit of the next run.",
+  "结果": "Result",
+  "填充位也算数": "A stuff bit counts too",
+  "现在用搭好的元件试一段更容易出错的位串：填充位后面紧跟四个与它相同的位。": "Try the part on a trickier stream: four bits equal to a stuff bit follow it.",
+  "两次填充可以只隔四个原始位，因为第一次的填充位也参与计数。": "Two stuff bits can be separated by just four original bits, because the first stuff bit also counts.",
+  "去除位串中的填充位，并把剩下的位交出来；填充位的那一拍交出「—」。": "Remove the stuff bits and give out the remaining bits; give 「—」 on each stuff-bit tick.",
+  "输入是一段从第一位开始、已经填充的位串。原始位到来时交出它并让「有效」为是；填充位那一拍交出「—」，让「有效」为否。": "The input is a stuffed stream from its first bit. Give each original bit and set Valid to yes; on a stuff bit give 「—」 and set Valid to no.",
+  "从一段从头开始的填充位串中跳过填充位；该拍交出「—」并让「有效」为否，其余拍交出位并让「有效」为是。每块有自己的寄存卡。": "Skips stuff bits in a stuffed stream starting at its beginning: gives 「—」 and Valid no on a stuff bit, otherwise gives the bit and Valid yes. Each part has its own registers.",
+  "有效": "Valid",
+  "把去除填充位后的位依次攒成一个数，每拍交出当前的数。填充位那一拍保持原数；开始时数为 0。": "Gather the bits after removing stuff bits into a number, and give the current number each tick. Keep it unchanged on a stuff-bit tick; start at zero.",
+  "「有效」为否时保留寄存卡里的数；为是时将它左移一位并加上新位。": "When Valid is no, keep the register’s number; when yes, shift it left and add the new bit."
 }

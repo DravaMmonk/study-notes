@@ -1,0 +1,71 @@
+{
+  "title": { "zh": "读错了" },
+  "intro": [
+    { "t": { "zh": "刚才读标识符时，试的是开头没有填充位的帧。换一条消息，连续相同的位之间会多出一位：发送方每说完连续五个相同的位，就插入一个相反的位。" } },
+    { "t": { "zh": "接收方要跳过填充位。注意，填充位本身也算线上连续位的第一位；后面若再有四位与它相同，又要跳过下一位。" } }
+  ],
+  "builds": {
+    "type": "destuff",
+    "name": { "zh": "去除填充位" },
+    "desc": { "zh": "从一段从头开始的填充位串中跳过填充位；该拍交出「—」并让「有效」为否，其余拍交出位并让「有效」为是。每块有自己的寄存卡。" }
+  },
+  "after": { "zh": "数的是线上连续的位，包括被跳过的填充位。" },
+  "tasks": [
+    {
+      "id": "1-10",
+      "brief": { "zh": "输入是一段从第一位开始、已经填充的位串。原始位到来时交出它并让「有效」为是；填充位那一拍交出「—」，让「有效」为否。" },
+      "hint": [{ "zh": "记住上一拍的位和连着相同的位数。" }, { "zh": "上一拍刚数到五，这一拍就是填充位；仍要把它记作新的一段的第一位。" }],
+      "inputs": [{ "name": "bit", "label": { "zh": "位" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "结果" } }, { "name": "valid", "label": { "zh": "有效" } }],
+      "tests": [
+        {
+          "bus": { "idle": 14, "frames": [], "tail": 0 },
+          "inputs": { "bit": [0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1] }
+        },
+        {
+          "bus": { "idle": 13, "frames": [], "tail": 0 },
+          "inputs": { "bit": [1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1] }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 13, "frames": [], "tail": 0 },
+          "inputs": { "bit": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1] }
+        }
+      ],
+      "want": { "out": { "destuffed": { "input": "bit" } }, "valid": { "destuffValid": { "input": "bit" } } },
+      "solution": [
+        "p = reg[reg=A, start=0]()",
+        "r = reg[reg=B, start=0]()",
+        "same = compare[form=eq](bit, p)",
+        "one = const[value=1]()",
+        "inc = arith[form=inc](r)",
+        "n = select(same, inc, one)",
+        "kp = keep[reg=A](bit)",
+        "kr = keep[reg=B](n)",
+        "five = const[value=5]()",
+        "v = compare[form=lt](r, five)",
+        "o = select(v, bit)",
+        "out <- o",
+        "valid <- v"
+      ],
+      "naive": [
+        "p = reg[reg=A, start=0]()",
+        "r = reg[reg=B, start=0]()",
+        "same = compare[form=eq](bit, p)",
+        "one = const[value=1]()",
+        "inc = arith[form=inc](r)",
+        "n = select(same, inc, one)",
+        "kp = keep[reg=A](bit)",
+        "five = const[value=5]()",
+        "v = compare[form=lt](r, five)",
+        "zero = const[value=0]()",
+        "reset = select(v, n, zero)",
+        "kr = keep[reg=B](reset)",
+        "o = select(v, bit)",
+        "out <- o",
+        "valid <- v"
+      ]
+    }
+  ]
+}

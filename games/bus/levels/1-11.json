@@ -1,0 +1,75 @@
+{
+  "title": { "zh": "填充位也算数" },
+  "intro": [{ "t": { "zh": "现在用搭好的元件试一段更容易出错的位串：填充位后面紧跟四个与它相同的位。" } }],
+  "after": { "zh": "两次填充可以只隔四个原始位，因为第一次的填充位也参与计数。" },
+  "tasks": [
+    {
+      "id": "1-11",
+      "brief": { "zh": "去除位串中的填充位，并把剩下的位交出来；填充位的那一拍交出「—」。" },
+      "inputs": [{ "name": "bit", "label": { "zh": "位" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "结果" } }],
+      "tests": [
+        {
+          "bus": { "idle": 13, "frames": [], "tail": 0 },
+          "inputs": { "bit": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1] }
+        },
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "inputs": { "bit": [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1] }
+        }
+      ],
+      "want": { "out": { "destuffed": { "input": "bit" } } },
+      "solution": ["d = destuff(bit)", "out <- d.out"],
+      "naive": [
+        "p = reg[reg=A, start=0]()",
+        "r = reg[reg=B, start=0]()",
+        "same = compare[form=eq](bit, p)",
+        "one = const[value=1]()",
+        "inc = arith[form=inc](r)",
+        "n = select(same, inc, one)",
+        "kp = keep[reg=A](bit)",
+        "five = const[value=5]()",
+        "valid = compare[form=lt](r, five)",
+        "zero = const[value=0]()",
+        "reset = select(valid, n, zero)",
+        "kr = keep[reg=B](reset)",
+        "o = select(valid, bit)",
+        "out <- o"
+      ]
+    },
+    {
+      "id": "1-11_gather",
+      "brief": { "zh": "把去除填充位后的位依次攒成一个数，每拍交出当前的数。填充位那一拍保持原数；开始时数为 0。" },
+      "hint": [{ "zh": "「有效」为否时保留寄存卡里的数；为是时将它左移一位并加上新位。" }],
+      "inputs": [{ "name": "bit", "label": { "zh": "位" } }],
+      "outputs": [{ "name": "n", "label": { "zh": "数" } }],
+      "tests": [
+        {
+          "bus": { "idle": 13, "frames": [], "tail": 0 },
+          "inputs": { "bit": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1] }
+        },
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "inputs": { "bit": [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1] }
+        }
+      ],
+      "want": { "n": { "destuffedGather": { "input": "bit" } } },
+      "solution": [
+        "d = destuff(bit)",
+        "r = reg[reg=A, start=0]()",
+        "twice = arith[form=add](r, r)",
+        "next = arith[form=add](twice, d.out)",
+        "s = select(d.valid, next, r)",
+        "k = keep[reg=A](s)",
+        "n <- s"
+      ],
+      "naive": [
+        "r = reg[reg=A, start=0]()",
+        "twice = arith[form=add](r, r)",
+        "next = arith[form=add](twice, bit)",
+        "k = keep[reg=A](next)",
+        "n <- next"
+      ]
+    }
+  ]
+}

@@ -40,6 +40,9 @@ const WANTS = {
   streak: item(t('这一拍之前，输入连着是 1 的拍数'), S.obj({ input: INPUT })),
   startOfFrame: item(t('帧起始：总线连着至少 11 拍隐性之后的第一个显性')),
   gathered: item(t('go 为 1 的每一拍把 bit 接到攒下的数末尾（先来的在高位），为 0 时是 0'), S.obj({ bit: INPUT, go: INPUT })),
+  destuffedGather: item(t('去除填充位后逐位攒数，填充位的那一拍保留原数'), S.obj({ input: INPUT })),
+  destuffValid: item(t('这一拍是不是非填充位'), S.obj({ input: INPUT })),
+  destuffed: item(t('去除输入位串中的填充位；填充位的那一拍交出「—」'), S.obj({ input: INPUT })),
   identifier: item(t('帧的标识符，在它最后一位到达的那一拍；其余每一拍「—」')),
 }
 
@@ -62,7 +65,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 6,
+  version: 7,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

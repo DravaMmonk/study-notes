@@ -92,6 +92,15 @@ test('the signals a level wants, tick by tick', () => {
   assert.equal(got.id.filter((v) => v !== null).length, 1)
 })
 
+test('destuffing counts a stuff bit as the start of the next run', () => {
+  const bit = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0]
+  const result = wantOf({ out: { destuffed: { input: 'bit' } } })({ inputs: { bit } })
+  assert.deepEqual(result.out, [0, 0, 0, 0, 0, null, 1, 1, 1, 1, null, 0])
+  const signals = wantOf({ valid: { destuffValid: { input: 'bit' } }, gathered: { destuffedGather: { input: 'bit' } } })({ inputs: { bit } })
+  assert.deepEqual(signals.valid, [true, true, true, true, true, false, true, true, true, true, false, true])
+  assert.deepEqual(signals.gathered, [0, 0, 0, 0, 0, 0, 1, 3, 7, 15, 15, 30])
+})
+
 test('blueprint text reads into a board: settings as the cards keep them, ports by position and form', () => {
   const task = { listens: true, inputs: [{ name: 'go', label: 'go' }], outputs: [{ name: 'n', label: 'n' }] }
   const b = fromText(['r = reg[reg=A, start=1]()', 'c = compare[form=lt](r, go)', 'k = keep[reg=A](line)', 'n <- c'], task, plain)
