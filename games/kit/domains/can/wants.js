@@ -671,6 +671,24 @@ const WANTS = {
       return message
     })
   },
+  multiFrameMessage: ({ data }) => (test) => {
+    let pending = null
+    return test.inputs[data].map((bytes) => {
+      const type = bytes[0] >> 4
+      if (type === 1 && bytes.length === 8) {
+        const length = ((bytes[0] & 15) << 8) | bytes[1]
+        pending = length > 7 ? { length, bytes: bytes.slice(2), sequence: 1 } : null
+        return null
+      }
+      if (type !== 2 || bytes.length !== 8 || !pending || (bytes[0] & 15) !== pending.sequence) { pending = null; return null }
+      pending.bytes.push(...bytes.slice(1))
+      pending.sequence = (pending.sequence + 1) & 15
+      if (pending.bytes.length < pending.length) return null
+      const message = pending.bytes.slice(0, pending.length)
+      pending = null
+      return message
+    })
+  },
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

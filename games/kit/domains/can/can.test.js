@@ -1178,3 +1178,16 @@ test('two-frame messages join data, trim padding and reject a wrong sequence', (
   const next = [0x21, 7, 8, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa]
   assert.deepEqual(want({ inputs: { data: [first, next, first, [0x22, 7, 8, 0, 0, 0, 0, 0], next] } }).message, [null, [1, 2, 3, 4, 5, 6, 7, 8], null, null, null])
 })
+
+test('multi-frame reassembly handles sequence wrap and rejects missing frames', () => {
+  const payload = Array.from({ length: 120 }, (_, i) => i)
+  const first = [0x10, payload.length, ...payload.slice(0, 6)]
+  const rest = []
+  for (let i = 6, seq = 1; i < payload.length; i += 7, seq = (seq + 1) & 15) rest.push([0x20 | seq, ...payload.slice(i, i + 7), ...Array(Math.max(0, 7 - (payload.length - i))).fill(0xaa)])
+  const want = wantOf({ message: { multiFrameMessage: { data: 'data' } } })
+  const result = want({ inputs: { data: [first, ...rest] } }).message
+  assert.deepEqual(result.at(-1), payload)
+  assert.ok(result.slice(0, -1).every((value) => value === null))
+  assert.deepEqual(want({ inputs: { data: [first, rest[1], rest[2]] } }).message, [null, null, null])
+  assert.equal(PARTS.byteLength.eval({ bytes: payload }), 120)
+})
