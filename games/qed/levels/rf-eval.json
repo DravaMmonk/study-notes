@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "判定程序", "en": "A decision procedure" },
+  "title": { "zh": "判定程序" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"au-cert\"></level-ref>里，外面的证明器交来证书，核照着重放。另一条路不要证书，靠核按定义去算。公式也能写成数据：Or p (Not p) 是一样东西；eval f a b 按定义算出它在 p 取 a、q 取 b 那一行的真假；taut f 把四行都算一遍。这样的程序叫<wiki-ref to=\"decision\"></wiki-ref>，它判定一句话是不是永远成立。",
-        "en": "In <level-ref to=\"au-cert\"></level-ref> an outside prover handed over a certificate and the kernel replayed it. The other way needs no certificate and relies on the kernel computing by the definitions. A formula can be data too: Or p (Not p) is a thing; eval f a b works out by the definitions whether it is true on the row where p is a and q is b; taut f works out all four rows. Such a program is a <wiki-ref to=\"decision\"></wiki-ref>: it decides whether a sentence always holds."
+        "zh": "<level-ref to=\"au-cert\"></level-ref>里，外面的证明器交来证书，核照着重放。另一条路不要证书，靠核按定义去算。公式也能写成数据：Or p (Not p) 是一样东西；eval f a b 按定义算出它在 p 取 a、q 取 b 那一行的真假；taut f 把四行都算一遍。这样的程序叫<wiki-ref to=\"decision\"></wiki-ref>，它判定一句话是不是永远成立。"
       }
     }
   ],
@@ -14,7 +13,7 @@
       "id": "rf-eval",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms", "reflection"],
       "stated": [
@@ -36,8 +35,8 @@
         { "goal": "taut(conj(p, q)) = ff" },
         { "goal": "taut(disj(neg(conj(p, q)), disj(p, q))) = tt" }
       ],
-      "brief": { "zh": "设计一个证明助手：每个目标都证出来。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "这一关的定义都给化简用上。", "en": "Give Simp every definition of this level." }],
+      "brief": { "zh": "设计一个证明助手：每个目标都证出来。" },
+      "hint": [{ "zh": "这一关的定义都给化简用上。" }],
       "solution": [
         "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\", \"def.11\"]]()",
         "c1r0 = refl()",

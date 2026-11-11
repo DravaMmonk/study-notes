@@ -43,11 +43,13 @@ function register(root, id, content) {
   if (end < 0) fail(`${file} has no list of games to add to`)
   const q = (s) => JSON.stringify(s).replaceAll('"', "'")
   const title = content.title.zh ?? content.title
-  const en = content.title.en ?? content.title
+  // The hub lists a game in both languages: its English comes from its overlay (./i18n.js), where it has one.
+  const english = (text) => content.en?.[text.zh ?? text] ?? text.zh ?? text
+  const en = english(content.title)
   const entry = [
     '  {',
     `    id: ${q(id)}, href: ${q(`${id}/index.html`)}, title: ${q(title)}, en: ${q(en)}, topic: { zh: ${q(title)}, en: ${q(en)} },`,
-    `    desc: { zh: ${q(content.lede.zh)}, en: ${q(content.lede.en)} },`,
+    `    desc: { zh: ${q(content.lede.zh)}, en: ${q(english(content.lede))} },`,
     `    levels: ${content.levels}, dev: true, hidden: true,`,
     `    page: { icon: 'M16 32h32M32 16v32', description: ${q(`${title} ${en}`)} },`,
     '  },',
@@ -79,7 +81,8 @@ export function newGame({ root = GAMES_ROOT, id, domain, title = id }) {
   const dir = resolve(root, id)
   fill(starter, dir, { __title__: title })
   const game = JSON.parse(readFileSync(resolve(dir, 'game.json'), 'utf8'))
-  register(root, id, { title: game.title, lede: game.lede, levels: readdirSync(resolve(dir, 'levels')).filter((f) => f.endsWith('.json')).length })
+  const overlay = resolve(dir, 'i18n/en.json')
+  register(root, id, { title: game.title, lede: game.lede, en: existsSync(overlay) ? JSON.parse(readFileSync(overlay, 'utf8')) : {}, levels: readdirSync(resolve(dir, 'levels')).filter((f) => f.endsWith('.json')).length })
   return dir
 }
 

@@ -1,24 +1,21 @@
 {
-  "title": { "zh": "一起来", "en": "All together" },
+  "title": { "zh": "一起来" },
   "intro": [
     {
       "t": {
-        "zh": "只写函数名的、有陷阱的、只说症状的，一块板全部接住。",
-        "en": "Named by function, with a trap, or only a symptom: one board takes them all."
+        "zh": "只写函数名的、有陷阱的、只说症状的，一块板全部接住。"
       }
     }
   ],
   "after": {
-    "zh": "一块板接住了三种 issue：要目录、读文件、跑测试、改到通过。这就是一个完整的编码 agent：一个循环，一个上下文，几个工具，一道检查。",
-    "en": "One board took all three kinds: list, read, test, fix until it passes. That is a whole coding agent: a loop, a context, a few tools and a check."
+    "zh": "一块板接住了三种 issue：要目录、读文件、跑测试、改到通过。这就是一个完整的编码 agent：一个循环，一个上下文，几个工具，一道检查。"
   },
   "tasks": [
     {
       "id": "2-6",
       "kind": "board",
       "brief": {
-        "zh": "三种 issue 混在一起，每个都要在 10 轮内改好并停下。",
-        "en": "Three kinds of issue mixed, each fixed and stopped within 10 turns."
+        "zh": "三种 issue 混在一起，每个都要在 10 轮内改好并停下。"
       },
       "turns": 10,
       "tests": [{ "issue": "login-case" }, { "issue": "two-traps" }, { "issue": "stuck-session" }],

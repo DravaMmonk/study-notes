@@ -1,50 +1,43 @@
 {
-  "title": { "zh": "钥匙与门", "en": "Keys and doors" },
-  "short": { "zh": "把表叠成两层", "en": "Stack the table in two layers" },
+  "title": { "zh": "钥匙与门" },
+  "short": { "zh": "把表叠成两层" },
   "intro": [
     {
       "t": {
-        "zh": "要修好计数器，状态得多记一件事：<b>有没有钥匙</b>。一张表里每格只能存一个数，装不下两种路线。",
-        "en": "To fix the counter, the state has to remember one more thing: <b>whether you have the key</b>. Each cell of one table can hold only one number, which can’t keep two kinds of route apart."
+        "zh": "要修好计数器，状态得多记一件事：<b>有没有钥匙</b>。一张表里每格只能存一个数，装不下两种路线。"
       }
     },
     {
       "t": {
-        "zh": "这一关的机器人「千层」把表<b>叠成两层</b>：「无钥匙」一层装还没拿钥匙的路线，「红」一层装拿过钥匙的路线。它在每一格上，把两层各算一次。",
-        "en": "This level’s robot, Layercake, stacks the table <b>in two layers</b>: the “no keys” layer holds the routes that haven’t got the key yet, the “red” layer those that have. On every cell it works out both layers."
+        "zh": "这一关的机器人「千层」把表<b>叠成两层</b>：「无钥匙」一层装还没拿钥匙的路线，「红」一层装拿过钥匙的路线。它在每一格上，把两层各算一次。"
       }
     },
     {
       "t": {
-        "zh": "本格信息告诉电路：这一层在这一格上会发生什么。<b>门关着</b>：这里是门，这一层却没有钥匙。<b>路线被带走</b>：这里有钥匙，走到这里的路线会捡起它，搬去另一层。<b>捡到钥匙</b>：这里有钥匙，这一层正接住捡起它的路线。",
-        "en": "The cell facts tell the circuit what happens on this layer at this cell. <b>Door shut</b>: there is a door here, but this layer has no key. <b>Routes move on</b>: there is a key here, and routes reaching it pick it up and move to the other layer. <b>Picks up key</b>: there is a key here, and this layer takes in the routes that pick it up."
+        "zh": "本格信息告诉电路：这一层在这一格上会发生什么。<b>门关着</b>：这里是门，这一层却没有钥匙。<b>路线被带走</b>：这里有钥匙，走到这里的路线会捡起它，搬去另一层。<b>捡到钥匙</b>：这里有钥匙，这一层正接住捡起它的路线。"
       }
     },
     {
       "t": {
-        "zh": "在捡钥匙的格子上，千层的<b>探针</b>能探到另一层的上面和左边：那些路线就是从那里搬来的。",
-        "en": "On the cell with the key, Layercake’s <b>probe</b> reaches up and left on the other layer: that is where those routes come from."
+        "zh": "在捡钥匙的格子上，千层的<b>探针</b>能探到另一层的上面和左边：那些路线就是从那里搬来的。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "只能往右或往下走，穿过门之前必须拿过钥匙。算出每张地图上的合法路线数：两层终点的数加起来。",
-      "en": "Only right or down, and you must have picked up the key before going through a door. Work out the number of valid routes on each map: the end cells of both layers, added up."
+      "zh": "只能往右或往下走，穿过门之前必须拿过钥匙。算出每张地图上的合法路线数：两层终点的数加起来。"
     },
-    "how": { "zh": "每一格把两层都算一遍。", "en": "Every cell works out both layers." }
+    "how": { "zh": "每一格把两层都算一遍。" }
   },
   "robot": "stack",
   "debrief": {
-    "title": { "zh": "两层，各管各的", "en": "Two layers, each minding its own" },
+    "title": { "zh": "两层，各管各的" },
     "body": [
       {
-        "zh": "「无钥匙」一层的路线碰到门就停；走到钥匙格，就整批搬去「红」那一层。「红」那一层在钥匙格上把它们接住，从此门都开着。",
-        "en": "Routes on the “no keys” layer stop at a door; reaching the key cell, they move as a batch to the “red” layer. The “red” layer takes them in at the key cell, and from then on every door is open."
+        "zh": "「无钥匙」一层的路线碰到门就停；走到钥匙格，就整批搬去「红」那一层。「红」那一层在钥匙格上把它们接住，从此门都开着。"
       },
       {
-        "zh": "状态从「在哪一格」变成了「在哪一格、有没有钥匙」：多记一件事，表就多一层。",
-        "en": "The state went from “which cell” to “which cell, and whether you have the key”: one more thing to remember, one more layer."
+        "zh": "状态从「在哪一格」变成了「在哪一格、有没有钥匙」：多记一件事，表就多一层。"
       }
     ]
   },
@@ -56,12 +49,10 @@
       "noTrace": true,
       "hints": [
         {
-          "zh": "先用路线计数器数路线，再把不该留在这一层的路线拦下：门关着，或者路线被带走。",
-          "en": "Count the routes with the Route Counter first, then block the ones that can’t stay on this layer: the door is shut, or the routes move on."
+          "zh": "先用路线计数器数路线，再把不该留在这一层的路线拦下：门关着，或者路线被带走。"
         },
         {
-          "zh": "捡到钥匙的格子上，还要接住从另一层搬来的路线：探针探到的上面和左边，加起来。",
-          "en": "On the cell where the key is picked up, also take in the routes moving over from the other layer: up and left as the probe reaches them, added up."
+          "zh": "捡到钥匙的格子上，还要接住从另一层搬来的路线：探针探到的上面和左边，加起来。"
         }
       ],
       "world": "keys",

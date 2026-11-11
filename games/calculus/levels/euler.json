@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "算出 e", "en": "Computing e" },
+  "title": { "zh": "算出 e" },
   "intro": [
     {
       "t": {
-        "zh": "把阶乘倒数一项项加起来：1 + 1 + 1/2 + 1/6 + …。这个和有自己的名字。测试给出它的值和 ε，看部分和几项就稳定下来。",
-        "en": "Add the reciprocal factorials term by term: 1 + 1 + 1/2 + 1/6 + …. This sum has a name of its own. The test gives its value and ε: watch how few terms the partial sums need to settle."
+        "zh": "把阶乘倒数一项项加起来：1 + 1 + 1/2 + 1/6 + …。这个和有自己的名字。测试给出它的值和 ε，看部分和几项就稳定下来。"
       }
     }
   ],
   "after": {
-    "zh": "1 + 1/1! + 1/2! + … 趋于<wiki-ref to=\"e\"></wiki-ref> ≈ 2.71828：阶乘长得飞快，几项就准到小数点后好几位。",
-    "en": "1 + 1/1! + 1/2! + … tends to <wiki-ref to=\"e\"></wiki-ref> ≈ 2.71828: factorials grow so fast that a few terms are right to several decimal places."
+    "zh": "1 + 1/1! + 1/2! + … 趋于<wiki-ref to=\"e\"></wiki-ref> ≈ 2.71828：阶乘长得飞快，几项就准到小数点后好几位。"
   },
   "tasks": [
     {
       "id": "euler",
       "brief": {
-        "zh": "交出 1 + 1/1! + 1/2! + … 的部分和；测试给出 e 和 ε，交出部分和离 e 不到 ε 的 N。",
-        "en": "Give the partial sums of 1 + 1/1! + 1/2! + …; the test gives e and ε: give the N at which they come within ε of e."
+        "zh": "交出 1 + 1/1! + 1/2! + … 的部分和；测试给出 e 和 ε，交出部分和离 e 不到 ε 的 N。"
       },
       "inputs": [{ "name": "E", "label": "e" }, { "name": "e", "label": "ε" }],
       "outputs": [{ "name": "S", "label": "Sₙ" }, { "name": "N", "label": "N" }],

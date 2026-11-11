@@ -5,7 +5,6 @@
 // own text has English too.
 import { existsSync, readdirSync } from 'node:fs'
 import { keyOf } from '../../shell/i18n.js'
-import { untranslated } from '../../engine/text.js'
 import { withHidden } from '../../engine/tests.js'
 import { startBoard } from './engine/board.js'
 import { introProblems } from './intros.js'
@@ -23,9 +22,6 @@ export function validate({ levels, intros, kit, course }) {
   const out = []
   const failAt = (text, level) => out.push({ text, fail: true, ...(level ? { level } : {}) })
   const sayAt = (text, level) => out.push({ text, ...(level ? { level } : {}) })
-
-  const parts = Object.fromEntries(Object.entries(kit.types).map(([type, spec]) => [type, { label: spec.label, description: spec.description, params: spec.params }]))
-  for (const problem of untranslated(parts, 'parts')) failAt(`text ${problem}`)
 
   for (const level of levels) {
     if (course.notes && !intros[level.id]?.length) continue

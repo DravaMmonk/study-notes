@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "我证不出", "en": "I cannot be proved" },
+  "title": { "zh": "我证不出" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "第四步。头两句已知来自<level-ref to=\"gd-diag\"></level-ref>：G 说「对角 ⌜D⌝ 证不出」，而对角 ⌜D⌝ 算出来是 ⌜G⌝。Prov 来自<level-ref to=\"gd-check\"></level-ref>：有一个通过检查的证明。真正的定理里，Prov 要用加法和乘法写成一句算术的话，这一步很长，这里当作已知。第三句是<b>可靠</b>：证得出的都是真的（这里只对 G 用到）。",
-        "en": "The fourth step. The first two givens come from <level-ref to=\"gd-diag\"></level-ref>: G says “the diagonal of ⌜D⌝ cannot be proved”, and the diagonal of ⌜D⌝ works out to ⌜G⌝. Prov comes from <level-ref to=\"gd-check\"></level-ref>: there is a proof that passes the check. In the real theorem Prov must be written as a sentence of arithmetic, with addition and multiplication; that long step is taken as given here. The third given is <b>soundness</b>: what can be proved is true (used here for G alone)."
+        "zh": "第四步。头两句已知来自<level-ref to=\"gd-diag\"></level-ref>：G 说「对角 ⌜D⌝ 证不出」，而对角 ⌜D⌝ 算出来是 ⌜G⌝。Prov 来自<level-ref to=\"gd-check\"></level-ref>：有一个通过检查的证明。真正的定理里，Prov 要用加法和乘法写成一句算术的话，这一步很长，这里当作已知。第三句是<b>可靠</b>：证得出的都是真的（这里只对 G 用到）。"
       }
     }
   ],
   "after": {
-    "zh": "这是哥德尔第一<wiki-ref to=\"incompleteness\"></wiki-ref>的核心。<level-ref to=\"kk-one\"></level-ref>的说谎者谈真假，推出矛盾；G 谈证不证得出，得到的是一句证不出的真话。",
-    "en": "This is the heart of Gödel’s first <wiki-ref to=\"incompleteness\"></wiki-ref>. The liar of <level-ref to=\"kk-one\"></level-ref> speaks of truth and yields a contradiction; G speaks of proof and yields a truth that cannot be proved."
+    "zh": "这是哥德尔第一<wiki-ref to=\"incompleteness\"></wiki-ref>的核心。<level-ref to=\"kk-one\"></level-ref>的说谎者谈真假，推出矛盾；G 谈证不证得出，得到的是一句证不出的真话。"
   },
   "tasks": [
     {
@@ -26,10 +24,10 @@
           "goal": "G ∧ ¬Prov(g)"
         }
       ],
-      "brief": { "zh": "从这三句已知证出：G 成立，而且 G 证不出。", "en": "From these three givens, prove: G holds, and G cannot be proved." },
+      "brief": { "zh": "从这三句已知证出：G 成立，而且 G 证不出。" },
       "hint": [
-        { "zh": "头两句合起来，说的是 G 和「⌜G⌝ 证不出」的关系。", "en": "The first two givens together relate G to “⌜G⌝ cannot be proved”." },
-        { "zh": "先证 G 证不出；G 成立随后就有。", "en": "Prove first that G cannot be proved; that G holds follows." }
+        { "zh": "头两句合起来，说的是 G 和「⌜G⌝ 证不出」的关系。" },
+        { "zh": "先证 G 证不出；G 成立随后就有。" }
       ],
       "solution": [
         "f = impI[A=\"Prov(g)\"](body: m3) {",

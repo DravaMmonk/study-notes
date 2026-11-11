@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "加得完的无穷", "en": "An infinity that adds up" },
+  "title": { "zh": "加得完的无穷" },
   "intro": [
     {
       "t": {
-        "zh": "1 + 1/2 + 1/4 + … = 2：无穷多项永远加不完，等号右边的 2 是什么意思？能算的只有部分和，问的是部分和趋于什么。",
-        "en": "1 + 1/2 + 1/4 + … = 2: infinitely many terms never finish adding, so what does the 2 mean? Only partial sums can be computed; the question is what they tend to."
+        "zh": "1 + 1/2 + 1/4 + … = 2：无穷多项永远加不完，等号右边的 2 是什么意思？能算的只有部分和，问的是部分和趋于什么。"
       }
     }
   ],
   "after": {
-    "zh": "部分和有极限，就说<wiki-ref to=\"series\"></wiki-ref>，和就是这个极限。",
-    "en": "When the partial sums have a limit, it is a <wiki-ref to=\"series\"></wiki-ref>, and the limit is its sum."
+    "zh": "部分和有极限，就说<wiki-ref to=\"series\"></wiki-ref>，和就是这个极限。"
   },
   "tasks": [
     {
       "id": "series",
       "brief": {
-        "zh": "交出 1 + 1/2 + 1/4 + … 的部分和；测试给出 ε，交出它离 2 不到 ε 的 N。",
-        "en": "Give the partial sums of 1 + 1/2 + 1/4 + …; the test gives ε: give the N at which they come within ε of 2."
+        "zh": "交出 1 + 1/2 + 1/4 + … 的部分和；测试给出 ε，交出它离 2 不到 ε 的 N。"
       },
       "inputs": [{ "name": "e", "label": "ε" }],
       "outputs": [{ "name": "S", "label": "Sₙ" }, { "name": "N", "label": "N" }],

@@ -1,31 +1,27 @@
 {
-  "title": { "zh": "极限", "en": "Limit" },
+  "title": { "zh": "极限" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"halves\"></level-ref>里，部分和加到哪一项都不等于 1。说它趋于 1，凭的是什么？",
-        "en": "In <level-ref to=\"halves\"></level-ref> no partial sum equals 1. On what grounds does the sum tend to 1?"
+        "zh": "<level-ref to=\"halves\"></level-ref>里，部分和加到哪一项都不等于 1。说它趋于 1，凭的是什么？"
       }
     },
     {
       "t": {
-        "zh": "三件元件齐了：<part-ref to=\"dist\"></part-ref>量差多远，<part-ref to=\"near\"></part-ref>按 ε 判近不近，<part-ref to=\"since\"></part-ref>说从哪一项起一直如此。测试给出数列（先是 1/(n+1)）、L 和 ε，把它们接起来，每一拍交出到这一拍为止的 N。",
-        "en": "The three parts are ready: <part-ref to=\"dist\"></part-ref> measures how far, <part-ref to=\"near\"></part-ref> judges closeness by ε, and <part-ref to=\"since\"></part-ref> says from which term it has held. The test gives the sequence (1/(n+1) first), L and ε: wire them up, and each tick give N as found so far."
+        "zh": "三件元件齐了：<part-ref to=\"dist\"></part-ref>量差多远，<part-ref to=\"near\"></part-ref>按 ε 判近不近，<part-ref to=\"since\"></part-ref>说从哪一项起一直如此。测试给出数列（先是 1/(n+1)）、L 和 ε，把它们接起来，每一拍交出到这一拍为止的 N。"
       }
     }
   ],
   "after": {
-    "zh": "不管 ε 多小，总有一项 N，从它起每一项都离 L 不到 ε：L 就是数列的<wiki-ref to=\"limit\"></wiki-ref>。只跑了有限拍，N 只在这些拍以内成立。",
-    "en": "However small ε is, some term N has every term from it on less than ε from L: L is the sequence’s <wiki-ref to=\"limit\"></wiki-ref>. Only finitely many ticks ran, so N holds within them only."
+    "zh": "不管 ε 多小，总有一项 N，从它起每一项都离 L 不到 ε：L 就是数列的<wiki-ref to=\"limit\"></wiki-ref>。只跑了有限拍，N 只在这些拍以内成立。"
   },
   "tasks": [
     {
       "id": "limit",
       "brief": {
-        "zh": "aₙ 趋于 L：测试给出 ε，每一拍交出到这一拍为止的 N。",
-        "en": "aₙ tends to L: the test gives ε; each tick give N as found so far."
+        "zh": "aₙ 趋于 L：测试给出 ε，每一拍交出到这一拍为止的 N。"
       },
-      "hint": [{ "zh": "ε 越小，N 落在越后面。", "en": "The smaller ε, the later N falls." }],
+      "hint": [{ "zh": "ε 越小，N 落在越后面。" }],
       "inputs": [{ "name": "a", "label": "aₙ" }, { "name": "L", "label": "L" }, { "name": "e", "label": "ε" }],
       "outputs": [{ "name": "N", "label": "N" }],
       "tests": [

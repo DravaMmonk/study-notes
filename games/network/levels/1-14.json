@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "核对奇偶", "en": "Check the parity" },
+  "title": { "zh": "核对奇偶" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-32\"></level-ref>在发送的一方附上校验位。这一次换到收的一方：线照样会翻位，每个字节都要核对。",
-        "en": "<level-ref to=\"1-32\"></level-ref> appends the parity bit at the sending end. Now the board is the receiver: the wire still flips bits, and every byte must be checked."
+        "zh": "<level-ref to=\"1-32\"></level-ref>在发送的一方附上校验位。这一次换到收的一方：线照样会翻位，每个字节都要核对。"
       }
     }
   ],
@@ -12,27 +11,23 @@
     {
       "id": "1-14",
       "brief": {
-        "zh": "从第一拍起，线上接连送来字节，每个后跟一个校验位，使这 9 位里 1 的个数为偶数；线会翻位。每个校验位到达的那一拍，输出收到的字节和校验是否相符，其余各拍为「—」。",
-        "en": "From the first tick, bytes come down the wire back to back, each followed by a bit that makes the count of 1s in the nine even; the wire flips bits. On the tick each such bit arrives, output the byte received and whether it checks out; 「—」 on every other tick."
+        "zh": "从第一拍起，线上接连送来字节，每个后跟一个校验位，使这 9 位里 1 的个数为偶数；线会翻位。每个校验位到达的那一拍，输出收到的字节和校验是否相符，其余各拍为「—」。"
       },
       "hint": [
         {
-          "zh": "<level-ref to=\"1-32\"></level-ref>里跟着记奇偶的办法，收的一方也用得上。",
-          "en": "The way <level-ref to=\"1-32\"></level-ref> keeps track of parity works at the receiving end too."
+          "zh": "<level-ref to=\"1-32\"></level-ref>里跟着记奇偶的办法，收的一方也用得上。"
         },
         {
-          "zh": "<part-ref to=\"xor\"></part-ref>把记下的奇偶和新来的一位合成新的奇偶。",
-          "en": "<part-ref to=\"xor\"></part-ref> folds a new bit into the parity kept so far."
+          "zh": "<part-ref to=\"xor\"></part-ref>把记下的奇偶和新来的一位合成新的奇偶。"
         },
         {
-          "zh": "字节一个接一个，中间没有空拍：每 9 拍从头算起。",
-          "en": "The bytes come back to back with no gap: start afresh every 9 ticks."
+          "zh": "字节一个接一个，中间没有空拍：每 9 拍从头算起。"
         }
       ],
-      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
       "outputs": [
-        { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
-        { "name": "ok", "label": { "zh": "相符", "en": "Fits" } }
+        { "name": "byte", "label": { "zh": "字节" } },
+        { "name": "ok", "label": { "zh": "相符" } }
       ],
       "tests": [
         { "wires": { "line": { "send": [{ "bytes": [65], "format": "parity" }] } } },

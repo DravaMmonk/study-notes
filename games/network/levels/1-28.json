@@ -1,19 +1,17 @@
 {
-  "title": { "zh": "字节停一拍", "en": "The byte waits" },
+  "title": { "zh": "字节停一拍" },
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"counterhold\"></part-ref>会停了。正在发的字节也要能停：多塞一位的那一拍，字节里该说的那一位留到下一拍。",
-        "en": "<part-ref to=\"counterhold\"></part-ref> can stand still now. The byte being sent must too: on the tick an extra bit goes in, the bit of the byte that was due waits for the next tick."
+        "zh": "<part-ref to=\"counterhold\"></part-ref>会停了。正在发的字节也要能停：多塞一位的那一拍，字节里该说的那一位留到下一拍。"
       }
     }
   ],
   "builds": {
     "type": "serializerhold",
-    "name": { "zh": "带暂停的移位发送", "en": "Pausable shift out" },
+    "name": { "zh": "带暂停的移位发送" },
     "desc": {
-      "zh": "比移位发送多一个「暂停」：从「开始」为 1 的那一拍起，把那一拍的字节从最高位起逐位说出，「暂停」为 1 的拍说 0，该说的那一位留到下一拍；8 位说完以后说「—」（线上是 0）。说出最后一位的那一拍「送完」为 1。「开始」再为 1 时重新送。",
-      "en": "Shift out with a hold input: from the tick start is 1, says the byte of that tick bit by bit from the top; on a tick hold is 1 it says 0 and the bit due waits a tick; after the eighth bit it says 「—」 (0 on a wire). Done is 1 on the tick the last bit is said. Start again sends anew."
+      "zh": "比移位发送多一个「暂停」：从「开始」为 1 的那一拍起，把那一拍的字节从最高位起逐位说出，「暂停」为 1 的拍说 0，该说的那一位留到下一拍；8 位说完以后说「—」（线上是 0）。说出最后一位的那一拍「送完」为 1。「开始」再为 1 时重新送。"
     },
     "replaces": ["serializer"]
   },
@@ -21,18 +19,17 @@
     {
       "id": "1-28",
       "brief": {
-        "zh": "从「开始」为 1 的那一拍起，把那一拍输入的字节从最高位起逐位说到线上，8 位说完后说 0；「暂停」为 1 的拍说 0，该说的那一位留到下一拍。说出最后一位的那一拍「送完」为 1。",
-        "en": "From the tick start is 1, say the byte input then on the wire bit by bit from the top, then 0; on a tick hold is 1 say 0, and the bit due waits for the next tick. Done is 1 on the tick the last bit is said."
+        "zh": "从「开始」为 1 的那一拍起，把那一拍输入的字节从最高位起逐位说到线上，8 位说完后说 0；「暂停」为 1 的拍说 0，该说的那一位留到下一拍。说出最后一位的那一拍「送完」为 1。"
       },
-      "hint": [{ "zh": "「开始」那一拍也可能是「暂停」的拍。", "en": "The start tick may be a hold tick too." }],
+      "hint": [{ "zh": "「开始」那一拍也可能是「暂停」的拍。" }],
       "carry": "1-7",
       "inputs": [
-        { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
-        { "name": "start", "label": { "zh": "开始", "en": "Start" } },
-        { "name": "hold", "label": { "zh": "暂停", "en": "Hold" } }
+        { "name": "byte", "label": { "zh": "字节" } },
+        { "name": "start", "label": { "zh": "开始" } },
+        { "name": "hold", "label": { "zh": "暂停" } }
       ],
-      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
-      "outputs": [{ "name": "done", "label": { "zh": "送完", "en": "Done" } }],
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线" } }] },
+      "outputs": [{ "name": "done", "label": { "zh": "送完" } }],
       "tests": [
         {
           "ticks": 10,

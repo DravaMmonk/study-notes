@@ -1,37 +1,32 @@
 {
-  "title": { "zh": "等差", "en": "Steady steps" },
+  "title": { "zh": "等差" },
   "intro": [
     {
       "t": {
-        "zh": "到这里，数列都由测试交来。这一回没有输入，却要交出无穷多项：3, 5, 7, 9, …，每一项比上一项多 2。",
-        "en": "So far every sequence has come from the test. This time there is no input, yet must give infinitely many terms: 3, 5, 7, 9, …, each 2 more than the one before."
+        "zh": "到这里，数列都由测试交来。这一回没有输入，却要交出无穷多项：3, 5, 7, 9, …，每一项比上一项多 2。"
       }
     },
     {
       "t": {
-        "zh": "固定的 2 由新元件<part-ref to=\"part:const\"></part-ref>给出，它每一拍都交出设定的数。",
-        "en": "A fixed 2 comes from a new part, <part-ref to=\"part:const\"></part-ref>, which gives the number it is set to every tick."
+        "zh": "固定的 2 由新元件<part-ref to=\"part:const\"></part-ref>给出，它每一拍都交出设定的数。"
       }
     }
   ],
   "after": {
-    "zh": "首项加上由上一项算出这一项的规则，整个数列就定了：这叫<wiki-ref to=\"recurrence\"></wiki-ref>。每一步加同一个数的，叫<wiki-ref to=\"arithmetic\"></wiki-ref>。",
-    "en": "A first term plus a rule taking each term from the one before fixes the whole sequence: this is a <wiki-ref to=\"recurrence\"></wiki-ref>. When every step adds the same number, it is an <wiki-ref to=\"arithmetic\"></wiki-ref>."
+    "zh": "首项加上由上一项算出这一项的规则，整个数列就定了：这叫<wiki-ref to=\"recurrence\"></wiki-ref>。每一步加同一个数的，叫<wiki-ref to=\"arithmetic\"></wiki-ref>。"
   },
   "adds": ["const"],
   "tasks": [
     {
       "id": "arith",
       "brief": {
-        "zh": "交出首项 3、之后每项比上一项多 2 的数列。",
-        "en": "Give the sequence that starts at 3, each term 2 more than the one before."
+        "zh": "交出首项 3、之后每项比上一项多 2 的数列。"
       },
       "hint": [
         {
-          "zh": "寄存卡里该存的，是下一拍要交出的那一项。",
-          "en": "What the register should hold is the term to give on the next tick."
+          "zh": "寄存卡里该存的，是下一拍要交出的那一项。"
         },
-        { "zh": "首项写在读寄存卡的初值上。", "en": "The first term goes on the register’s start value." }
+        { "zh": "首项写在读寄存卡的初值上。" }
       ],
       "outputs": [{ "name": "a", "label": "aₙ" }],
       "tests": [{ "want": { "a": [3, 5, 7, 9, 11, 13, 15, 17] } }],

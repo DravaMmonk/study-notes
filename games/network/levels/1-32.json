@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "奇偶校验位", "en": "A parity bit" },
+  "title": { "zh": "奇偶校验位" },
   "intro": [
     {
       "t": {
-        "zh": "送两份要把线占去一倍。省得多的办法只附一位：让连它在内的 1 的个数凑成偶数，叫<wiki-ref to=\"parity\"></wiki-ref>。",
-        "en": "Sending twice takes up the wire twice over. A far cheaper rule appends a single bit that makes the count of 1s, itself included, even: a <wiki-ref to=\"parity\"></wiki-ref>."
+        "zh": "送两份要把线占去一倍。省得多的办法只附一位：让连它在内的 1 的个数凑成偶数，叫<wiki-ref to=\"parity\"></wiki-ref>。"
       }
     }
   ],
@@ -12,20 +11,18 @@
     {
       "id": "1-32",
       "brief": {
-        "zh": "从第一拍起把交来的字节一个接一个送出，中间不留空：每个字节后面跟一个校验位，字节里有奇数个 1 时为 1。",
-        "en": "From the first tick, send the bytes handed to you back to back, each followed by a parity bit that is 1 when the byte holds an odd number of 1s."
+        "zh": "从第一拍起把交来的字节一个接一个送出，中间不留空：每个字节后面跟一个校验位，字节里有奇数个 1 时为 1。"
       },
       "hint": [
         {
-          "zh": "1 的个数是奇是偶，可以一位一位地跟着记。",
-          "en": "Whether the count of 1s is odd or even can be tracked bit by bit."
+          "zh": "1 的个数是奇是偶，可以一位一位地跟着记。"
         },
-        { "zh": "一个字节连同校验位占 9 拍。", "en": "A byte with its parity bit takes 9 ticks." }
+        { "zh": "一个字节连同校验位占 9 拍。" }
       ],
-      "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
-      "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
+      "inputs": [{ "name": "byte", "label": { "zh": "队首" } }],
+      "outputs": [{ "name": "next", "label": { "zh": "下一个" } }],
       "pulls": { "input": "byte", "next": "next" },
-      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线" } }] },
       "tests": [
         { "ticks": 11, "queue": [[65]] },
         { "ticks": 20, "queue": [[1, 254]] },

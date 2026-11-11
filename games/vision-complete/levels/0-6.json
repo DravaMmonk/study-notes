@@ -1,27 +1,23 @@
 {
-  "title": { "zh": "门槛", "en": "The gate" },
+  "title": { "zh": "门槛" },
   "tray": "pipeline",
   "after": {
-    "zh": "正确。你得到了<part-ref to=\"threshold\"></part-ref>：大于门槛 t 的格子变 1，其余变 0，t 由你来定。只有 0 和 1 的图叫掩膜，用来标出图里的某块区域。",
-    "en": "Correct. You now have <part-ref to=\"threshold\"></part-ref>: cells above the threshold t become 1 and the rest 0, and you choose t. An image of only 0s and 1s is called a mask; it marks out a region of the picture."
+    "zh": "正确。你得到了<part-ref to=\"threshold\"></part-ref>：大于门槛 t 的格子变 1，其余变 0，t 由你来定。只有 0 和 1 的图叫掩膜，用来标出图里的某块区域。"
   },
   "intro": [
     {
       "t": {
-        "zh": "很多问题要的答案只有「是」或「否」：这一格是不是路面？这里有没有人？深浅不一的灰，得变成 0 和 1。",
-        "en": "Many questions want a yes or a no: is this cell road? Is anyone here? Shades of grey have to become 0s and 1s."
+        "zh": "很多问题要的答案只有「是」或「否」：这一格是不是路面？这里有没有人？深浅不一的灰，得变成 0 和 1。"
       }
     },
     {
       "t": {
-        "zh": "台上是一个黑箱，它只会输出 0 和 1。喂它不同的测试图，看哪些格子变成了 1，哪些变成了 0。",
-        "en": "There is a black box on the bench, and it only ever outputs 0 or 1. Feed it different test pictures and see which cells become 1 and which become 0."
+        "zh": "台上是一个黑箱，它只会输出 0 和 1。喂它不同的测试图，看哪些格子变成了 1，哪些变成了 0。"
       }
     },
     {
       "t": {
-        "zh": "要想的问题：哪张测试图最容易读出它的规则？点一下格子（电脑上把鼠标停在上面），可以读出它原来的亮度。这个元件过关后也归你。",
-        "en": "Something to think about: which test picture reveals its rule most easily? Tap a cell (or point at it on a computer) to read its original brightness. Once you pass, this part is yours too."
+        "zh": "要想的问题：哪张测试图最容易读出它的规则？点一下格子（电脑上把鼠标停在上面），可以读出它原来的亮度。这个元件过关后也归你。"
       }
     }
   ],
@@ -31,25 +27,23 @@
       "id": "0-6",
       "kind": "probe",
       "brief": {
-        "zh": "又一个黑箱。它只会输出 0 和 1。用测试图喂它，找出它在多亮的地方从 0 变成 1。",
-        "en": "Another black box. It only ever outputs 0 or 1. Feed it test images and find how bright a cell must be before it turns from 0 to 1."
+        "zh": "又一个黑箱。它只会输出 0 和 1。用测试图喂它，找出它在多亮的地方从 0 变成 1。"
       },
       "part": "mysteryGate",
-      "question": { "zh": "亮度要超过多少，它才输出 1？", "en": "How bright must a cell be before it outputs 1?" },
+      "question": { "zh": "亮度要超过多少，它才输出 1？" },
       "answers": ["0.2", "0.4", "0.6", "0.8"],
       "answer": "0.6",
       "wrong": {
-        "zh": "用斜坡试：点一下从 0 变 1 的那两格，读出它们原来的亮度。",
-        "en": "Try the ramp: tap the two cells where 0 turns into 1 and read their original brightness."
+        "zh": "用斜坡试：点一下从 0 变 1 的那两格，读出它们原来的亮度。"
       },
       "probes": [
-        { "label": { "zh": "横向斜坡", "en": "Horizontal ramp" }, "picture": "rampX" },
-        { "label": { "zh": "纵向斜坡", "en": "Vertical ramp" }, "picture": "rampY" },
+        { "label": { "zh": "横向斜坡" }, "picture": "rampX" },
+        { "label": { "zh": "纵向斜坡" }, "picture": "rampY" },
         {
-          "label": { "zh": "圆盘", "en": "Disc" },
+          "label": { "zh": "圆盘" },
           "picture": { "disk": { "cx": 7.5, "cy": 7.5, "r": 5, "lo": 0.3, "hi": 0.7 } }
         },
-        { "label": { "zh": "随机纹理", "en": "Random texture" }, "picture": { "noise": { "seed": 4 } } }
+        { "label": { "zh": "随机纹理" }, "picture": { "noise": { "seed": 4 } } }
       ]
     }
   ]

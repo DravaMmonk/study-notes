@@ -3,8 +3,7 @@
     {
       "id": "arrows",
       "title": {
-        "zh": "箭头",
-        "en": "Arrows"
+        "zh": "箭头"
       }
     }
   ],
@@ -13,18 +12,15 @@
       "id": "vector",
       "group": "arrows",
       "title": {
-        "zh": "向量",
-        "en": "vector"
+        "zh": "向量"
       },
       "at": "1-1",
       "body": [
         {
-          "zh": "既有大小又有方向的量。画出来是从原点出发的一支箭头；写出来是一列数，从上到下是箭头尖的各个坐标，如 (2, 1)。教材把它写成一列，叫列向量。",
-          "en": "A quantity with a size and a direction. Drawn, an arrow from the origin; written, a column of numbers, top to bottom the coordinates of its tip, such as (2, 1). Textbooks write it as a column, a column vector."
+          "zh": "既有大小又有方向的量。画出来是从原点出发的一支箭头；写出来是一列数，从上到下是箭头尖的各个坐标，如 (2, 1)。教材把它写成一列，叫列向量。"
         },
         {
-          "zh": "几个数排成的一列有多少个数，向量就是几维的：平面上的箭头是二维向量，空间里的是三维向量。",
-          "en": "How many numbers the column holds is the vector's dimension: arrows in the plane are two-dimensional vectors, those in space three-dimensional."
+          "zh": "几个数排成的一列有多少个数，向量就是几维的：平面上的箭头是二维向量，空间里的是三维向量。"
         }
       ],
       "see": ["vector-sum", "scalar-multiple"]
@@ -33,40 +29,36 @@
       "id": "vector-sum",
       "group": "arrows",
       "title": {
-        "zh": "向量的和",
-        "en": "sum of vectors"
+        "zh": "向量的和"
       },
       "at": "1-1",
       "body": [
         {
-          "zh": "两个维数相同的向量逐个分量相加得到的向量。画出来，第二支箭头接在第一支的箭头尖上，和从起点指到终点。",
-          "en": "The vector made by adding two vectors of one dimension entry by entry. Drawn, the second arrow starts at the tip of the first, and the sum runs from the start to the end."
+          "zh": "两个维数相同的向量逐个分量相加得到的向量。画出来，第二支箭头接在第一支的箭头尖上，和从起点指到终点。"
         },
-        { "zh": "相加不管先后：u + v = v + u。", "en": "The order does not matter: u + v = v + u." }
+        { "zh": "相加不管先后：u + v = v + u。" }
       ]
     },
     {
       "id": "scalar-multiple",
       "group": "arrows",
-      "title": { "zh": "数乘", "en": "scalar multiple" },
+      "title": { "zh": "数乘" },
       "at": "1-2",
       "body": [
         {
-          "zh": "一个数 k 乘向量的每个分量，得到 k 倍的向量。箭头沿自己所在的直线伸长或缩短为 k 倍；k 为负时掉头，k 为 0 时缩成原点。",
-          "en": "Every entry of a vector times one number k, giving k times the vector. The arrow stretches or shrinks k times along its own line; it turns round when k is negative and shrinks to the origin when k is 0."
+          "zh": "一个数 k 乘向量的每个分量，得到 k 倍的向量。箭头沿自己所在的直线伸长或缩短为 k 倍；k 为负时掉头，k 为 0 时缩成原点。"
         },
-        { "zh": "和向量相对，单独一个数也叫标量。", "en": "Set against vectors, a single number is also called a scalar." }
+        { "zh": "和向量相对，单独一个数也叫标量。" }
       ]
     },
     {
       "id": "linear-combination",
       "group": "arrows",
-      "title": { "zh": "线性组合", "en": "linear combination" },
+      "title": { "zh": "线性组合" },
       "at": "1-4",
       "body": [
         {
-          "zh": "几个向量各乘一个数再相加：a·v + b·w。乘的数叫组合系数。",
-          "en": "A few vectors, each times a number, added up: a·v + b·w. The numbers are its coefficients."
+          "zh": "几个向量各乘一个数再相加：a·v + b·w。乘的数叫组合系数。"
         }
       ],
       "see": ["span"]
@@ -74,24 +66,22 @@
     {
       "id": "span",
       "group": "arrows",
-      "title": { "zh": "张成", "en": "span" },
+      "title": { "zh": "张成" },
       "at": "1-4",
       "body": [
         {
-          "zh": "几个向量的全部线性组合合在一起，叫它们张成的集合。平面上两支不共线的箭头张成整个平面；共线的两支只张成一条过原点的直线。",
-          "en": "All the linear combinations of a few vectors together are their span. Two arrows of the plane not on one line span the whole plane; two on one line span only a line through the origin."
+          "zh": "几个向量的全部线性组合合在一起，叫它们张成的集合。平面上两支不共线的箭头张成整个平面；共线的两支只张成一条过原点的直线。"
         }
       ]
     },
     {
       "id": "basis",
       "group": "arrows",
-      "title": { "zh": "基", "en": "basis" },
+      "title": { "zh": "基" },
       "at": "1-5",
       "body": [
         {
-          "zh": "用来度量整个空间的一组向量：空间里每一点都恰好有一种办法写成它们的线性组合。平面上任意两支不共线的箭头都是一组基；î = (1, 0)、ĵ = (0, 1) 是最常用的一组，叫标准基。",
-          "en": "A set of vectors to measure the whole space by: every point of the space is a linear combination of them in exactly one way. Any two arrows of the plane not on one line are a basis; î = (1, 0) and ĵ = (0, 1) are the usual one, the standard basis."
+          "zh": "用来度量整个空间的一组向量：空间里每一点都恰好有一种办法写成它们的线性组合。平面上任意两支不共线的箭头都是一组基；î = (1, 0)、ĵ = (0, 1) 是最常用的一组，叫标准基。"
         }
       ],
       "see": ["coordinates"]
@@ -99,28 +89,25 @@
     {
       "id": "coordinates",
       "group": "arrows",
-      "title": { "zh": "坐标", "en": "coordinates" },
+      "title": { "zh": "坐标" },
       "at": "1-5",
       "body": [
         {
-          "zh": "一点写成某组基的线性组合时，那几个组合系数。同一点在不同的基下坐标不同。",
-          "en": "The coefficients when a point is written as a linear combination of a basis. One point has different coordinates in different bases."
+          "zh": "一点写成某组基的线性组合时，那几个组合系数。同一点在不同的基下坐标不同。"
         }
       ]
     },
     {
       "id": "linear-transformation",
       "group": "arrows",
-      "title": { "zh": "线性变换", "en": "linear transformation" },
+      "title": { "zh": "线性变换" },
       "at": "1-6",
       "body": [
         {
-          "zh": "把空间里的每支箭头送到另一支箭头的变换，并且格线变换后仍然平行且等距、原点不动。用式子说：它保持相加和数乘，T(u + v) = T(u) + T(v)，T(k·v) = k·T(v)。",
-          "en": "A map sending every arrow of a space to an arrow, keeping grid lines parallel and evenly spaced and the origin still. As equations: it keeps sums and scalar multiples, T(u + v) = T(u) + T(v) and T(k·v) = k·T(v)."
+          "zh": "把空间里的每支箭头送到另一支箭头的变换，并且格线变换后仍然平行且等距、原点不动。用式子说：它保持相加和数乘，T(u + v) = T(u) + T(v)，T(k·v) = k·T(v)。"
         },
         {
-          "zh": "转动、剪切、沿轴伸缩、关于过原点的直线翻转都是线性变换；平移不是，它挪动了原点。",
-          "en": "Turns, shears, stretches along the axes and flips across a line through the origin are linear; a slide is not, since it moves the origin."
+          "zh": "转动、剪切、沿轴伸缩、关于过原点的直线翻转都是线性变换；平移不是，它挪动了原点。"
         }
       ],
       "see": ["matrix"]
@@ -128,28 +115,25 @@
     {
       "id": "shear",
       "group": "arrows",
-      "title": { "zh": "剪切", "en": "shear" },
+      "title": { "zh": "剪切" },
       "at": "1-7",
       "body": [
         {
-          "zh": "一条直线上的点不动、其余的点平行于这条直线推动、推的距离和到这条直线的距离成正比的线性变换。",
-          "en": "A linear map that keeps the points of one line still and pushes the others along it, each by a distance in proportion to how far it is from the line."
+          "zh": "一条直线上的点不动、其余的点平行于这条直线推动、推的距离和到这条直线的距离成正比的线性变换。"
         }
       ]
     },
     {
       "id": "matrix",
       "group": "arrows",
-      "title": { "zh": "矩阵", "en": "matrix" },
+      "title": { "zh": "矩阵" },
       "at": "2-1",
       "body": [
         {
-          "zh": "排成若干行、若干列的一张数表。m 行 n 列的矩阵叫 m × n 矩阵；行数和列数相等时叫方阵。",
-          "en": "A table of numbers in rows and columns. One of m rows and n columns is an m × n matrix; with as many rows as columns it is square."
+          "zh": "排成若干行、若干列的一张数表。m 行 n 列的矩阵叫 m × n 矩阵；行数和列数相等时叫方阵。"
         },
         {
-          "zh": "一个线性变换的矩阵，第 j 列是第 j 支标准基箭头的落点。所以写下一个矩阵，就是写下一个线性变换。",
-          "en": "In the matrix of a linear map, column j is where the j-th standard basis arrow lands. Writing down a matrix is writing down a linear map."
+          "zh": "一个线性变换的矩阵，第 j 列是第 j 支标准基箭头的落点。所以写下一个矩阵，就是写下一个线性变换。"
         }
       ],
       "see": ["linear-transformation", "matrix-vector-product"]
@@ -157,84 +141,75 @@
     {
       "id": "matrix-vector-product",
       "group": "arrows",
-      "title": { "zh": "矩阵乘向量", "en": "matrix–vector product" },
+      "title": { "zh": "矩阵乘向量" },
       "at": "2-1",
       "body": [
         {
-          "zh": "矩阵 M 所表示的线性变换把向量 x 送到的向量，记作 Mx。M 的列数必须等于 x 的维数。",
-          "en": "The vector that the linear map of the matrix M sends x to, written Mx. M must have as many columns as x has entries."
+          "zh": "矩阵 M 所表示的线性变换把向量 x 送到的向量，记作 Mx。M 的列数必须等于 x 的维数。"
         }
       ]
     },
     {
       "id": "diagonal-matrix",
       "group": "arrows",
-      "title": { "zh": "对角矩阵", "en": "diagonal matrix" },
+      "title": { "zh": "对角矩阵" },
       "at": "2-2",
       "body": [
         {
-          "zh": "主对角线（左上到右下）以外的元素全为 0 的方阵。它把第 k 支标准基箭头伸缩为对角线上第 k 个数的倍数。主对角线上全是 1 的叫单位矩阵 I，它什么也不改变。",
-          "en": "A square matrix with 0 everywhere off its main diagonal (top left to bottom right). It stretches the k-th standard basis arrow by the k-th number on the diagonal. The one with 1s down the diagonal is the identity matrix I, which changes nothing."
+          "zh": "主对角线（左上到右下）以外的元素全为 0 的方阵。它把第 k 支标准基箭头伸缩为对角线上第 k 个数的倍数。主对角线上全是 1 的叫单位矩阵 I，它什么也不改变。"
         }
       ]
     },
     {
       "id": "matrix-product",
       "group": "arrows",
-      "title": { "zh": "矩阵乘法", "en": "matrix product" },
+      "title": { "zh": "矩阵乘法" },
       "at": "2-4",
       "body": [
         {
-          "zh": "AB 是先作用 B、再作用 A 的线性变换的矩阵。A 的列数必须等于 B 的行数。",
-          "en": "AB is the matrix of the linear map that applies B and then A. A must have as many columns as B has rows."
+          "zh": "AB 是先作用 B、再作用 A 的线性变换的矩阵。A 的列数必须等于 B 的行数。"
         },
         {
-          "zh": "矩阵乘法满足结合律，(AB)C = A(BC)，但一般不满足交换律：AB 和 BA 可以不同。",
-          "en": "The product is associative, (AB)C = A(BC), but in general not commutative: AB and BA may differ."
+          "zh": "矩阵乘法满足结合律，(AB)C = A(BC)，但一般不满足交换律：AB 和 BA 可以不同。"
         }
       ]
     },
     {
       "id": "determinant",
       "group": "arrows",
-      "title": { "zh": "行列式", "en": "determinant" },
+      "title": { "zh": "行列式" },
       "at": "3-1",
       "body": [
         {
-          "zh": "方阵 A 的行列式 det A（也写作 |A|）是它所表示的线性变换把面积（在空间里是体积）放大的倍数；变换把平面翻面时取负。",
-          "en": "The determinant det A (also written |A|) of a square matrix A is the factor by which its linear map scales area (volume, in space), negative when the map turns the plane over."
+          "zh": "方阵 A 的行列式 det A（也写作 |A|）是它所表示的线性变换把面积（在空间里是体积）放大的倍数；变换把平面翻面时取负。"
         },
         {
-          "zh": "det A = 0 当且仅当这个变换把空间压扁到更低的维数。",
-          "en": "det A = 0 exactly when the map squashes space into fewer dimensions."
+          "zh": "det A = 0 当且仅当这个变换把空间压扁到更低的维数。"
         }
       ]
     },
     {
       "id": "linear-system",
       "group": "arrows",
-      "title": { "zh": "线性方程组", "en": "system of linear equations" },
+      "title": { "zh": "线性方程组" },
       "at": "3-4",
       "body": [
         {
-          "zh": "几个一次方程联立，例如 3x₁ − 2x₂ = 12，2x₁ + x₂ = 1。把系数排成矩阵 A、常数排成向量 b，就写成 Ax = b：找那支被 A 送到 b 的向量 x。",
-          "en": "Several linear equations taken together, such as 3x₁ − 2x₂ = 12 and 2x₁ + x₂ = 1. With the coefficients as a matrix A and the constants as a vector b, it reads Ax = b: find the vector x that A sends to b."
+          "zh": "几个一次方程联立，例如 3x₁ − 2x₂ = 12，2x₁ + x₂ = 1。把系数排成矩阵 A、常数排成向量 b，就写成 Ax = b：找那支被 A 送到 b 的向量 x。"
         }
       ]
     },
     {
       "id": "cramer-rule",
       "group": "arrows",
-      "title": { "zh": "克拉默法则", "en": "Cramer's rule" },
+      "title": { "zh": "克拉默法则" },
       "at": "3-4",
       "body": [
         {
-          "zh": "det A ≠ 0 时，Ax = b 的唯一解的第 k 个分量等于 det Aₖ / det A，其中 Aₖ 是把 A 的第 k 列换成 b 得到的矩阵。",
-          "en": "When det A ≠ 0, the k-th entry of the one solution of Ax = b is det Aₖ / det A, where Aₖ is A with its k-th column replaced by b."
+          "zh": "det A ≠ 0 时，Ax = b 的唯一解的第 k 个分量等于 det Aₖ / det A，其中 Aₖ 是把 A 的第 k 列换成 b 得到的矩阵。"
         },
         {
-          "zh": "det A = 0 时法则不能用：方程组或者无解，或者有无穷多解。",
-          "en": "When det A = 0 the rule does not apply: the system has either no solution or infinitely many."
+          "zh": "det A = 0 时法则不能用：方程组或者无解，或者有无穷多解。"
         }
       ]
     }

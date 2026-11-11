@@ -1,5 +1,5 @@
 {
-  "title": { "zh": "不用框合并", "en": "Merging without a box" },
+  "title": { "zh": "不用框合并" },
   "tray": "proof",
   "without": ["impI", "chain", "swap", "merge"],
   "tasks": [
@@ -9,12 +9,11 @@
       "sentences": ["A → A"],
       "tests": [{ "premises": { "p": "A → (A → B)" }, "goal": "A → B" }],
       "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Hungry", "B": "Eat" }],
-      "briefNote": { "zh": "不用假设框。", "en": "Without the assumption box." },
+      "briefNote": { "zh": "不用假设框。" },
       "hint": [
-        { "zh": "已知能接进哪一种 S？", "en": "Which S can the given go into?" },
+        { "zh": "已知能接进哪一种 S？" },
         {
-          "zh": "S 和已知套用以后，还差什么？它在<level-ref to=\"x-self\"></level-ref>里拼过。",
-          "en": "After S is applied to the given, what is still missing? You pieced it together in <level-ref to=\"x-self\"></level-ref>."
+          "zh": "S 和已知套用以后，还差什么？它在<level-ref to=\"x-self\"></level-ref>里拼过。"
         }
       ],
       "solution": [

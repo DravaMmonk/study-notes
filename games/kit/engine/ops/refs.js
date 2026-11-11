@@ -27,6 +27,12 @@ const texts = (value) => {
   return out
 }
 
+// A link renamed in a text is renamed in the overlays too (../i18n.js), in the text an entry is keyed by and in its
+// translation: the entry follows its text.
+const renameInOverlays = (ws, pattern, to) => {
+  ws.i18n = Object.fromEntries(Object.entries(ws.i18n ?? {}).map(([lang, memory]) => [lang, Object.fromEntries(Object.entries(memory).map(([from, text]) => [from.replace(pattern, `$1${to}$2`), text.replace(pattern, `$1${to}$2`)]))]))
+}
+
 /** Every place naming level `id`: [{ file, path, how: 'field' | 'link' | 'open' }]. */
 export function levelRefs(ws, vocabulary, id) {
   const out = []
@@ -50,6 +56,7 @@ export function renameRefs(ws, vocabulary, from, to) {
     }
     if (v !== value) set(v)
   }
+  renameInOverlays(ws, link(from), to)
   if (ws.game.open) {
     const open = Object.fromEntries(Object.entries(ws.game.open).map(([rule, list]) => [rule, list.map((f) => (f.endsWith(`@${from}`) ? (n++, `${f.slice(0, -from.length)}${to}`) : f))]))
     ws.game = { ...ws.game, open }
@@ -94,6 +101,7 @@ export function renamePartRefs(ws, vocabulary, from, to) {
     }
     if (v !== value) set(v)
   }
+  renameInOverlays(ws, partLink(from), to)
   if (ws.game.open) {
     const open = Object.fromEntries(Object.entries(ws.game.open).map(([rule, list]) => [rule, list.map((f) => (f.startsWith(`${from}@`) ? (n++, `${to}${f.slice(from.length)}`) : f))]))
     ws.game = { ...ws.game, open }

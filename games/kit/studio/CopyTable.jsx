@@ -38,7 +38,7 @@ export default function CopyTable({ content, vocabulary, scope, setScope = null,
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase()
     return all.filter((r) => (!field || r.field === field)
-      && (!q || `${r.value.zh} ${r.value.en}`.toLowerCase().includes(q))
+      && (!q || String(r.value.zh).toLowerCase().includes(q))
       && (!only || foundOf(r).length > 0 || textFindings(r.value, r.field, names).length > 0))
   }, [all, field, query, only, foundOf, names])
   return (

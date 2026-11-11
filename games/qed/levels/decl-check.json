@@ -1,6 +1,6 @@
 {
-  "title": { "zh": "检验声明", "en": "Checking a declaration" },
-  "declare": { "zh": "并且", "en": "and" },
+  "title": { "zh": "检验声明" },
+  "declare": { "zh": "并且" },
   "target": "Rain ∧ Wind",
   "sentences": ["Rain", "Wind"],
   "tests": [
@@ -17,32 +17,28 @@
   "intro": [
     {
       "t": {
-        "zh": "<b>检验条例</b>用来检查声明是否符合我们想表达的意思。每条条例描述一种情况：有哪些<b>前提</b>、要推导什么<b>目标</b>，以及在这些前提下，目标<b>预期</b>能否推导出来。",
-        "en": "A <b>test case</b> checks whether a declaration captures the intended meaning. Each case describes a situation: the available <b>premises</b>, the <b>goal</b>, and whether the goal is <b>expected</b> to follow from those premises."
+        "zh": "<b>检验条例</b>用来检查声明是否符合我们想表达的意思。每条条例描述一种情况：有哪些<b>前提</b>、要推导什么<b>目标</b>，以及在这些前提下，目标<b>预期</b>能否推导出来。"
       }
     },
     {
       "t": {
-        "zh": "声明规定了哪些推导可以成立。运行检验时，证明器会按声明给出<b>结果</b>，再与条例中的预期比较。结果不符，就说明声明在这种情况下没有表达出我们想要的意思。",
-        "en": "A declaration specifies which derivations are allowed. When a test runs, the prover gives a <b>result</b> according to the declaration and compares it with the expectation. A mismatch shows that the declaration does not capture the intended meaning in that situation."
+        "zh": "声明规定了哪些推导可以成立。运行检验时，证明器会按声明给出<b>结果</b>，再与条例中的预期比较。结果不符，就说明声明在这种情况下没有表达出我们想要的意思。"
       }
     },
     {
       "t": {
-        "zh": "本关先为自己写的声明编写一条结果相符的条例，再为另一份声明找一条结果不符的条例，最后从两个方向检验同一份声明。",
-        "en": "In this level, first write a case that agrees with your own declaration, then find a case that disagrees with another declaration, and last check one declaration in two directions."
+        "zh": "本关先为自己写的声明编写一条结果相符的条例，再为另一份声明找一条结果不符的条例，最后从两个方向检验同一份声明。"
       }
     }
   ],
   "after": {
-    "zh": "检验条例只能找出声明的错误，证明不了声明正确。",
-    "en": "Test cases can show a declaration wrong; they cannot show it right."
+    "zh": "检验条例只能找出声明的错误，证明不了声明正确。"
   },
   "tasks": [
     {
       "id": "decl-check_1",
       "kind": "iso",
-      "step": { "zh": "正确的声明", "en": "A right declaration" },
+      "step": { "zh": "正确的声明" },
       "play": "audit",
       "want": "agree",
       "carry": "decl-and",
@@ -53,26 +49,23 @@
       "intro": [
         {
           "t": {
-            "zh": "表上是你在<level-ref to=\"decl-and\"></level-ref>写的声明。找出一种情况，使这份声明的结果与预期相符，并将这个情况填入表内。",
-            "en": "The table holds your declaration from <level-ref to=\"decl-and\"></level-ref>. Find a situation in which its result agrees with your expectation, and enter it in the table."
+            "zh": "表上是你在<level-ref to=\"decl-and\"></level-ref>写的声明。找出一种情况，使这份声明的结果与预期相符，并将这个情况填入表内。"
           }
         }
       ],
       "brief": {
-        "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。找出一种情况：预期符合需求，声明的结果与预期相符。",
-        "en": "Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Find a situation where the expectation meets the requirement and the declaration’s result agrees with it."
+        "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。找出一种情况：预期符合需求，声明的结果与预期相符。"
       },
       "hint": [
         {
-          "zh": "先定下前提和目标，再按需求想：这时目标该不该推得出？",
-          "en": "Choose the premises and the goal first, then ask what the requirement says: should the goal be derivable?"
+          "zh": "先定下前提和目标，再按需求想：这时目标该不该推得出？"
         }
       ]
     },
     {
       "id": "decl-check_2",
       "kind": "iso",
-      "step": { "zh": "错误的声明", "en": "A wrong declaration" },
+      "step": { "zh": "错误的声明" },
       "play": "audit",
       "boards": [{ "rules": [{ "binds": [], "needs": ["Rain"] }] }],
       "slots": 1,
@@ -81,21 +74,19 @@
       "intro": [
         {
           "t": {
-            "zh": "表上换成了别人写的声明。找出一种情况，使这份声明的结果与预期不符，并将这个情况填入表内。",
-            "en": "The table now holds someone else’s declaration. Find a situation in which its result disagrees with your expectation, and enter it in the table."
+            "zh": "表上换成了别人写的声明。找出一种情况，使这份声明的结果与预期不符，并将这个情况填入表内。"
           }
         }
       ],
       "brief": {
-        "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。找出一种情况：预期符合需求，声明的结果却与预期不符。",
-        "en": "Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Find a situation where the expectation meets the requirement but the declaration’s result disagrees with it."
+        "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。找出一种情况：预期符合需求，声明的结果却与预期不符。"
       },
-      "hint": [{ "zh": "这份声明要的前提和需求一样吗？", "en": "Does this declaration ask for the same premises as the requirement?" }]
+      "hint": [{ "zh": "这份声明要的前提和需求一样吗？" }]
     },
     {
       "id": "decl-check_3",
       "kind": "iso",
-      "step": { "zh": "两个方向", "en": "Two directions" },
+      "step": { "zh": "两个方向" },
       "play": "audit",
       "boards": [{ "rules": [{ "binds": [], "needs": ["Rain", "Wind"] }, { "binds": [], "needs": ["Rain ∧ Wind"] }] }],
       "slots": [
@@ -110,34 +101,28 @@
       "intro": [
         {
           "t": {
-            "zh": "检验一份声明，要从两个方向入手。<b>引入方向</b>以声明的命题为目标，检验在什么前提下可以得到它；<b>使用方向</b>把它放进前提，检验有了它之后能推出什么。引入规则决定前一个方向，由引入规则生成的消去规则决定后一个方向。",
-            "en": "A declaration is checked from two directions. The <b>introduction direction</b> takes the declared statement as the goal and checks under which premises it can be obtained; the <b>use direction</b> puts it among the premises and checks what follows from it. The intro rules decide the first direction; the elimination rule generated from them decides the second."
+            "zh": "检验一份声明，要从两个方向入手。<b>引入方向</b>以声明的命题为目标，检验在什么前提下可以得到它；<b>使用方向</b>把它放进前提，检验有了它之后能推出什么。引入规则决定前一个方向，由引入规则生成的消去规则决定后一个方向。"
           }
         },
         {
           "t": {
-            "zh": "表上的声明多了一条引入规则：有了「下雨 ∧ 刮风」，就引入「下雨 ∧ 刮风」。第 1 条条例已经写好，它从引入方向检验：结果与预期相符。事实上，从这个方向写出的任何条例，这份声明都能通过。",
-            "en": "The declaration on the table has one intro rule too many: from “it rains ∧ it is windy”, introduce “it rains ∧ it is windy”. Case 1 is already written and checks the introduction direction: the result agrees with the expectation. In fact this declaration passes every case written from this direction."
+            "zh": "表上的声明多了一条引入规则：有了「下雨 ∧ 刮风」，就引入「下雨 ∧ 刮风」。第 1 条条例已经写好，它从引入方向检验：结果与预期相符。事实上，从这个方向写出的任何条例，这份声明都能通过。"
           }
         }
       ],
       "brief": {
-        "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。补全第 2 条条例，从使用方向找出这份声明的错误。",
-        "en": "Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Complete case 2 to reveal this declaration’s fault from the use direction."
+        "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。补全第 2 条条例，从使用方向找出这份声明的错误。"
       },
       "hint": [
         {
-          "zh": "这份声明的消去规则有两种情况。第二种情况从「下雨 ∧ 刮风」交还什么？",
-          "en": "This declaration’s elimination rule has two cases. What does the second give back from “it rains ∧ it is windy”?"
+          "zh": "这份声明的消去规则有两种情况。第二种情况从「下雨 ∧ 刮风」交还什么？"
         },
         {
-          "zh": "按需求，单凭「下雨 ∧ 刮风」，能推出什么？",
-          "en": "By the requirement, what follows from “it rains ∧ it is windy” alone?"
+          "zh": "按需求，单凭「下雨 ∧ 刮风」，能推出什么？"
         }
       ],
       "after": {
-        "zh": "只从引入方向检验，这份声明找不出错误：有了「下雨 ∧ 刮风」，「下雨 ∧ 刮风」当然成立。但多出的那条规则让消去规则多了一种情况，它什么都不交还，于是单凭「下雨 ∧ 刮风」再也推不出「下雨」。多写一条看似无害的引入规则，问题可能只在使用时暴露，所以两个方向都要检验。",
-        "en": "From the introduction direction alone this declaration shows no fault: with “it rains ∧ it is windy”, “it rains ∧ it is windy” of course holds. But the extra rule gives the elimination rule one more case, which hands back nothing, so “it rains ∧ it is windy” alone no longer yields “it rains”. One harmless-looking extra intro rule may show its fault only in use, so both directions must be checked."
+        "zh": "只从引入方向检验，这份声明找不出错误：有了「下雨 ∧ 刮风」，「下雨 ∧ 刮风」当然成立。但多出的那条规则让消去规则多了一种情况，它什么都不交还，于是单凭「下雨 ∧ 刮风」再也推不出「下雨」。多写一条看似无害的引入规则，问题可能只在使用时暴露，所以两个方向都要检验。"
       }
     }
   ]

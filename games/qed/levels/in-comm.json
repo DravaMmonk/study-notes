@@ -1,5 +1,5 @@
 {
-  "title": { "zh": "交换", "en": "Commutativity" },
+  "title": { "zh": "交换" },
   "tray": "machine",
   "fact": "addComm",
   "tasks": [
@@ -7,18 +7,17 @@
       "id": "in-comm",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["nat"],
       "defs": ["plus"],
       "tests": [{ "goal": "∀x. ∀y. plus(x, y) = plus(y, x)" }],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
       "hint": [
-        { "zh": "对 x 归纳，看两种情况各卡在哪里。", "en": "Induct on x, and see where each case gets stuck." },
+        { "zh": "对 x 归纳，看两种情况各卡在哪里。" },
         {
-          "zh": "卡住的地方，「数理规则书」里已有证出的等式。",
-          "en": "Where they get stuck, the “Rule book of numbers” already has equations proved."
+          "zh": "卡住的地方，「数理规则书」里已有证出的等式。"
         }
       ],
       "solution": [

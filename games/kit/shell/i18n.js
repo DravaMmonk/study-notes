@@ -37,5 +37,8 @@ const selfRendering = (v) => v !== null && typeof v === 'object' && !Array.isArr
 /** Resolve a text pair (or pass a plain string, number or nothing through). */
 export const L = (v) => (isPair(v) ? (lang === 'en' ? v.en ?? v.zh : v.zh) : selfRendering(v) ? String(v) : v)
 
+/** One language's side of a text (the base where it has none): for a sentence written in each language at once. */
+export const sideOf = (v, side) => (isPair(v) ? v[side] ?? v.zh : v)
+
 /** The Chinese side of a pair: the same in both languages, for React keys and comparisons. */
 export const keyOf = (v) => (isPair(v) ? v.zh : v)

@@ -1,34 +1,29 @@
 {
-  "title": { "zh": "挪一格也不变", "en": "Unchanged by a one-pixel shift" },
+  "title": { "zh": "挪一格也不变" },
   "tray": "pipeline",
   "after": {
-    "zh": "先让每格和右边、下边的邻居比一比，留下最大的，再隔点取样：每个 2×2 块只留下块里最强的那个数，点在块内挪动，答案不变。这就是最大池化。代价是丢掉了块内的精确位置。",
-    "en": "First let each pixel compare itself with its neighbours to the right and below and keep the largest, then downsample: each 2×2 block keeps only its strongest value, and a point moving within its block does not change the answer. This is max pooling. The price is losing the exact position inside the block."
+    "zh": "先让每格和右边、下边的邻居比一比，留下最大的，再隔点取样：每个 2×2 块只留下块里最强的那个数，点在块内挪动，答案不变。这就是最大池化。代价是丢掉了块内的精确位置。"
   },
   "intro": [
     {
       "t": {
-        "zh": "同一个东西拍两次，总会差一点：手一抖，它就往旁边偏了一两个像素。可它还是那个东西，识别的结果不该跟着变。",
-        "en": "Photograph the same thing twice and the shots always differ a little: your hand shakes and it moves a pixel or two to the side. But it is still the same thing, and what it is recognised as should not change."
+        "zh": "同一个东西拍两次，总会差一点：手一抖，它就往旁边偏了一两个像素。可它还是那个东西，识别的结果不该跟着变。"
       }
     },
     {
       "t": {
-        "zh": "网络还要不断把图缩小。这一关的输入是几个亮的特征点，要把 16×16 缩成 8×8。",
-        "en": "A network also keeps shrinking the image. The input in this level is a few bright feature points, and you have to shrink 16×16 down to 8×8."
+        "zh": "网络还要不断把图缩小。这一关的输入是几个亮的特征点，要把 16×16 缩成 8×8。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：特征点在原位", "en": "Set 1: the feature points in their original place" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组：特征点在原位" } }
     },
     {
       "t": {
-        "zh": "有时特征点会整体偏一格。这一关的要求是：偏了一格，缩小后的结果也要和原位时完全一样。",
-        "en": "Sometimes all the feature points are off by one pixel. This level's requirement: off by one pixel, the shrunk result must be exactly the same as in place. "
+        "zh": "有时特征点会整体偏一格。这一关的要求是：偏了一格，缩小后的结果也要和原位时完全一样。"
       },
       "fig": {
         "test": 1,
         "caption": {
-          "zh": "另一组：整体偏到右下，期望不变",
-          "en": "Another set: everything shifted down and to the right, same expected output"
+          "zh": "另一组：整体偏到右下，期望不变"
         }
       }
     }
@@ -39,49 +34,47 @@
       "id": "4-11",
       "kind": "graph",
       "brief": {
-        "zh": "同一组特征点有时会偏一格。把 16×16 缩成 8×8，偏一格时结果必须完全一样。",
-        "en": "The same set of keypoints is sometimes off by one pixel. Shrink 16×16 to 8×8; when they shift by one pixel, the result must be exactly the same."
+        "zh": "同一组特征点有时会偏一格。把 16×16 缩成 8×8，偏一格时结果必须完全一样。"
       },
       "hint": {
-        "zh": "隔点取样会因为偏一格而错过亮点。能不能在扔掉点之前，让每个点先「知道」它旁边有没有亮点？",
-        "en": "Downsampling misses bright points when they shift by one pixel. Before throwing pixels away, can each one first \"know\" whether there is a bright point beside it?"
+        "zh": "隔点取样会因为偏一格而错过亮点。能不能在扔掉点之前，让每个点先「知道」它旁边有没有亮点？"
       },
       "scene": "movedDots",
       "tests": [
         {
-          "label": { "zh": "原位", "en": "In place" },
+          "label": { "zh": "原位" },
           "dots": [[4, 4], [10, 6], [6, 12]],
           "home": [[4, 4], [10, 6], [6, 12]]
         },
         {
-          "label": { "zh": "偏右下", "en": "Shifted down-right" },
+          "label": { "zh": "偏右下" },
           "dots": [[5, 5], [11, 7], [7, 13]],
           "home": [[4, 4], [10, 6], [6, 12]]
         },
         {
-          "label": { "zh": "偏右", "en": "Shifted right" },
+          "label": { "zh": "偏右" },
           "dots": [[5, 4], [11, 6], [7, 12]],
           "home": [[4, 4], [10, 6], [6, 12]]
         },
         {
-          "label": { "zh": "偏下", "en": "Shifted down" },
+          "label": { "zh": "偏下" },
           "dots": [[4, 5], [10, 7], [6, 13]],
           "home": [[4, 4], [10, 6], [6, 12]]
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "另一组 · 原位", "en": "Another set · in place" },
+          "label": { "zh": "另一组 · 原位" },
           "dots": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]],
           "home": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
         },
         {
-          "label": { "zh": "另一组 · 偏右下", "en": "Another set · shifted down-right" },
+          "label": { "zh": "另一组 · 偏右下" },
           "dots": [[3, 3], [13, 5], [9, 9], [15, 11], [5, 15]],
           "home": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
         },
         {
-          "label": { "zh": "另一组 · 偏下", "en": "Another set · shifted down" },
+          "label": { "zh": "另一组 · 偏下" },
           "dots": [[2, 3], [12, 5], [8, 9], [14, 11], [4, 15]],
           "home": [[2, 2], [12, 4], [8, 8], [14, 10], [4, 14]]
         }

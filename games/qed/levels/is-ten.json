@@ -1,16 +1,15 @@
 {
-  "title": { "zh": "十个人", "en": "Ten islanders" },
+  "title": { "zh": "十个人" },
   "tray": "machine",
   "after": {
-    "zh": "十个人的真值表有 1024 行。判定这类问题的程序叫 <b>SAT 求解器</b>，能处理的变量数以百万计。",
-    "en": "The truth table for ten people has 1024 rows. Programs that decide problems like this are called <b>SAT solvers</b>, and they handle millions of variables."
+    "zh": "十个人的真值表有 1024 行。判定这类问题的程序叫 <b>SAT 求解器</b>，能处理的变量数以百万计。"
   },
   "tasks": [
     {
       "id": "is-ten",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         {
@@ -60,10 +59,9 @@
         }
       ],
       "brief": {
-        "zh": "十个人排成一圈：a 说「b 是无赖」，b 说「c 是无赖」，……，i 说「j 是无赖」，j 说「a 和 b 都是无赖」。设计一个证明助手，证出几个人的身份。",
-        "en": "Ten people in a ring: a says “b is a knave”, b says “c is a knave”, …, i says “j is a knave”, and j says “a and b are both knaves”. Design a proof assistant that proves what some of them are."
+        "zh": "十个人排成一圈：a 说「b 是无赖」，b 说「c 是无赖」，……，i 说「j 是无赖」，j 说「a 和 b 都是无赖」。设计一个证明助手，证出几个人的身份。"
       },
-      "hint": [{ "zh": "证明助手不必改。", "en": "The proof assistant need not change." }],
+      "hint": [{ "zh": "证明助手不必改。" }],
       "solution": ["c0 = metis(in)", "out <- c0"]
     }
   ]

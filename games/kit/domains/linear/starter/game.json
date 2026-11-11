@@ -1,11 +1,10 @@
 {
   "domain": "linear",
   "vocabulary": 1,
-  "title": { "zh": "__title__", "en": "__title__" },
-  "kicker": { "zh": "开发中", "en": "In development" },
+  "title": { "zh": "__title__" },
+  "kicker": { "zh": "开发中" },
   "lede": {
-    "zh": "从相加和数乘两块元件起步，把箭头拼成新的箭头。",
-    "en": "Starting from Add and Scale, put arrows together into new ones."
+    "zh": "从相加和数乘两块元件起步，把箭头拼成新的箭头。"
   },
   "primitives": ["add", "scale", "num"],
   "concept": { "num": "scale" },
@@ -13,8 +12,8 @@
   "eras": [
     {
       "id": 1,
-      "title": { "zh": "箭头", "en": "Arrows" },
-      "question": { "zh": "两支箭头能拼出什么？", "en": "What can two arrows make?" },
+      "title": { "zh": "箭头" },
+      "question": { "zh": "两支箭头能拼出什么？" },
       "foundation": ["1-1", "1-2"]
     }
   ]

@@ -1,30 +1,27 @@
 {
-  "title": { "zh": "句子变成数", "en": "Sentences become numbers" },
+  "title": { "zh": "句子变成数" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"u-halt\"></level-ref>里，程序可以读程序。这几关讲另一件事：算术可以谈论证明。哥德尔在 1931 年分六步做到这一点；前三步用化简算，后三步在证明板上证。",
-        "en": "In <level-ref to=\"u-halt\"></level-ref>, programs read programs. These levels show something else: arithmetic can speak of proofs. Gödel did it in 1931 in six steps; the first three are worked out with Simp, the last three proved on the board."
+        "zh": "<level-ref to=\"u-halt\"></level-ref>里，程序可以读程序。这几关讲另一件事：算术可以谈论证明。哥德尔在 1931 年分六步做到这一点；前三步用化简算，后三步在证明板上证。"
       }
     },
     {
       "t": {
-        "zh": "第一步是<wiki-ref to=\"goedel-coding\"></wiki-ref>：每个符号对应一个数，下雨是 1，地湿是 2，¬ 是 3，→ 是 4。一句话从左往右写成一串数，→ 写在两边之前，不需要括号。⌜A⌝ 是句子 A 的编码，由四条定义算出。",
-        "en": "The first step is <wiki-ref to=\"goedel-coding\"></wiki-ref>: each symbol stands for a number, it rains 1, the ground is wet 2, ¬ 3, → 4. A sentence is written left to right as a list of numbers, with → in front of its two sides, so no brackets are needed. ⌜A⌝ is the code of the sentence A, worked out by four definitions."
+        "zh": "第一步是<wiki-ref to=\"goedel-coding\"></wiki-ref>：每个符号对应一个数，下雨是 1，地湿是 2，¬ 是 3，→ 是 4。一句话从左往右写成一串数，→ 写在两边之前，不需要括号。⌜A⌝ 是句子 A 的编码，由四条定义算出。"
       }
     }
   ],
   "after": {
-    "zh": "一串数还能并成一个数（哥德尔把每一位放进一个质数的指数：2^a·3^b·5^c…）。关于句子的事，于是成了关于数的事。",
-    "en": "A list of numbers can be packed into one number (Gödel put each place in the exponent of a prime: 2^a·3^b·5^c …). Facts about sentences thus become facts about numbers."
+    "zh": "一串数还能并成一个数（哥德尔把每一位放进一个质数的指数：2^a·3^b·5^c…）。关于句子的事，于是成了关于数的事。"
   },
   "tasks": [
     {
       "id": "gd-code",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms", "codes"],
       "stated": [
@@ -40,8 +37,8 @@
         { "goal": "code(imp(rain, wet)) = cons(four, cons(one, cons(two, nil)))" },
         { "goal": "code(neg(imp(rain, neg(wet)))) = cons(three, cons(four, cons(one, cons(three, cons(two, nil)))))" }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "六条定义都要用。", "en": "All six definitions are needed." }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "六条定义都要用。" }],
       "solution": [
         "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\"]]()",
         "c1r0 = refl()",

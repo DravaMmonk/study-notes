@@ -1,30 +1,27 @@
 {
-  "title": { "zh": "代进去别撞名", "en": "No clashing names" },
+  "title": { "zh": "代进去别撞名" },
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"part:allE\"></part-ref>把 x 换成一样东西。要是换进去的是变量 y，而 x 恰好在一个「∃y」里面，这个 y 就被那个量词抓走（<wiki-ref to=\"capture\"></wiki-ref>），意思全变了：在「每样东西都喜欢某样东西」里把 x 换成 y，好像得到「有一样东西喜欢自己」。",
-        "en": "<part-ref to=\"part:allE\"></part-ref> puts a thing in for x. If what goes in is the variable y and x sits inside an “∃y”, that y is caught by the quantifier (<wiki-ref to=\"capture\"></wiki-ref>), and the meaning changes completely: putting y in for x in “everything likes something” seems to give “something likes itself”."
+        "zh": "<part-ref to=\"part:allE\"></part-ref>把 x 换成一样东西。要是换进去的是变量 y，而 x 恰好在一个「∃y」里面，这个 y 就被那个量词抓走（<wiki-ref to=\"capture\"></wiki-ref>），意思全变了：在「每样东西都喜欢某样东西」里把 x 换成 y，好像得到「有一样东西喜欢自己」。"
       }
     }
   ],
   "after": {
-    "zh": "所以代入前要先给量词的变量改名；证明器的<part-ref to=\"part:allE\"></part-ref>会自动这样做。",
-    "en": "So the quantifier’s variable is renamed before substituting; the prover’s <part-ref to=\"part:allE\"></part-ref> does this by itself."
+    "zh": "所以代入前要先给量词的变量改名；证明器的<part-ref to=\"part:allE\"></part-ref>会自动这样做。"
   },
   "tasks": [
     {
       "id": "q-capture",
       "kind": "model",
-      "say": { "zh": "每样东西都喜欢某样东西，所以有一样东西喜欢自己。", "en": "Everything likes something, so something likes itself." },
+      "say": { "zh": "每样东西都喜欢某样东西，所以有一样东西喜欢自己。" },
       "given": ["∀x. ∃y. Likes(x, y)"],
       "goal": "∃y. Likes(y, y)",
       "answer": { "size": 2, "preds": { "Likes": ["0,1", "1,0"] } },
       "brief": {
-        "zh": "这是别人照上面这段推理写的引理。造一个反例：前提都成立，结论不成立。",
-        "en": "Here is a lemma someone wrote for the reasoning above. Build a counterexample: every premise holds and the goal fails."
+        "zh": "这是别人照上面这段推理写的引理。造一个反例：前提都成立，结论不成立。"
       },
-      "hint": [{ "zh": "两样东西，互相喜欢，都不喜欢自己。", "en": "Two things that like each other and not themselves." }]
+      "hint": [{ "zh": "两样东西，互相喜欢，都不喜欢自己。" }]
     }
   ]
 }

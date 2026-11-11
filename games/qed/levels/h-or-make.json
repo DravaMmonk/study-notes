@@ -1,29 +1,26 @@
 {
-  "title": { "zh": "定义「或者」", "en": "Defining “or”" },
+  "title": { "zh": "定义「或者」" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "「或者」也可以这样定义：「A 或者 B」就是「对任何一句话 R，只要从 A 推得出 R、从 B 也推得出 R，就有 R」，写成 ∀R. (A → R) → ((B → R) → R)。",
-        "en": "“Or” can be defined the same way: “A or B” is “for every sentence R, if R follows from A and R follows from B, then R”, written ∀R. (A → R) → ((B → R) → R)."
+        "zh": "「或者」也可以这样定义：「A 或者 B」就是「对任何一句话 R，只要从 A 推得出 R、从 B 也推得出 R，就有 R」，写成 ∀R. (A → R) → ((B → R) → R)。"
       }
     }
   ],
   "after": {
-    "zh": "声明给出引入规则，由它生成消去规则；这样的定义写下的是消去规则，引入规则要从它证出来。两条路得到的规则一样。",
-    "en": "A declaration gives the intro rules and the elimination rule is made from them; a definition like this writes down the elimination rule, and the intro rules are proved from it. Both roads give the same rules."
+    "zh": "声明给出引入规则，由它生成消去规则；这样的定义写下的是消去规则，引入规则要从它证出来。两条路得到的规则一样。"
   },
   "tasks": [
     {
       "id": "h-or-make_1",
       "kind": "proof",
-      "step": { "zh": "造", "en": "Making it" },
+      "step": { "zh": "造" },
       "tests": [{ "premises": { "p": "A" }, "goal": "∀R. (A → R) → ((B → R) → R)" }],
       "cases": [{ "A": "Bus", "B": "Bike", "C": "OnTime" }, { "A": "Sat", "B": "Sun", "C": "Rest" }],
       "hint": [
         {
-          "zh": "任取框取 R；框里的目标有两层「若…则…」。",
-          "en": "A for-any box takes R; inside, the goal has two layers of “if … then …”."
+          "zh": "任取框取 R；框里的目标有两层「若…则…」。"
         }
       ],
       "solution": [
@@ -46,13 +43,12 @@
     {
       "id": "h-or-make_2",
       "kind": "proof",
-      "step": { "zh": "用", "en": "Using it" },
+      "step": { "zh": "用" },
       "tests": [{ "premises": { "p": "∀R. (A → R) → ((B → R) → R)", "q": "A → C", "r": "B → C" }, "goal": "C" }],
       "cases": [{ "A": "Bus", "B": "Bike", "C": "OnTime" }, { "A": "Sat", "B": "Sun", "C": "Rest" }],
       "hint": [
         {
-          "zh": "要的结论是 C：把 R 换成 C，再把两个办法依次交给它。",
-          "en": "The conclusion wanted is C: put C in for R, then hand it the two moves in turn."
+          "zh": "要的结论是 C：把 R 换成 C，再把两个办法依次交给它。"
         }
       ],
       "solution": ["e = allE[t=C](p)", "m1 = mp(e, q)", "m2 = mp(m1, r)", "goal <- m2"]

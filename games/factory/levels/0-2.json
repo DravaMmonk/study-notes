@@ -1,8 +1,7 @@
 {
-  "title": { "zh": "它要什么，你给什么", "en": "Give it what it asks for" },
+  "title": { "zh": "它要什么，你给什么" },
   "after": {
-    "zh": "一轮一轮：模型提要求，你去拿，结果放回上下文，再调用。它第一次写的看起来对，测试却没过；把失败的测试报告放回上下文，它就改对了。刚才你做的，就是一个 <b>agent 循环</b>：每一轮调用一次模型，做它要的事，把结果接回去。",
-    "en": "Turn after turn: the model asks, you fetch, the result goes back into its context, and you call again. Its first try looked right and failed the tests; with the failing report in its context, it got it right. What you just did is an <b>agent loop</b>: each turn, one model call, do what it asks, feed the result back."
+    "zh": "一轮一轮：模型提要求，你去拿，结果放回上下文，再调用。它第一次写的看起来对，测试却没过；把失败的测试报告放回上下文，它就改对了。刚才你做的，就是一个 <b>agent 循环</b>：每一轮调用一次模型，做它要的事，把结果接回去。"
   },
   "tasks": [
     {
@@ -10,15 +9,13 @@
       "kind": "hand",
       "mode": "loop",
       "brief": {
-        "zh": "这次模型会提要求：要目录、要文件。照着它的要求给，直到测试通过。",
-        "en": "This time the model asks: for the file list, for a file. Give it what it asks for, until the tests pass."
+        "zh": "这次模型会提要求：要目录、要文件。照着它的要求给，直到测试通过。"
       },
       "hint": [
         {
-          "zh": "模型要目录时，按目录按钮，把仓库的文件列表放进上下文。",
-          "en": "When the model asks for the files, press File list to put the repository’s list into its context."
+          "zh": "模型要目录时，按目录按钮，把仓库的文件列表放进上下文。"
         },
-        { "zh": "它说做完了，不一定真做完了。", "en": "It says it is done; that does not make it done." }
+        { "zh": "它说做完了，不一定真做完了。" }
       ],
       "test": { "issue": "discount-cap" },
       "solution": ["call", "list", "call", { "add": "src/price.js" }, "call", "test", "call", "test"]

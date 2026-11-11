@@ -1,45 +1,43 @@
 {
-  "title": { "zh": "频率、幅度与相位", "en": "Frequency, amplitude and phase" },
+  "title": { "zh": "频率、幅度与相位" },
   "intro": [],
   "after": {
-    "zh": "平均亮度把整道波上下挪，振幅管起伏多高，频率管一行里有几个周期，相位只把波左右平移；相位差半个周期，看起来就像起伏倒了过来。",
-    "en": "The average moves the whole wave up or down, the amplitude sets how high it swings, the frequency how many cycles fit in the row, and the phase only slides it sideways; half a cycle of phase looks like the swing turned over."
+    "zh": "平均亮度把整道波上下挪，振幅管起伏多高，频率管一行里有几个周期，相位只把波左右平移；相位差半个周期，看起来就像起伏倒了过来。"
   },
   "tasks": [
     {
       "id": "sinusoid",
       "kind": "board",
       "brief": {
-        "zh": "每一步的目标和你的波只差一个数。先判断是哪一个、差多少，只转它，再检查。",
-        "en": "Each step’s target differs from your wave in one number. Judge which one and by how much, turn only that one, then check."
+        "zh": "每一步的目标和你的波只差一个数。先判断是哪一个、差多少，只转它，再检查。"
       },
       "bench": {
         "model": "wave",
         "setup": { "N": 32 },
         "knobs": {
           "c": {
-            "label": { "zh": "平均亮度 c", "en": "Average c" },
+            "label": { "zh": "平均亮度 c" },
             "min": 0,
             "max": 1,
             "step": 0.05,
             "format": "auto"
           },
           "A": {
-            "label": { "zh": "振幅 A", "en": "Amplitude A" },
+            "label": { "zh": "振幅 A" },
             "min": 0,
             "max": 0.5,
             "step": 0.05,
             "format": "auto"
           },
           "k": {
-            "label": { "zh": "频率 k", "en": "Frequency k" },
+            "label": { "zh": "频率 k" },
             "min": 0,
             "max": 12,
             "step": 1,
             "format": "auto"
           },
           "phi": {
-            "label": { "zh": "相位 φ", "en": "Phase φ" },
+            "label": { "zh": "相位 φ" },
             "min": -4,
             "max": 4,
             "step": 1,
@@ -50,14 +48,14 @@
         "goal": [{ "of": "gap", "below": 0.000001 }],
         "stages": [
           {
-            "title": { "zh": "挪了一点", "en": "Moved a little" },
-            "note": { "zh": "目标比你的波往左挪了一些。", "en": "The target sits a little to the left of your wave." },
+            "title": { "zh": "挪了一点" },
+            "note": { "zh": "目标比你的波往左挪了一些。" },
             "start": { "c": 0.5, "A": 0.3, "k": 2, "phi": 0 },
             "target": { "c": 0.5, "A": 0.3, "k": 2, "phi": 2 }
           },
           {
-            "title": { "zh": "倒过来", "en": "Turned over" },
-            "note": { "zh": "目标的亮处正是你的暗处。", "en": "The target is light where your wave is dark." },
+            "title": { "zh": "倒过来" },
+            "note": { "zh": "目标的亮处正是你的暗处。" },
             "start": { "c": 0.5, "A": 0.3, "k": 3, "phi": 0 },
             "target": { "c": 0.5, "A": 0.3, "k": 3, "phi": 4 }
           }
@@ -70,14 +68,14 @@
                   {
                     "of": "target",
                     "kind": "target",
-                    "label": { "zh": "目标", "en": "target" },
-                    "legend": { "zh": "目标", "en": "Target" }
+                    "label": { "zh": "目标" },
+                    "legend": { "zh": "目标" }
                   },
                   {
                     "of": "yours",
                     "kind": "yours",
-                    "label": { "zh": "你的", "en": "yours" },
-                    "legend": { "zh": "你的波", "en": "Your wave" }
+                    "label": { "zh": "你的" },
+                    "legend": { "zh": "你的波" }
                   }
                 ],
                 "height": [240, 200],
@@ -87,8 +85,8 @@
             {
               "strips": {
                 "rows": [
-                  { "of": "targetRow", "label": { "zh": "目标", "en": "Target" } },
-                  { "of": "row", "label": { "zh": "你的", "en": "Yours" } }
+                  { "of": "targetRow", "label": { "zh": "目标" } },
+                  { "of": "row", "label": { "zh": "你的" } }
                 ]
               }
             }

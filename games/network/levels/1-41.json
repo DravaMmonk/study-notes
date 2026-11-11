@@ -1,47 +1,42 @@
 {
-  "title": { "zh": "带上校验字节", "en": "Send the check byte" },
+  "title": { "zh": "带上校验字节" },
   "intro": [
     {
       "t": {
-        "zh": "到这里为止，校验码护着的只是一个字节，<part-ref to=\"framer\"></part-ref>送出的帧不带校验。一帧有几个字节事先不知道，校验码就放在整帧内容的后面：前面补 5 个 0，凑成一个校验字节。这一关先做发的一方。",
-        "en": "So far a check has guarded a single byte, and the frames <part-ref to=\"framer\"></part-ref> sends carry none. A frame's length is not known in advance, so its check goes after the whole content, with five 0s in front to make a check byte. This level builds the sending end."
+        "zh": "到这里为止，校验码护着的只是一个字节，<part-ref to=\"framer\"></part-ref>送出的帧不带校验。一帧有几个字节事先不知道，校验码就放在整帧内容的后面：前面补 5 个 0，凑成一个校验字节。这一关先做发的一方。"
       }
     }
   ],
   "builds": {
     "type": "sender",
-    "name": { "zh": "发帧器", "en": "Sender" },
+    "name": { "zh": "发帧器" },
     "desc": {
-      "zh": "把交来的字节一帧一帧地送出：「发送」为 1 时开始新的一帧，内容后面跟一个校验字节（5 个 0 加内容的 3 位校验码），前后各加旗标 01111110，内容和校验字节里每连着 5 个 1 多说一个 0；没有开始新帧时线上说旗标。「下一个」为 1 的那一拍取走眼前的字节，「末字节」为 1 的字节是一帧的最后一个。",
-      "en": "Sends the bytes handed to it frame by frame: a new frame begins while send is 1, its content followed by a check byte (five 0s, then the content's 3 check bits), with the flag 01111110 at each end and a 0 added after every five 1s in the content and check byte; flags fill the wire between frames. Next is 1 on the tick it takes the byte in front of it, and a byte with last 1 ends its frame."
+      "zh": "把交来的字节一帧一帧地送出：「发送」为 1 时开始新的一帧，内容后面跟一个校验字节（5 个 0 加内容的 3 位校验码），前后各加旗标 01111110，内容和校验字节里每连着 5 个 1 多说一个 0；没有开始新帧时线上说旗标。「下一个」为 1 的那一拍取走眼前的字节，「末字节」为 1 的字节是一帧的最后一个。"
     }
   },
   "tasks": [
     {
       "id": "1-41",
       "brief": {
-        "zh": "像<level-ref to=\"1-40\"></level-ref>那样送出每一帧，内容后面再跟一个校验字节：5 个 0 加内容的 3 位校验码，一起填充。只在「发送」为 1 时开始新帧。「下一个」取走队首，「末字节」标出帧尾。",
-        "en": "Send each frame as in <level-ref to=\"1-40\"></level-ref>, its content now followed by a check byte: five 0s, then the content's 3 check bits, stuffed with the rest. Start a new frame only while send is 1. Next takes the byte in front; last marks a frame's final byte."
+        "zh": "像<level-ref to=\"1-40\"></level-ref>那样送出每一帧，内容后面再跟一个校验字节：5 个 0 加内容的 3 位校验码，一起填充。只在「发送」为 1 时开始新帧。「下一个」取走队首，「末字节」标出帧尾。"
       },
       "hint": [
         {
-          "zh": "<part-ref to=\"framer\"></part-ref>只送交给它的字节：校验字节要在最后一个内容字节之后交给它。",
-          "en": "<part-ref to=\"framer\"></part-ref> sends only the bytes it is given: the check byte has to be given to it after the last content byte."
+          "zh": "<part-ref to=\"framer\"></part-ref>只送交给它的字节：校验字节要在最后一个内容字节之后交给它。"
         },
         {
-          "zh": "<part-ref to=\"crchold\"></part-ref>要收的是内容字节本身的位，不是线上带着旗标和填充的位。",
-          "en": "<part-ref to=\"crchold\"></part-ref> must take in the bits of the content bytes, not the wire's bits with flags and stuffing."
+          "zh": "<part-ref to=\"crchold\"></part-ref>要收的是内容字节本身的位，不是线上带着旗标和填充的位。"
         },
-        { "zh": "每一帧的校验码只算这一帧的内容。", "en": "Each frame's check covers that frame's content only." }
+        { "zh": "每一帧的校验码只算这一帧的内容。" }
       ],
       "inputs": [
-        { "name": "byte", "label": { "zh": "队首", "en": "Next byte" } },
-        { "name": "last", "label": { "zh": "末字节", "en": "Last byte" } },
-        { "name": "send", "label": { "zh": "发送", "en": "Send" } }
+        { "name": "byte", "label": { "zh": "队首" } },
+        { "name": "last", "label": { "zh": "末字节" } },
+        { "name": "send", "label": { "zh": "发送" } }
       ],
-      "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
+      "outputs": [{ "name": "next", "label": { "zh": "下一个" } }],
       "pulls": { "input": "byte", "next": "next", "last": "last" },
-      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线" } }] },
       "tests": [
         {
           "ticks": 36,

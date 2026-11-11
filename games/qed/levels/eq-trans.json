@@ -1,24 +1,22 @@
 {
-  "title": { "zh": "一路相等的证明项", "en": "The term of equal all along" },
+  "title": { "zh": "一路相等的证明项" },
   "consts": ["i", "j", "k"],
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"q-trans\"></level-ref>把两个等式连成了一个。写成证明项。",
-        "en": "<level-ref to=\"q-trans\"></level-ref> joined two equations into one. Write it as a term."
+        "zh": "<level-ref to=\"q-trans\"></level-ref>把两个等式连成了一个。写成证明项。"
       }
     }
   ],
   "after": {
-    "zh": "自反、对称、传递，写成证明项都只用 rfl 和 ▸。",
-    "en": "Reflexive, symmetric, transitive: as terms, all three use only rfl and ▸."
+    "zh": "自反、对称、传递，写成证明项都只用 rfl 和 ▸。"
   },
   "tasks": [
     {
       "id": "eq-trans_1",
       "kind": "term",
-      "step": { "zh": "第一题", "en": "Problem 1" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第一题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": { "p": "i = k", "q": "k = j" },
@@ -27,34 +25,33 @@
       "naive": "p",
       "hint": [
         {
-          "zh": "用一个等式把要证的那句换一换，换出来的应当正是另一个已知。",
-          "en": "Use one equation to change the sentence to prove; what comes out should be the other given."
+          "zh": "用一个等式把要证的那句换一换，换出来的应当正是另一个已知。"
         }
       ]
     },
     {
       "id": "eq-trans_2",
       "kind": "term",
-      "step": { "zh": "第二题", "en": "Problem 2" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第二题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": { "p": "i = k", "q": "j = k" },
       "goal": "i = j",
       "answer": "q ▸ p",
-      "hint": [{ "zh": "q 倒着也一样用：核两边都试。", "en": "q works the other way round too: the kernel tries both sides." }]
+      "hint": [{ "zh": "q 倒着也一样用：核两边都试。" }]
     },
     {
       "id": "eq-trans_3",
       "kind": "term",
-      "step": { "zh": "第三题", "en": "Problem 3" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第三题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": {},
       "goal": "∀x. ∀y. ∀z. x = y → y = z → x = z",
       "answer": "fun a b c h k => k ▸ h",
-      "hint": [{ "zh": "五层 fun：三样东西，两个等式。", "en": "Five funs: three things and two equations." }]
+      "hint": [{ "zh": "五层 fun：三样东西，两个等式。" }]
     }
   ]
 }

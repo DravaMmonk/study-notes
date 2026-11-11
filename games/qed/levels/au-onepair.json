@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "一次只消一对", "en": "One pair at a time" },
+  "title": { "zh": "一次只消一对" },
   "intro": [
     {
       "t": {
-        "zh": "「归结」碰到两对能消的文字，会拒绝。「下雨 ∨ 刮风」和「¬下雨 ∨ ¬刮风」里就有两对：一次都消掉，什么都不剩，好像推出了矛盾。为什么不能一起消？",
-        "en": "“Resolve” refuses when two pairs could cancel. “It rains ∨ it is windy” and “¬it rains ∨ ¬it is windy” hold two: cancel both at once and nothing is left, as if a contradiction followed. Why not cancel both?"
+        "zh": "「归结」碰到两对能消的文字，会拒绝。「下雨 ∨ 刮风」和「¬下雨 ∨ ¬刮风」里就有两对：一次都消掉，什么都不剩，好像推出了矛盾。为什么不能一起消？"
       }
     }
   ],
@@ -15,10 +14,9 @@
       "ask": "sat",
       "formulas": ["(Rain ∨ Wind) ∧ (¬Rain ∨ ¬Wind)"],
       "brief": {
-        "zh": "在真值表里找一行，让「下雨 ∨ 刮风」和「¬下雨 ∨ ¬刮风」都为真。",
-        "en": "Find a row of the truth table where “it rains ∨ it is windy” and “¬it rains ∨ ¬it is windy” are both true."
+        "zh": "在真值表里找一行，让「下雨 ∨ 刮风」和「¬下雨 ∨ ¬刮风」都为真。"
       },
-      "hint": [{ "zh": "试试只下雨、不刮风的那一行。", "en": "Try the row with rain and no wind." }]
+      "hint": [{ "zh": "试试只下雨、不刮风的那一行。" }]
     }
   ]
 }

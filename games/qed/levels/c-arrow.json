@@ -1,12 +1,11 @@
 {
-  "title": { "zh": "蕴涵析取互化", "en": "Arrows away" },
+  "title": { "zh": "蕴涵析取互化" },
   "tray": "proof",
   "builds": "arrow",
   "intro": [
     {
       "t": {
-        "zh": "「下雨，地就湿」和「没下雨，或者地湿」是一回事：两句都只在下雨而地不湿的那一行为假。",
-        "en": "“If it rains, the ground is wet” and “it does not rain, or the ground is wet” say the same: each is false only on the row where it rains and the ground is dry."
+        "zh": "「下雨，地就湿」和「没下雨，或者地湿」是一回事：两句都只在下雨而地不湿的那一行为假。"
       }
     }
   ],
@@ -14,10 +13,10 @@
     {
       "id": "c-arrow_1",
       "kind": "proof",
-      "step": { "zh": "箭头变成或者", "en": "Arrow to or" },
+      "step": { "zh": "箭头变成或者" },
       "tests": [{ "premises": { "p": "A → B" }, "goal": "¬A ∨ B" }],
       "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Alarm", "B": "Up" }],
-      "hint": [{ "zh": "已知没说下不下雨。", "en": "The given does not say whether it rains." }],
+      "hint": [{ "zh": "已知没说下不下雨。" }],
       "solution": [
         "l = lem[A=A]()",
         "e = orE(l, left: i1, right: i2) {",
@@ -35,14 +34,13 @@
     {
       "id": "c-arrow_2",
       "kind": "proof",
-      "step": { "zh": "或者变回箭头", "en": "Or back to an arrow" },
+      "step": { "zh": "或者变回箭头" },
       "tests": [{ "premises": { "p": "¬A ∨ B" }, "goal": "A → B" }],
       "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Alarm", "B": "Up" }],
       "hint": [
-        { "zh": "先假设「下雨」，再对已知分情况。", "en": "Assume “it rains” first, then take cases on the given." },
+        { "zh": "先假设「下雨」，再对已知分情况。" },
         {
-          "zh": "「¬下雨」那种情况和假设矛盾；矛盾推出一切。",
-          "en": "The “¬it rains” case contradicts the assumption, and a contradiction gives anything."
+          "zh": "「¬下雨」那种情况和假设矛盾；矛盾推出一切。"
         }
       ],
       "solution": [

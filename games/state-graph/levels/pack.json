@@ -1,51 +1,43 @@
 {
-  "title": { "zh": "装背包", "en": "Pack the backpack" },
-  "short": { "zh": "聪明的捷径不总是对的", "en": "Clever shortcuts aren’t always right" },
+  "title": { "zh": "装背包" },
+  "short": { "zh": "聪明的捷径不总是对的" },
   "intro": [
     {
       "t": {
-        "zh": "新的一章：装背包。出门旅行，背包有重量上限。每件东西有重量和价值，<b>每件最多带一个</b>。怎么装，带上的价值最大？",
-        "en": "A new chapter: packing a backpack. You are off on a trip, and the backpack has a weight limit. Each thing has a weight and a value, and <b>you can take at most one of each</b>. How do you pack to carry the most value?"
+        "zh": "新的一章：装背包。出门旅行，背包有重量上限。每件东西有重量和价值，<b>每件最多带一个</b>。怎么装，带上的价值最大？"
       }
     },
     {
       "t": {
-        "zh": "人们常用两种「捷径」：<b>最贵的先放</b>，或者<b>最划算的先放</b>（每千克的价值最高）。按顺序挨个看，装得下就装。这种每一步都挑眼前最好的做法，叫作<wiki-ref to=\"greedy\"></wiki-ref>。",
-        "en": "People often use one of two “shortcuts”: <b>priciest first</b>, or <b>best value first</b> (the highest value per kilogram). Go through the items in that order and pack each one that fits. Always grabbing what looks best right now is called being <wiki-ref to=\"greedy\"></wiki-ref>."
+        "zh": "人们常用两种「捷径」：<b>最贵的先放</b>，或者<b>最划算的先放</b>（每千克的价值最高）。按顺序挨个看，装得下就装。这种每一步都挑眼前最好的做法，叫作<wiki-ref to=\"greedy\"></wiki-ref>。"
       }
     },
     {
       "t": {
-        "zh": "这一关有两道题。规则面板里有两个「自动装包」按钮，分别按这两种捷径装包。先试试它们，再自己动手，装出目标价值。",
-        "en": "This level has two puzzles. The side panel has two “Auto-pack” buttons, one for each shortcut. Try them first, then pack by hand to reach the target value."
+        "zh": "这一关有两道题。规则面板里有两个「自动装包」按钮，分别按这两种捷径装包。先试试它们，再自己动手，装出目标价值。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "物品总重量不能超过背包上限，每件最多带一个。两道题里，都装出目标价值。",
-      "en": "The total weight can’t exceed the backpack’s limit, and you can take at most one of each item. Reach the target value in both puzzles."
+      "zh": "物品总重量不能超过背包上限，每件最多带一个。两道题里，都装出目标价值。"
     },
     "how": {
-      "zh": "点物品放进或拿出背包。规则面板里的两个按钮会按捷径自动装包，可以试试它们。",
-      "en": "Click items to put them in or take them out. The two buttons in the side panel auto-pack using the shortcuts; give them a try."
+      "zh": "点物品放进或拿出背包。规则面板里的两个按钮会按捷径自动装包，可以试试它们。"
     }
   },
   "debrief": {
-    "title": { "zh": "没有简单的捷径", "en": "No easy shortcut" },
+    "title": { "zh": "没有简单的捷径" },
     "body": [
       {
-        "zh": "第 1 题里，「最贵的先放」差了一点；第 2 题里，「最划算的先放」也差了一点。<b>看起来很聪明的贪心规则，总有例外。</b>",
-        "en": "In puzzle 1, “priciest first” fell just short; in puzzle 2, “best value first” fell just short too. <b>Greedy rules that look clever always have exceptions.</b>"
+        "zh": "第 1 题里，「最贵的先放」差了一点；第 2 题里，「最划算的先放」也差了一点。<b>看起来很聪明的贪心规则，总有例外。</b>"
       },
       {
-        "zh": "最保险的办法是把所有装法都试一遍。5 件物品有 32 种装法，还试得过来；30 件物品就有 10 亿多种。",
-        "en": "The safe way is to try every possible packing. 5 items give 32 packings, which is still manageable; 30 items give over a billion."
+        "zh": "最保险的办法是把所有装法都试一遍。5 件物品有 32 种装法，还试得过来；30 件物品就有 10 亿多种。"
       }
     ],
     "note": {
-      "zh": "贪心（每一步挑眼前最好的）不一定得到最好的结果。",
-      "en": "Greedy (always picking what looks best right now) doesn’t necessarily give the best result."
+      "zh": "贪心（每一步挑眼前最好的）不一定得到最好的结果。"
     }
   },
   "tasks": [
@@ -56,20 +48,20 @@
         {
           "W": 5,
           "items": [
-            { "n": { "zh": "帐篷", "en": "tent" }, "w": 4, "v": 5 },
-            { "n": { "zh": "相机", "en": "camera" }, "w": 2, "v": 3 },
-            { "n": { "zh": "水壶", "en": "bottle" }, "w": 3, "v": 4 },
-            { "n": { "zh": "零食", "en": "snacks" }, "w": 1, "v": 1 }
+            { "n": { "zh": "帐篷" }, "w": 4, "v": 5 },
+            { "n": { "zh": "相机" }, "w": 2, "v": 3 },
+            { "n": { "zh": "水壶" }, "w": 3, "v": 4 },
+            { "n": { "zh": "零食" }, "w": 1, "v": 1 }
           ]
         },
         {
           "W": 10,
           "items": [
-            { "n": { "zh": "睡袋", "en": "sleeping bag" }, "w": 6, "v": 30 },
-            { "n": { "zh": "炉具", "en": "stove" }, "w": 3, "v": 14 },
-            { "n": { "zh": "帐篷", "en": "tent" }, "w": 4, "v": 16 },
-            { "n": { "zh": "急救包", "en": "first aid kit" }, "w": 2, "v": 9 },
-            { "n": { "zh": "书", "en": "book" }, "w": 1, "v": 1 }
+            { "n": { "zh": "睡袋" }, "w": 6, "v": 30 },
+            { "n": { "zh": "炉具" }, "w": 3, "v": 14 },
+            { "n": { "zh": "帐篷" }, "w": 4, "v": 16 },
+            { "n": { "zh": "急救包" }, "w": 2, "v": 9 },
+            { "n": { "zh": "书" }, "w": 1, "v": 1 }
           ]
         }
       ]

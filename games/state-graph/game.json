@@ -1,11 +1,10 @@
 {
   "domain": "table",
   "vocabulary": 1,
-  "title": { "zh": "状态之图", "en": "State Graph" },
-  "kicker": { "zh": "从零开始的动态规划解谜", "en": "Dynamic programming puzzles, from scratch" },
+  "title": { "zh": "状态之图" },
+  "kicker": { "zh": "从零开始的动态规划解谜" },
   "lede": {
-    "zh": "不需要任何编程或算法基础。从手数路线开始，学会把一个大问题拆成一张表，一格一格地填出来；最后能亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。",
-    "en": "No programming or algorithms background needed. Starting from counting routes by hand, you learn to break a big problem into a table and fill it in cell by cell; in the end you wire up the circuit boards that count routes, compare words and pack a backpack, and see why they are so fast."
+    "zh": "不需要任何编程或算法基础。从手数路线开始，学会把一个大问题拆成一张表，一格一格地填出来；最后能亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。"
   },
   "primitives": ["msum", "mmin", "mmax", "many", "const", "pass", "block", "add", "not", "mul"],
   "trays": {
@@ -31,126 +30,109 @@
   "concept": { "const": "pass", "many": "msum" },
   "parts": {
     "counter": {
-      "name": { "zh": "路线计数器", "en": "Route Counter" },
+      "name": { "zh": "路线计数器" },
       "desc": {
-        "zh": "把两条来路的数加起来；「起点」口是「是」时，再加 1。「—」不算在内，什么都没收到时输出「—」。",
-        "en": "Adds up the numbers on its two ways in, plus 1 when its “start” port is “yes”. A “—” is left out; with nothing to add, it outputs “—”."
+        "zh": "把两条来路的数加起来；「起点」口是「是」时，再加 1。「—」不算在内，什么都没收到时输出「—」。"
       }
     },
     "order": {
-      "name": { "zh": "填表顺序", "en": "Fill Order" },
+      "name": { "zh": "填表顺序" },
       "desc": {
-        "zh": "每个格子都要排在它要读的格子之后。顺序反过来，电路读的方向也得跟着反过来。",
-        "en": "Every cell must come after the cells it reads. Reverse the order, and the directions the circuit reads must reverse too."
+        "zh": "每个格子都要排在它要读的格子之后。顺序反过来，电路读的方向也得跟着反过来。"
       }
     },
     "min": {
-      "name": { "zh": "最省格", "en": "Cheapest Cell" },
+      "name": { "zh": "最省格" },
       "desc": {
-        "zh": "取最多三条来路里最小的（「起点」口是「是」时，0 也算一条来路），再加上本格代价。来路全是「—」时，输出「—」。",
-        "en": "Takes the smallest of up to three ways in (when its “start” port is “yes”, 0 counts as a way in too), then adds this cell’s cost. When every way in is “—”, it outputs “—”."
+        "zh": "取最多三条来路里最小的（「起点」口是「是」时，0 也算一条来路），再加上本格代价。来路全是「—」时，输出「—」。"
       }
     },
     "layer": {
-      "name": { "zh": "分层", "en": "Layers" },
+      "name": { "zh": "分层" },
       "desc": {
-        "zh": "把表复制成几层，让状态多记一件会影响未来的事。",
-        "en": "Copy the table into several layers, so the state remembers one more thing that affects the future."
+        "zh": "把表复制成几层，让状态多记一件会影响未来的事。"
       }
     },
     "align": {
-      "name": { "zh": "对齐表", "en": "Alignment Table" },
+      "name": { "zh": "对齐表" },
       "desc": {
-        "zh": "一个词放上面，一个词放左边。字相同，左上 + 1；否则取上面和左边中较大的。",
-        "en": "One word along the top, the other down the left. If the letters match, up-left + 1; otherwise the larger of up and left."
+        "zh": "一个词放上面，一个词放左边。字相同，左上 + 1；否则取上面和左边中较大的。"
       }
     },
     "cost": {
-      "name": { "zh": "编辑距离器", "en": "Edit Distance Meter" },
+      "name": { "zh": "编辑距离器" },
       "desc": {
-        "zh": "输出这几个数里最小的：上面、左边、左上三者中最小的 + 1；字相同时的左上；起点上的 0。",
-        "en": "Outputs the smallest of: the smallest of up, left and up-left, plus 1; up-left itself when the letters match; 0 on the start."
+        "zh": "输出这几个数里最小的：上面、左边、左上三者中最小的 + 1；字相同时的左上；起点上的 0。"
       }
     },
     "choose": {
-      "name": { "zh": "择优器", "en": "Best Choice" },
-      "desc": { "zh": "输出「不换」和「换来 + 加上」两者中较大的那个。", "en": "Outputs the larger of “keep” and “swap for” plus “plus”." }
+      "name": { "zh": "择优器" },
+      "desc": { "zh": "输出「不换」和「换来 + 加上」两者中较大的那个。" }
     },
     "roll": {
-      "name": { "zh": "滚动数组", "en": "Rolling Array" },
+      "name": { "zh": "滚动数组" },
       "desc": {
-        "zh": "只留一行原地改写。改写的方向，决定每件物品能用几次。",
-        "en": "Keep just one row and rewrite it in place. The direction you rewrite in decides how many times each item can be used."
+        "zh": "只留一行原地改写。改写的方向，决定每件物品能用几次。"
       }
     },
     "judge": {
-      "name": { "zh": "输赢判定器", "en": "Win/Lose Judge" },
+      "name": { "zh": "输赢判定器" },
       "desc": {
-        "zh": "读三个对手局面：只要有一个是「输」，这一格就是「赢」；否则是「输」。",
-        "en": "Reads the three positions the opponent could face: if any of them is a loss, this cell is a win; otherwise a loss."
+        "zh": "读三个对手局面：只要有一个是「输」，这一格就是「赢」；否则是「输」。"
       }
     },
     "sweep": {
-      "name": { "zh": "扫描臂", "en": "Sweep Arm" },
+      "name": { "zh": "扫描臂" },
       "desc": {
-        "zh": "一次读一整段格子。可每格都从头扫一遍很慢：能用上一格存好的答案，就别重扫。",
-        "en": "Reads a whole run of cells at once. But sweeping from the start on every cell is slow: if the previous cell has already stored the answer, use it instead of sweeping again."
+        "zh": "一次读一整段格子。可每格都从头扫一遍很慢：能用上一格存好的答案，就别重扫。"
       }
     },
     "wordbreak": {
-      "name": { "zh": "切词", "en": "Word Breaker" },
+      "name": { "zh": "切词" },
       "desc": {
-        "zh": "前面某个位置能切开，而且那一截刚好是个词，这里就能切开。",
-        "en": "If some earlier position can be split and the piece from there to here is exactly a word, this position can be split too."
+        "zh": "前面某个位置能切开，而且那一截刚好是个词，这里就能切开。"
       }
     },
     "interval": {
-      "name": { "zh": "区间合并器", "en": "Interval Merger" },
+      "name": { "zh": "区间合并器" },
       "desc": {
-        "zh": "左段和右段是两串数：按切分点一一相加，取最小的，再加上整段代价。",
-        "en": "Its left and right parts are two runs of numbers: it adds them split point by split point, takes the smallest, then adds the cost of the whole run."
+        "zh": "左段和右段是两串数：按切分点一一相加，取最小的，再加上整段代价。"
       }
     },
     "anyorder": {
-      "name": { "zh": "多种顺序", "en": "Many Orders" },
+      "name": { "zh": "多种顺序" },
       "desc": {
-        "zh": "只要每个格子都排在它要读的格子之后，什么顺序都行。",
-        "en": "Any order works, as long as every cell comes after the cells it reads."
+        "zh": "只要每个格子都排在它要读的格子之后，什么顺序都行。"
       }
     },
     "value": {
-      "name": { "zh": "打折器", "en": "Discounter" },
+      "name": { "zh": "打折器" },
       "desc": {
-        "zh": "取最多四条来路里最大的，再乘上元件上的数（比如 0.9）。",
-        "en": "Takes the largest of up to four ways in, then multiplies it by the number set on its part (0.9, say)."
+        "zh": "取最多四条来路里最大的，再乘上元件上的数（比如 0.9）。"
       }
     },
     "expect": {
-      "name": { "zh": "期望", "en": "Expectation" },
+      "name": { "zh": "期望" },
       "desc": {
-        "zh": "结果不确定时，把每种结果按可能性加权，再比较。",
-        "en": "When the outcome is uncertain, weight each outcome by how likely it is, then compare."
+        "zh": "结果不确定时，把每种结果按可能性加权，再比较。"
       }
     },
     "viterbi": {
-      "name": { "zh": "维特比", "en": "Viterbi" },
+      "name": { "zh": "维特比" },
       "desc": {
-        "zh": "每一列每一种标签，记下到这里最省的解释：上一列各行加上转移代价，取较小。",
-        "en": "For every tag in every column, keep the cheapest explanation up to here: each row of the previous column plus its transition cost, then the min."
+        "zh": "每一列每一种标签，记下到这里最省的解释：上一列各行加上转移代价，取较小。"
       }
     },
     "local": {
-      "name": { "zh": "局部对齐", "en": "Local Alignment" },
+      "name": { "zh": "局部对齐" },
       "desc": {
-        "zh": "低于 0 就截成 0：重新开始，比背着负分走下去强。答案在表里最大的那一格。",
-        "en": "Anything below 0 is cut to 0: starting afresh beats carrying a negative score along. The answer is the largest cell in the table."
+        "zh": "低于 0 就截成 0：重新开始，比背着负分走下去强。答案在表里最大的那一格。"
       }
     },
     "seam": {
-      "name": { "zh": "剪缝", "en": "Seam Carving" },
+      "name": { "zh": "剪缝" },
       "desc": {
-        "zh": "每一格 = 本格能量 + 上面三格里最小的。从最底一行最小的格子倒推，剪掉这条缝。",
-        "en": "Each cell = its own energy + the smallest of the three cells above it. Trace back from the smallest cell in the bottom row, and cut that seam out."
+        "zh": "每一格 = 本格能量 + 上面三格里最小的。从最底一行最小的格子倒推，剪掉这条缝。"
       }
     }
   },
@@ -160,10 +142,9 @@
       "machine": null,
       "foundation": ["trace", "lastStep", "city"],
       "chapter": {
-        "title": { "zh": "纸笔", "en": "Pen and paper" },
+        "title": { "zh": "纸笔" },
         "desc": {
-          "zh": "用小问题的答案，拼出大问题的答案。",
-          "en": "Build the answer to a big problem out of the answers to small ones."
+          "zh": "用小问题的答案，拼出大问题的答案。"
         }
       }
     },
@@ -176,23 +157,22 @@
         "stamp",
         {
           "parallel": [
-            { "id": "rocks", "title": { "zh": "石头", "en": "Rocks" }, "levels": ["rocks", "reach"] },
-            { "id": "cost", "title": { "zh": "花费", "en": "Costs" }, "levels": ["cheapest", "slantcost"] }
+            { "id": "rocks", "title": { "zh": "石头" }, "levels": ["rocks", "reach"] },
+            { "id": "cost", "title": { "zh": "花费" }, "levels": ["cheapest", "slantcost"] }
           ]
         }
       ],
       "chapter": {
-        "title": { "zh": "造一台机器", "en": "Build a machine" },
+        "title": { "zh": "造一台机器" },
         "desc": {
-          "zh": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。",
-          "en": "On every cell the robot runs the same circuit board, and a finished board becomes a component."
+          "zh": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。"
         }
       },
       "practice": [
         {
           "parallel": [
-            { "id": "shape", "title": { "zh": "换形状", "en": "New shapes" }, "levels": ["slant", "pascal"] },
-            { "id": "coins", "title": { "zh": "金币", "en": "Coins" }, "levels": ["maxcoins"] }
+            { "id": "shape", "title": { "zh": "换形状" }, "levels": ["slant", "pascal"] },
+            { "id": "coins", "title": { "zh": "金币" }, "levels": ["maxcoins"] }
           ]
         },
         "pits"
@@ -203,8 +183,8 @@
           "code": "S",
           "after": "slantcost",
           "levels": ["seamline", "seamslant", "seam", "carve"],
-          "title": { "zh": "图里的缝", "en": "Seams in a picture" },
-          "desc": { "zh": "在一张图里，找一条最不起眼的缝。", "en": "Find the least noticeable seam in a picture." }
+          "title": { "zh": "图里的缝" },
+          "desc": { "zh": "在一张图里，找一条最不起眼的缝。" }
         }
       ],
       "challenges": [{ "level": "lawn", "after": "pascal" }]
@@ -216,8 +196,8 @@
         "stairs",
         {
           "parallel": [
-            { "id": "back", "title": { "zh": "倒着扫", "en": "Scanning backwards" }, "levels": ["order"] },
-            { "id": "win", "title": { "zh": "输赢", "en": "Winning" }, "levels": ["nim"] }
+            { "id": "back", "title": { "zh": "倒着扫" }, "levels": ["order"] },
+            { "id": "win", "title": { "zh": "输赢" }, "levels": ["nim"] }
           ]
         },
         "link",
@@ -225,17 +205,16 @@
         "palin"
       ],
       "chapter": {
-        "title": { "zh": "看得更远", "en": "Seeing further" },
+        "title": { "zh": "看得更远" },
         "desc": {
-          "zh": "看得更远：两步之外的格子；看得更全：表头上的两个词；还能换个方向扫。",
-          "en": "It sees further, two cells away; it sees more, the two words a table compares; and it can scan the other way round."
+          "zh": "看得更远：两步之外的格子；看得更全：表头上的两个词；还能换个方向扫。"
         }
       },
       "practice": [
         {
           "parallel": [
-            { "id": "broken", "title": { "zh": "坏台阶", "en": "Broken steps" }, "levels": ["brokenstairs"] },
-            { "id": "lps", "title": { "zh": "回文子序列", "en": "Palindromic subsequences" }, "levels": ["lps"] }
+            { "id": "broken", "title": { "zh": "坏台阶" }, "levels": ["brokenstairs"] },
+            { "id": "lps", "title": { "zh": "回文子序列" }, "levels": ["lps"] }
           ]
         }
       ],
@@ -245,8 +224,8 @@
           "code": "E",
           "after": "lcs",
           "levels": ["replace", "edit", "spell"],
-          "title": { "zh": "拼写纠错", "en": "Spelling correction" },
-          "desc": { "zh": "输错一个词，找出词典里最接近的那个。", "en": "A word is mistyped: find the closest one in the dictionary." }
+          "title": { "zh": "拼写纠错" },
+          "desc": { "zh": "输错一个词，找出词典里最接近的那个。" }
         }
       ],
       "challenges": [
@@ -262,14 +241,14 @@
         "frog",
         {
           "parallel": [
-            { "id": "jump", "title": { "zh": "跳法", "en": "Ways to jump" }, "levels": ["frogfar", "safefrog"] },
-            { "id": "sentence", "title": { "zh": "句子", "en": "Sentences" }, "levels": ["tagging", "forward"] }
+            { "id": "jump", "title": { "zh": "跳法" }, "levels": ["frogfar", "safefrog"] },
+            { "id": "sentence", "title": { "zh": "句子" }, "levels": ["tagging", "forward"] }
           ]
         }
       ],
       "chapter": {
-        "title": { "zh": "伸长手臂", "en": "A longer arm" },
-        "desc": { "zh": "伸缩臂能够到任意远的一格。", "en": "A telescopic arm reaches a cell however far away." }
+        "title": { "zh": "伸长手臂" },
+        "desc": { "zh": "伸缩臂能够到任意远的一格。" }
       },
       "topics": [
         {
@@ -277,8 +256,8 @@
           "code": "K",
           "after": "frogfar",
           "levels": ["pack", "knaptable", "knapmany", "knapmix"],
-          "title": { "zh": "背包", "en": "The backpack" },
-          "desc": { "zh": "容量有限，拿什么最值钱？", "en": "With limited room, what is most worth taking?" }
+          "title": { "zh": "背包" },
+          "desc": { "zh": "容量有限，拿什么最值钱？" }
         }
       ],
       "challenges": [{ "level": "coinways", "after": "knapmany" }, { "level": "roll", "after": "knapmix" }]
@@ -288,10 +267,9 @@
       "machine": "broom",
       "foundation": ["prefix", "rising"],
       "chapter": {
-        "title": { "zh": "一格多来路", "en": "Many ways in" },
+        "title": { "zh": "一格多来路" },
         "desc": {
-          "zh": "扫描臂扫过一整段格子，来路的数量不再固定。",
-          "en": "The sweep arm passes over a whole run of cells, so the number of ways in is no longer fixed."
+          "zh": "扫描臂扫过一整段格子，来路的数量不再固定。"
         }
       },
       "practice": [
@@ -299,10 +277,10 @@
           "parallel": [
             {
               "id": "interval",
-              "title": { "zh": "区间", "en": "Intervals" },
+              "title": { "zh": "区间" },
               "levels": ["stones", "twoorders", "parse"]
             },
-            { "id": "change", "title": { "zh": "零钱", "en": "Change" }, "levels": ["change"] }
+            { "id": "change", "title": { "zh": "零钱" }, "levels": ["change"] }
           ]
         }
       ],
@@ -312,8 +290,8 @@
           "code": "W",
           "after": "rising",
           "levels": ["wordbreak", "wordcost", "segment"],
-          "title": { "zh": "切单词", "en": "Cutting words" },
-          "desc": { "zh": "一串没有空格的字母，切成词典里的词。", "en": "A string with no spaces, cut into dictionary words." }
+          "title": { "zh": "切单词" },
+          "desc": { "zh": "一串没有空格的字母，切成词典里的词。" }
         }
       ],
       "challenges": [{ "level": "maxsub", "after": "prefix" }]
@@ -323,8 +301,8 @@
       "machine": "stack",
       "foundation": ["robber", "breach", "keydoor"],
       "chapter": {
-        "title": { "zh": "状态不够用", "en": "When the state falls short" },
-        "desc": { "zh": "一个数记不住的时候，就多记一件事。", "en": "When one number can’t remember enough, remember one more thing." }
+        "title": { "zh": "状态不够用" },
+        "desc": { "zh": "一个数记不住的时候，就多记一件事。" }
       },
       "practice": ["stock1", "cooldown"],
       "challenges": [{ "level": "ring", "after": "robber" }],
@@ -334,8 +312,8 @@
           "code": "D",
           "after": "keydoor",
           "levels": ["twokeys", "threekeys", "enough"],
-          "title": { "zh": "设计状态", "en": "Designing the state" },
-          "desc": { "zh": "该记住什么，这次由你决定。", "en": "This time, you decide what to remember." }
+          "title": { "zh": "设计状态" },
+          "desc": { "zh": "该记住什么，这次由你决定。" }
         }
       ]
     },
@@ -344,8 +322,8 @@
       "machine": "loop",
       "foundation": ["loop"],
       "chapter": {
-        "title": { "zh": "扫到不再变", "en": "Scan until it settles" },
-        "desc": { "zh": "箭头绕成了圈，就一遍一遍地扫。", "en": "When the arrows loop round, scan again and again." }
+        "title": { "zh": "扫到不再变" },
+        "desc": { "zh": "箭头绕成了圈，就一遍一遍地扫。" }
       },
       "practice": ["value", "arrows"],
       "topics": [
@@ -354,10 +332,9 @@
           "code": "V",
           "after": "value",
           "levels": ["treasure", "slip", "ice"],
-          "title": { "zh": "格子世界", "en": "The grid world" },
+          "title": { "zh": "格子世界" },
           "desc": {
-            "zh": "机器人在格子里找宝藏，越远的宝藏越不值钱。",
-            "en": "The robot hunts for treasure on a grid, and the further it is, the less it is worth."
+            "zh": "机器人在格子里找宝藏，越远的宝藏越不值钱。"
           }
         }
       ]

@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "方向直方图", "en": "Orientation histogram" },
+  "title": { "zh": "方向直方图" },
   "tray": "geometry",
   "after": {
-    "zh": "SIFT 描述子把关键点周围分成 4×4 个小格，每格做一个 8 个方向的直方图，一共 128 个数。方向按梯度分，幅值当票数：边往哪个方向变亮，这一格就往那个方向投票。",
-    "en": "A SIFT descriptor divides the area round a keypoint into 4×4 small cells and makes an 8-direction histogram in each, 128 numbers in all. Directions follow the gradient and the magnitude is the vote: whichever way an edge brightens, the cell votes that way."
+    "zh": "SIFT 描述子把关键点周围分成 4×4 个小格，每格做一个 8 个方向的直方图，一共 128 个数。方向按梯度分，幅值当票数：边往哪个方向变亮，这一格就往那个方向投票。"
   },
   "intro": [
     {
       "t": {
-        "zh": "一个点光知道「在哪」还不够，还要记下它周围长什么样，才认得出。SIFT 的办法是数一数周围的边都朝哪个方向。",
-        "en": "Knowing where a point is is not enough to recognise it; you also need to record what its surroundings look like. SIFT does it by counting which way the edges around it face."
+        "zh": "一个点光知道「在哪」还不够，还要记下它周围长什么样，才认得出。SIFT 的办法是数一数周围的边都朝哪个方向。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：把每一格的梯度幅值分到上下左右四个方向，输出四个方向各自的平均。",
-        "en": "Your task in this level: share each cell's gradient magnitude out to the four directions up, down, left and right, and output the average for each."
+        "zh": "这一关你要做的：把每一格的梯度幅值分到上下左右四个方向，输出四个方向各自的平均。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：竖边", "en": "Set 1: a vertical edge" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组：竖边" } }
     }
   ],
   "tasks": [
@@ -25,31 +22,29 @@
       "id": "6-10",
       "kind": "graph",
       "brief": {
-        "zh": "把每一格的梯度幅值分给它最接近的方向：横向分量更大时，往右变亮算「→」，往左算「←」；纵向分量更大时，往下变亮算「↓」，往上算「↑」。四个输出是四个方向各自的幅值总和除以格数。",
-        "en": "Give each cell's gradient magnitude to the direction it is closest to: when the across part is larger, brightening to the right counts as \"→\" and to the left as \"←\"; when the down part is larger, brightening downwards counts as \"↓\" and upwards as \"↑\". The four outputs are the magnitude summed per direction, divided by the number of cells."
+        "zh": "把每一格的梯度幅值分给它最接近的方向：横向分量更大时，往右变亮算「→」，往左算「←」；纵向分量更大时，往下变亮算「↓」，往上算「↑」。四个输出是四个方向各自的幅值总和除以格数。"
       },
       "hint": {
-        "zh": "|gx| 是 gx 和 −gx 里较大的那个。每个方向是两个条件同时成立：哪个分量大，它的正负号。",
-        "en": "|gx| is the larger of gx and −gx. Each direction needs two conditions at once: which part is larger, and its sign."
+        "zh": "|gx| 是 gx 和 −gx 里较大的那个。每个方向是两个条件同时成立：哪个分量大，它的正负号。"
       },
       "outputs": ["e", "n", "w", "s"],
       "outputLabels": {
-        "e": { "zh": "向右 →", "en": "Right →" },
-        "n": { "zh": "向上 ↑", "en": "Up ↑" },
-        "w": { "zh": "向左 ←", "en": "Left ←" },
-        "s": { "zh": "向下 ↓", "en": "Down ↓" }
+        "e": { "zh": "向右 →" },
+        "n": { "zh": "向上 ↑" },
+        "w": { "zh": "向左 ←" },
+        "s": { "zh": "向下 ↓" }
       },
       "check": { "tolerance": 0.005 },
       "scene": "orientations",
       "tests": [
-        { "label": { "zh": "竖边", "en": "A vertical edge" }, "in": { "stepX": { "edge": 8 } } },
-        { "label": { "zh": "横边", "en": "A horizontal edge" }, "in": { "stepY": { "edge": 6, "lo": 0.8, "hi": 0.2 } } },
-        { "label": { "zh": "方块", "en": "Square" }, "in": { "square": { "x0": 3, "y0": 5, "s": 7 } } },
-        { "label": { "zh": "字母 F", "en": "Letter F" }, "in": { "glyph": { "letter": "F" } } }
+        { "label": { "zh": "竖边" }, "in": { "stepX": { "edge": 8 } } },
+        { "label": { "zh": "横边" }, "in": { "stepY": { "edge": 6, "lo": 0.8, "hi": 0.2 } } },
+        { "label": { "zh": "方块" }, "in": { "square": { "x0": 3, "y0": 5, "s": 7 } } },
+        { "label": { "zh": "字母 F" }, "in": { "glyph": { "letter": "F" } } }
       ],
       "hidden": [
-        { "label": { "zh": "斜坡", "en": "A ramp" }, "in": "rampX" },
-        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" }
+        { "label": { "zh": "斜坡" }, "in": "rampX" },
+        { "label": { "zh": "圆盘" }, "in": "disk" }
       ],
       "solution": [
         "neg = const[c=-1]()",

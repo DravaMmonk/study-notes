@@ -1,28 +1,25 @@
 {
-  "title": { "zh": "记得够不够", "en": "Just enough?" },
-  "short": { "zh": "只记会影响未来的事", "en": "Remember only what affects the future" },
+  "title": { "zh": "记得够不够" },
+  "short": { "zh": "只记会影响未来的事" },
   "intro": [
     {
       "t": {
-        "zh": "还是三把钥匙。可这一关的状态<b>只记红钥匙</b>，表只有 2 层。",
-        "en": "Three keys again. But this level’s state <b>remembers only the red key</b>, so the table has just 2 layers."
+        "zh": "还是三把钥匙。可这一关的状态<b>只记红钥匙</b>，表只有 2 层。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "算出合法路线的条数，看看只记一把钥匙够不够。",
-      "en": "Work out the number of valid routes, and see whether remembering one key is enough."
+      "zh": "算出合法路线的条数，看看只记一把钥匙够不够。"
     },
-    "how": { "zh": "每一格把两层都算一遍。", "en": "Every cell works out both layers." }
+    "how": { "zh": "每一格把两层都算一遍。" }
   },
   "robot": "stack",
   "debrief": {
-    "title": { "zh": "刚好够用", "en": "Just enough" },
+    "title": { "zh": "刚好够用" },
     "body": [
       {
-        "zh": "绿钥匙没有门；蓝门之前一定先捡到蓝钥匙。这两件事<b>不影响未来</b>，不用记。只记红钥匙，2 层就够了。",
-        "en": "The green key has no door; the blue door always comes after the blue key. These two things <b>don’t affect the future</b>, so there’s no need to remember them. Remembering only the red key, 2 layers are enough."
+        "zh": "绿钥匙没有门；蓝门之前一定先捡到蓝钥匙。这两件事<b>不影响未来</b>，不用记。只记红钥匙，2 层就够了。"
       }
     ]
   },

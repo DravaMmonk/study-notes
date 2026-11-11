@@ -1,21 +1,19 @@
 {
-  "title": { "zh": "翻倍再求和", "en": "Doubling, summed" },
+  "title": { "zh": "翻倍再求和" },
   "intro": [
     {
       "t": {
-        "zh": "1 + 2 + 4 + 8 + …：等比数列的部分和会长成什么样？",
-        "en": "1 + 2 + 4 + 8 + …: what do the partial sums of a geometric sequence grow like?"
+        "zh": "1 + 2 + 4 + 8 + …：等比数列的部分和会长成什么样？"
       }
     }
   ],
   "after": {
-    "zh": "1 + 2 + … + 2ⁿ = 2ⁿ⁺¹ − 1：每个部分和都只比下一项少 1。",
-    "en": "1 + 2 + … + 2ⁿ = 2ⁿ⁺¹ − 1: each partial sum is just one less than the next term."
+    "zh": "1 + 2 + … + 2ⁿ = 2ⁿ⁺¹ − 1：每个部分和都只比下一项少 1。"
   },
   "tasks": [
     {
       "id": "dsum",
-      "brief": { "zh": "交出 1 + 2 + 4 + … + 2ⁿ。", "en": "Give 1 + 2 + 4 + … + 2ⁿ." },
+      "brief": { "zh": "交出 1 + 2 + 4 + … + 2ⁿ。" },
       "outputs": [{ "name": "G", "label": "1 + 2 + … + 2ⁿ" }],
       "tests": [{ "want": { "G": [1, 3, 7, 15, 31, 63, 127, 255] } }],
       "hidden": [{ "want": { "G": [1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095] } }],

@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "第 5 个 1", "en": "The fifth 1" },
+  "title": { "zh": "第 5 个 1" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-22\"></level-ref>数出了连着来的 1，<part-ref to=\"part:equal\"></part-ref>能把一个数变成是或否。这一次两件事合在一起。",
-        "en": "<level-ref to=\"1-22\"></level-ref> counts the 1s in a row, and <part-ref to=\"part:equal\"></part-ref> turns a number into a yes or no. This time the two go together."
+        "zh": "<level-ref to=\"1-22\"></level-ref>数出了连着来的 1，<part-ref to=\"part:equal\"></part-ref>能把一个数变成是或否。这一次两件事合在一起。"
       }
     }
   ],
@@ -12,15 +11,14 @@
     {
       "id": "1-23",
       "brief": {
-        "zh": "线上连着来到第 5 个 1 的那一拍说 1，其余各拍说 0。",
-        "en": "Say 1 on the tick that brings the fifth 1 in a row, and 0 on every other tick."
+        "zh": "线上连着来到第 5 个 1 的那一拍说 1，其余各拍说 0。"
       },
       "hint": [
-        { "zh": "第 6 个、第 10 个 1 都不是第 5 个。", "en": "The sixth 1 is not the fifth, and neither is the tenth." }
+        { "zh": "第 6 个、第 10 个 1 都不是第 5 个。" }
       ],
       "wires": {
-        "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" }, "delay": 1 }],
-        "out": [{ "name": "x", "label": { "zh": "出线", "en": "Wire out" } }]
+        "in": [{ "name": "line", "label": { "zh": "进线" }, "delay": 1 }],
+        "out": [{ "name": "x", "label": { "zh": "出线" } }]
       },
       "tests": [
         {

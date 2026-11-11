@@ -1,13 +1,13 @@
 {
-  "title": { "zh": "又冷又湿", "en": "Cold and wet" },
-  "intro": [{ "t": { "zh": "搭出的<part-ref to=\"lemma:gOr\"></part-ref>门现在是一个元件。", "en": "The <part-ref to=\"lemma:gOr\"></part-ref> gate you built is a part now." } }],
+  "title": { "zh": "又冷又湿" },
+  "intro": [{ "t": { "zh": "搭出的<part-ref to=\"lemma:gOr\"></part-ref>门现在是一个元件。" } }],
   "tasks": [
     {
       "id": "g-use",
       "kind": "gates",
       "target": "(Rain ∨ Wind) ∧ Cold",
-      "brief": { "zh": "算出「下雨或者刮风，并且很冷」在每一行的真值。", "en": "Work out the value of “it rains or it is windy, and it is cold” on every row." },
-      "hint": [{ "zh": "括号里的先算。", "en": "Work out the brackets first." }],
+      "brief": { "zh": "算出「下雨或者刮风，并且很冷」在每一行的真值。" },
+      "hint": [{ "zh": "括号里的先算。" }],
       "solution": ["o = gOr(Rain, Wind)", "a = gAnd(o, Cold)", "out <- a"],
       "naive": ["o = gOr(Rain, Wind)", "out <- o"]
     }

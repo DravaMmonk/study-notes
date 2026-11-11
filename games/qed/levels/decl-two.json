@@ -1,28 +1,25 @@
 {
-  "title": { "zh": "至少两样", "en": "At least two" },
+  "title": { "zh": "至少两样" },
   "intro": [
     {
       "t": {
-        "zh": "声明的不一定是连接词：一件事有哪几种成立的方式，说得清楚，就能声明。",
-        "en": "What is declared need not be a connective: whatever holds in ways that can be spelled out can be declared."
+        "zh": "声明的不一定是连接词：一件事有哪几种成立的方式，说得清楚，就能声明。"
       }
     },
     {
       "t": {
-        "zh": "板上这份「提案通过」的声明不符合需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。",
-        "en": "The declaration of “the motion passes” on the board does not meet the requirement. Write a test case for each direction, introduction and use, to find its fault."
+        "zh": "板上这份「提案通过」的声明不符合需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。"
       }
     }
   ],
   "after": {
-    "zh": "「恰好一人同意」却写不成声明：引入规则只能说有了什么就造得出，说不了有了什么就造不出。",
-    "en": "“Exactly one agrees” cannot be declared, though: an introduction rule can say what makes a sentence, never what stops it."
+    "zh": "「恰好一人同意」却写不成声明：引入规则只能说有了什么就造得出，说不了有了什么就造不出。"
   },
   "tasks": [
     {
       "id": "decl-two",
       "kind": "iso",
-      "declare": { "zh": "提案通过", "en": "the motion passes" },
+      "declare": { "zh": "提案通过" },
       "target": "Motion",
       "sentences": ["AnnYes", "BoYes", "CyYes"],
       "tests": [
@@ -53,12 +50,11 @@
         { "given": ["Motion", "AnnYes → Happy"], "goal": "Happy", "make": false }
       ],
       "brief": {
-        "zh": "需求：安、博、赛三人投票，至少两人同意，「提案通过」才能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。",
-        "en": "Requirement: Ann, Bo and Cy vote; “the motion passes” may be introduced only when at least two of them agree. Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree."
+        "zh": "需求：安、博、赛三人投票，至少两人同意，「提案通过」才能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。"
       },
       "hint": [
-        { "zh": "两人同意共有几种组合？这份声明写出了哪几种？", "en": "How many pairs can agree? Which does this declaration write out?" },
-        { "zh": "这份声明的每一条引入规则里，都有谁？", "en": "Who is in every one of this declaration’s introduction rules?" }
+        { "zh": "两人同意共有几种组合？这份声明写出了哪几种？" },
+        { "zh": "这份声明的每一条引入规则里，都有谁？" }
       ],
       "solution": [
         { "binds": [], "needs": ["AnnYes", "BoYes"] },

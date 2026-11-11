@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "再深一倍", "en": "Twice as deep" },
+  "title": { "zh": "再深一倍" },
   "tray": "pipeline",
   "after": {
-    "zh": "十二层和六层一样好训：每一块一开始都原样通过，训练只需让少数几块学出那一点改动，梯度沿着捷径直达每一层。ResNet 就这样把网络堆到了一百多层。",
-    "en": "Twelve layers train as easily as six: every block starts out passing its input straight through, training only has to teach a few of them the small change, and the gradient reaches every layer along the shortcuts. This is how ResNet stacks networks to more than a hundred layers."
+    "zh": "十二层和六层一样好训：每一块一开始都原样通过，训练只需让少数几块学出那一点改动，梯度沿着捷径直达每一层。ResNet 就这样把网络堆到了一百多层。"
   },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"4-16\"></level-ref>里，6 层的网络加上捷径就训得动了。今天认图的网络动辄上百层，再深下去还行吗？",
-        "en": "In <level-ref to=\"4-16\"></level-ref>, a 6-layer network trained once it had shortcuts. Today's image-recognition networks run to a hundred layers or more: does it still work deeper down?"
+        "zh": "<level-ref to=\"4-16\"></level-ref>里，6 层的网络加上捷径就训得动了。今天认图的网络动辄上百层，再深下去还行吗？"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：把至少 12 个卷积层串成一条路，训练它学会测试里那种轻微的模糊。每个卷积层都从很小的随机数开始。",
-        "en": "Your task: chain at least 12 conv layers into one path and train it to learn the light blur in the tests. Every conv layer starts from very small random numbers."
+        "zh": "这一关你要做的：把至少 12 个卷积层串成一条路，训练它学会测试里那种轻微的模糊。每个卷积层都从很小的随机数开始。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组测试：字母 X → 轻微模糊", "en": "Set 1: the letter X → lightly blurred" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：字母 X → 轻微模糊" } }
     }
   ],
   "tasks": [
@@ -25,12 +22,10 @@
       "id": "4-17",
       "kind": "graph",
       "brief": {
-        "zh": "把至少 12 个卷积层串成一条路，训练它做测试里那种轻微的模糊。",
-        "en": "Chain at least 12 conv layers into one path and train it to do the light blur in the tests."
+        "zh": "把至少 12 个卷积层串成一条路，训练它做测试里那种轻微的模糊。"
       },
       "hint": {
-        "zh": "<level-ref to=\"4-16\"></level-ref>里每一层是怎样接的？托盘里的<part-ref to=\"lrn-res\"></part-ref>一个元件就是那样一块。",
-        "en": "How was each layer wired in <level-ref to=\"4-16\"></level-ref>? A <part-ref to=\"lrn-res\"></part-ref> part in the tray is one such block."
+        "zh": "<level-ref to=\"4-16\"></level-ref>里每一层是怎样接的？托盘里的<part-ref to=\"lrn-res\"></part-ref>一个元件就是那样一块。"
       },
       "check": { "tolerance": 0.04 },
       "constraint": { "depth": { "min": 12 } },
@@ -38,20 +33,20 @@
       "scene": "filter",
       "setup": { "target": { "meanBlend": { "amount": 0.5 } } },
       "tests": [
-        { "label": { "zh": "字母 X", "en": "Letter X" }, "in": { "glyph": { "letter": "X" } } },
-        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+        { "label": { "zh": "字母 X" }, "in": { "glyph": { "letter": "X" } } },
+        { "label": { "zh": "圆盘" }, "in": "disk" },
         {
-          "label": { "zh": "带噪方块", "en": "Noisy square" },
+          "label": { "zh": "带噪方块" },
           "in": { "noisy": { "of": { "square": { "x0": 3, "y0": 5, "s": 7 } }, "seed": 3, "amp": 0.2 } }
         },
-        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": { "checker": { "cell": 3 } } }
+        { "label": { "zh": "棋盘" }, "in": { "checker": { "cell": 3 } } }
       ],
       "hidden": [
         {
-          "label": { "zh": "字母 L", "en": "Letter L" },
+          "label": { "zh": "字母 L" },
           "in": { "glyph": { "letter": "L", "lo": 0.2, "hi": 0.8, "ox": 4, "oy": 3 } }
         },
-        { "label": { "zh": "竖条纹", "en": "Vertical stripes" }, "in": { "stripes": { "period": 6, "lo": 0.2, "hi": 0.8 } } }
+        { "label": { "zh": "竖条纹" }, "in": { "stripes": { "period": 6, "lo": 0.2, "hi": 0.8 } } }
       ],
       "solution": [
         "r0 = lrnRes[w=[0.05555555555555555, 0.05555555555555555, 0.05555555555555555, 0.05555555555555555, -0.4444444444444444, 0.05555555555555555, 0.05555555555555555, 0.05555555555555555, 0.05555555555555555]](in)",

@@ -1,29 +1,26 @@
 {
-  "title": { "zh": "倒数", "en": "Reciprocal" },
+  "title": { "zh": "倒数" },
   "intro": [
     {
       "t": {
-        "zh": "第 0 章的机器算得出任意多项，可它只会加和乘：从整数出发，算出来的永远是整数。1, 1/2, 1/3, … 这样越来越小的数列，它一项也算不出。",
-        "en": "Chapter 0’s machine computes as many terms as asked, but it only adds and multiplies: starting from whole numbers, everything it makes is whole. A shrinking sequence like 1, 1/2, 1/3, … is out of its reach, term by term."
+        "zh": "第 0 章的机器算得出任意多项，可它只会加和乘：从整数出发，算出来的永远是整数。1, 1/2, 1/3, … 这样越来越小的数列，它一项也算不出。"
       }
     },
     {
       "t": {
-        "zh": "这一章的第一件新元件是<part-ref to=\"part:recip\"></part-ref>：给出 1/a。",
-        "en": "The chapter’s first new part is <part-ref to=\"part:recip\"></part-ref>: it gives 1/a."
+        "zh": "这一章的第一件新元件是<part-ref to=\"part:recip\"></part-ref>：给出 1/a。"
       }
     }
   ],
   "after": {
-    "zh": "1/(n+1) 每一项都不是 0，却能小过任何给定的正数：这样的数列叫<wiki-ref to=\"infinitesimal\"></wiki-ref>。",
-    "en": "No term of 1/(n+1) is 0, yet it gets smaller than any positive number named: such a sequence is an <wiki-ref to=\"infinitesimal\"></wiki-ref>."
+    "zh": "1/(n+1) 每一项都不是 0，却能小过任何给定的正数：这样的数列叫<wiki-ref to=\"infinitesimal\"></wiki-ref>。"
   },
   "adds": ["recip"],
   "tasks": [
     {
       "id": "recip",
-      "brief": { "zh": "交出 1, 1/2, 1/3, …：第 n 项是 1/(n+1)。", "en": "Give 1, 1/2, 1/3, …: term n is 1/(n+1)." },
-      "hint": [{ "zh": "第一拍的下标是 0。", "en": "The index is 0 on the first tick." }],
+      "brief": { "zh": "交出 1, 1/2, 1/3, …：第 n 项是 1/(n+1)。" },
+      "hint": [{ "zh": "第一拍的下标是 0。" }],
       "outputs": [{ "name": "r", "label": "1/(n+1)" }],
       "tests": [
         {

@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "不管哪一种", "en": "Whichever it is" },
+  "title": { "zh": "不管哪一种" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "在<level-ref to=\"cases\"></level-ref>里，「我坐公交 ∨ 我骑车」是已知；这回它在要证的「若…则…」里。",
-        "en": "In <level-ref to=\"cases\"></level-ref>, “I take the bus ∨ I cycle” was given; now it sits inside the “if … then …” to be proved."
+        "zh": "在<level-ref to=\"cases\"></level-ref>里，「我坐公交 ∨ 我骑车」是已知；这回它在要证的「若…则…」里。"
       }
     }
   ],
@@ -17,8 +16,7 @@
       "cases": [{ "A": "Bus", "B": "Bike", "C": "OnTime" }, { "A": "Sat", "B": "Sun", "C": "Rest" }],
       "hint": [
         {
-          "zh": "目标是「若…则…」，先开一个假设框；框里有了一句 ∨，再分情况。",
-          "en": "The goal is an “if … then …”: open an assumption box first; with an ∨ inside it, split into cases."
+          "zh": "目标是「若…则…」，先开一个假设框；框里有了一句 ∨，再分情况。"
         }
       ],
       "solution": [

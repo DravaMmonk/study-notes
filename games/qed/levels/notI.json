@@ -1,29 +1,26 @@
 {
-  "title": { "zh": "推出矛盾，就不成立", "en": "A contradiction, so not" },
+  "title": { "zh": "推出矛盾，就不成立" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "下雨地就湿，下雨地又不湿：那就不可能在下雨。",
-        "en": "If rain makes the ground wet and also makes it not wet, it cannot be raining."
+        "zh": "下雨地就湿，下雨地又不湿：那就不可能在下雨。"
       }
     }
   ],
   "after": {
-    "zh": "反方向，由「¬¬下雨」得到「下雨」，这些规则做不到。",
-    "en": "The other way, from “¬¬it rains” to “it rains”, is beyond these rules."
+    "zh": "反方向，由「¬¬下雨」得到「下雨」，这些规则做不到。"
   },
   "tasks": [
     {
       "id": "notI_1",
       "kind": "proof",
-      "step": { "zh": "推出矛盾，就不成立", "en": "A contradiction means no" },
+      "step": { "zh": "推出矛盾，就不成立" },
       "tests": [{ "premises": { "p": "A → B", "q": "A → ¬B" }, "goal": "¬A" }],
       "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Exam", "B": "Study" }],
       "hint": [
         {
-          "zh": "「¬下雨」就是「下雨 → ⊥」：假设「下雨」，在框里推出 ⊥。",
-          "en": "“¬it rains” is “it rains → ⊥”: assume “it rains” and reach ⊥ inside the box."
+          "zh": "「¬下雨」就是「下雨 → ⊥」：假设「下雨」，在框里推出 ⊥。"
         }
       ],
       "solution": [
@@ -40,16 +37,15 @@
     {
       "id": "notI_2",
       "kind": "proof",
-      "step": { "zh": "不可能不", "en": "It cannot be not" },
+      "step": { "zh": "不可能不" },
       "tests": [{ "premises": { "p": "A" }, "goal": "¬¬A" }],
       "cases": [{ "A": "Rain" }, { "A": "Locked" }],
       "hint": [
         {
-          "zh": "「¬¬下雨」是「¬下雨 → ⊥」。假设「¬下雨」，它和已知撞出矛盾。",
-          "en": "“¬¬it rains” is “¬it rains → ⊥”. Assume “¬it rains”; it clashes with the given."
+          "zh": "「¬¬下雨」是「¬下雨 → ⊥」。假设「¬下雨」，它和已知撞出矛盾。"
         }
       ],
-      "intro": [{ "t": { "zh": "在下雨，那「没下雨」就不可能成立。", "en": "It is raining, so “it is not raining” cannot hold." } }],
+      "intro": [{ "t": { "zh": "在下雨，那「没下雨」就不可能成立。" } }],
       "solution": ["f = impI[A=\"~A\"](body: m) {", "  body {", "    m = mp(f.body, p)", "  }", "}", "goal <- f"]
     }
   ]

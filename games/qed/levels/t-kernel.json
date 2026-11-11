@@ -1,71 +1,67 @@
 {
-  "title": { "zh": "核来把关", "en": "The kernel checks" },
+  "title": { "zh": "核来把关" },
   "intro": [
     {
       "t": {
-        "zh": "检查证明项的，是证明器的核。这几个证明项是别人写的，都声称证出了要证的那句。先点检查，看核怎么说，再把它们改对。",
-        "en": "What checks a proof term is the prover’s kernel. These terms were written by someone else, each claiming to prove its sentence. Check first and see what the kernel says, then put them right."
+        "zh": "检查证明项的，是证明器的核。这几个证明项是别人写的，都声称证出了要证的那句。先点检查，看核怎么说，再把它们改对。"
       }
     }
   ],
   "after": {
-    "zh": "核只看类型，不管证明项是谁写的、怎样找到的。证明项留下来，谁都能再查一遍。",
-    "en": "The kernel looks only at types, not at who wrote a term or how it was found. A proof term kept can be checked again by anyone."
+    "zh": "核只看类型，不管证明项是谁写的、怎样找到的。证明项留下来，谁都能再查一遍。"
   },
   "tasks": [
     {
       "id": "t-kernel_1",
       "kind": "term",
-      "step": { "zh": "第一题", "en": "Problem 1" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第一题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "premises": { "p": "Rain → Wet", "q": "Rain" },
       "goal": "Wet",
       "given": "q p",
       "answer": "p q",
       "hint": [
         {
-          "zh": "先点检查，看核说什么：谁是函数，谁是参数？",
-          "en": "Check first and see what the kernel says: which is the function, which the argument?"
+          "zh": "先点检查，看核说什么：谁是函数，谁是参数？"
         }
       ]
     },
     {
       "id": "t-kernel_2",
       "kind": "term",
-      "step": { "zh": "第二题", "en": "Problem 2" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第二题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "premises": { "p": "Rain ∧ Wind" },
       "goal": "Wind ∧ Rain",
       "given": "⟨p.1, p.2⟩",
       "answer": "⟨p.2, p.1⟩",
-      "hint": [{ "zh": "要证的这一对，左边该是哪一半？", "en": "In the pair to prove, which half goes on the left?" }]
+      "hint": [{ "zh": "要证的这一对，左边该是哪一半？" }]
     },
     {
       "id": "t-kernel_3",
       "kind": "term",
-      "step": { "zh": "第三题", "en": "Problem 3" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第三题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "premises": { "p": "Rain ∨ Sat" },
       "goal": "Sat ∨ Rain",
       "given": "p.elim (fun a => Or.inl a) (fun b => Or.inr b)",
       "answer": "p.elim (fun a => Or.inr a) (fun b => Or.inl b)",
       "hint": [
         {
-          "zh": "a 证的是下雨，在「今天是周六 ∨ 下雨」里，下雨在哪一边？",
-          "en": "a proves it rains; in “today is Saturday ∨ it rains”, which side is that?"
+          "zh": "a 证的是下雨，在「今天是周六 ∨ 下雨」里，下雨在哪一边？"
         }
       ]
     },
     {
       "id": "t-kernel_4",
       "kind": "term",
-      "step": { "zh": "第四题", "en": "Problem 4" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第四题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "premises": { "p": "Rain → Wet", "q": "Wet → Slip" },
       "goal": "Rain → Slip",
       "given": "fun a => p (q a)",
       "answer": "fun a => q (p a)",
-      "hint": [{ "zh": "拿到的 a 证的是下雨，先该交给谁？", "en": "The a you get proves it rains: who should get it first?" }]
+      "hint": [{ "zh": "拿到的 a 证的是下雨，先该交给谁？" }]
     }
   ]
 }

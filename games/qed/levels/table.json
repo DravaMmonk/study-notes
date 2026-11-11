@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "一句承诺", "en": "A promise" },
+  "title": { "zh": "一句承诺" },
   "intro": [
-    { "t": { "zh": "能判断真假的陈述叫<b>命题</b>。", "en": "A statement that is either true or false is a <b>proposition</b>." } },
+    { "t": { "zh": "能判断真假的陈述叫<b>命题</b>。" } },
     {
       "t": {
-        "zh": "预报的真假取决于「下雨」和「地湿」的真假。两者各有真、假两种取值，共四种组合；每种组合连同结果列成一行，就是一张<wiki-ref to=\"truth\"></wiki-ref>。",
-        "en": "Whether the forecast is true depends on whether “it rains” and “the ground is wet” are. Each can be true or false, four combinations in all; one row per combination, with its result, makes a <wiki-ref to=\"truth\"></wiki-ref>."
+        "zh": "预报的真假取决于「下雨」和「地湿」的真假。两者各有真、假两种取值，共四种组合；每种组合连同结果列成一行，就是一张<wiki-ref to=\"truth\"></wiki-ref>。"
       }
     },
     {
       "t": {
-        "zh": "「若 X，则 Y」中，X 叫<b>前件</b>，Y 叫<b>后件</b>。",
-        "en": "In “if X, then Y”, X is the <b>antecedent</b> and Y the <b>consequent</b>."
+        "zh": "「若 X，则 Y」中，X 叫<b>前件</b>，Y 叫<b>后件</b>。"
       }
     }
   ],
   "after": {
-    "zh": "逻辑学把这样理解的「若…则…」称为<b>实质蕴涵</b>。",
-    "en": "Logicians call this reading of “if … then …” <b>material implication</b>."
+    "zh": "逻辑学把这样理解的「若…则…」称为<b>实质蕴涵</b>。"
   },
   "tasks": [
     {
@@ -26,12 +23,11 @@
       "ask": "fill",
       "formulas": ["Rain → Wet"],
       "brief": {
-        "zh": "天气预报说：「若下雨，则地湿。」判断这句话在每一行是真是假，点单元格填写。",
-        "en": "The forecast says, “If it rains, then the ground is wet.” Decide whether it is true or false on each row, and fill in the cells."
+        "zh": "天气预报说：「若下雨，则地湿。」判断这句话在每一行是真是假，点单元格填写。"
       },
       "hint": [
-        { "zh": "在哪一种情况下，这句预报算是说错了？", "en": "In which case has the forecast got it wrong?" },
-        { "zh": "没有下雨的两行，预报说错了吗？", "en": "On the two rows where it does not rain, has the forecast got it wrong?" }
+        { "zh": "在哪一种情况下，这句预报算是说错了？" },
+        { "zh": "没有下雨的两行，预报说错了吗？" }
       ]
     }
   ]

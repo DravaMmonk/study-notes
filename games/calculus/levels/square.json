@@ -1,30 +1,26 @@
 {
-  "title": { "zh": "平方数", "en": "Squares" },
+  "title": { "zh": "平方数" },
   "intro": [
     {
       "t": {
-        "zh": "0, 1, 4, 9, 16, …：相邻两项的差是 1, 3, 5, 7，一直在变，写不成「每项加同一个数」的递推。",
-        "en": "0, 1, 4, 9, 16, …: the gaps between terms are 1, 3, 5, 7, always changing, so no “add the same number each time” recurrence fits."
+        "zh": "0, 1, 4, 9, 16, …：相邻两项的差是 1, 3, 5, 7，一直在变，写不成「每项加同一个数」的递推。"
       }
     },
     {
       "t": {
-        "zh": "但第 n 项只和 n 有关。手上有了<part-ref to=\"count\"></part-ref>，再加一件新元件<part-ref to=\"part:mul\"></part-ref>，它把两个数乘起来。",
-        "en": "But the n-th term depends only on n. With <part-ref to=\"count\"></part-ref> in hand, one more part comes in: <part-ref to=\"part:mul\"></part-ref>, which multiplies two numbers."
+        "zh": "但第 n 项只和 n 有关。手上有了<part-ref to=\"count\"></part-ref>，再加一件新元件<part-ref to=\"part:mul\"></part-ref>，它把两个数乘起来。"
       }
     }
   ],
   "after": {
-    "zh": "第 n 项直接由 n 算出，不经过前面任何一项：这叫<wiki-ref to=\"general-term\"></wiki-ref>。",
-    "en": "The n-th term computed straight from n, through none of the terms before: this is a <wiki-ref to=\"general-term\"></wiki-ref>."
+    "zh": "第 n 项直接由 n 算出，不经过前面任何一项：这叫<wiki-ref to=\"general-term\"></wiki-ref>。"
   },
   "adds": ["mul"],
   "tasks": [
     {
       "id": "square",
       "brief": {
-        "zh": "交出 0, 1, 4, 9, 16, …：第 n 项是 n²。",
-        "en": "Give 0, 1, 4, 9, 16, …: the n-th term is n²."
+        "zh": "交出 0, 1, 4, 9, 16, …：第 n 项是 n²。"
       },
       "outputs": [{ "name": "q", "label": "n²" }],
       "tests": [{ "want": { "q": [0, 1, 4, 9, 16, 25, 36, 49] } }],

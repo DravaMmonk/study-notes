@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "任意开方", "en": "Any root" },
+  "title": { "zh": "任意开方" },
   "intro": [
     {
       "t": {
-        "zh": "同一台机器换一个数，还能开方吗？把 2 换成测试给出的正数 c。",
-        "en": "Can the same machine take another number’s root? Replace 2 by a positive c from the test."
+        "zh": "同一台机器换一个数，还能开方吗？把 2 换成测试给出的正数 c。"
       }
     }
   ],
   "after": {
-    "zh": "xₙ₊₁ = (xₙ + c/xₙ)/2 从任何正数起都趋于 √c，这就是<wiki-ref to=\"babylonian\"></wiki-ref>。",
-    "en": "xₙ₊₁ = (xₙ + c/xₙ)/2 tends to √c from any positive start: this is the <wiki-ref to=\"babylonian\"></wiki-ref>."
+    "zh": "xₙ₊₁ = (xₙ + c/xₙ)/2 从任何正数起都趋于 √c，这就是<wiki-ref to=\"babylonian\"></wiki-ref>。"
   },
   "tasks": [
     {
       "id": "any-root",
       "brief": {
-        "zh": "测试给出正数 c：从 x₀ = 1 起，交出 xₙ₊₁ = (xₙ + c/xₙ)/2。",
-        "en": "The test gives a positive c: from x₀ = 1, give xₙ₊₁ = (xₙ + c/xₙ)/2."
+        "zh": "测试给出正数 c：从 x₀ = 1 起，交出 xₙ₊₁ = (xₙ + c/xₙ)/2。"
       },
       "inputs": [{ "name": "c", "label": "c" }],
       "outputs": [{ "name": "x", "label": "xₙ" }],

@@ -139,7 +139,7 @@ export const TOOLS = {
         const board = boards.find((b) => b.path === showPath(parsePath(path)))
         return board ? { text: board.text } : { text: JSON.stringify(getAt(value, path), null, 2) }
       }
-      const pick = (v) => (v && typeof v === 'object' && 'en' in v ? v.en : v)
+      const pick = (v) => (v && typeof v === 'object' && 'zh' in v ? v.zh : v)
       // What sort of level it is: its fields that pick one of a few (its kind or mode, its world, its robot…), by its schema.
       const { vocabulary } = await domainOf(content)
       const shape = shapeAt(vocabulary.level, value, [], { vocabulary })

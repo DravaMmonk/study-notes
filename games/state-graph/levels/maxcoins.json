@@ -1,28 +1,25 @@
 {
-  "title": { "zh": "最值钱的路", "en": "The richest route" },
-  "short": { "zh": "一路捡金币", "en": "Gold along the way" },
+  "title": { "zh": "最值钱的路" },
+  "short": { "zh": "一路捡金币" },
   "intro": [
     {
       "t": {
-        "zh": "每个路口上放着一些金币，就是格子左上角的数字。只能往右或往下走，经过的路口，金币都归你，起点和终点也算。",
-        "en": "Every crossing holds some gold coins: the number in each cell’s top-left corner. You may only go right or down, and you keep the coins at every crossing you pass through, start and end included."
+        "zh": "每个路口上放着一些金币，就是格子左上角的数字。只能往右或往下走，经过的路口，金币都归你，起点和终点也算。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "从左上走到右下，最多能捡到多少金币？",
-      "en": "Going from the top left to the bottom right, how many coins can you collect at most?"
+      "zh": "从左上走到右下，最多能捡到多少金币？"
     },
-    "how": { "zh": "还是逐行、从左上开始算。", "en": "Still row by row, from the top left." }
+    "how": { "zh": "还是逐行、从左上开始算。" }
   },
   "robot": "scout",
   "debrief": {
-    "title": { "zh": "同一副骨架", "en": "The same skeleton" },
+    "title": { "zh": "同一副骨架" },
     "body": [
       {
-        "zh": "和<level-ref to=\"cheapest\"></level-ref>的电路板一模一样，只是汇合器换成了「取较大」，体力换成了金币。",
-        "en": "It is the very same board as in <level-ref to=\"cheapest\"></level-ref>, with the merger swapped to “max” and energy swapped for gold."
+        "zh": "和<level-ref to=\"cheapest\"></level-ref>的电路板一模一样，只是汇合器换成了「取较大」，体力换成了金币。"
       }
     ]
   },
@@ -33,17 +30,15 @@
       "diagnose": [
         {
           "when": { "all": [{ "has": "mmin" }, { "not": { "has": "mmax" } }] },
-          "say": { "zh": "这次要的是金币最多：用「取较大」。", "en": "This time you want the most gold: use “max”." }
+          "say": { "zh": "这次要的是金币最多：用「取较大」。" }
         }
       ],
       "hints": [
         {
-          "zh": "只能走一条路：到这个路口，两边你会选哪一边？",
-          "en": "You walk one route only: at this crossing, which side would you pick?"
+          "zh": "只能走一条路：到这个路口，两边你会选哪一边？"
         },
         {
-          "zh": "起点没有来路，取较大只能得到「—」。在起点往汇合器里送一个 0。",
-          "en": "The start has no way in, so the max gives “—”. At the start, feed a 0 into the merger."
+          "zh": "起点没有来路，取较大只能得到「—」。在起点往汇合器里送一个 0。"
         }
       ],
       "world": "grid",

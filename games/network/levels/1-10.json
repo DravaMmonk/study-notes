@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "一个接一个", "en": "One after another" },
+  "title": { "zh": "一个接一个" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-9\"></level-ref>收的是这样的字节，这一次换到发送的一方。要送的字节排成一队，板只看得见排在最前面的那一个；队伍空了，看到的是「—」。",
-        "en": "<level-ref to=\"1-9\"></level-ref> received bytes like these; now the board is the sender. The bytes to send wait in a queue, and only the one in front can be seen; once the queue is empty, it shows 「—」."
+        "zh": "<level-ref to=\"1-9\"></level-ref>收的是这样的字节，这一次换到发送的一方。要送的字节排成一队，板只看得见排在最前面的那一个；队伍空了，看到的是「—」。"
       }
     }
   ],
@@ -12,21 +11,19 @@
     {
       "id": "1-10",
       "brief": {
-        "zh": "把交来的字节依次送出，每个字节前加起始位 1，后加停止位 0；字节送完以后线上一直是 0。说「下一个」为 1 的那一拍取走眼前的字节，下一拍换上后一个。",
-        "en": "Send the bytes handed to you one after another, each with a start bit 1 before it and a stop bit 0 after; once they are all sent the wire stays 0. Saying next takes the byte in front of you that tick, and the following one shows the tick after."
+        "zh": "把交来的字节依次送出，每个字节前加起始位 1，后加停止位 0；字节送完以后线上一直是 0。说「下一个」为 1 的那一拍取走眼前的字节，下一拍换上后一个。"
       },
       "hint": [
-        { "zh": "一个字节连同起始位和停止位，一共占 10 拍。", "en": "A byte with its start and stop bits takes 10 ticks." },
+        { "zh": "一个字节连同起始位和停止位，一共占 10 拍。" },
         {
-          "zh": "<part-ref to=\"serializer\"></part-ref>只说那 8 位，起始位那一拍要另外说。",
-          "en": "<part-ref to=\"serializer\"></part-ref> says only the 8 bits; the start bit's tick is up to you."
+          "zh": "<part-ref to=\"serializer\"></part-ref>只说那 8 位，起始位那一拍要另外说。"
         },
-        { "zh": "队伍空了以后，也不能再说起始位。", "en": "Once the queue is empty, no more start bits either." }
+        { "zh": "队伍空了以后，也不能再说起始位。" }
       ],
-      "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
-      "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
+      "inputs": [{ "name": "byte", "label": { "zh": "队首" } }],
+      "outputs": [{ "name": "next", "label": { "zh": "下一个" } }],
       "pulls": { "input": "byte", "next": "next" },
-      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线" } }] },
       "tests": [
         { "ticks": 22, "queue": [[65]] },
         { "ticks": 32, "queue": [[0, 255]] },

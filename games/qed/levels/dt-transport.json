@@ -1,24 +1,22 @@
 {
-  "title": { "zh": "类型里的相等", "en": "Equality in a type" },
+  "title": { "zh": "类型里的相等" },
   "consts": ["zero", "m"],
   "intro": [
     {
       "t": {
-        "zh": "长 m + 0 的向量当然长 m，可核算不出 m + 0 是 m。",
-        "en": "A vector m + 0 long is of course m long, but the kernel cannot work m + 0 out to m."
+        "zh": "长 m + 0 的向量当然长 m，可核算不出 m + 0 是 m。"
       }
     }
   ],
   "after": {
-    "zh": "沿着等式把类型换过去，叫<wiki-ref to=\"transport\"></wiki-ref>。",
-    "en": "Carrying a type across an equation is called <wiki-ref to=\"transport\"></wiki-ref>."
+    "zh": "沿着等式把类型换过去，叫<wiki-ref to=\"transport\"></wiki-ref>。"
   },
   "tasks": [
     {
       "id": "dt-transport_1",
       "kind": "term",
-      "step": { "zh": "第一题", "en": "Problem 1" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第一题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": { "v": "Vec(plus(m, zero))", "addZero": "∀x. plus(x, zero) = x" },
@@ -28,29 +26,28 @@
       "naive": "v",
       "hint": [
         {
-          "zh": "<level-ref to=\"eq-propeq\"></level-ref>里怎么把 m + 0 换成 m？",
-          "en": "How did <level-ref to=\"eq-propeq\"></level-ref> turn m + 0 into m?"
+          "zh": "<level-ref to=\"eq-propeq\"></level-ref>里怎么把 m + 0 换成 m？"
         }
       ]
     },
     {
       "id": "dt-transport_2",
       "kind": "term",
-      "step": { "zh": "第二题", "en": "Problem 2" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第二题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": { "v": "Vec(m)", "addZero": "∀x. plus(x, zero) = x" },
       "goal": "Vec(plus(m, zero))",
       "defs": ["plus"],
       "answer": "addZero m ▸ v",
-      "hint": [{ "zh": "倒过来也是同一个等式。", "en": "The other way round is the same equation." }]
+      "hint": [{ "zh": "倒过来也是同一个等式。" }]
     },
     {
       "id": "dt-transport_3",
       "kind": "term",
-      "step": { "zh": "第三题", "en": "Problem 3" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第三题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": {
@@ -63,7 +60,7 @@
       "defs": ["plus"],
       "answer": "addZero m ▸ append v vnil",
       "naive": "append v vnil",
-      "hint": [{ "zh": "append v vnil 的类型是什么？", "en": "What is the type of append v vnil?" }]
+      "hint": [{ "zh": "append v vnil 的类型是什么？" }]
     }
   ]
 }

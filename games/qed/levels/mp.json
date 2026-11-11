@@ -1,46 +1,44 @@
 {
-  "title": { "zh": "套用", "en": "Apply" },
+  "title": { "zh": "套用" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "新元件<part-ref to=\"part:mp\"></part-ref>是一条证明规则：一个输入接 A → B，另一个接 A，输出 B。",
-        "en": "The new part <part-ref to=\"part:mp\"></part-ref> is a proof rule: one input takes A → B, the other A, and it outputs B."
+        "zh": "新元件<part-ref to=\"part:mp\"></part-ref>是一条证明规则：一个输入接 A → B，另一个接 A，输出 B。"
       }
     },
     {
       "t": {
-        "zh": "元件从上方的元件栏放到板上。输入对不上时，元件会显示它要的和收到的。",
-        "en": "Parts go onto the board from the tray above. When an input does not fit, the part shows what it wants and what it got."
+        "zh": "元件从上方的元件栏放到板上。输入对不上时，元件会显示它要的和收到的。"
       }
     }
   ],
-  "after": { "zh": "这条规则在逻辑学里叫<b>肯定前件式</b>（modus ponens）。", "en": "Logicians call this rule <b>modus ponens</b>." },
+  "after": { "zh": "这条规则在逻辑学里叫<b>肯定前件式</b>（modus ponens）。" },
   "tasks": [
     {
       "id": "mp_1",
       "kind": "proof",
-      "step": { "zh": "套用", "en": "Apply" },
+      "step": { "zh": "套用" },
       "tests": [{ "premises": { "p": "A → B", "q": "B → C", "r": "A" }, "goal": "C" }],
       "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
       "adds": ["mp"],
       "hint": [
-        { "zh": "先只看「下雨 → 地湿」和「下雨」。", "en": "Look first at just “it rains → the ground is wet” and “it rains”." },
-        { "zh": "套用的输出和已知一样，也能接进别的元件。", "en": "An Apply’s output, like a given, can go into another part." }
+        { "zh": "先只看「下雨 → 地湿」和「下雨」。" },
+        { "zh": "套用的输出和已知一样，也能接进别的元件。" }
       ],
       "solution": ["m1 = mp(p, r)", "m2 = mp(q, m1)", "goal <- m2"]
     },
     {
       "id": "mp_2",
       "kind": "proof",
-      "step": { "zh": "用不着的已知", "en": "A given you do not need" },
+      "step": { "zh": "用不着的已知" },
       "tests": [{ "premises": { "p": "A → B", "q": "C → B", "r": "C", "s": "B → D" }, "goal": "D" }],
       "cases": [
         { "A": "Bus", "B": "OnTime", "C": "Bike", "D": "Happy" },
         { "A": "Coffee", "B": "Awake", "C": "Tea", "D": "Pass" }
       ],
-      "hint": [{ "zh": "从目标倒着想：哪一句能给出「我很开心」？", "en": "Work back from the goal: which sentence can give “I am happy”?" }],
-      "intro": [{ "t": { "zh": "已知不一定都用得上。", "en": "Not every given is needed." } }],
+      "hint": [{ "zh": "从目标倒着想：哪一句能给出「我很开心」？" }],
+      "intro": [{ "t": { "zh": "已知不一定都用得上。" } }],
       "solution": ["m1 = mp(q, r)", "m2 = mp(s, m1)", "goal <- m2"]
     }
   ]

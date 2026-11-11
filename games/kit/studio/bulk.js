@@ -32,7 +32,7 @@ export function bulkSet(vocabulary, levels, path, value) {
     if (!s) { skipped.push({ level: level.id, why: 'has no such field' }); continue }
     if (same(getAt(level, keys), value)) { skipped.push({ level: level.id, why: 'holds that already' }); continue }
     if (keys.length > 1 && getAt(level, keys.slice(0, -1)) === undefined) { skipped.push({ level: level.id, why: 'has nothing to hold it' }); continue }
-    if (s.type === 'text' && value && typeof value === 'object') ops.push({ op: 'text.set', level: level.id, path: keys, zh: value.zh, en: value.en })
+    if (s.type === 'text' && value && typeof value === 'object') ops.push({ op: 'text.set', level: level.id, path: keys, zh: value.zh })
     else if (s.type === 'board' && Array.isArray(value)) ops.push({ op: 'level.blueprint', level: level.id, path: keys, text: value.join('\n') })
     else ops.push({ op: 'level.set', level: level.id, path: keys, value })
   }

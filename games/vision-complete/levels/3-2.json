@@ -1,29 +1,25 @@
 {
-  "title": { "zh": "补一盏灯", "en": "Add a fill light" },
+  "title": { "zh": "补一盏灯" },
   "tray": "pipeline",
   "after": {
-    "zh": "光是相加的：两盏灯照出的亮度，等于各自照出的亮度之和。背对补光的那一面得不到补光，亮度不会变成负数，所以要在 0 截住。摄影棚里的主光加补光、游戏里的多光源，都是这样一盏一盏加起来的。",
-    "en": "Light adds up: the brightness under two lamps is the sum of what each gives on its own. The side facing away from the fill light gets none of it, and brightness cannot be negative, so it is cut off at 0. A key light plus a fill light in a studio, or many lights in a game, are added up lamp by lamp just like this."
+    "zh": "光是相加的：两盏灯照出的亮度，等于各自照出的亮度之和。背对补光的那一面得不到补光，亮度不会变成负数，所以要在 0 截住。摄影棚里的主光加补光、游戏里的多光源，都是这样一盏一盏加起来的。"
   },
   "intro": [
     {
       "t": {
-        "zh": "摄影棚里很少只用一盏灯：主灯之外，还会在另一侧放一盏弱一些的补光，让暗面不至于漆黑。",
-        "en": "Studios rarely use a single lamp: besides the key light, a weaker fill light goes on the other side so the dark side is not pitch black."
+        "zh": "摄影棚里很少只用一盏灯：主灯之外，还会在另一侧放一盏弱一些的补光，让暗面不至于漆黑。"
       }
     },
     {
       "t": {
-        "zh": "<level-ref to=\"3-1\"></level-ref>的电路现在是<part-ref to=\"lambert\"></part-ref>元件：给它法线和反射率，设好灯的方向，它就画出这盏灯下的样子。",
-        "en": "<level-ref to=\"3-1\"></level-ref>'s circuit is now the <part-ref to=\"lambert\"></part-ref> part: give it the normals and the reflectance, set the lamp direction, and it draws the surface under that lamp."
+        "zh": "<level-ref to=\"3-1\"></level-ref>的电路现在是<part-ref to=\"lambert\"></part-ref>元件：给它法线和反射率，设好灯的方向，它就画出这盏灯下的样子。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：主灯不变，再加一盏从左边低处照来的补光，强度是主灯的一半。要想的问题：背对补光的那一面，补光给它的亮度是多少？",
-        "en": "Your task in this level: keep the key light and add a fill light low on the left at half its strength. Something to think about: on the side facing away from the fill light, how much brightness does the fill light give?"
+        "zh": "这一关你要做的：主灯不变，再加一盏从左边低处照来的补光，强度是主灯的一半。要想的问题：背对补光的那一面，补光给它的亮度是多少？"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组测试：一个高鼓包", "en": "Set 1: a tall bump" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：一个高鼓包" } }
     }
   ],
   "tasks": [
@@ -31,48 +27,46 @@
       "id": "3-2",
       "kind": "graph",
       "brief": {
-        "zh": "主灯不变，再从左边低处加一盏补光，方向 (−0.8, 0, 0.6)，强度是主灯的一半。画出两盏灯一起照的样子。",
-        "en": "Keep the main lamp and add a fill light low on the left, from direction (−0.8, 0, 0.6), at half the main lamp's strength. Draw what the surface looks like under both lamps."
+        "zh": "主灯不变，再从左边低处加一盏补光，方向 (−0.8, 0, 0.6)，强度是主灯的一半。画出两盏灯一起照的样子。"
       },
       "hint": {
-        "zh": "两盏灯照亮同一块表面，各自贡献的亮度会怎样合在一起？背对补光的地方呢？",
-        "en": "Two lamps light the same surface: how do the brightnesses they each give combine? And where the surface faces away from the fill light?"
+        "zh": "两盏灯照亮同一块表面，各自贡献的亮度会怎样合在一起？背对补光的地方呢？"
       },
       "inputs": ["nx", "ny", "nz", "albedo"],
       "inputLabels": {
-        "nx": { "zh": "法线 x", "en": "Normal x" },
-        "ny": { "zh": "法线 y", "en": "Normal y" },
-        "nz": { "zh": "法线 z", "en": "Normal z" },
-        "albedo": { "zh": "反射率", "en": "Reflectance" }
+        "nx": { "zh": "法线 x" },
+        "ny": { "zh": "法线 y" },
+        "nz": { "zh": "法线 z" },
+        "albedo": { "zh": "反射率" }
       },
       "views": { "in": "pixels", "out": "pixels", "mid": "pixels" },
       "scene": "surface",
       "setup": { "lamp": [0.48, -0.36, 0.8], "fill": [-0.8, 0, 0.6] },
       "tests": [
         {
-          "label": { "zh": "高鼓包", "en": "A tall bump" },
+          "label": { "zh": "高鼓包" },
           "height": [{ "dome": [8, 8, 6, 4.5] }],
           "paint": { "blank": { "v": 0.9 } }
         },
         {
-          "label": { "zh": "一对鼓包", "en": "A pair of bumps" },
+          "label": { "zh": "一对鼓包" },
           "height": [{ "dome": [5, 8, 4, 2.5] }, { "dome": [11, 8, 4, 2.5] }],
           "paint": { "stripes": { "period": 8, "lo": 0.4, "hi": 0.9 } }
         },
         {
-          "label": { "zh": "白球", "en": "White ball" },
+          "label": { "zh": "白球" },
           "height": [{ "dome": [7.5, 7.5, 7, 3] }],
           "paint": { "glyph": { "letter": "T", "lo": 0.85, "hi": 0.35 } }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "横梁", "en": "A ridge" },
+          "label": { "zh": "横梁" },
           "height": [{ "ridge": [8, 5, 2.5] }],
           "paint": { "checker": { "cell": 4, "lo": 0.45, "hi": 0.85 } }
         },
         {
-          "label": { "zh": "两个鼓包", "en": "Two bumps" },
+          "label": { "zh": "两个鼓包" },
           "height": [{ "dome": [4.5, 5, 4, 1.5] }, { "dome": [11, 10, 4.5, 2] }],
           "paint": { "blank": { "v": 0.9 } }
         }

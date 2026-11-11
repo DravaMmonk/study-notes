@@ -1,43 +1,36 @@
 {
   "title": {
-    "zh": "逗号里的 which",
-    "en": "A which between commas"
+    "zh": "逗号里的 which"
   },
   "intro": [
     {
       "t": {
-        "zh": "用逗号隔开的 <i>which</i> 从句叫<wiki-ref to=\"nonrestrictive\"></wiki-ref>：它补充说明一个已经确定的名词，不用来区分是哪一个。折法一样。",
-        "en": "A <i>which</i> clause between commas is a <wiki-ref to=\"nonrestrictive\"></wiki-ref>: it adds something about a noun already pinned down, rather than saying which one. It folds the same way."
+        "zh": "用逗号隔开的 <i>which</i> 从句叫<wiki-ref to=\"nonrestrictive\"></wiki-ref>：它补充说明一个已经确定的名词，不用来区分是哪一个。折法一样。"
       }
     }
   ],
   "debrief": {
     "title": {
-      "zh": "Our model, which has seven billion parameters, runs on a single GPU.",
-      "en": "Our model, which has seven billion parameters, runs on a single GPU."
+      "zh": "Our model, which has seven billion parameters, runs on a single GPU."
     },
     "body": [
       {
-        "zh": "主干 <i>Our model runs</i>；逗号里补充“它有七十亿参数”，<i>on a single GPU</i> 挂在 <i>runs</i> 上。我们的模型有七十亿参数，能在一块 GPU 上运行。",
-        "en": "The skeleton is <i>Our model runs</i>; the commas add that it has seven billion parameters, and <i>on a single GPU</i> hangs on <i>runs</i>."
+        "zh": "主干 <i>Our model runs</i>；逗号里补充“它有七十亿参数”，<i>on a single GPU</i> 挂在 <i>runs</i> 上。我们的模型有七十亿参数，能在一块 GPU 上运行。"
       }
     ],
     "note": {
-      "zh": "两个逗号夹着的从句，拿掉后主干完整。",
-      "en": "Take out a clause between commas, and the skeleton stands whole."
+      "zh": "两个逗号夹着的从句，拿掉后主干完整。"
     }
   },
   "tasks": [
     {
       "id": "3-2",
       "brief": {
-        "zh": "标出主干，把修饰成分折起来。",
-        "en": "Mark the skeleton, folding the modifiers away."
+        "zh": "标出主干，把修饰成分折起来。"
       },
       "hint": [
         {
-          "zh": "把两个逗号之间的那一块拿掉，句子还剩什么？",
-          "en": "Take out what lies between the commas: what is left?"
+          "zh": "把两个逗号之间的那一块拿掉，句子还剩什么？"
         }
       ],
       "sentence": "Our model, which has seven billion parameters, runs on a single GPU.",
@@ -53,8 +46,7 @@
           "to": "runs",
           "misread": {
             "parameters": {
-              "zh": "这一块在逗号外面，修饰不到从句里的 <i>parameters</i>：在一块 GPU 上运行的是模型。",
-              "en": "It lies outside the commas and cannot reach <i>parameters</i> inside the clause: what runs on one GPU is the model."
+              "zh": "这一块在逗号外面，修饰不到从句里的 <i>parameters</i>：在一块 GPU 上运行的是模型。"
             }
           }
         }
@@ -66,8 +58,7 @@
       "misrole": {
         "verb": {
           "has": {
-            "zh": "<i>has</i> 在逗号里的从句中。主干的谓语在第二个逗号后面。",
-            "en": "<i>has</i> is inside the clause between the commas. The skeleton’s verb comes after the second comma."
+            "zh": "<i>has</i> 在逗号里的从句中。主干的谓语在第二个逗号后面。"
           }
         }
       }

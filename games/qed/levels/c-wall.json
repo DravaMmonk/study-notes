@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "auto 证不出的", "en": "What auto cannot prove" },
+  "title": { "zh": "auto 证不出的" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "这五句在真值表的每一行都为真。<part-ref to=\"lemma:auto\"></part-ref>证得出几句？",
-        "en": "These five sentences are true on every row of their truth tables. How many does <part-ref to=\"lemma:auto\"></part-ref> prove?"
+        "zh": "这五句在真值表的每一行都为真。<part-ref to=\"lemma:auto\"></part-ref>证得出几句？"
       }
     },
     {
       "t": {
-        "zh": "搜不到证明，未必就没有证明：也可能是搜索的方法或深度不够。",
-        "en": "A search that finds no proof does not show there is none: the method or the depth may fall short."
+        "zh": "搜不到证明，未必就没有证明：也可能是搜索的方法或深度不够。"
       }
     }
   ],
@@ -20,7 +18,7 @@
       "id": "c-wall",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         { "goal": "¬¬(Rain ∨ ¬Rain)" },
@@ -30,10 +28,9 @@
         { "goal": "((Rain → Wet) → Rain) → Rain", "want": "fails" }
       ],
       "brief": {
-        "zh": "设计一个证明助手：完成需要证明的测试目标，对指定的失败目标报告失败。",
-        "en": "Design a proof assistant that proves the required test goals and reports failure for the designated failure cases."
+        "zh": "设计一个证明助手：完成需要证明的测试目标，对指定的失败目标报告失败。"
       },
-      "hint": [{ "zh": "用手里的 auto 逐句试，看哪几句证不出。", "en": "Try each with the auto you have, and see which it cannot prove." }],
+      "hint": [{ "zh": "用手里的 auto 逐句试，看哪几句证不出。" }],
       "solution": ["c0 = auto(in)", "out <- c0"]
     }
   ]

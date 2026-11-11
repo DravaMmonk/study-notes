@@ -1,12 +1,12 @@
 {
-  "groups": [{ "id": "sequences", "title": { "zh": "数列", "en": "Sequences" } }],
+  "groups": [{ "id": "sequences", "title": { "zh": "数列" } }],
   "entries": [
     {
       "id": "term",
       "group": "sequences",
-      "title": { "zh": "项", "en": "term" },
+      "title": { "zh": "项" },
       "at": "1-1",
-      "body": [{ "zh": "数列里的一个数：第 n 拍，板算出第 n 项。", "en": "One number of a sequence: at tick n, the board computes term n." }]
+      "body": [{ "zh": "数列里的一个数：第 n 拍，板算出第 n 项。" }]
     }
   ]
 }

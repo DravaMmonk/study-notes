@@ -1,12 +1,11 @@
 {
-  "title": { "zh": "按形状分解假设", "en": "The givens by their shape" },
+  "title": { "zh": "按形状分解假设" },
   "tray": "machine",
   "builds": "elimRules",
   "intro": [
     {
       "t": {
-        "zh": "消去规则看的是已知：已知是什么结构，就能怎样用它。设计出的证明助手会成为新元件「分解假设」。",
-        "en": "Elimination rules look at the givens: a given’s shape says how it can be used. The proof assistant you design becomes a new part, “Use a given”."
+        "zh": "消去规则看的是已知：已知是什么结构，就能怎样用它。设计出的证明助手会成为新元件「分解假设」。"
       }
     }
   ],
@@ -15,7 +14,7 @@
       "id": "s-elim",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         { "goal": "Wet", "hyps": ["Rain ∧ Wind"], "becomes": [["Rain ∧ Wind; Rain; Wind ⊢ Wet"]] },
@@ -31,17 +30,14 @@
         { "goal": "Wet", "hyps": ["Rain"], "becomes": [] }
       ],
       "brief": {
-        "zh": "设计一个证明助手：每一条消去规则都拿去对已知，每一种对法都留下；一条都对不上的，失败。",
-        "en": "Design a proof assistant that tries every elimination rule on the givens, keeping every fit; when none fits, it fails."
+        "zh": "设计一个证明助手：每一条消去规则都拿去对已知，每一种对法都留下；一条都对不上的，失败。"
       },
       "hint": [
         {
-          "zh": "消去规则有六条：拆解、分类讨论、套用、爆炸、实例框、选定一例。",
-          "en": "There are six elimination rules: Split, Case analysis, Apply, Explosion, the instance box, choose an instance."
+          "zh": "消去规则有六条：拆解、分类讨论、套用、爆炸、实例框、选定一例。"
         },
         {
-          "zh": "每条一个框，框里是<part-ref to=\"lemma:erule\"></part-ref>。",
-          "en": "One region each, with <part-ref to=\"lemma:erule\"></part-ref> in it."
+          "zh": "每条一个框，框里是<part-ref to=\"lemma:erule\"></part-ref>。"
         }
       ],
       "solution": [

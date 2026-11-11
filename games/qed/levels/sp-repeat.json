@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "改到改不动", "en": "Until nothing fits" },
+  "title": { "zh": "改到改不动" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "这一回，各个目标里 ¬¬ 的个数不一样。改写对不上任何地方时，就失败。",
-        "en": "This time the goals hold different numbers of ¬¬s. A rewrite that fits nowhere fails."
+        "zh": "这一回，各个目标里 ¬¬ 的个数不一样。改写对不上任何地方时，就失败。"
       }
     }
   ],
@@ -14,15 +13,15 @@
       "id": "sp-repeat",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         { "goal": "¬¬Rain", "becomes": [["Rain"]] },
         { "goal": "¬¬Rain ∧ ¬¬Wind", "becomes": [["Rain ∧ Wind"]] },
         { "goal": "¬¬(¬¬Rain ∨ ¬¬¬¬Wind)", "becomes": [["Rain ∨ Wind"]] }
       ],
-      "brief": { "zh": "设计一个证明助手，把每个目标变成要的样子。", "en": "Design a proof assistant that turns each goal into the one wanted." },
-      "hint": [{ "zh": "改写的次数要随目标而变。", "en": "The number of rewrites must depend on the goal." }],
+      "brief": { "zh": "设计一个证明助手，把每个目标变成要的样子。" },
+      "hint": [{ "zh": "改写的次数要随目标而变。" }],
       "solution": [
         "c0 = repeat(in, body: c1) {",
         "  body {",

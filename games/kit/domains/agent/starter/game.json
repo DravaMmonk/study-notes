@@ -2,16 +2,13 @@
   "domain": "agent",
   "vocabulary": 1,
   "title": {
-    "zh": "__title__",
-    "en": "__title__"
+    "zh": "__title__"
   },
   "kicker": {
-    "zh": "开发中",
-    "en": "In development"
+    "zh": "开发中"
   },
   "lede": {
-    "zh": "从一次模型调用开始，亲手决定编码 agent 看到什么、能做什么，搭出自己修好 issue 的 agent。",
-    "en": "Starting from one model call, decide what a coding agent sees and what it can do, and build an agent that fixes an issue on its own."
+    "zh": "从一次模型调用开始，亲手决定编码 agent 看到什么、能做什么，搭出自己修好 issue 的 agent。"
   },
   "primitives": [
     "model"
@@ -29,12 +26,10 @@
       "id": 0,
       "machine": "hand",
       "title": {
-        "zh": "纸笔",
-        "en": "Pen and paper"
+        "zh": "纸笔"
       },
       "question": {
-        "zh": "模型到底看到了什么？",
-        "en": "What does the model actually see?"
+        "zh": "模型到底看到了什么？"
       },
       "foundation": [
         "0-1"
@@ -44,12 +39,10 @@
       "id": 1,
       "machine": "once",
       "title": {
-        "zh": "一问一答",
-        "en": "One call"
+        "zh": "一问一答"
       },
       "question": {
-        "zh": "只能问一次，要给它看什么？",
-        "en": "One call only: what do you show it?"
+        "zh": "只能问一次，要给它看什么？"
       },
       "foundation": [
         "1-1"
@@ -79,12 +72,10 @@
     "qty-zero": {
       "repo": "shop",
       "title": {
-        "zh": "数量为 0 的商品",
-        "en": "Items of quantity 0"
+        "zh": "数量为 0 的商品"
       },
       "text": {
-        "zh": "<code>src/cart.js</code> 的 <code>addItem</code>：数量为 0 的商品不应该加进购物车。",
-        "en": "<code>addItem</code> in <code>src/cart.js</code>: an item of quantity 0 should not go into the cart."
+        "zh": "<code>src/cart.js</code> 的 <code>addItem</code>：数量为 0 的商品不应该加进购物车。"
       },
       "edits": [
         {
@@ -96,12 +87,10 @@
     "total-shipping": {
       "repo": "shop",
       "title": {
-        "zh": "总价少算了运费",
-        "en": "The total leaves out shipping"
+        "zh": "总价少算了运费"
       },
       "text": {
-        "zh": "下面是 <code>src/cart.js</code> 的代码。<code>total</code> 算总价时漏掉了运费，请加上。",
-        "en": "Here is the code of <code>src/cart.js</code>. <code>total</code> leaves shipping out of the total; please add it."
+        "zh": "下面是 <code>src/cart.js</code> 的代码。<code>total</code> 算总价时漏掉了运费，请加上。"
       },
       "pasted": [
         "src/cart.js"

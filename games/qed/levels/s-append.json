@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "两条路都要", "en": "Both ways" },
+  "title": { "zh": "两条路都要" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "对着「或者」，补充的左右两条规则都不会失败。<level-ref to=\"s-orelse\"></level-ref>里，<part-ref to=\"part:append\"></part-ref>只用第一个没失败的框，选错了也回不去。有了回溯，<part-ref to=\"part:append\"></part-ref>也给出所有结果：先是第一个框的每一种，再是下一个框的每一种。",
-        "en": "Against an “or”, neither of Add alternative’s two rules fails. In <level-ref to=\"s-orelse\"></level-ref>, <part-ref to=\"part:append\"></part-ref> took only the first region that did not fail, and a wrong choice could not be undone. With backtracking, <part-ref to=\"part:append\"></part-ref> gives every result too: every one of the first region, then every one of the next."
+        "zh": "对着「或者」，补充的左右两条规则都不会失败。<level-ref to=\"s-orelse\"></level-ref>里，<part-ref to=\"part:append\"></part-ref>只用第一个没失败的框，选错了也回不去。有了回溯，<part-ref to=\"part:append\"></part-ref>也给出所有结果：先是第一个框的每一种，再是下一个框的每一种。"
       }
     }
   ],
@@ -14,18 +13,17 @@
       "id": "s-append",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         { "goal": "Rain ∨ Wind", "hyps": ["Wind"] },
         { "goal": "Rain ∨ Wind", "hyps": ["Rain"] },
         { "goal": "Wet ∨ Slip", "hyps": ["Slip"] }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
       "hint": [
         {
-          "zh": "补充的哪一边对，现在不必当场决定。",
-          "en": "Which side of Add alternative is right need not be decided on the spot any more."
+          "zh": "补充的哪一边对，现在不必当场决定。"
         }
       ],
       "solution": [

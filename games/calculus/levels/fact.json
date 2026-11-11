@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "阶乘倒数", "en": "Reciprocal factorials" },
+  "title": { "zh": "阶乘倒数" },
   "intro": [
     {
       "t": {
-        "zh": "n! = 1·2·…·n，0! = 1。1/n! 小得极快：1, 1, 1/2, 1/6, 1/24, …。不必先算出 n! 再取倒数：相邻两项只差一个因子。",
-        "en": "n! = 1·2·…·n, and 0! = 1. 1/n! shrinks extremely fast: 1, 1, 1/2, 1/6, 1/24, …. There is no need to compute n! first: neighbouring terms differ by a single factor."
+        "zh": "n! = 1·2·…·n，0! = 1。1/n! 小得极快：1, 1, 1/2, 1/6, 1/24, …。不必先算出 n! 再取倒数：相邻两项只差一个因子。"
       }
     }
   ],
@@ -12,10 +11,9 @@
     {
       "id": "fact",
       "brief": {
-        "zh": "交出 1, 1, 1/2, 1/6, 1/24, …：第 n 项是 1/n!。",
-        "en": "Give 1, 1, 1/2, 1/6, 1/24, …: term n is 1/n!."
+        "zh": "交出 1, 1, 1/2, 1/6, 1/24, …：第 n 项是 1/n!。"
       },
-      "hint": [{ "zh": "1/n! 和 1/(n − 1)! 差一个什么因子？", "en": "What factor separates 1/n! from 1/(n − 1)!?" }],
+      "hint": [{ "zh": "1/n! 和 1/(n − 1)! 差一个什么因子？" }],
       "outputs": [{ "name": "t", "label": "1/n!" }],
       "tests": [
         {

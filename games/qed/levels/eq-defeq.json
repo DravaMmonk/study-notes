@@ -1,50 +1,48 @@
 {
-  "title": { "zh": "算出来就相等", "en": "Equal by computing" },
+  "title": { "zh": "算出来就相等" },
   "consts": ["zero", "m"],
   "intro": [
     {
       "t": {
-        "zh": "这一关有加法的定义：0 + y = y，S x + y = S (x + y)。核比较两个类型之前，先按定义把它们算到底，算出来一样，就是一样。",
-        "en": "This level has the definition of addition: 0 + y = y and S x + y = S (x + y). Before comparing two types, the kernel works them out by the definitions; if they come out alike, they are alike."
+        "zh": "这一关有加法的定义：0 + y = y，S x + y = S (x + y)。核比较两个类型之前，先按定义把它们算到底，算出来一样，就是一样。"
       }
     }
   ],
   "after": {
-    "zh": "按定义算得出的相等，叫<wiki-ref to=\"defeq\"></wiki-ref>。",
-    "en": "An equality that comes out by working the definitions is a <wiki-ref to=\"defeq\"></wiki-ref>."
+    "zh": "按定义算得出的相等，叫<wiki-ref to=\"defeq\"></wiki-ref>。"
   },
   "tasks": [
     {
       "id": "eq-defeq_1",
       "kind": "term",
-      "step": { "zh": "第一题", "en": "Problem 1" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第一题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": {},
       "goal": "plus(s(zero), s(zero)) = s(s(zero))",
       "defs": ["plus"],
       "answer": "rfl",
-      "hint": [{ "zh": "按加法的定义把左边算出来。", "en": "Work the left side out by the definition of addition." }]
+      "hint": [{ "zh": "按加法的定义把左边算出来。" }]
     },
     {
       "id": "eq-defeq_2",
       "kind": "term",
-      "step": { "zh": "第二题", "en": "Problem 2" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第二题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": {},
       "goal": "∀x. plus(zero, x) = x",
       "defs": ["plus"],
       "answer": "fun a => rfl",
-      "hint": [{ "zh": "0 + a 按定义算出来是什么？", "en": "What does 0 + a work out to by the definition?" }]
+      "hint": [{ "zh": "0 + a 按定义算出来是什么？" }]
     },
     {
       "id": "eq-defeq_3",
       "kind": "term",
-      "step": { "zh": "第三题", "en": "Problem 3" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第三题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": {},
@@ -52,20 +50,20 @@
       "defs": ["plus"],
       "answer": "fun a => rfl",
       "naive": "rfl",
-      "hint": [{ "zh": "定义算两步。", "en": "Two steps of the definition." }]
+      "hint": [{ "zh": "定义算两步。" }]
     },
     {
       "id": "eq-defeq_4",
       "kind": "term",
-      "step": { "zh": "第四题", "en": "Problem 4" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第四题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": { "p": "Even(plus(s(s(zero)), m))" },
       "goal": "Even(s(s(m)))",
       "defs": ["plus"],
       "answer": "p",
-      "hint": [{ "zh": "p 的类型算出来是什么？", "en": "What does the type of p work out to?" }]
+      "hint": [{ "zh": "p 的类型算出来是什么？" }]
     }
   ]
 }

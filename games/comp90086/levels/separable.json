@@ -1,9 +1,8 @@
 {
-  "title": { "zh": "空间可分离滤波与计算量", "en": "Separable filters and their cost" },
+  "title": { "zh": "空间可分离滤波与计算量" },
   "intro": [],
   "after": {
-    "zh": "能拆成一列乘一行的核，才能先横后竖地串起来；拉普拉斯不是乘积，而是横竖两个二阶差分的和。",
-    "en": "Only a kernel that is a column times a row runs as a pass across then a pass down; the Laplacian is no product but the sum of two second differences, across and down."
+    "zh": "能拆成一列乘一行的核，才能先横后竖地串起来；拉普拉斯不是乘积，而是横竖两个二阶差分的和。"
   },
   "adds": ["line3", "add"],
   "tasks": [
@@ -12,16 +11,15 @@
       "kind": "graph",
       "scene": "filter",
       "brief": {
-        "zh": "拉普拉斯核 0 1 0 ／ 1 −4 1 ／ 0 1 0 写不成一列乘一行。只用一维三点核，能不能算出它？让输出和它一样。",
-        "en": "The Laplacian 0 1 0 / 1 −4 1 / 0 1 0 is no column times a row. Can 1D three-point kernels alone compute it? Make the output match it."
+        "zh": "拉普拉斯核 0 1 0 ／ 1 −4 1 ／ 0 1 0 写不成一列乘一行。只用一维三点核，能不能算出它？让输出和它一样。"
       },
       "setup": { "target": { "correlate": { "kernel": [0, 1, 0, 1, -4, 1, 0, 1, 0] } } },
       "tests": [
-        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } },
-        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
-        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" }
+        { "label": { "zh": "亮点" }, "in": { "impulse": { "x": 7, "y": 7 } } },
+        { "label": { "zh": "圆盘" }, "in": "disk" },
+        { "label": { "zh": "棋盘" }, "in": "checker" }
       ],
-      "hidden": [{ "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } }],
+      "hidden": [{ "label": { "zh": "字母 T" }, "in": { "glyph": { "letter": "T" } } }],
       "solution": [
         "h = line3[axis=x,a=1,b=-2,c=1](in)",
         "v = line3[axis=y,a=1,b=-2,c=1](in)",

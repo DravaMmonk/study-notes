@@ -9,7 +9,8 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { T } from '../../shell/i18n.js'
+// Content is written in one language (../i18n.js); the second word of each text here is what it would say in English.
+const T = (zh) => ({ zh })
 
 const ID = 'proofs'
 

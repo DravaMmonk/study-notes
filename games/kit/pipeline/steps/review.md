@@ -6,7 +6,7 @@ use `.agents/skills/turing-complete-games/references/learning-review.md` when us
 `./pedagogy` and `./terminology --json` provide evidence but do not establish pedagogical quality on their own.
 
 Assess the actual learning goals, dependencies, conceptual load, available guidance and evidence, interactions,
-representative tests, alternative solutions, bilingual copy and accuracy of displays. Scale the review to the
+representative tests, alternative solutions, copy and accuracy of displays. Scale the review to the
 course: do not treat a particular number of concepts, levels, links or control types as inherently correct or wrong.
 Identify concrete learning harm and its owner; distinguish a judgment call from an issue that blocks use. Note what
 was not visually or interactively verified, and route missing capabilities to the domain step.

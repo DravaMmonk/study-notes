@@ -1,29 +1,25 @@
 {
-  "title": { "zh": "视差变距离", "en": "Disparity to distance" },
+  "title": { "zh": "视差变距离" },
   "tray": "geometry",
   "after": {
-    "zh": "距离和视差成反比：视差差一格，近处只差几厘米，远处可能差好几米，深度误差约是 z²/(f·b)。要让远处测得准，就要加宽基线或换长焦，可近处的视差又会大得超出搜索范围。",
-    "en": "Distance is inversely proportional to disparity: a one-pixel slip in disparity is a few centimetres up close but can be metres far away, with a depth error of about z²/(f·b). To measure far things precisely you widen the baseline or use a longer lens, but then the disparity of near things grows past the search range."
+    "zh": "距离和视差成反比：视差差一格，近处只差几厘米，远处可能差好几米，深度误差约是 z²/(f·b)。要让远处测得准，就要加宽基线或换长焦，可近处的视差又会大得超出搜索范围。"
   },
   "intro": [
     {
       "t": {
-        "zh": "知道了视差，还要换成米。距离、视差、镜头焦距 f、两台相机的间距 b（叫基线）之间有一个固定的关系，它和小孔成像是同一个道理。",
-        "en": "Once you know the disparity, you still need to turn it into metres. Distance, disparity, the lens focal length f and the spacing b between the two cameras (called the baseline) are tied by a fixed relationship, and it follows from the same idea as the pinhole camera."
+        "zh": "知道了视差，还要换成米。距离、视差、镜头焦距 f、两台相机的间距 b（叫基线）之间有一个固定的关系，它和小孔成像是同一个道理。"
       }
     },
     {
       "t": {
-        "zh": "机器人靠双目相机躲障碍。视差只能按像素算，差一个像素，报出的距离就差一截；视差太大，又会超出相机能搜索的范围，那就配不上了。",
-        "en": "A robot uses stereo cameras to avoid obstacles. Disparity can only be measured in whole pixels, so being off by one pixel puts the reported distance off by a fair amount; and if the disparity is too large, it falls outside the range the camera can search, so no match is found."
+        "zh": "机器人靠双目相机躲障碍。视差只能按像素算，差一个像素，报出的距离就差一截；视差太大，又会超出相机能搜索的范围，那就配不上了。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：把视差图换成距离图，公式在说明里。",
-        "en": "Your task in this level: turn the disparity map into a distance map; the formula is in the brief."
+        "zh": "这一关你要做的：把视差图换成距离图，公式在说明里。"
       },
-      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组：一个箱子", "en": "Set 1: a box" } }
+      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组：一个箱子" } }
     }
   ],
   "tasks": [
@@ -31,26 +27,25 @@
       "id": "7-3",
       "kind": "graph",
       "brief": {
-        "zh": "这台双目相机的焦距 × 基线 f·b = 3。把视差图换成距离图：z = f·b / d（米）。",
-        "en": "This stereo camera's focal length × baseline is f·b = 3. Turn the disparity map into a distance map: z = f·b / d (metres)."
+        "zh": "这台双目相机的焦距 × 基线 f·b = 3。把视差图换成距离图：z = f·b / d（米）。"
       },
-      "hint": { "zh": "一个常数除以一整张图，常数用在每一格上。", "en": "A constant divided by a whole picture applies to every cell." },
+      "hint": { "zh": "一个常数除以一整张图，常数用在每一格上。" },
       "inputs": ["d"],
-      "inputLabels": { "d": { "zh": "视差（像素）", "en": "Disparity (pixels)" } },
+      "inputLabels": { "d": { "zh": "视差（像素）" } },
       "views": { "in": "terrain", "out": "terrain" },
       "scene": "depth",
       "tests": [
-        { "label": { "zh": "一个箱子", "en": "A box" }, "seed": 41, "layers": [{ "box": [5, 4, 11, 12], "d": 2 }] },
-        { "label": { "zh": "近的柱子", "en": "A near post" }, "seed": 42, "layers": [{ "box": [7, 2, 10, 14], "d": 3 }] },
+        { "label": { "zh": "一个箱子" }, "seed": 41, "layers": [{ "box": [5, 4, 11, 12], "d": 2 }] },
+        { "label": { "zh": "近的柱子" }, "seed": 42, "layers": [{ "box": [7, 2, 10, 14], "d": 3 }] },
         {
-          "label": { "zh": "两层", "en": "Two layers" },
+          "label": { "zh": "两层" },
           "seed": 43,
           "layers": [{ "box": [3, 3, 10, 10], "d": 2 }, { "box": [6, 7, 13, 14], "d": 3 }]
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "三层", "en": "Three layers" },
+          "label": { "zh": "三层" },
           "seed": 44,
           "layers": [{ "box": [3, 3, 10, 10], "d": 2 }, { "box": [7, 2, 10, 14], "d": 3 }]
         }

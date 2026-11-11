@@ -1,25 +1,22 @@
 {
-  "title": { "zh": "翻倍", "en": "Doubling" },
+  "title": { "zh": "翻倍" },
   "intro": [
     {
       "t": {
-        "zh": "3, 6, 12, 24, …：每一项是上一项的两倍。它和等差数列一样由首项和上一项定出，只是从上一项到这一项的那一步换了。",
-        "en": "3, 6, 12, 24, …: each term is twice the one before. Like the steady steps it is fixed by a first term and the term before; only the step from one term to the next has changed."
+        "zh": "3, 6, 12, 24, …：每一项是上一项的两倍。它和等差数列一样由首项和上一项定出，只是从上一项到这一项的那一步换了。"
       }
     }
   ],
   "after": {
-    "zh": "每一项是上一项乘同一个数：这叫<wiki-ref to=\"geometric\"></wiki-ref>，那个数叫公比。它比任何等差数列长得都快。",
-    "en": "Each term the one before times the same number: this is a <wiki-ref to=\"geometric\"></wiki-ref>, and the number is its ratio. It outgrows every arithmetic sequence."
+    "zh": "每一项是上一项乘同一个数：这叫<wiki-ref to=\"geometric\"></wiki-ref>，那个数叫公比。它比任何等差数列长得都快。"
   },
   "tasks": [
     {
       "id": "double",
       "brief": {
-        "zh": "交出首项 3、之后每项是上一项两倍的数列。",
-        "en": "Give the sequence that starts at 3, each term twice the one before."
+        "zh": "交出首项 3、之后每项是上一项两倍的数列。"
       },
-      "hint": [{ "zh": "前两步分别加了 3 和 6；不变的是什么？", "en": "The first steps add 3, then 6. What stays the same?" }],
+      "hint": [{ "zh": "前两步分别加了 3 和 6；不变的是什么？" }],
       "outputs": [{ "name": "d", "label": "aₙ" }],
       "tests": [{ "want": { "d": [3, 6, 12, 24, 48, 96, 192, 384] } }],
       "hidden": [{ "want": { "d": [3, 6, 12, 24, 48, 96, 192, 384, 768, 1536, 3072, 6144] } }],

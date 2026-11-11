@@ -191,7 +191,7 @@ export function partDesc(def, allowed = () => null) {
   })
   if (!extra.length) return def.desc
   const side = (lang) => [def.desc, ...extra].map((t) => (typeof t === 'string' ? t : t?.[lang] ?? '')).filter(Boolean).join(lang === 'zh' ? '' : ' ')
-  return { zh: side('zh'), en: side('en') }
+  return side('en') ? { zh: side('zh'), en: side('en') } : { zh: side('zh') }
 }
 
 /** The vocabulary with a parts.json's parts as its `part` kind: what content's S.ref('part') names. */
@@ -284,7 +284,7 @@ export function partProblems(file, vocabulary) {
         if (b.show === 'setting' && !def.setting[b.key]) say(`${here}.key`, `${b.key} is no setting of the part`)
         if (b.show === 'settings') for (const key of b.keys ?? []) if (!def.setting[key]) say(`${here}.keys`, `${key} is no setting of the part`)
         if (b.show === 'value' && b.output && !outputs?.includes(b.output)) say(`${here}.output`, `${b.output} is no output of the part`)
-        if (b.show === 'summary' && b.text) for (const side of typeof b.text === 'string' ? [b.text] : [b.text.zh, b.text.en]) for (const [, key] of side.matchAll(/\{([^}]*)\}/g)) if (!def.setting[key]) say(`${here}.text`, `{${key}} is no setting of the part`)
+        if (b.show === 'summary' && b.text) for (const side of typeof b.text === 'string' ? [b.text] : [b.text.zh, b.text.en].filter(Boolean)) for (const [, key] of side.matchAll(/\{([^}]*)\}/g)) if (!def.setting[key]) say(`${here}.text`, `{${key}} is no setting of the part`)
         if (b.show === 'readout') check(b.expr, `${here}.expr`, [])
         if (b.show === 'action') {
           for (const [key, text] of Object.entries(b.set)) {

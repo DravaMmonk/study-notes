@@ -2,16 +2,13 @@
   "domain": "net",
   "vocabulary": 1,
   "title": {
-    "zh": "__title__",
-    "en": "__title__"
+    "zh": "__title__"
   },
   "kicker": {
-    "zh": "开发中",
-    "en": "In development"
+    "zh": "开发中"
   },
   "lede": {
-    "zh": "一根线，每一拍送一位。从传一位话开始，一层层搭出能可靠地收发一帧的网卡。",
-    "en": "One wire, one bit a tick. Start by passing a bit on, and build up, layer by layer, a network card that sends and receives a frame reliably."
+    "zh": "一根线，每一拍送一位。从传一位话开始，一层层搭出能可靠地收发一帧的网卡。"
   },
   "primitives": [
     "reg",
@@ -24,12 +21,10 @@
     {
       "id": 1,
       "title": {
-        "zh": "一根线",
-        "en": "One wire"
+        "zh": "一根线"
       },
       "question": {
-        "zh": "线上每一拍送一位：怎样说，怎样听？",
-        "en": "A bit on the wire each tick: how to speak, how to hear?"
+        "zh": "线上每一拍送一位：怎样说，怎样听？"
       },
       "foundation": [
         "1-1",

@@ -1,35 +1,30 @@
 {
-  "title": { "zh": "混合图像", "en": "Hybrid images" },
+  "title": { "zh": "混合图像" },
   "tray": "pipeline",
   "after": {
-    "zh": "高通 = 原图 − 低通，也就是掩膜 1 − H。A 只留下大轮廓，B 只留下边缘和细纹，叠在一起：近看细节占上风，远看或眯起眼时细节消失，只剩 A。滤波是线性的，所以 低通(A − B) + B 也是同一个结果，只用一次变换。",
-    "en": "High-pass = image − low-pass, that is, the mask 1 − H. A keeps only its broad outline and B only its edges and fine texture. Added together, the detail wins up close; from afar, or with squinted eyes, the detail disappears and only A is left. Filtering is linear, so low-pass(A − B) + B gives the same result with a single transform."
+    "zh": "高通 = 原图 − 低通，也就是掩膜 1 − H。A 只留下大轮廓，B 只留下边缘和细纹，叠在一起：近看细节占上风，远看或眯起眼时细节消失，只剩 A。滤波是线性的，所以 低通(A − B) + B 也是同一个结果，只用一次变换。"
   },
   "intro": [
     {
       "t": {
-        "zh": "有一种有名的图：近看是一个人，退到几米外再看，变成了另一个人。它叫<b>混合图像</b>，是研究人员 2006 年做出来的，靠的就是这一章讲的频率。",
-        "en": "There is a famous kind of picture: up close it shows one person, but step back a few metres and it becomes someone else. It is called a <b>hybrid image</b>, created by researchers in 2006, and it relies on exactly the frequencies this chapter is about."
+        "zh": "有一种有名的图：近看是一个人，退到几米外再看，变成了另一个人。它叫<b>混合图像</b>，是研究人员 2006 年做出来的，靠的就是这一章讲的频率。"
       }
     },
     {
       "t": {
-        "zh": "离得远或眯起眼时，细小的线条分辨不出来，眼睛只看得到大块的明暗；凑近了，细节最抢眼。一张图如果大块明暗来自一张、细节来自另一张，远近看就会不同。",
-        "en": "From far away, or when you squint, fine lines can't be made out and your eyes only see large areas of light and dark; up close, the detail stands out most. If an image takes its large light and dark areas from one picture and its detail from another, it looks different near and far."
+        "zh": "离得远或眯起眼时，细小的线条分辨不出来，眼睛只看得到大块的明暗；凑近了，细节最抢眼。一张图如果大块明暗来自一张、细节来自另一张，远近看就会不同。"
       }
     },
     {
       "t": {
-        "zh": "这一关有两个输入 A 和 B。输出要 A 的大轮廓（低频）加上 B 的细节（高频）。A 那一半你已经会做；B 那一半怎么拿到，是这一关要想的。",
-        "en": "This level has two inputs, A and B. The output should be A's broad outline (low frequencies) plus B's detail (high frequencies). You already know how to get A's half; how to get B's half is the puzzle here."
+        "zh": "这一关有两个输入 A 和 B。输出要 A 的大轮廓（低频）加上 B 的细节（高频）。A 那一半你已经会做；B 那一半怎么拿到，是这一关要想的。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：搭出混合图像，两处都用半径 3 的高斯掩膜。三组测试里，A 是圆盘、方块这样的大形状，B 是字母、棋盘这样的细纹。",
-        "en": "In this level: build the hybrid image, using a Gaussian mask of radius 3 in both places. In the three test sets, A is a large shape such as a disc or a square, and B is fine detail such as a letter or a checkerboard."
+        "zh": "这一关你要做的：搭出混合图像，两处都用半径 3 的高斯掩膜。三组测试里，A 是圆盘、方块这样的大形状，B 是字母、棋盘这样的细纹。"
       },
-      "fig": { "test": 0, "caption": { "zh": "圆盘 + X：两个输入和期望", "en": "Disc + X: the two inputs and the expected output" } }
+      "fig": { "test": 0, "caption": { "zh": "圆盘 + X：两个输入和期望" } }
     }
   ],
   "tasks": [
@@ -37,12 +32,10 @@
       "id": "2-10",
       "kind": "graph",
       "brief": {
-        "zh": "输出 = A 的低频 + B 的高频，两处都用半径 3 的高斯掩膜。近看是 B，远看是 A。",
-        "en": "Output = the low frequencies of A + the high frequencies of B, both with a Gaussian mask of radius 3. Up close you see B; from afar, A."
+        "zh": "输出 = A 的低频 + B 的高频，两处都用半径 3 的高斯掩膜。近看是 B，远看是 A。"
       },
       "hint": {
-        "zh": "你只有低通。原图里去掉低频，还剩下什么？",
-        "en": "You only have a low-pass. Take the low frequencies out of an image: what is left?"
+        "zh": "你只有低通。原图里去掉低频，还剩下什么？"
       },
       "inputs": ["a", "b"],
       "inputLabels": { "a": "A", "b": "B" },
@@ -51,21 +44,21 @@
       "setup": { "target": { "hybrid": { "R": 3 } } },
       "tests": [
         {
-          "label": { "zh": "圆盘 + X", "en": "Disk + X" },
+          "label": { "zh": "圆盘 + X" },
           "inputs": {
             "a": { "disk": { "cx": 15.5, "cy": 15.5, "r": 9, "lo": 0.15, "hi": 0.85, "size": 32 } },
             "b": { "glyph": { "letter": "X", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
           }
         },
         {
-          "label": { "zh": "方块 + T", "en": "Square + T" },
+          "label": { "zh": "方块 + T" },
           "inputs": {
             "a": { "rect": { "x0": 6, "y0": 6, "w": 20, "h": 20, "lo": 0.15, "hi": 0.85, "size": 32 } },
             "b": { "glyph": { "letter": "T", "lo": 0.35, "hi": 0.65, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
           }
         },
         {
-          "label": { "zh": "小圆 + 棋盘", "en": "Small disk + checkerboard" },
+          "label": { "zh": "小圆 + 棋盘" },
           "inputs": {
             "a": { "disk": { "cx": 11, "cy": 12, "r": 7, "lo": 0.15, "hi": 0.85, "size": 32 } },
             "b": { "checker": { "cell": 2, "lo": 0.4, "hi": 0.6, "size": 32 } }
@@ -74,21 +67,21 @@
       ],
       "hidden": [
         {
-          "label": { "zh": "横条 + O", "en": "Horizontal bar + O" },
+          "label": { "zh": "横条 + O" },
           "inputs": {
             "a": { "rect": { "x0": 4, "y0": 10, "w": 24, "h": 12, "lo": 0.2, "hi": 0.8, "size": 32 } },
             "b": { "glyph": { "letter": "O", "lo": 0.1, "hi": 0.9, "ox": 6, "oy": 6, "scale": 4, "size": 32 } }
           }
         },
         {
-          "label": { "zh": "X + 圆盘", "en": "X + disk" },
+          "label": { "zh": "X + 圆盘" },
           "inputs": {
             "a": { "glyph": { "letter": "X", "lo": 0.15, "hi": 0.85, "ox": 6, "oy": 6, "scale": 4, "size": 32 } },
             "b": { "disk": { "cx": 18, "cy": 14, "r": 8, "lo": 0.2, "hi": 0.8, "size": 32 } }
           }
         },
         {
-          "label": { "zh": "暗圆 + 粗棋盘", "en": "Dark disk + coarse checkerboard" },
+          "label": { "zh": "暗圆 + 粗棋盘" },
           "inputs": {
             "a": { "disk": { "cx": 19, "cy": 17, "r": 8, "lo": 0.85, "hi": 0.15, "size": 32 } },
             "b": { "checker": { "cell": 4, "lo": 0.25, "hi": 0.75, "size": 32 } }

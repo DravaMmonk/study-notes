@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "逆否，反过来", "en": "The contrapositive, backwards" },
+  "title": { "zh": "逆否，反过来" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"mt\"></level-ref>从原句推出了它的<wiki-ref to=\"contrapositive\"></wiki-ref>。这一回反过来，从逆否推回原句。",
-        "en": "<level-ref to=\"mt\"></level-ref> derived a sentence’s <wiki-ref to=\"contrapositive\"></wiki-ref> from it. This time the other way: from the contrapositive back to the sentence."
+        "zh": "<level-ref to=\"mt\"></level-ref>从原句推出了它的<wiki-ref to=\"contrapositive\"></wiki-ref>。这一回反过来，从逆否推回原句。"
       }
     }
   ],
@@ -17,12 +16,10 @@
       "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Exam", "B": "Study" }],
       "hint": [
         {
-          "zh": "先假设「下雨」，要证的就是「地湿」，一句没有 ¬ 的话。",
-          "en": "Assume “it rains” first; what remains is “the ground is wet”, with no ¬ in it."
+          "zh": "先假设「下雨」，要证的就是「地湿」，一句没有 ¬ 的话。"
         },
         {
-          "zh": "「地湿」怎么来，和<level-ref to=\"byContra\"></level-ref>一样。",
-          "en": "“The ground is wet” comes the way it did in <level-ref to=\"byContra\"></level-ref>."
+          "zh": "「地湿」怎么来，和<level-ref to=\"byContra\"></level-ref>一样。"
         }
       ],
       "solution": [

@@ -3,8 +3,7 @@
     "¬"
   ],
   "title": {
-    "zh": "不是不下雨",
-    "en": "Not not raining"
+    "zh": "不是不下雨"
   },
   "adds": [
     "gNot"
@@ -12,8 +11,7 @@
   "intro": [
     {
       "t": {
-        "zh": "<wiki-ref to=\"circuit\"></wiki-ref>只接一次，由机器在每一行上运行。<part-ref to=\"part:gNot\"></part-ref>表示否定 ¬。",
-        "en": "A <wiki-ref to=\"circuit\"></wiki-ref> is wired once, and the machine runs it on every row. <part-ref to=\"part:gNot\"></part-ref> stands for negation, ¬."
+        "zh": "<wiki-ref to=\"circuit\"></wiki-ref>只接一次，由机器在每一行上运行。<part-ref to=\"part:gNot\"></part-ref>表示否定 ¬。"
       }
     }
   ],
@@ -23,13 +21,11 @@
       "kind": "gates",
       "target": "¬¬Rain",
       "brief": {
-        "zh": "接一块电路，算出「不是『不下雨』」在每一行的真值。",
-        "en": "Wire a board that works out the value of “it is not the case that it is not raining” on every row."
+        "zh": "接一块电路，算出「不是『不下雨』」在每一行的真值。"
       },
       "hint": [
         {
-          "zh": "「不下雨」怎样接？再否定一次呢？",
-          "en": "How is “it is not raining” wired? And negated once more?"
+          "zh": "「不下雨」怎样接？再否定一次呢？"
         }
       ],
       "solution": [

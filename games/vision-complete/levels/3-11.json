@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "三盏灯", "en": "Three lamps" },
+  "title": { "zh": "三盏灯" },
   "tray": "pipeline",
   "after": {
-    "zh": "三张照片按固定的系数相减，得到反射率乘上法线的三个分量 ρ·(nx, ny, nz)。法线长度是 1，所以这个向量的长度就是反射率 ρ，方向就是法线。三盏灯，三个方程，三个未知数（加上 ρ 一共四个数，靠「长度为 1」补上最后一个）。",
-    "en": "Subtracting the three photos with fixed weights gives the reflectance times each component of the normal: ρ·(nx, ny, nz). A normal has length 1, so the length of this vector is the reflectance ρ and its direction is the normal. Three lamps, three equations, three unknowns (with ρ there are four numbers, and \"length 1\" supplies the last one)."
+    "zh": "三张照片按固定的系数相减，得到反射率乘上法线的三个分量 ρ·(nx, ny, nz)。法线长度是 1，所以这个向量的长度就是反射率 ρ，方向就是法线。三盏灯，三个方程，三个未知数（加上 ρ 一共四个数，靠「长度为 1」补上最后一个）。"
   },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"3-10\"></level-ref>只问了朝右还是朝左。三盏灯其实能告诉你更多：每一点的漆色和朝向，都能解出来。",
-        "en": "<level-ref to=\"3-10\"></level-ref> only asked left or right. Three lamps can tell you more: the paint and the facing at every point can both be solved."
+        "zh": "<level-ref to=\"3-10\"></level-ref>只问了朝右还是朝左。三盏灯其实能告诉你更多：每一点的漆色和朝向，都能解出来。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：同样的三张照片，输出漆色本身，也就是每一点的反射率，和表面朝哪边无关。",
-        "en": "Your task in this level: from the same three photos, output the paint itself, the reflectance at every point, whichever way the surface faces."
+        "zh": "这一关你要做的：同样的三张照片，输出漆色本身，也就是每一点的反射率，和表面朝哪边无关。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组测试：鼓包上的漆", "en": "Set 1: the paint on a bump" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：鼓包上的漆" } }
     }
   ],
   "tasks": [
@@ -25,37 +22,35 @@
       "id": "3-11",
       "kind": "graph",
       "brief": {
-        "zh": "同样的三张照片。这次输出漆色本身：每一点的反射率，和表面朝哪边无关。",
-        "en": "The same three photos. This time output the paint itself: the reflectance at every point, whichever way the surface faces."
+        "zh": "同样的三张照片。这次输出漆色本身：每一点的反射率，和表面朝哪边无关。"
       },
       "hint": {
-        "zh": "正面灯的照片是反射率 × nz。另两张各多了一个分量。",
-        "en": "The front lamp's photo is reflectance × nz. The other two each bring in one more component."
+        "zh": "正面灯的照片是反射率 × nz。另两张各多了一个分量。"
       },
       "inputs": ["p1", "p2", "p3"],
       "inputLabels": {
-        "p1": { "zh": "右灯", "en": "Lamp right" },
-        "p2": { "zh": "下灯", "en": "Lamp below" },
-        "p3": { "zh": "正面灯", "en": "Lamp front" }
+        "p1": { "zh": "右灯" },
+        "p2": { "zh": "下灯" },
+        "p3": { "zh": "正面灯" }
       },
       "scene": "photometric",
       "setup": { "expect": "albedo" },
       "tests": [
-        { "label": { "zh": "一个鼓包", "en": "A bump" }, "height": [{ "dome": [7.5, 7.5, 6, 2.5] }], "seed": 8 },
+        { "label": { "zh": "一个鼓包" }, "height": [{ "dome": [7.5, 7.5, 6, 2.5] }], "seed": 8 },
         {
-          "label": { "zh": "斜着的板", "en": "A sloping sheet" },
+          "label": { "zh": "斜着的板" },
           "height": [{ "tilt": [0.2, -0.25] }, { "dome": [11, 5, 3, 1] }],
           "seed": 9
         },
-        { "label": { "zh": "一道沟", "en": "A groove" }, "height": [{ "groove": [2, 12, 13, 3, 3, 1.5] }], "seed": 10 }
+        { "label": { "zh": "一道沟" }, "height": [{ "groove": [2, 12, 13, 3, 3, 1.5] }], "seed": 10 }
       ],
       "hidden": [
         {
-          "label": { "zh": "两个坑", "en": "Two dents" },
+          "label": { "zh": "两个坑" },
           "height": [{ "bowl": [5, 10, 4, 1.2] }, { "bowl": [11, 5, 4, 1.2] }],
           "seed": 11
         },
-        { "label": { "zh": "平板", "en": "A flat sheet" }, "height": [], "seed": 12 }
+        { "label": { "zh": "平板" }, "height": [], "seed": 12 }
       ],
       "solution": [
         "f8N = const[c=0.8]()",

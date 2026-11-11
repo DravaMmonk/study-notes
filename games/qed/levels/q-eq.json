@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "晨星就是昏星", "en": "The Morning Star is the Evening Star" },
+  "title": { "zh": "晨星就是昏星" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "古人以为清晨和黄昏天边的亮星是两颗，后来才知道都是金星。两个名字指同一样东西，写作 <b>=</b>：<wiki-ref to=\"equality\"></wiki-ref>。",
-        "en": "The ancients took the bright star of dawn and the one of dusk for two; later they learned both are Venus. Two names for one thing are written <b>=</b>: <wiki-ref to=\"equality\"></wiki-ref>."
+        "zh": "古人以为清晨和黄昏天边的亮星是两颗，后来才知道都是金星。两个名字指同一样东西，写作 <b>=</b>：<wiki-ref to=\"equality\"></wiki-ref>。"
       }
     },
     {
       "t": {
-        "zh": "<level-ref to=\"decl-eq\"></level-ref>声明的相等带来两块元件：<part-ref to=\"part:rewrite\"></part-ref>接进 s = t 和一句提到 s 的话，在元件上把每个 s 框出来，点选的几处换成 t；<part-ref to=\"part:refl\"></part-ref>直接给出 t = t。",
-        "en": "The equality declared in <level-ref to=\"decl-eq\"></level-ref> brought two parts: <part-ref to=\"part:rewrite\"></part-ref> takes s = t and a sentence about s, boxes each s on the part, and replaces the ticked ones by t; <part-ref to=\"part:refl\"></part-ref> gives t = t at once."
+        "zh": "<level-ref to=\"decl-eq\"></level-ref>声明的相等带来两块元件：<part-ref to=\"part:rewrite\"></part-ref>接进 s = t 和一句提到 s 的话，在元件上把每个 s 框出来，点选的几处换成 t；<part-ref to=\"part:refl\"></part-ref>直接给出 t = t。"
       }
     }
   ],
@@ -25,8 +23,7 @@
       "cases": [{ "P": "Bright", "Q": "Seen" }, { "P": "Seen", "Q": "Bright" }],
       "hint": [
         {
-          "zh": "接好两根线，元件上会把每个「晨星」框出来：点一下框，那一处就换成「昏星」。",
-          "en": "Once both wires are in, the part boxes each “the Morning Star”: tick a box and that one becomes “the Evening Star”."
+          "zh": "接好两根线，元件上会把每个「晨星」框出来：点一下框，那一处就换成「昏星」。"
         }
       ],
       "solution": ["r = rewrite[at=[0]](p, q)", "e = allE[t=b](t)", "m = mp(e, r)", "goal <- m"]

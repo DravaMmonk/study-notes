@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "auto 加一步反证法", "en": "auto, after one step by contradiction" },
+  "title": { "zh": "auto 加一步反证法" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "规则书里多了<part-ref to=\"part:raa\"></part-ref>，写成规则是 ⟦¬¬?A⟧ ⟹ ?A。auto 只用引入和消去规则；这条规则的结论对得上任何目标，放进搜索，就会把每个目标换成「并非并非」，再换一次，没有尽头。",
-        "en": "The rule book now holds <part-ref to=\"part:raa\"></part-ref>, as a rule ⟦¬¬?A⟧ ⟹ ?A. auto uses only introduction and elimination rules; this rule’s conclusion fits any goal, and in the search it would turn every goal into a “not not”, and again, without end."
+        "zh": "规则书里多了<part-ref to=\"part:raa\"></part-ref>，写成规则是 ⟦¬¬?A⟧ ⟹ ?A。auto 只用引入和消去规则；这条规则的结论对得上任何目标，放进搜索，就会把每个目标换成「并非并非」，再换一次，没有尽头。"
       }
     }
   ],
@@ -14,16 +13,15 @@
       "id": "s-lem",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [{ "goal": "¬¬Rain → Rain" }, { "goal": "(¬Rain → Rain) → Rain" }],
       "brief": {
-        "zh": "设计一个证明助手：完成需要证明的测试目标，对指定的失败目标报告失败。",
-        "en": "Design a proof assistant that proves the required test goals and reports failure for the designated failure cases."
+        "zh": "设计一个证明助手：完成需要证明的测试目标，对指定的失败目标报告失败。"
       },
       "hint": [
-        { "zh": "auto 本身不必改。", "en": "auto itself need not change." },
-        { "zh": "在 auto 之前，自己先用几条规则。", "en": "Before auto, apply a few rules yourself." }
+        { "zh": "auto 本身不必改。" },
+        { "zh": "在 auto 之前，自己先用几条规则。" }
       ],
       "solution": [
         "c0r0 = impI()",

@@ -1,47 +1,41 @@
 {
-  "title": { "zh": "去掉塞进的 0", "en": "Take the 0 out" },
+  "title": { "zh": "去掉塞进的 0" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-40\"></level-ref>送出的帧到了线的另一头。这一次在收的一方：认出旗标，去掉塞进的 0，把位拼回字节。",
-        "en": "Frames like those of <level-ref to=\"1-40\"></level-ref> reach the other end of the wire. Now the board is the receiver: spotting flags, taking out the stuffed 0s and putting the bits back into bytes."
+        "zh": "<level-ref to=\"1-40\"></level-ref>送出的帧到了线的另一头。这一次在收的一方：认出旗标，去掉塞进的 0，把位拼回字节。"
       }
     }
   ],
   "builds": {
     "type": "deframer",
-    "name": { "zh": "拆帧器", "en": "Deframer" },
+    "name": { "zh": "拆帧器" },
     "desc": {
-      "zh": "在进线的位流里认出旗标之间的每一帧，去掉塞进的 0：一个内容字节收全的那一拍给出它，「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1；其余各拍字节是「—」，「收到」「帧尾」为 0。",
-      "en": "Finds each frame between flags in the bits on its wire in and takes out the stuffed 0s: gives each content byte on the tick it is complete, with got 1, and makes end 1 on the tick the closing flag is complete; on every other tick the byte is 「—」 and got and end are 0."
+      "zh": "在进线的位流里认出旗标之间的每一帧，去掉塞进的 0：一个内容字节收全的那一拍给出它，「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1；其余各拍字节是「—」，「收到」「帧尾」为 0。"
     }
   },
   "tasks": [
     {
       "id": "1-30",
       "brief": {
-        "zh": "认出线上旗标之间的每一帧，去掉塞进的 0，逐个给出内容字节：字节收全的那一拍输出它，「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1。其余各拍字节为「—」，两个信号为 0。",
-        "en": "Find each frame between flags on the wire, take out the stuffed 0s and give the content bytes one by one: output each on the tick it is complete, with got 1; end is 1 on the tick the closing flag is complete. Otherwise the byte is 「—」 and both signals 0."
+        "zh": "认出线上旗标之间的每一帧，去掉塞进的 0，逐个给出内容字节：字节收全的那一拍输出它，「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1。其余各拍字节为「—」，两个信号为 0。"
       },
       "hint": [
         {
-          "zh": "<part-ref to=\"deserializerhold\"></part-ref>在「暂停」的拍不收线上的位。",
-          "en": "<part-ref to=\"deserializerhold\"></part-ref> leaves out the wire's bit on hold ticks."
+          "zh": "<part-ref to=\"deserializerhold\"></part-ref>在「暂停」的拍不收线上的位。"
         },
         {
-          "zh": "一个 0 是不是塞进去的，要看它前面连着几个 1。",
-          "en": "Whether a 0 was stuffed in depends on how many 1s came just before it."
+          "zh": "一个 0 是不是塞进去的，要看它前面连着几个 1。"
         },
         {
-          "zh": "该停的是第五个 1 后面的那一拍，不是第五个 1 到达的那一拍。",
-          "en": "The tick to leave out is the one after the fifth 1, not the tick the fifth 1 arrives."
+          "zh": "该停的是第五个 1 后面的那一拍，不是第五个 1 到达的那一拍。"
         }
       ],
-      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
       "outputs": [
-        { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
-        { "name": "got", "label": { "zh": "收到", "en": "Got" } },
-        { "name": "end", "label": { "zh": "帧尾", "en": "End" } }
+        { "name": "byte", "label": { "zh": "字节" } },
+        { "name": "got", "label": { "zh": "收到" } },
+        { "name": "end", "label": { "zh": "帧尾" } }
       ],
       "tests": [
         {

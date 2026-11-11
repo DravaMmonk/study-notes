@@ -1,32 +1,29 @@
 {
-  "title": { "zh": "数数", "en": "Counting" },
+  "title": { "zh": "数数" },
   "intro": [
     {
       "t": {
-        "zh": "板不知道现在是第几拍。可很多数列的第 n 项只和 n 有关，先得让板知道 n。",
-        "en": "The board does not know which tick it is. Yet the n-th term of many sequences depends only on n, so first the board must know n."
+        "zh": "板不知道现在是第几拍。可很多数列的第 n 项只和 n 有关，先得让板知道 n。"
       }
     },
     {
       "t": {
-        "zh": "第几项本身就是一个数列：0, 1, 2, 3, …。搭好它，<wiki-ref to=\"index\"></wiki-ref> n 就成了一件元件。",
-        "en": "Which term it is forms a sequence of its own: 0, 1, 2, 3, …. Built, the <wiki-ref to=\"index\"></wiki-ref> n becomes a part."
+        "zh": "第几项本身就是一个数列：0, 1, 2, 3, …。搭好它，<wiki-ref to=\"index\"></wiki-ref> n 就成了一件元件。"
       }
     }
   ],
   "after": {
-    "zh": "下标 n 也是递推出来的：首项 0，每项加 1。",
-    "en": "The index n is a recurrence too: start at 0, add 1 each time."
+    "zh": "下标 n 也是递推出来的：首项 0，每项加 1。"
   },
   "builds": {
     "type": "count",
-    "name": { "zh": "下标 n", "en": "Index n" },
-    "desc": { "zh": "交出这一拍是第几项：0, 1, 2, …", "en": "Gives which term this tick is: 0, 1, 2, …" }
+    "name": { "zh": "下标 n" },
+    "desc": { "zh": "交出这一拍是第几项：0, 1, 2, …" }
   },
   "tasks": [
     {
       "id": "count",
-      "brief": { "zh": "每一拍交出这是第几项：0, 1, 2, 3, …", "en": "Each tick give which term it is: 0, 1, 2, 3, …" },
+      "brief": { "zh": "每一拍交出这是第几项：0, 1, 2, 3, …" },
       "outputs": [{ "name": "n", "label": "n" }],
       "tests": [{ "want": { "n": [0, 1, 2, 3, 4, 5, 6, 7] } }],
       "hidden": [{ "want": { "n": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] } }],

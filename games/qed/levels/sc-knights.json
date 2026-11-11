@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "骑士与无赖，写成脚本", "en": "Knights and knaves, as a script" },
+  "title": { "zh": "骑士与无赖，写成脚本" },
   "intro": [
     {
       "t": {
-        "zh": "把证明写给人看：假设了什么，推出什么，矛盾在哪里；每一步交给合适的证明助手。",
-        "en": "Write the proof for people: what is supposed, what follows, where the contradiction lies; each step handed to the right proof assistant."
+        "zh": "把证明写给人看：假设了什么，推出什么，矛盾在哪里；每一步交给合适的证明助手。"
       }
     }
   ],
@@ -13,8 +12,7 @@
       "id": "sc-knights",
       "kind": "script",
       "brief": {
-        "zh": "a 说：「b 是无赖。」c 说：「a 和 b 是同一种人。」写一段脚本，证明 c 是无赖。",
-        "en": "a says: “b is a knave.” c says: “a and b are the same kind.” Write a script that proves c is a knave."
+        "zh": "a 说：「b 是无赖。」c 说：「a 和 b 是同一种人。」写一段脚本，证明 c 是无赖。"
       },
       "premises": { "a": "KA ↔ ¬KB", "c": "KC ↔ (KA ↔ KB)" },
       "goal": "¬KC",
@@ -26,10 +24,9 @@
       ],
       "naive": [{ "k": "show", "stmt": "¬KC", "using": ["a", "c"], "by": "auto" }],
       "hint": [
-        { "zh": "假设 c 是骑士，他的话就成立。", "en": "Suppose c is a knight: then what he says holds." },
+        { "zh": "假设 c 是骑士，他的话就成立。" },
         {
-          "zh": "a 和 b 是同一种人，又一个说另一个是无赖：这个矛盾交给证明重建器。",
-          "en": "a and b the same kind, and one calling the other a knave: hand that contradiction to the reconstructor."
+          "zh": "a 和 b 是同一种人，又一个说另一个是无赖：这个矛盾交给证明重建器。"
         }
       ]
     }

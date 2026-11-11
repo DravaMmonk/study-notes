@@ -1,41 +1,36 @@
 {
-  "title": { "zh": "认出旗标", "en": "Spot the flag" },
+  "title": { "zh": "认出旗标" },
   "intro": [
     {
       "t": {
-        "zh": "要送的往往不止一个字节，而是一串字节合成的一<wiki-ref to=\"frame\"></wiki-ref>，有几个字节事先不知道。收的一方只看见不停到来的位，分不出一帧从哪里开始、到哪里结束。两头于是约好一个记号 01111110，叫<wiki-ref to=\"flag\"></wiki-ref>，放在每一帧的开头和结尾；收的一方要在位流里随时认出它。",
-        "en": "What goes across is often not one byte but a <wiki-ref to=\"frame\"></wiki-ref>, a run of bytes whose length is not known in advance. The receiver sees only bits that keep coming, and cannot tell where a frame begins or ends. So the ends agree on a mark, 01111110, the <wiki-ref to=\"flag\"></wiki-ref>, at each end of every frame; the receiver must spot it anywhere in the stream."
+        "zh": "要送的往往不止一个字节，而是一串字节合成的一<wiki-ref to=\"frame\"></wiki-ref>，有几个字节事先不知道。收的一方只看见不停到来的位，分不出一帧从哪里开始、到哪里结束。两头于是约好一个记号 01111110，叫<wiki-ref to=\"flag\"></wiki-ref>，放在每一帧的开头和结尾；收的一方要在位流里随时认出它。"
       }
     }
   ],
   "builds": {
     "type": "flagspot",
-    "name": { "zh": "认旗标", "en": "Flag spotter" },
+    "name": { "zh": "认旗标" },
     "desc": {
-      "zh": "进线上最近收到的 8 位正好是 01111110 的那一拍为 1，其余各拍为 0。",
-      "en": "1 on each tick at which the last 8 bits on its wire in read 01111110, 0 on every other."
+      "zh": "进线上最近收到的 8 位正好是 01111110 的那一拍为 1，其余各拍为 0。"
     }
   },
   "tasks": [
     {
       "id": "1-11",
       "brief": {
-        "zh": "线上连续送来位；每当到这一拍为止最近 8 位是 01111110，就在那一拍输出 1，其余各拍输出 0。",
-        "en": "Bits keep coming down the wire; output 1 on every tick at which the last 8 bits read 01111110, and 0 on every other."
+        "zh": "线上连续送来位；每当到这一拍为止最近 8 位是 01111110，就在那一拍输出 1，其余各拍输出 0。"
       },
       "hint": [
-        { "zh": "旗标是一个 0，接着六个 1，再接一个 0。", "en": "A flag is a 0, then six 1s, then a 0." },
+        { "zh": "旗标是一个 0，接着六个 1，再接一个 0。" },
         {
-          "zh": "数一数到这一拍为止连着来了几个 1，来了 0 就从头数。",
-          "en": "Count how many 1s in a row have come so far, starting over at each 0."
+          "zh": "数一数到这一拍为止连着来了几个 1，来了 0 就从头数。"
         },
         {
-          "zh": "那六个 1 前面必须真有一个 0：线一开始就来的 1 不算。",
-          "en": "The six 1s must really follow a 0: 1s from the very first tick do not count."
+          "zh": "那六个 1 前面必须真有一个 0：线一开始就来的 1 不算。"
         }
       ],
-      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
-      "outputs": [{ "name": "flag", "label": { "zh": "旗标", "en": "Flag" } }],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
+      "outputs": [{ "name": "flag", "label": { "zh": "旗标" } }],
       "tests": [
         { "wires": { "line": { "send": [{ "bits": "01111110" }] } } },
         { "wires": { "line": { "send": [{ "bits": "011111101111110" }] } } },

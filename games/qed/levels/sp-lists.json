@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "列表也一样", "en": "Lists too" },
+  "title": { "zh": "列表也一样" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"def-list\"></level-ref>定义的 ++ 和 len，也交给化简去算。",
-        "en": "The ++ and len defined in <level-ref to=\"def-list\"></level-ref> go to Simp too."
+        "zh": "<level-ref to=\"def-list\"></level-ref>定义的 ++ 和 len，也交给化简去算。"
       }
     }
   ],
@@ -14,7 +13,7 @@
       "id": "sp-lists",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["list"],
@@ -24,8 +23,8 @@
         { "goal": "app(cons(i, nil), app(cons(j, nil), cons(k, nil))) = cons(i, cons(j, cons(k, nil)))" },
         { "goal": "len(app(cons(i, cons(j, nil)), nil)) = s(s(zero))" }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "四条定义都要用。", "en": "All four definitions are needed." }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "四条定义都要用。" }],
       "solution": [
         "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\"]]()",
         "c1r0 = refl()",

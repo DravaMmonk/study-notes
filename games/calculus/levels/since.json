@@ -1,43 +1,37 @@
 {
-  "title": { "zh": "从此一直", "en": "Ever since" },
+  "title": { "zh": "从此一直" },
   "intro": [
     {
       "t": {
-        "zh": "「越来越近」不能只看某一项：前面近了又跑远，就不算。要问的是从哪一项起一直近，不管它之前怎样。",
-        "en": "“Getting closer” cannot rest on one term: close, then far again, does not count. The question is from which term on it stays close, whatever happened before."
+        "zh": "「越来越近」不能只看某一项：前面近了又跑远，就不算。要问的是从哪一项起一直近，不管它之前怎样。"
       }
     },
     {
       "t": {
-        "zh": "先不管近不近，只看一串 0 和 1：最近这段连续的 1 从哪一项开始？",
-        "en": "Leave closeness aside for now and look at a run of 0s and 1s: where did the latest unbroken stretch of 1s begin?"
+        "zh": "先不管近不近，只看一串 0 和 1：最近这段连续的 1 从哪一项开始？"
       }
     }
   ],
   "after": {
-    "zh": "一件事可以<wiki-ref to=\"eventually\"></wiki-ref>一直成立，前面有几项不成立也不要紧。",
-    "en": "Something can hold <wiki-ref to=\"eventually\"></wiki-ref>, whatever the terms before it did."
+    "zh": "一件事可以<wiki-ref to=\"eventually\"></wiki-ref>一直成立，前面有几项不成立也不要紧。"
   },
   "builds": {
     "type": "since",
-    "name": { "zh": "从此一直", "en": "Since" },
+    "name": { "zh": "从此一直" },
     "desc": {
-      "zh": "输入最近一段连续为 1 从第几项起；这一拍为 0 时给 n + 1。",
-      "en": "Where the latest unbroken run of 1s in its input began; n + 1 when this tick is 0."
+      "zh": "输入最近一段连续为 1 从第几项起；这一拍为 0 时给 n + 1。"
     }
   },
   "tasks": [
     {
       "id": "since",
       "brief": {
-        "zh": "输入每拍是 0 或 1：交出最近一段连续为 1 从第几项起；这一拍是 0 时交出 n + 1。",
-        "en": "The input is 0 or 1 each tick: give where the latest unbroken run of 1s began; give n + 1 when this tick is 0."
+        "zh": "输入每拍是 0 或 1：交出最近一段连续为 1 从第几项起；这一拍是 0 时交出 n + 1。"
       },
       "hint": [
-        { "zh": "这一拍是 1 时，开头和上一拍说的一样。", "en": "When this tick is 1, the start is what the tick before said." },
+        { "zh": "这一拍是 1 时，开头和上一拍说的一样。" },
         {
-          "zh": "输入本身就是 1 或 0，可以拿它在两个数里挑。",
-          "en": "The input is itself 1 or 0: it can pick between two numbers."
+          "zh": "输入本身就是 1 或 0，可以拿它在两个数里挑。"
         }
       ],
       "inputs": [{ "name": "f", "label": "0 / 1" }],

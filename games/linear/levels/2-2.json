@@ -1,25 +1,22 @@
 {
-  "title": { "zh": "写下变换", "en": "Write the map down" },
+  "title": { "zh": "写下变换" },
   "intro": [
     {
       "t": {
-        "zh": "反过来，说清一个变换，也就能写出它的矩阵。<part-ref to=\"part:join\"></part-ref>把几个向量从左到右并排成矩阵，每个向量是一列。",
-        "en": "The other way round: a map said in words can be written as its matrix. <part-ref to=\"part:join\"></part-ref> sets vectors side by side, left to right, each a column."
+        "zh": "反过来，说清一个变换，也就能写出它的矩阵。<part-ref to=\"part:join\"></part-ref>把几个向量从左到右并排成矩阵，每个向量是一列。"
       }
     }
   ],
   "after": {
-    "zh": "主对角线以外全是 0 的方阵叫<wiki-ref to=\"diagonal-matrix\"></wiki-ref>：它只沿坐标轴伸缩。",
-    "en": "A square matrix that is 0 off its main diagonal is a <wiki-ref to=\"diagonal-matrix\"></wiki-ref>: it only stretches along the axes."
+    "zh": "主对角线以外全是 0 的方阵叫<wiki-ref to=\"diagonal-matrix\"></wiki-ref>：它只沿坐标轴伸缩。"
   },
   "adds": ["join"],
   "tasks": [
     {
       "id": "2-2a",
-      "step": { "zh": "剪切", "en": "Shear" },
+      "step": { "zh": "剪切" },
       "brief": {
-        "zh": "î 不动、ĵ 推到 (k, 1)：交出这个剪切的矩阵。",
-        "en": "î stays and ĵ goes to (k, 1): give the matrix of this shear."
+        "zh": "î 不动、ĵ 推到 (k, 1)：交出这个剪切的矩阵。"
       },
       "inputs": [{ "name": "k", "label": "k" }],
       "outputs": [{ "name": "S", "label": "S" }],
@@ -47,10 +44,9 @@
     },
     {
       "id": "2-2",
-      "step": { "zh": "拉伸", "en": "Stretch" },
+      "step": { "zh": "拉伸" },
       "brief": {
-        "zh": "交出横向伸缩 a 倍、纵向伸缩 b 倍的变换的矩阵。",
-        "en": "Give the matrix of the map that stretches by a across and by b up."
+        "zh": "交出横向伸缩 a 倍、纵向伸缩 b 倍的变换的矩阵。"
       },
       "inputs": [{ "name": "a", "label": "a" }, { "name": "b", "label": "b" }],
       "outputs": [{ "name": "D", "label": "D" }],

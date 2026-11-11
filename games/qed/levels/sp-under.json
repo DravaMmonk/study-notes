@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "在「对所有」底下", "en": "Under “for all”" },
+  "title": { "zh": "在「对所有」底下" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "目标前面有「对所有」，化简照样改写它里面的式子。",
-        "en": "With a “for all” in front of the goal, Simp still rewrites what is inside."
+        "zh": "目标前面有「对所有」，化简照样改写它里面的式子。"
       }
     }
   ],
@@ -14,7 +13,7 @@
       "id": "sp-under",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "defs": ["plus"],
@@ -22,8 +21,8 @@
         { "goal": "∀x. plus(zero, plus(zero, x)) = x" },
         { "goal": "∀x. ∀y. plus(s(zero), plus(x, y)) = s(plus(x, y))" }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "化简之后还剩几层「对所有」。", "en": "After Simp, some “for all”s are still there." }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "化简之后还剩几层「对所有」。" }],
       "solution": [
         "c0r0 = math[use=[\"def.0\", \"def.1\"]]()",
         "c3r0 = refl()",

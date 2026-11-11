@@ -35,6 +35,9 @@ changes and general lessons where they help future work; use the user's scope an
   (`games/DESIGN.md` §6.8) — ports, settings in the six kernel controls, an ASCII expression calling only resources
   and kernel builtins, interaction rules and checks, and the card / tile / detail views. Change a part there (studio's
   parts tab, or `part.*`, `parts.set`), never in domain code; a computation no resource can express is a new resource.
+- Content is written in one language (`{ zh: … }`); a translation is never written into it. Other languages are overlays,
+  `games/<game>/i18n/<lang>.json`, keyed by the base text and written with `i18n.set` (`games/DESIGN.md` §6.10); making,
+  checking and reviewing a game read the base alone, and translation is its own pipeline step (`translate`).
 - A level is a list of tasks (`games/DESIGN.md` §4, `kit/engine/tasks.js`): what it says once (title, intro, pass
   text, parts brought and built) on the level, each puzzle (brief, hints, ports, tests, answers) a task; a level of one
   task is a plain level. Every task has an id unique in the game (a level's one task usually has the level's id); what
@@ -84,7 +87,7 @@ pedagogical quality.
 - Review dependencies, reusable abilities, tests, meaningful decisions, counterexamples and transfer where useful.
   Preserve support for multiple correct solutions. For parameter benches, verify what learners can observe and
   how they can reason about their choice, not merely that a solver finds a passing setting.
-- Write clear bilingual context, goals, hints and explanations. Pass text explains the principle and its scope
+- Write clear context, goals, hints and explanations in the game's language. Pass text explains the principle and its scope
   without assuming a particular reference solution. Link to available terms when helpful and compatible with
   the content's validation; glossary access does not replace instructional evidence.
 - Check the actual desktop and phone flow when it changes. Use the optional review prompts in

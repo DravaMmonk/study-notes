@@ -1,35 +1,31 @@
 {
-  "title": { "zh": "分词", "en": "Word segmentation" },
-  "short": { "zh": "不认识的词也得切开", "en": "Even unknown words get cut" },
+  "title": { "zh": "分词" },
+  "short": { "zh": "不认识的词也得切开" },
   "intro": [
     {
       "t": {
-        "zh": "一句真实的话：词典里不是每个词都有，人名、新词常常查不到。查不到的部分，就<b>一个字母一块</b>地切，只是每个字母都很贵。",
-        "en": "A real sentence: not every word is in the dictionary, and names and new words often aren’t. Whatever can’t be found is cut <b>one letter to a piece</b>, at a high price per letter."
+        "zh": "一句真实的话：词典里不是每个词都有，人名、新词常常查不到。查不到的部分，就<b>一个字母一块</b>地切，只是每个字母都很贵。"
       }
     },
     {
       "t": {
-        "zh": "这样每一句都切得开，而认识的词总是更省。",
-        "en": "That way every sentence can be cut, and known words are always cheaper."
+        "zh": "这样每一句都切得开，而认识的词总是更省。"
       }
     }
   ],
   "mission": {
-    "goal": { "zh": "算出每句话最省的切法要花多少代价。", "en": "Work out what the cheapest cut of each sentence costs." },
-    "how": { "zh": "单个字母的代价写在词典最后。", "en": "What a single letter costs is shown at the end of the dictionary." }
+    "goal": { "zh": "算出每句话最省的切法要花多少代价。" },
+    "how": { "zh": "单个字母的代价写在词典最后。" }
   },
   "robot": "broom",
   "debrief": {
-    "title": { "zh": "分词", "en": "Word segmentation" },
+    "title": { "zh": "分词" },
     "body": [
       {
-        "zh": "中文没有空格，输入法和搜索引擎都要先分词，用的就是这块电路板：每个切点试一遍，加上这一块的代价，取最省的。",
-        "en": "Chinese has no spaces, so input methods and search engines segment words first, with this very board: try every cut, add the piece’s cost, keep the cheapest."
+        "zh": "中文没有空格，输入法和搜索引擎都要先分词，用的就是这块电路板：每个切点试一遍，加上这一块的代价，取最省的。"
       },
       {
-        "zh": "「最少几块」<level-ref to=\"wordcost\"></level-ref>都是它的特例：代价全是 1，或者没有单字母兜底。",
-        "en": "“The fewest pieces” and <level-ref to=\"wordcost\"></level-ref> are its special cases: every cost 1, or no single letters to fall back on."
+        "zh": "「最少几块」<level-ref to=\"wordcost\"></level-ref>都是它的特例：代价全是 1，或者没有单字母兜底。"
       }
     ]
   },
@@ -41,8 +37,7 @@
       "after": "dictionary",
       "hints": [
         {
-          "zh": "单个字母也是一块，代价在词典里写着。",
-          "en": "A single letter is just another piece, with its cost in the dictionary."
+          "zh": "单个字母也是一块，代价在词典里写着。"
         }
       ],
       "world": "pieces",

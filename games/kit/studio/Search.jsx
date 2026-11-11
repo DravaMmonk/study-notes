@@ -46,12 +46,11 @@ export default function Search({ content, vocabulary, onAdd, onJump }) {
   const [find, setFind] = useState('')
   const [replacement, setReplacement] = useState('')
   const [replacing, setReplacing] = useState(false)
-  const [opts, setOpts] = usePref('search-options', { regex: false, caseSensitive: false, word: false, in: ['zh', 'en', 'board', 'id'] })
+  const [opts, setOpts] = usePref('search-options', { regex: false, caseSensitive: false, word: false, in: ['zh', 'board', 'id'] })
   const [left, setLeft] = useState(() => new Set()) // hits left out of the replace
   // What is searched: the sides of texts, board lines, ids (each a toggle, one always left on).
   const query = useMemo(() => {
-    const sides = opts.in.filter((x) => x === 'zh' || x === 'en')
-    return { find, regex: opts.regex, caseSensitive: opts.caseSensitive, word: opts.word, sides, kinds: [...(sides.length ? ['text'] : []), ...opts.in.filter((x) => x === 'board' || x === 'id')] }
+    return { find, regex: opts.regex, caseSensitive: opts.caseSensitive, word: opts.word, kinds: [...(opts.in.includes('zh') ? ['text'] : []), ...opts.in.filter((x) => x === 'board' || x === 'id')] }
   }, [find, opts])
   const bad = Boolean(find) && !patternOf(query)
   const hits = useMemo(() => (bad ? [] : searchContent(content, vocabulary, query)), [content, vocabulary, query, bad])
@@ -87,7 +86,7 @@ export default function Search({ content, vocabulary, onAdd, onJump }) {
             </span>
           </div>
           <div className="seg is-small search-kinds">
-            {[['zh', '中'], ['en', 'En'], ['board', tr('板', 'Board')], ['id', 'id']].map(([v, name]) => (
+            {[['zh', tr('文字', 'Text')], ['board', tr('板', 'Board')], ['id', 'id']].map(([v, name]) => (
               <button key={v} type="button" className={opts.in.includes(v) ? 'is-on' : ''} aria-pressed={opts.in.includes(v)} onClick={() => among(v)}>{name}</button>
             ))}
           </div>
@@ -111,7 +110,7 @@ export default function Search({ content, vocabulary, onAdd, onJump }) {
                 <div key={key} className={`hit is-${hit.kind} ${out ? 'is-out' : ''}`}>
                   {replacing && hit.kind !== 'id' && <input type="checkbox" checked={!out} onChange={() => flip(key)} aria-label={tr('替换这一处', 'Replace this one')} />}
                   <button type="button" onClick={() => onJump(hit.level ?? null, hit.path, hit.in)} title={`${showPath(hit.path)}${hit.side ? ` · ${hit.side}` : ''}${hit.line !== undefined ? ` · ${hit.line + 1}` : ''}`}>
-                    <code>{hit.kind === 'board' ? `${showPath(hit.path)}:${hit.line + 1}` : hit.kind === 'id' ? 'id' : `${showPath(hit.path)}${hit.side === 'en' ? ' en' : ''}`}</code>
+                    <code>{hit.kind === 'board' ? `${showPath(hit.path)}:${hit.line + 1}` : hit.kind === 'id' ? 'id' : showPath(hit.path)}</code>
                     <Snippet hit={hit} query={query} replacement={replacing ? replacement : null} />
                   </button>
                 </div>

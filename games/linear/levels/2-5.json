@@ -1,21 +1,19 @@
 {
-  "title": { "zh": "谁先谁后", "en": "Which goes first" },
+  "title": { "zh": "谁先谁后" },
   "intro": [
     {
       "t": {
-        "zh": "两个数相乘不管先后。两个变换呢？",
-        "en": "Multiplying two numbers does not care which comes first. What about two maps?"
+        "zh": "两个数相乘不管先后。两个变换呢？"
       }
     }
   ],
   "after": {
-    "zh": "一般 AB ≠ BA：矩阵乘法不满足交换律。两个非零矩阵的乘积也可能是零矩阵。",
-    "en": "In general AB ≠ BA: the matrix product does not commute. Two nonzero matrices may even multiply to the zero matrix."
+    "zh": "一般 AB ≠ BA：矩阵乘法不满足交换律。两个非零矩阵的乘积也可能是零矩阵。"
   },
   "tasks": [
     {
       "id": "2-5",
-      "brief": { "zh": "同时交出 AB 和 BA。", "en": "Give both AB and BA." },
+      "brief": { "zh": "同时交出 AB 和 BA。" },
       "inputs": [{ "name": "A", "label": "A" }, { "name": "B", "label": "B" }],
       "outputs": [{ "name": "AB", "label": "AB" }, { "name": "BA", "label": "BA" }],
       "tests": [

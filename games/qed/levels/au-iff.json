@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "等价展开", "en": "Equivalence away" },
+  "title": { "zh": "等价展开" },
   "builds": "iff",
   "intro": [
     {
       "t": {
-        "zh": "化简器还没有 ↔ 的改写规则，而岛民谜题里，身份和他说的话之间正是 ↔。",
-        "en": "The simplifier has no rewrite rule for ↔ yet, and in the islander puzzles ↔ is just what joins an islander’s kind to his words."
+        "zh": "化简器还没有 ↔ 的改写规则，而岛民谜题里，身份和他说的话之间正是 ↔。"
       }
     }
   ],
@@ -14,20 +13,20 @@
       "id": "au-iff_1",
       "kind": "proof",
       "tray": "proof",
-      "step": { "zh": "等价变成两串「或者」", "en": "Equivalence to two ors" },
+      "step": { "zh": "等价变成两串「或者」" },
       "tests": [{ "premises": { "p": "A ↔ B" }, "goal": "(¬A ∨ B) ∧ (¬B ∨ A)" }],
       "cases": [{ "A": "Sat", "B": "Rest" }, { "A": "KA", "B": "KB" }],
-      "hint": [{ "zh": "先拆开等价，两个方向分别处理。", "en": "Split the equivalence first, then deal with each direction." }],
+      "hint": [{ "zh": "先拆开等价，两个方向分别处理。" }],
       "solution": ["e = andE(p)", "a1 = arrow(e.left)", "a2 = arrow(e.right)", "c = andI(a1, a2)", "goal <- c"]
     },
     {
       "id": "au-iff_2",
       "kind": "proof",
       "tray": "proof",
-      "step": { "zh": "再变回来", "en": "And back" },
+      "step": { "zh": "再变回来" },
       "tests": [{ "premises": { "p": "(¬A ∨ B) ∧ (¬B ∨ A)" }, "goal": "A ↔ B" }],
       "cases": [{ "A": "Sat", "B": "Rest" }, { "A": "KA", "B": "KB" }],
-      "hint": [{ "zh": "↔ 就是两个方向的 → 用「并且」连起来。", "en": "↔ is the two directions of → joined by “and”." }],
+      "hint": [{ "zh": "↔ 就是两个方向的 → 用「并且」连起来。" }],
       "solution": [
         "e = andE(p)",
         "a1 = arrow[form=intro](e.left)",
@@ -41,21 +40,19 @@
       "kind": "machine",
       "tray": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
-      "step": { "zh": "改写", "en": "Rewrite" },
+      "step": { "zh": "改写" },
       "tests": [
         { "goal": "Sat ↔ Rest", "becomes": [["(¬Sat ∨ Rest) ∧ (¬Rest ∨ Sat)"]] },
         { "goal": "(KA ↔ ¬KB) ∧ KC", "becomes": [["((¬KA ∨ ¬KB) ∧ (¬¬KB ∨ KA)) ∧ KC"]] }
       ],
       "brief": {
-        "zh": "设计一个证明助手，把每个目标里的 ↔ 换成两串「或者」。",
-        "en": "Design a proof assistant that turns the ↔ in each goal into two strings of “or”."
+        "zh": "设计一个证明助手，把每个目标里的 ↔ 换成两串「或者」。"
       },
       "hint": [
         {
-          "zh": "<part-ref to=\"lemma:iff\"></part-ref>的每个形状也是一条改写规则。",
-          "en": "Each shape of <part-ref to=\"lemma:iff\"></part-ref> is a rewrite rule too."
+          "zh": "<part-ref to=\"lemma:iff\"></part-ref>的每个形状也是一条改写规则。"
         }
       ],
       "solution": ["c0r0 = iff[use=[\"iff.elim\"]]()", "c0 = rw(in, c0r0)", "out <- c0"]

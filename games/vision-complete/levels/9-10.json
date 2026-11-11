@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "一格一个标签", "en": "A label for every pixel" },
+  "title": { "zh": "一格一个标签" },
   "tray": "recognition",
   "after": {
-    "zh": "给每个像素一个类别，就是语义分割；输出的图叫掩膜，和原图一样大。一格宽的缝决定了数出来是一个细胞还是两个。",
-    "en": "Giving every pixel a class is semantic segmentation; the picture it outputs is called a mask, the same size as the original. A gap one pixel wide decides whether you count one cell or two."
+    "zh": "给每个像素一个类别，就是语义分割；输出的图叫掩膜，和原图一样大。一格宽的缝决定了数出来是一个细胞还是两个。"
   },
   "intro": [
     {
       "t": {
-        "zh": "前面几章问的都是整张图：有没有、是什么、在哪。分割换一个问法：每个像素属于什么。答案是一张和原图一样大的图，每格一个标签。",
-        "en": "The chapters so far asked about the whole picture: is it there, what is it, where is it. Segmentation asks something else: what does each pixel belong to? The answer is a picture the same size as the original, one label in every cell."
+        "zh": "前面几章问的都是整张图：有没有、是什么、在哪。分割换一个问法：每个像素属于什么。答案是一张和原图一样大的图，每格一个标签。"
       }
     },
     {
       "t": {
-        "zh": "这一关只有两个标签：细胞是 1，背景是 0。只有 0 和 1 的这种图叫掩膜。",
-        "en": "This level has only two labels: 1 for a cell, 0 for the background. A picture of only 0s and 1s like this is called a mask."
+        "zh": "这一关只有两个标签：细胞是 1，背景是 0。只有 0 和 1 的这种图叫掩膜。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：两个细胞", "en": "Set 1: two cells" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组：两个细胞" } }
     }
   ],
   "tasks": [
@@ -25,17 +22,15 @@
       "id": "9-10",
       "kind": "graph",
       "brief": {
-        "zh": "显微镜下的细胞比底亮一些。输出掩膜：细胞的格子为 1，背景为 0。挨着的两个细胞之间那一格宽的缝属于背景。",
-        "en": "Under the microscope the cells are a little brighter than the ground. Output a mask: 1 for the cells, 0 for the background. The one-pixel gap between two touching cells belongs to the background."
+        "zh": "显微镜下的细胞比底亮一些。输出掩膜：细胞的格子为 1，背景为 0。挨着的两个细胞之间那一格宽的缝属于背景。"
       },
       "hint": {
-        "zh": "先读几格数：细胞大约多亮，底大约多亮？缝只有一格宽，判断一格时把邻居也算进来，它还留得住吗？",
-        "en": "Read a few numbers first: about how bright are the cells, and the ground? The gap is one pixel wide; if neighbours count when deciding a cell, does it survive?"
+        "zh": "先读几格数：细胞大约多亮，底大约多亮？缝只有一格宽，判断一格时把邻居也算进来，它还留得住吗？"
       },
       "scene": "cells",
       "tests": [
         {
-          "label": { "zh": "两个细胞", "en": "Two cells" },
+          "label": { "zh": "两个细胞" },
           "rects": [[2, 3, 14, 12]],
           "gapX": [8],
           "seed": 91,
@@ -44,7 +39,7 @@
           "grain": 0.08
         },
         {
-          "label": { "zh": "上下挨着", "en": "One above the other" },
+          "label": { "zh": "上下挨着" },
           "rects": [[3, 1, 12, 15]],
           "gapY": [7],
           "seed": 92,
@@ -53,7 +48,7 @@
           "grain": 0.08
         },
         {
-          "label": { "zh": "一排细胞", "en": "A row of cells" },
+          "label": { "zh": "一排细胞" },
           "rects": [[1, 4, 15, 11]],
           "gapX": [5, 10],
           "seed": 93,
@@ -64,7 +59,7 @@
       ],
       "hidden": [
         {
-          "label": { "zh": "四个细胞", "en": "Four cells" },
+          "label": { "zh": "四个细胞" },
           "rects": [[2, 2, 14, 14]],
           "gapX": [7],
           "gapY": [7],

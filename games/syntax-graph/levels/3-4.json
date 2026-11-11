@@ -1,43 +1,36 @@
 {
   "title": {
-    "zh": "从句里也有修饰",
-    "en": "Modifiers inside"
+    "zh": "从句里也有修饰"
   },
   "intro": [
     {
       "t": {
-        "zh": "定语从句里也会有自己的修饰成分；主干的主语和宾语都可以带着一个从句。",
-        "en": "A relative clause can have modifiers of its own, and both the subject and the object may carry a clause."
+        "zh": "定语从句里也会有自己的修饰成分；主干的主语和宾语都可以带着一个从句。"
       }
     }
   ],
   "debrief": {
     "title": {
-      "zh": "The approach that we describe in Section 4 reduces the memory that the attention layer requires.",
-      "en": "The approach that we describe in Section 4 reduces the memory that the attention layer requires."
+      "zh": "The approach that we describe in Section 4 reduces the memory that the attention layer requires."
     },
     "body": [
       {
-        "zh": "主干 <i>The approach reduces the memory</i>。主语带着 <i>that we describe in Section 4</i>（里面 <i>in Section 4</i> 挂在 <i>describe</i> 上），宾语带着 <i>that the attention layer requires</i>。我们在第 4 节介绍的方法减少了注意力层所需的内存。",
-        "en": "The skeleton is <i>The approach reduces the memory</i>. The subject carries <i>that we describe in Section 4</i> (with <i>in Section 4</i> on <i>describe</i>), the object <i>that the attention layer requires</i>."
+        "zh": "主干 <i>The approach reduces the memory</i>。主语带着 <i>that we describe in Section 4</i>（里面 <i>in Section 4</i> 挂在 <i>describe</i> 上），宾语带着 <i>that the attention layer requires</i>。我们在第 4 节介绍的方法减少了注意力层所需的内存。"
       }
     ],
     "note": {
-      "zh": "从句里的修饰成分挂在从句里的词上，先折。",
-      "en": "A modifier inside a clause hangs on a word inside it; fold it first."
+      "zh": "从句里的修饰成分挂在从句里的词上，先折。"
     }
   },
   "tasks": [
     {
       "id": "3-4",
       "brief": {
-        "zh": "标出主干，把修饰成分一层层折起来。",
-        "en": "Mark the skeleton, folding the modifiers layer by layer."
+        "zh": "标出主干，把修饰成分一层层折起来。"
       },
       "hint": [
         {
-          "zh": "<i>in Section 4</i> 说明的是从句里的哪个词？",
-          "en": "Which word inside the clause does <i>in Section 4</i> tell about?"
+          "zh": "<i>in Section 4</i> 说明的是从句里的哪个词？"
         }
       ],
       "sentence": "The approach that we describe in Section 4 reduces the memory that the attention layer requires.",

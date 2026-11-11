@@ -1,25 +1,22 @@
 {
-  "title": { "zh": "调和级数", "en": "The harmonic series" },
+  "title": { "zh": "调和级数" },
   "intro": [
     {
       "t": {
-        "zh": "1 + 1/2 + 1/3 + 1/4 + …：每一项都趋于 0，比 1/2ⁿ 慢得多。它的和收敛吗？",
-        "en": "1 + 1/2 + 1/3 + 1/4 + …: every term tends to 0, far more slowly than 1/2ⁿ. Does its sum converge?"
+        "zh": "1 + 1/2 + 1/3 + 1/4 + …：每一项都趋于 0，比 1/2ⁿ 慢得多。它的和收敛吗？"
       }
     }
   ],
   "after": {
-    "zh": "项趋于 0，和仍越过任何界：<wiki-ref to=\"harmonic\"></wiki-ref>发散。项趋于 0 只是级数收敛的必要条件。",
-    "en": "The terms tend to 0, yet the sum passes every bound: the <wiki-ref to=\"harmonic\"></wiki-ref> diverges. Terms tending to 0 is only necessary for convergence."
+    "zh": "项趋于 0，和仍越过任何界：<wiki-ref to=\"harmonic\"></wiki-ref>发散。项趋于 0 只是级数收敛的必要条件。"
   },
   "tasks": [
     {
       "id": "harmonic",
-      "step": { "zh": "部分和", "en": "Partial sums" },
-      "brief": { "zh": "交出 1 + 1/2 + 1/3 + … 的部分和。", "en": "Give the partial sums of 1 + 1/2 + 1/3 + …" },
+      "step": { "zh": "部分和" },
+      "brief": { "zh": "交出 1 + 1/2 + 1/3 + … 的部分和。" },
       "after": {
-        "zh": "部分和越长越慢，看起来像要停下。",
-        "en": "The partial sums grow slower and slower, as if about to stop."
+        "zh": "部分和越长越慢，看起来像要停下。"
       },
       "outputs": [{ "name": "H", "label": "Hₙ" }],
       "tests": [
@@ -81,10 +78,9 @@
     },
     {
       "id": "harmonic_2",
-      "step": { "zh": "越过任何界", "en": "Past any bound" },
+      "step": { "zh": "越过任何界" },
       "brief": {
-        "zh": "测试给出界 K：交出部分和从第几项起一直大于 K。",
-        "en": "The test gives a bound K: give where the partial sums start staying above K."
+        "zh": "测试给出界 K：交出部分和从第几项起一直大于 K。"
       },
       "inputs": [{ "name": "K", "label": "K" }],
       "outputs": [{ "name": "N", "label": "N" }],

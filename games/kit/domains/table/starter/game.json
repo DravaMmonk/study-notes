@@ -2,16 +2,13 @@
   "domain": "table",
   "vocabulary": 1,
   "title": {
-    "zh": "__title__",
-    "en": "__title__"
+    "zh": "__title__"
   },
   "kicker": {
-    "zh": "开发中",
-    "en": "In development"
+    "zh": "开发中"
   },
   "lede": {
-    "zh": "不需要任何编程或算法基础。机器人在表上一格一格地算，你接出它每一格跑的电路板，再把拼好的板当元件用。",
-    "en": "No programming or algorithms background needed. A robot works across a table cell by cell; you wire the board it runs on every cell, then use a finished board as a part."
+    "zh": "不需要任何编程或算法基础。机器人在表上一格一格地算，你接出它每一格跑的电路板，再把拼好的板当元件用。"
   },
   "primitives": [
     "msum",
@@ -22,12 +19,10 @@
   "parts": {
     "counter": {
       "name": {
-        "zh": "路线计数器",
-        "en": "Route Counter"
+        "zh": "路线计数器"
       },
       "desc": {
-        "zh": "把两条来路的数加起来；「起点」口是「是」时，再加 1。",
-        "en": "Adds up the numbers on its two ways in, plus 1 when its “start” port is “yes”."
+        "zh": "把两条来路的数加起来；「起点」口是「是」时，再加 1。"
       }
     }
   },
@@ -43,12 +38,10 @@
       ],
       "chapter": {
         "title": {
-          "zh": "造一台机器",
-          "en": "Build a machine"
+          "zh": "造一台机器"
         },
         "desc": {
-          "zh": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。",
-          "en": "On every cell the robot runs the same circuit board, and a finished board becomes a component."
+          "zh": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。"
         }
       }
     }

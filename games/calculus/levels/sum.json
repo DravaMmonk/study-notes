@@ -1,28 +1,26 @@
 {
-  "title": { "zh": "累加", "en": "Running total" },
+  "title": { "zh": "累加" },
   "intro": [
     {
       "t": {
-        "zh": "项一拍只来一个，而前面所有项的和要用到每一项。寄存卡一次只记得一个数：这个数该是什么？",
-        "en": "Terms arrive one a tick, yet the sum of all terms so far needs every one of them. A register remembers one number at a time: which number should it be?"
+        "zh": "项一拍只来一个，而前面所有项的和要用到每一项。寄存卡一次只记得一个数：这个数该是什么？"
       }
     },
-    { "t": { "zh": "搭好以后，累加 Σ 成为一件元件。", "en": "Built, the sum Σ becomes a part." } }
+    { "t": { "zh": "搭好以后，累加 Σ 成为一件元件。" } }
   ],
   "after": {
-    "zh": "Sₙ = a₀ + … + aₙ 叫<wiki-ref to=\"partial-sum\"></wiki-ref>；部分和本身也是数列，由 Sₙ = Sₙ₋₁ + aₙ 递推出来。",
-    "en": "Sₙ = a₀ + … + aₙ is a <wiki-ref to=\"partial-sum\"></wiki-ref>; the partial sums form a sequence too, made by the recurrence Sₙ = Sₙ₋₁ + aₙ."
+    "zh": "Sₙ = a₀ + … + aₙ 叫<wiki-ref to=\"partial-sum\"></wiki-ref>；部分和本身也是数列，由 Sₙ = Sₙ₋₁ + aₙ 递推出来。"
   },
   "builds": {
     "type": "sum",
-    "name": { "zh": "累加 Σ", "en": "Sum Σ" },
-    "desc": { "zh": "交出输入到这一拍为止所有项的和。", "en": "Gives the sum of every term of its input so far." }
+    "name": { "zh": "累加 Σ" },
+    "desc": { "zh": "交出输入到这一拍为止所有项的和。" }
   },
   "tasks": [
     {
       "id": "sum",
-      "brief": { "zh": "每一拍交出输入到这一拍为止所有项的和。", "en": "Each tick give the sum of every input term so far." },
-      "hint": [{ "zh": "第三拍时，第一项还在不在？", "en": "On the third tick, is the first term still in?" }],
+      "brief": { "zh": "每一拍交出输入到这一拍为止所有项的和。" },
+      "hint": [{ "zh": "第三拍时，第一项还在不在？" }],
       "inputs": [{ "name": "a", "label": "aₙ" }],
       "outputs": [{ "name": "S", "label": "Sₙ" }],
       "tests": [

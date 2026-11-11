@@ -1,12 +1,11 @@
 {
-  "title": { "zh": "接一个空列表", "en": "Appending nothing" },
+  "title": { "zh": "接一个空列表" },
   "tray": "machine",
   "fact": "appNil",
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"decl-list\"></level-ref>声明的 list = [] | x :: xs 也给出同样几类规则；它的归纳从 xs 走到 x :: xs。",
-        "en": "The list = [] | x :: xs declared in <level-ref to=\"decl-list\"></level-ref> gives the same kinds of rule; its induction steps from xs to x :: xs."
+        "zh": "<level-ref to=\"decl-list\"></level-ref>声明的 list = [] | x :: xs 也给出同样几类规则；它的归纳从 xs 走到 x :: xs。"
       }
     }
   ],
@@ -15,14 +14,14 @@
       "id": "in-appnil",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["list"],
       "defs": ["app", "len"],
       "tests": [{ "goal": "∀xs. app(xs, nil) = xs" }],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "「数理规则书」里有 list 的归纳规则。", "en": "The “Rule book of numbers” has an induction rule for list." }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "「数理规则书」里有 list 的归纳规则。" }],
       "solution": [
         "c0r0 = math[use=[\"list.induct\"]]()",
         "c0 = rule(in, c0r0)",

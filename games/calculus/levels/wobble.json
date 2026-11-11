@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "摆动着靠近", "en": "Closing in, side to side" },
+  "title": { "zh": "摆动着靠近" },
   "intro": [
     {
       "t": {
-        "zh": "1, −1/2, 1/3, −1/4, …：一会儿在 0 的右边，一会儿在左边。它也算趋于 0 吗？",
-        "en": "1, −1/2, 1/3, −1/4, …: now right of 0, now left. Does it tend to 0 as well?"
+        "zh": "1, −1/2, 1/3, −1/4, …：一会儿在 0 的右边，一会儿在左边。它也算趋于 0 吗？"
       }
     }
   ],
@@ -12,8 +11,7 @@
     {
       "id": "wobble",
       "brief": {
-        "zh": "交出 aₙ = (−1)ⁿ/(n + 1)；测试给出 ε，交出它离 0 不到 ε 的 N。",
-        "en": "Give aₙ = (−1)ⁿ/(n + 1); the test gives ε: give the N at which it comes within ε of 0."
+        "zh": "交出 aₙ = (−1)ⁿ/(n + 1)；测试给出 ε，交出它离 0 不到 ε 的 N。"
       },
       "inputs": [{ "name": "e", "label": "ε" }],
       "outputs": [{ "name": "a", "label": "aₙ" }, { "name": "N", "label": "N" }],

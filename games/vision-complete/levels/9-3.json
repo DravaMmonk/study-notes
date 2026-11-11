@@ -1,30 +1,26 @@
 {
-  "title": { "zh": "放回原处", "en": "Back where it came from" },
+  "title": { "zh": "放回原处" },
   "tray": "recognition",
   "after": {
-    "zh": "这叫最大反池化：编码器池化时记下最大值在哪，解码器放大时放回原处，细节就不会被抹到整块上。SegNet 就是这么做的。",
-    "en": "This is max unpooling: the encoder remembers where each maximum was when pooling, and the decoder puts it back there when enlarging, so details are not smeared over the whole block. SegNet works like this."
+    "zh": "这叫最大反池化：编码器池化时记下最大值在哪，解码器放大时放回原处，细节就不会被抹到整块上。SegNet 就是这么做的。"
   },
   "intro": [
     {
       "t": {
-        "zh": "最大池化留下每个 2×2 块里最大的那个数，却没记下它在块里的哪一格。放大回来时，它该放在哪？",
-        "en": "Max pooling keeps the largest number of each 2×2 block, but does not record which cell of the block it was in. When enlarging back, where should it go?"
+        "zh": "最大池化留下每个 2×2 块里最大的那个数，却没记下它在块里的哪一格。放大回来时，它该放在哪？"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：把池化后的值放回它原来的那一格，块里其余格子是 0。池化前的图也给你。",
-        "en": "Your task in this level: put each pooled value back in the cell it came from, with the rest of the block 0. The picture before pooling is given too."
+        "zh": "这一关你要做的：把池化后的值放回它原来的那一格，块里其余格子是 0。池化前的图也给你。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组", "en": "Set 1" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组" } }
     }
   ],
   "packs": {
-    "name": { "zh": "反池化", "en": "Unpool" },
+    "name": { "zh": "反池化" },
     "desc": {
-      "zh": "把池化后的每个值放回池化前它所在的那一格，其余格子为 0。",
-      "en": "Puts each pooled value back in the cell it came from before pooling; every other cell is 0."
+      "zh": "把池化后的每个值放回池化前它所在的那一格，其余格子为 0。"
     }
   },
   "tasks": [
@@ -32,25 +28,23 @@
       "id": "9-3",
       "kind": "graph",
       "brief": {
-        "zh": "每个 2×2 块的最大值被池化成了一格。把它放回块里原来那一格，块里其余三格是 0。",
-        "en": "Each 2×2 block's largest value was pooled into one cell. Put it back in the cell of the block it came from, with the other three cells of the block 0."
+        "zh": "每个 2×2 块的最大值被池化成了一格。把它放回块里原来那一格，块里其余三格是 0。"
       },
       "hint": {
-        "zh": "先把小图放大到块那么大；块里哪一格和放大后的值一样大？",
-        "en": "First enlarge the small picture to block size; which cell of the block equals the enlarged value?"
+        "zh": "先把小图放大到块那么大；块里哪一格和放大后的值一样大？"
       },
       "inputs": ["small", "big"],
       "inputLabels": {
-        "small": { "zh": "池化后的 8×8", "en": "Pooled 8×8" },
-        "big": { "zh": "池化前的 16×16", "en": "The 16×16 before pooling" }
+        "small": { "zh": "池化后的 8×8" },
+        "big": { "zh": "池化前的 16×16" }
       },
       "scene": "pooled",
       "tests": [
-        { "label": { "zh": "第 1 组", "en": "Set 1" }, "seed": 41 },
-        { "label": { "zh": "第 2 组", "en": "Set 2" }, "seed": 42 },
-        { "label": { "zh": "第 3 组", "en": "Set 3" }, "seed": 43 }
+        { "label": { "zh": "第 1 组" }, "seed": 41 },
+        { "label": { "zh": "第 2 组" }, "seed": 42 },
+        { "label": { "zh": "第 3 组" }, "seed": 43 }
       ],
-      "hidden": [{ "label": { "zh": "第 4 组", "en": "Set 4" }, "seed": 44 }],
+      "hidden": [{ "label": { "zh": "第 4 组" }, "seed": 44 }],
       "solution": [
         "u = tconv(small)",
         "d = arith[op=sub](big, u)",

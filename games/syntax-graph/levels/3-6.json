@@ -1,43 +1,36 @@
 {
   "title": {
-    "zh": "指整件事的 which",
-    "en": "A which for the whole"
+    "zh": "指整件事的 which"
   },
   "intro": [
     {
       "t": {
-        "zh": "逗号后面的 <i>which</i> 有时不指哪个名词，而指前面说的整件事。这叫<wiki-ref to=\"sentential-which\"></wiki-ref>，折起来以后挂在主干的谓语上。",
-        "en": "A <i>which</i> after a comma sometimes refers to no noun but to the whole event just told. This is a <wiki-ref to=\"sentential-which\"></wiki-ref>; folded, it hangs on the skeleton’s verb."
+        "zh": "逗号后面的 <i>which</i> 有时不指哪个名词，而指前面说的整件事。这叫<wiki-ref to=\"sentential-which\"></wiki-ref>，折起来以后挂在主干的谓语上。"
       }
     }
   ],
   "debrief": {
     "title": {
-      "zh": "The training loss increases after ten epochs, which suggests overfitting.",
-      "en": "The training loss increases after ten epochs, which suggests overfitting."
+      "zh": "The training loss increases after ten epochs, which suggests overfitting."
     },
     "body": [
       {
-        "zh": "<i>which suggests overfitting</i> 说的是前面整件事：训练损失在十个周期后上升，这说明出现了过拟合。论文里报告现象再下判断，常用这个句式。",
-        "en": "<i>which suggests overfitting</i> is about the whole event before it: the training loss rising after ten epochs points to overfitting. Papers often report an observation and judge it in just this shape."
+        "zh": "<i>which suggests overfitting</i> 说的是前面整件事：训练损失在十个周期后上升，这说明出现了过拟合。论文里报告现象再下判断，常用这个句式。"
       }
     ],
     "note": {
-      "zh": "逗号后的 which 可以指前面整件事。",
-      "en": "A which after a comma can stand for the whole event before it."
+      "zh": "逗号后的 which 可以指前面整件事。"
     }
   },
   "tasks": [
     {
       "id": "3-6",
       "brief": {
-        "zh": "标出主干，把修饰成分折起来。",
-        "en": "Mark the skeleton, folding the modifiers away."
+        "zh": "标出主干，把修饰成分折起来。"
       },
       "hint": [
         {
-          "zh": "暗示过拟合的，是“十个周期”，还是“损失在十个周期后上升”这件事？",
-          "en": "What suggests overfitting: ten epochs, or the loss rising after ten epochs?"
+          "zh": "暗示过拟合的，是“十个周期”，还是“损失在十个周期后上升”这件事？"
         }
       ],
       "sentence": "The training loss increases after ten epochs, which suggests overfitting.",
@@ -53,12 +46,10 @@
           "to": "increases",
           "misread": {
             "epochs": {
-              "zh": "<i>which</i> 若指 <i>ten epochs</i>，就成了“十个周期暗示过拟合”。暗示过拟合的是前面整件事：损失在上升。",
-              "en": "If <i>which</i> meant <i>ten epochs</i>, ten epochs would suggest overfitting. What suggests it is the whole event before: the loss going up."
+              "zh": "<i>which</i> 若指 <i>ten epochs</i>，就成了“十个周期暗示过拟合”。暗示过拟合的是前面整件事：损失在上升。"
             },
             "loss": {
-              "zh": "<i>which</i> 若只指 <i>loss</i>，就成了“损失本身暗示过拟合”。暗示过拟合的是损失在十个周期后上升这件事。",
-              "en": "If <i>which</i> meant only <i>loss</i>, the loss itself would suggest overfitting. What does is the loss rising after ten epochs."
+              "zh": "<i>which</i> 若只指 <i>loss</i>，就成了“损失本身暗示过拟合”。暗示过拟合的是损失在十个周期后上升这件事。"
             }
           }
         }

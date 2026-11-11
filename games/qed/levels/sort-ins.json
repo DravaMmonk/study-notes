@@ -1,21 +1,20 @@
 {
-  "title": { "zh": "插进去", "en": "Inserting" },
+  "title": { "zh": "插进去" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "排序是程序，程序也能用等式定义。插入排序把元素一个个插进排好的列表。",
-        "en": "Sorting is a program, and a program can be defined by equations. Insertion sort puts the elements one by one into a sorted list."
+        "zh": "排序是程序，程序也能用等式定义。插入排序把元素一个个插进排好的列表。"
       }
     }
   ],
-  "after": { "zh": "定义函数就是写程序，化简就是运行程序。", "en": "Defining a function is writing a program; Simp runs it." },
+  "after": { "zh": "定义函数就是写程序，化简就是运行程序。" },
   "tasks": [
     {
       "id": "sort-ins_1",
       "kind": "define",
       "words": ["everyday", "terms"],
-      "step": { "zh": "如果", "en": "If" },
+      "step": { "zh": "如果" },
       "fn": "if",
       "on": 0,
       "rows": [{ "lhs": "if(tt, v, w)", "choices": ["v", "w"] }, { "lhs": "if(ff, v, w)", "choices": ["w", "v"] }],
@@ -26,17 +25,15 @@
       "solution": ["v", "w"],
       "naive": ["v", "v"],
       "brief": {
-        "zh": "给每一行选一个右边，让每个测试都算对。",
-        "en": "Pick a right side for every row so that every test works out right."
+        "zh": "给每一行选一个右边，让每个测试都算对。"
       },
       "hint": [
-        { "zh": "if c then v else w：c 为真取 v，为假取 w。", "en": "if c then v else w: v when c is true, w when it is false." }
+        { "zh": "if c then v else w：c 为真取 v，为假取 w。" }
       ],
       "intro": [
         {
           "t": {
-            "zh": "程序里的「如果」也是函数：按条件的真假，各写一行。",
-            "en": "A program’s “if” is a function too: one row for each truth value of its condition."
+            "zh": "程序里的「如果」也是函数：按条件的真假，各写一行。"
           }
         }
       ]
@@ -45,7 +42,7 @@
       "id": "sort-ins_2",
       "kind": "define",
       "words": ["everyday", "terms"],
-      "step": { "zh": "插进去", "en": "Insert" },
+      "step": { "zh": "插进去" },
       "fn": "ins",
       "on": 1,
       "defs": ["le", "if"],
@@ -71,15 +68,13 @@
       "solution": ["cons(x, nil)", "if(le(x, y), cons(x, cons(y, ys)), cons(y, ins(x, ys)))"],
       "naive": ["cons(x, nil)", "cons(x, cons(y, ys))"],
       "brief": {
-        "zh": "给每一行选一个右边，让每个测试都算对。",
-        "en": "Pick a right side for every row so that every test works out right."
+        "zh": "给每一行选一个右边，让每个测试都算对。"
       },
-      "hint": [{ "zh": "拿 x 和列表的第一个 y 比。", "en": "Compare x with the first of the list, y." }],
+      "hint": [{ "zh": "拿 x 和列表的第一个 y 比。" }],
       "intro": [
         {
           "t": {
-            "zh": "ins 把一个数插进排好的列表，拆开的是第二个参数。",
-            "en": "ins puts a number into a sorted list; it takes apart its second argument."
+            "zh": "ins 把一个数插进排好的列表，拆开的是第二个参数。"
           }
         }
       ]
@@ -88,7 +83,7 @@
       "id": "sort-ins_3",
       "kind": "define",
       "words": ["everyday", "terms"],
-      "step": { "zh": "排序", "en": "Sort" },
+      "step": { "zh": "排序" },
       "fn": "sort",
       "on": 0,
       "defs": ["le", "if", "ins"],
@@ -109,19 +104,18 @@
       "solution": ["nil", "ins(x, sort(xs))"],
       "naive": ["nil", "ins(x, xs)"],
       "brief": {
-        "zh": "给每一行选一个右边，让每个测试都算对。",
-        "en": "Pick a right side for every row so that every test works out right."
+        "zh": "给每一行选一个右边，让每个测试都算对。"
       },
-      "hint": [{ "zh": "ins 要的是一个排好的列表。", "en": "ins wants a sorted list." }]
+      "hint": [{ "zh": "ins 要的是一个排好的列表。" }]
     },
     {
       "id": "sort-ins_4",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
-      "step": { "zh": "算几个例子", "en": "A few examples" },
+      "step": { "zh": "算几个例子" },
       "types": ["list"],
       "defs": ["le", "if", "ins", "sort", "len"],
       "tests": [
@@ -129,8 +123,8 @@
         { "goal": "ins(zero, cons(s(zero), nil)) = cons(zero, cons(s(zero), nil))" },
         { "goal": "ins(s(s(zero)), cons(zero, nil)) = cons(zero, cons(s(s(zero)), nil))" }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "比大小、「如果」和插入的定义都要用。", "en": "The definitions of comparison, if and insert are all needed." }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "比大小、「如果」和插入的定义都要用。" }],
       "solution": [
         "c0r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\"]]()",
         "c1r0 = refl()",

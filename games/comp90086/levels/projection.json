@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "针孔投影与深度歧义", "en": "Pinhole projection and depth ambiguity" },
+  "title": { "zh": "针孔投影与深度歧义" },
   "intro": [],
   "after": {
-    "zh": "像高是 f·H/Z：只看 f 和 Z 的比；亮度只看孔径和 f。孔板一动，Z 和 f 一起变。",
-    "en": "The image is f·H/Z tall: only the ratio of f to Z counts, and the brightness only the hole and f. Moving the plate changes Z and f together."
+    "zh": "像高是 f·H/Z：只看 f 和 Z 的比；亮度只看孔径和 f。孔板一动，Z 和 f 一起变。"
   },
   "tasks": [
     {
       "id": "projection",
       "kind": "board",
       "brief": {
-        "zh": "暗箱里的像高 20 毫米。每一步把它变成 40 毫米，但只能动这一步开着的旋钮。先算好位置，再检查。",
-        "en": "The image in the camera obscura is 20 mm tall. Each step makes it 40 mm using only the knobs the step opens. Work out where first, then check."
+        "zh": "暗箱里的像高 20 毫米。每一步把它变成 40 毫米，但只能动这一步开着的旋钮。先算好位置，再检查。"
       },
       "bench": {
         "model": "obscura",
@@ -20,7 +18,7 @@
           "Z": { "min": 150, "max": 520, "step": 1, "start": 300, "drawn": true },
           "s": { "min": 170, "max": 640, "step": 1, "start": 450, "drawn": true },
           "D": {
-            "label": { "zh": "孔径 D", "en": "Aperture D" },
+            "label": { "zh": "孔径 D" },
             "min": 1,
             "max": 1,
             "step": 1,
@@ -32,17 +30,16 @@
         "check": "submit",
         "stages": [
           {
-            "title": { "zh": "只挪屏幕", "en": "The screen only" },
+            "title": { "zh": "只挪屏幕" },
             "note": {
-              "zh": "孔板不动，屏幕挪到哪里，像高正好 40 毫米？",
-              "en": "With the plate where it is, where must the screen go for a 40 mm image?"
+              "zh": "孔板不动，屏幕挪到哪里，像高正好 40 毫米？"
             },
             "opens": ["s"],
             "start": { "Z": 300, "s": 450, "D": 1 },
             "goal": [
               {
                 "of": "height",
-                "label": { "zh": "像高", "en": "Image height" },
+                "label": { "zh": "像高" },
                 "near": 40,
                 "atMost": 0.5,
                 "format": "fixed1",
@@ -51,17 +48,16 @@
             ]
           },
           {
-            "title": { "zh": "只挪孔板", "en": "The plate only" },
+            "title": { "zh": "只挪孔板" },
             "note": {
-              "zh": "屏幕回到原处，这次只挪孔板，像高还是要 40 毫米。",
-              "en": "The screen back where it was; this time move only the plate, for a 40 mm image again."
+              "zh": "屏幕回到原处，这次只挪孔板，像高还是要 40 毫米。"
             },
             "opens": ["Z"],
             "start": { "Z": 300, "s": 450, "D": 1 },
             "goal": [
               {
                 "of": "height",
-                "label": { "zh": "像高", "en": "Image height" },
+                "label": { "zh": "像高" },
                 "near": 40,
                 "atMost": 0.5,
                 "format": "fixed1",
@@ -70,17 +66,16 @@
             ]
           },
           {
-            "title": { "zh": "不许变暗", "en": "No darker" },
+            "title": { "zh": "不许变暗" },
             "note": {
-              "zh": "两样都能挪：像高 40 毫米，而且屏上不比开始时暗。",
-              "en": "Both move now: a 40 mm image, and the screen no darker than at the start."
+              "zh": "两样都能挪：像高 40 毫米，而且屏上不比开始时暗。"
             },
             "opens": ["Z", "s"],
             "start": { "Z": 300, "s": 450, "D": 1 },
             "goal": [
               {
                 "of": "height",
-                "label": { "zh": "像高", "en": "Image height" },
+                "label": { "zh": "像高" },
                 "near": 40,
                 "atMost": 0.5,
                 "format": "fixed1",
@@ -88,7 +83,7 @@
               },
               {
                 "of": "light",
-                "label": { "zh": "亮度", "en": "Brightness" },
+                "label": { "zh": "亮度" },
                 "atLeast": 0.16,
                 "format": "fixed2"
               }

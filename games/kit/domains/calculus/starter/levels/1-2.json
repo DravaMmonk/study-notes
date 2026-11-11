@@ -1,19 +1,16 @@
 {
   "title": {
-    "zh": "相邻两项",
-    "en": "Neighbours"
+    "zh": "相邻两项"
   },
   "intro": [
     {
       "t": {
-        "zh": "板上的电路每一拍从头算一遍，算完什么也不留下。要留下一个值到下一拍，用一对新元件：<part-ref to=\"part:keep\"></part-ref>把值存进寄存卡，<part-ref to=\"part:reg\"></part-ref>下一拍读出它。",
-        "en": "The board computes afresh every tick and keeps nothing once done. To keep a value for the next tick there is a new pair of parts: <part-ref to=\"part:keep\"></part-ref> stores a value in a register, and <part-ref to=\"part:reg\"></part-ref> reads it out the next tick."
+        "zh": "板上的电路每一拍从头算一遍，算完什么也不留下。要留下一个值到下一拍，用一对新元件：<part-ref to=\"part:keep\"></part-ref>把值存进寄存卡，<part-ref to=\"part:reg\"></part-ref>下一拍读出它。"
       }
     }
   ],
   "after": {
-    "zh": "寄存卡让电路记得上一项。",
-    "en": "A register lets a circuit remember the term before."
+    "zh": "寄存卡让电路记得上一项。"
   },
   "adds": [
     "reg",
@@ -23,15 +20,13 @@
     {
       "id": "1-2",
       "brief": {
-        "zh": "每一拍交出输入这一项与上一项的和；第一拍的上一项算 0。",
-        "en": "Each tick give the input’s term plus the one before; before the first term, take 0."
+        "zh": "每一拍交出输入这一项与上一项的和；第一拍的上一项算 0。"
       },
       "inputs": [
         {
           "name": "a",
           "label": {
-            "zh": "a",
-            "en": "a"
+            "zh": "a"
           }
         }
       ],
@@ -39,8 +34,7 @@
         {
           "name": "s",
           "label": {
-            "zh": "相邻和",
-            "en": "Pair sum"
+            "zh": "相邻和"
           }
         }
       ],

@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "拆帧", "en": "Unwrap the frame" },
+  "title": { "zh": "拆帧" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-12\"></level-ref>送出的帧到了线的另一头。这一次在收的一方：认出旗标，把旗标之间的位拼回字节。",
-        "en": "Frames like those of <level-ref to=\"1-12\"></level-ref> reach the other end of the wire. Now the board is the receiver: spotting flags and putting the bits between them back into bytes."
+        "zh": "<level-ref to=\"1-12\"></level-ref>送出的帧到了线的另一头。这一次在收的一方：认出旗标，把旗标之间的位拼回字节。"
       }
     }
   ],
@@ -12,24 +11,21 @@
     {
       "id": "1-13",
       "brief": {
-        "zh": "认出线上旗标之间的每一帧，逐个给出内容字节：字节收全的那一拍输出它，「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1；其余各拍两个信号为 0。",
-        "en": "Find each frame between flags on the wire and give its content bytes one by one: output each on the tick it is complete, with got 1; end is 1 on the tick the closing flag is complete; otherwise both are 0."
+        "zh": "认出线上旗标之间的每一帧，逐个给出内容字节：字节收全的那一拍输出它，「收到」为 1；结尾旗标收完的那一拍「帧尾」为 1；其余各拍两个信号为 0。"
       },
       "hint": [
         {
-          "zh": "<part-ref to=\"deserializer\"></part-ref>要从旗标后面的第一位收起。",
-          "en": "<part-ref to=\"deserializer\"></part-ref> must start at the first bit after a flag."
+          "zh": "<part-ref to=\"deserializer\"></part-ref>要从旗标后面的第一位收起。"
         },
         {
-          "zh": "结尾旗标的 8 位收齐时，看起来也像收满了一个字节。",
-          "en": "When the 8 bits of the closing flag are in, they look like a full byte too."
+          "zh": "结尾旗标的 8 位收齐时，看起来也像收满了一个字节。"
         }
       ],
-      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
       "outputs": [
-        { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
-        { "name": "got", "label": { "zh": "收到", "en": "Got" } },
-        { "name": "end", "label": { "zh": "帧尾", "en": "End" } }
+        { "name": "byte", "label": { "zh": "字节" } },
+        { "name": "got", "label": { "zh": "收到" } },
+        { "name": "end", "label": { "zh": "帧尾" } }
       ],
       "tests": [
         {

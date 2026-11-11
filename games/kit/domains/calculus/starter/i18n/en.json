@@ -1,0 +1,22 @@
+{
+  "__title__": "__title__",
+  "开发中": "In development",
+  "第 n 拍算第 n 项。先逐项相加，再记住上一项。": "Tick n computes term n. Add term by term first, then remember the term before.",
+  "一拍一项": "A term a tick",
+  "板每拍算出数列的一项：怎样逐项运算，怎样用上前一项？": "The board computes a term a tick: how does it work term by term, and use the term before?",
+  "数列": "Sequences",
+  "项": "term",
+  "数列里的一个数：第 n 拍，板算出第 n 项。": "One number of a sequence: at tick n, the board computes term n.",
+  "两列相加": "Two into one",
+  "第 n 拍，每个输入数列给出它的第 n 项。": "At tick n, each input sequence gives its n-th term.",
+  "第一次往板上放元件": "The first part placed on a board",
+  "两个输入数列逐项相加。": "Add the two input sequences term by term.",
+  "a": "a",
+  "b": "b",
+  "和": "Sum",
+  "相邻两项": "Neighbours",
+  "板上的电路每一拍从头算一遍，算完什么也不留下。要留下一个值到下一拍，用一对新元件：<part-ref to=\"part:keep\"></part-ref>把值存进寄存卡，<part-ref to=\"part:reg\"></part-ref>下一拍读出它。": "The board computes afresh every tick and keeps nothing once done. To keep a value for the next tick there is a new pair of parts: <part-ref to=\"part:keep\"></part-ref> stores a value in a register, and <part-ref to=\"part:reg\"></part-ref> reads it out the next tick.",
+  "寄存卡让电路记得上一项。": "A register lets a circuit remember the term before.",
+  "每一拍交出输入这一项与上一项的和；第一拍的上一项算 0。": "Each tick give the input’s term plus the one before; before the first term, take 0.",
+  "相邻和": "Pair sum"
+}

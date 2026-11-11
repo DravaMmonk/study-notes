@@ -29,6 +29,12 @@ export function readPlaytests(id, dir = GAMES_DIR) {
   return existsSync(folder) ? readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => json(resolve(folder, f))) : []
 }
 
+/** A game's overlays, { lang: its i18n/<lang>.json } (./i18n.js). */
+export function overlays(id, dir = GAMES_DIR) {
+  const folder = resolve(dir, id, 'i18n')
+  return existsSync(folder) ? Object.fromEntries(readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => [f.slice(0, -'.json'.length), json(resolve(folder, f))])) : {}
+}
+
 /** games/<id>/ assembled into one content. */
 export function readContent(id, dir = GAMES_DIR) {
   const blueprint = resolve(dir, id, 'blueprint.json')
@@ -40,6 +46,7 @@ export function readContent(id, dir = GAMES_DIR) {
     glossary: json(resolve(dir, id, 'glossary.json')),
     partDefs: existsSync(parts) ? json(parts) : undefined,
     blueprint: existsSync(blueprint) ? json(blueprint) : undefined,
+    i18n: overlays(id, dir),
   })
 }
 

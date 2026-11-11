@@ -8,8 +8,8 @@ import { iconOf } from '../shell/parts/icons.js'
 
 /** A new part to fill in: one input, one output computed as that input, its name its type. */
 export const blankPart = (vocabulary) => ({
-  name: { zh: '新元件', en: 'New part' },
-  desc: { zh: '', en: '' },
+  name: { zh: '新元件' },
+  desc: { zh: '' },
   icon: 'Box',
   family: Object.keys(vocabulary?.kinds.family ?? {})[0] ?? 'value',
   inputs: [{ name: 'a' }],

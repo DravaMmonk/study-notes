@@ -1,14 +1,13 @@
 {
-  "title": { "zh": "连做三次", "en": "Three times over" },
-  "intro": [{ "t": { "zh": "同一个变换连做三次。", "en": "One map, done three times over." } }],
+  "title": { "zh": "连做三次" },
+  "intro": [{ "t": { "zh": "同一个变换连做三次。" } }],
   "after": {
-    "zh": "(AA)A 与 A(AA) 相等：矩阵乘法满足结合律，A³ 不必加括号。",
-    "en": "(AA)A equals A(AA): the matrix product is associative, so A³ needs no brackets."
+    "zh": "(AA)A 与 A(AA) 相等：矩阵乘法满足结合律，A³ 不必加括号。"
   },
   "tasks": [
     {
       "id": "2-6",
-      "brief": { "zh": "交出 A 连做三次的矩阵 A³。", "en": "Give A³, the matrix of A done three times." },
+      "brief": { "zh": "交出 A 连做三次的矩阵 A³。" },
       "inputs": [{ "name": "A", "label": "A" }],
       "outputs": [{ "name": "A3", "label": "A³" }],
       "tests": [

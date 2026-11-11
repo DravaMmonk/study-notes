@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "重复里套着不行就换", "en": "Or else, repeated" },
+  "title": { "zh": "重复里套着不行就换" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "这一回目标层层嵌套，「若…则…」和「并且」混在一起，次序各不相同。",
-        "en": "This time goals nest level within level, “if … then …” and “and” mixed, in a different order each time."
+        "zh": "这一回目标层层嵌套，「若…则…」和「并且」混在一起，次序各不相同。"
       }
     }
   ],
@@ -14,18 +13,17 @@
       "id": "s-mix",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "tests": [
         { "goal": "Rain → (Wind → Rain ∧ Wind)" },
         { "goal": "(Rain → Rain) ∧ (Wind → (Rain → Wind))" },
         { "goal": "Rain → (Wind → Wind ∧ (Rain ∧ Wind))" }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
       "hint": [
-        { "zh": "每一圈要应付哪几种目标？", "en": "What kinds of goal must each round handle?" },
+        { "zh": "每一圈要应付哪几种目标？" },
         {
-          "zh": "<part-ref to=\"part:append\"></part-ref>上可以选三个框。",
-          "en": "<part-ref to=\"part:append\"></part-ref> can be set to three regions."
+          "zh": "<part-ref to=\"part:append\"></part-ref>上可以选三个框。"
         }
       ],
       "solution": [

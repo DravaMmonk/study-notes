@@ -15,7 +15,7 @@
 //   tick or in order
 import { boardNode } from '../../engine/ticks.js'
 import { farEnd } from './wants.js'
-import { T } from '../../shell/i18n.js'
+import { T, sideOf } from '../../shell/i18n.js'
 
 const show = (v) => (v === null || v === undefined ? '—' : v === true ? T('是', 'yes') : v === false ? T('否', 'no') : v === 'end' ? T('帧尾', 'end') : String(v))
 const L2 = (v, lang) => (typeof v === 'object' ? v[lang] : v)
@@ -24,12 +24,12 @@ const list = (values, lang) => (values.length ? values.map((v) => L2(show(v), la
 /** Why `got` is not `want` at tick `tick` for `label`. */
 const wrong = (tick, label, want, got) => T(
   `第 ${tick} 拍，「${label.zh ?? label}」应当是 ${L2(show(want), 'zh')}，这块板给出 ${L2(show(got), 'zh')}。`,
-  `At tick ${tick}, “${label.en ?? label}” should be ${L2(show(want), 'en')}; the board gives ${L2(show(got), 'en')}.`,
+  `At tick ${tick}, “${sideOf(label, 'en')}” should be ${L2(show(want), 'en')}; the board gives ${L2(show(got), 'en')}.`,
 )
 /** Why the values given in order are not the ones wanted. */
 const misordered = (label, words, want, got) => T(
   `「${label.zh ?? label}」：${words.zh}应当是 ${list(want, 'zh')}，这块板给出 ${list(got, 'zh')}。`,
-  `“${label.en ?? label}”: ${words.en} should be ${list(want, 'en')}; the board gives ${list(got, 'en')}.`,
+  `“${sideOf(label, 'en')}”: ${words.en} should be ${list(want, 'en')}; the board gives ${list(got, 'en')}.`,
 )
 
 /** Everything a level checks: its wires out and outputs, with their labels. */

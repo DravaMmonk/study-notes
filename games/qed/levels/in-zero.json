@@ -1,21 +1,18 @@
 {
-  "title": { "zh": "0 加在右边", "en": "Zero on the right" },
+  "title": { "zh": "0 加在右边" },
   "fact": "addZero",
   "showcase": {
-    "zh": "归纳规则的结论是 ∀x. ?P(x)：倒着用，?P 从目标里读出来，两条前提就是两个目标；第二个目标的已知里，正是对 x 成立的那一句",
-    "en": "the induction rule concludes ∀x. ?P(x): used backwards, ?P is read off the goal, and its two premises are two goals; among the second goal’s givens is just the sentence for x"
+    "zh": "归纳规则的结论是 ∀x. ?P(x)：倒着用，?P 从目标里读出来，两条前提就是两个目标；第二个目标的已知里，正是对 x 成立的那一句"
   },
   "intro": [
     {
       "t": {
-        "zh": "加法的定义只拆左边的数。0 加在右边，具体的数好算；要对所有 x 成立，就要用声明给的最后一条规则：<wiki-ref to=\"induction\"></wiki-ref>。",
-        "en": "Addition’s definition takes apart only the number on the left. With 0 on the right, particular numbers are easy; for every x, it takes the declaration’s last rule: <wiki-ref to=\"induction\"></wiki-ref>."
+        "zh": "加法的定义只拆左边的数。0 加在右边，具体的数好算；要对所有 x 成立，就要用声明给的最后一条规则：<wiki-ref to=\"induction\"></wiki-ref>。"
       }
     }
   ],
   "after": {
-    "zh": "x + 0 = x 进了「数理规则书」：证出的等式既是规则，也是化简的改写规则。",
-    "en": "x + 0 = x goes into the “Rule book of numbers”: an equation proved is a rule, and a rewrite rule for Simp."
+    "zh": "x + 0 = x 进了「数理规则书」：证出的等式既是规则，也是化简的改写规则。"
   },
   "tasks": [
     {
@@ -23,18 +20,18 @@
       "kind": "machine",
       "tray": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
-      "step": { "zh": "算具体的数", "en": "The numbers" },
+      "step": { "zh": "算具体的数" },
       "types": ["nat"],
       "defs": ["plus"],
       "tests": [
         { "goal": "plus(s(s(zero)), zero) = s(s(zero))" },
         { "goal": "plus(s(s(s(zero))), zero) = s(s(s(zero)))" }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "化简就够了。", "en": "Simp is enough." }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "化简就够了。" }],
       "solution": [
         "c0r0 = math[use=[\"def.0\", \"def.1\"]]()",
         "c1r0 = refl()",
@@ -47,7 +44,7 @@
       "id": "in-zero_2",
       "kind": "proof",
       "tray": "proof",
-      "step": { "zh": "在证明板上", "en": "On the proof board" },
+      "step": { "zh": "在证明板上" },
       "adds": ["natInd"],
       "consts": ["zero"],
       "words": ["everyday", "terms"],
@@ -59,21 +56,18 @@
         }
       ],
       "brief": {
-        "zh": "从加法的两条定义证出：对所有 x，x + 0 = x。",
-        "en": "From the two definitions of addition, prove x + 0 = x for every x."
+        "zh": "从加法的两条定义证出：对所有 x，x + 0 = x。"
       },
       "hint": [
-        { "zh": "0 的情况只用第一条定义。", "en": "The case 0 needs only the first definition." },
+        { "zh": "0 的情况只用第一条定义。" },
         {
-          "zh": "从 a 到 S a：第二条定义算出 S a + 0 = S (a + 0)，框里还有一句假设。",
-          "en": "From a to S a: the second definition gives S a + 0 = S (a + 0), and the box holds an assumption."
+          "zh": "从 a 到 S a：第二条定义算出 S a + 0 = S (a + 0)，框里还有一句假设。"
         }
       ],
       "intro": [
         {
           "t": {
-            "zh": "新元件「数学归纳法」：在元件上选要证的「对所有 x」。它有两个框：第一个框证 0 的情况；第二个框里有一个数 a，假设句子对 a 成立，证它对 S a 也成立。",
-            "en": "A new part, “Induction”: choose on it the “for every x” to prove. It has two boxes: the first proves the case 0; in the second there is a number a, the sentence is assumed for a and proved for S a."
+            "zh": "新元件「数学归纳法」：在元件上选要证的「对所有 x」。它有两个框：第一个框证 0 的情况；第二个框里有一个数 a，假设句子对 a 成立，证它对 S a 也成立。"
           }
         }
       ],
@@ -96,28 +90,26 @@
       "kind": "machine",
       "tray": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
-      "step": { "zh": "对所有 x", "en": "For every x" },
+      "step": { "zh": "对所有 x" },
       "types": ["nat"],
       "defs": ["plus"],
       "tests": [{ "goal": "∀x. plus(x, zero) = x" }],
       "intro": [
         {
           "t": {
-            "zh": "化简改不动 x + 0：不知道 x 是 0 还是 S 什么。声明给的归纳规则和两个框的元件做的是同一件事：⟦?P(0); ⋀x. ?P(x) ⟹ ?P(S x)⟧ ⟹ ∀x. ?P(x)。",
-            "en": "Simp cannot change x + 0: x is not known to be 0 or S of something. The induction rule the declaration gives does what the two-box part does: ⟦?P(0); ⋀x. ?P(x) ⟹ ?P(S x)⟧ ⟹ ∀x. ?P(x)."
+            "zh": "化简改不动 x + 0：不知道 x 是 0 还是 S 什么。声明给的归纳规则和两个框的元件做的是同一件事：⟦?P(0); ⋀x. ?P(x) ⟹ ?P(S x)⟧ ⟹ ∀x. ?P(x)。"
           }
         }
       ],
-      "brief": { "zh": "证明对所有 x，x + 0 = x。", "en": "Prove x + 0 = x for every x." },
+      "brief": { "zh": "证明对所有 x，x + 0 = x。" },
       "hint": [
         {
-          "zh": "归纳规则的结论是 ∀x. ?P(x)，可以倒着用。",
-          "en": "The induction rule concludes ∀x. ?P(x), so it can be used backwards."
+          "zh": "归纳规则的结论是 ∀x. ?P(x)，可以倒着用。"
         },
-        { "zh": "第二个目标的已知里有一句等式。", "en": "The second goal has an equation among its givens." }
+        { "zh": "第二个目标的已知里有一句等式。" }
       ],
       "solution": [
         "c0r0 = math[use=[\"nat.induct\"]]()",

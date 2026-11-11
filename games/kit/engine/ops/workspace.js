@@ -3,7 +3,7 @@
 // course blueprint (blueprint.json, when the game has one or an operation writes one) as values an operation replaces
 // (never mutates), the text each file had, and the hub's level count for the game
 // (games/games.js). Nothing reaches the disk until write(); diff() previews it.
-import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { assemble, deepFreeze } from '../content.js'
 import { GAMES_DIR, levelFiles } from '../content-node.js'
@@ -43,6 +43,8 @@ export function openGame(id, root = GAMES_DIR) {
     blueprint: existsSync(resolve(dir, 'blueprint.json')) ? load('blueprint.json') : undefined,
     partDefs: existsSync(resolve(dir, 'parts.json')) ? load('parts.json') : undefined,
     levels: new Map(levelFiles(id, root).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([levelId]) => [levelId, load(`levels/${levelId}.json`)])),
+    // The overlays, { lang: i18n/<lang>.json } (../i18n.js): translation is written through the same door.
+    i18n: Object.fromEntries(langsOf(dir).map((lang) => [lang, load(`i18n/${lang}.json`)])),
     original,
     // A file that takes over another's content (a level renamed) is laid out like the text it came from.
     basis: new Map(),
@@ -50,25 +52,28 @@ export function openGame(id, root = GAMES_DIR) {
   }
   return Object.assign(ws, {
     /** The game as one content (../content.js), frozen: the operations put new values in, nothing writes into one. */
-    content: () => deepFreeze(assemble({ id, game: ws.game, glossary: ws.glossary, partDefs: ws.partDefs, levels: [...ws.levels], blueprint: ws.blueprint })),
+    content: () => deepFreeze(assemble({ id, game: ws.game, glossary: ws.glossary, partDefs: ws.partDefs, levels: [...ws.levels], blueprint: ws.blueprint, i18n: ws.i18n })),
     /** What the files hold now, by name; a removed level file is null. */
-    snapshot: () => ({ game: ws.game, glossary: ws.glossary, partDefs: ws.partDefs, blueprint: ws.blueprint, levels: new Map(ws.levels), basis: new Map(ws.basis) }),
-    restore: (s) => Object.assign(ws, { game: s.game, glossary: s.glossary, partDefs: s.partDefs, blueprint: s.blueprint, levels: new Map(s.levels), basis: new Map(s.basis) }),
+    snapshot: () => ({ game: ws.game, glossary: ws.glossary, partDefs: ws.partDefs, blueprint: ws.blueprint, i18n: ws.i18n, levels: new Map(ws.levels), basis: new Map(ws.basis) }),
+    restore: (s) => Object.assign(ws, { game: s.game, glossary: s.glossary, partDefs: s.partDefs, blueprint: s.blueprint, i18n: s.i18n, levels: new Map(s.levels), basis: new Map(s.basis) }),
     /** Every file whose text changes: [{ file, before, after }] (before null: a new file; after null: removed). */
     changes: () => changes(ws),
     /** The changes as a unified diff. */
     diff: () => ws.changes().map((c) => unified(c.file, c.before, c.after)).join('\n'),
     write: () => write(ws),
     /** Every file of the game as it is on disk now, by its path under the games folder (`<id>/levels/x.json`). */
-    onDisk: () => new Map(['game.json', 'glossary.json', 'parts.json', 'blueprint.json', ...levelFiles(id, root).map(([levelId]) => `levels/${levelId}.json`)].map((file) => [`${id}/${file}`, read(resolve(dir, file))]).filter(([file, text]) => text !== null || ws.original.has(file.slice(id.length + 1)))),
+    onDisk: () => new Map(['game.json', 'glossary.json', 'parts.json', 'blueprint.json', ...langsOf(dir).map((lang) => `i18n/${lang}.json`), ...levelFiles(id, root).map(([levelId]) => `levels/${levelId}.json`)].map((file) => [`${id}/${file}`, read(resolve(dir, file))]).filter(([file, text]) => text !== null || ws.original.has(file.slice(id.length + 1)))),
   })
 }
 
-const fileNames = (ws) => ['game.json', 'glossary.json', 'parts.json', 'blueprint.json', ...[...ws.levels.keys()].map((id) => `levels/${id}.json`)]
+/** The languages a game folder has overlays for (its i18n/<lang>.json files). */
+const langsOf = (dir) => (existsSync(resolve(dir, 'i18n')) ? readdirSync(resolve(dir, 'i18n')).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -'.json'.length)).sort() : [])
+
+const fileNames = (ws) => ['game.json', 'glossary.json', 'parts.json', 'blueprint.json', ...Object.keys(ws.i18n).map((lang) => `i18n/${lang}.json`), ...[...ws.levels.keys()].map((id) => `levels/${id}.json`)]
 
 function changes(ws) {
   const out = []
-  const now = new Map([['game.json', ws.game], ['glossary.json', ws.glossary], ...(ws.partDefs === undefined ? [] : [['parts.json', ws.partDefs]]), ...(ws.blueprint === undefined ? [] : [['blueprint.json', ws.blueprint]]), ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level])])
+  const now = new Map([['game.json', ws.game], ['glossary.json', ws.glossary], ...(ws.partDefs === undefined ? [] : [['parts.json', ws.partDefs]]), ...(ws.blueprint === undefined ? [] : [['blueprint.json', ws.blueprint]]), ...Object.entries(ws.i18n).map(([lang, memory]) => [`i18n/${lang}.json`, memory]), ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level])])
   for (const [file, value] of now) {
     const before = ws.original.get(file) ?? null
     const after = writeJson(value, before ?? ws.basis.get(file) ?? null)

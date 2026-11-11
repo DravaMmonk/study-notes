@@ -1,37 +1,34 @@
 {
-  "title": { "zh": "认出起点", "en": "Spot the start" },
-  "short": { "zh": "在汇合器上接出起点", "en": "Give the merger a start" },
+  "title": { "zh": "认出起点" },
+  "short": { "zh": "在汇合器上接出起点" },
   "intro": [
     {
       "t": {
-        "zh": "这一关，起点不再预先写好。电路板上是你在<level-ref to=\"confluence\"></level-ref>里接好的电路。机器人走到起点时，上面和左边都是「界外」，汇合器什么也收不到，只能输出「—」；后面的路口读到的，也全是「—」。",
-        "en": "In this level the start is no longer filled in. The board holds the circuit you wired in <level-ref to=\"confluence\"></level-ref>. When the robot reaches the start, up and left are both “out”, so the Merger receives nothing and can only output “—”, and every crossing after it reads nothing but “—”."
+        "zh": "这一关，起点不再预先写好。电路板上是你在<level-ref to=\"confluence\"></level-ref>里接好的电路。机器人走到起点时，上面和左边都是「界外」，汇合器什么也收不到，只能输出「—」；后面的路口读到的，也全是「—」。"
       },
       "fig": { "grid": { "R": 3, "C": 4, "cells": { "0,0": { "value": "—", "cls": "bad" } }, "robot": "0,0" } }
     },
     {
       "t": {
-        "zh": "视野下面有一栏<b>本格信息</b>。其中「是起点」只在机器人站在起点时是「是」，别的格子都是「否」。点它，电路板左边的<b>本格信息</b>元件上就多一个输出口，送出的是「是 / 否」信号：菱形圆点，虚线。",
-        "en": "Under the view there is a <b>This cell</b> panel. Its “is start” is “yes” only while the robot stands on the start, and “no” on every other cell. Click it, and the <b>This cell</b> part on the left of the circuit board gains an output sending a yes / no signal: a diamond dot and a dashed wire."
+        "zh": "视野下面有一栏<b>本格信息</b>。其中「是起点」只在机器人站在起点时是「是」，别的格子都是「否」。点它，电路板左边的<b>本格信息</b>元件上就多一个输出口，送出的是「是 / 否」信号：菱形圆点，虚线。"
       }
     },
     {
       "t": {
-        "zh": "两个新元件：<part-ref to=\"part:const\"></part-ref>一直输出同一个数；<part-ref to=\"part:pass\"></part-ref>只在条件口收到「是」时，才把数放过去，否则输出「—」。",
-        "en": "Two new components: a <part-ref to=\"part:const\"></part-ref> always outputs the same number; a <part-ref to=\"part:pass\"></part-ref> lets its number through only when its condition port receives “yes”, and otherwise outputs “—”."
+        "zh": "两个新元件：<part-ref to=\"part:const\"></part-ref>一直输出同一个数；<part-ref to=\"part:pass\"></part-ref>只在条件口收到「是」时，才把数放过去，否则输出「—」。"
       },
       "fig": {
         "circuit": {
-          "taps": [{ "id": "s", "label": { "zh": "是起点 · 是", "en": "is start · yes" }, "kind": "bool" }],
+          "taps": [{ "id": "s", "label": { "zh": "是起点 · 是" }, "kind": "bool" }],
           "parts": [
-            { "id": "k", "name": { "zh": "常数", "en": "Constant" }, "tag": "= 1" },
+            { "id": "k", "name": { "zh": "常数" }, "tag": "= 1" },
             {
               "id": "g",
-              "name": { "zh": "放行闸", "en": "Pass gate" },
-              "tag": { "zh": "是 → 放行", "en": "yes → pass" }
+              "name": { "zh": "放行闸" },
+              "tag": { "zh": "是 → 放行" }
             }
           ],
-          "outs": [{ "id": "o", "label": { "zh": "输出 · 1", "en": "output · 1" } }],
+          "outs": [{ "id": "o", "label": { "zh": "输出 · 1" } }],
           "wires": [{ "from": "s", "to": "g", "kind": "bool" }, { "from": "k", "to": "g" }, { "from": "g", "to": "o" }]
         }
       }
@@ -39,12 +36,10 @@
   ],
   "mission": {
     "goal": {
-      "zh": "只能往右或往下走，起点不再预先写好。让机器人在起点写 1，其余每个路口 = 上面 + 左边，在三座城市里都算对路线数。",
-      "en": "Only right or down, and the start is no longer filled in. Have the robot write 1 on the start and up + left on every other crossing, so it counts the routes correctly in all three cities."
+      "zh": "只能往右或往下走，起点不再预先写好。让机器人在起点写 1，其余每个路口 = 上面 + 左边，在三座城市里都算对路线数。"
     },
     "how": {
-      "zh": "在输入窗口里点「是起点」，本格信息元件上多出一个输出口。没通过时，机器人会停在出错的格子，视野和电路板上的数，是它在这一格看到和算出的值。",
-      "en": "Click “is start” in the inputs window: the This cell part gets an output for it. If a test fails, the robot stops on the cell where it went wrong, and the numbers in the view and on the board are what it saw and computed there."
+      "zh": "在输入窗口里点「是起点」，本格信息元件上多出一个输出口。没通过时，机器人会停在出错的格子，视野和电路板上的数，是它在这一格看到和算出的值。"
     }
   },
   "robot": "scout",
@@ -59,24 +54,20 @@
     ]
   },
   "debrief": {
-    "title": { "zh": "你拼出了第一台机器", "en": "Your first machine" },
+    "title": { "zh": "你拼出了第一台机器" },
     "body": [
       {
-        "zh": "放行闸像一道门：机器人走到起点，门开了，1 送进汇合器；走到别的格子，门关着，汇合器只加上面和左边。",
-        "en": "A Pass gate is like a door: on the start it opens and a 1 goes into the Merger; on any other cell it stays shut, and the Merger adds only up and left."
+        "zh": "放行闸像一道门：机器人走到起点，门开了，1 送进汇合器；走到别的格子，门关着，汇合器只加上面和左边。"
       },
       {
-        "zh": "它在 3×4、4×4、5×6 三座城市里都算对了。换成 100×100 的城市，同一块电路板也一样能算。",
-        "en": "It got all three cities right: 3×4, 4×4 and 5×6. Give it a 100×100 city and the same board works just as well."
+        "zh": "它在 3×4、4×4、5×6 三座城市里都算对了。换成 100×100 的城市，同一块电路板也一样能算。"
       },
       {
-        "zh": "每个格子的答案，都用前面格子的答案算出来，再记在表里。<strong>这种方法有一个正式的名字：动态规划</strong>。",
-        "en": "Every cell’s answer is computed from the answers of earlier cells and then recorded in the table. <strong>This method has a proper name: dynamic programming</strong>."
+        "zh": "每个格子的答案，都用前面格子的答案算出来，再记在表里。<strong>这种方法有一个正式的名字：动态规划</strong>。"
       }
     ],
     "note": {
-      "zh": "把规则拼成电路，机器就能填满任意大的表。这就是动态规划。",
-      "en": "Wire the rule into a circuit and the machine can fill a table of any size. That is dynamic programming."
+      "zh": "把规则拼成电路，机器就能填满任意大的表。这就是动态规划。"
     }
   },
   "tasks": [
@@ -86,13 +77,12 @@
       "guide": [
         {
           "until": { "reads": "start" },
-          "say": { "zh": "第 1 步：在本格信息里点「是起点」。", "en": "Step 1: click “is start” under This cell." }
+          "say": { "zh": "第 1 步：在本格信息里点「是起点」。" }
         },
         {
           "until": { "has": "pass" },
           "say": {
-            "zh": "第 2 步：把托盘里的<part-ref to=\"part:const\"></part-ref>和<part-ref to=\"part:pass\"></part-ref>拖到电路板上。",
-            "en": "Step 2: drag a <part-ref to=\"part:const\"></part-ref> and a <part-ref to=\"part:pass\"></part-ref> from the tray onto the board."
+            "zh": "第 2 步：把托盘里的<part-ref to=\"part:const\"></part-ref>和<part-ref to=\"part:pass\"></part-ref>拖到电路板上。"
           }
         }
       ],
@@ -100,26 +90,22 @@
         {
           "when": { "any": [{ "uses": "right" }, { "uses": "down" }, { "uses": "ur" }, { "uses": "dl" }, { "uses": "dr" }] },
           "say": {
-            "zh": "机器人从左上往右下走，到一个格子时，它右边和下面的格子还空着，不能读。",
-            "en": "The robot walks from the top left to the bottom right, so when it reaches a cell, the cells to its right and below are still empty and can’t be read."
+            "zh": "机器人从左上往右下走，到一个格子时，它右边和下面的格子还空着，不能读。"
           }
         },
         {
           "when": { "feeds": { "from": "const", "to": "msum" } },
           "say": {
-            "zh": "常数直接接进汇合器，每个路口都会多加 1。用放行闸，只在起点放行。",
-            "en": "With the Constant wired straight into the Merger, every crossing gets an extra 1. Use a Pass gate so it only goes through at the start."
+            "zh": "常数直接接进汇合器，每个路口都会多加 1。用放行闸，只在起点放行。"
           }
         }
       ],
       "hints": [
         {
-          "zh": "起点应该是几？要让这个数只出现在起点，别的路口照旧是上面 + 左边。",
-          "en": "What should the start hold? That number must appear only on the start, while every other crossing stays up + left."
+          "zh": "起点应该是几？要让这个数只出现在起点，别的路口照旧是上面 + 左边。"
         },
         {
-          "zh": "「是起点」接放行闸的「条件」口，常数 1 接「数」口，再把放行闸接进汇合器空着的那个圆点。",
-          "en": "Wire “is start” into a Pass gate’s “if” port and a Constant 1 into its “num” port, then wire the Pass gate into the Merger’s free dot."
+          "zh": "「是起点」接放行闸的「条件」口，常数 1 接「数」口，再把放行闸接进汇合器空着的那个圆点。"
         }
       ],
       "world": "grid",

@@ -1,35 +1,30 @@
 {
-  "title": { "zh": "上一项", "en": "The term before" },
+  "title": { "zh": "上一项" },
   "intro": [
     {
       "t": {
-        "zh": "板每一拍从头算起，算完什么也不留：上一拍的项，这一拍已经无从知道。",
-        "en": "The board starts from scratch every tick and keeps nothing afterwards: this tick, the term from the tick before is gone."
+        "zh": "板每一拍从头算起，算完什么也不留：上一拍的项，这一拍已经无从知道。"
       }
     },
     {
       "t": {
-        "zh": "要把一个数留到下一拍，需要一对新元件：<part-ref to=\"part:keep\"></part-ref>把接入的数存进寄存卡，<part-ref to=\"part:reg\"></part-ref>从下一拍起读出它；还没有存过的时候，读出的是它的初值。",
-        "en": "Keeping a number for the next tick takes a new pair of parts: <part-ref to=\"part:keep\"></part-ref> stores what reaches it in a register, and <part-ref to=\"part:reg\"></part-ref> reads it out from the next tick on; before anything is stored, it reads out its start value."
+        "zh": "要把一个数留到下一拍，需要一对新元件：<part-ref to=\"part:keep\"></part-ref>把接入的数存进寄存卡，<part-ref to=\"part:reg\"></part-ref>从下一拍起读出它；还没有存过的时候，读出的是它的初值。"
       }
     }
   ],
   "after": {
-    "zh": "aₙ₋₁ 也是一个数列：原数列整体晚一项，开头由初值补上。这叫<wiki-ref to=\"shift\"></wiki-ref>。",
-    "en": "aₙ₋₁ is a sequence too: the original one a term late, its first place filled by the start value. This is an <wiki-ref to=\"shift\"></wiki-ref>."
+    "zh": "aₙ₋₁ 也是一个数列：原数列整体晚一项，开头由初值补上。这叫<wiki-ref to=\"shift\"></wiki-ref>。"
   },
   "adds": ["reg", "keep"],
   "tasks": [
     {
       "id": "prev",
       "brief": {
-        "zh": "每一拍交出输入上一拍的项；第一拍交出 0。",
-        "en": "Each tick give the input’s term from the tick before; give 0 on the first tick."
+        "zh": "每一拍交出输入上一拍的项；第一拍交出 0。"
       },
       "hint": [
         {
-          "zh": "同名的两件寄存卡元件读写的是同一张寄存卡。",
-          "en": "Two register parts with the same name read and write the same register."
+          "zh": "同名的两件寄存卡元件读写的是同一张寄存卡。"
         }
       ],
       "inputs": [{ "name": "a", "label": "aₙ" }],

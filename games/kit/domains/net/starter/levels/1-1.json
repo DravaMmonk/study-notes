@@ -1,13 +1,11 @@
 {
   "title": {
-    "zh": "传话",
-    "en": "Pass it on"
+    "zh": "传话"
   },
   "intro": [
     {
       "t": {
-        "zh": "一根线每一拍送一位：0 或 1。",
-        "en": "A wire carries one bit a tick: 0 or 1."
+        "zh": "一根线每一拍送一位：0 或 1。"
       }
     }
   ],
@@ -15,16 +13,14 @@
     {
       "id": "1-1",
       "brief": {
-        "zh": "每一拍把左线上到达的位说到右线上。",
-        "en": "Every tick, say on the right-hand wire the bit arriving on the left-hand wire."
+        "zh": "每一拍把左线上到达的位说到右线上。"
       },
       "wires": {
         "in": [
           {
             "name": "left",
             "label": {
-              "zh": "左线",
-              "en": "Left wire"
+              "zh": "左线"
             }
           }
         ],
@@ -32,8 +28,7 @@
           {
             "name": "right",
             "label": {
-              "zh": "右线",
-              "en": "Right wire"
+              "zh": "右线"
             }
           }
         ]

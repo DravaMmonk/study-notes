@@ -1,12 +1,11 @@
 {
   "domain": "can",
   "vocabulary": 1,
-  "title": { "zh": "车在说话", "en": "The Car Talks" },
-  "kicker": { "zh": "开发中 · 车载总线与诊断", "en": "In development · In-vehicle bus and diagnostics" },
+  "title": { "zh": "车在说话" },
+  "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
   "lede": {
-    "zh": "车上的几十个控制器共用一根线说话。从\"每一拍线上有一位\"开始，亲手搭出听懂它们的探针，再一步步长成能读故障码、能刷写软件的诊断仪。",
-    "en": "The dozens of controllers in a car talk over one shared line. Starting from “one bit on the line each tick”, build a probe that understands them, and grow it step by step into a tester that reads fault codes and reflashes software."
+    "zh": "车上的几十个控制器共用一根线说话。从\"每一拍线上有一位\"开始，亲手搭出听懂它们的探针，再一步步长成能读故障码、能刷写软件的诊断仪。"
   },
   "primitives": ["reg", "keep", "compare", "arith", "select", "const"],
   "trays": { "main": ["reg", "keep", "compare", "arith", "const", "select", "counter", "shift"] },
@@ -14,8 +13,8 @@
   "eras": [
     {
       "id": 1,
-      "title": { "zh": "监听探针", "en": "The probe" },
-      "question": { "zh": "插上总线，上面在说什么？", "en": "Plugged into the bus: what is being said on it?" },
+      "title": { "zh": "监听探针" },
+      "question": { "zh": "插上总线，上面在说什么？" },
       "foundation": ["1-1", "1-2", "1-3", "1-4", "1-5", "1-6", "1-7", "1-8", "1-9"]
     }
   ]

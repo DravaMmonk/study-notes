@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "滑窗", "en": "Sliding window" },
+  "title": { "zh": "滑窗" },
   "tray": "recognition",
   "after": {
-    "zh": "把一个模板在图上逐位置滑过去打分，再过门槛：这就是滑窗检测。卷积网络做的是同一件事，只是模板是学出来的，而且一层层叠着用。",
-    "en": "Slide a template over the picture scoring every position, then apply a threshold: this is sliding-window detection. A convolutional network does the same thing, except that the templates are learnt and stacked layer on layer."
+    "zh": "把一个模板在图上逐位置滑过去打分，再过门槛：这就是滑窗检测。卷积网络做的是同一件事，只是模板是学出来的，而且一层层叠着用。"
   },
   "intro": [
     {
       "t": {
-        "zh": "最直接的检测办法：拿一个模板在图上一格一格挪过去，每到一处打个分，看像不像。",
-        "en": "The most direct way to detect: move a template over the picture cell by cell, scoring at each place how alike it looks."
+        "zh": "最直接的检测办法：拿一个模板在图上一格一格挪过去，每到一处打个分，看像不像。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：货架上的箱子贴着 X 或 O 的记号，只在 X 的正中间输出 1。",
-        "en": "Your task in this level: the boxes on the shelf carry X or O marks; output 1 only at the centre of each X."
+        "zh": "这一关你要做的：货架上的箱子贴着 X 或 O 的记号，只在 X 的正中间输出 1。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组", "en": "Set 1" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组" } }
     }
   ],
   "tasks": [
@@ -25,25 +22,23 @@
       "id": "10-7",
       "kind": "graph",
       "brief": {
-        "zh": "货架上的箱子贴着 3×3 的记号，有 X 也有 O。只在每个 X 的正中间输出 1。",
-        "en": "The boxes on the shelf carry 3×3 marks, some X and some O. Output 1 only at the very centre of each X."
+        "zh": "货架上的箱子贴着 3×3 的记号，有 X 也有 O。只在每个 X 的正中间输出 1。"
       },
       "hint": {
-        "zh": "一个 3×3 的核，X 的格子给正，别的格子给负：哪里最像 X，哪里就最大。",
-        "en": "A 3×3 kernel with positive weights on the X cells and negative elsewhere: wherever looks most like an X gives the most."
+        "zh": "一个 3×3 的核，X 的格子给正，别的格子给负：哪里最像 X，哪里就最大。"
       },
       "scene": "marks",
       "tests": [
         {
-          "label": { "zh": "两个 X 一个 O", "en": "Two X, one O" },
+          "label": { "zh": "两个 X 一个 O" },
           "marks": [{ "mark": "X", "at": [3, 3] }, { "mark": "X", "at": [11, 6] }, { "mark": "O", "at": [6, 12] }]
         },
         {
-          "label": { "zh": "一排", "en": "A row" },
+          "label": { "zh": "一排" },
           "marks": [{ "mark": "O", "at": [2, 8] }, { "mark": "X", "at": [7, 8] }, { "mark": "O", "at": [12, 8] }]
         },
         {
-          "label": { "zh": "散开", "en": "Spread out" },
+          "label": { "zh": "散开" },
           "marks": [
             { "mark": "X", "at": [2, 13] },
             { "mark": "X", "at": [13, 2] },
@@ -54,11 +49,11 @@
       ],
       "hidden": [
         {
-          "label": { "zh": "只有 O", "en": "Only O" },
+          "label": { "zh": "只有 O" },
           "marks": [{ "mark": "O", "at": [4, 4] }, { "mark": "O", "at": [11, 10] }]
         },
         {
-          "label": { "zh": "靠边", "en": "Near the edge" },
+          "label": { "zh": "靠边" },
           "marks": [{ "mark": "X", "at": [1, 1] }, { "mark": "O", "at": [14, 14] }, { "mark": "X", "at": [14, 7] }]
         }
       ],

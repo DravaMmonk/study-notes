@@ -1,18 +1,17 @@
 {
-  "title": { "zh": "巴比伦开方", "en": "The Babylonian root" },
+  "title": { "zh": "巴比伦开方" },
   "intro": [
     {
       "t": {
-        "zh": "√2 不是两个整数之比，加、乘、取倒数都给不出它本身。可以一步步猜：猜 x 大了，2/x 就小了，√2 夹在两者之间。",
-        "en": "√2 is no ratio of whole numbers, and no adding, multiplying or reciprocal gives it outright. It can be guessed step by step: if a guess x is too large, 2/x is too small, and √2 lies between them."
+        "zh": "√2 不是两个整数之比，加、乘、取倒数都给不出它本身。可以一步步猜：猜 x 大了，2/x 就小了，√2 夹在两者之间。"
       }
     }
   ],
   "tasks": [
     {
       "id": "babylon",
-      "brief": { "zh": "从 x₀ = 1 起，交出 xₙ₊₁ = (xₙ + 2/xₙ)/2。", "en": "From x₀ = 1, give xₙ₊₁ = (xₙ + 2/xₙ)/2." },
-      "hint": [{ "zh": "下一次的猜测存回同一张寄存卡。", "en": "The next guess goes back into the same register." }],
+      "brief": { "zh": "从 x₀ = 1 起，交出 xₙ₊₁ = (xₙ + 2/xₙ)/2。" },
+      "hint": [{ "zh": "下一次的猜测存回同一张寄存卡。" }],
       "outputs": [{ "name": "x", "label": "xₙ" }],
       "tests": [
         {

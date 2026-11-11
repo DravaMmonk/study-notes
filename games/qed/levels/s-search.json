@@ -1,18 +1,16 @@
 {
-  "title": { "zh": "回溯搜索", "en": "Search until done" },
+  "title": { "zh": "回溯搜索" },
   "adds": ["search"],
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "「或者」层层嵌套，每一层都要选一边，要走几步事先不知道。重复框只顺着第一种结果走，进了死胡同就停下。",
-        "en": "“Or” within “or”: each level needs a side chosen, and how many steps it takes is not known beforehand. The repeat frame follows only the first result, and stops in a dead end."
+        "zh": "「或者」层层嵌套，每一层都要选一边，要走几步事先不知道。重复框只顺着第一种结果走，进了死胡同就停下。"
       }
     },
     {
       "t": {
-        "zh": "新元件<part-ref to=\"part:search\"></part-ref>：框里的元件做一步，得到的每一种结果再接着做；一条路走到头（证完，或者做不下去），再退回来换下一条。这叫<wiki-ref to=\"dfs\"></wiki-ref>。它送出找到的每一个证完的状态。",
-        "en": "A new part, <part-ref to=\"part:search\"></part-ref>: the parts inside take a step, and each result is stepped on again; one path is followed to its end (done, or stuck) before going back for the next. This is <wiki-ref to=\"dfs\"></wiki-ref>. It gives every finished state it finds."
+        "zh": "新元件<part-ref to=\"part:search\"></part-ref>：框里的元件做一步，得到的每一种结果再接着做；一条路走到头（证完，或者做不下去），再退回来换下一条。这叫<wiki-ref to=\"dfs\"></wiki-ref>。它送出找到的每一个证完的状态。"
       }
     }
   ],
@@ -21,17 +19,17 @@
       "id": "s-search",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         { "goal": "Rain ∨ (Wind ∨ Wet)", "hyps": ["Wet"] },
         { "goal": "Rain ∨ (Wind ∨ Wet)", "hyps": ["Wind"] },
         { "goal": "(Rain ∨ Wind) ∨ Wet", "hyps": ["Wind"] }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
       "hint": [
-        { "zh": "每一步有哪几种做法？", "en": "What can each step do?" },
-        { "zh": "走几步，交给搜索。", "en": "How many steps is the search’s business." }
+        { "zh": "每一步有哪几种做法？" },
+        { "zh": "走几步，交给搜索。" }
       ],
       "solution": [
         "c0 = search(in, body: c1) {",

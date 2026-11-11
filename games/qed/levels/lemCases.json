@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "两边都讨论", "en": "Take both sides" },
+  "title": { "zh": "两边都讨论" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "下雨我喝咖啡，不下雨我也喝咖啡，所以我喝了咖啡。",
-        "en": "If it rains I drink coffee; if it does not, I drink coffee too. So I drank coffee."
+        "zh": "下雨我喝咖啡，不下雨我也喝咖啡，所以我喝了咖啡。"
       }
     }
   ],
@@ -16,8 +15,8 @@
       "tests": [{ "premises": { "p": "A → B", "q": "¬A → B" }, "goal": "B" }],
       "cases": [{ "A": "Rain", "B": "Coffee" }, { "A": "Bus", "B": "OnTime" }],
       "hint": [
-        { "zh": "下雨和不下雨，两种情况都讨论。", "en": "Rain and no rain: take both cases." },
-        { "zh": "分情况要一句「或者」，已知里没有。", "en": "Taking cases needs an “or”, and none is given." }
+        { "zh": "下雨和不下雨，两种情况都讨论。" },
+        { "zh": "分情况要一句「或者」，已知里没有。" }
       ],
       "solution": [
         "l = lem[A=A]()",

@@ -1,28 +1,23 @@
 {
   "title": {
-    "zh": "数路线",
-    "en": "Count the routes"
+    "zh": "数路线"
   },
   "short": {
-    "zh": "汇合两条来路，认出起点",
-    "en": "Merge two ways in, spot the start"
+    "zh": "汇合两条来路，认出起点"
   },
   "intro": [
     {
       "t": {
-        "zh": "街道只能往右或往下走。每个路口的路线数 = 上面 + 左边，起点是 1。",
-        "en": "Streets only go right or down. The routes to a crossing = up + left, and the start is 1."
+        "zh": "街道只能往右或往下走。每个路口的路线数 = 上面 + 左边，起点是 1。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "让机器人在起点写 1，其余每个路口 = 上面 + 左边。",
-      "en": "Have the robot write 1 on the start and up + left on every other crossing."
+      "zh": "让机器人在起点写 1，其余每个路口 = 上面 + 左边。"
     },
     "how": {
-      "zh": "汇合器收上面和左边；放行闸只在起点放一个 1 进去。",
-      "en": "A Merger takes up and left; a Pass gate lets a 1 in at the start only."
+      "zh": "汇合器收上面和左边；放行闸只在起点放一个 1 进去。"
     }
   },
   "robot": "scout",
@@ -54,13 +49,11 @@
   },
   "debrief": {
     "title": {
-      "zh": "板成了元件",
-      "en": "The board is a part"
+      "zh": "板成了元件"
     },
     "body": [
       {
-        "zh": "这块板从此是一个元件：路线计数器。",
-        "en": "From now on this board is a part: the Route Counter."
+        "zh": "这块板从此是一个元件：路线计数器。"
       }
     ]
   },
@@ -70,8 +63,7 @@
       "mode": "circuit",
       "hints": [
         {
-          "zh": "「是起点」接放行闸的条件口，常数 1 接数口，再把放行闸接进汇合器。",
-          "en": "Wire “is start” to the Pass gate’s condition and a Constant 1 to its number, then the gate into the Merger."
+          "zh": "「是起点」接放行闸的条件口，常数 1 接数口，再把放行闸接进汇合器。"
         }
       ],
       "world": "grid",

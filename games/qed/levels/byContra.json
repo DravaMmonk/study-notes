@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "反证", "en": "Proof by contradiction" },
+  "title": { "zh": "反证" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "「假设门没锁，就会推出矛盾，所以门锁着。」这是<b>反证法</b>。",
-        "en": "“Suppose the door is not locked; that leads to a contradiction; so it is locked.” This is <b>proof by contradiction</b>."
+        "zh": "「假设门没锁，就会推出矛盾，所以门锁着。」这是<b>反证法</b>。"
       }
     }
   ],
@@ -17,12 +16,10 @@
       "cases": [{ "A": "Locked", "B": "Moon" }, { "A": "Rain", "B": "Wet" }],
       "hint": [
         {
-          "zh": "要证的「门锁着」里没有 ¬。先想想怎样得到「¬¬门锁着」。",
-          "en": "The goal, “the door is locked”, has no ¬ in it. First think how to get “¬¬the door is locked”."
+          "zh": "要证的「门锁着」里没有 ¬。先想想怎样得到「¬¬门锁着」。"
         },
         {
-          "zh": "和<level-ref to=\"notI\"></level-ref>一样用框，只是这次假设「¬门锁着」。",
-          "en": "Use a box as in <level-ref to=\"notI\"></level-ref>, only this time assume “¬the door is locked”."
+          "zh": "和<level-ref to=\"notI\"></level-ref>一样用框，只是这次假设「¬门锁着」。"
         }
       ],
       "solution": [

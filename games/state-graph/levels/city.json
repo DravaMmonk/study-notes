@@ -1,18 +1,16 @@
 {
-  "title": { "zh": "棋盘城市", "en": "Grid city" },
-  "short": { "zh": "每个路口都在重复同一件事", "en": "Every crossing does the same thing" },
+  "title": { "zh": "棋盘城市" },
+  "short": { "zh": "每个路口都在重复同一件事" },
   "intro": [
     {
       "t": {
-        "zh": "城市的街道是棋盘格。所有街道都是单行道，<b>只能往右或往下走</b>。",
-        "en": "This city’s streets form a grid. Every street is one-way: <b>you can only go right or down</b>."
+        "zh": "城市的街道是棋盘格。所有街道都是单行道，<b>只能往右或往下走</b>。"
       },
       "fig": { "grid": { "R": 2, "C": 3, "cells": { "0,0": { "value": 1, "cls": "src" } } } }
     },
     {
       "t": {
-        "zh": "除了最上面一行和最左边一列，每个路口都有两根箭头指过来：<b>一根来自上面，一根来自左边</b>。",
-        "en": "Apart from the top row and the left column, every crossing has two arrows coming in: <b>one from above and one from the left</b>."
+        "zh": "除了最上面一行和最左边一列，每个路口都有两根箭头指过来：<b>一根来自上面，一根来自左边</b>。"
       },
       "fig": {
         "grid": {
@@ -25,37 +23,31 @@
     },
     {
       "t": {
-        "zh": "用<level-ref to=\"lastStep\"></level-ref>的方法，把每个路口的路线数填出来。左上角的起点已经填好了 1。",
-        "en": "Use the method from <level-ref to=\"lastStep\"></level-ref> to fill in the number of routes to every crossing. The start in the top-left corner already holds 1."
+        "zh": "用<level-ref to=\"lastStep\"></level-ref>的方法，把每个路口的路线数填出来。左上角的起点已经填好了 1。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "填出每个路口的路线数。街道只能往右或往下走，左上角的起点算 1 条，右下角就是路线总数。",
-      "en": "Fill in the number of routes to every crossing. Streets only go right or down; the start in the top-left corner counts as 1, and the bottom-right corner gives the total."
+      "zh": "填出每个路口的路线数。街道只能往右或往下走，左上角的起点算 1 条，右下角就是路线总数。"
     },
-    "how": { "zh": "点一个路口，用数字键盘填数。", "en": "Click a crossing and type its number on the keypad." }
+    "how": { "zh": "点一个路口，用数字键盘填数。" }
   },
   "debrief": {
-    "title": { "zh": "右下角是 10", "en": "The bottom right is 10" },
+    "title": { "zh": "右下角是 10" },
     "body": [
       {
-        "zh": "回头看看你做了什么：12 个路口，每个都在做同一件事，<b>上面的数 + 左边的数</b>。",
-        "en": "Look back at what you did: 12 crossings, and every one did the same thing: <b>the number above + the number to the left</b>."
+        "zh": "回头看看你做了什么：12 个路口，每个都在做同一件事，<b>上面的数 + 左边的数</b>。"
       },
       {
-        "zh": "填的顺序也有讲究：你一定是从左上往右下填的，因为<b>一个路口要等上面和左边都填好了才能算</b>。",
-        "en": "The order mattered too: you filled from the top left towards the bottom right, because <b>a crossing can only be worked out once the crossings above and to its left are filled</b>."
+        "zh": "填的顺序也有讲究：你一定是从左上往右下填的，因为<b>一个路口要等上面和左边都填好了才能算</b>。"
       },
       {
-        "zh": "把同一件事重复 12 次很无聊。城市有 100 个路口时，就更不可能手算了。",
-        "en": "Doing the same thing 12 times is boring, and with 100 crossings it would be hopeless by hand."
+        "zh": "把同一件事重复 12 次很无聊。城市有 100 个路口时，就更不可能手算了。"
       }
     ],
     "note": {
-      "zh": "棋盘城市里，每个路口 = 上面的路口 + 左边的路口。",
-      "en": "In a grid city, each crossing = the crossing above + the crossing to the left."
+      "zh": "棋盘城市里，每个路口 = 上面的路口 + 左边的路口。"
     }
   },
   "tasks": [

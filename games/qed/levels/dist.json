@@ -1,5 +1,5 @@
 {
-  "title": { "zh": "分配律", "en": "Distribute" },
+  "title": { "zh": "分配律" },
   "tray": "proof",
   "tasks": [
     {
@@ -9,12 +9,10 @@
       "cases": [{ "A": "Sat", "B": "Rain", "C": "Wind" }, { "A": "Exam", "B": "Coffee", "C": "Tea" }],
       "hint": [
         {
-          "zh": "先拆解，再对拆出来的「下雨 ∨ 刮风」分情况。",
-          "en": "Split the ∧ first, then take cases on the “it rains ∨ it is windy” it gives."
+          "zh": "先拆解，再对拆出来的「下雨 ∨ 刮风」分情况。"
         },
         {
-          "zh": "每种情况里，把「今天是周六」和这一情况的假设拼起来，再放进 ∨ 的对应一边。",
-          "en": "In each case, join “today is Saturday” with that case’s assumption, then put it on the matching side of the ∨."
+          "zh": "每种情况里，把「今天是周六」和这一情况的假设拼起来，再放进 ∨ 的对应一边。"
         }
       ],
       "solution": [

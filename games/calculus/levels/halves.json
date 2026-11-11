@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "一半再一半", "en": "Half and half again" },
+  "title": { "zh": "一半再一半" },
   "intro": [
     {
       "t": {
-        "zh": "1/2 + 1/4 + 1/8 + …：每加一项，离 1 就近一半。可它到底能不能加到 1？",
-        "en": "1/2 + 1/4 + 1/8 + …: each term halves the way left to 1. But does it ever reach 1?"
+        "zh": "1/2 + 1/4 + 1/8 + …：每加一项，离 1 就近一半。可它到底能不能加到 1？"
       }
     }
   ],
   "after": {
-    "zh": "差距每步减半，却从来不是 0：部分和逼近 1，没有哪一项等于 1。",
-    "en": "The gap halves every step and is never 0: the partial sums close in on 1 and none equals it."
+    "zh": "差距每步减半，却从来不是 0：部分和逼近 1，没有哪一项等于 1。"
   },
   "tasks": [
     {
       "id": "halves",
       "brief": {
-        "zh": "交出 1/2 + 1/4 + … 的部分和，和它与 1 的差距。",
-        "en": "Give the partial sums of 1/2 + 1/4 + … and their gap from 1."
+        "zh": "交出 1/2 + 1/4 + … 的部分和，和它与 1 的差距。"
       },
       "outputs": [{ "name": "S", "label": "Sₙ" }, { "name": "G", "label": "1 − Sₙ" }],
       "tests": [

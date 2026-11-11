@@ -262,7 +262,7 @@ export function logicCourse(content) {
   const byId = new Map(LEVELS.map((l) => [l.id, l]))
   const TASKS = LEVELS.flatMap((l) => l.tasks)
   // The rules each connective's declaration brings in, by the connective's name.
-  const declaredRules = new Map(LEVELS.filter((l) => l.declare && l.adds?.length).map((l) => [l.declare.en, l.adds]))
+  const declaredRules = new Map(LEVELS.filter((l) => l.declare && l.adds?.length).map((l) => [l.declare.zh, l.adds]))
   for (const [type, list] of Object.entries(revisions)) for (const r of list) if (!byId.has(r.at ?? r.by)) throw new Error(`the revision of ${type} names a level that does not exist: ${r.at ?? r.by}`)
   // A level's number: on an era's main path the era and its place, a parallel set row by row ('1-4', numbered), in a topic its
   // code and place ('D2'), C1 …
@@ -304,7 +304,7 @@ export function logicCourse(content) {
     },
     // A declaration's answer is the rules it declares: writing them puts them to work, and so does a level working on
     // a declared connective (checking a declaration, too strong or too weak), named by `declare` as where it is declared.
-    declares: (l) => (byId.get(l.id).declare ? declaredRules.get(byId.get(l.id).declare.en) ?? [] : []),
+    declares: (l) => (byId.get(l.id).declare ? declaredRules.get(byId.get(l.id).declare.zh) ?? [] : []),
     boards: answersOf,
     showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,

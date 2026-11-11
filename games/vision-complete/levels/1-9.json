@@ -1,34 +1,30 @@
 {
-  "title": { "zh": "猜核", "en": "Guess the kernel" },
+  "title": { "zh": "猜核" },
   "tray": "pipeline",
   "after": {
-    "zh": "亮点的输出就是核本身（冲激响应）。但它是“卷积”的结果，而你的元件做的是“互相关”：要把核旋转 180° 才对得上。",
-    "en": "The output for a bright dot is the kernel itself (the impulse response). But that is the result of a \"convolution\", while your part does \"cross-correlation\": you have to rotate the kernel by 180° to make them match."
+    "zh": "亮点的输出就是核本身（冲激响应）。但它是“卷积”的结果，而你的元件做的是“互相关”：要把核旋转 180° 才对得上。"
   },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-8\"></level-ref>得到的<part-ref to=\"kernel3\"></part-ref>：九个权重由你来填。默认只有正中间是 1，输出和输入一模一样。",
-        "en": "The <part-ref to=\"kernel3\"></part-ref> you earned in <level-ref to=\"1-8\"></level-ref>: you fill in the nine weights. By default only the centre is 1, so the output is identical to the input."
+        "zh": "<level-ref to=\"1-8\"></level-ref>得到的<part-ref to=\"kernel3\"></part-ref>：九个权重由你来填。默认只有正中间是 1，输出和输入一模一样。"
       },
       "fig": {
         "part": "kernel3",
-        "caption": { "zh": "默认的核：原样输出", "en": "The default kernel: output unchanged" },
+        "caption": { "zh": "默认的核：原样输出" },
         "input": { "glyph": { "letter": "F" } }
       }
     },
     {
       "t": {
-        "zh": "修图软件的滤镜、相机里的锐化，背后常常就是一个核。这一关反过来：别人用一个核处理了几张图，你只看得到输入和输出，要把那个核找出来。",
-        "en": "Behind photo-editor filters and in-camera sharpening there is often just a kernel. This level turns that around: someone has processed a few images with a kernel, and from only the inputs and outputs you must find that kernel."
+        "zh": "修图软件的滤镜、相机里的锐化，背后常常就是一个核。这一关反过来：别人用一个核处理了几张图，你只看得到输入和输出，要把那个核找出来。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：把你的核拧成和它一样，让三组测试全部通过。",
-        "en": "Your task in this level: dial your kernel in until it matches, so that all three tests pass."
+        "zh": "这一关你要做的：把你的核拧成和它一样，让三组测试全部通过。"
       },
-      "fig": { "test": 2, "caption": { "zh": "第三组测试：字母 F", "en": "Set 3: letter F" } }
+      "fig": { "test": 2, "caption": { "zh": "第三组测试：字母 F" } }
     }
   ],
   "tasks": [
@@ -36,26 +32,24 @@
       "id": "1-9",
       "kind": "graph",
       "brief": {
-        "zh": "有人用一个 3×3 核处理了这些图。把你的核拧成和它一样。",
-        "en": "Someone processed these images with a 3×3 kernel. Dial your kernel in until it matches."
+        "zh": "有人用一个 3×3 核处理了这些图。把你的核拧成和它一样。"
       },
       "hint": {
-        "zh": "亮点会变成核的样子。可你的元件是怎样读核的？把你填的核喂一个亮点，看看出来的是什么。",
-        "en": "A bright dot turns into the shape of the kernel. But how does your part read its kernel? Feed a bright dot to the kernel you entered and see what comes out."
+        "zh": "亮点会变成核的样子。可你的元件是怎样读核的？把你填的核喂一个亮点，看看出来的是什么。"
       },
       "scene": "filter",
       "setup": { "target": { "convolve": { "kernel": [0, 0, 0.5, 0, 0, 0, 0.25, 0, 0.25] } } },
       "tests": [
-        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } },
-        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-        { "label": { "zh": "字母 F", "en": "Letter F" }, "in": { "glyph": { "letter": "F" } } }
+        { "label": { "zh": "亮点" }, "in": { "impulse": { "x": 7, "y": 7 } } },
+        { "label": { "zh": "方块" }, "in": "square" },
+        { "label": { "zh": "字母 F" }, "in": { "glyph": { "letter": "F" } } }
       ],
       "hidden": [
         {
-          "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
+          "label": { "zh": "挪开的字母 L" },
           "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 2 } }
         },
-        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 23 } } }
+        { "label": { "zh": "随机纹理" }, "in": { "noise": { "seed": 23 } } }
       ],
       "solution": ["k = kernel3[w=[0.25, 0, 0.25, 0, 0, 0, 0.5, 0, 0]](in)", "out <- k"],
       "naive": ["k = kernel3[w=[0, 0, 0.5, 0, 0, 0, 0.25, 0, 0.25]](in)", "out <- k"]

@@ -1,25 +1,23 @@
 {
-  "title": { "zh": "∃ 换成函数", "en": "∃ becomes a function" },
+  "title": { "zh": "∃ 换成函数" },
   "adds": ["skolem"],
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "子句里只有「对所有」，没有「存在」。已知里的 ∃ 外面没有 ∀ 时，可以像<part-ref to=\"part:exE\"></part-ref>那样取出那一样东西；在 ∀ 底下就不行：「每个人都有父母」，父母随人而变。新元件「Skolem 化」把这样的 ∃ 换成一个<wiki-ref to=\"skolem\"></wiki-ref>，比如 sk1(x)：x 的父母。它只认否定范式里的 ∃。",
-        "en": "Clauses have only “for all”, no “there is”. An ∃ in a hypothesis with no ∀ outside it can be taken out as <part-ref to=\"part:exE\"></part-ref> does; one under a ∀ cannot: “everyone has a parent”, and the parent depends on the person. The new card “Skolemise” replaces such an ∃ with a <wiki-ref to=\"skolem\"></wiki-ref>, say sk1(x), the parent of x. It takes only an ∃ in negation normal form."
+        "zh": "子句里只有「对所有」，没有「存在」。已知里的 ∃ 外面没有 ∀ 时，可以像<part-ref to=\"part:exE\"></part-ref>那样取出那一样东西；在 ∀ 底下就不行：「每个人都有父母」，父母随人而变。新元件「Skolem 化」把这样的 ∃ 换成一个<wiki-ref to=\"skolem\"></wiki-ref>，比如 sk1(x)：x 的父母。它只认否定范式里的 ∃。"
       }
     }
   ],
   "after": {
-    "zh": "Skolem 化前后的已知并不等价，只是同时可满足、同时不可满足，称为<b>等可满足</b>。",
-    "en": "Skolemising does not keep the hypotheses equivalent, only satisfiable together or not at all: they are <b>equisatisfiable</b>."
+    "zh": "Skolem 化前后的已知并不等价，只是同时可满足、同时不可满足，称为<b>等可满足</b>。"
   },
   "tasks": [
     {
       "id": "au-skolem",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         {
@@ -31,12 +29,11 @@
         { "goal": "⊥", "hyps": ["Human(h)", "¬∀x. ∃y. Likes(y, x)"], "becomes": [["⋀a. Human(h); ∀y. ¬Likes(y, a) ⊢ ⊥"]] }
       ],
       "brief": {
-        "zh": "设计一个证明助手，把每个目标的已知化成合取范式，再去掉 ∃。",
-        "en": "Design a proof assistant that brings each goal’s hypotheses to conjunctive normal form, then takes the ∃s out."
+        "zh": "设计一个证明助手，把每个目标的已知化成合取范式，再去掉 ∃。"
       },
       "hint": [
-        { "zh": "¬∀ 先要化成 ∃¬，∃ 才露出来。", "en": "¬∀ must become ∃¬ first, before the ∃ shows." },
-        { "zh": "第二个目标里，∃y 在 ∀x 底下：y 跟着 x 变。", "en": "In the second goal ∃y is under ∀x: y depends on x." }
+        { "zh": "¬∀ 先要化成 ∃¬，∃ 才露出来。" },
+        { "zh": "第二个目标里，∃y 在 ∀x 底下：y 跟着 x 变。" }
       ],
       "solution": [
         "c0r0 = iff[use=[\"iff.elim\"]]()",

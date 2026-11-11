@@ -1,40 +1,34 @@
 {
-  "title": { "zh": "三点平均", "en": "Three-point average" },
+  "title": { "zh": "三点平均" },
   "after": {
-    "zh": "输出不再只看自己，而是看邻居的加权和。这就是滤波。",
-    "en": "The output no longer looks only at its own pixel, but at a weighted sum of its neighbours. This is filtering."
+    "zh": "输出不再只看自己，而是看邻居的加权和。这就是滤波。"
   },
   "intro": [
     {
       "t": {
-        "zh": "到目前为止，输出的每一格只看输入里同一位置的那一格。这一章换个思路：算一格时，也看看它周围的邻居。",
-        "en": "So far, each output cell has looked only at the cell in the same position in the input. This chapter changes that: when computing a cell, also look at the neighbours around it."
+        "zh": "到目前为止，输出的每一格只看输入里同一位置的那一格。这一章换个思路：算一格时，也看看它周围的邻居。"
       }
     },
     {
       "t": {
-        "zh": "最简单的例子是取平均。把一格换成它和邻居的平均，孤零零的亮点会被摊开，忽亮忽暗的毛刺会被抹平。手机夜景模式压噪点，用的就是同类的办法。",
-        "en": "The simplest example is averaging. Replace a cell with the average of itself and its neighbours, and a lone bright dot gets spread out while flickering specks get smoothed away. A phone's night mode uses the same kind of trick to suppress noise."
+        "zh": "最简单的例子是取平均。把一格换成它和邻居的平均，孤零零的亮点会被摊开，忽亮忽暗的毛刺会被抹平。手机夜景模式压噪点，用的就是同类的办法。"
       }
     },
     {
       "t": {
-        "zh": "从这一章起，相加、相减、相乘合成一个元件<part-ref to=\"part:arith\"></part-ref>：在元件上选 +、−、× 或 ÷。÷ 是新的：a ÷ b 把 a 的每一格除以 b 的同一格。还有一个新元件<part-ref to=\"part:merge\"></part-ref>：它有三个输入口，把接进来的图逐格加起来，空着的口不算。",
-        "en": "From this chapter on, add, subtract and multiply are one part, <part-ref to=\"part:arith\"></part-ref>: choose +, −, × or ÷ on the part. ÷ is new: a ÷ b divides each cell of a by the same cell of b. There is also a new part, the <part-ref to=\"part:merge\"></part-ref>: it has three inputs and adds the pictures wired into them cell by cell; an empty input is skipped."
+        "zh": "从这一章起，相加、相减、相乘合成一个元件<part-ref to=\"part:arith\"></part-ref>：在元件上选 +、−、× 或 ÷。÷ 是新的：a ÷ b 把 a 的每一格除以 b 的同一格。还有一个新元件<part-ref to=\"part:merge\"></part-ref>：它有三个输入口，把接进来的图逐格加起来，空着的口不算。"
       }
     },
     {
       "t": {
-        "zh": "新画法「剖面」：把图上一行的亮度画成一条曲线，在图上拖动就换一行。元件和测试区的画法按钮里都能切到它。",
-        "en": "A new way of drawing, \"Profile\": the brightness along one row of the picture as a curve; drag on the picture to change row. Switch to it with the drawing buttons on a part or in the test area."
+        "zh": "新画法「剖面」：把图上一行的亮度画成一条曲线，在图上拖动就换一行。元件和测试区的画法按钮里都能切到它。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：每一格换成它自己和左右两个邻居的平均。看看下面的期望：方块左右两条边多出一圈灰，上下两条边却没变。",
-        "en": "Your task in this level: replace each cell with the average of itself and its left and right neighbours. Look at the expected output below: the square's left and right edges gain a band of grey, but its top and bottom edges do not change."
+        "zh": "这一关你要做的：每一格换成它自己和左右两个邻居的平均。看看下面的期望：方块左右两条边多出一圈灰，上下两条边却没变。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组测试：方块", "en": "Set 1: square" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：方块" } }
     }
   ],
   "adds": ["arith", "merge"],
@@ -45,30 +39,28 @@
       "id": "1-1",
       "kind": "graph",
       "brief": {
-        "zh": "每个像素换成它和左右两个邻居的平均。",
-        "en": "Replace each pixel with the average of itself and its left and right neighbours."
+        "zh": "每个像素换成它和左右两个邻居的平均。"
       },
       "hint": {
-        "zh": "你需要「往左挪一格」的图、「往右挪一格」的图和原图。",
-        "en": "You need the image shifted one pixel left, the image shifted one pixel right, and the original."
+        "zh": "你需要「往左挪一格」的图、「往右挪一格」的图和原图。"
       },
       "scene": "filter",
       "setup": {
         "target": { "correlate": { "kernel": [0, 0, 0, 0.3333333333333333, 0.3333333333333333, 0.3333333333333333, 0, 0, 0] } }
       },
       "tests": [
-        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
-        { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
-        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" },
-        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } }
+        { "label": { "zh": "方块" }, "in": "square" },
+        { "label": { "zh": "圆盘" }, "in": "disk" },
+        { "label": { "zh": "字母 T" }, "in": { "glyph": { "letter": "T" } } },
+        { "label": { "zh": "棋盘" }, "in": "checker" },
+        { "label": { "zh": "亮点" }, "in": { "impulse": { "x": 7, "y": 7 } } }
       ],
       "hidden": [
         {
-          "label": { "zh": "挪开的字母 F", "en": "Shifted letter F" },
+          "label": { "zh": "挪开的字母 F" },
           "in": { "glyph": { "letter": "F", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 2 } }
         },
-        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 11 } } }
+        { "label": { "zh": "随机纹理" }, "in": { "noise": { "seed": 11 } } }
       ],
       "solution": [
         "kN = const[c=0.33]()",

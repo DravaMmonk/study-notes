@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "obtain 拆开 ∃", "en": "obtain takes ∃ apart" },
+  "title": { "zh": "obtain 拆开 ∃" },
   "intro": [
     {
       "t": {
-        "zh": "有了一句「存在」，obtain 把那一样东西拿出来，起个名字，后面的句子都能用它。",
-        "en": "Given a “there is”, obtain takes that thing out and names it, and the rows after it can use it."
+        "zh": "有了一句「存在」，obtain 把那一样东西拿出来，起个名字，后面的句子都能用它。"
       }
     }
   ],
@@ -12,7 +11,7 @@
     {
       "id": "sc-obtain",
       "kind": "script",
-      "brief": { "zh": "写一段脚本，证出要证的那句。", "en": "Write a script that proves the sentence." },
+      "brief": { "zh": "写一段脚本，证出要证的那句。" },
       "premises": { "p": "∀x. Bird(x) → Flies(x)" },
       "goal": "¬∃x. Bird(x) ∧ ¬Flies(x)",
       "things": ["b"],
@@ -30,7 +29,7 @@
         { "k": "have", "stmt": "Flies(b)", "using": ["p", "a1"], "by": "auto" },
         { "k": "show", "stmt": "⊥", "using": ["a1", "h1"], "by": "auto" }
       ],
-      "hint": [{ "zh": "假设真有这样一只鸟。", "en": "Suppose there is such a bird." }]
+      "hint": [{ "zh": "假设真有这样一只鸟。" }]
     }
   ]
 }

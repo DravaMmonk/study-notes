@@ -1,43 +1,36 @@
 {
   "title": {
-    "zh": "没有 that",
-    "en": "No that"
+    "zh": "没有 that"
   },
   "intro": [
     {
       "t": {
-        "zh": "关系词有时被省掉：名词后面直接跟着另一个主语和动词。这叫<wiki-ref to=\"zero-relative\"></wiki-ref>。",
-        "en": "The relative word is sometimes left out: the noun is followed straight away by another subject and verb. This is a <wiki-ref to=\"zero-relative\"></wiki-ref>."
+        "zh": "关系词有时被省掉：名词后面直接跟着另一个主语和动词。这叫<wiki-ref to=\"zero-relative\"></wiki-ref>。"
       }
     }
   ],
   "debrief": {
     "title": {
-      "zh": "The features we extract are invariant to rotation.",
-      "en": "The features we extract are invariant to rotation."
+      "zh": "The features we extract are invariant to rotation."
     },
     "body": [
       {
-        "zh": "<i>The features (that) we extract</i>：省掉了 <i>that</i>。主干 <i>The features are invariant</i>，<i>to rotation</i> 挂在 <i>invariant</i> 上。我们提取的特征对旋转不变。",
-        "en": "<i>The features (that) we extract</i>: the <i>that</i> is left out. The skeleton is <i>The features are invariant</i>, with <i>to rotation</i> on <i>invariant</i>. The features we extract do not change under rotation."
+        "zh": "<i>The features (that) we extract</i>：省掉了 <i>that</i>。主干 <i>The features are invariant</i>，<i>to rotation</i> 挂在 <i>invariant</i> 上。我们提取的特征对旋转不变。"
       }
     ],
     "note": {
-      "zh": "名词后面直接跟着“主语 + 动词”，多半是省了关系词的定语从句。",
-      "en": "A noun followed straight away by a subject and verb is mostly a relative clause without its relative word."
+      "zh": "名词后面直接跟着“主语 + 动词”，多半是省了关系词的定语从句。"
     }
   },
   "tasks": [
     {
       "id": "3-3",
       "brief": {
-        "zh": "标出主干，把修饰成分折起来。",
-        "en": "Mark the skeleton, folding the modifiers away."
+        "zh": "标出主干，把修饰成分折起来。"
       },
       "hint": [
         {
-          "zh": "<i>features</i> 后面紧跟着 <i>we extract</i>：中间省掉了什么？",
-          "en": "<i>features</i> is followed straight away by <i>we extract</i>: what has been left out?"
+          "zh": "<i>features</i> 后面紧跟着 <i>we extract</i>：中间省掉了什么？"
         }
       ],
       "sentence": "The features we extract are invariant to rotation.",
@@ -61,14 +54,12 @@
       "misrole": {
         "subj": {
           "we": {
-            "zh": "<i>we</i> 是被省掉 <i>that</i> 的从句的主语。谓语 <i>are</i> 说的是特征。",
-            "en": "<i>we</i> is the subject of the clause whose <i>that</i> is left out. The verb <i>are</i> is about the features."
+            "zh": "<i>we</i> 是被省掉 <i>that</i> 的从句的主语。谓语 <i>are</i> 说的是特征。"
           }
         },
         "verb": {
           "extract": {
-            "zh": "<i>extract</i> 是从句的动词：<i>(that) we extract</i> 说明是哪些特征。",
-            "en": "<i>extract</i> is the clause’s verb: <i>(that) we extract</i> says which features."
+            "zh": "<i>extract</i> 是从句的动词：<i>(that) we extract</i> 说明是哪些特征。"
           }
         }
       }

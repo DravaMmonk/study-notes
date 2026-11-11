@@ -1,26 +1,24 @@
 {
-  "title": { "zh": "邻域", "en": "Neighbourhood" },
+  "title": { "zh": "邻域" },
   "intro": [
     {
       "t": {
-        "zh": "「很近」没有尺度：离 L 差 0.1 算不算近，看事先怎么说。数学上先给一个正数 ε，离 L 不到 ε 才算近。",
-        "en": "“Very close” has no scale: whether 0.1 from L counts as close depends on what was agreed. Mathematics first names a positive number ε; less than ε from L counts as close."
+        "zh": "「很近」没有尺度：离 L 差 0.1 算不算近，看事先怎么说。数学上先给一个正数 ε，离 L 不到 ε 才算近。"
       }
     }
   ],
   "after": {
-    "zh": "离 L 不到 ε 的数，叫 L 的 ε <wiki-ref to=\"neighbourhood\"></wiki-ref>。",
-    "en": "The numbers less than ε from L are L’s ε-<wiki-ref to=\"neighbourhood\"></wiki-ref>."
+    "zh": "离 L 不到 ε 的数，叫 L 的 ε <wiki-ref to=\"neighbourhood\"></wiki-ref>。"
   },
   "builds": {
     "type": "near",
-    "name": { "zh": "邻域", "en": "Near" },
-    "desc": { "zh": "aₙ 离 L 不到 ε 时为 1，否则为 0。", "en": "1 when aₙ is less than ε from L, else 0." }
+    "name": { "zh": "邻域" },
+    "desc": { "zh": "aₙ 离 L 不到 ε 时为 1，否则为 0。" }
   },
   "tasks": [
     {
       "id": "near",
-      "brief": { "zh": "aₙ 离 L 不到 ε 时交出 1，否则交出 0。", "en": "Give 1 when aₙ is less than ε from L, else 0." },
+      "brief": { "zh": "aₙ 离 L 不到 ε 时交出 1，否则交出 0。" },
       "inputs": [{ "name": "a", "label": "aₙ" }, { "name": "L", "label": "L" }, { "name": "e", "label": "ε" }],
       "outputs": [{ "name": "f", "label": "|aₙ − L| < ε" }],
       "tests": [

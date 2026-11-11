@@ -1,12 +1,11 @@
 {
-  "title": { "zh": "同一个 ?A 出现两次", "en": "The same ?A twice" },
+  "title": { "zh": "同一个 ?A 出现两次" },
   "adds": ["uEliminate", "uDecompose", "uDelete", "uConflict"],
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"lemma:merge\"></part-ref>的前提是 ?A → (?A → ?B)：?A 出现两次，两处必须是同一句。拆开后有两个关于 ?A 的等式。新元件「消元」：找到 ?A ≐ t，把其余等式里的 ?A 都换成 t。",
-        "en": "<part-ref to=\"lemma:merge\"></part-ref>’s premise is ?A → (?A → ?B): ?A occurs twice, and both places must be the same sentence. Split, it gives two equations about ?A. A new part, “Eliminate”, finds ?A ≐ t and puts t for ?A in the other equations."
+        "zh": "<part-ref to=\"lemma:merge\"></part-ref>的前提是 ?A → (?A → ?B)：?A 出现两次，两处必须是同一句。拆开后有两个关于 ?A 的等式。新元件「消元」：找到 ?A ≐ t，把其余等式里的 ?A 都换成 t。"
       }
     }
   ],
@@ -15,7 +14,7 @@
       "id": "r-twice",
       "kind": "machine",
       "want": "unify",
-      "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "等式" } }],
       "tests": [
         { "eqs": ["?A → ?A ≐ Rain → Rain"] },
         { "eqs": ["?A ∧ ?A ≐ Rain ∧ Wind"] },
@@ -23,13 +22,11 @@
         { "eqs": ["(?A → ?B) → (?A → ?B) ≐ (Rain → Wet) → (Rain → Slip)"] }
       ],
       "brief": {
-        "zh": "设计一个证明助手：把每组等式解到底；对不上的，说「失败」。",
-        "en": "Design a proof assistant that solves each set of equations to the end, or says “failed” when they do not fit."
+        "zh": "设计一个证明助手：把每组等式解到底；对不上的，说「失败」。"
       },
       "hint": [
         {
-          "zh": "?A 确定以后，把别处的 ?A 也换掉，再看剩下的是否对得上。",
-          "en": "Once ?A is known, replace it everywhere else, and see whether the rest fits."
+          "zh": "?A 确定以后，把别处的 ?A 也换掉，再看剩下的是否对得上。"
         }
       ],
       "solution": [

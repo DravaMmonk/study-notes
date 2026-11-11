@@ -1,18 +1,16 @@
 {
-  "title": { "zh": "归结", "en": "Resolution" },
+  "title": { "zh": "归结" },
   "tray": "proof",
   "builds": "res",
   "intro": [
     {
       "t": {
-        "zh": "子句之间只用一条规则。一条子句里有「下雨」，另一条里有「¬下雨」：下不下雨，总有一条去掉这一项后剩下的部分成立。",
-        "en": "Between clauses one rule is enough. One clause has “it rains”, the other “¬it rains”: rain or not, one of them still holds with that literal taken away."
+        "zh": "子句之间只用一条规则。一条子句里有「下雨」，另一条里有「¬下雨」：下不下雨，总有一条去掉这一项后剩下的部分成立。"
       }
     }
   ],
   "after": {
-    "zh": "这条规则叫<wiki-ref to=\"resolution\"></wiki-ref>。",
-    "en": "This rule is called <wiki-ref to=\"resolution\"></wiki-ref>."
+    "zh": "这条规则叫<wiki-ref to=\"resolution\"></wiki-ref>。"
   },
   "tasks": [
     {
@@ -21,8 +19,8 @@
       "tests": [{ "premises": { "p": "A ∨ B", "q": "¬A ∨ C" }, "goal": "B ∨ C" }],
       "cases": [{ "A": "Rain", "B": "Bus", "C": "Wet" }, { "A": "Exam", "B": "Rest", "C": "Study" }],
       "hint": [
-        { "zh": "对第一句分情况。", "en": "Take cases on the first." },
-        { "zh": "下雨的那一边，再对第二句分情况。", "en": "On the rain side, take cases on the second." }
+        { "zh": "对第一句分情况。" },
+        { "zh": "下雨的那一边，再对第二句分情况。" }
       ],
       "solution": [
         "e = orE(p, left: e2, right: o2) {",

@@ -1,0 +1,19 @@
+{
+  "__title__": "__title__",
+  "开发中": "In development",
+  "一根线，每一拍送一位。从传一位话开始，一层层搭出能可靠地收发一帧的网卡。": "One wire, one bit a tick. Start by passing a bit on, and build up, layer by layer, a network card that sends and receives a frame reliably.",
+  "一根线": "One wire",
+  "线上每一拍送一位：怎样说，怎样听？": "A bit on the wire each tick: how to speak, how to hear?",
+  "线": "The wire",
+  "拍": "tick",
+  "世界前进的一步：每一拍，每根线送一位，板上的电路算一遍。": "One step of the world: each tick every wire carries one bit and the board computes once.",
+  "传话": "Pass it on",
+  "一根线每一拍送一位：0 或 1。": "A wire carries one bit a tick: 0 or 1.",
+  "每一拍把左线上到达的位说到右线上。": "Every tick, say on the right-hand wire the bit arriving on the left-hand wire.",
+  "左线": "Left wire",
+  "右线": "Right wire",
+  "晚一拍": "A tick late",
+  "板上的电路每一拍从头算一遍，算完什么也不留下。要留下一个值到下一拍，用一对新元件：<part-ref to=\"part:keep\"></part-ref>把值存进寄存卡，<part-ref to=\"part:reg\"></part-ref>下一拍读出它。": "The board computes afresh every tick and keeps nothing once done. To keep a value for the next tick there is a new pair of parts: <part-ref to=\"part:keep\"></part-ref> stores a value in a register, and <part-ref to=\"part:reg\"></part-ref> reads it out the next tick.",
+  "寄存卡让电路记得上一拍。": "A register lets a circuit remember the tick before.",
+  "每一拍在右线上说出左线上一拍的位；第一拍说 0。": "Every tick, say on the right-hand wire the bit the left-hand wire had the tick before; say 0 on the first tick."
+}

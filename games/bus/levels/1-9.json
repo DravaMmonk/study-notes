@@ -1,42 +1,36 @@
 {
-  "title": { "zh": "这是哪条消息", "en": "Which message is it" },
+  "title": { "zh": "这是哪条消息" },
   "intro": [
     {
       "t": {
-        "zh": "认得出一帧从哪开始，也会把位攒成数，探针就能读出第一样东西：这一帧是哪条消息。每一帧开头是 11 位的<wiki-ref to=\"identifier\"></wiki-ref>，说的是这条消息是什么、有多要紧。",
-        "en": "Knowing where a frame starts and how to gather bits into a number, the probe can read the first thing: which message this frame is. Every frame begins with an 11-bit <wiki-ref to=\"identifier\"></wiki-ref>, which says what the message is and how urgent."
+        "zh": "认得出一帧从哪开始，也会把位攒成数，探针就能读出第一样东西：这一帧是哪条消息。每一帧开头是 11 位的<wiki-ref to=\"identifier\"></wiki-ref>，说的是这条消息是什么、有多要紧。"
       }
     },
     {
       "t": {
-        "zh": "一个帧起始只亮一拍，可之后的 11 拍都要知道\"我在一帧里面\"。",
-        "en": "A start of frame lights for one tick, yet the 11 ticks after it all need to know “I am inside a frame”."
+        "zh": "一个帧起始只亮一拍，可之后的 11 拍都要知道\"我在一帧里面\"。"
       }
     }
   ],
   "after": {
-    "zh": "两块计数器各数各的：一块数总线安静了多久，一块数进帧以后过了几拍。",
-    "en": "The two counters count on their own: one how long the bus was quiet, one how many ticks since the frame began."
+    "zh": "两块计数器各数各的：一块数总线安静了多久，一块数进帧以后过了几拍。"
   },
   "tasks": [
     {
       "id": "1-9",
       "brief": {
-        "zh": "帧起始后面的 11 位是这一帧的标识符。在它最后一位到达的那一拍交出标识符，其余每一拍交出「—」。",
-        "en": "The 11 bits after the start of frame are the frame’s identifier. Give it out on the tick its last bit arrives, and 「—」 on every other tick."
+        "zh": "帧起始后面的 11 位是这一帧的标识符。在它最后一位到达的那一拍交出标识符，其余每一拍交出「—」。"
       },
       "hint": [
         {
-          "zh": "帧起始那一拍，在寄存卡里记下\"进帧了\"，之后一直记着。",
-          "en": "On the start of frame, keep “in a frame” in a register, and keep it there."
+          "zh": "帧起始那一拍，在寄存卡里记下\"进帧了\"，之后一直记着。"
         },
         {
-          "zh": "进帧以后的拍数，用一块<part-ref to=\"counter\"></part-ref>数。",
-          "en": "Count the ticks since then with a <part-ref to=\"counter\"></part-ref>."
+          "zh": "进帧以后的拍数，用一块<part-ref to=\"counter\"></part-ref>数。"
         }
       ],
       "listens": true,
-      "outputs": [{ "name": "id", "label": { "zh": "标识符", "en": "Identifier" } }],
+      "outputs": [{ "name": "id", "label": { "zh": "标识符" } }],
       "tests": [
         { "bus": { "frames": [{ "id": "0x123", "data": ["0x01"] }] } },
         { "bus": { "idle": 14, "frames": [{ "id": "0x2a5", "data": [] }] } }

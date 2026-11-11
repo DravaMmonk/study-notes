@@ -1,12 +1,11 @@
 {
-  "title": { "zh": "不用框：K 和 S", "en": "Without the box: K and S" },
+  "title": { "zh": "不用框：K 和 S" },
   "tray": "proof",
   "without": ["impI", "chain", "swap", "merge"],
   "intro": [
     {
       "t": {
-        "zh": "这个专题拿走框，只剩套用和证出的 K、S。早期的证明器就是这样：一条规则，其余的出发点都是<wiki-ref to=\"axiom\"></wiki-ref>。这样的证明器叫<wiki-ref to=\"hilbert\"></wiki-ref>。",
-        "en": "This topic takes the box away, leaving Apply and the K and S you proved. Early provers were like this: one rule, and every other starting point an <wiki-ref to=\"axiom\"></wiki-ref>. Such a prover is a <wiki-ref to=\"hilbert\"></wiki-ref>."
+        "zh": "这个专题拿走框，只剩套用和证出的 K、S。早期的证明器就是这样：一条规则，其余的出发点都是<wiki-ref to=\"axiom\"></wiki-ref>。这样的证明器叫<wiki-ref to=\"hilbert\"></wiki-ref>。"
       }
     }
   ],
@@ -14,26 +13,26 @@
     {
       "id": "x-k_1",
       "kind": "proof",
-      "step": { "zh": "不用框加条件", "en": "A condition without a box" },
+      "step": { "zh": "不用框加条件" },
       "tests": [{ "premises": { "p": "A" }, "goal": "B → A" }],
       "cases": [{ "A": "Rain", "B": "Wind" }, { "A": "Coffee", "B": "Late" }],
-      "briefNote": { "zh": "不用假设框。", "en": "Without the assumption box." },
-      "hint": [{ "zh": "K 说的是什么？", "en": "What does K say?" }],
+      "briefNote": { "zh": "不用假设框。" },
+      "hint": [{ "zh": "K 说的是什么？" }],
       "solution": ["k = axK[A=A, B=B]()", "m = mp(k, p)", "goal <- m"]
     },
     {
       "id": "x-k_2",
       "kind": "proof",
-      "step": { "zh": "不用框在条件下套用", "en": "Under a condition without a box" },
+      "step": { "zh": "不用框在条件下套用" },
       "tests": [{ "premises": { "p": "A → (B → (C → D))", "q": "A → B" }, "goal": "A → (C → D)" }],
       "cases": [
         { "A": "Sat", "B": "Rain", "C": "Hungry", "D": "Eat" },
         { "A": "Exam", "B": "Study", "C": "Coffee", "D": "Awake" }
       ],
-      "briefNote": { "zh": "不用假设框。", "en": "Without the assumption box." },
+      "briefNote": { "zh": "不用假设框。" },
       "hint": [
-        { "zh": "在条件下套用，是 S 的事。", "en": "Apply under a condition is what S does." },
-        { "zh": "S 的三句不一定都是一个词。", "en": "S’s three sentences need not each be a single word." }
+        { "zh": "在条件下套用，是 S 的事。" },
+        { "zh": "S 的三句不一定都是一个词。" }
       ],
       "solution": ["s = axS[A=A, B=B, C=\"C -> D\"]()", "m1 = mp(s, p)", "m2 = mp(m1, q)", "goal <- m2"]
     }

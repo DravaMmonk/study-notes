@@ -1,27 +1,23 @@
 {
-  "title": { "zh": "图块的注意力", "en": "Attention between patches" },
+  "title": { "zh": "图块的注意力" },
   "tray": "pipeline",
   "after": {
-    "zh": "同一组图块可以经过不同的可学习变换生成 Q、K、V；每个变换在图块之间共享。本关用三个标量简化线性投影，训练根据输出误差调整它们。实际模型通常使用矩阵投影，不同参数组合也可能得到相同的注意力结果。",
-    "en": "The same patches can pass through different learnable transformations to produce Q, K and V, with each transformation shared across patches. This level simplifies the projections to three scalars, adjusted by training against the output error. Real models usually use matrix projections; different parameter combinations can produce the same attention result."
+    "zh": "同一组图块可以经过不同的可学习变换生成 Q、K、V；每个变换在图块之间共享。本关用三个标量简化线性投影，训练根据输出误差调整它们。实际模型通常使用矩阵投影，不同参数组合也可能得到相同的注意力结果。"
   },
   "intro": [
     {
       "t": {
-        "zh": "卷积一次处理局部区域；注意力可以让一个图块汇总来自其他图块的信息。本关先观察 Q、K、V，再搭出注意力电路，最后训练生成 Q、K、V 的简化变换。",
-        "en": "Convolution processes a local region at a time; attention lets a patch combine information from other patches. First explore Q, K and V, then build an attention circuit, and finally train simplified transformations that produce Q, K and V."
+        "zh": "卷积一次处理局部区域；注意力可以让一个图块汇总来自其他图块的信息。本关先观察 Q、K、V，再搭出注意力电路，最后训练生成 Q、K、V 的简化变换。"
       }
     },
     {
       "t": {
-        "zh": "查询 Q 与各个键 K 分别比较，得到权重；这些权重用于汇总对应的值 V。先用图块直接观察这三个角色。",
-        "en": "A query Q is compared with each key K to obtain weights, which combine the corresponding values V. First use patches directly to observe these three roles."
+        "zh": "查询 Q 与各个键 K 分别比较，得到权重；这些权重用于汇总对应的值 V。先用图块直接观察这三个角色。"
       }
     },
     {
       "t": {
-        "zh": "实际视觉模型通常从同一组图块特征，通过不同的可学习变换生成 Q、K、V。最后一段会训练一个简化例子。",
-        "en": "Vision models usually generate Q, K and V from the same patch features using different learnable transformations. The final task trains a simplified example."
+        "zh": "实际视觉模型通常从同一组图块特征，通过不同的可学习变换生成 Q、K、V。最后一段会训练一个简化例子。"
       }
     }
   ],
@@ -29,110 +25,104 @@
   "tasks": [
     {
       "id": "5-1-experiment",
-      "step": { "zh": "观察 Q、K、V", "en": "Explore Q, K and V" },
+      "step": { "zh": "观察 Q、K、V" },
       "kind": "board",
       "brief": {
-        "zh": "切换 Q、交换 K 或 V，比较权重和输出的变化。然后将 Q 设为 X、K 保持原来、交换 V，选出输出中更明显的图案。",
-        "en": "Change Q and swap K or V to compare the weights and output. Then set Q to X, keep K in its original arrangement, swap V, and select the more prominent pattern in the output."
+        "zh": "切换 Q、交换 K 或 V，比较权重和输出的变化。然后将 Q 设为 X、K 保持原来、交换 V，选出输出中更明显的图案。"
       },
       "hint": {
-        "zh": "Q 与 K 的比较决定权重；每个权重作用于同一位置的 V。只交换 V 时，权重不变，但输出内容会改变。",
-        "en": "Comparing Q with K determines the weights; each weight applies to the V in the same position. Swapping only V leaves the weights unchanged but changes the output."
+        "zh": "Q 与 K 的比较决定权重；每个权重作用于同一位置的 V。只交换 V 时，权重不变，但输出内容会改变。"
       },
       "bench": {
         "model": "attentionRoles",
         "setup": { "role": "value" },
         "knobs": {
           "query": {
-            "label": { "zh": "查询图块 Q", "en": "Query patch Q" },
+            "label": { "zh": "查询图块 Q" },
             "choices": [
-              { "value": "cross", "label": { "zh": "X", "en": "X" } },
-              { "value": "ring", "label": { "zh": "O", "en": "O" } }
+              { "value": "cross", "label": { "zh": "X" } },
+              { "value": "ring", "label": { "zh": "O" } }
             ],
             "start": "cross"
           },
           "keys": {
-            "label": { "zh": "键的排列", "en": "Key arrangement" },
+            "label": { "zh": "键的排列" },
             "choices": [
-              { "value": "normal", "label": { "zh": "原来", "en": "Original" } },
-              { "value": "swapped", "label": { "zh": "交换 A、B", "en": "Swap A and B" } }
+              { "value": "normal", "label": { "zh": "原来" } },
+              { "value": "swapped", "label": { "zh": "交换 A、B" } }
             ],
             "start": "normal"
           },
           "values": {
-            "label": { "zh": "值的排列", "en": "Value arrangement" },
+            "label": { "zh": "值的排列" },
             "choices": [
-              { "value": "normal", "label": { "zh": "原来", "en": "Original" } },
-              { "value": "swapped", "label": { "zh": "交换 A、B", "en": "Swap A and B" } }
+              { "value": "normal", "label": { "zh": "原来" } },
+              { "value": "swapped", "label": { "zh": "交换 A、B" } }
             ],
             "start": "normal"
           },
           "pick": {
-            "label": { "zh": "输出中更明显的图案", "en": "Pattern more prominent in output" },
+            "label": { "zh": "输出中更明显的图案" },
             "choices": [
-              { "value": "vertical", "label": { "zh": "竖条", "en": "Vertical bars" } },
-              { "value": "horizontal", "label": { "zh": "横条", "en": "Horizontal bars" } }
+              { "value": "vertical", "label": { "zh": "竖条" } },
+              { "value": "horizontal", "label": { "zh": "横条" } }
             ],
             "start": null
           }
         },
         "goal": [{ "of": "correct", "is": true }],
-        "win": { "zh": "观察完成。", "en": "Observation complete." },
-        "status": { "zh": "调整图块并选择答案。", "en": "Adjust the patches and select an answer." },
+        "win": { "zh": "观察完成。" },
+        "status": { "zh": "调整图块并选择答案。" },
         "layout": { "main": ["attentionRoles", { "panel": ["knobs", "verdict"] }] }
       },
       "after": {
-        "zh": "Q 和 K 决定各处信息的权重，V 提供被汇总的内容。接下来用电路实现一次这样的计算：这次两个图块自身同时作为键和值。",
-        "en": "Q and K determine the weights for the information, while V supplies the content to combine. Next, build a circuit for this calculation using each of two patches as both a key and a value."
+        "zh": "Q 和 K 决定各处信息的权重，V 提供被汇总的内容。接下来用电路实现一次这样的计算：这次两个图块自身同时作为键和值。"
       }
     },
     {
       "id": "5-1",
       "kind": "graph",
       "brief": {
-        "zh": "以图块 a 为查询，a 和 b 各自作为键和值。分别计算 a 与 a、a 与 b 的注意力分数：分数 = 4 × 平均(a × 对应图块)。对两个分数做 Softmax：权重 = e^分数 ÷ 两个 e^分数之和。输出图块 a 和 b 的加权和。",
-        "en": "Use patch a as the query, with a and b each acting as a key and a value. Compute scores for a with a and a with b: score = 4 × average(a × corresponding patch). Apply Softmax to the two scores: weight = e^score ÷ the sum of both e^score. Output the weighted sum of patches a and b."
+        "zh": "以图块 a 为查询，a 和 b 各自作为键和值。分别计算 a 与 a、a 与 b 的注意力分数：分数 = 4 × 平均(a × 对应图块)。对两个分数做 Softmax：权重 = e^分数 ÷ 两个 e^分数之和。输出图块 a 和 b 的加权和。"
       },
       "hint": {
-        "zh": "先逐格相乘，再对整块图取平均，分别得到两个分数。Softmax 的第三输入可留空；输出权重乘以对应图块后相加。",
-        "en": "Multiply pixel by pixel and average over each patch to obtain two scores. Leave Softmax’s third input empty; multiply its output weights by the corresponding patches and add."
+        "zh": "先逐格相乘，再对整块图取平均，分别得到两个分数。Softmax 的第三输入可留空；输出权重乘以对应图块后相加。"
       },
       "after": {
-        "zh": "注意力先比较查询和键，再用权重汇总值。接下来沿用这块电路，加入可学习参数生成 Q、K、V。",
-        "en": "Attention first compares a query with keys, then combines values using the resulting weights. Next, continue from this circuit and add learnable parameters to produce Q, K and V."
+        "zh": "注意力先比较查询和键，再用权重汇总值。接下来沿用这块电路，加入可学习参数生成 Q、K、V。"
       },
       "inputs": ["a", "b"],
       "inputLabels": {
-        "a": { "zh": "图块 a（查询）", "en": "Patch a (query)" },
-        "b": { "zh": "图块 b", "en": "Patch b" }
+        "a": { "zh": "图块 a（查询）" },
+        "b": { "zh": "图块 b" }
       },
       "scene": "filter",
       "setup": { "target": "ask" },
       "tests": [
         {
-          "label": { "zh": "X、C", "en": "X, C" },
+          "label": { "zh": "X、C" },
           "inputs": { "a": { "tile": { "name": "X" } }, "b": { "tile": { "name": "C" } } }
         },
         {
-          "label": { "zh": "P、K", "en": "P, K" },
+          "label": { "zh": "P、K" },
           "inputs": { "a": { "tile": { "name": "P" } }, "b": { "tile": { "name": "K" } } }
         },
         {
-          "label": { "zh": "R、S", "en": "R, S" },
+          "label": { "zh": "R、S" },
           "inputs": { "a": { "tile": { "name": "R" } }, "b": { "tile": { "name": "S" } } }
         },
         {
-          "label": { "zh": "淡 S、X", "en": "Faint S, X" },
+          "label": { "zh": "淡 S、X" },
           "inputs": { "a": { "tile": { "name": "S", "hi": 0.5 } }, "b": { "tile": { "name": "X" } } }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "K、R", "en": "K, R" },
+          "label": { "zh": "K、R" },
           "inputs": { "a": { "tile": { "name": "K" } }, "b": { "tile": { "name": "R" } } }
         },
         {
-          "label": { "zh": "C、淡 P", "en": "C, faint P" },
+          "label": { "zh": "C、淡 P" },
           "inputs": { "a": { "tile": { "name": "C" } }, "b": { "tile": { "name": "P", "hi": 0.6 } } }
         }
       ],
@@ -167,48 +157,46 @@
           "out <- q"
         ]
       ],
-      "step": { "zh": "搭建注意力", "en": "Build attention" }
+      "step": { "zh": "搭建注意力" }
     },
     {
       "id": "5-1-training",
-      "step": { "zh": "训练 Q、K、V", "en": "Train Q, K and V" },
+      "step": { "zh": "训练 Q、K、V" },
       "kind": "graph",
       "carries": true,
       "brief": {
-        "zh": "沿用上一段电路，让图块先经过可学习的标量变换，再计算注意力。用三个可学习常数分别生成 Q、K、V：Q 由 a 变换，a 和 b 共用同一个 K 变换，也共用同一个 V 变换。训练参数，使输出匹配各组目标。",
-        "en": "Continue from the previous circuit and transform the patches with learnable scalars before attention. Use three learnable constants to produce Q, K and V: transform a into Q, use the same K transformation for a and b, and likewise share the V transformation. Train the parameters to match the targets."
+        "zh": "沿用上一段电路，让图块先经过可学习的标量变换，再计算注意力。用三个可学习常数分别生成 Q、K、V：Q 由 a 变换，a 和 b 共用同一个 K 变换，也共用同一个 V 变换。训练参数，使输出匹配各组目标。"
       },
       "hint": {
-        "zh": "将可学习常数分别与图块相乘；同一个 K 常数和 V 常数都要接到两个图块。用 Q、K 计算权重，再加权汇总 V。训练会根据测试目标更新三个常数。",
-        "en": "Multiply patches by learnable constants; connect the same K constant and the same V constant to both patches. Compute weights from Q and K, then combine V with those weights. Training updates the three constants against the test targets."
+        "zh": "将可学习常数分别与图块相乘；同一个 K 常数和 V 常数都要接到两个图块。用 Q、K 计算权重，再加权汇总 V。训练会根据测试目标更新三个常数。"
       },
       "inputs": ["a", "b"],
-      "inputLabels": { "a": { "zh": "图块 a", "en": "Patch a" }, "b": { "zh": "图块 b", "en": "Patch b" } },
+      "inputLabels": { "a": { "zh": "图块 a" }, "b": { "zh": "图块 b" } },
       "check": { "tolerance": 0.02 },
       "trainRate": 1.5,
       "scene": "filter",
       "setup": { "target": "projectedAsk" },
       "tests": [
         {
-          "label": { "zh": "X、R", "en": "X, R" },
+          "label": { "zh": "X、R" },
           "inputs": { "a": { "tile": { "name": "X" } }, "b": { "tile": { "name": "R" } } }
         },
         {
-          "label": { "zh": "R、K", "en": "R, K" },
+          "label": { "zh": "R、K" },
           "inputs": { "a": { "tile": { "name": "R" } }, "b": { "tile": { "name": "K" } } }
         },
         {
-          "label": { "zh": "K、X", "en": "K, X" },
+          "label": { "zh": "K、X" },
           "inputs": { "a": { "tile": { "name": "K" } }, "b": { "tile": { "name": "X" } } }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "C、P", "en": "C, P" },
+          "label": { "zh": "C、P" },
           "inputs": { "a": { "tile": { "name": "C" } }, "b": { "tile": { "name": "P" } } }
         },
         {
-          "label": { "zh": "S、R", "en": "S, R" },
+          "label": { "zh": "S、R" },
           "inputs": { "a": { "tile": { "name": "S" } }, "b": { "tile": { "name": "R" } } }
         }
       ],

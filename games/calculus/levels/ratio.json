@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "趋于 3", "en": "Towards 3" },
+  "title": { "zh": "趋于 3" },
   "intro": [
     {
       "t": {
-        "zh": "(3n + 1)/(n + 2)：0.5, 1.33, 1.75, 2, … 越来越靠近 3。这一回数列由板自己算，邻域以 3 为中心。",
-        "en": "(3n + 1)/(n + 2): 0.5, 1.33, 1.75, 2, … edging towards 3. This time the board computes the sequence itself, and the neighbourhood is centred on 3."
+        "zh": "(3n + 1)/(n + 2)：0.5, 1.33, 1.75, 2, … 越来越靠近 3。这一回数列由板自己算，邻域以 3 为中心。"
       }
     }
   ],
@@ -12,10 +11,9 @@
     {
       "id": "ratio",
       "brief": {
-        "zh": "aₙ = (3n + 1)/(n + 2)，L = 3：测试给出 ε，交出 N。",
-        "en": "aₙ = (3n + 1)/(n + 2), L = 3: the test gives ε; give N."
+        "zh": "aₙ = (3n + 1)/(n + 2)，L = 3：测试给出 ε，交出 N。"
       },
-      "hint": [{ "zh": "分子乘分母的倒数。", "en": "The numerator times the reciprocal of the denominator." }],
+      "hint": [{ "zh": "分子乘分母的倒数。" }],
       "inputs": [{ "name": "e", "label": "ε" }],
       "outputs": [{ "name": "N", "label": "N" }],
       "tests": [

@@ -1,36 +1,33 @@
 {
-  "title": { "zh": "线性组合", "en": "Linear combination" },
+  "title": { "zh": "线性组合" },
   "intro": [
     {
       "t": {
-        "zh": "回头看<level-ref to=\"1-2\"></level-ref>和<level-ref to=\"1-3\"></level-ref>交出的点：每一个都是几支箭头各自乘一个数、再相加。这样拼出的箭头叫这几支箭头的<wiki-ref to=\"linear-combination\"></wiki-ref>。这个形状还会反复出现，这一关把它做成一块元件，乘的数从输入接进来。",
-        "en": "Look back at the points of <level-ref to=\"1-2\"></level-ref> and <level-ref to=\"1-3\"></level-ref>: each is a few arrows, each times a number, added up. An arrow made this way is a <wiki-ref to=\"linear-combination\"></wiki-ref> of them. The shape will keep coming back; this level makes it one part, the numbers wired in as inputs."
+        "zh": "回头看<level-ref to=\"1-2\"></level-ref>和<level-ref to=\"1-3\"></level-ref>交出的点：每一个都是几支箭头各自乘一个数、再相加。这样拼出的箭头叫这几支箭头的<wiki-ref to=\"linear-combination\"></wiki-ref>。这个形状还会反复出现，这一关把它做成一块元件，乘的数从输入接进来。"
       }
     }
   ],
   "after": {
-    "zh": "固定 v、w，让 a、b 取遍所有的数，得到的全部点叫 v 和 w 的<wiki-ref to=\"span\"></wiki-ref>。",
-    "en": "Hold v and w and let a and b range over every number: all the points made are the <wiki-ref to=\"span\"></wiki-ref> of v and w."
+    "zh": "固定 v、w，让 a、b 取遍所有的数，得到的全部点叫 v 和 w 的<wiki-ref to=\"span\"></wiki-ref>。"
   },
   "builds": {
     "type": "combo",
-    "name": { "zh": "线性组合", "en": "Combination" },
+    "name": { "zh": "线性组合" },
     "desc": {
-      "zh": "给出 a·v + b·w：v 伸缩 a 倍、w 伸缩 b 倍，再相加。",
-      "en": "Gives a·v + b·w: v scaled by a and w by b, then added."
+      "zh": "给出 a·v + b·w：v 伸缩 a 倍、w 伸缩 b 倍，再相加。"
     }
   },
   "tasks": [
     {
       "id": "1-4",
-      "brief": { "zh": "交出 a·v + b·w。", "en": "Give a·v + b·w." },
+      "brief": { "zh": "交出 a·v + b·w。" },
       "inputs": [
         { "name": "a", "label": "a" },
         { "name": "b", "label": "b" },
         { "name": "v", "label": "v" },
         { "name": "w", "label": "w" }
       ],
-      "outputs": [{ "name": "out", "label": { "zh": "组合", "en": "Combination" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "组合" } }],
       "tests": [
         { "inputs": { "a": 2, "b": -1, "v": [1, 0], "w": [0, 1] }, "expect": { "out": [2, -1] } },
         { "inputs": { "a": 0.5, "b": 0.5, "v": [4, 0], "w": [0, 2] }, "expect": { "out": [2, 1] } },

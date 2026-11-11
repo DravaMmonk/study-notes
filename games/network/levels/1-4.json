@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "晚一拍", "en": "A tick late" },
+  "title": { "zh": "晚一拍" },
   "intro": [
     {
       "t": {
-        "zh": "板上的电路每一拍从头算一遍，算完什么也不留下：上一拍听到了什么，这一拍无从知道。要把一个值留到下一拍，需要一对新元件：<part-ref to=\"part:keep\"></part-ref>把值存进寄存卡，<part-ref to=\"part:reg\"></part-ref>在下一拍读出它。",
-        "en": "The circuit on the board is worked out afresh every tick and keeps nothing afterwards: what it heard the tick before is lost. Keeping a value for the next tick takes a new pair of parts: <part-ref to=\"part:keep\"></part-ref> stores a value in a register, and <part-ref to=\"part:reg\"></part-ref> reads it out the next tick."
+        "zh": "板上的电路每一拍从头算一遍，算完什么也不留下：上一拍听到了什么，这一拍无从知道。要把一个值留到下一拍，需要一对新元件：<part-ref to=\"part:keep\"></part-ref>把值存进寄存卡，<part-ref to=\"part:reg\"></part-ref>在下一拍读出它。"
       }
     }
   ],
@@ -13,19 +12,17 @@
     {
       "id": "1-4",
       "brief": {
-        "zh": "每一拍说出上一拍听到的位；第一拍说 0。",
-        "en": "Every tick, say the bit heard the tick before; say 0 on the first tick."
+        "zh": "每一拍说出上一拍听到的位；第一拍说 0。"
       },
       "hint": [
-        { "zh": "这一拍听到的，要到下一拍才说出去。", "en": "What is heard this tick is said only on the next." },
+        { "zh": "这一拍听到的，要到下一拍才说出去。" },
         {
-          "zh": "存和读靠同一个寄存卡名字配对；第一拍读出的是初值。",
-          "en": "Keep and Register pair up by the register's name; on the first tick Register gives its start value."
+          "zh": "存和读靠同一个寄存卡名字配对；第一拍读出的是初值。"
         }
       ],
       "wires": {
-        "in": [{ "name": "left", "label": { "zh": "左线", "en": "Left wire" } }],
-        "out": [{ "name": "right", "label": { "zh": "右线", "en": "Right wire" } }]
+        "in": [{ "name": "left", "label": { "zh": "左线" } }],
+        "out": [{ "name": "right", "label": { "zh": "右线" } }]
       },
       "tests": [
         { "wires": { "left": { "send": [{ "bits": "101100" }] } } },

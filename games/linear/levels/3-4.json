@@ -1,37 +1,32 @@
 {
-  "title": { "zh": "倒推回去", "en": "Working back" },
+  "title": { "zh": "倒推回去" },
   "intro": [
     {
       "t": {
-        "zh": "到这里为止，都是知道 x，求它的落点 Ax。反过来，知道落点 b，原来的 x 在哪里？这就是解<wiki-ref to=\"linear-system\"></wiki-ref> Ax = b。只要 A 不把平面压扁（det A ≠ 0），答案只有一个。",
-        "en": "So far x was known and its landing place Ax was wanted. The other way round: given where it landed, b, where was x? That is solving the <wiki-ref to=\"linear-system\"></wiki-ref> Ax = b. As long as A does not squash the plane (det A ≠ 0), there is exactly one answer."
+        "zh": "到这里为止，都是知道 x，求它的落点 Ax。反过来，知道落点 b，原来的 x 在哪里？这就是解<wiki-ref to=\"linear-system\"></wiki-ref> Ax = b。只要 A 不把平面压扁（det A ≠ 0），答案只有一个。"
       }
     }
   ],
   "after": {
-    "zh": "用行列式之比求解的方法叫<wiki-ref to=\"cramer-rule\"></wiki-ref>。",
-    "en": "Solving by a ratio of determinants is <wiki-ref to=\"cramer-rule\"></wiki-ref>."
+    "zh": "用行列式之比求解的方法叫<wiki-ref to=\"cramer-rule\"></wiki-ref>。"
   },
   "builds": {
     "type": "solve",
-    "name": { "zh": "求解", "en": "Solve" },
-    "desc": { "zh": "给出满足 Ax = b 的 x（det A ≠ 0）。", "en": "Gives the x with Ax = b (det A ≠ 0)." }
+    "name": { "zh": "求解" },
+    "desc": { "zh": "给出满足 Ax = b 的 x（det A ≠ 0）。" }
   },
   "tasks": [
     {
       "id": "3-4",
       "brief": {
-        "zh": "交出满足 Ax = b 的 x（这一关的 A 的行列式都不为 0）。",
-        "en": "Give the x with Ax = b (every A here has a nonzero determinant)."
+        "zh": "交出满足 Ax = b 的 x（这一关的 A 的行列式都不为 0）。"
       },
       "hint": [
         {
-          "zh": "x 的第一个分量，等于 x 和 ĵ 张成的平行四边形的有向面积。",
-          "en": "The first entry of x is the signed area of the parallelogram on x and ĵ."
+          "zh": "x 的第一个分量，等于 x 和 ĵ 张成的平行四边形的有向面积。"
         },
         {
-          "zh": "这个平行四边形经 A 变换后，变成 b 和 A 的第二列张成的平行四边形，面积放大了 det A 倍。",
-          "en": "Under A that parallelogram becomes the one on b and the second column of A, its area scaled by det A."
+          "zh": "这个平行四边形经 A 变换后，变成 b 和 A 的第二列张成的平行四边形，面积放大了 det A 倍。"
         }
       ],
       "inputs": [{ "name": "A", "label": "A" }, { "name": "b", "label": "b" }],

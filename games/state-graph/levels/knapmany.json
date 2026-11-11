@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "每件可以拿多次", "en": "As many as you like" },
-  "short": { "zh": "同一种还能再拿", "en": "The same kind, again" },
+  "title": { "zh": "每件可以拿多次" },
+  "short": { "zh": "同一种还能再拿" },
   "intro": [
     {
       "t": {
-        "zh": "这一回在商店里装包：每种东西都有很多件，<b>同一种可以拿好几件</b>。总重量还是不能超过背包的容量。",
-        "en": "This time you pack in a shop: there is plenty of every kind of thing, and <b>you can take several of the same kind</b>. The total weight still can’t exceed the backpack’s capacity."
+        "zh": "这一回在商店里装包：每种东西都有很多件，<b>同一种可以拿好几件</b>。总重量还是不能超过背包的容量。"
       }
     },
     {
       "t": {
-        "zh": "表还是那张背包表：格子 (第 i 行, 容量 w) 记着<b>只从前 i 种东西里挑、容量是 w 时，最多能装多少价值</b>。和<level-ref to=\"knaptable\"></level-ref>比，只有一处不同：拿了一件之后，还可以再拿同一种。",
-        "en": "The table is the same knapsack table: cell (row i, capacity w) records <b>the most value you can pack choosing only from the first i kinds, with capacity w</b>. Only one thing differs from <level-ref to=\"knaptable\"></level-ref>: after taking one, you can take the same kind again."
+        "zh": "表还是那张背包表：格子 (第 i 行, 容量 w) 记着<b>只从前 i 种东西里挑、容量是 w 时，最多能装多少价值</b>。和<level-ref to=\"knaptable\"></level-ref>比，只有一处不同：拿了一件之后，还可以再拿同一种。"
       },
       "fig": {
         "scene": {
@@ -35,39 +33,35 @@
           ],
           "edges": [],
           "texts": [
-            { "x": -32, "y": -33, "t": { "zh": "容量", "en": "capacity" }, "anchor": "end" },
-            { "x": -32, "y": 5, "t": { "zh": "不放东西", "en": "nothing" }, "anchor": "end" },
-            { "x": -32, "y": 57, "t": { "zh": "相机 2kg · 3", "en": "camera 2kg · 3" }, "anchor": "end" },
-            { "x": -32, "y": 109, "t": { "zh": "水壶 1kg · 2", "en": "bottle 1kg · 2" }, "anchor": "end" }
+            { "x": -32, "y": -33, "t": { "zh": "容量" }, "anchor": "end" },
+            { "x": -32, "y": 5, "t": { "zh": "不放东西" }, "anchor": "end" },
+            { "x": -32, "y": 57, "t": { "zh": "相机 2kg · 3" }, "anchor": "end" },
+            { "x": -32, "y": 109, "t": { "zh": "水壶 1kg · 2" }, "anchor": "end" }
           ]
         }
       }
     },
     {
       "t": {
-        "zh": "伸缩臂照样伸到往左「这种东西的重量」格，上一行、本行各够到一格。",
-        "en": "The telescopic arm still reaches as many columns to the left as this kind weighs, one cell on the row above and one on this row."
+        "zh": "伸缩臂照样伸到往左「这种东西的重量」格，上一行、本行各够到一格。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "每种东西可以拿任意多件，总重量不能超过容量。拼出电路板，算出每个背包最多能装多少价值。",
-      "en": "Each kind can be taken as many times as you like, and the total weight can’t exceed the capacity. Build the circuit board and work out the most value each backpack can hold."
+      "zh": "每种东西可以拿任意多件，总重量不能超过容量。拼出电路板，算出每个背包最多能装多少价值。"
     },
-    "how": { "zh": "还是逐行、从左往右算。", "en": "Still row by row, left to right." }
+    "how": { "zh": "还是逐行、从左往右算。" }
   },
   "robot": "reach",
   "debrief": {
-    "title": { "zh": "完全背包", "en": "Unbounded knapsack" },
+    "title": { "zh": "完全背包" },
     "body": [
       {
-        "zh": "从<b>本行</b>腾地方：本行已经考虑过这一种东西，在那里再拿一件，就是又多拿了一件。",
-        "en": "Make room on <b>this row</b>: this row has already considered this kind, so taking one more from there is simply one more of it."
+        "zh": "从<b>本行</b>腾地方：本行已经考虑过这一种东西，在那里再拿一件，就是又多拿了一件。"
       },
       {
-        "zh": "和 0/1 背包只差一处：腾地方的那一格，从上一行换成了本行。这个问题叫<b>完全背包</b>（每种物品数量不限）。",
-        "en": "It differs from the 0/1 knapsack in one place only: the cell that makes room moves from the row above to this row. This problem is called the <b>unbounded knapsack</b> (unlimited copies of each item)."
+        "zh": "和 0/1 背包只差一处：腾地方的那一格，从上一行换成了本行。这个问题叫<b>完全背包</b>（每种物品数量不限）。"
       }
     ]
   },
@@ -79,17 +73,15 @@
         {
           "when": { "all": [{ "uses": "upk" }, { "not": { "uses": "rowk" } }] },
           "say": {
-            "zh": "从上一行腾地方，每种东西就只拿了一件。这一关，同一种可以拿好几件。",
-            "en": "Making room on the row above takes each kind only once. In this level, you can take several of the same kind."
+            "zh": "从上一行腾地方，每种东西就只拿了一件。这一关，同一种可以拿好几件。"
           }
         }
       ],
       "boardOpt": { "minScale": 0.68, "maxScale": 1.15 },
       "hints": [
-        { "zh": "这一种一件也不拿：答案还是正上方。", "en": "Taking none of this kind: the answer is still right above." },
+        { "zh": "这一种一件也不拿：答案还是正上方。" },
         {
-          "zh": "拿了一件，还能再拿：要找的是「已经考虑过这一种」的那一格。上一行还没考虑过它，本行已经考虑过了。",
-          "en": "After taking one, you may take another: you want the cell that has “already considered this kind”. The row above hasn’t considered it yet; this row has."
+          "zh": "拿了一件，还能再拿：要找的是「已经考虑过这一种」的那一格。上一行还没考虑过它，本行已经考虑过了。"
         }
       ],
       "world": "knap",
@@ -98,24 +90,24 @@
         {
           "W": 7,
           "items": [
-            { "n": { "zh": "苹果", "en": "apples" }, "w": 2, "v": 3, "many": true },
-            { "n": { "zh": "西瓜", "en": "melons" }, "w": 3, "v": 5, "many": true }
+            { "n": { "zh": "苹果" }, "w": 2, "v": 3, "many": true },
+            { "n": { "zh": "西瓜" }, "w": 3, "v": 5, "many": true }
           ]
         },
         {
           "W": 10,
           "items": [
-            { "n": { "zh": "腊肉", "en": "bacon" }, "w": 6, "v": 13, "many": true },
-            { "n": { "zh": "面粉", "en": "flour" }, "w": 5, "v": 10, "many": true },
-            { "n": { "zh": "盐", "en": "salt" }, "w": 1, "v": 1, "many": true }
+            { "n": { "zh": "腊肉" }, "w": 6, "v": 13, "many": true },
+            { "n": { "zh": "面粉" }, "w": 5, "v": 10, "many": true },
+            { "n": { "zh": "盐" }, "w": 1, "v": 1, "many": true }
           ]
         },
         {
           "W": 9,
           "items": [
-            { "n": { "zh": "面粉", "en": "flour" }, "w": 5, "v": 9, "many": true },
-            { "n": { "zh": "大米", "en": "rice" }, "w": 3, "v": 5, "many": true },
-            { "n": { "zh": "白糖", "en": "sugar" }, "w": 2, "v": 3, "many": true }
+            { "n": { "zh": "面粉" }, "w": 5, "v": 9, "many": true },
+            { "n": { "zh": "大米" }, "w": 3, "v": 5, "many": true },
+            { "n": { "zh": "白糖" }, "w": 2, "v": 3, "many": true }
           ]
         }
       ],

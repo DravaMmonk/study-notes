@@ -419,7 +419,7 @@ export function auditBlueprint(bp) {
     if (madeHere.size && last && !last.slots.some((s) => s.uses.some((u) => madeHere.has(u)))) say('bp-abstraction', last.id, `stands on none of ${[...madeHere].join(', ')}`)
   }
 
-  for (const r of bp.requests ?? []) if (r.status === 'open') say('bp-open', r.id, `${r.kind} request open: ${r.about.en ?? r.about}`)
+  for (const r of bp.requests ?? []) if (r.status === 'open') say('bp-open', r.id, `${r.kind} request open: ${r.about.zh ?? r.about}`)
   return out
 }
 

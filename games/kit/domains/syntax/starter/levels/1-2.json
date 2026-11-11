@@ -1,18 +1,17 @@
 {
-  "title": { "zh": "修饰动作", "en": "Telling about the action" },
+  "title": { "zh": "修饰动作" },
   "adds": ["pp"],
-  "intro": [{ "t": { "zh": "介词短语也可以挂在动词上。", "en": "A prepositional phrase can also hang on the verb." } }],
+  "intro": [{ "t": { "zh": "介词短语也可以挂在动词上。" } }],
   "debrief": {
-    "title": { "zh": "We train the model on one GPU.", "en": "We train the model on one GPU." },
-    "body": [{ "zh": "<i>on one GPU</i> 说明的是训练这件事。", "en": "<i>on one GPU</i> tells about the training." }],
-    "note": { "zh": "说明“在哪、怎么做”挂动词。", "en": "Where or how: on the verb." }
+    "title": { "zh": "We train the model on one GPU." },
+    "body": [{ "zh": "<i>on one GPU</i> 说明的是训练这件事。" }],
+    "note": { "zh": "说明“在哪、怎么做”挂动词。" }
   },
   "tasks": [
     {
       "id": "1-2",
       "brief": {
-        "zh": "标出主干，把修饰成分挂到它修饰的词上。",
-        "en": "Mark the skeleton and fold the modifier onto the word it modifies."
+        "zh": "标出主干，把修饰成分挂到它修饰的词上。"
       },
       "sentence": "We train the model on one GPU.",
       "folds": [{ "span": "on one GPU", "type": "pp", "to": "train" }],

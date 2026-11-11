@@ -1,5 +1,5 @@
 {
-  "title": { "zh": "对不上的两句", "en": "Two that do not meet" },
+  "title": { "zh": "对不上的两句" },
   "tray": "proof",
   "tasks": [
     {
@@ -8,8 +8,8 @@
       "tests": [{ "premises": { "p": "A → (A → B)", "q": "A → (B → C)" }, "goal": "A → C" }],
       "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Hungry", "B": "Eat", "C": "Full" }],
       "hint": [
-        { "zh": "两句都以「下雨」开头，所以首尾接不上。", "en": "Both start with “it rains”, so they do not meet end to end." },
-        { "zh": "能不能让第二句以「地湿」开头？", "en": "Can the second be made to start with “the ground is wet”?" }
+        { "zh": "两句都以「下雨」开头，所以首尾接不上。" },
+        { "zh": "能不能让第二句以「地湿」开头？" }
       ],
       "solution": ["g1 = merge(p)", "w = swap(q)", "c = chain(g1, w)", "g2 = merge(c)", "goal <- g2"]
     }

@@ -1,39 +1,34 @@
 {
-  "title": { "zh": "矩阵", "en": "The matrix" },
+  "title": { "zh": "矩阵" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-6\"></level-ref>和<level-ref to=\"1-7\"></level-ref>各自接好了 î、ĵ 的落点；换一个变换，板就得重接。把两个落点并排写成一张数表，当作一个值在线上传：这张表叫<wiki-ref to=\"matrix\"></wiki-ref>，第一列是 î 的落点，第二列是 ĵ 的落点。下图的矩阵把格子推歪了。",
-        "en": "<level-ref to=\"1-6\"></level-ref> and <level-ref to=\"1-7\"></level-ref> each wired in where î and ĵ land; another map means wiring the board again. Write the two landing places side by side as one table and send it down a wire as one value: the table is a <wiki-ref to=\"matrix\"></wiki-ref>, its first column where î lands and its second where ĵ lands. The matrix below pushes the grid aslant."
+        "zh": "<level-ref to=\"1-6\"></level-ref>和<level-ref to=\"1-7\"></level-ref>各自接好了 î、ĵ 的落点；换一个变换，板就得重接。把两个落点并排写成一张数表，当作一个值在线上传：这张表叫<wiki-ref to=\"matrix\"></wiki-ref>，第一列是 î 的落点，第二列是 ĵ 的落点。下图的矩阵把格子推歪了。"
       },
       "show": { "shape": "grid", "value": [[1, 1], [0, 1]], "views": ["plane"] }
     },
     {
       "t": {
-        "zh": "<part-ref to=\"part:column\"></part-ref>从矩阵里取出一列。",
-        "en": "<part-ref to=\"part:column\"></part-ref> takes one column out of a matrix."
+        "zh": "<part-ref to=\"part:column\"></part-ref>从矩阵里取出一列。"
       }
     }
   ],
   "after": {
-    "zh": "这个运算记作 Mx，叫<wiki-ref to=\"matrix-vector-product\"></wiki-ref>。",
-    "en": "The operation is written Mx: the <wiki-ref to=\"matrix-vector-product\"></wiki-ref>."
+    "zh": "这个运算记作 Mx，叫<wiki-ref to=\"matrix-vector-product\"></wiki-ref>。"
   },
   "adds": ["column"],
   "builds": {
     "type": "apply",
-    "name": { "zh": "变换", "en": "Transform" },
+    "name": { "zh": "变换" },
     "desc": {
-      "zh": "给出矩阵 M 把向量 x 送到的那一点 Mx。",
-      "en": "Gives the point Mx that the matrix M sends the vector x to."
+      "zh": "给出矩阵 M 把向量 x 送到的那一点 Mx。"
     }
   },
   "tasks": [
     {
       "id": "2-1",
       "brief": {
-        "zh": "交出矩阵 M 所表示的变换把 x 送到的那一点。",
-        "en": "Give the point that the map of the matrix M sends x to."
+        "zh": "交出矩阵 M 所表示的变换把 x 送到的那一点。"
       },
       "inputs": [{ "name": "M", "label": "M" }, { "name": "x", "label": "x" }],
       "outputs": [{ "name": "out", "label": "Mx" }],

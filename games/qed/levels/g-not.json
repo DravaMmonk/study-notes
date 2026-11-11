@@ -1,31 +1,27 @@
 {
   "symbols": ["¬"],
-  "title": { "zh": "不是不下雨", "en": "Not not raining" },
+  "title": { "zh": "不是不下雨" },
   "adds": ["gNot"],
   "tray": "gates",
   "intro": [
     {
       "t": {
-        "zh": "真值表要一行一行地填。<wiki-ref to=\"circuit\"></wiki-ref>只接一次，由机器在每一行上运行。",
-        "en": "A truth table is filled in row by row. A <wiki-ref to=\"circuit\"></wiki-ref> is wired once, and the machine runs it on every row."
+        "zh": "真值表要一行一行地填。<wiki-ref to=\"circuit\"></wiki-ref>只接一次，由机器在每一行上运行。"
       }
     },
     {
       "t": {
-        "zh": "左边的「下雨」输出它在当前行的真值；右边的「这句话」收下电路的输出。",
-        "en": "“It rains” on the left gives its value on the current row; “The sentence” on the right takes the board’s output."
+        "zh": "左边的「下雨」输出它在当前行的真值；右边的「这句话」收下电路的输出。"
       }
     },
     {
       "t": {
-        "zh": "新元件<part-ref to=\"part:gNot\"></part-ref>表示否定 <b>¬</b>：输入为真，输出假；输入为假，输出真。",
-        "en": "The new part <part-ref to=\"part:gNot\"></part-ref> stands for negation, <b>¬</b>: true in gives false out, false in gives true out."
+        "zh": "新元件<part-ref to=\"part:gNot\"></part-ref>表示否定 <b>¬</b>：输入为真，输出假；输入为假，输出真。"
       }
     },
     {
       "t": {
-        "zh": "点真值表的一行，板上会显示各元件在这一行的值。",
-        "en": "Select a row of the truth table to see each part’s value on that row."
+        "zh": "点真值表的一行，板上会显示各元件在这一行的值。"
       }
     }
   ],
@@ -35,10 +31,9 @@
       "kind": "gates",
       "target": "¬¬Rain",
       "brief": {
-        "zh": "接一块电路，算出「不是『不下雨』」在每一行的真值。",
-        "en": "Wire a board that works out the value of “it is not the case that it is not raining” on every row."
+        "zh": "接一块电路，算出「不是『不下雨』」在每一行的真值。"
       },
-      "hint": [{ "zh": "「不下雨」怎样接？再否定一次呢？", "en": "How is “it is not raining” wired? And negated once more?" }],
+      "hint": [{ "zh": "「不下雨」怎样接？再否定一次呢？" }],
       "solution": ["n1 = gNot(Rain)", "n2 = gNot(n1)", "out <- n2"]
     }
   ]

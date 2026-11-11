@@ -51,7 +51,7 @@ import { TRAY, TRAYS, partNames, trayIn } from './trays.js'
 import { defineCourse, eraLevels, layout, offer, usable } from '../course.js'
 import { S } from './schema.js'
 import { GAME_VIEWS, RESULTS, SHOW, START_VIEW, TASK_VIEWS, rowProblems, showProblems, valueText, viewsProblems } from './views.js'
-import { T as t, keyOf } from '../shell/i18n.js'
+import { T as t, keyOf, sideOf } from '../shell/i18n.js'
 import { mutationScore } from './mutate.js'
 
 /* ---------- the board ---------- */
@@ -539,7 +539,7 @@ export function judgeTicks(ticks, { checked, want, got = (tick, name) => tick.ou
       const w = want(name)?.[tick.tick]
       const g = got(tick, name)
       if (w === undefined || same(w, g)) continue
-      const failed = t(`第 ${tick.tick} 拍，「${label.zh ?? label}」应当是 ${word(w, 'zh')}，这块板给出 ${word(g, 'zh')}。`, `At tick ${tick.tick}, “${label.en ?? label}” should be ${word(w, 'en')}; the board gives ${word(g, 'en')}.`)
+      const failed = t(`第 ${tick.tick} 拍，「${sideOf(label, 'zh')}」应当是 ${word(w, 'zh')}，这块板给出 ${word(g, 'zh')}。`, `At tick ${tick.tick}, “${sideOf(label, 'en')}” should be ${word(w, 'en')}; the board gives ${word(g, 'en')}.`)
       return { ticks: ticks.map((x) => (x === tick ? { ...x, failed } : x)), fail: { tick: tick.tick, name, want: w, got: g } }
     }
   }

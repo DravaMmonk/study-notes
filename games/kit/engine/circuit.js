@@ -29,7 +29,7 @@
 /** A node that cannot compute, with a message for the player ({ zh, en } or a string). */
 export class PartError extends Error {
   constructor(message) {
-    super(typeof message === 'string' ? message : message?.en ?? 'part error')
+    super(typeof message === 'string' ? message : message?.en ?? message?.zh ?? 'part error')
     this.label = message
   }
 }

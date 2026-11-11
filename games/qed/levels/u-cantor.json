@@ -1,9 +1,8 @@
 {
-  "title": { "zh": "康托尔", "en": "Cantor" },
+  "title": { "zh": "康托尔" },
   "tray": "proof",
   "after": {
-    "zh": "这是<b>康托尔定理</b>：一个集合的子集，总比它的元素多。",
-    "en": "This is <b>Cantor’s theorem</b>: a set always has more subsets than elements."
+    "zh": "这是<b>康托尔定理</b>：一个集合的子集，总比它的元素多。"
   },
   "tasks": [
     {
@@ -14,15 +13,13 @@
       ],
       "cases": [{ "P": "In" }],
       "brief": {
-        "zh": "f 给每个 x 配一个集合 f(x)。已知每个集合都是某个 f(x)（f 是满射）；又有一个集合 z，装的正好是不属于 f(y) 的那些 y。推出矛盾 ⊥。",
-        "en": "f gives each x a set f(x). Every set is some f(x) (f is onto); and there is a set z holding exactly the y not in f(y). Get the contradiction ⊥."
+        "zh": "f 给每个 x 配一个集合 f(x)。已知每个集合都是某个 f(x)（f 是满射）；又有一个集合 z，装的正好是不属于 f(y) 的那些 y。推出矛盾 ⊥。"
       },
       "hint": [
-        { "zh": "先取出 z，再取出 f(x) 等于 z 的那个 x。", "en": "Take out z first, then the x whose f(x) is z." },
-        { "zh": "两句都取 y = x，会得到 X ↔ Y 和 Y ↔ ¬X。", "en": "Taking y = x in both gives X ↔ Y and Y ↔ ¬X." },
+        { "zh": "先取出 z，再取出 f(x) 等于 z 的那个 x。" },
+        { "zh": "两句都取 y = x，会得到 X ↔ Y 和 Y ↔ ¬X。" },
         {
-          "zh": "由这两句凑出<part-ref to=\"lemma:liar\"></part-ref>要的那句。",
-          "en": "From these two, build what <part-ref to=\"lemma:liar\"></part-ref> needs."
+          "zh": "由这两句凑出<part-ref to=\"lemma:liar\"></part-ref>要的那句。"
         }
       ],
       "solution": [

@@ -1,34 +1,31 @@
 {
-  "title": { "zh": "谁是祖父母", "en": "Who is a grandparent" },
+  "title": { "zh": "谁是祖父母" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"q-grand\"></level-ref>里，「祖父母」写成了一句查询。这一次它是一条规则：⟦?x是?y的父母; ?y是?z的父母⟧ ⟹ ?x是?z的祖父母。族谱上的事实是目标的已知。",
-        "en": "In <level-ref to=\"q-grand\"></level-ref>, “grandparent” was written as a query. This time it is a rule: ⟦?x is a parent of ?y; ?y is a parent of ?z⟧ ⟹ ?x is a grandparent of ?z. The family tree’s facts are the goal’s givens."
+        "zh": "<level-ref to=\"q-grand\"></level-ref>里，「祖父母」写成了一句查询。这一次它是一条规则：⟦?x是?y的父母; ?y是?z的父母⟧ ⟹ ?x是?z的祖父母。族谱上的事实是目标的已知。"
       }
     },
     {
       "t": {
-        "zh": "问题本身带着 ?：「?w是茜的祖父母」。每一种证法里 ?w 是谁，就是一个答案。",
-        "en": "The question itself holds a ?-letter: “?w is a grandparent of Cy”. Who ?w is in each way of proving it is an answer."
+        "zh": "问题本身带着 ?：「?w是茜的祖父母」。每一种证法里 ?w 是谁，就是一个答案。"
       }
     }
   ],
   "after": {
-    "zh": "这就是 Prolog：程序是一组规则，提问是证明一个带 ? 的目标。",
-    "en": "This is Prolog: a program is a set of rules, and a question is a goal with ?-letters to prove."
+    "zh": "这就是 Prolog：程序是一组规则，提问是证明一个带 ? 的目标。"
   },
   "tasks": [
     {
       "id": "pl-grand",
       "kind": "machine",
       "want": "answers",
-      "inputs": [{ "name": "in", "label": { "zh": "问题", "en": "Question" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "问题" } }],
       "backtrack": true,
       "rules": {
         "grand": {
-          "name": { "zh": "祖父母", "en": "Grandparent" },
+          "name": { "zh": "祖父母" },
           "premises": ["Parent(?x, ?y)", "Parent(?y, ?z)"],
           "conclusion": "Grand(?x, ?z)"
         }
@@ -50,10 +47,10 @@
           "answers": ["k", "l"]
         }
       ],
-      "brief": { "zh": "设计一个证明助手，找出每个问题的所有答案。", "en": "Design a proof assistant that finds every answer to each question." },
+      "brief": { "zh": "设计一个证明助手，找出每个问题的所有答案。" },
       "hint": [
-        { "zh": "倒着用规则「祖父母」。", "en": "Use the rule Grandparent backwards." },
-        { "zh": "每一种对法都是一个答案。", "en": "Every way of fitting is an answer." }
+        { "zh": "倒着用规则「祖父母」。" },
+        { "zh": "每一种对法都是一个答案。" }
       ],
       "solution": ["c0r0 = grand()", "c0 = rule(in, c0r0)", "c1 = assumption(c0)", "c2 = assumption(c1)", "out <- c2"]
     }

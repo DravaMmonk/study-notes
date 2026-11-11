@@ -1,18 +1,16 @@
 {
-  "title": { "zh": "面积再放大", "en": "Area, twice over" },
+  "title": { "zh": "面积再放大" },
   "intro": [
-    { "t": { "zh": "先 B 后 A：面积先被 B 放大，再被 A 放大。", "en": "First B, then A: area is scaled by B, then by A." } }
+    { "t": { "zh": "先 B 后 A：面积先被 B 放大，再被 A 放大。" } }
   ],
   "after": {
-    "zh": "det(AB) = det A · det B：两个倍数相乘。",
-    "en": "det(AB) = det A · det B: the two factors multiply."
+    "zh": "det(AB) = det A · det B：两个倍数相乘。"
   },
   "tasks": [
     {
       "id": "3-2",
       "brief": {
-        "zh": "交出先 B、再 A 这个变换把面积放大的倍数（翻面时为负）。",
-        "en": "Give the factor by which B followed by A scales area (negative if it turns the plane over)."
+        "zh": "交出先 B、再 A 这个变换把面积放大的倍数（翻面时为负）。"
       },
       "inputs": [{ "name": "A", "label": "A" }, { "name": "B", "label": "B" }],
       "outputs": [{ "name": "d", "label": "det AB" }],

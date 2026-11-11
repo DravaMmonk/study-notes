@@ -1,21 +1,20 @@
 {
-  "title": { "zh": "算一算", "en": "Work it out" },
+  "title": { "zh": "算一算" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "定义也是改写规则：<part-ref to=\"lemma:simp\"></part-ref>的规则里多了一组「定义」。<level-ref to=\"nl-plus\"></level-ref>里手算的，可以交给它。",
-        "en": "A definition is a rewrite rule too: <part-ref to=\"lemma:simp\"></part-ref> now has a group of definitions among its rules. What <level-ref to=\"nl-plus\"></level-ref> did by hand can be left to it."
+        "zh": "定义也是改写规则：<part-ref to=\"lemma:simp\"></part-ref>的规则里多了一组「定义」。<level-ref to=\"nl-plus\"></level-ref>里手算的，可以交给它。"
       }
     }
   ],
-  "after": { "zh": "在证明助手里，计算就是改写。", "en": "In a proof assistant, computing is rewriting." },
+  "after": { "zh": "在证明助手里，计算就是改写。" },
   "tasks": [
     {
       "id": "sp-compute",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "defs": ["plus"],
@@ -24,11 +23,10 @@
         { "goal": "plus(s(s(zero)), s(zero)) = s(s(s(zero)))" },
         { "goal": "plus(zero, s(s(zero))) = s(s(zero))" }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
       "hint": [
         {
-          "zh": "先让化简用两条定义把左边算出来；两边一样以后，用<part-ref to=\"part:rule\"></part-ref>接上<part-ref to=\"part:refl\"></part-ref>。",
-          "en": "Let Simp work the left side out with the two definitions; once both sides are the same, <part-ref to=\"part:rule\"></part-ref> with <part-ref to=\"part:refl\"></part-ref>."
+          "zh": "先让化简用两条定义把左边算出来；两边一样以后，用<part-ref to=\"part:rule\"></part-ref>接上<part-ref to=\"part:refl\"></part-ref>。"
         }
       ],
       "solution": [

@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "回文", "en": "Palindromes" },
-  "short": { "zh": "一张三角形的表", "en": "A triangular table" },
+  "title": { "zh": "回文" },
+  "short": { "zh": "一张三角形的表" },
   "intro": [
     {
       "t": {
-        "zh": "回文是正着读、倒着读都一样的字串，比如 ABA、RACECAR。从一个词里删掉一些字母（剩下的保持顺序），<b>最长能留下多长的回文</b>？比如 CHARACTER 里能留下 CARAC。",
-        "en": "A palindrome reads the same forwards and backwards, like ABA or RACECAR. If you delete some letters from a word (the rest keep their order), <b>what is the longest palindrome you can leave</b>? From CHARACTER, for example, you can leave CARAC."
+        "zh": "回文是正着读、倒着读都一样的字串，比如 ABA、RACECAR。从一个词里删掉一些字母（剩下的保持顺序），<b>最长能留下多长的回文</b>？比如 CHARACTER 里能留下 CARAC。"
       }
     },
     {
       "t": {
-        "zh": "新的表：<b>区间表</b>。格子 (i, j) 记着「第 i 个到第 j 个字母这一段」的答案。只用到右上半张，因为一段的开头总在结尾的左边。右上角就是整个词的答案。",
-        "en": "A new table: the <b>interval table</b>. Cell (i, j) holds the answer for “the stretch from letter i to letter j”. Only the upper-right half is used, because a stretch always starts to the left of where it ends. The top-right corner is the answer for the whole word."
+        "zh": "新的表：<b>区间表</b>。格子 (i, j) 记着「第 i 个到第 j 个字母这一段」的答案。只用到右上半张，因为一段的开头总在结尾的左边。右上角就是整个词的答案。"
       },
       "fig": {
         "scene": {
@@ -37,49 +35,41 @@
     },
     {
       "t": {
-        "zh": "对角线上是单个字母，它自己就是长度 1 的回文，已经填好了。对角线下面那一排是「空段」，一个字母都没有，填 0。",
-        "en": "The diagonal holds single letters, each a palindrome of length 1 on its own, already filled in. The line just under the diagonal is “empty runs” with no letters at all, filled with 0."
+        "zh": "对角线上是单个字母，它自己就是长度 1 的回文，已经填好了。对角线下面那一排是「空段」，一个字母都没有，填 0。"
       }
     },
     {
       "t": {
-        "zh": "机器人站在 (i, j) 上：<b>左边</b>一格是去掉右端的那一段，<b>下面</b>一格是去掉左端的那一段，<b>左下</b>是两端都去掉的那一段。「本格信息」里有「两端相同」。只看两端的两个字母，想想相同和不同时各该怎么办。",
-        "en": "The robot stands on (i, j): the cell to the <b>left</b> is the stretch without its right end, the cell <b>below</b> is the stretch without its left end, and <b>down-left</b> is the stretch without both ends. The This cell panel has “ends match”. Look only at the two letters at the ends, and think what to do when they match and when they don’t."
+        "zh": "机器人站在 (i, j) 上：<b>左边</b>一格是去掉右端的那一段，<b>下面</b>一格是去掉左端的那一段，<b>左下</b>是两端都去掉的那一段。「本格信息」里有「两端相同」。只看两端的两个字母，想想相同和不同时各该怎么办。"
       }
     },
     {
       "t": {
-        "zh": "这台机器人<b>按长度</b>扫：先算所有最短的段，再算长一点的，一条斜线一条斜线地往右上角推。",
-        "en": "This robot scans <b>by length</b>: first every shortest stretch, then the longer ones, one diagonal at a time towards the top-right corner."
+        "zh": "这台机器人<b>按长度</b>扫：先算所有最短的段，再算长一点的，一条斜线一条斜线地往右上角推。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "算出每个词里最长的回文子序列：删掉一些字母后，正着读和倒着读都一样的最长字串。",
-      "en": "Find the longest palindromic subsequence in each word: the longest string, left after deleting some letters, that reads the same forwards and backwards."
+      "zh": "算出每个词里最长的回文子序列：删掉一些字母后，正着读和倒着读都一样的最长字串。"
     },
     "how": {
-      "zh": "拼好电路，点「运行测试」。机器人按长度扫：长的段读到的，总是已经算好的短段。",
-      "en": "Build the circuit and click “Run tests”. The robot scans by length, so a long stretch only ever reads shorter stretches that are already computed."
+      "zh": "拼好电路，点「运行测试」。机器人按长度扫：长的段读到的，总是已经算好的短段。"
     }
   },
   "robot": "ranger",
   "debrief": {
-    "title": { "zh": "区间表", "en": "The interval table" },
+    "title": { "zh": "区间表" },
     "body": [
       {
-        "zh": "区间表的每一格，都靠<b>更短的段</b>算出来：去掉一端，或去掉两端。所以短的段要先算：这台机器按长度从短到长。",
-        "en": "Every cell of an interval table is computed from <b>shorter stretches</b>: with one end dropped, or both. So the short stretches have to come first: this machine goes by length from shortest to longest."
+        "zh": "区间表的每一格，都靠<b>更短的段</b>算出来：去掉一端，或去掉两端。所以短的段要先算：这台机器按长度从短到长。"
       },
       {
-        "zh": "CHARACTER 里藏着 CARAC，BBABCBCAB 里藏着 BABCBAB。找 DNA 里的回文结构，用的就是这张表。",
-        "en": "CHARACTER hides CARAC, and BBABCBCAB hides BABCBAB. Finding palindromic structures in DNA uses exactly this table."
+        "zh": "CHARACTER 里藏着 CARAC，BBABCBCAB 里藏着 BABCBAB。找 DNA 里的回文结构，用的就是这张表。"
       }
     ],
     "note": {
-      "zh": "区间表：(i, j) 记一段的答案，靠更短的段算出来。",
-      "en": "Interval table: (i, j) holds the answer for a stretch, computed from shorter stretches."
+      "zh": "区间表：(i, j) 记一段的答案，靠更短的段算出来。"
     }
   },
   "tasks": [
@@ -89,16 +79,13 @@
       "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
       "hints": [
         {
-          "zh": "两端相同时，两端都能留下。剩下的是哪一段，答案又要加几？用放行闸，条件接「两端相同」。",
-          "en": "When the ends match, both can stay. Which stretch is left, and how much do you add? Use a Pass gate with “ends match” as its condition."
+          "zh": "两端相同时，两端都能留下。剩下的是哪一段，答案又要加几？用放行闸，条件接「两端相同」。"
         },
         {
-          "zh": "两端不同时，至少丢掉一端：去掉右端（左边）或去掉左端（下面），取较大。三路都接进「取较大」。",
-          "en": "When the ends differ, at least one has to go: drop the right end (left) or the left end (down), and take the larger. Wire all three into “max”."
+          "zh": "两端不同时，至少丢掉一端：去掉右端（左边）或去掉左端（下面），取较大。三路都接进「取较大」。"
         },
         {
-          "zh": "不用担心顺序：每格读的左边、下面、左下都是更短的段，机器人按长度扫，它们一定先算好了。",
-          "en": "No need to worry about the order: left, down and down-left are all shorter stretches, and since the robot scans by length they are always computed first."
+          "zh": "不用担心顺序：每格读的左边、下面、左下都是更短的段，机器人按长度扫，它们一定先算好了。"
         }
       ],
       "world": "interval",

@@ -1,12 +1,11 @@
 {
   "adds": ["frule"],
   "tray": "machine",
-  "title": { "zh": "同一条用两次", "en": "The same given twice" },
+  "title": { "zh": "同一条用两次" },
   "intro": [
     {
       "t": {
-        "zh": "往前推不会拿走原来的已知：「对所有」那一句用过一次还在，可以再用，取另一样东西。",
-        "en": "Going forward does not take the given away: the “for all” sentence is still there after one use, and can be used again, for another thing."
+        "zh": "往前推不会拿走原来的已知：「对所有」那一句用过一次还在，可以再用，取另一样东西。"
       }
     }
   ],
@@ -15,13 +14,13 @@
       "id": "r-frule",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "tests": [
         { "goal": "Even(s(s(s(s(zero)))))", "hyps": ["∀x. Even(x) → Even(s(s(x)))", "Even(zero)"] },
         { "goal": "Odd(s(s(s(s(s(zero))))))", "hyps": ["∀x. Odd(x) → Odd(s(s(x)))", "Odd(s(zero))"] }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "「对所有」那一句，用一次够吗？", "en": "Is one use of the “for all” given enough?" }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "「对所有」那一句，用一次够吗？" }],
       "solution": [
         "c0r0 = allE[use=[spec]]()",
         "c1r0 = allE[use=[spec]]()",

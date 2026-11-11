@@ -1,30 +1,27 @@
 {
-  "title": { "zh": "合成一个", "en": "Made one" },
+  "title": { "zh": "合成一个" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"2-3\"></level-ref>里每支箭头都走了两遍变换。两个线性变换接连作用，格线仍然平行等距，原点仍然不动，所以合起来也是一个线性变换，也有它的矩阵。",
-        "en": "In <level-ref to=\"2-3\"></level-ref> every arrow went through two maps. Two linear maps one after the other keep the grid lines parallel and evenly spaced and the origin still: together they are one linear map, with a matrix of its own."
+        "zh": "<level-ref to=\"2-3\"></level-ref>里每支箭头都走了两遍变换。两个线性变换接连作用，格线仍然平行等距，原点仍然不动，所以合起来也是一个线性变换，也有它的矩阵。"
       }
     }
   ],
   "after": {
-    "zh": "这就是<wiki-ref to=\"matrix-product\"></wiki-ref>：AB 表示先作用 B、再作用 A。",
-    "en": "This is the <wiki-ref to=\"matrix-product\"></wiki-ref>: AB means B first, then A."
+    "zh": "这就是<wiki-ref to=\"matrix-product\"></wiki-ref>：AB 表示先作用 B、再作用 A。"
   },
   "builds": {
     "type": "compose",
-    "name": { "zh": "矩阵乘法", "en": "Product" },
+    "name": { "zh": "矩阵乘法" },
     "desc": {
-      "zh": "给出先作用 B、再作用 A 的变换的矩阵 AB。",
-      "en": "Gives AB, the matrix of the map that applies B and then A."
+      "zh": "给出先作用 B、再作用 A 的变换的矩阵 AB。"
     }
   },
   "tasks": [
     {
       "id": "2-4",
-      "brief": { "zh": "交出先 B、再 A 这个变换的矩阵 AB。", "en": "Give AB, the matrix of B followed by A." },
-      "hint": [{ "zh": "它的第一列是 î 最后的落点。", "en": "Its first column is where î ends up." }],
+      "brief": { "zh": "交出先 B、再 A 这个变换的矩阵 AB。" },
+      "hint": [{ "zh": "它的第一列是 î 最后的落点。" }],
       "inputs": [{ "name": "A", "label": "A" }, { "name": "B", "label": "B" }],
       "outputs": [{ "name": "AB", "label": "AB" }],
       "tests": [

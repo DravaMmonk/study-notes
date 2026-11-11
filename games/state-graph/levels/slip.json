@@ -1,59 +1,50 @@
 {
-  "title": { "zh": "会打滑的地板", "en": "A slippery floor" },
-  "short": { "zh": "按可能性加权", "en": "Weight by likelihood" },
+  "title": { "zh": "会打滑的地板" },
+  "short": { "zh": "按可能性加权" },
   "intro": [
     {
       "t": {
-        "zh": "冰面会打滑。这一关机器人只往<b>右</b>或往<b>下</b>走，可每走一步，都有 <b>20%</b> 的可能滑向另一个方向：想往右，可能滑到下面；想往下，可能滑到右边。",
-        "en": "Ice is slippery. In this level the robot moves only <b>right</b> or <b>down</b>, but every step has a <b>20%</b> chance of sliding the other way: aiming right, it may slide down; aiming down, it may slide right."
+        "zh": "冰面会打滑。这一关机器人只往<b>右</b>或往<b>下</b>走，可每走一步，都有 <b>20%</b> 的可能滑向另一个方向：想往右，可能滑到下面；想往下，可能滑到右边。"
       }
     },
     {
       "t": {
-        "zh": "地图最下一行和最右一列是<b>悬崖</b>（−10），宝藏就在悬崖边上。",
-        "en": "The bottom row and right-hand column of the map are <b>cliffs</b> (−10), and the treasure sits right at the cliff edge."
+        "zh": "地图最下一行和最右一列是<b>悬崖</b>（−10），宝藏就在悬崖边上。"
       }
     },
     {
       "t": {
-        "zh": "结果不确定时，一个动作的价值，是几种结果<b>按可能性加权</b>：往右 = 0.8 × 右边 + 0.2 × 下面。两个动作挑好的那个，再打九折。",
-        "en": "When the outcome is uncertain, an action’s value is its outcomes <b>weighted by how likely they are</b>: going right = 0.8 × right + 0.2 × down. Pick the better of the two actions, then discount by 10%."
+        "zh": "结果不确定时，一个动作的价值，是几种结果<b>按可能性加权</b>：往右 = 0.8 × 右边 + 0.2 × 下面。两个动作挑好的那个，再打九折。"
       }
     },
     {
       "t": {
-        "zh": "电路会比较大。小窍门：一个常数可以同时接给好几个乘法器。",
-        "en": "The circuit will be fairly big. A tip: one Constant can be wired into several Multipliers at once."
+        "zh": "电路会比较大。小窍门：一个常数可以同时接给好几个乘法器。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "只往右或往下走，每一步有 20% 的可能滑向另一个方向。每一格的价值 = 0.9 × 两个动作里较好的那个；往右 = 0.8 × 右边 + 0.2 × 下面，往下 = 0.8 × 下面 + 0.2 × 右边。",
-      "en": "Move only right or down; every step has a 20% chance of sliding the other way. Each cell’s value = 0.9 × the better of the two actions; going right = 0.8 × right + 0.2 × down, going down = 0.8 × down + 0.2 × right."
+      "zh": "只往右或往下走，每一步有 20% 的可能滑向另一个方向。每一格的价值 = 0.9 × 两个动作里较好的那个；往右 = 0.8 × 右边 + 0.2 × 下面，往下 = 0.8 × 下面 + 0.2 × 右边。"
     },
     "how": {
-      "zh": "这一关会检查整张表。通过后，每一格会长出最好动作的箭头。",
-      "en": "This level checks the whole table. Once you pass, each cell grows an arrow for its best action."
+      "zh": "这一关会检查整张表。通过后，每一格会长出最好动作的箭头。"
     }
   },
   "robot": "loop",
   "unlock": "expect",
   "debrief": {
-    "title": { "zh": "期望", "en": "Expectation" },
+    "title": { "zh": "期望" },
     "body": [
       {
-        "zh": "会滑倒，悬崖边的格子就都「变差」了：明明离宝藏只差一步，可往右一走，有 20% 的可能掉下悬崖。看看箭头：贴着悬崖时，机器人宁可选那个滑倒也不要紧的方向。",
-        "en": "Because the robot can slip, every cell along the cliff edge gets “worse”: it may be one step from the treasure, but going right carries a 20% chance of falling off. Look at the arrows: hugging the cliff, the robot prefers the direction where a slip does no harm."
+        "zh": "会滑倒，悬崖边的格子就都「变差」了：明明离宝藏只差一步，可往右一走，有 20% 的可能掉下悬崖。看看箭头：贴着悬崖时，机器人宁可选那个滑倒也不要紧的方向。"
       },
       {
-        "zh": "把每种结果按可能性加权，叫作<part-ref to=\"expect\"></part-ref>。带着不确定性一步步做决定的问题，叫<b>马尔可夫决策过程</b>，它是强化学习的数学骨架。",
-        "en": "Weighting each outcome by how likely it is gives the <part-ref to=\"expect\"></part-ref>. Making decisions step by step under uncertainty is called a <b>Markov decision process</b>, the mathematical skeleton of reinforcement learning."
+        "zh": "把每种结果按可能性加权，叫作<part-ref to=\"expect\"></part-ref>。带着不确定性一步步做决定的问题，叫<b>马尔可夫决策过程</b>，它是强化学习的数学骨架。"
       }
     ],
     "note": {
-      "zh": "结果不确定时，一个动作的价值 = 每种结果按可能性加权。",
-      "en": "When the outcome is uncertain, an action’s value = each outcome weighted by how likely it is."
+      "zh": "结果不确定时，一个动作的价值 = 每种结果按可能性加权。"
     }
   },
   "tasks": [
@@ -71,11 +62,10 @@
       "consts": [0, 0.1, 0.2, 0.5, 0.8, 0.9, 1],
       "hints": [
         {
-          "zh": "往右这个动作：0.8 × 右边 + 0.2 × 下面。两个乘法器，一个加法器。",
-          "en": "The “go right” action: 0.8 × right + 0.2 × down. Two Multipliers and an Adder."
+          "zh": "往右这个动作：0.8 × 右边 + 0.2 × 下面。两个乘法器，一个加法器。"
         },
-        { "zh": "往下这个动作：0.8 × 下面 + 0.2 × 右边。", "en": "The “go down” action: 0.8 × down + 0.2 × right." },
-        { "zh": "两个动作取较大，再乘 0.9。", "en": "Take the larger of the two actions, then multiply by 0.9." }
+        { "zh": "往下这个动作：0.8 × 下面 + 0.2 × 右边。" },
+        { "zh": "两个动作取较大，再乘 0.9。" }
       ],
       "world": "vgrid",
       "facts": ["slip", "grip"],

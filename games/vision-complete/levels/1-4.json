@@ -1,41 +1,36 @@
 {
-  "title": { "zh": "更圆的模糊", "en": "A rounder blur" },
+  "title": { "zh": "更圆的模糊" },
   "tray": "pipeline",
   "after": {
-    "zh": "平均一次是方的，平均三次几乎就是高斯了。平滑叠平滑会越来越像高斯，所以高斯在视觉里无处不在。",
-    "en": "Averaging once gives a square; averaging three times is almost a Gaussian. Smoothing on top of smoothing looks more and more like a Gaussian, which is why Gaussians are everywhere in vision."
+    "zh": "平均一次是方的，平均三次几乎就是高斯了。平滑叠平滑会越来越像高斯，所以高斯在视觉里无处不在。"
   },
   "intro": [
     {
       "t": {
-        "zh": "方块模糊有个毛病：它把一个亮点摊成一块平顶的方墩，有硬边，也有角。镜头失焦拍出的光点却是圆的，从中心往外慢慢变淡。",
-        "en": "Box blur has a flaw: it spreads a bright dot into a flat-topped square block, with hard edges and corners. But a point of light shot through an out-of-focus lens is round, fading gradually outwards from the centre."
+        "zh": "方块模糊有个毛病：它把一个亮点摊成一块平顶的方墩，有硬边，也有角。镜头失焦拍出的光点却是圆的，从中心往外慢慢变淡。"
       },
       "fig": {
         "part": "box3",
         "view": "terrain",
-        "caption": { "zh": "3×3 平均处理一个亮点，用地形画法看", "en": "A 3×3 average applied to a bright dot, in terrain view" },
+        "caption": { "zh": "3×3 平均处理一个亮点，用地形画法看" },
         "input": "impulse"
       }
     },
     {
       "t": {
-        "zh": "这种柔和的模糊叫<part-ref to=\"gauss\"></part-ref>：中心权重最大，越远越小，切开看像一口钟。σ 越大，钟越宽，图越糊。修图软件里最常用的模糊就是它。",
-        "en": "This soft blur is called a <part-ref to=\"gauss\"></part-ref>: the weight is largest at the centre and smaller further out, and a slice through it looks like a bell. The larger σ, the wider the bell and the blurrier the image. It is the blur photo editors use most."
+        "zh": "这种柔和的模糊叫<part-ref to=\"gauss\"></part-ref>：中心权重最大，越远越小，切开看像一口钟。σ 越大，钟越宽，图越糊。修图软件里最常用的模糊就是它。"
       }
     },
     {
       "t": {
-        "zh": "新画法「地形」：把亮度当成高度，亮的地方是山，暗的地方是谷。",
-        "en": "A new way of drawing, \"Terrain\": brightness becomes height, so bright places are hills and dark places are valleys."
+        "zh": "新画法「地形」：把亮度当成高度，亮的地方是山，暗的地方是谷。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：手里没有高斯，只有 3×3 平均，却要做出和目标几乎一样的结果。用地形画法看，亮点的期望是一座圆滑的小山。",
-        "en": "Your task in this level: you have no Gaussian, only the 3×3 average, yet you must produce almost exactly the target result. In terrain view, the expected output for a bright dot is a smooth little hill."
+        "zh": "这一关你要做的：手里没有高斯，只有 3×3 平均，却要做出和目标几乎一样的结果。用地形画法看，亮点的期望是一座圆滑的小山。"
       },
-      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组测试：亮点", "en": "Set 1: bright dot" } }
+      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组测试：亮点" } }
     }
   ],
   "unlocks": ["gauss"],
@@ -44,23 +39,22 @@
       "id": "1-4",
       "kind": "graph",
       "brief": {
-        "zh": "做出和目标一样的柔和模糊（σ ≈ 1.4 的高斯）。手里只有 3×3 平均。",
-        "en": "Make the same soft blur as the target (a Gaussian with σ ≈ 1.4). All you have is the 3×3 average."
+        "zh": "做出和目标一样的柔和模糊（σ ≈ 1.4 的高斯）。手里只有 3×3 平均。"
       },
-      "hint": { "zh": "一次平均太“方”。多来几次会怎样？", "en": "One average is too \"square\". What happens if you do it a few more times?" },
+      "hint": { "zh": "一次平均太“方”。多来几次会怎样？" },
       "views": { "out": "terrain" },
       "check": { "tolerance": 0.025 },
       "scene": "filter",
       "setup": { "target": { "gauss": { "sigma": 1.4142135623730951, "radius": 4 } } },
       "tests": [
-        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } },
-        { "label": { "zh": "方块", "en": "Square" }, "in": { "square": { "x0": 5, "y0": 5, "s": 6 } } },
-        { "label": { "zh": "圆盘", "en": "Disc" }, "in": { "disk": { "cx": 7.5, "cy": 7.5, "r": 3.5 } } }
+        { "label": { "zh": "亮点" }, "in": { "impulse": { "x": 7, "y": 7 } } },
+        { "label": { "zh": "方块" }, "in": { "square": { "x0": 5, "y0": 5, "s": 6 } } },
+        { "label": { "zh": "圆盘" }, "in": { "disk": { "cx": 7.5, "cy": 7.5, "r": 3.5 } } }
       ],
       "hidden": [
-        { "label": { "zh": "偏一边的亮点", "en": "Off-centre bright dot" }, "in": { "impulse": { "x": 4, "y": 10 } } },
-        { "label": { "zh": "偏一边的圆盘", "en": "Off-centre disc" }, "in": { "disk": { "cx": 9.5, "cy": 6.5, "r": 3 } } },
-        { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } }
+        { "label": { "zh": "偏一边的亮点" }, "in": { "impulse": { "x": 4, "y": 10 } } },
+        { "label": { "zh": "偏一边的圆盘" }, "in": { "disk": { "cx": 9.5, "cy": 6.5, "r": 3 } } },
+        { "label": { "zh": "字母 T" }, "in": { "glyph": { "letter": "T" } } }
       ],
       "solution": ["a = box3(in)", "b = box3(a)", "c = box3(b)", "out <- c"],
       "naive": ["a = box3(in)", "b = box3(a)", "out <- b"]

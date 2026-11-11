@@ -1,37 +1,32 @@
 {
-  "title": { "zh": "青蛙过河", "en": "The frog crosses" },
-  "short": { "zh": "伸缩臂", "en": "The telescopic arm" },
+  "title": { "zh": "青蛙过河" },
+  "short": { "zh": "伸缩臂" },
   "intro": [
     {
       "t": {
-        "zh": "一只青蛙要过河。河里一排石头，岸边算第 0 块。每块石头上写着「↶ k」：<b>青蛙只能从往回数第 k 块石头跳到这里</b>。",
-        "en": "A frog wants to cross a river. There is a row of stones, and the bank counts as stone 0. Each stone says “↶ k”: <b>the frog can only jump onto it from the stone k back</b>."
+        "zh": "一只青蛙要过河。河里一排石头，岸边算第 0 块。每块石头上写着「↶ k」：<b>青蛙只能从往回数第 k 块石头跳到这里</b>。"
       }
     },
     {
       "t": {
-        "zh": "往回数的那块可能很远，5×5 的视野装不下。这一代的机器人「长臂」有一条<wiki-ref to=\"arms\"></wiki-ref>：站在每块石头上，它会伸到往回数第 k 块。伸缩臂够到的那一格在视野下面，点它，视野元件上就多一个输出口。",
-        "en": "The stone k back can be far away, out of a 5×5 view. This era’s robot, Longarm, has a <wiki-ref to=\"arms\"></wiki-ref>: on each stone it reaches the stone k back. What the arm reaches sits under the view; click it and the View part gets an output for it."
+        "zh": "往回数的那块可能很远，5×5 的视野装不下。这一代的机器人「长臂」有一条<wiki-ref to=\"arms\"></wiki-ref>：站在每块石头上，它会伸到往回数第 k 块。伸缩臂够到的那一格在视野下面，点它，视野元件上就多一个输出口。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "算出青蛙跳到最后一块石头，<b>一共要跳几次</b>。",
-      "en": "Work out <b>how many jumps</b> the frog needs to reach the last stone."
+      "zh": "算出青蛙跳到最后一块石头，<b>一共要跳几次</b>。"
     },
     "how": {
-      "zh": "从岸边往前，一块一块算。岸边还没跳，是 0 次。",
-      "en": "Work forward from the bank, stone by stone. On the bank the frog hasn’t jumped yet: 0 jumps."
+      "zh": "从岸边往前，一块一块算。岸边还没跳，是 0 次。"
     }
   },
   "robot": "reach",
   "debrief": {
-    "title": { "zh": "够得到任意远", "en": "Reaching however far" },
+    "title": { "zh": "够得到任意远" },
     "body": [
       {
-        "zh": "视野只看身边。伸缩臂让一格读到任意远的一格，远到多少，由这一格自己写的数决定。",
-        "en": "The view only sees what is nearby. The arm lets a cell read a cell however far away, and how far is decided by the number written on the cell itself."
+        "zh": "视野只看身边。伸缩臂让一格读到任意远的一格，远到多少，由这一格自己写的数决定。"
       }
     ]
   },
@@ -43,17 +38,15 @@
         {
           "when": { "not": { "uses": "back" } },
           "say": {
-            "zh": "青蛙是从往回数第 k 块跳来的，那块要用伸缩臂去读。",
-            "en": "The frog jumps from the stone k back, and that stone is read with the arm."
+            "zh": "青蛙是从往回数第 k 块跳来的，那块要用伸缩臂去读。"
           }
         }
       ],
       "hints": [
         {
-          "zh": "跳到这块之前，青蛙在伸缩臂够到的那块上：那里的次数 + 1。",
-          "en": "Before this jump the frog was on the stone the arm reaches: its count + 1."
+          "zh": "跳到这块之前，青蛙在伸缩臂够到的那块上：那里的次数 + 1。"
         },
-        { "zh": "岸边还没跳：放行闸放过一个 0。", "en": "On the bank there are no jumps yet: let a 0 through a Pass gate." }
+        { "zh": "岸边还没跳：放行闸放过一个 0。" }
       ],
       "world": "river",
       "facts": ["bank"],

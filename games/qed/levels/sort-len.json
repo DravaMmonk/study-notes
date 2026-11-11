@@ -1,24 +1,23 @@
 {
-  "title": { "zh": "一个都不少", "en": "None lost" },
+  "title": { "zh": "一个都不少" },
   "tray": "machine",
-  "intro": [{ "t": { "zh": "排序前后，列表一样长。", "en": "A list is as long after sorting as before." } }],
+  "intro": [{ "t": { "zh": "排序前后，列表一样长。" } }],
   "after": {
-    "zh": "程序和它的性质写在同一个系统里，一并证明：这叫<b>程序验证</b>。",
-    "en": "A program and its properties, written and proved in one system: this is <b>program verification</b>."
+    "zh": "程序和它的性质写在同一个系统里，一并证明：这叫<b>程序验证</b>。"
   },
   "tasks": [
     {
       "id": "sort-len",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["list"],
       "defs": ["le", "if", "ins", "sort", "len"],
       "tests": [{ "goal": "∀xs. len(sort(xs)) = len(xs)" }],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "化简卡在 len (ins x …) 上。", "en": "Simp gets stuck on len (ins x …)." }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "化简卡在 len (ins x …) 上。" }],
       "solution": [
         "c0r0 = math[use=[\"list.induct\"]]()",
         "c0 = rule(in, c0r0)",

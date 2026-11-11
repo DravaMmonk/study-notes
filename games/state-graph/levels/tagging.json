@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "猜词性", "en": "Guess the part of speech" },
-  "short": { "zh": "每个词是名词还是动词", "en": "Is each word a noun or a verb?" },
+  "title": { "zh": "猜词性" },
+  "short": { "zh": "每个词是名词还是动词" },
   "intro": [
     {
       "t": {
-        "zh": "新的一章，把动态规划用到句子上。「他研究历史」里，「研究」是<b>动词</b>；「这项研究」里，它是<b>名词</b>。电脑怎么判断一句话里每个词的词性？",
-        "en": "A new chapter, putting dynamic programming to work on sentences. In “he studies history”, “studies” is a <b>verb</b>; in “these studies”, it is a <b>noun</b>. How does a computer decide the part of speech of every word in a sentence?"
+        "zh": "新的一章，把动态规划用到句子上。「他研究历史」里，「研究」是<b>动词</b>；「这项研究」里，它是<b>名词</b>。电脑怎么判断一句话里每个词的词性？"
       }
     },
     {
       "t": {
-        "zh": "两条线索：一个词<b>当某种词性的代价</b>（「研究」当动词更常见，代价小），和<b>前后两个词性接在一起的代价</b>（名词后面接动词很自然，代价 0；名词后面再接名词，代价 3）。整句的代价，是这些代价加起来。挑总代价最小的那种标法。",
-        "en": "Two clues: the <b>cost of a word taking a given part of speech</b> (“studies” is more often a verb, so that costs less), and the <b>cost of one part of speech following another</b> (a verb after a noun is natural, cost 0; another noun after a noun costs 3). The cost of the whole sentence is all of these added up. Pick the tagging with the smallest total cost."
+        "zh": "两条线索：一个词<b>当某种词性的代价</b>（「研究」当动词更常见，代价小），和<b>前后两个词性接在一起的代价</b>（名词后面接动词很自然，代价 0；名词后面再接名词，代价 3）。整句的代价，是这些代价加起来。挑总代价最小的那种标法。"
       }
     },
     {
       "t": {
-        "zh": "还是一张表：行是三种词性，列是句子里的词，最左边是「句首」，存着 0。格子 (词性, 第几个词) 记：<b>前面这些词标好、这个词标成这种词性，最少要多少代价</b>。格子角上的小数字，是这个词当这种词性的代价；× 表示不可能。",
-        "en": "It is a table again: rows are the three parts of speech, columns are the words of the sentence, and on the far left is “start”, holding 0. Cell (part of speech, word k) records: <b>with the words before it tagged, and this word tagged as this part of speech, the least it can cost</b>. The small number in a cell’s corner is the cost of this word taking this part of speech; × means it can’t."
+        "zh": "还是一张表：行是三种词性，列是句子里的词，最左边是「句首」，存着 0。格子 (词性, 第几个词) 记：<b>前面这些词标好、这个词标成这种词性，最少要多少代价</b>。格子角上的小数字，是这个词当这种词性的代价；× 表示不可能。"
       },
       "fig": {
         "scene": {
@@ -28,7 +25,7 @@
               "y": -50,
               "w": 56,
               "h": 30,
-              "value": { "zh": "句首", "en": "start" },
+              "value": { "zh": "句首" },
               "cls": "axis axis0 word"
             },
             {
@@ -37,7 +34,7 @@
               "y": -50,
               "w": 56,
               "h": 30,
-              "value": { "zh": "他", "en": "he" },
+              "value": { "zh": "他" },
               "cls": "axis"
             },
             {
@@ -46,7 +43,7 @@
               "y": -50,
               "w": 56,
               "h": 30,
-              "value": { "zh": "研究", "en": "studies" },
+              "value": { "zh": "研究" },
               "cls": "axis word"
             },
             {
@@ -55,7 +52,7 @@
               "y": -50,
               "w": 56,
               "h": 30,
-              "value": { "zh": "历史", "en": "history" },
+              "value": { "zh": "历史" },
               "cls": "axis word"
             },
             { "id": "0,0", "x": 0, "y": 0, "w": 56, "h": 56, "value": 0, "cls": "lit" },
@@ -71,47 +68,41 @@
           ],
           "edges": [],
           "texts": [
-            { "x": -38, "y": 5, "t": { "zh": "名词", "en": "noun" }, "anchor": "end", "cls": "hd" },
-            { "x": -38, "y": 69, "t": { "zh": "动词", "en": "verb" }, "anchor": "end", "cls": "hd" },
-            { "x": -38, "y": 133, "t": { "zh": "形容词", "en": "adjective" }, "anchor": "end", "cls": "hd" }
+            { "x": -38, "y": 5, "t": { "zh": "名词" }, "anchor": "end", "cls": "hd" },
+            { "x": -38, "y": 69, "t": { "zh": "动词" }, "anchor": "end", "cls": "hd" },
+            { "x": -38, "y": 133, "t": { "zh": "形容词" }, "anchor": "end", "cls": "hd" }
           ]
         }
       }
     },
     {
       "t": {
-        "zh": "只看最后一步：上一个词可能是三种词性里的任何一种。每种可能，要用到表里的哪一格、本格信息里的哪一项？三种可能里，你要的是哪一个？机器人用伸缩臂读上一个词的三格；第一个词前面只有句首，伸缩臂只读到句首那一格，「跟在名词后」那一项就是从句首开始的代价。",
-        "en": "Look only at the last step: the previous word could be any of the three parts of speech. For each possibility, which cell of the table and which fact in the This cell panel do you need? Of the three, which one do you want? The robot reads the previous word’s three cells with its telescopic arm; before the first word there is only “start”, so the arm reads just that cell, and the “after a noun” fact is then the cost of starting the sentence."
+        "zh": "只看最后一步：上一个词可能是三种词性里的任何一种。每种可能，要用到表里的哪一格、本格信息里的哪一项？三种可能里，你要的是哪一个？机器人用伸缩臂读上一个词的三格；第一个词前面只有句首，伸缩臂只读到句首那一格，「跟在名词后」那一项就是从句首开始的代价。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "算出给整句话标词性的最小总代价：每个词当这种词性的代价，加上相邻两个词性接在一起的代价。",
-      "en": "Work out the smallest total cost of tagging the whole sentence: the cost of each word taking its part of speech, plus the cost of each pair of neighbouring parts of speech."
+      "zh": "算出给整句话标词性的最小总代价：每个词当这种词性的代价，加上相邻两个词性接在一起的代价。"
     },
     "how": {
-      "zh": "本格信息里有「跟在名词 / 动词 / 形容词后」的代价，和「这个词这么标」的代价。通过后，看看表倒推出的标法。",
-      "en": "The This cell panel has the costs “after a noun / verb / adjective” and “this word, this tag”. Once you pass, see the tagging traced back from the table."
+      "zh": "本格信息里有「跟在名词 / 动词 / 形容词后」的代价，和「这个词这么标」的代价。通过后，看看表倒推出的标法。"
     }
   },
   "robot": "reach",
   "unlock": "viterbi",
   "debrief": {
-    "title": { "zh": "维特比算法", "en": "The Viterbi algorithm" },
+    "title": { "zh": "维特比算法" },
     "body": [
       {
-        "zh": "每一列每一种词性，表里都记着「到这里最省的解释」。最后一列里最小的，就是整句最好的标法；沿绿色格子倒推，就能读出每个词的词性。",
-        "en": "For every part of speech in every column, the table holds “the cheapest explanation up to here”. The smallest cell in the last column is the best tagging of the whole sentence; trace back along the green cells and you can read off each word’s part of speech."
+        "zh": "每一列每一种词性，表里都记着「到这里最省的解释」。最后一列里最小的，就是整句最好的标法；沿绿色格子倒推，就能读出每个词的词性。"
       },
       {
-        "zh": "这叫<b>维特比算法</b>。语音识别把声音变成字、手机输入法把拼音变成词，用的都是这张表：一列一个时刻，一行一种可能。",
-        "en": "This is the <b>Viterbi algorithm</b>. Speech recognition turning sound into words, and phone keyboards turning pinyin into Chinese words, both use this table: one column per moment, one row per possibility."
+        "zh": "这叫<b>维特比算法</b>。语音识别把声音变成字、手机输入法把拼音变成词，用的都是这张表：一列一个时刻，一行一种可能。"
       }
     ],
     "note": {
-      "zh": "维特比：上一列每一行 + 跟在它后面的代价，取较小，再加这个词这么标的代价。",
-      "en": "Viterbi: each row of the previous column + the cost of following it, take the min, then add the cost of tagging this word this way."
+      "zh": "维特比：上一列每一行 + 跟在它后面的代价，取较小，再加这个词这么标的代价。"
     }
   },
   "tasks": [
@@ -123,40 +114,37 @@
       "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
       "hints": [
         {
-          "zh": "上一个词是名词的话：到它为止最少的代价在「前词是名词」那一格。从它接到这个词，还要加上哪一项代价？",
-          "en": "If the previous word is a noun, the least cost up to it is in the “previous word as a noun” cell. Going on from there to this word, which cost do you add?"
+          "zh": "上一个词是名词的话：到它为止最少的代价在「前词是名词」那一格。从它接到这个词，还要加上哪一项代价？"
         },
         {
-          "zh": "三种可能取较小，再加上「这个词这么标」的代价。",
-          "en": "Take the min of the three, then add the “this word, this tag” cost."
+          "zh": "三种可能取较小，再加上「这个词这么标」的代价。"
         }
       ],
       "world": "tags",
       "facts": ["tN", "tV", "tA", "emit"],
       "tests": [
         {
-          "words": [{ "zh": "他", "en": "he" }, { "zh": "研究", "en": "studies" }, { "zh": "历史", "en": "history" }],
+          "words": [{ "zh": "他" }, { "zh": "研究" }, { "zh": "历史" }],
           "emit": [{ "N": 0 }, { "N": 2, "V": 1 }, { "N": 0 }],
           "start": { "N": 0, "V": 2, "A": 2 },
           "trans": { "N": { "N": 3, "V": 0, "A": 2 }, "V": { "N": 0, "V": 3, "A": 2 }, "A": { "N": 0, "V": 2, "A": 3 } }
         },
         {
           "words": [
-            { "zh": "进口", "en": "imports" },
-            { "zh": "彩电", "en": "TV" },
-            { "zh": "质量", "en": "quality" },
-            { "zh": "好", "en": "fine" }
+            { "zh": "进口" },
+            { "zh": "彩电" },
+            { "zh": "质量" },
+            { "zh": "好" }
           ],
           "emit": [{ "N": 1, "V": 1 }, { "N": 0 }, { "N": 0 }, { "A": 0, "V": 3 }],
           "start": { "N": 0, "V": 2, "A": 2 },
           "trans": { "N": { "N": 3, "V": 0, "A": 2 }, "V": { "N": 0, "V": 3, "A": 2 }, "A": { "N": 0, "V": 2, "A": 3 } },
           "note": {
-            "zh": "「进口」当成了动词：只看这个词，名词和动词一样便宜；是后面的词让动词胜出了。",
-            "en": "“imports” was tagged as a verb: on its own, noun and verb cost the same; it was the words after it that made the verb win."
+            "zh": "「进口」当成了动词：只看这个词，名词和动词一样便宜；是后面的词让动词胜出了。"
           }
         },
         {
-          "words": [{ "zh": "研究", "en": "study" }, { "zh": "生命", "en": "life" }, { "zh": "起源", "en": "roots" }],
+          "words": [{ "zh": "研究" }, { "zh": "生命" }, { "zh": "起源" }],
           "emit": [{ "N": 2, "V": 1 }, { "N": 0 }, { "N": 0, "V": 4 }],
           "start": { "N": 0, "V": 2, "A": 2 },
           "trans": { "N": { "N": 3, "V": 0, "A": 2 }, "V": { "N": 0, "V": 3, "A": 2 }, "A": { "N": 0, "V": 2, "A": 3 } }

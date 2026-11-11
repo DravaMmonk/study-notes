@@ -1,19 +1,16 @@
 {
   "title": {
-    "zh": "中点",
-    "en": "Halfway"
+    "zh": "中点"
   },
   "intro": [
     {
       "t": {
-        "zh": "一个点也可以看成从原点指向它的箭头。<part-ref to=\"part:add\"></part-ref>只能把给定的箭头整段接上；要走到一半，得把箭头缩短。<wiki-ref to=\"scalar-multiple\"></wiki-ref>让箭头沿它所在的直线伸缩，乘的数为负时掉头；<part-ref to=\"part:num\"></part-ref>给出一个固定的数。",
-        "en": "A point can be read as the arrow from the origin to it. <part-ref to=\"part:add\"></part-ref> can only lay the given arrows end to end, whole; to go halfway, an arrow must be shortened. A <wiki-ref to=\"scalar-multiple\"></wiki-ref> stretches or shrinks an arrow along its own line, turning it round when the number is negative; <part-ref to=\"part:num\"></part-ref> gives a fixed number."
+        "zh": "一个点也可以看成从原点指向它的箭头。<part-ref to=\"part:add\"></part-ref>只能把给定的箭头整段接上；要走到一半，得把箭头缩短。<wiki-ref to=\"scalar-multiple\"></wiki-ref>让箭头沿它所在的直线伸缩，乘的数为负时掉头；<part-ref to=\"part:num\"></part-ref>给出一个固定的数。"
       }
     }
   ],
   "after": {
-    "zh": "数乘只改变箭头的长短和朝向，不让它离开所在的直线。",
-    "en": "Scaling changes only an arrow's length and sense; it never leaves its line."
+    "zh": "数乘只改变箭头的长短和朝向，不让它离开所在的直线。"
   },
   "adds": [
     "scale",
@@ -23,10 +20,9 @@
     {
       "id": "1-2",
       "brief": {
-        "zh": "交出 p、q 两点连线的中点。",
-        "en": "Give the midpoint of the segment from p to q."
+        "zh": "交出 p、q 两点连线的中点。"
       },
-      "hint": [{ "zh": "中点的箭头与 p + q 方向相同。", "en": "The midpoint's arrow points the same way as p + q." }],
+      "hint": [{ "zh": "中点的箭头与 p + q 方向相同。" }],
       "inputs": [
         {
           "name": "p",
@@ -41,8 +37,7 @@
         {
           "name": "m",
           "label": {
-            "zh": "中点",
-            "en": "Midpoint"
+            "zh": "中点"
           }
         }
       ],

@@ -1,24 +1,22 @@
 {
-  "title": { "zh": "要证明的相等", "en": "Equal by proof" },
+  "title": { "zh": "要证明的相等" },
   "consts": ["zero", "m"],
   "intro": [
     {
       "t": {
-        "zh": "定义只说 0 和 S x 加上 y 是什么；x 是不知道的数时，x + 0 就算不下去。<level-ref to=\"in-zero\"></level-ref>用归纳证出了 x + 0 = x，这一关里它是已知 addZero，用法和别的「对所有」一样：addZero m 证 m + 0 = m。",
-        "en": "The definition only says what 0 and S x plus y are; when x is an unknown number, x + 0 does not work out. <level-ref to=\"in-zero\"></level-ref> proved x + 0 = x by induction, and here it is the given addZero, used like any “for all”: addZero m proves m + 0 = m."
+        "zh": "定义只说 0 和 S x 加上 y 是什么；x 是不知道的数时，x + 0 就算不下去。<level-ref to=\"in-zero\"></level-ref>用归纳证出了 x + 0 = x，这一关里它是已知 addZero，用法和别的「对所有」一样：addZero m 证 m + 0 = m。"
       }
     }
   ],
   "after": {
-    "zh": "对的、核却算不出来、要靠证明的相等，叫<wiki-ref to=\"propeq\"></wiki-ref>。",
-    "en": "An equality that is true but that the kernel cannot work out, so that it takes a proof, is a <wiki-ref to=\"propeq\"></wiki-ref>."
+    "zh": "对的、核却算不出来、要靠证明的相等，叫<wiki-ref to=\"propeq\"></wiki-ref>。"
   },
   "tasks": [
     {
       "id": "eq-propeq_1",
       "kind": "term",
-      "step": { "zh": "第一题", "en": "Problem 1" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第一题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": { "addZero": "∀x. plus(x, zero) = x" },
@@ -26,13 +24,13 @@
       "defs": ["plus"],
       "answer": "addZero",
       "naive": "fun a => rfl",
-      "hint": [{ "zh": "先试 fun a => rfl，看核怎么说。", "en": "Try fun a => rfl first and see what the kernel says." }]
+      "hint": [{ "zh": "先试 fun a => rfl，看核怎么说。" }]
     },
     {
       "id": "eq-propeq_2",
       "kind": "term",
-      "step": { "zh": "第二题", "en": "Problem 2" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第二题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": { "p": "Even(plus(m, zero))", "addZero": "∀x. plus(x, zero) = x" },
@@ -40,20 +38,20 @@
       "defs": ["plus"],
       "answer": "addZero m ▸ p",
       "naive": "p",
-      "hint": [{ "zh": "addZero 用在 m 上，得到 m + 0 = m。", "en": "addZero used on m gives m + 0 = m." }]
+      "hint": [{ "zh": "addZero 用在 m 上，得到 m + 0 = m。" }]
     },
     {
       "id": "eq-propeq_3",
       "kind": "term",
-      "step": { "zh": "第三题", "en": "Problem 3" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第三题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": { "p": "Even(plus(zero, plus(m, zero)))", "addZero": "∀x. plus(x, zero) = x" },
       "goal": "Even(m)",
       "defs": ["plus"],
       "answer": "addZero m ▸ p",
-      "hint": [{ "zh": "外层的 0 + 算得掉，里层的 + 0 算不掉。", "en": "The outer 0 + works out, the inner + 0 does not." }]
+      "hint": [{ "zh": "外层的 0 + 算得掉，里层的 + 0 算不掉。" }]
     }
   ]
 }

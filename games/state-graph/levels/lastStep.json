@@ -1,24 +1,23 @@
 {
-  "title": { "zh": "只看最后一步", "en": "Just look at the last step" },
-  "short": { "zh": "不找路线，也能数出路线", "en": "Count routes without tracing them" },
+  "title": { "zh": "只看最后一步" },
+  "short": { "zh": "不找路线，也能数出路线" },
   "intro": [
     {
       "t": {
-        "zh": "地图变大了。一条条找路线又慢又容易漏，我们换个办法：<b>给每个地点算一个数</b>，表示「从家走到这里，一共有几条路线」。",
-        "en": "The map has grown. Tracing routes one by one is slow and easy to get wrong, so let’s try something else: <b>give each place a number</b> meaning “how many routes lead here from Home”."
+        "zh": "地图变大了。一条条找路线又慢又容易漏，我们换个办法：<b>给每个地点算一个数</b>，表示「从家走到这里，一共有几条路线」。"
       },
       "fig": {
         "scene": {
           "cells": [
-            { "id": "H", "x": 0, "y": 0, "w": 78, "h": 60, "label": { "zh": "家", "en": "Home" } },
-            { "id": "A", "x": -75, "y": 105, "w": 78, "h": 60, "label": { "zh": "书店", "en": "Books" } },
-            { "id": "B", "x": 75, "y": 105, "w": 78, "h": 60, "label": { "zh": "公园", "en": "Park" } },
-            { "id": "C", "x": -130, "y": 210, "w": 78, "h": 60, "label": { "zh": "邮局", "en": "Post" } },
-            { "id": "D", "x": 0, "y": 210, "w": 78, "h": 60, "label": { "zh": "广场", "en": "Square" } },
-            { "id": "E", "x": 130, "y": 210, "w": 78, "h": 60, "label": { "zh": "菜场", "en": "Market" } },
-            { "id": "F", "x": -65, "y": 315, "w": 78, "h": 60, "label": { "zh": "车站", "en": "Station" } },
-            { "id": "G", "x": 65, "y": 315, "w": 78, "h": 60, "label": { "zh": "图书馆", "en": "Library" } },
-            { "id": "T", "x": 0, "y": 420, "w": 78, "h": 60, "label": { "zh": "学校", "en": "School" } }
+            { "id": "H", "x": 0, "y": 0, "w": 78, "h": 60, "label": { "zh": "家" } },
+            { "id": "A", "x": -75, "y": 105, "w": 78, "h": 60, "label": { "zh": "书店" } },
+            { "id": "B", "x": 75, "y": 105, "w": 78, "h": 60, "label": { "zh": "公园" } },
+            { "id": "C", "x": -130, "y": 210, "w": 78, "h": 60, "label": { "zh": "邮局" } },
+            { "id": "D", "x": 0, "y": 210, "w": 78, "h": 60, "label": { "zh": "广场" } },
+            { "id": "E", "x": 130, "y": 210, "w": 78, "h": 60, "label": { "zh": "菜场" } },
+            { "id": "F", "x": -65, "y": 315, "w": 78, "h": 60, "label": { "zh": "车站" } },
+            { "id": "G", "x": 65, "y": 315, "w": 78, "h": 60, "label": { "zh": "图书馆" } },
+            { "id": "T", "x": 0, "y": 420, "w": 78, "h": 60, "label": { "zh": "学校" } }
           ],
           "edges": [
             { "a": "H", "b": "A", "cls": "dim", "bend": 0, "off": 0 },
@@ -39,8 +38,7 @@
     },
     {
       "t": {
-        "zh": "家本身算 <b>1</b> 条：你已经站在那里了，这是唯一的一种「到达」方式。",
-        "en": "Home itself counts as <b>1</b> route: you are already standing there, and that is the one and only way of “arriving”."
+        "zh": "家本身算 <b>1</b> 条：你已经站在那里了，这是唯一的一种「到达」方式。"
       },
       "fig": {
         "scene": {
@@ -51,7 +49,7 @@
               "y": 0,
               "w": 84,
               "h": 64,
-              "label": { "zh": "家", "en": "Home" },
+              "label": { "zh": "家" },
               "value": 1,
               "cls": "src"
             }
@@ -62,8 +60,7 @@
     },
     {
       "t": {
-        "zh": "想知道到「广场」有几条路线，只看<b>最后一步</b>：指向广场的箭头来自书店和公园。所以每条到广场的路线，最后一步不是从书店来，就是从公园来。",
-        "en": "To find how many routes reach “Square”, look only at the <b>last step</b>: the arrows into Square come from Books and Park. So every route to Square makes its last step either from Books or from Park."
+        "zh": "想知道到「广场」有几条路线，只看<b>最后一步</b>：指向广场的箭头来自书店和公园。所以每条到广场的路线，最后一步不是从书店来，就是从公园来。"
       },
       "fig": {
         "scene": {
@@ -74,7 +71,7 @@
               "y": 0,
               "w": 84,
               "h": 64,
-              "label": { "zh": "书店", "en": "Books" },
+              "label": { "zh": "书店" },
               "value": "?"
             },
             {
@@ -83,7 +80,7 @@
               "y": 0,
               "w": 84,
               "h": 64,
-              "label": { "zh": "公园", "en": "Park" },
+              "label": { "zh": "公园" },
               "value": "?"
             },
             {
@@ -92,7 +89,7 @@
               "y": 115,
               "w": 84,
               "h": 64,
-              "label": { "zh": "广场", "en": "Square" },
+              "label": { "zh": "广场" },
               "value": "?",
               "cls": "sel"
             }
@@ -106,8 +103,7 @@
     },
     {
       "t": {
-        "zh": "「从书店来」的路线，就是到书店的每一条路线再多走一步。所以：<b>到广场的路线数 = 到书店的路线数 + 到公园的路线数</b>。",
-        "en": "The routes “coming from Books” are exactly the routes to Books, each with one more step. So: <b>routes to Square = routes to Books + routes to Park</b>."
+        "zh": "「从书店来」的路线，就是到书店的每一条路线再多走一步。所以：<b>到广场的路线数 = 到书店的路线数 + 到公园的路线数</b>。"
       },
       "fig": {
         "scene": {
@@ -118,7 +114,7 @@
               "y": 0,
               "w": 84,
               "h": 64,
-              "label": { "zh": "书店", "en": "Books" },
+              "label": { "zh": "书店" },
               "value": 1,
               "cls": "lit"
             },
@@ -128,7 +124,7 @@
               "y": 0,
               "w": 84,
               "h": 64,
-              "label": { "zh": "公园", "en": "Park" },
+              "label": { "zh": "公园" },
               "value": 1,
               "cls": "lit"
             },
@@ -138,7 +134,7 @@
               "y": 115,
               "w": 84,
               "h": 64,
-              "label": { "zh": "广场", "en": "Square" },
+              "label": { "zh": "广场" },
               "value": 2,
               "cls": "lit"
             }
@@ -152,40 +148,33 @@
     },
     {
       "t": {
-        "zh": "每个地点都是这样：<b>到这里的路线数 = 指向它的所有上一站的路线数之和</b>。从家开始，顺着箭头一个地点一个地点往下填。",
-        "en": "Every place works the same way: <b>the routes to it = the sum of the routes to every place with an arrow into it</b>. Start at Home and fill the places in, one by one, along the arrows."
+        "zh": "每个地点都是这样：<b>到这里的路线数 = 指向它的所有上一站的路线数之和</b>。从家开始，顺着箭头一个地点一个地点往下填。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "算出从家到每个地点各有几条路线，最后得到学校的数。只能顺着箭头走，家本身算 1 条。",
-      "en": "Work out how many routes lead from Home to each place, ending with the number for School. You can only go the way the arrows point, and Home itself counts as 1."
+      "zh": "算出从家到每个地点各有几条路线，最后得到学校的数。只能顺着箭头走，家本身算 1 条。"
     },
     "how": {
-      "zh": "点一个地点，用下方的数字键盘填数。选中地点的「上一站」会亮起黄色虚框。",
-      "en": "Click a place and type its number on the keypad below. The selected place’s “previous stops” get a dashed yellow frame."
+      "zh": "点一个地点，用下方的数字键盘填数。选中地点的「上一站」会亮起黄色虚框。"
     }
   },
   "debrief": {
-    "title": { "zh": "一共 6 条路线", "en": "6 routes in all" },
+    "title": { "zh": "一共 6 条路线" },
     "body": [
       {
-        "zh": "你<b>没有列出任何一条路线</b>，却算出了一共 6 条。",
-        "en": "You <b>didn’t list a single route</b>, yet you worked out that there are 6."
+        "zh": "你<b>没有列出任何一条路线</b>，却算出了一共 6 条。"
       },
       {
-        "zh": "每个地点的数，都是用它前面地点的数算出来的：先解决小问题（到近处有几条路），再用这些答案拼出大问题的答案（到学校有几条路）。",
-        "en": "Each place’s number was computed from the numbers of the places before it: first solve the small problems (how many routes reach the nearby places), then build the big answer out of those (how many reach School)."
+        "zh": "每个地点的数，都是用它前面地点的数算出来的：先解决小问题（到近处有几条路），再用这些答案拼出大问题的答案（到学校有几条路）。"
       },
       {
-        "zh": "<strong>这就是动态规划最核心的想法。</strong>",
-        "en": "<strong>This is the core idea of dynamic programming.</strong>"
+        "zh": "<strong>这就是动态规划最核心的想法。</strong>"
       }
     ],
     "note": {
-      "zh": "到某地的路线数 = 到它所有「上一站」的路线数之和。",
-      "en": "Routes to a place = the sum of the routes to all of its “previous stops”."
+      "zh": "到某地的路线数 = 到它所有「上一站」的路线数之和。"
     }
   },
   "tasks": [
@@ -193,15 +182,15 @@
       "id": "lastStep",
       "mode": "fill",
       "cells": [
-        { "id": "H", "x": 0, "y": 0, "label": { "zh": "家", "en": "Home" } },
-        { "id": "A", "x": -75, "y": 105, "label": { "zh": "书店", "en": "Books" } },
-        { "id": "B", "x": 75, "y": 105, "label": { "zh": "公园", "en": "Park" } },
-        { "id": "C", "x": -130, "y": 210, "label": { "zh": "邮局", "en": "Post" } },
-        { "id": "D", "x": 0, "y": 210, "label": { "zh": "广场", "en": "Square" } },
-        { "id": "E", "x": 130, "y": 210, "label": { "zh": "菜场", "en": "Market" } },
-        { "id": "F", "x": -65, "y": 315, "label": { "zh": "车站", "en": "Station" } },
-        { "id": "G", "x": 65, "y": 315, "label": { "zh": "图书馆", "en": "Library" } },
-        { "id": "T", "x": 0, "y": 420, "label": { "zh": "学校", "en": "School" } }
+        { "id": "H", "x": 0, "y": 0, "label": { "zh": "家" } },
+        { "id": "A", "x": -75, "y": 105, "label": { "zh": "书店" } },
+        { "id": "B", "x": 75, "y": 105, "label": { "zh": "公园" } },
+        { "id": "C", "x": -130, "y": 210, "label": { "zh": "邮局" } },
+        { "id": "D", "x": 0, "y": 210, "label": { "zh": "广场" } },
+        { "id": "E", "x": 130, "y": 210, "label": { "zh": "菜场" } },
+        { "id": "F", "x": -65, "y": 315, "label": { "zh": "车站" } },
+        { "id": "G", "x": 65, "y": 315, "label": { "zh": "图书馆" } },
+        { "id": "T", "x": 0, "y": 420, "label": { "zh": "学校" } }
       ],
       "edges": [
         ["H", "A"],

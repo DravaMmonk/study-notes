@@ -1,28 +1,24 @@
 {
-  "title": { "zh": "互逆", "en": "Undo" },
+  "title": { "zh": "互逆" },
   "intro": [
     {
       "t": {
-        "zh": "手上有两件元件：<part-ref to=\"sum\"></part-ref>把一个数列加起来，<part-ref to=\"diff\"></part-ref>看它每一步变了多少。一个数列丢了，只剩下它的差分，或者只剩下它的部分和：能不能把它找回来？",
-        "en": "Two parts are in hand: <part-ref to=\"sum\"></part-ref> adds a sequence up, and <part-ref to=\"diff\"></part-ref> sees how much it changes at each step. A sequence is lost, and only its differences, or only its partial sums, are left: can it be found again?"
+        "zh": "手上有两件元件：<part-ref to=\"sum\"></part-ref>把一个数列加起来，<part-ref to=\"diff\"></part-ref>看它每一步变了多少。一个数列丢了，只剩下它的差分，或者只剩下它的部分和：能不能把它找回来？"
       }
     }
   ],
   "after": {
-    "zh": "先差分再累加、先累加再差分，都回到原数列：<wiki-ref to=\"inverse\"></wiki-ref>。它的连续形式是微积分基本定理。",
-    "en": "Difference then sum, or sum then difference, and the sequence comes back: <wiki-ref to=\"inverse\"></wiki-ref>. Its continuous form is the fundamental theorem of calculus."
+    "zh": "先差分再累加、先累加再差分，都回到原数列：<wiki-ref to=\"inverse\"></wiki-ref>。它的连续形式是微积分基本定理。"
   },
   "tasks": [
     {
       "id": "inverse",
-      "step": { "zh": "由差分", "en": "From differences" },
+      "step": { "zh": "由差分" },
       "brief": {
-        "zh": "输入是一个数列的差分，交出这个数列。",
-        "en": "The input is a sequence’s differences: give the sequence."
+        "zh": "输入是一个数列的差分，交出这个数列。"
       },
       "after": {
-        "zh": "把每一步的变化加起来，就回到数列。",
-        "en": "Adding up the change at each step gives back the sequence."
+        "zh": "把每一步的变化加起来，就回到数列。"
       },
       "inputs": [{ "name": "d", "label": "Δaₙ" }],
       "outputs": [{ "name": "a", "label": "aₙ" }],
@@ -41,10 +37,9 @@
     },
     {
       "id": "inverse_2",
-      "step": { "zh": "由部分和", "en": "From partial sums" },
+      "step": { "zh": "由部分和" },
       "brief": {
-        "zh": "输入是一个数列的部分和，交出这个数列。",
-        "en": "The input is a sequence’s partial sums: give the sequence."
+        "zh": "输入是一个数列的部分和，交出这个数列。"
       },
       "inputs": [{ "name": "S", "label": "Sₙ" }],
       "outputs": [{ "name": "a", "label": "aₙ" }],
@@ -60,10 +55,9 @@
     },
     {
       "id": "inverse_3",
-      "step": { "zh": "由二阶差分", "en": "From second differences" },
+      "step": { "zh": "由二阶差分" },
       "brief": {
-        "zh": "输入是一个数列差分的差分，交出这个数列。",
-        "en": "The input is the differences of a sequence’s differences: give the sequence."
+        "zh": "输入是一个数列差分的差分，交出这个数列。"
       },
       "inputs": [{ "name": "e", "label": "Δ²aₙ" }],
       "outputs": [{ "name": "a", "label": "aₙ" }],

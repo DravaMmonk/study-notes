@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "倒过来的证明项", "en": "The term of turning round" },
+  "title": { "zh": "倒过来的证明项" },
   "consts": ["i", "j", "k"],
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"q-sym\"></level-ref>在证明板上把等式倒了过来。写成证明项。",
-        "en": "<level-ref to=\"q-sym\"></level-ref> turned an equation round on the proof board. Write it as a term."
+        "zh": "<level-ref to=\"q-sym\"></level-ref>在证明板上把等式倒了过来。写成证明项。"
       }
     }
   ],
@@ -13,8 +12,8 @@
     {
       "id": "eq-symm_1",
       "kind": "term",
-      "step": { "zh": "第一题", "en": "Problem 1" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第一题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": { "p": "i = j" },
@@ -23,36 +22,35 @@
       "naive": "p",
       "hint": [
         {
-          "zh": "<level-ref to=\"q-sym\"></level-ref>里用了<part-ref to=\"part:refl\"></part-ref>和<part-ref to=\"part:rewrite\"></part-ref>，各写成什么？",
-          "en": "<level-ref to=\"q-sym\"></level-ref> used <part-ref to=\"part:refl\"></part-ref> and <part-ref to=\"part:rewrite\"></part-ref>; how is each written?"
+          "zh": "<level-ref to=\"q-sym\"></level-ref>里用了<part-ref to=\"part:refl\"></part-ref>和<part-ref to=\"part:rewrite\"></part-ref>，各写成什么？"
         }
       ]
     },
     {
       "id": "eq-symm_2",
       "kind": "term",
-      "step": { "zh": "第二题", "en": "Problem 2" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第二题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": {},
       "goal": "∀x. ∀y. x = y → y = x",
       "answer": "fun a b h => h ▸ rfl",
       "hint": [
-        { "zh": "三层 fun：两样东西 a、b，和一个 a = b 的证明 h。", "en": "Three funs: two things a and b, and a proof h of a = b." }
+        { "zh": "三层 fun：两样东西 a、b，和一个 a = b 的证明 h。" }
       ]
     },
     {
       "id": "eq-symm_3",
       "kind": "term",
-      "step": { "zh": "第三题", "en": "Problem 3" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第三题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": { "p": "i = j", "q": "Bright(j) → Seen(j)" },
       "goal": "Bright(i) → Seen(i)",
       "answer": "p ▸ q",
-      "hint": [{ "zh": "要证的那句里，晨星出现了两处。", "en": "The Morning Star appears twice in the sentence to prove." }]
+      "hint": [{ "zh": "要证的那句里，晨星出现了两处。" }]
     }
   ]
 }

@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "挪框", "en": "Nudging the box" },
+  "title": { "zh": "挪框" },
   "tray": "recognition",
   "after": {
-    "zh": "修正量按锚框的大小来算，大框小框用同一套数；宽高用 e 的指数，修正是正是负都不会把框变成负的宽度。Faster R-CNN、YOLO 都这样回归框。",
-    "en": "The corrections are scaled by the anchor's size, so big and small boxes use the same numbers; width and height go through e to the power, so whatever the sign of a correction, the box never gets a negative width. Faster R-CNN and YOLO both regress boxes like this."
+    "zh": "修正量按锚框的大小来算，大框小框用同一套数；宽高用 e 的指数，修正是正是负都不会把框变成负的宽度。Faster R-CNN、YOLO 都这样回归框。"
   },
   "intro": [
     {
       "t": {
-        "zh": "检测器不是凭空画框：它先在每个位置放几个固定大小的锚框，再估计该把锚框挪多少、拉多大。",
-        "en": "A detector does not draw boxes out of nothing: it first places a few anchors of fixed size at every position, then estimates how far to move them and how much to stretch them."
+        "zh": "检测器不是凭空画框：它先在每个位置放几个固定大小的锚框，再估计该把锚框挪多少、拉多大。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：按说明里的公式，由锚框和四个修正算出框。",
-        "en": "Your task in this level: by the formula in the brief, work out the box from the anchor and the four corrections."
+        "zh": "这一关你要做的：按说明里的公式，由锚框和四个修正算出框。"
       },
-      "fig": { "test": 0, "caption": { "zh": "往右挪", "en": "Nudged right" } }
+      "fig": { "test": 0, "caption": { "zh": "往右挪" } }
     }
   ],
   "tasks": [
@@ -25,50 +22,49 @@
       "id": "10-5",
       "kind": "graph",
       "brief": {
-        "zh": "检测器先放一个锚框，再给出四个修正。框的中心 = 锚框中心 + 修正 × 锚框的宽（或高）；框的宽 = 锚框宽 × e^tw，高同理。",
-        "en": "The detector places an anchor box first, then gives four corrections. The box centre = the anchor centre + correction × the anchor's width (or height); the box width = the anchor width × e^tw, and the height likewise."
+        "zh": "检测器先放一个锚框，再给出四个修正。框的中心 = 锚框中心 + 修正 × 锚框的宽（或高）；框的宽 = 锚框宽 × e^tw，高同理。"
       },
-      "hint": { "zh": "每个输出各是一小段算式。", "en": "Each output is a short formula of its own." },
+      "hint": { "zh": "每个输出各是一小段算式。" },
       "inputs": ["cx", "cy", "w", "h", "tx", "ty", "tw", "th"],
       "inputLabels": {
-        "cx": { "zh": "锚框中心 x", "en": "Anchor centre x" },
-        "cy": { "zh": "锚框中心 y", "en": "Anchor centre y" },
-        "w": { "zh": "锚框宽", "en": "Anchor width" },
-        "h": { "zh": "锚框高", "en": "Anchor height" },
-        "tx": { "zh": "修正 tx", "en": "Correction tx" },
-        "ty": { "zh": "修正 ty", "en": "Correction ty" },
-        "tw": { "zh": "修正 tw", "en": "Correction tw" },
-        "th": { "zh": "修正 th", "en": "Correction th" }
+        "cx": { "zh": "锚框中心 x" },
+        "cy": { "zh": "锚框中心 y" },
+        "w": { "zh": "锚框宽" },
+        "h": { "zh": "锚框高" },
+        "tx": { "zh": "修正 tx" },
+        "ty": { "zh": "修正 ty" },
+        "tw": { "zh": "修正 tw" },
+        "th": { "zh": "修正 th" }
       },
       "outputs": ["bx", "by", "bw", "bh"],
       "outputLabels": {
-        "bx": { "zh": "框中心 x", "en": "Box centre x" },
-        "by": { "zh": "框中心 y", "en": "Box centre y" },
-        "bw": { "zh": "框宽", "en": "Box width" },
-        "bh": { "zh": "框高", "en": "Box height" }
+        "bx": { "zh": "框中心 x" },
+        "by": { "zh": "框中心 y" },
+        "bw": { "zh": "框宽" },
+        "bh": { "zh": "框高" }
       },
       "check": { "tolerance": 0.005 },
       "scene": "nudge",
       "tests": [
         {
-          "label": { "zh": "往右挪", "en": "Nudged right" },
+          "label": { "zh": "往右挪" },
           "anchors": [{ "cx": 8, "cy": 8, "w": 4, "h": 6 }],
           "t": { "tx": 0.5, "ty": 0, "tw": 0, "th": 0 }
         },
         {
-          "label": { "zh": "变宽", "en": "Made wider" },
+          "label": { "zh": "变宽" },
           "anchors": [{ "cx": 5, "cy": 10, "w": 3, "h": 3 }],
           "t": { "tx": 0, "ty": -0.2, "tw": 0.4, "th": -0.1 }
         },
         {
-          "label": { "zh": "都变了", "en": "Everything changed" },
+          "label": { "zh": "都变了" },
           "anchors": [{ "cx": 12, "cy": 4, "w": 6, "h": 2 }],
           "t": { "tx": -0.3, "ty": 0.5, "tw": -0.5, "th": 0.7 }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "变小", "en": "Made smaller" },
+          "label": { "zh": "变小" },
           "anchors": [{ "cx": 7, "cy": 7, "w": 8, "h": 8 }],
           "t": { "tx": 0.1, "ty": 0.1, "tw": -0.7, "th": -0.7 }
         }

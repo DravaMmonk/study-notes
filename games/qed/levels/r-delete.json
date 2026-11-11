@@ -1,22 +1,21 @@
 {
-  "title": { "zh": "两边一样就删掉", "en": "Same on both sides" },
+  "title": { "zh": "两边一样就删掉" },
   "adds": ["uDelete", "uDecompose"],
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "规则的结论不全是 ?：有些地方是确定的句子，目标在那里必须完全相同。拆开后，这样的地方成了「刮风 ≐ 刮风」，不含任何信息。新元件「删除」去掉这样的等式。",
-        "en": "A rule’s conclusion is not all ?-letters: some places hold fixed sentences, and there the goal must be exactly the same. Split, such a place becomes “it is windy ≐ it is windy”, which says nothing. A new part, “Delete”, removes such equations."
+        "zh": "规则的结论不全是 ?：有些地方是确定的句子，目标在那里必须完全相同。拆开后，这样的地方成了「刮风 ≐ 刮风」，不含任何信息。新元件「删除」去掉这样的等式。"
       }
     },
-    { "t": { "zh": "¬A 在证明器里是 A → ⊥，也按这个结构拆。", "en": "¬A in the prover is A → ⊥, and splits as such." } }
+    { "t": { "zh": "¬A 在证明器里是 A → ⊥，也按这个结构拆。" } }
   ],
   "tasks": [
     {
       "id": "r-delete",
       "kind": "machine",
       "want": "unify",
-      "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "等式" } }],
       "tests": [
         { "eqs": ["?A ∧ Wind ≐ Rain ∧ Wind"] },
         { "eqs": ["Rain → ?B ≐ Rain → Wet"] },
@@ -24,10 +23,9 @@
         { "eqs": ["(?A ∧ Wind) → ?B ≐ (Rain ∧ Wind) → Wet"] }
       ],
       "brief": {
-        "zh": "设计一个证明助手：把每组等式解到底，只留下 ?-字母的等式。",
-        "en": "Design a proof assistant that solves each set of equations to the end, leaving only equations for ?-letters."
+        "zh": "设计一个证明助手：把每组等式解到底，只留下 ?-字母的等式。"
       },
-      "hint": [{ "zh": "先拆开，再看剩下的等式。", "en": "Split first, then look at what is left." }],
+      "hint": [{ "zh": "先拆开，再看剩下的等式。" }],
       "solution": [
         "r = repeat(in, body: c1) {",
         "  body {",

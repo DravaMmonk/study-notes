@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "逆否", "en": "Contrapositive" },
+  "title": { "zh": "逆否" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "「下雨，地就湿」，那么「地不湿，就没下雨」。这叫<wiki-ref to=\"contrapositive\"></wiki-ref>。和<level-ref to=\"onerow\"></level-ref>里那个错误的推理不同，它永远成立：「(下雨 → 地湿) → (¬地湿 → ¬下雨)」。",
-        "en": "“If it rains, the ground is wet”, so “if the ground is not wet, it did not rain”. This is the <wiki-ref to=\"contrapositive\"></wiki-ref>, and unlike the bad reasoning of <level-ref to=\"onerow\"></level-ref> it always holds: “(it rains → the ground is wet) → (¬the ground is wet → ¬it rains)”."
+        "zh": "「下雨，地就湿」，那么「地不湿，就没下雨」。这叫<wiki-ref to=\"contrapositive\"></wiki-ref>。和<level-ref to=\"onerow\"></level-ref>里那个错误的推理不同，它永远成立：「(下雨 → 地湿) → (¬地湿 → ¬下雨)」。"
       }
     }
   ],
@@ -16,10 +15,9 @@
       "tests": [{ "goal": "(A → B) → (¬B → ¬A)" }],
       "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Exam", "B": "Study" }],
       "hint": [
-        { "zh": "两个 →，两个框，一个套一个。", "en": "Two →s, two boxes, one inside the other." },
+        { "zh": "两个 →，两个框，一个套一个。" },
         {
-          "zh": "里面的框看得见「下雨 → 地湿」和「¬地湿」，也就是「地湿 → ⊥」。",
-          "en": "The inner box sees “it rains → the ground is wet” and “¬the ground is wet”, that is “wet → ⊥”."
+          "zh": "里面的框看得见「下雨 → 地湿」和「¬地湿」，也就是「地湿 → ⊥」。"
         }
       ],
       "solution": [

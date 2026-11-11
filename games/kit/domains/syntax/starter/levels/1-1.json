@@ -1,16 +1,16 @@
 {
-  "title": { "zh": "主干", "en": "The skeleton" },
+  "title": { "zh": "主干" },
   "adds": ["role:subj", "role:verb", "role:obj"],
-  "intro": [{ "t": { "zh": "标出这句话的主干。", "en": "Mark the skeleton of this sentence." } }],
+  "intro": [{ "t": { "zh": "标出这句话的主干。" } }],
   "debrief": {
-    "title": { "zh": "The model learns a policy.", "en": "The model learns a policy." },
-    "body": [{ "zh": "主语、谓语、宾语就是整句的主干。", "en": "Subject, verb and object are the whole skeleton." }],
-    "note": { "zh": "主干 = 谁 + 做什么 + 对什么。", "en": "Skeleton = who + does what + to what." }
+    "title": { "zh": "The model learns a policy." },
+    "body": [{ "zh": "主语、谓语、宾语就是整句的主干。" }],
+    "note": { "zh": "主干 = 谁 + 做什么 + 对什么。" }
   },
   "tasks": [
     {
       "id": "1-1",
-      "brief": { "zh": "标出主语、谓语和宾语。", "en": "Mark the subject, the verb and the object." },
+      "brief": { "zh": "标出主语、谓语和宾语。" },
       "sentence": "The model learns a policy.",
       "roles": { "subj": "The model", "verb": "learns", "obj": "a policy" }
     }

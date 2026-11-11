@@ -1,39 +1,38 @@
 {
   "consts": ["h", "i", "j", "k", "l", "m", "n"],
-  "title": { "zh": "「只有」和「没有」", "en": "“Only” and “none”" },
-  "brief": { "zh": "用下面的元件，把这句话拼成公式。", "en": "Build this sentence as a formula from the parts below." },
+  "title": { "zh": "「只有」和「没有」" },
+  "brief": { "zh": "用下面的元件，把这句话拼成公式。" },
   "tasks": [
     {
       "id": "p-only_1",
       "kind": "translate",
-      "step": { "zh": "第一句", "en": "Sentence 1" },
+      "step": { "zh": "第一句" },
       "decoys": ["¬∀x. Bird(x) → Flies(x)", "¬∃x. Human(x) ∧ Likes(x, j)"],
-      "say": { "zh": "只有鸟会飞。", "en": "Only birds fly." },
+      "say": { "zh": "只有鸟会飞。" },
       "target": "∀x. Flies(x) → Bird(x)",
       "hint": [
         {
-          "zh": "「只有鸟会飞」：会飞的，一定是鸟。哪边是条件？",
-          "en": "“Only birds fly”: whatever flies is a bird. Which side is the condition?"
+          "zh": "「只有鸟会飞」：会飞的，一定是鸟。哪边是条件？"
         }
       ]
     },
     {
       "id": "p-only_2",
       "kind": "translate",
-      "step": { "zh": "第二句", "en": "Sentence 2" },
+      "step": { "zh": "第二句" },
       "decoys": ["∀x. Flies(x) → Bird(x)", "¬∃x. Human(x) ∧ Likes(x, j)"],
-      "say": { "zh": "不是所有鸟都会飞。", "en": "Not every bird flies." },
+      "say": { "zh": "不是所有鸟都会飞。" },
       "target": "¬∀x. Bird(x) → Flies(x)",
-      "hint": [{ "zh": "最外面是 ¬，管着一整句「鸟都会飞」。", "en": "The outermost piece is ¬, over the whole of “every bird flies”." }]
+      "hint": [{ "zh": "最外面是 ¬，管着一整句「鸟都会飞」。" }]
     },
     {
       "id": "p-only_3",
       "kind": "translate",
-      "step": { "zh": "第三句", "en": "Sentence 3" },
+      "step": { "zh": "第三句" },
       "decoys": ["∀x. Flies(x) → Bird(x)", "¬∀x. Bird(x) → Flies(x)"],
-      "say": { "zh": "没有人喜欢博。", "en": "Nobody likes Bo." },
+      "say": { "zh": "没有人喜欢博。" },
       "target": "¬∃x. Human(x) ∧ Likes(x, j)",
-      "hint": [{ "zh": "「没有人」就是「并非有一个人」：最外面先放 ¬。", "en": "“Nobody” is “not someone”: put ¬ outermost first." }]
+      "hint": [{ "zh": "「没有人」就是「并非有一个人」：最外面先放 ¬。" }]
     }
   ]
 }

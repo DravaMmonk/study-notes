@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "快得多", "en": "Much faster" },
+  "title": { "zh": "快得多" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"limit\"></level-ref>里，1/(n+1) 要离 0 不到 0.001，得等到第 1000 项。巴比伦的猜测离 √2 有多快？量 xₙ² 离 2 多远。",
-        "en": "In <level-ref to=\"limit\"></level-ref>, 1/(n+1) needs until term 1000 to come within 0.001 of 0. How fast do the Babylonian guesses close in on √2? Measure how far xₙ² is from 2."
+        "zh": "<level-ref to=\"limit\"></level-ref>里，1/(n+1) 要离 0 不到 0.001，得等到第 1000 项。巴比伦的猜测离 √2 有多快？量 xₙ² 离 2 多远。"
       }
     }
   ],
   "after": {
-    "zh": "误差每步大约平方一次：有效数字一步翻一倍。",
-    "en": "The error roughly squares each step: the correct digits double at every step."
+    "zh": "误差每步大约平方一次：有效数字一步翻一倍。"
   },
   "tasks": [
     {
       "id": "babylon-fast",
       "brief": {
-        "zh": "交出 |xₙ² − 2|；测试给出 ε，交出它小于 ε 的 N。",
-        "en": "Give |xₙ² − 2|; the test gives ε: give the N at which it drops below ε."
+        "zh": "交出 |xₙ² − 2|；测试给出 ε，交出它小于 ε 的 N。"
       },
       "inputs": [{ "name": "e", "label": "ε" }],
       "outputs": [{ "name": "d", "label": "|xₙ² − 2|" }, { "name": "N", "label": "N" }],

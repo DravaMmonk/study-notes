@@ -1,16 +1,14 @@
 {
-  "title": { "zh": "谁是安的孩子", "en": "Who are Ann’s children" },
+  "title": { "zh": "谁是安的孩子" },
   "intro": [
     {
       "t": {
-        "zh": "一句话里留一个自由的 x，就成了<wiki-ref to=\"query\"></wiki-ref>：世界里哪些东西代入 x 能让这句话成立，哪些就是答案。数据库的查询语言 SQL，核心就是这样的一阶逻辑。",
-        "en": "A sentence with one x left free is a <wiki-ref to=\"query\"></wiki-ref>: the things of a world that make it true when put in for x are the answer. At its core, SQL, the language of databases, is first-order logic like this."
+        "zh": "一句话里留一个自由的 x，就成了<wiki-ref to=\"query\"></wiki-ref>：世界里哪些东西代入 x 能让这句话成立，哪些就是答案。数据库的查询语言 SQL，核心就是这样的一阶逻辑。"
       }
     },
     {
       "t": {
-        "zh": "这里有两家人。同一句查询要在两家里都选对，靠记名字不行。",
-        "en": "There are two families here. One query must be right in both, so remembering names will not do."
+        "zh": "这里有两家人。同一句查询要在两家里都选对，靠记名字不行。"
       }
     }
   ],
@@ -21,12 +19,12 @@
       "consts": ["h", "i", "j", "k", "l", "m", "n"],
       "worlds": [
         {
-          "title": { "zh": "第一家", "en": "The first family" },
+          "title": { "zh": "第一家" },
           "things": ["i", "j", "k", "l", "m"],
           "preds": { "Parent": [["i", "j"], ["i", "k"], ["j", "l"], ["k", "m"]], "School": ["l"] }
         },
         {
-          "title": { "zh": "第二家", "en": "The second family" },
+          "title": { "zh": "第二家" },
           "things": ["i", "j", "k", "l", "m", "n"],
           "preds": {
             "Parent": [["j", "i"], ["i", "k"], ["i", "l"], ["k", "m"], ["l", "n"]],
@@ -34,14 +32,13 @@
           }
         }
       ],
-      "say": { "zh": "x 是安的孩子。", "en": "x is a child of Ann." },
+      "say": { "zh": "x 是安的孩子。" },
       "target": "Parent(i, x)",
       "decoys": ["School(x)"],
       "brief": {
-        "zh": "拼一句带着 x 的话，在每一家里，让它正好选中安的孩子。",
-        "en": "Build a sentence with x in it that picks out exactly Ann’s children in each family."
+        "zh": "拼一句带着 x 的话，在每一家里，让它正好选中安的孩子。"
       },
-      "hint": [{ "zh": "「安是 x 的父母」。", "en": "“Ann is a parent of x”." }]
+      "hint": [{ "zh": "「安是 x 的父母」。" }]
     }
   ]
 }

@@ -6,7 +6,7 @@
 // changes an id and every place naming it). Node-safe and browser-safe: the studio searches as one types with this
 // module, and the MCP's search and replace tools (tools.js) are this module too.
 //
-//   query: { find, regex?, caseSensitive?, word?, sides?: ['zh', 'en'], kinds?: ['text', 'board', 'id'] }
+//   query: { find, regex?, caseSensitive?, word?, kinds?: ['text', 'board', 'id'] }
 //   a hit: { file, level?, in?, path, kind, side?, line?, text (the string searched), at: [[start, end]…] }
 import { find } from '../schema.js'
 import { GLOSSARY } from '../vocabulary.js'
@@ -52,8 +52,9 @@ export function searchable(content, vocabulary, kinds = KINDS) {
   const out = []
   const texts = (value, schema, at) => {
     for (const { path, value: v } of find(schema, value, 'text', { vocabulary })) {
-      const pair = typeof v === 'string' ? { zh: v, en: v } : v ?? {}
-      for (const side of ['zh', 'en']) if (typeof pair[side] === 'string') out.push({ ...at, path, kind: 'text', side, text: pair[side] })
+      // Content is written in one language (../i18n.js): a text is searched and replaced there.
+      const text = typeof v === 'string' ? v : v?.zh
+      if (typeof text === 'string') out.push({ ...at, path, kind: 'text', side: 'zh', text })
     }
   }
   const { id: _g, levels, glossary, domain: _d, vocabulary: _v, open: _o, blueprint: _b, eras: _e, ...game } = content
@@ -77,10 +78,8 @@ export function searchable(content, vocabulary, kinds = KINDS) {
 export function searchContent(content, vocabulary, query) {
   const re = patternOf(query)
   if (!re) return []
-  const sides = query.sides ?? ['zh', 'en']
   const hits = []
   for (const place of searchable(content, vocabulary, query.kinds ?? KINDS)) {
-    if (place.side && !sides.includes(place.side)) continue
     const at = spansIn(re, place.text, place.kind === 'text', query.word)
     if (at.length) hits.push({ ...place, at })
   }

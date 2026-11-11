@@ -1,43 +1,41 @@
 {
-  "title": { "zh": "能不能到", "en": "Can you get there" },
-  "short": { "zh": "格子里存「是」和「否」", "en": "Cells hold “yes” and “no”" },
+  "title": { "zh": "能不能到" },
+  "short": { "zh": "格子里存「是」和「否」" },
   "intro": [
     {
       "t": {
-        "zh": "有时候不用知道有几条路线，只想知道<b>能不能到</b>。这时格子里不用存数，存「是」或「否」就够了。",
-        "en": "Sometimes you don’t need to know how many routes there are, only <b>whether you can get there at all</b>. Then the cells don’t need to hold numbers: “yes” or “no” is enough."
+        "zh": "有时候不用知道有几条路线，只想知道<b>能不能到</b>。这时格子里不用存数，存「是」或「否」就够了。"
       },
       "fig": {
         "grid": {
           "R": 3,
           "C": 3,
           "cells": {
-            "0,0": { "value": { "zh": "是", "en": "yes" }, "cls": "yes" },
-            "0,1": { "value": { "zh": "是", "en": "yes" }, "cls": "yes" },
-            "0,2": { "value": { "zh": "是", "en": "yes" }, "cls": "yes" },
-            "1,0": { "value": { "zh": "是", "en": "yes" }, "cls": "yes" },
+            "0,0": { "value": { "zh": "是" }, "cls": "yes" },
+            "0,1": { "value": { "zh": "是" }, "cls": "yes" },
+            "0,2": { "value": { "zh": "是" }, "cls": "yes" },
+            "1,0": { "value": { "zh": "是" }, "cls": "yes" },
             "1,1": { "cls": "rock" },
-            "1,2": { "value": { "zh": "是", "en": "yes" }, "cls": "yes" },
-            "2,0": { "value": { "zh": "是", "en": "yes" }, "cls": "yes" },
-            "2,1": { "value": { "zh": "是", "en": "yes" }, "cls": "yes" },
-            "2,2": { "value": { "zh": "是", "en": "yes" }, "cls": "yes" }
+            "1,2": { "value": { "zh": "是" }, "cls": "yes" },
+            "2,0": { "value": { "zh": "是" }, "cls": "yes" },
+            "2,1": { "value": { "zh": "是" }, "cls": "yes" },
+            "2,2": { "value": { "zh": "是" }, "cls": "yes" }
           }
         }
       }
     },
     {
       "t": {
-        "zh": "新元件：「<b>任一是</b>」汇合器。接进来的信号里只要有一个「是」，它就输出「是」。到一个路口，上面或左边只要有一边能到，这里就能到。",
-        "en": "A new component: the “<b>any yes</b>” Merger. If any signal wired into it is “yes”, it outputs “yes”. At a crossing, if either up or left can be reached, so can this one."
+        "zh": "新元件：「<b>任一是</b>」汇合器。接进来的信号里只要有一个「是」，它就输出「是」。到一个路口，上面或左边只要有一边能到，这里就能到。"
       },
       "fig": {
         "circuit": {
           "taps": [
-            { "id": "u", "label": { "zh": "上面 · 否", "en": "up · no" }, "kind": "bool" },
-            { "id": "l", "label": { "zh": "左边 · 是", "en": "left · yes" }, "kind": "bool" }
+            { "id": "u", "label": { "zh": "上面 · 否" }, "kind": "bool" },
+            { "id": "l", "label": { "zh": "左边 · 是" }, "kind": "bool" }
           ],
-          "parts": [{ "id": "m", "name": { "zh": "汇合器", "en": "Merger" }, "tag": { "zh": "任一是", "en": "any yes" } }],
-          "outs": [{ "id": "o", "label": { "zh": "本格 · 是", "en": "this cell · yes" } }],
+          "parts": [{ "id": "m", "name": { "zh": "汇合器" }, "tag": { "zh": "任一是" } }],
+          "outs": [{ "id": "o", "label": { "zh": "本格 · 是" } }],
           "wires": [
             { "from": "u", "to": "m", "kind": "bool" },
             { "from": "l", "to": "m", "kind": "bool" },
@@ -48,55 +46,47 @@
     },
     {
       "t": {
-        "zh": "起点本身当然能到。石头格呢？拦截闸现在也能拦「是 / 否」：被拦下的格子写「—」，「任一是」不会把它当成「是」。",
-        "en": "The start can of course be reached. What about rock cells? The Block gate can now block “yes / no” too: a blocked cell gets “—”, and “any yes” won’t count it as a “yes”."
+        "zh": "起点本身当然能到。石头格呢？拦截闸现在也能拦「是 / 否」：被拦下的格子写「—」，「任一是」不会把它当成「是」。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "只能往右或往下走，不能经过石头。每个格子写上「是」或「否」：从起点能不能走到这里（石头格写「—」）。",
-      "en": "Only right or down, and never through a rock. Write “yes” or “no” in every cell: can you get here from the start? (Rock cells get “—”.)"
+      "zh": "只能往右或往下走，不能经过石头。每个格子写上「是」或「否」：从起点能不能走到这里（石头格写「—」）。"
     },
     "how": {
-      "zh": "这一关会检查整张表。读上面、左边和「是起点」，用「任一是」汇合器合起来，别忘了石头。",
-      "en": "This level checks the whole table. Read up, left and “is start”, merge them with an “any yes” Merger, and don’t forget the rocks."
+      "zh": "这一关会检查整张表。读上面、左边和「是起点」，用「任一是」汇合器合起来，别忘了石头。"
     }
   },
   "robot": "scout",
   "adds": ["many"],
   "debrief": {
-    "title": { "zh": "是或否，也能填表", "en": "Yes or no fills a table too" },
+    "title": { "zh": "是或否，也能填表" },
     "body": [
       {
-        "zh": "格子里不一定要存数。<b>存「是 / 否」</b>，表就能回答「能不能」一类的问题。",
-        "en": "Cells don’t have to hold numbers. <b>Store “yes / no”</b> and the table can answer “can it be done?” questions."
+        "zh": "格子里不一定要存数。<b>存「是 / 否」</b>，表就能回答「能不能」一类的问题。"
       },
       {
-        "zh": "合并方式也跟着换：数路线要加起来，问能不能到，只要有一个「是」就够，所以用「任一是」。第 2 个测试里，一排石头把路彻底堵死了，终点是「否」。",
-        "en": "The way of merging changes with it: counting routes means adding up, but for “can you get there” a single “yes” is enough, so you use “any yes”. In test 2, a line of rocks blocks the way completely, and the end is “no”."
+        "zh": "合并方式也跟着换：数路线要加起来，问能不能到，只要有一个「是」就够，所以用「任一是」。第 2 个测试里，一排石头把路彻底堵死了，终点是「否」。"
       }
     ],
     "note": {
-      "zh": "格子可以存「是 / 否」：任一来路能到，这里就能到。",
-      "en": "Cells can hold “yes / no”: if any way in can be reached, so can this cell."
+      "zh": "格子可以存「是 / 否」：任一来路能到，这里就能到。"
     }
   },
   "tasks": [
     {
       "id": "reach",
       "mode": "circuit",
-      "testLabel": { "zh": "{R}×{C} · {rocks.length} 块石头", "en": "{R}×{C} · {rocks.length} rocks" },
+      "testLabel": { "zh": "{R}×{C} · {rocks.length} 块石头" },
       "checkAll": true,
       "hints": [
         {
-          "zh": "到这一格，只要上面或左边有一边能到就行：把上面、左边都接进「任一是」汇合器。",
-          "en": "This cell can be reached if either up or left can: wire both up and left into an “any yes” Merger."
+          "zh": "到这一格，只要上面或左边有一边能到就行：把上面、左边都接进「任一是」汇合器。"
         },
-        { "zh": "起点能到：把「是起点」也接进「任一是」。", "en": "The start can be reached: wire “is start” into “any yes” too." },
+        { "zh": "起点能到：把「是起点」也接进「任一是」。" },
         {
-          "zh": "石头格谁也到不了：用拦截闸拦住结果，条件接「是石头」。",
-          "en": "Nobody can reach a rock cell: block the result with a Block gate, its condition wired to “is rock”."
+          "zh": "石头格谁也到不了：用拦截闸拦住结果，条件接「是石头」。"
         }
       ],
       "world": "gridYes",

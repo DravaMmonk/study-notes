@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "最省力", "en": "Least effort" },
-  "short": { "zh": "每个路口都要花体力", "en": "Every crossing costs energy" },
+  "title": { "zh": "最省力" },
+  "short": { "zh": "每个路口都要花体力" },
   "intro": [
     {
       "t": {
-        "zh": "现在每个路口都要花一点体力才能通过，就是格子左上角的小数字。从左上走到右下，<b>最少要花多少体力？</b>",
-        "en": "Now every crossing costs some energy to pass through: the small number in each cell’s top-left corner. Going from the top left to the bottom right, <b>what is the least energy you can spend?</b>"
+        "zh": "现在每个路口都要花一点体力才能通过，就是格子左上角的小数字。从左上走到右下，<b>最少要花多少体力？</b>"
       },
       "fig": {
         "grid": {
@@ -27,14 +26,12 @@
     },
     {
       "t": {
-        "zh": "还是只看最后一步：到这个路口，要么从上面来，要么从左边来。",
-        "en": "Again, look only at the last step: you reach this crossing either from above or from the left."
+        "zh": "还是只看最后一步：到这个路口，要么从上面来，要么从左边来。"
       }
     },
     {
       "t": {
-        "zh": "数路线时，我们把两边<b>加起来</b>，因为两边的路线都算数。这次你只走一条路，两边该怎么处理？汇合器还有一个「取较小」的操作：比如 8 和 6，它输出 6。再加上这个路口自己的体力 1，就是 7。",
-        "en": "When counting routes we <b>added</b> both sides, because routes from both sides count. This time you walk just one route: what should happen to the two sides? The Merger also has a “min” operation: given 8 and 6, it outputs 6. Add this crossing’s own energy, 1, and you get 7."
+        "zh": "数路线时，我们把两边<b>加起来</b>，因为两边的路线都算数。这次你只走一条路，两边该怎么处理？汇合器还有一个「取较小」的操作：比如 8 和 6，它输出 6。再加上这个路口自己的体力 1，就是 7。"
       },
       "fig": {
         "scene": {
@@ -45,7 +42,7 @@
               "y": 0,
               "w": 56,
               "h": 56,
-              "label": { "zh": "上面", "en": "up" },
+              "label": { "zh": "上面" },
               "value": 8,
               "cls": "lit"
             },
@@ -55,7 +52,7 @@
               "y": 66,
               "w": 56,
               "h": 56,
-              "label": { "zh": "左边", "en": "left" },
+              "label": { "zh": "左边" },
               "value": 6,
               "cls": "lit"
             },
@@ -71,29 +68,25 @@
   ],
   "mission": {
     "goal": {
-      "zh": "只能往右或往下走，每经过一个路口（包括起点和终点）都要花掉它左上角写的体力。算出从左上到右下最少要花多少体力。",
-      "en": "Only right or down, and every crossing you pass through (start and end included) costs the energy written in its top-left corner. Work out the least energy needed to get from the top left to the bottom right."
+      "zh": "只能往右或往下走，每经过一个路口（包括起点和终点）都要花掉它左上角写的体力。算出从左上到右下最少要花多少体力。"
     },
     "how": {
-      "zh": "格子左上角的小数字是这一格的体力，在输入窗口里点「本格体力」就能读它。",
-      "en": "The small number in a cell’s top-left corner is its energy; click “cell energy” in the inputs window to read it."
+      "zh": "格子左上角的小数字是这一格的体力，在输入窗口里点「本格体力」就能读它。"
     }
   },
   "robot": "scout",
   "adds": ["mmin", "mmax"],
   "debrief": {
-    "title": { "zh": "从数路线到找最优", "en": "From counting to optimizing" },
+    "title": { "zh": "从数路线到找最优" },
     "body": [
       {
-        "zh": "先用「取较小」从两边挑出省力的一边，再把本格的体力加上去。机器就从「数有几条路」变成了「找最好的那条路」。",
-        "en": "First “min” picks the cheaper of the two sides, then the cell’s own energy is added. And the machine went from “count how many routes there are” to “find the best route”."
+        "zh": "先用「取较小」从两边挑出省力的一边，再把本格的体力加上去。机器就从「数有几条路」变成了「找最好的那条路」。"
       },
       {
-        "zh": "<b>动态规划既能计数，也能求最优。</b>它们共用同一个骨架：只看最后一步，用前面格子的答案算出这一格。",
-        "en": "<b>Dynamic programming can count, and it can optimize.</b> Both share the same skeleton: look only at the last step, and compute this cell from the answers of earlier cells."
+        "zh": "<b>动态规划既能计数，也能求最优。</b>它们共用同一个骨架：只看最后一步，用前面格子的答案算出这一格。"
       }
     ],
-    "note": { "zh": "求最优时，用「取较小」代替「加起来」。", "en": "To optimize, use “min” in place of “sum”." }
+    "note": { "zh": "求最优时，用「取较小」代替「加起来」。" }
   },
   "tasks": [
     {
@@ -103,19 +96,16 @@
         {
           "when": { "not": { "has": "mmin" } },
           "say": {
-            "zh": "只能走一条路，两边的花费不能加起来。用「取较小」汇合器。",
-            "en": "You walk only one route, so the costs of the two sides can’t be added together. Use the “min” Merger."
+            "zh": "只能走一条路，两边的花费不能加起来。用「取较小」汇合器。"
           }
         }
       ],
       "hints": [
         {
-          "zh": "只能走一条路：到这个路口，两边的花费都要算进去吗？",
-          "en": "You walk only one route: do both sides’ costs really count towards this crossing?"
+          "zh": "只能走一条路：到这个路口，两边的花费都要算进去吗？"
         },
         {
-          "zh": "穿过这个路口本身也要花体力：取较小之后，还要加上「本格体力」。",
-          "en": "Passing through this crossing costs energy too: after the min, “cell energy” still has to be added."
+          "zh": "穿过这个路口本身也要花体力：取较小之后，还要加上「本格体力」。"
         }
       ],
       "world": "grid",

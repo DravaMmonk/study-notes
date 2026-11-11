@@ -36,7 +36,7 @@ export const EXTENSIONS = {
   scene: isFn,
 }
 
-const isText = (v) => typeof v === 'string' || (v && typeof v.zh === 'string' && typeof v.en === 'string')
+const isText = (v) => typeof v === 'string' || (v && typeof v.zh === 'string')
 const strings = (v) => Array.isArray(v) && v.every((x) => typeof x === 'string')
 const isBoard = (b) => Boolean(b) && Array.isArray(b.nodes) && Array.isArray(b.wires)
 

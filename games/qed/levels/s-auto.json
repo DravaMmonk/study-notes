@@ -1,13 +1,12 @@
 {
   "adds": ["introRules", "elimRules"],
   "tray": "machine",
-  "title": { "zh": "自建 auto", "en": "Your own auto" },
+  "title": { "zh": "自建 auto" },
   "builds": "auto",
   "intro": [
     {
       "t": {
-        "zh": "这四句都在证明板上逐个接过。这一次，要一个证明助手把它们全部证完。设计出的证明助手会成为新元件<part-ref to=\"lemma:auto\"></part-ref>。",
-        "en": "These four sentences were all wired one by one on the proof board. This time one proof assistant must prove them all. The proof assistant you design becomes a new part, <part-ref to=\"lemma:auto\"></part-ref>."
+        "zh": "这四句都在证明板上逐个接过。这一次，要一个证明助手把它们全部证完。设计出的证明助手会成为新元件<part-ref to=\"lemma:auto\"></part-ref>。"
       }
     }
   ],
@@ -16,7 +15,7 @@
       "id": "s-auto",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         { "goal": "Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)" },
@@ -24,10 +23,10 @@
         { "goal": "(∃x. Human(x) ∧ Likes(x, i)) → ∃x. Likes(x, i)" },
         { "goal": "(∀x. Human(x) ∧ Bird(x)) → ∀x. Bird(x)" }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
       "hint": [
-        { "zh": "一步里能做的事有哪几样？", "en": "What can one step do?" },
-        { "zh": "要走几步，事先不知道。", "en": "How many steps it takes is not known beforehand." }
+        { "zh": "一步里能做的事有哪几样？" },
+        { "zh": "要走几步，事先不知道。" }
       ],
       "solution": [
         "c0 = search(in, body: c1) {",

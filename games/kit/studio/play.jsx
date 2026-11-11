@@ -23,6 +23,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { GameShell } from '../shell/index.js'
 import { createProgress, openAt, saved } from '../shell/progress.js'
 import { applyLang } from '../lang.js'
+import { localized } from '../engine/i18n.js'
 import { DOMAINS } from 'virtual:studio-domains'
 import PartPreview from '../shell/parts/PartPreview.jsx'
 
@@ -38,7 +39,7 @@ function look({ theme, lang }) {
  *  edit no longer fits opens as the level's start); `stamp` tells one content from the next. */
 async function gameOf(content, stamp) {
   const defineGame = (await DOMAINS[content.domain]()).default
-  const game = defineGame(content)
+  const game = defineGame(localized(content))
   game.store = createProgress({ id: `studio.${content.id}` })
   game.stamp = stamp
   return game

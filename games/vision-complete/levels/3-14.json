@@ -1,61 +1,56 @@
 {
-  "title": { "zh": "同一束光，不同的漆", "en": "Different paints, same light" },
+  "title": { "zh": "同一束光，不同的漆" },
   "tray": "pipeline",
   "intro": [
     {
       "t": {
-        "zh": "正面光下，表面朝向决定光照的强弱；但即使朝向相同，白漆和深色漆也不会一样亮。现在把不同的漆涂到表面上。",
-        "en": "Under frontal light, surface orientation determines illumination; even at the same orientation, white and dark paint do not look equally bright. Now paint the surface with different reflectances."
+        "zh": "正面光下，表面朝向决定光照的强弱；但即使朝向相同，白漆和深色漆也不会一样亮。现在把不同的漆涂到表面上。"
       }
     },
     {
       "t": {
-        "zh": "反射率表示表面反回的光所占比例，输入为每一点的反射率和单位法线。灯仍从相机方向照来。",
-        "en": "Reflectance is the fraction of incident light returned by a surface. The inputs are each point’s reflectance and unit normal; the lamp still shines from the camera direction."
+        "zh": "反射率表示表面反回的光所占比例，输入为每一点的反射率和单位法线。灯仍从相机方向照来。"
       }
     }
   ],
   "after": {
-    "zh": "同样的照射下，反射率低的表面返回的光更少；亮度同时取决于照射和反射率。",
-    "en": "Under the same illumination, a lower-reflectance surface returns less light. Brightness depends on both illumination and reflectance."
+    "zh": "同样的照射下，反射率低的表面返回的光更少；亮度同时取决于照射和反射率。"
   },
   "tasks": [
     {
       "id": "3-14",
       "kind": "graph",
       "brief": {
-        "zh": "灯的方向为 (0, 0, 1)。把表面朝向光的程度与反射率结合，画出不同漆色和不同朝向共同产生的亮度。",
-        "en": "The light direction is (0, 0, 1). Combine how directly the surface faces the light with its reflectance to draw the brightness produced by both paint and orientation."
+        "zh": "灯的方向为 (0, 0, 1)。把表面朝向光的程度与反射率结合，画出不同漆色和不同朝向共同产生的亮度。"
       },
       "hint": {
-        "zh": "先用法线的 z 分量表示正面光的照射程度，再想想表面只反回其中一部分光。",
-        "en": "Use the normal’s z component for frontal illumination, then consider that the surface returns only a fraction of that light."
+        "zh": "先用法线的 z 分量表示正面光的照射程度，再想想表面只反回其中一部分光。"
       },
       "inputs": ["nx", "ny", "nz", "albedo"],
       "inputLabels": {
-        "nx": { "zh": "法线 x", "en": "Normal x" },
-        "ny": { "zh": "法线 y", "en": "Normal y" },
-        "nz": { "zh": "法线 z", "en": "Normal z" },
-        "albedo": { "zh": "反射率", "en": "Reflectance" }
+        "nx": { "zh": "法线 x" },
+        "ny": { "zh": "法线 y" },
+        "nz": { "zh": "法线 z" },
+        "albedo": { "zh": "反射率" }
       },
       "views": { "in": "pixels", "out": "pixels", "mid": "pixels" },
       "scene": "surface",
       "setup": { "lamp": [0, 0, 1] },
       "tests": [
         {
-          "label": { "zh": "条纹鼓包", "en": "Striped bump" },
+          "label": { "zh": "条纹鼓包" },
           "height": [{ "dome": [8, 8, 6, 3] }],
           "paint": { "stripes": { "period": 8, "lo": 0.35, "hi": 0.9 } }
         },
         {
-          "label": { "zh": "棋盘斜板", "en": "Checkerboard tilt" },
+          "label": { "zh": "棋盘斜板" },
           "height": [{ "tilt": [0.3, -0.2] }],
           "paint": { "checker": { "cell": 4, "lo": 0.4, "hi": 0.85 } }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "双色横梁", "en": "Two-tone ridge" },
+          "label": { "zh": "双色横梁" },
           "height": [{ "ridge": [8, 5, 2.5] }],
           "paint": { "stripes": { "period": 6, "lo": 0.3, "hi": 0.8 } }
         }

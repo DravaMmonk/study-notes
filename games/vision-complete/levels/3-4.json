@@ -1,29 +1,25 @@
 {
-  "title": { "zh": "换灯露馅", "en": "A new lamp gives it away" },
+  "title": { "zh": "换灯露馅" },
   "tray": "pipeline",
   "after": {
-    "zh": "两块布在日光下读数一样，换一盏灯就不一样了：它们的光谱不同，只是差别正好落在三种感光都看不见的地方。这叫同色异谱。买衣服时在店里灯下配好的颜色，到了太阳底下对不上，就是这个原因。感光是线性的，所以「先相减再读数」和「分别读数再相减」一样。",
-    "en": "The two cloths read the same in daylight and differently under another lamp: their spectra differ, but only where none of the three sensors can see. This is metamerism. It is why colours that match under the shop's lights can clash in the sun. Sensing is linear, so \"subtract, then read\" is the same as \"read each, then subtract\"."
+    "zh": "两块布在日光下读数一样，换一盏灯就不一样了：它们的光谱不同，只是差别正好落在三种感光都看不见的地方。这叫同色异谱。买衣服时在店里灯下配好的颜色，到了太阳底下对不上，就是这个原因。感光是线性的，所以「先相减再读数」和「分别读数再相减」一样。"
   },
   "intro": [
     {
       "t": {
-        "zh": "布是什么颜色，要看它把每个波长的光反射回来多少，这也是一条曲线。照到布上的光 × 布的反射，才是进到相机里的光谱。",
-        "en": "What colour a cloth is depends on how much light it reflects at each wavelength, which is another curve. The light falling on the cloth × the cloth's reflectance is the spectrum that enters the camera."
+        "zh": "布是什么颜色，要看它把每个波长的光反射回来多少，这也是一条曲线。照到布上的光 × 布的反射，才是进到相机里的光谱。"
       }
     },
     {
       "t": {
-        "zh": "<level-ref to=\"3-3\"></level-ref>的电路现在是<part-ref to=\"sense\"></part-ref>元件：选 R、G 或 B，它就按那条灵敏度曲线读一条光谱。",
-        "en": "<level-ref to=\"3-3\"></level-ref>'s circuit is now the <part-ref to=\"sense\"></part-ref> part: choose R, G or B and it reads a spectrum with that sensitivity curve."
+        "zh": "<level-ref to=\"3-3\"></level-ref>的电路现在是<part-ref to=\"sense\"></part-ref>元件：选 R、G 或 B，它就按那条灵敏度曲线读一条光谱。"
       }
     },
     {
       "t": {
-        "zh": "这一关有两块布，在日光下相机读到的 R、G、B 一模一样。这一关你要做的：在各种灯下，输出相机读到的布 A 减去布 B。要想的问题：两块布的光谱明明不同，为什么日光下分不出来？",
-        "en": "This level has two cloths whose R, G and B readings are exactly the same in daylight. Your task in this level: under various lamps, output what the camera reads for cloth A minus cloth B. Something to think about: the two cloths' spectra are plainly different, so why can daylight not tell them apart?"
+        "zh": "这一关有两块布，在日光下相机读到的 R、G、B 一模一样。这一关你要做的：在各种灯下，输出相机读到的布 A 减去布 B。要想的问题：两块布的光谱明明不同，为什么日光下分不出来？"
       },
-      "fig": { "test": 1, "caption": { "zh": "第二组测试：暖白灯下的两块布", "en": "Set 2: the two cloths under a warm white lamp" } }
+      "fig": { "test": 1, "caption": { "zh": "第二组测试：暖白灯下的两块布" } }
     }
   ],
   "tasks": [
@@ -31,18 +27,16 @@
       "id": "3-4",
       "kind": "graph",
       "brief": {
-        "zh": "「布 A」「布 B」是两块布在每个波段反射多少光，「灯」是灯的光谱。照到布上再反射进相机的光 = 灯 × 布。输出这盏灯下，相机读到的布 A 减去布 B：R、G、B 三个差。",
-        "en": "\"Cloth A\" and \"Cloth B\" are how much light two cloths reflect in each band, and \"Lamp\" is the lamp's spectrum. The light that reaches the camera off a cloth = lamp × cloth. Output what the camera reads for cloth A minus cloth B under this lamp: three differences, R, G and B."
+        "zh": "「布 A」「布 B」是两块布在每个波段反射多少光，「灯」是灯的光谱。照到布上再反射进相机的光 = 灯 × 布。输出这盏灯下，相机读到的布 A 减去布 B：R、G、B 三个差。"
       },
       "hint": {
-        "zh": "日光那一组的答案全是 0。两块布的光谱明明不一样，相机为什么分不出来？",
-        "en": "The daylight test expects all zeros. The two cloths' spectra are plainly different, so why can the camera not tell them apart?"
+        "zh": "日光那一组的答案全是 0。两块布的光谱明明不一样，相机为什么分不出来？"
       },
       "inputs": ["a", "b", "lamp"],
       "inputLabels": {
-        "a": { "zh": "布 A", "en": "Cloth A" },
-        "b": { "zh": "布 B", "en": "Cloth B" },
-        "lamp": { "zh": "灯", "en": "Lamp" }
+        "a": { "zh": "布 A" },
+        "b": { "zh": "布 B" },
+        "lamp": { "zh": "灯" }
       },
       "outputs": ["ro", "go", "bo"],
       "outputLabels": { "ro": "R", "go": "G", "bo": "B" },
@@ -50,12 +44,12 @@
       "scene": "metamer",
       "tests": [
         {
-          "label": { "zh": "赭色 · 日光", "en": "Ochre · daylight" },
+          "label": { "zh": "赭色 · 日光" },
           "cloth": [0.3, 0.3, 0.32, 0.38, 0.45, 0.52, 0.56, 0.58, 0.6, 0.6],
           "lamp": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         },
         {
-          "label": { "zh": "赭色 · 暖白灯", "en": "Ochre · warm white" },
+          "label": { "zh": "赭色 · 暖白灯" },
           "cloth": [0.3, 0.3, 0.32, 0.38, 0.45, 0.52, 0.56, 0.58, 0.6, 0.6],
           "lamp": [
             0.3,
@@ -71,24 +65,24 @@
           ]
         },
         {
-          "label": { "zh": "赭色 · 绿灯", "en": "Ochre · green LED" },
+          "label": { "zh": "赭色 · 绿灯" },
           "cloth": [0.3, 0.3, 0.32, 0.38, 0.45, 0.52, 0.56, 0.58, 0.6, 0.6],
           "lamp": [0, 0, 0, 1, 1, 0.2, 0, 0, 0, 0]
         },
         {
-          "label": { "zh": "灰绿 · 红灯", "en": "Sage · red LED" },
+          "label": { "zh": "灰绿 · 红灯" },
           "cloth": [0.4, 0.42, 0.45, 0.5, 0.52, 0.5, 0.46, 0.42, 0.4, 0.4],
           "lamp": [0, 0, 0, 0, 0, 0, 0.3, 1, 1, 0.5]
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "灰绿 · 日光", "en": "Sage · daylight" },
+          "label": { "zh": "灰绿 · 日光" },
           "cloth": [0.4, 0.42, 0.45, 0.5, 0.52, 0.5, 0.46, 0.42, 0.4, 0.4],
           "lamp": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         },
         {
-          "label": { "zh": "灰绿 · 蓝灯", "en": "Sage · blue LED" },
+          "label": { "zh": "灰绿 · 蓝灯" },
           "cloth": [0.4, 0.42, 0.45, 0.5, 0.52, 0.5, 0.46, 0.42, 0.4, 0.4],
           "lamp": [1, 1, 0.6, 0.2, 0, 0, 0, 0, 0, 0]
         }

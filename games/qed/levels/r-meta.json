@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "还没定下来的 ?A", "en": "An ?A not settled yet" },
+  "title": { "zh": "还没定下来的 ?A" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "套用写成规则是 ⟦?A → ?B; ?A⟧ ⟹ ?B。结论 ?B 对上目标「地湿」，?A 却无法从目标读出，原样留在两个新目标里。之后什么确定了 ?A，两个目标里的 ?A 就一起确定。",
-        "en": "Apply as a rule is ⟦?A → ?B; ?A⟧ ⟹ ?B. Its conclusion ?B fits the goal “the ground is wet”, but ?A cannot be read off the goal, and stays as it is in both new goals. Whatever settles ?A later settles it in both."
+        "zh": "套用写成规则是 ⟦?A → ?B; ?A⟧ ⟹ ?B。结论 ?B 对上目标「地湿」，?A 却无法从目标读出，原样留在两个新目标里。之后什么确定了 ?A，两个目标里的 ?A 就一起确定。"
       }
     }
   ],
@@ -14,14 +13,14 @@
       "id": "r-meta",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "tests": [
         { "goal": "Wet", "hyps": ["Rain → Wet", "Rain"] },
         { "goal": "Slip", "hyps": ["Wind", "Wet → Slip", "Wet"] },
         { "goal": "Wind ∧ Wet", "hyps": ["Rain → Wind ∧ Wet", "Rain"] }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "倒着用套用。?A 先留着，交给已知去定。", "en": "Use Apply backwards. Leave ?A open for a given to settle." }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "倒着用套用。?A 先留着，交给已知去定。" }],
       "solution": [
         "c0r0 = mp[use=[mp]]()",
         "c0 = rule(in, c0r0)",

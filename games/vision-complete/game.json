@@ -1,27 +1,23 @@
 {
   "domain": "image",
   "vocabulary": 15,
-  "title": { "zh": "视觉完备", "en": "Vision Complete" },
-  "kicker": { "zh": "COMP90086 · 计算机视觉", "en": "COMP90086 · Computer Vision" },
+  "title": { "zh": "视觉完备" },
+  "kicker": { "zh": "COMP90086 · 计算机视觉" },
   "lede": {
-    "zh": "没有讲解，只有元件、测试和一组输入输出。从“把图挪一格”开始，自己搭出模糊、边缘、角点和视差，最后让机器学会看。",
-    "en": "No lectures: just parts, tests and a set of inputs and outputs. Start from “move the picture one pixel”, build blur, edges, corners and disparity yourself, and finally teach the machine to see."
+    "zh": "没有讲解，只有元件、测试和一组输入输出。从“把图挪一格”开始，自己搭出模糊、边缘、角点和视差，最后让机器学会看。"
   },
   "power": {
-    "title": { "zh": "上电", "en": "Power on" },
+    "title": { "zh": "上电" },
     "lines": [
-      { "zh": "探测器 V-0，视觉芯片已上电。", "en": "Probe V-0, vision chip powered on." },
+      { "zh": "探测器 V-0，视觉芯片已上电。" },
       {
-        "zh": "传感器把世界变成一格格数字，可你还看不懂它们。",
-        "en": "Your sensor turns the world into a grid of numbers, but you cannot read them yet."
+        "zh": "传感器把世界变成一格格数字，可你还看不懂它们。"
       },
       {
-        "zh": "母舰会给你一系列测试。每通过一个，你就多一个可以用的元件。",
-        "en": "The mothership will send you a series of tests. Each one you pass gives you a new part to use."
+        "zh": "母舰会给你一系列测试。每通过一个，你就多一个可以用的元件。"
       },
       {
-        "zh": "没有说明书。动手试，看测试图，读数字。",
-        "en": "There is no manual. Try things, look at the test pictures, read the numbers."
+        "zh": "没有说明书。动手试，看测试图，读数字。"
       }
     ]
   },
@@ -248,8 +244,8 @@
         "0-1",
         {
           "parallel": [
-            { "id": "move", "title": { "zh": "挪动", "en": "Moving" }, "levels": ["0-2", "0-3"] },
-            { "id": "tone", "title": { "zh": "明暗", "en": "Light and dark" }, "levels": ["0-4", "0-5", "0-6"] }
+            { "id": "move", "title": { "zh": "挪动" }, "levels": ["0-2", "0-3"] },
+            { "id": "tone", "title": { "zh": "明暗" }, "levels": ["0-4", "0-5", "0-6"] }
           ]
         },
         "0-7",
@@ -258,9 +254,9 @@
       "challenges": [{ "level": "0-9", "after": "0-7" }],
       "topics": [{ "id": "inspection", "code": "I", "levels": ["0-10", "0-11", "0-12"], "after": "0-7" }],
       "chapter": {
-        "title": { "zh": "睁眼", "en": "Opening Eyes" },
-        "lecture": { "zh": "第 1–2 讲", "en": "Lectures 1–2" },
-        "question": { "zh": "图像是什么", "en": "What is an image?" }
+        "title": { "zh": "睁眼" },
+        "lecture": { "zh": "第 1–2 讲" },
+        "question": { "zh": "图像是什么" }
       }
     },
     {
@@ -272,23 +268,23 @@
         "1-4",
         {
           "parallel": [
-            { "id": "sharpen", "title": { "zh": "锐化", "en": "Sharpening" }, "levels": ["1-5"] },
-            { "id": "edges", "title": { "zh": "找边", "en": "Finding edges" }, "levels": ["1-6", "1-7"] }
+            { "id": "sharpen", "title": { "zh": "锐化" }, "levels": ["1-5"] },
+            { "id": "edges", "title": { "zh": "找边" }, "levels": ["1-6", "1-7"] }
           ]
         },
         {
           "parallel": [
-            { "id": "kernel", "title": { "zh": "3×3 核", "en": "The 3×3 kernel" }, "levels": ["1-8", "1-9", "1-10"] },
-            { "id": "border", "title": { "zh": "图的边上", "en": "At the border" }, "levels": ["1-11"] }
+            { "id": "kernel", "title": { "zh": "3×3 核" }, "levels": ["1-8", "1-9", "1-10"] },
+            { "id": "border", "title": { "zh": "图的边上" }, "levels": ["1-11"] }
           ]
         }
       ],
       "challenges": [{ "level": "1-12", "after": "1-3" }],
       "topics": [{ "id": "scanner", "code": "S", "levels": ["1-13", "1-14", "1-15"] }],
       "chapter": {
-        "title": { "zh": "邻居", "en": "Neighbours" },
-        "lecture": { "zh": "第 3 讲", "en": "Lecture 3" },
-        "question": { "zh": "怎样用邻居算出新图", "en": "How do neighbours make a new image?" }
+        "title": { "zh": "邻居" },
+        "lecture": { "zh": "第 3 讲" },
+        "question": { "zh": "怎样用邻居算出新图" }
       }
     },
     {
@@ -297,22 +293,22 @@
         "2-1",
         "2-2",
         {
-          "parallel": [{ "id": "probe", "title": { "zh": "频率探针", "en": "Frequency probe" }, "levels": ["2-3", "2-4", "2-5"] }]
+          "parallel": [{ "id": "probe", "title": { "zh": "频率探针" }, "levels": ["2-3", "2-4", "2-5"] }]
         },
         "2-6",
         {
           "parallel": [
-            { "id": "filter", "title": { "zh": "滤波", "en": "Filtering" }, "levels": ["2-7", "2-8", "2-9", "2-10"] },
-            { "id": "sampling", "title": { "zh": "采样", "en": "Sampling" }, "levels": ["2-11"] }
+            { "id": "filter", "title": { "zh": "滤波" }, "levels": ["2-7", "2-8", "2-9", "2-10"] },
+            { "id": "sampling", "title": { "zh": "采样" }, "levels": ["2-11"] }
           ]
         }
       ],
       "challenges": [{ "level": "2-12", "after": "2-10" }],
       "topics": [{ "id": "thumbnails", "code": "T", "levels": ["2-13", "2-14", "2-15", "2-16"] }],
       "chapter": {
-        "title": { "zh": "频率", "en": "Frequency" },
-        "lecture": { "zh": "第 4 讲", "en": "Lecture 4" },
-        "question": { "zh": "图像由哪些波组成", "en": "Which waves make up an image?" }
+        "title": { "zh": "频率" },
+        "lecture": { "zh": "第 4 讲" },
+        "question": { "zh": "图像由哪些波组成" }
       }
     },
     {
@@ -322,25 +318,25 @@
           "parallel": [
             {
               "id": "light",
-              "title": { "zh": "光照", "en": "Lighting" },
+              "title": { "zh": "光照" },
               "levels": ["3-13", "3-14", "3-1", "3-2"]
             },
-            { "id": "camera", "title": { "zh": "相机", "en": "The camera" }, "levels": ["3-3", "3-4"] }
+            { "id": "camera", "title": { "zh": "相机" }, "levels": ["3-3", "3-4"] }
           ]
         },
         {
           "parallel": [
-            { "id": "colour", "title": { "zh": "只看颜色", "en": "Colour alone" }, "levels": ["3-5", "3-6"] },
-            { "id": "slope", "title": { "zh": "只看坡度", "en": "Slope alone" }, "levels": ["3-7", "3-8"] }
+            { "id": "colour", "title": { "zh": "只看颜色" }, "levels": ["3-5", "3-6"] },
+            { "id": "slope", "title": { "zh": "只看坡度" }, "levels": ["3-7", "3-8"] }
           ]
         }
       ],
       "challenges": [{ "level": "3-9" }],
       "topics": [{ "id": "photometric", "code": "P", "levels": ["3-10", "3-11", "3-12"], "after": "3-7" }],
       "chapter": {
-        "title": { "zh": "光与边", "en": "Light and Edges" },
-        "lecture": { "zh": "第 5 讲", "en": "Lecture 5" },
-        "question": { "zh": "照片的明暗从哪来", "en": "Where do light and shade come from?" }
+        "title": { "zh": "光与边" },
+        "lecture": { "zh": "第 5 讲" },
+        "question": { "zh": "照片的明暗从哪来" }
       }
     },
     {
@@ -352,15 +348,15 @@
         "4-4",
         {
           "parallel": [
-            { "id": "neuron", "title": { "zh": "神经元", "en": "The neuron" }, "levels": ["4-5", "4-6"] },
+            { "id": "neuron", "title": { "zh": "神经元" }, "levels": ["4-5", "4-6"] },
             {
               "id": "pool",
-              "title": { "zh": "非线性和池化", "en": "Nonlinearity and pooling" },
+              "title": { "zh": "非线性和池化" },
               "levels": ["4-7", "4-8", "4-10", "4-11"]
             },
             {
               "id": "conv",
-              "title": { "zh": "卷积层", "en": "Convolution layers" },
+              "title": { "zh": "卷积层" },
               "levels": ["4-9", "4-13", "4-14", "4-15"]
             }
           ]
@@ -374,9 +370,9 @@
         "4-21"
       ],
       "chapter": {
-        "title": { "zh": "学会看", "en": "Learning to See" },
-        "lecture": { "zh": "第 6–8 讲", "en": "Lectures 6–8" },
-        "question": { "zh": "机器怎样自己学会", "en": "How does a machine learn by itself?" }
+        "title": { "zh": "学会看" },
+        "lecture": { "zh": "第 6–8 讲" },
+        "question": { "zh": "机器怎样自己学会" }
       }
     },
     {
@@ -385,17 +381,17 @@
         "5-1",
         {
           "parallel": [
-            { "id": "mend", "title": { "zh": "补全", "en": "Mending" }, "levels": ["5-2", "5-3", "5-4"] },
-            { "id": "order", "title": { "zh": "位置", "en": "Position" }, "levels": ["5-5"] }
+            { "id": "mend", "title": { "zh": "补全" }, "levels": ["5-2", "5-3", "5-4"] },
+            { "id": "order", "title": { "zh": "位置" }, "levels": ["5-5"] }
           ]
         }
       ],
       "challenges": [{ "level": "5-6" }],
       "topics": [{ "id": "dedup", "code": "D", "levels": ["5-7", "5-8", "5-9"], "after": "5-1" }],
       "chapter": {
-        "title": { "zh": "全局视野", "en": "The Whole Picture" },
-        "lecture": { "zh": "第 9–10 讲", "en": "Lectures 9–10" },
-        "question": { "zh": "一步看到全图", "en": "Seeing the whole image in one step" }
+        "title": { "zh": "全局视野" },
+        "lecture": { "zh": "第 9–10 讲" },
+        "question": { "zh": "一步看到全图" }
       }
     },
     {
@@ -415,9 +411,9 @@
       "challenges": [{ "level": "6-10", "after": "6-5" }],
       "topics": [{ "id": "hough", "code": "H", "levels": ["6-6", "6-7"], "after": "6-2" }],
       "chapter": {
-        "title": { "zh": "认出同一个点", "en": "The Same Point Again" },
-        "lecture": { "zh": "第 11–12 讲", "en": "Lectures 11–12" },
-        "question": { "zh": "哪些点容易再找到", "en": "Which points are easy to find again?" }
+        "title": { "zh": "认出同一个点" },
+        "lecture": { "zh": "第 11–12 讲" },
+        "question": { "zh": "哪些点容易再找到" }
       }
     },
     {
@@ -425,8 +421,8 @@
       "foundation": [
         {
           "parallel": [
-            { "id": "disparity", "title": { "zh": "视差", "en": "Disparity" }, "levels": ["7-1", "7-2", "7-3", "7-4"] },
-            { "id": "lines", "title": { "zh": "点和线", "en": "Points and lines" }, "levels": ["7-5", "7-6"] }
+            { "id": "disparity", "title": { "zh": "视差" }, "levels": ["7-1", "7-2", "7-3", "7-4"] },
+            { "id": "lines", "title": { "zh": "点和线" }, "levels": ["7-5", "7-6"] }
           ]
         },
         "7-7",
@@ -435,9 +431,9 @@
       "challenges": [{ "level": "7-9", "after": "7-7" }],
       "topics": [{ "id": "avoid", "code": "A", "levels": ["7-10", "7-11", "7-12"], "after": "7-3" }],
       "chapter": {
-        "title": { "zh": "第三个维度", "en": "The Third Dimension" },
-        "lecture": { "zh": "第 13–14 讲", "en": "Lectures 13–14" },
-        "question": { "zh": "两只眼睛怎样看出远近", "en": "How do two eyes judge distance?" }
+        "title": { "zh": "第三个维度" },
+        "lecture": { "zh": "第 13–14 讲" },
+        "question": { "zh": "两只眼睛怎样看出远近" }
       }
     },
     {
@@ -450,10 +446,10 @@
         "8-5",
         {
           "parallel": [
-            { "id": "adversary", "title": { "zh": "对抗", "en": "Adversaries" }, "levels": ["8-6"] },
+            { "id": "adversary", "title": { "zh": "对抗" }, "levels": ["8-6"] },
             {
               "id": "diffusion",
-              "title": { "zh": "扩散", "en": "Diffusion" },
+              "title": { "zh": "扩散" },
               "levels": ["8-7", "8-8", "8-10", "8-11"]
             }
           ]
@@ -461,9 +457,9 @@
       ],
       "challenges": [{ "level": "8-9", "after": "8-5" }],
       "chapter": {
-        "title": { "zh": "画出没见过的图", "en": "Drawing the Unseen" },
-        "lecture": { "zh": "第 15–17 讲", "en": "Lectures 15–17" },
-        "question": { "zh": "从随机数生成图像", "en": "Making images from random numbers" }
+        "title": { "zh": "画出没见过的图" },
+        "lecture": { "zh": "第 15–17 讲" },
+        "question": { "zh": "从随机数生成图像" }
       }
     },
     {
@@ -472,16 +468,16 @@
         "9-10",
         {
           "parallel": [
-            { "id": "cluster", "title": { "zh": "分类", "en": "Grouping" }, "levels": ["9-5", "9-6"] },
-            { "id": "upsample", "title": { "zh": "放大", "en": "Upsampling" }, "levels": ["9-1", "9-2", "9-3", "9-4"] }
+            { "id": "cluster", "title": { "zh": "分类" }, "levels": ["9-5", "9-6"] },
+            { "id": "upsample", "title": { "zh": "放大" }, "levels": ["9-1", "9-2", "9-3", "9-4"] }
           ]
         }
       ],
       "topics": [{ "id": "cells", "code": "M", "levels": ["9-7", "9-8", "9-9"] }],
       "chapter": {
-        "title": { "zh": "每个像素是什么", "en": "What Every Pixel Is" },
-        "lecture": { "zh": "第 19–20 讲", "en": "Lectures 19–20" },
-        "question": { "zh": "给每个像素一个答案", "en": "An answer for every pixel" }
+        "title": { "zh": "每个像素是什么" },
+        "lecture": { "zh": "第 19–20 讲" },
+        "question": { "zh": "给每个像素一个答案" }
       }
     },
     {
@@ -492,12 +488,12 @@
           "parallel": [
             {
               "id": "propose",
-              "title": { "zh": "产生和筛选框", "en": "Proposing and pruning boxes" },
+              "title": { "zh": "产生和筛选框" },
               "levels": ["10-7", "10-5", "10-6", "10-8"]
             },
             {
               "id": "evaluate",
-              "title": { "zh": "匹配和评测框", "en": "Matching and scoring boxes" },
+              "title": { "zh": "匹配和评测框" },
               "levels": ["10-2", "10-3", "10-4"]
             }
           ]
@@ -505,9 +501,9 @@
       ],
       "topics": [{ "id": "shelf", "code": "G", "levels": ["10-9", "10-10", "10-11"] }],
       "chapter": {
-        "title": { "zh": "框出来", "en": "Boxing Things In" },
-        "lecture": { "zh": "第 21–22 讲", "en": "Lectures 21–22" },
-        "question": { "zh": "东西在哪、有多大", "en": "Where things are, and how big" }
+        "title": { "zh": "框出来" },
+        "lecture": { "zh": "第 21–22 讲" },
+        "question": { "zh": "东西在哪、有多大" }
       }
     },
     {
@@ -515,17 +511,17 @@
       "foundation": [
         {
           "parallel": [
-            { "id": "occlude", "title": { "zh": "遮挡", "en": "Occlusion" }, "levels": ["11-1", "11-2", "11-3"] },
-            { "id": "share", "title": { "zh": "证据在哪", "en": "Where the evidence is" }, "levels": ["11-4"] },
-            { "id": "vit", "title": { "zh": "注意力", "en": "Attention" }, "levels": ["11-5"] }
+            { "id": "occlude", "title": { "zh": "遮挡" }, "levels": ["11-1", "11-2", "11-3"] },
+            { "id": "share", "title": { "zh": "证据在哪" }, "levels": ["11-4"] },
+            { "id": "vit", "title": { "zh": "注意力" }, "levels": ["11-5"] }
           ]
         }
       ],
       "topics": [{ "id": "checkup", "code": "R", "levels": ["11-6", "11-7"], "after": ["11-3", "11-4"] }],
       "chapter": {
-        "title": { "zh": "看它在看哪", "en": "Where Is It Looking?" },
-        "lecture": { "zh": "第 23 讲", "en": "Lecture 23" },
-        "question": { "zh": "它认的是车还是路", "en": "Does it see the car or the road?" }
+        "title": { "zh": "看它在看哪" },
+        "lecture": { "zh": "第 23 讲" },
+        "question": { "zh": "它认的是车还是路" }
       }
     }
   ],

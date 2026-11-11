@@ -1,37 +1,33 @@
 {
-  "title": { "zh": "较大者", "en": "The larger" },
+  "title": { "zh": "较大者" },
   "intro": [
     {
       "t": {
-        "zh": "要说「够近」，先得会说「哪个大」。板只会加、乘、取倒数，这些运算都平滑地变，接不出「哪个大」这种一下子跳过去的判断。",
-        "en": "To say “close enough” the machine must first say “which is larger”. The board only adds, multiplies and takes reciprocals, operations that change smoothly; no wiring of them makes a sudden judgement like which is larger."
+        "zh": "要说「够近」，先得会说「哪个大」。板只会加、乘、取倒数，这些运算都平滑地变，接不出「哪个大」这种一下子跳过去的判断。"
       }
     },
     {
       "t": {
-        "zh": "新元件<part-ref to=\"part:less\"></part-ref>把这个判断写成数：a < b 时给 1，否则给 0。",
-        "en": "A new part, <part-ref to=\"part:less\"></part-ref>, writes that judgement as a number: 1 when a < b, else 0."
+        "zh": "新元件<part-ref to=\"part:less\"></part-ref>把这个判断写成数：a < b 时给 1，否则给 0。"
       }
     }
   ],
   "after": {
-    "zh": "真假写成 1 和 0，乘上去就能挑选：<wiki-ref to=\"inequality\"></wiki-ref>也成了算术。",
-    "en": "Truth written as 1 and 0 picks by multiplying: <wiki-ref to=\"inequality\"></wiki-ref> has become arithmetic."
+    "zh": "真假写成 1 和 0，乘上去就能挑选：<wiki-ref to=\"inequality\"></wiki-ref>也成了算术。"
   },
   "adds": ["less"],
   "builds": {
     "type": "max",
-    "name": { "zh": "较大者", "en": "Max" },
-    "desc": { "zh": "交出 a、b 里大的那个。", "en": "Gives the larger of a and b." }
+    "name": { "zh": "较大者" },
+    "desc": { "zh": "交出 a、b 里大的那个。" }
   },
   "tasks": [
     {
       "id": "max",
-      "brief": { "zh": "每一拍交出两个输入里大的那个。", "en": "Each tick give the larger of the two inputs." },
+      "brief": { "zh": "每一拍交出两个输入里大的那个。" },
       "hint": [
         {
-          "zh": "比较给出的 1 或 0，乘上 b − a 会怎样？",
-          "en": "What happens when the 1 or 0 from the comparison multiplies b − a?"
+          "zh": "比较给出的 1 或 0，乘上 b − a 会怎样？"
         }
       ],
       "inputs": [{ "name": "a", "label": "a" }, { "name": "b", "label": "b" }],

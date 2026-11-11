@@ -1,27 +1,23 @@
 {
-  "title": { "zh": "角点", "en": "Corners" },
+  "title": { "zh": "角点" },
   "tray": "geometry",
   "after": {
-    "zh": "Harris 角点检测结合邻域内两个方向的梯度及其相关性，用响应区分角点、直边和平坦区域。阈值决定保留多强的响应；接下来还要从一片响应中找到具体的位置。",
-    "en": "Harris corner detection combines gradients and their correlation in a neighbourhood to distinguish corners, straight edges and flat areas. The threshold selects strong responses; next we locate a point within each response region."
+    "zh": "Harris 角点检测结合邻域内两个方向的梯度及其相关性，用响应区分角点、直边和平坦区域。阈值决定保留多强的响应；接下来还要从一片响应中找到具体的位置。"
   },
   "intro": [
     {
       "t": {
-        "zh": "拼接相邻照片时，需要找到两张图中对应的位置。平坦区域的点和直边上的点都容易与附近其他位置混淆；角点在多个方向都有变化，通常更容易再次找到。",
-        "en": "To stitch overlapping photographs, we need corresponding positions in both images. Points in flat areas or along straight edges are easily confused with nearby positions; corners change in several directions and are often easier to find again."
+        "zh": "拼接相邻照片时，需要找到两张图中对应的位置。平坦区域的点和直边上的点都容易与附近其他位置混淆；角点在多个方向都有变化，通常更容易再次找到。"
       }
     },
     {
       "t": {
-        "zh": "先用 Sobel 和 3×3 平均观察附近的变化。直边也会有较强的变化，因此还要考虑两个方向如何一起变化，才能更好地区分角点。",
-        "en": "First use Sobel and a 3×3 average to observe local change. Straight edges also change strongly, so distinguishing corners requires considering how the two directions change together."
+        "zh": "先用 Sobel 和 3×3 平均观察附近的变化。直边也会有较强的变化，因此还要考虑两个方向如何一起变化，才能更好地区分角点。"
       }
     },
     {
       "t": {
-        "zh": "Harris 方法用三个局部统计量衡量这些变化，再计算响应。我们会沿用每一步的电路，最后用阈值标出角点。",
-        "en": "The Harris method measures these changes with three local statistics and calculates a response. Continue the circuit through each step, then use a threshold to mark corners."
+        "zh": "Harris 方法用三个局部统计量衡量这些变化，再计算响应。我们会沿用每一步的电路，最后用阈值标出角点。"
       }
     }
   ],
@@ -34,33 +30,30 @@
       "outputs": ["out"],
       "scene": "filter",
       "tests": [
-        { "label": { "zh": "一个角", "en": "One corner" }, "in": "corner" },
-        { "label": { "zh": "方块", "en": "Square" }, "in": { "square": { "x0": 4, "y0": 4, "s": 8 } } },
-        { "label": { "zh": "直边", "en": "Straight edge" }, "in": { "stepX": { "edge": 8 } } },
-        { "label": { "zh": "字母 L", "en": "Letter L" }, "in": { "glyph": { "letter": "L" } } }
+        { "label": { "zh": "一个角" }, "in": "corner" },
+        { "label": { "zh": "方块" }, "in": { "square": { "x0": 4, "y0": 4, "s": 8 } } },
+        { "label": { "zh": "直边" }, "in": { "stepX": { "edge": 8 } } },
+        { "label": { "zh": "字母 L" }, "in": { "glyph": { "letter": "L" } } }
       ],
       "hidden": [
         {
-          "label": { "zh": "字母 T", "en": "Letter T" },
+          "label": { "zh": "字母 T" },
           "in": { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 3 } }
         },
-        { "label": { "zh": "挪开的小方块", "en": "Shifted small square" }, "in": { "square": { "x0": 8, "y0": 2, "s": 5 } } },
-        { "label": { "zh": "横边", "en": "Horizontal edge" }, "in": { "stepY": { "edge": 9 } } }
+        { "label": { "zh": "挪开的小方块" }, "in": { "square": { "x0": 8, "y0": 2, "s": 5 } } },
+        { "label": { "zh": "横边" }, "in": { "stepY": { "edge": 9 } } }
       ],
       "views": { "in": "pixels", "out": "terrain", "mid": "terrain" },
       "check": { "tolerance": 0.02 },
-      "step": { "zh": "观察局部变化", "en": "Observe local change" },
+      "step": { "zh": "观察局部变化" },
       "brief": {
-        "zh": "分别计算图像左右和上下方向的梯度，将它们各自平方，用 3×3 平均统计附近的变化强度，再把两个结果相加。比较直边与角点的结果。",
-        "en": "Calculate horizontal and vertical gradients, square each, average each over 3×3, and add them. Compare the results at straight edges and corners."
+        "zh": "分别计算图像左右和上下方向的梯度，将它们各自平方，用 3×3 平均统计附近的变化强度，再把两个结果相加。比较直边与角点的结果。"
       },
       "hint": {
-        "zh": "用 Sobel x、Sobel y 分别得到 Gx、Gy。每张图与自己相乘后接 3×3 平均，再将两张结果相加。",
-        "en": "Use Sobel x and Sobel y for Gx and Gy. Multiply each image by itself, take a 3×3 average, then add the two results."
+        "zh": "用 Sobel x、Sobel y 分别得到 Gx、Gy。每张图与自己相乘后接 3×3 平均，再将两张结果相加。"
       },
       "after": {
-        "zh": "局部变化强度在直边和角点附近都可能很大，因此单靠它无法区分直边和角点。接下来用 Harris 响应考虑两个方向的关系。",
-        "en": "Local change can be strong at both edges and corners, so it cannot distinguish them alone. Next, the Harris response accounts for the relationship between the two directions."
+        "zh": "局部变化强度在直边和角点附近都可能很大，因此单靠它无法区分直边和角点。接下来用 Harris 响应考虑两个方向的关系。"
       },
       "setup": { "target": "gradientEnergy" },
       "solution": [
@@ -84,34 +77,31 @@
       "outputs": ["out"],
       "scene": "filter",
       "tests": [
-        { "label": { "zh": "一个角", "en": "One corner" }, "in": "corner" },
-        { "label": { "zh": "方块", "en": "Square" }, "in": { "square": { "x0": 4, "y0": 4, "s": 8 } } },
-        { "label": { "zh": "直边", "en": "Straight edge" }, "in": { "stepX": { "edge": 8 } } },
-        { "label": { "zh": "字母 L", "en": "Letter L" }, "in": { "glyph": { "letter": "L" } } }
+        { "label": { "zh": "一个角" }, "in": "corner" },
+        { "label": { "zh": "方块" }, "in": { "square": { "x0": 4, "y0": 4, "s": 8 } } },
+        { "label": { "zh": "直边" }, "in": { "stepX": { "edge": 8 } } },
+        { "label": { "zh": "字母 L" }, "in": { "glyph": { "letter": "L" } } }
       ],
       "hidden": [
         {
-          "label": { "zh": "字母 T", "en": "Letter T" },
+          "label": { "zh": "字母 T" },
           "in": { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 3 } }
         },
-        { "label": { "zh": "挪开的小方块", "en": "Shifted small square" }, "in": { "square": { "x0": 8, "y0": 2, "s": 5 } } },
-        { "label": { "zh": "横边", "en": "Horizontal edge" }, "in": { "stepY": { "edge": 9 } } }
+        { "label": { "zh": "挪开的小方块" }, "in": { "square": { "x0": 8, "y0": 2, "s": 5 } } },
+        { "label": { "zh": "横边" }, "in": { "stepY": { "edge": 9 } } }
       ],
       "views": { "in": "pixels", "out": "terrain", "mid": "terrain" },
       "check": { "tolerance": 0.02 },
-      "step": { "zh": "区分直边与角点", "en": "Distinguish edges and corners" },
+      "step": { "zh": "区分直边与角点" },
       "carries": true,
       "brief": {
-        "zh": "沿用上一段电路，计算 Harris 响应。A、B 是 Gx²、Gy² 的 3×3 平均；C 是 Gx·Gy 的 3×3 平均。C 衡量两个方向是否一起变化：斜直边也可能让 A、B 都大，但 C² 会抵消这种情况。输出 100 × [AB − C² − 0.05(A + B)²]，比较直边和角点。",
-        "en": "Continue the circuit to calculate the Harris response. A and B are the 3×3 averages of Gx² and Gy²; C is the 3×3 average of Gx·Gy. C measures how the directions vary together: a diagonal edge can make A and B large, but C² offsets that case. Output 100 × [AB − C² − 0.05(A + B)²], and compare edges and corners."
+        "zh": "沿用上一段电路，计算 Harris 响应。A、B 是 Gx²、Gy² 的 3×3 平均；C 是 Gx·Gy 的 3×3 平均。C 衡量两个方向是否一起变化：斜直边也可能让 A、B 都大，但 C² 会抵消这种情况。输出 100 × [AB − C² − 0.05(A + B)²]，比较直边和角点。"
       },
       "hint": {
-        "zh": "上一段已有 A、B 和 A+B。增加 Gx×Gy 和 3×3 平均得到 C；分别计算 AB−C² 与 0.05×(A+B)²，再相减并乘 100。0.05 控制对直边的惩罚，100 只用于放大响应数值。",
-        "en": "The previous circuit already has A, B and A+B. Multiply Gx and Gy and average over 3×3 for C; calculate AB−C² and 0.05×(A+B)², subtract, then multiply by 100. The 0.05 controls the penalty for edges; 100 only scales the response."
+        "zh": "上一段已有 A、B 和 A+B。增加 Gx×Gy 和 3×3 平均得到 C；分别计算 AB−C² 与 0.05×(A+B)²，再相减并乘 100。0.05 控制对直边的惩罚，100 只用于放大响应数值。"
       },
       "after": {
-        "zh": "Harris 响应结合两个方向的变化及其相关性：角点附近通常为较大的正值，直边通常为负，平坦处接近零。最后用阈值标出角点。",
-        "en": "The Harris response combines change in both directions and their correlation: corners tend to have a strong positive response, straight edges a negative one, and flat areas a response near zero. Finally use a threshold to mark corners."
+        "zh": "Harris 响应结合两个方向的变化及其相关性：角点附近通常为较大的正值，直边通常为负，平坦处接近零。最后用阈值标出角点。"
       },
       "setup": { "target": "cornerResponse" },
       "solution": [
@@ -148,15 +138,13 @@
     },
     {
       "id": "6-1",
-      "step": { "zh": "标出角点", "en": "Mark corners" },
+      "step": { "zh": "标出角点" },
       "kind": "graph",
       "brief": {
-        "zh": "沿用上一段的 Harris 响应电路，在响应大于 0.22 的位置输出 1，其余位置输出 0。",
-        "en": "Continue the Harris response circuit: output 1 where the response exceeds 0.22 and 0 elsewhere."
+        "zh": "沿用上一段的 Harris 响应电路，在响应大于 0.22 的位置输出 1，其余位置输出 0。"
       },
       "hint": {
-        "zh": "将上一段的响应接到阈值元件，把阈值设为 0.22，再接到输出。",
-        "en": "Connect the response to a threshold set to 0.22, then connect it to the output."
+        "zh": "将上一段的响应接到阈值元件，把阈值设为 0.22，再接到输出。"
       },
       "carries": true,
       "views": { "in": "slope", "out": "pixels", "mid": "terrain" },
@@ -164,18 +152,18 @@
       "scene": "filter",
       "setup": { "target": { "corners": { "threshold": 0.22 } } },
       "tests": [
-        { "label": { "zh": "一个角", "en": "One corner" }, "in": "corner" },
-        { "label": { "zh": "方块", "en": "Square" }, "in": { "square": { "x0": 4, "y0": 4, "s": 8 } } },
-        { "label": { "zh": "直边", "en": "Straight edge" }, "in": { "stepX": { "edge": 8 } } },
-        { "label": { "zh": "字母 L", "en": "Letter L" }, "in": { "glyph": { "letter": "L" } } }
+        { "label": { "zh": "一个角" }, "in": "corner" },
+        { "label": { "zh": "方块" }, "in": { "square": { "x0": 4, "y0": 4, "s": 8 } } },
+        { "label": { "zh": "直边" }, "in": { "stepX": { "edge": 8 } } },
+        { "label": { "zh": "字母 L" }, "in": { "glyph": { "letter": "L" } } }
       ],
       "hidden": [
         {
-          "label": { "zh": "字母 T", "en": "Letter T" },
+          "label": { "zh": "字母 T" },
           "in": { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 3 } }
         },
-        { "label": { "zh": "挪开的小方块", "en": "Shifted small square" }, "in": { "square": { "x0": 8, "y0": 2, "s": 5 } } },
-        { "label": { "zh": "横边", "en": "Horizontal edge" }, "in": { "stepY": { "edge": 9 } } }
+        { "label": { "zh": "挪开的小方块" }, "in": { "square": { "x0": 8, "y0": 2, "s": 5 } } },
+        { "label": { "zh": "横边" }, "in": { "stepY": { "edge": 9 } } }
       ],
       "solution": [
         "ktN = const[c=0.05]()",

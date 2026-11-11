@@ -1,11 +1,10 @@
 {
   "domain": "agent",
   "vocabulary": 1,
-  "title": { "zh": "软件工厂", "en": "Software Factory" },
-  "kicker": { "zh": "开发中 · 从一次模型调用搭起编码 agent", "en": "In development · A coding agent from one model call" },
+  "title": { "zh": "软件工厂" },
+  "kicker": { "zh": "开发中 · 从一次模型调用搭起编码 agent" },
   "lede": {
-    "zh": "编码 agent 里面是什么？从一次模型调用开始，亲手决定它看到什么、能做什么、什么时候算做完：先替它拿文件，再让它自己读、自己找、改到测试通过。最后搭出的，是一个自己接 issue、自己修好的 agent。",
-    "en": "What is inside a coding agent? Starting from one model call, you decide what it sees, what it may do and when it is done: first you fetch its files, then it reads and looks for itself, and goes on until the tests pass. What you end up with is an agent that takes an issue and fixes it on its own."
+    "zh": "编码 agent 里面是什么？从一次模型调用开始，亲手决定它看到什么、能做什么、什么时候算做完：先替它拿文件，再让它自己读、自己找、改到测试通过。最后搭出的，是一个自己接 issue、自己修好的 agent。"
   },
   "primitives": ["model", "concat", "read", "list", "test"],
   "trays": { "main": ["model", "concat", "read", "list", "test"] },
@@ -14,23 +13,23 @@
     {
       "id": 0,
       "machine": "hand",
-      "title": { "zh": "纸笔", "en": "Pen and paper" },
-      "question": { "zh": "模型到底看到了什么？", "en": "What does the model actually see?" },
+      "title": { "zh": "纸笔" },
+      "question": { "zh": "模型到底看到了什么？" },
       "foundation": ["0-1", "0-2", "0-3"]
     },
     {
       "id": 1,
       "machine": "once",
-      "title": { "zh": "一问一答", "en": "One call" },
-      "question": { "zh": "只能问一次，要给它看什么？", "en": "One call only: what do you show it?" },
+      "title": { "zh": "一问一答" },
+      "question": { "zh": "只能问一次，要给它看什么？" },
       "foundation": ["1-1", "1-2", "1-3"],
       "practice": ["1-4", "1-5", "1-6"]
     },
     {
       "id": 2,
       "machine": "loop",
-      "title": { "zh": "循环", "en": "The loop" },
-      "question": { "zh": "让它自己去拿，什么时候停？", "en": "Let it fetch for itself: when does it stop?" },
+      "title": { "zh": "循环" },
+      "question": { "zh": "让它自己去拿，什么时候停？" },
       "foundation": ["2-1", "2-2", "2-3"],
       "practice": ["2-4", "2-5", "2-6"],
       "challenges": [{ "level": "2-C", "after": "2-3" }]
@@ -95,28 +94,25 @@
   "issues": {
     "qty-zero": {
       "repo": "shop",
-      "title": { "zh": "数量为 0 的商品", "en": "Items of quantity 0" },
+      "title": { "zh": "数量为 0 的商品" },
       "text": {
-        "zh": "<code>src/cart.js</code> 的 <code>addItem</code>：数量为 0 的商品不应该加进购物车。",
-        "en": "<code>addItem</code> in <code>src/cart.js</code>: an item of quantity 0 should not go into the cart."
+        "zh": "<code>src/cart.js</code> 的 <code>addItem</code>：数量为 0 的商品不应该加进购物车。"
       },
       "edits": [{ "at": "src/cart.js#addItem", "seen": "file" }]
     },
     "remove-missing": {
       "repo": "shop",
-      "title": { "zh": "删掉不存在的商品", "en": "Removing an item that is not there" },
+      "title": { "zh": "删掉不存在的商品" },
       "text": {
-        "zh": "<code>src/cart.js</code> 的 <code>removeItem</code>：删一件购物车里没有的商品时，应该什么都不做，现在会报错。",
-        "en": "<code>removeItem</code> in <code>src/cart.js</code>: removing an item not in the cart should do nothing; now it throws."
+        "zh": "<code>src/cart.js</code> 的 <code>removeItem</code>：删一件购物车里没有的商品时，应该什么都不做，现在会报错。"
       },
       "edits": [{ "at": "src/cart.js#removeItem", "seen": "file" }]
     },
     "pasted-total": {
       "repo": "shop",
-      "title": { "zh": "总价少算了运费", "en": "The total leaves out shipping" },
+      "title": { "zh": "总价少算了运费" },
       "text": {
-        "zh": "下面是 <code>src/cart.js</code> 的代码。<code>total</code> 算总价时漏掉了运费，请加上。",
-        "en": "Here is the code of <code>src/cart.js</code>. <code>total</code> leaves shipping out of the total; please add it."
+        "zh": "下面是 <code>src/cart.js</code> 的代码。<code>total</code> 算总价时漏掉了运费，请加上。"
       },
       "pasted": ["src/cart.js"],
       "tokens": 380,
@@ -124,10 +120,9 @@
     },
     "pasted-tax": {
       "repo": "shop",
-      "title": { "zh": "税率写死了", "en": "A hard-coded tax rate" },
+      "title": { "zh": "税率写死了" },
       "text": {
-        "zh": "下面是 <code>src/price.js</code> 的代码。<code>tax</code> 把税率写死成 10%，应该从配置里读。",
-        "en": "Here is the code of <code>src/price.js</code>. <code>tax</code> hard-codes a 10% rate; it should read the rate from the settings."
+        "zh": "下面是 <code>src/price.js</code> 的代码。<code>tax</code> 把税率写死成 10%，应该从配置里读。"
       },
       "pasted": ["src/price.js"],
       "tokens": 320,
@@ -135,37 +130,33 @@
     },
     "tax-round": {
       "repo": "shop",
-      "title": { "zh": "税额的零头", "en": "Rounding the tax" },
+      "title": { "zh": "税额的零头" },
       "text": {
-        "zh": "<code>src/price.js</code> 的 <code>tax</code>：税额要四舍五入到分。",
-        "en": "<code>tax</code> in <code>src/price.js</code>: the tax should be rounded to the cent."
+        "zh": "<code>src/price.js</code> 的 <code>tax</code>：税额要四舍五入到分。"
       },
       "edits": [{ "at": "src/price.js#tax", "seen": "file" }]
     },
     "member-discount": {
       "repo": "shop",
-      "title": { "zh": "会员九折", "en": "Ten percent off for members" },
+      "title": { "zh": "会员九折" },
       "text": {
-        "zh": "会员结账打九折：<code>src/price.js</code> 的 <code>discount</code> 要认出会员，<code>src/cart.js</code> 的 <code>total</code> 要用上这个折扣。",
-        "en": "Members get ten percent off at checkout: <code>discount</code> in <code>src/price.js</code> should know a member, and <code>total</code> in <code>src/cart.js</code> should apply it."
+        "zh": "会员结账打九折：<code>src/price.js</code> 的 <code>discount</code> 要认出会员，<code>src/cart.js</code> 的 <code>total</code> 要用上这个折扣。"
       },
       "edits": [{ "at": "src/price.js#discount", "seen": "file" }, { "at": "src/cart.js#total", "seen": "file" }]
     },
     "coupon": {
       "repo": "shop",
-      "title": { "zh": "优惠券", "en": "Coupons" },
+      "title": { "zh": "优惠券" },
       "text": {
-        "zh": "支持优惠券：<code>src/cart.js</code> 的 <code>addItem</code> 要能带一张券，<code>src/price.js</code> 的 <code>discount</code> 按券减价。",
-        "en": "Support coupons: <code>addItem</code> in <code>src/cart.js</code> should take a coupon, and <code>discount</code> in <code>src/price.js</code> should take it off the price."
+        "zh": "支持优惠券：<code>src/cart.js</code> 的 <code>addItem</code> 要能带一张券，<code>src/price.js</code> 的 <code>discount</code> 按券减价。"
       },
       "edits": [{ "at": "src/cart.js#addItem", "seen": "file" }, { "at": "src/price.js#discount", "seen": "file" }]
     },
     "checkout": {
       "repo": "shop",
-      "title": { "zh": "结账三处", "en": "Three changes at checkout" },
+      "title": { "zh": "结账三处" },
       "text": {
-        "zh": "结账要改三处：<code>src/cart.js</code> 的 <code>addItem</code> 记下商品的税类，<code>total</code> 按税类分开加总，<code>src/price.js</code> 的 <code>tax</code> 按税类算。",
-        "en": "Checkout needs three changes: <code>addItem</code> in <code>src/cart.js</code> keeps an item’s tax class, <code>total</code> adds up by tax class, and <code>tax</code> in <code>src/price.js</code> works by tax class."
+        "zh": "结账要改三处：<code>src/cart.js</code> 的 <code>addItem</code> 记下商品的税类，<code>total</code> 按税类分开加总，<code>src/price.js</code> 的 <code>tax</code> 按税类算。"
       },
       "tokens": 90,
       "edits": [
@@ -176,46 +167,41 @@
     },
     "logout-session": {
       "repo": "shop",
-      "title": { "zh": "退出后还登录着", "en": "Still signed in after signing out" },
+      "title": { "zh": "退出后还登录着" },
       "text": {
-        "zh": "<code>logout</code> 没有清掉会话，退出以后刷新页面还是登录状态。",
-        "en": "<code>logout</code> does not clear the session: after signing out, a reload still shows you signed in."
+        "zh": "<code>logout</code> 没有清掉会话，退出以后刷新页面还是登录状态。"
       },
       "edits": [{ "at": "src/user.js#logout", "seen": "seg" }]
     },
     "login-case": {
       "repo": "shop",
-      "title": { "zh": "邮箱大小写", "en": "Upper and lower case in emails" },
+      "title": { "zh": "邮箱大小写" },
       "text": {
-        "zh": "<code>login</code> 要忽略邮箱的大小写。",
-        "en": "<code>login</code> should ignore case in email addresses."
+        "zh": "<code>login</code> 要忽略邮箱的大小写。"
       },
       "edits": [{ "at": "src/user.js#login", "seen": "seg" }]
     },
     "discount-cap": {
       "repo": "shop",
-      "title": { "zh": "折扣不能超过一半", "en": "No more than half off" },
+      "title": { "zh": "折扣不能超过一半" },
       "text": {
-        "zh": "<code>discount</code> 最多只能打到五折，现在叠加以后会出现负价格。",
-        "en": "<code>discount</code> should take at most half off; stacked discounts now give negative prices."
+        "zh": "<code>discount</code> 最多只能打到五折，现在叠加以后会出现负价格。"
       },
       "edits": [{ "at": "src/price.js#discount", "seen": "seg", "trap": true }]
     },
     "empty-cart": {
       "repo": "shop",
-      "title": { "zh": "空购物车的总价", "en": "The total of an empty cart" },
+      "title": { "zh": "空购物车的总价" },
       "text": {
-        "zh": "购物车是空的时候，<code>total</code> 应该是 0，现在是 <code>NaN</code>。",
-        "en": "With an empty cart, <code>total</code> should be 0; now it is <code>NaN</code>."
+        "zh": "购物车是空的时候，<code>total</code> 应该是 0，现在是 <code>NaN</code>。"
       },
       "edits": [{ "at": "src/cart.js#total", "seen": "seg", "trap": true }]
     },
     "two-traps": {
       "repo": "shop",
-      "title": { "zh": "退款", "en": "Refunds" },
+      "title": { "zh": "退款" },
       "text": {
-        "zh": "支持退款：<code>removeItem</code> 退回已付的钱，<code>tax</code> 把退回部分的税也退掉。",
-        "en": "Support refunds: <code>removeItem</code> pays back what was paid, and <code>tax</code> pays back the tax on it too."
+        "zh": "支持退款：<code>removeItem</code> 退回已付的钱，<code>tax</code> 把退回部分的税也退掉。"
       },
       "edits": [
         { "at": "src/cart.js#removeItem", "seen": "seg", "trap": true },
@@ -224,57 +210,52 @@
     },
     "negative-total": {
       "repo": "shop",
-      "title": { "zh": "结账金额是负数", "en": "A negative checkout total" },
-      "text": { "zh": "有用户反馈：结账金额偶尔会是负数。", "en": "A user reports that the checkout total is sometimes negative." },
+      "title": { "zh": "结账金额是负数" },
+      "text": { "zh": "有用户反馈：结账金额偶尔会是负数。" },
       "symptom": true,
       "edits": [{ "at": "src/price.js#discount", "seen": "none", "trap": true }]
     },
     "stuck-session": {
       "repo": "shop",
-      "title": { "zh": "换了账号还是原来的人", "en": "Switching accounts keeps the old one" },
+      "title": { "zh": "换了账号还是原来的人" },
       "text": {
-        "zh": "有用户反馈：退出再用另一个账号登录，看到的还是原来账号的购物车。",
-        "en": "A user reports that after signing out and in with another account, they still see the old account’s cart."
+        "zh": "有用户反馈：退出再用另一个账号登录，看到的还是原来账号的购物车。"
       },
       "symptom": true,
       "edits": [{ "at": "src/user.js#logout", "seen": "none" }, { "at": "src/cart.js#total", "seen": "none" }]
     },
     "slug-spaces": {
       "repo": "blog",
-      "title": { "zh": "标题里的空格", "en": "Spaces in titles" },
+      "title": { "zh": "标题里的空格" },
       "text": {
-        "zh": "文章标题里有空格时，<code>slugify</code> 生成的链接打不开。",
-        "en": "When a post title has spaces, the link <code>slugify</code> makes does not open."
+        "zh": "文章标题里有空格时，<code>slugify</code> 生成的链接打不开。"
       },
       "tokens": 80,
       "edits": [{ "at": "src/text.js#slugify", "seen": "seg" }]
     },
     "date-format": {
       "repo": "blog",
-      "title": { "zh": "日期格式", "en": "Date format" },
+      "title": { "zh": "日期格式" },
       "text": {
-        "zh": "<code>formatDate</code> 要按读者所在的地区显示日期。",
-        "en": "<code>formatDate</code> should show dates the way the reader’s region writes them."
+        "zh": "<code>formatDate</code> 要按读者所在的地区显示日期。"
       },
       "tokens": 80,
       "edits": [{ "at": "src/posts.js#formatDate", "seen": "seg" }]
     },
     "list-order": {
       "repo": "blog",
-      "title": { "zh": "文章顺序", "en": "Post order" },
+      "title": { "zh": "文章顺序" },
       "text": {
-        "zh": "<code>listPosts</code> 要把最新的文章排在最前面。",
-        "en": "<code>listPosts</code> should put the newest posts first."
+        "zh": "<code>listPosts</code> 要把最新的文章排在最前面。"
       },
       "tokens": 80,
       "edits": [{ "at": "src/posts.js#listPosts", "seen": "seg" }]
     },
     "webhook-retry": {
       "repo": "mono",
-      "title": { "zh": "webhook 重试", "en": "Retrying webhooks" },
+      "title": { "zh": "webhook 重试" },
       "text": {
-        "zh": "<code>handle</code> 遇到对方超时时要重试三次，现在直接丢掉。见 <code>webhooks</code> 包的测试。",
-        "en": "<code>handle</code> should retry three times when the other side times out; now it drops the call. See the tests of the <code>webhooks</code> package."
+        "zh": "<code>handle</code> 遇到对方超时时要重试三次，现在直接丢掉。见 <code>webhooks</code> 包的测试。"
       },
       "edits": [{ "at": "pkg/webhooks/index.js#handle", "seen": "seg" }]
     }

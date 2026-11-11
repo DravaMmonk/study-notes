@@ -1,7 +1,6 @@
 {
   "title": {
-    "zh": "主干",
-    "en": "The skeleton"
+    "zh": "主干"
   },
   "adds": [
     "role:subj",
@@ -12,50 +11,42 @@
   "intro": [
     {
       "t": {
-        "zh": "论文里的长句读不下去，多半是因为找不到它的<wiki-ref to=\"skeleton\"></wiki-ref>：谁、做了什么、对什么。在这里，你把一句话拆开，直到主干露出来。",
-        "en": "A long sentence in a paper is hard going mostly because its <wiki-ref to=\"skeleton\"></wiki-ref> is hard to find: who, does what, to what. Here you take a sentence apart until the skeleton shows."
+        "zh": "论文里的长句读不下去，多半是因为找不到它的<wiki-ref to=\"skeleton\"></wiki-ref>：谁、做了什么、对什么。在这里，你把一句话拆开，直到主干露出来。"
       }
     },
     {
       "t": {
-        "zh": "点一个词开始选一段，再点另一个词结束，中间的词就都选上了；只要一个词，就点它一下。选好以后，在下面把它标成主干的一个成分。",
-        "en": "Tap a word to start a stretch and another to end it, and every word between is chosen; for one word, tap it once. Then mark it below as a part of the skeleton."
+        "zh": "点一个词开始选一段，再点另一个词结束，中间的词就都选上了；只要一个词，就点它一下。选好以后，在下面把它标成主干的一个成分。"
       }
     },
     {
       "t": {
-        "zh": "<wiki-ref to=\"subject\"></wiki-ref>和<wiki-ref to=\"object\"></wiki-ref>标整个名词短语，比如 <i>Our method</i>；<wiki-ref to=\"verb\"></wiki-ref>标整个动词词组。",
-        "en": "The <wiki-ref to=\"subject\"></wiki-ref> and the <wiki-ref to=\"object\"></wiki-ref> are marked as whole noun phrases, such as <i>Our method</i>; the <wiki-ref to=\"verb\"></wiki-ref> as the whole verb group."
+        "zh": "<wiki-ref to=\"subject\"></wiki-ref>和<wiki-ref to=\"object\"></wiki-ref>标整个名词短语，比如 <i>Our method</i>；<wiki-ref to=\"verb\"></wiki-ref>标整个动词词组。"
       }
     }
   ],
   "debrief": {
     "title": {
-      "zh": "Our method outperforms all existing baselines.",
-      "en": "Our method outperforms all existing baselines."
+      "zh": "Our method outperforms all existing baselines."
     },
     "body": [
       {
-        "zh": "主语 <i>Our method</i>，谓语 <i>outperforms</i>，宾语 <i>all existing baselines</i>：这就是整句的主干。句子再长，主干也只有这几块，其余的词都挂在它们身上。",
-        "en": "Subject <i>Our method</i>, verb <i>outperforms</i>, object <i>all existing baselines</i>: that is the whole skeleton. However long a sentence gets, its skeleton is these few pieces; every other word hangs on them."
+        "zh": "主语 <i>Our method</i>，谓语 <i>outperforms</i>，宾语 <i>all existing baselines</i>：这就是整句的主干。句子再长，主干也只有这几块，其余的词都挂在它们身上。"
       }
     ],
     "note": {
-      "zh": "主干 = 谁 + 做什么 + 对什么。",
-      "en": "Skeleton = who + does what + to what."
+      "zh": "主干 = 谁 + 做什么 + 对什么。"
     }
   },
   "tasks": [
     {
       "id": "1-1",
       "brief": {
-        "zh": "标出这句话的主语、谓语和宾语。",
-        "en": "Mark the subject, the verb and the object of this sentence."
+        "zh": "标出这句话的主语、谓语和宾语。"
       },
       "hint": [
         {
-          "zh": "先找动词：哪个词说的是“做了什么”？",
-          "en": "Find the verb first: which word says what is done?"
+          "zh": "先找动词：哪个词说的是“做了什么”？"
         }
       ],
       "sentence": "Our method outperforms all existing baselines.",

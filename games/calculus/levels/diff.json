@@ -1,35 +1,31 @@
 {
-  "title": { "zh": "差分", "en": "Difference" },
+  "title": { "zh": "差分" },
   "intro": [
     {
       "t": {
-        "zh": "数列每一步变了多少？相邻两项一减就知道，可板上没有减法。",
-        "en": "How much does a sequence change at each step? Subtract neighbouring terms and you know; but the board has no subtraction."
+        "zh": "数列每一步变了多少？相邻两项一减就知道，可板上没有减法。"
       }
     },
-    { "t": { "zh": "搭好以后，差分 Δ 成为一件元件。", "en": "Built, the difference Δ becomes a part." } }
+    { "t": { "zh": "搭好以后，差分 Δ 成为一件元件。" } }
   ],
   "after": {
-    "zh": "Δaₙ = aₙ − aₙ₋₁ 叫<wiki-ref to=\"difference\"></wiki-ref>：数列每一步变了多少，变大为正，变小为负。",
-    "en": "Δaₙ = aₙ − aₙ₋₁ is the <wiki-ref to=\"difference\"></wiki-ref>: how much the sequence changes at each step, positive as it grows and negative as it shrinks."
+    "zh": "Δaₙ = aₙ − aₙ₋₁ 叫<wiki-ref to=\"difference\"></wiki-ref>：数列每一步变了多少，变大为正，变小为负。"
   },
   "builds": {
     "type": "diff",
-    "name": { "zh": "差分 Δ", "en": "Difference Δ" },
+    "name": { "zh": "差分 Δ" },
     "desc": {
-      "zh": "交出输入这一项减上一项；第一拍减 0。",
-      "en": "Gives its input’s term minus the one before; minus 0 on the first tick."
+      "zh": "交出输入这一项减上一项；第一拍减 0。"
     }
   },
   "tasks": [
     {
       "id": "diff",
       "brief": {
-        "zh": "每一拍交出输入这一项减上一项；第一拍减 0。",
-        "en": "Each tick give the input’s term minus the one before; minus 0 on the first tick."
+        "zh": "每一拍交出输入这一项减上一项；第一拍减 0。"
       },
       "hint": [
-        { "zh": "减去一个数，和加上它的多少倍一样？", "en": "Subtracting a number is the same as adding how many times it?" }
+        { "zh": "减去一个数，和加上它的多少倍一样？" }
       ],
       "inputs": [{ "name": "a", "label": "aₙ" }],
       "outputs": [{ "name": "d", "label": "Δaₙ" }],

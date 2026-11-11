@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "两类求平均", "en": "Averaging two classes" },
+  "title": { "zh": "两类求平均" },
   "tray": "recognition",
   "after": {
-    "zh": "mAP 是每类 AP 的平均：少见的类和常见的类一样重要，检测器不能只把常见的类做好。论文里报的检测成绩几乎都是它。",
-    "en": "mAP is the average of the per-class APs: a rare class counts as much as a common one, so a detector cannot just do well on the common classes. Almost every detection result reported in papers is this number."
+    "zh": "mAP 是每类 AP 的平均：少见的类和常见的类一样重要，检测器不能只把常见的类做好。论文里报的检测成绩几乎都是它。"
   },
   "intro": [
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"own-10-3\"></part-ref>读按分数排好的对错、名次和标注数 G，输出 AP。",
-        "en": "The <part-ref to=\"own-10-3\"></part-ref> in the tray reads right or wrong in score order, the ranks and the number labelled G, and outputs the AP."
+        "zh": "托盘里的<part-ref to=\"own-10-3\"></part-ref>读按分数排好的对错、名次和标注数 G，输出 AP。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：两类各有一张排名表，输出两类 AP 的平均。",
-        "en": "Your task in this level: each of two classes has its own ranking; output the average of their APs."
+        "zh": "这一关你要做的：两类各有一张排名表，输出两类 AP 的平均。"
       },
-      "fig": { "test": 0, "caption": { "zh": "一好一差", "en": "One good, one poor" } }
+      "fig": { "test": 0, "caption": { "zh": "一好一差" } }
     }
   ],
   "tasks": [
@@ -25,38 +22,36 @@
       "id": "10-4",
       "kind": "graph",
       "brief": {
-        "zh": "检测器认两类东西，每类各有一张排名表。输出两类 AP 的平均（mAP）。",
-        "en": "The detector recognises two kinds of thing, each with its own ranking. Output the average of the two classes' APs (mAP)."
+        "zh": "检测器认两类东西，每类各有一张排名表。输出两类 AP 的平均（mAP）。"
       },
       "hint": {
-        "zh": "每一类各用一个<part-ref to=\"own-10-3\"></part-ref>。",
-        "en": "One <part-ref to=\"own-10-3\"></part-ref> for each class."
+        "zh": "每一类各用一个<part-ref to=\"own-10-3\"></part-ref>。"
       },
       "inputs": ["f1", "g1", "f2", "g2", "k"],
       "inputLabels": {
-        "f1": { "zh": "第一类的对错", "en": "Class 1, right or wrong" },
-        "g1": { "zh": "第一类标注了几个", "en": "Class 1, number labelled" },
-        "f2": { "zh": "第二类的对错", "en": "Class 2, right or wrong" },
-        "g2": { "zh": "第二类标注了几个", "en": "Class 2, number labelled" },
-        "k": { "zh": "名次 1 … 16", "en": "Rank 1 … 16" }
+        "f1": { "zh": "第一类的对错" },
+        "g1": { "zh": "第一类标注了几个" },
+        "f2": { "zh": "第二类的对错" },
+        "g2": { "zh": "第二类标注了几个" },
+        "k": { "zh": "名次 1 … 16" }
       },
       "check": { "tolerance": 0.005 },
       "scene": "twoRankings",
       "tests": [
         {
-          "label": { "zh": "一好一差", "en": "One good, one poor" },
+          "label": { "zh": "一好一差" },
           "one": { "flags": [1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0], "g": 8 },
           "two": { "flags": [0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0], "g": 7 }
         },
         {
-          "label": { "zh": "差不多", "en": "About the same" },
+          "label": { "zh": "差不多" },
           "one": { "flags": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0], "g": 6 },
           "two": { "flags": [1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0], "g": 9 }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "一类全对", "en": "One class all right" },
+          "label": { "zh": "一类全对" },
           "one": { "flags": [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "g": 4 },
           "two": { "flags": [1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0], "g": 7 }
         }

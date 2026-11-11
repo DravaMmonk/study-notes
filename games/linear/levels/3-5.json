@@ -1,26 +1,23 @@
 {
-  "title": { "zh": "两条直线", "en": "Two lines" },
+  "title": { "zh": "两条直线" },
   "intro": [
     {
       "t": {
-        "zh": "平面上一条直线可以写成 ax + by = c，记下三个数 (a, b, c) 就是这条直线。两条直线不平行时，交于一点。",
-        "en": "A line in the plane can be written ax + by = c, so three numbers (a, b, c) are the line. Two lines that are not parallel meet in one point."
+        "zh": "平面上一条直线可以写成 ax + by = c，记下三个数 (a, b, c) 就是这条直线。两条直线不平行时，交于一点。"
       }
     }
   ],
   "after": {
-    "zh": "求两条直线的交点，就是解一个两元一次方程组。",
-    "en": "Where two lines meet is the solution of a system of two linear equations in two unknowns."
+    "zh": "求两条直线的交点，就是解一个两元一次方程组。"
   },
   "tasks": [
     {
       "id": "3-5",
       "brief": {
-        "zh": "两条直线 l₁、l₂ 各以 (a, b, c) 给出，交出它们的交点。",
-        "en": "The lines l₁ and l₂ are each given as (a, b, c); give the point where they meet."
+        "zh": "两条直线 l₁、l₂ 各以 (a, b, c) 给出，交出它们的交点。"
       },
       "inputs": [{ "name": "l1", "label": "l₁" }, { "name": "l2", "label": "l₂" }],
-      "outputs": [{ "name": "p", "label": { "zh": "交点", "en": "Meeting point" } }],
+      "outputs": [{ "name": "p", "label": { "zh": "交点" } }],
       "tests": [
         { "inputs": { "l1": [1, 1, 3], "l2": [1, -1, 1] }, "expect": { "p": [2, 1] } },
         { "inputs": { "l1": [3, -2, 12], "l2": [2, 1, 1] }, "expect": { "p": [2, -3] } },

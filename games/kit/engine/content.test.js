@@ -14,7 +14,7 @@ const VOCAB = defineVocabulary({
   domain: 'toy',
   version: 2,
   kinds: {
-    world: { line: { about: { zh: '一排格子', en: 'a row of cells' }, params: S.obj({ n: S.int({ min: 1 }) }) } },
+    world: { line: { about: { zh: '一排格子' }, params: S.obj({ n: S.int({ min: 1 }) }) } },
     condition: {
       uses: { about: 'reads a sensor', params: S.str() },
       placed: { about: 'any part placed', params: S.opt(S.obj({})) },
@@ -34,9 +34,9 @@ test('plain values and objects', () => {
   assert.deepEqual(says(S.int({ min: 1 }), 3), [])
   assert.match(says(S.int(), 1.5)[0], /whole number/)
   assert.match(says(S.int({ min: 1 }), 0)[0], /outside/)
-  assert.deepEqual(says(S.text(), { zh: '甲', en: 'A' }), [])
+  assert.deepEqual(says(S.text(), { zh: '甲' }), [])
   assert.deepEqual(says(S.text(), 'a + b'), [])
-  assert.match(says(S.text(), { zh: '甲' })[0], /expected text/)
+  assert.match(says(S.text(), { zh: '甲', en: 'A' })[0], /expected text/, 'a translation is the overlay’s, never the content’s')
   const point = S.obj({ x: S.num(), y: S.opt(S.num()) })
   assert.deepEqual(says(point, { x: 1 }), [])
   assert.deepEqual(says(point, { y: 1, z: 2 }), ['.x: is missing', '.z: is not a field here'])
@@ -80,8 +80,8 @@ test('text carries only the kernel’s markup: a few tags and references, nothin
   assert.deepEqual(markupOf('<img src=x onerror=alert(1)>').nodes, ['<img src=x onerror=alert(1)>'], 'drawn as the characters it is')
   assert.match(markupOf('<b onclick="x">hi</b>').problems[0], /takes no attributes/)
   assert.match(markupOf('<b>open').problems[0], /never closed/)
-  assert.match(says(S.text(), { zh: '<script>x</script>', en: 'ok' })[0], /^\.zh: <script> is no markup/)
-  assert.deepEqual(says(S.text(), { zh: '<b>粗</b> <code>x</code>', en: '<strong>bold</strong> a <- b' }), [])
+  assert.match(says(S.text(), { zh: '<script>x</script>' })[0], /^\.zh: <script> is no markup/)
+  assert.deepEqual(says(S.text(), { zh: '<b>粗</b> <code>x</code>' }), [])
 })
 
 test('a name the content defines must be one it defines', () => {
@@ -103,7 +103,7 @@ test('a vocabulary prints as plain data', () => {
 test('content is checked file by file', () => {
   const content = assemble({
     id: 'toy',
-    game: { domain: 'toy', vocabulary: 3, title: { zh: '玩具', en: 'Toy' }, extra: 1 },
+    game: { domain: 'toy', vocabulary: 3, title: { zh: '玩具' }, extra: 1 },
     levels: [['b', { mode: 'read', text: 'x' }], ['a', { mode: 'run', world: 'nowhere' }]],
     glossary: { groups: [{ id: 'g', title: 'G' }], entries: [{ id: 'e', group: 'g', title: 'E', body: [] }] },
   })

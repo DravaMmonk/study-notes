@@ -1,9 +1,8 @@
 {
-  "title": { "zh": "停机问题", "en": "The halting problem" },
+  "title": { "zh": "停机问题" },
   "tray": "proof",
   "after": {
-    "zh": "从一个问题到另一个，这一步叫<wiki-ref to=\"reduction\"></wiki-ref>。一阶逻辑的可证性同样<wiki-ref to=\"undecidable\"></wiki-ref>：没有程序能对每个目标都答出推得出还是推不出。",
-    "en": "Passing from one problem to another is a <wiki-ref to=\"reduction\"></wiki-ref>. Provability in first-order logic shows the same <wiki-ref to=\"undecidable\"></wiki-ref>: no program can say, for every goal, whether it follows."
+    "zh": "从一个问题到另一个，这一步叫<wiki-ref to=\"reduction\"></wiki-ref>。一阶逻辑的可证性同样<wiki-ref to=\"undecidable\"></wiki-ref>：没有程序能对每个目标都答出推得出还是推不出。"
   },
   "tasks": [
     {
@@ -17,12 +16,11 @@
       ],
       "cases": [{ "H": "DecH", "G": "DecA", "T": "Halts" }],
       "brief": {
-        "zh": "已知：要是有判定停机的机器，就能造出一台 x，它在 ⟨y⟩ 上停机恰好当 y 在 ⟨y⟩ 上不停机；要是有判定 A_TM 的机器，就能造出判定停机的机器。证明没有机器判定 A_TM。",
-        "en": "Given: if some machine decides halting, a machine x can be built that halts on ⟨y⟩ exactly when y does not halt on ⟨y⟩; and if some machine decides A_TM, one deciding halting can be built. Prove no machine decides A_TM."
+        "zh": "已知：要是有判定停机的机器，就能造出一台 x，它在 ⟨y⟩ 上停机恰好当 y 在 ⟨y⟩ 上不停机；要是有判定 A_TM 的机器，就能造出判定停机的机器。证明没有机器判定 A_TM。"
       },
       "hint": [
-        { "zh": "假设有判定 A_TM 的机器。", "en": "Assume a machine that decides A_TM." },
-        { "zh": "最后还是让一台机器读它自己的编码。", "en": "In the end, a machine still reads its own code." }
+        { "zh": "假设有判定 A_TM 的机器。" },
+        { "zh": "最后还是让一台机器读它自己的编码。" }
       ],
       "solution": [
         "h = impI[A=\"exists x. G(x)\"](body: e) {",

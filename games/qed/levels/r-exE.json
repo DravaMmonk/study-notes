@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "逆用实例框", "en": "Taking out, backwards" },
+  "title": { "zh": "逆用实例框" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"part:exE\"></part-ref>写成规则是 ⟦∃x. ?P(x); ⋀x. ⟦?P(x)⟧ ⟹ ?C⟧ ⟹ ?C。它也是消去规则：第一条前提对上一条「存在」，第二条前提前面的 ⋀x 让新目标多出一样东西 a，以及关于它的已知。",
-        "en": "<part-ref to=\"part:exE\"></part-ref> as a rule is ⟦∃x. ?P(x); ⋀x. ⟦?P(x)⟧ ⟹ ?C⟧ ⟹ ?C. It is an elimination rule too: its first premise fits a “there is”, and the ⋀x in front of the second gives the new goal a thing a, with a given about it."
+        "zh": "<part-ref to=\"part:exE\"></part-ref>写成规则是 ⟦∃x. ?P(x); ⋀x. ⟦?P(x)⟧ ⟹ ?C⟧ ⟹ ?C。它也是消去规则：第一条前提对上一条「存在」，第二条前提前面的 ⋀x 让新目标多出一样东西 a，以及关于它的已知。"
       }
     }
   ],
@@ -14,17 +13,16 @@
       "id": "r-exE",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "tests": [
         { "goal": "Pigs", "hyps": ["∃x. Human(x) ∧ ¬Human(x)"] },
         { "goal": "Moon", "hyps": ["∃y. ¬Bird(y) ∧ Bird(y)"] }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
       "hint": [
-        { "zh": "已知自相矛盾，矛盾在它说存在的那样东西身上。", "en": "The given contradicts itself, about the thing it says there is." },
+        { "zh": "已知自相矛盾，矛盾在它说存在的那样东西身上。" },
         {
-          "zh": "<part-ref to=\"lemma:erule\"></part-ref>接上<part-ref to=\"part:exE\"></part-ref>，对上「存在」那条已知。",
-          "en": "<part-ref to=\"lemma:erule\"></part-ref> with <part-ref to=\"part:exE\"></part-ref>, on the “there is” given."
+          "zh": "<part-ref to=\"lemma:erule\"></part-ref>接上<part-ref to=\"part:exE\"></part-ref>，对上「存在」那条已知。"
         }
       ],
       "solution": [

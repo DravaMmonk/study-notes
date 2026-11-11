@@ -1,27 +1,25 @@
 {
   "adds": ["replay", "clausify"],
   "tray": "certificate",
-  "title": { "zh": "证明器错了", "en": "The prover is wrong" },
+  "title": { "zh": "证明器错了" },
   "intro": [
     {
       "t": {
-        "zh": "有人给了一个证明器，据说比饱和器快得多：两条子句之间有几对相反的文字，它就一起消掉。它已经摆在板上，每个目标它都推出了 ⊥。",
-        "en": "Someone hands over a prover said to be far faster than the saturator: it cancels every opposite pair two clauses share, all at once. It is on the board already, and it reaches ⊥ on every goal."
+        "zh": "有人给了一个证明器，据说比饱和器快得多：两条子句之间有几对相反的文字，它就一起消掉。它已经摆在板上，每个目标它都推出了 ⊥。"
       }
     }
   ],
   "after": {
-    "zh": "外部证明器也落在<wiki-ref to=\"lcf\"></wiki-ref>的设计里：要信的只有核。",
-    "en": "Outside provers fall within the <wiki-ref to=\"lcf\"></wiki-ref> design too: only the kernel need be trusted."
+    "zh": "外部证明器也落在<wiki-ref to=\"lcf\"></wiki-ref>的设计里：要信的只有核。"
   },
   "tasks": [
     {
       "id": "au-wrong_1",
       "kind": "machine",
       "want": "fails",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
-      "step": { "zh": "重放", "en": "Replay" },
+      "step": { "zh": "重放" },
       "preset": ["c1"],
       "tests": [
         { "goal": "Wet", "hyps": ["Rain ∨ Wind", "¬Rain ∨ ¬Wind"] },
@@ -29,29 +27,26 @@
       ],
       "adds": ["oracle"],
       "brief": {
-        "zh": "设计一个证明助手，把外部证明器的证书交给核重放。",
-        "en": "Design a proof assistant that hands the certificate of someone else’s prover to the kernel to replay."
+        "zh": "设计一个证明助手，把外部证明器的证书交给核重放。"
       },
       "hint": [
-        { "zh": "外部证明器只替换找证书的那一步。", "en": "The other prover stands in only for the step that finds the certificate." }
+        { "zh": "外部证明器只替换找证书的那一步。" }
       ],
       "solution": ["c0 = clausify(in)", "c1 = oracle(c0)", "c2 = replay(c1)", "out <- c2"]
     },
     {
       "id": "au-wrong_2",
       "kind": "truth",
-      "step": { "zh": "找出那一行", "en": "Find the row" },
+      "step": { "zh": "找出那一行" },
       "ask": "counter",
       "formulas": ["(Rain ∨ Wind) ∧ (¬Rain ∨ ¬Wind) → Wet"],
-      "intro": [{ "t": { "zh": "核不认第一个目标的证书。", "en": "The kernel would not take the first goal’s certificate." } }],
+      "intro": [{ "t": { "zh": "核不认第一个目标的证书。" } }],
       "brief": {
-        "zh": "找一行，说明第一个目标确实推不出来：已知都成立，要证的不成立。",
-        "en": "Find a row showing the first goal really does not follow: the hypotheses hold, the goal does not."
+        "zh": "找一行，说明第一个目标确实推不出来：已知都成立，要证的不成立。"
       },
       "hint": [
         {
-          "zh": "想想<level-ref to=\"au-onepair\"></level-ref>。",
-          "en": "Think back to <level-ref to=\"au-onepair\"></level-ref>."
+          "zh": "想想<level-ref to=\"au-onepair\"></level-ref>。"
         }
       ]
     }

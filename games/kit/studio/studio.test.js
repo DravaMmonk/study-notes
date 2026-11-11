@@ -24,7 +24,7 @@ import { lacking } from '../engine/text.js'
 const VOCAB = defineVocabulary({
   domain: 'toy',
   version: 1,
-  kinds: { part: { add: { about: { zh: '加', en: 'adds' } }, sub: { about: 'subtracts' } }, gen: { rows: { about: 'rows', params: S.obj({ n: S.int({ min: 1 }), wide: S.opt(S.bool()) }) }, none: { about: 'nothing' } } },
+  kinds: { part: { add: { about: { zh: '加' } }, sub: { about: 'subtracts' } }, gen: { rows: { about: 'rows', params: S.obj({ n: S.int({ min: 1 }), wide: S.opt(S.bool()) }) }, none: { about: 'nothing' } } },
   game: S.obj({ title: S.text(), eras: S.list(S.any()) }),
   level: S.by('kind', {
     board: S.obj({
@@ -48,7 +48,7 @@ const ctx = { vocabulary: VOCAB, levels: ['a', 'b'] }
 const DOMAINS = resolve(import.meta.dirname, '../domains')
 const STARTERS = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'starter', 'game.json')))
 const starter = (d) => readContent('starter', resolve(DOMAINS, d))
-const LEVEL = { kind: 'board', title: { zh: '甲', en: 'A' }, adds: ['add'], tests: [{ input: 3 }], gen: { rows: { n: 2 } }, pick: ['x'], solution: ['s = add(in)', 'out <- s'], extra: { any: 1 } }
+const LEVEL = { kind: 'board', title: { zh: '甲' }, adds: ['add'], tests: [{ input: 3 }], gen: { rows: { n: 2 } }, pick: ['x'], solution: ['s = add(in)', 'out <- s'], extra: { any: 1 } }
 
 test('a level reads as fields by its schema: its shape (by), texts, choices from the vocabulary, calls, boards', () => {
   const form = formOf(VOCAB.level, LEVEL, ctx)
@@ -62,7 +62,7 @@ test('a level reads as fields by its schema: its shape (by), texts, choices from
   assert.equal(field('hint').optional, true)
   const adds = field('adds').field
   assert.equal(adds.kind, 'chips', 'a list of choices is chips')
-  assert.deepEqual(adds.options, [{ value: 'add', about: { zh: '加', en: 'adds' } }, { value: 'sub', about: 'subtracts' }])
+  assert.deepEqual(adds.options, [{ value: 'add', about: { zh: '加' } }, { value: 'sub', about: 'subtracts' }])
   const tests = field('tests').field
   assert.deepEqual(tests.columns.map((c) => [c.key, c.schema.type, c.optional]), [['input', 'num', false], ['from', 'level', true]])
   const input = formOf(tests.columns[0].schema, 3, ctx, ['tests', 0, 'input'])
@@ -87,24 +87,22 @@ test('blank values fit their schemas, and a shape recast keeps the fields both s
   assert.deepEqual(blank(S.call('gen'), ctx), { rows: { n: 1 } })
   assert.equal(blank(S.level(), ctx), 'a')
   const tag = formOf(VOCAB.level, LEVEL, ctx).tags[0]
-  assert.deepEqual(recast(tag, LEVEL, 'hand', ctx), { kind: 'hand', title: { zh: '甲', en: 'A' }, moves: [] })
+  assert.deepEqual(recast(tag, LEVEL, 'hand', ctx), { kind: 'hand', title: { zh: '甲' }, moves: [] })
   assert.equal(shapeOf(S.either(S.str(), S.list(S.str())), ['x'], VOCAB).at, 1)
   assert.equal(shapeOf(S.either(S.str(), S.obj({ a: S.int() })), { a: 'not a number' }, VOCAB).at, 1, 'a value fitting no shape reads as the shape of its kind')
 })
 
 test('an edit is the operation that makes it, and edits of one field coalesce', () => {
-  assert.deepEqual(opFor({ level: 'a' }, ['title'], { set: { zh: '乙', en: 'B' } }, 'text'), { op: 'text.set', level: 'a', path: ['title'], zh: '乙', en: 'B' })
-  assert.deepEqual(opFor({ game: true }, ['title'], { set: { zh: '乙', en: 'B' } }, 'text'), { op: 'text.set', in: 'game', path: ['title'], zh: '乙', en: 'B' })
+  assert.deepEqual(opFor({ level: 'a' }, ['title'], { set: { zh: '乙' } }, 'text'), { op: 'text.set', level: 'a', path: ['title'], zh: '乙' })
+  assert.deepEqual(opFor({ game: true }, ['title'], { set: { zh: '乙' } }, 'text'), { op: 'text.set', in: 'game', path: ['title'], zh: '乙' })
   assert.deepEqual(opFor({ level: 'a' }, ['solution'], { set: ['x = add()', 'out <- x'] }, 'board'), { op: 'level.blueprint', level: 'a', path: ['solution'], text: 'x = add()\nout <- x' })
   assert.deepEqual(opFor({ level: 'a' }, ['tests', 0, 'input'], { set: 4 }, 'num'), { op: 'level.set', level: 'a', path: ['tests', 0, 'input'], value: 4 })
   assert.deepEqual(opFor({ level: 'a' }, ['hint'], { unset: true }), { op: 'level.unset', level: 'a', path: ['hint'] })
   assert.deepEqual(opFor({ game: true }, ['eras', 0, 'title'], { unset: true }), { op: 'game.unset', path: ['eras', 0, 'title'] })
   assert.deepEqual(opFor({ level: 'a' }, [], { set: { kind: 'hand' } }, 'obj'), { op: 'level.replace', level: 'a', data: { kind: 'hand' } })
-  assert.deepEqual(opFor({ level: 'a' }, ['title'], { set: { en: 'B' } }, 'text'), { op: 'text.set', level: 'a', path: ['title'], en: 'B' }, 'one side typed into: that side')
   let ops = []
-  for (const en of ['B', 'Bo', 'Bob']) ops = pushOp(ops, opFor({ level: 'a' }, ['title'], { set: { en } }, 'text'))
-  ops = pushOp(ops, opFor({ level: 'a' }, ['title'], { set: { zh: '乙' } }, 'text'))
-  assert.deepEqual(ops, [{ op: 'text.set', level: 'a', path: ['title'], en: 'Bob', zh: '乙' }], 'typing into one text is one operation, both sides kept')
+  for (const zh of ['乙', '乙丙', '乙丙丁']) ops = pushOp(ops, opFor({ level: 'a' }, ['title'], { set: { zh } }, 'text'))
+  assert.deepEqual(ops, [{ op: 'text.set', level: 'a', path: ['title'], zh: '乙丙丁' }], 'typing into one text is one operation')
   ops = pushOp(ops, { op: 'level.move', level: 'a', to: { before: 'b' } })
   ops = pushOp(ops, { op: 'level.move', level: 'a', to: { after: 'b' } })
   assert.equal(ops.length, 2, 'moving the same level again replaces the move')
@@ -118,7 +116,7 @@ test('a level’s boards, its reference, its texts; which schemas hold levels', 
   const { paths, reference } = boardsOf(VOCAB, { id: 'a', ...LEVEL, naive: ['out <- in'] })
   assert.deepEqual(paths, [['solution'], ['naive']])
   assert.deepEqual(reference, ['solution'])
-  assert.deepEqual(textsOf(VOCAB.level, { ...LEVEL, hint: [{ zh: '提示', en: 'hint' }] }, VOCAB).map((t) => t.path), [['title'], ['hint', 0]])
+  assert.deepEqual(textsOf(VOCAB.level, { ...LEVEL, hint: [{ zh: '提示' }] }, VOCAB).map((t) => t.path), [['title'], ['hint', 0]])
 })
 
 const ERAS = [
@@ -147,10 +145,10 @@ test('the course tree lays out eras as the map does, with a slot between every t
 })
 
 test('a changed file reads field by field: texts and boards whole, objects and lists looked into', () => {
-  const before = { title: { zh: '甲', en: 'A' }, tests: [{ input: 1 }, { input: 2 }], solution: ['x', 'y'], eras: [{ foundation: ['a', 'b'] }] }
-  const after = { title: { zh: '甲', en: 'Ay' }, tests: [{ input: 1 }, { input: 3 }], solution: ['x', 'z'], eras: [{ foundation: ['b', 'a', 'c'] }], note: 'n' }
+  const before = { title: { zh: '甲' }, tests: [{ input: 1 }, { input: 2 }], solution: ['x', 'y'], eras: [{ foundation: ['a', 'b'] }] }
+  const after = { title: { zh: '乙' }, tests: [{ input: 1 }, { input: 3 }], solution: ['x', 'z'], eras: [{ foundation: ['b', 'a', 'c'] }], note: 'n' }
   assert.deepEqual(fieldDiff(before, after), [
-    { path: ['title'], before: { zh: '甲', en: 'A' }, after: { zh: '甲', en: 'Ay' }, as: 'text' },
+    { path: ['title'], before: { zh: '甲' }, after: { zh: '乙' }, as: 'text' },
     { path: ['tests', 1, 'input'], before: 2, after: 3, as: 'value' },
     { path: ['solution'], before: ['x', 'y'], after: ['x', 'z'], as: 'lines' },
     { path: ['eras', 0, 'foundation'], before: ['a', 'b'], after: ['b', 'a', 'c'], as: 'lines' },
@@ -240,7 +238,7 @@ test('cells are typed and read back; a pasted block, a tick flipped, an item mov
   assert.deepEqual(pastedCells('1 2, 3'), [['1', '2', '3']])
   assert.deepEqual([toggled(0), toggled(1), toggled(null)], [1, 0, 1])
   assert.deepEqual(moved(['a', 'b', 'c'], 0, 2), ['b', 'c', 'a'])
-  assert.equal(summaryOf({ t: { zh: '一<b>句</b><part-ref to="add"></part-ref>', en: 'x' } }), '一句add')
+  assert.equal(summaryOf({ t: { zh: '一<b>句</b><part-ref to="add"></part-ref>' } }), '一句add')
   assert.equal(summaryOf({ R: 3, costs: [[1, 2], [3]] }), 'R 3 · costs [1 2] · costs [3]')
   assert.equal(summaryOf({ go: [1, null, 0] }), 'go [1 — 0]')
 })
@@ -285,9 +283,9 @@ test('a field put back, a test list’s reference, the copy rules on one text', 
   const vocab = { ...VOCAB, level: S.obj({ ...VOCAB.level.cases.board.fields, tasks: S.list(S.obj({ solution: S.board(), tests: S.list(S.any()) })) }) }
   assert.deepEqual(referenceFor(vocab, level, ['tasks', 0, 'tests']), ['tasks', 0, 'solution'], 'a task’s tests run its own reference')
   assert.deepEqual(referenceFor(vocab, level, ['tests']), ['solution'], 'the level’s tests its own')
-  assert.deepEqual(lintText('brief', { zh: '因为要搞定它', en: 'x' }).map((f) => f.rule), ['copy-banned', 'copy-brief-why'])
-  assert.deepEqual(lintText('after', { zh: '<part-ref to="a"></part-ref>', en: '<part-ref to="a"></part-ref>' }).map((f) => f.rule), ['copy-after-part'])
-  assert.deepEqual(lintText('title', { zh: '好', en: 'ok' }), [])
+  assert.deepEqual(lintText('brief', { zh: '因为要搞定它' }).map((f) => f.rule), ['copy-banned', 'copy-brief-why'])
+  assert.deepEqual(lintText('after', { zh: '<part-ref to="a"></part-ref>' }).map((f) => f.rule), ['copy-after-part'])
+  assert.deepEqual(lintText('title', { zh: '好' }), [])
 })
 
 /** Every field of a form, depth first. */
@@ -389,7 +387,7 @@ test('a mark on the game page is the field it shows: the task’s, else the leve
   const test = addFor('L', level, vocabulary, { at: 'tests', scope: 'task', task: 1 })
   assert.deepEqual([test.op, test.at], [{ op: 'level.set', level: 'L', path: ['tasks', 1, 'tests'], value: [{ n: 2 }, { n: 2 }] }, ['tasks', 1, 'tests', 1]])
   const hint = addFor('L', level, vocabulary, { at: 'hint', scope: 'task', task: 1 })
-  assert.deepEqual([hint.op.path, hint.op.value.at(-1)], [['tasks', 1, 'hint'], { zh: '', en: '' }])
+  assert.deepEqual([hint.op.path, hint.op.value.at(-1)], [['tasks', 1, 'hint'], { zh: '' }])
   // A new task copies the one played, without its id and its name, and goes after it.
   const task = addFor('L', level, vocabulary, { at: 'tasks', scope: 'level', task: 0 })
   assert.deepEqual([task.op, task.at], [{ op: 'task.add', level: 'L', data: { brief: t('a'), tests: [{ n: 1 }] }, after: 'L' }, ['tasks', 1]])

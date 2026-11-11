@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "生成器遇上自然数", "en": "The generator meets the numbers" },
+  "title": { "zh": "生成器遇上自然数" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "把自然数的声明交给<part-ref to=\"lemma:elimGen\"></part-ref>，看它生成什么，再和声明给出的归纳法比一比。",
-        "en": "Hand the declaration of the numbers to the <part-ref to=\"lemma:elimGen\"></part-ref>, see what it makes, and compare it with the induction the declaration gives."
+        "zh": "把自然数的声明交给<part-ref to=\"lemma:elimGen\"></part-ref>，看它生成什么，再和声明给出的归纳法比一比。"
       }
     }
   ],
   "after": {
-    "zh": "生成器给出的只是按情况分，少了归纳假设：要生成归纳规则，得先认出哪条引入规则要的正是声明的那种东西。",
-    "en": "The generator gives only cases, without the induction hypothesis: to make the induction rule, it must first see which introduction rule takes the very kind of thing being declared."
+    "zh": "生成器给出的只是按情况分，少了归纳假设：要生成归纳规则，得先认出哪条引入规则要的正是声明的那种东西。"
   },
   "tasks": [
     {
@@ -19,15 +17,14 @@
       "kind": "machine",
       "want": "elim",
       "inputs": [
-        { "name": "it", "label": { "zh": "它", "en": "It" } },
-        { "name": "ways", "label": { "zh": "引入规则（一串）", "en": "Intro rules (a list)" } }
+        { "name": "it", "label": { "zh": "它" } },
+        { "name": "ways", "label": { "zh": "引入规则（一串）" } }
       ],
       "tests": [{ "it": "Nat", "ways": ["Nat", "⟦Nat⟧ ⟹ Nat"], "elim": ["Nat", "?R", "⟦Nat⟧ ⟹ ?R"] }],
       "brief": {
-        "zh": "设计一个证明助手：生成自然数的消去规则。",
-        "en": "Design a proof assistant that makes the elimination rule of the numbers."
+        "zh": "设计一个证明助手：生成自然数的消去规则。"
       },
-      "hint": [{ "zh": "生成器已经在元件箱里。", "en": "The generator is already in the parts box." }],
+      "hint": [{ "zh": "生成器已经在元件箱里。" }],
       "solution": ["g = elimGen(it, ways)", "out <- g"]
     }
   ]

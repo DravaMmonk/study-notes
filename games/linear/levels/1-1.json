@@ -1,30 +1,25 @@
 {
   "title": {
-    "zh": "首尾相接",
-    "en": "Tip to tail"
+    "zh": "首尾相接"
   },
   "intro": [
     {
       "t": {
-        "zh": "这里线上流动的值大多是<wiki-ref to=\"vector\"></wiki-ref>：从原点出发的一支箭头，也是一列数，写出箭头尖的坐标。下图是 (2, 1)。",
-        "en": "Most values on these wires are <wiki-ref to=\"vector\"></wiki-ref>s: an arrow from the origin, and a column of numbers giving the coordinates of its tip. Below is (2, 1)."
+        "zh": "这里线上流动的值大多是<wiki-ref to=\"vector\"></wiki-ref>：从原点出发的一支箭头，也是一列数，写出箭头尖的坐标。下图是 (2, 1)。"
       },
       "show": { "shape": "grid", "value": [[2], [1]], "views": ["plane"] }
     },
     {
       "t": {
-        "zh": "两段位移接着走，第二支箭头从第一支的箭头尖出发；从起点指到终点的那一支，就是它们的<wiki-ref to=\"vector-sum\"></wiki-ref>。<part-ref to=\"part:add\"></part-ref>把两支箭头相加。",
-        "en": "Two moves one after the other: the second arrow starts at the tip of the first, and the arrow from the start to the end is their <wiki-ref to=\"vector-sum\"></wiki-ref>. <part-ref to=\"part:add\"></part-ref> adds two arrows."
+        "zh": "两段位移接着走，第二支箭头从第一支的箭头尖出发；从起点指到终点的那一支，就是它们的<wiki-ref to=\"vector-sum\"></wiki-ref>。<part-ref to=\"part:add\"></part-ref>把两支箭头相加。"
       }
     }
   ],
   "showcase": {
-    "zh": "第一次往板上放元件、接线：元件放在输入和输出之间，一块元件的输出可以接进下一块",
-    "en": "the first parts placed and wired on a board: a part sits between the inputs and the output, and one part's output can go into the next"
+    "zh": "第一次往板上放元件、接线：元件放在输入和输出之间，一块元件的输出可以接进下一块"
   },
   "after": {
-    "zh": "向量逐个分量相加；先走哪一段，终点都一样。",
-    "en": "Vectors add entry by entry, and the order of the legs does not change where they end."
+    "zh": "向量逐个分量相加；先走哪一段，终点都一样。"
   },
   "adds": [
     "add"
@@ -33,13 +28,11 @@
     {
       "id": "1-1",
       "brief": {
-        "zh": "u、v、w 三段位移依次走完，交出总位移。",
-        "en": "Walk the moves u, v and w in turn, and give the whole move."
+        "zh": "u、v、w 三段位移依次走完，交出总位移。"
       },
       "hint": [
         {
-          "zh": "一块元件只接两个输入；它的输出可以再接进下一块。",
-          "en": "A part takes two inputs; its output can go into the next part."
+          "zh": "一块元件只接两个输入；它的输出可以再接进下一块。"
         }
       ],
       "inputs": [
@@ -60,8 +53,7 @@
         {
           "name": "out",
           "label": {
-            "zh": "总位移",
-            "en": "Whole move"
+            "zh": "总位移"
           }
         }
       ],

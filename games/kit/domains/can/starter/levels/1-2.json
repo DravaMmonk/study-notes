@@ -1,34 +1,30 @@
 {
-  "title": { "zh": "晚一拍", "en": "One tick late" },
+  "title": { "zh": "晚一拍" },
   "intro": [
     {
       "t": {
-        "zh": "板每一拍从头跑，上一拍的东西它一样也记不住。可总线上的一位只有和前后连起来看才有意思。",
-        "en": "The board starts afresh each tick and remembers nothing of the last one. Yet a bit on the bus only means something next to the bits around it."
+        "zh": "板每一拍从头跑，上一拍的东西它一样也记不住。可总线上的一位只有和前后连起来看才有意思。"
       }
     },
     {
       "t": {
-        "zh": "探针多了一种能力：<wiki-ref to=\"register\"></wiki-ref>。<part-ref to=\"part:keep\"></part-ref>把这一拍接到它上面的值存起来，下一拍<part-ref to=\"part:reg\"></part-ref>把它读出来；名字相同的两个元件说的是同一张寄存卡。读的那个可以设一个初值：还没存过东西时读出它。",
-        "en": "The probe gains one ability: <wiki-ref to=\"register\"></wiki-ref>s. <part-ref to=\"part:keep\"></part-ref> stores the value wired into it this tick, and <part-ref to=\"part:reg\"></part-ref> reads it back on the next one; two parts with the same name are the same register. The reading one has a start value: what it reads before anything is kept."
+        "zh": "探针多了一种能力：<wiki-ref to=\"register\"></wiki-ref>。<part-ref to=\"part:keep\"></part-ref>把这一拍接到它上面的值存起来，下一拍<part-ref to=\"part:reg\"></part-ref>把它读出来；名字相同的两个元件说的是同一张寄存卡。读的那个可以设一个初值：还没存过东西时读出它。"
       }
     }
   ],
   "adds": ["reg", "keep"],
   "after": {
-    "zh": "寄存卡把一拍和下一拍连了起来：从现在起，板能记事了。",
-    "en": "A register ties one tick to the next: from now on the board can remember."
+    "zh": "寄存卡把一拍和下一拍连了起来：从现在起，板能记事了。"
   },
   "tasks": [
     {
       "id": "1-2",
       "brief": {
-        "zh": "每一拍交出总线上一拍的那一位；第一拍交出 1。",
-        "en": "Every tick, give out the bit the bus had the tick before; 1 on the first tick."
+        "zh": "每一拍交出总线上一拍的那一位；第一拍交出 1。"
       },
-      "hint": [{ "zh": "这一拍的总线存起来，下一拍读出来交出去。", "en": "Keep the bus this tick, and give out what you read next tick." }],
+      "hint": [{ "zh": "这一拍的总线存起来，下一拍读出来交出去。" }],
       "listens": true,
-      "outputs": [{ "name": "bit", "label": { "zh": "位", "en": "Bit" } }],
+      "outputs": [{ "name": "bit", "label": { "zh": "位" } }],
       "tests": [
         { "bus": { "frames": [{ "id": "0x123", "data": ["0x01"] }] } },
         { "bus": { "idle": 14, "frames": [{ "id": "0x2a5", "data": [] }] } }

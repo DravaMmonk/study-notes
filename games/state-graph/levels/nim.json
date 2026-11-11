@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "拿石子", "en": "Take the stones" },
-  "short": { "zh": "对手的输，就是你的赢", "en": "Their loss is your win" },
+  "title": { "zh": "拿石子" },
+  "short": { "zh": "对手的输，就是你的赢" },
   "intro": [
     {
       "t": {
-        "zh": "桌上有一堆石子。两个人轮流拿，每次拿 <b>1 颗或 2 颗</b>，拿走最后一颗的人赢。轮到你先拿，你能赢吗？",
-        "en": "There is a pile of stones on the table. Two players take turns, taking <b>1 or 2 stones</b> each time, and whoever takes the last stone wins. You go first. Can you win?"
+        "zh": "桌上有一堆石子。两个人轮流拿，每次拿 <b>1 颗或 2 颗</b>，拿走最后一颗的人赢。轮到你先拿，你能赢吗？"
       }
     },
     {
       "t": {
-        "zh": "把「还剩几颗」排成一行，每一格记：<b>轮到你、还剩这么多颗时，你能不能赢</b>。一颗不剩时轮到你，说明对手刚拿走了最后一颗：你输了。",
-        "en": "Lay out “how many are left” in a row, and let each cell record: <b>with this many left and your turn to move, can you win?</b> If it is your turn and none are left, your opponent has just taken the last stone: you have lost."
+        "zh": "把「还剩几颗」排成一行，每一格记：<b>轮到你、还剩这么多颗时，你能不能赢</b>。一颗不剩时轮到你，说明对手刚拿走了最后一颗：你输了。"
       },
       "fig": {
         "scene": {
@@ -23,7 +21,7 @@
               "w": 50,
               "h": 50,
               "corner": 0,
-              "value": { "zh": "否", "en": "no" },
+              "value": { "zh": "否" },
               "cls": "no"
             },
             { "id": "p1", "x": 60, "y": 0, "w": 50, "h": 50, "corner": 1 },
@@ -38,20 +36,18 @@
     },
     {
       "t": {
-        "zh": "只看你这一步：拿 1 颗，对手面对「拿走 1 颗后」那一格；拿 2 颗，对手面对「拿走 2 颗后」那一格。想一想：对手面对的格子是「是」还是「否」的时候，你才能赢？两种拿法里，要几种行得通才够？",
-        "en": "Look only at your own move: take 1, and your opponent faces the “after taking 1” cell; take 2, and they face the “after taking 2” cell. Think: is the cell your opponent faces “yes” or “no” when you can win? Of the two ways to take, how many have to work?"
+        "zh": "只看你这一步：拿 1 颗，对手面对「拿走 1 颗后」那一格；拿 2 颗，对手面对「拿走 2 颗后」那一格。想一想：对手面对的格子是「是」还是「否」的时候，你才能赢？两种拿法里，要几种行得通才够？"
       }
     },
     {
       "t": {
-        "zh": "新元件「<b>取反</b>」：「是」变「否」，「否」变「是」。格子里记的是「轮到的人能不能赢」。你拿完以后，轮到的是谁？",
-        "en": "A new component, “<b>Not</b>”: “yes” becomes “no”, and “no” becomes “yes”. Each cell records “can the player to move win”. After you take your stones, whose move is it?"
+        "zh": "新元件「<b>取反</b>」：「是」变「否」，「否」变「是」。格子里记的是「轮到的人能不能赢」。你拿完以后，轮到的是谁？"
       },
       "fig": {
         "circuit": {
-          "taps": [{ "id": "a", "label": { "zh": "对手 · 否", "en": "opponent · no" }, "kind": "bool" }],
-          "parts": [{ "id": "n", "name": { "zh": "取反", "en": "Not" }, "tag": { "zh": "是 ↔ 否", "en": "yes ↔ no" } }],
-          "outs": [{ "id": "o", "label": { "zh": "你 · 是", "en": "you · yes" } }],
+          "taps": [{ "id": "a", "label": { "zh": "对手 · 否" }, "kind": "bool" }],
+          "parts": [{ "id": "n", "name": { "zh": "取反" }, "tag": { "zh": "是 ↔ 否" } }],
+          "outs": [{ "id": "o", "label": { "zh": "你 · 是" } }],
           "wires": [{ "from": "a", "to": "n", "kind": "bool" }, { "from": "n", "to": "o", "kind": "bool" }]
         }
       }
@@ -59,31 +55,26 @@
   ],
   "mission": {
     "goal": {
-      "zh": "每次拿 1 颗或 2 颗，拿走最后一颗的人赢。算出石子还剩几颗时，轮到的人能不能赢。",
-      "en": "Take 1 or 2 stones each time; whoever takes the last stone wins. For each number of stones left, work out whether the player to move can win."
+      "zh": "每次拿 1 颗或 2 颗，拿走最后一颗的人赢。算出石子还剩几颗时，轮到的人能不能赢。"
     },
     "how": {
-      "zh": "这一关会检查整行。在视野里点「拿走 1 颗后」和「拿走 2 颗后」，拼出电路。",
-      "en": "This level checks the whole row. Click “after taking 1” and “after taking 2” in the view, and build the circuit."
+      "zh": "这一关会检查整行。在视野里点「拿走 1 颗后」和「拿走 2 颗后」，拼出电路。"
     }
   },
   "robot": "ranger",
   "adds": ["not"],
   "debrief": {
-    "title": { "zh": "输赢也能填表", "en": "Winning and losing fill a table too" },
+    "title": { "zh": "输赢也能填表" },
     "body": [
       {
-        "zh": "一颗不剩那一格，你什么都不用接：一步也走不了，「任一是」什么也收不到，输出「否」。<b>无路可走的人就输了</b>。",
-        "en": "For the “none left” cell you don’t need to wire anything: there is no move to make, “any yes” receives nothing, and it outputs “no”. <b>A player with no move left loses</b>."
+        "zh": "一颗不剩那一格，你什么都不用接：一步也走不了，「任一是」什么也收不到，输出「否」。<b>无路可走的人就输了</b>。"
       },
       {
-        "zh": "看看这一行：否、是、是、否、是、是……每逢 3 的倍数就输。你没有算任何除法，规律是表自己长出来的。",
-        "en": "Look at the row: no, yes, yes, no, yes, yes… every multiple of 3 loses. You never did any division: the pattern grew out of the table by itself."
+        "zh": "看看这一行：否、是、是、否、是、是……每逢 3 的倍数就输。你没有算任何除法，规律是表自己长出来的。"
       }
     ],
     "note": {
-      "zh": "轮流走的游戏：只要有一步能让对手落进「输」，这一格就「赢」。",
-      "en": "In a game of taking turns: if any move drops the opponent into a “lose”, this cell is a “win”."
+      "zh": "轮流走的游戏：只要有一步能让对手落进「输」，这一格就「赢」。"
     }
   },
   "tasks": [
@@ -94,20 +85,17 @@
         {
           "when": { "not": { "has": "not" } },
           "say": {
-            "zh": "你拿完之后，轮到谁走？格子里记的是「轮到的人能不能赢」，对手的「是」对你来说是「否」。用取反翻过来。",
-            "en": "After your move, whose turn is it? Each cell records “can the player to move win”, so your opponent’s “yes” is a “no” for you. Flip it with Not."
+            "zh": "你拿完之后，轮到谁走？格子里记的是「轮到的人能不能赢」，对手的「是」对你来说是「否」。用取反翻过来。"
           }
         }
       ],
       "checkAll": true,
       "hints": [
         {
-          "zh": "你拿完之后，轮到谁走？对手那一格是「是」，对你来说意味着什么？",
-          "en": "After your move, whose turn is it? If the opponent’s cell is “yes”, what does that mean for you?"
+          "zh": "你拿完之后，轮到谁走？对手那一格是「是」，对你来说意味着什么？"
         },
         {
-          "zh": "两种拿法，只要有一种让对手输，你就赢：两个取反都接进「任一是」。",
-          "en": "Of the two ways to take, if either leaves the opponent losing, you win: wire both Nots into “any yes”."
+          "zh": "两种拿法，只要有一种让对手输，你就赢：两个取反都接进「任一是」。"
         }
       ],
       "world": "pile",

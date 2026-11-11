@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "两路汇合", "en": "Two roads meet" },
-  "short": { "zh": "把两个数汇进一个元件", "en": "Merge two numbers in one component" },
+  "title": { "zh": "两路汇合" },
+  "short": { "zh": "把两个数汇进一个元件" },
   "intro": [
     {
       "t": {
-        "zh": "回到棋盘城市：街道只能往右或往下走，每个路口的路线数 = 上面 + 左边。这一次，左上角的起点已经替你写好了 1，剩下的路口交给机器人。",
-        "en": "Back to the grid city: streets only go right or down, and routes to each crossing = up + left. This time the start in the top-left corner already holds a 1 for you, and the robot takes care of the other crossings."
+        "zh": "回到棋盘城市：街道只能往右或往下走，每个路口的路线数 = 上面 + 左边。这一次，左上角的起点已经替你写好了 1，剩下的路口交给机器人。"
       },
       "fig": {
         "grid": {
@@ -18,71 +17,64 @@
     },
     {
       "t": {
-        "zh": "一根线只能送一个数。要把上面和左边<b>加在一起</b>，需要一个<b>元件</b>：汇合器。它顶上有三个输入圆点，把接进来的数加起来，从底部的圆点送出去。",
-        "en": "A wire carries just one number. To <b>add</b> up and left <b>together</b> you need a <b>component</b>: the Merger. It has three input dots on top; it adds up whatever is wired in and sends the result out of the dot at its bottom."
+        "zh": "一根线只能送一个数。要把上面和左边<b>加在一起</b>，需要一个<b>元件</b>：汇合器。它顶上有三个输入圆点，把接进来的数加起来，从底部的圆点送出去。"
       },
       "fig": {
         "circuit": {
           "taps": [
-            { "id": "u", "label": { "zh": "上面 · 3", "en": "up · 3" } },
-            { "id": "l", "label": { "zh": "左边 · 7", "en": "left · 7" } }
+            { "id": "u", "label": { "zh": "上面 · 3" } },
+            { "id": "l", "label": { "zh": "左边 · 7" } }
           ],
-          "parts": [{ "id": "m", "name": { "zh": "汇合器", "en": "Merger" }, "tag": { "zh": "加起来", "en": "sum" } }],
-          "outs": [{ "id": "o", "label": { "zh": "本格 · 10", "en": "this cell · 10" } }],
+          "parts": [{ "id": "m", "name": { "zh": "汇合器" }, "tag": { "zh": "加起来" } }],
+          "outs": [{ "id": "o", "label": { "zh": "本格 · 10" } }],
           "wires": [{ "from": "u", "to": "m" }, { "from": "l", "to": "m" }, { "from": "m", "to": "o" }]
         }
       }
     },
     {
       "t": {
-        "zh": "第一行的格子，上面<b>没有格子</b>，视野里显示「界外」，送来的是「—」，意思是「这里没有路」。汇合器会跳过「—」，只加真正的数。",
-        "en": "For cells in the top row there is <b>no cell above</b>: the view shows “out”, and what comes in is “—”, meaning “there is no road here”. The Merger skips “—” and adds up only real numbers."
+        "zh": "第一行的格子，上面<b>没有格子</b>，视野里显示「界外」，送来的是「—」，意思是「这里没有路」。汇合器会跳过「—」，只加真正的数。"
       },
       "fig": {
         "circuit": {
           "taps": [
-            { "id": "u", "label": { "zh": "上面 · —", "en": "up · —" } },
-            { "id": "l", "label": { "zh": "左边 · 1", "en": "left · 1" } }
+            { "id": "u", "label": { "zh": "上面 · —" } },
+            { "id": "l", "label": { "zh": "左边 · 1" } }
           ],
-          "parts": [{ "id": "m", "name": { "zh": "汇合器", "en": "Merger" }, "tag": { "zh": "加起来", "en": "sum" } }],
-          "outs": [{ "id": "o", "label": { "zh": "本格 · 1", "en": "this cell · 1" } }],
+          "parts": [{ "id": "m", "name": { "zh": "汇合器" }, "tag": { "zh": "加起来" } }],
+          "outs": [{ "id": "o", "label": { "zh": "本格 · 1" } }],
           "wires": [{ "from": "u", "to": "m", "kind": "off" }, { "from": "l", "to": "m" }, { "from": "m", "to": "o" }]
         }
       }
     },
     {
       "t": {
-        "zh": "<b>怎么放元件：</b>把电路板下面托盘里的汇合器，拖到电路板的空格上（点一下也行）。按住它可以拖到别的格子，拖回托盘就拿掉了。",
-        "en": "<b>Placing a component:</b> drag the Merger from the tray under the board onto an empty slot of the board (a click works too). Hold it to drag it to another slot; drag it back to the tray to remove it."
+        "zh": "<b>怎么放元件：</b>把电路板下面托盘里的汇合器，拖到电路板的空格上（点一下也行）。按住它可以拖到别的格子，拖回托盘就拿掉了。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "街道只能往右或往下走，起点已经写好 1。让机器人算出每个路口的路线数：每个路口 = 上面 + 左边。",
-      "en": "Streets only go right or down, and the start already holds 1. Have the robot work out the number of routes to every crossing: each crossing = up + left."
+      "zh": "街道只能往右或往下走，起点已经写好 1。让机器人算出每个路口的路线数：每个路口 = 上面 + 左边。"
     },
     "how": {
-      "zh": "在视野里点「上面」和「左边」两格，再放一个汇合器，把视野元件的两个输出口接进去，再把汇合器接到「本格」。",
-      "en": "Click the “up” and “left” cells in the view, place a Merger, wire both outputs of the View part into it, then wire the Merger to “this cell”."
+      "zh": "在视野里点「上面」和「左边」两格，再放一个汇合器，把视野元件的两个输出口接进去，再把汇合器接到「本格」。"
     }
   },
   "robot": "scout",
   "showcase": {
-    "zh": "第一次往板上放元件：元件放在输入和输出之间，一根线接进它的一个口，它的输出口再接出去；汇合器把几条来路收成一个数",
-    "en": "the first part ever placed on a board: a part sits between the inputs and the output, wires go into its ports and out of its output; a Merger gathers several ways in into one number"
+    "zh": "第一次往板上放元件：元件放在输入和输出之间，一根线接进它的一个口，它的输出口再接出去；汇合器把几条来路收成一个数"
   },
   "adds": ["msum"],
   "debrief": {
-    "title": { "zh": "城市交给了机器人", "en": "The robot runs the city" },
+    "title": { "zh": "城市交给了机器人" },
     "body": [
       {
-        "zh": "之前你亲手填了 12 个路口；现在你只接了三根线，机器人就把整座城市填满了。",
-        "en": "Before, you filled in 12 crossings by hand; now you drew three wires and the robot filled in the whole city."
+        "zh": "之前你亲手填了 12 个路口；现在你只接了三根线，机器人就把整座城市填满了。"
       },
-      { "zh": "起点那个 1，是替机器人写好的。", "en": "The 1 at the start was written in for the robot." }
+      { "zh": "起点那个 1，是替机器人写好的。" }
     ],
-    "note": { "zh": "汇合器把几根线送来的数加起来，「—」不参与。", "en": "A Merger adds up the numbers its wires bring; “—” is left out." }
+    "note": { "zh": "汇合器把几根线送来的数加起来，「—」不参与。" }
   },
   "tasks": [
     {
@@ -92,29 +84,25 @@
         {
           "until": { "all": [{ "reads": "up" }, { "reads": "left" }] },
           "say": {
-            "zh": "第 1 步：在视野里点「上面」和「左边」，「视野」元件就有了两个输出口。",
-            "en": "Step 1: click “up” and “left” in the view: the “View” part then has two outputs."
+            "zh": "第 1 步：在视野里点「上面」和「左边」，「视野」元件就有了两个输出口。"
           }
         },
         {
           "until": "placed",
           "say": {
-            "zh": "第 2 步：把托盘里的<part-ref to=\"part:msum\"></part-ref>拖到电路板的空格上，点一下也行。",
-            "en": "Step 2: drag the <part-ref to=\"part:msum\"></part-ref> from the tray onto an empty slot of the board, or just click it."
+            "zh": "第 2 步：把托盘里的<part-ref to=\"part:msum\"></part-ref>拖到电路板的空格上，点一下也行。"
           }
         },
         {
           "until": "wiredOut",
           "say": {
-            "zh": "第 3 步：把视野的两个输出口各接到汇合器左边的一个圆点，再把汇合器右边的圆点接到「本格」。",
-            "en": "Step 3: wire each of the View’s two outputs into a dot on the Merger’s left, then wire the Merger’s right-hand dot to “this cell”."
+            "zh": "第 3 步：把视野的两个输出口各接到汇合器左边的一个圆点，再把汇合器右边的圆点接到「本格」。"
           }
         }
       ],
       "hints": [
         {
-          "zh": "每个路口 = 上面 + 左边：两个输入都接进同一个汇合器，汇合器再接到「本格」。",
-          "en": "Each crossing = up + left: wire both inputs into the same Merger, and the Merger into “this cell”."
+          "zh": "每个路口 = 上面 + 左边：两个输入都接进同一个汇合器，汇合器再接到「本格」。"
         }
       ],
       "world": "grid",

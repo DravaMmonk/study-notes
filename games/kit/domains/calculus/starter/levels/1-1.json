@@ -1,14 +1,14 @@
 {
-  "title": { "zh": "两列相加", "en": "Two into one" },
-  "intro": [{ "t": { "zh": "第 n 拍，每个输入数列给出它的第 n 项。", "en": "At tick n, each input sequence gives its n-th term." } }],
+  "title": { "zh": "两列相加" },
+  "intro": [{ "t": { "zh": "第 n 拍，每个输入数列给出它的第 n 项。" } }],
   "adds": ["add"],
-  "showcase": { "zh": "第一次往板上放元件", "en": "The first part placed on a board" },
+  "showcase": { "zh": "第一次往板上放元件" },
   "tasks": [
     {
       "id": "1-1",
-      "brief": { "zh": "两个输入数列逐项相加。", "en": "Add the two input sequences term by term." },
-      "inputs": [{ "name": "a", "label": { "zh": "a", "en": "a" } }, { "name": "b", "label": { "zh": "b", "en": "b" } }],
-      "outputs": [{ "name": "s", "label": { "zh": "和", "en": "Sum" } }],
+      "brief": { "zh": "两个输入数列逐项相加。" },
+      "inputs": [{ "name": "a", "label": { "zh": "a" } }, { "name": "b", "label": { "zh": "b" } }],
+      "outputs": [{ "name": "s", "label": { "zh": "和" } }],
       "tests": [{ "inputs": { "a": [1, 2, 3, 4], "b": [5, 0, -1, 2] }, "want": { "s": [6, 2, 2, 6] } }],
       "solution": ["p = add(a, b)", "s <- p"]
     }

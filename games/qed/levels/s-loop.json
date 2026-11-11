@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "停不下来的搜索", "en": "A search that never stops" },
+  "title": { "zh": "停不下来的搜索" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "安比博年长，博比茜年长，所以安比茜年长；茜比安年长，却无论如何推不出来。证不出时，证明助手也必须停下，报告失败。",
-        "en": "Ann is older than Bo and Bo older than Cy, so Ann is older than Cy; that Cy is older than Ann follows from nothing. When there is no proof, the proof assistant must still stop and report failure."
+        "zh": "安比博年长，博比茜年长，所以安比茜年长；茜比安年长，却无论如何推不出来。证不出时，证明助手也必须停下，报告失败。"
       }
     }
   ],
@@ -14,11 +13,11 @@
       "id": "s-loop",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "rules": {
         "trans": {
-          "name": { "zh": "年纪大可以传下去", "en": "Older passes on" },
+          "name": { "zh": "年纪大可以传下去" },
           "premises": ["Older(?x, ?y)", "Older(?y, ?z)"],
           "conclusion": "Older(?x, ?z)"
         }
@@ -29,14 +28,12 @@
         { "goal": "Older(k, i)", "hyps": ["Older(i, j)", "Older(j, k)"], "want": "fails" }
       ],
       "brief": {
-        "zh": "设计一个证明助手：证得出的目标证完，证不出的报告失败。",
-        "en": "Design a proof assistant that proves the goals that can be proved, and reports failure on the one that cannot."
+        "zh": "设计一个证明助手：证得出的目标证完，证不出的报告失败。"
       },
       "hint": [
-        { "zh": "证不出的那一句，搜索在哪里停不下来？", "en": "On the sentence that cannot be proved, where does the search fail to stop?" },
+        { "zh": "证不出的那一句，搜索在哪里停不下来？" },
         {
-          "zh": "每一步都出现新的 ?，搜索看不出自己在绕圈。",
-          "en": "Each step brings a new ?-letter, so the search cannot tell it is going round."
+          "zh": "每一步都出现新的 ?，搜索看不出自己在绕圈。"
         }
       ],
       "solution": [

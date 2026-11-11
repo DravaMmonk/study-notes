@@ -6,7 +6,7 @@ import { auditBlueprint, conformance, erasOf, renameSlot } from './blueprint.js'
 import { lintCopy } from './lint.js'
 import { boardShape, lintPedagogy } from './pedagogy.js'
 
-const t = (s) => ({ zh: s, en: s })
+const t = (s) => ({ zh: s })
 const slot = (id, extra = {}) => ({ id, title: t(id), task: t(id), question: t(`why ${id}?`), chain: [t('try'), t('see')], role: 'foundation', uses: [], ...(extra.role === 'practice' ? { facet: t('a new case') } : {}), ...extra })
 const series = (id, slots, extra = {}) => ({ id, title: t(id), kind: 'foundation', slots, ...extra })
 const point = (id, basis = 'lecture', more = {}) => ({ id, term: t(`the ${id} term`), about: t('x'), source: 'notes/lecture-1.md §2', wall: t('x'), basis, difficulty: 'learnable', ...more })
@@ -134,13 +134,13 @@ test('the copy lint names the rule each text breaks', () => {
   const level = (fields) => ({ levels: [{ id: '1-1', title: t('a'), tasks: [{ id: '1-1', brief: t('do it'), ...fields }] }], glossary: { entries: [] } })
   const found = (fields) => lintCopy(level(fields)).map((f) => f.rule)
   assert.deepEqual(found({}), [])
-  assert.deepEqual(found({ brief: { zh: '对输入进行比较。', en: 'Compare the inputs.' } }), ['copy-banned'])
-  assert.deepEqual(found({ intro: [{ t: { zh: '新元件「加一」：输入加 1。', en: 'A new part: Add one.' } }] }), ['copy-intro-part'])
-  assert.deepEqual(found({ brief: { zh: '放一块卡片。', en: 'Place a card.' } }), ['copy-banned'])
-  assert.deepEqual(found({ brief: { zh: '搭一块网卡。', en: 'Build a network card.' } }), [])
-  assert.deepEqual(found({ after: { zh: '<part-ref to="part:reg"></part-ref>记住了它。', en: '<part-ref to="part:reg"></part-ref> kept it.' } }), ['copy-after-part'])
-  assert.deepEqual(found({ after: { zh: '下一关会用到它。', en: 'The next level uses it.' } }), ['copy-ahead'])
-  assert.deepEqual(found({ brief: { zh: '交出和，因为后面要用。', en: 'Give the sum, because it is needed.' } }), ['copy-brief-why'])
+  assert.deepEqual(found({ brief: { zh: '对输入进行比较。' } }), ['copy-banned'])
+  assert.deepEqual(found({ intro: [{ t: { zh: '新元件「加一」：输入加 1。' } }] }), ['copy-intro-part'])
+  assert.deepEqual(found({ brief: { zh: '放一块卡片。' } }), ['copy-banned'])
+  assert.deepEqual(found({ brief: { zh: '搭一块网卡。' } }), [])
+  assert.deepEqual(found({ after: { zh: '<part-ref to="part:reg"></part-ref>记住了它。' } }), ['copy-after-part'])
+  assert.deepEqual(found({ after: { zh: '下一关会用到它。' } }), ['copy-ahead'])
+  assert.deepEqual(found({ brief: { zh: '交出和，因为后面要用。' } }), ['copy-brief-why'])
 })
 
 test('the pedagogy lint: the same board twice whatever its ids, the same prose twice, a bench that slides to green, a quiz', () => {
@@ -197,14 +197,14 @@ test('terminology review inspects both task overrides and glossary bodies throug
     id: 'toy', domain: 'toy', vocabulary: 1, title: t('Toy'), eras: [],
     levels: [{ id: 'a', title: t('A'), tasks: [{ id: 'a', brief: t('Find the point.') }, { id: 'a_2', brief: t('<wiki-ref to="late"></wiki-ref>') }] }],
     glossary: { groups: [], entries: [
-      { id: 'late', group: 'g', at: 'b', title: { zh: '光轴', en: 'Optical axis' }, aliases: ['OA'], body: [t('A geometric line.')] },
+      { id: 'late', group: 'g', at: 'b', title: { zh: '光轴' }, aliases: ['OA'], body: [t('A geometric line.')] },
       { id: 'global', group: 'g', title: t('Camera'), body: [t('Refer to <wiki-ref to="late"></wiki-ref>.')] },
     ] },
   }
   const spec = { course: { before: () => false } }
   const result = reviewTerminology(content, spec, vocabulary)
-  assert.equal(result.failures.filter((f) => f.rule === 'term-unavailable').length, 4)
-  assert.ok(result.failures.some((f) => f.at === 'levels/a.json:tasks.1.brief.en'))
+  assert.equal(result.failures.filter((f) => f.rule === 'term-unavailable').length, 2)
+  assert.ok(result.failures.some((f) => f.at === 'levels/a.json:tasks.1.brief.zh'))
   assert.ok(result.failures.some((f) => f.at === 'glossary.json:entries.1.body.0.zh'))
   assert.equal(result.terms[0].body, content.glossary.entries[0].body)
   assert.equal(result.reports.length, 0, 'aliases and titles are registry metadata, not bare prose')

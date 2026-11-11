@@ -1,34 +1,31 @@
 {
-  "title": { "zh": "算掉弯路", "en": "Computing detours away" },
+  "title": { "zh": "算掉弯路" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "同一句话可以有好几个证明项，有的绕了远路：刚造出一样东西，马上又用掉。⟨p, q⟩.1 先拼后拆，算下来就是 p；框造出的函数马上用在 p 上，算下来是框里的证明，其中的 h 都换成 p。前两段先接出两条这样的弯路。",
-        "en": "One sentence can have several terms, and some go the long way round: something made and at once used up. ⟨p, q⟩.1 joins and splits, and works out to p; a function from a box used on p at once works out to the proof inside, with every h replaced by p. The first two tasks wire two such detours."
+        "zh": "同一句话可以有好几个证明项，有的绕了远路：刚造出一样东西，马上又用掉。⟨p, q⟩.1 先拼后拆，算下来就是 p；框造出的函数马上用在 p 上，算下来是框里的证明，其中的 h 都换成 p。前两段先接出两条这样的弯路。"
       }
     },
     {
       "t": {
-        "zh": "拿掉弯路是一次计算：每一种弯路，核都有一条<b>计算规则</b>，把它换成算下来的样子。后两段证同样的两句，接出算下来的那一个。",
-        "en": "Taking a detour out is a computation: for each kind of detour the kernel has a <b>computation rule</b> that puts what it works out to in its place. The last two tasks prove the same two sentences, wired as what they work out to."
+        "zh": "拿掉弯路是一次计算：每一种弯路，核都有一条<b>计算规则</b>，把它换成算下来的样子。后两段证同样的两句，接出算下来的那一个。"
       }
     }
   ],
   "after": {
-    "zh": "算掉框的这一步叫<wiki-ref to=\"beta\"></wiki-ref>；弯路一处不剩的证明项，叫<wiki-ref to=\"normal-form\"></wiki-ref>。",
-    "en": "Computing a box away is <wiki-ref to=\"beta\"></wiki-ref>; a term with no detour left is in <wiki-ref to=\"normal-form\"></wiki-ref>."
+    "zh": "算掉框的这一步叫<wiki-ref to=\"beta\"></wiki-ref>；弯路一处不剩的证明项，叫<wiki-ref to=\"normal-form\"></wiki-ref>。"
   },
   "tasks": [
     {
       "id": "t-beta_1",
       "kind": "proof",
       "terms": true,
-      "step": { "zh": "套用一个框", "en": "Applying a box" },
+      "step": { "zh": "套用一个框" },
       "tests": [{ "premises": { "p": "A" }, "goal": "A ∧ A", "term": "(fun h => ⟨h, h⟩) p" }],
       "cases": [{ "A": "Rain" }, { "A": "Sat" }],
-      "briefNote": { "zh": "证明项须为 (fun h => ⟨h, h⟩) p。", "en": "Its proof term must be (fun h => ⟨h, h⟩) p." },
-      "hint": [{ "zh": "一个框，框外马上套用在 p 上。", "en": "A box, applied to p right outside it." }],
+      "briefNote": { "zh": "证明项须为 (fun h => ⟨h, h⟩) p。" },
+      "hint": [{ "zh": "一个框，框外马上套用在 p 上。" }],
       "solution": [
         "f = impI[A=A](body: c) {",
         "  body {",
@@ -43,7 +40,7 @@
       "id": "t-beta_2",
       "kind": "proof",
       "terms": true,
-      "step": { "zh": "标签刚贴上就拆", "en": "A tag read at once" },
+      "step": { "zh": "标签刚贴上就拆" },
       "tests": [
         {
           "premises": { "p": "A", "q": "A → C", "r": "B → C" },
@@ -53,13 +50,11 @@
       ],
       "cases": [{ "A": "Rain", "B": "Sat", "C": "Rest" }, { "A": "Coffee", "B": "Tea", "C": "Awake" }],
       "briefNote": {
-        "zh": "证明项须为 (Or.inl p).elim (fun a => q a) (fun b => r b)。",
-        "en": "Its proof term must be (Or.inl p).elim (fun a => q a) (fun b => r b)."
+        "zh": "证明项须为 (Or.inl p).elim (fun a => q a) (fun b => r b)。"
       },
       "hint": [
         {
-          "zh": "先给 p 贴上「左边」的标签，变成一句「或者」，再分情况。",
-          "en": "First tag p as “the left one”, making an “or”, then take cases."
+          "zh": "先给 p 贴上「左边」的标签，变成一句「或者」，再分情况。"
         }
       ],
       "solution": [
@@ -79,11 +74,11 @@
       "id": "t-beta_3",
       "kind": "proof",
       "terms": true,
-      "step": { "zh": "没有弯路的那一个", "en": "The one with no detour" },
+      "step": { "zh": "没有弯路的那一个" },
       "tests": [{ "premises": { "p": "A" }, "goal": "A ∧ A", "term": "⟨p, p⟩" }],
       "cases": [{ "A": "Rain" }, { "A": "Sat" }],
-      "briefNote": { "zh": "证明项须为 ⟨p, p⟩。", "en": "Its proof term must be ⟨p, p⟩." },
-      "hint": [{ "zh": "第一段的框，算下来是什么？", "en": "What does the box of the first task work out to?" }],
+      "briefNote": { "zh": "证明项须为 ⟨p, p⟩。" },
+      "hint": [{ "zh": "第一段的框，算下来是什么？" }],
       "solution": ["c = andI(p, p)", "goal <- c"],
       "naive": [
         "f = impI[A=A](body: c) {",
@@ -99,14 +94,13 @@
       "id": "t-beta_4",
       "kind": "proof",
       "terms": true,
-      "step": { "zh": "只走标签那一支", "en": "Only the tagged branch" },
+      "step": { "zh": "只走标签那一支" },
       "tests": [{ "premises": { "p": "A", "q": "A → C", "r": "B → C" }, "goal": "C", "term": "q p" }],
       "cases": [{ "A": "Rain", "B": "Sat", "C": "Rest" }, { "A": "Coffee", "B": "Tea", "C": "Awake" }],
-      "briefNote": { "zh": "证明项须为 q p。", "en": "Its proof term must be q p." },
+      "briefNote": { "zh": "证明项须为 q p。" },
       "hint": [
         {
-          "zh": "标签是「左边」，分情况只会走左边那一支。",
-          "en": "The tag says “the left one”, so the case split only takes the left branch."
+          "zh": "标签是「左边」，分情况只会走左边那一支。"
         }
       ],
       "solution": ["m = mp(q, p)", "goal <- m"],

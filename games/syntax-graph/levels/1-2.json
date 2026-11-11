@@ -1,7 +1,6 @@
 {
   "title": {
-    "zh": "折起来",
-    "en": "Fold it away"
+    "zh": "折起来"
   },
   "adds": [
     "pp"
@@ -9,54 +8,45 @@
   "intro": [
     {
       "t": {
-        "zh": "主语和谓语之间常常隔着一串词，它们都在说明前面的一个名词。这样的一串叫<wiki-ref to=\"modifier\"></wiki-ref>，被它说明的那个词叫<wiki-ref to=\"head\"></wiki-ref>。",
-        "en": "Between the subject and the verb there is often a run of words, all telling about a noun before them. Such a run is a <wiki-ref to=\"modifier\"></wiki-ref>, and the word it tells about is its <wiki-ref to=\"head\"></wiki-ref>."
+        "zh": "主语和谓语之间常常隔着一串词，它们都在说明前面的一个名词。这样的一串叫<wiki-ref to=\"modifier\"></wiki-ref>，被它说明的那个词叫<wiki-ref to=\"head\"></wiki-ref>。"
       }
     },
     {
       "t": {
-        "zh": "最常见的修饰成分是<wiki-ref to=\"pp\"></wiki-ref>：一个介词带着后面的一串词。选中这一串，折成介词短语，再点它修饰的那个词，它就收成一块，挂在那个词上。",
-        "en": "The commonest modifier is a <wiki-ref to=\"pp\"></wiki-ref>: a preposition and the words after it. Choose the run, fold it as a prepositional phrase, then tap the word it modifies: it becomes one piece hung on that word."
+        "zh": "最常见的修饰成分是<wiki-ref to=\"pp\"></wiki-ref>：一个介词带着后面的一串词。选中这一串，折成介词短语，再点它修饰的那个词，它就收成一块，挂在那个词上。"
       }
     },
     {
       "t": {
-        "zh": "修饰成分折干净以后，剩下的就是主干。不属于主干的词（比如说明程度的副词）留在原处，不用标。",
-        "en": "Once the modifiers are folded away, what is left is the skeleton. Words outside it (an adverb of degree, say) stay where they are, unmarked."
+        "zh": "修饰成分折干净以后，剩下的就是主干。不属于主干的词（比如说明程度的副词）留在原处，不用标。"
       }
     }
   ],
   "debrief": {
     "title": {
-      "zh": "The running time of the algorithm grows quadratically.",
-      "en": "The running time of the algorithm grows quadratically."
+      "zh": "The running time of the algorithm grows quadratically."
     },
     "body": [
       {
-        "zh": "<i>of the algorithm</i> 折起来以后，主干是 <i>The running time grows</i>：算法的运行时间按平方增长。<i>of</i> 短语只回答“谁的”。",
-        "en": "With <i>of the algorithm</i> folded, the skeleton is <i>The running time grows</i>: the algorithm’s running time grows quadratically. The <i>of</i> phrase only answers “whose”."
+        "zh": "<i>of the algorithm</i> 折起来以后，主干是 <i>The running time grows</i>：算法的运行时间按平方增长。<i>of</i> 短语只回答“谁的”。"
       }
     ],
     "note": {
-      "zh": "先把修饰成分折到它的中心词上，主干就露出来了。",
-      "en": "Fold each modifier onto its head, and the skeleton shows."
+      "zh": "先把修饰成分折到它的中心词上，主干就露出来了。"
     }
   },
   "tasks": [
     {
       "id": "1-2",
       "brief": {
-        "zh": "标出主干。挡在中间的修饰成分，先折起来。",
-        "en": "Mark the skeleton. Fold away the modifier that stands in the way first."
+        "zh": "标出主干。挡在中间的修饰成分，先折起来。"
       },
       "hint": [
         {
-          "zh": "动词是哪个？在它前面，是什么在变？",
-          "en": "Which word is the verb? Before it, what is it that changes?"
+          "zh": "动词是哪个？在它前面，是什么在变？"
         },
         {
-          "zh": "“of …”这一串说明的是前面哪个名词？",
-          "en": "Which noun before it does the run “of …” tell about?"
+          "zh": "“of …”这一串说明的是前面哪个名词？"
         }
       ],
       "sentence": "The running time of the algorithm grows quadratically.",
@@ -74,8 +64,7 @@
       "misrole": {
         "subj": {
           "the algorithm": {
-            "zh": "主语若是 <i>the algorithm</i>，句子说的就是“算法在长大”。按平方增长的是运行时间；<i>of the algorithm</i> 只说明是谁的运行时间。",
-            "en": "With <i>the algorithm</i> as the subject, the sentence says the algorithm grows. What grows quadratically is the running time; <i>of the algorithm</i> only says whose."
+            "zh": "主语若是 <i>the algorithm</i>，句子说的就是“算法在长大”。按平方增长的是运行时间；<i>of the algorithm</i> 只说明是谁的运行时间。"
           }
         }
       }

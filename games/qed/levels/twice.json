@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "同一个条件说两遍", "en": "The same condition twice" },
+  "title": { "zh": "同一个条件说两遍" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "「下雨 → (下雨 → 地湿)」把条件「下雨」说了两遍。直觉上，说一遍就够了。",
-        "en": "“it rains → (it rains → the ground is wet)” states the condition “it rains” twice. Surely once is enough."
+        "zh": "「下雨 → (下雨 → 地湿)」把条件「下雨」说了两遍。直觉上，说一遍就够了。"
       }
     }
   ],
@@ -17,8 +16,8 @@
       "tests": [{ "premises": { "p": "A → (A → B)" }, "goal": "A → B" }],
       "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Hungry", "B": "Eat" }],
       "hint": [
-        { "zh": "目标是一句「若下雨，则…」。", "en": "The goal is “if it rains, then …”." },
-        { "zh": "框里的一句假设能用几次？", "en": "How many times can an assumption in a box be used?" }
+        { "zh": "目标是一句「若下雨，则…」。" },
+        { "zh": "框里的一句假设能用几次？" }
       ],
       "solution": [
         "f = impI[A=A](body: m2) {",

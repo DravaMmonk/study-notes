@@ -2,16 +2,13 @@
   "domain": "calculus",
   "vocabulary": 1,
   "title": {
-    "zh": "差分机",
-    "en": "The Difference Engine"
+    "zh": "差分机"
   },
   "kicker": {
-    "zh": "高等数学",
-    "en": "Calculus"
+    "zh": "高等数学"
   },
   "lede": {
-    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出求和与差分，看它们互相撤销；再把「越来越近」拼成电路，判断一个数列、一个级数究竟趋于什么。",
-    "en": "A machine that can only add and multiply computes a term of a sequence each tick. Wire up summing and differencing and watch them undo each other; then wire “getting closer” itself, and judge what a sequence or a series really tends to."
+    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出求和与差分，看它们互相撤销；再把「越来越近」拼成电路，判断一个数列、一个级数究竟趋于什么。"
   },
   "primitives": [
     "add",
@@ -29,12 +26,10 @@
     {
       "id": 0,
       "title": {
-        "zh": "一拍一项",
-        "en": "A term a tick"
+        "zh": "一拍一项"
       },
       "question": {
-        "zh": "只会加和乘，怎样算出数列的任意一项、到这一项为止的和、相邻两项的差？",
-        "en": "With only addition and multiplication, how do you compute any term of a sequence, the sum so far, and the gap between neighbouring terms?"
+        "zh": "只会加和乘，怎样算出数列的任意一项、到这一项为止的和、相邻两项的差？"
       },
       "foundation": [
         "sum3",
@@ -47,12 +42,12 @@
           "parallel": [
             {
               "id": "sums",
-              "title": { "zh": "求和", "en": "Summing" },
+              "title": { "zh": "求和" },
               "levels": ["sum", "tri", "tetra", "dsum"]
             },
             {
               "id": "diffs",
-              "title": { "zh": "差分", "en": "Differencing" },
+              "title": { "zh": "差分" },
               "levels": ["diff", "dsq", "ddsq", "ddouble"]
             }
           ]
@@ -63,21 +58,20 @@
     },
     {
       "id": 1,
-      "title": { "zh": "越来越近", "en": "Getting closer" },
+      "title": { "zh": "越来越近" },
       "question": {
-        "zh": "1/2 + 1/4 + … 加到哪一项都不等于 1：「趋于」一个数究竟是什么意思？",
-        "en": "1/2 + 1/4 + … equals 1 at no term: what exactly does tending to a number mean?"
+        "zh": "1/2 + 1/4 + … 加到哪一项都不等于 1：「趋于」一个数究竟是什么意思？"
       },
       "foundation": [
         {
           "parallel": [
-            { "id": "small", "title": { "zh": "越来越小", "en": "Ever smaller" }, "levels": ["recip", "halves"] },
+            { "id": "small", "title": { "zh": "越来越小" }, "levels": ["recip", "halves"] },
             {
               "id": "close",
-              "title": { "zh": "多近才算近", "en": "How close is close" },
+              "title": { "zh": "多近才算近" },
               "levels": ["max", "dist", "near"]
             },
-            { "id": "since", "title": { "zh": "从此以后", "en": "From then on" }, "levels": ["since"] }
+            { "id": "since", "title": { "zh": "从此以后" }, "levels": ["since"] }
           ]
         },
         "limit",
@@ -90,13 +84,13 @@
       "topics": [
         {
           "id": "e-topic",
-          "title": { "zh": "算出 e", "en": "Computing e" },
+          "title": { "zh": "算出 e" },
           "levels": ["fact", "euler"],
           "after": "series"
         },
         {
           "id": "root-topic",
-          "title": { "zh": "巴比伦开方", "en": "The Babylonian root" },
+          "title": { "zh": "巴比伦开方" },
           "levels": ["babylon", "babylon-fast", "any-root"],
           "after": "limit"
         }

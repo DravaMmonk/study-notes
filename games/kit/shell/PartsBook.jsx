@@ -1,5 +1,5 @@
 import { createElement, useEffect, useState } from 'react'
-import { L, tr } from './i18n.js'
+import { L, sideOf, tr } from './i18n.js'
 import { Lock } from 'lucide-react'
 import Library, { store, useSeen } from './Library.jsx'
 
@@ -67,7 +67,7 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
   const order = (part) => game.levels.indexOf(levelOf(game, part))
   const heading = (chapter) => {
     const kicker = (lang) => (chapter.kicker ? chapter.kicker[lang] ?? chapter.kicker : lang === 'zh' ? `第 ${chapter.number ?? chapter.id} 章` : `Chapter ${chapter.number ?? chapter.id}`)
-    return { zh: `${kicker('zh')} · ${chapter.title?.zh ?? chapter.title}`, en: `${kicker('en')} · ${chapter.title?.en ?? chapter.title}` }
+    return { zh: `${kicker('zh')} · ${chapter.title?.zh ?? chapter.title}`, en: `${kicker('en')} · ${sideOf(chapter.title, 'en')}` }
   }
   const groups = game.chapters.map((chapter) => ({
     id: String(chapter.id),

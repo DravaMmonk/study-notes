@@ -16,6 +16,7 @@ import { NAME as PART_NAME, PARTS_FILE } from '../parts/schema.js'
 import { renameSlot } from '../../pipeline/blueprint.js'
 import { TASK_ID, findTask, newTaskId } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
+import { BASE, mistranslated } from '../i18n.js'
 
 const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal', 'a field’s path: tests[0].goal') })
 const NEW_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('新的关卡 id（也是文件名）', 'a new level id (its file name too)') })
@@ -267,28 +268,40 @@ export const OPERATIONS = {
     },
   },
   'text.set': {
-    about: t('改一段文字的一面或两面（一关、game.json 或百科里的）', 'change one side or both of a text (in a level, game.json or the encyclopedia)'),
-    params: S.obj({ level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary', 'parts'])), path: PATH, zh: S.opt(S.str()), en: S.opt(S.str()) }),
-    apply(ws, { level, in: where, path, zh, en }, { vocabulary }) {
+    about: t('改一段文字（一关、game.json、百科或 parts.json 里的）；译文在覆盖层里，用 i18n.set', 'change a text (in a level, game.json, the encyclopedia or parts.json); its translations are the overlay’s, changed with i18n.set'),
+    params: S.obj({ level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary', 'parts'])), path: PATH, zh: S.str() }),
+    apply(ws, { level, in: where, path, zh }, { vocabulary }) {
       if ((level === undefined) === (where === undefined)) fail('name the text’s file: a level, or in: game, glossary or parts')
       if (where === 'parts' && ws.partDefs === undefined) fail('the game has no parts.json')
-      if (zh === undefined && en === undefined) fail('give zh, en or both')
       const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : where === 'game' ? [ws.game, vocabulary.game] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.glossary, null]
       const keys = parsePath(path)
       const shape = schema && shapeAt(schema, value, keys, { vocabulary })
       if (schema && shape?.type !== 'text') fail(`${showPath(keys)} is not a text`)
       const old = getAt(value, keys)
       if (old === undefined && (where === 'glossary' || where === 'parts')) fail(`${where}.json has no text at ${showPath(keys)}`)
-      const pair = typeof old === 'string' ? { zh: old, en: old } : { ...old }
-      const next = { zh: zh ?? pair.zh, en: en ?? pair.en }
+      const next = { zh }
       const file = level ?? where
-      // The glossary has no field operations: its text goes back as a pair (a string reads the same as a pair of it).
-      const inverse = [where === 'glossary' || where === 'parts' ? { op: 'text.set', in: where, path: keys, ...(typeof old === 'string' ? { zh: old, en: old } : old) } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
+      // The glossary and parts.json have no field operations: their text goes back as a text.
+      const inverse = [where === 'glossary' || where === 'parts' ? { op: 'text.set', in: where, path: keys, zh: typeof old === 'string' ? old : old.zh } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
       if (level !== undefined) setLevel(ws, level, keys, next, vocabulary)
       else if (where === 'game') ws.game = setAt(ws.game, keys, next)
       else if (where === 'parts') ws.partDefs = setAt(ws.partDefs, keys, next, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
       else ws.glossary = setAt(ws.glossary, keys, next)
-      return { says: `${file}: ${showPath(keys)} reads ${[zh !== undefined && 'zh', en !== undefined && 'en'].filter(Boolean).join(' and ')} anew`, inverse }
+      return { says: `${file}: ${showPath(keys)} reads anew`, inverse }
+    },
+  },
+  'i18n.set': {
+    about: t('写一条译文：一段原文在某种语言里怎么说（不给 to 就去掉这一条）', 'write a translation: how a base text reads in a language (no `to` removes the entry)'),
+    params: S.obj({ lang: S.str({ pattern: '^[a-z]{2}(-[A-Za-z]+)?$' }), from: S.str(), to: S.opt(S.str()) }),
+    apply(ws, { lang, from, to }) {
+      if (lang === BASE) fail(`${BASE} is the language content is written in: change the text itself (text.set)`)
+      const memory = ws.i18n[lang] ?? {}
+      const old = memory[from]
+      if (to === undefined && old === undefined) fail(`i18n/${lang}.json has no entry for that text`)
+      if (to !== undefined && mistranslated(from, to)) fail(`the translation ${mistranslated(from, to)}`)
+      const { [from]: _, ...rest } = memory
+      ws.i18n = { ...ws.i18n, [lang]: to === undefined ? rest : { ...memory, [from]: to } }
+      return { says: `i18n/${lang}: ${to === undefined ? 'dropped' : old === undefined ? 'translated' : 'retranslated'} ${JSON.stringify(from.slice(0, 30))}`, inverse: [{ op: 'i18n.set', lang, from, ...(old !== undefined && { to: old }) }] }
     },
   },
   'glossary.presentation': {

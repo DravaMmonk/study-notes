@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "证明助手来证", "en": "Let the proof assistant prove it" },
+  "title": { "zh": "证明助手来证" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"q-ancestor\"></level-ref>和<level-ref to=\"s-carroll\"></level-ref>都亲手证过，这一次交给证明助手。",
-        "en": "<level-ref to=\"q-ancestor\"></level-ref> and <level-ref to=\"s-carroll\"></level-ref> were proved by hand; this time, hand them to the proof assistant."
+        "zh": "<level-ref to=\"q-ancestor\"></level-ref>和<level-ref to=\"s-carroll\"></level-ref>都亲手证过，这一次交给证明助手。"
       }
     }
   ],
@@ -14,7 +13,7 @@
       "id": "au-machine",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         { "goal": "Anc(i, k)", "hyps": ["∀x. ∀y. ∀z. Anc(x, y) ∧ Anc(y, z) → Anc(x, z)", "Anc(i, j)", "Anc(j, k)"] },
@@ -25,10 +24,9 @@
         { "goal": "Flies(i)", "hyps": ["∀x. Bird(x) → Flies(x)", "Bird(j)"], "want": "fails" }
       ],
       "brief": {
-        "zh": "设计一个证明助手：推得出的目标证出来，推不出的报告失败。",
-        "en": "Design a proof assistant that proves the goals that follow and reports failure on those that do not."
+        "zh": "设计一个证明助手：推得出的目标证出来，推不出的报告失败。"
       },
-      "hint": [{ "zh": "<part-ref to=\"lemma:metis\"></part-ref>。", "en": "<part-ref to=\"lemma:metis\"></part-ref>." }],
+      "hint": [{ "zh": "<part-ref to=\"lemma:metis\"></part-ref>。" }],
       "solution": ["c0 = metis(in)", "out <- c0"]
     }
   ]

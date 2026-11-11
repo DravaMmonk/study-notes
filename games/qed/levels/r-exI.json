@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "逆用概括", "en": "Generalise, backwards" },
+  "title": { "zh": "逆用概括" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"part:exI\"></part-ref>写成规则是 ⟦?P(?t)⟧ ⟹ ∃x. ?P(x)。?t 是代表一样东西的元变量：倒着用时，例子无法从目标读出，?t 就留着。<level-ref to=\"q-exI\"></level-ref>里，有几句「存在」时要在元件上选得出哪一句；倒着用规则，目标自己就说明了。",
-        "en": "<part-ref to=\"part:exI\"></part-ref> as a rule is ⟦?P(?t)⟧ ⟹ ∃x. ?P(x). ?t is a metavariable for a thing: used backwards, the example cannot be read off the goal, so ?t is left open. In <level-ref to=\"q-exI\"></level-ref>, with several “there is” sentences, you chose on the part which to conclude; with a rule used backwards, the goal says so itself."
+        "zh": "<part-ref to=\"part:exI\"></part-ref>写成规则是 ⟦?P(?t)⟧ ⟹ ∃x. ?P(x)。?t 是代表一样东西的元变量：倒着用时，例子无法从目标读出，?t 就留着。<level-ref to=\"q-exI\"></level-ref>里，有几句「存在」时要在元件上选得出哪一句；倒着用规则，目标自己就说明了。"
       }
     }
   ],
@@ -14,14 +13,14 @@
       "id": "r-exI",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "tests": [
         { "goal": "∃x. Human(x) ∧ Likes(x, i)", "hyps": ["Human(j)", "Likes(j, i)"] },
         { "goal": "∃x. Bird(x) ∧ Flies(x)", "hyps": ["Flies(k)", "Bird(k)"] },
         { "goal": "∃y. Student(y) ∧ School(y)", "hyps": ["Student(l)", "School(l)"] }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "例子是谁，交给已知去定。", "en": "Who the example is, leave to a given." }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "例子是谁，交给已知去定。" }],
       "solution": [
         "c0r0 = exI()",
         "c1r0 = andI()",

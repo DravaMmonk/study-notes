@@ -30,9 +30,9 @@ const VOCAB = defineVocabulary({
   }),
 })
 const LEVELS = [
-  { id: 'a', kind: 'board', title: { zh: '甲', en: 'A' }, adds: ['add'], tests: [1, 2], hidden: [3], solution: [] },
-  { id: 'b', kind: 'board', title: { zh: '乙', en: 'Bee' }, n: 2, tests: [1], solution: [] },
-  { id: 'c', kind: 'hand', title: { zh: '丙', en: 'C' }, moves: [] },
+  { id: 'a', kind: 'board', title: { zh: '甲' }, adds: ['add'], tests: [1, 2], hidden: [3], solution: [] },
+  { id: 'b', kind: 'board', title: { zh: '乙' }, n: 2, tests: [1], solution: [] },
+  { id: 'c', kind: 'hand', title: { zh: '丙' }, moves: [] },
 ]
 
 test('bulk edits are one operation a level, and the levels an edit does not fit are skipped with the reason', () => {
@@ -42,7 +42,7 @@ test('bulk edits are one operation a level, and the levels an edit does not fit 
     ops: [{ op: 'level.set', level: 'a', path: ['n'], value: 2 }],
     skipped: [{ level: 'b', why: 'holds that already' }, { level: 'c', why: 'has no such field' }],
   })
-  assert.deepEqual(bulkSet(VOCAB, LEVELS.slice(0, 1), ['note'], { zh: '注', en: 'Note' }).ops, [{ op: 'text.set', level: 'a', path: ['note'], zh: '注', en: 'Note' }])
+  assert.deepEqual(bulkSet(VOCAB, LEVELS.slice(0, 1), ['note'], { zh: '注' }).ops, [{ op: 'text.set', level: 'a', path: ['note'], zh: '注' }])
   assert.deepEqual(bulkSet(VOCAB, LEVELS.slice(0, 1), ['solution'], ['x = add()']).ops, [{ op: 'level.blueprint', level: 'a', path: ['solution'], text: 'x = add()' }])
   assert.deepEqual(bulkUnset(LEVELS, ['n']), { ops: [{ op: 'level.unset', level: 'b', path: ['n'] }], skipped: [{ level: 'a', why: 'has none' }, { level: 'c', why: 'has none' }] })
   assert.deepEqual(bulkPatch(LEVELS.slice(0, 2), { n: 2, note: null }).ops, [{ op: 'level.patch', level: 'a', fields: { n: 2, note: null } }])
@@ -78,20 +78,20 @@ test('on every starter: a bulk edit of its first era’s levels runs as a change
     const ids = eraLevels(content.eras[0])
     const levels = ids.map((id) => content.levels.find((l) => l.id === id))
     // A text every level of the era holds: the title, which every vocabulary gives a level.
-    const { ops, skipped } = bulkSet(vocabulary, levels, ['title'], { zh: '同一个标题', en: 'One title' })
+    const { ops, skipped } = bulkSet(vocabulary, levels, ['title'], { zh: '同一个标题' })
     assert.deepEqual([ops.length, skipped], [ids.length, []], d)
     // The era's levels backwards, from the top of its main path: they end up together, in that order.
     const moved = bulkMove([...ids].reverse(), { era: content.eras[0].id, path: 'foundation', at: 0 })
     const r = await runChangeset(ws, { ops: [...ops, ...moved] }, { write: false, check: false })
     assert.equal(r.failed, null, `${d}: ${r.problems.join('\n')}`)
     assert.deepEqual(eraLevels(r.content.eras[0]), [...ids].reverse(), d)
-    assert.ok(ids.every((id) => r.content.levels.find((l) => l.id === id).title.en === 'One title'), d)
+    assert.ok(ids.every((id) => r.content.levels.find((l) => l.id === id).title.zh === '同一个标题'), d)
   }
 })
 
 const CONTENT = {
-  id: 'toy', title: { zh: '玩具', en: 'Toy' }, eras: [{ id: 1, title: { zh: '第一章', en: 'One' }, foundation: ['a', 'b'] }],
-  levels: LEVELS, glossary: { groups: [], entries: [{ id: 'adder', title: { zh: '加法器', en: 'adder' }, body: [] }] },
+  id: 'toy', title: { zh: '玩具' }, eras: [{ id: 1, title: { zh: '第一章' }, foundation: ['a', 'b'] }],
+  levels: LEVELS, glossary: { groups: [], entries: [{ id: 'adder', title: { zh: '加法器' }, body: [] }] },
 }
 
 test('the palette indexes levels, eras, fields, entries, findings, recent fields and actions, and ranks them as typed', () => {
@@ -101,10 +101,9 @@ test('the palette indexes levels, eras, fields, entries, findings, recent fields
     recent: [{ level: 'a', path: 'title' }], actions: [{ id: 'search', label: 'Search and replace', keys: 'Ctrl+Shift+F' }], lang: 'en',
   })
   assert.deepEqual(items.map((it) => it.kind), ['recent', 'action', 'level', 'level', 'level', 'era', 'field', 'field', 'field', 'entry', 'finding'])
-  assert.deepEqual(items.filter((it) => it.kind === 'level').map((it) => it.label), ['1-1 Bee', '1-2 A', '1-3 C'], 'levels in play order, by their number on the map')
+  assert.deepEqual(items.filter((it) => it.kind === 'level').map((it) => it.label), ['1-1 乙', '1-2 甲', '1-3 丙'], 'levels in play order, by their number on the map')
   assert.equal(items.find((it) => it.kind === 'finding').finding.rule, 'domain', 'passing lines are not findings')
-  assert.equal(rankPalette(items, 'bee')[0].level, 'b')
-  assert.equal(rankPalette(items, '乙')[0].level, 'b', 'found by the other side’s title')
+  assert.equal(rankPalette(items, '乙')[0].level, 'b')
   assert.equal(rankPalette(items, '1-3')[0].level, 'c')
   assert.equal(rankPalette(items, 'adder')[0].kind, 'entry')
   assert.deepEqual(rankPalette(items, '>').map((it) => it.kind), ['action'])

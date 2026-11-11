@@ -1,29 +1,25 @@
 {
-  "title": { "zh": "5×5 平均", "en": "A 5×5 average" },
+  "title": { "zh": "5×5 平均" },
   "tray": "pipeline",
   "after": {
-    "zh": "两格的和挪两格再加一次，就是四格的和；再补一格就是五格。已经算过的部分和，挪一挪就能再用，平移不花计算量。这个「倍增」的想法以后还会出现：要的范围越大，省得越多。",
-    "en": "The sum of two cells, shifted two along and added again, is the sum of four; one more cell makes five. A partial sum already worked out can be shifted and reused, and shifting costs nothing. This doubling idea will come up again: the bigger the reach, the more it saves."
+    "zh": "两格的和挪两格再加一次，就是四格的和；再补一格就是五格。已经算过的部分和，挪一挪就能再用，平移不花计算量。这个「倍增」的想法以后还会出现：要的范围越大，省得越多。"
   },
   "intro": [
     {
       "t": {
-        "zh": "这是一道挑战关，可以跳过。它不需要新元件。",
-        "en": "This is a challenge level, and you can skip it. It needs no new parts."
+        "zh": "这是一道挑战关，可以跳过。它不需要新元件。"
       }
     },
     {
       "t": {
-        "zh": "5×5 的平均要把 25 格加起来。像方块模糊那样先横后竖，计算量是 10，这一关只给 8。测试图四周都留着一圈黑边。",
-        "en": "A 5×5 average adds up 25 cells. Splitting it into across and down, as with the box blur, costs 10, and this level allows only 8. Every test picture has a dark margin all round."
+        "zh": "5×5 的平均要把 25 格加起来。像方块模糊那样先横后竖，计算量是 10，这一关只给 8。测试图四周都留着一圈黑边。"
       }
     },
     {
       "t": {
-        "zh": "要想的问题：平移不花计算量，只有加法和乘法才花。",
-        "en": "Something to think about: shifting costs nothing; only additions and multiplications do."
+        "zh": "要想的问题：平移不花计算量，只有加法和乘法才花。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组测试：方块和它的 5×5 平均", "en": "Set 1: a square and its 5×5 average" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：方块和它的 5×5 平均" } }
     }
   ],
   "tasks": [
@@ -31,31 +27,29 @@
       "id": "1-12",
       "kind": "graph",
       "brief": {
-        "zh": "每个像素换成它周围 5×5 共 25 格的平均。计算量不能超过 8。",
-        "en": "Replace each pixel with the average of the 25 cells in the 5×5 block around it. The cost must not exceed 8."
+        "zh": "每个像素换成它周围 5×5 共 25 格的平均。计算量不能超过 8。"
       },
       "hint": {
-        "zh": "先横后竖还不够省。数一数电路里有几次加法；平移不花计算量。",
-        "en": "Splitting into across and down is not cheap enough. Count the additions in your circuit; shifting costs nothing."
+        "zh": "先横后竖还不够省。数一数电路里有几次加法；平移不花计算量。"
       },
       "constraint": { "cost": { "max": 8 } },
       "scene": "filter",
       "setup": { "target": { "box": { "size": 5 } } },
       "tests": [
-        { "label": { "zh": "方块", "en": "Square" }, "in": { "square": { "x0": 4, "y0": 4, "s": 8, "lo": 0, "hi": 0.9 } } },
-        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } },
+        { "label": { "zh": "方块" }, "in": { "square": { "x0": 4, "y0": 4, "s": 8, "lo": 0, "hi": 0.9 } } },
+        { "label": { "zh": "亮点" }, "in": { "impulse": { "x": 7, "y": 7 } } },
         {
-          "label": { "zh": "字母 T", "en": "Letter T" },
+          "label": { "zh": "字母 T" },
           "in": { "glyph": { "letter": "T", "lo": 0, "hi": 0.9, "ox": 5, "oy": 5, "scale": 1 } }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "圆盘", "en": "Disc" },
+          "label": { "zh": "圆盘" },
           "in": { "disk": { "cx": 7.5, "cy": 7.5, "r": 3.5, "lo": 0, "hi": 0.9 } }
         },
         {
-          "label": { "zh": "随机纹理", "en": "Random texture" },
+          "label": { "zh": "随机纹理" },
           "in": { "margined": { "of": { "noise": { "seed": 24 } }, "width": 4 } }
         }
       ],

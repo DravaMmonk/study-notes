@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "隔多少代都行", "en": "Any number of generations" },
+  "title": { "zh": "隔多少代都行" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "祖先是父母，或者父母的祖先：规则用到了它自己。",
-        "en": "An ancestor is a parent, or a parent’s ancestor: the rule uses itself."
+        "zh": "祖先是父母，或者父母的祖先：规则用到了它自己。"
       }
     }
   ],
@@ -14,16 +13,16 @@
       "id": "pl-anc",
       "kind": "machine",
       "want": "answers",
-      "inputs": [{ "name": "in", "label": { "zh": "问题", "en": "Question" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "问题" } }],
       "backtrack": true,
       "rules": {
         "anc1": {
-          "name": { "zh": "祖先·一代", "en": "Ancestor: one generation" },
+          "name": { "zh": "祖先·一代" },
           "premises": ["Parent(?x, ?y)"],
           "conclusion": "Anc(?x, ?y)"
         },
         "anc2": {
-          "name": { "zh": "祖先·多代", "en": "Ancestor: more" },
+          "name": { "zh": "祖先·多代" },
           "premises": ["Parent(?x, ?y)", "Anc(?y, ?z)"],
           "conclusion": "Anc(?x, ?z)"
         }
@@ -40,8 +39,8 @@
           "answers": ["i", "j", "l", "n"]
         }
       ],
-      "brief": { "zh": "设计一个证明助手，找出每个问题的所有答案。", "en": "Design a proof assistant that finds every answer to each question." },
-      "hint": [{ "zh": "隔几代，证明就有多长。", "en": "As many generations, so long is the proof." }],
+      "brief": { "zh": "设计一个证明助手，找出每个问题的所有答案。" },
+      "hint": [{ "zh": "隔几代，证明就有多长。" }],
       "solution": [
         "c0 = search(in, body: c1) {",
         "  body {",

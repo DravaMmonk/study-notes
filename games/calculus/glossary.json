@@ -1,19 +1,17 @@
 {
-  "groups": [{ "id": "sequences", "title": { "zh": "数列", "en": "Sequences" } }],
+  "groups": [{ "id": "sequences", "title": { "zh": "数列" } }],
   "entries": [
     {
       "id": "sequence",
       "group": "sequences",
-      "title": { "zh": "数列", "en": "sequence" },
+      "title": { "zh": "数列" },
       "at": "sum3",
       "body": [
         {
-          "zh": "按顺序排好的一串数 a₀, a₁, a₂, …，第 n 个叫第 n 项，n 叫下标。这台机器第 n 拍算出第 n 项，所以拍数就是下标，从 0 数起。",
-          "en": "Numbers in order, a₀, a₁, a₂, …; the n-th is called term n, and n is its index. This machine computes term n at tick n, so the tick is the index, counted from 0."
+          "zh": "按顺序排好的一串数 a₀, a₁, a₂, …，第 n 个叫第 n 项，n 叫下标。这台机器第 n 拍算出第 n 项，所以拍数就是下标，从 0 数起。"
         },
         {
-          "zh": "两个数列逐项相加（或相乘），得到的仍是数列：它的第 n 项只取决于两者的第 n 项。",
-          "en": "Adding (or multiplying) two sequences term by term gives a sequence again: its n-th term depends only on their n-th terms."
+          "zh": "两个数列逐项相加（或相乘），得到的仍是数列：它的第 n 项只取决于两者的第 n 项。"
         }
       ],
       "see": ["index"]
@@ -21,12 +19,11 @@
     {
       "id": "shift",
       "group": "sequences",
-      "title": { "zh": "下标平移", "en": "index shift" },
+      "title": { "zh": "下标平移" },
       "at": "prev",
       "body": [
         {
-          "zh": "把数列整体挪一项：aₙ₋₁ 在第 n 拍交出原数列的第 n − 1 项，第一拍交出约定的初值。它让一项能用上前一项。",
-          "en": "Moving a sequence along by a term: aₙ₋₁ gives term n − 1 of the original at tick n, and an agreed start value on the first tick. It lets a term use the one before."
+          "zh": "把数列整体挪一项：aₙ₋₁ 在第 n 拍交出原数列的第 n − 1 项，第一拍交出约定的初值。它让一项能用上前一项。"
         }
       ],
       "see": ["recurrence"]
@@ -34,16 +31,14 @@
     {
       "id": "recurrence",
       "group": "sequences",
-      "title": { "zh": "递推", "en": "recurrence" },
+      "title": { "zh": "递推" },
       "at": "arith",
       "body": [
         {
-          "zh": "用首项和「怎样由上一项算出这一项」来给出数列，例如 a₀ = 3，aₙ = aₙ₋₁ + 2。有限的一条规则，定出无穷多项。",
-          "en": "Giving a sequence by its first term and how each term comes from the one before, e.g. a₀ = 3, aₙ = aₙ₋₁ + 2. One finite rule fixes infinitely many terms."
+          "zh": "用首项和「怎样由上一项算出这一项」来给出数列，例如 a₀ = 3，aₙ = aₙ₋₁ + 2。有限的一条规则，定出无穷多项。"
         },
         {
-          "zh": "在板上，首项是读寄存卡的初值，规则是接进存寄存卡的那段电路。",
-          "en": "On the board, the first term is a register’s start value, and the rule is the circuit wired into its keep."
+          "zh": "在板上，首项是读寄存卡的初值，规则是接进存寄存卡的那段电路。"
         }
       ],
       "see": ["shift", "arithmetic", "geometric"]
@@ -51,12 +46,11 @@
     {
       "id": "arithmetic",
       "group": "sequences",
-      "title": { "zh": "等差数列", "en": "arithmetic sequence" },
+      "title": { "zh": "等差数列" },
       "at": "arith",
       "body": [
         {
-          "zh": "每一项比上一项多同一个数（公差 d）：aₙ = aₙ₋₁ + d，通项 aₙ = a₀ + n·d。",
-          "en": "Each term is the one before plus the same number, the common difference d: aₙ = aₙ₋₁ + d, with general term aₙ = a₀ + n·d."
+          "zh": "每一项比上一项多同一个数（公差 d）：aₙ = aₙ₋₁ + d，通项 aₙ = a₀ + n·d。"
         }
       ],
       "see": ["geometric"]
@@ -64,12 +58,11 @@
     {
       "id": "index",
       "group": "sequences",
-      "title": { "zh": "下标", "en": "index" },
+      "title": { "zh": "下标" },
       "at": "count",
       "body": [
         {
-          "zh": "一项在数列里的位置 n。下标本身也是数列 0, 1, 2, …：首项 0、每项加 1 的递推。通项公式以它为自变量。",
-          "en": "A term’s place n in the sequence. The indices themselves form a sequence, 0, 1, 2, …: the recurrence starting at 0 and adding 1. A general term takes it as its variable."
+          "zh": "一项在数列里的位置 n。下标本身也是数列 0, 1, 2, …：首项 0、每项加 1 的递推。通项公式以它为自变量。"
         }
       ],
       "see": ["general-term"]
@@ -77,16 +70,14 @@
     {
       "id": "general-term",
       "group": "sequences",
-      "title": { "zh": "通项公式", "en": "general term" },
+      "title": { "zh": "通项公式" },
       "at": "square",
       "body": [
         {
-          "zh": "把第 n 项直接写成 n 的式子 aₙ = f(n)，例如 aₙ = n²。它不经过前面的项，任何一项都能单独算出。",
-          "en": "The n-th term written straight as an expression in n, aₙ = f(n), such as aₙ = n². It goes through none of the terms before, so any term can be computed on its own."
+          "zh": "把第 n 项直接写成 n 的式子 aₙ = f(n)，例如 aₙ = n²。它不经过前面的项，任何一项都能单独算出。"
         },
         {
-          "zh": "同一个数列常常既有递推又有通项：等差数列 aₙ = aₙ₋₁ + 2 也就是 aₙ = 3 + 2n。",
-          "en": "One sequence often has both a recurrence and a general term: aₙ = aₙ₋₁ + 2 starting at 3 is also aₙ = 3 + 2n."
+          "zh": "同一个数列常常既有递推又有通项：等差数列 aₙ = aₙ₋₁ + 2 也就是 aₙ = 3 + 2n。"
         }
       ],
       "see": ["recurrence"]
@@ -94,12 +85,11 @@
     {
       "id": "geometric",
       "group": "sequences",
-      "title": { "zh": "等比数列", "en": "geometric sequence" },
+      "title": { "zh": "等比数列" },
       "at": "double",
       "body": [
         {
-          "zh": "每一项是上一项乘同一个数（公比 r）：aₙ = r·aₙ₋₁，通项 aₙ = a₀·rⁿ。r > 1 时它比任何等差数列长得都快。",
-          "en": "Each term is the one before times the same number, the ratio r: aₙ = r·aₙ₋₁, with general term aₙ = a₀·rⁿ. With r > 1 it outgrows every arithmetic sequence."
+          "zh": "每一项是上一项乘同一个数（公比 r）：aₙ = r·aₙ₋₁，通项 aₙ = a₀·rⁿ。r > 1 时它比任何等差数列长得都快。"
         }
       ],
       "see": ["arithmetic"]
@@ -107,16 +97,14 @@
     {
       "id": "partial-sum",
       "group": "sequences",
-      "title": { "zh": "部分和", "en": "partial sum" },
+      "title": { "zh": "部分和" },
       "at": "sum",
       "body": [
         {
-          "zh": "数列到第 n 项为止的和 Sₙ = a₀ + a₁ + … + aₙ。部分和本身是数列，由递推 Sₙ = Sₙ₋₁ + aₙ 算出：寄存卡里只需记着到上一项为止的和。",
-          "en": "The sum of a sequence up to term n, Sₙ = a₀ + a₁ + … + aₙ. The partial sums form a sequence, made by the recurrence Sₙ = Sₙ₋₁ + aₙ: a register need only hold the sum up to the term before."
+          "zh": "数列到第 n 项为止的和 Sₙ = a₀ + a₁ + … + aₙ。部分和本身是数列，由递推 Sₙ = Sₙ₋₁ + aₙ 算出：寄存卡里只需记着到上一项为止的和。"
         },
         {
-          "zh": "把一个数列的各项一直加下去叫级数；级数是什么，就看它的部分和这个数列。",
-          "en": "Adding up all the terms of a sequence is a series; what a series is, is told by the sequence of its partial sums."
+          "zh": "把一个数列的各项一直加下去叫级数；级数是什么，就看它的部分和这个数列。"
         }
       ],
       "see": ["difference", "inverse"]
@@ -124,16 +112,14 @@
     {
       "id": "difference",
       "group": "sequences",
-      "title": { "zh": "差分", "en": "difference" },
+      "title": { "zh": "差分" },
       "at": "diff",
       "body": [
         {
-          "zh": "Δaₙ = aₙ − aₙ₋₁：数列每一步变了多少（这里约定 a₋₁ = 0）。变大为正，变小为负，不变为 0。",
-          "en": "Δaₙ = aₙ − aₙ₋₁: how much a sequence changes at each step (taking a₋₁ = 0 here). Positive as it grows, negative as it shrinks, 0 where it stays."
+          "zh": "Δaₙ = aₙ − aₙ₋₁：数列每一步变了多少（这里约定 a₋₁ = 0）。变大为正，变小为负，不变为 0。"
         },
         {
-          "zh": "多项式的数列每差分一次降一次：平方数差一次是奇数，再差一次是常数。",
-          "en": "A polynomial sequence drops a degree each time it is differenced: the squares difference to the odd numbers, and again to a constant."
+          "zh": "多项式的数列每差分一次降一次：平方数差一次是奇数，再差一次是常数。"
         }
       ],
       "see": ["partial-sum", "inverse"]
@@ -141,16 +127,14 @@
     {
       "id": "inverse",
       "group": "sequences",
-      "title": { "zh": "求和与差分互逆", "en": "summation and difference are inverse" },
+      "title": { "zh": "求和与差分互逆" },
       "at": "inverse",
       "body": [
         {
-          "zh": "先累加再差分，或先差分再累加，都回到原数列（约定 a₋₁ = 0、和从 0 起）。所以只知道一个数列的差分，或只知道它的部分和，都能把它找回来。",
-          "en": "Summing then differencing, or differencing then summing, gives back the sequence (with a₋₁ = 0 and sums starting from 0). So a sequence can be recovered from its differences alone, or from its partial sums alone."
+          "zh": "先累加再差分，或先差分再累加，都回到原数列（约定 a₋₁ = 0、和从 0 起）。所以只知道一个数列的差分，或只知道它的部分和，都能把它找回来。"
         },
         {
-          "zh": "这是微积分基本定理的离散形式：在连续的世界里，求和变成积分，差分变成导数。",
-          "en": "This is the discrete form of the fundamental theorem of calculus: in the continuous world, summing becomes integration and differencing becomes differentiation."
+          "zh": "这是微积分基本定理的离散形式：在连续的世界里，求和变成积分，差分变成导数。"
         }
       ],
       "see": ["partial-sum", "difference"]
@@ -158,12 +142,11 @@
     {
       "id": "infinitesimal",
       "group": "sequences",
-      "title": { "zh": "无穷小", "en": "infinitesimal" },
+      "title": { "zh": "无穷小" },
       "at": "recip",
       "body": [
         {
-          "zh": "越来越接近 0 的数列，如 1/(n+1)、1/2ⁿ：每一项都不是 0，却能小过任何给定的正数。它不是一个很小的数，而是一个数列的走向。",
-          "en": "A sequence closing in on 0, such as 1/(n+1) or 1/2ⁿ: no term is 0, yet it gets smaller than any positive number named. It is not a very small number but the way a sequence goes."
+          "zh": "越来越接近 0 的数列，如 1/(n+1)、1/2ⁿ：每一项都不是 0，却能小过任何给定的正数。它不是一个很小的数，而是一个数列的走向。"
         }
       ],
       "see": ["limit"]
@@ -171,12 +154,11 @@
     {
       "id": "inequality",
       "group": "sequences",
-      "title": { "zh": "比较", "en": "comparison" },
+      "title": { "zh": "比较" },
       "at": "max",
       "body": [
         {
-          "zh": "a < b 的真假写成 1 和 0，就是一个数列。乘上去，就能在两个数里挑一个：max(a, b) = a + [a < b]·(b − a)，方括号是真为 1、假为 0。",
-          "en": "Writing whether a < b as 1 or 0 gives a sequence. Multiplied in, it picks one of two numbers: max(a, b) = a + [a < b]·(b − a), where the bracket is 1 when true and 0 when false."
+          "zh": "a < b 的真假写成 1 和 0，就是一个数列。乘上去，就能在两个数里挑一个：max(a, b) = a + [a < b]·(b − a)，方括号是真为 1、假为 0。"
         }
       ],
       "see": ["distance"]
@@ -184,12 +166,11 @@
     {
       "id": "distance",
       "group": "sequences",
-      "title": { "zh": "距离", "en": "distance" },
+      "title": { "zh": "距离" },
       "at": "dist",
       "body": [
         {
-          "zh": "|a − b|：数轴上两点隔多远，不看谁在左边。它是 a − b 和 b − a 里较大的那个，从不为负，只在 a = b 时为 0。",
-          "en": "|a − b|: how far apart two points of the number line are, whichever is on the left. It is the larger of a − b and b − a, never negative, and 0 only when a = b."
+          "zh": "|a − b|：数轴上两点隔多远，不看谁在左边。它是 a − b 和 b − a 里较大的那个，从不为负，只在 a = b 时为 0。"
         }
       ],
       "see": ["neighbourhood"]
@@ -197,12 +178,11 @@
     {
       "id": "neighbourhood",
       "group": "sequences",
-      "title": { "zh": "邻域", "en": "neighbourhood" },
+      "title": { "zh": "邻域" },
       "at": "near",
       "body": [
         {
-          "zh": "离 L 不到 ε 的所有数，|x − L| < ε，叫 L 的 ε 邻域。ε 是事先说好的「多近才算近」，取多小都可以，但必须大于 0。",
-          "en": "Every number less than ε from L, |x − L| < ε, is L’s ε-neighbourhood. ε is the agreed answer to how close counts as close: as small as you like, but above 0."
+          "zh": "离 L 不到 ε 的所有数，|x − L| < ε，叫 L 的 ε 邻域。ε 是事先说好的「多近才算近」，取多小都可以，但必须大于 0。"
         }
       ],
       "see": ["distance", "limit"]
@@ -210,12 +190,11 @@
     {
       "id": "eventually",
       "group": "sequences",
-      "title": { "zh": "从某项起", "en": "eventually" },
+      "title": { "zh": "从某项起" },
       "at": "since",
       "body": [
         {
-          "zh": "一件事从某一项起一直成立，前面有几项不成立也不要紧。板只跑有限拍：在这些拍以内，那一项就是最近一段连续成立的开头。",
-          "en": "Something holding from some term on, whatever the terms before it did. The board runs finitely many ticks: within them, that term is where the latest unbroken stretch began."
+          "zh": "一件事从某一项起一直成立，前面有几项不成立也不要紧。板只跑有限拍：在这些拍以内，那一项就是最近一段连续成立的开头。"
         }
       ],
       "see": ["limit"]
@@ -223,16 +202,14 @@
     {
       "id": "limit",
       "group": "sequences",
-      "title": { "zh": "极限", "en": "limit" },
+      "title": { "zh": "极限" },
       "at": "limit",
       "body": [
         {
-          "zh": "数列 aₙ 趋于 L：不管 ε 多小，总有一项 N，从它起每一项都在 L 的 ε 邻域里。L 叫数列的极限，记作 lim aₙ = L。",
-          "en": "aₙ tends to L: however small ε is, there is a term N from which every term lies in L’s ε-neighbourhood. L is the sequence’s limit, written lim aₙ = L."
+          "zh": "数列 aₙ 趋于 L：不管 ε 多小，总有一项 N，从它起每一项都在 L 的 ε 邻域里。L 叫数列的极限，记作 lim aₙ = L。"
         },
         {
-          "zh": "这个定义不要求哪一项等于 L，也不要求越来越近；只要求「从某项起一直够近」，而「够近」由别人随便挑。机器只能跑有限拍，所以它找到的 N 只在这些拍以内成立，不是证明。",
-          "en": "The definition asks no term to equal L, nor the terms to keep getting closer; only that from some term on they stay close enough, with “enough” chosen by someone else. The machine runs finitely many ticks, so the N it finds holds within them only and proves nothing."
+          "zh": "这个定义不要求哪一项等于 L，也不要求越来越近；只要求「从某项起一直够近」，而「够近」由别人随便挑。机器只能跑有限拍，所以它找到的 N 只在这些拍以内成立，不是证明。"
         }
       ],
       "see": ["neighbourhood", "eventually", "divergence"]
@@ -240,12 +217,11 @@
     {
       "id": "divergence",
       "group": "sequences",
-      "title": { "zh": "发散", "en": "divergence" },
+      "title": { "zh": "发散" },
       "at": "diverge",
       "body": [
         {
-          "zh": "找不到任何 L 让数列趋于它，数列就发散。(−1)ⁿ 从不跑远，仍然发散：不管 L 取几，ε 取 1/2，N 总被往后推。",
-          "en": "A sequence diverges when there is no L it tends to. (−1)ⁿ never wanders off and still diverges: whatever L is, with ε = 1/2, N keeps being pushed back."
+          "zh": "找不到任何 L 让数列趋于它，数列就发散。(−1)ⁿ 从不跑远，仍然发散：不管 L 取几，ε 取 1/2，N 总被往后推。"
         }
       ],
       "see": ["limit"]
@@ -253,12 +229,11 @@
     {
       "id": "series",
       "group": "sequences",
-      "title": { "zh": "级数收敛", "en": "convergent series" },
+      "title": { "zh": "级数收敛" },
       "at": "series",
       "body": [
         {
-          "zh": "无穷多项 a₀ + a₁ + … 相加的值，定义为部分和 Sₙ 的极限。部分和有极限，就说级数收敛，那个极限就是它的和：1 + 1/2 + 1/4 + … = 2。",
-          "en": "The value of a₀ + a₁ + … with infinitely many terms is defined as the limit of the partial sums Sₙ. When that limit exists the series converges, and the limit is its sum: 1 + 1/2 + 1/4 + … = 2."
+          "zh": "无穷多项 a₀ + a₁ + … 相加的值，定义为部分和 Sₙ 的极限。部分和有极限，就说级数收敛，那个极限就是它的和：1 + 1/2 + 1/4 + … = 2。"
         }
       ],
       "see": ["partial-sum", "harmonic"]
@@ -266,16 +241,14 @@
     {
       "id": "harmonic",
       "group": "sequences",
-      "title": { "zh": "调和级数", "en": "harmonic series" },
+      "title": { "zh": "调和级数" },
       "at": "harmonic",
       "body": [
         {
-          "zh": "1 + 1/2 + 1/3 + …：每一项都趋于 0，部分和却越过任何界，所以发散。它长得极慢，前一百项的和才约 5.19。",
-          "en": "1 + 1/2 + 1/3 + …: its terms tend to 0, yet its partial sums pass every bound, so it diverges. It grows extremely slowly: the first hundred terms add up to only about 5.19."
+          "zh": "1 + 1/2 + 1/3 + …：每一项都趋于 0，部分和却越过任何界，所以发散。它长得极慢，前一百项的和才约 5.19。"
         },
         {
-          "zh": "所以项趋于 0 只是级数收敛的必要条件，不是充分条件。",
-          "en": "So terms tending to 0 is necessary for a series to converge, not sufficient."
+          "zh": "所以项趋于 0 只是级数收敛的必要条件，不是充分条件。"
         }
       ],
       "see": ["series", "divergence"]
@@ -283,12 +256,11 @@
     {
       "id": "e",
       "group": "sequences",
-      "title": { "zh": "自然常数 e", "en": "Euler’s number e" },
+      "title": { "zh": "自然常数 e" },
       "at": "euler",
       "body": [
         {
-          "zh": "e = 1 + 1/1! + 1/2! + 1/3! + … ≈ 2.718281828。阶乘长得极快，这个级数几项就准到小数点后好几位。",
-          "en": "e = 1 + 1/1! + 1/2! + 1/3! + … ≈ 2.718281828. Factorials grow so fast that a few terms are right to several decimal places."
+          "zh": "e = 1 + 1/1! + 1/2! + 1/3! + … ≈ 2.718281828。阶乘长得极快，这个级数几项就准到小数点后好几位。"
         }
       ],
       "see": ["series"]
@@ -296,14 +268,13 @@
     {
       "id": "babylonian",
       "group": "sequences",
-      "title": { "zh": "巴比伦开方", "en": "Babylonian square root" },
+      "title": { "zh": "巴比伦开方" },
       "at": "any-root",
       "body": [
         {
-          "zh": "xₙ₊₁ = (xₙ + c/xₙ)/2 从任意正数起趋于 √c：猜得大了，c/xₙ 就小了，平均两者。误差每步大约平方一次，有效数字一步翻一倍。",
-          "en": "xₙ₊₁ = (xₙ + c/xₙ)/2 tends to √c from any positive start: if a guess is too large, c/xₙ is too small, and the average takes both. The error roughly squares each step, doubling the correct digits."
+          "zh": "xₙ₊₁ = (xₙ + c/xₙ)/2 从任意正数起趋于 √c：猜得大了，c/xₙ 就小了，平均两者。误差每步大约平方一次，有效数字一步翻一倍。"
         },
-        { "zh": "它是牛顿法用在 x² − c = 0 上的一个特例。", "en": "It is Newton’s method applied to x² − c = 0." }
+        { "zh": "它是牛顿法用在 x² − c = 0 上的一个特例。" }
       ],
       "see": ["limit"]
     }

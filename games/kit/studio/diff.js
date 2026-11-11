@@ -4,7 +4,7 @@
 // (a save step appended), removed or moved shows alone, and items changed in place are looked into.
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
-const isText = (v) => isObj(v) && typeof v.zh === 'string' && typeof v.en === 'string' && Object.keys(v).length === 2
+const isText = (v) => isObj(v) && typeof v.zh === 'string' && Object.keys(v).length === 1
 const isLines = (v) => Array.isArray(v) && v.length > 0 && v.every((x) => typeof x === 'string')
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
