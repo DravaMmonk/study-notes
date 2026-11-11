@@ -124,6 +124,16 @@ test('identifier appears on its final original bit even when the header is stuff
   }
 })
 
+test('data bytes occur at their own last bits, including stuffing in earlier bytes', () => {
+  const frames = [{ id: 0x7ff, data: [0xa5, 0] }, { id: 0, data: [0, 0xff] }]
+  const expected = [[[29, 0xa5], [38, 0]], [[30, 0], [39, 0xff]]]
+  for (let k = 0; k < frames.length; k++) {
+    const bus = busOf({ idle: 0, frames: [frames[k]], tail: 0 })
+    const out = wantOf({ byte: 'dataByte' })({ bus }).byte
+    assert.deepEqual(out.flatMap((value, tick) => value === null ? [] : [[tick, value]]), expected[k])
+  }
+})
+
 test('blueprint text reads into a board: settings as the cards keep them, ports by position and form', () => {
   const task = { listens: true, inputs: [{ name: 'go', label: 'go' }], outputs: [{ name: 'n', label: 'n' }] }
   const b = fromText(['r = reg[reg=A, start=1]()', 'c = compare[form=lt](r, go)', 'k = keep[reg=A](line)', 'n <- c'], task, plain)
@@ -176,6 +186,19 @@ test('a hidden test catches a board that only fits the visible ones', () => {
   // Starting again from the bit that came with Go on 0 (the naive board) is right only while that bit is 0.
   assert.deepEqual(fits(task('gather'), task('gather').naive), [true, false])
   assert.deepEqual(fits(task('gather'), task('gather').solution), [true, true])
+})
+
+test('a test may bind a task input to the bus waveform', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.tests[0].lineInputs = ['bit']
+  delete task.tests[0].inputs.bit
+  const course = canCourse(content)
+  assert.deepEqual(course.wrong, [])
+  const test = course.played.get('gather')[0].tests[0]
+  assert.deepEqual(test.inputs.bit, test.bus.bits)
+  task.tests[0].inputs.bit = [0]
+  assert.ok(canCourse(content).wrong.some((problem) => problem.includes('both explicit values and the line')))
 })
 
 // The starter game (what npm run new-game copies), as content.js assembles it.

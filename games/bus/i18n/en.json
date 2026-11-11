@@ -103,5 +103,21 @@
   "先用去除填充位元件；只有「有效」为是的拍才让位置加一。": "Remove stuff bits first; advance the position only on ticks where Valid is yes.",
   "长度字段的位置是 15 至 18。用寄存卡在这四位到达时攒数，最后一位到达时交出。": "The length occupies positions 15 to 18. Use a register to gather those four bits and give the result on the last bit.",
   "位置是原始位的位置，时间则是线上经过的拍数；一旦有填充，这两个数就不同。": "Position counts original bits, while time counts ticks on the line. Once stuffing occurs, the two differ.",
-  "数据长度": "Data length"
+  "数据长度": "Data length",
+  "读出数据": "Read the data",
+  "一帧能带零到八个字节。长度字段决定数据到哪里结束；每八个原始位组成一个字节，先到的是高位。填充位不属于字节，也不推进字节内的位置。": "A frame can carry zero to eight bytes. The length field determines where data ends; every eight original bits form one byte, most significant bit first. Stuff bits belong to no byte and do not advance its position.",
+  "这次从帧起始开始读一帧。把标识符、数据长度和每个字节分别交出来，以后才能把帧交给更高层处理。": "This time read one frame from its start. Give out its identifier, data length and each byte separately, so higher layers can use them.",
+  "从第一位开始读一帧：在标识符和长度字段的最后一位分别交出它们；每凑满一个数据字节就交出该字节，其他拍交出「—」。": "Read a frame from its first bit: give its identifier and length on the last bit of each field, and give each byte when its eight data bits have arrived. Give 「—」 on other ticks.",
+  "只在有效位到达时推进原始位的位置；标识符是位置 1 至 11，长度是位置 15 至 18。": "Advance the original-bit position only when a valid bit arrives; the identifier occupies positions 1–11 and the length positions 15–18.",
+  "数据从位置 19 开始，长度乘八是数据位数。数到数据结束后，不要把校验字段当成字节。": "Data starts at position 19. Its length in bits is eight times the data length; do not read the CRC field as data.",
+  "在数据里另数字节中的 0 至 7，每凑满八位清零，从下一字节重新攒。": "Count from 0 to 7 within the data byte. After eight bits, reset the count and gather the next byte.",
+  "长度为零时没有字节；长度为八时交出八次。填充位只改变到达的拍数，不改变字段位置。": "A zero-length frame yields no bytes; a length of eight yields eight. Stuffing changes arrival ticks, not field positions.",
+  "从帧起始读一帧，在对应字段的最后一位交出标识符、长度和每个数据字节；其他拍交出「—」。不检查 CRC，也不寻找帧起始。": "Reads one frame from start of frame, giving its identifier, length and each data byte on the final bit of the field and 「—」 on other ticks. It does not check CRC or find frame starts.",
+  "解析帧": "Parse frame",
+  "字节": "Byte",
+  "坏了也不知道": "An error goes unnoticed",
+  "位串在发送后有一位翻转。用解析器交出它读到的每个数据字节；其他拍交出「—」。": "One bit in the transmitted stream has flipped. Use the parser to give each data byte it reads, and 「—」 on other ticks.",
+  "只按格式读出数据不能证明数据没变。接下来需要一种能让接收方发现错误的校验方法。": "Reading fields by format cannot prove the data is unchanged. Next we need a check that lets the receiver detect errors.",
+  "发送方计划的数据和收到的位串同时给出。线路上有一位被翻转；解析器只按位的位置读字段，会交出改变后的字节，却还不能告诉我们出错了。": "The sender’s intended data and the received bit stream are both shown. A bit on the line has flipped; the parser reads the changed byte but cannot yet tell us an error occurred.",
+  "原字节": "Sent byte"
 }

@@ -44,6 +44,7 @@ const WANTS = {
   destuffValid: item(t('这一拍是不是非填充位'), S.obj({ input: INPUT })),
   destuffed: item(t('去除输入位串中的填充位；填充位的那一拍交出「—」'), S.obj({ input: INPUT })),
   dataLength: item(t('帧的数据长度，在长度字段最后一个原始位到达时交出，其余拍为「—」')),
+  dataByte: item(t('帧的每个数据字节在它最后一个原始位到达时交出，其余拍为「—」')),
   identifier: item(t('帧的标识符，在它最后一位到达的那一拍；其余每一拍「—」')),
 }
 
@@ -53,6 +54,7 @@ const FRAME = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), gap:
 const TEST = S.obj({
   bus: S.obj({ idle: S.opt(nat), frames: S.list(FRAME), tail: S.opt(nat) }, { about: t('总线：先安静 idle 拍，再一帧帧（帧前多空 gap 拍），最后安静 tail 拍') }),
   inputs: S.opt(S.map(S.list(S.int()), { view: 'ticks', about: t('每个输入每一拍的值') })),
+  lineInputs: S.opt(S.list(S.str(), { about: t('这些输入每拍取总线上的位') })),
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
@@ -66,7 +68,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 8,
+  version: 9,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

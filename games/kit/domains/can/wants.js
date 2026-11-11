@@ -54,6 +54,19 @@ const WANTS = {
     }
     return out
   },
+  dataByte: () => (test) => {
+    const out = test.bus.bits.map(() => null)
+    for (const frame of test.bus.frames) {
+      const prefix = [0, ...bitsOf(frame.id, 11), 0, 0, 0, ...bitsOf(frame.data.length, 4)]
+      for (const byte of frame.data) {
+        const bits = bitsOf(byte, 8)
+        const last = frame.at + stuff([...prefix, ...bits.slice(0, -1)]).length
+        out[last] = byte
+        prefix.push(...bits)
+      }
+    }
+    return out
+  },
   identifier: () => (test) => {
     const out = test.bus.bits.map(() => null)
     for (const f of test.bus.frames) {

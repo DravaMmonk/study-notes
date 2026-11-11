@@ -21,14 +21,19 @@ const num = (v) => (typeof v === 'string' ? parseInt(v, 16) : v)
 /** A test as content writes it, its bus laid out bit by bit; it runs as many ticks as its bus is long. */
 const testOf = (t) => {
   const bus = busOf({ ...t.bus, frames: t.bus.frames.map((f) => ({ ...f, id: num(f.id), data: (f.data ?? []).map(num) })) })
-  return { ...t, bus, ticks: bus.bits.length }
+  const inputs = { ...(t.inputs ?? {}), ...Object.fromEntries((t.lineInputs ?? []).map((name) => [name, bus.bits])) }
+  return { ...t, bus, inputs, ticks: bus.bits.length }
 }
 
 export function canCourse(content) {
   // A test read: what reading it finds that its schema cannot say, then its bus.
   const test = (t, task, say) => {
     for (const f of t.bus.frames) if ((f.data ?? []).length > 8) say('a frame carries at most 8 bytes')
-    for (const i of task.inputs ?? []) if (!t.inputs?.[i.name]) say(`a test gives nothing on the input ${i.name}`)
+    for (const i of task.inputs ?? []) if (!t.inputs?.[i.name] && !t.lineInputs?.includes(i.name)) say(`a test gives nothing on the input ${i.name}`)
+    for (const name of t.lineInputs ?? []) {
+      if (!task.inputs?.some((input) => input.name === name)) say(`line input ${name} is not a task input`)
+      if (t.inputs?.[name]) say(`input ${name} has both explicit values and the line`)
+    }
     return testOf(t)
   }
   // A task's wants read; a built part keeps its own registers.
