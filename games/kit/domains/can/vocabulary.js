@@ -44,6 +44,8 @@ const WANTS = {
   destuffedGather: item(t('去除填充位后逐位攒数，填充位的那一拍保留原数'), S.obj({ input: INPUT })),
   destuffValid: item(t('这一拍是不是非填充位'), S.obj({ input: INPUT })),
   destuffed: item(t('去除输入位串中的填充位；填充位的那一拍交出「—」'), S.obj({ input: INPUT })),
+  destuffedReset: item(t('从每次重来的位开始去除填充位', 'remove stuff bits starting again on each reset tick'), S.obj({ input: INPUT, reset: INPUT })),
+  destuffValidReset: item(t('重来后这一拍是否为原始位', 'whether this tick is an original bit after reset'), S.obj({ input: INPUT, reset: INPUT })),
   dataLength: item(t('帧的数据长度，在长度字段最后一个原始位到达时交出，其余拍为「—」')),
   dataByte: item(t('帧的每个数据字节在它最后一个原始位到达时交出，其余拍为「—」')),
   endOfFrame: item(t('在每帧七位帧结束字段的最后一位回答是，其余拍为「—」', 'yes on the final bit of each seven-bit end-of-frame field, and 「—」 on other ticks')),
@@ -73,7 +75,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 11,
+  version: 12,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

@@ -15,6 +15,18 @@ const onesBefore = (bits, t) => {
 }
 const each = (test, f) => test.bus.bits.map((_, t) => f(t))
 
+const destuff = (bits, resets) => {
+  let previous = null
+  let run = 0
+  return bits.map((bit, tick) => {
+    if (resets?.[tick]) { previous = null; run = 0 }
+    const stuffed = run === 5
+    run = bit === previous ? run + 1 : 1
+    previous = bit
+    return stuffed ? null : bit
+  })
+}
+
 // Polynomial long division over GF(2), independently of the player's shift-register circuit.
 const remainders = ({ bit, enable, reset, width, poly }, test) => {
   let bits = []
@@ -51,16 +63,9 @@ const WANTS = {
     })
   },
   destuffValid: ({ input }) => (test) => WANTS.destuffed({ input })(test).map((bit) => bit !== null),
-  destuffed: ({ input }) => (test) => {
-    let previous = null
-    let run = 0
-    return test.inputs[input].map((bit) => {
-      const stuffed = run === 5
-      run = bit === previous ? run + 1 : 1
-      previous = bit
-      return stuffed ? null : bit
-    })
-  },
+  destuffed: ({ input }) => (test) => destuff(test.inputs[input]),
+  destuffedReset: ({ input, reset }) => (test) => destuff(test.inputs[input], test.inputs[reset]),
+  destuffValidReset: ({ input, reset }) => (test) => destuff(test.inputs[input], test.inputs[reset]).map((bit) => bit !== null),
   dataLength: () => (test) => {
     const out = test.bus.bits.map(() => null)
     for (const frame of test.bus.frames) {

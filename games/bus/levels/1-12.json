@@ -28,7 +28,7 @@
       ],
       "want": { "length": "dataLength" },
       "solution": [
-        "d = destuff(line)",
+        "d = destuff(line, zero)",
         "pos = reg[reg=A, start=0]()",
         "plus = arith[form=inc](pos)",
         "posnext = select(d.valid, plus, pos)",
@@ -52,7 +52,7 @@
         "length <- o"
       ],
       "naive": [
-        "d = destuff(line)",
+        "d = destuff(line, zero)",
         "pos = reg[reg=A, start=0]()",
         "plus = arith[form=inc](pos)",
         "posnext = select(d.valid, plus, plus)",

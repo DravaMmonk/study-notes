@@ -99,6 +99,10 @@ test('destuffing counts a stuff bit as the start of the next run', () => {
   const signals = wantOf({ valid: { destuffValid: { input: 'bit' } }, gathered: { destuffedGather: { input: 'bit' } } })({ inputs: { bit } })
   assert.deepEqual(signals.valid, [true, true, true, true, true, false, true, true, true, true, false, true])
   assert.deepEqual(signals.gathered, [0, 0, 0, 0, 0, 0, 1, 3, 7, 15, 15, 30])
+  const reset = [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+  const restarted = wantOf({ out: { destuffedReset: { input: 'bit', reset: 'reset' } }, valid: { destuffValidReset: { input: 'bit', reset: 'reset' } } })({ inputs: { bit, reset } })
+  assert.deepEqual(restarted.out, [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, null, 0])
+  assert.deepEqual(restarted.valid, [true, true, true, true, true, true, true, true, true, true, false, true])
 })
 
 test('data length appears on the last unstuffed DLC bit', () => {

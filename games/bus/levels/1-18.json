@@ -34,8 +34,8 @@
       ],
       "want": { "end": "endOfFrame" },
       "solution": [
-        "d = destuff(bit)",
-        "p = frameparse(bit)",
+        "d = destuff(bit, zero)",
+        "p = frameparse(bit, zero)",
         "pos = reg[reg=A, start=0]()",
         "pi = arith[form=inc](pos)",
         "pn = select(d.valid, pi, pos)",
@@ -65,8 +65,8 @@
         "end <- out"
       ],
       "naive": [
-        "d = destuff(bit)",
-        "p = frameparse(bit)",
+        "d = destuff(bit, zero)",
+        "p = frameparse(bit, zero)",
         "pos = reg[reg=A, start=0]()",
         "pi = arith[form=inc](pos)",
         "pn = select(d.valid, pi, pi)",

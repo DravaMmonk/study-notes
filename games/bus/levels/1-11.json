@@ -19,7 +19,7 @@
         }
       ],
       "want": { "out": { "destuffed": { "input": "bit" } } },
-      "solution": ["d = destuff(bit)", "out <- d.out"],
+      "solution": ["z = const[value=0]()", "d = destuff(bit, z)", "out <- d.out"],
       "naive": [
         "p = reg[reg=A, start=0]()",
         "r = reg[reg=B, start=0]()",
@@ -55,7 +55,8 @@
       ],
       "want": { "n": { "destuffedGather": { "input": "bit" } } },
       "solution": [
-        "d = destuff(bit)",
+        "z = const[value=0]()",
+        "d = destuff(bit, z)",
         "r = reg[reg=A, start=0]()",
         "twice = arith[form=add](r, r)",
         "next = arith[form=add](twice, d.out)",

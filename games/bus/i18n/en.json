@@ -91,8 +91,6 @@
   "现在用搭好的元件试一段更容易出错的位串：填充位后面紧跟四个与它相同的位。": "Try the part on a trickier stream: four bits equal to a stuff bit follow it.",
   "两次填充可以只隔四个原始位，因为第一次的填充位也参与计数。": "Two stuff bits can be separated by just four original bits, because the first stuff bit also counts.",
   "去除位串中的填充位，并把剩下的位交出来；填充位的那一拍交出「—」。": "Remove the stuff bits and give out the remaining bits; give 「—」 on each stuff-bit tick.",
-  "输入是一段从第一位开始、已经填充的位串。原始位到来时交出它并让「有效」为是；填充位那一拍交出「—」，让「有效」为否。": "The input is a stuffed stream from its first bit. Give each original bit and set Valid to yes; on a stuff bit give 「—」 and set Valid to no.",
-  "从一段从头开始的填充位串中跳过填充位；该拍交出「—」并让「有效」为否，其余拍交出位并让「有效」为是。每块有自己的寄存卡。": "Skips stuff bits in a stuffed stream starting at its beginning: gives 「—」 and Valid no on a stuff bit, otherwise gives the bit and Valid yes. Each part has its own registers.",
   "有效": "Valid",
   "把去除填充位后的位依次攒成一个数，每拍交出当前的数。填充位那一拍保持原数；开始时数为 0。": "Gather the bits after removing stuff bits into a number, and give the current number each tick. Keep it unchanged on a stuff-bit tick; start at zero.",
   "「有效」为否时保留寄存卡里的数；为是时将它左移一位并加上新位。": "When Valid is no, keep the register’s number; when yes, shift it left and add the new bit.",
@@ -107,12 +105,10 @@
   "读出数据": "Read the data",
   "一帧能带零到八个字节。长度字段决定数据到哪里结束；每八个原始位组成一个字节，先到的是高位。填充位不属于字节，也不推进字节内的位置。": "A frame can carry zero to eight bytes. The length field determines where data ends; every eight original bits form one byte, most significant bit first. Stuff bits belong to no byte and do not advance its position.",
   "这次从帧起始开始读一帧。把标识符、数据长度和每个字节分别交出来，以后才能把帧交给更高层处理。": "This time read one frame from its start. Give out its identifier, data length and each byte separately, so higher layers can use them.",
-  "从第一位开始读一帧：在标识符和长度字段的最后一位分别交出它们；每凑满一个数据字节就交出该字节，其他拍交出「—」。": "Read a frame from its first bit: give its identifier and length on the last bit of each field, and give each byte when its eight data bits have arrived. Give 「—」 on other ticks.",
   "只在有效位到达时推进原始位的位置；标识符是位置 1 至 11，长度是位置 15 至 18。": "Advance the original-bit position only when a valid bit arrives; the identifier occupies positions 1–11 and the length positions 15–18.",
   "数据从位置 19 开始，长度乘八是数据位数。数到数据结束后，不要把校验字段当成字节。": "Data starts at position 19. Its length in bits is eight times the data length; do not read the CRC field as data.",
   "在数据里另数字节中的 0 至 7，每凑满八位清零，从下一字节重新攒。": "Count from 0 to 7 within the data byte. After eight bits, reset the count and gather the next byte.",
   "长度为零时没有字节；长度为八时交出八次。填充位只改变到达的拍数，不改变字段位置。": "A zero-length frame yields no bytes; a length of eight yields eight. Stuffing changes arrival ticks, not field positions.",
-  "从帧起始读一帧，在对应字段的最后一位交出标识符、长度和每个数据字节；其他拍交出「—」。不检查 CRC，也不寻找帧起始。": "Reads one frame from start of frame, giving its identifier, length and each data byte on the final bit of the field and 「—」 on other ticks. It does not check CRC or find frame starts.",
   "解析帧": "Parse frame",
   "字节": "Byte",
   "坏了也不知道": "An error goes unnoticed",
@@ -165,5 +161,9 @@
   "用连续隐性和下一位显性找到帧起始；一帧紧接一帧时，帧尾同样提供足够的隐性位。": "Find a start of frame from a run of recessive bits followed by a dominant bit. Even back-to-back frames have enough recessive bits at the end.",
   "每次帧起始都从位置 0 和空标识符重来；数位置时跳过填充位。": "Restart at position zero and an empty identifier on each start of frame; skip stuff bits when counting positions.",
   "连续位的计数也从帧起始重置，不能把帧前的空闲位算进填充规则。": "Restart the equal-bit count at start of frame as well; idle bits before the frame are not part of stuffing.",
-  "帧间隔允许紧接着开始下一帧；每次重新初始化，才能把相邻的帧分开。": "Intermission permits the next frame to follow immediately. Restarting the state each time keeps adjacent frames separate."
+  "帧间隔允许紧接着开始下一帧；每次重新初始化，才能把相邻的帧分开。": "Intermission permits the next frame to follow immediately. Restarting the state each time keeps adjacent frames separate.",
+  "输入是已经填充的位串。原始位到来时交出它并让「有效」为是；填充位那一拍交出「—」，让「有效」为否。「重来」为 1 时先清空计数，再处理这一拍的位。": "The input is a stuffed bit stream. Give each original bit and set Valid to yes; give 「—」 and Valid no on a stuff bit. When Reset is 1, clear the count first and then process this tick’s bit.",
+  "跳过填充位；该拍交出「—」并让「有效」为否，其余拍交出位并让「有效」为是。「重来」为 1 时先清空状态，再处理这一拍的位。每块有自己的寄存卡。": "Skips stuff bits, giving 「—」 and Valid no on those ticks, otherwise giving the bit and Valid yes. Reset clears the state before processing the current bit. Each part has its own registers.",
+  "从帧起始读帧，在对应字段的最后一位交出标识符、长度和每个数据字节；其他拍交出「—」。「重来」先清空状态，再处理这一位。不检查 CRC，也不寻找帧起始。": "Reads frames from start of frame, giving each identifier, length and data byte on the last bit of its field and 「—」 on other ticks. Reset clears the state before this bit. It does not check CRC or locate frame starts.",
+  "从帧起始读一帧或连续帧：「重来」为 1 时先清空状态，再处理这一位。在标识符和长度字段的最后一位分别交出它们；每凑满一个数据字节就交出该字节，其他拍交出「—」。": "Read one or more frames from their starts. When Reset is 1, clear the state before processing this bit. Give the identifier and length on each field’s last bit and each data byte when complete; give 「—」 on other ticks."
 }
