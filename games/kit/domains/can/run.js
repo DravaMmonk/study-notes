@@ -15,6 +15,7 @@ import { judgeTicks, runTests } from '../../engine/circuit-domain.js'
 import { BUS, contender, sayer, wiredAnd } from './bus.js'
 import { receivedFrames } from './frame-reception.js'
 import { ecuAdvance } from './ecu.js'
+import { valueText } from '../../engine/views.js'
 import { T } from '../../shell/i18n.js'
 
 export function runTest(task, circuit, test, parts, { traced = true } = {}) {
@@ -67,6 +68,9 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
 export const runLevel = (task, circuit, parts, { traced = true } = {}) => runTests((level, board, test, registry) => runTest(level, board, test, registry, { traced }))(task, circuit, parts)
 export const checkLevel = (task, circuit, parts) => runLevel(task, circuit, parts, { traced: false })
 
+// Keep message columns readable without changing the full value shown on the board.
+const messageText = (value) => Array.isArray(value) ? `[${value.slice(0, 8).join(', ')}${value.length > 8 ? `, … (${value.length})` : ''}]` : valueText(value)
+
 export const entries = ({ task, test, run }) => [
   ...(task.listens ? [{ of: 'line', label: BUS, shape: 'bits', given: run.ticks.map((tick) => tick.line) }] : []),
   ...(test.frameEvents ? [
@@ -75,9 +79,9 @@ export const entries = ({ task, test, run }) => [
   ] : []),
   ...(test.contenders ?? []).map((_, k) => ({ of: `rival${k}`, label: T(`竞争者 ${k + 1}`, `Contender ${k + 1}`), shape: 'bits', given: run.ticks.map((tick) => tick.said[`rival${k}`] ?? 1) })),
   ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available, task.pulls?.last, task.ecu?.response].includes(i.name)
-    ? { of: i.name, label: i.label, shape: 'ticks', got: run.ticks.map((tick) => tick.bind?.[i.name] ?? null) }
-    : { of: i.name, label: i.label, shape: task.frameInputs?.[i.name] ? 'ticks' : 'bits', given: test.inputs[i.name] }),
+    ? { of: i.name, label: i.label, shape: 'ticks', got: run.ticks.map((tick) => tick.bind?.[i.name] ?? null), ...(task.ecu?.response === i.name ? { text: messageText } : {}) }
+    : { of: i.name, label: i.label, shape: task.frameInputs?.[i.name] ? 'ticks' : 'bits', given: test.inputs[i.name], ...(task.frameInputs?.[i.name] === 'data' ? { text: messageText } : {}) }),
   ...(task.drives ? [{ of: 'send', label: T('说', 'Send'), shape: 'ticks', got: run.ticks.map((tick) => tick.sent ?? null), want: run.want.send }] : []),
-  ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: 'ticks', got: run.ticks.map((t) => t.outputs[o.name] ?? null), want: run.want[o.name] })),
+  ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: 'ticks', got: run.ticks.map((t) => t.outputs[o.name] ?? null), want: run.want[o.name], ...(run.want[o.name]?.some(Array.isArray) ? { text: messageText } : {}) })),
   ...(run.receptions ? [{ of: 'receptions', label: T('已校验并应答（未检查帧结束）', 'Checked and acknowledged (EOF not checked)'), shape: 'list', got: run.receptions.map(({ id, data, ackTick }) => `#${ackTick}: ${id.toString(16).toUpperCase().padStart(3, '0')} [${data.map((byte) => byte.toString(16).toUpperCase().padStart(2, '0')).join(' ')}]`) }] : []),
 ]

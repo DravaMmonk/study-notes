@@ -1262,3 +1262,12 @@ test('security requests derive the toy key from each ECU seed', () => {
   assert.deepEqual(result.request, [[16, 3], [39, 1], [39, 2, 0x48], [34, 0xf1, 0x90], null, null])
   assert.deepEqual(result.value, [null, null, null, null, [7], null])
 })
+
+test('message timeline abbreviates long sequences while retaining full input values', () => {
+  const task = { inputs: [{ name: 'data', label: L('data') }], outputs: [{ name: 'message', label: L('message') }], frameInputs: { data: 'data' } }
+  const bytes = Array.from({ length: 20 }, (_, index) => index)
+  const result = { ticks: [{ outputs: { message: bytes } }], want: { message: [bytes] } }
+  const rows = entries({ task, test: { inputs: { data: [bytes] } }, run: result })
+  assert.equal(rows.find((row) => row.of === 'data').text(bytes), '[0, 1, 2, 3, 4, 5, 6, 7, … (20)]')
+  assert.deepEqual(rows.find((row) => row.of === 'message').got[0], bytes)
+})

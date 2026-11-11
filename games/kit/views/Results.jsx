@@ -95,12 +95,13 @@ function ListRow({ entry, text, tool }) {
 function Track({ rows, text, at, count, marks }) {
   const lanes = rows.flatMap(({ entry, view, tool }) => {
     const kind = VIEWS[view]?.lane ?? 'value'
-    if (!isOutput(entry)) return [{ key: entry.of, label: entry.label, kind, ticks: entry.given, tool }]
+    const format = entry.text ? { text: (value) => L(entry.text(value)) } : {}
+    if (!isOutput(entry)) return [{ key: entry.of, label: entry.label, kind, ticks: entry.given, tool, ...format }]
     // A plot draws the values wanted as rings on the result's own lane, one scale for both.
-    if (kind === 'dots') return [{ key: entry.of, label: entry.label, kind, ticks: entry.got ?? [], want: Array.isArray(entry.want) ? entry.want : undefined, tool }]
+    if (kind === 'dots') return [{ key: entry.of, label: entry.label, kind, ticks: entry.got ?? [], want: Array.isArray(entry.want) ? entry.want : undefined, tool, ...format }]
     return [
-      { key: entry.of, label: entry.label, kind, ticks: entry.got ?? [], tool },
-      ...(Array.isArray(entry.want) ? [{ key: `${entry.of}:want`, label: WORDS.wanted, kind, ticks: entry.want.map((v) => (v === undefined ? null : v)) }] : []),
+      { key: entry.of, label: entry.label, kind, ticks: entry.got ?? [], tool, ...format },
+      ...(Array.isArray(entry.want) ? [{ key: `${entry.of}:want`, label: WORDS.wanted, kind, ticks: entry.want.map((v) => (v === undefined ? null : v)), ...format }] : []),
     ]
   })
   return (
