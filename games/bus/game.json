@@ -1,6 +1,6 @@
 {
   "domain": "can",
-  "vocabulary": 105,
+  "vocabulary": 109,
   "title": { "zh": "车在说话" },
   "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
@@ -74,7 +74,8 @@
       "padBytes",
       "emptyBytes",
       "fleetScanner",
-      "vehicleExam"
+      "vehicleExam",
+      "faultScanner"
     ]
   },
   "concept": { "keep": "reg" },
@@ -214,14 +215,16 @@
         "5-12",
         "5-13",
         "5-14",
-        "5-15"
+        "5-15",
+        "5-16",
+        "5-17"
       ]
     },
     {
       "id": 6,
       "title": { "zh": "刷写器" },
       "question": { "zh": "怎样把修好的软件送到控制器？" },
-      "foundation": ["6-1", "6-2", "6-3", "6-4", "6-5", "6-6", "6-7"]
+      "foundation": ["6-1", "6-2", "6-3", "6-4", "6-5", "6-6", "6-7", "6-8", "6-9"]
     }
   ]
 }

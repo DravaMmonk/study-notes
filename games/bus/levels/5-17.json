@@ -1,0 +1,144 @@
+{
+  "title": { "zh": "汇总故障码" },
+  "intro": [{ "t": { "zh": "复用故障码扫描器，根据每组的条数判断整车是否有已确认故障，同时保留每条原始故障码。" } }],
+  "after": { "zh": "列表保留故障码和所属控制器，总状态则汇总所有组。" },
+  "tasks": [
+    {
+      "id": "5-17",
+      "brief": { "zh": "交出分组故障码列表，并在结果出现时交出是否存在已确认故障。" },
+      "hint": [{ "zh": "从每组的条数算出下一组的位置：跳过序号、条数和每条四字节记录；最多需要处理六组。" }],
+      "inputs": [
+        { "name": "source", "label": { "zh": "回答的控制器" } },
+        { "name": "reply", "label": { "zh": "控制器回答" } },
+        { "name": "ready", "label": { "zh": "收到回答" } }
+      ],
+      "outputs": [
+        { "name": "target", "label": { "zh": "请求目标" } },
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "faults", "label": { "zh": "已确认故障码" } },
+        { "name": "any", "label": { "zh": "有已确认故障" } }
+      ],
+      "fleet": {
+        "target": "target",
+        "request": "request",
+        "source": "source",
+        "response": "reply",
+        "ready": "ready"
+      },
+      "tests": [
+        {
+          "bus": { "idle": 60, "frames": [], "tail": 0 },
+          "fleet": [
+            {
+              "online": true,
+              "version": 1,
+              "requiresExtended": true,
+              "dtcs": [{ "code": "0x123456", "status": 1 }]
+            },
+            { "online": false, "version": 2 },
+            { "online": true, "version": 3 },
+            { "online": true, "version": 4, "requiresExtended": true },
+            { "online": false, "version": 5 },
+            { "online": true, "version": 6 }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 60, "frames": [], "tail": 0 },
+          "fleet": [
+            {
+              "online": true,
+              "version": 0,
+              "requiresExtended": true,
+              "waits": 2,
+              "dtcs": [{ "code": "0x123456", "status": 8 }, { "code": "0x0a0b0c", "status": 9 }]
+            },
+            { "online": true, "version": 4, "waits": 1, "dtcs": [{ "code": "0x654321", "status": 1 }] },
+            { "online": false, "version": 0 },
+            {
+              "online": true,
+              "version": 8,
+              "requiresExtended": true,
+              "dtcs": [{ "code": "0x010203", "status": 8 }]
+            },
+            { "online": false, "version": 2 },
+            { "online": true, "version": 1 }
+          ]
+        }
+      ],
+      "want": {
+        "target": "fleetExamTargets",
+        "request": "fleetExamRequests",
+        "faults": "fleetFaultRecords",
+        "any": "fleetFaultAny"
+      },
+      "solution": [
+        "scan = faultScanner(source, reply, ready)",
+        "target <- scan.target",
+        "request <- scan.request",
+        "faults <- scan.faults",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "countPos0 = arith[form=add](zero, one)",
+        "countRaw0 = byteAt(scan.faults, countPos0)",
+        "hasCount0 = present(countRaw0)",
+        "count0 = select(hasCount0, countRaw0, zero)",
+        "twice0 = arith[form=add](count0, count0)",
+        "four0 = arith[form=add](twice0, twice0)",
+        "headEnd0 = arith[form=add](zero, two)",
+        "nextPos0 = arith[form=add](headEnd0, four0)",
+        "countPos1 = arith[form=add](nextPos0, one)",
+        "countRaw1 = byteAt(scan.faults, countPos1)",
+        "hasCount1 = present(countRaw1)",
+        "count1 = select(hasCount1, countRaw1, zero)",
+        "twice1 = arith[form=add](count1, count1)",
+        "four1 = arith[form=add](twice1, twice1)",
+        "headEnd1 = arith[form=add](nextPos0, two)",
+        "nextPos1 = arith[form=add](headEnd1, four1)",
+        "countPos2 = arith[form=add](nextPos1, one)",
+        "countRaw2 = byteAt(scan.faults, countPos2)",
+        "hasCount2 = present(countRaw2)",
+        "count2 = select(hasCount2, countRaw2, zero)",
+        "twice2 = arith[form=add](count2, count2)",
+        "four2 = arith[form=add](twice2, twice2)",
+        "headEnd2 = arith[form=add](nextPos1, two)",
+        "nextPos2 = arith[form=add](headEnd2, four2)",
+        "countPos3 = arith[form=add](nextPos2, one)",
+        "countRaw3 = byteAt(scan.faults, countPos3)",
+        "hasCount3 = present(countRaw3)",
+        "count3 = select(hasCount3, countRaw3, zero)",
+        "twice3 = arith[form=add](count3, count3)",
+        "four3 = arith[form=add](twice3, twice3)",
+        "headEnd3 = arith[form=add](nextPos2, two)",
+        "nextPos3 = arith[form=add](headEnd3, four3)",
+        "countPos4 = arith[form=add](nextPos3, one)",
+        "countRaw4 = byteAt(scan.faults, countPos4)",
+        "hasCount4 = present(countRaw4)",
+        "count4 = select(hasCount4, countRaw4, zero)",
+        "twice4 = arith[form=add](count4, count4)",
+        "four4 = arith[form=add](twice4, twice4)",
+        "headEnd4 = arith[form=add](nextPos3, two)",
+        "nextPos4 = arith[form=add](headEnd4, four4)",
+        "countPos5 = arith[form=add](nextPos4, one)",
+        "countRaw5 = byteAt(scan.faults, countPos5)",
+        "hasCount5 = present(countRaw5)",
+        "count5 = select(hasCount5, countRaw5, zero)",
+        "twice5 = arith[form=add](count5, count5)",
+        "four5 = arith[form=add](twice5, twice5)",
+        "headEnd5 = arith[form=add](nextPos4, two)",
+        "nextPos5 = arith[form=add](headEnd5, four5)",
+        "sum1 = arith[form=add](count0, count1)",
+        "sum2 = arith[form=add](sum1, count2)",
+        "sum3 = arith[form=add](sum2, count3)",
+        "sum4 = arith[form=add](sum3, count4)",
+        "sum5 = arith[form=add](sum4, count5)",
+        "found = compare[form=lt](zero, sum5)",
+        "available = present(scan.faults)",
+        "result = select(available, found)",
+        "any <- result"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "title": { "zh": "按依赖更新两个控制器" },
+  "intro": [
+    { "t": { "zh": "模拟车辆的控制器 1 依赖控制器 0：只有 0 成功刷写并重启后，1 才允许进入编程。每个控制器有自己的软件和块上限。" } },
+    { "t": { "zh": "本关仍使用游戏定义的消息层和简化刷写规则，假定每一步按时成功；真实车辆可能有不同的依赖与安全要求。" } }
+  ],
+  "after": { "zh": "两个刷写器各自保存阶段和块计数；依赖顺序保证前置控制器已经成功重启。" },
+  "tasks": [
+    {
+      "id": "6-8",
+      "brief": { "zh": "用两个刷写器实例，先更新控制器 0，再更新控制器 1；两者重启后依次读取 0xF188，交出两个新版本。" },
+      "hint": [{ "zh": "用寄存卡记下第一个刷写器完成；两个封装件分别连接自己的软件。第二个完成后再请求两次版本。" }],
+      "inputs": [
+        { "name": "source", "label": { "zh": "回答的控制器" } },
+        { "name": "reply", "label": { "zh": "控制器回答" } },
+        { "name": "ready", "label": { "zh": "收到回答" } },
+        { "name": "image0", "label": { "zh": "控制器 0 软件" } },
+        { "name": "image1", "label": { "zh": "控制器 1 软件" } }
+      ],
+      "outputs": [
+        { "name": "target", "label": { "zh": "请求目标" } },
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "versions", "label": { "zh": "更新后版本" } }
+      ],
+      "fleet": {
+        "target": "target",
+        "request": "request",
+        "source": "source",
+        "response": "reply",
+        "ready": "ready",
+        "images": { "image0": 0, "image1": 1 }
+      },
+      "tests": [
+        {
+          "bus": { "idle": 50, "frames": [], "tail": 0 },
+          "fleet": [
+            {
+              "online": true,
+              "version": 1,
+              "flash": { "maxBlock": 4, "expectedChecksum": 10, "image": [1, 2, 3, 4], "versionAfter": [2] }
+            },
+            {
+              "online": true,
+              "version": 1,
+              "flash": { "maxBlock": 5, "expectedChecksum": 35, "image": [9, 8, 7, 6, 5], "versionAfter": [2] },
+              "after": 0
+            },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 50, "frames": [], "tail": 0 },
+          "fleet": [
+            {
+              "online": true,
+              "version": 8,
+              "flash": { "maxBlock": 3, "expectedChecksum": 0, "image": [0, 255, 1], "versionAfter": [9] }
+            },
+            {
+              "online": true,
+              "version": 9,
+              "flash": { "maxBlock": 4, "expectedChecksum": 9, "image": [4, 5], "versionAfter": [10] },
+              "after": 0
+            },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 }
+          ]
+        }
+      ],
+      "want": {
+        "target": "fleetUpdateTargets",
+        "request": "fleetUpdateRequests",
+        "versions": "fleetUpdateVersions"
+      },
+      "solution": [
+        "stage = reg[reg=A, start=0]()",
+        "post = reg[reg=B, start=0]()",
+        "firstVersion = reg[reg=C]()",
+        "c0 = const[value=0]()",
+        "c1 = const[value=1]()",
+        "c2 = const[value=2]()",
+        "c3 = const[value=3]()",
+        "c34 = const[value=34]()",
+        "c136 = const[value=136]()",
+        "c241 = const[value=241]()",
+        "firstEnable = select(stage, c0, c1)",
+        "secondEnable = select(stage, c1, c0)",
+        "first = flasher(reply, image0, firstEnable)",
+        "second = flasher(reply, image1, secondEnable)",
+        "firstDone = present(first.done)",
+        "secondDone = present(second.done)",
+        "nextStage = select(firstDone, c1, stage)",
+        "saveStage = keep[reg=A](nextStage)",
+        "post1 = compare[form=eq](post, c1)",
+        "post2 = compare[form=eq](post, c2)",
+        "afterPost2 = select(post2, c3, post)",
+        "afterPost1 = select(post1, c2, afterPost2)",
+        "nextPost = select(secondDone, c1, afterPost1)",
+        "savePost = keep[reg=B](nextPost)",
+        "b34 = byteList(c34)",
+        "b241 = byteList(c241)",
+        "b136 = byteList(c136)",
+        "head = concatBytes(b34, b241)",
+        "read = concatBytes(head, b136)",
+        "program = select(stage, second.request, first.request)",
+        "afterDone = select(secondDone, read, program)",
+        "requestNow = select(post1, read, afterDone)",
+        "request <- requestNow",
+        "targetAfterDone = select(secondDone, c0, stage)",
+        "targetValue = select(post1, c1, targetAfterDone)",
+        "hasRequest = present(requestNow)",
+        "targetNow = select(hasRequest, targetValue)",
+        "target <- targetNow",
+        "newVersion = byteAt(reply, c3)",
+        "saveFirst = select(post1, newVersion, firstVersion)",
+        "saveVersion = keep[reg=C](saveFirst)",
+        "firstByte = byteList(firstVersion)",
+        "secondByte = byteList(newVersion)",
+        "both = concatBytes(firstByte, secondByte)",
+        "versionsNow = select(post2, both)",
+        "versions <- versionsNow"
+      ]
+    }
+  ]
+}
