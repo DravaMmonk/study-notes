@@ -1,0 +1,102 @@
+{
+  "title": { "zh": "接收后发回自己的帧" },
+  "intro": [{ "t": { "zh": "接收并应答插入的帧后，把保存的数据重新交给发送器；如果没有人插入，就在暂停结束后发送。" } }],
+  "after": { "zh": "暂停被新帧打断不会丢掉待发数据：先应答新帧，再从队首发送自己的完整帧。" },
+  "tasks": [
+    {
+      "id": "2-46",
+      "brief": { "zh": "将暂停中接收元件接到发送器。重试拍开始发送队列中的整帧；发送前由接收元件驱动总线，发送期间由发送器驱动。交出重试、取走和完成。测试中的待发帧均被应答。" },
+      "hint": [{ "zh": "重试拍直接启动发送器并选择它的驱动；用寄存卡保持发送状态，直到自己的帧间隔结束。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "end", "label": { "zh": "间隔结束" } },
+        { "name": "reset", "label": { "zh": "初始化" } },
+        { "name": "id", "label": { "zh": "标识符" } },
+        { "name": "length", "label": { "zh": "数据长度" } },
+        { "name": "item", "label": { "zh": "队首" } },
+        { "name": "available", "label": { "zh": "有字节" } },
+        { "name": "last", "label": { "zh": "最后字节" } }
+      ],
+      "outputs": [
+        { "name": "retry", "label": { "zh": "重试" } },
+        { "name": "next", "label": { "zh": "取走" } },
+        { "name": "done", "label": { "zh": "完成" } }
+      ],
+      "pulls": { "input": "item", "available": "available", "last": "last", "next": "next" },
+      "tests": [
+        {
+          "bus": { "idle": 91, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [165] },
+          "queue": [165],
+          "constants": { "id": 291, "length": 1 },
+          "pulses": { "end": [20], "reset": [0] },
+          "peerLow": [74]
+        },
+        {
+          "bus": { "idle": 24, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 62 },
+          "tx": { "id": 291, "data": [165] },
+          "queue": [165],
+          "constants": { "id": 291, "length": 1 },
+          "pulses": { "end": [20], "reset": [0] },
+          "peerLow": [127]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 21, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 53 },
+          "tx": { "id": 291, "data": [] },
+          "queue": [],
+          "constants": { "id": 291, "length": 0 },
+          "pulses": { "end": [20], "reset": [0] },
+          "peerLow": [115]
+        },
+        {
+          "bus": { "idle": 28, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 73 },
+          "tx": { "id": 0, "data": [0, 255] },
+          "queue": [0, 255],
+          "constants": { "id": 0, "length": 2 },
+          "pulses": { "end": [20], "reset": [0] },
+          "peerLow": [142]
+        }
+      ],
+      "want": {
+        "send": { "interruptedFrameDrive": { "end": "end" } },
+        "retry": { "interruptedFrameRetry": { "end": "end" } },
+        "next": { "interruptedFrameNext": { "end": "end" } },
+        "done": { "interruptedFrameDone": { "end": "end" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "p = waitrecv(line, end, reset)",
+        "tx = transmitter(id, length, item, available, last, p.retry)",
+        "busy = reg[reg=A, start=0]()",
+        "active = select(p.retry, one, busy)",
+        "wire = select(active, tx.send, p.send)",
+        "send <- wire",
+        "hold = select(tx.done, zero, active)",
+        "ka = keep[reg=A](hold)",
+        "retry <- p.retry",
+        "next <- tx.next",
+        "done <- tx.done"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "p = waitrecv(line, end, reset)",
+        "firing = suspend(end, one)",
+        "tx = transmitter(id, length, item, available, last, firing)",
+        "busy = reg[reg=A, start=0]()",
+        "active = select(firing, one, busy)",
+        "wire = select(active, tx.send, p.send)",
+        "send <- wire",
+        "hold = select(tx.done, zero, active)",
+        "ka = keep[reg=A](hold)",
+        "retry <- p.retry",
+        "next <- tx.next",
+        "done <- tx.done"
+      ]
+    }
+  ]
+}

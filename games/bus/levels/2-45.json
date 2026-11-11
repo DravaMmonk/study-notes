@@ -1,0 +1,111 @@
+{
+  "title": { "zh": "等待时有人开口" },
+  "intro": [{ "t": { "zh": "被动节点刚发送过帧，正在多等八位时，另一个节点可能先开始发送。它要转为接收方，收完并应答这帧，再等帧间隔结束。" } }],
+  "builds": {
+    "type": "waitrecv",
+    "name": { "zh": "暂停中接收" },
+    "desc": { "zh": "被动发送暂停期间若新帧开始，接收并应答它，然后在帧间隔后给出一次重试；无新帧时在八位等待后重试。限定一帧且校验正确。" }
+  },
+  "after": { "zh": "发送暂停期间若另一节点开口，被动节点先转为接收。接收完成后按新帧的间隔重新获得发送机会。" },
+  "tasks": [
+    {
+      "id": "2-45",
+      "brief": {
+        "zh": "「间隔结束」后等待被动发送暂停；若等待期间有新帧，从帧起始开始接收，正确时应答，等新帧的帧间隔结束才在「重试」交出 1。没有新帧时，额外八位结束后重试。每次只等待一次，测试中的新帧正确。"
+      },
+      "hint": [
+        { "zh": "复用发送暂停和状态化接收元件；检测连续隐性后的显性帧起始，记住需要先接收。" },
+        { "zh": "收到新帧时，等待应答后的十一位隐性（应答界定位、帧结束和帧间隔），再交出一次重试。" }
+      ],
+      "listens": true,
+      "drives": true,
+      "inputs": [{ "name": "end", "label": { "zh": "间隔结束" } }, { "name": "reset", "label": { "zh": "初始化" } }],
+      "outputs": [
+        { "name": "retry", "label": { "zh": "重试" } },
+        { "name": "kind", "label": { "zh": "结果种类" } },
+        { "name": "ready", "label": { "zh": "结果就绪" } }
+      ],
+      "tests": [
+        { "bus": { "idle": 60, "frames": [], "tail": 0 }, "pulses": { "end": [20], "reset": [0] } },
+        {
+          "bus": { "idle": 24, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "pulses": { "end": [20], "reset": [0] }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 21, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "pulses": { "end": [20], "reset": [0] }
+        },
+        {
+          "bus": { "idle": 28, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "pulses": { "end": [20], "reset": [0] }
+        }
+      ],
+      "want": {
+        "send": { "interruptedSuspendDrive": { "end": "end" } },
+        "retry": { "interruptedSuspendRetry": { "end": "end" } },
+        "kind": { "interruptedSuspendKind": { "end": "end" } },
+        "ready": { "interruptedSuspendReady": { "end": "end" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ten = const[value=10]()",
+        "false = compare[form=eq](zero, one)",
+        "pending = reg[reg=A, start=0]()",
+        "busy = reg[reg=B, start=0]()",
+        "quiet = counter(line)",
+        "long = compare[form=lt](ten, quiet)",
+        "low = compare[form=eq](line, zero)",
+        "sof = select(long, low, false)",
+        "s = suspend(end, one)",
+        "standby = select(s, one, zero)",
+        "afterbusy = select(long, one, zero)",
+        "choice = select(busy, afterbusy, standby)",
+        "fire = select(pending, choice, zero)",
+        "pendingSet = select(end, one, pending)",
+        "pendingNext = select(fire, zero, pendingSet)",
+        "ka = keep[reg=A](pendingNext)",
+        "busySet = select(sof, pending, busy)",
+        "busyClear = select(fire, zero, busySet)",
+        "busyNext = select(end, zero, busyClear)",
+        "kb = keep[reg=B](busyNext)",
+        "r = receiverstate(line, one, zero, reset)",
+        "send <- r.send",
+        "retry <- fire",
+        "kind <- r.kind",
+        "ready <- r.ready"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ten = const[value=10]()",
+        "false = compare[form=eq](zero, one)",
+        "pending = reg[reg=A, start=0]()",
+        "busy = reg[reg=B, start=0]()",
+        "quiet = counter(line)",
+        "long = compare[form=lt](ten, quiet)",
+        "low = compare[form=eq](line, zero)",
+        "sof = select(long, low, false)",
+        "s = suspend(end, one)",
+        "standby = select(s, one, zero)",
+        "afterbusy = select(long, one, zero)",
+        "choice = select(busy, standby, standby)",
+        "fire = select(pending, choice, zero)",
+        "pendingSet = select(end, one, pending)",
+        "pendingNext = select(fire, zero, pendingSet)",
+        "ka = keep[reg=A](pendingNext)",
+        "busySet = select(sof, pending, busy)",
+        "busyClear = select(fire, zero, busySet)",
+        "busyNext = select(end, zero, busyClear)",
+        "kb = keep[reg=B](busyNext)",
+        "r = receiverstate(line, one, zero, reset)",
+        "send <- r.send",
+        "retry <- fire",
+        "kind <- r.kind",
+        "ready <- r.ready"
+      ]
+    }
+  ]
+}
