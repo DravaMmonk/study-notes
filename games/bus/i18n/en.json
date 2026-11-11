@@ -157,5 +157,13 @@
   "在去填充后的下一位找到 CRC 界定位；从那里起按线上实际的拍数计，不再去除填充位。": "Find the next valid bit after the CRC as its delimiter. From there count actual line ticks; stuffing no longer applies.",
   "CRC 界定位后是应答位、应答界定位、七位帧结束。": "After the CRC delimiter come the ACK slot, ACK delimiter and seven end-of-frame bits.",
   "CRC 之后没有填充位；帧结束的七位隐性和后面的三位帧间隔各有用途。": "Stuffing stops after CRC. The seven recessive EOF bits and the three following intermission bits have distinct roles.",
-  "帧结束": "End of frame"
+  "帧结束": "End of frame",
+  "一帧接一帧": "Frame after frame",
+  "一帧结束后，三位帧间隔一过，下一帧就可以紧接着开始。应答界定位、七位帧结束和三位帧间隔恰好连成十一位隐性。": "After a frame, the next may start as soon as the three-bit intermission ends. The ACK delimiter, seven EOF bits and three intermission bits make exactly eleven recessive bits in a row.",
+  "每次找到新的帧起始，都要重新开始数原始位和攒标识符；前一帧的填充计数也不能带进来。": "Each new start of frame must restart the original-bit position and identifier; the preceding frame’s stuff count must not carry over.",
+  "总线先安静至少十一拍，随后有多帧。每帧标识符的最后一个原始位到达时交出标识符，其他拍交出「—」。": "The bus is quiet for at least eleven ticks, then carries several frames. Give each identifier on its last original bit and 「—」 on other ticks.",
+  "用连续隐性和下一位显性找到帧起始；一帧紧接一帧时，帧尾同样提供足够的隐性位。": "Find a start of frame from a run of recessive bits followed by a dominant bit. Even back-to-back frames have enough recessive bits at the end.",
+  "每次帧起始都从位置 0 和空标识符重来；数位置时跳过填充位。": "Restart at position zero and an empty identifier on each start of frame; skip stuff bits when counting positions.",
+  "连续位的计数也从帧起始重置，不能把帧前的空闲位算进填充规则。": "Restart the equal-bit count at start of frame as well; idle bits before the frame are not part of stuffing.",
+  "帧间隔允许紧接着开始下一帧；每次重新初始化，才能把相邻的帧分开。": "Intermission permits the next frame to follow immediately. Restarting the state each time keeps adjacent frames separate."
 }

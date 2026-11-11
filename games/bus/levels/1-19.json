@@ -1,0 +1,137 @@
+{
+  "title": { "zh": "一帧接一帧" },
+  "intro": [
+    { "t": { "zh": "一帧结束后，三位帧间隔一过，下一帧就可以紧接着开始。应答界定位、七位帧结束和三位帧间隔恰好连成十一位隐性。" } },
+    { "t": { "zh": "每次找到新的帧起始，都要重新开始数原始位和攒标识符；前一帧的填充计数也不能带进来。" } }
+  ],
+  "after": { "zh": "帧间隔允许紧接着开始下一帧；每次重新初始化，才能把相邻的帧分开。" },
+  "tasks": [
+    {
+      "id": "1-19",
+      "brief": { "zh": "总线先安静至少十一拍，随后有多帧。每帧标识符的最后一个原始位到达时交出标识符，其他拍交出「—」。" },
+      "hint": [
+        { "zh": "用连续隐性和下一位显性找到帧起始；一帧紧接一帧时，帧尾同样提供足够的隐性位。" },
+        { "zh": "每次帧起始都从位置 0 和空标识符重来；数位置时跳过填充位。" },
+        { "zh": "连续位的计数也从帧起始重置，不能把帧前的空闲位算进填充规则。" }
+      ],
+      "listens": true,
+      "outputs": [{ "name": "id", "label": { "zh": "标识符" } }],
+      "tests": [
+        {
+          "bus": { "idle": 12, "frames": [{ "id": "0x123", "data": ["0x55"] }, { "id": "0x2a5", "data": [] }] }
+        },
+        {
+          "bus": {
+            "idle": 11,
+            "frames": [
+              { "id": "0x7ff", "data": ["0x00"] },
+              { "id": "0x123", "data": ["0x12", "0x34"] },
+              { "id": "0x000", "data": [] }
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": {
+            "idle": 15,
+            "frames": [
+              { "id": "0x000", "data": ["0xff", "0x00"] },
+              { "id": "0x7ff", "data": ["0xff"] },
+              { "id": "0x009", "data": [] }
+            ]
+          }
+        }
+      ],
+      "want": { "id": "identifier" },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ten = const[value=10]()",
+        "quiet = counter(line)",
+        "quietlong = compare[form=lt](ten, quiet)",
+        "low = compare[form=eq](line, zero)",
+        "sof = select(quietlong, low, zero)",
+        "last = reg[reg=A, start=1]()",
+        "same = compare[form=eq](last, line)",
+        "kl = keep[reg=A](line)",
+        "keepcount = select(sof, zero, same)",
+        "run = counter(keepcount)",
+        "four = const[value=4]()",
+        "notstuff = compare[form=lt](run, four)",
+        "valid = select(sof, one, notstuff)",
+        "activeold = reg[reg=C, start=0]()",
+        "active = select(sof, one, activeold)",
+        "ka = keep[reg=C](active)",
+        "pos = reg[reg=B, start=0]()",
+        "base = select(sof, zero, pos)",
+        "pi = arith[form=inc](base)",
+        "step = select(valid, pi, base)",
+        "pn = select(active, step, zero)",
+        "kp = keep[reg=B](pn)",
+        "eleven = const[value=11]()",
+        "twelve = const[value=12]()",
+        "after = compare[form=lt](zero, base)",
+        "before = compare[form=lt](base, twelve)",
+        "within = select(after, before, zero)",
+        "take0 = select(valid, within, zero)",
+        "take = select(active, take0, zero)",
+        "acc = reg[reg=D, start=0]()",
+        "twice = arith[form=add](acc, acc)",
+        "new = arith[form=add](twice, line)",
+        "resetacc = select(sof, zero, acc)",
+        "next = select(take, new, resetacc)",
+        "kc = keep[reg=D](next)",
+        "lastbit = compare[form=eq](base, eleven)",
+        "ready0 = select(valid, lastbit, zero)",
+        "ready = select(active, ready0, zero)",
+        "out = select(ready, next)",
+        "id <- out"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ten = const[value=10]()",
+        "quiet = counter(line)",
+        "quietlong = compare[form=lt](ten, quiet)",
+        "low = compare[form=eq](line, zero)",
+        "sof = select(quietlong, low, zero)",
+        "last = reg[reg=A, start=1]()",
+        "same = compare[form=eq](last, line)",
+        "kl = keep[reg=A](line)",
+        "keepcount = select(sof, zero, same)",
+        "run = counter(keepcount)",
+        "four = const[value=4]()",
+        "notstuff = compare[form=lt](run, four)",
+        "valid = select(sof, one, notstuff)",
+        "activeold = reg[reg=C, start=0]()",
+        "active = select(sof, one, activeold)",
+        "ka = keep[reg=C](active)",
+        "pos = reg[reg=B, start=0]()",
+        "base = select(sof, pos, pos)",
+        "pi = arith[form=inc](base)",
+        "step = select(valid, pi, base)",
+        "pn = select(active, step, zero)",
+        "kp = keep[reg=B](pn)",
+        "eleven = const[value=11]()",
+        "twelve = const[value=12]()",
+        "after = compare[form=lt](zero, base)",
+        "before = compare[form=lt](base, twelve)",
+        "within = select(after, before, zero)",
+        "take0 = select(valid, within, zero)",
+        "take = select(active, take0, zero)",
+        "acc = reg[reg=D, start=0]()",
+        "twice = arith[form=add](acc, acc)",
+        "new = arith[form=add](twice, line)",
+        "resetacc = select(sof, acc, acc)",
+        "next = select(take, new, resetacc)",
+        "kc = keep[reg=D](next)",
+        "lastbit = compare[form=eq](base, eleven)",
+        "ready0 = select(valid, lastbit, zero)",
+        "ready = select(active, ready0, zero)",
+        "out = select(ready, next)",
+        "id <- out"
+      ]
+    }
+  ]
+}
