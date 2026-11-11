@@ -288,6 +288,7 @@ const controllerPlan = ({ start, prep, reset, request, receive = false, interven
   const ticks = test.bus.bits.length
   const incoming = receive ? receiveUnified({ prep, reset }, test) : null
   const drive = incoming ? [...incoming.drive] : Array(ticks).fill(1)
+  const fields = incoming && Object.fromEntries(Object.entries(incoming.fields).map(([name, values]) => [name, [...values]]))
   const lost = Array(ticks).fill(0)
   const next = Array(ticks).fill(false)
   const rewind = Array(ticks).fill(false)
@@ -318,6 +319,11 @@ const controllerPlan = ({ start, prep, reset, request, receive = false, interven
         incoming.kind[winnerCrc] = 0
         incoming.ready[winnerCrc] = 1
         actions[winnerAck] = 4
+        const winnerLine = test.bus.bits.map((_, tick) => rivalBits[tick - at] ?? 1)
+        const winnerBus = { bits: winnerLine, frames: [{ ...rival, at }] }
+        const winnerKinds = winnerLine.map((_, tick) => tick === winnerCrc ? 0 : null)
+        const winnerFields = receivedFields({ bus: winnerBus }, winnerLine, winnerKinds)
+        for (const name of ['id', 'length', 'byte']) for (let tick = at + loss; tick < ticks; tick++) fields[name][tick] = winnerFields[name][tick]
         receivedWinner = true
       }
       at = retry
@@ -367,7 +373,7 @@ const controllerPlan = ({ start, prep, reset, request, receive = false, interven
     }
   }
   const counts = faultCounts({ event: '__actions', reset: '__reset' }, { ...test, inputs: { ...test.inputs, __actions: actions, __reset: resets } })
-  return { drive, lost, next, rewind, attempts, done, tec: counts.map((step) => step.tx), rec: counts.map((step) => step.rx), mode: counts.map((step) => step.mode), error, accepted, kind: incoming?.kind, ready: incoming?.ready }
+  return { drive, lost, next, rewind, attempts, done, tec: counts.map((step) => step.tx), rec: counts.map((step) => step.rx), mode: counts.map((step) => step.mode), error, accepted, kind: incoming?.kind, ready: incoming?.ready, fields }
 }
 
 // Given a completed intermission on an otherwise idle bus, enforce the passive sender's extra eight bits.
@@ -555,12 +561,14 @@ const interruptedSuspend = ({ end }, test) => {
   const retry = frame ? frame.at + transmitBits(frame).length : at + 9
   const ack = frame ? frame.at + transmitBits(frame).length - 12 : -1
   const crc = ack - 1
+  const kinds = each(test, (tick) => tick === crc ? 0 : null)
   return {
     drive: each(test, (tick) => tick === ack ? 0 : 1),
     retry: each(test, (tick) => Number(at >= 0 && tick === retry)),
-    kind: each(test, (tick) => tick === crc ? 0 : null),
+    kind: kinds,
     ready: each(test, (tick) => Number(tick === crc)),
     event: each(test, (tick) => tick === ack ? 4 : 0),
+    fields: receivedFields(test, test.bus.bits, kinds),
   }
 }
 
@@ -809,6 +817,9 @@ const WANTS = {
   controllerIntegratedKind: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).kind,
   controllerIntegratedReady: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).ready,
   controllerIntegratedAccepted: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).accepted,
+  controllerIntegratedRxId: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).fields.id,
+  controllerIntegratedRxLength: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).fields.length,
+  controllerIntegratedRxByte: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).fields.byte,
   suspendReady: (params) => (test) => suspendReady(params, test),
   suspendRequest: ({ request, ...params }) => (test) => suspendReady(params, test).map((ready, tick) => ready && Boolean(test.inputs[request][tick])),
   passiveAckDrive: (params) => (test) => passiveAckRetry(params, test).drive,
@@ -844,6 +855,9 @@ const WANTS = {
   interruptedSuspendKind: (params) => (test) => interruptedSuspend(params, test).kind,
   interruptedSuspendReady: (params) => (test) => interruptedSuspend(params, test).ready,
   interruptedSuspendEvent: (params) => (test) => interruptedSuspend(params, test).event,
+  interruptedSuspendId: (params) => (test) => interruptedSuspend(params, test).fields.id,
+  interruptedSuspendLength: (params) => (test) => interruptedSuspend(params, test).fields.length,
+  interruptedSuspendByte: (params) => (test) => interruptedSuspend(params, test).fields.byte,
   interruptedFrameDrive: (params) => (test) => interruptedFrame(params, test).drive,
   interruptedFrameRetry: (params) => (test) => interruptedFrame(params, test).retry,
   interruptedFrameNext: (params) => (test) => interruptedFrame(params, test).next,

@@ -916,6 +916,12 @@ test('shared receive and transmit state accounts for a valid arbitration winner'
   assert.equal(result.Lost[retry - 1], 1)
   assert.equal(result.Lost[retry], 0)
   assert.deepEqual(result.Attempts.flatMap((value, tick) => value ? [tick] : []), [start, retry])
+  inputs.request = bus.bits.map(() => 0)
+  const integrated = { ...params, request: 'request' }
+  const fields = wantOf({ id: { controllerIntegratedRxId: integrated }, length: { controllerIntegratedRxLength: integrated }, byte: { controllerIntegratedRxByte: integrated } })({ tx, bus, inputs, contenders: [rival] })
+  assert.deepEqual(fields.id.filter((value) => value !== null && value !== undefined), [0x2a5, 1])
+  assert.deepEqual(fields.length.filter((value) => value !== null && value !== undefined), [1, 0])
+  assert.deepEqual(fields.byte.filter((value) => value !== null && value !== undefined), [0x55])
 })
 
 test('a passive sender receives a frame that interrupts suspension before retrying', () => {

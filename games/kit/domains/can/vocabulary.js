@@ -162,6 +162,9 @@ const WANTS = {
   controllerIntegratedKind: item(t('接收结果种类', 'receive result kind'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT, request: INPUT })),
   controllerIntegratedReady: item(t('接收结果就绪时为 1', '1 when a receive result is ready'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT, request: INPUT })),
   controllerIntegratedAccepted: item(t('满足下线观察条件并接受恢复请求时为是', 'yes when bus-off observation is complete and recovery is requested'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT, request: INPUT })),
+  controllerIntegratedRxId: item(t('控制器接收的标识符', 'identifier received by the controller'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT, request: INPUT })),
+  controllerIntegratedRxLength: item(t('控制器接收的数据长度', 'data length received by the controller'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT, request: INPUT })),
+  controllerIntegratedRxByte: item(t('控制器逐个接收的数据字节', 'data bytes received by the controller'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT, request: INPUT })),
   suspendReady: item(t('帧间隔结束后按状态等待，被动发送方额外等待八拍', 'after intermission wait according to state; passive senders wait eight extra ticks'), S.obj({ end: INPUT, mode: INPUT })),
   suspendRequest: item(t('有发送请求且等待已结束时为是', 'yes when transmission is requested and the wait has finished'), S.obj({ end: INPUT, mode: INPUT, request: INPUT })),
   passiveAckDrive: item(t('被动发送方缺应答后的总线驱动', 'passive sender drive after missing acknowledgements'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT })),
@@ -197,6 +200,9 @@ const WANTS = {
   interruptedSuspendKind: item(t('暂停期间正确接收的帧给种类 0', 'give kind 0 for a valid frame received during suspension'), S.obj({ end: INPUT })),
   interruptedSuspendReady: item(t('暂停期间接收结果出现时为 1', '1 when a receive result appears during suspension'), S.obj({ end: INPUT })),
   interruptedSuspendEvent: item(t('暂停期间成功应答时给接收成功事件 4，其余拍为 0', 'give receive-success event 4 on acknowledgement during suspension, and 0 otherwise'), S.obj({ end: INPUT })),
+  interruptedSuspendId: item(t('暂停期间接收的标识符', 'identifier received during suspension'), S.obj({ end: INPUT })),
+  interruptedSuspendLength: item(t('暂停期间接收的数据长度', 'data length received during suspension'), S.obj({ end: INPUT })),
+  interruptedSuspendByte: item(t('暂停期间逐个接收的数据字节', 'data bytes received during suspension'), S.obj({ end: INPUT })),
   interruptedFrameDrive: item(t('接收暂停期间的新帧后发送等待中的帧', 'send the pending frame after receiving a frame during suspension'), S.obj({ end: INPUT })),
   interruptedFrameRetry: item(t('等待中的帧开始发送时为 1', '1 when the pending frame starts transmitting'), S.obj({ end: INPUT })),
   interruptedFrameNext: item(t('发送等待中的帧时取走数据字节', 'take each data byte while sending the pending frame'), S.obj({ end: INPUT })),
@@ -267,7 +273,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 62,
+  version: 63,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
