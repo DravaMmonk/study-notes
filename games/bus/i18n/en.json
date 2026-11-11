@@ -368,7 +368,6 @@
   "状态": "State",
   "少说话": "Speak less",
   "一旦 TEC 或 REC 到 128，节点进入被动错误状态。被动节点发现错误时说六位隐性错误标志，而不是连续拉低总线；TEC 到 256 后节点下线，不再发送。": "When TEC or REC reaches 128, the node becomes error passive. A passive node sends six recessive error-flag bits instead of pulling the bus low; at TEC 256 it goes bus-off and sends nothing.",
-  "按事件更新状态。收到「报告」时，从下一拍开始发送对应的错误标志和八位隐性界定：主动状态说六个 0，被动状态说六个 1，下线时不发送。输出状态与完成信号。测试中标志不重叠，状态不会在标志期间变化。": "Update state from events. On Report, start the appropriate six-bit error flag and eight-bit recessive delimiter on the next tick: six 0s while active, six 1s while passive, and no transmission while bus-off. Give the state and Done. Flags do not overlap and the state stays fixed during each flag in these tests.",
   "先用错误计数得到状态；下线时不要启动错误标志，被动时保留标志时长但不驱动显性。": "Get the state from the error counters; do not start an error flag while bus-off, and retain the flag duration without driving dominant when passive.",
   "状态限制的是节点对总线的影响：被动节点不再用显性错误标志打断其他节点，下线节点不发送。": "State limits the node’s effect on the bus: a passive node no longer interrupts others with a dominant error flag, while a bus-off node does not send.",
   "报告": "Report",
@@ -403,5 +402,11 @@
   "用发送暂停元件判断是否已等够，再与发送请求组合。": "Use the suspend-transmission component to determine when the wait is over, and combine it with the transmit request.",
   "等待和请求是两个条件：被动节点不能因为有请求而跳过额外的八位。": "Waiting and a request are separate conditions: a passive node cannot skip its extra eight bits just because a request is pending.",
   "发送请求": "Transmit request",
-  "允许发送": "Transmission allowed"
+  "允许发送": "Transmission allowed",
+  "跨过门槛的那一次": "The error that crosses the threshold",
+  "计数达到 128 时节点变为被动。导致这次转换的错误仍由此前的主动节点报告，所以它发的是主动错误标志；下一次错误才使用被动标志。": "A node becomes error-passive when a counter reaches 128. The error causing this transition is still reported by the previously active node, so it sends an active error flag; subsequent errors use passive flags.",
+  "逐拍更新错误计数和状态。报告与错误事件同时出现，从下一拍开始发送对应标志和界定段；造成主动转被动的错误仍发六位显性。测试中标志不重叠，且报告只随错误事件出现；下线时不发送。": "Update the error counts and state each tick. Report arrives with an error event; from the next tick send the corresponding flag and delimiter. The error that changes active to passive still sends six dominant bits. Tests have no overlapping flags and report occurs only with an error event; bus-off nodes do not send.",
+  "记住错误发生前的状态，并在报告时锁存标志类型。状态转为被动不能改变正在发送的主动标志。": "Remember the state before the error and latch the flag type on Report. Entering passive state must not change an active flag already being sent.",
+  "进入被动状态的那一次错误发主动标志；之后检测到的错误才按被动状态报告。": "The error that enters passive state produces an active flag; later errors are reported according to the passive state.",
+  "按事件更新状态。收到「报告」时，从下一拍开始发送对应的错误标志和八位隐性界定：主动状态说六个 0，被动状态说六个 1，下线时不发送。输出状态与完成信号。测试中标志不重叠，报告时状态不切换，状态也不会在标志期间变化。": "Update the state from the events. On Report, send the corresponding error flag and eight-bit recessive delimiter starting on the next tick: active says six 0s, passive says six 1s, and bus-off does not transmit. Output the state and completion signal. Flags do not overlap in the tests; the state does not change at Report or during a flag."
 }
