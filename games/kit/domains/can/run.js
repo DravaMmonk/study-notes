@@ -14,10 +14,16 @@ import { boardNode, reacting, runTicks } from '../../engine/ticks.js'
 import { judgeTicks, runTests } from '../../engine/circuit-domain.js'
 import { BUS, contender, sayer, wiredAnd } from './bus.js'
 import { receivedFrames } from './frame-reception.js'
+import { ecuReply } from './ecu.js'
 import { T } from '../../shell/i18n.js'
 
 export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   let consumed = 0
+  const ecu = task.ecu && reacting({
+    id: 'ecu', board: 'you', start: null,
+    reads: (reply) => ({ [task.ecu.response]: reply }),
+    step: (_reply, outputs) => ({ state: ecuReply(outputs[task.ecu.request], test.ecu), shown: null }),
+  })
   const queue = task.pulls && reacting({
     id: 'queue', board: 'you', start: 0,
     reads: (head) => ({ [task.pulls.input]: test.queue[head] ?? null, [task.pulls.available]: Number(head < test.queue.length), ...(task.pulls.last ? { [task.pulls.last]: head < test.queue.length ? Number(head === test.queue.length - 1) : null } : {}) }),
@@ -30,12 +36,12 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   })
   const bindings = []
   const bind = (tick) => {
-    const values = { ...Object.fromEntries(Object.entries(test.inputs ?? {}).map(([name, input]) => [name, input[tick] ?? null])), ...(queue ? queue.bind(tick) : {}) }
+    const values = { ...Object.fromEntries(Object.entries(test.inputs ?? {}).map(([name, input]) => [name, input[tick] ?? null])), ...(queue ? queue.bind(tick) : {}), ...(ecu ? ecu.bind(tick) : {}) }
     bindings[tick] = values
     return values
   }
   const rivals = (test.contenders ?? []).map((frame, k) => contender(`rival${k}`, frame, frame.at ?? 0))
-  const nodes = [sayer('world', test.bus.bits), boardNode({ id: 'you', circuit, parts, bind, traced }), ...rivals, ...(queue ? [queue.node] : [])]
+  const nodes = [sayer('world', test.bus.bits), boardNode({ id: 'you', circuit, parts, bind, traced }), ...rivals, ...(queue ? [queue.node] : []), ...(ecu ? [ecu.node] : [])]
   const run = runTicks({ nodes, ticks: test.bus.bits.length, line: (said, tick) => {
     const line = wiredAnd(said)
     return test.flipTicks?.includes(tick) ? 1 - line : line
@@ -68,7 +74,7 @@ export const entries = ({ task, test, run }) => [
     { of: '__frameStart', label: T('帧开始（位拍）', 'Frame start (bit ticks)'), shape: 'ticks', given: test.frameEvents.map((frame) => frame.start) },
   ] : []),
   ...(test.contenders ?? []).map((_, k) => ({ of: `rival${k}`, label: T(`竞争者 ${k + 1}`, `Contender ${k + 1}`), shape: 'bits', given: run.ticks.map((tick) => tick.said[`rival${k}`] ?? 1) })),
-  ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(i.name)
+  ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available, task.pulls?.last, task.ecu?.response].includes(i.name)
     ? { of: i.name, label: i.label, shape: 'ticks', got: run.ticks.map((tick) => tick.bind?.[i.name] ?? null) }
     : { of: i.name, label: i.label, shape: task.frameInputs?.[i.name] ? 'ticks' : 'bits', given: test.inputs[i.name] }),
   ...(task.drives ? [{ of: 'send', label: T('说', 'Send'), shape: 'ticks', got: run.ticks.map((tick) => tick.sent ?? null), want: run.want.send }] : []),

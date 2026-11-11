@@ -1219,3 +1219,23 @@ test('single-frame encoding prefixes length and rejects messages too long for on
   const want = wantOf({ frame: { singleFrameEncode: { data: 'message' } } })
   assert.deepEqual(want({ inputs: { message: [[0x22, 0xf1, 0x90], [1, 2, 3, 4, 5, 6, 7], [], [1, 2, 3, 4, 5, 6, 7, 8]] } }).frame, [[3, 0x22, 0xf1, 0x90], [7, 1, 2, 3, 4, 5, 6, 7], null, null])
 })
+
+test('a board requests a data identifier and receives the ECU response one tick later', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.inputs = [{ name: 'reply', label: L('reply') }]
+  task.outputs = [{ name: 'request', label: L('request') }, { name: 'record', label: L('record') }]
+  task.ecu = { request: 'request', response: 'reply' }
+  task.want = { request: 'ecuReadRequest', record: 'ecuReadValue' }
+  task.tests = [{ bus: { idle: 3, frames: [], tail: 0 }, ecu: { did: '0xf190', value: [65, 66] } }]
+  task.hidden = []
+  task.solution = ['service = const[value=34]()', 'hi = const[value=241]()', 'lo = const[value=144]()', 'a = byteList(service)', 'b = byteList(hi)', 'c = byteList(lo)', 'ab = concatBytes(a, b)', 'req = concatBytes(ab, c)', 'request <- req', 'three = const[value=3]()', 'size = byteLength(reply)', 'n = subtract(size, three)', 'data = sliceBytes(reply, three, n)', 'record <- data']
+  delete task.naive
+  const course = canCourse(content)
+  const played = course.played.get('gather')[0]
+  assert.deepEqual(course.wrong, [])
+  const result = runLevel(played, played.solution, course.partOf)
+  assert.equal(result.pass, true)
+  assert.equal(result.runs[0].ticks[0].bind.reply, null)
+  assert.deepEqual(result.runs[0].ticks[1].bind.reply, [0x62, 0xf1, 0x90, 65, 66])
+})

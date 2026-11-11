@@ -39,13 +39,18 @@ const testOf = (t, task, frameEvents) => {
     ...Object.fromEntries(Object.entries(task.frameInputs ?? {}).map(([name, field]) => [name, frameEvents.map((frame) => field === 'id' ? frame.id : field === 'length' ? frame.data.length : field === 'time' ? frame.start : field === 'data' ? frame.data : frame.data[Number(field.slice(4))] ?? null)])),
   }
   const contenders = (t.contenders ?? []).map((node) => ({ ...node, id: num(node.id), data: (node.data ?? []).map(num) }))
-  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(frameEvents ? { frameEvents } : {}) }
+  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(t.ecu ? { ecu: { did: num(t.ecu.did), value: t.ecu.value.map(num) } } : {}), ...(frameEvents ? { frameEvents } : {}) }
 }
 
 export function canCourse(content) {
   // A test read: what reading it finds that its schema cannot say, then its bus.
   const test = (t, task, say) => {
     let frameEvents
+    if (task.ecu) {
+      if (!t.ecu || t.bus.frames.length || task.frameInputs || task.listens || task.drives || t.contenders?.length || t.tx || t.peerBits || t.peerLow?.length || t.flipTicks?.length) say('ECU tasks require a configured ECU and no bit-level or frame-level bus activity')
+      if (!task.inputs?.some((input) => input.name === task.ecu.response)) say('ECU response is not a task input')
+      if (!task.outputs?.some((output) => output.name === task.ecu.request)) say('ECU request is not a task output')
+    } else if (t.ecu) say('an ECU test requires ECU task ports')
     if (task.frameInputs) {
       if (!t.frameRequests || t.bus.frames.length || t.peerBits || t.peerLow?.length || t.flipTicks?.length || t.contenders?.length || t.tx || task.listens || task.drives) say('frame tasks require clean frame requests and no bit-level bus activity')
       for (const name of Object.keys(task.frameInputs)) if (!task.inputs?.some((input) => input.name === name)) say(`frame input ${name} is not a task input`)
@@ -110,7 +115,7 @@ export function canCourse(content) {
     }
     for (const i of task.inputs ?? []) {
       const name = i.name
-      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name), Object.prototype.hasOwnProperty.call(task.frameInputs ?? {}, name)]
+      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name), Object.prototype.hasOwnProperty.call(task.frameInputs ?? {}, name), task.ecu?.response === name]
       if (![task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(name) && !sources.some(Boolean)) say(`a test gives nothing on the input ${name}`)
       if (sources.filter(Boolean).length > 1) say(`input ${name} has more than one source`)
     }

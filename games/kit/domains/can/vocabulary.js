@@ -55,6 +55,8 @@ const WANTS = {
   multiFrameMessageById: item(t('按标识符分别重组交错到达的消息', 'reassemble interleaved messages separately by identifier'), S.obj({ data: INPUT, identifier: INPUT, match: S.int({ min: 0, max: 2047 }) })),
   flowControlReply: item(t('收到首帧时准备继续发送流控数据', 'prepare continue-to-send flow-control data on a first frame'), S.obj({ header: INPUT, block: INPUT, separation: INPUT })),
   singleFrameEncode: item(t('为不超过七字节的消息加单帧长度', 'prefix a message of at most seven bytes with a single-frame length'), S.obj({ data: INPUT })),
+  ecuReadRequest: item(t('读取测试控制器的数据标识请求', 'request the test ECU’s data identifier')),
+  ecuReadValue: item(t('控制器在下一拍交出的数据记录', 'data record returned by the ECU on the next tick')),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -280,6 +282,7 @@ const TEST = S.obj({
   peerLow: S.opt(S.list(nat, { about: t('其他节点在这些拍拉低总线', 'the other nodes pull the bus low on these ticks') })),
   flipTicks: S.opt(S.list(nat, { about: t('这些拍在线性与之后翻转总线采样值', 'invert the sampled bus after wired-AND on these ticks') })),
   frameRequests: S.opt(S.list(FRAME_REQUEST, { min: 1, about: t('干净总线上的逐帧发送请求', 'frame requests on a clean bus') })),
+  ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
@@ -289,6 +292,7 @@ const LEVEL = levelSchema({
     drives: S.opt(S.bool({ about: t('板上有驱动总线的说话口', 'the board has a port that drives the bus') })),
     inputs: S.opt(S.list(PORT)),
     frameInputs: S.opt(S.map(FRAME_FIELD, { about: t('逐帧输入读取标识符、长度、字节或开始时间', 'frame inputs read the identifier, length, a byte, or start time') })),
+    ecu: S.opt(S.obj({ request: NAME, response: NAME }, { about: t('输出发出诊断请求，输入在下一拍收到控制器回答', 'an output requests a diagnostic message and an input receives the ECU reply on the next tick') })),
     pulls: S.opt(S.obj({ input: NAME, available: NAME, next: NAME, last: S.opt(NAME), rewind: S.opt(NAME) }, { about: t('输入读取队首字节和是否有字节；输出为 1 时取走队首，下一拍出现下一字节', 'inputs give the front byte and whether one is available; output 1 takes it and the next byte appears next tick') })),
   },
   checks: { want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么') }) },
@@ -296,7 +300,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 78,
+  version: 79,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
