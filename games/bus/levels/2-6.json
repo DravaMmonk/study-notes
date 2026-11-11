@@ -1,0 +1,73 @@
+{
+  "title": { "zh": "串接发送" },
+  "intro": [{ "t": { "zh": "逐位发送器和填充发送器要接成一条流水线。填充发送器插入额外的一位时，不会取走原始位；逐位发送器必须保持当前位，直到它被取走。" } }],
+  "after": { "zh": "握手让额外的填充拍不丢失原始位；字节完成后仍可能欠一个填充位。" },
+  "tasks": [
+    {
+      "id": "2-6",
+      "brief": { "zh": "「开始」时取入一个字节，按最高位先送到总线，并按规则插入填充位。原字节最后一位被取走时「完成」为是；若它又触发了填充，额外那一位仍要在下一拍送出。空闲时说 1。" },
+      "hint": [
+        { "zh": "逐位发送器的「位」和「忙」接到填充发送器的原始位和「有位」。" },
+        { "zh": "将填充发送器的「取走」接回逐位发送器的「前进」；每块元件用寄存卡跨拍保存状态。" },
+        { "zh": "有原始位或填充位要发时接说话口，否则说隐性 1。" }
+      ],
+      "drives": true,
+      "inputs": [{ "name": "value", "label": { "zh": "字节" } }, { "name": "start", "label": { "zh": "开始" } }],
+      "outputs": [{ "name": "done", "label": { "zh": "完成" } }],
+      "tests": [
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 14, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 13, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 15, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [165, 0, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "start": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "want": {
+        "send": { "stuffedSerialDrive": { "value": "value", "start": "start" } },
+        "done": { "stuffedSerialDone": { "value": "value", "start": "start" } }
+      },
+      "solution": [
+        "s = serializer(value, start, p.accepted)",
+        "p = stuffer(s.bit, s.busyout, start)",
+        "one = const[value=1]()",
+        "has = select(p.inserted, one, s.busyout)",
+        "v = select(has, p.value, one)",
+        "send <- v",
+        "done <- s.done"
+      ],
+      "naive": [
+        "one = const[value=1]()",
+        "s = serializer(value, start, one)",
+        "p = stuffer(s.bit, s.busyout, start)",
+        "has = select(p.inserted, one, s.busyout)",
+        "v = select(has, p.value, one)",
+        "send <- v",
+        "done <- s.done"
+      ]
+    }
+  ]
+}

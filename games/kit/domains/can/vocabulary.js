@@ -40,6 +40,11 @@ const WANTS = {
   serialBusy: item(t('这一拍是否正在逐位送字节', 'whether a byte is being sent on this tick'), S.obj({ value: INPUT, start: INPUT })),
   serialDone: item(t('这一拍是否为字节的最后一位', 'whether this tick is the final bit of the byte'), S.obj({ value: INPUT, start: INPUT })),
   serialDrive: item(t('逐位送字节，空闲时说隐性 1', 'send the byte bit by bit and say recessive 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
+  pacedBit: item(t('按允许前进的拍逐位送字节', 'send a byte bit by bit, advancing only when permitted'), S.obj({ value: INPUT, start: INPUT, advance: INPUT })),
+  pacedBusy: item(t('可暂停的逐位发送器这一拍是否忙', 'whether the pausable serializer is busy this tick'), S.obj({ value: INPUT, start: INPUT, advance: INPUT })),
+  pacedDone: item(t('可暂停的逐位发送器是否在这一拍取走最后一位', 'whether the pausable serializer accepts its final bit this tick'), S.obj({ value: INPUT, start: INPUT, advance: INPUT })),
+  stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
+  stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffOut: item(t('逐位插入填充位，空闲时为「—」', 'insert stuff bits into the input stream, giving 「—」 while idle'), S.obj({ bit: INPUT, valid: INPUT, start: INPUT })),
   stuffAccepted: item(t('这一拍是否取走原始位', 'whether the original bit was accepted this tick'), S.obj({ bit: INPUT, valid: INPUT, start: INPUT })),
   stuffInserted: item(t('这一拍是否插入填充位', 'whether a stuff bit was inserted this tick'), S.obj({ bit: INPUT, valid: INPUT, start: INPUT })),
@@ -88,7 +93,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 17,
+  version: 18,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

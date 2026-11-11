@@ -27,16 +27,34 @@ const destuff = (bits, resets) => {
   })
 }
 
-const serial = ({ value, start }, test) => {
+const serial = ({ value, start, advance }, test) => {
   let byte = 0
   let position = 8
   return each(test, (tick) => {
     if (test.inputs[start][tick]) { byte = test.inputs[value][tick]; position = 0 }
     const busy = position < 8
     const bit = busy ? (byte >> (7 - position)) & 1 : null
-    const done = position === 7
-    if (busy) position++
+    const allowed = advance === undefined || Boolean(test.inputs[advance][tick])
+    const done = position === 7 && allowed
+    if (busy && allowed) position++
     return { bit, busy, done }
+  })
+}
+
+const stuffedSerial = ({ value, start }, test) => {
+  let byte = 0
+  let position = 8
+  let previous = null
+  let run = 0
+  return each(test, (tick) => {
+    if (test.inputs[start][tick]) { byte = test.inputs[value][tick]; position = 0; previous = null; run = 0 }
+    const inserted = run === 5
+    const accepted = !inserted && position < 8
+    const bit = inserted ? 1 - previous : accepted ? (byte >> (7 - position)) & 1 : null
+    const done = accepted && position === 7
+    if (accepted) position++
+    if (bit !== null) { run = bit === previous ? run + 1 : 1; previous = bit }
+    return { bit, done }
   })
 }
 
@@ -80,6 +98,11 @@ const WANTS = {
   serialBusy: (params) => (test) => serial(params, test).map((step) => step.busy),
   serialDone: (params) => (test) => serial(params, test).map((step) => step.done),
   serialDrive: (params) => (test) => serial(params, test).map((step) => step.bit ?? 1),
+  pacedBit: (params) => (test) => serial(params, test).map((step) => step.bit),
+  pacedBusy: (params) => (test) => serial(params, test).map((step) => step.busy),
+  pacedDone: (params) => (test) => serial(params, test).map((step) => step.done),
+  stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
+  stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffOut: (params) => (test) => stuffedOutput(params, test).map((step) => step.out),
   stuffAccepted: (params) => (test) => stuffedOutput(params, test).map((step) => step.accepted),
   stuffInserted: (params) => (test) => stuffedOutput(params, test).map((step) => step.inserted),

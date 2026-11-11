@@ -44,14 +44,15 @@
         "done": { "serialDone": { "value": "value", "start": "start" } }
       },
       "solution": [
-        "p = serializer(value, start)",
+        "p = serializer(value, start, one)",
         "one = const[value=1]()",
         "s = select(p.busyout, p.bit, one)",
         "send <- s",
         "done <- p.done"
       ],
       "naive": [
-        "p = serializer(value, start)",
+        "one = const[value=1]()",
+        "p = serializer(value, start, one)",
         "zero = const[value=0]()",
         "s = select(p.busyout, p.bit, zero)",
         "send <- s",
