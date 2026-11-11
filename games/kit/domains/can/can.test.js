@@ -1110,3 +1110,8 @@ test('a signal scale and offset preserve missing bytes', () => {
   const want = wantOf({ signal: { affineSignal: { input: 'byte', scale: 2, offset: -40 } } })
   assert.deepEqual(want({ inputs: { byte: [0, 20, 100, null] } }).signal, [-40, 0, 160, null])
 })
+
+test('a two-byte signal distinguishes byte order and missing values', () => {
+  const want = wantOf({ value: { wordSignal: { low: 'lo', high: 'hi' } } })
+  assert.deepEqual(want({ inputs: { lo: [0x34, 0xff, null], hi: [0x12, 0, 1] } }).value, [0x1234, 255, null])
+})

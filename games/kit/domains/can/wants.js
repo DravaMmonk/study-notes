@@ -651,6 +651,7 @@ const WANTS = {
   line: () => (test) => test.bus.bits,
   inputSignal: ({ input }) => (test) => test.inputs[input],
   affineSignal: ({ input, scale, offset }) => (test) => test.inputs[input].map((value) => value == null ? null : value * scale + offset),
+  wordSignal: ({ low, high }) => (test) => test.inputs[low].map((value, tick) => value == null || test.inputs[high][tick] == null ? null : value + 256 * test.inputs[high][tick]),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {
