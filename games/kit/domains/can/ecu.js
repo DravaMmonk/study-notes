@@ -1,6 +1,6 @@
 // A deliberately small diagnostic ECU: one configured data identifier, read as a complete message.
 // Transport is not modeled here; security uses an explicitly fictional one-byte key algorithm.
-export function ecuReply(request, { did, value, requiresExtended, requiresSecurity }, session = 1, unlocked = false) {
+export function ecuReply(request, { did, value, requiresExtended, requiresSecurity }, session = 1, unlocked = false, dtcs = []) {
   if (request == null) return null
   if (!Array.isArray(request) || !request.length || request.some((byte) => !Number.isInteger(byte) || byte < 0 || byte > 255)) return null
   const service = request[0]
@@ -13,6 +13,15 @@ export function ecuReply(request, { did, value, requiresExtended, requiresSecuri
     if (request.length !== 2) return [0x7f, service, 0x13]
     if (request[1] !== 0) return [0x7f, service, 0x12]
     return [0x7e, 0]
+  }
+  if (service === 0x19) {
+    if (request.length !== 3) return [0x7f, service, 0x13]
+    if (request[1] !== 2) return [0x7f, service, 0x12]
+    return [0x59, 2, 0xff, ...dtcs.filter((dtc) => dtc.status & request[2]).flatMap(({ code, status }) => [(code >> 16) & 255, (code >> 8) & 255, code & 255, status])]
+  }
+  if (service === 0x14) {
+    if (request.length !== 4) return [0x7f, service, 0x13]
+    return request.slice(1).every((byte) => byte === 255) ? [0x54] : [0x7f, service, 0x31]
   }
   if (service !== 0x22) return [0x7f, service, 0x11]
   if (request.length !== 3) return [0x7f, service, 0x13]
@@ -47,7 +56,7 @@ export function ecuAdvance(state, request, profile) {
     }
     return { ...state, reply: [0x7f, 0x27, 0x13] }
   }
-  const final = ecuReply(request, profile, state.session, state.unlocked)
+  const final = ecuReply(request, profile, state.session, state.unlocked, state.dtcs)
   if (final?.[0] === 0x62 && profile.waits > 0) return { ...state, reply: [0x7f, 0x22, 0x78], pending: { final, remaining: profile.waits - 1 } }
-  return { ...state, session: final?.[0] === 0x50 ? final[1] : state.session, ...(final?.[0] === 0x50 && final[1] === 1 ? { unlocked: false, seedIssued: false } : {}), reply: final, pending: null }
+  return { ...state, session: final?.[0] === 0x50 ? final[1] : state.session, ...(final?.[0] === 0x50 && final[1] === 1 ? { unlocked: false, seedIssued: false } : {}), ...(final?.[0] === 0x54 ? { dtcs: [] } : {}), reply: final, pending: null }
 }

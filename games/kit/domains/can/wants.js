@@ -707,6 +707,10 @@ const WANTS = {
   ecuSecurityValue: () => (test) => test.bus.bits.map((_, tick) => tick === 4 ? test.ecu.value : null),
   ecuWrongKeyRequests: () => (test) => test.bus.bits.map((_, tick) => tick === 0 ? [0x10, 3] : tick === 1 ? [0x27, 1] : tick === 2 ? [0x27, 2, test.ecu.seed ^ 0x5b] : null),
   ecuWrongKeyReason: () => (test) => test.bus.bits.map((_, tick) => tick === 3 ? 0x35 : null),
+  ecuDtcRequests: () => (test) => test.bus.bits.map(() => [0x19, 2, 8]),
+  ecuDtcRecords: () => (test) => test.bus.bits.map((_, tick) => tick ? test.ecu.dtcs.filter(({ status }) => status & 8).flatMap(({ code, status }) => [(code >> 16) & 255, (code >> 8) & 255, code & 255, status]) : null),
+  ecuClearDtcRequests: () => (test) => test.bus.bits.map((_, tick) => tick === 0 || tick === 2 ? [0x19, 2, 8] : tick === 1 ? [0x14, 255, 255, 255] : null),
+  ecuClearDtcRecords: () => (test) => test.bus.bits.map((_, tick) => tick === 1 ? test.ecu.dtcs.filter(({ status }) => status & 8).flatMap(({ code, status }) => [(code >> 16) & 255, (code >> 8) & 255, code & 255, status]) : tick === 3 ? [] : null),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

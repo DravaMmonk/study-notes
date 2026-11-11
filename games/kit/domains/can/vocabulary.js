@@ -70,6 +70,10 @@ const WANTS = {
   ecuSecurityValue: item(t('解锁后读取到的数据记录', 'data record read after unlocking')),
   ecuWrongKeyRequests: item(t('进入会话、取种子并发送指定的错误密钥', 'enter a session, request a seed and send a specified wrong key')),
   ecuWrongKeyReason: item(t('控制器拒绝错误密钥时的原因码', 'reason code returned when the ECU rejects a wrong key')),
+  ecuDtcRequests: item(t('每拍请求已确认的故障码', 'request confirmed trouble codes on every tick')),
+  ecuDtcRecords: item(t('已确认故障码的记录字节', 'record bytes for confirmed trouble codes')),
+  ecuClearDtcRequests: item(t('读取、清除全部故障码并再次读取', 'read, clear all trouble codes, and read again')),
+  ecuClearDtcRecords: item(t('清除前后各次读取的故障码记录', 'trouble-code records read before and after clearing')),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -295,7 +299,7 @@ const TEST = S.obj({
   peerLow: S.opt(S.list(nat, { about: t('其他节点在这些拍拉低总线', 'the other nodes pull the bus low on these ticks') })),
   flipTicks: S.opt(S.list(nat, { about: t('这些拍在线性与之后翻转总线采样值', 'invert the sampled bus after wired-AND on these ticks') })),
   frameRequests: S.opt(S.list(FRAME_REQUEST, { min: 1, about: t('干净总线上的逐帧发送请求', 'frame requests on a clean bus') })),
-  ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)), waits: S.opt(nat), requiresExtended: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1 })), requiresSecurity: S.opt(S.bool()), seed: S.opt(S.int({ min: 0, max: 255 })) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
+  ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)), waits: S.opt(nat), requiresExtended: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1 })), requiresSecurity: S.opt(S.bool()), seed: S.opt(S.int({ min: 0, max: 255 })), dtcs: S.opt(S.list(S.obj({ code: hex(0xffffff, 6), status: hex(0xff, 2) }))) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
@@ -313,7 +317,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 85,
+  version: 86,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

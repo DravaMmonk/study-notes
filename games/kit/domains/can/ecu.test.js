@@ -70,3 +70,14 @@ test('fictional seed-key security protects a record and temporarily locks repeat
   for (let i = 0; i < 2; i++) state = ecuAdvance(state, null, profile)
   assert.deepEqual(ecuAdvance(state, [0x27, 1], profile).reply, [0x67, 1, 0x12])
 })
+
+test('trouble-code status filtering and clearing change the actual ECU state', async () => {
+  const { ecuAdvance } = await import('./ecu.js')
+  const profile = { did: 0xf190, value: [], waits: 0 }
+  let state = { reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0, dtcs: [{ code: 0x123456, status: 8 }, { code: 0xabcdef, status: 1 }, { code: 0x010203, status: 9 }] }
+  state = ecuAdvance(state, [0x19, 2, 8], profile)
+  assert.deepEqual(state.reply, [0x59, 2, 255, 0x12, 0x34, 0x56, 8, 1, 2, 3, 9])
+  state = ecuAdvance(state, [0x14, 255, 255, 255], profile)
+  assert.deepEqual(state.reply, [0x54])
+  assert.deepEqual(ecuAdvance(state, [0x19, 2, 8], profile).reply, [0x59, 2, 255])
+})
