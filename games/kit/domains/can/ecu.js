@@ -1,12 +1,13 @@
 // A deliberately small diagnostic ECU: one configured data identifier, read as a complete message.
 // Transport is not modeled here; security uses an explicitly fictional one-byte key algorithm.
+import { flashRequest } from './flash.js'
 export function ecuReply(request, { did, value, requiresExtended, requiresSecurity }, session = 1, unlocked = false, dtcs = []) {
   if (request == null) return null
   if (!Array.isArray(request) || !request.length || request.some((byte) => !Number.isInteger(byte) || byte < 0 || byte > 255)) return null
   const service = request[0]
   if (service === 0x10) {
     if (request.length !== 2) return [0x7f, service, 0x13]
-    if (![1, 3].includes(request[1])) return [0x7f, service, 0x12]
+    if (![1, 2, 3].includes(request[1])) return [0x7f, service, 0x12]
     return [0x50, request[1], 0x00, 0x32, 0x01, 0xf4]
   }
   if (service === 0x3e) {
@@ -45,7 +46,7 @@ export function ecuAdvance(state, request, profile) {
     return { ...state, reply: state.pending.final, pending: null }
   }
   if (active && request[0] === 0x27 && profile.seed !== undefined) {
-    if (session !== 3) return { ...state, reply: [0x7f, 0x27, 0x7f] }
+    if (![2, 3].includes(session)) return { ...state, reply: [0x7f, 0x27, 0x7f] }
     if (state.locked > 0) return { ...state, reply: [0x7f, 0x27, 0x37] }
     if (request.length === 2 && request[1] === 1) return { ...state, seedIssued: true, reply: [0x67, 1, profile.seed] }
     if (request.length === 3 && request[1] === 2) {
@@ -55,6 +56,10 @@ export function ecuAdvance(state, request, profile) {
       return { ...state, seedIssued: false, failures: failures >= 3 ? 0 : failures, locked: failures >= 3 ? 4 : 0, reply: [0x7f, 0x27, failures >= 3 ? 0x36 : 0x35] }
     }
     return { ...state, reply: [0x7f, 0x27, 0x13] }
+  }
+  if (active && profile.flash) {
+    const result = flashRequest(state.flash, request, profile.flash, state.session, state.unlocked)
+    if (result) return { ...state, flash: result.flash, reply: result.reply, ...(result.reply[0] === 0x51 ? { session: 1, unlocked: false, seedIssued: false } : {}) }
   }
   const final = ecuReply(request, profile, state.session, state.unlocked, state.dtcs)
   if (final?.[0] === 0x62 && profile.waits > 0) return { ...state, reply: [0x7f, 0x22, 0x78], pending: { final, remaining: profile.waits - 1 } }

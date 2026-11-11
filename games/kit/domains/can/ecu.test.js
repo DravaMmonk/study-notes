@@ -81,3 +81,14 @@ test('trouble-code status filtering and clearing change the actual ECU state', a
   assert.deepEqual(state.reply, [0x54])
   assert.deepEqual(ecuAdvance(state, [0x19, 2, 8], profile).reply, [0x59, 2, 255])
 })
+
+test('the ECU drives the fictional programmer and returns to default session after reset', async () => {
+  const { ecuAdvance } = await import('./ecu.js')
+  const { newFlashState } = await import('./flash.js')
+  const profile = { did: 0xf190, value: [1], waits: 0, flash: { maxBlock: 4, expectedChecksum: 3 } }
+  let state = { reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0, dtcs: [], flash: newFlashState() }
+  for (const request of [[0x10, 2], [0x31, 1, 255, 0], [0x34, 0, 0x12, 0, 0, 2], [0x36, 1, 1, 2], [0x37], [0x31, 1, 255, 1], [0x11, 1]]) state = ecuAdvance(state, request, profile)
+  assert.deepEqual(state.reply, [0x51, 1])
+  assert.equal(state.session, 1)
+  assert.equal(state.flash.applicationValid, true)
+})
