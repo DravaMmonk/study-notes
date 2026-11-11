@@ -372,6 +372,26 @@ test('ACK retry course tests require a complete active-state retry and a matchin
   assert.ok(wrong.some((problem) => problem.includes('peers may only acknowledge')))
 })
 
+test('passive ACK retry course tests require passive preparation and a successful retry', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.inputs = ['item', 'available', 'start', 'prep', 'reset'].map((name) => ({ name, label: L(name) }))
+  task.outputs = ['next', 'rewind'].map((name) => ({ name, label: L(name) }))
+  task.pulls = { input: 'item', available: 'available', next: 'next', rewind: 'rewind' }
+  task.want = { next: { passiveAckNext: { start: 'start', prep: 'prep', reset: 'reset' } } }
+  const tx = { id: 0x123, data: [0xa5] }
+  const size = transmitBits(tx).length
+  const ack = 20 + size - 12
+  const length = 20 + size
+  task.tests = [{ bus: { idle: length, frames: [], tail: 0 }, tx, queue: tx.data, inputs: { prep: Array.from({ length }, (_, tick) => Number(tick < 16)) }, pulses: { start: [20], reset: [0] }, peerLow: [ack] }]
+  assert.ok(!canCourse(content).wrong.some((problem) => problem.includes('passive ACK retry')))
+  task.tests[0].inputs.prep[15] = 0
+  task.tests[0].peerLow = []
+  const wrong = canCourse(content).wrong
+  assert.ok(wrong.some((problem) => problem.includes('sixteen preparation errors')))
+  assert.ok(wrong.some((problem) => problem.includes('must finish with an acknowledged frame')))
+})
+
 test('a board drives the wired-AND bus and cannot say what it hears in the same tick', () => {
   const task = { listens: true, drives: true, inputs: [{ name: 'bit', label: L('bit') }], outputs: [], want: wantOf({ send: { delayedInput: { input: 'bit', first: 1 } } }) }
   const test = { bus: { bits: [1, 1, 0, 1], frames: [] }, inputs: { bit: [0, 1, 1, 0] } }
@@ -508,6 +528,27 @@ test('passive senders wait eight additional idle bits after intermission', () =>
   assert.equal(request[10], true)
   test.inputs.mode[12] = 2
   assert.equal(wantOf({ ready: { suspendReady: { end: 'end', mode: 'mode' } } })(test).ready[23], false)
+})
+
+test('passive missing ACK retry waits through suspension and does not increase TEC', () => {
+  const tx = { id: 0x123, data: [0xa5] }
+  const bits = transmitBits(tx)
+  const start = 20
+  const ack = start + bits.length - 12
+  const retry = ack + 26
+  const length = retry + bits.length + 1
+  const bus = Array(length).fill(1)
+  bus[retry + bits.length - 12] = 0
+  const inputs = { start: bus.map((_, tick) => Number(tick === start)), prep: bus.map((_, tick) => Number(tick < 16)), reset: bus.map((_, tick) => Number(tick === 0)) }
+  const calls = Object.fromEntries(['Drive', 'Next', 'Rewind', 'Attempts', 'Done', 'Tec', 'Mode'].map((name) => [name, { [`passiveAck${name}`]: { start: 'start', prep: 'prep', reset: 'reset' } }]))
+  const result = wantOf(calls)({ tx, bus: { bits: bus }, inputs })
+  assert.deepEqual(result.Attempts.flatMap((v, tick) => v ? [tick] : []), [start, retry])
+  assert.deepEqual(result.Rewind.flatMap((v, tick) => v ? [tick] : []), [ack])
+  assert.deepEqual(result.Drive.slice(ack + 1, retry), Array(25).fill(1))
+  assert.equal(result.Tec[ack], 128)
+  assert.equal(result.Tec[retry + bits.length - 1], 127)
+  assert.equal(result.Mode[ack], 1)
+  assert.equal(result.Mode[retry + bits.length - 1], 0)
 })
 
 test('a transmitter releases ACK while another node can acknowledge', () => {

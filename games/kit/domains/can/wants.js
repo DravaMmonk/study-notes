@@ -222,6 +222,38 @@ const suspendReady = ({ end, mode }, test) => {
   })
 }
 
+// A previously prepared passive sender retries on a quiet bus; missing ACK alone does not increase TEC.
+const passiveAckRetry = ({ start, prep, reset }, test) => {
+  const ticks = test.bus.bits.length
+  const drive = Array(ticks).fill(1)
+  const next = Array(ticks).fill(false)
+  const rewind = Array(ticks).fill(false)
+  const attempts = Array(ticks).fill(0)
+  const done = Array(ticks).fill(false)
+  const events = [...test.inputs[prep]]
+  const bits = test.tx ? transmitBits(test.tx) : []
+  let at = test.inputs[start]?.findIndex((value) => value === 1 || value === true) ?? -1
+  while (at >= 0 && at < ticks && bits.length) {
+    attempts[at] = 1
+    const ack = at + bits.length - 12
+    const failed = ack < ticks && test.bus.bits[ack] === 1
+    const end = failed ? ack : at + bits.length - 1
+    for (let tick = at; tick <= end && tick < ticks; tick++) drive[tick] = bits[tick - at]
+    const pulse = test.bus.bits.map((_, tick) => Number(tick === at))
+    for (const tick of frameTransmission({ start: '__attempt' }, { ...test, inputs: { ...test.inputs, __attempt: pulse } }).next) if (tick < ticks) next[tick] = true
+    if (!failed) {
+      if (end < ticks) { done[end] = true; events[end] = 2 }
+      break
+    }
+    rewind[ack] = true
+    events[ack] = 5
+    // Six passive flag bits, eight delimiter bits, three intermission bits, eight suspended bits.
+    at = ack + 26
+  }
+  const counts = faultCounts({ event: '__events', reset }, { ...test, inputs: { ...test.inputs, __events: events } })
+  return { drive, next, rewind, attempts, done, tec: counts.map((step) => step.tx), mode: counts.map((step) => step.mode) }
+}
+
 const errorFlag = ({ error }, test) => {
   let position = 14
   return each(test, (tick) => {
@@ -426,6 +458,13 @@ const WANTS = {
   ackRetryTec: (params) => (test) => ackRetryPlan(params, test).tec,
   suspendReady: (params) => (test) => suspendReady(params, test),
   suspendRequest: ({ request, ...params }) => (test) => suspendReady(params, test).map((ready, tick) => ready && Boolean(test.inputs[request][tick])),
+  passiveAckDrive: (params) => (test) => passiveAckRetry(params, test).drive,
+  passiveAckNext: (params) => (test) => passiveAckRetry(params, test).next,
+  passiveAckRewind: (params) => (test) => passiveAckRetry(params, test).rewind,
+  passiveAckAttempts: (params) => (test) => passiveAckRetry(params, test).attempts,
+  passiveAckDone: (params) => (test) => passiveAckRetry(params, test).done,
+  passiveAckTec: (params) => (test) => passiveAckRetry(params, test).tec,
+  passiveAckMode: (params) => (test) => passiveAckRetry(params, test).mode,
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),

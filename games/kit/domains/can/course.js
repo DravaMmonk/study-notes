@@ -62,6 +62,11 @@ export function canCourse(content) {
       if (t.tx && JSON.stringify((t.tx.data ?? []).map(num)) !== JSON.stringify((t.queue ?? []).map(num))) say('ACK retry queue must contain the transmitted frame data')
       if (!task.pulls?.rewind) say('ACK retry tests require a rewindable queue')
     }
+    if (task.expectsPassiveAck) {
+      if (t.bus.frames.length || t.contenders?.length || t.peerBits || t.flipTicks?.length) say('passive ACK retry tests use an idle bus with scripted acknowledgements')
+      if (t.tx && JSON.stringify((t.tx.data ?? []).map(num)) !== JSON.stringify((t.queue ?? []).map(num))) say('passive ACK retry queue must contain the transmitted frame data')
+      if (!task.pulls?.rewind) say('passive ACK retry tests require a rewindable queue')
+    }
     if (task.pulls) {
       if (!task.inputs?.some((input) => input.name === task.pulls.input)) say(`queue input ${task.pulls.input} is not a task input`)
       if (!task.inputs?.some((input) => input.name === task.pulls.available)) say(`queue availability ${task.pulls.available} is not a task input`)
@@ -104,6 +109,21 @@ export function canCourse(content) {
         if ((t.peerLow ?? []).some((tick) => tick !== ack)) say('ACK retry peers may only acknowledge the successful attempt')
       }
     }
+    if (task.expectsPassiveAck && t.tx && task.passiveAckParams) {
+      const { start, prep, reset } = task.passiveAckParams
+      const starts = (result.inputs[start] ?? []).flatMap((value, tick) => value === 1 ? [tick] : [])
+      const preparation = result.inputs[prep] ?? []
+      const resets = (result.inputs[reset] ?? []).flatMap((value, tick) => value === 1 ? [tick] : [])
+      if (task.passiveAckCalls.some((params) => params.start !== start || params.prep !== prep || params.reset !== reset)) say('passive ACK retry checks must share their inputs')
+      if (starts.length !== 1 || starts[0] < 16 || resets.length !== 1 || resets[0] !== 0 || preparation.some((value, tick) => value !== Number(tick < 16))) say('passive ACK retry tests require sixteen preparation errors, one reset and one later start')
+      if (starts.length === 1) {
+        const size = transmitBits(result.tx).length
+        let ack = starts[0] + size - 12
+        while (ack < result.ticks && result.bus.bits[ack] === 1) ack += size - 12 + 26
+        if (ack >= result.ticks || result.bus.bits[ack] !== 0 || ack + 11 >= result.ticks) say('passive ACK retry tests must finish with an acknowledged frame')
+        if ((t.peerLow ?? []).some((tick) => tick !== ack)) say('passive ACK retry peers may only acknowledge the successful attempt')
+      }
+    }
     if (t.peerBits && t.peerBits.length !== result.bus.bits.length) say('other nodes must give one bit per tick')
     for (const tick of [...(t.peerLow ?? []), ...(t.flipTicks ?? []), ...Object.values(t.pulses ?? {}).flat(), ...(t.contenders ?? []).map((node) => node.at ?? 0), ...(t.txInputs ? [t.txAt ?? 0] : [])]) if (tick >= result.bus.bits.length) say(`tick ${tick} is outside the test`)
     return result
@@ -115,6 +135,8 @@ export function canCourse(content) {
     const expectsRetry = retryCalls.length > 0
     const expectsAckRetry = names.some((name) => name.startsWith('ackRetry'))
     const ackRetryStarts = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('ackRetry')).map(([, params]) => params.start)
-    return { ...task, expectsRetry, expectsAckRetry, ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
+    const passiveAckCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('passiveAck')).map(([, params]) => params)
+    const expectsPassiveAck = passiveAckCalls.length > 0
+    return { ...task, expectsRetry, expectsAckRetry, expectsPassiveAck, passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }
