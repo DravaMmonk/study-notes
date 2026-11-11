@@ -1,0 +1,136 @@
+{
+  "title": { "zh": "接收、应答和报错" },
+  "intro": [{ "t": { "zh": "收到完整帧后，正确的接收方在应答位拉低总线。填充错误要在下一拍报告；CRC 错误则要等应答界定位之后再发错误标志。" } }],
+  "builds": {
+    "type": "receiver",
+    "name": { "zh": "接收与应答" },
+    "desc": { "zh": "读取总线，正确接收时应答，填充或 CRC 错误按各自时序发主动标志；按准备事件和接收结果更新接收错误计数。限定单帧、无重叠错误。" }
+  },
+  "after": { "zh": "填充错误立即报告，CRC 错误等待应答界定位结束；正确接收时应答并降低接收错误计数。本练习不模拟错误标志叠加和被动接收节点。" },
+  "tasks": [
+    {
+      "id": "2-37",
+      "brief": {
+        "zh": "接收一帧：正确时在应答位说 0；填充错误时从下一拍发主动错误标志，CRC 错误时从应答界定位之后发。输出结果种类、结果就绪和接收错误计数。准备事件在帧前直接提供接收错误；成功应答时计数减一，错误时加一。测试只含一个帧、一个错误主动接收方和最多一处数据或 CRC 位翻转。"
+      },
+      "hint": [
+        { "zh": "校验抓帧器交出结果种类：0 正确、1 填充错误、2 CRC 错误。用寄存卡把正确结果延迟一拍，驱动应答位。" },
+        { "zh": "填充错误立即触发错误标志；CRC 错误先延迟两拍，再触发标志。接收成功在应答拍记账。" }
+      ],
+      "listens": true,
+      "drives": true,
+      "inputs": [{ "name": "prep", "label": { "zh": "准备事件" } }, { "name": "reset", "label": { "zh": "初始化" } }],
+      "outputs": [
+        { "name": "kind", "label": { "zh": "结果种类" } },
+        { "name": "ready", "label": { "zh": "结果就绪" } },
+        { "name": "rec", "label": { "zh": "接收计数" } }
+      ],
+      "tests": [
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }] },
+          "pulses": { "reset": [0] }
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [41]
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [32]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 0, "data": [0, 255], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 98 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [38]
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 0, "data": [0, 255], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 98 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [34]
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 291, "data": [165], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 0, "ticks": 89 }] },
+          "pulses": { "reset": [0] }
+        }
+      ],
+      "want": {
+        "send": { "receiveFrameDrive": { "prep": "prep", "reset": "reset" } },
+        "kind": { "receiveFrameKind": { "prep": "prep", "reset": "reset" } },
+        "ready": { "receiveFrameReady": { "prep": "prep", "reset": "reset" } },
+        "rec": { "receiveFrameRec": { "prep": "prep", "reset": "reset" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "three = const[value=3]()",
+        "four = const[value=4]()",
+        "s = sniffer(line)",
+        "isgood = compare[form=eq](s.kind, zero)",
+        "isstuff = compare[form=eq](s.kind, one)",
+        "iscrc = compare[form=eq](s.kind, two)",
+        "good = select(s.ready, isgood, zero)",
+        "badstuff = select(s.ready, isstuff, zero)",
+        "badcrc = select(s.ready, iscrc, zero)",
+        "ack = reg[reg=A, start=0]()",
+        "ka = keep[reg=A](good)",
+        "crc1 = reg[reg=B, start=0]()",
+        "crc2 = reg[reg=C, start=0]()",
+        "kb = keep[reg=B](badcrc)",
+        "kc = keep[reg=C](crc1)",
+        "trigger = select(badstuff, one, crc2)",
+        "f = errorflag(trigger)",
+        "wire = select(ack, zero, f.send)",
+        "send <- wire",
+        "failure = select(badstuff, one, badcrc)",
+        "success = select(ack, four, prep)",
+        "event = select(failure, three, success)",
+        "p = faultcounter(event, reset)",
+        "rec <- p.rx",
+        "kind <- s.kind",
+        "ready <- s.ready"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "three = const[value=3]()",
+        "four = const[value=4]()",
+        "s = sniffer(line)",
+        "isgood = compare[form=eq](s.kind, zero)",
+        "isstuff = compare[form=eq](s.kind, one)",
+        "iscrc = compare[form=eq](s.kind, two)",
+        "good = select(s.ready, isgood, zero)",
+        "badstuff = select(s.ready, isstuff, zero)",
+        "badcrc = select(s.ready, iscrc, zero)",
+        "ack = reg[reg=A, start=0]()",
+        "ka = keep[reg=A](good)",
+        "crc1 = reg[reg=B, start=0]()",
+        "crc2 = reg[reg=C, start=0]()",
+        "kb = keep[reg=B](badcrc)",
+        "kc = keep[reg=C](crc1)",
+        "trigger = select(badstuff, one, badcrc)",
+        "f = errorflag(trigger)",
+        "wire = select(ack, zero, f.send)",
+        "send <- wire",
+        "failure = select(badstuff, one, badcrc)",
+        "success = select(ack, four, prep)",
+        "event = select(failure, three, success)",
+        "p = faultcounter(event, reset)",
+        "rec <- p.rx",
+        "kind <- s.kind",
+        "ready <- s.ready"
+      ]
+    }
+  ]
+}

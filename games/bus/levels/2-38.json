@@ -1,0 +1,89 @@
+{
+  "title": { "zh": "标记接收错误" },
+  "intro": [{ "t": { "zh": "把接收与应答封装起来后，可以让另一块板只在检测到接收错误的那一拍发出提醒。" } }],
+  "after": { "zh": "结果种类让后续电路区分正确帧、填充错误和 CRC 错误；应答和错误标志仍由接收元件按时发送。" },
+  "tasks": [
+    {
+      "id": "2-38",
+      "brief": { "zh": "使用接收与应答元件驱动总线并维护接收计数；填充错误或 CRC 错误出现的那一拍交出「是」，其余拍交出「否」。" },
+      "hint": [{ "zh": "在结果就绪时检查种类是否为 1 或 2；正确的种类 0 不应触发提醒。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [{ "name": "prep", "label": { "zh": "准备事件" } }, { "name": "reset", "label": { "zh": "初始化" } }],
+      "outputs": [{ "name": "rec", "label": { "zh": "接收计数" } }, { "name": "bad", "label": { "zh": "接收错误" } }],
+      "tests": [
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }] },
+          "pulses": { "reset": [0] }
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [41]
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [32]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 0, "data": [0, 255], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 98 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [38]
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 0, "data": [0, 255], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 98 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [34]
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 291, "data": [165], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 0, "ticks": 89 }] },
+          "pulses": { "reset": [0] }
+        }
+      ],
+      "want": {
+        "send": { "receiveFrameDrive": { "prep": "prep", "reset": "reset" } },
+        "rec": { "receiveFrameRec": { "prep": "prep", "reset": "reset" } },
+        "bad": { "receiveFrameBad": { "prep": "prep", "reset": "reset" } }
+      },
+      "solution": [
+        "p = receiver(line, prep, reset)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "false = compare[form=eq](zero, one)",
+        "true = compare[form=eq](one, one)",
+        "isone = compare[form=eq](p.kind, one)",
+        "istwo = compare[form=eq](p.kind, two)",
+        "either = select(isone, true, istwo)",
+        "result = select(p.ready, either, false)",
+        "send <- p.send",
+        "rec <- p.rec",
+        "bad <- result"
+      ],
+      "naive": [
+        "p = receiver(line, prep, reset)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "false = compare[form=eq](zero, one)",
+        "true = compare[form=eq](one, one)",
+        "isone = compare[form=eq](p.kind, one)",
+        "istwo = compare[form=eq](p.kind, two)",
+        "either = select(isone, false, istwo)",
+        "result = select(p.ready, either, false)",
+        "send <- p.send",
+        "rec <- p.rec",
+        "bad <- result"
+      ]
+    }
+  ]
+}
