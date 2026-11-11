@@ -84,8 +84,8 @@ const WANTS = {
   ecuFlashDemoDone: item(t('模拟控制器确认重启时为是', 'yes when the simulated controller acknowledges restart')),
   ecuPowerLossRequests: item(t('断电后重新完整刷写四字节示例', 'restart the four-byte programming example after power loss')),
   ecuPowerLossDone: item(t('断电恢复后控制器确认重启时为是', 'yes when the controller acknowledges restart after recovery')),
-  ecuDynamicFlashRequests: item(t('按块上限刷写测试软件', 'program the test image using the negotiated block limit')),
-  ecuDynamicFlashDone: item(t('动态刷写后控制器确认重启时为是', 'yes when the controller acknowledges restart after dynamic programming')),
+  ecuDynamicFlashRequests: item(t('按块上限刷写测试软件', 'program the test image using the negotiated block limit'), S.obj({ start: S.opt(INPUT) })),
+  ecuDynamicFlashDone: item(t('动态刷写后控制器确认重启时为是', 'yes when the controller acknowledges restart after dynamic programming'), S.obj({ start: S.opt(INPUT) })),
   transportFrames: item(t('按流控和间隔发送消息的帧', 'frames sent according to flow control and separation')),
   transportGapReady: item(t('按流控间隔等待后续帧的发送时机', 'wait for the consecutive-frame separation before allowing the next send'), S.obj({ set: INPUT, separation: INPUT, sent: INPUT })),
   transportTimeoutAbort: item(t('接收方不回答时在等待上限终止', 'abort at the waiting limit when the receiver is silent')),
@@ -341,7 +341,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 97,
+  version: 98,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

@@ -734,8 +734,8 @@ const WANTS = {
     return test.bus.bits.map((_, tick) => requests[tick] ?? null)
   },
   ecuPowerLossDone: () => (test) => test.bus.bits.map((_, tick) => tick === 13 ? true : null),
-  ecuDynamicFlashRequests: () => (test) => { const requests = dynamicFlashPlan(test); return test.bus.bits.map((_, tick) => requests[tick] ?? null) },
-  ecuDynamicFlashDone: () => (test) => { const count = dynamicFlashPlan(test).length; return test.bus.bits.map((_, tick) => tick === count ? true : null) },
+  ecuDynamicFlashRequests: ({ start } = {}) => (test) => { const requests = dynamicFlashPlan(test), at = start ? test.inputs[start].findIndex(Boolean) : 0; return test.bus.bits.map((_, tick) => at >= 0 ? requests[tick - at] ?? null : null) },
+  ecuDynamicFlashDone: ({ start } = {}) => (test) => { const count = dynamicFlashPlan(test).length, at = start ? test.inputs[start].findIndex(Boolean) : 0; return test.bus.bits.map((_, tick) => at >= 0 && tick === at + count ? true : null) },
   transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
   transportTimeoutAbort: () => (test) => test.bus.bits.map((_, tick) => test.transport.silent && tick === test.transport.timeout ? true : null),
   inputPresent: ({ input }) => (test) => test.inputs[input].map((value) => value !== null && value !== undefined),

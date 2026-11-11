@@ -1337,3 +1337,10 @@ test('diagnostic bridge frames come from the reactive ECU and require flow contr
   assert.deepEqual(result.runs[0].ticks[1].bind.incoming.slice(0, 3), [0x10, 20, 0x62])
   assert.equal(result.runs[0].ticks[4].bind.ready, 0)
 })
+
+test('dynamic programming can wait for a later start', () => {
+  const test = { bus: { bits: Array(12).fill(1) }, inputs: { start: [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] }, ecu: { flash: { image: [1, 2], maxBlock: 4 } } }
+  const want = wantOf({ request: { ecuDynamicFlashRequests: { start: 'start' } }, done: { ecuDynamicFlashDone: { start: 'start' } } })(test)
+  assert.deepEqual(want.request.slice(0, 3), [null, null, [0x10, 2]])
+  assert.equal(want.done.indexOf(true), 9)
+})
