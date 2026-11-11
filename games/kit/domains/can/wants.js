@@ -750,6 +750,9 @@ const WANTS = {
   fleetScanRequests: () => (test) => test.bus.bits.map((_, tick) => tick < 6 ? [0x22, 0xf1, 0x88] : null),
   fleetScanVersions: () => (test) => test.bus.bits.map((_, tick) => tick === 7 ? test.fleet.flatMap((ecu, index) => ecu.online ? [index, ecu.version] : []) : null),
   fleetScanAny: () => (test) => test.bus.bits.map((_, tick) => tick === 7 ? test.fleet.some((ecu) => ecu.online) : null),
+  fleetSessionTargets: () => (test) => fleetSessionPlan(test).targets,
+  fleetSessionRequests: () => (test) => fleetSessionPlan(test).requests,
+  fleetSessionVersions: () => (test) => fleetSessionPlan(test).versions,
   transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
   transportTimeoutAbort: () => (test) => test.bus.bits.map((_, tick) => test.transport.silent && tick === test.transport.timeout ? true : null),
   inputPresent: ({ input }) => (test) => test.inputs[input].map((value) => value !== null && value !== undefined),
@@ -1066,6 +1069,23 @@ const WANTS = {
     }
     return out
   },
+}
+
+// A sequential message-layer scan: open the extended session, then wait for the final read reply.
+function fleetSessionPlan(test) {
+  const targets = test.bus.bits.map(() => null), requests = [...targets], versions = [...targets]
+  const result = []
+  let tick = 0
+  for (const [index, ecu] of test.fleet.entries()) {
+    if (tick < targets.length) { targets[tick] = index; requests[tick] = [0x10, 3] }
+    if (ecu.online) {
+      if (tick + 1 < targets.length) { targets[tick + 1] = index; requests[tick + 1] = [0x22, 0xf1, 0x88] }
+      result.push(index, ecu.version)
+      tick += 3 + (ecu.waits ?? 0)
+    } else tick += 2
+  }
+  if (tick + 1 < versions.length) versions[tick + 1] = result
+  return { targets, requests, versions }
 }
 
 /** A level's `want` as the function run.js checks a test by: test → { output name: [value per tick] }. */
