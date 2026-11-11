@@ -75,6 +75,25 @@ test('a packed part with several outputs says from its registers before it hears
   assert.deepEqual(steps.map((s) => s.heard.b.outputs.out), [1, 0, 0, 0])
 })
 
+test('nested packed outputs follow the inner output dependencies', () => {
+  const inner = {
+    nodes: [{ id: 'in', type: 'input', params: { name: 'line' } }, { id: 'r', type: 'bit', params: { reg: 'k' } }, { id: 's', type: 'set', params: { reg: 'k' } }, { id: 'say', type: 'output', params: { name: 'say' } }, { id: 'got', type: 'output', params: { name: 'got' } }],
+    wires: w('in>s r>say in>got'),
+  }
+  const relay = packed({ circuit: inner, inputs: ['line'], outputs: ['say', 'got'], holds: true })
+  const wrapper = {
+    nodes: [{ id: 'in', type: 'input', params: { name: 'line' } }, { id: 'p', type: 'relay' }, { id: 'say', type: 'output', params: { name: 'say' } }, { id: 'got', type: 'output', params: { name: 'got' } }],
+    wires: w('in>p.line p#say>say p#got>got'),
+  }
+  const box = packed({ circuit: wrapper, inputs: ['line'], outputs: ['say', 'got'], parts: { ...PARTS, relay }, holds: true })
+  const board = { nodes: [{ id: 'rx', type: 'rx' }, { id: 'p', type: 'box' }, { id: 'tx', type: 'tx' }, { id: 'out', type: 'output', params: { name: 'out' } }], wires: w('rx>p.line p#say>tx p#got>out') }
+  const node = boardNode({ id: 'b', circuit: board, parts: { ...PARTS, relay, box } })
+  const { steps, error } = runTicks({ nodes: [node, script('w', [1, 0, 1, 1])], ticks: 4, line: bus })
+  assert.equal(error, undefined)
+  assert.deepEqual(steps.map((step) => step.line), [1, 0, 0, 0])
+  assert.deepEqual(steps.map((step) => step.heard.b.outputs.out), [1, 0, 0, 0])
+})
+
 test('a world answers a board: what the board gives this tick is what the world shows it the next', () => {
   // The board doubles what it reads; the world shows it back one more than it was given.
   const circuit = { nodes: [{ id: 'seen', type: 'input', params: { name: 'seen' } }, { id: 'a', type: 'add' }, { id: 'out', type: 'output', params: { name: 'out' } }], wires: w('seen>a.a seen>a.b a>out') }

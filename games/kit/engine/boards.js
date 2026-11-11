@@ -2,7 +2,7 @@
 // sink is what the circuit gives under its name. The same circuit then serves as a level's board (bound to a test's
 // inputs) and as a packed part (a solved circuit used again as one part).
 import { paramsOf } from './forms.js'
-import { BROKEN, PartError, evaluate } from './circuit.js'
+import { BROKEN, PartError, evaluate, portsOf, splitSource } from './circuit.js'
 
 export const nameOf = (node) => node.params?.name
 
@@ -34,18 +34,27 @@ export function runBoard(circuit, { parts, ctx = {}, bind = {}, prepare = null, 
 export const STATE = '__state'
 
 // The inputs (of `inputs`) that reach the nodes `ends` of a circuit, by its wires.
-function inputsReaching(circuit, inputs, ends) {
+function inputsReaching(circuit, inputs, ends, parts) {
+  const partOf = parts && partFn(parts)
+  const nodes = new Map(circuit.nodes.map((node) => [node.id, node]))
   const into = new Map()
-  for (const w of circuit.wires) into.set(w.to, [...(into.get(w.to) ?? []), w.from.split('#')[0]])
+  for (const wire of circuit.wires) into.set(wire.to, [...(into.get(wire.to) ?? []), wire])
   const seen = new Set()
-  const stack = [...ends]
+  const reached = new Set()
+  const stack = ends.map((id) => [id, null])
   while (stack.length) {
-    const id = stack.pop()
-    if (seen.has(id)) continue
-    seen.add(id)
-    stack.push(...(into.get(id) ?? []))
+    const [id, key] = stack.pop()
+    const token = JSON.stringify([id, key])
+    if (seen.has(token)) continue
+    seen.add(token)
+    const node = nodes.get(id)
+    if (!node) continue
+    const part = partOf?.(node.type)
+    const wires = into.get(id) ?? []
+    if (!wires.length) reached.add(nameOf(node))
+    const ports = part ? (part.reads?.(node, key) ?? portsOf(part, node)) : null
+    for (const wire of wires) if (!ports || ports.includes(wire.port)) stack.push(splitSource(wire.from))
   }
-  const reached = new Set(circuit.nodes.filter((n) => seen.has(n.id) && !into.has(n.id)).map(nameOf))
   return inputs.filter((name) => reached.has(name))
 }
 
@@ -65,7 +74,7 @@ function inputsReaching(circuit, inputs, ends) {
  * register (a part with `store`, naming its register by `params.reg`, or a packed part that holds), putting what they
  * keep into ctx.stores.
  */
-export function packed({ circuit, inputs, outputs, holds = false, inside: around = (ctx) => ctx, ...extra }) {
+export function packed({ circuit, inputs, outputs, parts, holds = false, inside: around = (ctx) => ctx, ...extra }) {
   const circuitOf = () => (typeof circuit === 'function' ? circuit() : circuit)
   const keys = [...(outputs.length === 1 ? [null] : outputs), ...(holds ? [STATE] : [])]
   const many = keys.length > 1
@@ -77,7 +86,7 @@ export function packed({ circuit, inputs, outputs, holds = false, inside: around
     ...(many ? {
       outputs: () => keys,
       // An output reads the inputs that reach it; the cards keeping registers may read any.
-      reads: (_node, key) => (key === STATE ? inputs : inputsReaching(circuitOf(), inputs, circuitOf().nodes.filter((n) => nameOf(n) === (key ?? outputs[0])).map((n) => n.id))),
+      reads: (_node, key) => (key === STATE ? inputs : inputsReaching(circuitOf(), inputs, circuitOf().nodes.filter((n) => nameOf(n) === (key ?? outputs[0])).map((n) => n.id), parts)),
     } : {}),
     eval: (ins, node, ctx, key) => {
       const partOf = partFn(ctx.engine.parts)

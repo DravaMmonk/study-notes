@@ -247,6 +247,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
         circuit: running,
         inputs: board.portsIn(last).map((p) => p.name),
         outputs: board.portsOut(last).map((p) => p.name),
+        parts: partOf,
         ...(holds ? { holds: true } : {}),
         built: level.builds,
         ...pack(level.builds, (text) => say(id, text)),
