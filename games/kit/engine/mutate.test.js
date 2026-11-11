@@ -44,10 +44,34 @@ test('weak tests let mutants live, and tests that tell them apart kill every one
   const weak = mutationScore(BOARD, passesOn([[0, 0]]), options)
   assert.deepEqual(weak.survivors, ['drop d', 'swap d a<->b', 'retype d sub->add'])
   const strong = mutationScore(BOARD, passesOn([[0, 0], [5, 2]]), options)
-  assert.deepEqual(strong, { made: 7, killed: 7, survivors: [] })
+  assert.deepEqual(strong, { made: 7, killed: 7, survivors: [], undeclared: [] })
 })
 
 test('a mutant that cannot run counts as killed', () => {
   const score = mutationScore(BOARD, () => { throw new Error('no') }, options)
   assert.equal(score.killed, score.made)
+})
+
+test('no swap between inputs a part declares symmetric: that is the same board', () => {
+  const partOf = (t) => (t === 'add' ? { ...PARTS.add, symmetric: ['a', 'b'] } : t === 'sub' ? { ...PARTS.sub, symmetric: () => [] } : PARTS[t])
+  const board = { ...BOARD, nodes: BOARD.nodes.map((n) => (n.id === 'd' ? { ...n, type: 'add' } : n)) }
+  assert.ok(!mutants(board, { ...options, partOf }).some((m) => m.what.startsWith('swap')))
+  assert.ok(mutants(BOARD, { ...options, partOf }).some((m) => m.what === 'swap d a<->b'))
+})
+
+test('settings listed as options by key, and a typed number among bare keys, move too', () => {
+  const partOf = (t) => ({
+    ...PARTS,
+    pick: { inputs: ['a'], params: ['m'], settings: { m: ['keep', 'neg'] }, defaults: { m: 'keep' }, eval: ({ a }) => a },
+    const: { inputs: ['a'], params: ['value', 'reg'], eval: ({ a }) => a },
+  })[t]
+  const board = { nodes: [{ id: 'x', type: 'in' }, { id: 'p', type: 'pick' }, { id: 'c', type: 'const', params: { value: '4', reg: 'A' } }, { id: 'out', type: 'out' }], wires: [{ from: 'x', to: 'p', port: 'a' }, { from: 'p', to: 'c', port: 'a' }, { from: 'c', to: 'out', port: 'in' }] }
+  const made = mutants(board, { ...options, partOf, held: [] })
+  assert.deepEqual(made.map((m) => m.what).filter((w) => w.startsWith('set')), ['set p m=neg', 'set c value=5', 'set c value=3'])
+  assert.equal(made.find((m) => m.what === 'set c value=5').board.nodes.find((n) => n.id === 'c').params.value, '5')
+})
+
+test('a part wrongly declared symmetric is found out by its own swap', () => {
+  const partOf = (t) => (t === 'sub' ? { ...PARTS.sub, symmetric: ['a', 'b'] } : PARTS[t])
+  assert.deepEqual(mutationScore(BOARD, passesOn([[5, 2]]), { ...options, partOf }).undeclared, ['swap d a<->b'])
 })

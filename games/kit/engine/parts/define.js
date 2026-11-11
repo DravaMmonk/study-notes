@@ -120,6 +120,21 @@ export function failedCheck(def, params, ops) {
 }
 
 /**
+ * The inputs whose order does not matter to a node of a part: its expression (the case its settings pick) is one call
+ * of a resource declared symmetric (true, or { parameter: [values] } it is symmetric for), on inputs that all differ.
+ */
+function symmetricIn(tree, settings, ops) {
+  let t = tree
+  while (t && 'match' in t) t = t.cases[String('set' in t.match ? settings[t.match.set] : undefined)] ?? t.other
+  if (!t || !('call' in t)) return []
+  const declared = ops[t.call]?.symmetric
+  const valueOf = (a) => (a && 'set' in a ? settings[a.set] : a?.num ?? a?.str)
+  const holds = declared === true || (declared && typeof declared === 'object' && Object.entries(declared).every(([key, values]) => values.includes(valueOf(t.named[key]))))
+  const ins = t.args.map((a) => a.in)
+  return holds && ins.every((name) => name !== undefined) && new Set(ins).size === ins.length ? ins : []
+}
+
+/**
  * The file's parts for the engine: PARTS[type] = { inputs, outputs?, params, settings, defaults, eval }, `settings` the
  * values an option setting takes (a course may offer fewer), `defaults` a new node's settings. `ops`: the domain's
  * resources, { name: { run(args, named, ctx) } }.
@@ -134,6 +149,7 @@ export function defineParts(file, ops) {
     const optional = new Set(def.inputs.filter((p) => p.optional).map((p) => p.name))
     const part = {
       inputs: names,
+      ...(def.outputNames ? {} : { symmetric: (node) => symmetricIn(trees[''], settingsFor(def, node?.params), ops) }),
       ...(optional.size ? { optional: [...optional] } : {}),
       params: def.settings.map((s) => s.key),
       defaults: Object.fromEntries(def.settings.map((s) => [s.key, defaultOf(s)])),

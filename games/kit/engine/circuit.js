@@ -9,6 +9,8 @@
 //                 key null is the node's plain output '<node>')
 //   reads?        (node, key) → [port] | undefined: the ports one of its outputs reads, when not all of them (a proof's
 //                 box gives its assumption from its card alone, and its conclusion from what is proved inside it)
+//   symmetric?    [port] or (node) → [port]: inputs whose order does not matter to what the part gives (a + b); a
+//                 fact about the part, read by what compares boards (mutate.js makes no swap between them)
 //   optional?     [port] that may stay unconnected (one of them must be wired, unless the part runs `bare`)
 //   bare?         true for a part that also runs with none of its optional ports wired
 //   idle?         (port, node) → what an unconnected port reads; without it an unconnected port is missing

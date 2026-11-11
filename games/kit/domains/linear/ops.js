@@ -50,6 +50,7 @@ export const OPS = {
   add: {
     about: t('两个形状相同的向量（或矩阵）逐个分量相加', 'two vectors (or matrices) of one shape added entry by entry'),
     args: args('u', 'v'),
+    symmetric: true,
     run: ([u, v]) => {
       matrix(u), matrix(v), sameShape(u, v)
       return grid(u.w, u.h, u.data.map((x, k) => x + v.data[k]))
@@ -67,6 +68,7 @@ export const OPS = {
     about: t('两个数的加、减、乘、除', 'two numbers added, subtracted, multiplied or divided'),
     args: args('a', 'b'),
     params: S.obj({ op: S.oneOf(Object.keys(ARITH)) }),
+    symmetric: { op: ['add', 'mul'] },
     run: ([a, b], { op }) => {
       number(a), number(b)
       if (op === 'div' && b === 0) throw new PartError(t('除数是 0', 'division by 0'))

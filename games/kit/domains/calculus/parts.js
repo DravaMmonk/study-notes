@@ -25,8 +25,8 @@ const strict = (f) => (ins, node) => (Object.values(ins).some((v) => v === null 
 const number = (text) => (text === undefined || text === '' ? null : Number(text))
 
 export const PARTS = {
-  add: { inputs: ['a', 'b'], eval: strict(({ a, b }) => a + b) },
-  mul: { inputs: ['a', 'b'], eval: strict(({ a, b }) => a * b) },
+  add: { inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => a + b) },
+  mul: { inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => a * b) },
   recip: { inputs: ['a'], eval: strict(({ a }) => (a === 0 ? null : 1 / a)) },
   less: { inputs: ['a', 'b'], eval: strict(({ a, b }) => (a < b ? 1 : 0)) },
   const: { inputs: [], params: ['value'], eval: (_, node) => number(node.params?.value) ?? 0 },

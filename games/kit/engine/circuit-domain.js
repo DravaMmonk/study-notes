@@ -631,6 +631,7 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
         // One test at a time, stopping at the first a mutant fails: most die on the first.
         const lives = (b) => all.tests.every((t) => run({ ...all, tests: [t] }, b, partOf).pass)
         const score = mutationScore(task.solution, lives, { partOf, isFixed: board.isFixed, held: [...held] })
+        if (score.undeclared.length) problems.push(`inputs declared symmetric are not (${score.undeclared.join('; ')})`)
         if (score.made) mutated = `, mutants ${score.killed}/${score.made}${score.survivors.length ? ` (alive: ${score.survivors.join('; ')})` : ''}`
       }
       const hidden = task.hidden.length ? ` + ${task.hidden.length} hidden` : ''

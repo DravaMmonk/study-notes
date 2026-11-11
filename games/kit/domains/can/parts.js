@@ -39,11 +39,11 @@ export const PARTS = {
     },
   },
   compare: formed([
-    { key: 'eq', inputs: ['a', 'b'], eval: strict(({ a, b }) => num(a) === num(b)) },
+    { key: 'eq', inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => num(a) === num(b)) },
     { key: 'lt', inputs: ['a', 'b'], eval: strict(({ a, b }) => num(a) < num(b)) },
   ]),
   arith: formed([
     { key: 'inc', inputs: ['in'], eval: strict(({ in: x }) => num(x) + 1) },
-    { key: 'add', inputs: ['a', 'b'], eval: strict(({ a, b }) => num(a) + num(b)) },
+    { key: 'add', inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => num(a) + num(b)) },
   ]),
 }
