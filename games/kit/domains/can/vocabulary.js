@@ -169,6 +169,7 @@ const WANTS = {
   interruptedSuspendRetry: item(t('发送暂停结束，或收到新帧后的间隔结束时重试', 'retry after suspension, or after intermission following a newly received frame'), S.obj({ end: INPUT })),
   interruptedSuspendKind: item(t('暂停期间正确接收的帧给种类 0', 'give kind 0 for a valid frame received during suspension'), S.obj({ end: INPUT })),
   interruptedSuspendReady: item(t('暂停期间接收结果出现时为 1', '1 when a receive result appears during suspension'), S.obj({ end: INPUT })),
+  interruptedSuspendEvent: item(t('暂停期间成功应答时给接收成功事件 4，其余拍为 0', 'give receive-success event 4 on acknowledgement during suspension, and 0 otherwise'), S.obj({ end: INPUT })),
   interruptedFrameDrive: item(t('接收暂停期间的新帧后发送等待中的帧', 'send the pending frame after receiving a frame during suspension'), S.obj({ end: INPUT })),
   interruptedFrameRetry: item(t('等待中的帧开始发送时为 1', '1 when the pending frame starts transmitting'), S.obj({ end: INPUT })),
   interruptedFrameNext: item(t('发送等待中的帧时取走数据字节', 'take each data byte while sending the pending frame'), S.obj({ end: INPUT })),
@@ -239,7 +240,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 58,
+  version: 59,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

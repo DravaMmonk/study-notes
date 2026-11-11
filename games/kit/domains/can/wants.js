@@ -523,6 +523,7 @@ const interruptedSuspend = ({ end }, test) => {
     retry: each(test, (tick) => Number(at >= 0 && tick === retry)),
     kind: each(test, (tick) => tick === crc ? 0 : null),
     ready: each(test, (tick) => Number(tick === crc)),
+    event: each(test, (tick) => tick === ack ? 4 : 0),
   }
 }
 
@@ -778,6 +779,7 @@ const WANTS = {
   interruptedSuspendRetry: (params) => (test) => interruptedSuspend(params, test).retry,
   interruptedSuspendKind: (params) => (test) => interruptedSuspend(params, test).kind,
   interruptedSuspendReady: (params) => (test) => interruptedSuspend(params, test).ready,
+  interruptedSuspendEvent: (params) => (test) => interruptedSuspend(params, test).event,
   interruptedFrameDrive: (params) => (test) => interruptedFrame(params, test).drive,
   interruptedFrameRetry: (params) => (test) => interruptedFrame(params, test).retry,
   interruptedFrameNext: (params) => (test) => interruptedFrame(params, test).next,
