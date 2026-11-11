@@ -657,6 +657,7 @@ const WANTS = {
   matchingFrameSignal: ({ input, identifier: id, match }) => (test) => test.inputs[input].map((value, tick) => test.inputs[id][tick] === match ? value : null),
   elapsedFrameSignal: ({ time }) => (test) => test.inputs[time].map((value, tick, values) => tick === 0 || value == null || values[tick - 1] == null ? null : value - values[tick - 1]),
   rollingCounterSignal: ({ input }) => (test) => test.inputs[input].map((value, tick, values) => tick === 0 || value === ((values[tick - 1] + 1) & 15)),
+  singleFrameMessage: ({ data, header }) => (test) => test.inputs[data].map((bytes, tick) => bytes.slice(1, 1 + (test.inputs[header][tick] & 15))),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

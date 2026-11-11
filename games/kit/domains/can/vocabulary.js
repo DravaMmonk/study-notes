@@ -29,6 +29,7 @@ const PARTS = {
   subtract: item(t('相减：第一个数减去第二个数', 'subtract: the first number minus the second')),
   band: item(t('按位与：两个无符号数逐位相与', 'bitwise AND of two unsigned values')),
   shiftRight: item(t('右移：无符号数右移指定的位数', 'shift an unsigned value right by the specified number of bits')),
+  sliceBytes: item(t('截取字节序列的连续一段', 'take a contiguous range of a byte sequence')),
 }
 
 /* ---------- what an output must be ---------- */
@@ -45,6 +46,7 @@ const WANTS = {
   matchingFrameSignal: item(t('只在标识符相符的帧上交出输入', 'give the input only on frames with the selected identifier'), S.obj({ input: INPUT, identifier: INPUT, match: S.int({ min: 0, max: 2047 }) })),
   elapsedFrameSignal: item(t('相邻帧开始时间之差，第一帧为空', 'time between consecutive frame starts; empty on the first frame'), S.obj({ time: INPUT })),
   rollingCounterSignal: item(t('判断四位滚动计数器是否比上一帧加一，第一帧有效', 'check a four-bit rolling counter advances by one; the first frame is valid'), S.obj({ input: INPUT })),
+  singleFrameMessage: item(t('取出单帧长度所指定的消息字节', 'extract the message bytes specified by a single-frame length'), S.obj({ data: INPUT, header: INPUT })),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -253,7 +255,7 @@ const WANTS = {
 const FRAME = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), gap: S.opt(nat), ack: S.opt(S.bool()) })
 const CONTENDER = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), at: S.opt(nat), detectErrors: S.opt(S.bool()) })
 const FRAME_REQUEST = S.obj({ node: NAME, at: nat, id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))) })
-const FRAME_FIELD = S.oneOf(['id', 'length', 'time', 'byte0', 'byte1', 'byte2', 'byte3', 'byte4', 'byte5', 'byte6', 'byte7'])
+const FRAME_FIELD = S.oneOf(['id', 'length', 'time', 'data', 'byte0', 'byte1', 'byte2', 'byte3', 'byte4', 'byte5', 'byte6', 'byte7'])
 const TEST = S.obj({
   bus: S.obj({ idle: S.opt(nat), frames: S.list(FRAME), tail: S.opt(nat) }, { about: t('总线：先安静 idle 拍，再一帧帧（帧前多空 gap 拍），最后安静 tail 拍') }),
   inputs: S.opt(S.map(S.list(S.int()), { view: 'ticks', about: t('每个输入每一拍的值') })),
@@ -286,7 +288,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 71,
+  version: 72,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

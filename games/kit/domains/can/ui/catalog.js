@@ -21,6 +21,7 @@ export const CARDS = {
   subtract: { name: T('相减', 'Subtract'), icon: Minus, family: 'value', desc: T('第一个数减去第二个数。输入为「—」时给出「—」。', 'Subtracts the second number from the first; gives 「—」 if an input is 「—」.') },
   band: { name: T('按位与', 'Bitwise AND'), icon: GitMerge, family: 'logic', desc: T('两个数逐位取与；两位都是 1 时结果才是 1。按无符号 32 位运算。', 'ANDs two unsigned 32-bit values: a result bit is 1 only when both input bits are 1.') },
   shiftRight: { name: T('右移', 'Shift right'), icon: Split, family: 'logic', desc: T('将无符号 32 位数向右移动 0 到 31 位，高位补零。', 'Shifts an unsigned 32-bit value right by 0 to 31 bits, filling high bits with zero.') },
+  sliceBytes: { name: T('截取字节', 'Slice bytes'), icon: Split, family: 'value', desc: T('从字节序列中按起点和长度截取连续字节；越界时给出「—」。', 'Takes a contiguous range from a byte sequence by start and length; gives 「—」 if out of bounds.') },
 }
 
 export const FORMS = {
@@ -31,4 +32,5 @@ export const FORMS = {
 export const PORT_LABELS = {
   select: { if: T('条件'), yes: T('是', 'Yes'), no: T('否', 'No') },
   shiftRight: { value: T('数值', 'Value'), amount: T('位数', 'Bits') },
+  sliceBytes: { bytes: T('字节', 'Bytes'), start: T('起点', 'Start'), length: T('长度', 'Length') },
 }

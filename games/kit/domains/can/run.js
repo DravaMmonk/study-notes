@@ -44,6 +44,7 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   const checked = [...(task.drives ? [{ name: 'send' }] : []), ...task.outputs]
   const judged = judgeTicks(run.steps.map((step) => ({ tick: step.tick, line: step.line, sent: step.said.you, said: step.said, bind: bindings[step.tick], ...step.heard.you })), {
     checked, want: (name) => want[name], got: (tick, name) => name === 'send' && task.drives ? tick.sent ?? null : tick.outputs[name] ?? null,
+    same: (a, b) => Array.isArray(a) && Array.isArray(b) ? a.length === b.length && a.every((value, index) => value === b[index]) : a === b,
   })
   if (queue && consumed !== test.queue.length && !judged.fail && !run.error) {
     judged.fail = { name: task.pulls.input, remaining: test.queue.length - consumed }

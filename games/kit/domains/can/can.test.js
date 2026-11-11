@@ -1144,3 +1144,28 @@ test('rolling counter wraps and compares after a skipped value', () => {
   const want = wantOf({ valid: { rollingCounterSignal: { input: 'count' } } })
   assert.deepEqual(want({ inputs: { count: [14, 15, 0, 2, 3] } }).valid, [true, true, true, false, true])
 })
+
+test('byte slices and single-frame messages preserve length and padding boundaries', () => {
+  assert.deepEqual(PARTS.sliceBytes.eval({ bytes: [3, 1, 2, 3, 0xcc], start: 1, length: 3 }), [1, 2, 3])
+  assert.equal(PARTS.sliceBytes.eval({ bytes: [1, 2], start: 1, length: 2 }), null)
+  const want = wantOf({ message: { singleFrameMessage: { data: 'data', header: 'header' } } })
+  assert.deepEqual(want({ inputs: { data: [[2, 0x62, 0xf1, 0xcc], [1, 0x7f]], header: [2, 1] } }).message, [[0x62, 0xf1], [0x7f]])
+})
+
+test('frame boards compare byte-sequence outputs by contents', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.inputs = [{ name: 'data', label: L('data') }, { name: 'header', label: L('header') }]
+  task.frameInputs = { data: 'data', header: 'byte0' }
+  task.outputs = [{ name: 'message', label: L('message') }]
+  task.want = { message: { singleFrameMessage: { data: 'data', header: 'header' } } }
+  task.tests = [{ bus: { frames: [] }, frameRequests: [{ node: 'n', at: 0, id: 1, data: [2, 0x62, 0xf1, 0xcc] }] }]
+  task.hidden = []
+  task.solution = ['one = const[value=1]()', 'messagePart = sliceBytes(data, one, header)', 'message <- messagePart']
+  delete task.naive
+  const course = canCourse(content)
+  const played = course.played.get('gather')[0]
+  assert.deepEqual(course.wrong, [])
+  assert.equal(runLevel(played, played.solution, course.partOf).pass, true)
+  assert.deepEqual(played.tests[0].inputs.data, [[2, 0x62, 0xf1, 0xcc]])
+})

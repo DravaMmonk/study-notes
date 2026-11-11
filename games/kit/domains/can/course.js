@@ -36,7 +36,7 @@ const testOf = (t, task, frameEvents) => {
     ...Object.fromEntries(Object.entries(t.pulses ?? {}).map(([name, ticks]) => [name, bus.bits.map((_, tick) => Number(ticks.includes(tick)))])),
     ...Object.fromEntries(Object.entries(t.txInputs ?? {}).map(([name, kind]) => [name, bus.bits.map((_, tick) => kind === 'bit' ? txBits[tick - txAt] ?? 1 : kind === 'ack' ? Number(tick === txAt + txBits.length - 12) : Number(tick >= txAt && tick - txAt < txEnd))])),
     ...Object.fromEntries((t.lineInputs ?? []).map((name) => [name, bus.bits])),
-    ...Object.fromEntries(Object.entries(task.frameInputs ?? {}).map(([name, field]) => [name, frameEvents.map((frame) => field === 'id' ? frame.id : field === 'length' ? frame.data.length : field === 'time' ? frame.start : frame.data[Number(field.slice(4))] ?? null)])),
+    ...Object.fromEntries(Object.entries(task.frameInputs ?? {}).map(([name, field]) => [name, frameEvents.map((frame) => field === 'id' ? frame.id : field === 'length' ? frame.data.length : field === 'time' ? frame.start : field === 'data' ? frame.data : frame.data[Number(field.slice(4))] ?? null)])),
   }
   const contenders = (t.contenders ?? []).map((node) => ({ ...node, id: num(node.id), data: (node.data ?? []).map(num) }))
   return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(frameEvents ? { frameEvents } : {}) }

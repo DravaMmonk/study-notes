@@ -17,6 +17,7 @@
 //   subtract the first number minus the second
 //   band     bitwise AND of two unsigned 32-bit numbers
 //   shiftRight  unsigned right shift by 0 to 31 bits
+//   sliceBytes  a contiguous range of a byte sequence
 // Built parts are the boards of the levels that build them (course.js), each run as a packed part that keeps its own
 // registers.
 import { formed } from '../../engine/forms.js'
@@ -54,4 +55,5 @@ export const PARTS = {
   subtract: { inputs: ['a', 'b'], eval: strict(({ a, b }) => num(a) - num(b)) },
   band: { inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => (num(a) & num(b)) >>> 0) },
   shiftRight: { inputs: ['value', 'amount'], eval: strict(({ value, amount }) => Number.isInteger(amount) && amount >= 0 && amount <= 31 ? num(value) >>> amount : null) },
+  sliceBytes: { inputs: ['bytes', 'start', 'length'], eval: strict(({ bytes, start, length }) => Array.isArray(bytes) && Number.isInteger(start) && start >= 0 && Number.isInteger(length) && length >= 0 && start + length <= bytes.length ? bytes.slice(start, start + length) : null) },
 }
