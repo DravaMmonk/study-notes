@@ -89,6 +89,13 @@ const WANTS = {
   ackRetryAttempts: item(t('每次发送开始时为 1', '1 at the start of each transmission attempt'), S.obj({ start: INPUT })),
   ackRetryDone: item(t('成功发送并完成间隔时为是', 'yes when transmission and intermission complete successfully'), S.obj({ start: INPUT })),
   ackRetryTec: item(t('缺应答和成功发送后的发送错误计数', 'transmit error count after missing ACKs and successful transmission'), S.obj({ start: INPUT })),
+  controllerDrive: item(t('仲裁、接收赢家与缺应答重发时的驱动', 'drive during arbitration, reception of the winner and missing-ACK retries'), S.obj({ start: INPUT })),
+  controllerLost: item(t('从仲裁落败到重新开始前为 1', '1 from arbitration loss until the retry starts'), S.obj({ start: INPUT })),
+  controllerNext: item(t('每次发送完自己的字节时取走队首', 'take each byte when transmitted on an attempt'), S.obj({ start: INPUT })),
+  controllerRewind: item(t('缺应答时重置发送队列', 'rewind the transmit queue on a missing ACK'), S.obj({ start: INPUT })),
+  controllerAttempts: item(t('每次尝试发送的起始拍为 1', '1 on each transmission attempt start'), S.obj({ start: INPUT })),
+  controllerDone: item(t('自己的帧成功并完成帧间隔时为是', 'yes when the node sends its frame and completes intermission'), S.obj({ start: INPUT })),
+  controllerTec: item(t('缺应答及成功发送后的发送错误计数', 'transmit error count after missing ACK and successful transmission'), S.obj({ start: INPUT })),
   suspendReady: item(t('帧间隔结束后按状态等待，被动发送方额外等待八拍', 'after intermission wait according to state; passive senders wait eight extra ticks'), S.obj({ end: INPUT, mode: INPUT })),
   suspendRequest: item(t('有发送请求且等待已结束时为是', 'yes when transmission is requested and the wait has finished'), S.obj({ end: INPUT, mode: INPUT, request: INPUT })),
   passiveAckDrive: item(t('被动发送方缺应答后的总线驱动', 'passive sender drive after missing acknowledgements'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT })),
@@ -170,7 +177,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 43,
+  version: 44,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

@@ -208,6 +208,56 @@ const ackRetryPlan = ({ start }, test) => {
   return { drive, next, rewind, attempts, done, tec }
 }
 
+// One initial contention, followed by active-state retries for missing acknowledgements on an otherwise idle bus.
+const controllerPlan = ({ start }, test) => {
+  const ticks = test.bus.bits.length
+  const drive = Array(ticks).fill(1)
+  const lost = Array(ticks).fill(0)
+  const next = Array(ticks).fill(false)
+  const rewind = Array(ticks).fill(false)
+  const attempts = Array(ticks).fill(0)
+  const done = Array(ticks).fill(false)
+  const tec = Array(ticks).fill(0)
+  const bits = test.tx ? transmitBits(test.tx) : []
+  const initial = test.inputs[start]?.findIndex((value) => value === 1 || value === true) ?? -1
+  let at = initial
+  const rival = test.contenders?.[0]
+  if (at >= 0 && rival && rival.id < test.tx.id) {
+    const rivalBits = transmitBits(rival)
+    const end = arbitrationLength(test.tx.id)
+    const loss = bits.slice(0, end).findIndex((bit, tick) => bit === 1 && rivalBits[tick] === 0)
+    if (loss >= 0) {
+      attempts[at] = 1
+      const winnerAck = at + rivalBits.length - 12
+      const retry = at + rivalBits.length
+      for (let tick = at; tick <= at + loss && tick < ticks; tick++) drive[tick] = bits[tick - at]
+      for (let tick = at + loss; tick < retry && tick < ticks; tick++) lost[tick] = 1
+      if (winnerAck < ticks) drive[winnerAck] = 0
+      at = retry
+    }
+  }
+  let errors = 0
+  while (at >= 0 && at < ticks && bits.length) {
+    attempts[at] = 1
+    const ack = at + bits.length - 12
+    const failed = ack < ticks && test.bus.bits[ack] === 1
+    const end = failed ? ack : at + bits.length - 1
+    for (let tick = at; tick <= end && tick < ticks; tick++) drive[tick] = bits[tick - at]
+    const pulse = test.bus.bits.map((_, tick) => Number(tick === at))
+    for (const tick of frameTransmission({ start: '__attempt' }, { ...test, inputs: { ...test.inputs, __attempt: pulse } }).next) if (tick < ticks) next[tick] = true
+    if (!failed) {
+      if (end < ticks) { done[end] = true; for (let tick = end - 3; tick < ticks; tick++) tec[tick] = Math.max(0, errors * 8 - 1) }
+      break
+    }
+    rewind[ack] = true
+    errors++
+    for (let tick = ack; tick < ticks; tick++) tec[tick] = errors * 8
+    for (let tick = ack + 1; tick <= ack + 6 && tick < ticks; tick++) drive[tick] = 0
+    at = ack + 18
+  }
+  return { drive, lost, next, rewind, attempts, done, tec }
+}
+
 // Given a completed intermission on an otherwise idle bus, enforce the passive sender's extra eight bits.
 const suspendReady = ({ end, mode }, test) => {
   let remaining = null
@@ -497,6 +547,13 @@ const WANTS = {
   ackRetryAttempts: (params) => (test) => ackRetryPlan(params, test).attempts,
   ackRetryDone: (params) => (test) => ackRetryPlan(params, test).done,
   ackRetryTec: (params) => (test) => ackRetryPlan(params, test).tec,
+  controllerDrive: (params) => (test) => controllerPlan(params, test).drive,
+  controllerLost: (params) => (test) => controllerPlan(params, test).lost,
+  controllerNext: (params) => (test) => controllerPlan(params, test).next,
+  controllerRewind: (params) => (test) => controllerPlan(params, test).rewind,
+  controllerAttempts: (params) => (test) => controllerPlan(params, test).attempts,
+  controllerDone: (params) => (test) => controllerPlan(params, test).done,
+  controllerTec: (params) => (test) => controllerPlan(params, test).tec,
   suspendReady: (params) => (test) => suspendReady(params, test),
   suspendRequest: ({ request, ...params }) => (test) => suspendReady(params, test).map((ready, tick) => ready && Boolean(test.inputs[request][tick])),
   passiveAckDrive: (params) => (test) => passiveAckRetry(params, test).drive,
