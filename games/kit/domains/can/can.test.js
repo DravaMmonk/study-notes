@@ -429,6 +429,15 @@ test('a queue advances only after the board asks, and must be consumed', () => {
   assert.ok(runTest({ ...task, want: () => ({}) }, stuck, test, plain.partOf).fail)
 })
 
+test('a queue can replay its bytes, with rewind taking priority over advance', () => {
+  const task = { inputs: ['item', 'available', 'go', 'reset'].map((name) => ({ name, label: L(name) })), outputs: ['next', 'rewind', 'seen'].map((name) => ({ name, label: L(name) })), pulls: { input: 'item', available: 'available', next: 'next', rewind: 'rewind' }, want: () => ({ seen: [10, 20, 10, 20, null] }) }
+  const test = { bus: { bits: [1, 1, 1, 1, 1] }, inputs: { go: [1, 1, 1, 1, 0], reset: [0, 1, 0, 0, 0] }, queue: [10, 20] }
+  const circuit = fromText(['next <- go', 'rewind <- reset', 'seen <- item'], task, plain)
+  const run = runTest(task, circuit, test, plain.partOf)
+  assert.equal(run.fail, undefined)
+  assert.deepEqual(run.ticks.map((tick) => tick.bind.item), [10, 20, 10, 20, null])
+})
+
 test('a transmitter releases ACK while another node can acknowledge', () => {
   const tx = { id: 0x123, data: [0xa5] }
   const frame = frameBits(tx)

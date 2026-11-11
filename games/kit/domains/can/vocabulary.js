@@ -138,14 +138,14 @@ const LEVEL = levelSchema({
     listens: S.opt(S.bool({ about: t('板上有总线元件') })),
     drives: S.opt(S.bool({ about: t('板上有驱动总线的说话口', 'the board has a port that drives the bus') })),
     inputs: S.opt(S.list(PORT)),
-    pulls: S.opt(S.obj({ input: NAME, available: NAME, next: NAME, last: S.opt(NAME) }, { about: t('输入读取队首字节和是否有字节；输出为 1 时取走队首，下一拍出现下一字节', 'inputs give the front byte and whether one is available; output 1 takes it and the next byte appears next tick') })),
+    pulls: S.opt(S.obj({ input: NAME, available: NAME, next: NAME, last: S.opt(NAME), rewind: S.opt(NAME) }, { about: t('输入读取队首字节和是否有字节；输出为 1 时取走队首，下一拍出现下一字节', 'inputs give the front byte and whether one is available; output 1 takes it and the next byte appears next tick') })),
   },
   checks: { want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么') }) },
 })
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 32,
+  version: 33,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

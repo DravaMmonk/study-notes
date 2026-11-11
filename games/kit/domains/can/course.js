@@ -64,6 +64,8 @@ export function canCourse(content) {
       const queueInputs = [task.pulls.input, task.pulls.available, task.pulls.last].filter(Boolean)
       if (new Set(queueInputs).size !== queueInputs.length) say('queue value, availability and last flag must be different inputs')
       if (!task.outputs?.some((output) => output.name === task.pulls.next)) say(`queue advance ${task.pulls.next} is not a task output`)
+      if (task.pulls.rewind && !task.outputs?.some((output) => output.name === task.pulls.rewind)) say(`queue rewind ${task.pulls.rewind} is not a task output`)
+      if (task.pulls.rewind === task.pulls.next) say('queue rewind and advance must be different outputs')
       if (!t.queue) say('a test gives the board no queue to pull from')
       for (const name of queueInputs) if (t.inputs?.[name] || t.lineInputs?.includes(name) || Object.prototype.hasOwnProperty.call(t.constants ?? {}, name) || Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name) || Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name)) say(`queue input ${name} cannot also have another source`)
     }

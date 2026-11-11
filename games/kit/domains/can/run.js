@@ -22,7 +22,8 @@ export function runTest(task, circuit, test, parts) {
     reads: (head) => ({ [task.pulls.input]: test.queue[head] ?? null, [task.pulls.available]: Number(head < test.queue.length), ...(task.pulls.last ? { [task.pulls.last]: head < test.queue.length ? Number(head === test.queue.length - 1) : null } : {}) }),
     step: (head, outputs) => {
       const next = outputs[task.pulls.next]
-      consumed = head + ((next === 1 || next === true) && head < test.queue.length ? 1 : 0)
+      const rewind = task.pulls.rewind && outputs[task.pulls.rewind]
+      consumed = rewind === 1 || rewind === true ? 0 : head + ((next === 1 || next === true) && head < test.queue.length ? 1 : 0)
       return { state: consumed, shown: null }
     },
   })
