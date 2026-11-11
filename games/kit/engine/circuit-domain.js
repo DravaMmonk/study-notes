@@ -170,7 +170,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       ...first, ...formed(forms),
       opens: (params) => pick(params).opens(params),
       outputs: (node) => pick(node.params).outputs?.(node),
-      reads: forms.some(form => form.reads) ? (node, key) => pick(node.params).reads?.(node, key) : undefined,
+      reads: forms.some(form => form.reads) ? (node, key, ctx) => pick(node.params).reads?.(node, key, ctx) : undefined,
       fields: [option, ...first.fields ?? []],
       defaults: { ...first.defaults, form: first.key },
       settings: { ...first.settings, form: forms.map(f => f.key) },

@@ -80,7 +80,8 @@ test('nested packed outputs follow the inner output dependencies', () => {
     nodes: [{ id: 'in', type: 'input', params: { name: 'line' } }, { id: 'r', type: 'bit', params: { reg: 'k' } }, { id: 's', type: 'set', params: { reg: 'k' } }, { id: 'say', type: 'output', params: { name: 'say' } }, { id: 'got', type: 'output', params: { name: 'got' } }],
     wires: w('in>s r>say in>got'),
   }
-  const relay = packed({ circuit: inner, inputs: ['line'], outputs: ['say', 'got'], holds: true })
+  let chosen = inner
+  const relay = packed({ circuit: () => chosen, inputs: ['line'], outputs: ['say', 'got'], holds: true })
   const wrapper = {
     nodes: [{ id: 'in', type: 'input', params: { name: 'line' } }, { id: 'p', type: 'relay' }, { id: 'say', type: 'output', params: { name: 'say' } }, { id: 'got', type: 'output', params: { name: 'got' } }],
     wires: w('in>p.line p#say>say p#got>got'),
@@ -92,6 +93,9 @@ test('nested packed outputs follow the inner output dependencies', () => {
   assert.equal(error, undefined)
   assert.deepEqual(steps.map((step) => step.line), [1, 0, 0, 0])
   assert.deepEqual(steps.map((step) => step.heard.b.outputs.out), [1, 0, 0, 0])
+  chosen = { ...inner, wires: w('in>s in>say in>got') }
+  const changed = boardNode({ id: 'b', circuit: board, parts: { ...PARTS, relay, box } })
+  assert.ok(runTicks({ nodes: [changed, script('w', [1])], ticks: 1, line: bus }).error)
 })
 
 test('a world answers a board: what the board gives this tick is what the world shows it the next', () => {

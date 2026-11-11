@@ -34,7 +34,7 @@ export function runBoard(circuit, { parts, ctx = {}, bind = {}, prepare = null, 
 export const STATE = '__state'
 
 // The inputs (of `inputs`) that reach the nodes `ends` of a circuit, by its wires.
-function inputsReaching(circuit, inputs, ends, parts) {
+function inputsReaching(circuit, inputs, ends, parts, ctx) {
   const partOf = parts && partFn(parts)
   const nodes = new Map(circuit.nodes.map((node) => [node.id, node]))
   const into = new Map()
@@ -52,7 +52,7 @@ function inputsReaching(circuit, inputs, ends, parts) {
     const part = partOf?.(node.type)
     const wires = into.get(id) ?? []
     if (!wires.length) reached.add(nameOf(node))
-    const ports = part ? (part.reads?.(node, key) ?? portsOf(part, node)) : null
+    const ports = part ? (part.reads?.(node, key, ctx) ?? portsOf(part, node)) : null
     for (const wire of wires) if (!ports || ports.includes(wire.port)) stack.push(splitSource(wire.from))
   }
   return inputs.filter((name) => reached.has(name))
@@ -76,6 +76,7 @@ function inputsReaching(circuit, inputs, ends, parts) {
  */
 export function packed({ circuit, inputs, outputs, parts, holds = false, inside: around = (ctx) => ctx, ...extra }) {
   const circuitOf = () => (typeof circuit === 'function' ? circuit() : circuit)
+  const dependencyKey = {}
   const keys = [...(outputs.length === 1 ? [null] : outputs), ...(holds ? [STATE] : [])]
   const many = keys.length > 1
   const keepers = (inner, partOf) => inner.nodes.filter((n) => partOf(n.type)?.store || partOf(n.type)?.holds).map((n) => n.id)
@@ -86,7 +87,18 @@ export function packed({ circuit, inputs, outputs, parts, holds = false, inside:
     ...(many ? {
       outputs: () => keys,
       // An output reads the inputs that reach it; the cards keeping registers may read any.
-      reads: (_node, key) => (key === STATE ? inputs : inputsReaching(circuitOf(), inputs, circuitOf().nodes.filter((n) => nameOf(n) === (key ?? outputs[0])).map((n) => n.id), parts)),
+      reads: (_node, key, ctx) => {
+        if (key === STATE) return inputs
+        const inner = circuitOf()
+        const cache = ctx?.dependencyCache
+        if (!cache) return inputsReaching(inner, inputs, inner.nodes.filter((n) => nameOf(n) === (key ?? outputs[0])).map((n) => n.id), parts, ctx)
+        if (!cache.has(dependencyKey)) cache.set(dependencyKey, new WeakMap())
+        const circuits = cache.get(dependencyKey)
+        if (!circuits.has(inner)) circuits.set(inner, new Map())
+        const keys = circuits.get(inner)
+        if (!keys.has(key)) keys.set(key, inputsReaching(inner, inputs, inner.nodes.filter((n) => nameOf(n) === (key ?? outputs[0])).map((n) => n.id), parts, ctx))
+        return keys.get(key)
+      },
     } : {}),
     eval: (ins, node, ctx, key) => {
       const partOf = partFn(ctx.engine.parts)

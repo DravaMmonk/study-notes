@@ -101,7 +101,7 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
     }
     // A node that failed gives nothing more, unless its outputs read ports of their own.
     if (errors.has(id) && !part.reads) return
-    const ports = part.reads?.(node, key) ?? portsOf(part, node)
+    const ports = part.reads?.(node, key, ctx) ?? portsOf(part, node)
     const ins = {}
     const inIds = {}
     let missing = false

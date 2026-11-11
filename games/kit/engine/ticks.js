@@ -56,6 +56,7 @@ const partFn = (parts) => (typeof parts === 'function' ? parts : (type) => parts
 export function boardNode({ id, circuit, parts, bind = () => ({}), ctx = {}, traced = false }) {
   const partOf = partFn(parts)
   const state = new Map()
+  const dependencyCache = new Map()
   const drives = circuit.nodes.filter((n) => partOf(n.type)?.drive)
   const held = (key) => state.get(key)
   return {
@@ -63,13 +64,13 @@ export function boardNode({ id, circuit, parts, bind = () => ({}), ctx = {}, tra
     board: true,
     say(tick) {
       if (!drives.length) return undefined
-      const { values } = runBoard(circuit, { parts, bind: bind(tick), targets: drives.map((n) => n.id), ctx: { ...ctx, half: 'say', tick, held } })
+      const { values } = runBoard(circuit, { parts, bind: bind(tick), targets: drives.map((n) => n.id), ctx: { ...ctx, dependencyCache, half: 'say', tick, held } })
       return values.get(drives[0].id)
     },
     hear(tick, line) {
       const stores = new Map()
       const trace = traced ? [] : undefined
-      const { values, errors } = runBoard(circuit, { parts, bind: bind(tick), ctx: { ...ctx, half: 'hear', tick, line, held, stores, trace } })
+      const { values, errors } = runBoard(circuit, { parts, bind: bind(tick), ctx: { ...ctx, dependencyCache, half: 'hear', tick, line, held, stores, trace } })
       for (const n of circuit.nodes) if (partOf(n.type)?.store && values.has(n.id)) stores.set(n.params.reg, values.get(n.id))
       for (const [key, value] of stores) state.set(key, value)
       const outputs = Object.fromEntries(circuit.nodes.filter((n) => partOf(n.type)?.sink && !partOf(n.type).store && !partOf(n.type).drive).map((n) => [n.params?.name, values.get(n.id)]))
