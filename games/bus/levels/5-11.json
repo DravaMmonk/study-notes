@@ -1,0 +1,147 @@
+{
+  "title": { "zh": "逐个扫描六个控制器" },
+  "intro": [
+    { "t": { "zh": "模拟车辆有六个控制器，序号为 0 到 5。每拍向一个控制器读取软件版本，在线控制器在下一拍回答，离线控制器保持静默。" } },
+    { "t": { "zh": "这是消息层练习，不模拟 CAN 仲裁、传输分帧或等待回答。版本 0 也是有效回答，不能用版本值判断是否在线。" } }
+  ],
+  "after": { "zh": "回答标记区分静默和版本为零；扫描结果只记录实际收到的回答。" },
+  "adds": ["emptyBytes"],
+  "showcase": { "zh": "空字节序列可作为逐步累积结果的起点。" },
+  "builds": { "type": "fleetScanner", "name": { "zh": "六控制器扫描器" }, "desc": { "zh": "逐个读取六个模拟控制器并汇总回答的版本。" } },
+  "tasks": [
+    {
+      "id": "5-11",
+      "brief": { "zh": "依次读取六个控制器的 0xF188 版本；在第 7 拍交出实际收到的 [序号, 版本, …]。没有回答时交出空字节序列。" },
+      "hint": [{ "zh": "用空字节序列初始化列表，仅当收到回答时追加回答来源和版本。" }],
+      "inputs": [
+        { "name": "source", "label": { "zh": "回答的控制器" } },
+        { "name": "reply", "label": { "zh": "控制器回答" } },
+        { "name": "ready", "label": { "zh": "收到回答" } }
+      ],
+      "outputs": [
+        { "name": "target", "label": { "zh": "请求目标" } },
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "versions", "label": { "zh": "版本列表" } }
+      ],
+      "fleet": {
+        "target": "target",
+        "request": "request",
+        "source": "source",
+        "response": "reply",
+        "ready": "ready"
+      },
+      "tests": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "fleet": [
+            { "online": true, "version": 1 },
+            { "online": false, "version": 2 },
+            { "online": true, "version": 3 },
+            { "online": true, "version": 4 },
+            { "online": false, "version": 5 },
+            { "online": true, "version": 6 }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "fleet": [
+            { "online": true, "version": 0 },
+            { "online": true, "version": 9 },
+            { "online": false, "version": 5 },
+            { "online": false, "version": 0 },
+            { "online": true, "version": 4 },
+            { "online": false, "version": 3 }
+          ]
+        },
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "fleet": [
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 }
+          ]
+        }
+      ],
+      "want": { "target": "fleetScanTargets", "request": "fleetScanRequests", "versions": "fleetScanVersions" },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "list = reg[reg=B]()",
+        "next = arith[form=inc](tick)",
+        "saveTick = keep[reg=A](next)",
+        "c0 = const[value=0]()",
+        "c3 = const[value=3]()",
+        "c6 = const[value=6]()",
+        "c7 = const[value=7]()",
+        "c34 = const[value=34]()",
+        "c136 = const[value=136]()",
+        "c241 = const[value=241]()",
+        "inRange = compare[form=lt](tick, c6)",
+        "targetNow = select(inRange, tick)",
+        "target <- targetNow",
+        "b34 = byteList(c34)",
+        "b241 = byteList(c241)",
+        "b136 = byteList(c136)",
+        "head = concatBytes(b34, b241)",
+        "read = concatBytes(head, b136)",
+        "requestNow = select(inRange, read)",
+        "request <- requestNow",
+        "empty = emptyBytes()",
+        "exists = present(list)",
+        "base = select(exists, list, empty)",
+        "sourceByte = byteList(source)",
+        "version = byteAt(reply, c3)",
+        "versionByte = byteList(version)",
+        "pair = concatBytes(sourceByte, versionByte)",
+        "appended = concatBytes(base, pair)",
+        "updated = select(ready, appended, base)",
+        "saveList = keep[reg=B](updated)",
+        "final = compare[form=eq](tick, c7)",
+        "versionsNow = select(final, list)",
+        "versions <- versionsNow"
+      ],
+      "naive": [
+        "tick = reg[reg=A, start=0]()",
+        "list = reg[reg=B]()",
+        "next = arith[form=inc](tick)",
+        "saveTick = keep[reg=A](next)",
+        "c0 = const[value=0]()",
+        "c3 = const[value=3]()",
+        "c6 = const[value=6]()",
+        "c7 = const[value=7]()",
+        "c34 = const[value=34]()",
+        "c136 = const[value=136]()",
+        "c241 = const[value=241]()",
+        "inRange = compare[form=lt](tick, c6)",
+        "targetNow = select(inRange, tick)",
+        "target <- targetNow",
+        "b34 = byteList(c34)",
+        "b241 = byteList(c241)",
+        "b136 = byteList(c136)",
+        "head = concatBytes(b34, b241)",
+        "read = concatBytes(head, b136)",
+        "requestNow = select(inRange, read)",
+        "request <- requestNow",
+        "empty = emptyBytes()",
+        "exists = present(list)",
+        "base = select(exists, list, empty)",
+        "sourceByte = byteList(source)",
+        "version = byteAt(reply, c3)",
+        "versionByte = byteList(version)",
+        "pair = concatBytes(sourceByte, versionByte)",
+        "appended = concatBytes(base, pair)",
+        "nonzero = compare[form=lt](c0, version)",
+        "valid = select(ready, nonzero, c0)",
+        "updated = select(valid, appended, base)",
+        "saveList = keep[reg=B](updated)",
+        "final = compare[form=eq](tick, c7)",
+        "versionsNow = select(final, list)",
+        "versions <- versionsNow"
+      ]
+    }
+  ]
+}

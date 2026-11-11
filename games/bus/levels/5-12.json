@@ -1,0 +1,84 @@
+{
+  "title": { "zh": "汇总扫描结果" },
+  "intro": [{ "t": { "zh": "把扫描器封装起来，向使用者同时交出版本列表和是否有控制器回答。" } }],
+  "after": { "zh": "即使没有任何控制器回答，也能明确报告空结果和「否」。" },
+  "tasks": [
+    {
+      "id": "5-12",
+      "brief": { "zh": "用扫描器逐个读取六个控制器，在结果出现时交出版本列表；同时交出是否有任何回答。" },
+      "hint": [{ "zh": "比较版本列表的长度和 0；空列表表示没有回答。" }],
+      "inputs": [
+        { "name": "source", "label": { "zh": "回答的控制器" } },
+        { "name": "reply", "label": { "zh": "控制器回答" } },
+        { "name": "ready", "label": { "zh": "收到回答" } }
+      ],
+      "outputs": [
+        { "name": "target", "label": { "zh": "请求目标" } },
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "versions", "label": { "zh": "版本列表" } },
+        { "name": "answered", "label": { "zh": "有回答" } }
+      ],
+      "fleet": {
+        "target": "target",
+        "request": "request",
+        "source": "source",
+        "response": "reply",
+        "ready": "ready"
+      },
+      "tests": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "fleet": [
+            { "online": true, "version": 1 },
+            { "online": false, "version": 2 },
+            { "online": true, "version": 3 },
+            { "online": true, "version": 4 },
+            { "online": false, "version": 5 },
+            { "online": true, "version": 6 }
+          ]
+        },
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "fleet": [
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "fleet": [
+            { "online": true, "version": 0 },
+            { "online": true, "version": 9 },
+            { "online": false, "version": 5 },
+            { "online": false, "version": 0 },
+            { "online": true, "version": 4 },
+            { "online": false, "version": 3 }
+          ]
+        }
+      ],
+      "want": {
+        "target": "fleetScanTargets",
+        "request": "fleetScanRequests",
+        "versions": "fleetScanVersions",
+        "answered": "fleetScanAny"
+      },
+      "solution": [
+        "scan = fleetScanner(source, reply, ready)",
+        "target <- scan.target",
+        "request <- scan.request",
+        "versions <- scan.versions",
+        "empty = emptyBytes()",
+        "size = byteLength(scan.versions)",
+        "zero = byteLength(empty)",
+        "any = compare[form=lt](zero, size)",
+        "answered <- any"
+      ]
+    }
+  ]
+}
