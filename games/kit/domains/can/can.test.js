@@ -1308,3 +1308,12 @@ test('transport gap honors zero and multi-tick separations', () => {
   const result = want({ bus: { bits: Array(7).fill(1) }, inputs: { set: [1, 0, 0, 0, 1, 0, 0], sep: [3, 3, 3, 3, 0, 0, 0], sent: [1, 0, 0, 0, 1, 1, 0] } })
   assert.deepEqual(result.ready, [true, false, false, true, true, true, true])
 })
+
+test('presence distinguishes missing values from zero and empty sequences; frame padding respects bounds', () => {
+  assert.equal(PARTS.present.eval({ value: null }), false)
+  assert.equal(PARTS.present.eval({ value: 0 }), true)
+  assert.equal(PARTS.present.eval({ value: [] }), true)
+  assert.deepEqual(PARTS.padBytes.eval({ bytes: [1, 2], length: 4, fill: 255 }), [1, 2, 255, 255])
+  assert.equal(PARTS.padBytes.eval({ bytes: [1, 2], length: 1, fill: 0 }), null)
+  assert.equal(PARTS.padBytes.eval({ bytes: [1], length: 9, fill: 0 }), null)
+})

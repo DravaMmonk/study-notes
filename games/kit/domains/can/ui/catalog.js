@@ -26,6 +26,8 @@ export const CARDS = {
   byteLength: { name: T('字节长度', 'Byte length'), icon: Hash, family: 'value', desc: T('给出字节序列中有多少个字节。', 'Gives the number of bytes in a sequence.') },
   byteList: { name: T('单字节序列', 'Single-byte sequence'), icon: Hash, family: 'value', desc: T('把一个 0 到 255 的字节变成单字节序列。', 'Makes a one-byte sequence from a byte between 0 and 255.') },
   byteAt: { name: T('读取字节', 'Read byte'), icon: Hash, family: 'value', desc: T('读取序列中指定位置的字节，位置从 0 开始；越界时给出「—」。', 'Reads a byte at a zero-based index; gives 「—」 if out of bounds.') },
+  present: { name: T('有值', 'Value present'), icon: Equal, family: 'logic', desc: T('输入不是「—」时为是；零与空序列也算有值。', 'Yes when the input is not 「—」; zero and an empty sequence are values.') },
+  padBytes: { name: T('填充字节', 'Pad bytes'), icon: Split, family: 'value', desc: T('用指定字节将序列填充到指定长度，最多八字节；长度不合法时给出「—」。', 'Pads a byte sequence with a chosen byte to the specified length, at most eight bytes; gives 「—」 for an invalid length.') },
 }
 
 export const FORMS = {
@@ -38,4 +40,5 @@ export const PORT_LABELS = {
   shiftRight: { value: T('数值', 'Value'), amount: T('位数', 'Bits') },
   sliceBytes: { bytes: T('字节', 'Bytes'), start: T('起点', 'Start'), length: T('长度', 'Length') },
   byteAt: { bytes: T('字节', 'Bytes'), index: T('位置', 'Index') },
+  padBytes: { bytes: T('字节', 'Bytes'), length: T('长度', 'Length'), fill: T('填充值', 'Fill') },
 }

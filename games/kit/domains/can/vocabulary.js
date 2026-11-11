@@ -34,6 +34,8 @@ const PARTS = {
   byteLength: item(t('字节序列的长度', 'length of a byte sequence')),
   byteList: item(t('把单个字节变成序列', 'make a sequence from one byte')),
   byteAt: item(t('读取序列中指定位置的字节', 'read a byte at a sequence index')),
+  present: item(t('判断是否有值，零和空序列也是值', 'check whether a value is present; zero and empty sequences are values')),
+  padBytes: item(t('把字节序列填充到指定的帧长度', 'pad a byte sequence to the specified frame length')),
 }
 
 /* ---------- what an output must be ---------- */
@@ -87,6 +89,9 @@ const WANTS = {
   transportFrames: item(t('按流控和间隔发送消息的帧', 'frames sent according to flow control and separation')),
   transportGapReady: item(t('按流控间隔等待后续帧的发送时机', 'wait for the consecutive-frame separation before allowing the next send'), S.obj({ set: INPUT, separation: INPUT, sent: INPUT })),
   transportTimeoutAbort: item(t('接收方不回答时在等待上限终止', 'abort at the waiting limit when the receiver is silent')),
+  inputPresent: item(t('输入有值时为是', 'yes when the input has a value'), S.obj({ input: INPUT })),
+  paddedFrame: item(t('将输入字节填充到八字节', 'pad the input bytes to eight bytes'), S.obj({ input: INPUT, fill: S.int({ min: 0, max: 255 }) })),
+  transportReceivedMessage: item(t('最后一个正确后续帧到达时交出完整消息', 'give the complete message when the final correct consecutive frame arrives')),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -332,7 +337,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 95,
+  version: 96,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

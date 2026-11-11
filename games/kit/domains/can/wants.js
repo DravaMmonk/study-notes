@@ -738,6 +738,9 @@ const WANTS = {
   ecuDynamicFlashDone: () => (test) => { const count = dynamicFlashPlan(test).length; return test.bus.bits.map((_, tick) => tick === count ? true : null) },
   transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
   transportTimeoutAbort: () => (test) => test.bus.bits.map((_, tick) => test.transport.silent && tick === test.transport.timeout ? true : null),
+  inputPresent: ({ input }) => (test) => test.inputs[input].map((value) => value !== null && value !== undefined),
+  paddedFrame: ({ input, fill }) => (test) => test.inputs[input].map((bytes) => Array.isArray(bytes) && bytes.length <= 8 ? [...bytes, ...Array(8 - bytes.length).fill(fill)] : null),
+  transportReceivedMessage: () => (test) => { const plan = transportPlan(test.transport); const complete = !test.transport.silent && !test.transport.overflow; const last = Math.max(...plan.keys()); return test.bus.bits.map((_, tick) => complete && tick === last ? test.transport.message : null) },
   transportGapReady: ({ set, separation, sent }) => (test) => {
     let delay = 0, interval = 0
     return test.bus.bits.map((_, tick) => {
