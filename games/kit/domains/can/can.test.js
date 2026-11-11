@@ -1344,3 +1344,12 @@ test('dynamic programming can wait for a later start', () => {
   assert.deepEqual(want.request.slice(0, 3), [null, null, [0x10, 2]])
   assert.equal(want.done.indexOf(true), 9)
 })
+
+test('update reporting distinguishes repaired and remaining confirmed faults', () => {
+  const test = { bus: { bits: Array(16).fill(1) }, ecu: { did: 0xf188, value: [1], dtcs: [{ code: 1, status: 8 }, { code: 2, status: 8 }], flash: { image: [1, 2], maxBlock: 4, versionAfter: [2], fixedDtcs: [1] } } }
+  const want = wantOf({ requests: 'ecuUpdateRequests', report: 'ecuUpdateReport' })(test)
+  assert.deepEqual(want.requests.slice(0, 3), [[0x19, 2, 8], [0x22, 0xf1, 0x88], [0x10, 2]])
+  assert.deepEqual(want.report[13], [1, 2, 1, 1])
+  test.ecu.flash.fixedDtcs.push(2)
+  assert.deepEqual(wantOf({ report: 'ecuUpdateReport' })(test).report[13], [1, 2, 1, 0])
+})

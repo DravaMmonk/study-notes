@@ -24,6 +24,8 @@ const dynamicFlashPlan = (test) => {
   return requests
 }
 
+const updatePlan = (test) => [[0x19, 2, 8], [0x22, test.ecu.did >> 8, test.ecu.did & 255], ...dynamicFlashPlan(test), null, [0x31, 1, 0xfe, 0], [0x19, 2, 8], [0x22, test.ecu.did >> 8, test.ecu.did & 255]]
+
 const destuff = (bits, resets) => {
   let previous = null
   let run = 0
@@ -736,6 +738,14 @@ const WANTS = {
   ecuPowerLossDone: () => (test) => test.bus.bits.map((_, tick) => tick === 13 ? true : null),
   ecuDynamicFlashRequests: ({ start } = {}) => (test) => { const requests = dynamicFlashPlan(test), at = start ? test.inputs[start].findIndex(Boolean) : 0; return test.bus.bits.map((_, tick) => at >= 0 ? requests[tick - at] ?? null : null) },
   ecuDynamicFlashDone: ({ start } = {}) => (test) => { const count = dynamicFlashPlan(test).length, at = start ? test.inputs[start].findIndex(Boolean) : 0; return test.bus.bits.map((_, tick) => at >= 0 && tick === at + count ? true : null) },
+  ecuUpdateRequests: () => (test) => { const requests = updatePlan(test); return test.bus.bits.map((_, tick) => requests[tick] ?? null) },
+  ecuUpdateReport: () => (test) => {
+    const before = test.ecu.dtcs.some(({ status }) => status & 8)
+    const after = test.ecu.dtcs.some(({ code, status }) => (status & 8) && !test.ecu.flash.fixedDtcs.includes(code))
+    const report = [test.ecu.value[0], test.ecu.flash.versionAfter[0], Number(before), Number(after)]
+    const at = updatePlan(test).length
+    return test.bus.bits.map((_, tick) => tick === at ? report : null)
+  },
   transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
   transportTimeoutAbort: () => (test) => test.bus.bits.map((_, tick) => test.transport.silent && tick === test.transport.timeout ? true : null),
   inputPresent: ({ input }) => (test) => test.inputs[input].map((value) => value !== null && value !== undefined),
