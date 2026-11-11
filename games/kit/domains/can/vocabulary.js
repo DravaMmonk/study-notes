@@ -54,6 +54,7 @@ const WANTS = {
   multiFrameMessage: item(t('按后续帧序号重组消息，直到首帧给定的长度', 'reassemble a message in consecutive-frame sequence until the first-frame length'), S.obj({ data: INPUT, enable: S.opt(INPUT) })),
   multiFrameMessageById: item(t('按标识符分别重组交错到达的消息', 'reassemble interleaved messages separately by identifier'), S.obj({ data: INPUT, identifier: INPUT, match: S.int({ min: 0, max: 2047 }) })),
   flowControlReply: item(t('收到首帧时准备继续发送流控数据', 'prepare continue-to-send flow-control data on a first frame'), S.obj({ header: INPUT, block: INPUT, separation: INPUT })),
+  singleFrameEncode: item(t('为不超过七字节的消息加单帧长度', 'prefix a message of at most seven bytes with a single-frame length'), S.obj({ data: INPUT })),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -295,7 +296,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 77,
+  version: 78,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

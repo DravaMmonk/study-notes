@@ -1214,3 +1214,8 @@ test('flow control preparation answers first frames with configured block and se
   const want = wantOf({ reply: { flowControlReply: { header: 'header', block: 'block', separation: 'separation' } } })
   assert.deepEqual(want({ inputs: { header: [0x10, 0x21, 0x11], block: [4, 4, 0], separation: [5, 5, 10] } }).reply, [[0x30, 4, 5], null, [0x30, 0, 10]])
 })
+
+test('single-frame encoding prefixes length and rejects messages too long for one frame', () => {
+  const want = wantOf({ frame: { singleFrameEncode: { data: 'message' } } })
+  assert.deepEqual(want({ inputs: { message: [[0x22, 0xf1, 0x90], [1, 2, 3, 4, 5, 6, 7], [], [1, 2, 3, 4, 5, 6, 7, 8]] } }).frame, [[3, 0x22, 0xf1, 0x90], [7, 1, 2, 3, 4, 5, 6, 7], null, null])
+})
