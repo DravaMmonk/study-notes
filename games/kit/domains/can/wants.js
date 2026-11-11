@@ -46,6 +46,7 @@ const remainders = ({ bit, enable, reset, width, poly }, test) => {
 const WANTS = {
   line: () => (test) => test.bus.bits,
   previous: ({ first }) => (test) => each(test, (t) => (t ? test.bus.bits[t - 1] : first)),
+  delayedInput: ({ input, first }) => (test) => each(test, (t) => (t ? test.inputs[input][t - 1] : first)),
   unchanged: ({ first }) => (test) => each(test, (t) => test.bus.bits[t] === (t ? test.bus.bits[t - 1] : first)),
   tick: () => (test) => each(test, (t) => t),
   since: ({ tick }) => (test) => each(test, (t) => t >= tick),

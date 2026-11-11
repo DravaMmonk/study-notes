@@ -7,6 +7,7 @@ import { BUS } from '../bus.js'
 
 export const CARDS = {
   line: { name: BUS, icon: Activity, family: 'given', desc: T('这一拍总线上的位：0 为显性，1 为隐性。') },
+  drive: { name: T('说', 'Send'), icon: Activity, family: 'given', desc: T('这一拍驱动总线的位；说之前还听不到这一拍的总线。', 'The bit driven onto the bus this tick; the bus cannot be heard before speaking.') },
   reg: {
     name: T('读寄存卡'), icon: ArrowUpFromLine, family: 'memory',
     desc: T('给出同名寄存卡中存的值；尚未存入时，给出初值（「—」或设定的数）。'),

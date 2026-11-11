@@ -35,6 +35,7 @@ const BIT = S.oneOf([0, 1])
 const WANTS = {
   line: item(t('这一拍总线上的位')),
   previous: item(t('上一拍总线上的位；第一拍给 first'), S.obj({ first: BIT })),
+  delayedInput: item(t('输入的上一拍值；第一拍给 first', 'the input value on the previous tick; first on the first tick'), S.obj({ input: INPUT, first: BIT })),
   unchanged: item(t('总线这一拍的位和上一拍一样吗；第一拍和 first 比'), S.obj({ first: BIT })),
   tick: item(t('这是第几拍，从 0 数')),
   since: item(t('从第 tick 拍（从 0 数）起回答是，之前回答否'), S.obj({ tick: nat })),
@@ -71,6 +72,7 @@ const LEVEL = levelSchema({
   test: TEST,
   ports: {
     listens: S.opt(S.bool({ about: t('板上有总线元件') })),
+    drives: S.opt(S.bool({ about: t('板上有驱动总线的说话口', 'the board has a port that drives the bus') })),
     inputs: S.opt(S.list(PORT)),
   },
   checks: { want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么') }) },
@@ -78,7 +80,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 14,
+  version: 15,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

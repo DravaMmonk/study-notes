@@ -8,7 +8,7 @@ import { board } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 import { canCourse } from './course.js'
-import { runLevel } from './run.js'
+import { runLevel, runTest } from './run.js'
 import { primitivesOnly } from '../../engine/circuit-domain.js'
 import { assemble, deepFreeze } from '../../engine/content.js'
 import domain from './domain.js'
@@ -265,6 +265,18 @@ test('a test may bind a task input to the bus waveform', () => {
   assert.deepEqual(test.inputs.bit, test.bus.bits)
   task.tests[0].inputs.bit = [0]
   assert.ok(canCourse(content).wrong.some((problem) => problem.includes('both explicit values and the line')))
+})
+
+test('a board drives the wired-AND bus and cannot say what it hears in the same tick', () => {
+  const task = { listens: true, drives: true, inputs: [{ name: 'bit', label: L('bit') }], outputs: [], want: wantOf({ send: { delayedInput: { input: 'bit', first: 1 } } }) }
+  const test = { bus: { bits: [1, 1, 0, 1], frames: [] }, inputs: { bit: [0, 1, 1, 0] } }
+  const legal = fromText(['r = reg[reg=A, start=1]()', 'k = keep[reg=A](bit)', 'send <- r'], task, plain)
+  const result = runTest(task, legal, test, plain.partOf)
+  assert.equal(result.fail, undefined)
+  assert.deepEqual(result.ticks.map((tick) => tick.sent), [1, 0, 1, 1])
+  assert.deepEqual(result.ticks.map((tick) => tick.line), [1, 0, 0, 1])
+  const loop = fromText(['send <- line'], task, plain)
+  assert.ok(runTest(task, loop, test, plain.partOf).error)
 })
 
 // The starter game (what npm run new-game copies), as content.js assembles it.

@@ -31,6 +31,7 @@ export function canCourse(content) {
     for (const f of t.bus.frames) if ((f.data ?? []).length > 8) say('a frame carries at most 8 bytes')
     for (const i of task.inputs ?? []) if (!t.inputs?.[i.name] && !t.lineInputs?.includes(i.name)) say(`a test gives nothing on the input ${i.name}`)
     for (const name of t.lineInputs ?? []) {
+      if (task.drives) say('line inputs cannot bind a prerecorded bus while this board drives it')
       if (!task.inputs?.some((input) => input.name === name)) say(`line input ${name} is not a task input`)
       if (t.inputs?.[name]) say(`input ${name} has both explicit values and the line`)
     }

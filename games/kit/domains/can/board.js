@@ -7,7 +7,7 @@
 //   k = keep[reg=A](line)
 //   bit <- r
 import { INPUTS, OUTPUTS, circuitBoard } from '../../engine/circuit-domain.js'
-import { hearing } from '../../engine/ticks.js'
+import { drive, hearing } from '../../engine/ticks.js'
 
 export const board = circuitBoard({
   ticks: true,
@@ -15,6 +15,7 @@ export const board = circuitBoard({
     // The bus this tick: a board that says something from it in the same tick has a loop.
     { type: 'line', side: 'left', of: (task) => (task.listens ? [{ name: 'line', label: { zh: '总线', en: 'Bus' } }] : []), params: () => ({}), part: hearing() },
     INPUTS,
+    { type: 'drive', side: 'right', of: (task) => (task.drives ? [{ name: 'send', label: { zh: '说', en: 'Send' } }] : []), params: () => ({ name: 'send' }), part: drive() },
     OUTPUTS,
   ],
 })

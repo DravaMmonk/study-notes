@@ -1,0 +1,35 @@
+{
+  "title": { "zh": "说一位" },
+  "intro": [
+    { "t": { "zh": "探针已经会听，但光听不能向控制器提问。现在给它一个说话口：每拍先决定自己说什么，再听总线上实际的位。" } },
+    { "t": { "zh": "总线上只要有一个节点说 0，大家听到的就是 0；所有节点都说 1 才听到 1。说这一拍的话时，还听不到这一拍的总线。" } }
+  ],
+  "after": { "zh": "说和听发生在同一拍的两个阶段。先前保存的值可以决定这一拍说什么；这一拍听到的值只能影响后面的拍。" },
+  "tasks": [
+    {
+      "id": "2-1",
+      "brief": { "zh": "每拍把上一拍的「位」说到总线上；第一拍说 1。同时交出这一拍实际听到的总线位。这里其他节点一直不说话。" },
+      "hint": [
+        { "zh": "把「位」存到寄存卡，用读寄存卡的输出接说话口；初值设为 1。" },
+        { "zh": "听到的总线位从总线元件交出。说话口不能依赖同一拍听到的总线，否则引擎会指出回路。" }
+      ],
+      "listens": true,
+      "drives": true,
+      "inputs": [{ "name": "bit", "label": { "zh": "位" } }],
+      "outputs": [{ "name": "heard", "label": { "zh": "听到" } }],
+      "tests": [
+        { "bus": { "idle": 8, "frames": [], "tail": 0 }, "inputs": { "bit": [0, 1, 0, 0, 1, 1, 0, 1] } },
+        { "bus": { "idle": 6, "frames": [], "tail": 0 }, "inputs": { "bit": [1, 1, 0, 1, 0, 1] } }
+      ],
+      "hidden": [
+        { "bus": { "idle": 9, "frames": [], "tail": 0 }, "inputs": { "bit": [0, 0, 0, 1, 1, 0, 1, 1, 0] } }
+      ],
+      "want": {
+        "send": { "delayedInput": { "input": "bit", "first": 1 } },
+        "heard": { "delayedInput": { "input": "bit", "first": 1 } }
+      },
+      "solution": ["r = reg[reg=A, start=1]()", "k = keep[reg=A](bit)", "send <- r", "heard <- line"],
+      "naive": ["send <- bit", "heard <- line"]
+    }
+  ]
+}

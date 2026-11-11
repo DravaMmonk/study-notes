@@ -199,5 +199,15 @@
   "每次帧起始交出从 1 开始的序号；每帧检测到的填充错误或 CRC 结果交给「相符」，其余拍交出「—」。": "Give a one-based index at each start of frame; give the stuffing-error or CRC result for each frame on Matches, and 「—」 on other ticks.",
   "这台监听探针能分开连续帧，并指出测试中的 CRC 和填充错误。它还只能听：想主动询问控制器，需要下一代让它开口。": "This probe separates consecutive frames and detects the CRC and stuffing errors in these tests. It can only listen; to ask a controller a question, the next generation must speak.",
   "解析字段之后，还要判断这一帧能不能相信：边收原始位边核对 CRC，同时留意填充错误。本关的错误发生在数据、CRC 或填充位，不改变长度字段。": "After parsing fields, decide whether the frame can be trusted: check CRC as original bits arrive and watch for stuffing errors. Here errors occur in data, CRC or stuff bits and do not change the length field.",
-  "在连续总线上读帧的标识符、长度和数据字节；填充错误立即交出否，否则在 CRC 界定位交出校验结果。这里的错误不改变长度字段。": "Reads identifiers, lengths and data bytes from consecutive frames; gives no immediately on a stuffing error, otherwise gives the CRC result at the CRC delimiter. Errors here do not change the length field."
+  "在连续总线上读帧的标识符、长度和数据字节；填充错误立即交出否，否则在 CRC 界定位交出校验结果。这里的错误不改变长度字段。": "Reads identifiers, lengths and data bytes from consecutive frames; gives no immediately on a stuffing error, otherwise gives the CRC result at the CRC delimiter. Errors here do not change the length field.",
+  "CAN 控制器": "CAN controller",
+  "怎样让探针开口，还不打断别人？": "How can the probe speak without interrupting others?",
+  "说一位": "Say a bit",
+  "探针已经会听，但光听不能向控制器提问。现在给它一个说话口：每拍先决定自己说什么，再听总线上实际的位。": "The probe can listen, but listening alone cannot ask a controller a question. Give it a sending port: each tick it first decides what to say, then hears the actual bus bit.",
+  "总线上只要有一个节点说 0，大家听到的就是 0；所有节点都说 1 才听到 1。说这一拍的话时，还听不到这一拍的总线。": "If any node says 0, everyone hears 0; only when all say 1 does the bus carry 1. The current bus bit cannot be heard before deciding what to say this tick.",
+  "每拍把上一拍的「位」说到总线上；第一拍说 1。同时交出这一拍实际听到的总线位。这里其他节点一直不说话。": "Each tick, send the previous tick’s Bit onto the bus; send 1 on the first tick. Also give the actual bus bit heard this tick. Other nodes remain silent here.",
+  "把「位」存到寄存卡，用读寄存卡的输出接说话口；初值设为 1。": "Keep Bit in a register and connect its read output to the sending port; set its initial value to 1.",
+  "听到的总线位从总线元件交出。说话口不能依赖同一拍听到的总线，否则引擎会指出回路。": "Give the heard bus bit from the bus card. The sending port cannot depend on the same tick’s bus, or the engine reports a loop.",
+  "说和听发生在同一拍的两个阶段。先前保存的值可以决定这一拍说什么；这一拍听到的值只能影响后面的拍。": "Speaking and hearing are two phases of the same tick. A previously stored value can decide what to send; what is heard now can affect later ticks only.",
+  "听到": "Heard"
 }

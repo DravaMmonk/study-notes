@@ -19,7 +19,10 @@ export function runTest(task, circuit, test, parts) {
   const bind = (tick) => Object.fromEntries(Object.entries(test.inputs ?? {}).map(([name, values]) => [name, values[tick] ?? null]))
   const run = runTicks({ nodes: [sayer('world', test.bus.bits), boardNode({ id: 'you', circuit, parts, bind, traced: true })], ticks: test.bus.bits.length, line: wiredAnd })
   const want = task.want(test)
-  const judged = judgeTicks(run.steps.map((step) => ({ tick: step.tick, line: step.line, ...step.heard.you })), { checked: task.outputs, want: (name) => want[name] })
+  const checked = [...(task.drives ? [{ name: 'send' }] : []), ...task.outputs]
+  const judged = judgeTicks(run.steps.map((step) => ({ tick: step.tick, line: step.line, sent: step.said.you, ...step.heard.you })), {
+    checked, want: (name) => want[name], got: (tick, name) => name === 'send' && task.drives ? tick.sent ?? null : tick.outputs[name] ?? null,
+  })
   const error = run.error && T('这块板这一拍要说的话取决于这一拍的总线：说之前还听不到。')
   return { ...judged, want, ...(error ? { error } : {}) }
 }
@@ -28,7 +31,8 @@ export function runTest(task, circuit, test, parts) {
 export const runLevel = runTests(runTest)
 
 export const entries = ({ task, test, run }) => [
-  ...(task.listens ? [{ of: 'line', label: BUS, shape: 'bits', given: test.bus.bits }] : []),
+  ...(task.listens ? [{ of: 'line', label: BUS, shape: 'bits', given: run.ticks.map((tick) => tick.line) }] : []),
   ...(task.inputs ?? []).map((i) => ({ of: i.name, label: i.label, shape: 'bits', given: test.inputs[i.name] })),
+  ...(task.drives ? [{ of: 'send', label: T('说', 'Send'), shape: 'ticks', got: run.ticks.map((tick) => tick.sent ?? null), want: run.want.send }] : []),
   ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: 'ticks', got: run.ticks.map((t) => t.outputs[o.name] ?? null), want: run.want[o.name] })),
 ]
