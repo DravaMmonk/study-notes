@@ -576,6 +576,19 @@ test('bus-off recovery counts disjoint eleven-bit groups and clears interrupted 
   assert.equal(reset.ready[1419], false)
 })
 
+test('a permitted bus-off recovery resets counters on the following tick', () => {
+  const length = 1442
+  const test = { bus: { bits: Array(length).fill(1) }, inputs: { bit: Array(length).fill(1), event: Array.from({ length }, (_, tick) => Number(tick < 32)), init: Array.from({ length }, (_, tick) => Number(tick === 0)), request: Array.from({ length }, (_, tick) => Number(tick === 1438 || tick === 1439)) } }
+  const params = { event: 'event', init: 'init', bit: 'bit', request: 'request' }
+  const result = wantOf({ tx: { recoveryControllerTx: params }, mode: { recoveryControllerMode: params }, accepted: { recoveryControllerAccepted: params } })(test)
+  assert.equal(result.mode[31], 2)
+  assert.equal(result.accepted[1438], false)
+  assert.equal(result.accepted[1439], true)
+  assert.equal(result.tx[1439], 256)
+  assert.equal(result.tx[1440], 0)
+  assert.equal(result.mode[1440], 0)
+})
+
 test('a transmitter releases ACK while another node can acknowledge', () => {
   const tx = { id: 0x123, data: [0xa5] }
   const frame = frameBits(tx)

@@ -254,19 +254,23 @@ const passiveAckRetry = ({ start, prep, reset }, test) => {
   return { drive, next, rewind, attempts, done, tec: counts.map((step) => step.tx), mode: counts.map((step) => step.mode) }
 }
 
-const busOffRecovery = ({ bit, off }, test) => {
+const recoveryObserver = () => {
   let run = 0
   let groups = 0
-  return each(test, (tick) => {
-    if (!test.inputs[off][tick]) { run = 0; groups = 0 }
+  return (bit, off) => {
+    if (!off) { run = 0; groups = 0 }
     else if (groups < 128) {
-      if (test.inputs[bit][tick] === 1) {
+      if (bit === 1) {
         run++
         if (run === 11) { groups++; run = 0 }
       } else run = 0
     }
     return { groups, ready: groups === 128 }
-  })
+  }
+}
+const busOffRecovery = ({ bit, off }, test) => {
+  const observe = recoveryObserver()
+  return each(test, (tick) => observe(test.inputs[bit][tick], test.inputs[off][tick]))
 }
 
 const errorFlag = ({ error }, test) => {
@@ -298,14 +302,13 @@ const bitErrorFlag = ({ bit, arbitration: phase, ack, start }, test) => {
 }
 
 // Event-level teaching subset; event 5 is the passive missing-ACK exception with no dominant passive-flag bit.
-const faultCounts = ({ event, reset }, test) => {
+const faultCounter = () => {
   let tx = 0
   let rx = 0
   let off = false
-  return each(test, (tick) => {
-    if (test.inputs[reset][tick]) { tx = 0; rx = 0; off = false }
+  return (action, reset) => {
+    if (reset) { tx = 0; rx = 0; off = false }
     if (!off) {
-      const action = test.inputs[event][tick]
       if (action === 1 || (action === 5 && tx < 128 && rx < 128)) tx += 8
       else if (action === 2) tx = Math.max(0, tx - 1)
       else if (action === 3) rx++
@@ -313,6 +316,25 @@ const faultCounts = ({ event, reset }, test) => {
       off = tx > 255
     }
     return { tx, rx, mode: off ? 2 : tx >= 128 || rx >= 128 ? 1 : 0 }
+  }
+}
+const faultCounts = ({ event, reset }, test) => {
+  const count = faultCounter()
+  return each(test, (tick) => count(test.inputs[event][tick], test.inputs[reset][tick]))
+}
+
+const recoveryController = ({ event, init, bit, request }, test) => {
+  const observe = recoveryObserver()
+  const count = faultCounter()
+  let previousMode = 0
+  let resetNext = false
+  return each(test, (tick) => {
+    const observation = observe(test.inputs[bit][tick], previousMode === 2)
+    const accepted = observation.ready && Boolean(test.inputs[request][tick])
+    const state = count(test.inputs[event][tick], test.inputs[init][tick] || resetNext)
+    previousMode = state.mode
+    resetNext = accepted
+    return { ...state, accepted }
   })
 }
 
@@ -487,6 +509,10 @@ const WANTS = {
   recoveryCount: (params) => (test) => busOffRecovery(params, test).map((step) => step.groups),
   recoveryReady: (params) => (test) => busOffRecovery(params, test).map((step) => step.ready),
   recoveryReset: ({ request, ...params }) => (test) => busOffRecovery(params, test).map((step, tick) => step.ready && Boolean(test.inputs[request][tick])),
+  recoveryControllerTx: (params) => (test) => recoveryController(params, test).map((step) => step.tx),
+  recoveryControllerRx: (params) => (test) => recoveryController(params, test).map((step) => step.rx),
+  recoveryControllerMode: (params) => (test) => recoveryController(params, test).map((step) => step.mode),
+  recoveryControllerAccepted: (params) => (test) => recoveryController(params, test).map((step) => step.accepted),
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),
