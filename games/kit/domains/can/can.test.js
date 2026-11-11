@@ -115,6 +115,15 @@ test('data length appears on the last unstuffed DLC bit', () => {
   }
 })
 
+test('identifier appears on its final original bit even when the header is stuffed', () => {
+  for (const [id, tick] of [[0x000, 13], [0x7ff, 13], [0x2a5, 11]]) {
+    const bus = busOf({ idle: 0, frames: [{ id }], tail: 0 })
+    const out = wantOf({ id: 'identifier' })({ bus }).id
+    assert.equal(out[tick], id)
+    assert.equal(out.filter((value) => value !== null).length, 1)
+  }
+})
+
 test('blueprint text reads into a board: settings as the cards keep them, ports by position and form', () => {
   const task = { listens: true, inputs: [{ name: 'go', label: 'go' }], outputs: [{ name: 'n', label: 'n' }] }
   const b = fromText(['r = reg[reg=A, start=1]()', 'c = compare[form=lt](r, go)', 'k = keep[reg=A](line)', 'n <- c'], task, plain)

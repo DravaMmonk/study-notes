@@ -56,7 +56,10 @@ const WANTS = {
   },
   identifier: () => (test) => {
     const out = test.bus.bits.map(() => null)
-    for (const f of test.bus.frames) out[f.at + QUIET] = f.id
+    for (const f of test.bus.frames) {
+      const prefix = [0, ...bitsOf(f.id, 11).slice(0, -1)]
+      out[f.at + stuff(prefix).length] = f.id
+    }
     return out
   },
 }
