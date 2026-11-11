@@ -56,6 +56,33 @@ const frameStatusTrace = (bit, test) => {
   return { status, kind }
 }
 
+// Fields observed before a frame's check result; values after a bad result are not valid frame data.
+const receivedFields = (test, line, kinds) => {
+  const result = Object.fromEntries(['id', 'length', 'byte'].map((name) => [name, test.bus.bits.map(() => null)]))
+  for (let f = 0; f < test.bus.frames.length; f++) {
+    const frame = test.bus.frames[f]
+    const limit = test.bus.frames[f + 1]?.at ?? line.length
+    const status = kinds.findIndex((value, tick) => tick >= frame.at && tick < limit && value !== null)
+    const end = status < 0 ? limit : status
+    const raw = []
+    let previous = null
+    let run = 0
+    for (let tick = frame.at; tick < end; tick++) {
+      const value = line[tick]
+      if (run === 5) { previous = value; run = 1; continue }
+      raw.push(value)
+      run = value === previous ? run + 1 : 1
+      previous = value
+      const position = raw.length - 1
+      if (position === 11) result.id[tick] = raw.slice(1, 12).reduce((n, bit) => n * 2 + bit, 0)
+      if (position === 18) result.length[tick] = raw.slice(15, 19).reduce((n, bit) => n * 2 + bit, 0)
+      if (position >= 19 && position < 19 + frame.data.length * 8 && (position - 19) % 8 === 7) result.byte[tick] = raw.slice(position - 7, position + 1).reduce((n, bit) => n * 2 + bit, 0)
+    }
+    if (status >= 0 && kinds[status] !== 0) for (const values of Object.values(result)) for (let tick = status; tick < limit; tick++) values[tick] = undefined
+  }
+  return result
+}
+
 const serial = ({ value, start, advance }, test) => {
   let byte = 0
   let position = 8
@@ -478,6 +505,7 @@ const receiverPlan = ({ prep, reset }, test) => {
   const ticks = test.bus.bits.length
   const received = test.bus.bits.map((bit, tick) => test.flipTicks?.includes(tick) ? 1 - bit : bit)
   const kind = frameStatusTrace('__received', { ...test, inputs: { ...test.inputs, __received: received } }).kind
+  const fields = receivedFields(test, received, kind)
   const drive = Array(ticks).fill(1)
   const ack = Array(ticks).fill(0)
   const actions = [...(test.inputs[prep] ?? Array(ticks).fill(0))]
@@ -490,7 +518,7 @@ const receiverPlan = ({ prep, reset }, test) => {
     }
   }
   const counts = faultCounts({ event: '__actions', reset }, { ...test, inputs: { ...test.inputs, __actions: actions } })
-  return { drive, ack, kind, ready: kind.map((value) => Number(value !== null)), rec: counts.map((step) => step.rx), event: actions }
+  return { drive, ack, kind, fields, ready: kind.map((value) => Number(value !== null)), rec: counts.map((step) => step.rx), event: actions }
 }
 
 const receiveStateDrive = ({ mode, ...params }, test) => {
@@ -804,6 +832,9 @@ const WANTS = {
   receiveFrameBad: (params) => (test) => receiverPlan(params, test).kind.map((value) => value === 1 || value === 2),
   receiveFrameEvent: (params) => (test) => receiverPlan(params, test).event,
   receiveFrameAck: (params) => (test) => receiverPlan(params, test).ack,
+  receiveFrameId: (params) => (test) => receiverPlan(params, test).fields.id,
+  receiveFrameLength: (params) => (test) => receiverPlan(params, test).fields.length,
+  receiveFrameByte: (params) => (test) => receiverPlan(params, test).fields.byte,
   receiveStateDrive: (params) => (test) => receiveStateDrive(params, test),
   receiveUnifiedDrive: (params) => (test) => receiveUnified(params, test).drive,
   receiveUnifiedTx: (params) => (test) => receiveUnified(params, test).tx,

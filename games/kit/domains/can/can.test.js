@@ -295,6 +295,22 @@ test('receivers acknowledge valid frames and signal stuffing and CRC errors at d
   }
 })
 
+test('received field events reflect sampled data and stop being checked after an error', () => {
+  const bus = busOf({ idle: 12, frames: [{ id: 0x2a5, data: [0x55], ack: false }], tail: 20 })
+  const inputs = { prep: bus.bits.map(() => 0), reset: bus.bits.map((_, tick) => Number(tick === 0)) }
+  const params = { prep: 'prep', reset: 'reset' }
+  const calls = Object.fromEntries(['Id', 'Length', 'Byte', 'Kind'].map((name) => [name, { [`receiveFrame${name}`]: params }]))
+  const valid = wantOf(calls)({ bus, inputs })
+  assert.deepEqual(valid.Id.filter((value) => value !== null), [0x2a5])
+  assert.deepEqual(valid.Length.filter((value) => value !== null), [1])
+  assert.deepEqual(valid.Byte.filter((value) => value !== null), [0x55])
+  const crc = wantOf(calls)({ bus, inputs, flipTicks: [32] })
+  assert.deepEqual(crc.Byte.filter((value) => value !== null && value !== undefined), [0xd5])
+  const bad = wantOf(calls)({ bus, inputs, flipTicks: [41] })
+  const at = bad.Kind.indexOf(1)
+  assert.equal(bad.Byte[at], undefined)
+})
+
 test('a receiver keeps the error flag type from the instant of detection', () => {
   const bus = busOf({ idle: 12, frames: [{ id: 0x2a5, data: [0x55], ack: false }], tail: 20 })
   const inputs = { prep: bus.bits.map(() => 0), reset: bus.bits.map((_, tick) => Number(tick === 0)), mode: bus.bits.map(() => 1) }

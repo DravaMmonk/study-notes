@@ -185,6 +185,9 @@ const WANTS = {
   receiveFrameBad: item(t('检测到填充错误或 CRC 错误时为是', 'yes when a stuff or CRC error is detected'), S.obj({ prep: INPUT, reset: INPUT })),
   receiveFrameEvent: item(t('准备、接收错误和成功应答对应的计数事件', 'counter events from preparation, receive errors and successful acknowledgement'), S.obj({ prep: INPUT, reset: INPUT })),
   receiveFrameAck: item(t('接收方在应答位驱动显性时为 1', '1 when the receiver drives the ACK slot dominant'), S.obj({ prep: INPUT, reset: INPUT })),
+  receiveFrameId: item(t('接收帧标识符在最后原始位出现，错误结果之后不检查', 'received identifier on its last original bit; unchecked after an error result'), S.obj({ prep: INPUT, reset: INPUT })),
+  receiveFrameLength: item(t('接收帧长度在最后原始位出现，错误结果之后不检查', 'received length on its last original bit; unchecked after an error result'), S.obj({ prep: INPUT, reset: INPUT })),
+  receiveFrameByte: item(t('接收帧每个字节在最后原始位出现，错误结果之后不检查', 'each received byte on its last original bit; unchecked after an error result'), S.obj({ prep: INPUT, reset: INPUT })),
   receiveStateDrive: item(t('按错误发生前的主动或被动状态选择接收错误标志', 'choose the receive error flag from the active or passive state before the error'), S.obj({ prep: INPUT, reset: INPUT, mode: INPUT })),
   receiveUnifiedDrive: item(t('使用统一错误状态的接收、应答及错误标志', 'receive, acknowledge and signal errors using the shared fault state'), S.obj({ prep: INPUT, reset: INPUT })),
   receiveUnifiedTx: item(t('准备事件后的发送错误计数', 'transmit error count after preparation events'), S.obj({ prep: INPUT, reset: INPUT })),
@@ -264,7 +267,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 61,
+  version: 62,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
