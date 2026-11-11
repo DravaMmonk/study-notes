@@ -915,6 +915,13 @@ test('a passive sender receives a frame that interrupts suspension before retryi
   assert.equal(result.Retry[ack + 12], 1)
   const idle = { bus: { bits: Array(40).fill(1), frames: [] }, inputs: { end: Array.from({ length: 40 }, (_, tick) => Number(tick === 20)) } }
   assert.equal(wantOf(calls)(idle).Retry[29], 1)
+  const tx = { id: 0x321, data: [0x55] }
+  const longBus = busOf({ idle: 24, frames: [{ id: 0x123, data: [0xa5], ack: false }], tail: 100 })
+  const outgoing = wantOf({ drive: { interruptedFrameDrive: params }, retry: { interruptedFrameRetry: params }, done: { interruptedFrameDone: params } })({ tx, bus: longBus, inputs: { end: longBus.bits.map((_, tick) => Number(tick === 20)) } })
+  const retry = 24 + transmitBits({ id: 0x123, data: [0xa5] }).length
+  assert.equal(outgoing.drive[ack], 0)
+  assert.deepEqual(outgoing.drive.slice(retry, retry + transmitBits(tx).length), transmitBits(tx))
+  assert.equal(outgoing.done[retry + transmitBits(tx).length - 1], true)
 })
 
 test('a transmitter releases ACK while another node can acknowledge', () => {

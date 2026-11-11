@@ -169,6 +169,10 @@ const WANTS = {
   interruptedSuspendRetry: item(t('发送暂停结束，或收到新帧后的间隔结束时重试', 'retry after suspension, or after intermission following a newly received frame'), S.obj({ end: INPUT })),
   interruptedSuspendKind: item(t('暂停期间正确接收的帧给种类 0', 'give kind 0 for a valid frame received during suspension'), S.obj({ end: INPUT })),
   interruptedSuspendReady: item(t('暂停期间接收结果出现时为 1', '1 when a receive result appears during suspension'), S.obj({ end: INPUT })),
+  interruptedFrameDrive: item(t('接收暂停期间的新帧后发送等待中的帧', 'send the pending frame after receiving a frame during suspension'), S.obj({ end: INPUT })),
+  interruptedFrameRetry: item(t('等待中的帧开始发送时为 1', '1 when the pending frame starts transmitting'), S.obj({ end: INPUT })),
+  interruptedFrameNext: item(t('发送等待中的帧时取走数据字节', 'take each data byte while sending the pending frame'), S.obj({ end: INPUT })),
+  interruptedFrameDone: item(t('等待中的帧及其帧间隔发送完毕时为是', 'yes when the pending frame and its intermission are sent'), S.obj({ end: INPUT })),
   stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialCrc: item(t('最后原始位被取走时给该字节的 CRC-15', 'the CRC-15 of the byte when its final original bit is accepted'), S.obj({ value: INPUT, start: INPUT })),
@@ -235,7 +239,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 57,
+  version: 58,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

@@ -526,6 +526,19 @@ const interruptedSuspend = ({ end }, test) => {
   }
 }
 
+const interruptedFrame = (params, test) => {
+  const waiting = interruptedSuspend(params, test)
+  const at = waiting.retry.findIndex((value) => value === 1)
+  const pulse = test.bus.bits.map((_, tick) => Number(tick === at))
+  const { bits, next } = frameTransmission({ start: '__retry' }, { ...test, inputs: { ...test.inputs, __retry: pulse } })
+  return {
+    drive: each(test, (tick) => at >= 0 && tick >= at ? bits[tick - at] ?? 1 : waiting.drive[tick]),
+    retry: waiting.retry,
+    next: each(test, (tick) => next.includes(tick)),
+    done: each(test, (tick) => at >= 0 && tick === at + bits.length - 1),
+  }
+}
+
 const faultFlag = ({ report, ...params }, test) => {
   const modes = faultCounts(params, test)
   let position = 14
@@ -765,6 +778,10 @@ const WANTS = {
   interruptedSuspendRetry: (params) => (test) => interruptedSuspend(params, test).retry,
   interruptedSuspendKind: (params) => (test) => interruptedSuspend(params, test).kind,
   interruptedSuspendReady: (params) => (test) => interruptedSuspend(params, test).ready,
+  interruptedFrameDrive: (params) => (test) => interruptedFrame(params, test).drive,
+  interruptedFrameRetry: (params) => (test) => interruptedFrame(params, test).retry,
+  interruptedFrameNext: (params) => (test) => interruptedFrame(params, test).next,
+  interruptedFrameDone: (params) => (test) => interruptedFrame(params, test).done,
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),
