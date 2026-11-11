@@ -36,6 +36,7 @@ const BIT = S.oneOf([0, 1])
 const WANTS = {
   line: item(t('这一拍总线上的位')),
   inputSignal: item(t('输入这一拍的值', 'the input value on this tick'), S.obj({ input: INPUT })),
+  affineSignal: item(t('输入乘以比例后加偏移', 'input multiplied by a scale and then shifted by an offset'), S.obj({ input: INPUT, scale: S.int(), offset: S.int() })),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -277,7 +278,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 64,
+  version: 65,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

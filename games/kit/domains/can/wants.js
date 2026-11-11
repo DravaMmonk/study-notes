@@ -650,6 +650,7 @@ const remainders = ({ bit, enable, reset, width, poly }, test) => {
 const WANTS = {
   line: () => (test) => test.bus.bits,
   inputSignal: ({ input }) => (test) => test.inputs[input],
+  affineSignal: ({ input, scale, offset }) => (test) => test.inputs[input].map((value) => value == null ? null : value * scale + offset),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

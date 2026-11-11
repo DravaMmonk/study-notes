@@ -1101,3 +1101,8 @@ test('frame tasks read scheduled fields once per frame and reject competing sour
   task.tests[0].constants = { bit: 1 }
   assert.ok(canCourse(content).wrong.some((problem) => problem.includes('more than one source')))
 })
+
+test('a signal scale and offset preserve missing bytes', () => {
+  const want = wantOf({ signal: { affineSignal: { input: 'byte', scale: 2, offset: -40 } } })
+  assert.deepEqual(want({ inputs: { byte: [0, 20, 100, null] } }).signal, [-40, 0, 160, null])
+})
