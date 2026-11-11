@@ -30,6 +30,7 @@ const testOf = (t) => {
   const txEnd = tx ? arbitrationLength(tx.id) : 0
   const inputs = {
     ...(t.inputs ?? {}),
+    ...Object.fromEntries(Object.entries(t.runs ?? {}).map(([name, runs]) => [name, runs.flatMap(({ value, ticks }) => Array(ticks).fill(value))])),
     ...Object.fromEntries(Object.entries(t.constants ?? {}).map(([name, value]) => [name, bus.bits.map(() => value)])),
     ...Object.fromEntries(Object.entries(t.pulses ?? {}).map(([name, ticks]) => [name, bus.bits.map((_, tick) => Number(ticks.includes(tick)))])),
     ...Object.fromEntries(Object.entries(t.txInputs ?? {}).map(([name, kind]) => [name, bus.bits.map((_, tick) => kind === 'bit' ? txBits[tick - txAt] ?? 1 : kind === 'ack' ? Number(tick === txAt + txBits.length - 12) : Number(tick >= txAt && tick - txAt < txEnd))])),
@@ -77,21 +78,22 @@ export function canCourse(content) {
       if (task.pulls.rewind && !task.outputs?.some((output) => output.name === task.pulls.rewind)) say(`queue rewind ${task.pulls.rewind} is not a task output`)
       if (task.pulls.rewind === task.pulls.next) say('queue rewind and advance must be different outputs')
       if (!t.queue) say('a test gives the board no queue to pull from')
-      for (const name of queueInputs) if (t.inputs?.[name] || t.lineInputs?.includes(name) || Object.prototype.hasOwnProperty.call(t.constants ?? {}, name) || Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name) || Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name)) say(`queue input ${name} cannot also have another source`)
+      for (const name of queueInputs) if (t.inputs?.[name] || t.runs?.[name] || t.lineInputs?.includes(name) || Object.prototype.hasOwnProperty.call(t.constants ?? {}, name) || Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name) || Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name)) say(`queue input ${name} cannot also have another source`)
     }
     for (const i of task.inputs ?? []) {
       const name = i.name
-      const sources = [Boolean(t.inputs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name)]
+      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name)]
       if (![task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(name) && !sources.some(Boolean)) say(`a test gives nothing on the input ${name}`)
       if (sources.filter(Boolean).length > 1) say(`input ${name} has more than one source`)
     }
-    for (const name of [...Object.keys(t.constants ?? {}), ...Object.keys(t.pulses ?? {}), ...Object.keys(t.txInputs ?? {})]) if (!task.inputs?.some((input) => input.name === name)) say(`test input ${name} is not a task input`)
+    for (const name of [...Object.keys(t.runs ?? {}), ...Object.keys(t.constants ?? {}), ...Object.keys(t.pulses ?? {}), ...Object.keys(t.txInputs ?? {})]) if (!task.inputs?.some((input) => input.name === name)) say(`test input ${name} is not a task input`)
     for (const name of t.lineInputs ?? []) {
       if (task.drives || t.contenders?.length) say('line inputs cannot bind a prerecorded bus while the bus has active transmitters')
       if (!task.inputs?.some((input) => input.name === name)) say(`line input ${name} is not a task input`)
       if (t.inputs?.[name]) say(`input ${name} has both explicit values and the line`)
     }
     const result = testOf(t)
+    for (const [name, runs] of Object.entries(t.runs ?? {})) if (runs.reduce((sum, run) => sum + run.ticks, 0) !== result.ticks) say(`input runs for ${name} must cover the whole test`)
     if (task.expectsRetry && task.retryStart) {
       const starts = (result.inputs[task.retryStart] ?? []).flatMap((value, tick) => value === 1 ? [tick] : [])
       if (starts.length !== 1 || starts[0] !== (t.txAt ?? 0)) say('retry start input must pulse once at the transmitted frame start')

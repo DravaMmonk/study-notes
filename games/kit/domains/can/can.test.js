@@ -392,6 +392,20 @@ test('passive ACK retry course tests require passive preparation and a successfu
   assert.ok(wrong.some((problem) => problem.includes('must finish with an acknowledged frame')))
 })
 
+test('input runs expand to test length and reject missing ticks or another source', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.tests[0] = { bus: { idle: 6, frames: [], tail: 0 }, runs: { bit: [{ value: 1, ticks: 2 }, { value: 0, ticks: 4 }] }, constants: { go: 1 } }
+  const course = canCourse(content)
+  assert.deepEqual(course.wrong, [])
+  assert.deepEqual(course.played.get('gather')[0].tests[0].inputs.bit, [1, 1, 0, 0, 0, 0])
+  task.tests[0].runs.bit[1].ticks = 3
+  task.tests[0].constants.bit = 1
+  const wrong = canCourse(content).wrong
+  assert.ok(wrong.some((problem) => problem.includes('must cover the whole test')))
+  assert.ok(wrong.some((problem) => problem.includes('more than one source')))
+})
+
 test('a board drives the wired-AND bus and cannot say what it hears in the same tick', () => {
   const task = { listens: true, drives: true, inputs: [{ name: 'bit', label: L('bit') }], outputs: [], want: wantOf({ send: { delayedInput: { input: 'bit', first: 1 } } }) }
   const test = { bus: { bits: [1, 1, 0, 1], frames: [] }, inputs: { bit: [0, 1, 1, 0] } }
