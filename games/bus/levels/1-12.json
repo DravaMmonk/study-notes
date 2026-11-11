@@ -1,0 +1,80 @@
+{
+  "title": { "zh": "一帧里有什么" },
+  "intro": [
+    { "t": { "zh": "现在可以从真实的帧里读下一样东西：数据长度。标准格式的数据帧从帧起始开始，接着是 11 位标识符、RTR、IDE 和保留位，再接四位数据长度。" } },
+    { "t": { "zh": "这一关从帧起始的第一拍开始，只读一帧。数位置时只数原始位；填充位占了一拍，却不属于任何字段。" } }
+  ],
+  "after": { "zh": "位置是原始位的位置，时间则是线上经过的拍数；一旦有填充，这两个数就不同。" },
+  "tasks": [
+    {
+      "id": "1-12",
+      "brief": { "zh": "读出这帧的四位数据长度，在最后一位原始长度位到达时交出它；其他拍交出「—」。第一拍是帧起始，位置从 0 数。" },
+      "hint": [{ "zh": "先用去除填充位元件；只有「有效」为是的拍才让位置加一。" }, { "zh": "长度字段的位置是 15 至 18。用寄存卡在这四位到达时攒数，最后一位到达时交出。" }],
+      "listens": true,
+      "outputs": [{ "name": "length", "label": { "zh": "数据长度" } }],
+      "tests": [
+        { "bus": { "idle": 0, "frames": [{ "id": "0x123", "data": [] }] } },
+        { "bus": { "idle": 0, "frames": [{ "id": "0x7ff", "data": ["0x2a", "0xd5"] }] } }
+      ],
+      "hidden": [
+        {
+          "bus": {
+            "idle": 0,
+            "frames": [
+              { "id": "0x000", "data": ["0x00", "0x01", "0x02", "0x03", "0x04", "0x05", "0x06", "0x07"] }
+            ]
+          }
+        }
+      ],
+      "want": { "length": "dataLength" },
+      "solution": [
+        "d = destuff(line)",
+        "pos = reg[reg=A, start=0]()",
+        "plus = arith[form=inc](pos)",
+        "posnext = select(d.valid, plus, pos)",
+        "kp = keep[reg=A](posnext)",
+        "fourteen = const[value=14]()",
+        "nineteen = const[value=19]()",
+        "after = compare[form=lt](fourteen, pos)",
+        "before = compare[form=lt](pos, nineteen)",
+        "zero = const[value=0]()",
+        "infield = select(after, before, zero)",
+        "read = select(d.valid, infield, zero)",
+        "acc = reg[reg=B, start=0]()",
+        "twice = arith[form=add](acc, acc)",
+        "new = arith[form=add](twice, d.out)",
+        "stored = select(read, new, acc)",
+        "ks = keep[reg=B](stored)",
+        "eighteen = const[value=18]()",
+        "last = compare[form=eq](pos, eighteen)",
+        "ready = select(d.valid, last, zero)",
+        "o = select(ready, stored)",
+        "length <- o"
+      ],
+      "naive": [
+        "d = destuff(line)",
+        "pos = reg[reg=A, start=0]()",
+        "plus = arith[form=inc](pos)",
+        "posnext = select(d.valid, plus, plus)",
+        "kp = keep[reg=A](posnext)",
+        "fourteen = const[value=14]()",
+        "nineteen = const[value=19]()",
+        "after = compare[form=lt](fourteen, pos)",
+        "before = compare[form=lt](pos, nineteen)",
+        "zero = const[value=0]()",
+        "infield = select(after, before, zero)",
+        "read = select(d.valid, infield, zero)",
+        "acc = reg[reg=B, start=0]()",
+        "twice = arith[form=add](acc, acc)",
+        "new = arith[form=add](twice, d.out)",
+        "stored = select(read, new, acc)",
+        "ks = keep[reg=B](stored)",
+        "eighteen = const[value=18]()",
+        "last = compare[form=eq](pos, eighteen)",
+        "ready = select(d.valid, last, zero)",
+        "o = select(ready, stored)",
+        "length <- o"
+      ]
+    }
+  ]
+}

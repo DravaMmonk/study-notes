@@ -43,6 +43,7 @@ const WANTS = {
   destuffedGather: item(t('去除填充位后逐位攒数，填充位的那一拍保留原数'), S.obj({ input: INPUT })),
   destuffValid: item(t('这一拍是不是非填充位'), S.obj({ input: INPUT })),
   destuffed: item(t('去除输入位串中的填充位；填充位的那一拍交出「—」'), S.obj({ input: INPUT })),
+  dataLength: item(t('帧的数据长度，在长度字段最后一个原始位到达时交出，其余拍为「—」')),
   identifier: item(t('帧的标识符，在它最后一位到达的那一拍；其余每一拍「—」')),
 }
 
@@ -65,7 +66,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 7,
+  version: 8,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

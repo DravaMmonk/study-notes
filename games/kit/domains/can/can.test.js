@@ -101,6 +101,20 @@ test('destuffing counts a stuff bit as the start of the next run', () => {
   assert.deepEqual(signals.gathered, [0, 0, 0, 0, 0, 0, 1, 3, 7, 15, 15, 30])
 })
 
+test('data length appears on the last unstuffed DLC bit', () => {
+  const examples = [
+    { id: 0x123, data: [], tick: 19 },
+    { id: 0x7ff, data: [1, 2], tick: 21 },
+    { id: 0, data: Array(8).fill(0), tick: 21 },
+  ]
+  for (const frame of examples) {
+    const bus = busOf({ idle: 0, frames: [frame], tail: 0 })
+    const out = wantOf({ length: 'dataLength' })({ bus }).length
+    assert.equal(out[frame.tick], frame.data.length)
+    assert.equal(out.filter((value) => value !== null).length, 1)
+  }
+})
+
 test('blueprint text reads into a board: settings as the cards keep them, ports by position and form', () => {
   const task = { listens: true, inputs: [{ name: 'go', label: 'go' }], outputs: [{ name: 'n', label: 'n' }] }
   const b = fromText(['r = reg[reg=A, start=1]()', 'c = compare[form=lt](r, go)', 'k = keep[reg=A](line)', 'n <- c'], task, plain)

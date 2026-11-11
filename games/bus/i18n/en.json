@@ -95,5 +95,13 @@
   "从一段从头开始的填充位串中跳过填充位；该拍交出「—」并让「有效」为否，其余拍交出位并让「有效」为是。每块有自己的寄存卡。": "Skips stuff bits in a stuffed stream starting at its beginning: gives 「—」 and Valid no on a stuff bit, otherwise gives the bit and Valid yes. Each part has its own registers.",
   "有效": "Valid",
   "把去除填充位后的位依次攒成一个数，每拍交出当前的数。填充位那一拍保持原数；开始时数为 0。": "Gather the bits after removing stuff bits into a number, and give the current number each tick. Keep it unchanged on a stuff-bit tick; start at zero.",
-  "「有效」为否时保留寄存卡里的数；为是时将它左移一位并加上新位。": "When Valid is no, keep the register’s number; when yes, shift it left and add the new bit."
+  "「有效」为否时保留寄存卡里的数；为是时将它左移一位并加上新位。": "When Valid is no, keep the register’s number; when yes, shift it left and add the new bit.",
+  "一帧里有什么": "What is in a frame",
+  "现在可以从真实的帧里读下一样东西：数据长度。标准格式的数据帧从帧起始开始，接着是 11 位标识符、RTR、IDE 和保留位，再接四位数据长度。": "Now read another field in a real frame: its data length. A standard-format data frame begins with start of frame, then an 11-bit identifier, RTR, IDE and a reserved bit, followed by four data-length bits.",
+  "这一关从帧起始的第一拍开始，只读一帧。数位置时只数原始位；填充位占了一拍，却不属于任何字段。": "This level starts on the first tick of the frame and reads one frame. Count positions in original bits only; a stuff bit occupies a tick but belongs to no field.",
+  "读出这帧的四位数据长度，在最后一位原始长度位到达时交出它；其他拍交出「—」。第一拍是帧起始，位置从 0 数。": "Read the four-bit data length and give it on the tick its last original bit arrives; give 「—」 on all other ticks. The first tick is start of frame, at position zero.",
+  "先用去除填充位元件；只有「有效」为是的拍才让位置加一。": "Remove stuff bits first; advance the position only on ticks where Valid is yes.",
+  "长度字段的位置是 15 至 18。用寄存卡在这四位到达时攒数，最后一位到达时交出。": "The length occupies positions 15 to 18. Use a register to gather those four bits and give the result on the last bit.",
+  "位置是原始位的位置，时间则是线上经过的拍数；一旦有填充，这两个数就不同。": "Position counts original bits, while time counts ticks on the line. Once stuffing occurs, the two differ.",
+  "数据长度": "Data length"
 }
