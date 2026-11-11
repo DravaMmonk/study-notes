@@ -1,0 +1,140 @@
+{
+  "title": { "zh": "输了再来" },
+  "intro": [{ "t": { "zh": "仲裁输了之后，自己的帧还没有送出去。先收下赢家并在正确接收时应答，再等帧间隔结束、总线重新空闲，从头重发原来的帧。" } }],
+  "after": { "zh": "仲裁失败不是发送错误：赢家不受打断，输家保留待发数据并在总线空闲后再试。" },
+  "tasks": [
+    {
+      "id": "2-17",
+      "brief": { "zh": "「开始」时尝试发送自己的标准帧。若仲裁落败，接收并应答赢家，等待至少 11 位连续隐性后重新发送；如果一开始获胜则不重发。只在自己的数据字节真正送完时取走队首。" },
+      "hint": [
+        { "zh": "用发送器的「仲裁段」和说出的位接仲裁元件；落败后屏蔽数据队列的可用信号，不能提前取走自己的字节。" },
+        { "zh": "让抓帧器持续监听，正确接收赢家后在下一拍应答。" },
+        { "zh": "落败时数总线的连续隐性位；数够 11 位后重新启动发送器和仲裁元件。" }
+      ],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "id", "label": { "zh": "标识符" } },
+        { "name": "length", "label": { "zh": "数据长度" } },
+        { "name": "item", "label": { "zh": "队首" } },
+        { "name": "available", "label": { "zh": "有字节" } },
+        { "name": "last", "label": { "zh": "最后字节" } },
+        { "name": "start", "label": { "zh": "开始" } }
+      ],
+      "outputs": [
+        { "name": "next", "label": { "zh": "取走" } },
+        { "name": "done", "label": { "zh": "完成" } },
+        { "name": "lost", "label": { "zh": "落败" } },
+        { "name": "attempt", "label": { "zh": "发起" } }
+      ],
+      "pulls": { "input": "item", "available": "available", "last": "last", "next": "next" },
+      "tests": [
+        {
+          "bus": { "idle": 350, "frames": [], "tail": 0 },
+          "tx": { "id": 1280, "data": [18, 52] },
+          "txAt": 12,
+          "queue": [18, 52],
+          "constants": { "id": 1280, "length": 2 },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 256, "data": [165], "at": 12 }, { "id": 768, "data": [85], "at": 12 }]
+        },
+        {
+          "bus": { "idle": 350, "frames": [], "tail": 0 },
+          "tx": { "id": 256, "data": [64] },
+          "txAt": 12,
+          "queue": [64],
+          "constants": { "id": 256, "length": 1 },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 768, "data": [32], "at": 12 }, { "id": 1280, "data": [], "at": 12 }]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 350, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [] },
+          "txAt": 12,
+          "queue": [],
+          "constants": { "id": 291, "length": 0 },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 290, "data": [1, 2], "at": 12 }, { "id": 295, "data": [3], "at": 12 }]
+        },
+        {
+          "bus": { "idle": 350, "frames": [], "tail": 0 },
+          "tx": { "id": 1, "data": [0, 255, 1, 2, 3, 4, 5, 6] },
+          "txAt": 12,
+          "queue": [0, 255, 1, 2, 3, 4, 5, 6],
+          "constants": { "id": 1, "length": 8 },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 0, "data": [], "at": 12 }, { "id": 2, "data": [1], "at": 12 }]
+        }
+      ],
+      "want": {
+        "send": { "retryDrive": { "start": "start" } },
+        "lost": { "retryLost": { "start": "start" } },
+        "done": { "retryDone": { "start": "start" } },
+        "next": { "retryNext": { "start": "start" } },
+        "attempt": { "retryAttempts": { "start": "start" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ten = const[value=10]()",
+        "false = compare[form=eq](zero, one)",
+        "wait = reg[reg=A, start=0]()",
+        "quiet = counter(line)",
+        "long = compare[form=lt](ten, quiet)",
+        "retryflag = select(long, one, zero)",
+        "retry = select(wait, retryflag, zero)",
+        "fire = select(start, one, retry)",
+        "source = select(wait, zero, available)",
+        "p = transmitter(id, length, item, source, last, fire)",
+        "a = arbiter(line, p.send, p.arb, fire)",
+        "s = sniffer(line)",
+        "ack = reg[reg=B, start=0]()",
+        "good = select(s.ready, s.ok, zero)",
+        "acknext = select(wait, good, zero)",
+        "kb = keep[reg=B](acknext)",
+        "wire = select(ack, zero, a.send)",
+        "send <- wire",
+        "waitnext = select(fire, zero, a.lost)",
+        "ka = keep[reg=A](waitnext)",
+        "lost <- a.lost",
+        "attempt <- fire",
+        "donevalue = select(wait, false, p.done)",
+        "done <- donevalue",
+        "take = select(wait, false, p.next)",
+        "next <- take"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ten = const[value=10]()",
+        "false = compare[form=eq](zero, one)",
+        "wait = reg[reg=A, start=0]()",
+        "quiet = counter(line)",
+        "long = compare[form=lt](ten, quiet)",
+        "retryflag = select(long, one, zero)",
+        "retry = select(wait, zero, zero)",
+        "fire = select(start, one, retry)",
+        "source = select(wait, zero, available)",
+        "p = transmitter(id, length, item, source, last, fire)",
+        "a = arbiter(line, p.send, p.arb, fire)",
+        "s = sniffer(line)",
+        "ack = reg[reg=B, start=0]()",
+        "good = select(s.ready, s.ok, zero)",
+        "acknext = select(wait, good, zero)",
+        "kb = keep[reg=B](acknext)",
+        "wire = select(ack, zero, a.send)",
+        "send <- wire",
+        "waitnext = select(fire, zero, a.lost)",
+        "ka = keep[reg=A](waitnext)",
+        "lost <- a.lost",
+        "attempt <- fire",
+        "donevalue = select(wait, false, p.done)",
+        "done <- donevalue",
+        "take = select(wait, false, p.next)",
+        "next <- take"
+      ]
+    }
+  ]
+}

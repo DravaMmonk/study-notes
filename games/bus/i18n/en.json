@@ -324,5 +324,13 @@
   "只在落败时转交抓帧器的字段和校验结果。": "Pass through capture fields and check result only after losing.",
   "在仲裁后转为接收，正确接收时应答；应答位比 CRC 界定位晚一拍，不能用本拍听到的值直接驱动本拍总线。": "After losing arbitration, become a receiver and acknowledge a correctly received frame. ACK is one tick after the CRC delimiter, so what is heard now cannot drive the bus in the same tick.",
   "发送一帧标准格式数据帧，并标出仲裁段。标识符与长度需保持到发送完成，数据按队列提供；输出驱动位、取走字节和完成。当前不处理仲裁失败或重传。": "Sends one standard-format data frame and marks its arbitration field. Keep identifier and length stable until Done and provide data from the queue. Outputs driven bits, byte acceptance and completion; arbitration loss and retry are not yet handled.",
-  "「开始」时发送一帧标准格式数据帧。按协议驱动总线，仲裁段交出 1、其余拍交出 0；在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。": "On Start, send one standard-format data frame. Drive the bus and give 1 during arbitration and 0 on other ticks; take each queued byte when its final original bit is accepted and give yes on Done on the final intermission bit. Say 1 while idle."
+  "「开始」时发送一帧标准格式数据帧。按协议驱动总线，仲裁段交出 1、其余拍交出 0；在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。": "On Start, send one standard-format data frame. Drive the bus and give 1 during arbitration and 0 on other ticks; take each queued byte when its final original bit is accepted and give yes on Done on the final intermission bit. Say 1 while idle.",
+  "输了再来": "Try again after losing",
+  "仲裁输了之后，自己的帧还没有送出去。先收下赢家并在正确接收时应答，再等帧间隔结束、总线重新空闲，从头重发原来的帧。": "After losing arbitration, the node has not sent its frame. Receive and acknowledge the winner if correct, then wait for intermission and an idle bus before sending the original frame again.",
+  "「开始」时尝试发送自己的标准帧。若仲裁落败，接收并应答赢家，等待至少 11 位连续隐性后重新发送；如果一开始获胜则不重发。只在自己的数据字节真正送完时取走队首。": "On Start, attempt to send your standard frame. After losing arbitration, receive and acknowledge the winner, wait for at least 11 consecutive recessive bits, then retransmit; if you win initially, do not retry. Take each queued byte only when your own byte has actually been sent.",
+  "用发送器的「仲裁段」和说出的位接仲裁元件；落败后屏蔽数据队列的可用信号，不能提前取走自己的字节。": "Connect the sender’s arbitration flag and intended bit to the arbiter. While waiting after loss, hide queue availability so your bytes cannot be consumed early.",
+  "让抓帧器持续监听，正确接收赢家后在下一拍应答。": "Keep the capture device listening and acknowledge a correctly received winner on the next tick.",
+  "落败时数总线的连续隐性位；数够 11 位后重新启动发送器和仲裁元件。": "After losing, count consecutive recessive bus bits; restart the transmitter and arbiter once the count reaches 11.",
+  "仲裁失败不是发送错误：赢家不受打断，输家保留待发数据并在总线空闲后再试。": "Arbitration loss is not a transmission error: the winner is not interrupted, and the loser retains its pending data and tries again when the bus is idle.",
+  "发起": "Attempt"
 }

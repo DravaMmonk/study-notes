@@ -144,6 +144,36 @@ const winnerFields = (params, test) => {
   return { ...out, trace }
 }
 
+// One initial contention, then the loser acknowledges the clean winning frame and retries after intermission.
+const retryPlan = ({ start }, test) => {
+  const at = test.inputs[start]?.findIndex((value) => value === 1 || value === true) ?? -1
+  if (!test.tx || at < 0) return { drive: [], lost: [], done: [], next: [], attempts: [] }
+  const bits = transmitBits(test.tx)
+  const phaseEnd = arbitrationLength(test.tx.id)
+  const bit = test.bus.bits.map((_, tick) => bits[tick - at] ?? 1)
+  const phase = test.bus.bits.map((_, tick) => Number(tick >= at && tick - at < phaseEnd))
+  const trace = arbitration({ bit: '__bit', arbitration: '__phase', start: '__start' }, { ...test, inputs: { ...test.inputs, __bit: bit, __phase: phase, __start: test.inputs[start] } })
+  const lostAt = trace.findIndex((step) => step.lost)
+  const winner = lostAt < 0 ? null : (test.contenders ?? []).filter((node) => (node.at ?? 0) === at).sort((a, b) => a.id - b.id)[0]
+  const retry = winner ? at + frameBits(winner).length : -1
+  const ack = winner ? at + frameBits(winner).length - 12 : -1
+  const sendAt = retry >= 0 ? retry : at
+  const pulse = test.bus.bits.map((_, tick) => Number(tick === sendAt))
+  const { next } = frameTransmission({ start: '__retry' }, { ...test, inputs: { ...test.inputs, __retry: pulse } })
+  return {
+    drive: test.bus.bits.map((_, tick) => {
+      if (lostAt < 0) return bits[tick - at] ?? 1
+      if (tick <= lostAt) return bits[tick - at] ?? 1
+      if (tick === ack) return 0
+      return tick >= retry ? bits[tick - retry] ?? 1 : 1
+    }),
+    lost: test.bus.bits.map((_, tick) => Number(lostAt >= 0 && tick >= lostAt && tick < retry)),
+    done: test.bus.bits.map((_, tick) => tick === sendAt + bits.length - 1),
+    next: test.bus.bits.map((_, tick) => next.includes(tick)),
+    attempts: test.bus.bits.map((_, tick) => Number(tick === at || tick === retry)),
+  }
+}
+
 const stuffedOutput = ({ bit, valid, start }, test) => {
   let previous = null
   let run = 0
@@ -228,6 +258,11 @@ const WANTS = {
     const { trace, status } = winnerFields(params, test)
     return trace.map((step, tick) => tick > 0 && status[tick - 1] === true ? 0 : step.drive)
   },
+  retryDrive: (params) => (test) => retryPlan(params, test).drive,
+  retryLost: (params) => (test) => retryPlan(params, test).lost,
+  retryDone: (params) => (test) => retryPlan(params, test).done,
+  retryNext: (params) => (test) => retryPlan(params, test).next,
+  retryAttempts: (params) => (test) => retryPlan(params, test).attempts,
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),

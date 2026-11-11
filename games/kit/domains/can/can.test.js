@@ -97,6 +97,21 @@ test('a losing node can read the winner identifier from the shared line', () => 
   assert.equal(out.drive[crcTick + 1], 0)
 })
 
+test('retry waits through the winner acknowledgement and intermission', () => {
+  const tx = { id: 0x500, data: [42] }
+  const winner = { id: 0x100, data: [0xa5], at: 12 }
+  const test = { tx, txAt: 12, contenders: [winner], bus: { bits: Array(250).fill(1) }, inputs: { start: Array.from({ length: 250 }, (_, tick) => Number(tick === 12)) } }
+  const params = { start: 'start' }
+  const out = wantOf({ drive: { retryDrive: params }, lost: { retryLost: params }, done: { retryDone: params }, attempts: { retryAttempts: params } })(test)
+  const retry = 12 + frameBits(winner).length
+  const ack = retry - 12
+  assert.equal(out.lost[13], 1)
+  assert.equal(out.drive[ack], 0)
+  assert.equal(out.lost[retry], 0)
+  assert.deepEqual(out.attempts.flatMap((value, tick) => value ? [tick] : []), [12, retry])
+  assert.equal(out.done[retry + frameBits(tx).length - 1], true)
+})
+
 test('stuffing never leaves six equal bits, and comes off again', () => {
   for (const bits of [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0], bitsOf(0x7f0, 11)]) {
     const s = stuff(bits)

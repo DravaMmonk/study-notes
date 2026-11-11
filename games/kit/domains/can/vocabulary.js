@@ -62,6 +62,11 @@ const WANTS = {
   winnerByte: item(t('落败时逐个读赢家的数据字节', 'on loss, read each data byte from the winner'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   winnerStatus: item(t('落败时交出赢家帧的 CRC 结果', 'on loss, give the CRC result for the winner’s frame'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   receiverDrive: item(t('落败后在正确接收的帧的应答位说显性', 'after losing, say dominant in the ACK slot of a correctly received frame'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
+  retryDrive: item(t('仲裁落败后应答赢家并在帧间隔后重发', 'after arbitration loss acknowledge the winner and retry after intermission'), S.obj({ start: INPUT })),
+  retryLost: item(t('从落败到重新开始之前为 1', '1 from arbitration loss until retry starts'), S.obj({ start: INPUT })),
+  retryDone: item(t('自己的帧成功发送并完成间隔时为是', 'yes when the node sends its frame and completes intermission'), S.obj({ start: INPUT })),
+  retryNext: item(t('自己的数据字节发送完时取走队首', 'take a queued data byte when its own transmission completes'), S.obj({ start: INPUT })),
+  retryAttempts: item(t('初次发送和重发的起始拍为 1', '1 on the first attempt and retry start ticks'), S.obj({ start: INPUT })),
   stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialCrc: item(t('最后原始位被取走时给该字节的 CRC-15', 'the CRC-15 of the byte when its final original bit is accepted'), S.obj({ value: INPUT, start: INPUT })),
@@ -125,7 +130,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 27,
+  version: 28,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
