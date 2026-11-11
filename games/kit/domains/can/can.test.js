@@ -479,6 +479,21 @@ test('missing ACK retry oracle replays the frame after the error flag and interm
   assert.equal(result.Tec[retryAt + bits.length - 1], 7)
 })
 
+test('passive senders wait eight additional idle bits after intermission', () => {
+  const test = { bus: { bits: Array(24).fill(1) }, inputs: { end: Array(24).fill(0), mode: Array(24).fill(0) } }
+  test.inputs.end[1] = 1
+  test.inputs.mode[1] = 1
+  const ready = wantOf({ ready: { suspendReady: { end: 'end', mode: 'mode' } } })(test).ready
+  assert.deepEqual(ready.slice(0, 11), [...Array(10).fill(false), true])
+  test.inputs.end[12] = 1
+  test.inputs.mode[12] = 0
+  const again = wantOf({ ready: { suspendReady: { end: 'end', mode: 'mode' } } })(test).ready
+  assert.equal(again[12], false)
+  assert.equal(again[13], true)
+  test.inputs.mode[12] = 2
+  assert.equal(wantOf({ ready: { suspendReady: { end: 'end', mode: 'mode' } } })(test).ready[23], false)
+})
+
 test('a transmitter releases ACK while another node can acknowledge', () => {
   const tx = { id: 0x123, data: [0xa5] }
   const frame = frameBits(tx)

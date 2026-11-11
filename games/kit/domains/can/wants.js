@@ -208,6 +208,20 @@ const ackRetryPlan = ({ start }, test) => {
   return { drive, next, rewind, attempts, done, tec }
 }
 
+// Given a completed intermission on an otherwise idle bus, enforce the passive sender's extra eight bits.
+const suspendReady = ({ end, mode }, test) => {
+  let remaining = null
+  return each(test, (tick) => {
+    if (test.inputs[end][tick]) {
+      remaining = test.inputs[mode][tick] === 0 ? 0 : test.inputs[mode][tick] === 1 ? 8 : null
+      return false
+    }
+    if (remaining === null) return false
+    if (remaining > 0) { remaining--; return false }
+    return true
+  })
+}
+
 const errorFlag = ({ error }, test) => {
   let position = 14
   return each(test, (tick) => {
@@ -392,6 +406,7 @@ const WANTS = {
   ackRetryAttempts: (params) => (test) => ackRetryPlan(params, test).attempts,
   ackRetryDone: (params) => (test) => ackRetryPlan(params, test).done,
   ackRetryTec: (params) => (test) => ackRetryPlan(params, test).tec,
+  suspendReady: (params) => (test) => suspendReady(params, test),
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),

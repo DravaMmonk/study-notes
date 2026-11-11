@@ -87,6 +87,7 @@ const WANTS = {
   ackRetryAttempts: item(t('每次发送开始时为 1', '1 at the start of each transmission attempt'), S.obj({ start: INPUT })),
   ackRetryDone: item(t('成功发送并完成间隔时为是', 'yes when transmission and intermission complete successfully'), S.obj({ start: INPUT })),
   ackRetryTec: item(t('缺应答和成功发送后的发送错误计数', 'transmit error count after missing ACKs and successful transmission'), S.obj({ start: INPUT })),
+  suspendReady: item(t('帧间隔结束后按状态等待，被动发送方额外等待八拍', 'after intermission wait according to state; passive senders wait eight extra ticks'), S.obj({ end: INPUT, mode: INPUT })),
   stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialCrc: item(t('最后原始位被取走时给该字节的 CRC-15', 'the CRC-15 of the byte when its final original bit is accepted'), S.obj({ value: INPUT, start: INPUT })),
@@ -151,7 +152,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 34,
+  version: 35,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
