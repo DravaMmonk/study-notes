@@ -433,5 +433,10 @@
   "使用下线恢复观察元件，把它的允许恢复与请求组合。": "Use the bus-off recovery observation component and combine its permission with the request.",
   "允许复位后，还要重置错误计数，并回到主动状态；本关只判断请求是否被允许。": "Once reset is allowed, error counts must also be reset and the node returned to the active state. This exercise only decides whether the request is permitted.",
   "恢复请求": "Recovery request",
-  "允许复位": "Reset permitted"
+  "允许复位": "Reset permitted",
+  "恢复上线": "Return to the bus",
+  "恢复条件和请求都满足后，节点才能重置两个错误计数并回到主动状态。为了让每拍的先后清楚，本关在接受请求的下一拍执行复位。": "Once both the observation condition and the request are satisfied, the node may reset its error counters and return to the active state. To make tick order explicit, this exercise resets on the tick after accepting the request.",
+  "按事件更新发送计数、接收计数和状态。下线后从下一拍开始观察输入位；累计 128 组十一位隐性且收到恢复请求时接受请求，并在下一拍清零两项计数、回到主动状态。初始信号用于开始练习。": "Update transmit count, receive count and state from events. Starting on the tick after bus-off, observe the input bit. After 128 groups of eleven recessive bits, accept a recovery request and reset both counters and return active on the next tick. Initialize starts the exercise.",
+  "把上一拍的状态接给下线恢复观察元件；请求获准后用寄存卡保存，下一拍复位错误计数元件。": "Connect the previous tick’s state to the bus-off recovery observer. Store an accepted request in a register and reset the fault counter on the next tick.",
+  "下线时仍可监听总线，但不能影响总线。恢复条件、软件请求和计数清零需要按顺序连接。": "A bus-off node can still listen but cannot affect the bus. Connect the recovery condition, software request and counter reset in order."
 }
