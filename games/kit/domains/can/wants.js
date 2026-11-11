@@ -257,7 +257,7 @@ const ackRetryPlan = ({ start }, test) => {
 }
 
 // One initial contention followed by transmit-error retries on an otherwise idle bus.
-const controllerPlan = ({ start, prep, reset, request, receive = false }, test) => {
+const controllerPlan = ({ start, prep, reset, request, receive = false, intervening = false }, test) => {
   const ticks = test.bus.bits.length
   const incoming = receive ? receiveUnified({ prep, reset }, test) : null
   const drive = incoming ? [...incoming.drive] : Array(ticks).fill(1)
@@ -328,7 +328,15 @@ const controllerPlan = ({ start, prep, reset, request, receive = false }, test) 
       resets[acceptAt + 1] = 1
       count = 0
       at = acceptAt + 1
-    } else at = failure + 18 + (count >= 128 || receiveCount >= 128 ? 8 : 0)
+    } else {
+      const passive = count >= 128 || receiveCount >= 128
+      const frame = intervening && passive ? test.bus.frames[1] : null
+      const end = failure + 17
+      if (frame && frame.at > end && frame.at <= end + 8) {
+        at = frame.at + transmitBits(frame).length
+        receiveCount = receiveCount > 127 ? 127 : Math.max(0, receiveCount - 1)
+      } else at = failure + 18 + (passive ? 8 : 0)
+    }
   }
   const counts = faultCounts({ event: '__actions', reset: '__reset' }, { ...test, inputs: { ...test.inputs, __actions: actions, __reset: resets } })
   return { drive, lost, next, rewind, attempts, done, tec: counts.map((step) => step.tx), rec: counts.map((step) => step.rx), mode: counts.map((step) => step.mode), error, accepted, kind: incoming?.kind, ready: incoming?.ready }
@@ -748,6 +756,17 @@ const WANTS = {
   controllerDuplexError: (params) => (test) => controllerPlan({ ...params, receive: true }, test).error,
   controllerDuplexKind: (params) => (test) => controllerPlan({ ...params, receive: true }, test).kind,
   controllerDuplexReady: (params) => (test) => controllerPlan({ ...params, receive: true }, test).ready,
+  controllerInterveningDrive: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).drive,
+  controllerInterveningNext: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).next,
+  controllerInterveningRewind: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).rewind,
+  controllerInterveningAttempts: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).attempts,
+  controllerInterveningDone: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).done,
+  controllerInterveningTec: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).tec,
+  controllerInterveningRec: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).rec,
+  controllerInterveningMode: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).mode,
+  controllerInterveningError: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).error,
+  controllerInterveningKind: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).kind,
+  controllerInterveningReady: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).ready,
   suspendReady: (params) => (test) => suspendReady(params, test),
   suspendRequest: ({ request, ...params }) => (test) => suspendReady(params, test).map((ready, tick) => ready && Boolean(test.inputs[request][tick])),
   passiveAckDrive: (params) => (test) => passiveAckRetry(params, test).drive,

@@ -925,6 +925,27 @@ test('a passive sender receives a frame that interrupts suspension before retryi
   assert.equal(outgoing.done[retry + transmitBits(tx).length - 1], true)
 })
 
+test('shared controller receives a frame that starts during passive retry suspension', () => {
+  const tx = { id: 0x123, data: [0xa5] }
+  const frame = { id: 0x2a5, data: [0x55], ack: false }
+  const bus = busOf({ idle: 140, frames: [frame, { ...frame, gap: 80 }], tail: 120 })
+  const start = 212
+  const firstAck = start + transmitBits(tx).length - 12
+  const second = bus.frames[1]
+  const retry = second.at + transmitBits(second).length
+  bus.bits[retry + transmitBits(tx).length - 12] = 0
+  const inputs = { prep: bus.bits.map((_, tick) => tick < 16 ? 1 : 0), reset: bus.bits.map((_, tick) => Number(tick === 0)), start: bus.bits.map((_, tick) => Number(tick === start)) }
+  const params = { prep: 'prep', reset: 'reset', start: 'start' }
+  const calls = Object.fromEntries(['Drive', 'Attempts', 'Tec', 'Rec', 'Mode', 'Kind'].map((name) => [name, { [`controllerIntervening${name}`]: params }]))
+  const result = wantOf(calls)({ tx, bus, inputs })
+  assert.equal(second.at, firstAck + 21)
+  assert.equal(result.Tec[firstAck], 128)
+  assert.equal(result.Drive[second.at + transmitBits(second).length - 12], 0)
+  assert.equal(result.Kind[second.at + transmitBits(second).length - 13], 0)
+  assert.deepEqual(result.Attempts.flatMap((value, tick) => value ? [tick] : []), [start, retry])
+  assert.equal(result.Tec[retry + transmitBits(tx).length - 4], 127)
+})
+
 test('a transmitter releases ACK while another node can acknowledge', () => {
   const tx = { id: 0x123, data: [0xa5] }
   const frame = frameBits(tx)
