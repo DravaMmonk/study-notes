@@ -148,5 +148,14 @@
   "A": "A",
   "B": "B",
   "C": "C",
-  "CRC-15": "CRC-15"
+  "CRC-15": "CRC-15",
+  "校验之后": "After the check",
+  "数据后面是 15 位 CRC 校验码。填充规则一直用到 CRC 校验码的最后一位；如果那里恰好凑够五位相同，最后还会插入一个填充位。": "The data is followed by the 15-bit CRC sequence. Stuffing applies through its final bit; if that bit completes five equal bits, one last stuff bit follows it.",
+  "接下来依次是 CRC 界定位、应答位、应答界定位，以及连续七位隐性的帧结束。之后的三位间隔属于帧间，不属于帧结束。": "Next come the CRC delimiter, ACK slot, ACK delimiter and seven recessive end-of-frame bits. The following three intermission bits are between frames, not part of end of frame.",
+  "从第一位开始读一帧。在帧结束字段的第七位到达时交出「是」，其余拍交出「—」。": "Read a frame from its first bit. Give yes on the seventh end-of-frame bit and 「—」 on all other ticks.",
+  "数据长度决定 CRC 从哪里开始：帧起始到长度字段共 19 个原始位，数据有长度乘八位，CRC 有 15 位。": "The data length determines where CRC starts: start of frame through the length field is 19 original bits, followed by eight bits per data byte and 15 CRC bits.",
+  "在去填充后的下一位找到 CRC 界定位；从那里起按线上实际的拍数计，不再去除填充位。": "Find the next valid bit after the CRC as its delimiter. From there count actual line ticks; stuffing no longer applies.",
+  "CRC 界定位后是应答位、应答界定位、七位帧结束。": "After the CRC delimiter come the ACK slot, ACK delimiter and seven end-of-frame bits.",
+  "CRC 之后没有填充位；帧结束的七位隐性和后面的三位帧间隔各有用途。": "Stuffing stops after CRC. The seven recessive EOF bits and the three following intermission bits have distinct roles.",
+  "帧结束": "End of frame"
 }

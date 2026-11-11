@@ -134,6 +134,17 @@ test('data bytes occur at their own last bits, including stuffing in earlier byt
   }
 })
 
+test('end of frame is the last EOF bit, before three intermission bits', () => {
+  const frames = [{ id: 0x123, data: [] }, { id: 0x7ff, data: [0xa5, 0] }, { id: 0, data: Array(8).fill(0) }]
+  for (const [k, tick] of [44, 63, 123].entries()) {
+    const bus = busOf({ idle: 0, frames: [frames[k]], tail: 0 })
+    const out = wantOf({ end: 'endOfFrame' })({ bus }).end
+    assert.equal(out[tick], true)
+    assert.equal(out.filter((value) => value !== null).length, 1)
+    assert.deepEqual(bus.bits.slice(tick + 1), [1, 1, 1])
+  }
+})
+
 test('XOR and polynomial remainders handle enabled ticks and reset', () => {
   assert.equal(PARTS.xor.eval({ a: 0x4599, b: 0x1234 }), 0x57ad)
   assert.equal(PARTS.xor.eval({ a: null, b: 1 }), null)

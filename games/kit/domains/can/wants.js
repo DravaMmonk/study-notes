@@ -2,7 +2,7 @@
 // `want: { output name: { item: params } }`; each item here gives, for a test (its bus built, course.js), one value a
 // tick (undefined: anything will do), the lane the waveform draws under the output as 「应当」.
 import { callOf } from '../../engine/schema.js'
-import { bitsOf, stuff } from './bus.js'
+import { bitsOf, frameBits, stuff } from './bus.js'
 
 /** A controller may start talking once the bus has been recessive this many bits in a row; an identifier is as long. */
 const QUIET = 11
@@ -81,6 +81,11 @@ const WANTS = {
         prefix.push(...bits)
       }
     }
+    return out
+  },
+  endOfFrame: () => (test) => {
+    const out = test.bus.bits.map(() => null)
+    for (const frame of test.bus.frames) out[frame.at + frameBits(frame).length - 4] = true
     return out
   },
   bitParity: ({ a, b, c }) => (test) => each(test, (tick) => test.inputs[a][tick] ^ test.inputs[b][tick] ^ test.inputs[c][tick]),

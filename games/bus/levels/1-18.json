@@ -1,0 +1,100 @@
+{
+  "title": { "zh": "校验之后" },
+  "intro": [
+    { "t": { "zh": "数据后面是 15 位 CRC 校验码。填充规则一直用到 CRC 校验码的最后一位；如果那里恰好凑够五位相同，最后还会插入一个填充位。" } },
+    { "t": { "zh": "接下来依次是 CRC 界定位、应答位、应答界定位，以及连续七位隐性的帧结束。之后的三位间隔属于帧间，不属于帧结束。" } }
+  ],
+  "after": { "zh": "CRC 之后没有填充位；帧结束的七位隐性和后面的三位帧间隔各有用途。" },
+  "tasks": [
+    {
+      "id": "1-18",
+      "brief": { "zh": "从第一位开始读一帧。在帧结束字段的第七位到达时交出「是」，其余拍交出「—」。" },
+      "hint": [
+        { "zh": "数据长度决定 CRC 从哪里开始：帧起始到长度字段共 19 个原始位，数据有长度乘八位，CRC 有 15 位。" },
+        { "zh": "在去填充后的下一位找到 CRC 界定位；从那里起按线上实际的拍数计，不再去除填充位。" },
+        { "zh": "CRC 界定位后是应答位、应答界定位、七位帧结束。" }
+      ],
+      "inputs": [{ "name": "bit", "label": { "zh": "位" } }],
+      "outputs": [{ "name": "end", "label": { "zh": "帧结束" } }],
+      "tests": [
+        { "bus": { "idle": 0, "frames": [{ "id": "0x123", "data": [] }] }, "lineInputs": ["bit"] },
+        { "bus": { "idle": 0, "frames": [{ "id": "0x7ff", "data": ["0xa5", "0x00"] }] }, "lineInputs": ["bit"] }
+      ],
+      "hidden": [
+        { "bus": { "idle": 0, "frames": [{ "id": "0x009", "data": [] }] }, "lineInputs": ["bit"] },
+        {
+          "bus": {
+            "idle": 0,
+            "frames": [
+              { "id": "0x000", "data": ["0x00", "0xff", "0x01", "0x02", "0x03", "0x04", "0x05", "0x06"] }
+            ]
+          },
+          "lineInputs": ["bit"]
+        }
+      ],
+      "want": { "end": "endOfFrame" },
+      "solution": [
+        "d = destuff(bit)",
+        "p = frameparse(bit)",
+        "pos = reg[reg=A, start=0]()",
+        "pi = arith[form=inc](pos)",
+        "pn = select(d.valid, pi, pos)",
+        "kp = keep[reg=A](pn)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "eighteen = const[value=18]()",
+        "atlength = compare[form=eq](pos, eighteen)",
+        "lengthready = select(d.valid, atlength, zero)",
+        "lengthold = reg[reg=B, start=0]()",
+        "lengthnew = select(lengthready, p.length, lengthold)",
+        "kl = keep[reg=B](lengthnew)",
+        "two = arith[form=add](lengthold, lengthold)",
+        "four = arith[form=add](two, two)",
+        "eight = arith[form=add](four, four)",
+        "thirtyfour = const[value=34]()",
+        "endpos = arith[form=add](thirtyfour, eight)",
+        "atend = compare[form=eq](pos, endpos)",
+        "delimiter = select(d.valid, atend, zero)",
+        "mode = reg[reg=C, start=0]()",
+        "modenext = select(delimiter, one, mode)",
+        "km = keep[reg=C](modenext)",
+        "c = counter(mode)",
+        "eighttick = const[value=8]()",
+        "last = compare[form=eq](c, eighttick)",
+        "out = select(last, last)",
+        "end <- out"
+      ],
+      "naive": [
+        "d = destuff(bit)",
+        "p = frameparse(bit)",
+        "pos = reg[reg=A, start=0]()",
+        "pi = arith[form=inc](pos)",
+        "pn = select(d.valid, pi, pi)",
+        "kp = keep[reg=A](pn)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "eighteen = const[value=18]()",
+        "atlength = compare[form=eq](pos, eighteen)",
+        "lengthready = select(d.valid, atlength, zero)",
+        "lengthold = reg[reg=B, start=0]()",
+        "lengthnew = select(lengthready, p.length, lengthold)",
+        "kl = keep[reg=B](lengthnew)",
+        "two = arith[form=add](lengthold, lengthold)",
+        "four = arith[form=add](two, two)",
+        "eight = arith[form=add](four, four)",
+        "thirtyfour = const[value=34]()",
+        "endpos = arith[form=add](thirtyfour, eight)",
+        "atend = compare[form=eq](pos, endpos)",
+        "delimiter = select(d.valid, atend, zero)",
+        "mode = reg[reg=C, start=0]()",
+        "modenext = select(delimiter, one, mode)",
+        "km = keep[reg=C](modenext)",
+        "c = counter(mode)",
+        "eighttick = const[value=8]()",
+        "last = compare[form=eq](c, eighttick)",
+        "out = select(last, last)",
+        "end <- out"
+      ]
+    }
+  ]
+}
