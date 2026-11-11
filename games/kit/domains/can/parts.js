@@ -20,6 +20,7 @@
 //   sliceBytes  a contiguous range of a byte sequence
 //   concatBytes  joins two byte sequences
 //   byteLength  the number of bytes in a sequence
+//   byteList  a single-byte sequence
 // Built parts are the boards of the levels that build them (course.js), each run as a packed part that keeps its own
 // registers.
 import { formed } from '../../engine/forms.js'
@@ -60,4 +61,5 @@ export const PARTS = {
   sliceBytes: { inputs: ['bytes', 'start', 'length'], eval: strict(({ bytes, start, length }) => Array.isArray(bytes) && Number.isInteger(start) && start >= 0 && Number.isInteger(length) && length >= 0 && start + length <= bytes.length ? bytes.slice(start, start + length) : null) },
   concatBytes: { inputs: ['a', 'b'], eval: strict(({ a, b }) => Array.isArray(a) && Array.isArray(b) ? [...a, ...b] : null) },
   byteLength: { inputs: ['bytes'], eval: strict(({ bytes }) => Array.isArray(bytes) ? bytes.length : null) },
+  byteList: { inputs: ['byte'], eval: strict(({ byte }) => Number.isInteger(byte) && byte >= 0 && byte <= 255 ? [byte] : null) },
 }

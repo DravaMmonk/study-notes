@@ -691,6 +691,7 @@ const WANTS = {
     })
   },
   multiFrameMessageById: ({ data, identifier, match }) => (test) => WANTS.multiFrameMessage({ data, enable: '__selected' })({ ...test, inputs: { ...test.inputs, __selected: test.inputs[identifier].map((id) => id === match) } }),
+  flowControlReply: ({ header, block, separation }) => (test) => test.inputs[header].map((value, tick) => (value >> 4) === 1 ? [0x30, test.inputs[block][tick], test.inputs[separation][tick]] : null),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

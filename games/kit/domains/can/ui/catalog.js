@@ -24,6 +24,7 @@ export const CARDS = {
   sliceBytes: { name: T('截取字节', 'Slice bytes'), icon: Split, family: 'value', desc: T('从字节序列中按起点和长度截取连续字节；越界时给出「—」。', 'Takes a contiguous range from a byte sequence by start and length; gives 「—」 if out of bounds.') },
   concatBytes: { name: T('拼接字节', 'Join bytes'), icon: GitMerge, family: 'value', desc: T('按顺序拼接两个字节序列。', 'Joins two byte sequences in order.') },
   byteLength: { name: T('字节长度', 'Byte length'), icon: Hash, family: 'value', desc: T('给出字节序列中有多少个字节。', 'Gives the number of bytes in a sequence.') },
+  byteList: { name: T('单字节序列', 'Single-byte sequence'), icon: Hash, family: 'value', desc: T('把一个 0 到 255 的字节变成单字节序列。', 'Makes a one-byte sequence from a byte between 0 and 255.') },
 }
 
 export const FORMS = {

@@ -1207,3 +1207,10 @@ test('interleaved senders retain independent reassembly state', () => {
   assert.deepEqual(result.a, [null, null, [1, 2, 3, 4, 5, 6, 7, 8], null])
   assert.deepEqual(result.b, [null, null, null, [11, 12, 13, 14, 15, 16, 17, 18]])
 })
+
+test('flow control preparation answers first frames with configured block and separation', () => {
+  assert.deepEqual(PARTS.byteList.eval({ byte: 0 }), [0])
+  assert.equal(PARTS.byteList.eval({ byte: 256 }), null)
+  const want = wantOf({ reply: { flowControlReply: { header: 'header', block: 'block', separation: 'separation' } } })
+  assert.deepEqual(want({ inputs: { header: [0x10, 0x21, 0x11], block: [4, 4, 0], separation: [5, 5, 10] } }).reply, [[0x30, 4, 5], null, [0x30, 0, 10]])
+})
