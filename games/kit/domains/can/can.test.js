@@ -351,6 +351,27 @@ test('test constants, pulses and peer low ticks expand and reject conflicts', ()
   assert.ok(wrong.some((problem) => problem.includes('outside the test')))
 })
 
+test('ACK retry course tests require a complete active-state retry and a matching queue', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.inputs = ['item', 'available', 'start'].map((name) => ({ name, label: L(name) }))
+  task.outputs = ['next', 'rewind'].map((name) => ({ name, label: L(name) }))
+  task.pulls = { input: 'item', available: 'available', next: 'next', rewind: 'rewind' }
+  task.want = { next: { ackRetryNext: { start: 'start' } } }
+  const tx = { id: 0x123, data: [0xa5] }
+  const size = transmitBits(tx).length
+  const ack = size - 12
+  task.tests = [{ bus: { idle: size, frames: [], tail: 0 }, tx, queue: tx.data, pulses: { start: [0] }, peerLow: [ack] }]
+  assert.ok(!canCourse(content).wrong.some((problem) => problem.includes('ACK retry')))
+  task.tests[0].peerLow = []
+  assert.ok(canCourse(content).wrong.some((problem) => problem.includes('must finish with an acknowledged frame')))
+  task.tests[0].peerLow = [ack, ack - 1]
+  task.tests[0].queue = [0]
+  const wrong = canCourse(content).wrong
+  assert.ok(wrong.some((problem) => problem.includes('queue must contain')))
+  assert.ok(wrong.some((problem) => problem.includes('peers may only acknowledge')))
+})
+
 test('a board drives the wired-AND bus and cannot say what it hears in the same tick', () => {
   const task = { listens: true, drives: true, inputs: [{ name: 'bit', label: L('bit') }], outputs: [], want: wantOf({ send: { delayedInput: { input: 'bit', first: 1 } } }) }
   const test = { bus: { bits: [1, 1, 0, 1], frames: [] }, inputs: { bit: [0, 1, 1, 0] } }

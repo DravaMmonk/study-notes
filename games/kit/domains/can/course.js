@@ -91,6 +91,19 @@ export function canCourse(content) {
       const starts = (result.inputs[task.retryStart] ?? []).flatMap((value, tick) => value === 1 ? [tick] : [])
       if (starts.length !== 1 || starts[0] !== (t.txAt ?? 0)) say('retry start input must pulse once at the transmitted frame start')
     }
+    if (task.expectsAckRetry && t.tx && task.ackRetryStart) {
+      const starts = (result.inputs[task.ackRetryStart] ?? []).flatMap((value, tick) => value === 1 ? [tick] : [])
+      if (new Set(task.ackRetryStarts).size !== 1 || starts.length !== 1) say('ACK retry checks must share one start input with one pulse')
+      if (starts.length === 1) {
+        const size = transmitBits(result.tx).length
+        let ack = starts[0] + size - 12
+        let failures = 0
+        while (ack < result.ticks && result.bus.bits[ack] === 1 && failures < 16) { failures++; ack += size - 12 + 18 }
+        if (failures > 15) say('ACK retry tests must remain error-active')
+        if (ack >= result.ticks || result.bus.bits[ack] !== 0 || ack + 11 >= result.ticks) say('ACK retry tests must finish with an acknowledged frame')
+        if ((t.peerLow ?? []).some((tick) => tick !== ack)) say('ACK retry peers may only acknowledge the successful attempt')
+      }
+    }
     if (t.peerBits && t.peerBits.length !== result.bus.bits.length) say('other nodes must give one bit per tick')
     for (const tick of [...(t.peerLow ?? []), ...(t.flipTicks ?? []), ...Object.values(t.pulses ?? {}).flat(), ...(t.contenders ?? []).map((node) => node.at ?? 0), ...(t.txInputs ? [t.txAt ?? 0] : [])]) if (tick >= result.bus.bits.length) say(`tick ${tick} is outside the test`)
     return result
@@ -101,6 +114,7 @@ export function canCourse(content) {
     const retryCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => ['retryDrive', 'retryLost', 'retryDone', 'retryNext', 'retryAttempts'].includes(name))
     const expectsRetry = retryCalls.length > 0
     const expectsAckRetry = names.some((name) => name.startsWith('ackRetry'))
-    return { ...task, expectsRetry, expectsAckRetry, expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
+    const ackRetryStarts = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('ackRetry')).map(([, params]) => params.start)
+    return { ...task, expectsRetry, expectsAckRetry, ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }
