@@ -1,0 +1,47 @@
+{
+  "title": { "zh": "车速藏在一个字节里" },
+  "intro": [
+    { "t": { "zh": "控制器已经能逐位接收。接下来先在干净总线上按帧观察：每拍交来一整帧，争用时标识符小的先到。这里暂不模拟错误和重发。" } },
+    { "t": { "zh": "试车记录中，第一个数据字节为 0、25、60 时，仪表车速分别为 0、50、120 km/h。找出规律，再让板对每一帧给出车速。" } }
+  ],
+  "after": { "zh": "同一个字节可以编码一个物理量；这次车速等于字节值的两倍。其他信号的比例和偏移可能不同。" },
+  "tasks": [
+    {
+      "id": "3-1",
+      "brief": { "zh": "读取每帧的第一个数据字节，交出对应车速（km/h）。" },
+      "hint": [{ "zh": "比较三组已知数据，试着用算术元件把字节和它自己相加。" }],
+      "inputs": [{ "name": "raw", "label": { "zh": "第一个数据字节" } }],
+      "frameInputs": { "raw": "byte0" },
+      "outputs": [{ "name": "speed", "label": { "zh": "车速（km/h）" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 12, "id": "0x100", "data": [0] },
+            { "node": "sensor", "at": 120, "id": "0x100", "data": [25] },
+            { "node": "sensor", "at": 220, "id": "0x100", "data": [60] }
+          ]
+        },
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "slow", "at": 20, "id": "0x300", "data": [47] },
+            { "node": "fast", "at": 20, "id": "0x100", "data": [19] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 4, "id": "0x123", "data": [128] },
+            { "node": "sensor", "at": 110, "id": "0x123", "data": [255] }
+          ]
+        }
+      ],
+      "want": { "speed": { "affineSignal": { "input": "raw", "scale": 2, "offset": 0 } } },
+      "solution": ["sum = arith[form=add](raw, raw)", "speed <- sum"],
+      "naive": ["speed <- raw"]
+    }
+  ]
+}

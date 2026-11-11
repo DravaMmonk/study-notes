@@ -1,6 +1,6 @@
 {
   "domain": "can",
-  "vocabulary": 63,
+  "vocabulary": 65,
   "title": { "zh": "车在说话" },
   "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
@@ -130,6 +130,7 @@
         "2-48",
         "2-49"
       ]
-    }
+    },
+    { "id": 3, "title": { "zh": "数据记录仪" }, "question": { "zh": "一帧里的字节表示什么？" }, "foundation": ["3-1"] }
   ]
 }
