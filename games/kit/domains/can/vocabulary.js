@@ -46,6 +46,7 @@ const WANTS = {
   faultMode: item(t('按计数给主动、被动或下线状态', 'give active, passive or bus-off state from the counters'), S.obj({ event: INPUT, reset: INPUT })),
   faultFlagDrive: item(t('按错误状态发送主动或被动错误标志', 'send an active or passive error flag according to fault state'), S.obj({ event: INPUT, reset: INPUT, report: INPUT })),
   faultFlagDone: item(t('错误标志及界定位结束时为是', 'yes when the error flag and delimiter finish'), S.obj({ event: INPUT, reset: INPUT, report: INPUT })),
+  transitionFlagDrive: item(t('跨入被动状态的错误仍发送主动标志', 'the error that enters passive state still sends an active flag'), S.obj({ event: INPUT, reset: INPUT, report: INPUT })),
   previous: item(t('上一拍总线上的位；第一拍给 first'), S.obj({ first: BIT })),
   delayedInput: item(t('输入的上一拍值；第一拍给 first', 'the input value on the previous tick; first on the first tick'), S.obj({ input: INPUT, first: BIT })),
   serialBit: item(t('开始时取输入字节，逐拍交出八位，空闲时为「—」', 'load a byte on start and give its eight bits tick by tick, or 「—」 while idle'), S.obj({ value: INPUT, start: INPUT })),
@@ -153,7 +154,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 36,
+  version: 37,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

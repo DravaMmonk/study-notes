@@ -424,6 +424,16 @@ test('fault counters use the specified event subset and latch bus-off', () => {
   assert.deepEqual(flag.slice(46, 52), [0, 0, 0, 0, 0, 0])
 })
 
+test('an error entering passive state still sends an active error flag', () => {
+  const event = [...Array(16).fill(1), ...Array(16).fill(0)]
+  const test = { bus: { bits: event.map(() => 1) }, inputs: { event, reset: event.map((_, tick) => Number(tick === 0)), report: event.map((_, tick) => Number(tick === 15)) } }
+  const wanted = wantOf({ mode: { faultMode: { event: 'event', reset: 'reset' } }, drive: { transitionFlagDrive: { event: 'event', reset: 'reset', report: 'report' } } })(test)
+  assert.equal(wanted.mode[15], 1)
+  assert.deepEqual(wanted.drive.slice(16, 30), [...Array(6).fill(0), ...Array(8).fill(1)])
+  test.inputs.report = event.map((_, tick) => Number(tick === 16))
+  assert.deepEqual(wantOf({ drive: { transitionFlagDrive: { event: 'event', reset: 'reset', report: 'report' } } })(test).drive.slice(17, 31), Array(14).fill(1))
+})
+
 test('a packed board reads its wired line input, not an unrelated world line', () => {
   const innerTask = { listens: true, inputs: [], outputs: [{ name: 'seen', label: L('seen') }] }
   const inner = fromText(['seen <- line'], innerTask, plain)

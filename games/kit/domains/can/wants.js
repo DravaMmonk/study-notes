@@ -282,6 +282,23 @@ const faultFlag = ({ report, ...params }, test) => {
   })
 }
 
+// The error that changes an active node to passive still produces an active error flag.
+const transitionFlag = ({ report, ...params }, test) => {
+  const modes = faultCounts(params, test)
+  let flagMode = 2
+  let position = 14
+  return each(test, (tick) => {
+    const drive = flagMode === 0 && position < 6 ? 0 : 1
+    if (test.inputs[report][tick]) {
+      const before = test.inputs[params.reset][tick] ? 0 : modes[tick - 1]?.mode ?? 0
+      const after = modes[tick].mode
+      flagMode = after === 2 ? 2 : before === 0 ? 0 : after
+      position = flagMode === 2 ? 14 : 0
+    } else if (position < 14) position++
+    return drive
+  })
+}
+
 const stuffedOutput = ({ bit, valid, start }, test) => {
   let previous = null
   let run = 0
@@ -337,6 +354,7 @@ const WANTS = {
   faultMode: (params) => (test) => faultCounts(params, test).map((step) => step.mode),
   faultFlagDrive: (params) => (test) => faultFlag(params, test).map((step) => step.drive),
   faultFlagDone: (params) => (test) => faultFlag(params, test).map((step) => step.done),
+  transitionFlagDrive: (params) => (test) => transitionFlag(params, test),
   previous: ({ first }) => (test) => each(test, (t) => (t ? test.bus.bits[t - 1] : first)),
   delayedInput: ({ input, first }) => (test) => each(test, (t) => (t ? test.inputs[input][t - 1] : first)),
   serialBit: (params) => (test) => serial(params, test).map((step) => step.bit),
