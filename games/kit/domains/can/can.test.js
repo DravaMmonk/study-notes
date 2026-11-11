@@ -359,8 +359,17 @@ test('a board drives the wired-AND bus and cannot say what it hears in the same 
   assert.equal(result.fail, undefined)
   assert.deepEqual(result.ticks.map((tick) => tick.sent), [1, 0, 1, 1])
   assert.deepEqual(result.ticks.map((tick) => tick.line), [1, 0, 0, 1])
+  const flipped = runTest(task, legal, { ...test, flipTicks: [2] }, plain.partOf)
+  assert.equal(flipped.ticks[2].line, 1)
   const loop = fromText(['send <- line'], task, plain)
   assert.ok(runTest(task, loop, test, plain.partOf).error)
+})
+
+test('bit error ignores ACK, detects an inverted sample and resets', () => {
+  const bit = [1, 1, 0, 0, 1, 1]
+  const test = { bus: { bits: [1, 0, 1, 1, 1, 1] }, inputs: { bit, arb: [0, 0, 0, 0, 0, 0], ack: [0, 1, 0, 0, 0, 0], start: [1, 0, 0, 0, 0, 1] }, flipTicks: [3] }
+  const out = wantOf({ error: { bitError: { bit: 'bit', arbitration: 'arb', ack: 'ack', start: 'start' } } })(test).error
+  assert.deepEqual(out, [0, 0, 0, 1, 1, 0])
 })
 
 test('a packed board reads its wired line input, not an unrelated world line', () => {

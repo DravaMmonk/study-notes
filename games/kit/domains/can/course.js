@@ -32,7 +32,7 @@ const testOf = (t) => {
     ...(t.inputs ?? {}),
     ...Object.fromEntries(Object.entries(t.constants ?? {}).map(([name, value]) => [name, bus.bits.map(() => value)])),
     ...Object.fromEntries(Object.entries(t.pulses ?? {}).map(([name, ticks]) => [name, bus.bits.map((_, tick) => Number(ticks.includes(tick)))])),
-    ...Object.fromEntries(Object.entries(t.txInputs ?? {}).map(([name, kind]) => [name, bus.bits.map((_, tick) => kind === 'bit' ? txBits[tick - txAt] ?? 1 : Number(tick >= txAt && tick - txAt < txEnd))])),
+    ...Object.fromEntries(Object.entries(t.txInputs ?? {}).map(([name, kind]) => [name, bus.bits.map((_, tick) => kind === 'bit' ? txBits[tick - txAt] ?? 1 : kind === 'ack' ? Number(tick === txAt + txBits.length - 12) : Number(tick >= txAt && tick - txAt < txEnd))])),
     ...Object.fromEntries((t.lineInputs ?? []).map((name) => [name, bus.bits])),
   }
   const contenders = (t.contenders ?? []).map((node) => ({ ...node, id: num(node.id), data: (node.data ?? []).map(num) }))
@@ -52,9 +52,10 @@ export function canCourse(content) {
       if ((t.contenders ?? []).some((node) => (node.at ?? 0) !== (t.txAt ?? 0))) say('retry contenders must start with the transmitted frame')
       const ids = [t.tx?.id, ...(t.contenders ?? []).map((node) => node.id)].filter((id) => id !== undefined).map(num)
       if (new Set(ids).size !== ids.length) say('retry contenders must use distinct identifiers')
-      if (t.bus.frames.length || t.peerBits || t.peerLow?.length) say('retry tests use a clean idle bus and the declared contenders')
+      if (t.bus.frames.length || t.peerBits || t.peerLow?.length || t.flipTicks?.length) say('retry tests use a clean idle bus and the declared contenders')
       if (t.tx && JSON.stringify((t.tx.data ?? []).map(num)) !== JSON.stringify((t.queue ?? []).map(num))) say('retry queue must contain the transmitted frame data')
     }
+    if (task.expectsBitError && t.contenders?.length) say('bit-error checks require scripted peers rather than active contenders')
     if (task.pulls) {
       if (!task.inputs?.some((input) => input.name === task.pulls.input)) say(`queue input ${task.pulls.input} is not a task input`)
       if (!task.inputs?.some((input) => input.name === task.pulls.available)) say(`queue availability ${task.pulls.available} is not a task input`)
@@ -83,7 +84,7 @@ export function canCourse(content) {
       if (starts.length !== 1 || starts[0] !== (t.txAt ?? 0)) say('retry start input must pulse once at the transmitted frame start')
     }
     if (t.peerBits && t.peerBits.length !== result.bus.bits.length) say('other nodes must give one bit per tick')
-    for (const tick of [...(t.peerLow ?? []), ...Object.values(t.pulses ?? {}).flat(), ...(t.contenders ?? []).map((node) => node.at ?? 0), ...(t.txInputs ? [t.txAt ?? 0] : [])]) if (tick >= result.bus.bits.length) say(`tick ${tick} is outside the test`)
+    for (const tick of [...(t.peerLow ?? []), ...(t.flipTicks ?? []), ...Object.values(t.pulses ?? {}).flat(), ...(t.contenders ?? []).map((node) => node.at ?? 0), ...(t.txInputs ? [t.txAt ?? 0] : [])]) if (tick >= result.bus.bits.length) say(`tick ${tick} is outside the test`)
     return result
   }
   // A task's wants read; a built part keeps its own registers.
@@ -91,6 +92,6 @@ export function canCourse(content) {
     const names = Object.values(task.want ?? {}).map((call) => callOf(call)[0])
     const retryCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => ['retryDrive', 'retryLost', 'retryDone', 'retryNext', 'retryAttempts'].includes(name))
     const expectsRetry = retryCalls.length > 0
-    return { ...task, expectsRetry, retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating'].includes(name)), want: wantOf(task.want) }
+    return { ...task, expectsRetry, expectsBitError: names.includes('bitError'), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }

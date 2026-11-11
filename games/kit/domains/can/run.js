@@ -34,7 +34,10 @@ export function runTest(task, circuit, test, parts) {
   }
   const rivals = (test.contenders ?? []).map((frame, k) => contender(`rival${k}`, frame, frame.at ?? 0))
   const nodes = [sayer('world', test.bus.bits), boardNode({ id: 'you', circuit, parts, bind, traced: true }), ...rivals, ...(queue ? [queue.node] : [])]
-  const run = runTicks({ nodes, ticks: test.bus.bits.length, line: wiredAnd })
+  const run = runTicks({ nodes, ticks: test.bus.bits.length, line: (said, tick) => {
+    const line = wiredAnd(said)
+    return test.flipTicks?.includes(tick) ? 1 - line : line
+  } })
   const want = task.want(test)
   const checked = [...(task.drives ? [{ name: 'send' }] : []), ...task.outputs]
   const judged = judgeTicks(run.steps.map((step) => ({ tick: step.tick, line: step.line, sent: step.said.you, said: step.said, bind: bindings[step.tick], ...step.heard.you })), {

@@ -332,5 +332,12 @@
   "让抓帧器持续监听，正确接收赢家后在下一拍应答。": "Keep the capture device listening and acknowledge a correctly received winner on the next tick.",
   "落败时数总线的连续隐性位；数够 11 位后重新启动发送器和仲裁元件。": "After losing, count consecutive recessive bus bits; restart the transmitter and arbiter once the count reaches 11.",
   "仲裁失败不是发送错误：赢家不受打断，输家保留待发数据并在总线空闲后再试。": "Arbitration loss is not a transmission error: the winner is not interrupted, and the loser retains its pending data and tries again when the bus is idle.",
-  "发起": "Attempt"
+  "发起": "Attempt",
+  "我说的不是我听到的": "What I said is not what I heard",
+  "节点发送时也会读回总线。仲裁段说 1 听到 0 是落败；应答位说 1 听到 0 则可能是接收方在应答。在其他位置，说的和听到的不同就是位错误。": "A node reads the bus while transmitting. In arbitration, saying 1 and hearing 0 means loss; in the ACK slot it may be a receiver acknowledging. Elsewhere, a difference between the sent and sampled bit is a bit error.",
+  "按「待发送位」驱动总线。除「仲裁段」和「应答位」之外，若听到的位与说的不同，把「错误」置 1 并保持；「开始」先清空错误。测试会在指定拍翻转总线采样值。": "Drive Intended bit onto the bus. Outside Arbitration and ACK, retain Error as 1 if the heard bit differs from the sent bit; Start clears the error first. Tests invert the sampled bus on specified ticks.",
+  "先比较说出的位和听到的总线位；只在仲裁段和应答位都为 0 时把差异当作位错误。": "Compare the sent bit with the bus; treat a difference as a bit error only when both Arbitration and ACK are 0.",
+  "用寄存卡保持错误；开始时先清零。": "Use a register to retain the error and clear it first on Start.",
+  "应答和仲裁有各自的解释；其他位置的读回不符表示发送方观察到了位错误。": "ACK and arbitration have their own meanings; elsewhere a readback mismatch means the transmitter observed a bit error.",
+  "应答位": "ACK slot"
 }

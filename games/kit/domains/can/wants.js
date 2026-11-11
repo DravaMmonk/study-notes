@@ -95,7 +95,8 @@ const arbitration = ({ bit, arbitration: phase, start }, test) => {
     if (test.inputs[start][tick]) lost = false
     const drive = lost ? 1 : test.inputs[bit][tick]
     const said = others.map((other) => other.active && tick >= other.at ? other.bits[tick - other.at] ?? 1 : 1)
-    const line = wiredAnd([test.bus.bits[tick], drive, ...said])
+    let line = wiredAnd([test.bus.bits[tick], drive, ...said])
+    if (test.flipTicks?.includes(tick)) line = 1 - line
     if (!lost && test.inputs[phase][tick] && drive === 1 && line === 0) lost = true
     others.forEach((other, k) => {
       const offset = tick - other.at
@@ -208,6 +209,18 @@ const remainders = ({ bit, enable, reset, width, poly }, test) => {
 
 const WANTS = {
   line: () => (test) => test.bus.bits,
+  inputSignal: ({ input }) => (test) => test.inputs[input],
+  bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
+    let error = false
+    return each(test, (tick) => {
+      if (test.inputs[start][tick]) error = false
+      const said = test.inputs[bit][tick]
+      let line = wiredAnd([said, test.bus.bits[tick]])
+      if (test.flipTicks?.includes(tick)) line = 1 - line
+      if (!test.inputs[phase][tick] && !test.inputs[ack][tick] && said !== line) error = true
+      return Number(error)
+    })
+  },
   previous: ({ first }) => (test) => each(test, (t) => (t ? test.bus.bits[t - 1] : first)),
   delayedInput: ({ input, first }) => (test) => each(test, (t) => (t ? test.inputs[input][t - 1] : first)),
   serialBit: (params) => (test) => serial(params, test).map((step) => step.bit),

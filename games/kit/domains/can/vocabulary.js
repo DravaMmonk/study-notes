@@ -34,6 +34,8 @@ const INPUT = S.str({ about: t('关卡的一个输入的名字') })
 const BIT = S.oneOf([0, 1])
 const WANTS = {
   line: item(t('这一拍总线上的位')),
+  inputSignal: item(t('输入这一拍的值', 'the input value on this tick'), S.obj({ input: INPUT })),
+  bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   previous: item(t('上一拍总线上的位；第一拍给 first'), S.obj({ first: BIT })),
   delayedInput: item(t('输入的上一拍值；第一拍给 first', 'the input value on the previous tick; first on the first tick'), S.obj({ input: INPUT, first: BIT })),
   serialBit: item(t('开始时取输入字节，逐拍交出八位，空闲时为「—」', 'load a byte on start and give its eight bits tick by tick, or 「—」 while idle'), S.obj({ value: INPUT, start: INPUT })),
@@ -111,10 +113,11 @@ const TEST = S.obj({
   queue: S.opt(S.list(hex(0xff, 2), { about: t('等待板逐个取走的字节', 'bytes waiting for the board to take one at a time') })),
   tx: S.opt(FRAME),
   txAt: S.opt(nat),
-  txInputs: S.opt(S.map(S.oneOf(['bit', 'arbitration']), { about: t('输入取待发送的位或仲裁段标志', 'inputs take the intended transmitted bit or arbitration-field flag') })),
+  txInputs: S.opt(S.map(S.oneOf(['bit', 'arbitration', 'ack']), { about: t('输入取待发送的位或仲裁段标志', 'inputs take the intended transmitted bit or arbitration-field flag') })),
   contenders: S.opt(S.list(CONTENDER, { about: t('按总线采样结果竞争的其他发送节点', 'other transmitters that compete based on the sampled bus') })),
   peerBits: S.opt(S.list(BIT, { view: 'ticks', about: t('其他节点每拍说的位', 'bits said by the other nodes each tick') })),
   peerLow: S.opt(S.list(nat, { about: t('其他节点在这些拍拉低总线', 'the other nodes pull the bus low on these ticks') })),
+  flipTicks: S.opt(S.list(nat, { about: t('这些拍在线性与之后翻转总线采样值', 'invert the sampled bus after wired-AND on these ticks') })),
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
@@ -130,7 +133,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 28,
+  version: 29,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

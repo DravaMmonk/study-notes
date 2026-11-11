@@ -1,0 +1,95 @@
+{
+  "title": { "zh": "我说的不是我听到的" },
+  "intro": [{ "t": { "zh": "节点发送时也会读回总线。仲裁段说 1 听到 0 是落败；应答位说 1 听到 0 则可能是接收方在应答。在其他位置，说的和听到的不同就是位错误。" } }],
+  "after": { "zh": "应答和仲裁有各自的解释；其他位置的读回不符表示发送方观察到了位错误。" },
+  "tasks": [
+    {
+      "id": "2-18",
+      "brief": { "zh": "按「待发送位」驱动总线。除「仲裁段」和「应答位」之外，若听到的位与说的不同，把「错误」置 1 并保持；「开始」先清空错误。测试会在指定拍翻转总线采样值。" },
+      "hint": [{ "zh": "先比较说出的位和听到的总线位；只在仲裁段和应答位都为 0 时把差异当作位错误。" }, { "zh": "用寄存卡保持错误；开始时先清零。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "bit", "label": { "zh": "待发送位" } },
+        { "name": "arb", "label": { "zh": "仲裁段" } },
+        { "name": "ack", "label": { "zh": "应答位" } },
+        { "name": "start", "label": { "zh": "开始" } }
+      ],
+      "outputs": [{ "name": "error", "label": { "zh": "错误" } }],
+      "tests": [
+        {
+          "bus": { "idle": 120, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration", "ack": "ack" },
+          "pulses": { "start": [12] },
+          "peerLow": [57],
+          "flipTicks": []
+        },
+        {
+          "bus": { "idle": 120, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration", "ack": "ack" },
+          "pulses": { "start": [12] },
+          "peerLow": [57],
+          "flipTicks": [33]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 120, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration", "ack": "ack" },
+          "pulses": { "start": [12] },
+          "peerLow": [57],
+          "flipTicks": [32]
+        },
+        {
+          "bus": { "idle": 120, "frames": [], "tail": 0 },
+          "tx": { "id": 2047, "data": [85] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration", "ack": "ack" },
+          "pulses": { "start": [12] },
+          "peerLow": [58],
+          "flipTicks": [37]
+        }
+      ],
+      "want": {
+        "send": { "inputSignal": { "input": "bit" } },
+        "error": { "bitError": { "bit": "bit", "arbitration": "arb", "ack": "ack", "start": "start" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "prior = select(start, zero, r)",
+        "same = compare[form=eq](bit, line)",
+        "different = select(same, zero, one)",
+        "notack = select(ack, zero, one)",
+        "check = select(arb, zero, notack)",
+        "bad = select(check, different, zero)",
+        "next = select(bad, one, prior)",
+        "k = keep[reg=A](next)",
+        "send <- bit",
+        "error <- next"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "prior = select(start, zero, r)",
+        "same = compare[form=eq](bit, line)",
+        "different = select(same, zero, one)",
+        "notack = select(ack, zero, one)",
+        "check = select(arb, zero, one)",
+        "bad = select(check, different, zero)",
+        "next = select(bad, one, prior)",
+        "k = keep[reg=A](next)",
+        "send <- bit",
+        "error <- next"
+      ]
+    }
+  ]
+}
