@@ -380,6 +380,29 @@ test('an active error flag starts on the next tick and has an eight-bit delimite
   assert.deepEqual(out.done.flatMap((value, tick) => value ? [tick] : []), [16])
 })
 
+test('fault counters use the specified event subset and latch bus-off', () => {
+  const event = [...Array(16).fill(1), 5, 2, ...Array(129).fill(3), 4]
+  const test = { bus: { bits: event.map(() => 1) }, inputs: { event, reset: event.map(() => 0) } }
+  const params = { event: 'event', reset: 'reset' }
+  const out = wantOf({ tx: { faultCount: { ...params, which: 'tx' } }, rx: { faultCount: { ...params, which: 'rx' } }, mode: { faultMode: params } })(test)
+  assert.equal(out.tx[15], 128)
+  assert.equal(out.tx[16], 128)
+  assert.equal(out.tx[17], 127)
+  assert.equal(out.rx[event.length - 1], 127)
+  assert.equal(out.mode[event.length - 1], 0)
+  const errors = [...Array(32).fill(1), 2, 0]
+  const reset = [...Array(33).fill(0), 1]
+  const off = wantOf({ tx: { faultCount: { ...params, which: 'tx' } }, mode: { faultMode: params } })({ bus: { bits: errors }, inputs: { event: errors, reset } })
+  assert.deepEqual(off.tx.slice(-3), [256, 256, 0])
+  assert.deepEqual(off.mode.slice(-3), [2, 2, 0])
+  const actions = Array(65).fill(0)
+  actions.fill(1, 0, 16)
+  actions[40] = 2
+  const flag = wantOf({ drive: { faultFlagDrive: { ...params, report: 'report' } } })({ bus: { bits: actions.map(() => 1) }, inputs: { event: actions, reset: actions.map(() => 0), report: actions.map((_, tick) => Number(tick === 20 || tick === 45)) } }).drive
+  assert.deepEqual(flag.slice(21, 27), [1, 1, 1, 1, 1, 1])
+  assert.deepEqual(flag.slice(46, 52), [0, 0, 0, 0, 0, 0])
+})
+
 test('a packed board reads its wired line input, not an unrelated world line', () => {
   const innerTask = { listens: true, inputs: [], outputs: [{ name: 'seen', label: L('seen') }] }
   const inner = fromText(['seen <- line'], innerTask, plain)

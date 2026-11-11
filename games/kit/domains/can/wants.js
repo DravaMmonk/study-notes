@@ -203,6 +203,38 @@ const bitErrorFlag = ({ bit, arbitration: phase, ack, start }, test) => {
   })
 }
 
+// Event-level teaching subset; event 5 is the passive missing-ACK exception with no dominant passive-flag bit.
+const faultCounts = ({ event, reset }, test) => {
+  let tx = 0
+  let rx = 0
+  let off = false
+  return each(test, (tick) => {
+    if (test.inputs[reset][tick]) { tx = 0; rx = 0; off = false }
+    if (!off) {
+      const action = test.inputs[event][tick]
+      if (action === 1 || (action === 5 && tx < 128 && rx < 128)) tx += 8
+      else if (action === 2) tx = Math.max(0, tx - 1)
+      else if (action === 3) rx++
+      else if (action === 4) rx = rx > 127 ? 127 : Math.max(0, rx - 1)
+      off = tx > 255
+    }
+    return { tx, rx, mode: off ? 2 : tx >= 128 || rx >= 128 ? 1 : 0 }
+  })
+}
+
+const faultFlag = ({ report, ...params }, test) => {
+  const modes = faultCounts(params, test)
+  let position = 14
+  return each(test, (tick) => {
+    const mode = modes[tick].mode
+    const drive = mode === 0 && position < 6 ? 0 : 1
+    const done = mode !== 2 && position === 13
+    if (mode !== 2 && test.inputs[report][tick]) position = 0
+    else if (position < 14) position++
+    return { drive, done }
+  })
+}
+
 const stuffedOutput = ({ bit, valid, start }, test) => {
   let previous = null
   let run = 0
@@ -254,6 +286,10 @@ const WANTS = {
   bitErrorFlagDrive: (params) => (test) => bitErrorFlag(params, test).map((step) => step.drive),
   bitErrorFlagState: (params) => (test) => bitErrorFlag(params, test).map((step) => step.error),
   bitErrorFlagDone: (params) => (test) => bitErrorFlag(params, test).map((step) => step.done),
+  faultCount: ({ which, ...params }) => (test) => faultCounts(params, test).map((step) => step[which]),
+  faultMode: (params) => (test) => faultCounts(params, test).map((step) => step.mode),
+  faultFlagDrive: (params) => (test) => faultFlag(params, test).map((step) => step.drive),
+  faultFlagDone: (params) => (test) => faultFlag(params, test).map((step) => step.done),
   previous: ({ first }) => (test) => each(test, (t) => (t ? test.bus.bits[t - 1] : first)),
   delayedInput: ({ input, first }) => (test) => each(test, (t) => (t ? test.inputs[input][t - 1] : first)),
   serialBit: (params) => (test) => serial(params, test).map((step) => step.bit),

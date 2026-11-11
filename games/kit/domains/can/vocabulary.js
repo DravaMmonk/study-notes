@@ -26,6 +26,7 @@ const PARTS = {
   compare: item(t('比较：相等、小于两种形状')),
   arith: item(t('算术：加一、相加两种形状')),
   xor: item(t('异或：两个数逐位异或', 'XOR: bitwise exclusive or of two numbers')),
+  subtract: item(t('相减：第一个数减去第二个数', 'subtract: the first number minus the second')),
 }
 
 /* ---------- what an output must be ---------- */
@@ -41,6 +42,10 @@ const WANTS = {
   bitErrorFlagDrive: item(t('检测位错误后停止原帧并发送主动错误标志', 'stop the original frame after a bit error and send an active error flag'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   bitErrorFlagState: item(t('检测到位错误时及之后为 1', '1 on and after detecting a bit error'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   bitErrorFlagDone: item(t('主动错误标志及界定位结束时为是', 'yes when the active error flag and delimiter finish'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
+  faultCount: item(t('按事件更新发送或接收错误计数', 'update a transmit or receive error counter by event'), S.obj({ event: INPUT, reset: INPUT, which: S.oneOf(['tx', 'rx']) })),
+  faultMode: item(t('按计数给主动、被动或下线状态', 'give active, passive or bus-off state from the counters'), S.obj({ event: INPUT, reset: INPUT })),
+  faultFlagDrive: item(t('按错误状态发送主动或被动错误标志', 'send an active or passive error flag according to fault state'), S.obj({ event: INPUT, reset: INPUT, report: INPUT })),
+  faultFlagDone: item(t('错误标志及界定位结束时为是', 'yes when the error flag and delimiter finish'), S.obj({ event: INPUT, reset: INPUT, report: INPUT })),
   previous: item(t('上一拍总线上的位；第一拍给 first'), S.obj({ first: BIT })),
   delayedInput: item(t('输入的上一拍值；第一拍给 first', 'the input value on the previous tick; first on the first tick'), S.obj({ input: INPUT, first: BIT })),
   serialBit: item(t('开始时取输入字节，逐拍交出八位，空闲时为「—」', 'load a byte on start and give its eight bits tick by tick, or 「—」 while idle'), S.obj({ value: INPUT, start: INPUT })),
@@ -138,7 +143,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 30,
+  version: 31,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
