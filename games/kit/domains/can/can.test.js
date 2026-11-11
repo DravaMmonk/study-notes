@@ -1115,3 +1115,8 @@ test('a two-byte signal distinguishes byte order and missing values', () => {
   const want = wantOf({ value: { wordSignal: { low: 'lo', high: 'hi' } } })
   assert.deepEqual(want({ inputs: { lo: [0x34, 0xff, null], hi: [0x12, 0, 1] } }).value, [0x1234, 255, null])
 })
+
+test('signed bytes interpret the sign boundary and preserve missing data', () => {
+  const want = wantOf({ value: { signedByteSignal: { input: 'byte' } } })
+  assert.deepEqual(want({ inputs: { byte: [0, 127, 128, 255, null] } }).value, [0, 127, -128, -1, null])
+})
