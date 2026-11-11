@@ -497,5 +497,17 @@
   "现在把接收结果和错误状态结合起来，交出错误发生的那一拍，同时保留节点的应答与标志时序。": "Now combine receive results and error state to signal the tick an error occurs while retaining the node’s ACK and flag timing.",
   "使用状态化接收元件；填充错误或 CRC 错误出现的那一拍交出「是」，其余拍交出「否」。同时驱动总线并交出计数事件。": "Use the state-aware receiver; give yes on the tick a stuff or CRC error appears and no otherwise. Also drive the bus and output the counter event.",
   "结果就绪时，种类 1 或 2 表示接收错误；状态化接收元件负责选择标志并保留正确应答。": "When a result is ready, kind 1 or 2 means a receive error; the state-aware receiver chooses the flag and retains valid ACKs.",
-  "接收错误事件可以送到统一的错误计数器；错误标志与应答的时序仍由接收电路负责。": "Receive error events can feed a shared fault counter; the receive circuit remains responsible for the timing of ACK and error flags."
+  "接收错误事件可以送到统一的错误计数器；错误标志与应答的时序仍由接收电路负责。": "Receive error events can feed a shared fault counter; the receive circuit remains responsible for the timing of ACK and error flags.",
+  "接收与统一状态": "Reception and shared state",
+  "节点的主动或被动状态同时取决于发送和接收错误计数。现在把接收电路的计数事件交给统一计数器，再用状态控制接收错误标志。": "A node’s active or passive state depends on both transmit and receive error counts. Connect receive counter events to the shared fault counter, then use the resulting state to select receive error flags.",
+  "准备事件可包含发送错误 1 或接收错误 3。接收一帧，交出两个计数、状态、接收结果和计数事件；正确时应答，错误时按错误发生前的状态选择标志。测试不进入下线，且没有重叠错误。": "Preparation events may include transmit error 1 or receive error 3. Receive one frame and output both counts, state, receive result and counter event; acknowledge a valid frame, and choose an error flag from the state before an error. Tests do not enter bus-off and have no overlapping errors.",
+  "把接收电路的计数事件接到错误计数元件，用寄存卡保存上一拍状态，再送回状态化接收元件。": "Connect the receive circuit’s counter event to the fault counter; save the previous tick’s state in a register and feed it to the state-aware receiver.",
+  "发送计数或接收计数达到 128 都会使节点进入被动状态；导致转换的接收错误仍发主动标志。": "Either transmit or receive count reaching 128 makes a node passive; the receive error causing that transition still sends an active flag.",
+  "将状态化接收与统一错误计数连接；根据发送和接收计数选择接收错误标志，正确接收时应答。限定单帧、无下线或重叠错误。": "Connects state-aware reception to shared error counts; selects receive flags from transmit and receive counts and acknowledges correct frames. Limited to one frame, no bus-off and no overlapping errors.",
+  "统一状态接收": "Shared-state receiver",
+  "观察统一状态": "Observe shared state",
+  "把接收与统一计数封装后，另一块板可以观察接收错误，同时保留当前状态和总线行为。": "Once reception and the shared counter are packed together, another board can observe receive errors while retaining the state and bus behavior.",
+  "使用统一状态接收元件；交出状态和计数事件，在填充或 CRC 错误出现的那一拍交出「是」，其余拍交出「否」。按元件的应答和错误标志驱动总线。": "Use the shared-state receiver; give the state and counter event, and give yes on the tick a stuff or CRC error appears and no otherwise. Drive the bus according to the component’s acknowledgement and error flag.",
+  "结果就绪时，种类 1 或 2 是错误；状态和总线驱动直接取自统一状态接收元件。": "When a result is ready, kind 1 or 2 is an error; take state and bus drive from the shared-state receiver.",
+  "统一计数状态可供收发两侧共用；本练习仍只接入了接收侧。": "The shared counter state can serve both transmission and reception; this exercise connects reception only."
 }

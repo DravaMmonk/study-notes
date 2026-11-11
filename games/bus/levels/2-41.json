@@ -1,0 +1,103 @@
+{
+  "title": { "zh": "接收与统一状态" },
+  "intro": [{ "t": { "zh": "节点的主动或被动状态同时取决于发送和接收错误计数。现在把接收电路的计数事件交给统一计数器，再用状态控制接收错误标志。" } }],
+  "builds": {
+    "type": "unifiedreceiver",
+    "name": { "zh": "统一状态接收" },
+    "desc": { "zh": "将状态化接收与统一错误计数连接；根据发送和接收计数选择接收错误标志，正确接收时应答。限定单帧、无下线或重叠错误。" }
+  },
+  "after": { "zh": "发送计数或接收计数达到 128 都会使节点进入被动状态；导致转换的接收错误仍发主动标志。" },
+  "tasks": [
+    {
+      "id": "2-41",
+      "brief": {
+        "zh": "准备事件可包含发送错误 1 或接收错误 3。接收一帧，交出两个计数、状态、接收结果和计数事件；正确时应答，错误时按错误发生前的状态选择标志。测试不进入下线，且没有重叠错误。"
+      },
+      "hint": [{ "zh": "把接收电路的计数事件接到错误计数元件，用寄存卡保存上一拍状态，再送回状态化接收元件。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [{ "name": "prep", "label": { "zh": "准备事件" } }, { "name": "reset", "label": { "zh": "初始化" } }],
+      "outputs": [
+        { "name": "tx", "label": { "zh": "发送计数" } },
+        { "name": "rx", "label": { "zh": "接收计数" } },
+        { "name": "mode", "label": { "zh": "状态" } },
+        { "name": "kind", "label": { "zh": "结果种类" } },
+        { "name": "ready", "label": { "zh": "结果就绪" } },
+        { "name": "event", "label": { "zh": "计数事件" } },
+        { "name": "acking", "label": { "zh": "正在应答" } }
+      ],
+      "tests": [
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 216 }] },
+          "pulses": { "reset": [0] }
+        },
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 1, "ticks": 16 }, { "value": 0, "ticks": 202 }] },
+          "pulses": { "reset": [0] }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 127 }, { "value": 0, "ticks": 91 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [169]
+        },
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 128 }, { "value": 0, "ticks": 90 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [160]
+        },
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 1, "ticks": 16 }, { "value": 0, "ticks": 202 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [160]
+        }
+      ],
+      "want": {
+        "send": { "receiveUnifiedDrive": { "prep": "prep", "reset": "reset" } },
+        "tx": { "receiveUnifiedTx": { "prep": "prep", "reset": "reset" } },
+        "rx": { "receiveFrameRec": { "prep": "prep", "reset": "reset" } },
+        "mode": { "receiveUnifiedMode": { "prep": "prep", "reset": "reset" } },
+        "kind": { "receiveFrameKind": { "prep": "prep", "reset": "reset" } },
+        "ready": { "receiveFrameReady": { "prep": "prep", "reset": "reset" } },
+        "event": { "receiveFrameEvent": { "prep": "prep", "reset": "reset" } },
+        "acking": { "receiveFrameAck": { "prep": "prep", "reset": "reset" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "modeold = reg[reg=A, start=0]()",
+        "r = receiverstate(line, modeold, prep, reset)",
+        "f = faultcounter(r.event, reset)",
+        "ka = keep[reg=A](f.mode)",
+        "send <- r.send",
+        "tx <- f.tx",
+        "rx <- f.rx",
+        "mode <- f.mode",
+        "kind <- r.kind",
+        "ready <- r.ready",
+        "event <- r.event",
+        "acking <- r.acking"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "modeold = reg[reg=A, start=0]()",
+        "r = receiverstate(line, zero, prep, reset)",
+        "f = faultcounter(r.event, reset)",
+        "ka = keep[reg=A](f.mode)",
+        "send <- r.send",
+        "tx <- f.tx",
+        "rx <- f.rx",
+        "mode <- f.mode",
+        "kind <- r.kind",
+        "ready <- r.ready",
+        "event <- r.event",
+        "acking <- r.acking"
+      ]
+    }
+  ]
+}

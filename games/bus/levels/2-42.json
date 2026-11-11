@@ -1,0 +1,90 @@
+{
+  "title": { "zh": "观察统一状态" },
+  "intro": [{ "t": { "zh": "把接收与统一计数封装后，另一块板可以观察接收错误，同时保留当前状态和总线行为。" } }],
+  "after": { "zh": "统一计数状态可供收发两侧共用；本练习仍只接入了接收侧。" },
+  "tasks": [
+    {
+      "id": "2-42",
+      "brief": { "zh": "使用统一状态接收元件；交出状态和计数事件，在填充或 CRC 错误出现的那一拍交出「是」，其余拍交出「否」。按元件的应答和错误标志驱动总线。" },
+      "hint": [{ "zh": "结果就绪时，种类 1 或 2 是错误；状态和总线驱动直接取自统一状态接收元件。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [{ "name": "prep", "label": { "zh": "准备事件" } }, { "name": "reset", "label": { "zh": "初始化" } }],
+      "outputs": [
+        { "name": "mode", "label": { "zh": "状态" } },
+        { "name": "event", "label": { "zh": "计数事件" } },
+        { "name": "bad", "label": { "zh": "接收错误" } }
+      ],
+      "tests": [
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 216 }] },
+          "pulses": { "reset": [0] }
+        },
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 1, "ticks": 16 }, { "value": 0, "ticks": 202 }] },
+          "pulses": { "reset": [0] }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 127 }, { "value": 0, "ticks": 91 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [169]
+        },
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 128 }, { "value": 0, "ticks": 90 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [160]
+        },
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 1, "ticks": 16 }, { "value": 0, "ticks": 202 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [160]
+        }
+      ],
+      "want": {
+        "send": { "receiveUnifiedDrive": { "prep": "prep", "reset": "reset" } },
+        "mode": { "receiveUnifiedMode": { "prep": "prep", "reset": "reset" } },
+        "event": { "receiveFrameEvent": { "prep": "prep", "reset": "reset" } },
+        "bad": { "receiveFrameBad": { "prep": "prep", "reset": "reset" } }
+      },
+      "solution": [
+        "p = unifiedreceiver(line, prep, reset)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "false = compare[form=eq](zero, one)",
+        "true = compare[form=eq](one, one)",
+        "a = compare[form=eq](p.kind, one)",
+        "b = compare[form=eq](p.kind, two)",
+        "either = select(a, true, b)",
+        "result = select(p.ready, either, false)",
+        "send <- p.send",
+        "mode <- p.mode",
+        "event <- p.event",
+        "bad <- result"
+      ],
+      "naive": [
+        "p = unifiedreceiver(line, prep, reset)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "false = compare[form=eq](zero, one)",
+        "true = compare[form=eq](one, one)",
+        "a = compare[form=eq](p.kind, one)",
+        "b = compare[form=eq](p.kind, two)",
+        "either = select(a, false, b)",
+        "result = select(p.ready, either, false)",
+        "send <- p.send",
+        "mode <- p.mode",
+        "event <- p.event",
+        "bad <- result"
+      ]
+    }
+  ]
+}
