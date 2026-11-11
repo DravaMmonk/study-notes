@@ -555,6 +555,23 @@ test('passive missing ACK retry waits through suspension and does not increase T
   assert.equal(result.Mode[retry + bits.length - 1], 0)
 })
 
+test('bus-off recovery counts disjoint eleven-bit groups and clears interrupted runs', () => {
+  const bit = [...Array(10).fill(1), 0, ...Array(1408).fill(1), ...Array(12).fill(1)]
+  const off = bit.map(() => 1)
+  const test = { bus: { bits: bit }, inputs: { bit, off } }
+  const calls = { groups: { recoveryCount: { bit: 'bit', off: 'off' } }, ready: { recoveryReady: { bit: 'bit', off: 'off' } } }
+  const result = wantOf(calls)(test)
+  assert.equal(result.groups[10], 0)
+  assert.equal(result.groups[21], 1)
+  assert.equal(result.ready[1417], false)
+  assert.equal(result.ready[1418], true)
+  assert.equal(result.groups.at(-1), 128)
+  off[1419] = 0
+  const reset = wantOf(calls)(test)
+  assert.equal(reset.groups[1419], 0)
+  assert.equal(reset.ready[1419], false)
+})
+
 test('a transmitter releases ACK while another node can acknowledge', () => {
   const tx = { id: 0x123, data: [0xa5] }
   const frame = frameBits(tx)

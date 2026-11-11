@@ -98,6 +98,8 @@ const WANTS = {
   passiveAckDone: item(t('被动发送方成功发送并完成间隔时为是', 'yes when a passive sender completes transmission and intermission'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT })),
   passiveAckTec: item(t('准备、缺应答与成功后的发送错误计数', 'transmit error count after preparation, missing ACK and success'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT })),
   passiveAckMode: item(t('准备、缺应答与成功后的错误状态', 'fault state after preparation, missing ACK and success'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT })),
+  recoveryCount: item(t('下线后观察到的完整十一位隐性组数，最多 128', 'complete groups of eleven recessive bits observed while bus-off, capped at 128'), S.obj({ bit: INPUT, off: INPUT })),
+  recoveryReady: item(t('下线后观察到 128 组十一位隐性时为是', 'yes after observing 128 groups of eleven recessive bits while bus-off'), S.obj({ bit: INPUT, off: INPUT })),
   stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialCrc: item(t('最后原始位被取走时给该字节的 CRC-15', 'the CRC-15 of the byte when its final original bit is accepted'), S.obj({ value: INPUT, start: INPUT })),
@@ -162,7 +164,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 39,
+  version: 40,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

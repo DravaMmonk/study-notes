@@ -254,6 +254,21 @@ const passiveAckRetry = ({ start, prep, reset }, test) => {
   return { drive, next, rewind, attempts, done, tec: counts.map((step) => step.tx), mode: counts.map((step) => step.mode) }
 }
 
+const busOffRecovery = ({ bit, off }, test) => {
+  let run = 0
+  let groups = 0
+  return each(test, (tick) => {
+    if (!test.inputs[off][tick]) { run = 0; groups = 0 }
+    else if (groups < 128) {
+      if (test.inputs[bit][tick] === 1) {
+        run++
+        if (run === 11) { groups++; run = 0 }
+      } else run = 0
+    }
+    return { groups, ready: groups === 128 }
+  })
+}
+
 const errorFlag = ({ error }, test) => {
   let position = 14
   return each(test, (tick) => {
@@ -469,6 +484,8 @@ const WANTS = {
   passiveAckDone: (params) => (test) => passiveAckRetry(params, test).done,
   passiveAckTec: (params) => (test) => passiveAckRetry(params, test).tec,
   passiveAckMode: (params) => (test) => passiveAckRetry(params, test).mode,
+  recoveryCount: (params) => (test) => busOffRecovery(params, test).map((step) => step.groups),
+  recoveryReady: (params) => (test) => busOffRecovery(params, test).map((step) => step.ready),
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),
