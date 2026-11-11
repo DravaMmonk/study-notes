@@ -509,5 +509,11 @@
   "把接收与统一计数封装后，另一块板可以观察接收错误，同时保留当前状态和总线行为。": "Once reception and the shared counter are packed together, another board can observe receive errors while retaining the state and bus behavior.",
   "使用统一状态接收元件；交出状态和计数事件，在填充或 CRC 错误出现的那一拍交出「是」，其余拍交出「否」。按元件的应答和错误标志驱动总线。": "Use the shared-state receiver; give the state and counter event, and give yes on the tick a stuff or CRC error appears and no otherwise. Drive the bus according to the component’s acknowledgement and error flag.",
   "结果就绪时，种类 1 或 2 是错误；状态和总线驱动直接取自统一状态接收元件。": "When a result is ready, kind 1 or 2 is an error; take state and bus drive from the shared-state receiver.",
-  "统一计数状态可供收发两侧共用；本练习仍只接入了接收侧。": "The shared counter state can serve both transmission and reception; this exercise connects reception only."
+  "统一计数状态可供收发两侧共用；本练习仍只接入了接收侧。": "The shared counter state can serve both transmission and reception; this exercise connects reception only.",
+  "先收再发": "Receive, then transmit",
+  "现在把同一节点的接收和发送接在一起。接收帧改变的错误状态必须保留下来，影响随后的发送；发送时则不能把自己说的帧当成外部帧应答。": "Connect reception and transmission on the same node. The fault state changed by a received frame must carry over to later transmission; while sending, the node must not acknowledge its own frame as if it came from another sender.",
+  "先接收一帧并按状态应答或报告接收错误；随后在开始拍发送队列中的一帧，处理位错误和缺应答重发。发送与接收使用同一错误计数和状态，发送期间不把自己的位交给接收电路。测试限定先收后发、无同时仲裁、等待期间没有新帧且不进入下线。": "First receive a frame and acknowledge it or report its receive error according to state; then send the queued frame on Start, handling bit errors and missing-ACK retries. Sending and receiving share one fault counter and state; while transmitting, do not feed your own bits to the receiver. Tests are receive-then-send, without simultaneous arbitration, new frames during waits or bus-off.",
+  "把接收电路的计数事件和发送事件接到同一个错误计数器；发送事件发生时优先处理发送事件。": "Connect receive counter events and transmit events to the same fault counter, giving transmit events priority when they occur.",
+  "开始发送的当拍就屏蔽接收输入，直到自己的帧和间隔完成；空闲时让接收电路驱动应答及错误标志。": "Mask the receiver input on the tick transmission starts and until the node’s frame and intermission finish; while idle, let the receive circuit drive ACK and error flags.",
+  "接收错误可能让节点进入被动状态，改变下一次发送的错误标志和等待。屏蔽自发帧避免节点给自己的帧应答。本练习还未覆盖收发同时竞争或等待中插入新帧。": "A receive error can make the node passive, changing the flag and delay on its next transmission. Masking the node’s own frame prevents it acknowledging itself. This exercise does not yet cover simultaneous receive/transmit contention or another frame arriving while waiting."
 }
