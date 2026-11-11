@@ -656,6 +656,7 @@ const WANTS = {
   bitFieldSignal: ({ input, offset, width }) => (test) => test.inputs[input].map((value) => value == null ? null : (value >>> offset) & ((1 << width) - 1)),
   matchingFrameSignal: ({ input, identifier: id, match }) => (test) => test.inputs[input].map((value, tick) => test.inputs[id][tick] === match ? value : null),
   elapsedFrameSignal: ({ time }) => (test) => test.inputs[time].map((value, tick, values) => tick === 0 || value == null || values[tick - 1] == null ? null : value - values[tick - 1]),
+  rollingCounterSignal: ({ input }) => (test) => test.inputs[input].map((value, tick, values) => tick === 0 || value === ((values[tick - 1] + 1) & 15)),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

@@ -44,6 +44,7 @@ const WANTS = {
   bitFieldSignal: item(t('取字节中从低位数起的一段位', 'extract a field from a byte, counting from the least significant bit'), S.obj({ input: INPUT, offset: S.int({ min: 0, max: 7 }), width: S.int({ min: 1, max: 8 }) })),
   matchingFrameSignal: item(t('只在标识符相符的帧上交出输入', 'give the input only on frames with the selected identifier'), S.obj({ input: INPUT, identifier: INPUT, match: S.int({ min: 0, max: 2047 }) })),
   elapsedFrameSignal: item(t('相邻帧开始时间之差，第一帧为空', 'time between consecutive frame starts; empty on the first frame'), S.obj({ time: INPUT })),
+  rollingCounterSignal: item(t('判断四位滚动计数器是否比上一帧加一，第一帧有效', 'check a four-bit rolling counter advances by one; the first frame is valid'), S.obj({ input: INPUT })),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -285,7 +286,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 70,
+  version: 71,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

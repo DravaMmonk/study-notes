@@ -1139,3 +1139,8 @@ test('frame intervals use actual scheduled start times', () => {
   const want = wantOf({ elapsed: { elapsedFrameSignal: { time: 'time' } } })
   assert.deepEqual(want({ inputs: { time: [12, 100, 155, 300] } }).elapsed, [null, 88, 55, 145])
 })
+
+test('rolling counter wraps and compares after a skipped value', () => {
+  const want = wantOf({ valid: { rollingCounterSignal: { input: 'count' } } })
+  assert.deepEqual(want({ inputs: { count: [14, 15, 0, 2, 3] } }).valid, [true, true, true, false, true])
+})
