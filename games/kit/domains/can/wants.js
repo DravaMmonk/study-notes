@@ -720,6 +720,11 @@ const WANTS = {
     return test.bus.bits.map((_, tick) => requests[tick] ?? null)
   },
   ecuFlashDemoDone: () => (test) => test.bus.bits.map((_, tick) => tick === 8 ? true : null),
+  ecuPowerLossRequests: () => (test) => {
+    const requests = [[0x10, 2], [0x31, 1, 255, 0], [0x34, 0, 0x12, 0, 0, 4], [0x36, 1, 1, 2], null, [0x10, 2], [0x31, 1, 255, 0], [0x34, 0, 0x12, 0, 0, 4], [0x36, 1, 1, 2], [0x36, 2, 3, 4], [0x37], [0x31, 1, 255, 1], [0x11, 1]]
+    return test.bus.bits.map((_, tick) => requests[tick] ?? null)
+  },
+  ecuPowerLossDone: () => (test) => test.bus.bits.map((_, tick) => tick === 13 ? true : null),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

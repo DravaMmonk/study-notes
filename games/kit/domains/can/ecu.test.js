@@ -92,3 +92,20 @@ test('the ECU drives the fictional programmer and returns to default session aft
   assert.equal(state.session, 1)
   assert.equal(state.flash.applicationValid, true)
 })
+
+test('power loss leaves an incomplete application invalid and requires a new erase', async () => {
+  const { ecuAdvance } = await import('./ecu.js')
+  const { newFlashState } = await import('./flash.js')
+  const profile = { did: 0xf190, value: [], waits: 0, powerCycles: [4], flash: { maxBlock: 4, expectedChecksum: 10 } }
+  let state = { reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0, dtcs: [], flash: newFlashState() }
+  const before = [[0x10, 2], [0x31, 1, 255, 0], [0x34, 0, 0x12, 0, 0, 4], [0x36, 1, 1, 2], null]
+  before.forEach((request, tick) => { state = ecuAdvance(state, request, profile, tick) })
+  assert.equal(state.session, 1)
+  assert.equal(state.flash.applicationValid, false)
+  assert.deepEqual(state.flash.data, [1, 2])
+  state = ecuAdvance(state, [0x10, 2], profile, 5)
+  assert.deepEqual(ecuAdvance(state, [0x36, 2, 3, 4], profile, 6).reply, [0x7f, 0x36, 0x24])
+  for (const [tick, request] of [[6, [0x31, 1, 255, 0]], [7, [0x34, 0, 0x12, 0, 0, 4]], [8, [0x36, 1, 1, 2]], [9, [0x36, 2, 3, 4]], [10, [0x37]], [11, [0x31, 1, 255, 1]], [12, [0x11, 1]]]) state = ecuAdvance(state, request, profile, tick)
+  assert.deepEqual(state.reply, [0x51, 1])
+  assert.equal(state.flash.applicationValid, true)
+})

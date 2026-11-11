@@ -24,7 +24,7 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   const ecu = task.ecu && reacting({
     id: 'ecu', board: 'you', start: { reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0, dtcs: test.ecu.dtcs, flash: test.ecu.flash ? newFlashState() : null },
     reads: (state) => ({ [task.ecu.response]: state.reply }),
-    step: (state, outputs) => ({ state: ecuAdvance(state, outputs[task.ecu.request], test.ecu), shown: null }),
+    step: (state, outputs, tick) => ({ state: ecuAdvance(state, outputs[task.ecu.request], test.ecu, tick), shown: null }),
   })
   const queue = task.pulls && reacting({
     id: 'queue', board: 'you', start: 0,

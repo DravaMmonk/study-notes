@@ -35,7 +35,8 @@ export function ecuReply(request, { did, value, requiresExtended, requiresSecuri
 
 // Each call advances one tick. A configured number of pending replies precedes the final answer;
 // while a request is pending, additional requests are ignored.
-export function ecuAdvance(state, request, profile) {
+export function ecuAdvance(state, request, profile, tick = 0) {
+  if (profile.powerCycles?.includes(tick)) return { ...state, reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0, ...(state.flash ? { flash: { ...state.flash, phase: 'idle', last: null } } : {}) }
   const active = Array.isArray(request) && request.length > 0 && request.every((byte) => Number.isInteger(byte) && byte >= 0 && byte <= 255)
   const idle = active ? 0 : state.idle + 1
   const session = state.session === 3 && profile.timeout && idle >= profile.timeout ? 1 : state.session

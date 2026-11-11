@@ -39,7 +39,7 @@ const testOf = (t, task, frameEvents) => {
     ...Object.fromEntries(Object.entries(task.frameInputs ?? {}).map(([name, field]) => [name, frameEvents.map((frame) => field === 'id' ? frame.id : field === 'length' ? frame.data.length : field === 'time' ? frame.start : field === 'data' ? frame.data : frame.data[Number(field.slice(4))] ?? null)])),
   }
   const contenders = (t.contenders ?? []).map((node) => ({ ...node, id: num(node.id), data: (node.data ?? []).map(num) }))
-  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(t.ecu ? { ecu: { did: num(t.ecu.did), value: t.ecu.value.map(num), waits: t.ecu.waits ?? 0, requiresExtended: Boolean(t.ecu.requiresExtended), timeout: t.ecu.timeout, requiresSecurity: Boolean(t.ecu.requiresSecurity), seed: t.ecu.seed, dtcs: (t.ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })), flash: t.ecu.flash } } : {}), ...(frameEvents ? { frameEvents } : {}) }
+  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(t.ecu ? { ecu: { did: num(t.ecu.did), value: t.ecu.value.map(num), waits: t.ecu.waits ?? 0, requiresExtended: Boolean(t.ecu.requiresExtended), timeout: t.ecu.timeout, requiresSecurity: Boolean(t.ecu.requiresSecurity), seed: t.ecu.seed, dtcs: (t.ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })), flash: t.ecu.flash, powerCycles: t.ecu.powerCycles ?? [] } } : {}), ...(frameEvents ? { frameEvents } : {}) }
 }
 
 export function canCourse(content) {
@@ -55,7 +55,8 @@ export function canCourse(content) {
       if (task.ecuSessionExpected && (!t.ecu?.requiresExtended || t.ecu?.waits)) say('session tests require an extended-only identifier without pending replies')
       if (task.ecuKeepaliveExpected && (!t.ecu?.requiresExtended || t.ecu?.waits || t.ecu?.timeout !== 3)) say('keepalive tests require an extended-only identifier and a three-tick timeout')
       if (task.ecuSecurityExpected && (!t.ecu?.requiresExtended || !t.ecu?.requiresSecurity || t.ecu?.seed === undefined || t.ecu?.waits || t.ecu?.timeout)) say('security tests require an extended-only protected identifier and a configured seed')
-      if (task.ecuFlashTicks && (!t.ecu?.flash || t.ecu.flash.requiresSecurity || t.ecu.flash.maxBlock < 4 || (task.ecuFlashTicks === 9 && t.ecu.flash.expectedChecksum !== 10))) say('programming tests require the configured fictional flash profile')
+      if (task.ecuFlashTicks && (!t.ecu?.flash || t.ecu.flash.requiresSecurity || t.ecu.flash.maxBlock < 4 || (task.ecuFlashTicks >= 9 && t.ecu.flash.expectedChecksum !== 10))) say('programming tests require the configured fictional flash profile')
+      if (task.ecuFlashTicks === 14 && JSON.stringify(t.ecu?.powerCycles ?? []) !== '[4]') say('power-loss tests require an interruption at tick 4')
     } else if (t.ecu) say('an ECU test requires ECU task ports')
     if (task.frameInputs) {
       if (!t.frameRequests || t.bus.frames.length || t.peerBits || t.peerLow?.length || t.flipTicks?.length || t.contenders?.length || t.tx || task.listens || task.drives) say('frame tasks require clean frame requests and no bit-level bus activity')
@@ -278,7 +279,7 @@ export function canCourse(content) {
     const names = Object.values(task.want ?? {}).map((call) => callOf(call)[0])
     const ecuRejectedDids = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name === 'ecuRejectedRequest').map(([, params]) => params.did)
     const ecuImmediateExpected = names.includes('ecuReadValue') || names.includes('ecuRejectReason')
-    const ecuFlashTicks = names.includes('ecuFlashDemoDone') ? 9 : names.includes('ecuFlashMaxBlock') ? 4 : names.includes('ecuFlashEraseDone') ? 3 : 0
+    const ecuFlashTicks = names.includes('ecuPowerLossDone') ? 14 : names.includes('ecuFlashDemoDone') ? 9 : names.includes('ecuFlashMaxBlock') ? 4 : names.includes('ecuFlashEraseDone') ? 3 : 0
     const retryCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => ['retryDrive', 'retryLost', 'retryDone', 'retryNext', 'retryAttempts'].includes(name))
     const expectsRetry = retryCalls.length > 0
     const expectsAckRetry = names.some((name) => name.startsWith('ackRetry'))
