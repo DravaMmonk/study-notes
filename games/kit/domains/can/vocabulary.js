@@ -243,6 +243,8 @@ const WANTS = {
 
 const FRAME = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), gap: S.opt(nat), ack: S.opt(S.bool()) })
 const CONTENDER = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), at: S.opt(nat), detectErrors: S.opt(S.bool()) })
+const FRAME_REQUEST = S.obj({ node: NAME, at: nat, id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))) })
+const FRAME_FIELD = S.oneOf(['id', 'length', 'time', 'byte0', 'byte1', 'byte2', 'byte3', 'byte4', 'byte5', 'byte6', 'byte7'])
 const TEST = S.obj({
   bus: S.obj({ idle: S.opt(nat), frames: S.list(FRAME), tail: S.opt(nat) }, { about: t('总线：先安静 idle 拍，再一帧帧（帧前多空 gap 拍），最后安静 tail 拍') }),
   inputs: S.opt(S.map(S.list(S.int()), { view: 'ticks', about: t('每个输入每一拍的值') })),
@@ -258,6 +260,7 @@ const TEST = S.obj({
   peerBits: S.opt(S.list(BIT, { view: 'ticks', about: t('其他节点每拍说的位', 'bits said by the other nodes each tick') })),
   peerLow: S.opt(S.list(nat, { about: t('其他节点在这些拍拉低总线', 'the other nodes pull the bus low on these ticks') })),
   flipTicks: S.opt(S.list(nat, { about: t('这些拍在线性与之后翻转总线采样值', 'invert the sampled bus after wired-AND on these ticks') })),
+  frameRequests: S.opt(S.list(FRAME_REQUEST, { min: 1, about: t('干净总线上的逐帧发送请求', 'frame requests on a clean bus') })),
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
@@ -266,6 +269,7 @@ const LEVEL = levelSchema({
     listens: S.opt(S.bool({ about: t('板上有总线元件') })),
     drives: S.opt(S.bool({ about: t('板上有驱动总线的说话口', 'the board has a port that drives the bus') })),
     inputs: S.opt(S.list(PORT)),
+    frameInputs: S.opt(S.map(FRAME_FIELD, { about: t('逐帧输入读取标识符、长度、字节或开始时间', 'frame inputs read the identifier, length, a byte, or start time') })),
     pulls: S.opt(S.obj({ input: NAME, available: NAME, next: NAME, last: S.opt(NAME), rewind: S.opt(NAME) }, { about: t('输入读取队首字节和是否有字节；输出为 1 时取走队首，下一拍出现下一字节', 'inputs give the front byte and whether one is available; output 1 takes it and the next byte appears next tick') })),
   },
   checks: { want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么') }) },
@@ -273,7 +277,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 63,
+  version: 64,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

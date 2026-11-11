@@ -15,13 +15,14 @@ import { board } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 import { callOf } from '../../engine/schema.js'
+import { scheduleFrames } from './frame-world.js'
 
 // An identifier or a byte as content writes it: a number, or hexadecimal.
 const num = (v) => (typeof v === 'string' ? parseInt(v, 16) : v)
 
 /** A test as content writes it, its bus laid out bit by bit; it runs as many ticks as its bus is long. */
-const testOf = (t) => {
-  const bus = busOf({ ...t.bus, frames: t.bus.frames.map((f) => ({ ...f, id: num(f.id), data: (f.data ?? []).map(num) })) })
+const testOf = (t, task, frameEvents) => {
+  const bus = frameEvents ? { bits: frameEvents.map(() => 1), frames: [] } : busOf({ ...t.bus, frames: t.bus.frames.map((f) => ({ ...f, id: num(f.id), data: (f.data ?? []).map(num) })) })
   if (t.peerBits) bus.bits = bus.bits.map((bit, tick) => bit & t.peerBits[tick])
   if (t.peerLow) bus.bits = bus.bits.map((bit, tick) => t.peerLow.includes(tick) ? 0 : bit)
   const tx = t.tx && { ...t.tx, id: num(t.tx.id), data: (t.tx.data ?? []).map(num) }
@@ -35,14 +36,23 @@ const testOf = (t) => {
     ...Object.fromEntries(Object.entries(t.pulses ?? {}).map(([name, ticks]) => [name, bus.bits.map((_, tick) => Number(ticks.includes(tick)))])),
     ...Object.fromEntries(Object.entries(t.txInputs ?? {}).map(([name, kind]) => [name, bus.bits.map((_, tick) => kind === 'bit' ? txBits[tick - txAt] ?? 1 : kind === 'ack' ? Number(tick === txAt + txBits.length - 12) : Number(tick >= txAt && tick - txAt < txEnd))])),
     ...Object.fromEntries((t.lineInputs ?? []).map((name) => [name, bus.bits])),
+    ...Object.fromEntries(Object.entries(task.frameInputs ?? {}).map(([name, field]) => [name, frameEvents.map((frame) => field === 'id' ? frame.id : field === 'length' ? frame.data.length : field === 'time' ? frame.start : frame.data[Number(field.slice(4))] ?? null)])),
   }
   const contenders = (t.contenders ?? []).map((node) => ({ ...node, id: num(node.id), data: (node.data ?? []).map(num) }))
-  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length }
+  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(frameEvents ? { frameEvents } : {}) }
 }
 
 export function canCourse(content) {
   // A test read: what reading it finds that its schema cannot say, then its bus.
   const test = (t, task, say) => {
+    let frameEvents
+    if (task.frameInputs) {
+      if (!t.frameRequests || t.bus.frames.length || t.peerBits || t.peerLow?.length || t.flipTicks?.length || t.contenders?.length || t.tx || task.listens || task.drives) say('frame tasks require clean frame requests and no bit-level bus activity')
+      for (const name of Object.keys(task.frameInputs)) if (!task.inputs?.some((input) => input.name === name)) say(`frame input ${name} is not a task input`)
+      try {
+        frameEvents = scheduleFrames((t.frameRequests ?? []).map((frame) => ({ ...frame, id: num(frame.id), data: (frame.data ?? []).map(num) })))
+      } catch (error) { say(`invalid frame requests: ${error.message}`); frameEvents = [] }
+    } else if (t.frameRequests) say('frame requests require frame inputs')
     for (const f of t.bus.frames) if ((f.data ?? []).length > 8) say('a frame carries at most 8 bytes')
     if ((t.tx?.data ?? []).length > 8) say('a transmitted frame carries at most 8 bytes')
     for (const node of t.contenders ?? []) if ((node.data ?? []).length > 8) say('a competing frame carries at most 8 bytes')
@@ -100,7 +110,7 @@ export function canCourse(content) {
     }
     for (const i of task.inputs ?? []) {
       const name = i.name
-      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name)]
+      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name), Object.prototype.hasOwnProperty.call(task.frameInputs ?? {}, name)]
       if (![task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(name) && !sources.some(Boolean)) say(`a test gives nothing on the input ${name}`)
       if (sources.filter(Boolean).length > 1) say(`input ${name} has more than one source`)
     }
@@ -110,7 +120,7 @@ export function canCourse(content) {
       if (!task.inputs?.some((input) => input.name === name)) say(`line input ${name} is not a task input`)
       if (t.inputs?.[name]) say(`input ${name} has both explicit values and the line`)
     }
-    const result = testOf(t)
+    const result = testOf(t, task, frameEvents)
     for (const [name, runs] of Object.entries(t.runs ?? {})) if (runs.reduce((sum, run) => sum + run.ticks, 0) !== result.ticks) say(`input runs for ${name} must cover the whole test`)
     if (task.expectsRetry && task.retryStart) {
       const starts = (result.inputs[task.retryStart] ?? []).flatMap((value, tick) => value === 1 ? [tick] : [])

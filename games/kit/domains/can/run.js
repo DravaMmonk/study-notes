@@ -65,7 +65,7 @@ export const entries = ({ task, test, run }) => [
   ...(test.contenders ?? []).map((_, k) => ({ of: `rival${k}`, label: T(`竞争者 ${k + 1}`, `Contender ${k + 1}`), shape: 'bits', given: run.ticks.map((tick) => tick.said[`rival${k}`] ?? 1) })),
   ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(i.name)
     ? { of: i.name, label: i.label, shape: 'ticks', got: run.ticks.map((tick) => tick.bind?.[i.name] ?? null) }
-    : { of: i.name, label: i.label, shape: 'bits', given: test.inputs[i.name] }),
+    : { of: i.name, label: i.label, shape: task.frameInputs?.[i.name] ? 'ticks' : 'bits', given: test.inputs[i.name] }),
   ...(task.drives ? [{ of: 'send', label: T('说', 'Send'), shape: 'ticks', got: run.ticks.map((tick) => tick.sent ?? null), want: run.want.send }] : []),
   ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: 'ticks', got: run.ticks.map((t) => t.outputs[o.name] ?? null), want: run.want[o.name] })),
   ...(run.receptions ? [{ of: 'receptions', label: T('已校验并应答（未检查帧结束）', 'Checked and acknowledged (EOF not checked)'), shape: 'list', got: run.receptions.map(({ id, data, ackTick }) => `#${ackTick}: ${id.toString(16).toUpperCase().padStart(3, '0')} [${data.map((byte) => byte.toString(16).toUpperCase().padStart(2, '0')).join(' ')}]`) }] : []),

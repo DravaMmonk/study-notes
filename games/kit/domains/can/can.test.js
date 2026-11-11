@@ -1084,3 +1084,20 @@ test('a course read never writes into content: the starter, read frozen', () => 
   assert.deepEqual(spec.circuit.wrong, [])
   assert.deepEqual(domain.validate(spec).filter((l) => l.fail), [])
 })
+
+test('frame tasks read scheduled fields once per frame and reject competing sources', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.inputs = [{ name: 'bit', label: L('byte') }, { name: 'go', label: L('identifier') }]
+  task.frameInputs = { bit: 'byte0', go: 'id' }
+  task.tests = [{ bus: { frames: [] }, frameRequests: [{ node: 'a', at: 12, id: '0x500', data: ['0x11'] }, { node: 'b', at: 12, id: '0x100', data: ['0x22'] }] }]
+  task.hidden = []
+  const course = canCourse(content)
+  assert.deepEqual(course.wrong, [])
+  const sample = course.played.get('gather')[0].tests[0]
+  assert.deepEqual(sample.inputs.bit, [0x22, 0x11])
+  assert.deepEqual(sample.inputs.go, [0x100, 0x500])
+  assert.equal(sample.ticks, 2)
+  task.tests[0].constants = { bit: 1 }
+  assert.ok(canCourse(content).wrong.some((problem) => problem.includes('more than one source')))
+})
