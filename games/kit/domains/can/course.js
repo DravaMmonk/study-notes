@@ -16,6 +16,7 @@ import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 import { callOf } from '../../engine/schema.js'
 import { scheduleFrames } from './frame-world.js'
+import { transportPlan } from './transport.js'
 
 // An identifier or a byte as content writes it: a number, or hexadecimal.
 const num = (v) => (typeof v === 'string' ? parseInt(v, 16) : v)
@@ -40,13 +41,18 @@ const testOf = (t, task, frameEvents) => {
   }
   const contenders = (t.contenders ?? []).map((node) => ({ ...node, id: num(node.id), data: (node.data ?? []).map(num) }))
   const flash = t.ecu?.flash && { ...t.ecu.flash, ...(t.ecu.flash.image ? { image: t.ecu.flash.image.map(num) } : {}) }
-  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(t.ecu ? { ecu: { did: num(t.ecu.did), value: t.ecu.value.map(num), waits: t.ecu.waits ?? 0, requiresExtended: Boolean(t.ecu.requiresExtended), timeout: t.ecu.timeout, requiresSecurity: Boolean(t.ecu.requiresSecurity), seed: t.ecu.seed, dtcs: (t.ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })), flash, powerCycles: t.ecu.powerCycles ?? [] } } : {}), ...(frameEvents ? { frameEvents } : {}) }
+  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(t.ecu ? { ecu: { did: num(t.ecu.did), value: t.ecu.value.map(num), waits: t.ecu.waits ?? 0, requiresExtended: Boolean(t.ecu.requiresExtended), timeout: t.ecu.timeout, requiresSecurity: Boolean(t.ecu.requiresSecurity), seed: t.ecu.seed, dtcs: (t.ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })), flash, powerCycles: t.ecu.powerCycles ?? [] } } : {}), ...(t.transport ? { transport: { ...t.transport, message: t.transport.message.map(num) } } : {}), ...(frameEvents ? { frameEvents } : {}) }
 }
 
 export function canCourse(content) {
   // A test read: what reading it finds that its schema cannot say, then its bus.
   const test = (t, task, say) => {
     let frameEvents
+    if (task.transport) {
+      if (!t.transport || t.bus.frames.length || task.ecu || task.frameInputs || task.pulls || task.listens || task.drives || t.contenders?.length || t.tx || t.peerBits || t.peerLow?.length || t.flipTicks?.length) say('transport tasks require a simulated receiver without other bus activity')
+      if (!task.inputs?.some((input) => input.name === task.transport.flow) || !task.inputs?.some((input) => input.name === task.transport.message) || task.transport.flow === task.transport.message) say('transport flow and message must be distinct task inputs')
+      if (!task.outputs?.some((output) => output.name === task.transport.frame)) say('transport frame is not a task output')
+    } else if (t.transport) say('a transport test requires transport task ports')
     if (task.ecu) {
       if (!t.ecu || t.bus.frames.length || task.frameInputs || task.pulls || task.listens || task.drives || t.contenders?.length || t.tx || t.peerBits || t.peerLow?.length || t.flipTicks?.length) say('ECU tasks require a configured ECU and no bit-level or frame-level bus activity')
       if (!task.inputs?.some((input) => input.name === task.ecu.response)) say('ECU response is not a task input')
@@ -125,7 +131,7 @@ export function canCourse(content) {
     }
     for (const i of task.inputs ?? []) {
       const name = i.name
-      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name), Object.prototype.hasOwnProperty.call(task.frameInputs ?? {}, name), task.ecu?.response === name, task.ecu?.image === name]
+      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name), Object.prototype.hasOwnProperty.call(task.frameInputs ?? {}, name), task.ecu?.response === name, task.ecu?.image === name, task.transport?.flow === name, task.transport?.message === name]
       if (![task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(name) && !sources.some(Boolean)) say(`a test gives nothing on the input ${name}`)
       if (sources.filter(Boolean).length > 1) say(`input ${name} has more than one source`)
     }
@@ -136,6 +142,7 @@ export function canCourse(content) {
       if (t.inputs?.[name]) say(`input ${name} has both explicit values and the line`)
     }
     const result = testOf(t, task, frameEvents)
+    if (task.transport && result.transport && result.ticks <= Math.max(...transportPlan(result.transport).keys())) say('transport tests must include the last transmitted frame')
     if (task.ecuDelayedExpected && t.ecu && result.ticks <= (t.ecu.waits ?? 0) + 1) say('a pending ECU test must include the final response tick')
     if (task.ecuSessionExpected && result.ticks < 3) say('a session test must include the data response tick')
     if (task.ecuKeepaliveExpected && result.ticks < 8) say('a keepalive test must include the data response tick')
@@ -309,7 +316,7 @@ export function canCourse(content) {
     const expectsInterruptedFrame = names.some((name) => name.startsWith('interruptedFrame'))
     const interruptedSuspendEnds = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('interruptedSuspend') || name.startsWith('interruptedFrame')).map(([, params]) => params.end)
     const expectsInterruptedSuspend = interruptedSuspendEnds.length > 0
-    const views = Object.values(task.frameInputs ?? {}).includes('data') || task.ecu ? { ticks: ['terms'], ...task.views } : task.views
+    const views = Object.values(task.frameInputs ?? {}).includes('data') || task.ecu || task.transport ? { ticks: ['terms'], ...task.views } : task.views
     return { ...task, views, ecuRejectedDids, ecuImmediateExpected, ecuDelayedExpected: names.includes('ecuDelayedValue'), ecuSessionExpected: names.includes('ecuSessionValue'), ecuKeepaliveExpected: names.includes('ecuKeepaliveValue'), ecuSecurityExpected: names.includes('ecuSecurityValue') || names.includes('ecuWrongKeyReason'), ecuClearDtcExpected: names.includes('ecuClearDtcRecords'), ecuFlashTicks, ecuDynamicFlash: names.includes('ecuDynamicFlashDone'), expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, expectsControllerAdaptive, expectsControllerBusoff, expectsControllerDuplex, expectsControllerIntervening, controllerAdaptiveCalls, controllerAdaptiveParams: controllerAdaptiveCalls[0], expectsCollision, collisionCalls, collisionParams: collisionCalls[0], expectsReceiver, expectsReceiverUnified, receiverCalls, receiverStateCalls, receiverParams: receiverCalls[0], expectsInterruptedSuspend, expectsInterruptedFrame, interruptedSuspendEnds, interruptedSuspendEnd: interruptedSuspendEnds[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || expectsInterruptedFrame || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }

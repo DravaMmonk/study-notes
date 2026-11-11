@@ -3,6 +3,7 @@
 // tick (undefined: anything will do), the lane the waveform draws under the output as 「应当」.
 import { callOf } from '../../engine/schema.js'
 import { arbitrationLength, bitsOf, crc15, frameBits, stuff, transmitBits, wiredAnd } from './bus.js'
+import { transportPlan } from './transport.js'
 
 /** A controller may start talking once the bus has been recessive this many bits in a row; an identifier is as long. */
 const QUIET = 11
@@ -735,6 +736,7 @@ const WANTS = {
   ecuPowerLossDone: () => (test) => test.bus.bits.map((_, tick) => tick === 13 ? true : null),
   ecuDynamicFlashRequests: () => (test) => { const requests = dynamicFlashPlan(test); return test.bus.bits.map((_, tick) => requests[tick] ?? null) },
   ecuDynamicFlashDone: () => (test) => { const count = dynamicFlashPlan(test).length; return test.bus.bits.map((_, tick) => tick === count ? true : null) },
+  transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

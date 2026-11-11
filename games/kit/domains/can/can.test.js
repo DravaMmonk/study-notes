@@ -1282,3 +1282,22 @@ test('dynamic programming plans blocks using the advertised limit and wrap their
   assert.deepEqual(want.request[259], [0x36, 1, 0])
   assert.equal(want.done.indexOf(true), 263)
 })
+
+test('a board exchanges frames and flow control with a reactive transport receiver', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.inputs = [{ name: 'message', label: L('message') }, { name: 'flow', label: L('flow') }]
+  task.outputs = [{ name: 'frame', label: L('frame') }]
+  task.transport = { frame: 'frame', flow: 'flow', message: 'message' }
+  task.tests = [{ bus: { idle: 3, frames: [], tail: 0 }, transport: { message: [1, 2, 3, 4, 5, 6, 7, 8], blockSize: 0, separation: 0, flowDelay: 1 } }]
+  task.hidden = []
+  task.want = { frame: 'transportFrames' }
+  task.solution = ['tick = reg[reg=A, start=0]()', 'next = arith[form=inc](tick)', 'save = keep[reg=A](next)', 'zero = const[value=0]()', 'one = const[value=1]()', 'two = const[value=2]()', 'six = const[value=6]()', 'eight = const[value=8]()', 'ffCode = const[value=16]()', 'cfCode = const[value=33]()', 'first = compare[form=eq](tick, zero)', 'second = compare[form=eq](tick, one)', 'a = byteList(ffCode)', 'b = byteList(eight)', 'ffHead = concatBytes(a, b)', 'prefix = sliceBytes(message, zero, six)', 'ff = concatBytes(ffHead, prefix)', 'c = byteList(cfCode)', 'suffix = sliceBytes(message, six, two)', 'cf = concatBytes(c, suffix)', 'later = select(second, cf)', 'out = select(first, ff, later)', 'frame <- out']
+  delete task.naive
+  const course = canCourse(content)
+  assert.deepEqual(course.wrong, [])
+  const played = course.played.get('gather')[0]
+  const result = runLevel(played, played.solution, course.partOf)
+  assert.equal(result.pass, true)
+  assert.deepEqual(result.runs[0].ticks[1].bind.flow, [0x30, 0, 0])
+})
