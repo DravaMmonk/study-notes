@@ -4,14 +4,16 @@
   "builds": {
     "type": "unifiedreceiver",
     "name": { "zh": "统一状态接收" },
-    "desc": { "zh": "将状态化接收与统一错误计数连接；根据发送和接收计数选择接收错误标志，正确接收时应答。限定单帧、无下线或重叠错误。" }
+    "desc": {
+      "zh": "将状态化接收与统一错误计数连接；根据发送和接收计数选择接收错误标志，正确接收时应答。限定单帧、无下线或重叠错误。 同时输出接收到的标识符、长度和字节；错误结果后的字段不能作为有效数据。"
+    }
   },
   "after": { "zh": "发送计数或接收计数达到 128 都会使节点进入被动状态；导致转换的接收错误仍发主动标志。" },
   "tasks": [
     {
       "id": "2-41",
       "brief": {
-        "zh": "准备事件可包含发送错误 1 或接收错误 3。接收一帧，交出两个计数、状态、接收结果和计数事件；正确时应答，错误时按错误发生前的状态选择标志。测试不进入下线，且没有重叠错误。"
+        "zh": "准备事件可包含发送错误 1 或接收错误 3。接收一帧，交出两个计数、状态、接收结果和计数事件；正确时应答，错误时按错误发生前的状态选择标志。测试不进入下线，且没有重叠错误。 同时逐拍交出接收到的标识符、长度和字节；错误结果出现后的字段不作为有效数据。"
       },
       "hint": [{ "zh": "把接收电路的计数事件接到错误计数元件，用寄存卡保存上一拍状态，再送回状态化接收元件。" }],
       "listens": true,
@@ -24,7 +26,10 @@
         { "name": "kind", "label": { "zh": "结果种类" } },
         { "name": "ready", "label": { "zh": "结果就绪" } },
         { "name": "event", "label": { "zh": "计数事件" } },
-        { "name": "acking", "label": { "zh": "正在应答" } }
+        { "name": "acking", "label": { "zh": "正在应答" } },
+        { "name": "rxId", "label": { "zh": "接收标识符" } },
+        { "name": "rxLength", "label": { "zh": "接收长度" } },
+        { "name": "rxByte", "label": { "zh": "接收字节" } }
       ],
       "tests": [
         {
@@ -66,7 +71,10 @@
         "kind": { "receiveFrameKind": { "prep": "prep", "reset": "reset" } },
         "ready": { "receiveFrameReady": { "prep": "prep", "reset": "reset" } },
         "event": { "receiveFrameEvent": { "prep": "prep", "reset": "reset" } },
-        "acking": { "receiveFrameAck": { "prep": "prep", "reset": "reset" } }
+        "acking": { "receiveFrameAck": { "prep": "prep", "reset": "reset" } },
+        "rxId": { "receiveFrameId": { "prep": "prep", "reset": "reset" } },
+        "rxLength": { "receiveFrameLength": { "prep": "prep", "reset": "reset" } },
+        "rxByte": { "receiveFrameByte": { "prep": "prep", "reset": "reset" } }
       },
       "solution": [
         "zero = const[value=0]()",
@@ -81,7 +89,10 @@
         "kind <- r.kind",
         "ready <- r.ready",
         "event <- r.event",
-        "acking <- r.acking"
+        "acking <- r.acking",
+        "rxId <- r.rxId",
+        "rxLength <- r.rxLength",
+        "rxByte <- r.rxByte"
       ],
       "naive": [
         "zero = const[value=0]()",
@@ -96,7 +107,10 @@
         "kind <- r.kind",
         "ready <- r.ready",
         "event <- r.event",
-        "acking <- r.acking"
+        "acking <- r.acking",
+        "rxId <- r.rxId",
+        "rxLength <- r.rxLength",
+        "rxByte <- r.rxByte"
       ]
     }
   ]

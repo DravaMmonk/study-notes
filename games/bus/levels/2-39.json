@@ -4,14 +4,14 @@
   "builds": {
     "type": "receiverstate",
     "name": { "zh": "状态化接收" },
-    "desc": { "zh": "复用接收与应答元件，按错误发生前的主动或被动状态选择错误标志，同时保留正确帧的显性应答。" }
+    "desc": { "zh": "复用接收与应答元件，按错误发生前的主动或被动状态选择错误标志，同时保留正确帧的显性应答。 同时输出接收到的标识符、长度和字节；错误结果后的字段不能作为有效数据。" }
   },
   "after": { "zh": "被动接收方仍可应答正确帧，只是错误标志不再拉低总线。标志类型由发现错误时的状态决定。" },
   "tasks": [
     {
       "id": "2-39",
       "brief": {
-        "zh": "接收并应答正确帧；发现填充或 CRC 错误时，按错误发生前的状态选择主动或被动标志。状态输入 0 为主动、1 为被动；它可能在检测错误之后改变。输出结果、应答拍、计数事件与接收计数。测试不进入下线，也不模拟错误标志叠加。"
+        "zh": "接收并应答正确帧；发现填充或 CRC 错误时，按错误发生前的状态选择主动或被动标志。状态输入 0 为主动、1 为被动；它可能在检测错误之后改变。输出结果、应答拍、计数事件与接收计数。测试不进入下线，也不模拟错误标志叠加。 同时逐拍交出接收到的标识符、长度和字节；错误结果出现后的字段不作为有效数据。"
       },
       "hint": [{ "zh": "记住错误发生时的状态，用它控制整个错误标志；应答拍要单独保留，不能把被动错误标志的隐性规则误用到应答。" }],
       "listens": true,
@@ -26,7 +26,10 @@
         { "name": "ready", "label": { "zh": "结果就绪" } },
         { "name": "rec", "label": { "zh": "接收计数" } },
         { "name": "event", "label": { "zh": "计数事件" } },
-        { "name": "acking", "label": { "zh": "正在应答" } }
+        { "name": "acking", "label": { "zh": "正在应答" } },
+        { "name": "rxId", "label": { "zh": "接收标识符" } },
+        { "name": "rxLength", "label": { "zh": "接收长度" } },
+        { "name": "rxByte", "label": { "zh": "接收字节" } }
       ],
       "tests": [
         {
@@ -83,7 +86,10 @@
         "ready": { "receiveFrameReady": { "prep": "prep", "reset": "reset" } },
         "rec": { "receiveFrameRec": { "prep": "prep", "reset": "reset" } },
         "event": { "receiveFrameEvent": { "prep": "prep", "reset": "reset" } },
-        "acking": { "receiveFrameAck": { "prep": "prep", "reset": "reset" } }
+        "acking": { "receiveFrameAck": { "prep": "prep", "reset": "reset" } },
+        "rxId": { "receiveFrameId": { "prep": "prep", "reset": "reset" } },
+        "rxLength": { "receiveFrameLength": { "prep": "prep", "reset": "reset" } },
+        "rxByte": { "receiveFrameByte": { "prep": "prep", "reset": "reset" } }
       },
       "solution": [
         "zero = const[value=0]()",
@@ -102,7 +108,10 @@
         "ready <- p.ready",
         "rec <- p.rec",
         "event <- p.event",
-        "acking <- p.acking"
+        "acking <- p.acking",
+        "rxId <- p.rxId",
+        "rxLength <- p.rxLength",
+        "rxByte <- p.rxByte"
       ],
       "naive": [
         "zero = const[value=0]()",
@@ -121,7 +130,10 @@
         "ready <- p.ready",
         "rec <- p.rec",
         "event <- p.event",
-        "acking <- p.acking"
+        "acking <- p.acking",
+        "rxId <- p.rxId",
+        "rxLength <- p.rxLength",
+        "rxByte <- p.rxByte"
       ]
     }
   ]

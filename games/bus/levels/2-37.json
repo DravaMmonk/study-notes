@@ -4,14 +4,16 @@
   "builds": {
     "type": "receiver",
     "name": { "zh": "接收与应答" },
-    "desc": { "zh": "读取总线，正确接收时应答并标出应答拍，填充或 CRC 错误按各自时序发主动标志；输出计数事件并更新接收错误计数。限定单帧、无重叠错误。" }
+    "desc": {
+      "zh": "读取总线，正确接收时应答并标出应答拍，填充或 CRC 错误按各自时序发主动标志；输出计数事件并更新接收错误计数。限定单帧、无重叠错误。 同时输出接收到的标识符、长度和字节；错误结果后的字段不能作为有效数据。"
+    }
   },
   "after": { "zh": "填充错误立即报告，CRC 错误等待应答界定位结束；正确接收时应答并降低接收错误计数。本练习不模拟错误标志叠加和被动接收节点。" },
   "tasks": [
     {
       "id": "2-37",
       "brief": {
-        "zh": "接收一帧：正确时在应答位说 0；填充错误时从下一拍发主动错误标志，CRC 错误时从应答界定位之后发。输出结果种类、结果就绪、应答拍、计数事件和接收错误计数。准备事件在帧前直接提供接收错误；成功应答时计数减一，错误时加一。测试只含一个帧、一个错误主动接收方和最多一处数据或 CRC 位翻转。"
+        "zh": "接收一帧：正确时在应答位说 0；填充错误时从下一拍发主动错误标志，CRC 错误时从应答界定位之后发。输出结果种类、结果就绪、应答拍、计数事件和接收错误计数。准备事件在帧前直接提供接收错误；成功应答时计数减一，错误时加一。测试只含一个帧、一个错误主动接收方和最多一处数据或 CRC 位翻转。 同时逐拍交出接收到的标识符、长度和字节；错误结果出现后的字段不作为有效数据。"
       },
       "hint": [
         { "zh": "校验抓帧器交出结果种类：0 正确、1 填充错误、2 CRC 错误。用寄存卡把正确结果延迟一拍，驱动应答位。" },
@@ -25,7 +27,10 @@
         { "name": "ready", "label": { "zh": "结果就绪" } },
         { "name": "rec", "label": { "zh": "接收计数" } },
         { "name": "event", "label": { "zh": "计数事件" } },
-        { "name": "acking", "label": { "zh": "正在应答" } }
+        { "name": "acking", "label": { "zh": "正在应答" } },
+        { "name": "rxId", "label": { "zh": "接收标识符" } },
+        { "name": "rxLength", "label": { "zh": "接收长度" } },
+        { "name": "rxByte", "label": { "zh": "接收字节" } }
       ],
       "tests": [
         {
@@ -71,7 +76,10 @@
         "ready": { "receiveFrameReady": { "prep": "prep", "reset": "reset" } },
         "rec": { "receiveFrameRec": { "prep": "prep", "reset": "reset" } },
         "event": { "receiveFrameEvent": { "prep": "prep", "reset": "reset" } },
-        "acking": { "receiveFrameAck": { "prep": "prep", "reset": "reset" } }
+        "acking": { "receiveFrameAck": { "prep": "prep", "reset": "reset" } },
+        "rxId": { "receiveFrameId": { "prep": "prep", "reset": "reset" } },
+        "rxLength": { "receiveFrameLength": { "prep": "prep", "reset": "reset" } },
+        "rxByte": { "receiveFrameByte": { "prep": "prep", "reset": "reset" } }
       },
       "solution": [
         "zero = const[value=0]()",
@@ -105,7 +113,10 @@
         "ready <- s.ready",
         "event <- eventValue",
         "acknum = select(ack, one, zero)",
-        "acking <- acknum"
+        "acking <- acknum",
+        "rxId <- s.id",
+        "rxLength <- s.length",
+        "rxByte <- s.byte"
       ],
       "naive": [
         "zero = const[value=0]()",
@@ -139,7 +150,10 @@
         "ready <- s.ready",
         "event <- eventValue",
         "acknum = select(ack, one, zero)",
-        "acking <- acknum"
+        "acking <- acknum",
+        "rxId <- s.id",
+        "rxLength <- s.length",
+        "rxByte <- s.byte"
       ]
     }
   ]
