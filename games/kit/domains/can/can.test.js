@@ -566,6 +566,10 @@ test('bus-off recovery counts disjoint eleven-bit groups and clears interrupted 
   assert.equal(result.ready[1417], false)
   assert.equal(result.ready[1418], true)
   assert.equal(result.groups.at(-1), 128)
+  test.inputs.request = bit.map((_, tick) => Number(tick === 1417 || tick === 1418))
+  const accepted = wantOf({ reset: { recoveryReset: { bit: 'bit', off: 'off', request: 'request' } } })(test).reset
+  assert.equal(accepted[1417], false)
+  assert.equal(accepted[1418], true)
   off[1419] = 0
   const reset = wantOf(calls)(test)
   assert.equal(reset.groups[1419], 0)

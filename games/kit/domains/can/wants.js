@@ -486,6 +486,7 @@ const WANTS = {
   passiveAckMode: (params) => (test) => passiveAckRetry(params, test).mode,
   recoveryCount: (params) => (test) => busOffRecovery(params, test).map((step) => step.groups),
   recoveryReady: (params) => (test) => busOffRecovery(params, test).map((step) => step.ready),
+  recoveryReset: ({ request, ...params }) => (test) => busOffRecovery(params, test).map((step, tick) => step.ready && Boolean(test.inputs[request][tick])),
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),
