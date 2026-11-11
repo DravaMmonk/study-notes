@@ -74,6 +74,21 @@ const stuffedSerial = ({ value, start }, test) => {
   })
 }
 
+const frameTransmission = ({ start }, test) => {
+  const at = test.inputs[start]?.findIndex((value) => value === 1 || value === true) ?? -1
+  if (!test.tx || at < 0) return { bits: [], at, next: [] }
+  const bits = frameBits(test.tx)
+  bits[bits.length - 12] = 1 // The transmitter releases the ACK slot; a receiver may pull it low.
+  const prefix = [0, ...bitsOf(test.tx.id, 11), 0, 0, 0, ...bitsOf(test.tx.data.length, 4)]
+  const next = test.tx.data.map((byte) => {
+    const word = bitsOf(byte, 8)
+    const tick = at + stuff([...prefix, ...word.slice(0, -1)]).length
+    prefix.push(...word)
+    return tick
+  })
+  return { bits, at, next }
+}
+
 const stuffedOutput = ({ bit, valid, start }, test) => {
   let previous = null
   let run = 0
@@ -126,6 +141,22 @@ const WANTS = {
     return each(test, (tick) => bits[tick] ?? 1)
   },
   queueSerialNext: () => (test) => each(test, (tick) => tick < test.queue.length * 8 && tick % 8 === 7),
+  frameDrive: (params) => (test) => {
+    const { bits, at } = frameTransmission(params, test)
+    return each(test, (tick) => bits[tick - at] ?? 1)
+  },
+  frameLine: (params) => (test) => {
+    const { bits, at } = frameTransmission(params, test)
+    return each(test, (tick) => (bits[tick - at] ?? 1) & test.bus.bits[tick])
+  },
+  frameSent: (params) => (test) => {
+    const { bits, at } = frameTransmission(params, test)
+    return each(test, (tick) => at >= 0 && bits.length > 0 && tick === at + bits.length - 1)
+  },
+  frameQueueNext: (params) => (test) => {
+    const { next } = frameTransmission(params, test)
+    return each(test, (tick) => next.includes(tick))
+  },
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),

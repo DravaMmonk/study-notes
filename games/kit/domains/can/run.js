@@ -19,7 +19,7 @@ export function runTest(task, circuit, test, parts) {
   let consumed = 0
   const queue = task.pulls && reacting({
     id: 'queue', board: 'you', start: 0,
-    reads: (head) => ({ [task.pulls.input]: test.queue[head] ?? null, [task.pulls.available]: Number(head < test.queue.length) }),
+    reads: (head) => ({ [task.pulls.input]: test.queue[head] ?? null, [task.pulls.available]: Number(head < test.queue.length), ...(task.pulls.last ? { [task.pulls.last]: head < test.queue.length ? Number(head === test.queue.length - 1) : null } : {}) }),
     step: (head, outputs) => {
       const next = outputs[task.pulls.next]
       consumed = head + ((next === 1 || next === true) && head < test.queue.length ? 1 : 0)
@@ -52,7 +52,7 @@ export const runLevel = runTests(runTest)
 
 export const entries = ({ task, test, run }) => [
   ...(task.listens ? [{ of: 'line', label: BUS, shape: 'bits', given: run.ticks.map((tick) => tick.line) }] : []),
-  ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available].includes(i.name)
+  ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(i.name)
     ? { of: i.name, label: i.label, shape: 'ticks', got: run.ticks.map((tick) => tick.bind?.[i.name] ?? null) }
     : { of: i.name, label: i.label, shape: 'bits', given: test.inputs[i.name] }),
   ...(task.drives ? [{ of: 'send', label: T('说', 'Send'), shape: 'ticks', got: run.ticks.map((tick) => tick.sent ?? null), want: run.want.send }] : []),

@@ -280,15 +280,29 @@ test('a board drives the wired-AND bus and cannot say what it hears in the same 
 })
 
 test('a queue advances only after the board asks, and must be consumed', () => {
-  const task = { inputs: [{ name: 'item', label: L('item') }, { name: 'available', label: L('available') }, { name: 'go', label: L('go') }], outputs: [{ name: 'next', label: L('next') }, { name: 'seen', label: L('seen') }], pulls: { input: 'item', available: 'available', next: 'next' }, want: () => ({ seen: [10, 10, 20, 20, null] }) }
+  const task = { inputs: [{ name: 'item', label: L('item') }, { name: 'available', label: L('available') }, { name: 'last', label: L('last') }, { name: 'go', label: L('go') }], outputs: [{ name: 'next', label: L('next') }, { name: 'seen', label: L('seen') }], pulls: { input: 'item', available: 'available', last: 'last', next: 'next' }, want: () => ({ seen: [10, 10, 20, 20, null] }) }
   const test = { bus: { bits: [1, 1, 1, 1, 1], frames: [] }, inputs: { go: [0, 1, 0, 1, 0] }, queue: [10, 20] }
   const take = fromText(['next <- go', 'seen <- item'], task, plain)
   const run = runTest(task, take, test, plain.partOf)
   assert.equal(run.fail, undefined)
   assert.deepEqual(run.ticks.map((tick) => tick.bind.item), [10, 10, 20, 20, null])
   assert.deepEqual(run.ticks.map((tick) => tick.bind.available), [1, 1, 1, 1, 0])
+  assert.deepEqual(run.ticks.map((tick) => tick.bind.last), [0, 0, 1, 1, null])
   const stuck = fromText(['z = const[value=0]()', 'next <- z', 'seen <- item'], task, plain)
   assert.ok(runTest({ ...task, want: () => ({}) }, stuck, test, plain.partOf).fail)
+})
+
+test('a transmitter releases ACK while another node can acknowledge', () => {
+  const tx = { id: 0x123, data: [0xa5] }
+  const frame = frameBits(tx)
+  const ack = frame.length - 12
+  const peer = frame.map((_, tick) => tick === ack ? 0 : 1)
+  const test = { tx, bus: { bits: peer }, inputs: { start: frame.map((_, tick) => Number(tick === 0)) } }
+  const want = wantOf({ send: { frameDrive: { start: 'start' } }, line: { frameLine: { start: 'start' } }, done: { frameSent: { start: 'start' } }, next: { frameQueueNext: { start: 'start' } } })(test)
+  assert.equal(want.send[ack], 1)
+  assert.equal(want.line[ack], 0)
+  assert.deepEqual(want.done.flatMap((value, tick) => value ? [tick] : []), [frame.length - 1])
+  assert.deepEqual(want.next.flatMap((value, tick) => value ? [tick] : []), [27])
 })
 
 test('serialising latches the byte and a new start replaces an unfinished one', () => {

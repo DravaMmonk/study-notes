@@ -49,6 +49,10 @@ const WANTS = {
   fieldDrive: item(t('取走时发送字段位，其余拍说隐性 1', 'send an accepted field bit and say recessive 1 on other ticks'), S.obj({ value: INPUT, width: INPUT, start: INPUT, advance: INPUT })),
   queueSerialDrive: item(t('依次发送队列中字节的位，其余拍说隐性 1', 'send the queued bytes in order and say recessive 1 on other ticks')),
   queueSerialNext: item(t('在每个队列字节的最后一位取走它', 'take each queued byte on its final bit')),
+  frameDrive: item(t('发送标准格式数据帧，发送方在应答位放开总线', 'send a standard data frame, releasing the bus in the ACK slot'), S.obj({ start: INPUT })),
+  frameLine: item(t('发送帧时总线的实际位，包括其他节点的驱动', 'the actual bus bits while sending a frame, including other nodes'), S.obj({ start: INPUT })),
+  frameSent: item(t('最后一个帧间隔位送出时为是', 'yes when the final intermission bit is sent'), S.obj({ start: INPUT })),
+  frameQueueNext: item(t('每个数据字节的最后一个原始位被接受时取走队首', 'take each queued byte when its last original bit is accepted'), S.obj({ start: INPUT })),
   stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialCrc: item(t('最后原始位被取走时给该字节的 CRC-15', 'the CRC-15 of the byte when its final original bit is accepted'), S.obj({ value: INPUT, start: INPUT })),
@@ -87,6 +91,8 @@ const TEST = S.obj({
   inputs: S.opt(S.map(S.list(S.int()), { view: 'ticks', about: t('每个输入每一拍的值') })),
   lineInputs: S.opt(S.list(S.str(), { about: t('这些输入每拍取总线上的位') })),
   queue: S.opt(S.list(hex(0xff, 2), { about: t('等待板逐个取走的字节', 'bytes waiting for the board to take one at a time') })),
+  tx: S.opt(FRAME),
+  peerBits: S.opt(S.list(BIT, { view: 'ticks', about: t('其他节点每拍说的位', 'bits said by the other nodes each tick') })),
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
@@ -95,14 +101,14 @@ const LEVEL = levelSchema({
     listens: S.opt(S.bool({ about: t('板上有总线元件') })),
     drives: S.opt(S.bool({ about: t('板上有驱动总线的说话口', 'the board has a port that drives the bus') })),
     inputs: S.opt(S.list(PORT)),
-    pulls: S.opt(S.obj({ input: NAME, available: NAME, next: NAME }, { about: t('输入读取队首字节和是否有字节；输出为 1 时取走队首，下一拍出现下一字节', 'inputs give the front byte and whether one is available; output 1 takes it and the next byte appears next tick') })),
+    pulls: S.opt(S.obj({ input: NAME, available: NAME, next: NAME, last: S.opt(NAME) }, { about: t('输入读取队首字节和是否有字节；输出为 1 时取走队首，下一拍出现下一字节', 'inputs give the front byte and whether one is available; output 1 takes it and the next byte appears next tick') })),
   },
   checks: { want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么') }) },
 })
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 21,
+  version: 22,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
