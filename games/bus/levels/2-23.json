@@ -1,0 +1,90 @@
+{
+  "title": { "zh": "等不到应答" },
+  "intro": [{ "t": { "zh": "发送方在应答位说 1，并读取实际总线。若这一拍仍是 1，就没有节点应答；这不是仲裁落败，而是缺应答错误。" } }],
+  "after": { "zh": "缺应答要单独判断：应答位的显性是正常回答，隐性则表示没有接收到应答。" },
+  "tasks": [
+    {
+      "id": "2-23",
+      "brief": { "zh": "发送一帧，在应答位交出是否缺应答，其余拍交出「—」。测试包括有应答和无应答；本关只识别错误，不中断或重传。" },
+      "hint": [{ "zh": "发送器标出应答位；在那一拍比较总线与隐性 1。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "id", "label": { "zh": "标识符" } },
+        { "name": "length", "label": { "zh": "数据长度" } },
+        { "name": "item", "label": { "zh": "队首" } },
+        { "name": "available", "label": { "zh": "有字节" } },
+        { "name": "last", "label": { "zh": "最后字节" } },
+        { "name": "start", "label": { "zh": "开始" } }
+      ],
+      "outputs": [
+        { "name": "next", "label": { "zh": "取走" } },
+        { "name": "done", "label": { "zh": "完成" } },
+        { "name": "missing", "label": { "zh": "缺应答" } }
+      ],
+      "pulls": { "input": "item", "available": "available", "last": "last", "next": "next" },
+      "tests": [
+        {
+          "bus": { "idle": 53, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [] },
+          "queue": [],
+          "constants": { "id": 291, "length": 0 },
+          "pulses": { "start": [0] },
+          "peerLow": [36]
+        },
+        {
+          "bus": { "idle": 72, "frames": [], "tail": 0 },
+          "tx": { "id": 2047, "data": [165, 0] },
+          "queue": [165, 0],
+          "constants": { "id": 2047, "length": 2 },
+          "pulses": { "start": [0] },
+          "peerLow": [55]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 57, "frames": [], "tail": 0 },
+          "tx": { "id": 9, "data": [] },
+          "queue": [],
+          "constants": { "id": 9, "length": 0 },
+          "pulses": { "start": [0] },
+          "peerLow": []
+        },
+        {
+          "bus": { "idle": 128, "frames": [], "tail": 0 },
+          "tx": { "id": 0, "data": [0, 255, 1, 2, 3, 4, 5, 6] },
+          "queue": [0, 255, 1, 2, 3, 4, 5, 6],
+          "constants": { "id": 0, "length": 8 },
+          "pulses": { "start": [0] },
+          "peerLow": [111]
+        }
+      ],
+      "want": {
+        "send": { "frameDrive": { "start": "start" } },
+        "next": { "frameQueueNext": { "start": "start" } },
+        "done": { "frameSent": { "start": "start" } },
+        "missing": { "frameAckMissing": { "start": "start" } }
+      },
+      "solution": [
+        "p = transmitter(id, length, item, available, last, start)",
+        "one = const[value=1]()",
+        "miss = compare[form=eq](line, one)",
+        "result = select(p.ack, miss)",
+        "send <- p.send",
+        "next <- p.next",
+        "done <- p.done",
+        "missing <- result"
+      ],
+      "naive": [
+        "p = transmitter(id, length, item, available, last, start)",
+        "one = const[value=1]()",
+        "yes = compare[form=eq](one, one)",
+        "result = select(p.ack, yes)",
+        "send <- p.send",
+        "next <- p.next",
+        "done <- p.done",
+        "missing <- result"
+      ]
+    }
+  ]
+}

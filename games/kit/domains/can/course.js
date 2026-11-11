@@ -56,6 +56,7 @@ export function canCourse(content) {
       if (t.tx && JSON.stringify((t.tx.data ?? []).map(num)) !== JSON.stringify((t.queue ?? []).map(num))) say('retry queue must contain the transmitted frame data')
     }
     if (task.expectsBitError && t.contenders?.length) say('bit-error checks require scripted peers rather than active contenders')
+    if (task.expectsAck && t.contenders?.length) say('ACK checks require scripted peers rather than active contenders')
     if (task.pulls) {
       if (!task.inputs?.some((input) => input.name === task.pulls.input)) say(`queue input ${task.pulls.input} is not a task input`)
       if (!task.inputs?.some((input) => input.name === task.pulls.available)) say(`queue availability ${task.pulls.available} is not a task input`)
@@ -92,6 +93,6 @@ export function canCourse(content) {
     const names = Object.values(task.want ?? {}).map((call) => callOf(call)[0])
     const retryCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => ['retryDrive', 'retryLost', 'retryDone', 'retryNext', 'retryAttempts'].includes(name))
     const expectsRetry = retryCalls.length > 0
-    return { ...task, expectsRetry, expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating'].includes(name)), want: wantOf(task.want) }
+    return { ...task, expectsRetry, expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }

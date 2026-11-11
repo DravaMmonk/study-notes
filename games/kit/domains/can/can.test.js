@@ -435,9 +435,12 @@ test('a transmitter releases ACK while another node can acknowledge', () => {
   const ack = frame.length - 12
   const peer = frame.map((_, tick) => tick === ack ? 0 : 1)
   const test = { tx, bus: { bits: peer }, inputs: { start: frame.map((_, tick) => Number(tick === 0)) } }
-  const want = wantOf({ send: { frameDrive: { start: 'start' } }, line: { frameLine: { start: 'start' } }, done: { frameSent: { start: 'start' } }, next: { frameQueueNext: { start: 'start' } }, arb: { frameArbitrating: { start: 'start' } } })(test)
+  const want = wantOf({ send: { frameDrive: { start: 'start' } }, line: { frameLine: { start: 'start' } }, done: { frameSent: { start: 'start' } }, next: { frameQueueNext: { start: 'start' } }, arb: { frameArbitrating: { start: 'start' } }, ack: { frameAck: { start: 'start' } }, missing: { frameAckMissing: { start: 'start' } } })(test)
   assert.equal(want.send[ack], 1)
   assert.equal(want.line[ack], 0)
+  assert.equal(want.ack[ack], 1)
+  assert.equal(want.missing[ack], false)
+  assert.equal(want.missing[ack - 1], null)
   assert.deepEqual(want.done.flatMap((value, tick) => value ? [tick] : []), [frame.length - 1])
   assert.deepEqual(want.next.flatMap((value, tick) => value ? [tick] : []), [27])
   assert.deepEqual(want.arb.slice(0, 15), [...Array(13).fill(1), 0, 0])

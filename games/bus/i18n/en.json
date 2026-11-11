@@ -323,8 +323,6 @@
   "校验结果为是且已经落败时，记下需要应答；下一拍从寄存卡驱动显性 0。": "When the check is yes and this node has lost, remember that an ACK is needed; drive dominant 0 from the register on the next tick.",
   "只在落败时转交抓帧器的字段和校验结果。": "Pass through capture fields and check result only after losing.",
   "在仲裁后转为接收，正确接收时应答；应答位比 CRC 界定位晚一拍，不能用本拍听到的值直接驱动本拍总线。": "After losing arbitration, become a receiver and acknowledge a correctly received frame. ACK is one tick after the CRC delimiter, so what is heard now cannot drive the bus in the same tick.",
-  "发送一帧标准格式数据帧，并标出仲裁段。标识符与长度需保持到发送完成，数据按队列提供；输出驱动位、取走字节和完成。当前不处理仲裁失败或重传。": "Sends one standard-format data frame and marks its arbitration field. Keep identifier and length stable until Done and provide data from the queue. Outputs driven bits, byte acceptance and completion; arbitration loss and retry are not yet handled.",
-  "「开始」时发送一帧标准格式数据帧。按协议驱动总线，仲裁段交出 1、其余拍交出 0；在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。": "On Start, send one standard-format data frame. Drive the bus and give 1 during arbitration and 0 on other ticks; take each queued byte when its final original bit is accepted and give yes on Done on the final intermission bit. Say 1 while idle.",
   "输了再来": "Try again after losing",
   "仲裁输了之后，自己的帧还没有送出去。先收下赢家并在正确接收时应答，再等帧间隔结束、总线重新空闲，从头重发原来的帧。": "After losing arbitration, the node has not sent its frame. Receive and acknowledge the winner if correct, then wait for intermission and an idle bus before sending the original frame again.",
   "「开始」时尝试发送自己的标准帧。若仲裁落败，接收并应答赢家，等待至少 11 位连续隐性后重新发送；如果一开始获胜则不重发。只在自己的数据字节真正送完时取走队首。": "On Start, attempt to send your standard frame. After losing arbitration, receive and acknowledge the winner, wait for at least 11 consecutive recessive bits, then retransmit; if you win initially, do not retry. Take each queued byte only when your own byte has actually been sent.",
@@ -373,5 +371,13 @@
   "按事件更新状态。收到「报告」时，从下一拍开始发送对应的错误标志和八位隐性界定：主动状态说六个 0，被动状态说六个 1，下线时不发送。输出状态与完成信号。测试中标志不重叠，状态不会在标志期间变化。": "Update state from events. On Report, start the appropriate six-bit error flag and eight-bit recessive delimiter on the next tick: six 0s while active, six 1s while passive, and no transmission while bus-off. Give the state and Done. Flags do not overlap and the state stays fixed during each flag in these tests.",
   "先用错误计数得到状态；下线时不要启动错误标志，被动时保留标志时长但不驱动显性。": "Get the state from the error counters; do not start an error flag while bus-off, and retain the flag duration without driving dominant when passive.",
   "状态限制的是节点对总线的影响：被动节点不再用显性错误标志打断其他节点，下线节点不发送。": "State limits the node’s effect on the bus: a passive node no longer interrupts others with a dominant error flag, while a bus-off node does not send.",
-  "报告": "Report"
+  "报告": "Report",
+  "「开始」时发送一帧标准格式数据帧。按协议驱动总线，仲裁段和应答位分别输出标志；在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。": "On Start, send one standard-format data frame. Drive the bus, mark arbitration and ACK, take each queued byte when its last original bit is accepted, and give yes on Done on the final intermission bit. Say 1 while idle.",
+  "发送一帧标准格式数据帧，并标出仲裁段与应答位。标识符与长度需保持到发送完成，数据按队列提供；输出驱动位、取走字节和完成。当前不处理仲裁失败或重传。": "Sends one standard-format data frame and marks arbitration and ACK. Keep identifier and length stable until Done and supply data from the queue. Outputs driven bits, byte acceptance and completion; arbitration loss and retry are not yet handled.",
+  "等不到应答": "No acknowledgement",
+  "发送方在应答位说 1，并读取实际总线。若这一拍仍是 1，就没有节点应答；这不是仲裁落败，而是缺应答错误。": "The sender says 1 in the ACK slot and reads the actual bus. If it is still 1, no node acknowledged. This is an ACK error, not arbitration loss.",
+  "发送一帧，在应答位交出是否缺应答，其余拍交出「—」。测试包括有应答和无应答；本关只识别错误，不中断或重传。": "Send a frame and give whether acknowledgement is missing on its ACK slot, or 「—」 on other ticks. Tests include both acknowledged and unacknowledged frames; this level detects the error without interrupting or retrying.",
+  "发送器标出应答位；在那一拍比较总线与隐性 1。": "The transmitter marks the ACK slot; compare the bus with recessive 1 on that tick.",
+  "缺应答要单独判断：应答位的显性是正常回答，隐性则表示没有接收到应答。": "Missing ACK needs its own check: dominant in the ACK slot is a normal response, whereas recessive means no acknowledgement was received.",
+  "缺应答": "Missing ACK"
 }

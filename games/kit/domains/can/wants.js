@@ -329,6 +329,14 @@ const WANTS = {
     const end = test.tx ? arbitrationLength(test.tx.id) : 0
     return each(test, (tick) => Number(at >= 0 && tick >= at && tick < at + end))
   },
+  frameAck: (params) => (test) => {
+    const { bits, at } = frameTransmission(params, test)
+    return each(test, (tick) => Number(at >= 0 && bits.length > 0 && tick === at + bits.length - 12))
+  },
+  frameAckMissing: (params) => (test) => {
+    const { bits, at } = frameTransmission(params, test)
+    return each(test, (tick) => at >= 0 && bits.length > 0 && tick === at + bits.length - 12 ? (test.flipTicks?.includes(tick) ? 1 - test.bus.bits[tick] : test.bus.bits[tick]) === 1 : null)
+  },
   arbitrationDrive: (params) => (test) => arbitration(params, test).map((step) => step.drive),
   arbitrationLost: (params) => (test) => arbitration(params, test).map((step) => step.lost),
   arbitrationLine: (params) => (test) => arbitration(params, test).map((step) => step.line),

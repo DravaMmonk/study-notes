@@ -11,14 +11,14 @@
   "builds": {
     "type": "transmitter",
     "name": { "zh": "发送帧" },
-    "desc": { "zh": "发送一帧标准格式数据帧，并标出仲裁段。标识符与长度需保持到发送完成，数据按队列提供；输出驱动位、取走字节和完成。当前不处理仲裁失败或重传。" }
+    "desc": { "zh": "发送一帧标准格式数据帧，并标出仲裁段与应答位。标识符与长度需保持到发送完成，数据按队列提供；输出驱动位、取走字节和完成。当前不处理仲裁失败或重传。" }
   },
   "after": { "zh": "发送方在应答位不拉低总线；有没有其他节点应答，要在听的阶段读回实际总线。" },
   "tasks": [
     {
       "id": "2-11",
       "brief": {
-        "zh": "「开始」时发送一帧标准格式数据帧。按协议驱动总线，仲裁段交出 1、其余拍交出 0；在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。"
+        "zh": "「开始」时发送一帧标准格式数据帧。按协议驱动总线，仲裁段和应答位分别输出标志；在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。"
       },
       "hint": [
         { "zh": "分阶段生成原始位：起始、标识符、三个控制位、长度、数据、CRC；用逐位送字段和队列握手复用同一发送链。" },
@@ -37,7 +37,8 @@
       "outputs": [
         { "name": "next", "label": { "zh": "取走" } },
         { "name": "done", "label": { "zh": "完成" } },
-        { "name": "arb", "label": { "zh": "仲裁段" } }
+        { "name": "arb", "label": { "zh": "仲裁段" } },
+        { "name": "ack", "label": { "zh": "应答位" } }
       ],
       "pulls": { "input": "item", "available": "available", "last": "last", "next": "next" },
       "tests": [
@@ -80,7 +81,8 @@
         "send": { "frameDrive": { "start": "start" } },
         "done": { "frameSent": { "start": "start" } },
         "next": { "frameQueueNext": { "start": "start" } },
-        "arb": { "frameArbitrating": { "start": "start" } }
+        "arb": { "frameArbitrating": { "start": "start" } },
+        "ack": { "frameAck": { "start": "start" } }
       },
       "solution": [
         "zero = const[value=0]()",
@@ -192,7 +194,12 @@
         "controlarb = select(is3, ctrlflag, zero)",
         "idarb = select(is2, one, controlarb)",
         "arbvalue = select(is1, one, idarb)",
-        "arb <- arbvalue"
+        "arb <- arbvalue",
+        "ackpos = compare[form=eq](step, one)",
+        "ackinside = select(notstuff, ackpos, zero)",
+        "ackphase = select(is7, ackinside, zero)",
+        "ackvalue = select(ackphase, one, zero)",
+        "ack <- ackvalue"
       ],
       "naive": [
         "zero = const[value=0]()",
@@ -304,7 +311,12 @@
         "controlarb = select(is3, ctrlflag, zero)",
         "idarb = select(is2, one, controlarb)",
         "arbvalue = select(is1, one, idarb)",
-        "arb <- arbvalue"
+        "arb <- arbvalue",
+        "ackpos = compare[form=eq](step, one)",
+        "ackinside = select(notstuff, ackpos, zero)",
+        "ackphase = select(is7, ackinside, zero)",
+        "ackvalue = select(ackphase, one, zero)",
+        "ack <- ackvalue"
       ]
     }
   ]
