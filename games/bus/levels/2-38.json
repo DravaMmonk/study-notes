@@ -5,12 +5,16 @@
   "tasks": [
     {
       "id": "2-38",
-      "brief": { "zh": "使用接收与应答元件驱动总线并维护接收计数；填充错误或 CRC 错误出现的那一拍交出「是」，其余拍交出「否」。" },
+      "brief": { "zh": "使用接收与应答元件驱动总线并维护接收计数，同时交出计数事件；填充错误或 CRC 错误出现的那一拍交出「是」，其余拍交出「否」。" },
       "hint": [{ "zh": "在结果就绪时检查种类是否为 1 或 2；正确的种类 0 不应触发提醒。" }],
       "listens": true,
       "drives": true,
       "inputs": [{ "name": "prep", "label": { "zh": "准备事件" } }, { "name": "reset", "label": { "zh": "初始化" } }],
-      "outputs": [{ "name": "rec", "label": { "zh": "接收计数" } }, { "name": "bad", "label": { "zh": "接收错误" } }],
+      "outputs": [
+        { "name": "rec", "label": { "zh": "接收计数" } },
+        { "name": "bad", "label": { "zh": "接收错误" } },
+        { "name": "event", "label": { "zh": "计数事件" } }
+      ],
       "tests": [
         {
           "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
@@ -52,7 +56,8 @@
       "want": {
         "send": { "receiveFrameDrive": { "prep": "prep", "reset": "reset" } },
         "rec": { "receiveFrameRec": { "prep": "prep", "reset": "reset" } },
-        "bad": { "receiveFrameBad": { "prep": "prep", "reset": "reset" } }
+        "bad": { "receiveFrameBad": { "prep": "prep", "reset": "reset" } },
+        "event": { "receiveFrameEvent": { "prep": "prep", "reset": "reset" } }
       },
       "solution": [
         "p = receiver(line, prep, reset)",
@@ -67,7 +72,8 @@
         "result = select(p.ready, either, false)",
         "send <- p.send",
         "rec <- p.rec",
-        "bad <- result"
+        "bad <- result",
+        "event <- p.event"
       ],
       "naive": [
         "p = receiver(line, prep, reset)",
@@ -82,7 +88,8 @@
         "result = select(p.ready, either, false)",
         "send <- p.send",
         "rec <- p.rec",
-        "bad <- result"
+        "bad <- result",
+        "event <- p.event"
       ]
     }
   ]
