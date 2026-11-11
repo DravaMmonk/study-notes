@@ -249,5 +249,12 @@
   "逐位发送器的「位」和「忙」接到填充发送器的原始位和「有位」。": "Connect the serializer’s Bit and Busy to the stuffer’s original bit and Valid inputs.",
   "将填充发送器的「取走」接回逐位发送器的「前进」；每块元件用寄存卡跨拍保存状态。": "Connect the stuffer’s Accepted back to the serializer’s Advance; each part stores state in registers across ticks.",
   "有原始位或填充位要发时接说话口，否则说隐性 1。": "Drive the speaking port when an original or stuff bit is available, otherwise say recessive 1.",
-  "握手让额外的填充拍不丢失原始位；字节完成后仍可能欠一个填充位。": "The handshake prevents extra stuff ticks from losing original bits; a byte can finish with one more stuff bit still owed."
+  "握手让额外的填充拍不丢失原始位；字节完成后仍可能欠一个填充位。": "The handshake prevents extra stuff ticks from losing original bits; a byte can finish with one more stuff bit still owed.",
+  "边发边算校验": "Calculate the check while sending",
+  "发送一帧时，CRC 要跟着原始位计算，而线上还会插入填充位。先用一个字节练习：发送的同时给出这个字节的 CRC-15。": "When sending a frame, CRC is calculated over the original bits even though the line also carries inserted stuff bits. Practise with one byte: send it and give its CRC-15.",
+  "按最高位先发送输入字节并插入填充位；空闲时说 1。最后一个原始位被取走的那一拍交出 CRC-15，其余拍交出「—」。": "Send the byte most significant bit first, inserting stuff bits; say 1 while idle. Give its CRC-15 on the tick the final original bit is accepted and 「—」 on other ticks.",
+  "将逐位发送器的位送给 CRC；只有填充发送器取走原始位时才让 CRC 参与。": "Feed the serializer’s bit to CRC; enable CRC only when the stuffer accepts the original bit.",
+  "开始时重置 CRC。插入位也要送到总线，但不能送进 CRC。": "Reset CRC on Start. Stuff bits go onto the bus but must not enter the CRC calculation.",
+  "CRC 计算的是原始位串；线上的填充位用来保持同步，不属于校验输入。": "CRC is calculated over the original bit stream. Stuff bits on the line support synchronisation and are not CRC input.",
+  "校验码": "Check sequence"
 }

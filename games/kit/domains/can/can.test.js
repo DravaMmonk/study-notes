@@ -315,10 +315,12 @@ test('a serializer holds its bit during backpressure and sends a final pending s
   assert.deepEqual(out.bit.slice(0, 6), [1, 1, 1, 0, 1, 1])
   assert.deepEqual(out.done.flatMap((done, tick) => done ? [tick] : []), [10])
   const source = { bus: { bits: Array(10).fill(1) }, inputs: { value: [31, ...Array(9).fill(0)], start: [1, ...Array(9).fill(0)] } }
-  const result = wantOf({ drive: { stuffedSerialDrive: { value: 'value', start: 'start' } }, done: { stuffedSerialDone: { value: 'value', start: 'start' } } })(source)
+  const result = wantOf({ drive: { stuffedSerialDrive: { value: 'value', start: 'start' } }, done: { stuffedSerialDone: { value: 'value', start: 'start' } }, crc: { stuffedSerialCrc: { value: 'value', start: 'start' } } })(source)
   assert.deepEqual(result.drive, [0, 0, 0, 1, 1, 1, 1, 1, 0, 1])
   assert.equal(result.done[7], true)
   assert.equal(result.drive[8], 0)
+  assert.equal(result.crc[7], crc15(bitsOf(31, 8)))
+  assert.equal(result.crc[8], null)
 })
 
 // The starter game (what npm run new-game copies), as content.js assembles it.

@@ -1,0 +1,73 @@
+{
+  "title": { "zh": "边发边算校验" },
+  "intro": [{ "t": { "zh": "发送一帧时，CRC 要跟着原始位计算，而线上还会插入填充位。先用一个字节练习：发送的同时给出这个字节的 CRC-15。" } }],
+  "after": { "zh": "CRC 计算的是原始位串；线上的填充位用来保持同步，不属于校验输入。" },
+  "tasks": [
+    {
+      "id": "2-7",
+      "brief": { "zh": "按最高位先发送输入字节并插入填充位；空闲时说 1。最后一个原始位被取走的那一拍交出 CRC-15，其余拍交出「—」。" },
+      "hint": [{ "zh": "将逐位发送器的位送给 CRC；只有填充发送器取走原始位时才让 CRC 参与。" }, { "zh": "开始时重置 CRC。插入位也要送到总线，但不能送进 CRC。" }],
+      "drives": true,
+      "inputs": [{ "name": "value", "label": { "zh": "字节" } }, { "name": "start", "label": { "zh": "开始" } }],
+      "outputs": [{ "name": "crc", "label": { "zh": "校验码" } }],
+      "tests": [
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 14, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 13, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 15, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [165, 0, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "start": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "want": {
+        "send": { "stuffedSerialDrive": { "value": "value", "start": "start" } },
+        "crc": { "stuffedSerialCrc": { "value": "value", "start": "start" } }
+      },
+      "solution": [
+        "s = serializer(value, start, p.accepted)",
+        "p = stuffer(s.bit, s.busyout, start)",
+        "one = const[value=1]()",
+        "has = select(p.inserted, one, s.busyout)",
+        "v = select(has, p.value, one)",
+        "c = crc15(s.bit, p.accepted, start)",
+        "out = select(s.done, c)",
+        "send <- v",
+        "crc <- out"
+      ],
+      "naive": [
+        "s = serializer(value, start, p.accepted)",
+        "p = stuffer(s.bit, s.busyout, start)",
+        "one = const[value=1]()",
+        "has = select(p.inserted, one, s.busyout)",
+        "v = select(has, p.value, one)",
+        "c = crc15(p.value, has, start)",
+        "out = select(s.done, c)",
+        "send <- v",
+        "crc <- out"
+      ]
+    }
+  ]
+}

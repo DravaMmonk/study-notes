@@ -46,15 +46,16 @@ const stuffedSerial = ({ value, start }, test) => {
   let position = 8
   let previous = null
   let run = 0
+  let original = []
   return each(test, (tick) => {
-    if (test.inputs[start][tick]) { byte = test.inputs[value][tick]; position = 0; previous = null; run = 0 }
+    if (test.inputs[start][tick]) { byte = test.inputs[value][tick]; position = 0; previous = null; run = 0; original = [] }
     const inserted = run === 5
     const accepted = !inserted && position < 8
     const bit = inserted ? 1 - previous : accepted ? (byte >> (7 - position)) & 1 : null
     const done = accepted && position === 7
-    if (accepted) position++
+    if (accepted) { original.push(bit); position++ }
     if (bit !== null) { run = bit === previous ? run + 1 : 1; previous = bit }
-    return { bit, done }
+    return { bit, done, crc: done ? crc15(original) : null }
   })
 }
 
@@ -103,6 +104,7 @@ const WANTS = {
   pacedDone: (params) => (test) => serial(params, test).map((step) => step.done),
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
+  stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),
   stuffOut: (params) => (test) => stuffedOutput(params, test).map((step) => step.out),
   stuffAccepted: (params) => (test) => stuffedOutput(params, test).map((step) => step.accepted),
   stuffInserted: (params) => (test) => stuffedOutput(params, test).map((step) => step.inserted),
