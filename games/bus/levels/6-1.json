@@ -1,0 +1,97 @@
+{
+  "title": { "zh": "进入编程并擦除" },
+  "intro": [{ "t": { "zh": "这台虚构控制器只在编程会话中接受刷写。先发 [0x10, 0x02] 进入编程会话，再发 [0x31, 0x01, 0xFF, 0x00] 擦除模拟存储。" } }],
+  "after": { "zh": "擦除会让旧应用失效，直到完整下载、校验并重启。这里的例程标识和响应时序属于游戏模拟。" },
+  "tasks": [
+    {
+      "id": "6-1",
+      "brief": { "zh": "第 0 拍进入编程会话，第 1 拍请求擦除；收到以 0x71 开头的擦除回答时交出「是」，其余时候交出「—」。" },
+      "hint": [{ "zh": "用寄存卡数拍并选择请求；从回答位置 0 读取服务号。" }],
+      "inputs": [{ "name": "reply", "label": { "zh": "控制器回答" } }],
+      "outputs": [
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "done", "label": { "zh": "完成" } }
+      ],
+      "ecu": { "request": "request", "response": "reply" },
+      "tests": [
+        {
+          "bus": { "idle": 4, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [], "flash": { "maxBlock": 4, "expectedChecksum": 10 } }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 4, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [], "flash": { "maxBlock": 5, "expectedChecksum": 10 } }
+        }
+      ],
+      "want": { "request": "ecuFlashEraseRequests", "done": "ecuFlashEraseDone" },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "c0 = const[value=0]()",
+        "b0 = byteList(c0)",
+        "c1 = const[value=1]()",
+        "b1 = byteList(c1)",
+        "c2 = const[value=2]()",
+        "b2 = byteList(c2)",
+        "c16 = const[value=16]()",
+        "b16 = byteList(c16)",
+        "c49 = const[value=49]()",
+        "b49 = byteList(c49)",
+        "c255 = const[value=255]()",
+        "b255 = byteList(c255)",
+        "t0 = const[value=0]()",
+        "is0 = compare[form=eq](tick, t0)",
+        "t1 = const[value=1]()",
+        "is1 = compare[form=eq](tick, t1)",
+        "m0_0 = concatBytes(b16, b2)",
+        "r0 = select(is0, m0_0, r1)",
+        "m1_0 = concatBytes(b49, b1)",
+        "m1_1 = concatBytes(m1_0, b255)",
+        "m1_2 = concatBytes(m1_1, b0)",
+        "r1 = select(is1, m1_2)",
+        "request <- r0",
+        "zero = const[value=0]()",
+        "head = byteAt(reply, zero)",
+        "positiveCode = const[value=113]()",
+        "positive = compare[form=eq](head, positiveCode)",
+        "result = select(positive, positive)",
+        "done <- result"
+      ],
+      "naive": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "c0 = const[value=0]()",
+        "b0 = byteList(c0)",
+        "c1 = const[value=1]()",
+        "b1 = byteList(c1)",
+        "c49 = const[value=49]()",
+        "b49 = byteList(c49)",
+        "c255 = const[value=255]()",
+        "b255 = byteList(c255)",
+        "t0 = const[value=0]()",
+        "is0 = compare[form=eq](tick, t0)",
+        "t1 = const[value=1]()",
+        "is1 = compare[form=eq](tick, t1)",
+        "m0_0 = concatBytes(b49, b1)",
+        "m0_1 = concatBytes(m0_0, b255)",
+        "m0_2 = concatBytes(m0_1, b0)",
+        "r0 = select(is0, m0_2, r1)",
+        "m1_0 = concatBytes(b49, b1)",
+        "m1_1 = concatBytes(m1_0, b255)",
+        "m1_2 = concatBytes(m1_1, b0)",
+        "r1 = select(is1, m1_2)",
+        "request <- r0",
+        "zero = const[value=0]()",
+        "head = byteAt(reply, zero)",
+        "positiveCode = const[value=113]()",
+        "positive = compare[form=eq](head, positiveCode)",
+        "result = select(positive, positive)",
+        "done <- result"
+      ]
+    }
+  ]
+}

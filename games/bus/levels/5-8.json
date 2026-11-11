@@ -1,0 +1,80 @@
+{
+  "title": { "zh": "读取已确认故障码" },
+  "intro": [
+    {
+      "t": { "zh": "模拟控制器支持按状态读取故障码：请求 [0x19, 0x02, 状态掩码]。用 0x08 选择已确认的记录；回答的前三个字节是服务、子功能和状态可用掩码，后面每条记录占四字节。" }
+    }
+  ],
+  "after": { "zh": "状态掩码让控制器筛出满足条件的记录；返回的记录数可以为零，也可以多于一条。" },
+  "tasks": [
+    {
+      "id": "5-8",
+      "brief": { "zh": "每拍请求已确认的故障码；收到回答后去掉前三字节，交出所有记录字节。没有符合条件的记录时交出空序列。" },
+      "hint": [{ "zh": "拼出 [0x19, 0x02, 0x08]，再按回答长度从位置 3 截取剩余字节。" }],
+      "inputs": [{ "name": "reply", "label": { "zh": "控制器回答" } }],
+      "outputs": [
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "records", "label": { "zh": "故障码记录字节" } }
+      ],
+      "ecu": { "request": "request", "response": "reply" },
+      "tests": [
+        {
+          "bus": { "idle": 5, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [],
+            "dtcs": [
+              { "code": "0x123456", "status": "0x08" },
+              { "code": "0xabcdef", "status": "0x01" },
+              { "code": "0x010203", "status": "0x09" }
+            ]
+          }
+        },
+        { "bus": { "idle": 5, "frames": [], "tail": 0 }, "ecu": { "did": "0xf190", "value": [], "dtcs": [] } }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 5, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [],
+            "dtcs": [{ "code": "0x000102", "status": "0x00" }, { "code": "0x987654", "status": "0x0c" }]
+          }
+        }
+      ],
+      "want": { "request": "ecuDtcRequests", "records": "ecuDtcRecords" },
+      "solution": [
+        "service = const[value=25]()",
+        "sub = const[value=2]()",
+        "mask = const[value=8]()",
+        "a = byteList(service)",
+        "b = byteList(sub)",
+        "m = byteList(mask)",
+        "ab = concatBytes(a, b)",
+        "req = concatBytes(ab, m)",
+        "request <- req",
+        "three = const[value=3]()",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "records <- record"
+      ],
+      "naive": [
+        "service = const[value=25]()",
+        "sub = const[value=2]()",
+        "mask = const[value=1]()",
+        "a = byteList(service)",
+        "b = byteList(sub)",
+        "m = byteList(mask)",
+        "ab = concatBytes(a, b)",
+        "req = concatBytes(ab, m)",
+        "request <- req",
+        "three = const[value=3]()",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "records <- record"
+      ]
+    }
+  ]
+}

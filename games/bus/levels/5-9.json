@@ -1,0 +1,113 @@
+{
+  "title": { "zh": "清除后再读取" },
+  "intro": [{ "t": { "zh": "模拟控制器接受 [0x14, 0xFF, 0xFF, 0xFF] 清除全部故障码。清除会改变控制器状态，因此再次读取的结果应为空。" } }],
+  "after": { "zh": "清除是改变状态的操作；再次读取能检查控制器当前是否还保留记录。本练习尚未模拟故障在行驶后重新出现。" },
+  "tasks": [
+    {
+      "id": "5-9",
+      "brief": { "zh": "第 0 拍读取已确认故障码，第 1 拍清除全部故障码，第 2 拍再次读取；只在读取回答到来时交出记录字节。" },
+      "hint": [{ "zh": "用寄存卡数拍，交替构造读取与清除请求；检查回答服务号 0x59 后再截取记录。" }],
+      "inputs": [{ "name": "reply", "label": { "zh": "控制器回答" } }],
+      "outputs": [
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "records", "label": { "zh": "故障码记录字节" } }
+      ],
+      "ecu": { "request": "request", "response": "reply" },
+      "tests": [
+        {
+          "bus": { "idle": 5, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [],
+            "dtcs": [
+              { "code": "0x123456", "status": "0x08" },
+              { "code": "0xabcdef", "status": "0x01" },
+              { "code": "0x010203", "status": "0x09" }
+            ]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 5, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [],
+            "dtcs": [{ "code": "0x000102", "status": "0x00" }, { "code": "0x987654", "status": "0x0c" }]
+          }
+        },
+        { "bus": { "idle": 5, "frames": [], "tail": 0 }, "ecu": { "did": "0xf190", "value": [], "dtcs": [] } }
+      ],
+      "want": { "request": "ecuClearDtcRequests", "records": "ecuClearDtcRecords" },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "three = const[value=3]()",
+        "is0 = compare[form=eq](tick, zero)",
+        "is1 = compare[form=eq](tick, one)",
+        "is2 = compare[form=eq](tick, two)",
+        "readCode = const[value=25]()",
+        "mask = const[value=8]()",
+        "clearCode = const[value=20]()",
+        "all = const[value=255]()",
+        "readByte = byteList(readCode)",
+        "sub = byteList(two)",
+        "maskByte = byteList(mask)",
+        "readHead = concatBytes(readByte, sub)",
+        "read = concatBytes(readHead, maskByte)",
+        "clearByte = byteList(clearCode)",
+        "allByte = byteList(all)",
+        "pair = concatBytes(allByte, allByte)",
+        "triple = concatBytes(pair, allByte)",
+        "clear = concatBytes(clearByte, triple)",
+        "at2 = select(is2, read)",
+        "at1 = select(is1, clear, at2)",
+        "req = select(is0, read, at1)",
+        "request <- req",
+        "head = byteAt(reply, zero)",
+        "positiveCode = const[value=89]()",
+        "positive = compare[form=eq](head, positiveCode)",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "out = select(positive, record)",
+        "records <- out"
+      ],
+      "naive": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "three = const[value=3]()",
+        "is0 = compare[form=eq](tick, zero)",
+        "is1 = compare[form=eq](tick, one)",
+        "is2 = compare[form=eq](tick, two)",
+        "readCode = const[value=25]()",
+        "mask = const[value=8]()",
+        "readByte = byteList(readCode)",
+        "sub = byteList(two)",
+        "maskByte = byteList(mask)",
+        "readHead = concatBytes(readByte, sub)",
+        "read = concatBytes(readHead, maskByte)",
+        "at2 = select(is2, read)",
+        "at1 = select(is1, at2, at2)",
+        "req = select(is0, read, at1)",
+        "request <- req",
+        "head = byteAt(reply, zero)",
+        "positiveCode = const[value=89]()",
+        "positive = compare[form=eq](head, positiveCode)",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "out = select(positive, record)",
+        "records <- out"
+      ]
+    }
+  ]
+}
