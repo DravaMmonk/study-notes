@@ -25,6 +25,7 @@ export const CARDS = {
   concatBytes: { name: T('拼接字节', 'Join bytes'), icon: GitMerge, family: 'value', desc: T('按顺序拼接两个字节序列。', 'Joins two byte sequences in order.') },
   byteLength: { name: T('字节长度', 'Byte length'), icon: Hash, family: 'value', desc: T('给出字节序列中有多少个字节。', 'Gives the number of bytes in a sequence.') },
   byteList: { name: T('单字节序列', 'Single-byte sequence'), icon: Hash, family: 'value', desc: T('把一个 0 到 255 的字节变成单字节序列。', 'Makes a one-byte sequence from a byte between 0 and 255.') },
+  byteAt: { name: T('读取字节', 'Read byte'), icon: Hash, family: 'value', desc: T('读取序列中指定位置的字节，位置从 0 开始；越界时给出「—」。', 'Reads a byte at a zero-based index; gives 「—」 if out of bounds.') },
 }
 
 export const FORMS = {
@@ -36,4 +37,5 @@ export const PORT_LABELS = {
   select: { if: T('条件'), yes: T('是', 'Yes'), no: T('否', 'No') },
   shiftRight: { value: T('数值', 'Value'), amount: T('位数', 'Bits') },
   sliceBytes: { bytes: T('字节', 'Bytes'), start: T('起点', 'Start'), length: T('长度', 'Length') },
+  byteAt: { bytes: T('字节', 'Bytes'), index: T('位置', 'Index') },
 }

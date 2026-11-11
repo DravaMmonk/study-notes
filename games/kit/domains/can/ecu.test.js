@@ -14,7 +14,7 @@ test('a configured diagnostic identifier returns its own record', () => {
 test('pending responses precede the final data and ignore repeated requests', async () => {
   const { ecuAdvance } = await import('./ecu.js')
   const profile = { did: 0xf190, value: [65], waits: 2 }
-  let state = { reply: null, pending: null, session: 1, idle: 0 }
+  let state = { reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0 }
   state = ecuAdvance(state, [0x22, 0xf1, 0x90], profile)
   assert.deepEqual(state.reply, [0x7f, 0x22, 0x78])
   state = ecuAdvance(state, [0x99], profile)
@@ -27,7 +27,7 @@ test('pending responses precede the final data and ignore repeated requests', as
 test('an extended-session record is protected until the session changes', async () => {
   const { ecuAdvance } = await import('./ecu.js')
   const profile = { did: 0xf190, value: [42], requiresExtended: true, waits: 0 }
-  let state = { reply: null, pending: null, session: 1, idle: 0 }
+  let state = { reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0 }
   state = ecuAdvance(state, [0x22, 0xf1, 0x90], profile)
   assert.deepEqual(state.reply, [0x7f, 0x22, 0x22])
   state = ecuAdvance(state, [0x10, 3], profile)
@@ -42,10 +42,31 @@ test('an extended-session record is protected until the session changes', async 
 test('tester-present messages keep an extended session from expiring', async () => {
   const { ecuAdvance } = await import('./ecu.js')
   const profile = { did: 0xf190, value: [42], requiresExtended: true, waits: 0, timeout: 3 }
-  let state = { reply: null, pending: null, session: 1, idle: 0 }
+  let state = { reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0 }
   for (const request of [[0x10, 3], null, [0x3e, 0], null, [0x3e, 0], null, [0x22, 0xf1, 0x90]]) state = ecuAdvance(state, request, profile)
   assert.deepEqual(state.reply, [0x62, 0xf1, 0x90, 42])
   for (let i = 0; i < 3; i++) state = ecuAdvance(state, null, profile)
   assert.equal(state.session, 1)
   assert.deepEqual(ecuAdvance(state, [0x22, 0xf1, 0x90], profile).reply, [0x7f, 0x22, 0x22])
+})
+
+test('fictional seed-key security protects a record and temporarily locks repeated failures', async () => {
+  const { ecuAdvance } = await import('./ecu.js')
+  const profile = { did: 0xf190, value: [42], requiresExtended: true, requiresSecurity: true, seed: 0x12, waits: 0 }
+  let state = { reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0 }
+  state = ecuAdvance(state, [0x10, 3], profile)
+  assert.deepEqual(ecuAdvance(state, [0x22, 0xf1, 0x90], profile).reply, [0x7f, 0x22, 0x33])
+  state = ecuAdvance(state, [0x27, 1], profile)
+  assert.deepEqual(state.reply, [0x67, 1, 0x12])
+  state = ecuAdvance(state, [0x27, 2, 0x48], profile)
+  assert.deepEqual(state.reply, [0x67, 2])
+  assert.deepEqual(ecuAdvance(state, [0x22, 0xf1, 0x90], profile).reply, [0x62, 0xf1, 0x90, 42])
+  state = ecuAdvance(state, [0x10, 1], profile)
+  state = ecuAdvance(state, [0x10, 3], profile)
+  for (let i = 0; i < 3; i++) { state = ecuAdvance(state, [0x27, 1], profile); state = ecuAdvance(state, [0x27, 2, 0], profile) }
+  assert.deepEqual(state.reply, [0x7f, 0x27, 0x36])
+  state = ecuAdvance(state, [0x27, 1], profile)
+  assert.deepEqual(state.reply, [0x7f, 0x27, 0x37])
+  for (let i = 0; i < 2; i++) state = ecuAdvance(state, null, profile)
+  assert.deepEqual(ecuAdvance(state, [0x27, 1], profile).reply, [0x67, 1, 0x12])
 })

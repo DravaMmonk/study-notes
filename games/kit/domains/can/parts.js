@@ -21,6 +21,7 @@
 //   concatBytes  joins two byte sequences
 //   byteLength  the number of bytes in a sequence
 //   byteList  a single-byte sequence
+//   byteAt  one byte at a sequence index
 // Built parts are the boards of the levels that build them (course.js), each run as a packed part that keeps its own
 // registers.
 import { formed } from '../../engine/forms.js'
@@ -63,4 +64,5 @@ export const PARTS = {
   concatBytes: { inputs: ['a', 'b'], eval: strict(({ a, b }) => Array.isArray(a) && Array.isArray(b) ? [...a, ...b] : null) },
   byteLength: { inputs: ['bytes'], eval: strict(({ bytes }) => Array.isArray(bytes) ? bytes.length : null) },
   byteList: { inputs: ['byte'], eval: strict(({ byte }) => Number.isInteger(byte) && byte >= 0 && byte <= 255 ? [byte] : null) },
+  byteAt: { inputs: ['bytes', 'index'], eval: strict(({ bytes, index }) => Array.isArray(bytes) && Number.isInteger(index) && index >= 0 && index < bytes.length ? bytes[index] : null) },
 }

@@ -1253,3 +1253,12 @@ test('compare checks byte sequences by content while preserving scalar compariso
   const result = runTest(task, circuit, { bus: { bits: [1, 1, 1], frames: [] }, inputs: { a: [[1, 2], [1, 2], 1], b: [[1, 2], [2, 1], true] } }, plain.partOf)
   assert.equal(result.fail, undefined)
 })
+
+test('security requests derive the toy key from each ECU seed', () => {
+  assert.equal(PARTS.byteAt.eval({ bytes: [0x67, 1, 0x12], index: 2 }), 0x12)
+  assert.equal(PARTS.byteAt.eval({ bytes: [1], index: 2 }), null)
+  const want = wantOf({ request: 'ecuSecurityRequests', value: 'ecuSecurityValue' })
+  const result = want({ bus: { bits: Array(6).fill(1) }, ecu: { did: 0xf190, seed: 0x12, value: [7] } })
+  assert.deepEqual(result.request, [[16, 3], [39, 1], [39, 2, 0x48], [34, 0xf1, 0x90], null, null])
+  assert.deepEqual(result.value, [null, null, null, null, [7], null])
+})
