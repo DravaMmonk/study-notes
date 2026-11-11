@@ -1,0 +1,76 @@
+{
+  "title": { "zh": "输了就听" },
+  "intro": [{ "t": { "zh": "仲裁落败并不表示总线停了：赢家还在继续发送。输的一方要从发送转为监听，把赢家的帧收下来。" } }],
+  "after": { "zh": "输掉仲裁不会破坏赢家的帧；转为接收后，输的一方仍能听懂赢家说的内容。" },
+  "tasks": [
+    {
+      "id": "2-15",
+      "brief": { "zh": "节点从空闲后开始竞争。落败后放开总线，并在赢家标识符的最后一位交出该标识符；没有落败时不要交出标识符。逐拍交出落败状态。" },
+      "hint": [{ "zh": "让仲裁元件控制说话口；同时让校验抓帧器一直听实际总线。" }, { "zh": "只在已落败时转交抓帧器读出的标识符。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "bit", "label": { "zh": "待发送位" } },
+        { "name": "arb", "label": { "zh": "仲裁段" } },
+        { "name": "start", "label": { "zh": "开始" } }
+      ],
+      "outputs": [{ "name": "lost", "label": { "zh": "落败" } }, { "name": "id", "label": { "zh": "赢家标识符" } }],
+      "tests": [
+        {
+          "bus": { "idle": 110, "frames": [], "tail": 0 },
+          "tx": { "id": 1280, "data": [] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 768, "data": [], "at": 12 }, { "id": 256, "data": [], "at": 12 }]
+        },
+        {
+          "bus": { "idle": 110, "frames": [], "tail": 0 },
+          "tx": { "id": 256, "data": [] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 768, "data": [], "at": 12 }, { "id": 1280, "data": [], "at": 12 }]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 110, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 290, "data": [], "at": 12 }, { "id": 295, "data": [], "at": 12 }]
+        },
+        {
+          "bus": { "idle": 110, "frames": [], "tail": 0 },
+          "tx": { "id": 1, "data": [] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 0, "data": [], "at": 12 }, { "id": 2, "data": [], "at": 12 }]
+        }
+      ],
+      "want": {
+        "send": { "arbitrationDrive": { "bit": "bit", "arbitration": "arb", "start": "start" } },
+        "lost": { "arbitrationLost": { "bit": "bit", "arbitration": "arb", "start": "start" } },
+        "id": { "winnerIdentifier": { "bit": "bit", "arbitration": "arb", "start": "start" } }
+      },
+      "solution": [
+        "a = arbiter(line, bit, arb, start)",
+        "s = sniffer(line)",
+        "out = select(a.lost, s.id)",
+        "send <- a.send",
+        "lost <- a.lost",
+        "id <- out"
+      ],
+      "naive": [
+        "a = arbiter(line, bit, arb, start)",
+        "s = sniffer(line)",
+        "send <- a.send",
+        "lost <- a.lost",
+        "id <- s.id"
+      ]
+    }
+  ]
+}

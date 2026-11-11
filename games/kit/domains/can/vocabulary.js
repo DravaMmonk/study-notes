@@ -56,6 +56,7 @@ const WANTS = {
   arbitrationDrive: item(t('仲裁落败后放开总线，开始时清空状态', 'release the bus after losing arbitration; start clears the state'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   arbitrationLost: item(t('仲裁落败时及之后为 1，开始时清空状态', '1 on and after arbitration loss; start clears the state'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   arbitrationLine: item(t('竞争节点与本节点共同形成的总线', 'the shared bus produced by the competing nodes'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
+  winnerIdentifier: item(t('落败时在赢家标识符的最后一位交出它', 'on loss, give the winner’s identifier at its last original bit'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialCrc: item(t('最后原始位被取走时给该字节的 CRC-15', 'the CRC-15 of the byte when its final original bit is accepted'), S.obj({ value: INPUT, start: INPUT })),
@@ -118,7 +119,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 24,
+  version: 25,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

@@ -309,5 +309,12 @@
   "输的一方退出": "The loser withdraws",
   "把仲裁元件放进自己的节点。竞争者也会听到总线：它们一旦在仲裁段落败，就在下一拍退出。": "Put the arbitration part in your node. Competitors listen too: once they lose arbitration, they withdraw on the next tick.",
   "用搭好的仲裁元件驱动总线并交出落败状态；同时交出实际听到的总线。测试包含竞争者先输和自己先输。": "Use your arbitration part to drive the bus and give the loss state; also give the actual bus bit. Tests include both a competitor losing first and your node losing first.",
-  "所有竞争者逐拍做同一个比较；没有中央节点逐个发号施令。": "Every competitor performs the same comparison each tick; no central node issues commands one by one."
+  "所有竞争者逐拍做同一个比较；没有中央节点逐个发号施令。": "Every competitor performs the same comparison each tick; no central node issues commands one by one.",
+  "输了就听": "Listen after losing",
+  "仲裁落败并不表示总线停了：赢家还在继续发送。输的一方要从发送转为监听，把赢家的帧收下来。": "Losing arbitration does not stop the bus: the winner continues sending. The loser must switch from transmitting to listening and receive the winner’s frame.",
+  "节点从空闲后开始竞争。落败后放开总线，并在赢家标识符的最后一位交出该标识符；没有落败时不要交出标识符。逐拍交出落败状态。": "The node competes after an idle period. After losing, release the bus and give the winner’s identifier on its final original bit; give no identifier if this node did not lose. Give the loss state each tick.",
+  "让仲裁元件控制说话口；同时让校验抓帧器一直听实际总线。": "Let the arbitration part control the sending port while the checked capture device listens to the actual bus.",
+  "只在已落败时转交抓帧器读出的标识符。": "Pass through the identifier read by the capture device only after this node has lost.",
+  "输掉仲裁不会破坏赢家的帧；转为接收后，输的一方仍能听懂赢家说的内容。": "Losing arbitration does not damage the winner’s frame. Once the loser becomes a receiver it can still understand what the winner sent.",
+  "赢家标识符": "Winner identifier"
 }

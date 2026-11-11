@@ -79,6 +79,18 @@ test('arbitration judges the loss tick and ignores a mismatch after arbitration'
   assert.ok(wantOf({ lost: { arbitrationLost: params } })(check).lost.every((value) => value === 0))
 })
 
+test('a losing node can read the winner identifier from the shared line', () => {
+  const tx = { id: 0x500, data: [] }
+  const data = transmitBits(tx)
+  const at = 12
+  const bit = [...Array(at).fill(1), ...data]
+  const phase = bit.map((_, tick) => Number(tick >= at && tick < at + arbitrationLength(tx.id)))
+  const start = bit.map((_, tick) => Number(tick === at))
+  const test = { txAt: at, bus: { bits: bit.map(() => 1) }, inputs: { bit, phase, start }, contenders: [{ id: 0x100, data: [], at }] }
+  const out = wantOf({ id: { winnerIdentifier: { bit: 'bit', arbitration: 'phase', start: 'start' } } })(test).id
+  assert.deepEqual(out.flatMap((value, tick) => value === null ? [] : [[tick, value]]), [[24, 0x100]])
+})
+
 test('stuffing never leaves six equal bits, and comes off again', () => {
   for (const bits of [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0], bitsOf(0x7f0, 11)]) {
     const s = stuff(bits)

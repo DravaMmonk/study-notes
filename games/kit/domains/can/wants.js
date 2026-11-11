@@ -176,6 +176,25 @@ const WANTS = {
   arbitrationDrive: (params) => (test) => arbitration(params, test).map((step) => step.drive),
   arbitrationLost: (params) => (test) => arbitration(params, test).map((step) => step.lost),
   arbitrationLine: (params) => (test) => arbitration(params, test).map((step) => step.line),
+  winnerIdentifier: (params) => (test) => {
+    const trace = arbitration(params, test)
+    const out = test.bus.bits.map(() => null)
+    const at = test.txAt ?? 0
+    let previous = null
+    let run = 0
+    let count = 0
+    let identifier = 0
+    for (let tick = at; tick < trace.length && count < 12; tick++) {
+      const value = trace[tick].line
+      if (run === 5) { previous = value; run = 1; continue }
+      run = value === previous ? run + 1 : 1
+      previous = value
+      if (count > 0) identifier = identifier * 2 + value
+      count++
+      if (count === 12 && trace[tick].lost) out[tick] = identifier
+    }
+    return out
+  },
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),
