@@ -438,6 +438,26 @@ test('a queue can replay its bytes, with rewind taking priority over advance', (
   assert.deepEqual(run.ticks.map((tick) => tick.bind.item), [10, 20, 10, 20, null])
 })
 
+test('missing ACK retry oracle replays the frame after the error flag and intermission', () => {
+  const tx = { id: 0x123, data: [0xa5] }
+  const bits = transmitBits(tx)
+  const firstAck = bits.length - 12
+  const retryAt = firstAck + 18
+  const secondAck = retryAt + firstAck
+  const length = retryAt + bits.length + 2
+  const bus = Array(length).fill(1)
+  bus[secondAck] = 0
+  const test = { tx, bus: { bits: bus }, inputs: { start: bus.map((_, tick) => Number(tick === 0)) } }
+  const calls = Object.fromEntries(['Drive', 'Next', 'Rewind', 'Attempts', 'Done', 'Tec'].map((name) => [name, { [`ackRetry${name}`]: { start: 'start' } }]))
+  const result = wantOf(calls)(test)
+  assert.deepEqual(result.Attempts.flatMap((v, tick) => v ? [tick] : []), [0, retryAt])
+  assert.deepEqual(result.Rewind.flatMap((v, tick) => v ? [tick] : []), [firstAck])
+  assert.deepEqual(result.Drive.slice(firstAck + 1, retryAt), [...Array(6).fill(0), ...Array(11).fill(1)])
+  assert.deepEqual(result.Next.flatMap((v, tick) => v ? [tick] : []), [27, retryAt + 27])
+  assert.equal(result.Tec[firstAck], 8)
+  assert.equal(result.Tec[retryAt + bits.length - 1], 7)
+})
+
 test('a transmitter releases ACK while another node can acknowledge', () => {
   const tx = { id: 0x123, data: [0xa5] }
   const frame = frameBits(tx)

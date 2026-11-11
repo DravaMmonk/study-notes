@@ -175,6 +175,39 @@ const retryPlan = ({ start }, test) => {
   }
 }
 
+// Active-error retries on a quiet bus: a missing ACK is followed by a flag, delimiter and intermission.
+const ackRetryPlan = ({ start }, test) => {
+  const ticks = test.bus.bits.length
+  const drive = Array(ticks).fill(1)
+  const next = Array(ticks).fill(false)
+  const rewind = Array(ticks).fill(false)
+  const attempts = Array(ticks).fill(0)
+  const done = Array(ticks).fill(false)
+  const tec = Array(ticks).fill(0)
+  const bits = test.tx ? transmitBits(test.tx) : []
+  let at = test.inputs[start]?.findIndex((value) => value === 1 || value === true) ?? -1
+  let errors = 0
+  while (at >= 0 && at < ticks && bits.length) {
+    attempts[at] = 1
+    const ack = at + bits.length - 12
+    const failed = ack < ticks && test.bus.bits[ack] === 1
+    const end = failed ? ack : at + bits.length - 1
+    for (let tick = at; tick <= end && tick < ticks; tick++) drive[tick] = bits[tick - at]
+    const pulse = test.bus.bits.map((_, tick) => Number(tick === at))
+    for (const tick of frameTransmission({ start: '__attempt' }, { ...test, inputs: { ...test.inputs, __attempt: pulse } }).next) if (tick < ticks) next[tick] = true
+    if (!failed) {
+      if (end < ticks) { done[end] = true; for (let tick = end; tick < ticks; tick++) tec[tick] = Math.max(0, errors * 8 - 1) }
+      break
+    }
+    rewind[ack] = true
+    errors++
+    for (let tick = ack; tick < ticks; tick++) tec[tick] = errors * 8
+    for (let tick = ack + 1; tick <= ack + 6 && tick < ticks; tick++) drive[tick] = 0
+    at = ack + 18
+  }
+  return { drive, next, rewind, attempts, done, tec }
+}
+
 const errorFlag = ({ error }, test) => {
   let position = 14
   return each(test, (tick) => {
@@ -353,6 +386,12 @@ const WANTS = {
   retryDone: (params) => (test) => retryPlan(params, test).done,
   retryNext: (params) => (test) => retryPlan(params, test).next,
   retryAttempts: (params) => (test) => retryPlan(params, test).attempts,
+  ackRetryDrive: (params) => (test) => ackRetryPlan(params, test).drive,
+  ackRetryNext: (params) => (test) => ackRetryPlan(params, test).next,
+  ackRetryRewind: (params) => (test) => ackRetryPlan(params, test).rewind,
+  ackRetryAttempts: (params) => (test) => ackRetryPlan(params, test).attempts,
+  ackRetryDone: (params) => (test) => ackRetryPlan(params, test).done,
+  ackRetryTec: (params) => (test) => ackRetryPlan(params, test).tec,
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),

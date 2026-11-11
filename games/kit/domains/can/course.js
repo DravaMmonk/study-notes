@@ -57,6 +57,11 @@ export function canCourse(content) {
     }
     if (task.expectsBitError && t.contenders?.length) say('bit-error checks require scripted peers rather than active contenders')
     if (task.expectsAck && t.contenders?.length) say('ACK checks require scripted peers rather than active contenders')
+    if (task.expectsAckRetry) {
+      if (t.bus.frames.length || t.contenders?.length || t.peerBits || t.flipTicks?.length) say('ACK retry tests use an idle bus with scripted acknowledgements')
+      if (t.tx && JSON.stringify((t.tx.data ?? []).map(num)) !== JSON.stringify((t.queue ?? []).map(num))) say('ACK retry queue must contain the transmitted frame data')
+      if (!task.pulls?.rewind) say('ACK retry tests require a rewindable queue')
+    }
     if (task.pulls) {
       if (!task.inputs?.some((input) => input.name === task.pulls.input)) say(`queue input ${task.pulls.input} is not a task input`)
       if (!task.inputs?.some((input) => input.name === task.pulls.available)) say(`queue availability ${task.pulls.available} is not a task input`)
@@ -95,6 +100,7 @@ export function canCourse(content) {
     const names = Object.values(task.want ?? {}).map((call) => callOf(call)[0])
     const retryCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => ['retryDrive', 'retryLost', 'retryDone', 'retryNext', 'retryAttempts'].includes(name))
     const expectsRetry = retryCalls.length > 0
-    return { ...task, expectsRetry, expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
+    const expectsAckRetry = names.some((name) => name.startsWith('ackRetry'))
+    return { ...task, expectsRetry, expectsAckRetry, expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }

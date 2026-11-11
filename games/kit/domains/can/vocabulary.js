@@ -81,6 +81,12 @@ const WANTS = {
   retryDone: item(t('自己的帧成功发送并完成间隔时为是', 'yes when the node sends its frame and completes intermission'), S.obj({ start: INPUT })),
   retryNext: item(t('自己的数据字节发送完时取走队首', 'take a queued data byte when its own transmission completes'), S.obj({ start: INPUT })),
   retryAttempts: item(t('初次发送和重发的起始拍为 1', '1 on the first attempt and retry start ticks'), S.obj({ start: INPUT })),
+  ackRetryDrive: item(t('缺应答后发主动错误标志并重发', 'send an active error flag and retry after a missing ACK'), S.obj({ start: INPUT })),
+  ackRetryNext: item(t('每次尝试发送完一个字节时取走队首', 'take each byte when sent on each attempt'), S.obj({ start: INPUT })),
+  ackRetryRewind: item(t('缺应答时重置发送队列', 'rewind the transmit queue on a missing ACK'), S.obj({ start: INPUT })),
+  ackRetryAttempts: item(t('每次发送开始时为 1', '1 at the start of each transmission attempt'), S.obj({ start: INPUT })),
+  ackRetryDone: item(t('成功发送并完成间隔时为是', 'yes when transmission and intermission complete successfully'), S.obj({ start: INPUT })),
+  ackRetryTec: item(t('缺应答和成功发送后的发送错误计数', 'transmit error count after missing ACKs and successful transmission'), S.obj({ start: INPUT })),
   stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialCrc: item(t('最后原始位被取走时给该字节的 CRC-15', 'the CRC-15 of the byte when its final original bit is accepted'), S.obj({ value: INPUT, start: INPUT })),
@@ -145,7 +151,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 33,
+  version: 34,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
