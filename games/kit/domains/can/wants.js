@@ -654,6 +654,7 @@ const WANTS = {
   wordSignal: ({ low, high }) => (test) => test.inputs[low].map((value, tick) => value == null || test.inputs[high][tick] == null ? null : value + 256 * test.inputs[high][tick]),
   signedByteSignal: ({ input }) => (test) => test.inputs[input].map((value) => value == null ? null : value < 128 ? value : value - 256),
   bitFieldSignal: ({ input, offset, width }) => (test) => test.inputs[input].map((value) => value == null ? null : (value >>> offset) & ((1 << width) - 1)),
+  matchingFrameSignal: ({ input, identifier: id, match }) => (test) => test.inputs[input].map((value, tick) => test.inputs[id][tick] === match ? value : null),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

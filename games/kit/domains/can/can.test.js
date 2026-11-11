@@ -1129,3 +1129,8 @@ test('bitwise parts extract a field without leaking surrounding bits', () => {
   const want = wantOf({ gear: { bitFieldSignal: { input: 'byte', offset: 2, width: 3 } } })
   assert.deepEqual(want({ inputs: { byte: [0b11101101, 0b00011100, null] } }).gear, [3, 7, null])
 })
+
+test('a frame filter ignores other identifiers without losing a zero value', () => {
+  const want = wantOf({ value: { matchingFrameSignal: { input: 'byte', identifier: 'id', match: 0x100 } } })
+  assert.deepEqual(want({ inputs: { id: [0x100, 0x200, 0x100], byte: [0, 5, 7] } }).value, [0, null, 7])
+})
