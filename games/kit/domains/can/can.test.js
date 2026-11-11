@@ -1199,3 +1199,11 @@ test('a disabled receiver keeps its partially assembled message', () => {
   const next = [33, 7, 8, 0, 0, 0, 0, 0]
   assert.deepEqual(want({ inputs: { data: [first, unrelated, next], enable: [1, 0, 1] } }).message, [null, null, [1, 2, 3, 4, 5, 6, 7, 8]])
 })
+
+test('interleaved senders retain independent reassembly state', () => {
+  const want = wantOf({ a: { multiFrameMessageById: { data: 'data', identifier: 'id', match: 1 } }, b: { multiFrameMessageById: { data: 'data', identifier: 'id', match: 2 } } })
+  const data = [[16, 8, 1, 2, 3, 4, 5, 6], [16, 8, 11, 12, 13, 14, 15, 16], [33, 7, 8, 0, 0, 0, 0, 0], [33, 17, 18, 0, 0, 0, 0, 0]]
+  const result = want({ inputs: { data, id: [1, 2, 1, 2] } })
+  assert.deepEqual(result.a, [null, null, [1, 2, 3, 4, 5, 6, 7, 8], null])
+  assert.deepEqual(result.b, [null, null, null, [11, 12, 13, 14, 15, 16, 17, 18]])
+})

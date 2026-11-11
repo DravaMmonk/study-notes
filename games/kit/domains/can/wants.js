@@ -690,6 +690,7 @@ const WANTS = {
       return message
     })
   },
+  multiFrameMessageById: ({ data, identifier, match }) => (test) => WANTS.multiFrameMessage({ data, enable: '__selected' })({ ...test, inputs: { ...test.inputs, __selected: test.inputs[identifier].map((id) => id === match) } }),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {
