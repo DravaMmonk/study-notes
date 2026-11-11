@@ -274,13 +274,14 @@ test('receivers acknowledge valid frames and signal stuffing and CRC errors at d
   const bus = busOf({ idle: 12, frames: [{ id: 0x2a5, data: [0x55], ack: false }], tail: 20 })
   const inputs = { prep: bus.bits.map((_, tick) => tick < 2 ? 3 : 0), reset: bus.bits.map((_, tick) => Number(tick === 0)) }
   const params = { prep: 'prep', reset: 'reset' }
-  const calls = Object.fromEntries(['Drive', 'Kind', 'Rec', 'Event'].map((name) => [name, { [`receiveFrame${name}`]: params }]))
+  const calls = Object.fromEntries(['Drive', 'Kind', 'Rec', 'Event', 'Ack'].map((name) => [name, { [`receiveFrame${name}`]: params }]))
   for (const [flip, kind] of [[null, 0], [41, 1], [32, 2]]) {
     const result = wantOf(calls)({ bus, inputs, flipTicks: flip === null ? [] : [flip] })
     const tick = result.Kind.indexOf(kind)
     assert.ok(tick >= 0)
     if (kind === 0) {
       assert.equal(result.Drive[tick + 1], 0)
+      assert.equal(result.Ack[tick + 1], 1)
       assert.equal(result.Rec[tick + 1], 1)
       assert.equal(result.Event[tick + 1], 4)
     } else {
@@ -289,8 +290,23 @@ test('receivers acknowledge valid frames and signal stuffing and CRC errors at d
       if (kind === 2) assert.equal(result.Drive[tick + 1], 1)
       assert.equal(result.Rec[tick], 3)
       assert.equal(result.Event[tick], 3)
+      assert.ok(result.Ack.every((value) => value === 0))
     }
   }
+})
+
+test('a receiver keeps the error flag type from the instant of detection', () => {
+  const bus = busOf({ idle: 12, frames: [{ id: 0x2a5, data: [0x55], ack: false }], tail: 20 })
+  const inputs = { prep: bus.bits.map(() => 0), reset: bus.bits.map((_, tick) => Number(tick === 0)), mode: bus.bits.map(() => 1) }
+  const params = { prep: 'prep', reset: 'reset', mode: 'mode' }
+  const test = { bus, inputs, flipTicks: [41] }
+  const calls = { drive: { receiveStateDrive: params }, kind: { receiveFrameKind: params } }
+  const passive = wantOf(calls)(test)
+  const error = passive.kind.indexOf(1)
+  assert.ok(passive.drive.slice(error + 1, error + 7).every((bit) => bit === 1))
+  inputs.mode = inputs.mode.map((_, tick) => Number(tick > error))
+  const transitioning = wantOf(calls)(test)
+  assert.deepEqual(transitioning.drive.slice(error + 1, error + 7), Array(6).fill(0))
 })
 
 test('stuffing error latches and resets even when checking is disabled', () => {

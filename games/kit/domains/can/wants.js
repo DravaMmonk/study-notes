@@ -458,9 +458,10 @@ const receiverPlan = ({ prep, reset }, test) => {
   const received = test.bus.bits.map((bit, tick) => test.flipTicks?.includes(tick) ? 1 - bit : bit)
   const kind = frameStatusTrace('__received', { ...test, inputs: { ...test.inputs, __received: received } }).kind
   const drive = Array(ticks).fill(1)
+  const ack = Array(ticks).fill(0)
   const actions = [...(test.inputs[prep] ?? Array(ticks).fill(0))]
   for (let tick = 0; tick < ticks; tick++) {
-    if (kind[tick] === 0 && tick + 1 < ticks) { drive[tick + 1] = 0; actions[tick + 1] = 4 }
+    if (kind[tick] === 0 && tick + 1 < ticks) { drive[tick + 1] = 0; ack[tick + 1] = 1; actions[tick + 1] = 4 }
     if (kind[tick] === 1 || kind[tick] === 2) {
       actions[tick] = 3
       const start = tick + (kind[tick] === 1 ? 1 : 3)
@@ -468,7 +469,18 @@ const receiverPlan = ({ prep, reset }, test) => {
     }
   }
   const counts = faultCounts({ event: '__actions', reset }, { ...test, inputs: { ...test.inputs, __actions: actions } })
-  return { drive, kind, ready: kind.map((value) => Number(value !== null)), rec: counts.map((step) => step.rx), event: actions }
+  return { drive, ack, kind, ready: kind.map((value) => Number(value !== null)), rec: counts.map((step) => step.rx), event: actions }
+}
+
+const receiveStateDrive = ({ mode, ...params }, test) => {
+  const { drive, kind } = receiverPlan(params, test)
+  for (let tick = 0; tick < kind.length; tick++) {
+    if ((kind[tick] === 1 || kind[tick] === 2) && test.inputs[mode][tick] === 1) {
+      const start = tick + (kind[tick] === 1 ? 1 : 3)
+      for (let k = start; k < start + 6 && k < drive.length; k++) drive[k] = 1
+    }
+  }
+  return drive
 }
 
 const faultFlag = ({ report, ...params }, test) => {
@@ -689,6 +701,8 @@ const WANTS = {
   receiveFrameRec: (params) => (test) => receiverPlan(params, test).rec,
   receiveFrameBad: (params) => (test) => receiverPlan(params, test).kind.map((value) => value === 1 || value === 2),
   receiveFrameEvent: (params) => (test) => receiverPlan(params, test).event,
+  receiveFrameAck: (params) => (test) => receiverPlan(params, test).ack,
+  receiveStateDrive: (params) => (test) => receiveStateDrive(params, test),
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),
