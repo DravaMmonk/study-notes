@@ -209,5 +209,21 @@
   "把「位」存到寄存卡，用读寄存卡的输出接说话口；初值设为 1。": "Keep Bit in a register and connect its read output to the sending port; set its initial value to 1.",
   "听到的总线位从总线元件交出。说话口不能依赖同一拍听到的总线，否则引擎会指出回路。": "Give the heard bus bit from the bus card. The sending port cannot depend on the same tick’s bus, or the engine reports a loop.",
   "说和听发生在同一拍的两个阶段。先前保存的值可以决定这一拍说什么；这一拍听到的值只能影响后面的拍。": "Speaking and hearing are two phases of the same tick. A previously stored value can decide what to send; what is heard now can affect later ticks only.",
-  "听到": "Heard"
+  "听到": "Heard",
+  "逐位送出": "Send bit by bit",
+  "要把一个字节送到一根线，先把它拆成八拍：最高位先说，最低位最后说。输入字节之后可能改变，所以开始时要先把它记下来。": "To send a byte over one line, split it across eight ticks, most significant bit first. The input may change later, so the byte must be stored when sending starts.",
+  "「开始」为 1 的拍取入「字节」并交出最高位，接下来每拍交出一位。八位送完后「位」为「—」；送字节期间「忙」为是，最后一位那拍「完成」为是。再次开始会立刻换成新字节。": "On a tick when Start is 1, load Byte and give its most significant bit; give one bit each following tick. After eight bits, Bit is 「—」. Busy is yes while sending and Done is yes on the last bit. Another start immediately replaces the unfinished byte.",
+  "比较当前数与 128 可以知道最高位。": "Compare the current number with 128 to find its top bit.",
+  "去掉最高位后左移一位，把结果记到下一拍；另数从 0 到 7 的位置。": "Remove the top bit, shift left and store the result for the next tick; count positions 0 to 7 separately.",
+  "「开始」重置位置并装入新的字节；空闲时不送位。": "Start resets the position and loads a new byte; while idle, give no bit.",
+  "每拍只送一位，但寄存卡让发送过程跨八拍记住同一个字节。": "Only one bit is sent per tick, but registers retain the same byte through all eight ticks.",
+  "开始时装入字节并逐拍交出八位（最高位先）；忙在八拍中为是，完成只在最后一拍为是。再次开始会替换未送完的字节。": "Loads a byte on start and gives its eight bits tick by tick, most significant first. Busy is yes for those eight ticks and Done only on the last; another start replaces an unfinished byte.",
+  "开始": "Start",
+  "忙": "Busy",
+  "完成": "Done",
+  "把字节说出去": "Send a byte",
+  "把逐位送出的元件接到说话口。它空闲时，节点不拉低总线，也就是对总线说隐性 1。": "Connect the bit-by-bit sender to the speaking port. While idle the node does not pull the bus low, so it says recessive 1.",
+  "「开始」时开始逐拍发送交来的字节，最高位在前；空闲时说 1。同时交出「完成」：只有最后一位发送的那拍为是。其他节点一直不说话。": "On Start, begin sending the given byte one bit per tick, most significant first; say 1 while idle. Also give Done, which is yes only on the final bit. Other nodes stay silent.",
+  "用逐位送出元件的「忙」选择：忙时说它的位，空闲时说 1。": "Use the sender’s Busy output to choose its bit while busy and 1 while idle.",
+  "把字节锁存后逐位发送，其他节点就能在同一根线上按相同的顺序收到它。": "Once the byte is stored and sent bit by bit, other nodes on the same line can receive it in the same order."
 }

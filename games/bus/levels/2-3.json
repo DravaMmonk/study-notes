@@ -1,0 +1,62 @@
+{
+  "title": { "zh": "把字节说出去" },
+  "intro": [{ "t": { "zh": "把逐位送出的元件接到说话口。它空闲时，节点不拉低总线，也就是对总线说隐性 1。" } }],
+  "after": { "zh": "把字节锁存后逐位发送，其他节点就能在同一根线上按相同的顺序收到它。" },
+  "tasks": [
+    {
+      "id": "2-3",
+      "brief": { "zh": "「开始」时开始逐拍发送交来的字节，最高位在前；空闲时说 1。同时交出「完成」：只有最后一位发送的那拍为是。其他节点一直不说话。" },
+      "hint": [{ "zh": "用逐位送出元件的「忙」选择：忙时说它的位，空闲时说 1。" }],
+      "drives": true,
+      "inputs": [{ "name": "value", "label": { "zh": "字节" } }, { "name": "start", "label": { "zh": "开始" } }],
+      "outputs": [{ "name": "done", "label": { "zh": "完成" } }],
+      "tests": [
+        {
+          "bus": { "idle": 20, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [165, 3, 4, 7, 8, 9, 10, 11, 12, 13, 60, 5, 8, 8, 8, 8, 8, 8, 8, 8],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 10, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [0, 255, 254, 253, 252, 251, 250, 249, 248, 247],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [255, 0, 128, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+            "start": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 10, "frames": [], "tail": 0 },
+          "inputs": { "value": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+        }
+      ],
+      "want": {
+        "send": { "serialDrive": { "value": "value", "start": "start" } },
+        "done": { "serialDone": { "value": "value", "start": "start" } }
+      },
+      "solution": [
+        "p = serializer(value, start)",
+        "one = const[value=1]()",
+        "s = select(p.busyout, p.bit, one)",
+        "send <- s",
+        "done <- p.done"
+      ],
+      "naive": [
+        "p = serializer(value, start)",
+        "zero = const[value=0]()",
+        "s = select(p.busyout, p.bit, zero)",
+        "send <- s",
+        "done <- p.done"
+      ]
+    }
+  ]
+}

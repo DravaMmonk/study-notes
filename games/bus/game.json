@@ -1,6 +1,6 @@
 {
   "domain": "can",
-  "vocabulary": 15,
+  "vocabulary": 16,
   "title": { "zh": "车在说话" },
   "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
@@ -24,7 +24,8 @@
       "crc15",
       "capture",
       "stuffcheck",
-      "sniffer"
+      "sniffer",
+      "serializer"
     ]
   },
   "concept": { "keep": "reg" },
@@ -60,6 +61,11 @@
         "1-N4"
       ]
     },
-    { "id": 2, "title": { "zh": "CAN 控制器" }, "question": { "zh": "怎样让探针开口，还不打断别人？" }, "foundation": ["2-1"] }
+    {
+      "id": 2,
+      "title": { "zh": "CAN 控制器" },
+      "question": { "zh": "怎样让探针开口，还不打断别人？" },
+      "foundation": ["2-1", "2-2", "2-3"]
+    }
   ]
 }

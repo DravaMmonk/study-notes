@@ -36,6 +36,10 @@ const WANTS = {
   line: item(t('这一拍总线上的位')),
   previous: item(t('上一拍总线上的位；第一拍给 first'), S.obj({ first: BIT })),
   delayedInput: item(t('输入的上一拍值；第一拍给 first', 'the input value on the previous tick; first on the first tick'), S.obj({ input: INPUT, first: BIT })),
+  serialBit: item(t('开始时取输入字节，逐拍交出八位，空闲时为「—」', 'load a byte on start and give its eight bits tick by tick, or 「—」 while idle'), S.obj({ value: INPUT, start: INPUT })),
+  serialBusy: item(t('这一拍是否正在逐位送字节', 'whether a byte is being sent on this tick'), S.obj({ value: INPUT, start: INPUT })),
+  serialDone: item(t('这一拍是否为字节的最后一位', 'whether this tick is the final bit of the byte'), S.obj({ value: INPUT, start: INPUT })),
+  serialDrive: item(t('逐位送字节，空闲时说隐性 1', 'send the byte bit by bit and say recessive 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   unchanged: item(t('总线这一拍的位和上一拍一样吗；第一拍和 first 比'), S.obj({ first: BIT })),
   tick: item(t('这是第几拍，从 0 数')),
   since: item(t('从第 tick 拍（从 0 数）起回答是，之前回答否'), S.obj({ tick: nat })),
@@ -80,7 +84,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 15,
+  version: 16,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

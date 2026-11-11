@@ -1,0 +1,115 @@
+{
+  "title": { "zh": "逐位送出" },
+  "intro": [{ "t": { "zh": "要把一个字节送到一根线，先把它拆成八拍：最高位先说，最低位最后说。输入字节之后可能改变，所以开始时要先把它记下来。" } }],
+  "builds": {
+    "type": "serializer",
+    "name": { "zh": "逐位送出" },
+    "desc": { "zh": "开始时装入字节并逐拍交出八位（最高位先）；忙在八拍中为是，完成只在最后一拍为是。再次开始会替换未送完的字节。" }
+  },
+  "after": { "zh": "每拍只送一位，但寄存卡让发送过程跨八拍记住同一个字节。" },
+  "tasks": [
+    {
+      "id": "2-2",
+      "brief": { "zh": "「开始」为 1 的拍取入「字节」并交出最高位，接下来每拍交出一位。八位送完后「位」为「—」；送字节期间「忙」为是，最后一位那拍「完成」为是。再次开始会立刻换成新字节。" },
+      "hint": [
+        { "zh": "比较当前数与 128 可以知道最高位。" },
+        { "zh": "去掉最高位后左移一位，把结果记到下一拍；另数从 0 到 7 的位置。" },
+        { "zh": "「开始」重置位置并装入新的字节；空闲时不送位。" }
+      ],
+      "inputs": [{ "name": "value", "label": { "zh": "字节" } }, { "name": "start", "label": { "zh": "开始" } }],
+      "outputs": [
+        { "name": "bit", "label": { "zh": "位" } },
+        { "name": "busyout", "label": { "zh": "忙" } },
+        { "name": "done", "label": { "zh": "完成" } }
+      ],
+      "tests": [
+        {
+          "bus": { "idle": 20, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [165, 3, 4, 7, 8, 9, 10, 11, 12, 13, 60, 5, 8, 8, 8, 8, 8, 8, 8, 8],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 10, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [0, 255, 254, 253, 252, 251, 250, 249, 248, 247],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [255, 0, 128, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+            "start": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 10, "frames": [], "tail": 0 },
+          "inputs": { "value": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0], "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0] }
+        }
+      ],
+      "want": {
+        "bit": { "serialBit": { "value": "value", "start": "start" } },
+        "busyout": { "serialBusy": { "value": "value", "start": "start" } },
+        "done": { "serialDone": { "value": "value", "start": "start" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "eight = const[value=8]()",
+        "seven = const[value=7]()",
+        "top = const[value=128]()",
+        "p = reg[reg=B, start=8]()",
+        "pos = select(start, zero, p)",
+        "busy = compare[form=lt](pos, eight)",
+        "r = reg[reg=A, start=0]()",
+        "base = select(start, value, r)",
+        "lower = compare[form=lt](base, top)",
+        "high = select(lower, zero, one)",
+        "m = select(high, top, zero)",
+        "rest = xor(base, m)",
+        "shift = arith[form=add](rest, rest)",
+        "rn = select(busy, shift, r)",
+        "kr = keep[reg=A](rn)",
+        "inc = arith[form=inc](pos)",
+        "pn = select(busy, inc, pos)",
+        "kp = keep[reg=B](pn)",
+        "out = select(busy, high)",
+        "bit <- out",
+        "busyout <- busy",
+        "last = compare[form=eq](pos, seven)",
+        "done <- last"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "eight = const[value=8]()",
+        "seven = const[value=7]()",
+        "top = const[value=128]()",
+        "p = reg[reg=B, start=8]()",
+        "pos = select(start, zero, p)",
+        "busy = compare[form=lt](pos, eight)",
+        "r = reg[reg=A, start=0]()",
+        "base = select(start, value, value)",
+        "lower = compare[form=lt](base, top)",
+        "high = select(lower, zero, one)",
+        "m = select(high, top, zero)",
+        "rest = xor(base, m)",
+        "shift = arith[form=add](rest, rest)",
+        "rn = select(busy, shift, r)",
+        "kr = keep[reg=A](rn)",
+        "inc = arith[form=inc](pos)",
+        "pn = select(busy, inc, pos)",
+        "kp = keep[reg=B](pn)",
+        "out = select(busy, high)",
+        "bit <- out",
+        "busyout <- busy",
+        "last = compare[form=eq](pos, seven)",
+        "done <- last"
+      ]
+    }
+  ]
+}

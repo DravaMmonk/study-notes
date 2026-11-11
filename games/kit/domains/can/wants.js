@@ -27,6 +27,19 @@ const destuff = (bits, resets) => {
   })
 }
 
+const serial = ({ value, start }, test) => {
+  let byte = 0
+  let position = 8
+  return each(test, (tick) => {
+    if (test.inputs[start][tick]) { byte = test.inputs[value][tick]; position = 0 }
+    const busy = position < 8
+    const bit = busy ? (byte >> (7 - position)) & 1 : null
+    const done = position === 7
+    if (busy) position++
+    return { bit, busy, done }
+  })
+}
+
 // Polynomial long division over GF(2), independently of the player's shift-register circuit.
 const remainders = ({ bit, enable, reset, width, poly }, test) => {
   let bits = []
@@ -47,6 +60,10 @@ const WANTS = {
   line: () => (test) => test.bus.bits,
   previous: ({ first }) => (test) => each(test, (t) => (t ? test.bus.bits[t - 1] : first)),
   delayedInput: ({ input, first }) => (test) => each(test, (t) => (t ? test.inputs[input][t - 1] : first)),
+  serialBit: (params) => (test) => serial(params, test).map((step) => step.bit),
+  serialBusy: (params) => (test) => serial(params, test).map((step) => step.busy),
+  serialDone: (params) => (test) => serial(params, test).map((step) => step.done),
+  serialDrive: (params) => (test) => serial(params, test).map((step) => step.bit ?? 1),
   unchanged: ({ first }) => (test) => each(test, (t) => test.bus.bits[t] === (t ? test.bus.bits[t - 1] : first)),
   tick: () => (test) => each(test, (t) => t),
   since: ({ tick }) => (test) => each(test, (t) => t >= tick),

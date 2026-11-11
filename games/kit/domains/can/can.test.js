@@ -279,6 +279,18 @@ test('a board drives the wired-AND bus and cannot say what it hears in the same 
   assert.ok(runTest(task, loop, test, plain.partOf).error)
 })
 
+test('serialising latches the byte and a new start replaces an unfinished one', () => {
+  const value = [0xa5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0, 0x80, 0, 0, 0, 0, 0, 0, 0]
+  const start = value.map((_, tick) => [0, 10, 12].includes(tick) ? 1 : 0)
+  const test = { bus: { bits: value.map(() => 1) }, inputs: { value, start } }
+  const params = { value: 'value', start: 'start' }
+  const out = wantOf({ bit: { serialBit: params }, busy: { serialBusy: params }, done: { serialDone: params }, drive: { serialDrive: params } })(test)
+  assert.deepEqual(out.bit, [1, 0, 1, 0, 0, 1, 0, 1, null, null, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0])
+  assert.deepEqual(out.done.flatMap((done, tick) => done ? [tick] : []), [7, 19])
+  assert.equal(out.busy[8], false)
+  assert.equal(out.drive[8], 1)
+})
+
 // The starter game (what npm run new-game copies), as content.js assembles it.
 const starter = () => {
   const dir = new URL('./starter/', import.meta.url)
