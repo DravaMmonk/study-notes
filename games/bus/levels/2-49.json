@@ -1,0 +1,188 @@
+{
+  "title": { "zh": "使用控制器原型" },
+  "intro": [{ "t": { "zh": "封装后的控制器同时维护待发队列、收发错误计数和恢复状态。把它接到总线，检查外部电路能否读到这些结果。" } }],
+  "after": { "zh": "封装件运行的是之前搭出的逐拍电路；高一层可以使用它的结果，但不能把本练习未覆盖的错误当成已经验证。" },
+  "tasks": [
+    {
+      "id": "2-49",
+      "brief": { "zh": "使用 CAN 控制器原型驱动总线，转交队列取走与重置、发送尝试、完成、两个错误计数、状态及恢复许可。测试覆盖仲裁、暂停期间插入帧和下线恢复。" },
+      "hint": [{ "zh": "把总线、帧字段、队列和控制输入接到控制器，再转交每个对应结果。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "id", "label": { "zh": "标识符" } },
+        { "name": "length", "label": { "zh": "数据长度" } },
+        { "name": "item", "label": { "zh": "队首" } },
+        { "name": "available", "label": { "zh": "有字节" } },
+        { "name": "last", "label": { "zh": "最后字节" } },
+        { "name": "start", "label": { "zh": "开始" } },
+        { "name": "prep", "label": { "zh": "准备事件" } },
+        { "name": "reset", "label": { "zh": "初始化" } },
+        { "name": "request", "label": { "zh": "恢复请求" } }
+      ],
+      "outputs": [
+        { "name": "next", "label": { "zh": "取走" } },
+        { "name": "rewind", "label": { "zh": "重置队列" } },
+        { "name": "attempt", "label": { "zh": "发送开始" } },
+        { "name": "done", "label": { "zh": "完成" } },
+        { "name": "tec", "label": { "zh": "发送错误计数" } },
+        { "name": "mode", "label": { "zh": "状态" } },
+        { "name": "rx", "label": { "zh": "接收计数" } },
+        { "name": "accepted", "label": { "zh": "允许复位" } }
+      ],
+      "pulls": {
+        "input": "item",
+        "available": "available",
+        "last": "last",
+        "next": "next",
+        "rewind": "rewind"
+      },
+      "tests": [
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 126 },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 212,
+          "queue": [165],
+          "constants": { "id": 291, "length": 1 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 322 }] },
+          "pulses": { "reset": [0], "start": [212], "request": [] },
+          "peerLow": [307],
+          "contenders": [{ "id": 1, "data": [], "at": 212 }]
+        },
+        {
+          "bus": {
+            "idle": 140,
+            "frames": [
+              { "id": 677, "data": [85], "ack": false },
+              { "id": 677, "data": [85], "ack": false, "gap": 80 }
+            ],
+            "tail": 62
+          },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 212,
+          "queue": [165],
+          "constants": { "id": 291, "length": 1 },
+          "runs": {
+            "prep": [{ "value": 1, "ticks": 16 }, { "value": 3, "ticks": 2 }, { "value": 0, "ticks": 380 }]
+          },
+          "pulses": { "reset": [0], "start": [212], "request": [] },
+          "peerLow": [381]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 1515 },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 212,
+          "queue": [165],
+          "constants": { "id": 291, "length": 1 },
+          "runs": {
+            "prep": [{ "value": 1, "ticks": 31 }, { "value": 3, "ticks": 2 }, { "value": 0, "ticks": 1680 }]
+          },
+          "pulses": { "reset": [0], "start": [212], "request": [1649, 1650] },
+          "peerLow": [1696],
+          "flipTicks": [242]
+        }
+      ],
+      "want": {
+        "send": {
+          "controllerIntegratedDrive": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "next": {
+          "controllerIntegratedNext": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rewind": {
+          "controllerIntegratedRewind": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "attempt": {
+          "controllerIntegratedAttempts": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "done": {
+          "controllerIntegratedDone": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "tec": {
+          "controllerIntegratedTec": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rx": {
+          "controllerIntegratedRec": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "mode": {
+          "controllerIntegratedMode": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "accepted": {
+          "controllerIntegratedAccepted": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        }
+      },
+      "solution": [
+        "p = controller(line, id, length, item, available, last, start, prep, reset, request)",
+        "send <- p.send",
+        "next <- p.next",
+        "rewind <- p.rewind",
+        "attempt <- p.attempt",
+        "done <- p.done",
+        "tec <- p.tec",
+        "rx <- p.rx",
+        "mode <- p.mode",
+        "accepted <- p.accepted"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "p = controller(line, id, length, item, available, last, start, prep, reset, request)",
+        "send <- p.send",
+        "next <- p.next",
+        "rewind <- p.rewind",
+        "attempt <- p.attempt",
+        "done <- p.done",
+        "tec <- zero",
+        "rx <- p.rx",
+        "mode <- p.mode",
+        "accepted <- p.accepted"
+      ]
+    }
+  ]
+}

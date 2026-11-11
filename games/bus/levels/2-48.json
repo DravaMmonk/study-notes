@@ -1,0 +1,476 @@
+{
+  "title": { "zh": "收发与恢复合在一起" },
+  "intro": [{ "t": { "zh": "把已经搭出的收发、仲裁、错误处理和下线恢复接到同一节点：既能接收并应答，也能保留待发帧，在错误或竞争之后继续尝试。" } }],
+  "builds": {
+    "type": "controller",
+    "name": { "zh": "CAN 控制器原型" },
+    "desc": { "zh": "逐拍接收、应答与发送标准格式数据帧，处理限定的一次初始仲裁、发送错误、被动暂停插入帧及下线恢复；收发共用错误计数。尚不覆盖所有错误、帧型和时序组合。" }
+  },
+  "after": { "zh": "这块控制器原型把所练习的收发、仲裁、错误和恢复路径连起来。它仍限定测试中的帧类型与错误组合，还没有覆盖所有 CAN 控制器行为。" },
+  "tasks": [
+    {
+      "id": "2-48",
+      "brief": {
+        "zh": "先接收一帧，再发送队列帧。处理一次初始仲裁、发送位错误或缺应答；按共享状态选择标志和等待。被动暂停可能被一个正确帧打断；下线后须满足观察条件并接受恢复请求，下一拍清零计数并重发。测试不同时组合仲裁与插入帧，也不模拟重叠错误或下线期间的新帧。"
+      },
+      "hint": [
+        { "zh": "统一错误计数器接收发送与接收事件；接收器持续跟踪总线，自己的帧不能触发自应答。" },
+        { "zh": "被动暂停交给暂停中接收元件；下线观察与请求获准后，用寄存卡在下一拍复位计数并重启发送。" }
+      ],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "id", "label": { "zh": "标识符" } },
+        { "name": "length", "label": { "zh": "数据长度" } },
+        { "name": "item", "label": { "zh": "队首" } },
+        { "name": "available", "label": { "zh": "有字节" } },
+        { "name": "last", "label": { "zh": "最后字节" } },
+        { "name": "start", "label": { "zh": "开始" } },
+        { "name": "prep", "label": { "zh": "准备事件" } },
+        { "name": "reset", "label": { "zh": "初始化" } },
+        { "name": "request", "label": { "zh": "恢复请求" } }
+      ],
+      "outputs": [
+        { "name": "next", "label": { "zh": "取走" } },
+        { "name": "rewind", "label": { "zh": "重置队列" } },
+        { "name": "attempt", "label": { "zh": "发送开始" } },
+        { "name": "done", "label": { "zh": "完成" } },
+        { "name": "tec", "label": { "zh": "发送错误计数" } },
+        { "name": "error", "label": { "zh": "发送错误" } },
+        { "name": "mode", "label": { "zh": "状态" } },
+        { "name": "rx", "label": { "zh": "接收计数" } },
+        { "name": "kind", "label": { "zh": "结果种类" } },
+        { "name": "ready", "label": { "zh": "结果就绪" } },
+        { "name": "accepted", "label": { "zh": "允许复位" } },
+        { "name": "lost", "label": { "zh": "落败" } }
+      ],
+      "pulls": {
+        "input": "item",
+        "available": "available",
+        "last": "last",
+        "next": "next",
+        "rewind": "rewind"
+      },
+      "tests": [
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 126 },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 212,
+          "queue": [165],
+          "constants": { "id": 291, "length": 1 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 322 }] },
+          "pulses": { "reset": [0], "start": [212], "request": [] },
+          "peerLow": [307],
+          "contenders": [{ "id": 1, "data": [], "at": 212 }]
+        },
+        {
+          "bus": {
+            "idle": 140,
+            "frames": [
+              { "id": 677, "data": [85], "ack": false },
+              { "id": 677, "data": [85], "ack": false, "gap": 80 }
+            ],
+            "tail": 62
+          },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 212,
+          "queue": [165],
+          "constants": { "id": 291, "length": 1 },
+          "runs": {
+            "prep": [{ "value": 1, "ticks": 16 }, { "value": 3, "ticks": 2 }, { "value": 0, "ticks": 380 }]
+          },
+          "pulses": { "reset": [0], "start": [212], "request": [] },
+          "peerLow": [381]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 237 },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 212,
+          "queue": [165],
+          "constants": { "id": 291, "length": 1 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 433 }] },
+          "pulses": { "reset": [0], "start": [212], "request": [] },
+          "peerLow": [418],
+          "contenders": [{ "id": 1, "data": [], "at": 212 }],
+          "flipTicks": [169, 292]
+        },
+        {
+          "bus": {
+            "idle": 140,
+            "frames": [
+              { "id": 677, "data": [85], "ack": false },
+              { "id": 677, "data": [85], "ack": false, "gap": 84 }
+            ],
+            "tail": 62
+          },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 212,
+          "queue": [165],
+          "constants": { "id": 291, "length": 1 },
+          "runs": { "prep": [{ "value": 1, "ticks": 16 }, { "value": 0, "ticks": 386 }] },
+          "pulses": { "reset": [0], "start": [212], "request": [] },
+          "peerLow": [385]
+        },
+        {
+          "bus": { "idle": 140, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 1515 },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 212,
+          "queue": [165],
+          "constants": { "id": 291, "length": 1 },
+          "runs": {
+            "prep": [{ "value": 1, "ticks": 31 }, { "value": 3, "ticks": 2 }, { "value": 0, "ticks": 1680 }]
+          },
+          "pulses": { "reset": [0], "start": [212], "request": [1649, 1650] },
+          "peerLow": [1696],
+          "flipTicks": [242]
+        }
+      ],
+      "want": {
+        "send": {
+          "controllerIntegratedDrive": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "next": {
+          "controllerIntegratedNext": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rewind": {
+          "controllerIntegratedRewind": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "attempt": {
+          "controllerIntegratedAttempts": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "done": {
+          "controllerIntegratedDone": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "tec": {
+          "controllerIntegratedTec": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rx": {
+          "controllerIntegratedRec": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "mode": {
+          "controllerIntegratedMode": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "error": {
+          "controllerIntegratedError": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "kind": {
+          "controllerIntegratedKind": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "ready": {
+          "controllerIntegratedReady": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "accepted": {
+          "controllerIntegratedAccepted": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "lost": {
+          "controllerIntegratedLost": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "five = const[value=5]()",
+        "ten = const[value=10]()",
+        "false = compare[form=eq](zero, one)",
+        "true = compare[form=eq](one, one)",
+        "wait = reg[reg=A, start=0]()",
+        "phase = reg[reg=C, start=0]()",
+        "armed = reg[reg=D, start=0]()",
+        "oldmode = reg[reg=E, start=0]()",
+        "flagactive = reg[reg=F, start=0]()",
+        "busy = reg[reg=H, start=0]()",
+        "resume = reg[reg=G, start=0]()",
+        "off = compare[form=eq](oldmode, two)",
+        "observer = recovery(line, off)",
+        "acceptedValue = select(request, observer.ready, false)",
+        "kg = keep[reg=G](acceptedValue)",
+        "resetCount = select(reset, one, resume)",
+        "receiving = compare[form=eq](wait, one)",
+        "errorwait = compare[form=eq](wait, two)",
+        "normal = compare[form=eq](wait, zero)",
+        "quiet = counter(line)",
+        "long = compare[form=lt](ten, quiet)",
+        "receiveRetry = select(long, one, zero)",
+        "phasecount = counter(phase)",
+        "third = compare[form=eq](phasecount, two)",
+        "intermission = select(phase, third, false)",
+        "suspendReady = suspend(intermission, fault.mode)",
+        "readynum = select(suspendReady, one, zero)",
+        "w = waitrecv(line, intermission, resetCount)",
+        "passive = compare[form=eq](oldmode, one)",
+        "activeRetry = select(armed, readynum, zero)",
+        "errorRetry = select(passive, w.retry, activeRetry)",
+        "otherwise = select(errorwait, errorRetry, zero)",
+        "retry = select(receiving, receiveRetry, otherwise)",
+        "afterRecovery = select(resume, one, retry)",
+        "fire = select(start, one, afterRecovery)",
+        "processing = select(fire, one, busy)",
+        "r = receiverstate(line, oldmode, prep, resetCount)",
+        "source = select(normal, available, zero)",
+        "p = transmitter(id, length, item, source, last, fire)",
+        "a = arbiter(line, p.send, p.arb, fire)",
+        "s = sniffer(line)",
+        "ack = reg[reg=B, start=0]()",
+        "good = select(s.ready, s.ok, zero)",
+        "acknext = select(receiving, good, zero)",
+        "kb = keep[reg=B](acknext)",
+        "receivewire = select(ack, zero, one)",
+        "slot = select(normal, p.ack, zero)",
+        "high = compare[form=eq](line, one)",
+        "missing = select(slot, high, false)",
+        "same = compare[form=eq](p.send, line)",
+        "different = select(same, false, true)",
+        "outsideArb = select(p.arb, false, true)",
+        "outsideAck = select(p.ack, false, true)",
+        "check = select(outsideArb, outsideAck, false)",
+        "mismatch = select(check, different, false)",
+        "biterror0 = select(normal, mismatch, false)",
+        "biterror = select(processing, biterror0, false)",
+        "errorValue = select(missing, true, biterror)",
+        "f = errorflag(errorValue)",
+        "flagwire = select(flagactive, f.send, one)",
+        "errorwire = select(errorwait, flagwire, a.send)",
+        "waitingwire = select(receiving, receivewire, errorwire)",
+        "ownwire = select(fire, p.send, waitingwire)",
+        "idle = select(processing, zero, one)",
+        "enable0 = select(receiving, one, idle)",
+        "receiverEnabled = select(fire, zero, enable0)",
+        "normalwire = select(receiverEnabled, r.send, ownwire)",
+        "passivePhase0 = select(passive, phase, zero)",
+        "passivePhase = select(errorwait, passivePhase0, zero)",
+        "selectedwire = select(passivePhase, w.send, normalwire)",
+        "wire = select(fire, p.send, selectedwire)",
+        "send <- wire",
+        "witherror = select(errorValue, two, wait)",
+        "withloss = select(a.lost, one, witherror)",
+        "waitnext = select(fire, zero, withloss)",
+        "ka = keep[reg=A](waitnext)",
+        "phasehold = select(f.done, one, phase)",
+        "phasenext = select(fire, zero, phasehold)",
+        "kc = keep[reg=C](phasenext)",
+        "arming = select(intermission, one, armed)",
+        "armednext = select(fire, zero, arming)",
+        "kd = keep[reg=D](armednext)",
+        "ke = keep[reg=E](fault.mode)",
+        "wasactive = compare[form=eq](oldmode, zero)",
+        "flagtype = select(errorValue, wasactive, flagactive)",
+        "kf = keep[reg=F](flagtype)",
+        "attempt <- fire",
+        "take = select(normal, p.next, false)",
+        "next <- take",
+        "rewind <- errorValue",
+        "finished = select(normal, p.done, false)",
+        "done <- finished",
+        "busyhold = select(finished, zero, busy)",
+        "busynext = select(fire, one, busyhold)",
+        "kh = keep[reg=H](busynext)",
+        "eofvalid = select(normal, p.eof, zero)",
+        "normalEvent = select(receiverEnabled, r.event, prep)",
+        "rxevent = select(passivePhase, w.event, normalEvent)",
+        "success = select(eofvalid, two, rxevent)",
+        "errorkind = select(missing, five, one)",
+        "event = select(errorValue, errorkind, success)",
+        "fault = faultcounter(event, resetCount)",
+        "tec <- fault.tx",
+        "error <- errorValue",
+        "mode <- fault.mode",
+        "rx <- fault.rx",
+        "normalKind = select(receiverEnabled, r.kind)",
+        "receiveKind = select(passivePhase, w.kind, normalKind)",
+        "normalReady = select(receiverEnabled, r.ready, zero)",
+        "receiveReady = select(passivePhase, w.ready, normalReady)",
+        "kind <- receiveKind",
+        "ready <- receiveReady",
+        "accepted <- acceptedValue",
+        "lost <- a.lost"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "five = const[value=5]()",
+        "ten = const[value=10]()",
+        "false = compare[form=eq](zero, one)",
+        "true = compare[form=eq](one, one)",
+        "wait = reg[reg=A, start=0]()",
+        "phase = reg[reg=C, start=0]()",
+        "armed = reg[reg=D, start=0]()",
+        "oldmode = reg[reg=E, start=0]()",
+        "flagactive = reg[reg=F, start=0]()",
+        "busy = reg[reg=H, start=0]()",
+        "resume = reg[reg=G, start=0]()",
+        "off = compare[form=eq](oldmode, two)",
+        "observer = recovery(line, off)",
+        "acceptedValue = select(request, true, false)",
+        "kg = keep[reg=G](acceptedValue)",
+        "resetCount = select(reset, one, resume)",
+        "receiving = compare[form=eq](wait, one)",
+        "errorwait = compare[form=eq](wait, two)",
+        "normal = compare[form=eq](wait, zero)",
+        "quiet = counter(line)",
+        "long = compare[form=lt](ten, quiet)",
+        "receiveRetry = select(long, one, zero)",
+        "phasecount = counter(phase)",
+        "third = compare[form=eq](phasecount, two)",
+        "intermission = select(phase, third, false)",
+        "suspendReady = suspend(intermission, fault.mode)",
+        "readynum = select(suspendReady, one, zero)",
+        "w = waitrecv(line, intermission, resetCount)",
+        "passive = compare[form=eq](oldmode, one)",
+        "activeRetry = select(armed, readynum, zero)",
+        "errorRetry = select(passive, w.retry, activeRetry)",
+        "otherwise = select(errorwait, errorRetry, zero)",
+        "retry = select(receiving, receiveRetry, otherwise)",
+        "afterRecovery = select(resume, one, retry)",
+        "fire = select(start, one, afterRecovery)",
+        "processing = select(fire, one, busy)",
+        "r = receiverstate(line, oldmode, prep, resetCount)",
+        "source = select(normal, available, zero)",
+        "p = transmitter(id, length, item, source, last, fire)",
+        "a = arbiter(line, p.send, p.arb, fire)",
+        "s = sniffer(line)",
+        "ack = reg[reg=B, start=0]()",
+        "good = select(s.ready, s.ok, zero)",
+        "acknext = select(receiving, good, zero)",
+        "kb = keep[reg=B](acknext)",
+        "receivewire = select(ack, zero, one)",
+        "slot = select(normal, p.ack, zero)",
+        "high = compare[form=eq](line, one)",
+        "missing = select(slot, high, false)",
+        "same = compare[form=eq](p.send, line)",
+        "different = select(same, false, true)",
+        "outsideArb = select(p.arb, false, true)",
+        "outsideAck = select(p.ack, false, true)",
+        "check = select(outsideArb, outsideAck, false)",
+        "mismatch = select(check, different, false)",
+        "biterror0 = select(normal, mismatch, false)",
+        "biterror = select(processing, biterror0, false)",
+        "errorValue = select(missing, true, biterror)",
+        "f = errorflag(errorValue)",
+        "flagwire = select(flagactive, f.send, one)",
+        "errorwire = select(errorwait, flagwire, a.send)",
+        "waitingwire = select(receiving, receivewire, errorwire)",
+        "ownwire = select(fire, p.send, waitingwire)",
+        "idle = select(processing, zero, one)",
+        "enable0 = select(receiving, one, idle)",
+        "receiverEnabled = select(fire, zero, enable0)",
+        "normalwire = select(receiverEnabled, r.send, ownwire)",
+        "passivePhase0 = select(passive, phase, zero)",
+        "passivePhase = select(errorwait, passivePhase0, zero)",
+        "selectedwire = select(passivePhase, w.send, normalwire)",
+        "wire = select(fire, p.send, selectedwire)",
+        "send <- wire",
+        "witherror = select(errorValue, two, wait)",
+        "withloss = select(a.lost, one, witherror)",
+        "waitnext = select(fire, zero, withloss)",
+        "ka = keep[reg=A](waitnext)",
+        "phasehold = select(f.done, one, phase)",
+        "phasenext = select(fire, zero, phasehold)",
+        "kc = keep[reg=C](phasenext)",
+        "arming = select(intermission, one, armed)",
+        "armednext = select(fire, zero, arming)",
+        "kd = keep[reg=D](armednext)",
+        "ke = keep[reg=E](fault.mode)",
+        "wasactive = compare[form=eq](oldmode, zero)",
+        "flagtype = select(errorValue, wasactive, flagactive)",
+        "kf = keep[reg=F](flagtype)",
+        "attempt <- fire",
+        "take = select(normal, p.next, false)",
+        "next <- take",
+        "rewind <- errorValue",
+        "finished = select(normal, p.done, false)",
+        "done <- finished",
+        "busyhold = select(finished, zero, busy)",
+        "busynext = select(fire, one, busyhold)",
+        "kh = keep[reg=H](busynext)",
+        "eofvalid = select(normal, p.eof, zero)",
+        "normalEvent = select(receiverEnabled, r.event, prep)",
+        "rxevent = select(passivePhase, w.event, normalEvent)",
+        "success = select(eofvalid, two, rxevent)",
+        "errorkind = select(missing, five, one)",
+        "event = select(errorValue, errorkind, success)",
+        "fault = faultcounter(event, resetCount)",
+        "tec <- fault.tx",
+        "error <- errorValue",
+        "mode <- fault.mode",
+        "rx <- fault.rx",
+        "normalKind = select(receiverEnabled, r.kind)",
+        "receiveKind = select(passivePhase, w.kind, normalKind)",
+        "normalReady = select(receiverEnabled, r.ready, zero)",
+        "receiveReady = select(passivePhase, w.ready, normalReady)",
+        "kind <- receiveKind",
+        "ready <- receiveReady",
+        "accepted <- acceptedValue",
+        "lost <- a.lost"
+      ]
+    }
+  ]
+}
