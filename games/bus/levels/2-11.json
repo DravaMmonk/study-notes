@@ -11,13 +11,15 @@
   "builds": {
     "type": "transmitter",
     "name": { "zh": "发送帧" },
-    "desc": { "zh": "发送一帧标准格式数据帧：标识符与长度需保持到发送完成，数据按队列提供。输出逐拍驱动、取走字节和完成；当前不处理仲裁失败或重传。" }
+    "desc": { "zh": "发送一帧标准格式数据帧，并标出仲裁段。标识符与长度需保持到发送完成，数据按队列提供；输出驱动位、取走字节和完成。当前不处理仲裁失败或重传。" }
   },
   "after": { "zh": "发送方在应答位不拉低总线；有没有其他节点应答，要在听的阶段读回实际总线。" },
   "tasks": [
     {
       "id": "2-11",
-      "brief": { "zh": "「开始」时发送一帧标准格式数据帧。按协议驱动总线、在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。" },
+      "brief": {
+        "zh": "「开始」时发送一帧标准格式数据帧。按协议驱动总线，仲裁段交出 1、其余拍交出 0；在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。"
+      },
       "hint": [
         { "zh": "分阶段生成原始位：起始、标识符、三个控制位、长度、数据、CRC；用逐位送字段和队列握手复用同一发送链。" },
         { "zh": "CRC 只收起始到数据末尾被取走的原始位。数据最后一位被取走时保存它，随后按 15 位发出去。零字节时在长度末尾保存。" },
@@ -32,7 +34,11 @@
         { "name": "last", "label": { "zh": "最后字节" } },
         { "name": "start", "label": { "zh": "开始" } }
       ],
-      "outputs": [{ "name": "next", "label": { "zh": "取走" } }, { "name": "done", "label": { "zh": "完成" } }],
+      "outputs": [
+        { "name": "next", "label": { "zh": "取走" } },
+        { "name": "done", "label": { "zh": "完成" } },
+        { "name": "arb", "label": { "zh": "仲裁段" } }
+      ],
       "pulls": { "input": "item", "available": "available", "last": "last", "next": "next" },
       "tests": [
         {
@@ -73,7 +79,8 @@
       "want": {
         "send": { "frameDrive": { "start": "start" } },
         "done": { "frameSent": { "start": "start" } },
-        "next": { "frameQueueNext": { "start": "start" } }
+        "next": { "frameQueueNext": { "start": "start" } },
+        "arb": { "frameArbitrating": { "start": "start" } }
       },
       "solution": [
         "zero = const[value=0]()",
@@ -176,7 +183,16 @@
         "tailstep = select(p.inserted, step, stepinc)",
         "advstep = select(is7, tailstep, rawstep)",
         "newstep = select(resetstep, zero, advstep)",
-        "kstep = keep[reg=B](newstep)"
+        "kstep = keep[reg=B](newstep)",
+        "ctrlfirst = compare[form=eq](step, zero)",
+        "ctrlsecond = compare[form=eq](step, one)",
+        "stuffflag = select(p.inserted, one, zero)",
+        "laststuff = select(ctrlsecond, stuffflag, zero)",
+        "ctrlflag = select(ctrlfirst, one, laststuff)",
+        "controlarb = select(is3, ctrlflag, zero)",
+        "idarb = select(is2, one, controlarb)",
+        "arbvalue = select(is1, one, idarb)",
+        "arb <- arbvalue"
       ],
       "naive": [
         "zero = const[value=0]()",
@@ -279,7 +295,16 @@
         "tailstep = select(p.inserted, step, stepinc)",
         "advstep = select(is7, tailstep, rawstep)",
         "newstep = select(resetstep, zero, advstep)",
-        "kstep = keep[reg=B](newstep)"
+        "kstep = keep[reg=B](newstep)",
+        "ctrlfirst = compare[form=eq](step, zero)",
+        "ctrlsecond = compare[form=eq](step, one)",
+        "stuffflag = select(p.inserted, one, zero)",
+        "laststuff = select(ctrlsecond, stuffflag, zero)",
+        "ctrlflag = select(ctrlfirst, one, laststuff)",
+        "controlarb = select(is3, ctrlflag, zero)",
+        "idarb = select(is2, one, controlarb)",
+        "arbvalue = select(is1, one, idarb)",
+        "arb <- arbvalue"
       ]
     }
   ]

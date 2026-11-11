@@ -280,12 +280,10 @@
   "发一整帧": "Send a complete frame",
   "把起始位、11 位标识符、控制位、4 位数据长度、数据和 15 位 CRC 依次送上总线。填充适用于起始到 CRC 的原始位；之后发送 CRC 界定位、应答位、应答界定位、帧结束和帧间隔。": "Send the start bit, 11-bit identifier, control bits, four-bit data length, data and 15-bit CRC in order. Stuffing applies to original bits from start through CRC; then send the CRC delimiter, ACK slot, ACK delimiter, end of frame and intermission.",
   "本关的标识符和长度在整帧期间保持不变；数据由队列逐字节提供，队首标志指出最后一个字节。发送方在应答位放开总线，其他节点可以拉低它。": "In this level the identifier and length remain fixed throughout the frame. Data comes one byte at a time from a queue whose last flag marks its final byte. The sender releases the ACK slot so another node can pull it low.",
-  "「开始」时发送一帧标准格式数据帧。按协议驱动总线、在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。": "On Start, send one standard-format data frame. Drive the bus as specified, take each queued byte when its last original bit is accepted, and give yes on Done on the final intermission bit. Say 1 while idle.",
   "分阶段生成原始位：起始、标识符、三个控制位、长度、数据、CRC；用逐位送字段和队列握手复用同一发送链。": "Generate original bits in phases: start, identifier, three control bits, length, data and CRC. Reuse the field sender and queue handshake.",
   "CRC 只收起始到数据末尾被取走的原始位。数据最后一位被取走时保存它，随后按 15 位发出去。零字节时在长度末尾保存。": "CRC accepts only original bits from start through the end of data. Save it when the last data bit is accepted, or at the end of length for zero bytes; then send its 15 bits.",
   "CRC 的最后一位可能还欠一个填充位；先发完它，再按实际拍数发送界定、应答、帧结束和帧间隔。": "The last CRC bit may still owe a stuff bit. Send it first, then count actual ticks through delimiters, ACK, end of frame and intermission.",
   "发送方在应答位不拉低总线；有没有其他节点应答，要在听的阶段读回实际总线。": "The sender releases the bus in the ACK slot; whether another node acknowledges must be read back in the hearing phase.",
-  "发送一帧标准格式数据帧：标识符与长度需保持到发送完成，数据按队列提供。输出逐拍驱动、取走字节和完成；当前不处理仲裁失败或重传。": "Sends one standard-format data frame. Keep identifier and length stable until Done and provide data from the queue. Outputs driven bits, byte acceptance and completion; arbitration loss and retry are not yet handled.",
   "发送帧": "Frame transmitter",
   "最后字节": "Last byte",
   "听见应答": "Hear an acknowledgement",
@@ -324,5 +322,7 @@
   "让校验抓帧器持续听总线，用它的「结果就绪」识别 CRC 界定位。": "Keep the checked capture device listening; use Result ready to recognise the CRC delimiter.",
   "校验结果为是且已经落败时，记下需要应答；下一拍从寄存卡驱动显性 0。": "When the check is yes and this node has lost, remember that an ACK is needed; drive dominant 0 from the register on the next tick.",
   "只在落败时转交抓帧器的字段和校验结果。": "Pass through capture fields and check result only after losing.",
-  "在仲裁后转为接收，正确接收时应答；应答位比 CRC 界定位晚一拍，不能用本拍听到的值直接驱动本拍总线。": "After losing arbitration, become a receiver and acknowledge a correctly received frame. ACK is one tick after the CRC delimiter, so what is heard now cannot drive the bus in the same tick."
+  "在仲裁后转为接收，正确接收时应答；应答位比 CRC 界定位晚一拍，不能用本拍听到的值直接驱动本拍总线。": "After losing arbitration, become a receiver and acknowledge a correctly received frame. ACK is one tick after the CRC delimiter, so what is heard now cannot drive the bus in the same tick.",
+  "发送一帧标准格式数据帧，并标出仲裁段。标识符与长度需保持到发送完成，数据按队列提供；输出驱动位、取走字节和完成。当前不处理仲裁失败或重传。": "Sends one standard-format data frame and marks its arbitration field. Keep identifier and length stable until Done and provide data from the queue. Outputs driven bits, byte acceptance and completion; arbitration loss and retry are not yet handled.",
+  "「开始」时发送一帧标准格式数据帧。按协议驱动总线，仲裁段交出 1、其余拍交出 0；在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。": "On Start, send one standard-format data frame. Drive the bus and give 1 during arbitration and 0 on other ticks; take each queued byte when its final original bit is accepted and give yes on Done on the final intermission bit. Say 1 while idle."
 }

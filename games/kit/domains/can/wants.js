@@ -212,6 +212,11 @@ const WANTS = {
     const { next } = frameTransmission(params, test)
     return each(test, (tick) => next.includes(tick))
   },
+  frameArbitrating: ({ start }) => (test) => {
+    const at = test.inputs[start]?.findIndex((value) => value === 1 || value === true) ?? -1
+    const end = test.tx ? arbitrationLength(test.tx.id) : 0
+    return each(test, (tick) => Number(at >= 0 && tick >= at && tick < at + end))
+  },
   arbitrationDrive: (params) => (test) => arbitration(params, test).map((step) => step.drive),
   arbitrationLost: (params) => (test) => arbitration(params, test).map((step) => step.lost),
   arbitrationLine: (params) => (test) => arbitration(params, test).map((step) => step.line),

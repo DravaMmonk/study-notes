@@ -75,5 +75,5 @@ export function canCourse(content) {
     return result
   }
   // A task's wants read; a built part keeps its own registers.
-  return circuitCourse(content, { board, parts: PARTS, read: (task) => ({ ...task, expectsTx: Object.values(task.want ?? {}).some((call) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext'].includes(callOf(call)[0])), want: wantOf(task.want) }), test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
+  return circuitCourse(content, { board, parts: PARTS, read: (task) => ({ ...task, expectsTx: Object.values(task.want ?? {}).some((call) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating'].includes(callOf(call)[0])), want: wantOf(task.want) }), test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }
