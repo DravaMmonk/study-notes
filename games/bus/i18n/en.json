@@ -371,8 +371,6 @@
   "先用错误计数得到状态；下线时不要启动错误标志，被动时保留标志时长但不驱动显性。": "Get the state from the error counters; do not start an error flag while bus-off, and retain the flag duration without driving dominant when passive.",
   "状态限制的是节点对总线的影响：被动节点不再用显性错误标志打断其他节点，下线节点不发送。": "State limits the node’s effect on the bus: a passive node no longer interrupts others with a dominant error flag, while a bus-off node does not send.",
   "报告": "Report",
-  "「开始」时发送一帧标准格式数据帧。按协议驱动总线，仲裁段和应答位分别输出标志；在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。": "On Start, send one standard-format data frame. Drive the bus, mark arbitration and ACK, take each queued byte when its last original bit is accepted, and give yes on Done on the final intermission bit. Say 1 while idle.",
-  "发送一帧标准格式数据帧，并标出仲裁段与应答位。标识符与长度需保持到发送完成，数据按队列提供；输出驱动位、取走字节和完成。当前不处理仲裁失败或重传。": "Sends one standard-format data frame and marks arbitration and ACK. Keep identifier and length stable until Done and supply data from the queue. Outputs driven bits, byte acceptance and completion; arbitration loss and retry are not yet handled.",
   "等不到应答": "No acknowledgement",
   "发送方在应答位说 1，并读取实际总线。若这一拍仍是 1，就没有节点应答；这不是仲裁落败，而是缺应答错误。": "The sender says 1 in the ACK slot and reads the actual bus. If it is still 1, no node acknowledged. This is an ACK error, not arbitration loss.",
   "发送一帧，在应答位交出是否缺应答，其余拍交出「—」。测试包括有应答和无应答；本关只识别错误，不中断或重传。": "Send a frame and give whether acknowledgement is missing on its ACK slot, or 「—」 on other ticks. Tests include both acknowledged and unacknowledged frames; this level detects the error without interrupting or retrying.",
@@ -381,7 +379,6 @@
   "缺应答": "Missing ACK",
   "缺应答后重发": "Retry after a missing ACK",
   "如果应答位一直是隐性，发送方报告错误，等错误界定段和帧间隔结束后重新发送同一帧。本关只考虑错误主动状态下的少量缺应答。": "If the ACK slot stays recessive, the sender reports an error and retries the same frame after the error delimiter and intermission. This exercise covers a small number of missing ACKs while error-active.",
-  "发送一帧；缺应答时发六位显性错误标志，重置队列，等待八位错误界定段及三位帧间隔后重发。输出每次开始、完成及发送错误计数。成功发送后计数减一，最低为零。": "Send a frame. On a missing ACK, send a six-bit dominant error flag, rewind the queue, and retry after the eight-bit error delimiter and three-bit intermission. Output each attempt, completion, and the transmit error count. On success, decrease the count by one to a minimum of zero.",
   "组合发送器、错误标志和错误计数器；错误标志后数连续的隐性位。重发需要重新取出原来的字节。": "Combine the transmitter, error flag, and fault counter; count consecutive recessive bits after the flag. Retrying requires reading the original bytes again.",
   "缺应答会使错误主动的发送方增加发送错误计数，并中断当前帧。错误处理之后，发送方重试原帧。本关不覆盖错误被动时的例外。": "A missing ACK increases an error-active sender’s transmit error count and interrupts the current frame. After error handling the sender retries the original frame. The error-passive exception is outside this exercise.",
   "重置队列": "Rewind queue",
@@ -411,10 +408,14 @@
   "按事件更新状态。收到「报告」时，从下一拍开始发送对应的错误标志和八位隐性界定：主动状态说六个 0，被动状态说六个 1，下线时不发送。输出状态与完成信号。测试中标志不重叠，报告时状态不切换，状态也不会在标志期间变化。": "Update the state from the events. On Report, send the corresponding error flag and eight-bit recessive delimiter starting on the next tick: active says six 0s, passive says six 1s, and bus-off does not transmit. Output the state and completion signal. Flags do not overlap in the tests; the state does not change at Report or during a flag.",
   "被动节点继续重发": "A passive node retries",
   "如果被动发送方收不到应答，而且被动错误标志期间没有检测到显性，它的发送错误计数不再因这一错误增加。它仍要重发，并在帧间隔之后额外等待八位。": "When a passive sender misses an ACK and detects no dominant bit during its passive error flag, that error does not increase its transmit error count. It still retries, waiting another eight bits after intermission.",
-  "先按「准备事件」更新错误计数，再发送一帧。总线上没有其他故障：缺应答时输出被动错误标志，重新读取队列，等错误界定、帧间隔和发送暂停结束后重发。每次开始、取走、重置队列、完成、计数及状态都要交出；成功并完成间隔时记一次发送成功。": "First update the error count from Preparation events, then send a frame. No other errors occur on the bus: on a missing ACK, send a passive error flag, reread the queue, and retry after the error delimiter, intermission and suspend transmission. Output every start, byte taken, queue rewind, completion, count and state; record a successful transmission after completing intermission.",
   "准备阶段给 16 次一般发送错误，使计数达到 128；这是直接提供事件的练习，不模拟那 16 帧。": "The preparation stage gives 16 ordinary transmit errors to reach a count of 128; this exercise supplies events directly instead of simulating those 16 frames.",
   "错误标志结束后再等三个帧间隔位，把间隔结束接到发送暂停元件；被动标志期间总线保持隐性。": "After the error flag finishes, wait three intermission bits and connect intermission end to the suspend-transmission component. The bus remains recessive throughout the passive flag.",
   "缺应答不会单独让满足该例外的被动节点下线。帧成功后计数下降；真实总线上还要处理其他节点在等待期间开口或错误标志期间说显性的情况。": "Missing ACK alone does not force a passive node satisfying this exception bus-off. Its count decreases after a successful frame. A real bus must also handle other nodes starting during the wait or driving dominant during the error flag.",
   "准备事件": "Preparation event",
-  "初始化": "Initialize"
+  "初始化": "Initialize",
+  "发送一帧标准格式数据帧，并标出仲裁段、应答位与帧结束末位。标识符与长度需保持到发送完成，数据按队列提供；输出驱动位、取走字节和完成。当前不处理仲裁失败或重传。": "Sends one standard-format data frame and marks arbitration, ACK and the last end-of-frame bit. Keep identifier and length stable until Done and supply data from the queue. Outputs driven bits, byte acceptance and completion; arbitration loss and retry are not yet handled.",
+  "「开始」时发送一帧标准格式数据帧。按协议驱动总线，标出仲裁段、应答位和帧结束末位；在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。": "On Start, send one standard-format data frame. Drive the bus and mark arbitration, ACK and the last end-of-frame bit; take each queued byte when its last original bit is accepted, and give yes on Done on the final intermission bit. Say 1 while idle.",
+  "帧结束末位": "Final end-of-frame bit",
+  "发送一帧；缺应答时发六位显性错误标志，重置队列，等待八位错误界定段及三位帧间隔后重发。输出每次开始、完成及发送错误计数。成功发送到帧结束末位时计数减一，最低为零。": "Send a frame. On a missing ACK, send a six-bit dominant error flag, rewind the queue, and retry after the eight-bit error delimiter and three-bit intermission. Output each attempt, completion, and the transmit error count. After successful transmission through the final end-of-frame bit, decrease the count by one to a minimum of zero.",
+  "先按「准备事件」更新错误计数，再发送一帧。总线上没有其他故障：缺应答时输出被动错误标志，重新读取队列，等错误界定、帧间隔和发送暂停结束后重发。每次开始、取走、重置队列、完成、计数及状态都要交出；成功发送到帧结束末位时记一次发送成功。": "First update the error count from Preparation events, then send a frame. No other errors occur on the bus: on a missing ACK, send a passive error flag, reread the queue, and retry after the error delimiter, intermission and suspend transmission. Output every start, byte taken, queue rewind, completion, count and state; record a successful transmission on the final end-of-frame bit."
 }

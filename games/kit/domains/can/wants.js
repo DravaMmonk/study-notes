@@ -196,7 +196,7 @@ const ackRetryPlan = ({ start }, test) => {
     const pulse = test.bus.bits.map((_, tick) => Number(tick === at))
     for (const tick of frameTransmission({ start: '__attempt' }, { ...test, inputs: { ...test.inputs, __attempt: pulse } }).next) if (tick < ticks) next[tick] = true
     if (!failed) {
-      if (end < ticks) { done[end] = true; for (let tick = end; tick < ticks; tick++) tec[tick] = Math.max(0, errors * 8 - 1) }
+      if (end < ticks) { done[end] = true; for (let tick = end - 3; tick < ticks; tick++) tec[tick] = Math.max(0, errors * 8 - 1) }
       break
     }
     rewind[ack] = true
@@ -242,7 +242,7 @@ const passiveAckRetry = ({ start, prep, reset }, test) => {
     const pulse = test.bus.bits.map((_, tick) => Number(tick === at))
     for (const tick of frameTransmission({ start: '__attempt' }, { ...test, inputs: { ...test.inputs, __attempt: pulse } }).next) if (tick < ticks) next[tick] = true
     if (!failed) {
-      if (end < ticks) { done[end] = true; events[end] = 2 }
+      if (end < ticks) { done[end] = true; events[end - 3] = 2 }
       break
     }
     rewind[ack] = true
@@ -429,6 +429,10 @@ const WANTS = {
   frameAck: (params) => (test) => {
     const { bits, at } = frameTransmission(params, test)
     return each(test, (tick) => Number(at >= 0 && bits.length > 0 && tick === at + bits.length - 12))
+  },
+  frameEof: (params) => (test) => {
+    const { bits, at } = frameTransmission(params, test)
+    return each(test, (tick) => Number(at >= 0 && bits.length > 0 && tick === at + bits.length - 4))
   },
   frameAckMissing: (params) => (test) => {
     const { bits, at } = frameTransmission(params, test)

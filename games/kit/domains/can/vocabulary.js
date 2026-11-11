@@ -68,6 +68,7 @@ const WANTS = {
   frameQueueNext: item(t('每个数据字节的最后一个原始位被接受时取走队首', 'take each queued byte when its last original bit is accepted'), S.obj({ start: INPUT })),
   frameArbitrating: item(t('正在发送的帧处于仲裁段时为 1', '1 while the transmitted frame is in its arbitration field'), S.obj({ start: INPUT })),
   frameAck: item(t('发送的帧处于应答位时为 1', '1 during the transmitted frame’s ACK slot'), S.obj({ start: INPUT })),
+  frameEof: item(t('发送的帧处于帧结束字段最后一位时为 1', '1 on the final bit of the transmitted frame’s end-of-frame field'), S.obj({ start: INPUT })),
   frameAckMissing: item(t('应答位交出是否缺应答，其余拍为「—」', 'on the ACK slot give whether acknowledgement is missing, and 「—」 otherwise'), S.obj({ start: INPUT })),
   arbitrationDrive: item(t('仲裁落败后放开总线，开始时清空状态', 'release the bus after losing arbitration; start clears the state'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   arbitrationLost: item(t('仲裁落败时及之后为 1，开始时清空状态', '1 on and after arbitration loss; start clears the state'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
@@ -161,7 +162,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 38,
+  version: 39,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

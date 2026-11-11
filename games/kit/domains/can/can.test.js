@@ -506,6 +506,8 @@ test('missing ACK retry oracle replays the frame after the error flag and interm
   assert.deepEqual(result.Drive.slice(firstAck + 1, retryAt), [...Array(6).fill(0), ...Array(11).fill(1)])
   assert.deepEqual(result.Next.flatMap((v, tick) => v ? [tick] : []), [27, retryAt + 27])
   assert.equal(result.Tec[firstAck], 8)
+  assert.equal(result.Tec[retryAt + bits.length - 5], 8)
+  assert.equal(result.Tec[retryAt + bits.length - 4], 7)
   assert.equal(result.Tec[retryAt + bits.length - 1], 7)
 })
 
@@ -546,6 +548,8 @@ test('passive missing ACK retry waits through suspension and does not increase T
   assert.deepEqual(result.Rewind.flatMap((v, tick) => v ? [tick] : []), [ack])
   assert.deepEqual(result.Drive.slice(ack + 1, retry), Array(25).fill(1))
   assert.equal(result.Tec[ack], 128)
+  assert.equal(result.Tec[retry + bits.length - 5], 128)
+  assert.equal(result.Tec[retry + bits.length - 4], 127)
   assert.equal(result.Tec[retry + bits.length - 1], 127)
   assert.equal(result.Mode[ack], 1)
   assert.equal(result.Mode[retry + bits.length - 1], 0)
@@ -557,10 +561,11 @@ test('a transmitter releases ACK while another node can acknowledge', () => {
   const ack = frame.length - 12
   const peer = frame.map((_, tick) => tick === ack ? 0 : 1)
   const test = { tx, bus: { bits: peer }, inputs: { start: frame.map((_, tick) => Number(tick === 0)) } }
-  const want = wantOf({ send: { frameDrive: { start: 'start' } }, line: { frameLine: { start: 'start' } }, done: { frameSent: { start: 'start' } }, next: { frameQueueNext: { start: 'start' } }, arb: { frameArbitrating: { start: 'start' } }, ack: { frameAck: { start: 'start' } }, missing: { frameAckMissing: { start: 'start' } } })(test)
+  const want = wantOf({ send: { frameDrive: { start: 'start' } }, line: { frameLine: { start: 'start' } }, done: { frameSent: { start: 'start' } }, next: { frameQueueNext: { start: 'start' } }, arb: { frameArbitrating: { start: 'start' } }, ack: { frameAck: { start: 'start' } }, eof: { frameEof: { start: 'start' } }, missing: { frameAckMissing: { start: 'start' } } })(test)
   assert.equal(want.send[ack], 1)
   assert.equal(want.line[ack], 0)
   assert.equal(want.ack[ack], 1)
+  assert.equal(want.eof[frame.length - 4], 1)
   assert.equal(want.missing[ack], false)
   assert.equal(want.missing[ack - 1], null)
   assert.deepEqual(want.done.flatMap((value, tick) => value ? [tick] : []), [frame.length - 1])

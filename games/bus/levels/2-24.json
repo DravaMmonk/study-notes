@@ -5,7 +5,7 @@
   "tasks": [
     {
       "id": "2-24",
-      "brief": { "zh": "发送一帧；缺应答时发六位显性错误标志，重置队列，等待八位错误界定段及三位帧间隔后重发。输出每次开始、完成及发送错误计数。成功发送后计数减一，最低为零。" },
+      "brief": { "zh": "发送一帧；缺应答时发六位显性错误标志，重置队列，等待八位错误界定段及三位帧间隔后重发。输出每次开始、完成及发送错误计数。成功发送到帧结束末位时计数减一，最低为零。" },
       "hint": [{ "zh": "组合发送器、错误标志和错误计数器；错误标志后数连续的隐性位。重发需要重新取出原来的字节。" }],
       "listens": true,
       "drives": true,
@@ -106,7 +106,8 @@
         "attempt <- fire",
         "finished = select(wait, false, p.done)",
         "done <- finished",
-        "success = select(finished, two, zero)",
+        "eofvalid = select(wait, zero, p.eof)",
+        "success = select(eofvalid, two, zero)",
         "event = select(missing, five, success)",
         "fault = faultcounter(event, start)",
         "tec <- fault.tx"
@@ -142,7 +143,8 @@
         "attempt <- fire",
         "finished = select(wait, false, p.done)",
         "done <- finished",
-        "success = select(finished, two, zero)",
+        "eofvalid = select(wait, zero, p.eof)",
+        "success = select(eofvalid, two, zero)",
         "event = select(missing, five, success)",
         "fault = faultcounter(event, start)",
         "tec <- fault.tx"

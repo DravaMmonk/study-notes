@@ -6,7 +6,7 @@
     {
       "id": "2-28",
       "brief": {
-        "zh": "先按「准备事件」更新错误计数，再发送一帧。总线上没有其他故障：缺应答时输出被动错误标志，重新读取队列，等错误界定、帧间隔和发送暂停结束后重发。每次开始、取走、重置队列、完成、计数及状态都要交出；成功并完成间隔时记一次发送成功。"
+        "zh": "先按「准备事件」更新错误计数，再发送一帧。总线上没有其他故障：缺应答时输出被动错误标志，重新读取队列，等错误界定、帧间隔和发送暂停结束后重发。每次开始、取走、重置队列、完成、计数及状态都要交出；成功发送到帧结束末位时记一次发送成功。"
       },
       "hint": [
         { "zh": "准备阶段给 16 次一般发送错误，使计数达到 128；这是直接提供事件的练习，不模拟那 16 帧。" },
@@ -141,7 +141,8 @@
         "attempt <- fire",
         "finished = select(wait, false, p.done)",
         "done <- finished",
-        "success = select(finished, two, prep)",
+        "eofvalid = select(wait, zero, p.eof)",
+        "success = select(eofvalid, two, prep)",
         "event = select(missing, five, success)",
         "fault = faultcounter(event, reset)",
         "tec <- fault.tx",
@@ -188,7 +189,8 @@
         "attempt <- fire",
         "finished = select(wait, false, p.done)",
         "done <- finished",
-        "success = select(finished, two, prep)",
+        "eofvalid = select(wait, zero, p.eof)",
+        "success = select(eofvalid, two, prep)",
         "event = select(missing, five, success)",
         "fault = faultcounter(event, reset)",
         "tec <- fault.tx",
