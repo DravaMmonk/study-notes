@@ -327,6 +327,7 @@ const controllerPlan = ({ start, prep, reset, request, receive = false, interven
       accepted[acceptAt] = true
       resets[acceptAt + 1] = 1
       count = 0
+      receiveCount = 0
       at = acceptAt + 1
     } else {
       const passive = count >= 128 || receiveCount >= 128
@@ -767,6 +768,19 @@ const WANTS = {
   controllerInterveningError: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).error,
   controllerInterveningKind: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).kind,
   controllerInterveningReady: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).ready,
+  controllerIntegratedDrive: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).drive,
+  controllerIntegratedLost: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).lost,
+  controllerIntegratedNext: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).next,
+  controllerIntegratedRewind: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).rewind,
+  controllerIntegratedAttempts: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).attempts,
+  controllerIntegratedDone: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).done,
+  controllerIntegratedTec: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).tec,
+  controllerIntegratedRec: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).rec,
+  controllerIntegratedMode: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).mode,
+  controllerIntegratedError: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).error,
+  controllerIntegratedKind: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).kind,
+  controllerIntegratedReady: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).ready,
+  controllerIntegratedAccepted: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).accepted,
   suspendReady: (params) => (test) => suspendReady(params, test),
   suspendRequest: ({ request, ...params }) => (test) => suspendReady(params, test).map((ready, tick) => ready && Boolean(test.inputs[request][tick])),
   passiveAckDrive: (params) => (test) => passiveAckRetry(params, test).drive,

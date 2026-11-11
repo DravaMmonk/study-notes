@@ -946,6 +946,27 @@ test('shared controller receives a frame that starts during passive retry suspen
   assert.equal(result.Tec[retry + transmitBits(tx).length - 4], 127)
 })
 
+test('integrated bus-off recovery clears both counters before retry', () => {
+  const tx = { id: 0x123, data: [0xa5] }
+  const bus = busOf({ idle: 140, frames: [{ id: 0x2a5, data: [0x55], ack: false }], tail: 1540 })
+  const start = 212
+  const failure = start + 30
+  const accepted = failure + 128 * 11
+  const retry = accepted + 1
+  bus.bits[retry + transmitBits(tx).length - 12] = 0
+  const inputs = { prep: bus.bits.map((_, tick) => tick < 31 ? 1 : tick < 33 ? 3 : 0), reset: bus.bits.map((_, tick) => Number(tick === 0)), start: bus.bits.map((_, tick) => Number(tick === start)), request: bus.bits.map((_, tick) => Number(tick === accepted)) }
+  const params = { prep: 'prep', reset: 'reset', start: 'start', request: 'request' }
+  const calls = Object.fromEntries(['Attempts', 'Tec', 'Rec', 'Mode', 'Accepted'].map((name) => [name, { [`controllerIntegrated${name}`]: params }]))
+  const result = wantOf(calls)({ tx, bus, inputs, flipTicks: [failure] })
+  assert.equal(result.Tec[failure], 256)
+  assert.equal(result.Rec[accepted], 1)
+  assert.equal(result.Accepted[accepted], true)
+  assert.equal(result.Tec[retry], 0)
+  assert.equal(result.Rec[retry], 0)
+  assert.equal(result.Mode[retry], 0)
+  assert.deepEqual(result.Attempts.flatMap((value, tick) => value ? [tick] : []), [start, retry])
+})
+
 test('a transmitter releases ACK while another node can acknowledge', () => {
   const tx = { id: 0x123, data: [0xa5] }
   const frame = frameBits(tx)

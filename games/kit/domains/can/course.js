@@ -69,7 +69,7 @@ export function canCourse(content) {
       if (!task.pulls?.rewind) say('passive ACK retry tests require a rewindable queue')
     }
     if (task.expectsController) {
-      if ((!task.expectsControllerDuplex && t.bus.frames.length) || (task.expectsControllerDuplex && ((t.bus.frames.length < 1 || t.bus.frames.length > (task.expectsControllerIntervening ? 2 : 1)) || t.bus.frames.some((frame) => frame.ack !== false) || (task.expectsControllerIntervening && t.contenders?.length))) || t.peerBits || (!task.expectsControllerFault && t.flipTicks?.length) || (t.flipTicks?.length ?? 0) > (task.expectsControllerDuplex ? 2 : 1) || (t.contenders?.length ?? 0) > 1 || t.contenders?.some((node) => node.detectErrors)) say('controller tests require the declared frame, contender and bit-error limits')
+      if ((!task.expectsControllerDuplex && t.bus.frames.length) || (task.expectsControllerDuplex && ((t.bus.frames.length < 1 || t.bus.frames.length > (task.expectsControllerIntervening ? 2 : 1)) || t.bus.frames.some((frame) => frame.ack !== false) || (t.bus.frames.length > 1 && t.contenders?.length))) || t.peerBits || (!task.expectsControllerFault && t.flipTicks?.length) || (t.flipTicks?.length ?? 0) > (task.expectsControllerDuplex ? 2 : 1) || (t.contenders?.length ?? 0) > 1 || t.contenders?.some((node) => node.detectErrors)) say('controller tests require the declared frame, contender and bit-error limits')
       if ((t.contenders ?? []).some((node) => (node.at ?? 0) !== (t.txAt ?? 0))) say('controller contender must start with the transmitted frame')
       if (t.tx && t.contenders?.some((node) => num(node.id) === num(t.tx.id))) say('controller contender must have a distinct identifier')
       if (t.tx && JSON.stringify((t.tx.data ?? []).map(num)) !== JSON.stringify((t.queue ?? []).map(num))) say('controller queue must contain the transmitted frame data')
@@ -184,6 +184,7 @@ export function canCourse(content) {
           if ((count < 128 && receiveCount < 128) || flip !== undefined) count += 8
           failures++
           if (count >= 256 && task.expectsControllerBusoff) {
+            if (result.bus.frames[1]) say('bus-off recovery tests cannot also contain an intervening frame')
             const requests = result.inputs[task.controllerAdaptiveParams.request] ?? []
             const accepted = requests.findIndex((value, tick) => tick >= failure + 128 * 11 && Boolean(value))
             if (accepted < 0 || accepted + 1 >= result.ticks) { ack = result.ticks; break }
@@ -193,6 +194,7 @@ export function canCourse(content) {
             const frame = task.expectsControllerIntervening && passive ? result.bus.frames[1] : null
             const end = failure + 17
             if (frame && frame.at > end && frame.at <= end + 8) {
+              if (count < 128) say('an intervening-frame test must remain passive after its reception')
               usedIntervening = true
               at = frame.at + transmitBits(frame).length
               receiveCount = receiveCount > 127 ? 127 : Math.max(0, receiveCount - 1)
@@ -255,11 +257,12 @@ export function canCourse(content) {
     const expectsPassiveAck = passiveAckCalls.length > 0
     const controllerStarts = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controller')).map(([, params]) => params.start)
     const expectsController = controllerStarts.length > 0
-    const controllerBusoffCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controllerBusoff')).map(([, params]) => params)
+    const expectsControllerIntegrated = names.some((name) => name.startsWith('controllerIntegrated'))
+    const controllerBusoffCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controllerBusoff') || name.startsWith('controllerIntegrated')).map(([, params]) => params)
     const expectsControllerBusoff = controllerBusoffCalls.length > 0
-    const expectsControllerIntervening = names.some((name) => name.startsWith('controllerIntervening'))
+    const expectsControllerIntervening = expectsControllerIntegrated || names.some((name) => name.startsWith('controllerIntervening'))
     const expectsControllerDuplex = expectsControllerIntervening || names.some((name) => name.startsWith('controllerDuplex'))
-    const controllerAdaptiveCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controllerAdaptive') || name.startsWith('controllerBusoff') || name.startsWith('controllerDuplex') || name.startsWith('controllerIntervening')).map(([, params]) => params)
+    const controllerAdaptiveCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controllerAdaptive') || name.startsWith('controllerBusoff') || name.startsWith('controllerDuplex') || name.startsWith('controllerIntervening') || name.startsWith('controllerIntegrated')).map(([, params]) => params)
     const expectsControllerAdaptive = controllerAdaptiveCalls.length > 0
     const expectsControllerFault = expectsControllerAdaptive || names.some((name) => name.startsWith('controllerFault'))
     const collisionCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('collision')).map(([, params]) => params)
