@@ -1134,3 +1134,8 @@ test('a frame filter ignores other identifiers without losing a zero value', () 
   const want = wantOf({ value: { matchingFrameSignal: { input: 'byte', identifier: 'id', match: 0x100 } } })
   assert.deepEqual(want({ inputs: { id: [0x100, 0x200, 0x100], byte: [0, 5, 7] } }).value, [0, null, 7])
 })
+
+test('frame intervals use actual scheduled start times', () => {
+  const want = wantOf({ elapsed: { elapsedFrameSignal: { time: 'time' } } })
+  assert.deepEqual(want({ inputs: { time: [12, 100, 155, 300] } }).elapsed, [null, 88, 55, 145])
+})
