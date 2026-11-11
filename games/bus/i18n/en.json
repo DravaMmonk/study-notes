@@ -165,5 +165,18 @@
   "输入是已经填充的位串。原始位到来时交出它并让「有效」为是；填充位那一拍交出「—」，让「有效」为否。「重来」为 1 时先清空计数，再处理这一拍的位。": "The input is a stuffed bit stream. Give each original bit and set Valid to yes; give 「—」 and Valid no on a stuff bit. When Reset is 1, clear the count first and then process this tick’s bit.",
   "跳过填充位；该拍交出「—」并让「有效」为否，其余拍交出位并让「有效」为是。「重来」为 1 时先清空状态，再处理这一拍的位。每块有自己的寄存卡。": "Skips stuff bits, giving 「—」 and Valid no on those ticks, otherwise giving the bit and Valid yes. Reset clears the state before processing the current bit. Each part has its own registers.",
   "从帧起始读帧，在对应字段的最后一位交出标识符、长度和每个数据字节；其他拍交出「—」。「重来」先清空状态，再处理这一位。不检查 CRC，也不寻找帧起始。": "Reads frames from start of frame, giving each identifier, length and data byte on the last bit of its field and 「—」 on other ticks. Reset clears the state before this bit. It does not check CRC or locate frame starts.",
-  "从帧起始读一帧或连续帧：「重来」为 1 时先清空状态，再处理这一位。在标识符和长度字段的最后一位分别交出它们；每凑满一个数据字节就交出该字节，其他拍交出「—」。": "Read one or more frames from their starts. When Reset is 1, clear the state before processing this bit. Give the identifier and length on each field’s last bit and each data byte when complete; give 「—」 on other ticks."
+  "从帧起始读一帧或连续帧：「重来」为 1 时先清空状态，再处理这一位。在标识符和长度字段的最后一位分别交出它们；每凑满一个数据字节就交出该字节，其他拍交出「—」。": "Read one or more frames from their starts. When Reset is 1, clear the state before processing this bit. Give the identifier and length on each field’s last bit and each data byte when complete; give 「—」 on other ticks.",
+  "抓一帧": "Capture a frame",
+  "先把探针插上总线。它必须等足够长的隐性空闲，认出帧起始，才让解析器从这一位重来；插上前不应凭空交出字段。": "First connect the probe to the bus. It must wait for a long enough recessive idle and find the start of frame before restarting the parser on that bit; it must not invent fields before then.",
+  "总线先空闲，再来一帧。交出这帧的标识符、长度和每个字节：各在字段或字节的最后一位交出，其余拍为「—」。": "The bus is idle, then one frame arrives. Give its identifier, length and each data byte on the last bit of the field or byte, and 「—」 on other ticks.",
+  "用计数器找连续至少 11 位隐性之后的第一个显性，把它接到解析器的「重来」。": "Use a counter to find the first dominant bit after at least 11 recessive bits and connect it to the parser’s Reset input.",
+  "一块抓帧器把找到起点和读字段接了起来；它还没有检查 CRC。": "The capture device combines finding a start with reading fields; it does not yet check CRC.",
+  "从连续总线上找到帧起始，读出各帧标识符、长度和数据字节；尚不检查 CRC。": "Finds frame starts on a continuous bus and reads each identifier, length and data byte; does not yet check CRC.",
+  "抓帧器": "Frame capture",
+  "抓一串": "Capture a sequence",
+  "现在把抓帧器接到连续的总线，记录每帧的字段，也给每帧一个从 1 开始的序号。帧可以紧挨着，中间只有三位帧间隔。": "Now connect the capture device to a continuous bus. Record the fields of each frame and number the frames from 1. Frames may be adjacent, with only the three-bit intermission.",
+  "在每个帧起始交出它的序号；同时交出每帧标识符、长度和每个数据字节。每项在没有新值的拍交出「—」。": "At each start of frame give its index; also give each identifier, length and data byte. For each output give 「—」 on ticks with no new value.",
+  "每找到一个帧起始，让寄存卡里的帧数加一；帧的其他字段交给抓帧器。": "Increment a register whenever you find a start of frame; leave field reading to the capture device.",
+  "每次帧起始都会重新开始解析，帧序号则跨帧保留。": "Each start of frame restarts parsing, while the frame count persists across frames.",
+  "序号": "Index"
 }

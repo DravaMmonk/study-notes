@@ -149,6 +149,12 @@ test('end of frame is the last EOF bit, before three intermission bits', () => {
   }
 })
 
+test('frame indices occur at each start, including adjacent frames', () => {
+  const bus = busOf({ idle: 12, frames: [{ id: 0x123, data: [] }, { id: 0x7ff, data: [0xa5] }], tail: 0 })
+  const out = wantOf({ index: 'frameIndex' })({ bus }).index
+  assert.deepEqual(out.flatMap((value, tick) => value === null ? [] : [[tick, value]]), bus.frames.map((frame, index) => [frame.at, index + 1]))
+})
+
 test('XOR and polynomial remainders handle enabled ticks and reset', () => {
   assert.equal(PARTS.xor.eval({ a: 0x4599, b: 0x1234 }), 0x57ad)
   assert.equal(PARTS.xor.eval({ a: null, b: 1 }), null)

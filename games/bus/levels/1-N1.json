@@ -1,0 +1,66 @@
+{
+  "title": { "zh": "抓一帧" },
+  "intro": [{ "t": { "zh": "先把探针插上总线。它必须等足够长的隐性空闲，认出帧起始，才让解析器从这一位重来；插上前不应凭空交出字段。" } }],
+  "builds": {
+    "type": "capture",
+    "name": { "zh": "抓帧器" },
+    "desc": { "zh": "从连续总线上找到帧起始，读出各帧标识符、长度和数据字节；尚不检查 CRC。" }
+  },
+  "after": { "zh": "一块抓帧器把找到起点和读字段接了起来；它还没有检查 CRC。" },
+  "tasks": [
+    {
+      "id": "1-N1",
+      "brief": { "zh": "总线先空闲，再来一帧。交出这帧的标识符、长度和每个字节：各在字段或字节的最后一位交出，其余拍为「—」。" },
+      "hint": [{ "zh": "用计数器找连续至少 11 位隐性之后的第一个显性，把它接到解析器的「重来」。" }],
+      "inputs": [{ "name": "bit", "label": { "zh": "位" } }],
+      "outputs": [
+        { "name": "id", "label": { "zh": "标识符" } },
+        { "name": "length", "label": { "zh": "数据长度" } },
+        { "name": "byte", "label": { "zh": "字节" } }
+      ],
+      "tests": [
+        { "bus": { "idle": 12, "frames": [{ "id": "0x123", "data": ["0x55"] }] }, "lineInputs": ["bit"] },
+        {
+          "bus": { "idle": 14, "frames": [{ "id": "0x7ff", "data": ["0x00", "0xff"] }] },
+          "lineInputs": ["bit"]
+        }
+      ],
+      "hidden": [
+        { "bus": { "idle": 50, "frames": [{ "id": "0x000", "data": ["0x01"] }] }, "lineInputs": ["bit"] }
+      ],
+      "want": { "id": "identifier", "length": "dataLength", "byte": "dataByte" },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ten = const[value=10]()",
+        "quiet = counter(bit)",
+        "long = compare[form=lt](ten, quiet)",
+        "low = compare[form=eq](bit, zero)",
+        "sof = select(long, low, zero)",
+        "p = frameparse(bit, sof)",
+        "r = reg[reg=A, start=0]()",
+        "active = select(sof, one, r)",
+        "k = keep[reg=A](active)",
+        "i = select(active, p.id)",
+        "l = select(active, p.length)",
+        "b = select(active, p.byte)",
+        "id <- i",
+        "length <- l",
+        "byte <- b"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ten = const[value=10]()",
+        "quiet = counter(bit)",
+        "long = compare[form=lt](ten, quiet)",
+        "low = compare[form=eq](bit, zero)",
+        "sof = select(long, low, zero)",
+        "p = frameparse(bit, zero)",
+        "id <- p.id",
+        "length <- p.length",
+        "byte <- p.byte"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "title": { "zh": "抓一串" },
+  "intro": [{ "t": { "zh": "现在把抓帧器接到连续的总线，记录每帧的字段，也给每帧一个从 1 开始的序号。帧可以紧挨着，中间只有三位帧间隔。" } }],
+  "after": { "zh": "每次帧起始都会重新开始解析，帧序号则跨帧保留。" },
+  "tasks": [
+    {
+      "id": "1-N2",
+      "brief": { "zh": "在每个帧起始交出它的序号；同时交出每帧标识符、长度和每个数据字节。每项在没有新值的拍交出「—」。" },
+      "hint": [{ "zh": "每找到一个帧起始，让寄存卡里的帧数加一；帧的其他字段交给抓帧器。" }],
+      "inputs": [{ "name": "bit", "label": { "zh": "位" } }],
+      "outputs": [
+        { "name": "index", "label": { "zh": "序号" } },
+        { "name": "id", "label": { "zh": "标识符" } },
+        { "name": "length", "label": { "zh": "数据长度" } },
+        { "name": "byte", "label": { "zh": "字节" } }
+      ],
+      "tests": [
+        {
+          "bus": { "idle": 12, "frames": [{ "id": "0x123", "data": ["0x55"] }, { "id": "0x7ff", "data": [] }] },
+          "lineInputs": ["bit"]
+        },
+        {
+          "bus": {
+            "idle": 11,
+            "frames": [
+              { "id": "0x000", "data": ["0x00"] },
+              { "id": "0x2a5", "data": ["0x11", "0x22"] },
+              { "id": "0x7ff", "data": ["0xff"] }
+            ]
+          },
+          "lineInputs": ["bit"]
+        }
+      ],
+      "want": { "index": "frameIndex", "id": "identifier", "length": "dataLength", "byte": "dataByte" },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ten = const[value=10]()",
+        "quiet = counter(bit)",
+        "long = compare[form=lt](ten, quiet)",
+        "low = compare[form=eq](bit, zero)",
+        "sof = select(long, low, zero)",
+        "p = capture(bit)",
+        "r = reg[reg=A, start=0]()",
+        "inc = arith[form=inc](r)",
+        "next = select(sof, inc, r)",
+        "k = keep[reg=A](next)",
+        "c = select(sof, next)",
+        "index <- c",
+        "id <- p.id",
+        "length <- p.length",
+        "byte <- p.byte"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ten = const[value=10]()",
+        "quiet = counter(bit)",
+        "long = compare[form=lt](ten, quiet)",
+        "low = compare[form=eq](bit, zero)",
+        "sof = select(long, low, zero)",
+        "p = capture(bit)",
+        "c = select(sof, one)",
+        "index <- c",
+        "id <- p.id",
+        "length <- p.length",
+        "byte <- p.byte"
+      ]
+    }
+  ]
+}

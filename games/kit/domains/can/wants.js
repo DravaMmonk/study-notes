@@ -93,6 +93,11 @@ const WANTS = {
     for (const frame of test.bus.frames) out[frame.at + frameBits(frame).length - 4] = true
     return out
   },
+  frameIndex: () => (test) => {
+    const out = test.bus.bits.map(() => null)
+    test.bus.frames.forEach((frame, index) => { out[frame.at] = index + 1 })
+    return out
+  },
   bitParity: ({ a, b, c }) => (test) => each(test, (tick) => test.inputs[a][tick] ^ test.inputs[b][tick] ^ test.inputs[c][tick]),
   remainder: (params) => (test) => remainders(params, test),
   crcCheck: (params) => (test) => remainders(params, test).map((value, tick) => test.inputs[params.finish][tick] ? value === 0 : null),
