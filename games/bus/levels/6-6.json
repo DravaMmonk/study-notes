@@ -1,0 +1,43 @@
+{
+  "title": { "zh": "使用模拟刷写器" },
+  "intro": [{ "t": { "zh": "封装刷写电路后，让它处理另一组软件与块上限，确认每个实例拥有自己的阶段和计数。" } }],
+  "after": { "zh": "封装件运行的是你搭建的电路；当前仍限定每一步按时成功。" },
+  "tasks": [
+    {
+      "id": "6-6",
+      "brief": { "zh": "使用模拟刷写器完成软件下载、校验与重启，并交出请求和完成结果。" },
+      "hint": [{ "zh": "把控制器回答和软件序列接入封装件，分别转交它的请求和完成结果。" }],
+      "inputs": [
+        { "name": "reply", "label": { "zh": "控制器回答" } },
+        { "name": "image", "label": { "zh": "待刷写软件" } }
+      ],
+      "outputs": [
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "done", "label": { "zh": "完成" } }
+      ],
+      "ecu": { "request": "request", "response": "reply", "image": "image" },
+      "tests": [
+        {
+          "bus": { "idle": 10, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [],
+            "flash": { "maxBlock": 5, "expectedChecksum": 35, "image": [9, 8, 7, 6, 5] }
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 9, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [],
+            "flash": { "maxBlock": 6, "expectedChecksum": 254, "image": [255, 0, 255] }
+          }
+        }
+      ],
+      "want": { "request": "ecuDynamicFlashRequests", "done": "ecuDynamicFlashDone" },
+      "solution": ["f = flasher(reply, image)", "request <- f.request", "done <- f.done"]
+    }
+  ]
+}

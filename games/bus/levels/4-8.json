@@ -1,0 +1,93 @@
+{
+  "title": { "zh": "等流控再发后续帧" },
+  "intro": [{ "t": { "zh": "发送长消息时，首帧送出后必须等接收方的流控许可。本练习中的接收方会按测试给定的延迟返回 [0x30, 块大小, 最小间隔]。" } }],
+  "after": { "zh": "等待许可是发送方和接收方之间的实际交互。这个练习只发一个后续帧，块大小与帧间隔会在后续处理。" },
+  "tasks": [
+    {
+      "id": "4-8",
+      "brief": { "zh": "每次给一条八字节消息：先发送首帧；收到以 0x30 开头的流控许可时，发送序号为 1 的后续帧。其余拍不要发帧。" },
+      "hint": [{ "zh": "首帧携带长度与前六字节；从流控输入读取第一个字节，许可到达后再拼接剩余两个字节。" }],
+      "inputs": [
+        { "name": "message", "label": { "zh": "待发送消息" } },
+        { "name": "flow", "label": { "zh": "接收方流控" } }
+      ],
+      "outputs": [{ "name": "frame", "label": { "zh": "发送帧数据" } }],
+      "transport": { "frame": "frame", "flow": "flow", "message": "message" },
+      "tests": [
+        {
+          "bus": { "idle": 4, "frames": [], "tail": 0 },
+          "transport": { "message": [1, 2, 3, 4, 5, 6, 7, 8], "blockSize": 0, "separation": 0, "flowDelay": 1 }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 6, "frames": [], "tail": 0 },
+          "transport": {
+            "message": [10, 20, 30, 40, 50, 60, 70, 80],
+            "blockSize": 0,
+            "separation": 0,
+            "flowDelay": 3
+          }
+        },
+        {
+          "bus": { "idle": 5, "frames": [], "tail": 0 },
+          "transport": { "message": [0, 0, 0, 1, 2, 3, 4, 5], "blockSize": 0, "separation": 0, "flowDelay": 2 }
+        }
+      ],
+      "want": { "frame": "transportFrames" },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "six = const[value=6]()",
+        "eight = const[value=8]()",
+        "ffCode = const[value=16]()",
+        "cfCode = const[value=33]()",
+        "flowCode = const[value=48]()",
+        "first = compare[form=eq](tick, zero)",
+        "a = byteList(ffCode)",
+        "b = byteList(eight)",
+        "head = concatBytes(a, b)",
+        "prefix = sliceBytes(message, zero, six)",
+        "ff = concatBytes(head, prefix)",
+        "c = byteList(cfCode)",
+        "suffix = sliceBytes(message, six, two)",
+        "cf = concatBytes(c, suffix)",
+        "flowHead = sliceBytes(flow, zero, one)",
+        "flowByte = byteList(flowCode)",
+        "permitted = compare[form=eq](flowHead, flowByte)",
+        "later = select(permitted, cf)",
+        "out = select(first, ff, later)",
+        "frame <- out"
+      ],
+      "naive": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "six = const[value=6]()",
+        "eight = const[value=8]()",
+        "ffCode = const[value=16]()",
+        "cfCode = const[value=33]()",
+        "first = compare[form=eq](tick, zero)",
+        "a = byteList(ffCode)",
+        "b = byteList(eight)",
+        "head = concatBytes(a, b)",
+        "prefix = sliceBytes(message, zero, six)",
+        "ff = concatBytes(head, prefix)",
+        "c = byteList(cfCode)",
+        "suffix = sliceBytes(message, six, two)",
+        "cf = concatBytes(c, suffix)",
+        "second = compare[form=eq](tick, one)",
+        "later = select(second, cf)",
+        "out = select(first, ff, later)",
+        "frame <- out"
+      ]
+    }
+  ]
+}
