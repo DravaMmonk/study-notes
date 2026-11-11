@@ -20,7 +20,7 @@ for (const id of knownGames(asked.length ? asked : ALL_GAMES, 'npm run check [--
   try {
     // Read frozen: nothing that checks a game may write into its content.
     const content = deepFreeze(readContent(id))
-    head = `${content.title.zh} ${content.title.en}`
+    head = `${content.title.zh ?? content.title} (${id})`
     lines = await checkGame(content, { domain: await domainOf(content), listed: GAMES.find((game) => game.id === id).levels, mutants })
     // Files changed outside the operation set since its log last says: noted, not failed (adopt takes them).
     const ws = openGame(id)

@@ -90,4 +90,13 @@ export const GAMES = [
     levels: 18, art: 'shear', dev: true,
     page: { icon: 'M14 44l10-24h26l-10 24zM19 32h26M37 20l-10 24', description: '线性之格 The Linear Grid：从箭头搭起线性代数的解谜关卡。Linear algebra built up from arrows, as puzzle levels.' },
   },
+  {
+    id: 'market', href: 'market/index.html', title: '看不见的手', en: 'The Invisible Hand', topic: { zh: '经济学', en: 'Economics' },
+    desc: {
+      zh: '一家小店，每天进货，定一个价。先亲手试出合适的价格，再搭一台替你调价的机器，看它在行情变化的街上自己找到价格。',
+      en: 'A small shop takes in stock every day and sets a price. Find the right price by hand, then build the machine that finds it for you, and watch it follow a street whose trade keeps changing.',
+    },
+    levels: 3, dev: true,
+    page: { icon: 'M16 44V24l16-8 16 8v20M26 44V32h12v12', description: '看不见的手 The Invisible Hand：先手做，再搭出替你做的机器。Price a shop by hand, then build the machine that does it.' },
+  },
 ];

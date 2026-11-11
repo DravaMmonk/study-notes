@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { packed, sink, source } from './boards.js'
-import { boardNode, drive, hearing, register, runTicks, store } from './ticks.js'
+import { boardNode, drive, hearing, reacting, register, runTicks, store } from './ticks.js'
 
 const PARTS = {
   input: source(),
@@ -73,4 +73,12 @@ test('a packed part with several outputs says from its registers before it hears
   assert.equal(error, undefined)
   assert.deepEqual(steps.map((s) => s.line), [1, 0, 0, 0])
   assert.deepEqual(steps.map((s) => s.heard.b.outputs.out), [1, 0, 0, 0])
+})
+
+test('a world answers a board: what the board gives this tick is what the world shows it the next', () => {
+  // The board doubles what it reads; the world shows it back one more than it was given.
+  const circuit = { nodes: [{ id: 'seen', type: 'input', params: { name: 'seen' } }, { id: 'a', type: 'add' }, { id: 'out', type: 'output', params: { name: 'out' } }], wires: w('seen>a.a seen>a.b a>out') }
+  const world = reacting({ board: 'you', start: 1, reads: (state) => ({ seen: state }), step: (state, { out }) => ({ state: out + 1, shown: { was: state, given: out } }) })
+  const run = runTicks({ nodes: [boardNode({ id: 'you', circuit, parts: PARTS, bind: world.bind }), world.node], ticks: 3, line: () => null })
+  assert.deepEqual(run.steps.map((s) => s.heard.world), [{ was: 1, given: 2 }, { was: 3, given: 6 }, { was: 7, given: 14 }])
 })
