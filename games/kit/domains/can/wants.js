@@ -27,6 +27,35 @@ const destuff = (bits, resets) => {
   })
 }
 
+const frameStatusTrace = (bit, test) => {
+  const line = test.inputs[bit]
+  const status = test.bus.bits.map(() => null)
+  const kind = test.bus.bits.map(() => null)
+  for (const frame of test.bus.frames) {
+    const original = []
+    const required = 34 + frame.data.length * 8
+    let previous = null
+    let run = 0
+    let tick = frame.at
+    let failed = false
+    while (original.length < required || run === 5) {
+      const value = line[tick]
+      if (run === 5) {
+        if (value === previous) { status[tick] = false; kind[tick] = 1; failed = true; break }
+        previous = value
+        run = 1
+      } else {
+        original.push(value)
+        run = value === previous ? run + 1 : 1
+        previous = value
+      }
+      tick++
+    }
+    if (!failed) { status[tick] = crc15(original) === 0; kind[tick] = status[tick] ? 0 : 2 }
+  }
+  return { status, kind }
+}
+
 const serial = ({ value, start, advance }, test) => {
   let byte = 0
   let position = 8
@@ -709,33 +738,8 @@ const WANTS = {
       return Number(error)
     })
   },
-  frameStatus: ({ bit }) => (test) => {
-    const line = test.inputs[bit]
-    const out = test.bus.bits.map(() => null)
-    for (const frame of test.bus.frames) {
-      const original = []
-      const required = 34 + frame.data.length * 8
-      let previous = null
-      let run = 0
-      let tick = frame.at
-      let failed = false
-      while (original.length < required || run === 5) {
-        const value = line[tick]
-        if (run === 5) {
-          if (value === previous) { out[tick] = false; failed = true; break }
-          previous = value
-          run = 1
-        } else {
-          original.push(value)
-          run = value === previous ? run + 1 : 1
-          previous = value
-        }
-        tick++
-      }
-      if (!failed) out[tick] = crc15(original) === 0
-    }
-    return out
-  },
+  frameStatus: ({ bit }) => (test) => frameStatusTrace(bit, test).status,
+  frameStatusKind: ({ bit }) => (test) => frameStatusTrace(bit, test).kind,
   frameStatusReady: (params) => (test) => WANTS.frameStatus(params)(test).map((value) => Number(value !== null)),
   bitParity: ({ a, b, c }) => (test) => each(test, (tick) => test.inputs[a][tick] ^ test.inputs[b][tick] ^ test.inputs[c][tick]),
   remainder: (params) => (test) => remainders(params, test),

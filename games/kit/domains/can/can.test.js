@@ -250,6 +250,9 @@ test('frame status distinguishes CRC errors and a final stuffing error', () => {
   const normal = status({ bus, inputs: { bit: good } }).ok
   const broken = status({ bus, inputs: { bit: badStuff } }).ok
   const ready = wantOf({ ready: { frameStatusReady: { bit: 'bit' } } })({ bus, inputs: { bit: badStuff } }).ready
+  const kind = wantOf({ kind: { frameStatusKind: { bit: 'bit' } } })
+  assert.equal(kind({ bus, inputs: { bit: good } }).kind[finalStuff + 1], 0)
+  assert.equal(kind({ bus, inputs: { bit: badStuff } }).kind[finalStuff], 1)
   assert.equal(normal[finalStuff + 1], true)
   assert.equal(broken[finalStuff], false)
   assert.equal(ready[finalStuff], 1)
@@ -262,6 +265,7 @@ test('frame status distinguishes CRC errors and a final stuffing error', () => {
   const altered = busOf({ idle: 0, frames: [{ id: 0x2a5, data: [0xd5] }], tail: 0 })
   const badCrc = status({ bus: altered, inputs: { bit: bits } }).ok
   assert.deepEqual(badCrc.flatMap((value, tick) => value === null ? [] : [[tick, value]]), [[frameBits({ id: 0x2a5, data: [0x55] }).length - 13, false]])
+  assert.equal(kind({ bus: altered, inputs: { bit: bits } }).kind[frameBits({ id: 0x2a5, data: [0x55] }).length - 13], 2)
 })
 
 test('stuffing error latches and resets even when checking is disabled', () => {
