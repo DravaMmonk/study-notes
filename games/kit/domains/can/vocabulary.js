@@ -142,6 +142,10 @@ const WANTS = {
   recoveryControllerRx: item(t('按事件和获准恢复更新接收错误计数', 'receive error count after events and accepted recovery'), S.obj({ event: INPUT, init: INPUT, bit: INPUT, request: INPUT })),
   recoveryControllerMode: item(t('按事件和获准恢复更新节点状态', 'node state after events and accepted recovery'), S.obj({ event: INPUT, init: INPUT, bit: INPUT, request: INPUT })),
   recoveryControllerAccepted: item(t('下线观察结束后接受恢复请求', 'accept a recovery request after bus-off observation'), S.obj({ event: INPUT, init: INPUT, bit: INPUT, request: INPUT })),
+  receiveFrameDrive: item(t('正确接收时应答，否则按错误种类发送主动错误标志', 'acknowledge a valid frame or send an active flag at the appropriate error time'), S.obj({ prep: INPUT, reset: INPUT })),
+  receiveFrameKind: item(t('接收结果为 0 正确、1 填充错误、2 CRC 错误，其余拍为「—」', 'receive result: 0 valid, 1 stuff error, 2 CRC error, or 「—」 on other ticks'), S.obj({ prep: INPUT, reset: INPUT })),
+  receiveFrameReady: item(t('接收结果出现时为 1', '1 when a receive result is ready'), S.obj({ prep: INPUT, reset: INPUT })),
+  receiveFrameRec: item(t('按准备事件及接收结果更新的接收错误计数', 'receive error count after preparation events and receive results'), S.obj({ prep: INPUT, reset: INPUT })),
   stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialCrc: item(t('最后原始位被取走时给该字节的 CRC-15', 'the CRC-15 of the byte when its final original bit is accepted'), S.obj({ value: INPUT, start: INPUT })),
@@ -176,7 +180,7 @@ const WANTS = {
 
 /* ---------- a level ---------- */
 
-const FRAME = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), gap: S.opt(nat) })
+const FRAME = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), gap: S.opt(nat), ack: S.opt(S.bool()) })
 const CONTENDER = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), at: S.opt(nat), detectErrors: S.opt(S.bool()) })
 const TEST = S.obj({
   bus: S.obj({ idle: S.opt(nat), frames: S.list(FRAME), tail: S.opt(nat) }, { about: t('总线：先安静 idle 拍，再一帧帧（帧前多空 gap 拍），最后安静 tail 拍') }),
@@ -208,7 +212,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 49,
+  version: 50,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

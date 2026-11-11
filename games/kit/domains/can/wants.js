@@ -452,6 +452,25 @@ const recoveryController = ({ event, init, bit, request }, test) => {
   })
 }
 
+// One incoming frame with no other error flag; CRC errors signal after the ACK delimiter.
+const receiverPlan = ({ prep, reset }, test) => {
+  const ticks = test.bus.bits.length
+  const received = test.bus.bits.map((bit, tick) => test.flipTicks?.includes(tick) ? 1 - bit : bit)
+  const kind = frameStatusTrace('__received', { ...test, inputs: { ...test.inputs, __received: received } }).kind
+  const drive = Array(ticks).fill(1)
+  const actions = [...(test.inputs[prep] ?? Array(ticks).fill(0))]
+  for (let tick = 0; tick < ticks; tick++) {
+    if (kind[tick] === 0 && tick + 1 < ticks) { drive[tick + 1] = 0; actions[tick + 1] = 4 }
+    if (kind[tick] === 1 || kind[tick] === 2) {
+      actions[tick] = 3
+      const start = tick + (kind[tick] === 1 ? 1 : 3)
+      for (let k = start; k < start + 6 && k < ticks; k++) drive[k] = 0
+    }
+  }
+  const counts = faultCounts({ event: '__actions', reset }, { ...test, inputs: { ...test.inputs, __actions: actions } })
+  return { drive, kind, ready: kind.map((value) => Number(value !== null)), rec: counts.map((step) => step.rx) }
+}
+
 const faultFlag = ({ report, ...params }, test) => {
   const modes = faultCounts(params, test)
   let position = 14
@@ -664,6 +683,10 @@ const WANTS = {
   recoveryControllerRx: (params) => (test) => recoveryController(params, test).map((step) => step.rx),
   recoveryControllerMode: (params) => (test) => recoveryController(params, test).map((step) => step.mode),
   recoveryControllerAccepted: (params) => (test) => recoveryController(params, test).map((step) => step.accepted),
+  receiveFrameDrive: (params) => (test) => receiverPlan(params, test).drive,
+  receiveFrameKind: (params) => (test) => receiverPlan(params, test).kind,
+  receiveFrameReady: (params) => (test) => receiverPlan(params, test).ready,
+  receiveFrameRec: (params) => (test) => receiverPlan(params, test).rec,
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),

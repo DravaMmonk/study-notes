@@ -10,7 +10,7 @@
 // CHAPTERS, course, partOf, BUILT, offerIn, opening, carried, syncOwn, blueprints, and `wrong`, what reading the content
 // found that its schema cannot say (an output with nothing wanted, a frame too long, a test without an input).
 import { circuitCourse } from '../../engine/circuit-domain.js'
-import { arbitrationLength, busOf, transmitBits } from './bus.js'
+import { arbitrationLength, bitsOf, busOf, stuff, transmitBits } from './bus.js'
 import { board } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
@@ -83,6 +83,7 @@ export function canCourse(content) {
       const params = task.collisionParams
       if (t.txInputs?.[params.bit] !== 'bit' || t.txInputs?.[params.arbitration] !== 'arbitration' || t.txInputs?.[params.ack] !== 'ack') say('collision tests require the transmitted bit, arbitration and ACK inputs')
     }
+    if (task.expectsReceiver && (t.bus.frames.length !== 1 || t.bus.frames[0]?.ack !== false || t.contenders?.length || t.peerBits || t.peerLow?.length || (t.flipTicks?.length ?? 0) > 1)) say('receiver tests require one frame without a scripted ACK, at most one flip and no other nodes')
     if (task.pulls) {
       if (!task.inputs?.some((input) => input.name === task.pulls.input)) say(`queue input ${task.pulls.input} is not a task input`)
       if (!task.inputs?.some((input) => input.name === task.pulls.available)) say(`queue availability ${task.pulls.available} is not a task input`)
@@ -186,6 +187,17 @@ export function canCourse(content) {
       if (starts.length !== 1 || starts[0] !== (t.txAt ?? 0)) say('collision tests require one start pulse at the transmitted frame start')
       if (starts.length === 1 && result.ticks < starts[0] + transmitBits(result.tx).length + 14) say('collision tests must leave enough ticks for the error flag')
     }
+    if (task.expectsReceiver && result.bus.frames.length === 1) {
+      const { prep, reset } = task.receiverParams
+      const frame = result.bus.frames[0]
+      const preparation = result.inputs[prep] ?? []
+      const resets = (result.inputs[reset] ?? []).flatMap((value, tick) => value === 1 ? [tick] : [])
+      if (task.receiverCalls.some((params) => params.prep !== prep || params.reset !== reset) || resets.length !== 1 || resets[0] !== 0 || preparation.length !== result.ticks || preparation.some((value, tick) => ![0, 3].includes(value) || (tick >= frame.at && value !== 0)) || preparation.filter((value) => value === 3).length > 126) say('receiver tests require matching inputs, one initialization and active-state receive-error preparation before the frame')
+      const header = stuff([0, ...bitsOf(frame.id, 11), 0, 0, 0, ...bitsOf(frame.data.length, 4)]).length
+      const end = frame.at + transmitBits(frame).length - 13
+      if ((t.flipTicks ?? []).some((tick) => tick < frame.at + header || tick >= end)) say('receiver flips must be in the data or CRC region without changing the length')
+      if (result.ticks < end + 17) say('receiver tests must leave enough ticks for the error flag and delimiter')
+    }
     if (t.peerBits && t.peerBits.length !== result.bus.bits.length) say('other nodes must give one bit per tick')
     for (const tick of [...(t.peerLow ?? []), ...(t.flipTicks ?? []), ...Object.values(t.pulses ?? {}).flat(), ...(t.contenders ?? []).map((node) => node.at ?? 0), ...(t.txInputs ? [t.txAt ?? 0] : [])]) if (tick >= result.bus.bits.length) say(`tick ${tick} is outside the test`)
     return result
@@ -208,6 +220,8 @@ export function canCourse(content) {
     const expectsControllerFault = expectsControllerAdaptive || names.some((name) => name.startsWith('controllerFault'))
     const collisionCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('collision')).map(([, params]) => params)
     const expectsCollision = collisionCalls.length > 0
-    return { ...task, expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, expectsControllerAdaptive, expectsControllerBusoff, controllerAdaptiveCalls, controllerAdaptiveParams: controllerAdaptiveCalls[0], expectsCollision, collisionCalls, collisionParams: collisionCalls[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
+    const receiverCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('receiveFrame')).map(([, params]) => params)
+    const expectsReceiver = receiverCalls.length > 0
+    return { ...task, expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, expectsControllerAdaptive, expectsControllerBusoff, controllerAdaptiveCalls, controllerAdaptiveParams: controllerAdaptiveCalls[0], expectsCollision, collisionCalls, collisionParams: collisionCalls[0], expectsReceiver, receiverCalls, receiverParams: receiverCalls[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }

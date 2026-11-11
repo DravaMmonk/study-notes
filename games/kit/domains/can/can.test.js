@@ -158,6 +158,8 @@ test('a bus places its frames after the idle bits', () => {
   assert.equal(bits[frames[0].at], 0)
   assert.equal(frames[1].at, 12 + frameBits({ id: 0x123 }).length + 2)
   assert.ok(bits.slice(frames[1].at - 13, frames[1].at).every((b) => b === 1))
+  const unacknowledged = busOf({ idle: 0, frames: [{ id: 0x123, data: [], ack: false }], tail: 0 })
+  assert.equal(unacknowledged.bits[unacknowledged.bits.length - 12], 1)
 })
 
 test('the signals a level wants, tick by tick', () => {
@@ -266,6 +268,27 @@ test('frame status distinguishes CRC errors and a final stuffing error', () => {
   const badCrc = status({ bus: altered, inputs: { bit: bits } }).ok
   assert.deepEqual(badCrc.flatMap((value, tick) => value === null ? [] : [[tick, value]]), [[frameBits({ id: 0x2a5, data: [0x55] }).length - 13, false]])
   assert.equal(kind({ bus: altered, inputs: { bit: bits } }).kind[frameBits({ id: 0x2a5, data: [0x55] }).length - 13], 2)
+})
+
+test('receivers acknowledge valid frames and signal stuffing and CRC errors at different times', () => {
+  const bus = busOf({ idle: 12, frames: [{ id: 0x2a5, data: [0x55], ack: false }], tail: 20 })
+  const inputs = { prep: bus.bits.map((_, tick) => tick < 2 ? 3 : 0), reset: bus.bits.map((_, tick) => Number(tick === 0)) }
+  const params = { prep: 'prep', reset: 'reset' }
+  const calls = Object.fromEntries(['Drive', 'Kind', 'Rec'].map((name) => [name, { [`receiveFrame${name}`]: params }]))
+  for (const [flip, kind] of [[null, 0], [41, 1], [32, 2]]) {
+    const result = wantOf(calls)({ bus, inputs, flipTicks: flip === null ? [] : [flip] })
+    const tick = result.Kind.indexOf(kind)
+    assert.ok(tick >= 0)
+    if (kind === 0) {
+      assert.equal(result.Drive[tick + 1], 0)
+      assert.equal(result.Rec[tick + 1], 1)
+    } else {
+      const flag = tick + (kind === 1 ? 1 : 3)
+      assert.deepEqual(result.Drive.slice(flag, flag + 6), Array(6).fill(0))
+      if (kind === 2) assert.equal(result.Drive[tick + 1], 1)
+      assert.equal(result.Rec[tick], 3)
+    }
+  }
 })
 
 test('stuffing error latches and resets even when checking is disabled', () => {
@@ -466,6 +489,22 @@ test('collision course tests require equal identifiers, differing payloads and a
   const wrong = canCourse(content).wrong
   assert.ok(wrong.some((problem) => problem.includes('different payloads')))
   assert.ok(wrong.some((problem) => problem.includes('error-detecting contender')))
+})
+
+test('receiver tests constrain fault position, preparation and external acknowledgements', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.inputs = ['prep', 'reset'].map((name) => ({ name, label: L(name) }))
+  task.outputs = [{ name: 'kind', label: L('kind') }]
+  task.hidden = []
+  task.want = { kind: { receiveFrameKind: { prep: 'prep', reset: 'reset' } } }
+  task.tests = [{ bus: { idle: 12, frames: [{ id: 0x2a5, data: [0x55], ack: false }], tail: 20 }, constants: { prep: 0 }, pulses: { reset: [0] }, flipTicks: [32] }]
+  assert.ok(!canCourse(content).wrong.some((problem) => problem.includes('receiver')))
+  task.tests[0].bus.frames[0].ack = true
+  task.tests[0].flipTicks = [13]
+  const wrong = canCourse(content).wrong
+  assert.ok(wrong.some((problem) => problem.includes('without a scripted ACK')))
+  assert.ok(wrong.some((problem) => problem.includes('without changing the length')))
 })
 
 test('input runs expand to test length and reject missing ticks or another source', () => {

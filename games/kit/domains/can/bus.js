@@ -85,7 +85,9 @@ export function busOf({ idle = 12, frames = [], tail = 4 }) {
   const placed = frames.map((f) => {
     bits.push(...Array(f.gap ?? 0).fill(1))
     const at = bits.length
-    bits.push(...frameBits(f))
+    const frame = frameBits(f)
+    if (f.ack === false) frame[frame.length - 12] = 1
+    bits.push(...frame)
     return { id: f.id, data: f.data ?? [], at }
   })
   bits.push(...Array(tail).fill(1))
