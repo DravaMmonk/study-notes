@@ -1,0 +1,62 @@
+{
+  "title": { "zh": "输的一方退出" },
+  "intro": [{ "t": { "zh": "把仲裁元件放进自己的节点。竞争者也会听到总线：它们一旦在仲裁段落败，就在下一拍退出。" } }],
+  "after": { "zh": "所有竞争者逐拍做同一个比较；没有中央节点逐个发号施令。" },
+  "tasks": [
+    {
+      "id": "2-14",
+      "brief": { "zh": "用搭好的仲裁元件驱动总线并交出落败状态；同时交出实际听到的总线。测试包含竞争者先输和自己先输。" },
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "bit", "label": { "zh": "待发送位" } },
+        { "name": "arb", "label": { "zh": "仲裁段" } },
+        { "name": "start", "label": { "zh": "开始" } }
+      ],
+      "outputs": [{ "name": "lost", "label": { "zh": "落败" } }, { "name": "heard", "label": { "zh": "听到" } }],
+      "tests": [
+        {
+          "bus": { "idle": 90, "frames": [], "tail": 0 },
+          "tx": { "id": 1280, "data": [] },
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [0] },
+          "contenders": [{ "id": 768, "data": [] }, { "id": 256, "data": [] }],
+          "peerLow": []
+        },
+        {
+          "bus": { "idle": 90, "frames": [], "tail": 0 },
+          "tx": { "id": 256, "data": [] },
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [0] },
+          "contenders": [{ "id": 768, "data": [] }, { "id": 1280, "data": [] }],
+          "peerLow": [39]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 90, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [] },
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [0] },
+          "contenders": [{ "id": 290, "data": [] }, { "id": 295, "data": [] }],
+          "peerLow": []
+        },
+        {
+          "bus": { "idle": 90, "frames": [], "tail": 0 },
+          "tx": { "id": 0, "data": [] },
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [0] },
+          "contenders": [{ "id": 1, "data": [] }, { "id": 2, "data": [] }],
+          "peerLow": []
+        }
+      ],
+      "want": {
+        "send": { "arbitrationDrive": { "bit": "bit", "arbitration": "arb", "start": "start" } },
+        "lost": { "arbitrationLost": { "bit": "bit", "arbitration": "arb", "start": "start" } },
+        "heard": { "arbitrationLine": { "bit": "bit", "arbitration": "arb", "start": "start" } }
+      },
+      "solution": ["p = arbiter(line, bit, arb, start)", "send <- p.send", "lost <- p.lost", "heard <- line"],
+      "naive": ["p = arbiter(line, bit, arb, start)", "send <- p.send", "lost <- p.lost", "heard <- bit"]
+    }
+  ]
+}

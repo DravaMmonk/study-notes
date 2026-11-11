@@ -2,7 +2,7 @@
 // `want: { output name: { item: params } }`; each item here gives, for a test (its bus built, course.js), one value a
 // tick (undefined: anything will do), the lane the waveform draws under the output as 「应当」.
 import { callOf } from '../../engine/schema.js'
-import { bitsOf, crc15, frameBits, stuff } from './bus.js'
+import { arbitrationLength, bitsOf, crc15, frameBits, stuff, transmitBits, wiredAnd } from './bus.js'
 
 /** A controller may start talking once the bus has been recessive this many bits in a row; an identifier is as long. */
 const QUIET = 11
@@ -77,8 +77,7 @@ const stuffedSerial = ({ value, start }, test) => {
 const frameTransmission = ({ start }, test) => {
   const at = test.inputs[start]?.findIndex((value) => value === 1 || value === true) ?? -1
   if (!test.tx || at < 0) return { bits: [], at, next: [] }
-  const bits = frameBits(test.tx)
-  bits[bits.length - 12] = 1 // The transmitter releases the ACK slot; a receiver may pull it low.
+  const bits = transmitBits(test.tx)
   const prefix = [0, ...bitsOf(test.tx.id, 11), 0, 0, 0, ...bitsOf(test.tx.data.length, 4)]
   const next = test.tx.data.map((byte) => {
     const word = bitsOf(byte, 8)
@@ -87,6 +86,23 @@ const frameTransmission = ({ start }, test) => {
     return tick
   })
   return { bits, at, next }
+}
+
+const arbitration = ({ bit, arbitration: phase, start }, test) => {
+  let lost = false
+  const others = (test.contenders ?? []).map((frame) => ({ at: frame.at ?? 0, bits: transmitBits(frame), end: arbitrationLength(frame.id), active: true }))
+  return each(test, (tick) => {
+    if (test.inputs[start][tick]) lost = false
+    const drive = lost ? 1 : test.inputs[bit][tick]
+    const said = others.map((other) => other.active && tick >= other.at ? other.bits[tick - other.at] ?? 1 : 1)
+    const line = wiredAnd([test.bus.bits[tick], drive, ...said])
+    if (!lost && test.inputs[phase][tick] && drive === 1 && line === 0) lost = true
+    others.forEach((other, k) => {
+      const offset = tick - other.at
+      if (other.active && offset >= 0 && offset < other.end && said[k] === 1 && line === 0) other.active = false
+    })
+    return { drive, lost: Number(lost), line }
+  })
 }
 
 const stuffedOutput = ({ bit, valid, start }, test) => {
@@ -157,6 +173,9 @@ const WANTS = {
     const { next } = frameTransmission(params, test)
     return each(test, (tick) => next.includes(tick))
   },
+  arbitrationDrive: (params) => (test) => arbitration(params, test).map((step) => step.drive),
+  arbitrationLost: (params) => (test) => arbitration(params, test).map((step) => step.lost),
+  arbitrationLine: (params) => (test) => arbitration(params, test).map((step) => step.line),
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),

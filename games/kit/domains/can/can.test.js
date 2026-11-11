@@ -3,12 +3,14 @@
 // a level of the starter game (starter/) drawn headlessly (scene.js); every game on the domain read frozen.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { bitsOf, busOf, crc15, frameBits, stuff, wiredAnd } from './bus.js'
+import { arbitrationLength, bitsOf, busOf, contender, crc15, frameBits, stuff, transmitBits, wiredAnd } from './bus.js'
 import { board } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 import { canCourse } from './course.js'
 import { runLevel, runTest } from './run.js'
+import { runTicks } from '../../engine/ticks.js'
+import { packed } from '../../engine/boards.js'
 import { primitivesOnly } from '../../engine/circuit-domain.js'
 import { assemble, deepFreeze } from '../../engine/content.js'
 import domain from './domain.js'
@@ -45,6 +47,36 @@ test('the bus is dominant when anyone says dominant', () => {
   assert.equal(wiredAnd([1, 0, undefined]), 0)
   assert.equal(wiredAnd([1, undefined]), 1)
   assert.equal(wiredAnd([]), 1)
+})
+
+test('competing senders withdraw after sampling an arbitration loss', () => {
+  const nodes = [contender('high', { id: 0x500 }), contender('middle', { id: 0x300 }), contender('low', { id: 0x100 })]
+  const result = runTicks({ nodes, ticks: 16, line: wiredAnd })
+  assert.equal(result.steps[1].said.high, 1)
+  assert.equal(result.steps[1].line, 0)
+  assert.equal(result.steps[2].said.high, 1)
+  assert.equal(result.steps[2].said.middle, 1)
+  assert.equal(result.steps[2].line, 0)
+  assert.equal(result.steps[4].said.middle, 1)
+  assert.equal(transmitBits({ id: 0x100 }).at(-12), 1)
+})
+
+test('arbitration judges the loss tick and ignores a mismatch after arbitration', () => {
+  const tx = { id: 0x500, data: [] }
+  const bits = transmitBits(tx)
+  const inputs = { bit: bits, phase: bits.map((_, tick) => Number(tick < arbitrationLength(tx.id))), start: bits.map((_, tick) => Number(tick === 0)) }
+  const test = { bus: { bits: bits.map(() => 1) }, inputs, contenders: [{ id: 0x100, data: [] }] }
+  const params = { bit: 'bit', arbitration: 'phase', start: 'start' }
+  const result = wantOf({ send: { arbitrationDrive: params }, lost: { arbitrationLost: params } })(test)
+  assert.equal(result.send[1], 1)
+  assert.equal(result.lost[1], 1)
+  assert.equal(result.send[2], 1)
+  const winner = { id: 0x100, data: [] }
+  const winnerBits = transmitBits(winner)
+  const world = winnerBits.map(() => 1)
+  world[winnerBits.length - 12] = 0
+  const check = { bus: { bits: world }, inputs: { bit: winnerBits, phase: winnerBits.map((_, tick) => Number(tick < arbitrationLength(winner.id))), start: winnerBits.map((_, tick) => Number(tick === 0)) }, contenders: [{ id: 0x500, data: [] }] }
+  assert.ok(wantOf({ lost: { arbitrationLost: params } })(check).lost.every((value) => value === 0))
 })
 
 test('stuffing never leaves six equal bits, and comes off again', () => {
@@ -293,6 +325,19 @@ test('a board drives the wired-AND bus and cannot say what it hears in the same 
   assert.deepEqual(result.ticks.map((tick) => tick.line), [1, 0, 0, 1])
   const loop = fromText(['send <- line'], task, plain)
   assert.ok(runTest(task, loop, test, plain.partOf).error)
+})
+
+test('a packed board reads its wired line input, not an unrelated world line', () => {
+  const innerTask = { listens: true, inputs: [], outputs: [{ name: 'seen', label: L('seen') }] }
+  const inner = fromText(['seen <- line'], innerTask, plain)
+  const component = packed({ circuit: inner, inputs: ['line'], outputs: ['seen'] })
+  const partOf = (type) => type === 'wrapped' ? component : plain.partOf(type)
+  const types = { ...plain, partOf, BUILT: { wrapped: component }, builtBy: () => innerTask, types: () => [...plain.types(), 'wrapped'] }
+  const task = { inputs: [{ name: 'other', label: L('other') }], outputs: [{ name: 'seen', label: L('seen') }], want: () => ({ seen: [0] }) }
+  const circuit = fromText(['p = wrapped(other)', 'seen <- p'], task, types)
+  const result = runTest(task, circuit, { bus: { bits: [1], frames: [] }, inputs: { other: [0] } }, partOf)
+  assert.equal(result.fail, undefined)
+  assert.equal(result.ticks[0].outputs.seen, 0)
 })
 
 test('a queue advances only after the board asks, and must be consumed', () => {

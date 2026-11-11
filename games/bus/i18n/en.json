@@ -292,5 +292,22 @@
   "听见应答": "Hear an acknowledgement",
   "同一拍里，节点说出的位与总线上听到的位可能不同。发送方在应答位说隐性；若有接收方正确接收，它会在这一拍说显性。": "Within one tick the bit a node says can differ from what it hears on the bus. The sender says recessive in the ACK slot; a receiver that accepted the frame pulls the bus dominant.",
   "用搭好的发送器发一帧，同时逐拍交出实际听到的总线位。测试包含有应答和没有应答两种情况；仍须在每个字节的最后原始位取走队首。": "Use your transmitter to send one frame and also give the actual bus bit each tick. Tests include both acknowledged and unacknowledged frames; take each queue byte at its last original bit.",
-  "应答位是否被拉低来自其他节点；只看发送方自己说的位无法知道有没有接收方应答。": "The ACK slot is pulled low by another node. Looking only at what the sender says cannot show whether a receiver acknowledged."
+  "应答位是否被拉低来自其他节点；只看发送方自己说的位无法知道有没有接收方应答。": "The ACK slot is pulled low by another node. Looking only at what the sender says cannot show whether a receiver acknowledged.",
+  "同时开口": "Speaking at once",
+  "两个节点同时开始说话时，不需要先商量：它们一位一位地说标识符，也同时听总线。说隐性 1 却听到显性 0 的节点输了，从下一拍起放开总线。": "When nodes start together, they need no prior negotiation: each sends its identifier one bit at a time while listening to the bus. A node that says recessive 1 but hears dominant 0 loses and releases the bus from the next tick.",
+  "只有仲裁段中的这种差异代表仲裁落败。应答位或数据段也可能听到不同的位，不能把这些差异都当成仲裁。": "Only this difference in the arbitration field means arbitration was lost. A different bit can also be heard in the ACK or data field; those must not all be called arbitration loss.",
+  "「待发送位」给出本节点原本准备说的帧位，「仲裁段」标出正在仲裁的拍。「开始」先清空落败状态。逐拍驱动总线；仲裁落败的那拍及之后「落败」为 1，从下一拍开始说 1。": "Intended bit gives the bit this node planned to send; Arbitration marks the arbitration ticks. Start clears the loss state first. Drive the bus each tick; Lost is 1 from the tick arbitration is lost, and the node says 1 from the next tick.",
+  "先根据寄存卡里上一拍是否落败，决定这一拍说原位还是放开总线。": "Use the register’s previous loss state to choose this tick’s intended bit or release.",
+  "听到本拍总线后，只在仲裁段比较自己说的与听到的；说 1 而听到 0 就记下落败。": "After hearing the bus, compare what you said with what you heard only during arbitration; remember a loss when you said 1 and heard 0.",
+  "说和听分成两半：这一拍的听到只能改变下一拍的发送，不能接回本拍的说话口。": "Speaking and hearing are separate phases: what is heard now can change the next tick, not the current sending port.",
+  "标识符较小的帧在第一个不同位说 0，继续发送；输了的节点从下一拍退出，不破坏赢家的位。": "The lower identifier says 0 at the first different bit and keeps sending. The loser withdraws on the next tick without disturbing the winner’s bit.",
+  "从待发送位和仲裁段标志决定驱动；仲裁段说 1 却听到 0 时记下落败，下一拍起放开总线。开始时重置。": "Drives intended bits during arbitration; if it says 1 but hears 0 in the arbitration field, it records a loss and releases the bus from the next tick. Start resets it.",
+  "仲裁": "Arbitration",
+  "待发送位": "Intended bit",
+  "仲裁段": "Arbitration field",
+  "落败": "Lost",
+  "输的一方退出": "The loser withdraws",
+  "把仲裁元件放进自己的节点。竞争者也会听到总线：它们一旦在仲裁段落败，就在下一拍退出。": "Put the arbitration part in your node. Competitors listen too: once they lose arbitration, they withdraw on the next tick.",
+  "用搭好的仲裁元件驱动总线并交出落败状态；同时交出实际听到的总线。测试包含竞争者先输和自己先输。": "Use your arbitration part to drive the bus and give the loss state; also give the actual bus bit. Tests include both a competitor losing first and your node losing first.",
+  "所有竞争者逐拍做同一个比较；没有中央节点逐个发号施令。": "Every competitor performs the same comparison each tick; no central node issues commands one by one."
 }

@@ -53,6 +53,9 @@ const WANTS = {
   frameLine: item(t('发送帧时总线的实际位，包括其他节点的驱动', 'the actual bus bits while sending a frame, including other nodes'), S.obj({ start: INPUT })),
   frameSent: item(t('最后一个帧间隔位送出时为是', 'yes when the final intermission bit is sent'), S.obj({ start: INPUT })),
   frameQueueNext: item(t('每个数据字节的最后一个原始位被接受时取走队首', 'take each queued byte when its last original bit is accepted'), S.obj({ start: INPUT })),
+  arbitrationDrive: item(t('仲裁落败后放开总线，开始时清空状态', 'release the bus after losing arbitration; start clears the state'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
+  arbitrationLost: item(t('仲裁落败时及之后为 1，开始时清空状态', '1 on and after arbitration loss; start clears the state'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
+  arbitrationLine: item(t('竞争节点与本节点共同形成的总线', 'the shared bus produced by the competing nodes'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialCrc: item(t('最后原始位被取走时给该字节的 CRC-15', 'the CRC-15 of the byte when its final original bit is accepted'), S.obj({ value: INPUT, start: INPUT })),
@@ -86,6 +89,7 @@ const WANTS = {
 /* ---------- a level ---------- */
 
 const FRAME = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), gap: S.opt(nat) })
+const CONTENDER = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), at: S.opt(nat) })
 const TEST = S.obj({
   bus: S.obj({ idle: S.opt(nat), frames: S.list(FRAME), tail: S.opt(nat) }, { about: t('总线：先安静 idle 拍，再一帧帧（帧前多空 gap 拍），最后安静 tail 拍') }),
   inputs: S.opt(S.map(S.list(S.int()), { view: 'ticks', about: t('每个输入每一拍的值') })),
@@ -94,6 +98,9 @@ const TEST = S.obj({
   lineInputs: S.opt(S.list(S.str(), { about: t('这些输入每拍取总线上的位') })),
   queue: S.opt(S.list(hex(0xff, 2), { about: t('等待板逐个取走的字节', 'bytes waiting for the board to take one at a time') })),
   tx: S.opt(FRAME),
+  txAt: S.opt(nat),
+  txInputs: S.opt(S.map(S.oneOf(['bit', 'arbitration']), { about: t('输入取待发送的位或仲裁段标志', 'inputs take the intended transmitted bit or arbitration-field flag') })),
+  contenders: S.opt(S.list(CONTENDER, { about: t('按总线采样结果竞争的其他发送节点', 'other transmitters that compete based on the sampled bus') })),
   peerBits: S.opt(S.list(BIT, { view: 'ticks', about: t('其他节点每拍说的位', 'bits said by the other nodes each tick') })),
   peerLow: S.opt(S.list(nat, { about: t('其他节点在这些拍拉低总线', 'the other nodes pull the bus low on these ticks') })),
 })
@@ -111,7 +118,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 23,
+  version: 24,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

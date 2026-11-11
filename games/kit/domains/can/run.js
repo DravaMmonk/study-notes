@@ -12,7 +12,7 @@
 //   inputs, each output against what is wanted, tick by tick
 import { boardNode, reacting, runTicks } from '../../engine/ticks.js'
 import { judgeTicks, runTests } from '../../engine/circuit-domain.js'
-import { BUS, sayer, wiredAnd } from './bus.js'
+import { BUS, contender, sayer, wiredAnd } from './bus.js'
 import { T } from '../../shell/i18n.js'
 
 export function runTest(task, circuit, test, parts) {
@@ -32,11 +32,12 @@ export function runTest(task, circuit, test, parts) {
     bindings[tick] = values
     return values
   }
-  const nodes = [sayer('world', test.bus.bits), boardNode({ id: 'you', circuit, parts, bind, traced: true }), ...(queue ? [queue.node] : [])]
+  const rivals = (test.contenders ?? []).map((frame, k) => contender(`rival${k}`, frame, frame.at ?? 0))
+  const nodes = [sayer('world', test.bus.bits), boardNode({ id: 'you', circuit, parts, bind, traced: true }), ...rivals, ...(queue ? [queue.node] : [])]
   const run = runTicks({ nodes, ticks: test.bus.bits.length, line: wiredAnd })
   const want = task.want(test)
   const checked = [...(task.drives ? [{ name: 'send' }] : []), ...task.outputs]
-  const judged = judgeTicks(run.steps.map((step) => ({ tick: step.tick, line: step.line, sent: step.said.you, bind: bindings[step.tick], ...step.heard.you })), {
+  const judged = judgeTicks(run.steps.map((step) => ({ tick: step.tick, line: step.line, sent: step.said.you, said: step.said, bind: bindings[step.tick], ...step.heard.you })), {
     checked, want: (name) => want[name], got: (tick, name) => name === 'send' && task.drives ? tick.sent ?? null : tick.outputs[name] ?? null,
   })
   if (queue && consumed !== test.queue.length && !judged.fail && !run.error) {
@@ -52,6 +53,7 @@ export const runLevel = runTests(runTest)
 
 export const entries = ({ task, test, run }) => [
   ...(task.listens ? [{ of: 'line', label: BUS, shape: 'bits', given: run.ticks.map((tick) => tick.line) }] : []),
+  ...(test.contenders ?? []).map((_, k) => ({ of: `rival${k}`, label: T(`竞争者 ${k + 1}`, `Contender ${k + 1}`), shape: 'bits', given: run.ticks.map((tick) => tick.said[`rival${k}`] ?? 1) })),
   ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(i.name)
     ? { of: i.name, label: i.label, shape: 'ticks', got: run.ticks.map((tick) => tick.bind?.[i.name] ?? null) }
     : { of: i.name, label: i.label, shape: 'bits', given: test.inputs[i.name] }),

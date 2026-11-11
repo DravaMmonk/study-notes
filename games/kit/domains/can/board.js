@@ -9,11 +9,15 @@
 import { INPUTS, OUTPUTS, circuitBoard } from '../../engine/circuit-domain.js'
 import { drive, hearing } from '../../engine/ticks.js'
 
+// A packed board reads its wired line input; the outer board reads the physical bus with the say/half restriction.
+const physicalLine = hearing()
+const lineInput = { ...physicalLine, source: true, eval: (ins, node, ctx) => ctx.scope ? ctx.bind?.[node.params.name] : physicalLine.eval(ins, node, ctx) }
+
 export const board = circuitBoard({
   ticks: true,
   cards: [
     // The bus this tick: a board that says something from it in the same tick has a loop.
-    { type: 'line', side: 'left', of: (task) => (task.listens ? [{ name: 'line', label: { zh: '总线', en: 'Bus' } }] : []), params: () => ({}), part: hearing() },
+    { type: 'line', side: 'left', of: (task) => (task.listens ? [{ name: 'line', label: { zh: '总线', en: 'Bus' } }] : []), params: () => ({ name: 'line' }), part: lineInput },
     INPUTS,
     { type: 'drive', side: 'right', of: (task) => (task.drives ? [{ name: 'send', label: { zh: '说', en: 'Send' } }] : []), params: () => ({ name: 'send' }), part: drive() },
     OUTPUTS,

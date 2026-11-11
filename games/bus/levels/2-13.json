@@ -1,0 +1,102 @@
+{
+  "title": { "zh": "同时开口" },
+  "intro": [
+    { "t": { "zh": "两个节点同时开始说话时，不需要先商量：它们一位一位地说标识符，也同时听总线。说隐性 1 却听到显性 0 的节点输了，从下一拍起放开总线。" } },
+    { "t": { "zh": "只有仲裁段中的这种差异代表仲裁落败。应答位或数据段也可能听到不同的位，不能把这些差异都当成仲裁。" } }
+  ],
+  "builds": {
+    "type": "arbiter",
+    "name": { "zh": "仲裁" },
+    "desc": { "zh": "从待发送位和仲裁段标志决定驱动；仲裁段说 1 却听到 0 时记下落败，下一拍起放开总线。开始时重置。" }
+  },
+  "after": { "zh": "标识符较小的帧在第一个不同位说 0，继续发送；输了的节点从下一拍退出，不破坏赢家的位。" },
+  "tasks": [
+    {
+      "id": "2-13",
+      "brief": { "zh": "「待发送位」给出本节点原本准备说的帧位，「仲裁段」标出正在仲裁的拍。「开始」先清空落败状态。逐拍驱动总线；仲裁落败的那拍及之后「落败」为 1，从下一拍开始说 1。" },
+      "hint": [
+        { "zh": "先根据寄存卡里上一拍是否落败，决定这一拍说原位还是放开总线。" },
+        { "zh": "听到本拍总线后，只在仲裁段比较自己说的与听到的；说 1 而听到 0 就记下落败。" },
+        { "zh": "说和听分成两半：这一拍的听到只能改变下一拍的发送，不能接回本拍的说话口。" }
+      ],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "bit", "label": { "zh": "待发送位" } },
+        { "name": "arb", "label": { "zh": "仲裁段" } },
+        { "name": "start", "label": { "zh": "开始" } }
+      ],
+      "outputs": [{ "name": "lost", "label": { "zh": "落败" } }],
+      "tests": [
+        {
+          "bus": { "idle": 90, "frames": [], "tail": 0 },
+          "tx": { "id": 1280, "data": [] },
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [0] },
+          "contenders": [{ "id": 768, "data": [] }, { "id": 256, "data": [] }],
+          "peerLow": []
+        },
+        {
+          "bus": { "idle": 90, "frames": [], "tail": 0 },
+          "tx": { "id": 256, "data": [] },
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [0] },
+          "contenders": [{ "id": 768, "data": [] }, { "id": 1280, "data": [] }],
+          "peerLow": [39]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 90, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [] },
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [0] },
+          "contenders": [{ "id": 290, "data": [] }, { "id": 295, "data": [] }],
+          "peerLow": []
+        },
+        {
+          "bus": { "idle": 90, "frames": [], "tail": 0 },
+          "tx": { "id": 0, "data": [] },
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [0] },
+          "contenders": [{ "id": 1, "data": [] }, { "id": 2, "data": [] }],
+          "peerLow": []
+        }
+      ],
+      "want": {
+        "send": { "arbitrationDrive": { "bit": "bit", "arbitration": "arb", "start": "start" } },
+        "lost": { "arbitrationLost": { "bit": "bit", "arbitration": "arb", "start": "start" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "prior = select(start, zero, r)",
+        "say = select(prior, one, bit)",
+        "isone = compare[form=eq](say, one)",
+        "iszero = compare[form=eq](line, zero)",
+        "conflict = select(isone, iszero, zero)",
+        "lostnow = select(arb, conflict, zero)",
+        "next = select(lostnow, one, prior)",
+        "k = keep[reg=A](next)",
+        "send <- say",
+        "lost <- next"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "prior = select(start, zero, r)",
+        "say = select(prior, one, bit)",
+        "isone = compare[form=eq](say, one)",
+        "iszero = compare[form=eq](line, zero)",
+        "conflict = select(isone, iszero, zero)",
+        "lostnow = select(arb, conflict, conflict)",
+        "next = select(lostnow, one, prior)",
+        "k = keep[reg=A](next)",
+        "send <- say",
+        "lost <- next"
+      ]
+    }
+  ]
+}

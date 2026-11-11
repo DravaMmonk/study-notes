@@ -47,6 +47,32 @@ export function frameBits({ id, data = [] }) {
   return [...stuff([...head, ...bitsOf(crc15(head), 15)]), 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 }
 
+/** What a transmitter itself says: it releases the ACK slot. */
+export function transmitBits(frame) {
+  const bits = frameBits(frame)
+  bits[bits.length - 12] = 1
+  return bits
+}
+
+/** Number of physical bits through the standard frame's arbitration field, including stuffing. */
+export const arbitrationLength = (id) => stuff([0, ...bitsOf(id, 11), 0]).length
+
+/** A scripted sender that withdraws on arbitration loss, after sampling the shared line. */
+export function contender(id, frame, at = 0) {
+  const bits = transmitBits(frame)
+  const end = arbitrationLength(frame.id)
+  let active = true
+  return {
+    id,
+    say: (tick) => active && tick >= at ? bits[tick - at] ?? 1 : 1,
+    hear: (tick, line) => {
+      const offset = tick - at
+      if (active && offset >= 0 && offset < end && bits[offset] === 1 && line === 0) active = false
+      return null
+    },
+  }
+}
+
 /**
  * A stretch of bus: `idle` recessive bits, then each frame after the gap before it (`gap`, recessive bits beyond the
  * intermission), then `tail` recessive bits. Returns { bits, frames: [{ id, data, at }] } (at: the tick of its start
