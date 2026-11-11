@@ -274,7 +274,7 @@ test('receivers acknowledge valid frames and signal stuffing and CRC errors at d
   const bus = busOf({ idle: 12, frames: [{ id: 0x2a5, data: [0x55], ack: false }], tail: 20 })
   const inputs = { prep: bus.bits.map((_, tick) => tick < 2 ? 3 : 0), reset: bus.bits.map((_, tick) => Number(tick === 0)) }
   const params = { prep: 'prep', reset: 'reset' }
-  const calls = Object.fromEntries(['Drive', 'Kind', 'Rec'].map((name) => [name, { [`receiveFrame${name}`]: params }]))
+  const calls = Object.fromEntries(['Drive', 'Kind', 'Rec', 'Event'].map((name) => [name, { [`receiveFrame${name}`]: params }]))
   for (const [flip, kind] of [[null, 0], [41, 1], [32, 2]]) {
     const result = wantOf(calls)({ bus, inputs, flipTicks: flip === null ? [] : [flip] })
     const tick = result.Kind.indexOf(kind)
@@ -282,11 +282,13 @@ test('receivers acknowledge valid frames and signal stuffing and CRC errors at d
     if (kind === 0) {
       assert.equal(result.Drive[tick + 1], 0)
       assert.equal(result.Rec[tick + 1], 1)
+      assert.equal(result.Event[tick + 1], 4)
     } else {
       const flag = tick + (kind === 1 ? 1 : 3)
       assert.deepEqual(result.Drive.slice(flag, flag + 6), Array(6).fill(0))
       if (kind === 2) assert.equal(result.Drive[tick + 1], 1)
       assert.equal(result.Rec[tick], 3)
+      assert.equal(result.Event[tick], 3)
     }
   }
 })

@@ -468,7 +468,7 @@ const receiverPlan = ({ prep, reset }, test) => {
     }
   }
   const counts = faultCounts({ event: '__actions', reset }, { ...test, inputs: { ...test.inputs, __actions: actions } })
-  return { drive, kind, ready: kind.map((value) => Number(value !== null)), rec: counts.map((step) => step.rx) }
+  return { drive, kind, ready: kind.map((value) => Number(value !== null)), rec: counts.map((step) => step.rx), event: actions }
 }
 
 const faultFlag = ({ report, ...params }, test) => {
@@ -688,6 +688,7 @@ const WANTS = {
   receiveFrameReady: (params) => (test) => receiverPlan(params, test).ready,
   receiveFrameRec: (params) => (test) => receiverPlan(params, test).rec,
   receiveFrameBad: (params) => (test) => receiverPlan(params, test).kind.map((value) => value === 1 || value === 2),
+  receiveFrameEvent: (params) => (test) => receiverPlan(params, test).event,
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),
