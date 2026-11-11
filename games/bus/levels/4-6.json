@@ -1,0 +1,73 @@
+{
+  "title": { "zh": "准备流控回答" },
+  "intro": [{ "t": { "zh": "收到首帧后，接收方可以给发送方一条流控帧。继续发送时，第一个字节为 0x30，后面依次是块大小和最小间隔。这里先准备帧数据，实际发送与计时另行处理。" } }],
+  "after": { "zh": "流控回答告诉发送方能继续以及后续发送的节奏；准备帧数据只是通信的一部分。" },
+  "adds": ["byteList"],
+  "showcase": { "zh": "把一个数变成单字节序列，便于组成帧数据。" },
+  "tasks": [
+    {
+      "id": "4-6",
+      "brief": { "zh": "收到首帧时，交出 [0x30, 块大小, 最小间隔]；其他帧交出「—」。块大小和最小间隔由输入给出。" },
+      "hint": [{ "zh": "把三个单字节序列按顺序拼接；先检查帧头的高四位是否为 1。" }],
+      "inputs": [
+        { "name": "header", "label": { "zh": "第一个数据字节" } },
+        { "name": "block", "label": { "zh": "块大小" } },
+        { "name": "separation", "label": { "zh": "最小间隔编码" } }
+      ],
+      "frameInputs": { "header": "byte0" },
+      "outputs": [{ "name": "reply", "label": { "zh": "流控帧数据" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source", "at": 10, "id": "0x700", "data": [16, 10, 1, 2, 3, 4, 5, 6] },
+            { "node": "source", "at": 210, "id": "0x700", "data": [33, 7, 8, 9, 10, 0, 0, 0] }
+          ],
+          "constants": { "block": 4, "separation": 5 }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source", "at": 10, "id": "0x700", "data": [17, 4, 1, 2, 3, 4, 5, 6] },
+            { "node": "source", "at": 210, "id": "0x700", "data": [32, 7, 8, 9, 10, 0, 0, 0] }
+          ],
+          "constants": { "block": 0, "separation": 10 }
+        }
+      ],
+      "want": {
+        "reply": { "flowControlReply": { "header": "header", "block": "block", "separation": "separation" } }
+      },
+      "solution": [
+        "four = const[value=4]()",
+        "one = const[value=1]()",
+        "kind = shiftRight(header, four)",
+        "first = compare[form=eq](kind, one)",
+        "code = const[value=48]()",
+        "a = byteList(code)",
+        "b = byteList(block)",
+        "s = byteList(separation)",
+        "ab = concatBytes(a, b)",
+        "all = concatBytes(ab, s)",
+        "out = select(first, all)",
+        "reply <- out"
+      ],
+      "naive": [
+        "four = const[value=4]()",
+        "one = const[value=1]()",
+        "kind = shiftRight(header, four)",
+        "first = compare[form=eq](kind, one)",
+        "code = const[value=48]()",
+        "a = byteList(code)",
+        "zero = const[value=0]()",
+        "b = byteList(zero)",
+        "s = byteList(separation)",
+        "ab = concatBytes(a, b)",
+        "all = concatBytes(ab, s)",
+        "out = select(first, all)",
+        "reply <- out"
+      ]
+    }
+  ]
+}

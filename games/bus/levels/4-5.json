@@ -1,0 +1,75 @@
+{
+  "title": { "zh": "交错回答分开拼" },
+  "intro": [{ "t": { "zh": "两个控制器可以交错发送各自的长消息。只有一个重组状态时，第二个首帧会覆盖第一个，两个回答就会混在一起。" } }],
+  "after": { "zh": "按回答者分开维护重组状态，交错到达的后续帧才会接到正确的消息上。" },
+  "tasks": [
+    {
+      "id": "4-5",
+      "brief": { "zh": "标识符 0x7E8 和 0x7E9 的帧可能交错到达。分别重组两边的消息，在各自完整时交到对应输出；两边互不干扰。" },
+      "hint": [{ "zh": "按标识符分别控制两个重组元件的接收允许；每个实例保存自己的状态。" }],
+      "inputs": [
+        { "name": "data", "label": { "zh": "帧数据" } },
+        { "name": "header", "label": { "zh": "第一个数据字节" } },
+        { "name": "low", "label": { "zh": "第二个数据字节" } },
+        { "name": "id", "label": { "zh": "帧标识符" } }
+      ],
+      "frameInputs": { "data": "data", "header": "byte0", "low": "byte1", "id": "id" },
+      "outputs": [
+        { "name": "a", "label": { "zh": "控制器 A 的消息" } },
+        { "name": "b", "label": { "zh": "控制器 B 的消息" } }
+      ],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "ecu0", "at": 10, "id": "0x7e8", "data": [16, 8, 1, 2, 3, 4, 5, 6] },
+            { "node": "ecu1", "at": 210, "id": "0x7e9", "data": [16, 8, 11, 12, 13, 14, 15, 16] },
+            { "node": "ecu2", "at": 410, "id": "0x7e8", "data": [33, 7, 8, 0, 0, 0, 0, 0] },
+            { "node": "ecu3", "at": 610, "id": "0x7e9", "data": [33, 17, 18, 0, 0, 0, 0, 0] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "ecu0", "at": 10, "id": "0x7e9", "data": [16, 8, 11, 12, 13, 14, 15, 16] },
+            { "node": "ecu1", "at": 210, "id": "0x7e8", "data": [16, 8, 1, 2, 3, 4, 5, 6] },
+            { "node": "ecu2", "at": 410, "id": "0x7e9", "data": [33, 17, 18, 0, 0, 0, 0, 0] },
+            { "node": "ecu3", "at": 610, "id": "0x7e8", "data": [33, 7, 8, 0, 0, 0, 0, 0] },
+            { "node": "ecu4", "at": 810, "id": "0x7e8", "data": [16, 8, 1, 2, 3, 4, 5, 6] },
+            { "node": "ecu5", "at": 1010, "id": "0x7e9", "data": [16, 8, 11, 12, 13, 14, 15, 16] },
+            { "node": "ecu6", "at": 1210, "id": "0x7e8", "data": [34, 7, 8, 0, 0, 0, 0, 0] },
+            { "node": "ecu7", "at": 1410, "id": "0x7e9", "data": [33, 17, 18, 0, 0, 0, 0, 0] }
+          ]
+        }
+      ],
+      "want": {
+        "a": { "multiFrameMessageById": { "data": "data", "identifier": "id", "match": 2024 } },
+        "b": { "multiFrameMessageById": { "data": "data", "identifier": "id", "match": 2025 } }
+      },
+      "solution": [
+        "aId = const[value=2024]()",
+        "bId = const[value=2025]()",
+        "isA = compare[form=eq](id, aId)",
+        "isB = compare[form=eq](id, bId)",
+        "left = isorecv(data, header, low, isA)",
+        "right = isorecv(data, header, low, isB)",
+        "a <- left",
+        "b <- right"
+      ],
+      "naive": [
+        "aId = const[value=2024]()",
+        "bId = const[value=2025]()",
+        "isA = compare[form=eq](id, aId)",
+        "isB = compare[form=eq](id, bId)",
+        "enabled = const[value=1]()",
+        "shared = isorecv(data, header, low, enabled)",
+        "left = select(isA, shared)",
+        "right = select(isB, shared)",
+        "a <- left",
+        "b <- right"
+      ]
+    }
+  ]
+}

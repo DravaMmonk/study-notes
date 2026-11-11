@@ -1,0 +1,55 @@
+{
+  "title": { "zh": "单帧里的消息" },
+  "intro": [{ "t": { "zh": "诊断消息装得下一帧时，可以使用单帧。这里采用标准寻址：第一个字节的低四位给出消息字节数，后面的多余字节是填充。" } }],
+  "after": { "zh": "单帧的长度区分了真正的消息和帧尾填充。更长的消息需要拆分成多帧。" },
+  "tasks": [
+    {
+      "id": "4-1",
+      "brief": { "zh": "每帧都是有效的单帧，读取长度并交出对应的消息字节；不要把填充字节交出去。" },
+      "hint": [{ "zh": "用按位与 15 取出低四位，再从数据的第 1 个位置开始按长度截取。位置从 0 开始计数。" }],
+      "inputs": [
+        { "name": "data", "label": { "zh": "帧数据" } },
+        { "name": "header", "label": { "zh": "第一个数据字节" } },
+        { "name": "size", "label": { "zh": "帧数据长度" } }
+      ],
+      "frameInputs": { "data": "data", "header": "byte0", "size": "length" },
+      "outputs": [{ "name": "message", "label": { "zh": "消息字节" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "ecu", "at": 10, "id": "0x7e8", "data": [3, 34, 241, 144, 204, 204, 204, 204] },
+            { "node": "ecu", "at": 120, "id": "0x7e8", "data": [1, 127, 170, 170, 170, 170, 170, 170] },
+            { "node": "ecu", "at": 230, "id": "0x7e8", "data": [7, 1, 2, 3, 4, 5, 6, 7] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "ecu", "at": 10, "id": "0x7e8", "data": [2, 98, 0, 85, 85] },
+            { "node": "ecu", "at": 120, "id": "0x7e8", "data": [4, 1, 2, 3, 4] },
+            { "node": "ecu", "at": 230, "id": "0x7e8", "data": [1, 0, 0] }
+          ]
+        }
+      ],
+      "want": { "message": { "singleFrameMessage": { "data": "data", "header": "header" } } },
+      "solution": [
+        "mask = const[value=15]()",
+        "length = band(header, mask)",
+        "one = const[value=1]()",
+        "part = sliceBytes(data, one, length)",
+        "message <- part"
+      ],
+      "naive": [
+        "one = const[value=1]()",
+        "length = subtract(size, one)",
+        "part = sliceBytes(data, one, length)",
+        "message <- part"
+      ]
+    }
+  ],
+  "adds": ["sliceBytes"],
+  "showcase": { "zh": "按起点和长度截取消息字节。" }
+}

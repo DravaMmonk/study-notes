@@ -1,0 +1,50 @@
+{
+  "title": { "zh": "把短消息装进单帧" },
+  "intro": [{ "t": { "zh": "发送方向也需要帧数据：长度不超过七字节的非空消息，可以在数据前加一个长度字节。这里先构造数据，尚不模拟实际发帧。" } }],
+  "after": { "zh": "单帧发送和接收互为方向相反的操作；更长消息还需要分段与流控。" },
+  "tasks": [
+    {
+      "id": "4-7",
+      "brief": { "zh": "每拍给一条待发送字节序列。长度为 1 到 7 时，在前面加长度字节；空消息或超过七字节时交出「—」。" },
+      "hint": [{ "zh": "先测量消息长度并检查范围，再把长度变成单字节序列接到消息前面。" }],
+      "inputs": [{ "name": "data", "label": { "zh": "待发送消息" } }],
+      "frameInputs": { "data": "data" },
+      "outputs": [{ "name": "frame", "label": { "zh": "单帧数据" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source", "at": 10, "id": "0x700", "data": [34, 241, 144] },
+            { "node": "source", "at": 210, "id": "0x700", "data": [127] },
+            { "node": "source", "at": 410, "id": "0x700", "data": [1, 2, 3, 4, 5, 6, 7] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source", "at": 10, "id": "0x700", "data": [] },
+            { "node": "source", "at": 210, "id": "0x700", "data": [1, 2, 3, 4, 5, 6, 7, 8] },
+            { "node": "source", "at": 410, "id": "0x700", "data": [0] },
+            { "node": "source", "at": 610, "id": "0x700", "data": [99, 0] }
+          ]
+        }
+      ],
+      "want": { "frame": { "singleFrameEncode": { "data": "data" } } },
+      "solution": [
+        "length = byteLength(data)",
+        "zero = const[value=0]()",
+        "eight = const[value=8]()",
+        "positive = compare[form=lt](zero, length)",
+        "small = compare[form=lt](length, eight)",
+        "valid = select(positive, small)",
+        "head = byteList(length)",
+        "joined = concatBytes(head, data)",
+        "out = select(valid, joined)",
+        "frame <- out"
+      ],
+      "naive": ["frame <- data"]
+    }
+  ]
+}
