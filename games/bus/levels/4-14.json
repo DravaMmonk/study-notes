@@ -1,0 +1,44 @@
+{
+  "title": { "zh": "末帧补满八字节" },
+  "intro": [{ "t": { "zh": "有的接收方要求每帧的数据区固定为八字节。实际消息较短时，可以在末尾添加填充值；消息长度仍由协议头决定。" } }],
+  "after": { "zh": "填充只补足帧长度，不增加消息本身的长度。" },
+  "adds": ["padBytes"],
+  "showcase": { "zh": "按指定长度和填充值补足字节序列。" },
+  "tasks": [
+    {
+      "id": "4-14",
+      "brief": { "zh": "把每帧的数据序列补到八字节，填充值为 0。原来已有八字节时保持不变。" },
+      "hint": [{ "zh": "用填充字节元件，长度接常数 8，填充值接常数 0。" }],
+      "inputs": [{ "name": "data", "label": { "zh": "帧数据" } }],
+      "frameInputs": { "data": "data" },
+      "outputs": [{ "name": "padded", "label": { "zh": "填充后的帧数据" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "n", "at": 10, "id": "0x123", "data": [33, 7, 8] },
+            { "node": "n", "at": 210, "id": "0x123", "data": [1, 2, 3, 4, 5, 6, 7, 8] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "n", "at": 10, "id": "0x123", "data": [] },
+            { "node": "n", "at": 210, "id": "0x123", "data": [1] },
+            { "node": "n", "at": 410, "id": "0x123", "data": [1, 2, 3, 4, 5, 6, 7] }
+          ]
+        }
+      ],
+      "want": { "padded": { "paddedFrame": { "input": "data", "fill": 0 } } },
+      "solution": [
+        "eight = const[value=8]()",
+        "zero = const[value=0]()",
+        "p = padBytes(data, eight, zero)",
+        "padded <- p"
+      ],
+      "naive": ["padded <- data"]
+    }
+  ]
+}

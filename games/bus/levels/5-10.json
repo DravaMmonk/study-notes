@@ -1,0 +1,128 @@
+{
+  "title": { "zh": "跨帧读取识别号" },
+  "intro": [
+    { "t": { "zh": "十七字节的车辆识别号装不下一帧。发送读取请求后，模拟控制器用首帧说明总长度，等到流控许可，再用后续帧交出回答。" } },
+    { "t": { "zh": "本练习以一拍一帧的方式交换，接收方用之前搭出的长消息重组元件。模拟仅覆盖一个肯定回答和无限块流控，尚未接入位级控制器。" } }
+  ],
+  "after": { "zh": "诊断请求、流控与玩家搭出的重组电路现在共同完成一次跨帧读取。这个场景仍未覆盖总线错误、多个控制器或诊断超时。" },
+  "tasks": [
+    {
+      "id": "5-10",
+      "brief": {
+        "zh": "先发送单帧读取请求 [0x03, 0x22, 0xF1, 0x90]。收到回答首帧时发送 [0x30, 0, 0] 许可；重组完整回答后，去掉前三字节并交出十七字节记录。"
+      },
+      "hint": [{ "zh": "用长消息重组元件接收回答帧；只有首帧到来时发送流控，收齐之后从位置 3 截取 17 字节。" }],
+      "inputs": [
+        { "name": "incoming", "label": { "zh": "控制器帧" } },
+        { "name": "ready", "label": { "zh": "帧就绪" } }
+      ],
+      "outputs": [
+        { "name": "outgoing", "label": { "zh": "发送帧数据" } },
+        { "name": "record", "label": { "zh": "识别号字节" } }
+      ],
+      "bridge": { "incoming": "incoming", "ready": "ready", "outgoing": "outgoing" },
+      "tests": [
+        {
+          "bus": { "idle": 5, "frames": [], "tail": 0 },
+          "bridge": {
+            "did": "0xf190",
+            "value": [49, 65, 66, 67, 68, 69, 70, 71, 72, 50, 51, 52, 53, 54, 55, 56, 57]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 5, "frames": [], "tail": 0 },
+          "bridge": {
+            "did": "0xf190",
+            "value": [50, 74, 75, 76, 77, 78, 80, 81, 82, 57, 56, 55, 54, 53, 52, 51, 50]
+          }
+        },
+        {
+          "bus": { "idle": 5, "frames": [], "tail": 0 },
+          "bridge": { "did": "0xf190", "value": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] }
+        }
+      ],
+      "want": { "outgoing": "bridgeFrames", "record": "bridgeRecord" },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "c0 = const[value=0]()",
+        "b0 = byteList(c0)",
+        "c1 = const[value=1]()",
+        "b1 = byteList(c1)",
+        "c3 = const[value=3]()",
+        "b3 = byteList(c3)",
+        "c4 = const[value=4]()",
+        "b4 = byteList(c4)",
+        "c17 = const[value=17]()",
+        "b17 = byteList(c17)",
+        "c34 = const[value=34]()",
+        "b34 = byteList(c34)",
+        "c48 = const[value=48]()",
+        "b48 = byteList(c48)",
+        "c144 = const[value=144]()",
+        "b144 = byteList(c144)",
+        "c241 = const[value=241]()",
+        "b241 = byteList(c241)",
+        "first = compare[form=eq](tick, c0)",
+        "rq0 = concatBytes(b3, b34)",
+        "rq1 = concatBytes(rq0, b241)",
+        "request = concatBytes(rq1, b144)",
+        "fc0 = concatBytes(b48, b0)",
+        "flow = concatBytes(fc0, b0)",
+        "header = byteAt(incoming, c0)",
+        "low = byteAt(incoming, c1)",
+        "kind = shiftRight(header, c4)",
+        "firstFrame = compare[form=eq](kind, c1)",
+        "grant = select(ready, firstFrame, c0)",
+        "sendFlow = select(grant, flow)",
+        "out = select(first, request, sendFlow)",
+        "outgoing <- out",
+        "receiver = isorecv(incoming, header, low, ready)",
+        "data = sliceBytes(receiver, c3, c17)",
+        "record <- data"
+      ],
+      "naive": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "c0 = const[value=0]()",
+        "b0 = byteList(c0)",
+        "c1 = const[value=1]()",
+        "b1 = byteList(c1)",
+        "c3 = const[value=3]()",
+        "b3 = byteList(c3)",
+        "c4 = const[value=4]()",
+        "b4 = byteList(c4)",
+        "c17 = const[value=17]()",
+        "b17 = byteList(c17)",
+        "c34 = const[value=34]()",
+        "b34 = byteList(c34)",
+        "c48 = const[value=48]()",
+        "b48 = byteList(c48)",
+        "c144 = const[value=144]()",
+        "b144 = byteList(c144)",
+        "c241 = const[value=241]()",
+        "b241 = byteList(c241)",
+        "first = compare[form=eq](tick, c0)",
+        "rq0 = concatBytes(b3, b34)",
+        "rq1 = concatBytes(rq0, b241)",
+        "request = concatBytes(rq1, b144)",
+        "fc0 = concatBytes(b48, b0)",
+        "flow = concatBytes(fc0, b0)",
+        "header = byteAt(incoming, c0)",
+        "low = byteAt(incoming, c1)",
+        "kind = shiftRight(header, c4)",
+        "firstFrame = compare[form=eq](kind, c1)",
+        "grant = select(ready, firstFrame, c0)",
+        "sendFlow = select(grant, flow)",
+        "out = select(first, request, sendFlow)",
+        "outgoing <- out",
+        "data = sliceBytes(incoming, c3, c17)",
+        "record <- data"
+      ]
+    }
+  ]
+}

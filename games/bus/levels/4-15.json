@@ -1,0 +1,39 @@
+{
+  "title": { "zh": "没有字节与数值零" },
+  "intro": [{ "t": { "zh": "空口「—」表示这一拍没有值；字节值 0 则是确实收到了一个值。这一区别让电路不会把有效的零当作缺失。" } }],
+  "after": { "zh": "值是否存在与值本身是多少是两回事；零和空序列都是值。" },
+  "adds": ["present"],
+  "showcase": { "zh": "判断输入是否有值，即使这个值是零。" },
+  "tasks": [
+    {
+      "id": "4-15",
+      "brief": { "zh": "检查每帧是否有第八个数据字节：有值时交出「是」，没有时交出「否」。字节为 0 也算有值。" },
+      "hint": [{ "zh": "把第八个字节接入有值元件。" }],
+      "inputs": [{ "name": "byte", "label": { "zh": "第八个数据字节" } }],
+      "frameInputs": { "byte": "byte7" },
+      "outputs": [{ "name": "has", "label": { "zh": "有字节" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "n", "at": 10, "id": "0x123", "data": [1] },
+            { "node": "n", "at": 210, "id": "0x123", "data": [1, 2, 3, 4, 5, 6, 7, 0] },
+            { "node": "n", "at": 410, "id": "0x123", "data": [1, 2, 3, 4, 5, 6, 7, 9] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "n", "at": 10, "id": "0x123", "data": [] },
+            { "node": "n", "at": 210, "id": "0x123", "data": [0, 0, 0, 0, 0, 0, 0, 0] }
+          ]
+        }
+      ],
+      "want": { "has": { "inputPresent": { "input": "byte" } } },
+      "solution": ["p = present(byte)", "has <- p"],
+      "naive": ["zero = const[value=0]()", "p = compare[form=lt](zero, byte)", "has <- p"]
+    }
+  ]
+}
