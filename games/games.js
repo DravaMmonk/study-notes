@@ -57,7 +57,7 @@ export const GAMES = [
       zh: '车上几十个控制器共用一根线说话。从“每一拍线上有一位”开始，亲手搭出听懂它们的探针，再长成能读故障码、能刷写软件的诊断仪。',
       en: 'The dozens of controllers in a car talk over one shared line. Starting from “one bit on the line each tick”, build a probe that understands them, and grow it into a tester that reads fault codes and reflashes software.',
     },
-    levels: 58, art: 'wave', dev: true,
+    levels: 59, art: 'wave', dev: true,
     page: { icon: 'M10 30h44M18 30v12M32 30v12M46 30v12M14 20h8v-6h8v6h8v-6h8', description: '车在说话 The Car Talks：车载 CAN 总线与诊断的解谜关卡。The in-vehicle CAN bus and diagnostics as puzzle levels.' },
   },
   {
