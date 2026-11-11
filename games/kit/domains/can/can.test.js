@@ -267,6 +267,22 @@ test('a test may bind a task input to the bus waveform', () => {
   assert.ok(canCourse(content).wrong.some((problem) => problem.includes('both explicit values and the line')))
 })
 
+test('test constants, pulses and peer low ticks expand and reject conflicts', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.tests[0] = { bus: { idle: 6, frames: [], tail: 0 }, constants: { bit: 1 }, pulses: { go: [1, 4] }, peerLow: [2] }
+  const course = canCourse(content)
+  assert.deepEqual(course.wrong, [])
+  const test = course.played.get('gather')[0].tests[0]
+  assert.deepEqual(test.inputs.bit, [1, 1, 1, 1, 1, 1])
+  assert.deepEqual(test.inputs.go, [0, 1, 0, 0, 1, 0])
+  assert.deepEqual(test.bus.bits, [1, 1, 0, 1, 1, 1])
+  task.tests[0].pulses.bit = [6]
+  const wrong = canCourse(content).wrong
+  assert.ok(wrong.some((problem) => problem.includes('more than one source')))
+  assert.ok(wrong.some((problem) => problem.includes('outside the test')))
+})
+
 test('a board drives the wired-AND bus and cannot say what it hears in the same tick', () => {
   const task = { listens: true, drives: true, inputs: [{ name: 'bit', label: L('bit') }], outputs: [], want: wantOf({ send: { delayedInput: { input: 'bit', first: 1 } } }) }
   const test = { bus: { bits: [1, 1, 0, 1], frames: [] }, inputs: { bit: [0, 1, 1, 0] } }

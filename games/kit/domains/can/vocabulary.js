@@ -89,10 +89,13 @@ const FRAME = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), gap:
 const TEST = S.obj({
   bus: S.obj({ idle: S.opt(nat), frames: S.list(FRAME), tail: S.opt(nat) }, { about: t('总线：先安静 idle 拍，再一帧帧（帧前多空 gap 拍），最后安静 tail 拍') }),
   inputs: S.opt(S.map(S.list(S.int()), { view: 'ticks', about: t('每个输入每一拍的值') })),
+  constants: S.opt(S.map(S.int(), { about: t('整次测试保持不变的输入值', 'input values held constant throughout a test') })),
+  pulses: S.opt(S.map(S.list(nat), { about: t('这些输入在列出的拍为 1，其余拍为 0', 'these inputs are 1 on the listed ticks and 0 otherwise') })),
   lineInputs: S.opt(S.list(S.str(), { about: t('这些输入每拍取总线上的位') })),
   queue: S.opt(S.list(hex(0xff, 2), { about: t('等待板逐个取走的字节', 'bytes waiting for the board to take one at a time') })),
   tx: S.opt(FRAME),
   peerBits: S.opt(S.list(BIT, { view: 'ticks', about: t('其他节点每拍说的位', 'bits said by the other nodes each tick') })),
+  peerLow: S.opt(S.list(nat, { about: t('其他节点在这些拍拉低总线', 'the other nodes pull the bus low on these ticks') })),
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
@@ -108,7 +111,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 22,
+  version: 23,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

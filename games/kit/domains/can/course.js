@@ -23,7 +23,13 @@ const num = (v) => (typeof v === 'string' ? parseInt(v, 16) : v)
 const testOf = (t) => {
   const bus = busOf({ ...t.bus, frames: t.bus.frames.map((f) => ({ ...f, id: num(f.id), data: (f.data ?? []).map(num) })) })
   if (t.peerBits) bus.bits = bus.bits.map((bit, tick) => bit & t.peerBits[tick])
-  const inputs = { ...(t.inputs ?? {}), ...Object.fromEntries((t.lineInputs ?? []).map((name) => [name, bus.bits])) }
+  if (t.peerLow) bus.bits = bus.bits.map((bit, tick) => t.peerLow.includes(tick) ? 0 : bit)
+  const inputs = {
+    ...(t.inputs ?? {}),
+    ...Object.fromEntries(Object.entries(t.constants ?? {}).map(([name, value]) => [name, bus.bits.map(() => value)])),
+    ...Object.fromEntries(Object.entries(t.pulses ?? {}).map(([name, ticks]) => [name, bus.bits.map((_, tick) => Number(ticks.includes(tick)))])),
+    ...Object.fromEntries((t.lineInputs ?? []).map((name) => [name, bus.bits])),
+  }
   const tx = t.tx && { ...t.tx, id: num(t.tx.id), data: (t.tx.data ?? []).map(num) }
   return { ...t, bus, inputs, tx, queue: (t.queue ?? []).map(num), ticks: bus.bits.length }
 }
@@ -42,9 +48,15 @@ export function canCourse(content) {
       if (new Set(queueInputs).size !== queueInputs.length) say('queue value, availability and last flag must be different inputs')
       if (!task.outputs?.some((output) => output.name === task.pulls.next)) say(`queue advance ${task.pulls.next} is not a task output`)
       if (!t.queue) say('a test gives the board no queue to pull from')
-      for (const name of queueInputs) if (t.inputs?.[name] || t.lineInputs?.includes(name)) say(`queue input ${name} cannot also have another source`)
+      for (const name of queueInputs) if (t.inputs?.[name] || t.lineInputs?.includes(name) || Object.prototype.hasOwnProperty.call(t.constants ?? {}, name) || Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name)) say(`queue input ${name} cannot also have another source`)
     }
-    for (const i of task.inputs ?? []) if (![task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(i.name) && !t.inputs?.[i.name] && !t.lineInputs?.includes(i.name)) say(`a test gives nothing on the input ${i.name}`)
+    for (const i of task.inputs ?? []) {
+      const name = i.name
+      const sources = [Boolean(t.inputs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name)]
+      if (![task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(name) && !sources.some(Boolean)) say(`a test gives nothing on the input ${name}`)
+      if (sources.filter(Boolean).length > 1) say(`input ${name} has more than one source`)
+    }
+    for (const name of [...Object.keys(t.constants ?? {}), ...Object.keys(t.pulses ?? {})]) if (!task.inputs?.some((input) => input.name === name)) say(`test input ${name} is not a task input`)
     for (const name of t.lineInputs ?? []) {
       if (task.drives) say('line inputs cannot bind a prerecorded bus while this board drives it')
       if (!task.inputs?.some((input) => input.name === name)) say(`line input ${name} is not a task input`)
@@ -52,6 +64,7 @@ export function canCourse(content) {
     }
     const result = testOf(t)
     if (t.peerBits && t.peerBits.length !== result.bus.bits.length) say('other nodes must give one bit per tick')
+    for (const tick of [...(t.peerLow ?? []), ...Object.values(t.pulses ?? {}).flat()]) if (tick >= result.bus.bits.length) say(`tick ${tick} is outside the test`)
     return result
   }
   // A task's wants read; a built part keeps its own registers.
