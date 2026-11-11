@@ -68,6 +68,8 @@ const WANTS = {
   ecuKeepaliveValue: item(t('会话保持后读取到的数据记录', 'data record read after keeping the session alive')),
   ecuSecurityRequests: item(t('进入会话、请求种子、发送玩具密钥并读取数据', 'enter a session, request a seed, send a toy key, then read data')),
   ecuSecurityValue: item(t('解锁后读取到的数据记录', 'data record read after unlocking')),
+  ecuWrongKeyRequests: item(t('进入会话、取种子并发送指定的错误密钥', 'enter a session, request a seed and send a specified wrong key')),
+  ecuWrongKeyReason: item(t('控制器拒绝错误密钥时的原因码', 'reason code returned when the ECU rejects a wrong key')),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -311,7 +313,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 84,
+  version: 85,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

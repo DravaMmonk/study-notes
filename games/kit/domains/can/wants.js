@@ -705,6 +705,8 @@ const WANTS = {
   ecuKeepaliveValue: () => (test) => test.bus.bits.map((_, tick) => tick === 7 ? test.ecu.value : null),
   ecuSecurityRequests: () => (test) => test.bus.bits.map((_, tick) => tick === 0 ? [0x10, 3] : tick === 1 ? [0x27, 1] : tick === 2 ? [0x27, 2, test.ecu.seed ^ 0x5a] : tick === 3 ? [0x22, test.ecu.did >> 8, test.ecu.did & 255] : null),
   ecuSecurityValue: () => (test) => test.bus.bits.map((_, tick) => tick === 4 ? test.ecu.value : null),
+  ecuWrongKeyRequests: () => (test) => test.bus.bits.map((_, tick) => tick === 0 ? [0x10, 3] : tick === 1 ? [0x27, 1] : tick === 2 ? [0x27, 2, test.ecu.seed ^ 0x5b] : null),
+  ecuWrongKeyReason: () => (test) => test.bus.bits.map((_, tick) => tick === 3 ? 0x35 : null),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {
