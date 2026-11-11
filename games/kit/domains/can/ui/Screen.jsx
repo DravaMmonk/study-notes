@@ -10,7 +10,7 @@ import FrameReplay from './FrameReplay.jsx'
 // the task's inputs down the left, its outputs down the right; under the board, the bus, the inputs, and what the board
 // gives against what it should, on one time axis (run.js entries).
 
-const { settings, defaults } = registerCards({ registers: REGISTERS, top: 32, forms: FORMS })
+const { settings, defaults } = registerCards({ registers: REGISTERS, numberConstants: true, numberStarts: true, forms: FORMS })
 
 export default function Screen(screen) {
   return <CircuitScreen screen={screen} cards={CARDS} portLabels={PORT_LABELS} run={runLevel} says={(r) => r.error} show={valueText} entries={entries} settings={settings} defaults={defaults} words={BUS_WORDS} figure={({ test }) => <FrameReplay events={test?.frameEvents} />} />

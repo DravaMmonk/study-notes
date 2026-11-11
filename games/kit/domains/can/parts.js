@@ -31,7 +31,7 @@ import { formed } from '../../engine/forms.js'
 import { register, store } from '../../engine/ticks.js'
 
 /** The registers a card may name. */
-export const REGISTERS = ['A', 'B', 'C', 'D']
+export const REGISTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
 // A part that gives 「—」 when any input is 「—」.
 const strict = (f) => (ins, node) => (Object.values(ins).some((v) => v === null) ? null : f(ins, node))

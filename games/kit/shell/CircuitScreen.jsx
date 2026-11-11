@@ -87,23 +87,23 @@ export function CardField({ label, value, options, onChange }) {
  * The settings of the cards a tick board keeps registers with (../engine/ticks.js register, store), as a domain's
  * screen gives them: `reg` and `keep` name one of `registers`, `reg` has a start value (「—」, 0 or 1), `const` a number
  * from 0 to `top`, and a part with forms (`forms`: { type: { form: label } }) one of them. With `numbers`, a constant
- * and a start value are any number, typed (NumberField), and a start value is 0 until set. A new card's settings are
+ * and a start value are any number, typed (NumberField), and a start value is 0 until set. `numberConstants` and `numberStarts` give constants and optional register starts numeric fields. A new card's settings are
  * its defaults written in (the first register, 0, the first form), so the card shows them.
  */
-export function registerCards({ registers, top, forms = {}, numbers = false }) {
+export function registerCards({ registers, top, forms = {}, numbers = false, numberConstants = false, numberStarts = false }) {
   const names = registers.map((r) => [r, r])
   const starts = [['', '—'], ['0', '0'], ['1', '1']]
-  const values = Array.from({ length: top + 1 }, (_, k) => [String(k), String(k)])
+  const values = numbers || numberConstants ? [] : Array.from({ length: top + 1 }, (_, k) => [String(k), String(k)])
   const first = (type) => Object.keys(forms[type])[0]
   return {
     defaults: (type) => (type === 'reg' ? { reg: registers[0], ...(numbers ? { start: '0' } : {}) } : type === 'keep' ? { reg: registers[0] } : type === 'const' ? { value: '0' } : forms[type] ? { form: first(type) } : {}),
     settings: (node, set) => {
       const p = node.params ?? {}
       const reg = <CardField label={T('名字', 'Name')} value={p.reg ?? registers[0]} options={names} onChange={set('reg')} />
-      const start = numbers ? <CardNumber label={T('初值')} value={p.start ?? ''} onChange={set('start')} /> : <CardField label={T('初值')} value={p.start ?? ''} options={starts} onChange={set('start')} />
+      const start = numberStarts ? <><CardNumber label={T('初值')} value={p.start ?? ''} onChange={set('start')} /><button type="button" disabled={p.start === undefined || p.start === ''} onPointerDown={(event) => event.stopPropagation()} onClick={() => set('start')('')}>{L(T('清空初值', 'Clear initial value'))}</button></> : numbers ? <CardNumber label={T('初值')} value={p.start ?? ''} onChange={set('start')} /> : <CardField label={T('初值')} value={p.start ?? ''} options={starts} onChange={set('start')} />
       if (node.type === 'reg') return <>{reg}{start}</>
       if (node.type === 'keep') return reg
-      if (node.type === 'const') return numbers ? <CardNumber label={T('数值', 'Value')} value={p.value ?? '0'} onChange={set('value')} /> : <CardField label={T('数值', 'Value')} value={p.value ?? '0'} options={values} onChange={set('value')} />
+      if (node.type === 'const') return numbers || numberConstants ? <CardNumber label={T('数值', 'Value')} value={p.value ?? '0'} onChange={set('value')} /> : <CardField label={T('数值', 'Value')} value={p.value ?? '0'} options={values} onChange={set('value')} />
       if (forms[node.type]) return <CardField label={T('形状', 'Form')} value={p.form ?? first(node.type)} options={Object.entries(forms[node.type])} onChange={set('form')} />
       return null
     },
