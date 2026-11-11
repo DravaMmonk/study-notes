@@ -1,0 +1,128 @@
+{
+  "title": { "zh": "被动节点也会接收" },
+  "intro": [{ "t": { "zh": "接收方处于被动错误状态时，仍要应答正确的帧；发现错误时发送隐性错误标志。使节点从主动转为被动的那个错误仍使用主动标志。" } }],
+  "builds": {
+    "type": "receiverstate",
+    "name": { "zh": "状态化接收" },
+    "desc": { "zh": "复用接收与应答元件，按错误发生前的主动或被动状态选择错误标志，同时保留正确帧的显性应答。" }
+  },
+  "after": { "zh": "被动接收方仍可应答正确帧，只是错误标志不再拉低总线。标志类型由发现错误时的状态决定。" },
+  "tasks": [
+    {
+      "id": "2-39",
+      "brief": {
+        "zh": "接收并应答正确帧；发现填充或 CRC 错误时，按错误发生前的状态选择主动或被动标志。状态输入 0 为主动、1 为被动；它可能在检测错误之后改变。输出结果、应答拍、计数事件与接收计数。测试不进入下线，也不模拟错误标志叠加。"
+      },
+      "hint": [{ "zh": "记住错误发生时的状态，用它控制整个错误标志；应答拍要单独保留，不能把被动错误标志的隐性规则误用到应答。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "mode", "label": { "zh": "状态" } },
+        { "name": "prep", "label": { "zh": "准备事件" } },
+        { "name": "reset", "label": { "zh": "初始化" } }
+      ],
+      "outputs": [
+        { "name": "kind", "label": { "zh": "结果种类" } },
+        { "name": "ready", "label": { "zh": "结果就绪" } },
+        { "name": "rec", "label": { "zh": "接收计数" } },
+        { "name": "event", "label": { "zh": "计数事件" } },
+        { "name": "acking", "label": { "zh": "正在应答" } }
+      ],
+      "tests": [
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }] },
+          "pulses": { "reset": [0] },
+          "constants": { "mode": 1 }
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [32],
+          "constants": { "mode": 1 }
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [41],
+          "constants": { "mode": 0 }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": {
+            "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }],
+            "mode": [{ "value": 0, "ticks": 47 }, { "value": 1, "ticks": 43 }]
+          },
+          "pulses": { "reset": [0] },
+          "flipTicks": [41]
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": {
+            "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }],
+            "mode": [{ "value": 0, "ticks": 58 }, { "value": 1, "ticks": 32 }]
+          },
+          "pulses": { "reset": [0] },
+          "flipTicks": [32]
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 0, "data": [0, 255], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 98 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [38],
+          "constants": { "mode": 1 }
+        }
+      ],
+      "want": {
+        "send": { "receiveStateDrive": { "prep": "prep", "reset": "reset", "mode": "mode" } },
+        "kind": { "receiveFrameKind": { "prep": "prep", "reset": "reset" } },
+        "ready": { "receiveFrameReady": { "prep": "prep", "reset": "reset" } },
+        "rec": { "receiveFrameRec": { "prep": "prep", "reset": "reset" } },
+        "event": { "receiveFrameEvent": { "prep": "prep", "reset": "reset" } },
+        "acking": { "receiveFrameAck": { "prep": "prep", "reset": "reset" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "three = const[value=3]()",
+        "p = receiver(line, prep, reset)",
+        "active = compare[form=eq](mode, zero)",
+        "bad = compare[form=eq](p.event, three)",
+        "flagactive = reg[reg=A, start=1]()",
+        "flagNext = select(bad, active, flagactive)",
+        "ka = keep[reg=A](flagNext)",
+        "flagwire = select(flagactive, p.send, one)",
+        "wire = select(p.acking, zero, flagwire)",
+        "send <- wire",
+        "kind <- p.kind",
+        "ready <- p.ready",
+        "rec <- p.rec",
+        "event <- p.event",
+        "acking <- p.acking"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "three = const[value=3]()",
+        "p = receiver(line, prep, reset)",
+        "active = compare[form=eq](mode, zero)",
+        "bad = compare[form=eq](p.event, three)",
+        "flagactive = reg[reg=A, start=1]()",
+        "flagNext = select(bad, active, flagactive)",
+        "ka = keep[reg=A](flagNext)",
+        "flagwire = select(active, p.send, one)",
+        "wire = select(p.acking, zero, flagwire)",
+        "send <- wire",
+        "kind <- p.kind",
+        "ready <- p.ready",
+        "rec <- p.rec",
+        "event <- p.event",
+        "acking <- p.acking"
+      ]
+    }
+  ]
+}

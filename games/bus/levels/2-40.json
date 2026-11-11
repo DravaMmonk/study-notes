@@ -1,0 +1,104 @@
+{
+  "title": { "zh": "带状态的接收事件" },
+  "intro": [{ "t": { "zh": "现在把接收结果和错误状态结合起来，交出错误发生的那一拍，同时保留节点的应答与标志时序。" } }],
+  "after": { "zh": "接收错误事件可以送到统一的错误计数器；错误标志与应答的时序仍由接收电路负责。" },
+  "tasks": [
+    {
+      "id": "2-40",
+      "brief": { "zh": "使用状态化接收元件；填充错误或 CRC 错误出现的那一拍交出「是」，其余拍交出「否」。同时驱动总线并交出计数事件。" },
+      "hint": [{ "zh": "结果就绪时，种类 1 或 2 表示接收错误；状态化接收元件负责选择标志并保留正确应答。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "mode", "label": { "zh": "状态" } },
+        { "name": "prep", "label": { "zh": "准备事件" } },
+        { "name": "reset", "label": { "zh": "初始化" } }
+      ],
+      "outputs": [{ "name": "bad", "label": { "zh": "接收错误" } }, { "name": "event", "label": { "zh": "计数事件" } }],
+      "tests": [
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }] },
+          "pulses": { "reset": [0] },
+          "constants": { "mode": 1 }
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [32],
+          "constants": { "mode": 1 }
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [41],
+          "constants": { "mode": 0 }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": {
+            "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }],
+            "mode": [{ "value": 0, "ticks": 47 }, { "value": 1, "ticks": 43 }]
+          },
+          "pulses": { "reset": [0] },
+          "flipTicks": [41]
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 677, "data": [85], "ack": false }], "tail": 20 },
+          "runs": {
+            "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 88 }],
+            "mode": [{ "value": 0, "ticks": 58 }, { "value": 1, "ticks": 32 }]
+          },
+          "pulses": { "reset": [0] },
+          "flipTicks": [32]
+        },
+        {
+          "bus": { "idle": 12, "frames": [{ "id": 0, "data": [0, 255], "ack": false }], "tail": 20 },
+          "runs": { "prep": [{ "value": 3, "ticks": 2 }, { "value": 0, "ticks": 98 }] },
+          "pulses": { "reset": [0] },
+          "flipTicks": [38],
+          "constants": { "mode": 1 }
+        }
+      ],
+      "want": {
+        "send": { "receiveStateDrive": { "prep": "prep", "reset": "reset", "mode": "mode" } },
+        "bad": { "receiveFrameBad": { "prep": "prep", "reset": "reset" } },
+        "event": { "receiveFrameEvent": { "prep": "prep", "reset": "reset" } }
+      },
+      "solution": [
+        "p = receiverstate(line, mode, prep, reset)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "false = compare[form=eq](zero, one)",
+        "true = compare[form=eq](one, one)",
+        "a = compare[form=eq](p.kind, one)",
+        "b = compare[form=eq](p.kind, two)",
+        "either = select(a, true, b)",
+        "result = select(p.ready, either, false)",
+        "send <- p.send",
+        "bad <- result",
+        "event <- p.event"
+      ],
+      "naive": [
+        "p = receiverstate(line, mode, prep, reset)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "false = compare[form=eq](zero, one)",
+        "true = compare[form=eq](one, one)",
+        "a = compare[form=eq](p.kind, one)",
+        "b = compare[form=eq](p.kind, two)",
+        "either = select(a, false, b)",
+        "result = select(p.ready, either, false)",
+        "send <- p.send",
+        "bad <- result",
+        "event <- p.event"
+      ]
+    }
+  ]
+}

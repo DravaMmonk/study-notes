@@ -1,6 +1,6 @@
 {
   "domain": "can",
-  "vocabulary": 52,
+  "vocabulary": 53,
   "title": { "zh": "车在说话" },
   "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
@@ -35,7 +35,8 @@
       "faultcounter",
       "suspend",
       "recovery",
-      "receiver"
+      "receiver",
+      "receiverstate"
     ]
   },
   "concept": { "keep": "reg" },
@@ -113,7 +114,9 @@
         "2-35",
         "2-36",
         "2-37",
-        "2-38"
+        "2-38",
+        "2-39",
+        "2-40"
       ]
     }
   ]
