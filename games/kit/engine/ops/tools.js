@@ -79,16 +79,16 @@ async function boardsOf(content, level) {
 
 export const TOOLS = {
   audit: {
-    about: 'Check a game as npm run check does: content against its vocabulary, the course audit, copy, and its domain’s checks (reference answers pass, naive ones fail).',
-    params: { game: 'string' },
-    async run({ game }) {
+    about: 'Check a game as npm run check does: content against its vocabulary, the course audit, copy, and its domain’s checks (reference answers pass, naive ones fail). mutants: also, for each circuit task, how many small mistakes made to its reference answer the tests catch, and those they let pass (slow; a mutant left alive is a board the tests do not rule out, or another right answer).',
+    params: { game: 'string', mutants: 'boolean?' },
+    async run({ game, mutants = false }) {
       const content = readContent(known(game), ROOT)
-      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game) })
+      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game), mutants })
       return { ok: !lines.some((l) => l.fail), failures: lines.filter((l) => l.fail).map((l) => l.text), lines: lines.map((l) => `${l.fail ? 'FAIL ' : ''}${l.text}`) }
     },
   },
   modify: {
-    about: 'Apply a changeset { why?, ops: [{ op, …args }] } to a game: every op checked and run, the whole game checked; written only when nothing fails (dryRun: preview only). base: the seq of the log’s last entry the caller saw (preview and log give it as head): refused when the game has changed since. The operations and their arguments: the vocabulary tool.',
+    about: 'Apply a changeset { why?, by?, ops: [{ op, …args }] } to a game (by: who makes it, e.g. agent:<step>:<model>; the change log keeps it): every op checked and run, the whole game checked; written only when nothing fails (dryRun: preview only). base: the seq of the log’s last entry the caller saw (preview and log give it as head): refused when the game has changed since. The operations and their arguments: the vocabulary tool.',
     params: { game: 'string', changeset: 'object', dryRun: 'boolean?', base: 'number?' },
     async run({ game, changeset, dryRun = false, base = null }) {
       const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: !dryRun, base })

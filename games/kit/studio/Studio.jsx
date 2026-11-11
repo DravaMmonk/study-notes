@@ -434,7 +434,7 @@ export default function Studio() {
     return pickField([...base, key, list.length], true)
   }
   const apply = async () => {
-    const r = await call('modify', { game, changeset, base: head })
+    const r = await call('modify', { game, changeset: { ...changeset, by: 'studio' }, base: head })
     setSaid(r.ok ? { ok: true, text: r.says.join('; ') } : { ok: false, text: r.problems.join('\n') })
     if (r.ok) {
       setOps([])
