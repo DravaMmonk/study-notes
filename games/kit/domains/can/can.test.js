@@ -1169,3 +1169,12 @@ test('frame boards compare byte-sequence outputs by contents', () => {
   assert.equal(runLevel(played, played.solution, course.partOf).pass, true)
   assert.deepEqual(played.tests[0].inputs.data, [[2, 0x62, 0xf1, 0xcc]])
 })
+
+test('two-frame messages join data, trim padding and reject a wrong sequence', () => {
+  assert.deepEqual(PARTS.concatBytes.eval({ a: [1, 2], b: [3] }), [1, 2, 3])
+  assert.equal(PARTS.concatBytes.eval({ a: null, b: [] }), null)
+  const want = wantOf({ message: { twoFrameMessage: { data: 'data' } } })
+  const first = [0x10, 8, 1, 2, 3, 4, 5, 6]
+  const next = [0x21, 7, 8, 0xaa, 0xaa, 0xaa, 0xaa, 0xaa]
+  assert.deepEqual(want({ inputs: { data: [first, next, first, [0x22, 7, 8, 0, 0, 0, 0, 0], next] } }).message, [null, [1, 2, 3, 4, 5, 6, 7, 8], null, null, null])
+})

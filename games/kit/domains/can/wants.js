@@ -658,6 +658,19 @@ const WANTS = {
   elapsedFrameSignal: ({ time }) => (test) => test.inputs[time].map((value, tick, values) => tick === 0 || value == null || values[tick - 1] == null ? null : value - values[tick - 1]),
   rollingCounterSignal: ({ input }) => (test) => test.inputs[input].map((value, tick, values) => tick === 0 || value === ((values[tick - 1] + 1) & 15)),
   singleFrameMessage: ({ data, header }) => (test) => test.inputs[data].map((bytes, tick) => bytes.slice(1, 1 + (test.inputs[header][tick] & 15))),
+  twoFrameMessage: ({ data }) => (test) => {
+    let pending = null
+    return test.inputs[data].map((bytes) => {
+      const size = ((bytes[0] & 15) << 8) | bytes[1]
+      if ((bytes[0] & 0xf0) === 0x10 && size >= 8 && size <= 13 && bytes.length === 8) {
+        pending = { size, prefix: bytes.slice(2) }
+        return null
+      }
+      const message = bytes[0] === 0x21 && bytes.length === 8 && pending ? [...pending.prefix, ...bytes.slice(1)].slice(0, pending.size) : null
+      pending = null
+      return message
+    })
+  },
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

@@ -22,6 +22,7 @@ export const CARDS = {
   band: { name: T('按位与', 'Bitwise AND'), icon: GitMerge, family: 'logic', desc: T('两个数逐位取与；两位都是 1 时结果才是 1。按无符号 32 位运算。', 'ANDs two unsigned 32-bit values: a result bit is 1 only when both input bits are 1.') },
   shiftRight: { name: T('右移', 'Shift right'), icon: Split, family: 'logic', desc: T('将无符号 32 位数向右移动 0 到 31 位，高位补零。', 'Shifts an unsigned 32-bit value right by 0 to 31 bits, filling high bits with zero.') },
   sliceBytes: { name: T('截取字节', 'Slice bytes'), icon: Split, family: 'value', desc: T('从字节序列中按起点和长度截取连续字节；越界时给出「—」。', 'Takes a contiguous range from a byte sequence by start and length; gives 「—」 if out of bounds.') },
+  concatBytes: { name: T('拼接字节', 'Join bytes'), icon: GitMerge, family: 'value', desc: T('按顺序拼接两个字节序列。', 'Joins two byte sequences in order.') },
 }
 
 export const FORMS = {
