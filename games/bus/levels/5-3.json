@@ -1,0 +1,93 @@
+{
+  "title": { "zh": "控制器说请稍等" },
+  "intro": [{ "t": { "zh": "控制器有时不能立即完成请求，会先返回 [0x7F, 0x22, 0x78] 表示回答还在处理中；随后才发真正的肯定回答。" } }],
+  "after": { "zh": "等待回答和真正拒绝不同：收到 0x78 后继续等待，直到最终回答到达。这里尚未模拟超时。" },
+  "tasks": [
+    {
+      "id": "5-3",
+      "brief": { "zh": "只在第一拍请求 0xF190。等待期间不要把 0x78 当成数据；收到以 0x62 开头的肯定回答后，交出其后的数据记录。" },
+      "hint": [{ "zh": "用寄存卡记住已经请求；比较回答的第一个字节是否为 0x62，再截取记录。" }],
+      "inputs": [{ "name": "reply", "label": { "zh": "控制器回答" } }],
+      "outputs": [
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "value", "label": { "zh": "数据记录" } }
+      ],
+      "ecu": { "request": "request", "response": "reply" },
+      "tests": [
+        {
+          "bus": { "idle": 5, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [65, 66], "waits": 2 }
+        },
+        {
+          "bus": { "idle": 4, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [11, 22, 33], "waits": 1 }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 3, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [0, 255], "waits": 0 }
+        },
+        {
+          "bus": { "idle": 7, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [7, 8, 9], "waits": 4 }
+        }
+      ],
+      "want": { "request": "ecuOnceRequest", "value": "ecuDelayedValue" },
+      "solution": [
+        "old = reg[reg=A, start=0]()",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "first = compare[form=eq](old, zero)",
+        "save = keep[reg=A](one)",
+        "service = const[value=34]()",
+        "hi = const[value=241]()",
+        "lo = const[value=144]()",
+        "a = byteList(service)",
+        "b = byteList(hi)",
+        "d = byteList(lo)",
+        "ab = concatBytes(a, b)",
+        "req = concatBytes(ab, d)",
+        "send = select(first, req)",
+        "request <- send",
+        "head = sliceBytes(reply, zero, one)",
+        "positiveCode = const[value=98]()",
+        "positiveByte = byteList(positiveCode)",
+        "positive = compare[form=eq](head, positiveByte)",
+        "three = const[value=3]()",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "good = select(positive, record)",
+        "value <- good"
+      ],
+      "naive": [
+        "old = reg[reg=A, start=0]()",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "first = compare[form=eq](old, zero)",
+        "save = keep[reg=A](one)",
+        "service = const[value=34]()",
+        "hi = const[value=241]()",
+        "lo = const[value=144]()",
+        "a = byteList(service)",
+        "b = byteList(hi)",
+        "d = byteList(lo)",
+        "ab = concatBytes(a, b)",
+        "req = concatBytes(ab, d)",
+        "send = select(first, req)",
+        "request <- send",
+        "head = sliceBytes(reply, zero, one)",
+        "positiveCode = const[value=98]()",
+        "positiveByte = byteList(positiveCode)",
+        "positive = compare[form=eq](head, positiveByte)",
+        "three = const[value=3]()",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "good = select(positive, record)",
+        "value <- record"
+      ]
+    }
+  ]
+}

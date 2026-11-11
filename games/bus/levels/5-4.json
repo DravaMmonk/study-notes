@@ -1,0 +1,105 @@
+{
+  "title": { "zh": "先进入扩展会话" },
+  "intro": [
+    { "t": { "zh": "这个模拟控制器只在扩展会话提供指定记录。进入会话的请求是 [0x10, 0x03]，肯定回答以 [0x50, 0x03] 开头；默认会话下直接读取会被拒绝。" } }
+  ],
+  "after": { "zh": "会话会改变控制器允许的操作。这个练习固定下一拍收到会话回答，尚未处理超时或会话失效。" },
+  "tasks": [
+    {
+      "id": "5-4",
+      "brief": { "zh": "第一拍请求扩展会话，第二拍请求数据标识 0xF190；收到以 0x62 开头的回答时交出数据记录。之后不再请求。" },
+      "hint": [{ "zh": "用寄存卡记录已经过了几拍，分别选择两个请求；只从肯定的数据回答截取记录。" }],
+      "inputs": [{ "name": "reply", "label": { "zh": "控制器回答" } }],
+      "outputs": [
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "value", "label": { "zh": "数据记录" } }
+      ],
+      "ecu": { "request": "request", "response": "reply" },
+      "tests": [
+        {
+          "bus": { "idle": 4, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [65, 66], "requiresExtended": true }
+        },
+        {
+          "bus": { "idle": 4, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [5, 6, 7], "requiresExtended": true }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 4, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [0, 255, 1], "requiresExtended": true }
+        }
+      ],
+      "want": { "request": "ecuSessionRequests", "value": "ecuSessionValue" },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "three = const[value=3]()",
+        "isFirst = compare[form=eq](tick, zero)",
+        "isSecond = compare[form=eq](tick, one)",
+        "sessionCode = const[value=16]()",
+        "service = const[value=34]()",
+        "hi = const[value=241]()",
+        "lo = const[value=144]()",
+        "a = byteList(sessionCode)",
+        "b = byteList(three)",
+        "session = concatBytes(a, b)",
+        "c = byteList(service)",
+        "d = byteList(hi)",
+        "e = byteList(lo)",
+        "cd = concatBytes(c, d)",
+        "read = concatBytes(cd, e)",
+        "second = select(isSecond, read)",
+        "req = select(isFirst, session, second)",
+        "request <- req",
+        "head = sliceBytes(reply, zero, one)",
+        "positiveCode = const[value=98]()",
+        "positiveByte = byteList(positiveCode)",
+        "positive = compare[form=eq](head, positiveByte)",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "good = select(positive, record)",
+        "value <- good"
+      ],
+      "naive": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "three = const[value=3]()",
+        "isFirst = compare[form=eq](tick, zero)",
+        "isSecond = compare[form=eq](tick, one)",
+        "sessionCode = const[value=16]()",
+        "service = const[value=34]()",
+        "hi = const[value=241]()",
+        "lo = const[value=144]()",
+        "a = byteList(sessionCode)",
+        "b = byteList(three)",
+        "session = concatBytes(a, b)",
+        "c = byteList(service)",
+        "d = byteList(hi)",
+        "e = byteList(lo)",
+        "cd = concatBytes(c, d)",
+        "read = concatBytes(cd, e)",
+        "second = select(isSecond, read)",
+        "req = select(isFirst, read, second)",
+        "request <- req",
+        "head = sliceBytes(reply, zero, one)",
+        "positiveCode = const[value=98]()",
+        "positiveByte = byteList(positiveCode)",
+        "positive = compare[form=eq](head, positiveByte)",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "good = select(positive, record)",
+        "value <- good"
+      ]
+    }
+  ]
+}

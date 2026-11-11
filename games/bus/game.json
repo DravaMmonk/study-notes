@@ -1,6 +1,6 @@
 {
   "domain": "can",
-  "vocabulary": 78,
+  "vocabulary": 85,
   "title": { "zh": "车在说话" },
   "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
@@ -21,7 +21,8 @@
     "sliceBytes",
     "concatBytes",
     "byteLength",
-    "byteList"
+    "byteList",
+    "byteAt"
   ],
   "trays": {
     "main": [
@@ -61,7 +62,8 @@
       "concatBytes",
       "byteLength",
       "isorecv",
-      "byteList"
+      "byteList",
+      "byteAt"
     ]
   },
   "concept": { "keep": "reg" },
@@ -164,6 +166,12 @@
       "title": { "zh": "长消息" },
       "question": { "zh": "超过一帧的消息怎样送到？" },
       "foundation": ["4-1", "4-2", "4-3", "4-4", "4-5", "4-6", "4-7"]
+    },
+    {
+      "id": 5,
+      "title": { "zh": "诊断仪" },
+      "question": { "zh": "控制器怎样回答诊断问题？" },
+      "foundation": ["5-1", "5-2", "5-3", "5-4", "5-5", "5-6", "5-7"]
     }
   ]
 }

@@ -1,0 +1,151 @@
+{
+  "title": { "zh": "用种子解锁" },
+  "intro": [{ "t": { "zh": "这个模拟控制器还要求安全访问。进入扩展会话后，用 [0x27, 0x01] 请求一个字节的种子；本游戏的玩具规则是把种子与 0x5A 按位异或，得到密钥。" } }],
+  "after": { "zh": "种子和密钥可以控制受保护服务的访问。本练习的异或算法只是演示，不是实际控制器的安全算法。" },
+  "adds": ["byteAt"],
+  "showcase": { "zh": "从字节序列按位置取出一个字节。" },
+  "tasks": [
+    {
+      "id": "5-6",
+      "brief": { "zh": "第 0 拍进入扩展会话，第 1 拍请求种子，第 2 拍把计算出的密钥放进 [0x27, 0x02, 密钥]，第 3 拍读取 0xF190；肯定回答到来时交出记录。" },
+      "hint": [{ "zh": "从种子回答的位置 2 读取种子，与十进制 90 异或，再拼成发送密钥的请求。" }],
+      "inputs": [{ "name": "reply", "label": { "zh": "控制器回答" } }],
+      "outputs": [
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "value", "label": { "zh": "数据记录" } }
+      ],
+      "ecu": { "request": "request", "response": "reply" },
+      "tests": [
+        {
+          "bus": { "idle": 6, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [65, 66],
+            "requiresExtended": true,
+            "requiresSecurity": true,
+            "seed": 18
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 6, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [1, 2, 3],
+            "requiresExtended": true,
+            "requiresSecurity": true,
+            "seed": 165
+          }
+        },
+        {
+          "bus": { "idle": 6, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [0, 255],
+            "requiresExtended": true,
+            "requiresSecurity": true,
+            "seed": 0
+          }
+        }
+      ],
+      "want": { "request": "ecuSecurityRequests", "value": "ecuSecurityValue" },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "three = const[value=3]()",
+        "is0 = compare[form=eq](tick, zero)",
+        "is1 = compare[form=eq](tick, one)",
+        "is2 = compare[form=eq](tick, two)",
+        "is3 = compare[form=eq](tick, three)",
+        "sessionCode = const[value=16]()",
+        "securityCode = const[value=39]()",
+        "readCode = const[value=34]()",
+        "hi = const[value=241]()",
+        "lo = const[value=144]()",
+        "mask = const[value=90]()",
+        "seed = byteAt(reply, two)",
+        "key = xor(seed, mask)",
+        "a = byteList(sessionCode)",
+        "b = byteList(three)",
+        "session = concatBytes(a, b)",
+        "sec = byteList(securityCode)",
+        "sub1 = byteList(one)",
+        "sub2 = byteList(two)",
+        "askSeed = concatBytes(sec, sub1)",
+        "keyByte = byteList(key)",
+        "keyHead = concatBytes(sec, sub2)",
+        "sendKey = concatBytes(keyHead, keyByte)",
+        "readByte = byteList(readCode)",
+        "highByte = byteList(hi)",
+        "lowByte = byteList(lo)",
+        "readHead = concatBytes(readByte, highByte)",
+        "read = concatBytes(readHead, lowByte)",
+        "at3 = select(is3, read)",
+        "at2 = select(is2, sendKey, at3)",
+        "at1 = select(is1, askSeed, at2)",
+        "req = select(is0, session, at1)",
+        "request <- req",
+        "head = byteAt(reply, zero)",
+        "positiveCode = const[value=98]()",
+        "positive = compare[form=eq](head, positiveCode)",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "good = select(positive, record)",
+        "value <- good"
+      ],
+      "naive": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "three = const[value=3]()",
+        "is0 = compare[form=eq](tick, zero)",
+        "is1 = compare[form=eq](tick, one)",
+        "is2 = compare[form=eq](tick, two)",
+        "is3 = compare[form=eq](tick, three)",
+        "sessionCode = const[value=16]()",
+        "securityCode = const[value=39]()",
+        "readCode = const[value=34]()",
+        "hi = const[value=241]()",
+        "lo = const[value=144]()",
+        "key = const[value=72]()",
+        "a = byteList(sessionCode)",
+        "b = byteList(three)",
+        "session = concatBytes(a, b)",
+        "sec = byteList(securityCode)",
+        "sub1 = byteList(one)",
+        "sub2 = byteList(two)",
+        "askSeed = concatBytes(sec, sub1)",
+        "keyByte = byteList(key)",
+        "keyHead = concatBytes(sec, sub2)",
+        "sendKey = concatBytes(keyHead, keyByte)",
+        "readByte = byteList(readCode)",
+        "highByte = byteList(hi)",
+        "lowByte = byteList(lo)",
+        "readHead = concatBytes(readByte, highByte)",
+        "read = concatBytes(readHead, lowByte)",
+        "at3 = select(is3, read)",
+        "at2 = select(is2, sendKey, at3)",
+        "at1 = select(is1, askSeed, at2)",
+        "req = select(is0, session, at1)",
+        "request <- req",
+        "head = byteAt(reply, zero)",
+        "positiveCode = const[value=98]()",
+        "positive = compare[form=eq](head, positiveCode)",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "good = select(positive, record)",
+        "value <- good"
+      ]
+    }
+  ]
+}

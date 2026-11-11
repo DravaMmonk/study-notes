@@ -1,0 +1,132 @@
+{
+  "title": { "zh": "密钥错了怎么办" },
+  "intro": [{ "t": { "zh": "在这台模拟控制器上，密钥不对会返回否定回答 [0x7F, 0x27, 0x35]。本关故意发送错误密钥，观察原因码；连续错误还会触发暂时锁定。" } }],
+  "after": { "zh": "正确识别拒绝原因，才能区分密钥错误和仍在等待；实际安全算法与本游戏的玩具规则不同。" },
+  "tasks": [
+    {
+      "id": "5-7",
+      "brief": { "zh": "依次进入扩展会话、请求种子，然后发送种子与 0x5B 异或得到的错误密钥。从安全访问的否定回答中交出原因码，其他时候交出「—」。" },
+      "hint": [{ "zh": "从回答取出服务号和原因码；只有第一个字节是 0x7F 且第二个字节是 0x27 时才输出原因码。" }],
+      "inputs": [{ "name": "reply", "label": { "zh": "控制器回答" } }],
+      "outputs": [
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "reason", "label": { "zh": "原因码" } }
+      ],
+      "ecu": { "request": "request", "response": "reply" },
+      "tests": [
+        {
+          "bus": { "idle": 6, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [42],
+            "requiresExtended": true,
+            "requiresSecurity": true,
+            "seed": 18
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 6, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [42],
+            "requiresExtended": true,
+            "requiresSecurity": true,
+            "seed": 165
+          }
+        },
+        {
+          "bus": { "idle": 6, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [42],
+            "requiresExtended": true,
+            "requiresSecurity": true,
+            "seed": 0
+          }
+        }
+      ],
+      "want": { "request": "ecuWrongKeyRequests", "reason": "ecuWrongKeyReason" },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "three = const[value=3]()",
+        "is0 = compare[form=eq](tick, zero)",
+        "is1 = compare[form=eq](tick, one)",
+        "is2 = compare[form=eq](tick, two)",
+        "sessionCode = const[value=16]()",
+        "securityCode = const[value=39]()",
+        "mask = const[value=91]()",
+        "seed = byteAt(reply, two)",
+        "key = xor(seed, mask)",
+        "a = byteList(sessionCode)",
+        "b = byteList(three)",
+        "session = concatBytes(a, b)",
+        "sec = byteList(securityCode)",
+        "sub1 = byteList(one)",
+        "sub2 = byteList(two)",
+        "askSeed = concatBytes(sec, sub1)",
+        "keyByte = byteList(key)",
+        "keyHead = concatBytes(sec, sub2)",
+        "sendKey = concatBytes(keyHead, keyByte)",
+        "at2 = select(is2, sendKey)",
+        "at1 = select(is1, askSeed, at2)",
+        "req = select(is0, session, at1)",
+        "request <- req",
+        "head = byteAt(reply, zero)",
+        "sid = byteAt(reply, one)",
+        "reasonByte = byteAt(reply, two)",
+        "negativeCode = const[value=127]()",
+        "negative = compare[form=eq](head, negativeCode)",
+        "security = compare[form=eq](sid, securityCode)",
+        "valid = select(negative, security)",
+        "out = select(valid, reasonByte)",
+        "reason <- out"
+      ],
+      "naive": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "three = const[value=3]()",
+        "is0 = compare[form=eq](tick, zero)",
+        "is1 = compare[form=eq](tick, one)",
+        "is2 = compare[form=eq](tick, two)",
+        "sessionCode = const[value=16]()",
+        "securityCode = const[value=39]()",
+        "mask = const[value=91]()",
+        "seed = byteAt(reply, two)",
+        "key = xor(seed, mask)",
+        "a = byteList(sessionCode)",
+        "b = byteList(three)",
+        "session = concatBytes(a, b)",
+        "sec = byteList(securityCode)",
+        "sub1 = byteList(one)",
+        "sub2 = byteList(two)",
+        "askSeed = concatBytes(sec, sub1)",
+        "keyByte = byteList(key)",
+        "keyHead = concatBytes(sec, sub2)",
+        "sendKey = concatBytes(keyHead, keyByte)",
+        "at2 = select(is2, sendKey)",
+        "at1 = select(is1, askSeed, at2)",
+        "req = select(is0, session, at1)",
+        "request <- req",
+        "head = byteAt(reply, zero)",
+        "sid = byteAt(reply, one)",
+        "reasonByte = byteAt(reply, two)",
+        "negativeCode = const[value=127]()",
+        "negative = compare[form=eq](head, negativeCode)",
+        "security = compare[form=eq](sid, securityCode)",
+        "valid = select(negative, security)",
+        "reason <- reasonByte"
+      ]
+    }
+  ]
+}

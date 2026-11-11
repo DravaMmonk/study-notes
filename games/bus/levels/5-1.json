@@ -1,0 +1,71 @@
+{
+  "title": { "zh": "问出数据标识" },
+  "intro": [
+    {
+      "t": {
+        "zh": "诊断工具用服务 0x22 读取数据标识。这个模拟控制器保存标识 0xF190；正确请求是 [0x22, 0xF1, 0x90]，肯定回答以 [0x62, 0xF1, 0x90] 开头。"
+      }
+    },
+    { "t": { "zh": "这次先在消息层交互：控制器读取本拍请求，在下一拍回答。这里尚不模拟消息经过 ISO-TP 分段、总线或超时。" } }
+  ],
+  "after": { "zh": "请求的数据标识决定控制器回答哪条记录；肯定回答保留标识，接收方还要取出后面的数据。" },
+  "tasks": [
+    {
+      "id": "5-1",
+      "brief": { "zh": "每拍发出读取 0xF190 的请求；收到回答后去掉前三个字节，交出数据记录。尚未收到回答时交出「—」。" },
+      "hint": [{ "zh": "先用单字节序列和拼接构造请求，再用字节长度和截取元件从回答位置 3 取出记录。" }],
+      "inputs": [{ "name": "reply", "label": { "zh": "控制器回答" } }],
+      "outputs": [
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "value", "label": { "zh": "数据记录" } }
+      ],
+      "ecu": { "request": "request", "response": "reply" },
+      "tests": [
+        {
+          "bus": { "idle": 3, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [65, 66, 67, 68] }
+        },
+        { "bus": { "idle": 3, "frames": [], "tail": 0 }, "ecu": { "did": "0xf190", "value": [86, 73, 78] } }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 3, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [0, 255, 17, 32, 48, 64] }
+        }
+      ],
+      "want": { "request": "ecuReadRequest", "value": "ecuReadValue" },
+      "solution": [
+        "service = const[value=34]()",
+        "hi = const[value=241]()",
+        "lo = const[value=144]()",
+        "a = byteList(service)",
+        "b = byteList(hi)",
+        "d = byteList(lo)",
+        "ab = concatBytes(a, b)",
+        "req = concatBytes(ab, d)",
+        "request <- req",
+        "three = const[value=3]()",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "value <- record"
+      ],
+      "naive": [
+        "service = const[value=34]()",
+        "hi = const[value=241]()",
+        "lo = const[value=145]()",
+        "a = byteList(service)",
+        "b = byteList(hi)",
+        "d = byteList(lo)",
+        "ab = concatBytes(a, b)",
+        "req = concatBytes(ab, d)",
+        "request <- req",
+        "three = const[value=3]()",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "value <- record"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "title": { "zh": "别让会话掉线" },
+  "intro": [{ "t": { "zh": "这个模拟控制器进入扩展会话后，连续三拍没有诊断请求就退回默认会话。测试仪可以发送 [0x3E, 0x00] 表示仍在线，重置等待计时。" } }],
+  "after": { "zh": "周期性保持在线可以避免会话因空闲而退出。这里的三拍是模拟规则，不代表车辆的真实计时。" },
+  "tasks": [
+    {
+      "id": "5-5",
+      "brief": { "zh": "第 0 拍进入扩展会话，第 2 和 4 拍发送保持在线，第 6 拍读取 0xF190；其他拍不发送。收到肯定的数据回答后交出记录。" },
+      "hint": [{ "zh": "用寄存卡数拍，按拍数选择会话、保持在线和读取请求；只提取以 0x62 开头的回答。" }],
+      "inputs": [{ "name": "reply", "label": { "zh": "控制器回答" } }],
+      "outputs": [
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "value", "label": { "zh": "数据记录" } }
+      ],
+      "ecu": { "request": "request", "response": "reply" },
+      "tests": [
+        {
+          "bus": { "idle": 9, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [65, 66], "requiresExtended": true, "timeout": 3 }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 9, "frames": [], "tail": 0 },
+          "ecu": { "did": "0xf190", "value": [0, 255, 7], "requiresExtended": true, "timeout": 3 }
+        }
+      ],
+      "want": { "request": "ecuKeepaliveRequests", "value": "ecuKeepaliveValue" },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "three = const[value=3]()",
+        "four = const[value=4]()",
+        "six = const[value=6]()",
+        "is0 = compare[form=eq](tick, zero)",
+        "is2 = compare[form=eq](tick, two)",
+        "is4 = compare[form=eq](tick, four)",
+        "is6 = compare[form=eq](tick, six)",
+        "sessionCode = const[value=16]()",
+        "keepCode = const[value=62]()",
+        "service = const[value=34]()",
+        "hi = const[value=241]()",
+        "lo = const[value=144]()",
+        "a = byteList(sessionCode)",
+        "b = byteList(three)",
+        "session = concatBytes(a, b)",
+        "c = byteList(keepCode)",
+        "d = byteList(zero)",
+        "keep = concatBytes(c, d)",
+        "e = byteList(service)",
+        "f = byteList(hi)",
+        "g = byteList(lo)",
+        "ef = concatBytes(e, f)",
+        "read = concatBytes(ef, g)",
+        "at6 = select(is6, read)",
+        "at4 = select(is4, keep, at6)",
+        "at2 = select(is2, keep, at4)",
+        "req = select(is0, session, at2)",
+        "request <- req",
+        "head = sliceBytes(reply, zero, one)",
+        "positiveCode = const[value=98]()",
+        "positiveByte = byteList(positiveCode)",
+        "positive = compare[form=eq](head, positiveByte)",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "good = select(positive, record)",
+        "value <- good"
+      ],
+      "naive": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "save = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "three = const[value=3]()",
+        "four = const[value=4]()",
+        "six = const[value=6]()",
+        "is0 = compare[form=eq](tick, zero)",
+        "is6 = compare[form=eq](tick, six)",
+        "sessionCode = const[value=16]()",
+        "service = const[value=34]()",
+        "hi = const[value=241]()",
+        "lo = const[value=144]()",
+        "a = byteList(sessionCode)",
+        "b = byteList(three)",
+        "session = concatBytes(a, b)",
+        "e = byteList(service)",
+        "f = byteList(hi)",
+        "g = byteList(lo)",
+        "ef = concatBytes(e, f)",
+        "read = concatBytes(ef, g)",
+        "at6 = select(is6, read)",
+        "req = select(is0, session, at6)",
+        "request <- req",
+        "head = sliceBytes(reply, zero, one)",
+        "positiveCode = const[value=98]()",
+        "positiveByte = byteList(positiveCode)",
+        "positive = compare[form=eq](head, positiveByte)",
+        "size = byteLength(reply)",
+        "n = subtract(size, three)",
+        "record = sliceBytes(reply, three, n)",
+        "good = select(positive, record)",
+        "value <- good"
+      ]
+    }
+  ]
+}
