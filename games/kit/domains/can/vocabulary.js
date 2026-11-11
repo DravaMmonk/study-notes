@@ -110,6 +110,8 @@ const WANTS = {
   fleetFaultAny: item(t('是否有已确认故障码', 'whether any confirmed fault codes exist')),
   sustainedMismatch: item(t('第一次连续三帧不一致时触发', 'trigger on the first run of three mismatched frames'), S.obj({ speed: INPUT, wheel: INPUT })),
   mismatchWindow: item(t('第一次持续不一致前后的帧与时间', 'frames and time around the first sustained mismatch'), S.obj({ speed: INPUT, wheel: INPUT, time: INPUT, field: S.oneOf(['time', 'beforeSpeed', 'beforeWheel', 'triggerSpeed', 'triggerWheel', 'afterSpeed', 'afterWheel']) })),
+  encodeLow: item(t('编码后的低字节', 'the encoded low byte'), S.obj({ input: INPUT })),
+  encodeHigh: item(t('编码后的高字节', 'the encoded high byte'), S.obj({ input: INPUT })),
   transportFrames: item(t('按流控和间隔发送消息的帧', 'frames sent according to flow control and separation')),
   transportGapReady: item(t('按流控间隔等待后续帧的发送时机', 'wait for the consecutive-frame separation before allowing the next send'), S.obj({ set: INPUT, separation: INPUT, sent: INPUT })),
   transportTimeoutAbort: item(t('接收方不回答时在等待上限终止', 'abort at the waiting limit when the receiver is silent')),
@@ -367,7 +369,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 110,
+  version: 111,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

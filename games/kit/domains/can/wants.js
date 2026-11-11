@@ -765,6 +765,8 @@ const WANTS = {
   fleetRecheckReport: () => (test) => fleetRecheckPlan(test).report,
   fleetFaultRecords: () => (test) => fleetFaultPlan(test).records,
   fleetFaultAny: () => (test) => fleetFaultPlan(test).any,
+  encodeLow: ({ input }) => (test) => test.inputs[input].map((value) => value & 255),
+  encodeHigh: ({ input }) => (test) => test.inputs[input].map((value) => (value >> 8) & 255),
   sustainedMismatch: ({ speed, wheel }) => (test) => {
     const at = firstMismatch(test.inputs[speed], test.inputs[wheel])
     return test.bus.bits.map((_, tick) => tick === at)
