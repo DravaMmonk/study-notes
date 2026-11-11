@@ -112,6 +112,8 @@ const WANTS = {
   mismatchWindow: item(t('第一次持续不一致前后的帧与时间', 'frames and time around the first sustained mismatch'), S.obj({ speed: INPUT, wheel: INPUT, time: INPUT, field: S.oneOf(['time', 'beforeSpeed', 'beforeWheel', 'triggerSpeed', 'triggerWheel', 'afterSpeed', 'afterWheel']) })),
   encodeLow: item(t('编码后的低字节', 'the encoded low byte'), S.obj({ input: INPUT })),
   encodeHigh: item(t('编码后的高字节', 'the encoded high byte'), S.obj({ input: INPUT })),
+  crc8Signal: item(t('单字节的游戏 CRC-8', 'game CRC-8 of one byte'), S.obj({ input: INPUT })),
+  frameHealth: item(t('按 CRC 和滚动计数器检查报文', 'check frame CRC and rolling counter'), S.obj({ payload: INPUT, checksum: INPUT, counter: INPUT, enable: S.opt(INPUT), id: S.opt(INPUT), match: S.opt(S.int({ min: 0, max: 2047 })) })),
   transportFrames: item(t('按流控和间隔发送消息的帧', 'frames sent according to flow control and separation')),
   transportGapReady: item(t('按流控间隔等待后续帧的发送时机', 'wait for the consecutive-frame separation before allowing the next send'), S.obj({ set: INPUT, separation: INPUT, sent: INPUT })),
   transportTimeoutAbort: item(t('接收方不回答时在等待上限终止', 'abort at the waiting limit when the receiver is silent')),
@@ -369,7 +371,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 111,
+  version: 112,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

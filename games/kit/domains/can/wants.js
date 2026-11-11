@@ -767,6 +767,17 @@ const WANTS = {
   fleetFaultAny: () => (test) => fleetFaultPlan(test).any,
   encodeLow: ({ input }) => (test) => test.inputs[input].map((value) => value & 255),
   encodeHigh: ({ input }) => (test) => test.inputs[input].map((value) => (value >> 8) & 255),
+  crc8Signal: ({ input }) => (test) => test.inputs[input].map(crc8Byte),
+  frameHealth: ({ payload, checksum, counter, enable, id, match }) => (test) => {
+    let previous = null
+    return test.bus.bits.map((_, tick) => {
+      if ((enable && !test.inputs[enable][tick]) || (id && test.inputs[id][tick] !== match)) return null
+      const value = test.inputs[counter][tick]
+      const valid = crc8Byte(test.inputs[payload][tick]) === test.inputs[checksum][tick] && (previous === null || value === ((previous + 1) & 15))
+      previous = value
+      return valid
+    })
+  },
   sustainedMismatch: ({ speed, wheel }) => (test) => {
     const at = firstMismatch(test.inputs[speed], test.inputs[wheel])
     return test.bus.bits.map((_, tick) => tick === at)
@@ -1187,6 +1198,13 @@ function firstMismatch(speed, wheel) {
     if (streak === 3) return tick
   }
   return -1
+}
+
+// CRC-8 with polynomial 0x07, initial value zero, no reflection or final XOR.
+function crc8Byte(byte) {
+  let crc = byte
+  for (let bit = 0; bit < 8; bit++) crc = ((crc << 1) ^ (crc & 0x80 ? 0x07 : 0)) & 0xff
+  return crc
 }
 
 /** A level's `want` as the function run.js checks a test by: test → { output name: [value per tick] }. */
