@@ -32,6 +32,7 @@ export const REGISTERS = ['A', 'B', 'C', 'D']
 // A part that gives 「—」 when any input is 「—」.
 const strict = (f) => (ins, node) => (Object.values(ins).some((v) => v === null) ? null : f(ins, node))
 const num = (v) => (typeof v === 'boolean' ? Number(v) : v)
+const equal = (a, b) => Array.isArray(a) && Array.isArray(b) ? a.length === b.length && a.every((value, index) => value === b[index]) : num(a) === num(b)
 const truth = (v) => (v === null ? null : v === true || v === 1)
 
 export const PARTS = {
@@ -47,7 +48,7 @@ export const PARTS = {
     },
   },
   compare: formed([
-    { key: 'eq', inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => num(a) === num(b)) },
+    { key: 'eq', inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => equal(a, b)) },
     { key: 'lt', inputs: ['a', 'b'], eval: strict(({ a, b }) => num(a) < num(b)) },
   ]),
   arith: formed([

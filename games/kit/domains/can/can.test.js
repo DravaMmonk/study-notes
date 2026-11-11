@@ -1246,3 +1246,10 @@ test('unknown diagnostic identifiers expect a negative-response code', () => {
   assert.deepEqual(result.request, [[0x22, 0xf1, 0x91], [0x22, 0xf1, 0x91]])
   assert.deepEqual(result.reason, [null, [0x31]])
 })
+
+test('compare checks byte sequences by content while preserving scalar comparison', () => {
+  const task = { inputs: [{ name: 'a', label: L('a') }, { name: 'b', label: L('b') }], outputs: [{ name: 'same', label: L('same') }], want: () => ({ same: [true, false, true] }) }
+  const circuit = fromText(['eq = compare[form=eq](a, b)', 'same <- eq'], task, plain)
+  const result = runTest(task, circuit, { bus: { bits: [1, 1, 1], frames: [] }, inputs: { a: [[1, 2], [1, 2], 1], b: [[1, 2], [2, 1], true] } }, plain.partOf)
+  assert.equal(result.fail, undefined)
+})

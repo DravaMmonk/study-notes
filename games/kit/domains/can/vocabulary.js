@@ -59,6 +59,8 @@ const WANTS = {
   ecuReadValue: item(t('控制器在下一拍交出的数据记录', 'data record returned by the ECU on the next tick')),
   ecuRejectedRequest: item(t('读取指定的、测试控制器不支持的数据标识', 'request a data identifier the test ECU does not support'), S.obj({ did: S.int({ min: 0, max: 65535 }) })),
   ecuRejectReason: item(t('控制器拒绝未知标识后的原因码', 'reason code returned after the ECU rejects an unknown identifier')),
+  ecuOnceRequest: item(t('只在第一拍请求测试控制器的数据标识', 'request the test ECU’s data identifier only on the first tick')),
+  ecuDelayedValue: item(t('等待控制器完成后交出数据记录', 'give the data record after the ECU finishes waiting')),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -284,7 +286,7 @@ const TEST = S.obj({
   peerLow: S.opt(S.list(nat, { about: t('其他节点在这些拍拉低总线', 'the other nodes pull the bus low on these ticks') })),
   flipTicks: S.opt(S.list(nat, { about: t('这些拍在线性与之后翻转总线采样值', 'invert the sampled bus after wired-AND on these ticks') })),
   frameRequests: S.opt(S.list(FRAME_REQUEST, { min: 1, about: t('干净总线上的逐帧发送请求', 'frame requests on a clean bus') })),
-  ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
+  ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)), waits: S.opt(nat) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
@@ -302,7 +304,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 80,
+  version: 81,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

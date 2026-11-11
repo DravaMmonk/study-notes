@@ -14,15 +14,15 @@ import { boardNode, reacting, runTicks } from '../../engine/ticks.js'
 import { judgeTicks, runTests } from '../../engine/circuit-domain.js'
 import { BUS, contender, sayer, wiredAnd } from './bus.js'
 import { receivedFrames } from './frame-reception.js'
-import { ecuReply } from './ecu.js'
+import { ecuAdvance } from './ecu.js'
 import { T } from '../../shell/i18n.js'
 
 export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   let consumed = 0
   const ecu = task.ecu && reacting({
-    id: 'ecu', board: 'you', start: null,
-    reads: (reply) => ({ [task.ecu.response]: reply }),
-    step: (_reply, outputs) => ({ state: ecuReply(outputs[task.ecu.request], test.ecu), shown: null }),
+    id: 'ecu', board: 'you', start: { reply: null, pending: null },
+    reads: (state) => ({ [task.ecu.response]: state.reply }),
+    step: (state, outputs) => ({ state: ecuAdvance(state, outputs[task.ecu.request], test.ecu), shown: null }),
   })
   const queue = task.pulls && reacting({
     id: 'queue', board: 'you', start: 0,
