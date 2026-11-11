@@ -144,6 +144,7 @@ export function canCourse(content) {
     }
     const result = testOf(t, task, frameEvents)
     if (task.transport && result.transport && result.ticks <= Math.max(...transportPlan(result.transport).keys())) say('transport tests must include the last transmitted frame')
+    if (task.transport && result.transport?.overflow && result.ticks <= result.transport.flowDelay * ((result.transport.waits ?? 0) + 1)) say('overflow tests must include the overflow response tick')
     if (task.ecuDelayedExpected && t.ecu && result.ticks <= (t.ecu.waits ?? 0) + 1) say('a pending ECU test must include the final response tick')
     if (task.ecuSessionExpected && result.ticks < 3) say('a session test must include the data response tick')
     if (task.ecuKeepaliveExpected && result.ticks < 8) say('a keepalive test must include the data response tick')

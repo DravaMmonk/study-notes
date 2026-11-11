@@ -65,7 +65,7 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
     judged.fail = { name: task.pulls.input, remaining: test.queue.length - consumed }
     judged.final = T('测试结束时队列里还有未取走的字节。', 'Bytes remain in the queue when the test ends.')
   }
-  if (transport && (transportState.error || !transportState.complete) && !judged.fail && !run.error) {
+  if (transport && (transportState.error || (!transportState.complete && !transportState.aborted)) && !judged.fail && !run.error) {
     judged.fail = { name: task.transport.frame, reason: transportState.error ?? 'incomplete' }
     judged.final = T('接收方未按流控规则收齐消息。', 'The receiver did not complete the message under its flow-control rules.')
   }

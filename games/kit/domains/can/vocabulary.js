@@ -312,7 +312,7 @@ const TEST = S.obj({
   flipTicks: S.opt(S.list(nat, { about: t('这些拍在线性与之后翻转总线采样值', 'invert the sampled bus after wired-AND on these ticks') })),
   frameRequests: S.opt(S.list(FRAME_REQUEST, { min: 1, about: t('干净总线上的逐帧发送请求', 'frame requests on a clean bus') })),
   ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)), waits: S.opt(nat), requiresExtended: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1 })), requiresSecurity: S.opt(S.bool()), seed: S.opt(S.int({ min: 0, max: 255 })), dtcs: S.opt(S.list(S.obj({ code: hex(0xffffff, 6), status: hex(0xff, 2) }))), flash: S.opt(S.obj({ maxBlock: S.int({ min: 3, max: 255 }), expectedChecksum: S.int({ min: 0, max: 255 }), requiresSecurity: S.opt(S.bool()), image: S.opt(S.list(hex(0xff, 2), { min: 1, max: 65535 })) })), powerCycles: S.opt(S.list(nat)) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
-  transport: S.opt(S.obj({ message: S.list(hex(0xff, 2), { min: 8, max: 4095 }), blockSize: S.int({ min: 0, max: 255 }), separation: S.int({ min: 0, max: 127 }), flowDelay: S.int({ min: 1, max: 100 }) }, { about: t('长消息和模拟接收方的流控参数', 'long message and simulated receiver flow-control parameters') })),
+  transport: S.opt(S.obj({ message: S.list(hex(0xff, 2), { min: 8, max: 4095 }), blockSize: S.int({ min: 0, max: 255 }), separation: S.int({ min: 0, max: 127 }), flowDelay: S.int({ min: 1, max: 100 }), waits: S.opt(S.int({ min: 0, max: 5 })), overflow: S.opt(S.bool()) }, { about: t('长消息和模拟接收方的流控参数', 'long message and simulated receiver flow-control parameters') })),
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
@@ -331,7 +331,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 93,
+  version: 94,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
