@@ -13,6 +13,7 @@
 import { boardNode, reacting, runTicks } from '../../engine/ticks.js'
 import { judgeTicks, runTests } from '../../engine/circuit-domain.js'
 import { BUS, contender, sayer, wiredAnd } from './bus.js'
+import { receivedFrames } from './frame-reception.js'
 import { T } from '../../shell/i18n.js'
 
 export function runTest(task, circuit, test, parts, { traced = true } = {}) {
@@ -49,7 +50,10 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
     judged.final = T('测试结束时队列里还有未取走的字节。', 'Bytes remain in the queue when the test ends.')
   }
   const error = run.error && T('这块板这一拍要说的话取决于这一拍的总线：说之前还听不到。')
-  return { ...judged, want, ...(error ? { error } : {}) }
+  const receptionOutputs = ['rxId', 'rxLength', 'rxByte', 'ready', 'kind']
+  const receptions = task.drives && receptionOutputs.every((name) => task.outputs.some((output) => output.name === name))
+    ? receivedFrames(judged.ticks) : undefined
+  return { ...judged, want, ...(receptions ? { receptions } : {}), ...(error ? { error } : {}) }
 }
 
 /** Every test of a task on a board: { runs, pass }. */
@@ -64,4 +68,5 @@ export const entries = ({ task, test, run }) => [
     : { of: i.name, label: i.label, shape: 'bits', given: test.inputs[i.name] }),
   ...(task.drives ? [{ of: 'send', label: T('说', 'Send'), shape: 'ticks', got: run.ticks.map((tick) => tick.sent ?? null), want: run.want.send }] : []),
   ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: 'ticks', got: run.ticks.map((t) => t.outputs[o.name] ?? null), want: run.want[o.name] })),
+  ...(run.receptions ? [{ of: 'receptions', label: T('已校验并应答（未检查帧结束）', 'Checked and acknowledged (EOF not checked)'), shape: 'list', got: run.receptions.map(({ id, data, ackTick }) => `#${ackTick}: ${id.toString(16).toUpperCase().padStart(3, '0')} [${data.map((byte) => byte.toString(16).toUpperCase().padStart(2, '0')).join(' ')}]`) }] : []),
 ]
