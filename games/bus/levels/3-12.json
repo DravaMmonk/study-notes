@@ -1,0 +1,120 @@
+{
+  "title": { "zh": "留住触发前后的帧" },
+  "intro": [
+    { "t": { "zh": "触发点本身不足以说明事件。保存触发前一帧、触发帧和后一帧的车速、轮速，并记录触发帧的总线开始时间。" } },
+    { "t": { "zh": "这里用三帧的小窗口练习触发记录；时间以总线位拍计，不代表真实道路上的分钟日志。" } }
+  ],
+  "after": { "zh": "事件前后的上下文让一次触发更容易检查；这个短窗口还不是完整的试车日志。" },
+  "tasks": [
+    {
+      "id": "3-12",
+      "brief": { "zh": "用持续不一致监视器找到首次事件；在后一帧交出触发时间，以及前一帧、触发帧和后一帧的车速与轮速。其他帧交出「—」。" },
+      "hint": [{ "zh": "每帧保存上一帧；触发时锁存上一帧、当前帧和时间。下一帧交出这些值及当前输入。" }],
+      "inputs": [
+        { "name": "speed", "label": { "zh": "车速" } },
+        { "name": "wheel", "label": { "zh": "轮速" } },
+        { "name": "time", "label": { "zh": "帧开始时间" } }
+      ],
+      "frameInputs": { "speed": "byte0", "wheel": "byte1", "time": "time" },
+      "outputs": [
+        { "name": "triggerTime", "label": { "zh": "触发时间" } },
+        { "name": "beforeSpeed", "label": { "zh": "前一帧车速" } },
+        { "name": "beforeWheel", "label": { "zh": "前一帧轮速" } },
+        { "name": "triggerSpeed", "label": { "zh": "触发帧车速" } },
+        { "name": "triggerWheel", "label": { "zh": "触发帧轮速" } },
+        { "name": "afterSpeed", "label": { "zh": "后一帧车速" } },
+        { "name": "afterWheel", "label": { "zh": "后一帧轮速" } }
+      ],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x120", "data": [30, 30] },
+            { "node": "sensor", "at": 120, "id": "0x120", "data": [30, 31] },
+            { "node": "sensor", "at": 230, "id": "0x120", "data": [31, 32] },
+            { "node": "sensor", "at": 340, "id": "0x120", "data": [32, 33] },
+            { "node": "sensor", "at": 450, "id": "0x120", "data": [33, 33] },
+            { "node": "sensor", "at": 560, "id": "0x120", "data": [34, 34] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x120", "data": [10, 11] },
+            { "node": "sensor", "at": 120, "id": "0x120", "data": [11, 12] },
+            { "node": "sensor", "at": 230, "id": "0x120", "data": [12, 12] },
+            { "node": "sensor", "at": 340, "id": "0x120", "data": [13, 15] },
+            { "node": "sensor", "at": 450, "id": "0x120", "data": [14, 16] },
+            { "node": "sensor", "at": 560, "id": "0x120", "data": [15, 17] },
+            { "node": "sensor", "at": 670, "id": "0x120", "data": [16, 18] },
+            { "node": "sensor", "at": 780, "id": "0x120", "data": [17, 19] },
+            { "node": "sensor", "at": 890, "id": "0x120", "data": [18, 18] }
+          ]
+        }
+      ],
+      "want": {
+        "triggerTime": {
+          "mismatchWindow": { "speed": "speed", "wheel": "wheel", "time": "time", "field": "time" }
+        },
+        "beforeSpeed": {
+          "mismatchWindow": { "speed": "speed", "wheel": "wheel", "time": "time", "field": "beforeSpeed" }
+        },
+        "beforeWheel": {
+          "mismatchWindow": { "speed": "speed", "wheel": "wheel", "time": "time", "field": "beforeWheel" }
+        },
+        "triggerSpeed": {
+          "mismatchWindow": { "speed": "speed", "wheel": "wheel", "time": "time", "field": "triggerSpeed" }
+        },
+        "triggerWheel": {
+          "mismatchWindow": { "speed": "speed", "wheel": "wheel", "time": "time", "field": "triggerWheel" }
+        },
+        "afterSpeed": {
+          "mismatchWindow": { "speed": "speed", "wheel": "wheel", "time": "time", "field": "afterSpeed" }
+        },
+        "afterWheel": {
+          "mismatchWindow": { "speed": "speed", "wheel": "wheel", "time": "time", "field": "afterWheel" }
+        }
+      },
+      "solution": [
+        "monitor = mismatchMonitor(speed, wheel)",
+        "previousSpeed = reg[reg=A]()",
+        "previousWheel = reg[reg=B]()",
+        "capturedBeforeSpeed = reg[reg=C]()",
+        "capturedBeforeWheel = reg[reg=D]()",
+        "capturedTriggerSpeed = reg[reg=E]()",
+        "capturedTriggerWheel = reg[reg=F]()",
+        "previousAlarm = reg[reg=G, start=0]()",
+        "capturedTime = reg[reg=H]()",
+        "savePreviousSpeed = keep[reg=A](speed)",
+        "savePreviousWheel = keep[reg=B](wheel)",
+        "saveAlarm = keep[reg=G](monitor)",
+        "next_beforeSpeed = select(monitor, previousSpeed, capturedBeforeSpeed)",
+        "save_beforeSpeed = keep[reg=C](next_beforeSpeed)",
+        "next_beforeWheel = select(monitor, previousWheel, capturedBeforeWheel)",
+        "save_beforeWheel = keep[reg=D](next_beforeWheel)",
+        "next_triggerSpeed = select(monitor, speed, capturedTriggerSpeed)",
+        "save_triggerSpeed = keep[reg=E](next_triggerSpeed)",
+        "next_triggerWheel = select(monitor, wheel, capturedTriggerWheel)",
+        "save_triggerWheel = keep[reg=F](next_triggerWheel)",
+        "next_time = select(monitor, time, capturedTime)",
+        "save_time = keep[reg=H](next_time)",
+        "out_triggerTime = select(previousAlarm, capturedTime)",
+        "triggerTime <- out_triggerTime",
+        "out_beforeSpeed = select(previousAlarm, capturedBeforeSpeed)",
+        "beforeSpeed <- out_beforeSpeed",
+        "out_beforeWheel = select(previousAlarm, capturedBeforeWheel)",
+        "beforeWheel <- out_beforeWheel",
+        "out_triggerSpeed = select(previousAlarm, capturedTriggerSpeed)",
+        "triggerSpeed <- out_triggerSpeed",
+        "out_triggerWheel = select(previousAlarm, capturedTriggerWheel)",
+        "triggerWheel <- out_triggerWheel",
+        "out_afterSpeed = select(previousAlarm, speed)",
+        "afterSpeed <- out_afterSpeed",
+        "out_afterWheel = select(previousAlarm, wheel)",
+        "afterWheel <- out_afterWheel"
+      ]
+    }
+  ]
+}
