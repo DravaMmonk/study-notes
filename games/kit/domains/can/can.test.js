@@ -573,6 +573,7 @@ test('a board drives the wired-AND bus and cannot say what it hears in the same 
   assert.deepEqual(untraced.ticks.map((tick) => [tick.line, tick.sent, tick.outputs]), result.ticks.map((tick) => [tick.line, tick.sent, tick.outputs]))
   assert.ok(result.ticks.some((tick) => tick.trace?.length))
   assert.ok(untraced.ticks.every((tick) => tick.trace === undefined))
+  assert.deepEqual(runLevel({ ...task, tests: [test] }, legal, plain.partOf, { traced: false }).runs[0].ticks.map((tick) => tick.outputs), untraced.ticks.map((tick) => tick.outputs))
   const flipped = runTest(task, legal, { ...test, flipTicks: [2] }, plain.partOf)
   assert.equal(flipped.ticks[2].line, 1)
   const loop = fromText(['send <- line'], task, plain)

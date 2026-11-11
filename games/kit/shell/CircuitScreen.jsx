@@ -159,7 +159,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   const tests = useMemo(() => (revealed ? [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] : level.tests), [level, revealed])
   const checked = useMemo(() => runOn({ ...level, tests }, drawn, circuit.partOf), [level, tests, board.version, circuit])
   const hidden = revealed ? [] : level.hidden
-  const hiddenFailed = useMemo(() => (hidden.length ? runOn({ ...level, tests: hidden }, drawn, circuit.partOf).runs.filter((r) => r.fail || r.error).length : 0), [level, hidden, board.version, circuit])
+  const hiddenFailed = useMemo(() => (hidden.length ? runOn({ ...level, tests: hidden }, drawn, circuit.partOf, { traced: false }).runs.filter((r) => r.fail || r.error).length : 0), [level, hidden, board.version, circuit])
   const failing = (r) => Boolean(r.fail || r.error)
   const stepsOf = (r) => (timed ? r.ticks : r.trace)
   const run = useLevelRun(screen, board, {

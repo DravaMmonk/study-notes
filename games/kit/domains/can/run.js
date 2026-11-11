@@ -53,8 +53,8 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
 }
 
 /** Every test of a task on a board: { runs, pass }. */
-export const runLevel = runTests(runTest)
-export const checkLevel = runTests((task, circuit, test, parts) => runTest(task, circuit, test, parts, { traced: false }))
+export const runLevel = (task, circuit, parts, { traced = true } = {}) => runTests((level, board, test, registry) => runTest(level, board, test, registry, { traced }))(task, circuit, parts)
+export const checkLevel = (task, circuit, parts) => runLevel(task, circuit, parts, { traced: false })
 
 export const entries = ({ task, test, run }) => [
   ...(task.listens ? [{ of: 'line', label: BUS, shape: 'bits', given: run.ticks.map((tick) => tick.line) }] : []),
