@@ -1,0 +1,102 @@
+{
+  "title": { "zh": "相同标识符，不同数据" },
+  "intro": [{ "t": { "zh": "两个发送方使用同一个标识符时，仲裁字段完全相同，谁也不会退出。如果后面的数据不同，总线上的显性位会覆盖隐性位，发送方就可能在数据段发现位错误。" } }],
+  "after": { "zh": "同一个标识符不能靠仲裁区分两个不同的数据源。先发现位错误的一方开始发送错误标志，另一方也可能随后发现位错误；标志在总线上叠加。这里不模拟重发。" },
+  "tasks": [
+    {
+      "id": "2-34",
+      "brief": {
+        "zh": "两个节点同时发送相同标识符、长度相同但内容不同的数据帧。检查仲裁段和应答位以外的发送位：一旦说的与听到的不同，就从下一拍发主动错误标志和八位界定。输出错误状态和完成；对方也会按自己读到的总线检测位错误并发标志。"
+      },
+      "hint": [{ "zh": "复用位错误检测与错误标志。仲裁不能按数据字段决定赢家；看到不同的数据要按发送错误处理。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "bit", "label": { "zh": "待发送位" } },
+        { "name": "arb", "label": { "zh": "仲裁段" } },
+        { "name": "ack", "label": { "zh": "应答位" } },
+        { "name": "start", "label": { "zh": "开始" } }
+      ],
+      "outputs": [{ "name": "error", "label": { "zh": "错误" } }, { "name": "done", "label": { "zh": "完成" } }],
+      "tests": [
+        {
+          "bus": { "idle": 120, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [128] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration", "ack": "ack" },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 291, "data": [64], "at": 12, "detectErrors": true }]
+        },
+        {
+          "bus": { "idle": 120, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [64] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration", "ack": "ack" },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 291, "data": [128], "at": 12, "detectErrors": true }]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 120, "frames": [], "tail": 0 },
+          "tx": { "id": 0, "data": [0] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration", "ack": "ack" },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 0, "data": [255], "at": 12, "detectErrors": true }]
+        },
+        {
+          "bus": { "idle": 120, "frames": [], "tail": 0 },
+          "tx": { "id": 0, "data": [255] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration", "ack": "ack" },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 0, "data": [0], "at": 12, "detectErrors": true }]
+        }
+      ],
+      "want": {
+        "send": { "collisionDrive": { "bit": "bit", "arbitration": "arb", "ack": "ack", "start": "start" } },
+        "error": { "collisionError": { "bit": "bit", "arbitration": "arb", "ack": "ack", "start": "start" } },
+        "done": { "collisionDone": { "bit": "bit", "arbitration": "arb", "ack": "ack", "start": "start" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "prior = select(start, zero, r)",
+        "same = compare[form=eq](bit, line)",
+        "different = select(same, zero, one)",
+        "notack = select(ack, zero, one)",
+        "check = select(arb, zero, notack)",
+        "bad0 = select(check, different, zero)",
+        "bad = select(prior, zero, bad0)",
+        "next = select(bad, one, prior)",
+        "k = keep[reg=A](next)",
+        "f = errorflag(bad)",
+        "wire = select(prior, f.send, bit)",
+        "send <- wire",
+        "error <- next",
+        "done <- f.done"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "prior = select(start, zero, r)",
+        "same = compare[form=eq](bit, line)",
+        "different = select(same, zero, zero)",
+        "notack = select(ack, zero, one)",
+        "check = select(arb, zero, notack)",
+        "bad0 = select(check, different, zero)",
+        "bad = select(prior, zero, bad0)",
+        "next = select(bad, one, prior)",
+        "k = keep[reg=A](next)",
+        "f = errorflag(bad)",
+        "wire = select(prior, f.send, bit)",
+        "send <- wire",
+        "error <- next",
+        "done <- f.done"
+      ]
+    }
+  ]
+}

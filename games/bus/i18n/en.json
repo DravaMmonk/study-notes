@@ -451,5 +451,10 @@
   "先排除仲裁段和应答位，再比较发送位与采样位；只在自己仍在发送时检查。": "Exclude arbitration and ACK before comparing the transmitted bit with the sampled bit; check only while your node is transmitting.",
   "两种发送错误都重置队列和等待状态。错误计数区分一般发送错误与缺应答事件。": "Both transmit errors rewind the queue and restart the wait. The fault counter distinguishes ordinary transmit errors from missing ACK events.",
   "数据中途出错时，队列可能已经取走了部分字节；重发要从第一个字节开始。这里还没有合并被动节点、总线关闭和接收错误。": "A fault midway through data can occur after part of the queue has been consumed; retry must start from the first byte. This exercise does not yet combine passive state, bus-off or receive errors.",
-  "发送错误": "Transmit error"
+  "发送错误": "Transmit error",
+  "相同标识符，不同数据": "Same identifier, different data",
+  "两个发送方使用同一个标识符时，仲裁字段完全相同，谁也不会退出。如果后面的数据不同，总线上的显性位会覆盖隐性位，发送方就可能在数据段发现位错误。": "When two transmitters use the same identifier, their arbitration fields match and neither withdraws. If their data differs, dominant overrides recessive and a transmitter can detect a bit error in the data field.",
+  "两个节点同时发送相同标识符、长度相同但内容不同的数据帧。检查仲裁段和应答位以外的发送位：一旦说的与听到的不同，就从下一拍发主动错误标志和八位界定。输出错误状态和完成；对方也会按自己读到的总线检测位错误并发标志。": "Two nodes simultaneously send data frames with the same identifier and length but different payloads. Check transmitted bits outside arbitration and the ACK slot: if what you say differs from what you hear, send an active error flag and eight-bit delimiter starting next tick. Output error state and completion; the other sender also detects bit errors on the actual bus and sends a flag.",
+  "复用位错误检测与错误标志。仲裁不能按数据字段决定赢家；看到不同的数据要按发送错误处理。": "Reuse bit-error detection and the error flag. Arbitration cannot choose a winner from the data field; treat differing data as a transmit error.",
+  "同一个标识符不能靠仲裁区分两个不同的数据源。先发现位错误的一方开始发送错误标志，另一方也可能随后发现位错误；标志在总线上叠加。这里不模拟重发。": "Arbitration cannot distinguish different data sources with the same identifier. The first sender to detect a bit error starts an error flag; the other may detect one later, and their flags overlap on the bus. This exercise does not simulate retry."
 }
