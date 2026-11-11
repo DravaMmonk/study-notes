@@ -4,14 +4,16 @@
   "builds": {
     "type": "controller",
     "name": { "zh": "CAN 控制器原型" },
-    "desc": { "zh": "逐拍接收、应答与发送标准格式数据帧，处理限定的一次初始仲裁、发送错误、被动暂停插入帧及下线恢复；收发共用错误计数。尚不覆盖所有错误、帧型和时序组合。" }
+    "desc": {
+      "zh": "逐拍接收、应答与发送标准格式数据帧，处理限定的一次初始仲裁、发送错误、被动暂停插入帧及下线恢复；收发共用错误计数。尚不覆盖所有错误、帧型和时序组合。 同时逐拍输出接收字段；只有校验成功的帧可交给高层。"
+    }
   },
   "after": { "zh": "这块控制器原型把所练习的收发、仲裁、错误和恢复路径连起来。它仍限定测试中的帧类型与错误组合，还没有覆盖所有 CAN 控制器行为。" },
   "tasks": [
     {
       "id": "2-48",
       "brief": {
-        "zh": "先接收一帧，再发送队列帧。处理一次初始仲裁、发送位错误或缺应答；按共享状态选择标志和等待。被动暂停可能被一个正确帧打断；下线后须满足观察条件并接受恢复请求，下一拍清零计数并重发。测试不同时组合仲裁与插入帧，也不模拟重叠错误或下线期间的新帧。"
+        "zh": "先接收一帧，再发送队列帧。处理一次初始仲裁、发送位错误或缺应答；按共享状态选择标志和等待。被动暂停可能被一个正确帧打断；下线后须满足观察条件并接受恢复请求，下一拍清零计数并重发。测试不同时组合仲裁与插入帧，也不模拟重叠错误或下线期间的新帧。 同时交出接收到的标识符、长度和字节；只有对应帧校验成功后才能把这些字段当作有效帧。"
       },
       "hint": [
         { "zh": "统一错误计数器接收发送与接收事件；接收器持续跟踪总线，自己的帧不能触发自应答。" },
@@ -42,7 +44,10 @@
         { "name": "kind", "label": { "zh": "结果种类" } },
         { "name": "ready", "label": { "zh": "结果就绪" } },
         { "name": "accepted", "label": { "zh": "允许复位" } },
-        { "name": "lost", "label": { "zh": "落败" } }
+        { "name": "lost", "label": { "zh": "落败" } },
+        { "name": "rxId", "label": { "zh": "接收标识符" } },
+        { "name": "rxLength", "label": { "zh": "接收长度" } },
+        { "name": "rxByte", "label": { "zh": "接收字节" } }
       ],
       "pulls": {
         "input": "item",
@@ -231,6 +236,30 @@
             "reset": "reset",
             "request": "request"
           }
+        },
+        "rxId": {
+          "controllerIntegratedRxId": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rxLength": {
+          "controllerIntegratedRxLength": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rxByte": {
+          "controllerIntegratedRxByte": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
         }
       },
       "solution": [
@@ -350,7 +379,17 @@
         "kind <- receiveKind",
         "ready <- receiveReady",
         "accepted <- acceptedValue",
-        "lost <- a.lost"
+        "lost <- a.lost",
+        "receiveNow = select(a.lost, one, receiverEnabled)",
+        "normalId = select(receiveNow, r.rxId)",
+        "fieldId = select(passivePhase, w.rxId, normalId)",
+        "rxId <- fieldId",
+        "normalLength = select(receiveNow, r.rxLength)",
+        "fieldLength = select(passivePhase, w.rxLength, normalLength)",
+        "rxLength <- fieldLength",
+        "normalByte = select(receiveNow, r.rxByte)",
+        "fieldByte = select(passivePhase, w.rxByte, normalByte)",
+        "rxByte <- fieldByte"
       ],
       "naive": [
         "zero = const[value=0]()",
@@ -469,7 +508,17 @@
         "kind <- receiveKind",
         "ready <- receiveReady",
         "accepted <- acceptedValue",
-        "lost <- a.lost"
+        "lost <- a.lost",
+        "receiveNow = select(a.lost, one, receiverEnabled)",
+        "normalId = select(receiveNow, r.rxId)",
+        "fieldId = select(passivePhase, w.rxId, normalId)",
+        "rxId <- fieldId",
+        "normalLength = select(receiveNow, r.rxLength)",
+        "fieldLength = select(passivePhase, w.rxLength, normalLength)",
+        "rxLength <- fieldLength",
+        "normalByte = select(receiveNow, r.rxByte)",
+        "fieldByte = select(passivePhase, w.rxByte, normalByte)",
+        "rxByte <- fieldByte"
       ]
     }
   ]

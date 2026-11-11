@@ -4,14 +4,16 @@
   "builds": {
     "type": "waitrecv",
     "name": { "zh": "暂停中接收" },
-    "desc": { "zh": "被动发送暂停期间若新帧开始，接收并应答它，交出接收计数事件，然后在帧间隔后给出一次重试；无新帧时在八位等待后重试。限定一帧且校验正确。" }
+    "desc": {
+      "zh": "被动发送暂停期间若新帧开始，接收并应答它，交出接收计数事件，然后在帧间隔后给出一次重试；无新帧时在八位等待后重试。限定一帧且校验正确。 同时逐拍输出接收字段；只有校验成功的帧可交给高层。"
+    }
   },
   "after": { "zh": "发送暂停期间若另一节点开口，被动节点先转为接收。接收完成后按新帧的间隔重新获得发送机会。" },
   "tasks": [
     {
       "id": "2-45",
       "brief": {
-        "zh": "「间隔结束」后等待被动发送暂停；若等待期间有新帧，从帧起始开始接收，正确时应答，等新帧的帧间隔结束才在「重试」交出 1。没有新帧时，额外八位结束后重试。输出接收计数事件；每次只等待一次，测试中的新帧正确。"
+        "zh": "「间隔结束」后等待被动发送暂停；若等待期间有新帧，从帧起始开始接收，正确时应答，等新帧的帧间隔结束才在「重试」交出 1。没有新帧时，额外八位结束后重试。输出接收计数事件；每次只等待一次，测试中的新帧正确。 同时交出接收到的标识符、长度和字节；只有对应帧校验成功后才能把这些字段当作有效帧。"
       },
       "hint": [
         { "zh": "复用发送暂停和状态化接收元件；检测连续隐性后的显性帧起始，记住需要先接收。" },
@@ -24,7 +26,10 @@
         { "name": "retry", "label": { "zh": "重试" } },
         { "name": "kind", "label": { "zh": "结果种类" } },
         { "name": "ready", "label": { "zh": "结果就绪" } },
-        { "name": "event", "label": { "zh": "计数事件" } }
+        { "name": "event", "label": { "zh": "计数事件" } },
+        { "name": "rxId", "label": { "zh": "接收标识符" } },
+        { "name": "rxLength", "label": { "zh": "接收长度" } },
+        { "name": "rxByte", "label": { "zh": "接收字节" } }
       ],
       "tests": [
         { "bus": { "idle": 60, "frames": [], "tail": 0 }, "pulses": { "end": [20], "reset": [0] } },
@@ -48,7 +53,10 @@
         "retry": { "interruptedSuspendRetry": { "end": "end" } },
         "kind": { "interruptedSuspendKind": { "end": "end" } },
         "ready": { "interruptedSuspendReady": { "end": "end" } },
-        "event": { "interruptedSuspendEvent": { "end": "end" } }
+        "event": { "interruptedSuspendEvent": { "end": "end" } },
+        "rxId": { "interruptedSuspendId": { "end": "end" } },
+        "rxLength": { "interruptedSuspendLength": { "end": "end" } },
+        "rxByte": { "interruptedSuspendByte": { "end": "end" } }
       },
       "solution": [
         "zero = const[value=0]()",
@@ -78,7 +86,10 @@
         "retry <- fire",
         "kind <- r.kind",
         "ready <- r.ready",
-        "event <- r.event"
+        "event <- r.event",
+        "rxId <- r.rxId",
+        "rxLength <- r.rxLength",
+        "rxByte <- r.rxByte"
       ],
       "naive": [
         "zero = const[value=0]()",
@@ -108,7 +119,10 @@
         "retry <- fire",
         "kind <- r.kind",
         "ready <- r.ready",
-        "event <- r.event"
+        "event <- r.event",
+        "rxId <- r.rxId",
+        "rxLength <- r.rxLength",
+        "rxByte <- r.rxByte"
       ]
     }
   ]

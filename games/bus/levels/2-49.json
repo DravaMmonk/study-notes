@@ -5,7 +5,9 @@
   "tasks": [
     {
       "id": "2-49",
-      "brief": { "zh": "使用 CAN 控制器原型驱动总线，转交队列取走与重置、发送尝试、完成、两个错误计数、状态及恢复许可。测试覆盖仲裁、暂停期间插入帧和下线恢复。" },
+      "brief": {
+        "zh": "使用 CAN 控制器原型驱动总线，转交队列取走与重置、发送尝试、完成、两个错误计数、状态及恢复许可。测试覆盖仲裁、暂停期间插入帧和下线恢复。 同时交出接收到的标识符、长度和字节；只有对应帧校验成功后才能把这些字段当作有效帧。"
+      },
       "hint": [{ "zh": "把总线、帧字段、队列和控制输入接到控制器，再转交每个对应结果。" }],
       "listens": true,
       "drives": true,
@@ -28,7 +30,10 @@
         { "name": "tec", "label": { "zh": "发送错误计数" } },
         { "name": "mode", "label": { "zh": "状态" } },
         { "name": "rx", "label": { "zh": "接收计数" } },
-        { "name": "accepted", "label": { "zh": "允许复位" } }
+        { "name": "accepted", "label": { "zh": "允许复位" } },
+        { "name": "rxId", "label": { "zh": "接收标识符" } },
+        { "name": "rxLength", "label": { "zh": "接收长度" } },
+        { "name": "rxByte", "label": { "zh": "接收字节" } }
       ],
       "pulls": {
         "input": "item",
@@ -156,6 +161,30 @@
             "reset": "reset",
             "request": "request"
           }
+        },
+        "rxId": {
+          "controllerIntegratedRxId": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rxLength": {
+          "controllerIntegratedRxLength": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rxByte": {
+          "controllerIntegratedRxByte": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
         }
       },
       "solution": [
@@ -168,7 +197,10 @@
         "tec <- p.tec",
         "rx <- p.rx",
         "mode <- p.mode",
-        "accepted <- p.accepted"
+        "accepted <- p.accepted",
+        "rxId <- p.rxId",
+        "rxLength <- p.rxLength",
+        "rxByte <- p.rxByte"
       ],
       "naive": [
         "zero = const[value=0]()",
@@ -181,7 +213,10 @@
         "tec <- zero",
         "rx <- p.rx",
         "mode <- p.mode",
-        "accepted <- p.accepted"
+        "accepted <- p.accepted",
+        "rxId <- p.rxId",
+        "rxLength <- p.rxLength",
+        "rxByte <- p.rxByte"
       ]
     }
   ]
