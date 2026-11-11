@@ -760,6 +760,9 @@ const WANTS = {
   fleetUpdateTargets: () => (test) => fleetUpdatePlan(test).targets,
   fleetUpdateRequests: () => (test) => fleetUpdatePlan(test).requests,
   fleetUpdateVersions: () => (test) => fleetUpdatePlan(test).versions,
+  fleetRecheckTargets: () => (test) => fleetRecheckPlan(test).targets,
+  fleetRecheckRequests: () => (test) => fleetRecheckPlan(test).requests,
+  fleetRecheckReport: () => (test) => fleetRecheckPlan(test).report,
   transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
   transportTimeoutAbort: () => (test) => test.bus.bits.map((_, tick) => test.transport.silent && tick === test.transport.timeout ? true : null),
   inputPresent: ({ input }) => (test) => test.inputs[input].map((value) => value !== null && value !== undefined),
@@ -1127,6 +1130,24 @@ function fleetUpdatePlan(test) {
   send(reread + 1, 1, [0x22, 0xf1, 0x88])
   if (reread + 2 < versions.length) versions[reread + 2] = [test.fleet[0].flash.versionAfter[0], test.fleet[1].flash.versionAfter[0]]
   return { targets, requests, versions }
+}
+
+// Examine the vehicle, update two controllers, run the fictional drive routine and recheck.
+function fleetRecheckPlan(test) {
+  const exam = fleetExamPlan(test), targets = [...exam.targets], requests = [...exam.requests], report = test.bus.bits.map(() => null)
+  const start = exam.report.findIndex((value) => value !== null)
+  const send = (tick, target, request) => { if (tick < targets.length) { targets[tick] = target; requests[tick] = request } }
+  if (start < 0) return { targets, requests, report }
+  const first = dynamicFlashPlan({ ecu: test.fleet[0] }), second = dynamicFlashPlan({ ecu: test.fleet[1] })
+  first.forEach((request, tick) => send(start + tick, 0, request))
+  const startSecond = start + first.length + 1
+  second.forEach((request, tick) => send(startSecond + tick, 1, request))
+  const check = startSecond + second.length
+  const checks = [[0, [0x31, 1, 0xfe, 0]], [1, [0x31, 1, 0xfe, 0]], [0, [0x19, 2, 8]], [1, [0x19, 2, 8]], [0, [0x22, 0xf1, 0x88]], [1, [0x22, 0xf1, 0x88]]]
+  checks.forEach(([target, request], tick) => send(check + tick, target, request))
+  const confirmed = (ecu, after) => Number(ecu.dtcs.some(({ code, status }) => (status & 8) && (!after || !ecu.flash.fixedDtcs.includes(code))))
+  if (check + checks.length < report.length) report[check + checks.length] = [test.fleet[0].version, test.fleet[1].version, test.fleet[0].flash.versionAfter[0], test.fleet[1].flash.versionAfter[0], confirmed(test.fleet[0], false), confirmed(test.fleet[1], false), confirmed(test.fleet[0], true), confirmed(test.fleet[1], true)]
+  return { targets, requests, report }
 }
 
 /** A level's `want` as the function run.js checks a test by: test → { output name: [value per tick] }. */
