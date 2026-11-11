@@ -695,6 +695,8 @@ const WANTS = {
   singleFrameEncode: ({ data }) => (test) => test.inputs[data].map((bytes) => Array.isArray(bytes) && bytes.length >= 1 && bytes.length <= 7 ? [bytes.length, ...bytes] : null),
   ecuReadRequest: () => (test) => test.bus.bits.map(() => [0x22, test.ecu.did >> 8, test.ecu.did & 255]),
   ecuReadValue: () => (test) => test.bus.bits.map((_, tick) => tick ? test.ecu.value : null),
+  ecuRejectedRequest: ({ did }) => (test) => test.bus.bits.map(() => [0x22, did >> 8, did & 255]),
+  ecuRejectReason: () => (test) => test.bus.bits.map((_, tick) => tick ? [0x31] : null),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

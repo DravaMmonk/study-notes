@@ -57,6 +57,8 @@ const WANTS = {
   singleFrameEncode: item(t('为不超过七字节的消息加单帧长度', 'prefix a message of at most seven bytes with a single-frame length'), S.obj({ data: INPUT })),
   ecuReadRequest: item(t('读取测试控制器的数据标识请求', 'request the test ECU’s data identifier')),
   ecuReadValue: item(t('控制器在下一拍交出的数据记录', 'data record returned by the ECU on the next tick')),
+  ecuRejectedRequest: item(t('读取指定的、测试控制器不支持的数据标识', 'request a data identifier the test ECU does not support'), S.obj({ did: S.int({ min: 0, max: 65535 }) })),
+  ecuRejectReason: item(t('控制器拒绝未知标识后的原因码', 'reason code returned after the ECU rejects an unknown identifier')),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -300,7 +302,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 79,
+  version: 80,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

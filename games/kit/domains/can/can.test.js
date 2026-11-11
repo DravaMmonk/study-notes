@@ -1239,3 +1239,10 @@ test('a board requests a data identifier and receives the ECU response one tick 
   assert.equal(result.runs[0].ticks[0].bind.reply, null)
   assert.deepEqual(result.runs[0].ticks[1].bind.reply, [0x62, 0xf1, 0x90, 65, 66])
 })
+
+test('unknown diagnostic identifiers expect a negative-response code', () => {
+  const want = wantOf({ request: { ecuRejectedRequest: { did: 0xf191 } }, reason: 'ecuRejectReason' })
+  const result = want({ bus: { bits: [1, 1] } })
+  assert.deepEqual(result.request, [[0x22, 0xf1, 0x91], [0x22, 0xf1, 0x91]])
+  assert.deepEqual(result.reason, [null, [0x31]])
+})
