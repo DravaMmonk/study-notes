@@ -1317,3 +1317,23 @@ test('presence distinguishes missing values from zero and empty sequences; frame
   assert.equal(PARTS.padBytes.eval({ bytes: [1, 2], length: 1, fill: 0 }), null)
   assert.equal(PARTS.padBytes.eval({ bytes: [1], length: 9, fill: 0 }), null)
 })
+
+test('diagnostic bridge frames come from the reactive ECU and require flow control', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.inputs = [{ name: 'incoming', label: L('incoming') }, { name: 'ready', label: L('ready') }]
+  task.outputs = [{ name: 'outgoing', label: L('outgoing') }]
+  task.bridge = { incoming: 'incoming', ready: 'ready', outgoing: 'outgoing' }
+  task.tests = [{ bus: { idle: 5, frames: [], tail: 0 }, bridge: { did: '0xf190', value: Array.from({ length: 17 }, (_, i) => 65 + i) } }]
+  task.hidden = []
+  task.want = { outgoing: 'bridgeFrames' }
+  task.solution = ['tick = reg[reg=A, start=0]()', 'next = arith[form=inc](tick)', 'save = keep[reg=A](next)', 'zero = const[value=0]()', 'one = const[value=1]()', 'first = compare[form=eq](tick, zero)', 'second = compare[form=eq](tick, one)', 'three = const[value=3]()', 'service = const[value=34]()', 'hi = const[value=241]()', 'lo = const[value=144]()', 'flow = const[value=48]()', 'a = byteList(three)', 'b = byteList(service)', 'c = byteList(hi)', 'd = byteList(lo)', 'ab = concatBytes(a, b)', 'abc = concatBytes(ab, c)', 'req = concatBytes(abc, d)', 'e = byteList(flow)', 'z = byteList(zero)', 'ez = concatBytes(e, z)', 'grant = concatBytes(ez, z)', 'later = select(second, grant)', 'out = select(first, req, later)', 'outgoing <- out']
+  delete task.naive
+  const course = canCourse(content)
+  assert.deepEqual(course.wrong, [])
+  const played = course.played.get('gather')[0]
+  const result = runLevel(played, played.solution, course.partOf)
+  assert.equal(result.pass, true)
+  assert.deepEqual(result.runs[0].ticks[1].bind.incoming.slice(0, 3), [0x10, 20, 0x62])
+  assert.equal(result.runs[0].ticks[4].bind.ready, 0)
+})

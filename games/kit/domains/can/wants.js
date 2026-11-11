@@ -741,6 +741,8 @@ const WANTS = {
   inputPresent: ({ input }) => (test) => test.inputs[input].map((value) => value !== null && value !== undefined),
   paddedFrame: ({ input, fill }) => (test) => test.inputs[input].map((bytes) => Array.isArray(bytes) && bytes.length <= 8 ? [...bytes, ...Array(8 - bytes.length).fill(fill)] : null),
   transportReceivedMessage: () => (test) => { const plan = transportPlan(test.transport); const complete = !test.transport.silent && !test.transport.overflow; const last = Math.max(...plan.keys()); return test.bus.bits.map((_, tick) => complete && tick === last ? test.transport.message : null) },
+  bridgeFrames: () => (test) => test.bus.bits.map((_, tick) => tick === 0 ? [3, 0x22, test.bridge.did >> 8, test.bridge.did & 255] : tick === 1 ? [0x30, 0, 0] : null),
+  bridgeRecord: () => (test) => test.bus.bits.map((_, tick) => tick === 3 ? test.bridge.value : null),
   transportGapReady: ({ set, separation, sent }) => (test) => {
     let delay = 0, interval = 0
     return test.bus.bits.map((_, tick) => {

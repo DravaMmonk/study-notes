@@ -92,6 +92,8 @@ const WANTS = {
   inputPresent: item(t('输入有值时为是', 'yes when the input has a value'), S.obj({ input: INPUT })),
   paddedFrame: item(t('将输入字节填充到八字节', 'pad the input bytes to eight bytes'), S.obj({ input: INPUT, fill: S.int({ min: 0, max: 255 }) })),
   transportReceivedMessage: item(t('最后一个正确后续帧到达时交出完整消息', 'give the complete message when the final correct consecutive frame arrives')),
+  bridgeFrames: item(t('发送单帧读取请求和流控许可', 'send a single-frame read request and a flow-control grant')),
+  bridgeRecord: item(t('重组诊断回答后的数据记录', 'data record from the reassembled diagnostic response')),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -319,6 +321,7 @@ const TEST = S.obj({
   frameRequests: S.opt(S.list(FRAME_REQUEST, { min: 1, about: t('干净总线上的逐帧发送请求', 'frame requests on a clean bus') })),
   ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)), waits: S.opt(nat), requiresExtended: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1 })), requiresSecurity: S.opt(S.bool()), seed: S.opt(S.int({ min: 0, max: 255 })), dtcs: S.opt(S.list(S.obj({ code: hex(0xffffff, 6), status: hex(0xff, 2) }))), flash: S.opt(S.obj({ maxBlock: S.int({ min: 3, max: 255 }), expectedChecksum: S.int({ min: 0, max: 255 }), requiresSecurity: S.opt(S.bool()), image: S.opt(S.list(hex(0xff, 2), { min: 1, max: 65535 })) })), powerCycles: S.opt(S.list(nat)) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
   transport: S.opt(S.obj({ message: S.list(hex(0xff, 2), { min: 8, max: 4095 }), blockSize: S.int({ min: 0, max: 255 }), separation: S.int({ min: 0, max: 127 }), flowDelay: S.int({ min: 1, max: 100 }), waits: S.opt(S.int({ min: 0, max: 5 })), overflow: S.opt(S.bool()), silent: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1, max: 100 })) }, { about: t('长消息和模拟接收方的流控参数', 'long message and simulated receiver flow-control parameters') })),
+  bridge: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2), { min: 17, max: 17 }) }, { about: t('模拟控制器的标识和十七字节记录', 'the simulated ECU identifier and seventeen-byte record') })),
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
@@ -330,6 +333,7 @@ const LEVEL = levelSchema({
     frameInputs: S.opt(S.map(FRAME_FIELD, { about: t('逐帧输入读取标识符、长度、字节或开始时间', 'frame inputs read the identifier, length, a byte, or start time') })),
     ecu: S.opt(S.obj({ request: NAME, response: NAME, image: S.opt(NAME) }, { about: t('输出发出诊断请求，输入在下一拍收到控制器回答', 'an output requests a diagnostic message and an input receives the ECU reply on the next tick') })),
     transport: S.opt(S.obj({ frame: NAME, flow: NAME, message: NAME, ready: S.opt(NAME), timeout: S.opt(NAME), abort: S.opt(NAME) }, { about: t('发送帧并接收模拟接收方的流控', 'send frames and receive flow control from a simulated receiver') })),
+    bridge: S.opt(S.obj({ incoming: NAME, ready: NAME, outgoing: NAME }, { about: t('与模拟诊断控制器交换帧', 'exchange frames with a simulated diagnostic ECU') })),
     pulls: S.opt(S.obj({ input: NAME, available: NAME, next: NAME, last: S.opt(NAME), rewind: S.opt(NAME) }, { about: t('输入读取队首字节和是否有字节；输出为 1 时取走队首，下一拍出现下一字节', 'inputs give the front byte and whether one is available; output 1 takes it and the next byte appears next tick') })),
   },
   checks: { want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么') }) },
@@ -337,7 +341,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 96,
+  version: 97,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
