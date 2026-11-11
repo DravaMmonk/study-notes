@@ -15,7 +15,7 @@ import { judgeTicks, runTests } from '../../engine/circuit-domain.js'
 import { BUS, contender, sayer, wiredAnd } from './bus.js'
 import { T } from '../../shell/i18n.js'
 
-export function runTest(task, circuit, test, parts) {
+export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   let consumed = 0
   const queue = task.pulls && reacting({
     id: 'queue', board: 'you', start: 0,
@@ -34,7 +34,7 @@ export function runTest(task, circuit, test, parts) {
     return values
   }
   const rivals = (test.contenders ?? []).map((frame, k) => contender(`rival${k}`, frame, frame.at ?? 0))
-  const nodes = [sayer('world', test.bus.bits), boardNode({ id: 'you', circuit, parts, bind, traced: true }), ...rivals, ...(queue ? [queue.node] : [])]
+  const nodes = [sayer('world', test.bus.bits), boardNode({ id: 'you', circuit, parts, bind, traced }), ...rivals, ...(queue ? [queue.node] : [])]
   const run = runTicks({ nodes, ticks: test.bus.bits.length, line: (said, tick) => {
     const line = wiredAnd(said)
     return test.flipTicks?.includes(tick) ? 1 - line : line
@@ -54,6 +54,7 @@ export function runTest(task, circuit, test, parts) {
 
 /** Every test of a task on a board: { runs, pass }. */
 export const runLevel = runTests(runTest)
+export const checkLevel = runTests((task, circuit, test, parts) => runTest(task, circuit, test, parts, { traced: false }))
 
 export const entries = ({ task, test, run }) => [
   ...(task.listens ? [{ of: 'line', label: BUS, shape: 'bits', given: run.ticks.map((tick) => tick.line) }] : []),
