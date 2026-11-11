@@ -52,6 +52,9 @@ export function canCourse(content) {
       if (!t.transport || t.bus.frames.length || task.ecu || task.frameInputs || task.pulls || task.listens || task.drives || t.contenders?.length || t.tx || t.peerBits || t.peerLow?.length || t.flipTicks?.length) say('transport tasks require a simulated receiver without other bus activity')
       if (!task.inputs?.some((input) => input.name === task.transport.flow) || !task.inputs?.some((input) => input.name === task.transport.message) || task.transport.flow === task.transport.message) say('transport flow and message must be distinct task inputs')
       if (task.transport.ready && (!task.inputs?.some((input) => input.name === task.transport.ready) || [task.transport.flow, task.transport.message].includes(task.transport.ready))) say('transport readiness must be a distinct task input')
+      if (task.transport.timeout && (!task.inputs?.some((input) => input.name === task.transport.timeout) || [task.transport.flow, task.transport.message, task.transport.ready].includes(task.transport.timeout) || !t.transport?.timeout)) say('transport timeout must be a distinct task input backed by a test limit')
+      if (t.transport?.silent && (!task.transport.abort || !task.transport.timeout || t.transport.overflow || t.transport.waits)) say('silent transport tests require timeout and abort ports without other flow responses')
+      if (task.transport.abort && !task.outputs?.some((output) => output.name === task.transport.abort)) say('transport abort is not a task output')
       if (!task.outputs?.some((output) => output.name === task.transport.frame)) say('transport frame is not a task output')
     } else if (t.transport) say('a transport test requires transport task ports')
     if (task.ecu) {
@@ -132,7 +135,7 @@ export function canCourse(content) {
     }
     for (const i of task.inputs ?? []) {
       const name = i.name
-      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name), Object.prototype.hasOwnProperty.call(task.frameInputs ?? {}, name), task.ecu?.response === name, task.ecu?.image === name, task.transport?.flow === name, task.transport?.message === name, task.transport?.ready === name]
+      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name), Object.prototype.hasOwnProperty.call(task.frameInputs ?? {}, name), task.ecu?.response === name, task.ecu?.image === name, task.transport?.flow === name, task.transport?.message === name, task.transport?.ready === name, task.transport?.timeout === name]
       if (![task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(name) && !sources.some(Boolean)) say(`a test gives nothing on the input ${name}`)
       if (sources.filter(Boolean).length > 1) say(`input ${name} has more than one source`)
     }
@@ -145,6 +148,7 @@ export function canCourse(content) {
     const result = testOf(t, task, frameEvents)
     if (task.transport && result.transport && result.ticks <= Math.max(...transportPlan(result.transport).keys())) say('transport tests must include the last transmitted frame')
     if (task.transport && result.transport?.overflow && result.ticks <= result.transport.flowDelay * ((result.transport.waits ?? 0) + 1)) say('overflow tests must include the overflow response tick')
+    if (task.transport && result.transport?.silent && result.ticks <= result.transport.timeout) say('silent transport tests must include the timeout tick')
     if (task.ecuDelayedExpected && t.ecu && result.ticks <= (t.ecu.waits ?? 0) + 1) say('a pending ECU test must include the final response tick')
     if (task.ecuSessionExpected && result.ticks < 3) say('a session test must include the data response tick')
     if (task.ecuKeepaliveExpected && result.ticks < 8) say('a keepalive test must include the data response tick')

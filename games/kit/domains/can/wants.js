@@ -737,6 +737,7 @@ const WANTS = {
   ecuDynamicFlashRequests: () => (test) => { const requests = dynamicFlashPlan(test); return test.bus.bits.map((_, tick) => requests[tick] ?? null) },
   ecuDynamicFlashDone: () => (test) => { const count = dynamicFlashPlan(test).length; return test.bus.bits.map((_, tick) => tick === count ? true : null) },
   transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
+  transportTimeoutAbort: () => (test) => test.bus.bits.map((_, tick) => test.transport.silent && tick === test.transport.timeout ? true : null),
   transportGapReady: ({ set, separation, sent }) => (test) => {
     let delay = 0, interval = 0
     return test.bus.bits.map((_, tick) => {

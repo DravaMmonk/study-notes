@@ -3,15 +3,19 @@
 // Errors are retained for the test; this model covers one message, optional waits, and overflow.
 export const newTransportState = () => ({ response: null, due: null, waits: 0, allowed: false, remaining: 0, sequence: 1, data: [], total: null, lastTick: null, complete: false, aborted: false, error: null })
 
-export function advanceTransport(previous, frame, profile, tick) {
+export function advanceTransport(previous, frame, profile, tick, abort = false) {
   let state = { ...previous, response: null }
   const fail = (error) => { if (!state.error) state = { ...state, error } }
+  if (abort) {
+    if (!profile.silent || tick < profile.timeout || state.total === null) fail('unexpected timeout')
+    else state = { ...state, aborted: true }
+  }
   if (frame != null) {
     if (!Array.isArray(frame) || !frame.every((byte) => Number.isInteger(byte) && byte >= 0 && byte <= 255)) fail('invalid frame data')
     else if (state.total === null) {
       const length = ((frame[0] & 15) << 8) | frame[1]
       if (frame.length !== 8 || (frame[0] >> 4) !== 1 || length !== profile.message.length || length <= 7 || frame.slice(2).some((byte, index) => byte !== profile.message[index])) fail('invalid first frame')
-      else state = { ...state, total: length, data: frame.slice(2), due: tick + profile.flowDelay, waits: profile.waits ?? 0 }
+      else state = { ...state, total: length, data: frame.slice(2), due: profile.silent ? null : tick + profile.flowDelay, waits: profile.waits ?? 0 }
     } else if (state.complete || state.aborted) fail('frame after completed or aborted message')
     else if (!state.allowed || (frame[0] >> 4) !== 2 || (frame[0] & 15) !== state.sequence || frame.length < 2 || frame.length > 8 || (state.lastTick !== null && tick - state.lastTick < profile.separation)) fail('unexpected consecutive frame')
     else {
@@ -35,9 +39,9 @@ export function advanceTransport(previous, frame, profile, tick) {
 }
 
 // Expected frame schedule for the restricted clean exchange described above.
-export function transportPlan({ message, blockSize, separation, flowDelay, waits = 0, overflow = false }) {
+export function transportPlan({ message, blockSize, separation, flowDelay, waits = 0, overflow = false, silent = false }) {
   const frames = new Map([[0, [0x10 | (message.length >> 8), message.length & 255, ...message.slice(0, 6)]]])
-  if (overflow) return frames
+  if (overflow || silent) return frames
   const grantDelay = flowDelay * (waits + 1)
   let tick = grantDelay, count = 0, sequence = 1
   for (let offset = 6; offset < message.length; offset += 7) {

@@ -25,8 +25,8 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   let transportState = newTransportState()
   const transport = task.transport && reacting({
     id: 'transport', board: 'you', start: transportState,
-    reads: (state) => ({ [task.transport.flow]: state.response, [task.transport.message]: test.transport.message, ...(task.transport.ready ? { [task.transport.ready]: Number(state.response !== null) } : {}) }),
-    step: (state, outputs, tick) => { transportState = advanceTransport(state, outputs[task.transport.frame], test.transport, tick); return { state: transportState, shown: null } },
+    reads: (state) => ({ [task.transport.flow]: state.response, [task.transport.message]: test.transport.message, ...(task.transport.ready ? { [task.transport.ready]: Number(state.response !== null) } : {}), ...(task.transport.timeout ? { [task.transport.timeout]: test.transport.timeout } : {}) }),
+    step: (state, outputs, tick) => { transportState = advanceTransport(state, outputs[task.transport.frame], test.transport, tick, task.transport.abort && Boolean(outputs[task.transport.abort])); return { state: transportState, shown: null } },
   })
   const ecu = task.ecu && reacting({
     id: 'ecu', board: 'you', start: { reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0, dtcs: test.ecu.dtcs, flash: test.ecu.flash ? newFlashState() : null },
@@ -90,7 +90,7 @@ export const entries = ({ task, test, run }) => [
     { of: '__frameStart', label: T('帧开始（位拍）', 'Frame start (bit ticks)'), shape: 'ticks', given: test.frameEvents.map((frame) => frame.start) },
   ] : []),
   ...(test.contenders ?? []).map((_, k) => ({ of: `rival${k}`, label: T(`竞争者 ${k + 1}`, `Contender ${k + 1}`), shape: 'bits', given: run.ticks.map((tick) => tick.said[`rival${k}`] ?? 1) })),
-  ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available, task.pulls?.last, task.ecu?.response, task.ecu?.image, task.transport?.flow, task.transport?.message, task.transport?.ready].includes(i.name)
+  ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available, task.pulls?.last, task.ecu?.response, task.ecu?.image, task.transport?.flow, task.transport?.message, task.transport?.ready, task.transport?.timeout].includes(i.name)
     ? { of: i.name, label: i.label, shape: 'ticks', got: run.ticks.map((tick) => tick.bind?.[i.name] ?? null), ...([task.ecu?.response, task.ecu?.image, task.transport?.flow, task.transport?.message].includes(i.name) ? { text: messageText } : {}) }
     : { of: i.name, label: i.label, shape: task.frameInputs?.[i.name] ? 'ticks' : 'bits', given: test.inputs[i.name], ...(task.frameInputs?.[i.name] === 'data' ? { text: messageText } : {}) }),
   ...(task.drives ? [{ of: 'send', label: T('说', 'Send'), shape: 'ticks', got: run.ticks.map((tick) => tick.sent ?? null), want: run.want.send }] : []),

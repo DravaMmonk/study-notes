@@ -44,3 +44,16 @@ test('wait responses delay each grant, and overflow aborts without sending data'
   assert.equal(state.complete, false)
   assert.equal(state.error, null)
 })
+
+test('a silent receiver requires a timed abort, not an early abort', () => {
+  const profile = { message: Array.from({ length: 8 }, (_, i) => i), blockSize: 0, separation: 0, flowDelay: 2, silent: true, timeout: 3 }
+  const first = transportPlan(profile).get(0)
+  let state = advanceTransport(newTransportState(), first, profile, 0)
+  const early = advanceTransport(state, null, profile, 1, true)
+  assert.equal(early.error, 'unexpected timeout')
+  state = advanceTransport(state, null, profile, 1)
+  state = advanceTransport(state, null, profile, 2)
+  state = advanceTransport(state, null, profile, 3, true)
+  assert.equal(state.aborted, true)
+  assert.equal(state.error, null)
+})
