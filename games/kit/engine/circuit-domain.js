@@ -52,6 +52,7 @@ import { defineCourse, eraLevels, layout, offer, usable } from '../course.js'
 import { S } from './schema.js'
 import { GAME_VIEWS, RESULTS, SHOW, START_VIEW, TASK_VIEWS, rowProblems, showProblems, valueText, viewsProblems } from './views.js'
 import { T as t, keyOf } from '../shell/i18n.js'
+import { mutationScore } from './mutate.js'
 
 /* ---------- the board ---------- */
 
@@ -622,8 +623,18 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
           if (r.fail || r.error) problems.push(`its part ${level.builds.type} alone fails ${where(j)}`)
         })
       }
+      // Asked for (`circuit.mutants`, npm run check -- --mutants): what the tests make of the answer's mutants
+      // (./mutate.js), a report and never a failure. A mutant that lives is a
+      // board the tests do not rule out, or another right answer.
+      let mutated = ''
+      if (circuit.mutants && !problems.length) {
+        // One test at a time, stopping at the first a mutant fails: most die on the first.
+        const lives = (b) => all.tests.every((t) => run({ ...all, tests: [t] }, b, partOf).pass)
+        const score = mutationScore(task.solution, lives, { partOf, isFixed: board.isFixed, held: [...held] })
+        if (score.made) mutated = `, mutants ${score.killed}/${score.made}${score.survivors.length ? ` (alive: ${score.survivors.join('; ')})` : ''}`
+      }
       const hidden = task.hidden.length ? ` + ${task.hidden.length} hidden` : ''
-      return { problems, text: `${head}${problems.length ? problems.join('; ') : `answer PASS (${task.tests.length} tests${hidden}${noted(ref)})${naive}${builds ? `, part ${level.builds.type} PASS` : ''}`}` }
+      return { problems, text: `${head}${problems.length ? problems.join('; ') : `answer PASS (${task.tests.length} tests${hidden}${noted(ref)})${naive}${mutated}${builds ? `, part ${level.builds.type} PASS` : ''}`}` }
     })
     out.push({ level: level.id, fail: said.some((x) => x.problems.length > 0), text: `${level.id} ${keyOf(level.title)}: ${said.map((x) => x.text).join(' · ')}` })
   }

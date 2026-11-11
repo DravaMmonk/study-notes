@@ -23,9 +23,9 @@ import { termRegistry } from './terminology.js'
 /**
  * Everything checked on game `content`, as lines [{ text, fail? }]. listed: how many levels the hub says it has.
  * `domain`: its domain module (content-node.js domainOf). Content that does not fit the vocabulary is not built into a course: what
- * is wrong with it is all there is to say.
+ * is wrong with it is all there is to say. `mutants`: also the mutation report of each circuit task.
  */
-export async function checkGame(content, { domain, listed }) {
+export async function checkGame(content, { domain, listed, mutants = false }) {
   const lines = []
   const fail = (text) => lines.push({ fail: true, text })
   const wrong = checkContent(domain, content)
@@ -80,6 +80,8 @@ export async function checkGame(content, { domain, listed }) {
   for (const [id, links] of levelLinks('part')) for (const key of links) if (partsByKey.has(key) && !opensBy(earnedAt(partsByKey.get(key)), id)) fail(`${id} links the part ${key}, earned later (at ${earnedAt(partsByKey.get(key))})`)
   for (const entry of content.glossary.entries) for (const id of new Set(linked(GLOSSARY.fields.entries.of, entry, 'wiki'))) if (entries.has(id) && !opensBy(entries.get(id).at, entry.at)) fail(`entry ${entry.id} links the entry ${id}, which opens later (at ${entries.get(id).at})`)
 
-  lines.push(...(await domain.validate(spec)))
+  // Asked for, the circuit base also reports what each task's tests make of the answer's mutants (mutate.js): slow,
+  // so it is no part of the check every change runs.
+  lines.push(...(await domain.validate(mutants && spec.circuit ? { ...spec, circuit: { ...spec.circuit, mutants: true } } : spec)))
   return lines
 }

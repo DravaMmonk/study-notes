@@ -335,6 +335,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、eng
 | `vocabulary.js` | 领域的词汇表：`defineVocabulary` 把一个领域能被内容引用的项和 schema 收在一起，`describe` 打印成数据，`checkContent` 按它查一份内容 |
 | `content.js` | 数据游戏的组装：`assemble` 把 `game.json`、各关、百科合成一份内容；`readContent`（`content-node.js`）在 node 下读盘 |
 | `checks.js` | 一款游戏的全部检查（`checkGame`）：先按词汇表查内容；课程审计（`game.json` 的 `open` 列着的照列不算失败，第 5 节）、关卡 id、文字都有中英两面、链接，再加领域自己的检查（参考解通过、naive 解失败……）。`check.js` 是 `npm run check`，每个变更集也跑它；`games.mjs` 在 node 下照页面的样子把内容交给领域的 `game.jsx`，给链接检查用 |
+| `mutate.js` | 一块板的变异体（`mutants`）和测试对它们的区分（`mutationScore`）：拿掉一个元件并把读它的线接到它第一个输入的来源（`drop`）、交换两个输入（`swap`）、一个设置换成别的选项或加减一步（`set`）、换成这一关手里口相同的另一种元件（`retype`）；关卡给的节点、锁住的元件、框和框里的东西不动；一块板最多 24 个，按固定顺序均匀取。`npm run check -- <游戏> --mutants` 在电路底座的每个任务后面写 `mutants 杀掉/造出 (alive: …)`，只报告、不算失败，平时的检查不跑它（《从一根线开始》要多 25 秒）。活下来的变异体有三种读法：测试没区分的错解；另一个正确解（交换加法、与的两个输入）；参考解里多余的元件（`drop` 活下来）。可交换的元件现在分不出来，等引擎资源有了签名再去掉这部分（`games/DIRECTION.md` 决策十五、十七） |
 | `match.js` | 在一块板里找另一块板（`rebuilt`）：同样的元件、设置和接线，审计 `bypass` 用它 |
 | `deps.js` | `npm run deps -- <游戏>`：从课程数据画出元件依赖图（第 7 节） |
 | `contract.js` | 领域的契约（第 6.3 节），`contract.test.js` 对每个领域和每款数据游戏跑它 |
@@ -350,7 +351,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、eng
 
 **单元测试不认识关卡。** 测试跟着三层分开：`npm test` 只测内核和领域的机制，用的内容是测试里现写的小内容，或领域的 `starter/`（契约测试和 `new-game` 共用的最小样例），不读任何一款真实游戏，也不写死某一关、某个任务或一款游戏有几关；把所有游戏的文件夹拿走，测试照样全过。契约、文件的写法这类对每款游戏都成立的性质，在每个领域的 `starter/` 上查；要列例外时，例外由领域或内容自己声明，不写在测试里。一款游戏的内容对不对（契约、参考解、naive 解、审计、文案）由 studio 和操作集在每次写入前查（第 7.1 节），也可以手动跑 `npm run check`，不进 CI。所以改关卡不用改测试；改了关卡测试就失败，说明那条测试写错了层。
 
-**命令**（都在 `trace-viewer` 目录下；游戏 id 写错了，三个命令都列出有哪些游戏）：`npm test` 跑 kit 的单元测试；`npm run check` 校验所有游戏（`npm run check -- state-graph` 只校验一款）；`npm run deps -- <游戏>` 画出一款游戏的元件依赖图（Mermaid；`--dot` 出 DOT，`--levels` 连关卡一起画）；`npm run new-domain -- <名字> --mechanism <机制>`、`npm run new-game -- <id> --domain <领域>` 生成新领域和新游戏（第 6.3 节）；`npm run op -- <游戏> …` 用操作集改内容（第 7 节）；`npm run mcp` 起 MCP 服务器（第 7 节）；`npm run studio` 在开发服务器上打开 studio（第 6.7 节，`GAMES_ROOT` 让它改一份副本）；`npm run conform` 在真的 Linux 上跑模拟内核的一致性用例；`npm run pipeline -- <游戏> <命令>` 跑 agent 流水线的一步、它的闸门、它的记录（第 7.2 节）；`npm run build:games` 构建所有游戏（`GAME=<id> npm run build:game` 构建一款），产物在 `dist-games/<id>/`；`npm run publish:content` 只换内容不重建代码；`npm run versions` 存下词汇表的新版本。新游戏要在 `games/games.js` 里登记，`check`、构建和发布都按这张表走。
+**命令**（都在 `trace-viewer` 目录下；游戏 id 写错了，三个命令都列出有哪些游戏）：`npm test` 跑 kit 的单元测试；`npm run check` 校验所有游戏（`npm run check -- state-graph` 只校验一款），加 `--mutants` 再报告电路底座上每个任务的变异得分；`npm run deps -- <游戏>` 画出一款游戏的元件依赖图（Mermaid；`--dot` 出 DOT，`--levels` 连关卡一起画）；`npm run new-domain -- <名字> --mechanism <机制>`、`npm run new-game -- <id> --domain <领域>` 生成新领域和新游戏（第 6.3 节）；`npm run op -- <游戏> …` 用操作集改内容（第 7 节）；`npm run mcp` 起 MCP 服务器（第 7 节）；`npm run studio` 在开发服务器上打开 studio（第 6.7 节，`GAMES_ROOT` 让它改一份副本）；`npm run conform` 在真的 Linux 上跑模拟内核的一致性用例；`npm run pipeline -- <游戏> <命令>` 跑 agent 流水线的一步、它的闸门、它的记录（第 7.2 节）；`npm run build:games` 构建所有游戏（`GAME=<id> npm run build:game` 构建一款），产物在 `dist-games/<id>/`；`npm run publish:content` 只换内容不重建代码；`npm run versions` 存下词汇表的新版本。新游戏要在 `games/games.js` 里登记，`check`、构建和发布都按这张表走。
 
 **现状和待做：**
 
