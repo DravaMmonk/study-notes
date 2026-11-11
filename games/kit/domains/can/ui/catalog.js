@@ -19,6 +19,8 @@ export const CARDS = {
   arith: { name: T('算术'), icon: Calculator, family: 'value', desc: T('「加一」：输入加 1。「相加」：两个输入之和。只要有一个输入为「—」，就给出「—」。') },
   xor: { name: T('异或', 'XOR'), icon: GitMerge, family: 'logic', desc: T('两个数逐位比较：相同为 0，不同为 1；按无符号 32 位运算。输入为「—」时给出「—」。', 'Compares two numbers bit by bit: 0 where equal, 1 where different, using unsigned 32-bit values. Gives 「—」 if an input is 「—」.') },
   subtract: { name: T('相减', 'Subtract'), icon: Minus, family: 'value', desc: T('第一个数减去第二个数。输入为「—」时给出「—」。', 'Subtracts the second number from the first; gives 「—」 if an input is 「—」.') },
+  band: { name: T('按位与', 'Bitwise AND'), icon: GitMerge, family: 'logic', desc: T('两个数逐位取与；两位都是 1 时结果才是 1。按无符号 32 位运算。', 'ANDs two unsigned 32-bit values: a result bit is 1 only when both input bits are 1.') },
+  shiftRight: { name: T('右移', 'Shift right'), icon: Split, family: 'logic', desc: T('将无符号 32 位数向右移动 0 到 31 位，高位补零。', 'Shifts an unsigned 32-bit value right by 0 to 31 bits, filling high bits with zero.') },
 }
 
 export const FORMS = {
@@ -28,4 +30,5 @@ export const FORMS = {
 
 export const PORT_LABELS = {
   select: { if: T('条件'), yes: T('是', 'Yes'), no: T('否', 'No') },
+  shiftRight: { value: T('数值', 'Value'), amount: T('位数', 'Bits') },
 }

@@ -1120,3 +1120,12 @@ test('signed bytes interpret the sign boundary and preserve missing data', () =>
   const want = wantOf({ value: { signedByteSignal: { input: 'byte' } } })
   assert.deepEqual(want({ inputs: { byte: [0, 127, 128, 255, null] } }).value, [0, 127, -128, -1, null])
 })
+
+test('bitwise parts extract a field without leaking surrounding bits', () => {
+  assert.equal(PARTS.shiftRight.eval({ value: 0b11101101, amount: 2 }), 0b111011)
+  assert.equal(PARTS.band.eval({ a: 0b111011, b: 7 }), 3)
+  assert.equal(PARTS.shiftRight.eval({ value: 1, amount: 32 }), null)
+  assert.equal(PARTS.band.eval({ a: null, b: 7 }), null)
+  const want = wantOf({ gear: { bitFieldSignal: { input: 'byte', offset: 2, width: 3 } } })
+  assert.deepEqual(want({ inputs: { byte: [0b11101101, 0b00011100, null] } }).gear, [3, 7, null])
+})

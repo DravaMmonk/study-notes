@@ -27,6 +27,8 @@ const PARTS = {
   arith: item(t('算术：加一、相加两种形状')),
   xor: item(t('异或：两个数逐位异或', 'XOR: bitwise exclusive or of two numbers')),
   subtract: item(t('相减：第一个数减去第二个数', 'subtract: the first number minus the second')),
+  band: item(t('按位与：两个无符号数逐位相与', 'bitwise AND of two unsigned values')),
+  shiftRight: item(t('右移：无符号数右移指定的位数', 'shift an unsigned value right by the specified number of bits')),
 }
 
 /* ---------- what an output must be ---------- */
@@ -39,6 +41,7 @@ const WANTS = {
   affineSignal: item(t('输入乘以比例后加偏移', 'input multiplied by a scale and then shifted by an offset'), S.obj({ input: INPUT, scale: S.int(), offset: S.int() })),
   wordSignal: item(t('低字节加上高字节乘以 256', 'low byte plus the high byte multiplied by 256'), S.obj({ low: INPUT, high: INPUT })),
   signedByteSignal: item(t('把字节按八位补码读成有符号数', 'interpret a byte as an eight-bit two’s-complement integer'), S.obj({ input: INPUT })),
+  bitFieldSignal: item(t('取字节中从低位数起的一段位', 'extract a field from a byte, counting from the least significant bit'), S.obj({ input: INPUT, offset: S.int({ min: 0, max: 7 }), width: S.int({ min: 1, max: 8 }) })),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -280,7 +283,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 67,
+  version: 68,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

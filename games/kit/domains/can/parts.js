@@ -15,6 +15,8 @@
 //   arith    forms inc (in + 1) and add (a + b)
 //   xor      bitwise exclusive or of two unsigned 32-bit numbers
 //   subtract the first number minus the second
+//   band     bitwise AND of two unsigned 32-bit numbers
+//   shiftRight  unsigned right shift by 0 to 31 bits
 // Built parts are the boards of the levels that build them (course.js), each run as a packed part that keeps its own
 // registers.
 import { formed } from '../../engine/forms.js'
@@ -50,4 +52,6 @@ export const PARTS = {
   ]),
   xor: { inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => (num(a) ^ num(b)) >>> 0) },
   subtract: { inputs: ['a', 'b'], eval: strict(({ a, b }) => num(a) - num(b)) },
+  band: { inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => (num(a) & num(b)) >>> 0) },
+  shiftRight: { inputs: ['value', 'amount'], eval: strict(({ value, amount }) => Number.isInteger(amount) && amount >= 0 && amount <= 31 ? num(value) >>> amount : null) },
 }
