@@ -763,6 +763,8 @@ const WANTS = {
   fleetRecheckTargets: () => (test) => fleetRecheckPlan(test).targets,
   fleetRecheckRequests: () => (test) => fleetRecheckPlan(test).requests,
   fleetRecheckReport: () => (test) => fleetRecheckPlan(test).report,
+  fleetFaultRecords: () => (test) => fleetFaultPlan(test).records,
+  fleetFaultAny: () => (test) => fleetFaultPlan(test).any,
   transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
   transportTimeoutAbort: () => (test) => test.bus.bits.map((_, tick) => test.transport.silent && tick === test.transport.timeout ? true : null),
   inputPresent: ({ input }) => (test) => test.inputs[input].map((value) => value !== null && value !== undefined),
@@ -1148,6 +1150,22 @@ function fleetRecheckPlan(test) {
   const confirmed = (ecu, after) => Number(ecu.dtcs.some(({ code, status }) => (status & 8) && (!after || !ecu.flash.fixedDtcs.includes(code))))
   if (check + checks.length < report.length) report[check + checks.length] = [test.fleet[0].version, test.fleet[1].version, test.fleet[0].flash.versionAfter[0], test.fleet[1].flash.versionAfter[0], confirmed(test.fleet[0], false), confirmed(test.fleet[1], false), confirmed(test.fleet[0], true), confirmed(test.fleet[1], true)]
   return { targets, requests, report }
+}
+
+// Group each online controller's confirmed records as index, count, then code/status bytes.
+function fleetFaultPlan(test) {
+  const at = fleetExamPlan(test).report.findIndex((value) => value !== null)
+  const records = test.bus.bits.map(() => null), any = [...records]
+  const all = []
+  let count = 0
+  for (const [index, ecu] of test.fleet.entries()) {
+    if (!ecu.online) continue
+    const confirmed = ecu.dtcs.filter(({ status }) => status & 8)
+    count += confirmed.length
+    all.push(index, confirmed.length, ...confirmed.flatMap(({ code, status }) => [(code >> 16) & 255, (code >> 8) & 255, code & 255, status]))
+  }
+  if (at >= 0) { records[at] = all; any[at] = count > 0 }
+  return { records, any }
 }
 
 /** A level's `want` as the function run.js checks a test by: test → { output name: [value per tick] }. */
