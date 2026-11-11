@@ -765,6 +765,15 @@ const WANTS = {
   fleetRecheckReport: () => (test) => fleetRecheckPlan(test).report,
   fleetFaultRecords: () => (test) => fleetFaultPlan(test).records,
   fleetFaultAny: () => (test) => fleetFaultPlan(test).any,
+  sustainedMismatch: ({ speed, wheel }) => (test) => {
+    const at = firstMismatch(test.inputs[speed], test.inputs[wheel])
+    return test.bus.bits.map((_, tick) => tick === at)
+  },
+  mismatchWindow: ({ speed, wheel, time, field }) => (test) => {
+    const at = firstMismatch(test.inputs[speed], test.inputs[wheel])
+    const values = { time: test.inputs[time][at], beforeSpeed: test.inputs[speed][at - 1], beforeWheel: test.inputs[wheel][at - 1], triggerSpeed: test.inputs[speed][at], triggerWheel: test.inputs[wheel][at], afterSpeed: test.inputs[speed][at + 1], afterWheel: test.inputs[wheel][at + 1] }
+    return test.bus.bits.map((_, tick) => at >= 1 && tick === at + 1 ? values[field] : null)
+  },
   transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
   transportTimeoutAbort: () => (test) => test.bus.bits.map((_, tick) => test.transport.silent && tick === test.transport.timeout ? true : null),
   inputPresent: ({ input }) => (test) => test.inputs[input].map((value) => value !== null && value !== undefined),
@@ -1166,6 +1175,16 @@ function fleetFaultPlan(test) {
   }
   if (at >= 0) { records[at] = all; any[at] = count > 0 }
   return { records, any }
+}
+
+// The first three-frame run of different wheel and vehicle speed readings.
+function firstMismatch(speed, wheel) {
+  let streak = 0
+  for (let tick = 0; tick < speed.length; tick++) {
+    streak = speed[tick] === wheel[tick] ? 0 : streak + 1
+    if (streak === 3) return tick
+  }
+  return -1
 }
 
 /** A level's `want` as the function run.js checks a test by: test → { output name: [value per tick] }. */
