@@ -483,6 +483,22 @@ const receiveStateDrive = ({ mode, ...params }, test) => {
   return drive
 }
 
+// Receive using one shared fault counter; the previous state chooses the current error flag.
+const receiveUnified = (params, test) => {
+  const base = receiverPlan(params, test)
+  const counts = faultCounts({ event: '__event', reset: params.reset }, { ...test, inputs: { ...test.inputs, __event: base.event } })
+  const drive = [...base.drive]
+  for (let tick = 0; tick < base.kind.length; tick++) {
+    const kind = base.kind[tick]
+    const before = tick === 0 || test.inputs[params.reset][tick] ? 0 : counts[tick - 1].mode
+    if ((kind === 1 || kind === 2) && before === 1) {
+      const start = tick + (kind === 1 ? 1 : 3)
+      for (let k = start; k < start + 6 && k < drive.length; k++) drive[k] = 1
+    }
+  }
+  return { ...base, drive, tx: counts.map((step) => step.tx), mode: counts.map((step) => step.mode) }
+}
+
 const faultFlag = ({ report, ...params }, test) => {
   const modes = faultCounts(params, test)
   let position = 14
@@ -703,6 +719,9 @@ const WANTS = {
   receiveFrameEvent: (params) => (test) => receiverPlan(params, test).event,
   receiveFrameAck: (params) => (test) => receiverPlan(params, test).ack,
   receiveStateDrive: (params) => (test) => receiveStateDrive(params, test),
+  receiveUnifiedDrive: (params) => (test) => receiveUnified(params, test).drive,
+  receiveUnifiedTx: (params) => (test) => receiveUnified(params, test).tx,
+  receiveUnifiedMode: (params) => (test) => receiveUnified(params, test).mode,
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),

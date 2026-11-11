@@ -150,6 +150,9 @@ const WANTS = {
   receiveFrameEvent: item(t('准备、接收错误和成功应答对应的计数事件', 'counter events from preparation, receive errors and successful acknowledgement'), S.obj({ prep: INPUT, reset: INPUT })),
   receiveFrameAck: item(t('接收方在应答位驱动显性时为 1', '1 when the receiver drives the ACK slot dominant'), S.obj({ prep: INPUT, reset: INPUT })),
   receiveStateDrive: item(t('按错误发生前的主动或被动状态选择接收错误标志', 'choose the receive error flag from the active or passive state before the error'), S.obj({ prep: INPUT, reset: INPUT, mode: INPUT })),
+  receiveUnifiedDrive: item(t('使用统一错误状态的接收、应答及错误标志', 'receive, acknowledge and signal errors using the shared fault state'), S.obj({ prep: INPUT, reset: INPUT })),
+  receiveUnifiedTx: item(t('准备事件后的发送错误计数', 'transmit error count after preparation events'), S.obj({ prep: INPUT, reset: INPUT })),
+  receiveUnifiedMode: item(t('按发送与接收错误计数确定的状态', 'fault state determined by transmit and receive error counts'), S.obj({ prep: INPUT, reset: INPUT })),
   stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialCrc: item(t('最后原始位被取走时给该字节的 CRC-15', 'the CRC-15 of the byte when its final original bit is accepted'), S.obj({ value: INPUT, start: INPUT })),
@@ -216,7 +219,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 53,
+  version: 54,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

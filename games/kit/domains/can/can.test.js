@@ -309,6 +309,27 @@ test('a receiver keeps the error flag type from the instant of detection', () =>
   assert.deepEqual(transitioning.drive.slice(error + 1, error + 7), Array(6).fill(0))
 })
 
+test('unified receive state uses both counters and the state before an error', () => {
+  const bus = busOf({ idle: 140, frames: [{ id: 0x2a5, data: [0x55], ack: false }], tail: 20 })
+  const params = { prep: 'prep', reset: 'reset' }
+  const calls = { drive: { receiveUnifiedDrive: params }, mode: { receiveUnifiedMode: params }, tx: { receiveUnifiedTx: params }, kind: { receiveFrameKind: params } }
+  const inputs = { prep: bus.bits.map((_, tick) => tick < 127 ? 3 : 0), reset: bus.bits.map((_, tick) => Number(tick === 0)) }
+  const test = { bus, inputs, flipTicks: [169] }
+  const crossing = wantOf(calls)(test)
+  const error = crossing.kind.indexOf(1)
+  assert.equal(crossing.mode[error], 1)
+  assert.deepEqual(crossing.drive.slice(error + 1, error + 7), Array(6).fill(0))
+  inputs.prep[127] = 3
+  const passive = wantOf(calls)(test)
+  assert.ok(passive.drive.slice(error + 1, error + 7).every((bit) => bit === 1))
+  inputs.prep = bus.bits.map((_, tick) => tick < 16 ? 1 : 0)
+  const transmitPassive = wantOf(calls)({ ...test, flipTicks: [] })
+  const valid = transmitPassive.kind.indexOf(0)
+  assert.equal(transmitPassive.tx[valid], 128)
+  assert.equal(transmitPassive.mode[valid], 1)
+  assert.equal(transmitPassive.drive[valid + 1], 0)
+})
+
 test('stuffing error latches and resets even when checking is disabled', () => {
   const bit = [0, 0, 0, 0, 0, 0, 1, 1, 1]
   const enable = [1, 1, 1, 1, 1, 1, 1, 0, 1]
