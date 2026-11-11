@@ -323,6 +323,15 @@ test('a serializer holds its bit during backpressure and sends a final pending s
   assert.equal(result.crc[8], null)
 })
 
+test('field serialization latches both width and value at start', () => {
+  const test = { bus: { bits: Array(8).fill(1) }, inputs: { value: [0xa, 0, 0, 0, 0, 0, 0, 0], width: [4, 1, 1, 1, 1, 1, 1, 1], start: [1, 0, 0, 0, 0, 0, 0, 0], advance: [0, 1, 1, 1, 0, 1, 1, 1] } }
+  const params = { value: 'value', width: 'width', start: 'start', advance: 'advance' }
+  const result = wantOf({ bit: { fieldBit: params }, busy: { fieldBusy: params }, done: { fieldDone: params } })(test)
+  assert.deepEqual(result.bit, [1, 1, 0, 1, 0, 0, null, null])
+  assert.deepEqual(result.done.flatMap((done, tick) => done ? [tick] : []), [5])
+  assert.equal(result.busy[6], false)
+})
+
 // The starter game (what npm run new-game copies), as content.js assembles it.
 const starter = () => {
   const dir = new URL('./starter/', import.meta.url)

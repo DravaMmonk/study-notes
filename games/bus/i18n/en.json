@@ -57,7 +57,7 @@
   "这块板现在是一个元件了，板上放几块，就各数各的。": "This board is now a part, and several of them on one board each keep their own count.",
   "每一拍交出「接着数」在这一拍之前连着是 1 的拍数；它一是 0，就从 0 重数。": "Every tick, give out how many ticks in a row Go on was 1 before this one; once it is 0, start again from 0.",
   "接着数": "Go on",
-  "数": "Count",
+  "数": "Number",
   "有人开口了": "Someone speaks",
   "没人说话时总线一直是隐性。一个控制器开口，先说一位显性：这一位叫<wiki-ref to=\"sof\"></wiki-ref>。": "With nobody talking the bus stays recessive. A controller that starts talking first says one dominant bit: the <wiki-ref to=\"sof\"></wiki-ref>.",
   "可一帧里面到处都有显性。只有在总线确实安静过一阵以后的那个显性，才是一帧的开头。": "Yet a frame is full of dominant bits. Only the dominant bit after the bus has really been quiet for a while is where a frame begins.",
@@ -256,5 +256,18 @@
   "将逐位发送器的位送给 CRC；只有填充发送器取走原始位时才让 CRC 参与。": "Feed the serializer’s bit to CRC; enable CRC only when the stuffer accepts the original bit.",
   "开始时重置 CRC。插入位也要送到总线，但不能送进 CRC。": "Reset CRC on Start. Stuff bits go onto the bus but must not enter the CRC calculation.",
   "CRC 计算的是原始位串；线上的填充位用来保持同步，不属于校验输入。": "CRC is calculated over the original bit stream. Stuff bits on the line support synchronisation and are not CRC input.",
-  "校验码": "Check sequence"
+  "校验码": "Check sequence",
+  "逐位送字段": "Send a field bit by bit",
+  "CAN 的字段宽度并不都相同：长度占四位，标准标识符占十一位，CRC 占十五位。把逐位发送的做法扩展到不同宽度，便能沿用同一套发送逻辑。": "CAN fields do not all have the same width: length has four bits, a standard identifier eleven, and CRC fifteen. Extend bit-by-bit sending to different widths to reuse the same logic.",
+  "开始时锁存「数」和「位数」，逐位交出数（最高位在前）。可用位数是 1、4、8、11 或 15，给的数都放得进该宽度。「前进」为 0 时保持当前位；完成只在最后一位被取走的拍为是。再次开始会替换未送完的字段。": "At Start, latch Number and Width and offer its bits most significant first. Width can be 1, 4, 8, 11 or 15, and the given number fits. Hold the current bit when Advance is 0; Done is yes only when the final bit is accepted. Another start replaces an unfinished field.",
+  "最高位的值由位数决定：1、8、128、1024 或 16384。": "The highest bit has value 1, 8, 128, 1024 or 16384 depending on width.",
+  "开始时把位数也存起来；之后输入位数可能改变。": "Store the width at Start too; its input may change later.",
+  "参考逐位送字节的办法，去掉最高位并左移；另记位置和是否仍有位。": "As with sending a byte, remove the highest bit and shift left; track position and whether bits remain.",
+  "字段长度在开始时确定；下游暂停时，当前位和位置都不前进。": "The field width is fixed at Start; when the downstream pauses, neither its current bit nor position advances.",
+  "开始时锁存数和位数，支持 1、4、8、11、15 位；最高位先交出，前进为 1 才取走当前位。忙表示有位，完成只在最后一位被取走时为是。": "Latches number and width on Start, supporting 1, 4, 8, 11 and 15 bits; offers the most significant bit first and advances only when permitted. Busy means a bit remains; Done is yes only when the final bit is accepted.",
+  "位数": "Width",
+  "试送不同字段": "Try different field widths",
+  "用不同宽度的字段发送器试一试暂停：测试台没有取走这一位时，发送器要保住它，线路暂时说隐性。": "Try pausing the field sender at different widths: when the test bench does not accept a bit, hold it and let the line say recessive temporarily.",
+  "开始时取入数和位数；「前进」为 1 且字段仍有位时，说出当前位并取走它。其余拍说 1；最后一位被取走时「完成」为是。": "At Start, load Number and Width. When Advance is 1 and bits remain, send and accept the current bit. Say 1 on other ticks; Done is yes when the final bit is accepted.",
+  "无论字段有几位，是否前进都由下游决定。下一步要把不同字段依次拼成一帧。": "Whatever the field width, the downstream decides whether to advance. Next, fields must be assembled into a frame."
 }

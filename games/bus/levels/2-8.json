@@ -1,0 +1,196 @@
+{
+  "title": { "zh": "逐位送字段" },
+  "intro": [{ "t": { "zh": "CAN 的字段宽度并不都相同：长度占四位，标准标识符占十一位，CRC 占十五位。把逐位发送的做法扩展到不同宽度，便能沿用同一套发送逻辑。" } }],
+  "builds": {
+    "type": "fieldserial",
+    "name": { "zh": "逐位送字段" },
+    "desc": { "zh": "开始时锁存数和位数，支持 1、4、8、11、15 位；最高位先交出，前进为 1 才取走当前位。忙表示有位，完成只在最后一位被取走时为是。" }
+  },
+  "after": { "zh": "字段长度在开始时确定；下游暂停时，当前位和位置都不前进。" },
+  "tasks": [
+    {
+      "id": "2-8",
+      "brief": {
+        "zh": "开始时锁存「数」和「位数」，逐位交出数（最高位在前）。可用位数是 1、4、8、11 或 15，给的数都放得进该宽度。「前进」为 0 时保持当前位；完成只在最后一位被取走的拍为是。再次开始会替换未送完的字段。"
+      },
+      "hint": [
+        { "zh": "最高位的值由位数决定：1、8、128、1024 或 16384。" },
+        { "zh": "开始时把位数也存起来；之后输入位数可能改变。" },
+        { "zh": "参考逐位送字节的办法，去掉最高位并左移；另记位置和是否仍有位。" }
+      ],
+      "inputs": [
+        { "name": "value", "label": { "zh": "数" } },
+        { "name": "width", "label": { "zh": "位数" } },
+        { "name": "start", "label": { "zh": "开始" } },
+        { "name": "advance", "label": { "zh": "前进" } }
+      ],
+      "outputs": [
+        { "name": "bit", "label": { "zh": "位" } },
+        { "name": "busyout", "label": { "zh": "忙" } },
+        { "name": "doneout", "label": { "zh": "完成" } }
+      ],
+      "tests": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [10, 0, 0, 0, 0, 0, 0, 0],
+            "width": [4, 1, 1, 1, 1, 1, 1, 1],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0],
+            "advance": [0, 1, 1, 1, 0, 1, 1, 1]
+          }
+        },
+        {
+          "bus": { "idle": 13, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [1445, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "width": [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "advance": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 18, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [17817, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "width": [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "advance": [1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+          }
+        },
+        {
+          "bus": { "idle": 5, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [0, 1, 1, 1, 1],
+            "width": [1, 1, 1, 1, 1],
+            "start": [1, 0, 0, 0, 0],
+            "advance": [0, 0, 1, 1, 1]
+          }
+        },
+        {
+          "bus": { "idle": 11, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [1445, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0],
+            "width": [11, 11, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            "start": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+            "advance": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+          }
+        }
+      ],
+      "want": {
+        "bit": { "fieldBit": { "value": "value", "width": "width", "start": "start", "advance": "advance" } },
+        "busyout": {
+          "fieldBusy": { "value": "value", "width": "width", "start": "start", "advance": "advance" }
+        },
+        "doneout": {
+          "fieldDone": { "value": "value", "width": "width", "start": "start", "advance": "advance" }
+        }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "four = const[value=4]()",
+        "eight = const[value=8]()",
+        "eleven = const[value=11]()",
+        "t1 = const[value=1]()",
+        "t4 = const[value=8]()",
+        "t8 = const[value=128]()",
+        "t11 = const[value=1024]()",
+        "t15 = const[value=16384]()",
+        "wold = reg[reg=D, start=8]()",
+        "w = select(start, width, wold)",
+        "kw = keep[reg=D](w)",
+        "is1 = compare[form=eq](w, one)",
+        "is4 = compare[form=eq](w, four)",
+        "is8 = compare[form=eq](w, eight)",
+        "is11 = compare[form=eq](w, eleven)",
+        "top11 = select(is11, t11, t15)",
+        "top8 = select(is8, t8, top11)",
+        "top4 = select(is4, t4, top8)",
+        "top = select(is1, t1, top4)",
+        "rold = reg[reg=A, start=0]()",
+        "base = select(start, value, rold)",
+        "pold = reg[reg=B, start=0]()",
+        "pos = select(start, zero, pold)",
+        "aold = reg[reg=C, start=0]()",
+        "anum = select(start, one, aold)",
+        "busy = compare[form=eq](anum, one)",
+        "low = compare[form=lt](base, top)",
+        "high = select(low, zero, one)",
+        "mask = select(high, top, zero)",
+        "rest = xor(base, mask)",
+        "shift = arith[form=add](rest, rest)",
+        "nextdata = select(advance, shift, base)",
+        "rn = select(busy, nextdata, base)",
+        "kr = keep[reg=A](rn)",
+        "inc = arith[form=inc](pos)",
+        "pn0 = select(advance, inc, pos)",
+        "pn = select(busy, pn0, pos)",
+        "kp = keep[reg=B](pn)",
+        "last = compare[form=eq](inc, w)",
+        "false = compare[form=eq](zero, one)",
+        "done0 = select(advance, last, false)",
+        "done = select(busy, done0, false)",
+        "an = select(done, zero, anum)",
+        "ka = keep[reg=C](an)",
+        "o = select(busy, high)",
+        "bit <- o",
+        "busyout <- busy",
+        "doneout <- done"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "four = const[value=4]()",
+        "eight = const[value=8]()",
+        "eleven = const[value=11]()",
+        "t1 = const[value=1]()",
+        "t4 = const[value=8]()",
+        "t8 = const[value=128]()",
+        "t11 = const[value=1024]()",
+        "t15 = const[value=16384]()",
+        "wold = reg[reg=D, start=8]()",
+        "w = select(start, width, width)",
+        "kw = keep[reg=D](w)",
+        "is1 = compare[form=eq](w, one)",
+        "is4 = compare[form=eq](w, four)",
+        "is8 = compare[form=eq](w, eight)",
+        "is11 = compare[form=eq](w, eleven)",
+        "top11 = select(is11, t11, t15)",
+        "top8 = select(is8, t8, top11)",
+        "top4 = select(is4, t4, top8)",
+        "top = select(is1, t1, top4)",
+        "rold = reg[reg=A, start=0]()",
+        "base = select(start, value, rold)",
+        "pold = reg[reg=B, start=0]()",
+        "pos = select(start, zero, pold)",
+        "aold = reg[reg=C, start=0]()",
+        "anum = select(start, one, aold)",
+        "busy = compare[form=eq](anum, one)",
+        "low = compare[form=lt](base, top)",
+        "high = select(low, zero, one)",
+        "mask = select(high, top, zero)",
+        "rest = xor(base, mask)",
+        "shift = arith[form=add](rest, rest)",
+        "nextdata = select(advance, shift, base)",
+        "rn = select(busy, nextdata, base)",
+        "kr = keep[reg=A](rn)",
+        "inc = arith[form=inc](pos)",
+        "pn0 = select(advance, inc, pos)",
+        "pn = select(busy, pn0, pos)",
+        "kp = keep[reg=B](pn)",
+        "last = compare[form=eq](inc, w)",
+        "false = compare[form=eq](zero, one)",
+        "done0 = select(advance, last, false)",
+        "done = select(busy, done0, false)",
+        "an = select(done, zero, anum)",
+        "ka = keep[reg=C](an)",
+        "o = select(busy, high)",
+        "bit <- o",
+        "busyout <- busy",
+        "doneout <- done"
+      ]
+    }
+  ]
+}

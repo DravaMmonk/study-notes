@@ -41,6 +41,21 @@ const serial = ({ value, start, advance }, test) => {
   })
 }
 
+const serialField = ({ value, width, start, advance }, test) => {
+  let word = 0
+  let size = 0
+  let position = 0
+  let busy = false
+  return each(test, (tick) => {
+    if (test.inputs[start][tick]) { word = test.inputs[value][tick]; size = test.inputs[width][tick]; position = 0; busy = true }
+    const bit = busy ? (word >> (size - position - 1)) & 1 : null
+    const done = busy && position === size - 1 && Boolean(test.inputs[advance][tick])
+    const result = { bit, busy, done }
+    if (busy && test.inputs[advance][tick]) { position++; if (position === size) busy = false }
+    return result
+  })
+}
+
 const stuffedSerial = ({ value, start }, test) => {
   let byte = 0
   let position = 8
@@ -102,6 +117,10 @@ const WANTS = {
   pacedBit: (params) => (test) => serial(params, test).map((step) => step.bit),
   pacedBusy: (params) => (test) => serial(params, test).map((step) => step.busy),
   pacedDone: (params) => (test) => serial(params, test).map((step) => step.done),
+  fieldBit: (params) => (test) => serialField(params, test).map((step) => step.bit),
+  fieldBusy: (params) => (test) => serialField(params, test).map((step) => step.busy),
+  fieldDone: (params) => (test) => serialField(params, test).map((step) => step.done),
+  fieldDrive: (params) => (test) => serialField(params, test).map((step, tick) => test.inputs[params.advance][tick] ? step.bit ?? 1 : 1),
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),

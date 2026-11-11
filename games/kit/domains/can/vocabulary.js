@@ -43,6 +43,10 @@ const WANTS = {
   pacedBit: item(t('按允许前进的拍逐位送字节', 'send a byte bit by bit, advancing only when permitted'), S.obj({ value: INPUT, start: INPUT, advance: INPUT })),
   pacedBusy: item(t('可暂停的逐位发送器这一拍是否忙', 'whether the pausable serializer is busy this tick'), S.obj({ value: INPUT, start: INPUT, advance: INPUT })),
   pacedDone: item(t('可暂停的逐位发送器是否在这一拍取走最后一位', 'whether the pausable serializer accepts its final bit this tick'), S.obj({ value: INPUT, start: INPUT, advance: INPUT })),
+  fieldBit: item(t('逐位交出指定宽度的字段', 'offer the bits of a field of the specified width'), S.obj({ value: INPUT, width: INPUT, start: INPUT, advance: INPUT })),
+  fieldBusy: item(t('字段发送器这一拍是否忙', 'whether the field serializer is busy this tick'), S.obj({ value: INPUT, width: INPUT, start: INPUT, advance: INPUT })),
+  fieldDone: item(t('字段发送器是否在这一拍取走最后一位', 'whether the field serializer accepts its final bit this tick'), S.obj({ value: INPUT, width: INPUT, start: INPUT, advance: INPUT })),
+  fieldDrive: item(t('取走时发送字段位，其余拍说隐性 1', 'send an accepted field bit and say recessive 1 on other ticks'), S.obj({ value: INPUT, width: INPUT, start: INPUT, advance: INPUT })),
   stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialCrc: item(t('最后原始位被取走时给该字节的 CRC-15', 'the CRC-15 of the byte when its final original bit is accepted'), S.obj({ value: INPUT, start: INPUT })),
@@ -94,7 +98,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 19,
+  version: 20,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

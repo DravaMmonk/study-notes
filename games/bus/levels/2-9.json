@@ -1,0 +1,90 @@
+{
+  "title": { "zh": "试送不同字段" },
+  "intro": [{ "t": { "zh": "用不同宽度的字段发送器试一试暂停：测试台没有取走这一位时，发送器要保住它，线路暂时说隐性。" } }],
+  "after": { "zh": "无论字段有几位，是否前进都由下游决定。下一步要把不同字段依次拼成一帧。" },
+  "tasks": [
+    {
+      "id": "2-9",
+      "brief": { "zh": "开始时取入数和位数；「前进」为 1 且字段仍有位时，说出当前位并取走它。其余拍说 1；最后一位被取走时「完成」为是。" },
+      "drives": true,
+      "inputs": [
+        { "name": "value", "label": { "zh": "数" } },
+        { "name": "width", "label": { "zh": "位数" } },
+        { "name": "start", "label": { "zh": "开始" } },
+        { "name": "advance", "label": { "zh": "前进" } }
+      ],
+      "outputs": [{ "name": "done", "label": { "zh": "完成" } }],
+      "tests": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [10, 0, 0, 0, 0, 0, 0, 0],
+            "width": [4, 1, 1, 1, 1, 1, 1, 1],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0],
+            "advance": [0, 1, 1, 1, 0, 1, 1, 1]
+          }
+        },
+        {
+          "bus": { "idle": 13, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [1445, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "width": [11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "advance": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 18, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [17817, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "width": [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            "advance": [1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+          }
+        },
+        {
+          "bus": { "idle": 5, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [0, 1, 1, 1, 1],
+            "width": [1, 1, 1, 1, 1],
+            "start": [1, 0, 0, 0, 0],
+            "advance": [0, 0, 1, 1, 1]
+          }
+        },
+        {
+          "bus": { "idle": 11, "frames": [], "tail": 0 },
+          "inputs": {
+            "value": [1445, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0],
+            "width": [11, 11, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            "start": [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+            "advance": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+          }
+        }
+      ],
+      "want": {
+        "send": {
+          "fieldDrive": { "value": "value", "width": "width", "start": "start", "advance": "advance" }
+        },
+        "done": { "fieldDone": { "value": "value", "width": "width", "start": "start", "advance": "advance" } }
+      },
+      "solution": [
+        "p = fieldserial(value, width, start, advance)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ready = select(p.busyout, advance, zero)",
+        "s = select(ready, p.bit, one)",
+        "send <- s",
+        "done <- p.doneout"
+      ],
+      "naive": [
+        "p = fieldserial(value, width, start, advance)",
+        "one = const[value=1]()",
+        "s = select(p.busyout, p.bit, one)",
+        "send <- s",
+        "done <- p.doneout"
+      ]
+    }
+  ]
+}
