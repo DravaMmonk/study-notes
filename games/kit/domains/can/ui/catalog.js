@@ -28,6 +28,7 @@ export const CARDS = {
   byteAt: { name: T('读取字节', 'Read byte'), icon: Hash, family: 'value', desc: T('读取序列中指定位置的字节，位置从 0 开始；越界时给出「—」。', 'Reads a byte at a zero-based index; gives 「—」 if out of bounds.') },
   present: { name: T('有值', 'Value present'), icon: Equal, family: 'logic', desc: T('输入不是「—」时为是；零与空序列也算有值。', 'Yes when the input is not 「—」; zero and an empty sequence are values.') },
   padBytes: { name: T('填充字节', 'Pad bytes'), icon: Split, family: 'value', desc: T('用指定字节将序列填充到指定长度，最多八字节；长度不合法时给出「—」。', 'Pads a byte sequence with a chosen byte to the specified length, at most eight bytes; gives 「—」 for an invalid length.') },
+  emptyBytes: { name: T('空字节序列', 'Empty byte sequence'), icon: Hash, family: 'value', desc: T('给出一个长度为零的字节序列。', 'Gives a byte sequence of length zero.') },
 }
 
 export const FORMS = {

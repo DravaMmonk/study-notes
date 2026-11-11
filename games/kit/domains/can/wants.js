@@ -746,6 +746,10 @@ const WANTS = {
     const at = updatePlan(test).length
     return test.bus.bits.map((_, tick) => tick === at ? report : null)
   },
+  fleetScanTargets: () => (test) => test.bus.bits.map((_, tick) => tick < 6 ? tick : null),
+  fleetScanRequests: () => (test) => test.bus.bits.map((_, tick) => tick < 6 ? [0x22, 0xf1, 0x88] : null),
+  fleetScanVersions: () => (test) => test.bus.bits.map((_, tick) => tick === 7 ? test.fleet.flatMap((ecu, index) => ecu.online ? [index, ecu.version] : []) : null),
+  fleetScanAny: () => (test) => test.bus.bits.map((_, tick) => tick === 7 ? test.fleet.some((ecu) => ecu.online) : null),
   transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
   transportTimeoutAbort: () => (test) => test.bus.bits.map((_, tick) => test.transport.silent && tick === test.transport.timeout ? true : null),
   inputPresent: ({ input }) => (test) => test.inputs[input].map((value) => value !== null && value !== undefined),
