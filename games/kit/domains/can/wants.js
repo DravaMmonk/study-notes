@@ -257,15 +257,16 @@ const ackRetryPlan = ({ start }, test) => {
 }
 
 // One initial contention followed by transmit-error retries on an otherwise idle bus.
-const controllerPlan = ({ start, prep, reset, request }, test) => {
+const controllerPlan = ({ start, prep, reset, request, receive = false }, test) => {
   const ticks = test.bus.bits.length
-  const drive = Array(ticks).fill(1)
+  const incoming = receive ? receiveUnified({ prep, reset }, test) : null
+  const drive = incoming ? [...incoming.drive] : Array(ticks).fill(1)
   const lost = Array(ticks).fill(0)
   const next = Array(ticks).fill(false)
   const rewind = Array(ticks).fill(false)
   const attempts = Array(ticks).fill(0)
   const done = Array(ticks).fill(false)
-  const actions = prep ? [...(test.inputs[prep] ?? Array(ticks).fill(0))] : Array(ticks).fill(0)
+  const actions = incoming ? [...incoming.event] : prep ? [...(test.inputs[prep] ?? Array(ticks).fill(0))] : Array(ticks).fill(0)
   const resets = reset ? [...(test.inputs[reset] ?? Array(ticks).fill(0))] : test.bus.bits.map((_, tick) => Number(tick === 0))
   const accepted = Array(ticks).fill(false)
   const error = Array(ticks).fill(false)
@@ -287,7 +288,9 @@ const controllerPlan = ({ start, prep, reset, request }, test) => {
       at = retry
     }
   }
-  let count = actions.slice(0, Math.max(0, initial)).reduce((sum, action) => sum + (action === 1 ? 8 : 0), 0)
+  const before = faultCounts({ event: '__actions', reset: '__reset' }, { ...test, inputs: { ...test.inputs, __actions: actions, __reset: resets } })[initial - 1]
+  let count = before?.tx ?? 0
+  const receiveCount = before?.rx ?? 0
   while (at >= 0 && at < ticks && bits.length) {
     attempts[at] = 1
     const ack = at + bits.length - 12
@@ -304,7 +307,7 @@ const controllerPlan = ({ start, prep, reset, request }, test) => {
     }
     rewind[failure] = true
     error[failure] = true
-    const active = count < 128
+    const active = count < 128 && receiveCount < 128
     actions[failure] = bitError !== undefined ? 1 : 5
     if (active || bitError !== undefined) count += 8
     if (active) for (let tick = failure + 1; tick <= failure + 6 && tick < ticks; tick++) drive[tick] = 0
@@ -316,10 +319,10 @@ const controllerPlan = ({ start, prep, reset, request }, test) => {
       resets[acceptAt + 1] = 1
       count = 0
       at = acceptAt + 1
-    } else at = failure + 18 + (count >= 128 ? 8 : 0)
+    } else at = failure + 18 + (count >= 128 || receiveCount >= 128 ? 8 : 0)
   }
   const counts = faultCounts({ event: '__actions', reset: '__reset' }, { ...test, inputs: { ...test.inputs, __actions: actions, __reset: resets } })
-  return { drive, lost, next, rewind, attempts, done, tec: counts.map((step) => step.tx), mode: counts.map((step) => step.mode), error, accepted }
+  return { drive, lost, next, rewind, attempts, done, tec: counts.map((step) => step.tx), rec: counts.map((step) => step.rx), mode: counts.map((step) => step.mode), error, accepted, kind: incoming?.kind, ready: incoming?.ready }
 }
 
 // Given a completed intermission on an otherwise idle bus, enforce the passive sender's extra eight bits.
@@ -695,6 +698,17 @@ const WANTS = {
   controllerBusoffMode: (params) => (test) => controllerPlan(params, test).mode,
   controllerBusoffError: (params) => (test) => controllerPlan(params, test).error,
   controllerBusoffAccepted: (params) => (test) => controllerPlan(params, test).accepted,
+  controllerDuplexDrive: (params) => (test) => controllerPlan({ ...params, receive: true }, test).drive,
+  controllerDuplexNext: (params) => (test) => controllerPlan({ ...params, receive: true }, test).next,
+  controllerDuplexRewind: (params) => (test) => controllerPlan({ ...params, receive: true }, test).rewind,
+  controllerDuplexAttempts: (params) => (test) => controllerPlan({ ...params, receive: true }, test).attempts,
+  controllerDuplexDone: (params) => (test) => controllerPlan({ ...params, receive: true }, test).done,
+  controllerDuplexTec: (params) => (test) => controllerPlan({ ...params, receive: true }, test).tec,
+  controllerDuplexRec: (params) => (test) => controllerPlan({ ...params, receive: true }, test).rec,
+  controllerDuplexMode: (params) => (test) => controllerPlan({ ...params, receive: true }, test).mode,
+  controllerDuplexError: (params) => (test) => controllerPlan({ ...params, receive: true }, test).error,
+  controllerDuplexKind: (params) => (test) => controllerPlan({ ...params, receive: true }, test).kind,
+  controllerDuplexReady: (params) => (test) => controllerPlan({ ...params, receive: true }, test).ready,
   suspendReady: (params) => (test) => suspendReady(params, test),
   suspendRequest: ({ request, ...params }) => (test) => suspendReady(params, test).map((ready, tick) => ready && Boolean(test.inputs[request][tick])),
   passiveAckDrive: (params) => (test) => passiveAckRetry(params, test).drive,

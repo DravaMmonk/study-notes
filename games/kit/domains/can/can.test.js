@@ -857,6 +857,27 @@ test('bus-off transmit retry waits for observation and a request before resettin
   assert.ok(result.Drive.slice(failure + 1, retry).every((bit) => bit === 1))
 })
 
+test('a receive error can make the subsequent transmitter passive', () => {
+  const tx = { id: 0x123, data: [0xa5] }
+  const bus = busOf({ idle: 140, frames: [{ id: 0x2a5, data: [0x55], ack: false }], tail: 160 })
+  const start = 212
+  const bits = transmitBits(tx)
+  const firstAck = start + bits.length - 12
+  const retry = firstAck + 26
+  bus.bits[retry + bits.length - 12] = 0
+  const inputs = { prep: bus.bits.map((_, tick) => tick < 127 ? 3 : 0), reset: bus.bits.map((_, tick) => Number(tick === 0)), start: bus.bits.map((_, tick) => Number(tick === start)) }
+  const params = { prep: 'prep', reset: 'reset', start: 'start' }
+  const calls = Object.fromEntries(['Drive', 'Attempts', 'Tec', 'Rec', 'Mode', 'Kind'].map((name) => [name, { [`controllerDuplex${name}`]: params }]))
+  const result = wantOf(calls)({ tx, bus, inputs, flipTicks: [169] })
+  const error = result.Kind.indexOf(1)
+  assert.equal(result.Rec[error], 128)
+  assert.equal(result.Mode[error], 1)
+  assert.deepEqual(result.Drive.slice(error + 1, error + 7), Array(6).fill(0))
+  assert.deepEqual(result.Attempts.flatMap((value, tick) => value ? [tick] : []), [start, retry])
+  assert.equal(result.Tec[firstAck], 0)
+  assert.ok(result.Drive.slice(firstAck + 1, retry).every((bit) => bit === 1))
+})
+
 test('a transmitter releases ACK while another node can acknowledge', () => {
   const tx = { id: 0x123, data: [0xa5] }
   const frame = frameBits(tx)

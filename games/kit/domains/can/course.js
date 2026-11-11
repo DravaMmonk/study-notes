@@ -69,7 +69,7 @@ export function canCourse(content) {
       if (!task.pulls?.rewind) say('passive ACK retry tests require a rewindable queue')
     }
     if (task.expectsController) {
-      if (t.bus.frames.length || t.peerBits || (!task.expectsControllerFault && t.flipTicks?.length) || (t.flipTicks?.length ?? 0) > 1 || (t.contenders?.length ?? 0) > 1 || t.contenders?.some((node) => node.detectErrors)) say('controller tests use at most one arbitration contender and one declared bit error on an idle bus')
+      if ((!task.expectsControllerDuplex && t.bus.frames.length) || (task.expectsControllerDuplex && (t.bus.frames.length !== 1 || t.bus.frames[0]?.ack !== false || t.contenders?.length)) || t.peerBits || (!task.expectsControllerFault && t.flipTicks?.length) || (t.flipTicks?.length ?? 0) > (task.expectsControllerDuplex ? 2 : 1) || (t.contenders?.length ?? 0) > 1 || t.contenders?.some((node) => node.detectErrors)) say('controller tests require the declared frame, contender and bit-error limits')
       if ((t.contenders ?? []).some((node) => (node.at ?? 0) !== (t.txAt ?? 0))) say('controller contender must start with the transmitted frame')
       if (t.tx && t.contenders?.some((node) => num(node.id) === num(t.tx.id))) say('controller contender must have a distinct identifier')
       if (t.tx && JSON.stringify((t.tx.data ?? []).map(num)) !== JSON.stringify((t.queue ?? []).map(num))) say('controller queue must contain the transmitted frame data')
@@ -149,12 +149,23 @@ export function canCourse(content) {
         const size = transmitBits(result.tx).length
         const rival = result.contenders[0]
         let count = 0
+        let receiveCount = 0
         if (task.expectsControllerAdaptive) {
           const { prep, reset } = task.controllerAdaptiveParams
           const preparation = result.inputs[prep] ?? []
           const resets = (result.inputs[reset] ?? []).flatMap((value, tick) => value === 1 ? [tick] : [])
-          if (task.controllerAdaptiveCalls.some((params) => params.start !== task.controllerStart || params.prep !== prep || params.reset !== reset || (task.expectsControllerBusoff && params.request !== task.controllerAdaptiveParams.request)) || resets.length !== 1 || resets[0] !== 0 || preparation.length !== result.ticks || preparation.some((value, tick) => ![0, 1].includes(value) || (tick >= starts[0] && value !== 0))) say('adaptive controller tests require matching inputs, one initialization and preparation only before start')
+          const frame = result.bus.frames[0]
+          const prepEnd = task.expectsControllerDuplex ? frame?.at ?? 0 : starts[0]
+          const allowed = task.expectsControllerDuplex ? [0, 1, 3] : [0, 1]
+          if (task.controllerAdaptiveCalls.some((params) => params.start !== task.controllerStart || params.prep !== prep || params.reset !== reset || (task.expectsControllerBusoff && params.request !== task.controllerAdaptiveParams.request)) || resets.length !== 1 || resets[0] !== 0 || preparation.length !== result.ticks || preparation.some((value, tick) => !allowed.includes(value) || (tick >= prepEnd && value !== 0))) say('adaptive controller tests require matching inputs, one initialization and preparation only before the first frame')
           count = preparation.slice(0, starts[0]).filter((value) => value === 1).length * 8
+          if (task.expectsControllerDuplex && frame) {
+            const header = stuff([0, ...bitsOf(frame.id, 11), 0, 0, 0, ...bitsOf(frame.data.length, 4)]).length
+            const end = frame.at + transmitBits(frame).length - 13
+            const flips = (t.flipTicks ?? []).filter((tick) => tick < starts[0])
+            if (flips.length > 1 || flips.some((tick) => tick < frame.at + header || tick >= end) || starts[0] < frame.at + transmitBits(frame).length + 14) say('duplex tests require one earlier complete receive frame and at most one data or CRC flip')
+            receiveCount = wantOf({ rx: { receiveFrameRec: { prep, reset } } })(result).rx[starts[0] - 1]
+          }
           if (count >= 256 || (count >= 128 && rival)) say('adaptive controller tests start below bus-off and use no contender when initially passive')
         }
         let at = starts[0] + (rival && rival.id < result.tx.id ? transmitBits(rival).length : 0)
@@ -166,18 +177,18 @@ export function canCourse(content) {
           const failure = flip ?? (result.bus.bits[ack] === 1 ? ack : null)
           if (failure === null) break
           if (flip !== undefined) usedFlip = true
-          if (count < 128 || flip !== undefined) count += 8
+          if ((count < 128 && receiveCount < 128) || flip !== undefined) count += 8
           failures++
           if (count >= 256 && task.expectsControllerBusoff) {
             const requests = result.inputs[task.controllerAdaptiveParams.request] ?? []
             const accepted = requests.findIndex((value, tick) => tick >= failure + 128 * 11 && Boolean(value))
             if (accepted < 0 || accepted + 1 >= result.ticks) { ack = result.ticks; break }
             count = 0; at = accepted + 1
-          } else at = failure + 18 + (task.expectsControllerAdaptive && count >= 128 ? 8 : 0)
+          } else at = failure + 18 + (task.expectsControllerAdaptive && (count >= 128 || receiveCount >= 128) ? 8 : 0)
           ack = at + size - 12
         }
         if ((!task.expectsControllerAdaptive && failures > 15) || (task.expectsControllerAdaptive && !task.expectsControllerBusoff && count >= 256)) say('controller tests must remain within their specified fault states')
-        if (t.flipTicks?.length && !usedFlip) say('controller bit error must occur during its own post-arbitration transmission before ACK')
+        if ((t.flipTicks ?? []).some((tick) => tick >= starts[0]) && !usedFlip) say('controller bit error must occur during its own post-arbitration transmission before ACK')
         if (ack >= result.ticks || result.bus.bits[ack] !== 0 || ack + 11 >= result.ticks) say('controller tests must finish with an acknowledged frame')
         if ((t.peerLow ?? []).some((tick) => tick !== ack)) say('controller peers may only acknowledge the successful attempt')
       }
@@ -217,7 +228,8 @@ export function canCourse(content) {
     const expectsController = controllerStarts.length > 0
     const controllerBusoffCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controllerBusoff')).map(([, params]) => params)
     const expectsControllerBusoff = controllerBusoffCalls.length > 0
-    const controllerAdaptiveCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controllerAdaptive') || name.startsWith('controllerBusoff')).map(([, params]) => params)
+    const expectsControllerDuplex = names.some((name) => name.startsWith('controllerDuplex'))
+    const controllerAdaptiveCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controllerAdaptive') || name.startsWith('controllerBusoff') || name.startsWith('controllerDuplex')).map(([, params]) => params)
     const expectsControllerAdaptive = controllerAdaptiveCalls.length > 0
     const expectsControllerFault = expectsControllerAdaptive || names.some((name) => name.startsWith('controllerFault'))
     const collisionCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('collision')).map(([, params]) => params)
@@ -226,6 +238,6 @@ export function canCourse(content) {
     const expectsReceiverUnified = names.some((name) => name.startsWith('receiveUnified'))
     const receiverCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('receiveFrame') || name.startsWith('receiveState') || name.startsWith('receiveUnified')).map(([, params]) => params)
     const expectsReceiver = receiverCalls.length > 0
-    return { ...task, expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, expectsControllerAdaptive, expectsControllerBusoff, controllerAdaptiveCalls, controllerAdaptiveParams: controllerAdaptiveCalls[0], expectsCollision, collisionCalls, collisionParams: collisionCalls[0], expectsReceiver, expectsReceiverUnified, receiverCalls, receiverStateCalls, receiverParams: receiverCalls[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
+    return { ...task, expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, expectsControllerAdaptive, expectsControllerBusoff, expectsControllerDuplex, controllerAdaptiveCalls, controllerAdaptiveParams: controllerAdaptiveCalls[0], expectsCollision, collisionCalls, collisionParams: collisionCalls[0], expectsReceiver, expectsReceiverUnified, receiverCalls, receiverStateCalls, receiverParams: receiverCalls[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }
