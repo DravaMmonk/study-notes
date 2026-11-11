@@ -92,7 +92,7 @@ pedagogical quality.
 
 ## Interface checklist
 
-Read `games/DESIGN.md` §6.9 before changing any interface, and §2.5 for the map's level tree. Above all: let the
+Read `games/DESIGN.md` §6.9 before changing any interface, and §2.6 for the map's level tree. Above all: let the
 layout speak — no secondary labels or descriptions, nothing said twice, dense use of space; every game gets the same
 layout and interactions from the shared kit; on phone, operability comes before a complete picture. Also: a left
 drawer of level trees inside a level; the pass dialog returns to the map and the map lands on that level; input cards
@@ -101,7 +101,7 @@ it while the level is open (`lastRun` / `keepRun`, in memory); no newer JS APIs 
 
 ## Verification
 
-Before calling a change done (`games/DESIGN.md` §7, steps 9–11):
+Before calling a change done (`games/DESIGN.md` §7.0):
 
 1. The design docs say what the change did (docs first, see above), with nothing outdated left in them.
 2. Select tests, content checks and builds from the impact matrix in handbook §7.0. Documentation-only edits need
