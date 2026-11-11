@@ -69,7 +69,7 @@ export function canCourse(content) {
       if (!task.pulls?.rewind) say('passive ACK retry tests require a rewindable queue')
     }
     if (task.expectsController) {
-      if (t.bus.frames.length || t.peerBits || t.flipTicks?.length || (t.contenders?.length ?? 0) > 1) say('controller tests use at most one contender and scripted acknowledgements on an idle bus')
+      if (t.bus.frames.length || t.peerBits || (!task.expectsControllerFault && t.flipTicks?.length) || (t.flipTicks?.length ?? 0) > 1 || (t.contenders?.length ?? 0) > 1) say('controller tests use at most one contender and one declared bit error on an idle bus')
       if ((t.contenders ?? []).some((node) => (node.at ?? 0) !== (t.txAt ?? 0))) say('controller contender must start with the transmitted frame')
       if (t.tx && t.contenders?.some((node) => num(node.id) === num(t.tx.id))) say('controller contender must have a distinct identifier')
       if (t.tx && JSON.stringify((t.tx.data ?? []).map(num)) !== JSON.stringify((t.queue ?? []).map(num))) say('controller queue must contain the transmitted frame data')
@@ -142,8 +142,16 @@ export function canCourse(content) {
         let at = starts[0] + (rival && rival.id < result.tx.id ? transmitBits(rival).length : 0)
         let ack = at + size - 12
         let failures = 0
-        while (ack < result.ticks && result.bus.bits[ack] === 1 && failures < 16) { failures++; at = ack + 18; ack = at + size - 12 }
+        let usedFlip = false
+        while (ack < result.ticks && failures < 16) {
+          const flip = (t.flipTicks ?? []).find((tick) => tick >= at + arbitrationLength(result.tx.id) && tick < ack)
+          const failure = flip ?? (result.bus.bits[ack] === 1 ? ack : null)
+          if (failure === null) break
+          if (flip !== undefined) usedFlip = true
+          failures++; at = failure + 18; ack = at + size - 12
+        }
         if (failures > 15) say('controller tests must remain error-active')
+        if (t.flipTicks?.length && !usedFlip) say('controller bit error must occur during its own post-arbitration transmission before ACK')
         if (ack >= result.ticks || result.bus.bits[ack] !== 0 || ack + 11 >= result.ticks) say('controller tests must finish with an acknowledged frame')
         if ((t.peerLow ?? []).some((tick) => tick !== ack)) say('controller peers may only acknowledge the successful attempt')
       }
@@ -163,6 +171,7 @@ export function canCourse(content) {
     const expectsPassiveAck = passiveAckCalls.length > 0
     const controllerStarts = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controller')).map(([, params]) => params.start)
     const expectsController = controllerStarts.length > 0
-    return { ...task, expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
+    const expectsControllerFault = names.some((name) => name.startsWith('controllerFault'))
+    return { ...task, expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }

@@ -96,6 +96,14 @@ const WANTS = {
   controllerAttempts: item(t('每次尝试发送的起始拍为 1', '1 on each transmission attempt start'), S.obj({ start: INPUT })),
   controllerDone: item(t('自己的帧成功并完成帧间隔时为是', 'yes when the node sends its frame and completes intermission'), S.obj({ start: INPUT })),
   controllerTec: item(t('缺应答及成功发送后的发送错误计数', 'transmit error count after missing ACK and successful transmission'), S.obj({ start: INPUT })),
+  controllerFaultDrive: item(t('仲裁与发送错误恢复过程中的总线驱动', 'drive during arbitration and transmit-error recovery'), S.obj({ start: INPUT })),
+  controllerFaultLost: item(t('从仲裁落败到重试前为 1', '1 from arbitration loss until retry'), S.obj({ start: INPUT })),
+  controllerFaultNext: item(t('每次发送的数据字节取走拍', 'byte acceptance ticks on each attempt'), S.obj({ start: INPUT })),
+  controllerFaultRewind: item(t('发送错误时重置队列', 'rewind the transmit queue on a transmit error'), S.obj({ start: INPUT })),
+  controllerFaultAttempts: item(t('每次尝试发送的起始拍', 'start ticks of transmission attempts'), S.obj({ start: INPUT })),
+  controllerFaultDone: item(t('成功发送并完成帧间隔时为是', 'yes when transmission and intermission complete successfully'), S.obj({ start: INPUT })),
+  controllerFaultTec: item(t('发送错误与成功后的发送错误计数', 'transmit error count after transmit errors and success'), S.obj({ start: INPUT })),
+  controllerFaultError: item(t('检测到位错误或缺应答时为是', 'yes when a bit error or missing ACK is detected'), S.obj({ start: INPUT })),
   suspendReady: item(t('帧间隔结束后按状态等待，被动发送方额外等待八拍', 'after intermission wait according to state; passive senders wait eight extra ticks'), S.obj({ end: INPUT, mode: INPUT })),
   suspendRequest: item(t('有发送请求且等待已结束时为是', 'yes when transmission is requested and the wait has finished'), S.obj({ end: INPUT, mode: INPUT, request: INPUT })),
   passiveAckDrive: item(t('被动发送方缺应答后的总线驱动', 'passive sender drive after missing acknowledgements'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT })),
@@ -177,7 +185,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 44,
+  version: 45,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

@@ -410,6 +410,24 @@ test('controller course tests reject duplicate identifiers and invalid retry sch
   assert.ok(wrong.some((problem) => problem.includes('must finish with an acknowledged frame')))
 })
 
+test('controller bit-error tests reject faults outside their own eligible transmit field', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.inputs = ['item', 'available', 'start'].map((name) => ({ name, label: L(name) }))
+  task.outputs = ['next', 'rewind'].map((name) => ({ name, label: L(name) }))
+  task.pulls = { input: 'item', available: 'available', next: 'next', rewind: 'rewind' }
+  task.want = { next: { controllerFaultNext: { start: 'start' } } }
+  const tx = { id: 0x123, data: [0xa5] }
+  const size = transmitBits(tx).length
+  const fault = 30
+  const retry = fault + 18
+  const ack = retry + size - 12
+  task.tests = [{ bus: { idle: retry + size, frames: [], tail: 0 }, tx, queue: tx.data, pulses: { start: [0] }, flipTicks: [fault], peerLow: [ack] }]
+  assert.ok(!canCourse(content).wrong.some((problem) => problem.includes('controller')))
+  task.tests[0].flipTicks = [1]
+  assert.ok(canCourse(content).wrong.some((problem) => problem.includes('bit error must occur')))
+})
+
 test('input runs expand to test length and reject missing ticks or another source', () => {
   const content = JSON.parse(JSON.stringify(COURSE))
   const task = content.levels.find((level) => level.id === 'gather').tasks[0]
@@ -643,6 +661,27 @@ test('controller oracle joins arbitration loss and missing-ACK retry', () => {
   assert.deepEqual(result.Drive.slice(firstAck + 1, secondStart), [...Array(6).fill(0), ...Array(11).fill(1)])
   assert.equal(result.Tec[secondStart + own.length - 4], 7)
   assert.equal(result.Done[secondStart + own.length - 1], true)
+})
+
+test('controller bit error rewinds a partly consumed frame before retrying', () => {
+  const tx = { id: 0x123, data: [0xa5, 0x55] }
+  const bits = transmitBits(tx)
+  const flip = 32
+  const retry = flip + 18
+  const ack = retry + bits.length - 12
+  const bus = Array(retry + bits.length + 1).fill(1)
+  bus[ack] = 0
+  const inputs = { start: bus.map((_, tick) => Number(tick === 0)) }
+  const calls = Object.fromEntries(['Drive', 'Next', 'Rewind', 'Attempts', 'Done', 'Tec', 'Error'].map((name) => [name, { [`controllerFault${name}`]: { start: 'start' } }]))
+  const result = wantOf(calls)({ tx, bus: { bits: bus }, inputs, flipTicks: [flip] })
+  assert.deepEqual(result.Attempts.flatMap((value, tick) => value ? [tick] : []), [0, retry])
+  assert.deepEqual(result.Error.flatMap((value, tick) => value ? [tick] : []), [flip])
+  assert.equal(result.Next[27], true)
+  assert.equal(result.Next[retry + 27], true)
+  assert.equal(result.Rewind[flip], true)
+  assert.deepEqual(result.Drive.slice(flip + 1, retry), [...Array(6).fill(0), ...Array(11).fill(1)])
+  assert.equal(result.Tec[flip], 8)
+  assert.equal(result.Tec[retry + bits.length - 4], 7)
 })
 
 test('a transmitter releases ACK while another node can acknowledge', () => {
