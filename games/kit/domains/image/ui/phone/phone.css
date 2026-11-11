@@ -22,16 +22,6 @@
 
 
 
-/* Sheets. */
-.ph-scrim { position: fixed; z-index: 50; inset: 0; display: flex; align-items: flex-end; background: var(--scrim); animation: fade-in 160ms ease; }
-.ph-sheet { width: 100%; max-height: 88dvh; display: flex; flex-direction: column; border-radius: 22px 22px 0 0; background: var(--paper); box-shadow: 0 -12px 30px -12px rgba(0, 0, 0, .35); animation: sheet-in 260ms cubic-bezier(.2, .8, .2, 1); transition: transform 120ms ease; }
-.ph-handle { padding: 10px 0 4px; display: grid; place-items: center; touch-action: none; cursor: grab; }
-.ph-handle i { width: 40px; height: 5px; border-radius: 3px; background: var(--rule); }
-.ph-sheet-head { padding: 0 8px 6px 18px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.ph-sheet-head h2 { margin: 0; font-family: var(--serif); font-size: 18px; font-weight: 500; }
-.ph-icon { width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 12px; color: var(--muted); background: transparent; }
-.ph-sheet-body { padding: 4px 16px 16px; overflow-y: auto; overscroll-behavior: contain; }
-.ph-sheet-foot { padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--hairline); }
 .ph-live { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 12.5px; }
 
 /* Add sheet: parts by family, each with its preview. */

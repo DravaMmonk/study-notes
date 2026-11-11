@@ -14,6 +14,11 @@
 .ph-icon { width: 44px; height: 44px; display: grid; place-items: center; border: 0; border-radius: 12px; color: var(--muted); background: transparent; }
 .ph-sheet-body { padding: 4px 16px 16px; overflow-y: auto; overscroll-behavior: contain; }
 .ph-sheet-foot { padding: 10px 16px calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--hairline); }
+@media (min-width: 761px) {
+  .ph-scrim { align-items: center; justify-content: center; padding: 24px; }
+  .ph-sheet { width: min(560px, 100%); max-height: min(720px, 86dvh); border-radius: 18px; animation: dialog-in 240ms cubic-bezier(.2, .8, .2, 1); }
+  .ph-handle { display: none; }
+}
 /* A box pointing at the button it belongs to (Popover.jsx), on a desktop: an editor in a tooltip. */
 .kit-pop { position: fixed; z-index: 60; width: min(600px, calc(100vw - 24px)); display: flex; flex-direction: column; border-radius: 14px; background: var(--paper); box-shadow: 0 0 0 1px var(--line), 0 22px 48px -18px rgba(30, 26, 18, .45); animation: pop-in 140ms cubic-bezier(.2, .8, .2, 1); }
 .kit-pop::before { content: ''; position: absolute; left: calc(var(--arrow) - 7px); top: -7px; width: 14px; height: 14px; border-radius: 3px 0 0 0; background: var(--paper); box-shadow: -1px -1px 0 var(--line); transform: rotate(45deg); }

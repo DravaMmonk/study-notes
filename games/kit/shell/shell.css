@@ -205,12 +205,6 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .dialog-quiet { color: var(--muted) !important; font-family: var(--sans) !important; font-size: 13px !important; }
 .dialog-extra { margin: 10px 0; }
 
-@media (min-width: 761px) {
-  .ph-scrim { align-items: center; justify-content: center; padding: 24px; }
-  .ph-sheet { width: min(560px, 100%); max-height: min(720px, 86dvh); border-radius: 18px; animation: dialog-in 240ms cubic-bezier(.2, .8, .2, 1); }
-  .ph-handle { display: none; }
-}
-
 /* ---- tablet ---- */
 @media (max-width: 1180px) {
   .level { grid-template-columns: 250px minmax(0, 1fr); }
