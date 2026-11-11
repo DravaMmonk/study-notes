@@ -1,0 +1,106 @@
+{
+  "title": { "zh": "下线后重新观察" },
+  "intro": [{ "t": { "zh": "发送错误计数达到 256 时，节点下线，不能影响总线。要允许恢复，它必须先观察到 128 组连续十一位隐性；两组之间可以被显性位打断。" } }],
+  "builds": {
+    "type": "recovery",
+    "name": { "zh": "下线恢复观察" },
+    "desc": { "zh": "下线时观察 128 组互不重叠的十一位隐性；显性清除未完成的一组，下线输入为 0 则清空所有进度。" }
+  },
+  "after": { "zh": "满足观察条件后节点才可以恢复；具体控制器还可能要求软件请求。恢复时错误计数清零。" },
+  "tasks": [
+    {
+      "id": "2-29",
+      "brief": {
+        "zh": "下线时逐拍观察输入位。每数到十一位连续的 1，完整组数加一并从零继续；显性 0 清除尚未凑满的一组，但保留已完成组数。满 128 组后保持 128 并回答「是」；下线输入为 0 时清空计数。"
+      },
+      "hint": [{ "zh": "一张寄存卡数当前连续的隐性位，另一张记完整组数。每完成一组，第一张从零重新数。" }],
+      "inputs": [{ "name": "bit", "label": { "zh": "位" } }, { "name": "off", "label": { "zh": "下线" } }],
+      "outputs": [
+        { "name": "groups", "label": { "zh": "完整组数" } },
+        { "name": "ready", "label": { "zh": "允许恢复" } }
+      ],
+      "tests": [
+        {
+          "bus": { "idle": 1420, "frames": [], "tail": 0 },
+          "lineInputs": ["bit"],
+          "constants": { "off": 1 },
+          "peerLow": []
+        },
+        {
+          "bus": { "idle": 1407, "frames": [], "tail": 0 },
+          "lineInputs": ["bit"],
+          "constants": { "off": 1 },
+          "peerLow": []
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 1450, "frames": [], "tail": 0 },
+          "lineInputs": ["bit"],
+          "constants": { "off": 1 },
+          "peerLow": [10, 400, 800]
+        },
+        {
+          "bus": { "idle": 40, "frames": [], "tail": 0 },
+          "lineInputs": ["bit"],
+          "constants": { "off": 0 },
+          "peerLow": []
+        }
+      ],
+      "want": {
+        "groups": { "recoveryCount": { "bit": "bit", "off": "off" } },
+        "ready": { "recoveryReady": { "bit": "bit", "off": "off" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ten = const[value=10]()",
+        "limit = const[value=128]()",
+        "false = compare[form=eq](zero, one)",
+        "run = reg[reg=A, start=0]()",
+        "group = reg[reg=B, start=0]()",
+        "advance = arith[form=inc](run)",
+        "last = compare[form=eq](run, ten)",
+        "complete = select(bit, last, false)",
+        "partial = select(bit, advance, zero)",
+        "roll = select(complete, zero, partial)",
+        "newrun = select(off, roll, zero)",
+        "ka = keep[reg=A](newrun)",
+        "plus = arith[form=inc](group)",
+        "grown = select(complete, plus, group)",
+        "full = compare[form=eq](group, limit)",
+        "saturated = select(full, group, grown)",
+        "current = select(off, saturated, zero)",
+        "kb = keep[reg=B](current)",
+        "groups <- current",
+        "enough = compare[form=eq](current, limit)",
+        "ready <- enough"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ten = const[value=10]()",
+        "limit = const[value=128]()",
+        "false = compare[form=eq](zero, one)",
+        "run = reg[reg=A, start=0]()",
+        "group = reg[reg=B, start=0]()",
+        "advance = arith[form=inc](run)",
+        "last = compare[form=eq](run, ten)",
+        "complete = select(bit, last, false)",
+        "partial = select(bit, advance, zero)",
+        "roll = select(complete, partial, partial)",
+        "newrun = select(off, roll, zero)",
+        "ka = keep[reg=A](newrun)",
+        "plus = arith[form=inc](group)",
+        "grown = select(complete, plus, group)",
+        "full = compare[form=eq](group, limit)",
+        "saturated = select(full, group, grown)",
+        "current = select(off, saturated, zero)",
+        "kb = keep[reg=B](current)",
+        "groups <- current",
+        "enough = compare[form=eq](current, limit)",
+        "ready <- enough"
+      ]
+    }
+  ]
+}

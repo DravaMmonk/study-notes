@@ -1,0 +1,61 @@
+{
+  "title": { "zh": "请求恢复" },
+  "intro": [{ "t": { "zh": "观察条件满足后，控制器还可能需要软件明确请求恢复。本练习把请求与已完成的观察条件接在一起。" } }],
+  "after": { "zh": "允许复位后，还要重置错误计数，并回到主动状态；本关只判断请求是否被允许。" },
+  "tasks": [
+    {
+      "id": "2-30",
+      "brief": { "zh": "只在下线期间已经观察到 128 组十一位隐性，且本拍收到恢复请求时，交出「是」；其余拍交出「否」。下线为 0 时观察进度清空。" },
+      "hint": [{ "zh": "使用下线恢复观察元件，把它的允许恢复与请求组合。" }],
+      "inputs": [
+        { "name": "bit", "label": { "zh": "位" } },
+        { "name": "off", "label": { "zh": "下线" } },
+        { "name": "request", "label": { "zh": "恢复请求" } }
+      ],
+      "outputs": [{ "name": "accepted", "label": { "zh": "允许复位" } }],
+      "tests": [
+        {
+          "bus": { "idle": 1420, "frames": [], "tail": 0 },
+          "lineInputs": ["bit"],
+          "constants": { "off": 1 },
+          "pulses": { "request": [500, 1406, 1407, 1408] },
+          "peerLow": []
+        },
+        {
+          "bus": { "idle": 1407, "frames": [], "tail": 0 },
+          "lineInputs": ["bit"],
+          "constants": { "off": 1 },
+          "pulses": { "request": [1406] },
+          "peerLow": []
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 1450, "frames": [], "tail": 0 },
+          "lineInputs": ["bit"],
+          "constants": { "off": 1 },
+          "pulses": { "request": [1407, 1410, 1449] },
+          "peerLow": [10, 400, 800]
+        }
+      ],
+      "want": { "accepted": { "recoveryReset": { "bit": "bit", "off": "off", "request": "request" } } },
+      "solution": [
+        "p = recovery(bit, off)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "false = compare[form=eq](zero, one)",
+        "result = select(request, p.ready, false)",
+        "accepted <- result"
+      ],
+      "naive": [
+        "p = recovery(bit, off)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "true = compare[form=eq](one, one)",
+        "false = compare[form=eq](zero, one)",
+        "result = select(request, true, false)",
+        "accepted <- result"
+      ]
+    }
+  ]
+}

@@ -417,5 +417,21 @@
   "「开始」时发送一帧标准格式数据帧。按协议驱动总线，标出仲裁段、应答位和帧结束末位；在每个数据字节最后一个原始位被取走时取走队首，并在最后一个帧间隔位发送的拍让「完成」为是。空闲时说 1。": "On Start, send one standard-format data frame. Drive the bus and mark arbitration, ACK and the last end-of-frame bit; take each queued byte when its last original bit is accepted, and give yes on Done on the final intermission bit. Say 1 while idle.",
   "帧结束末位": "Final end-of-frame bit",
   "发送一帧；缺应答时发六位显性错误标志，重置队列，等待八位错误界定段及三位帧间隔后重发。输出每次开始、完成及发送错误计数。成功发送到帧结束末位时计数减一，最低为零。": "Send a frame. On a missing ACK, send a six-bit dominant error flag, rewind the queue, and retry after the eight-bit error delimiter and three-bit intermission. Output each attempt, completion, and the transmit error count. After successful transmission through the final end-of-frame bit, decrease the count by one to a minimum of zero.",
-  "先按「准备事件」更新错误计数，再发送一帧。总线上没有其他故障：缺应答时输出被动错误标志，重新读取队列，等错误界定、帧间隔和发送暂停结束后重发。每次开始、取走、重置队列、完成、计数及状态都要交出；成功发送到帧结束末位时记一次发送成功。": "First update the error count from Preparation events, then send a frame. No other errors occur on the bus: on a missing ACK, send a passive error flag, reread the queue, and retry after the error delimiter, intermission and suspend transmission. Output every start, byte taken, queue rewind, completion, count and state; record a successful transmission on the final end-of-frame bit."
+  "先按「准备事件」更新错误计数，再发送一帧。总线上没有其他故障：缺应答时输出被动错误标志，重新读取队列，等错误界定、帧间隔和发送暂停结束后重发。每次开始、取走、重置队列、完成、计数及状态都要交出；成功发送到帧结束末位时记一次发送成功。": "First update the error count from Preparation events, then send a frame. No other errors occur on the bus: on a missing ACK, send a passive error flag, reread the queue, and retry after the error delimiter, intermission and suspend transmission. Output every start, byte taken, queue rewind, completion, count and state; record a successful transmission on the final end-of-frame bit.",
+  "下线后重新观察": "Observing after bus-off",
+  "发送错误计数达到 256 时，节点下线，不能影响总线。要允许恢复，它必须先观察到 128 组连续十一位隐性；两组之间可以被显性位打断。": "When the transmit error count reaches 256, the node goes bus-off and cannot affect the bus. Before it may recover, it must observe 128 groups of eleven consecutive recessive bits; groups may be separated by dominant bits.",
+  "下线时逐拍观察输入位。每数到十一位连续的 1，完整组数加一并从零继续；显性 0 清除尚未凑满的一组，但保留已完成组数。满 128 组后保持 128 并回答「是」；下线输入为 0 时清空计数。": "While bus-off, observe each input bit. For every eleven consecutive 1s increment the completed group count and restart the run; a dominant 0 clears an incomplete run but preserves completed groups. At 128, retain the count and answer yes. Clear all progress when Bus-off is 0.",
+  "一张寄存卡数当前连续的隐性位，另一张记完整组数。每完成一组，第一张从零重新数。": "Use one register to count the current recessive run and another for completed groups. Restart the first after every completed group.",
+  "满足观察条件后节点才可以恢复；具体控制器还可能要求软件请求。恢复时错误计数清零。": "The node may recover only after observing the required groups; a particular controller may also require a software request. Recovery resets its error counters.",
+  "下线时观察 128 组互不重叠的十一位隐性；显性清除未完成的一组，下线输入为 0 则清空所有进度。": "While bus-off, observes 128 non-overlapping groups of eleven recessive bits; a dominant bit clears the incomplete group and Bus-off 0 clears all progress.",
+  "下线恢复观察": "Bus-off recovery observation",
+  "完整组数": "Complete groups",
+  "允许恢复": "Recovery permitted",
+  "请求恢复": "Request recovery",
+  "观察条件满足后，控制器还可能需要软件明确请求恢复。本练习把请求与已完成的观察条件接在一起。": "After the observation condition is met, a controller may also need an explicit software recovery request. This exercise combines the request with the completed observation.",
+  "只在下线期间已经观察到 128 组十一位隐性，且本拍收到恢复请求时，交出「是」；其余拍交出「否」。下线为 0 时观察进度清空。": "Answer yes only on a recovery request when 128 groups of eleven recessive bits have been observed while bus-off; otherwise answer no. Progress clears when Bus-off is 0.",
+  "使用下线恢复观察元件，把它的允许恢复与请求组合。": "Use the bus-off recovery observation component and combine its permission with the request.",
+  "允许复位后，还要重置错误计数，并回到主动状态；本关只判断请求是否被允许。": "Once reset is allowed, error counts must also be reset and the node returned to the active state. This exercise only decides whether the request is permitted.",
+  "恢复请求": "Recovery request",
+  "允许复位": "Reset permitted"
 }
