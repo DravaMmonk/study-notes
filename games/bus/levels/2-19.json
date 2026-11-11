@@ -1,0 +1,69 @@
+{
+  "title": { "zh": "大家一起喊" },
+  "intro": [{ "t": { "zh": "主动错误节点发现错误后，要让别的节点也看见。它从下一拍起连续说六位显性，故意违反正常帧的填充规则；随后是八位隐性的错误界定。" } }],
+  "builds": {
+    "type": "errorflag",
+    "name": { "zh": "主动错误标志" },
+    "desc": { "zh": "错误后从下一拍驱动六位显性，再保持八位隐性界定；完成在最后一个界定位为是。" }
+  },
+  "after": { "zh": "六个连续显性位破坏正常帧的填充约定，让其他节点也能发现错误；界定之后还需要帧间隔。" },
+  "tasks": [
+    {
+      "id": "2-19",
+      "brief": { "zh": "「错误」为 1 的下一拍开始说六个 0，再说八个 1；八位界定的最后一拍让「完成」为是，其余拍为否。空闲时说 1。测试中的错误事件不重叠。" },
+      "hint": [{ "zh": "用寄存卡记住标志进行到哪一拍：发现错误时存入起点，下一拍才开始说显性。" }, { "zh": "前六拍说 0，接下来的八拍说 1；走完以后保持空闲。" }],
+      "drives": true,
+      "inputs": [{ "name": "error", "label": { "zh": "错误" } }],
+      "outputs": [{ "name": "done", "label": { "zh": "完成" } }],
+      "tests": [
+        { "bus": { "idle": 40, "frames": [], "tail": 0 }, "pulses": { "error": [2, 23] } },
+        { "bus": { "idle": 24, "frames": [], "tail": 0 }, "pulses": { "error": [0] } }
+      ],
+      "hidden": [
+        { "bus": { "idle": 48, "frames": [], "tail": 0 }, "pulses": { "error": [5, 30] } },
+        { "bus": { "idle": 20, "frames": [], "tail": 0 }, "pulses": { "error": [] } }
+      ],
+      "want": {
+        "send": { "errorFlagDrive": { "error": "error" } },
+        "done": { "errorFlagDone": { "error": "error" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "six = const[value=6]()",
+        "thirteen = const[value=13]()",
+        "fourteen = const[value=14]()",
+        "r = reg[reg=A, start=14]()",
+        "active = compare[form=lt](r, six)",
+        "inprogress = compare[form=lt](r, fourteen)",
+        "inc = arith[form=inc](r)",
+        "advance = select(inprogress, inc, r)",
+        "next = select(error, zero, advance)",
+        "k = keep[reg=A](next)",
+        "wire = select(active, zero, one)",
+        "send <- wire",
+        "finished = compare[form=eq](r, thirteen)",
+        "done <- finished"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "six = const[value=6]()",
+        "thirteen = const[value=13]()",
+        "fourteen = const[value=14]()",
+        "r = reg[reg=A, start=14]()",
+        "active = compare[form=lt](r, six)",
+        "inprogress = compare[form=lt](r, fourteen)",
+        "inc = arith[form=inc](r)",
+        "advance = select(inprogress, inc, r)",
+        "next = select(error, zero, advance)",
+        "k = keep[reg=A](next)",
+        "wire0 = select(active, zero, one)",
+        "wire = select(error, zero, wire0)",
+        "send <- wire",
+        "finished = compare[form=eq](r, thirteen)",
+        "done <- finished"
+      ]
+    }
+  ]
+}

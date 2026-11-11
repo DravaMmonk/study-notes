@@ -339,5 +339,19 @@
   "先比较说出的位和听到的总线位；只在仲裁段和应答位都为 0 时把差异当作位错误。": "Compare the sent bit with the bus; treat a difference as a bit error only when both Arbitration and ACK are 0.",
   "用寄存卡保持错误；开始时先清零。": "Use a register to retain the error and clear it first on Start.",
   "应答和仲裁有各自的解释；其他位置的读回不符表示发送方观察到了位错误。": "ACK and arbitration have their own meanings; elsewhere a readback mismatch means the transmitter observed a bit error.",
-  "应答位": "ACK slot"
+  "应答位": "ACK slot",
+  "大家一起喊": "Signal the error",
+  "主动错误节点发现错误后，要让别的节点也看见。它从下一拍起连续说六位显性，故意违反正常帧的填充规则；随后是八位隐性的错误界定。": "After detecting an error, an error-active node must make it visible to others. From the next tick it sends six dominant bits, deliberately violating normal frame stuffing; eight recessive error-delimiter bits follow.",
+  "「错误」为 1 的下一拍开始说六个 0，再说八个 1；八位界定的最后一拍让「完成」为是，其余拍为否。空闲时说 1。测试中的错误事件不重叠。": "On the tick after Error is 1, send six 0 bits and then eight 1 bits. Done is yes on the last delimiter bit and no on other ticks. Say 1 while idle. Error events do not overlap in these tests.",
+  "用寄存卡记住标志进行到哪一拍：发现错误时存入起点，下一拍才开始说显性。": "Use a register for the flag position: store the beginning when an error is detected; dominant bits start on the next tick.",
+  "前六拍说 0，接下来的八拍说 1；走完以后保持空闲。": "Say 0 for the first six ticks and 1 for the next eight; remain idle afterwards.",
+  "六个连续显性位破坏正常帧的填充约定，让其他节点也能发现错误；界定之后还需要帧间隔。": "Six consecutive dominant bits violate normal frame stuffing so other nodes can detect the error. Intermission is still needed after the delimiter.",
+  "错误后从下一拍驱动六位显性，再保持八位隐性界定；完成在最后一个界定位为是。": "Starts a six-bit dominant active error flag on the tick after Error, followed by eight recessive delimiter bits. Done is yes on the last delimiter bit.",
+  "主动错误标志": "Active error flag",
+  "发现错误就中断": "Interrupt on an error",
+  "把发送位错误检测接到主动错误标志。发现错误的那一拍已经说出去了；节点从下一拍开始中断原帧并发出错误标志。": "Connect transmitted-bit error detection to an active error flag. The current bit has already been sent when the error is detected; interrupt the original frame and send the flag from the next tick.",
+  "按待发送位驱动总线。仲裁段和应答位之外一旦读回不符，记下错误并从下一拍起发送六位显性错误标志和八位隐性界定，之后保持空闲。本关只模拟单个主动错误节点，不重传。": "Drive the intended bits. Outside arbitration and ACK, retain a readback error and from the next tick send six dominant error-flag bits and eight recessive delimiter bits, then remain idle. This level models one error-active node and no retry.",
+  "先排除仲裁和应答；错误检测的同拍结果交给主动错误标志。": "As before, exclude arbitration and ACK; give the same-tick detection to the active error flag.",
+  "用寄存卡记住已经中断原帧；说话口在下一拍切换到错误标志。": "Use a register to remember that the original frame was interrupted; switch the sending port to the flag on the next tick.",
+  "主动错误标志让其他节点也能检测到当前帧已经出错；完整恢复还需要错误计数和重发。": "An active error flag lets other nodes detect that the current frame failed. Full recovery also needs error counters and retransmission."
 }

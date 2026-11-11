@@ -92,6 +92,6 @@ export function canCourse(content) {
     const names = Object.values(task.want ?? {}).map((call) => callOf(call)[0])
     const retryCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => ['retryDrive', 'retryLost', 'retryDone', 'retryNext', 'retryAttempts'].includes(name))
     const expectsRetry = retryCalls.length > 0
-    return { ...task, expectsRetry, expectsBitError: names.includes('bitError'), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating'].includes(name)), want: wantOf(task.want) }
+    return { ...task, expectsRetry, expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }

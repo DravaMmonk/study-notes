@@ -175,6 +175,34 @@ const retryPlan = ({ start }, test) => {
   }
 }
 
+const errorFlag = ({ error }, test) => {
+  let position = 14
+  return each(test, (tick) => {
+    const drive = position < 6 ? 0 : 1
+    const done = position === 13
+    if (test.inputs[error][tick]) position = 0
+    else if (position < 14) position++
+    return { drive, done }
+  })
+}
+
+const bitErrorFlag = ({ bit, arbitration: phase, ack, start }, test) => {
+  let error = false
+  let position = 14
+  return each(test, (tick) => {
+    if (test.inputs[start][tick]) error = false
+    const drive = error ? (position < 6 ? 0 : 1) : test.inputs[bit][tick]
+    const done = position === 13
+    let line = wiredAnd([drive, test.bus.bits[tick]])
+    if (test.flipTicks?.includes(tick)) line = 1 - line
+    const detected = !error && !test.inputs[phase][tick] && !test.inputs[ack][tick] && drive !== line
+    if (detected) error = true
+    if (detected) position = 0
+    else if (position < 14) position++
+    return { drive, error: Number(error), done }
+  })
+}
+
 const stuffedOutput = ({ bit, valid, start }, test) => {
   let previous = null
   let run = 0
@@ -221,6 +249,11 @@ const WANTS = {
       return Number(error)
     })
   },
+  errorFlagDrive: (params) => (test) => errorFlag(params, test).map((step) => step.drive),
+  errorFlagDone: (params) => (test) => errorFlag(params, test).map((step) => step.done),
+  bitErrorFlagDrive: (params) => (test) => bitErrorFlag(params, test).map((step) => step.drive),
+  bitErrorFlagState: (params) => (test) => bitErrorFlag(params, test).map((step) => step.error),
+  bitErrorFlagDone: (params) => (test) => bitErrorFlag(params, test).map((step) => step.done),
   previous: ({ first }) => (test) => each(test, (t) => (t ? test.bus.bits[t - 1] : first)),
   delayedInput: ({ input, first }) => (test) => each(test, (t) => (t ? test.inputs[input][t - 1] : first)),
   serialBit: (params) => (test) => serial(params, test).map((step) => step.bit),

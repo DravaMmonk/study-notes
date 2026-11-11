@@ -36,6 +36,11 @@ const WANTS = {
   line: item(t('这一拍总线上的位')),
   inputSignal: item(t('输入这一拍的值', 'the input value on this tick'), S.obj({ input: INPUT })),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
+  errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
+  errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
+  bitErrorFlagDrive: item(t('检测位错误后停止原帧并发送主动错误标志', 'stop the original frame after a bit error and send an active error flag'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
+  bitErrorFlagState: item(t('检测到位错误时及之后为 1', '1 on and after detecting a bit error'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
+  bitErrorFlagDone: item(t('主动错误标志及界定位结束时为是', 'yes when the active error flag and delimiter finish'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   previous: item(t('上一拍总线上的位；第一拍给 first'), S.obj({ first: BIT })),
   delayedInput: item(t('输入的上一拍值；第一拍给 first', 'the input value on the previous tick; first on the first tick'), S.obj({ input: INPUT, first: BIT })),
   serialBit: item(t('开始时取输入字节，逐拍交出八位，空闲时为「—」', 'load a byte on start and give its eight bits tick by tick, or 「—」 while idle'), S.obj({ value: INPUT, start: INPUT })),
@@ -133,7 +138,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 29,
+  version: 30,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

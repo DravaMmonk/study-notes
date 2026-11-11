@@ -1,0 +1,106 @@
+{
+  "title": { "zh": "发现错误就中断" },
+  "intro": [{ "t": { "zh": "把发送位错误检测接到主动错误标志。发现错误的那一拍已经说出去了；节点从下一拍开始中断原帧并发出错误标志。" } }],
+  "after": { "zh": "主动错误标志让其他节点也能检测到当前帧已经出错；完整恢复还需要错误计数和重发。" },
+  "tasks": [
+    {
+      "id": "2-20",
+      "brief": { "zh": "按待发送位驱动总线。仲裁段和应答位之外一旦读回不符，记下错误并从下一拍起发送六位显性错误标志和八位隐性界定，之后保持空闲。本关只模拟单个主动错误节点，不重传。" },
+      "hint": [{ "zh": "先排除仲裁和应答；错误检测的同拍结果交给主动错误标志。" }, { "zh": "用寄存卡记住已经中断原帧；说话口在下一拍切换到错误标志。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "bit", "label": { "zh": "待发送位" } },
+        { "name": "arb", "label": { "zh": "仲裁段" } },
+        { "name": "ack", "label": { "zh": "应答位" } },
+        { "name": "start", "label": { "zh": "开始" } }
+      ],
+      "outputs": [{ "name": "error", "label": { "zh": "错误" } }, { "name": "done", "label": { "zh": "完成" } }],
+      "tests": [
+        {
+          "bus": { "idle": 120, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration", "ack": "ack" },
+          "pulses": { "start": [12] },
+          "peerLow": [57],
+          "flipTicks": []
+        },
+        {
+          "bus": { "idle": 120, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration", "ack": "ack" },
+          "pulses": { "start": [12] },
+          "peerLow": [57],
+          "flipTicks": [33]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 120, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration", "ack": "ack" },
+          "pulses": { "start": [12] },
+          "peerLow": [57],
+          "flipTicks": [32]
+        },
+        {
+          "bus": { "idle": 120, "frames": [], "tail": 0 },
+          "tx": { "id": 2047, "data": [85] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration", "ack": "ack" },
+          "pulses": { "start": [12] },
+          "peerLow": [58],
+          "flipTicks": [37]
+        }
+      ],
+      "want": {
+        "send": { "bitErrorFlagDrive": { "bit": "bit", "arbitration": "arb", "ack": "ack", "start": "start" } },
+        "error": {
+          "bitErrorFlagState": { "bit": "bit", "arbitration": "arb", "ack": "ack", "start": "start" }
+        },
+        "done": { "bitErrorFlagDone": { "bit": "bit", "arbitration": "arb", "ack": "ack", "start": "start" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "prior = select(start, zero, r)",
+        "same = compare[form=eq](bit, line)",
+        "different = select(same, zero, one)",
+        "notack = select(ack, zero, one)",
+        "check = select(arb, zero, notack)",
+        "bad0 = select(check, different, zero)",
+        "bad = select(prior, zero, bad0)",
+        "next = select(bad, one, prior)",
+        "k = keep[reg=A](next)",
+        "f = errorflag(bad)",
+        "wire = select(prior, f.send, bit)",
+        "send <- wire",
+        "error <- next",
+        "done <- f.done"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "prior = select(start, zero, r)",
+        "same = compare[form=eq](bit, line)",
+        "different = select(same, zero, one)",
+        "notack = select(ack, zero, one)",
+        "check = select(arb, zero, one)",
+        "bad0 = select(check, different, zero)",
+        "bad = select(prior, zero, bad0)",
+        "next = select(bad, one, prior)",
+        "k = keep[reg=A](next)",
+        "f = errorflag(bad)",
+        "wire = select(prior, f.send, bit)",
+        "send <- wire",
+        "error <- next",
+        "done <- f.done"
+      ]
+    }
+  ]
+}

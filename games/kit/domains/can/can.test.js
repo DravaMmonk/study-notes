@@ -372,6 +372,14 @@ test('bit error ignores ACK, detects an inverted sample and resets', () => {
   assert.deepEqual(out, [0, 0, 0, 1, 1, 0])
 })
 
+test('an active error flag starts on the next tick and has an eight-bit delimiter', () => {
+  const pulses = Array.from({ length: 20 }, (_, tick) => Number(tick === 2))
+  const test = { bus: { bits: Array(20).fill(1) }, inputs: { error: pulses } }
+  const out = wantOf({ send: { errorFlagDrive: { error: 'error' } }, done: { errorFlagDone: { error: 'error' } } })(test)
+  assert.deepEqual(out.send.slice(0, 17), [1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1])
+  assert.deepEqual(out.done.flatMap((value, tick) => value ? [tick] : []), [16])
+})
+
 test('a packed board reads its wired line input, not an unrelated world line', () => {
   const innerTask = { listens: true, inputs: [], outputs: [{ name: 'seen', label: L('seen') }] }
   const inner = fromText(['seen <- line'], innerTask, plain)
