@@ -1,0 +1,118 @@
+{
+  "title": { "zh": "汇总体检" },
+  "intro": [{ "t": { "zh": "封装体检仪，除了完整报告，再给出是否有任何控制器报出已确认故障。" } }],
+  "after": { "zh": "总状态和逐控制器报告一起呈现，才不会把一个控制器的结果当成整车结果。" },
+  "tasks": [
+    {
+      "id": "5-15",
+      "brief": { "zh": "用体检仪交出报告，并在报告出现时交出是否存在已确认故障。" },
+      "hint": [{ "zh": "报告每三字节一条，第三字节是该控制器的故障状态；缺少的记录按 0 处理。" }],
+      "inputs": [
+        { "name": "source", "label": { "zh": "回答的控制器" } },
+        { "name": "reply", "label": { "zh": "控制器回答" } },
+        { "name": "ready", "label": { "zh": "收到回答" } }
+      ],
+      "outputs": [
+        { "name": "target", "label": { "zh": "请求目标" } },
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "report", "label": { "zh": "体检报告" } },
+        { "name": "any", "label": { "zh": "有已确认故障" } }
+      ],
+      "fleet": {
+        "target": "target",
+        "request": "request",
+        "source": "source",
+        "response": "reply",
+        "ready": "ready"
+      },
+      "tests": [
+        {
+          "bus": { "idle": 60, "frames": [], "tail": 0 },
+          "fleet": [
+            {
+              "online": true,
+              "version": 1,
+              "requiresExtended": true,
+              "dtcs": [{ "code": "0x123456", "status": 1 }]
+            },
+            { "online": false, "version": 2 },
+            { "online": true, "version": 3 },
+            { "online": true, "version": 4, "requiresExtended": true },
+            { "online": false, "version": 5 },
+            { "online": true, "version": 6 }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 60, "frames": [], "tail": 0 },
+          "fleet": [
+            {
+              "online": true,
+              "version": 0,
+              "requiresExtended": true,
+              "waits": 2,
+              "dtcs": [{ "code": "0x123456", "status": 8 }]
+            },
+            { "online": true, "version": 4, "waits": 1, "dtcs": [{ "code": "0x654321", "status": 1 }] },
+            { "online": false, "version": 0 },
+            {
+              "online": true,
+              "version": 8,
+              "requiresExtended": true,
+              "dtcs": [{ "code": "0x010203", "status": 8 }]
+            },
+            { "online": false, "version": 2 },
+            { "online": true, "version": 1 }
+          ]
+        }
+      ],
+      "want": {
+        "target": "fleetExamTargets",
+        "request": "fleetExamRequests",
+        "report": "fleetExamReport",
+        "any": "fleetExamAny"
+      },
+      "solution": [
+        "exam = vehicleExam(source, reply, ready)",
+        "target <- exam.target",
+        "request <- exam.request",
+        "report <- exam.report",
+        "zero = const[value=0]()",
+        "pos0 = const[value=2]()",
+        "value0 = byteAt(exam.report, pos0)",
+        "has0 = present(value0)",
+        "flag0 = select(has0, value0, zero)",
+        "pos1 = const[value=5]()",
+        "value1 = byteAt(exam.report, pos1)",
+        "has1 = present(value1)",
+        "flag1 = select(has1, value1, zero)",
+        "pos2 = const[value=8]()",
+        "value2 = byteAt(exam.report, pos2)",
+        "has2 = present(value2)",
+        "flag2 = select(has2, value2, zero)",
+        "pos3 = const[value=11]()",
+        "value3 = byteAt(exam.report, pos3)",
+        "has3 = present(value3)",
+        "flag3 = select(has3, value3, zero)",
+        "pos4 = const[value=14]()",
+        "value4 = byteAt(exam.report, pos4)",
+        "has4 = present(value4)",
+        "flag4 = select(has4, value4, zero)",
+        "pos5 = const[value=17]()",
+        "value5 = byteAt(exam.report, pos5)",
+        "has5 = present(value5)",
+        "flag5 = select(has5, value5, zero)",
+        "sum1 = arith[form=add](flag0, flag1)",
+        "sum2 = arith[form=add](sum1, flag2)",
+        "sum3 = arith[form=add](sum2, flag3)",
+        "sum4 = arith[form=add](sum3, flag4)",
+        "sum5 = arith[form=add](sum4, flag5)",
+        "found = compare[form=lt](zero, sum5)",
+        "available = present(exam.report)",
+        "final = select(available, found)",
+        "any <- final"
+      ]
+    }
+  ]
+}

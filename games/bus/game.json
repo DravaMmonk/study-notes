@@ -1,6 +1,6 @@
 {
   "domain": "can",
-  "vocabulary": 101,
+  "vocabulary": 105,
   "title": { "zh": "车在说话" },
   "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
@@ -73,7 +73,8 @@
       "present",
       "padBytes",
       "emptyBytes",
-      "fleetScanner"
+      "fleetScanner",
+      "vehicleExam"
     ]
   },
   "concept": { "keep": "reg" },
@@ -198,7 +199,23 @@
       "id": 5,
       "title": { "zh": "诊断仪" },
       "question": { "zh": "控制器怎样回答诊断问题？" },
-      "foundation": ["5-1", "5-2", "5-3", "5-4", "5-5", "5-6", "5-7", "5-8", "5-9", "5-10", "5-11", "5-12"]
+      "foundation": [
+        "5-1",
+        "5-2",
+        "5-3",
+        "5-4",
+        "5-5",
+        "5-6",
+        "5-7",
+        "5-8",
+        "5-9",
+        "5-10",
+        "5-11",
+        "5-12",
+        "5-13",
+        "5-14",
+        "5-15"
+      ]
     },
     {
       "id": 6,
