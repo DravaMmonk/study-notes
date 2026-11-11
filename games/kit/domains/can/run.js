@@ -36,7 +36,7 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
     step: (state, outputs, tick) => { transportState = advanceTransport(state, outputs[task.transport.frame], test.transport, tick, task.transport.abort && Boolean(outputs[task.transport.abort])); return { state: transportState, shown: null } },
   })
   const ecu = task.ecu && reacting({
-    id: 'ecu', board: 'you', start: { reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0, dtcs: test.ecu.dtcs, flash: test.ecu.flash ? newFlashState() : null },
+    id: 'ecu', board: 'you', start: { reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0, dtcs: test.ecu.dtcs, record: test.ecu.value, flash: test.ecu.flash ? newFlashState() : null },
     reads: (state) => ({ [task.ecu.response]: state.reply, ...(task.ecu.image ? { [task.ecu.image]: test.ecu.flash.image } : {}) }),
     step: (state, outputs, tick) => ({ state: ecuAdvance(state, outputs[task.ecu.request], test.ecu, tick), shown: null }),
   })

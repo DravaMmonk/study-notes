@@ -58,11 +58,15 @@ export function ecuAdvance(state, request, profile, tick = 0) {
     }
     return { ...state, reply: [0x7f, 0x27, 0x13] }
   }
+  if (active && profile.flash && request.length === 4 && request[0] === 0x31 && request[1] === 1 && request[2] === 0xfe && request[3] === 0) {
+    if (state.flash?.phase !== 'running' || !state.flash.applicationValid) return { ...state, reply: [0x7f, 0x31, 0x22] }
+    return { ...state, dtcs: state.dtcs.filter(({ code }) => !profile.flash.fixedDtcs.includes(code)), reply: [0x71, 1, 0xfe, 0] }
+  }
   if (active && profile.flash) {
     const result = flashRequest(state.flash, request, profile.flash, state.session, state.unlocked)
-    if (result) return { ...state, flash: result.flash, reply: result.reply, ...(result.reply[0] === 0x51 ? { session: 1, unlocked: false, seedIssued: false } : {}) }
+    if (result) return { ...state, flash: result.flash, reply: result.reply, ...(result.reply[0] === 0x51 ? { session: 1, unlocked: false, seedIssued: false, record: profile.flash.versionAfter ?? state.record } : {}) }
   }
-  const final = ecuReply(request, profile, state.session, state.unlocked, state.dtcs)
+  const final = ecuReply(request, { ...profile, value: state.record }, state.session, state.unlocked, state.dtcs)
   if (final?.[0] === 0x62 && profile.waits > 0) return { ...state, reply: [0x7f, 0x22, 0x78], pending: { final, remaining: profile.waits - 1 } }
   return { ...state, session: final?.[0] === 0x50 ? final[1] : state.session, ...(final?.[0] === 0x50 && final[1] === 1 ? { unlocked: false, seedIssued: false } : {}), ...(final?.[0] === 0x54 ? { dtcs: [] } : {}), reply: final, pending: null }
 }

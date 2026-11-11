@@ -40,7 +40,7 @@ const testOf = (t, task, frameEvents) => {
     ...Object.fromEntries(Object.entries(task.frameInputs ?? {}).map(([name, field]) => [name, frameEvents.map((frame) => field === 'id' ? frame.id : field === 'length' ? frame.data.length : field === 'time' ? frame.start : field === 'data' ? frame.data : frame.data[Number(field.slice(4))] ?? null)])),
   }
   const contenders = (t.contenders ?? []).map((node) => ({ ...node, id: num(node.id), data: (node.data ?? []).map(num) }))
-  const flash = t.ecu?.flash && { ...t.ecu.flash, ...(t.ecu.flash.image ? { image: t.ecu.flash.image.map(num) } : {}) }
+  const flash = t.ecu?.flash && { ...t.ecu.flash, ...(t.ecu.flash.image ? { image: t.ecu.flash.image.map(num) } : {}), ...(t.ecu.flash.versionAfter ? { versionAfter: t.ecu.flash.versionAfter.map(num) } : {}), fixedDtcs: (t.ecu.flash.fixedDtcs ?? []).map(num) }
   return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(t.ecu ? { ecu: { did: num(t.ecu.did), value: t.ecu.value.map(num), waits: t.ecu.waits ?? 0, requiresExtended: Boolean(t.ecu.requiresExtended), timeout: t.ecu.timeout, requiresSecurity: Boolean(t.ecu.requiresSecurity), seed: t.ecu.seed, dtcs: (t.ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })), flash, powerCycles: t.ecu.powerCycles ?? [] } } : {}), ...(t.transport ? { transport: { ...t.transport, message: t.transport.message.map(num) } } : {}), ...(t.bridge ? { bridge: { did: num(t.bridge.did), value: t.bridge.value.map(num) } } : {}), ...(frameEvents ? { frameEvents } : {}) }
 }
 
