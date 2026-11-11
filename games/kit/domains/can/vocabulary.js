@@ -41,6 +41,7 @@ const WANTS = {
   startOfFrame: item(t('帧起始：总线连着至少 11 拍隐性之后的第一个显性', 'start of frame: the first dominant bit after at least 11 recessive ones in a row')),
   gathered: item(t('go 为 1 的每一拍把 bit 接到攒下的数末尾（先来的在高位），为 0 时是 0', 'on every tick go is 1, bit put on the end of the number so far (the first bit highest); 0 when it is 0'), S.obj({ bit: INPUT, go: INPUT })),
   identifier: item(t('帧的标识符，在它最后一位到达的那一拍；其余每一拍「—」', 'a frame’s identifier, on the tick its last bit arrives; 「—」 on every other tick')),
+  destuffed: item(t('去除输入位串中的填充位；填充位的那一拍交出「—」', 'the input bit stream with stuff bits removed; 「—」 on a stuff-bit tick'), S.obj({ input: INPUT })),
 }
 
 /* ---------- a level ---------- */
@@ -62,7 +63,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 2,
+  version: 3,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

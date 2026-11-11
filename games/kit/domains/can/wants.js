@@ -26,6 +26,16 @@ const WANTS = {
     let acc = 0
     return each(test, (t) => (acc = test.inputs[go][t] ? acc * 2 + test.inputs[bit][t] : 0))
   },
+  destuffed: ({ input }) => (test) => {
+    let previous = null
+    let run = 0
+    return test.inputs[input].map((bit) => {
+      const stuffed = run === 5
+      run = bit === previous ? run + 1 : 1
+      previous = bit
+      return stuffed ? null : bit
+    })
+  },
   identifier: () => (test) => {
     const out = test.bus.bits.map(() => null)
     for (const f of test.bus.frames) out[f.at + QUIET] = f.id

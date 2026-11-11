@@ -1,0 +1,54 @@
+{
+  "title": { "zh": "填充位也算数", "en": "A stuff bit counts too" },
+  "intro": [
+    {
+      "t": {
+        "zh": "现在用搭好的元件试一段更容易出错的位串：填充位后面紧跟四个与它相同的位。",
+        "en": "Try the part on a trickier stream: four bits equal to a stuff bit follow it."
+      }
+    }
+  ],
+  "after": {
+    "zh": "两次填充可以只隔四个原始位，因为第一次的填充位也参与计数。",
+    "en": "Two stuff bits can be separated by just four original bits, because the first stuff bit also counts."
+  },
+  "tasks": [
+    {
+      "id": "1-11",
+      "brief": {
+        "zh": "去除位串中的填充位，并把剩下的位交出来；填充位的那一拍交出「—」。",
+        "en": "Remove the stuff bits and give out the remaining bits; give 「—」 on each stuff-bit tick."
+      },
+      "inputs": [{ "name": "bit", "label": { "zh": "位", "en": "Bit" } }],
+      "outputs": [{ "name": "out", "label": { "zh": "结果", "en": "Result" } }],
+      "tests": [
+        {
+          "bus": { "idle": 13, "frames": [], "tail": 0 },
+          "inputs": { "bit": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1] }
+        },
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "inputs": { "bit": [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1] }
+        }
+      ],
+      "want": { "out": { "destuffed": { "input": "bit" } } },
+      "solution": ["d = destuff(bit)", "out <- d"],
+      "naive": [
+        "p = reg[reg=A, start=0]()",
+        "r = reg[reg=B, start=0]()",
+        "same = compare[form=eq](bit, p)",
+        "one = const[value=1]()",
+        "inc = arith[form=inc](r)",
+        "n = select(same, inc, one)",
+        "kp = keep[reg=A](bit)",
+        "five = const[value=5]()",
+        "valid = compare[form=lt](r, five)",
+        "zero = const[value=0]()",
+        "reset = select(valid, n, zero)",
+        "kr = keep[reg=B](reset)",
+        "o = select(valid, bit)",
+        "out <- o"
+      ]
+    }
+  ]
+}
