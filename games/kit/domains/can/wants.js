@@ -687,6 +687,7 @@ const WANTS = {
   receiveFrameKind: (params) => (test) => receiverPlan(params, test).kind,
   receiveFrameReady: (params) => (test) => receiverPlan(params, test).ready,
   receiveFrameRec: (params) => (test) => receiverPlan(params, test).rec,
+  receiveFrameBad: (params) => (test) => receiverPlan(params, test).kind.map((value) => value === 1 || value === 2),
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),
