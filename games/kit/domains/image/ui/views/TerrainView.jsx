@@ -94,5 +94,5 @@ export default function TerrainView({ img, range, size = 112, theme }) {
   }, [img, range, size, height, theme])
 
   if (!img) return null
-  return <canvas ref={canvas} className="terrain-view" style={{ width: size, height }} aria-label={tr('地形图：亮度是高度', 'Terrain: brightness is height')} />
+  return <canvas ref={canvas} className="terrain-view" style={{ width: size, height }} aria-label={tr('地形图：亮度是高度')} />
 }

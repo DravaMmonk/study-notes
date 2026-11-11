@@ -12,8 +12,8 @@ const number = (v) => {
 }
 
 export const OPS = {
-  add: { about: t('a + b', 'a + b'), args: args('a', 'b'), symmetric: true, run: ([a, b]) => number(a) + number(b) },
-  sub: { about: t('a − b', 'a − b'), args: args('a', 'b'), run: ([a, b]) => number(a) - number(b) },
+  add: { about: t('a + b'), args: args('a', 'b'), symmetric: true, run: ([a, b]) => number(a) + number(b) },
+  sub: { about: t('a − b'), args: args('a', 'b'), run: ([a, b]) => number(a) - number(b) },
 }
 
 /** The resources as the vocabulary lists them (data). */

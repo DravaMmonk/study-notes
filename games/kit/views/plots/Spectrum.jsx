@@ -49,5 +49,5 @@ function SpectrumMap({ value, size }) {
     ctx.lineTo(size, zy)
     ctx.stroke()
   }, size, height, [value])
-  return <canvas ref={canvas} className="sp" style={{ width: size, height }} aria-label={tr('频谱：中心是零频，越往外频率越高', 'Spectrum: the centre is zero frequency; frequency rises outwards')} />
+  return <canvas ref={canvas} className="sp" style={{ width: size, height }} aria-label={tr('频谱：中心是零频，越往外频率越高')} />
 }

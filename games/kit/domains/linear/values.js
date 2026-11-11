@@ -22,11 +22,11 @@ export function fromContent(v) {
 
 /** What a value is, in words: a number, a vector of n entries, an m × n matrix, nothing. */
 export function kindOf(v) {
-  if (v === null || v === undefined) return t('「—」', '「—」')
-  if (typeof v === 'number') return t('一个数', 'a number')
+  if (v === null || v === undefined) return t('「—」')
+  if (typeof v === 'number') return t('一个数')
   if (isVector(v)) return t(`${v.h} 维向量`, `a vector of ${v.h} entries`)
   if (isGrid(v)) return t(`${v.h} × ${v.w} 矩阵`, `a ${v.h} × ${v.w} matrix`)
-  return t('别的东西', 'something else')
+  return t('别的东西')
 }
 
 /** A grid's shape, rows × columns. */

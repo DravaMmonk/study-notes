@@ -122,7 +122,7 @@ export default function Timeline({ lanes, count, at = -1, marks = [] }) {
         {lanes.map((lane) => <span key={lane.key} style={{ height: heightOf(lane) }}>{L(lane.label)}{lane.tool}</span>)}
       </div>
       <div className="tl-scroll" ref={box}>
-        <svg width={width} height={height} role="img" aria-label={tr('逐拍波形', 'Waveform, tick by tick')}>
+        <svg width={width} height={height} role="img" aria-label={tr('逐拍波形')}>
           {marks.map((t) => <rect key={`m${t}`} className="tl-mark" x={t * cell} y={0} width={cell} height={height} />)}
           {at >= 0 && <rect className="tl-at" x={at * cell} y={0} width={cell} height={height} />}
           {Array.from({ length: Math.ceil(count / every) }, (_, k) => <text key={`r${k}`} className="tl-ruler" x={k * every * cell + 2} y={12}>{k * every}</text>)}

@@ -13,7 +13,7 @@ export function partsFor(kit, { sensors, outputLabels, colourOutputs = [] } = {}
   return {
     ...kit.BOARD_PARTS,
     inputs: (node) => node.type === 'output' && !colourOutputs.includes(node.params.name) ? ['in'] : kit.BOARD_PARTS.inputs(node),
-    outputs: (node) => node.type === 'input' ? (sensors?.[node.params.name]?.colour ? [{ key: null, label: tr('图', 'Image') }, ...['r', 'g', 'b'].map((key) => ({ key, label: key.toUpperCase() }))] : null) : kit.BOARD_PARTS.outputs(node),
+    outputs: (node) => node.type === 'input' ? (sensors?.[node.params.name]?.colour ? [{ key: null, label: tr('图') }, ...['r', 'g', 'b'].map((key) => ({ key, label: key.toUpperCase() }))] : null) : kit.BOARD_PARTS.outputs(node),
     label: (node) => {
       if (node.type === 'input') return sensors?.[node.params.name]?.label ?? tr('输入', 'Input')
       if (node.type === 'output') return outputLabels?.[node.params.name] ?? tr('输出', 'Output')

@@ -7,7 +7,7 @@ export function AppleChannels({ ctx }) {
   const values = ctx.view.channels
   return (
     <div className="apple-channels">
-      <p>{tr('每张图的黑白表示该通道的数值：黑是 0，白是 1。', 'Each grayscale image shows its channel value: black is 0, white is 1.')}</p>
+      <p>{tr('每张图的黑白表示该通道的数值：黑是 0，白是 1。')}</p>
       <div className="apple-grid">
         <span />{['R', 'G', 'B'].map((channel) => <strong key={channel}>{channel}</strong>)}
         {values.map((colour, index) => (
@@ -32,8 +32,8 @@ export function AppleChannels({ ctx }) {
 export function AppleDecision({ ctx }) {
   return (
     <div className="bk-stack">
-      {ctx.revealed && !ctx.pass && <p className="apple-feedback" role="status">{tr('再比较一下：看 R 在这只苹果的三个通道之和中占多少，再改变光照试试。', 'Compare again: look at the share of R in this apple’s three-channel total, then change the light and try again.')}</p>}
-      <button type="button" className="bk-btn is-primary" disabled={ctx.values.pick === null} onClick={ctx.check}>{tr('检查选择', 'Check selection')}</button>
+      {ctx.revealed && !ctx.pass && <p className="apple-feedback" role="status">{tr('再比较一下：看 R 在这只苹果的三个通道之和中占多少，再改变光照试试。')}</p>}
+      <button type="button" className="bk-btn is-primary" disabled={ctx.values.pick === null} onClick={ctx.check}>{tr('检查选择')}</button>
     </div>
   )
 }

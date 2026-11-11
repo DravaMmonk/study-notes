@@ -7,10 +7,10 @@ import { TILES, picture } from '../pictures.js'
 import { T as t } from '../../../../shell/i18n.js'
 
 const TILE = S.oneOf(Object.keys(TILES))
-const AT = S.list(S.int({ min: 0 }), { min: 2, about: t('第几行、第几列的图块', 'the row and column of its patch') })
+const AT = S.list(S.int({ min: 0 }), { min: 2, about: t('第几行、第几列的图块') })
 // Patterns placed on a 16 × 16 picture, each pattern pixel `scale` cells wide (4 patterns to a row at scale 1, 2 at
 // scale 2), a few pixels of one copy erased.
-const ITEMS = S.list(S.obj({ tile: TILE, at: AT, erased: S.opt(S.list(S.list(S.int(), { min: 2 }), { about: t('擦掉的格子 [u, v]', 'the pixels erased, [u, v]') })) }))
+const ITEMS = S.list(S.obj({ tile: TILE, at: AT, erased: S.opt(S.list(S.list(S.int(), { min: 2 }), { about: t('擦掉的格子 [u, v]') })) }))
 const placed = (items, scale = 1, erase = true) =>
   fromFn(16, 16, (x, y) => {
     const size = 4 * scale
@@ -45,28 +45,28 @@ const one = (yes) => image(1, 1, yes ? 1 : 0)
 
 export const ATTENTION = {
   mend: {
-    about: t('一张图上几个图案，一对对角上的同一个图案被擦掉了几格；期望是补好的图', 'a few patterns on a picture, a pair across the diagonal the same, one copy with a few pixels erased; the picture mended expected'),
-    setup: S.obj({ scale: S.opt(S.oneOf([1, 2], { about: t('图案的一格画成几格（2：8 × 8 的图案）', 'how many cells a pattern pixel takes (2: 8 × 8 patterns)') })) }),
+    about: t('一张图上几个图案，一对对角上的同一个图案被擦掉了几格；期望是补好的图'),
+    setup: S.obj({ scale: S.opt(S.oneOf([1, 2], { about: t('图案的一格画成几格（2：8 × 8 的图案）') })) }),
     test: S.obj({ items: ITEMS }),
     make: ({ items }, { scale = 1 }) => ({ inputs: { in: placed(items, scale) }, expected: { out: placed(items, scale, false) } }),
   },
   mendTwo: {
-    about: t('两张这样的图，孪生图案的位置各不相同；期望是补好的两张图', 'two such pictures, their twins placed differently; both mended expected'),
+    about: t('两张这样的图，孪生图案的位置各不相同；期望是补好的两张图'),
     test: S.obj({ shape: ITEMS, mark: ITEMS }),
     make: ({ shape, mark }) => ({ inputs: { shape: placed(shape), mark: placed(mark) }, expected: { so: placed(shape, 1, false), mo: placed(mark, 1, false) } }),
   },
   order: {
-    about: t('灰底上一块亮、一块暗，另给每格的图块编号；按阅读顺序亮块在前就整张图是 1', 'one bright and one dark patch on grey, with each cell’s patch number given; 1 all over when the bright one comes first in reading order'),
+    about: t('灰底上一块亮、一块暗，另给每格的图块编号；按阅读顺序亮块在前就整张图是 1'),
     test: S.obj({ bright: S.int({ min: 0, max: 15 }), dark: S.int({ min: 0, max: 15 }) }),
     make: ({ bright, dark }) => ({ inputs: { in: orderScene(bright, dark), pos: PATCH_NUMBER }, expected: { out: fromFn(16, 16, () => (bright < dark ? 1 : 0)) } }),
   },
   brightest: {
-    about: t('几个图案，各有各的亮度；期望是每个图块都变成最亮的那个图案', 'a few patterns, each at its own brightness; every patch turned into the brightest pattern expected'),
+    about: t('几个图案，各有各的亮度；期望是每个图块都变成最亮的那个图案'),
     test: S.obj({ items: LIT }),
     make: ({ items }) => ({ inputs: { in: lit(items) }, expected: { out: brightest(items) } }),
   },
   nearest: {
-    about: t('要找的照片和三张候选，其中一张是同一张照片（挪了、调了色或加了噪声）；期望是它那一路为 1', 'a photo to find and three candidates, one of them the same photo shifted, recoloured or noisy; 1 on its line expected'),
+    about: t('要找的照片和三张候选，其中一张是同一张照片（挪了、调了色或加了噪声）；期望是它那一路为 1'),
     test: S.obj({ q: S.call('picture'), candidates: S.list(S.call('picture'), { min: 3 }), which: S.int({ min: 0, max: 2 }) }),
     make: ({ q, candidates, which }) => {
       const [a, b, c] = candidates.map(picture)
@@ -74,7 +74,7 @@ export const ATTENTION = {
     },
   },
   duplicate: {
-    about: t('两张照片；期望是它们是不是同一张（挪了、调了色或加了噪声也算）', 'two photos; whether they are the same one (even shifted, recoloured or noisy) expected'),
+    about: t('两张照片；期望是它们是不是同一张（挪了、调了色或加了噪声也算）'),
     test: S.obj({ a: S.call('picture'), b: S.call('picture'), same: S.bool() }),
     make: ({ a, b, same }) => ({ inputs: { a: picture(a), b: picture(b) }, expected: { same: one(same) } }),
   },

@@ -43,12 +43,12 @@ export function racerRounds({ kernels, inputs, racer }, seed) {
 
 /** The bench model: knob `untimed`; acts start, answer (arg: the card, or null when time is up), next; quantity right. */
 export const racer = {
-  about: t('核速判：看输入和输出，限时选出是哪个 3×3 核；旋钮 untimed（不限时）；一局结束后 final 是答对的轮数', 'the kernel sprint: from an input and its output, pick the 3×3 kernel against the clock; knob untimed; once a run ends, final is how many rounds were right'),
+  about: t('核速判：看输入和输出，限时选出是哪个 3×3 核；旋钮 untimed（不限时）；一局结束后 final 是答对的轮数'),
   setup: S.obj({
-    kernels: S.list(S.obj({ id: S.str(), cells: S.list(num, { min: 9, view: 'grid' }), div: num }), { about: t('核按 3×3 核元件的读法：权重是 cells ÷ div', 'kernels as the 3×3 kernel part reads them: the weights are cells ÷ div') }),
+    kernels: S.list(S.obj({ id: S.str(), cells: S.list(num, { min: 9, view: 'grid' }), div: num }), { about: t('核按 3×3 核元件的读法：权重是 cells ÷ div') }),
     inputs: S.list(S.call('picture')),
     rounds: S.int({ min: 1 }), minGap: num,
-    time: S.obj({ start: num, step: num, min: num }, { about: t('第 n 轮（从 0 数）的秒数：max(min, start − step·n)', 'the seconds for round n (from 0): max(min, start − step·n)') }),
+    time: S.obj({ start: num, step: num, min: num }, { about: t('第 n 轮（从 0 数）的秒数：max(min, start − step·n)') }),
   }),
   make({ kernels, inputs, rounds: total, minGap, time }, bench) {
     const weighted = kernels.map((k) => ({ ...k, w: k.cells.map((c) => c / k.div) }))
@@ -94,11 +94,11 @@ export const racer = {
           dots: Array.from({ length: total }, (_, i) => (i < p.results.length ? (p.results[i] ? 'right' : 'wrong') : i === p.index && p.phase === 'play' ? 'now' : '')),
           score: t(`答对 ${n} / ${total} · 过关需 ${pass}`, `Correct ${n} / ${total} · ${pass} to pass`),
           result: p.phase === 'done' ? { text: n >= pass ? t(`答对 ${n} / ${total}，过关。`, `${n} / ${total} correct. Passed.`) : t(`答对 ${n} / ${total}，还差 ${pass - n} 轮。`, `${n} / ${total} correct, ${pass - n} short.`), tone: n >= pass ? 'pass' : '' } : null,
-          rules: [t(`${total} 轮`, `${total} rounds`), t(`答对 ${pass} 轮过关`, `${pass} correct to pass`), v.untimed ? t('不限时', 'No time limit') : t(`首轮 ${timeFor(0).toFixed(0)} 秒，逐轮缩短`, `${timeFor(0).toFixed(0)} s for the first round, shorter after`)].map((text) => ({ text })),
-          labels: { start: p.phase === 'done' ? t('再玩一局', 'Play again') : t('开始', 'Start') },
+          rules: [t(`${total} 轮`, `${total} rounds`), t(`答对 ${pass} 轮过关`, `${pass} correct to pass`), v.untimed ? t('不限时') : t(`首轮 ${timeFor(0).toFixed(0)} 秒，逐轮缩短`, `${timeFor(0).toFixed(0)} s for the first round, shorter after`)].map((text) => ({ text })),
+          labels: { start: p.phase === 'done' ? t('再玩一局') : t('开始') },
           say: !p.feedback
-            ? { text: t('点击选择，或按数字键 1–4。', 'Click one, or press 1–4.'), phone: t('点击选择一个核。', 'Tap a kernel.') }
-            : p.feedback.chosen === null ? { text: t('时间到。', 'Time is up.'), tone: 'fail' } : p.feedback.chosen === round?.answer ? { text: t('正确。', 'Correct.'), tone: 'pass' } : { text: t('错误，正确答案已标出。', 'Wrong. The correct one is marked.'), tone: 'fail' },
+            ? { text: t('点击选择，或按数字键 1–4。'), phone: t('点击选择一个核。') }
+            : p.feedback.chosen === null ? { text: t('时间到。'), tone: 'fail' } : p.feedback.chosen === round?.answer ? { text: t('正确。'), tone: 'pass' } : { text: t('错误，正确答案已标出。'), tone: 'fail' },
         }
       },
     }

@@ -87,7 +87,7 @@ export const parseClause = (text, parse) => {
 function clausesOfHyp(f, why) {
   if (f.op === '∧') return [...clausesOfHyp(f.a, why), ...clausesOfHyp(f.b, why)]
   if (f.op === '∀') return clausesOfHyp(f.body, why)
-  if (f.op === '∃') throw why(T('已知里还有 ∃：先 Skolem 化', 'A hypothesis still has ∃: Skolemise first'))
+  if (f.op === '∃') throw why(T('已知里还有 ∃：先 Skolem 化'))
   // ¬⊥ always holds: no clause. A ∀ inside a disjunction goes out too: in clauses every variable is “for all”.
   if (f.op === '¬' && f.a.op === '⊥') return []
   const strip = (g) => (g.op === '∀' ? strip(g.body) : g.op === '∨' ? or(strip(g.a), strip(g.b)) : g)
@@ -99,8 +99,8 @@ function clausesOfHyp(f, why) {
 /** The clause set of a state: the hypotheses of its first goal, which must be ⊥. Throws a { zh, en } as an Error. */
 export function clausesOfState(s, why) {
   const g = s.goals[0]
-  if (!g) throw why(T('已经没有目标了', 'No goals left'))
-  if (g.goal.op !== '⊥') throw why(T('第一个目标还不是 ⊥：先把要证的那句否定了放进已知', 'The first goal is not ⊥ yet: negate what is to be proved and put it among the hypotheses first'))
+  if (!g) throw why(T('已经没有目标了'))
+  if (g.goal.op !== '⊥') throw why(T('第一个目标还不是 ⊥：先把要证的那句否定了放进已知'))
   const set = []
   for (const h of g.hyps) for (const lits of clausesOfHyp(h, why)) {
     const c = clauseOf(lits)
@@ -249,10 +249,10 @@ const sameLits = (a, b) => [...new Set(a.map(litText))].sort().join() === [...ne
  */
 export function replay(value) {
   const s = value.from
-  if (!s) return { fail: T('这组子句不是从证明状态拆出来的，没有可以证的目标', 'These clauses were not split from a proof state: there is no goal to prove') }
-  if (s.choice) return { fail: T('已知里有 ∀ 底下换成的 Skolem 函数：它不是已知推出来的，核里重放不了', 'The hypotheses have a Skolem function put in under ∀: it does not follow from them, so the kernel cannot replay it') }
+  if (!s) return { fail: T('这组子句不是从证明状态拆出来的，没有可以证的目标') }
+  if (s.choice) return { fail: T('已知里有 ∀ 底下换成的 Skolem 函数：它不是已知推出来的，核里重放不了') }
   const used = certificate(value.set)
-  if (!used) return { fail: T('子句里还没有 ⊥：没有证书可以重放', 'There is no ⊥ among the clauses: no certificate to replay') }
+  if (!used) return { fail: T('子句里还没有 ⊥：没有证书可以重放') }
   const inputs = new Set(clausesOfState(s, (t) => new Error(t.en)).map((c) => c.key))
   for (const [n, i] of used.entries()) {
     const c = value.set[i]

@@ -8,7 +8,7 @@
 import { T } from '../../shell/i18n.js'
 
 /** The line, as the card that hears it and the results name it. */
-export const LINE = T('线', 'Line')
+export const LINE = T('线')
 
 /** The line made of what the nodes said this tick ([0 | 1 | undefined]). */
 export const lineOf = (said) => (said.some((v) => v === 1) ? 1 : 0)

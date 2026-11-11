@@ -15,7 +15,7 @@ import { judgeTicks, runTests } from '../../engine/circuit-domain.js'
 import { LINE, lineOf, sayer } from './line.js'
 import { T } from '../../shell/i18n.js'
 
-const SAY = { name: 'say', label: T('说', 'Say') }
+const SAY = { name: 'say', label: T('说') }
 
 /** What a task checks every tick: what it says (when it talks), then its outputs. */
 export const checked = (task) => [...(task.talks ? [SAY] : []), ...(task.outputs ?? [])]
@@ -26,7 +26,7 @@ export function runTest(task, circuit, test, parts) {
   const want = task.want(test)
   const ticks = run.steps.map((step) => ({ tick: step.tick, line: step.line, said: step.said.you ?? null, ...step.heard.you }))
   const judged = judgeTicks(ticks, { checked: checked(task), want: (name) => want[name], got: (tick, name) => (task.talks && name === SAY.name ? tick.said : tick.outputs[name] ?? null) })
-  const error = run.error && T('这块板这一拍要说的话取决于这一拍的线：说之前还听不到。', 'What this board says this tick depends on the line this tick: it cannot hear before it speaks.')
+  const error = run.error && T('这块板这一拍要说的话取决于这一拍的线：说之前还听不到。')
   return { ...judged, want, ...(error ? { error } : {}) }
 }
 

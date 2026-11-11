@@ -138,7 +138,7 @@ export default function PartDemo({ kit, flag, type, home, flags, phone, levels, 
   const params = node ? settingsOf(node.type, flags) : []
   const change = (key, v) => onChange(setParam(kit, graph, node.id, key, v))
   const panel = !node ? (
-    <p className="panel-note">{tr('点击一个元件，在此修改它的设置；然后运行，查看每个元件的输出。', 'Tap a part to change its settings here, then run to see what each part outputs.')}</p>
+    <p className="panel-note">{tr('点击一个元件，在此修改它的设置；然后运行，查看每个元件的输出。')}</p>
   ) : (
     <>
       <div className="demo-panel-head"><b>{nameOf(node)}</b><small>{node.type === 'input' ? tr('输入', 'Input') : node.type === 'output' ? tr('输出', 'Output') : describe(types, node.type)}</small></div>
@@ -148,7 +148,7 @@ export default function PartDemo({ kit, flag, type, home, flags, phone, levels, 
           {param.kind === 'select' ? <Choice options={param.options} value={node.params[param.key] ?? param.default} onChange={(v) => change(param.key, v)} label={param.label} layout={param.buttons ?? 'row'} roomy /> : param.kind === 'kernel' ? <KernelEditor param={param} value={node.params[param.key]} onChange={(v) => change(param.key, v)} /> : <NumberEditor param={param} value={node.params[param.key]} onChange={(v) => change(param.key, v)} />}
         </div>
       ))}
-      {node.type !== 'input' && node.type !== 'output' && !params.length && <p className="panel-note">{tr('这个元件没有设置。', 'This part has no settings.')}</p>}
+      {node.type !== 'input' && node.type !== 'output' && !params.length && <p className="panel-note">{tr('这个元件没有设置。')}</p>}
     </>
   )
   return (

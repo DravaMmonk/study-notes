@@ -14,7 +14,7 @@ import { instantiate, isMetaName, lemmaRules, metasIn, parseS } from './schemati
 import { T } from '../../shell/i18n.js'
 
 const isTerm = (x) => 't' in x
-const NO_GOALS = T('已经没有目标了', 'No goals left')
+const NO_GOALS = T('已经没有目标了')
 
 /* ---------- matching ---------- */
 
@@ -179,7 +179,7 @@ export function rewrite(s, rule, at = 'goal') {
   if (!g) return { fail: NO_GOALS }
   const after = (goal, r, done) => ({ results: [{ ...s, more: undefined, error: undefined, goals: [goal, ...r.conditions.map((c) => ({ ...g, goal: instantiate(c, done.σ) })), ...s.goals.slice(1)] }] })
   if (at === 'hyps') {
-    if (rule.group === 'hyp') return { fail: T('已知里的等式只用来改目标', 'An equation given rewrites only the goal') }
+    if (rule.group === 'hyp') return { fail: T('已知里的等式只用来改目标') }
     for (const [k, h] of g.hyps.entries()) {
       const done = rewriteOnce(h, rule)
       if (done) return after({ ...g, hyps: g.hyps.map((x, i) => (i === k ? done.to : x)) }, rule, done)
@@ -191,7 +191,7 @@ export function rewrite(s, rule, at = 'goal') {
     const done = rewriteOnce(g.goal, r)
     if (done) return after({ ...g, goal: done.to }, r, done)
   }
-  if (rule.group === 'hyp') return { fail: T('目标的已知里，没有一条等式或等价对得上第一个目标的哪一处', 'No equation or equivalence among the hypotheses fits anywhere in the first goal') }
+  if (rule.group === 'hyp') return { fail: T('目标的已知里，没有一条等式或等价对得上第一个目标的哪一处') }
   return { fail: T(`「${rule.name.zh}」的左边在第一个目标里哪一处都对不上`, `The left side of “${rule.name.en}” fits nowhere in the first goal`) }
 }
 
@@ -256,7 +256,7 @@ export function rewriteBookOf(level) {
     const defs = (level.defs ?? []).map(defRule)
     const facts = Object.entries(level.facts ?? {}).filter(([type]) => !level.proven || level.proven.includes(type)).map(([type, f]) => [type, f, factRewrite(parseS(f.statement))]).filter(([, , r]) => r)
       .map(([type, f, r]) => ({ key: type, name: f.name, ...r, group: 'fact' }))
-    const hyp = { key: 'hyp', name: T('已知里的等式', 'An equation given'), lhs: null, rhs: null, conditions: [], group: 'hyp' }
+    const hyp = { key: 'hyp', name: T('已知里的等式'), lhs: null, rhs: null, conditions: [], group: 'hyp' }
     books.set(level, Object.fromEntries([...laws, ...facts, ...defs, hyp].map((r) => [r.key, r])))
   }
   return books.get(level)

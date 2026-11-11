@@ -19,7 +19,7 @@ export default function Sheet({ title, onClose, children, footer, actions }) {
         <header className="ph-sheet-head">
           <h2>{title}</h2>
           {actions && <div className="ph-sheet-actions">{actions}</div>}
-          <button className="ph-icon" onClick={onClose} aria-label={tr('关闭', 'Close')}><X size={18} /></button>
+          <button className="ph-icon" onClick={onClose} aria-label={tr('关闭')}><X size={18} /></button>
         </header>
         <div className="ph-sheet-body"><EntriesSize.Provider value={SHEET}>{children}</EntriesSize.Provider></div>
         {footer && <div className="ph-sheet-foot">{footer}</div>}

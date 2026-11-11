@@ -53,5 +53,5 @@ export default function Surface({ value, size = 220 }) {
       }
     }
   }, size, height, [value])
-  return <canvas ref={canvas} className="sf" style={{ width: size, height }} aria-label={tr('地形：数值是高度', 'Terrain: a value is a height')} />
+  return <canvas ref={canvas} className="sf" style={{ width: size, height }} aria-label={tr('地形：数值是高度')} />
 }

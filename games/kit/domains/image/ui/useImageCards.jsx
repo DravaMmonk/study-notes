@@ -74,22 +74,22 @@ export function useImageCards({ kit, graph, onChange, run, testIndex, flags, sen
         {settings && !ctx?.readOnly && visibleSettings(kit, node, flags).map((param, index) => (
           <ParamControl key={param.key} param={param} value={node.params[param.key]} onChange={(v) => onChange(setParam(kit, graph, node.id, param.key, v))} roomy={roomy} style={!roomy && node.type !== 'arith' && index === 0 && param.buttons ? { marginTop: -PORT_ROW * Math.max(1, parts.inputs(node).length) } : undefined} />
         ))}
-        {node.type === 'input' && sensors?.[node.params.name]?.description && <details className="node-description" onPointerDown={(event) => event.stopPropagation()}><summary>{tr('说明', 'About')}</summary><p>{L(sensors[node.params.name].description)}</p></details>}
+        {node.type === 'input' && sensors?.[node.params.name]?.description && <details className="node-description" onPointerDown={(event) => event.stopPropagation()}><summary>{tr('说明')}</summary><p>{L(sensors[node.params.name].description)}</p></details>}
         <div className="node-preview">
           {error ? <span className="node-error">{L(error)}</span> : outputs?.length > 1 ? <MultiOutputPreview node={node} outputs={outputs} values={shownValues} view={shown} theme={theme} size={42} compact /> : node.type === 'input' && value?.c === 3 ? <ColourPreview img={value} theme={theme} labels selected={peek?.id === node.id ? peek : null} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} /> : <ValueView img={value} view={shown} size={NODE_W - 22} theme={theme} label={L(WORDS.notWired)} grid scan={scan} onScan={onScan} selected={peek?.id === node.id ? peek : null} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
           {!ctx?.readOnly && !error && kindOf(value) === 'image' && !(node.type === 'input' && value?.c === 3) && offered.length > 1 && (
-            <button className={`node-view ${menu === node.id ? 'is-open' : ''}`} aria-haspopup="menu" aria-expanded={menu === node.id} aria-label={tr(`显示方式：${L(IMAGE_VIEWS[shown].label)}`, `Display: ${L(IMAGE_VIEWS[shown].label)}`)} title={tr('切换显示方式', 'Change display')} onPointerDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === node.id ? null : node.id)}>
+            <button className={`node-view ${menu === node.id ? 'is-open' : ''}`} aria-haspopup="menu" aria-expanded={menu === node.id} aria-label={tr(`显示方式：${L(IMAGE_VIEWS[shown].label)}`, `Display: ${L(IMAGE_VIEWS[shown].label)}`)} title={tr('切换显示方式')} onPointerDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === node.id ? null : node.id)}>
               {createElement(IMAGE_VIEWS[shown].icon, { size: 12, strokeWidth: 1.8 })}
               <span>{L(IMAGE_VIEWS[shown].label)}</span>
             </button>
           )}
-          {peek?.id === node.id && <span className="node-peek">{peek.frequency ? tr('频率 ', 'frequency ') : ''}({peek.x}, {peek.y}) = {Array.isArray(peek.value) ? peek.value.map((v) => v.toFixed(3)).join(', ') : peek.value.toFixed(3)}</span>}
+          {peek?.id === node.id && <span className="node-peek">{peek.frequency ? tr('频率 ') : ''}({peek.x}, {peek.y}) = {Array.isArray(peek.value) ? peek.value.map((v) => v.toFixed(3)).join(', ') : peek.value.toFixed(3)}</span>}
           {menu === node.id && (
-            <div className="view-menu" role="menu" aria-label={tr('显示方式', 'Display')} onPointerDown={(e) => e.stopPropagation()}>
+            <div className="view-menu" role="menu" aria-label={tr('显示方式')} onPointerDown={(e) => e.stopPropagation()}>
               {offered.map(([key, option]) => (
                 <button key={key} role="menuitemradio" aria-checked={shown === key} onClick={() => { showAs([node.id], key); setMenu(null) }}>
                   {createElement(option.icon, { size: 14, strokeWidth: 1.7 })}
-                  <span><b>{L(option.label)}{isNew(key) && <em className="pb-new">{tr('新', 'new')}</em>}</b><small>{L(option.hint)}</small></span>
+                  <span><b>{L(option.label)}{isNew(key) && <em className="pb-new">{tr('新')}</em>}</b><small>{L(option.hint)}</small></span>
                   {shown === key && <Check size={13} />}
                 </button>
               ))}
@@ -104,7 +104,7 @@ export function useImageCards({ kit, graph, onChange, run, testIndex, flags, sen
     if (ctx?.readOnly) return null
     const check = checkOf(node)
     if (!check || check.pass === null) return null
-    return <em className="node-verdict" title={check.pass ? tr('这组测试通过', 'This test passes') : L(check.reason)}>{check.pass ? tr('通过', 'Pass') : tr('未通过', 'Fail')}</em>
+    return <em className="node-verdict" title={check.pass ? tr('这组测试通过') : L(check.reason)}>{check.pass ? tr('通过', 'Pass') : tr('未通过', 'Fail')}</em>
   }
   // The input and output cards say under their title what they carry, so a long label never pushes the badge off.
   const caption = (node) => {
@@ -119,15 +119,15 @@ export function useImageCards({ kit, graph, onChange, run, testIndex, flags, sen
   }
 
   const corner = imageCards.length > 0 && offered.length > 1 && (
-    <div className="board-views" role="group" aria-label={tr('所有图像元件的显示方式', 'Display of every image part')} onPointerDown={(e) => e.stopPropagation()}>
-      <span className="board-views-label">{tr('全部显示为', 'Show all as')}</span>
+    <div className="board-views" role="group" aria-label={tr('所有图像元件的显示方式')} onPointerDown={(e) => e.stopPropagation()}>
+      <span className="board-views-label">{tr('全部显示为')}</span>
       {offered.map(([key, option]) => (
         <button key={key} aria-pressed={shared === key} title={tr(`${L(option.label)}：${L(option.hint)}`, `${L(option.label)}: ${L(option.hint)}`)} onClick={() => showAs(imageCards.map((n) => n.id), key)}>
           {createElement(option.icon, { size: 14, strokeWidth: 1.7 })}
-          <span>{L(option.label)}{isNew(key) && <em className="pb-new">{tr('新', 'new')}</em>}</span>
+          <span>{L(option.label)}{isNew(key) && <em className="pb-new">{tr('新')}</em>}</span>
         </button>
       ))}
-      {customised && <button className="board-views-reset" title={tr('恢复本关默认的显示方式', "Restore this level's default display")} aria-label={tr('恢复默认显示方式', 'Restore default display')} onClick={resetViews}><RotateCcw size={13} /></button>}
+      {customised && <button className="board-views-reset" title={tr('恢复本关默认的显示方式')} aria-label={tr('恢复默认显示方式')} onClick={resetViews}><RotateCcw size={13} /></button>}
     </div>
   )
   const thumb = (node, ctx) => {
@@ -151,7 +151,7 @@ export function useImageCards({ kit, graph, onChange, run, testIndex, flags, sen
       <span className="pb-compare">
         <figure><ValueView img={expected} view={viewOf(node)} size={size} theme={theme} /><figcaption>{L(WORDS.wanted)}</figcaption></figure>
         <figure><ValueView img={actual} view={viewOf(node)} size={size} range={img ? rangeOf(expected) : undefined} theme={theme} /><figcaption>{L(WORDS.result)}</figcaption></figure>
-        {img && <figure><ImageView img={fits ? actual : null} against={expected} tolerance={(test.check ?? check)?.tolerance ?? 0.02} size={size} theme={theme} label="—" /><figcaption>{tr('误差', 'Error')}</figcaption></figure>}
+        {img && <figure><ImageView img={fits ? actual : null} against={expected} tolerance={(test.check ?? check)?.tolerance ?? 0.02} size={size} theme={theme} label="—" /><figcaption>{tr('误差')}</figcaption></figure>}
       </span>
       {check?.pass != null && <span className="pb-verdict">{check.pass ? <Check size={13} /> : <X size={13} />}</span>}
     </>

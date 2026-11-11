@@ -598,10 +598,10 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const outs = listed && !(listed.length === 1 && listed[0].key === null) ? listed : null
     const icon = parts.icon?.(node)
     const wired = (src) => graph.wires.some((w) => w.from === src)
-    const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点击后再点击另一个元件的输入口，也可以直接拖动连接', 'Click, then click an input on another part; or drag to it')} onClick={() => clickPort(outPort(src))}><i /></i>
+    const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点击后再点击另一个元件的输入口，也可以直接拖动连接')} onClick={() => clickPort(outPort(src))}><i /></i>
     const inDot = (port, extra = '') => {
       const wired = graph.wires.some((w) => w.to === node.id && w.port === port)
-      return <i className={`port port-in ${wired ? 'is-wired' : ''} ${portClass(inPort(node.id, port))} ${extra}`} data-p={inPort(node.id, port)} title={wired && !picking ? tr('点击取下这根连线，再点击其他输入口重新连接', 'Click to detach this wire, then click another input to reconnect it') : undefined} onClick={() => clickPort(inPort(node.id, port))}><i /></i>
+      return <i className={`port port-in ${wired ? 'is-wired' : ''} ${portClass(inPort(node.id, port))} ${extra}`} data-p={inPort(node.id, port)} title={wired && !picking ? tr('点击取下这根连线，再点击其他输入口重新连接') : undefined} onClick={() => clickPort(inPort(node.id, port))}><i /></i>
     }
     return (
       <div
@@ -618,7 +618,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
         <div className="node-head" data-drag onPointerDown={() => choose(node)}>
           <div className="node-heading">
             {regions.length > 0 && (
-              <button className="frame-fold" aria-label={node.fold ? tr('展开', 'Expand') : tr('折叠', 'Collapse')} aria-expanded={!node.fold} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, fold: !n.fold } : n)) }, { keep: true })}>
+              <button className="frame-fold" aria-label={node.fold ? tr('展开') : tr('折叠', 'Collapse')} aria-expanded={!node.fold} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, fold: !n.fold } : n)) }, { keep: true })}>
                 {node.fold ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
               </button>
             )}
@@ -628,7 +628,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
           <div className="node-actions">
             {head?.(node)}
             {removable(node) && (
-              <button className="node-delete" aria-label={tr('删除元件', 'Delete part')} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange(removeNode(graph, node.id))}>
+              <button className="node-delete" aria-label={tr('删除元件')} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange(removeNode(graph, node.id))}>
                 <X size={12} />
               </button>
             )}
@@ -781,7 +781,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
 
       {canDelete && (
         <button className="board-delete" onPointerDown={(e) => e.stopPropagation()} onClick={removeSelected}>
-          <Trash2 size={14} /> {selected.wire ? tr('删除连线', 'Delete wire') : tr('删除元件', 'Delete part')}
+          <Trash2 size={14} /> {selected.wire ? tr('删除连线') : tr('删除元件')}
         </button>
       )}
       {refused && <p className="board-refusal" role="status">{L(refused)}</p>}
@@ -796,16 +796,16 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
         {!readOnly && (
           <>
             {onClear && <><ClearButton onClear={onClear} /><i className="board-zoom-rule" aria-hidden="true" /></>}
-            <button onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销（⌘/Ctrl+Z）', 'Undo (⌘/Ctrl+Z)')}><Undo2 size={14} /></button>
-            <button onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做', 'Redo')} title={tr('重做（⇧⌘/Ctrl+Z）', 'Redo (⇧⌘/Ctrl+Z)')}><Redo2 size={14} /></button>
+            <button onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销')} title={tr('撤销（⌘/Ctrl+Z）')}><Undo2 size={14} /></button>
+            <button onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做')} title={tr('重做（⇧⌘/Ctrl+Z）')}><Redo2 size={14} /></button>
             <i className="board-zoom-rule" aria-hidden="true" />
           </>
         )}
         {!readOnly&&blocks&&<button type="button" aria-label={L(WORDS.partition)} aria-pressed={partitioning} onClick={()=>{if(partitioning)selectionCancel.current?.();setPartitioning(!partitioning);setSelectionRect(null)}}><Group size={14} /></button>}
-        <button onClick={() => zoomAt(0.85, ...centre())} aria-label={tr('缩小', 'Zoom out')}><Minus size={14} /></button>
+        <button onClick={() => zoomAt(0.85, ...centre())} aria-label={tr('缩小')}><Minus size={14} /></button>
         <output>{Math.round(view.zoom * 100)}%</output>
-        <button onClick={() => zoomAt(1 / 0.85, ...centre())} aria-label={tr('放大', 'Zoom in')}><Plus size={14} /></button>
-        <button onClick={fit} aria-label={tr('适配画布', 'Fit to view')}><Maximize size={13} /></button>
+        <button onClick={() => zoomAt(1 / 0.85, ...centre())} aria-label={tr('放大')}><Plus size={14} /></button>
+        <button onClick={fit} aria-label={tr('适配画布')}><Maximize size={13} /></button>
       </div>
     </div>
   )

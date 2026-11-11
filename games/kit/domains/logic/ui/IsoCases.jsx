@@ -35,9 +35,9 @@ export default function CaseTable({ cases, words, level, edit = null, rowClass =
   const locked = (c, cell) => c.fixed?.includes(cell)
   // Premises a case keeps (`keep`) stay first, whatever is taken off.
   const setGiven = (c, set) => (given) => set({ ...c, given: [...(c.keep ?? []), ...given.filter((s) => !c.keep?.includes(s))] })
-  const unset = T('选择目标…', 'Choose a goal…')
+  const unset = T('选择目标…')
   const derivable = (yes) => (yes ? tr('可推导', 'Derivable') : tr('不可推导', 'Not derivable'))
-  const unsure = T('选择预期…', 'Choose…')
+  const unsure = T('选择预期…')
   const makeCell = (c) => (c.make === null ? <span className="lg-mark">{L(unsure)}</span> : derivable(c.make))
   // A sentence is built from the pieces of every sentence the level's cases may give or aim at.
   const build = useMemo(() => {
@@ -47,25 +47,25 @@ export default function CaseTable({ cases, words, level, edit = null, rowClass =
   const target = show(sentenceOf(level, level.target))
   const makes = [{ value: true, label: T('可推导', 'Derivable') }, { value: false, label: T('不可推导', 'Not derivable') }]
   const setGoal = (c, set) => (goal) => set({ ...c, goal: goal === target ? undefined : goal })
-  const givenCell = (c) => (c.given.length ? <span className="lg-lines">{c.given.map((s, i) => <span key={s}>{`${i + 1}. ${name(s)}`}</span>)}</span> : <span className="lg-mark">{tr('无', 'Nothing')}</span>)
+  const givenCell = (c) => (c.given.length ? <span className="lg-lines">{c.given.map((s, i) => <span key={s}>{`${i + 1}. ${name(s)}`}</span>)}</span> : <span className="lg-mark">{tr('无')}</span>)
   const goalCell = (c) => (c.goal === '' ? <span className="lg-mark">{L(unset)}</span> : name(goalOf(c)))
   const columns = [
-    { key: 'given', label: T('前提', 'Premises'), align: 'start', edit: (c, set, k) => (locked(c, 'given') ? givenCell(c) : premises(c, set, k)), cell: givenCell },
+    { key: 'given', label: T('前提'), align: 'start', edit: (c, set, k) => (locked(c, 'given') ? givenCell(c) : premises(c, set, k)), cell: givenCell },
     { key: 'goal', label: T('目标', 'Goal'), edit: level.caseGoal ? null : (c, set, k) => (locked(c, 'goal') ? goalCell(c) : goal(c, set, k)), cell: goalCell },
     // A declaration to write or correct keeps its expectations to itself: a run only says whether each result is right.
     ...(edit ? [{ key: 'make', label: WORDS.wanted, edit: level.caseMake !== undefined ? null : (c, set) => (locked(c, 'make') ? derivable(c.make) : <InlineChoice value={c.make} options={makes} unset={unsure} onChange={(make) => set({ ...c, make })} />), cell: makeCell }] : []),
     { key: 'result', label: T('结果', 'Result'), className: 'lg-result', cell: (_, k) => (result(k) ? <span className={result(k).wrong ? 'lg-wrong' : 'lg-right'}>{derivable(result(k).derived)}</span> : '') },
   ]
-  const premises = (c, set, k) => <SentenceList value={c.given} kept={c.keep ?? []} onChange={setGiven(c, set)} build={build} title={T(`第 ${k + 1} 条条例的前提`, `A premise of test case ${k + 1}`)} addLabel={T('添加前提', 'Add a premise')} scope={`${level.id}:case${k}`} />
+  const premises = (c, set, k) => <SentenceList value={c.given} kept={c.keep ?? []} onChange={setGiven(c, set)} build={build} title={T(`第 ${k + 1} 条条例的前提`, `A premise of test case ${k + 1}`)} addLabel={T('添加前提')} scope={`${level.id}:case${k}`} />
   const goal = (c, set, k) => <SentenceButton value={c.goal === '' ? '' : goalOf(c)} onChange={setGoal(c, set)} build={build} title={T(`第 ${k + 1} 条条例的目标`, `The goal of test case ${k + 1}`)} placeholder={unset} scope={`${level.id}:goal${k}`} />
   const form = (c, set, k) => (
     <>
-      {locked(c, 'given') ? <Field label={T('前提（固定）', 'Premises (fixed)')}>{givenCell(c)}</Field> : <Field label={T('前提', 'Premises')}>{premises(c, set, k)}</Field>}
+      {locked(c, 'given') ? <Field label={T('前提（固定）')}>{givenCell(c)}</Field> : <Field label={T('前提')}>{premises(c, set, k)}</Field>}
       {level.caseGoal || locked(c, 'goal')
-        ? <Field label={T('目标（固定）', 'Goal (fixed)')}><span className="ff-fixed">{name(level.caseGoal ?? goalOf(c))}</span></Field>
+        ? <Field label={T('目标（固定）')}><span className="ff-fixed">{name(level.caseGoal ?? goalOf(c))}</span></Field>
         : <Field label={T('目标', 'Goal')}>{goal(c, set, k)}</Field>}
       {level.caseMake !== undefined || locked(c, 'make')
-        ? <Field label={T('应得（固定）', 'Wanted (fixed)')}><span className="ff-fixed">{derivable(level.caseMake ?? c.make)}</span></Field>
+        ? <Field label={T('应得（固定）')}><span className="ff-fixed">{derivable(level.caseMake ?? c.make)}</span></Field>
         : <ChoiceField label={WORDS.wanted} value={c.make} options={makes} onChange={(make) => set({ ...c, make })} />}
     </>
   )
@@ -77,14 +77,14 @@ export default function CaseTable({ cases, words, level, edit = null, rowClass =
       form={form}
       blank={() => blankCase(level)}
       max={MOST}
-      addLabel={T('添加条例', 'Add a test case')}
+      addLabel={T('添加条例')}
       formTitle={(k) => T(`第 ${k + 1} 条检验条例`, `Test case ${k + 1}`)}
       rowClass={rowClass}
       onPick={onPick}
-      empty={edit ? T('还没有条例。', 'No test case yet.') : null}
+      empty={edit ? T('还没有条例。') : null}
       phone={phone}
       fixed={Boolean(level.slots)}
-      tip={T('点按一条条例即可修改。', 'Tap a test case to edit it.')}
+      tip={T('点按一条条例即可修改。')}
     />
   )
 }

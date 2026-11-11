@@ -16,12 +16,12 @@ const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 /* ---------- what parts are made of ---------- */
 
 const FAMILIES = {
-  value: item(t('算数的元件', 'parts that work on numbers')),
+  value: item(t('算数的元件')),
 }
 
 /* ---------- a level ---------- */
 
-const VALUES = S.map(S.num(), { about: t('每个输入或输出的值，按名字', 'a value for each input or output, by name') })
+const VALUES = S.map(S.num(), { about: t('每个输入或输出的值，按名字') })
 const TEST = S.obj({ inputs: VALUES, expect: VALUES })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({

@@ -111,7 +111,7 @@ function Verdict({ params, ctx }) {
   return (
     <div className="bench-next">
       {verdict}
-      {!ctx.externalControls && ctx.passed[ctx.stageIndex] && ctx.stageIndex < ctx.stages.length - 1 && <button type="button" className="bk-btn is-primary" onClick={ctx.next}>{tr('下一步', 'Next step')} <ArrowRight size={15} /></button>}
+      {!ctx.externalControls && ctx.passed[ctx.stageIndex] && ctx.stageIndex < ctx.stages.length - 1 && <button type="button" className="bk-btn is-primary" onClick={ctx.next}>{tr('下一步')} <ArrowRight size={15} /></button>}
     </div>
   )
 }
@@ -132,7 +132,7 @@ function Goals({ params, ctx }) {
             </li>
           ))}
         </ul>
-        {!ctx.externalControls && <button type="button" className="bk-btn is-primary" onClick={ctx.check}>{tr('检查这个设置', 'Check this setting')}</button>}
+        {!ctx.externalControls && <button type="button" className="bk-btn is-primary" onClick={ctx.check}>{tr('检查这个设置')}</button>}
       </div>
     )
   }
@@ -166,7 +166,7 @@ function Goals({ params, ctx }) {
 function Stages({ ctx }) {
   const { stages, stageIndex, passed, reached, setStageIndex } = ctx
   return (
-    <ol className="bk-goals" aria-label={tr('步骤', 'Steps')}>
+    <ol className="bk-goals" aria-label={tr('步骤')}>
       {stages.map((s, i) => {
         const open = i <= reached
         return (
@@ -226,7 +226,7 @@ function PlotItem({ params, ctx }) {
 // Rows of pixels, darkest at 0 and lightest at 1.
 function Strips({ params, ctx }) {
   return (
-    <div className="bench-strips" aria-label={tr('同一行画成像素', 'The same row drawn as pixels')}>
+    <div className="bench-strips" aria-label={tr('同一行画成像素')}>
       {params.rows.map((row) => {
         const values = ctx.q[row.of]
         return (
@@ -288,7 +288,7 @@ function Curve({ params, ctx }) {
   const points = values.map((v, i) => `${(i / (values.length - 1)) * 200},${56 - ((v - min) / span) * 52}`)
   return (
     <figure className="bench-curve">
-      <svg viewBox="0 0 200 60" preserveAspectRatio="none" role="img" aria-label={tr('曲线', 'Curve')}><polyline points={points.join(' ')} /></svg>
+      <svg viewBox="0 0 200 60" preserveAspectRatio="none" role="img" aria-label={tr('曲线')}><polyline points={points.join(' ')} /></svg>
       <figcaption className="bk-caption"><Rich text={caption} /></figcaption>
     </figure>
   )

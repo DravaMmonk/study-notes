@@ -33,12 +33,12 @@ export function DeclRules({ level, ways }) {
     <dl className="lg-decl-rules">
       {ways.map((way, k) => (
         <div key={k}>
-          <dt>{tr('引入', 'Intro')}<i>{k + 1}</i></dt>
+          <dt>{tr('引入')}<i>{k + 1}</i></dt>
           <dd>{wayText(wayRule(way, level), text)}</dd>
         </div>
       ))}
       <div>
-        <dt>{tr('消去', 'Elim')}</dt>
+        <dt>{tr('消去')}</dt>
         <dd>{wayText(elim, text)}</dd>
       </div>
     </dl>
@@ -87,7 +87,7 @@ function DeclareScreen({ game, level: entry, saved, save, solve, lastRun, keepRu
       <DeclRules level={level} ways={waysIn(board)} />
     </div>
   )
-  const results = verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('这份声明符合需求。', 'This declaration meets the requirement.') : verdict.text}</p>
+  const results = verdict && <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('这份声明符合需求。') : verdict.text}</p>
   const dock = <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   return <Level phone={phone} className="fo-level lg-level" brief={brief} stage={stage} results={results || null} dock={dock} />
@@ -106,7 +106,7 @@ export function DeclaredRules({ level }) {
     const type = typeOf(level)
     return (
       <div className="dialog-note">
-        <span className="panel-label">{tr('声明给出的规则', 'The rules it declares')}</span>
+        <span className="panel-label">{tr('声明给出的规则')}</span>
         <div className="lg-clauses">
           <code>{`${level.datatype.type} = ${constructorsOf(type).map((c) => text(atom('=', [fn(c.f, c.args.map(tvar)), fn(c.f, c.args.map(tvar))])).split(' = ')[0]).join(' | ')}`}</code>
           {datatypeRules(level.datatype.type, type).map((r) => <code key={r.key}>{`${L(r.name)}：${ruleText(r, text)}`}</code>)}
@@ -117,10 +117,10 @@ export function DeclaredRules({ level }) {
   const rules = declaredRules(level, waysIn(level.solution))
   return (
     <div className="dialog-note">
-      <span className="panel-label">{tr('声明给出的规则', 'The rules it declares')}</span>
+      <span className="panel-label">{tr('声明给出的规则')}</span>
       <div className="lg-clauses">
         {rules.make.map((r, k) => <code key={k}>{tr(`引入规则 ${WAY[k]}：`, `Intro rule ${WAY[k]}: `)}{wayText(r, text)}</code>)}
-        <code>{tr('消去规则：', 'Elim rule: ')}{wayText(rules.take, text)}</code>
+        <code>{tr('消去规则：')}{wayText(rules.take, text)}</code>
       </div>
     </div>
   )

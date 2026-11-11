@@ -90,14 +90,14 @@ export function GanChart({ ctx }) {
   return (
     <div className="gan-stage">
       <div className="gan-head">
-        <span className="gan-key"><i className="is-real" />{tr('真实数据', 'Real data')}</span>
-        <span className="gan-key"><i className="is-fake" />{tr('生成样本', 'Generated')}</span>
-        <span className="gan-key"><i className="is-pen0" />{tr('笔 1', 'Pen 1')}</span>
-        <span className="gan-key"><i className="is-pen1" />{tr('笔 2', 'Pen 2')}</span>
+        <span className="gan-key"><i className="is-real" />{tr('真实数据')}</span>
+        <span className="gan-key"><i className="is-fake" />{tr('生成样本')}</span>
+        <span className="gan-key"><i className="is-pen0" />{tr('笔 1')}</span>
+        <span className="gan-key"><i className="is-pen1" />{tr('笔 2')}</span>
         <span className="bk-chip gan-turn">{L(ctx.view.round)}</span>
       </div>
       <div className="gan-frame" ref={frame}>
-        <svg className="gan-chart" viewBox={`0 0 ${width} ${H}`} width={width} height={H} role="img" aria-label={tr('真实数据和生成样本的分布、鉴定员的判断 D(x)，以及两支笔随回合的位置', "The distributions of real and generated samples, the judge's judgement D(x), and the two pens' positions round by round")}>
+        <svg className="gan-chart" viewBox={`0 0 ${width} ${H}`} width={width} height={H} role="img" aria-label={tr('真实数据和生成样本的分布、鉴定员的判断 D(x)，以及两支笔随回合的位置')}>
           {/* histograms */}
           {real.map((h, i) => <rect key={`r${i}`} className="gan-real" x={X0 + i * binW + 1} y={HB - bar(h)} width={Math.max(1, binW - 2)} height={bar(h)} />)}
           {fake.map((h, i) => (h > 0 ? <rect key={`f${i}`} className="gan-fake" x={X0 + i * binW + 2.5} y={HB - bar(h)} width={Math.max(1, binW - 5)} height={bar(h)} /> : null))}
@@ -127,7 +127,7 @@ export function GanChart({ ctx }) {
           ))}
 
           {/* titles last, on a paper halo, so the pen lines pass behind them */}
-          <text className="gan-title is-on-band" x={X0 + 8} y={DT + 16}>{tr('鉴定员 D(x)：判断 x 为真实数据的置信度', 'Judge D(x): confidence that x is real')}</text>
+          <text className="gan-title is-on-band" x={X0 + 8} y={DT + 16}>{tr('鉴定员 D(x)：判断 x 为真实数据的置信度')}</text>
           <text className="gan-title" x={X0} y={TT - 10}>{tr(`两支笔的历史位置 ↓ 越往下越早（最近 ${TRACE} 回合）`, `Pen positions over time ↓ older further down (last ${TRACE} rounds)`)}</text>
         </svg>
       </div>

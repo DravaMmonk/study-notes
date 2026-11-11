@@ -61,12 +61,12 @@ function cells(seed, inside, { cell = 0.8, back = 0.2, grain = 0.4 } = {}) {
 
 export const SEGMENT = {
   pooled: {
-    about: t('一张 16 × 16 的图和它 2 × 2 最大池化后的 8 × 8；期望是反池化：每个值放回它原来的那一格，其余为 0', 'a 16 × 16 picture and its 8 × 8 after 2 × 2 max pooling; the unpooling expected: each value back in its own cell, the rest 0'),
+    about: t('一张 16 × 16 的图和它 2 × 2 最大池化后的 8 × 8；期望是反池化：每个值放回它原来的那一格，其余为 0'),
     test: S.obj({ seed: S.int() }),
     make: ({ seed }) => ({ inputs: { small: maxPool(blocky(seed), 2), big: blocky(seed) }, expected: { out: unpooled(blocky(seed)) } }),
   },
   kmeans: {
-    about: t('一张图和一个分界 m；期望是 k 均值的一步给出的新分界（step），或走三步后按分界分出的掩膜（segment）', 'a picture and a boundary m; the new boundary one step of k-means gives (step), or the mask split at the boundary after three steps (segment), expected'),
+    about: t('一张图和一个分界 m；期望是 k 均值的一步给出的新分界（step），或走三步后按分界分出的掩膜（segment）'),
     setup: S.obj({ expect: S.oneOf(Object.keys(KMEANS_EXPECTS)) }),
     test: S.obj({ img: S.call('picture'), m: S.num() }),
     make: ({ img, m }, { expect }) => {
@@ -75,11 +75,11 @@ export const SEGMENT = {
     },
   },
   cells: {
-    about: t('显微镜下的细胞：亮的细胞、暗一些的底、颗粒，挨着的细胞之间留一格缝；期望是细胞的掩膜', 'cells under a microscope, bright on a darker ground, with grain and one-pixel gaps between touching cells; the cells’ mask expected'),
+    about: t('显微镜下的细胞：亮的细胞、暗一些的底、颗粒，挨着的细胞之间留一格缝；期望是细胞的掩膜'),
     test: S.obj({
-      rects: S.list(S.list(S.int(), { min: 4, about: t('细胞：x0, y0, x1, y1（不含 x1、y1）', 'a cell: x0, y0, x1, y1 (x1, y1 excluded)') })),
-      gapX: S.opt(S.list(S.int(), { about: t('竖缝所在的列', 'the columns of upright gaps') })),
-      gapY: S.opt(S.list(S.int(), { about: t('横缝所在的行', 'the rows of gaps across') })),
+      rects: S.list(S.list(S.int(), { min: 4, about: t('细胞：x0, y0, x1, y1（不含 x1、y1）') })),
+      gapX: S.opt(S.list(S.int(), { about: t('竖缝所在的列') })),
+      gapY: S.opt(S.list(S.int(), { about: t('横缝所在的行') })),
       seed: S.int(), cell: S.opt(S.num()), back: S.opt(S.num()), grain: S.opt(S.num()),
     }),
     make: ({ rects, gapX = [], gapY = [], seed, cell, back, grain }) => {

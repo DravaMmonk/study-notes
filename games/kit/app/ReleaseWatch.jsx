@@ -7,7 +7,7 @@ import { refreshURL, releaseChanged } from './release.js'
 export function Unreadable({ problems }) {
   return (
     <main className="content-problems">
-      <h1>{tr('这款游戏的内容读不进来', 'This game’s content cannot be read')}</h1>
+      <h1>{tr('这款游戏的内容读不进来')}</h1>
       <ul>{problems.map((p, k) => <li key={k}><code>{p}</code></li>)}</ul>
     </main>
   )
@@ -42,9 +42,9 @@ export function ReleaseWatch({ page, content, loadedAssets }) {
   // An embedded level (`?embed`) reopens on itself, with no map to return to.
   const embedded = new URL(window.location.href).searchParams.has('embed')
   const lines = embedded
-    ? [tr('请刷新以使用最新版本。更新可能会重置这一关的进度。', 'Refresh to use the latest version. An update may reset this level’s progress.')]
-    : [tr('请刷新以使用最新版本，刷新后将返回关卡导航页。更新可能会重置游戏进度。', 'Refresh to use the latest version and return to the level map. An update may reset your progress.')]
-  const label = embedded ? tr('刷新', 'Refresh') : tr('刷新并返回导航', 'Refresh and return to map')
-  return <>{page}<Dialog top title={tr('游戏已更新', 'Game updated')} lines={lines} actions={[[label, () => window.location.replace(refreshURL(window.location.href))]]} /></>
+    ? [tr('请刷新以使用最新版本。更新可能会重置这一关的进度。')]
+    : [tr('请刷新以使用最新版本，刷新后将返回关卡导航页。更新可能会重置游戏进度。')]
+  const label = embedded ? tr('刷新') : tr('刷新并返回导航')
+  return <>{page}<Dialog top title={tr('游戏已更新')} lines={lines} actions={[[label, () => window.location.replace(refreshURL(window.location.href))]]} /></>
 }
 

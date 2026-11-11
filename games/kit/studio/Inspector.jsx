@@ -41,7 +41,7 @@ export default function Inspector({ content, vocab, at, field, ctx, places, onEd
   if (!field) {
     return (
       <div className="insp is-empty">
-        <p><MousePointerClick size={16} aria-hidden="true" />{tr('点画面上的字、测试、任务，或「字段」里的一行，在这里改它。', 'Click a text, a test or a task on the page, or a row of the fields, to edit it here.')}</p>
+        <p><MousePointerClick size={16} aria-hidden="true" />{tr('点画面上的字、测试、任务，或「字段」里的一行，在这里改它。')}</p>
       </div>
     )
   }
@@ -49,7 +49,7 @@ export default function Inspector({ content, vocab, at, field, ctx, places, onEd
     return (
       <div className="insp">
         <Head path={[]} file={file} onPick={onPick} onClose={onClose} />
-        <p className="insp-note">{field.missing ? tr(`「${field.missing}」不是这一关内容里的字段：它由领域生成，在「字段」里找它的来源。`, `“${field.missing}” is no field of the level’s content: the domain makes it; find where it comes from in the fields.`) : tr('这个字段已经不在了。', 'This field is gone.')}</p>
+        <p className="insp-note">{field.missing ? tr(`「${field.missing}」不是这一关内容里的字段：它由领域生成，在「字段」里找它的来源。`, `“${field.missing}” is no field of the level’s content: the domain makes it; find where it comes from in the fields.`) : tr('这个字段已经不在了。')}</p>
       </div>
     )
   }
@@ -65,9 +65,9 @@ export default function Inspector({ content, vocab, at, field, ctx, places, onEd
       <Head path={path} file={file} onPick={onPick} onClose={onClose} />
       {optional && (
         <div className="insp-tools">
-          <span>{tr('可选的字段', 'An optional field')}</span>
+          <span>{tr('可选的字段')}</span>
           <span className="kit-spacer" />
-          <button type="button" onClick={() => { edit(path, { unset: true }, null); onPick(parent) }} title={tr('去掉这个字段', 'Remove the field')}><Trash2 size={13} /></button>
+          <button type="button" onClick={() => { edit(path, { unset: true }, null); onPick(parent) }} title={tr('去掉这个字段')}><Trash2 size={13} /></button>
         </div>
       )}
       {isTask && <TaskTools content={content} level={at.level} tasks={shown.value.tasks} k={last} ctx={ctx} onEdit={onEdit} onOps={onOps} onPick={onPick} onLevel={onLevel} />}
@@ -75,10 +75,10 @@ export default function Inspector({ content, vocab, at, field, ctx, places, onEd
         <div className="insp-tools">
           <span>{tr(`第 ${last + 1} 项，共 ${list.length} 项`, `Item ${last + 1} of ${list.length}`)}</span>
           <span className="kit-spacer" />
-          <button type="button" disabled={last === 0} onClick={() => { edit(parent, { set: moved(list, last, last - 1) }, 'list'); onPick([...parent, last - 1]) }} title={tr('上移', 'Move up')}><ArrowUp size={13} /></button>
-          <button type="button" disabled={last === list.length - 1} onClick={() => { edit(parent, { set: moved(list, last, last + 1) }, 'list'); onPick([...parent, last + 1]) }} title={tr('下移', 'Move down')}><ArrowDown size={13} /></button>
-          <button type="button" onClick={() => { edit(parent, { set: [...list.slice(0, last + 1), JSON.parse(JSON.stringify(list[last])), ...list.slice(last + 1)] }, 'list'); onPick([...parent, last + 1]) }} title={tr('复制一份', 'Duplicate')}><Copy size={13} /></button>
-          <button type="button" onClick={() => { edit(path, { unset: true }, null); onPick(list.length > 1 ? [...parent, Math.max(0, last - 1)] : parent) }} title={tr('去掉', 'Remove')}><Trash2 size={13} /></button>
+          <button type="button" disabled={last === 0} onClick={() => { edit(parent, { set: moved(list, last, last - 1) }, 'list'); onPick([...parent, last - 1]) }} title={tr('上移')}><ArrowUp size={13} /></button>
+          <button type="button" disabled={last === list.length - 1} onClick={() => { edit(parent, { set: moved(list, last, last + 1) }, 'list'); onPick([...parent, last + 1]) }} title={tr('下移')}><ArrowDown size={13} /></button>
+          <button type="button" onClick={() => { edit(parent, { set: [...list.slice(0, last + 1), JSON.parse(JSON.stringify(list[last])), ...list.slice(last + 1)] }, 'list'); onPick([...parent, last + 1]) }} title={tr('复制一份')}><Copy size={13} /></button>
+          <button type="button" onClick={() => { edit(path, { unset: true }, null); onPick(list.length > 1 ? [...parent, Math.max(0, last - 1)] : parent) }} title={tr('去掉')}><Trash2 size={13} /></button>
         </div>
       )}
       <div className="insp-body" ref={body}>
@@ -117,14 +117,14 @@ function TaskTools({ content, level, tasks, k, ctx, onEdit, onOps, onPick, onLev
     <div className="insp-tools is-task">
       <span>{tr(`任务 ${k + 1} / ${tasks.length}`, `Task ${k + 1} of ${tasks.length}`)}</span>
       <span className="kit-spacer" />
-      <button type="button" disabled={k === 0} onClick={() => { onEdit({ op: 'task.move', task: task.id, to: { level, ...place(k - 1) } }); onPick(['tasks', k - 1]) }} title={tr('上移', 'Move up')}><ArrowUp size={13} /></button>
-      <button type="button" disabled={k === tasks.length - 1} onClick={() => { onEdit({ op: 'task.move', task: task.id, to: { level, after: tasks[k + 1].id } }); onPick(['tasks', k + 1]) }} title={tr('下移', 'Move down')}><ArrowDown size={13} /></button>
-      <button type="button" onClick={() => { const { id: _id, ...data } = task; onEdit({ op: 'task.add', level, data, after: task.id }); onPick(['tasks', k + 1]) }} title={tr('复制成新的任务', 'Duplicate as a new task')}><Copy size={13} /></button>
-      <button type="button" disabled={only} onClick={() => { onEdit({ op: 'task.remove', task: task.id }); onPick(['tasks', Math.max(0, k - 1)]) }} title={only ? tr('一关至少留一个任务', 'A level keeps one task') : tr('去掉这个任务', 'Remove the task')}><Trash2 size={13} /></button>
-      <span className="insp-move" title={only ? tr('并进另一关：这一关只有这个任务，挪过去后删掉这一关', 'Merge into another level: this is the level’s only task, the level is removed') : tr('挪进另一关（排在它的任务最后）', 'Move into another level (after its tasks)')}>
+      <button type="button" disabled={k === 0} onClick={() => { onEdit({ op: 'task.move', task: task.id, to: { level, ...place(k - 1) } }); onPick(['tasks', k - 1]) }} title={tr('上移')}><ArrowUp size={13} /></button>
+      <button type="button" disabled={k === tasks.length - 1} onClick={() => { onEdit({ op: 'task.move', task: task.id, to: { level, after: tasks[k + 1].id } }); onPick(['tasks', k + 1]) }} title={tr('下移')}><ArrowDown size={13} /></button>
+      <button type="button" onClick={() => { const { id: _id, ...data } = task; onEdit({ op: 'task.add', level, data, after: task.id }); onPick(['tasks', k + 1]) }} title={tr('复制成新的任务')}><Copy size={13} /></button>
+      <button type="button" disabled={only} onClick={() => { onEdit({ op: 'task.remove', task: task.id }); onPick(['tasks', Math.max(0, k - 1)]) }} title={only ? tr('一关至少留一个任务') : tr('去掉这个任务')}><Trash2 size={13} /></button>
+      <span className="insp-move" title={only ? tr('并进另一关：这一关只有这个任务，挪过去后删掉这一关') : tr('挪进另一关（排在它的任务最后）')}>
         <ArrowRightLeft size={13} aria-hidden="true" />
-        <small>{only ? tr('并进', 'Merge into') : tr('挪进', 'Move into')}</small>
-        <Picker options={others} value={undefined} onPick={into} label={only ? tr('并进…', 'Merge into…') : tr('挪进…', 'Move into…')} />
+        <small>{only ? tr('并进') : tr('挪进')}</small>
+        <Picker options={others} value={undefined} onPick={into} label={only ? tr('并进…') : tr('挪进…')} />
       </span>
     </div>
   )
@@ -135,7 +135,7 @@ function Head({ path, file, onPick, onClose }) {
   const steps = path.map((k, i) => ({ k, at: path.slice(0, i + 1) }))
   return (
     <header className="insp-head">
-      <nav className="insp-path" aria-label={tr('字段的位置', 'Where the field is')}>
+      <nav className="insp-path" aria-label={tr('字段的位置')}>
         <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={!path.length}>{file.level ?? (file.parts ? 'parts.json' : 'game.json')}</button>
         {steps.map(({ k, at }) => (
           <span key={showPath(at)} className="insp-step">
@@ -144,7 +144,7 @@ function Head({ path, file, onPick, onClose }) {
           </span>
         ))}
       </nav>
-      <button type="button" className="insp-close" onClick={onClose} aria-label={tr('关上', 'Close')}><X size={13} /></button>
+      <button type="button" className="insp-close" onClick={onClose} aria-label={tr('关上')}><X size={13} /></button>
     </header>
   )
 }

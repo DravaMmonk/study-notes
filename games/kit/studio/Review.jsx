@@ -32,7 +32,7 @@ export default function Review({ ops, redo, result, shown, why, setWhy, said, on
   return (
     <article className="review">
       <label className="kit-btn is-label review-open">
-        <FileUp size={14} aria-hidden="true" />{tr('打开变更集', 'Open a changeset')}
+        <FileUp size={14} aria-hidden="true" />{tr('打开变更集')}
         <input type="file" accept=".json,application/json" onChange={open} hidden />
       </label>
       {wrong && <p className="review-said is-fail">{wrong}</p>}
@@ -45,17 +45,17 @@ export default function Review({ ops, redo, result, shown, why, setWhy, said, on
                 <li key={k} className={failed === k ? 'is-fail' : ''}>
                   <code>{name}</code>
                   <span>{result.says?.[k] ?? JSON.stringify(args).slice(0, 120)}</span>
-                  {k < ops.length - 1 && <button type="button" className="field-x" onClick={() => onBack(k + 1)} title={tr('撤回到这里', 'Take back to here')} aria-label={tr('撤回到这里', 'Take back to here')}><Undo2 size={13} /></button>}
-                  <button type="button" className="field-x" onClick={() => onRemove(k)} aria-label={tr('去掉这个操作', 'Drop this operation')}><X size={13} /></button>
+                  {k < ops.length - 1 && <button type="button" className="field-x" onClick={() => onBack(k + 1)} title={tr('撤回到这里')} aria-label={tr('撤回到这里')}><Undo2 size={13} /></button>}
+                  <button type="button" className="field-x" onClick={() => onRemove(k)} aria-label={tr('去掉这个操作')}><X size={13} /></button>
                 </li>
               )
             })}
           </ol>
-          <input className="field-input review-why" value={why} onChange={(e) => setWhy(e.target.value)} placeholder={tr('为什么改', 'Why')} />
+          <input className="field-input review-why" value={why} onChange={(e) => setWhy(e.target.value)} placeholder={tr('为什么改')} />
           {result.problems?.length > 0 && <ul className="audit-lines">{result.problems.map((p) => <li key={p} className="audit-line is-fail">{p}</li>)}</ul>}
           <div className="review-actions">
-            <button type="button" className="kit-btn is-label is-solid review-apply" disabled={!ok} onClick={onApply}><Check size={14} aria-hidden="true" />{result.fresh || failed !== null ? tr('应用', 'Apply') : tr('检查中……', 'Checking…')}</button>
-            <button type="button" className="kit-btn is-label" onClick={onDiscard}><X size={14} aria-hidden="true" />{tr('全部放弃', 'Discard all')}</button>
+            <button type="button" className="kit-btn is-label is-solid review-apply" disabled={!ok} onClick={onApply}><Check size={14} aria-hidden="true" />{result.fresh || failed !== null ? tr('应用') : tr('检查中……')}</button>
+            <button type="button" className="kit-btn is-label" onClick={onDiscard}><X size={14} aria-hidden="true" />{tr('全部放弃')}</button>
             {redo.length > 0 && <button type="button" className="kit-btn is-label" onClick={onRedo} title="Ctrl/⌘+Shift+Z"><Redo2 size={14} aria-hidden="true" />{redo.length}</button>}
           </div>
           {shown.migration && (
@@ -68,7 +68,7 @@ export default function Review({ ops, redo, result, shown, why, setWhy, said, on
         </>
       ) : (
         <p className="review-empty">
-          {tr('没有待定的修改。', 'Nothing pending.')}
+          {tr('没有待定的修改。')}
           {redo.length > 0 && <button type="button" className="kit-btn is-label" onClick={onRedo}><Redo2 size={14} aria-hidden="true" />{redo.length}</button>}
         </p>
       )}
@@ -83,13 +83,13 @@ function FileDiff({ change, onSelect }) {
   const [lines, setLines] = useState(false)
   const json = change.file.endsWith('.json')
   const level = /\/levels\/(.+)\.json$/.exec(change.file)?.[1]
-  const state = change.before === null ? tr('新文件', 'new') : change.after === null ? tr('删除', 'removed') : null
+  const state = change.before === null ? tr('新文件') : change.after === null ? tr('删除', 'removed') : null
   return (
     <section className="review-block">
       <h2>
         {level && change.after !== null ? <button type="button" onClick={() => onSelect(level)}>{change.file}</button> : change.file}
         {state && <small>{state}</small>}
-        {json && <button type="button" className={`kit-btn is-label ${lines ? 'is-on' : ''}`} onClick={() => setLines(!lines)}>{tr('逐行', 'Lines')}</button>}
+        {json && <button type="button" className={`kit-btn is-label ${lines ? 'is-on' : ''}`} onClick={() => setLines(!lines)}>{tr('逐行')}</button>}
       </h2>
       {json && !lines
         ? <DiffFields rows={fieldDiff(parsed(change.before), parsed(change.after))} />
@@ -110,7 +110,7 @@ function Log({ log, undoable, onUndo }) {
             <b>#{e.seq}</b>
             <span>{e.why ? L(e.why) : e.ops.map((o) => o.op).join(', ')}</span>
             <small>{e.at.slice(0, 16).replace('T', ' ')}</small>
-            {e.seq === undoable && <button type="button" className="kit-btn is-label" onClick={onUndo}><Undo2 size={14} aria-hidden="true" />{tr('撤销', 'Undo')}</button>}
+            {e.seq === undoable && <button type="button" className="kit-btn is-label" onClick={onUndo}><Undo2 size={14} aria-hidden="true" />{tr('撤销')}</button>}
           </li>
         ))}
       </ol>

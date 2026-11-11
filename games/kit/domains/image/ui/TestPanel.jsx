@@ -63,19 +63,19 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
       return (
         <figure className="test-curve">
           <CurveView img={fits ? actual : null} expected={expected} tolerance={tolerance} width={280} height={120} onHover={setProbe} />
-          <figcaption>{prefix}<i className="is-expected" />{L(WORDS.wanted)} <i className="is-band" />{tr('允许范围', 'allowed band')} <i />{L(WORDS.result)}</figcaption>
+          <figcaption>{prefix}<i className="is-expected" />{L(WORDS.wanted)} <i className="is-band" />{tr('允许范围')} <i />{L(WORDS.result)}</figcaption>
         </figure>
       )
     }
     return <OutputImages expected={expected} actual={actual} fits={fits} view={outView} tolerance={tolerance} theme={theme} onHover={setProbe} selected={probe} scan={scan} onScan={onScan} prefix={prefix} />
   }
   const verdictOf = (checks) => {
-    if (!checks.length || checks.some((c) => c?.pass === null || c?.pass === undefined)) return <p className="test-verdict">{tr('点击「运行测试」查看这组是否通过', 'Run the tests to check this one')}</p>
+    if (!checks.length || checks.some((c) => c?.pass === null || c?.pass === undefined)) return <p className="test-verdict">{tr('点击「运行测试」查看这组是否通过')}</p>
     const failed = checks.find((c) => !c.pass)
     return (
       <p className={`test-verdict ${failed ? 'is-fail' : 'is-pass'}`}>
         {failed ? <X size={14} /> : <Check size={14} />}
-        {failed ? L(failed.reason) || tr('未通过', 'Failed') : tr('这组通过', 'Passed')}
+        {failed ? L(failed.reason) || tr('未通过', 'Failed') : tr('这组通过')}
       </p>
     )
   }
@@ -125,10 +125,10 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
       ]
     : null
   const readout = !probe
-    ? tr('触摸或悬停在图上读取数值', 'Touch or hover over a picture to read its values')
+    ? tr('触摸或悬停在图上读取数值')
     : readings
       ? <>({probe.x}, {probe.y}) {readings.map(([label, v], k) => <span key={label}>{k ? ' · ' : ''}{label}{v?.at} <b>{v ? (Array.isArray(v.value) ? v.value.map((x) => x.toFixed(3)).join(', ') : v.value.toFixed(3)) : '—'}</b></span>)}</>
-      : <>{tr('频率 ', 'frequency ')}({probe.x}, {probe.y}) <b>{Array.isArray(probe.value) ? probe.value.map((v) => v.toFixed(3)).join(', ') : probe.value.toFixed(3)}</b></>
+      : <>{tr('频率 ')}({probe.x}, {probe.y}) <b>{Array.isArray(probe.value) ? probe.value.map((v) => v.toFixed(3)).join(', ') : probe.value.toFixed(3)}</b></>
   const probeLine = (inputsAreImages || Object.values(test.expected).some((img) => kindOf(img) === 'image')) && <p className="pixel-probe">{readout}</p>
 
   if (part === 'tests') return list
@@ -158,7 +158,7 @@ export default function TestPanel({ level, run, hiddenCount = 0, hiddenMiss, tes
 
 function OutputImages({ expected, actual, fits, view, tolerance, theme, onHover, selected, scan, onScan, prefix = '' }) {
   const range = rangeOf(expected)
-  const missing = actual ? tr('尺寸不对', 'Wrong size') : L(WORDS.notWired)
+  const missing = actual ? tr('尺寸不对') : L(WORDS.notWired)
   const profile = view === 'profile'
   const row = Math.min(expected.h - 1, Math.max(0, Math.round(scan * (expected.h - 1))))
   return (
@@ -173,12 +173,12 @@ function OutputImages({ expected, actual, fits, view, tolerance, theme, onHover,
       </figure>
       <figure>
         <ImageView img={fits ? actual : null} against={expected} tolerance={tolerance} theme={theme} onHover={onHover} selected={selected} label="—" grid />
-        <figcaption>{prefix}{tr('误差', 'Error')}</figcaption>
+        <figcaption>{prefix}{tr('误差')}</figcaption>
       </figure>
       {profile && (
         <figure className="test-curve">
           <CurveView img={fits ? rowOf(actual, row) : null} expected={rowOf(expected, row)} tolerance={tolerance} width={280} height={110} onHover={(p) => onHover(p && { ...p, y: row, h: expected.h })} />
-          <figcaption>{tr(`第 ${row} 行：`, `Row ${row}: `)}<i className="is-expected" />{L(WORDS.wanted)} <i className="is-band" />{tr('允许范围', 'allowed band')} <i />{L(WORDS.result)} · {tr('在图上拖动可切换行', 'drag on a picture to pick another row')}</figcaption>
+          <figcaption>{tr(`第 ${row} 行：`, `Row ${row}: `)}<i className="is-expected" />{L(WORDS.wanted)} <i className="is-band" />{tr('允许范围')} <i />{L(WORDS.result)} · {tr('在图上拖动可切换行')}</figcaption>
         </figure>
       )}
     </>

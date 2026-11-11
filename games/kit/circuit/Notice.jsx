@@ -7,7 +7,7 @@ export default function Notice({ editing, prompt = null }) {
     return (
       <div className="pb-banner" role="status">
         <span>{prompt?.text ?? editing.pickNote}</span>
-        <button onClick={prompt?.cancel ?? editing.unpick}>{tr('取消', 'Cancel')}</button>
+        <button onClick={prompt?.cancel ?? editing.unpick}>{tr('取消')}</button>
       </div>
     )
   }
@@ -15,7 +15,7 @@ export default function Notice({ editing, prompt = null }) {
   return (
     <div className="ph-toast pb-toast" role="status">
       <span>{L(editing.toast)}</span>
-      {editing.history.canUndo && <button onClick={editing.history.undo}>{tr('撤销', 'Undo')}</button>}
+      {editing.history.canUndo && <button onClick={editing.history.undo}>{tr('撤销')}</button>}
     </div>
   )
 }

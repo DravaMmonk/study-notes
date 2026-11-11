@@ -15,7 +15,7 @@ import { summaryOf } from './form.js'
 /** What a row says of its field: a list's length and first items, else the value in one line. */
 function sumOf(field) {
   if (field.kind === 'list') return `${field.items.length} · ${field.items.map((i) => summaryOf(i.value, 40)).join(' | ')}`
-  if (field.kind === 'board') return `${(field.value ?? []).length} ${tr('行', 'lines')} · ${(field.value ?? []).join(' ; ')}`
+  if (field.kind === 'board') return `${(field.value ?? []).length} ${tr('行')} · ${(field.value ?? []).join(' ; ')}`
   return summaryOf(field.value, 140)
 }
 
@@ -35,7 +35,7 @@ function Row({ name, field, about, picked, findings, before, onPick }) {
   const on = picked === key || (picked?.startsWith(key) && /^[.[]/.test(picked.slice(key.length)))
   return (
     <button type="button" className={`row ${on ? 'is-on' : ''} ${found ? 'is-wrong' : ''}`} data-path={key} onClick={() => onPick(field.path)} title={about ? L(about) : undefined}>
-      <span className="row-key">{name}{changed && <i className="row-dot" aria-label={tr('改过', 'changed')} />}</span>
+      <span className="row-key">{name}{changed && <i className="row-dot" aria-label={tr('改过')} />}</span>
       <span className="row-sum">{sumOf(field) || '—'}</span>
       {found > 0 && <b className="row-found">{found}</b>}
     </button>

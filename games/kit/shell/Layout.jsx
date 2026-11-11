@@ -56,7 +56,7 @@ export function TaskCard({ children }) {
   return (
     <section className={`task-card ${open ? 'is-open' : ''}`}>
       <button type="button" className="task-toggle" onClick={() => setOpen(!open)} aria-expanded={open}>
-        <span>{tr('任务', 'Task')}</span>
+        <span>{tr('任务')}</span>
         <ChevronDown size={16} />
       </button>
       {open && <div className="task-body">{children}</div>}
@@ -92,7 +92,7 @@ export function Brief({ game, level, text, tip, hint, children }) {
           <h1 {...mark('title', 'level')}>{L(level.title)}</h1>
         </header>
       )}
-      {level.optionalLevel && !edit && <button type="button" className="brief-skip" onClick={level.skipLevel}>{tr('跳过此关', 'Skip this level')}</button>}
+      {level.optionalLevel && !edit && <button type="button" className="brief-skip" onClick={level.skipLevel}>{tr('跳过此关')}</button>}
       {level.steps && (edit || level.steps.names.length > 1) && <TaskSteps steps={level.steps} />}
       {paragraphs.map((p, k) => <Text key={k} className="brief-text" text={p} mark={mark(many ? `brief[${k}]` : 'brief')} />)}
       {tip && <Text className="brief-tip" text={tip} mark={mark('tip')} />}
@@ -102,7 +102,7 @@ export function Brief({ game, level, text, tip, hint, children }) {
           {edit ? <AddMark at="hint" label={{ zh: '提示', en: 'a hint' }} /> : (
             <button className="hint-toggle" onClick={() => setShown(more ? shown + 1 : 0)} aria-expanded={shown > 0}>
               <Lightbulb size={14} />
-              {more ? (shown ? tr(`下一条提示（${shown + 1}/${hints.length}）`, `Next hint (${shown + 1}/${hints.length})`) : tr('提示', 'Hint')) : tr('收起提示', 'Hide hints')}
+              {more ? (shown ? tr(`下一条提示（${shown + 1}/${hints.length}）`, `Next hint (${shown + 1}/${hints.length})`) : tr('提示')) : tr('收起提示')}
             </button>
           )}
         </div>
@@ -127,14 +127,14 @@ function TaskSteps({ steps }) {
         const open = edit || steps.open[k]
         return (
           <li key={k}>
-            <button type="button" {...(k === steps.at ? mark('step') : {})} className={`${k === steps.at ? 'is-on' : ''} ${done ? 'is-done' : ''}`} disabled={!open} aria-current={k === steps.at ? 'step' : undefined} onClick={() => k !== steps.at && steps.go(k)} title={open ? undefined : tr('请先完成前一个任务', 'Complete the previous task first')}>
+            <button type="button" {...(k === steps.at ? mark('step') : {})} className={`${k === steps.at ? 'is-on' : ''} ${done ? 'is-done' : ''}`} disabled={!open} aria-current={k === steps.at ? 'step' : undefined} onClick={() => k !== steps.at && steps.go(k)} title={open ? undefined : tr('请先完成前一个任务')}>
               <i>{done ? <Check size={12} strokeWidth={2.6} /> : open ? k + 1 : <Lock size={11} strokeWidth={2.2} />}</i>
-              <span>{name ? L(name) : tr(`任务 ${k + 1}`, `Task ${k + 1}`)}{steps.optional?.[k] && ` · ${tr('可选', 'optional')}`}</span>
+              <span>{name ? L(name) : tr(`任务 ${k + 1}`, `Task ${k + 1}`)}{steps.optional?.[k] && ` · ${tr('可选')}`}</span>
             </button>
           </li>
         )
       })}
-      {!edit && steps.optional?.[steps.at] && !steps.passed[steps.at] && steps.at + 1 < steps.names.length && steps.open[steps.at + 1] && <li><button type="button" onClick={() => steps.skip(steps.at)}>{tr('跳过此任务', 'Skip this task')}</button></li>}
+      {!edit && steps.optional?.[steps.at] && !steps.passed[steps.at] && steps.at + 1 < steps.names.length && steps.open[steps.at + 1] && <li><button type="button" onClick={() => steps.skip(steps.at)}>{tr('跳过此任务')}</button></li>}
       {edit && <li><AddMark at="tasks" scope="level" label={{ zh: '任务', en: 'a task' }} /></li>}
     </ol>
   )

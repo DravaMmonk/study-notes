@@ -177,10 +177,10 @@ export function CoverPairs({ ctx, children }) {
 
   const prompt =
     armed?.side === 'cover'
-      ? tr('已选封面上的点 → 再点击照片中的同一点。', 'Cover point selected → now click the same point in the photo.')
+      ? tr('已选封面上的点 → 再点击照片中的同一点。')
       : armed?.side === 'photo'
-        ? tr('已选照片中的点 → 再点击封面上的对应点。', 'Photo point selected → now click the matching point on the cover.')
-        : tr('点击封面上的一个圆点，再点击照片中同一位置的圆点；也可以直接拖动连接。', 'Click a dot on the cover, then the dot at the same spot in the photo, or drag from one to the other.')
+        ? tr('已选照片中的点 → 再点击封面上的对应点。')
+        : tr('点击封面上的一个圆点，再点击照片中同一位置的圆点；也可以直接拖动连接。')
 
   const marker = (side, i, [x, y], used, r, fs) => {
     const isArmed = armed?.side === side && armed.index === i
@@ -198,8 +198,8 @@ export function CoverPairs({ ctx, children }) {
       <div className="mb-cover-stage" ref={stage}>
         <div className="mb-cover-grid">
           <figure className="mb-cover-fig">
-            <span className="bk-label">{tr('封面', 'Cover')}</span>
-            <svg ref={coverSvg} className="mb-svg mb-drag" viewBox={`${-PAD} ${-PAD} ${cw + 2 * PAD} ${ch + 2 * PAD}`} role="img" aria-label={tr('封面', 'Cover')} onPointerDown={pressCover}>
+            <span className="bk-label">{tr('封面')}</span>
+            <svg ref={coverSvg} className="mb-svg mb-drag" viewBox={`${-PAD} ${-PAD} ${cw + 2 * PAD} ${ch + 2 * PAD}`} role="img" aria-label={tr('封面')} onPointerDown={pressCover}>
               <rect className="mb-hit" x={-PAD} y={-PAD} width={cw + 2 * PAD} height={ch + 2 * PAD} />
               <image className="mb-pixels" href={coverUrl} x={0} y={0} width={cw} height={ch} preserveAspectRatio="none" />
               <rect className="mb-frame" x={0} y={0} width={cw} height={ch} />
@@ -211,8 +211,8 @@ export function CoverPairs({ ctx, children }) {
             <p className={`bk-note mb-prompt ${armed ? 'is-armed' : ''}`}>{prompt}</p>
           </div>
           <figure className="mb-photo-fig">
-            <span className="bk-label">{tr('照片', 'Photo')}</span>
-            <svg ref={photoSvg} className="mb-svg" viewBox={`${-PAD} ${-PAD} ${pw + 2 * PAD} ${ph + 2 * PAD}`} role="img" aria-label={tr('照片', 'Photo')} onClick={tapPhoto} onPointerDown={(e) => e.stopPropagation()}>
+            <span className="bk-label">{tr('照片')}</span>
+            <svg ref={photoSvg} className="mb-svg" viewBox={`${-PAD} ${-PAD} ${pw + 2 * PAD} ${ph + 2 * PAD}`} role="img" aria-label={tr('照片')} onClick={tapPhoto} onPointerDown={(e) => e.stopPropagation()}>
               <defs>
                 <clipPath id="mb-photo-clip"><rect x={0} y={0} width={pw} height={ph} /></clipPath>
               </defs>
@@ -259,7 +259,7 @@ export function CoverPairList({ ctx }) {
           })}
         </ol>
       ) : (
-        <p className="bk-note">{tr('还没有点对。', 'No pairs yet.')}</p>
+        <p className="bk-note">{tr('还没有点对。')}</p>
       )}
     </div>
   )

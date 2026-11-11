@@ -97,7 +97,7 @@ export function registerCards({ registers, top, forms = {}, numbers = false }) {
     settings: (node, set) => {
       const p = node.params ?? {}
       const reg = <CardField label={T('名字', 'Name')} value={p.reg ?? registers[0]} options={names} onChange={set('reg')} />
-      const start = numbers ? <CardNumber label={T('初值', 'Start')} value={p.start ?? ''} onChange={set('start')} /> : <CardField label={T('初值', 'Start')} value={p.start ?? ''} options={starts} onChange={set('start')} />
+      const start = numbers ? <CardNumber label={T('初值')} value={p.start ?? ''} onChange={set('start')} /> : <CardField label={T('初值')} value={p.start ?? ''} options={starts} onChange={set('start')} />
       if (node.type === 'reg') return <>{reg}{start}</>
       if (node.type === 'keep') return reg
       if (node.type === 'const') return numbers ? <CardNumber label={T('数值', 'Value')} value={p.value ?? '0'} onChange={set('value')} /> : <CardField label={T('数值', 'Value')} value={p.value ?? '0'} options={values} onChange={set('value')} />

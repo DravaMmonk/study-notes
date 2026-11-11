@@ -88,12 +88,12 @@ export default function Library({ title, subtitle, label, groups, current, onPic
                   <button type="button" className={`wiki-item ${item.id === current && (reading || !phone) ? 'is-current' : ''}`} onClick={() => show(item.id)} aria-current={item.id === current ? 'true' : undefined}>
                     {item.lead}
                     <span>{L(item.title)}</span>
-                    {item.unread && <i className="wiki-dot" aria-label={tr('未读', 'Unread')} />}
+                    {item.unread && <i className="wiki-dot" aria-label={tr('未读')} />}
                   </button>
                 ) : (
                   <span className="wiki-item is-locked" title={item.lock ? tr(`进行到第 ${item.lock} 关时解锁`, `Unlocks at level ${item.lock}`) : undefined}>
                     <Lock size={12} aria-hidden="true" />
-                    <span>{tr('？？？', '???')}</span>
+                    <span>{tr('？？？')}</span>
                     {item.lock && <small>{item.lock}</small>}
                   </span>
                 )}
@@ -102,21 +102,21 @@ export default function Library({ title, subtitle, label, groups, current, onPic
           </ul>
         </section>
       ))}
-      {!shown.length && <p className="panel-note">{tr('未找到匹配的条目。', 'No matching entry.')}</p>}
+      {!shown.length && <p className="panel-note">{tr('未找到匹配的条目。')}</p>}
     </nav>
   )
 
-  const back = phone ? <button type="button" className="kit-btn is-label wiki-back" onClick={() => setReading(false)}><ArrowLeft size={15} /><span>{tr('返回列表', 'Back to the list')}</span></button> : null
+  const back = phone ? <button type="button" className="kit-btn is-label wiki-back" onClick={() => setReading(false)}><ArrowLeft size={15} /><span>{tr('返回列表')}</span></button> : null
   return (
     <div className="ph-scrim wiki-scrim" onClick={onClose}>
       <div className={`wiki ${phone ? 'is-phone' : ''}`} role="dialog" aria-modal="true" aria-label={title} onClick={(event) => event.stopPropagation()}>
         <header className="wiki-head">
           <h2>{title}{subtitle && <small>{subtitle}</small>}</h2>
-          <button className="ph-icon" onClick={onClose} aria-label={tr('关闭', 'Close')}><X size={18} /></button>
+          <button className="ph-icon" onClick={onClose} aria-label={tr('关闭')}><X size={18} /></button>
         </header>
         <div className="wiki-body">
           {(!phone || !reading) && list}
-          {(!phone || reading) && (current !== null ? article(current, back) : <p className="panel-note wiki-empty">{tr('请从左侧选择一项。', 'Choose an item on the left.')}</p>)}
+          {(!phone || reading) && (current !== null ? article(current, back) : <p className="panel-note wiki-empty">{tr('请从左侧选择一项。')}</p>)}
         </div>
       </div>
     </div>

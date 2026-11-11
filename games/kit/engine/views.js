@@ -47,41 +47,41 @@ const grey = (g) => isGrid(g) && (g.c ?? 1) === 1
 export const VIEWS = {
   value: { shapes: ['scalar'], label: t('数值', 'Value') },
   numbers: { shapes: ['grid'], label: t('数值', 'Numbers') },
-  pixels: { shapes: ['grid'], label: t('图像', 'Picture') },
-  plane: { shapes: ['grid'], label: t('平面', 'Plane'), fits: (g) => grey(g) && g.h === 2 && g.w >= 1 && g.w <= 6 },
-  plot: { shapes: ['grid'], label: t('函数图像', 'Plot'), fits: (g) => grey(g) && g.h <= 2 && g.w >= 2 },
-  profile: { shapes: ['grid'], label: t('剖面', 'Profile'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },
-  surface: { shapes: ['grid'], label: t('地形', 'Terrain'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },
-  slope: { shapes: ['grid'], label: t('坡度', 'Slope'), fits: (g) => grey(g) && g.h >= 3 && g.w >= 3 },
-  spectrum: { shapes: ['grid'], label: t('频谱', 'Spectrum'), fits: (g) => grey(g) && g.w >= 2 && g.w * g.h <= 128 * 128 },
-  centredBins: { shapes: ['grid'], label: t('零频居中的幅度', 'Centred magnitudes'), fits: (g) => grey(g) && g.w >= 2 },
-  wave: { shapes: ['bits'], label: t('波形', 'Wave'), lane: 'wave' },
+  pixels: { shapes: ['grid'], label: t('图像') },
+  plane: { shapes: ['grid'], label: t('平面'), fits: (g) => grey(g) && g.h === 2 && g.w >= 1 && g.w <= 6 },
+  plot: { shapes: ['grid'], label: t('函数图像'), fits: (g) => grey(g) && g.h <= 2 && g.w >= 2 },
+  profile: { shapes: ['grid'], label: t('剖面'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },
+  surface: { shapes: ['grid'], label: t('地形'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },
+  slope: { shapes: ['grid'], label: t('坡度'), fits: (g) => grey(g) && g.h >= 3 && g.w >= 3 },
+  spectrum: { shapes: ['grid'], label: t('频谱'), fits: (g) => grey(g) && g.w >= 2 && g.w * g.h <= 128 * 128 },
+  centredBins: { shapes: ['grid'], label: t('零频居中的幅度'), fits: (g) => grey(g) && g.w >= 2 },
+  wave: { shapes: ['bits'], label: t('波形'), lane: 'wave' },
   bands: { shapes: ['bits', 'ticks'], label: t('数值', 'Values'), lane: 'value' },
-  terms: { shapes: ['ticks'], label: t('逐项', 'Terms'), lane: 'terms' },
-  dots: { shapes: ['ticks'], label: t('数列图', 'Plot'), lane: 'dots' },
-  sequence: { shapes: ['list'], label: t('序列', 'Sequence') },
+  terms: { shapes: ['ticks'], label: t('逐项'), lane: 'terms' },
+  dots: { shapes: ['ticks'], label: t('数列图'), lane: 'dots' },
+  sequence: { shapes: ['list'], label: t('序列') },
 }
 
 const VIEW = S.oneOf(Object.keys(VIEWS))
-const LIST = S.list(VIEW, { min: 1, about: t('能用的显示方式，第一种是起始；只有一种时玩家不能切换', 'the views it may be drawn in, the first to start in; with one, the player cannot switch') })
+const LIST = S.list(VIEW, { min: 1, about: t('能用的显示方式，第一种是起始；只有一种时玩家不能切换') })
 
 const BY_SHAPE = (about, more = {}) => S.obj(Object.fromEntries(SHAPES.map((shape) => [shape, S.opt(LIST)])), { about, ...more })
 
 /** game.json `views`: the views each shape is drawn in where a row names none. */
-export const GAME_VIEWS = S.opt(BY_SHAPE(t('每种形状默认的显示方式（没写的用库里的第一种）', 'the views each shape is drawn in by default (the library’s first where none is given)')))
+export const GAME_VIEWS = S.opt(BY_SHAPE(t('每种形状默认的显示方式（没写的用库里的第一种）')))
 
 /** A task's `views`: the game's, changed for the shapes it names, on its cards and in its results. */
-export const TASK_VIEWS = S.opt(BY_SHAPE(t('这个任务里每种形状的显示方式（换掉游戏默认的那几种）', 'the views each shape is drawn in in this task (in place of the game’s)'), { section: 'read' }))
+export const TASK_VIEWS = S.opt(BY_SHAPE(t('这个任务里每种形状的显示方式（换掉游戏默认的那几种）'), { section: 'read' }))
 
 /** A task port's `view`: the view its value starts in, on its card, in its detail and its results row. */
-export const START_VIEW = S.opt(S.oneOf(Object.keys(VIEWS), { about: t('这个口的值起初画成哪种显示方式（玩家在详情和结果区里换）', 'the view its value starts in (the player switches it in its detail and results row)') }))
+export const START_VIEW = S.opt(S.oneOf(Object.keys(VIEWS), { about: t('这个口的值起初画成哪种显示方式（玩家在详情和结果区里换）') }))
 
 /** A task's `results`: its results area's rows, in order. */
 export const RESULTS = S.opt(S.list(S.obj({
-  of: S.str({ about: t('显示哪一项：任务的一个口', 'what the row shows: one of the task’s ports') }),
+  of: S.str({ about: t('显示哪一项：任务的一个口') }),
   views: S.opt(LIST),
   label: S.opt(S.text()),
-}), { min: 1, section: 'read', about: t('结果区的几行，按顺序；不写就是领域默认的几行', 'the results area’s rows, in order; without them the domain’s default rows') }))
+}), { min: 1, section: 'read', about: t('结果区的几行，按顺序；不写就是领域默认的几行') }))
 
 /** The views a shape is drawn in by default: the game's, or the library's first. */
 export const viewsFor = (shape, defaults) => defaults?.[shape] ?? [Object.keys(VIEWS).find((v) => VIEWS[v].shapes.includes(shape))]
@@ -132,7 +132,7 @@ export const SHOW = S.by('shape', {
   bits: S.obj({ shape: S.oneOf(['bits']), value: TICKS, views: S.opt(LIST), label: S.opt(S.text()) }),
   ticks: S.obj({ shape: S.oneOf(['ticks']), value: S.list(S.any()), views: S.opt(LIST), label: S.opt(S.text()) }),
   list: S.obj({ shape: S.oneOf(['list']), value: S.list(S.any()), label: S.opt(S.text()) }),
-}, { about: t('引言或通关文案旁显示的一个值', 'a value shown beside an introduction page or a pass text') })
+}, { about: t('引言或通关文案旁显示的一个值') })
 
 /** A grid from content's rows: rows of numbers (one channel) or of [R, G, B] triples (three). */
 function gridOf(rows) {

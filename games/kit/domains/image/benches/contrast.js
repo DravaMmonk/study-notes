@@ -170,7 +170,7 @@ const QUIZ_SEED = 901
 
 /** The bench model: knob `push` (InfoNCE's denominator on or off); acts train (arg: steps) and reset. */
 export const contrast = {
-  about: t('拉近与推开：没有标签，训练编码器让每张图的两个变形版本互相认出；旋钮 push；算出 worst（认对搭档的最低概率）、negative（负对平均 sim）', 'pull close, push apart: with no labels, train an encoder so two altered views of each picture find each other; knob push; computes worst (the lowest chance of picking the partner) and negative (the mean sim of negative pairs)'),
+  about: t('拉近与推开：没有标签，训练编码器让每张图的两个变形版本互相认出；旋钮 push；算出 worst（认对搭档的最低概率）、negative（负对平均 sim）'),
   setup: S.obj({ names: S.list(S.str()), base: S.list(S.call('picture')), tau: S.num(), rate: S.num(), testSeeds: S.list(S.int()) }),
   make({ base, ...p }, bench) {
     const m = contrastBench({ ...p, base: base.map(picture), goal: limitOf(bench.goal, 'worst').atLeast, collapse: limitOf(bench.goal, 'negative').atMost })
@@ -187,7 +187,7 @@ export const contrast = {
       view(v, { process: state }) {
         const us = quiz.map((q) => m.encode(state.model, q.f).u)
         const report = m.evaluate(state.model)
-        const tail = [' · ', t('正对平均 sim', 'mean sim of positive pairs'), ' ', { b: report.positive.toFixed(2) }]
+        const tail = [' · ', t('正对平均 sim'), ' ', { b: report.positive.toFixed(2) }]
         return {
           worst: report.worst,
           negative: report.negative,
@@ -195,14 +195,14 @@ export const contrast = {
           angles: us.map((u) => Math.atan2(u[1], u[0])),
           rows: us.map((_, a) => m.choice(us, a)),
           losses: state.losses,
-          lossNote: state.losses.length < 2 ? [t('训练后在此显示损失曲线', 'The loss curve appears here after training'), ...tail] : [t('损失', 'Loss'), ' ', { b: state.losses.at(-1).toFixed(2) }, ' · ', t(`最近 ${state.losses.length} 步`, `last ${state.losses.length} steps`), ...tail],
+          lossNote: state.losses.length < 2 ? [t('训练后在此显示损失曲线'), ...tail] : [t('损失'), ' ', { b: state.losses.at(-1).toFixed(2) }, ' · ', t(`最近 ${state.losses.length} 步`, `last ${state.losses.length} steps`), ...tail],
           formula: ['ℓ = ', '−sim(a, a⁺)/τ', ' ', { off: !v.push, text: ['+ log Σ', { sub: 'k≠a' }, ' exp(sim(a, k)/τ)'] }],
           matrixTitle: [t(`每行在其余 ${us.length - 1} 个视图里选搭档`, `Each row picks a partner from the other ${us.length - 1} views`), ` · τ = ${m.TAU}`],
           say: report.collapsed
-            ? { tone: 'fail', text: t('坍缩：所有视图都挤向同一方向，彼此无法区分。', 'Collapsed: every view is squeezed into the same direction, so none can be told apart.') }
+            ? { tone: 'fail', text: t('坍缩：所有视图都挤向同一方向，彼此无法区分。') }
             : report.pass
-              ? { tone: 'pass', text: t('通过：每个视图都能认出自己的搭档。', 'Passed: every view recognises its partner.') }
-              : { text: state.t ? t('继续训练，观察各点的移动方向。', 'Keep training and watch where the dots move.') : t('尚未训练：编码器的权重是随机的。', 'Not trained yet: the encoder weights are random.') },
+              ? { tone: 'pass', text: t('通过：每个视图都能认出自己的搭档。') }
+              : { text: state.t ? t('继续训练，观察各点的移动方向。') : t('尚未训练：编码器的权重是随机的。') },
         }
       },
     }

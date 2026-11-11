@@ -143,5 +143,5 @@ function WorldHandle({ rootRef }) {
     event.preventDefault()
     keep(size(rootRef.current.querySelector('.wb-strip').getBoundingClientRect().height + step))
   }
-  return <div className="wb-resize" role="separator" aria-orientation="horizontal" aria-label={tr('拖动调整结果区高度，双击恢复自动高度', 'Drag to resize the results area; double-click to fit it again')} title={tr('拖动调整高度 · 双击恢复自动高度', 'Drag to resize · double-click to fit')} tabIndex={0} onPointerDown={down} onDoubleClick={fit} onKeyDown={key} />
+  return <div className="wb-resize" role="separator" aria-orientation="horizontal" aria-label={tr('拖动调整结果区高度，双击恢复自动高度')} title={tr('拖动调整高度 · 双击恢复自动高度')} tabIndex={0} onPointerDown={down} onDoubleClick={fit} onKeyDown={key} />
 }

@@ -5,8 +5,8 @@ import './separable.css'
 export function SeparableKernels({ ctx }) {
   const { q } = ctx
   const grids = [
-    ['want1', tr('目标 1', 'Target 1')], ['out1', tr('结果 1', 'Result 1')],
-    ['want2', tr('目标 2', 'Target 2')], ['out2', tr('结果 2', 'Result 2')],
+    ['want1', tr('目标 1')], ['out1', tr('结果 1')],
+    ['want2', tr('目标 2')], ['out2', tr('结果 2')],
   ]
   return <div className="separable-kernels">{grids.map(([key, label]) => (
     <figure key={key}>

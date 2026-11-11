@@ -50,13 +50,13 @@ export function elimInputs(test, level) {
 /** The elimination rule a test wants. */
 export const elimOf = (test) => ({ fixes: [], premises: test.elim.map(premiseOf), conclusion: meta(ANY) })
 
-const count = (v) => (v.kind === 'list' ? T(`一串 ${v.items.length} 样`, `a list of ${v.items.length}`) : v.kind === 'rule' ? T('一条规则', 'a rule') : v.kind === 'any' ? T(`约束了 ${v.vars.join(' ')} 的${count(v.body).zh}`, `${count(v.body).en} binding ${v.vars.join(' ')}`) : T('一句话', 'a sentence'))
+const count = (v) => (v.kind === 'list' ? T(`一串 ${v.items.length} 样`, `a list of ${v.items.length}`) : v.kind === 'rule' ? T('一条规则') : v.kind === 'any' ? T(`约束了 ${v.vars.join(' ')} 的${count(v.body).zh}`, `${count(v.body).en} binding ${v.vars.join(' ')}`) : T('一句话'))
 const want = (v, kind, what) => {
   if (v?.kind !== kind) throw fail(`这里要${what.zh}，接进来的是${count(v).zh}`, `This needs ${what.en}; it got ${count(v).en}`)
   return v
 }
-const A_RULE = T('一条规则', 'a rule')
-const A_SENTENCE = T('一句话', 'a sentence')
+const A_RULE = T('一条规则')
+const A_SENTENCE = T('一句话')
 // A value as a premise of a rule: a sentence as it is; a rule, ⋀x. ⟦A; B⟧ ⟹ C, as a premise with assumptions of its own.
 function premiseOfValue(v) {
   if (v.kind === 'any') {
@@ -102,7 +102,7 @@ const canonical = (rule) => {
 }
 /** Is the result the elimination rule the test wants? '' or why not. */
 export function judgeElim(test, out) {
-  if (!out) return T('还没有东西接到「结果」', 'Nothing reaches the result yet')
+  if (!out) return T('还没有东西接到「结果」')
   if (out.kind !== 'rule') return T(`结果要一条规则，接进来的是${count(out).zh}`, `The result must be a rule; it got ${count(out).en}`)
-  return canonical(out.rule) === canonical(elimOf(test)) ? '' : T('生成的规则和这份声明的消去规则不一样', 'The rule made is not this declaration’s elimination rule')
+  return canonical(out.rule) === canonical(elimOf(test)) ? '' : T('生成的规则和这份声明的消去规则不一样')
 }

@@ -23,7 +23,7 @@ export default function BlockHeader({ block, editable = true, onEdit, onDragStar
     {phone && draft!==null && createPortal(<Sheet title={L(WORDS.blockNote)} onClose={()=>setDraft(null)}>
       <form className="block-rename" onSubmit={e=>{e.preventDefault();commit()}}>
         <input autoFocus aria-label={L(WORDS.blockNote)} value={draft} onChange={e=>setDraft(e.target.value)} />
-        <button type="submit">{tr('保存', 'Save')}</button>
+        <button type="submit">{tr('保存')}</button>
       </form>
     </Sheet>,document.body)}
   </>

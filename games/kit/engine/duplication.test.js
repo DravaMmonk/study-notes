@@ -5,13 +5,14 @@
 // (`export const entries = ({ task, test, run }) => [`); a line more is a piece of the base written out again, to be
 // moved into it. Two kinds of file hold more that is no piece of the base: a vocabulary's
 // shape (`const PARTS = {`, `kinds: { part: PARTS, want: WANTS }`…), and what the tick domains' own register and
-// constant cards are called and do, words each game keeps for its own parts (in vocabulary.js and ui/catalog.js).
+// constant cards are called and do, words each game keeps for its own parts (in vocabulary.js and ui/catalog.js; one
+// line more of them reads the same since their English moved to the catalog, ../i18n/en.js).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { FILES, duplicated, measure } from './duplication.js'
 
-const CEILING = { 'board.js': 2, 'course.js': 2, 'run.js': 2, 'validate.js': 3, 'vocabulary.js': 16, 'domain.js': 0, 'play.js': 2, 'game.jsx': 0, 'ui/Screen.jsx': 1, 'ui/catalog.js': 4 }
+const CEILING = { 'board.js': 2, 'course.js': 2, 'run.js': 2, 'validate.js': 3, 'vocabulary.js': 16, 'domain.js': 0, 'play.js': 2, 'game.jsx': 0, 'ui/Screen.jsx': 1, 'ui/catalog.js': 5 }
 
 test('a line counts as written out again when three domains have it, their names aside, comments and imports left out', () => {
   const file = (name, text) => ({ key: name, name, text })

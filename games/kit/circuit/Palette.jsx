@@ -18,14 +18,14 @@ export default function Palette({ items, folded = [], onAdd, compact = false }) 
     const edge = (item.closest('.kit-board') ?? document.documentElement).getBoundingClientRect().right
     item.dataset.tip = item.getBoundingClientRect().right + 12 + tip.offsetWidth > edge ? 'left' : 'right'
   }
-  if (!items.length && !folded.length) return <p className="panel-note">{tr('这一关不需要元件。', 'This level needs no parts.')}</p>
+  if (!items.length && !folded.length) return <p className="panel-note">{tr('这一关不需要元件。')}</p>
   return (
     <div className={`palette ${compact ? 'is-compact' : ''}`}>
       {[...items, ...(more ? folded.map((item) => ({ ...item, folded: true })) : [])].map((item) => (
         <button key={item.type} className={`palette-item ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-family={item.family} style={item.style} onClick={() => onAdd(item.type)} title={compact ? undefined : L(item.desc)} onPointerEnter={compact ? aim : undefined} onFocus={compact ? aim : undefined} aria-description={compact ? L(item.desc) : undefined}>
           <i className="family-chip"><Glyph icon={item.icon} size={14} /></i>
           <span className="palette-text">
-            <span>{L(item.label)}{item.fresh && <em className="pb-new">{tr('新', 'new')}</em>}</span>
+            <span>{L(item.label)}{item.fresh && <em className="pb-new">{tr('新')}</em>}</span>
             {compact ? item.tag && <small>{L(item.tag)}</small> : <small>{L(item.desc)}</small>}
           </span>
           <Plus size={14} className="palette-add" />
@@ -33,7 +33,7 @@ export default function Palette({ items, folded = [], onAdd, compact = false }) 
         </button>
       ))}
       {folded.length > 0 && (
-        <button type="button" className={`palette-more ${more ? 'is-open' : ''}`} onClick={() => setMore(!more)} aria-expanded={more} title={tr('这一关不必用到、但可以使用的元件', 'Parts this level does not need but you may use')}>
+        <button type="button" className={`palette-more ${more ? 'is-open' : ''}`} onClick={() => setMore(!more)} aria-expanded={more} title={tr('这一关不必用到、但可以使用的元件')}>
           <span>{more ? tr('收起', 'Show fewer') : tr(`更多 ${folded.length}`, `${folded.length} more`)}</span>
           <ChevronRight size={14} />
         </button>

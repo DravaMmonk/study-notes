@@ -60,7 +60,7 @@ export const PARTS = {
     gives: KIND.context,
     eval: (ins, node, ctx) => {
       if (ins.ask !== undefined) return ins.ask?.type === 'read' ? [fileEntry(ctx.repo, ins.ask.file)] : []
-      if (!node.params?.file) throw new PartError(T('还没选文件', 'No file picked'))
+      if (!node.params?.file) throw new PartError(T('还没选文件'))
       return [fileEntry(ctx.repo, node.params.file)]
     },
   },

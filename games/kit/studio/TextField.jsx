@@ -237,9 +237,9 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
     onSet({ zh: text })
   }, [onSet])
   const options = useMemo(() => (names ? [
-    ...[...names.level].map(([id, l]) => ({ value: `level:${id}`, label: l.label, title: l.title, group: tr('关卡', 'Levels') })),
+    ...[...names.level].map(([id, l]) => ({ value: `level:${id}`, label: l.label, title: l.title, group: tr('关卡') })),
     ...[...names.part].map(([k, n]) => ({ value: `part:${k}`, label: k, title: n, group: tr('元件', 'Parts') })),
-    ...[...names.wiki].map(([k, n]) => ({ value: `wiki:${k}`, label: k, title: n, group: tr('百科', 'Encyclopedia') })),
+    ...[...names.wiki].map(([k, n]) => ({ value: `wiki:${k}`, label: k, title: n, group: tr('百科') })),
   ] : []), [names])
   const close = () => { setLinking(null); box.current?.focus() }
   const all = [...new Set([...textFindings(draft, field, names), ...findings])]
@@ -250,7 +250,7 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
       </div>
       {names && (
         <div className="text-tools">
-          <button type="button" className="text-link" onPointerDown={(e) => e.preventDefault()} onClick={() => setLinking(linking === null ? '' : null)} aria-label={tr('插入链接', 'Insert a link')} title={tr(`插入链接（${MOD}+L 或 [[）`, `Insert a link (${MOD}+L or [[)`)}><Link2 size={13} aria-hidden="true" /></button>
+          <button type="button" className="text-link" onPointerDown={(e) => e.preventDefault()} onClick={() => setLinking(linking === null ? '' : null)} aria-label={tr('插入链接')} title={tr(`插入链接（${MOD}+L 或 [[）`, `Insert a link (${MOD}+L or [[)`)}><Link2 size={13} aria-hidden="true" /></button>
           {linking !== null && (
             <OptionList
               options={options} value={null} query={linking} onClose={close}

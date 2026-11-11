@@ -20,7 +20,7 @@ export function runTest(task, circuit, test, parts) {
   const run = runTicks({ nodes: [sayer('world', test.bus.bits), boardNode({ id: 'you', circuit, parts, bind, traced: true })], ticks: test.bus.bits.length, line: wiredAnd })
   const want = task.want(test)
   const judged = judgeTicks(run.steps.map((step) => ({ tick: step.tick, line: step.line, ...step.heard.you })), { checked: task.outputs, want: (name) => want[name] })
-  const error = run.error && T('这块板这一拍要说的话取决于这一拍的总线：说之前还听不到。', 'What this board says this tick depends on the bus this tick: it cannot hear before it speaks.')
+  const error = run.error && T('这块板这一拍要说的话取决于这一拍的总线：说之前还听不到。')
   return { ...judged, want, ...(error ? { error } : {}) }
 }
 

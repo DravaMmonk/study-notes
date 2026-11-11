@@ -32,15 +32,15 @@ const index = (at, n, what) => {
   if (i > n) throw new PartError(t(`它只有 ${n} 个${what.zh}，没有第 ${i} 个`, `it has ${n} ${what.en}, no number ${i}`))
   return i - 1
 }
-const ENTRIES = t('分量', 'entries')
-const COLUMNS = t('列', 'columns')
+const ENTRIES = t('分量')
+const COLUMNS = t('列')
 
 /** The values that are not 「—」, in order: the ports left empty at the end of a part's list. */
 const given = (list) => {
   let n = list.length
   while (n > 0 && (list[n - 1] === null || list[n - 1] === undefined)) n -= 1
   const kept = list.slice(0, n)
-  if (kept.some((v) => v === null || v === undefined)) throw new PartError(t('中间空着一个口：输入要从第一个起连着接', 'a port in the middle is empty: wire the inputs in order from the first'))
+  if (kept.some((v) => v === null || v === undefined)) throw new PartError(t('中间空着一个口：输入要从第一个起连着接'))
   return kept
 }
 
@@ -48,7 +48,7 @@ const ARITH = { add: (a, b) => a + b, sub: (a, b) => a - b, mul: (a, b) => a * b
 
 export const OPS = {
   add: {
-    about: t('两个形状相同的向量（或矩阵）逐个分量相加', 'two vectors (or matrices) of one shape added entry by entry'),
+    about: t('两个形状相同的向量（或矩阵）逐个分量相加'),
     args: args('u', 'v'),
     symmetric: true,
     run: ([u, v]) => {
@@ -57,7 +57,7 @@ export const OPS = {
     },
   },
   scale: {
-    about: t('数 k 乘向量（或矩阵）的每个分量', 'number k times every entry of a vector (or matrix)'),
+    about: t('数 k 乘向量（或矩阵）的每个分量'),
     args: args('k', 'v'),
     run: ([k, v]) => {
       number(k), matrix(v)
@@ -65,23 +65,23 @@ export const OPS = {
     },
   },
   arith: {
-    about: t('两个数的加、减、乘、除', 'two numbers added, subtracted, multiplied or divided'),
+    about: t('两个数的加、减、乘、除'),
     args: args('a', 'b'),
     params: S.obj({ op: S.oneOf(Object.keys(ARITH)) }),
     symmetric: { op: ['add', 'mul'] },
     run: ([a, b], { op }) => {
       number(a), number(b)
-      if (op === 'div' && b === 0) throw new PartError(t('除数是 0', 'division by 0'))
+      if (op === 'div' && b === 0) throw new PartError(t('除数是 0'))
       return ARITH[op](a, b)
     },
   },
   entry: {
-    about: t('向量的第 i 个分量（一个数）', 'entry i of a vector (a number)'),
+    about: t('向量的第 i 个分量（一个数）'),
     args: args('v', 'i'),
     run: ([v, i]) => vector(v).data[index(i, v.h, ENTRIES)],
   },
   column: {
-    about: t('矩阵的第 j 列（一个向量）', 'column j of a matrix (a vector)'),
+    about: t('矩阵的第 j 列（一个向量）'),
     args: args('m', 'j'),
     run: ([m, j]) => {
       matrix(m)
@@ -90,22 +90,22 @@ export const OPS = {
     },
   },
   vec: {
-    about: t('几个数从上到下排成一个向量；末尾空着的口不算', 'numbers stacked top to bottom into a vector; empty ports at the end do not count'),
+    about: t('几个数从上到下排成一个向量；末尾空着的口不算'),
     args: args('a', 'b', 'c'),
     run: (list) => {
       const nums = given(list).map(number)
-      if (nums.length < 2) throw new PartError(t('至少要两个数', 'it needs two numbers at least'))
+      if (nums.length < 2) throw new PartError(t('至少要两个数'))
       return grid(1, nums.length, nums)
     },
   },
   join: {
-    about: t('几个一样长的向量从左到右并排成一个矩阵；末尾空着的口不算', 'vectors of one length side by side, left to right, as a matrix; empty ports at the end do not count'),
+    about: t('几个一样长的向量从左到右并排成一个矩阵；末尾空着的口不算'),
     args: args('a', 'b', 'c'),
     run: (list) => {
       const cols = given(list).map(vector)
-      if (!cols.length) throw new PartError(t('至少要一个向量', 'it needs one vector at least'))
+      if (!cols.length) throw new PartError(t('至少要一个向量'))
       const h = cols[0].h
-      if (cols.some((c) => c.h !== h)) throw new PartError(t('这几个向量不一样长', 'the vectors differ in length'))
+      if (cols.some((c) => c.h !== h)) throw new PartError(t('这几个向量不一样长'))
       return grid(cols.length, h, Array.from({ length: h * cols.length }, (_, k) => cols[k % cols.length].data[Math.floor(k / cols.length)]))
     },
   },

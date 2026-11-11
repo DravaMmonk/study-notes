@@ -22,7 +22,7 @@ const fmt = (v) => (Number.isInteger(v) ? String(v) : v.toFixed(2))
 const phaseText = (q) => (q === 0 ? '0' : piText((q * Math.PI) / 4))
 
 export const wave = {
-  about: t('一道波：c + A·cos(2π·k·x/N + φ·π/4)，旋钮 c、A、k、phi；每一步把它调到和目标重合', 'one wave, c + A·cos(2π·k·x/N + φ·π/4), knobs c, A, k, phi: each step lays it on the target'),
+  about: t('一道波：c + A·cos(2π·k·x/N + φ·π/4)，旋钮 c、A、k、phi；每一步把它调到和目标重合'),
   setup: S.obj({ N: S.int({ min: 2 }) }),
   stage: S.obj({ target: S.map(num) }),
   make({ N }) {
@@ -61,9 +61,9 @@ export const wave = {
 /* ---------- 叠加: 0.5 + Σ aₖ·sin(2π·k·x/N) ---------- */
 
 export const sum = {
-  about: t('叠加：频率 ks 各一道正弦波，振幅旋钮名为 k1、k2…，叠到目标上', 'stacking waves: a sine wave for each frequency in ks, with amplitude knobs named k1, k2 …, stacked onto the target'),
+  about: t('叠加：频率 ks 各一道正弦波，振幅旋钮名为 k1、k2…，叠到目标上'),
   setup: S.obj({ N: S.int({ min: 2 }), ks: S.list(S.int()) }),
-  stage: S.obj({ target: S.list(num, { about: t('每个频率的振幅', 'the amplitude of each frequency') }) }),
+  stage: S.obj({ target: S.list(num, { about: t('每个频率的振幅') }) }),
   make({ N, ks }, bench) {
     const at = (amps, x) => 0.5 + amps.reduce((s, a, i) => s + a * Math.sin((TAU * ks[i] * x) / N), 0)
     const row = (amps) => rowOf(N, (x) => at(amps, x))
@@ -114,12 +114,12 @@ const COMBINE = { cos: (a) => a, sin: (a, b) => b, sum: (a, b) => a + b, mag: (a
 const readingText = (v) => (Math.abs(v) < 0.0005 ? '0.000' : v.toFixed(3))
 
 export const probe = {
-  about: t('探针：曲线乘一道波再平均，读出一个频率；旋钮 j（探针频率）、m（读数乘以）、shift（输入错开）、pick（两个读数的合法：cos、sin、sum、mag）', 'the probe: a curve times a wave, averaged, reads one frequency; knobs j (probe frequency), m (reading times), shift (input shift), pick (how two readings combine: cos, sin, sum, mag)'),
-  setup: S.obj({ N: S.int({ min: 2 }), wave: S.obj({ k: S.int(), A: num }, { about: t('可以错开的那道输入波（中线 0.5）', 'the input wave that can be shifted (on a middle line of 0.5)') }) }),
+  about: t('探针：曲线乘一道波再平均，读出一个频率；旋钮 j（探针频率）、m（读数乘以）、shift（输入错开）、pick（两个读数的合法：cos、sin、sum、mag）'),
+  setup: S.obj({ N: S.int({ min: 2 }), wave: S.obj({ k: S.int(), A: num }, { about: t('可以错开的那道输入波（中线 0.5）') }) }),
   stage: S.obj({
-    kind: S.oneOf(['find', 'read', 'blind', 'combine'], { about: t('find：转频率找到它；read：读出振幅；blind：错开到读不到；combine：合两个读数', 'find: turn the frequency to find it; read: read its amplitude; blind: shift it out of sight; combine: put two readings together') }),
-    input: S.opt(WAVES), checks: S.opt(S.list(num, { about: t('合读数时试的几个错开角度', 'the shifts a combination is tried at') })),
-    answers: S.str({ about: t('这一步接受的全部答案，用逗号连起', 'every answer the step accepts, joined by commas') }),
+    kind: S.oneOf(['find', 'read', 'blind', 'combine'], { about: t('find：转频率找到它；read：读出振幅；blind：错开到读不到；combine：合两个读数') }),
+    input: S.opt(WAVES), checks: S.opt(S.list(num, { about: t('合读数时试的几个错开角度') })),
+    answers: S.str({ about: t('这一步接受的全部答案，用逗号连起') }),
   }),
   make({ N, wave: w }) {
     const reading = (input, f) => rowOf(N, (x) => input(x / N) * f(x / N)).reduce((s, v) => s + v, 0) / N
@@ -143,19 +143,19 @@ export const probe = {
             legend: [{ kind: 'faint', label: t('输入', 'Input') }, { kind: 'seen', label: probes.flatMap((p, i) => (i ? [' · ', p.name] : [p.name])) }],
           },
           product: {
-            lines: probes.flatMap((p, i) => [{ curve: (u) => input(u) * p.f(u), kind: 'yours', label: t('乘积', 'product') }, { curve: () => averages[i], kind: 'target', label: t('平均', 'average') }]),
-            legend: [{ kind: 'yours', label: t('逐点相乘', 'Product') }, { kind: 'target', label: t('乘积的平均', 'Its average') }],
+            lines: probes.flatMap((p, i) => [{ curve: (u) => input(u) * p.f(u), kind: 'yours', label: t('乘积') }, { curve: () => averages[i], kind: 'target', label: t('平均') }]),
+            legend: [{ kind: 'yours', label: t('逐点相乘') }, { kind: 'target', label: t('乘积的平均') }],
           },
           formula: [
             ...probes.flatMap((p, i) => [
-              i ? ' · ' : '', p.name, '：', t('平均', 'average'), ' ', { b: readingText(averages[i]) },
+              i ? ' · ' : '', p.name, '：', t('平均'), ' ', { b: readingText(averages[i]) },
               ...(s.kind === 'read' ? [` × ${v.m} = `, { b: readingText(readings[i]) }] : []),
-              ...(s.kind === 'blind' || s.kind === 'combine' ? [' → ', t('读数', 'reading'), ' ', { b: readingText(readings[i]) }] : []),
+              ...(s.kind === 'blind' || s.kind === 'combine' ? [' → ', t('读数'), ' ', { b: readingText(readings[i]) }] : []),
             ]),
             ...(s.kind === 'combine' && v.pick ? [' · ', pickName(v.pick), ' = ', { b: readingText(combined) }] : []),
           ],
           // The chosen combination at the stage's other shifts.
-          tries: s.kind === 'combine' && v.pick ? [t('错开不同角度时：', 'Shifted by different angles: '), s.checks.map((phase) => `${phase}° → ${readingText(COMBINE[v.pick](...readingsAt(phase)))}`).join(' · ')] : null,
+          tries: s.kind === 'combine' && v.pick ? [t('错开不同角度时：'), s.checks.map((phase) => `${phase}° → ${readingText(COMBINE[v.pick](...readingsAt(phase)))}`).join(' · ')] : null,
         }
       },
     }
@@ -172,7 +172,7 @@ export const probe = {
     return ''
   },
 }
-const pickName = (pick) => ({ cos: t('只看 a', 'Only a'), sin: t('只看 b', 'Only b'), sum: 'a + b', mag: '√(a² + b²)' })[pick]
+const pickName = (pick) => ({ cos: t('只看 a'), sin: t('只看 b'), sum: 'a + b', mag: '√(a² + b²)' })[pick]
 
 /* ---------- 采样: a continuous wave turned into points ---------- */
 
@@ -180,14 +180,14 @@ const PART = S.obj({ k: S.int(), A: num, phase: num })
 const COSINE = S.obj({ c: num, A: num, k: S.int(), phase: num })
 
 export const alias = {
-  about: t('采样台：连续的波变成一排点；每一步只开 k（冒名的频率）、M（采样点数）、K（采样前保留的最高频率）中的一个', 'the sampling bench: a continuous wave turned into points; each step opens one of k (the impostor frequency), M (how many samples), K (the highest frequency kept before sampling)'),
+  about: t('采样台：连续的波变成一排点；每一步只开 k（冒名的频率）、M（采样点数）、K（采样前保留的最高频率）中的一个'),
   setup: S.obj({
     fine: S.int({ min: 2 }),
-    folds: S.list(S.list(S.int(), { min: 3 }), { about: t('不滤就采时，频率 k 采 M 个点后折回到哪里：[k, M, 折回的频率]', 'where a frequency k folds to when M points are sampled unfiltered: [k, M, the frequency it poses as]') }),
+    folds: S.list(S.list(S.int(), { min: 3 }), { about: t('不滤就采时，频率 k 采 M 个点后折回到哪里：[k, M, 折回的频率]') }),
   }),
   stage: S.obj({
     samples: S.opt(S.int()), reference: S.opt(COSINE), wave: S.opt(COSINE), parts: S.opt(S.list(PART)),
-    answers: S.str({ about: t('这一步能过的全部值，用逗号连起', 'every value the step passes with, joined by commas') }),
+    answers: S.str({ about: t('这一步能过的全部值，用逗号连起') }),
   }),
   make({ fine }) {
     const signalOf = (parts, keep = Infinity) => (u) => parts.filter((p) => p.k <= keep).reduce((s, p) => s + cosine({ ...p, c: 0 })(u), 0.5)
@@ -211,7 +211,7 @@ export const alias = {
             legend: legendOf([{ kind: 'ring', label: t('k = 3 的采样点', 'Samples of k = 3') }]),
           },
           readout: t(`真实 k = ${v} · 16 个采样点呈现为 k = ${seen}`, `True k = ${v} · 16 points look like k = ${seen}`),
-          status: v === s.reference.k ? t('这是 k = 3 本身，请另选一个频率。', 'That is k = 3 itself. Pick another frequency.') : t('采样点尚未与圆圈重合。', 'The samples are not on the rings yet.'),
+          status: v === s.reference.k ? t('这是 k = 3 本身，请另选一个频率。') : t('采样点尚未与圆圈重合。'),
           win: t(`k = ${v} 的采样结果与 k = 3 完全相同：16 − 3 = 13，16 + 3 = 19。`, `k = ${v} gives exactly the same samples as k = 3: 16 − 3 = 13, 16 + 3 = 19.`),
         }
       },
@@ -227,7 +227,7 @@ export const alias = {
             `M = ${v} · 每个周期 ${(v / s.wave.k).toFixed(1)} 个点 · ${ok ? `呈现为 k = ${s.wave.k}，判断正确` : as === s.wave.k ? '频率看似正确，但振幅和位置都已改变' : `呈现为 k = ${as}，判断错误`}`,
             `M = ${v} · ${(v / s.wave.k).toFixed(1)} points per cycle · ${ok ? `looks like k = ${s.wave.k}: correct` : as === s.wave.k ? 'the frequency looks right, but the amplitude and position have changed' : `looks like k = ${as}: wrong`}`,
           ),
-          status: ok ? t('仍能正确识别。尝试进一步减少采样点。', 'Still correct. Try fewer samples.') : t('识别错误：采样点太少。', 'Misread: too few samples.'),
+          status: ok ? t('仍能正确识别。尝试进一步减少采样点。') : t('识别错误：采样点太少。'),
           win: t(`${v} 个点是最少的点数：每个周期需要多于 2 个采样点（M > 2k）。`, `${v} is the fewest: each cycle needs more than 2 samples (M > 2k).`),
         }
       },
@@ -247,10 +247,10 @@ export const alias = {
           chips: s.parts.map((part) => {
             const kept = part.k <= v
             const folded = kept && 2 * part.k > s.samples
-            return { text: [`k = ${part.k}`, folded ? t(` → 混叠为 ${aliasOf(part.k, s.samples)}`, ` → aliases to ${aliasOf(part.k, s.samples)}`) : kept ? '' : t(' 已滤除', ' filtered out')], tone: folded ? 'alias' : kept ? '' : 'cut' }
+            return { text: [`k = ${part.k}`, folded ? t(` → 混叠为 ${aliasOf(part.k, s.samples)}`, ` → aliases to ${aliasOf(part.k, s.samples)}`) : kept ? '' : t(' 已滤除')], tone: folded ? 'alias' : kept ? '' : 'cut' }
           }),
-          status: s.parts.some((p) => p.k <= v && 2 * p.k > s.samples) ? t('有高频分量混入，采样后会混叠为低频。', 'High frequencies remain; after sampling they alias to low ones.') : t('滤除过多，连应保留的分量也去掉了。', 'Too much filtered out, including what should stay.'),
-          win: t('只保留 k ≤ 8：采样结果与期望一致。', 'Keep only k ≤ 8: the samples match what is expected.'),
+          status: s.parts.some((p) => p.k <= v && 2 * p.k > s.samples) ? t('有高频分量混入，采样后会混叠为低频。') : t('滤除过多，连应保留的分量也去掉了。'),
+          win: t('只保留 k ≤ 8：采样结果与期望一致。'),
         }
       },
     }

@@ -64,8 +64,8 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const failed = run?.over && !playback.passed ? run.results.at(-1) : null
   const many = level.boards.length > 1
   const verdictText = !verdict ? null : verdict.pass
-    ? (level.want === 'agree' ? tr('每一条条例的预期都符合需求，这份声明的结果也都和预期相符。', 'Every expectation meets the requirement, and this declaration’s results all agree with them.')
-      : level.want === 'expose' ? tr('每一条条例的预期都符合需求，这份声明的结果都和预期不符。', 'Every expectation meets the requirement, and this declaration’s results all disagree with them.')
+    ? (level.want === 'agree' ? tr('每一条条例的预期都符合需求，这份声明的结果也都和预期相符。')
+      : level.want === 'expose' ? tr('每一条条例的预期都符合需求，这份声明的结果都和预期不符。')
       : many
       ? tr(`已找出错误：${checked.caught.map((k, b) => `声明 ${b + 1} 在第 ${k + 1} 条条例上得出错误结论`).join('；')}。`, `Faults found: ${checked.caught.map((k, b) => `declaration ${b + 1} reaches a wrong conclusion on case ${k + 1}`).join('; ')}.`)
       : tr(`已找出错误：这份声明在第 ${checked.caught[0] + 1} 条条例上得出错误结论。`, `Fault found: this declaration reaches a wrong conclusion on case ${checked.caught[0] + 1}.`))
@@ -85,7 +85,7 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
     if (!(k < reached || whole(cases[k])) || !r || r.derived[boardCases.at] === null) return null
     return { derived: r.derived[boardCases.at], wrong: r.right && r.derived[boardCases.at] !== r.wants }
   }
-  const dock = <RunDock {...playback.dock({ go: tr('运行检验条例', 'Run the test cases'), done: level.want === 'agree' ? tr('结果全部相符', 'All results agree') : tr('已找出错误', 'Fault found') })} />
+  const dock = <RunDock {...playback.dock({ go: tr('运行检验条例'), done: level.want === 'agree' ? tr('结果全部相符') : tr('已找出错误') })} />
   // The declarations are the test cases: their tabs put one on the table.
   const named = boardCases.tests.map((t, k) => ({ ...t, label: level.boards[k].label ?? { zh: `声明 ${k + 1}`, en: `Declaration ${k + 1}` } }))
   const tests = <TestTabs tests={named} states={states} index={boardCases.at} onSelect={boardCases.select} phone={phone} />

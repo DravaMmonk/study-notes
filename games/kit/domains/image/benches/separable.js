@@ -11,7 +11,7 @@ const kernels = {
 const difference = (a, b) => a.reduce((sum, x, i) => sum + Math.abs(x - b[i]), 0)
 
 export const separable = {
-  about: t('比较普通卷积与单输入通道的深度可分离卷积', 'compare ordinary and depthwise separable convolution for one input channel'),
+  about: t('比较普通卷积与单输入通道的深度可分离卷积'),
   stage: S.obj({ target: S.oneOf(['shared', 'different']) }),
   make() {
     return {

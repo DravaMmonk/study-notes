@@ -41,7 +41,7 @@ export function OptionList({ options, value, onPick, onClose, autoFocus = true, 
   let group = null
   return (
     <div className="pick-pop" role="dialog">
-      <input className="pick-search" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={key} autoFocus={autoFocus} placeholder={tr('搜索', 'Search')} aria-label={tr('搜索', 'Search')} />
+      <input className="pick-search" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={key} autoFocus={autoFocus} placeholder={tr('搜索')} aria-label={tr('搜索')} />
       <ul className="pick-list" ref={list} role="listbox">
         {shown.map((o, k) => {
           const g = o.group ? L(o.group) : null
@@ -113,7 +113,7 @@ export function Chips({ options, values, onSet, label }) {
       {values.map((v, k) => (
         <span key={`${v}-${k}`} className={`chip ${byValue.has(v) ? '' : 'is-unknown'}`} title={byValue.get(v)?.about ? L(byValue.get(v).about) : undefined}>
           {head(byValue.get(v)) || String(v)}
-          <button type="button" onClick={() => onSet(values.filter((_, i) => i !== k))} aria-label={tr('去掉', 'Remove')}><X size={11} /></button>
+          <button type="button" onClick={() => onSet(values.filter((_, i) => i !== k))} aria-label={tr('去掉')}><X size={11} /></button>
         </span>
       ))}
       <button type="button" className="chip-add" onClick={() => setOpen(!open)} aria-label={`${label} +`}><Plus size={13} aria-hidden="true" /></button>

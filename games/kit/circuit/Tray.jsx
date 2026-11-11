@@ -10,12 +10,12 @@ export default function Tray({ items, folded = [], onPick }) {
   const [more, setMore] = useState(false)
   if (!items.length && !folded.length) return null
   return (
-    <section className="pb-tray" data-trash aria-label={tr('元件托盘：点击放入空格，或按住拖到指定格子', 'Parts tray: tap to place in a free slot, or hold and drag onto a slot')}>
+    <section className="pb-tray" data-trash aria-label={tr('元件托盘：点击放入空格，或按住拖到指定格子')}>
       {[...items, ...(more ? folded.map((item) => ({ ...item, folded: true })) : [])].map((item) => (
         <button key={item.type} type="button" className={`pb-part ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-tray={item.type} data-family={item.family} onClick={() => onPick(item.type)} title={L(item.desc)}>
           {item.icon && <i className="family-chip"><Glyph icon={item.icon} size={13} /></i>}
           <b>{L(item.label)}</b>
-          {item.fresh && <em className="pb-new">{tr('新', 'new')}</em>}
+          {item.fresh && <em className="pb-new">{tr('新')}</em>}
         </button>
       ))}
       {folded.length > 0 && (

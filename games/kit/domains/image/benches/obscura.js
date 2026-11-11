@@ -30,7 +30,7 @@ export function obscuraBench({ arrow, shaft, table, plate, gap }) {
 
 /** The bench model: knobs Z (the plate), s (the screen) and D (the hole); quantities height, blur and light. */
 export const obscura = {
-  about: t('暗箱：旋钮 Z（孔板到箭头）、s（屏幕到箭头）、D（孔径）；算出像高 height、模糊 blur、亮度 light', 'the camera obscura: knobs Z (plate from the arrow), s (screen from the arrow), D (the hole); computes the image height, blur and light'),
+  about: t('暗箱：旋钮 Z（孔板到箭头）、s（屏幕到箭头）、D（孔径）；算出像高 height、模糊 blur、亮度 light'),
   setup: S.obj({ arrow: num, shaft: num, table: num, gap: num }),
   make(setup, bench) {
     const optics = obscuraBench({ ...setup, plate: [bench.knobs.Z.min, bench.knobs.Z.max] })

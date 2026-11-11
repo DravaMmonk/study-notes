@@ -39,17 +39,17 @@ function bypassesBottleneck(graph) {
 
 export const CONSTRAINTS = {
   cost: {
-    about: t('计算量不超过 max', 'a cost of at most max'),
+    about: t('计算量不超过 max'),
     params: S.obj({ max: S.num() }),
     check: ({ max }) => (score) => (score.cost > max ? { zh: `计算量 ${score.cost}，超过 ${max}`, en: `Cost ${score.cost}, over ${max}` } : ''),
   },
   nodes: {
-    about: t('元件不超过 max 个', 'at most max parts'),
+    about: t('元件不超过 max 个'),
     params: S.obj({ max: S.int({ min: 1 }) }),
     check: ({ max }) => (score) => (score.nodes > max ? { zh: `用了 ${score.nodes} 个节点，最多 ${max} 个`, en: `${score.nodes} nodes used; at most ${max}` } : ''),
   },
   transforms: {
-    about: t('频域的元件（频域低通、频域相乘）一共不超过 max 个', 'at most max frequency-domain parts (frequency low-pass, multiply in frequency) in all'),
+    about: t('频域的元件（频域低通、频域相乘）一共不超过 max 个'),
     params: S.obj({ max: S.int({ min: 0 }) }),
     check: ({ max }) => (_, graph) => {
       const used = graph.nodes.filter((node) => node.type === 'fqLowpass' || node.type === 'fqApply').length
@@ -57,7 +57,7 @@ export const CONSTRAINTS = {
     },
   },
   depth: {
-    about: t('最深的一条路上至少 min 个可训练的层', 'at least min trainable layers on the deepest path'),
+    about: t('最深的一条路上至少 min 个可训练的层'),
     params: S.obj({ min: S.int({ min: 1 }) }),
     check: ({ min }) => (_, graph) => {
       const depth = depthOf(graph)
@@ -65,7 +65,7 @@ export const CONSTRAINTS = {
     },
   },
   bottleneck: {
-    about: t('图像要经过编码器，瓶颈不超过 max 个数', 'the picture passes through the encoder, a bottleneck of at most max numbers'),
+    about: t('图像要经过编码器，瓶颈不超过 max 个数'),
     params: S.obj({ max: S.int({ min: 1 }) }),
     check: ({ max }) => (_, graph) => {
       if (bypassesBottleneck(graph)) return { zh: '图像没有经过编码器', en: 'The image does not pass through the encoder' }

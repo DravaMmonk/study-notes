@@ -52,7 +52,7 @@ export function ExprField({ field, onSet, ctx, label }) {
     <div className={`field-expr ${said.ok ? '' : 'is-bad'}`}>
       <div className="expr-line">
         <input ref={box} className={`field-input is-code ${said.ok ? '' : 'is-bad'}`} value={draft ?? ''} spellCheck={false} aria-label={label} {...bind} onChange={(e) => { setDraft(e.target.value); onSet(e.target.value) }} />
-        <button type="button" className={`kit-btn expr-toggle ${open ? 'is-on' : ''}`} onClick={() => setOpen(!open)} title={tr('引擎资源、输入、设置', 'Resources, inputs, settings')}>ƒ</button>
+        <button type="button" className={`kit-btn expr-toggle ${open ? 'is-on' : ''}`} onClick={() => setOpen(!open)} title={tr('引擎资源、输入、设置')}>ƒ</button>
       </div>
       {said.at !== undefined && <pre className="expr-caret" aria-hidden="true">{`${' '.repeat(said.at)}^`}</pre>}
       {said.problems && <ul className="field-findings">{said.problems.map((p) => <li key={p}>{p}</li>)}</ul>}

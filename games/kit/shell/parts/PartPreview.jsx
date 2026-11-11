@@ -27,7 +27,7 @@ function Code({ path, label, text, picked, ok = null }) {
     <div className={`pp-code ${picked === at(path) ? 'is-picked' : ''}`} data-pf={at(path)}>
       {label && <span className="pp-code-label">{label}</span>}
       <code>{text}</code>
-      {ok !== null && <i className={`pp-code-now ${ok ? 'is-ok' : 'is-no'}`} aria-label={ok ? tr('此刻成立', 'holds now') : tr('此刻不成立', 'fails now')} />}
+      {ok !== null && <i className={`pp-code-now ${ok ? 'is-ok' : 'is-no'}`} aria-label={ok ? tr('此刻成立') : tr('此刻不成立')} />}
     </div>
   )
 }
@@ -58,7 +58,7 @@ export default function PartPreview({ game, type, edit }) {
   }
   const pane = (name, Icon, title, children) => (
     <section className={`pp-pane is-${name} ${edit?.picked === at(['views', name]) ? 'is-picked' : ''}`} data-pf={at(['views', name])}>
-      <header title={title}><Icon size={13} aria-hidden="true" />{edit && <button type="button" className="pp-add" title={tr('加一个块', 'Add a block')} onClick={(e) => { e.stopPropagation(); edit.add(['views', name]) }}><Plus size={12} /></button>}</header>
+      <header title={title}><Icon size={13} aria-hidden="true" />{edit && <button type="button" className="pp-add" title={tr('加一个块')} onClick={(e) => { e.stopPropagation(); edit.add(['views', name]) }}><Plus size={12} /></button>}</header>
       {children}
     </section>
   )
@@ -66,17 +66,17 @@ export default function PartPreview({ game, type, edit }) {
   return (
     <div className={`pp ${edit ? 'is-editing' : ''}`} onClickCapture={pick}>
       <div className="pp-faces">
-        {pane('card', Monitor, tr('电脑端面板', 'Desktop card'), (
+        {pane('card', Monitor, tr('电脑端面板'), (
           <div className="pp-canvas">
             <CanvasEditor graph={graph} parts={parts} width={def.width ?? 150} height={260} onChange={(g) => { const n = g.nodes.find((x) => x.id === 'p'); if (n) setParams(n.params ?? {}) }} body={() => face('card')} />
           </div>
         ))}
-        {pane('tile', Smartphone, tr('手机端简略视图', 'Phone tile'), (
+        {pane('tile', Smartphone, tr('手机端简略视图'), (
           <div className="pp-slots">
             <SlotBoard fixed graph={graph} parts={parts} nameOf={() => L(def.name)} thumb={() => face('tile', { blocks: tile((v) => v)(def) })} tileExtra={() => face('tile', { blocks: tile((v) => !v)(def) })} onPort={() => {}} onSlot={() => {}} onNode={() => {}} />
           </div>
         ))}
-        {pane('detail', PanelRight, tr('详情（两端共用）', 'Detail (both)'), (
+        {pane('detail', PanelRight, tr('详情（两端共用）'), (
           <div className="pp-detail">
             <h3 {...mark(['name'])}>{L(def.name)}</h3>
             {face('detail', { roomy: true })}

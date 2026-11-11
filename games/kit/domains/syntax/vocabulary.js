@@ -24,22 +24,22 @@ const PART_ITEMS = Object.fromEntries(PARTS.map((key) => {
   return [key, item(t(`${name.zh}：${desc.zh}`, `${name.en}: ${desc.en}`))]
 }))
 const MACHINES = {
-  reader: item(t('读者：标出主干，把修饰成分折到它修饰的词上', 'the reader: marks the skeleton, folds each modifier onto the word it modifies')),
+  reader: item(t('读者：标出主干，把修饰成分折到它修饰的词上')),
 }
 
 /* ---------- a level ---------- */
 
 /** A phrase as it stands in the sentence; one that occurs more than once is told apart with #n ('change#2'). */
-const PHRASE = S.str({ about: t('句子里的一段词，出现不止一次时写 #n（change#2）', 'words as they stand in the sentence, #n for the n-th of several (change#2)') })
+const PHRASE = S.str({ about: t('句子里的一段词，出现不止一次时写 #n（change#2）') })
 const FOLD = S.obj({
   span: PHRASE,
-  type: S.oneOf(Object.keys(TYPES), { about: t('折成的结构', 'the construction it is folded as') }),
+  type: S.oneOf(Object.keys(TYPES), { about: t('折成的结构') }),
   to: PHRASE,
-  misread: S.opt(S.map(S.text(), { about: t('挂在别的词（键）上时，那样挂是什么意思', 'what hanging it on another word (the key) would mean') })),
+  misread: S.opt(S.map(S.text(), { about: t('挂在别的词（键）上时，那样挂是什么意思') })),
 })
 const ROLE_SPANS = Object.fromEntries(Object.keys(ROLES).map((role) => [role, ['subj', 'verb'].includes(role) ? PHRASE : S.opt(PHRASE)]))
 const MISROLE = S.obj(Object.fromEntries(Object.keys(ROLES).map((role) => [role, S.opt(S.map(S.text(), {
-  about: t('标成这个成分、还立着的那几个词（小写）标错时说什么；* 是这句话根本没有这个成分', 'what to say when these standing words (lower case) are marked as it; * when the sentence has no such role'),
+  about: t('标成这个成分、还立着的那几个词（小写）标错时说什么；* 是这句话根本没有这个成分'),
 }))])))
 /** One sentence and its answer, in words (model/sentence.js resolve reads them into indices). */
 const SENTENCE = {
@@ -47,15 +47,15 @@ const SENTENCE = {
   folds: S.opt(S.list(FOLD)),
   roles: S.obj(ROLE_SPANS),
   misrole: S.opt(MISROLE),
-  given: S.opt(S.list(PHRASE, { about: t('已经折好、拆不开的块（答案里的折）', 'folds already made and fixed in place (folds of the answer)') })),
+  given: S.opt(S.list(PHRASE, { about: t('已经折好、拆不开的块（答案里的折）') })),
 }
 const INTRO = S.list(S.obj({ t: S.text() }))
 /** What a level says once: its title, its place in the course, its introduction, its pass text. */
 const ONCE = {
   title: S.text(),
-  adds: S.opt(S.list(S.ref('part'), { section: 'course', about: t('这一关带来的成分或结构', 'the roles and constructions the level brings in') })),
+  adds: S.opt(S.list(S.ref('part'), { section: 'course', about: t('这一关带来的成分或结构') })),
   tray: TRAY,
-  showcase: S.opt(S.text({ section: 'course', about: t('新东西第一次出现时只用它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only uses it: what is abstract about its use') })),
+  showcase: S.opt(S.text({ section: 'course', about: t('新东西第一次出现时只用它一个也算一关：它的用法抽象在哪里') })),
   intro: S.opt(INTRO),
   debrief: S.obj({ title: S.text(), body: TEXTS, note: S.opt(S.text()) }),
 }
@@ -79,7 +79,7 @@ const GAME = S.obj({
   kicker: S.text(),
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up able to do, not how many levels') }),
   trays: TRAYS,
-  concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') })),
+  concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念') })),
   eras: S.list(ERA, { min: 1 }),
 })
 

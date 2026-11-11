@@ -42,7 +42,7 @@ const gates = circuitPlay({
     const budget = (lang) => (L.budget !== undefined ? `\n${lang === 'en' ? `At most ${L.budget} gates.` : `最多 ${L.budget} 个门。`}` : '')
     return T(words('zh') + sentence('zh') + budget('zh'), words('en') + sentence('en') + budget('en'))
   },
-  tests: ({ level: { source: L } }) => [{ label: T('真值表', 'Truth table'), text: T(table(L, 'zh'), table(L, 'en')) }],
+  tests: ({ level: { source: L } }) => [{ label: T('真值表'), text: T(table(L, 'zh'), table(L, 'en')) }],
   run: ({ level: { source: L } }, graph) => {
     const checked = checkGates(L, graph)
     const { letters } = rowsFor(L)
@@ -55,7 +55,7 @@ const gates = circuitPlay({
     const over = checked.results.every((r) => r.pass) && checked.overBudget
     return {
       tests,
-      says: over ? [T(`每一行都正确，但用了 ${checked.gates} 个门，这一关最多允许 ${L.budget} 个。`, `Every row is correct, but it uses ${checked.gates} gates; this level allows ${L.budget}.`)] : checked.pass ? [T('每一行都正确：这块电路算出了这句话的完整真值表。', 'Every row is correct: this circuit computes the sentence’s full truth table.')] : [],
+      says: over ? [T(`每一行都正确，但用了 ${checked.gates} 个门，这一关最多允许 ${L.budget} 个。`, `Every row is correct, but it uses ${checked.gates} gates; this level allows ${L.budget}.`)] : checked.pass ? [T('每一行都正确：这块电路算出了这句话的完整真值表。')] : [],
       pass: checked.pass,
       score: { steps: checked.gates },
     }
@@ -63,9 +63,9 @@ const gates = circuitPlay({
 })
 
 const NOT_COVERED = {
-  truth: T('真值表（逐行手填或勾选），harness 还不支持', 'a truth table (rows ticked by hand); the harness does not cover it yet'),
-  proof: T('证明板（元件的设置是句子），harness 还不支持', 'a proof board (parts set with sentences); the harness does not cover it yet'),
-  machine: T('证明助手板，harness 还不支持', 'a proof-assistant board; the harness does not cover it yet'),
+  truth: T('真值表（逐行手填或勾选），harness 还不支持'),
+  proof: T('证明板（元件的设置是句子），harness 还不支持'),
+  machine: T('证明助手板，harness 还不支持'),
 }
 const why = (kind) => NOT_COVERED[kind] ?? T(`「${kind}」玩法，harness 还不支持`, `a “${kind}” play; the harness does not cover it yet`)
 

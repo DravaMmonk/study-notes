@@ -253,7 +253,7 @@ const givenText = (test, words) => {
   const has = test.given.map(words)
   return has.length
     ? T(`前提为${has.map((h) => `「${h.zh}」`).join('、')}`, `with the premises ${has.map((h) => `“${h.en}”`).join(', ')}`)
-    : T('没有前提', 'with no premises')
+    : T('没有前提')
 }
 
 /**
@@ -281,7 +281,7 @@ export function checkIso(level, circuit, words) {
   // A way as written in `ways`: what it takes in order, a thing as '⋀x'.
   const flat = (n) => (typeof n === 'string' ? n : `[${n.under.map(flat).join('|')}]${n.need}`)
   const key = (ways) => ways.map((w) => w.map((s) => (s.startsWith('⋀') ? '⋀' : s)).join('|')).sort().join('/')
-  const said = (s) => (s.startsWith('⋀') ? T('任取一样东西', 'any thing') : words(s))
+  const said = (s) => (s.startsWith('⋀') ? T('任取一样东西') : words(s))
   const ways = level.ways && key(waysIn(circuit).map((w) => [...w.binds.map((b) => `⋀${b}`), ...w.needs.map(flat)])) !== key(level.ways)
     ? T(`每条条例都正确，但引入规则与要求不符：${level.ways.map((w) => `⟦${w.map((s) => said(s).zh).join('; ')}⟧ ⟹ 「${name.zh}」`).join('；')}`, `Every test case is right, but the intro rules are not the ones asked for: ${level.ways.map((w) => `⟦${w.map((s) => said(s).en).join('; ')}⟧ ⟹ “${name.en}”`).join('; ')}`)
     : null
@@ -326,7 +326,7 @@ export function judgeCases(level, cases, words) {
     if (c.fixed?.includes('make')) return T(`第 ${k + 1} 条条例：按需求，${at.zh}时「${goal(c).zh}」${may(rows[k].wants).zh}，和这一条的预期不同。请改写这一条空着的部分。`, `Case ${k + 1}: according to the requirement, ${at.en}, “${goal(c).en}” is ${may(rows[k].wants).en}, unlike this case’s expectation. Rewrite the part of it left for you.`)
     return T(`第 ${k + 1} 条条例的预期与需求不符。请重新考虑：${at.zh}时，按需求「${goal(c).zh}」是否可推导？`, `The expectation of case ${k + 1} does not agree with the requirement. Reconsider: ${at.en}, is “${goal(c).en}” derivable according to the requirement?`)
   }
-  const wrong = !cases.length ? T('还没有条例。请添加一条，写明前提、目标，以及目标是否应当可推导。', 'No test case yet. Add one, stating the premises, the goal, and whether the goal should be derivable.')
+  const wrong = !cases.length ? T('还没有条例。请添加一条，写明前提、目标，以及目标是否应当可推导。')
     : bad >= 0 ? reconsider(bad)
     : null
   const judge = (b) => {
@@ -339,7 +339,7 @@ export function judgeCases(level, cases, words) {
       const k = rows.findIndex((r) => r.derived[b] === r.wants)
       return k < 0 ? null : T(`第 ${k + 1} 条条例上，这份声明的结果与预期相符，没有暴露它的错误。`, `On case ${k + 1}, this declaration’s result agrees with the expectation and does not reveal its fault.`)
     }
-    return caught[b] >= 0 ? null : T('各条条例的预期都正确，但这份声明在每一条上都得出了正确结论，还没有暴露它的错误。', 'Every expectation is correct, but this declaration reaches the right conclusion on every case: its fault has not yet been revealed.')
+    return caught[b] >= 0 ? null : T('各条条例的预期都正确，但这份声明在每一条上都得出了正确结论，还没有暴露它的错误。')
   }
   return { rows, caught, wrong, judge }
 }

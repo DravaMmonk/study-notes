@@ -22,14 +22,14 @@ import { gateShape } from '../blueprint.js'
 // each card's value on the row picked), and the components box shows it too (GateInside).
 
 const TF = (v) => (v === undefined ? '—' : v ? tr('真', 'T') : tr('假', 'F'))
-const WRONG_ROW = T('这一行的结果错误', 'This row is wrong')
+const WRONG_ROW = T('这一行的结果错误')
 const SOURCE = T('输入', 'Input')
 /** The editor's description of a board of gates (../../circuit/model.js), with a level's words for its letters. */
 function gatePartsFor(built, wordOf) {
   const all = gatesOf(built)
   return {
     ...gateShape(built),
-    label: (node) => (node.type === 'letter' ? wordOf(node.params.name) ?? SOURCE : node.type === 'out' ? T('这句话', 'The sentence') : all[node.type]?.name ?? node.type),
+    label: (node) => (node.type === 'letter' ? wordOf(node.params.name) ?? SOURCE : node.type === 'out' ? T('这句话') : all[node.type]?.name ?? node.type),
     portLabel: (node, port) => (all[node.type] && all[node.type].ports.length > 1 ? port : ''),
     family: (node) => (node.type === 'letter' ? 'given' : node.type === 'out' ? 'end' : PRIMITIVE_GATES[node.type] ? 'gate' : 'built'),
     // A gate the player built runs the board that built it: a packed part.
@@ -98,18 +98,18 @@ export default function GatesScreen(screen) {
   const states = run.states
   const over = run.run?.over
   const verdictText = !over ? null
-    : run.passed ? tr('每一行都正确：这块电路算出了这句话的完整真值表。', 'Every row is correct: this circuit computes the sentence’s full truth table.')
-    : run.run.final || tr('这一行的结果错误，运行停在这里。板上每个元件显示它在这一行算出的值。', 'This row is wrong; the run stopped here. Each part on the board shows its value on this row.')
+    : run.passed ? tr('每一行都正确：这块电路算出了这句话的完整真值表。')
+    : run.run.final || tr('这一行的结果错误，运行停在这里。板上每个元件显示它在这一行算出的值。')
 
   const itemOf = (type) => ({ type, label: parts.rules[type].name, desc: parts.rules[type].desc, icon: parts.icon({ type }), family: parts.family({ type }), packed: Boolean(parts.rules[type].built), fresh: entry.fresh?.includes(type) })
   const score = (
     <section className="lg-score">
-      <Readouts items={[{ value: countGates(level, circuit), label: T('门', 'Gates') }, level.budget !== undefined && { value: level.budget, label: T('最多', 'At most') }]} />
+      <Readouts items={[{ value: countGates(level, circuit), label: T('门') }, level.budget !== undefined && { value: level.budget, label: T('最多') }]} />
     </section>
   )
   const table = (
     <div className="lg-strip">
-      {!level.blind && <p className="lg-sequent">{tr('这句话', 'The sentence')} <b>{sentence}</b></p>}
+      {!level.blind && <p className="lg-sequent">{tr('这句话')} <b>{sentence}</b></p>}
       <table className="lg-rows">
         <thead>
           <tr>{letters.map((l) => <th key={l}>{L(word(l))}</th>)}{!hideTarget && <th>{L(WORDS.wanted)}</th>}<th>{L(WORDS.result)}</th></tr>
@@ -144,12 +144,12 @@ export default function GatesScreen(screen) {
         // The sentence's card says whether the run got the table right.
         cardClass: (node) => `lg-node ${node.type === 'out' && over ? (run.passed ? 'is-pass' : 'is-fail') : ''}`,
       }}
-      canvas={{ width: 140, height: 110, emptyNote: T('从上方元件栏选择门放到板上，再把元件右侧的圆点连到另一元件左侧的圆点。', 'Place a gate from the bar above, then connect a dot on the right of one part to a dot on the left of another.') }}
+      canvas={{ width: 140, height: 110, emptyNote: T('从上方元件栏选择门放到板上，再把元件右侧的圆点连到另一元件左侧的圆点。') }}
       brief={{ hint: level.hint, children: score }}
       describe={(node) => (parts.role(node) === 'part' ? parts.rules[node.type].desc : null)}
       results={table}
       tabs={false}
-      words={{ go: tr('逐行运行', 'Run row by row'), done: tr('真值表全部正确', 'Truth table correct') }}
+      words={{ go: tr('逐行运行'), done: tr('真值表全部正确') }}
       packed={{ ...packedOf(level.gates), trace: () => ({ trace: view.trace }) }}
     />
   )
@@ -158,7 +158,7 @@ export default function GatesScreen(screen) {
 /** What a card gives on the row picked: true or false, or why it gives nothing yet. */
 function CardValue({ value, error }) {
   if (value !== undefined) return <span className={`lg-tv ${value ? 'is-true' : 'is-false'}`}>{L(TF(value))}</span>
-  return <span className={`lg-error ${error === MISSING || !error ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('等待接线', 'Not wired yet') : L(error)}</span>
+  return <span className={`lg-error ${error === MISSING || !error ? 'is-missing' : ''}`}>{!error || error === MISSING ? tr('等待接线') : L(error)}</span>
 }
 
 /**

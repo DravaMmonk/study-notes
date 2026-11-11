@@ -102,6 +102,6 @@ const circuit = circuitPlay({
 })
 
 export const play = {
-  open: (ctx) => (ctx.level.kind === 'graph' ? circuit.open(ctx) : { covered: false, why: ctx.level.kind === 'probe' ? T('探针关（用指针读像素），不接电路', 'a probe level (reading pixels with the pointer); no board to wire') : T('参数台（转旋钮），不接电路', 'a parameter bench (turning knobs); no board to wire') }),
+  open: (ctx) => (ctx.level.kind === 'graph' ? circuit.open(ctx) : { covered: false, why: ctx.level.kind === 'probe' ? T('探针关（用指针读像素），不接电路') : T('参数台（转旋钮），不接电路') }),
   attempt: (ctx, text) => circuit.attempt(ctx, text),
 }

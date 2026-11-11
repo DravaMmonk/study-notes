@@ -18,13 +18,13 @@ import { TASK_ID, findTask, newTaskId } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
 import { BASE, mistranslated } from '../i18n.js'
 
-const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal', 'a field’s path: tests[0].goal') })
-const NEW_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('新的关卡 id（也是文件名）', 'a new level id (its file name too)') })
+const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal') })
+const NEW_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('新的关卡 id（也是文件名）') })
 const PLACE = S.obj({
   before: S.opt(S.level()), after: S.opt(S.level()), on: S.opt(S.oneOf(['path'])),
   era: S.opt(S.either(S.str(), S.int())), path: S.opt(S.oneOf(PATHS)), branch: S.opt(S.str()), topic: S.opt(S.str()),
   challenge: S.opt(S.bool()), hang: S.opt(S.either(S.level(), S.list(S.level()))), at: S.opt(S.int({ min: 0 })),
-}, { about: t('课程里的一个位置（place.js）', 'a place in the course (place.js)') })
+}, { about: t('课程里的一个位置（place.js）') })
 
 const fail = (message) => { throw new Error(message) }
 const levelOf = (ws, id) => ws.levels.get(id) ?? fail(`no level ${id}`)
@@ -41,8 +41,8 @@ const restore = (op, base, path, args) => {
   return { op: `${op}.unset`, ...args, path: keys }
 }
 // Tasks by id (../tasks.js): the levels as a list, a task found, where a task goes in a level.
-const TASK = S.str({ pattern: TASK_ID, about: t('任务的 id', 'a task’s id') })
-const TASK_PLACE = S.obj({ level: S.level(), after: S.opt(TASK), first: S.opt(S.bool()) }, { about: t('一关里的一个位置：after 那个任务后面，first 时最前，都不给就在最后', 'a place in a level: after that task, first, or else last') })
+const TASK = S.str({ pattern: TASK_ID, about: t('任务的 id') })
+const TASK_PLACE = S.obj({ level: S.level(), after: S.opt(TASK), first: S.opt(S.bool()) }, { about: t('一关里的一个位置：after 那个任务后面，first 时最前，都不给就在最后') })
 const levelsOf = (ws) => [...ws.levels].map(([id, l]) => ({ id, ...l }))
 const taskOf = (ws, id) => findTask(levelsOf(ws), id) ?? fail(`no task ${id}`)
 /** Where in level `level`'s tasks (without task `except`) a task goes: its index. */
@@ -67,7 +67,7 @@ const blueprintLines = (text) => {
 
 export const OPERATIONS = {
   'level.set': {
-    about: t('设一关的一个字段（路径可以深入）', 'set a field of a level (the path may go deep)'),
+    about: t('设一关的一个字段（路径可以深入）'),
     params: S.obj({ level: S.level(), path: PATH, value: S.any() }),
     apply(ws, { level, path, value }, { vocabulary }) {
       if (!parsePath(path).length) fail('the path is empty: use level.replace for the whole level')
@@ -77,7 +77,7 @@ export const OPERATIONS = {
     },
   },
   'level.unset': {
-    about: t('去掉一关的一个字段，或列表里的一项', 'remove a field of a level, or an item from a list'),
+    about: t('去掉一关的一个字段，或列表里的一项'),
     params: S.obj({ level: S.level(), path: PATH }),
     apply(ws, { level, path }) {
       const keys = parsePath(path)
@@ -89,7 +89,7 @@ export const OPERATIONS = {
     },
   },
   'level.patch': {
-    about: t('按 JSON merge patch 改一关的几个字段（null 去掉一个字段）', 'change several fields of a level by a JSON merge patch (null removes a field)'),
+    about: t('按 JSON merge patch 改一关的几个字段（null 去掉一个字段）'),
     params: S.obj({ level: S.level(), fields: S.map(S.any()) }),
     apply(ws, { level, fields }, { vocabulary }) {
       const base = levelOf(ws, level)
@@ -98,7 +98,7 @@ export const OPERATIONS = {
     },
   },
   'level.replace': {
-    about: t('把一关整个换成新的内容（id 和位置不变）', 'replace a level’s whole content (its id and place stay)'),
+    about: t('把一关整个换成新的内容（id 和位置不变）'),
     params: S.obj({ level: S.level(), data: S.map(S.any()) }),
     apply(ws, { level, data }) {
       const base = levelOf(ws, level)
@@ -107,8 +107,8 @@ export const OPERATIONS = {
     },
   },
   'level.blueprint': {
-    about: t('把一关的一块板（参考解、naive 解……）写成蓝图文本', 'write one of a level’s boards (its reference answer, its naive one…) as blueprint text'),
-    params: S.obj({ level: S.level(), path: S.opt(PATH), text: S.str({ about: t('蓝图文本（可以带 # blueprint 那一行）', 'the blueprint text (its # blueprint line may stay)') }) }),
+    about: t('把一关的一块板（参考解、naive 解……）写成蓝图文本'),
+    params: S.obj({ level: S.level(), path: S.opt(PATH), text: S.str({ about: t('蓝图文本（可以带 # blueprint 那一行）') }) }),
     apply(ws, { level, path = 'tasks[0].solution', text }, { vocabulary }) {
       const base = levelOf(ws, level)
       if (shapeAt(vocabulary.level, base, parsePath(path), { vocabulary })?.type !== 'board') fail(`${level}: ${showPath(path)} is not a board`)
@@ -124,7 +124,7 @@ export const OPERATIONS = {
     },
   },
   'level.adds': {
-    about: t('一关新带来的元件（adds）里加上或拿掉几样', 'add parts to or take them from what a level brings in (adds)'),
+    about: t('一关新带来的元件（adds）里加上或拿掉几样'),
     params: S.obj({ level: S.level(), add: S.opt(S.list(S.ref('part'))), remove: S.opt(S.list(S.ref('part'))) }),
     apply(ws, { level, add = [], remove = [] }, { vocabulary }) {
       const base = levelOf(ws, level)
@@ -139,7 +139,7 @@ export const OPERATIONS = {
     },
   },
   'level.add': {
-    about: t('加一关：它的内容，和它在课程里的位置', 'add a level: its content, and its place in the course'),
+    about: t('加一关：它的内容，和它在课程里的位置'),
     params: S.obj({ level: NEW_ID, data: S.map(S.any()), to: S.opt(PLACE) }),
     apply(ws, { level, data, to }) {
       if (ws.levels.has(level)) fail(`there is a level ${level} already`)
@@ -149,7 +149,7 @@ export const OPERATIONS = {
     },
   },
   'level.remove': {
-    about: t('删掉一关：它的文件和它在课程里的位置；别处还提到它时拒绝', 'remove a level: its file and its place in the course; refused while anything else names it'),
+    about: t('删掉一关：它的文件和它在课程里的位置；别处还提到它时拒绝'),
     params: S.obj({ level: S.level() }),
     apply(ws, { level }, { vocabulary }) {
       const data = levelOf(ws, level)
@@ -166,7 +166,7 @@ export const OPERATIONS = {
     },
   },
   'level.rename': {
-    about: t('给一关换 id：文件名和所有提到它的地方一起改；和关同名的任务一起换（玩家存下的东西按 id 跟着走）', 'give a level a new id: its file and every place naming it, and its task of the same id (what players kept follows the id)'),
+    about: t('给一关换 id：文件名和所有提到它的地方一起改；和关同名的任务一起换（玩家存下的东西按 id 跟着走）'),
     params: S.obj({ level: S.level(), to: NEW_ID }),
     apply(ws, { level, to }, { vocabulary }) {
       if (ws.levels.has(to)) fail(`there is a level ${to} already`)
@@ -181,7 +181,7 @@ export const OPERATIONS = {
     },
   },
   'level.move': {
-    about: t('把一关挪到课程里的另一个位置（同一章里、跨章、进出分支和专题）', 'move a level to another place in the course (within an era or across, into or out of branches and topics)'),
+    about: t('把一关挪到课程里的另一个位置（同一章里、跨章、进出分支和专题）'),
     params: S.obj({ level: S.level(), to: PLACE }),
     apply(ws, { level, to }) {
       const eras = ws.game.eras
@@ -195,7 +195,7 @@ export const OPERATIONS = {
     },
   },
   'task.add': {
-    about: t('给一关加一个任务：它的字段（id 不给就生成一个），排在 after 那个任务后面（first 时最前，都不给就在最后）', 'add a task to a level: its fields (an id made up when none is given), after the task `after` (first, or else last)'),
+    about: t('给一关加一个任务：它的字段（id 不给就生成一个），排在 after 那个任务后面（first 时最前，都不给就在最后）'),
     params: S.obj({ level: S.level(), data: S.map(S.any()), after: S.opt(TASK), first: S.opt(S.bool()) }),
     apply(ws, { level, data, after, first }, { vocabulary }) {
       const base = levelOf(ws, level)
@@ -209,7 +209,7 @@ export const OPERATIONS = {
     },
   },
   'task.remove': {
-    about: t('去掉一个任务；一关至少留一个任务（整关不要了用 level.remove）', 'remove a task; a level keeps at least one (level.remove removes the whole level)'),
+    about: t('去掉一个任务；一关至少留一个任务（整关不要了用 level.remove）'),
     params: S.obj({ task: TASK }),
     apply(ws, { task }, { vocabulary }) {
       const { level, at } = taskOf(ws, task)
@@ -220,7 +220,7 @@ export const OPERATIONS = {
     },
   },
   'task.move': {
-    about: t('把一个任务挪到一关里的另一个位置，或挪进另一关；玩家存下的板和通过与否跟着它走。挪走一关唯一的任务时，同一个变更集里删掉那一关（合成两关）', 'move a task within its level or into another; what players kept of it goes with it. Moving a level’s only task out, remove that level in the same changeset (two levels made one)'),
+    about: t('把一个任务挪到一关里的另一个位置，或挪进另一关；玩家存下的板和通过与否跟着它走。挪走一关唯一的任务时，同一个变更集里删掉那一关（合成两关）'),
     params: S.obj({ task: TASK, to: TASK_PLACE }),
     apply(ws, { task, to }, { vocabulary }) {
       const { level: from, at } = taskOf(ws, task)
@@ -237,7 +237,7 @@ export const OPERATIONS = {
     },
   },
   'task.rename': {
-    about: t('给一个任务换 id；玩家存下的东西跟着换', 'give a task a new id; what players kept of it follows'),
+    about: t('给一个任务换 id；玩家存下的东西跟着换'),
     params: S.obj({ task: TASK, to: TASK }),
     apply(ws, { task, to }, { vocabulary }) {
       const { level, at } = taskOf(ws, task)
@@ -249,7 +249,7 @@ export const OPERATIONS = {
     },
   },
   'game.set': {
-    about: t('设 game.json 的一个字段（课程、元件、标题……）', 'set a field of game.json (the course, parts, titles…)'),
+    about: t('设 game.json 的一个字段（课程、元件、标题……）'),
     params: S.obj({ path: PATH, value: S.any() }),
     apply(ws, { path, value }, { vocabulary }) {
       const inverse = [restore('game', ws.game, path, {})]
@@ -258,7 +258,7 @@ export const OPERATIONS = {
     },
   },
   'game.unset': {
-    about: t('去掉 game.json 的一个字段，或列表里的一项', 'remove a field of game.json, or an item from a list'),
+    about: t('去掉 game.json 的一个字段，或列表里的一项'),
     params: S.obj({ path: PATH }),
     apply(ws, { path }) {
       const keys = parsePath(path)
@@ -268,7 +268,7 @@ export const OPERATIONS = {
     },
   },
   'text.set': {
-    about: t('改一段文字（一关、game.json、百科或 parts.json 里的）；译文在覆盖层里，用 i18n.set', 'change a text (in a level, game.json, the encyclopedia or parts.json); its translations are the overlay’s, changed with i18n.set'),
+    about: t('改一段文字（一关、game.json、百科或 parts.json 里的）；译文在覆盖层里，用 i18n.set'),
     params: S.obj({ level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary', 'parts'])), path: PATH, zh: S.str() }),
     apply(ws, { level, in: where, path, zh }, { vocabulary }) {
       if ((level === undefined) === (where === undefined)) fail('name the text’s file: a level, or in: game, glossary or parts')
@@ -291,7 +291,7 @@ export const OPERATIONS = {
     },
   },
   'i18n.set': {
-    about: t('写一条译文：一段原文在某种语言里怎么说（不给 to 就去掉这一条）', 'write a translation: how a base text reads in a language (no `to` removes the entry)'),
+    about: t('写一条译文：一段原文在某种语言里怎么说（不给 to 就去掉这一条）'),
     params: S.obj({ lang: S.str({ pattern: '^[a-z]{2}(-[A-Za-z]+)?$' }), from: S.str(), to: S.opt(S.str()) }),
     apply(ws, { lang, from, to }) {
       if (lang === BASE) fail(`${BASE} is the language content is written in: change the text itself (text.set)`)
@@ -305,7 +305,7 @@ export const OPERATIONS = {
     },
   },
   'glossary.presentation': {
-    about: t('设置百科词条是否按解锁关卡的章节分组', 'choose whether to group encyclopedia entries by their unlock chapter'),
+    about: t('设置百科词条是否按解锁关卡的章节分组'),
     params: S.obj({ groupByChapter: S.either(S.bool(), S.oneOf([null])) }),
     apply(ws, { groupByChapter }) {
       const old = ws.glossary.groupByChapter ?? null
@@ -314,7 +314,7 @@ export const OPERATIONS = {
     },
   },
   'glossary.put': {
-    about: t('写一条百科（没有就加上，at 是在列表里的位置）', 'write an encyclopedia entry (added when it is new, at its index in the list)'),
+    about: t('写一条百科（没有就加上，at 是在列表里的位置）'),
     params: S.obj({ entry: S.str(), data: S.map(S.any()), at: S.opt(S.int({ min: 0 })) }),
     apply(ws, { entry, data, at }) {
       const entries = ws.glossary.entries
@@ -327,7 +327,7 @@ export const OPERATIONS = {
     },
   },
   'glossary.set': {
-    about: t('按 JSON merge patch 改一条百科的几个字段', 'change fields of an encyclopedia entry by a JSON merge patch'),
+    about: t('按 JSON merge patch 改一条百科的几个字段'),
     params: S.obj({ entry: S.str(), fields: S.map(S.any()) }),
     apply(ws, { entry, fields }) {
       const entries = ws.glossary.entries
@@ -339,7 +339,7 @@ export const OPERATIONS = {
     },
   },
   'glossary.remove': {
-    about: t('删掉一条百科', 'remove an encyclopedia entry'),
+    about: t('删掉一条百科'),
     params: S.obj({ entry: S.str() }),
     apply(ws, { entry }) {
       const entries = ws.glossary.entries
@@ -351,7 +351,7 @@ export const OPERATIONS = {
     },
   },
   'part.add': {
-    about: t('加一个元件（parts.json）：它的定义，after 那个元件后面', 'add a part (parts.json): its definition, after part `after`'),
+    about: t('加一个元件（parts.json）：它的定义，after 那个元件后面'),
     params: S.obj({ part: PART_NAME, data: S.map(S.any()), after: S.opt(PART_NAME) }),
     apply(ws, { part, data, after }, { vocabulary }) {
       partsOf(ws, vocabulary)
@@ -364,7 +364,7 @@ export const OPERATIONS = {
     },
   },
   'part.remove': {
-    about: t('删掉一个元件（parts.json）；课程、关卡、板或文字还提到它时拒绝；玩家存下的放着它的板去掉', 'remove a part (parts.json); refused while the course, a level, a board or a text names it; kept boards placing it are dropped'),
+    about: t('删掉一个元件（parts.json）；课程、关卡、板或文字还提到它时拒绝；玩家存下的放着它的板去掉'),
     params: S.obj({ part: PART_NAME }),
     apply(ws, { part }, { vocabulary }) {
       partsOf(ws, vocabulary)
@@ -378,7 +378,7 @@ export const OPERATIONS = {
     },
   },
   'part.rename': {
-    about: t('给一个元件换类型名：课程、关卡、板、链接里的每一处一起改，存下的板也跟着改', 'give a part a new type name: every place in the course, levels, boards and links, and the saved boards'),
+    about: t('给一个元件换类型名：课程、关卡、板、链接里的每一处一起改，存下的板也跟着改'),
     params: S.obj({ part: PART_NAME, to: PART_NAME }),
     apply(ws, { part, to }, { vocabulary }) {
       partsOf(ws, vocabulary)
@@ -390,7 +390,7 @@ export const OPERATIONS = {
     },
   },
   'parts.set': {
-    about: t('设 parts.json 的一个字段：parts.<元件>.settings[0].default、presets.<预设>.options……', 'set a field of parts.json: parts.<part>.settings[0].default, presets.<preset>.options…'),
+    about: t('设 parts.json 的一个字段：parts.<元件>.settings[0].default、presets.<预设>.options……'),
     params: S.obj({ path: PATH, value: S.any() }),
     apply(ws, { path, value }, { vocabulary }) {
       partsOf(ws, vocabulary)
@@ -402,7 +402,7 @@ export const OPERATIONS = {
     },
   },
   'parts.unset': {
-    about: t('去掉 parts.json 的一个字段，或列表里的一项', 'remove a field of parts.json, or an item from a list'),
+    about: t('去掉 parts.json 的一个字段，或列表里的一项'),
     params: S.obj({ path: PATH }),
     apply(ws, { path }, { vocabulary }) {
       partsOf(ws, vocabulary)
@@ -414,7 +414,7 @@ export const OPERATIONS = {
     },
   },
   'blueprint.put': {
-    about: t('写下整份课程蓝图（blueprint.json，第 7.2 节）', 'write the whole course blueprint (blueprint.json, DESIGN 7.2)'),
+    about: t('写下整份课程蓝图（blueprint.json，第 7.2 节）'),
     params: S.obj({ data: S.map(S.any()) }),
     apply(ws, { data }) {
       const old = ws.blueprint
@@ -423,7 +423,7 @@ export const OPERATIONS = {
     },
   },
   'blueprint.set': {
-    about: t('设课程蓝图的一个字段（路径可以深入：eras[0].series[2].slots[1].uses）', 'set a field of the course blueprint (the path may go deep: eras[0].series[2].slots[1].uses)'),
+    about: t('设课程蓝图的一个字段（路径可以深入：eras[0].series[2].slots[1].uses）'),
     params: S.obj({ path: PATH, value: S.any() }),
     apply(ws, { path, value }) {
       if (ws.blueprint === undefined) fail('the game has no blueprint yet: blueprint.put writes one')
@@ -434,7 +434,7 @@ export const OPERATIONS = {
     },
   },
   'blueprint.unset': {
-    about: t('去掉课程蓝图的一个字段，或列表里的一项', 'remove a field of the course blueprint, or an item from a list'),
+    about: t('去掉课程蓝图的一个字段，或列表里的一项'),
     params: S.obj({ path: PATH }),
     apply(ws, { path }) {
       if (ws.blueprint === undefined) fail('the game has no blueprint')
@@ -445,7 +445,7 @@ export const OPERATIONS = {
     },
   },
   'blueprint.remove': {
-    about: t('删掉课程蓝图', 'remove the course blueprint'),
+    about: t('删掉课程蓝图'),
     params: S.obj({}),
     apply(ws) {
       if (ws.blueprint === undefined) fail('the game has no blueprint')

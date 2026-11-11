@@ -16,16 +16,16 @@ const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 /* ---------- what parts are made of ---------- */
 
 const FAMILIES = {
-  number: item(t('算数的元件', 'parts that work on numbers')),
-  vector: item(t('算向量的元件', 'parts that work on vectors')),
-  matrix: item(t('拆开或拼成矩阵的元件', 'parts that take matrices apart or put them together')),
+  number: item(t('算数的元件')),
+  vector: item(t('算向量的元件')),
+  matrix: item(t('拆开或拼成矩阵的元件')),
 }
 
 /* ---------- a level ---------- */
 
 // A value as content writes it: a number, a vector as its entries top to bottom, a matrix as its rows (values.js).
 const VALUE = S.either(S.num(), S.list(S.num(), { min: 1 }), S.list(S.list(S.num(), { min: 1 }), { min: 1 }))
-const VALUES = S.map(VALUE, { about: t('每个输入或输出的值，按名字：一个数、一个向量（从上到下的分量）或一个矩阵（一行一个列表）', 'a value for each input or output, by name: a number, a vector (its entries top to bottom) or a matrix (a list a row)') })
+const VALUES = S.map(VALUE, { about: t('每个输入或输出的值，按名字：一个数、一个向量（从上到下的分量）或一个矩阵（一行一个列表）') })
 const TEST = S.obj({ inputs: VALUES, expect: VALUES })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({

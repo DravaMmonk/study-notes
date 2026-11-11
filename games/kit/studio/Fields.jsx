@@ -47,7 +47,7 @@ function NumberField({ field, onSet, label }) {
   const now = Number(draft)
   return (
     <div className="num">
-      <button type="button" className="num-step" onClick={() => put((Number.isFinite(now) ? now : 0) - field.step)} aria-label={tr('减', 'Less')} disabled={field.min !== undefined && now <= field.min}><Minus size={12} /></button>
+      <button type="button" className="num-step" onClick={() => put((Number.isFinite(now) ? now : 0) - field.step)} aria-label={tr('减')} disabled={field.min !== undefined && now <= field.min}><Minus size={12} /></button>
       <input
         className="field-input is-num" type="number" value={draft ?? ''} min={field.min} max={field.max} step={field.int ? 1 : 'any'} aria-label={label} {...bind}
         onChange={(e) => {
@@ -97,7 +97,7 @@ function BoardField({ field, onSet, ctx, label }) {
   try {
     svg = boardSvg(lines)
   } catch (error) {
-    wrong = `${tr('第', 'line ')}${error.line}${tr(' 行：', ': ')}${L(error) ?? error.message}`
+    wrong = `${tr('第')}${error.line}${tr(' 行：')}${L(error) ?? error.message}`
   }
   return (
     <div className="field-board">
@@ -108,7 +108,7 @@ function BoardField({ field, onSet, ctx, label }) {
         </button>
       )}
       {wrong && <p className="field-bad">{wrong}</p>}
-      <button type="button" className={`kit-btn is-label board-text ${text ? 'is-on' : ''}`} onClick={() => setText(!text)}>{tr('蓝图文本', 'Blueprint text')}</button>
+      <button type="button" className={`kit-btn is-label board-text ${text ? 'is-on' : ''}`} onClick={() => setText(!text)}>{tr('蓝图文本')}</button>
       {text && <Area className="is-code" value={draft} aria-label={label} spellCheck={false} bind={{ ...bind, onBlur: () => { bind.onBlur(); if (draft !== lines.join('\n')) onSet(draft.replace(/\n+$/, '').split('\n')) } }} onChange={setDraft} />}
     </div>
   )
@@ -153,8 +153,8 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
       {label !== null && <span className="field-key" title={field.about ? L(field.about) : undefined}>{label}</span>}
       {field.tags && <TagChoice field={field} onEdit={onEdit} ctx={ctx} />}
       {field.shapes?.length > 1 && <Shapes field={field} onEdit={onEdit} ctx={ctx} />}
-      {changed && <button type="button" className="field-undo" onClick={revert} title={tr('改回去', 'Put it back')} aria-label={tr(`把 ${name} 改回去`, `Put ${name} back`)}><RotateCcw size={12} /></button>}
-      {onRemove && <button type="button" className="field-x" onClick={onRemove} aria-label={tr('去掉', 'Remove')}><X size={13} /></button>}
+      {changed && <button type="button" className="field-undo" onClick={revert} title={tr('改回去')} aria-label={tr(`把 ${name} 改回去`, `Put ${name} back`)}><RotateCcw size={12} /></button>}
+      {onRemove && <button type="button" className="field-x" onClick={onRemove} aria-label={tr('去掉')}><X size={13} /></button>}
       {label !== null && field.about && <span className="field-help">{L(field.about)}</span>}
     </div>
   )
@@ -228,10 +228,10 @@ function ListField({ field, onEdit, ctx }) {
     <div className={`field-list ${inline ? 'is-inline' : ''}`}>
       {(field.tests || (!inline && items.length > 2)) && (
         <div className="list-tools">
-          {field.tests && ctx.tests && <button type="button" className="kit-btn is-label" onClick={() => ctx.tests.run(field.path)} disabled={run?.running}><Play size={13} aria-hidden="true" />{tr('运行参考解', 'Run the reference')}</button>}
+          {field.tests && ctx.tests && <button type="button" className="kit-btn is-label" onClick={() => ctx.tests.run(field.path)} disabled={run?.running}><Play size={13} aria-hidden="true" />{tr('运行参考解')}</button>}
           {run && !run.running && <TestsSum run={run} />}
           {run?.refused && <ul className="field-findings">{run.refused.map((r, k) => <li key={k}>{L(r)}</li>)}</ul>}
-          {!inline && items.length > 2 && <button type="button" className="kit-btn is-label" onClick={() => setOpen(open.size ? new Set() : new Set(items.map((_, k) => k)))}>{open.size ? tr('全部收起', 'Fold all') : tr('全部展开', 'Unfold all')}</button>}
+          {!inline && items.length > 2 && <button type="button" className="kit-btn is-label" onClick={() => setOpen(open.size ? new Set() : new Set(items.map((_, k) => k)))}>{open.size ? tr('全部收起') : tr('全部展开')}</button>}
         </div>
       )}
       {items.map((item, k) => {
@@ -262,8 +262,8 @@ function ListField({ field, onEdit, ctx }) {
               {inline && <div className="li-body"><Field field={item} label={null} onEdit={onEdit} ctx={ctx} /></div>}
               {result && <TestMark result={result} />}
               <span className="li-tools">
-                <button type="button" onClick={() => put([...values.slice(0, k + 1), structuredCopy(values[k]), ...values.slice(k + 1)])} aria-label={tr('复制这一项', 'Copy this item')}><Copy size={12} /></button>
-                <button type="button" onClick={() => onEdit(item.path, { unset: true }, null)} aria-label={tr('去掉这一项', 'Remove this item')}><X size={13} /></button>
+                <button type="button" onClick={() => put([...values.slice(0, k + 1), structuredCopy(values[k]), ...values.slice(k + 1)])} aria-label={tr('复制这一项')}><Copy size={12} /></button>
+                <button type="button" onClick={() => onEdit(item.path, { unset: true }, null)} aria-label={tr('去掉这一项')}><X size={13} /></button>
               </span>
             </div>
             {!inline && isOpen && (
@@ -277,7 +277,7 @@ function ListField({ field, onEdit, ctx }) {
       })}
       {run?.tests && run.tests.length !== items.length && run.tests.map((t, k) => <TestShows key={k} result={t} />)}
       {run && !run.covered && !run.running && <p className="field-note">{L(run.why)}</p>}
-      <button type="button" className="field-add" onClick={() => onEdit([...field.path, items.length], { set: items.length ? structuredCopy(values.at(-1)) : blank(field.of, ctx) }, field.of.type)} aria-label={tr('加一项', 'Add an item')}><Plus size={13} aria-hidden="true" /></button>
+      <button type="button" className="field-add" onClick={() => onEdit([...field.path, items.length], { set: items.length ? structuredCopy(values.at(-1)) : blank(field.of, ctx) }, field.of.type)} aria-label={tr('加一项')}><Plus size={13} aria-hidden="true" /></button>
     </div>
   )
 }
@@ -289,8 +289,8 @@ function TestsSum({ run }) {
   const passed = run.tests.filter((t) => t.pass).length
   return (
     <span className={`tests-sum ${run.pass ? 'is-pass' : 'is-fail'}`}>
-      {run.refused ? tr('参考解读不进来', 'The reference does not read') : `${passed}/${run.tests.length}`}
-      {run.hidden?.count ? ` · ${tr('隐藏', 'hidden')} ${run.hidden.count - (run.hidden.failed ?? 0)}/${run.hidden.count}` : ''}
+      {run.refused ? tr('参考解读不进来') : `${passed}/${run.tests.length}`}
+      {run.hidden?.count ? ` · ${tr('隐藏')} ${run.hidden.count - (run.hidden.failed ?? 0)}/${run.hidden.count}` : ''}
     </span>
   )
 }
@@ -314,7 +314,7 @@ function MapField({ field, onEdit, ctx }) {
     <div className="field-list">
       {field.entries.map(({ key: k, field: f }) => <Field key={k} field={f} label={k} onEdit={onEdit} ctx={ctx} onRemove={() => onEdit(f.path, { unset: true }, null)} />)}
       <form className="field-row new-key" onSubmit={(e) => { e.preventDefault(); if (key) onEdit([...field.path, key], { set: blank(field.of, ctx) }, field.of.type); setKey('') }}>
-        <input className="field-input is-key" value={key} onChange={(e) => setKey(e.target.value)} aria-label={tr('新的键', 'New key')} placeholder="+" />
+        <input className="field-input is-key" value={key} onChange={(e) => setKey(e.target.value)} aria-label={tr('新的键')} placeholder="+" />
       </form>
     </div>
   )

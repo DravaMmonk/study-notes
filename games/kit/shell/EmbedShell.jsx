@@ -73,7 +73,7 @@ export default function EmbedShell({ game, store, levelId }) {
     <SettingsContext.Provider value={game}>
       <EmbedContext.Provider value>
         <div ref={root} className="game is-embed" data-game={game.id}>
-          <a className="embed-open" href={page.href} target="_blank" rel="noopener" title={tr('在游戏里打开', 'Open in the game')} aria-label={tr('在游戏里打开', 'Open in the game')}><Maximize2 size={14} /></a>
+          <a className="embed-open" href={page.href} target="_blank" rel="noopener" title={tr('在游戏里打开')} aria-label={tr('在游戏里打开')}><Maximize2 size={14} /></a>
           {kind
             ? createElement(kind.Screen, {
               key: `${level.id}#${runAt}#${game.stamp ?? ''}`,
@@ -91,7 +91,7 @@ export default function EmbedShell({ game, store, levelId }) {
               theme,
               phone,
             })
-            : <div className="board-loading">{tr('这类关卡尚在制作中。', 'This kind of level is still being made.')}</div>}
+            : <div className="board-loading">{tr('这类关卡尚在制作中。')}</div>}
         </div>
       </EmbedContext.Provider>
     </SettingsContext.Provider>

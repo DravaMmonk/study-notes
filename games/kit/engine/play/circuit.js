@@ -139,7 +139,7 @@ export function circuitPlay(hook) {
 export function tickPlay({ run, given, lanes, more = () => [], registers = null, settings = {}, show = valueText, words = TEST_WORDS }) {
   const offered = {
     ...(registers ? {
-      reg: [{ key: 'reg', values: registers.names }, { key: 'start', values: ['0', '1'], about: T('不写时初值为「—」', 'left out, it starts as 「—」') }],
+      reg: [{ key: 'reg', values: registers.names }, { key: 'start', values: ['0', '1'], about: T('不写时初值为「—」') }],
       keep: [{ key: 'reg', values: registers.names }],
       const: [{ key: 'value', values: ['0', '…', String(registers.top)] }],
     } : {}),

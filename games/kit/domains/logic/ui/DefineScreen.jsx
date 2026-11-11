@@ -46,7 +46,7 @@ export default function DefineScreen({ game, level: entry, saved, save, solve, l
           {row.when && <span className="lg-def-when">{cond(row.when)} ⟹</span>}
           <span className="lg-def-lhs">{term(row.lhs)} =</span>
           <select value={picks[k]} onChange={(e) => pick(k, e.target.value)} aria-label={tr(`第 ${k + 1} 行的右边`, `Right side of row ${k + 1}`)}>
-            <option value="">{tr('选择右边', 'Choose')}</option>
+            <option value="">{tr('选择右边')}</option>
             {row.choices.map((c) => <option key={c} value={c}>{term(c)}</option>)}
           </select>
         </div>
@@ -57,7 +57,7 @@ export default function DefineScreen({ game, level: entry, saved, save, solve, l
     <div className="lg-strip is-tables">
       <div className="lg-scroll-x">
         <table className="lg-rows">
-          <thead><tr><th>{tr('表达式', 'Expression')}</th><th>{L(WORDS.wanted)}</th><th className="lg-result">{L(WORDS.result)}</th></tr></thead>
+          <thead><tr><th>{tr('表达式')}</th><th>{L(WORDS.wanted)}</th><th className="lg-result">{L(WORDS.result)}</th></tr></thead>
           <tbody>
             {level.tests.map((test, k) => {
               const r = checked?.rows[k]
@@ -65,21 +65,21 @@ export default function DefineScreen({ game, level: entry, saved, save, solve, l
                 <tr key={k} className={states[k] ? `is-${states[k]}` : ''}>
                   <td>{term(test.term)}</td>
                   <td>{term(test.value)}</td>
-                  <td className="lg-result">{shown(k) && r ? (r.got.loops ? tr('不终止', 'Does not terminate') : L(sayTerm(r.got.value, level.notation))) : ''}</td>
+                  <td className="lg-result">{shown(k) && r ? (r.got.loops ? tr('不终止') : L(sayTerm(r.got.value, level.notation))) : ''}</td>
                 </tr>
               )
             })}
             <tr className={states[count - 1] ? `is-${states[count - 1]}` : ''}>
-              <td colSpan={2}>{tr('每次递归调用的参数都更小', 'Every recursive call is on a smaller argument')}</td>
+              <td colSpan={2}>{tr('每次递归调用的参数都更小')}</td>
               <td className="lg-result">{shown(count - 1) && checked ? (checked.rows.at(-1).pass ? '✓' : tr(`第 ${checked.rows.at(-1).row + 1} 行的参数没有变小`, `Row ${checked.rows.at(-1).row + 1}: the argument does not decrease`)) : ''}</td>
             </tr>
           </tbody>
         </table>
       </div>
-      {run?.over && <p className={`lg-verdict ${playback.passed ? 'is-pass' : 'is-fail'}`}>{playback.passed ? tr('每个值都正确，每次递归调用的参数都更小，因此这条定义必定终止。', 'Every value is correct and every recursive call is on a smaller argument, so this definition always terminates.') : failed?.reason}</p>}
+      {run?.over && <p className={`lg-verdict ${playback.passed ? 'is-pass' : 'is-fail'}`}>{playback.passed ? tr('每个值都正确，每次递归调用的参数都更小，因此这条定义必定终止。') : failed?.reason}</p>}
     </div>
   )
-  const dock = <RunDock {...playback.dock({ go: tr('运行测试', 'Run the tests'), done: tr('定义已接受', 'Definition accepted') })} />
+  const dock = <RunDock {...playback.dock({ go: tr('运行测试', 'Run the tests'), done: tr('定义已接受') })} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   return <Level phone={phone} className="lg-define-level" brief={brief} stage={<div className="lg-define">{rows}</div>} results={table} dock={dock} />
 }

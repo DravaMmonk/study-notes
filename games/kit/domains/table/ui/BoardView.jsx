@@ -17,7 +17,7 @@ const valueOf = (probe, id) => (probe && id in probe ? signal(probe[id]) : '')
 // reads beside each of its outputs.)
 const shownOf = (node, probe, reading) => {
   const text = valueOf(probe, node.id)
-  return !text && reading?.halted ? { text: tr('未算到', 'not reached'), cls: 'is-unreached' } : { text }
+  return !text && reading?.halted ? { text: tr('未算到'), cls: 'is-unreached' } : { text }
 }
 const stop = (event) => event.stopPropagation()
 
@@ -44,8 +44,8 @@ export function SgCanvas({ board, overlay }) {
         {isCard(node.type) && <div className="sg-cardview" data-cardview={node.type} onPointerDown={stop}>{board.cardView(node.type)}</div>}
         {swaps.length > 1 && (
           <div className="param is-choice">
-            <span>{tr('操作', 'Operation')}</span>
-            <Choice options={swaps.map((k) => [k, def(k).tag])} value={node.type} onChange={(k) => board.swap(node.id, k)} label={tr('操作', 'Operation')} />
+            <span>{tr('操作')}</span>
+            <Choice options={swaps.map((k) => [k, def(k).tag])} value={node.type} onChange={(k) => board.swap(node.id, k)} label={tr('操作')} />
           </div>
         )}
         {parts.role(node) === 'part' && !hasValue(node.type) && swaps.length < 2 && <small className="sg-tag">{L(def(node.type).tag)}</small>}

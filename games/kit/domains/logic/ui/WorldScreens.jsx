@@ -38,10 +38,10 @@ export function WorldText({ model, notation, preds, world = null, spell = false 
   const consts = Object.entries(model.fns).filter(([c, m]) => m.has('') && !world?.things.includes(c)).map(([c, m]) => `${L(notation.words?.[c] ?? T(c, c))} = ${name(m.get(''))}`)
   return (
     <div className="fo-world">
-      <p>{tr(`这个世界有 ${model.domain.length} 样东西：`, `This world has ${model.domain.length} thing${model.domain.length === 1 ? '' : 's'}: `)}<b>{model.domain.map(name).join(tr('、', ', '))}</b></p>
-      {consts.length > 0 && <p>{consts.join(tr('；', '; '))}</p>}
-      <p>{atoms.length ? atoms.join(tr('；', '; ')) : tr('什么都不成立。', 'Nothing holds.')}</p>
-      {missing.length > 0 && atoms.length > 0 && <p className="fo-not">{tr('不成立：', 'False: ')}{missing.join(tr('；', '; '))}</p>}
+      <p>{tr(`这个世界有 ${model.domain.length} 样东西：`, `This world has ${model.domain.length} thing${model.domain.length === 1 ? '' : 's'}: `)}<b>{model.domain.map(name).join(tr('、'))}</b></p>
+      {consts.length > 0 && <p>{consts.join(tr('；'))}</p>}
+      <p>{atoms.length ? atoms.join(tr('；')) : tr('什么都不成立。')}</p>
+      {missing.length > 0 && atoms.length > 0 && <p className="fo-not">{tr('不成立：')}{missing.join(tr('；'))}</p>}
     </div>
   )
 }
@@ -132,10 +132,10 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
 
   const builder = (
     <section className="fo-build">
-      <div className="fo-size" role="group" aria-label={tr('东西的数目', 'Number of things')}>
-        <span>{tr('这个世界有', 'This world has')}</span>
+      <div className="fo-size" role="group" aria-label={tr('东西的数目')}>
+        <span>{tr('这个世界有')}</span>
         {Array.from({ length: MAX_WORLD }, (_, k) => k + 1).map((n) => <button key={n} type="button" aria-pressed={world.size === n} onClick={() => update({ ...world, size: n })}>{n}</button>)}
-        <span>{tr('样东西', 'things')}</span>
+        <span>{tr('样东西')}</span>
       </div>
       {level.vocab.consts.map((c) => (
         <div key={c} className="fo-const">
@@ -167,7 +167,7 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
     </section>
   )
   const verdict = playback.passed
-    ? (level.meant ? tr('在这个世界里，译文和原意真假不同：这个世界是反例。', 'In this world the translation and what was meant differ: this world is a counterexample.') : tr('前提都成立，结论不成立：这个世界是反例。', 'Every premise holds and the goal fails: this world is a counterexample.'))
+    ? (level.meant ? tr('在这个世界里，译文和原意真假不同：这个世界是反例。') : tr('前提都成立，结论不成立：这个世界是反例。'))
     : failed
   const stage = (
     <div className="fo-stage">
@@ -177,7 +177,7 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
     </div>
   )
   const results = verdict ? <p className={`lg-verdict ${playback.passed ? 'is-pass' : 'is-fail'}`} role="status">{verdict}</p> : null
-  const dock = <RunDock {...playback.dock({ go: tr('运行', 'Run'), done: tr('找到反例', 'Counterexample found') })} />
+  const dock = <RunDock {...playback.dock({ go: tr('运行'), done: tr('找到反例') })} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   return <Level phone={phone} className="fo-level" brief={brief} stage={stage} results={results} dock={dock} />
 }

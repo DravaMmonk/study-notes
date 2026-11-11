@@ -301,11 +301,11 @@ export default function GameShell({ game, store, author = null }) {
         <TopBar className="game-bar" game={game} theme={theme} onTheme={setTheme}>
           {level ? (
             <>
-              <button className="kit-btn is-label bar-button" onClick={() => open(null)} aria-label={tr('返回关卡地图', 'Back to the level map')}><ArrowLeft size={16} /><span>{tr('地图', 'Map')}</span></button>
-              <button className={`kit-btn is-label bar-button drawer-toggle ${drawer ? 'is-on' : ''}`} onClick={() => setDrawer(!drawer)} aria-pressed={drawer} aria-label={tr('关卡', 'Levels')}><PanelLeft size={16} /><span>{tr('关卡', 'Levels')}</span></button>
+              <button className="kit-btn is-label bar-button" onClick={() => open(null)} aria-label={tr('返回关卡地图')}><ArrowLeft size={16} /><span>{tr('地图')}</span></button>
+              <button className={`kit-btn is-label bar-button drawer-toggle ${drawer ? 'is-on' : ''}`} onClick={() => setDrawer(!drawer)} aria-pressed={drawer} aria-label={tr('关卡')}><PanelLeft size={16} /><span>{tr('关卡')}</span></button>
             </>
           ) : (
-            <a className="kit-btn is-label bar-button" href={SITE.games} aria-label={tr('返回游戏列表', 'Back to the games')}><ArrowLeft size={16} /><span>{tr('游戏', 'Games')}</span></a>
+            <a className="kit-btn is-label bar-button" href={SITE.games} aria-label={tr('返回游戏列表')}><ArrowLeft size={16} /><span>{tr('游戏', 'Games')}</span></a>
           )}
           <span className="kit-brand game-brand"><i className="kit-chip" aria-hidden="true" /><span>{L(game.title)}</span></span>
           {level && (
@@ -315,11 +315,11 @@ export default function GameShell({ game, store, author = null }) {
               {chapter && <small>{L(chapter.title)}</small>}
             </span>
           )}
-          {intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => setIntroFor(introKey)} aria-label={tr('引言', 'Intro')}><BookOpen size={16} /><span>{tr('引言', 'Intro')}</span></button>}
-          {edit && !intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => edit.add({ at: 'intro', scope: taskAt === 0 ? 'level' : 'task' })}><BookOpen size={16} /><span>{tr('+ 引言', '+ Intro')}</span></button>}
+          {intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => setIntroFor(introKey)} aria-label={tr('引言')}><BookOpen size={16} /><span>{tr('引言')}</span></button>}
+          {edit && !intro && <button className="kit-btn is-label bar-button intro-button" onClick={() => edit.add({ at: 'intro', scope: taskAt === 0 ? 'level' : 'task' })}><BookOpen size={16} /><span>{tr('+ 引言')}</span></button>}
           {level && game.glossary && (
             <button className="kit-btn is-label bar-button notes-button wiki-button" onClick={() => setSheet('wiki')} aria-label={tr(`百科${wiki.unread.length ? `（${wiki.unread.length} 条未读）` : ''}`, `Encyclopedia${wiki.unread.length ? ` (${wiki.unread.length} unread)` : ''}`)}>
-              <BookMarked size={16} /><span>{tr('百科', 'Encyclopedia')}</span>{wiki.unread.length > 0 && <i className="wiki-dot" />}
+              <BookMarked size={16} /><span>{tr('百科')}</span>{wiki.unread.length > 0 && <i className="wiki-dot" />}
             </button>
           )}
         </TopBar>
@@ -359,7 +359,7 @@ export default function GameShell({ game, store, author = null }) {
             <EditContext.Provider value={edit}>
               {kind
                 ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: kept(), save, solved: solved.has(level.id) || isPassed(taskAt), solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
-                : <div className="board-loading">{tr('这类关卡尚在制作中。', 'This kind of level is still being made.')}</div>}
+                : <div className="board-loading">{tr('这类关卡尚在制作中。')}</div>}
             </EditContext.Provider>
           </div>
         )}
@@ -389,12 +389,12 @@ export default function GameShell({ game, store, author = null }) {
         {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
         {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
         {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
-        {locked && <Dialog top title={tr(`「${locked.title}」尚未解锁`, `“${locked.title}” is still locked`)} lines={[locked.at && locked.at.id === level?.id ? tr('通过这一关后解锁。', 'Unlocked by passing this level.') : locked.at ? tr(`进行到 ${game.levelLabel(locked.at)}「${L(locked.at.title)}」时解锁。`, `Unlocks at ${game.levelLabel(locked.at)} “${L(locked.at.title)}”.`) : tr('继续推进后解锁。', 'Unlocks later in the game.')]} actions={[[tr('确定', 'OK'), () => setLocked(null)]]} onClose={() => setLocked(null)} />}
+        {locked && <Dialog top title={tr(`「${locked.title}」尚未解锁`, `“${locked.title}” is still locked`)} lines={[locked.at && locked.at.id === level?.id ? tr('通过这一关后解锁。') : locked.at ? tr(`进行到 ${game.levelLabel(locked.at)}「${L(locked.at.title)}」时解锁。`, `Unlocks at ${game.levelLabel(locked.at)} “${L(locked.at.title)}”.`) : tr('继续推进后解锁。')]} actions={[[tr('确定'), () => setLocked(null)]]} onClose={() => setLocked(null)} />}
         {target && (game.isOpen(target, solved, progress.all)
-          ? <Dialog top title={tr(`前往 ${game.levelLabel(target)}「${L(target.title)}」？`, `Go to ${game.levelLabel(target)} “${L(target.title)}”?`)} lines={[atTarget ? tr('你正在这里。', 'You are already here.') : tr('这一关的电路和进度都会保存，可以随时返回。', 'This level’s board and progress are kept; you can return at any time.')]} actions={atTarget ? [[tr('确定', 'OK'), () => setGoTo(null)]] : [[tr('取消', 'Cancel'), () => setGoTo(null)], [tr('前往', 'Go'), go]]} onClose={() => setGoTo(null)} />
-          : <Dialog top title={tr(`${game.levelLabel(target)}「${L(target.title)}」尚未解锁`, `${game.levelLabel(target)} “${L(target.title)}” is still locked`)} lines={[tr('请先通过它的前置关卡。', 'Pass the levels that lead to it first.')]} actions={[[tr('确定', 'OK'), () => setGoTo(null)]]} onClose={() => setGoTo(null)} />)}
+          ? <Dialog top title={tr(`前往 ${game.levelLabel(target)}「${L(target.title)}」？`, `Go to ${game.levelLabel(target)} “${L(target.title)}”?`)} lines={[atTarget ? tr('你正在这里。') : tr('这一关的电路和进度都会保存，可以随时返回。')]} actions={atTarget ? [[tr('确定'), () => setGoTo(null)]] : [[tr('取消'), () => setGoTo(null)], [tr('前往'), go]]} onClose={() => setGoTo(null)} />
+          : <Dialog top title={tr(`${game.levelLabel(target)}「${L(target.title)}」尚未解锁`, `${game.levelLabel(target)} “${L(target.title)}” is still locked`)} lines={[tr('请先通过它的前置关卡。')]} actions={[[tr('确定'), () => setGoTo(null)]]} onClose={() => setGoTo(null)} />)}
         {game.power && !progress.seenPower && (
-          <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始', 'Start'), () => setProgress((p) => ({ ...p, seenPower: true }))]]} intro />
+          <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始'), () => setProgress((p) => ({ ...p, seenPower: true }))]]} intro />
         )}
       </div>
     </SettingsContext.Provider>

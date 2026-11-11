@@ -82,9 +82,9 @@ const logLoss = (v) => Math.log10(Math.max(1e-6, v))
 
 /** The bench model: knobs `step` (an index into the checkpoints) and `lambda` (an index into the penalties). */
 export const stop = {
-  about: t('什么时候停：多项式拟合几个带噪声的样本；旋钮 step（训练到第几个检查点）、lambda（第几个惩罚）；ratio 是新样本误差和它的最低值之比', 'when to stop: a polynomial fitted to a few noisy samples; knobs step (the checkpoint trained to) and lambda (which penalty); ratio is the new-sample error over its lowest'),
+  about: t('什么时候停：多项式拟合几个带噪声的样本；旋钮 step（训练到第几个检查点）、lambda（第几个惩罚）；ratio 是新样本误差和它的最低值之比'),
   setup: S.obj({
-    degree: S.int({ min: 1 }), seed: S.int(), wave: S.num({ about: t('真实的曲线是 sin(wave·x)', 'the true curve is sin(wave·x)') }),
+    degree: S.int({ min: 1 }), seed: S.int(), wave: S.num({ about: t('真实的曲线是 sin(wave·x)') }),
     train: S.int({ min: 1 }), noise: S.num(), valid: S.int({ min: 2 }), rate: S.num(),
   }),
   make({ wave, ...p }, bench) {
@@ -107,12 +107,12 @@ export const stop = {
           valid: current.valid,
           ratio: current.valid / best,
           curve: {
-            lines: [{ curve: (u) => fit.predict(current.w, x(u)), kind: 'yours', label: t('模型', 'model') }, { curve: (u) => fit.data.truth(x(u)), kind: 'faint', label: t('真实规律', 'true rule') }],
+            lines: [{ curve: (u) => fit.predict(current.w, x(u)), kind: 'yours', label: t('模型', 'model') }, { curve: (u) => fit.data.truth(x(u)), kind: 'faint', label: t('真实规律') }],
             dots: [
               ...fit.data.tx.map((tx, i) => ({ u: (tx + 1) / 2, v: fit.data.ty[i], kind: 'point', label: t('训练样本', 'training sample') })),
               ...fit.data.vx.filter((_, i) => i % 3 === 0).map((vx, i) => ({ u: (vx + 1) / 2, v: fit.data.vy[i * 3], kind: 'ring', label: t('新样本', 'new sample') })),
             ],
-            legend: [{ kind: 'yours', label: t('模型', 'Model') }, { kind: 'faint', label: t('真实规律（模型不可见）', 'True rule (hidden from the model)') }, { kind: 'ring', label: t('新样本', 'New samples') }, { kind: 'point', label: t('训练样本', 'Training samples') }],
+            legend: [{ kind: 'yours', label: t('模型', 'Model') }, { kind: 'faint', label: t('真实规律（模型不可见）') }, { kind: 'ring', label: t('新样本', 'New samples') }, { kind: 'point', label: t('训练样本', 'Training samples') }],
           },
           errors: {
             lines: [
@@ -121,7 +121,7 @@ export const stop = {
             ],
             legend: [{ kind: 'yours', label: t('训练误差', 'Training error') }, { kind: 'error', label: t('新样本误差', 'New-sample error') }],
           },
-          errorsTitle: byStep ? t('误差随训练步数（对数刻度）', 'Error by training step (log scale)') : t('误差随 λ（对数刻度）', 'Error by λ (log scale)'),
+          errorsTitle: byStep ? t('误差随训练步数（对数刻度）') : t('误差随 λ（对数刻度）'),
           now: (at + 0.5) / history.length,
         }
       },

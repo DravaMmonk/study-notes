@@ -7,32 +7,32 @@ import { T } from '../../../shell/i18n.js'
 /** The skeleton's roles, in the order a clause says them. */
 export const ROLES = {
   subj: {
-    name: T('主语', 'subject'),
-    desc: T('句子说的是谁、是什么。标出它的名词短语：修饰成分都折起来以后，剩下的那几个词。', 'Who or what the sentence is about. Mark its noun phrase: the words left once its modifiers are folded.'),
+    name: T('主语'),
+    desc: T('句子说的是谁、是什么。标出它的名词短语：修饰成分都折起来以后，剩下的那几个词。'),
   },
   verb: {
-    name: T('谓语', 'verb'),
-    desc: T('主语做什么、怎么样：整个动词词组，连同助动词（has been shown）。', 'What the subject does or is: the whole verb group, auxiliaries included (has been shown).'),
+    name: T('谓语'),
+    desc: T('主语做什么、怎么样：整个动词词组，连同助动词（has been shown）。'),
   },
   obj: {
-    name: T('宾语', 'object'),
-    desc: T('动作落到的东西，跟在谓语后面的名词短语。', 'What the action lands on: the noun phrase after the verb.'),
+    name: T('宾语'),
+    desc: T('动作落到的东西，跟在谓语后面的名词短语。'),
   },
   comp: {
-    name: T('表语', 'complement'),
-    desc: T('跟在 be 这类系动词后面、说明主语是什么或怎么样的成分。', 'What follows a linking verb such as be, saying what the subject is or what it is like.'),
+    name: T('表语'),
+    desc: T('跟在 be 这类系动词后面、说明主语是什么或怎么样的成分。'),
   },
 }
 
 /** The constructions a modifier is folded as. */
 export const TYPES = {
   pp: {
-    name: T('介词短语', 'prepositional phrase'),
-    desc: T('介词开头的一串词（of the model、on a single GPU），整块修饰一个词。折起来，挂到它修饰的词上。', 'A preposition and what follows it (of the model, on a single GPU), modifying one word as a whole. Fold it and hang it on that word.'),
+    name: T('介词短语'),
+    desc: T('介词开头的一串词（of the model、on a single GPU），整块修饰一个词。折起来，挂到它修饰的词上。'),
   },
   rel: {
-    name: T('定语从句', 'relative clause'),
-    desc: T('跟在名词后面、自带主语和谓语的小句（that we propose、which has seven billion parameters）。折起来，挂到它修饰的词上。', 'A clause of its own, with its own subject and verb, after a noun (that we propose, which has seven billion parameters). Fold it and hang it on the word it modifies.'),
+    name: T('定语从句'),
+    desc: T('跟在名词后面、自带主语和谓语的小句（that we propose、which has seven billion parameters）。折起来，挂到它修饰的词上。'),
   },
 }
 

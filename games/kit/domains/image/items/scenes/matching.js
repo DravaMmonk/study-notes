@@ -11,7 +11,7 @@ import { T as t } from '../../../../shell/i18n.js'
 
 const num = S.num()
 const PT = S.list(S.num(), { min: 2 })
-const SEGMENT = S.list(S.num(), { min: 4, about: t('一条线经过的两点：x1, y1, x2, y2', 'two points on a line: x1, y1, x2, y2') })
+const SEGMENT = S.list(S.num(), { min: 4, about: t('一条线经过的两点：x1, y1, x2, y2') })
 const SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1].map((v) => v / 8)
 const SOBEL_Y = [-1, -2, -1, 0, 0, 0, 1, 2, 1].map((v) => v / 8)
 
@@ -106,25 +106,25 @@ const pairsFor = (H, seed, wrong) => {
   for (let i = 0; i < wrong; i++) values.push(Math.floor(next() * COVER_W), Math.floor(next() * COVER_H), Math.floor(next() * 32), Math.floor(next() * 32))
   return row(values)
 }
-const QUAD = S.list(PT, { min: 4, about: t('书的四个角在照片里的位置', 'where the book’s four corners are in the photo') })
+const QUAD = S.list(PT, { min: 4, about: t('书的四个角在照片里的位置') })
 
 export const MATCHING = {
   bumps: {
-    about: t('一张有几个平滑鼓包的响应图；期望是它的峰：比 3×3 邻居都不小、又大于 above 的格子', 'a response map with smooth bumps; its peaks expected: cells no smaller than their 3×3 neighbours and above `above`'),
+    about: t('一张有几个平滑鼓包的响应图；期望是它的峰：比 3×3 邻居都不小、又大于 above 的格子'),
     setup: S.obj({ above: num }),
-    test: S.obj({ bumps: S.list(S.list(num, { min: 3 }), { about: t('鼓包：cx, cy, 高', 'bumps: cx, cy, height') }) }),
+    test: S.obj({ bumps: S.list(S.list(num, { min: 3 }), { about: t('鼓包：cx, cy, 高') }) }),
     make: ({ bumps: list }, { above }) => ({ inputs: { in: bumps(list) }, expected: { out: peaksOf(bumps(list), above) } }),
   },
   distances: {
-    about: t('每格一个关键点，三张图是它到三个候选的距离；期望是距离比检验配上的候选（1–3，没配上是 0）', 'each cell a keypoint, three maps its distances to three candidates; the candidate the ratio test accepts (1–3, else 0) expected'),
-    test: S.obj({ seed: S.int(), ambiguous: S.list(S.int(), { about: t('第二近紧跟在后的格子', 'the cells where the second nearest is close behind') }) }),
+    about: t('每格一个关键点，三张图是它到三个候选的距离；期望是距离比检验配上的候选（1–3，没配上是 0）'),
+    test: S.obj({ seed: S.int(), ambiguous: S.list(S.int(), { about: t('第二近紧跟在后的格子') }) }),
     make: ({ seed, ambiguous }) => {
       const [d1, d2, d3] = distanceMaps(seed, ambiguous)
       return { inputs: { d1, d2, d3 }, expected: { idx: matchIndex([d1, d2, d3]) } }
     },
   },
   brighter: {
-    about: t('关键点的窗口和三个候选：真搭档是同一块纹理调亮了 0.3，另两个是同样亮的平淡纹理；期望是搭档的编号', 'a keypoint’s window and three candidates, its partner the same texture brightened by 0.3, the others flat textures as bright; the partner’s number expected'),
+    about: t('关键点的窗口和三个候选：真搭档是同一块纹理调亮了 0.3，另两个是同样亮的平淡纹理；期望是搭档的编号'),
     test: S.obj({ seed: S.int(), which: S.int({ min: 0, max: 2 }) }),
     make: ({ seed, which }) => {
       const p = texture(seed)
@@ -133,7 +133,7 @@ export const MATCHING = {
     },
   },
   road: {
-    about: t('暗路面上的车道线和几个亮斑；期望是投票累加器（× 1/8）里的峰', 'lanes on a dark road with a few bright specks; the peaks of the vote accumulator (× 1/8) expected'),
+    about: t('暗路面上的车道线和几个亮斑；期望是投票累加器（× 1/8）里的峰'),
     test: S.obj({ lanes: S.list(SEGMENT), specks: S.list(PT) }),
     make: ({ lanes, specks }) => {
       const fs = lanes.map((l) => onLine(...l))
@@ -142,7 +142,7 @@ export const MATCHING = {
     },
   },
   clutter: {
-    about: t('一条线和随机的杂点；期望是那条真线', 'a line among random specks; the true line expected'),
+    about: t('一条线和随机的杂点；期望是那条真线'),
     test: S.obj({ line: SEGMENT, seed: S.int(), outliers: S.int({ min: 0 }) }),
     make: ({ line, seed, outliers }) => {
       const next = random(seed)
@@ -152,7 +152,7 @@ export const MATCHING = {
     },
   },
   orientations: {
-    about: t('一个小格：期望是梯度幅值按方向（→ ↑ ← ↓）分到四个数，各除以格数', 'one cell: its gradient magnitude shared out to four directions (→ ↑ ← ↓), each divided by the cells, expected'),
+    about: t('一个小格：期望是梯度幅值按方向（→ ↑ ← ↓）分到四个数，各除以格数'),
     test: S.obj({ in: S.call('picture') }),
     make: (test) => {
       const img = picture(test.in)
@@ -169,7 +169,7 @@ export const MATCHING = {
     },
   },
   paste: {
-    about: t('书的照片、清楚的封面和单应 H；期望是封面贴回照片上', 'a photo of the book, the crisp cover and the homography H; the cover pasted back onto the photo expected'),
+    about: t('书的照片、清楚的封面和单应 H；期望是封面贴回照片上'),
     test: S.obj({ quad: QUAD }),
     make: ({ quad }) => {
       const H = homographyTo(quad)
@@ -177,8 +177,8 @@ export const MATCHING = {
     },
   },
   coverPairs: {
-    about: t('书的照片、封面和匹配的点对（有噪声，夹着错配）；期望是用对的点对解出的单应贴回封面', 'a photo of the book, the cover and matched pairs (noisy, with wrong ones among them); the cover pasted back by the homography of the right pairs expected'),
-    test: S.obj({ quad: QUAD, seed: S.int(), wrong: S.int({ min: 0, about: t('错配几对', 'how many wrong pairs') }) }),
+    about: t('书的照片、封面和匹配的点对（有噪声，夹着错配）；期望是用对的点对解出的单应贴回封面'),
+    test: S.obj({ quad: QUAD, seed: S.int(), wrong: S.int({ min: 0, about: t('错配几对') }) }),
     make: ({ quad, seed, wrong }) => {
       const H = homographyTo(quad)
       const pairs = pairsFor(H, seed, wrong)

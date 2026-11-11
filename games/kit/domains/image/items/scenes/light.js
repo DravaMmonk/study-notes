@@ -35,13 +35,13 @@ const TERMS = {
   bend: (k) => (x, y) => k * ((x - 7.5) ** 2 - (y - 7.5) ** 2),
 }
 const HEIGHT = S.list(S.obj({
-  dome: S.opt(S.list(num, { min: 4, about: t('鼓包：cx, cy, 半径, 高', 'a bump: cx, cy, radius, height') })),
-  bowl: S.opt(S.list(num, { min: 4, about: t('坑：cx, cy, 半径, 深', 'a dent: cx, cy, radius, depth') })),
-  ridge: S.opt(S.list(num, { min: 3, about: t('横梁：y0, 半宽, 高', 'a ridge: y0, half width, height') })),
-  tilt: S.opt(S.list(num, { min: 2, about: t('斜面：x 方向和 y 方向的坡度', 'a slope: its gradient across and down') })),
-  groove: S.opt(S.list(num, { min: 6, about: t('沟：x0, y0, x1, y1, 半宽, 深', 'a groove: x0, y0, x1, y1, half width, depth') })),
-  bend: S.opt(S.num({ about: t('马鞍形的弯：k·((x − 7.5)² − (y − 7.5)²)', 'a saddle bend: k·((x − 7.5)² − (y − 7.5)²)') })),
-}), { about: t('高度场：几项相加（每项一个键），空表是平板', 'a height field: terms added up (one key each); none is a flat sheet') })
+  dome: S.opt(S.list(num, { min: 4, about: t('鼓包：cx, cy, 半径, 高') })),
+  bowl: S.opt(S.list(num, { min: 4, about: t('坑：cx, cy, 半径, 深') })),
+  ridge: S.opt(S.list(num, { min: 3, about: t('横梁：y0, 半宽, 高') })),
+  tilt: S.opt(S.list(num, { min: 2, about: t('斜面：x 方向和 y 方向的坡度') })),
+  groove: S.opt(S.list(num, { min: 6, about: t('沟：x0, y0, x1, y1, 半宽, 深') })),
+  bend: S.opt(S.num({ about: t('马鞍形的弯：k·((x − 7.5)² − (y − 7.5)²)') })),
+}), { about: t('高度场：几项相加（每项一个键），空表是平板') })
 const heightOf = (terms) => {
   const fields = terms.map((term) => {
     const [name, args] = Object.entries(term)[0]
@@ -85,7 +85,7 @@ const METAMER = (() => {
   const peak = Math.max(...d.map(Math.abs))
   return d.map((x) => (0.3 * x) / peak)
 })()
-const SPECTRUM = S.list(num, { min: 10, about: t('十个波段（400–700 nm，每段 30 nm）的强度', 'the strength in ten bands (400–700 nm, 30 nm each)') })
+const SPECTRUM = S.list(num, { min: 10, about: t('十个波段（400–700 nm，每段 30 nm）的强度') })
 
 /* ---------- light and paint ---------- */
 
@@ -156,7 +156,7 @@ const STEREO_EXPECTS = {
 
 export const LIGHT = {
   surface: {
-    about: t('一块表面：它的法线和反射率；期望是灯光下的样子（朗伯着色，可以再加一盏半亮的补光）', 'a surface, its normals and its reflectance; how it looks under the lamp (Lambert shading, maybe with a half-strength fill light) is expected'),
+    about: t('一块表面：它的法线和反射率；期望是灯光下的样子（朗伯着色，可以再加一盏半亮的补光）'),
     setup: S.obj({ lamp: vec3, fill: S.opt(vec3) }),
     test: S.obj({ height: HEIGHT, paint: S.call('picture') }),
     make: ({ height, paint }, { lamp, fill }) => {
@@ -167,12 +167,12 @@ export const LIGHT = {
     },
   },
   spectrum: {
-    about: t('一条光谱和三种感光元件的灵敏度曲线；期望是 R、G、B 三个读数', 'a spectrum and the sensitivity curves of three sensors; the R, G and B readings are expected'),
+    about: t('一条光谱和三种感光元件的灵敏度曲线；期望是 R、G、B 三个读数'),
     test: S.obj({ light: SPECTRUM }),
     make: ({ light }) => ({ inputs: { in: row(light), sr: row(CURVES.R), sg: row(CURVES.G), sb: row(CURVES.B) }, expected: reading(row(light)) }),
   },
   spectrumColour: {
-    about: t('光谱和感光曲线：将三个传感器读数组成彩色像素', 'a spectrum and sensitivity curves: combine the three sensor readings into a colour pixel'),
+    about: t('光谱和感光曲线：将三个传感器读数组成彩色像素'),
     test: S.obj({ light: SPECTRUM }),
     make: ({ light }) => {
       const values = reading(row(light))
@@ -180,7 +180,7 @@ export const LIGHT = {
     },
   },
   metamer: {
-    about: t('两块布（日光下一样）和一盏灯；期望是相机读出的两块布 R、G、B 之差', 'two cloths that match in daylight, and a lamp; what the camera reads of their R, G and B differences is expected'),
+    about: t('两块布（日光下一样）和一盏灯；期望是相机读出的两块布 R、G、B 之差'),
     test: S.obj({ cloth: SPECTRUM, lamp: SPECTRUM }),
     make: ({ cloth, lamp }) => {
       const twin = cloth.map((v, i) => v + METAMER[i])
@@ -191,7 +191,7 @@ export const LIGHT = {
     },
   },
   shadow: {
-    about: t('照片 = 油漆 × 光照，光照另给；期望是油漆本来的颜色', 'a photo = paint × light, the light given too; the paint itself is expected'),
+    about: t('照片 = 油漆 × 光照，光照另给；期望是油漆本来的颜色'),
     test: S.obj({ paint: S.call('picture'), light: S.oneOf(Object.keys(LIGHTS)) }),
     make: ({ paint, light }) => {
       const colour = picture(paint)
@@ -200,7 +200,7 @@ export const LIGHT = {
     },
   },
   shadowColour: {
-    about: t('彩色照片与已知光照；期望是每个通道的表面反射率', 'a colour photograph and known illumination; the surface reflectance in each channel is expected'),
+    about: t('彩色照片与已知光照；期望是每个通道的表面反射率'),
     test: S.obj({ layout: S.oneOf(Object.keys(LAYOUTS)), light: S.oneOf(Object.keys(LIGHTS)) }),
     make: ({ layout, light }) => {
       const lighting = fromFn(N, N, LIGHTS[light])
@@ -210,7 +210,7 @@ export const LIGHT = {
     },
   },
   redObjects: {
-    about: t('一个彩色场景（R、G、B 三张图），光照不均；期望是红色东西的掩膜（R 占三者之和一半以上）', 'a coloured scene (R, G, B), lit unevenly; the mask of what is red (R over half of the three’s sum) is expected'),
+    about: t('一个彩色场景（R、G、B 三张图），光照不均；期望是红色东西的掩膜（R 占三者之和一半以上）'),
     test: S.obj({ layout: S.oneOf(Object.keys(LAYOUTS)), light: S.oneOf(Object.keys(COLOUR_LIGHTS)) }),
     make: ({ layout, light }) => {
       const s = coloured(layout, COLOUR_LIGHTS[light])
@@ -218,7 +218,7 @@ export const LIGHT = {
     },
   },
   whiteBalance: {
-    about: t('暖黄的灯下拍的彩色场景，亮度为 strength；期望是每个通道除以它自己的最大值', 'a coloured scene under a warm yellow lamp at brightness strength; each channel divided by its own maximum is expected'),
+    about: t('暖黄的灯下拍的彩色场景，亮度为 strength；期望是每个通道除以它自己的最大值'),
     test: S.obj({ layout: S.oneOf(Object.keys(LAYOUTS)), strength: num }),
     make: ({ layout, strength }) => {
       const s = coloured(layout, () => strength)
@@ -229,7 +229,7 @@ export const LIGHT = {
     },
   },
   whiteBalanceColour: {
-    about: t('暖黄灯下的彩色照片；期望是各通道分别按最大值校正', 'a colour photograph under a warm lamp; each channel is corrected by its own maximum'),
+    about: t('暖黄灯下的彩色照片；期望是各通道分别按最大值校正'),
     test: S.obj({ layout: S.oneOf(Object.keys(LAYOUTS)), strength: num }),
     make: ({ layout, strength }) => {
       const s = coloured(layout, () => strength)
@@ -239,7 +239,7 @@ export const LIGHT = {
     },
   },
   relit: {
-    about: t('同一个物体换了灯光：亮度 × gain + offset；期望是它的边（梯度大于最大值一半的地方）', 'one object under other light, brightness × gain + offset; its edges (where the gradient is over half its maximum) are expected'),
+    about: t('同一个物体换了灯光：亮度 × gain + offset；期望是它的边（梯度大于最大值一半的地方）'),
     test: S.obj({ subject: S.call('picture'), gain: num, offset: num }),
     make: ({ subject, gain, offset }) => {
       const img = picture(subject)
@@ -251,9 +251,9 @@ export const LIGHT = {
     },
   },
   photometric: {
-    about: t('光度立体：一张有污渍的金属板，三盏已知方向的灯各拍一张；期望是它朝右倾的地方、它的反射率，或它陡的地方', 'photometric stereo: a stained metal sheet photographed under three lamps of known direction; where it leans right, its reflectance, or where it is steep, is expected'),
-    setup: S.obj({ expect: S.oneOf(Object.keys(STEREO_EXPECTS)), above: S.opt(S.num({ about: t('倾斜的门槛（lean：nx / nz；steep：坡度）', 'the threshold of the tilt (lean: nx / nz; steep: the slope)') })) }),
-    test: S.obj({ height: HEIGHT, seed: S.int({ about: t('污渍的种子', 'the stains’ seed') }) }),
+    about: t('光度立体：一张有污渍的金属板，三盏已知方向的灯各拍一张；期望是它朝右倾的地方、它的反射率，或它陡的地方'),
+    setup: S.obj({ expect: S.oneOf(Object.keys(STEREO_EXPECTS)), above: S.opt(S.num({ about: t('倾斜的门槛（lean：nx / nz；steep：坡度）') })) }),
+    test: S.obj({ height: HEIGHT, seed: S.int({ about: t('污渍的种子') }) }),
     make: ({ height, seed }, { expect, above }) => {
       const paint = stains(seed)
       const made = sheet(heightOf(height), paint)

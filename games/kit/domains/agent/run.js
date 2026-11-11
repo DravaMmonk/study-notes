@@ -45,7 +45,7 @@ export function runEpisode(level, circuit, test) {
  * (tokens, turns) hold.
  */
 export function verdict(level, run) {
-  if (!run.report.green) return T('测试没有通过', 'The tests fail')
+  if (!run.report.green) return T('测试没有通过')
   if (!run.stopped) return T(`跑满 ${level.machine.turns} 轮还没停下`, `Still going after ${level.machine.turns} turns`)
   if (level.budget?.tokens && run.tokens > level.budget.tokens) return T(`用了 ${run.tokens} 个 token，这一关最多 ${level.budget.tokens} 个`, `It took ${run.tokens} tokens; this level allows ${level.budget.tokens}`)
   if (level.budget?.turns && run.turns.length > level.budget.turns) return T(`用了 ${run.turns.length} 轮，这一关最多 ${level.budget.turns} 轮`, `It took ${run.turns.length} turns; this level allows ${level.budget.turns}`)

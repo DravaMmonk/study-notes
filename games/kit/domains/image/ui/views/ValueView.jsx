@@ -53,14 +53,14 @@ export function NumberCompare({ actual, expected, tolerance, pass }) {
       <div className="number-pair">
         <div><span>{L(WORDS.wanted)}</span><b>{formatNumber(expected)}</b></div>
         <div><span>{L(WORDS.result)}</span><b>{Number.isFinite(actual) ? formatNumber(actual) : '—'}</b></div>
-        <div><span>{tr('相差', 'Difference')}</span><b>{Number.isFinite(actual) ? formatNumber(Math.abs(actual - expected)) : '—'}</b></div>
+        <div><span>{tr('相差')}</span><b>{Number.isFinite(actual) ? formatNumber(Math.abs(actual - expected)) : '—'}</b></div>
       </div>
       <div className="number-scale" aria-hidden="true">
         <i className="number-band" style={{ left: at(expected - tolerance), width: `calc(${at(expected + tolerance)} - ${at(expected - tolerance)})` }} />
         <i className="number-mark is-expected" style={{ left: at(expected) }} />
         {Number.isFinite(actual) && <i className="number-mark is-actual" style={{ left: at(Math.min(hi, Math.max(lo, actual))) }} />}
       </div>
-      <p className="number-legend">{tr('允许误差', 'Tolerance')} ± {tolerance}</p>
+      <p className="number-legend">{tr('允许误差')} ± {tolerance}</p>
     </div>
   )
 }

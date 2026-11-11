@@ -59,14 +59,14 @@ export default function Plot({ lines = [], dots = [], width = 600, height = 200,
   const readings = at
     ? [
         ...lines.map((line) => ({ kind: line.kind, label: line.label, v: valueAt(line.curve, at.u) })),
-        ...dots.filter((d) => at.sample !== undefined && Math.abs(d.u - at.u) < 1e-9).map((d) => ({ kind: d.kind === 'ring' ? 'ring' : 'sample', label: d.label ?? (d.kind === 'ring' ? tr('参照点', 'reference') : tr('采样值', 'sampled value')), v: d.v, dot: true })),
+        ...dots.filter((d) => at.sample !== undefined && Math.abs(d.u - at.u) < 1e-9).map((d) => ({ kind: d.kind === 'ring' ? 'ring' : 'sample', label: d.label ?? (d.kind === 'ring' ? tr('参照点') : tr('采样值')), v: d.v, dot: true })),
       ]
     : []
   const where = !at ? '' : at.sample !== undefined ? tr(`第 ${at.sample} 个点 / ${at.of}`, `point ${at.sample} / ${at.of}`) : at.pixel !== undefined ? `x = ${at.pixel}` : `x = ${(at.u * span).toFixed(1)} px`
 
   return (
     <div className="bench-plot-wrap">
-      <svg className="bench-plot" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={tr('指向某处读取数值', 'Point at a spot to read it')} onPointerMove={pick} onPointerDown={pick} onPointerLeave={leave}>
+      <svg className="bench-plot" viewBox={`0 0 ${width} ${height}`} role="img" aria-label={tr('指向某处读取数值')} onPointerMove={pick} onPointerDown={pick} onPointerLeave={leave}>
         {ticks.map((t) => (
           <g key={t}>
             <line className={`bench-grid ${t === 0 && lo < 0 ? 'is-zero' : ''}`} x1={left} x2={width - right} y1={y(t)} y2={y(t)} />

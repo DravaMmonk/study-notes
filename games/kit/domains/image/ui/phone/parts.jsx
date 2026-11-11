@@ -15,7 +15,7 @@ export function ParamChip({ param, value }) {
   if (param.kind === 'kernel') {
     if (value.length === 1) return <><i>{L(param.label)}</i>{formatNumber(value[0])}</>
     return (
-      <span className="ph-mini-kernel" aria-label={param.learnable ? tr('训练出的 3×3 核', 'Trained 3×3 kernel') : tr('3×3 核', '3×3 kernel')}>
+      <span className="ph-mini-kernel" aria-label={param.learnable ? tr('训练出的 3×3 核') : tr('3×3 核')}>
         {value.map((w, i) => <i key={i} style={{ '--w': Math.max(-1, Math.min(1, w)) }} />)}
       </span>
     )
@@ -43,10 +43,10 @@ export function AddSheet({ kit, level, graph, previewFrom, test, title, theme, o
               return (
                 <button key={type} className="ph-part" data-family={familyOf(type)} onClick={() => onAdd(type)}>
                   <span className="ph-part-preview">
-                    {value ? <ValueView img={value} size={kindOf(value) === 'signal' ? 92 : 64} theme={theme} /> : <span className="ph-part-need">{inputsOf(type).length > 1 ? tr(`${inputsOf(type).length} 个输入`, `${inputsOf(type).length} inputs`) : tr('添加后预览', 'Add to preview')}</span>}
+                    {value ? <ValueView img={value} size={kindOf(value) === 'signal' ? 92 : 64} theme={theme} /> : <span className="ph-part-need">{inputsOf(type).length > 1 ? tr(`${inputsOf(type).length} 个输入`, `${inputsOf(type).length} inputs`) : tr('添加后预览')}</span>}
                   </span>
                   <span className="ph-part-text">
-                    <b><i className="family-chip">{createElement(iconOf(type), { size: 12, strokeWidth: 1.8 })}</i>{L(types[type].label)}{level.fresh?.includes(type) && <em className="pb-new">{tr('新', 'new')}</em>}</b>
+                    <b><i className="family-chip">{createElement(iconOf(type), { size: 12, strokeWidth: 1.8 })}</i>{L(types[type].label)}{level.fresh?.includes(type) && <em className="pb-new">{tr('新')}</em>}</b>
                     <small>{describe(types, type)}</small>
                   </span>
                 </button>

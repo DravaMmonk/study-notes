@@ -8,7 +8,7 @@ import { entryText, whyText } from '../words.js'
 
 /** A context's value on a card: its entries in order (the kit's Entries), then how many and how many tokens. */
 export function ContextValue({ value }) {
-  if (!value.length) return <span className="ag-empty">{tr('空', 'empty')}</span>
+  if (!value.length) return <span className="ag-empty">{tr('空')}</span>
   return (
     <Entries className="ag-ctx" count={tr(`共 ${value.length} 条 · ${tokensOf(value)} tok`, `${value.length} entr${value.length === 1 ? 'y' : 'ies'} · ${tokensOf(value)} tok`)}>
       {value.map((e, k) => <small key={k} data-kind={e.kind}>{L(entryText(e))}</small>)}
@@ -21,7 +21,7 @@ export function ContextValue({ value }) {
  * the blocks never run past the bar), the window marked at the end the model reads from, what fell out of it grey. Below it, the entries in order.
  */
 export function ContextBar({ call, window, list = true }) {
-  if (!call) return <p className="ag-note">{tr('这一轮没有调用模型。', 'No model call this turn.')}</p>
+  if (!call) return <p className="ag-note">{tr('这一轮没有调用模型。')}</p>
   const all = [...call.dropped.map((e) => ({ e, out: true })), ...call.seen.map((e) => ({ e, out: false }))]
   const total = Math.max(window, tokensOf(all.map((x) => x.e)))
   return (
@@ -65,7 +65,7 @@ export function RepoView({ repo, state, onAdd, added = [] }) {
           <span className="ag-segs">
             {f.segs.map((s) => {
               const how = state[`${file}#${s}`]
-              return <code key={s} className={how ? `is-${how}` : ''} title={how ? L({ right: T('改对了', 'right'), wrong: T('改错了', 'wrong'), madeup: T('编造', 'made up') }[how]) : undefined}>{s}</code>
+              return <code key={s} className={how ? `is-${how}` : ''} title={how ? L({ right: T('改对了'), wrong: T('改错了'), madeup: T('编造') }[how]) : undefined}>{s}</code>
             })}
           </span>
         </li>
@@ -76,7 +76,7 @@ export function RepoView({ repo, state, onAdd, added = [] }) {
 
 /** A test report's lines. */
 export function Report({ report }) {
-  if (report.green) return <p className="ag-report is-pass">{tr('测试全部通过。', 'All tests pass.')}</p>
+  if (report.green) return <p className="ag-report is-pass">{tr('测试全部通过。')}</p>
   return (
     <ul className="ag-report is-fail">
       {report.fails.map((f, k) => <li key={k}><code>{fileOf(f.at)} · {segOf(f.at)}</code>{L(whyText(f.why))}</li>)}

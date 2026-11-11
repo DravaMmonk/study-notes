@@ -45,18 +45,18 @@ export default function CopyTable({ content, vocabulary, scope, setScope = null,
     <section className="copy-table">
       <div className="copy-bar">
         {setScope && (
-          <select value={String(scope)} onChange={(e) => setScope(/^\d+$/.test(e.target.value) ? Number(e.target.value) : e.target.value)} aria-label={tr('范围', 'Scope')}>
+          <select value={String(scope)} onChange={(e) => setScope(/^\d+$/.test(e.target.value) ? Number(e.target.value) : e.target.value)} aria-label={tr('范围')}>
             {(content.eras ?? []).map((era, e) => <option key={e} value={e}>{era.id} {L(era.title ?? era.chapter?.title) ?? ''}</option>)}
-            <option value="all">{tr('整款游戏', 'The whole game')}</option>
-            <option value="glossary">{tr('百科', 'Encyclopedia')}</option>
+            <option value="all">{tr('整款游戏')}</option>
+            <option value="glossary">{tr('百科')}</option>
           </select>
         )}
-        <select value={field} onChange={(e) => setField(e.target.value)} aria-label={tr('字段', 'Field')}>
-          <option value="">{tr('全部字段', 'every field')}</option>
+        <select value={field} onChange={(e) => setField(e.target.value)} aria-label={tr('字段')}>
+          <option value="">{tr('全部字段')}</option>
           {fields.map((f) => <option key={f} value={f}>{f}</option>)}
         </select>
         <button type="button" className={`kit-btn is-label ${only ? 'is-on' : ''}`} aria-pressed={only} onClick={() => setOnly(!only)}><i className="mk-fail">!</i></button>
-        <input className="field-input" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr('筛选', 'Filter')} aria-label={tr('筛选', 'Filter')} />
+        <input className="field-input" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tr('筛选')} aria-label={tr('筛选')} />
         <small>{rows.length}/{all.length}</small>
       </div>
       <div className="copy-rows">

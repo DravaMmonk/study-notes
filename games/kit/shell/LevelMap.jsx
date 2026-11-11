@@ -339,7 +339,7 @@ function UnlockChip({ items, style }) {
   const [first] = items
   const fresh = items.filter((item) => item.fresh && item.open).map((item) => L(item.label))
   const built = items.filter((item) => !item.fresh && item.open).map((item) => L(item.label))
-  const title = [fresh.length && tr(`这一关新带来：${fresh.join('、')}`, `New in this level: ${fresh.join(', ')}`), built.length && tr(`已解锁：${built.join('、')}`, `Unlocked: ${built.join(', ')}`), items.some((item) => !item.open) && tr('进入或通过这一关后可见', 'Visible once this level is opened or passed')].filter(Boolean).join('\n')
+  const title = [fresh.length && tr(`这一关新带来：${fresh.join('、')}`, `New in this level: ${fresh.join(', ')}`), built.length && tr(`已解锁：${built.join('、')}`, `Unlocked: ${built.join(', ')}`), items.some((item) => !item.open) && tr('进入或通过这一关后可见')].filter(Boolean).join('\n')
   return (
     <span className={`map-unlock ${first.open ? 'is-open' : 'is-locked'} ${first.fresh ? 'is-fresh' : ''}`} style={style} title={title}>
       {first.open ? <Package size={11} /> : <Lock size={10} />}
@@ -375,9 +375,9 @@ export function NeededNote({ game, needed, onOpen }) {
     <div className="map-needed" role="status">
       <p>
         {tr(`${game.levelLabel(level)}「${L(level.title)}」还需先通过 ${needed.ids.size} 关（已高亮）。`, `${game.levelLabel(level)} “${L(level.title)}” needs ${needed.ids.size} more level${needed.ids.size === 1 ? '' : 's'} passed first (lit up).`)}
-        {needed.ready.length > 0 && <>{tr('现在可以进行：', ' Available now: ')}{needed.ready.map((r) => <button key={r.id} type="button" onClick={() => { needed.clear(); onOpen(r.id) }}>{game.levelLabel(r)} {L(r.title)}</button>)}</>}
+        {needed.ready.length > 0 && <>{tr('现在可以进行：')}{needed.ready.map((r) => <button key={r.id} type="button" onClick={() => { needed.clear(); onOpen(r.id) }}>{game.levelLabel(r)} {L(r.title)}</button>)}</>}
       </p>
-      <button type="button" className="map-needed-close" onClick={needed.clear} aria-label={tr('关闭', 'Close')}><X size={14} /></button>
+      <button type="button" className="map-needed-close" onClick={needed.clear} aria-label={tr('关闭')}><X size={14} /></button>
     </div>
   )
 }
@@ -423,16 +423,16 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
           </div>
           {next && (
             <button className="map-continue" onClick={() => onOpen(next.id)}>
-              <span>{done ? tr('继续', 'Continue') : tr('开始', 'Start')}</span>
+              <span>{done ? tr('继续') : tr('开始')}</span>
               <b>{game.levelLabel(next)} · {L(next.title)}</b>
               <ArrowRight size={16} />
             </button>
           )}
           <div className="map-tools">
-            {onParts && <button className="kit-btn is-label wiki-button" onClick={onParts}><Package size={15} /><span>{tr('元件箱', 'Components')}</span><b>{partsNew > 0 ? tr(`新增 ${partsNew} 个`, `${partsNew} new`) : `${game.parts.earned(progress).length}/${game.parts.all.length}`}</b></button>}
-            {onWiki && <button className="kit-btn is-label wiki-button" onClick={onWiki}><BookMarked size={15} /><span>{tr('百科', 'Encyclopedia')}</span>{unread > 0 && <b>{tr(`新增 ${unread} 条`, `${unread} new`)}</b>}</button>}
+            {onParts && <button className="kit-btn is-label wiki-button" onClick={onParts}><Package size={15} /><span>{tr('元件箱')}</span><b>{partsNew > 0 ? tr(`新增 ${partsNew} 个`, `${partsNew} new`) : `${game.parts.earned(progress).length}/${game.parts.all.length}`}</b></button>}
+            {onWiki && <button className="kit-btn is-label wiki-button" onClick={onWiki}><BookMarked size={15} /><span>{tr('百科')}</span>{unread > 0 && <b>{tr(`新增 ${unread} 条`, `${unread} new`)}</b>}</button>}
             <button className={`kit-btn is-label map-reset ${progress.all ? 'is-all' : ''}`} onClick={() => setProgressOpen(true)} aria-haspopup="dialog">
-              <RotateCcw size={14} /><span>{tr('清空进度', 'Clear progress')}</span>{progress.all && <b>{tr('已全部解锁', 'All unlocked')}</b>}
+              <RotateCcw size={14} /><span>{tr('清空进度')}</span>{progress.all && <b>{tr('已全部解锁')}</b>}
             </button>
           </div>
         </div>
@@ -471,18 +471,18 @@ function ProgressDialog({ progress, onAll, onReset, onClose }) {
   useEscape(onClose)
   return (
     <div className="dialog-scrim" onClick={onClose}>
-      <div className="dialog progress-dialog" role="dialog" aria-modal="true" aria-label={tr('进度', 'Progress')} onClick={(event) => event.stopPropagation()}>
-        <h2>{tr('进度', 'Progress')}</h2>
+      <div className="dialog progress-dialog" role="dialog" aria-modal="true" aria-label={tr('进度')} onClick={(event) => event.stopPropagation()}>
+        <h2>{tr('进度')}</h2>
         <div className="map-all">
           {progress.all
-            ? <strong role="status"><LockOpen size={14} />{tr('已全部解锁', 'All unlocked')}</strong>
-            : <button type="button" className="kit-btn is-label" onClick={onAll}><Lock size={14} />{tr('全部解锁', 'Unlock all')}</button>}
+            ? <strong role="status"><LockOpen size={14} />{tr('已全部解锁')}</strong>
+            : <button type="button" className="kit-btn is-label" onClick={onAll}><Lock size={14} />{tr('全部解锁')}</button>}
           <small>{progress.all
-            ? tr('所有关卡、任务、元件和百科均已开放，进度照常记录。', 'All levels, tasks, parts and encyclopedia entries are open. Progress is still recorded.')
-            : tr('开放所有关卡、任务、元件和百科。开启后不能关闭。', 'Open all levels, tasks, parts and encyclopedia entries. This cannot be turned off.')}</small>
+            ? tr('所有关卡、任务、元件和百科均已开放，进度照常记录。')
+            : tr('开放所有关卡、任务、元件和百科。开启后不能关闭。')}</small>
         </div>
         <div className="progress-clear">
-          <p>{tr('清空后，这台设备上已通过的关卡、搭建的电路和获得的元件将全部删除，无法恢复。', 'Clearing permanently removes the levels passed, the circuits built and the components earned from this device.')}</p>
+          <p>{tr('清空后，这台设备上已通过的关卡、搭建的电路和获得的元件将全部删除，无法恢复。')}</p>
           <button
             type="button"
             className={`progress-clear-btn ${armed ? 'is-armed' : ''}`}
@@ -496,11 +496,11 @@ function ProgressDialog({ progress, onAll, onReset, onClose }) {
               onClose()
             }}
           >
-            <RotateCcw size={14} />{armed ? tr('再次点击即清空全部进度', 'Click again to clear all progress') : tr('清空全部进度', 'Clear all progress')}
+            <RotateCcw size={14} />{armed ? tr('再次点击即清空全部进度') : tr('清空全部进度')}
           </button>
         </div>
         <div className="dialog-actions">
-          <button className="is-primary" onClick={onClose} autoFocus>{tr('完成', 'Done')}</button>
+          <button className="is-primary" onClick={onClose} autoFocus>{tr('完成')}</button>
         </div>
       </div>
     </div>

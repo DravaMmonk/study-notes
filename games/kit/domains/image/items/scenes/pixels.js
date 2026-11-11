@@ -5,7 +5,7 @@ import { fromFn, map } from '../../engine/image.js'
 import { picture } from '../pictures.js'
 import { T as t } from '../../../../shell/i18n.js'
 
-const RECT = S.list(S.int(), { min: 4, about: t('一个矩形：x0, y0, 宽, 高', 'a rectangle: x0, y0, width, height') })
+const RECT = S.list(S.int(), { min: 4, about: t('一个矩形：x0, y0, 宽, 高') })
 const box = (x0, y0, w, h) => (x, y) => x >= x0 && x < x0 + w && y >= y0 && y < y0 + h
 const inRects = (rects) => (x, y) => rects.some(([x0, y0, w, h]) => box(x0, y0, w, h)(x, y))
 const maskOf = (inside) => fromFn(16, 16, (x, y) => (inside(x, y) ? 1 : 0))
@@ -28,7 +28,7 @@ const DEFECT = 0.15
 
 export const PIXELS = {
   washedOut: {
-    about: t('灰蒙蒙的照片：亮度挤进 0.25 … 0.75，期望是原来的照片', 'a washed-out photo, its brightness squeezed into 0.25 … 0.75; the photo as it was is expected'),
+    about: t('灰蒙蒙的照片：亮度挤进 0.25 … 0.75，期望是原来的照片'),
     test: S.obj({ photo: S.call('picture') }),
     make: ({ photo }) => {
       const img = picture(photo)
@@ -36,7 +36,7 @@ export const PIXELS = {
     },
   },
   intruder: {
-    about: t('闯入者：现场比空场多一个 4×4 的东西，光照不均；期望是它的掩膜', 'an intruder: the scene has one 4×4 thing more than the empty scene, lit unevenly; its mask is expected'),
+    about: t('闯入者：现场比空场多一个 4×4 的东西，光照不均；期望是它的掩膜'),
     test: S.obj({ x: S.int(), y: S.int(), seed: S.int() }),
     make: ({ x: x0, y: y0, seed }) => {
       const bg = unevenFloor(seed)
@@ -45,8 +45,8 @@ export const PIXELS = {
     },
   },
   outline: {
-    about: t('闯入者的外圈：任意形状的闯入者站在花砖地面上；期望是它挨着地面的那一圈格子（图外算地面）', 'an intruder’s outer ring: an intruder of any shape on a tiled floor; the ring of its cells touching the floor is expected (outside the picture counts as floor)'),
-    test: S.obj({ shape: S.list(RECT, { min: 1, about: t('闯入者：几个矩形的并', 'the intruder: a union of rectangles') }), seed: S.int() }),
+    about: t('闯入者的外圈：任意形状的闯入者站在花砖地面上；期望是它挨着地面的那一圈格子（图外算地面）'),
+    test: S.obj({ shape: S.list(RECT, { min: 1, about: t('闯入者：几个矩形的并') }), seed: S.int() }),
     make: ({ shape, seed }) => {
       const inside = inRects(shape)
       const bg = tiledFloor(seed)
@@ -57,8 +57,8 @@ export const PIXELS = {
     },
   },
   station: {
-    about: t('质检台：标准件的照片和传送带上的实物，实物上有凹坑（偏暗）和划痕（偏亮），灯可能老了；期望是缺陷的掩膜', 'the inspection station: a photo of the reference and the part on the belt, with dents (darker) and scratches (brighter), under a lamp that may have aged; the defects’ mask is expected'),
-    test: S.obj({ part: S.oneOf(Object.keys(PARTS)), dents: S.opt(S.list(RECT)), scratches: S.opt(S.list(RECT)), lamp: S.opt(S.num({ about: t('灯还剩原来亮度的几成', 'what the lamp has left of its brightness') })) }),
+    about: t('质检台：标准件的照片和传送带上的实物，实物上有凹坑（偏暗）和划痕（偏亮），灯可能老了；期望是缺陷的掩膜'),
+    test: S.obj({ part: S.oneOf(Object.keys(PARTS)), dents: S.opt(S.list(RECT)), scratches: S.opt(S.list(RECT)), lamp: S.opt(S.num({ about: t('灯还剩原来亮度的几成') })) }),
     make: ({ part, dents = [], scratches = [], lamp = 1 }) => {
       const ref = fromFn(16, 16, PARTS[part])
       const dent = inRects(dents)

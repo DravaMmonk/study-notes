@@ -12,11 +12,11 @@ import { T as t } from '../shell/i18n.js'
 export const TASK_ID = '^[A-Za-z0-9][A-Za-z0-9_-]*$'
 
 /** A task's id, which every task has (a domain writing its own task schema puts this in it). */
-export const TASK_ID_FIELD = S.str({ pattern: TASK_ID, about: t('任务的 id：整款游戏里唯一，玩家存下的板跟着它走（只有一个任务的关通常就用关的 id）', 'the task’s id, unique in the game; what a player keeps of it goes by it (a level’s one task usually has the level’s id)') })
+export const TASK_ID_FIELD = S.str({ pattern: TASK_ID, about: t('任务的 id：整款游戏里唯一，玩家存下的板跟着它走（只有一个任务的关通常就用关的 id）') })
 
 const OWN = {
   id: TASK_ID_FIELD,
-  step: S.opt(S.text({ about: t('这个任务的名字，写在任务条上（一关只有一个任务时不显示）', 'the task’s name on the strip of tasks (not shown when the level has one task)') })),
+  step: S.opt(S.text({ about: t('这个任务的名字，写在任务条上（一关只有一个任务时不显示）') })),
 }
 
 /** A task shape with the fields every task has: an object's own, or each shape of a by- or either-schema's. */
@@ -31,7 +31,7 @@ const owned = (s) => (s.type === 'by' ? { ...s, cases: Object.fromEntries(Object
  */
 export const taskLevel = (once, task) => S.obj({
   ...once,
-  tasks: S.list(task.type === 'by' ? owned(task) : S.obj({ ...OWN, ...task }), { min: 1, section: 'tasks', about: t('依次做的任务，最后一个通过就通过这一关', 'the tasks done in turn; passing the last passes the level') }),
+  tasks: S.list(task.type === 'by' ? owned(task) : S.obj({ ...OWN, ...task }), { min: 1, section: 'tasks', about: t('依次做的任务，最后一个通过就通过这一关') }),
 })
 
 /** The schema of a level's tasks in a vocabulary (its level a taskLevel), or null. */

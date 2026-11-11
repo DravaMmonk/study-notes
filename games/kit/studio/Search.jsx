@@ -75,25 +75,25 @@ export default function Search({ content, vocabulary, onAdd, onJump }) {
   return (
     <div className="search">
       <div className="search-box">
-        <button type="button" className={`search-mode ${replacing ? 'is-on' : ''}`} onClick={() => setReplacing(!replacing)} aria-expanded={replacing} aria-label={tr('替换', 'Replace')}>›</button>
+        <button type="button" className={`search-mode ${replacing ? 'is-on' : ''}`} onClick={() => setReplacing(!replacing)} aria-expanded={replacing} aria-label={tr('替换')}>›</button>
         <div className="search-fields">
           <div className="search-row">
-            <input className={`field-input ${bad ? 'is-bad' : ''}`} value={find} onChange={(e) => { setFind(e.target.value); setLeft(new Set()) }} placeholder={tr('搜索', 'Search')} aria-label={tr('搜索', 'Search')} autoFocus spellCheck={false} />
+            <input className={`field-input ${bad ? 'is-bad' : ''}`} value={find} onChange={(e) => { setFind(e.target.value); setLeft(new Set()) }} placeholder={tr('搜索')} aria-label={tr('搜索')} autoFocus spellCheck={false} />
             <span className="search-opts">
-              {opt('caseSensitive', CaseSensitive, tr('区分大小写', 'Match case'))}
-              {opt('word', WholeWord, tr('整词', 'Whole word'))}
-              {opt('regex', Regex, tr('正则表达式', 'Regular expression'))}
+              {opt('caseSensitive', CaseSensitive, tr('区分大小写'))}
+              {opt('word', WholeWord, tr('整词'))}
+              {opt('regex', Regex, tr('正则表达式'))}
             </span>
           </div>
           <div className="seg is-small search-kinds">
-            {[['zh', tr('文字', 'Text')], ['board', tr('板', 'Board')], ['id', 'id']].map(([v, name]) => (
+            {[['zh', tr('文字')], ['board', tr('板')], ['id', 'id']].map(([v, name]) => (
               <button key={v} type="button" className={opts.in.includes(v) ? 'is-on' : ''} aria-pressed={opts.in.includes(v)} onClick={() => among(v)}>{name}</button>
             ))}
           </div>
           {replacing && (
             <div className="search-row">
-              <input className="field-input" value={replacement} onChange={(e) => setReplacement(e.target.value)} placeholder={tr('替换为', 'Replace with')} aria-label={tr('替换为', 'Replace with')} spellCheck={false} />
-              <button type="button" className="search-go" onClick={add} disabled={!toReplace.length} title={tr('替换：加入待定的变更集', 'Replace: into the pending changeset')}><ReplaceAll size={14} aria-hidden="true" />{toReplace.length}</button>
+              <input className="field-input" value={replacement} onChange={(e) => setReplacement(e.target.value)} placeholder={tr('替换为')} aria-label={tr('替换为')} spellCheck={false} />
+              <button type="button" className="search-go" onClick={add} disabled={!toReplace.length} title={tr('替换：加入待定的变更集')}><ReplaceAll size={14} aria-hidden="true" />{toReplace.length}</button>
             </div>
           )}
         </div>
@@ -108,7 +108,7 @@ export default function Search({ content, vocabulary, onAdd, onJump }) {
               const out = left.has(key)
               return (
                 <div key={key} className={`hit is-${hit.kind} ${out ? 'is-out' : ''}`}>
-                  {replacing && hit.kind !== 'id' && <input type="checkbox" checked={!out} onChange={() => flip(key)} aria-label={tr('替换这一处', 'Replace this one')} />}
+                  {replacing && hit.kind !== 'id' && <input type="checkbox" checked={!out} onChange={() => flip(key)} aria-label={tr('替换这一处')} />}
                   <button type="button" onClick={() => onJump(hit.level ?? null, hit.path, hit.in)} title={`${showPath(hit.path)}${hit.side ? ` · ${hit.side}` : ''}${hit.line !== undefined ? ` · ${hit.line + 1}` : ''}`}>
                     <code>{hit.kind === 'board' ? `${showPath(hit.path)}:${hit.line + 1}` : hit.kind === 'id' ? 'id' : showPath(hit.path)}</code>
                     <Snippet hit={hit} query={query} replacement={replacing ? replacement : null} />

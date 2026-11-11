@@ -35,7 +35,7 @@ const fits = (circuit, level) => {
   return fixed === [...level.fixed].sort().join() && circuit.nodes.every((n) => PARTS[n.type])
 }
 
-const flagText = (v) => (v === true ? T('通过', 'Pass') : v === false ? T('未通过', 'Fail') : T('未运行', 'Not run'))
+const flagText = (v) => (v === true ? T('通过', 'Pass') : v === false ? T('未通过', 'Fail') : T('未运行'))
 
 /** What a card shows of a value it gives or takes. */
 function Value({ value, error }) {
@@ -48,8 +48,8 @@ function Value({ value, error }) {
 /** What the repository and stop show: what landed this turn, and whether the machine stops. */
 function SinkValue({ node, value, turn }) {
   if (!turn) return <span className="ag-error is-missing">{tr('待接线', 'Not wired')}</span>
-  if (node.type === 'stop') return <span className={`ag-flag is-${turn.stop ? 'pass' : 'none'}`}>{turn.stop ? tr('停下', 'Stops') : tr('继续下一轮', 'Continues')}</span>
-  return value?.type === 'write' ? <span className="ag-action is-write">{L(actionText(value))}</span> : <span className="ag-empty">{tr('本轮未写入', 'Nothing written this turn')}</span>
+  if (node.type === 'stop') return <span className={`ag-flag is-${turn.stop ? 'pass' : 'none'}`}>{turn.stop ? tr('停下') : tr('继续下一轮')}</span>
+  return value?.type === 'write' ? <span className="ag-action is-write">{L(actionText(value))}</span> : <span className="ag-empty">{tr('本轮未写入')}</span>
 }
 
 export default function BoardScreen(screen) {
@@ -86,9 +86,9 @@ export default function BoardScreen(screen) {
       <div className="ag-card">
         {node.type === 'read' && !wired(node, 'ask') && (
           <label className="ag-field">
-            <span>{tr('文件', 'File')}</span>
+            <span>{tr('文件')}</span>
             <select value={node.params?.file ?? ''} onChange={(e) => setParam(node, 'file', e.target.value)} onPointerDown={(e) => e.stopPropagation()}>
-              <option value="" disabled>{tr('选择文件', 'Choose a file')}</option>
+              <option value="" disabled>{tr('选择文件')}</option>
               {files.map((f) => <option key={f} value={f}>{f}</option>)}
             </select>
           </label>
@@ -101,7 +101,7 @@ export default function BoardScreen(screen) {
   const outNote = (node, key) => {
     const v = valueOf(node, key)
     if (v === undefined) return null
-    return key === 'green' ? L(flagText(v)) : v.length ? L(entryText(v[0])) : tr('空', 'empty')
+    return key === 'green' ? L(flagText(v)) : v.length ? L(entryText(v[0])) : tr('空')
   }
   const itemOf = (type) => ({ type, label: CARDS[type].name, desc: game.textAt(CARDS[type], level.id).desc, icon: CARDS[type].icon, family: CARDS[type].family, fresh: entry.fresh?.includes(type) })
 
@@ -109,10 +109,10 @@ export default function BoardScreen(screen) {
   const score = (
     <section className="ag-score">
       <Readouts items={[
-        { value: run.run ? runOf.tokens : '—', label: T('token', 'tokens') },
-        { value: run.run ? runOf.turns.length : '—', label: level.machine.mode === 'once' ? T('次调用', 'calls') : T('轮', 'turns') },
-        level.budget?.tokens && { value: level.budget.tokens, label: T('token 上限', 'token budget') },
-        level.machine.mode === 'loop' && { value: level.budget?.turns ?? level.machine.turns, label: T('轮数上限', 'turn limit') },
+        { value: run.run ? runOf.tokens : '—', label: T('token') },
+        { value: run.run ? runOf.turns.length : '—', label: level.machine.mode === 'once' ? T('次调用') : T('轮') },
+        level.budget?.tokens && { value: level.budget.tokens, label: T('token 上限') },
+        level.machine.mode === 'loop' && { value: level.budget?.turns ?? level.machine.turns, label: T('轮数上限') },
       ]} />
       {run.passed && <p className="ag-total">{tr(`全部测试共 ${totalTokens} token`, `${totalTokens} tokens across all tests`)}</p>}
     </section>
@@ -130,14 +130,14 @@ export default function BoardScreen(screen) {
         <Text className="ag-issue" text={test.issue.text} />
         <RepoView repo={test.repo} state={turn?.state ?? {}} />
         {ended && <Report report={runOf.report} />}
-        {ended && <p className={`ag-verdict ${verdict ? 'is-fail' : 'is-pass'}`}>{verdict ? L(verdict) : tr('通过：所有测试均正确，机器已停止。', 'Passed: all tests are green and the machine has stopped.')}</p>}
+        {ended && <p className={`ag-verdict ${verdict ? 'is-fail' : 'is-pass'}`}>{verdict ? L(verdict) : tr('通过：所有测试均正确，机器已停止。')}</p>}
       </section>
       <section className="ag-col">
-        <h3 className="ag-head">{tr('逐轮记录', 'Turn log')}</h3>
-        {steps.length ? <StepLog steps={steps} at={shown.at} /> : <p className="ag-note">{tr('运行后，这里逐轮列出模型的动作和留到下一轮的内容。', 'After a run, each turn’s action and kept context appear here.')}</p>}
+        <h3 className="ag-head">{tr('逐轮记录')}</h3>
+        {steps.length ? <StepLog steps={steps} at={shown.at} /> : <p className="ag-note">{tr('运行后，这里逐轮列出模型的动作和留到下一轮的内容。')}</p>}
       </section>
       <section className="ag-col">
-        <h3 className="ag-head">{tr('模型看到的', 'What the model sees')}</h3>
+        <h3 className="ag-head">{tr('模型看到的')}</h3>
         <ContextBar call={turn?.calls[0]} window={level.machine.window} />
       </section>
     </div>

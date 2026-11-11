@@ -30,7 +30,7 @@ import { layout } from '../course.js'
 import { T as t } from '../shell/i18n.js'
 
 const ID = S.str({ pattern: '^[A-Za-z][A-Za-z0-9_-]*$' })
-const SLOT_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('关卡 id（也是将来的文件名）', 'the level id (its file name to be)') })
+const SLOT_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('关卡 id（也是将来的文件名）') })
 
 /** The catalogue's mechanisms (games/DESIGN.md 6.5). */
 export const MECHANISMS = ['circuit', 'step-machine', 'tick-bus', 'frame', 'strip', 'table', 'bench', 'audit', 'manual']
@@ -42,18 +42,18 @@ const KINDS = ['foundation', 'practice', 'topic', 'challenge']
 const SLOT = S.obj({
   id: SLOT_ID,
   title: S.text(),
-  task: S.text({ about: t('玩家在这一关做什么，一句话', 'what the player does in it, one sentence') }),
-  mentions: S.opt(S.list(ID, { about: t('这一关在引言、点题或词条里提到的一听就懂的知识点（intuitive）：不练，只说', 'the intuitive points this level names in its intro, pass text or entries: said, never trained') })),
-  question: S.opt(S.text({ about: t('玩家玩这一关是在回答的问题，用本领域的话说（不是操作说明）', 'the question playing it answers, in the field’s words (not an instruction)') })),
-  chain: S.opt(S.list(S.text(), { min: 2, about: t('玩家从问题走到答案的思路，一步一句：试了什么、看到什么、因此想到什么；每一步都落在屏幕上能做或能看到的东西上', 'the player’s way from the question to the answer, a step a sentence: what they try, what they see, what it makes them think; every step lands on something on screen') })),
+  task: S.text({ about: t('玩家在这一关做什么，一句话') }),
+  mentions: S.opt(S.list(ID, { about: t('这一关在引言、点题或词条里提到的一听就懂的知识点（intuitive）：不练，只说') })),
+  question: S.opt(S.text({ about: t('玩家玩这一关是在回答的问题，用本领域的话说（不是操作说明）') })),
+  chain: S.opt(S.list(S.text(), { min: 2, about: t('玩家从问题走到答案的思路，一步一句：试了什么、看到什么、因此想到什么；每一步都落在屏幕上能做或能看到的东西上') })),
   role: S.oneOf(ROLES),
-  teaches: S.opt(S.str({ pattern: '^[A-Za-z][A-Za-z0-9_-]*$', about: t('这一关带来的知识点（knowledge 的 id）；练习关不带新点，它练的点写在 uses 里', 'the knowledge point it brings (a knowledge id); a practice slot brings none, the point it practises is in its uses') })),
-  facet: S.opt(S.text({ about: t('练习关：这个知识点的哪一面是前面没见过的（一个约定、一个边界、一种失效）', 'a practice slot: which side of the point the slots before did not show (a convention, an edge, a failure)') })),
+  teaches: S.opt(S.str({ pattern: '^[A-Za-z][A-Za-z0-9_-]*$', about: t('这一关带来的知识点（knowledge 的 id）；练习关不带新点，它练的点写在 uses 里') })),
+  facet: S.opt(S.text({ about: t('练习关：这个知识点的哪一面是前面没见过的（一个约定、一个边界、一种失效）') })),
   adds: S.opt(S.list(ID)),
   builds: S.opt(ID),
-  uses: S.list(ID, { about: t('参考解站在哪些元件、知识点、能力上', 'the parts, knowledge points and abilities its answer stands on') }),
+  uses: S.list(ID, { about: t('参考解站在哪些元件、知识点、能力上') }),
   dimension: S.opt(S.oneOf(DIMENSIONS)),
-  naive: S.opt(S.text({ about: t('直觉上的错解：它为什么看起来对、错在哪', 'the intuitive wrong answer: why it looks right, where it fails') })),
+  naive: S.opt(S.text({ about: t('直觉上的错解：它为什么看起来对、错在哪') })),
   showcase: S.opt(S.text()),
 })
 const SERIES = S.obj({
@@ -84,26 +84,26 @@ export const BLUEPRINT = S.obj({
   machines: S.list(S.obj({ id: ID, title: S.text(), can: S.list(ID), lacks: S.text() }), { min: 1 }),
   knowledge: S.list(S.obj({
     id: ID,
-    term: S.opt(S.text({ about: t('本领域对它的叫法（课程材料里的术语）；关卡通过时用它命名玩家刚做成的东西', 'what the field calls it (the term the sources use); passing its level names what the player just did by it') })),
-    about: S.text({ about: t('它说的是什么，用本领域的话，一两句', 'what it says, in the field’s words, a sentence or two') }),
-    source: S.opt(S.str({ about: t('课程材料里讲它的地方：sources 里的一个文件，加章节、页或幻灯片', 'where the sources teach it: a file of `sources`, with its section, page or slide') })),
-    wall: S.text({ about: t('不懂它就答不上的那个问题：带来它的那一关就是这堵墙', 'the question a learner cannot answer without it: the slot that brings it is that wall') }),
-    misconception: S.opt(S.text({ about: t('它要纠正的直觉错误；带来它的那一关的 naive 答案就是这个错误', 'the intuitive wrong idea it replaces; the naive answer of the slot that brings it is that idea') })),
-    difficulty: S.opt(S.oneOf(['intuitive', 'learnable', 'hard'], { about: t('intuitive：一句话就懂、符合直觉，没有值得练的东西，只在文案和词条里提到（slot 的 mentions），不做成关；learnable：要一个例子或一关练习才会；hard：抽象、离日常远、名词难懂，要从更浅的知识点起一串关逐步逼近', 'intuitive: understood from a sentence, in line with intuition, nothing worth training: only mentioned in copy and entries (a slot’s mentions), never a level; learnable: needs an example or a level of practice; hard: abstract, far from daily life, hard-named: reached by a series of levels from shallower points') })),
-    core: S.opt(S.bool({ about: t('这一章的核心：讲义花力气讲、后面的章建在它上面、学生容易错的那几个；章的关卡大多是通往它的阶梯', 'a core of its chapter: what the lectures spend effort on, later chapters stand on and students get wrong; most of the chapter’s levels are ladders up to it') })),
-    depends: S.opt(S.list(ID, { about: t('它由哪些更浅的知识点搭成：自下而上的知识图，难点拆到最浅的原点', 'the shallower points it is built from: the knowledge graph bottom up, a hard point taken down to its origins') })),
-    basis: S.opt(S.oneOf(['lecture', 'technical'], { about: t('lecture：讲义里的理论（概念、模型、方法），主线只教它；technical：技术内容（库和工具的做法、文件格式、实验课的做法：OpenCV 的通道顺序、uint8），只在主线之外的可选专题里教：挂在它要用的理论之后，或这一章主线走完之后', 'lecture: the lectures’ theory (a concept, model or method), all the main path teaches; technical: a library’s or a tool’s way, a file format, a workshop’s recipe (OpenCV’s channel order, uint8), taught only off the main path, in an optional topic hung after the theory it applies or after the era’s main path ends') })),
-  }), { min: 1, about: t('课程要教的本领域知识；元件是工具，不是知识点', 'the field knowledge the course teaches; a primitive is a tool, not a knowledge point') }),
-  primitives: S.list(S.obj({ part: ID, about: S.text(), why: S.text({ about: t('为什么使用代码预设或基础元件，而不是保存玩家的实现', 'why a code preset or primitive is appropriate instead of a learner implementation') }) })),
+    term: S.opt(S.text({ about: t('本领域对它的叫法（课程材料里的术语）；关卡通过时用它命名玩家刚做成的东西') })),
+    about: S.text({ about: t('它说的是什么，用本领域的话，一两句') }),
+    source: S.opt(S.str({ about: t('课程材料里讲它的地方：sources 里的一个文件，加章节、页或幻灯片') })),
+    wall: S.text({ about: t('不懂它就答不上的那个问题：带来它的那一关就是这堵墙') }),
+    misconception: S.opt(S.text({ about: t('它要纠正的直觉错误；带来它的那一关的 naive 答案就是这个错误') })),
+    difficulty: S.opt(S.oneOf(['intuitive', 'learnable', 'hard'], { about: t('intuitive：一句话就懂、符合直觉，没有值得练的东西，只在文案和词条里提到（slot 的 mentions），不做成关；learnable：要一个例子或一关练习才会；hard：抽象、离日常远、名词难懂，要从更浅的知识点起一串关逐步逼近') })),
+    core: S.opt(S.bool({ about: t('这一章的核心：讲义花力气讲、后面的章建在它上面、学生容易错的那几个；章的关卡大多是通往它的阶梯') })),
+    depends: S.opt(S.list(ID, { about: t('它由哪些更浅的知识点搭成：自下而上的知识图，难点拆到最浅的原点') })),
+    basis: S.opt(S.oneOf(['lecture', 'technical'], { about: t('lecture：讲义里的理论（概念、模型、方法），主线只教它；technical：技术内容（库和工具的做法、文件格式、实验课的做法：OpenCV 的通道顺序、uint8），只在主线之外的可选专题里教：挂在它要用的理论之后，或这一章主线走完之后') })),
+  }), { min: 1, about: t('课程要教的本领域知识；元件是工具，不是知识点') }),
+  primitives: S.list(S.obj({ part: ID, about: S.text(), why: S.text({ about: t('为什么使用代码预设或基础元件，而不是保存玩家的实现') }) })),
   built: S.list(S.obj({ part: ID, about: S.text(), from: S.list(ID) })),
-  trays: S.opt(S.map(S.list(ID), { about: t('几套托盘，每套是一串元件：一种板一套，或换了话题的一章自己的一套；只有一套时不写', 'the trays, each a list of parts: one per kind of board, or a chapter changing topic plays with its own; left out for a single tray') })),
+  trays: S.opt(S.map(S.list(ID), { about: t('几套托盘，每套是一串元件：一种板一套，或换了话题的一章自己的一套；只有一套时不写') })),
   eras: S.list(S.obj({
     id: S.int(),
     machine: ID,
     tray: S.opt(ID),
     title: S.text(),
     question: S.text(),
-    why: S.text({ about: t('上一台机器为什么不够；第一章：从哪里起步', 'why the machine before is not enough; the first era: where it starts') }),
+    why: S.text({ about: t('上一台机器为什么不够；第一章：从哪里起步') }),
     series: S.list(SERIES, { min: 1 }),
   }), { min: 1 }),
   parallel: S.opt(S.list(S.obj({ id: ID, why: S.text() }))),

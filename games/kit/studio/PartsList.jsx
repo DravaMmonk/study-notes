@@ -51,7 +51,7 @@ export default function PartsList({ content, vocabulary, at, found, onSelect, on
           </button>
         )
       })}
-      <button type="button" className="parts-add" onClick={add} title={tr('加一个元件', 'Add a part')}><Plus size={13} aria-hidden="true" /></button>
+      <button type="button" className="parts-add" onClick={add} title={tr('加一个元件')}><Plus size={13} aria-hidden="true" /></button>
       <div className="parts-presets">
         {presets.map(([name, s]) => (
           <button key={name} type="button" className={`parts-row is-preset ${at?.preset === name ? 'is-on' : ''}`} onClick={() => onSelect({ preset: name })}>
@@ -59,7 +59,7 @@ export default function PartsList({ content, vocabulary, at, found, onSelect, on
             <code>{name}</code>
           </button>
         ))}
-        <button type="button" className="parts-add" onClick={addPreset} title={tr('加一份设置预设', 'Add a setting preset')}><Plus size={13} aria-hidden="true" /></button>
+        <button type="button" className="parts-add" onClick={addPreset} title={tr('加一份设置预设')}><Plus size={13} aria-hidden="true" /></button>
       </div>
     </nav>
   )

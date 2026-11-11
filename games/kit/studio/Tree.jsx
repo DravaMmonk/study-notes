@@ -162,7 +162,7 @@ export default function Tree({ game, content, marks, at, picked, setPicked, onSe
         key={key}
         type="button"
         className={`tree-slot ${over === key ? 'is-over' : ''}`}
-        aria-label={tr('放到这里', 'Move here')}
+        aria-label={tr('放到这里')}
         onClick={() => onMove(moving, to)}
         onDragOver={(event) => { event.preventDefault(); setOver(key) }}
         onDragLeave={() => setOver(null)}
@@ -185,7 +185,7 @@ export default function Tree({ game, content, marks, at, picked, setPicked, onSe
   const eraFails = (era) => [...eraIds(era)].reduce((n, id) => n + (marks?.get(id)?.fails ?? 0), 0)
 
   return (
-    <nav className="tree" aria-label={tr('课程', 'Course')}>
+    <nav className="tree" aria-label={tr('课程')}>
       <button type="button" className={`tree-game ${at?.game ? 'is-on' : ''}`} onClick={() => onSelect({ game: true })}>{L(content.title)}</button>
       {tree.eras.map((era) => {
         const { era: value, at: e, paths, topics, challenges, challengeSlot } = era
@@ -230,7 +230,7 @@ export default function Tree({ game, content, marks, at, picked, setPicked, onSe
             ))}
             {!shut && (challenges.length > 0 || moving) && (
               <div className="tree-side is-challenge">
-                <small className="tree-role">{tr('挑战', 'challenges')}</small>
+                <small className="tree-role">{tr('挑战')}</small>
                 {challenges.map(level)}
                 {slot(challengeSlot)}
               </div>
