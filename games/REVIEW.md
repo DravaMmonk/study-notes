@@ -34,4 +34,4 @@
 | 十五 解空间信号 | 「空板不过」「一根线直通不过」是 `net` 上事后加的单条检查；盲玩暂停 |
 | 十六 存储、级别 | `ops/workspace.js` 直接用 `node:fs` 和 `changes.lock`，用正则改 `games/games.js`（`hubEntry`）；`ops/` 里没有级别或角色；`pipeline.mjs` 直接 `spawnSync('claude', …)` |
 | 十七 包与兼容语料 | 命令和依赖在 `trace-viewer/`，`engine/games.mjs`、`pipeline.mjs` 写死它的路径；ESLint 覆盖不到 `games/kit`，CI 无 lint；`@ts-check` 零处；`expr.js` 只区分纯数与非纯数；`test-kit.yml` 不读游戏、`deploy-games.yml` 只构建 |
-| 检查的耗时 | 单款 5–15 秒，约 4 秒是 vite 启动；按任务缓存见阶段 6.8 第 5 步 |
+| 检查的耗时 | 单款 5–15 秒，约 4 秒是 vite 启动；按任务缓存见阶段 6.8 第 4 步 |

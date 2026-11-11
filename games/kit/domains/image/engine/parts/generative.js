@@ -1,6 +1,7 @@
 // Parts for drawing what was never seen (视觉完备 chapter 8): an autoencoder that squeezes a blob into a few numbers,
 // trained and fixed encoders and decoders, sampling from a latent code and reparameterising it.
 import { fromFn, image, random } from '../image.js'
+import { seedOf } from '../../../../engine/seed.js'
 
 export const BLOB_SIGMA = 1.6
 export const UNIT = 4 // one latent unit moves the blob 4 pixels
@@ -133,8 +134,10 @@ export const GENERATIVE = {
     label: { zh: '采样 z ~ N(μ, σ²)', en: 'Sample z ~ N(μ, σ²)' },
     description: { zh: '每算一次都重新抽一个随机数', en: 'Draws a fresh random number every time it runs' },
     inputs: ['mu', 'sigma'],
+    // The draw is seeded by what it is given: μ and σ move on every training step, so each step draws afresh, and the
+    // same board on the same test always gives the same verdict.
     eval: ({ mu, sigma }) => {
-      const next = random(Math.floor(Math.random() * 2 ** 31))
+      const next = random(seedOf(mu.data, sigma.data))
       return code(Array.from(mu.data, (m, i) => m + sigma.data[i] * gaussian(next)))
     },
     cost: 2,

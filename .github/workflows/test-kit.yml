@@ -1,5 +1,6 @@
 # The kit's unit tests, when kit code changes. They read no real game (games/DESIGN.md), so content changes never
-# run them, and they never hold up a deploy.
+# run them, and they never hold up a deploy. The compatibility corpus (games/DIRECTION.md, decision 17) is a separate
+# step: kit code checked against every game's content, reported and never failing the run.
 name: Test kit
 
 on:
@@ -35,3 +36,7 @@ jobs:
       - run: npm test
       # The Unix model's conformance cases against the real kernel.
       - run: npm run conform
+      # The compatibility corpus: a kit change that breaks a game's reference solutions shows here.
+      - name: Compatibility corpus (report only)
+        run: npm run check
+        continue-on-error: true
