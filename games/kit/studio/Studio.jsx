@@ -38,6 +38,7 @@ import Tree from './Tree.jsx'
 import Search from './Search.jsx'
 import Editor from './Editor.jsx'
 import CopyTable from './CopyTable.jsx'
+import Translations from './Translations.jsx'
 import Compare from './Compare.jsx'
 import Audit from './Audit.jsx'
 import Review from './Review.jsx'
@@ -48,7 +49,7 @@ import Palette from './Palette.jsx'
 import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
-const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
+const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['i18n', '译文', 'Translation'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
 const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
 const SIZE = { tree: [180, 640], audit: [90, 900], side: [260, 900] } // px: the tree's width, the audit drawer's height, the side panel's width
@@ -623,6 +624,11 @@ export default function Studio() {
                 {tab === 'copy' && (
                   <article className="editor is-wide">
                     <CopyTable content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={playOrder} names={names} places={places} onEdit={edit} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.level ? null : 'game')} />
+                  </article>
+                )}
+                {tab === 'i18n' && (
+                  <article className="editor is-wide">
+                    <Translations content={content} vocabulary={vocab.vocabulary} order={playOrder} names={names} onEdit={edit} />
                   </article>
                 )}
                 {tab === 'compare' && <Compare game={game} content={content} base={base} at={at} levelOptions={levelOptions} onJump={(lvl, path) => jump(lvl, path)} />}
