@@ -1,0 +1,122 @@
+{
+  "title": { "zh": "等不到流控怎么办" },
+  "intro": [{ "t": { "zh": "首帧发出后，接收方可能一直不回答。发送方需要在等待上限到达时终止，而不是无限期等待；这里先处理首个流控许可的超时。" } }],
+  "after": { "zh": "超时让不回答的接收方不能使发送永远停住。这个练习只处理首个许可，不处理后续块等待超时。" },
+  "tasks": [
+    {
+      "id": "4-13",
+      "brief": { "zh": "用发送元件发首帧。若接收方在等待上限内给出继续许可就正常发送；若一直静默，到达上限的那一拍交出一次「是」表示终止。" },
+      "hint": [{ "zh": "用寄存卡数拍并记住是否已经收到流控；达到输入给出的上限且仍未收到时产生终止。" }],
+      "inputs": [
+        { "name": "message", "label": { "zh": "待发送消息" } },
+        { "name": "flow", "label": { "zh": "接收方流控" } },
+        { "name": "arrived", "label": { "zh": "流控就绪" } },
+        { "name": "limit", "label": { "zh": "等待上限（拍）" } }
+      ],
+      "outputs": [
+        { "name": "frame", "label": { "zh": "发送帧数据" } },
+        { "name": "abort", "label": { "zh": "终止" } }
+      ],
+      "transport": {
+        "frame": "frame",
+        "flow": "flow",
+        "message": "message",
+        "ready": "arrived",
+        "timeout": "limit",
+        "abort": "abort"
+      },
+      "tests": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "transport": {
+            "message": [0, 1, 2, 3, 4, 5, 6, 7],
+            "blockSize": 0,
+            "separation": 0,
+            "flowDelay": 1,
+            "silent": true,
+            "timeout": 3
+          }
+        },
+        {
+          "bus": { "idle": 9, "frames": [], "tail": 0 },
+          "transport": {
+            "message": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+            "blockSize": 0,
+            "separation": 0,
+            "flowDelay": 2,
+            "silent": false,
+            "timeout": 4
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 10, "frames": [], "tail": 0 },
+          "transport": {
+            "message": [0, 1, 2, 3, 4, 5, 6, 7],
+            "blockSize": 0,
+            "separation": 0,
+            "flowDelay": 1,
+            "silent": true,
+            "timeout": 5
+          }
+        },
+        {
+          "bus": { "idle": 11, "frames": [], "tail": 0 },
+          "transport": {
+            "message": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            "blockSize": 0,
+            "separation": 0,
+            "flowDelay": 1,
+            "silent": false,
+            "timeout": 6
+          }
+        }
+      ],
+      "want": { "frame": "transportFrames", "abort": "transportTimeoutAbort" },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "seen = reg[reg=B, start=0]()",
+        "one = const[value=1]()",
+        "zero = const[value=0]()",
+        "next = arith[form=inc](tick)",
+        "keepTick = keep[reg=A](next)",
+        "effectiveSeen = select(arrived, one, seen)",
+        "keepSeen = keep[reg=B](effectiveSeen)",
+        "missing = compare[form=eq](effectiveSeen, zero)",
+        "atLimit = compare[form=eq](tick, limit)",
+        "shouldAbort = select(missing, atLimit, zero)",
+        "abortNow = select(shouldAbort, shouldAbort)",
+        "abort <- abortNow",
+        "head = byteAt(flow, zero)",
+        "code = const[value=48]()",
+        "isContinue = compare[form=eq](head, code)",
+        "grant = select(arrived, isContinue, zero)",
+        "sender = isosender(message, flow, grant)",
+        "frame <- sender"
+      ],
+      "naive": [
+        "tick = reg[reg=A, start=0]()",
+        "seen = reg[reg=B, start=0]()",
+        "one = const[value=1]()",
+        "zero = const[value=0]()",
+        "next = arith[form=inc](tick)",
+        "keepTick = keep[reg=A](next)",
+        "effectiveSeen = select(arrived, one, seen)",
+        "keepSeen = keep[reg=B](effectiveSeen)",
+        "missing = compare[form=eq](effectiveSeen, zero)",
+        "fixed = const[value=3]()",
+        "atLimit = compare[form=eq](tick, fixed)",
+        "shouldAbort = select(missing, atLimit, zero)",
+        "abortNow = select(shouldAbort, shouldAbort)",
+        "abort <- abortNow",
+        "head = byteAt(flow, zero)",
+        "code = const[value=48]()",
+        "isContinue = compare[form=eq](head, code)",
+        "grant = select(arrived, isContinue, zero)",
+        "sender = isosender(message, flow, grant)",
+        "frame <- sender"
+      ]
+    }
+  ]
+}

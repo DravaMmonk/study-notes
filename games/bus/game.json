@@ -1,6 +1,6 @@
 {
   "domain": "can",
-  "vocabulary": 91,
+  "vocabulary": 95,
   "title": { "zh": "车在说话" },
   "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
@@ -64,7 +64,9 @@
       "isorecv",
       "byteList",
       "byteAt",
-      "flasher"
+      "flasher",
+      "isogap",
+      "isosender"
     ]
   },
   "concept": { "keep": "reg" },
@@ -166,7 +168,21 @@
       "id": 4,
       "title": { "zh": "长消息" },
       "question": { "zh": "超过一帧的消息怎样送到？" },
-      "foundation": ["4-1", "4-2", "4-3", "4-4", "4-5", "4-6", "4-7", "4-8"]
+      "foundation": [
+        "4-1",
+        "4-2",
+        "4-3",
+        "4-4",
+        "4-5",
+        "4-6",
+        "4-7",
+        "4-8",
+        "4-9",
+        "4-10",
+        "4-11",
+        "4-12",
+        "4-13"
+      ]
     },
     {
       "id": 5,

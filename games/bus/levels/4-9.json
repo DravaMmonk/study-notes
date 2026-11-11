@@ -1,0 +1,83 @@
+{
+  "title": { "zh": "等待后续帧间隔" },
+  "intro": [{ "t": { "zh": "流控中的最小间隔限制相邻后续帧的发送时刻。在这个模拟中间隔按游戏拍数计，发送之后要等够间隔才能再发。" } }],
+  "after": { "zh": "后续帧之间的等待可以封装成独立元件；它只判断时间，发送许可和块大小仍需另行处理。" },
+  "builds": {
+    "type": "isogap",
+    "name": { "zh": "后续帧间隔" },
+    "desc": { "zh": "保存流控间隔，在每次发送后等待指定拍数；输出本拍是否满足间隔。" }
+  },
+  "tasks": [
+    {
+      "id": "4-9",
+      "brief": { "zh": "收到设置时记住间隔。交出本拍是否可以发送；每次「已发送」为 1 后，等够指定拍数才再次允许。间隔 0 或 1 都允许下一拍发送。" },
+      "hint": [{ "zh": "用寄存卡保存间隔和剩余等待拍数。发送之后从间隔减一开始倒数，倒到零就可以再发。" }],
+      "inputs": [
+        { "name": "set", "label": { "zh": "设置间隔" } },
+        { "name": "separation", "label": { "zh": "最小间隔（拍）" } },
+        { "name": "sent", "label": { "zh": "已发送" } }
+      ],
+      "outputs": [{ "name": "ready", "label": { "zh": "间隔满足" } }],
+      "tests": [
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "pulses": { "set": [0], "sent": [0, 3, 6, 9] },
+          "constants": { "separation": 3 }
+        },
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "pulses": { "set": [0], "sent": [0, 1, 2, 3] },
+          "constants": { "separation": 0 }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "pulses": { "set": [0], "sent": [0, 5, 10] },
+          "constants": { "separation": 5 }
+        },
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "pulses": { "set": [0], "sent": [1, 2, 3] },
+          "constants": { "separation": 1 }
+        }
+      ],
+      "want": {
+        "ready": { "transportGapReady": { "set": "set", "separation": "separation", "sent": "sent" } }
+      },
+      "solution": [
+        "interval = reg[reg=A, start=0]()",
+        "delay = reg[reg=B, start=0]()",
+        "effective = select(set, separation, interval)",
+        "keepInterval = keep[reg=A](effective)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "readyNow = compare[form=eq](delay, zero)",
+        "ready <- readyNow",
+        "requested = subtract(effective, one)",
+        "positive = compare[form=lt](zero, requested)",
+        "resetDelay = select(positive, requested, zero)",
+        "decrement = subtract(delay, one)",
+        "stillPositive = compare[form=lt](zero, decrement)",
+        "lower = select(stillPositive, decrement, zero)",
+        "next = select(sent, resetDelay, lower)",
+        "keepDelay = keep[reg=B](next)"
+      ],
+      "naive": [
+        "interval = reg[reg=A, start=0]()",
+        "delay = reg[reg=B, start=0]()",
+        "effective = select(set, separation, interval)",
+        "keepInterval = keep[reg=A](effective)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "readyNow = compare[form=eq](delay, zero)",
+        "ready <- readyNow",
+        "decrement = subtract(delay, one)",
+        "stillPositive = compare[form=lt](zero, decrement)",
+        "lower = select(stillPositive, decrement, zero)",
+        "next = select(sent, effective, lower)",
+        "keepDelay = keep[reg=B](next)"
+      ]
+    }
+  ]
+}

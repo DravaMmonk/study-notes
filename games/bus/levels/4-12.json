@@ -1,0 +1,99 @@
+{
+  "title": { "zh": "接收方说等等" },
+  "intro": [{ "t": { "zh": "流控不总是立即允许发送。0x31 表示等待，0x32 表示接收方无法容纳消息；只有 0x30 才允许继续。" } }],
+  "after": { "zh": "流控的状态决定继续、等待还是停止。这里接收方最多等待几次后给出结果，发送方超时仍未处理。" },
+  "tasks": [
+    {
+      "id": "4-12",
+      "brief": { "zh": "将发送元件接到接收方；忽略等待帧，直到收到继续发送许可。收到溢出时不再发送后续帧。" },
+      "hint": [{ "zh": "先读取流控的第一个字节，只有它等于 0x30 且流控就绪时才给发送元件许可。" }],
+      "inputs": [
+        { "name": "message", "label": { "zh": "待发送消息" } },
+        { "name": "flow", "label": { "zh": "接收方流控" } },
+        { "name": "arrived", "label": { "zh": "流控就绪" } }
+      ],
+      "outputs": [{ "name": "frame", "label": { "zh": "发送帧数据" } }],
+      "transport": { "frame": "frame", "flow": "flow", "message": "message", "ready": "arrived" },
+      "tests": [
+        {
+          "bus": { "idle": 16, "frames": [], "tail": 0 },
+          "transport": {
+            "message": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
+            "blockSize": 1,
+            "separation": 1,
+            "flowDelay": 2,
+            "waits": 2,
+            "overflow": false
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 6, "frames": [], "tail": 0 },
+          "transport": {
+            "message": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+            "blockSize": 0,
+            "separation": 0,
+            "flowDelay": 1,
+            "waits": 1,
+            "overflow": true
+          }
+        },
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "transport": {
+            "message": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              19,
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30
+            ],
+            "blockSize": 2,
+            "separation": 2,
+            "flowDelay": 1,
+            "waits": 1,
+            "overflow": false
+          }
+        }
+      ],
+      "want": { "frame": "transportFrames" },
+      "solution": [
+        "zero = const[value=0]()",
+        "code = const[value=48]()",
+        "head = byteAt(flow, zero)",
+        "isContinue = compare[form=eq](head, code)",
+        "grant = select(arrived, isContinue, zero)",
+        "sender = isosender(message, flow, grant)",
+        "frame <- sender"
+      ],
+      "naive": ["sender = isosender(message, flow, arrived)", "frame <- sender"]
+    }
+  ]
+}
