@@ -228,7 +228,7 @@ const ackRetryPlan = ({ start }, test) => {
 }
 
 // One initial contention followed by transmit-error retries on an otherwise idle bus.
-const controllerPlan = ({ start, prep, reset }, test) => {
+const controllerPlan = ({ start, prep, reset, request }, test) => {
   const ticks = test.bus.bits.length
   const drive = Array(ticks).fill(1)
   const lost = Array(ticks).fill(0)
@@ -237,6 +237,8 @@ const controllerPlan = ({ start, prep, reset }, test) => {
   const attempts = Array(ticks).fill(0)
   const done = Array(ticks).fill(false)
   const actions = prep ? [...(test.inputs[prep] ?? Array(ticks).fill(0))] : Array(ticks).fill(0)
+  const resets = reset ? [...(test.inputs[reset] ?? Array(ticks).fill(0))] : test.bus.bits.map((_, tick) => Number(tick === 0))
+  const accepted = Array(ticks).fill(false)
   const error = Array(ticks).fill(false)
   const bits = test.tx ? transmitBits(test.tx) : []
   const initial = test.inputs[start]?.findIndex((value) => value === 1 || value === true) ?? -1
@@ -277,11 +279,18 @@ const controllerPlan = ({ start, prep, reset }, test) => {
     actions[failure] = bitError !== undefined ? 1 : 5
     if (active || bitError !== undefined) count += 8
     if (active) for (let tick = failure + 1; tick <= failure + 6 && tick < ticks; tick++) drive[tick] = 0
-    at = failure + 18 + (count >= 128 ? 8 : 0)
+    if (count >= 256 && request) {
+      const ready = failure + 128 * 11
+      const acceptAt = test.inputs[request]?.findIndex((value, tick) => tick >= ready && Boolean(value)) ?? -1
+      if (acceptAt < 0 || acceptAt + 1 >= ticks) break
+      accepted[acceptAt] = true
+      resets[acceptAt + 1] = 1
+      count = 0
+      at = acceptAt + 1
+    } else at = failure + 18 + (count >= 128 ? 8 : 0)
   }
-  const resets = reset ? test.inputs[reset] : test.bus.bits.map((_, tick) => Number(tick === 0))
   const counts = faultCounts({ event: '__actions', reset: '__reset' }, { ...test, inputs: { ...test.inputs, __actions: actions, __reset: resets } })
-  return { drive, lost, next, rewind, attempts, done, tec: counts.map((step) => step.tx), mode: counts.map((step) => step.mode), error }
+  return { drive, lost, next, rewind, attempts, done, tec: counts.map((step) => step.tx), mode: counts.map((step) => step.mode), error, accepted }
 }
 
 // Given a completed intermission on an otherwise idle bus, enforce the passive sender's extra eight bits.
@@ -600,6 +609,16 @@ const WANTS = {
   controllerAdaptiveTec: (params) => (test) => controllerPlan(params, test).tec,
   controllerAdaptiveMode: (params) => (test) => controllerPlan(params, test).mode,
   controllerAdaptiveError: (params) => (test) => controllerPlan(params, test).error,
+  controllerBusoffDrive: (params) => (test) => controllerPlan(params, test).drive,
+  controllerBusoffLost: (params) => (test) => controllerPlan(params, test).lost,
+  controllerBusoffNext: (params) => (test) => controllerPlan(params, test).next,
+  controllerBusoffRewind: (params) => (test) => controllerPlan(params, test).rewind,
+  controllerBusoffAttempts: (params) => (test) => controllerPlan(params, test).attempts,
+  controllerBusoffDone: (params) => (test) => controllerPlan(params, test).done,
+  controllerBusoffTec: (params) => (test) => controllerPlan(params, test).tec,
+  controllerBusoffMode: (params) => (test) => controllerPlan(params, test).mode,
+  controllerBusoffError: (params) => (test) => controllerPlan(params, test).error,
+  controllerBusoffAccepted: (params) => (test) => controllerPlan(params, test).accepted,
   suspendReady: (params) => (test) => suspendReady(params, test),
   suspendRequest: ({ request, ...params }) => (test) => suspendReady(params, test).map((ready, tick) => ready && Boolean(test.inputs[request][tick])),
   passiveAckDrive: (params) => (test) => passiveAckRetry(params, test).drive,

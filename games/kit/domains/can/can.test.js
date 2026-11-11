@@ -745,6 +745,30 @@ test('adaptive controller handles the transition flag and passive retry delay', 
   assert.deepEqual(passive.Drive.slice(firstAck + 1, retry), Array(25).fill(1))
 })
 
+test('bus-off transmit retry waits for observation and a request before resetting', () => {
+  const tx = { id: 0x123, data: [0xa5] }
+  const bits = transmitBits(tx)
+  const start = 35
+  const failure = start + 30
+  const accepted = failure + 128 * 11
+  const retry = accepted + 1
+  const length = retry + bits.length + 1
+  const bus = Array(length).fill(1)
+  bus[retry + bits.length - 12] = 0
+  const inputs = { start: bus.map((_, tick) => Number(tick === start)), prep: bus.map((_, tick) => Number(tick < 31)), reset: bus.map((_, tick) => Number(tick === 0)), request: bus.map((_, tick) => Number(tick === accepted - 1 || tick === accepted)) }
+  const params = { start: 'start', prep: 'prep', reset: 'reset', request: 'request' }
+  const calls = Object.fromEntries(['Drive', 'Attempts', 'Tec', 'Mode', 'Accepted'].map((name) => [name, { [`controllerBusoff${name}`]: params }]))
+  const result = wantOf(calls)({ tx, bus: { bits: bus }, inputs, flipTicks: [failure] })
+  assert.equal(result.Mode[failure], 2)
+  assert.equal(result.Tec[accepted], 256)
+  assert.equal(result.Accepted[accepted - 1], false)
+  assert.equal(result.Accepted[accepted], true)
+  assert.equal(result.Tec[retry], 0)
+  assert.equal(result.Mode[retry], 0)
+  assert.deepEqual(result.Attempts.flatMap((value, tick) => value ? [tick] : []), [start, retry])
+  assert.ok(result.Drive.slice(failure + 1, retry).every((bit) => bit === 1))
+})
+
 test('a transmitter releases ACK while another node can acknowledge', () => {
   const tx = { id: 0x123, data: [0xa5] }
   const frame = frameBits(tx)

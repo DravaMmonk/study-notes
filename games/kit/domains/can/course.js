@@ -152,7 +152,7 @@ export function canCourse(content) {
           const { prep, reset } = task.controllerAdaptiveParams
           const preparation = result.inputs[prep] ?? []
           const resets = (result.inputs[reset] ?? []).flatMap((value, tick) => value === 1 ? [tick] : [])
-          if (task.controllerAdaptiveCalls.some((params) => params.start !== task.controllerStart || params.prep !== prep || params.reset !== reset) || resets.length !== 1 || resets[0] !== 0 || preparation.length !== result.ticks || preparation.some((value, tick) => ![0, 1].includes(value) || (tick >= starts[0] && value !== 0))) say('adaptive controller tests require matching inputs, one initialization and preparation only before start')
+          if (task.controllerAdaptiveCalls.some((params) => params.start !== task.controllerStart || params.prep !== prep || params.reset !== reset || (task.expectsControllerBusoff && params.request !== task.controllerAdaptiveParams.request)) || resets.length !== 1 || resets[0] !== 0 || preparation.length !== result.ticks || preparation.some((value, tick) => ![0, 1].includes(value) || (tick >= starts[0] && value !== 0))) say('adaptive controller tests require matching inputs, one initialization and preparation only before start')
           count = preparation.slice(0, starts[0]).filter((value) => value === 1).length * 8
           if (count >= 256 || (count >= 128 && rival)) say('adaptive controller tests start below bus-off and use no contender when initially passive')
         }
@@ -166,9 +166,16 @@ export function canCourse(content) {
           if (failure === null) break
           if (flip !== undefined) usedFlip = true
           if (count < 128 || flip !== undefined) count += 8
-          failures++; at = failure + 18 + (task.expectsControllerAdaptive && count >= 128 ? 8 : 0); ack = at + size - 12
+          failures++
+          if (count >= 256 && task.expectsControllerBusoff) {
+            const requests = result.inputs[task.controllerAdaptiveParams.request] ?? []
+            const accepted = requests.findIndex((value, tick) => tick >= failure + 128 * 11 && Boolean(value))
+            if (accepted < 0 || accepted + 1 >= result.ticks) { ack = result.ticks; break }
+            count = 0; at = accepted + 1
+          } else at = failure + 18 + (task.expectsControllerAdaptive && count >= 128 ? 8 : 0)
+          ack = at + size - 12
         }
-        if ((!task.expectsControllerAdaptive && failures > 15) || (task.expectsControllerAdaptive && count >= 256)) say('controller tests must remain within their specified fault states')
+        if ((!task.expectsControllerAdaptive && failures > 15) || (task.expectsControllerAdaptive && !task.expectsControllerBusoff && count >= 256)) say('controller tests must remain within their specified fault states')
         if (t.flipTicks?.length && !usedFlip) say('controller bit error must occur during its own post-arbitration transmission before ACK')
         if (ack >= result.ticks || result.bus.bits[ack] !== 0 || ack + 11 >= result.ticks) say('controller tests must finish with an acknowledged frame')
         if ((t.peerLow ?? []).some((tick) => tick !== ack)) say('controller peers may only acknowledge the successful attempt')
@@ -194,11 +201,13 @@ export function canCourse(content) {
     const expectsPassiveAck = passiveAckCalls.length > 0
     const controllerStarts = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controller')).map(([, params]) => params.start)
     const expectsController = controllerStarts.length > 0
-    const controllerAdaptiveCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controllerAdaptive')).map(([, params]) => params)
+    const controllerBusoffCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controllerBusoff')).map(([, params]) => params)
+    const expectsControllerBusoff = controllerBusoffCalls.length > 0
+    const controllerAdaptiveCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controllerAdaptive') || name.startsWith('controllerBusoff')).map(([, params]) => params)
     const expectsControllerAdaptive = controllerAdaptiveCalls.length > 0
     const expectsControllerFault = expectsControllerAdaptive || names.some((name) => name.startsWith('controllerFault'))
     const collisionCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('collision')).map(([, params]) => params)
     const expectsCollision = collisionCalls.length > 0
-    return { ...task, expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, expectsControllerAdaptive, controllerAdaptiveCalls, controllerAdaptiveParams: controllerAdaptiveCalls[0], expectsCollision, collisionCalls, collisionParams: collisionCalls[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
+    return { ...task, expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, expectsControllerAdaptive, expectsControllerBusoff, controllerAdaptiveCalls, controllerAdaptiveParams: controllerAdaptiveCalls[0], expectsCollision, collisionCalls, collisionParams: collisionCalls[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }
