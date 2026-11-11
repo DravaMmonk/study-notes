@@ -17,7 +17,7 @@ import { receivedFrames } from './frame-reception.js'
 import { ecuAdvance } from './ecu.js'
 import { newFlashState } from './flash.js'
 import { advanceTransport, newTransportState } from './transport.js'
-import { fleetReply } from './fleet.js'
+import { advanceFleet, newFleetState } from './fleet.js'
 import { advanceDiagnosticBridge, newDiagnosticBridge } from './diagnostic-bridge.js'
 import { valueText } from '../../engine/views.js'
 import { T } from '../../shell/i18n.js'
@@ -25,9 +25,9 @@ import { T } from '../../shell/i18n.js'
 export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   let consumed = 0
   const fleet = task.fleet && reacting({
-    id: 'fleet', board: 'you', start: { source: null, response: null },
+    id: 'fleet', board: 'you', start: newFleetState(test.fleet),
     reads: (state) => ({ [task.fleet.source]: state.source, [task.fleet.response]: state.response, [task.fleet.ready]: Number(state.response !== null) }),
-    step: (state, outputs) => ({ state: fleetReply(outputs[task.fleet.target], outputs[task.fleet.request], test.fleet), shown: null }),
+    step: (state, outputs, tick) => ({ state: advanceFleet(state, outputs[task.fleet.target], outputs[task.fleet.request], test.fleet, tick), shown: null }),
   })
   let bridgeState = newDiagnosticBridge()
   const bridge = task.bridge && reacting({
