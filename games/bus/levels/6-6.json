@@ -6,10 +6,11 @@
     {
       "id": "6-6",
       "brief": { "zh": "使用模拟刷写器完成软件下载、校验与重启，并交出请求和完成结果。" },
-      "hint": [{ "zh": "把控制器回答和软件序列接入封装件，分别转交它的请求和完成结果。" }],
+      "hint": [{ "zh": "把控制器回答、软件序列和刷写允许接入封装件，分别转交它的请求和完成结果。" }],
       "inputs": [
         { "name": "reply", "label": { "zh": "控制器回答" } },
-        { "name": "image", "label": { "zh": "待刷写软件" } }
+        { "name": "image", "label": { "zh": "待刷写软件" } },
+        { "name": "enable", "label": { "zh": "刷写允许" } }
       ],
       "outputs": [
         { "name": "request", "label": { "zh": "诊断请求" } },
@@ -23,7 +24,8 @@
             "did": "0xf190",
             "value": [],
             "flash": { "maxBlock": 5, "expectedChecksum": 35, "image": [9, 8, 7, 6, 5] }
-          }
+          },
+          "constants": { "enable": 1 }
         }
       ],
       "hidden": [
@@ -33,11 +35,24 @@
             "did": "0xf190",
             "value": [],
             "flash": { "maxBlock": 6, "expectedChecksum": 254, "image": [255, 0, 255] }
-          }
+          },
+          "constants": { "enable": 1 }
+        },
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [],
+            "flash": { "maxBlock": 5, "expectedChecksum": 35, "image": [9, 8, 7, 6, 5] }
+          },
+          "runs": { "enable": [{ "value": 0, "ticks": 2 }, { "value": 1, "ticks": 10 }] }
         }
       ],
-      "want": { "request": "ecuDynamicFlashRequests", "done": "ecuDynamicFlashDone" },
-      "solution": ["f = flasher(reply, image)", "request <- f.request", "done <- f.done"]
+      "want": {
+        "request": { "ecuDynamicFlashRequests": { "start": "enable" } },
+        "done": { "ecuDynamicFlashDone": { "start": "enable" } }
+      },
+      "solution": ["f = flasher(reply, image, enable)", "request <- f.request", "done <- f.done"]
     }
   ]
 }

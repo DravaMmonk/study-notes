@@ -8,11 +8,14 @@
   "tasks": [
     {
       "id": "6-5",
-      "brief": { "zh": "进入编程、擦除、按软件长度申请下载；读取控制器给出的最大块长度，依次发送全部软件字节并递增块计数，再退出、校验和重启。收到重启肯定回答时交出「是」。" },
+      "brief": {
+        "zh": "进入编程、擦除、按软件长度申请下载；读取控制器给出的最大块长度，依次发送全部软件字节并递增块计数，再退出、校验和重启。收到重启肯定回答时交出「是」。 刷写允许为 0 时保持状态并且不发送。"
+      },
       "hint": [{ "zh": "用寄存卡保存阶段、块上限、当前偏移和块计数。每次取剩余字节数与块数据容量中较小的值；块计数加一后按位与 255。" }],
       "inputs": [
         { "name": "reply", "label": { "zh": "控制器回答" } },
-        { "name": "image", "label": { "zh": "待刷写软件" } }
+        { "name": "image", "label": { "zh": "待刷写软件" } },
+        { "name": "enable", "label": { "zh": "刷写允许" } }
       ],
       "outputs": [
         { "name": "request", "label": { "zh": "诊断请求" } },
@@ -26,7 +29,8 @@
             "did": "0xf190",
             "value": [],
             "flash": { "maxBlock": 4, "expectedChecksum": 10, "image": [1, 2, 3, 4] }
-          }
+          },
+          "constants": { "enable": 1 }
         },
         {
           "bus": { "idle": 10, "frames": [], "tail": 0 },
@@ -34,7 +38,8 @@
             "did": "0xf190",
             "value": [],
             "flash": { "maxBlock": 5, "expectedChecksum": 35, "image": [9, 8, 7, 6, 5] }
-          }
+          },
+          "constants": { "enable": 1 }
         }
       ],
       "hidden": [
@@ -306,7 +311,8 @@
                 0
               ]
             }
-          }
+          },
+          "constants": { "enable": 1 }
         },
         {
           "bus": { "idle": 9, "frames": [], "tail": 0 },
@@ -314,10 +320,23 @@
             "did": "0xf190",
             "value": [],
             "flash": { "maxBlock": 6, "expectedChecksum": 254, "image": [255, 0, 255] }
-          }
+          },
+          "constants": { "enable": 1 }
+        },
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "ecu": {
+            "did": "0xf190",
+            "value": [],
+            "flash": { "maxBlock": 4, "expectedChecksum": 10, "image": [1, 2, 3, 4] }
+          },
+          "runs": { "enable": [{ "value": 0, "ticks": 2 }, { "value": 1, "ticks": 10 }] }
         }
       ],
-      "want": { "request": "ecuDynamicFlashRequests", "done": "ecuDynamicFlashDone" },
+      "want": {
+        "request": { "ecuDynamicFlashRequests": { "start": "enable" } },
+        "done": { "ecuDynamicFlashDone": { "start": "enable" } }
+      },
       "solution": [
         "phase = reg[reg=A, start=0]()",
         "blockLimit = reg[reg=B]()",
@@ -352,7 +371,8 @@
         "firstBlock = compare[form=eq](offset, c0)",
         "advertised = byteAt(reply, c2)",
         "limit = select(firstBlock, advertised, blockLimit)",
-        "saveLimit = keep[reg=B](limit)",
+        "heldLimit = select(enable, limit, blockLimit)",
+        "saveLimit = keep[reg=B](heldLimit)",
         "capacity = subtract(limit, c2)",
         "remaining = subtract(size, offset)",
         "fits = compare[form=lt](remaining, capacity)",
@@ -361,17 +381,20 @@
         "endOffset = arith[form=add](offset, take)",
         "more = compare[form=lt](endOffset, size)",
         "nextOffset = select(is3, endOffset, offset)",
-        "saveOffset = keep[reg=C](nextOffset)",
+        "heldOffset = select(enable, nextOffset, offset)",
+        "saveOffset = keep[reg=C](heldOffset)",
         "incrementSeq = arith[form=inc](sequence)",
         "wrappedSeq = band(incrementSeq, c255)",
         "nextSeq = select(is3, wrappedSeq, sequence)",
-        "saveSeq = keep[reg=D](nextSeq)",
+        "heldSeq = select(enable, nextSeq, sequence)",
+        "saveSeq = keep[reg=D](heldSeq)",
         "incrementPhase = arith[form=inc](phase)",
         "blockPhase = select(more, phase, incrementPhase)",
         "candidatePhase = select(is3, blockPhase, incrementPhase)",
         "notFinished = compare[form=lt](phase, c7)",
         "nextPhase = select(notFinished, candidatePhase, phase)",
-        "savePhase = keep[reg=A](nextPhase)",
+        "heldPhase = select(enable, nextPhase, phase)",
+        "savePhase = keep[reg=A](heldPhase)",
         "sizeHigh = shiftRight(size, c8)",
         "sizeLow = band(size, c255)",
         "b0 = byteList(c0)",
@@ -410,11 +433,13 @@
         "at2 = select(is2, download, at3)",
         "at1 = select(is1, erase, at2)",
         "requestNow = select(is0, session, at1)",
-        "request <- requestNow",
+        "enabledRequest = select(enable, requestNow)",
+        "request <- enabledRequest",
         "head = byteAt(reply, c0)",
         "positive = compare[form=eq](head, c81)",
         "doneNow = select(positive, positive)",
-        "done <- doneNow"
+        "enabledDone = select(enable, doneNow)",
+        "done <- enabledDone"
       ],
       "naive": [
         "phase = reg[reg=A, start=0]()",
@@ -450,7 +475,8 @@
         "firstBlock = compare[form=eq](offset, c0)",
         "advertised = byteAt(reply, c2)",
         "limit = select(firstBlock, advertised, blockLimit)",
-        "saveLimit = keep[reg=B](limit)",
+        "heldLimit = select(enable, limit, blockLimit)",
+        "saveLimit = keep[reg=B](heldLimit)",
         "capacity = subtract(limit, c2)",
         "remaining = subtract(size, offset)",
         "fits = compare[form=lt](remaining, capacity)",
@@ -459,16 +485,19 @@
         "endOffset = arith[form=add](offset, take)",
         "more = compare[form=lt](endOffset, size)",
         "nextOffset = select(is3, endOffset, offset)",
-        "saveOffset = keep[reg=C](nextOffset)",
+        "heldOffset = select(enable, nextOffset, offset)",
+        "saveOffset = keep[reg=C](heldOffset)",
         "incrementSeq = arith[form=inc](sequence)",
         "nextSeq = select(is3, incrementSeq, sequence)",
-        "saveSeq = keep[reg=D](nextSeq)",
+        "heldSeq = select(enable, nextSeq, sequence)",
+        "saveSeq = keep[reg=D](heldSeq)",
         "incrementPhase = arith[form=inc](phase)",
         "blockPhase = select(more, phase, incrementPhase)",
         "candidatePhase = select(is3, blockPhase, incrementPhase)",
         "notFinished = compare[form=lt](phase, c7)",
         "nextPhase = select(notFinished, candidatePhase, phase)",
-        "savePhase = keep[reg=A](nextPhase)",
+        "heldPhase = select(enable, nextPhase, phase)",
+        "savePhase = keep[reg=A](heldPhase)",
         "sizeHigh = shiftRight(size, c8)",
         "sizeLow = band(size, c255)",
         "b0 = byteList(c0)",
@@ -507,17 +536,19 @@
         "at2 = select(is2, download, at3)",
         "at1 = select(is1, erase, at2)",
         "requestNow = select(is0, session, at1)",
-        "request <- requestNow",
+        "enabledRequest = select(enable, requestNow)",
+        "request <- enabledRequest",
         "head = byteAt(reply, c0)",
         "positive = compare[form=eq](head, c81)",
         "doneNow = select(positive, positive)",
-        "done <- doneNow"
+        "enabledDone = select(enable, doneNow)",
+        "done <- enabledDone"
       ]
     }
   ],
   "builds": {
     "type": "flasher",
     "name": { "zh": "模拟刷写器" },
-    "desc": { "zh": "按模拟控制器的块上限分段刷写软件；假定每一步按时成功，尚不处理拒绝、等待或断电。" }
+    "desc": { "zh": "按模拟控制器的块上限分段刷写软件；假定每一步按时成功，尚不处理拒绝、等待或断电。 刷写允许为 0 时保持状态并且不发送。" }
   }
 }
