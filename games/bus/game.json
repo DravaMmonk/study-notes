@@ -1,6 +1,6 @@
 {
   "domain": "can",
-  "vocabulary": 58,
+  "vocabulary": 59,
   "title": { "zh": "车在说话" },
   "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
