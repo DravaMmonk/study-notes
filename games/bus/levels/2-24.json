@@ -1,0 +1,152 @@
+{
+  "title": { "zh": "缺应答后重发" },
+  "intro": [{ "t": { "zh": "如果应答位一直是隐性，发送方报告错误，等错误界定段和帧间隔结束后重新发送同一帧。本关只考虑错误主动状态下的少量缺应答。" } }],
+  "after": { "zh": "缺应答会使错误主动的发送方增加发送错误计数，并中断当前帧。错误处理之后，发送方重试原帧。本关不覆盖错误被动时的例外。" },
+  "tasks": [
+    {
+      "id": "2-24",
+      "brief": { "zh": "发送一帧；缺应答时发六位显性错误标志，重置队列，等待八位错误界定段及三位帧间隔后重发。输出每次开始、完成及发送错误计数。成功发送后计数减一，最低为零。" },
+      "hint": [{ "zh": "组合发送器、错误标志和错误计数器；错误标志后数连续的隐性位。重发需要重新取出原来的字节。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "id", "label": { "zh": "标识符" } },
+        { "name": "length", "label": { "zh": "数据长度" } },
+        { "name": "item", "label": { "zh": "队首" } },
+        { "name": "available", "label": { "zh": "有字节" } },
+        { "name": "last", "label": { "zh": "最后字节" } },
+        { "name": "start", "label": { "zh": "开始" } }
+      ],
+      "outputs": [
+        { "name": "next", "label": { "zh": "取走" } },
+        { "name": "rewind", "label": { "zh": "重置队列" } },
+        { "name": "attempt", "label": { "zh": "发送开始" } },
+        { "name": "done", "label": { "zh": "完成" } },
+        { "name": "tec", "label": { "zh": "发送错误计数" } }
+      ],
+      "pulls": {
+        "input": "item",
+        "available": "available",
+        "last": "last",
+        "next": "next",
+        "rewind": "rewind"
+      },
+      "tests": [
+        {
+          "bus": { "idle": 65, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [] },
+          "queue": [],
+          "constants": { "id": 291, "length": 0 },
+          "pulses": { "start": [12] },
+          "peerLow": [48]
+        },
+        {
+          "bus": { "idle": 137, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [165] },
+          "queue": [165],
+          "constants": { "id": 291, "length": 1 },
+          "pulses": { "start": [12] },
+          "peerLow": [120]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 233, "frames": [], "tail": 0 },
+          "tx": { "id": 0, "data": [0, 255] },
+          "queue": [0, 255],
+          "constants": { "id": 0, "length": 2 },
+          "pulses": { "start": [12] },
+          "peerLow": [216]
+        },
+        {
+          "bus": { "idle": 74, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [165] },
+          "queue": [165],
+          "constants": { "id": 291, "length": 1 },
+          "pulses": { "start": [12] },
+          "peerLow": [57]
+        }
+      ],
+      "want": {
+        "send": { "ackRetryDrive": { "start": "start" } },
+        "next": { "ackRetryNext": { "start": "start" } },
+        "rewind": { "ackRetryRewind": { "start": "start" } },
+        "attempt": { "ackRetryAttempts": { "start": "start" } },
+        "done": { "ackRetryDone": { "start": "start" } },
+        "tec": { "ackRetryTec": { "start": "start" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "five = const[value=5]()",
+        "ten = const[value=10]()",
+        "false = compare[form=eq](zero, one)",
+        "wait = reg[reg=A, start=0]()",
+        "quiet = counter(line)",
+        "long = compare[form=lt](ten, quiet)",
+        "ready = select(long, one, zero)",
+        "retry = select(wait, ready, zero)",
+        "fire = select(start, one, retry)",
+        "source = select(wait, zero, available)",
+        "p = transmitter(id, length, item, source, last, fire)",
+        "slot = select(wait, zero, p.ack)",
+        "high = compare[form=eq](line, one)",
+        "missing = select(slot, high, false)",
+        "f = errorflag(missing)",
+        "waitingwire = select(wait, f.send, p.send)",
+        "wire = select(fire, p.send, waitingwire)",
+        "send <- wire",
+        "hold = select(missing, one, wait)",
+        "waitnext = select(fire, zero, hold)",
+        "ka = keep[reg=A](waitnext)",
+        "take = select(wait, false, p.next)",
+        "next <- take",
+        "rewind <- missing",
+        "attempt <- fire",
+        "finished = select(wait, false, p.done)",
+        "done <- finished",
+        "success = select(finished, two, zero)",
+        "event = select(missing, five, success)",
+        "fault = faultcounter(event, start)",
+        "tec <- fault.tx"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "five = const[value=5]()",
+        "ten = const[value=10]()",
+        "false = compare[form=eq](zero, one)",
+        "wait = reg[reg=A, start=0]()",
+        "quiet = counter(line)",
+        "long = compare[form=lt](ten, quiet)",
+        "ready = select(long, one, zero)",
+        "retry = select(wait, zero, zero)",
+        "fire = select(start, one, retry)",
+        "source = select(wait, zero, available)",
+        "p = transmitter(id, length, item, source, last, fire)",
+        "slot = select(wait, zero, p.ack)",
+        "high = compare[form=eq](line, one)",
+        "missing = select(slot, high, false)",
+        "f = errorflag(missing)",
+        "waitingwire = select(wait, f.send, p.send)",
+        "wire = select(fire, p.send, waitingwire)",
+        "send <- wire",
+        "hold = select(missing, one, wait)",
+        "waitnext = select(fire, zero, hold)",
+        "ka = keep[reg=A](waitnext)",
+        "take = select(wait, false, p.next)",
+        "next <- take",
+        "rewind <- missing",
+        "attempt <- fire",
+        "finished = select(wait, false, p.done)",
+        "done <- finished",
+        "success = select(finished, two, zero)",
+        "event = select(missing, five, success)",
+        "fault = faultcounter(event, start)",
+        "tec <- fault.tx"
+      ]
+    }
+  ]
+}

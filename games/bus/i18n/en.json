@@ -379,5 +379,13 @@
   "发送一帧，在应答位交出是否缺应答，其余拍交出「—」。测试包括有应答和无应答；本关只识别错误，不中断或重传。": "Send a frame and give whether acknowledgement is missing on its ACK slot, or 「—」 on other ticks. Tests include both acknowledged and unacknowledged frames; this level detects the error without interrupting or retrying.",
   "发送器标出应答位；在那一拍比较总线与隐性 1。": "The transmitter marks the ACK slot; compare the bus with recessive 1 on that tick.",
   "缺应答要单独判断：应答位的显性是正常回答，隐性则表示没有接收到应答。": "Missing ACK needs its own check: dominant in the ACK slot is a normal response, whereas recessive means no acknowledgement was received.",
-  "缺应答": "Missing ACK"
+  "缺应答": "Missing ACK",
+  "缺应答后重发": "Retry after a missing ACK",
+  "如果应答位一直是隐性，发送方报告错误，等错误界定段和帧间隔结束后重新发送同一帧。本关只考虑错误主动状态下的少量缺应答。": "If the ACK slot stays recessive, the sender reports an error and retries the same frame after the error delimiter and intermission. This exercise covers a small number of missing ACKs while error-active.",
+  "发送一帧；缺应答时发六位显性错误标志，重置队列，等待八位错误界定段及三位帧间隔后重发。输出每次开始、完成及发送错误计数。成功发送后计数减一，最低为零。": "Send a frame. On a missing ACK, send a six-bit dominant error flag, rewind the queue, and retry after the eight-bit error delimiter and three-bit intermission. Output each attempt, completion, and the transmit error count. On success, decrease the count by one to a minimum of zero.",
+  "组合发送器、错误标志和错误计数器；错误标志后数连续的隐性位。重发需要重新取出原来的字节。": "Combine the transmitter, error flag, and fault counter; count consecutive recessive bits after the flag. Retrying requires reading the original bytes again.",
+  "缺应答会使错误主动的发送方增加发送错误计数，并中断当前帧。错误处理之后，发送方重试原帧。本关不覆盖错误被动时的例外。": "A missing ACK increases an error-active sender’s transmit error count and interrupts the current frame. After error handling the sender retries the original frame. The error-passive exception is outside this exercise.",
+  "重置队列": "Rewind queue",
+  "发送开始": "Start attempt",
+  "发送错误计数": "Transmit error count"
 }
