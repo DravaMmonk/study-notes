@@ -47,9 +47,10 @@ export function canCourse(content) {
   const test = (t, task, say) => {
     let frameEvents
     if (task.ecu) {
-      if (!t.ecu || t.bus.frames.length || task.frameInputs || task.listens || task.drives || t.contenders?.length || t.tx || t.peerBits || t.peerLow?.length || t.flipTicks?.length) say('ECU tasks require a configured ECU and no bit-level or frame-level bus activity')
+      if (!t.ecu || t.bus.frames.length || task.frameInputs || task.pulls || task.listens || task.drives || t.contenders?.length || t.tx || t.peerBits || t.peerLow?.length || t.flipTicks?.length) say('ECU tasks require a configured ECU and no bit-level or frame-level bus activity')
       if (!task.inputs?.some((input) => input.name === task.ecu.response)) say('ECU response is not a task input')
       if (!task.outputs?.some((output) => output.name === task.ecu.request)) say('ECU request is not a task output')
+      if (t.ecu && task.ecuRejectedDids?.includes(num(t.ecu.did))) say('a rejected data identifier must differ from the ECU identifier')
     } else if (t.ecu) say('an ECU test requires ECU task ports')
     if (task.frameInputs) {
       if (!t.frameRequests || t.bus.frames.length || t.peerBits || t.peerLow?.length || t.flipTicks?.length || t.contenders?.length || t.tx || task.listens || task.drives) say('frame tasks require clean frame requests and no bit-level bus activity')
@@ -264,6 +265,7 @@ export function canCourse(content) {
   // A task's wants read; a built part keeps its own registers.
   return circuitCourse(content, { board, parts: PARTS, read: (task) => {
     const names = Object.values(task.want ?? {}).map((call) => callOf(call)[0])
+    const ecuRejectedDids = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name === 'ecuRejectedRequest').map(([, params]) => params.did)
     const retryCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => ['retryDrive', 'retryLost', 'retryDone', 'retryNext', 'retryAttempts'].includes(name))
     const expectsRetry = retryCalls.length > 0
     const expectsAckRetry = names.some((name) => name.startsWith('ackRetry'))
@@ -289,6 +291,6 @@ export function canCourse(content) {
     const expectsInterruptedFrame = names.some((name) => name.startsWith('interruptedFrame'))
     const interruptedSuspendEnds = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('interruptedSuspend') || name.startsWith('interruptedFrame')).map(([, params]) => params.end)
     const expectsInterruptedSuspend = interruptedSuspendEnds.length > 0
-    return { ...task, expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, expectsControllerAdaptive, expectsControllerBusoff, expectsControllerDuplex, expectsControllerIntervening, controllerAdaptiveCalls, controllerAdaptiveParams: controllerAdaptiveCalls[0], expectsCollision, collisionCalls, collisionParams: collisionCalls[0], expectsReceiver, expectsReceiverUnified, receiverCalls, receiverStateCalls, receiverParams: receiverCalls[0], expectsInterruptedSuspend, expectsInterruptedFrame, interruptedSuspendEnds, interruptedSuspendEnd: interruptedSuspendEnds[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || expectsInterruptedFrame || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
+    return { ...task, ecuRejectedDids, expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, expectsControllerAdaptive, expectsControllerBusoff, expectsControllerDuplex, expectsControllerIntervening, controllerAdaptiveCalls, controllerAdaptiveParams: controllerAdaptiveCalls[0], expectsCollision, collisionCalls, collisionParams: collisionCalls[0], expectsReceiver, expectsReceiverUnified, receiverCalls, receiverStateCalls, receiverParams: receiverCalls[0], expectsInterruptedSuspend, expectsInterruptedFrame, interruptedSuspendEnds, interruptedSuspendEnd: interruptedSuspendEnds[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || expectsInterruptedFrame || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }
