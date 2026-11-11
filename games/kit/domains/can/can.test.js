@@ -490,6 +490,12 @@ test('passive senders wait eight additional idle bits after intermission', () =>
   const again = wantOf({ ready: { suspendReady: { end: 'end', mode: 'mode' } } })(test).ready
   assert.equal(again[12], false)
   assert.equal(again[13], true)
+  test.inputs.request = Array(24).fill(0)
+  test.inputs.request[9] = 1
+  test.inputs.request[10] = 1
+  const request = wantOf({ allowed: { suspendRequest: { end: 'end', mode: 'mode', request: 'request' } } })(test).allowed
+  assert.equal(request[9], false)
+  assert.equal(request[10], true)
   test.inputs.mode[12] = 2
   assert.equal(wantOf({ ready: { suspendReady: { end: 'end', mode: 'mode' } } })(test).ready[23], false)
 })

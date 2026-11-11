@@ -407,6 +407,7 @@ const WANTS = {
   ackRetryDone: (params) => (test) => ackRetryPlan(params, test).done,
   ackRetryTec: (params) => (test) => ackRetryPlan(params, test).tec,
   suspendReady: (params) => (test) => suspendReady(params, test),
+  suspendRequest: ({ request, ...params }) => (test) => suspendReady(params, test).map((ready, tick) => ready && Boolean(test.inputs[request][tick])),
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),
