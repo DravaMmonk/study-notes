@@ -11,7 +11,6 @@ const BINS = 32
 const TRACE = 60
 const REDUCED = '(prefers-reduced-motion: reduce)'
 const lerp = (from, to, e) => to.map((b, i) => (from[i] ?? b) + (b - (from[i] ?? b)) * e)
-const pct = (x) => `${Math.round(x * 100)}%`
 
 // Animate numbers towards their target (ease-out); reduced motion shows the target at once.
 function useEased(target, ms) {

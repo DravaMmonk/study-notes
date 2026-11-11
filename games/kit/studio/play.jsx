@@ -39,7 +39,7 @@ function look({ theme, lang }) {
 async function gameOf(content, stamp) {
   const defineGame = (await DOMAINS[content.domain]()).default
   const game = defineGame(content)
-  game.store = createProgress({ id: `studio.${content.id}`, stamp: 'studio' })
+  game.store = createProgress({ id: `studio.${content.id}` })
   game.stamp = stamp
   return game
 }

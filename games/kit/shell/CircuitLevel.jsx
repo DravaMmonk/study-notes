@@ -289,7 +289,6 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
 function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, dense, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
-  const { game } = screen
   const { circuit: sourceCircuit, change } = board
   const circuit = useMemo(()=>phoneBlockBoard(sourceCircuit,parts),[sourceCircuit,parts])
   const [manualBlocks] = useSetting('manualBlocks')

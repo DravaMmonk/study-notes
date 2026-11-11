@@ -132,7 +132,7 @@ test('level.rename renames the file and every reference', () => {
 
 test('level.add puts a new level in; level.remove refuses while anything names the level', () => {
   const { ws } = toy()
-  const added = roundTrip(ws, 'level.add', { level: 'n1', data: { title: 'N' }, to: { after: 'a1' } })
+  roundTrip(ws, 'level.add', { level: 'n1', data: { title: 'N' }, to: { after: 'a1' } })
   assert.deepEqual(ws.game.eras[0].foundation, ['a1', 'n1', { parallel: [{ id: 'side', levels: ['a2', 'a3'] }] }])
   roundTrip(ws, 'level.remove', { level: 'n1' })
   assert.throws(() => run(ws, 'level.remove', { level: 'a2' }), /still named at game.json carry.x, glossary.json entries\[0\].at, glossary.json entries\[0\].body\[0\], levels\/b1.json from, levels\/b1.json brief.zh/)

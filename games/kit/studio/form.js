@@ -24,7 +24,7 @@
 // A field of a by (one shape a field names: a level by its kind) has `tags`: [{ key, value, options, cases }], the outer
 // by first when bys nest (a level by its mode, then by its world); a field of an either (several shapes) has `shapes`
 // (their schemas) and `shape` (the one it has now).
-import { SECTIONS, callOf, find, holdsLevels, sectionOf, validate } from '../engine/schema.js'
+import { SECTIONS, callOf, find, sectionOf, validate } from '../engine/schema.js'
 import { parsePath, showPath } from '../engine/ops/edit.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
 import { newTaskId } from '../engine/tasks.js'

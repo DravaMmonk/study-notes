@@ -1,16 +1,17 @@
-// What a save is a save of: a short hash of the content's puzzles (every level's and task's fields in the puzzle and
-// tests sections, schema.js sectionOf, with their ids, the words inside them aside) and its parts. A save keeps the
-// stamp it was made on, and one made on other puzzles is not read: the player starts afresh (../shell/progress.js).
-// Wording, answers and the course's order are no part of it, so editing them keeps every save.
+// What a save is a save of, task by task: a short hash of each task's puzzle (its fields and its level's in the puzzle
+// and tests sections, schema.js sectionOf, the words inside them aside) and the game's parts. A save keeps the stamp
+// each of its tasks was made on, and what it keeps of a task whose puzzle has changed since is not read: the player
+// starts that task afresh and keeps the rest (../shell/progress.js). Wording, answers, ids and the course's order are
+// no part of a stamp, so editing them, or moving a task, keeps every save.
 import { sectionOf, shapeAt } from './schema.js'
 
 const PUZZLE = ['puzzle', 'tests']
 
-/** The fields of a level or a task (its tasks aside) that make its puzzle, read by the shape `schema` gives it. */
+/** The fields of a level or a task (its id and its tasks aside) that make its puzzle, read by the shape `schema` gives it. */
 function puzzleOf(schema, value, vocabulary) {
   const shape = shapeAt(schema, value, [], { vocabulary })
   if (shape?.type !== 'obj') return value
-  return Object.fromEntries(Object.entries(value).filter(([k]) => k !== 'tasks' && shape.fields[k] && PUZZLE.includes(sectionOf(shape.fields[k]))))
+  return Object.fromEntries(Object.entries(value).filter(([k]) => k !== 'tasks' && k !== 'id' && shape.fields[k] && PUZZLE.includes(sectionOf(shape.fields[k]))))
 }
 
 // A text (schema.js S.text): words, which say a puzzle and are not it.
@@ -23,12 +24,12 @@ function hash(text) {
   return (h >>> 0).toString(16).padStart(8, '0')
 }
 
-/** The stamp of `content` read through its domain's `vocabulary`. */
-export function contentStamp(vocabulary, content) {
-  const levels = content.levels.map((level) => [
-    level.id,
-    puzzleOf(vocabulary.level, level, vocabulary),
-    level.tasks.map((task, k) => [task.id, puzzleOf(shapeAt(vocabulary.level, level, ['tasks', k], { vocabulary }), task, vocabulary)]),
-  ])
-  return hash(JSON.stringify([levels, content.partDefs ?? null], (_k, v) => (isText(v) ? undefined : v)))
+/** Each task's stamp and the level it is in, by task id: { [task]: { level, stamp } }, read through `vocabulary`. */
+export function taskStamps(vocabulary, content) {
+  const plain = (value) => JSON.stringify(value, (_k, v) => (isText(v) ? undefined : v))
+  const parts = plain(content.partDefs ?? null)
+  return Object.fromEntries(content.levels.flatMap((level) => {
+    const own = plain(puzzleOf(vocabulary.level, level, vocabulary))
+    return level.tasks.map((task, k) => [task.id, { level: level.id, stamp: hash(`${own}${plain(puzzleOf(shapeAt(vocabulary.level, level, ['tasks', k], { vocabulary }), task, vocabulary))}${parts}`) }])
+  }))
 }

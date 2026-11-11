@@ -33,6 +33,8 @@ jobs:
           cache: npm
           cache-dependency-path: trace-viewer/package-lock.json
       - run: npm ci
+      # Plain mistakes and the layering: no domain imports another, the kernel imports none.
+      - run: npm run lint:kit
       - run: npm test
       # The Unix model's conformance cases against the real kernel.
       - run: npm run conform

@@ -14,7 +14,7 @@ import '../circuit/circuit.css'
 import { GameShell } from '../shell/index.js'
 import EmbedShell from '../shell/EmbedShell.jsx'
 import { createProgress } from '../shell/progress.js'
-import { contentStamp } from '../engine/stamp.js'
+import { taskStamps } from '../engine/stamp.js'
 import { checkContent } from '../engine/vocabulary.js'
 import { deepFreeze } from '../engine/content.js'
 import { loadDomain } from 'virtual:game'
@@ -33,7 +33,7 @@ async function open() {
   const problems = checkContent({ vocabulary }, content).map((p) => `${p.at}: ${p.says}`)
   if (problems.length) return { page: <Unreadable problems={problems} />, content: contentText }
   const game = define(content)
-  const store = createProgress({ id: content.id, stamp: contentStamp(vocabulary, content) })
+  const store = createProgress({ id: content.id, tasks: taskStamps(vocabulary, content) })
   // A level embedded in a note (`?embed&level=…&lang=…`, games/DESIGN.md 12.1): the note sets its language.
   const asked = new URL(window.location.href).searchParams
   if (asked.has('embed')) {

@@ -136,7 +136,6 @@ function BoardScreen({ board, screen }) {
     if (v) return <Value v={v} text={text} small />
     return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('尚未接线', 'nothing wired in yet')}</i>
   }
-  const passed = run.passed
   const sinkMark = (node) => (parts.role(node) === 'sink' && result ? (result.pass ? 'is-pass' : 'is-fail') : '')
   // The steps of the test shown, so far: what each card gave, the current one marked.
   const shown = stepped ? run.playback.shown(run.at) : { list: [], at: -1 }

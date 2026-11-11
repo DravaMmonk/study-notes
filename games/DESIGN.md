@@ -44,9 +44,9 @@
 
 设计路线时同时考虑概念、元件和文案依赖。地图顺序不等于玩家实际经历：并行或可选路线中的先修内容，应按 `requires` 判断。专题可用 `carry` 从先修关的已保存电路继续；封装件升级按先修路线选择玩家通过的版本。
 
-**存档按任务记。** 外壳存下的（`kit/shell/progress.js`，浏览器里 `<游戏 id>.v2`）分两层：关卡层面的是通过的关（`solved`，一关通过了就一直算通过，后来多了任务也不收回）、得分（`best`）；谜题层面的全部按**任务 key** 记：每个任务的板和它的几块存档（`data`、`slots`）、通过了哪些任务（`passed`）、元件跑的那块板（`built`）。任务 key 就是任务的 id（第 4 节），每个领域的关都是一串任务、每个任务都必须有 id（契约检查）；只有一个任务的关，任务 id 通常就是关的 id。所以任务在关内换位置、插进新任务、挪进别的关、几关合成一关，存下的都跟着任务走。
+**存档按任务记。** 外壳存下的（`kit/shell/progress.js`，浏览器里 `<游戏 id>.v2`）分两层：关卡层面的是通过的关（`solved`，后来多了任务也不收回；它的某个任务的谜题变了才收回）、得分（`best`）；谜题层面的全部按**任务 key** 记：每个任务的板和它的几块存档（`data`、`slots`）、通过了哪些任务（`passed`）、元件跑的那块板（`built`）。任务 key 就是任务的 id（第 4 节），每个领域的关都是一串任务、每个任务都必须有 id（契约检查）；只有一个任务的关，任务 id 通常就是关的 id。所以任务在关内换位置、插进新任务、挪进别的关、几关合成一关，存下的都跟着任务走。
 
-**开发阶段不迁移存档。** 存档记着它是在哪一版谜题上存的（`stamp`，`kit/engine/stamp.js`：每一关、每个任务谜题区和测试区字段的哈希，连同它们的 id，字段里的文字不算，再加上 `parts.json`）。页面打开时内容的 stamp 和存档的不一样，这款游戏的存档就不读，玩家从空白开始。改文字、参考答案、起始板、课程顺序不改 stamp，存档都留着；改了一关的谜题、测试、端口，或任何元件，整款游戏的存档清空。
+**存档跟着任务的谜题走。** 每个任务有一个戳（`kit/engine/stamp.js` 的 `taskStamps`：这个任务和它那一关谜题区、测试区字段的哈希，字段里的文字和 id 不算，再加上 `parts.json`），存档记着每个任务存下时的戳。页面打开时逐个任务比：戳没变的，板、存档和通过记录都留着；变了的只清这一个任务，它那一关不再算通过。改文字、参考答案、起始板、课程顺序、任务的 id 和位置不改戳；改一关的谜题或测试只清这一关的任务；改任何元件的定义清全部。用到别的关搭出的元件的板，那一关变了以后还合不合，由关卡界面打开时判断（和任何不再合的板一样）。不做迁移：戳变了就是从头做这一个任务。
 
 数据写法（`games/kit/course.js` 的 `layout(eras)`）：
 
@@ -351,7 +351,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、eng
 
 **单元测试不认识关卡。** 测试跟着三层分开：`npm test` 只测内核和领域的机制，用的内容是测试里现写的小内容，或领域的 `starter/`（契约测试和 `new-game` 共用的最小样例），不读任何一款真实游戏，也不写死某一关、某个任务或一款游戏有几关；把所有游戏的文件夹拿走，测试照样全过。契约、文件的写法这类对每款游戏都成立的性质，在每个领域的 `starter/` 上查；要列例外时，例外由领域或内容自己声明，不写在测试里。一款游戏的内容对不对（契约、参考解、naive 解、审计、文案）由 studio 和操作集在每次写入前查（第 7.1 节），也可以手动跑 `npm run check`，不进 CI。所以改关卡不用改测试；改了关卡测试就失败，说明那条测试写错了层。
 
-**命令**（都在 `trace-viewer` 目录下；游戏 id 写错了，三个命令都列出有哪些游戏）：`npm test` 跑 kit 的单元测试；`npm run check` 校验所有游戏（`npm run check -- state-graph` 只校验一款），加 `--mutants` 再报告电路底座上每个任务的变异得分；`npm run deps -- <游戏>` 画出一款游戏的元件依赖图（Mermaid；`--dot` 出 DOT，`--levels` 连关卡一起画）；`npm run new-domain -- <名字> --mechanism <机制>`、`npm run new-game -- <id> --domain <领域>` 生成新领域和新游戏（第 6.3 节）；`npm run op -- <游戏> …` 用操作集改内容（第 7 节）；`npm run mcp` 起 MCP 服务器（第 7 节）；`npm run studio` 在开发服务器上打开 studio（第 6.7 节，`GAMES_ROOT` 让它改一份副本）；`npm run conform` 在真的 Linux 上跑模拟内核的一致性用例；`npm run pipeline -- <游戏> <命令>` 跑 agent 流水线的一步、它的闸门、它的记录（第 7.2 节）；`npm run build:games` 构建所有游戏（`GAME=<id> npm run build:game` 构建一款），产物在 `dist-games/<id>/`；`npm run publish:content` 只换内容不重建代码；`npm run versions` 存下词汇表的新版本。新游戏要在 `games/games.js` 里登记，`check`、构建和发布都按这张表走。
+**命令**（都在 `trace-viewer` 目录下；游戏 id 写错了，三个命令都列出有哪些游戏）：`npm test` 跑 kit 的单元测试；`npm run lint:kit` 查 kit 的代码（未定义和未使用的名字，以及分层：领域不引用别的领域，内核不引用领域；`trace-viewer/eslint.kit.config.js`，kit 变更时 CI 也跑）；`npm run check` 校验所有游戏（`npm run check -- state-graph` 只校验一款），加 `--mutants` 再报告电路底座上每个任务的变异得分；`npm run deps -- <游戏>` 画出一款游戏的元件依赖图（Mermaid；`--dot` 出 DOT，`--levels` 连关卡一起画）；`npm run new-domain -- <名字> --mechanism <机制>`、`npm run new-game -- <id> --domain <领域>` 生成新领域和新游戏（第 6.3 节）；`npm run op -- <游戏> …` 用操作集改内容（第 7 节）；`npm run mcp` 起 MCP 服务器（第 7 节）；`npm run studio` 在开发服务器上打开 studio（第 6.7 节，`GAMES_ROOT` 让它改一份副本）；`npm run conform` 在真的 Linux 上跑模拟内核的一致性用例；`npm run pipeline -- <游戏> <命令>` 跑 agent 流水线的一步、它的闸门、它的记录（第 7.2 节）；`npm run build:games` 构建所有游戏（`GAME=<id> npm run build:game` 构建一款），产物在 `dist-games/<id>/`；`npm run publish:content` 只换内容不重建代码；`npm run versions` 存下词汇表的新版本。新游戏要在 `games/games.js` 里登记，`check`、构建和发布都按这张表走。
 
 **现状和待做：**
 

@@ -1,15 +1,16 @@
 // Saved progress for a game on the shared shell. It lives in this browser only, under saveKey(<game id>):
 //
-//   { stamp, solved: [level id], flags: [flag], passed: [task key], data: { [task key]: what its screen keeps },
-//     slots: { [task key]: its other saved boards (slots.js) }, built: { [task key]: the board a part runs },
-//     best: { [level id]: score }, introSeen: { [level id | task key]: true }, seenPower, all }
+//   { stamps: { [task key]: stamp }, solved: [level id], flags: [flag], passed: [task key],
+//     data: { [task key]: what its screen keeps }, slots: { [task key]: its other saved boards (slots.js) },
+//     built: { [task key]: the board a part runs }, best: { [level id]: score },
+//     introSeen: { [level id | task key]: true }, seenPower, all }
 //
 // What a level is (solved, its best score) is kept by its id; what a puzzle is — its board, its other boards, whether
 // it is passed, the board a part runs — by its task's key (taskKey: the task's id, ../engine/tasks.js keyOf), so a
-// task moved within its level or to another, or levels made one, keeps it all. A level once solved stays solved, even
-// when it gains a task. `stamp` is the stamp of the puzzles it was made on (../engine/stamp.js): while the games are
-// in development no save is carried across a change, so a save made on other puzzles (or of any other shape) is not
-// read and the player starts afresh.
+// task moved within its level or to another, or levels made one, keeps it all. `stamps` says which puzzle each task's
+// save was made on (../engine/stamp.js): a task whose puzzle has changed since loses what was kept of it, and its
+// level is no longer solved; every other task keeps its save. A board that reads a part whose own level changed is
+// its screen's to judge when it opens (a domain's `open`), as any board that no longer fits.
 
 /** The key a game's progress is saved under in this browser. */
 export const saveKey = (id) => `${id}.v2`
@@ -23,29 +24,49 @@ export function solvedCount(id) {
   }
 }
 
-const blank = (stamp = null) => ({ stamp, solved: [], flags: [], passed: [], skippedTasks: [], data: {}, slots: {}, built: {}, best: {}, seenPower: false, introSeen: {}, all: false })
+const blank = () => ({ stamps: {}, solved: [], flags: [], passed: [], skippedTasks: [], data: {}, slots: {}, built: {}, best: {}, seenPower: false, introSeen: {}, all: false })
 
-/** A game's progress in this browser, kept under `id` for the puzzles `stamp` names. */
-export function createProgress({ id, stamp }) {
+const without = (kept, gone) => Object.fromEntries(Object.entries(kept ?? {}).filter(([key]) => !gone.has(key)))
+
+/** `stored` less what it kept of the tasks whose puzzle is no longer the one `tasks` names ({ [key]: { level, stamp } }). */
+export function current(stored, tasks) {
+  const gone = new Set(Object.keys(stored.stamps).filter((key) => tasks[key]?.stamp !== stored.stamps[key]))
+  if (!gone.size) return stored
+  const levels = new Set([...gone].map((key) => tasks[key]?.level))
+  return {
+    ...stored,
+    solved: stored.solved.filter((id) => !levels.has(id)),
+    passed: stored.passed.filter((key) => !gone.has(key)),
+    skippedTasks: (stored.skippedTasks ?? []).filter((key) => !gone.has(key)),
+    data: without(stored.data, gone),
+    slots: without(stored.slots, gone),
+    built: without(stored.built, gone),
+    best: without(stored.best, levels),
+  }
+}
+
+/** A game's progress in this browser, kept under `id`. `tasks`: its tasks' stamps today (../engine/stamp.js taskStamps). */
+export function createProgress({ id, tasks = {} }) {
   const key = saveKey(id)
+  const stamps = Object.fromEntries(Object.entries(tasks).map(([task, { stamp }]) => [task, stamp]))
   return {
     key,
     load() {
       try {
         const stored = JSON.parse(window.localStorage.getItem(key))
-        return stored?.stamp === stamp ? { ...blank(stamp), ...stored } : blank(stamp)
+        return stored?.stamps ? { ...blank(), ...current({ ...blank(), ...stored }, tasks), stamps } : { ...blank(), stamps }
       } catch {
-        return blank(stamp)
+        return { ...blank(), stamps }
       }
     },
     save(progress) {
       try {
-        window.localStorage.setItem(key, JSON.stringify(progress))
+        window.localStorage.setItem(key, JSON.stringify({ ...progress, stamps }))
       } catch {
         // Storage may be full or blocked; the game still works for this session.
       }
     },
-    blank: () => ({ ...blank(stamp), seenPower: true }),
+    blank: () => ({ ...blank(), stamps, seenPower: true }),
   }
 }
 
