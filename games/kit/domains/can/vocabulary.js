@@ -127,6 +127,7 @@ const WANTS = {
   controllerBusoffError: item(t('检测到位错误或缺应答时为是', 'yes when a bit error or missing ACK is detected'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT, request: INPUT })),
   controllerBusoffAccepted: item(t('满足观察条件并接受恢复请求时为是', 'yes when bus-off observation is complete and a recovery request is accepted'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT, request: INPUT })),
   controllerDuplexDrive: item(t('先接收再发送时的总线驱动', 'bus drive while receiving and then transmitting'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT })),
+  controllerDuplexLost: item(t('从初次仲裁落败到重试前为 1', '1 from initial arbitration loss until retry'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT })),
   controllerDuplexNext: item(t('发送尝试的数据字节取走拍', 'byte acceptance ticks during transmission attempts'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT })),
   controllerDuplexRewind: item(t('发送错误时重置队列', 'rewind the transmit queue on a transmit error'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT })),
   controllerDuplexAttempts: item(t('发送尝试的起始拍', 'transmission attempt start ticks'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT })),
@@ -230,7 +231,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 55,
+  version: 56,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

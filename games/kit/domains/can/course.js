@@ -69,7 +69,7 @@ export function canCourse(content) {
       if (!task.pulls?.rewind) say('passive ACK retry tests require a rewindable queue')
     }
     if (task.expectsController) {
-      if ((!task.expectsControllerDuplex && t.bus.frames.length) || (task.expectsControllerDuplex && (t.bus.frames.length !== 1 || t.bus.frames[0]?.ack !== false || t.contenders?.length)) || t.peerBits || (!task.expectsControllerFault && t.flipTicks?.length) || (t.flipTicks?.length ?? 0) > (task.expectsControllerDuplex ? 2 : 1) || (t.contenders?.length ?? 0) > 1 || t.contenders?.some((node) => node.detectErrors)) say('controller tests require the declared frame, contender and bit-error limits')
+      if ((!task.expectsControllerDuplex && t.bus.frames.length) || (task.expectsControllerDuplex && (t.bus.frames.length !== 1 || t.bus.frames[0]?.ack !== false)) || t.peerBits || (!task.expectsControllerFault && t.flipTicks?.length) || (t.flipTicks?.length ?? 0) > (task.expectsControllerDuplex ? 2 : 1) || (t.contenders?.length ?? 0) > 1 || t.contenders?.some((node) => node.detectErrors)) say('controller tests require the declared frame, contender and bit-error limits')
       if ((t.contenders ?? []).some((node) => (node.at ?? 0) !== (t.txAt ?? 0))) say('controller contender must start with the transmitted frame')
       if (t.tx && t.contenders?.some((node) => num(node.id) === num(t.tx.id))) say('controller contender must have a distinct identifier')
       if (t.tx && JSON.stringify((t.tx.data ?? []).map(num)) !== JSON.stringify((t.queue ?? []).map(num))) say('controller queue must contain the transmitted frame data')
@@ -166,9 +166,10 @@ export function canCourse(content) {
             if (flips.length > 1 || flips.some((tick) => tick < frame.at + header || tick >= end) || starts[0] < frame.at + transmitBits(frame).length + 14) say('duplex tests require one earlier complete receive frame and at most one data or CRC flip')
             receiveCount = wantOf({ rx: { receiveFrameRec: { prep, reset } } })(result).rx[starts[0] - 1]
           }
-          if (count >= 256 || (count >= 128 && rival)) say('adaptive controller tests start below bus-off and use no contender when initially passive')
+          if (count >= 256 || ((count >= 128 || receiveCount >= 128) && rival)) say('adaptive controller tests start below bus-off and use no contender when initially passive')
         }
         let at = starts[0] + (rival && rival.id < result.tx.id ? transmitBits(rival).length : 0)
+        if (task.expectsControllerDuplex && rival && rival.id < result.tx.id) receiveCount = receiveCount > 127 ? 127 : Math.max(0, receiveCount - 1)
         let ack = at + size - 12
         let failures = 0
         let usedFlip = false

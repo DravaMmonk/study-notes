@@ -273,6 +273,7 @@ const controllerPlan = ({ start, prep, reset, request, receive = false }, test) 
   const bits = test.tx ? transmitBits(test.tx) : []
   const initial = test.inputs[start]?.findIndex((value) => value === 1 || value === true) ?? -1
   let at = initial
+  let receivedWinner = false
   const rival = test.contenders?.[0]
   if (at >= 0 && rival && rival.id < test.tx.id) {
     const rivalBits = transmitBits(rival)
@@ -281,16 +282,24 @@ const controllerPlan = ({ start, prep, reset, request, receive = false }, test) 
     if (loss >= 0) {
       attempts[at] = 1
       const winnerAck = at + rivalBits.length - 12
+      const winnerCrc = winnerAck - 1
       const retry = at + rivalBits.length
       for (let tick = at; tick <= at + loss && tick < ticks; tick++) drive[tick] = bits[tick - at]
       for (let tick = at + loss; tick < retry && tick < ticks; tick++) lost[tick] = 1
       if (winnerAck < ticks) drive[winnerAck] = 0
+      if (incoming && winnerAck < ticks) {
+        incoming.kind[winnerCrc] = 0
+        incoming.ready[winnerCrc] = 1
+        actions[winnerAck] = 4
+        receivedWinner = true
+      }
       at = retry
     }
   }
   const before = faultCounts({ event: '__actions', reset: '__reset' }, { ...test, inputs: { ...test.inputs, __actions: actions, __reset: resets } })[initial - 1]
   let count = before?.tx ?? 0
-  const receiveCount = before?.rx ?? 0
+  let receiveCount = before?.rx ?? 0
+  if (receivedWinner) receiveCount = receiveCount > 127 ? 127 : Math.max(0, receiveCount - 1)
   while (at >= 0 && at < ticks && bits.length) {
     attempts[at] = 1
     const ack = at + bits.length - 12
@@ -699,6 +708,7 @@ const WANTS = {
   controllerBusoffError: (params) => (test) => controllerPlan(params, test).error,
   controllerBusoffAccepted: (params) => (test) => controllerPlan(params, test).accepted,
   controllerDuplexDrive: (params) => (test) => controllerPlan({ ...params, receive: true }, test).drive,
+  controllerDuplexLost: (params) => (test) => controllerPlan({ ...params, receive: true }, test).lost,
   controllerDuplexNext: (params) => (test) => controllerPlan({ ...params, receive: true }, test).next,
   controllerDuplexRewind: (params) => (test) => controllerPlan({ ...params, receive: true }, test).rewind,
   controllerDuplexAttempts: (params) => (test) => controllerPlan({ ...params, receive: true }, test).attempts,

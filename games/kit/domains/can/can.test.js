@@ -878,6 +878,30 @@ test('a receive error can make the subsequent transmitter passive', () => {
   assert.ok(result.Drive.slice(firstAck + 1, retry).every((bit) => bit === 1))
 })
 
+test('shared receive and transmit state accounts for a valid arbitration winner', () => {
+  const tx = { id: 0x123, data: [0xa5] }
+  const bus = busOf({ idle: 12, frames: [{ id: 0x2a5, data: [0x55], ack: false }], tail: 180 })
+  const start = 84
+  const rival = { id: 1, data: [], at: start }
+  const winner = transmitBits(rival)
+  const own = transmitBits(tx)
+  const retry = start + winner.length
+  bus.bits[retry + own.length - 12] = 0
+  const inputs = { prep: bus.bits.map((_, tick) => tick < 2 ? 3 : 0), reset: bus.bits.map((_, tick) => Number(tick === 0)), start: bus.bits.map((_, tick) => Number(tick === start)) }
+  const params = { prep: 'prep', reset: 'reset', start: 'start' }
+  const calls = Object.fromEntries(['Drive', 'Lost', 'Rec', 'Kind', 'Ready', 'Attempts'].map((name) => [name, { [`controllerDuplex${name}`]: params }]))
+  const result = wantOf(calls)({ tx, bus, inputs, contenders: [rival] })
+  const winnerCrc = start + winner.length - 13
+  assert.equal(result.Kind[winnerCrc], 0)
+  assert.equal(result.Ready[winnerCrc], 1)
+  assert.equal(result.Drive[winnerCrc + 1], 0)
+  assert.equal(result.Rec[winnerCrc], 1)
+  assert.equal(result.Rec[winnerCrc + 1], 0)
+  assert.equal(result.Lost[retry - 1], 1)
+  assert.equal(result.Lost[retry], 0)
+  assert.deepEqual(result.Attempts.flatMap((value, tick) => value ? [tick] : []), [start, retry])
+})
+
 test('a transmitter releases ACK while another node can acknowledge', () => {
   const tx = { id: 0x123, data: [0xa5] }
   const frame = frameBits(tx)
