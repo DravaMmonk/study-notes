@@ -30,3 +30,25 @@ test('sessions and pending responses belong to their controller', () => {
   state = step(state, null, null, 6)
   deepStrictEqual([state.source, state.response], [3, [0x62, 0xf1, 0x88, 4]])
 })
+
+test('dependent programming waits for the first controller to restart successfully', () => {
+  const flash = { maxBlock: 4, expectedChecksum: 3, image: [1, 2], versionAfter: [7], fixedDtcs: [0x123456] }
+  const vehicle = [
+    { online: true, version: 1, dtcs: [{ code: 0x123456, status: 8 }], flash },
+    { online: true, version: 2, after: 0, flash: { ...flash, versionAfter: [8] } },
+  ]
+  let state = newFleetState(vehicle), tick = 0
+  const send = (target, request) => { state = advanceFleet(state, target, request, vehicle, tick++); return state.response }
+  deepStrictEqual(send(1, [0x10, 2]), [0x7f, 0x10, 0x22])
+  deepStrictEqual(send(0, [0x10, 2]), [0x50, 2, 0, 0x32, 1, 0xf4])
+  deepStrictEqual(send(0, [0x31, 1, 0xff, 0]), [0x71, 1, 0xff, 0])
+  deepStrictEqual(send(0, [0x34, 0, 0x12, 0, 0, 2]), [0x74, 0x10, 4])
+  deepStrictEqual(send(0, [0x36, 1, 1, 2]), [0x76, 1])
+  deepStrictEqual(send(0, [0x37]), [0x77])
+  deepStrictEqual(send(0, [0x31, 1, 0xff, 1]), [0x71, 1, 0xff, 1, 3, 0])
+  deepStrictEqual(send(0, [0x11, 1]), [0x51, 1])
+  deepStrictEqual(send(1, [0x10, 2]), [0x50, 2, 0, 0x32, 1, 0xf4])
+  deepStrictEqual(send(0, read), [0x62, 0xf1, 0x88, 7])
+  deepStrictEqual(send(0, [0x31, 1, 0xfe, 0]), [0x71, 1, 0xfe, 0])
+  equal(state.controllers[0].dtcs.length, 0)
+})

@@ -41,7 +41,7 @@ const testOf = (t, task, frameEvents) => {
   }
   const contenders = (t.contenders ?? []).map((node) => ({ ...node, id: num(node.id), data: (node.data ?? []).map(num) }))
   const flash = t.ecu?.flash && { ...t.ecu.flash, ...(t.ecu.flash.image ? { image: t.ecu.flash.image.map(num) } : {}), ...(t.ecu.flash.versionAfter ? { versionAfter: t.ecu.flash.versionAfter.map(num) } : {}), fixedDtcs: (t.ecu.flash.fixedDtcs ?? []).map(num) }
-  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(t.ecu ? { ecu: { did: num(t.ecu.did), value: t.ecu.value.map(num), waits: t.ecu.waits ?? 0, requiresExtended: Boolean(t.ecu.requiresExtended), timeout: t.ecu.timeout, requiresSecurity: Boolean(t.ecu.requiresSecurity), seed: t.ecu.seed, dtcs: (t.ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })), flash, powerCycles: t.ecu.powerCycles ?? [] } } : {}), ...(t.transport ? { transport: { ...t.transport, message: t.transport.message.map(num) } } : {}), ...(t.bridge ? { bridge: { did: num(t.bridge.did), value: t.bridge.value.map(num) } } : {}), ...(t.fleet ? { fleet: t.fleet.map((ecu) => ({ ...ecu, version: num(ecu.version), dtcs: (ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })) })) } : {}), ...(frameEvents ? { frameEvents } : {}) }
+  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(t.ecu ? { ecu: { did: num(t.ecu.did), value: t.ecu.value.map(num), waits: t.ecu.waits ?? 0, requiresExtended: Boolean(t.ecu.requiresExtended), timeout: t.ecu.timeout, requiresSecurity: Boolean(t.ecu.requiresSecurity), seed: t.ecu.seed, dtcs: (t.ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })), flash, powerCycles: t.ecu.powerCycles ?? [] } } : {}), ...(t.transport ? { transport: { ...t.transport, message: t.transport.message.map(num) } } : {}), ...(t.bridge ? { bridge: { did: num(t.bridge.did), value: t.bridge.value.map(num) } } : {}), ...(t.fleet ? { fleet: t.fleet.map((ecu) => ({ ...ecu, version: num(ecu.version), dtcs: (ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })), ...(ecu.flash ? { flash: { ...ecu.flash, image: ecu.flash.image.map(num), versionAfter: ecu.flash.versionAfter.map(num), fixedDtcs: (ecu.flash.fixedDtcs ?? []).map(num) } } : {}) })) } : {}), ...(frameEvents ? { frameEvents } : {}) }
 }
 
 export function canCourse(content) {
@@ -50,7 +50,17 @@ export function canCourse(content) {
     let frameEvents
     if (task.fleet) {
       if (!t.fleet || t.bus.frames.length || task.ecu || task.transport || task.bridge || task.frameInputs || task.pulls || task.listens || task.drives || t.contenders?.length || t.tx || t.peerBits || t.peerLow?.length || t.flipTicks?.length) say('fleet tasks require six simulated controllers without other bus activity')
-      const inputs = [task.fleet.source, task.fleet.response, task.fleet.ready]
+      const imagePorts = Object.entries(task.fleet.images ?? {})
+      for (const [name, index] of imagePorts) if (!task.inputs?.some((input) => input.name === name) || !t.fleet?.[index]?.flash?.image) say('fleet image ports require a task input and a controller image')
+      for (const [index, ecu] of (t.fleet ?? []).entries()) {
+        const seen = new Set([index])
+        let next = ecu.after
+        while (next !== undefined) {
+          if (seen.has(next) || !t.fleet[next]?.flash) { say('fleet programming dependencies must be acyclic and point to programmable controllers'); break }
+          seen.add(next); next = t.fleet[next].after
+        }
+      }
+      const inputs = [task.fleet.source, task.fleet.response, task.fleet.ready, ...imagePorts.map(([name]) => name)]
       if (new Set(inputs).size !== inputs.length || inputs.some((name) => !task.inputs?.some((input) => input.name === name))) say('fleet response ports must be distinct task inputs')
       const outputs = [task.fleet.target, task.fleet.request]
       if (new Set(outputs).size !== outputs.length || outputs.some((name) => !task.outputs?.some((output) => output.name === name))) say('fleet request ports must be distinct task outputs')
@@ -148,7 +158,7 @@ export function canCourse(content) {
     }
     for (const i of task.inputs ?? []) {
       const name = i.name
-      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name), Object.prototype.hasOwnProperty.call(task.frameInputs ?? {}, name), task.ecu?.response === name, task.ecu?.image === name, task.transport?.flow === name, task.transport?.message === name, task.transport?.ready === name, task.transport?.timeout === name, task.bridge?.incoming === name, task.bridge?.ready === name, task.fleet?.source === name, task.fleet?.response === name, task.fleet?.ready === name]
+      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name), Object.prototype.hasOwnProperty.call(task.frameInputs ?? {}, name), task.ecu?.response === name, task.ecu?.image === name, task.transport?.flow === name, task.transport?.message === name, task.transport?.ready === name, task.transport?.timeout === name, task.bridge?.incoming === name, task.bridge?.ready === name, task.fleet?.source === name, task.fleet?.response === name, task.fleet?.ready === name, Object.prototype.hasOwnProperty.call(task.fleet?.images ?? {}, name)]
       if (![task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(name) && !sources.some(Boolean)) say(`a test gives nothing on the input ${name}`)
       if (sources.filter(Boolean).length > 1) say(`input ${name} has more than one source`)
     }

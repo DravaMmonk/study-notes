@@ -1,11 +1,12 @@
 import { ecuAdvance } from './ecu.js'
+import { newFlashState } from './flash.js'
 
 // Message-layer controllers keep independent sessions and pending replies. Simultaneous replies
 // are queued in controller order; this is a game rule, not CAN arbitration or transport.
 export function newFleetState(fleet) {
   return {
     source: null, response: null, queue: [],
-    controllers: fleet.map(({ version, dtcs = [] }) => ({ reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0, dtcs, record: [version], flash: null })),
+    controllers: fleet.map(({ version, dtcs = [], flash }) => ({ reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0, dtcs, record: [version], flash: flash ? newFlashState() : null })),
   }
 }
 
@@ -14,7 +15,11 @@ export function advanceFleet(state, target, request, fleet, tick) {
   const controllers = state.controllers.map((controller, index) => {
     const profile = fleet[index]
     if (!profile.online) return controller
-    const next = ecuAdvance(controller, target === index ? request : null, { ...profile, did: 0xf188, value: [profile.version], waits: profile.waits ?? 0 }, tick)
+    const ownRequest = target === index ? request : null
+    const prerequisite = profile.after === undefined ? null : state.controllers[profile.after]?.flash
+    const blocked = ownRequest?.[0] === 0x10 && ownRequest?.[1] === 2 && profile.after !== undefined && (prerequisite?.phase !== 'running' || !prerequisite.applicationValid)
+    const advanced = ecuAdvance(controller, blocked ? null : ownRequest, { ...profile, did: 0xf188, value: [profile.version], waits: profile.waits ?? 0 }, tick)
+    const next = blocked ? { ...advanced, reply: [0x7f, 0x10, 0x22] } : advanced
     if (next.reply !== null) queue.push({ source: index, response: next.reply })
     return next
   })
