@@ -199,7 +199,6 @@
   "每次帧起始交出从 1 开始的序号；每帧检测到的填充错误或 CRC 结果交给「相符」，其余拍交出「—」。": "Give a one-based index at each start of frame; give the stuffing-error or CRC result for each frame on Matches, and 「—」 on other ticks.",
   "这台监听探针能分开连续帧，并指出测试中的 CRC 和填充错误。它还只能听：想主动询问控制器，需要下一代让它开口。": "This probe separates consecutive frames and detects the CRC and stuffing errors in these tests. It can only listen; to ask a controller a question, the next generation must speak.",
   "解析字段之后，还要判断这一帧能不能相信：边收原始位边核对 CRC，同时留意填充错误。本关的错误发生在数据、CRC 或填充位，不改变长度字段。": "After parsing fields, decide whether the frame can be trusted: check CRC as original bits arrive and watch for stuffing errors. Here errors occur in data, CRC or stuff bits and do not change the length field.",
-  "在连续总线上读帧的标识符、长度和数据字节；填充错误立即交出否，否则在 CRC 界定位交出校验结果。这里的错误不改变长度字段。": "Reads identifiers, lengths and data bytes from consecutive frames; gives no immediately on a stuffing error, otherwise gives the CRC result at the CRC delimiter. Errors here do not change the length field.",
   "CAN 控制器": "CAN controller",
   "怎样让探针开口，还不打断别人？": "How can the probe speak without interrupting others?",
   "说一位": "Say a bit",
@@ -316,5 +315,14 @@
   "让仲裁元件控制说话口；同时让校验抓帧器一直听实际总线。": "Let the arbitration part control the sending port while the checked capture device listens to the actual bus.",
   "只在已落败时转交抓帧器读出的标识符。": "Pass through the identifier read by the capture device only after this node has lost.",
   "输掉仲裁不会破坏赢家的帧；转为接收后，输的一方仍能听懂赢家说的内容。": "Losing arbitration does not damage the winner’s frame. Once the loser becomes a receiver it can still understand what the winner sent.",
-  "赢家标识符": "Winner identifier"
+  "赢家标识符": "Winner identifier",
+  "在连续总线上读帧的标识符、长度和数据字节；填充错误立即交出否，否则在 CRC 界定位交出校验结果。「结果就绪」标记结果所在拍。这里的错误不改变长度字段。": "Reads identifiers, lengths and data bytes from consecutive frames; gives no immediately on a stuffing error, otherwise gives the CRC result at the CRC delimiter. Result ready marks the tick with a result. Errors here do not change the length field.",
+  "结果就绪": "Result ready",
+  "收下赢家的帧": "Receive the winner’s frame",
+  "落败后不能只收标识符：还要收长度与每个数据字节，并检查 CRC。正确接收的节点会在随后一拍的应答位说显性。": "After losing, receive more than the identifier: take the length and every data byte and check CRC. A node that received the frame correctly says dominant in the following ACK slot.",
+  "竞争后若本节点落败，接收赢家的标识符、长度、每个字节和校验结果；赢家帧校验正确时在应答位说 0。没有落败时不交出这些接收结果。逐拍交出落败状态。": "If this node loses arbitration, receive the winner’s identifier, length, each byte and check result; if the check passes, say 0 in the ACK slot. Do not give these received values when this node did not lose. Give the loss state each tick.",
+  "让校验抓帧器持续听总线，用它的「结果就绪」识别 CRC 界定位。": "Keep the checked capture device listening; use Result ready to recognise the CRC delimiter.",
+  "校验结果为是且已经落败时，记下需要应答；下一拍从寄存卡驱动显性 0。": "When the check is yes and this node has lost, remember that an ACK is needed; drive dominant 0 from the register on the next tick.",
+  "只在落败时转交抓帧器的字段和校验结果。": "Pass through capture fields and check result only after losing.",
+  "在仲裁后转为接收，正确接收时应答；应答位比 CRC 界定位晚一拍，不能用本拍听到的值直接驱动本拍总线。": "After losing arbitration, become a receiver and acknowledge a correctly received frame. ACK is one tick after the CRC delimiter, so what is heard now cannot drive the bus in the same tick."
 }

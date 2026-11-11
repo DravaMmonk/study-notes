@@ -57,6 +57,10 @@ const WANTS = {
   arbitrationLost: item(t('仲裁落败时及之后为 1，开始时清空状态', '1 on and after arbitration loss; start clears the state'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   arbitrationLine: item(t('竞争节点与本节点共同形成的总线', 'the shared bus produced by the competing nodes'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   winnerIdentifier: item(t('落败时在赢家标识符的最后一位交出它', 'on loss, give the winner’s identifier at its last original bit'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
+  winnerLength: item(t('落败时读赢家的数据长度', 'on loss, read the winner’s data length'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
+  winnerByte: item(t('落败时逐个读赢家的数据字节', 'on loss, read each data byte from the winner'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
+  winnerStatus: item(t('落败时交出赢家帧的 CRC 结果', 'on loss, give the CRC result for the winner’s frame'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
+  receiverDrive: item(t('落败后在正确接收的帧的应答位说显性', 'after losing, say dominant in the ACK slot of a correctly received frame'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   stuffedSerialDrive: item(t('逐位发送字节并插入填充位，空闲时说 1', 'send a byte bit by bit with stuffing, saying 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialDone: item(t('原字节的最后一位是否在这一拍被取走', 'whether the final original bit of the byte is accepted this tick'), S.obj({ value: INPUT, start: INPUT })),
   stuffedSerialCrc: item(t('最后原始位被取走时给该字节的 CRC-15', 'the CRC-15 of the byte when its final original bit is accepted'), S.obj({ value: INPUT, start: INPUT })),
@@ -81,6 +85,7 @@ const WANTS = {
   frameIndex: item(t('每个帧起始给出从 1 开始的帧序号，其余拍为「—」', 'the one-based frame index at each start of frame, and 「—」 on other ticks')),
   stuffingError: item(t('启用时检查六个相同位，出错后保持到重来', 'check for six equal bits while enabled and retain the error until reset'), S.obj({ bit: INPUT, enable: INPUT, reset: INPUT })),
   frameStatus: item(t('填充错误时立即给否，否则在 CRC 界定位给校验结果', 'no immediately on a stuffing error, otherwise the CRC result at the CRC delimiter'), S.obj({ bit: INPUT })),
+  frameStatusReady: item(t('帧校验结果出现时为 1，其余拍为 0', '1 when the frame check result is available, 0 otherwise'), S.obj({ bit: INPUT })),
   bitParity: item(t('三个输入位的异或', 'the exclusive or of three input bits'), S.obj({ a: INPUT, b: INPUT, c: INPUT })),
   remainder: item(t('对有效的位逐位算指定生成式的校验余数，重来时先清零', 'the check remainder of enabled bits under the specified generator; reset before processing the current bit'), S.obj({ bit: INPUT, enable: INPUT, reset: INPUT, width: S.int({ min: 1, max: 15 }), poly: S.int({ min: 1, max: 32767 }) })),
   crcCheck: item(t('结束拍判断校验余数是否为零', 'whether the check remainder is zero on a finish tick'), S.obj({ bit: INPUT, enable: INPUT, reset: INPUT, finish: INPUT, width: S.int({ min: 1, max: 15 }), poly: S.int({ min: 1, max: 32767 }) })),
@@ -119,7 +124,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 25,
+  version: 26,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

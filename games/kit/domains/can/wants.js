@@ -105,6 +105,45 @@ const arbitration = ({ bit, arbitration: phase, start }, test) => {
   })
 }
 
+const winnerFields = (params, test) => {
+  const trace = arbitration(params, test)
+  const out = Object.fromEntries(['id', 'length', 'byte', 'status'].map((name) => [name, test.bus.bits.map(() => null)]))
+  const original = []
+  let previous = null
+  let run = 0
+  let length = null
+  let identifier = 0
+  for (let tick = test.txAt ?? 0; tick < trace.length; tick++) {
+    const value = trace[tick].line
+    if (run === 5) {
+      if (value === previous) break
+      previous = value
+      run = 1
+      continue
+    }
+    if (length !== null && original.length === 34 + length * 8) {
+      if (trace[tick].lost) out.status[tick] = crc15(original) === 0
+      break
+    }
+    const position = original.length
+    original.push(value)
+    run = value === previous ? run + 1 : 1
+    previous = value
+    if (position >= 1 && position <= 11) {
+      identifier = identifier * 2 + value
+      if (position === 11 && trace[tick].lost) out.id[tick] = identifier
+    }
+    if (position === 18) {
+      length = original.slice(15, 19).reduce((number, bit) => number * 2 + bit, 0)
+      if (trace[tick].lost) out.length[tick] = length
+    }
+    if (length !== null && position >= 19 && position < 19 + length * 8 && (position - 19) % 8 === 7 && trace[tick].lost) {
+      out.byte[tick] = original.slice(position - 7, position + 1).reduce((number, bit) => number * 2 + bit, 0)
+    }
+  }
+  return { ...out, trace }
+}
+
 const stuffedOutput = ({ bit, valid, start }, test) => {
   let previous = null
   let run = 0
@@ -176,24 +215,13 @@ const WANTS = {
   arbitrationDrive: (params) => (test) => arbitration(params, test).map((step) => step.drive),
   arbitrationLost: (params) => (test) => arbitration(params, test).map((step) => step.lost),
   arbitrationLine: (params) => (test) => arbitration(params, test).map((step) => step.line),
-  winnerIdentifier: (params) => (test) => {
-    const trace = arbitration(params, test)
-    const out = test.bus.bits.map(() => null)
-    const at = test.txAt ?? 0
-    let previous = null
-    let run = 0
-    let count = 0
-    let identifier = 0
-    for (let tick = at; tick < trace.length && count < 12; tick++) {
-      const value = trace[tick].line
-      if (run === 5) { previous = value; run = 1; continue }
-      run = value === previous ? run + 1 : 1
-      previous = value
-      if (count > 0) identifier = identifier * 2 + value
-      count++
-      if (count === 12 && trace[tick].lost) out[tick] = identifier
-    }
-    return out
+  winnerIdentifier: (params) => (test) => winnerFields(params, test).id,
+  winnerLength: (params) => (test) => winnerFields(params, test).length,
+  winnerByte: (params) => (test) => winnerFields(params, test).byte,
+  winnerStatus: (params) => (test) => winnerFields(params, test).status,
+  receiverDrive: (params) => (test) => {
+    const { trace, status } = winnerFields(params, test)
+    return trace.map((step, tick) => tick > 0 && status[tick - 1] === true ? 0 : step.drive)
   },
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
@@ -296,6 +324,7 @@ const WANTS = {
     }
     return out
   },
+  frameStatusReady: (params) => (test) => WANTS.frameStatus(params)(test).map((value) => Number(value !== null)),
   bitParity: ({ a, b, c }) => (test) => each(test, (tick) => test.inputs[a][tick] ^ test.inputs[b][tick] ^ test.inputs[c][tick]),
   remainder: (params) => (test) => remainders(params, test),
   crcCheck: (params) => (test) => remainders(params, test).map((value, tick) => test.inputs[params.finish][tick] ? value === 0 : null),

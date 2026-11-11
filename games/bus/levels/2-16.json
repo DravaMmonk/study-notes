@@ -1,0 +1,119 @@
+{
+  "title": { "zh": "收下赢家的帧" },
+  "intro": [{ "t": { "zh": "落败后不能只收标识符：还要收长度与每个数据字节，并检查 CRC。正确接收的节点会在随后一拍的应答位说显性。" } }],
+  "after": { "zh": "在仲裁后转为接收，正确接收时应答；应答位比 CRC 界定位晚一拍，不能用本拍听到的值直接驱动本拍总线。" },
+  "tasks": [
+    {
+      "id": "2-16",
+      "brief": { "zh": "竞争后若本节点落败，接收赢家的标识符、长度、每个字节和校验结果；赢家帧校验正确时在应答位说 0。没有落败时不交出这些接收结果。逐拍交出落败状态。" },
+      "hint": [
+        { "zh": "让校验抓帧器持续听总线，用它的「结果就绪」识别 CRC 界定位。" },
+        { "zh": "校验结果为是且已经落败时，记下需要应答；下一拍从寄存卡驱动显性 0。" },
+        { "zh": "只在落败时转交抓帧器的字段和校验结果。" }
+      ],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "bit", "label": { "zh": "待发送位" } },
+        { "name": "arb", "label": { "zh": "仲裁段" } },
+        { "name": "start", "label": { "zh": "开始" } }
+      ],
+      "outputs": [
+        { "name": "lost", "label": { "zh": "落败" } },
+        { "name": "id", "label": { "zh": "赢家标识符" } },
+        { "name": "length", "label": { "zh": "数据长度" } },
+        { "name": "byte", "label": { "zh": "字节" } },
+        { "name": "ok", "label": { "zh": "相符" } }
+      ],
+      "tests": [
+        {
+          "bus": { "idle": 200, "frames": [], "tail": 0 },
+          "tx": { "id": 1280, "data": [1] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 256, "data": [165, 85], "at": 12 }, { "id": 768, "data": [255], "at": 12 }]
+        },
+        {
+          "bus": { "idle": 200, "frames": [], "tail": 0 },
+          "tx": { "id": 256, "data": [17] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 768, "data": [2], "at": 12 }, { "id": 1280, "data": [3], "at": 12 }]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 200, "frames": [], "tail": 0 },
+          "tx": { "id": 1, "data": [] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [12] },
+          "contenders": [
+            { "id": 0, "data": [0, 255, 1, 2, 3, 4, 5, 6], "at": 12 },
+            { "id": 2, "data": [1], "at": 12 }
+          ]
+        },
+        {
+          "bus": { "idle": 200, "frames": [], "tail": 0 },
+          "tx": { "id": 291, "data": [] },
+          "txAt": 12,
+          "txInputs": { "bit": "bit", "arb": "arbitration" },
+          "pulses": { "start": [12] },
+          "contenders": [{ "id": 290, "data": [49], "at": 12 }, { "id": 295, "data": [], "at": 12 }]
+        }
+      ],
+      "want": {
+        "send": { "receiverDrive": { "bit": "bit", "arbitration": "arb", "start": "start" } },
+        "lost": { "arbitrationLost": { "bit": "bit", "arbitration": "arb", "start": "start" } },
+        "id": { "winnerIdentifier": { "bit": "bit", "arbitration": "arb", "start": "start" } },
+        "length": { "winnerLength": { "bit": "bit", "arbitration": "arb", "start": "start" } },
+        "byte": { "winnerByte": { "bit": "bit", "arbitration": "arb", "start": "start" } },
+        "ok": { "winnerStatus": { "bit": "bit", "arbitration": "arb", "start": "start" } }
+      },
+      "solution": [
+        "a = arbiter(line, bit, arb, start)",
+        "s = sniffer(line)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ack = reg[reg=A, start=0]()",
+        "accept = select(s.ready, s.ok, zero)",
+        "need = select(a.lost, accept, zero)",
+        "k = keep[reg=A](need)",
+        "wire = select(ack, zero, a.send)",
+        "send <- wire",
+        "lost <- a.lost",
+        "i = select(a.lost, s.id)",
+        "id <- i",
+        "l = select(a.lost, s.length)",
+        "length <- l",
+        "b = select(a.lost, s.byte)",
+        "byte <- b",
+        "c = select(a.lost, s.ok)",
+        "ok <- c"
+      ],
+      "naive": [
+        "a = arbiter(line, bit, arb, start)",
+        "s = sniffer(line)",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "ack = reg[reg=A, start=0]()",
+        "accept = select(s.ready, s.ok, zero)",
+        "need = select(a.lost, accept, zero)",
+        "k = keep[reg=A](need)",
+        "wire = select(ack, a.send, a.send)",
+        "send <- wire",
+        "lost <- a.lost",
+        "i = select(a.lost, s.id)",
+        "id <- i",
+        "l = select(a.lost, s.length)",
+        "length <- l",
+        "b = select(a.lost, s.byte)",
+        "byte <- b",
+        "c = select(a.lost, s.ok)",
+        "ok <- c"
+      ]
+    }
+  ]
+}

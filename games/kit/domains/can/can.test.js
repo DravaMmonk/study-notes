@@ -83,12 +83,18 @@ test('a losing node can read the winner identifier from the shared line', () => 
   const tx = { id: 0x500, data: [] }
   const data = transmitBits(tx)
   const at = 12
-  const bit = [...Array(at).fill(1), ...data]
+  const bit = [...Array(at).fill(1), ...data, ...Array(40).fill(1)]
   const phase = bit.map((_, tick) => Number(tick >= at && tick < at + arbitrationLength(tx.id)))
   const start = bit.map((_, tick) => Number(tick === at))
-  const test = { txAt: at, bus: { bits: bit.map(() => 1) }, inputs: { bit, phase, start }, contenders: [{ id: 0x100, data: [], at }] }
-  const out = wantOf({ id: { winnerIdentifier: { bit: 'bit', arbitration: 'phase', start: 'start' } } })(test).id
-  assert.deepEqual(out.flatMap((value, tick) => value === null ? [] : [[tick, value]]), [[24, 0x100]])
+  const test = { txAt: at, bus: { bits: bit.map(() => 1) }, inputs: { bit, phase, start }, contenders: [{ id: 0x100, data: [0xa5], at }] }
+  const params = { bit: 'bit', arbitration: 'phase', start: 'start' }
+  const out = wantOf({ id: { winnerIdentifier: params }, length: { winnerLength: params }, byte: { winnerByte: params }, status: { winnerStatus: params }, drive: { receiverDrive: params } })(test)
+  assert.deepEqual(out.id.flatMap((value, tick) => value === null ? [] : [[tick, value]]), [[24, 0x100]])
+  assert.deepEqual(out.length.filter((value) => value !== null), [1])
+  assert.deepEqual(out.byte.filter((value) => value !== null), [0xa5])
+  const crcTick = at + frameBits({ id: 0x100, data: [0xa5] }).length - 13
+  assert.equal(out.status[crcTick], true)
+  assert.equal(out.drive[crcTick + 1], 0)
 })
 
 test('stuffing never leaves six equal bits, and comes off again', () => {
@@ -210,8 +216,11 @@ test('frame status distinguishes CRC errors and a final stuffing error', () => {
   const status = wantOf({ ok: { frameStatus: { bit: 'bit' } } })
   const normal = status({ bus, inputs: { bit: good } }).ok
   const broken = status({ bus, inputs: { bit: badStuff } }).ok
+  const ready = wantOf({ ready: { frameStatusReady: { bit: 'bit' } } })({ bus, inputs: { bit: badStuff } }).ready
   assert.equal(normal[finalStuff + 1], true)
   assert.equal(broken[finalStuff], false)
+  assert.equal(ready[finalStuff], 1)
+  assert.equal(ready[finalStuff + 1], 0)
   assert.equal(broken.filter((value) => value !== null).length, 1)
 
   const corrupted = busOf({ idle: 0, frames: [{ id: 0x2a5, data: [0x55] }], tail: 0 })
