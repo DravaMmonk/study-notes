@@ -74,6 +74,12 @@ const WANTS = {
   ecuDtcRecords: item(t('已确认故障码的记录字节', 'record bytes for confirmed trouble codes')),
   ecuClearDtcRequests: item(t('读取、清除全部故障码并再次读取', 'read, clear all trouble codes, and read again')),
   ecuClearDtcRecords: item(t('清除前后各次读取的故障码记录', 'trouble-code records read before and after clearing')),
+  ecuFlashEraseRequests: item(t('进入编程会话并擦除模拟存储', 'enter programming session and erase the simulated storage')),
+  ecuFlashEraseDone: item(t('模拟擦除回答到达时为是', 'yes when the simulated erase response arrives')),
+  ecuFlashDownloadRequests: item(t('进入编程会话、擦除并请求下载四字节', 'enter programming session, erase, and request a four-byte download')),
+  ecuFlashMaxBlock: item(t('下载回答给出的最大块长度', 'maximum block length from the download response')),
+  ecuFlashDemoRequests: item(t('按完整模拟刷写顺序发送四字节示例', 'send a four-byte example through the simulated programming sequence')),
+  ecuFlashDemoDone: item(t('模拟控制器确认重启时为是', 'yes when the simulated controller acknowledges restart')),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -317,7 +323,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 87,
+  version: 88,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

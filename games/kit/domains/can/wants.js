@@ -711,6 +711,15 @@ const WANTS = {
   ecuDtcRecords: () => (test) => test.bus.bits.map((_, tick) => tick ? test.ecu.dtcs.filter(({ status }) => status & 8).flatMap(({ code, status }) => [(code >> 16) & 255, (code >> 8) & 255, code & 255, status]) : null),
   ecuClearDtcRequests: () => (test) => test.bus.bits.map((_, tick) => tick === 0 || tick === 2 ? [0x19, 2, 8] : tick === 1 ? [0x14, 255, 255, 255] : null),
   ecuClearDtcRecords: () => (test) => test.bus.bits.map((_, tick) => tick === 1 ? test.ecu.dtcs.filter(({ status }) => status & 8).flatMap(({ code, status }) => [(code >> 16) & 255, (code >> 8) & 255, code & 255, status]) : tick === 3 ? [] : null),
+  ecuFlashEraseRequests: () => (test) => test.bus.bits.map((_, tick) => tick === 0 ? [0x10, 2] : tick === 1 ? [0x31, 1, 255, 0] : null),
+  ecuFlashEraseDone: () => (test) => test.bus.bits.map((_, tick) => tick === 2 ? true : null),
+  ecuFlashDownloadRequests: () => (test) => test.bus.bits.map((_, tick) => tick === 0 ? [0x10, 2] : tick === 1 ? [0x31, 1, 255, 0] : tick === 2 ? [0x34, 0, 0x12, 0, 0, 4] : null),
+  ecuFlashMaxBlock: () => (test) => test.bus.bits.map((_, tick) => tick === 3 ? test.ecu.flash.maxBlock : null),
+  ecuFlashDemoRequests: () => (test) => {
+    const requests = [[0x10, 2], [0x31, 1, 255, 0], [0x34, 0, 0x12, 0, 0, 4], [0x36, 1, 1, 2], [0x36, 2, 3, 4], [0x37], [0x31, 1, 255, 1], [0x11, 1]]
+    return test.bus.bits.map((_, tick) => requests[tick] ?? null)
+  },
+  ecuFlashDemoDone: () => (test) => test.bus.bits.map((_, tick) => tick === 8 ? true : null),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {
