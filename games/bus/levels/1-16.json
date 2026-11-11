@@ -1,0 +1,105 @@
+{
+  "title": { "zh": "边收边除" },
+  "intro": [
+    {
+      "t": {
+        "zh": "经典 CAN 用 15 位余数，生成多项式是 x¹⁵ + x¹⁴ + x¹⁰ + x⁸ + x⁷ + x⁴ + x³ + 1；去掉最高位后写成 0x4599。逐位计算的方法与刚才的短例子相同。"
+      }
+    }
+  ],
+  "builds": {
+    "type": "crc15",
+    "name": { "zh": "CRC-15" },
+    "desc": { "zh": "逐位计算经典 CAN 的 CRC-15；「参与」为 0 时保持，「重来」为 1 时先清零。输出这一拍之后的余数。" }
+  },
+  "after": { "zh": "CRC 只处理从帧起始到数据字段末尾的原始位；实际总线上的填充位要先去除。" },
+  "tasks": [
+    {
+      "id": "1-16",
+      "brief": { "zh": "每拍交出收到的有效位对应的 CRC-15 余数。「参与」为 0 时保持余数；「重来」为 1 时先清零，再决定是否收这一拍的位。" },
+      "hint": [
+        { "zh": "最高位是 16384；左移后用异或去掉越过 15 位的那一位。" },
+        { "zh": "最高位与新位不同才异或 0x4599。填充位不能参与，之后可用「参与」跳过它。" }
+      ],
+      "inputs": [
+        { "name": "bit", "label": { "zh": "位" } },
+        { "name": "enable", "label": { "zh": "参与" } },
+        { "name": "reset", "label": { "zh": "重来" } }
+      ],
+      "outputs": [{ "name": "rem", "label": { "zh": "余数" } }],
+      "tests": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [1, 0, 1, 1, 0, 1, 0, 0],
+            "enable": [1, 1, 1, 1, 1, 1, 1, 1],
+            "reset": [0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 9, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [1, 1, 0, 0, 1, 0, 1, 1, 0],
+            "enable": [1, 1, 0, 1, 1, 1, 1, 1, 1],
+            "reset": [0, 0, 0, 0, 1, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 10, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [1, 1, 1, 0, 0, 1, 1, 0, 1, 0],
+            "enable": [1, 1, 1, 1, 0, 1, 1, 1, 1, 1],
+            "reset": [1, 0, 0, 0, 1, 0, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "want": {
+        "rem": {
+          "remainder": { "bit": "bit", "enable": "enable", "reset": "reset", "width": 15, "poly": 17817 }
+        }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "topbit = const[value=16384]()",
+        "mask = const[value=32768]()",
+        "poly = const[value=17817]()",
+        "r = reg[reg=A, start=0]()",
+        "base = select(reset, zero, r)",
+        "lo = compare[form=lt](base, topbit)",
+        "top = select(lo, zero, one)",
+        "feedback = xor(top, bit)",
+        "twice = arith[form=add](base, base)",
+        "overflow = select(top, mask, zero)",
+        "shift = xor(twice, overflow)",
+        "reduce = select(feedback, poly, zero)",
+        "next = xor(shift, reduce)",
+        "value = select(enable, next, base)",
+        "k = keep[reg=A](value)",
+        "rem <- value"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "topbit = const[value=16384]()",
+        "mask = const[value=32768]()",
+        "poly = const[value=17817]()",
+        "r = reg[reg=A, start=0]()",
+        "base = select(reset, zero, r)",
+        "lo = compare[form=lt](base, topbit)",
+        "top = select(lo, zero, one)",
+        "feedback = xor(top, zero)",
+        "twice = arith[form=add](base, base)",
+        "overflow = select(top, mask, zero)",
+        "shift = xor(twice, overflow)",
+        "reduce = select(feedback, poly, zero)",
+        "next = xor(shift, reduce)",
+        "value = select(enable, next, base)",
+        "k = keep[reg=A](value)",
+        "rem <- value"
+      ]
+    }
+  ]
+}

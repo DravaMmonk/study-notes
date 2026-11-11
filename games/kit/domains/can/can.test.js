@@ -134,6 +134,20 @@ test('data bytes occur at their own last bits, including stuffing in earlier byt
   }
 })
 
+test('XOR and polynomial remainders handle enabled ticks and reset', () => {
+  assert.equal(PARTS.xor.eval({ a: 0x4599, b: 0x1234 }), 0x57ad)
+  assert.equal(PARTS.xor.eval({ a: null, b: 1 }), null)
+  const params = { bit: 'bit', enable: 'enable', reset: 'reset', width: 3, poly: 3 }
+  const test = { bus: { bits: Array(7).fill(0) }, inputs: { bit: [1, 1, 0, 1, 1, 0, 1], enable: [1, 1, 1, 1, 0, 1, 1], reset: [0, 0, 0, 0, 0, 1, 0] } }
+  assert.deepEqual(wantOf({ rem: { remainder: params } })(test).rem, [3, 5, 1, 1, 1, 0, 3])
+  const message = [1, 0, 1, 1, 0, 1]
+  const codeword = [...message, ...bitsOf(crc15(message), 15)]
+  const check = { bus: { bits: codeword }, inputs: { bit: codeword, enable: codeword.map(() => 1), reset: codeword.map(() => 0) } }
+  const values = wantOf({ rem: { remainder: { ...params, width: 15, poly: 0x4599 } } })(check).rem
+  assert.equal(values[message.length - 1], crc15(message))
+  assert.equal(values.at(-1), 0)
+})
+
 test('blueprint text reads into a board: settings as the cards keep them, ports by position and form', () => {
   const task = { listens: true, inputs: [{ name: 'go', label: 'go' }], outputs: [{ name: 'n', label: 'n' }] }
   const b = fromText(['r = reg[reg=A, start=1]()', 'c = compare[form=lt](r, go)', 'k = keep[reg=A](line)', 'n <- c'], task, plain)

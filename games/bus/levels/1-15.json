@@ -1,0 +1,109 @@
+{
+  "title": { "zh": "二进制长除法" },
+  "intro": [
+    { "t": { "zh": "校验要把数据当成一个二进制多项式做除法。每一列的减法不借位：相同写 0，不同写 1，叫异或。新元件能把两个数逐位异或。" } },
+    { "t": { "zh": "先用一个短生成式 1011 练习：把收到的位后面补三个 0，再做不借位的除法；余数有三位。比如 1101 后补 000，除以 1011 的余数是 001。" } }
+  ],
+  "adds": ["xor"],
+  "after": { "zh": "逐位算出的结果与把整串补零后做多项式长除法的余数相同。" },
+  "tasks": [
+    {
+      "id": "1-15_xor",
+      "brief": { "zh": "每拍交出 A、B、C 三个位异或的结果。" },
+      "inputs": [
+        { "name": "a", "label": { "zh": "A" } },
+        { "name": "b", "label": { "zh": "B" } },
+        { "name": "c", "label": { "zh": "C" } }
+      ],
+      "outputs": [{ "name": "value", "label": { "zh": "结果" } }],
+      "tests": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "inputs": {
+            "a": [0, 0, 0, 0, 1, 1, 1, 1],
+            "b": [0, 0, 1, 1, 0, 0, 1, 1],
+            "c": [0, 1, 0, 1, 0, 1, 0, 1]
+          }
+        }
+      ],
+      "want": { "value": { "bitParity": { "a": "a", "b": "b", "c": "c" } } },
+      "solution": ["x = xor(a, b)", "y = xor(x, c)", "value <- y"],
+      "naive": ["x = xor(a, b)", "value <- x"]
+    },
+    {
+      "id": "1-15",
+      "brief": { "zh": "对收到的位计算三位校验余数：生成式是 1011。只有「参与」为 1 才收进这一位；「重来」为 1 先清零，再决定是否收这一拍的位。每拍交出当前余数。" },
+      "hint": [
+        { "zh": "记住三位余数。每收一位，先把余数最高位与新位异或；余数左移一位，再按这结果决定是否异或 011。" },
+        { "zh": "左移后最高位要丢掉；「参与」为 0 时保持余数，「重来」先清零。" }
+      ],
+      "inputs": [
+        { "name": "bit", "label": { "zh": "位" } },
+        { "name": "enable", "label": { "zh": "参与" } },
+        { "name": "reset", "label": { "zh": "重来" } }
+      ],
+      "outputs": [{ "name": "rem", "label": { "zh": "余数" } }],
+      "tests": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [1, 1, 0, 1, 0, 1, 1, 0],
+            "enable": [1, 1, 1, 1, 1, 1, 1, 1],
+            "reset": [0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 7, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [1, 0, 1, 1, 0, 1, 1],
+            "enable": [1, 1, 0, 1, 1, 1, 1],
+            "reset": [0, 0, 0, 0, 1, 0, 0]
+          }
+        }
+      ],
+      "want": {
+        "rem": { "remainder": { "bit": "bit", "enable": "enable", "reset": "reset", "width": 3, "poly": 3 } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "topbit = const[value=4]()",
+        "mask = const[value=8]()",
+        "poly = const[value=3]()",
+        "r = reg[reg=A, start=0]()",
+        "base = select(reset, zero, r)",
+        "lo = compare[form=lt](base, topbit)",
+        "top = select(lo, zero, one)",
+        "feedback = xor(top, bit)",
+        "twice = arith[form=add](base, base)",
+        "overflow = select(top, mask, zero)",
+        "shift = xor(twice, overflow)",
+        "reduce = select(feedback, poly, zero)",
+        "next = xor(shift, reduce)",
+        "value = select(enable, next, base)",
+        "k = keep[reg=A](value)",
+        "rem <- value"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "topbit = const[value=4]()",
+        "mask = const[value=8]()",
+        "poly = const[value=3]()",
+        "r = reg[reg=A, start=0]()",
+        "base = select(reset, zero, r)",
+        "lo = compare[form=lt](base, topbit)",
+        "top = select(lo, zero, one)",
+        "feedback = xor(top, zero)",
+        "twice = arith[form=add](base, base)",
+        "overflow = select(top, mask, zero)",
+        "shift = xor(twice, overflow)",
+        "reduce = select(feedback, poly, zero)",
+        "next = xor(shift, reduce)",
+        "value = select(enable, next, base)",
+        "k = keep[reg=A](value)",
+        "rem <- value"
+      ]
+    }
+  ]
+}

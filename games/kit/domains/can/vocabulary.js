@@ -25,6 +25,7 @@ const PARTS = {
   select: item(t('选择：条件为是或 1 给出「是」一路，否则「否」一路')),
   compare: item(t('比较：相等、小于两种形状')),
   arith: item(t('算术：加一、相加两种形状')),
+  xor: item(t('异或：两个数逐位异或', 'XOR: bitwise exclusive or of two numbers')),
 }
 
 /* ---------- what an output must be ---------- */
@@ -45,6 +46,9 @@ const WANTS = {
   destuffed: item(t('去除输入位串中的填充位；填充位的那一拍交出「—」'), S.obj({ input: INPUT })),
   dataLength: item(t('帧的数据长度，在长度字段最后一个原始位到达时交出，其余拍为「—」')),
   dataByte: item(t('帧的每个数据字节在它最后一个原始位到达时交出，其余拍为「—」')),
+  bitParity: item(t('三个输入位的异或', 'the exclusive or of three input bits'), S.obj({ a: INPUT, b: INPUT, c: INPUT })),
+  remainder: item(t('对有效的位逐位算指定生成式的校验余数，重来时先清零', 'the check remainder of enabled bits under the specified generator; reset before processing the current bit'), S.obj({ bit: INPUT, enable: INPUT, reset: INPUT, width: S.int({ min: 1, max: 15 }), poly: S.int({ min: 1, max: 32767 }) })),
+  crcCheck: item(t('结束拍判断校验余数是否为零', 'whether the check remainder is zero on a finish tick'), S.obj({ bit: INPUT, enable: INPUT, reset: INPUT, finish: INPUT, width: S.int({ min: 1, max: 15 }), poly: S.int({ min: 1, max: 32767 }) })),
   identifier: item(t('帧的标识符，在它最后一位到达的那一拍；其余每一拍「—」')),
 }
 
@@ -68,7 +72,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 9,
+  version: 10,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

@@ -1,15 +1,28 @@
 {
   "domain": "can",
-  "vocabulary": 9,
+  "vocabulary": 10,
   "title": { "zh": "车在说话" },
   "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
   "lede": {
     "zh": "车上的几十个控制器共用一根线说话。从\"每一拍线上有一位\"开始，亲手搭出听懂它们的探针，再一步步长成能读故障码、能刷写软件的诊断仪。"
   },
-  "primitives": ["reg", "keep", "compare", "arith", "select", "const"],
+  "primitives": ["reg", "keep", "compare", "arith", "select", "const", "xor"],
   "trays": {
-    "main": ["reg", "keep", "compare", "arith", "const", "select", "counter", "shift", "destuff", "frameparse"]
+    "main": [
+      "reg",
+      "keep",
+      "compare",
+      "arith",
+      "const",
+      "select",
+      "xor",
+      "counter",
+      "shift",
+      "destuff",
+      "frameparse",
+      "crc15"
+    ]
   },
   "concept": { "keep": "reg" },
   "eras": [
@@ -31,7 +44,10 @@
         "1-11",
         "1-12",
         "1-13",
-        "1-14"
+        "1-14",
+        "1-15",
+        "1-16",
+        "1-17"
       ]
     }
   ]

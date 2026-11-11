@@ -1744,4 +1744,10 @@ export default {
   "价格": "Price",
   "进货": "Stock",
   "想买": "Would buy",
+  "去除填充位后逐位攒数，填充位的那一拍保留原数": "Gather the original bits after removing stuff bits; keep the current number on a stuff-bit tick",
+  "这一拍是不是非填充位": "Whether this tick is not a stuff bit",
+  "去除输入位串中的填充位；填充位的那一拍交出「—」": "Remove stuff bits from the input stream; give 「—」 on a stuff-bit tick",
+  "帧的数据长度，在长度字段最后一个原始位到达时交出，其余拍为「—」": "The frame data length on the final original bit of its length field, and 「—」 on other ticks",
+  "帧的每个数据字节在它最后一个原始位到达时交出，其余拍为「—」": "Each data byte on its final original bit, and 「—」 on other ticks",
+  "这些输入每拍取总线上的位": "These inputs take the bus bit each tick",
 }

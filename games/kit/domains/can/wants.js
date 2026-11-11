@@ -15,6 +15,22 @@ const onesBefore = (bits, t) => {
 }
 const each = (test, f) => test.bus.bits.map((_, t) => f(t))
 
+// Polynomial long division over GF(2), independently of the player's shift-register circuit.
+const remainders = ({ bit, enable, reset, width, poly }, test) => {
+  let bits = []
+  const divisor = (1 << width) | poly
+  return each(test, (tick) => {
+    if (test.inputs[reset][tick]) bits = []
+    if (test.inputs[enable][tick]) bits.push(test.inputs[bit][tick])
+    let remainder = 0
+    for (const value of [...bits, ...Array(width).fill(0)]) {
+      remainder = (remainder << 1) | value
+      if (remainder & (1 << width)) remainder ^= divisor
+    }
+    return remainder
+  })
+}
+
 const WANTS = {
   line: () => (test) => test.bus.bits,
   previous: ({ first }) => (test) => each(test, (t) => (t ? test.bus.bits[t - 1] : first)),
@@ -67,6 +83,9 @@ const WANTS = {
     }
     return out
   },
+  bitParity: ({ a, b, c }) => (test) => each(test, (tick) => test.inputs[a][tick] ^ test.inputs[b][tick] ^ test.inputs[c][tick]),
+  remainder: (params) => (test) => remainders(params, test),
+  crcCheck: (params) => (test) => remainders(params, test).map((value, tick) => test.inputs[params.finish][tick] ? value === 0 : null),
   identifier: () => (test) => {
     const out = test.bus.bits.map(() => null)
     for (const f of test.bus.frames) {

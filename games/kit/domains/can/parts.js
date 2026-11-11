@@ -13,6 +13,7 @@
 //   select   `yes` when `if` is yes or 1, `no` when it is no or 0; an open port reads 「—」
 //   compare  forms eq (are a and b equal) and lt (is a less than b)
 //   arith    forms inc (in + 1) and add (a + b)
+//   xor      bitwise exclusive or of two unsigned 32-bit numbers
 // Built parts are the boards of the levels that build them (course.js), each run as a packed part that keeps its own
 // registers.
 import { formed } from '../../engine/forms.js'
@@ -46,4 +47,5 @@ export const PARTS = {
     { key: 'inc', inputs: ['in'], eval: strict(({ in: x }) => num(x) + 1) },
     { key: 'add', inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => num(a) + num(b)) },
   ]),
+  xor: { inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => (num(a) ^ num(b)) >>> 0) },
 }
