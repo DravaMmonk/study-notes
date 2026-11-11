@@ -19,6 +19,8 @@ const PARTS = {
   add: item(t('加：a + b')),
   sub: item(t('减：a − b')),
   mul: item(t('乘：a × b')),
+  div: item(t('除：a ÷ b')),
+  min: item(t('取小：a 和 b 里小的那个')),
 }
 
 /* ---------- a level ---------- */
@@ -30,14 +32,16 @@ const SHOP = S.obj({
   open: S.num({ about: t('开张之前的价格：第一拍读到的「昨天的价格」') }),
   shifts: S.opt(S.list(S.obj({ at: S.int({ min: 0 }), top: S.num() }), { about: t('从第 at 拍起，价格为 0 时想买的人数换成 top') })),
 })
-const TEST = S.obj({
-  shops: S.list(SHOP, { min: 1, about: t('这条街上的店，一家一组牌') }),
-  ticks: S.int({ min: 1, about: t('开张多少拍') }),
-  earn: S.num({ about: t('到最后一拍为止，整条街要挣到多少') }),
+const ROW = S.obj({
+  in: S.map(S.num(), { about: t('这一行给板的数，一张输入牌一个') }),
+  out: S.map(S.num(), { about: t('板该给出的数，一张输出牌一个') }),
 })
-// What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
+const STREET = S.obj({
+  shops: S.list(SHOP, { min: 1, about: t('这条街上的店，一家一组牌') }),
+  ticks: S.int({ min: 1, about: t('开张多少拍；最后一拍每家店剩下的和没买到的都要不到 1') }),
+})
 const LEVEL = levelSchema({
-  test: TEST,
+  test: S.either(ROW, STREET),
   ports: { inputs: S.opt(S.list(PORT)), outputs: S.opt(S.list(PORT)) },
 })
 

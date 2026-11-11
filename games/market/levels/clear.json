@@ -1,0 +1,187 @@
+{
+  "title": {
+    "zh": "刚好卖完"
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "有一个价格，想买的人正好和进的货一样多：没有剩，也没人空手。这个价格叫<wiki-ref to=\"clearing\"></wiki-ref>。"
+      }
+    },
+    {
+      "t": {
+        "zh": "想买 = 进货，也就是「不要钱时想买」减「每涨一块少」乘价格，等于进货。把价格解出来。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "出清价格 =（不要钱时想买 − 进货）÷ 每涨一块少。算它要知道整条街的需求，而店主每天看得到的只有自己的货架。"
+  },
+  "adds": [
+    "const",
+    "div"
+  ],
+  "tasks": [
+    {
+      "id": "first",
+      "brief": {
+        "zh": "这条街不要钱时 60 人想买，每涨一块少 2 人；店里每天进 20 件。定一个价，让每天刚好卖完。"
+      },
+      "outputs": [
+        {
+          "name": "price",
+          "label": {
+            "zh": "价格"
+          },
+          "view": "dots"
+        }
+      ],
+      "tests": [
+        {
+          "shops": [
+            {
+              "stock": 20,
+              "top": 60,
+              "slope": 2,
+              "open": 10
+            }
+          ],
+          "ticks": 5
+        }
+      ],
+      "solution": [
+        "c = const[value=20]()",
+        "price <- c"
+      ]
+    },
+    {
+      "id": "second",
+      "brief": {
+        "zh": "换一条街：不要钱时 105 人想买，每涨一块少 3 人；每天进 15 件。"
+      },
+      "outputs": [
+        {
+          "name": "price",
+          "label": {
+            "zh": "价格"
+          },
+          "view": "dots"
+        }
+      ],
+      "tests": [
+        {
+          "shops": [
+            {
+              "stock": 15,
+              "top": 105,
+              "slope": 3,
+              "open": 10
+            }
+          ],
+          "ticks": 5
+        }
+      ],
+      "solution": [
+        "c = const[value=30]()",
+        "price <- c"
+      ]
+    },
+    {
+      "id": "clear",
+      "brief": {
+        "zh": "让板替你算：给它一条街的三个数，它给出出清价格。"
+      },
+      "inputs": [
+        {
+          "name": "top",
+          "label": {
+            "zh": "不要钱时想买"
+          }
+        },
+        {
+          "name": "slope",
+          "label": {
+            "zh": "每涨一块少"
+          }
+        },
+        {
+          "name": "stock",
+          "label": {
+            "zh": "进货"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "price",
+          "label": {
+            "zh": "价格"
+          }
+        }
+      ],
+      "tests": [
+        {
+          "in": {
+            "top": 60,
+            "slope": 2,
+            "stock": 20
+          },
+          "out": {
+            "price": 20
+          }
+        },
+        {
+          "in": {
+            "top": 105,
+            "slope": 3,
+            "stock": 15
+          },
+          "out": {
+            "price": 30
+          }
+        },
+        {
+          "in": {
+            "top": 40,
+            "slope": 4,
+            "stock": 12
+          },
+          "out": {
+            "price": 7
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "in": {
+            "top": 78,
+            "slope": 4,
+            "stock": 30
+          },
+          "out": {
+            "price": 12
+          }
+        },
+        {
+          "in": {
+            "top": 60,
+            "slope": 1,
+            "stock": 10
+          },
+          "out": {
+            "price": 50
+          }
+        }
+      ],
+      "solution": [
+        "d = sub(top, stock)",
+        "p = div(d, slope)",
+        "price <- p"
+      ],
+      "naive": [
+        "p = div(top, slope)",
+        "price <- p"
+      ]
+    }
+  ]
+}

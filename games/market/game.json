@@ -8,17 +8,21 @@
     "zh": "经济学"
   },
   "lede": {
-    "zh": "一家小店，每天进货，定一个价。先亲手试出合适的价格，再搭一台替你调价的机器，看它在行情变化的街上自己找到价格。"
+    "zh": "一家小店，每天进货，定一个价。先把一条街的买卖一块块搭出来，再搭一台只看自己货架就能找到价格的机器。"
   },
   "primitives": [
-    "const",
-    "add",
+    "mul",
     "sub",
-    "mul"
+    "min",
+    "const",
+    "div",
+    "add"
   ],
   "concept": {
-    "sub": "add",
-    "mul": "add"
+    "sub": "mul",
+    "div": "mul",
+    "add": "mul",
+    "min": "mul"
   },
   "eras": [
     {
@@ -30,9 +34,11 @@
         "zh": "价格定在哪里最合适，谁说了算？"
       },
       "foundation": [
-        "stall",
-        "follow",
-        "shift"
+        "want",
+        "trade",
+        "clear",
+        "adjust",
+        "street"
       ]
     }
   ],

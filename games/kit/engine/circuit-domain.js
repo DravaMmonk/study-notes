@@ -565,7 +565,7 @@ export const runTests = (runTest) => (task, board, parts) => {
  */
 export function checkCircuitTasks(circuit, { run, entries, failure = () => '', more = () => [], kinds = {} }) {
   const { LEVELS, course, board } = circuit
-  const noted = (ref) => (board.ticks ? `, ${ref.runs.reduce((n, r) => n + r.ticks.length, 0)} ticks` : '')
+  const noted = (ref) => (board.ticks ? `, ${ref.runs.reduce((n, r) => n + (r.ticks?.length ?? 1), 0)} ticks` : '')
   const built = new Set(LEVELS.filter((L) => L.builds).map((L) => L.builds.type))
   const out = [...circuit.wrong, ...viewsProblems(circuit.views)].map((text) => ({ text, fail: true }))
   // The values a level's introduction pages and pass text show, its own and its tasks'.

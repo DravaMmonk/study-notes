@@ -27,14 +27,24 @@ const content = readContent('starter', resolve(import.meta.dirname))
 const circuit = domain.spec(content).circuit
 const task = (level) => circuit.played.get(level)[0]
 
-test('a board reads what its price did only the tick after, and a test passes on what the street has earned', () => {
-  const follow = task('follow')
-  const [run] = runLevel({ ...follow, tests: [{ shops: [SHOP], ticks: 12, earn: 4000 }] }, follow.solution, circuit.forTask(follow).partOf).runs
+test('a row passes when every output is the number asked for, and says which is not', () => {
+  const adjust = task('adjust')
+  const on = (tests) => runLevel({ ...adjust, tests }, adjust.solution, circuit.forTask(adjust).partOf).runs[0]
+  assert.equal(on([{ in: { was: 10, left: 0, short: 20 }, out: { price: 15 } }]).fail, undefined)
+  const wrong = on([{ in: { was: 10, left: 0, short: 20 }, out: { price: 16 } }])
+  assert.deepEqual(wrong.fail, { name: 'price', want: 16, got: 15 })
+  assert.match(wrong.said.zh, /应当是 16/)
+})
+
+test('a board reads what its price did only the tick after, and a street passes when every shop has cleared on its last tick', () => {
+  const street = task('street')
+  const on = (ticks) => runLevel({ ...street, tests: [{ shops: [SHOP], ticks }] }, street.solution, circuit.forTask(street).partOf).runs[0]
+  const run = on(20)
   assert.deepEqual(run.ticks[0].read, { was: 10, left: 0, short: 0 }, 'nothing has happened before the first tick')
   assert.deepEqual(run.ticks[1].read, { was: run.ticks[0].trades[0].price, left: run.ticks[0].trades[0].left, short: run.ticks[0].trades[0].short })
-  assert.equal(run.ticks.at(-1).trades[0].price, 20, 'the rule settles where the stock just sells')
+  assert.ok(Math.abs(run.ticks.at(-1).trades[0].price - 20) < 0.001, 'the rule settles where the stock just sells')
   assert.equal(run.fail, undefined)
-  const [poor] = runLevel({ ...follow, tests: [{ shops: [SHOP], ticks: 12, earn: 99999 }] }, follow.solution, circuit.forTask(follow).partOf).runs
-  assert.deepEqual([poor.fail.name, poor.fail.want], ['earned', 99999])
-  assert.match(poor.said.zh, /要挣到/)
+  const early = on(2)
+  assert.equal(early.fail.name, 'price')
+  assert.match(early.said.zh, /都要不到 1/)
 })

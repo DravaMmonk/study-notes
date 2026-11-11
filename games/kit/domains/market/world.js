@@ -9,7 +9,7 @@
 /** How many would buy at `price` at tick `tick`. */
 export function demand(shop, tick, price) {
   const top = (shop.shifts ?? []).filter((s) => s.at <= tick).at(-1)?.top ?? shop.top
-  return Math.max(0, Math.round(top - shop.slope * price))
+  return Math.max(0, top - shop.slope * price)
 }
 
 /** One tick of a shop at `price`; no price (「—」, or none above 0) keeps it shut: nothing sold, nobody turned away. */

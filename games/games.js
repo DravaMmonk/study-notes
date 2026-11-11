@@ -96,7 +96,7 @@ export const GAMES = [
       zh: '一家小店，每天进货，定一个价。先亲手试出合适的价格，再搭一台替你调价的机器，看它在行情变化的街上自己找到价格。',
       en: 'A small shop takes in stock every day and sets a price. Find the right price by hand, then build the machine that finds it for you, and watch it follow a street whose trade keeps changing.',
     },
-    levels: 3, dev: true,
+    levels: 5, dev: true,
     page: { icon: 'M16 44V24l16-8 16 8v20M26 44V32h12v12', description: '看不见的手 The Invisible Hand：先手做，再搭出替你做的机器。Price a shop by hand, then build the machine that does it.' },
   },
 ];

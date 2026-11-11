@@ -9,6 +9,8 @@
 //   add      a + b
 //   sub      a − b
 //   mul      a × b
+//   div      a ÷ b (「—」 when b is 0)
+//   min      the smaller of a and b
 // A board keeps nothing from tick to tick: the street hands it yesterday's price (world.js).
 // Built parts are the boards of the levels that build them (course.js).
 const strict = (f) => (ins, node) => (Object.values(ins).some((v) => v === null || v === undefined) ? null : f(ins, node))
@@ -19,4 +21,6 @@ export const PARTS = {
   add: { inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => a + b) },
   sub: { inputs: ['a', 'b'], eval: strict(({ a, b }) => a - b) },
   mul: { inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => a * b) },
+  div: { inputs: ['a', 'b'], eval: strict(({ a, b }) => (b === 0 ? null : a / b)) },
+  min: { inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => Math.min(a, b)) },
 }

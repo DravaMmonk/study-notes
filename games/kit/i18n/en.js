@@ -1731,4 +1731,13 @@ export default {
   "；": "; ",
   "？？？": "???",
   '开张之前的价格：第一拍读到的「昨天的价格」': 'The price before it opened: “yesterday’s price” as read on the first tick',
+  "取小": "Smaller",
+  "给出 a 和 b 里小的那个。": "Gives the smaller of a and b.",
+  "除": "Divide",
+  "给出 a ÷ b；b 为 0 时给出「—」。": "Gives a ÷ b; “—” when b is 0.",
+  "除：a ÷ b": "Divide: a ÷ b",
+  "取小：a 和 b 里小的那个": "Smaller: the smaller of a and b",
+  "这一行给板的数，一张输入牌一个": "The numbers this row gives the board, one for each input card",
+  "板该给出的数，一张输出牌一个": "The numbers the board should give, one for each output card",
+  "开张多少拍；最后一拍每家店剩下的和没买到的都要不到 1": "How many ticks it is open; on the last, every shop has to have less than 1 left and turn fewer than 1 away",
 }

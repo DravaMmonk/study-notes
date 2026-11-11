@@ -114,3 +114,11 @@ export function withSettings(circuit, params = {}, parts) {
     return own.length ? { ...n, params: { ...n.params, ...Object.fromEntries(own.map((k) => [k, params[k]])) } } : n
   }) }
 }
+
+/** A board run once on `bind`, with what every card computed kept as the steps of the run: { values, errors, outputs,
+ * trace }. */
+export function runTraced(circuit, parts, bind) {
+  const trace = []
+  const { values, errors, outputs } = runBoard(circuit, { parts, bind, ctx: { trace } })
+  return { values, errors, outputs, trace }
+}
