@@ -737,6 +737,15 @@ const WANTS = {
   ecuDynamicFlashRequests: () => (test) => { const requests = dynamicFlashPlan(test); return test.bus.bits.map((_, tick) => requests[tick] ?? null) },
   ecuDynamicFlashDone: () => (test) => { const count = dynamicFlashPlan(test).length; return test.bus.bits.map((_, tick) => tick === count ? true : null) },
   transportFrames: () => (test) => { const plan = transportPlan(test.transport); return test.bus.bits.map((_, tick) => plan.get(tick) ?? null) },
+  transportGapReady: ({ set, separation, sent }) => (test) => {
+    let delay = 0, interval = 0
+    return test.bus.bits.map((_, tick) => {
+      const ready = delay === 0
+      if (test.inputs[set][tick]) interval = test.inputs[separation][tick]
+      delay = test.inputs[sent][tick] ? Math.max(0, interval - 1) : Math.max(0, delay - 1)
+      return ready
+    })
+  },
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

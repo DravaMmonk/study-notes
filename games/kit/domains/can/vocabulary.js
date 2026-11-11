@@ -85,6 +85,7 @@ const WANTS = {
   ecuDynamicFlashRequests: item(t('按块上限刷写测试软件', 'program the test image using the negotiated block limit')),
   ecuDynamicFlashDone: item(t('动态刷写后控制器确认重启时为是', 'yes when the controller acknowledges restart after dynamic programming')),
   transportFrames: item(t('按流控和间隔发送消息的帧', 'frames sent according to flow control and separation')),
+  transportGapReady: item(t('按流控间隔等待后续帧的发送时机', 'wait for the consecutive-frame separation before allowing the next send'), S.obj({ set: INPUT, separation: INPUT, sent: INPUT })),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -330,7 +331,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 91,
+  version: 92,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

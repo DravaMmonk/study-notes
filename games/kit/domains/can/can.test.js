@@ -1301,3 +1301,9 @@ test('a board exchanges frames and flow control with a reactive transport receiv
   assert.equal(result.pass, true)
   assert.deepEqual(result.runs[0].ticks[1].bind.flow, [0x30, 0, 0])
 })
+
+test('transport gap honors zero and multi-tick separations', () => {
+  const want = wantOf({ ready: { transportGapReady: { set: 'set', separation: 'sep', sent: 'sent' } } })
+  const result = want({ bus: { bits: Array(7).fill(1) }, inputs: { set: [1, 0, 0, 0, 1, 0, 0], sep: [3, 3, 3, 3, 0, 0, 0], sent: [1, 0, 0, 0, 1, 1, 0] } })
+  assert.deepEqual(result.ready, [true, false, false, true, true, true, true])
+})
