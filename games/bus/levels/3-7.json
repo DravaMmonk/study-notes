@@ -1,0 +1,43 @@
+{
+  "title": { "zh": "只留下车速帧" },
+  "intro": [{ "t": { "zh": "数据记录仪接在同一条总线上，会同时收到车速和其他控制器的帧。车速帧的标识符是 0x100；其他帧的第一个字节不是车速。" } }],
+  "after": { "zh": "先按标识符区分帧，再解读其中的字节，才能避免把另一种信号当成车速。" },
+  "tasks": [
+    {
+      "id": "3-7",
+      "brief": { "zh": "标识符为 0x100 时交出第一个数据字节；其他帧交出「—」。" },
+      "hint": [{ "zh": "比较标识符是否等于 256；用选择元件在不相符时留下空口。" }],
+      "inputs": [{ "name": "id", "label": { "zh": "帧标识符" } }, { "name": "raw", "label": { "zh": "第一个数据字节" } }],
+      "frameInputs": { "id": "id", "raw": "byte0" },
+      "outputs": [{ "name": "value", "label": { "zh": "车速原始值" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "n0", "at": 10, "id": "0x100", "data": [0] },
+            { "node": "n1", "at": 120, "id": "0x200", "data": [77] },
+            { "node": "n2", "at": 230, "id": "0x100", "data": [80] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "n0", "at": 10, "id": "0x101", "data": [80] },
+            { "node": "n1", "at": 120, "id": "0x100", "data": [255] },
+            { "node": "n2", "at": 230, "id": "0x300", "data": [0] }
+          ]
+        }
+      ],
+      "want": { "value": { "matchingFrameSignal": { "input": "raw", "identifier": "id", "match": 256 } } },
+      "solution": [
+        "target = const[value=256]()",
+        "match = compare[form=eq](id, target)",
+        "selected = select(match, raw)",
+        "value <- selected"
+      ],
+      "naive": ["value <- raw"]
+    }
+  ]
+}

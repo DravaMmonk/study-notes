@@ -1,0 +1,62 @@
+{
+  "title": { "zh": "双字节：低字节在前" },
+  "intro": [{ "t": { "zh": "一个量可能跨两个字节。试车记录显示 [52, 18] 表示 4660，[1, 2] 表示 513；这次低字节先到。" } }],
+  "after": { "zh": "先确定每个字节的权重，再把它们相加；字节顺序不同，读取方法也不同。" },
+  "tasks": [
+    {
+      "id": "3-2",
+      "brief": { "zh": "按低字节在前的顺序，合成每帧中的双字节信号。" },
+      "hint": [{ "zh": "高字节的权重是 256。可以连续八次把它加倍，再加上低字节。" }],
+      "inputs": [
+        { "name": "first", "label": { "zh": "第一个数据字节" } },
+        { "name": "second", "label": { "zh": "第二个数据字节" } }
+      ],
+      "frameInputs": { "first": "byte0", "second": "byte1" },
+      "outputs": [{ "name": "value", "label": { "zh": "信号值" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x101", "data": [52, 18] },
+            { "node": "sensor", "at": 120, "id": "0x101", "data": [1, 2] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x101", "data": [255, 0] },
+            { "node": "sensor", "at": 120, "id": "0x101", "data": [0, 255] },
+            { "node": "sensor", "at": 230, "id": "0x101", "data": [165, 90] }
+          ]
+        }
+      ],
+      "want": { "value": { "wordSignal": { "low": "first", "high": "second" } } },
+      "solution": [
+        "d0 = arith[form=add](second, second)",
+        "d1 = arith[form=add](d0, d0)",
+        "d2 = arith[form=add](d1, d1)",
+        "d3 = arith[form=add](d2, d2)",
+        "d4 = arith[form=add](d3, d3)",
+        "d5 = arith[form=add](d4, d4)",
+        "d6 = arith[form=add](d5, d5)",
+        "d7 = arith[form=add](d6, d6)",
+        "sum = arith[form=add](first, d7)",
+        "value <- sum"
+      ],
+      "naive": [
+        "d0 = arith[form=add](first, first)",
+        "d1 = arith[form=add](d0, d0)",
+        "d2 = arith[form=add](d1, d1)",
+        "d3 = arith[form=add](d2, d2)",
+        "d4 = arith[form=add](d3, d3)",
+        "d5 = arith[form=add](d4, d4)",
+        "d6 = arith[form=add](d5, d5)",
+        "d7 = arith[form=add](d6, d6)",
+        "sum = arith[form=add](second, d7)",
+        "value <- sum"
+      ]
+    }
+  ]
+}

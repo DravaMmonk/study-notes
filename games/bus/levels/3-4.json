@@ -1,0 +1,39 @@
+{
+  "title": { "zh": "温度有偏移" },
+  "intro": [{ "t": { "zh": "温度也藏在一个字节里：记录中原始值 20、40、65 对应 −20、0、25 °C。零下温度依然由非负字节表示。" } }],
+  "after": { "zh": "原始值经过比例和偏移才能变成物理量；偏移让非负字节也能表示零下温度。" },
+  "tasks": [
+    {
+      "id": "3-4",
+      "brief": { "zh": "读取第一个字节，交出对应温度（°C）。" },
+      "hint": [{ "zh": "先找出原始值为 40 时温度为何是零，再用相减元件。" }],
+      "inputs": [{ "name": "raw", "label": { "zh": "第一个数据字节" } }],
+      "frameInputs": { "raw": "byte0" },
+      "outputs": [{ "name": "temperature", "label": { "zh": "温度（°C）" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x101", "data": [20] },
+            { "node": "sensor", "at": 120, "id": "0x101", "data": [40] },
+            { "node": "sensor", "at": 230, "id": "0x101", "data": [65] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x101", "data": [0] },
+            { "node": "sensor", "at": 120, "id": "0x101", "data": [39] },
+            { "node": "sensor", "at": 230, "id": "0x101", "data": [120] },
+            { "node": "sensor", "at": 340, "id": "0x101", "data": [255] }
+          ]
+        }
+      ],
+      "want": { "temperature": { "affineSignal": { "input": "raw", "scale": 1, "offset": -40 } } },
+      "solution": ["offset = const[value=40]()", "t = subtract(raw, offset)", "temperature <- t"],
+      "naive": ["temperature <- raw"]
+    }
+  ]
+}

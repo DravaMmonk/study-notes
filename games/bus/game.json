@@ -1,13 +1,13 @@
 {
   "domain": "can",
-  "vocabulary": 65,
+  "vocabulary": 71,
   "title": { "zh": "车在说话" },
   "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
   "lede": {
     "zh": "车上的几十个控制器共用一根线说话。从\"每一拍线上有一位\"开始，亲手搭出听懂它们的探针，再一步步长成能读故障码、能刷写软件的诊断仪。"
   },
-  "primitives": ["reg", "keep", "compare", "arith", "select", "const", "xor", "subtract"],
+  "primitives": ["reg", "keep", "compare", "arith", "select", "const", "xor", "subtract", "band", "shiftRight"],
   "trays": {
     "main": [
       "reg",
@@ -39,7 +39,9 @@
       "receiverstate",
       "unifiedreceiver",
       "waitrecv",
-      "controller"
+      "controller",
+      "band",
+      "shiftRight"
     ]
   },
   "concept": { "keep": "reg" },
@@ -131,6 +133,11 @@
         "2-49"
       ]
     },
-    { "id": 3, "title": { "zh": "数据记录仪" }, "question": { "zh": "一帧里的字节表示什么？" }, "foundation": ["3-1"] }
+    {
+      "id": 3,
+      "title": { "zh": "数据记录仪" },
+      "question": { "zh": "一帧里的字节表示什么？" },
+      "foundation": ["3-1", "3-2", "3-3", "3-4", "3-5", "3-6A", "3-6", "3-7", "3-8", "3-9", "3-10"]
+    }
   ]
 }

@@ -1,0 +1,48 @@
+{
+  "title": { "zh": "从一个字节里找挡位" },
+  "intro": [{ "t": { "zh": "一个字节可以同时装几个量。挡位占从最低位数起第 2、3、4 位，共三位；其余位属于别的信号。" } }],
+  "after": { "zh": "右移把字段对齐到最低位，掩码留下需要的位；其他信号的位不会混进挡位。" },
+  "tasks": [
+    {
+      "id": "3-6",
+      "brief": { "zh": "取出每帧第一个字节中的三位挡位，交出 0 到 7。" },
+      "hint": [{ "zh": "先右移两位，再用二进制 111（十进制 7）按位与，屏蔽周围的位。" }],
+      "inputs": [{ "name": "raw", "label": { "zh": "第一个数据字节" } }],
+      "frameInputs": { "raw": "byte0" },
+      "outputs": [{ "name": "gear", "label": { "zh": "挡位" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x101", "data": [12] },
+            { "node": "sensor", "at": 120, "id": "0x101", "data": [236] },
+            { "node": "sensor", "at": 230, "id": "0x101", "data": [28] },
+            { "node": "sensor", "at": 340, "id": "0x101", "data": [252] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x101", "data": [0] },
+            { "node": "sensor", "at": 120, "id": "0x101", "data": [255] },
+            { "node": "sensor", "at": 230, "id": "0x101", "data": [164] },
+            { "node": "sensor", "at": 340, "id": "0x101", "data": [33] }
+          ]
+        }
+      ],
+      "want": { "gear": { "bitFieldSignal": { "input": "raw", "offset": 2, "width": 3 } } },
+      "solution": [
+        "two = const[value=2]()",
+        "shifted = shiftRight(raw, two)",
+        "mask = const[value=7]()",
+        "field = band(shifted, mask)",
+        "gear <- field"
+      ],
+      "naive": ["two = const[value=2]()", "shifted = shiftRight(raw, two)", "gear <- shifted"]
+    }
+  ],
+  "adds": ["band"],
+  "showcase": { "zh": "用按位与留下需要的位。" }
+}

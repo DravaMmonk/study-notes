@@ -1,0 +1,40 @@
+{
+  "title": { "zh": "把位向右移动" },
+  "intro": [{ "t": { "zh": "先看一个字节的低两位以外的内容。右移两位会把最低两位移走，其余位向低位移动。" } }],
+  "after": { "zh": "右移两位相当于丢掉最低的两位，为提取字段做准备。" },
+  "adds": ["shiftRight"],
+  "showcase": { "zh": "右移让字节中的高位向低位移动。" },
+  "tasks": [
+    {
+      "id": "3-6A",
+      "brief": { "zh": "将每帧的第一个数据字节向右移动两位，交出结果。" },
+      "hint": [{ "zh": "把字节接入右移元件，并把移动位数设为 2。" }],
+      "inputs": [{ "name": "raw", "label": { "zh": "第一个数据字节" } }],
+      "frameInputs": { "raw": "byte0" },
+      "outputs": [{ "name": "value", "label": { "zh": "移动后的值" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x101", "data": [4] },
+            { "node": "sensor", "at": 120, "id": "0x101", "data": [12] },
+            { "node": "sensor", "at": 230, "id": "0x101", "data": [255] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x101", "data": [0] },
+            { "node": "sensor", "at": 120, "id": "0x101", "data": [3] },
+            { "node": "sensor", "at": 230, "id": "0x101", "data": [128] }
+          ]
+        }
+      ],
+      "want": { "value": { "bitFieldSignal": { "input": "raw", "offset": 2, "width": 6 } } },
+      "solution": ["two = const[value=2]()", "shifted = shiftRight(raw, two)", "value <- shifted"],
+      "naive": ["value <- raw"]
+    }
+  ]
+}

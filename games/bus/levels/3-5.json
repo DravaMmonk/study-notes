@@ -1,0 +1,47 @@
+{
+  "title": { "zh": "一个字节也能有负号" },
+  "intro": [{ "t": { "zh": "另一种信号直接用八位补码：0 到 127 表示自身，128 到 255 表示减去 256 后的数。例如 255 表示 −1，128 表示 −128。" } }],
+  "after": { "zh": "八位补码的最高位为 1 时，把无符号值减去 256，就得到对应的负数。" },
+  "tasks": [
+    {
+      "id": "3-5",
+      "brief": { "zh": "把每帧的第一个数据字节按八位补码转成有符号整数。" },
+      "hint": [{ "zh": "先判断字节是否小于 128，再选择原值或减去 256 的结果。" }],
+      "inputs": [{ "name": "raw", "label": { "zh": "第一个数据字节" } }],
+      "frameInputs": { "raw": "byte0" },
+      "outputs": [{ "name": "value", "label": { "zh": "信号值" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x101", "data": [0] },
+            { "node": "sensor", "at": 120, "id": "0x101", "data": [127] },
+            { "node": "sensor", "at": 230, "id": "0x101", "data": [128] },
+            { "node": "sensor", "at": 340, "id": "0x101", "data": [255] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x101", "data": [1] },
+            { "node": "sensor", "at": 120, "id": "0x101", "data": [129] },
+            { "node": "sensor", "at": 230, "id": "0x101", "data": [200] },
+            { "node": "sensor", "at": 340, "id": "0x101", "data": [254] }
+          ]
+        }
+      ],
+      "want": { "value": { "signedByteSignal": { "input": "raw" } } },
+      "solution": [
+        "limit = const[value=128]()",
+        "inside = compare[form=lt](raw, limit)",
+        "full = const[value=256]()",
+        "negative = subtract(raw, full)",
+        "signed = select(inside, raw, negative)",
+        "value <- signed"
+      ],
+      "naive": ["value <- raw"]
+    }
+  ]
+}

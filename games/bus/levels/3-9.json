@@ -1,0 +1,44 @@
+{
+  "title": { "zh": "测量帧的间隔" },
+  "intro": [{ "t": { "zh": "记录仪不只看内容，也要知道帧什么时候到。这里时间以位级总线的拍数计，从一帧开始到下一帧开始。" } }],
+  "after": { "zh": "记下上一帧的时间，就能测量到达间隔；同一时刻竞争的帧会先经过仲裁，所以使用实际开始时间。" },
+  "tasks": [
+    {
+      "id": "3-9",
+      "brief": { "zh": "每帧交出与上一帧开始时间的差；第一帧没有上一帧，交出「—」。" },
+      "hint": [{ "zh": "用寄存卡保存这帧的开始时间，下一帧用当前时间减去保存的时间。" }],
+      "inputs": [{ "name": "time", "label": { "zh": "帧开始时间（位拍）" } }],
+      "frameInputs": { "time": "time" },
+      "outputs": [{ "name": "elapsed", "label": { "zh": "间隔（位拍）" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "n0", "at": 12, "id": "0x120", "data": [0] },
+            { "node": "n1", "at": 120, "id": "0x120", "data": [1] },
+            { "node": "n2", "at": 121, "id": "0x120", "data": [2] },
+            { "node": "n3", "at": 350, "id": "0x120", "data": [3] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "n0", "at": 0, "id": "0x120", "data": [0] },
+            { "node": "n1", "at": 60, "id": "0x120", "data": [1] },
+            { "node": "n2", "at": 250, "id": "0x120", "data": [2] }
+          ]
+        }
+      ],
+      "want": { "elapsed": { "elapsedFrameSignal": { "time": "time" } } },
+      "solution": [
+        "previous = reg[reg=A]()",
+        "save = keep[reg=A](time)",
+        "difference = subtract(time, previous)",
+        "elapsed <- difference"
+      ],
+      "naive": ["elapsed <- time"]
+    }
+  ]
+}

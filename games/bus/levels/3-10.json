@@ -1,0 +1,64 @@
+{
+  "title": { "zh": "滚动计数器绕回" },
+  "intro": [{ "t": { "zh": "一些报文带四位滚动计数器：每帧加一，15 之后回到 0。它可以帮助发现漏帧；第一次收到时还没有上一帧可比较。" } }],
+  "after": { "zh": "四位计数器按 16 绕回；15 后面的 0 是正常的，跳过一个值才提示序列不连续。" },
+  "tasks": [
+    {
+      "id": "3-10",
+      "brief": { "zh": "第一个数据字节只含 0 到 15 的计数值。第一帧标为有效；之后若比上一帧加一并按 16 绕回，标为有效，否则标为无效。每帧都更新上一次的值。" },
+      "hint": [{ "zh": "用寄存卡记住上一值；加一后按位与 15，15 的下一值就会变成 0。用初值 −1 识别第一帧。" }],
+      "inputs": [{ "name": "count", "label": { "zh": "计数值" } }],
+      "frameInputs": { "count": "byte0" },
+      "outputs": [{ "name": "valid", "label": { "zh": "序列有效" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x121", "data": [14] },
+            { "node": "sensor", "at": 120, "id": "0x121", "data": [15] },
+            { "node": "sensor", "at": 230, "id": "0x121", "data": [0] },
+            { "node": "sensor", "at": 340, "id": "0x121", "data": [1] },
+            { "node": "sensor", "at": 450, "id": "0x121", "data": [3] },
+            { "node": "sensor", "at": 560, "id": "0x121", "data": [4] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "sensor", "at": 10, "id": "0x121", "data": [6] },
+            { "node": "sensor", "at": 120, "id": "0x121", "data": [7] },
+            { "node": "sensor", "at": 230, "id": "0x121", "data": [9] },
+            { "node": "sensor", "at": 340, "id": "0x121", "data": [10] },
+            { "node": "sensor", "at": 450, "id": "0x121", "data": [15] },
+            { "node": "sensor", "at": 560, "id": "0x121", "data": [0] }
+          ]
+        }
+      ],
+      "want": { "valid": { "rollingCounterSignal": { "input": "count" } } },
+      "solution": [
+        "old = reg[reg=A, start=-1]()",
+        "save = keep[reg=A](count)",
+        "initial = const[value=-1]()",
+        "first = compare[form=eq](old, initial)",
+        "increment = arith[form=inc](old)",
+        "mask = const[value=15]()",
+        "expected = band(increment, mask)",
+        "correct = compare[form=eq](count, expected)",
+        "result = select(first, first, correct)",
+        "valid <- result"
+      ],
+      "naive": [
+        "old = reg[reg=A, start=-1]()",
+        "save = keep[reg=A](count)",
+        "initial = const[value=-1]()",
+        "first = compare[form=eq](old, initial)",
+        "increment = arith[form=inc](old)",
+        "correct = compare[form=eq](count, increment)",
+        "result = select(first, first, correct)",
+        "valid <- result"
+      ]
+    }
+  ]
+}
