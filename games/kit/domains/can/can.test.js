@@ -279,6 +279,18 @@ test('a board drives the wired-AND bus and cannot say what it hears in the same 
   assert.ok(runTest(task, loop, test, plain.partOf).error)
 })
 
+test('a queue advances only after the board asks, and must be consumed', () => {
+  const task = { inputs: [{ name: 'item', label: L('item') }, { name: 'available', label: L('available') }, { name: 'go', label: L('go') }], outputs: [{ name: 'next', label: L('next') }, { name: 'seen', label: L('seen') }], pulls: { input: 'item', available: 'available', next: 'next' }, want: () => ({ seen: [10, 10, 20, 20, null] }) }
+  const test = { bus: { bits: [1, 1, 1, 1, 1], frames: [] }, inputs: { go: [0, 1, 0, 1, 0] }, queue: [10, 20] }
+  const take = fromText(['next <- go', 'seen <- item'], task, plain)
+  const run = runTest(task, take, test, plain.partOf)
+  assert.equal(run.fail, undefined)
+  assert.deepEqual(run.ticks.map((tick) => tick.bind.item), [10, 10, 20, 20, null])
+  assert.deepEqual(run.ticks.map((tick) => tick.bind.available), [1, 1, 1, 1, 0])
+  const stuck = fromText(['z = const[value=0]()', 'next <- z', 'seen <- item'], task, plain)
+  assert.ok(runTest({ ...task, want: () => ({}) }, stuck, test, plain.partOf).fail)
+})
+
 test('serialising latches the byte and a new start replaces an unfinished one', () => {
   const value = [0xa5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xff, 0, 0x80, 0, 0, 0, 0, 0, 0, 0]
   const start = value.map((_, tick) => [0, 10, 12].includes(tick) ? 1 : 0)

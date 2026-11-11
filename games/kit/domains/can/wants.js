@@ -121,6 +121,11 @@ const WANTS = {
   fieldBusy: (params) => (test) => serialField(params, test).map((step) => step.busy),
   fieldDone: (params) => (test) => serialField(params, test).map((step) => step.done),
   fieldDrive: (params) => (test) => serialField(params, test).map((step, tick) => test.inputs[params.advance][tick] ? step.bit ?? 1 : 1),
+  queueSerialDrive: () => (test) => {
+    const bits = test.queue.flatMap((value) => bitsOf(value, 8))
+    return each(test, (tick) => bits[tick] ?? 1)
+  },
+  queueSerialNext: () => (test) => each(test, (tick) => tick < test.queue.length * 8 && tick % 8 === 7),
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),

@@ -1,0 +1,52 @@
+{
+  "title": { "zh": "接连送字节" },
+  "intro": [{ "t": { "zh": "完整帧的数据可能有多个字节。发送器先看到队首字节，交出「取走」后，来源才在下一拍提供下一个；队列空时不能再启动发送。" } }],
+  "after": { "zh": "来源按握手逐个提供字节；这让帧的数据部分不必预先把所有字节都放进寄存卡。" },
+  "tasks": [
+    {
+      "id": "2-10",
+      "brief": { "zh": "按队列顺序把每个字节逐位说到总线，最高位先，字节之间不加空拍；队列空后说隐性 1。完成一个字节的最后一位时让「取走」为是。" },
+      "hint": [{ "zh": "「有字节」为 1 且发送器不在处理字节时，启动逐位发送器。" }, { "zh": "完成那一拍取走队首；下一拍才会出现下一个字节。" }],
+      "drives": true,
+      "inputs": [
+        { "name": "item", "label": { "zh": "队首" } },
+        { "name": "available", "label": { "zh": "有字节" } }
+      ],
+      "outputs": [{ "name": "next", "label": { "zh": "取走" } }],
+      "pulls": { "input": "item", "available": "available", "next": "next" },
+      "tests": [
+        { "bus": { "idle": 20, "frames": [], "tail": 0 }, "queue": [165, 60] },
+        { "bus": { "idle": 28, "frames": [], "tail": 0 }, "queue": [0, 255, 1] },
+        { "bus": { "idle": 4, "frames": [], "tail": 0 }, "queue": [] }
+      ],
+      "hidden": [{ "bus": { "idle": 36, "frames": [], "tail": 0 }, "queue": [255, 0, 128, 85] }],
+      "want": { "send": "queueSerialDrive", "next": "queueSerialNext" },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "idle = select(r, zero, one)",
+        "start = select(available, idle, zero)",
+        "p = serializer(item, start, one)",
+        "running = select(p.done, zero, p.busyout)",
+        "k = keep[reg=A](running)",
+        "s = select(p.busyout, p.bit, one)",
+        "send <- s",
+        "next <- p.done"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "r = reg[reg=A, start=0]()",
+        "idle = select(r, zero, one)",
+        "start = select(available, idle, zero)",
+        "p = serializer(item, start, one)",
+        "running = select(p.done, zero, p.busyout)",
+        "k = keep[reg=A](running)",
+        "s = select(p.busyout, p.bit, one)",
+        "send <- s",
+        "next <- start"
+      ]
+    }
+  ]
+}

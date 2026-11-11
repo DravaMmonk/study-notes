@@ -22,14 +22,22 @@ const num = (v) => (typeof v === 'string' ? parseInt(v, 16) : v)
 const testOf = (t) => {
   const bus = busOf({ ...t.bus, frames: t.bus.frames.map((f) => ({ ...f, id: num(f.id), data: (f.data ?? []).map(num) })) })
   const inputs = { ...(t.inputs ?? {}), ...Object.fromEntries((t.lineInputs ?? []).map((name) => [name, bus.bits])) }
-  return { ...t, bus, inputs, ticks: bus.bits.length }
+  return { ...t, bus, inputs, queue: (t.queue ?? []).map(num), ticks: bus.bits.length }
 }
 
 export function canCourse(content) {
   // A test read: what reading it finds that its schema cannot say, then its bus.
   const test = (t, task, say) => {
     for (const f of t.bus.frames) if ((f.data ?? []).length > 8) say('a frame carries at most 8 bytes')
-    for (const i of task.inputs ?? []) if (!t.inputs?.[i.name] && !t.lineInputs?.includes(i.name)) say(`a test gives nothing on the input ${i.name}`)
+    if (task.pulls) {
+      if (!task.inputs?.some((input) => input.name === task.pulls.input)) say(`queue input ${task.pulls.input} is not a task input`)
+      if (!task.inputs?.some((input) => input.name === task.pulls.available)) say(`queue availability ${task.pulls.available} is not a task input`)
+      if (task.pulls.input === task.pulls.available) say('queue value and availability must be different inputs')
+      if (!task.outputs?.some((output) => output.name === task.pulls.next)) say(`queue advance ${task.pulls.next} is not a task output`)
+      if (!t.queue) say('a test gives the board no queue to pull from')
+      for (const name of [task.pulls.input, task.pulls.available]) if (t.inputs?.[name] || t.lineInputs?.includes(name)) say(`queue input ${name} cannot also have another source`)
+    }
+    for (const i of task.inputs ?? []) if (![task.pulls?.input, task.pulls?.available].includes(i.name) && !t.inputs?.[i.name] && !t.lineInputs?.includes(i.name)) say(`a test gives nothing on the input ${i.name}`)
     for (const name of t.lineInputs ?? []) {
       if (task.drives) say('line inputs cannot bind a prerecorded bus while this board drives it')
       if (!task.inputs?.some((input) => input.name === name)) say(`line input ${name} is not a task input`)
@@ -38,5 +46,5 @@ export function canCourse(content) {
     return testOf(t)
   }
   // A task's wants read; a built part keeps its own registers.
-  return circuitCourse(content, { board, parts: PARTS, read: (task) => ({ ...task, want: wantOf(task.want) }), test, holds: true })
+  return circuitCourse(content, { board, parts: PARTS, read: (task) => ({ ...task, want: wantOf(task.want) }), test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }

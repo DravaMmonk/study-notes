@@ -269,5 +269,13 @@
   "试送不同字段": "Try different field widths",
   "用不同宽度的字段发送器试一试暂停：测试台没有取走这一位时，发送器要保住它，线路暂时说隐性。": "Try pausing the field sender at different widths: when the test bench does not accept a bit, hold it and let the line say recessive temporarily.",
   "开始时取入数和位数；「前进」为 1 且字段仍有位时，说出当前位并取走它。其余拍说 1；最后一位被取走时「完成」为是。": "At Start, load Number and Width. When Advance is 1 and bits remain, send and accept the current bit. Say 1 on other ticks; Done is yes when the final bit is accepted.",
-  "无论字段有几位，是否前进都由下游决定。下一步要把不同字段依次拼成一帧。": "Whatever the field width, the downstream decides whether to advance. Next, fields must be assembled into a frame."
+  "无论字段有几位，是否前进都由下游决定。下一步要把不同字段依次拼成一帧。": "Whatever the field width, the downstream decides whether to advance. Next, fields must be assembled into a frame.",
+  "接连送字节": "Send consecutive bytes",
+  "完整帧的数据可能有多个字节。发送器先看到队首字节，交出「取走」后，来源才在下一拍提供下一个；队列空时不能再启动发送。": "A complete frame may carry several data bytes. The sender sees the queue head first; after it signals Accepted, the source presents the next byte on the following tick. An empty queue must not start a new transmission.",
+  "按队列顺序把每个字节逐位说到总线，最高位先，字节之间不加空拍；队列空后说隐性 1。完成一个字节的最后一位时让「取走」为是。": "Send the queued bytes in order, one bit per tick with the most significant first and no gap between bytes. Say recessive 1 when the queue is empty. Give yes on Accepted when the final bit of a byte is sent.",
+  "「有字节」为 1 且发送器不在处理字节时，启动逐位发送器。": "Start the serializer when a byte is available and it is not already sending one.",
+  "完成那一拍取走队首；下一拍才会出现下一个字节。": "Accept the queue head on the completion tick; the next byte appears on the following tick.",
+  "来源按握手逐个提供字节；这让帧的数据部分不必预先把所有字节都放进寄存卡。": "A source supplies bytes one at a time through a handshake; the data section need not put every byte into a register in advance.",
+  "队首": "Queue head",
+  "有字节": "Byte available"
 }
