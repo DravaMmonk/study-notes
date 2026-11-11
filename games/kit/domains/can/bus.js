@@ -62,12 +62,14 @@ export function contender(id, frame, at = 0) {
   const bits = transmitBits(frame)
   const end = arbitrationLength(frame.id)
   let active = true
+  let errorAt = null
   return {
     id,
-    say: (tick) => active && tick >= at ? bits[tick - at] ?? 1 : 1,
+    say: (tick) => errorAt !== null ? (tick > errorAt && tick <= errorAt + 6 ? 0 : 1) : active && tick >= at ? bits[tick - at] ?? 1 : 1,
     hear: (tick, line) => {
       const offset = tick - at
       if (active && offset >= 0 && offset < end && bits[offset] === 1 && line === 0) active = false
+      else if (frame.detectErrors && active && errorAt === null && offset >= end && offset < bits.length && offset !== bits.length - 12 && bits[offset] !== line) errorAt = tick
       return null
     },
   }

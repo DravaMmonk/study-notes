@@ -106,6 +106,25 @@ const arbitration = ({ bit, arbitration: phase, start }, test) => {
   })
 }
 
+// Two equal identifiers and different payloads; each active sender reports its first sampled bit mismatch.
+const sameIdCollision = ({ bit, arbitration: phase, ack, start }, test) => {
+  const peer = test.contenders[0]
+  if (!peer) return each(test, () => ({ drive: 1, error: 0, done: false }))
+  const peerBits = transmitBits(peer)
+  const peerEnd = arbitrationLength(peer.id)
+  let ownError = null
+  let peerError = null
+  return each(test, (tick) => {
+    const offset = tick - (peer.at ?? 0)
+    const drive = ownError === null ? test.inputs[bit][tick] : tick <= ownError + 6 ? 0 : 1
+    const rival = peerError === null ? peerBits[offset] ?? 1 : tick <= peerError + 6 ? 0 : 1
+    const line = wiredAnd([drive, rival, test.bus.bits[tick]])
+    if (ownError === null && !test.inputs[phase][tick] && !test.inputs[ack][tick] && drive !== line) ownError = tick
+    if (peerError === null && offset >= peerEnd && offset < peerBits.length && offset !== peerBits.length - 12 && rival !== line) peerError = tick
+    return { drive, error: Number(ownError !== null), done: ownError !== null && tick === ownError + 14 }
+  })
+}
+
 const winnerFields = (params, test) => {
   const trace = arbitration(params, test)
   const out = Object.fromEntries(['id', 'length', 'byte', 'status'].map((name) => [name, test.bus.bits.map(() => null)]))
@@ -532,6 +551,9 @@ const WANTS = {
   arbitrationDrive: (params) => (test) => arbitration(params, test).map((step) => step.drive),
   arbitrationLost: (params) => (test) => arbitration(params, test).map((step) => step.lost),
   arbitrationLine: (params) => (test) => arbitration(params, test).map((step) => step.line),
+  collisionDrive: (params) => (test) => sameIdCollision(params, test).map((step) => step.drive),
+  collisionError: (params) => (test) => sameIdCollision(params, test).map((step) => step.error),
+  collisionDone: (params) => (test) => sameIdCollision(params, test).map((step) => step.done),
   winnerIdentifier: (params) => (test) => winnerFields(params, test).id,
   winnerLength: (params) => (test) => winnerFields(params, test).length,
   winnerByte: (params) => (test) => winnerFields(params, test).byte,

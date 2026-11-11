@@ -75,6 +75,14 @@ export function canCourse(content) {
       if (t.tx && JSON.stringify((t.tx.data ?? []).map(num)) !== JSON.stringify((t.queue ?? []).map(num))) say('controller queue must contain the transmitted frame data')
       if (!task.pulls?.rewind) say('controller tests require a rewindable queue')
     }
+    if (task.expectsCollision) {
+      const peer = t.contenders?.[0]
+      if (t.bus.frames.length || t.peerBits || t.peerLow?.length || t.flipTicks?.length || t.contenders?.length !== 1 || !peer?.detectErrors) say('collision tests use one error-detecting contender on an idle bus')
+      if (t.tx && peer && (num(peer.id) !== num(t.tx.id) || (peer.at ?? 0) !== (t.txAt ?? 0) || (peer.data ?? []).length !== (t.tx.data ?? []).length || JSON.stringify((peer.data ?? []).map(num)) === JSON.stringify((t.tx.data ?? []).map(num)))) say('collision contenders must start together with equal identifiers and different payloads of equal length')
+      if (task.collisionCalls.some((params) => ['bit', 'arbitration', 'ack', 'start'].some((name) => params[name] !== task.collisionParams[name]))) say('collision checks must share their inputs')
+      const params = task.collisionParams
+      if (t.txInputs?.[params.bit] !== 'bit' || t.txInputs?.[params.arbitration] !== 'arbitration' || t.txInputs?.[params.ack] !== 'ack') say('collision tests require the transmitted bit, arbitration and ACK inputs')
+    }
     if (task.pulls) {
       if (!task.inputs?.some((input) => input.name === task.pulls.input)) say(`queue input ${task.pulls.input} is not a task input`)
       if (!task.inputs?.some((input) => input.name === task.pulls.available)) say(`queue availability ${task.pulls.available} is not a task input`)
@@ -156,6 +164,11 @@ export function canCourse(content) {
         if ((t.peerLow ?? []).some((tick) => tick !== ack)) say('controller peers may only acknowledge the successful attempt')
       }
     }
+    if (task.expectsCollision && t.tx && task.collisionParams) {
+      const starts = (result.inputs[task.collisionParams.start] ?? []).flatMap((value, tick) => value === 1 ? [tick] : [])
+      if (starts.length !== 1 || starts[0] !== (t.txAt ?? 0)) say('collision tests require one start pulse at the transmitted frame start')
+      if (starts.length === 1 && result.ticks < starts[0] + transmitBits(result.tx).length + 14) say('collision tests must leave enough ticks for the error flag')
+    }
     if (t.peerBits && t.peerBits.length !== result.bus.bits.length) say('other nodes must give one bit per tick')
     for (const tick of [...(t.peerLow ?? []), ...(t.flipTicks ?? []), ...Object.values(t.pulses ?? {}).flat(), ...(t.contenders ?? []).map((node) => node.at ?? 0), ...(t.txInputs ? [t.txAt ?? 0] : [])]) if (tick >= result.bus.bits.length) say(`tick ${tick} is outside the test`)
     return result
@@ -172,6 +185,8 @@ export function canCourse(content) {
     const controllerStarts = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('controller')).map(([, params]) => params.start)
     const expectsController = controllerStarts.length > 0
     const expectsControllerFault = names.some((name) => name.startsWith('controllerFault'))
-    return { ...task, expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
+    const collisionCalls = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('collision')).map(([, params]) => params)
+    const expectsCollision = collisionCalls.length > 0
+    return { ...task, expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, expectsCollision, collisionCalls, collisionParams: collisionCalls[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }

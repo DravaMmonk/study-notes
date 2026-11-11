@@ -61,6 +61,24 @@ test('competing senders withdraw after sampling an arbitration loss', () => {
   assert.equal(transmitBits({ id: 0x100 }).at(-12), 1)
 })
 
+test('equal-identifier senders detect data mismatches and begin active error flags', () => {
+  for (const [left, right] of [[0x80, 0x40], [0x40, 0x80]]) {
+    const tx = { id: 0x123, data: [left] }
+    const peer = { id: 0x123, data: [right], at: 0, detectErrors: true }
+    const bits = transmitBits(tx)
+    const length = bits.length + 14
+    const inputs = { bit: Array.from({ length }, (_, tick) => bits[tick] ?? 1), phase: Array.from({ length }, (_, tick) => Number(tick < arbitrationLength(tx.id))), ack: Array.from({ length }, (_, tick) => Number(tick === bits.length - 12)), start: Array.from({ length }, (_, tick) => Number(tick === 0)) }
+    const params = { bit: 'bit', arbitration: 'phase', ack: 'ack', start: 'start' }
+    const expected = wantOf({ drive: { collisionDrive: params }, error: { collisionError: params }, done: { collisionDone: params } })({ tx, contenders: [peer], bus: { bits: Array(length).fill(1) }, inputs })
+    const run = runTicks({ nodes: [contender('own', { ...tx, detectErrors: true }), contender('peer', peer)], ticks: length, line: wiredAnd })
+    assert.deepEqual(run.steps.map((step) => step.said.own), expected.drive)
+    const error = expected.error.indexOf(1)
+    assert.ok(error >= arbitrationLength(tx.id) && error < bits.length - 12)
+    assert.deepEqual(expected.drive.slice(error + 1, error + 7), Array(6).fill(0))
+    assert.equal(expected.done[error + 14], true)
+  }
+})
+
 test('arbitration judges the loss tick and ignores a mismatch after arbitration', () => {
   const tx = { id: 0x500, data: [] }
   const bits = transmitBits(tx)
@@ -426,6 +444,24 @@ test('controller bit-error tests reject faults outside their own eligible transm
   assert.ok(!canCourse(content).wrong.some((problem) => problem.includes('controller')))
   task.tests[0].flipTicks = [1]
   assert.ok(canCourse(content).wrong.some((problem) => problem.includes('bit error must occur')))
+})
+
+test('collision course tests require equal identifiers, differing payloads and an error-detecting peer', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.inputs = ['bit', 'phase', 'ack', 'start'].map((name) => ({ name, label: L(name) }))
+  task.hidden = []
+  task.outputs = [{ name: 'error', label: L('error') }]
+  const params = { bit: 'bit', arbitration: 'phase', ack: 'ack', start: 'start' }
+  task.want = { error: { collisionError: params } }
+  const tx = { id: 0x123, data: [0x80] }
+  task.tests = [{ bus: { idle: 100, frames: [], tail: 0 }, tx, txInputs: { bit: 'bit', phase: 'arbitration', ack: 'ack' }, pulses: { start: [0] }, contenders: [{ id: tx.id, data: [0x40], detectErrors: true }] }]
+  assert.ok(!canCourse(content).wrong.some((problem) => problem.includes('collision')))
+  task.tests[0].contenders[0].data = tx.data
+  task.tests[0].contenders[0].detectErrors = false
+  const wrong = canCourse(content).wrong
+  assert.ok(wrong.some((problem) => problem.includes('different payloads')))
+  assert.ok(wrong.some((problem) => problem.includes('error-detecting contender')))
 })
 
 test('input runs expand to test length and reject missing ticks or another source', () => {

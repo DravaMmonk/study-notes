@@ -73,6 +73,9 @@ const WANTS = {
   arbitrationDrive: item(t('仲裁落败后放开总线，开始时清空状态', 'release the bus after losing arbitration; start clears the state'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   arbitrationLost: item(t('仲裁落败时及之后为 1，开始时清空状态', '1 on and after arbitration loss; start clears the state'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   arbitrationLine: item(t('竞争节点与本节点共同形成的总线', 'the shared bus produced by the competing nodes'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
+  collisionDrive: item(t('同标识符碰撞后发送主动错误标志', 'send an active error flag after an equal-identifier collision'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
+  collisionError: item(t('同标识符碰撞引起位错误后为 1', '1 after a bit error in an equal-identifier collision'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
+  collisionDone: item(t('碰撞错误标志与界定位结束时为是', 'yes when the collision error flag and delimiter finish'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   winnerIdentifier: item(t('落败时在赢家标识符的最后一位交出它', 'on loss, give the winner’s identifier at its last original bit'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   winnerLength: item(t('落败时读赢家的数据长度', 'on loss, read the winner’s data length'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
   winnerByte: item(t('落败时逐个读赢家的数据字节', 'on loss, read each data byte from the winner'), S.obj({ bit: INPUT, arbitration: INPUT, start: INPUT })),
@@ -154,7 +157,7 @@ const WANTS = {
 /* ---------- a level ---------- */
 
 const FRAME = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), gap: S.opt(nat) })
-const CONTENDER = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), at: S.opt(nat) })
+const CONTENDER = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), at: S.opt(nat), detectErrors: S.opt(S.bool()) })
 const TEST = S.obj({
   bus: S.obj({ idle: S.opt(nat), frames: S.list(FRAME), tail: S.opt(nat) }, { about: t('总线：先安静 idle 拍，再一帧帧（帧前多空 gap 拍），最后安静 tail 拍') }),
   inputs: S.opt(S.map(S.list(S.int()), { view: 'ticks', about: t('每个输入每一拍的值') })),
@@ -185,7 +188,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 45,
+  version: 46,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
