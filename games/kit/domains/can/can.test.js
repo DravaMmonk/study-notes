@@ -8,7 +8,7 @@ import { board } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 import { canCourse } from './course.js'
-import { runLevel, runTest } from './run.js'
+import { entries, runLevel, runTest } from './run.js'
 import { runTicks } from '../../engine/ticks.js'
 import { packed } from '../../engine/boards.js'
 import { primitivesOnly } from '../../engine/circuit-domain.js'
@@ -1098,6 +1098,10 @@ test('frame tasks read scheduled fields once per frame and reject competing sour
   assert.deepEqual(sample.inputs.bit, [0x22, 0x11])
   assert.deepEqual(sample.inputs.go, [0x100, 0x500])
   assert.equal(sample.ticks, 2)
+  const played = course.played.get('gather')[0]
+  const rows = entries({ task: played, test: sample, run: runTest(played, played.solution, sample, course.partOf, { traced: false }) })
+  assert.deepEqual(rows.find((row) => row.of === '__frameId').given, [0x100, 0x500])
+  assert.deepEqual(rows.find((row) => row.of === '__frameStart').given, sample.frameEvents.map((frame) => frame.start))
   task.tests[0].constants = { bit: 1 }
   assert.ok(canCourse(content).wrong.some((problem) => problem.includes('more than one source')))
 })

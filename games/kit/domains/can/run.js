@@ -62,6 +62,10 @@ export const checkLevel = (task, circuit, parts) => runLevel(task, circuit, part
 
 export const entries = ({ task, test, run }) => [
   ...(task.listens ? [{ of: 'line', label: BUS, shape: 'bits', given: run.ticks.map((tick) => tick.line) }] : []),
+  ...(test.frameEvents ? [
+    { of: '__frameId', label: T('帧标识符', 'Frame identifier'), shape: 'ticks', given: test.frameEvents.map((frame) => frame.id) },
+    { of: '__frameStart', label: T('帧开始（位拍）', 'Frame start (bit ticks)'), shape: 'ticks', given: test.frameEvents.map((frame) => frame.start) },
+  ] : []),
   ...(test.contenders ?? []).map((_, k) => ({ of: `rival${k}`, label: T(`竞争者 ${k + 1}`, `Contender ${k + 1}`), shape: 'bits', given: run.ticks.map((tick) => tick.said[`rival${k}`] ?? 1) })),
   ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(i.name)
     ? { of: i.name, label: i.label, shape: 'ticks', got: run.ticks.map((tick) => tick.bind?.[i.name] ?? null) }
