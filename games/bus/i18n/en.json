@@ -225,5 +225,21 @@
   "把逐位送出的元件接到说话口。它空闲时，节点不拉低总线，也就是对总线说隐性 1。": "Connect the bit-by-bit sender to the speaking port. While idle the node does not pull the bus low, so it says recessive 1.",
   "「开始」时开始逐拍发送交来的字节，最高位在前；空闲时说 1。同时交出「完成」：只有最后一位发送的那拍为是。其他节点一直不说话。": "On Start, begin sending the given byte one bit per tick, most significant first; say 1 while idle. Also give Done, which is yes only on the final bit. Other nodes stay silent.",
   "用逐位送出元件的「忙」选择：忙时说它的位，空闲时说 1。": "Use the sender’s Busy output to choose its bit while busy and 1 while idle.",
-  "把字节锁存后逐位发送，其他节点就能在同一根线上按相同的顺序收到它。": "Once the byte is stored and sent bit by bit, other nodes on the same line can receive it in the same order."
+  "把字节锁存后逐位发送，其他节点就能在同一根线上按相同的顺序收到它。": "Once the byte is stored and sent bit by bit, other nodes on the same line can receive it in the same order.",
+  "插入填充位": "Insert stuff bits",
+  "一帧的填充区域不能连续说六个相同位。发送方每说完五个相同位，就先插入一个相反位，然后再继续说原始数据。": "A frame’s stuffed region cannot contain six equal bits in a row. After sending five equal bits, the sender first inserts an opposite bit, then continues with the original data.",
+  "插入填充位的那一拍不取走原始位；来源要把它留到下一拍。插入的位也算下一段连续位的第一位。": "A stuff-bit tick does not consume the original input bit; the source must hold it for the next tick. The inserted bit also starts the next run of equal bits.",
+  "「有位」为 1 表示来源提供原始位。正常时交出这一位并让「取走」为 1；若需要填充，先交出相反位，让「填充」为是、「取走」为 0，即使来源这拍没有位也要插入。没有位且不需填充时交出「—」。「开始」先清空状态，再处理这一拍。": "Valid 1 means the source offers an original bit. Normally give that bit and set Accepted to 1; when stuffing is due, first give the opposite bit, set Stuff to yes and Accepted to 0, even if no input bit is offered. With no bit and no stuffing due, give 「—」. Start clears the state before this tick.",
+  "记住上一位和连续相同位数。数到五后，下一拍输出相反位，不取原始位。": "Remember the previous bit and its run length. After five, output the opposite bit on the next tick without accepting the input.",
+  "插入的位是新的一段的第一位；只有实际交出位的拍才更新状态。": "The inserted bit starts the next run; update state only on ticks that give a bit.",
+  "接收方会把这些多出的位去掉；双方都按线上实际连续的位数判断填充。": "The receiver removes these extra bits; both ends count runs on the actual line.",
+  "对启用的原始位串插入填充位。「取走」说明输入是否被接受，「填充」标出插入的拍；开始先清空状态。": "Inserts stuff bits into enabled original bits. Accepted tells whether the input was taken and Stuff marks an inserted bit; Start clears the state first.",
+  "有位": "Valid",
+  "取走": "Accepted",
+  "填充": "Stuff",
+  "把填充位说出去": "Send stuff bits",
+  "把插入填充位的元件接到说话口。原始位暂时没有提供时，只有已经欠下的填充位需要继续发送；否则节点说隐性 1。": "Connect the stuffer to the speaking port. When no original bit is offered, a pending stuff bit still must be sent; otherwise the node says recessive 1.",
+  "按输入的「有位」和「开始」发送位串，需要时先插入填充位；没有位可发送时说 1。同时交出「取走」，让来源知道何时可以提供下一位。": "Send the input stream according to Valid and Start, inserting stuff bits when needed. Say 1 when there is nothing to send. Give Accepted so the source knows when to offer the next bit.",
+  "插入填充位元件的「填充」为是时，即便「有位」为 0，也有一位必须说出去。": "When the stuffer’s Stuff output is yes, there is a bit to send even if Valid is 0.",
+  "填充会让线上比原始数据多出拍数；用「取走」让来源在这些拍上停住。": "Stuffing adds ticks to the original stream. Accepted lets the source hold its bit during those ticks."
 }

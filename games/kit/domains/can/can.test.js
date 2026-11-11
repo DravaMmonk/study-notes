@@ -291,6 +291,20 @@ test('serialising latches the byte and a new start replaces an unfinished one', 
   assert.equal(out.drive[8], 1)
 })
 
+test('stuffing output inserts a bit without consuming the next input', () => {
+  const bit = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1]
+  const valid = bit.map(() => 1)
+  const start = bit.map((_, tick) => tick === 0 ? 1 : 0)
+  const test = { bus: { bits: bit }, inputs: { bit, valid, start } }
+  const params = { bit: 'bit', valid: 'valid', start: 'start' }
+  const out = wantOf({ bit: { stuffOut: params }, accepted: { stuffAccepted: params }, inserted: { stuffInserted: params } })(test)
+  assert.deepEqual(out.bit, [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1])
+  assert.deepEqual(out.inserted.flatMap((value, tick) => value ? [tick] : []), [5, 10])
+  assert.equal(out.accepted[5], 0)
+  assert.equal(out.accepted[6], 1)
+  assert.equal(out.accepted[10], 0)
+})
+
 // The starter game (what npm run new-game copies), as content.js assembles it.
 const starter = () => {
   const dir = new URL('./starter/', import.meta.url)

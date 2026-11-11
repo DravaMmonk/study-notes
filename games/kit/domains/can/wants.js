@@ -40,6 +40,22 @@ const serial = ({ value, start }, test) => {
   })
 }
 
+const stuffedOutput = ({ bit, valid, start }, test) => {
+  let previous = null
+  let run = 0
+  return each(test, (tick) => {
+    if (test.inputs[start][tick]) { previous = null; run = 0 }
+    const inserted = run === 5
+    const accepted = !inserted && Boolean(test.inputs[valid][tick])
+    const out = inserted ? 1 - previous : accepted ? test.inputs[bit][tick] : null
+    if (out !== null) {
+      run = out === previous ? run + 1 : 1
+      previous = out
+    }
+    return { out, accepted: Number(accepted), inserted }
+  })
+}
+
 // Polynomial long division over GF(2), independently of the player's shift-register circuit.
 const remainders = ({ bit, enable, reset, width, poly }, test) => {
   let bits = []
@@ -64,6 +80,10 @@ const WANTS = {
   serialBusy: (params) => (test) => serial(params, test).map((step) => step.busy),
   serialDone: (params) => (test) => serial(params, test).map((step) => step.done),
   serialDrive: (params) => (test) => serial(params, test).map((step) => step.bit ?? 1),
+  stuffOut: (params) => (test) => stuffedOutput(params, test).map((step) => step.out),
+  stuffAccepted: (params) => (test) => stuffedOutput(params, test).map((step) => step.accepted),
+  stuffInserted: (params) => (test) => stuffedOutput(params, test).map((step) => step.inserted),
+  stuffDrive: (params) => (test) => stuffedOutput(params, test).map((step) => step.out ?? 1),
   unchanged: ({ first }) => (test) => each(test, (t) => test.bus.bits[t] === (t ? test.bus.bits[t - 1] : first)),
   tick: () => (test) => each(test, (t) => t),
   since: ({ tick }) => (test) => each(test, (t) => t >= tick),

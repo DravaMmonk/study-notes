@@ -1,0 +1,133 @@
+{
+  "title": { "zh": "插入填充位" },
+  "intro": [
+    { "t": { "zh": "一帧的填充区域不能连续说六个相同位。发送方每说完五个相同位，就先插入一个相反位，然后再继续说原始数据。" } },
+    { "t": { "zh": "插入填充位的那一拍不取走原始位；来源要把它留到下一拍。插入的位也算下一段连续位的第一位。" } }
+  ],
+  "builds": {
+    "type": "stuffer",
+    "name": { "zh": "插入填充位" },
+    "desc": { "zh": "对启用的原始位串插入填充位。「取走」说明输入是否被接受，「填充」标出插入的拍；开始先清空状态。" }
+  },
+  "after": { "zh": "接收方会把这些多出的位去掉；双方都按线上实际连续的位数判断填充。" },
+  "tasks": [
+    {
+      "id": "2-4",
+      "brief": {
+        "zh": "「有位」为 1 表示来源提供原始位。正常时交出这一位并让「取走」为 1；若需要填充，先交出相反位，让「填充」为是、「取走」为 0，即使来源这拍没有位也要插入。没有位且不需填充时交出「—」。「开始」先清空状态，再处理这一拍。"
+      },
+      "hint": [{ "zh": "记住上一位和连续相同位数。数到五后，下一拍输出相反位，不取原始位。" }, { "zh": "插入的位是新的一段的第一位；只有实际交出位的拍才更新状态。" }],
+      "inputs": [
+        { "name": "bit", "label": { "zh": "位" } },
+        { "name": "valid", "label": { "zh": "有位" } },
+        { "name": "start", "label": { "zh": "开始" } }
+      ],
+      "outputs": [
+        { "name": "value", "label": { "zh": "结果" } },
+        { "name": "accepted", "label": { "zh": "取走" } },
+        { "name": "inserted", "label": { "zh": "填充" } }
+      ],
+      "tests": [
+        {
+          "bus": { "idle": 14, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0],
+            "valid": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 14, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1],
+            "valid": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0],
+            "valid": [1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0],
+            "valid": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "start": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [1, 1, 1, 1, 1, 0, 0, 1],
+            "valid": [1, 1, 1, 1, 1, 0, 1, 1],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "want": {
+        "value": { "stuffOut": { "bit": "bit", "valid": "valid", "start": "start" } },
+        "accepted": { "stuffAccepted": { "bit": "bit", "valid": "valid", "start": "start" } },
+        "inserted": { "stuffInserted": { "bit": "bit", "valid": "valid", "start": "start" } }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "five = const[value=5]()",
+        "pold = reg[reg=A, start=0]()",
+        "p = select(start, zero, pold)",
+        "rold = reg[reg=B, start=0]()",
+        "r = select(start, zero, rold)",
+        "due = compare[form=eq](r, five)",
+        "prevzero = compare[form=eq](p, zero)",
+        "opposite = select(prevzero, one, zero)",
+        "candidate = select(due, opposite, bit)",
+        "accepted0 = select(due, zero, valid)",
+        "active = select(due, one, valid)",
+        "out = select(active, candidate)",
+        "accepted <- accepted0",
+        "inserted <- due",
+        "value <- out",
+        "same = compare[form=eq](candidate, p)",
+        "inc = arith[form=inc](r)",
+        "n = select(same, inc, one)",
+        "rn = select(active, n, r)",
+        "pn = select(active, candidate, p)",
+        "kr = keep[reg=B](rn)",
+        "kp = keep[reg=A](pn)"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "five = const[value=5]()",
+        "pold = reg[reg=A, start=0]()",
+        "p = select(start, zero, pold)",
+        "rold = reg[reg=B, start=0]()",
+        "r = select(start, zero, rold)",
+        "due = compare[form=eq](r, five)",
+        "prevzero = compare[form=eq](p, zero)",
+        "opposite = select(prevzero, one, zero)",
+        "candidate = select(due, opposite, bit)",
+        "accepted0 = select(due, zero, valid)",
+        "active = select(due, one, valid)",
+        "out = select(active, candidate)",
+        "accepted <- accepted0",
+        "inserted <- due",
+        "value <- out",
+        "same = compare[form=eq](candidate, p)",
+        "inc = arith[form=inc](r)",
+        "n = select(same, inc, one)",
+        "rn = select(due, zero, n)",
+        "pn = select(active, candidate, p)",
+        "kr = keep[reg=B](rn)",
+        "kp = keep[reg=A](pn)"
+      ]
+    }
+  ]
+}

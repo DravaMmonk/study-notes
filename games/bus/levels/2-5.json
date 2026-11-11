@@ -1,0 +1,82 @@
+{
+  "title": { "zh": "把填充位说出去" },
+  "intro": [{ "t": { "zh": "把插入填充位的元件接到说话口。原始位暂时没有提供时，只有已经欠下的填充位需要继续发送；否则节点说隐性 1。" } }],
+  "after": { "zh": "填充会让线上比原始数据多出拍数；用「取走」让来源在这些拍上停住。" },
+  "tasks": [
+    {
+      "id": "2-5",
+      "brief": { "zh": "按输入的「有位」和「开始」发送位串，需要时先插入填充位；没有位可发送时说 1。同时交出「取走」，让来源知道何时可以提供下一位。" },
+      "hint": [{ "zh": "插入填充位元件的「填充」为是时，即便「有位」为 0，也有一位必须说出去。" }],
+      "drives": true,
+      "inputs": [
+        { "name": "bit", "label": { "zh": "位" } },
+        { "name": "valid", "label": { "zh": "有位" } },
+        { "name": "start", "label": { "zh": "开始" } }
+      ],
+      "outputs": [{ "name": "accepted", "label": { "zh": "取走" } }],
+      "tests": [
+        {
+          "bus": { "idle": 14, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0],
+            "valid": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 14, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 1],
+            "valid": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0],
+            "valid": [1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0],
+            "valid": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "start": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [1, 1, 1, 1, 1, 0, 0, 1],
+            "valid": [1, 1, 1, 1, 1, 0, 1, 1],
+            "start": [1, 0, 0, 0, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "want": {
+        "send": { "stuffDrive": { "bit": "bit", "valid": "valid", "start": "start" } },
+        "accepted": { "stuffAccepted": { "bit": "bit", "valid": "valid", "start": "start" } }
+      },
+      "solution": [
+        "p = stuffer(bit, valid, start)",
+        "one = const[value=1]()",
+        "has = select(p.inserted, one, valid)",
+        "s = select(has, p.value, one)",
+        "send <- s",
+        "accepted <- p.accepted"
+      ],
+      "naive": [
+        "p = stuffer(bit, valid, start)",
+        "one = const[value=1]()",
+        "s = select(valid, p.value, one)",
+        "send <- s",
+        "accepted <- p.accepted"
+      ]
+    }
+  ]
+}

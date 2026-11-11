@@ -40,6 +40,10 @@ const WANTS = {
   serialBusy: item(t('这一拍是否正在逐位送字节', 'whether a byte is being sent on this tick'), S.obj({ value: INPUT, start: INPUT })),
   serialDone: item(t('这一拍是否为字节的最后一位', 'whether this tick is the final bit of the byte'), S.obj({ value: INPUT, start: INPUT })),
   serialDrive: item(t('逐位送字节，空闲时说隐性 1', 'send the byte bit by bit and say recessive 1 while idle'), S.obj({ value: INPUT, start: INPUT })),
+  stuffOut: item(t('逐位插入填充位，空闲时为「—」', 'insert stuff bits into the input stream, giving 「—」 while idle'), S.obj({ bit: INPUT, valid: INPUT, start: INPUT })),
+  stuffAccepted: item(t('这一拍是否取走原始位', 'whether the original bit was accepted this tick'), S.obj({ bit: INPUT, valid: INPUT, start: INPUT })),
+  stuffInserted: item(t('这一拍是否插入填充位', 'whether a stuff bit was inserted this tick'), S.obj({ bit: INPUT, valid: INPUT, start: INPUT })),
+  stuffDrive: item(t('插入填充位后发送，空闲时说隐性 1', 'send the stuffed stream, saying recessive 1 while idle'), S.obj({ bit: INPUT, valid: INPUT, start: INPUT })),
   unchanged: item(t('总线这一拍的位和上一拍一样吗；第一拍和 first 比'), S.obj({ first: BIT })),
   tick: item(t('这是第几拍，从 0 数')),
   since: item(t('从第 tick 拍（从 0 数）起回答是，之前回答否'), S.obj({ tick: nat })),
@@ -84,7 +88,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 16,
+  version: 17,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
