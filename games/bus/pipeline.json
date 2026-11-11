@@ -1,0 +1,40 @@
+{
+  "game": "bus",
+  "steps": {
+    "translate": {
+      "runs": [],
+      "gates": [
+        {
+          "at": "2026-11-11T20:49:20.867Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "i18n-missing",
+              "at": "en",
+              "says": "4 of 150 texts read in the base language"
+            }
+          ]
+        },
+        {
+          "at": "2026-11-11T20:49:44.363Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-11T20:53:16.465Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-11T20:55:28.872Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        }
+      ]
+    }
+  }
+}

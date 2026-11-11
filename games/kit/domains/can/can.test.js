@@ -155,6 +155,37 @@ test('frame indices occur at each start, including adjacent frames', () => {
   assert.deepEqual(out.flatMap((value, tick) => value === null ? [] : [[tick, value]]), bus.frames.map((frame, index) => [frame.at, index + 1]))
 })
 
+test('frame status distinguishes CRC errors and a final stuffing error', () => {
+  const frame = { id: 9, data: [] }
+  const bus = busOf({ idle: 0, frames: [frame], tail: 0 })
+  const good = [...bus.bits]
+  const finalStuff = frameBits(frame).length - 14
+  assert.notEqual(good[finalStuff], good[finalStuff - 1])
+  const badStuff = [...good]
+  badStuff[finalStuff] = badStuff[finalStuff - 1]
+  const status = wantOf({ ok: { frameStatus: { bit: 'bit' } } })
+  const normal = status({ bus, inputs: { bit: good } }).ok
+  const broken = status({ bus, inputs: { bit: badStuff } }).ok
+  assert.equal(normal[finalStuff + 1], true)
+  assert.equal(broken[finalStuff], false)
+  assert.equal(broken.filter((value) => value !== null).length, 1)
+
+  const corrupted = busOf({ idle: 0, frames: [{ id: 0x2a5, data: [0x55] }], tail: 0 })
+  const bits = [...corrupted.bits]
+  bits[20] ^= 1
+  const altered = busOf({ idle: 0, frames: [{ id: 0x2a5, data: [0xd5] }], tail: 0 })
+  const badCrc = status({ bus: altered, inputs: { bit: bits } }).ok
+  assert.deepEqual(badCrc.flatMap((value, tick) => value === null ? [] : [[tick, value]]), [[frameBits({ id: 0x2a5, data: [0x55] }).length - 13, false]])
+})
+
+test('stuffing error latches and resets even when checking is disabled', () => {
+  const bit = [0, 0, 0, 0, 0, 0, 1, 1, 1]
+  const enable = [1, 1, 1, 1, 1, 1, 1, 0, 1]
+  const reset = [1, 0, 0, 0, 0, 0, 0, 1, 0]
+  const test = { bus: { bits: bit }, inputs: { bit, enable, reset } }
+  assert.deepEqual(wantOf({ error: { stuffingError: { bit: 'bit', enable: 'enable', reset: 'reset' } } })(test).error, [0, 0, 0, 0, 0, 1, 1, 0, 0])
+})
+
 test('XOR and polynomial remainders handle enabled ticks and reset', () => {
   assert.equal(PARTS.xor.eval({ a: 0x4599, b: 0x1234 }), 0x57ad)
   assert.equal(PARTS.xor.eval({ a: null, b: 1 }), null)

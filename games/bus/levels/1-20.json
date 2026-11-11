@@ -1,0 +1,108 @@
+{
+  "title": { "zh": "发现填充错误" },
+  "intro": [{ "t": { "zh": "填充区域中，连续五个相同位之后必须出现相反位。如果第六位仍然相同，就出现填充错误；一旦发现，接收方要记住它。" } }],
+  "builds": {
+    "type": "stuffcheck",
+    "name": { "zh": "填充检查" },
+    "desc": { "zh": "检查启用期间的连续位；六位相同就记下错误，直到重来。「重来」先清空状态，再处理这一拍。" }
+  },
+  "after": { "zh": "填充错误与 CRC 错误是两种不同的检测：前者可在第六个相同位出现时立即发现。" },
+  "tasks": [
+    {
+      "id": "1-20",
+      "brief": { "zh": "仅在「参与」为 1 的拍检查输入位；出现六个连续相同位后，错误输出为 1 并保持。「重来」先清空状态，再决定是否检查这一位。" },
+      "hint": [{ "zh": "记住上一位和连续相同位的个数。数到五后，下一位若与上一位相同就记下错误；否则那一位是下一段的第一位。" }],
+      "inputs": [
+        { "name": "bit", "label": { "zh": "位" } },
+        { "name": "enable", "label": { "zh": "参与" } },
+        { "name": "reset", "label": { "zh": "重来" } }
+      ],
+      "outputs": [{ "name": "error", "label": { "zh": "错误" } }],
+      "tests": [
+        {
+          "bus": { "idle": 12, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 1],
+            "enable": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "reset": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 10, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [1, 1, 1, 1, 1, 1, 0, 0, 1, 1],
+            "enable": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "reset": [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 13, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+            "enable": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            "reset": [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0]
+          }
+        },
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "inputs": {
+            "bit": [0, 0, 0, 0, 0, 1, 0, 0],
+            "enable": [1, 1, 1, 1, 1, 0, 1, 1],
+            "reset": [1, 0, 0, 0, 0, 1, 0, 0]
+          }
+        }
+      ],
+      "want": { "error": { "stuffingError": { "bit": "bit", "enable": "enable", "reset": "reset" } } },
+      "solution": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "four = const[value=4]()",
+        "prevold = reg[reg=A, start=0]()",
+        "prev = select(reset, zero, prevold)",
+        "runold = reg[reg=B, start=0]()",
+        "run = select(reset, zero, runold)",
+        "errold = reg[reg=C, start=0]()",
+        "baseerr = select(reset, zero, errold)",
+        "same = compare[form=eq](bit, prev)",
+        "long = compare[form=lt](four, run)",
+        "bad = select(long, same, zero)",
+        "errset = select(bad, one, baseerr)",
+        "errnext = select(enable, errset, baseerr)",
+        "ke = keep[reg=C](errnext)",
+        "inc = arith[form=inc](run)",
+        "count = select(same, inc, one)",
+        "rnext = select(enable, count, run)",
+        "kr = keep[reg=B](rnext)",
+        "pnext = select(enable, bit, prev)",
+        "kp = keep[reg=A](pnext)",
+        "error <- errnext"
+      ],
+      "naive": [
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "four = const[value=4]()",
+        "prevold = reg[reg=A, start=0]()",
+        "prev = select(reset, zero, prevold)",
+        "runold = reg[reg=B, start=0]()",
+        "run = select(reset, zero, runold)",
+        "errold = reg[reg=C, start=0]()",
+        "baseerr = select(reset, zero, errold)",
+        "same = compare[form=eq](bit, prev)",
+        "long = compare[form=lt](four, run)",
+        "bad = select(long, same, zero)",
+        "errset = select(bad, one, zero)",
+        "errnext = select(enable, errset, baseerr)",
+        "ke = keep[reg=C](errnext)",
+        "inc = arith[form=inc](run)",
+        "count = select(same, inc, one)",
+        "rnext = select(enable, count, run)",
+        "kr = keep[reg=B](rnext)",
+        "pnext = select(enable, bit, prev)",
+        "kp = keep[reg=A](pnext)",
+        "error <- errnext"
+      ]
+    }
+  ]
+}

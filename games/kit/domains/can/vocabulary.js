@@ -50,6 +50,8 @@ const WANTS = {
   dataByte: item(t('帧的每个数据字节在它最后一个原始位到达时交出，其余拍为「—」')),
   endOfFrame: item(t('在每帧七位帧结束字段的最后一位回答是，其余拍为「—」', 'yes on the final bit of each seven-bit end-of-frame field, and 「—」 on other ticks')),
   frameIndex: item(t('每个帧起始给出从 1 开始的帧序号，其余拍为「—」', 'the one-based frame index at each start of frame, and 「—」 on other ticks')),
+  stuffingError: item(t('启用时检查六个相同位，出错后保持到重来', 'check for six equal bits while enabled and retain the error until reset'), S.obj({ bit: INPUT, enable: INPUT, reset: INPUT })),
+  frameStatus: item(t('填充错误时立即给否，否则在 CRC 界定位给校验结果', 'no immediately on a stuffing error, otherwise the CRC result at the CRC delimiter'), S.obj({ bit: INPUT })),
   bitParity: item(t('三个输入位的异或', 'the exclusive or of three input bits'), S.obj({ a: INPUT, b: INPUT, c: INPUT })),
   remainder: item(t('对有效的位逐位算指定生成式的校验余数，重来时先清零', 'the check remainder of enabled bits under the specified generator; reset before processing the current bit'), S.obj({ bit: INPUT, enable: INPUT, reset: INPUT, width: S.int({ min: 1, max: 15 }), poly: S.int({ min: 1, max: 32767 }) })),
   crcCheck: item(t('结束拍判断校验余数是否为零', 'whether the check remainder is zero on a finish tick'), S.obj({ bit: INPUT, enable: INPUT, reset: INPUT, finish: INPUT, width: S.int({ min: 1, max: 15 }), poly: S.int({ min: 1, max: 32767 }) })),
@@ -76,7 +78,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 13,
+  version: 14,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

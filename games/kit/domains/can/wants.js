@@ -2,7 +2,7 @@
 // `want: { output name: { item: params } }`; each item here gives, for a test (its bus built, course.js), one value a
 // tick (undefined: anything will do), the lane the waveform draws under the output as 「应当」.
 import { callOf } from '../../engine/schema.js'
-import { bitsOf, frameBits, stuff } from './bus.js'
+import { bitsOf, crc15, frameBits, stuff } from './bus.js'
 
 /** A controller may start talking once the bus has been recessive this many bits in a row; an identifier is as long. */
 const QUIET = 11
@@ -96,6 +96,48 @@ const WANTS = {
   frameIndex: () => (test) => {
     const out = test.bus.bits.map(() => null)
     test.bus.frames.forEach((frame, index) => { out[frame.at] = index + 1 })
+    return out
+  },
+  stuffingError: ({ bit, enable, reset }) => (test) => {
+    let previous = null
+    let run = 0
+    let error = false
+    return each(test, (tick) => {
+      if (test.inputs[reset][tick]) { previous = null; run = 0; error = false }
+      if (test.inputs[enable][tick]) {
+        const value = test.inputs[bit][tick]
+        run = value === previous ? run + 1 : 1
+        previous = value
+        if (run >= 6) error = true
+      }
+      return Number(error)
+    })
+  },
+  frameStatus: ({ bit }) => (test) => {
+    const line = test.inputs[bit]
+    const out = test.bus.bits.map(() => null)
+    for (const frame of test.bus.frames) {
+      const original = []
+      const required = 34 + frame.data.length * 8
+      let previous = null
+      let run = 0
+      let tick = frame.at
+      let failed = false
+      while (original.length < required || run === 5) {
+        const value = line[tick]
+        if (run === 5) {
+          if (value === previous) { out[tick] = false; failed = true; break }
+          previous = value
+          run = 1
+        } else {
+          original.push(value)
+          run = value === previous ? run + 1 : 1
+          previous = value
+        }
+        tick++
+      }
+      if (!failed) out[tick] = crc15(original) === 0
+    }
     return out
   },
   bitParity: ({ a, b, c }) => (test) => each(test, (tick) => test.inputs[a][tick] ^ test.inputs[b][tick] ^ test.inputs[c][tick]),
