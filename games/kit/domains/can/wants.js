@@ -671,9 +671,10 @@ const WANTS = {
       return message
     })
   },
-  multiFrameMessage: ({ data }) => (test) => {
+  multiFrameMessage: ({ data, enable }) => (test) => {
     let pending = null
-    return test.inputs[data].map((bytes) => {
+    return test.inputs[data].map((bytes, tick) => {
+      if (enable && !test.inputs[enable][tick]) return null
       const type = bytes[0] >> 4
       if (type === 1 && bytes.length === 8) {
         const length = ((bytes[0] & 15) << 8) | bytes[1]

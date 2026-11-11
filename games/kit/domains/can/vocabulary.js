@@ -50,7 +50,7 @@ const WANTS = {
   rollingCounterSignal: item(t('判断四位滚动计数器是否比上一帧加一，第一帧有效', 'check a four-bit rolling counter advances by one; the first frame is valid'), S.obj({ input: INPUT })),
   singleFrameMessage: item(t('取出单帧长度所指定的消息字节', 'extract the message bytes specified by a single-frame length'), S.obj({ data: INPUT, header: INPUT })),
   twoFrameMessage: item(t('从一个首帧和序号为 1 的后续帧重组短消息', 'reassemble a short message from a first frame and consecutive frame number 1'), S.obj({ data: INPUT })),
-  multiFrameMessage: item(t('按后续帧序号重组消息，直到首帧给定的长度', 'reassemble a message in consecutive-frame sequence until the first-frame length'), S.obj({ data: INPUT })),
+  multiFrameMessage: item(t('按后续帧序号重组消息，直到首帧给定的长度', 'reassemble a message in consecutive-frame sequence until the first-frame length'), S.obj({ data: INPUT, enable: S.opt(INPUT) })),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -292,7 +292,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 74,
+  version: 75,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

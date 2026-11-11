@@ -1191,3 +1191,11 @@ test('multi-frame reassembly handles sequence wrap and rejects missing frames', 
   assert.deepEqual(want({ inputs: { data: [first, rest[1], rest[2]] } }).message, [null, null, null])
   assert.equal(PARTS.byteLength.eval({ bytes: payload }), 120)
 })
+
+test('a disabled receiver keeps its partially assembled message', () => {
+  const want = wantOf({ message: { multiFrameMessage: { data: 'data', enable: 'enable' } } })
+  const first = [16, 8, 1, 2, 3, 4, 5, 6]
+  const unrelated = [34, 0, 0, 0, 0, 0, 0, 0]
+  const next = [33, 7, 8, 0, 0, 0, 0, 0]
+  assert.deepEqual(want({ inputs: { data: [first, unrelated, next], enable: [1, 0, 1] } }).message, [null, null, [1, 2, 3, 4, 5, 6, 7, 8]])
+})
