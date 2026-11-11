@@ -902,6 +902,21 @@ test('shared receive and transmit state accounts for a valid arbitration winner'
   assert.deepEqual(result.Attempts.flatMap((value, tick) => value ? [tick] : []), [start, retry])
 })
 
+test('a passive sender receives a frame that interrupts suspension before retrying', () => {
+  const bus = busOf({ idle: 24, frames: [{ id: 0x123, data: [0xa5], ack: false }], tail: 20 })
+  const inputs = { end: bus.bits.map((_, tick) => Number(tick === 20)) }
+  const params = { end: 'end' }
+  const calls = Object.fromEntries(['Drive', 'Retry', 'Kind', 'Ready'].map((name) => [name, { [`interruptedSuspend${name}`]: params }]))
+  const result = wantOf(calls)({ bus, inputs })
+  const ack = 24 + transmitBits({ id: 0x123, data: [0xa5] }).length - 12
+  assert.equal(result.Drive[ack], 0)
+  assert.equal(result.Kind[ack - 1], 0)
+  assert.equal(result.Retry[29], 0)
+  assert.equal(result.Retry[ack + 12], 1)
+  const idle = { bus: { bits: Array(40).fill(1), frames: [] }, inputs: { end: Array.from({ length: 40 }, (_, tick) => Number(tick === 20)) } }
+  assert.equal(wantOf(calls)(idle).Retry[29], 1)
+})
+
 test('a transmitter releases ACK while another node can acknowledge', () => {
   const tx = { id: 0x123, data: [0xa5] }
   const frame = frameBits(tx)

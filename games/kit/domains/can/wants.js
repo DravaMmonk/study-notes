@@ -511,6 +511,21 @@ const receiveUnified = (params, test) => {
   return { ...base, drive, tx: counts.map((step) => step.tx), mode: counts.map((step) => step.mode) }
 }
 
+// A passive sender waiting after intermission receives a clean frame that starts during suspension.
+const interruptedSuspend = ({ end }, test) => {
+  const at = test.inputs[end]?.findIndex((value) => value === 1 || value === true) ?? -1
+  const frame = test.bus.frames[0]
+  const retry = frame ? frame.at + transmitBits(frame).length : at + 9
+  const ack = frame ? frame.at + transmitBits(frame).length - 12 : -1
+  const crc = ack - 1
+  return {
+    drive: each(test, (tick) => tick === ack ? 0 : 1),
+    retry: each(test, (tick) => Number(at >= 0 && tick === retry)),
+    kind: each(test, (tick) => tick === crc ? 0 : null),
+    ready: each(test, (tick) => Number(tick === crc)),
+  }
+}
+
 const faultFlag = ({ report, ...params }, test) => {
   const modes = faultCounts(params, test)
   let position = 14
@@ -746,6 +761,10 @@ const WANTS = {
   receiveUnifiedDrive: (params) => (test) => receiveUnified(params, test).drive,
   receiveUnifiedTx: (params) => (test) => receiveUnified(params, test).tx,
   receiveUnifiedMode: (params) => (test) => receiveUnified(params, test).mode,
+  interruptedSuspendDrive: (params) => (test) => interruptedSuspend(params, test).drive,
+  interruptedSuspendRetry: (params) => (test) => interruptedSuspend(params, test).retry,
+  interruptedSuspendKind: (params) => (test) => interruptedSuspend(params, test).kind,
+  interruptedSuspendReady: (params) => (test) => interruptedSuspend(params, test).ready,
   stuffedSerialDrive: (params) => (test) => stuffedSerial(params, test).map((step) => step.bit ?? 1),
   stuffedSerialDone: (params) => (test) => stuffedSerial(params, test).map((step) => step.done),
   stuffedSerialCrc: (params) => (test) => stuffedSerial(params, test).map((step) => step.crc),
