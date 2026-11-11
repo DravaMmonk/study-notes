@@ -699,6 +699,8 @@ const WANTS = {
   ecuRejectReason: () => (test) => test.bus.bits.map((_, tick) => tick ? [0x31] : null),
   ecuOnceRequest: () => (test) => test.bus.bits.map((_, tick) => tick === 0 ? [0x22, test.ecu.did >> 8, test.ecu.did & 255] : null),
   ecuDelayedValue: () => (test) => test.bus.bits.map((_, tick) => tick === test.ecu.waits + 1 ? test.ecu.value : null),
+  ecuSessionRequests: () => (test) => test.bus.bits.map((_, tick) => tick === 0 ? [0x10, 3] : tick === 1 ? [0x22, test.ecu.did >> 8, test.ecu.did & 255] : null),
+  ecuSessionValue: () => (test) => test.bus.bits.map((_, tick) => tick === 2 ? test.ecu.value : null),
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

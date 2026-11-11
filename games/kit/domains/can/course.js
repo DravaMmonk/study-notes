@@ -39,7 +39,7 @@ const testOf = (t, task, frameEvents) => {
     ...Object.fromEntries(Object.entries(task.frameInputs ?? {}).map(([name, field]) => [name, frameEvents.map((frame) => field === 'id' ? frame.id : field === 'length' ? frame.data.length : field === 'time' ? frame.start : field === 'data' ? frame.data : frame.data[Number(field.slice(4))] ?? null)])),
   }
   const contenders = (t.contenders ?? []).map((node) => ({ ...node, id: num(node.id), data: (node.data ?? []).map(num) }))
-  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(t.ecu ? { ecu: { did: num(t.ecu.did), value: t.ecu.value.map(num), waits: t.ecu.waits ?? 0 } } : {}), ...(frameEvents ? { frameEvents } : {}) }
+  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(t.ecu ? { ecu: { did: num(t.ecu.did), value: t.ecu.value.map(num), waits: t.ecu.waits ?? 0, requiresExtended: Boolean(t.ecu.requiresExtended) } } : {}), ...(frameEvents ? { frameEvents } : {}) }
 }
 
 export function canCourse(content) {
@@ -52,6 +52,7 @@ export function canCourse(content) {
       if (!task.outputs?.some((output) => output.name === task.ecu.request)) say('ECU request is not a task output')
       if (t.ecu && task.ecuRejectedDids?.includes(num(t.ecu.did))) say('a rejected data identifier must differ from the ECU identifier')
       if (task.ecuImmediateExpected && t.ecu?.waits) say('an immediate ECU result cannot include pending replies')
+      if (task.ecuSessionExpected && (!t.ecu?.requiresExtended || t.ecu?.waits)) say('session tests require an extended-only identifier without pending replies')
     } else if (t.ecu) say('an ECU test requires ECU task ports')
     if (task.frameInputs) {
       if (!t.frameRequests || t.bus.frames.length || t.peerBits || t.peerLow?.length || t.flipTicks?.length || t.contenders?.length || t.tx || task.listens || task.drives) say('frame tasks require clean frame requests and no bit-level bus activity')
@@ -129,6 +130,7 @@ export function canCourse(content) {
     }
     const result = testOf(t, task, frameEvents)
     if (task.ecuDelayedExpected && t.ecu && result.ticks <= (t.ecu.waits ?? 0) + 1) say('a pending ECU test must include the final response tick')
+    if (task.ecuSessionExpected && result.ticks < 3) say('a session test must include the data response tick')
     for (const [name, runs] of Object.entries(t.runs ?? {})) if (runs.reduce((sum, run) => sum + run.ticks, 0) !== result.ticks) say(`input runs for ${name} must cover the whole test`)
     if (task.expectsRetry && task.retryStart) {
       const starts = (result.inputs[task.retryStart] ?? []).flatMap((value, tick) => value === 1 ? [tick] : [])
@@ -294,6 +296,6 @@ export function canCourse(content) {
     const expectsInterruptedFrame = names.some((name) => name.startsWith('interruptedFrame'))
     const interruptedSuspendEnds = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('interruptedSuspend') || name.startsWith('interruptedFrame')).map(([, params]) => params.end)
     const expectsInterruptedSuspend = interruptedSuspendEnds.length > 0
-    return { ...task, ecuRejectedDids, ecuImmediateExpected, ecuDelayedExpected: names.includes('ecuDelayedValue'), expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, expectsControllerAdaptive, expectsControllerBusoff, expectsControllerDuplex, expectsControllerIntervening, controllerAdaptiveCalls, controllerAdaptiveParams: controllerAdaptiveCalls[0], expectsCollision, collisionCalls, collisionParams: collisionCalls[0], expectsReceiver, expectsReceiverUnified, receiverCalls, receiverStateCalls, receiverParams: receiverCalls[0], expectsInterruptedSuspend, expectsInterruptedFrame, interruptedSuspendEnds, interruptedSuspendEnd: interruptedSuspendEnds[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || expectsInterruptedFrame || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
+    return { ...task, ecuRejectedDids, ecuImmediateExpected, ecuDelayedExpected: names.includes('ecuDelayedValue'), ecuSessionExpected: names.includes('ecuSessionValue'), expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerFault, expectsControllerAdaptive, expectsControllerBusoff, expectsControllerDuplex, expectsControllerIntervening, controllerAdaptiveCalls, controllerAdaptiveParams: controllerAdaptiveCalls[0], expectsCollision, collisionCalls, collisionParams: collisionCalls[0], expectsReceiver, expectsReceiverUnified, receiverCalls, receiverStateCalls, receiverParams: receiverCalls[0], expectsInterruptedSuspend, expectsInterruptedFrame, interruptedSuspendEnds, interruptedSuspendEnd: interruptedSuspendEnds[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || expectsInterruptedFrame || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }

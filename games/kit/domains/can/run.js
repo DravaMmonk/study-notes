@@ -20,7 +20,7 @@ import { T } from '../../shell/i18n.js'
 export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   let consumed = 0
   const ecu = task.ecu && reacting({
-    id: 'ecu', board: 'you', start: { reply: null, pending: null },
+    id: 'ecu', board: 'you', start: { reply: null, pending: null, session: 1 },
     reads: (state) => ({ [task.ecu.response]: state.reply }),
     step: (state, outputs) => ({ state: ecuAdvance(state, outputs[task.ecu.request], test.ecu), shown: null }),
   })
