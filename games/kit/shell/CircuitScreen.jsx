@@ -41,7 +41,8 @@ import { PHONE, useMedia } from './useMedia.js'
 //   entries({ task, test, run, sample }) → what the results area can show of a test (../engine/views.js: an entry a
 //                         port, with its shape and the values given, got and wanted; on the sample, test is null and
 //                         `sample` the reference board's run on it)
-//   figure?({ task, test }) → a picture of the test under the results (a scene it stands for)
+//   figure?({ task, test, run, at }) → a picture of the test by the results (a scene it stands for): `run` once there
+//                         is one to show (on a board run tick by tick, from its first tick), `at` the tick shown
 //   judged                a board run once is checked in one go, with nothing to step through
 //   sample?(task, board) → the board's run on the task's `sample`, a tab after the tests, never judged (judged boards)
 //   ready?(board, held)   the board as the task holds it (held: the parts its tray holds), on opening and every change
@@ -278,7 +279,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   const strip = (
     <>
       <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
-      {figure?.({ task: level, test, run: ended || onSample ? runOf : null })}
+      {figure?.({ task: level, test, run: (timed ? run.run : ended || onSample) ? runOf : null, at: timed && run.run ? at : -1 })}
     </>
   )
 
