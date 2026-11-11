@@ -720,6 +720,31 @@ test('controller bit error rewinds a partly consumed frame before retrying', () 
   assert.equal(result.Tec[retry + bits.length - 4], 7)
 })
 
+test('adaptive controller handles the transition flag and passive retry delay', () => {
+  const tx = { id: 0x123, data: [0xa5] }
+  const bits = transmitBits(tx)
+  const start = 20
+  const firstAck = start + bits.length - 12
+  const retry = firstAck + 26
+  const length = retry + bits.length + 1
+  const bus = Array(length).fill(1)
+  bus[retry + bits.length - 12] = 0
+  const inputs = { start: bus.map((_, tick) => Number(tick === start)), prep: bus.map((_, tick) => Number(tick < 15)), reset: bus.map((_, tick) => Number(tick === 0)) }
+  const params = { start: 'start', prep: 'prep', reset: 'reset' }
+  const calls = Object.fromEntries(['Drive', 'Attempts', 'Tec', 'Mode'].map((name) => [name, { [`controllerAdaptive${name}`]: params }]))
+  const test = { tx, bus: { bits: bus }, inputs }
+  const result = wantOf(calls)(test)
+  assert.deepEqual(result.Attempts.flatMap((value, tick) => value ? [tick] : []), [start, retry])
+  assert.equal(result.Tec[firstAck], 128)
+  assert.equal(result.Mode[firstAck], 1)
+  assert.deepEqual(result.Drive.slice(firstAck + 1, firstAck + 7), Array(6).fill(0))
+  assert.equal(result.Tec[retry + bits.length - 4], 127)
+  inputs.prep[15] = 1
+  const passive = wantOf(calls)(test)
+  assert.equal(passive.Tec[firstAck], 128)
+  assert.deepEqual(passive.Drive.slice(firstAck + 1, retry), Array(25).fill(1))
+})
+
 test('a transmitter releases ACK while another node can acknowledge', () => {
   const tx = { id: 0x123, data: [0xa5] }
   const frame = frameBits(tx)
