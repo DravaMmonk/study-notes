@@ -188,7 +188,6 @@
   "填充检查": "Stuffing check",
   "错误": "Error",
   "查出坏帧": "Find a bad frame",
-  "持续读取总线，交出每帧的标识符、长度和数据字节。发现填充错误时立即交出「否」；没有填充错误时，在 CRC 界定位交出 CRC 是否相符。其余拍对应输出为「—」。": "Read the continuous bus and give each frame’s identifier, length and data bytes. Give no immediately on a stuffing error; otherwise give the CRC result on the CRC delimiter. Give 「—」 on other ticks for each output.",
   "帧起始重置去填充器、CRC 和填充检查。CRC 接收从帧起始到 CRC 序列末尾的原始位。": "Reset destuffing, CRC and stuffing check at start of frame. CRC receives original bits from start of frame through the end of the CRC sequence.",
   "帧长确定 CRC 的结束位置：19 位头部、长度乘八位数据、15 位 CRC。最后一位若触发填充，填充检查还要检查这一位。": "The frame length determines the CRC end: 19 header bits, eight bits per data byte and 15 CRC bits. If the last CRC bit triggers stuffing, check that extra bit too.",
   "一旦发现填充错误先交出「否」，同一帧不要再给第二次结果。": "Report no as soon as a stuffing error is detected, and do not give a second result for that frame.",
@@ -314,7 +313,6 @@
   "只在已落败时转交抓帧器读出的标识符。": "Pass through the identifier read by the capture device only after this node has lost.",
   "输掉仲裁不会破坏赢家的帧；转为接收后，输的一方仍能听懂赢家说的内容。": "Losing arbitration does not damage the winner’s frame. Once the loser becomes a receiver it can still understand what the winner sent.",
   "赢家标识符": "Winner identifier",
-  "在连续总线上读帧的标识符、长度和数据字节；填充错误立即交出否，否则在 CRC 界定位交出校验结果。「结果就绪」标记结果所在拍。这里的错误不改变长度字段。": "Reads identifiers, lengths and data bytes from consecutive frames; gives no immediately on a stuffing error, otherwise gives the CRC result at the CRC delimiter. Result ready marks the tick with a result. Errors here do not change the length field.",
   "结果就绪": "Result ready",
   "收下赢家的帧": "Receive the winner’s frame",
   "落败后不能只收标识符：还要收长度与每个数据字节，并检查 CRC。正确接收的节点会在随后一拍的应答位说显性。": "After losing, receive more than the identifier: take the length and every data byte and check CRC. A node that received the frame correctly says dominant in the following ACK slot.",
@@ -468,5 +466,8 @@
   "先按准备事件更新计数，再发送一帧。处理主动与被动发送错误；若节点下线，停止驱动并观察总线，只有满足恢复条件的请求才获准。获准的下一拍清零计数并重发原帧。测试在下线期间保持总线隐性，不模拟其他节点的报文。": "First update the count from preparation events, then send a frame. Handle active and passive transmit errors; if the node goes bus-off, release and observe the bus, accepting a request only after the recovery condition is met. On the next tick clear the count and retry the original frame. During bus-off the tests keep the bus recessive and do not simulate other nodes’ frames.",
   "用上一拍状态判断是否下线，将总线和下线状态接入下线恢复观察元件。": "Use the previous tick’s state to determine bus-off and connect the bus and that state to the bus-off recovery observer.",
   "把观察完成与恢复请求组合后存入寄存卡；下一拍同时复位错误计数和重新开始发送。": "Store the combination of completed observation and recovery request in a register. On the next tick both reset the fault counter and restart transmission.",
-  "下线节点不能继续尝试发送。完整的观察条件和恢复请求都满足后，才清零计数并让等待中的帧重新出发。": "A bus-off node cannot keep transmitting. Only once both the observation condition and the recovery request are satisfied does it clear the count and retry the pending frame."
+  "下线节点不能继续尝试发送。完整的观察条件和恢复请求都满足后，才清零计数并让等待中的帧重新出发。": "A bus-off node cannot keep transmitting. Only once both the observation condition and the recovery request are satisfied does it clear the count and retry the pending frame.",
+  "在连续总线上读帧的标识符、长度和数据字节；结果就绪时输出 0 正确、1 填充错误或 2 CRC 错误，并给出是否相符。这里的错误不改变长度字段。": "Reads each frame’s identifier, length and data bytes on a continuous bus; when a result is ready, outputs 0 for valid, 1 for a stuff error or 2 for a CRC error, along with whether the frame matches. Errors here do not change the length field.",
+  "持续读取总线，交出每帧的标识符、长度和数据字节。发现填充错误时立即交出「否」和种类 1；没有填充错误时，在 CRC 界定位交出 CRC 是否相符，种类 0 表示正确、2 表示 CRC 错误。其余拍对应输出为「—」。": "Read the continuous bus and give each frame’s identifier, length and data bytes. On a stuffing error immediately give no and kind 1; otherwise give the CRC result on the CRC delimiter, with kind 0 for valid or 2 for a CRC error. Give 「—」 on other ticks for each output.",
+  "结果种类": "Result kind"
 }

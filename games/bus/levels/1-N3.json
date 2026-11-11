@@ -4,13 +4,15 @@
   "builds": {
     "type": "sniffer",
     "name": { "zh": "校验抓帧器" },
-    "desc": { "zh": "在连续总线上读帧的标识符、长度和数据字节；填充错误立即交出否，否则在 CRC 界定位交出校验结果。「结果就绪」标记结果所在拍。这里的错误不改变长度字段。" }
+    "desc": { "zh": "在连续总线上读帧的标识符、长度和数据字节；结果就绪时输出 0 正确、1 填充错误或 2 CRC 错误，并给出是否相符。这里的错误不改变长度字段。" }
   },
   "after": { "zh": "非零 CRC 或填充错误都能让接收方发现问题；校验通过也不意味着所有可能的错误都被排除。" },
   "tasks": [
     {
       "id": "1-N3",
-      "brief": { "zh": "持续读取总线，交出每帧的标识符、长度和数据字节。发现填充错误时立即交出「否」；没有填充错误时，在 CRC 界定位交出 CRC 是否相符。其余拍对应输出为「—」。" },
+      "brief": {
+        "zh": "持续读取总线，交出每帧的标识符、长度和数据字节。发现填充错误时立即交出「否」和种类 1；没有填充错误时，在 CRC 界定位交出 CRC 是否相符，种类 0 表示正确、2 表示 CRC 错误。其余拍对应输出为「—」。"
+      },
       "hint": [
         { "zh": "帧起始重置去填充器、CRC 和填充检查。CRC 接收从帧起始到 CRC 序列末尾的原始位。" },
         { "zh": "帧长确定 CRC 的结束位置：19 位头部、长度乘八位数据、15 位 CRC。最后一位若触发填充，填充检查还要检查这一位。" },
@@ -22,7 +24,8 @@
         { "name": "length", "label": { "zh": "数据长度" } },
         { "name": "byte", "label": { "zh": "字节" } },
         { "name": "ok", "label": { "zh": "相符" } },
-        { "name": "ready", "label": { "zh": "结果就绪" } }
+        { "name": "ready", "label": { "zh": "结果就绪" } },
+        { "name": "kind", "label": { "zh": "结果种类" } }
       ],
       "tests": [
         {
@@ -364,7 +367,8 @@
         "length": "dataLength",
         "byte": "dataByte",
         "ok": { "frameStatus": { "bit": "bit" } },
-        "ready": { "frameStatusReady": { "bit": "bit" } }
+        "ready": { "frameStatusReady": { "bit": "bit" } },
+        "kind": { "frameStatusKind": { "bit": "bit" } }
       },
       "solution": [
         "zero = const[value=0]()",
@@ -425,7 +429,12 @@
         "ok <- result",
         "readyfinish = select(finish, one, zero)",
         "readyvalue = select(firstbad, one, readyfinish)",
-        "ready <- readyvalue"
+        "ready <- readyvalue",
+        "two = const[value=2]()",
+        "crcKind = select(match, zero, two)",
+        "finishKind = select(finish, crcKind)",
+        "resultKind = select(firstbad, one, finishKind)",
+        "kind <- resultKind"
       ],
       "naive": [
         "zero = const[value=0]()",
@@ -486,7 +495,12 @@
         "ok <- result",
         "readyfinish = select(finish, one, zero)",
         "readyvalue = select(firstbad, one, readyfinish)",
-        "ready <- readyvalue"
+        "ready <- readyvalue",
+        "two = const[value=2]()",
+        "crcKind = select(match, zero, two)",
+        "finishKind = select(finish, crcKind)",
+        "resultKind = select(firstbad, one, finishKind)",
+        "kind <- resultKind"
       ]
     }
   ]
