@@ -82,6 +82,8 @@ const WANTS = {
   ecuFlashDemoDone: item(t('模拟控制器确认重启时为是', 'yes when the simulated controller acknowledges restart')),
   ecuPowerLossRequests: item(t('断电后重新完整刷写四字节示例', 'restart the four-byte programming example after power loss')),
   ecuPowerLossDone: item(t('断电恢复后控制器确认重启时为是', 'yes when the controller acknowledges restart after recovery')),
+  ecuDynamicFlashRequests: item(t('按块上限刷写测试软件', 'program the test image using the negotiated block limit')),
+  ecuDynamicFlashDone: item(t('动态刷写后控制器确认重启时为是', 'yes when the controller acknowledges restart after dynamic programming')),
   bitError: item(t('仲裁和应答以外说的位与听到的不同时记下错误', 'retain a bit error when the sent and sampled bits differ outside arbitration and ACK'), S.obj({ bit: INPUT, arbitration: INPUT, ack: INPUT, start: INPUT })),
   errorFlagDrive: item(t('错误后从下一拍发送六位显性错误标志', 'send a six-bit dominant error flag starting on the tick after an error'), S.obj({ error: INPUT })),
   errorFlagDone: item(t('错误标志和八位界定位结束时为是', 'yes when the error flag and eight-bit delimiter finish'), S.obj({ error: INPUT })),
@@ -307,7 +309,7 @@ const TEST = S.obj({
   peerLow: S.opt(S.list(nat, { about: t('其他节点在这些拍拉低总线', 'the other nodes pull the bus low on these ticks') })),
   flipTicks: S.opt(S.list(nat, { about: t('这些拍在线性与之后翻转总线采样值', 'invert the sampled bus after wired-AND on these ticks') })),
   frameRequests: S.opt(S.list(FRAME_REQUEST, { min: 1, about: t('干净总线上的逐帧发送请求', 'frame requests on a clean bus') })),
-  ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)), waits: S.opt(nat), requiresExtended: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1 })), requiresSecurity: S.opt(S.bool()), seed: S.opt(S.int({ min: 0, max: 255 })), dtcs: S.opt(S.list(S.obj({ code: hex(0xffffff, 6), status: hex(0xff, 2) }))), flash: S.opt(S.obj({ maxBlock: S.int({ min: 3, max: 255 }), expectedChecksum: S.int({ min: 0, max: 255 }), requiresSecurity: S.opt(S.bool()) })), powerCycles: S.opt(S.list(nat)) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
+  ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)), waits: S.opt(nat), requiresExtended: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1 })), requiresSecurity: S.opt(S.bool()), seed: S.opt(S.int({ min: 0, max: 255 })), dtcs: S.opt(S.list(S.obj({ code: hex(0xffffff, 6), status: hex(0xff, 2) }))), flash: S.opt(S.obj({ maxBlock: S.int({ min: 3, max: 255 }), expectedChecksum: S.int({ min: 0, max: 255 }), requiresSecurity: S.opt(S.bool()), image: S.opt(S.list(hex(0xff, 2), { min: 1, max: 65535 })) })), powerCycles: S.opt(S.list(nat)) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
@@ -317,7 +319,7 @@ const LEVEL = levelSchema({
     drives: S.opt(S.bool({ about: t('板上有驱动总线的说话口', 'the board has a port that drives the bus') })),
     inputs: S.opt(S.list(PORT)),
     frameInputs: S.opt(S.map(FRAME_FIELD, { about: t('逐帧输入读取标识符、长度、字节或开始时间', 'frame inputs read the identifier, length, a byte, or start time') })),
-    ecu: S.opt(S.obj({ request: NAME, response: NAME }, { about: t('输出发出诊断请求，输入在下一拍收到控制器回答', 'an output requests a diagnostic message and an input receives the ECU reply on the next tick') })),
+    ecu: S.opt(S.obj({ request: NAME, response: NAME, image: S.opt(NAME) }, { about: t('输出发出诊断请求，输入在下一拍收到控制器回答', 'an output requests a diagnostic message and an input receives the ECU reply on the next tick') })),
     pulls: S.opt(S.obj({ input: NAME, available: NAME, next: NAME, last: S.opt(NAME), rewind: S.opt(NAME) }, { about: t('输入读取队首字节和是否有字节；输出为 1 时取走队首，下一拍出现下一字节', 'inputs give the front byte and whether one is available; output 1 takes it and the next byte appears next tick') })),
   },
   checks: { want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么') }) },
@@ -325,7 +327,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 89,
+  version: 90,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

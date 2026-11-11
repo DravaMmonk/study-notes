@@ -15,6 +15,14 @@ const onesBefore = (bits, t) => {
 }
 const each = (test, f) => test.bus.bits.map((_, t) => f(t))
 
+const dynamicFlashPlan = (test) => {
+  const { image, maxBlock } = test.ecu.flash
+  const requests = [[0x10, 2], [0x31, 1, 255, 0], [0x34, 0, 0x12, 0, image.length >> 8, image.length & 255]]
+  for (let offset = 0, sequence = 1; offset < image.length; offset += maxBlock - 2, sequence = (sequence + 1) & 255) requests.push([0x36, sequence, ...image.slice(offset, offset + maxBlock - 2)])
+  requests.push([0x37], [0x31, 1, 255, 1], [0x11, 1])
+  return requests
+}
+
 const destuff = (bits, resets) => {
   let previous = null
   let run = 0
@@ -725,6 +733,8 @@ const WANTS = {
     return test.bus.bits.map((_, tick) => requests[tick] ?? null)
   },
   ecuPowerLossDone: () => (test) => test.bus.bits.map((_, tick) => tick === 13 ? true : null),
+  ecuDynamicFlashRequests: () => (test) => { const requests = dynamicFlashPlan(test); return test.bus.bits.map((_, tick) => requests[tick] ?? null) },
+  ecuDynamicFlashDone: () => (test) => { const count = dynamicFlashPlan(test).length; return test.bus.bits.map((_, tick) => tick === count ? true : null) },
   bitError: ({ bit, arbitration: phase, ack, start }) => (test) => {
     let error = false
     return each(test, (tick) => {

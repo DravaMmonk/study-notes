@@ -1271,3 +1271,14 @@ test('message timeline abbreviates long sequences while retaining full input val
   assert.equal(rows.find((row) => row.of === 'data').text(bytes), '[0, 1, 2, 3, 4, 5, 6, 7, … (20)]')
   assert.deepEqual(rows.find((row) => row.of === 'message').got[0], bytes)
 })
+
+test('dynamic programming plans blocks using the advertised limit and wrap their counters', () => {
+  const image = Array.from({ length: 257 }, (_, index) => index & 255)
+  const test = { bus: { bits: Array(270).fill(1) }, ecu: { flash: { image, maxBlock: 3 } } }
+  const want = wantOf({ request: 'ecuDynamicFlashRequests', done: 'ecuDynamicFlashDone' })(test)
+  assert.deepEqual(want.request[2], [0x34, 0, 0x12, 0, 1, 1])
+  assert.deepEqual(want.request[3], [0x36, 1, 0])
+  assert.deepEqual(want.request[258], [0x36, 0, 255])
+  assert.deepEqual(want.request[259], [0x36, 1, 0])
+  assert.equal(want.done.indexOf(true), 263)
+})
