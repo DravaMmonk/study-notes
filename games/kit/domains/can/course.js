@@ -51,6 +51,7 @@ export function canCourse(content) {
     if (task.transport) {
       if (!t.transport || t.bus.frames.length || task.ecu || task.frameInputs || task.pulls || task.listens || task.drives || t.contenders?.length || t.tx || t.peerBits || t.peerLow?.length || t.flipTicks?.length) say('transport tasks require a simulated receiver without other bus activity')
       if (!task.inputs?.some((input) => input.name === task.transport.flow) || !task.inputs?.some((input) => input.name === task.transport.message) || task.transport.flow === task.transport.message) say('transport flow and message must be distinct task inputs')
+      if (task.transport.ready && (!task.inputs?.some((input) => input.name === task.transport.ready) || [task.transport.flow, task.transport.message].includes(task.transport.ready))) say('transport readiness must be a distinct task input')
       if (!task.outputs?.some((output) => output.name === task.transport.frame)) say('transport frame is not a task output')
     } else if (t.transport) say('a transport test requires transport task ports')
     if (task.ecu) {
@@ -131,7 +132,7 @@ export function canCourse(content) {
     }
     for (const i of task.inputs ?? []) {
       const name = i.name
-      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name), Object.prototype.hasOwnProperty.call(task.frameInputs ?? {}, name), task.ecu?.response === name, task.ecu?.image === name, task.transport?.flow === name, task.transport?.message === name]
+      const sources = [Boolean(t.inputs?.[name]), Boolean(t.runs?.[name]), Boolean(t.lineInputs?.includes(name)), Object.prototype.hasOwnProperty.call(t.constants ?? {}, name), Object.prototype.hasOwnProperty.call(t.pulses ?? {}, name), Object.prototype.hasOwnProperty.call(t.txInputs ?? {}, name), Object.prototype.hasOwnProperty.call(task.frameInputs ?? {}, name), task.ecu?.response === name, task.ecu?.image === name, task.transport?.flow === name, task.transport?.message === name, task.transport?.ready === name]
       if (![task.pulls?.input, task.pulls?.available, task.pulls?.last].includes(name) && !sources.some(Boolean)) say(`a test gives nothing on the input ${name}`)
       if (sources.filter(Boolean).length > 1) say(`input ${name} has more than one source`)
     }

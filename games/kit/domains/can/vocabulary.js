@@ -323,7 +323,7 @@ const LEVEL = levelSchema({
     inputs: S.opt(S.list(PORT)),
     frameInputs: S.opt(S.map(FRAME_FIELD, { about: t('逐帧输入读取标识符、长度、字节或开始时间', 'frame inputs read the identifier, length, a byte, or start time') })),
     ecu: S.opt(S.obj({ request: NAME, response: NAME, image: S.opt(NAME) }, { about: t('输出发出诊断请求，输入在下一拍收到控制器回答', 'an output requests a diagnostic message and an input receives the ECU reply on the next tick') })),
-    transport: S.opt(S.obj({ frame: NAME, flow: NAME, message: NAME }, { about: t('发送帧并接收模拟接收方的流控', 'send frames and receive flow control from a simulated receiver') })),
+    transport: S.opt(S.obj({ frame: NAME, flow: NAME, message: NAME, ready: S.opt(NAME) }, { about: t('发送帧并接收模拟接收方的流控', 'send frames and receive flow control from a simulated receiver') })),
     pulls: S.opt(S.obj({ input: NAME, available: NAME, next: NAME, last: S.opt(NAME), rewind: S.opt(NAME) }, { about: t('输入读取队首字节和是否有字节；输出为 1 时取走队首，下一拍出现下一字节', 'inputs give the front byte and whether one is available; output 1 takes it and the next byte appears next tick') })),
   },
   checks: { want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么') }) },
@@ -331,7 +331,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 92,
+  version: 93,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

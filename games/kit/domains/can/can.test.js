@@ -1286,9 +1286,9 @@ test('dynamic programming plans blocks using the advertised limit and wrap their
 test('a board exchanges frames and flow control with a reactive transport receiver', () => {
   const content = JSON.parse(JSON.stringify(COURSE))
   const task = content.levels.find((level) => level.id === 'gather').tasks[0]
-  task.inputs = [{ name: 'message', label: L('message') }, { name: 'flow', label: L('flow') }]
+  task.inputs = [{ name: 'message', label: L('message') }, { name: 'flow', label: L('flow') }, { name: 'ready', label: L('ready') }]
   task.outputs = [{ name: 'frame', label: L('frame') }]
-  task.transport = { frame: 'frame', flow: 'flow', message: 'message' }
+  task.transport = { frame: 'frame', flow: 'flow', message: 'message', ready: 'ready' }
   task.tests = [{ bus: { idle: 3, frames: [], tail: 0 }, transport: { message: [1, 2, 3, 4, 5, 6, 7, 8], blockSize: 0, separation: 0, flowDelay: 1 } }]
   task.hidden = []
   task.want = { frame: 'transportFrames' }
@@ -1300,6 +1300,7 @@ test('a board exchanges frames and flow control with a reactive transport receiv
   const result = runLevel(played, played.solution, course.partOf)
   assert.equal(result.pass, true)
   assert.deepEqual(result.runs[0].ticks[1].bind.flow, [0x30, 0, 0])
+  assert.deepEqual(result.runs[0].ticks.map((tick) => tick.bind.ready), [0, 1, 0])
 })
 
 test('transport gap honors zero and multi-tick separations', () => {
