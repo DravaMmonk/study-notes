@@ -57,3 +57,18 @@ test('a silent receiver requires a timed abort, not an early abort', () => {
   assert.equal(state.aborted, true)
   assert.equal(state.error, null)
 })
+
+test('later flow silence times out from the block boundary', () => {
+  const profile = { message: Array.from({ length: 15 }, (_, i) => i), blockSize: 1, separation: 0, flowDelay: 1, silentAfter: 1, timeout: 3 }
+  let state = newTransportState()
+  const plan = transportPlan(profile)
+  assert.deepEqual([...plan.keys()], [0, 1])
+  state = advanceTransport(state, plan.get(0), profile, 0)
+  state = advanceTransport(state, plan.get(1), profile, 1)
+  assert.equal(state.silenced, true)
+  assert.equal(state.waitSince, 1)
+  assert.match(advanceTransport(state, null, profile, 3, true).error, /unexpected timeout/)
+  state = advanceTransport(state, null, profile, 4, true)
+  assert.equal(state.error, null)
+  assert.equal(state.aborted, true)
+})

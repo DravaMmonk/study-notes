@@ -117,6 +117,7 @@ const WANTS = {
   frameFreshness: item(t('目标报文是否在等待期限内出现', 'whether the target frame arrived within the deadline'), S.obj({ id: INPUT, time: INPUT, target: INPUT, limit: INPUT })),
   timedTransportMessage: item(t('等待期限内重组的长消息', 'long message reassembled within the deadline'), S.obj({ data: INPUT, id: INPUT, time: INPUT, limit: INPUT, target: S.opt(INPUT), match: S.opt(S.int({ min: 0, max: 2047 })) })),
   timedTransportAbort: item(t('等待下一帧超时时触发', 'trigger when waiting for the next frame times out'), S.obj({ data: INPUT, id: INPUT, time: INPUT, limit: INPUT, target: S.opt(INPUT), match: S.opt(S.int({ min: 0, max: 2047 })) })),
+  transportLaterAbort: item(t('后续流控静默到期时终止', 'abort when a later flow-control response remains silent')),
   transportFrames: item(t('按流控和间隔发送消息的帧', 'frames sent according to flow control and separation')),
   transportGapReady: item(t('按流控间隔等待后续帧的发送时机', 'wait for the consecutive-frame separation before allowing the next send'), S.obj({ set: INPUT, separation: INPUT, sent: INPUT })),
   transportTimeoutAbort: item(t('接收方不回答时在等待上限终止', 'abort at the waiting limit when the receiver is silent')),
@@ -352,7 +353,7 @@ const TEST = S.obj({
   frameRequests: S.opt(S.list(FRAME_REQUEST, { min: 1, about: t('干净总线上的逐帧发送请求', 'frame requests on a clean bus') })),
   frameChecks: S.opt(S.list(nat, { about: t('额外检查时刻，以总线位拍计', 'additional clock-check times in bus bit ticks') })),
   ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)), waits: S.opt(nat), requiresExtended: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1 })), requiresSecurity: S.opt(S.bool()), seed: S.opt(S.int({ min: 0, max: 255 })), dtcs: S.opt(S.list(S.obj({ code: hex(0xffffff, 6), status: hex(0xff, 2) }))), flash: S.opt(S.obj({ maxBlock: S.int({ min: 3, max: 255 }), expectedChecksum: S.int({ min: 0, max: 255 }), requiresSecurity: S.opt(S.bool()), image: S.opt(S.list(hex(0xff, 2), { min: 1, max: 65535 })), versionAfter: S.opt(S.list(hex(0xff, 2))), fixedDtcs: S.opt(S.list(hex(0xffffff, 6))) })), powerCycles: S.opt(S.list(nat)) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
-  transport: S.opt(S.obj({ message: S.list(hex(0xff, 2), { min: 8, max: 4095 }), blockSize: S.int({ min: 0, max: 255 }), separation: S.int({ min: 0, max: 127 }), flowDelay: S.int({ min: 1, max: 100 }), waits: S.opt(S.int({ min: 0, max: 5 })), overflow: S.opt(S.bool()), silent: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1, max: 100 })) }, { about: t('长消息和模拟接收方的流控参数', 'long message and simulated receiver flow-control parameters') })),
+  transport: S.opt(S.obj({ message: S.list(hex(0xff, 2), { min: 8, max: 4095 }), blockSize: S.int({ min: 0, max: 255 }), separation: S.int({ min: 0, max: 127 }), flowDelay: S.int({ min: 1, max: 100 }), waits: S.opt(S.int({ min: 0, max: 5 })), overflow: S.opt(S.bool()), silent: S.opt(S.bool()), silentAfter: S.opt(S.int({ min: 1, max: 100 })), timeout: S.opt(S.int({ min: 1, max: 100 })) }, { about: t('长消息和模拟接收方的流控参数', 'long message and simulated receiver flow-control parameters') })),
   bridge: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2), { min: 17, max: 17 }) }, { about: t('模拟控制器的标识和十七字节记录', 'the simulated ECU identifier and seventeen-byte record') })),
   fleet: S.opt(S.list(S.obj({ online: S.bool(), version: hex(0xff, 2), waits: S.opt(nat), requiresExtended: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1 })), dtcs: S.opt(S.list(S.obj({ code: hex(0xffffff, 6), status: hex(0xff, 2) }))), seed: S.opt(S.int({ min: 0, max: 255 })), after: S.opt(S.int({ min: 0, max: 5 })), flash: S.opt(S.obj({ maxBlock: S.int({ min: 3, max: 255 }), expectedChecksum: S.int({ min: 0, max: 255 }), requiresSecurity: S.opt(S.bool()), image: S.list(hex(0xff, 2), { min: 1, max: 65535 }), versionAfter: S.list(hex(0xff, 2)), fixedDtcs: S.opt(S.list(hex(0xffffff, 6))) })) }), { min: 6, max: 6, about: t('六个模拟控制器的在线状态和版本', 'online status and version of six simulated controllers') })),
 })
@@ -375,7 +376,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 114,
+  version: 115,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

@@ -767,6 +767,7 @@ const WANTS = {
   fleetFaultAny: () => (test) => fleetFaultPlan(test).any,
   encodeLow: ({ input }) => (test) => test.inputs[input].map((value) => value & 255),
   encodeHigh: ({ input }) => (test) => test.inputs[input].map((value) => (value >> 8) & 255),
+  transportLaterAbort: () => (test) => { const plan = transportPlan(test.transport), last = Math.max(...plan.keys()); return test.bus.bits.map((_, tick) => test.transport.silentAfter !== undefined && tick === last + test.transport.timeout ? true : null) },
   timedTransportMessage: (params) => (test) => timedTransportPlan(test, params).messages,
   timedTransportAbort: (params) => (test) => timedTransportPlan(test, params).timeouts,
   crc8Signal: ({ input }) => (test) => test.inputs[input].map(crc8Byte),
