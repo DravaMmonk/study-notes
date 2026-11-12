@@ -26,7 +26,7 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   let consumed = 0
   const fleet = task.fleet && reacting({
     id: 'fleet', board: 'you', start: newFleetState(test.fleet),
-    reads: (state, tick) => ({ [task.fleet.source]: state.source, [task.fleet.response]: state.response, [task.fleet.ready]: Number(state.response !== null), ...Object.fromEntries(Object.entries(task.fleet.images ?? {}).map(([name, index]) => [name, test.fleet[index].flash.image])), ...(task.fleet.trace ? { [task.fleet.trace.speed]: test.fleetTrace[tick]?.speed ?? null, [task.fleet.trace.wheel]: test.fleetTrace[tick]?.wheel ?? null, [task.fleet.trace.ready]: Number(tick < test.fleetTrace.length) } : {}) }),
+    reads: (state, tick) => ({ [task.fleet.source]: state.source, [task.fleet.response]: state.response, [task.fleet.ready]: Number(state.response !== null), ...Object.fromEntries(Object.entries(task.fleet.images ?? {}).map(([name, index]) => [name, test.fleet[index].flash.image])), ...(task.fleet.trace ? { [task.fleet.trace.speed]: test.fleetTrace[tick]?.speed ?? null, [task.fleet.trace.wheel]: test.fleetTrace[tick]?.wheel ?? null, [task.fleet.trace.ready]: Number(tick < test.fleetTrace.length), ...(task.fleet.trace.postSpeed ? { [task.fleet.trace.postSpeed]: state.controllers.slice(0, 2).every((ecu) => ecu.driven) ? test.fleetPost.speed : null, [task.fleet.trace.postWheel]: state.controllers.slice(0, 2).every((ecu) => ecu.driven) ? test.fleetPost.wheel : null } : {}) } : {}) }),
     step: (state, outputs, tick) => ({ state: advanceFleet(state, outputs[task.fleet.target], outputs[task.fleet.request], test.fleet, tick), shown: null }),
   })
   let bridgeState = newDiagnosticBridge()

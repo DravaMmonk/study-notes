@@ -773,6 +773,7 @@ const WANTS = {
   fleetTraceReport: () => (test) => shiftTrace(fleetRecheckPlan(test).report, traceStart(test)),
   fleetTraceTrigger: () => (test) => { const at = traceTrigger(test), report = shiftTrace(fleetRecheckPlan(test).report, traceStart(test)); return report.map((value) => value === null ? null : at) },
   fleetTraceWindow: () => (test) => { const at = traceTrigger(test); return test.bus.bits.map((_, tick) => at >= 1 && tick === at + 1 && at + 1 < test.fleetTrace.length ? test.fleetTrace.slice(at - 1, at + 2).flatMap(({ speed, wheel }) => [speed, wheel]) : null) },
+  fleetTraceHealthy: () => (test) => { const report = shiftTrace(fleetRecheckPlan(test).report, traceStart(test)); const { speed, wheel } = test.fleetPost; return report.map((value) => value === null ? null : value[2] === value[3] && value[6] === 0 && value[7] === 0 && speed <= 100 && wheel <= 100 && Math.abs(speed - wheel) <= 2) },
   fleetFaultRecords: () => (test) => fleetFaultPlan(test).records,
   fleetFaultAny: () => (test) => fleetFaultPlan(test).any,
   encodeLow: ({ input }) => (test) => test.inputs[input].map((value) => value & 255),

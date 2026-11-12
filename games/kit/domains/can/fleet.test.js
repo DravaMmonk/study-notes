@@ -51,6 +51,8 @@ test('dependent programming waits for the first controller to restart successful
   deepStrictEqual(send(0, read), [0x62, 0xf1, 0x88, 7])
   deepStrictEqual(send(0, [0x31, 1, 0xfe, 0]), [0x71, 1, 0xfe, 0])
   equal(state.controllers[0].dtcs.length, 0)
+  equal(state.controllers[0].driven, true)
+  equal(state.controllers[1].driven, false)
 })
 
 test('a broadcast queues replies from online controllers in index order', () => {
