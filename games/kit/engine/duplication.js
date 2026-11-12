@@ -7,7 +7,8 @@
 //
 //   duplicated([{ key, name, text }]) → { key: { lines, shared } }   one kind of file, each a domain's (`name`)
 //   baseDomains(kit) → [{ key, name, dir }]   the domains on the base: every domain whose course reads through
-//                                              circuitCourse, and the scaffold's templates
+//                                              circuitCourse (or definedCourse, which reads through it), and the
+//                                              scaffold's templates
 //   measure(kit, files) → { file: { key: { lines, shared } } }
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -36,7 +37,7 @@ export function duplicated(files, { at = 3 } = {}) {
 export function baseDomains(kit) {
   const domains = readdirSync(resolve(kit, 'domains'))
     .map((name) => ({ key: name, name, dir: resolve(kit, 'domains', name) }))
-    .filter(({ dir }) => existsSync(resolve(dir, 'course.js')) && readFileSync(resolve(dir, 'course.js'), 'utf8').includes('circuitCourse('))
+    .filter(({ dir }) => existsSync(resolve(dir, 'course.js')) && /\b(circuit|defined)Course\(/.test(readFileSync(resolve(dir, 'course.js'), 'utf8')))
   const templates = readdirSync(resolve(kit, 'scaffold')).map((name) => ({ key: `scaffold/${name}`, name: '__name__', dir: resolve(kit, 'scaffold', name) }))
   return [...domains, ...templates]
 }

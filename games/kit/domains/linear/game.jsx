@@ -12,19 +12,11 @@
 //   starter/      the smallest game on the domain (npm run new-game copies it)
 import { Grid3x3 } from 'lucide-react'
 import './ui/linear.css'
-import { circuitGame } from '../../shell/circuit-game.js'
-import { iconOf } from '../../shell/parts/icons.js'
+import { definedGame } from '../../shell/circuit-game.js'
 import Screen from './ui/Screen.jsx'
 import Hero from './ui/Hero.jsx'
 import { linearCourse } from './course.js'
 import { OPS } from './ops.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary, partDefs }. */
-export default function linearGame(content) {
-  const linear = linearCourse(content)
-  const cards = Object.fromEntries(Object.entries(linear.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: iconOf(d.icon) }]))
-  const game = circuitGame(content, linear, { kind: { id: 'circuit', icon: Grid3x3, label: { zh: '电路', en: 'Circuit' } }, Screen, cards, Hero })
-  // The game's own parts as the studio shows them (../../shell/parts/PartPreview.jsx).
-  game.defined = { of: (type) => linear.defs[type] ?? null, defaults: linear.defaultsOf, ops: OPS }
-  return game
-}
+export default (content) => definedGame(content, linearCourse(content), { kind: { id: 'circuit', icon: Grid3x3, label: { zh: '电路', en: 'Circuit' } }, Screen, Hero, ops: OPS })

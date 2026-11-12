@@ -12,18 +12,10 @@
 //   starter/      the smallest game on the domain (npm run new-game copies it)
 import { Binary } from 'lucide-react'
 import './ui/__name__.css'
-import { circuitGame } from '../../shell/circuit-game.js'
-import { iconOf } from '../../shell/parts/icons.js'
+import { definedGame } from '../../shell/circuit-game.js'
 import Screen from './ui/Screen.jsx'
 import { __name__Course } from './course.js'
 import { OPS } from './ops.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary, partDefs }. */
-export default function __name__Game(content) {
-  const __name__ = __name__Course(content)
-  const cards = Object.fromEntries(Object.entries(__name__.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: iconOf(d.icon) }]))
-  const game = circuitGame(content, __name__, { kind: { id: 'circuit', icon: Binary, label: { zh: '电路', en: 'Circuit' } }, Screen, cards })
-  // The game's own parts as the studio shows them (../../shell/parts/PartPreview.jsx).
-  game.defined = { of: (type) => __name__.defs[type] ?? null, defaults: __name__.defaultsOf, ops: OPS }
-  return game
-}
+export default (content) => definedGame(content, __name__Course(content), { kind: { id: 'circuit', icon: Binary, label: { zh: '电路', en: 'Circuit' } }, Screen, ops: OPS })

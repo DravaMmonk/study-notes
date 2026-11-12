@@ -8,9 +8,13 @@
 //     kinds        { kind: { Screen, icon, label } } the screens of the tasks that are no board (the course read's
 //                  kinds); a level's kind is its last task's
 //     IntroFigure  what draws an introduction page's figure (index.js)
+//   definedGame(content, circuit, { ops, …circuitGame's but cards })   the game of a domain whose games define their
+//     own parts (parts.json, the course read's `defs`): its cards are those parts, and `game.defined` is what draws
+//     them, on its screens (CircuitScreen `defined`) and in the studio (parts/PartPreview.jsx)
 import { CircuitBoard } from 'lucide-react'
 import { introductions, isCore, levelLabels } from '../course.js'
 import { defineGame } from './index.js'
+import { iconOf } from './parts/icons.js'
 
 /** The fields of an object that hold something. */
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
@@ -68,4 +72,9 @@ export function circuitGame(content, circuit, { kind, Screen, cards, Hero, kinds
   })
   game.circuit = circuit
   return game
+}
+
+export function definedGame(content, circuit, { ops, ...own }) {
+  const cards = Object.fromEntries(Object.entries(circuit.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: iconOf(d.icon) }]))
+  return Object.assign(circuitGame(content, circuit, { ...own, cards }), { defined: { of: (type) => circuit.defs[type] ?? null, defaults: circuit.defaultsOf, ops } })
 }

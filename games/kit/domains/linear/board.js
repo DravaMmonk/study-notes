@@ -10,10 +10,6 @@
 //
 //   s = add(a, b)
 //   sum <- s
-import { INPUTS, OUTPUTS, circuitBoard } from '../../engine/circuit-domain.js'
+import { flowBoard } from '../../engine/circuit-domain.js'
 
-export const board = circuitBoard({
-  cards: [INPUTS, OUTPUTS],
-  right: 900,
-  gap: 120,
-})
+export const board = flowBoard()

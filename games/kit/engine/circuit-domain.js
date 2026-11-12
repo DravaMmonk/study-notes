@@ -12,6 +12,14 @@
 //       ticks  the board runs tick by tick (../engine/ticks.js), so its wires may feed back
 //     A task that gives the board it opens on (`starter`, blueprint text read like its answer) starts on a copy of it.
 //   INPUTS, OUTPUTS   the cards most boards are given: a task's inputs down the left, its outputs down the right
+//   flowBoard()       the board of a domain whose levels give just those, run once
+//   definedCourse(content, { board, ops, read? }) → circuitCourse's, with { defs, defaultsOf }: the course of a domain
+//     whose games define their own parts (parts.json, ./parts/define.js) over its engine resources `ops`, and whose
+//     tests give a value on every input and expect one of every output (`inputs`, `expect`); read(value, name, say) →
+//     a value as content writes it made a value on the wires
+//   onceRun({ same?, show?, tolerance?, says? }) → { runTest, runLevel, entries }: such a board run once on a test
+//     and its outputs checked against what the test expects (same(want, got, tolerance)); what a miss says is
+//     says(port, want, got), or by default both values in words (show); `entries` what the results area can show
 //   circuitCourse(content, { board, parts, read?, test?, kinds?, pack?, holds?, replaces?, unwanted? }) → { LEVELS,
 //     played, builtBy, CHAPTERS, course, partOf, BUILT, types, blueprints, wrong, offerIn, introductions, carried,
 //     opening, syncOwn }
@@ -42,7 +50,9 @@
 import { stagesOf } from './stages.js'
 import { assemblySeries } from './assembly-series.js'
 import { print, read } from '../circuit/text.js'
-import { packed, sink, source, withSettings } from './boards.js'
+import { packed, runTraced, sink, source, withSettings } from './boards.js'
+import { defineParts } from './parts/define.js'
+import { isGrid } from './grid.js'
 import { formed } from './forms.js'
 import { portsOf } from './circuit.js'
 import { withHidden } from './tests.js'
@@ -140,6 +150,9 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140 }) {
 /** A task's inputs down the left of its board, and its outputs down the right. */
 export const INPUTS = { type: 'in', side: 'left', of: (task) => task.inputs ?? [] }
 export const OUTPUTS = { type: 'out', side: 'right', of: (task) => task.outputs ?? [] }
+
+/** The board of a domain whose levels give it only inputs and outputs, and that runs once. */
+export const flowBoard = () => circuitBoard({ cards: [INPUTS, OUTPUTS], right: 900, gap: 120 })
 
 /** A circuit of the game's primitives alone, no part built: what a board reads on outside a course (a test, a tool). */
 export const primitivesOnly = (board, parts) => ({ BUILT: {}, partOf: (t) => board.FIXED_PARTS[t] ?? parts[t], types: () => Object.keys(parts).filter((t) => !board.isFixed(t)), builtBy: () => null })
@@ -405,6 +418,21 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
   return result
 }
 
+/**
+ * The course of a domain whose games define their own parts (content.partDefs: parts.json) over its engine resources,
+ * its tests giving a value on every input and expecting one of every output.
+ */
+export function definedCourse(content, { board, ops, read: readValue = (v) => v }) {
+  const { PARTS, defs, defaultsOf } = defineParts(content.partDefs, ops)
+  const test = (t, task, say) => {
+    for (const o of task.outputs) if (t.expect[o.name] === undefined) say(`a test expects nothing of the output ${o.name}`)
+    for (const i of task.inputs) if (t.inputs[i.name] === undefined) say(`a test gives nothing on the input ${i.name}`)
+    const values = (given) => Object.fromEntries(Object.entries(given).map(([name, v]) => [name, readValue(v, name, say)]))
+    return { ...t, inputs: values(t.inputs), expect: values(t.expect) }
+  }
+  return { ...circuitCourse(content, { board, parts: PARTS, test }), defs, defaultsOf }
+}
+
 /* ---------- a level ---------- */
 
 /** A card's name: a port's, a register's, a part's a level builds. */
@@ -551,6 +579,27 @@ export function judgeTicks(ticks, { checked, want, got = (tick, name) => tick.ou
 export const runTests = (runTest) => (task, board, parts) => {
   const runs = task.tests.map((test) => runTest(task, board, test, parts))
   return { runs, pass: runs.every((r) => !r.fail && !r.error) }
+}
+
+/**
+ * A board run once on a test whose `inputs` are bound to the task's inputs (./boards.js runTraced, every card it
+ * computes traced), each output checked against what the test expects of it.
+ */
+export function onceRun({ same = (a, b) => a === b, show = valueText, tolerance, says = () => null } = {}) {
+  const runTest = (task, circuit, test, partOf) => {
+    const run = runTraced(circuit, partOf, test.inputs)
+    const out = task.outputs.find((o) => !same(test.expect[o.name], run.outputs[o.name] ?? null, tolerance))
+    if (!out) return run
+    const [want, got] = [test.expect[out.name], run.outputs[out.name] ?? null]
+    const why = says(out, want, got) ?? t(`「${sideOf(out.label, 'zh')}」应当是 ${show(want)}，这块板给出 ${show(got)}。`, `“${sideOf(out.label, 'en')}” should be ${show(want)}; the board gives ${show(got)}.`)
+    return { ...run, fail: { name: out.name, want, got, why } }
+  }
+  const shape = (v) => (isGrid(v) ? 'grid' : 'scalar')
+  const entries = ({ task, test, run }) => [
+    ...task.inputs.map((i) => ({ of: i.name, label: i.label, shape: shape(test.inputs[i.name]), given: test.inputs[i.name], shown: false })),
+    ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: shape(test.expect[o.name]), got: run.outputs[o.name] ?? null, want: test.expect[o.name], ...(tolerance === undefined ? {} : { tolerance }) })),
+  ]
+  return { runTest, runLevel: runTests(runTest), entries }
 }
 
 /* ---------- the checks ---------- */
