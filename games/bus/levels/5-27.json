@@ -1,0 +1,97 @@
+{
+  "title": { "zh": "周期发送编码报文" },
+  "intro": [
+    { "t": { "zh": "把双字节编码器接到简化帧调度器：在固定周期请求发送三帧，并与其他节点的干净帧竞争总线。" } },
+    { "t": { "zh": "时间以总线位拍计。调度器按标识符仲裁，失败的请求等到下一次帧间隔；这里不模拟错误、缺应答或玩家逐位控制器。" } }
+  ],
+  "after": { "zh": "应用按周期提出发送请求，实际帧开始时间还取决于其他节点的仲裁和帧间隔。" },
+  "tasks": [
+    {
+      "id": "5-27",
+      "brief": { "zh": "在第 0 拍、一个周期和两个周期时请求发送标识符 0x200 的帧，数据为输入数值的低字节、高字节。其他拍不发请求。" },
+      "hint": [{ "zh": "用寄存卡计拍，分别比较 0、一个周期和两个周期；用自己搭的双字节编码器生成帧数据。" }],
+      "inputs": [
+        { "name": "raw", "label": { "zh": "应用数值" } },
+        { "name": "period", "label": { "zh": "发送周期（位拍）" } }
+      ],
+      "outputs": [
+        { "name": "id", "label": { "zh": "发送标识符" } },
+        { "name": "data", "label": { "zh": "发送数据" } },
+        { "name": "send", "label": { "zh": "发送请求" } }
+      ],
+      "emits": { "id": "id", "data": "data", "send": "send", "value": "raw", "period": "period" },
+      "tests": [
+        {
+          "bus": { "idle": 460, "frames": [], "tail": 0 },
+          "constants": { "raw": 257, "period": 150 },
+          "emissions": {
+            "id": "0x200",
+            "value": 257,
+            "period": 150,
+            "peers": [{ "node": "rival", "at": 0, "id": "0x100", "data": [] }]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 560, "frames": [], "tail": 0 },
+          "constants": { "raw": 4660, "period": 200 },
+          "emissions": {
+            "id": "0x200",
+            "value": 4660,
+            "period": 200,
+            "peers": [
+              { "node": "rival", "at": 0, "id": "0x300", "data": [] },
+              { "node": "rival", "at": 200, "id": "0x100", "data": [] }
+            ]
+          }
+        }
+      ],
+      "want": { "id": "periodicFrameId", "data": "periodicFrameData", "send": "periodicFrameSend" },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "saveTick = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "frameId = const[value=512]()",
+        "at0 = compare[form=eq](tick, zero)",
+        "at1 = compare[form=eq](tick, period)",
+        "twice = arith[form=add](period, period)",
+        "at2 = compare[form=eq](tick, twice)",
+        "later = select(at1, at1, at2)",
+        "sendNow = select(at0, at0, later)",
+        "send <- sendNow",
+        "encoded = wordEncoder(raw)",
+        "low = byteList(encoded.low)",
+        "high = byteList(encoded.high)",
+        "payload = concatBytes(low, high)",
+        "idNow = select(sendNow, frameId)",
+        "dataNow = select(sendNow, payload)",
+        "id <- idNow",
+        "data <- dataNow"
+      ],
+      "naive": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "saveTick = keep[reg=A](next)",
+        "zero = const[value=0]()",
+        "frameId = const[value=512]()",
+        "at0 = compare[form=eq](tick, zero)",
+        "at1 = compare[form=eq](tick, period)",
+        "twice = arith[form=add](period, period)",
+        "at2 = compare[form=eq](tick, twice)",
+        "later = select(at1, at1, at2)",
+        "sendNow = select(at0, at0, later)",
+        "send <- sendNow",
+        "encoded = wordEncoder(raw)",
+        "low = byteList(encoded.low)",
+        "high = byteList(encoded.high)",
+        "payload = concatBytes(high, low)",
+        "idNow = select(sendNow, frameId)",
+        "dataNow = select(sendNow, payload)",
+        "id <- idNow",
+        "data <- dataNow"
+      ]
+    }
+  ]
+}

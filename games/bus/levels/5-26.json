@@ -1,0 +1,146 @@
+{
+  "title": { "zh": "反过来当控制器" },
+  "intro": [
+    { "t": { "zh": "前面的关卡中，模拟控制器回答玩家。现在换个方向：玩家电路收到诊断请求，并用题目提供的记录组织回答。" } },
+    { "t": { "zh": "本关只处理三种完整格式：读取 0xF190、读取已确认故障 [0x19, 2, 8]，以及其他服务号。数据记录和已确认故障记录由输入提供，不模拟会话、分帧或故障状态变化。" } }
+  ],
+  "after": { "zh": "诊断控制器既要对支持的服务给出约定格式，也要对不支持的请求说明原因。" },
+  "tasks": [
+    {
+      "id": "5-26",
+      "brief": {
+        "zh": "收到 [0x22, 0xF1, 0x90] 时交出肯定回答和数据记录；其他 0x22 标识符回答 [0x7F, 0x22, 0x31]。收到 [0x19, 2, 8] 时交出 [0x59, 2, 0xFF] 和故障记录；其他服务号回答 [0x7F, 服务号, 0x11]。没有请求时交出「—」。"
+      },
+      "hint": [{ "zh": "先取服务号，再检查读取请求中的两个标识字节；用字节序列拼接构造肯定和否定回答。" }],
+      "inputs": [
+        { "name": "request", "label": { "zh": "收到的诊断请求" } },
+        { "name": "value", "label": { "zh": "数据记录" } },
+        { "name": "faults", "label": { "zh": "已确认故障记录" } }
+      ],
+      "outputs": [{ "name": "reply", "label": { "zh": "控制器回答" } }],
+      "tests": [
+        {
+          "bus": { "idle": 4, "frames": [], "tail": 0 },
+          "messages": {
+            "request": [[34, 241, 144], [25, 2, 8], [153], null],
+            "value": [[65, 66], [65, 66], [65, 66], [65, 66]],
+            "faults": [[18, 52, 86, 8], [18, 52, 86, 8], [18, 52, 86, 8], [18, 52, 86, 8]]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 5, "frames": [], "tail": 0 },
+          "messages": {
+            "request": [[34, 241, 145], [34, 241, 144], [25, 2, 8], [127], null],
+            "value": [[0], [0], [0], [0], [0]],
+            "faults": [[], [], [], [], []]
+          }
+        }
+      ],
+      "want": { "reply": { "udsServerReply": { "request": "request", "value": "value", "faults": "faults" } } },
+      "solution": [
+        "c0 = const[value=0]()",
+        "c1 = const[value=1]()",
+        "c2 = const[value=2]()",
+        "c17 = const[value=17]()",
+        "c25 = const[value=25]()",
+        "c34 = const[value=34]()",
+        "c49 = const[value=49]()",
+        "c89 = const[value=89]()",
+        "c98 = const[value=98]()",
+        "c127 = const[value=127]()",
+        "c144 = const[value=144]()",
+        "c241 = const[value=241]()",
+        "c255 = const[value=255]()",
+        "b2 = byteList(c2)",
+        "b17 = byteList(c17)",
+        "b34 = byteList(c34)",
+        "b49 = byteList(c49)",
+        "b89 = byteList(c89)",
+        "b98 = byteList(c98)",
+        "b127 = byteList(c127)",
+        "b144 = byteList(c144)",
+        "b241 = byteList(c241)",
+        "b255 = byteList(c255)",
+        "service = byteAt(request, c0)",
+        "high = byteAt(request, c1)",
+        "low = byteAt(request, c2)",
+        "isRead = compare[form=eq](service, c34)",
+        "isFault = compare[form=eq](service, c25)",
+        "highOK = compare[form=eq](high, c241)",
+        "lowOK = compare[form=eq](low, c144)",
+        "falseValue = compare[form=eq](c0, c1)",
+        "didOK = select(highOK, lowOK, falseValue)",
+        "readHead1 = concatBytes(b98, b241)",
+        "readHead = concatBytes(readHead1, b144)",
+        "readPositive = concatBytes(readHead, value)",
+        "readNeg1 = concatBytes(b127, b34)",
+        "readNegative = concatBytes(readNeg1, b49)",
+        "readResult = select(didOK, readPositive, readNegative)",
+        "faultHead1 = concatBytes(b89, b2)",
+        "faultHead = concatBytes(faultHead1, b255)",
+        "faultResult = concatBytes(faultHead, faults)",
+        "serviceByte = byteList(service)",
+        "unknownHead = concatBytes(b127, serviceByte)",
+        "unknownResult = concatBytes(unknownHead, b17)",
+        "notRead = select(isFault, faultResult, unknownResult)",
+        "result = select(isRead, readResult, notRead)",
+        "requested = present(request)",
+        "replyNow = select(requested, result)",
+        "reply <- replyNow"
+      ],
+      "naive": [
+        "c0 = const[value=0]()",
+        "c1 = const[value=1]()",
+        "c2 = const[value=2]()",
+        "c17 = const[value=17]()",
+        "c25 = const[value=25]()",
+        "c34 = const[value=34]()",
+        "c49 = const[value=49]()",
+        "c89 = const[value=89]()",
+        "c98 = const[value=98]()",
+        "c127 = const[value=127]()",
+        "c144 = const[value=144]()",
+        "c241 = const[value=241]()",
+        "c255 = const[value=255]()",
+        "b2 = byteList(c2)",
+        "b17 = byteList(c17)",
+        "b34 = byteList(c34)",
+        "b49 = byteList(c49)",
+        "b89 = byteList(c89)",
+        "b98 = byteList(c98)",
+        "b127 = byteList(c127)",
+        "b144 = byteList(c144)",
+        "b241 = byteList(c241)",
+        "b255 = byteList(c255)",
+        "service = byteAt(request, c0)",
+        "high = byteAt(request, c1)",
+        "low = byteAt(request, c2)",
+        "isRead = compare[form=eq](service, c34)",
+        "isFault = compare[form=eq](service, c25)",
+        "highOK = compare[form=eq](high, c241)",
+        "lowOK = compare[form=eq](low, c144)",
+        "falseValue = compare[form=eq](c0, c1)",
+        "didOK = select(highOK, lowOK, falseValue)",
+        "readHead1 = concatBytes(b98, b241)",
+        "readHead = concatBytes(readHead1, b144)",
+        "readPositive = concatBytes(readHead, value)",
+        "readNeg1 = concatBytes(b127, b34)",
+        "readNegative = concatBytes(readNeg1, b49)",
+        "readResult = select(didOK, readPositive, readPositive)",
+        "faultHead1 = concatBytes(b89, b2)",
+        "faultHead = concatBytes(faultHead1, b255)",
+        "faultResult = concatBytes(faultHead, faults)",
+        "serviceByte = byteList(service)",
+        "unknownHead = concatBytes(b127, serviceByte)",
+        "unknownResult = concatBytes(unknownHead, b17)",
+        "notRead = select(isFault, faultResult, unknownResult)",
+        "result = select(isRead, readResult, notRead)",
+        "requested = present(request)",
+        "replyNow = select(requested, result)",
+        "reply <- replyNow"
+      ]
+    }
+  ]
+}
