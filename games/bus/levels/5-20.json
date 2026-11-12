@@ -1,0 +1,153 @@
+{
+  "title": { "zh": "一个请求，多份回答" },
+  "intro": [
+    { "t": { "zh": "这次不逐个寻址：目标 255 是本游戏的功能广播地址，一次读取请求发给全部控制器。在线控制器的回答按序号排队，离线控制器不回答。" } },
+    { "t": { "zh": "这里是游戏定义的消息层：每个在线控制器下一拍起依次交出一条回答；不模拟物理仲裁、多帧交错或等待回答。" } }
+  ],
+  "after": { "zh": "功能广播一次发问、逐条收集回答；在线判断依靠实际回答而不是版本值。" },
+  "builds": {
+    "type": "broadcastScanner",
+    "name": { "zh": "广播版本扫描器" },
+    "desc": { "zh": "广播一次版本读取请求并汇总六个模拟控制器的回答。" }
+  },
+  "tasks": [
+    {
+      "id": "5-20",
+      "brief": { "zh": "在第 0 拍向广播目标 255 发送一次 0xF188 读取请求；在第 7 拍交出实际回答的 [序号, 版本, …]，没有回答时交出空序列。" },
+      "hint": [{ "zh": "广播只发送一次；仍要用收到回答标记逐条收集来源与版本，版本 0 也是有效值。" }],
+      "inputs": [
+        { "name": "source", "label": { "zh": "回答的控制器" } },
+        { "name": "reply", "label": { "zh": "控制器回答" } },
+        { "name": "ready", "label": { "zh": "收到回答" } }
+      ],
+      "outputs": [
+        { "name": "target", "label": { "zh": "请求目标" } },
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "versions", "label": { "zh": "版本列表" } }
+      ],
+      "fleet": {
+        "target": "target",
+        "request": "request",
+        "source": "source",
+        "response": "reply",
+        "ready": "ready"
+      },
+      "tests": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "fleet": [
+            { "online": true, "version": 1 },
+            { "online": false, "version": 2 },
+            { "online": true, "version": 3 },
+            { "online": true, "version": 4 },
+            { "online": false, "version": 5 },
+            { "online": true, "version": 6 }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "fleet": [
+            { "online": true, "version": 0 },
+            { "online": true, "version": 9 },
+            { "online": false, "version": 5 },
+            { "online": false, "version": 0 },
+            { "online": true, "version": 4 },
+            { "online": false, "version": 3 }
+          ]
+        },
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "fleet": [
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 }
+          ]
+        }
+      ],
+      "want": {
+        "target": "fleetBroadcastTarget",
+        "request": "fleetBroadcastRequest",
+        "versions": "fleetScanVersions"
+      },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "list = reg[reg=B]()",
+        "next = arith[form=inc](tick)",
+        "saveTick = keep[reg=A](next)",
+        "c0 = const[value=0]()",
+        "c3 = const[value=3]()",
+        "c7 = const[value=7]()",
+        "c34 = const[value=34]()",
+        "c136 = const[value=136]()",
+        "c241 = const[value=241]()",
+        "broadcast = const[value=255]()",
+        "inRange = compare[form=eq](tick, c0)",
+        "targetNow = select(inRange, broadcast)",
+        "target <- targetNow",
+        "b34 = byteList(c34)",
+        "b241 = byteList(c241)",
+        "b136 = byteList(c136)",
+        "head = concatBytes(b34, b241)",
+        "read = concatBytes(head, b136)",
+        "requestNow = select(inRange, read)",
+        "request <- requestNow",
+        "empty = emptyBytes()",
+        "exists = present(list)",
+        "base = select(exists, list, empty)",
+        "sourceByte = byteList(source)",
+        "version = byteAt(reply, c3)",
+        "versionByte = byteList(version)",
+        "pair = concatBytes(sourceByte, versionByte)",
+        "appended = concatBytes(base, pair)",
+        "updated = select(ready, appended, base)",
+        "saveList = keep[reg=B](updated)",
+        "final = compare[form=eq](tick, c7)",
+        "versionsNow = select(final, list)",
+        "versions <- versionsNow"
+      ],
+      "naive": [
+        "tick = reg[reg=A, start=0]()",
+        "list = reg[reg=B]()",
+        "next = arith[form=inc](tick)",
+        "saveTick = keep[reg=A](next)",
+        "c0 = const[value=0]()",
+        "c3 = const[value=3]()",
+        "c7 = const[value=7]()",
+        "c34 = const[value=34]()",
+        "c136 = const[value=136]()",
+        "c241 = const[value=241]()",
+        "broadcast = const[value=255]()",
+        "inRange = compare[form=eq](tick, c0)",
+        "targetNow = select(inRange, broadcast)",
+        "target <- targetNow",
+        "b34 = byteList(c34)",
+        "b241 = byteList(c241)",
+        "b136 = byteList(c136)",
+        "head = concatBytes(b34, b241)",
+        "read = concatBytes(head, b136)",
+        "requestNow = select(inRange, read)",
+        "request <- requestNow",
+        "empty = emptyBytes()",
+        "exists = present(list)",
+        "base = select(exists, list, empty)",
+        "sourceByte = byteList(source)",
+        "version = byteAt(reply, c3)",
+        "versionByte = byteList(version)",
+        "pair = concatBytes(sourceByte, versionByte)",
+        "appended = concatBytes(base, pair)",
+        "nonzero = compare[form=lt](c0, version)",
+        "valid = select(ready, nonzero, c0)",
+        "updated = select(valid, appended, base)",
+        "saveList = keep[reg=B](updated)",
+        "final = compare[form=eq](tick, c7)",
+        "versionsNow = select(final, list)",
+        "versions <- versionsNow"
+      ]
+    }
+  ]
+}

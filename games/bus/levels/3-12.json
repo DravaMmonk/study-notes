@@ -116,5 +116,10 @@
         "afterWheel <- out_afterWheel"
       ]
     }
-  ]
+  ],
+  "builds": {
+    "type": "mismatchRecorder",
+    "name": { "zh": "触发窗口记录仪" },
+    "desc": { "zh": "保存首次持续不一致前后的速度样本和触发时间。" }
+  }
 }

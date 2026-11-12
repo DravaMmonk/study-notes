@@ -1,6 +1,6 @@
 {
   "domain": "can",
-  "vocabulary": 115,
+  "vocabulary": 118,
   "title": { "zh": "车在说话" },
   "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
@@ -82,11 +82,24 @@
       "crc8Byte",
       "frameMonitor",
       "frameTimer",
-      "timedReceiver"
+      "timedReceiver",
+      "mismatchRecorder",
+      "gatedExam",
+      "broadcastScanner"
     ]
   },
   "concept": { "keep": "reg" },
   "eras": [
+    {
+      "id": 0,
+      "title": { "zh": "纸笔" },
+      "question": { "zh": "一根共享的线如何表示信息？" },
+      "foundation": [
+        "0-1",
+        "0-2",
+        "0-3"
+      ]
+    },
     {
       "id": 1,
       "title": { "zh": "监听探针" },
@@ -249,14 +262,17 @@
         "5-15",
         "5-16",
         "5-17",
-        "5-18"
+        "5-18",
+        "5-19",
+        "5-20",
+        "5-21"
       ]
     },
     {
       "id": 6,
       "title": { "zh": "刷写器" },
       "question": { "zh": "怎样把修好的软件送到控制器？" },
-      "foundation": ["6-1", "6-2", "6-3", "6-4", "6-5", "6-6", "6-7", "6-8", "6-9"]
+      "foundation": ["6-1", "6-2", "6-3", "6-4", "6-5", "6-6", "6-7", "6-8", "6-9", "6-10"]
     }
   ]
 }
