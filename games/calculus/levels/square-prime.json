@@ -1,0 +1,26 @@
+{
+  "title": { "zh": "落在一点的斜率" },
+  "intro": [
+    { "t": { "zh": "差商在 h=0 时没有定义：分母不能是 0。但对每个非零 h，平方函数的差商都能化简为 2a+h。" } },
+    { "t": { "zh": "让 h 趋于 0，留下 2a。这是平方函数在 a 的导数；现在搭一块不需要 h 输入的板。" } }
+  ],
+  "after": { "zh": "<wiki-ref to=\"derivative\"></wiki-ref>是差商趋于的值。平方函数有 f′(a)=2a；它在 a=0 处的斜率是 0，往正右方越来越陡。" },
+  "builds": { "type": "squarePrime", "name": { "zh": "平方求导器" }, "desc": { "zh": "给中心 a，交出 x² 在 a 的导数 2a。" } },
+  "tasks": [
+    {
+      "id": "square-prime",
+      "brief": { "zh": "给任意中心 a，交出 d=2a；不要把 h=0 送进差商器。" },
+      "inputs": [{ "name": "a", "label": "a" }],
+      "outputs": [{ "name": "d", "label": "f′(a)" }],
+      "tests": [{ "inputs": { "a": [-4, -1, 0, 0.5, 3, 10] }, "want": { "d": [-8, -2, 0, 1, 6, 20] } }],
+      "hidden": [{ "inputs": { "a": [0.125, -2.5, 100, -100] }, "want": { "d": [0.25, -5, 200, -200] } }],
+      "solution": ["slope = add(a, a)", "d <- slope"],
+      "naive": [
+        "zero = const[value=0]()",
+        "left = mul(a, a)",
+        "slope = quotient(left, left, zero)",
+        "d <- slope"
+      ]
+    }
+  ]
+}

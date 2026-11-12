@@ -1,0 +1,52 @@
+{
+  "title": { "zh": "误差还剩多少" },
+  "intro": [
+    { "t": { "zh": "把 h 一拍拍减半。平方函数的差商 q=2a+h 越来越靠近 2a，但任何非零 h 都还留着误差。" } },
+    { "t": { "zh": "同时输出 q 和 |q−2a|。换用负 h，误差仍是 |h|；这比只盯着小数的前几位更能看清规律。" } }
+  ],
+  "after": {
+    "zh": "<wiki-ref to=\"derivative\"></wiki-ref>是差商在 h→0 时趋于的值。代数式 q=2a+h 给出误差 |h|，所以它趋于 2a；有限拍的图只展示这个过程。"
+  },
+  "tasks": [
+    {
+      "id": "slope-error",
+      "brief": { "zh": "给 a 和非零 h，交出平方函数的差商 q 和它离 2a 的误差 e。" },
+      "inputs": [{ "name": "a", "label": "a" }, { "name": "h", "label": "h" }],
+      "outputs": [{ "name": "q", "label": "q" }, { "name": "e", "label": "|q−2a|" }],
+      "tests": [
+        {
+          "inputs": { "a": [1, 1, 1, 1, 1, 1], "h": [1, 0.5, 0.25, 0.125, -0.0625, -0.03125] },
+          "want": { "q": [3, 2.5, 2.25, 2.125, 1.9375, 1.96875], "e": [1, 0.5, 0.25, 0.125, 0.0625, 0.03125] }
+        },
+        {
+          "inputs": { "a": [-2, -2, -2, -2], "h": [0.5, -0.25, 0.125, -0.0625] },
+          "want": { "q": [-3.5, -4.25, -3.875, -4.0625], "e": [0.5, 0.25, 0.125, 0.0625] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "a": [0, 3, -0.5, 10], "h": [-0.5, 0.125, -0.03125, 0.0078125] },
+          "want": { "q": [-0.5, 6.125, -1.03125, 20.0078125], "e": [0.5, 0.125, 0.03125, 0.0078125] }
+        }
+      ],
+      "solution": [
+        "next = add(a, h)",
+        "left = mul(a, a)",
+        "right = mul(next, next)",
+        "slope = quotient(left, right, h)",
+        "twice = add(a, a)",
+        "error = dist(slope, twice)",
+        "q <- slope",
+        "e <- error"
+      ],
+      "naive": [
+        "next = add(a, h)",
+        "left = mul(a, a)",
+        "right = mul(next, next)",
+        "slope = quotient(left, right, h)",
+        "e <- h",
+        "q <- slope"
+      ]
+    }
+  ]
+}

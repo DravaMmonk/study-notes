@@ -1,0 +1,39 @@
+{
+  "title": { "zh": "平方的差商" },
+  "intro": [
+    { "t": { "zh": "拿 f(x)=x² 试刚搭好的差商器：从 a 走到 a+h，两个函数值是 a² 与 (a+h)²。" } },
+    { "t": { "zh": "除了看测试数值，也展开平方差：(a+h)²−a²=h(2a+h)。h≠0 时，差商等于 2a+h。" } }
+  ],
+  "after": {
+    "zh": "<wiki-ref to=\"difference-quotient\"></wiki-ref>在平方函数上等于 2a+h；换 h 或中心 a 都会改变它。平方函数不处处一样陡。"
+  },
+  "tasks": [
+    {
+      "id": "square-slope",
+      "brief": { "zh": "给中心 a 与非零 h，复用差商器，交出平方函数的 q。" },
+      "hint": [{ "zh": "先取 a² 和 (a+h)²，再把它们送进差商器。" }],
+      "inputs": [{ "name": "a", "label": "a" }, { "name": "h", "label": "h" }],
+      "outputs": [{ "name": "q", "label": "q" }],
+      "tests": [
+        {
+          "inputs": { "a": [0, 1, -2, 3, 0.5], "h": [1, 0.5, 0.25, -1, -0.5] },
+          "want": { "q": [1, 2.5, -3.75, 5, 0.5] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "a": [-4, 10, -0.25, 2], "h": [-0.125, 0.0625, 2, -0.5] },
+          "want": { "q": [-8.125, 20.0625, 1.5, 3.5] }
+        }
+      ],
+      "solution": [
+        "next = add(a, h)",
+        "left = mul(a, a)",
+        "right = mul(next, next)",
+        "slope = quotient(left, right, h)",
+        "q <- slope"
+      ],
+      "naive": ["next = add(a, h)", "left = mul(a, a)", "right = mul(next, next)", "q <- right"]
+    }
+  ]
+}

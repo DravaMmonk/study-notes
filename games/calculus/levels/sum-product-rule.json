@@ -1,0 +1,53 @@
+{
+  "title": { "zh": "和与积" },
+  "intro": [
+    { "t": { "zh": "现在让两条函数同时变化：f(x)=x²，g(x)=3x。先给 f+g 求导，再给 f·g 求导。" } },
+    { "t": { "zh": "和的变化率相加。乘积却要留下两项：f′g+fg′；只改其中一个因子会漏掉另一份变化。" } }
+  ],
+  "after": { "zh": "<wiki-ref to=\"derivative-rules\"></wiki-ref>能由差商的代数展开推出。这里的数值测试检查电路；规则本身说的是满足可导条件的函数。" },
+  "tasks": [
+    {
+      "id": "sum-rule",
+      "step": { "zh": "先相加" },
+      "brief": { "zh": "给 a，交出 (x²+3x) 在 a 的导数。" },
+      "inputs": [{ "name": "a", "label": "a" }],
+      "outputs": [{ "name": "d", "label": "f′(a)" }],
+      "tests": [{ "inputs": { "a": [-2, 0, 0.5, 3] }, "want": { "d": [-1, 3, 4, 9] } }],
+      "hidden": [{ "inputs": { "a": [-10, 1.25, 7] }, "want": { "d": [-17, 5.5, 17] } }],
+      "solution": [
+        "fprime = squarePrime(a)",
+        "three = const[value=3]()",
+        "slope = add(fprime, three)",
+        "d <- slope"
+      ],
+      "naive": ["d <- a"]
+    },
+    {
+      "id": "product-rule",
+      "step": { "zh": "再相乘" },
+      "brief": { "zh": "给 a，按 f′g+fg′ 交出 (x²·3x) 在 a 的导数。" },
+      "inputs": [{ "name": "a", "label": "a" }],
+      "outputs": [{ "name": "d", "label": "f′(a)" }],
+      "tests": [{ "inputs": { "a": [-2, -1, 0, 0.5, 3] }, "want": { "d": [36, 9, 0, 2.25, 81] } }],
+      "hidden": [{ "inputs": { "a": [-10, 1.25, 7] }, "want": { "d": [900, 14.0625, 441] } }],
+      "solution": [
+        "f = mul(a, a)",
+        "fp = squarePrime(a)",
+        "three = const[value=3]()",
+        "g = mul(three, a)",
+        "left = mul(fp, g)",
+        "right = mul(f, three)",
+        "slope = add(left, right)",
+        "d <- slope"
+      ],
+      "naive": [
+        "f = mul(a, a)",
+        "fp = squarePrime(a)",
+        "three = const[value=3]()",
+        "g = mul(three, a)",
+        "slope = mul(fp, g)",
+        "d <- slope"
+      ]
+    }
+  ]
+}

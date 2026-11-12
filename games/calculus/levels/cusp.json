@@ -1,0 +1,27 @@
+{
+  "title": { "zh": "尖点" },
+  "intro": [
+    { "t": { "zh": "|x| 在 0 连续：靠近 0 时函数值也靠近 0。但它在 0 两侧的割线斜率不一样。" } },
+    { "t": { "zh": "给正负两种非零 h，算 (|h|−|0|)/h。看两侧各自稳定到什么，再问能否合成同一个导数。" } }
+  ],
+  "after": { "zh": "<wiki-ref to=\"nondifferentiable\"></wiki-ref>说明连续不保证可导：在 0 的右侧差商为 1，左侧为 −1，双侧极限不存在。" },
+  "tasks": [
+    {
+      "id": "cusp",
+      "brief": { "zh": "给正负非零 h，交出 |x| 在中心 0 的差商 q。" },
+      "inputs": [{ "name": "h", "label": "h" }],
+      "outputs": [{ "name": "q", "label": "q" }],
+      "tests": [
+        { "inputs": { "h": [1, 0.5, 0.25, -0.125, -0.0625, -0.03125] }, "want": { "q": [1, 1, 1, -1, -1, -1] } }
+      ],
+      "hidden": [{ "inputs": { "h": [-4, 2, -0.5, 0.125, -0.0078125] }, "want": { "q": [-1, 1, -1, 1, -1] } }],
+      "solution": [
+        "zero = const[value=0]()",
+        "height = dist(h, zero)",
+        "slope = quotient(zero, height, h)",
+        "q <- slope"
+      ],
+      "naive": ["one = const[value=1]()", "q <- one"]
+    }
+  ]
+}

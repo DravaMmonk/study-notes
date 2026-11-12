@@ -9,7 +9,7 @@
     "zh": "给自己搭的机器一个函数，它算出导数、积分、泰勒多项式，解出一个常微分方程，并说得清误差随步长怎样变小。"
   },
   "scope": {
-    "zh": "这份蓝图覆盖第 0–2 章：数列、极限、函数取样，以及直线、平方和台阶函数的 ε-δ 应答与反例。第 3–7 章留待后续。"
+    "zh": "这份蓝图覆盖第 0–3 章：数列、极限、函数取样、连续性与斜率。第 4–7 章留待后续。"
   },
   "sources": [
     "games/calculus/DESIGN.md",
@@ -56,7 +56,13 @@
       "id": "sampler",
       "title": { "zh": "取样机" },
       "can": ["tick"],
-      "lacks": { "zh": "能在有限网格上观察函数值和两侧偏差；还不能对整个实数邻域证明连续，也不能直接求导。" }
+      "lacks": { "zh": "能在有限网格上观察函数值和两侧偏差，也能为已知函数族选 ε-δ；还不能把差分转成一点上的斜率。" }
+    },
+    {
+      "id": "slope-machine",
+      "title": { "zh": "斜率机" },
+      "can": ["tick"],
+      "lacks": { "zh": "能由函数取样组成差商并求已知多项式的导数；尚未把变化率逐段累加为面积。" }
     }
   ],
   "knowledge": [
@@ -463,6 +469,58 @@
       "difficulty": "learnable",
       "depends": ["delta-response", "jump-discontinuity"],
       "wall": { "zh": "一个函数在某处跳变，它在别处也都不连续吗？" }
+    },
+    {
+      "id": "secant",
+      "term": { "zh": "割线斜率" },
+      "depends": ["function-value", "distance"],
+      "about": { "zh": "两点之间的平均变化率：(f(a+h)−f(a))/h，要求 h≠0。" },
+      "source": "games/calculus/DESIGN.md §3, 第 3 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "函数值变了 8，但横轴只走了 2：每单位横轴变了多少？" }
+    },
+    {
+      "id": "difference-quotient",
+      "term": { "zh": "差商" },
+      "depends": ["secant", "difference"],
+      "about": { "zh": "把函数值的差除以输入的差；当两点趋近时，差商可能逼近一个极限。" },
+      "source": "games/calculus/DESIGN.md §3, 第 3 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "怎样复用一块板，把不同函数的两次取值变成平均斜率？" }
+    },
+    {
+      "id": "derivative",
+      "term": { "zh": "导数" },
+      "depends": ["difference-quotient", "limit"],
+      "core": true,
+      "about": { "zh": "差商在 h→0 时若趋于同一个有限值，该值是函数在 a 的导数；h=0 时差商本身无定义。" },
+      "source": "games/calculus/DESIGN.md §3, 第 3 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": { "zh": "平方函数的割线斜率总随步长改变，落在一点的斜率究竟是多少？" },
+      "misconception": { "zh": "把 h 直接设为 0 来计算差商。" }
+    },
+    {
+      "id": "derivative-rules",
+      "term": { "zh": "求导法则" },
+      "depends": ["derivative"],
+      "about": { "zh": "和的导数逐项相加；积的导数是两项之和；复合函数的导数把外层变化率与内层变化率相乘。" },
+      "source": "games/calculus/DESIGN.md §3, 第 3 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": { "zh": "两条函数曲线同时变化，乘积为什么不能只对其中一条求导？" }
+    },
+    {
+      "id": "nondifferentiable",
+      "term": { "zh": "不可导的尖点" },
+      "depends": ["derivative", "one-sided", "continuity"],
+      "about": { "zh": "|x| 在 0 连续，但从左、右趋近 0 的差商分别为 −1 和 1，所以导数不存在。" },
+      "source": "games/calculus/DESIGN.md §3, 第 3 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "函数值没有跳，为什么斜率仍不能落到一个数？" }
     }
   ],
   "primitives": [
@@ -565,7 +623,13 @@
       "part": "lineDelta",
       "about": { "zh": "给斜率 m 与 ε，交出一个让整段直线变化小于 ε 的正 δ。" },
       "from": ["dist", "add", "recip", "mul"]
-    }
+    },
+    {
+      "part": "quotient",
+      "about": { "zh": "给 f(a)、f(a+h) 和非零 h，算出两点间的差商。" },
+      "from": ["add", "mul", "const", "recip"]
+    },
+    { "part": "squarePrime", "about": { "zh": "给中心 a，交出平方函数在该点的导数 2a。" }, "from": ["add"] }
   ],
   "eras": [
     {
@@ -1583,6 +1647,101 @@
           ]
         }
       ]
+    },
+    {
+      "id": 3,
+      "machine": "slope-machine",
+      "title": { "zh": "斜率" },
+      "question": { "zh": "差分除以步长，步长越来越小时留下什么？" },
+      "why": { "zh": "取样机能看见两点函数值的差；斜率还要除以两点间的距离，再考察距离趋于零时的极限。" },
+      "series": [
+        {
+          "id": "slope-quotients",
+          "title": { "zh": "从两点到一点" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "quotient",
+              "title": { "zh": "两点的斜率" },
+              "task": { "zh": "由函数在两点的值和步长算差商。" },
+              "question": { "zh": "函数值差应当按多长的横轴距离分摊？" },
+              "chain": [{ "zh": "先求 f(a+h)−f(a)。" }, { "zh": "再除以非零 h；负步长也保留符号。" }],
+              "role": "foundation",
+              "teaches": "secant",
+              "uses": ["secant", "add", "mul", "recip"],
+              "builds": "quotient"
+            },
+            {
+              "id": "square-slope",
+              "title": { "zh": "平方的差商" },
+              "task": { "zh": "用差商器计算 x² 的割线斜率。" },
+              "question": { "zh": "平方函数的斜率只由步长决定吗？" },
+              "chain": [{ "zh": "算出 a² 与 (a+h)²。" }, { "zh": "用差商器相除，比较它与 2a+h。" }],
+              "role": "foundation",
+              "teaches": "difference-quotient",
+              "uses": ["difference-quotient", "quotient", "add", "mul"]
+            },
+            {
+              "id": "slope-error",
+              "title": { "zh": "误差还剩多少" },
+              "task": { "zh": "逐拍报告平方差商及它离 2a 的距离。" },
+              "question": { "zh": "步长减半时差商误差怎样变？" },
+              "chain": [{ "zh": "正负 h 都试，斜率靠近 2a。" }, { "zh": "代数展开给出差商 2a+h，误差恰好 |h|。" }],
+              "role": "foundation",
+              "teaches": "derivative",
+              "uses": ["derivative", "quotient", "dist", "add", "mul"]
+            },
+            {
+              "id": "square-prime",
+              "title": { "zh": "落在一点的斜率" },
+              "task": { "zh": "给中心 a，交出平方函数在该点的导数。" },
+              "question": { "zh": "能把差商里的 h 直接设成零吗？" },
+              "chain": [{ "zh": "先在 h≠0 时约去差商的 h。" }, { "zh": "剩下 2a+h，让 h 趋于 0，得到 2a。" }],
+              "role": "practice",
+              "uses": ["derivative", "add"],
+              "builds": "squarePrime",
+              "facet": { "zh": "把已化简的差商取极限，产出只依赖中心的求导器。" }
+            }
+          ]
+        },
+        {
+          "id": "slope-rules",
+          "title": { "zh": "规则与边界" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "sum-product-rule",
+              "title": { "zh": "和与积" },
+              "task": { "zh": "给 x² 与 3x 的和及积求导。" },
+              "question": { "zh": "乘积求导为什么有两项？" },
+              "chain": [{ "zh": "和的变化率相加。" }, { "zh": "乘积中两因子都在变，各留下一项。" }],
+              "role": "foundation",
+              "teaches": "derivative-rules",
+              "uses": ["derivative-rules", "squarePrime", "add", "mul", "const"]
+            },
+            {
+              "id": "chain-rule",
+              "title": { "zh": "里面也在动" },
+              "task": { "zh": "给 (x²+1)² 求导。" },
+              "question": { "zh": "平方的输入本身会变，怎样传递斜率？" },
+              "chain": [{ "zh": "先算内层 u=x²+1。" }, { "zh": "外层在 u 的斜率乘内层在 x 的斜率。" }],
+              "role": "practice",
+              "uses": ["derivative-rules", "squarePrime", "add", "mul", "const"],
+              "facet": { "zh": "把法则应用到外层输入也随 x 变化的复合函数。" }
+            },
+            {
+              "id": "cusp",
+              "title": { "zh": "尖点" },
+              "task": { "zh": "比较 |x| 在 0 两侧的差商。" },
+              "question": { "zh": "连续的曲线一定有一个斜率吗？" },
+              "chain": [{ "zh": "h>0 时差商是 1。" }, { "zh": "h<0 时差商是 −1，左右不能汇合。" }],
+              "role": "foundation",
+              "teaches": "nondifferentiable",
+              "uses": ["nondifferentiable", "quotient", "dist", "const"]
+            }
+          ]
+        }
+      ]
     }
   ],
   "parallel": [
@@ -1651,6 +1810,6 @@
     }
   ],
   "deferred": [
-    { "about": { "zh": "第 3–7 章：导数、积分、基本定理、泰勒、微分方程" }, "why": { "zh": "框架在设计文档第 3 节。" } }
+    { "about": { "zh": "第 4–7 章：积分、基本定理、泰勒、微分方程" }, "why": { "zh": "框架在设计文档第 3 节。" } }
   ]
 }

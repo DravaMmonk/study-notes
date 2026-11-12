@@ -8,7 +8,7 @@
     "zh": "高等数学"
   },
   "lede": {
-    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出求和与差分，看它们互相撤销；再把「越来越近」拼成电路，判断一个数列、一个级数究竟趋于什么。"
+    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出求和、差分、极限应答和函数取样，再把差分除以步长，让斜率落到一点。"
   },
   "primitives": [
     "add",
@@ -110,6 +110,20 @@
         "line-delta",
         "square-delta",
         "step-local"
+      ]
+    },
+    {
+      "id": 3,
+      "title": { "zh": "斜率" },
+      "question": { "zh": "差分除以步长，步长越来越小时留下什么？" },
+      "foundation": [
+        "quotient",
+        "square-slope",
+        "slope-error",
+        "square-prime",
+        "sum-product-rule",
+        "chain-rule",
+        "cusp"
       ]
     }
   ],

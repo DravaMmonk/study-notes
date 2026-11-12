@@ -355,6 +355,46 @@
       "at": "step-local",
       "body": [{ "zh": "连续性针对一个中心 a。台阶函数在 a≠0 的附近保持同一个值，能选 δ 不碰到 0；在 a=0 时，任意 δ>0 都包含函数值为 0 的负数，而 f(0)=1。" }],
       "see": ["jump-discontinuity", "delta-response"]
+    },
+    {
+      "id": "secant",
+      "group": "sequences",
+      "title": { "zh": "割线斜率" },
+      "at": "quotient",
+      "body": [{ "zh": "两点 (a,f(a)) 与 (a+h,f(a+h)) 之间的平均变化率是 (f(a+h)−f(a))/h，h 必须非零。" }],
+      "see": ["difference-quotient"]
+    },
+    {
+      "id": "difference-quotient",
+      "group": "sequences",
+      "title": { "zh": "差商" },
+      "at": "square-slope",
+      "body": [{ "zh": "差商把函数值的变化除以输入的变化。对平方函数，它等于 2a+h（h≠0）；让 h 趋于 0 才能问一点上的斜率。" }],
+      "see": ["secant", "derivative"]
+    },
+    {
+      "id": "derivative",
+      "group": "sequences",
+      "title": { "zh": "导数" },
+      "at": "slope-error",
+      "body": [{ "zh": "若 (f(a+h)−f(a))/h 在 h 从正、负两侧趋于 0 时汇合到同一个有限数，这个数就是 f 在 a 的导数。差商在 h=0 时仍无定义。" }],
+      "see": ["difference-quotient", "nondifferentiable"]
+    },
+    {
+      "id": "derivative-rules",
+      "group": "sequences",
+      "title": { "zh": "求导法则" },
+      "at": "sum-product-rule",
+      "body": [{ "zh": "对可导的 f、g，(f+g)′=f′+g′，(fg)′=f′g+fg′。若 u 可导，复合函数的变化率还要乘 u′：［f(u(x))］′=f′(u(x))u′(x)。" }],
+      "see": ["derivative"]
+    },
+    {
+      "id": "nondifferentiable",
+      "group": "sequences",
+      "title": { "zh": "不可导的尖点" },
+      "at": "cusp",
+      "body": [{ "zh": "|x| 在 0 连续，但 h>0 时差商 |h|/h=1，h<0 时为 −1。两侧逼近值不同，所以在 0 不可导。" }],
+      "see": ["derivative", "continuity"]
     }
   ],
   "groupByChapter": true

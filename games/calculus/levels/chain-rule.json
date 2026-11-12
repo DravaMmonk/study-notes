@@ -1,0 +1,34 @@
+{
+  "title": { "zh": "里面也在动" },
+  "intro": [
+    { "t": { "zh": "给外层平方函数的输入不再是 x，而是 u(x)=x²+1。外层在 u 处的斜率为 2u，内层在 x 处的斜率为 2x。" } },
+    { "t": { "zh": "把两块变化率相乘，就得 (u²)′=2u·2x。复用刚搭好的平方求导器两次。" } }
+  ],
+  "after": { "zh": "<wiki-ref to=\"derivative-rules\"></wiki-ref>中的链式法则追踪内外两层变化；对 (x²+1)²，导数是 4x(x²+1)。" },
+  "tasks": [
+    {
+      "id": "chain-rule",
+      "brief": { "zh": "给 a，交出 (x²+1)² 在 a 的导数。" },
+      "inputs": [{ "name": "a", "label": "a" }],
+      "outputs": [{ "name": "d", "label": "f′(a)" }],
+      "tests": [{ "inputs": { "a": [-2, -1, 0, 0.5, 3] }, "want": { "d": [-40, -8, 0, 2.5, 120] } }],
+      "hidden": [{ "inputs": { "a": [-10, 1.25, 7] }, "want": { "d": [-4040, 12.8125, 1400] } }],
+      "solution": [
+        "sq = mul(a, a)",
+        "one = const[value=1]()",
+        "inside = add(sq, one)",
+        "outer = squarePrime(inside)",
+        "inner = squarePrime(a)",
+        "slope = mul(outer, inner)",
+        "d <- slope"
+      ],
+      "naive": [
+        "sq = mul(a, a)",
+        "one = const[value=1]()",
+        "inside = add(sq, one)",
+        "slope = squarePrime(inside)",
+        "d <- slope"
+      ]
+    }
+  ]
+}
