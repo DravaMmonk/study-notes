@@ -104,7 +104,7 @@ export const entries = ({ task, test, run }) => [
   ...(task.listens ? [{ of: 'line', label: BUS, shape: 'bits', given: run.ticks.map((tick) => tick.line) }] : []),
   ...(test.frameEvents ? [
     { of: '__frameId', label: T('帧标识符', 'Frame identifier'), shape: 'ticks', given: test.frameEvents.map((frame) => frame.id) },
-    { of: '__frameStart', label: T('帧开始（位拍）', 'Frame start (bit ticks)'), shape: 'ticks', given: test.frameEvents.map((frame) => frame.start) },
+    { of: '__frameStart', label: test.frameChecks?.length ? T('观察时间（位拍）', 'Observation time (bit ticks)') : T('帧开始（位拍）', 'Frame start (bit ticks)'), shape: 'ticks', given: test.frameEvents.map((frame) => frame.start) },
   ] : []),
   ...(test.contenders ?? []).map((_, k) => ({ of: `rival${k}`, label: T(`竞争者 ${k + 1}`, `Contender ${k + 1}`), shape: 'bits', given: run.ticks.map((tick) => tick.said[`rival${k}`] ?? 1) })),
   ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available, task.pulls?.last, task.ecu?.response, task.ecu?.image, task.transport?.flow, task.transport?.message, task.transport?.ready, task.transport?.timeout, task.bridge?.incoming, task.bridge?.ready, task.fleet?.source, task.fleet?.response, task.fleet?.ready, ...Object.keys(task.fleet?.images ?? {})].includes(i.name)
