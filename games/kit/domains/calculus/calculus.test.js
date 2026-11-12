@@ -88,6 +88,13 @@ test('reciprocal and less, and terms compared within a relative error', async ()
   assert.ok(!same(null, 0))
 })
 
+test('the orbital distance factor follows the inverse square field and excludes the origin', () => {
+  assert.equal(PARTS.gravity.eval({ x: 3, y: 4 }), 1 / 125)
+  assert.equal(PARTS.gravity.eval({ x: 0, y: 2 }), 1 / 8)
+  assert.equal(PARTS.gravity.eval({ x: 0, y: 0 }), null)
+  assert.equal(PARTS.gravity.eval({ x: null, y: 1 }), null)
+})
+
 test('interval claims accept different valid radii and reject unsafe or negligible ones', () => {
   assert.equal(CLAIMS.lineDelta.judge({ m: -3, e: 0.4 }, { d: 0.1 }), null)
   assert.equal(CLAIMS.lineDelta.judge({ m: -3, e: 0.4 }, { d: 0.08 }), null)

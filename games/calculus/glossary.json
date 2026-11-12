@@ -559,6 +559,78 @@
       "at": "rational-outside",
       "body": [{ "zh": "1/(1+x²) 在所有实数 x 上都有值，但以 0 为中心的级数 Σ(-1)ⁿx²ⁿ 只在 |x|<1 成立。x=2 时项为 1,-4,16,…，不趋于 0。" }],
       "see": ["convergence-radius"]
+    },
+    {
+      "id": "euler-step",
+      "group": "sequences",
+      "title": { "zh": "欧拉一步" },
+      "at": "euler-step",
+      "body": [{ "zh": "对 y′=f(t,y)，显式欧拉法用当前斜率 k=f(t,y) 估计下一状态 y+h·k。它只在步长趋小且方程满足适当条件时逼近真实解。" }],
+      "see": ["euler-ode", "euler-global-error"]
+    },
+    {
+      "id": "euler-ode",
+      "group": "sequences",
+      "title": { "zh": "状态递推" },
+      "at": "euler-growth",
+      "body": [{ "zh": "微分方程给的是状态的变化率，不一定直接给未来状态。把当前 y 送进变化率规则，再用步进器算下一状态，并存回寄存卡。" }],
+      "see": ["euler-step"]
+    },
+    {
+      "id": "euler-global-error",
+      "group": "sequences",
+      "title": { "zh": "欧拉全局误差" },
+      "at": "euler-error",
+      "body": [{ "zh": "对 y′=y、y(0)=1，步长 h 的欧拉值为 (1+h)ⁿ，准确值为 eⁿʰ。在固定 t=1 比较时，误差随 h 一阶缩小；步数同时变为 1/h。" }],
+      "see": ["euler-ode", "rk4-accuracy"]
+    },
+    {
+      "id": "midpoint-method",
+      "group": "sequences",
+      "title": { "zh": "中点法" },
+      "at": "midpoint-growth",
+      "body": [{ "zh": "先用起点斜率预测半步处的状态，再用预测中点的斜率走完整步。对 y′=y，每步因子为 1+h+h²/2。" }],
+      "see": ["euler-step", "rk4-weight"]
+    },
+    {
+      "id": "rk4-weight",
+      "group": "sequences",
+      "title": { "zh": "RK4 加权一步" },
+      "at": "rk4-step",
+      "body": [{ "zh": "四次斜率在起点、两个预测中点和预测终点取样，按 1:2:2:1 加权；一步更新为 y+h(k₁+2k₂+2k₃+k₄)/6。" }],
+      "see": ["midpoint-method", "rk4-accuracy"]
+    },
+    {
+      "id": "rk4-accuracy",
+      "group": "sequences",
+      "title": { "zh": "RK4 轨迹" },
+      "at": "rk4-growth",
+      "body": [{ "zh": "对 y′=y，RK4 每步乘 1+h+h²/2+h³/6+h⁴/24。固定终点、步长趋零时，它的全局误差为四阶；这依赖解足够光滑。" }],
+      "see": ["rk4-weight", "euler-global-error"]
+    },
+    {
+      "id": "projectile-ode",
+      "group": "sequences",
+      "title": { "zh": "抛体状态" },
+      "at": "projectile",
+      "body": [{ "zh": "把水平位移、竖直位移、竖直速度作为状态，规则是 x′=u、y′=v、v′=−g。欧拉法在恒定 g 下使竖直位置比准确的 10t−gt²/2 高 gth/2。" }],
+      "see": ["euler-ode"]
+    },
+    {
+      "id": "inverse-square-field",
+      "group": "sequences",
+      "title": { "zh": "逆平方引力场" },
+      "at": "gravity-field",
+      "body": [{ "zh": "在归一化 μ=1 的平面两体模型中，位置 (x,y) 的加速度是 −(x,y)/(x²+y²)^(3/2)。方向指向原点，大小为 1/r²；原点处没有定义。" }],
+      "see": ["orbit-drift"]
+    },
+    {
+      "id": "orbit-drift",
+      "group": "sequences",
+      "title": { "zh": "轨道数值漂移" },
+      "at": "orbit",
+      "body": [{ "zh": "初态 (1,0,0,1) 在归一化引力模型中的准确轨道是单位圆。显式欧拉法通常不保持半径或能量；模拟轨道的漂移是算法误差，不能当成行星的真实运动。" }],
+      "see": ["inverse-square-field", "euler-global-error"]
     }
   ],
   "groupByChapter": true

@@ -9,7 +9,7 @@
     "zh": "给自己搭的机器一个函数，它算出导数、积分、泰勒多项式，解出一个常微分方程，并说得清误差随步长怎样变小。"
   },
   "scope": {
-    "zh": "这份蓝图覆盖第 0–6 章：数列、极限、函数、导数、积分与泰勒逼近。第 7 章留待后续。"
+    "zh": "完整蓝图覆盖第 0–7 章：从数列、极限、函数与微积分，走到泰勒逼近和微分方程的数值轨迹。"
   },
   "sources": [
     "games/calculus/DESIGN.md",
@@ -81,6 +81,12 @@
       "title": { "zh": "展开机" },
       "can": ["tick"],
       "lacks": { "zh": "能逐项生成泰勒项并累加，比较误差与收敛范围；尚不能从变化率递推出随时间运动的轨迹。" }
+    },
+    {
+      "id": "motion-machine",
+      "title": { "zh": "轨迹机" },
+      "can": ["tick"],
+      "lacks": { "zh": "已能以有限步长生成欧拉与 RK4 轨迹；对一般方程的闭式解与任意长时间的误差没有自动保证。" }
     }
   ],
   "knowledge": [
@@ -747,6 +753,99 @@
       "basis": "lecture",
       "difficulty": "learnable",
       "wall": { "zh": "函数本身有值，为什么中心展开仍可能算不出它？" }
+    },
+    {
+      "id": "euler-step",
+      "term": { "zh": "欧拉一步" },
+      "about": { "zh": "给状态 y、当前斜率 k 与步长 h，显式欧拉法交出下一值 y+hk。" },
+      "depends": ["derivative", "signed-cell"],
+      "source": "games/calculus/DESIGN.md §3, 第 7 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "只知道此刻变化率，下一拍的值怎样估计？" }
+    },
+    {
+      "id": "euler-ode",
+      "term": { "zh": "状态递推" },
+      "about": { "zh": "微分方程 y′=f(t,y) 给出的是变化率；数值轨迹把当前状态代入 f，再回写下一状态。" },
+      "depends": ["euler-step", "recurrence"],
+      "source": "games/calculus/DESIGN.md §3, 第 7 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": { "zh": "变化率本身依赖未知状态，机器怎样继续走？" },
+      "core": true
+    },
+    {
+      "id": "euler-global-error",
+      "term": { "zh": "欧拉全局误差" },
+      "about": { "zh": "对 y′=y，欧拉法给 yₙ=(1+h)ⁿ；在固定时间 t=1，h 缩小时它趋于 e，误差为一阶。" },
+      "depends": ["euler-ode", "taylor-exp"],
+      "source": "games/calculus/DESIGN.md §3, 第 7 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "同一终点，改步长会怎样改变轨迹误差？" }
+    },
+    {
+      "id": "midpoint-method",
+      "term": { "zh": "中点法" },
+      "about": { "zh": "先用起点斜率预测半步，在预测中点重新取斜率，再走完整一步。" },
+      "depends": ["euler-global-error", "euler-step"],
+      "source": "games/calculus/DESIGN.md §3, 第 7 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "只用起点斜率有偏差，能否先探一下中间？" }
+    },
+    {
+      "id": "rk4-weight",
+      "term": { "zh": "RK4 加权一步" },
+      "about": { "zh": "给四次斜率 k₁,k₂,k₃,k₄，以 1:2:2:1 加权乘 h/6 后更新状态。" },
+      "depends": ["midpoint-method", "trapezoid-rule"],
+      "source": "games/calculus/DESIGN.md §3, 第 7 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": { "zh": "四次斜率怎样合成一次更新？" },
+      "core": true
+    },
+    {
+      "id": "rk4-accuracy",
+      "term": { "zh": "RK4 轨迹" },
+      "about": { "zh": "对 y′=y，四次斜率在起点、两次预测中点与预测终点取值；与欧拉法同场比较。" },
+      "depends": ["rk4-weight", "euler-global-error"],
+      "source": "games/calculus/DESIGN.md §3, 第 7 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": { "zh": "相同步长，重新取四次斜率能改善多少？" },
+      "core": true
+    },
+    {
+      "id": "projectile-ode",
+      "term": { "zh": "抛体状态" },
+      "about": { "zh": "水平位置 x′=u、竖直位置 y′=v、竖直速度 v′=−g，三个一阶状态给出抛体轨迹。" },
+      "depends": ["euler-ode", "euler-step"],
+      "source": "games/calculus/DESIGN.md §3, 第 7 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "二阶运动怎样拆成机器能逐拍更新的一阶量？" }
+    },
+    {
+      "id": "inverse-square-field",
+      "term": { "zh": "逆平方引力场" },
+      "about": { "zh": "归一化引力加速度为 −(x,y)/r³，r=√(x²+y²)；其方向指向中心、大小为 1/r²。" },
+      "depends": ["euler-ode", "distance"],
+      "source": "games/calculus/DESIGN.md §3, 第 7 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "物体位置变了，引力方向与大小怎样跟着变？" }
+    },
+    {
+      "id": "orbit-drift",
+      "term": { "zh": "轨道数值漂移" },
+      "about": { "zh": "对单位圆初态与逆平方引力，准确轨道保持 r=1；显式欧拉步进一般不保持半径。" },
+      "depends": ["inverse-square-field", "euler-global-error"],
+      "source": "games/calculus/DESIGN.md §3, 第 7 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "数值轨道向外偏，是引力规律还是步进误差？" }
     }
   ],
   "primitives": [
@@ -800,6 +899,11 @@
       "why": {
         "zh": "加、乘、倒数都是光滑的运算，接不出「哪个大」这种跳变。"
       }
+    },
+    {
+      "part": "gravity",
+      "about": { "zh": "给平面位置 (x,y)，算归一化引力场所需的距离因子 1/(x²+y²)^(3/2)；原点无值。" },
+      "why": { "zh": "距离的 3/2 次幂不是已解锁的加、乘、倒数电路能在一拍内准确表示的原始运算。" }
     }
   ],
   "built": [
@@ -870,7 +974,9 @@
       "part": "sinTerm",
       "about": { "zh": "固定 x 时递推正弦级数的交替奇次幂项。" },
       "from": ["reg", "keep", "count", "add", "recip", "mul", "const"]
-    }
+    },
+    { "part": "eulerStep", "about": { "zh": "给当前值 y、当前斜率 k、步长 h，交出 y+hk。" }, "from": ["mul", "add"] },
+    { "part": "rk4Step", "about": { "zh": "给 y、h 与四次斜率，按 1:2:2:1 权重交出下一值。" }, "from": ["add", "mul", "const"] }
   ],
   "eras": [
     {
@@ -2267,6 +2373,131 @@
           ]
         }
       ]
+    },
+    {
+      "id": 7,
+      "machine": "motion-machine",
+      "title": { "zh": "会动的量" },
+      "question": { "zh": "只知道变化率和起点，怎样走出整条轨迹？" },
+      "why": { "zh": "前一章用多项式近似已知函数；现在只给变化率关系，必须逐拍把状态推进到未来。" },
+      "series": [
+        {
+          "id": "motion-main",
+          "title": { "zh": "从斜率到轨迹" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "euler-step",
+              "title": { "zh": "走一步" },
+              "task": { "zh": "由状态、斜率和步长搭欧拉更新。" },
+              "question": { "zh": "当前斜率怎样变成下一状态？" },
+              "chain": [{ "zh": "斜率乘步长给出增量。" }, { "zh": "把增量加回当前值。" }],
+              "role": "foundation",
+              "teaches": "euler-step",
+              "uses": ["euler-step", "mul", "add"],
+              "builds": "eulerStep"
+            },
+            {
+              "id": "euler-growth",
+              "title": { "zh": "自己长出来" },
+              "task": { "zh": "对 y′=y 从 1 起逐拍更新。" },
+              "question": { "zh": "变化率就是 y 自己时，下一拍从哪里来？" },
+              "chain": [{ "zh": "读出当前 y 作为斜率。" }, { "zh": "用欧拉步更新并存回寄存卡。" }],
+              "role": "foundation",
+              "teaches": "euler-ode",
+              "uses": ["euler-ode", "eulerStep", "reg", "keep"]
+            },
+            {
+              "id": "euler-error",
+              "title": { "zh": "步长的代价" },
+              "task": { "zh": "将欧拉增长与 eᵗ 对照。" },
+              "question": { "zh": "固定终点时 h 减半，误差怎样变？" },
+              "chain": [{ "zh": "按同一 h 逐拍生成欧拉值。" }, { "zh": "与给定的 eᵗ 值比较误差。" }],
+              "role": "foundation",
+              "teaches": "euler-global-error",
+              "uses": ["euler-global-error", "eulerStep", "reg", "keep", "dist"]
+            },
+            {
+              "id": "midpoint-growth",
+              "title": { "zh": "先看半步" },
+              "task": { "zh": "在中点重新取 y′=y 的斜率。" },
+              "question": { "zh": "先预测中点能否减少起点偏差？" },
+              "chain": [{ "zh": "用当前 y 先走半步。" }, { "zh": "以中点预测值作斜率走完整一步。" }],
+              "role": "foundation",
+              "teaches": "midpoint-method",
+              "uses": ["midpoint-method", "eulerStep", "reg", "keep", "mul", "const"]
+            },
+            {
+              "id": "rk4-step",
+              "title": { "zh": "四次取样" },
+              "task": { "zh": "按 1:2:2:1 合并四次斜率。" },
+              "question": { "zh": "四次斜率怎样汇成下一值？" },
+              "chain": [{ "zh": "两次中点各占两份。" }, { "zh": "总斜率和乘 h/6，再加回 y。" }],
+              "role": "foundation",
+              "teaches": "rk4-weight",
+              "uses": ["rk4-weight", "add", "mul", "const"],
+              "builds": "rk4Step"
+            },
+            {
+              "id": "rk4-growth",
+              "title": { "zh": "同路不同误差" },
+              "task": { "zh": "同时生成欧拉与 RK4 的增长轨迹。" },
+              "question": { "zh": "相同步长哪条轨迹更贴近 eᵗ？" },
+              "chain": [{ "zh": "对 y′=y 依次求四次斜率。" }, { "zh": "两块寄存卡分别推进欧拉和 RK4。" }],
+              "role": "foundation",
+              "teaches": "rk4-accuracy",
+              "uses": ["rk4-accuracy", "eulerStep", "rk4Step", "reg", "keep", "mul", "const"]
+            }
+          ]
+        },
+        {
+          "id": "motion-projectile",
+          "title": { "zh": "抛体" },
+          "kind": "topic",
+          "after": "rk4-growth",
+          "slots": [
+            {
+              "id": "projectile",
+              "title": { "zh": "抛体" },
+              "task": { "zh": "分别更新水平位置、竖直位置和竖直速度。" },
+              "question": { "zh": "只知道速度与加速度，怎样走出抛物线？" },
+              "chain": [{ "zh": "把位置和速度各放在寄存卡。" }, { "zh": "按 x′=u、y′=v、v′=−g 各走一步。" }],
+              "role": "step",
+              "teaches": "projectile-ode",
+              "uses": ["projectile-ode", "eulerStep", "reg", "keep", "mul", "const"]
+            }
+          ]
+        },
+        {
+          "id": "motion-orbit",
+          "title": { "zh": "引力与轨道" },
+          "kind": "topic",
+          "after": "rk4-growth",
+          "slots": [
+            {
+              "id": "gravity-field",
+              "title": { "zh": "指向中心" },
+              "task": { "zh": "用距离因子搭归一化引力加速度。" },
+              "question": { "zh": "逆平方场为什么要再乘坐标方向？" },
+              "chain": [{ "zh": "先由位置求 1/r³。" }, { "zh": "分别乘 −x、−y 得加速度。" }],
+              "role": "step",
+              "teaches": "inverse-square-field",
+              "uses": ["inverse-square-field", "gravity", "mul", "const"],
+              "adds": ["gravity"]
+            },
+            {
+              "id": "orbit",
+              "title": { "zh": "轨道会漂移" },
+              "task": { "zh": "欧拉步进平面位置和速度，并报告半径平方。" },
+              "question": { "zh": "准确的圆轨道为什么在数值板上慢慢偏离？" },
+              "chain": [{ "zh": "保存 x、y、vₓ、vᵧ 四个状态。" }, { "zh": "用当前位置求引力并逐拍更新，观察 r²。" }],
+              "role": "finale",
+              "teaches": "orbit-drift",
+              "uses": ["orbit-drift", "gravity", "eulerStep", "reg", "keep", "add", "mul", "const"]
+            }
+          ]
+        }
+      ]
     }
   ],
   "parallel": [
@@ -2334,7 +2565,5 @@
       }
     }
   ],
-  "deferred": [
-    { "about": { "zh": "第 7 章：微分方程与数值轨迹" }, "why": { "zh": "框架在设计文档第 3 节。" } }
-  ]
+  "deferred": []
 }

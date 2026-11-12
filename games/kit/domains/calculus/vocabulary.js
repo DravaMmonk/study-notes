@@ -20,6 +20,7 @@ const PARTS = {
   mul: item(t('乘：a × b')),
   recip: item(t('倒数：1/a，a 为 0 时给「—」')),
   less: item(t('比较：a < b 时给 1，否则给 0')),
+  gravity: item(t('引力距离因子：1/(x²+y²)^(3/2)，原点没有值')),
   const: item(t('常数：设定的数')),
   reg: item(t('读寄存卡：同名寄存卡里存的值，存入之前给初值')),
   keep: item(t('存寄存卡：接入的值存进同名寄存卡，下一拍读得出')),
@@ -49,7 +50,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'calculus',
-  version: 5,
+  version: 6,
   kinds: { part: PARTS, claim: CLAIMS },
   game: GAME,
   level: LEVEL,

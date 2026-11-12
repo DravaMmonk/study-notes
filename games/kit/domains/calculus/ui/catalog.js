@@ -1,7 +1,7 @@
 // What the calculus domain's cards are called and what they do, for the boards, the tray and the components box (a
 // task's input and output sequences are the base's own cards). A part's description says only what it does
 // (games/DESIGN.md 4).
-import { ArrowDownToLine, ArrowUpFromLine, ChevronLeft, Divide, Hash, Plus, X } from 'lucide-react'
+import { ArrowDownToLine, ArrowUpFromLine, ChevronLeft, Divide, Hash, Orbit, Plus, X } from 'lucide-react'
 import { T } from '../../../shell/i18n.js'
 
 export const CARDS = {
@@ -9,6 +9,7 @@ export const CARDS = {
   mul: { name: T('乘'), icon: X, family: 'value', desc: T('给出 a × b。') },
   recip: { name: T('倒数'), icon: Divide, family: 'value', desc: T('给出 1/a；a 为 0 时没有值。') },
   less: { name: T('比较', 'Less'), icon: ChevronLeft, family: 'value', desc: T('a 小于 b 时给出 1，否则给出 0。') },
+  gravity: { name: T('引力因子', 'Gravity factor'), icon: Orbit, family: 'value', desc: T('给出 1/(x²+y²)^(3/2)；原点没有值。') },
   const: { name: T('常数'), icon: Hash, family: 'value', desc: T('每一拍都给出设定的数。') },
   reg: {
     name: T('读寄存卡'), icon: ArrowUpFromLine, family: 'memory',

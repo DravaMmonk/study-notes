@@ -10,6 +10,7 @@
 //   mul      a × b
 //   recip    1/a (「—」 for 1/0)
 //   less     1 when a < b, else 0
+//   gravity  1/(x²+y²)^(3/2) (「—」 at the origin)
 //   const    a number (params.value)
 //   reg      what register params.reg holds (params.start until something is kept in it)
 //   keep     keeps what reaches it in register params.reg, from the next tick on
@@ -29,6 +30,10 @@ export const PARTS = {
   mul: { inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => a * b) },
   recip: { inputs: ['a'], eval: strict(({ a }) => (a === 0 ? null : 1 / a)) },
   less: { inputs: ['a', 'b'], eval: strict(({ a, b }) => (a < b ? 1 : 0)) },
+  gravity: { inputs: ['x', 'y'], eval: strict(({ x, y }) => {
+    const radiusSquared = x * x + y * y
+    return radiusSquared === 0 ? null : radiusSquared ** -1.5
+  }) },
   const: { inputs: [], params: ['value'], eval: (_, node) => number(node.params?.value) ?? 0 },
   reg: register({ start: (node) => number(node.params?.start), params: ['reg', 'start'] }),
   keep: store({ params: ['reg'] }),

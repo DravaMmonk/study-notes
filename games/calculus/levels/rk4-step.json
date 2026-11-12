@@ -1,0 +1,64 @@
+{
+  "title": { "zh": "四次取样" },
+  "intro": [
+    { "t": { "zh": "中点法看一次中途斜率。RK4 在起点、两次预测的中点和预测终点取四个斜率，再用 1:2:2:1 加权。" } },
+    { "t": { "zh": "这一关先只搭加权更新器；四个斜率由后续的方程电路提供。" } }
+  ],
+  "after": { "zh": "<wiki-ref to=\"rk4-weight\"></wiki-ref>交出 y+h(k₁+2k₂+2k₃+k₄)/6；斜率必须在相应预测状态重新计算。" },
+  "builds": { "type": "rk4Step", "name": { "zh": "RK4 步进器" }, "desc": { "zh": "按四次斜率的 1:2:2:1 权重更新状态。" } },
+  "tasks": [
+    {
+      "id": "rk4-step",
+      "brief": { "zh": "给 y、h、k₁ 至 k₄，交出 z=y+h(k₁+2k₂+2k₃+k₄)/6。" },
+      "inputs": [
+        { "name": "y", "label": "y" },
+        { "name": "h", "label": "h" },
+        { "name": "k1", "label": "k₁" },
+        { "name": "k2", "label": "k₂" },
+        { "name": "k3", "label": "k₃" },
+        { "name": "k4", "label": "k₄" }
+      ],
+      "outputs": [{ "name": "z", "label": "z" }],
+      "tests": [
+        {
+          "inputs": {
+            "y": [1, 2, -3, 0],
+            "h": [0.5, 0.25, -0.5, 1],
+            "k1": [1, 2, 3, -1],
+            "k2": [1.25, 2.5, 2, 0],
+            "k3": [1.3125, 2.625, 1, 1],
+            "k4": [1.65625, 3.3125, 0, 2]
+          },
+          "want": { "z": [1.6484375, 2.6484375, -3.75, 0.5] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": {
+            "y": [10, -4, 0.5, 3],
+            "h": [0.125, -0.25, 0.5, 0.75],
+            "k1": [-2, 6, 0.25, -3],
+            "k2": [-1, 5, 1, -1],
+            "k3": [0, 4, 2, 1],
+            "k4": [1, 3, 3, 2]
+          },
+          "want": { "z": [9.9375, -5.125, 1.2708333333333335, 2.875] }
+        }
+      ],
+      "solution": [
+        "two = const[value=2]()",
+        "twok2 = mul(k2, two)",
+        "twok3 = mul(k3, two)",
+        "ends = add(k1, k4)",
+        "middles = add(twok2, twok3)",
+        "total = add(ends, middles)",
+        "sixth = const[value=0.16666666666666666]()",
+        "scaledH = mul(h, sixth)",
+        "change = mul(total, scaledH)",
+        "next = add(y, change)",
+        "z <- next"
+      ],
+      "naive": ["next = eulerStep(y, k1, h)", "z <- next"]
+    }
+  ]
+}

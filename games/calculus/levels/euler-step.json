@@ -1,0 +1,31 @@
+{
+  "title": { "zh": "走一步" },
+  "intro": [
+    { "t": { "zh": "前面已知函数时能直接取值；现在只知道此刻的状态 y 和变化率 k。若走一小段 h，先用 k·h 估计增量。" } },
+    { "t": { "zh": "把增量加回 y，得到下一状态。这是一格显式欧拉步；h 可以正向，也可以反向。" } }
+  ],
+  "after": { "zh": "<wiki-ref to=\"euler-step\"></wiki-ref>用当前斜率走整格：yₙ₊₁≈yₙ+h·kₙ。有限 h 通常有误差。" },
+  "builds": { "type": "eulerStep", "name": { "zh": "欧拉步进器" }, "desc": { "zh": "由当前值、斜率和步长给出下一值。" } },
+  "tasks": [
+    {
+      "id": "euler-step",
+      "brief": { "zh": "给当前 y、斜率 k、步长 h，交出下一值 z=y+hk。" },
+      "inputs": [{ "name": "y", "label": "y" }, { "name": "k", "label": "k" }, { "name": "h", "label": "h" }],
+      "outputs": [{ "name": "z", "label": "z" }],
+      "tests": [
+        {
+          "inputs": { "y": [1, 2, -3, 0, 5], "k": [2, -1, 4, 0, -2], "h": [0.5, 1, -0.25, 2, 0.125] },
+          "want": { "z": [2, 1, -4, 0, 4.75] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "y": [10, -4, 0.5, 3], "k": [-2, 6, 0.25, -3], "h": [-0.5, 0.125, 2, 0.75] },
+          "want": { "z": [11, -3.25, 1, 0.75] }
+        }
+      ],
+      "solution": ["change = mul(k, h)", "next = add(y, change)", "z <- next"],
+      "naive": ["z <- k"]
+    }
+  ]
+}

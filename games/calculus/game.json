@@ -1,6 +1,6 @@
 {
   "domain": "calculus",
-  "vocabulary": 5,
+  "vocabulary": 6,
   "title": {
     "zh": "差分机"
   },
@@ -8,7 +8,7 @@
     "zh": "高等数学"
   },
   "lede": {
-    "zh": "从数列的差分和累加出发，亲手接出极限、斜率、面积和泰勒多项式。每个近似都能追问：误差多大，在哪些输入上有效？"
+    "zh": "从一拍一项的数列机器起步，亲手接出极限、导数、积分、泰勒多项式与微分方程的数值轨迹；每步都能看见近似误差。"
   },
   "primitives": [
     "add",
@@ -17,7 +17,8 @@
     "const",
     "mul",
     "recip",
-    "less"
+    "less",
+    "gravity"
   ],
   "concept": {
     "keep": "reg"
@@ -153,6 +154,21 @@
       "title": { "zh": "多项式逼近" },
       "question": { "zh": "只用加和乘，怎样算 eˣ、sin x？哪里会失灵？" },
       "foundation": ["exp-term", "exp-sum", "exp-bound", "sin-term", "sin-sum", "radius", "rational-outside"]
+    },
+    {
+      "id": 7,
+      "title": { "zh": "会动的量" },
+      "question": { "zh": "只知道变化率和起点，怎样走出整条轨迹？" },
+      "foundation": ["euler-step", "euler-growth", "euler-error", "midpoint-growth", "rk4-step", "rk4-growth"],
+      "topics": [
+        { "id": "motion-projectile", "title": { "zh": "抛体" }, "levels": ["projectile"], "after": "rk4-growth" },
+        {
+          "id": "motion-orbit",
+          "title": { "zh": "引力与轨道" },
+          "levels": ["gravity-field", "orbit"],
+          "after": "rk4-growth"
+        }
+      ]
     }
   ],
   "views": { "ticks": ["terms", "dots"] }

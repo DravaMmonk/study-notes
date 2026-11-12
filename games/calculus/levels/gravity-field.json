@@ -1,0 +1,52 @@
+{
+  "title": { "zh": "指向中心" },
+  "intro": [
+    { "t": { "zh": "用归一化单位表示太阳在原点、引力参数 μ=1。位置 (x,y) 离原点 r，向中心的加速度是 −(x,y)/r³，大小为 1/r²。" } },
+    { "t": { "zh": "新增的引力因子元件只算 1/r³。你仍要分别乘 −x、−y，交出两个加速度分量；原点没有定义。" } }
+  ],
+  "after": { "zh": "<wiki-ref to=\"inverse-square-field\"></wiki-ref>的方向跟着位置转，大小随距离平方衰减；单把坐标取负还少了距离因子。" },
+  "adds": ["gravity"],
+  "tasks": [
+    {
+      "id": "gravity-field",
+      "brief": { "zh": "给非零位置 (x,y)，交出归一化引力加速度 ax=−x/r³、ay=−y/r³。" },
+      "inputs": [{ "name": "x", "label": "x" }, { "name": "y", "label": "y" }],
+      "outputs": [{ "name": "ax", "label": "aₓ" }, { "name": "ay", "label": "aᵧ" }],
+      "tests": [
+        {
+          "inputs": { "x": [1, 0, 3, -2, 0.5], "y": [0, 2, 4, 0, -0.5] },
+          "want": {
+            "ax": [-1, 0, -0.024, 0.25, -1.4142135623730951],
+            "ay": [0, -0.25, -0.032, 0, 1.4142135623730951]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "x": [-1, 4, 0.25, -3], "y": [-1, 3, 0.5, 4] },
+          "want": {
+            "ax": [0.3535533905932738, -0.032, -1.4310835055998654, 0.024],
+            "ay": [0.3535533905932738, -0.024, -2.862167011199731, -0.032]
+          }
+        }
+      ],
+      "solution": [
+        "factor = gravity(x, y)",
+        "negative = const[value=-1]()",
+        "xFactor = mul(x, factor)",
+        "yFactor = mul(y, factor)",
+        "axValue = mul(xFactor, negative)",
+        "ayValue = mul(yFactor, negative)",
+        "ax <- axValue",
+        "ay <- ayValue"
+      ],
+      "naive": [
+        "negative = const[value=-1]()",
+        "axValue = mul(x, negative)",
+        "ayValue = mul(y, negative)",
+        "ax <- axValue",
+        "ay <- ayValue"
+      ]
+    }
+  ]
+}
