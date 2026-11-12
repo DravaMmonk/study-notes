@@ -15,7 +15,7 @@ import { board } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 import { callOf } from '../../engine/schema.js'
-import { scheduleFrames } from './frame-world.js'
+import { scheduleObservations } from './frame-world.js'
 import { transportPlan } from './transport.js'
 
 // An identifier or a byte as content writes it: a number, or hexadecimal.
@@ -37,7 +37,7 @@ const testOf = (t, task, frameEvents) => {
     ...Object.fromEntries(Object.entries(t.pulses ?? {}).map(([name, ticks]) => [name, bus.bits.map((_, tick) => Number(ticks.includes(tick)))])),
     ...Object.fromEntries(Object.entries(t.txInputs ?? {}).map(([name, kind]) => [name, bus.bits.map((_, tick) => kind === 'bit' ? txBits[tick - txAt] ?? 1 : kind === 'ack' ? Number(tick === txAt + txBits.length - 12) : Number(tick >= txAt && tick - txAt < txEnd))])),
     ...Object.fromEntries((t.lineInputs ?? []).map((name) => [name, bus.bits])),
-    ...Object.fromEntries(Object.entries(task.frameInputs ?? {}).map(([name, field]) => [name, frameEvents.map((frame) => field === 'id' ? frame.id : field === 'length' ? frame.data.length : field === 'time' ? frame.start : field === 'data' ? frame.data : frame.data[Number(field.slice(4))] ?? null)])),
+    ...Object.fromEntries(Object.entries(task.frameInputs ?? {}).map(([name, field]) => [name, frameEvents.map((frame) => field === 'id' ? frame.id : field === 'length' ? frame.data?.length ?? null : field === 'time' ? frame.start : field === 'frame' ? Number(frame.id !== null) : field === 'data' ? frame.data : frame.data?.[Number(field.slice(4))] ?? null)])),
   }
   const contenders = (t.contenders ?? []).map((node) => ({ ...node, id: num(node.id), data: (node.data ?? []).map(num) }))
   const flash = t.ecu?.flash && { ...t.ecu.flash, ...(t.ecu.flash.image ? { image: t.ecu.flash.image.map(num) } : {}), ...(t.ecu.flash.versionAfter ? { versionAfter: t.ecu.flash.versionAfter.map(num) } : {}), fixedDtcs: (t.ecu.flash.fixedDtcs ?? []).map(num) }
@@ -106,9 +106,9 @@ export function canCourse(content) {
       if (!t.frameRequests || t.bus.frames.length || t.peerBits || t.peerLow?.length || t.flipTicks?.length || t.contenders?.length || t.tx || task.listens || task.drives) say('frame tasks require clean frame requests and no bit-level bus activity')
       for (const name of Object.keys(task.frameInputs)) if (!task.inputs?.some((input) => input.name === name)) say(`frame input ${name} is not a task input`)
       try {
-        frameEvents = scheduleFrames((t.frameRequests ?? []).map((frame) => ({ ...frame, id: num(frame.id), data: (frame.data ?? []).map(num) })))
+        frameEvents = scheduleObservations((t.frameRequests ?? []).map((frame) => ({ ...frame, id: num(frame.id), data: (frame.data ?? []).map(num) })), t.frameChecks ?? [])
       } catch (error) { say(`invalid frame requests: ${error.message}`); frameEvents = [] }
-    } else if (t.frameRequests) say('frame requests require frame inputs')
+    } else if (t.frameRequests || t.frameChecks) say('frame requests and clock checks require frame inputs')
     for (const f of t.bus.frames) if ((f.data ?? []).length > 8) say('a frame carries at most 8 bytes')
     if ((t.tx?.data ?? []).length > 8) say('a transmitted frame carries at most 8 bytes')
     for (const node of t.contenders ?? []) if ((node.data ?? []).length > 8) say('a competing frame carries at most 8 bytes')

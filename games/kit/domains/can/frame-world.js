@@ -21,3 +21,10 @@ export function scheduleFrames(requests) {
   }
   return events
 }
+
+// Clock checks are separate events; the frame scheduler remains the authority on frame start times.
+export function scheduleObservations(requests, checks = []) {
+  const frames = scheduleFrames(requests)
+  if (checks.some((time) => !Number.isInteger(time) || time < 0) || new Set(checks).size !== checks.length || checks.some((time) => frames.some((frame) => frame.start === time))) throw new Error('clock checks must be distinct non-negative times away from frame starts')
+  return [...frames, ...checks.map((start) => ({ node: null, id: null, data: null, start, end: start }))].sort((a, b) => a.start - b.start)
+}

@@ -114,6 +114,7 @@ const WANTS = {
   encodeHigh: item(t('编码后的高字节', 'the encoded high byte'), S.obj({ input: INPUT })),
   crc8Signal: item(t('单字节的游戏 CRC-8', 'game CRC-8 of one byte'), S.obj({ input: INPUT })),
   frameHealth: item(t('按 CRC 和滚动计数器检查报文', 'check frame CRC and rolling counter'), S.obj({ payload: INPUT, checksum: INPUT, counter: INPUT, enable: S.opt(INPUT), id: S.opt(INPUT), match: S.opt(S.int({ min: 0, max: 2047 })) })),
+  frameFreshness: item(t('目标报文是否在等待期限内出现', 'whether the target frame arrived within the deadline'), S.obj({ id: INPUT, time: INPUT, target: INPUT, limit: INPUT })),
   transportFrames: item(t('按流控和间隔发送消息的帧', 'frames sent according to flow control and separation')),
   transportGapReady: item(t('按流控间隔等待后续帧的发送时机', 'wait for the consecutive-frame separation before allowing the next send'), S.obj({ set: INPUT, separation: INPUT, sent: INPUT })),
   transportTimeoutAbort: item(t('接收方不回答时在等待上限终止', 'abort at the waiting limit when the receiver is silent')),
@@ -330,7 +331,7 @@ const WANTS = {
 const FRAME = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), gap: S.opt(nat), ack: S.opt(S.bool()) })
 const CONTENDER = S.obj({ id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))), at: S.opt(nat), detectErrors: S.opt(S.bool()) })
 const FRAME_REQUEST = S.obj({ node: NAME, at: nat, id: hex(0x7ff, 3), data: S.opt(S.list(hex(0xff, 2))) })
-const FRAME_FIELD = S.oneOf(['id', 'length', 'time', 'data', 'byte0', 'byte1', 'byte2', 'byte3', 'byte4', 'byte5', 'byte6', 'byte7'])
+const FRAME_FIELD = S.oneOf(['id', 'length', 'time', 'frame', 'data', 'byte0', 'byte1', 'byte2', 'byte3', 'byte4', 'byte5', 'byte6', 'byte7'])
 const TEST = S.obj({
   bus: S.obj({ idle: S.opt(nat), frames: S.list(FRAME), tail: S.opt(nat) }, { about: t('总线：先安静 idle 拍，再一帧帧（帧前多空 gap 拍），最后安静 tail 拍') }),
   inputs: S.opt(S.map(S.list(S.int()), { view: 'ticks', about: t('每个输入每一拍的值') })),
@@ -347,6 +348,7 @@ const TEST = S.obj({
   peerLow: S.opt(S.list(nat, { about: t('其他节点在这些拍拉低总线', 'the other nodes pull the bus low on these ticks') })),
   flipTicks: S.opt(S.list(nat, { about: t('这些拍在线性与之后翻转总线采样值', 'invert the sampled bus after wired-AND on these ticks') })),
   frameRequests: S.opt(S.list(FRAME_REQUEST, { min: 1, about: t('干净总线上的逐帧发送请求', 'frame requests on a clean bus') })),
+  frameChecks: S.opt(S.list(nat, { about: t('额外检查时刻，以总线位拍计', 'additional clock-check times in bus bit ticks') })),
   ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)), waits: S.opt(nat), requiresExtended: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1 })), requiresSecurity: S.opt(S.bool()), seed: S.opt(S.int({ min: 0, max: 255 })), dtcs: S.opt(S.list(S.obj({ code: hex(0xffffff, 6), status: hex(0xff, 2) }))), flash: S.opt(S.obj({ maxBlock: S.int({ min: 3, max: 255 }), expectedChecksum: S.int({ min: 0, max: 255 }), requiresSecurity: S.opt(S.bool()), image: S.opt(S.list(hex(0xff, 2), { min: 1, max: 65535 })), versionAfter: S.opt(S.list(hex(0xff, 2))), fixedDtcs: S.opt(S.list(hex(0xffffff, 6))) })), powerCycles: S.opt(S.list(nat)) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
   transport: S.opt(S.obj({ message: S.list(hex(0xff, 2), { min: 8, max: 4095 }), blockSize: S.int({ min: 0, max: 255 }), separation: S.int({ min: 0, max: 127 }), flowDelay: S.int({ min: 1, max: 100 }), waits: S.opt(S.int({ min: 0, max: 5 })), overflow: S.opt(S.bool()), silent: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1, max: 100 })) }, { about: t('长消息和模拟接收方的流控参数', 'long message and simulated receiver flow-control parameters') })),
   bridge: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2), { min: 17, max: 17 }) }, { about: t('模拟控制器的标识和十七字节记录', 'the simulated ECU identifier and seventeen-byte record') })),
@@ -371,7 +373,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 112,
+  version: 113,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

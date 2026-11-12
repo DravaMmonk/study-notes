@@ -768,6 +768,13 @@ const WANTS = {
   encodeLow: ({ input }) => (test) => test.inputs[input].map((value) => value & 255),
   encodeHigh: ({ input }) => (test) => test.inputs[input].map((value) => (value >> 8) & 255),
   crc8Signal: ({ input }) => (test) => test.inputs[input].map(crc8Byte),
+  frameFreshness: ({ id, time, target, limit }) => (test) => {
+    let last = null
+    return test.bus.bits.map((_, tick) => {
+      if (test.inputs[id][tick] === test.inputs[target][tick]) last = test.inputs[time][tick]
+      return last !== null && test.inputs[time][tick] - last <= test.inputs[limit][tick]
+    })
+  },
   frameHealth: ({ payload, checksum, counter, enable, id, match }) => (test) => {
     let previous = null
     return test.bus.bits.map((_, tick) => {

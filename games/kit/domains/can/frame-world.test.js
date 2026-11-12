@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { scheduleFrames } from './frame-world.js'
+import { scheduleFrames, scheduleObservations } from './frame-world.js'
 import { contender, frameBits, sayer, transmitBits, wiredAnd } from './bus.js'
 import { runTicks } from '../../engine/ticks.js'
 
@@ -29,4 +29,14 @@ test('the first frame agrees with independently sampled bit-level arbitration', 
   const run = runTicks({ nodes: [...requests.map((frame) => contender(frame.node, frame)), sayer('receiver', ack)], ticks: bits.length, line: wiredAnd })
   assert.equal(winner.node, 'b')
   assert.deepEqual(run.steps.map((step) => step.line), bits)
+})
+
+
+test('clock checks appear in time order without becoming frames', () => {
+  const frames = [{ node: 'a', at: 10, id: 0x120, data: [4] }, { node: 'b', at: 150, id: 0x121, data: [5] }]
+  const events = scheduleObservations(frames, [0, 120, 300])
+  assert.deepEqual(events.map(({ start, id }) => [start, id]), [[0, null], [10, 0x120], [120, null], [150, 0x121], [300, null]])
+  assert.equal(events[2].data, null)
+  assert.throws(() => scheduleObservations(frames, [10]), /clock checks/)
+  assert.throws(() => scheduleObservations(frames, [120, 120]), /clock checks/)
 })
