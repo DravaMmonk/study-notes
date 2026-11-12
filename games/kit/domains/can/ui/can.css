@@ -16,11 +16,11 @@
 .can-replay-controls button:disabled { opacity: 0.45; cursor: default; }
 .can-replay-bits { position: relative; overflow-x: auto; white-space: nowrap; font-family: monospace; padding: 0.5rem 0; }
 .can-replay-bits span { display: inline-block; padding: 0.2rem 0.14rem; }
-.can-replay-bits .is-current { background: var(--accent); color: #191917; border-radius: 0.2rem; }
+.can-replay-bits .is-current { background: var(--ink); color: var(--paper); border-radius: 0.2rem; }
 .can-paper { max-width: 46rem; padding: 1rem; }
 .can-paper-case { padding: 1rem 0; border-bottom: 1px solid var(--line); }
 .can-paper-case p { margin: 0 0 0.7rem; overflow-wrap: anywhere; }
 .can-paper-case label { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
 .can-paper-case input { min-width: 0; flex: 1; padding: 0.45rem; font: inherit; color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 0.4rem; }
 .can-paper-case [role='status'] { display: block; margin-top: 0.4rem; }
-.can-paper-check { margin-top: 1rem; padding: 0.6rem 1rem; border: 0; border-radius: 0.5rem; background: var(--accent); color: #191917; font: inherit; cursor: pointer; }
+.can-paper-check { margin-top: 1rem; padding: 0.6rem 1rem; border: 0; border-radius: 0.5rem; background: var(--ink); color: var(--paper); font: inherit; cursor: pointer; }
