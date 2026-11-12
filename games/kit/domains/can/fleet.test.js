@@ -52,3 +52,13 @@ test('dependent programming waits for the first controller to restart successful
   deepStrictEqual(send(0, [0x31, 1, 0xfe, 0]), [0x71, 1, 0xfe, 0])
   equal(state.controllers[0].dtcs.length, 0)
 })
+
+test('a broadcast queues replies from online controllers in index order', () => {
+  const vehicle = [{ online: true, version: 0 }, { online: false, version: 2 }, { online: true, version: 3 }]
+  let state = advanceFleet(newFleetState(vehicle), 255, read, vehicle, 0)
+  deepStrictEqual([state.source, state.response], [0, [0x62, 0xf1, 0x88, 0]])
+  state = advanceFleet(state, null, null, vehicle, 1)
+  deepStrictEqual([state.source, state.response], [2, [0x62, 0xf1, 0x88, 3]])
+  state = advanceFleet(state, null, null, vehicle, 2)
+  deepStrictEqual([state.source, state.response], [null, null])
+})

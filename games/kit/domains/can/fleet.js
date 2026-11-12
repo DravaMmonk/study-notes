@@ -2,7 +2,7 @@ import { ecuAdvance } from './ecu.js'
 import { newFlashState } from './flash.js'
 
 // Message-layer controllers keep independent sessions and pending replies. Simultaneous replies
-// are queued in controller order; this is a game rule, not CAN arbitration or transport.
+// are queued in controller order; target 0xff broadcasts. This is not CAN arbitration or transport.
 export function newFleetState(fleet) {
   return {
     source: null, response: null, queue: [],
@@ -15,7 +15,7 @@ export function advanceFleet(state, target, request, fleet, tick) {
   const controllers = state.controllers.map((controller, index) => {
     const profile = fleet[index]
     if (!profile.online) return controller
-    const ownRequest = target === index ? request : null
+    const ownRequest = target === index || target === 0xff ? request : null
     const prerequisite = profile.after === undefined ? null : state.controllers[profile.after]?.flash
     const blocked = ownRequest?.[0] === 0x10 && ownRequest?.[1] === 2 && profile.after !== undefined && (prerequisite?.phase !== 'running' || !prerequisite.applicationValid)
     const advanced = ecuAdvance(controller, blocked ? null : ownRequest, { ...profile, did: 0xf188, value: [profile.version], waits: profile.waits ?? 0 }, tick)

@@ -93,6 +93,8 @@ const WANTS = {
   fleetScanRequests: item(t('依次读取六个控制器的版本', 'read the version from each of six controllers')),
   fleetScanVersions: item(t('按控制器序号和版本排列实际回答', 'list actual replies as controller index and version pairs')),
   fleetScanAny: item(t('是否有控制器回答', 'whether any controller replied')),
+  fleetBroadcastTarget: item(t('功能请求的广播目标', 'broadcast target for a functional request')),
+  fleetBroadcastRequest: item(t('一次功能寻址版本请求', 'one functional-addressed version request')),
   fleetSessionTargets: item(t('依次与控制器建立会话并读取版本', 'open a session and read each controller version in order')),
   fleetSessionRequests: item(t('逐个建立会话、读取版本并等待回答', 'open sessions, read versions and wait for replies in order')),
   fleetSessionVersions: item(t('汇总经过会话读取的版本', 'collect versions read after opening sessions')),
@@ -395,7 +397,7 @@ const LEVEL = { ...BASE_LEVEL, fields: { ...BASE_LEVEL.fields, tasks: { ...BASE_
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 117,
+  version: 118,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

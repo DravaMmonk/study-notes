@@ -750,6 +750,8 @@ const WANTS = {
   fleetScanRequests: () => (test) => test.bus.bits.map((_, tick) => tick < 6 ? [0x22, 0xf1, 0x88] : null),
   fleetScanVersions: () => (test) => test.bus.bits.map((_, tick) => tick === 7 ? test.fleet.flatMap((ecu, index) => ecu.online ? [index, ecu.version] : []) : null),
   fleetScanAny: () => (test) => test.bus.bits.map((_, tick) => tick === 7 ? test.fleet.some((ecu) => ecu.online) : null),
+  fleetBroadcastTarget: () => (test) => test.bus.bits.map((_, tick) => tick === 0 ? 255 : null),
+  fleetBroadcastRequest: () => (test) => test.bus.bits.map((_, tick) => tick === 0 ? [0x22, 0xf1, 0x88] : null),
   fleetSessionTargets: () => (test) => fleetSessionPlan(test).targets,
   fleetSessionRequests: () => (test) => fleetSessionPlan(test).requests,
   fleetSessionVersions: () => (test) => fleetSessionPlan(test).versions,
