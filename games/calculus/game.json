@@ -95,6 +95,12 @@
           "after": "limit"
         }
       ]
+    },
+    {
+      "id": 2,
+      "title": { "zh": "函数是一张表" },
+      "question": { "zh": "把函数放在越来越细的网格上，怎样看出它在某一点附近是否平稳？" },
+      "foundation": ["grid", "sample-square", "sides", "jump", "gap", "probe"]
     }
   ],
   "views": { "ticks": ["terms", "dots"] }

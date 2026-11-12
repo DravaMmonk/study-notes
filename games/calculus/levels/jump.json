@@ -1,0 +1,36 @@
+{
+  "title": { "zh": "台阶函数" },
+  "intro": [{ "t": { "zh": "现在换一条规则：x<0 时输出 0，x≥0 时输出 1。左右都往 0 走，结果还会汇合吗？" } }],
+  "after": { "zh": "这个函数在 0 处<wiki-ref to=\"jump-discontinuity\"></wiki-ref>：左边的值一直是 0，右边和中心一直是 1。" },
+  "builds": { "type": "jump", "name": { "zh": "台阶" }, "desc": { "zh": "x<0 时为 0，x≥0 时为 1。" } },
+  "tasks": [
+    {
+      "id": "jump",
+      "brief": { "zh": "实现台阶函数，交出每拍输入 x 对应的函数值。" },
+      "inputs": [{ "name": "x", "label": "x" }],
+      "outputs": [{ "name": "y", "label": "f(x)" }],
+      "tests": [
+        {
+          "inputs": { "x": [-2, -1, -0.5, -0.1, 0, 0.1, 0.5, 1, 2] },
+          "want": { "y": [0, 0, 0, 0, 1, 1, 1, 1, 1] }
+        },
+        { "inputs": { "x": [0, 0, -1, 1, -2, 2] }, "want": { "y": [1, 1, 0, 1, 0, 1] } }
+      ],
+      "hidden": [
+        {
+          "inputs": { "x": [-0.001, 0.001, -100, 100, 0, -0.25, 0.25] },
+          "want": { "y": [0, 1, 0, 1, 1, 0, 1] }
+        }
+      ],
+      "solution": [
+        "z = const[value=0]()",
+        "one = const[value=1]()",
+        "neg = const[value=-1]()",
+        "left = less(x, z)",
+        "flipped = mul(left, neg)",
+        "value = add(one, flipped)",
+        "y <- value"
+      ]
+    }
+  ]
+}

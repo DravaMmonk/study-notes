@@ -9,7 +9,7 @@
     "zh": "给自己搭的机器一个函数，它算出导数、积分、泰勒多项式，解出一个常微分方程，并说得清误差随步长怎样变小。"
   },
   "scope": {
-    "zh": "这份蓝图写第 0 章「一拍一项」和第 1 章「越来越近」：数列、递推、求和与差分，到极限、级数收敛与发散，带两个专题。第 2–7 章各记一句，留待后续。"
+    "zh": "这份蓝图覆盖第 0、1 章及第 2 章的网格取样与两侧探测；完整 ε-δ 应答和第 3–7 章留待后续。"
   },
   "sources": [
     "games/calculus/DESIGN.md",
@@ -51,6 +51,12 @@
       "lacks": {
         "zh": "它沿着下标一项项走，只认得数列；函数 f(x) 要在任意实数 x 上取值，相邻两点要能任意近。第 2 章把函数放到步长 h 的网格上取样，让步长本身趋于 0。"
       }
+    },
+    {
+      "id": "sampler",
+      "title": { "zh": "取样机" },
+      "can": ["tick"],
+      "lacks": { "zh": "能在有限网格上观察函数值和两侧偏差；还不能对整个实数邻域证明连续，也不能直接求导。" }
     }
   ],
   "knowledge": [
@@ -365,6 +371,67 @@
       "wall": {
         "zh": "只会加、乘和取倒数，怎样算出 √2？"
       }
+    },
+    {
+      "id": "sampling-grid",
+      "term": { "zh": "取样网格" },
+      "about": { "zh": "用起点 a、步长 h 和编号 n 定出 xₙ = a + n·h。" },
+      "source": "games/calculus/DESIGN.md §3, 第 2 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "depends": ["index"],
+      "wall": { "zh": "下标 n 是位置编号；怎样把它变成横轴上的位置？" }
+    },
+    {
+      "id": "function-value",
+      "term": { "zh": "函数值" },
+      "about": { "zh": "同一条规则 f 对每个输入 x 给出一个值；在网格上逐点应用它得到函数的取样表。" },
+      "source": "games/calculus/DESIGN.md §3, 第 2 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "depends": ["sampling-grid", "general-term"],
+      "wall": { "zh": "平方数只在整数位置上见过，怎样看任意网格上的 x²？" }
+    },
+    {
+      "id": "one-sided",
+      "term": { "zh": "两侧逼近" },
+      "about": { "zh": "用 a−h 和 a+h 从两侧靠近 a；只看一侧可能漏掉另一侧的行为。" },
+      "source": "games/calculus/DESIGN.md §3, 第 2 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "depends": ["function-value", "limit"],
+      "wall": { "zh": "x 越靠近 a，f(x) 会怎样？从哪一侧来有区别吗？" }
+    },
+    {
+      "id": "jump-discontinuity",
+      "term": { "zh": "跳变" },
+      "about": { "zh": "函数在某点左右逼近的值不同，就在该点跳变；台阶函数在 0 处是例子。" },
+      "source": "games/calculus/DESIGN.md §3, 第 2 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "depends": ["one-sided", "inequality"],
+      "wall": { "zh": "输入越来越靠近 0，输出一定越来越靠近 f(0) 吗？" }
+    },
+    {
+      "id": "continuity-gap",
+      "term": { "zh": "两侧偏差" },
+      "about": { "zh": "比较左右样本与中心函数值的距离，取较大者，能同时看见两侧的最坏偏离。" },
+      "source": "games/calculus/DESIGN.md §3, 第 2 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "depends": ["one-sided", "distance"],
+      "wall": { "zh": "左右两边各离中心多远，怎样用一个数报告最坏的一侧？" }
+    },
+    {
+      "id": "continuity",
+      "term": { "zh": "连续" },
+      "about": { "zh": "f 在 a 连续：x 从任意一侧趋于 a 时，f(x) 趋于 f(a)；有限取样只能提示，不能证明。" },
+      "source": "games/calculus/DESIGN.md §3, 第 2 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "core": true,
+      "depends": ["one-sided", "jump-discontinuity", "continuity-gap"],
+      "wall": { "zh": "不断缩小步长，怎样区分平方函数在 a 附近的平滑变化与台阶函数在 0 的跳变？" }
     }
   ],
   "primitives": [
@@ -459,7 +526,10 @@
         "zh": "从此一直：输入最近一段连续为 1 从第几项起；这一拍为 0 时给 n + 1。"
       },
       "from": ["reg", "keep", "count", "mul", "add", "const"]
-    }
+    },
+    { "part": "grid", "about": { "zh": "从 a、h 交出 a+n·h 的横轴位置。" }, "from": ["count", "add", "mul"] },
+    { "part": "jump", "about": { "zh": "x<0 时给 0，其余给 1 的台阶函数。" }, "from": ["less", "add", "mul", "const"] },
+    { "part": "gap", "about": { "zh": "左右函数值相对中心值的较大偏差。" }, "from": ["dist", "max"] }
   ],
   "eras": [
     {
@@ -1352,6 +1422,93 @@
           ]
         }
       ]
+    },
+    {
+      "id": 2,
+      "machine": "sampler",
+      "title": { "zh": "函数是一张表" },
+      "question": { "zh": "把函数放在越来越细的网格上，怎样看出它在某一点附近是否平稳？" },
+      "why": { "zh": "上一章的逼近机只沿数列下标走。现在让下标落在横轴的网格上，再比较函数在中心和两侧的值。" },
+      "series": [
+        {
+          "id": "grid-series",
+          "title": { "zh": "把下标变成位置" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "grid",
+              "title": { "zh": "铺开网格" },
+              "task": { "zh": "用 a、h 和 n 生成 xₙ。" },
+              "question": { "zh": "同一拍号怎样落在不同的横轴位置？" },
+              "chain": [{ "zh": "先取下标 n。" }, { "zh": "乘上步长 h，再加起点 a；换 h 时位置也变。" }],
+              "role": "foundation",
+              "teaches": "sampling-grid",
+              "uses": ["sampling-grid", "count", "mul", "add"],
+              "builds": "grid",
+              "showcase": { "zh": "把数列下标变成可以平移和缩放的取样位置。" }
+            },
+            {
+              "id": "sample-square",
+              "title": { "zh": "函数值" },
+              "task": { "zh": "在网格的每个位置算 x²。" },
+              "question": { "zh": "平方数只能在整数处取值吗？" },
+              "chain": [{ "zh": "先用网格得到这一拍的 x。" }, { "zh": "把 x 送进同一条平方规则，每拍得到一个函数值。" }],
+              "role": "foundation",
+              "teaches": "function-value",
+              "uses": ["function-value", "grid", "mul"]
+            }
+          ]
+        },
+        {
+          "id": "two-sides",
+          "title": { "zh": "从两侧看" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "sides",
+              "title": { "zh": "从两侧走近" },
+              "task": { "zh": "算平方函数在 a−h、a、a+h 的值。" },
+              "question": { "zh": "两侧靠近同一点，函数值怎样变化？" },
+              "chain": [{ "zh": "给 h 逐拍减半，分别取 a−h 和 a+h。" }, { "zh": "平方并和 f(a) 对照，观察两侧值的变化。" }],
+              "role": "foundation",
+              "teaches": "one-sided",
+              "uses": ["one-sided", "function-value", "add", "mul"]
+            },
+            {
+              "id": "jump",
+              "title": { "zh": "台阶函数" },
+              "task": { "zh": "做一个在 0 处跳变的函数。" },
+              "question": { "zh": "靠近 0 时左右的输出还能汇合吗？" },
+              "chain": [{ "zh": "比较 x 和 0，用 0/1 表示 x 是否在左侧。" }, { "zh": "把比较结果变成函数值，并检查 0 两侧。" }],
+              "role": "foundation",
+              "teaches": "jump-discontinuity",
+              "uses": ["jump-discontinuity", "one-sided", "less", "add", "mul", "const"],
+              "builds": "jump"
+            },
+            {
+              "id": "gap",
+              "title": { "zh": "两侧偏差" },
+              "task": { "zh": "由左右与中心的函数值求最大的偏差。" },
+              "question": { "zh": "只看右侧会漏掉什么？" },
+              "chain": [{ "zh": "分别量左、右与中心的距离。" }, { "zh": "取较大者，让任何一侧的偏离都留在结果里。" }],
+              "role": "foundation",
+              "teaches": "continuity-gap",
+              "uses": ["continuity-gap", "one-sided", "dist", "max"],
+              "builds": "gap"
+            },
+            {
+              "id": "probe",
+              "title": { "zh": "缩小还不够" },
+              "task": { "zh": "逐拍报告两侧偏差，以及 ε 内最近一段的起点。" },
+              "question": { "zh": "步长缩小时平方函数与台阶函数的偏差有何不同？" },
+              "chain": [{ "zh": "让 h 逐拍缩小，计算两侧偏差是否小于 ε。" }, { "zh": "追踪最近一段一直合格的起点；台阶在 0 处不会合格。" }],
+              "role": "foundation",
+              "teaches": "continuity",
+              "uses": ["continuity", "continuity-gap", "gap", "jump", "since", "less", "mul", "add"]
+            }
+          ]
+        }
+      ]
     }
   ],
   "parallel": [
@@ -1422,9 +1579,10 @@
   "deferred": [
     {
       "about": {
-        "zh": "第 2–7 章：取样、导数、积分、基本定理、泰勒、微分方程"
+        "zh": "第 2 章：完整 ε-δ 应答器"
       },
-      "why": { "zh": "同上；框架在设计文档第 3 节" }
-    }
+      "why": { "zh": "有限逐拍样本不能证明整个实数邻域内的断言；需要能判定或验证区间性质的任务机制。" }
+    },
+    { "about": { "zh": "第 3–7 章：导数、积分、基本定理、泰勒、微分方程" }, "why": { "zh": "框架在设计文档第 3 节。" } }
   ]
 }

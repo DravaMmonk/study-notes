@@ -277,6 +277,58 @@
         { "zh": "它是牛顿法用在 x² − c = 0 上的一个特例。" }
       ],
       "see": ["limit"]
+    },
+    {
+      "id": "sampling-grid",
+      "group": "sequences",
+      "title": { "zh": "取样网格" },
+      "at": "grid",
+      "body": [{ "zh": "xₙ = a+n·h：从起点 a 出发，每拍在横轴上跨 h。n 是取样编号，xₙ 是实际位置；h 可以为负。" }],
+      "see": ["index", "function-value"]
+    },
+    {
+      "id": "function-value",
+      "group": "sequences",
+      "title": { "zh": "函数值" },
+      "at": "sample-square",
+      "body": [{ "zh": "函数 f 给每个输入 x 一个输出 f(x)。一张有限的取样表记录选定网格上的值；换网格仍用同一条规则。" }],
+      "see": ["sampling-grid", "continuity"]
+    },
+    {
+      "id": "one-sided",
+      "group": "sequences",
+      "title": { "zh": "两侧逼近" },
+      "at": "sides",
+      "body": [{ "zh": "h>0 时，a−h 从左侧、a+h 从右侧靠近 a。要判断 a 附近的行为，两边都要看。" }],
+      "see": ["jump-discontinuity", "continuity"]
+    },
+    {
+      "id": "jump-discontinuity",
+      "group": "sequences",
+      "title": { "zh": "跳变" },
+      "at": "jump",
+      "body": [{ "zh": "台阶函数在 x<0 时为 0，其余为 1；在 0 左边逼近得到 0，右边逼近得到 1，故在 0 处跳变。" }],
+      "see": ["one-sided", "continuity"]
+    },
+    {
+      "id": "continuity-gap",
+      "group": "sequences",
+      "title": { "zh": "两侧偏差" },
+      "at": "gap",
+      "body": [{ "zh": "把 f(a−h)、f(a+h) 分别与 f(a) 比较，取两段距离中较大的一段。这样任一侧偏离都不会被忽略。" }],
+      "see": ["distance", "continuity"]
+    },
+    {
+      "id": "continuity",
+      "group": "sequences",
+      "title": { "zh": "连续" },
+      "at": "probe",
+      "body": [
+        { "zh": "f 在 a 连续，指 x 从任意方向趋于 a 时，f(x) 趋于 f(a)。等价地：给定任何 ε>0，都能找 δ>0，使 |x−a|<δ 时 |f(x)−f(a)|<ε。" },
+        { "zh": "游戏里只测试有限个网格位置。取样可以发现跳变或支持猜想，但不能证明对邻域内所有实数成立。" }
+      ],
+      "see": ["one-sided", "jump-discontinuity"]
     }
-  ]
+  ],
+  "groupByChapter": true
 }
