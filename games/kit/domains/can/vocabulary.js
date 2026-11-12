@@ -115,6 +115,8 @@ const WANTS = {
   crc8Signal: item(t('单字节的游戏 CRC-8', 'game CRC-8 of one byte'), S.obj({ input: INPUT })),
   frameHealth: item(t('按 CRC 和滚动计数器检查报文', 'check frame CRC and rolling counter'), S.obj({ payload: INPUT, checksum: INPUT, counter: INPUT, enable: S.opt(INPUT), id: S.opt(INPUT), match: S.opt(S.int({ min: 0, max: 2047 })) })),
   frameFreshness: item(t('目标报文是否在等待期限内出现', 'whether the target frame arrived within the deadline'), S.obj({ id: INPUT, time: INPUT, target: INPUT, limit: INPUT })),
+  timedTransportMessage: item(t('等待期限内重组的长消息', 'long message reassembled within the deadline'), S.obj({ data: INPUT, id: INPUT, time: INPUT, limit: INPUT, target: S.opt(INPUT), match: S.opt(S.int({ min: 0, max: 2047 })) })),
+  timedTransportAbort: item(t('等待下一帧超时时触发', 'trigger when waiting for the next frame times out'), S.obj({ data: INPUT, id: INPUT, time: INPUT, limit: INPUT, target: S.opt(INPUT), match: S.opt(S.int({ min: 0, max: 2047 })) })),
   transportFrames: item(t('按流控和间隔发送消息的帧', 'frames sent according to flow control and separation')),
   transportGapReady: item(t('按流控间隔等待后续帧的发送时机', 'wait for the consecutive-frame separation before allowing the next send'), S.obj({ set: INPUT, separation: INPUT, sent: INPUT })),
   transportTimeoutAbort: item(t('接收方不回答时在等待上限终止', 'abort at the waiting limit when the receiver is silent')),
@@ -373,7 +375,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 113,
+  version: 114,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

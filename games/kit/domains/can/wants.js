@@ -767,6 +767,8 @@ const WANTS = {
   fleetFaultAny: () => (test) => fleetFaultPlan(test).any,
   encodeLow: ({ input }) => (test) => test.inputs[input].map((value) => value & 255),
   encodeHigh: ({ input }) => (test) => test.inputs[input].map((value) => (value >> 8) & 255),
+  timedTransportMessage: (params) => (test) => timedTransportPlan(test, params).messages,
+  timedTransportAbort: (params) => (test) => timedTransportPlan(test, params).timeouts,
   crc8Signal: ({ input }) => (test) => test.inputs[input].map(crc8Byte),
   frameFreshness: ({ id, time, target, limit }) => (test) => {
     let last = null
@@ -1212,6 +1214,28 @@ function crc8Byte(byte) {
   let crc = byte
   for (let bit = 0; bit < 8; bit++) crc = ((crc << 1) ^ (crc & 0x80 ? 0x07 : 0)) & 0xff
   return crc
+}
+
+// A single normal-addressed reassembly, timed at frame and independent clock observations.
+function timedTransportPlan(test, { data, id, time, limit, target, match }) {
+  let last = null, length = 0, bytes = [], sequence = 1
+  const messages = [], timeouts = []
+  for (let tick = 0; tick < test.ticks; tick++) {
+    const now = test.inputs[time][tick], frame = test.inputs[data][tick]
+    const timeout = last !== null && now - last > test.inputs[limit][tick]
+    if (timeout) last = null
+    let message = null
+    if (test.inputs[id][tick] === (target ? test.inputs[target][tick] : match) && Array.isArray(frame)) {
+      const type = frame[0] >> 4
+      if (type === 1) { length = (frame[0] & 15) * 256 + frame[1]; bytes = frame.slice(2); sequence = 1; last = now }
+      else if (type === 2 && last !== null && (frame[0] & 15) === sequence) {
+        bytes.push(...frame.slice(1)); sequence = (sequence + 1) & 15; last = now
+        if (bytes.length >= length) { message = bytes.slice(0, length); last = null }
+      }
+    }
+    messages.push(message); timeouts.push(timeout)
+  }
+  return { messages, timeouts }
 }
 
 /** A level's `want` as the function run.js checks a test by: test → { output name: [value per tick] }. */
