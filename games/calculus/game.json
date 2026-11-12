@@ -8,7 +8,7 @@
     "zh": "高等数学"
   },
   "lede": {
-    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出极限、斜率和面积，再让导数与积分在函数网格上互相撤销。"
+    "zh": "从数列的差分和累加出发，亲手接出极限、斜率、面积和泰勒多项式。每个近似都能追问：误差多大，在哪些输入上有效？"
   },
   "primitives": [
     "add",
@@ -147,6 +147,12 @@
         "endpoint-diff",
         "constant-cancels"
       ]
+    },
+    {
+      "id": 6,
+      "title": { "zh": "多项式逼近" },
+      "question": { "zh": "只用加和乘，怎样算 eˣ、sin x？哪里会失灵？" },
+      "foundation": ["exp-term", "exp-sum", "exp-bound", "sin-term", "sin-sum", "radius", "rational-outside"]
     }
   ],
   "views": { "ticks": ["terms", "dots"] }

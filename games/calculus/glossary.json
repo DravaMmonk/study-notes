@@ -501,6 +501,64 @@
       "at": "constant-cancels",
       "body": [{ "zh": "原函数可以加任意常数 C，因为常数的导数为 0。求定积分时 (F(b)+C)−(F(a)+C)=F(b)−F(a)，常数自动抵消。" }],
       "see": ["endpoint-evaluation"]
+    },
+    {
+      "id": "taylor-term",
+      "group": "sequences",
+      "title": { "zh": "泰勒项" },
+      "at": "exp-term",
+      "body": [{ "zh": "eˣ 的第 n 项是 xⁿ/n!，首项 1，下一项由当前项乘 x/(n+1) 得到。它是一项，不是到目前为止的和。" }],
+      "see": ["taylor-exp"]
+    },
+    {
+      "id": "taylor-exp",
+      "group": "sequences",
+      "title": { "zh": "指数展开" },
+      "at": "exp-sum",
+      "body": [{ "zh": "eˣ=Σₙ₌₀∞xⁿ/n! 对每个实数 x 成立。第 n 拍的部分和 Pₙ(x) 是 n 次多项式；无限和的结论来自泰勒定理，不由有限取样证明。" }],
+      "see": ["taylor-term", "taylor-remainder"]
+    },
+    {
+      "id": "taylor-remainder",
+      "group": "sequences",
+      "title": { "zh": "泰勒余项界" },
+      "at": "exp-bound",
+      "body": [{ "zh": "对 0≤x≤1，eˣ 的 n 次部分和误差不超过 e·xⁿ⁺¹/(n+1)!，因此不超过 3xⁿ⁺¹/(n+1)!。这个上界限定在该输入范围。" }],
+      "see": ["taylor-exp"]
+    },
+    {
+      "id": "sine-terms",
+      "group": "sequences",
+      "title": { "zh": "正弦项" },
+      "at": "sin-term",
+      "body": [{ "zh": "sin x 是单位圆角度 x 的纵坐标。它在 0 的导数循环，使偶次系数为 0、奇次系数交替正负，得到 tₙ=(-1)ⁿx²ⁿ⁺¹/(2n+1)!。" }],
+      "see": ["sine-approx"]
+    },
+    {
+      "id": "sine-approx",
+      "group": "sequences",
+      "title": { "zh": "正弦多项式" },
+      "at": "sin-sum",
+      "body": [{ "zh": "sin x=Σₙ₌₀∞(-1)ⁿx²ⁿ⁺¹/(2n+1)!。有限部分和是多项式；对每个固定实数 x，它随项数增加而趋向 sin x。" }],
+      "see": ["sine-terms", "convergence-radius"]
+    },
+    {
+      "id": "convergence-radius",
+      "group": "sequences",
+      "title": { "zh": "收敛半径" },
+      "at": "radius",
+      "body": [
+        { "zh": "幂级数从中心向两侧能收敛的距离叫收敛半径。几何级数 Σxⁿ 在 |x|<1 收敛到 1/(1−x)，在 |x|>1 时项不趋于 0，级数发散。边界 |x|=1 要单独判断。" }
+      ],
+      "see": ["outside-radius"]
+    },
+    {
+      "id": "outside-radius",
+      "group": "sequences",
+      "title": { "zh": "半径外失效" },
+      "at": "rational-outside",
+      "body": [{ "zh": "1/(1+x²) 在所有实数 x 上都有值，但以 0 为中心的级数 Σ(-1)ⁿx²ⁿ 只在 |x|<1 成立。x=2 时项为 1,-4,16,…，不趋于 0。" }],
+      "see": ["convergence-radius"]
     }
   ],
   "groupByChapter": true

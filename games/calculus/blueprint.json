@@ -9,7 +9,7 @@
     "zh": "给自己搭的机器一个函数，它算出导数、积分、泰勒多项式，解出一个常微分方程，并说得清误差随步长怎样变小。"
   },
   "scope": {
-    "zh": "这份蓝图覆盖第 0–5 章：数列、极限、连续性、导数、积分与基本定理。第 6–7 章留待后续。"
+    "zh": "这份蓝图覆盖第 0–6 章：数列、极限、函数、导数、积分与泰勒逼近。第 7 章留待后续。"
   },
   "sources": [
     "games/calculus/DESIGN.md",
@@ -75,6 +75,12 @@
       "title": { "zh": "互逆机" },
       "can": ["tick"],
       "lacks": { "zh": "能在多项式例子中把导数累加为函数变化、把面积函数求导；尚未用局部多项式逼近一般函数。" }
+    },
+    {
+      "id": "series-machine",
+      "title": { "zh": "展开机" },
+      "can": ["tick"],
+      "lacks": { "zh": "能逐项生成泰勒项并累加，比较误差与收敛范围；尚不能从变化率递推出随时间运动的轨迹。" }
     }
   ],
   "knowledge": [
@@ -668,6 +674,79 @@
       "basis": "lecture",
       "difficulty": "learnable",
       "wall": { "zh": "同一个导数能有几种原函数？" }
+    },
+    {
+      "id": "taylor-term",
+      "term": { "zh": "泰勒项" },
+      "about": { "zh": "指数函数的第 n 项 xⁿ/n! 可由上一项乘 x/(n+1) 得到；从 1 起逐拍递推。" },
+      "depends": ["recurrence", "derivative"],
+      "source": "games/calculus/DESIGN.md §3, 第 6 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "不用每拍重新算幂和阶乘，怎样得到下一项？" }
+    },
+    {
+      "id": "taylor-exp",
+      "term": { "zh": "指数展开" },
+      "about": { "zh": "eˣ=Σₙ₌₀∞xⁿ/n!；有限部分和是次数逐渐升高的泰勒多项式。" },
+      "depends": ["taylor-term", "series", "derivative"],
+      "source": "games/calculus/DESIGN.md §3, 第 6 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": { "zh": "一串局部多项式能逼近 eˣ 到什么程度？" },
+      "core": true
+    },
+    {
+      "id": "taylor-remainder",
+      "term": { "zh": "泰勒余项界" },
+      "about": { "zh": "当 0≤x≤1，eˣ 的 n 次部分和误差不超过 3xⁿ⁺¹/(n+1)!。" },
+      "depends": ["taylor-exp", "distance"],
+      "source": "games/calculus/DESIGN.md §3, 第 6 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "只算了有限项，怎样给还没算的尾部留界？" }
+    },
+    {
+      "id": "sine-terms",
+      "term": { "zh": "正弦项" },
+      "about": { "zh": "正弦级数的项为 (-1)ⁿx²ⁿ⁺¹/(2n+1)!，奇次幂且符号交替。" },
+      "depends": ["taylor-term", "derivative"],
+      "source": "games/calculus/DESIGN.md §3, 第 6 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "为什么正弦展开跳过偶数次幂并交替正负？" }
+    },
+    {
+      "id": "sine-approx",
+      "term": { "zh": "正弦多项式" },
+      "about": { "zh": "逐项累加正弦级数得到不同次数的多项式；对任意固定实数 x，部分和趋于 sin x。" },
+      "depends": ["sine-terms", "taylor-exp"],
+      "source": "games/calculus/DESIGN.md §3, 第 6 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": { "zh": "只有加乘的机器如何近似周期函数？" },
+      "core": true
+    },
+    {
+      "id": "convergence-radius",
+      "term": { "zh": "收敛半径" },
+      "about": { "zh": "几何级数 Σxⁿ 只在 |x|<1 收敛；一条幂级数不一定在所有输入上有效。" },
+      "depends": ["series", "sine-approx"],
+      "source": "games/calculus/DESIGN.md §3, 第 6 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": { "zh": "同样一条求和电路，换 x 为什么会失控？" },
+      "core": true
+    },
+    {
+      "id": "outside-radius",
+      "term": { "zh": "半径外失效" },
+      "about": { "zh": "1/(1+x²)=Σ(-1)ⁿx²ⁿ 仅在 |x|<1 成立；x=2 时函数有值 1/5，但级数项不趋于零。" },
+      "depends": ["convergence-radius", "function-value"],
+      "source": "games/calculus/DESIGN.md §3, 第 6 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "函数本身有值，为什么中心展开仍可能算不出它？" }
     }
   ],
   "primitives": [
@@ -780,7 +859,18 @@
     { "part": "cell", "about": { "zh": "给高度 y 和有向宽度 h，交出小格贡献 yh。" }, "from": ["mul"] },
     { "part": "riemann", "about": { "zh": "把逐拍给出的高度与宽度乘起来，再累加到这一拍。" }, "from": ["cell", "sum"] },
     { "part": "trap", "about": { "zh": "用小格左右高度的平均值乘宽度。" }, "from": ["add", "mul", "const"] },
-    { "part": "endpointDiff", "about": { "zh": "给原函数两端的值，交出终值减初值。" }, "from": ["add", "mul", "const"] }
+    { "part": "endpointDiff", "about": { "zh": "给原函数两端的值，交出终值减初值。" }, "from": ["add", "mul", "const"] },
+    {
+      "part": "expTerm",
+      "about": { "zh": "固定 x 时逐拍生成指数级数的第 n 项 xⁿ/n!。" },
+      "from": ["reg", "keep", "count", "add", "recip", "mul"]
+    },
+    { "part": "expSeries", "about": { "zh": "逐拍累加指数项，交出 eˣ 的 n 次多项式近似。" }, "from": ["expTerm", "sum"] },
+    {
+      "part": "sinTerm",
+      "about": { "zh": "固定 x 时递推正弦级数的交替奇次幂项。" },
+      "from": ["reg", "keep", "count", "add", "recip", "mul", "const"]
+    }
   ],
   "eras": [
     {
@@ -2074,6 +2164,109 @@
           ]
         }
       ]
+    },
+    {
+      "id": 6,
+      "machine": "series-machine",
+      "title": { "zh": "多项式逼近" },
+      "question": { "zh": "只用加和乘，怎样算 eˣ、sin x？哪里会失灵？" },
+      "why": { "zh": "求导和积分已能处理多项式；现在让次数逐拍升高，用多项式逼近不再是多项式的函数。" },
+      "series": [
+        {
+          "id": "taylor-exp-series",
+          "title": { "zh": "指数的每一项" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "exp-term",
+              "title": { "zh": "下一项" },
+              "task": { "zh": "递推生成 xⁿ/n!。" },
+              "question": { "zh": "幂和阶乘都增长，怎样不从头重算？" },
+              "chain": [{ "zh": "从 t₀=1 起。" }, { "zh": "每拍乘 x/(n+1) 得下一项。" }],
+              "role": "foundation",
+              "teaches": "taylor-term",
+              "uses": ["taylor-term", "reg", "keep", "count", "add", "recip", "mul"],
+              "builds": "expTerm"
+            },
+            {
+              "id": "exp-sum",
+              "title": { "zh": "一项项逼近 eˣ" },
+              "task": { "zh": "累加指数项，交出不同次数的多项式。" },
+              "question": { "zh": "前几项的和怎样接近 eˣ？" },
+              "chain": [{ "zh": "指数项逐拍来。" }, { "zh": "把它接进累加器，比较不同次数。" }],
+              "role": "foundation",
+              "teaches": "taylor-exp",
+              "uses": ["taylor-exp", "expTerm", "sum"],
+              "builds": "expSeries"
+            },
+            {
+              "id": "exp-bound",
+              "title": { "zh": "留出余量" },
+              "task": { "zh": "交出指数部分和与有限余项上界。" },
+              "question": { "zh": "还没算出的项怎样估计？" },
+              "chain": [{ "zh": "在 0≤x≤1 的范围内算下一项。" }, { "zh": "乘 3 给余项上界；次数增加时界缩小。" }],
+              "role": "foundation",
+              "teaches": "taylor-remainder",
+              "uses": ["taylor-remainder", "expSeries", "expTerm", "count", "add", "recip", "mul", "const"]
+            }
+          ]
+        },
+        {
+          "id": "taylor-sine-series",
+          "title": { "zh": "交替的项" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "sin-term",
+              "title": { "zh": "正负交替" },
+              "task": { "zh": "递推正弦级数的奇次项。" },
+              "question": { "zh": "为什么每两次幂才出现一项？" },
+              "chain": [{ "zh": "从 x 开始。" }, { "zh": "每项乘 -x²/[(2n+2)(2n+3)]。" }],
+              "role": "foundation",
+              "teaches": "sine-terms",
+              "uses": ["sine-terms", "taylor-term", "reg", "keep", "count", "add", "recip", "mul", "const"],
+              "builds": "sinTerm"
+            },
+            {
+              "id": "sin-sum",
+              "title": { "zh": "画出正弦" },
+              "task": { "zh": "累加正弦项。" },
+              "question": { "zh": "多项式能怎样逼近周期函数？" },
+              "chain": [{ "zh": "交替项一拍来一项。" }, { "zh": "累加后比较固定 x 的部分和与 sin x。" }],
+              "role": "foundation",
+              "teaches": "sine-approx",
+              "uses": ["sine-approx", "sinTerm", "sum"]
+            }
+          ]
+        },
+        {
+          "id": "taylor-radius-series",
+          "title": { "zh": "展开的边界" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "radius",
+              "title": { "zh": "收敛的圆" },
+              "task": { "zh": "累加几何级数并改变 x。" },
+              "question": { "zh": "为何同一求和规则在不同 x 失效？" },
+              "chain": [{ "zh": "当 |x|<1，项趋于零。" }, { "zh": "当 |x|>1，项越变越大；部分和不收敛。" }],
+              "role": "foundation",
+              "teaches": "convergence-radius",
+              "uses": ["convergence-radius", "sine-approx", "reg", "keep", "mul", "sum", "sinTerm"]
+            },
+            {
+              "id": "rational-outside",
+              "title": { "zh": "函数还在，级数没了" },
+              "task": { "zh": "比较有理函数与它在 0 的几何展开。" },
+              "question": { "zh": "函数在半径外仍有值，展开为何发散？" },
+              "chain": [{ "zh": "把比例设为 -x²。" }, { "zh": "在 x=2，项的绝对值变大，不可能收敛到 1/5。" }],
+              "role": "foundation",
+              "teaches": "outside-radius",
+              "uses": ["outside-radius", "convergence-radius", "reg", "keep", "mul", "sum", "const"]
+            }
+          ]
+        }
+      ]
     }
   ],
   "parallel": [
@@ -2142,6 +2335,6 @@
     }
   ],
   "deferred": [
-    { "about": { "zh": "第 6–7 章：泰勒与微分方程" }, "why": { "zh": "框架在设计文档第 3 节。" } }
+    { "about": { "zh": "第 7 章：微分方程与数值轨迹" }, "why": { "zh": "框架在设计文档第 3 节。" } }
   ]
 }
