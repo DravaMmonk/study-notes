@@ -2,6 +2,8 @@
 
 These notes are written for learners who are new to computer vision. Each lecture first states the problem it sets out to solve and then works through it topic by topic; figures come with a note on what to look at, and the lecturer's own words come with an explanation of what they mean. **Key point / Difficult / Common mistake** mark places that deserve extra attention while studying; they are not predictions of what the exam will cover. Supplementary material is listed briefly or folded away, and each note ends with self-test questions to check your understanding.
 
+The [revision checklist and English–Chinese glossary](REVISION-GLOSSARY.md) covers the 21 content lecture notes and lists the workshop additions separately (Chinese explanations).
+
 ## Study by module
 
 | Module | Reading order | Skills to build |
