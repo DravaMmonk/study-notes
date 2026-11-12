@@ -731,6 +731,13 @@ const WANTS = {
     return test.bus.bits.map((_, tick) => requests[tick] ?? null)
   },
   ecuFlashDemoDone: () => (test) => test.bus.bits.map((_, tick) => tick === 8 ? true : null),
+  udsServerReply: ({ request, value, faults }) => (test) => test.inputs[request].map((message, tick) => {
+    if (message === null) return null
+    const service = message[0]
+    if (service === 0x22) return message.length === 3 && message[1] === 0xf1 && message[2] === 0x90 ? [0x62, 0xf1, 0x90, ...test.inputs[value][tick]] : [0x7f, 0x22, 0x31]
+    if (service === 0x19 && message.length === 3 && message[1] === 2 && message[2] === 8) return [0x59, 2, 255, ...test.inputs[faults][tick]]
+    return [0x7f, service, 0x11]
+  }),
   ecuDriveCycleRequests: () => (test) => {
     const requests = [[0x19, 2, 8], [0x14, 255, 255, 255], [0x19, 2, 8], [0x31, 1, 0xfe, 0], [0x19, 2, 8]]
     return test.bus.bits.map((_, tick) => requests[tick] ?? null)

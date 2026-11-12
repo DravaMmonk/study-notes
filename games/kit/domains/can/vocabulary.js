@@ -79,6 +79,7 @@ const WANTS = {
   ecuClearDtcRecords: item(t('清除前后各次读取的故障码记录', 'trouble-code records read before and after clearing')),
   ecuDriveCycleRequests: item(t('清除后行驶并复查已确认故障', 'clear faults, simulate a drive and recheck confirmed faults')),
   ecuDriveCycleReport: item(t('清除前、清除后和行驶后的故障条数', 'fault counts before clearing, after clearing and after driving')),
+  udsServerReply: item(t('模拟控制器对读取与未知服务的回答', 'simulated controller replies to reads and unknown services'), S.obj({ request: INPUT, value: INPUT, faults: INPUT })),
   ecuFlashEraseRequests: item(t('进入编程会话并擦除模拟存储', 'enter programming session and erase the simulated storage')),
   ecuFlashEraseDone: item(t('模拟擦除回答到达时为是', 'yes when the simulated erase response arrives')),
   ecuFlashDownloadRequests: item(t('进入编程会话、擦除并请求下载四字节', 'enter programming session, erase, and request a four-byte download')),
@@ -356,6 +357,7 @@ const FRAME_FIELD = S.oneOf(['id', 'length', 'time', 'frame', 'data', 'byte0', '
 const TEST = S.obj({
   bus: S.obj({ idle: S.opt(nat), frames: S.list(FRAME), tail: S.opt(nat) }, { about: t('总线：先安静 idle 拍，再一帧帧（帧前多空 gap 拍），最后安静 tail 拍') }),
   inputs: S.opt(S.map(S.list(S.int()), { view: 'ticks', about: t('每个输入每一拍的值') })),
+  messages: S.opt(S.map(S.list(S.either(S.list(hex(0xff, 2)), S.oneOf([null]))), { about: t('每个输入每拍的字节序列或空值', 'byte sequences or absence for each input tick') })),
   runs: S.opt(S.map(S.list(S.obj({ value: S.int(), ticks: S.int({ min: 1, max: 100000 }) })), { about: t('按顺序展开的输入值和持续拍数', 'input values and durations expanded in order') })),
   constants: S.opt(S.map(S.int(), { about: t('整次测试保持不变的输入值', 'input values held constant throughout a test') })),
   pulses: S.opt(S.map(S.list(nat), { about: t('这些输入在列出的拍为 1，其余拍为 0', 'these inputs are 1 on the listed ticks and 0 otherwise') })),
@@ -408,7 +410,7 @@ const LEVEL = { ...BASE_LEVEL, fields: { ...BASE_LEVEL.fields, tasks: { ...BASE_
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 123,
+  version: 124,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

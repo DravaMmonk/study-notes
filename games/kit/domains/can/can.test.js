@@ -1373,3 +1373,27 @@ test('fleet trace supplies zero-valued samples and then becomes unavailable', ()
   assert.deepEqual(result.ticks.map((tick) => tick.bind.wheel), [2, 0, null, null, null, null, null, null])
   assert.deepEqual(result.ticks.map((tick) => tick.bind.sampleReady), [1, 1, 0, 0, 0, 0, 0, 0])
 })
+
+test('message inputs preserve bytes, empty sequences and absence', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.inputs = [{ name: 'request', label: L('request') }]
+  task.outputs = [{ name: 'reply', label: L('reply') }]
+  task.tests = [{ bus: { idle: 3, frames: [], tail: 0 }, messages: { request: [['0x00', '0xff'], [], null] } }]
+  task.hidden = []; delete task.naive
+  task.want = { reply: { inputSignal: { input: 'request' } } }
+  task.solution = ['reply <- request']
+  const course = canCourse(content)
+  assert.deepEqual(course.wrong, [])
+  const played = course.played.get('gather')[0]
+  assert.deepEqual(played.tests[0].inputs.request, [[0, 255], [], null])
+  assert.equal(runLevel(played, played.solution, course.partOf).pass, true)
+  task.tests[0].constants = { request: 0 }
+  assert.ok(canCourse(content).wrong.some((problem) => problem.includes('more than one source')))
+})
+
+test('a small diagnostic server answers reads and rejects unknown requests', () => {
+  const want = wantOf({ response: { udsServerReply: { request: 'request', value: 'value', faults: 'faults' } } })
+  const inputs = { request: [[0x22, 0xf1, 0x90], [0x19, 2, 8], [0x99], [0x22, 0xf1, 0x91], null], value: Array(5).fill([0]), faults: Array(5).fill([1, 2, 3, 8]) }
+  assert.deepEqual(want({ inputs }).response, [[0x62, 0xf1, 0x90, 0], [0x59, 2, 255, 1, 2, 3, 8], [0x7f, 0x99, 0x11], [0x7f, 0x22, 0x31], null])
+})
