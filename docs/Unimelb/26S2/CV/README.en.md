@@ -4,6 +4,7 @@ These notes are written for learners who are new to computer vision. Each lectur
 
 The [revision checklist and English–Chinese glossary](REVISION-GLOSSARY.md) covers the 21 content lecture notes and lists the workshop additions separately (Chinese explanations).
 The [calculation question type summary](EXAM-CALCULATION-TYPES.md) separates examples in the revision slides and historical practice exam from exercises inferred from the current notes (Chinese explanations).
+The [concept-answer revision guide](EXAM-CONCEPT-ANSWERS.md) collects common mistakes, difficult reasoning chains and concise English model responses (Chinese study cues).
 
 ## Study by module
 
