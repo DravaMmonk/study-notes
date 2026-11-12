@@ -8,7 +8,7 @@
     "zh": "高等数学"
   },
   "lede": {
-    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出求和、差分、极限、斜率与面积：微积分从一格一格的计算长出来。"
+    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出极限、斜率和面积，再让导数与积分在函数网格上互相撤销。"
   },
   "primitives": [
     "add",
@@ -133,6 +133,19 @@
       "foundation": ["cell", "riemann", "linear-area", "linear-error", "trap", "square-trap"],
       "topics": [
         { "id": "area-simpson", "title": { "zh": "三点加权" }, "levels": ["simpson"], "after": "square-trap" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": { "zh": "基本定理" },
+      "question": { "zh": "积分后再求导、求导后再积分，为什么回到原处？" },
+      "foundation": [
+        "telescope",
+        "increment",
+        "derivative-sum",
+        "area-slope",
+        "endpoint-diff",
+        "constant-cancels"
       ]
     }
   ],

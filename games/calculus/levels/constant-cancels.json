@@ -1,0 +1,39 @@
+{
+  "title": { "zh": "常数会消掉" },
+  "intro": [
+    { "t": { "zh": "F(x)=x² 与 F(x)=x²+C 的导数同为 2x。原函数不唯一，但两端的差能否保持一样？" } },
+    { "t": { "zh": "给起点 a、终点 b 和任意 C，分别求 F(a)、F(b)，再用端点差。测试还会反向走，让结果保留符号。" } }
+  ],
+  "after": {
+    "zh": "<wiki-ref to=\"integration-constant\"></wiki-ref>在 F(b)−F(a) 中抵消：∫ₐᵇ2x dx=b²−a²，与选哪个 C 无关。"
+  },
+  "tasks": [
+    {
+      "id": "constant-cancels",
+      "brief": { "zh": "给 a、b、C，按 F(x)=x²+C 算出 ∫ₐᵇ2x dx。" },
+      "inputs": [{ "name": "a", "label": "a" }, { "name": "b", "label": "b" }, { "name": "C", "label": "C" }],
+      "outputs": [{ "name": "I", "label": "I" }],
+      "tests": [
+        {
+          "inputs": { "a": [0, 1, 3, -2, 2], "b": [1, 3, 1, 2, -1], "C": [0, 5, -10, 1.5, 100] },
+          "want": { "I": [1, 8, -8, 0, -3] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "a": [10, -4, 0.5, -3], "b": [-10, 2, -0.5, -5], "C": [-100, 0.125, 1000, -1] },
+          "want": { "I": [0, -12, 0, 16] }
+        }
+      ],
+      "solution": [
+        "a2 = mul(a, a)",
+        "b2 = mul(b, b)",
+        "fa = add(a2, C)",
+        "fb = add(b2, C)",
+        "area = endpointDiff(fa, fb)",
+        "I <- area"
+      ],
+      "naive": ["b2 = mul(b, b)", "fb = add(b2, C)", "I <- fb"]
+    }
+  ]
+}

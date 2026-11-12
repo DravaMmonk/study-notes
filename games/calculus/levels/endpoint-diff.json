@@ -1,0 +1,35 @@
+{
+  "title": { "zh": "只看两端" },
+  "intro": [
+    { "t": { "zh": "前面的例子把每格变化加起来，只剩终点值减起点值。给两端的原函数值，直接搭出这个差。" } },
+    { "t": { "zh": "交换两端时符号会反过来；这一小件后面用来计算不同原函数的定积分。" } }
+  ],
+  "after": {
+    "zh": "<wiki-ref to=\"endpoint-evaluation\"></wiki-ref>在满足基本定理条件时给出 ∫ₐᵇf(x)dx=F(b)−F(a)，其中 F′=f。"
+  },
+  "builds": { "type": "endpointDiff", "name": { "zh": "端点差" }, "desc": { "zh": "交出终点值减起点值。" } },
+  "tasks": [
+    {
+      "id": "endpoint-diff",
+      "brief": { "zh": "给起点原函数值 u=F(a) 与终点值 v=F(b)，交出 I=v−u。" },
+      "inputs": [{ "name": "u", "label": "F(a)" }, { "name": "v", "label": "F(b)" }],
+      "outputs": [{ "name": "I", "label": "I" }],
+      "tests": [
+        { "inputs": { "u": [0, 1, 4, -2, 10], "v": [1, 9, 0, 3, -5] }, "want": { "I": [1, 8, -4, 5, -15] } }
+      ],
+      "hidden": [
+        {
+          "inputs": { "u": [-10, 3.5, 100, -0.125], "v": [10, -4, 0, 0.375] },
+          "want": { "I": [20, -7.5, -100, 0.5] }
+        }
+      ],
+      "solution": [
+        "negative = const[value=-1]()",
+        "minus = mul(u, negative)",
+        "difference = add(v, minus)",
+        "I <- difference"
+      ],
+      "naive": ["I <- v"]
+    }
+  ]
+}

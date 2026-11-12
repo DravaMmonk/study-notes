@@ -1,0 +1,58 @@
+{
+  "title": { "zh": "少掉的一小块" },
+  "intro": [
+    { "t": { "zh": "取 F(x)=x²，导数是 2x。从 x 走一步 h，左矩形用 2x·h 估计 F 的变化。" } },
+    { "t": { "zh": "真实变化为 (x+h)²−x²=2xh+h²。把三项都交出来，看看漏掉的一块怎样随 h 缩小。" } }
+  ],
+  "after": { "zh": "<wiki-ref to=\"local-increment\"></wiki-ref>在这道平方题里是 h²；左端导数乘宽度是近似，不能把有限 h 的余项删掉。" },
+  "tasks": [
+    {
+      "id": "increment",
+      "brief": { "zh": "给 x 与 h，交出真实变化 d=(x+h)²−x²、左矩形 l=2xh 和余项 e=d−l。" },
+      "inputs": [{ "name": "x", "label": "x" }, { "name": "h", "label": "h" }],
+      "outputs": [{ "name": "d", "label": "d" }, { "name": "l", "label": "l" }, { "name": "e", "label": "e" }],
+      "tests": [
+        {
+          "inputs": { "x": [0, 1, -2, 3, 0.5], "h": [1, 0.5, -0.25, 0.125, -0.5] },
+          "want": {
+            "d": [1, 1.25, 1.0625, 0.765625, -0.25],
+            "l": [0, 1, 1, 0.75, -0.5],
+            "e": [1, 0.25, 0.0625, 0.015625, 0.25]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "x": [10, -10, 0.125, 5], "h": [0.0625, -0.125, 0.5, -0.25] },
+          "want": {
+            "d": [1.25390625, 2.515625, 0.375, -2.4375],
+            "l": [1.25, 2.5, 0.125, -2.5],
+            "e": [0.00390625, 0.015625, 0.25, 0.0625]
+          }
+        }
+      ],
+      "solution": [
+        "next = add(x, h)",
+        "fnext = mul(next, next)",
+        "fstart = mul(x, x)",
+        "minus = const[value=-1]()",
+        "negative = mul(fstart, minus)",
+        "actual = add(fnext, negative)",
+        "slope = squarePrime(x)",
+        "left = mul(slope, h)",
+        "error = mul(h, h)",
+        "d <- actual",
+        "l <- left",
+        "e <- error"
+      ],
+      "naive": [
+        "slope = squarePrime(x)",
+        "left = mul(slope, h)",
+        "zero = const[value=0]()",
+        "d <- left",
+        "l <- left",
+        "e <- zero"
+      ]
+    }
+  ]
+}

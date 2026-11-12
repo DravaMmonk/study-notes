@@ -1,0 +1,43 @@
+{
+  "title": { "zh": "面积也有斜率" },
+  "intro": [
+    { "t": { "zh": "换过来：f(t)=t 在 0 到 x 的面积函数是 A(x)=x²/2。比较 A(x+h) 与 A(x)，再除以 h。" } },
+    { "t": { "zh": "h≠0 时差商为 x+h/2，离原来高度 f(x)=x 还有 |h|/2。让 h 从两侧趋于 0，留下 x。" } }
+  ],
+  "after": {
+    "zh": "<wiki-ref to=\"fundamental-differentiate\"></wiki-ref>在此例中说 A′(x)=f(x)=x；有限 h 的差商仍带 h/2 余项。"
+  },
+  "tasks": [
+    {
+      "id": "area-slope",
+      "brief": { "zh": "给 x 与非零 h，交出 A(x)=x²/2 的差商 q 和它离 f(x)=x 的误差 e。" },
+      "inputs": [{ "name": "x", "label": "x" }, { "name": "h", "label": "h" }],
+      "outputs": [{ "name": "q", "label": "q" }, { "name": "e", "label": "e" }],
+      "tests": [
+        {
+          "inputs": { "x": [0, 1, -2, 3, 0.5], "h": [1, 0.5, -0.25, 0.125, -0.5] },
+          "want": { "q": [0.5, 1.25, -2.125, 3.0625, 0.25], "e": [0.5, 0.25, 0.125, 0.0625, 0.25] }
+        }
+      ],
+      "hidden": [
+        {
+          "inputs": { "x": [10, -10, 0.125, 5], "h": [0.0625, -0.125, 0.5, -0.25] },
+          "want": { "q": [10.03125, -10.0625, 0.375, 4.875], "e": [0.03125, 0.0625, 0.25, 0.125] }
+        }
+      ],
+      "solution": [
+        "next = add(x, h)",
+        "leftSquare = mul(x, x)",
+        "rightSquare = mul(next, next)",
+        "half = const[value=0.5]()",
+        "leftArea = mul(leftSquare, half)",
+        "rightArea = mul(rightSquare, half)",
+        "slope = quotient(leftArea, rightArea, h)",
+        "error = dist(slope, x)",
+        "q <- slope",
+        "e <- error"
+      ],
+      "naive": ["q <- x", "zero = const[value=0]()", "e <- zero"]
+    }
+  ]
+}

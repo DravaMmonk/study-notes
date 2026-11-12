@@ -9,7 +9,7 @@
     "zh": "给自己搭的机器一个函数，它算出导数、积分、泰勒多项式，解出一个常微分方程，并说得清误差随步长怎样变小。"
   },
   "scope": {
-    "zh": "这份蓝图覆盖第 0–4 章：数列、极限、连续性、斜率与面积。第 5–7 章留待后续。"
+    "zh": "这份蓝图覆盖第 0–5 章：数列、极限、连续性、导数、积分与基本定理。第 6–7 章留待后续。"
   },
   "sources": [
     "games/calculus/DESIGN.md",
@@ -69,6 +69,12 @@
       "title": { "zh": "面积机" },
       "can": ["tick"],
       "lacks": { "zh": "能把函数取样乘以步长并逐格求和；还没有把导数与积分接成互逆关系。" }
+    },
+    {
+      "id": "theorem-machine",
+      "title": { "zh": "互逆机" },
+      "can": ["tick"],
+      "lacks": { "zh": "能在多项式例子中把导数累加为函数变化、把面积函数求导；尚未用局部多项式逼近一般函数。" }
     }
   ],
   "knowledge": [
@@ -599,6 +605,69 @@
       "basis": "lecture",
       "difficulty": "learnable",
       "wall": { "zh": "能否用中点的信息修正曲线弯曲造成的误差？" }
+    },
+    {
+      "id": "discrete-telescope",
+      "term": { "zh": "望远镜求和" },
+      "about": { "zh": "对任意序列 yₙ，若第一拍的前一项取 0，则 Σₖ₌₀ⁿ(yₖ−yₖ₋₁)=yₙ。" },
+      "depends": ["inverse", "function-value"],
+      "source": "games/calculus/DESIGN.md §3, 第 5 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "对函数取样先差分再累加，是否还会还原？" }
+    },
+    {
+      "id": "local-increment",
+      "term": { "zh": "一格的余项" },
+      "about": { "zh": "F(x)=x² 时，F(x+h)−F(x)=2xh+h²；左端导数乘 h 少算 h²。" },
+      "depends": ["derivative", "signed-cell"],
+      "source": "games/calculus/DESIGN.md §3, 第 5 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "导数乘一小格宽度，为什么还不是这一格的准确变化？" }
+    },
+    {
+      "id": "fundamental-integrate",
+      "term": { "zh": "导数累成变化" },
+      "about": { "zh": "对 F(x)=x²，F′(x)=2x；每格左右导数的梯形平均乘 h 恰好等于 F(x+h)−F(x)，累加后等于两端差。" },
+      "depends": ["local-increment", "trapezoid-rule", "discrete-telescope"],
+      "source": "games/calculus/DESIGN.md §3, 第 5 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": { "zh": "如何把每格的斜率积回函数值变化？" },
+      "core": true
+    },
+    {
+      "id": "fundamental-differentiate",
+      "term": { "zh": "面积求导回高度" },
+      "about": { "zh": "对 f(t)=t，面积函数 A(x)=x²/2；其差商是 x+h/2，h→0 时导数回到 f(x)=x。" },
+      "depends": ["area-limit", "derivative", "fundamental-integrate"],
+      "source": "games/calculus/DESIGN.md §3, 第 5 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": { "zh": "把面积当函数，它在一点的变化率是什么？" },
+      "core": true
+    },
+    {
+      "id": "endpoint-evaluation",
+      "term": { "zh": "端点求值" },
+      "about": { "zh": "连续函数 f 的原函数 F 满足 F′=f 时，∫ₐᵇf(x)dx=F(b)−F(a)。" },
+      "depends": ["fundamental-integrate", "fundamental-differentiate"],
+      "source": "games/calculus/DESIGN.md §3, 第 5 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": { "zh": "已知原函数，能否不逐格加就算定积分？" },
+      "core": true
+    },
+    {
+      "id": "integration-constant",
+      "term": { "zh": "积分常数" },
+      "about": { "zh": "若 F′=f，则 (F+C)′=f；任意常数 C 在端点差中抵消。" },
+      "depends": ["endpoint-evaluation", "derivative-rules"],
+      "source": "games/calculus/DESIGN.md §3, 第 5 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "同一个导数能有几种原函数？" }
     }
   ],
   "primitives": [
@@ -710,7 +779,8 @@
     { "part": "squarePrime", "about": { "zh": "给中心 a，交出平方函数在该点的导数 2a。" }, "from": ["add"] },
     { "part": "cell", "about": { "zh": "给高度 y 和有向宽度 h，交出小格贡献 yh。" }, "from": ["mul"] },
     { "part": "riemann", "about": { "zh": "把逐拍给出的高度与宽度乘起来，再累加到这一拍。" }, "from": ["cell", "sum"] },
-    { "part": "trap", "about": { "zh": "用小格左右高度的平均值乘宽度。" }, "from": ["add", "mul", "const"] }
+    { "part": "trap", "about": { "zh": "用小格左右高度的平均值乘宽度。" }, "from": ["add", "mul", "const"] },
+    { "part": "endpointDiff", "about": { "zh": "给原函数两端的值，交出终值减初值。" }, "from": ["add", "mul", "const"] }
   ],
   "eras": [
     {
@@ -1927,6 +1997,83 @@
           ]
         }
       ]
+    },
+    {
+      "id": 5,
+      "machine": "theorem-machine",
+      "title": { "zh": "基本定理" },
+      "question": { "zh": "积分后再求导、求导后再积分，为什么回到原处？" },
+      "why": { "zh": "面积机能近似求和，斜率机能近似求变化率；这一章把两条路线在函数取样上接成互逆。" },
+      "series": [
+        {
+          "id": "theorem-series",
+          "title": { "zh": "从一格到两端" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "telescope",
+              "title": { "zh": "再看互逆" },
+              "task": { "zh": "对函数值序列先差分再累加。" },
+              "question": { "zh": "离散互逆在函数取样上还成立吗？" },
+              "chain": [{ "zh": "让每一拍减去上一拍。" }, { "zh": "把差值累加，观察中间项如何抵消。" }],
+              "role": "foundation",
+              "teaches": "discrete-telescope",
+              "uses": ["discrete-telescope", "diff", "sum"]
+            },
+            {
+              "id": "increment",
+              "title": { "zh": "少掉的一小块" },
+              "task": { "zh": "比较平方函数的真实增量与左端导数乘步长。" },
+              "question": { "zh": "左矩形为何少一块？" },
+              "chain": [{ "zh": "展开 (x+h)²−x²。" }, { "zh": "与 2xh 相比，留下 h²。" }],
+              "role": "foundation",
+              "teaches": "local-increment",
+              "uses": ["local-increment", "squarePrime", "add", "mul", "const"]
+            },
+            {
+              "id": "derivative-sum",
+              "title": { "zh": "斜率加回去" },
+              "task": { "zh": "梯形累加 2x，交出平方函数的两端差。" },
+              "question": { "zh": "用斜率怎样还原函数值变化？" },
+              "chain": [{ "zh": "每格平均左右斜率，乘 h。" }, { "zh": "累加后中间变化抵消，只留 F(b)−F(a)。" }],
+              "role": "foundation",
+              "teaches": "fundamental-integrate",
+              "uses": ["fundamental-integrate", "grid", "squarePrime", "trap", "sum", "add"]
+            },
+            {
+              "id": "area-slope",
+              "title": { "zh": "面积也有斜率" },
+              "task": { "zh": "算 A(x)=x²/2 的差商及误差。" },
+              "question": { "zh": "面积函数在 x 的斜率回到什么？" },
+              "chain": [{ "zh": "用两端面积值算差商。" }, { "zh": "它是 x+h/2；让 h 趋于 0，得到 x。" }],
+              "role": "foundation",
+              "teaches": "fundamental-differentiate",
+              "uses": ["fundamental-differentiate", "quotient", "dist", "add", "mul", "const"]
+            },
+            {
+              "id": "endpoint-diff",
+              "title": { "zh": "只看两端" },
+              "task": { "zh": "给原函数两端值，交出终值减初值。" },
+              "question": { "zh": "原函数已知时还要逐格加吗？" },
+              "chain": [{ "zh": "取终点的 F 值。" }, { "zh": "减起点的 F 值，反向区间自然带负号。" }],
+              "role": "foundation",
+              "teaches": "endpoint-evaluation",
+              "uses": ["endpoint-evaluation", "add", "mul", "const"],
+              "builds": "endpointDiff"
+            },
+            {
+              "id": "constant-cancels",
+              "title": { "zh": "常数会消掉" },
+              "task": { "zh": "给 F(x)=x²+C 的两端，算积分。" },
+              "question": { "zh": "原函数多一个 C，会改掉积分吗？" },
+              "chain": [{ "zh": "两端分别算 F(a)、F(b)。" }, { "zh": "作差后 C 抵消；a>b 时结果可为负。" }],
+              "role": "foundation",
+              "teaches": "integration-constant",
+              "uses": ["integration-constant", "endpointDiff", "add", "mul"]
+            }
+          ]
+        }
+      ]
     }
   ],
   "parallel": [
@@ -1995,6 +2142,6 @@
     }
   ],
   "deferred": [
-    { "about": { "zh": "第 5–7 章：微积分基本定理、泰勒、微分方程" }, "why": { "zh": "框架在设计文档第 3 节。" } }
+    { "about": { "zh": "第 6–7 章：泰勒与微分方程" }, "why": { "zh": "框架在设计文档第 3 节。" } }
   ]
 }

@@ -451,6 +451,56 @@
       "at": "simpson",
       "body": [{ "zh": "一段宽度 h 的左右端点与中点高度为 l、r、m，辛普森近似为 h(l+4m+r)/6。对三次及以下多项式精确；对一般函数仍有误差。" }],
       "see": ["trapezoid-rule", "curvature-error"]
+    },
+    {
+      "id": "discrete-telescope",
+      "group": "sequences",
+      "title": { "zh": "望远镜求和" },
+      "at": "telescope",
+      "body": [{ "zh": "把 yₙ−yₙ₋₁ 从第一项加到第 n 项，中间的正负项逐对抵消，只剩 yₙ−y₋₁。这里约定 y₋₁=0，所以 ΣΔy=yₙ。" }],
+      "see": ["inverse"]
+    },
+    {
+      "id": "local-increment",
+      "group": "sequences",
+      "title": { "zh": "一格的余项" },
+      "at": "increment",
+      "body": [{ "zh": "F(x)=x² 时，一格的真实变化为 F(x+h)−F(x)=2xh+h²。左端导数 F′(x) 乘宽度只给 2xh，余项 h² 在有限步长下不能忽略。" }],
+      "see": ["derivative"]
+    },
+    {
+      "id": "fundamental-integrate",
+      "group": "sequences",
+      "title": { "zh": "导数累成变化" },
+      "at": "derivative-sum",
+      "body": [
+        { "zh": "对 F(x)=x²，F′(x)=2x。每格两端导数的平均值乘 h 恰好是 F(x+h)−F(x)，所以沿网格累加后等于 F(b)−F(a)。一般定理需要合适的连续性与可积条件。" }
+      ],
+      "see": ["local-increment", "endpoint-evaluation"]
+    },
+    {
+      "id": "fundamental-differentiate",
+      "group": "sequences",
+      "title": { "zh": "面积求导回高度" },
+      "at": "area-slope",
+      "body": [{ "zh": "若 f 连续，A(x)=∫ₐˣf(t)dt 的导数是 f(x)。对 f(t)=t，A(x)=x²/2（起点 0），其差商为 x+h/2，h→0 后回到 x。" }],
+      "see": ["fundamental-integrate", "derivative"]
+    },
+    {
+      "id": "endpoint-evaluation",
+      "group": "sequences",
+      "title": { "zh": "端点求值" },
+      "at": "endpoint-diff",
+      "body": [{ "zh": "若 f 连续且 F′=f，定积分 ∫ₐᵇf(x)dx=F(b)−F(a)。这把无限细分的极限化成两端原函数值之差；交换 a、b 会反转符号。" }],
+      "see": ["fundamental-integrate", "integration-constant"]
+    },
+    {
+      "id": "integration-constant",
+      "group": "sequences",
+      "title": { "zh": "积分常数" },
+      "at": "constant-cancels",
+      "body": [{ "zh": "原函数可以加任意常数 C，因为常数的导数为 0。求定积分时 (F(b)+C)−(F(a)+C)=F(b)−F(a)，常数自动抵消。" }],
+      "see": ["endpoint-evaluation"]
     }
   ],
   "groupByChapter": true
