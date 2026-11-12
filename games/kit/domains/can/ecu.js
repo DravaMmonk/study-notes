@@ -58,9 +58,14 @@ export function ecuAdvance(state, request, profile, tick = 0) {
     }
     return { ...state, reply: [0x7f, 0x27, 0x13] }
   }
-  if (active && profile.flash && request.length === 4 && request[0] === 0x31 && request[1] === 1 && request[2] === 0xfe && request[3] === 0) {
-    if (state.flash?.phase !== 'running' || !state.flash.applicationValid) return { ...state, reply: [0x7f, 0x31, 0x22] }
-    return { ...state, dtcs: state.dtcs.filter(({ code }) => !profile.flash.fixedDtcs.includes(code)), reply: [0x71, 1, 0xfe, 0] }
+  if (active && (profile.flash || profile.drive) && request.length === 4 && request[0] === 0x31 && request[1] === 1 && request[2] === 0xfe && request[3] === 0) {
+    if (profile.flash && (state.flash?.phase !== 'running' || !state.flash.applicationValid)) return { ...state, reply: [0x7f, 0x31, 0x22] }
+    const dtcs = new Map(state.dtcs.filter(({ code }) => !profile.flash?.fixedDtcs.includes(code)).map((dtc) => [dtc.code, dtc]))
+    for (const recurring of profile.drive?.recurring ?? []) {
+      const status = (dtcs.get(recurring.code)?.status ?? 0) | recurring.status
+      dtcs.set(recurring.code, { code: recurring.code, status })
+    }
+    return { ...state, dtcs: [...dtcs.values()], reply: [0x71, 1, 0xfe, 0] }
   }
   if (active && profile.flash) {
     const result = flashRequest(state.flash, request, profile.flash, state.session, state.unlocked)

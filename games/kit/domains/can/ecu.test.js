@@ -121,3 +121,14 @@ test('a successful update changes the version and a simulated drive cycle clears
   assert.deepEqual(state.reply, [0x71, 1, 0xfe, 0])
   assert.deepEqual(ecuAdvance(state, [0x19, 2, 8], profile).reply, [0x59, 2, 255, 0x65, 0x43, 0x21, 8])
 })
+
+test('cleared faults can recur on a simulated driving cycle', async () => {
+  const { ecuAdvance } = await import('./ecu.js')
+  const profile = { did: 0xf190, value: [], waits: 0, drive: { recurring: [{ code: 0x123456, status: 8 }, { code: 0x123456, status: 1 }] } }
+  let state = { record: [], reply: null, pending: null, session: 1, idle: 0, unlocked: false, seedIssued: false, failures: 0, locked: 0, dtcs: [{ code: 0x123456, status: 8 }], flash: null }
+  state = ecuAdvance(state, [0x14, 255, 255, 255], profile)
+  assert.deepEqual(state.dtcs, [])
+  state = ecuAdvance(state, [0x31, 1, 0xfe, 0], profile)
+  assert.deepEqual(state.reply, [0x71, 1, 0xfe, 0])
+  assert.deepEqual(state.dtcs, [{ code: 0x123456, status: 9 }])
+})

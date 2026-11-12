@@ -77,6 +77,8 @@ const WANTS = {
   ecuDtcRecords: item(t('已确认故障码的记录字节', 'record bytes for confirmed trouble codes')),
   ecuClearDtcRequests: item(t('读取、清除全部故障码并再次读取', 'read, clear all trouble codes, and read again')),
   ecuClearDtcRecords: item(t('清除前后各次读取的故障码记录', 'trouble-code records read before and after clearing')),
+  ecuDriveCycleRequests: item(t('清除后行驶并复查已确认故障', 'clear faults, simulate a drive and recheck confirmed faults')),
+  ecuDriveCycleReport: item(t('清除前、清除后和行驶后的故障条数', 'fault counts before clearing, after clearing and after driving')),
   ecuFlashEraseRequests: item(t('进入编程会话并擦除模拟存储', 'enter programming session and erase the simulated storage')),
   ecuFlashEraseDone: item(t('模拟擦除回答到达时为是', 'yes when the simulated erase response arrives')),
   ecuFlashDownloadRequests: item(t('进入编程会话、擦除并请求下载四字节', 'enter programming session, erase, and request a four-byte download')),
@@ -369,7 +371,7 @@ const TEST = S.obj({
   frameChecks: S.opt(S.list(nat, { about: t('额外检查时刻，以总线位拍计', 'additional clock-check times in bus bit ticks') })),
   fleetTrace: S.opt(S.list(S.obj({ speed: hex(0xff, 2), wheel: hex(0xff, 2) }), { min: 1, about: t('逐拍模拟的车速和轮速', 'simulated vehicle and wheel speed per tick') })),
   fleetPost: S.opt(S.obj({ speed: hex(0xff, 2), wheel: hex(0xff, 2) }, { about: t('行驶循环后的模拟速度样本', 'simulated speed sample after the driving cycle') })),
-  ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)), waits: S.opt(nat), requiresExtended: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1 })), requiresSecurity: S.opt(S.bool()), seed: S.opt(S.int({ min: 0, max: 255 })), dtcs: S.opt(S.list(S.obj({ code: hex(0xffffff, 6), status: hex(0xff, 2) }))), flash: S.opt(S.obj({ maxBlock: S.int({ min: 3, max: 255 }), expectedChecksum: S.int({ min: 0, max: 255 }), requiresSecurity: S.opt(S.bool()), image: S.opt(S.list(hex(0xff, 2), { min: 1, max: 65535 })), versionAfter: S.opt(S.list(hex(0xff, 2))), fixedDtcs: S.opt(S.list(hex(0xffffff, 6))) })), powerCycles: S.opt(S.list(nat)) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
+  ecu: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2)), waits: S.opt(nat), requiresExtended: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1 })), requiresSecurity: S.opt(S.bool()), seed: S.opt(S.int({ min: 0, max: 255 })), dtcs: S.opt(S.list(S.obj({ code: hex(0xffffff, 6), status: hex(0xff, 2) }))), drive: S.opt(S.obj({ recurring: S.list(S.obj({ code: hex(0xffffff, 6), status: hex(0xff, 2) })) })), flash: S.opt(S.obj({ maxBlock: S.int({ min: 3, max: 255 }), expectedChecksum: S.int({ min: 0, max: 255 }), requiresSecurity: S.opt(S.bool()), image: S.opt(S.list(hex(0xff, 2), { min: 1, max: 65535 })), versionAfter: S.opt(S.list(hex(0xff, 2))), fixedDtcs: S.opt(S.list(hex(0xffffff, 6))) })), powerCycles: S.opt(S.list(nat)) }, { about: t('测试控制器的数据标识和记录', 'the test ECU’s data identifier and record') })),
   transport: S.opt(S.obj({ message: S.list(hex(0xff, 2), { min: 8, max: 4095 }), blockSize: S.int({ min: 0, max: 255 }), separation: S.int({ min: 0, max: 127 }), flowDelay: S.int({ min: 1, max: 100 }), waits: S.opt(S.int({ min: 0, max: 5 })), overflow: S.opt(S.bool()), silent: S.opt(S.bool()), silentAfter: S.opt(S.int({ min: 1, max: 100 })), timeout: S.opt(S.int({ min: 1, max: 100 })) }, { about: t('长消息和模拟接收方的流控参数', 'long message and simulated receiver flow-control parameters') })),
   bridge: S.opt(S.obj({ did: hex(0xffff, 4), value: S.list(hex(0xff, 2), { min: 17, max: 17 }) }, { about: t('模拟控制器的标识和十七字节记录', 'the simulated ECU identifier and seventeen-byte record') })),
   broadcastBridge: S.opt(S.obj({ valueA: S.list(hex(0xff, 2), { min: 17, max: 17 }), valueB: S.list(hex(0xff, 2), { min: 17, max: 17 }) }, { about: t('两个控制器各自的十七字节记录', 'seventeen-byte records of two controllers') })),
@@ -405,7 +407,7 @@ const LEVEL = { ...BASE_LEVEL, fields: { ...BASE_LEVEL.fields, tasks: { ...BASE_
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 121,
+  version: 122,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

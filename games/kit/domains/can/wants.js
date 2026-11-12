@@ -731,6 +731,15 @@ const WANTS = {
     return test.bus.bits.map((_, tick) => requests[tick] ?? null)
   },
   ecuFlashDemoDone: () => (test) => test.bus.bits.map((_, tick) => tick === 8 ? true : null),
+  ecuDriveCycleRequests: () => (test) => {
+    const requests = [[0x19, 2, 8], [0x14, 255, 255, 255], [0x19, 2, 8], [0x31, 1, 0xfe, 0], [0x19, 2, 8]]
+    return test.bus.bits.map((_, tick) => requests[tick] ?? null)
+  },
+  ecuDriveCycleReport: () => (test) => {
+    const before = test.ecu.dtcs.filter(({ status }) => status & 8).length
+    const after = new Set(test.ecu.drive.recurring.filter(({ status }) => status & 8).map(({ code }) => code)).size
+    return test.bus.bits.map((_, tick) => tick === 5 ? [before, 0, after] : null)
+  },
   ecuPowerLossRequests: () => (test) => {
     const requests = [[0x10, 2], [0x31, 1, 255, 0], [0x34, 0, 0x12, 0, 0, 4], [0x36, 1, 1, 2], null, [0x10, 2], [0x31, 1, 255, 0], [0x34, 0, 0x12, 0, 0, 4], [0x36, 1, 1, 2], [0x36, 2, 3, 4], [0x37], [0x31, 1, 255, 1], [0x11, 1]]
     return test.bus.bits.map((_, tick) => requests[tick] ?? null)
