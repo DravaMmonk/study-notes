@@ -58,5 +58,6 @@
         "value <- sum"
       ]
     }
-  ]
+  ],
+  "builds": { "type": "wordDecoder", "name": { "zh": "双字节解码器" }, "desc": { "zh": "把低字节和高字节合成一个无符号值。" } }
 }

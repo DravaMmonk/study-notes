@@ -1,0 +1,89 @@
+{
+  "title": { "zh": "一辆模拟车的体检报告" },
+  "intro": [
+    { "t": { "zh": "把体检仪和故障码扫描器接在同一组回答上。它们按相同顺序请求控制器，分别汇总版本和每条已确认故障码。" } },
+    { "t": { "zh": "这六个模拟控制器中可能有人离线、要求扩展会话或先回答稍等。所有请求仍按消息层顺序处理，不模拟功能寻址或多帧交错。" } }
+  ],
+  "after": { "zh": "一张体检报告既要列出在线控制器和版本，也要保留故障码；离线与没有故障是不同结果。" },
+  "tasks": [
+    {
+      "id": "5-18",
+      "brief": { "zh": "交出逐控制器的版本与故障状态报告，以及按控制器分组的已确认故障码。只让一套请求连接模拟车辆，让两个封装件读取相同的回答。" },
+      "hint": [{ "zh": "两个封装件都用回答来源、内容和收到标记；把其中一个的请求送给车辆，分别交出它们的报告。" }],
+      "inputs": [
+        { "name": "source", "label": { "zh": "回答的控制器" } },
+        { "name": "reply", "label": { "zh": "控制器回答" } },
+        { "name": "ready", "label": { "zh": "收到回答" } }
+      ],
+      "outputs": [
+        { "name": "target", "label": { "zh": "请求目标" } },
+        { "name": "request", "label": { "zh": "诊断请求" } },
+        { "name": "report", "label": { "zh": "体检报告" } },
+        { "name": "faults", "label": { "zh": "已确认故障码" } }
+      ],
+      "fleet": {
+        "target": "target",
+        "request": "request",
+        "source": "source",
+        "response": "reply",
+        "ready": "ready"
+      },
+      "tests": [
+        {
+          "bus": { "idle": 60, "frames": [], "tail": 0 },
+          "fleet": [
+            {
+              "online": true,
+              "version": 1,
+              "requiresExtended": true,
+              "dtcs": [{ "code": "0x123456", "status": 1 }]
+            },
+            { "online": false, "version": 2 },
+            { "online": true, "version": 3 },
+            { "online": true, "version": 4, "requiresExtended": true },
+            { "online": false, "version": 5 },
+            { "online": true, "version": 6 }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 60, "frames": [], "tail": 0 },
+          "fleet": [
+            {
+              "online": true,
+              "version": 0,
+              "requiresExtended": true,
+              "waits": 2,
+              "dtcs": [{ "code": "0x123456", "status": 8 }, { "code": "0x0a0b0c", "status": 9 }]
+            },
+            { "online": true, "version": 4, "waits": 1, "dtcs": [{ "code": "0x654321", "status": 1 }] },
+            { "online": false, "version": 0 },
+            {
+              "online": true,
+              "version": 8,
+              "requiresExtended": true,
+              "dtcs": [{ "code": "0x010203", "status": 8 }]
+            },
+            { "online": false, "version": 2 },
+            { "online": true, "version": 1 }
+          ]
+        }
+      ],
+      "want": {
+        "target": "fleetExamTargets",
+        "request": "fleetExamRequests",
+        "report": "fleetExamReport",
+        "faults": "fleetFaultRecords"
+      },
+      "solution": [
+        "exam = vehicleExam(source, reply, ready)",
+        "faultsOnly = faultScanner(source, reply, ready)",
+        "target <- exam.target",
+        "request <- exam.request",
+        "report <- exam.report",
+        "faults <- faultsOnly.faults"
+      ]
+    }
+  ]
+}

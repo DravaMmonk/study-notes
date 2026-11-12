@@ -1,0 +1,56 @@
+{
+  "title": { "zh": "把数值写成双字节" },
+  "intro": [{ "t": { "zh": "编码把数值拆回字节。本关约定一个 0 到 65535 的无符号整数，低字节在前；这里先只产生字节，不发送总线帧。" } }],
+  "after": { "zh": "编码和解码必须使用相同的字节顺序；边界值也应能完整往返。" },
+  "builds": { "type": "wordEncoder", "name": { "zh": "双字节编码器" }, "desc": { "zh": "把无符号双字节数值拆成低字节和高字节。" } },
+  "tasks": [
+    {
+      "id": "3-13",
+      "brief": { "zh": "每拍将输入数值拆成低字节和高字节。" },
+      "hint": [{ "zh": "低字节保留最低八位；右移八位得到高字节。" }],
+      "inputs": [{ "name": "raw", "label": { "zh": "应用数值" } }, { "name": "time", "label": { "zh": "帧开始时间" } }],
+      "frameInputs": { "time": "time" },
+      "outputs": [{ "name": "low", "label": { "zh": "低字节" } }, { "name": "high", "label": { "zh": "高字节" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source", "at": 10, "id": "0x140", "data": [] },
+            { "node": "source", "at": 120, "id": "0x140", "data": [] },
+            { "node": "source", "at": 230, "id": "0x140", "data": [] }
+          ],
+          "inputs": { "raw": [0, 257, 65535] }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source", "at": 10, "id": "0x140", "data": [] },
+            { "node": "source", "at": 120, "id": "0x140", "data": [] },
+            { "node": "source", "at": 230, "id": "0x140", "data": [] },
+            { "node": "source", "at": 340, "id": "0x140", "data": [] }
+          ],
+          "inputs": { "raw": [0, 65535, 32768, 165] }
+        }
+      ],
+      "want": { "low": { "encodeLow": { "input": "raw" } }, "high": { "encodeHigh": { "input": "raw" } } },
+      "solution": [
+        "mask = const[value=255]()",
+        "eight = const[value=8]()",
+        "lo = band(raw, mask)",
+        "hi = shiftRight(raw, eight)",
+        "low <- lo",
+        "high <- hi"
+      ],
+      "naive": [
+        "mask = const[value=255]()",
+        "eight = const[value=8]()",
+        "lo = band(raw, mask)",
+        "hi = shiftRight(raw, eight)",
+        "low <- hi",
+        "high <- lo"
+      ]
+    }
+  ]
+}

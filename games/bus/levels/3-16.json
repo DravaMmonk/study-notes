@@ -1,0 +1,78 @@
+{
+  "title": { "zh": "同时检查 CRC 和计数" },
+  "intro": [{ "t": { "zh": "一条报文既可能数据被改坏，也可能漏过一帧。将 CRC 和四位滚动计数器一起检查；每次收到的计数值都作为下一次比较的起点。" } }],
+  "after": { "zh": "校验数据内容和检查帧序列分别发现不同的问题；两个条件都成立才算通过。" },
+  "builds": { "type": "frameMonitor", "name": { "zh": "报文监视器" }, "desc": { "zh": "同时检查单字节 CRC 和四位滚动计数器。" } },
+  "tasks": [
+    {
+      "id": "3-16",
+      "brief": { "zh": "允许为 1 时检查数据字节的 CRC 和计数器：两者都正确才为有效。第一帧只检查 CRC；允许为 0 时不更新状态，也不交出结果。" },
+      "hint": [{ "zh": "复用单字节 CRC-8；用寄存卡记住上一计数，15 后按 16 回绕。" }],
+      "inputs": [
+        { "name": "payload", "label": { "zh": "数据字节" } },
+        { "name": "checksum", "label": { "zh": "收到的 CRC-8" } },
+        { "name": "count", "label": { "zh": "计数值" } },
+        { "name": "enable", "label": { "zh": "检查允许" } }
+      ],
+      "frameInputs": { "payload": "byte0", "checksum": "byte1", "count": "byte2" },
+      "outputs": [{ "name": "valid", "label": { "zh": "报文有效" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source0", "at": 10, "id": "0x120", "data": [0, 0, 14] },
+            { "node": "source1", "at": 120, "id": "0x120", "data": [2, 14, 15] },
+            { "node": "source2", "at": 230, "id": "0x120", "data": [4, 28, 0] },
+            { "node": "source3", "at": 340, "id": "0x120", "data": [6, 19, 1] },
+            { "node": "source4", "at": 450, "id": "0x120", "data": [8, 56, 3] },
+            { "node": "source5", "at": 560, "id": "0x120", "data": [10, 54, 4] }
+          ],
+          "constants": { "enable": 1 }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source0", "at": 10, "id": "0x120", "data": [255, 243, 7] },
+            { "node": "source1", "at": 120, "id": "0x120", "data": [128, 136, 8] },
+            { "node": "source2", "at": 230, "id": "0x120", "data": [1, 7, 9] },
+            { "node": "source3", "at": 340, "id": "0x120", "data": [3, 9, 11] },
+            { "node": "source4", "at": 450, "id": "0x120", "data": [5, 27, 12] }
+          ],
+          "constants": { "enable": 1 }
+        }
+      ],
+      "want": {
+        "valid": {
+          "frameHealth": {
+            "payload": "payload",
+            "checksum": "checksum",
+            "counter": "count",
+            "enable": "enable"
+          }
+        }
+      },
+      "solution": [
+        "old = reg[reg=A, start=-1]()",
+        "saved = select(enable, count, old)",
+        "keepOld = keep[reg=A](saved)",
+        "initial = const[value=-1]()",
+        "one = const[value=1]()",
+        "zero = const[value=0]()",
+        "mask = const[value=15]()",
+        "first = compare[form=eq](old, initial)",
+        "increment = arith[form=inc](old)",
+        "expected = band(increment, mask)",
+        "sequence = compare[form=eq](count, expected)",
+        "sequenceOK = select(first, first, sequence)",
+        "computed = crc8Byte(payload)",
+        "crcOK = compare[form=eq](computed, checksum)",
+        "falseValue = compare[form=eq](zero, one)",
+        "both = select(sequenceOK, crcOK, falseValue)",
+        "visible = select(enable, both)",
+        "valid <- visible"
+      ]
+    }
+  ]
+}

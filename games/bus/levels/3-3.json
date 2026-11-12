@@ -34,16 +34,8 @@
       ],
       "want": { "value": { "wordSignal": { "low": "second", "high": "first" } } },
       "solution": [
-        "d0 = arith[form=add](first, first)",
-        "d1 = arith[form=add](d0, d0)",
-        "d2 = arith[form=add](d1, d1)",
-        "d3 = arith[form=add](d2, d2)",
-        "d4 = arith[form=add](d3, d3)",
-        "d5 = arith[form=add](d4, d4)",
-        "d6 = arith[form=add](d5, d5)",
-        "d7 = arith[form=add](d6, d6)",
-        "sum = arith[form=add](second, d7)",
-        "value <- sum"
+        "decoded = wordDecoder(second, first)",
+        "value <- decoded"
       ],
       "naive": [
         "d0 = arith[form=add](second, second)",

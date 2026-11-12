@@ -1,0 +1,64 @@
+{
+  "title": { "zh": "只监视目标报文" },
+  "intro": [{ "t": { "zh": "总线上有不同标识符的报文。监视器只应让目标标识符更新计数状态；其他报文不能打乱它的序列。" } }],
+  "after": { "zh": "每个标识符需要独立的监视状态；无关报文不应影响目标的计数。" },
+  "tasks": [
+    {
+      "id": "3-17",
+      "brief": { "zh": "只检查标识符 0x120 的报文，交出其有效状态；其他报文交出「—」且不能改变监视器状态。" },
+      "hint": [{ "zh": "比较标识符，再将结果接到监视器的检查允许。" }],
+      "inputs": [
+        { "name": "payload", "label": { "zh": "数据字节" } },
+        { "name": "checksum", "label": { "zh": "收到的 CRC-8" } },
+        { "name": "count", "label": { "zh": "计数值" } },
+        { "name": "id", "label": { "zh": "帧标识符" } }
+      ],
+      "frameInputs": { "payload": "byte0", "checksum": "byte1", "count": "byte2", "id": "id" },
+      "outputs": [{ "name": "valid", "label": { "zh": "报文有效" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source0", "at": 10, "id": "0x120", "data": [2, 14, 14] },
+            { "node": "source1", "at": 120, "id": "0x121", "data": [7, 21, 5] },
+            { "node": "source2", "at": 230, "id": "0x120", "data": [4, 28, 15] },
+            { "node": "source3", "at": 340, "id": "0x121", "data": [9, 63, 12] },
+            { "node": "source4", "at": 450, "id": "0x120", "data": [6, 18, 0] },
+            { "node": "source5", "at": 560, "id": "0x120", "data": [8, 57, 1] }
+          ]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source0", "at": 10, "id": "0x121", "data": [3, 9, 1] },
+            { "node": "source1", "at": 120, "id": "0x120", "data": [255, 243, 7] },
+            { "node": "source2", "at": 230, "id": "0x121", "data": [4, 28, 8] },
+            { "node": "source3", "at": 340, "id": "0x120", "data": [1, 7, 8] },
+            { "node": "source4", "at": 450, "id": "0x120", "data": [2, 14, 10] },
+            { "node": "source5", "at": 560, "id": "0x121", "data": [7, 21, 11] },
+            { "node": "source6", "at": 670, "id": "0x120", "data": [3, 9, 11] }
+          ]
+        }
+      ],
+      "want": {
+        "valid": {
+          "frameHealth": {
+            "payload": "payload",
+            "checksum": "checksum",
+            "counter": "count",
+            "id": "id",
+            "match": 288
+          }
+        }
+      },
+      "solution": [
+        "target = const[value=288]()",
+        "selected = compare[form=eq](id, target)",
+        "monitor = frameMonitor(payload, checksum, count, selected)",
+        "valid <- monitor"
+      ]
+    }
+  ]
+}

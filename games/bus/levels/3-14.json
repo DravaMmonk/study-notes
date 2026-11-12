@@ -1,0 +1,54 @@
+{
+  "title": { "zh": "编码后再解码" },
+  "intro": [{ "t": { "zh": "把自己搭的编码器和解码器接在一起，检查字节顺序能否还原输入。" } }],
+  "after": { "zh": "往返测试能发现字节顺序和边界错误；实际发送还需要把字节装入帧并交给总线。" },
+  "tasks": [
+    {
+      "id": "3-14",
+      "brief": { "zh": "交出编码后的低、高字节，并把它们交给解码器，还原原始数值。" },
+      "hint": [{ "zh": "编码器的低字节接解码器的第一个输入，高字节接第二个输入。" }],
+      "inputs": [{ "name": "raw", "label": { "zh": "应用数值" } }, { "name": "time", "label": { "zh": "帧开始时间" } }],
+      "frameInputs": { "time": "time" },
+      "outputs": [
+        { "name": "low", "label": { "zh": "低字节" } },
+        { "name": "high", "label": { "zh": "高字节" } },
+        { "name": "value", "label": { "zh": "还原数值" } }
+      ],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source", "at": 10, "id": "0x140", "data": [] },
+            { "node": "source", "at": 120, "id": "0x140", "data": [] },
+            { "node": "source", "at": 230, "id": "0x140", "data": [] }
+          ],
+          "inputs": { "raw": [4660, 513, 255] }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source", "at": 10, "id": "0x140", "data": [] },
+            { "node": "source", "at": 120, "id": "0x140", "data": [] },
+            { "node": "source", "at": 230, "id": "0x140", "data": [] },
+            { "node": "source", "at": 340, "id": "0x140", "data": [] }
+          ],
+          "inputs": { "raw": [0, 65535, 32768, 165] }
+        }
+      ],
+      "want": {
+        "low": { "encodeLow": { "input": "raw" } },
+        "high": { "encodeHigh": { "input": "raw" } },
+        "value": { "inputSignal": { "input": "raw" } }
+      },
+      "solution": [
+        "encoded = wordEncoder(raw)",
+        "low <- encoded.low",
+        "high <- encoded.high",
+        "decoded = wordDecoder(encoded.low, encoded.high)",
+        "value <- decoded"
+      ]
+    }
+  ]
+}
