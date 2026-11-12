@@ -1,0 +1,128 @@
+{
+  "title": { "zh": "后续流控也可能失联" },
+  "intro": [
+    { "t": { "zh": "块大小为 1 时，每发一帧后续帧都要再等一次流控。接收方可能批准了第一块，却在下一块之前沉默。" } },
+    { "t": { "zh": "本关只处理块大小为 1、首次流控按时到达且后续流控只有继续或静默的情况；等待上限按游戏拍数计算。" } }
+  ],
+  "after": { "zh": "每一个数据块之后都可能需要新的流控；计时从需要等待的那一帧开始。" },
+  "tasks": [
+    {
+      "id": "4-19",
+      "brief": { "zh": "用发送器发长消息。每次发送后续帧后，如果还有数据，就开始等待下一个流控；接收方沉默达到上限时交出一次终止。" },
+      "hint": [{ "zh": "记录已发送的字节数，判断发送后是否还有数据。发送后续帧时从零开始计时；收到流控后清除等待。" }],
+      "inputs": [
+        { "name": "message", "label": { "zh": "待发送消息" } },
+        { "name": "flow", "label": { "zh": "接收方流控" } },
+        { "name": "arrived", "label": { "zh": "流控就绪" } },
+        { "name": "limit", "label": { "zh": "等待上限（拍）" } }
+      ],
+      "outputs": [
+        { "name": "frame", "label": { "zh": "发送帧数据" } },
+        { "name": "abort", "label": { "zh": "终止" } }
+      ],
+      "transport": {
+        "frame": "frame",
+        "flow": "flow",
+        "message": "message",
+        "ready": "arrived",
+        "timeout": "limit",
+        "abort": "abort"
+      },
+      "tests": [
+        {
+          "bus": { "idle": 20, "frames": [], "tail": 0 },
+          "transport": {
+            "message": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+            "blockSize": 1,
+            "separation": 0,
+            "flowDelay": 1,
+            "timeout": 3,
+            "silentAfter": 1
+          }
+        },
+        {
+          "bus": { "idle": 20, "frames": [], "tail": 0 },
+          "transport": {
+            "message": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+            "blockSize": 1,
+            "separation": 0,
+            "flowDelay": 1,
+            "timeout": 4
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 20, "frames": [], "tail": 0 },
+          "transport": {
+            "message": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+            "blockSize": 1,
+            "separation": 0,
+            "flowDelay": 2,
+            "timeout": 5,
+            "silentAfter": 1
+          }
+        },
+        {
+          "bus": { "idle": 20, "frames": [], "tail": 0 },
+          "transport": {
+            "message": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
+            "blockSize": 1,
+            "separation": 0,
+            "flowDelay": 2,
+            "timeout": 5
+          }
+        }
+      ],
+      "want": { "frame": "transportFrames", "abort": "transportLaterAbort" },
+      "solution": [
+        "sent = reg[reg=A, start=0]()",
+        "waiting = reg[reg=B, start=0]()",
+        "age = reg[reg=C, start=0]()",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "four = const[value=4]()",
+        "six = const[value=6]()",
+        "continueCode = const[value=48]()",
+        "header = byteAt(flow, zero)",
+        "continue = compare[form=eq](header, continueCode)",
+        "grant = select(arrived, continue, zero)",
+        "sender = isosender(message, flow, grant)",
+        "frame <- sender",
+        "hasFrame = present(sender)",
+        "frameHeader = byteAt(sender, zero)",
+        "kind = shiftRight(frameHeader, four)",
+        "first = compare[form=eq](kind, one)",
+        "consecutive = compare[form=eq](kind, two)",
+        "length = byteLength(sender)",
+        "dataSize = subtract(length, one)",
+        "afterData = arith[form=add](sent, dataSize)",
+        "afterConsecutive = select(consecutive, afterData, sent)",
+        "candidateSent = select(first, six, afterConsecutive)",
+        "nextSent = select(hasFrame, candidateSent, sent)",
+        "saveSent = keep[reg=A](nextSent)",
+        "total = byteLength(message)",
+        "more = compare[form=lt](nextSent, total)",
+        "startCandidate = select(consecutive, more, zero)",
+        "begin = select(hasFrame, startCandidate, zero)",
+        "nextAgeValue = arith[form=inc](age)",
+        "counting = select(waiting, nextAgeValue, zero)",
+        "resetForFlow = select(arrived, zero, counting)",
+        "nextAge = select(begin, zero, resetForFlow)",
+        "saveAge = keep[reg=C](nextAge)",
+        "atLimit = compare[form=eq](nextAgeValue, limit)",
+        "notArrived = compare[form=eq](arrived, zero)",
+        "waitingLimit = select(waiting, atLimit, zero)",
+        "shouldAbort = select(notArrived, waitingLimit, zero)",
+        "abortNow = select(shouldAbort, shouldAbort)",
+        "abort <- abortNow",
+        "aborting = present(abortNow)",
+        "afterAbort = select(aborting, zero, waiting)",
+        "afterFlow = select(arrived, zero, afterAbort)",
+        "nextWait = select(begin, one, afterFlow)",
+        "saveWait = keep[reg=B](nextWait)"
+      ]
+    }
+  ]
+}

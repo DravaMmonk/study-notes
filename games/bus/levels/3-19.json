@@ -1,0 +1,79 @@
+{
+  "title": { "zh": "一起监视内容和超时" },
+  "intro": [{ "t": { "zh": "同一条报文既要按时到达，也要有正确的 CRC 和计数。计时器在时钟检查点持续判断；内容监视器只在目标报文到达时判断。" } }],
+  "after": { "zh": "超时和内容错误是不同的观察：没有新帧时仍可报超时，而 CRC 与计数只对实际收到的目标帧检查。" },
+  "tasks": [
+    {
+      "id": "3-19",
+      "brief": { "zh": "接入计时器和报文监视器，在每个观察时刻交出是否超时；仅在目标报文到达时交出 CRC 与计数是否有效。" },
+      "hint": [{ "zh": "只把目标帧的选择信号接到内容监视器；时钟检查点不是帧，不能推进计数。" }],
+      "inputs": [
+        { "name": "frame", "label": { "zh": "有报文" } },
+        { "name": "id", "label": { "zh": "帧标识符" } },
+        { "name": "time", "label": { "zh": "观察时间" } },
+        { "name": "target", "label": { "zh": "目标标识符" } },
+        { "name": "limit", "label": { "zh": "期限（位拍）" } },
+        { "name": "payload", "label": { "zh": "数据字节" } },
+        { "name": "checksum", "label": { "zh": "收到的 CRC-8" } },
+        { "name": "count", "label": { "zh": "计数值" } }
+      ],
+      "frameInputs": {
+        "frame": "frame",
+        "id": "id",
+        "time": "time",
+        "payload": "byte0",
+        "checksum": "byte1",
+        "count": "byte2"
+      },
+      "outputs": [
+        { "name": "live", "label": { "zh": "报文未超时" } },
+        { "name": "valid", "label": { "zh": "报文有效" } }
+      ],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source0", "at": 10, "id": "0x120", "data": [2, 14, 14] },
+            { "node": "source1", "at": 220, "id": "0x121", "data": [8, 56, 7] },
+            { "node": "source2", "at": 500, "id": "0x120", "data": [4, 28, 15] }
+          ],
+          "frameChecks": [0, 110, 210, 471, 720, 751],
+          "constants": { "target": 288, "limit": 250 }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source0", "at": 40, "id": "0x120", "data": [1, 7, 15] },
+            { "node": "source1", "at": 220, "id": "0x121", "data": [5, 27, 3] },
+            { "node": "source2", "at": 380, "id": "0x120", "data": [7, 21, 0] }
+          ],
+          "frameChecks": [0, 140, 141, 240, 350, 480, 481],
+          "constants": { "target": 288, "limit": 100 }
+        }
+      ],
+      "want": {
+        "live": { "frameFreshness": { "id": "id", "time": "time", "target": "target", "limit": "limit" } },
+        "valid": {
+          "frameHealth": {
+            "payload": "payload",
+            "checksum": "checksum",
+            "counter": "count",
+            "id": "id",
+            "match": 288
+          }
+        }
+      },
+      "solution": [
+        "zero = const[value=0]()",
+        "matches = compare[form=eq](id, target)",
+        "selected = select(frame, matches, zero)",
+        "timer = frameTimer(frame, id, time, target, limit)",
+        "monitor = frameMonitor(payload, checksum, count, selected)",
+        "live <- timer",
+        "valid <- monitor"
+      ]
+    }
+  ]
+}

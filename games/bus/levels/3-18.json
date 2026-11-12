@@ -1,0 +1,86 @@
+{
+  "title": { "zh": "没有报文时也要计时" },
+  "intro": [
+    { "t": { "zh": "仅在报文到来时比较间隔，无法在它迟迟不来时给出超时结果。这里增加独立的时钟检查点；时间仍以总线位拍计。" } },
+    { "t": { "zh": "目标报文到达时更新最后时间；距离最后一次到达不超过期限时为有效，超过期限后为无效。第一帧到来之前也为无效。" } }
+  ],
+  "after": { "zh": "时钟检查点让缺失报文在下一帧到来之前被发现；目标标识符和期限都可由输入改变。" },
+  "builds": { "type": "frameTimer", "name": { "zh": "报文计时器" }, "desc": { "zh": "按目标标识符和期限判断报文是否仍然新鲜。" } },
+  "tasks": [
+    {
+      "id": "3-18",
+      "brief": { "zh": "在每个报文或时钟检查点，判断目标标识符是否仍在期限内。其他标识符不能重置计时。" },
+      "hint": [{ "zh": "保存目标帧的时间，用当前时间减去它；没有收到过目标帧时直接输出否。恰好达到期限仍算有效。" }],
+      "inputs": [
+        { "name": "frame", "label": { "zh": "有报文" } },
+        { "name": "id", "label": { "zh": "帧标识符" } },
+        { "name": "time", "label": { "zh": "观察时间" } },
+        { "name": "target", "label": { "zh": "目标标识符" } },
+        { "name": "limit", "label": { "zh": "期限（位拍）" } }
+      ],
+      "frameInputs": { "frame": "frame", "id": "id", "time": "time" },
+      "outputs": [{ "name": "live", "label": { "zh": "报文未超时" } }],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source0", "at": 10, "id": "0x120", "data": [2, 14, 14] },
+            { "node": "source1", "at": 220, "id": "0x121", "data": [8, 56, 7] },
+            { "node": "source2", "at": 500, "id": "0x120", "data": [4, 28, 15] }
+          ],
+          "frameChecks": [0, 110, 210, 471, 720, 751],
+          "constants": { "target": 288, "limit": 250 }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "source0", "at": 40, "id": "0x155", "data": [1, 7, 15] },
+            { "node": "source1", "at": 220, "id": "0x156", "data": [5, 27, 3] },
+            { "node": "source2", "at": 380, "id": "0x155", "data": [7, 21, 0] }
+          ],
+          "frameChecks": [0, 140, 141, 240, 350, 480, 481],
+          "constants": { "target": 341, "limit": 100 }
+        }
+      ],
+      "want": {
+        "live": { "frameFreshness": { "id": "id", "time": "time", "target": "target", "limit": "limit" } }
+      },
+      "solution": [
+        "last = reg[reg=A, start=-1]()",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "missing = const[value=-1]()",
+        "match = compare[form=eq](id, target)",
+        "selected = select(frame, match, zero)",
+        "recent = select(selected, time, last)",
+        "saveLast = keep[reg=A](recent)",
+        "unseen = compare[form=eq](recent, missing)",
+        "elapsed = subtract(time, recent)",
+        "late = compare[form=lt](limit, elapsed)",
+        "fresh = compare[form=eq](late, zero)",
+        "falseValue = compare[form=eq](zero, one)",
+        "result = select(unseen, falseValue, fresh)",
+        "live <- result"
+      ],
+      "naive": [
+        "last = reg[reg=A, start=-1]()",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "missing = const[value=-1]()",
+        "match = compare[form=eq](id, target)",
+        "selected = select(frame, match, zero)",
+        "recent = select(selected, time, last)",
+        "saveLast = keep[reg=A](recent)",
+        "unseen = compare[form=eq](recent, missing)",
+        "elapsed = subtract(time, recent)",
+        "late = compare[form=lt](elapsed, limit)",
+        "fresh = compare[form=eq](late, one)",
+        "falseValue = compare[form=eq](zero, one)",
+        "result = select(unseen, falseValue, fresh)",
+        "live <- result"
+      ]
+    }
+  ]
+}

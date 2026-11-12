@@ -1,0 +1,152 @@
+{
+  "title": { "zh": "等不到下一帧" },
+  "intro": [
+    { "t": { "zh": "收到首帧之后，接收方不能永远等待后续帧。使用独立时钟检查点；超过期限就放弃这条未完成的消息，迟到的后续帧不能把它补完。" } },
+    { "t": { "zh": "本练习限定正常的首帧和顺序正确的后续帧，不模拟流控交换；期限以总线位拍计，恰好到期限仍可接收。" } }
+  ],
+  "after": { "zh": "时间到期会终止旧消息；后续的新首帧可以建立独立的新消息。" },
+  "builds": {
+    "type": "timedReceiver",
+    "name": { "zh": "有超时的重组器" },
+    "desc": { "zh": "按期限重组单个标识符的长消息，超时后等待新首帧。" }
+  },
+  "tasks": [
+    {
+      "id": "4-17",
+      "brief": { "zh": "使用重组元件接收目标标识符的长消息。自上一帧起超过期限时输出一次超时；丢弃迟到的后续帧，新的首帧可以重新开始。" },
+      "hint": [{ "zh": "用寄存卡记录是否正在接收和上一帧时间；超时后关掉重组元件的接收允许，直到新的首帧。" }],
+      "inputs": [
+        { "name": "frame", "label": { "zh": "有报文" } },
+        { "name": "id", "label": { "zh": "帧标识符" } },
+        { "name": "time", "label": { "zh": "观察时间" } },
+        { "name": "data", "label": { "zh": "帧数据" } },
+        { "name": "header", "label": { "zh": "第一个数据字节" } },
+        { "name": "low", "label": { "zh": "第二个数据字节" } },
+        { "name": "target", "label": { "zh": "目标标识符" } },
+        { "name": "limit", "label": { "zh": "期限（位拍）" } }
+      ],
+      "frameInputs": {
+        "frame": "frame",
+        "id": "id",
+        "time": "time",
+        "data": "data",
+        "header": "byte0",
+        "low": "byte1"
+      },
+      "outputs": [
+        { "name": "message", "label": { "zh": "消息字节" } },
+        { "name": "timedOut", "label": { "zh": "接收超时" } }
+      ],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "ecu0", "at": 10, "id": "0x7e8", "data": [16, 8, 1, 2, 3, 4, 5, 6] },
+            { "node": "ecu1", "at": 200, "id": "0x7e8", "data": [33, 7, 8, 0, 0, 0, 0, 0] }
+          ],
+          "frameChecks": [0, 100, 260],
+          "constants": { "target": 2024, "limit": 200 }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "ecu0", "at": 10, "id": "0x7e8", "data": [16, 8, 1, 2, 3, 4, 5, 6] },
+            { "node": "ecu1", "at": 310, "id": "0x7e8", "data": [33, 7, 8, 0, 0, 0, 0, 0] },
+            { "node": "ecu2", "at": 500, "id": "0x7e8", "data": [16, 9, 11, 12, 13, 14, 15, 16] },
+            { "node": "ecu3", "at": 700, "id": "0x7e8", "data": [33, 17, 18, 19, 0, 0, 0, 0] }
+          ],
+          "frameChecks": [0, 210, 211, 450, 600, 901],
+          "constants": { "target": 2024, "limit": 200 }
+        }
+      ],
+      "want": {
+        "message": {
+          "timedTransportMessage": {
+            "data": "data",
+            "id": "id",
+            "time": "time",
+            "limit": "limit",
+            "target": "target"
+          }
+        },
+        "timedOut": {
+          "timedTransportAbort": {
+            "data": "data",
+            "id": "id",
+            "time": "time",
+            "limit": "limit",
+            "target": "target"
+          }
+        }
+      },
+      "solution": [
+        "last = reg[reg=A, start=0]()",
+        "active = reg[reg=B, start=0]()",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "four = const[value=4]()",
+        "falseValue = compare[form=eq](zero, one)",
+        "trueValue = compare[form=eq](one, one)",
+        "matches = compare[form=eq](id, target)",
+        "selected = select(frame, matches, falseValue)",
+        "kind = shiftRight(header, four)",
+        "first = compare[form=eq](kind, one)",
+        "consecutive = compare[form=eq](kind, two)",
+        "selectedFirst = select(selected, first, falseValue)",
+        "elapsed = subtract(time, last)",
+        "late = compare[form=lt](limit, elapsed)",
+        "timeout = select(active, late, falseValue)",
+        "timedOut <- timeout",
+        "timelyConsecutive = select(late, falseValue, consecutive)",
+        "activeConsecutive = select(active, timelyConsecutive, falseValue)",
+        "candidate = select(first, trueValue, activeConsecutive)",
+        "accept = select(selected, candidate, falseValue)",
+        "received = isorecv(data, header, low, accept)",
+        "message <- received",
+        "completed = present(received)",
+        "afterComplete = select(completed, zero, active)",
+        "afterTimeout = select(timeout, zero, afterComplete)",
+        "nextActive = select(selectedFirst, one, afterTimeout)",
+        "saveActive = keep[reg=B](nextActive)",
+        "nextTime = select(accept, time, last)",
+        "saveTime = keep[reg=A](nextTime)"
+      ],
+      "naive": [
+        "last = reg[reg=A, start=0]()",
+        "active = reg[reg=B, start=0]()",
+        "zero = const[value=0]()",
+        "one = const[value=1]()",
+        "two = const[value=2]()",
+        "four = const[value=4]()",
+        "falseValue = compare[form=eq](zero, one)",
+        "trueValue = compare[form=eq](one, one)",
+        "matches = compare[form=eq](id, target)",
+        "selected = select(frame, matches, falseValue)",
+        "kind = shiftRight(header, four)",
+        "first = compare[form=eq](kind, one)",
+        "consecutive = compare[form=eq](kind, two)",
+        "selectedFirst = select(selected, first, falseValue)",
+        "elapsed = subtract(time, last)",
+        "late = compare[form=lt](limit, elapsed)",
+        "timeout = select(active, falseValue, falseValue)",
+        "timedOut <- timeout",
+        "timelyConsecutive = select(late, consecutive, consecutive)",
+        "activeConsecutive = select(active, timelyConsecutive, falseValue)",
+        "candidate = select(first, trueValue, activeConsecutive)",
+        "accept = select(selected, candidate, falseValue)",
+        "received = isorecv(data, header, low, accept)",
+        "message <- received",
+        "completed = present(received)",
+        "afterComplete = select(completed, zero, active)",
+        "afterTimeout = select(timeout, zero, afterComplete)",
+        "nextActive = select(selectedFirst, one, afterTimeout)",
+        "saveActive = keep[reg=B](nextActive)",
+        "nextTime = select(accept, time, last)",
+        "saveTime = keep[reg=A](nextTime)"
+      ]
+    }
+  ]
+}

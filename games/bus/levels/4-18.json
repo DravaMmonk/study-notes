@@ -1,0 +1,101 @@
+{
+  "title": { "zh": "两条消息分别计时" },
+  "intro": [{ "t": { "zh": "两个控制器的回答可以交错。每个接收器必须独立保存重组内容和最后接收时间，一个超时不能取消另一个。" } }],
+  "after": { "zh": "重组状态和计时状态都属于回答者；一方超时不影响另一方。" },
+  "tasks": [
+    {
+      "id": "4-18",
+      "brief": { "zh": "分别重组 0x7E8 和 0x7E9 的消息，并分别报告各自的接收超时；时钟检查对两个接收器都生效。" },
+      "hint": [{ "zh": "放两个有超时的重组器，给它们相同的帧和时间，目标标识符分别设为 0x7E8 和 0x7E9。" }],
+      "inputs": [
+        { "name": "frame", "label": { "zh": "有报文" } },
+        { "name": "id", "label": { "zh": "帧标识符" } },
+        { "name": "time", "label": { "zh": "观察时间" } },
+        { "name": "data", "label": { "zh": "帧数据" } },
+        { "name": "header", "label": { "zh": "第一个数据字节" } },
+        { "name": "low", "label": { "zh": "第二个数据字节" } },
+        { "name": "limit", "label": { "zh": "期限（位拍）" } }
+      ],
+      "frameInputs": {
+        "frame": "frame",
+        "id": "id",
+        "time": "time",
+        "data": "data",
+        "header": "byte0",
+        "low": "byte1"
+      },
+      "outputs": [
+        { "name": "messageA", "label": { "zh": "控制器 A 消息" } },
+        { "name": "timeoutA", "label": { "zh": "控制器 A 超时" } },
+        { "name": "messageB", "label": { "zh": "控制器 B 消息" } },
+        { "name": "timeoutB", "label": { "zh": "控制器 B 超时" } }
+      ],
+      "tests": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "ecu0", "at": 10, "id": "0x7e8", "data": [16, 8, 1, 2, 3, 4, 5, 6] },
+            { "node": "ecu1", "at": 200, "id": "0x7e9", "data": [16, 9, 11, 12, 13, 14, 15, 16] },
+            { "node": "ecu2", "at": 350, "id": "0x7e9", "data": [33, 17, 18, 19, 0, 0, 0, 0] },
+            { "node": "ecu3", "at": 500, "id": "0x7e8", "data": [33, 7, 8, 0, 0, 0, 0, 0] },
+            { "node": "ecu4", "at": 700, "id": "0x7e8", "data": [16, 9, 11, 12, 13, 14, 15, 16] },
+            { "node": "ecu5", "at": 900, "id": "0x7e8", "data": [33, 17, 18, 19, 0, 0, 0, 0] }
+          ],
+          "frameChecks": [0, 310, 311, 650, 800],
+          "constants": { "limit": 300 }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "frames": [] },
+          "frameRequests": [
+            { "node": "ecu0", "at": 10, "id": "0x7e9", "data": [16, 8, 1, 2, 3, 4, 5, 6] },
+            { "node": "ecu1", "at": 180, "id": "0x7e8", "data": [16, 9, 11, 12, 13, 14, 15, 16] },
+            { "node": "ecu2", "at": 350, "id": "0x7e8", "data": [33, 17, 18, 19, 0, 0, 0, 0] },
+            { "node": "ecu3", "at": 520, "id": "0x7e9", "data": [33, 7, 8, 0, 0, 0, 0, 0] },
+            { "node": "ecu4", "at": 700, "id": "0x7e9", "data": [16, 9, 11, 12, 13, 14, 15, 16] },
+            { "node": "ecu5", "at": 900, "id": "0x7e9", "data": [33, 17, 18, 19, 0, 0, 0, 0] }
+          ],
+          "frameChecks": [0, 310, 311, 650, 800],
+          "constants": { "limit": 300 }
+        }
+      ],
+      "want": {
+        "messageA": {
+          "timedTransportMessage": {
+            "data": "data",
+            "id": "id",
+            "time": "time",
+            "limit": "limit",
+            "match": 2024
+          }
+        },
+        "timeoutA": {
+          "timedTransportAbort": { "data": "data", "id": "id", "time": "time", "limit": "limit", "match": 2024 }
+        },
+        "messageB": {
+          "timedTransportMessage": {
+            "data": "data",
+            "id": "id",
+            "time": "time",
+            "limit": "limit",
+            "match": 2025
+          }
+        },
+        "timeoutB": {
+          "timedTransportAbort": { "data": "data", "id": "id", "time": "time", "limit": "limit", "match": 2025 }
+        }
+      },
+      "solution": [
+        "a = const[value=2024]()",
+        "b = const[value=2025]()",
+        "recvA = timedReceiver(frame, id, time, data, header, low, a, limit)",
+        "recvB = timedReceiver(frame, id, time, data, header, low, b, limit)",
+        "messageA <- recvA.message",
+        "timeoutA <- recvA.timedOut",
+        "messageB <- recvB.message",
+        "timeoutB <- recvB.timedOut"
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "domain": "can",
-  "vocabulary": 112,
+  "vocabulary": 115,
   "title": { "zh": "车在说话" },
   "kicker": { "zh": "开发中 · 车载总线与诊断" },
   "views": { "bits": ["wave", "bands"] },
@@ -80,7 +80,9 @@
       "wordDecoder",
       "wordEncoder",
       "crc8Byte",
-      "frameMonitor"
+      "frameMonitor",
+      "frameTimer",
+      "timedReceiver"
     ]
   },
   "concept": { "keep": "reg" },
@@ -194,7 +196,9 @@
         "3-14",
         "3-15",
         "3-16",
-        "3-17"
+        "3-17",
+        "3-18",
+        "3-19"
       ]
     },
     {
@@ -217,7 +221,10 @@
         "4-13",
         "4-14",
         "4-15",
-        "4-16"
+        "4-16",
+        "4-17",
+        "4-18",
+        "4-19"
       ]
     },
     {
