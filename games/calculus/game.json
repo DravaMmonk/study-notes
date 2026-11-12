@@ -159,7 +159,15 @@
       "id": 7,
       "title": { "zh": "会动的量" },
       "question": { "zh": "只知道变化率和起点，怎样走出整条轨迹？" },
-      "foundation": ["euler-step", "euler-growth", "euler-error", "midpoint-growth", "rk4-step", "rk4-growth"],
+      "foundation": [
+        "euler-step",
+        "euler-growth",
+        "euler-error",
+        "midpoint-growth",
+        "rk4-step",
+        "rk4-growth",
+        "capstone"
+      ],
       "topics": [
         { "id": "motion-projectile", "title": { "zh": "抛体" }, "levels": ["projectile"], "after": "rk4-growth" },
         {

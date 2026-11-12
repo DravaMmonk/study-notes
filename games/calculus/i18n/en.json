@@ -591,5 +591,12 @@
   "逆平方引力场": "Inverse-square gravity field",
   "在归一化 μ=1 的平面两体模型中，位置 (x,y) 的加速度是 −(x,y)/(x²+y²)^(3/2)。方向指向原点，大小为 1/r²；原点处没有定义。": "In a normalized planar two-body model with μ=1, acceleration at (x,y) is −(x,y)/(x²+y²)^(3/2). It points to the origin with magnitude 1/r² and is undefined at the origin.",
   "轨道数值漂移": "Numerical orbit drift",
-  "初态 (1,0,0,1) 在归一化引力模型中的准确轨道是单位圆。显式欧拉法通常不保持半径或能量；模拟轨道的漂移是算法误差，不能当成行星的真实运动。": "The initial state (1,0,0,1) has an exact unit-circle orbit in the normalized gravity model. Explicit Euler generally preserves neither radius nor energy; simulated drift is numerical error, not actual planetary motion."
+  "初态 (1,0,0,1) 在归一化引力模型中的准确轨道是单位圆。显式欧拉法通常不保持半径或能量；模拟轨道的漂移是算法误差，不能当成行星的真实运动。": "The initial state (1,0,0,1) has an exact unit-circle orbit in the normalized gravity model. Explicit Euler generally preserves neither radius nor energy; simulated drift is numerical error, not actual planetary motion.",
+  "把整台机接起来": "Connect the whole machine",
+  "最后把几章的板接到同一个函数上。测试用系数 p、q、r 给出 f(t)=pt²+qt+r，再给起点 a、一步 h 和状态初值 s。": "Finally connect several chapters to one function. Coefficients p, q, and r specify f(t)=pt²+qt+r; tests also give start a, step h, and initial state s.",
+  "求 f′(a)，用二阶泰勒式算 f(a+h)，并把 f 在这一格的取样积分为 I。对 y′=f(t)、y(a)=s，下一状态就是 s+I；用 RK4 权重搭出它。": "Find f′(a), use the degree-two Taylor expression for f(a+h), and integrate f over this cell as I. For y′=f(t) with y(a)=s, the next state is s+I; build it with RK4 weights.",
+  "给 f(t)=pt²+qt+r、a、h、s，交出 D=f′(a)、T=f(a+h) 的二阶泰勒值、I=∫ₐᵃ⁺ʰf(t)dt 和 Y=s+I。": "Given f(t)=pt²+qt+r, a, h, and s, output D=f′(a), degree-two Taylor value T=f(a+h), integral I=∫ₐᵃ⁺ʰf(t)dt, and Y=s+I.",
+  "二次函数的整合机器": "Quadratic capstone",
+  "对 f(t)=pt²+qt+r，f′(a)=2pa+q。二阶泰勒式 f(a)+f′(a)h+ph² 恰等于 f(a+h)；对 y′=f(t)，RK4 一步的 1:2:2:1 取样就是辛普森积分，因此 y(a+h)=y(a)+∫ₐᵃ⁺ʰf(t)dt。此精确性只针对二次函数族。": "For f(t)=pt²+qt+r, f′(a)=2pa+q. The degree-two Taylor expression f(a)+f′(a)h+ph² equals f(a+h). For y′=f(t), one RK4 step samples in Simpson’s 1:2:2:1 pattern, so y(a+h)=y(a)+∫ₐᵃ⁺ʰf(t)dt. This exactness is specific to the quadratic family.",
+  "<wiki-ref to=\"quadratic-capstone\"></wiki-ref>导数、泰勒、积分和微分方程接通了。二次函数上，这一步精确；其他函数仍需估计误差。": "The <wiki-ref to=\"quadratic-capstone\"></wiki-ref> connects derivatives, Taylor expansion, integration, and an ODE step. This step is exact for quadratics; other functions still need error estimates."
 }

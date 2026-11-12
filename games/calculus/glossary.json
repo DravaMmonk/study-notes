@@ -631,6 +631,18 @@
       "at": "orbit",
       "body": [{ "zh": "初态 (1,0,0,1) 在归一化引力模型中的准确轨道是单位圆。显式欧拉法通常不保持半径或能量；模拟轨道的漂移是算法误差，不能当成行星的真实运动。" }],
       "see": ["inverse-square-field", "euler-global-error"]
+    },
+    {
+      "id": "quadratic-capstone",
+      "group": "sequences",
+      "title": { "zh": "二次函数的整合机器" },
+      "at": "capstone",
+      "body": [
+        {
+          "zh": "对 f(t)=pt²+qt+r，f′(a)=2pa+q。二阶泰勒式 f(a)+f′(a)h+ph² 恰等于 f(a+h)；对 y′=f(t)，RK4 一步的 1:2:2:1 取样就是辛普森积分，因此 y(a+h)=y(a)+∫ₐᵃ⁺ʰf(t)dt。此精确性只针对二次函数族。"
+        }
+      ],
+      "see": ["derivative-rules", "endpoint-evaluation", "taylor-exp", "rk4-weight"]
     }
   ],
   "groupByChapter": true

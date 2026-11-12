@@ -5141,6 +5141,932 @@
               "report": true
             }
           ]
+        },
+        {
+          "at": "2026-11-12T05:10:45.008Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "bp-bare",
+              "at": "sum3",
+              "says": "its answer stands only on what it brings (add)",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "square",
+              "says": "general-term comes back first at dsq, after double, diff bring two more points",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "inverse",
+              "says": "no slot after it uses inverse",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "harmonic",
+              "says": "no slot after it uses harmonic",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "probe",
+              "says": "no slot after it uses continuity",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "square-delta",
+              "says": "no slot after it uses local-bound",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "step-local",
+              "says": "no slot after it uses pointwise",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "square-slope",
+              "says": "no slot after it uses difference-quotient",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "cusp",
+              "says": "no slot after it uses nondifferentiable",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "linear-area",
+              "says": "no slot after it uses area-limit",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "linear-error",
+              "says": "no slot after it uses area-error",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "square-trap",
+              "says": "no slot after it uses curvature-error",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "telescope",
+              "says": "no slot after it uses discrete-telescope",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "increment",
+              "says": "no slot after it uses local-increment",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "derivative-sum",
+              "says": "no slot after it uses fundamental-integrate",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "area-slope",
+              "says": "no slot after it uses fundamental-differentiate",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "constant-cancels",
+              "says": "no slot after it uses integration-constant",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "exp-bound",
+              "says": "no slot after it uses taylor-remainder",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "rational-outside",
+              "says": "no slot after it uses outside-radius",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "euler-growth",
+              "says": "no slot after it uses euler-ode",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "euler-error",
+              "says": "no slot after it uses euler-global-error",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "midpoint-growth",
+              "says": "no slot after it uses midpoint-method",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "rk4-growth",
+              "says": "no slot after it uses rk4-accuracy",
+              "report": true
+            },
+            {
+              "rule": "bp-heavy",
+              "at": "partial-sum",
+              "says": "5 slots: sum, tri, tetra, dsum, halves",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "sum3",
+              "says": "sequence has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "prev",
+              "says": "shift has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "arith",
+              "says": "recurrence has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "count",
+              "says": "index has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "square",
+              "says": "general-term has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "double",
+              "says": "geometric has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "inverse",
+              "says": "inverse has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "max",
+              "says": "inequality has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "dist",
+              "says": "distance has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "near",
+              "says": "neighbourhood has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "since",
+              "says": "eventually has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "diverge",
+              "says": "divergence has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "series",
+              "says": "series has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "harmonic",
+              "says": "harmonic has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "grid",
+              "says": "sampling-grid has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "sample-square",
+              "says": "function-value has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "sides",
+              "says": "one-sided has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "jump",
+              "says": "jump-discontinuity has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "gap",
+              "says": "continuity-gap has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "probe",
+              "says": "continuity has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "line-delta",
+              "says": "delta-response has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "square-delta",
+              "says": "local-bound has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "step-local",
+              "says": "pointwise has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "quotient",
+              "says": "secant has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "square-slope",
+              "says": "difference-quotient has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "cusp",
+              "says": "nondifferentiable has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "cell",
+              "says": "signed-cell has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "riemann",
+              "says": "riemann-sum has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "linear-area",
+              "says": "area-limit has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "linear-error",
+              "says": "area-error has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "trap",
+              "says": "trapezoid-rule has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "square-trap",
+              "says": "curvature-error has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "telescope",
+              "says": "discrete-telescope has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "increment",
+              "says": "local-increment has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "derivative-sum",
+              "says": "fundamental-integrate has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "area-slope",
+              "says": "fundamental-differentiate has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "endpoint-diff",
+              "says": "endpoint-evaluation has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "constant-cancels",
+              "says": "integration-constant has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "exp-term",
+              "says": "taylor-term has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "exp-sum",
+              "says": "taylor-exp has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "exp-bound",
+              "says": "taylor-remainder has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "sin-term",
+              "says": "sine-terms has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "sin-sum",
+              "says": "sine-approx has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "radius",
+              "says": "convergence-radius has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "rational-outside",
+              "says": "outside-radius has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "euler-step",
+              "says": "euler-step has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "euler-growth",
+              "says": "euler-ode has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "euler-error",
+              "says": "euler-global-error has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "midpoint-growth",
+              "says": "midpoint-method has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "rk4-step",
+              "says": "rk4-weight has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "rk4-growth",
+              "says": "rk4-accuracy has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "capstone",
+              "says": "quadratic-capstone has no practice slot before the next point",
+              "report": true
+            }
+          ]
+        },
+        {
+          "at": "2026-11-12T05:11:05.371Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "bp-bare",
+              "at": "sum3",
+              "says": "its answer stands only on what it brings (add)",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "square",
+              "says": "general-term comes back first at dsq, after double, diff bring two more points",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "inverse",
+              "says": "no slot after it uses inverse",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "harmonic",
+              "says": "no slot after it uses harmonic",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "probe",
+              "says": "no slot after it uses continuity",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "square-delta",
+              "says": "no slot after it uses local-bound",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "step-local",
+              "says": "no slot after it uses pointwise",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "square-slope",
+              "says": "no slot after it uses difference-quotient",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "cusp",
+              "says": "no slot after it uses nondifferentiable",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "linear-area",
+              "says": "no slot after it uses area-limit",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "linear-error",
+              "says": "no slot after it uses area-error",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "square-trap",
+              "says": "no slot after it uses curvature-error",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "telescope",
+              "says": "no slot after it uses discrete-telescope",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "increment",
+              "says": "no slot after it uses local-increment",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "derivative-sum",
+              "says": "no slot after it uses fundamental-integrate",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "area-slope",
+              "says": "no slot after it uses fundamental-differentiate",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "constant-cancels",
+              "says": "no slot after it uses integration-constant",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "exp-bound",
+              "says": "no slot after it uses taylor-remainder",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "rational-outside",
+              "says": "no slot after it uses outside-radius",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "euler-growth",
+              "says": "no slot after it uses euler-ode",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "euler-error",
+              "says": "no slot after it uses euler-global-error",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "midpoint-growth",
+              "says": "no slot after it uses midpoint-method",
+              "report": true
+            },
+            {
+              "rule": "bp-reuse",
+              "at": "rk4-growth",
+              "says": "no slot after it uses rk4-accuracy",
+              "report": true
+            },
+            {
+              "rule": "bp-heavy",
+              "at": "partial-sum",
+              "says": "5 slots: sum, tri, tetra, dsum, halves",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "sum3",
+              "says": "sequence has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "prev",
+              "says": "shift has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "arith",
+              "says": "recurrence has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "count",
+              "says": "index has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "square",
+              "says": "general-term has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "double",
+              "says": "geometric has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "inverse",
+              "says": "inverse has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "max",
+              "says": "inequality has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "dist",
+              "says": "distance has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "near",
+              "says": "neighbourhood has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "since",
+              "says": "eventually has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "diverge",
+              "says": "divergence has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "series",
+              "says": "series has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "harmonic",
+              "says": "harmonic has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "grid",
+              "says": "sampling-grid has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "sample-square",
+              "says": "function-value has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "sides",
+              "says": "one-sided has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "jump",
+              "says": "jump-discontinuity has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "gap",
+              "says": "continuity-gap has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "probe",
+              "says": "continuity has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "line-delta",
+              "says": "delta-response has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "square-delta",
+              "says": "local-bound has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "step-local",
+              "says": "pointwise has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "quotient",
+              "says": "secant has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "square-slope",
+              "says": "difference-quotient has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "cusp",
+              "says": "nondifferentiable has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "cell",
+              "says": "signed-cell has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "riemann",
+              "says": "riemann-sum has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "linear-area",
+              "says": "area-limit has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "linear-error",
+              "says": "area-error has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "trap",
+              "says": "trapezoid-rule has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "square-trap",
+              "says": "curvature-error has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "telescope",
+              "says": "discrete-telescope has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "increment",
+              "says": "local-increment has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "derivative-sum",
+              "says": "fundamental-integrate has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "area-slope",
+              "says": "fundamental-differentiate has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "endpoint-diff",
+              "says": "endpoint-evaluation has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "constant-cancels",
+              "says": "integration-constant has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "exp-term",
+              "says": "taylor-term has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "exp-sum",
+              "says": "taylor-exp has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "exp-bound",
+              "says": "taylor-remainder has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "sin-term",
+              "says": "sine-terms has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "sin-sum",
+              "says": "sine-approx has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "radius",
+              "says": "convergence-radius has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "rational-outside",
+              "says": "outside-radius has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "euler-step",
+              "says": "euler-step has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "euler-growth",
+              "says": "euler-ode has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "euler-error",
+              "says": "euler-global-error has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "midpoint-growth",
+              "says": "midpoint-method has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "rk4-step",
+              "says": "rk4-weight has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "rk4-growth",
+              "says": "rk4-accuracy has no practice slot before the next point",
+              "report": true
+            },
+            {
+              "rule": "bp-lonely",
+              "at": "capstone",
+              "says": "quadratic-capstone has no practice slot before the next point",
+              "report": true
+            }
+          ]
         }
       ]
     },
@@ -5191,6 +6117,18 @@
         },
         {
           "at": "2026-11-12T05:07:07.418Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-12T05:10:47.133Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-12T05:11:07.490Z",
           "ok": true,
           "failures": [],
           "reports": []
@@ -5453,6 +6391,92 @@
         },
         {
           "at": "2026-11-12T05:07:09.224Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 2",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 3",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 4",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 5",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 6",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 7",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            }
+          ]
+        },
+        {
+          "at": "2026-11-12T05:10:48.938Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 2",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 3",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 4",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 5",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 6",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 7",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            }
+          ]
+        },
+        {
+          "at": "2026-11-12T05:11:09.288Z",
           "ok": true,
           "failures": [],
           "reports": [
@@ -24467,6 +25491,2864 @@
               "report": true
             }
           ]
+        },
+        {
+          "at": "2026-11-12T05:10:50.766Z",
+          "ok": false,
+          "failures": [
+            {
+              "rule": "copy-length",
+              "says": "79 characters (zh), 0 (en); at most 70 and 210",
+              "at": "capstone.after"
+            }
+          ],
+          "reports": [
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 2",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 3",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 4",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 5",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 6",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 7",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/area-slope.json:intro.0.t.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/area-slope.json:intro.1.t.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/area-slope.json:after.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/area-slope.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/arith.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/arith.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/arith.json:tasks.0.brief.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/capstone.json:after.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/capstone.json:after.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cdouble.json:intro.0.t.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cdouble.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cdouble.json:after.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cdouble.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cdouble.json:tasks.0.hint.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cell.json:intro.0.t.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/chain-rule.json:after.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/chain-rule.json:tasks.0.brief.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/constant-cancels.json:intro.0.t.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/count.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/count.json:intro.1.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/count.json:after.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/count.json:after.zh",
+              "says": "literal name/alias of index without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:intro.0.t.zh",
+              "says": "literal name/alias of secant without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:intro.0.t.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:intro.0.t.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:intro.1.t.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:after.zh",
+              "says": "literal name/alias of limit without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:after.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:after.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ddouble.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ddouble.json:after.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ddouble.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ddsq.json:after.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ddsq.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/diff.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/diff.json:intro.1.t.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/diff.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/diverge.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/double.json:intro.0.t.zh",
+              "says": "literal name/alias of arithmetic without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/double.json:after.zh",
+              "says": "literal name/alias of arithmetic without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/double.json:tasks.0.brief.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/dsq.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/dsq.json:after.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/dsq.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/dsum.json:intro.0.t.zh",
+              "says": "literal name/alias of geometric without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/dsum.json:intro.0.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/dsum.json:after.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/endpoint-diff.json:intro.0.t.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/endpoint-diff.json:tasks.0.brief.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/euler.json:intro.0.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/euler.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/euler-error.json:intro.1.t.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/exp-bound.json:intro.1.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/exp-term.json:intro.1.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/exp-term.json:after.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/gap.json:intro.0.t.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/gap.json:intro.0.t.zh",
+              "says": "literal name/alias of jump-discontinuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/gap.json:after.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/gap.json:tasks.0.brief.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/gap.json:tasks.0.brief.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/gravity-field.json:after.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/grid.json:intro.0.t.zh",
+              "says": "literal name/alias of index without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/halves.json:after.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/halves.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/harmonic.json:after.zh",
+              "says": "literal name/alias of series without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/harmonic.json:after.zh",
+              "says": "literal name/alias of divergence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/harmonic.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/harmonic.json:tasks.0.after.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/harmonic.json:tasks.1.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/increment.json:intro.0.t.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/increment.json:after.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:intro.0.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:intro.0.t.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:after.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:after.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage (its explanation opens at probe)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.0.brief.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.0.after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.1.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.1.brief.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.2.brief.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.2.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/jump.json:tasks.0.brief.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/limit.json:intro.0.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/limit.json:intro.1.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/limit.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/linear-error.json:intro.1.t.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/max.json:tasks.0.hint.0.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/midpoint-growth.json:tasks.0.brief.zh",
+              "says": "literal name/alias of midpoint-method without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/prev.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/probe.json:intro.0.t.zh",
+              "says": "literal name/alias of continuity-gap without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/probe.json:intro.1.t.zh",
+              "says": "literal name/alias of jump-discontinuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/probe.json:tasks.0.brief.zh",
+              "says": "literal name/alias of continuity-gap without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/probe.json:tasks.0.brief.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/probe.json:tasks.1.brief.zh",
+              "says": "literal name/alias of continuity-gap without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/probe.json:tasks.1.brief.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/projectile.json:intro.0.t.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/quotient.json:intro.0.t.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/quotient.json:intro.0.t.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/quotient.json:intro.1.t.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage (its explanation opens at square-slope)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/quotient.json:after.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage (its explanation opens at slope-error)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/radius.json:after.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/radius.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ratio.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ratio.json:intro.0.t.zh",
+              "says": "literal name/alias of neighbourhood without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/rational-outside.json:after.zh",
+              "says": "literal name/alias of divergence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/rational-outside.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/recip.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/recip.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/recip.json:tasks.0.hint.0.zh",
+              "says": "literal name/alias of index without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/rk4-growth.json:intro.0.t.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/rk4-step.json:intro.0.t.zh",
+              "says": "literal name/alias of midpoint-method without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sample-square.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sample-square.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/series.json:intro.0.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/series.json:after.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/series.json:after.zh",
+              "says": "literal name/alias of limit without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/series.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sides.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sides.json:intro.0.t.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sides.json:after.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/simpson.json:intro.0.t.zh",
+              "says": "literal name/alias of simpson-rule without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sin-sum.json:intro.1.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sin-sum.json:after.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sin-sum.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sin-term.json:intro.0.t.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/since.json:intro.1.t.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage (its explanation opens at probe)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/since.json:tasks.0.brief.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage (its explanation opens at probe)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/slope-error.json:intro.0.t.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/slope-error.json:after.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/slope-error.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square.json:intro.0.t.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-prime.json:intro.0.t.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-prime.json:intro.1.t.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-prime.json:after.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-prime.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-slope.json:intro.0.t.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-slope.json:intro.0.t.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-slope.json:intro.1.t.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-slope.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-slope.json:tasks.0.hint.0.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-trap.json:intro.1.t.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/step-local.json:intro.0.t.zh",
+              "says": "literal name/alias of jump-discontinuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/step-local.json:after.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/step-local.json:tasks.1.brief.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum.json:after.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum-product-rule.json:after.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum-product-rule.json:tasks.0.brief.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum-product-rule.json:tasks.1.brief.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum3.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum3.json:tasks.0.brief.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/telescope.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/telescope.json:intro.0.t.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/telescope.json:tasks.0.brief.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/telescope.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/tetra.json:after.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/tetra.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/tetra.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/tri.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "game.json:lede.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage (its explanation opens at sum3)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "game.json:lede.zh",
+              "says": "literal name/alias of limit without a term reference; check whether this is technical usage (its explanation opens at limit)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "game.json:lede.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage (its explanation opens at slope-error)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.0.body.0.zh",
+              "says": "literal name/alias of index without a term reference; check whether this is technical usage (its explanation opens at count)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.1.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.2.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.4.body.0.zh",
+              "says": "literal name/alias of general-term without a term reference; check whether this is technical usage (its explanation opens at square)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.4.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.4.body.0.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.5.body.1.zh",
+              "says": "literal name/alias of arithmetic without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.5.body.1.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.5.body.1.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.6.body.0.zh",
+              "says": "literal name/alias of arithmetic without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.7.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.7.body.0.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.7.body.1.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.8.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.8.body.1.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.9.body.0.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.9.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.9.body.0.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.9.body.1.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.9.body.1.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage (its explanation opens at probe)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.9.body.1.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage (its explanation opens at slope-error)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.10.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.11.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.14.body.0.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage (its explanation opens at probe)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.15.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.15.body.0.zh",
+              "says": "literal name/alias of neighbourhood without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.15.body.1.zh",
+              "says": "literal name/alias of eventually without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.16.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.17.body.0.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.17.body.0.zh",
+              "says": "literal name/alias of limit without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.18.body.0.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.18.body.0.zh",
+              "says": "literal name/alias of divergence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.18.body.1.zh",
+              "says": "literal name/alias of series without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.25.body.0.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.25.body.0.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.26.body.1.zh",
+              "says": "literal name/alias of neighbourhood without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.26.body.1.zh",
+              "says": "literal name/alias of jump-discontinuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.28.body.0.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.28.body.0.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.29.body.0.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.29.body.0.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.31.body.0.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.32.body.0.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.34.body.0.zh",
+              "says": "literal name/alias of one-sided without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.34.body.0.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.34.body.0.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.35.body.0.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.36.body.0.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.43.body.0.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.44.body.0.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.44.body.0.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.45.body.0.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.45.body.0.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.45.body.0.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.46.body.0.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.46.body.0.zh",
+              "says": "literal name/alias of limit without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.46.body.0.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.47.body.0.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.49.body.0.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.50.body.0.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.51.body.0.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.52.body.0.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.53.body.0.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.53.body.0.zh",
+              "says": "literal name/alias of divergence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.57.body.0.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            }
+          ]
+        },
+        {
+          "at": "2026-11-12T05:11:11.109Z",
+          "ok": true,
+          "failures": [],
+          "reports": [
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 2",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 3",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 4",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 5",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 6",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "pd-serial-chapter",
+              "at": "era 7",
+              "says": "the main path is wholly serial; justify its concept/part dependencies or identify independent required routes",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/area-slope.json:intro.0.t.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/area-slope.json:intro.1.t.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/area-slope.json:after.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/area-slope.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/arith.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/arith.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/arith.json:tasks.0.brief.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/capstone.json:after.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cdouble.json:intro.0.t.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cdouble.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cdouble.json:after.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cdouble.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cdouble.json:tasks.0.hint.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cell.json:intro.0.t.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/chain-rule.json:after.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/chain-rule.json:tasks.0.brief.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/constant-cancels.json:intro.0.t.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/count.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/count.json:intro.1.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/count.json:after.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/count.json:after.zh",
+              "says": "literal name/alias of index without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:intro.0.t.zh",
+              "says": "literal name/alias of secant without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:intro.0.t.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:intro.0.t.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:intro.1.t.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:after.zh",
+              "says": "literal name/alias of limit without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:after.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:after.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/cusp.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ddouble.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ddouble.json:after.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ddouble.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ddsq.json:after.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ddsq.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/diff.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/diff.json:intro.1.t.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/diff.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/diverge.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/double.json:intro.0.t.zh",
+              "says": "literal name/alias of arithmetic without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/double.json:after.zh",
+              "says": "literal name/alias of arithmetic without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/double.json:tasks.0.brief.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/dsq.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/dsq.json:after.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/dsq.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/dsum.json:intro.0.t.zh",
+              "says": "literal name/alias of geometric without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/dsum.json:intro.0.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/dsum.json:after.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/endpoint-diff.json:intro.0.t.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/endpoint-diff.json:tasks.0.brief.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/euler.json:intro.0.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/euler.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/euler-error.json:intro.1.t.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/exp-bound.json:intro.1.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/exp-term.json:intro.1.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/exp-term.json:after.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/gap.json:intro.0.t.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/gap.json:intro.0.t.zh",
+              "says": "literal name/alias of jump-discontinuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/gap.json:after.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/gap.json:tasks.0.brief.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/gap.json:tasks.0.brief.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/gravity-field.json:after.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/grid.json:intro.0.t.zh",
+              "says": "literal name/alias of index without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/halves.json:after.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/halves.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/harmonic.json:after.zh",
+              "says": "literal name/alias of series without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/harmonic.json:after.zh",
+              "says": "literal name/alias of divergence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/harmonic.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/harmonic.json:tasks.0.after.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/harmonic.json:tasks.1.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/increment.json:intro.0.t.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/increment.json:after.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:intro.0.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:intro.0.t.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:after.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:after.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage (its explanation opens at probe)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.0.brief.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.0.after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.1.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.1.brief.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.2.brief.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/inverse.json:tasks.2.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/jump.json:tasks.0.brief.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/limit.json:intro.0.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/limit.json:intro.1.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/limit.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/linear-error.json:intro.1.t.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/max.json:tasks.0.hint.0.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/midpoint-growth.json:tasks.0.brief.zh",
+              "says": "literal name/alias of midpoint-method without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/prev.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/probe.json:intro.0.t.zh",
+              "says": "literal name/alias of continuity-gap without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/probe.json:intro.1.t.zh",
+              "says": "literal name/alias of jump-discontinuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/probe.json:tasks.0.brief.zh",
+              "says": "literal name/alias of continuity-gap without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/probe.json:tasks.0.brief.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/probe.json:tasks.1.brief.zh",
+              "says": "literal name/alias of continuity-gap without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/probe.json:tasks.1.brief.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/projectile.json:intro.0.t.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/quotient.json:intro.0.t.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/quotient.json:intro.0.t.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/quotient.json:intro.1.t.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage (its explanation opens at square-slope)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/quotient.json:after.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage (its explanation opens at slope-error)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/radius.json:after.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/radius.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ratio.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/ratio.json:intro.0.t.zh",
+              "says": "literal name/alias of neighbourhood without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/rational-outside.json:after.zh",
+              "says": "literal name/alias of divergence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/rational-outside.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/recip.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/recip.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/recip.json:tasks.0.hint.0.zh",
+              "says": "literal name/alias of index without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/rk4-growth.json:intro.0.t.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/rk4-step.json:intro.0.t.zh",
+              "says": "literal name/alias of midpoint-method without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sample-square.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sample-square.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/series.json:intro.0.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/series.json:after.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/series.json:after.zh",
+              "says": "literal name/alias of limit without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/series.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sides.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sides.json:intro.0.t.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sides.json:after.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/simpson.json:intro.0.t.zh",
+              "says": "literal name/alias of simpson-rule without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sin-sum.json:intro.1.t.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sin-sum.json:after.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sin-sum.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sin-term.json:intro.0.t.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/since.json:intro.1.t.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage (its explanation opens at probe)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/since.json:tasks.0.brief.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage (its explanation opens at probe)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/slope-error.json:intro.0.t.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/slope-error.json:after.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/slope-error.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square.json:intro.0.t.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-prime.json:intro.0.t.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-prime.json:intro.1.t.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-prime.json:after.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-prime.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-slope.json:intro.0.t.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-slope.json:intro.0.t.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-slope.json:intro.1.t.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-slope.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-slope.json:tasks.0.hint.0.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/square-trap.json:intro.1.t.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/step-local.json:intro.0.t.zh",
+              "says": "literal name/alias of jump-discontinuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/step-local.json:after.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/step-local.json:tasks.1.brief.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum.json:after.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum-product-rule.json:after.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum-product-rule.json:tasks.0.brief.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum-product-rule.json:tasks.1.brief.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum3.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/sum3.json:tasks.0.brief.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/telescope.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/telescope.json:intro.0.t.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/telescope.json:tasks.0.brief.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/telescope.json:tasks.0.brief.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/tetra.json:after.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/tetra.json:after.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/tetra.json:tasks.0.brief.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "levels/tri.json:intro.0.t.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "game.json:lede.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage (its explanation opens at sum3)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "game.json:lede.zh",
+              "says": "literal name/alias of limit without a term reference; check whether this is technical usage (its explanation opens at limit)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "game.json:lede.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage (its explanation opens at slope-error)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.0.body.0.zh",
+              "says": "literal name/alias of index without a term reference; check whether this is technical usage (its explanation opens at count)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.1.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.2.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.4.body.0.zh",
+              "says": "literal name/alias of general-term without a term reference; check whether this is technical usage (its explanation opens at square)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.4.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.4.body.0.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.5.body.1.zh",
+              "says": "literal name/alias of arithmetic without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.5.body.1.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.5.body.1.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.6.body.0.zh",
+              "says": "literal name/alias of arithmetic without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.7.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.7.body.0.zh",
+              "says": "literal name/alias of recurrence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.7.body.1.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.8.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.8.body.1.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.9.body.0.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.9.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.9.body.0.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.9.body.1.zh",
+              "says": "literal name/alias of difference without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.9.body.1.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage (its explanation opens at probe)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.9.body.1.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage (its explanation opens at slope-error)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.10.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.11.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.14.body.0.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage (its explanation opens at probe)",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.15.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.15.body.0.zh",
+              "says": "literal name/alias of neighbourhood without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.15.body.1.zh",
+              "says": "literal name/alias of eventually without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.16.body.0.zh",
+              "says": "literal name/alias of sequence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.17.body.0.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.17.body.0.zh",
+              "says": "literal name/alias of limit without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.18.body.0.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.18.body.0.zh",
+              "says": "literal name/alias of divergence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.18.body.1.zh",
+              "says": "literal name/alias of series without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.25.body.0.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.25.body.0.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.26.body.1.zh",
+              "says": "literal name/alias of neighbourhood without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.26.body.1.zh",
+              "says": "literal name/alias of jump-discontinuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.28.body.0.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.28.body.0.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.29.body.0.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.29.body.0.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.31.body.0.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.32.body.0.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.34.body.0.zh",
+              "says": "literal name/alias of one-sided without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.34.body.0.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.34.body.0.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.35.body.0.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.36.body.0.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.43.body.0.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.44.body.0.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.44.body.0.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.45.body.0.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.45.body.0.zh",
+              "says": "literal name/alias of difference-quotient without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.45.body.0.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.46.body.0.zh",
+              "says": "literal name/alias of function-value without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.46.body.0.zh",
+              "says": "literal name/alias of limit without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.46.body.0.zh",
+              "says": "literal name/alias of continuity without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.47.body.0.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.49.body.0.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.50.body.0.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.51.body.0.zh",
+              "says": "literal name/alias of derivative without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.52.body.0.zh",
+              "says": "literal name/alias of partial-sum without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.53.body.0.zh",
+              "says": "literal name/alias of distance without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.53.body.0.zh",
+              "says": "literal name/alias of divergence without a term reference; check whether this is technical usage",
+              "report": true
+            },
+            {
+              "rule": "term-unlinked",
+              "at": "glossary.json:entries.57.body.0.zh",
+              "says": "literal name/alias of inequality without a term reference; check whether this is technical usage",
+              "report": true
+            }
+          ]
         }
       ]
     },
@@ -24529,6 +28411,12 @@
         },
         {
           "at": "2026-11-12T05:07:11.251Z",
+          "ok": true,
+          "failures": [],
+          "reports": []
+        },
+        {
+          "at": "2026-11-12T05:11:11.309Z",
           "ok": true,
           "failures": [],
           "reports": []

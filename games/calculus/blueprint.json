@@ -6,7 +6,7 @@
     "zh": "会四则运算；不假设学过数列、极限、导数或积分。"
   },
   "endpoint": {
-    "zh": "给自己搭的机器一个函数，它算出导数、积分、泰勒多项式，解出一个常微分方程，并说得清误差随步长怎样变小。"
+    "zh": "给定本游戏中的函数族与初值，搭出导数、积分、泰勒近似和常微分方程数值轨迹，并说明误差随步长怎样变化。"
   },
   "scope": {
     "zh": "完整蓝图覆盖第 0–7 章：从数列、极限、函数与微积分，走到泰勒逼近和微分方程的数值轨迹。"
@@ -846,6 +846,16 @@
       "basis": "lecture",
       "difficulty": "learnable",
       "wall": { "zh": "数值轨道向外偏，是引力规律还是步进误差？" }
+    },
+    {
+      "id": "quadratic-capstone",
+      "term": { "zh": "二次函数的整合机器" },
+      "about": { "zh": "对 f(t)=pt²+qt+r，导数是 2pt+q；二阶泰勒式等于函数本身，RK4 对 y′=f(t) 的一步等于该格的准确积分。" },
+      "depends": ["derivative-rules", "endpoint-evaluation", "taylor-exp", "rk4-weight"],
+      "source": "games/calculus/DESIGN.md §3, 第 7 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": { "zh": "导数、泰勒、积分和微分方程的四块板能否共享一组函数取样？" }
     }
   ],
   "primitives": [
@@ -2447,6 +2457,27 @@
               "role": "foundation",
               "teaches": "rk4-accuracy",
               "uses": ["rk4-accuracy", "eulerStep", "rk4Step", "reg", "keep", "mul", "const"]
+            },
+            {
+              "id": "capstone",
+              "title": { "zh": "把整台机接起来" },
+              "task": { "zh": "给参数化二次函数，同时交出导数、二阶泰勒值、一格积分与状态更新。" },
+              "question": { "zh": "几章学过的运算能否在一台板上给出相容结果？" },
+              "chain": [{ "zh": "在起点、中点和终点取同一二次函数的值。" }, { "zh": "用导数搭二阶泰勒式，用四次加权斜率给一格积分与下一状态。" }],
+              "role": "finale",
+              "teaches": "quadratic-capstone",
+              "uses": [
+                "quadratic-capstone",
+                "derivative-rules",
+                "endpoint-evaluation",
+                "taylor-exp",
+                "rk4-weight",
+                "squarePrime",
+                "rk4Step",
+                "add",
+                "mul",
+                "const"
+              ]
             }
           ]
         },
