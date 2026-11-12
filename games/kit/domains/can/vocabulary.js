@@ -272,6 +272,7 @@ const WANTS = {
   controllerIntegratedRxLength: item(t('控制器接收的数据长度', 'data length received by the controller'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT, request: INPUT })),
   controllerIntegratedRxByte: item(t('控制器逐个接收的数据字节', 'data bytes received by the controller'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT, request: INPUT })),
   controllerIntegratedSpeed: item(t('已校验目标帧的数据字节解码成车速', 'decode the data byte of a validated target frame as speed'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT, request: INPUT })),
+  controllerIntegratedUds: item(t('从已校验 CAN 帧中取出单帧诊断回答', 'extract a single-frame diagnostic response from a validated CAN frame'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT, request: INPUT })),
   suspendReady: item(t('帧间隔结束后按状态等待，被动发送方额外等待八拍', 'after intermission wait according to state; passive senders wait eight extra ticks'), S.obj({ end: INPUT, mode: INPUT })),
   suspendRequest: item(t('有发送请求且等待已结束时为是', 'yes when transmission is requested and the wait has finished'), S.obj({ end: INPUT, mode: INPUT, request: INPUT })),
   passiveAckDrive: item(t('被动发送方缺应答后的总线驱动', 'passive sender drive after missing acknowledgements'), S.obj({ start: INPUT, prep: INPUT, reset: INPUT })),
@@ -407,7 +408,7 @@ const LEVEL = { ...BASE_LEVEL, fields: { ...BASE_LEVEL.fields, tasks: { ...BASE_
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 122,
+  version: 123,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

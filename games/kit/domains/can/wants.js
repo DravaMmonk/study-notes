@@ -1006,6 +1006,16 @@ const WANTS = {
   controllerIntegratedRxId: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).fields.id,
   controllerIntegratedRxLength: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).fields.length,
   controllerIntegratedRxByte: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).fields.byte,
+  controllerIntegratedUds: (params) => (test) => {
+    const plan = controllerPlan({ ...params, receive: true, intervening: true }, test)
+    let id = null, length = null, bytes = []
+    return test.bus.bits.map((_, tick) => {
+      if (plan.fields.id[tick] !== null) { id = plan.fields.id[tick]; bytes = [] }
+      length = plan.fields.length[tick] ?? length
+      if (plan.fields.byte[tick] !== null) bytes.push(plan.fields.byte[tick])
+      return plan.ready[tick] && plan.kind[tick] === 0 && id === 0x7e8 && length === 5 && bytes.length === 5 && bytes[0] === 4 && bytes[1] === 0x62 && bytes[2] === 0xf1 && bytes[3] === 0x90 ? bytes.slice(1) : null
+    })
+  },
   controllerIntegratedSpeed: (params) => (test) => {
     const plan = controllerPlan({ ...params, receive: true, intervening: true }, test)
     let id = null, length = null, byte = null
