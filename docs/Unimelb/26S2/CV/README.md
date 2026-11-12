@@ -3,6 +3,7 @@
 这套笔记面向刚入门计算机视觉的学习者。
 
 [复习清单与中英术语表](REVISION-GLOSSARY.md)按 21 篇内容讲笔记整理，可逐条勾选；笔记中的 Workshop 补充单列。
+[期末计算题型摘要](EXAM-CALCULATION-TYPES.md)区分复习讲义及旧练习卷的直接例题，与根据现行笔记公式推演的练习方向。
 
 2026-11-03 更新：[词条百科与知识图](encyclopedia/README.md)（121 条） · [专题主线、任务与补充关](LEARNING-PATHS.md) · [逐讲核对与纠错](SOURCE-AUDIT.md)。先补充 L17、L19–22，再把现有课程概念建立直接前置；Workshop 与应用全部单列可选。
 
