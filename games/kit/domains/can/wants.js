@@ -993,6 +993,14 @@ const WANTS = {
   controllerIntegratedRxId: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).fields.id,
   controllerIntegratedRxLength: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).fields.length,
   controllerIntegratedRxByte: (params) => (test) => controllerPlan({ ...params, receive: true, intervening: true }, test).fields.byte,
+  controllerIntegratedSpeed: (params) => (test) => {
+    const plan = controllerPlan({ ...params, receive: true, intervening: true }, test)
+    let id = null, length = null, byte = null
+    return test.bus.bits.map((_, tick) => {
+      id = plan.fields.id[tick] ?? id; length = plan.fields.length[tick] ?? length; byte = plan.fields.byte[tick] ?? byte
+      return plan.ready[tick] && plan.kind[tick] === 0 && id === 0x2a5 && length === 1 && byte !== null ? byte * 2 : null
+    })
+  },
   suspendReady: (params) => (test) => suspendReady(params, test),
   suspendRequest: ({ request, ...params }) => (test) => suspendReady(params, test).map((ready, tick) => ready && Boolean(test.inputs[request][tick])),
   passiveAckDrive: (params) => (test) => passiveAckRetry(params, test).drive,
