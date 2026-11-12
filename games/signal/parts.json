@@ -1,0 +1,118 @@
+{
+  "parts": {
+    "mix": {
+      "name": {
+        "zh": "叠加"
+      },
+      "desc": {
+        "zh": "把两段一样长的波形逐格相加。"
+      },
+      "icon": "Plus",
+      "family": "wave",
+      "inputs": [
+        {
+          "name": "a"
+        },
+        {
+          "name": "b"
+        }
+      ],
+      "compute": "mix(a, b)"
+    },
+    "scale": {
+      "name": {
+        "zh": "音量"
+      },
+      "desc": {
+        "zh": "把波形的每一格乘以份量 k：k 是 2 时高低都翻倍，k 是负数时上下颠倒。"
+      },
+      "icon": "Scaling",
+      "family": "wave",
+      "inputs": [
+        {
+          "name": "k"
+        },
+        {
+          "name": "x"
+        }
+      ],
+      "compute": "scale(k, x)"
+    },
+    "tone": {
+      "name": { "zh": "纯音" },
+      "desc": { "zh": "给出所选纯音的波形：低音在整段里来回 1 次，中音 2 次，高音 3 次。" },
+      "icon": "Waves",
+      "family": "wave",
+      "inputs": [],
+      "settings": [
+        {
+          "key": "pitch",
+          "control": "buttons",
+          "label": { "zh": "音高" },
+          "options": [
+            { "value": "low", "label": { "zh": "低" } },
+            { "value": "mid", "label": { "zh": "中" } },
+            { "value": "high", "label": { "zh": "高" } }
+          ],
+          "default": "low"
+        }
+      ],
+      "compute": "tone(pitch=$pitch)",
+      "views": { "tile": [{ "show": "value" }, { "show": "setting", "key": "pitch", "as": "label" }] }
+    },
+    "meter": {
+      "name": { "zh": "测音" },
+      "desc": { "zh": "给出波形里所选纯音的份量，一个数。" },
+      "icon": "Gauge",
+      "family": "number",
+      "inputs": [{ "name": "x" }],
+      "settings": [
+        {
+          "key": "pitch",
+          "control": "buttons",
+          "label": { "zh": "音高" },
+          "options": [
+            { "value": "low", "label": { "zh": "低" } },
+            { "value": "mid", "label": { "zh": "中" } },
+            { "value": "high", "label": { "zh": "高" } }
+          ],
+          "default": "low"
+        }
+      ],
+      "compute": "amount(x, pitch=$pitch)",
+      "views": { "tile": [{ "show": "value" }, { "show": "setting", "key": "pitch", "as": "label" }] }
+    },
+    "num": {
+      "name": { "zh": "常数" },
+      "desc": { "zh": "给出设定的那个数。" },
+      "icon": "Hash",
+      "family": "number",
+      "inputs": [],
+      "settings": [{ "key": "value", "control": "number", "label": { "zh": "数" }, "step": 0.5, "default": 1 }],
+      "compute": "$value"
+    },
+    "multiply": {
+      "name": { "zh": "逐格乘" },
+      "desc": { "zh": "把两段一样长的波形逐格相乘。" },
+      "icon": "X",
+      "family": "wave",
+      "inputs": [
+        {
+          "name": "a"
+        },
+        {
+          "name": "b"
+        }
+      ],
+      "compute": "multiply(a, b)"
+    },
+    "mean": {
+      "name": { "zh": "平均" },
+      "desc": { "zh": "给出波形各格的平均，一个数。" },
+      "icon": "Sigma",
+      "family": "number",
+      "inputs": [{ "name": "x" }],
+      "compute": "mean(x)"
+    }
+  }
+}

@@ -1750,4 +1750,12 @@ export default {
   "帧的数据长度，在长度字段最后一个原始位到达时交出，其余拍为「—」": "The frame data length on the final original bit of its length field, and 「—」 on other ticks",
   "帧的每个数据字节在它最后一个原始位到达时交出，其余拍为「—」": "Each data byte on its final original bit, and 「—」 on other ticks",
   "这些输入每拍取总线上的位": "These inputs take the bus bit each tick",
+  "一个纯音的波形：在整段里来回 1 次（low）、2 次（mid）或 3 次（high）": "the wave of a pure tone: swinging once (low), twice (mid) or three times (high) over the window",
+  "两个一样长的波形逐格相加": "two waves of one length added sample by sample",
+  "数 k 乘波形的每一格": "the number k times every sample of the wave",
+  "波形里所选纯音的份量（一个数）：波形与这个纯音逐格相乘，取平均，再乘 2": "how much of the chosen pure tone the wave holds (a number): the wave times the tone sample by sample, averaged, times 2",
+  "两个一样长的波形逐格相乘": "two waves of one length multiplied sample by sample",
+  "波形各格的平均（一个数）": "the mean of the wave’s samples (a number)",
+  "算波形的元件": "parts that work on waves",
+  "每个输入或输出的值，按名字：一个数，或一个波形（依次的各格）": "the value of each input or output, by name: a number, or a wave (its samples in order)",
 }

@@ -99,4 +99,13 @@ export const GAMES = [
     levels: 5, dev: true,
     page: { icon: 'M16 44V24l16-8 16 8v20M26 44V32h12v12', description: '看不见的手 The Invisible Hand：先手做，再搭出替你做的机器。Price a shop by hand, then build the machine that does it.' },
   },
+  {
+    id: 'signal', href: 'signal/index.html', title: '拆音', en: 'Unmixed', topic: { zh: '傅里叶变换', en: 'The Fourier Transform' },
+    desc: {
+      zh: '一段声音是几个纯音按各自的份量叠成的。先照配方把它合成出来，再从混好的波形里把配方读回去，最后在配方上动手，改掉声音本身。',
+      en: 'A sound is a few pure tones laid over each other, each in its own amount. Make one from its recipe, read the recipe back out of the mixed wave, then change the sound by changing the recipe.',
+    },
+    levels: 7, dev: true, hidden: true,
+    page: { icon: 'M8 32c6-16 10-16 16 0s10 16 16 0 10-16 16 0', description: '拆音 Unmixed：傅里叶变换的一个切片。A slice of the Fourier transform.' },
+  },
 ];

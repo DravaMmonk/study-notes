@@ -1,0 +1,41 @@
+{
+  "domain": "signal",
+  "vocabulary": 1,
+  "title": {
+    "zh": "__title__"
+  },
+  "kicker": {
+    "zh": "开发中"
+  },
+  "lede": {
+    "zh": "从叠加和音量两块元件起步，亲手搭出造波形的元件。"
+  },
+  "primitives": [
+    "mix",
+    "scale"
+  ],
+  "concept": {
+    "scale": "mix"
+  },
+  "views": {
+    "grid": [
+      "plot",
+      "numbers"
+    ]
+  },
+  "eras": [
+    {
+      "id": 1,
+      "title": {
+        "zh": "叠加"
+      },
+      "question": {
+        "zh": "每块元件只做一件事，怎样造出更复杂的波形？"
+      },
+      "foundation": [
+        "1-1",
+        "1-2"
+      ]
+    }
+  ]
+}

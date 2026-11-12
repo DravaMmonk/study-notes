@@ -1,0 +1,53 @@
+{
+  "domain": "signal",
+  "vocabulary": 1,
+  "title": {
+    "zh": "拆音"
+  },
+  "kicker": {
+    "zh": "傅里叶变换"
+  },
+  "lede": {
+    "zh": "一段声音是几个纯音按各自的份量叠成的。先照配方把它合成出来，再从混好的波形里把配方读回去，最后在配方上动手，改掉声音本身。"
+  },
+  "primitives": [
+    "tone",
+    "scale",
+    "mix",
+    "meter",
+    "num",
+    "multiply",
+    "mean"
+  ],
+  "concept": {
+    "scale": "tone",
+    "mix": "tone",
+    "mean": "multiply"
+  },
+  "views": {
+    "grid": [
+      "plot",
+      "numbers"
+    ]
+  },
+  "eras": [
+    {
+      "id": 1,
+      "title": {
+        "zh": "配方"
+      },
+      "question": {
+        "zh": "几个音混成一段声音以后，每个音各占多少，还分得出来吗？"
+      },
+      "foundation": [
+        "recipe",
+        "listen",
+        "cancel",
+        "swap"
+      ],
+      "topics": [
+        { "id": "inside", "after": "listen", "levels": ["match", "probe", "own"], "title": { "zh": "拆开测音" } }
+      ]
+    }
+  ]
+}
