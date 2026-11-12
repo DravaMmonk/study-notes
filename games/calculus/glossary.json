@@ -328,6 +328,33 @@
         { "zh": "游戏里只测试有限个网格位置。取样可以发现跳变或支持猜想，但不能证明对邻域内所有实数成立。" }
       ],
       "see": ["one-sided", "jump-discontinuity"]
+    },
+    {
+      "id": "delta-response",
+      "group": "sequences",
+      "title": { "zh": "ε-δ 应答" },
+      "at": "line-delta",
+      "body": [
+        { "zh": "先给任意 ε>0，再按 ε 和中心 a 选 δ>0。只要 |x−a|<δ，便要求 |f(x)−f(a)|<ε；这个断言覆盖整个实数区间，不只覆盖被测试的样本点。" },
+        { "zh": "本游戏的直线、平方和台阶题用各自的解析条件判定 δ；为了避免微小常数解，部分任务还规定额外的半径下界。" }
+      ],
+      "see": ["continuity", "local-bound"]
+    },
+    {
+      "id": "local-bound",
+      "group": "sequences",
+      "title": { "zh": "局部上界" },
+      "at": "square-delta",
+      "body": [{ "zh": "|x²−a²|=|x−a||x+a|。在 |x−a|<δ 的区间内，|x+a|<2|a|+δ，因此 δ(2|a|+δ)≤ε 足以保证函数值与 a² 的距离小于 ε。" }],
+      "see": ["delta-response"]
+    },
+    {
+      "id": "pointwise",
+      "group": "sequences",
+      "title": { "zh": "逐点连续" },
+      "at": "step-local",
+      "body": [{ "zh": "连续性针对一个中心 a。台阶函数在 a≠0 的附近保持同一个值，能选 δ 不碰到 0；在 a=0 时，任意 δ>0 都包含函数值为 0 的负数，而 f(0)=1。" }],
+      "see": ["jump-discontinuity", "delta-response"]
     }
   ],
   "groupByChapter": true

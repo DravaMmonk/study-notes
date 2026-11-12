@@ -1,0 +1,48 @@
+{
+  "title": { "zh": "哪里跳" },
+  "intro": [
+    { "t": { "zh": "同一条台阶函数，在 0 跳变，在 0 以外却是平的。先给非零中心一个不碰到 0 的 δ。" } },
+    { "t": { "zh": "到了 0，情况倒过来：对方任意提议 δ>0，你要在区间里找一点 x，让 f(x) 与 f(0) 仍相差至少 ε。" } }
+  ],
+  "after": { "zh": "<wiki-ref to=\"pointwise\"></wiki-ref>：台阶函数在非零点能选到安全 δ；在 0 处，任何 δ 都容得下左边的反例，所以不连续。" },
+  "tasks": [
+    {
+      "id": "step-local",
+      "step": { "zh": "远离跳点" },
+      "brief": { "zh": "给非零中心 a 和 0<ε≤1，交出 |a|/4≤δ≤|a| 的正 δ。" },
+      "inputs": [{ "name": "a", "label": "a" }, { "name": "e", "label": "ε" }],
+      "outputs": [{ "name": "d", "label": "δ" }],
+      "tests": [{ "inputs": { "a": [-2, -0.5, 0.25, 3], "e": [0.5, 0.1, 0.5, 1] }, "check": "stepDelta" }],
+      "hidden": [
+        { "inputs": { "a": [-0.001, 10, -100, 0.125], "e": [0.2, 0.5, 0.01, 0.75] }, "check": "stepDelta" }
+      ],
+      "solution": [
+        "z = const[value=0]()",
+        "distance = dist(a, z)",
+        "half = const[value=0.5]()",
+        "radius = mul(distance, half)",
+        "d <- radius"
+      ],
+      "naive": ["one = const[value=1]()", "d <- one"]
+    },
+    {
+      "id": "step-witness",
+      "step": { "zh": "跳点的反例" },
+      "brief": { "zh": "给任意 δ>0 与 0<ε≤1，交出 −δ<x<0 和台阶函数值 y=f(x)，使 |y−f(0)|≥ε。" },
+      "inputs": [{ "name": "d", "label": "δ" }, { "name": "e", "label": "ε" }],
+      "outputs": [{ "name": "x", "label": "x" }, { "name": "y", "label": "f(x)" }],
+      "tests": [{ "inputs": { "d": [1, 0.5, 0.1, 0.01], "e": [0.5, 0.25, 1, 0.75] }, "check": "stepWitness" }],
+      "hidden": [
+        { "inputs": { "d": [0.000001, 0.125, 100, 1e-10], "e": [0.1, 0.9, 0.5, 1] }, "check": "stepWitness" }
+      ],
+      "solution": [
+        "half = const[value=-0.5]()",
+        "witness = mul(d, half)",
+        "value = jump(witness)",
+        "x <- witness",
+        "y <- value"
+      ],
+      "naive": ["witness = const[value=-0.1]()", "value = jump(witness)", "x <- witness", "y <- value"]
+    }
+  ]
+}

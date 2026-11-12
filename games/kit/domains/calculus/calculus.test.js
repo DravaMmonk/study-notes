@@ -7,6 +7,7 @@ import { PARTS } from './parts.js'
 import { board } from './board.js'
 import { primitivesOnly } from '../../engine/circuit-domain.js'
 import { runLevel } from './run.js'
+import { CLAIMS } from './proof.js'
 import domain from './domain.js'
 
 const plain = primitivesOnly(board, PARTS)
@@ -85,4 +86,37 @@ test('reciprocal and less, and terms compared within a relative error', async ()
   assert.ok(same(0.1 + 0.2, 0.3))
   assert.ok(!same(0.3, 0.3001))
   assert.ok(!same(null, 0))
+})
+
+test('interval claims accept different valid radii and reject unsafe or negligible ones', () => {
+  assert.equal(CLAIMS.lineDelta.judge({ m: -3, e: 0.4 }, { d: 0.1 }), null)
+  assert.equal(CLAIMS.lineDelta.judge({ m: -3, e: 0.4 }, { d: 0.08 }), null)
+  assert.match(CLAIMS.lineDelta.judge({ m: -3, e: 0.4 }, { d: 0.2 }).en, /exceeds/)
+  assert.match(CLAIMS.lineDelta.judge({ m: 0, e: 0.4 }, { d: 1e-20 }).en, /too small/)
+  assert.equal(CLAIMS.squareDelta.judge({ a: -2, e: 0.1 }, { d: 0.1 / 6 }), null)
+  assert.match(CLAIMS.squareDelta.judge({ a: -2, e: 0.1 }, { d: 0.1 }).en, /exceeds/)
+  assert.equal(CLAIMS.stepDelta.judge({ a: -0.5, e: 0.5 }, { d: 0.25 }), null)
+  assert.match(CLAIMS.stepDelta.judge({ a: -0.5, e: 0.5 }, { d: 0.75 }).en, /jump/)
+})
+
+test('a step witness must lie inside every proposed neighbourhood and show the other value', () => {
+  for (const d of [1, 0.1, 1e-8]) assert.equal(CLAIMS.stepWitness.judge({ d, e: 0.5 }, { x: -d / 2, y: 0 }), null)
+  assert.match(CLAIMS.stepWitness.judge({ d: 0.1, e: 0.5 }, { x: -0.1, y: 0 }).en, /strictly/)
+  assert.match(CLAIMS.stepWitness.judge({ d: 0.1, e: 0.5 }, { x: -0.05, y: 1 }).en, /step function/)
+})
+
+test('a semantic test judges the whole interval and reports the first failing tick', () => {
+  const level = {
+    inputs: [{ name: 'm', label: 'm' }, { name: 'e', label: 'ε' }], outputs: [{ name: 'd', label: 'δ' }],
+    tests: [{ inputs: { m: [2, 2], e: [1, 0.1] }, check: 'lineDelta', ticks: 2 }],
+  }
+  const good = fromText(['c = const[value=0.25]()', 'r = mul(e, c)', 'd <- r'], level, plain)
+  assert.equal(runLevel(level, good, partOf).pass, true)
+  const bad = fromText(['d <- e'], level, plain)
+  const result = runLevel(level, bad, partOf)
+  assert.equal(result.pass, false)
+  assert.equal(result.runs[0].fail.tick, 0)
+  assert.match(result.runs[0].ticks[0].failed.en, /exceeds/)
+  const named = { ...level, tests: [{ ...level.tests[0], check: { lineDelta: true } }] }
+  assert.equal(runLevel(named, good, partOf).pass, true)
 })

@@ -1,0 +1,40 @@
+{
+  "title": { "zh": "直线的应答" },
+  "intro": [
+    { "t": { "zh": "有限网格上看着越来越近，仍可能漏掉网格之间的点。这一关换一种应答：给出 ε 后，交出 δ，让整个 |x−a|<δ 的区间都合格。" } },
+    { "t": { "zh": "对 f(x)=mx+b，输出差恰好是 |m||x−a|。测试不指定唯一 δ，而检查 |m|δ≤ε；还要求 δ≥ε/[4(|m|+1)]，避免极小常数。" } }
+  ],
+  "after": {
+    "zh": "<wiki-ref to=\"delta-response\"></wiki-ref>要在看见 ε 后选 δ，约束整个区间。|m|δ≤ε 是直线的充分条件；半径下界是本关额外的游戏要求。"
+  },
+  "builds": { "type": "lineDelta", "name": { "zh": "直线应答器" }, "desc": { "zh": "由斜率 m 和 ε 给出一个安全的 δ。" } },
+  "tasks": [
+    {
+      "id": "line-delta",
+      "brief": { "zh": "给定 m 和 ε，交出满足 |m|δ≤ε 且 δ≥ε/[4(|m|+1)] 的正 δ。" },
+      "hint": [{ "zh": "先求 |m|，再让分母比它大 1。" }],
+      "inputs": [{ "name": "m", "label": "m" }, { "name": "e", "label": "ε" }],
+      "outputs": [{ "name": "d", "label": "δ" }],
+      "tests": [
+        { "inputs": { "m": [-4, -2, 0, 1, 3, 10], "e": [0.2, 0.1, 0.8, 1, 0.01, 0.25] }, "check": "lineDelta" },
+        { "inputs": { "m": [0.25, -0.5, 0, 8], "e": [0.5, 0.02, 0.001, 0.125] }, "check": "lineDelta" }
+      ],
+      "hidden": [
+        {
+          "inputs": { "m": [100, -100, 0, 0.001, 5], "e": [0.000001, 0.5, 1e-10, 1, 0.0001] },
+          "check": "lineDelta"
+        }
+      ],
+      "solution": [
+        "z = const[value=0]()",
+        "am = dist(m, z)",
+        "one = const[value=1]()",
+        "den = add(am, one)",
+        "inv = recip(den)",
+        "radius = mul(e, inv)",
+        "d <- radius"
+      ],
+      "naive": ["z = const[value=1]()", "d <- z"]
+    }
+  ]
+}

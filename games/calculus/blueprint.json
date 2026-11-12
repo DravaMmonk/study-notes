@@ -9,7 +9,7 @@
     "zh": "给自己搭的机器一个函数，它算出导数、积分、泰勒多项式，解出一个常微分方程，并说得清误差随步长怎样变小。"
   },
   "scope": {
-    "zh": "这份蓝图覆盖第 0、1 章及第 2 章的网格取样与两侧探测；完整 ε-δ 应答和第 3–7 章留待后续。"
+    "zh": "这份蓝图覆盖第 0–2 章：数列、极限、函数取样，以及直线、平方和台阶函数的 ε-δ 应答与反例。第 3–7 章留待后续。"
   },
   "sources": [
     "games/calculus/DESIGN.md",
@@ -432,6 +432,37 @@
       "core": true,
       "depends": ["one-sided", "jump-discontinuity", "continuity-gap"],
       "wall": { "zh": "不断缩小步长，怎样区分平方函数在 a 附近的平滑变化与台阶函数在 0 的跳变？" }
+    },
+    {
+      "id": "delta-response",
+      "term": { "zh": "ε-δ 应答" },
+      "about": { "zh": "先给 ε>0，随后在看见 ε 和中心 a 后给 δ>0，使整个 |x−a|<δ 的区间都有 |f(x)−f(a)|<ε。" },
+      "source": "games/calculus/DESIGN.md §3, 第 2 章",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "core": true,
+      "depends": ["continuity", "neighbourhood", "distance"],
+      "wall": { "zh": "有限网格上都合格，怎样保证中间没有漏掉不合格的点？" }
+    },
+    {
+      "id": "local-bound",
+      "term": { "zh": "局部上界" },
+      "about": { "zh": "平方差 |x²−a²|=|x−a||x+a|；在 |x−a|<δ 内，第二因子小于 2|a|+δ。" },
+      "source": "games/calculus/DESIGN.md §3, 第 2 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "depends": ["delta-response", "function-value"],
+      "wall": { "zh": "平方函数同样缩小输入，在远离 0 的地方为什么函数值变得更多？" }
+    },
+    {
+      "id": "pointwise",
+      "term": { "zh": "逐点连续" },
+      "about": { "zh": "连续性在每个中心分别判断；台阶函数在非零点连续，在 0 处不连续。" },
+      "source": "games/calculus/DESIGN.md §3, 第 2 章",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "depends": ["delta-response", "jump-discontinuity"],
+      "wall": { "zh": "一个函数在某处跳变，它在别处也都不连续吗？" }
     }
   ],
   "primitives": [
@@ -529,7 +560,12 @@
     },
     { "part": "grid", "about": { "zh": "从 a、h 交出 a+n·h 的横轴位置。" }, "from": ["count", "add", "mul"] },
     { "part": "jump", "about": { "zh": "x<0 时给 0，其余给 1 的台阶函数。" }, "from": ["less", "add", "mul", "const"] },
-    { "part": "gap", "about": { "zh": "左右函数值相对中心值的较大偏差。" }, "from": ["dist", "max"] }
+    { "part": "gap", "about": { "zh": "左右函数值相对中心值的较大偏差。" }, "from": ["dist", "max"] },
+    {
+      "part": "lineDelta",
+      "about": { "zh": "给斜率 m 与 ε，交出一个让整段直线变化小于 ε 的正 δ。" },
+      "from": ["dist", "add", "recip", "mul"]
+    }
   ],
   "eras": [
     {
@@ -1507,6 +1543,44 @@
               "uses": ["continuity", "continuity-gap", "gap", "jump", "since", "less", "mul", "add"]
             }
           ]
+        },
+        {
+          "id": "delta-series",
+          "title": { "zh": "给出整个区间" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "line-delta",
+              "title": { "zh": "直线的应答" },
+              "task": { "zh": "给斜率和 ε，交出覆盖整个区间的 δ。" },
+              "question": { "zh": "能否不逐点试，就保证直线在中心附近一直够近？" },
+              "chain": [{ "zh": "把输出差写成 |m||x−a|。" }, { "zh": "让 |m|δ 不超过 ε，并使 δ 随 ε 和 m 改变。" }],
+              "role": "foundation",
+              "teaches": "delta-response",
+              "uses": ["delta-response", "dist", "add", "recip", "mul"],
+              "builds": "lineDelta"
+            },
+            {
+              "id": "square-delta",
+              "title": { "zh": "平方的应答" },
+              "task": { "zh": "借直线应答器为平方函数给 δ。" },
+              "question": { "zh": "斜率随中心改变，平方函数怎样选安全的 δ？" },
+              "chain": [{ "zh": "把平方差分解成 |x−a||x+a|。" }, { "zh": "在 δ 区间内用 2|a|+δ 控制第二因子，再求 δ。" }],
+              "role": "foundation",
+              "teaches": "local-bound",
+              "uses": ["local-bound", "delta-response", "lineDelta", "dist", "add", "const"]
+            },
+            {
+              "id": "step-local",
+              "title": { "zh": "哪里跳" },
+              "task": { "zh": "先在非零点给 δ，再在零点找任何 δ 的反例。" },
+              "question": { "zh": "台阶函数是否处处不连续？" },
+              "chain": [{ "zh": "离 0 还有距离的中心，可以选一个不跨过 0 的区间。" }, { "zh": "在中心 0，任取 δ>0，都能在左半段找到不同的函数值。" }],
+              "role": "foundation",
+              "teaches": "pointwise",
+              "uses": ["pointwise", "delta-response", "jump", "dist", "mul", "const"]
+            }
+          ]
         }
       ]
     }
@@ -1577,12 +1651,6 @@
     }
   ],
   "deferred": [
-    {
-      "about": {
-        "zh": "第 2 章：完整 ε-δ 应答器"
-      },
-      "why": { "zh": "有限逐拍样本不能证明整个实数邻域内的断言；需要能判定或验证区间性质的任务机制。" }
-    },
     { "about": { "zh": "第 3–7 章：导数、积分、基本定理、泰勒、微分方程" }, "why": { "zh": "框架在设计文档第 3 节。" } }
   ]
 }

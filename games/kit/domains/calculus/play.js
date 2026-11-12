@@ -16,6 +16,6 @@ export const play = tickPlay({
   ),
   lanes: (L, test) => [
     ...(L.inputs ?? []).map((i) => ({ name: i.name, ticks: test.inputs[i.name] })),
-    ...L.outputs.map((o) => ({ name: o.name, ticks: test.want[o.name], wanted: true })),
+    ...L.outputs.map((o) => ({ name: o.name, ticks: test.want?.[o.name] ?? [], wanted: Boolean(test.want) })),
   ],
 })

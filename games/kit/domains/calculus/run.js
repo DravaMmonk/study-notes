@@ -12,6 +12,7 @@
 //   and each output's terms against the wanted ones, tick by tick
 import { boardNode, runTicks } from '../../engine/ticks.js'
 import { judgeTicks, runTests } from '../../engine/circuit-domain.js'
+import { CLAIMS, claimName } from './proof.js'
 
 /** A term as wanted: equal, or within a relative error of 10⁻⁹ (the last bits of a different order of operations). */
 export const same = (want, got) => want === got || (typeof want === 'number' && typeof got === 'number' && Math.abs(want - got) <= 1e-9 * Math.max(1, Math.abs(want)))
@@ -21,10 +22,20 @@ export const runLevel = runTests((task, circuit, test, parts) => {
   const bind = (tick) => Object.fromEntries(Object.entries(test.inputs).map(([name, terms]) => [name, terms[tick] ?? null]))
   const run = runTicks({ nodes: [boardNode({ id: 'you', circuit, parts, bind, traced: true })], ticks: test.ticks, line: () => null })
   const ticks = run.steps.map((step) => ({ tick: step.tick, ...step.heard.you }))
-  return { ...judgeTicks(ticks, { checked: task.outputs, want: (name) => test.want[name], same }), want: test.want }
+  if (!test.check) return { ...judgeTicks(ticks, { checked: task.outputs, want: (name) => test.want[name], same }), want: test.want }
+  const claim = CLAIMS[claimName(test.check)]
+  for (const tick of ticks) {
+    const input = Object.fromEntries(claim.inputs.map((name) => [name, test.inputs[name][tick.tick]]))
+    const reason = claim.judge(input, tick.outputs)
+    if (reason) return {
+      ticks: ticks.map((step) => step === tick ? { ...step, failed: reason } : step),
+      fail: { tick: tick.tick, name: claim.outputs[0], got: tick.outputs[claim.outputs[0]] ?? null, reason: reason.en },
+    }
+  }
+  return { ticks }
 })
 
 export const entries = ({ task, test, run }) => [
   ...(task.inputs ?? []).map((i) => ({ of: i.name, label: i.label, shape: 'ticks', given: test.inputs[i.name] })),
-  ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: 'ticks', got: run.ticks.map((t) => t.outputs[o.name] ?? null), want: run.want[o.name] })),
+  ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: 'ticks', got: run.ticks.map((t) => t.outputs[o.name] ?? null), ...(run.want ? { want: run.want[o.name] } : {}) })),
 ]

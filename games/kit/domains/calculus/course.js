@@ -10,14 +10,28 @@
 import { circuitCourse } from '../../engine/circuit-domain.js'
 import { board } from './board.js'
 import { PARTS } from './parts.js'
+import { CLAIMS, claimName } from './proof.js'
 
 export function calculusCourse(content) {
   const test = (t, task, say) => {
-    const lengths = new Set(Object.values(t.want).map((terms) => terms.length))
-    if (lengths.size > 1) say('a test wants outputs of different lengths')
+    if (Boolean(t.want) === Boolean(t.check)) say('a test needs either wanted terms or an interval claim')
+    const name = t.check && claimName(t.check)
+    const claim = name && CLAIMS[name]
+    if (name && !claim) say(`unknown interval claim ${name}`)
+    const lengths = new Set(Object.values(t.want ?? t.inputs ?? {}).map((terms) => terms.length))
+    if (lengths.size > 1) say('a test gives sequences of different lengths')
     const ticks = Math.max(0, ...lengths)
+    if (!ticks) say('a test needs at least one tick')
     for (const i of task.inputs ?? []) if ((t.inputs?.[i.name]?.length ?? 0) < ticks) say(`a test gives fewer than ${ticks} terms on the input ${i.name}`)
-    for (const o of task.outputs ?? []) if (!t.want[o.name]) say(`a test wants nothing of the output ${o.name}`)
+    if (t.want) for (const o of task.outputs ?? []) if (!t.want[o.name]) say(`a test wants nothing of the output ${o.name}`)
+    if (claim) {
+      const names = (ports) => ports.map((p) => p.name).sort().join(',')
+      if (names(task.inputs ?? []) !== [...claim.inputs].sort().join(',') || names(task.outputs ?? []) !== [...claim.outputs].sort().join(',')) say(`${name} expects inputs ${claim.inputs.join(', ')} and outputs ${claim.outputs.join(', ')}`)
+      for (let tick = 0; tick < ticks; tick += 1) {
+        const input = Object.fromEntries(claim.inputs.map((name) => [name, t.inputs?.[name]?.[tick]]))
+        if (!claim.valid(input)) say(`${name} has invalid input at tick ${tick}`)
+      }
+    }
     return { inputs: {}, ...t, ticks }
   }
   return circuitCourse(content, { board, parts: PARTS, test, holds: true })

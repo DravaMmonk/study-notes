@@ -1,0 +1,39 @@
+{
+  "title": { "zh": "平方的应答" },
+  "intro": [
+    { "t": { "zh": "直线每段的斜率固定，平方函数却在不同中心变化得不同。把 |x²−a²| 拆成 |x−a||x+a|。" } },
+    { "t": { "zh": "若 |x−a|<δ，便有 |x+a|<2|a|+δ。测试的 ε≤1；试着用刚搭好的直线应答器，给第二因子留出余量。" } }
+  ],
+  "after": {
+    "zh": "<wiki-ref to=\"local-bound\"></wiki-ref>把随 x 变化的因子在整个 δ 区间内压住：δ(2|a|+δ)≤ε，就能保证平方函数符合 ε-δ 条件。"
+  },
+  "tasks": [
+    {
+      "id": "square-delta",
+      "brief": { "zh": "给中心 a 与 0<ε≤1，交出 δ>0：δ(2|a|+δ)≤ε，且 δ≥ε/[4(2|a|+1)]。" },
+      "hint": [{ "zh": "把直线应答器的斜率输入设成 2|a|+1。" }],
+      "inputs": [{ "name": "a", "label": "a" }, { "name": "e", "label": "ε" }],
+      "outputs": [{ "name": "d", "label": "δ" }],
+      "tests": [
+        { "inputs": { "a": [0, 1, -2, 4], "e": [0.5, 0.1, 0.25, 1] }, "check": "squareDelta" },
+        { "inputs": { "a": [-0.5, 3, 0], "e": [0.01, 0.8, 1] }, "check": "squareDelta" }
+      ],
+      "hidden": [
+        {
+          "inputs": { "a": [0.125, -10, 100, 0], "e": [0.000001, 0.0001, 1e-8, 1e-12] },
+          "check": "squareDelta"
+        }
+      ],
+      "solution": [
+        "z = const[value=0]()",
+        "ab = dist(a, z)",
+        "twice = add(ab, ab)",
+        "one = const[value=1]()",
+        "slope = add(twice, one)",
+        "radius = lineDelta(slope, e)",
+        "d <- radius"
+      ],
+      "naive": ["d <- e"]
+    }
+  ]
+}
