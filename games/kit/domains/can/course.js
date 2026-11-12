@@ -15,7 +15,7 @@ import { board } from './board.js'
 import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 import { callOf } from '../../engine/schema.js'
-import { scheduleObservations } from './frame-world.js'
+import { scheduleFrames, scheduleObservations } from './frame-world.js'
 import { paperProblems } from './paper.js'
 import { transportPlan } from './transport.js'
 
@@ -43,13 +43,19 @@ const testOf = (t, task, frameEvents) => {
   }
   const contenders = (t.contenders ?? []).map((node) => ({ ...node, id: num(node.id), data: (node.data ?? []).map(num) }))
   const flash = t.ecu?.flash && { ...t.ecu.flash, ...(t.ecu.flash.image ? { image: t.ecu.flash.image.map(num) } : {}), ...(t.ecu.flash.versionAfter ? { versionAfter: t.ecu.flash.versionAfter.map(num) } : {}), fixedDtcs: (t.ecu.flash.fixedDtcs ?? []).map(num) }
-  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(t.ecu ? { ecu: { did: num(t.ecu.did), value: t.ecu.value.map(num), waits: t.ecu.waits ?? 0, requiresExtended: Boolean(t.ecu.requiresExtended), timeout: t.ecu.timeout, requiresSecurity: Boolean(t.ecu.requiresSecurity), seed: t.ecu.seed, dtcs: (t.ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })), ...(t.ecu.drive ? { drive: { recurring: t.ecu.drive.recurring.map(({ code, status }) => ({ code: num(code), status: num(status) })) } } : {}), flash, powerCycles: t.ecu.powerCycles ?? [] } } : {}), ...(t.transport ? { transport: { ...t.transport, message: t.transport.message.map(num) } } : {}), ...(t.bridge ? { bridge: { did: num(t.bridge.did), value: t.bridge.value.map(num) } } : {}), ...(t.broadcastBridge ? { broadcastBridge: { valueA: t.broadcastBridge.valueA.map(num), valueB: t.broadcastBridge.valueB.map(num) } } : {}), ...(t.fleetTrace ? { fleetTrace: t.fleetTrace.map(({ speed, wheel }) => ({ speed: num(speed), wheel: num(wheel) })) } : {}), ...(t.fleetPost ? { fleetPost: { speed: num(t.fleetPost.speed), wheel: num(t.fleetPost.wheel) } } : {}), ...(t.fleet ? { fleet: t.fleet.map((ecu) => ({ ...ecu, version: num(ecu.version), dtcs: (ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })), ...(ecu.flash ? { flash: { ...ecu.flash, image: ecu.flash.image.map(num), versionAfter: ecu.flash.versionAfter.map(num), fixedDtcs: (ecu.flash.fixedDtcs ?? []).map(num) } } : {}) })) } : {}), ...(frameEvents ? { frameEvents } : {}) }
+  return { ...t, bus, inputs, tx, contenders, queue: (t.queue ?? []).map(num), ticks: bus.bits.length, ...(t.ecu ? { ecu: { did: num(t.ecu.did), value: t.ecu.value.map(num), waits: t.ecu.waits ?? 0, requiresExtended: Boolean(t.ecu.requiresExtended), timeout: t.ecu.timeout, requiresSecurity: Boolean(t.ecu.requiresSecurity), seed: t.ecu.seed, dtcs: (t.ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })), ...(t.ecu.drive ? { drive: { recurring: t.ecu.drive.recurring.map(({ code, status }) => ({ code: num(code), status: num(status) })) } } : {}), flash, powerCycles: t.ecu.powerCycles ?? [] } } : {}), ...(t.transport ? { transport: { ...t.transport, message: t.transport.message.map(num) } } : {}), ...(t.bridge ? { bridge: { did: num(t.bridge.did), value: t.bridge.value.map(num) } } : {}), ...(t.broadcastBridge ? { broadcastBridge: { valueA: t.broadcastBridge.valueA.map(num), valueB: t.broadcastBridge.valueB.map(num) } } : {}), ...(t.fleetTrace ? { fleetTrace: t.fleetTrace.map(({ speed, wheel }) => ({ speed: num(speed), wheel: num(wheel) })) } : {}), ...(t.fleetPost ? { fleetPost: { speed: num(t.fleetPost.speed), wheel: num(t.fleetPost.wheel) } } : {}), ...(t.emissions ? { emissions: { ...t.emissions, id: num(t.emissions.id), peers: t.emissions.peers.map((frame) => ({ ...frame, id: num(frame.id), data: (frame.data ?? []).map(num) })) } } : {}), ...(t.fleet ? { fleet: t.fleet.map((ecu) => ({ ...ecu, version: num(ecu.version), dtcs: (ecu.dtcs ?? []).map(({ code, status }) => ({ code: num(code), status: num(status) })), ...(ecu.flash ? { flash: { ...ecu.flash, image: ecu.flash.image.map(num), versionAfter: ecu.flash.versionAfter.map(num), fixedDtcs: (ecu.flash.fixedDtcs ?? []).map(num) } } : {}) })) } : {}), ...(frameEvents ? { frameEvents } : {}) }
 }
 
 export function canCourse(content) {
   // A test read: what reading it finds that its schema cannot say, then its bus.
   const test = (t, task, say) => {
     let frameEvents
+    if (task.emits) {
+      if (!t.emissions || t.bus.frames.length || task.ecu || task.transport || task.bridge || task.broadcastBridge || task.fleet || task.frameInputs || task.pulls || task.listens || task.drives || t.contenders?.length || t.tx || t.peerBits || t.peerLow?.length || t.flipTicks?.length) say('frame emission requires a clean scheduler without other bus activity')
+      if ([task.emits.id, task.emits.data, task.emits.send].some((name) => !task.outputs?.some((output) => output.name === name))) say('frame emission ports must be task outputs')
+      if (t.constants?.[task.emits.value] !== t.emissions?.value || t.constants?.[task.emits.period] !== t.emissions?.period) say('frame emission inputs must match the test value and period')
+      if (t.emissions?.peers.some((peer) => peer.node === 'you')) say('peer frames cannot use the player node name')
+    } else if (t.emissions) say('frame emission tests require emission ports')
     if (task.broadcastBridge) {
       if (!t.broadcastBridge || t.bus.frames.length || task.ecu || task.transport || task.bridge || task.fleet || task.frameInputs || task.pulls || task.listens || task.drives || t.contenders?.length || t.tx || t.peerBits || t.peerLow?.length || t.flipTicks?.length) say('functional transport requires two simulated controllers without other bus activity')
       const inputs = [task.broadcastBridge.source, task.broadcastBridge.incoming, task.broadcastBridge.ready]
@@ -200,6 +206,14 @@ export function canCourse(content) {
       if (t.inputs?.[name]) say(`input ${name} has both explicit values and the line`)
     }
     const result = testOf(t, task, frameEvents)
+    if (task.emits && result.emissions) {
+      const { id, value, period, peers } = result.emissions
+      try {
+        const own = [0, period, 2 * period].map((at) => ({ node: 'you', at, id, data: [value & 255, value >> 8] }))
+        const events = scheduleFrames([...peers, ...own])
+        if (events.at(-1)?.end > result.ticks) say('frame emission tests must include the last scheduled frame')
+      } catch (error) { say(`invalid frame emission schedule: ${error.message}`) }
+    }
     if (task.broadcastBridge && result.ticks < 8) say('functional transport tests must include both complete responses')
     if (task.fleet && result.ticks < 8) say('fleet tests must include the final scan result')
     if (task.bridge && result.ticks < 4) say('diagnostic bridge tests must include the final response frame')
@@ -401,7 +415,7 @@ export function canCourse(content) {
     const expectsInterruptedFrame = names.some((name) => name.startsWith('interruptedFrame'))
     const interruptedSuspendEnds = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name.startsWith('interruptedSuspend') || name.startsWith('interruptedFrame')).map(([, params]) => params.end)
     const expectsInterruptedSuspend = interruptedSuspendEnds.length > 0
-    const views = Object.values(task.frameInputs ?? {}).includes('data') || task.tests?.some((test) => test.messages) || task.ecu || task.transport || task.bridge || task.broadcastBridge || task.fleet ? { ticks: ['terms'], ...task.views } : task.views
+    const views = Object.values(task.frameInputs ?? {}).includes('data') || task.tests?.some((test) => test.messages) || task.ecu || task.transport || task.bridge || task.broadcastBridge || task.fleet || task.emits ? { ticks: ['terms'], ...task.views } : task.views
     return { ...task, views, udsServerParams, messageView: Boolean(task.tests?.some((test) => test.messages)), fleetPostExpected, fleetTraceExpected, fleetRecheckExpected, fleetUpdateExpected, fleetFaultExpected, ecuRejectedDids, ecuImmediateExpected, ecuDelayedExpected: names.includes('ecuDelayedValue'), ecuSessionExpected: names.includes('ecuSessionValue'), ecuKeepaliveExpected: names.includes('ecuKeepaliveValue'), ecuSecurityExpected: names.includes('ecuSecurityValue') || names.includes('ecuWrongKeyReason'), ecuClearDtcExpected: names.includes('ecuClearDtcRecords'), ecuDriveCycleExpected: names.includes('ecuDriveCycleReport'), ecuFlashTicks, ecuDynamicFlash: names.includes('ecuDynamicFlashDone'), ecuDynamicStarts, ecuUpdateExpected: names.includes('ecuUpdateReport'), expectsRetry, expectsAckRetry, expectsPassiveAck, expectsController, expectsControllerIntegrated, expectsControllerFault, expectsControllerAdaptive, expectsControllerBusoff, expectsControllerDuplex, expectsControllerIntervening, controllerAdaptiveCalls, controllerAdaptiveParams: controllerAdaptiveCalls[0], expectsCollision, collisionCalls, collisionParams: collisionCalls[0], expectsReceiver, expectsReceiverUnified, receiverCalls, receiverStateCalls, receiverParams: receiverCalls[0], expectsInterruptedSuspend, expectsInterruptedFrame, interruptedSuspendEnds, interruptedSuspendEnd: interruptedSuspendEnds[0], controllerStarts, controllerStart: controllerStarts[0], passiveAckCalls, passiveAckParams: passiveAckCalls[0], ackRetryStarts, ackRetryStart: ackRetryStarts[0], expectsAck: names.includes('frameAckMissing'), expectsBitError: names.some((name) => ['bitError', 'bitErrorFlagDrive', 'bitErrorFlagState', 'bitErrorFlagDone'].includes(name)), retryStarts: retryCalls.map(([, params]) => params.start), retryStart: retryCalls[0]?.[1]?.start, expectsTx: expectsRetry || expectsAckRetry || expectsPassiveAck || expectsController || expectsCollision || expectsInterruptedFrame || names.some((name) => ['frameDrive', 'frameLine', 'frameSent', 'frameQueueNext', 'frameArbitrating', 'frameAck', 'frameEof', 'frameAckMissing'].includes(name)), want: wantOf(task.want) }
   }, test, holds: true, unwanted: (task) => task.pulls ? [task.pulls.next] : [] })
 }

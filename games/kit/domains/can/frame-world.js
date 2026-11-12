@@ -28,3 +28,9 @@ export function scheduleObservations(requests, checks = []) {
   if (checks.some((time) => !Number.isInteger(time) || time < 0) || new Set(checks).size !== checks.length || checks.some((time) => frames.some((frame) => frame.start === time))) throw new Error('clock checks must be distinct non-negative times away from frame starts')
   return [...frames, ...checks.map((start) => ({ node: null, id: null, data: null, start, end: start }))].sort((a, b) => a.start - b.start)
 }
+
+// Project a board's explicit send requests into the clean frame scheduler.
+export function scheduleEmissions(ticks, ports, peers = []) {
+  const requests = ticks.filter((tick) => tick.outputs[ports.send] === true || tick.outputs[ports.send] === 1).map((tick) => ({ node: 'you', at: tick.tick, id: tick.outputs[ports.id], data: tick.outputs[ports.data] }))
+  return scheduleFrames([...peers, ...requests])
+}

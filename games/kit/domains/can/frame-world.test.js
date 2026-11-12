@@ -40,3 +40,12 @@ test('clock checks appear in time order without becoming frames', () => {
   assert.throws(() => scheduleObservations(frames, [10]), /clock checks/)
   assert.throws(() => scheduleObservations(frames, [120, 120]), /clock checks/)
 })
+
+test('board frame requests participate in clean arbitration', async () => {
+  const { scheduleEmissions } = await import('./frame-world.js')
+  const ticks = [{ tick: 0, outputs: { send: true, id: 0x200, data: [1, 2] } }, { tick: 1, outputs: { send: false } }]
+  const events = scheduleEmissions(ticks, { send: 'send', id: 'id', data: 'data' }, [{ node: 'other', at: 0, id: 0x100, data: [] }])
+  assert.deepEqual(events.map(({ node }) => node), ['other', 'you'])
+  assert.equal(events[1].start, events[0].end)
+  assert.throws(() => scheduleEmissions([{ tick: 0, outputs: { send: true, id: -1, data: [] } }], { send: 'send', id: 'id', data: 'data' }), /invalid frame request/)
+})

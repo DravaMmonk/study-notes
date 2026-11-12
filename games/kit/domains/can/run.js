@@ -19,6 +19,7 @@ import { newFlashState } from './flash.js'
 import { advanceTransport, newTransportState } from './transport.js'
 import { advanceFleet, newFleetState } from './fleet.js'
 import { advanceBroadcastBridge, newBroadcastBridge } from './broadcast-bridge.js'
+import { scheduleEmissions, scheduleFrames } from './frame-world.js'
 import { advanceDiagnosticBridge, newDiagnosticBridge } from './diagnostic-bridge.js'
 import { valueText } from '../../engine/views.js'
 import { T } from '../../shell/i18n.js'
@@ -81,6 +82,19 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
     checked, want: (name) => want[name], got: (tick, name) => name === 'send' && task.drives ? tick.sent ?? null : tick.outputs[name] ?? null,
     same: (a, b) => Array.isArray(a) && Array.isArray(b) ? a.length === b.length && a.every((value, index) => value === b[index]) : a === b,
   })
+  let emissions
+  if (task.emits && test.emissions) {
+    try {
+      emissions = scheduleEmissions(judged.ticks, task.emits, test.emissions.peers)
+      const { id, value, period, peers } = test.emissions
+      const expected = scheduleFrames([...peers, ...[0, period, 2 * period].map((at) => ({ node: 'you', at, id, data: [value & 255, value >> 8] }))])
+      const signature = (events) => events.map(({ node, id: frameId, data, start }) => ({ node, id: frameId, data, start }))
+      if (!judged.fail && JSON.stringify(signature(emissions)) !== JSON.stringify(signature(expected))) judged.fail = { name: task.emits.send, reason: 'scheduled frames differ' }
+    } catch (error) {
+      if (!judged.fail) judged.fail = { name: task.emits.send, reason: error.message }
+    }
+    if (judged.fail?.name === task.emits.send && !judged.final) judged.final = T('帧发送请求或仲裁结果不符合要求。', 'The frame requests or arbitration result do not match.')
+  }
   if (queue && consumed !== test.queue.length && !judged.fail && !run.error) {
     judged.fail = { name: task.pulls.input, remaining: test.queue.length - consumed }
     judged.final = T('测试结束时队列里还有未取走的字节。', 'Bytes remain in the queue when the test ends.')
@@ -101,7 +115,7 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   const receptionOutputs = ['rxId', 'rxLength', 'rxByte', 'ready', 'kind']
   const receptions = task.drives && receptionOutputs.every((name) => task.outputs.some((output) => output.name === name))
     ? receivedFrames(judged.ticks) : undefined
-  return { ...judged, want, ...(receptions ? { receptions } : {}), ...(error ? { error } : {}) }
+  return { ...judged, want, ...(emissions ? { emissions } : {}), ...(receptions ? { receptions } : {}), ...(error ? { error } : {}) }
 }
 
 /** Every test of a task on a board: { runs, pass }. */
@@ -123,5 +137,6 @@ export const entries = ({ task, test, run }) => [
     : { of: i.name, label: i.label, shape: task.frameInputs?.[i.name] || test.messages?.[i.name] ? 'ticks' : 'bits', given: test.inputs[i.name], ...(task.frameInputs?.[i.name] === 'data' || test.messages?.[i.name] ? { text: messageText } : {}) }),
   ...(task.drives ? [{ of: 'send', label: T('说', 'Send'), shape: 'ticks', got: run.ticks.map((tick) => tick.sent ?? null), want: run.want.send }] : []),
   ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: 'ticks', got: run.ticks.map((t) => t.outputs[o.name] ?? null), want: run.want[o.name], ...(run.want[o.name]?.some(Array.isArray) ? { text: messageText } : {}) })),
+  ...(run.emissions ? [{ of: 'emissions', label: T('调度后的帧', 'Scheduled frames'), shape: 'list', got: run.emissions.map(({ node, id, data, start }) => `${node} @${start}: 0x${id.toString(16).toUpperCase()} [${data.join(', ')}]`) }] : []),
   ...(run.receptions ? [{ of: 'receptions', label: T('已校验并应答（未检查帧结束）', 'Checked and acknowledged (EOF not checked)'), shape: 'list', got: run.receptions.map(({ id, data, ackTick }) => `#${ackTick}: ${id.toString(16).toUpperCase().padStart(3, '0')} [${data.map((byte) => byte.toString(16).toUpperCase().padStart(2, '0')).join(' ')}]`) }] : []),
 ]
