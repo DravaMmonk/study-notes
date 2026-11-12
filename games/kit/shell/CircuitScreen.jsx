@@ -276,12 +276,10 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
       author: (of) => (authoring && names.has(of) ? (view) => authoring.start({ port: of, view }) : null),
     }
   }, [entry.key, level, authoring])
-  const strip = (
-    <>
-      <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
-      {figure?.({ task: level, test, run: (timed ? run.run : ended || onSample) ? runOf : null, at: timed && run.run ? at : -1 })}
-    </>
-  )
+  const scene = figure?.({ task: level, test, run: (timed ? run.run : ended || onSample) ? runOf : null, at: timed && run.run ? at : -1 })
+  const results = <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
+  // The scene comes first: beside the results on a desktop, above them on a phone.
+  const strip = scene ? <div className="cs-told"><div className="cs-scene">{scene}</div><div className="cs-rows">{results}</div></div> : results
 
   return (
     <SettingsContext.Provider value={views}>

@@ -141,3 +141,19 @@
   .rv-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
   .rv-pair > .gv-inspector { width: 100%; }
 }
+
+/* A chart of a scene (plots/Chart.jsx): the point, what it reads and its gap take the colour of how it stands. */
+.ch { height: auto; flex: none; overflow: visible; --state: var(--accent); }
+.ch[data-state='under'] { --state: var(--w0); }
+.ch[data-state='met'] { --state: var(--status); }
+.ch-axis { fill: none; stroke: var(--rule); stroke-width: 1; }
+.ch-name { fill: var(--faint); font-size: var(--fs-label); }
+.ch-line { fill: none; stroke-linecap: round; transition: d 0.4s; }
+.ch-line.is-curve { stroke: var(--ink); stroke-width: 1.75; }
+.ch-line.is-bound { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 3 3; }
+.ch-was { fill: var(--paper); stroke: var(--muted); stroke-width: 1; }
+.ch-level { stroke: var(--hairline); stroke-width: 1; }
+.ch-gap { stroke: var(--state); stroke-width: 5; opacity: 0.55; }
+.ch-now { fill: var(--state); stroke: var(--paper); stroke-width: 1.5; transition: cx 0.25s, cy 0.25s, fill 0.25s; }
+.ch-reads { fill: var(--state); font-size: var(--fs-label); font-weight: 600; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) { .ch-line, .ch-now { transition: none; } }

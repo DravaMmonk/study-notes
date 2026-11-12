@@ -621,3 +621,13 @@
 .block-rename button { padding: var(--sp-5); border: 0; border-radius: var(--r-md); background: var(--accent); color: var(--accent-ink); font: var(--fs-touch-input) var(--sans); cursor: pointer; }
 .block-header .block-move { flex: none; display: grid; place-items: center; cursor: grab; touch-action: none; }
 .block-header .block-move:active { cursor: grabbing; }
+
+/* A test's scene and its results (CircuitScreen `figure`): the scene above the results on a phone, beside them where
+   there is room. */
+.cs-told { display: flex; flex-direction: column; gap: var(--sp-5); }
+.cs-scene { display: flex; gap: var(--sp-5); flex: none; overflow-x: auto; }
+.cs-rows { min-width: 0; }
+@media (min-width: 761px) {
+  .cs-told { flex-direction: row; align-items: flex-start; }
+  .cs-rows { flex: 1; }
+}
