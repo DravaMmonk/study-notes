@@ -763,6 +763,14 @@ const WANTS = {
   fleetRecheckTargets: () => (test) => fleetRecheckPlan(test).targets,
   fleetRecheckRequests: () => (test) => fleetRecheckPlan(test).requests,
   fleetRecheckReport: () => (test) => fleetRecheckPlan(test).report,
+  fleetGatedExamTargets: ({ start }) => (test) => shiftTrace(fleetExamPlan(test).targets, test.inputs[start].findIndex(Boolean)),
+  fleetGatedExamRequests: ({ start }) => (test) => shiftTrace(fleetExamPlan(test).requests, test.inputs[start].findIndex(Boolean)),
+  fleetGatedExamReport: ({ start }) => (test) => shiftTrace(fleetExamPlan(test).report, test.inputs[start].findIndex(Boolean)),
+  fleetTraceTargets: () => (test) => shiftTrace(fleetRecheckPlan(test).targets, traceStart(test)),
+  fleetTraceRequests: () => (test) => shiftTrace(fleetRecheckPlan(test).requests, traceStart(test)),
+  fleetTraceReport: () => (test) => shiftTrace(fleetRecheckPlan(test).report, traceStart(test)),
+  fleetTraceTrigger: () => (test) => { const at = traceTrigger(test), report = shiftTrace(fleetRecheckPlan(test).report, traceStart(test)); return report.map((value) => value === null ? null : at) },
+  fleetTraceWindow: () => (test) => { const at = traceTrigger(test); return test.bus.bits.map((_, tick) => at >= 1 && tick === at + 1 && at + 1 < test.fleetTrace.length ? test.fleetTrace.slice(at - 1, at + 2).flatMap(({ speed, wheel }) => [speed, wheel]) : null) },
   fleetFaultRecords: () => (test) => fleetFaultPlan(test).records,
   fleetFaultAny: () => (test) => fleetFaultPlan(test).any,
   encodeLow: ({ input }) => (test) => test.inputs[input].map((value) => value & 255),
@@ -1238,6 +1246,10 @@ function timedTransportPlan(test, { data, id, time, limit, target, match }) {
   }
   return { messages, timeouts }
 }
+
+const shiftTrace = (values, offset) => values.map((_, tick) => offset >= 0 && tick >= offset ? values[tick - offset] : null)
+const traceTrigger = (test) => firstMismatch(test.fleetTrace.map((sample) => sample.speed), test.fleetTrace.map((sample) => sample.wheel))
+const traceStart = (test) => { const at = traceTrigger(test); return at >= 0 && at + 1 < test.fleetTrace.length ? at + 1 : -1 }
 
 /** A level's `want` as the function run.js checks a test by: test → { output name: [value per tick] }. */
 export const wantOf = (want) => {

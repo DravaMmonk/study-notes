@@ -26,7 +26,7 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   let consumed = 0
   const fleet = task.fleet && reacting({
     id: 'fleet', board: 'you', start: newFleetState(test.fleet),
-    reads: (state) => ({ [task.fleet.source]: state.source, [task.fleet.response]: state.response, [task.fleet.ready]: Number(state.response !== null), ...Object.fromEntries(Object.entries(task.fleet.images ?? {}).map(([name, index]) => [name, test.fleet[index].flash.image])) }),
+    reads: (state, tick) => ({ [task.fleet.source]: state.source, [task.fleet.response]: state.response, [task.fleet.ready]: Number(state.response !== null), ...Object.fromEntries(Object.entries(task.fleet.images ?? {}).map(([name, index]) => [name, test.fleet[index].flash.image])), ...(task.fleet.trace ? { [task.fleet.trace.speed]: test.fleetTrace[tick]?.speed ?? null, [task.fleet.trace.wheel]: test.fleetTrace[tick]?.wheel ?? null, [task.fleet.trace.ready]: Number(tick < test.fleetTrace.length) } : {}) }),
     step: (state, outputs, tick) => ({ state: advanceFleet(state, outputs[task.fleet.target], outputs[task.fleet.request], test.fleet, tick), shown: null }),
   })
   let bridgeState = newDiagnosticBridge()
@@ -107,7 +107,7 @@ export const entries = ({ task, test, run }) => [
     { of: '__frameStart', label: test.frameChecks?.length ? T('观察时间（位拍）', 'Observation time (bit ticks)') : T('帧开始（位拍）', 'Frame start (bit ticks)'), shape: 'ticks', given: test.frameEvents.map((frame) => frame.start) },
   ] : []),
   ...(test.contenders ?? []).map((_, k) => ({ of: `rival${k}`, label: T(`竞争者 ${k + 1}`, `Contender ${k + 1}`), shape: 'bits', given: run.ticks.map((tick) => tick.said[`rival${k}`] ?? 1) })),
-  ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available, task.pulls?.last, task.ecu?.response, task.ecu?.image, task.transport?.flow, task.transport?.message, task.transport?.ready, task.transport?.timeout, task.bridge?.incoming, task.bridge?.ready, task.fleet?.source, task.fleet?.response, task.fleet?.ready, ...Object.keys(task.fleet?.images ?? {})].includes(i.name)
+  ...(task.inputs ?? []).map((i) => [task.pulls?.input, task.pulls?.available, task.pulls?.last, task.ecu?.response, task.ecu?.image, task.transport?.flow, task.transport?.message, task.transport?.ready, task.transport?.timeout, task.bridge?.incoming, task.bridge?.ready, task.fleet?.source, task.fleet?.response, task.fleet?.ready, ...Object.keys(task.fleet?.images ?? {}), ...Object.values(task.fleet?.trace ?? {})].includes(i.name)
     ? { of: i.name, label: i.label, shape: 'ticks', got: run.ticks.map((tick) => tick.bind?.[i.name] ?? null), ...([task.ecu?.response, task.ecu?.image, task.transport?.flow, task.transport?.message, task.bridge?.incoming, task.fleet?.response, ...Object.keys(task.fleet?.images ?? {})].includes(i.name) ? { text: messageText } : {}) }
     : { of: i.name, label: i.label, shape: task.frameInputs?.[i.name] ? 'ticks' : 'bits', given: test.inputs[i.name], ...(task.frameInputs?.[i.name] === 'data' ? { text: messageText } : {}) }),
   ...(task.drives ? [{ of: 'send', label: T('说', 'Send'), shape: 'ticks', got: run.ticks.map((tick) => tick.sent ?? null), want: run.want.send }] : []),

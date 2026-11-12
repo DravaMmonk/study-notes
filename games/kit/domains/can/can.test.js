@@ -1353,3 +1353,23 @@ test('update reporting distinguishes repaired and remaining confirmed faults', (
   test.ecu.flash.fixedDtcs.push(2)
   assert.deepEqual(wantOf({ report: 'ecuUpdateReport' })(test).report[13], [1, 2, 1, 0])
 })
+
+test('fleet trace supplies zero-valued samples and then becomes unavailable', () => {
+  const content = JSON.parse(JSON.stringify(COURSE))
+  const task = content.levels.find((level) => level.id === 'gather').tasks[0]
+  task.inputs = ['source', 'reply', 'answerReady', 'speed', 'wheel', 'sampleReady'].map((name) => ({ name, label: L(name) }))
+  task.outputs = [{ name: 'target', label: L('target') }, { name: 'request', label: L('request') }]
+  task.fleet = { target: 'target', request: 'request', source: 'source', response: 'reply', ready: 'answerReady', trace: { speed: 'speed', wheel: 'wheel', ready: 'sampleReady' } }
+  task.tests = [{ bus: { idle: 8, frames: [], tail: 0 }, fleet: Array.from({ length: 6 }, () => ({ online: false, version: 0 })), fleetTrace: [{ speed: 0, wheel: 2 }, { speed: 12, wheel: 0 }] }]
+  task.hidden = []
+  delete task.naive
+  task.want = { target: { inputSignal: { input: 'speed' } }, request: { inputSignal: { input: 'sampleReady' } } }
+  task.solution = ['target <- speed', 'request <- sampleReady']
+  const course = canCourse(content)
+  assert.deepEqual(course.wrong, [])
+  const played = course.played.get('gather')[0]
+  const result = runTest({ ...played, want: () => ({}) }, played.solution, played.tests[0], course.partOf, { traced: false })
+  assert.deepEqual(result.ticks.map((tick) => tick.bind.speed), [0, 12, null, null, null, null, null, null])
+  assert.deepEqual(result.ticks.map((tick) => tick.bind.wheel), [2, 0, null, null, null, null, null, null])
+  assert.deepEqual(result.ticks.map((tick) => tick.bind.sampleReady), [1, 1, 0, 0, 0, 0, 0, 0])
+})
