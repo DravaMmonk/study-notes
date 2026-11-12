@@ -14,13 +14,14 @@
 //   validate.js   every level's reference board and built part (npm run check); can.test.js the bus, the wants and
 //                 boards as text (npm test)
 //   starter/      the smallest game on the domain (npm run new-game copies it)
-import { Activity } from 'lucide-react'
+import { Activity, Hand } from 'lucide-react'
 import './ui/can.css'
 import { circuitGame } from '../../shell/circuit-game.js'
 import Screen from './ui/Screen.jsx'
+import PaperScreen from './ui/PaperScreen.jsx'
 import Hero from './ui/Hero.jsx'
 import { CARDS } from './ui/catalog.js'
 import { canCourse } from './course.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary }. */
-export default (content) => circuitGame(content, canCourse(content), { kind: { id: 'bus', icon: Activity, label: { zh: '总线', en: 'Bus' } }, Screen, cards: CARDS, Hero })
+export default (content) => circuitGame(content, canCourse(content), { kind: { id: 'bus', icon: Activity, label: { zh: '总线', en: 'Bus' } }, Screen, cards: CARDS, Hero, kinds: { paper: { Screen: PaperScreen, icon: Hand, label: { zh: '纸笔', en: 'By hand' } } } })

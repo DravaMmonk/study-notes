@@ -10,7 +10,7 @@ const hex = (n) => `0x${n.toString(16)}`
 /** The SVG of level `id` of a bus game's spec, or null when it has no such level. */
 export function scene(spec, id) {
   const tasks = spec.circuit.played.get(id)
-  if (!tasks) return null
+  if (!tasks || tasks.some((task) => task.kind === 'paper')) return null
   const tests = tasks.flatMap((task) => task.tests)
   const width = Math.max(...tests.map((t) => t.bus.bits.length)) * TICK + 70
   const height = tests.length * ROW + 10

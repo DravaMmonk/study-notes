@@ -16,6 +16,7 @@ import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 import { callOf } from '../../engine/schema.js'
 import { scheduleObservations } from './frame-world.js'
+import { paperProblems } from './paper.js'
 import { transportPlan } from './transport.js'
 
 // An identifier or a byte as content writes it: a number, or hexadecimal.
@@ -335,7 +336,7 @@ export function canCourse(content) {
     return result
   }
   // A task's wants read; a built part keeps its own registers.
-  return circuitCourse(content, { board, parts: PARTS, read: (task) => {
+  return circuitCourse(content, { board, parts: PARTS, kinds: { paper: (task, say) => { paperProblems(task).forEach(say); return task } }, read: (task) => {
     const names = Object.values(task.want ?? {}).map((call) => callOf(call)[0])
     const ecuRejectedDids = Object.values(task.want ?? {}).map(callOf).filter(([name]) => name === 'ecuRejectedRequest').map(([, params]) => params.did)
     const ecuImmediateExpected = names.includes('ecuReadValue') || names.includes('ecuRejectReason')

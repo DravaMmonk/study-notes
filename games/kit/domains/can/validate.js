@@ -5,6 +5,7 @@ import { checkCircuitTasks } from '../../engine/circuit-domain.js'
 import { checkLevel, entries } from './run.js'
 import { auditCleanFrameWorld, auditControllerProjection } from './frame-audit.js'
 import { REGISTERS } from './parts.js'
+import { paperProblems } from './paper.js'
 
 // Every reference board must be reproducible with the register selector and numeric fields.
 export function inaccessibleSettings(board) {
@@ -21,6 +22,7 @@ export function inaccessibleSettings(board) {
 export function validate({ circuit }) {
   return checkCircuitTasks(circuit, {
     run: checkLevel,
+    kinds: { paper: (task) => ({ problems: paperProblems(task), ok: 'paper answers PASS' }) },
     entries,
     failure: (r) => (r.error ? '(a loop)' : r.fail ? `at tick ${r.fail.tick} (${r.fail.name}: want ${r.fail.want}, got ${r.fail.got})` : ''),
     more: (task) => [...inaccessibleSettings(task.solution), ...auditCleanFrameWorld(task, circuit.forTask(task).partOf), ...auditControllerProjection(task, circuit.forTask(task).partOf)],

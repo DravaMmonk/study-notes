@@ -7,8 +7,9 @@ import { REGISTERS } from './parts.js'
 import { runLevel } from './run.js'
 import { BUS_WORDS } from './bus.js'
 import { T } from '../../shell/i18n.js'
+import { paperCase, paperMatches } from './paper.js'
 
-export const play = tickPlay({
+const board = tickPlay({
   run: runLevel,
   words: BUS_WORDS,
   registers: { names: REGISTERS },
@@ -26,3 +27,21 @@ export const play = tickPlay({
     ]
   },
 })
+
+
+const paper = {
+  open: ({ level: { source: task } }) => ({
+    kind: 'paper',
+    given: T(task.cases.map((item, index) => `${index + 1}. ${paperCase(task, item).zh}`).join('\n'), task.cases.map((item, index) => `${index + 1}. ${paperCase(task, item).en}`).join('\n')),
+    write: T('每行写一个答案，顺序与题目一致。', 'Write one answer per line, in case order.'),
+  }),
+  attempt: ({ level: { source: task } }, text) => {
+    const answers = text.trim().split('\n'), result = paperMatches(task, answers), pass = answers.length === task.cases.length && result.every(Boolean)
+    return { pass, says: [pass ? T('全部正确。', 'All answers are correct.') : T('有答案不正确，请再检查。', 'At least one answer is incorrect; check it again.')], board: answers, parts: [] }
+  },
+}
+
+export const play = {
+  open: (context) => context.level.source.kind === 'paper' ? paper.open(context) : board.open(context),
+  attempt: (context, text) => context.level.source.kind === 'paper' ? paper.attempt(context, text) : board.attempt(context, text),
+}

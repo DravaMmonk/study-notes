@@ -87,6 +87,8 @@ export function additionProblems(before, after, at = 'vocabulary') {
     return before.flatMap((x, k) => (has(x) ? [] : [`${at}[${k}]: ${JSON.stringify(x).slice(0, 60)} is gone`]))
   }
   if (before && typeof before === 'object') {
+    // Adding an alternative preserves every value accepted by an existing schema.
+    if (before.type && before.type !== 'either' && after?.type === 'either' && after.of.some((choice) => additionProblems(before, choice, at).length === 0)) return []
     if (!after || typeof after !== 'object' || Array.isArray(after)) return [`${at}: was an object`]
     // The number of the version itself is what changes.
     const out = Object.entries(before).filter(([k]) => !(at === 'vocabulary' && k === 'version')).flatMap(([k, v]) => (k in after ? additionProblems(v, after[k], `${at}.${k}`) : [`${at}.${k} is gone`]))

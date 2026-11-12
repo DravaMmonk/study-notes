@@ -358,7 +358,7 @@ const TEST = S.obj({
   fleet: S.opt(S.list(S.obj({ online: S.bool(), version: hex(0xff, 2), waits: S.opt(nat), requiresExtended: S.opt(S.bool()), timeout: S.opt(S.int({ min: 1 })), dtcs: S.opt(S.list(S.obj({ code: hex(0xffffff, 6), status: hex(0xff, 2) }))), seed: S.opt(S.int({ min: 0, max: 255 })), after: S.opt(S.int({ min: 0, max: 5 })), flash: S.opt(S.obj({ maxBlock: S.int({ min: 3, max: 255 }), expectedChecksum: S.int({ min: 0, max: 255 }), requiresSecurity: S.opt(S.bool()), image: S.list(hex(0xff, 2), { min: 1, max: 65535 }), versionAfter: S.list(hex(0xff, 2)), fixedDtcs: S.opt(S.list(hex(0xffffff, 6))) })) }), { min: 6, max: 6, about: t('六个模拟控制器的在线状态和版本', 'online status and version of six simulated controllers') })),
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
-const LEVEL = levelSchema({
+const BASE_LEVEL = levelSchema({
   test: TEST,
   ports: {
     listens: S.opt(S.bool({ about: t('板上有总线元件') })),
@@ -374,9 +374,19 @@ const LEVEL = levelSchema({
   checks: { want: S.map(S.call('want'), { about: t('每个输出每一拍应当是什么') }) },
 })
 
+// Paper tasks widen the existing task schema without changing circuit task data.
+const BOARD_TASK = BASE_LEVEL.fields.tasks.of
+const PAPER_TASK = S.obj({
+  id: BOARD_TASK.fields.id, step: BOARD_TASK.fields.step, brief: BOARD_TASK.fields.brief, hint: BOARD_TASK.fields.hint,
+  kind: S.oneOf(['paper']), mode: S.oneOf(['line', 'binary', 'start']),
+  cases: S.list(S.either(S.obj({ a: S.list(BIT, { min: 1 }), b: S.list(BIT, { min: 1 }) }), S.obj({ value: S.int({ min: 0, max: 255 }) }), S.obj({ bits: S.list(BIT, { min: 1 }) })), { min: 1 }),
+  solution: S.list(S.str(), { min: 1 }),
+})
+const LEVEL = { ...BASE_LEVEL, fields: { ...BASE_LEVEL.fields, tasks: { ...BASE_LEVEL.fields.tasks, of: S.either(BOARD_TASK, PAPER_TASK) } } }
+
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 115,
+  version: 116,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,
