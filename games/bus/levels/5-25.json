@@ -1,0 +1,306 @@
+{
+  "title": { "zh": "从 CAN 帧取出诊断回答" },
+  "intro": [
+    { "t": { "zh": "把逐位 CAN 接收和单帧诊断格式接起来：脚本节点发送一个 0x7E8 帧，数据包含长度 4 的单帧肯定回答。" } },
+    { "t": { "zh": "玩家搭出的控制器必须先验证整帧；随后检查单帧长度、肯定回答服务号和数据标识，再交出四字节诊断消息。这里的请求与回答由脚本预设，不模拟完整诊断会话。" } }
+  ],
+  "after": { "zh": "逐位接收、CAN 校验与单帧诊断格式在这里真正连接；完整交互和多帧流控仍在其他关卡单独模拟。" },
+  "tasks": [
+    {
+      "id": "5-25",
+      "brief": {
+        "zh": "连接自己的 CAN 控制器。对成功接收的 0x7E8、五字节 CAN 数据 [4, 0x62, 0xF1, 0x90, 值]，交出后四字节；错误帧或格式不符时交出「—」。"
+      },
+      "hint": [{ "zh": "收到标识符时清空字节序列，逐个保存控制器交出的字节；结果就绪后先确认校验、标识符、长度和诊断头部。" }],
+      "listens": true,
+      "drives": true,
+      "inputs": [
+        { "name": "id", "label": { "zh": "标识符" } },
+        { "name": "length", "label": { "zh": "数据长度" } },
+        { "name": "item", "label": { "zh": "队首" } },
+        { "name": "available", "label": { "zh": "有字节" } },
+        { "name": "last", "label": { "zh": "最后字节" } },
+        { "name": "start", "label": { "zh": "开始" } },
+        { "name": "prep", "label": { "zh": "准备事件" } },
+        { "name": "reset", "label": { "zh": "初始化" } },
+        { "name": "request", "label": { "zh": "恢复请求" } }
+      ],
+      "outputs": [
+        { "name": "next", "label": { "zh": "取走" } },
+        { "name": "rewind", "label": { "zh": "重置队列" } },
+        { "name": "attempt", "label": { "zh": "发送开始" } },
+        { "name": "done", "label": { "zh": "完成" } },
+        { "name": "tec", "label": { "zh": "发送错误计数" } },
+        { "name": "error", "label": { "zh": "发送错误" } },
+        { "name": "mode", "label": { "zh": "状态" } },
+        { "name": "rx", "label": { "zh": "接收计数" } },
+        { "name": "kind", "label": { "zh": "结果种类" } },
+        { "name": "ready", "label": { "zh": "结果就绪" } },
+        { "name": "accepted", "label": { "zh": "允许复位" } },
+        { "name": "lost", "label": { "zh": "落败" } },
+        { "name": "rxId", "label": { "zh": "接收标识符" } },
+        { "name": "rxLength", "label": { "zh": "接收长度" } },
+        { "name": "rxByte", "label": { "zh": "接收字节" } },
+        { "name": "record", "label": { "zh": "已校验诊断回答" } }
+      ],
+      "pulls": {
+        "input": "item",
+        "available": "available",
+        "last": "last",
+        "next": "next",
+        "rewind": "rewind"
+      },
+      "tests": [
+        {
+          "bus": {
+            "idle": 140,
+            "frames": [{ "id": 2024, "data": [4, 98, 241, 144, 42], "ack": false }],
+            "tail": 200
+          },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 270,
+          "queue": [165],
+          "constants": { "id": 291, "length": 1, "prep": 0 },
+          "pulses": { "reset": [0], "start": [270], "request": [] },
+          "peerLow": [315]
+        }
+      ],
+      "hidden": [
+        {
+          "bus": {
+            "idle": 140,
+            "frames": [{ "id": 2024, "data": [4, 98, 241, 144, 0], "ack": false }],
+            "tail": 200
+          },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 270,
+          "queue": [165],
+          "constants": { "id": 291, "length": 1, "prep": 0 },
+          "pulses": { "reset": [0], "start": [270], "request": [] },
+          "peerLow": [315]
+        },
+        {
+          "bus": {
+            "idle": 140,
+            "frames": [{ "id": 2024, "data": [4, 98, 241, 144, 42], "ack": false }],
+            "tail": 200
+          },
+          "tx": { "id": 291, "data": [165] },
+          "txAt": 270,
+          "queue": [165],
+          "constants": { "id": 291, "length": 1, "prep": 0 },
+          "pulses": { "reset": [0], "start": [270], "request": [] },
+          "peerLow": [315],
+          "flipTicks": [190]
+        }
+      ],
+      "want": {
+        "send": {
+          "controllerIntegratedDrive": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "next": {
+          "controllerIntegratedNext": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rewind": {
+          "controllerIntegratedRewind": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "attempt": {
+          "controllerIntegratedAttempts": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "done": {
+          "controllerIntegratedDone": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "tec": {
+          "controllerIntegratedTec": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rx": {
+          "controllerIntegratedRec": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "mode": {
+          "controllerIntegratedMode": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "error": {
+          "controllerIntegratedError": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "kind": {
+          "controllerIntegratedKind": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "ready": {
+          "controllerIntegratedReady": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "accepted": {
+          "controllerIntegratedAccepted": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "lost": {
+          "controllerIntegratedLost": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rxId": {
+          "controllerIntegratedRxId": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rxLength": {
+          "controllerIntegratedRxLength": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "rxByte": {
+          "controllerIntegratedRxByte": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        },
+        "record": {
+          "controllerIntegratedUds": {
+            "start": "start",
+            "prep": "prep",
+            "reset": "reset",
+            "request": "request"
+          }
+        }
+      },
+      "solution": [
+        "p = controller(line, id, length, item, available, last, start, prep, reset, request)",
+        "send <- p.send",
+        "next <- p.next",
+        "rewind <- p.rewind",
+        "attempt <- p.attempt",
+        "done <- p.done",
+        "tec <- p.tec",
+        "error <- p.error",
+        "mode <- p.mode",
+        "rx <- p.rx",
+        "kind <- p.kind",
+        "ready <- p.ready",
+        "accepted <- p.accepted",
+        "lost <- p.lost",
+        "rxId <- p.rxId",
+        "rxLength <- p.rxLength",
+        "rxByte <- p.rxByte",
+        "storedId = reg[reg=A]()",
+        "storedLength = reg[reg=B]()",
+        "storedBytes = reg[reg=C]()",
+        "hasId = present(p.rxId)",
+        "hasLength = present(p.rxLength)",
+        "hasByte = present(p.rxByte)",
+        "hasBuffer = present(storedBytes)",
+        "empty = emptyBytes()",
+        "oldBuffer = select(hasBuffer, storedBytes, empty)",
+        "base = select(hasId, empty, oldBuffer)",
+        "oneByte = byteList(p.rxByte)",
+        "appended = concatBytes(base, oneByte)",
+        "nextBytes = select(hasByte, appended, base)",
+        "nextId = select(hasId, p.rxId, storedId)",
+        "nextLength = select(hasLength, p.rxLength, storedLength)",
+        "saveId = keep[reg=A](nextId)",
+        "saveLength = keep[reg=B](nextLength)",
+        "saveBytes = keep[reg=C](nextBytes)",
+        "c0 = const[value=0]()",
+        "c1 = const[value=1]()",
+        "c2 = const[value=2]()",
+        "c3 = const[value=3]()",
+        "c4 = const[value=4]()",
+        "c5 = const[value=5]()",
+        "c98 = const[value=98]()",
+        "c144 = const[value=144]()",
+        "c241 = const[value=241]()",
+        "c2024 = const[value=2024]()",
+        "falseValue = compare[form=eq](c0, c1)",
+        "validKind = compare[form=eq](p.kind, c0)",
+        "readyValid = select(p.ready, validKind, falseValue)",
+        "target = compare[form=eq](storedId, c2024)",
+        "correctLength = compare[form=eq](storedLength, c5)",
+        "lengthByte = byteAt(storedBytes, c0)",
+        "service = byteAt(storedBytes, c1)",
+        "didHigh = byteAt(storedBytes, c2)",
+        "didLow = byteAt(storedBytes, c3)",
+        "lengthOK = compare[form=eq](lengthByte, c4)",
+        "serviceOK = compare[form=eq](service, c98)",
+        "highOK = compare[form=eq](didHigh, c241)",
+        "lowOK = compare[form=eq](didLow, c144)",
+        "didOK = select(highOK, lowOK, falseValue)",
+        "headerOK = select(serviceOK, didOK, falseValue)",
+        "formatOK = select(lengthOK, headerOK, falseValue)",
+        "lengthAndFormat = select(correctLength, formatOK, falseValue)",
+        "targetAndFormat = select(target, lengthAndFormat, falseValue)",
+        "eligible = select(readyValid, targetAndFormat, falseValue)",
+        "message = sliceBytes(storedBytes, c1, c4)",
+        "recordNow = select(eligible, message)",
+        "record <- recordNow"
+      ]
+    }
+  ]
+}

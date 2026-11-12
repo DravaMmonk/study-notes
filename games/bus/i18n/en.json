@@ -1110,5 +1110,19 @@
   "用两个重组器分别处理两个标识符；首帧到达时将流控发回对应来源。完整消息的前三字节是回答头部。": "Use two reassemblers, one per identifier; send flow control back to the corresponding source on its first frame. The first three message bytes are the response header.",
   "一次功能请求可以产生多份长回答；流控和重组状态都属于各自的回答者。": "One functional request can produce multiple long replies; flow control and reassembly state belong to each responder.",
   "控制器 A 记录": "Controller A record",
-  "控制器 B 记录": "Controller B record"
+  "控制器 B 记录": "Controller B record",
+  "清除后再跑一圈": "Drive again after clearing",
+  "清除故障码只删除当前记录，并不证明故障已经修好。模拟行驶循环可以让测试指定的故障重新出现。": "Clearing trouble codes only removes the current records; it does not prove a fault is repaired. A simulated driving cycle can make a fault specified by the test recur.",
+  "本关使用游戏定义的行驶例程 [0x31, 1, 0xFE, 0]；它不是任何真实车辆的行驶或诊断过程。": "This exercise uses the game-defined driving routine [0x31, 1, 0xFE, 0]; it is not the driving or diagnostic procedure of any real vehicle.",
+  "依次读取已确认故障、清除全部故障、再次读取、运行模拟行驶循环并再读一次。交出 [清除前条数, 清除后条数, 行驶后条数]。": "Read confirmed faults, clear all faults, read again, run the simulated driving cycle and read once more. Output [count before clearing, count after clearing, count after driving].",
+  "故障回答的前三字节是头部，之后每条记录四字节。分别保存前两次的条数，最后拼成报告。": "The first three bytes of a fault response are a header and each record is four bytes. Save the first two counts, then combine them in the report.",
+  "清除后的空列表只能说明记录被清除；行驶后再次读取才能观察这个模拟故障是否复现。": "An empty list after clearing only shows that records were cleared; reading again after driving shows whether this simulated fault recurred.",
+  "故障复查报告": "Fault recheck report",
+  "从 CAN 帧取出诊断回答": "Extract a diagnostic reply from a CAN frame",
+  "把逐位 CAN 接收和单帧诊断格式接起来：脚本节点发送一个 0x7E8 帧，数据包含长度 4 的单帧肯定回答。": "Connect bit-level CAN reception to the single-frame diagnostic format: a scripted node sends a 0x7E8 frame whose data contains a four-byte positive response.",
+  "玩家搭出的控制器必须先验证整帧；随后检查单帧长度、肯定回答服务号和数据标识，再交出四字节诊断消息。这里的请求与回答由脚本预设，不模拟完整诊断会话。": "The player-built controller must first validate the whole frame; then check the single-frame length, positive service and data identifier before outputting the four-byte diagnostic message. Requests and replies are scripted here rather than a complete diagnostic session.",
+  "连接自己的 CAN 控制器。对成功接收的 0x7E8、五字节 CAN 数据 [4, 0x62, 0xF1, 0x90, 值]，交出后四字节；错误帧或格式不符时交出「—」。": "Connect your CAN controller. For a successfully received 0x7E8 frame with five data bytes [4, 0x62, 0xF1, 0x90, value], output the last four bytes; output 「—」 for erroneous or differently formatted frames.",
+  "收到标识符时清空字节序列，逐个保存控制器交出的字节；结果就绪后先确认校验、标识符、长度和诊断头部。": "Clear the byte sequence when an identifier arrives, then save each byte from the controller. When the result is ready, verify its status, identifier, length and diagnostic header.",
+  "逐位接收、CAN 校验与单帧诊断格式在这里真正连接；完整交互和多帧流控仍在其他关卡单独模拟。": "Bit-level reception, CAN validation and single-frame diagnostic formatting are connected here; complete exchanges and multi-frame flow control remain separate simulations.",
+  "已校验诊断回答": "Validated diagnostic reply"
 }
