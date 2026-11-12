@@ -151,7 +151,10 @@
 .ch-line { fill: none; stroke-linecap: round; transition: d 0.4s; }
 .ch-line.is-curve { stroke: var(--ink); stroke-width: 1.75; }
 .ch-line.is-bound { stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 3 3; }
-.ch-was { fill: var(--paper); stroke: var(--muted); stroke-width: 1; }
+.ch-dots.is-was circle { fill: var(--paper); stroke: var(--muted); stroke-width: 1; }
+.ch-dots.is-given { fill: var(--faint); }
+.ch-dots.is-given path { fill: none; stroke: var(--hairline); stroke-width: 1; }
+.ch-dots.is-want circle { fill: none; stroke: var(--muted); stroke-width: 1.25; }
 .ch-level { stroke: var(--hairline); stroke-width: 1; }
 .ch-gap { stroke: var(--state); stroke-width: 5; opacity: 0.55; }
 .ch-now { fill: var(--state); stroke: var(--paper); stroke-width: 1.5; transition: cx 0.25s, cy 0.25s, fill 0.25s; }

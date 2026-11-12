@@ -40,7 +40,7 @@ function Shop({ name, top, tops, slope, stock, points }) {
       y={{ name, max: people / slope }}
       lines={[{ from: [top, 0], to: [0, top / slope], kind: 'curve' }, ...(held ? [{ from: [stock, 0], to: [stock, people / slope], kind: 'bound' }] : [])]}
       labels={[{ at: [top * 0.82, (top * 0.18) / slope], text: T('想买') }, ...(held ? [{ at: [stock, 0], text: T('进货'), under: true }] : [])]}
-      trail={points.slice(0, -1)}
+      series={[{ points: points.slice(0, -1), kind: 'was' }]}
       point={now && { at: now, reads: numberText(now[1]) }}
       gap={now && held && Math.abs(off) >= 1 ? { from: [stock, now[1]], to: now } : undefined}
       state={!now ? undefined : Math.abs(off) < 1 ? 'met' : off > 0 ? 'over' : 'under'}
