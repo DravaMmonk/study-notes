@@ -24,7 +24,7 @@ export function paperAnswers(task) {
 
 export const paperMatches = (task, answers) => {
   const wanted = paperAnswers(task)
-  return wanted.map((answer, index) => String(answers[index] ?? '').replace(/\s+/g, '').toUpperCase() === answer.replace(/\s+/g, '').toUpperCase())
+  return wanted.map((answer, index) => String(answers[index] ?? '').replace(/[，、]/g, ',').replace(/\s+/g, '').toUpperCase() === answer.replace(/\s+/g, '').toUpperCase())
 }
 
 export function paperProblems(task) {

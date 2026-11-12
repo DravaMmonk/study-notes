@@ -12,5 +12,6 @@ test('paper answers follow wired-AND, byte notation and the idle rule', () => {
   deepStrictEqual(paperMatches(binary, ['00101101 2d']), [true])
   const start = { mode: 'start', cases: [{ bits: [...Array(11).fill(1), 0, 1, 0] }], solution: ['11'] }
   deepStrictEqual(paperAnswers(start), ['11'])
+  deepStrictEqual(paperMatches({ ...start, cases: [{ bits: [...Array(11).fill(1), 0, ...Array(11).fill(1), 0] }] }, ['11，23']), [true])
   deepStrictEqual(paperProblems({ ...start, solution: ['13'] }), ['paper reference answers do not match the cases'])
 })
