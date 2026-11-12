@@ -1,0 +1,107 @@
+{
+  "title": { "zh": "功能请求的交错长回答" },
+  "intro": [
+    { "t": { "zh": "向功能地址发一次读取请求，两个模拟控制器分别以 0x7E8 和 0x7E9 返回 17 字节记录。两条回答都超过一帧，后续帧会交错到达。" } },
+    { "t": { "zh": "首帧到达后，分别向对应控制器发送无限块流控 [0x30, 0, 0]，它才会继续发送。这里使用游戏定义的固定时序和八字节填充，不模拟其他仲裁或超时。" } }
+  ],
+  "after": { "zh": "一次功能请求可以产生多份长回答；流控和重组状态都属于各自的回答者。" },
+  "tasks": [
+    {
+      "id": "5-23",
+      "brief": { "zh": "先发单帧功能请求 [3, 0x22, 0xF1, 0x90] 到目标 255。分别对两个首帧发送流控，按来源重组回答，去掉肯定回答头部，交出两条 17 字节记录。" },
+      "hint": [{ "zh": "用两个重组器分别处理两个标识符；首帧到达时将流控发回对应来源。完整消息的前三字节是回答头部。" }],
+      "inputs": [
+        { "name": "source", "label": { "zh": "回答的控制器" } },
+        { "name": "incoming", "label": { "zh": "收到的帧" } },
+        { "name": "ready", "label": { "zh": "收到回答" } }
+      ],
+      "outputs": [
+        { "name": "target", "label": { "zh": "请求目标" } },
+        { "name": "outgoing", "label": { "zh": "发送的帧" } },
+        { "name": "recordA", "label": { "zh": "控制器 A 记录" } },
+        { "name": "recordB", "label": { "zh": "控制器 B 记录" } }
+      ],
+      "broadcastBridge": {
+        "target": "target",
+        "outgoing": "outgoing",
+        "source": "source",
+        "incoming": "incoming",
+        "ready": "ready"
+      },
+      "tests": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "broadcastBridge": {
+            "valueA": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+            "valueB": [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "bus": { "idle": 8, "frames": [], "tail": 0 },
+          "broadcastBridge": {
+            "valueA": [80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96],
+            "valueB": [0, 255, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+          }
+        }
+      ],
+      "want": {
+        "target": "broadcastBridgeTargets",
+        "outgoing": "broadcastBridgeOutgoing",
+        "recordA": { "broadcastBridgeRecord": { "responder": "A" } },
+        "recordB": { "broadcastBridgeRecord": { "responder": "B" } }
+      },
+      "solution": [
+        "tick = reg[reg=A, start=0]()",
+        "next = arith[form=inc](tick)",
+        "saveTick = keep[reg=A](next)",
+        "c0 = const[value=0]()",
+        "c1 = const[value=1]()",
+        "c3 = const[value=3]()",
+        "c4 = const[value=4]()",
+        "c17 = const[value=17]()",
+        "c34 = const[value=34]()",
+        "c48 = const[value=48]()",
+        "c144 = const[value=144]()",
+        "c241 = const[value=241]()",
+        "c255 = const[value=255]()",
+        "c2024 = const[value=2024]()",
+        "c2025 = const[value=2025]()",
+        "at0 = compare[form=eq](tick, c0)",
+        "header = byteAt(incoming, c0)",
+        "low = byteAt(incoming, c1)",
+        "kind = shiftRight(header, c4)",
+        "first = compare[form=eq](kind, c1)",
+        "firstReady = select(ready, first, c0)",
+        "b3 = byteList(c3)",
+        "b34 = byteList(c34)",
+        "b241 = byteList(c241)",
+        "b144 = byteList(c144)",
+        "req0 = concatBytes(b3, b34)",
+        "req1 = concatBytes(req0, b241)",
+        "request = concatBytes(req1, b144)",
+        "b48 = byteList(c48)",
+        "b0 = byteList(c0)",
+        "flow0 = concatBytes(b48, b0)",
+        "flow = concatBytes(flow0, b0)",
+        "maybeFlow = select(firstReady, flow)",
+        "outgoingNow = select(at0, request, maybeFlow)",
+        "outgoing <- outgoingNow",
+        "flowTarget = select(firstReady, source)",
+        "targetNow = select(at0, c255, flowTarget)",
+        "target <- targetNow",
+        "isA = compare[form=eq](source, c2024)",
+        "isB = compare[form=eq](source, c2025)",
+        "allowA = select(ready, isA, c0)",
+        "allowB = select(ready, isB, c0)",
+        "recvA = isorecv(incoming, header, low, allowA)",
+        "recvB = isorecv(incoming, header, low, allowB)",
+        "valueA = sliceBytes(recvA, c3, c17)",
+        "valueB = sliceBytes(recvB, c3, c17)",
+        "recordA <- valueA",
+        "recordB <- valueB"
+      ]
+    }
+  ]
+}

@@ -1102,5 +1102,13 @@
   "从事件上下文出发，再同时检查版本、故障和行驶后信号；任何一项不符合条件都不能报通过。": "Start from the event context, then check versions, faults and post-drive signals together; any unmet condition prevents a pass.",
   "行驶后车速": "Vehicle speed after driving",
   "行驶后轮速": "Wheel speed after driving",
-  "复查通过": "Recheck passed"
+  "复查通过": "Recheck passed",
+  "功能请求的交错长回答": "Interleaved long replies to a functional request",
+  "向功能地址发一次读取请求，两个模拟控制器分别以 0x7E8 和 0x7E9 返回 17 字节记录。两条回答都超过一帧，后续帧会交错到达。": "Send one functional read. Two simulated controllers reply under 0x7E8 and 0x7E9 with 17-byte records; each reply spans multiple frames and the consecutive frames interleave.",
+  "首帧到达后，分别向对应控制器发送无限块流控 [0x30, 0, 0]，它才会继续发送。这里使用游戏定义的固定时序和八字节填充，不模拟其他仲裁或超时。": "After each first frame, send unlimited-block flow control [0x30, 0, 0] to that controller before it continues. This uses game-defined fixed timing and eight-byte padding; other arbitration and timeouts are not simulated.",
+  "先发单帧功能请求 [3, 0x22, 0xF1, 0x90] 到目标 255。分别对两个首帧发送流控，按来源重组回答，去掉肯定回答头部，交出两条 17 字节记录。": "Send the single-frame functional request [3, 0x22, 0xF1, 0x90] to target 255. Send flow control for each first frame, reassemble replies by source, strip each positive-response header and output both 17-byte records.",
+  "用两个重组器分别处理两个标识符；首帧到达时将流控发回对应来源。完整消息的前三字节是回答头部。": "Use two reassemblers, one per identifier; send flow control back to the corresponding source on its first frame. The first three message bytes are the response header.",
+  "一次功能请求可以产生多份长回答；流控和重组状态都属于各自的回答者。": "One functional request can produce multiple long replies; flow control and reassembly state belong to each responder.",
+  "控制器 A 记录": "Controller A record",
+  "控制器 B 记录": "Controller B record"
 }
