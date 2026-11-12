@@ -2,14 +2,17 @@
   "title": { "zh": "从记录到更新与复查" },
   "intro": [
     { "t": { "zh": "用触发窗口记录仪找到车速和轮速首次持续不一致的时刻；记录完成后启动体检，按依赖顺序更新两个控制器，再模拟行驶并复查。" } },
-    { "t": { "zh": "这是游戏定义的简化综合场景：速度样本、诊断和刷写都按游戏拍推进；两个控制器在线，所有回答按时成功，行驶循环只清除测试指定的故障。它不是物理总线或真实车辆的完整模拟。" } }
+    { "t": { "zh": "这是游戏定义的简化综合场景：速度样本、诊断和刷写都按游戏拍推进；两个控制器在线，所有回答按时成功，行驶循环只清除测试指定的故障。它不是物理总线或真实车辆的完整模拟。" } },
+    { "t": { "zh": "行驶后的模拟车速和轮速都必须在 0 到 100 之间，差值不超过 2；两个新版本一致且没有已确认故障时，复查才通过。" } }
   ],
-  "after": { "zh": "从事件上下文出发，再比较更新前后的诊断结果；指定故障修复后，其他故障仍可能存在。" },
+  "after": { "zh": "从事件上下文出发，再同时检查版本、故障和行驶后信号；任何一项不符合条件都不能报通过。" },
   "tasks": [
     {
       "id": "6-10",
-      "brief": { "zh": "交出触发前、触发时和触发后的六个速度值；之后体检、先后刷写控制器 0 和 1、运行各自的模拟行驶循环并复查。最后交出触发拍与更新前后的版本和已确认故障报告。" },
-      "hint": [{ "zh": "把游戏拍计数和速度样本接到触发窗口记录仪；记录出现时启动体检仪。之后复用两个刷写器，并保存复查结果。" }],
+      "brief": {
+        "zh": "交出触发前、触发时和触发后的六个速度值；之后体检、先后刷写控制器 0 和 1、运行各自的模拟行驶循环并复查。最后交出触发拍、更新前后的版本和已确认故障报告，以及复查是否通过。"
+      },
+      "hint": [{ "zh": "把游戏拍计数和速度样本接到触发窗口记录仪；记录出现时启动体检仪。复用两个刷写器后，比较两个新版本、复查故障及行驶后的速度范围和差值。" }],
       "inputs": [
         { "name": "source", "label": { "zh": "回答的控制器" } },
         { "name": "reply", "label": { "zh": "控制器回答" } },
@@ -18,14 +21,17 @@
         { "name": "image1", "label": { "zh": "控制器 1 软件" } },
         { "name": "speed", "label": { "zh": "车速" } },
         { "name": "wheel", "label": { "zh": "轮速" } },
-        { "name": "traceReady", "label": { "zh": "有速度采样" } }
+        { "name": "traceReady", "label": { "zh": "有速度采样" } },
+        { "name": "postSpeed", "label": { "zh": "行驶后车速" } },
+        { "name": "postWheel", "label": { "zh": "行驶后轮速" } }
       ],
       "outputs": [
         { "name": "target", "label": { "zh": "请求目标" } },
         { "name": "request", "label": { "zh": "诊断请求" } },
         { "name": "report", "label": { "zh": "更新复查报告" } },
         { "name": "capture", "label": { "zh": "触发窗口" } },
-        { "name": "triggerTick", "label": { "zh": "触发拍" } }
+        { "name": "triggerTick", "label": { "zh": "触发拍" } },
+        { "name": "healthy", "label": { "zh": "复查通过" } }
       ],
       "fleet": {
         "target": "target",
@@ -34,7 +40,13 @@
         "response": "reply",
         "ready": "ready",
         "images": { "image0": 0, "image1": 1 },
-        "trace": { "speed": "speed", "wheel": "wheel", "ready": "traceReady" }
+        "trace": {
+          "speed": "speed",
+          "wheel": "wheel",
+          "ready": "traceReady",
+          "postSpeed": "postSpeed",
+          "postWheel": "postWheel"
+        }
       },
       "tests": [
         {
@@ -79,7 +91,8 @@
             { "speed": 32, "wheel": 33 },
             { "speed": 33, "wheel": 33 },
             { "speed": 34, "wheel": 34 }
-          ]
+          ],
+          "fleetPost": { "speed": 70, "wheel": 71 }
         }
       ],
       "hidden": [
@@ -127,7 +140,98 @@
             { "speed": 15, "wheel": 17 },
             { "speed": 16, "wheel": 18 },
             { "speed": 17, "wheel": 19 }
-          ]
+          ],
+          "fleetPost": { "speed": 70, "wheel": 71 }
+        },
+        {
+          "bus": { "idle": 100, "frames": [], "tail": 0 },
+          "fleet": [
+            {
+              "online": true,
+              "version": 1,
+              "waits": 0,
+              "dtcs": [{ "code": "0x123456", "status": 8 }],
+              "flash": {
+                "maxBlock": 4,
+                "expectedChecksum": 10,
+                "image": [1, 2, 3, 4],
+                "versionAfter": [2],
+                "fixedDtcs": ["0x123456"]
+              }
+            },
+            {
+              "online": true,
+              "version": 1,
+              "waits": 0,
+              "dtcs": [],
+              "flash": {
+                "maxBlock": 4,
+                "expectedChecksum": 24,
+                "image": [9, 8, 7],
+                "versionAfter": [2],
+                "fixedDtcs": []
+              },
+              "after": 0
+            },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 }
+          ],
+          "fleetTrace": [
+            { "speed": 30, "wheel": 30 },
+            { "speed": 30, "wheel": 31 },
+            { "speed": 31, "wheel": 32 },
+            { "speed": 32, "wheel": 33 },
+            { "speed": 33, "wheel": 33 },
+            { "speed": 34, "wheel": 34 }
+          ],
+          "fleetPost": { "speed": 101, "wheel": 100 }
+        },
+        {
+          "bus": { "idle": 100, "frames": [], "tail": 0 },
+          "fleet": [
+            {
+              "online": true,
+              "version": 1,
+              "waits": 0,
+              "dtcs": [{ "code": "0x123456", "status": 8 }],
+              "flash": {
+                "maxBlock": 4,
+                "expectedChecksum": 10,
+                "image": [1, 2, 3, 4],
+                "versionAfter": [2],
+                "fixedDtcs": ["0x123456"]
+              }
+            },
+            {
+              "online": true,
+              "version": 1,
+              "waits": 0,
+              "dtcs": [],
+              "flash": {
+                "maxBlock": 4,
+                "expectedChecksum": 24,
+                "image": [9, 8, 7],
+                "versionAfter": [2],
+                "fixedDtcs": []
+              },
+              "after": 0
+            },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 },
+            { "online": false, "version": 0 }
+          ],
+          "fleetTrace": [
+            { "speed": 30, "wheel": 30 },
+            { "speed": 30, "wheel": 31 },
+            { "speed": 31, "wheel": 32 },
+            { "speed": 32, "wheel": 33 },
+            { "speed": 33, "wheel": 33 },
+            { "speed": 34, "wheel": 34 }
+          ],
+          "fleetPost": { "speed": 50, "wheel": 55 }
         }
       ],
       "want": {
@@ -135,7 +239,8 @@
         "request": "fleetTraceRequests",
         "report": "fleetTraceReport",
         "capture": "fleetTraceWindow",
-        "triggerTick": "fleetTraceTrigger"
+        "triggerTick": "fleetTraceTrigger",
+        "healthy": "fleetTraceHealthy"
       },
       "solution": [
         "stage = reg[reg=A, start=0]()",
@@ -277,7 +382,29 @@
         "firstPairs = concatBytes(beforePair, triggerPair)",
         "window = concatBytes(firstPairs, afterPair)",
         "captureNow = select(startExam, window)",
-        "capture <- captureNow"
+        "capture <- captureNow",
+        "maxPlusOne = const[value=101]()",
+        "differenceLimit = const[value=3]()",
+        "afterFlag0 = byteAt(flags, c0)",
+        "afterFlag1 = byteAt(flags, c1)",
+        "fault0Clear = compare[form=eq](afterFlag0, c0)",
+        "fault1Clear = compare[form=eq](afterFlag1, c0)",
+        "sameVersion = compare[form=eq](firstVersion, versionByte)",
+        "speedInRange = compare[form=lt](postSpeed, maxPlusOne)",
+        "wheelInRange = compare[form=lt](postWheel, maxPlusOne)",
+        "differenceA = subtract(postSpeed, postWheel)",
+        "differenceB = subtract(postWheel, postSpeed)",
+        "nearA = compare[form=lt](differenceA, differenceLimit)",
+        "nearB = compare[form=lt](differenceB, differenceLimit)",
+        "falseValue = compare[form=eq](c0, c1)",
+        "bothFaultsClear = select(fault0Clear, fault1Clear, falseValue)",
+        "versionsAndFaults = select(sameVersion, bothFaultsClear, falseValue)",
+        "ranges = select(speedInRange, wheelInRange, falseValue)",
+        "closeEnough = select(nearA, nearB, falseValue)",
+        "signalsOK = select(ranges, closeEnough, falseValue)",
+        "allOK = select(versionsAndFaults, signalsOK, falseValue)",
+        "healthyNow = select(post6, allOK)",
+        "healthy <- healthyNow"
       ],
       "naive": [
         "stage = reg[reg=A, start=0]()",
@@ -419,7 +546,29 @@
         "firstPairs = concatBytes(beforePair, triggerPair)",
         "window = concatBytes(firstPairs, afterPair)",
         "captureNow = select(startExam, window)",
-        "capture <- captureNow"
+        "capture <- captureNow",
+        "maxPlusOne = const[value=101]()",
+        "differenceLimit = const[value=3]()",
+        "afterFlag0 = byteAt(flags, c0)",
+        "afterFlag1 = byteAt(flags, c1)",
+        "fault0Clear = compare[form=eq](afterFlag0, c0)",
+        "fault1Clear = compare[form=eq](afterFlag1, c0)",
+        "sameVersion = compare[form=eq](firstVersion, versionByte)",
+        "speedInRange = compare[form=lt](postSpeed, maxPlusOne)",
+        "wheelInRange = compare[form=lt](postWheel, maxPlusOne)",
+        "differenceA = subtract(postSpeed, postWheel)",
+        "differenceB = subtract(postWheel, postSpeed)",
+        "nearA = compare[form=lt](differenceA, differenceLimit)",
+        "nearB = compare[form=lt](differenceB, differenceLimit)",
+        "falseValue = compare[form=eq](c0, c1)",
+        "bothFaultsClear = select(fault0Clear, fault1Clear, falseValue)",
+        "versionsAndFaults = select(sameVersion, bothFaultsClear, falseValue)",
+        "ranges = select(speedInRange, wheelInRange, falseValue)",
+        "closeEnough = select(nearA, nearB, falseValue)",
+        "signalsOK = select(ranges, closeEnough, falseValue)",
+        "allOK = select(versionsAndFaults, signalsOK, falseValue)",
+        "healthyNow = select(post6, allOK)",
+        "healthy <- healthyNow"
       ]
     }
   ]

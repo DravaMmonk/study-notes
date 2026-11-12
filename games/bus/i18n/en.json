@@ -1087,5 +1087,20 @@
   "封装广播扫描器，除了版本列表，还要告诉使用者是否收到了任何回答。": "Package the broadcast scanner and report both the version list and whether anyone replied.",
   "用广播扫描器发一次请求；结果出现时交出版本列表和是否收到回答。": "Use the broadcast scanner to send one request. When the result appears, output the version list and whether any reply arrived.",
   "空版本列表表示没有回答；有一条版本为 0 的记录也不是空列表。": "An empty list means nobody replied; a version-zero record is not an empty list.",
-  "空结果、版本为 0 和控制器离线仍是不同情况。": "An empty result, version zero and an offline controller remain different cases."
+  "空结果、版本为 0 和控制器离线仍是不同情况。": "An empty result, version zero and an offline controller remain different cases.",
+  "从控制器读出车速": "Read speed from the controller",
+  "这次不直接读取逐帧世界的字段：把自己搭出的逐位 CAN 控制器接到总线，从它接收到的数据中解码车速。": "Instead of reading fields directly from the frame-level world, connect the bit-level CAN controller you built and decode the speed from its received data.",
+  "目标帧标识符为 0x2A5，数据恰有一个字节，车速等于该字节的两倍。只在接收结果就绪且校验成功时交出车速；其他帧和错误结果不交出。": "The target identifier is 0x2A5 and its data is exactly one byte; speed is twice that byte. Output speed only when a reception result is ready and valid; other frames and errors produce no speed.",
+  "本关沿用控制器原型的限定测试：一次初始仲裁、受控错误、被动暂停及下线恢复；它不是所有 CAN 场景的完整模型。": "This exercise retains the controller prototype’s scoped tests: one initial arbitration, controlled errors, passive suspension and bus-off recovery. It is not a complete model of all CAN scenarios.",
+  "连接自己的 CAN 控制器并转交它的收发和状态结果；保存接收到的标识符、长度与字节，仅在目标帧成功接收时交出解码车速。": "Connect your CAN controller and forward its transmit, receive and status results. Save the received identifier, length and byte, and output decoded speed only when the target frame is successfully received.",
+  "逐拍保存控制器输出的标识符、长度和字节；收到结果就绪后同时检查结果种类、标识符和长度，再输出字节的两倍。": "Save the controller’s identifier, length and data byte as they appear. When a result is ready, check the result type, identifier and length before outputting twice the byte.",
+  "高层信号来自玩家搭出的逐位控制器，错误帧不会被当成车速；其他逐帧练习仍使用单独的简化帧调度器。": "The higher-level signal comes from the player-built bit-level controller, so an error frame is not treated as speed. Other frame-level exercises still use a separate simplified scheduler.",
+  "已校验车速": "Validated speed",
+  "行驶后的模拟车速和轮速都必须在 0 到 100 之间，差值不超过 2；两个新版本一致且没有已确认故障时，复查才通过。": "After the simulated drive, both vehicle and wheel speed must be between 0 and 100 and differ by no more than 2. The recheck passes only if the two new versions match and no confirmed faults remain.",
+  "交出触发前、触发时和触发后的六个速度值；之后体检、先后刷写控制器 0 和 1、运行各自的模拟行驶循环并复查。最后交出触发拍、更新前后的版本和已确认故障报告，以及复查是否通过。": "Output the six speed values from before, at and after the trigger. Then examine the vehicle, program controllers 0 and 1 in order, run their simulated driving cycles and recheck. Finally output the trigger tick, versions and confirmed-fault status before and after, and whether the recheck passes.",
+  "把游戏拍计数和速度样本接到触发窗口记录仪；记录出现时启动体检仪。复用两个刷写器后，比较两个新版本、复查故障及行驶后的速度范围和差值。": "Connect the game-tick counter and speed samples to the trigger-window recorder and start the examiner when a record appears. After using two programmers, compare the new versions, rechecked faults, and the speed range and difference.",
+  "从事件上下文出发，再同时检查版本、故障和行驶后信号；任何一项不符合条件都不能报通过。": "Start from the event context, then check versions, faults and post-drive signals together; any unmet condition prevents a pass.",
+  "行驶后车速": "Vehicle speed after driving",
+  "行驶后轮速": "Wheel speed after driving",
+  "复查通过": "Recheck passed"
 }
