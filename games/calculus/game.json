@@ -8,7 +8,7 @@
     "zh": "高等数学"
   },
   "lede": {
-    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出求和、差分、极限应答和函数取样，再把差分除以步长，让斜率落到一点。"
+    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出求和、差分、极限、斜率与面积：微积分从一格一格的计算长出来。"
   },
   "primitives": [
     "add",
@@ -124,6 +124,15 @@
         "sum-product-rule",
         "chain-rule",
         "cusp"
+      ]
+    },
+    {
+      "id": 4,
+      "title": { "zh": "面积" },
+      "question": { "zh": "步长乘上的累加，在步长越来越小时留下什么？" },
+      "foundation": ["cell", "riemann", "linear-area", "linear-error", "trap", "square-trap"],
+      "topics": [
+        { "id": "area-simpson", "title": { "zh": "三点加权" }, "levels": ["simpson"], "after": "square-trap" }
       ]
     }
   ],
