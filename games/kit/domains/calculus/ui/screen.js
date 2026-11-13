@@ -9,7 +9,6 @@ import { terms } from './terms.js'
 // axes (terms.js).
 export const screen = {
   play,
-  says: (r) => r.error,
   portLabels: PORT_LABELS,
   registers: { registers: REGISTERS, top: 9, numbers: true },
   scene: terms,

@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import { checkIso, declaredRules, derives, follows, settle, waysIn } from './iso.js'
 import { parseSide, ruleText } from './schematic.js'
 import { checkDefine } from './define.js'
+import { failureText } from '../../engine/failure-text.js'
 import { boardOf, checkDeclaration, linesOf, premiseChips, problemsOf } from './ruleLines.js'
 import { runOutputTests } from '../../engine/test-run.js'
 import { parse, same, show, subst, tvar } from './formula.js'
@@ -512,7 +513,9 @@ test('definitions check completion, then hidden examples, then decreasing recurs
   })
   assert.deepEqual(judge.checks, [])
   assert.match(judge(['y', '']).why.en, /whole right side/)
-  assert.deepEqual(judge(['zero', 'add(s(x), y)']).got, parseSide('zero'))
+  const wrong = judge(['zero', 'add(s(x), y)'])
+  assert.deepEqual(wrong.got, parseSide('zero'))
+  assert.match(failureText(wrong).en, /but works out to zero/)
   assert.deepEqual(judge(['y', 'add(s(x), y)']).at, { row: 1, slot: 0 })
   assert.equal(judge(['y', 's(add(x, y))']), null)
 })

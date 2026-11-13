@@ -4,7 +4,6 @@ import { isGrid } from './grid.js'
 import { inOrder, sameAs, ticks } from './judge.js'
 import { runTests } from './test-run.js'
 import { valueText } from './views.js'
-import { T, sideOf } from '../shell/i18n.js'
 
 const output = (run, name) => run.outputs[name] ?? null
 const shape = (value) => isGrid(value) ? 'grid' : 'scalar'
@@ -14,30 +13,20 @@ export function outputJudge(ports, expect, { same, show = valueText, says = () =
     got: (run) => output(run, port.name),
     same,
     at: port.name,
-    why: (want, got) => says(port, want, got) ?? T(
-      `「${sideOf(port.label, 'zh')}」应当是 ${show(want)}，这块板给出 ${show(got)}。`,
-      `“${sideOf(port.label, 'en')}” should be ${show(want)}; the board gives ${show(got)}.`,
-    ),
+    why: (want, got) => says(port, want, got) ?? { relation: 'output', subject: port.label, show },
   })))
 }
 
 export function tickJudge({ show = valueText, ...options }) {
-  const word = (value, lang) => {
-    const text = show(value)
-    return typeof text === 'object' ? text[lang] : text
-  }
   return ticks({
     ...options,
-    why: (port, want, got, tick) => T(
-      `第 ${tick} 拍，「${sideOf(port.label, 'zh')}」应当是 ${word(want, 'zh')}，这块板给出 ${word(got, 'zh')}。`,
-      `At tick ${tick}, “${sideOf(port.label, 'en')}” should be ${word(want, 'en')}; the board gives ${word(got, 'en')}.`,
-    ),
+    why: (port) => ({ relation: 'output', subject: port.label, show }),
   })
 }
 
 export function tickReport(steps, fail) {
   if (!fail) return { ticks: steps }
-  return { ticks: steps.map((step) => step.tick === fail.at.tick ? { ...step, failed: fail.why } : step), fail }
+  return { ticks: steps.map((step) => step.tick === fail.at.tick ? { ...step, failed: fail } : step), fail }
 }
 
 export function onceRun({ same = (a, b) => a === b, show = valueText, tolerance, says } = {}) {

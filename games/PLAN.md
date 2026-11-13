@@ -9,6 +9,7 @@
 - 已有的基础件：电路画布和手机格位、词序条（`kit/strip`）、填表（`shell/RowTable.jsx`）、规则行（`shell/RuleRows.jsx`）、一次判定（`shell/CheckOnce.jsx`）、结论行（`shell/Verdict.jsx`）、带名字的几行（`shell/NamedLines.jsx`）、玩家写检验（`shell/Checks.jsx`、`engine/caught.js`）、逐步回放（`shell/usePlayback.jsx`）、手头有什么（`kit/course.js` 的 `holds`，决策二十三）。
 - A.1 已完成。六种纯判定在 `engine/judge.js`，运行报告由 `engine/test-run.js` 汇总，电路经 `engine/circuit-run.js` 接回放和结果区。12 款游戏的检查输出逐字节一致。
 - A.2 已完成。《证明完毕》的定义和声明由领域组合共享判定，作者检查和一次判定组件共用它。12 款游戏的检查输出逐字节一致。
+- A.3 已完成。一次判定、结论行和电路结果区读取统一失败。定义关的值算错时显示应得和实得，超出步数的提示照旧。写检验玩法用共享判定检查每样作品。12 款游戏的检查输出逐字节一致。
 - `engine/circuit-domain.js` 仍承载作者侧检查（`checkCircuitTasks`）、schema（`levelSchema`）和课程读取（`circuitCourse`）。
 - 还在领域里的机制：`logic` 的作者检查（`validate.js`）、三个模板（`logic/templates/*.jsx`）、词序条上的树编辑器（`logic/ui/SentenceEditor.jsx`）、七张「造出的东西往后传」的表、八种玩法的屏。
 - 量：`logic` 自写组件 2039 行（`engine/components.test.js`），只许降。
@@ -30,15 +31,6 @@
 - 关卡的重新设计。本计划只对内容做机械改动（改字段名、补字段）。
 
 ---
-
-## 阶段 A　判定
-
-### A.3 反馈统一读失败
-
-- 一次判定、结论行、电路关的结果区都按失败的形状画：有「要什么、得到什么」时写出两者。
-- `engine/caught.js` 建在 A.1 上：对的作品和错的作品各是一次判定。
-- **会变**：定义关失败时除了「应当算出」，多写出玩家的定义算出了什么。
-- 验收：领域里不再有自己拼「应当是…，这块板给出…」的地方（现在 `circuit-domain.js`、`define.js`、`iso.js` 各一处）。
 
 ## 阶段 B　作者侧的检查
 
@@ -145,7 +137,6 @@ A 和 C 互不依赖，可以交替做。D.3 要 A 和 B 做完；D.5 要 C.1、
 **失败**
 - `at` 是作品里的一个位置，四种写法：件的实例 id（板）、`{ row, slot }`（规则行和表）、从根数起的下标路径（条）、`{ tick }`（逐拍，和前三种可以并用）。
 - `hidden` 只管检验给不给看。失败照样带上第一条不过的检验的 `want` 和 `got`，也就是玩家反复试可以把检验一条条套出来；现在的声明关就是这样，不再往严里收。
-- A.3 里定义关失败的那句话写成：「〈式子〉应当算出〈要的〉，现在算出〈得到的〉」；不终止时仍是原来那句。
 
 **缓存（B.2）**
 - 放本机，不进仓库：`trace-viewer/node_modules/.cache/games-check/<游戏>.json`。

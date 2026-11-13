@@ -10,7 +10,6 @@ import FrameReplay from './FrameReplay.jsx'
 // (FrameReplay.jsx).
 export const screen = {
   play,
-  says: (r) => r.error,
   portLabels: PORT_LABELS,
   words: BUS_WORDS,
   registers: { registers: REGISTERS, numberConstants: true, numberStarts: true, forms: FORMS },

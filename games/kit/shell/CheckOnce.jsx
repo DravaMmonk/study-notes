@@ -27,7 +27,7 @@ export function useCheckOnce({ judge, work, passed, onPass, lastRun, keepRun }) 
     if (next.pass) onPass(next)
   }
   return {
-    results: verdict ? <Verdict pass={verdict.pass}>{verdict.pass ? passed : L(verdict.fail.why)}</Verdict> : null,
+    results: verdict ? <Verdict pass={verdict.pass} failure={verdict.fail}>{passed}</Verdict> : null,
     dock: <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />,
     reset: () => setVerdict(null),
   }

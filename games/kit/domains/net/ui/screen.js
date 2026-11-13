@@ -7,7 +7,6 @@ import { PORT_LABELS, FORMS } from './catalog.js'
 // wire and input and what the board gives against what it should, on one time axis (run.js entries).
 export const screen = {
   play,
-  says: (r) => r.fail?.at?.tick === undefined ? r.fail?.why : null,
   portLabels: PORT_LABELS,
   registers: { registers: REGISTERS, top: 255, forms: FORMS },
 }

@@ -25,12 +25,6 @@ import { T, sideOf } from '../../shell/i18n.js'
 const show = (v) => (v === null || v === undefined ? '—' : v === true ? T('是', 'yes') : v === false ? T('否', 'no') : v === 'end' ? T('帧尾') : String(v))
 const list = (values, lang) => (values.length ? values.map((v) => sideOf(show(v), lang)).join(' ') : lang === 'zh' ? '（什么也没有）' : '(nothing)')
 
-/** Why the values given in order are not the ones wanted. */
-const misordered = (label, words, want, got) => T(
-  `「${label.zh ?? label}」：${words.zh}应当是 ${list(want, 'zh')}，这块板给出 ${list(got, 'zh')}。`,
-  `“${sideOf(label, 'en')}”: ${words.en} should be ${list(want, 'en')}; the board gives ${list(got, 'en')}.`,
-)
-
 /** Everything a level checks: its wires out and outputs, with their labels. */
 export const checked = (level) => [...(level.wires?.out ?? []), ...(level.outputs ?? [])]
 
@@ -72,7 +66,7 @@ export function runTest(level, circuit, test, parts) {
         return expected.far ? farEnd(expected.far, values) : values.filter((value) => value !== null)
       },
       same: (want, got) => got.length === want.length && got.every((value, k) => same(want[k], value)),
-      why: (want, got) => misordered(port.label, expected.words, want, got),
+      why: () => ({ relation: 'order', subject: port.label, words: expected.words, show: list }),
     })
   })
   const final = inOrder(...ordered)(out)

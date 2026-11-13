@@ -1,3 +1,4 @@
+import { failureText } from '../failure-text.js'
 // A circuit level as a blind player meets it (./play.js): the board as it opens, the parts in the tray with what the
 // components box says of them, the level's visible tests, and an attempt read as blueprint text exactly as the game's
 // "import from text" reads it (../../circuit/text.js read: the tray's parts only, no loops, frames kept, the editor's
@@ -179,7 +180,7 @@ export function tickPlay({ run, given, lanes, more = () => [], registers = null,
     run: ({ game, level: { source: task }, solved }, board) => {
       const { partOf } = game.circuit
       const shown = run({ ...task, tests: testsOf(task, solved) }, board, partOf)
-      const tests = untilFail(shown.runs.map((r, k) => ({ label: label(k), pass: !failed(r), says: r.error ?? r.final ?? r.fail?.why ?? null })))
+      const tests = untilFail(shown.runs.map((r, k) => ({ label: label(k), pass: !failed(r), says: r.error ?? r.final ?? failureText(r.fail) })))
       const n = task.hidden.length
       const hidden = solved || !n ? null : run({ ...task, tests: task.hidden }, board, partOf).runs.filter(failed).length
       return {

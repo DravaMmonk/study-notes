@@ -97,10 +97,7 @@ export function checkDefine(level) {
     }
     return sameAs(parseSide(test.value), {
       same: (want, got) => key(want) === key(got),
-      why: (want) => {
-        const value = say(want)
-        return T(`${term.zh} 应当算出 ${value.zh}`, `${term.en} should work out to ${value.en}`)
-      },
+      why: () => ({ subject: term, relation: 'evaluates', show: say }),
     })(got.value)
   }))
   const termination = property((row) => row < 0, (row) => ({

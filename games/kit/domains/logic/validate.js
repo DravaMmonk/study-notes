@@ -1,3 +1,4 @@
+import { failureText } from '../../engine/failure-text.js'
 // The logic domain's checks for `npm run check` (../../engine/checks.js), over a game's spec (domain.js): what reading
 // its content found wrong (course.js), then every proof level's reference proof closes its goal and its naive one does
 // not; every goal the reference proves has no countermodel on small domains (a level whose goal is false would be
@@ -112,7 +113,7 @@ export function validate({ levels: given, course, logic }) {
     const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
     const judge = checkIso(level, words)
     const fail = judge(level.solution)
-    out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: declaration ${fail ? `FAIL ${keyOf(fail.why)}` : 'PASS'} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
+    out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: declaration ${fail ? `FAIL ${keyOf(failureText(fail))}` : 'PASS'} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
     // A declaration to write: its reference can be filled in on the rule table (one layer of ⟹, each premise built
     // from the pieces of the level's sentences, things taken only where the level allows it).
     if (level.play !== 'audit') {

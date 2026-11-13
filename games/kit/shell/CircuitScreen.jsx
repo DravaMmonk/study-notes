@@ -13,6 +13,7 @@ import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 import { rowsOf } from '../engine/views.js'
 import { SettingsContext } from './useSetting.js'
 import Results from '../views/Results.jsx'
+import { failureText } from '../engine/failure-text.js'
 import { ViewScope } from '../views/choice.js'
 import { valueKey } from '../views/picks.js'
 import Show from '../views/Show.jsx'
@@ -42,7 +43,6 @@ import { PHONE, useMedia } from './useMedia.js'
 //   run(task, board, partOf) → { runs: [{ fail?, error?, ticks? | trace?, … }] }   its run.js
 //   once?(task)           on a tick board, whether this task's tests each run the board once (a run then holds a trace,
 //                         as on a board run once, and the results show it so)
-//   says(run)             what a failed run says
 //   show(value)           a value in words, as a card and the results show it (a grid is drawn: ../views/Show.jsx)
 //   entries({ task, test, run, sample }) → what the results area can show of a test (../engine/views.js: an entry a
 //                         port, with its shape and the values given, got and wanted; on the sample, test is null and
@@ -63,6 +63,9 @@ import { PHONE, useMedia } from './useMedia.js'
 //   canvas                { width, height } of a part's card on the desktop board
 //   words                 what the game calls its tests (../engine/circuit-domain.js TEST_WORDS)
 //   className             the domain's class on the level
+
+const reportedFailure = (run) => run.error ?? (run.final ? null : failureText(run.fail))
+const finalFailure = (run) => run.fail?.at?.tick === undefined ? reportedFailure(run) : run.error
 
 const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
 
@@ -142,7 +145,7 @@ export function partsFor(level, circuit, { cards, portLabels, width }) {
 /** The run of a board that has not run: nothing on any card. */
 const NOTHING = { values: new Map(), errors: new Map(), outputs: {}, trace: [] }
 
-export default function CircuitScreen({ screen, cards, run: runOn, says, show, entries, figure, judged = false, once, check, cells, sample, ready, settings, defaults, portLabels = {}, defined = null, inspect, sheet, details = false, card: faces = {}, canvas = { width: 156, height: 120 }, words = TEST_WORDS, className = '' }) {
+export default function CircuitScreen({ screen, cards, run: runOn, show, entries, figure, judged = false, once, check, cells, sample, ready, settings, defaults, portLabels = {}, defined = null, inspect, sheet, details = false, card: faces = {}, canvas = { width: 156, height: 120 }, words = TEST_WORDS, className = '' }) {
   const { game, level: entry, solved, flags, progress } = screen
   const level = entry.source
   const circuit = game.circuit.forTask(level)
@@ -183,7 +186,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   const hidden = works || revealed ? [] : level.hidden
   const hiddenFailed = useMemo(() => (hidden.length ? runOn({ ...level, tests: hidden }, drawn, circuit.partOf, { traced: false }).runs.filter((r) => r.fail || r.error).length : 0), [level, hidden, board.version, circuit])
   const failing = (r) => Boolean(r.fail || r.error)
-  const stepsOf = (r) => (timed ? r.ticks : r.trace)
+  const stepsOf = (r) => (timed ? r.ticks.map((tick) => tick.failed ? { ...tick, failed: failureText(tick.failed) } : tick) : r.trace)
   const run = useLevelRun(screen, board, works ? {
     tests: works.map((w, k) => ({ label: L(w.label ?? T(`作品 ${k + 1}`, `Work ${k + 1}`)) })),
     judge: () => ({ pass: works.every((_, k) => !uncaught(k)), results: works.map((_, k) => ({ pass: !uncaught(k), reason: uncaught(k) })) }),
@@ -191,8 +194,8 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   } : {
     tests: [...tests.map((t, k) => ({ label: L(words.label(k)), hidden: t.hidden })), ...(judged && level.sample ? [{ label: L(WORDS.sample), sample: true }] : [])],
     ...(judged
-      ? { judge: () => ({ pass: !checked.runs.some(failing), results: checked.runs.map((r) => ({ pass: !failing(r), reason: failing(r) ? L(says(r)) : '' })) }) }
-      : { steps: { of: (k) => stepsOf(checked.runs[k]), check: (k) => says(checked.runs[k]) ?? '' } }),
+      ? { judge: () => ({ pass: !checked.runs.some(failing), results: checked.runs.map((r) => ({ pass: !failing(r), reason: failing(r) ? L(finalFailure(r)) : '' })) }) }
+      : { steps: { of: (k) => stepsOf(checked.runs[k]), check: (k) => finalFailure(checked.runs[k]) ?? '' } }),
     hidden: {
       count: hidden.length,
       fails: () => hiddenFailed,
@@ -295,8 +298,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   }
 
   const test = sampled ? null : works ? found.tests?.[checks.at] ?? null : tests[run.at]
-  const failed = shown.list.findIndex((t) => t.failed)
-  const verdict = !sampled && !works && ended && (says(runOf) || (failed >= 0 && shown.list[failed].failed))
+  const verdict = !sampled && !works && ended && (reportedFailure(runOf) ?? (runOf.fail?.at?.tick !== undefined ? failureText(runOf.fail) : null))
   // What a test shows: on a tick board, the ticks run so far; on a board run once, the result once it has run.
   const ran = ended || !run.run
   const upTo = (list) => list.map((v, t) => (run.run && t <= at ? v : undefined))
@@ -323,7 +325,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   // What the work on view gives on a row: its outputs, or on a board run tick by tick where it first goes wrong.
   const gave = (r) => (!r.ticks ? level.outputs.map((o) => L(show(r.outputs[o.name] ?? null))).join(' · ')
     : !r.fail ? tr('和对的一样', 'As a sound one')
-    : r.fail.at?.tick === undefined ? L(says(r))
+    : r.fail.at?.tick === undefined ? L(finalFailure(r))
     : tr(`第 ${r.fail.at.tick} 拍给出 ${L(show(r.fail.got))}`, `${L(show(r.fail.got))} at tick ${r.fail.at.tick}`))
   const gives = (k) => (run.over && found.works ? gave(found.works[run.at][k]) : null)
   const written = works && <Checks checks={checks} phone={onPhone} gives={gives} catches={(k) => Boolean(run.over && found.works && (found.works[run.at][k].fail || found.works[run.at][k].error))} verdict={run.over ? { pass: !uncaught(run.at), text: uncaught(run.at) || tr('挡住了。') } : null} />

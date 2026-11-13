@@ -249,7 +249,6 @@ export function derives(level, circuit, test) {
 }
 
 /** A test's premises, as a phrase: 前提为「下雨」、「刮风」 (or 没有前提). */
-const cap = (text) => text[0].toUpperCase() + text.slice(1)
 const givenText = (test, words) => {
   const has = test.given.map(words)
   return has.length
@@ -265,9 +264,7 @@ export function checkIso(level, words) {
     const given = givenText(test, words)
     const goal = test.goal ? words(test.goal) : name
     const derived = sameAs(test.make, {
-      why: (want) => want
-        ? T(`${given.zh}时，「${goal.zh}」应当可推导，这份声明却推导不出。`, `${cap(given.en)}, “${goal.en}” should be derivable, but this declaration does not derive it.`)
-        : T(`${given.zh}时，「${goal.zh}」不应当可推导，这份声明却推导出了它。`, `${cap(given.en)}, “${goal.en}” should not be derivable, but this declaration derives it.`),
+      why: () => ({ relation: 'derives', subject: goal, given }),
     })(got.derived)
     if (derived) return derived
     // A way that takes what is given, where the test asks for one.

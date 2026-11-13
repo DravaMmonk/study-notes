@@ -1,3 +1,4 @@
+import { failureText } from '../../engine/failure-text.js'
 // node --test (npm test, from trace-viewer) — the market domain: a street's trade, a board run against a street that
 // answers it, and the domain's starter game.
 import { test } from 'node:test'
@@ -33,7 +34,7 @@ test('a row passes when every output is the number asked for, and says which is 
   assert.equal(on([{ in: { was: 10, left: 0, short: 20 }, out: { price: 15 } }]).fail, undefined)
   const wrong = on([{ in: { was: 10, left: 0, short: 20 }, out: { price: 16 } }])
   assert.deepEqual([wrong.fail.at, wrong.fail.want, wrong.fail.got], ['price', 16, 15])
-  assert.match(wrong.fail.why.zh, /应当是 16/)
+  assert.match(failureText(wrong.fail).zh, /应当是 16/)
 })
 
 test('a board reads what its price did only the tick after, and a street passes when every shop has cleared on its last tick', () => {

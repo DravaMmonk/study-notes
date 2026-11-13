@@ -365,6 +365,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、eng
 | `machine.js` | 机体运行时：按顺序在每一步跑一遍电路板，读写一张表；可以一遍一遍扫到不再变。《状态之图》的机器人和《一切皆文件》的逐行机器都是它 |
 | `ticks.js` | 逐拍世界：几个节点共用一根线，每拍分「说」和「听」两半（说的一半只算通向驱动口的电路，读到这一拍的线就是回路），线的规则由领域给；寄存卡（`register` / `store`，按封装件的路径各存一份）。《车在说话》的总线用它，《从一根线开始》也将用它 `reacting` 是会反应的世界：板每拍读世界交给它的东西，世界拿走板这一拍给出的，下一拍交回结果（`market` 领域的街市）。 |
 | `judge.js` | 纯判定，接受一份作品，返回 `null` 或第一处失败 `{ at?, check?, want?, got?, why }`。`cases` 按例检查，`ticks` 按拍比较（跳过未指定期望的拍），`property` 检查性质，`sameAs` 对照参考值。`inOrder` 停在第一处失败，`hidden` 隐去检验列表并保留失败详情。位置可以是卡片 id、行和空位、树路径或带位置的拍号。 |
+| `failure-text.js` | 根据失败里的关系、位置、应得和实得生成结论文字。一次判定、结论行、电路结果和文字版运行共用它。定义的计算结果不符时列出应得和实得，超出步数时报告未算完。 |
 | `test-run.js` | 运行任务的各个测试，保留全部运行报告供回放和结果区读取，由判定提取首处失败。运行输出比较的任务也可评分并检查约束。 |
 | `circuit-run.js` | 把共享判定接到电路运行和回放上。`onceRun` 运行一次并给出结果行，`tickJudge` 和 `tickReport` 让逐拍电路在首个错误拍标出原因。 |
 | `tests.js` | 将隐藏测试附在可见测试后，标记显示状态。 |
@@ -776,8 +777,8 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 - 任务的 `views`（同样的写法）换掉它写到的形状的默认显示方式，管这个任务的板上元件、详情和结果区。
 - 任务的一个输入或输出可以写 `view`：它的值起初画成哪种（在列出的里面才算）。在工作室的画面编辑模式里，换一个输入、输出元件或它结果行的显示方式，就是写它的 `view`（作为一条待定的变更），不记成设备上的选择。
 - **结果区**：领域只说一个任务的结果区能显示哪些东西（`entries`：每个口一项，形状、给出的值、结果、应得），不排它们；任务的 `results` 是结果区的几行 `[{ of: 口, views?, label? }]`，按顺序。任务不写 `results` 时是领域给的默认几行：输出；逐拍的板在前面再加进线和输入。
-- **领域的屏幕是一份声明**：建在电路底座上的领域不写组件，只在 `ui/screen.js` 里声明（`play`：它的 run.js；`says`、`portLabels`、`registers`、`scene`……，见 `shell/CircuitScreen.jsx` 的 `circuitScreen`），游戏自带元件的领域连这个文件也没有，在 `game.jsx` 里写 `screen: { play }`。内核按声明拼出屏幕。各领域自写组件的行数由 `engine/components.js` 统计，`npm test` 只许降（方向文档决策二十一）。
-- **作品和验证哪一边交给玩家**：任务照常写（`tests`、`solution`）。加上 `starter`，板打开时摆着这块蓝图，玩家来修；加上 `works`（几样错的作品），作品就是给定的：板上显示选中的那一样、不能改，玩家在结果区里填检验（`shell/Checks.jsx`，判定在 `engine/caught.js`），行数同 `tests`，`tests` 是参考的那几行。判定只有一句：对的作品通过每一行，每样错的作品至少被一行挡住（`npm run check` 也按它查 `works`）。领域在 run.js 里给 `check(task, row) → { test } | { unfilled } | { why }`，行的格子不是「每张牌一个数」时再给 `cells(task) → [{ name, label, shape: 'number' | 'bits', ticks? }]`（net：每根进线一串位，长度是任务最长的那个测试）；逐拍的领域运行后在检验表下面画出选中那一行的波形。只在反例是有结构的对象、错作品来自真实误解的知识点上出这种任务（方向文档决策二十二）。
+- **领域的屏幕是一份声明**：建在电路底座上的领域不写组件，只在 `ui/screen.js` 里声明（`play`：它的 run.js；`portLabels`、`registers`、`scene`……，见 `shell/CircuitScreen.jsx` 的 `circuitScreen`），游戏自带元件的领域连这个文件也没有，在 `game.jsx` 里写 `screen: { play }`。内核按声明拼出屏幕。各领域自写组件的行数由 `engine/components.js` 统计，`npm test` 只许降（方向文档决策二十一）。
+- **作品和验证哪一边交给玩家**：任务照常写（`tests`、`solution`）。加上 `starter`，板打开时摆着这块蓝图，玩家来修；加上 `works`（几样错的作品），作品就是给定的：板上显示选中的那一样、不能改，玩家在结果区里填检验（`shell/Checks.jsx`，判定在 `engine/caught.js`，每样作品逐例查找首处失败），行数同 `tests`，`tests` 是参考的那几行。判定只有一句：对的作品通过每一行，每样错的作品至少被一行挡住（`npm run check` 也按它查 `works`）。领域在 run.js 里给 `check(task, row) → { test } | { unfilled } | { why }`，行的格子不是「每张牌一个数」时再给 `cells(task) → [{ name, label, shape: 'number' | 'bits', ticks? }]`（net：每根进线一串位，长度是任务最长的那个测试）；逐拍的领域运行后在检验表下面画出选中那一行的波形。只在反例是有结构的对象、错作品来自真实误解的知识点上出这种任务（方向文档决策二十二）。
 - **一个测试的场景**：声明里的 `scene({ task, test, run, at })` 交出这个测试所在的世界，每项是 `{ part, …数据 }`，`part` 按名字取内核的场景部件（`views/plots/scenes.js`，现有 `chart`）；内核负责排版（桌面在结果旁边，手机在结果上面），逐拍的板上它跟着当前这一拍。`chart` 画「两个量在一对轴上的关系」（`views/plots/Chart.jsx`：两条轴、几条线、几组点、现在的点和它差多少），用它的有 `market` 的街市（`domains/market/ui/street.js`）和 `calculus` 的数列（`domains/calculus/ui/terms.js`）。带状区域、箭头（`plots/Plane.jsx` 已有）、线路上谁在说话这类场景不归它；内核没有的，领域可以在声明的 `parts` 里带自己的部件（`can` 的帧回放），被计数。
 - **引言和点题**：引言的一页可以带 `show`，一关可以带 `afterShow`（显示在点题旁），写一个值：`{ shape, value, views?, label? }`，值按内容的写法写（网格写成一行行的数或 [R, G, B]，位写成 0、1、. 组成的字符串），kit 在 `figure` 场景里画它。
 - **一处列一种显示方式，玩家就不能换；列几种，第一种是起始，玩家可以切换。** 结果区里几行可选的显示方式相同时，头部只有一个切换，切一次全都换；不同的行各自在标签旁切换。
