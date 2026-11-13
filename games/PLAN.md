@@ -1,196 +1,158 @@
-# games/ 修改计划（依据内核与领域审查）
+# games/ 修改计划：底座拆成基础件（决策二十四）
 
-目标：把 DIRECTION §2「领域仍是真实成本」降下来，并在开放（决策七、八）之前补齐内容安全、迁移正确性和修改日志完整性。
+目标：把 `games/DIRECTION.md` 决策二十四做出来。内核不再按机制各有一个底座，而是一组互相独立的基础件；一种玩法是它们的一份配置；领域只交值、运行和这门学科自己的性质。
 
-## 进度（2026-11-06）
+上一份计划（依据内核与领域审查，阶段 0–4）已全部完成，在 git 历史里（`eb53003` 之前的这个文件）。
 
-- 已完成：阶段 0、1、2、3、4 全部条目。底座上的领域：net、can 和两个脚手架模板（vision 领域已随《视觉实验室》删掉）。
-- 2.1：八款游戏（qed-lab 已删除）的每一关都是一串任务，内核（外壳、盲玩、操作集、studio、流水线）只有这一种关卡遍历，契约要求词汇表的关卡是 `taskLevel`、每块蓝图板写明任务和 key。判别下放到任务，可以再套一层（image：kind → scene；table：mode → world）。table 的阶段改成任务，旧存档由新的存档步骤 `split` 拆到每个任务上。领域读课程不再往内容里写：`npm run check`、操作集的工作区和开发页面都把内容深冻结了再读，每个领域有一条冻结读的测试。词汇表按新形状全部重新打印为第 1 版。
-- 2.3：vision 的底座扩展了「别的种类的任务」（`kinds`：领域读、领域的界面玩，和电路任务同在一关）、每个任务自己的托盘、开局板（`starter`）、分组输入卡、搭出元件的设置；can 带进了逐拍的公用件（`tickPlay`、`registerCards`、`judgeTicks`），测试的叫法按游戏给（`TEST_WORDS`，bus 是「总线」）。
-- 模块级单例：七个电路类领域的玩家板与搭出元件都归各自的课程读取（table 的 `BUILT` 和板模型、image 的元件表和 `engine/kit.js` 由各自的课程读取生成，`NODE_TYPES` 冻结）。logic、table、image 各有「同一内容读两次互不影响」的测试。
-- 重复度：`npm run duplication` 按文件类别量底座上的领域还逐字写着的行（名字归一、去注释和 import、长于 8 个字符、至少三个领域都有），`npm test` 按类别设上限（`duplication.test.js`）。上限按每个文件的行数定（小文件按占比永远过不了 10%）。加入 can 后词汇表上限 8 → 16、元件目录 1 → 4、play.js 0 → 2：多出来的是寄存卡、常数这几张卡的文案和词汇表的骨架，逐拍模板当初照 can 写，元件按规定不跨游戏共享；要降回去就改写模板这几张卡的文案。
-- 新领域的样板：脚手架生成的领域里，run.js、结果区、卡片的设置和文案以外的代码，数据流模板约 45 行、逐拍模板约 55 行（不算 import）。
-- 两个模板没有合成一个：搬到底座以后两份模板没有一个文件逐字相同，剩下的差别全是机制本身；合成一份只会多出一个按机制分支的开关，所以保留两份。
-- 未做：3.6 之外既有审计规则的合成用例。
-- 存档：开发阶段不保留玩家存档，存档兼容不是任何改动的约束。阶段 1 的存档迁移（`migrate.js`、`saves.js`、`game.json` 的 `saves`、领域的 `changes.stale`、`migrate_diff`）已整套删掉，换成一条规则：存档记着谜题的 stamp（`engine/stamp.js`），和内容对不上就清空。原计划的 1.5 `part.merge` 因此取消，合并元件就是删一个、改引用。
-- 决策 1、2、3 都已执行（词汇表基线重置为 1；旧日志废弃、全部游戏写 adopt 基线；table 的 stages 转为任务）。
+## 现状（2026-11-14）
+
+- 已有的基础件：电路画布和手机格位、词序条（`kit/strip`）、填表（`shell/RowTable.jsx`）、规则行（`shell/RuleRows.jsx`）、一次判定（`shell/CheckOnce.jsx`）、结论行（`shell/Verdict.jsx`）、带名字的几行（`shell/NamedLines.jsx`）、玩家写检验（`shell/Checks.jsx`、`engine/caught.js`）、逐步回放（`shell/usePlayback.jsx`）、手头有什么（`kit/course.js` 的 `holds`，决策二十三）。
+- 还捆在一起的：`engine/circuit-domain.js` 一个文件里有判定（`runTests`、`judgeTicks`、`onceRun`）、作者侧检查（`checkCircuitTasks`）、schema（`levelSchema`）、课程读取（`circuitCourse`）。
+- 还在领域里的机制：`logic` 的判定（`define.js`、`iso.js`、`validate.js`）、三个模板（`logic/templates/*.jsx`）、词序条上的树编辑器（`logic/ui/SentenceEditor.jsx`）、七张「造出的东西往后传」的表、八种玩法的屏。
+- 量：`logic` 自写组件 2062 行（`engine/components.test.js`），只许降。
 
 ## 约定
 
 - 每个编号条目一次 commit，直接合入 main；条目内硬切换，不留旧路径、兼容层或死代码。
-- 原型关卡不重做。本计划只对 game.json 做机械改动（补 id、改形状、填 expected），不改关卡设计。
-- 内核测试一律用合成的最小领域与内容，不引用任何真实游戏的关、任务 id 或数量。
-- 涉及 studio 与外壳的 UI 改动：不加次要标签和说明文字，让布局本身表达结构。
-- 每条给出验收标准；未达标不算完成。
+- **行为不变是每一条的验收前提**：动手前存下每款游戏 `npm run check -- <游戏>` 的输出，改完逐字节对比。只有条目里写明「会变」的地方可以不同，并在提交说明里列出。
+- 单元测试只用测试里现写的小内容或领域的 `starter/`，不读任何一款真实游戏。
+- 界面改动在浏览器里看桌面和手机，各走通一个任务到过关和一个到失败。
+- 开发阶段不保留玩家存档，存档兼容不是任何改动的约束。
+- 界面不加次要标签和说明文字。
+- 机制先在内核里成形：做某一条时发现缺基础件，停下来在内核补，不在领域里先写一份。
+
+## 不在这份计划里
+
+- **参数台和它的模型**（《视觉完备》的十来个）：照现有逻辑走。去向是被别的玩法取代，或者单独做成一种更自由的关卡设计方式，另行决定。
+- `table`、`image` 两个原型领域自己的屏：只做基础件做完以后顺带落下来的部分，不专门迁。
+- 关卡的重新设计。本计划只对内容做机械改动（改字段名、补字段）。
 
 ---
 
-## 阶段 0　止血（独立小改，先做）
+## 阶段 A　判定
 
-### 0.1 领域小语言解析失败改为报告
+### A.1 失败的形状和基本判定
 
-- 新增 schema 类型 `S.syntax(lang)`：词汇表的 `languages` 列出领域的小语言（纯数据），`domain.js` 的 `languages` 给出读法（返回读不进的原因或 null，不抛出）；`checkContent` 按文件和字段路径报告。契约检查两边一一对应。
-- logic 的公式、证明项、`define` 的 `lhs` / `when` / 两边全部改用该类型。
-- `check.js`：逐游戏检查，一款失败不中断其余，最终以非零码退出。
-- `changeset.js:114`：`checkGame` 移进 `try`，任何失败都在 `finally` 中执行 `ws.restore(start)`。
-- 验收：合成领域里把公式字段写成 `)))not a formula`，`checkGame` 报出文件与字段路径而不抛出；changeset 失败后工作区与起点逐字节一致。
+- 新文件 `engine/judge.js`，全是纯函数。一个判定是「作品 → 没有失败，或一处失败」；失败是 `{ at?, check?, want?, got?, why }`：在作品的哪里、第几条检验、要什么、得到什么、为什么。
+- 基本判定：`cases`（逐例）、`ticks`（逐拍，可以有不管的拍）、`property`（性质）、`sameAs`（等于参考）；组合：`inOrder`（依次，停在第一处失败）、`hidden`（检验不给看）。
+- `circuit-domain.js` 的 `judgeTicks`、`runTests`、`onceRun` 里比结果的那一段，和 `engine/tests.js` 的 `runLevel`，搬成上面这几个，原处删掉；`can`、`calculus`、`market`、`net`、`image` 和两个脚手架改引用。
+- 验收：`circuit-domain.js` 和 `tests.js` 里不再有判定的代码；全部游戏的检查输出不变；`judge.test.js` 在合成的作品上测每一种。
 
-### 0.2 首页进度键
+### A.2 定义和声明用它
 
-- `shell/progress.js` 导出 `saveKey(id)` 与 `solvedCount(id)`；首页直接用 `solvedCount`，`games.js` 与脚手架不再各写一个 `progress()`，仓库中只有 `saveKey` 一处写出进度键。
-- 验收：通一关后首页进度非 0；grep 无字面量进度键。
+- `logic/define.js` 的 `checkDefine`、`iso.js` 的 `checkIso` 改成用 A.1 拼出的判定，返回失败；原因的文字仍由领域给。
+- `logic/templates/define.jsx`、`declare.jsx` 里的 `judge` 删掉，只把领域给的判定交给一次判定；`validate.js` 用同一个。
+- 验收：这两个模板里没有判定的逻辑；《证明完毕》的检查输出不变；浏览器里定义关和声明关各一个到过关、一个到失败。
 
-### 0.3 state-graph 同义反复的测试
+### A.3 反馈统一读失败
 
-- table 领域所有电路关（不止四关）的 expected 都由参考解生成，判定对参考解恒真。改为每个阶段必须写 `expected`（与测试一一对应）；删除 `table/course.js` 用参考解生成 expected 的逻辑，参考解反过来按 expected 检查。
-- 多阶段关共用的关级 `tests` 按各阶段的世界校验，不再是 `S.any`。
-- 现有 61 关的 expected 取自改动前参考解的输出（回归基线，非独立核对）；change / prefix / robber / twoorders 四关另用独立实现逐条核对一致。
-- 验收：把任一关 tests 改成 `[{R:'x'}]`，check 报 FAIL；把一个 expected 改错，check 报出参考解与 expected 的差异。
+- 一次判定、结论行、电路关的结果区都按失败的形状画：有「要什么、得到什么」时写出两者。
+- `engine/caught.js` 建在 A.1 上：对的作品和错的作品各是一次判定。
+- **会变**：定义关失败时除了「应当算出」，多写出玩家的定义算出了什么。
+- 验收：领域里不再有自己拼「应当是…，这块板给出…」的地方（现在 `circuit-domain.js`、`define.js`、`iso.js` 各一处）。
 
-### 0.4 残留清理
+## 阶段 B　作者侧的检查
 
-- 删除 `app/vite.js:13` 的 `legacyEntry`。
-- 修正 `course.js:2-4` 头注释：搭出的元件运行玩家自己的电路。
-- 删除 `shell/index.js:36` 对不存在的 `progress.legacy()` 的描述。
-- 删除 logic 的 `level.maxSize` 死钩子。
-- `i18n.js` 导出 `T`，删除各领域的约 100 处本地定义。
+### B.1 建在判定上
 
----
+- 新文件 `engine/authoring.js`：给它一个判定和几样作品，查参考解过、naive 解不过、空作品不过、开局摆着的作品不过、搭出的件单独放上去能过；变异得分照旧按需。
+- `checkCircuitTasks` 只剩电路特有的两条（直通不过、用了手头没有的件）；`logic/validate.js` 里每种玩法各写一遍的那几条删掉。
+- 验收：全部游戏的检查输出不变；`logic/validate.js` 行数下降（现在 275 行）。
 
-## 阶段 1　迁移正确性
+### B.2 只查改到的任务
 
-### 1.1 任务一律带 id
+- 一个任务的检查结果按它的谜题哈希（决策十四）、它引用到的作品和内核版本缓存；操作集写入前只重跑变了的任务。整款重跑留给内核或领域代码变了的时候。
+- 验收：在《车在说话》上改一个任务的一段文字，写入前的检查从整款（约 1 分 46 秒）降到只跑这一个任务；改内核代码后缓存全部失效。
 
-- 内核任务 schema 要求 `id`（关内唯一）；不再有位置键 `<level>#<k>`。
-- 实际缺 id 的只有 qed（217 个任务）、syntax-graph（2）、vision-complete（4）：补成 `<关>_<序号>`，各游戏 `saves` 写一步 `retask`（位置键 → id），已有存档无损迁过来。logic / image / syntax 的任务 schema 加必填 `id`，契约检查任何领域的任务都有 id。
-- studio 整体编辑任务列表时改发 `task.add / task.remove / task.move`（按 id），改了内容的任务在最终位置 `level.set`；换序不再产生迁移。
-- `level.rename` 同时改掉和关同名的任务，存档里的 rename 与内容保持一致。
-- 验收：合成内容中交换两个任务顺序，迁移为空；删除一个任务，只 drop 该任务的板。
+## 阶段 C　件
 
-### 1.2 先修与解锁迁移改由前后内容推导
+### C.1 件和它的面
 
-- `migrate.js` 不再依赖操作报告「放到了哪里」：比较前后两份课程的游玩顺序，取最长公共子序列之外的关作为被放置的关（最少的移动解释新顺序；两关对调时算前移的那一关），统一推导 `solve`。`game.set path=eras`、`level.move`、`builds` 跨关移动都走同一条路。
-- 修 `scaffold/circuit/vocabulary.js:57-67`：`eras` 用 `S.level()`，使 `level.rename` 能跟到 game.json 的 eras。
-- 验收：同一重排分别用 `game.set eras` 和 `level.move` 完成，产出的迁移相同；把一个元件的 `builds` 从 A 挪到 B，产出对应 `solve`；rename 后 eras 中无旧名。
+- 件是名字加几个可有可无的面：空位、设置、区域、内部、画法、保存。`parts.json` 的 schema 按面重排；内核给出读一个面的函数，编辑器和判定只经它读。
+- `parts.json` 和代码里的件可以并存：`engine/parts/define.js` 的 `withParts` 现在会把词汇表里的件整个换掉，改成合并。这是 `logic` 的件逐步搬进 `parts.json` 的前提。
+- 验收：已有 `parts.json` 的游戏（`linear`、`signal`、`market`、`calculus` 和脚手架）内容只做机械改动，检查输出不变；合成领域的测试里一半的件在代码、一半在 `parts.json`。
 
-### 1.3 失效（stale）改为内核默认
+### C.2 内部是一个引用
 
-- 内核默认比较每个关、每个任务中分区为谜题 / 测试的字段（`sectionOf`，从 studio 移进 `schema.js`）：关自己的变了 drop 全部任务的板，某个任务的变了只 drop 那个任务的。没有 `changes.stale` 的领域（can / agent / image / table / net）从此不再缺省不迁；logic / syntax / vision 的规则与默认不等价（逻辑的机器板、视觉的参考程序），保留为领域改写。
-- `parts.set` / `parts.unset` 改元件的端口、设置或它用的预设时产出迁移步 `dropWith: [元件]`，加载存档时 drop 放着该元件的板。
-- 验收：在 can / agent / image / table / net 的合成等价内容上改测试、端口、预设板，旧板均被 drop；改元件端口只 drop 用到它的板。
+- 件的「内部」指向一个任务的作品。升级是改引用；「这一关看到哪个引用」并进 `course.js` 的 `holds`，成为配置项的第四级。
+- 删掉各算各的三处：`logic/machine.js` 的 `builtParts` 升级链、`engine/assembly-series.js`、`logic/course.js` 的 `lemmaProofs` 里按关卡位置找形状的那一段。
+- 验收：改动前后对每个任务「手头每个件跑的是哪个任务的作品」逐个对比（做法同决策二十三落地时的那次对照），差异逐条列出并说明。
 
-### 1.4 删除 `save.retype`
+### C.3 《证明完毕》的七张表并成一条
 
-- 删除这条无内容变更、`inverse: []` 的手写后门。`part.rename` 仍写 `retype`（内容和存档一起改）；`part.remove` 改为写 `dropWith`。
-- 代价：把一个元件并进另一个（带固定设置）不再能保住玩家的板，旧元件删掉时这些板被去掉。
+- 引理、门、机器元件、证出的等式、声明的类型、定义的函数、引入的符号，都登记成件，经同一条路往后传。
+- 定义出的函数走搭出件的路；用玩家的作品还是参考解是模板的一个选项，定义仍选参考解。
+- 验收：`logic/course.js`（现在 423 行）里 `declared`、`proofs`、`builtG`、`chains` 这几套各自的表删掉；检查输出不变。
 
----
+### C.4 录像带上引用到的作品
 
-## 阶段 2　电路领域底座
+- 一份解是这样作品连同它引用到的每一样作品。`engine/stamp.js` 给解盖的戳把引用闭包算进去。
+- 验收：合成领域的测试：同一块板、引用的作品不同，戳不同。
 
-这一阶段决定阶段 6.5 重做六款游戏的成本。
+## 阶段 D　编辑器和模板
 
-### 2.1 统一关卡形状，组装后内容不可变
+### D.1 词序条上的树编辑器进内核
 
-- 只保留一种形状：`level.tasks[]`，每项带 id；`S.by('kind'|'mode')` 的判别下放到任务；table 的 `stages` 改为任务，存档 `{stage, boards}` 通过 `retask` 迁到标准按任务键存。
-- `course.js` 的 `layout()` 产出独立的派生结构，不再写回 `L.ch`、`L.intro`；check 与 dev 模式下对组装后的 content 做深冻结。ops / studio 中为此每次重新 `ws.content()` 的规避代码随之删除。
-- 验收：内核中只有一种关卡遍历；对冻结内容的任何写入在测试中直接报错。
+- `logic/ui/SentenceEditor.jsx` 提成内核组件，按件的空位和画法这两个面工作，不认识公式；`logic` 只交它的语言（读、写、树）。
+- 区域画成括号：绑定的名字只在括号里能用。
+- 验收：`logic/ui` 里不再有这个文件；翻译、查询、规则板、定义四处的编辑照旧；`syntax` 领域的那一份如果是同一件事，一起换。
 
-### 2.2 内核电路底座
+### D.2 玩家写检验并成一个
 
-位置：内核新增电路领域模块，API：
+- `shell/Checks.jsx`（数和位）和 `logic/ui/IsoCases.jsx`（句子）是同一件事的两个件。并成一个：行是检验，格子的填法由值的种类定。
+- 验收：`IsoCases.jsx` 删掉；规则板的检验和《看不见的手》《从一根线开始》的写检验任务用同一个组件。
 
-- `boardOf({FIXED, portsIn, portsOut})` → `fixedOf / startBoard / fits / fromText / toText / wiring`。文本读写直接复用 `circuit/text.js` 的 `read()`，保留其严格检查（一口一线、端口重名），并吸收 net 的修正（portsIn / portsOut）。
-- `courseOf(content, {isPart})` → `defineCourse` 的全部钩子；领域只提供「什么算元件」这一个判定。
-- `checkCircuitTasks({spec, run})`：参考解通过、空板不通过（含隐藏测试）、naive 不通过（复用 `contract.js` 的 `naiveInPlace`）、封装件单独通过；全部测试取自 `tests.js` 的 `withHidden`。
-- 跑测形状统一为 `engine/tests.js` 的 `runLevel`；电路领域的 `run.js` 只导出单例运行函数。image、logic 一并对齐。
-- 词汇表公共字段（ERA / ITEM / AFTER / GAME / ONCE / TASK）由内核从课程布局定义导出，领域直接引用。
-- 玩家搭出的板由 `spec(content)` 闭包持有，取消模块级 `const OWN = new Map()`。
-- 验收：合成电路领域的单元测试覆盖上述全部函数；同一领域的两份 spec 在同一进程中互不影响。
+### D.3 模板变成配置
 
-### 2.3 五个领域切到底座
+- 一种玩法写成数据：用哪个编辑器、判定怎么拼、怎么运行、检验给不给看、造出的件用谁的作品。内核按它拼出屏。
+- 新脚手架 `kit/scaffold/rows/`：一个不带学科的最小领域和两关的入门游戏，用规则行加一次判定。它是这一步接口的检验：接口只适合《证明完毕》的话它做不出来。
+- 验收：`logic/templates/` 删掉；`npm run new-domain -- <名字> --mechanism rows` 生成的领域过契约测试、能玩通；生成的领域里没有 jsx。
 
-- tick-bus / circuit / net / can / vision 硬切到 2.2；各自的 board.js、validate.js、course.js 中被底座覆盖的部分全部删除，领域只剩 `run.js`、结果区与文案。
-- 两个脚手架模板合并为一个，建在底座上。
-- 验收：用重复度脚本（同审查口径，提交到仓库）复测，跨 ≥3 个文件逐字重复的比例在各类文件均降到 10% 以下；脚手架生成的新领域中，非 `run.js` / 结果区 / 文案的代码不超过 50 行。五款游戏 check 全过、存档可读。
+### D.4 《证明完毕》其余不拼板的玩法
 
-- 进度：`net`、`scaffold/circuit`、`scaffold/tick-bus` 已切到底座（net 的 board / course / validate 由 355 行降到 82 行，模板的 parts.js 只剩元件表或整个去掉）。`can` 的关卡没有任务、读出的关卡直接给界面用，要先做 2.1 的形状统一；`vision` 领域偏离模板较多（3900 行，自有 ops / judges），留到 2.1 之后一起切。
-- 底座用内核 `circuit/text.js` 的 `read()` 读蓝图，带上了它的检查；逐拍运行的板允许回路（`parts.loops`），但环必须经过一个把值留到下一拍的元件（`parts.holds`：存寄存卡或自带寄存的搭出元件）；纯组合环在编辑器和蓝图读取时照旧被拒，不会在运行时才报说不清的「缺少输入」。
+按这个顺序，一种一个 commit：真值表、翻译、查询、写证明项、写脚本、造世界（按玩家写检验做：造出的反例世界是一条检验）。
 
----
+- 每种的验收：对应的 `ui/*Screen.jsx` 删掉；检查输出不变；浏览器里桌面和手机各走通。
+- 做到某一种发现缺基础件，按约定回内核补，在这一条下记一笔。
 
-## 阶段 3　开放前的硬要求
+### D.5 《证明完毕》的三种板
 
-### 3.1 富文本白名单
+- 证明板、证明助手、真值电路的件搬进 `games/qed/parts.json`，推理规则写成调用引擎资源的件；屏换成内核的电路屏。
+- 这一条依赖 C.1（并存）、C.2（引用）、D.1（括号和框是同一个面）。
+- 验收：`logic/proof.js` 的 `RULES`、`machine.js` 的 `MACHINE_PARTS`、`gates.js` 的 `PRIMITIVE_GATES` 里只剩引擎资源；studio 的元件页能看、能改《证明完毕》的件；`logic` 自写组件的行数降到 0 或只剩写明原因的几项。
 
-- schema 的 text 类型在 check 时解析标记，只允许 `<b> <i> <code> <strong>` 与现有三种 `-ref`，属性同样按白名单；其他一律报错。
-- 内核新增共享富文本组件，把解析结果渲染成 React 元素；删除 `Layout.jsx:17`、`Dialogs.jsx`、`Encyclopedia.jsx:69`、`IntroSheet.jsx:41` 的 `dangerouslySetInnerHTML`，以及各 game.jsx 的 `html: true` 开关。
-- image 的 `figure` 限定为登记 id 的写法（`^[a-z0-9-]+$`），是否存在仍由领域检查核对；kit 对 trace-viewer 插图的依赖保留。
-- widget：没声明 params 的 widget 不许写 params；部件面板上的 widget 不再拿到整个 node。
-- table 场景 SVG 里拼进的文字（标签、数值、角标）统一转义，堵住属性注入。
-- 验收：brief 中写入 `<script>` 或 `onerror=`，check 报错；外壳源码中无 `dangerouslySetInnerHTML`。
+## 阶段 E　拆电路底座
 
-### 3.2 引用与文案字段由 schema 驱动
+### E.1 电路底座成为一份预设
 
-- `S.ref` 只指词汇表里的项；内容自己定义的东西用新类型 `S.name(kind)`，check 时核对存在：百科的条目和分组由内核给出，领域用 `domain.js` 的 `names(content)` 给出其余的（logic 的元件 = 词汇表元件 ∪ 引理 ∪ 门 ∪ 等式；table 的 game.json `parts`）。替换 logic 的 `PART`、table 的 `unlock` / `fold`、glossary 的 `see` / `group`。
-- `checks.js:95` 的「词条只在已开放处链接」改为遍历 schema 中所有 text 类型字段，删除写死的字段名表。
-- `ops/tools.js:144` 的摘要字段、`PartsBook.jsx:133` 的筛选维度改由词汇表声明。
-- 验收：合成领域用新字段名写文案，链接检查照样生效；`adds: ['nonexistent']` 在 schema 阶段报错。
-
-### 3.3 parts.json 表达式
-
-- `if` 改为惰性求值（求值器特例，不增加节点类型），`if(eq(b,0), a, over(a,b))` 在 b=0 时不再除零。
-- 内建资源声明哪些参数要纯数、哪些返回纯数；check 拒绝把输入、领域资源的值或文字交给纯数参数（parts.json 的输入不带类型，所以只能这样保守地查；现有内容都合）。
-- 验收：`round(<图像>)` 在 check 阶段报错；上述 `if` 用例通过。
-
-### 3.4 词汇表版本
-
-- 新增 `describe(vocabulary)`，输出规范化快照；每个领域按版本存快照。
-- 测试：当前版本快照与 `describe()` 一致；第 N+1 版快照是第 N 版的超集（只增不删）；内容声明的版本必须是已有快照版本，且 ≥1。
-- 现有历史版本无法可靠重建，按待定决策 1 的建议重置基线：所有领域与内容都是第 1 版，各自存下 `versions/1.json`（重复子树共享，image 约 290KB）。`npm run versions` 存新版本并报告问题。
-
-### 3.5 修改日志完整性
-
-- 日志条目记录每个文件的 before / after 哈希。
-- `write()` 写前核对盘上哈希与 openGame 时一致，不一致即冲突、不写。
-- studio 的 modify 必须带 base（seq + 哈希），日志头不等于 base 即拒绝。
-- 日志追加加跨进程文件锁，seq 在锁内分配。
-- undo 前核对各文件当前哈希等于该条 after，否则拒绝。
-- 锁只包住「核对盘上文件 → 写 → 记日志」这一小段；`write()` 发现盘上文件和打开时不同即拒绝，所以并发的另一个写者不会盖掉前者。
-- check 和 `log` 报告文件与日志不一致（手改，记为 OPEN 不算失败）；新增 `adopt`（CLI、MCP 工具），把现状作为一条记录收进日志。
-- 按待定决策 2 的建议：废弃 network、vision-lab 的旧日志，9 款游戏各写一条 `adopt` 基线。
-- 验收：两个进程并发 modify，后者被拒；手改文件后 undo 被拒、check 报漂移。
-
-### 3.6 课程审计规则归位
-
-- `carry-unseen`、`topic-finale` 在内核 `audit()` 中实现，领域只给课程钩子 `carries(level)`、`finale(topic)`；删除 net / table 各自的实现。
-- 现状：`RULE_TEXT` 每条都在内核实现（`difficulty-spike` 在 `engine/play/stats.js`）；这两条有合成用例，其余 14 条既有规则（`not-built`、`many-new`、`off-tray` 等）仍缺合成用例，另行补。
+- `circuit-domain.js` 里剩下的东西（课程读取、schema）按 A–D 的基础件重写成配置；建在它上面的领域（`net`、`can`、`market`、`calculus`、`linear`、`signal`、两个脚手架）内容和领域代码只做机械改动。
+- 放在最后，因为用它的领域最多。
+- 验收：全部游戏的检查输出不变；全部游戏能构建；每款在浏览器里打开一关走通。
 
 ---
-
-## 阶段 4　运行时加载内容
-
-在决定阶段 7 的发布形态之前完成。
-
-- 构建只打包领域代码；`app/vite.js` 的 gameModule 不再 import game.json，构建时把组装好的内容写成页面旁的 `content.json`，开发服务器每次现读。
-- 页面打开时取回 content，按词汇表校验（浏览器里没有领域的小语言读法和 names，这两项只查类型；契约保证它们齐全，完整检查在 check / changeset / 发布时做）后调用 `defineGame`。
-- `npm run publish:content`：先跑完整检查，再把内容写到已构建页面旁边。
-- 验收：生产构建下改 game.json 并刷新即生效，无需重建；校验失败时外壳显示报告而非白屏。
-
----
-
-## 待定决策
-
-1. **词汇表基线**：建议所有领域当前词汇表记为第 1 版，所有内容声明 1（syntax-graph 现写 1、领域写 2，统一归 1）。替代方案是从 git 历史重建第 1 版，但无法证明重建结果就是当时的词汇表。
-2. **network 的 changes.jsonl**：#15 与现有 game.json 已脱节。建议废弃现有日志，与其余 7 款一起从基线开始。
-3. **table 的 stages 转任务**（2.1）：机械可行，但会改变该游戏的关内流程呈现，需确认可以接受。
 
 ## 顺序与依赖
 
-阶段 0 → 1 → 2 → 3 → 4。阶段内依赖：1.1 先于 1.3；2.1 先于 2.2；3.2 的 `S.ref` 可提前到阶段 2 之前，不影响其他条目。
+```
+A.1 → A.2 → A.3 → B.1 → B.2
+              ↘
+C.1 → C.2 → C.3 → C.4
+        ↘
+D.1 → D.2 → D.3 → D.4 → D.5 → E.1
+```
 
-- 2026-11-06: Completed pipeline miniatures, shared slot dividers and notes, undoable data-flow arrangement, and per-game device settings with advanced section editing hidden by default.
+A 和 C 互不依赖，可以交替做。D.3 要 A 和 B 做完；D.5 要 C.1、C.2、D.1；E.1 要前面全部。
 
-- 2026-11-06: Replaced stage diagrams with original cards folded in place, passive section backdrops, three configurable faces and screen-specific wire-label defaults.
+先做 A.1。
 
-- 2026-11-06: Replaced row dividers with identity-based blocks, shared three-mode headers, desktop rectangle and phone row partitioning, compact placement metrics and temporary view reflow; removed Arrange and preserved wiring.
+## 待定
+
+1. 件在代码里叫什么。倾向 `piece`；`part` 留给它在电路上的画法。
+2. B.2 的缓存放在哪：游戏文件夹里的一个文件，还是不进仓库的本机缓存。倾向后者。
+3. D.4 里「写脚本」现在一行对应证明板上的一张卡。它按规则行做，还是直接是证明板的另一种画法（条），做到时再定。
+
+## 没把握的地方
+
+- 对照表里翻译、查询、写证明项、写脚本、真值表五种的屏我没有打开过，「套得进去」是按数据形状判断的。D.4 做到时可能要调整。
+- D.5 最大：证明板有 133 个任务、证明助手 108 个，规则改成数据驱动以后报错的文字能不能保住，要做了才知道。
+- 各条的工作量没有估。A、B 是搬动和合并，风险低；C.2 和 D.5 是整份计划里最容易出回归的两条。
