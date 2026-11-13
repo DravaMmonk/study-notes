@@ -1,5 +1,5 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { Columns2, Group, Info, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { Group, Info, EyeOff, Plus, Redo2, Spline, Undo2, Waypoints } from 'lucide-react'
 import { blockRows, rowMembers } from './blocks.js'
 import { foldedPartsOf } from './folding.js'
 import BlockHeader from './BlockHeader.jsx'
@@ -8,6 +8,8 @@ import { useSetting } from '../shell/useSetting.js'
 import { labelledConnections, sourceLabel, blockOwners, wireKey } from './connections.js'
 import ClearButton from './ClearButton.jsx'
 import SaveSlots from './SaveSlots.jsx'
+import { useBoardWidth } from './useBoardWidth.js'
+import { cardView } from '../engine/views.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { feeding, inPort, layout, outPort, parsePort, placement, srcNode, srcOf } from './model.js'
@@ -60,6 +62,7 @@ export function drawWires(el, graph, parts, live) {
   // A game whose wires carry different kinds of thing (data, handles, order) names each wire's kind.
   const kind = (w) => (parts.wireKind ? ` kind-${parts.wireKind(w, graph)}` : '')
   let markup = ''
+  const mask = svg.dataset.portMask
   for (const w of graph.wires) {
     if (!shown(w) || tagged.has(wireKey(w))) continue
     const a = at(outPort(w.from))
@@ -78,7 +81,11 @@ export function drawWires(el, graph, parts, live) {
   // Translated parts and the SVG itself must not permanently enlarge the board's scroll extent.
   svg.setAttribute('width', el.clientWidth)
   svg.setAttribute('height', el.clientHeight)
-  svg.innerHTML = markup
+  const holes = [...el.querySelectorAll('[data-port-label]')].map((label) => {
+    const { left, top, width, height } = label.getBoundingClientRect()
+    return `<rect x="${f(left - origin.left - 2)}" y="${f(top - origin.top - 1)}" width="${f(width + 4)}" height="${f(height + 2)}" fill="black"/>`
+  }).join('')
+  svg.innerHTML = holes ? `<defs><mask id="${mask}"><rect width="100%" height="100%" fill="white"/>${holes}</mask></defs><g mask="url(#${mask})">${markup}</g>` : markup
 }
 
 // Which wires the board shows, the player's choice, remembered in this browser: all, all but the sources', or none.
@@ -108,9 +115,6 @@ const readMode = () => {
  * @param nodeClass(node)                  extra classes for a block (the selected one, the one a bench is about)
  * @param outNote(node, key)               over each of a block's several outputs (parts.outputs), under its name: what
  *                                         it carries
- * @param widthOf(id)                      a frame's width on the board, { narrow, set(narrow) }, or null when it
- *                                         has no choice (useSlotEditing widthOf): a button in its top right corner
- *                                         switches two columns and one with each tap
  * @param history                          undo and redo beside the wire display switch (useSlotEditing's `history`)
  * @param onClear                          clears the board: a button just left of undo and redo, which asks first;
  *                                          without it the button stays, greyed out
@@ -132,8 +136,12 @@ const readMode = () => {
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ blocks = null, onPartitionHint, canMove = () => true, graph, parts, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote, widthOf = () => null }) {
-  const board = useRef(null)
+export default function SlotBoard({ blocks = null, onPartitionHint, canMove = () => true, graph, parts: givenParts, boardRef, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote }) {
+  const portMask = useId()
+  const ownRef = useRef(null)
+  const board = boardRef ?? ownRef
+  const availableWidth = useBoardWidth(ownRef)
+  const parts = boardRef ? givenParts : { ...givenParts, availableWidth }
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)
   const [manualBlocks] = useSetting('manualBlocks')
@@ -201,6 +209,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   const cols = (n) => ({ '--cols': n <= 4 ? n : Math.ceil(n / Math.ceil(n / 4)) })
   const regionsOf = (node) => parts.frames?.(node) ?? []
   const own = (node) => new Set(regionsOf(node).map((r) => r.name))
+  const labelsPorts = (node) => !own(node).size && Boolean(cardView(parts.valueView?.(node)).tileWidth) && parts.inputs(node).length > 1
 
   // Wires are drawn after layout from where the dots really are, and again while a wire is dragged. A card's entry
   // animation moves its dots without resizing the board, so wires are drawn again once it ends.
@@ -230,7 +239,10 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     // A frame's regions give their values inside it; its own output is the one under the block.
     const listed = parts.outputs?.(node)?.filter((o) => !own(node).has(o.key)) ?? null
     const outs = listed && !(listed.length === 1 && listed[0].key === null) ? listed : null
-    if (!outs) return <span className="pb-out">{dot(outPort(node.id), tr(`${nameOf(node)} 的输出`, `${nameOf(node)} output`), `is-out ${used(node.id) ? 'is-wired' : ''} ${parts.portClass?.(node, null) ?? ''}`)}</span>
+    if (!outs) {
+      const labelled = labelsPorts(node)
+      return <span className={`pb-out ${labelled ? 'is-labelled' : ''}`}>{labelled && <em data-port-label>{tr('输出', 'Output')}</em>}{dot(outPort(node.id), tr(`${nameOf(node)} 的输出`, `${nameOf(node)} output`), `is-out ${used(node.id) ? 'is-wired' : ''} ${parts.portClass?.(node, null) ?? ''}`)}</span>
+    }
     return (
       <span className="pb-out is-many">
         {outs.map((o) => {
@@ -273,7 +285,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       return (
         <span key={port} className="pb-in">
           {dot(inPort(node.id, port), tr(`${nameOf(node)} 的输入${tag ? ` ${tag}` : ''}${from ? `（读 ${nameOf(from)}，点一下拆掉）` : ''}`, `${nameOf(node)} input${tag ? ` ${tag}` : ''}${from ? ` (reads ${nameOf(from)}; tap to unplug)` : ''}`), `${from ? 'is-in is-wired' : 'is-in is-open'} ${parts.portClass?.(node, port) ?? ''}`)}
-          {tag && <em>{tag}</em>}
+          {tag && <em data-port-label={labelsPorts(node) ? true : undefined}>{tag}</em>}
           {source && <b className="pb-src" data-family={parts.family(from)}>{source}</b>}
         </span>
       )
@@ -313,7 +325,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       const node=graph.nodes.find(n=>n.id===id),isFolded=foldedParts.has(id)
       if((parts.frames?.(node)??[]).length){out.push(frameBlock(node,slot,region,at(slot,span.get(id))));continue}
       const extra=!isFolded&&tileExtra?.(node)
-      out.push(<div key={id} className={`pb-cell ${isFolded?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot)}>
+      out.push(<div key={id} className={`pb-cell ${isFolded?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot, span.get(id))}>
         <div className={`pb-tile ${isFolded?'is-body-folded':''} ${parts.packed?.(node)?'is-packed':''} ${nodeClass?.(node)??''} ${moving===id?'is-moving':''}`} data-piece={id} data-drag={fixed||partitioning||!canMove(id)?undefined:true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={()=>onNode(id)} aria-label={nameOf(node)}>
           <span className={`pb-ins ${parts.inputs(node).length>1?'is-many':''}`}>{inputs(node)}</span>
           <span className="pb-name">{icon(node)}{nameOf(node)}<Info size={12} aria-hidden="true" /></span>
@@ -360,7 +372,6 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       row += rows + 2
       return section
     })
-    const width = fixed ? null : widthOf(node.id)
     return (
       <div key={node.id} className="pb-cell is-frame" data-slot={slot} data-region={region ?? ''} style={style}>
         <div className={`pb-frame ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)}>
@@ -369,11 +380,6 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
             <span className="pb-name">{icon(node)}{nameOf(node)}</span>
             {!isFolded && tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
           </div>
-          {width && !isFolded && (
-            <button type="button" className="pb-frame-width" onClick={() => width.set(!width.narrow)} aria-label={width.narrow ? tr('单列，点击切换为双列') : tr('双列，点击切换为单列')} title={width.narrow ? tr('单列') : tr('双列')}>
-              {width.narrow ? <Square size={14} aria-hidden="true" /> : <Columns2 size={14} aria-hidden="true" />}
-            </button>
-          )}
           {regions}
           {outDots(node, isFolded)}
         </div>
@@ -398,7 +404,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
           <span>{L(mode.label)}</span>
         </button>
       </div>
-      <svg className="pb-wires" aria-hidden="true" />
+      <svg className="pb-wires" data-port-mask={portMask} aria-hidden="true" />
       <div className="pb-terms is-sources">
         {sources.map((node) => (
           <div key={node.id} className={`pb-term ${(parts.outputs?.(node)?.length ?? 0) > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-io={tr('输入', 'IN')} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>

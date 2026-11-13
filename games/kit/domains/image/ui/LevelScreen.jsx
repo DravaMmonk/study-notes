@@ -184,7 +184,7 @@ function ImageCircuit({ screen }) {
     addSheet={({ place, close }) => <AddSheet kit={kit} level={{ ...level, palette: [...offered, ...folded] }} graph={circuit} previewFrom={circuit.nodes.find((node) => node.type === 'input')?.id} test={test} title={tr('放在这一格')} theme={theme} onAdd={place} onClose={close} />}
     describe={(node) => describe(types, node.type)}
     view={{ values: selected.values, errors: selected.errors }}
-    canvas={{ width: 140, corner }}
+    canvas={{ corner }}
     dense={false}
     className="level-graph"
     brief={{ hint: level.hint, children: !phone && extras }}

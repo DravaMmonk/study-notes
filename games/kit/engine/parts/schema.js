@@ -82,7 +82,6 @@ const PAINT = {
   icon: ICON,
   family: S.ref('family'),
   views: S.opt(S.obj({ card: S.opt(VIEW), tile: S.opt(VIEW), detail: S.opt(VIEW) }, { about: t('桌面卡片、手机格位、详情；不写用默认') })),
-  width: S.opt(S.int({ min: 96, max: 360, about: t('桌面卡片宽（像素）') })),
 }
 
 export const PART = S.obj({

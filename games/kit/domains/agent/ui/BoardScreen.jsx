@@ -25,7 +25,7 @@ function partsFor(mode) {
     portLabel: (node, port) => PORT_LABELS[node.type]?.[port] ?? '',
     family: (node) => CARDS[node.type]?.family,
     icon: (node) => CARDS[node.type]?.icon,
-    cardWidth: (node) => (node.type === 'model' || node.type === 'test' ? 200 : PARTS[node.type]?.source || PARTS[node.type]?.sink ? 170 : 160),
+    valueView: (node) => (node.type === 'model' || node.type === 'test' ? 'entries' : node.type === 'issue' ? 'sentence' : 'value'),
   }
 }
 
@@ -159,7 +159,7 @@ export default function BoardScreen(screen) {
         cardClass: (node) => `ag-node ${node.type === 'stop' && turn?.stop ? 'is-stopped' : ''}`,
         wireState: (wire) => (turn && turn.values.get(wire.from) !== undefined ? 'live' : 'dead'),
       }}
-      canvas={{ width: 160, height: 130 }}
+      canvas={{ height: 130 }}
       brief={{ hint: level.hint, children: score }}
       describe={(node) => game.textAt(CARDS[node.type], level.id).desc}
       results={strip}

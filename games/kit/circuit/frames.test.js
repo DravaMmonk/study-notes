@@ -48,12 +48,11 @@ test('on a phone a box takes the rows of its regions, each a grid of its own bet
   assert.deepEqual([inside.size, inside.free], [4, [1, 2, 3]])
   // An empty region is one row.
   assert.equal(placement({ ...board, nodes: board.nodes.filter((n) => n.id !== 'm') }, parts, 'f/body').size, 2)
-  // A one-column box: one column of rows, the cells beside it free, and everything inside it one column.
-  const narrow = { ...board, nodes: board.nodes.map((n) => (n.id === 'f' ? { ...n, narrow: true } : n)) }
-  const side = placement(narrow, parts)
-  assert.deepEqual([[...side.cell], side.span.get('f')], [[['f', 0], ['g', 1]], [1, 4]])
-  assert.deepEqual(side.free, [3, 5, 7, 8, 9])
-  assert.deepEqual([placement(narrow, parts, 'f/body').cols, placement(narrow, parts, 'f/body').size], [1, 2])
+  const textCards = { ...parts, valueView: () => 'sentence', availableWidth: 390 }
+  const nested = placement(board, textCards, 'f/body')
+  assert.deepEqual(nested.span.get('m'), [2, 1])
+  assert.deepEqual(nested.free, [2, 3])
+  assert.deepEqual(placement(board, textCards).span.get('g'), [1, 1])
 })
 
 test('a block dragged into a region slot moves into the box', () => {

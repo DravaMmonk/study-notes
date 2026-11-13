@@ -4,7 +4,6 @@ import { L, tr } from '../../../shell/i18n.js'
 import { PhonePage } from '../../../shell/index.js'
 import { signal } from '../model/format.js'
 import { isCard } from '../model/parts.js'
-import { CARD_W } from './board.js'
 
 // A table board on the shared circuit editor (../../../circuit), the one Vision Complete uses: the same cards, dots,
 // wires, keys and gestures. `board` is the circuit level's bridge to it (modes/Circuit.jsx); what a card shows here is
@@ -68,7 +67,6 @@ export function SgCanvas({ board, overlay }) {
         body={body}
         outNote={(node, key) => <b className="sg-oval">{board.outValue(node, key) || '—'}</b>}
         wireState={wireState}
-        width={CARD_W}
         height={170}
         minFit={0.62}
         overlay={overlay}

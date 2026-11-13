@@ -1,3 +1,4 @@
+import { useBoardWidth } from '../circuit/useBoardWidth.js'
 import { useSetting } from './useSetting.js'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, newPartSlot, phoneBlockBoard, blockOfPart } from '../circuit/blocks.js'
@@ -153,7 +154,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   card            the faces of a card, each (node, ctx): body, head, caption, cardClass, outNote (node, key, ctx),
  *                   wireState (wire, ctx), regionNote / resultNote (node, region, ctx); on a phone thumb, tileExtra,
  *                   sinkBody, sinkClass, nodeClass
- *   canvas          more for the desktop editor: width, height, emptyNote, corner, minFit, overlay
+ *   canvas          more for the desktop editor: height, emptyNote, corner, minFit, overlay
  *   dense           the phone board is a board of text (SlotBoard dense)
  *   brief           { text, tip, hint, children } the brief (Layout.jsx Brief), with the level's own panels under it
  *   results, resultsTitle, resultsAside   what a run gives (the strip on a desktop, below the board on a phone)
@@ -251,7 +252,6 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
               graph={circuit}
               onChange={change}
               parts={parts}
-              width={canvas.width ?? 140}
               height={canvas.height}
               minFit={canvas.minFit}
               overlay={canvas.overlay}
@@ -288,8 +288,11 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
 // The level on a phone: the shared slot board, the tests pinned at the top, the results below the board, the tray and the run
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
-function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, dense, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
+function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, dense, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
   const { circuit: sourceCircuit, change } = board
+  const boardRef = useRef(null)
+  const availableWidth = useBoardWidth(boardRef)
+  const parts = useMemo(() => ({ ...givenParts, availableWidth }), [givenParts, availableWidth])
   const circuit = useMemo(()=>phoneBlockBoard(sourceCircuit,parts),[sourceCircuit,parts])
   const [manualBlocks] = useSetting('manualBlocks')
   const canMove = (id) => manualBlocks || !blockOfPart(circuit,id)?.startsWith('course:')
@@ -335,6 +338,7 @@ function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, item
   return (
     <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
       <SlotBoard
+        boardRef={boardRef}
         blocks={blocks}
         onPartitionHint={setPartitionHint}
         canMove={canMove}
@@ -356,7 +360,6 @@ function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, item
         onPort={editing.onPort}
         onNode={editing.onNode}
         onSlot={editing.onSlot}
-        widthOf={editing.widthOf}
         history={editing.history}
         onClear={onClear}
         onChange={change}

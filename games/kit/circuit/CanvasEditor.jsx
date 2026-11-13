@@ -1,3 +1,5 @@
+import { cardWidth } from './card-size.js'
+import { useBoardWidth } from './useBoardWidth.js'
 import useBlockDrag from './useBlockDrag.js'
 import { containerUnderPointer } from './dropTarget.js'
 import { assignBlock, rectangleMembers } from './blocks.js'
@@ -54,8 +56,7 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * @param caption(node) a fixed card's line under its title (what it carries)
  * @param outNote(node, key) beside each of a card's several outputs (parts.outputs), after its name: what it carries.
  *   Those outputs run down the card's right edge; the body starts on the row below the lowest port on either side.
- * @param cardClass(node), wireState(wire) → 'live' | 'dead' | null, width (a card's, unless parts.cardWidth(node) gives
- *   its own), height (for fitting), emptyNote, overlay
+ * @param cardClass(node), wireState(wire) → 'live' | 'dead' | null, height (for fitting), emptyNote, overlay
  * Windows floating over the board (FloatWindow, in `overlay`) are kept clear when fitting: the circuit goes between
  * them or below them, wherever it shows larger. With `refit` the circuit is fitted again whenever the board changes
  * size (a bench in the parts box, whose panel can open narrow and then grow). `regionNote(node, region)` is what a
@@ -68,7 +69,7 @@ const curve = (a, b) => kitCurve(a, b, 'x', 48)
  * board for undo (a level's stage): a new one starts the history over. A `readOnly` board (a part's demonstration)
  * only shows: it pans, zooms and fits, and nothing on it moves.
  */
-export default function CanvasEditor({ blocks = null, graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, width = 140, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
+export default function CanvasEditor({ blocks = null, graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
   const [connectionLabels] = useSetting('connectionLabels')
   // A change never takes off what the level locked on the board (model.js keepLocked).
   const onChange = readOnly ? () => {} : (next, opt) => {
@@ -87,7 +88,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
         const ps=ids.map(id=>({id,p:nodes.get(id)})).filter(({p})=>p)
         if(!ps.length)return u
         const x=Math.min(...ps.map(({p})=>p.x))-(u.block?spacing.pad:0),y=Math.min(...ps.map(({p})=>p.y))-(u.block?spacing.pad+spacing.title:0)
-        return {...u,x,y,w:Math.max(...ps.map(({id,p})=>p.x+(geo.sizes[id]?.[0]??width)))-x+spacing.pad,h:Math.max(...ps.map(({id,p})=>p.y+(geo.sizes[id]?.[1]??height)))-y+spacing.pad}
+        return {...u,x,y,w:Math.max(...ps.map(({id,p})=>p.x+(geo.sizes[id]?.[0]??widthOf(byId.get(id)))))-x+spacing.pad,h:Math.max(...ps.map(({id,p})=>p.y+(geo.sizes[id]?.[1]??height)))-y+spacing.pad}
       })
       return { ...current, nodes, units }
     })
@@ -137,7 +138,8 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const layer = useRef(null)
   const pointers = useRef(new Map())
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  const widthOf = (node) => node.hiddenBlock ? node.w : parts.cardWidth?.(node) ?? width
+  const available = useBoardWidth(surface)
+  const widthOf = (node) => node.hiddenBlock ? node.w : cardWidth(parts, node, available)
   const placed = graph.nodes.filter((n) => parts.role(n) === 'part').length
   const regionsOf = (node) => parts.frames?.(node) ?? []
   // Frames are drawn first, under the plain cards: a frame's backdrop sits below the wires (so those inside it show),
@@ -333,6 +335,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const outside = added.some((n) => {
       const x = n.x * view.zoom + view.x
       const y = n.y * view.zoom + view.y
+      const width = widthOf(n)
       const [cx, cy] = [box.left + x + (width * view.zoom) / 2, box.top + y + (30 * view.zoom)]
       return x < 0 || y < 0 || x + width * view.zoom > box.width || y + 60 * view.zoom > box.height || wins.some((b) => cx > b.left && cx < b.right && cy > b.top && cy < b.bottom)
     })

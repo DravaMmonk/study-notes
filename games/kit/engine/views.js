@@ -47,6 +47,16 @@ export const SCENES = ['card', 'detail', 'results', 'figure', 'inline']
 const grey = (g) => isGrid(g) && (g.c ?? 1) === 1
 const planar = (g) => grey(g) && g.h === 2 && g.w >= 1 && g.w <= 6
 
+// Card-only views are used by editors that draw structured values (for example, a judgment).
+const DEFAULT_CARD_WIDTH = 140
+const CARD_VIEWS = {
+  sentence: { cardWidth: 190, tileWidth: 184 },
+  entries: { cardWidth: 200 },
+  sensor: { cardWidth: 230 },
+}
+
+export const cardView = (name) => ({ cardWidth: DEFAULT_CARD_WIDTH, ...(CARD_VIEWS[name] ?? VIEWS[name]) })
+
 export const VIEWS = {
   value: { shapes: ['scalar'], label: t('数值', 'Value') },
   numbers: { shapes: ['grid'], label: t('数值', 'Numbers') },
@@ -64,7 +74,7 @@ export const VIEWS = {
   bands: { shapes: ['bits', 'ticks'], label: t('数值', 'Values'), lane: 'value' },
   terms: { shapes: ['ticks'], label: t('逐项'), lane: 'terms' },
   dots: { shapes: ['ticks'], label: t('数列图'), lane: 'dots' },
-  sequence: { shapes: ['list'], label: t('序列') },
+  sequence: { cardWidth: 156, shapes: ['list'], label: t('序列') },
 }
 
 const VIEW = S.oneOf(Object.keys(VIEWS))

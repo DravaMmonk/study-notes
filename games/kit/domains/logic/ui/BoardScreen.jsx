@@ -175,7 +175,7 @@ function BoardScreen({ board, screen }) {
         sinkClass: (node, ctx) => (ctx.readOnly ? '' : sinkMark(node)),
         nodeClass: (node, ctx) => (ctx.readOnly ? '' : stepClass(node)),
       }}
-      canvas={{ width: 160, height: 150, emptyNote: board.words.empty }}
+      canvas={{ height: 150, emptyNote: board.words.empty }}
       brief={{
         text: level.kind === 'proof' ? tests.at(-1).caseBrief : undefined,
         hint: level.hint,

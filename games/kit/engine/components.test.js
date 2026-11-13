@@ -9,10 +9,10 @@ import { components } from './components.js'
 
 const CEILING = {
   'domains/agent': 324,
-  'domains/image': 2870,
-  'domains/logic': 893,
+  'domains/image': 2869,
+  'domains/logic': 892,
   'domains/syntax': 159,
-  'domains/table': 2413,
+  'domains/table': 2411,
 }
 
 test('no domain writes more components of its own than it did, and a domain on the circuit base writes none', () => {

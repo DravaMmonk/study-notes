@@ -20,7 +20,7 @@ import { definedParts, nextParams } from './faces.jsx'
 
 const NONE = { values: new Map(), errors: new Map() }
 const at = (path) => JSON.stringify(path)
-const base = { inputs: () => [], role: () => 'part', label: () => '', portLabel: () => '', family: () => null, icon: () => null, outputs: () => null, cardWidth: () => null, packed: () => false }
+const base = { inputs: () => [], role: () => 'part', label: () => '', portLabel: () => '', family: () => null, icon: () => null, outputs: () => null, packed: () => false }
 
 function Code({ path, label, text, picked, ok = null }) {
   return (
@@ -68,7 +68,7 @@ export default function PartPreview({ game, type, edit }) {
       <div className="pp-faces">
         {pane('card', Monitor, tr('电脑端面板'), (
           <div className="pp-canvas">
-            <CanvasEditor graph={graph} parts={parts} width={def.width ?? 150} height={260} onChange={(g) => { const n = g.nodes.find((x) => x.id === 'p'); if (n) setParams(n.params ?? {}) }} body={() => face('card')} />
+            <CanvasEditor graph={graph} parts={parts} height={260} onChange={(g) => { const n = g.nodes.find((x) => x.id === 'p'); if (n) setParams(n.params ?? {}) }} body={() => face('card')} />
           </div>
         ))}
         {pane('tile', Smartphone, tr('手机端简略视图'), (

@@ -86,6 +86,6 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
 
 export function definedGame(content, circuit, { ops, ...own }) {
   const cards = Object.fromEntries(Object.entries(circuit.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: iconOf(d.icon) }]))
-  const screen = { canvas: { width: 140, height: 96 }, ...own.screen }
+  const screen = { canvas: { height: 96 }, ...own.screen }
   return Object.assign(circuitGame(content, circuit, { ...own, screen, cards }), { defined: { of: (type) => circuit.defs[type] ?? null, defaults: circuit.defaultsOf, ops } })
 }

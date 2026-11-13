@@ -17,7 +17,7 @@ export const definedCard = (def) => ({
   family: def.family,
   icon: iconOf(def.icon),
   outputs: outletsOf(def).length ? outletsOf(def).map((o) => ({ key: o.name, label: o.label ?? o.name })) : null,
-  cardWidth: def.width ?? null,
+  hasSettings: Boolean(def.settings?.length),
 })
 
 /**
@@ -40,7 +40,7 @@ export function definedParts(base, of) {
     family: field('family'),
     icon: field('icon'),
     outputs: field('outputs', null),
-    cardWidth: field('cardWidth'),
+    hasSettings: field('hasSettings'),
     packed: (node) => (of(node.type) ? false : base.packed?.(node) ?? false),
   }
 }

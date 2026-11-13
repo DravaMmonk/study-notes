@@ -60,7 +60,7 @@ import { PHONE, useMedia } from './useMedia.js'
 //                         card headers too (details); on a board run tick by tick, by default its settings and each of
 //                         its values tick by tick so far, each switched between its views there (tickDetail)
 //   card?                 faces of a card over the base's (CircuitLevel card)
-//   canvas                { width, height } of a part's card on the desktop board
+//   canvas                { height } of a part's card on the desktop board
 //   words                 what the game calls its tests (../engine/circuit-domain.js TEST_WORDS)
 //   className             the domain's class on the level
 
@@ -127,7 +127,7 @@ function Value({ value, error, show, of }) {
 }
 
 /** The editor's description of a task's cards (../circuit/model.js): the board's wiring, drawn. */
-export function partsFor(level, circuit, { cards, portLabels, width }) {
+export function partsFor(level, circuit, { cards, portLabels }) {
   const { board, BUILT, builtBy } = circuit
   const wiring = board.wiring(level, circuit)
   // A fixed card the domain does not draw its own way: a source on the left, a sink on the right.
@@ -138,14 +138,14 @@ export function partsFor(level, circuit, { cards, portLabels, width }) {
     portLabel: (node, port) => (BUILT[node.type] ? labelOf(board.portsIn(builtBy(node.type, node.params)), port) : portLabels[node.type]?.[port] ?? ''),
     family: (node) => (BUILT[node.type] ? 'built' : given(node) ? (wiring.role(node) === 'sink' ? 'end' : 'given') : cards[node.type]?.family),
     icon: (node) => (BUILT[node.type] ? CircuitBoard : given(node) ? ArrowRightFromLine : cards[node.type]?.icon),
-    cardWidth: (node) => (board.isFixed(node.type) ? 224 : BUILT[node.type] ? Math.max(176, width) : width),
+    valueView: () => level.views?.grid?.[0] ?? 'value',
   }
 }
 
 /** The run of a board that has not run: nothing on any card. */
 const NOTHING = { values: new Map(), errors: new Map(), outputs: {}, trace: [] }
 
-export default function CircuitScreen({ screen, cards, run: runOn, show, entries, figure, judged = false, once, check, cells, sample, ready, settings, defaults, portLabels = {}, defined = null, inspect, sheet, details = false, card: faces = {}, canvas = { width: 156, height: 120 }, words = TEST_WORDS, className = '' }) {
+export default function CircuitScreen({ screen, cards, run: runOn, show, entries, figure, judged = false, once, check, cells, sample, ready, settings, defaults, portLabels = {}, defined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, className = '' }) {
   const { game, level: entry, solved, flags, progress } = screen
   const level = entry.source
   const circuit = game.circuit.forTask(level)
@@ -158,7 +158,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, show, entries
   const ticked = Boolean(kind.ticks) && !once?.(level)
   const timed = ticked && !works
   circuit.syncOwn(progress.built)
-  const parts = useMemo(() => partsFor(level, circuit, { cards, portLabels, width: canvas.width }), [level, circuit, cards, portLabels, canvas.width])
+  const parts = useMemo(() => partsFor(level, circuit, { cards, portLabels }), [level, circuit, cards, portLabels])
   const { shown: palette, folded } = useMemo(() => circuit.offerIn(level, flags), [circuit, level, flags])
   const held = useMemo(() => new Set([...palette, ...folded]), [palette, folded])
   const hold = (b) => (ready ? ready(b, held) : b)
@@ -385,7 +385,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, show, entries
           packed={{
             open: (node) => {
               const inside = BUILT[node.type]?.opens?.(node.params)
-              return inside && { ...inside, parts: partsFor(inside.level, circuit, { cards, portLabels, width: canvas.width }) }
+              return inside && { ...inside, parts: partsFor(inside.level, circuit, { cards, portLabels }) }
             },
             edit: (node) => {
               const builder = builtBy(node.type, node.params)

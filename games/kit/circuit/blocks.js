@@ -1,3 +1,4 @@
+import { cardWidth } from './card-size.js'
 import { moveToSlot, placement, srcNode } from './model.js'
 import { scopeOf } from './frames.js'
 import { dependencyOrder, pipelineLayout } from './layout.js'
@@ -54,7 +55,7 @@ export function blockPreset(board, stages, parts) {
   if (board.blocks !== undefined) return board
   const blocks = stages.map((s)=>({id:`course:${s.id}`,note:s.label,view:'ports',nodes:s.nodes}))
   const slotted=blockSlots({...board,blocks},parts),ports=new Set(blocks.flatMap(b=>b.nodes))
-  const opening=pipelineLayout(slotted,blocks,{roleOf:parts.role,sizeOf:n=>({w:parts.cardWidth?.(n)??184,h:parts.role(n)!=='part'?150:ports.has(n.id)?Math.max(70,48+20*parts.inputs(n).length):230})})
+  const opening=pipelineLayout(slotted,blocks,{roleOf:parts.role,sizeOf:n=>({w:cardWidth(parts,n),h:parts.role(n)!=='part'?150:ports.has(n.id)?Math.max(70,48+20*parts.inputs(n).length):230})})
   return {...slotted,nodes:slotted.nodes.map(n=>opening.nodes.has(n.id)?{...n,...opening.nodes.get(n.id)}:n)}
 }
 

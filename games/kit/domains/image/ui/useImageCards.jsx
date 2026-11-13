@@ -21,7 +21,6 @@ import { IMAGE_VIEWS, KIND_NAMES, formatNumber, kindOf, nodeView, viewsIn } from
 // their settings and what they output for the selected test, so the player watches the image flow. How a card draws
 // a 2-D value (pixels, terrain, spectrum…) is the card's own choice, with a bar to draw them all one way.
 
-export const NODE_W = 140
 const PORT_ROW = 20 // the height of a port's row on a card (games/kit/circuit CanvasEditor.jsx)
 
 export function useImageCards({ kit, graph, onChange, run, testIndex, has, sensors, outputLabels, colourOutputs, views, ioKinds, scan, onScan, theme, focus, test, phone }) {
@@ -78,7 +77,7 @@ export function useImageCards({ kit, graph, onChange, run, testIndex, has, senso
         ))}
         {node.type === 'input' && sensors?.[node.params.name]?.description && <details className="node-description" onPointerDown={(event) => event.stopPropagation()}><summary>{tr('说明')}</summary><p>{L(sensors[node.params.name].description)}</p></details>}
         <div className="node-preview">
-          {error ? <span className="node-error">{L(error)}</span> : outputs?.length > 1 ? <MultiOutputPreview node={node} outputs={outputs} values={shownValues} view={shown} theme={theme} size={42} compact /> : node.type === 'input' && value?.c === 3 ? <ColourPreview img={value} theme={theme} labels selected={peek?.id === node.id ? peek : null} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} /> : <ValueView img={value} view={shown} size={NODE_W - 22} theme={theme} label={L(WORDS.notWired)} grid scan={scan} onScan={onScan} selected={peek?.id === node.id ? peek : null} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
+          {error ? <span className="node-error">{L(error)}</span> : outputs?.length > 1 ? <MultiOutputPreview node={node} outputs={outputs} values={shownValues} view={shown} theme={theme} size={42} compact /> : node.type === 'input' && value?.c === 3 ? <ColourPreview img={value} theme={theme} labels selected={peek?.id === node.id ? peek : null} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} /> : <ValueView img={value} view={shown} size={118} theme={theme} label={L(WORDS.notWired)} grid scan={scan} onScan={onScan} selected={peek?.id === node.id ? peek : null} onHover={(p) => setPeek(p ? { ...p, id: node.id } : null)} />}
           {!ctx?.readOnly && !error && kindOf(value) === 'image' && !(node.type === 'input' && value?.c === 3) && offered.length > 1 && (
             <button className={`node-view ${menu === node.id ? 'is-open' : ''}`} aria-haspopup="menu" aria-expanded={menu === node.id} aria-label={tr(`显示方式：${L(IMAGE_VIEWS[shown].label)}`, `Display: ${L(IMAGE_VIEWS[shown].label)}`)} title={tr('切换显示方式')} onPointerDown={(e) => e.stopPropagation()} onClick={() => setMenu(menu === node.id ? null : node.id)}>
               {createElement(IMAGE_VIEWS[shown].icon, { size: 12, strokeWidth: 1.8 })}

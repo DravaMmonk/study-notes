@@ -11,9 +11,6 @@ import { ICONS } from './glyphs.js';
 
 const HUES = 6; // colours are theme tokens: --w0…--w5 for the cards and port inputs, --n0…--n5 for the parts
 
-/** A desktop card's width: an input card holds what it reads (the robot's window, the cell's facts), wider than a part. */
-export const CARD_W = 176;
-const INPUT_W = 230;
 /** Where a node sits on the desktop board when the player has not moved it: the level's inputs left, its outputs
  *  right, the parts between them. */
 function home(kind, k, slot) {
@@ -97,7 +94,8 @@ export function partsFor(model, b, u) {
     // A port input and a sensor go by their short name; an output by an arrow; a part shows its look (looks.js).
     icon: node => (node.type === 'tap' ? String(u.sensors[node.params.sensor].short) : node.type === 'port' ? String(u.ports?.[node.id]?.short ?? '') : node.type === 'out' ? '→' : lookIcon(node.type)),
     cardStyle: node => ({ '--fam': colour(node) }),
-    cardWidth: node => (isCard(node.type) ? INPUT_W : CARD_W),
+    valueView: node => (isCard(node.type) ? 'sensor' : 'value'),
+    hasSettings: node => model.hasValue(node.type),
     wireStyle: (wire, graph) => ({ '--fam': colour(byId(graph, splitSrc(wire.from)[0])) }),
     portClass: (node, port, key) => `look-${look(node, port, key ?? null)}`,
     packed: node => Boolean(def(node.type)?.built),

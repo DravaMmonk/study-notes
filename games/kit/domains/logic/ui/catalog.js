@@ -64,7 +64,8 @@ export function partsFor(lemmas = {}, premises = []) {
       const opens = (parts[node.type]?.frames?.(node) ?? []).filter((r) => r.opens)
       return opens.length ? [{ key: null, label: GIVES, short: GIVES }, ...opens.map((r) => ({ key: r.name, label: OPENS, short: OPENS }))] : null
     },
-    cardWidth: (node) => (parts[node.type]?.frames ? 240 : node.type === 'premise' || node.type === 'goal' ? 170 : 160),
+    valueView: () => 'sentence',
+    hasSettings: (node) => paramsOf(parts[node.type], node).length > 0,
     frames: (node) => (parts[node.type]?.frames?.(node) ?? []).map((r) => ({ ...r, label: RULE_TEXT[node.type]?.frames?.[r.name] ?? r.name })),
   }
 }

@@ -8,7 +8,7 @@ import { ROBOTS } from '../model/robots.js'
 import { isCard, isGiven } from '../model/parts.js'
 import { picksOf, splitSrc } from '../model/board.js'
 import { fill } from '../items/labels.js'
-import { CARD_W, partsFor, toGraph } from './board.js'
+import { partsFor, toGraph } from './board.js'
 import RobotView from './RobotView.jsx'
 import Scene from './Scene.jsx'
 
@@ -302,7 +302,7 @@ export default function PartDemo({ model, partKey, phone, tasks, borrow }) {
         {scene}
         {opened || (
           <div className="sg-bench-canvas" style={{ height: bench.height }}>
-            <CanvasEditor graph={graph} onChange={onChange} parts={parts} body={body} head={head} wireState={wireStateOf(probe)} cardClass={(node) => (bench.focus.has(node.type) ? 'is-focus' : '')} width={176} height={120} refit />
+            <CanvasEditor graph={graph} onChange={onChange} parts={parts} body={body} head={head} wireState={wireStateOf(probe)} cardClass={(node) => (bench.focus.has(node.type) ? 'is-focus' : '')} height={120} refit />
           </div>
         )}
       </DemoBench>
@@ -400,7 +400,7 @@ function Inside({ model, board, setting, sense, ran, terms, name, phone, height,
   return (
     <div className="sg-bench-canvas sg-inside" style={{ height }}>
       {back}
-      <CanvasEditor readOnly graph={graph} parts={parts} body={body} outNote={outNote} wireState={wireStateOf(ran ? probe : null)} width={CARD_W} height={170} refit />
+      <CanvasEditor readOnly graph={graph} parts={parts} body={body} outNote={outNote} wireState={wireStateOf(ran ? probe : null)} height={170} refit />
     </div>
   )
 }

@@ -264,17 +264,9 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
       : tr(`「${nameOf(node)}」${many ? `的 ${L(parts.portLabel?.(node, p.port) ?? p.port)} ` : ''}读哪个结果？点一个输出口（元件底下的圆点），或点那个元件`, `Which result does "${nameOf(node)}"${many ? ` ${L(parts.portLabel?.(node, p.port) ?? p.port)}` : ''} read? Tap an output (a dot under a part), or the part itself`)
   })()
 
-  // A frame's width on the phone board: two columns or one (`node.narrow`), switched by the button in its corner
-  // (SlotBoard); inside a one-column frame it is one column, as everything there is.
-  const widthOf = (id) => {
-    const node = graph.nodes.find((n) => n.id === id)
-    if (!node || !(parts.frames?.(node) ?? []).length || placement(graph, parts, node.in ?? null).cols === 1) return null
-    return { narrow: Boolean(node.narrow), set: (narrow) => edit({ ...graph, nodes: graph.nodes.map((n) => (n.id === id ? { ...n, narrow } : n)) }) }
-  }
-
   return {
     picking, moving, startMove, unpick: () => { setPicking(null); setMoving(null) }, canLand, onPort, onNode, onSlot, nameOf,
-    place, placeFirstFree, remove, edit, toast, say: setToast, pickNote, widthOf,
+    place, placeFirstFree, remove, edit, toast, say: setToast, pickNote,
     history: { ...history, undo: step(history.undo), redo: step(history.redo) },
     sources, steps, sinks,
   }

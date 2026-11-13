@@ -18,12 +18,13 @@
 //   portLabel(node, port) → text   family(node) → string   icon(node) → Component
 //   refuse(graph, from, to, port) → null, or a { zh, en } reason the wire is not allowed
 //   removable?(node) → whether the player may take it off the board (default: a part)
-//   cardWidth?(node) → px a desktop card is wide, when not the board's width (CanvasEditor)
+//   valueView?(node) → the view a card uses for its value; hasSettings?(node) → it draws setting controls
 //   packed?(node)    → whether it is a packed part: one that runs a circuit the player built (its family chip drawn solid)
 //   defaults?(type) → initial settings for a part imported from a blueprint
 //   frames?(node) → [{ name, label, opens }] the regions of a frame (frames.js)
 //   outputs?(node) → [{ key, label, short?, glyph? }] a node with several outputs, or null for one; an output
 //                                          goes by its glyph (SVG markup) when it has one, else by its short name
+import { cardColumns, REGION_INSET } from './card-size.js'
 import { wouldCycle } from '../graph.js'
 import { frameEdges, moveInto, scopeRefusal, within } from './frames.js'
 
@@ -192,24 +193,25 @@ export function layout(graph, parts) {
 // A frame's regions (frames.js) are grids of their own, inside the frame's block: `region` names one, and a part's
 // slot counts in the grid of the region it sits in. The frame spans the rows its regions take, each region a row for
 // its head (the value it opens), its own rows, and a row for its foot (the dot its result goes into), so its cells line
-// up with the cells beside it. A frame is two columns wide, or one (`node.narrow`, switched by the button in its corner); inside a
-// one-column frame everything is one column.
+// up with the cells beside it. Frames span the whole row. A card whose value needs more than one column also spans the row.
 //
 //   { cell: id → slot, span: id → [columns, rows], cols, rows, size, free: [slot] }      (fixed: no empty row at the end)
 export function placement(graph, parts, region = null, { fixed = false } = {}) {
   const { steps } = layout(graph, parts)
-  const frameOf = (r) => byId(graph, r.split('/')[0])
   const regions = (n) => parts.frames?.(n) ?? []
-  const single = (r) => r !== null && narrow(frameOf(r))
-  const narrow = (n) => Boolean(n?.narrow) || single(n?.in ?? null)
+  const available = (r) => r === null ? parts.availableWidth ?? Infinity : available(byId(graph, r.split('/')[0])?.in ?? null) - REGION_INSET
+  const grids = new Map()
   const place = (r) => {
-    const cols = single(r) ? 1 : 2
+    if (grids.has(r)) return grids.get(r)
+    const cols = 2
+    const width = available(r)
     const used = new Set()
     const cell = new Map()
     const span = new Map()
-    const sizeOf = (n) => (regions(n).length
-      ? [narrow(n) ? 1 : cols, regions(n).reduce((sum, g) => sum + 2 + place(`${n.id}/${g.name}`).rows, 0)]
-      : [1, 1])
+    const sizeOf = (n) => {
+      const frames = regions(n)
+      return [cardColumns(parts, n, width, cols), frames.length ? frames.reduce((sum, g) => sum + 2 + place(`${n.id}/${g.name}`).rows, 0) : 1]
+    }
     const cellsOf = (at, [w, h]) => {
       const [row, col] = [Math.floor(at / cols), at % cols]
       if (col + w > cols) return null
@@ -233,7 +235,9 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
     const reserved=r===null?Math.max(0,...(graph.blocks??[]).filter(b=>Number.isInteger(b.slot)&&Number.isInteger(b.rows)).map(b=>Math.floor(b.slot/cols)+b.rows)):0
     const rows = fixed ? Math.max(1, last) : Math.max(last + 1,reserved + 1)
     const size = rows * cols
-    return { cell, span, cols, rows, size, free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
+    const result = { cell, span, cols, rows, size, free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
+    grids.set(r, result)
+    return result
   }
   return place(region)
 }

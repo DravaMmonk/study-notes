@@ -22,7 +22,8 @@ export function partsFor(kit, { sensors, outputLabels, colourOutputs = [] } = {}
     portLabel: (node, port) => node.type === 'output' && colourOutputs.includes(node.params.name) ? (port === 'in' ? { zh: '图', en: 'Image' } : port.toUpperCase()) : kit.types[node.type]?.inputLabels?.[port] ?? PORT_LABELS[port] ?? port,
     family: (node) => familyOf(node.type ?? 'input', kit.types),
     icon: (node) => (node.type === 'input' ? ArrowRightFromLine : node.type === 'output' ? ArrowRightToLine : iconOf(node.type, kit.types)),
-    cardWidth: (node) => kit.types[node.type]?.definition?.width,
+    valueView: () => 'pixels',
+    hasSettings: (node) => Boolean(kit.types[node.type]?.definition?.settings?.length),
   }
 }
 

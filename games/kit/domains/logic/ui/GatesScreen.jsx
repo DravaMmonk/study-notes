@@ -35,7 +35,6 @@ function gatePartsFor(built, wordOf) {
     // A gate the player built runs the board that built it: a packed part.
     packed: (node) => Boolean(all[node.type]?.built),
     icon: (node) => (node.type === 'letter' ? ArrowRightFromLine : node.type === 'out' ? CircleDot : PRIMITIVE_GATES[node.type] ? ToggleLeft : CircuitBoard),
-    cardWidth: (node) => (node.type === 'letter' || node.type === 'out' ? 170 : 140),
     rules: all,
   }
 }
@@ -144,7 +143,7 @@ export default function GatesScreen(screen) {
         // The sentence's card says whether the run got the table right.
         cardClass: (node) => `lg-node ${node.type === 'out' && over ? (run.passed ? 'is-pass' : 'is-fail') : ''}`,
       }}
-      canvas={{ width: 140, height: 110, emptyNote: T('从上方元件栏选择门放到板上，再把元件右侧的圆点连到另一元件左侧的圆点。') }}
+      canvas={{ height: 110, emptyNote: T('从上方元件栏选择门放到板上，再把元件右侧的圆点连到另一元件左侧的圆点。') }}
       brief={{ hint: level.hint, children: score }}
       describe={(node) => (parts.role(node) === 'part' ? parts.rules[node.type].desc : null)}
       results={table}
