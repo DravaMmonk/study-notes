@@ -5,6 +5,7 @@ import { L, tr } from '../shell/i18n.js'
 import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, lockedRefusal, outPort, outputsOf, parsePort, placement, removeNode, srcNode, srcOf } from './model.js'
 import { drawWires } from './SlotBoard.jsx'
 import { blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
+import { regionsFit } from './frames.js'
 import { useHistory } from './useHistory.js'
 import { visibleSlot } from './visibleSlot.js'
 
@@ -30,6 +31,8 @@ export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
  * @returns state and handlers for SlotBoard (`history`: its undo and redo), Tray and Notice
  */
 const LOCKED_MOVE = { zh: '关卡放好的元件不能删，只能在原来的区域里挪动。', en: 'A part the level placed cannot be deleted; it moves only within its own region.' }
+const NO_VISIBLE_SLOT = { zh: '眼前没有能放这个元件的空格位。', en: 'There is no visible slot for this part.' }
+const DOES_NOT_FIT = { zh: '这个元件放不进这一格。', en: 'This part does not fit in this slot.' }
 
 export function useSlotEditing({ graph, onChange: given, parts, create, label, openNode, openSlot, root, scroller, scope, canMove = () => true }) {
   const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
@@ -188,9 +191,8 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
   }
 
   // Placing parts. Wiring is always the player's.
-  const place = (type, at, region = null) => {
-    const made = create(graph, type, at, region)
-    const id = made.id
+  const placeMade = (made, at, region) => {
+    const { id } = made
     const next = graph.blocks === undefined ? made.graph : transferBlockMembers(made.graph,parts,[{id,block:blockAtSlot(graph,parts,at,region)}])
     // An input part goes up with the inputs, not into a slot.
     const name = nameIn(next, byId(next, id))
@@ -200,6 +202,21 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     buzz()
     edit(next, note)
   }
+  const partAt = (type, slot, region) => {
+    const candidate = create(graph, type, slot, region)
+    const node = byId(candidate.graph, candidate.id)
+    if (!node || (node.in ?? null) !== region || !regionsFit(candidate.graph, parts)) return null
+    if (parts.role(node) !== 'part') return region === null ? candidate : null
+    const before = placement(graph, parts, region)
+    const after = placement(candidate.graph, parts, region)
+    const fits = after.cell.get(node.id) === slot && [...before.cell].every(([id, at]) => after.cell.get(id) === at)
+    return fits ? candidate : null
+  }
+  const place = (type, at, region = null) => {
+    const made = partAt(type, at, region)
+    if (made) placeMade(made, at, region)
+    else setToast(DOES_NOT_FIT)
+  }
   const placeFirstFree = (type) => {
     const pane = scroller.current
     const board = root.current?.querySelector('.pb-board')
@@ -208,12 +225,20 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     const tools = board.querySelector('.pb-tools')?.getBoundingClientRect()
     const top = Math.max(0, bounds.top, tools && tools.top <= bounds.top ? tools.bottom : bounds.top)
     const bottom = Math.min(window.innerHeight, bounds.bottom)
-    const slots = [...board.querySelectorAll('.pb-cell[data-region=""] > .pb-slot')].map((button) => {
+    const slots = [...board.querySelectorAll('.pb-cell > .pb-slot')].map((button) => {
       const rect = button.getBoundingClientRect()
-      return { slot: Number(button.parentElement.dataset.slot), top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right }
+      const { slot, region } = button.parentElement.dataset
+      return { slot: Number(slot), region: region || null, top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right }
     })
-    const slot = visibleSlot(slots, { top, bottom, left: Math.max(0, bounds.left), right: Math.min(window.innerWidth, bounds.right) })
-    if (slot !== undefined) place(type, slot)
+    let made
+    const target = visibleSlot(slots, { top, bottom, left: Math.max(0, bounds.left), right: Math.min(window.innerWidth, bounds.right) }, ({ slot, region }) => {
+      made = partAt(type, slot, region)
+      return Boolean(made)
+    })
+    setPicking(null)
+    setMoving(null)
+    if (target) placeMade(made, target.slot, target.region)
+    else setToast(NO_VISIBLE_SLOT)
   }
   const remove = (id) => {
     if (byId(graph, id)?.locked) return
