@@ -7,6 +7,7 @@ export const REGION_INSET = 8
 export const TILE_PADDING = 8
 
 export const slotMetrics = {
+  '--pb-tile-height': '72px',
   '--pb-target': `${PORT_TARGET}px`,
   '--pb-dot': `${PORT_DOT}px`,
   '--pb-port-label': `${PORT_LABEL}px`,

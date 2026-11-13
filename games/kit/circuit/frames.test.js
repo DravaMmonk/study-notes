@@ -40,13 +40,13 @@ test('taking a box off takes what is inside it too', () => {
 
 test('on a phone a box takes the rows of its regions, each a grid of its own between a head row and a foot row', () => {
   const top = placement(board, parts)
-  assert.deepEqual([...top.cell], [['f', 0], ['g', 10]])
-  assert.deepEqual(top.span.get('f'), [2, 5])
-  assert.deepEqual(top.free, [11, 12, 13])
-  assert.deepEqual([...top.emptyRows], [3, 6])
+  assert.deepEqual([...top.cell], [['f', 0], ['g', 8]])
+  assert.deepEqual(top.span.get('f'), [2, 4])
+  assert.deepEqual(top.free, [9])
+  assert.deepEqual([...top.frameHeads], [0])
   const inside = placement(board, parts, 'f/body')
   assert.deepEqual([...inside.cell], [['m', 0]])
-  assert.deepEqual([inside.size, inside.free], [4, [1, 2, 3]])
+  assert.deepEqual([inside.size, inside.free], [2, [1]])
   // An empty region is one row.
   assert.equal(placement({ ...board, nodes: board.nodes.filter((n) => n.id !== 'm') }, parts, 'f/body').size, 2)
   const textCards = { ...parts, availableWidth: 390, sentenceWidths: { m: 720 } }
@@ -61,6 +61,20 @@ test('a block dragged into a region slot moves into the box', () => {
   const g = moved.nodes.find((n) => n.id === 'g')
   assert.deepEqual([g.in, g.slot], ['f/body', 1])
   assert.deepEqual(moved.wires, board.wires)
+})
+
+test('the tray sets the number of columns, including inside frames, even when the narrow part is not on the board', () => {
+  const widths = { ...parts, inputs: () => [], valueView: (node) => node.id === 'm' ? 'sensor' : 'value' }
+  const heldPieces = [{ type: 'box' }, { type: 'part' }]
+  const phone = { ...widths, availableWidth: 450, heldPieces }
+  assert.equal(placement(board, { ...phone, heldPieces: [{ type: 'box' }] }).cols, 2)
+  const three = placement(board, phone)
+  assert.equal(three.cols, 3)
+  assert.equal(three.span.get('f')[0], 3)
+  const region = placement(board, phone, 'f/body')
+  assert.equal(region.cols, 3)
+  assert.equal(region.span.get('m')[0], 2)
+  assert.equal(placement(board, { ...phone, availableWidth: 600 }).cols, 4)
 })
 
 test('a frame part has its own inputs, one per region, and outputs for the regions that open', () => {

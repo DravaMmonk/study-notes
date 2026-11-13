@@ -205,20 +205,19 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const blockView = { items: blockItems.map((b) => b.view === 'hidden' && b.nodes.includes(active) ? { ...b, view: b.lastView ?? 'ports' } : b), active,
     initial: stored.blocks === undefined,
     unplaced: stored.nodes.filter(n=>!n.in&&parts.role(n)==='part'&&!Number.isInteger(n.slot)).map(n=>n.id),
-    edit: (id, patch) => change(editBlock(circuit, parts, id, patch), { keep: true }),
-    create: (nodes) => change(createBlock(circuit, parts, nodes), { keep: true }),
-    open: (id) => { const b = blockItems.find((b) => b.id === id); if (b?.view === 'hidden') change(editBlock(circuit, parts, id, { view: b.lastView ?? 'ports' }), { keep: true }) },
+    ...blockActions(circuit, parts, change),
   }
 
   const all = [...items, ...folded]
   const types = all.map((item) => item.type)
+  const partDefaults = (type) => defined?.of(type) ? defined.defaults(type) : defaults(type)
   const make = create ?? ((graph, type, { slot, region } = {}) => {
     const taken = new Set(graph.nodes.map((n) => n.id))
     let k = 1
     while (taken.has(`${type}${k}`)) k += 1
     const id = `${type}${k}`
     const [x, y] = spotIn(graph, region ?? null, Math.min(...graph.nodes.filter((n) => !n.in && parts.role(n) === 'sink' && Number.isFinite(n.x)).map((n) => n.x)))
-    return { id, graph: { ...graph, nodes: [...graph.nodes, { id, type, params: defined?.of(type) ? defined.defaults(type) : defaults(type), x, y, ...(slot !== undefined ? { slot } : {}), ...(region ? { in: region } : {}) }] } }
+    return { id, graph: { ...graph, nodes: [...graph.nodes, { id, type, params: partDefaults(type), x, y, ...(slot !== undefined ? { slot } : {}), ...(region ? { in: region } : {}) }] } }
   })
   // A new card goes into the region chosen last, while its frame is there and open.
   const into = target && circuit.nodes.some((n) => n.id === target.split('/')[0] && !n.fold) ? target : null
@@ -231,7 +230,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
 
   if (phone) {
     return (
-      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
+      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, defaults: partDefaults, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )
   }
   const detailNode = circuit.nodes.find((node) => node.id === detail)
@@ -284,15 +283,27 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   </>
 }
 
+function blockActions(circuit, parts, change) {
+  const edit = (id, patch) => change(editBlock(circuit, parts, id, patch), { keep: true })
+  return {
+    edit,
+    create: (nodes) => change(createBlock(circuit, parts, nodes), { keep: true }),
+    open: (id) => {
+      const block = blocksOf(circuit, parts).find((item) => item.id === id)
+      if (block?.view === 'hidden') edit(id, { view: block.lastView ?? 'ports' })
+    },
+  }
+}
+
 // The level on a phone: the shared slot board, the tests pinned at the top, the results below the board, the tray and the run
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
-function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
+function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, defaults, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
   const { circuit: sourceCircuit, change } = board
   const boardRef = useRef(null)
   const availableWidth = useBoardWidth(boardRef)
   const [sentenceWidths, setSentenceWidths] = useState({})
-  const parts = useMemo(() => ({ ...givenParts, availableWidth, sentenceWidths }), [givenParts, availableWidth, sentenceWidths])
+  const parts = useMemo(() => ({ ...givenParts, availableWidth, sentenceWidths, heldPieces: types.map((type) => ({ type, params: defaults(type) })) }), [givenParts, availableWidth, sentenceWidths, types, defaults])
   const circuit = useMemo(()=>phoneBlockBoard(sourceCircuit,parts),[sourceCircuit,parts])
   const [manualBlocks] = useSetting('manualBlocks')
   const canMove = (id) => manualBlocks || !blockOfPart(circuit,id)?.startsWith('course:')
@@ -340,7 +351,7 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
       <SlotBoard
         boardRef={boardRef}
         onSentenceWidths={setSentenceWidths}
-        blocks={blocks}
+        blocks={{ ...blocks, ...blockActions(circuit, parts, change) }}
         onPartitionHint={setPartitionHint}
         canMove={canMove}
         graph={circuit}

@@ -16,7 +16,7 @@ import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { feeding, inPort, layout, outPort, parsePort, placement, srcNode, srcOf } from './model.js'
 
-// The phone circuit board, the same in every game: the sources on top, parts in a two-column grid of slots that
+// The phone circuit board, the same in every game: the sources on top, parts in a grid of slots that
 // keep their place, the sinks at the bottom. A block's inputs are dots on its top edge and its output a dot on its
 // bottom edge; wires run between the dots. What a block shows (its value, a picture) is the game's (`thumb`).
 
@@ -319,21 +319,20 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   // A grid of slots: the board's, or a region's inside a frame (`region`, rows of the frame's own grid: placement).
   function grid(region, style) {
     const placed = placement(graph, parts, region, { fixed })
-    const { cell, span, cols, free, rows, size, emptyRows } = placed
+    const { cell, span, cols, free, rows, size, frameHeads } = placed
     const ranges=region===null?blockRows(graph,parts,placed).map(b=>({...b,view:groups.find(g=>g.id===b.id)?.view??b.view})):[]
     const hidden=new Set(ranges.filter(b=>b.view==='hidden').flatMap(b=>Array.from({length:b.end-b.start},(_,k)=>b.start+k)))
     const rowTrack = new Map(), headTrack = new Map(), tracks = []
-    // A frame inherits these tracks, including the narrow gaps around its nested insertion rows.
-    let lastEmpty = false
-    const addTrack = (empty) => {
-      if (tracks.length) tracks.push(lastEmpty || empty ? 'var(--pb-column-gap)' : 'var(--pb-row-gap)')
+    let afterFrameTitle = false
+    const addTrack = (frameTitle) => {
+      if (tracks.length) tracks.push(afterFrameTitle ? 'var(--sp-2)' : 'var(--pb-row-gap)')
       tracks.push('auto')
-      lastEmpty = empty
+      afterFrameTitle = frameTitle
       return tracks.length
     }
     for (let row = 0; row < rows; row++) {
       for (const block of ranges.filter((b) => b.start === row)) headTrack.set(block.id, addTrack(false))
-      if (!hidden.has(row)) rowTrack.set(row, addTrack(emptyRows.has(row)))
+      if (!hidden.has(row)) rowTrack.set(row, addTrack(frameHeads.has(row)))
     }
     const at = (slot, [w, h] = [1, 1]) => {
       const row = Math.floor(slot / cols)
@@ -372,7 +371,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       if(region===null&&hidden.has(row))continue
       out.push(<div key={`slot-${slot}`} className={`pb-cell ${ranges.some(b=>b.view==='ports'&&row>=b.start&&row<b.end)?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot)}>{fixed?<div className="pb-cell is-blank" />:<button type="button" className="pb-slot" onClick={()=>onSlot(slot,region)} aria-label={tr('在这一格放置元件')}><Plus size={20} /></button>}</div>)
     }
-    return <div className={`pb-grid ${region?'is-region':'is-blocks'}`} data-cols={cols} data-size={size} data-starts-empty={emptyRows.has(0) || undefined} data-ends-empty={lastEmpty || undefined} style={{...style,...(region===null?{gridTemplateRows:tracks.join(' ')}:{})}} onClickCapture={region===null&&partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined){event.stopPropagation();event.preventDefault();pickRow(Number(row),placed)}}:undefined} onPointerOver={partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined)setHoverRow(Number(row))}:undefined}>{out}</div>
+    return <div className={`pb-grid ${region?'is-region':'is-blocks'}`} data-cols={cols} data-size={size} style={{...style,...(region===null?{gridTemplateRows:tracks.join(' '), '--pb-columns': cols}:{})}} onClickCapture={region===null&&partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined){event.stopPropagation();event.preventDefault();pickRow(Number(row),placed)}}:undefined} onPointerOver={partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined)setHoverRow(Number(row))}:undefined}>{out}</div>
   }
 
   // A frame: rows of the grid it sits in, for each region a row for its head, the region's rows, and a row for its
@@ -386,10 +385,10 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       const section = (
         <section key={r.name} className="pb-region" style={{ gridRow: `${row} / span ${2 * rows + 3}` }}>
           {/* Its head row: its name, and the value it opens with the dot that gives it. */}
-          <header className="pb-region-head">
+          <header className={`pb-region-head ${r.opens ? 'has-port' : ''}`}>
             {regionsOf(node).length > 1 && <b>{L(r.label)}</b>}
             {r.opens && <em>{L(parts.outputs?.(node)?.find((o) => o.key === r.name)?.label ?? '')}</em>}
-            {!isFolded && regionNote?.(node, r.name)}
+            {!isFolded && <span className="pb-region-value">{regionNote?.(node, r.name)}</span>}
             {r.opens && <span className="pb-out">{dot(outPort(srcOf(node, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, r.name)) ? 'is-wired' : ''}`)}</span>}
           </header>
           {grid(`${node.id}/${r.name}`, { gridRow: `3 / span ${2 * rows - 1}` })}
@@ -399,7 +398,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
               <span className="pb-in">{dot(inPort(node.id, r.name), tr(`${nameOf(node)} 的${L(parts.portLabel?.(node, r.name) ?? '')}`, `${nameOf(node)} ${L(parts.portLabel?.(node, r.name) ?? '')}`), `is-in ${feeding(graph, node.id, r.name) ? 'is-wired' : 'is-open'}`)}</span>
             </span>
             <em>{L(parts.portLabel?.(node, r.name) ?? '')}</em>
-            {!isFolded && resultNote?.(node, r.name)}
+            {!isFolded && <span className="pb-region-value">{resultNote?.(node, r.name)}</span>}
           </footer>
         </section>
       )

@@ -24,7 +24,7 @@
 //   frames?(node) → [{ name, label, opens }] the regions of a frame (frames.js)
 //   outputs?(node) → [{ key, label, short?, glyph? }] a node with several outputs, or null for one; an output
 //                                          goes by its glyph (SVG markup) when it has one, else by its short name
-import { cardColumns } from './card-size.js'
+import { cardColumns, slotColumns } from './card-size.js'
 import { REGION_INSET } from './slot-metrics.js'
 import { wouldCycle } from '../graph.js'
 import { frameEdges, moveInto, scopeRefusal, within } from './frames.js'
@@ -187,26 +187,26 @@ export function layout(graph, parts) {
   }
 }
 
-// Phone slots: each grid is two columns of rows of one height, a part sitting in a numbered cell (row × 2 + column)
+// Phone slots: each grid has the same column count, with a part sitting in a numbered cell (row × cols + column)
 // and staying there. A part keeps its saved `slot` when it fits there; parts without one take the first free cells in
-// data-flow order. The grid always ends with an empty row, so there is room to drop a new part.
+// data-flow order. The last row keeps room for a new part.
 //
 // A frame's regions (frames.js) are grids of their own, inside the frame's block: `region` names one, and a part's
 // slot counts in the grid of the region it sits in. The frame spans the rows its regions take, each region a row for
 // its head (the value it opens), its own rows, and a row for its foot (the dot its result goes into), so its cells line
 // up with the cells beside it. Frames span the whole row. A card whose value needs more than one column also spans the row.
 //
-//   { cell: id → slot, span: id → [columns, rows], cols, rows, size, emptyRows, free: [slot] }
-// `emptyRows` includes nested rows so the phone subgrid can put a smaller gap on either side.
+//   { cell: id → slot, span: id → [columns, rows], cols, rows, size, frameHeads, free: [slot] }
+// `frameHeads` includes nested headings so the phone subgrid can put the first region directly after its title.
 export function placement(graph, parts, region = null, { fixed = false } = {}) {
   const { steps } = layout(graph, parts)
   const regions = (n) => parts.frames?.(n) ?? []
   const byNode = new Map(steps.map((node) => [node.id, node]))
   const available = (r) => r === null ? parts.availableWidth ?? Infinity : available(byId(graph, r.split('/')[0])?.in ?? null) - REGION_INSET
   const grids = new Map()
+  const cols = slotColumns(parts, parts.availableWidth, parts.heldPieces)
   const place = (r) => {
     if (grids.has(r)) return grids.get(r)
-    const cols = 2
     const width = available(r)
     const used = new Set()
     const cell = new Map()
@@ -236,20 +236,23 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
     }
     const last = used.size ? Math.floor(Math.max(...used) / cols) + 1 : 0
     const reserved=r===null?Math.max(0,...(graph.blocks??[]).filter(b=>Number.isInteger(b.slot)&&Number.isInteger(b.rows)).map(b=>Math.floor(b.slot/cols)+b.rows)):0
-    const rows = fixed ? Math.max(1, last) : Math.max(last + 1,reserved + 1)
+    // Keep the insertion row available until its last slot is filled.
+    const full = last > 0 && Array.from({ length: cols }, (_, col) => used.has((last - 1) * cols + col)).every(Boolean)
+    const rows = fixed ? Math.max(1, last) : Math.max(last + Number(full), reserved + 1)
     const size = rows * cols
-    const emptyRows = new Set(Array.from({ length: rows }, (_, row) => row))
+    const frameHeads = new Set()
     for (const [id, slot] of cell) {
+      const frames = regions(byNode.get(id))
+      if (!frames.length) continue
       let row = Math.floor(slot / cols)
-      emptyRows.delete(row++)
-      for (const region of regions(byNode.get(id))) {
+      frameHeads.add(row++)
+      for (const region of frames) {
         const child = place(`${id}/${region.name}`)
-        emptyRows.delete(row++)
-        for (let k = 0; k < child.rows; k++, row++) if (!child.emptyRows.has(k)) emptyRows.delete(row)
-        emptyRows.delete(row++)
+        for (const head of child.frameHeads) frameHeads.add(row + 1 + head)
+        row += child.rows + 2
       }
     }
-    const result = { cell, span, cols, rows, size, emptyRows, free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
+    const result = { cell, span, cols, rows, size, frameHeads, free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
     grids.set(r, result)
     return result
   }
