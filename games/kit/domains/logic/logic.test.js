@@ -2,9 +2,10 @@
 // by the helpers below.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { checkIso, declaredRules, follows, settle, waysIn } from './iso.js'
-import { ruleText } from './schematic.js'
-import { boardOf, linesOf, premiseChips, problemsOf } from './ruleLines.js'
+import { checkIso, declaredRules, derives, follows, settle, waysIn } from './iso.js'
+import { parseSide, ruleText } from './schematic.js'
+import { checkDefine } from './define.js'
+import { boardOf, checkDeclaration, linesOf, premiseChips, problemsOf } from './ruleLines.js'
 import { runOutputTests } from '../../engine/test-run.js'
 import { parse, same, show, subst, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
@@ -503,26 +504,49 @@ test('a script: each row by a rule or a block, checked row by row', async () => 
   assert.equal(checkScript(level, rows('rule:mp').slice(0, 3)).pass, false)
 })
 
+test('definitions check completion, then hidden examples, then decreasing recursion', () => {
+  const judge = checkDefine({
+    fn: 'add', on: 0,
+    rows: [{ lhs: 'add(zero, y)' }, { lhs: 'add(s(x), y)' }],
+    tests: [{ term: 'add(zero, s(zero))', value: 's(zero)' }],
+  })
+  assert.deepEqual(judge.checks, [])
+  assert.match(judge(['y', '']).why.en, /whole right side/)
+  assert.deepEqual(judge(['zero', 'add(s(x), y)']).got, parseSide('zero'))
+  assert.deepEqual(judge(['y', 'add(s(x), y)']).at, { row: 1, slot: 0 })
+  assert.equal(judge(['y', 's(add(x, y))']), null)
+})
+
+test('declarations check incomplete premises before hidden derivability cases', () => {
+  const judge = checkDeclaration({
+    target: 'A ∧ B', declare: T('并且', 'and'),
+    tests: [{ given: [], make: false }, { given: ['A', 'B'], make: true }],
+  })
+  assert.deepEqual(judge.checks, [])
+  assert.deepEqual(judge([{ binds: [], needs: [null] }]).at, { row: 0, slot: 0 })
+  assert.equal(judge([{ binds: [], needs: [] }]).got, true)
+  assert.equal(judge([{ binds: [], needs: [parse('A'), parse('B')] }]), null)
+})
+
 test('a declaration by premise cards: joined they are one way needing both, apart two ways, none no way', () => {
   const level = (target, sentences, tests) => ({ target, sentences, tests, declare: { zh: 'x', en: 'x' } })
   const words = (l) => ({ zh: l, en: l })
   const and = level('A ∧ B', ['A', 'B'], [{ given: ['A', 'B'], make: true }, { given: ['A'], make: false }, { given: ['B'], make: false }])
   const nested = declaration(['A', 'B'])
-  assert.ok(checkIso(and, nested, words).pass)
-  assert.deepEqual(checkIso(and, nested, words).results[0].made.items.map((x) => x.n), [1, 2])
-  assert.equal(checkIso(and, declaration(['A'], ['B']), words).pass, false)
+  assert.equal(checkIso(and, words)(nested), null)
+  assert.deepEqual(derives(and, nested, and.tests[0]).made.items.map((x) => x.n), [1, 2])
+  assert.ok(checkIso(and, words)(declaration(['A'], ['B'])))
   const or = level('A ∨ B', ['A', 'B'], [{ given: ['A'], make: true }, { given: ['B'], make: true }, { given: [], make: false }])
   const apart = declaration(['A'], ['B'])
-  const run = checkIso(or, apart, words)
-  assert.ok(run.pass)
-  assert.equal(run.results[1].made.way, 2)
+  assert.equal(checkIso(or, words)(apart), null)
+  assert.equal(derives(or, apart, or.tests[1]).made.way, 2)
   // The ways close up when one is taken off: the second becomes the first.
   const settled = settle({ ...apart, wires: apart.wires.filter((w) => !(w.to === 'decl' && w.port === 'c1')) })
   const b = apart.nodes.find((n) => n.params?.name === 'B').id
   assert.deepEqual(settled.wires.filter((w) => w.to === 'decl').map((w) => [w.from, w.port]), [[b, 'c1']])
   assert.equal(settled.nodes.find((n) => n.id === 'decl').params.ways, 1)
   const bot = level('⊥', ['A'], [{ given: ['A'], make: false }, { given: [], make: false }])
-  assert.ok(checkIso(bot, declaration(), words).pass)
+  assert.equal(checkIso(bot, words)(declaration()), null)
 })
 
 test('a premise needed under another (a card wired into a card): → declared, its way the box, its use Apply', () => {
@@ -532,9 +556,9 @@ test('a premise needed under another (a card wired into a card): → declared, i
   ] }
   const words = (l) => ({ zh: l, en: l })
   const box = declaration([['B', 'A']])
-  assert.ok(checkIso(level, box, words).pass)
+  assert.equal(checkIso(level, words)(box), null)
   // Needing B alone gives B back to whoever has A → B: too weak.
-  assert.equal(checkIso(level, declaration(['B']), words).pass, false)
+  assert.ok(checkIso(level, words)(declaration(['B'])))
   const rules = declaredRules(level, waysIn(box))
   assert.equal(ruleText(rules.make[0]), '⟦⟦?A⟧ ⟹ ?B⟧ ⟹ ?A → ?B')
   assert.equal(ruleText(rules.take), '⟦?A → ?B; ⟦⟦?A⟧ ⟹ ?B⟧ ⟹ ?R⟧ ⟹ ?R')

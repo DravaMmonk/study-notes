@@ -5,7 +5,7 @@ import { showTerm } from '../formula.js'
 import { parseS, parseSide } from '../schematic.js'
 import { say, sayTerm } from '../notation.js'
 import { complete, termChips } from '../formulaTree.js'
-import { checkDefine, whyNot } from '../define.js'
+import { checkDefine } from '../define.js'
 import SentenceEditor from '../ui/SentenceEditor.jsx'
 
 // The template of a definition task (define.js): the kit's rows of rules (../../../shell/RuleRows.jsx) and a check in
@@ -20,7 +20,6 @@ import SentenceEditor from '../ui/SentenceEditor.jsx'
 // Any definition that passes is accepted; later levels go by the reference one (course.js).
 
 const UNFINISHED = T('未写完')
-const T_WRITE = T('每一行的右边都须写完', 'Every row needs a whole right side')
 
 // What was kept: a term for each row (null: nothing yet); a save from when a right side was picked kept its text.
 const kept = (saved, level) => level.rows.map((_, k) => {
@@ -37,7 +36,6 @@ export default function Define({ game, level: entry, saved, save, solve, lastRun
   const level = entry.source
   const term = (text) => L(sayTerm(parseSide(text), level.notation))
   const cond = (text) => L(say(parseS(text), level.notation))
-  const words = (text) => sayTerm(parseSide(text), level.notation)
   const [sides, setSides] = useState(() => kept(saved, level))
   const write = (k, tree) => {
     const next = sides.map((p, j) => (j === k ? tree : p))
@@ -47,13 +45,7 @@ export default function Define({ game, level: entry, saved, save, solve, lastRun
   }
   const chips = useMemo(() => level.rows.map((row) => termChips(row.choices.map(parseSide), level.notation)), [level])
   const picks = sides.map((side) => (complete(side) ? showTerm(side) : ''))
-  // Checked as a declaration is: against the level's tests, out of sight; a failure says the first thing wrong.
-  const judge = () => {
-    if (!picks.every(Boolean)) return { pass: false, text: L(T_WRITE) }
-    const wrong = checkDefine(level, picks).rows.find((row) => !row.pass)
-    return wrong ? { pass: false, text: L(whyNot(wrong, words)) } : { pass: true }
-  }
-  const { results, dock, reset } = useCheckOnce({ judge, passed: tr('每个值都正确，每次递归调用的参数都更小，因此这条定义必定终止。'), onPass: () => solve(null), lastRun, keepRun })
+  const { results, dock, reset } = useCheckOnce({ judge: checkDefine(level), work: picks, passed: tr('每个值都正确，每次递归调用的参数都更小，因此这条定义必定终止。'), onPass: () => solve(null), lastRun, keepRun })
   const rows = (
     <RuleRows
       wide

@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { Brief, Level, NamedLines, useCheckOnce } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { say } from '../notation.js'
-import { checkIso, declaredRules, sentenceOf, startIso, wayRule, wayText, waysIn } from '../iso.js'
-import { blankRule, boardOf, linesOf, problemsOf } from '../ruleLines.js'
+import { declaredRules, wayRule, wayText, waysIn } from '../iso.js'
+import { blankRule, boardOf, checkDeclaration, linesOf, problemsOf } from '../ruleLines.js'
 import RuleTable from '../ui/RuleTable.jsx'
 
 // The template of a declaration task (iso.js, a rule board with no `play`): the kit's rows of rules
@@ -29,24 +29,9 @@ export function ruleLines(level, ways) {
 
 export default function Declare({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source
-  const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
   const [rules, setRules] = useState(() => saved?.rules ?? [blankRule()])
-  const problems = useMemo(() => problemsOf(level, rules), [level, rules])
-  // The board the kernel's checks read: the rules once they are a declaration.
-  const board = useMemo(() => (problems.length ? startIso() : boardOf(linesOf(rules))), [problems, rules])
-  const judge = () => {
-    const p = problems[0]
-    if (p) {
-      return { pass: false, text: p.why === 'empty'
-        ? tr(`成立条件 ${p.rule + 1} 的第 ${p.need + 1} 个前提还没写完。`, `Premise ${p.need + 1} of condition ${p.rule + 1} is not finished.`)
-        : tr(`成立条件 ${p.rule + 1} 的第 ${p.need + 1} 个前提提到了没有任取的东西。`, `Premise ${p.need + 1} of condition ${p.rule + 1} mentions a thing it does not take.`) }
-    }
-    const checked = checkIso(level, board, words)
-    if (checked.pass) return { pass: true }
-    const wrong = checked.results.find((r) => !r.pass)
-    return { pass: false, text: L(wrong ? wrong.reason : checked.ways) }
-  }
-  const { results, dock, reset } = useCheckOnce({ judge, passed: tr('这份声明符合需求。'), onPass: () => solve({ steps: rules.length }), lastRun, keepRun })
+  const lines = problemsOf(level, rules).length ? [] : ruleLines(level, waysIn(boardOf(linesOf(rules))))
+  const { results, dock, reset } = useCheckOnce({ judge: checkDeclaration(level), work: rules, passed: tr('这份声明符合需求。'), onPass: () => solve({ steps: rules.length }), lastRun, keepRun })
   const change = (next) => {
     setRules(next)
     save({ rules: next })
@@ -55,7 +40,7 @@ export default function Declare({ game, level: entry, saved, save, solve, lastRu
   const stage = (
     <div className="fo-stage">
       <RuleTable level={level} rules={rules} onChange={change} scope={`${entry.id}:${level.task}`} />
-      <NamedLines lines={ruleLines(level, waysIn(board))} />
+      <NamedLines lines={lines} />
     </div>
   )
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />

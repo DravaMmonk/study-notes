@@ -6,9 +6,12 @@
 //   rule   { binds: [name], needs: [sentence] }   sentence: formulaTree.js (null: nothing yet)
 //   line   { binds: [name], needs: [need] }        need: sentence text | { need, under: [need] } (a premise with
 //                                                   premises of its own: a reference declaration, or an old save's)
-import { DECL, hypCard, sentenceOf, settle, startIso, thingCard } from './iso.js'
+import { DECL, checkIso, hypCard, sentenceOf, settle, startIso, thingCard } from './iso.js'
 import { freeVars, show } from './formula.js'
 import { chipsFrom, complete, straysOf } from './formulaTree.js'
+import { say } from './notation.js'
+import { T } from '../../shell/i18n.js'
+import { inOrder, property } from '../../engine/judge.js'
 
 /** A new rule: one that needs nothing yet. */
 export const blankRule = () => ({ binds: [], needs: [] })
@@ -69,4 +72,17 @@ export function boardOf(lines) {
   })
   const [decl] = startIso().nodes
   return settle({ nodes: [{ ...decl, x: nodes.some((m) => m.type === 'join') ? 540 : 280 }, ...nodes], wires })
+}
+
+/** Check the editor's rules for complete premises before judging the declaration they make. */
+export function checkDeclaration(level) {
+  const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
+  const premises = property((problem) => !problem, (problem) => ({
+    at: { row: problem.rule, slot: problem.need },
+    why: problem.why === 'empty'
+      ? T(`成立条件 ${problem.rule + 1} 的第 ${problem.need + 1} 个前提还没写完。`, `Premise ${problem.need + 1} of condition ${problem.rule + 1} is not finished.`)
+      : T(`成立条件 ${problem.rule + 1} 的第 ${problem.need + 1} 个前提提到了没有任取的东西。`, `Premise ${problem.need + 1} of condition ${problem.rule + 1} mentions a thing it does not take.`),
+  }))
+  const judge = checkIso(level, words)
+  return inOrder((rules) => premises(problemsOf(level, rules)[0]), (rules) => judge(boardOf(linesOf(rules))))
 }

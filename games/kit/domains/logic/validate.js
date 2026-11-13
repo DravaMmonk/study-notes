@@ -102,15 +102,17 @@ export function validate({ levels: given, course, logic }) {
   // A declaration by its two ways round: its reference answer passes every situation, its naive one does not.
   // A definition: its reference rows compute every test and recurse on smaller arguments; its naive ones do not.
   for (const level of levels.filter((l) => l.kind === 'define')) {
-    const good = checkDefine(level, level.solution)
-    out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: definition of ${level.fn} ${good.pass ? 'PASS' : `FAIL on row ${good.rows.findIndex((r) => !r.pass) + 1}`}` })
-    if (level.naive && checkDefine(level, level.naive).pass) out.push({ level: level.id, fail: true, text: `  naive definition of ${level.fn} PASSES (bad)` })
+    const judge = checkDefine(level)
+    const fail = judge(level.solution)
+    out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: definition of ${level.fn} ${fail ? `FAIL on row ${(fail.check ?? level.tests.length) + 1}` : 'PASS'}` })
+    if (level.naive && !judge(level.naive)) out.push({ level: level.id, fail: true, text: `  naive definition of ${level.fn} PASSES (bad)` })
     level.rows.forEach((row, k) => { if (!row.choices.includes(level.solution[k])) out.push({ level: level.id, fail: true, text: `${level.id}: row ${k + 1}'s answer is not among its choices` }) })
   }
   for (const level of levels.filter((l) => l.kind === 'iso')) {
     const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
-    const good = checkIso(level, level.solution, words)
-    out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: declaration ${good.pass ? 'PASS' : `FAIL ${keyOf(good.ways ?? good.results.find((r) => !r.pass).reason)}`} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
+    const judge = checkIso(level, words)
+    const fail = judge(level.solution)
+    out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: declaration ${fail ? `FAIL ${keyOf(fail.why)}` : 'PASS'} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
     // A declaration to write: its reference can be filled in on the rule table (one layer of ⟹, each premise built
     // from the pieces of the level's sentences, things taken only where the level allows it).
     if (level.play !== 'audit') {
@@ -134,12 +136,12 @@ export function validate({ levels: given, course, logic }) {
       if (Array.isArray(level.slots) && level.slots.some((c, k) => (c.fixed ?? []).some((cell) => JSON.stringify(c[cell]) !== JSON.stringify(level.answer[k]?.[cell])))) out.push({ level: level.id, fail: true, text: '  a reference case changes a cell its case fixes' })
       if (level.answer.some((c) => level.caseGoal && c.goal !== level.caseGoal)) out.push({ level: level.id, fail: true, text: '  a reference case breaks the goal the level fixes' })
       // A board to check is right (want 'agree'); one to catch is wrong.
-      level.boards.forEach(({ board }, k) => { if (checkIso(level, board, words).pass !== (level.want === 'agree')) out.push({ level: level.id, fail: true, text: `  board ${k + 1} ${level.want === 'agree' ? 'fails' : 'passes'} every situation (bad)` }) })
+      level.boards.forEach(({ board }, k) => { if (!judge(board) !== (level.want === 'agree')) out.push({ level: level.id, fail: true, text: `  board ${k + 1} ${level.want === 'agree' ? 'fails' : 'passes'} every situation (bad)` }) })
       continue
     }
     if (level.naive) {
-      const bad = checkIso(level, level.naive, words)
-      out.push({ level: level.id, fail: bad.pass, text: `  naive ${bad.pass ? 'PASSES (bad)' : 'fails'}` })
+      const passes = !judge(level.naive)
+      out.push({ level: level.id, fail: passes, text: `  naive ${passes ? 'PASSES (bad)' : 'fails'}` })
     }
   }
   for (const level of levels.filter((l) => l.kind === 'machine')) {

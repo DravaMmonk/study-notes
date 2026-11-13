@@ -9,20 +9,25 @@ import { WORDS } from './words.js'
 // What is checked against stays out of sight: only the first thing wrong is said. 《证明完毕》's declaration on the rule
 // board and its definition are checked this way.
 //
-//   judge()    → { pass, text?: why not }: the thing as it stands, judged (it must not solve)
+//   judge(work) → null | { why, … }: the work as it stands, judged
+//   work       the current editor value
 //   passed     what the verdict says when it passes      onPass(verdict)   the level is solved
 //   lastRun, keepRun   the screen's (GameShell)
 // Returns { results, dock, reset }: the verdict and the run bar to place; reset() as the thing changes.
 
-export function useCheckOnce({ judge, passed, onPass, lastRun, keepRun }) {
-  const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, judge)
+export function useCheckOnce({ judge, work, passed, onPass, lastRun, keepRun }) {
+  const inspect = () => {
+    const fail = judge(work)
+    return { pass: !fail, fail }
+  }
+  const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, inspect)
   const check = () => {
-    const next = judge()
+    const next = inspect()
     setVerdict(next)
     if (next.pass) onPass(next)
   }
   return {
-    results: verdict ? <Verdict pass={verdict.pass}>{verdict.pass ? passed : verdict.text}</Verdict> : null,
+    results: verdict ? <Verdict pass={verdict.pass}>{verdict.pass ? passed : L(verdict.fail.why)}</Verdict> : null,
     dock: <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />,
     reset: () => setVerdict(null),
   }

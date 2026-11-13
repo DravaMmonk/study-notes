@@ -8,9 +8,10 @@
 
 - 已有的基础件：电路画布和手机格位、词序条（`kit/strip`）、填表（`shell/RowTable.jsx`）、规则行（`shell/RuleRows.jsx`）、一次判定（`shell/CheckOnce.jsx`）、结论行（`shell/Verdict.jsx`）、带名字的几行（`shell/NamedLines.jsx`）、玩家写检验（`shell/Checks.jsx`、`engine/caught.js`）、逐步回放（`shell/usePlayback.jsx`）、手头有什么（`kit/course.js` 的 `holds`，决策二十三）。
 - A.1 已完成。六种纯判定在 `engine/judge.js`，运行报告由 `engine/test-run.js` 汇总，电路经 `engine/circuit-run.js` 接回放和结果区。12 款游戏的检查输出逐字节一致。
+- A.2 已完成。《证明完毕》的定义和声明由领域组合共享判定，作者检查和一次判定组件共用它。12 款游戏的检查输出逐字节一致。
 - `engine/circuit-domain.js` 仍承载作者侧检查（`checkCircuitTasks`）、schema（`levelSchema`）和课程读取（`circuitCourse`）。
-- 还在领域里的机制：`logic` 的判定（`define.js`、`iso.js`、`validate.js`）、三个模板（`logic/templates/*.jsx`）、词序条上的树编辑器（`logic/ui/SentenceEditor.jsx`）、七张「造出的东西往后传」的表、八种玩法的屏。
-- 量：`logic` 自写组件 2062 行（`engine/components.test.js`），只许降。
+- 还在领域里的机制：`logic` 的作者检查（`validate.js`）、三个模板（`logic/templates/*.jsx`）、词序条上的树编辑器（`logic/ui/SentenceEditor.jsx`）、七张「造出的东西往后传」的表、八种玩法的屏。
+- 量：`logic` 自写组件 2039 行（`engine/components.test.js`），只许降。
 
 ## 约定
 
@@ -31,12 +32,6 @@
 ---
 
 ## 阶段 A　判定
-
-### A.2 定义和声明用它
-
-- `logic/define.js` 的 `checkDefine`、`iso.js` 的 `checkIso` 改成用 A.1 拼出的判定，返回失败；原因的文字仍由领域给。
-- `logic/templates/define.jsx`、`declare.jsx` 里的 `judge` 删掉，只把领域给的判定交给一次判定；`validate.js` 用同一个。
-- 验收：这两个模板里没有判定的逻辑；《证明完毕》的检查输出不变；浏览器里定义关和声明关各一个到过关、一个到失败。
 
 ### A.3 反馈统一读失败
 

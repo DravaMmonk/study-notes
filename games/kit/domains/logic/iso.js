@@ -43,6 +43,7 @@ import { runBoard } from '../../engine/boards.js'
 import { meta, parse, show, subst as substF } from './formula.js'
 import { ruleOf, ruleText } from './schematic.js'
 import { T } from '../../shell/i18n.js'
+import { cases, hidden, inOrder, sameAs } from '../../engine/judge.js'
 
 export const DECL = 'decl'
 const MOST = 3
@@ -256,36 +257,39 @@ const givenText = (test, words) => {
     : T('没有前提')
 }
 
-/**
- * Every test checked: { pass, results: [{ pass, reason, derived, made? }], ways }; words(sentence) gives a sentence's
- * words. `ways` says why the rules are not the ones the level asks for (level.ways), when every test is right.
- */
-export function checkIso(level, circuit, words) {
+/** The first declaration check that fails, with its premises and goal described by the domain. */
+export function checkIso(level, words) {
   const name = level.declare
-  const results = level.tests.map((test) => {
+  const examples = hidden(cases(level.tests, (circuit, test) => {
     const got = derives(level, circuit, test)
-    const at = givenText(test, words)
-    const what = test.goal ? words(test.goal) : name
-    if (got.derived !== test.make) {
-      const reason = test.make
-        ? T(`${at.zh}时，「${what.zh}」应当可推导，这份声明却推导不出。`, `${cap(at.en)}, “${what.en}” should be derivable, but this declaration does not derive it.`)
-        : T(`${at.zh}时，「${what.zh}」不应当可推导，这份声明却推导出了它。`, `${cap(at.en)}, “${what.en}” should not be derivable, but this declaration derives it.`)
-      return { pass: false, reason, ...got }
-    }
+    const given = givenText(test, words)
+    const goal = test.goal ? words(test.goal) : name
+    const derived = sameAs(test.make, {
+      why: (want) => want
+        ? T(`${given.zh}时，「${goal.zh}」应当可推导，这份声明却推导不出。`, `${cap(given.en)}, “${goal.en}” should be derivable, but this declaration does not derive it.`)
+        : T(`${given.zh}时，「${goal.zh}」不应当可推导，这份声明却推导出了它。`, `${cap(given.en)}, “${goal.en}” should not be derivable, but this declaration derives it.`),
+    })(got.derived)
+    if (derived) return derived
     // A way that takes what is given, where the test asks for one.
     const taken = new Set((got.made?.items ?? []).filter((x) => x.kind === 'ev').map((x) => x.sentence))
     const unused = (test.uses ?? []).filter((s) => !taken.has(s)).map(words)
-    const pass = !unused.length
-    return { pass, reason: pass ? null : T(`推导出了「${what.zh}」，但用到的引入规则没有用上前提${unused.map((u) => `「${u.zh}」`).join('、')}。`, `“${what.en}” is derived, but by an intro rule that does not take the premise ${unused.map((u) => `“${u.en}”`).join(', ')}.`), ...got }
-  })
+    return unused.length ? {
+      want: test.uses,
+      got: [...taken],
+      why: T(`推导出了「${goal.zh}」，但用到的引入规则没有用上前提${unused.map((u) => `「${u.zh}」`).join('、')}。`, `“${goal.en}” is derived, but by an intro rule that does not take the premise ${unused.map((u) => `“${u.en}”`).join(', ')}.`),
+    } : null
+  }))
+  if (!level.ways) return examples
   // A way as written in `ways`: what it takes in order, a thing as '⋀x'.
   const flat = (n) => (typeof n === 'string' ? n : `[${n.under.map(flat).join('|')}]${n.need}`)
   const key = (ways) => ways.map((w) => w.map((s) => (s.startsWith('⋀') ? '⋀' : s)).join('|')).sort().join('/')
   const said = (s) => (s.startsWith('⋀') ? T('任取一样东西') : words(s))
-  const ways = level.ways && key(waysIn(circuit).map((w) => [...w.binds.map((b) => `⋀${b}`), ...w.needs.map(flat)])) !== key(level.ways)
-    ? T(`每条条例都正确，但引入规则与要求不符：${level.ways.map((w) => `⟦${w.map((s) => said(s).zh).join('; ')}⟧ ⟹ 「${name.zh}」`).join('；')}`, `Every test case is right, but the intro rules are not the ones asked for: ${level.ways.map((w) => `⟦${w.map((s) => said(s).en).join('; ')}⟧ ⟹ “${name.en}”`).join('; ')}`)
-    : null
-  return { pass: results.every((r) => r.pass) && !ways, results, ways }
+  const ways = sameAs(level.ways, {
+    got: (circuit) => waysIn(circuit).map((w) => [...w.binds.map((b) => `⋀${b}`), ...w.needs.map(flat)]),
+    same: (want, got) => key(want) === key(got),
+    why: (want) => T(`每条条例都正确，但引入规则与要求不符：${want.map((w) => `⟦${w.map((s) => said(s).zh).join('; ')}⟧ ⟹ 「${name.zh}」`).join('；')}`, `Every test case is right, but the intro rules are not the ones asked for: ${want.map((w) => `⟦${w.map((s) => said(s).en).join('; ')}⟧ ⟹ “${name.en}”`).join('; ')}`),
+  })
+  return inOrder(examples, ways)
 }
 
 /** Every sentence a test case of the level may give or aim at: its cards' sentences, its declared one, and its tests'. */
