@@ -1,7 +1,7 @@
 import { SCENES } from '../views/plots/scenes.js'
 import { caught } from '../engine/caught.js'
 import Checks, { checksSay, useChecks } from './Checks.jsx'
-import { valueText } from '../engine/views.js'
+import { VIEWS, valueText } from '../engine/views.js'
 import { useMemo, useState } from 'react'
 import { stagesOf } from '../engine/stages.js'
 import { ArrowRightFromLine, CircuitBoard } from 'lucide-react'
@@ -16,6 +16,8 @@ import Results from '../views/Results.jsx'
 import { ViewScope } from '../views/choice.js'
 import { valueKey } from '../views/picks.js'
 import Show from '../views/Show.jsx'
+import { PlaneExtent } from '../views/plots/Plane.jsx'
+import { extentOf } from '../views/plots/plane.js'
 import { L, T, tr } from './i18n.js'
 import { WORDS } from './words.js'
 import { openRef } from './refs.js'
@@ -287,6 +289,9 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   // A task may draw a shape in views of its own (its `views`): on its cards, in its results and its details.
   const views = useMemo(() => (level.views ? { ...game, views: { ...game.views, ...level.views } } : game), [game, level.views])
   const rows = rowsOf(level.results, offered, views.views)
+  // Arrows in the plane share one frame across the board and the results: as far as the test's values and the whole
+  // run's reach, so it holds still while a run plays.
+  const extent = extentOf([...(runOf?.values?.values() ?? []), ...offered.flatMap((e) => [e.given, e.want, e.got])].filter((v) => VIEWS.plane.fits(v)))
   // Each value's view is kept by task; a port may say the one it starts in, and in the studio's editor switching a
   // port's view writes it there.
   const authoring = useEdit()
@@ -310,6 +315,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   return (
     <SettingsContext.Provider value={views}>
       <ViewScope.Provider value={scope}>
+        <PlaneExtent.Provider value={extent}>
         <CircuitLevel
           stages={stages}
           screen={screen}
@@ -350,6 +356,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
             trace: () => (timed ? (tick?.trace ? { trace: tick.trace } : null) : whole ? { trace: runOf.trace } : { trace: runOf.trace, ...(run.run && shown.at >= 0 ? { upTo: shown.at, step: runOf.trace[shown.at] } : {}) }),
           }}
         />
+        </PlaneExtent.Provider>
       </ViewScope.Provider>
     </SettingsContext.Provider>
   )

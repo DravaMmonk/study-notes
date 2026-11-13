@@ -1,11 +1,11 @@
 import { createElement } from 'react'
-import { Activity, ChartScatter, ChartSpline, Grid3x3, Hash, Image, ListOrdered, Mountain, MoveUpRight, Navigation, Orbit, Rows3, ScanLine, Table2 } from 'lucide-react'
+import { Activity, ChartScatter, ChartSpline, Grid3x3, Hash, Image, ListOrdered, Mountain, MoveUpRight, Navigation, Orbit, Rows3, Scaling, ScanLine, Table2, Waypoints } from 'lucide-react'
 import { VIEWS } from '../engine/views.js'
 import { L, tr } from '../shell/i18n.js'
 
 // The switch between the views a row may be drawn in (games/DESIGN.md 6.9), the one in force pressed.
 
-const ICONS = { value: Hash, numbers: Grid3x3, pixels: Image, plane: MoveUpRight, plot: ChartSpline, profile: ScanLine, surface: Mountain, slope: Navigation, spectrum: Orbit, centredBins: Orbit, wave: Activity, bands: Rows3, terms: Table2, dots: ChartScatter, sequence: ListOrdered }
+const ICONS = { value: Hash, numbers: Grid3x3, pixels: Image, plane: MoveUpRight, carried: Scaling, chain: Waypoints, plot: ChartSpline, profile: ScanLine, surface: Mountain, slope: Navigation, spectrum: Orbit, centredBins: Orbit, wave: Activity, bands: Rows3, terms: Table2, dots: ChartScatter, sequence: ListOrdered }
 
 export default function ViewSwitch({ views, value, onChange, compact = false }) {
   const next = views[(views.indexOf(value) + 1) % views.length]

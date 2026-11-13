@@ -12,7 +12,8 @@
     {
       "t": {
         "zh": "两段位移接着走，第二支箭头从第一支的箭头尖出发；从起点指到终点的那一支，就是它们的<wiki-ref to=\"vector-sum\"></wiki-ref>。<part-ref to=\"part:add\"></part-ref>把两支箭头相加。"
-      }
+      },
+      "show": { "shape": "grid", "value": [[2, 1], [1, 2]], "views": ["chain"] }
     }
   ],
   "showcase": {

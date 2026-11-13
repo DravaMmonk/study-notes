@@ -38,17 +38,22 @@ import { T as t } from '../shell/i18n.js'
 export const SHAPES = ['scalar', 'grid', 'bits', 'ticks', 'list']
 export const SCENES = ['card', 'detail', 'results', 'figure', 'inline']
 
-// A grey grid of two rows and a few columns reads as arrows in the plane (a vector, a 2 × 2 matrix carrying the grid);
+// A grey grid of two rows and a few columns reads as arrows in the plane, in the reading content names: `plane` each
+// column an arrow from the origin, `carried` two columns as a 2 × 2 matrix carrying the grid, `chain` the columns walked
+// tip to tail with their sum (a value's shape never picks the reading);
 // one of one or two rows as functions; one of several rows and columns as a surface, a slope map (three
 // cells a side at least, for a gradient) or a picture of its spectrum (a row's spectrum is a plot; at most 128 × 128,
 // so it is quick to work out).
 const grey = (g) => isGrid(g) && (g.c ?? 1) === 1
+const planar = (g) => grey(g) && g.h === 2 && g.w >= 1 && g.w <= 6
 
 export const VIEWS = {
   value: { shapes: ['scalar'], label: t('数值', 'Value') },
   numbers: { shapes: ['grid'], label: t('数值', 'Numbers') },
   pixels: { shapes: ['grid'], label: t('图像') },
-  plane: { shapes: ['grid'], label: t('平面'), fits: (g) => grey(g) && g.h === 2 && g.w >= 1 && g.w <= 6 },
+  plane: { shapes: ['grid'], label: t('箭头', 'Arrows'), fits: (g) => planar(g) },
+  carried: { shapes: ['grid'], label: t('变换', 'Transformation'), fits: (g) => planar(g) && g.w === 2 },
+  chain: { shapes: ['grid'], label: t('首尾相接', 'Tip to tail'), fits: (g) => planar(g) && g.w >= 2 },
   plot: { shapes: ['grid'], label: t('函数图像'), fits: (g) => grey(g) && g.h <= 2 && g.w >= 2 },
   profile: { shapes: ['grid'], label: t('剖面'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },
   surface: { shapes: ['grid'], label: t('地形'), fits: (g) => grey(g) && g.h >= 2 && g.w >= 2 },

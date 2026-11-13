@@ -87,6 +87,7 @@
 .pn .is-c3 { color: var(--w5); } .pn .is-c4 { color: var(--w3); } .pn .is-c5 { color: var(--w1); }
 .pn .is-want { color: var(--ink); opacity: 0.35; }
 .pn .is-want line { stroke-dasharray: 4 3; stroke-width: 1.5; }
+.pn .is-sum { color: var(--ink); }
 .pn .is-miss { color: var(--fail); }
 .pn.is-card .pn-arrow line { stroke-width: 1.75; }
 .pf { display: grid; gap: var(--sp-3); width: fit-content; max-width: 100%; }

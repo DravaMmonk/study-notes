@@ -25,6 +25,7 @@
   },
   "views": {
     "grid": [
+      "carried",
       "plane",
       "numbers"
     ]

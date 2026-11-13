@@ -707,7 +707,6 @@ export default {
   "常数能选的值": "the values a constant offers",
   "常数：设定的数": "Constant: the number it is set to",
   "平均": "average",
-  "平面": "Plane",
   "并排比较两组目标和结果的空间核": "compare two target and output spatial kernels",
   "并进": "Merge into",
   "并进…": "Merge into…",

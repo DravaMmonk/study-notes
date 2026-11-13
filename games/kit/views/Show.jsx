@@ -5,7 +5,7 @@ import Timeline from '../shell/Timeline.jsx'
 import { useOffered, useViewPicks } from './choice.js'
 import GridInspector from './grid/GridInspector.jsx'
 import GridView, { GridPicture } from './grid/GridView.jsx'
-import { DRAWN, SIZE } from './plots/drawn.js'
+import { DRAWN, SIZE, sized } from './plots/drawn.js'
 import ViewSwitch from './ViewSwitch.jsx'
 
 // One value drawn in a scene (games/DESIGN.md 6.9, ../engine/views.js): every place a game shows a value — a part on
@@ -26,7 +26,7 @@ import ViewSwitch from './ViewSwitch.jsx'
 /** A grid on a card: in the view picked, drawn small (a plot, a profile, a terrain…), else numbered while it is small
  * and numbers are picked, else a small picture; its size under it (arrows in the plane need none). */
 function CardGrid({ value, view }) {
-  const size = view !== 'plane' && <small>{value.w} × {value.h}</small>
+  const size = sized(view) && <small>{value.w} × {value.h}</small>
   const Drawn = DRAWN[view]
   if (Drawn) return <span className="vw-thumb"><Drawn value={value} card size={SIZE.card} />{size}</span>
   if (view === 'pixels' || value.w * value.h > 64) return <span className="vw-thumb"><GridPicture value={value} scale={Math.max(1, Math.floor(96 / Math.max(value.w, value.h)))} />{size}</span>

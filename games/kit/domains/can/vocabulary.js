@@ -415,7 +415,7 @@ const LEVEL = { ...BASE_LEVEL, fields: { ...BASE_LEVEL.fields, tasks: { ...BASE_
 
 export const vocabulary = defineVocabulary({
   domain: 'can',
-  version: 126,
+  version: 127,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

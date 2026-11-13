@@ -5,7 +5,7 @@
       "t": {
         "zh": "<level-ref to=\"1-6\"></level-ref>和<level-ref to=\"1-7\"></level-ref>各自接好了 î、ĵ 的落点；换一个变换，板就得重接。把两个落点并排写成一张数表，当作一个值在线上传：这张表叫<wiki-ref to=\"matrix\"></wiki-ref>，第一列是 î 的落点，第二列是 ĵ 的落点。下图的矩阵把格子推歪了。"
       },
-      "show": { "shape": "grid", "value": [[1, 1], [0, 1]], "views": ["plane"] }
+      "show": { "shape": "grid", "value": [[1, 1], [0, 1]], "views": ["carried"] }
     },
     {
       "t": {
