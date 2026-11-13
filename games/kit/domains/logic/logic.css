@@ -115,9 +115,6 @@
 .lg-rows tbody tr.is-fail td:last-child { color: var(--fail); }
 .lg-rows td:last-child { white-space: nowrap; }
 /* A result column keeps its room before the run fills it, and a cell of several sentences gives each its own line. */
-.lg-rows .lg-result { min-width: 7em; white-space: nowrap; }
-.lg-rows .lg-lines { text-align: left; }
-.lg-rows .lg-lines span { display: block; }
 
 
 /* First-order levels (ui/WorldScreens.jsx): sentences to write, the vocabulary as buttons, worlds in words, and a world
@@ -248,26 +245,12 @@
 /* The definition board (ui/DefineScreen.jsx): a row a case, its right side picked; the tests under them. */
 .lg-define { max-width: 720px; margin: 0 auto; padding: var(--sp-7) var(--sp-7) var(--sp-8); display: grid; gap: var(--sp-6); }
 
-/* The test cases of a declaration (ui/IsoCases.jsx, on the shared RowTable): a result that disagrees, a run's rows. */
+/* The result of testing a formula in a world. */
 .lg-wrong { color: var(--fail); font-weight: 600; }
 .lg-right { color: var(--status); font-weight: 600; }
-.rt-table .lg-lines span { display: block; }
-.rt-row.is-pass td.lg-result { color: var(--status); }
-.rt-row.is-fail td.lg-result { color: var(--fail); }
 
 
 /* The rules a declaration gives, as they stand: each named at the left, written out beside it. */
-/* A sentence being built for one of them (ui/SentencePick.jsx, ui/RuleTable.jsx). */
+/* A sentence being built for one of them (strip/TreePick.jsx, ui/RuleTable.jsx). */
 /* The rule table's for-any switch takes the quantifiers' colour. */
 .lg-rule-table .rr-lead button[aria-pressed='true'] { background: color-mix(in srgb, var(--fam-quant, var(--accent)) 13%, transparent); box-shadow: inset 0 0 0 1.5px var(--fam-quant, var(--accent)); }
-.lg-sentence-box { display: grid; gap: var(--sp-4); }
-.lg-pick-sentence { max-width: 100%; min-height: 28px; padding: var(--sp-1) var(--sp-4); border: 1px solid var(--hairline); border-radius: var(--r-md); color: var(--ink); background: var(--paper); font: inherit; text-align: left; cursor: pointer; }
-.lg-pick-sentence.is-empty { color: var(--muted); border-style: dashed; }
-.lg-pick-sentence:disabled { border-color: transparent; background: transparent; cursor: default; }
-.lg-pick-list { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2); }
-.lg-pick-item { display: inline-flex; align-items: center; gap: var(--sp-1); }
-.lg-pick-drop { display: inline-flex; padding: var(--sp-1); border: 0; color: var(--muted); background: transparent; cursor: pointer; }
-.lg-pick-drop:hover { color: var(--fail); }
-.lg-pick-add { min-height: 26px; padding: 0 var(--sp-4); display: inline-flex; align-items: center; gap: var(--sp-1); border: 1px dashed var(--rule); border-radius: var(--r-md); color: var(--muted); background: transparent; font: inherit; font-size: 12px; cursor: pointer; }
-.level-phone .lg-pick-sentence { min-height: 38px; padding: var(--sp-2) var(--sp-4); }
-.level-phone .lg-pick-add { min-height: 38px; }

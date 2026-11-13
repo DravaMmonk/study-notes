@@ -12,7 +12,7 @@ import { presetOf, regionsFit, withPreset } from '../../../circuit/index.js'
 import { startProof } from '../proof.js'
 import { fn, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
 import { choicesOf } from '../choices.js'
-import { chipsFrom } from '../formulaTree.js'
+import { sentencePicker } from '../sentenceLanguage.js'
 import { vocabulary } from '../fol.js'
 import { LOGIC_TESTS } from '../proof.js'
 import { MACHINE_PARTS, MACHINE_TESTS, RULE_PART, MATH, choicesOfPart, inputsOf, inputsOfLevel, parseGoal, rulePartsOf, startMachine } from '../machine.js'
@@ -65,7 +65,7 @@ const fitsBoard = (circuit, parts) => {
     && circuit.wires.every((w) => byId.has(w.to) && parts.inputs(byId.get(w.to)).includes(w.port))
 }
 
-// Building a card's sentence (ui/SentencePick.jsx): the chips of the level's sentences, in the schema's letters, each
+// Building a card's sentence (strip/TreePick.jsx): the chips of the level's sentences, in the schema's letters, each
 // letter's chip saying this test's sentence for it.
 function sentenceBuild(level, test, offer, text) {
   const consts = level.consts ?? []
@@ -74,7 +74,8 @@ function sentenceBuild(level, test, offer, text) {
     ? level.notation.words[to.pred]
     : { zh: text(to), en: text(to) }])
   const notation = { ...level.notation, words: { ...level.notation.words, ...Object.fromEntries(lettered) } }
-  return { read: (t) => parse(t, { consts }), say: (f) => text(replaceAtoms(f, test.subst)), notation, chips: chipsFrom(offer.formula, { consts, notation }) }
+  const read = (value) => parse(value, { consts })
+  return sentencePicker(offer.formula, { read, consts, notation, text: (value) => text(replaceAtoms(read(value), test.subst)) })
 }
 
 export const PROOF = {

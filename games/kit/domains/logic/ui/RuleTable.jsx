@@ -45,7 +45,7 @@ export default function RuleTable({ level, rules, onChange = null, scope = '' })
   const editor = editable && {
     title: (k) => tr(`成立条件 ${k + 1} 的前提`, `A premise of condition ${k + 1}`),
     render: (k, j) => (
-      <div className="lg-sentence-box">
+      <div className="ks-tree-box">
         <TreeEditor key={`${k}.${j}`} tree={rules[k].needs[j]} onChange={(tree) => setNeed(k, j, tree)} chips={chips} language={sentenceLanguage(level.notation, 'formula', rules[k].binds)} scope={`${scope}:${k}.${j}`} />
       </div>
     ),

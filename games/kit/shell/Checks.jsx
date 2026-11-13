@@ -1,18 +1,11 @@
 import { useState } from 'react'
+import { TreeButton, TreeList } from '../strip/TreePick.jsx'
 import BitsField from './BitsField.jsx'
+import { ChoiceField, Field, InlineChoice } from './FormFields.jsx'
 import NumberField from './NumberField.jsx'
 import RowTable from './RowTable.jsx'
 import Verdict from './Verdict.jsx'
 import { L, T, tr } from './i18n.js'
-
-// The checks a player writes where a task gives the works (engine/caught.js), in the results area of the level: a
-// row a check, a cell for each thing the domain's test is made of. Picking a row puts it on the board on view; once a
-// run has judged the rows, each says what the work on view gives on it, marked where that catches the work.
-//
-//   cells   [{ name, label, shape: 'number' | 'bits', ticks? }]   a number, or a bit a tick for `ticks` ticks; by
-//           default a number for every card of the task, else what the domain's run.js says (cells(task))
-//   const checks = useChecks(screen, task, cells)   { cells, rows, at, version, set(rows), pick(k) }, kept with the level
-//   <Checks checks={checks} gives={(k) => text | null} catches={(k) => bool} verdict={{ pass, text } | null} phone />
 
 const empty = (cell) => (cell.shape === 'bits' ? Array(cell.ticks).fill(0) : null)
 /** The rows a task's checks start as: as many as the task's own tests, every cell empty (a wire silent). */
@@ -37,19 +30,71 @@ export const checksSay = (found) => (!found.why ? ''
   : found.why === 'never' ? `${tr(`第 ${found.row + 1} 行：`, `Row ${found.row + 1}: `)}${L(found.said)}`
   : tr(`第 ${found.row + 1} 行的预期不对：对的作品在这一行给出的不是这些数。`, `Row ${found.row + 1} expects the wrong thing: a sound work does not give these numbers on it.`))
 
-export default function Checks({ checks, gives, catches, verdict, phone }) {
-  const { cells, rows } = checks
-  const field = (c) => (row, set) => (c.shape === 'bits'
-    ? <BitsField label={c.label} value={row[c.name]} onChange={(v) => set({ ...row, [c.name]: v })} />
-    : <NumberField label={c.label} value={row[c.name] ?? ''} onChange={(v) => set({ ...row, [c.name]: Number(v) })} phone={phone} />)
-  const text = (c, row) => (c.shape === 'bits' ? <span className="bf-text">{row[c.name].join('')}</span> : row[c.name] ?? '—')
-  const columns = [
-    ...cells.map((c) => ({ key: c.name, label: c.label, cell: (row) => text(c, row), edit: field(c) })),
-    { key: 'gives', label: T('这一样给出'), cell: (_, k) => <span className={catches(k) ? 'ck-caught' : ''}>{gives(k) ?? '—'}</span> },
-  ]
+const read = (cell, row) => cell.read ? cell.read(row) : row[cell.name]
+const placeholder = (cell) => <span className="ck-placeholder">{L(cell.placeholder)}</span>
+
+function display(cell, row) {
+  const value = read(cell, row)
+  switch (cell.shape) {
+    case 'bits': return <span className="bf-text">{value.join('')}</span>
+    case 'number': return value ?? '—'
+    case 'tree': return value ? L(cell.build.text(value)) : placeholder(cell)
+    case 'tree-list': return value.length
+      ? <span className="ck-lines">{value.map((item, k) => <span key={k}>{`${k + 1}. ${L(cell.build.text(item))}`}</span>)}</span>
+      : placeholder(cell)
+    case 'choice': {
+      const option = cell.options.find((o) => o.value === value)
+      return option ? L(option.label) : placeholder(cell)
+    }
+  }
+}
+
+function edit(cell, row, set, at, phone) {
+  const value = read(cell, row)
+  const change = (value) => set(cell.write ? cell.write(row, value) : { ...row, [cell.name]: value })
+  const props = { value, onChange: change }
+  switch (cell.shape) {
+    case 'bits': return <BitsField label={cell.label} {...props} />
+    case 'number': return <NumberField label={cell.label} value={value ?? ''} onChange={(v) => change(Number(v))} phone={phone} />
+    case 'choice': return phone ? <ChoiceField label={cell.label} options={cell.options} {...props} /> : <InlineChoice options={cell.options} unset={cell.placeholder} {...props} />
+    case 'tree':
+    case 'tree-list': {
+      const tree = { ...props, build: cell.build, title: cell.title(at), scope: `${cell.scope}:${at}` }
+      return cell.shape === 'tree' ? <TreeButton placeholder={cell.placeholder} {...tree} /> : <TreeList addLabel={cell.addLabel} kept={cell.kept?.(row)} {...tree} />
+    }
+  }
+}
+
+function CellForm({ cell, row, set, at }) {
+  if (cell.fixed?.(row)) {
+    const value = display(cell, row)
+    return <Field label={cell.fixedLabel}>{cell.shape === 'tree' ? <span className="ff-fixed">{value}</span> : value}</Field>
+  }
+  const field = edit(cell, row, set, at, true)
+  if (cell.shape === 'choice') return field
+  if (cell.shape === 'bits') return <div><span className="bf-label">{L(cell.label)}</span>{field}</div>
+  if (cell.shape === 'number') return <div>{field}</div>
+  return <Field label={cell.label}>{field}</Field>
+}
+
+/** Each row is a check. The shape of a value chooses its table display and editor. */
+export default function Checks({ cells, rows, onChange, result, rowClass, onPick, verdict, phone, ...table }) {
+  const columns = cells.map((cell) => ({
+    key: cell.name, label: cell.label, align: cell.align,
+    cell: (row) => display(cell, row),
+    edit: cell.readonly ? null : (row, set, at) => cell.fixed?.(row) ? display(cell, row) : edit(cell, row, set, at, false),
+  }))
+  if (result) columns.push({
+    key: 'result',
+    label: result.label,
+    cell: (_, k) => {
+      const value = result.at(k)
+      return value ? <span className={value.tone ? `ck-${value.tone}` : ''}>{value.text}</span> : result.empty
+    },
+  })
   return (
     <div className="ck">
-      <RowTable phone={phone} rows={rows} columns={columns} onChange={checks.set} fixed blank={blank(cells)} rowClass={(k) => (k === checks.at ? 'is-on' : '')} onPick={checks.pick} form={(row, set) => cells.map((c) => <div key={c.name}>{c.shape === 'bits' && <span className="bf-label">{L(c.label)}</span>}{field(c)(row, set)}</div>)} formTitle={(k) => T(`第 ${k + 1} 行`, `Row ${k + 1}`)} />
+      <RowTable {...table} phone={phone} rows={rows} columns={columns} onChange={onChange} rowClass={rowClass} onPick={onPick} form={(row, set, at) => cells.map((cell) => <CellForm key={cell.name} cell={cell} row={row} set={set} at={at} />)} />
       {verdict && <Verdict pass={verdict.pass}>{verdict.text}</Verdict>}
     </div>
   )

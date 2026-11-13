@@ -50,3 +50,15 @@
 @media (prefers-reduced-motion: reduce) {
   .ks-hole.is-refused, .ks-piece.is-refused, .ks-caret { animation: none; }
 }
+
+.ks-tree-box { display: grid; gap: var(--sp-4); }
+.ks-pick-sentence { max-width: 100%; min-height: 28px; padding: var(--sp-1) var(--sp-4); border: 1px solid var(--hairline); border-radius: var(--r-md); color: var(--ink); background: var(--paper); font: inherit; text-align: left; cursor: pointer; }
+.ks-pick-sentence.is-empty { color: var(--muted); border-style: dashed; }
+.ks-pick-sentence:disabled { border-color: transparent; background: transparent; cursor: default; }
+.ks-pick-list { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-2); }
+.ks-pick-item { display: inline-flex; align-items: center; gap: var(--sp-1); }
+.ks-pick-drop { display: inline-flex; padding: var(--sp-1); border: 0; color: var(--muted); background: transparent; cursor: pointer; }
+.ks-pick-drop:hover { color: var(--fail); }
+.ks-pick-add { min-height: 26px; padding: 0 var(--sp-4); display: inline-flex; align-items: center; gap: var(--sp-1); border: 1px dashed var(--rule); border-radius: var(--r-md); color: var(--muted); background: transparent; font: inherit; font-size: 12px; cursor: pointer; }
+.level-phone .ks-pick-sentence { min-height: 38px; padding: var(--sp-2) var(--sp-4); }
+.level-phone .ks-pick-add { min-height: 38px; }

@@ -702,7 +702,10 @@ level-ref, part-ref, wiki-ref { display: inline; }
 /* The checks a player writes in the results area (Checks.jsx): the rows, then what the run said. */
 .ck { display: grid; gap: var(--sp-4); }
 .ck input { width: 7em; }
-.ck-caught { color: var(--fail); font-weight: 600; }
+.ck-wrong { color: var(--fail); font-weight: 600; }
+.ck-right { color: var(--status); font-weight: 600; }
+.ck-placeholder { color: var(--faint); font-style: normal; font-size: var(--fs-small); }
+.ck-lines span { display: block; }
 /* A run of bits the player sets (BitsField.jsx): a key a tick. */
 .bf { display: flex; flex-wrap: wrap; gap: var(--sp-1); }
 .bf-bit { width: 1.6em; height: 1.9em; padding: 0; border: 1px solid var(--line); border-radius: var(--r-xs); background: transparent; color: var(--faint); font: var(--fs-ui)/1 var(--mono); cursor: pointer; }

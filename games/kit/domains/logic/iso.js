@@ -412,3 +412,16 @@ export const startIso = () => ({ nodes: [{ id: DECL, type: DECL, params: { ways:
 /** A premise card of `sentence`, or a thing card naming its thing `name`. */
 export const hypCard = (id, sentence, at) => ({ id, type: 'hyp', params: { name: sentence }, ...at })
 export const thingCard = (id, name, at) => ({ id, type: 'thing', params: { name }, ...at })
+
+
+/** A blank audit case or the editable cases set out by a level. */
+export const blankCase = (level) => ({ given: [], goal: level.caseGoal ?? '', make: level.caseMake ?? null })
+export const setOut = (level) => Array.isArray(level.slots)
+  ? level.slots.map((c) => ({
+    given: c.fixed.includes('given') ? c.given : c.keep ?? [],
+    ...(c.keep ? { keep: c.keep } : {}),
+    goal: c.fixed.includes('goal') ? c.goal : '',
+    make: c.fixed.includes('make') ? c.make : null,
+    fixed: c.fixed,
+  }))
+  : Array.from({ length: level.slots }, () => blankCase(level))

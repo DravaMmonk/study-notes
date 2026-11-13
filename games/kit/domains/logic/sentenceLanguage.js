@@ -1,6 +1,8 @@
 import { L, T } from '../../shell/i18n.js'
 import { treeKey as keyOf } from '../../strip/tree.js'
-import { bindsAt, complete, holesOf, joinsOnto, kindAt, kidsOf, nodeAt, setAt, straysOf } from './formulaTree.js'
+import { show } from './formula.js'
+import { say } from './notation.js'
+import { bindsAt, chipsFrom, complete, holesOf, joinsOnto, kindAt, kidsOf, nodeAt, setAt, straysOf } from './formulaTree.js'
 
 export const OUTSIDE = T('这个名字只在它绑定的区域里可用。', 'This name is only available inside the region that binds it.')
 
@@ -63,5 +65,16 @@ export function sentenceLanguage(notation, root = 'formula', free) {
     chipText: (chip) => chip.group === 'pred' ? placesOf(notation, chip.pred, chip.places)
       : chip.places ? placesOf(notation, chip.name, chip.places)
         : chip.group === 'name' ? L(notation.words?.[chip.name] ?? T(chip.name, chip.name)) : chip.text,
+  }
+}
+
+
+/** Read and write sentence values on a strip, with the display used when the editor is closed. */
+export function sentencePicker(formulas, { read, consts = [], notation, text = (value) => say(read(value), notation) }) {
+  return {
+    read, text, write: show,
+    ready: (tree) => Boolean(tree) && complete(tree) && !straysOf(tree).length,
+    chips: chipsFrom(formulas, { consts, notation }),
+    language: sentenceLanguage(notation),
   }
 }

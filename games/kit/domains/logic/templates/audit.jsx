@@ -1,19 +1,20 @@
 import { useMemo, useState } from 'react'
 import { Brief, Level, NamedLines, RunDock, TestTabs, Verdict, useBoardCases } from '../../../shell/index.js'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, T, tr } from '../../../shell/i18n.js'
 import { say } from '../notation.js'
-import { judgeCases, sentenceOf, waysIn } from '../iso.js'
+import { blankCase, judgeCases, sentenceOf, setOut, waysIn } from '../iso.js'
 import { ruleLines } from './declare.jsx'
-import CaseTable, { setOut } from '../ui/IsoCases.jsx'
+import Checks from '../../../shell/Checks.jsx'
 import RuleTable, { rulesOf } from '../ui/RuleTable.jsx'
 import { boardOf, linesOf, problemsOf } from '../ruleLines.js'
+import { caseCells, DERIVABLE } from '../auditCells.js'
 
 // The template of an audit task (a rule board with `play: 'audit'`): finding the fault in someone's declarations, on
 // the kit's boards-as-cases (../../../shell/useBoardCases.js, TestTabs.jsx), its rows of rules read only
 // (RuleRows.jsx through ui/RuleTable.jsx), the rules they give (NamedLines.jsx) and the table the player fills in
-// (RowTable.jsx through ui/IsoCases.jsx); nothing is drawn here. Each test
+// (shell/Checks.jsx); nothing is drawn here. Each test
 // case is one of their declarations, its rules on the rule table (read only), picked by its tab; the
-// player writes the test cases (检验条例) in the table under it (iso.js judgeCases, ui/IsoCases.jsx), each what is given, a goal and whether it should be derivable. A
+// player writes the test cases (检验条例) in the table under it (iso.js judgeCases), each what is given, a goal and whether it should be derivable. A
 // run goes through the boards: one passes when every expectation is what the requirement means and the board answers
 // one of the cases otherwise (or, by the level's `want`, every one as expected, or every one otherwise). Fewer cases is
 // the better score. The declaration may be the one the player wrote on an earlier level (`carry`).
@@ -25,6 +26,7 @@ export default function Audit({ game, level: entry, saved, save, solve, lastRun,
   const carried = kept && !problemsOf(entry.source, kept).length ? boardOf(linesOf(kept)) : null
   const level = useMemo(() => (carried ? { ...entry.source, boards: [{ board: carried }] } : entry.source), [entry.source, carried])
   const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
+  const cells = useMemo(() => caseCells(level), [level])
   const [row, setRow] = useState(0) // the case the board shows its answer to
   const judged = (cases) => judgeCases(level, cases, words)
   const boardCases = useBoardCases({
@@ -86,7 +88,8 @@ export default function Audit({ game, level: entry, saved, save, solve, lastRun,
   const result = (k) => {
     const r = checked.rows[k]
     if (!(k < reached || whole(cases[k])) || !r || r.derived[boardCases.at] === null) return null
-    return { derived: r.derived[boardCases.at], wrong: r.right && r.derived[boardCases.at] !== r.wants }
+    const derived = r.derived[boardCases.at]
+    return { text: L(DERIVABLE.find((option) => option.value === derived).label), tone: r.right && derived !== r.wants ? 'wrong' : 'right' }
   }
   const dock = <RunDock {...playback.dock({ go: tr('运行检验条例'), done: level.want === 'agree' ? tr('结果全部相符') : tr('已找出错误') })} />
   // The declarations are the test cases: their tabs put one on the table.
@@ -96,7 +99,13 @@ export default function Audit({ game, level: entry, saved, save, solve, lastRun,
     <div className="fo-stage">
       <RuleTable level={level} rules={rulesOf(level, ways)} />
       <NamedLines lines={ruleLines(level, ways)} />
-      <CaseTable phone={phone} cases={cases} words={words} level={level} edit={change} rowClass={rowClass} onPick={setRow} result={result} />
+      <Checks
+        phone={phone} cells={cells} rows={cases} onChange={change} rowClass={rowClass} onPick={setRow}
+        result={{ label: T('结果', 'Result'), at: result }}
+        blank={() => blankCase(level)} max={8} addLabel={T('添加条例')}
+        formTitle={(k) => T(`第 ${k + 1} 条检验条例`, `Test case ${k + 1}`)}
+        empty={T('还没有条例。')} fixed={Boolean(level.slots)} tip={T('点按一条条例即可修改。')}
+      />
     </div>
   )
   const results = verdictText ? <Verdict pass={verdict.pass}>{verdictText}</Verdict> : null

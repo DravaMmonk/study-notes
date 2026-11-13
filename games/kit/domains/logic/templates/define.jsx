@@ -57,7 +57,7 @@ export default function Define({ game, level: entry, saved, save, solve, lastRun
       editor={{
         title: (k) => `${term(level.rows[k].lhs)} =`,
         render: (k) => (
-          <div className="lg-sentence-box">
+          <div className="ks-tree-box">
             <TreeEditor key={k} tree={sides[k]} onChange={(tree) => write(k, tree)} chips={chips[k]} language={sentenceLanguage(level.notation, 'term')} scope={`${entry.id}:${level.task}:${k}`} />
           </div>
         ),

@@ -10,7 +10,7 @@ import { inductionCases } from '../proof.js'
 import { say } from '../notation.js'
 import { ScriptView } from './ScriptScreen.jsx'
 import FormulaField from './FormulaField.jsx'
-import { SentenceButton } from './SentencePick.jsx'
+import { TreeButton } from '../../../strip/TreePick.jsx'
 import { formOf } from '../../../engine/forms.js'
 import { machineSteps, machineViewAt } from './stepping.js'
 import { openRef } from '../../../shell/refs.js'
@@ -277,7 +277,7 @@ function Setting({ s, node, board, parts, level, circuit, scene, setParam, forms
     case undefined: case 'formula': case 'exists': return (
       <div className="lg-field" onPointerDown={(e) => e.stopPropagation()}>
         <span>{L(s.label)}</span>
-        <SentenceButton value={value} onChange={set} build={scene.build} title={s.label} placeholder={s.blank ?? T('拼一句')} scope={`${node.id}:${s.key}`} disabled={disabled} clearable={Boolean(s.blank)} />
+        <TreeButton value={value} onChange={set} build={scene.build} title={s.label} placeholder={s.blank ?? T('拼一句')} scope={`${node.id}:${s.key}`} disabled={disabled} clearable={Boolean(s.blank)} />
       </div>
     )
     default: return <FormulaField label={s.label} value={value} onChange={set} choices={scene.choices[s.kind]} blank={s.blank} disabled={disabled} />

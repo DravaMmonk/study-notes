@@ -328,7 +328,22 @@ export default function CircuitScreen({ screen, cards, run: runOn, show, entries
     : r.fail.at?.tick === undefined ? L(finalFailure(r))
     : tr(`第 ${r.fail.at.tick} 拍给出 ${L(show(r.fail.got))}`, `${L(show(r.fail.got))} at tick ${r.fail.at.tick}`))
   const gives = (k) => (run.over && found.works ? gave(found.works[run.at][k]) : null)
-  const written = works && <Checks checks={checks} phone={onPhone} gives={gives} catches={(k) => Boolean(run.over && found.works && (found.works[run.at][k].fail || found.works[run.at][k].error))} verdict={run.over ? { pass: !uncaught(run.at), text: uncaught(run.at) || tr('挡住了。') } : null} />
+  const written = works && (
+    <Checks
+      phone={onPhone} cells={checks.cells} rows={checks.rows} onChange={checks.set} fixed onPick={checks.pick}
+      rowClass={(k) => k === checks.at ? 'is-on' : ''}
+      formTitle={(k) => T(`第 ${k + 1} 行`, `Row ${k + 1}`)}
+      result={{
+        label: T('这一样给出'),
+        empty: '—',
+        at: (k) => {
+          const text = gives(k)
+          return text === null ? null : { text, tone: found.works[run.at][k].fail || found.works[run.at][k].error ? 'wrong' : null }
+        },
+      }}
+      verdict={run.over ? { pass: !uncaught(run.at), text: uncaught(run.at) || tr('挡住了。') } : null}
+    />
+  )
   const results = works
     ? caughtAt < 0 ? written : <>{written}<Results rows={rows} text={show} verdict={[]} at={-1} count={test.ticks} marks={runOf.fail?.at?.tick !== undefined ? [runOf.fail.at.tick] : []} /></>
     : <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.at?.tick !== undefined ? [runOf.fail.at.tick] : []} />
