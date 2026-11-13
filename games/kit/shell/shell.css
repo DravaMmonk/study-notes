@@ -647,3 +647,11 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .level-phone.is-embed { overflow: visible; }
 .level-phone.is-embed > .pl-scroll { flex: none; overflow: visible; padding-top: var(--sp-6); }
 .level-phone.is-embed .task-body { padding: 0 var(--sp-9) 0 0; }
+
+/* The checks a player writes in the results area (Checks.jsx): the rows, then what the run said. */
+.ck { display: grid; gap: var(--sp-4); }
+.ck input { width: 7em; }
+.ck-caught { color: var(--fail); font-weight: 600; }
+.ck-verdict { margin: 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.6; }
+.ck-verdict.is-pass { color: var(--status); }
+.ck-verdict.is-fail { color: var(--fail); }

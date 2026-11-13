@@ -226,6 +226,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     }
     out.solution = boardOf(task.solution, 'the answer')
     if (task.starter) out.starter = boardOf(task.starter, 'the starter')
+    if (task.works) out.works = task.works.map((w, k) => ({ label: w.label, board: boardOf(w.board, `work ${k + 1}`, true) }))
     if (task.naive) out.naive = boardOf(task.naive, 'the naive answer', true)
     if (task.withhold) out.withhold = task.withhold
     for (const type of task.withhold ?? []) {
@@ -472,6 +473,8 @@ export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text(), show:
     ...checks,
     solution: S.board({ about: t('一块板的蓝图文本，每行一个字符串') }),
     naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败') })),
+    starter: S.opt(S.list(S.str(), { about: t('这个任务一打开就摆在板上的蓝图：一样要修的作品。它不能直接过关') })),
+    works: S.opt(S.list(S.obj({ label: S.opt(S.text()), board: S.list(S.str()) }), { min: 1, section: 'tests', about: t('给定的错作品，每样错一处：有了它，这个任务由玩家来写检验（行数同 tests），tests 是参考的那几行；参考解通过每一行，每样错作品至少被一行挡住') })),
     withhold: S.opt(S.list(S.str(), { section: 'course', about: t('这个任务不给的元件：玩家已经有了也从托盘收起，参考解不能用它') })),
     results: RESULTS,
     views: TASK_VIEWS,
@@ -658,6 +661,7 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
         }
       }
       problems.push(...more(task, k, tasks, held))
+      for (const [k, work] of (task.works ?? []).entries()) if (!run({ ...task, tests: task.tests }, work.board, partOf).runs.some((r) => r.fail || r.error)) problems.push(`work ${k + 1} passes every check the task holds`)
       let naive = ''
       if (task.naive) {
         strays(task.naive, 'the naive answer')

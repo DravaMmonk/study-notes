@@ -43,10 +43,7 @@ const STREET = S.obj({
 const LEVEL = levelSchema({
   test: S.either(ROW, STREET),
   ports: { inputs: S.opt(S.list(PORT)), outputs: S.opt(S.list(PORT)) },
-  more: {
-    starter: S.opt(S.list(S.str(), { about: t('这个任务一打开就摆在板上的蓝图：一块要修的板。它不能直接过关') })),
-    most: S.opt(S.int({ min: 1, about: t('板上最多放几块元件：修一块板时，只许在它上面添多少') })),
-  },
+  more: { most: S.opt(S.int({ min: 1, about: t('板上最多放几块元件：修一块板时，只许在它上面添多少') })) },
 })
 
 export const vocabulary = defineVocabulary({

@@ -15,6 +15,7 @@
 //   said? } (a board run once, ../../engine/boards.js), a street's { ticks: [{ tick, values, errors, outputs, trace,
 //   read, trades }], fail?, said? }
 // once(task) → whether the task's tests are rows
+// check(task, row) → { test } | { why }   a row the player wrote as a check, when the task gives works to catch
 // entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): a row's numbers
 //   given, asked for and got; a street tick by tick, each shop's price, what it sold, what it had left, how many it
 //   turned away, and what the street has earned so far (shown, never asked for)
@@ -80,6 +81,15 @@ export const runLevel = runTests((task, circuit, test, parts) => {
   if (!task.most || held(circuit, parts) <= task.most) return run
   return { ...run, fail: { name: task.outputs[0].name, want: task.most, got: held(circuit, parts) }, said: T(`这块板最多放 ${task.most} 块元件，现在有 ${held(circuit, parts)} 块。`, `This board may hold ${task.most} parts; it holds ${held(circuit, parts)}.`) }
 })
+
+/** A row of numbers the player wrote as a check (../../shell/AuditScreen.jsx), as a test: its numbers for the task's
+ * left cards given, those for its right cards asked for. A street never shows a shop both left with stock and
+ * turning people away, so such a row is no check. */
+export function check(task, row) {
+  const of = (ports) => Object.fromEntries((ports ?? []).map((p) => [p.name, row[p.name]]))
+  if (row.left > 0 && row.short > 0) return { why: T('一家店不会同一天既有货剩下、又有人没买到。', 'A shop is never left with stock and turning people away on the same day.') }
+  return { test: { in: of(task.inputs), out: of(task.outputs) } }
+}
 
 /** Whether a task's tests are rows: its board runs once a test. */
 export const once = (task) => !task.tests[0].shops

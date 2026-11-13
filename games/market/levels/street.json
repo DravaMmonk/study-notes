@@ -258,6 +258,112 @@
       ]
     },
     {
+      "id": "catch",
+      "brief": {
+        "zh": "三块别人搭的调价器，各错一处。写两行检验：每行给出昨天的价格、剩下、没买到，和对的调价器该给的价格。对的要两行都过，三块错的每块至少被一行挡住。"
+      },
+      "inputs": [
+        {
+          "name": "was",
+          "label": {
+            "zh": "昨天的价格"
+          }
+        },
+        {
+          "name": "left",
+          "label": {
+            "zh": "剩下"
+          }
+        },
+        {
+          "name": "short",
+          "label": {
+            "zh": "没买到"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "price",
+          "label": {
+            "zh": "今天的价格"
+          }
+        }
+      ],
+      "works": [
+        {
+          "label": {
+            "zh": "甲"
+          },
+          "board": [
+            "k = const[value=0.25]()",
+            "d = mul(short, k)",
+            "n = add(was, d)",
+            "price <- n"
+          ]
+        },
+        {
+          "label": {
+            "zh": "乙"
+          },
+          "board": [
+            "g = sub(left, short)",
+            "k = const[value=0.25]()",
+            "d = mul(g, k)",
+            "n = add(was, d)",
+            "price <- n"
+          ]
+        },
+        {
+          "label": {
+            "zh": "丙"
+          },
+          "board": [
+            "g = sub(short, left)",
+            "k = const[value=0.5]()",
+            "d = mul(g, k)",
+            "n = add(was, d)",
+            "price <- n"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "in": {
+            "was": 10,
+            "left": 0,
+            "short": 20
+          },
+          "out": {
+            "price": 15
+          }
+        },
+        {
+          "in": {
+            "was": 20,
+            "left": 8,
+            "short": 0
+          },
+          "out": {
+            "price": 18
+          }
+        }
+      ],
+      "withhold": [
+        "pricer",
+        "demand",
+        "min",
+        "div"
+      ],
+      "solution": [
+        "g = sub(short, left)",
+        "k = const[value=0.25]()",
+        "d = mul(g, k)",
+        "n = add(was, d)",
+        "price <- n"
+      ]
+    },
+    {
       "id": "mend",
       "brief": {
         "zh": "别人搭的调价器，有的街上它一直卖不完。看它在哪条街上出错，只许再添一块元件，把它修好。"

@@ -1,4 +1,6 @@
 import { SCENES } from '../views/plots/scenes.js'
+import { caught } from '../engine/caught.js'
+import Checks, { checksSay, useChecks } from './Checks.jsx'
 import { valueText } from '../engine/views.js'
 import { useMemo, useState } from 'react'
 import { stagesOf } from '../engine/stages.js'
@@ -14,7 +16,7 @@ import Results from '../views/Results.jsx'
 import { ViewScope } from '../views/choice.js'
 import { valueKey } from '../views/picks.js'
 import Show from '../views/Show.jsx'
-import { L, T } from './i18n.js'
+import { L, T, tr } from './i18n.js'
 import { WORDS } from './words.js'
 import { openRef } from './refs.js'
 import { definedItem } from './parts/faces.jsx'
@@ -120,7 +122,7 @@ function Value({ value, error, show, of }) {
 }
 
 /** The editor's description of a task's cards (../circuit/model.js): the board's wiring, drawn. */
-function partsFor(level, circuit, { cards, portLabels, width }) {
+export function partsFor(level, circuit, { cards, portLabels, width }) {
   const { board, BUILT, builtBy } = circuit
   const wiring = board.wiring(level, circuit)
   // A fixed card the domain does not draw its own way: a source on the left, a sink on the right.
@@ -135,12 +137,19 @@ function partsFor(level, circuit, { cards, portLabels, width }) {
   }
 }
 
-export default function CircuitScreen({ screen, cards, run: runOn, says, show, entries, figure, judged = false, once, sample, ready, settings, defaults, portLabels = {}, defined = null, inspect, sheet, details = false, card: faces = {}, canvas = { width: 156, height: 120 }, words = TEST_WORDS, className = '' }) {
+/** The run of a board that has not run: nothing on any card. */
+const NOTHING = { values: new Map(), errors: new Map(), outputs: {}, trace: [] }
+
+export default function CircuitScreen({ screen, cards, run: runOn, says, show, entries, figure, judged = false, once, check, sample, ready, settings, defaults, portLabels = {}, defined = null, inspect, sheet, details = false, card: faces = {}, canvas = { width: 156, height: 120 }, words = TEST_WORDS, className = '' }) {
   const { game, level: entry, solved, flags, progress } = screen
   const level = entry.source
   const circuit = game.circuit.forTask(level)
   const { board: kind, BUILT, builtBy } = circuit
-  const timed = kind.ticks && !once?.(level)
+  // A task that gives works (things made, each wrong in its own way) is played from the other side: the board shows
+  // the work a tab picks and is not the player's, and the player writes the checks in the results (Checks.jsx).
+  const works = level.works ?? null
+  const onPhone = useMedia(PHONE)
+  const timed = kind.ticks && !works && !once?.(level)
   circuit.syncOwn(progress.built)
   const parts = useMemo(() => partsFor(level, circuit, { cards, portLabels, width: canvas.width }), [level, circuit, cards, portLabels, canvas.width])
   const { shown: palette, folded } = useMemo(() => circuit.offerIn(level, flags), [circuit, level, flags])
@@ -154,17 +163,26 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
     return saved?.nodes && kind.fits(saved, level, circuit.partOf) ? saved : opening()
   }
   const state = useLevelBoard(screen, { open: (saved) => hold(fitted(saved)), fresh: () => hold(opening()) })
-  const board = ready ? { ...state, change: (next, options) => state.change(hold(next), options) } : state
+  const checks = useChecks(screen, level)
+  // A work is shown as it is: every card on it locked.
+  const given = useMemo(() => works?.map((w) => ({ ...w.board, nodes: w.board.nodes.map((n) => ({ ...n, locked: true })) })), [works])
+  const board = works ? { circuit: works[0].board, version: checks.version, change: () => {}, clear: () => {}, clearable: () => false } : ready ? { ...state, change: (next, options) => state.change(hold(next), options) } : state
+  const found = useMemo(() => works && caught({ task: level, rows: checks.rows, check, run: (b, tests) => runOn({ ...level, tests }, b, circuit.partOf).runs }), [level, checks.version, circuit])
+  const uncaught = (k) => (found.why ? checksSay(found) : found.catches[k] >= 0 ? '' : tr('这一样通过了每一行：还没有哪一行挡住它。', 'This one passes every row: none catches it yet.'))
   const { circuit: drawn, change } = board
   const stages = useMemo(() => stagesOf({ task: level, board: board.circuit, chain: circuit.stageChain(level, progress.built), isFixed: (n) => kind.isFixed(n.type) }), [level, board.circuit, circuit, progress.built, kind])
   const [revealed] = useState(solved)
-  const tests = useMemo(() => (revealed ? [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] : level.tests), [level, revealed])
-  const checked = useMemo(() => runOn({ ...level, tests }, drawn, circuit.partOf), [level, tests, board.version, circuit])
-  const hidden = revealed ? [] : level.hidden
+  const tests = useMemo(() => (works ? [] : revealed ? [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] : level.tests), [level, revealed])
+  const checked = useMemo(() => (works ? { runs: [] } : runOn({ ...level, tests }, drawn, circuit.partOf)), [level, tests, board.version, circuit])
+  const hidden = works || revealed ? [] : level.hidden
   const hiddenFailed = useMemo(() => (hidden.length ? runOn({ ...level, tests: hidden }, drawn, circuit.partOf, { traced: false }).runs.filter((r) => r.fail || r.error).length : 0), [level, hidden, board.version, circuit])
   const failing = (r) => Boolean(r.fail || r.error)
   const stepsOf = (r) => (timed ? r.ticks : r.trace)
-  const run = useLevelRun(screen, board, {
+  const run = useLevelRun(screen, board, works ? {
+    tests: works.map((w, k) => ({ label: L(w.label ?? T(`作品 ${k + 1}`, `Work ${k + 1}`)) })),
+    judge: () => ({ pass: works.every((_, k) => !uncaught(k)), results: works.map((_, k) => ({ pass: !uncaught(k), reason: uncaught(k) })) }),
+    score: () => ({ steps: checks.rows.length, unit: 'cases' }),
+  } : {
     tests: [...tests.map((t, k) => ({ label: L(words.label(k)), hidden: t.hidden })), ...(judged && level.sample ? [{ label: L(WORDS.sample), sample: true }] : [])],
     ...(judged
       ? { judge: () => ({ pass: !checked.runs.some(failing), results: checked.runs.map((r) => ({ pass: !failing(r), reason: failing(r) ? L(says(r)) : '' })) }) }
@@ -184,12 +202,13 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   const sampled = useMemo(() => (onSample ? { run: sample(level, drawn), want: sample(level, level.solution) } : null), [onSample, level, board.version])
   // The step shown: the one a run is on (or its last, once past it). Before a run a tick board shows its first tick,
   // as a preview, and a board run once the whole run; a judged board always its whole run.
-  const runOf = sampled ? sampled.run : checked.runs[run.at]
+  const whole = judged || Boolean(works)
+  const runOf = sampled ? sampled.run : works ? found.works?.[run.at][checks.at] ?? NOTHING : checked.runs[run.at]
   const shown = run.playback.shown(run.at)
   const at = !run.run ? (timed ? 0 : -1) : shown.list.length ? (shown.at >= 0 ? shown.at : shown.list.length - 1) : -1
   const tick = timed && at >= 0 ? runOf.ticks[at] : null
-  const view = timed ? tick ?? undefined : judged || !run.run ? runOf : viewAt(runOf.trace, at)
-  const ended = judged ? run.over : Boolean(run.run && (run.run.test > run.at || run.run.over))
+  const view = timed ? tick ?? undefined : whole || !run.run ? runOf : viewAt(runOf.trace, at)
+  const ended = whole ? run.over : Boolean(run.run && (run.run.test > run.at || run.run.over))
 
   const setParam = (node, key, value) => {
     const next = { ...node, params: { ...node.params, [key]: value } }
@@ -256,13 +275,13 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
     return { type, label: cards[type].name, desc: cards[type].desc, icon: cards[type].icon, family: cards[type].family, fresh }
   }
 
-  const test = sampled ? null : tests[run.at]
+  const test = sampled ? null : works ? found.tests?.[checks.at] ?? null : tests[run.at]
   const failed = shown.list.findIndex((t) => t.failed)
-  const verdict = !sampled && ended && (says(runOf) || (failed >= 0 && shown.list[failed].failed))
+  const verdict = !sampled && !works && ended && (says(runOf) || (failed >= 0 && shown.list[failed].failed))
   // What a test shows: on a tick board, the ticks run so far; on a board run once, the result once it has run.
   const ran = ended || !run.run
   const upTo = (list) => list.map((v, t) => (run.run && t <= at ? v : undefined))
-  const offered = entries({ task: level, test, run: runOf, sample: sampled?.want ?? null }).map((e) => (!('got' in e) ? e : timed ? { ...e, got: upTo(e.got) } : ran ? e : { ...e, got: undefined }))
+  const offered = (works ? [] : entries({ task: level, test, run: runOf, sample: sampled?.want ?? null })).map((e) => (!('got' in e) ? e : timed ? { ...e, got: upTo(e.got) } : ran ? e : { ...e, got: undefined }))
   // A task may draw a shape in views of its own (its `views`): on its cards, in its results and its details.
   const views = useMemo(() => (level.views ? { ...game, views: { ...game.views, ...level.views } } : game), [game, level.views])
   const rows = rowsOf(level.results, offered, views.views)
@@ -279,7 +298,10 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
     }
   }, [entry.key, level, authoring])
   const scene = figure?.({ task: level, test, run: (timed ? run.run : ended || onSample) ? runOf : null, at: timed && run.run ? at : -1 })
-  const results = <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
+  const gives = (k) => (run.over && found.works ? level.outputs.map((o) => L(show(found.works[run.at][k].outputs[o.name] ?? null))).join(' · ') : null)
+  const results = works
+    ? <Checks checks={checks} phone={onPhone} gives={gives} catches={(k) => Boolean(run.over && found.works && (found.works[run.at][k].fail || found.works[run.at][k].error))} verdict={run.over ? { pass: !uncaught(run.at), text: uncaught(run.at) || tr('挡住了。') } : null} />
+    : <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
   // The scene comes first: beside the results on a desktop, above them on a phone.
   const strip = scene ? <div className="cs-told"><div className="cs-scene">{scene}</div><div className="cs-rows">{results}</div></div> : results
 
@@ -289,13 +311,13 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
         <CircuitLevel
           stages={stages}
           screen={screen}
-          board={board}
+          board={works ? { ...board, circuit: given[run.at] } : board}
           run={run}
           className={`cs-level ${className}`.trim()}
           parts={parts}
           defined={definedFaces}
-          items={palette.map(itemOf)}
-          folded={folded.map(itemOf)}
+          items={works ? [] : palette.map(itemOf)}
+          folded={works ? [] : folded.map(itemOf)}
           defaults={defaults}
           view={view}
           card={{
@@ -311,7 +333,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
           brief={{ hint: level.hint }}
           describe={(n) => (BUILT[n.type] ? builtBy(n.type, n.params).builds.desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
           results={strip}
-          words={{ go: L(judged ? WORDS.check : WORDS.run), done: L(WORDS.passed) }}
+          words={works ? { go: tr('运行检验'), done: tr('都挡住了') } : { go: L(judged ? WORDS.check : WORDS.run), done: L(WORDS.passed) }}
           sheet={sheet ? (node, ctx) => sheet(node, ctx, (key) => (v) => !ctx.readOnly && setParam(node, key, v)) : timed ? tickDetail : undefined}
           details={details || (!sheet && Boolean(timed))}
           packed={{
@@ -323,7 +345,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
               const builder = builtBy(node.type, node.params)
               openRef('level', builder.id, builder.task)
             },
-            trace: () => (timed ? (tick?.trace ? { trace: tick.trace } : null) : judged ? { trace: runOf.trace } : { trace: runOf.trace, ...(run.run && shown.at >= 0 ? { upTo: shown.at, step: runOf.trace[shown.at] } : {}) }),
+            trace: () => (timed ? (tick?.trace ? { trace: tick.trace } : null) : whole ? { trace: runOf.trace } : { trace: runOf.trace, ...(run.run && shown.at >= 0 ? { upTo: shown.at, step: runOf.trace[shown.at] } : {}) }),
           }}
         />
       </ViewScope.Provider>
@@ -336,7 +358,8 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
  * functions, no component of its own):
  *
  *   play         the domain's run.js whole: its runLevel, entries, and where it has them show (how a value reads; else
- *                the kit's valueText) and once (which tasks run the board once a test)
+ *                the kit's valueText), once (which tasks run the board once a test) and check (a row the player
+ *                wrote as one of its tests, for a task that gives works: engine/caught.js)
  *   says, portLabels?, words?, judged?, canvas?, sample?   as CircuitScreen takes them
  *   registers?   what registerCards takes: the settings of the cards a tick board keeps registers with
  *   scene?({ task, test, run, at }) → [{ part, ...props }]   the test's scene, each a kit part by name (SCENES:
@@ -344,7 +367,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
  *   parts?       { name: Component }, scene parts of the domain's own, for what the kit has no part for yet
  */
 export function circuitScreen({ play, registers, scene, parts = {}, ...declared }) {
-  const played = { run: play.runLevel, entries: play.entries, show: play.show ?? valueText, once: play.once }
+  const played = { run: play.runLevel, entries: play.entries, show: play.show ?? valueText, once: play.once, check: play.check }
   const fields = registers ? registerCards(registers) : {}
   const drawn = { ...SCENES, ...parts }
   const figure = scene && ((told) => (scene(told) ?? []).map(({ part, ...props }, k) => {
