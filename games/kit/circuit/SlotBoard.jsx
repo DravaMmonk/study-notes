@@ -10,6 +10,7 @@ import ClearButton from './ClearButton.jsx'
 import SaveSlots from './SaveSlots.jsx'
 import { useBoardWidth } from './useBoardWidth.js'
 import { cardView } from '../engine/views.js'
+import { cardHeight } from './card-size.js'
 import { slotMetrics } from './slot-metrics.js'
 import { slotPortAt } from './slot-ports.js'
 import { L, tr } from '../shell/i18n.js'
@@ -141,13 +142,12 @@ const WIDE = 8
 const rowTracks = (rows, headings) => Array.from({ length: rows }, (_, row) =>
   row === 0 ? 'auto' : `${headings.has(row - 1) ? 'var(--sp-2)' : 'var(--pb-row-gap)'} auto`).join(' ')
 
-export default function SlotBoard({ blocks = null, onPartitionHint, canMove = () => true, graph, parts: givenParts, boardRef, onSentenceWidths, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, onResizeFrame, fixed = false, nodeClass, outNote, history, onClear, onChange, types, regionNote, resultNote }) {
+export default function SlotBoard({ blocks = null, onPartitionHint, canMove = () => true, graph, parts: givenParts, boardRef, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, onResizeFrame, fixed = false, nodeClass, outNote, history, onClear, onChange, types, regionNote, resultNote }) {
   const portMask = useId()
   const ownRef = useRef(null)
   const board = boardRef ?? ownRef
   const availableWidth = useBoardWidth(ownRef)
-  const [sentenceWidths, setSentenceWidths] = useState({})
-  const parts = boardRef ? givenParts : { ...givenParts, availableWidth, sentenceWidths }
+  const parts = boardRef ? givenParts : { ...givenParts, availableWidth }
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)
   const [manualBlocks] = useSetting('manualBlocks')
@@ -223,30 +223,14 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     const el = board.current
     if (!el) return undefined
     const draw = () => drawWires(el, graph, parts)
-    const measure = () => {
-      const widths = {}
-      const sentences = el.querySelectorAll('.pb-tile [data-card-sentence]')
-      const canvas = sentences.length ? document.createElement('canvas').getContext('2d') : null
-      for (const sentence of sentences) {
-        const node = sentence.closest('[data-piece]').dataset.piece
-        const { fontWeight, fontSize, fontFamily } = getComputedStyle(sentence)
-        canvas.font = `${fontWeight} ${fontSize} ${fontFamily}`
-        widths[node] = Math.max(widths[node] ?? 0, Math.ceil(canvas.measureText(sentence.textContent).width))
-      }
-      const current = parts.sentenceWidths ?? {}
-      if (Object.keys(widths).length !== Object.keys(current).length || Object.entries(widths).some(([id, width]) => current[id] !== width)) {
-        (onSentenceWidths ?? setSentenceWidths)(widths)
-      }
-    }
-    measure()
     draw()
-    const observer = new ResizeObserver(() => { draw(); measure() })
+    const observer = new ResizeObserver(draw)
     observer.observe(el)
     el.addEventListener('animationend', draw)
-    document.fonts?.addEventListener('loadingdone', measure)
+    document.fonts?.addEventListener('loadingdone', draw)
     return () => {
       observer.disconnect()
-      document.fonts?.removeEventListener('loadingdone', measure)
+      document.fonts?.removeEventListener('loadingdone', draw)
       el.removeEventListener('animationend', draw)
     }
   })
@@ -361,9 +345,10 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       const node=graph.nodes.find(n=>n.id===id),isFolded=foldedParts.has(id)
       if((parts.frames?.(node)??[]).length){out.push(frameBlock(node,slot,region,at(slot,span.get(id)),span.get(id)[0],cols));continue}
       const extra=!isFolded&&tileExtra?.(node)
-      const tileHeight = !isFolded && cardView(parts.valueView?.(node)).tileHeight
+      const view = cardView(parts.valueView?.(node))
+      const tileHeight = isFolded ? undefined : cardHeight(parts, node)
       out.push(<div key={id} className={`pb-cell ${isFolded?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot, span.get(id))}>
-        <div className={`pb-tile ${isFolded?'is-body-folded':''} ${parts.packed?.(node)?'is-packed':''} ${nodeClass?.(node)??''} ${moving===id?'is-moving':''}`} data-piece={id} data-picture={tileHeight ? '' : undefined} data-drag={fixed||partitioning||!canMove(id)?undefined:true} data-family={parts.family(node)} style={{ ...parts.cardStyle?.(node), ...(tileHeight && { minHeight: tileHeight }) }} role="button" tabIndex={0} onClick={()=>onNode(id)} aria-label={nameOf(node)}>
+        <div className={`pb-tile ${isFolded?'is-body-folded':''} ${parts.packed?.(node)?'is-packed':''} ${nodeClass?.(node)??''} ${moving===id?'is-moving':''}`} data-piece={id} data-picture={!isFolded && view.tileHeight ? '' : undefined} data-drag={fixed||partitioning||!canMove(id)?undefined:true} data-family={parts.family(node)} style={{ ...parts.cardStyle?.(node), minHeight: tileHeight }} role="button" tabIndex={0} onClick={()=>onNode(id)} aria-label={nameOf(node)}>
           <span className={`pb-ins ${parts.inputs(node).length>1?'is-many':''}`}>{inputs(node)}</span>
           <span className="pb-name">{icon(node)}{nameOf(node)}<Info size={12} aria-hidden="true" /></span>
           {!isFolded&&<span className="pb-thumb">{thumb(node,84)}</span>}{extra&&<span className="pb-param">{extra}</span>}{outDots(node,isFolded)}
@@ -438,7 +423,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     target.click()
   }
   return (
-    <div className="pb-board" ref={board} style={slotMetrics} onClickCapture={tapPort} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={wires} data-labelled={JSON.stringify(labels.map(wireKey))}>
+    <div className="pb-board" ref={board} style={{ ...slotMetrics, '--pb-slot-height': parts.traySize && `${parts.traySize.height}px` }} onClickCapture={tapPort} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={wires} data-labelled={JSON.stringify(labels.map(wireKey))}>
       <div className="pb-tools">
         {!fixed && <SaveSlots phone board={{ graph, parts, change: onChange, types: onChange && types }} />}
         {/* Always there on an editable board; greyed out while there is nothing to clear (no onClear). */}

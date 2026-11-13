@@ -63,6 +63,7 @@ export default function imageGame(content) {
   const labels = levelLabels(content.eras, { notes: course.notes })
   const game = defineGame({
     id: content.id,
+    course,
     notes: course.notes,
     glossary: content.glossary,
     title: content.title,

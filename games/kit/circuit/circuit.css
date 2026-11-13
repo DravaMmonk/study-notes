@@ -204,11 +204,11 @@
 .pb-term.is-output.is-pass .pb-name svg { color: var(--status); }
 .pb-term.is-output.is-fail .pb-name svg { color: var(--fail); }
 /* The subgrids share the root's columns and row gaps. A frame title has its own gap before the first region. */
-.pb-grid { position: relative; display: grid; grid-template-columns: repeat(var(--pb-columns, 2), minmax(0, 1fr)); grid-auto-rows: auto; column-gap: var(--pb-column-gap); }
+.pb-grid { position: relative; display: grid; grid-template-columns: repeat(var(--pb-columns, 2), minmax(var(--pb-min-slot), 1fr)); grid-auto-rows: auto; column-gap: var(--pb-column-gap); }
 .pb-cell { display: grid; min-width: 0; border-radius: var(--r-md); }
 .pb-cell.over { box-shadow: 0 0 0 2.5px var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
-.pb-slot { height: var(--pb-target); align-self: center; display: grid; place-items: center; border: 0; border-radius: var(--r-md); color: var(--faint, var(--muted)); background: color-mix(in srgb, var(--paper) 55%, transparent); outline: 1.5px dashed var(--rule); outline-offset: -1px; font: inherit; }
-.pb-cell:has(> .pb-slot), .pb-cell > .pb-tile { min-height: var(--pb-tile-height); }
+.pb-slot { box-sizing: border-box; height: var(--pb-slot-height, var(--pb-tile-height)); align-self: start; display: grid; place-items: center; border: 0; border-radius: var(--r-md); color: var(--faint, var(--muted)); background: color-mix(in srgb, var(--paper) 55%, transparent); outline: 1.5px dashed var(--rule); outline-offset: -1px; font: inherit; }
+.pb-cell > .pb-tile { min-height: var(--pb-tile-height); }
 .pb-slot:active { background: var(--hover); }
 .pb-tile { position: relative; box-sizing: border-box; min-width: 0; padding: var(--sp-6) var(--pb-tile-padding); display: grid; justify-items: stretch; align-content: start; gap: var(--sp-1); border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), var(--card); outline: none; cursor: pointer; -webkit-touch-callout: none; animation: card-in 200ms ease; }
 .pb-tile:focus-visible { box-shadow: inset 0 3px 0 var(--fam, var(--rule)), 0 0 0 2px var(--accent); }
@@ -425,7 +425,7 @@
    the cells beside it line up with its rows. Its edges are a cell's, as a part's are: its name and padding sit inside
    them, making its first and last rows a little taller. */
 .pb-cell.is-frame, .pb-frame, .pb-region, .pb-grid.is-region { display: grid; grid-template-rows: subgrid; grid-template-columns: subgrid; grid-column: 1 / -1; min-height: 0; gap: normal; }
-.pb-frame { grid-row: 1 / -1; position: relative; padding: 0 var(--pb-region-inset); border-radius: var(--r-md); background: color-mix(in srgb, var(--fam, var(--accent)) 5%, var(--paper)); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), inset 0 0 0 1px color-mix(in srgb, var(--fam, var(--accent)) 30%, transparent), var(--card); -webkit-touch-callout: none; }
+.pb-frame { grid-row: 1 / -1; position: relative; border-radius: var(--r-md); background: color-mix(in srgb, var(--fam, var(--accent)) 5%, var(--paper)); box-shadow: inset 0 3px 0 var(--fam, var(--rule)), inset 0 0 0 1px color-mix(in srgb, var(--fam, var(--accent)) 30%, transparent), var(--card); -webkit-touch-callout: none; }
 .pb-frame.lift { z-index: 20; pointer-events: none; }
 .pb-region { padding: 0; border-radius: var(--r-md); outline: 1px dashed color-mix(in srgb, var(--fam, var(--accent)) 35%, var(--rule)); outline-offset: -1px; }
 /* A region's head row: its name, then the value it opens, its dot on the row's foot. */

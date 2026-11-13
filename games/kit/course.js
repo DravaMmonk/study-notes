@@ -296,6 +296,14 @@ export function reach(course, level) {
   return tray === null ? all : course.trays[tray].filter((p) => all.includes(p))
 }
 
+/** The fixed pieces of a tray, or the whole course's piece list for an implicit tray. */
+export function fixedTray(course, level) {
+  const tray = course.tray(level)
+  return tray === null
+    ? [...new Set([...course.primitives, ...course.levels.flatMap((entry) => course.builds(entry))])]
+    : course.trays[tray]
+}
+
 /** An item's address: a part, one of its settings (`key`), or one value of that setting. */
 export const itemOf = (part, key, value) => (key === undefined ? part : value === undefined ? `${part}.${key}` : `${part}.${key}=${value}`)
 /** An item read: { part, key?, value? } (a part's name has no dot; a value is everything after the first '='). */

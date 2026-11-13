@@ -35,6 +35,7 @@ export default function agentGame(content) {
   const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, name: CARDS[type].name, desc: CARDS[type].desc, revisions: CARDS[type].revisions, icon: CARDS[type].icon, at }))
   const game = defineGame({
     id: content.id,
+    course,
     title: content.title,
     kicker: content.kicker,
     lede: content.lede,

@@ -16,6 +16,7 @@ import { Sheet, TestStatus, Workbench } from '../../../../shell/index.js'
 import { L as text } from '../../../../shell/i18n.js'
 import { WORDS } from '../../../../shell/words.js'
 import { paceOf } from '../../../../engine/trace.js'
+import { fixedTray } from '../../../../course.js'
 import { WORLDS, windowOf } from '../../model/worlds.js'
 import { ROBOTS } from '../../model/robots.js'
 import { CARDS, isCard, isGiven, modelsOf } from '../../model/parts.js'
@@ -350,8 +351,7 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
     /** Whether clearing would take anything away: a part, a wire, or something a card reads. */
     clearable: () => board.wires.length > 0 || placed(board).length > 0 || readsOf(board).length > 0,
     palette: () => itemsOf(model.def, shownParts),
-    /** Every part the player may place on this task, shown or folded (a board read from text may use any). */
-    types: () => offeredParts,
+    types: () => offeredParts, tray: fixedTray(game.table.course, s),
     folded: () => itemsOf(model.def, foldedParts),
     consts: () => L.consts || CONSTS,
     /** The models a merger can swap to in place (its wires stay). */

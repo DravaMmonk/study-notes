@@ -1,4 +1,5 @@
 import { useBoardWidth } from '../../../circuit/useBoardWidth.js'
+import { traySize } from '../../../circuit/card-size.js'
 import { useRef } from 'react'
 import { CanvasEditor, Choice, Notice, Palette, SlotBoard, Tray, placement, useSlotEditing } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
@@ -93,9 +94,9 @@ export function SgParts({ board }) {
  *  under it; `children` float over the page (a toast, a sheet). */
 export function SgPhone({ board, rootRef, brief, tests, results, dock, children }) {
   const scroller = useRef(null)
-  const graph = board.graph()
   const boardRef = useRef(null)
-  const parts = { ...board.parts(), availableWidth: useBoardWidth(boardRef), heldPieces: board.types().map((type) => ({ type, params: {} })) }
+  const graph = board.graph()
+  const wiring = board.parts(), parts = { ...wiring, availableWidth: useBoardWidth(boardRef), traySize: traySize(board.tray, wiring) }
   const probe = board.probe()
   const { def, hasValue, valueDefault } = board.model
   const editing = useSlotEditing({
@@ -109,12 +110,11 @@ export function SgPhone({ board, rootRef, brief, tests, results, dock, children 
     openNode: (id) => board.openNode(id, parts.role(graph.nodes.find((n) => n.id === id) ?? {}) === 'part' ? { move: () => editing.startMove(id) } : {}),
     openSlot: (at) => board.openSlot(at, { place: (kind) => editing.place(kind, at) }),
   })
-  const reading = board.reading?.()
   const thumb = (node) => {
     // An input card holds what it reads (the robot's window, the cell's facts): tap one to add or remove its output,
     // which then sits over its own dot with what it carries (outNote). A tap anywhere else on the card opens its sheet.
     if (isCard(node.type)) return <div className="sg-cardview" data-cardview={node.type}>{board.cardView(node.type)}</div>
-    const { text, cls } = shownOf(node, probe, reading)
+    const { text, cls } = shownOf(node, probe, board.reading?.())
     return <i className={`sg-thumb ${text && !cls ? 'is-on' : ''} ${cls ?? ''}`}>{text || '—'}</i>
   }
   const tileExtra = (node) => (hasValue(node.type) ? `= ${node.params?.value ?? valueDefault(node.type)}` : parts.role(node) === 'part' ? L(def(node.type).tag) : null)

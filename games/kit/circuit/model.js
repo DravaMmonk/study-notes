@@ -25,8 +25,8 @@
 //   frames?(node) → [{ name, label, opens }] the regions of a frame (frames.js)
 //   outputs?(node) → [{ key, label, short?, glyph? }] a node with several outputs, or null for one; an output
 //                                          goes by its glyph (SVG markup) when it has one, else by its short name
-import { cardColumns, slotColumns } from './card-size.js'
-import { REGION_INSET, SLOT_GUTTER } from './slot-metrics.js'
+import { cardColumns, slotColumns, slotWidth } from './card-size.js'
+import { SLOT_GUTTER } from './slot-metrics.js'
 import { wouldCycle } from '../graph.js'
 import { frameEdges, moveInto, scopeRefusal, within } from './frames.js'
 
@@ -204,20 +204,20 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
   const regions = (n) => parts.frames?.(n) ?? []
   const byNode = new Map(steps.map((node) => [node.id, node]))
   const rootWidth = parts.availableWidth ?? Infinity
-  const rootCols = slotColumns(parts, rootWidth, parts.heldPieces)
-  const dimensions = (r) => {
-    if (r === null) return [rootCols, rootWidth]
+  const rootCols = slotColumns(rootWidth, parts.traySize)
+  const columnWidth = slotWidth(rootWidth, rootCols)
+  const columnsIn = (r) => {
+    if (r === null) return rootCols
     const frame = byNode.get(r.split('/')[0])
-    if (!frame) return [rootCols, rootWidth]
-    const [cols, width] = dimensions(frame.in ?? null)
-    const span = Number.isInteger(frame.span) && frame.span > 0 ? Math.min(frame.span, cols) : cols
-    const columnWidth = (width - (cols - 1) * SLOT_GUTTER) / cols
-    return [span, span * columnWidth + (span - 1) * SLOT_GUTTER - REGION_INSET]
+    if (!frame) return rootCols
+    const cols = columnsIn(frame.in ?? null)
+    return Number.isInteger(frame.span) && frame.span > 0 ? Math.min(frame.span, cols) : cols
   }
   const grids = new Map()
   const place = (r) => {
     if (grids.has(r)) return grids.get(r)
-    const [cols, width] = dimensions(r)
+    const cols = columnsIn(r)
+    const width = cols * columnWidth + (cols - 1) * SLOT_GUTTER
     const used = new Set()
     const cell = new Map()
     const span = new Map()
@@ -248,9 +248,7 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
     }
     const last = used.size ? Math.floor(Math.max(...used) / cols) + 1 : 0
     const reserved=r===null?Math.max(0,...(graph.blocks??[]).filter(b=>Number.isInteger(b.slot)&&Number.isInteger(b.rows)).map(b=>Math.floor(b.slot/cols)+b.rows)):0
-    // Keep the insertion row available until its last slot is filled.
-    const full = last > 0 && Array.from({ length: cols }, (_, col) => used.has((last - 1) * cols + col)).every(Boolean)
-    const rows = fixed ? Math.max(1, last) : Math.max(last + Number(full), reserved + 1)
+    const rows = fixed ? Math.max(1, last) : Math.max(last, reserved) + 1
     const size = rows * cols
     const frameHeads = new Set()
     for (const [id, slot] of cell) {

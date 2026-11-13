@@ -1,4 +1,6 @@
 import { useBoardWidth } from '../circuit/useBoardWidth.js'
+import { traySize } from '../circuit/card-size.js'
+import { fixedTray } from '../course.js'
 import { useSetting } from './useSetting.js'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, newPartSlot, phoneBlockBoard, blockOfPart } from '../circuit/blocks.js'
@@ -149,6 +151,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *                   their cards, tiles, details, settings and new nodes are the kernel's, `parts` and `card` only the
  *                   domain's other nodes'
  *   items, folded   the parts to place [{ type, label, desc, icon, family, packed?, fresh?, tag? }] and those folded away
+ *   trayParts       the fixed tray's faces when the task or player can change the faces of its playable parts
  *   create?(graph, type, { slot, region }) → { graph, id }   a new card (default: `defaults(type)` its settings, in a free spot)
  *   view            what the board shows now: { values, errors } (the default wire state reads it)
  *   card            the faces of a card, each (node, ctx): body, head, caption, cardClass, outNote (node, key, ctx),
@@ -169,7 +172,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   tabs            false: the tests are picked in the results, not in tabs
  *   scope           names the board for undo (a level's stage; default the level)
  */
-export default function CircuitLevel({ screen, board, run, stages = null, parts: given, defined = null, items = [], folded = [], create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
+export default function CircuitLevel({ screen, board, run, stages = null, parts: given, trayParts, defined = null, items = [], folded = [], create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
   const { game, level, phone } = screen
   const stored = board.circuit
   const ownRoot = useRef(null)
@@ -229,8 +232,9 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const testTabs = tabs && <TestTabs tests={run.tests} states={run.states} index={run.at} onSelect={run.select} phone={phone} />
 
   if (phone) {
+    const size = traySize(fixedTray(game.course, level.source ?? level), trayParts ?? parts, partDefaults)
     return (
-      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, defaults: partDefaults, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
+      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, size, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )
   }
   const detailNode = circuit.nodes.find((node) => node.id === detail)
@@ -298,12 +302,11 @@ function blockActions(circuit, parts, change) {
 // The level on a phone: the shared slot board, the tests pinned at the top, the results below the board, the tray and the run
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
-function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, defaults, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
+function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, size, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
   const { circuit: sourceCircuit, change } = board
   const boardRef = useRef(null)
   const availableWidth = useBoardWidth(boardRef)
-  const [sentenceWidths, setSentenceWidths] = useState({})
-  const parts = useMemo(() => ({ ...givenParts, availableWidth, sentenceWidths, heldPieces: types.map((type) => ({ type, params: defaults(type) })) }), [givenParts, availableWidth, sentenceWidths, types, defaults])
+  const parts = { ...givenParts, availableWidth, traySize: size }
   const circuit = useMemo(()=>phoneBlockBoard(sourceCircuit,parts),[sourceCircuit,parts])
   const [manualBlocks] = useSetting('manualBlocks')
   const canMove = (id) => manualBlocks || !blockOfPart(circuit,id)?.startsWith('course:')
@@ -350,7 +353,6 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
     <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
       <SlotBoard
         boardRef={boardRef}
-        onSentenceWidths={setSentenceWidths}
         blocks={{ ...blocks, ...blockActions(circuit, parts, change) }}
         onPartitionHint={setPartitionHint}
         canMove={canMove}

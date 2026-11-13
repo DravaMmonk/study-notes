@@ -41,6 +41,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
     lede: content.lede,
     glossary: content.glossary,
     views: content.views,
+    course,
     Hero,
     notes: course.notes,
     chapters: CHAPTERS,

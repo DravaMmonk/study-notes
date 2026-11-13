@@ -149,7 +149,7 @@ export default function BoardScreen(screen) {
       board={board}
       run={run}
       className="ag-level"
-      parts={parts}
+      parts={parts} trayParts={partsFor('loop')}
       items={palette.map(itemOf)}
       folded={folded.map(itemOf)}
       card={{

@@ -361,6 +361,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, show, entries
           run={run}
           className={`cs-level ${className}`.trim()}
           parts={parts}
+          trayParts={definedFaces ? undefined : { ...kind.wiring(level, game.circuit), valueView: () => game.views?.grid?.[0] ?? 'value' }}
           defined={definedFaces}
           items={works ? [] : palette.map(itemOf)}
           folded={works ? [] : folded.map(itemOf)}

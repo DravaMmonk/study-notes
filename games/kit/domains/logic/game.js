@@ -85,6 +85,7 @@ export default function logicGame(content) {
   }))
   const game = defineGame({
     id: content.id,
+    course: logic.course,
     glossary: content.glossary,
     title: content.title,
     kicker: content.kicker,
