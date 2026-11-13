@@ -37,7 +37,7 @@
       "solution": ["nil", "app(rev(xs), cons(x, nil))"],
       "naive": ["nil", "cons(x, rev(xs))"],
       "brief": {
-        "zh": "给每一行写出右边，让每个测试都算对。"
+        "zh": "给每一行写出右边。"
       },
       "hint": [{ "zh": "x :: xs 倒过来，x 在最后。" }]
     },

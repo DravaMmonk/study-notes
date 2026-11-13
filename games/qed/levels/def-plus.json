@@ -28,7 +28,7 @@
       ],
       "solution": ["y", "s(plus(x, y))"],
       "naive": ["y", "s(plus(s(x), y))"],
-      "brief": { "zh": "给每一行写出右边，让每个测试都算对。" },
+      "brief": { "zh": "给每一行写出右边。" },
       "hint": [{ "zh": "S x + y 比 x + y 多一。" }]
     }
   ]

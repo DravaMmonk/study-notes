@@ -6,8 +6,8 @@ import { WORDS } from './words.js'
 
 // A thing checked in one go, the same in every game: a Check button, and under the play area the verdict, why it
 // fails or that it passed; the verdict is kept across visits (useKeptVerdict.js) and dropped when the thing changes.
-// What is checked against stays out of sight: only the first thing wrong is said. (A thing whose checks are shown and
-// run row by row is a table of checks, CheckTable.jsx.) 《证明完毕》's declaration on the rule board is checked this way.
+// What is checked against stays out of sight: only the first thing wrong is said. 《证明完毕》's declaration on the rule
+// board and its definition are checked this way.
 //
 //   judge()    → { pass, text?: why not }: the thing as it stands, judged (it must not solve)
 //   passed     what the verdict says when it passes      onPass(verdict)   the level is solved
