@@ -71,9 +71,11 @@ export function alignedLayout(nodes, wires, { sizeOf, portY = () => 48, gapX = 2
 
 /**
  * Blocks and ungrouped parts flow like a paragraph; independent branches share a column. The lane between the
- * source and sink columns is as wide as its content, and at most `lane` when the content needs less.
+ * source and sink columns is as wide as its content, and at most `lane` when the content needs less. `width` is the board's
+ * as it is drawn and `fit` the smallest zoom its view fits a circuit at: a row wraps where the board could no longer
+ * show it whole.
  */
-export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY, width = 1100, lane = 320, gapX = 24, gapY = 16, pad = 12, title = 28 }) {
+export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY, width = 1100, fit = 1, lane = 320, gapX = 24, gapY = 16, pad = 12, title = 28 }) {
   const roots = graph.nodes.filter((n) => !n.in), byId = new Map(roots.map((n) => [n.id, n]))
   const owner = new Map(), units = []
   for (const block of blocks) {
@@ -109,7 +111,9 @@ export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY, width = 1
   const sources = roots.filter((n) => roleOf(n) === 'source' && !owner.has(n.id)), sinks = roots.filter((n) => roleOf(n) === 'sink')
   const left = Math.max(0, ...sources.map((n) => sizeOf(n).w)) + gapX
   const right = Math.max(0, ...sinks.map((n) => sizeOf(n).w)) + gapX
-  const available = Math.max(width - left - right, ...working.map((u) => u.w), 1)
+  // A row runs as far as the board can still show whole (the view fits a board by zooming out, to `fit` at the
+  // least): a unit goes to a row below, back at the left with its wire running against the flow, only past that.
+  const available = Math.max(width / fit - left - right, ...working.map((u) => u.w), 1)
   const ordered = dependencyOrder(working, links)
   const nodes = new Map(), placed = [], column = []
   let x = left, y = title, rowY = title, rowBottom = title
@@ -177,4 +181,61 @@ export function layoutMetrics(graph, plan, { sizeOf, portY = () => 48 }) {
     if(cross(a,b,c)*cross(a,b,d)<0&&cross(c,d,a)*cross(c,d,b)<0)crossings++
   }
   return {area:Math.round((Math.max(...boxes.map(p=>p.x+p.w))-Math.min(...boxes.map(p=>p.x)))*(Math.max(...boxes.map(p=>p.y+p.h))-Math.min(...boxes.map(p=>p.y)))),longest:Math.round(Math.max(0,...lengths)),crossings,total:Math.round(lengths.reduce((a,b)=>a+b,0))}
+}
+
+/**
+ * Where the cards a blueprint brings to the desktop board go (text.js): by the flow of its wires, left to right, in
+ * place of the next free cell a card dropped by hand takes. `fresh` are the cards to place (given x and y here);
+ * the rest of `graph` stays where it is and is read: a card feeds from what stands left of it.
+ *
+ *   a column a depth: a card stands one column right of the deepest new card feeding it, and a card nothing new
+ *     feeds (a constant, a card wired to the level's own) one column left of the first card it feeds
+ *   down a column, each card as near as it can come to the middle of what feeds it (for a card fed by nothing, of
+ *     what it feeds), the cards a row apart
+ *   a card of the board that only takes from the new ones (the level's cards on the right) moves right where the
+ *     columns reach it
+ *
+ * Cells are those of a card dropped by hand (model.js spotIn): the canvas spaces cards by what it measures after.
+ */
+export function flowSpots(graph, fresh, { x0 = 240, y0 = 40, dx = 200, dy = 150 } = {}) {
+  if (!fresh.length) return
+  const mine = new Set(fresh.map((n) => n.id))
+  const byId = new Map(graph.nodes.map((n) => [n.id, n]))
+  const into = (id) => graph.wires.filter((w) => w.to === id).map(sourceId)
+  const outOf = (id) => graph.wires.filter((w) => sourceId(w) === id).map((w) => w.to)
+  const depth = new Map()
+  const depthOf = (id, seen = new Set()) => {
+    if (depth.has(id)) return depth.get(id)
+    if (seen.has(id)) return 0
+    seen.add(id)
+    const d = Math.max(0, ...into(id).filter((src) => mine.has(src)).map((src) => depthOf(src, seen) + 1))
+    depth.set(id, d)
+    return d
+  }
+  for (const n of fresh) depthOf(n.id)
+  // A card nothing new feeds stands just left of what it feeds, not a board's width away from it.
+  for (const n of fresh) {
+    const fed = outOf(n.id).filter((id) => mine.has(id)).map((id) => depth.get(id))
+    if (!into(n.id).some((src) => mine.has(src)) && fed.length) depth.set(n.id, Math.max(0, Math.min(...fed) - 1))
+  }
+  const columns = []
+  for (const n of fresh) (columns[depth.get(n.id)] ??= []).push(n)
+  const middle = (ids) => { const ys = ids.map((id) => byId.get(id)).filter((n) => Number.isFinite(n?.y)).map((n) => n.y); return ys.length ? mean(ys) : null }
+  // Twice down the columns: the first settles what is fed, the second brings each card fed by nothing beside what it feeds.
+  for (const _round of [0, 1]) {
+    for (const [d, column] of columns.entries()) {
+      if (!column) continue
+      const wanted = new Map(column.map((n, k) => [n.id, middle(into(n.id)) ?? middle(outOf(n.id)) ?? y0 + k * dy]))
+      let y = -Infinity
+      for (const n of [...column].sort((a, b) => wanted.get(a.id) - wanted.get(b.id))) {
+        y = Math.max(y0, y + dy, Math.round(wanted.get(n.id) / 10) * 10)
+        Object.assign(n, { x: x0 + d * dx, y })
+      }
+    }
+  }
+  // Clear of a card that was there before, a row down at a time.
+  const rest = graph.nodes.filter((n) => !mine.has(n.id) && !n.in && Number.isFinite(n.x))
+  for (const n of fresh) while (rest.some((o) => Math.abs(o.x - n.x) < dx - 30 && Math.abs(o.y - n.y) < dy - 40)) n.y += dy
+  const reach = x0 + columns.length * dx
+  for (const n of rest) if (n.x < reach && n.x > x0 && into(n.id).some((src) => mine.has(src)) && !outOf(n.id).length) n.x = reach
 }

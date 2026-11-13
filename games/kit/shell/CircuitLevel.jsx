@@ -246,7 +246,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
           <div className="cl-board">
             <CanvasEditor
               blocks={blockView}
-              key={level.id}
+              key={`${level.id}:${board.key ?? ''}`}
               scope={scope ?? level.id}
               graph={circuit}
               onChange={change}

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { alignedLayout, pipelineLayout, reflowLayout, layoutMetrics } from './layout.js'
+import { alignedLayout, flowSpots, pipelineLayout, reflowLayout, layoutMetrics } from './layout.js'
 const roleOf = (n) => n.type === 'in' ? 'source' : n.type === 'out' ? 'sink' : 'part'
 const sizeOf = () => ({w:100,h:64})
 const options = {roleOf,sizeOf,width:700,portY:(_id,key,side)=>side==='in'&&key==='b'?66:46}
@@ -41,4 +41,23 @@ test('mode reflow retains the changed block anchor and never mutates stored coor
  const after=reflowLayout(before,hidden,'first')
  assert.equal(after.units[0].x,before.units[0].x);assert.equal(after.units[0].y,before.units[0].y)
  assert.deepEqual(graph,saved)
+})
+test('a row wraps only where the view could no longer fit it, so a short chain stays in one row',()=>{
+ const g={nodes:[{id:'in',type:'in'},{id:'a'},{id:'b'},{id:'c'},{id:'out',type:'out'}],wires:[{from:'in',to:'a',port:'a'},{from:'in',to:'c',port:'b'},{from:'a',to:'b',port:'a'},{from:'b',to:'c',port:'a'},{from:'c',to:'out',port:'in'}]}
+ const narrow={...options,width:420}
+ const wrapped=pipelineLayout(g,[],narrow)
+ assert(wrapped.nodes.get('c').y>wrapped.nodes.get('a').y,'at full size the third part goes to a row below')
+ const fitted=pipelineLayout(g,[],{...narrow,fit:0.7})
+ assert.equal(fitted.nodes.get('c').y,fitted.nodes.get('a').y)
+ assert(fitted.nodes.get('a').x<fitted.nodes.get('b').x&&fitted.nodes.get('b').x<fitted.nodes.get('c').x,'and the parts run left to right as the wires do')
+})
+test('a blueprint’s cards are placed where its wires lead',()=>{
+ const g={nodes:[{id:'x',x:20,y:40},{id:'y',x:20,y:180},{id:'out',x:980,y:40},{id:'s'},{id:'k'},{id:'m'},{id:'n'}],wires:[{from:'x',to:'s',port:'a'},{from:'y',to:'s',port:'b'},{from:'s',to:'m',port:'a'},{from:'k',to:'m',port:'b'},{from:'m',to:'n',port:'a'},{from:'n',to:'out',port:'in'}]}
+ flowSpots(g,g.nodes.slice(3))
+ const at=(id)=>g.nodes.find(n=>n.id===id)
+ assert(at('s').x<at('m').x&&at('m').x<at('n').x,'a column a depth')
+ assert.equal(at('k').x,at('s').x,'a constant stands just left of what it feeds')
+ assert.notEqual(at('k').y,at('s').y)
+ assert.equal(at('s').y,110,'between the two cards that feed it')
+ assert.equal(at('out').x,980)
 })

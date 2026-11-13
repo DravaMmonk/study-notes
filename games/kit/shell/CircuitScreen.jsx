@@ -164,7 +164,9 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   }
   const state = useLevelBoard(screen, { open: (saved) => hold(fitted(saved)), fresh: () => hold(opening()) })
   const checks = useChecks(screen, level)
-  // A work is shown as it is: every card on it locked.
+  // A work is shown as it is: every card on it locked. Where its cards sit is the canvas's to settle and the player's
+  // to move (a change that keeps what the board computes), kept while the level is open.
+  const [placed, setPlaced] = useState({})
   const given = useMemo(() => works?.map((w) => ({ ...w.board, nodes: w.board.nodes.map((n) => ({ ...n, locked: true })) })), [works])
   const board = works ? { circuit: works[0].board, version: checks.version, change: () => {}, clear: () => {}, clearable: () => false } : ready ? { ...state, change: (next, options) => state.change(hold(next), options) } : state
   const found = useMemo(() => works && caught({ task: level, rows: checks.rows, check, run: (b, tests) => runOn({ ...level, tests }, b, circuit.partOf).runs }), [level, checks.version, circuit])
@@ -311,7 +313,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
         <CircuitLevel
           stages={stages}
           screen={screen}
-          board={works ? { ...board, circuit: given[run.at] } : board}
+          board={works ? { ...board, key: run.at, circuit: placed[run.at] ?? given[run.at], change: (next, { keep = false } = {}) => keep && setPlaced((p) => ({ ...p, [run.at]: next })) } : board}
           run={run}
           className={`cs-level ${className}`.trim()}
           parts={parts}
