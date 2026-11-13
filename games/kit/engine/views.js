@@ -50,7 +50,7 @@ const planar = (g) => grey(g) && g.h === 2 && g.w >= 1 && g.w <= 6
 // Card-only views are used by editors that draw structured values (for example, a judgment).
 const DEFAULT_CARD_WIDTH = 140
 const CARD_VIEWS = {
-  sentence: { cardWidth: 190, tileWidth: 184 },
+  sentence: { cardWidth: 190, sentence: true },
   entries: { cardWidth: 200 },
   sensor: { cardWidth: 230 },
 }
@@ -60,7 +60,7 @@ export const cardView = (name) => ({ cardWidth: DEFAULT_CARD_WIDTH, ...(CARD_VIE
 export const VIEWS = {
   value: { shapes: ['scalar'], label: t('数值', 'Value') },
   numbers: { shapes: ['grid'], label: t('数值', 'Numbers') },
-  pixels: { shapes: ['grid'], label: t('图像') },
+  pixels: { tileHeight: 112, shapes: ['grid'], label: t('图像') },
   plane: { shapes: ['grid'], label: t('箭头', 'Arrows'), fits: (g) => planar(g) },
   carried: { shapes: ['grid'], label: t('变换', 'Transformation'), fits: (g) => planar(g) && g.w === 2 },
   chain: { shapes: ['grid'], label: t('首尾相接', 'Tip to tail'), fits: (g) => planar(g) && g.w >= 2 },

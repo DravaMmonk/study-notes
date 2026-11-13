@@ -40,15 +40,15 @@ test('taking a box off takes what is inside it too', () => {
 
 test('on a phone a box takes the rows of its regions, each a grid of its own between a head row and a foot row', () => {
   const top = placement(board, parts)
-  assert.deepEqual([...top.cell], [['f', 0], ['g', 8]])
-  assert.deepEqual(top.span.get('f'), [2, 4])
-  assert.deepEqual(top.free, [9, 10, 11])
+  assert.deepEqual([...top.cell], [['f', 0], ['g', 10]])
+  assert.deepEqual(top.span.get('f'), [2, 5])
+  assert.deepEqual(top.free, [11, 12, 13])
   const inside = placement(board, parts, 'f/body')
   assert.deepEqual([...inside.cell], [['m', 0]])
   assert.deepEqual([inside.size, inside.free], [4, [1, 2, 3]])
   // An empty region is one row.
   assert.equal(placement({ ...board, nodes: board.nodes.filter((n) => n.id !== 'm') }, parts, 'f/body').size, 2)
-  const textCards = { ...parts, valueView: () => 'sentence', availableWidth: 390 }
+  const textCards = { ...parts, availableWidth: 390, sentenceWidths: { m: 720 } }
   const nested = placement(board, textCards, 'f/body')
   assert.deepEqual(nested.span.get('m'), [2, 1])
   assert.deepEqual(nested.free, [2, 3])

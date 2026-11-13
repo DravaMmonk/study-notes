@@ -37,7 +37,7 @@ function Judgment({ v, text, small = false, bare = false, terms = false }) {
   const hyps = [...v.hyps.values()]
   return (
     <span className={`lg-formula ${small ? 'is-small' : ''}`}>
-      <b>{text(v.formula)}</b>
+      <b data-card-sentence>{text(v.formula)}</b>
       {terms && v.term && <code className="lg-term" title={tr('证明项', 'Proof term')}>{printTerm(v.term)}</code>}
       {!small && !bare && hyps.length > 0 && <small>{tr('依赖')} {hyps.map(text).join(tr('；'))}</small>}
     </span>
@@ -177,9 +177,9 @@ const goalText = (g, text) => `${g.fixes?.length ? `⋀${g.fixes.join(' ')}. ` :
 function MachineValue({ v, text, small = false }) {
   if (!v) return null
   // The generator's values (chapter 3): a sentence, a rule, a list of them.
-  if (v.kind === 'sentence') return <span className="lg-formula"><b>{text(v.f)}</b></span>
-  if (v.kind === 'rule') return <span className="lg-formula"><code>{genRuleText(v.rule, text)}</code></span>
-  if (v.kind === 'any') return <span className="lg-formula"><code>{genValueText(v, text)}</code></span>
+  if (v.kind === 'sentence') return <span className="lg-formula"><b data-card-sentence>{text(v.f)}</b></span>
+  if (v.kind === 'rule') return <span className="lg-formula"><code data-card-sentence>{genRuleText(v.rule, text)}</code></span>
+  if (v.kind === 'any') return <span className="lg-formula"><code data-card-sentence>{genValueText(v, text)}</code></span>
   if (v.kind === 'list') {
     const count = tr(`共 ${v.items.length} 项`, `${v.items.length} item${v.items.length === 1 ? '' : 's'}`)
     if (small) return <span className="lg-clauses is-small"><small>{count}</small></span>

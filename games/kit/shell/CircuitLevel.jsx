@@ -155,7 +155,6 @@ const nothing = { values: new Map(), errors: new Map() }
  *                   wireState (wire, ctx), regionNote / resultNote (node, region, ctx); on a phone thumb, tileExtra,
  *                   sinkBody, sinkClass, nodeClass
  *   canvas          more for the desktop editor: height, emptyNote, corner, minFit, overlay
- *   dense           the phone board is a board of text (SlotBoard dense)
  *   brief           { text, tip, hint, children } the brief (Layout.jsx Brief), with the level's own panels under it
  *   results, resultsTitle, resultsAside   what a run gives (the strip on a desktop, below the board on a phone)
  *   below           on a phone, under the board (what a run shows as it goes, the level's own panels)
@@ -170,7 +169,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   tabs            false: the tests are picked in the results, not in tabs
  *   scope           names the board for undo (a level's stage; default the level)
  */
-export default function CircuitLevel({ screen, board, run, stages = null, parts: given, defined = null, items = [], folded = [], create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, dense = true, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
+export default function CircuitLevel({ screen, board, run, stages = null, parts: given, defined = null, items = [], folded = [], create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
   const { game, level, phone } = screen
   const stored = board.circuit
   const ownRoot = useRef(null)
@@ -232,7 +231,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
 
   if (phone) {
     return (
-      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, dense, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
+      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )
   }
   const detailNode = circuit.nodes.find((node) => node.id === detail)
@@ -288,11 +287,12 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
 // The level on a phone: the shared slot board, the tests pinned at the top, the results below the board, the tray and the run
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
-function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, dense, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
+function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
   const { circuit: sourceCircuit, change } = board
   const boardRef = useRef(null)
   const availableWidth = useBoardWidth(boardRef)
-  const parts = useMemo(() => ({ ...givenParts, availableWidth }), [givenParts, availableWidth])
+  const [sentenceWidths, setSentenceWidths] = useState({})
+  const parts = useMemo(() => ({ ...givenParts, availableWidth, sentenceWidths }), [givenParts, availableWidth, sentenceWidths])
   const circuit = useMemo(()=>phoneBlockBoard(sourceCircuit,parts),[sourceCircuit,parts])
   const [manualBlocks] = useSetting('manualBlocks')
   const canMove = (id) => manualBlocks || !blockOfPart(circuit,id)?.startsWith('course:')
@@ -339,10 +339,10 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
     <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
       <SlotBoard
         boardRef={boardRef}
+        onSentenceWidths={setSentenceWidths}
         blocks={blocks}
         onPartitionHint={setPartitionHint}
         canMove={canMove}
-        dense={dense}
         graph={circuit}
         parts={parts}
         nameOf={editing.nameOf}

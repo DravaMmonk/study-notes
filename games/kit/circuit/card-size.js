@@ -1,8 +1,6 @@
 import { cardView } from '../engine/views.js'
 
-// A slot grid uses the large gutter. A region loses its frame and region padding on both sides.
-const SLOT_GUTTER = 16
-export const REGION_INSET = 20
+import { PORT_TARGET, SLOT_GUTTER, TILE_PADDING } from './slot-metrics.js'
 
 /** Read the width of a piece from its value view and the faces that have to fit around it. */
 export function cardWidth(parts, node, available = Infinity) {
@@ -12,10 +10,11 @@ export function cardWidth(parts, node, available = Infinity) {
   return Math.min(available, minimum)
 }
 
-/** How many columns a card needs in a slot grid. The gutter is part of the width between columns. */
+/** Span a row only when half the row cannot hold its ports or at least half its sentence. */
 export function cardColumns(parts, node, available, columns) {
   if (parts.frames?.(node)?.length) return columns
-  const view = cardView(parts.valueView?.(node))
-  if (!view?.tileWidth) return 1
-  return view.tileWidth > (available - SLOT_GUTTER) / columns ? columns : 1
+  const half = (available - SLOT_GUTTER) / columns
+  const ports = Math.max(parts.inputs?.(node)?.length ?? 0, parts.outputs?.(node)?.length ?? 1)
+  const sentence = parts.sentenceWidths?.[node.id] ?? 0
+  return ports * PORT_TARGET > half || sentence > 4 * (half - TILE_PADDING * 2) ? columns : 1
 }

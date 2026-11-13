@@ -55,8 +55,6 @@
   --bar-h: 52px;
   --gutter: max(var(--sp-6), env(safe-area-inset-left));
   --settings-width: 360px;
-  --slot-height: 112px;
-  --compact-slot-height: 64px;
   --port-radius: 6px;
 
   --ink: #282824;

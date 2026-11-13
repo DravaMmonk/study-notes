@@ -24,7 +24,8 @@
 //   frames?(node) → [{ name, label, opens }] the regions of a frame (frames.js)
 //   outputs?(node) → [{ key, label, short?, glyph? }] a node with several outputs, or null for one; an output
 //                                          goes by its glyph (SVG markup) when it has one, else by its short name
-import { cardColumns, REGION_INSET } from './card-size.js'
+import { cardColumns } from './card-size.js'
+import { REGION_INSET } from './slot-metrics.js'
 import { wouldCycle } from '../graph.js'
 import { frameEdges, moveInto, scopeRefusal, within } from './frames.js'
 
@@ -210,7 +211,7 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
     const span = new Map()
     const sizeOf = (n) => {
       const frames = regions(n)
-      return [cardColumns(parts, n, width, cols), frames.length ? frames.reduce((sum, g) => sum + 2 + place(`${n.id}/${g.name}`).rows, 0) : 1]
+      return [cardColumns(parts, n, width, cols), frames.length ? 1 + frames.reduce((sum, g) => sum + 2 + place(`${n.id}/${g.name}`).rows, 0) : 1]
     }
     const cellsOf = (at, [w, h]) => {
       const [row, col] = [Math.floor(at / cols), at % cols]

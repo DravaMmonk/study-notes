@@ -185,7 +185,6 @@ function ImageCircuit({ screen }) {
     describe={(node) => describe(types, node.type)}
     view={{ values: selected.values, errors: selected.errors }}
     canvas={{ corner }}
-    dense={false}
     className="level-graph"
     brief={{ hint: level.hint, children: !phone && extras }}
     below={phone && extras}

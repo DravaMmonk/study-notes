@@ -10,6 +10,7 @@ import ClearButton from './ClearButton.jsx'
 import SaveSlots from './SaveSlots.jsx'
 import { useBoardWidth } from './useBoardWidth.js'
 import { cardView } from '../engine/views.js'
+import { slotMetrics } from './slot-metrics.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { feeding, inPort, layout, outPort, parsePort, placement, srcNode, srcOf } from './model.js'
@@ -36,11 +37,19 @@ export function drawWires(el, graph, parts, live) {
     const dot = el.querySelector(`[data-p="${CSS.escape(p)}"]`)
     if (!dot) return null
     const box = dot.getBoundingClientRect()
-    return [box.left + box.width / 2 - origin.left, box.top + box.height / 2 - origin.top]
+    const tile = dot.closest('.pb-tile')
+    const tileBox = tile?.getBoundingClientRect()
+    return [box.left + box.width / 2 - origin.left, box.top + box.height / 2 - origin.top, tileBox]
   }
   const middle = el.clientWidth / 2
   const f = (n) => n.toFixed(1)
-  const curve = ([ax, ay], [bx, by]) => {
+  const curve = ([ax, ay, aTile], [bx, by, bTile]) => {
+    // A sideways wire climbs through the column gutter, clear of both card faces.
+    if (aTile && bTile && Math.abs(aTile.top - bTile.top) < 2 && aTile.left !== bTile.left) {
+      const mid = (ax < bx ? (aTile.right + bTile.left) : (bTile.right + aTile.left)) / 2 - origin.left
+      const loop = 14
+      return `M${f(ax)},${f(ay)} C${f(ax)},${f(ay + loop)} ${f(mid)},${f(ay + loop)} ${f(mid)},${f(ay)} L${f(mid)},${f(by)} C${f(mid)},${f(by - loop)} ${f(bx)},${f(by - loop)} ${f(bx)},${f(by)}`
+    }
     const drop = Math.max(28, Math.abs(by - ay) / 2)
     // A wire that has to climb loops out sideways instead of cutting through the blocks.
     if (by < ay + 10) {
@@ -121,7 +130,6 @@ const readMode = () => {
  *                                         (the row starts with the switcher between the level's saved boards, SaveSlots)
  * @param onChange(graph), types           a board given these can be read in from text (SaveSlots): the editor's
  *                                         change, and the parts this level offers
- * @param dense                            a board of text: thin blocks, each one's name over its value
  * @param regionNote(node, region)         in a frame's region (frames.js), what the value it opens is (or, for a
  *                                         region that opens none, what the frame holds there: the thing a
  *                                         for-any box takes, say);
@@ -136,12 +144,13 @@ const readMode = () => {
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ blocks = null, onPartitionHint, canMove = () => true, graph, parts: givenParts, boardRef, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, dense = false, regionNote, resultNote }) {
+export default function SlotBoard({ blocks = null, onPartitionHint, canMove = () => true, graph, parts: givenParts, boardRef, onSentenceWidths, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, regionNote, resultNote }) {
   const portMask = useId()
   const ownRef = useRef(null)
   const board = boardRef ?? ownRef
   const availableWidth = useBoardWidth(ownRef)
-  const parts = boardRef ? givenParts : { ...givenParts, availableWidth }
+  const [sentenceWidths, setSentenceWidths] = useState({})
+  const parts = boardRef ? givenParts : { ...givenParts, availableWidth, sentenceWidths }
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)
   const [manualBlocks] = useSetting('manualBlocks')
@@ -209,7 +218,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   const cols = (n) => ({ '--cols': n <= 4 ? n : Math.ceil(n / Math.ceil(n / 4)) })
   const regionsOf = (node) => parts.frames?.(node) ?? []
   const own = (node) => new Set(regionsOf(node).map((r) => r.name))
-  const labelsPorts = (node) => !own(node).size && Boolean(cardView(parts.valueView?.(node)).tileWidth) && parts.inputs(node).length > 1
+  const labelsPorts = (node) => !own(node).size && cardView(parts.valueView?.(node)).sentence && parts.inputs(node).length > 1
 
   // Wires are drawn after layout from where the dots really are, and again while a wire is dragged. A card's entry
   // animation moves its dots without resizing the board, so wires are drawn again once it ends.
@@ -217,12 +226,30 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     const el = board.current
     if (!el) return undefined
     const draw = () => drawWires(el, graph, parts)
+    const measure = () => {
+      const widths = {}
+      const sentences = el.querySelectorAll('.pb-tile [data-card-sentence]')
+      const canvas = sentences.length ? document.createElement('canvas').getContext('2d') : null
+      for (const sentence of sentences) {
+        const node = sentence.closest('[data-piece]').dataset.piece
+        const { fontWeight, fontSize, fontFamily } = getComputedStyle(sentence)
+        canvas.font = `${fontWeight} ${fontSize} ${fontFamily}`
+        widths[node] = Math.max(widths[node] ?? 0, Math.ceil(canvas.measureText(sentence.textContent).width))
+      }
+      const current = parts.sentenceWidths ?? {}
+      if (Object.keys(widths).length !== Object.keys(current).length || Object.entries(widths).some(([id, width]) => current[id] !== width)) {
+        (onSentenceWidths ?? setSentenceWidths)(widths)
+      }
+    }
+    measure()
     draw()
-    const observer = new ResizeObserver(draw)
+    const observer = new ResizeObserver(() => { draw(); measure() })
     observer.observe(el)
     el.addEventListener('animationend', draw)
+    document.fonts?.addEventListener('loadingdone', measure)
     return () => {
       observer.disconnect()
+      document.fonts?.removeEventListener('loadingdone', measure)
       el.removeEventListener('animationend', draw)
     }
   })
@@ -305,7 +332,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     const rowTrack=new Map(),headTrack=new Map(),tracks=[]
     for(let row=0;row<rows;row++){
       for(const b of ranges.filter(b=>b.start===row)){headTrack.set(b.id,tracks.length+1);tracks.push('auto')}
-      if(!hidden.has(row)){rowTrack.set(row,tracks.length+1);tracks.push(ranges.some(b=>b.view==='ports'&&row>=b.start&&row<b.end)?'minmax(var(--compact-slot-height),auto)':'minmax(var(--slot-height),auto)')}
+      if(!hidden.has(row)){rowTrack.set(row,tracks.length+1);tracks.push('auto')}
     }
     const at=(slot,[w,h]=[1,1])=>({gridRow:`${region===null?rowTrack.get(Math.floor(slot/cols)):Math.floor(slot/cols)+1} / span ${h}`,gridColumn:`${slot%cols+1} / span ${w}`})
     const selected=(row)=>partitioning&&startRow!==null&&row>=Math.min(startRow,hoverRow??startRow)&&row<=Math.max(startRow,hoverRow??startRow)
@@ -325,8 +352,9 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       const node=graph.nodes.find(n=>n.id===id),isFolded=foldedParts.has(id)
       if((parts.frames?.(node)??[]).length){out.push(frameBlock(node,slot,region,at(slot,span.get(id))));continue}
       const extra=!isFolded&&tileExtra?.(node)
+      const tileHeight = !isFolded && cardView(parts.valueView?.(node)).tileHeight
       out.push(<div key={id} className={`pb-cell ${isFolded?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot, span.get(id))}>
-        <div className={`pb-tile ${isFolded?'is-body-folded':''} ${parts.packed?.(node)?'is-packed':''} ${nodeClass?.(node)??''} ${moving===id?'is-moving':''}`} data-piece={id} data-drag={fixed||partitioning||!canMove(id)?undefined:true} data-family={parts.family(node)} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={()=>onNode(id)} aria-label={nameOf(node)}>
+        <div className={`pb-tile ${isFolded?'is-body-folded':''} ${parts.packed?.(node)?'is-packed':''} ${nodeClass?.(node)??''} ${moving===id?'is-moving':''}`} data-piece={id} data-picture={tileHeight ? '' : undefined} data-drag={fixed||partitioning||!canMove(id)?undefined:true} data-family={parts.family(node)} style={{ ...parts.cardStyle?.(node), ...(tileHeight && { minHeight: tileHeight }) }} role="button" tabIndex={0} onClick={()=>onNode(id)} aria-label={nameOf(node)}>
           <span className={`pb-ins ${parts.inputs(node).length>1?'is-many':''}`}>{inputs(node)}</span>
           <span className="pb-name">{icon(node)}{nameOf(node)}<Info size={12} aria-hidden="true" /></span>
           {!isFolded&&<span className="pb-thumb">{thumb(node,84)}</span>}{extra&&<span className="pb-param">{extra}</span>}{outDots(node,isFolded)}
@@ -346,7 +374,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   function frameBlock(node, slot, region, style) {
     const isFolded = foldedParts.has(node.id)
     const ports = inputs(node)
-    let row = 1
+    let row = 2
     const regions = regionsOf(node).map((r) => {
       const rows = placement(graph, parts, `${node.id}/${r.name}`, { fixed }).rows
       const section = (
@@ -387,7 +415,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     )
   }
   return (
-    <div className={`pb-board ${dense ? 'is-dense' : ''}`} ref={board} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={wires} data-labelled={JSON.stringify(labels.map(wireKey))}>
+    <div className="pb-board" ref={board} style={slotMetrics} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={wires} data-labelled={JSON.stringify(labels.map(wireKey))}>
       <div className="pb-tools">
         {!fixed && <SaveSlots phone board={{ graph, parts, change: onChange, types: onChange && types }} />}
         {/* Always there on an editable board; greyed out while there is nothing to clear (no onClear). */}
@@ -407,7 +435,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       <svg className="pb-wires" data-port-mask={portMask} aria-hidden="true" />
       <div className="pb-terms is-sources">
         {sources.map((node) => (
-          <div key={node.id} className={`pb-term ${(parts.outputs?.(node)?.length ?? 0) > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-io={tr('输入', 'IN')} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
+          <div key={node.id} className={`pb-term ${(parts.outputs?.(node)?.length ?? 0) > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-view={parts.valueView?.(node)} data-picture={cardView(parts.valueView?.(node)).tileHeight ? '' : undefined} data-io={tr('输入', 'IN')} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             {/* A source may take an input too (a reader told which layer to read). */}
             {parts.inputs(node).length > 0 && <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>}
             <span className="pb-thumb">{thumb(node, 64)}</span>
@@ -423,7 +451,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
 
       <div className="pb-terms is-outputs" style={cols(sinks.length)}>
         {sinks.map((node) => (
-          <div key={node.id} className={`pb-term is-output ${sinkClass?.(node) ?? ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-io={tr('输出', 'OUT')} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
+          <div key={node.id} className={`pb-term is-output ${sinkClass?.(node) ?? ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-view={parts.valueView?.(node)} data-picture={cardView(parts.valueView?.(node)).tileHeight ? '' : undefined} data-io={tr('输出', 'OUT')} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
             {(sinkBody ? sinkBody(node) : <span className="pb-thumb">{thumb(node, 64)}</span>)}
             {tags(new Set([node.id]))}
