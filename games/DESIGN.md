@@ -294,6 +294,8 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、eng
                 同时挂在游戏列表的卡片和关卡地图上；配色取自 kit/tokens.css（kit/anatomy.css）
 ```
 
+**内部引用。** 封装件把发布任务登记为内部引用。课程的 `holds().inside(piece, form)` 选出该任务位置可用的引用，`holds().forms(piece)` 列出可见形态。同一形态的升级沿课程路径查找，优先使用最近已通过的作品，否则运行相应的参考解。
+
 ### 6.1 内容：数据游戏的形状
 
 一款数据游戏（《状态之图》《视觉完备》）的文件夹：
@@ -559,7 +561,7 @@ opens them to show the resulting feedback.
 }
 ```
 
-**一个元件的面。** `engine/pieces.js` 将已有字段映射到对应的面。`regions` 描述区域，`inside.task` 指向内部作品，`keeps` 列出要保留的名字。任务引用解析和电路运行接入后续步骤。一个电路元件的字段包括`name`、`desc`（只写功能，第 4 节；只写每个选项都成立的部分，某个选项特有的作用写在那个选项的 `about` 里）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about?, optional? }`，`name` 是 ASCII；`optional` 的口可以不接，不接时运算在这里读到「—」，元件不因它给出「—」，接了而值是「—」时照 `nulls` 办）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）。
+**一个元件的面。** `engine/pieces.js` 将已有字段映射到对应的面。`regions` 描述区域，`inside.task` 指向内部作品，`keeps` 列出要保留的名字。课程中的封装件和引理使用 `pieceReferences` 登记发布作品的任务，`holds().inside()` 按关卡路径选出引用。直接由 `parts.json` 发布内部作品的接入随数据化元件迁移。一个电路元件的字段包括`name`、`desc`（只写功能，第 4 节；只写每个选项都成立的部分，某个选项特有的作用写在那个选项的 `about` 里）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about?, optional? }`，`name` 是 ASCII；`optional` 的口可以不接，不接时运算在这里读到「—」，元件不因它给出「—」，接了而值是「—」时照 `nulls` 办）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）。
 
 **设置的控件只有六种**，都是内核的（`kit/shell/parts/SettingField.jsx`），桌面卡片上紧凑、手机单子里加大，同一份定义：
 

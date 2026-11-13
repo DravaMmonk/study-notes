@@ -2,15 +2,16 @@
 // it): the play order and the tree from its eras (../../course.js layout), each level's number and the parts it can
 // really offer, its reference and naive answers as the boards they write (blueprint.js), and the parts its levels build:
 // a proof level with `builds` makes the lemma game.json lemmas[type] a part, a truth circuit a gate (gates.js
-// builtGates), a machine level a machine part (machine.js builtParts); every one runs the player's board (a lemma, the
-// proof of each of its shapes: lemmaProofs).
+// builtGates), a machine level a machine part (machine.js builtMachine); every one runs the player's board (a lemma, the
+// proof of each of its shapes: lemmaReferences).
+import { pieceReferences } from '../../engine/pieces.js'
 import { defineCourse, eraLevels, holds, itemOf, layout, met, numbered, offer } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
 import { trayIn } from '../../engine/trays.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { claimSentences, vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
-import { MACHINE_PARTS, axiomPartsOf, builtParts, startMachine } from './machine.js'
+import { MACHINE_PARTS, axiomPartsOf, builtMachine, startMachine } from './machine.js'
 import { render, say, sayTerm } from './notation.js'
 import { typeOf } from './iso.js'
 import { equations } from './define.js'
@@ -202,7 +203,7 @@ export function logicCourse(content) {
   // The gates the levels build, filled in once the levels that build them are read (builtGates); a board of gates is
   // read by their ports alone.
   const builtG = {}
-  // The proofs the lemmas run, filled in the same way (lemmaProofs).
+  // The proofs the lemmas run, filled in the same way (lemmaReferences).
   const proofs = {}
   const gatePorts = Object.fromEntries(Object.entries(gates).map(([type, g]) => [type, { inputs: g.ports }]))
   /** A board some blueprint lines write, on what the level gives (an empty one, its fault said, when they cannot be read). */
@@ -286,6 +287,18 @@ export function logicCourse(content) {
   const answersOf = (l) => byId.get(l.id).tasks.filter((t) => (l.task === undefined || t.task === l.task) && t.solution?.nodes).map((t) => ({ ...t.solution, nodes: t.solution.nodes.filter((n) => !presetIds(t).includes(n.id)) }))
   // A course level is a level, or one of its tasks (`task`, its index): a level plays with its last task's tray.
   const taskOf = (l) => byId.get(l.id).tasks[l.task ?? byId.get(l.id).tasks.length - 1]
+  const builders = TASKS.filter((t) => t.kind === 'machine' && machines.includes(t.builds))
+    .sort((a, b) => plan.order.indexOf(a.id) - plan.order.indexOf(b.id))
+  const lemmaWorks = lemmaReferences(lemmas, revisions, LEVELS, wrong)
+  const references = pieceReferences([
+    ...builders.map((task) => ({ type: task.builds, form: null, task })),
+    ...lemmaWorks,
+  ], {
+    before: (a, b) => course.before(a, b),
+    passed: (task) => Boolean(kept.board(task.taskId)),
+    useLatest: true,
+    include: () => true,
+  })
   const course = defineCourse({
     levels: LEVELS.map((l) => ({ id: l.id, unlocks: l.unlocks })),
     eras,
@@ -298,7 +311,7 @@ export function logicCourse(content) {
     local: (p) => local.includes(p) || axioms.includes(p),
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
     // A shape an upgrade proves is held by the levels after it, and in its own level by the tasks after the one that
-    // proves it (lemmaProofs).
+    // proves it (lemmaReferences).
     opens: (l) => Object.entries(revisions).flatMap(([type, list]) => list.filter((r) => r.by === l.id).flatMap((r) => r.forms ?? [])
       .filter((form) => l.task === undefined || proofs[type]?.[form]?.level.task < l.task).map((form) => itemOf(type, 'form', form))),
     // On a machine board, the rule parts of the task's rule book among the parts met, whatever its tray lists.
@@ -319,6 +332,7 @@ export function logicCourse(content) {
     // A declaration's answer is the rules it declares: writing them puts them to work, and so does a level working on
     // a declared connective (checking a declaration, too strong or too weak), named by `declare` as where it is declared.
     declares: (l) => (byId.get(l.id).declare ? declaredRules.get(byId.get(l.id).declare.zh) ?? [] : []),
+    references,
     boards: answersOf,
     showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,
@@ -330,9 +344,11 @@ export function logicCourse(content) {
     for (const t of one.named.types) if (!before(declared.types.get(t))) throw new Error(`level ${one.id} names the type ${t} before it is declared`)
     for (const n of one.named.defs) if (!before(declared.defs.get(n))) throw new Error(`level ${one.id} names the function ${n} before it is defined`)
   }
-  // A lemma runs the proof of each of its shapes (proof.js lemma).
-  const provers = lemmaProofs(lemmas, revisions, LEVELS, wrong, kept.board)
-  Object.assign(proofs, provers.proofs)
+  for (const { type, form } of lemmaWorks) {
+    const { task } = references.resolve(type, form, null, { reference: true })
+    const shapes = proofs[type] ??= {}
+    shapes[form] = { level: task, board: () => kept.board(task.taskId) ?? task.solution }
+  }
   // A machine level's (and a script's) rule book has every rule the level has met, whatever its tray (machine.js
   // ruleBookOf): the kernel's rules opened by chapter, the lemmas built before it, each in the shapes it has gained by
   // then. A task after the first may use what its level proves already (a law proved on the proof board, then put to
@@ -358,61 +374,43 @@ export function logicCourse(content) {
   }
   // The gates the levels build run their boards (gates.js builtGates).
   Object.assign(builtG, builtGates(gates, Object.fromEntries(TASKS.filter((t) => t.kind === 'gates' && gates[t.builds]).map((t) => [t.builds, t])), kept.board))
-  // The machine parts the player builds run the boards that built them (machine.js builtParts), on every machine
-  // board and in every script.
-  // A part built by several levels is a chain of upgrades (games/DESIGN.md): a level holds it as the levels of the chain
-  // up to it built it, and an upgrade starts from it as the levels before it left it (`upgrades`, the part's state).
-  const builders = TASKS.filter((t) => t.kind === 'machine' && machines.includes(t.builds))
-    .sort((a, b) => (course.before(a.id, b.id) ? -1 : course.before(b.id, a.id) ? 1 : 0))
-  // (No Map.groupBy: older iOS Safari has none.)
-  const chains = new Map()
-  for (const b of builders) chains.set(b.builds, [...(chains.get(b.builds) ?? []), b])
-  const upTo = (id, strict) => [...chains.values()].map((chain) => {
-    const some = chain.filter((b) => (b.id === id ? !strict : course.before(b.id, id)))
-    return strict ? some : some.length ? some : chain
-  }).filter((chain) => chain.length)
-  const runs = new Map()
-  const running = (chainsHere) => {
-    const key = chainsHere.map((c) => c.map((b) => b.id).join()).join('|')
-    if (!runs.has(key)) runs.set(key, builtParts(chainsHere, kept.board))
-    return runs.get(key)
-  }
+  // Machine cards share a packed instance when their visible sequence of references is the same.
+  const running = new Map()
+  const machineTypes = [...new Set(builders.map((task) => task.builds))]
   for (const one of TASKS) {
-    one.built = running(upTo(one.id, false))
-    const before = one.kind === 'machine' && one.builds && upTo(one.id, true).find((c) => c[0].builds === one.builds)
-    if (before) one.upgrades = running([before])[one.builds]
+    const has = holds(course, one, new Set())
+    const part = (type, strict) => {
+      const options = { strict, reference: true }
+      const reference = has.inside(type, null, options)?.task
+      if (!reference) return null
+      const key = JSON.stringify([type, strict, reference.taskId])
+      if (!running.has(key)) {
+        const builder = () => has.inside(type, null, { strict }).task
+        running.set(key, builtMachine(type, builder, reference, kept.board))
+      }
+      return running.get(key)
+    }
+    one.built = Object.fromEntries(machineTypes.map((type) => [type, part(type, false)]))
+    if (one.kind === 'machine' && machineTypes.includes(one.builds)) one.upgrades = part(one.builds, true) ?? undefined
   }
   const at = (task) => ({ id: task.id, task: task.task })
   /** What a task's tray holds for a player with `flags`, as what it shows and what it folds away. */
   const offerIn = (task, flags) => offer(course, at(task), flags)
   /** Whether a task holds a part, or a shape of one: has(part), has(part, 'form', shape) (../../course.js holds). */
   const holdsIn = (task, flags) => holds(course, at(task), flags)
-  return { LEVELS, CHAPTERS, LABELS, course, offerIn, holdsIn, machines, revisions, proofs, gates: builtG, provers: provers.levels, blueprints, wrong, syncOwn: kept.sync }
+  return { LEVELS, CHAPTERS, LABELS, course, offerIn, holdsIn, machines, revisions, proofs, gates: builtG, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
 }
 
-/**
- * The proof each shape of each lemma runs: { [type]: { [form key, '' for a lemma of one shape]: { level, board() } } },
- * the proof task that proved the shape and the board to run. A shape is proved by the proof task, of the level that
- * builds the lemma (its first shape, or its only one) or of the level whose upgrade brings the shape (`revisions`
- * `by`), whose task is that shape (proof.js provesShape); it runs the board the player passed that task with (the
- * shell's progress.built, kept by task id), or the task's reference proof when the player has none
- * kept (a level opened by "unlock all"). `levels` are the ids of the levels whose boards a lemma runs (the shell keeps
- * their boards: game.jsx `keeps`). A shape no task or several tasks prove is what is `wrong`.
- */
-function lemmaProofs(lemmas, revisions, LEVELS, wrong, ownBoard) {
-  const proofs = {}
-  const levels = new Set()
-  for (const [type, l] of Object.entries(lemmas)) {
-    const shapes = l.forms ? l.forms.map((f) => ({ metas: l.metas, ...f })) : [{ ...l, key: '' }]
-    proofs[type] = {}
-    shapes.forEach((shape, k) => {
-      const from = LEVELS.filter((L) => (k === 0 ? L.builds === type : (revisions[type] ?? []).some((r) => r.by === L.id && r.forms?.includes(shape.key))))
-      const tasks = from.flatMap((L) => L.tasks.filter((t) => t.kind === 'proof' && provesShape(shape, t.schema, t.consts)))
-      if (tasks.length !== 1) return wrong.push(`the lemma ${type}${shape.key ? ` (${shape.key})` : ''} is proved by ${tasks.length} proof tasks, not one`)
-      const [task] = tasks
-      levels.add(task.id)
-      proofs[type][shape.key] = { level: task, board: () => ownBoard(task.taskId) ?? task.solution }
+/** Find the proof work a lemma's form publishes, by its statement and the level that introduces it. */
+function lemmaReferences(lemmas, revisions, levels, wrong) {
+  return Object.entries(lemmas).flatMap(([type, lemma]) => {
+    const shapes = lemma.forms ? lemma.forms.map((form) => ({ metas: lemma.metas, ...form })) : [{ ...lemma, key: '' }]
+    return shapes.flatMap((shape, k) => {
+      const from = levels.filter((level) => (k === 0 ? level.builds === type : (revisions[type] ?? []).some((r) => r.by === level.id && r.forms?.includes(shape.key))))
+      const works = from.flatMap((level) => level.tasks.filter((task) => task.kind === 'proof' && provesShape(shape, task.schema, task.consts)))
+      if (works.length === 1) return [{ type, form: shape.key, task: works[0] }]
+      wrong.push(`the lemma ${type}${shape.key ? ` (${shape.key})` : ''} is proved by ${works.length} proof tasks, not one`)
+      return []
     })
-  }
-  return { proofs, levels }
+  })
 }

@@ -242,7 +242,7 @@ export function layout(eras, { notes = false } = {}) {
 // A showcase's reason, written plainly or as a text.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.zh?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], finale = null, abstraction = false, notes = false }) {
+export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, finale = null, abstraction = false, notes = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -267,7 +267,7 @@ export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = (
   }
   // The settings and values some level opens: held from that level on, not from the start.
   const gated = new Set(levels.flatMap((l) => opens(l)))
-  return { levels, eras, plan, trays, tray, gated, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, world, naive, replaces, local, needed, boards, showcase, declares, carries, openParts, finale, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, trays, tray, gated, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, world, naive, replaces, local, needed, boards, showcase, declares, carries, openParts, references, finale, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -337,7 +337,7 @@ export function usable(course, level, flags, parts = reach(course, level)) {
 }
 
 /**
- * Whether a level holds an item for a player with `flags`: has(part), has(part, key), has(part, key, value). A part
+ * Whether a level holds an item for a player with `flags`: has(part), has(part, key), has(part, key, value), has.inside(part, form). A part
  * as `usable` says. A setting, or a value of one, unless the level withholds it: when the level gives it; else, one
  * that needs a flag once the player has the flag, one a level opens (`opens`) from that level on along the tree, and
  * any other from the start. A value is held only with its setting.
@@ -356,10 +356,13 @@ export function holds(course, level, flags) {
     if (need) return flags.has(need)
     return !course.gated.has(item) || opened().has(item)
   }
-  return (part, key, value) => {
+  const has = (part, key, value) => {
     if (key === undefined) return (parts ??= new Set(usable(course, level, flags))).has(part)
     return one(itemOf(part, key)) && (value === undefined || one(itemOf(part, key, value)))
   }
+  has.inside = (part, form, options) => course.references?.resolve(part, form, level, options) ?? null
+  has.forms = (part) => course.references?.forms(part, level) ?? []
+  return has
 }
 const OPTIONAL = ['intro', 'step', 'finale', 'challenge']
 

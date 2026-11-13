@@ -1,7 +1,7 @@
 // A machine board's run as steps for the shared playback (../../../shell/usePlayback.jsx, 《证明完毕》 chapter 5 on):
 // every card's own value in the order the engine computed it (../../../engine/circuit.js trace). Inside a repeat frame
 // each card is a step in every round, labelled with its round; inside a search, in every step of the search. A part
-// the player built runs the board that built it (../machine.js builtParts), and each card on that board is a step
+// the player built runs the board that built it (../machine.js builtMachine), and each card on that board is a step
 // too, labelled with the parts it is in (auto › search › Goal apart); its own step, once they are done, is what it
 // gives. A step fails when its card cannot compute, or when a tactic fails where no frame catches the failure (a
 // card inside a frame or a built part may fail: that is how the frame knows to stop, switch or go back, and how the

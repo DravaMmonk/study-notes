@@ -4,7 +4,7 @@
 // that runs what it holds again and again (repeat, depth-first search, every goal) or tries several things (the
 // alternatives frame), a rewrite, or a step on clauses (resolution.js); the level's parts come from the course as
 // on every board. A part the player builds (the unifier, erule, frule, the introduction and elimination steps, auto,
-// simp, the clause machines) runs the board that built it: the player's, as it last passed (builtParts).
+// simp, the clause machines) runs the board that built it: the player's, as it last passed (builtMachine).
 //
 //   value   { kind: 'eqs', eqs: [equation], fail } (schematic.js) | { kind: 'state', … } (tactics.js)
 //           | { kind: 'clauses', set, from?, endless? } (resolution.js) | { kind: 'rules', keys, entries }
@@ -428,7 +428,7 @@ const append = {
   },
 }
 
-// A part the player builds: only its ports here; it runs the board that built it (builtParts).
+// A part the player builds: only its ports here; it runs the board that built it (builtMachine).
 const BUILT = (inputs = ['in']) => ({ inputs, built: true })
 /** The machine board's parts. */
 export const MACHINE_PARTS = {
@@ -650,30 +650,19 @@ export function judge(want, test, out, level = {}) {
 }
 
 const merged = (a = new Map(), b = new Map()) => new Map([...a, ...b])
-/**
- * The machine parts a course's levels build, each running the board that built it (a packed part, ../../engine/
- * boards.js): its inputs are the builder's inputs, its result the builder's. A part may be built by a chain of levels,
- * each an upgrade of the one before (games/DESIGN.md): it runs the board of the last of them the player passed, or the
- * last one's reference board. The cards inside use the rules of the level that uses the part and of the level that
- * built it, and backtrack where either does. `opens()` gives what a board shows of the part opened: { circuit, level }
- * (the level that built it, whose parts and words it is drawn in).
- */
-export function builtParts(chains, ownBoard) {
-  return Object.fromEntries(chains.map((chain) => {
-    const builder = () => chain.findLast((b) => ownBoard(b.taskId)) ?? chain.at(-1)
-    const circuit = () => ownBoard(builder().taskId) ?? builder().solution
-    const last = chain.at(-1)
-    const part = packed({
-      circuit,
-      inputs: inputsOfLevel(last).map((i) => i.name),
-      outputs: ['out'],
-      inside: (ctx) => {
-        const b = builder()
-        return { ...ctx, rules: { ...ruleBookOf(b), ...ctx.rules }, rewrites: { ...rewriteBookOf(b), ...ctx.rewrites }, ruleParts: merged(rulePartsOf(b), ctx.ruleParts), backtrack: ctx.backtrack || Boolean(b.backtrack) }
-      },
-    })
-    return [last.builds, { ...MACHINE_PARTS[last.builds], ...part, eval: failsAsState(part.eval), opens: () => ({ circuit: circuit(), level: builder() }) }]
-  }))
+/** A packed machine part reads the work and rules of its selected builder. */
+export function builtMachine(type, builder, reference, ownBoard) {
+  const circuit = () => ownBoard(builder().taskId) ?? builder().solution
+  const part = packed({
+    circuit,
+    inputs: inputsOfLevel(reference).map((i) => i.name),
+    outputs: ['out'],
+    inside: (ctx) => {
+      const b = builder()
+      return { ...ctx, rules: { ...ruleBookOf(b), ...ctx.rules }, rewrites: { ...rewriteBookOf(b), ...ctx.rewrites }, ruleParts: merged(rulePartsOf(b), ctx.ruleParts), backtrack: ctx.backtrack || Boolean(b.backtrack) }
+    },
+  })
+  return { ...MACHINE_PARTS[type], ...part, eval: failsAsState(part.eval), opens: () => ({ circuit: circuit(), level: builder() }) }
 }
 // A tactic that cannot go on gives the state it was handed with what went wrong, as every tactic does (a frame reads
 // it), and a state that failed already passes through.

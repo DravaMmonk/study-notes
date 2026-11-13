@@ -42,7 +42,7 @@
 // blueprint (../circuit/text.js), read and checked there. The boards the player passed the building levels with live
 // in the course read (syncOwn), one per content: two games of a domain in one process never share them.
 import { stagesOf } from './stages.js'
-import { assemblySeries } from './assembly-series.js'
+import { pieceReferences } from './pieces.js'
 import { print, read } from '../circuit/text.js'
 import { packed, sink, source, withSettings } from './boards.js'
 import { defineParts } from './parts/define.js'
@@ -274,7 +274,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
         opens: (params) => ({ circuit: withSettings(running(), params, partOf), level: last }),
       })
       const { type, form } = level.builds
-      revisions.push({ task: last, part })
+      revisions.push({ type, form: form ?? null, task: last, part })
       if (form) {
         if (!readForms.has(type)) readForms.set(type, new Map())
         const variants = readForms.get(type)
@@ -326,26 +326,30 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       const shown = stagesOf({ task, board: task.solution, chain: result.stageChain(task), isFixed: (n) => board.isFixed(n.type) })
       return { task: task.taskId, staged: shown.stages.length > 0, count: shown.loose.length }
     }),
+    references: pieceReferences(revisions, { before: (a, b) => course.before(a, b), passed: (task) => own.has(task.id) }),
     abstraction: true,
     notes,
   })
-  const series = assemblySeries(revisions, { before: course.before, passed: (task) => own.has(task.id) })
-  wrong.push(...series.problems())
+  const { references } = course
+  wrong.push(...references.problems())
   const scopes = new Map()
   const formsFor = (type, task) => {
-    const forms = series.forms(type, task)
-    return forms.length ? forms : series.forms(type).slice(0, 1)
+    const forms = task ? holding(course, task, new Set()).forms(type) : references.forms(type)
+    return forms.length ? forms : references.forms(type).slice(0, 1)
   }
+  const inside = (task, type, form) => task
+    ? holding(course, task, new Set()).inside(type, form)
+    : references.resolve(type, form)
   const builderFor = (type, params, task) => {
     const forms = formsFor(type, task)
-    return series.resolve(type, task, forms.includes(params?.form) ? params.form : forms[0] ?? null)?.task ?? null
+    return inside(task, type, forms.includes(params?.form) ? params.form : forms[0] ?? null)?.task ?? null
   }
   const refresh = (target, task) => {
     for (const type of Object.keys(BUILT)) {
       const forms = formsFor(type, task)
       target[type] = forms.length
-        ? combine(new Map(forms.map(form => [form, series.resolve(type, task, form)])))
-        : series.resolve(type, task).part
+        ? combine(new Map(forms.map(form => [form, inside(task, type, form)])))
+        : inside(task, type, null).part
     }
   }
   circuit.builtBy = builderFor
