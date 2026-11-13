@@ -1758,10 +1758,6 @@ export default {
   "波形各格的平均（一个数）": "the mean of the wave’s samples (a number)",
   "算波形的元件": "parts that work on waves",
   "每个输入或输出的值，按名字：一个数，或一个波形（依次的各格）": "the value of each input or output, by name: a number, or a wave (its samples in order)",
-  "这一题给出的数：场景按它画，板读不到": "The numbers this question gives: its scene is drawn from them, the board reads none",
-  "玩家要算出的数，一张输出牌一个；结果区不显示": "The numbers the player works out, one for each output card; the results never show them",
-  "被考的那块板：这个任务（写它的 id）的 naive 答案；它的正解是用来对照的好板": "The board under test: the naive answer of this task (its id); its answer is the sound board it is held against",
-  "玩家给出的街开张多少拍：最后一拍好板出清、被考的板没有出清，才算找到": "How many ticks the player’s street is open: found when on the last the sound board has cleared and the board under test has not",
-  "这条街开张之前的价格": "The price before this street opened",
-  "这个任务一打开就摆在板上的蓝图（一题「算」摆好待填的常数）；它不能直接过关": "The blueprint on the board when the task opens (a question’s constants, waiting to be filled in); it may not pass as it stands",
+  "这个任务一打开就摆在板上的蓝图：一块要修的板。它不能直接过关": "The blueprint on the board when the task opens: a board to mend. It may not pass as it stands",
+  "板上最多放几块元件：修一块板时，只许在它上面添多少": "The most parts the board may hold: how much may be added to a board being mended",
 }

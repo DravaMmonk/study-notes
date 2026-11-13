@@ -6,22 +6,15 @@
 //   a street   { shops: [shop], ticks }   a world that answers the board (../../engine/ticks.js reacting, world.js):
 //              every tick the board reads each shop's price, what it had left and how many it turned away the tick
 //              before, and gives each shop a price; on the last tick every shop has to have cleared
-//   a question { given: { card: number }, answer: { card: number } }   a row whose answer the player works out: the
-//              results show what the board gives and never what is asked for (the board is constants: one question a
-//              task)
-//   a break    { breaks: task id, ticks, open }   the player's board gives a street (stock, top, slope), and that
-//              task's naive answer walks it: found when its answer clears the street and the naive one does not
 //
-// The three are one board played three ways (games/DIRECTION.md decision 22): given the cases and what comes of them,
-// build what does it (a row, a street); given it and a case, say what comes of it (a question); given it and what is
-// claimed of it, find the case where it fails (a break).
-//
-// task   { inputs: [{ name, label }], outputs: [{ name, label }] }   a row's cards, or a street's (world.js portsOf)
+// task   { inputs: [{ name, label }], outputs: [{ name, label }], most? }   a row's cards, or a street's (world.js
+//        portsOf); `most` the parts its board may hold: a task that opens on a board to mend (its `starter`) says how
+//        much may be added to it, and a board over that fails every test
 //
 // runLevel(task, circuit, parts) → { runs, pass }, a run a test: a row's { values, errors, outputs, trace, fail?,
 //   said? } (a board run once, ../../engine/boards.js), a street's { ticks: [{ tick, values, errors, outputs, trace,
 //   read, trades }], fail?, said? }
-// once(task) → whether the task's tests are rows or a question
+// once(task) → whether the task's tests are rows
 // entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): a row's numbers
 //   given, asked for and got; a street tick by tick, each shop's price, what it sold, what it had left, how many it
 //   turned away, and what the street has earned so far (shown, never asked for)
@@ -36,18 +29,13 @@ const TOLERANCE = 1e-9
 const same = (a, b) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= TOLERANCE
 const label = (port, side) => port.label[side] ?? port.label.zh ?? port.label
 
-/** A row, or a question (its numbers `given`, its `answer` kept from the player): the board run once on the numbers
- * given, every output the number asked for. A question says which output is off, never by how much. */
+/** A row: the board run once on the numbers given, every output the number asked for. */
 function runRow(task, circuit, test, parts) {
-  const [given, wanted] = test.given ? [{}, test.answer] : [test.in, test.out]
-  const run = runTraced(circuit, parts, given)
-  const out = task.outputs.find((o) => !same(run.outputs[o.name], wanted[o.name]))
+  const run = runTraced(circuit, parts, test.in)
+  const out = task.outputs.find((o) => !same(run.outputs[o.name], test.out[o.name]))
   if (!out) return run
-  const [want, got] = [wanted[out.name], run.outputs[out.name] ?? null]
-  const said = test.given
-    ? T(`「${label(out, 'zh')}」不是 ${show(got)}。`, `“${label(out, 'en')}” is not ${show(got)}.`)
-    : T(`「${label(out, 'zh')}」应当是 ${show(want)}，这块板给出 ${show(got)}。`, `“${label(out, 'en')}” should be ${show(want)}; the board gives ${show(got)}.`)
-  return { ...run, fail: { name: out.name, ...(test.given ? {} : { want }), got }, said }
+  const [want, got] = [test.out[out.name], run.outputs[out.name] ?? null]
+  return { ...run, fail: { name: out.name, want, got }, said: T(`「${label(out, 'zh')}」应当是 ${show(want)}，这块板给出 ${show(got)}。`, `“${label(out, 'en')}” should be ${show(want)}; the board gives ${show(got)}.`) }
 }
 
 /** A board's ticks on a street: every tick it gives each shop its price and reads the tick after what came of it. */
@@ -83,54 +71,29 @@ function runStreet(task, circuit, test, parts) {
   return { ticks, fail: { name, want: 0, got: left || short }, said: T(`最后一天${shop ? `，${shop} 号店` : ''}剩下 ${show(left)}，没买到 ${show(short)}：两边都要不到 1。`, `On the last day${shop ? ` shop ${shop}` : ''} had ${show(left)} left and turned ${show(short)} away: both have to be under 1.`) }
 }
 
-/** A board to break: the player's board gives a street (its stock, top and slope), and the board under test walks it.
- * The street counts when the board it is held against clears it and the one under test does not. The run is the
- * board under test's, tick by tick, the player's own cards as they stand on every tick. */
-function runBreak(task, circuit, test, parts) {
-  const mine = runTraced(circuit, parts, {})
-  const { stock, top, slope } = mine.outputs
-  const still = (trades = []) => ({ ticks: Array.from({ length: test.ticks }, (_, tick) => ({ tick, ...mine, read: {}, trades })) })
-  const failed = (run, name, zh, en) => ({ ...run, fail: { name, got: mine.outputs[name] ?? null }, said: T(zh, en) })
-  const unset = task.outputs.find((o) => typeof mine.outputs[o.name] !== 'number')
-  if (unset) return failed(still(), unset.name, `「${label(unset, 'zh')}」还没有数。`, `“${label(unset, 'en')}” has no number yet.`)
-  if (!(stock >= 1 && slope > 0 && top > 0)) return failed(still(), 'stock', '一条街要进至少 1 件货，不要钱时有人想买，涨价时想买的人变少。', 'A street stocks at least 1, has people who would buy at no price, and fewer as the price goes up.')
-  const street = [{ stock, top, slope, open: test.open }]
-  const suspect = test.suspect()
-  const told = { street, ticks: walk(street, test.ticks, suspect.board, suspect.parts).map((t) => ({ ...t, ...mine, read: {} })) }
-  if (uncleared(walk(street, test.ticks, suspect.honest, suspect.parts)) >= 0) return failed(told, 'top', '这条街连好的那块板也出清不了，不算数。', 'Not even the sound board clears this street: it does not count.')
-  if (uncleared(told.ticks) < 0) return failed(told, 'top', '它在这条街上出清了。换一条。', 'It clears this street. Try another.')
-  return told
-}
+/** How many parts a board holds: its nodes but the task's own cards. */
+const held = (circuit, parts) => circuit.nodes.filter((node) => { const part = parts(node.type); return part && !part.source && !part.sink }).length
 
-const kinds = { street: runStreet, break: runBreak }
-const kindOf = (test) => (test.shops ? 'street' : test.breaks ? 'break' : 'once')
+/** Every test of a task on a board: { runs, pass }. A board holding more parts than the task allows fails each. */
+export const runLevel = runTests((task, circuit, test, parts) => {
+  const run = (test.shops ? runStreet : runRow)(task, circuit, test, parts)
+  if (!task.most || held(circuit, parts) <= task.most) return run
+  return { ...run, fail: { name: task.outputs[0].name, want: task.most, got: held(circuit, parts) }, said: T(`这块板最多放 ${task.most} 块元件，现在有 ${held(circuit, parts)} 块。`, `This board may hold ${task.most} parts; it holds ${held(circuit, parts)}.`) }
+})
 
-/** Every test of a task on a board: { runs, pass }. */
-export const runLevel = runTests((task, circuit, test, parts) => (kinds[kindOf(test)] ?? runRow)(task, circuit, test, parts))
-
-/** Whether a task's tests are rows or a question: its board runs once a test. */
-export const once = (task) => kindOf(task.tests[0]) === 'once'
+/** Whether a task's tests are rows: its board runs once a test. */
+export const once = (task) => !task.tests[0].shops
 
 const sum = (list) => list.reduce((n, x) => n + x, 0)
 
 export const entries = ({ task, test, run }) => {
-  if (kindOf(test) === 'once') {
-    const [given, wanted] = test.given ? [{}, {}] : [test.in, test.out]
+  if (!test.shops) {
     return [
-      ...(task.inputs ?? []).map((i) => ({ of: i.name, label: i.label, shape: 'scalar', given: given[i.name], shown: false })),
-      ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: 'scalar', got: run.outputs[o.name] ?? null, ...(o.name in wanted ? { want: wanted[o.name], tolerance: TOLERANCE } : {}) })),
+      ...(task.inputs ?? []).map((i) => ({ of: i.name, label: i.label, shape: 'scalar', given: test.in[i.name], shown: false })),
+      ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: 'scalar', got: run.outputs[o.name] ?? null, want: test.out[o.name], tolerance: TOLERANCE })),
     ]
   }
-  const shops = test.shops ?? run.street ?? []
-  const names = portsOf(shops.length)
-  if (test.breaks) {
-    const of = (key) => run.ticks.map((t) => t.trades[0]?.[key] ?? null)
-    return shops.length ? [
-      { of: 'price', label: T('它的价格', 'Its price'), shape: 'ticks', got: of('price') },
-      { of: 'left', label: T('剩下', 'Left'), shape: 'ticks', got: of('left') },
-      { of: 'short', label: T('没买到', 'Turned away'), shape: 'ticks', got: of('short') },
-    ] : []
-  }
+  const names = portsOf(test.shops.length)
   const of = (k, key) => run.ticks.map((t) => t.trades[k][key])
   const earned = run.ticks.map((t) => sum(t.trades.map((x) => x.earned)))
   return [

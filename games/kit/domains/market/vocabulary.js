@@ -40,19 +40,13 @@ const STREET = S.obj({
   shops: S.list(SHOP, { min: 1, about: t('这条街上的店，一家一组牌') }),
   ticks: S.int({ min: 1, about: t('开张多少拍；最后一拍每家店剩下的和没买到的都要不到 1') }),
 })
-const ASKED = S.obj({
-  given: S.map(S.num(), { about: t('这一题给出的数：场景按它画，板读不到') }),
-  answer: S.map(S.num(), { about: t('玩家要算出的数，一张输出牌一个；结果区不显示') }),
-})
-const BREAK = S.obj({
-  breaks: S.str({ about: t('被考的那块板：这个任务（写它的 id）的 naive 答案；它的正解是用来对照的好板') }),
-  ticks: S.int({ min: 1, about: t('玩家给出的街开张多少拍：最后一拍好板出清、被考的板没有出清，才算找到') }),
-  open: S.num({ about: t('这条街开张之前的价格') }),
-})
 const LEVEL = levelSchema({
-  test: S.either(ROW, STREET, ASKED, BREAK),
+  test: S.either(ROW, STREET),
   ports: { inputs: S.opt(S.list(PORT)), outputs: S.opt(S.list(PORT)) },
-  more: { starter: S.opt(S.list(S.str(), { about: t('这个任务一打开就摆在板上的蓝图（一题「算」摆好待填的常数）；它不能直接过关') })) },
+  more: {
+    starter: S.opt(S.list(S.str(), { about: t('这个任务一打开就摆在板上的蓝图：一块要修的板。它不能直接过关') })),
+    most: S.opt(S.int({ min: 1, about: t('板上最多放几块元件：修一块板时，只许在它上面添多少') })),
+  },
 })
 
 export const vocabulary = defineVocabulary({
