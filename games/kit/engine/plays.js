@@ -12,6 +12,7 @@ export const PLAY = S.by('editor', {
   tree: S.obj({ ...fields, editor: S.oneOf(['tree']), judge: S.oneOf(['once', 'check']) }),
   values: S.obj({ ...fields, editor: S.oneOf(['values']), judge: S.oneOf(['table']) }),
   fields: S.obj({ ...fields, editor: S.oneOf(['fields']), judge: S.oneOf(['rows']) }),
+  scenario: S.obj({ ...fields, editor: S.oneOf(['scenario']), judge: S.oneOf(['steps']) }),
   checks: S.obj({ ...fields, editor: S.oneOf(['checks']), judge: S.oneOf(['boards']) }),
 })
 

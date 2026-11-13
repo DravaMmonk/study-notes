@@ -12,7 +12,7 @@ import DeclaredRules from './ui/DeclaredRules.jsx'
 import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
 import { MACHINE, PROOF } from './ui/boards.jsx'
-import { ModelScreen } from './ui/WorldScreens.jsx'
+import { worldCheck } from './worldValues.js'
 import { query, translation } from './formulaWork.js'
 import { iconOf, nameOf, textOf } from './ui/catalog.js'
 import { MACHINE_TEXT, RULE_TEXT } from './partText.js'
@@ -38,7 +38,7 @@ const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'proof'
  * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), levels,
  * glossary }.
  */
-const Play = playScreen(plays, { declaration, definition, audit, truth, translation, query, proofTerm, script })
+const Play = playScreen(plays, { declaration, definition, audit, truth, translation, query, proofTerm, script, worldCheck })
 
 export default function logicGame(content) {
   const logic = logicCourse(content)
@@ -103,7 +103,7 @@ export default function logicGame(content) {
       define: { Screen: Play, icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },
       translate: { Screen: Play, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
       query: { Screen: Play, icon: Search, label: { zh: '查询', en: 'Query' } },
-      model: { Screen: ModelScreen, icon: FileSignature, label: { zh: '造世界', en: 'Build a world' } },
+      model: { Screen: Play, icon: FileSignature, label: { zh: '造世界', en: 'Build a world' } },
       term: { Screen: Play, icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
       script: { Screen: Play, icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
     },

@@ -110,19 +110,7 @@
 .fo-vocab { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; gap: var(--sp-3); padding: var(--sp-4) 0; background: var(--canvas); }
 .fo-vocab button { min-height: 34px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--sans); cursor: pointer; }
 .fo-vocab button:hover { background: var(--hover); }
-.fo-claim { display: grid; gap: var(--sp-4); }
-.fo-claim-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--sp-4); border-radius: var(--r-md); }
-.fo-claim-row .ks-strip { margin: 0; }
-.fo-claim-row.is-step { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent); }
-.fo-claim-line { margin: var(--sp-1) 0; border: 0; border-top: 1.5px solid var(--ink); }
-.fo-build { display: grid; gap: var(--sp-5); padding: var(--sp-5) var(--sp-6); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
-.fo-size, .fo-const, .fo-pred { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3); font-size: 13.5px; }
-.fo-pred-name { min-width: 7em; color: var(--muted); }
-.fo-cells { display: flex; gap: var(--sp-3); }
-.fo-build button { min-width: 36px; height: 34px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-md); color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font: 14px var(--sans); cursor: pointer; }
-.fo-build button[aria-pressed='true'] { color: var(--paper); background: var(--accent); box-shadow: none; }
-.fo-grid { border-collapse: separate; border-spacing: 4px; }
-.fo-grid td { padding: 0; }
+
 
 /* A rewrite card's choice: the sentence with each s in a box; a ticked box becomes t. */
 .lg-occ { display: grid; gap: var(--sp-2); }
@@ -179,9 +167,6 @@
 /* The definition board (ui/DefineScreen.jsx): a row a case, its right side picked; the tests under them. */
 .lg-define { max-width: 720px; margin: 0 auto; padding: var(--sp-7) var(--sp-7) var(--sp-8); display: grid; gap: var(--sp-6); }
 
-/* The result of testing a formula in a world. */
-.lg-wrong { color: var(--fail); font-weight: 600; }
-.lg-right { color: var(--status); font-weight: 600; }
 
 
 /* The rules a declaration gives, as they stand: each named at the left, written out beside it. */

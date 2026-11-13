@@ -1,4 +1,5 @@
 // Check the domain's reference works, the pieces they use, and the properties specific to proof tasks.
+import { worldCheck } from './worldValues.js'
 import { judgeFor, playFor } from '../../engine/plays.js'
 import { plays } from './plays.js'
 import { checkWorks, judgeWorks } from '../../engine/authoring.js'
@@ -9,7 +10,7 @@ import { runOutputTests } from '../../engine/test-run.js'
 import { freeVars, parse, same, show } from './formula.js'
 import { parseS } from './schematic.js'
 import { countermodel } from './models.js'
-import { counters, extent, structureOf } from './fol.js'
+import { extent, structureOf } from './fol.js'
 import { premiseChips } from './ruleLines.js'
 import { LOGIC_TESTS, RULES, lemmaGives, rulesOf, startProof } from './proof.js'
 import { paramsOf } from '../../engine/forms.js'
@@ -78,9 +79,9 @@ export function validate({ levels: given, course, logic }) {
       else if (!level.worlds.some((w) => extent(f, structureOf(w, [f])).length)) out.push({ level: level.id, fail: true, text: `${level.id}: ${level.target} picks out nothing in any world` })
     }
     if (level.kind === 'model') {
-      const fits = (w) => counters(level, w)
-      out.push({ level: level.id, fail: !fits(level.answer), text: `${level.id} ${keyOf(level.title)}: world ${fits(level.answer) ? 'PASS' : 'FAIL'}` })
-      if (level.wrong) out.push({ level: level.id, fail: fits(level.wrong), text: `  naive ${fits(level.wrong) ? 'PASSES (bad)' : 'fails'}` })
+      const judge = judgeFor(playFor(plays, level), worldCheck(level).judge)
+      const fail = Boolean(judge(level.answer))
+      out.push({ level: level.id, fail, text: `${level.id} ${keyOf(level.title)}: world ${fail ? 'FAIL' : 'PASS'}` })
     }
   }
   for (const level of levels.filter((l) => l.kind === 'truth')) {

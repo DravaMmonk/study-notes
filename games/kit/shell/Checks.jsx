@@ -77,6 +77,26 @@ function CellForm({ cell, row, set, at }) {
   return <Field label={cell.label}>{field}</Field>
 }
 
+/** A single scenario with choices and tables of boolean cells. */
+export function CheckScenario({ fields }) {
+  const pick = (cell) => (
+    <button key={cell.key} type="button" aria-pressed={cell.on} onClick={cell.change} title={L(cell.title)}>{L(cell.text)}</button>
+  )
+  return (
+    <section className="ck-scenario">
+      {fields.map(({ key, name, before, after, cells, grid }) => (
+        <div key={key} className="ck-field" role={name ? 'group' : undefined} aria-label={L(name)}>
+          {before && <span className={grid ? 'ck-grid-label' : undefined}>{L(before)}</span>}
+          {grid
+            ? <table className="ck-grid"><tbody>{grid.map((row, k) => <tr key={k}>{row.map((cell) => <td key={cell.key}>{pick(cell)}</td>)}</tr>)}</tbody></table>
+            : <span className="ck-scenario-cells">{cells.map(pick)}</span>}
+          {after && <span>{L(after)}</span>}
+        </div>
+      ))}
+    </section>
+  )
+}
+
 /** Each row is a check. The shape of a value chooses its table display and editor. */
 export default function Checks({ cells, rows, onChange, result, rowClass, onPick, verdict, phone, ...table }) {
   const columns = cells.map((cell) => ({

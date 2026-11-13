@@ -51,7 +51,7 @@ export function builtWorld(w, vocab) {
   return { domain, preds, fns }
 }
 
-// A counterexample level (kind 'model', ui/WorldScreens.jsx) shows a sentence someone wrote that is wrong, for the
+// A counterexample level (kind 'model') shows a sentence someone wrote that is wrong, for the
 // player to find out with a world (as nitpick does), one of two kinds:
 //   a lemma      { given: [sentence], goal: sentence }  ⟦given⟧ ⟹ goal, which does not follow: a world where every
 //                premise holds and the goal fails
@@ -84,5 +84,3 @@ export function claimIn(level, world) {
 
 /** The most things a world a player builds may have. */
 export const MAX_WORLD = 3
-/** Whether a world is a counterexample to the level's sentence. */
-export const counters = (level, world) => world.size <= MAX_WORLD && claimIn(level, world).counter
