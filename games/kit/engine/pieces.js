@@ -14,24 +14,33 @@ export function registerPieces(code, content) {
 
 /** Works published by a piece, in the order they were built. A form selects its own sequence of references. */
 export function pieceReferences(entries, { before, passed, useLatest = false, include = (work, task) => work.task <= task.task }) {
+  const allEntries = []
   const pieces = new Map()
-  for (const entry of entries) {
-    if (!pieces.has(entry.type)) pieces.set(entry.type, [])
-    pieces.get(entry.type).push(entry)
+  const keyOf = (type, kind) => JSON.stringify([type, kind])
+  const register = (additions) => {
+    for (const entry of additions) {
+      allEntries.push(entry)
+      const key = keyOf(entry.type, entry.kind)
+      if (!pieces.has(key)) pieces.set(key, [])
+      pieces.get(key).push(entry)
+    }
   }
+  register(entries)
 
-  const available = (type, at, strict = false) => (pieces.get(type) ?? []).filter(({ task }) => !at || (
+  const available = (type, at, strict = false, kind) => (pieces.get(keyOf(type, kind)) ?? []).filter(({ task }) => !at || (
     task.id === at.id ? !strict && include(task, at) : before(task.id, at.id)
   ))
   const forms = (type, at) => [...new Set(available(type, at).map((entry) => entry.form).filter(Boolean))]
-  const resolve = (type, form, at, { strict = false, reference = false } = {}) => {
+  const resolve = (type, form, at, { strict = false, reference = false, kind } = {}) => {
     const matches = (entries) => entries.filter((entry) => entry.form === form)
-    const here = matches(available(type, at, strict))
-    const all = matches(available(type))
+    const here = matches(available(type, at, strict, kind))
+    const all = matches(available(type, null, false, kind))
     const candidates = here.length || strict ? here : useLatest ? all : all.slice(0, 1)
     return (reference ? null : candidates.findLast(({ task }) => passed(task))) ?? candidates.at(-1) ?? null
   }
+  const entriesOf = (kind) => allEntries.filter((entry) => entry.kind === kind)
+  const prior = (kind, at) => entriesOf(kind).filter(({ task }) => task.id === at.id ? task.task < at.task : before(task.id, at.id))
   const problems = () => [...pieces.values()].flatMap((chain) => chain.slice(1).flatMap(({ type, task }, k) =>
     before(chain[k].task.id, task.id) ? [] : [`${task.id}: upgrades of ${type} must form a prerequisite chain`]))
-  return { forms, resolve, problems }
+  return { register, forms, resolve, entriesOf, prior, problems }
 }

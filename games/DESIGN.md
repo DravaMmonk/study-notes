@@ -561,7 +561,7 @@ opens them to show the resulting feedback.
 }
 ```
 
-**一个元件的面。** `engine/pieces.js` 将已有字段映射到对应的面。`regions` 描述区域，`inside.task` 指向内部作品，`keeps` 列出要保留的名字。课程中的封装件和引理使用 `pieceReferences` 登记发布作品的任务，`holds().inside()` 按关卡路径选出引用。直接由 `parts.json` 发布内部作品的接入随数据化元件迁移。一个电路元件的字段包括`name`、`desc`（只写功能，第 4 节；只写每个选项都成立的部分，某个选项特有的作用写在那个选项的 `about` 里）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about?, optional? }`，`name` 是 ASCII；`optional` 的口可以不接，不接时运算在这里读到「—」，元件不因它给出「—」，接了而值是「—」时照 `nulls` 办）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）。
+**一个元件的面。** `engine/pieces.js` 将已有字段映射到对应的面。`regions` 描述区域，`inside.task` 指向内部作品，`keeps` 列出要保留的名字。课程中的封装件和引理使用 `pieceReferences` 登记发布作品的任务。《证明完毕》的门、机器元件、等式、类型、函数和符号也登记在同一处，领域把取出的作品转为规则、等式或元件。定义出的函数选择参考作品。`holds().inside()` 按关卡路径选出引用。直接由 `parts.json` 发布内部作品的接入随数据化元件迁移。一个电路元件的字段包括`name`、`desc`（只写功能，第 4 节；只写每个选项都成立的部分，某个选项特有的作用写在那个选项的 `about` 里）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about?, optional? }`，`name` 是 ASCII；`optional` 的口可以不接，不接时运算在这里读到「—」，元件不因它给出「—」，接了而值是「—」时照 `nulls` 办）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）。
 
 **设置的控件只有六种**，都是内核的（`kit/shell/parts/SettingField.jsx`），桌面卡片上紧凑、手机单子里加大，同一份定义：
 

@@ -181,30 +181,36 @@ export function logicCourse(content) {
   if (clash.length) throw new Error(`built parts share a type: ${clash.join(', ')}`)
   const plan = layout(eras)
   const given = new Map(content.levels.map((l) => [l.id, l]))
-  // The types and functions the player declares (chapter 12): a declaration on the rule board with `datatype` declares a type, a
-  // definition board (`define`) a function; a later level names them (`types`, `defs`) and gets their text.
-  const declared = { types: new Map(), defs: new Map() }
-  for (const one of [...tasksOf.values()].flat()) {
-    const at = { level: one.id, task: one.task }
-    if (one.datatype) declared.types.set(one.datatype.type, { text: typeOf(one), ...at })
-    if (one.kind === 'define') declared.defs.set(one.fn, { eqs: equations(one, one.solution), ...at })
+  const rawTasks = [...tasksOf.values()].flat()
+  const declaredWorks = rawTasks.flatMap((task) => [
+    ...(task.datatype ? [{ kind: 'type', type: task.datatype.type, form: null, task, value: () => typeOf(task) }] : []),
+    ...(task.kind === 'define' ? [{ kind: 'function', type: task.fn, form: null, task, value: () => equations(task, task.solution) }] : []),
+    ...(task.fact ? [{ kind: 'fact', type: task.fact, form: null, task }] : []),
+  ])
+  const symbols = plan.order.flatMap((id) => (given.get(id)?.symbols ?? []).map((type) => ({
+    kind: 'symbol', type, form: null, task: tasksOf.get(id)[0],
+  })))
+  const references = pieceReferences([...declaredWorks, ...symbols], {
+    before: (a, b) => course.before(a, b),
+    passed: (task) => Boolean(kept.board(task.taskId)),
+    useLatest: true,
+    include: () => true,
+  })
+  const declaration = (kind, type, id) => {
+    const entry = references.resolve(type, null, null, { kind, reference: true })
+    if (!entry) throw new Error(`level ${id} names the ${kind} ${type}, which no level declares`)
+    return entry
   }
-  const lookUp = (table, name, what, id) => {
-    if (!table.has(name)) throw new Error(`level ${id} names ${what} ${name}, which no level declares`)
-    return table.get(name)
-  }
-  // A level's own types and definitions, by name, and the equations it states itself (`stated`).
-  const declarations = (l, id) => ({
-    named: { types: l.types ?? [], defs: l.defs ?? [] },
-    ...(l.types ? { datatypes: Object.fromEntries(l.types.map((t) => [t, lookUp(declared.types, t, 'the type', id).text])) } : {}),
-    ...(l.defs || l.stated ? { defs: [...(l.defs ?? []).flatMap((n) => lookUp(declared.defs, n, 'the function', id).eqs), ...(l.stated ?? [])] } : {}),
+  const declarations = (task, id) => ({
+    ...(task.types ? { datatypes: Object.fromEntries(task.types.map((type) => [type, declaration('type', type, id).value()])) } : {}),
+    ...(task.defs || task.stated ? { defs: [...(task.defs ?? []).flatMap((type) => declaration('function', type, id).value()), ...(task.stated ?? [])] } : {}),
   })
   const eraOf = new Map(eras.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
   // The gates the levels build, filled in once the levels that build them are read (builtGates); a board of gates is
   // read by their ports alone.
-  const builtG = {}
+  const gatePieces = {}
   // The proofs the lemmas run, filled in the same way (lemmaReferences).
-  const proofs = {}
+  const lemmaPieces = {}
   const gatePorts = Object.fromEntries(Object.entries(gates).map(([type, g]) => [type, { inputs: g.ports }]))
   /** A board some blueprint lines write, on what the level gives (an empty one, its fault said, when they cannot be read). */
   // Every board the content writes as blueprint text, with how it reads back on its level (domain.js blueprints).
@@ -237,11 +243,10 @@ export function logicCourse(content) {
   }
   // A level writes formulas in its own words (notation.js) and with every symbol introduced by then: the symbols of
   // the levels before it in play order, and its own.
-  let known = []
   const LEVELS = plan.order.map((id) => {
     const level = given.get(id)
     if (!level) throw new Error(`an era names a level that does not exist: ${id}`)
-    known = [...known, ...(level.symbols ?? [])]
+    const known = references.entriesOf('symbol').filter(({ task }) => task.id === id || plan.order.indexOf(task.id) < plan.order.indexOf(id)).map(({ type }) => type)
     const chapter = eraOf.get(id)
     const requires = plan.requires.get(id) ?? []
     const unlocks = level.builds ? [`lemma:${level.builds}`] : []
@@ -249,7 +254,7 @@ export function logicCourse(content) {
       const notation = { words: l.words ?? words, symbols: known, propertyWords: l.propertyWords ?? l.kind === 'proof' }
       const expanded = l.cases ? expand(l, notation) : {}
       // A machine board's axioms are parts the level brings with it (machine.js axiomPartsOf).
-      return answers({ ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: expanded.tests.at(-1).caseBrief } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter, requires, unlocks, lemmas, proofs, facts, gates: builtG, revisions, notation })
+      return answers({ ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: expanded.tests.at(-1).caseBrief } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter, requires, unlocks, lemmas, proofs: lemmaPieces, facts, gates: gatePieces, revisions, notation })
     }
     const all = tasksOf.get(id).map(read)
     const last = all.at(-1)
@@ -265,7 +270,9 @@ export function logicCourse(content) {
   const byId = new Map(LEVELS.map((l) => [l.id, l]))
   const TASKS = LEVELS.flatMap((l) => l.tasks)
   // The rules each connective's declaration brings in, by the connective's name.
-  const declaredRules = new Map(LEVELS.filter((l) => l.declare && l.adds?.length).map((l) => [l.declare.zh, l.adds]))
+  const rules = LEVELS.filter((level) => level.declare && level.adds?.length).map((level) => ({
+    kind: 'declaration', type: level.declare.zh, form: null, task: level.tasks.at(-1), value: level.adds,
+  }))
   for (const [type, list] of Object.entries(revisions)) for (const r of list) if (!byId.has(r.at ?? r.by)) throw new Error(`the revision of ${type} names a level that does not exist: ${r.at ?? r.by}`)
   // A level's number: on an era's main path the era and its place, a parallel set row by row ('1-4', numbered), in a topic its
   // code and place ('D2'), C1 …
@@ -287,18 +294,12 @@ export function logicCourse(content) {
   const answersOf = (l) => byId.get(l.id).tasks.filter((t) => (l.task === undefined || t.task === l.task) && t.solution?.nodes).map((t) => ({ ...t.solution, nodes: t.solution.nodes.filter((n) => !presetIds(t).includes(n.id)) }))
   // A course level is a level, or one of its tasks (`task`, its index): a level plays with its last task's tray.
   const taskOf = (l) => byId.get(l.id).tasks[l.task ?? byId.get(l.id).tasks.length - 1]
-  const builders = TASKS.filter((t) => t.kind === 'machine' && machines.includes(t.builds))
-    .sort((a, b) => plan.order.indexOf(a.id) - plan.order.indexOf(b.id))
   const lemmaWorks = lemmaReferences(lemmas, revisions, LEVELS, wrong)
-  const references = pieceReferences([
-    ...builders.map((task) => ({ type: task.builds, form: null, task })),
-    ...lemmaWorks,
-  ], {
-    before: (a, b) => course.before(a, b),
-    passed: (task) => Boolean(kept.board(task.taskId)),
-    useLatest: true,
-    include: () => true,
-  })
+  references.register([
+    ...rules, ...lemmaWorks,
+    ...TASKS.filter((task) => task.kind === 'machine' && machines.includes(task.builds)).map((task) => ({ kind: 'machine', type: task.builds, form: null, task })),
+    ...TASKS.filter((task) => task.kind === 'gates' && gates[task.builds]).map((task) => ({ kind: 'gate', type: task.builds, form: null, task })),
+  ])
   const course = defineCourse({
     levels: LEVELS.map((l) => ({ id: l.id, unlocks: l.unlocks })),
     eras,
@@ -313,7 +314,7 @@ export function logicCourse(content) {
     // A shape an upgrade proves is held by the levels after it, and in its own level by the tasks after the one that
     // proves it (lemmaReferences).
     opens: (l) => Object.entries(revisions).flatMap(([type, list]) => list.filter((r) => r.by === l.id).flatMap((r) => r.forms ?? [])
-      .filter((form) => l.task === undefined || proofs[type]?.[form]?.level.task < l.task).map((form) => itemOf(type, 'form', form))),
+      .filter((form) => l.task === undefined || references.resolve(type, form, null, { kind: 'lemma', reference: true })?.task.task < l.task).map((form) => itemOf(type, 'form', form))),
     // On a machine board, the rule parts of the task's rule book among the parts met, whatever its tray lists.
     gives: (l) => {
       const task = byId.get(l.id).tasks[l.task]
@@ -331,22 +332,24 @@ export function logicCourse(content) {
     },
     // A declaration's answer is the rules it declares: writing them puts them to work, and so does a level working on
     // a declared connective (checking a declaration, too strong or too weak), named by `declare` as where it is declared.
-    declares: (l) => (byId.get(l.id).declare ? declaredRules.get(byId.get(l.id).declare.zh) ?? [] : []),
+    declares: (l) => (byId.get(l.id).declare ? references.resolve(byId.get(l.id).declare.zh, null, null, { kind: 'declaration', reference: true })?.value ?? [] : []),
     references,
     boards: answersOf,
     showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,
   })
-  // A type or function is named only where its declaration comes before: a level after the one that declares it, or a
-  // later task of that level.
   for (const one of TASKS) {
-    const before = (d) => (d.level === one.id ? d.task < one.task : course.before(d.level, one.id))
-    for (const t of one.named.types) if (!before(declared.types.get(t))) throw new Error(`level ${one.id} names the type ${t} before it is declared`)
-    for (const n of one.named.defs) if (!before(declared.defs.get(n))) throw new Error(`level ${one.id} names the function ${n} before it is defined`)
+    const source = tasksOf.get(one.id)[one.task]
+    for (const [kind, names, action] of [['type', source.types, 'declared'], ['function', source.defs, 'defined']]) {
+      for (const type of names ?? []) {
+        if (!references.prior(kind, one).some((entry) => entry === declaration(kind, type, one.id))) {
+          throw new Error(`level ${one.id} names the ${kind} ${type} before it is ${action}`)
+        }
+      }
+    }
   }
-  for (const { type, form } of lemmaWorks) {
-    const { task } = references.resolve(type, form, null, { reference: true })
-    const shapes = proofs[type] ??= {}
+  for (const { type, form, task } of references.entriesOf('lemma')) {
+    const shapes = lemmaPieces[type] ??= {}
     shapes[form] = { level: task, board: () => kept.board(task.taskId) ?? task.solution }
   }
   // A machine level's (and a script's) rule book has every rule the level has met, whatever its tray (machine.js
@@ -355,11 +358,11 @@ export function logicCourse(content) {
   // work), in every shape it proves.
   for (const level of LEVELS.filter((l) => l.tasks.some((t) => t.kind === 'machine' || t.kind === 'script'))) {
     // The equations proved before it (by the levels it comes after), and in a later task its own.
-    const proven = Object.keys(facts).filter((type) => TASKS.some((t) => t.fact === type && course.before(t.id, level.id)))
+    const proven = Object.keys(facts).filter((type) => references.prior('fact', { id: level.id, task: 0 }).some((entry) => entry.type === type))
     for (const one of level.tasks) {
       const later = one.task > 0
       // A task has what the tasks before it in its level proved.
-      const before = level.tasks.filter((t) => t.task < one.task && t.fact).map((t) => t.fact)
+      const before = references.prior('fact', one).filter(({ task }) => task.id === one.id).map(({ type }) => type)
       one.holds = met(course, { id: level.id, task: one.task })
       one.proven = [...new Set([...proven, ...before, ...(later && level.fact ? [level.fact] : [])])]
       const has = holds(course, { id: level.id, task: one.task }, new Set())
@@ -373,19 +376,19 @@ export function logicCourse(content) {
     for (const field of ['solution', 'naive']) if (one[field]) one[field] = board(one, field, startMachine(one), shape, types)
   }
   // The gates the levels build run their boards (gates.js builtGates).
-  Object.assign(builtG, builtGates(gates, Object.fromEntries(TASKS.filter((t) => t.kind === 'gates' && gates[t.builds]).map((t) => [t.builds, t])), kept.board))
+  Object.assign(gatePieces, builtGates(gates, Object.fromEntries(references.entriesOf('gate').map(({ type, task }) => [type, task])), kept.board))
   // Machine cards share a packed instance when their visible sequence of references is the same.
   const running = new Map()
-  const machineTypes = [...new Set(builders.map((task) => task.builds))]
+  const machineTypes = [...new Set(references.entriesOf('machine').map(({ type }) => type))]
   for (const one of TASKS) {
     const has = holds(course, one, new Set())
     const part = (type, strict) => {
-      const options = { strict, reference: true }
+      const options = { strict, reference: true, kind: 'machine' }
       const reference = has.inside(type, null, options)?.task
       if (!reference) return null
       const key = JSON.stringify([type, strict, reference.taskId])
       if (!running.has(key)) {
-        const builder = () => has.inside(type, null, { strict }).task
+        const builder = () => has.inside(type, null, { strict, kind: 'machine' }).task
         running.set(key, builtMachine(type, builder, reference, kept.board))
       }
       return running.get(key)
@@ -398,7 +401,7 @@ export function logicCourse(content) {
   const offerIn = (task, flags) => offer(course, at(task), flags)
   /** Whether a task holds a part, or a shape of one: has(part), has(part, 'form', shape) (../../course.js holds). */
   const holdsIn = (task, flags) => holds(course, at(task), flags)
-  return { LEVELS, CHAPTERS, LABELS, course, offerIn, holdsIn, machines, revisions, proofs, gates: builtG, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
+  return { LEVELS, CHAPTERS, LABELS, course, offerIn, holdsIn, machines, revisions, proofs: lemmaPieces, gates: gatePieces, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
 }
 
 /** Find the proof work a lemma's form publishes, by its statement and the level that introduces it. */
@@ -408,7 +411,7 @@ function lemmaReferences(lemmas, revisions, levels, wrong) {
     return shapes.flatMap((shape, k) => {
       const from = levels.filter((level) => (k === 0 ? level.builds === type : (revisions[type] ?? []).some((r) => r.by === level.id && r.forms?.includes(shape.key))))
       const works = from.flatMap((level) => level.tasks.filter((task) => task.kind === 'proof' && provesShape(shape, task.schema, task.consts)))
-      if (works.length === 1) return [{ type, form: shape.key, task: works[0] }]
+      if (works.length === 1) return [{ kind: 'lemma', type, form: shape.key, task: works[0] }]
       wrong.push(`the lemma ${type}${shape.key ? ` (${shape.key})` : ''} is proved by ${works.length} proof tasks, not one`)
       return []
     })
