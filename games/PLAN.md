@@ -143,13 +143,77 @@ D.1 → D.2 → D.3 → D.4 → D.5 → E.1
 
 A 和 C 互不依赖，可以交替做。D.3 要 A 和 B 做完；D.5 要 C.1、C.2、D.1；E.1 要前面全部。
 
-先做 A.1。
+先做 A.1；整体的先后见下面「已定」的最后一条。
 
-## 待定
+## 已定（执行时不用再问）
 
-1. 件在代码里叫什么。倾向 `piece`；`part` 留给它在电路上的画法。
-2. B.2 的缓存放在哪：游戏文件夹里的一个文件，还是不进仓库的本机缓存。倾向后者。
-3. D.4 里「写脚本」现在一行对应证明板上的一张卡。它按规则行做，还是直接是证明板的另一种画法（条），做到时再定。
+**名字**
+- 件在代码里叫 `piece`，登记和读面的函数在 `engine/pieces.js`。`part` 只指件在电路上的画法，现有带 `part` 的名字（`parts.json`、`partOf`、`S.ref('part')`）这份计划里不改名。
+- 面在代码里的名字：空位 `holes`、设置 `settings`、区域 `regions`、内部 `inside`、画法 `faces`、保存 `keeps`。
+- `parts.json` 已有的字段不改名（词汇表只许加不许改）：`inputs` 就是空位，`settings` 就是设置，`views` 就是画法；读面的函数做这层对应。只新加 `regions`、`inside`、`keeps`。
+- 一种玩法的配置叫 `play`，按内容里的 `kind` 取：领域在 `domains/<领域>/plays.js` 里写成纯数据，node 和页面都读它；它的 schema 在 `engine/plays.js`。
+
+**失败**
+- `at` 是作品里的一个位置，四种写法：件的实例 id（板）、`{ row, slot }`（规则行和表）、从根数起的下标路径（条）、`{ tick }`（逐拍，和前三种可以并用）。
+- `hidden` 只管检验给不给看。失败照样带上第一条不过的检验的 `want` 和 `got`，也就是玩家反复试可以把检验一条条套出来；现在的声明关就是这样，不再往严里收。
+- A.3 里定义关失败的那句话写成：「〈式子〉应当算出〈要的〉，现在算出〈得到的〉」；不终止时仍是原来那句。
+
+**缓存（B.2）**
+- 放本机，不进仓库：`trace-viewer/node_modules/.cache/games-check/<游戏>.json`。
+- 一个任务的键是三样的哈希：它的谜题哈希（`engine/stamp.js` 的 `taskStamps`）、它引用到的每一样作品的谜题哈希、内核版本。内核版本取 `games/kit` 下全部 `.js`、`.jsx`、`.json` 的内容哈希，不算 `*.test.js` 和样式。
+- `npm run check` 加 `--fresh` 不读缓存；CI 和 `npm test` 从不读它。
+
+**往后传的是谁的作品**
+- 搭出的件默认跑玩家通过时的作品，没有就跑参考解（现在的行为）。
+- 定义出的函数只用参考解：`plays.js` 里定义这种玩法写 `gives: 'reference'`。后面 26 个点名 `plus` 的任务是照参考解的等式写的。
+
+**写脚本（D.4）**
+- 按规则行做。一行的几个空位（它说的句子、用到的事实、证法）都是从手头的件里取的，是「下拉框里的一项也是件」的第一处落地；`proof … qed` 的一段是一个区域，画成缩进的括号。
+- 判定仍是领域的 `checkScript`，经 `cases` 调用。
+
+**脚手架（D.3）**
+- 新模板叫 `rows`，入门领域用最小的一门小语言：数的加法式子，两关（给一条等式的右边；给两条）。不借用任何现有领域的东西。
+
+**顺序**
+- 先 A.1、A.2、A.3、B.1，再 C.1 到 C.4，再 D，最后 B.2 和 E.1。B.2 往后放：它依赖 C.2 定下来的「一个任务引用到哪些作品」。
+
+## 执行须知
+
+**命令**（都在 `trace-viewer/` 下）
+- `npm test` 全部单元测试（约 50 秒）；`npm run lint:kit`；`npm run words -- --check`。
+- `npm run check -- <游戏>` 查一款；不写游戏名是全部。《车在说话》约 1 分 46 秒，其余各 5 到 15 秒。
+- 基线：动手前 `for g in <每款>; do npm run -s check -- $g > <基线目录>/$g.txt; done`，改完同样跑一遍用 `cmp` 比。游戏的名单在 `games/games.js`。
+- 词汇表变了要升版本并 `npm run versions` 存下；新版本只能在旧版本上增加。
+
+**改内容只经操作集**
+- `npm run op -- <游戏> --file <变更集.json>`，文件是 `{ "why": "…", "ops": [{ "op": "text.set", … }] }`（写成裸数组不报错，但什么都不改，还会留一条空记录）。`npm run op -- list` 列出全部操作。
+- 文字只有基准语言；改一句中文要同时 `i18n.set` 新句的英文、并用不带 `to` 的 `i18n.set` 去掉旧句。
+
+**几道只降不升的上限**（搬东西时会碰到，按实际数字改）
+- `engine/styles.test.js`：每个区域写死的字号、颜色个数。样式从领域搬进 `shell` 时，`shell` 的上限升、领域的降，总数不许增。
+- `engine/components.test.js`：每个领域自写组件的行数，必须正好等于现在的数。
+- `engine/duplication.test.js`：底座上的领域之间逐字重复的行。
+
+**文字**
+- 代码里的界面文字用 `T('中文', 'English')` 或 `tr(…)` 两个参数的写法；只写一个参数时英文要在 `kit/i18n/en.js` 里有。
+
+**在浏览器里看**
+- `npx vite --port 5199`，一关的地址是 `/game/<游戏>/index.html?level=<关卡 id>`。
+- 全部解锁：打开前往 `localStorage` 写 `<游戏>.v2` 为 `{ "all": true, "seenPower": true, "solved": [], "flags": [], "passed": [], "skippedTasks": [], "stamps": {}, "data": {}, "slots": {}, "built": {}, "best": {}, "introSeen": {} }`。
+- 开发服务器第一次打开会重新预构建依赖，页面要重载一次；卡住时删 `node_modules/.vite` 重启。
+- 引言的遮罩（`.intro-scrim`）会挡住点击，先按 Esc。界面语言跟浏览器，脚本里设 `locale: 'zh-CN'`。
+- 容器里的 Playwright 是全局装的：`NODE_PATH=$(npm root -g) node 脚本.cjs`。
+
+**提交**
+- main 上同时有别的会话在推：每次提交前 `git fetch --depth=50 origin main` 再 `git rebase origin/main`，推送用 `git -c push.negotiate=true push origin HEAD:main`。
+- 提交说明照仓库的写法：`kit: …`、`logic: …`，一句话说做成了什么，正文说为什么。
+- 每一条做完，同一个 commit 里更新 `games/DESIGN.md` 的对应处，并把这份计划里那一条删掉，在「现状」里记一行。
+
+**这一带已知的坑**
+- `engine/parts/define.js` 的 `withParts`：领域的词汇表一旦有 `op` 种类，它会用 `parts.json` 的件整个换掉词汇表里的件。C.1 之前不要给 `logic` 的词汇表加 `op`。
+- 判定现在的使用者：`judgeTicks` 和 `runTests` 被 `can/run.js`、`calculus/run.js`、`market/run.js`、`scaffold/tick-bus/run.js` 引用；`engine/tests.js` 的 `runLevel` 被 `image/engine/graph.js` 和 `logic/validate.js` 引用，`withHidden` 被 `circuit-domain.js`、`image/play.js`、`image/validate.js` 引用；`engine/caught.js` 被 `shell/CircuitScreen.jsx` 和 `shell/Checks.jsx` 引用。
+- `logic/ui/SentenceEditor.jsx` 里带参数的函数项原来一放上去就整页崩（变量在定义前被用到），已修；D.1 提进内核时留意别带回去。
+- 内核里一次外层求值中，打包的件的各个输出共用一次内部求值（`engine/boards.js` 的 `packed`）。逐步回放里，被几个输出共用的卡只出现一次。
 
 ## 没把握的地方
 
