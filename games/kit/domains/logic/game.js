@@ -17,7 +17,7 @@ import { query, translation } from './formulaWork.js'
 import { iconOf, nameOf, textOf } from './ui/catalog.js'
 import { MACHINE_TEXT, RULE_TEXT } from './partText.js'
 import { proofTerm } from './termTask.js'
-import ScriptScreen from './ui/ScriptScreen.jsx'
+import { script } from './scriptValues.js'
 import { PRIMITIVE_GATES } from './gates.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
 import { RULES } from './proof.js'
@@ -38,7 +38,7 @@ const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'proof'
  * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), levels,
  * glossary }.
  */
-const Play = playScreen(plays, { declaration, definition, audit, truth, translation, query, proofTerm })
+const Play = playScreen(plays, { declaration, definition, audit, truth, translation, query, proofTerm, script })
 
 export default function logicGame(content) {
   const logic = logicCourse(content)
@@ -105,7 +105,7 @@ export default function logicGame(content) {
       query: { Screen: Play, icon: Search, label: { zh: '查询', en: 'Query' } },
       model: { Screen: ModelScreen, icon: FileSignature, label: { zh: '造世界', en: 'Build a world' } },
       term: { Screen: Play, icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
-      script: { Screen: ScriptScreen, icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
+      script: { Screen: Play, icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
     },
     // What passing a level gives: the parts it builds, and the proof-board parts a declaration or a generator gives (its
     // rules, from here on).

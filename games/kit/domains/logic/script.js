@@ -14,6 +14,7 @@
 import { fn, parse, same, show, subst } from './formula.js'
 import { KERNEL, assumption, depthFirst, rule } from './tactics.js'
 import { ruleBookOf, runTactic } from './machine.js'
+import { cases } from '../../engine/judge.js'
 import { T } from '../../shell/i18n.js'
 
 
@@ -22,17 +23,24 @@ export function namesOf(rows) {
   const n = { have: 0, assume: 0, obtain: 0 }
   return rows.map((r) => (r.k === 'have' ? `h${++n.have}` : r.k === 'assume' ? `a${++n.assume}` : r.k === 'obtain' ? `o${++n.obtain}` : null))
 }
-/** Each row's depth: rows after one proved by `proof` go one deeper, until the show that ends that block. */
-export function depthsOf(rows) {
-  let d = 0
-  return rows.map((r) => {
-    const here = d
-    if ((r.k === 'have' || r.k === 'show') && r.by === 'proof') d++
-    else if (r.k === 'show' && d > 0) d--
-    return here
+/** A show finishes its block, and a completed block can itself finish a surrounding show. */
+export function regionsOf(rows) {
+  const owners = []
+  return rows.map((row) => {
+    const depth = owners.length
+    const opens = (row.k === 'have' || row.k === 'show') && row.by === 'proof'
+    const closes = []
+    if (opens) owners.push(row.k)
+    else if (row.k === 'show' && owners.length) {
+      let owner
+      do {
+        owner = owners.pop()
+        closes.push(owners.length)
+      } while (owner === 'show' && owners.length)
+    }
+    return { depth, opens, closes }
   })
 }
-
 
 /** What a row may state: the goal, the premises, the level's own sentences and every part of each, once each; and ⊥. */
 export function sentencesOf(level) {
@@ -176,3 +184,32 @@ export function checkScript(level, rows) {
 
 /** A row's method as Isar writes it. */
 export const methodText = (by) => (!by ? '…' : by === 'proof' ? '' : by.startsWith('rule:') ? `(rule ${by.slice(5)})` : by === 'induct' ? '(induction) simp' : by)
+
+// A script's lines: each row, and proof / qed around each block, with their depths.
+export function scriptLines(rows, text) {
+  const names = namesOf(rows)
+  const regions = regionsOf(rows)
+  const out = []
+  rows.forEach((r, i) => {
+    const { depth: d, closes } = regions[i]
+    const stmt = r.stmt ? `“${text(r.stmt)}”` : '…'
+    const using = r.using?.length ? ` using ${r.using.join(' ')}` : ''
+    if (r.k === 'assume') out.push([d, `assume ${names[i]}: ${stmt}`])
+    else if (r.k === 'fix') out.push([d, `fix ${r.thing ?? '…'}`])
+    else if (r.k === 'obtain') out.push([d, `obtain ${r.thing ?? '…'} where ${names[i]}: ${stmt}${using}`])
+    else {
+      const head = `${r.k}${names[i] ? ` ${names[i]}:` : ''} ${stmt}`
+      if (r.by === 'proof') out.push([d, head], [d, 'proof'])
+      else out.push([d, `${head}${using} by ${methodText(r.by)}`])
+    }
+    closes.forEach((depth) => out.push([depth, 'qed']))
+  })
+  return out
+}
+
+export const scriptJudge = (level) => cases([level], (rows, task) => {
+  const result = checkScript(task, rows)
+  if (result.pass) return null
+  const row = result.rows.findIndex(Boolean)
+  return { ...(row < 0 ? {} : { at: { row } }), why: result.reason }
+})

@@ -8,7 +8,8 @@ import { runOutputTests } from '../../../engine/test-run.js'
 import { parse } from '../formula.js'
 import { inductionCases } from '../proof.js'
 import { say } from '../notation.js'
-import { ScriptView } from './ScriptScreen.jsx'
+import { RowText } from '../../../shell/plays/FieldRows.jsx'
+import { scriptLines } from '../script.js'
 import FormulaField from './FormulaField.jsx'
 import { TreeButton } from '../../../strip/TreePick.jsx'
 import { formOf } from '../../../engine/forms.js'
@@ -180,7 +181,7 @@ function BoardScreen({ board, screen }) {
         hint: level.hint,
         children: (
           <>
-            {level.script && <ScriptView rows={level.script} text={(t) => text(parse(t, { consts: [...(level.consts ?? []), ...(level.things ?? [])] }))} />}
+            {level.script && <RowText lines={scriptLines(level.script, (t) => text(parse(t, { consts: [...(level.consts ?? []), ...(level.things ?? [])] })))} />}
             <section className="lg-score">
               <Readouts items={[
                 { value: board.tests.score(level, circuit).steps, label: board.words.steps },

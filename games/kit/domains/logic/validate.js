@@ -13,7 +13,7 @@ import { counters, extent, structureOf } from './fol.js'
 import { premiseChips } from './ruleLines.js'
 import { LOGIC_TESTS, RULES, lemmaGives, rulesOf, startProof } from './proof.js'
 import { paramsOf } from '../../engine/forms.js'
-import { checkScript, methodsOf, sentencesOf } from './script.js'
+import { scriptJudge, methodsOf, sentencesOf } from './script.js'
 import { lettersOf, tautology } from './truth.js'
 import { MACHINE_PARTS, MACHINE_TESTS, inputsOfLevel, rulePartsOf } from './machine.js'
 import { SETTING_KINDS, choiceKey, choicesOf } from './choices.js'
@@ -169,10 +169,7 @@ export function validate({ levels: given, course, logic }) {
     if (level.given && missingForms(parseTerm(level.given), level.forms).length) out.push({ level: level.id, fail: true, text: `${level.id}: the given term ${level.given} uses forms no chip makes` })
   }
   for (const level of levels.filter((l) => l.kind === 'script')) {
-    const judge = (rows) => {
-      const { pass, reason } = checkScript(level, rows)
-      return pass ? null : { why: reason }
-    }
+    const judge = judgeFor(playFor(plays, level), scriptJudge(level))
     const { reference: ref, naive, starter } = judgeWorks(judge, { reference: level.answer, naive: level.naive, starter: level.given })
     out.push({ level: level.id, fail: !ref.ok, text: `${level.id} ${keyOf(level.title)}: script ${ref.ok ? 'PASS' : `FAILS ${keyOf(ref.fail.why)}`}` })
     const consts = [...(level.consts ?? []), ...(level.things ?? [])]

@@ -171,32 +171,6 @@
 .lg-taken { font-size: 12px; color: var(--muted); }
 .lg-taken b { font-family: var(--serif); font-size: 14px; color: var(--ink); }
 
-/* Script tasks (ScriptScreen.jsx): rows written as Isar writes them, each indented by the block it is in; a script read
-   only (ScriptView), as a brief shows it on the proof board. */
-.sc-rows { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--sp-3); }
-.sc-row { padding: var(--sp-4) var(--sp-4) var(--sp-4) calc(var(--sp-4) + var(--depth, 0) * var(--sp-7)); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); cursor: pointer; }
-.sc-row.is-on { box-shadow: inset 0 0 0 1.5px var(--accent); }
-.sc-row.is-fail { box-shadow: inset 0 0 0 1.5px var(--fail); }
-.sc-row .lg-error { margin: var(--sp-3) 0 0; font-size: 13px; }
-.sc-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-4); font: 14px var(--mono); }
-.sc-kw { color: var(--accent); font-weight: 600; }
-.sc-name { color: var(--code-ink); }
-.sc-line select { max-width: 100%; height: 32px; padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 14px var(--sans); }
-.sc-line > * { min-width: 0; }
-.sc-stmt { flex: 0 1 auto; }
-.sc-using { display: inline-flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); }
-.sc-using button { min-width: 30px; height: 28px; padding: 0 var(--sp-3); border: 0; border-radius: var(--r-md); color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--mono); cursor: pointer; }
-.sc-using button[aria-pressed='true'] { color: var(--paper); background: var(--accent); box-shadow: none; }
-.sc-by { display: inline-flex; align-items: center; gap: var(--gap-local); }
-.sc-by { max-width: 100%; min-width: 0; }
-.sc-by select { width: 15em; min-width: 0; }
-.sc-remove { margin-left: auto; display: inline-grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: var(--r-md); color: var(--muted); background: transparent; cursor: pointer; }
-.sc-remove:hover { background: var(--hover); }
-.sc-add { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
-.sc-add button { display: inline-flex; align-items: center; gap: var(--sp-2); height: 32px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--mono); cursor: pointer; }
-.sc-add button:hover { background: var(--hover); }
-.sc-view { margin: var(--sp-4) 0 0; padding: var(--sp-4) var(--sp-5); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); font: 12px/1.6 var(--mono); white-space: pre; overflow-x: auto; color: var(--ink); }
-
 /* The board a built part runs, read only (circuit/Inside.jsx): a sheet over it shows its settings without changing them. */
 .cl-readonly :is(.lg-rules, .lg-occ button) { pointer-events: none; }
 .cl-readonly .lg-rules :is(select, button) { display: none; }
