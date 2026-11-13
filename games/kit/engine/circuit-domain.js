@@ -415,6 +415,14 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       visit(task)
       return chain
     },
+    workReferences(task, work) {
+      if (!task || !work?.nodes) return []
+      const here = forTask(task)
+      return work.nodes.flatMap((node) => {
+        const open = here.BUILT[node.type]?.opens?.(node.params)
+        return open ? [{ key: open.level.taskId, task: open.level, work: open.circuit }] : []
+      })
+    },
     views: content.views ?? null,
     // The shell keeps boards by task (../shell/progress.js), including the task each form publishes.
     syncOwn: (built = {}) => {

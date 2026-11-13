@@ -77,6 +77,10 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
     unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ label: b.name, icon: b.icon })),
   })
   game.circuit = circuit
+  game.workReferences = (entry, built) => {
+    circuit.syncOwn(built)
+    return circuit.workReferences(entry.task, entry.work)
+  }
   return game
 }
 

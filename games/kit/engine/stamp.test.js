@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { S } from './schema.js'
-import { taskStamps } from './stamp.js'
+import { solutionStamp, taskStamps } from './stamp.js'
 
 const TASK = S.obj({ id: S.str(), brief: S.text(), tests: S.list(S.num()) })
 const vocabulary = { level: S.obj({ id: S.str(), title: S.text(), size: S.num(), tasks: S.list(TASK) }) }
@@ -34,4 +34,24 @@ test('words are no part of a stamp, and a task moved to another level like it ke
   const moved = content()
   moved.levels[1].tasks.push(moved.levels[0].tasks.pop())
   assert.deepEqual([stamps(moved).b, taskStamps(vocabulary, moved).b.level], [stamps(content()).b, 'two'])
+})
+
+test('a solution stamp includes the selected works throughout a shared reference closure', () => {
+  const root = { key: 'root', puzzle: 'r', work: { nodes: [], wires: [] } }
+  const inner = { key: 'inner', puzzle: 'i', work: 'reference' }
+  const leaf = { key: 'leaf', puzzle: 'l', work: 'leaf reference' }
+  const replay = (leaf) => solutionStamp(root, (entry) => {
+    if (entry.key === 'root') return [inner, leaf]
+    return entry.key === 'inner' ? [leaf] : []
+  })
+  const before = replay(leaf)
+  assert.deepEqual(before.works.map(({ key }) => key), ['inner', 'leaf', 'root'])
+  assert.notEqual(before.stamp, replay({ ...leaf, work: 'passing work' }).stamp)
+  assert.notEqual(before.stamp, replay({ ...leaf, puzzle: 'new puzzle' }).stamp)
+})
+
+test('presentation changes leave a board solution stamp alone', () => {
+  const root = { key: 'root', work: { nodes: [{ id: 'x', type: 'sum', x: 20 }], wires: [], blocks: [] } }
+  const moved = { ...root, work: { ...root.work, nodes: [{ ...root.work.nodes[0], x: 120 }] } }
+  assert.equal(solutionStamp(root, () => []).stamp, solutionStamp(moved, () => []).stamp)
 })

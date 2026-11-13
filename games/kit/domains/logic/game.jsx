@@ -75,7 +75,7 @@ export default function logicGame(content) {
     title: L.title,
     kind: L.kind,
     unlocks: L.unlocks,
-    // A level whose boards a part runs: one that builds it, and one that proves a lemma's shape (course.js lemmaProofs).
+    // A level whose boards a part runs: one that builds it, and one that proves a lemma's shape (course.js lemmaReferences).
     keeps: L.unlocks.length > 0 || logic.provers.has(L.id),
     brief: L.brief,
     after: L.after,
@@ -138,5 +138,9 @@ export default function logicGame(content) {
     bestLabel: (best) => (best.unit === 'cases' ? tr(`${best.steps} 条`, `${best.steps} cases`) : tr(`${best.steps} 步`, `${best.steps} steps`)),
   })
   game.logic = logic
+  game.workReferences = (entry, built) => {
+    logic.syncOwn(built)
+    return logic.workReferences(entry.task, entry.work)
+  }
   return game
 }

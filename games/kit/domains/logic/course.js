@@ -401,7 +401,28 @@ export function logicCourse(content) {
   const offerIn = (task, flags) => offer(course, at(task), flags)
   /** Whether a task holds a part, or a shape of one: has(part), has(part, 'form', shape) (../../course.js holds). */
   const holdsIn = (task, flags) => holds(course, at(task), flags)
-  return { LEVELS, CHAPTERS, LABELS, course, offerIn, holdsIn, machines, revisions, proofs: lemmaPieces, gates: gatePieces, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
+  function workReferences(task, work) {
+    if (!task) return []
+    const source = tasksOf.get(task.id)?.[task.task]
+    const named = [
+      ...(source?.types ?? []).map((type) => declaration('type', type, task.id)),
+      ...(source?.defs ?? []).map((type) => declaration('function', type, task.id)),
+      ...references.prior('fact', task).filter(({ type }) => task.proven?.includes(type)),
+    ].map((entry) => {
+      const source = entry.task
+      const builder = LEVELS.find(({ id }) => id === source.id)?.tasks[source.task]
+      const work = entry.value?.() ?? facts[entry.type]?.statement ?? builder?.solution
+      return { key: source.taskId, task: builder, work }
+    })
+    const boards = (work?.nodes ?? []).flatMap((node) => {
+      const open = (task.built?.[node.type] ?? gatePieces[node.type])?.opens?.()
+      if (open) return [{ key: open.level.taskId, task: open.level, work: open.circuit }]
+      const proof = lemmaPieces[node.type]?.[node.params?.form ?? (lemmas[node.type]?.forms?.[0]?.key ?? '')]
+      return proof && !lemmas[node.type]?.card ? [{ key: proof.level.taskId, task: proof.level, work: proof.board() }] : []
+    })
+    return [...named, ...boards]
+  }
+  return { LEVELS, CHAPTERS, LABELS, course, workReferences, offerIn, holdsIn, machines, revisions, proofs: lemmaPieces, gates: gatePieces, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
 }
 
 /** Find the proof work a lemma's form publishes, by its statement and the level that introduces it. */

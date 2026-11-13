@@ -33,3 +33,37 @@ export function taskStamps(vocabulary, content) {
     return level.tasks.map((task, k) => [task.id, { level: level.id, stamp: hash(`${own}${plain(puzzleOf(shapeAt(vocabulary.level, level, ['tasks', k], { vocabulary }), task, vocabulary))}${parts}`) }])
   }))
 }
+
+// Omit board presentation when identifying the work a run executes.
+function workOf(work) {
+  if (!Array.isArray(work?.nodes) || !Array.isArray(work?.wires)) return work
+  return {
+    nodes: work.nodes.map(({ id, type, params, in: region }) => ({ id, type, params, region })),
+    wires: work.wires.map(({ from, to, port }) => ({ from, to, port })),
+  }
+}
+
+/**
+ * Record a work and the transitive closure of the works it uses. A resolver returns the task key, selected work and
+ * its puzzle stamp for each direct dependency. An already seen task can occur several times on a board.
+ */
+export function solutionStamp(root, references) {
+  const works = new Map()
+  const identity = (entry) => `${entry.key}@${hash(JSON.stringify([entry.puzzle, workOf(entry.work)]))}`
+  const visit = (entry) => {
+    const id = identity(entry)
+    if (works.has(id)) return
+    const dependencies = references(entry)
+    works.set(id, {
+      id,
+      key: entry.key,
+      puzzle: entry.puzzle,
+      work: workOf(entry.work),
+      uses: [...new Set(dependencies.map(identity))].sort(),
+    })
+    for (const dependency of dependencies) visit(dependency)
+  }
+  visit(root)
+  const ordered = [...works.keys()].sort().map((id) => works.get(id))
+  return { root: identity(root), stamp: hash(JSON.stringify([identity(root), ordered])), works: ordered }
+}
