@@ -20,6 +20,15 @@ test('blocks wrap, private constants follow consumers, and layout is determinist
  const m=layoutMetrics(graph,p,options)
  assert(m.area<500000,JSON.stringify(m));assert(m.longest<1200,JSON.stringify(m));assert(m.crossings<8,JSON.stringify(m));assert(m.total<3000,JSON.stringify(m))
 })
+test('the lane between sources and sinks is capped, and still holds wider content',()=>{
+ const ends=[{id:'in',type:'in'},{id:'out',type:'out'}]
+ const empty=pipelineLayout({nodes:ends,wires:[]},[],{...options,width:2000,lane:300})
+ assert.equal(empty.nodes.get('out').x-(empty.nodes.get('in').x+100),300+24*2)
+ const narrow=pipelineLayout({nodes:ends,wires:[]},[],{...options,width:400,lane:300})
+ assert.equal(narrow.width,400)
+ const full=pipelineLayout(graph,blocks,{...options,lane:50})
+ assert(full.units.every(u=>u.x+u.w<=full.nodes.get('out').x))
+})
 test('independent branches stack rather than consume separate columns',()=>{
  const g={nodes:[{id:'a'},{id:'b'},{id:'c'}],wires:[{from:'a',to:'c',port:'a'},{from:'b',to:'c',port:'b'}]}
  const p=pipelineLayout(g,[],options)

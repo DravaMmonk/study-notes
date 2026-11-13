@@ -69,8 +69,11 @@ export function alignedLayout(nodes, wires, { sizeOf, portY = () => 48, gapX = 2
   return { positions, w: Math.max(0, x - gapX), h: Math.max(0, ...[...positions.values()].map((p) => p.y + p.h)) }
 }
 
-/** Blocks and ungrouped parts flow like a paragraph; independent branches share a column. */
-export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY, width = 1100, gapX = 24, gapY = 16, pad = 12, title = 28 }) {
+/**
+ * Blocks and ungrouped parts flow like a paragraph; independent branches share a column. The lane between the
+ * source and sink columns is as wide as its content, and at most `lane` when the content needs less.
+ */
+export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY, width = 1100, lane = 320, gapX = 24, gapY = 16, pad = 12, title = 28 }) {
   const roots = graph.nodes.filter((n) => !n.in), byId = new Map(roots.map((n) => [n.id, n]))
   const owner = new Map(), units = []
   for (const block of blocks) {
@@ -126,8 +129,9 @@ export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY, width = 1
     const y = Math.max(bottom+gapY,linked.length?mean(linked.map(p=>p.y)):title)
     nodes.set(n.id,{x:at,y});bottom=y+sizeOf(n).h
   } }
-  stack(sources, 0, false); stack(sinks, left + available + gapX, true)
-  return { nodes, units: placed.map(({id,block,view,members,x,y,w,h}) => ({id,block,view,nodes:members.map((n)=>n.id),x,y,w,h})), width: left + available + right }
+  const span = Math.max(Math.min(available, lane), ...placed.map((u) => u.x + u.w - left))
+  stack(sources, 0, false); stack(sinks, left + span + gapX, true)
+  return { nodes, units: placed.map(({id,block,view,members,x,y,w,h}) => ({id,block,view,nodes:members.map((n)=>n.id),x,y,w,h})), width: left + span + right }
 }
 
 /** A mode change holds its block anchor and only makes temporary room for following units. */
