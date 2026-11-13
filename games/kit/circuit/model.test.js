@@ -1,7 +1,7 @@
 // node --test games/kit/circuit — a level's preset on a board: locked parts and wires stay, the rest is the player's.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { baseRefusal, connect, keepLocked, presetOf, removeNode, withPreset } from './model.js'
+import { baseRefusal, connect, keepLocked, presetOf, removeNode, spotIn, withPreset } from './model.js'
 
 const board = { nodes: [{ id: 'in', type: 'in', x: 0, y: 0 }, { id: 'out', type: 'out', x: 400, y: 0 }], wires: [] }
 const preset = { nodes: [{ id: 'p', type: 'oracle', x: 200, y: 0 }], wires: [{ from: 'p', to: 'out', port: 'in' }] }
@@ -53,4 +53,11 @@ test('a board run by ticks may loop only through a part that holds its value', (
   assert.ok(baseRefusal(board, 'b', 'a', 'in', parts), 'a loop of parts that answer at once')
   assert.equal(baseRefusal(board, 'b', 'h', 'in', parts), null, 'a loop through a held part')
   assert.ok(baseRefusal(board, 'b', 'h', 'in', {}), 'no loops on a board without ticks')
+})
+
+test('a new card on the board goes left of the outputs, clear of what is there', () => {
+  const graph = { nodes: [{ id: 'out', type: 'out', x: 600, y: 40 }, { id: 'a', type: 'add', x: 370, y: 40 }] }
+  const [x] = spotIn(graph, null, 600)
+  assert(x + 170 <= 600)
+  assert(Math.abs(x - 370) >= 170)
 })

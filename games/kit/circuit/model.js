@@ -294,7 +294,10 @@ export function clearSpot(boxes, [w, h], [x0, y0], gap = 16) {
   return null
 }
 
-/** Room on the desktop board for a new card: on the board itself, or in a frame's region from its corner. */
-export const spotIn = (graph, region = null) => (region
+/**
+ * Room on the desktop board for a new card: in a frame's region from its corner; on the board itself left of `before`
+ * (the outputs' left edge, when the board has them), column by column leftwards, else from the board's left.
+ */
+export const spotIn = (graph, region = null, before = null) => (region
   ? freeSpot({ nodes: graph.nodes.filter((n) => n.in === region) }, { w: 170, h: 150, x0: 44, y0: 20, dx: 190, cols: 2 })
-  : freeSpot({ nodes: graph.nodes.filter((n) => !n.in) }, { w: 170, h: 150, x0: 240, dx: 200 }))
+  : freeSpot({ nodes: graph.nodes.filter((n) => !n.in) }, Number.isFinite(before) ? { w: 170, h: 150, x0: before - 230, dx: -200 } : { w: 170, h: 150, x0: 240, dx: 200 }))

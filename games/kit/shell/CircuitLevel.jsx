@@ -217,7 +217,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
     let k = 1
     while (taken.has(`${type}${k}`)) k += 1
     const id = `${type}${k}`
-    const [x, y] = spotIn(graph, region ?? null)
+    const [x, y] = spotIn(graph, region ?? null, Math.min(...graph.nodes.filter((n) => !n.in && parts.role(n) === 'sink' && Number.isFinite(n.x)).map((n) => n.x)))
     return { id, graph: { ...graph, nodes: [...graph.nodes, { id, type, params: defined?.of(type) ? defined.defaults(type) : defaults(type), x, y, ...(slot !== undefined ? { slot } : {}), ...(region ? { in: region } : {}) }] } }
   })
   // A new card goes into the region chosen last, while its frame is there and open.

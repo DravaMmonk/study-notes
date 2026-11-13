@@ -118,7 +118,8 @@ export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY = () => 48
   for (const u of units) (columns[depth.get(u.id)] ??= []).push(u)
   const sources = roots.filter((n) => roleOf(n) === 'source'), sinks = roots.filter((n) => roleOf(n) === 'sink')
   const gutter = Math.max(gapX, 56)
-  const left = Math.max(0, ...sources.map((n) => sizeOf(n).w)) + (sources.length ? gutter : gapX)
+  // With no input cards, their column is kept empty (as wide as the outputs'): the outputs stay on the right.
+  const left = Math.max(0, ...(sources.length ? sources : sinks).map((n) => sizeOf(n).w)) + (sources.length || sinks.length ? gutter : gapX)
   const right = Math.max(0, ...sinks.map((n) => sizeOf(n).w)) + (sinks.length ? gutter : gapX)
   const widest = Math.max(...units.map((u) => u.w), 1)
   const rough = new Map()

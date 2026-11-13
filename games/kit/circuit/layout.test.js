@@ -83,3 +83,7 @@ test('a card stands clear of a wire that passes its column',()=>{
   assert(Math.max(from,to)<top||Math.min(from,to)>bottom,`${id} at ${top}..${bottom} is off the wire from ${from} to ${to}`)
  }
 })
+test('with no input cards their column is kept empty, so the outputs stay on the right',()=>{
+ const p=pipelineLayout({nodes:[{id:'out',type:'out'}],wires:[]},[],{...options,width:2000,lane:300})
+ assert(p.nodes.get('out').x>=100+300)
+})

@@ -239,7 +239,9 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const fit = () => {
     const box = surface.current?.getBoundingClientRect()
     if (!box || !box.width || !top.length) return
-    const xs = top.flatMap((n) => [n.x, n.x + sizeOf(n)[0]])
+    // A board with no input cards keeps their column (from the board's left edge, 0) in view: its outputs stay right.
+    const open = blocks && !top.some((n) => parts.role(n) === 'source')
+    const xs = [...top.flatMap((n) => [n.x, n.x + sizeOf(n)[0]]), ...(open ? [0] : [])]
     const ys = top.flatMap((n) => [n.y, n.y + sizeOf(n)[1]])
     const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
     const pad = 36
