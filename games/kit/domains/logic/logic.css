@@ -106,11 +106,7 @@
 .fo-input:focus { outline: none; border-color: var(--accent); background: var(--paper); }
 .fo-read { margin: 0; min-height: 1.4em; color: var(--muted); font-size: 13px; }
 .fo-read b { color: var(--ink); font-weight: 600; }
-.fo-why { display: grid; gap: var(--sp-3); padding: var(--sp-4) var(--sp-5); border-radius: var(--r-md); background: color-mix(in srgb, var(--fail) 6%, var(--paper)); font-size: 13px; }
-.fo-why p { margin: 0; }
-.fo-worlds { display: grid; gap: var(--sp-4); }
-.fo-worlds details { padding: var(--sp-4) var(--sp-5); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
-.fo-worlds summary { cursor: pointer; font-weight: 600; font-size: 13.5px; }
+
 .fo-vocab { position: sticky; bottom: 0; display: flex; flex-wrap: wrap; gap: var(--sp-3); padding: var(--sp-4) 0; background: var(--canvas); }
 .fo-vocab button { min-height: 34px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font: 13px var(--sans); cursor: pointer; }
 .fo-vocab button:hover { background: var(--hover); }
