@@ -31,7 +31,7 @@ function scrollParent(el) {
 export const scaleOf = el => el.getBoundingClientRect().width / el.offsetWidth || 1;
 
 /**
- * Enable dragging inside `root`. handlers() → { start?(g), move?(g), drop(g), end?(), scroller? } | null, read at each
+ * Enable dragging inside `root`. handlers() → { start?(g), move?(g), drop(g), end?(), scroller?, portAt? } | null, read at each
  * pointerdown; `scroller` names the pane to auto-scroll when it is not an ancestor of what is dragged (a board above a
  * docked palette).
  * g = { kind: 'piece' | 'port' | 'tray', id, el, x, y, dx, dy, over }: x, y are client coordinates; dx, dy how far a
@@ -42,8 +42,8 @@ export const scaleOf = el => el.getBoundingClientRect().width / el.offsetWidth |
 export function enableDrag(root, handlers) {
   let g = null;
 
-  const target = el => {
-    const port = el.closest('[data-p]'), handle = el.closest('[data-drag]'), tray = el.closest('[data-tray]');
+  const target = (el, pickedPort) => {
+    const port = pickedPort || el.closest('[data-p]'), handle = el.closest('[data-drag]'), tray = el.closest('[data-tray]');
     if (port) return { kind: 'port', id: port.dataset.p, el: port };
     if (handle) { const piece = handle.closest('[data-piece]'); if (piece) return { kind: 'piece', id: piece.dataset.piece, el: piece }; }
     if (tray) return { kind: 'tray', id: tray.dataset.tray, el: tray };
@@ -52,7 +52,7 @@ export function enableDrag(root, handlers) {
   const overAt = (x, y) => {
     const el = document.elementFromPoint(x, y);
     if (!el) return null;
-    if (g.kind === 'port') return el.closest('[data-p]') || el.closest('[data-piece]');
+    if (g.kind === 'port') return g.h.portAt?.(el, x, y) || el.closest('[data-p]') || el.closest('[data-piece]');
     return el.closest('[data-slot]') || el.closest(g.kind === 'piece' ? '[data-trash]' : '[data-canvas]');
   };
 
@@ -136,7 +136,7 @@ export function enableDrag(root, handlers) {
   const onDown = e => {
     const h = handlers();
     if (g || e.button > 0 || !h) return;
-    const t = target(e.target);
+    const t = target(e.target, h.portAt?.(e.target, e.clientX, e.clientY));
     if (!t || !root.contains(t.el)) return;
     const touch = e.pointerType !== 'mouse', scroller = h.scroller || scrollParent(t.el);
     g = { ...t, h, scroller, sc: scaleOf(t.el), scrollMax: Math.max(0, scroller.scrollHeight - scroller.clientHeight), dx: 0, dy: 0, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, st0: scroller.scrollTop, armed: !touch, on: false, over: null };

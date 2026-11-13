@@ -196,10 +196,12 @@ export function layout(graph, parts) {
 // its head (the value it opens), its own rows, and a row for its foot (the dot its result goes into), so its cells line
 // up with the cells beside it. Frames span the whole row. A card whose value needs more than one column also spans the row.
 //
-//   { cell: id → slot, span: id → [columns, rows], cols, rows, size, free: [slot] }      (fixed: no empty row at the end)
+//   { cell: id → slot, span: id → [columns, rows], cols, rows, size, emptyRows, free: [slot] }
+// `emptyRows` includes nested rows so the phone subgrid can put a smaller gap on either side.
 export function placement(graph, parts, region = null, { fixed = false } = {}) {
   const { steps } = layout(graph, parts)
   const regions = (n) => parts.frames?.(n) ?? []
+  const byNode = new Map(steps.map((node) => [node.id, node]))
   const available = (r) => r === null ? parts.availableWidth ?? Infinity : available(byId(graph, r.split('/')[0])?.in ?? null) - REGION_INSET
   const grids = new Map()
   const place = (r) => {
@@ -236,7 +238,18 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
     const reserved=r===null?Math.max(0,...(graph.blocks??[]).filter(b=>Number.isInteger(b.slot)&&Number.isInteger(b.rows)).map(b=>Math.floor(b.slot/cols)+b.rows)):0
     const rows = fixed ? Math.max(1, last) : Math.max(last + 1,reserved + 1)
     const size = rows * cols
-    const result = { cell, span, cols, rows, size, free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
+    const emptyRows = new Set(Array.from({ length: rows }, (_, row) => row))
+    for (const [id, slot] of cell) {
+      let row = Math.floor(slot / cols)
+      emptyRows.delete(row++)
+      for (const region of regions(byNode.get(id))) {
+        const child = place(`${id}/${region.name}`)
+        emptyRows.delete(row++)
+        for (let k = 0; k < child.rows; k++, row++) if (!child.emptyRows.has(k)) emptyRows.delete(row)
+        emptyRows.delete(row++)
+      }
+    }
+    const result = { cell, span, cols, rows, size, emptyRows, free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
     grids.set(r, result)
     return result
   }

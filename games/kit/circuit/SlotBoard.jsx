@@ -11,6 +11,7 @@ import SaveSlots from './SaveSlots.jsx'
 import { useBoardWidth } from './useBoardWidth.js'
 import { cardView } from '../engine/views.js'
 import { slotMetrics } from './slot-metrics.js'
+import { slotPortAt } from './slot-ports.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { feeding, inPort, layout, outPort, parsePort, placement, srcNode, srcOf } from './model.js'
@@ -37,19 +38,11 @@ export function drawWires(el, graph, parts, live) {
     const dot = el.querySelector(`[data-p="${CSS.escape(p)}"]`)
     if (!dot) return null
     const box = dot.getBoundingClientRect()
-    const tile = dot.closest('.pb-tile')
-    const tileBox = tile?.getBoundingClientRect()
-    return [box.left + box.width / 2 - origin.left, box.top + box.height / 2 - origin.top, tileBox]
+    return [box.left + box.width / 2 - origin.left, box.top + box.height / 2 - origin.top]
   }
   const middle = el.clientWidth / 2
   const f = (n) => n.toFixed(1)
-  const curve = ([ax, ay, aTile], [bx, by, bTile]) => {
-    // A sideways wire climbs through the column gutter, clear of both card faces.
-    if (aTile && bTile && Math.abs(aTile.top - bTile.top) < 2 && aTile.left !== bTile.left) {
-      const mid = (ax < bx ? (aTile.right + bTile.left) : (bTile.right + aTile.left)) / 2 - origin.left
-      const loop = 14
-      return `M${f(ax)},${f(ay)} C${f(ax)},${f(ay + loop)} ${f(mid)},${f(ay + loop)} ${f(mid)},${f(ay)} L${f(mid)},${f(by)} C${f(mid)},${f(by - loop)} ${f(bx)},${f(by - loop)} ${f(bx)},${f(by)}`
-    }
+  const curve = ([ax, ay], [bx, by]) => {
     const drop = Math.max(28, Math.abs(by - ay) / 2)
     // A wire that has to climb loops out sideways instead of cutting through the blocks.
     if (by < ay + 10) {
@@ -267,8 +260,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     const listed = parts.outputs?.(node)?.filter((o) => !own(node).has(o.key)) ?? null
     const outs = listed && !(listed.length === 1 && listed[0].key === null) ? listed : null
     if (!outs) {
-      const labelled = labelsPorts(node)
-      return <span className={`pb-out ${labelled ? 'is-labelled' : ''}`}>{labelled && <em data-port-label>{tr('输出', 'Output')}</em>}{dot(outPort(node.id), tr(`${nameOf(node)} 的输出`, `${nameOf(node)} output`), `is-out ${used(node.id) ? 'is-wired' : ''} ${parts.portClass?.(node, null) ?? ''}`)}</span>
+      return <span className="pb-out">{dot(outPort(node.id), tr(`${nameOf(node)} 的输出`, `${nameOf(node)} output`), `is-out ${used(node.id) ? 'is-wired' : ''} ${parts.portClass?.(node, null) ?? ''}`)}</span>
     }
     return (
       <span className="pb-out is-many">
@@ -326,15 +318,29 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
 
   // A grid of slots: the board's, or a region's inside a frame (`region`, rows of the frame's own grid: placement).
   function grid(region, style) {
-    const placed=placement(graph,parts,region,{fixed}),{cell,span,cols,free,rows,size}=placed
+    const placed = placement(graph, parts, region, { fixed })
+    const { cell, span, cols, free, rows, size, emptyRows } = placed
     const ranges=region===null?blockRows(graph,parts,placed).map(b=>({...b,view:groups.find(g=>g.id===b.id)?.view??b.view})):[]
     const hidden=new Set(ranges.filter(b=>b.view==='hidden').flatMap(b=>Array.from({length:b.end-b.start},(_,k)=>b.start+k)))
-    const rowTrack=new Map(),headTrack=new Map(),tracks=[]
-    for(let row=0;row<rows;row++){
-      for(const b of ranges.filter(b=>b.start===row)){headTrack.set(b.id,tracks.length+1);tracks.push('auto')}
-      if(!hidden.has(row)){rowTrack.set(row,tracks.length+1);tracks.push('auto')}
+    const rowTrack = new Map(), headTrack = new Map(), tracks = []
+    // A frame inherits these tracks, including the narrow gaps around its nested insertion rows.
+    let lastEmpty = false
+    const addTrack = (empty) => {
+      if (tracks.length) tracks.push(lastEmpty || empty ? 'var(--pb-column-gap)' : 'var(--pb-row-gap)')
+      tracks.push('auto')
+      lastEmpty = empty
+      return tracks.length
     }
-    const at=(slot,[w,h]=[1,1])=>({gridRow:`${region===null?rowTrack.get(Math.floor(slot/cols)):Math.floor(slot/cols)+1} / span ${h}`,gridColumn:`${slot%cols+1} / span ${w}`})
+    for (let row = 0; row < rows; row++) {
+      for (const block of ranges.filter((b) => b.start === row)) headTrack.set(block.id, addTrack(false))
+      if (!hidden.has(row)) rowTrack.set(row, addTrack(emptyRows.has(row)))
+    }
+    const at = (slot, [w, h] = [1, 1]) => {
+      const row = Math.floor(slot / cols)
+      const first = region === null ? rowTrack.get(row) : 2 * row + 1
+      const last = region === null ? rowTrack.get(row + h - 1) : first + 2 * (h - 1)
+      return { gridRow: `${first} / ${last + 1}`, gridColumn: `${slot % cols + 1} / span ${w}` }
+    }
     const selected=(row)=>partitioning&&startRow!==null&&row>=Math.min(startRow,hoverRow??startRow)&&row<=Math.max(startRow,hoverRow??startRow)
     const out=[]
     const reveal=(b,id)=>{blocks.open(b.id);requestAnimationFrame(()=>board.current?.querySelector(`[data-piece="${CSS.escape(id)}"]`)?.scrollIntoView({block:'center'}))}
@@ -366,7 +372,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       if(region===null&&hidden.has(row))continue
       out.push(<div key={`slot-${slot}`} className={`pb-cell ${ranges.some(b=>b.view==='ports'&&row>=b.start&&row<b.end)?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot)}>{fixed?<div className="pb-cell is-blank" />:<button type="button" className="pb-slot" onClick={()=>onSlot(slot,region)} aria-label={tr('在这一格放置元件')}><Plus size={20} /></button>}</div>)
     }
-    return <div className={`pb-grid ${region?'is-region':'is-blocks'}`} data-cols={cols} data-size={size} style={{...style,...(region===null?{gridTemplateRows:tracks.join(' ')}:{})}} onClickCapture={region===null&&partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined){event.stopPropagation();event.preventDefault();pickRow(Number(row),placed)}}:undefined} onPointerOver={partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined)setHoverRow(Number(row))}:undefined}>{out}</div>
+    return <div className={`pb-grid ${region?'is-region':'is-blocks'}`} data-cols={cols} data-size={size} data-starts-empty={emptyRows.has(0) || undefined} data-ends-empty={lastEmpty || undefined} style={{...style,...(region===null?{gridTemplateRows:tracks.join(' ')}:{})}} onClickCapture={region===null&&partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined){event.stopPropagation();event.preventDefault();pickRow(Number(row),placed)}}:undefined} onPointerOver={partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined)setHoverRow(Number(row))}:undefined}>{out}</div>
   }
 
   // A frame: rows of the grid it sits in, for each region a row for its head, the region's rows, and a row for its
@@ -374,11 +380,11 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   function frameBlock(node, slot, region, style) {
     const isFolded = foldedParts.has(node.id)
     const ports = inputs(node)
-    let row = 2
+    let row = 3
     const regions = regionsOf(node).map((r) => {
       const rows = placement(graph, parts, `${node.id}/${r.name}`, { fixed }).rows
       const section = (
-        <section key={r.name} className="pb-region" style={{ gridRow: `${row} / span ${rows + 2}` }}>
+        <section key={r.name} className="pb-region" style={{ gridRow: `${row} / span ${2 * rows + 3}` }}>
           {/* Its head row: its name, and the value it opens with the dot that gives it. */}
           <header className="pb-region-head">
             {regionsOf(node).length > 1 && <b>{L(r.label)}</b>}
@@ -386,7 +392,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
             {!isFolded && regionNote?.(node, r.name)}
             {r.opens && <span className="pb-out">{dot(outPort(srcOf(node, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, r.name)) ? 'is-wired' : ''}`)}</span>}
           </header>
-          {grid(`${node.id}/${r.name}`, { gridRow: `2 / span ${rows}` })}
+          {grid(`${node.id}/${r.name}`, { gridRow: `3 / span ${2 * rows - 1}` })}
           {/* Its foot row: the dot its result goes into, and what the frame gives. */}
           <footer className="pb-closes">
             <span className="pb-ins">
@@ -397,7 +403,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
           </footer>
         </section>
       )
-      row += rows + 2
+      row += 2 * (rows + 2)
       return section
     })
     return (
@@ -414,8 +420,15 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       </div>
     )
   }
+  const tapPort = (event) => {
+    if (!event.detail || partitioning) return
+    const target = slotPortAt(event.target, event.clientX, event.clientY)
+    if (!target || target === event.target.closest('[data-p]')) return
+    event.stopPropagation()
+    target.click()
+  }
   return (
-    <div className="pb-board" ref={board} style={slotMetrics} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={wires} data-labelled={JSON.stringify(labels.map(wireKey))}>
+    <div className="pb-board" ref={board} style={slotMetrics} onClickCapture={tapPort} data-picked={picking ?? undefined} data-moving={moving ?? undefined} data-wires={wires} data-labelled={JSON.stringify(labels.map(wireKey))}>
       <div className="pb-tools">
         {!fixed && <SaveSlots phone board={{ graph, parts, change: onChange, types: onChange && types }} />}
         {/* Always there on an editable board; greyed out while there is nothing to clear (no onClear). */}

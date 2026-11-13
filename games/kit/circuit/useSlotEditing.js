@@ -1,3 +1,4 @@
+import { slotPortAt } from './slot-ports.js'
 import { useEffect, useRef, useState } from 'react'
 import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
@@ -221,6 +222,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     const board = () => el.querySelector('.pb-board')
     const handlers = {
       scroller: scroller.current,
+      portAt: slotPortAt,
       start: (g) => g.kind === 'port' && latest.current.unpick(),
       // drag.js has applied the part's transform before this callback; read the moved ports, including frame contents.
       move: (g) => {

@@ -43,6 +43,7 @@ test('on a phone a box takes the rows of its regions, each a grid of its own bet
   assert.deepEqual([...top.cell], [['f', 0], ['g', 10]])
   assert.deepEqual(top.span.get('f'), [2, 5])
   assert.deepEqual(top.free, [11, 12, 13])
+  assert.deepEqual([...top.emptyRows], [3, 6])
   const inside = placement(board, parts, 'f/body')
   assert.deepEqual([...inside.cell], [['m', 0]])
   assert.deepEqual([inside.size, inside.free], [4, [1, 2, 3]])
