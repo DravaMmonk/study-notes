@@ -16,5 +16,8 @@ the sentence around them naturally for a reader of that language. A symbol or a 
 languages is translated to itself, so it does not stay listed as missing.
 
 Write with `i18n.set` (`{ op: "i18n.set", lang, from: "<the base text, exactly>", to: "<its translation>" }`), many
-in one changeset, through `./op --file <file>`; `--dry-run` previews. An entry no text reads any more is dropped with
+in one changeset, through `./op --file <file>`; `--dry-run` previews. If a base text means different things in
+different kinds of field, set `to` to an object such as `{ "default": "Append", "partName": "Join" }`. Use
+only the field kinds named by the schema. Preserve the other variants when updating one. A base text counts as
+translated once every context where it is read has a valid translation. An entry no text reads any more is dropped with
 `i18n.set` without `to`, once you have read what replaced its text.

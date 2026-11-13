@@ -38,8 +38,8 @@ function look({ theme, lang }) {
 /** The game the shell plays, made of `content`, with saves of its own, kept across the author's edits (a board an
  *  edit no longer fits opens as the level's start); `stamp` tells one content from the next. */
 async function gameOf(content, stamp) {
-  const defineGame = (await DOMAINS[content.domain]()).default
-  const game = defineGame(localized(content))
+  const [{ default: defineGame }, { vocabulary }] = await DOMAINS[content.domain]()
+  const game = defineGame(localized(content, vocabulary))
   game.store = createProgress({ id: `studio.${content.id}` })
   game.stamp = stamp
   return game

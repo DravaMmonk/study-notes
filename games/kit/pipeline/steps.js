@@ -21,7 +21,7 @@ import { auditBlueprint, conformance } from './blueprint.js'
 import { lintCopy } from './lint.js'
 import { lintPedagogy } from './pedagogy.js'
 import { reviewTerminology } from './terminology.js'
-import { translationState, textsIn } from '../engine/i18n.js'
+import { translationState } from '../engine/i18n.js'
 
 export const GAMES_DIR = resolve(import.meta.dirname, '../..')
 const finding = (rule, at, says) => ({ rule, at, says })
@@ -143,12 +143,12 @@ export const STEPS = [
     commands: ['op', 'check', 'gate'],
     gate: async (id) => {
       const content = readContent(id)
-      const texts = new Set(textsIn({ ...content, i18n: undefined, blueprint: undefined }))
-      const state = translationState(content)
+      const { vocabulary } = await domainOf(content)
+      const state = translationState(content, vocabulary)
       return {
-        failures: state.flatMap(({ lang, wrong }) => wrong.map((w) => finding('i18n-wrong', `${lang}: ${w.from.slice(0, 40)}`, w.why))),
-        reports: state.flatMap(({ lang, translated, unused }) => [
-          ...(translated < texts.size ? [finding('i18n-missing', lang, `${texts.size - translated} of ${texts.size} texts read in the base language`)] : []),
+        failures: state.flatMap(({ lang, wrong }) => wrong.map((w) => finding('i18n-wrong', `${lang}${w.kind ? `/${w.kind}` : ''}: ${w.from.slice(0, 40)}`, w.why))),
+        reports: state.flatMap(({ lang, texts, translated, unused }) => [
+          ...(translated < texts ? [finding('i18n-missing', lang, `${texts - translated} of ${texts} texts read in the base language`)] : []),
           ...(unused ? [finding('i18n-unused', lang, `${unused} entries no text reads any more`)] : []),
         ]),
       }

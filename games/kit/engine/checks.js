@@ -81,8 +81,8 @@ export async function checkGame(content, { domain, listed, mutants = false }) {
   for (const entry of content.glossary.entries) for (const id of new Set(linked(GLOSSARY.fields.entries.of, entry, 'wiki'))) if (entries.has(id) && !opensBy(entries.get(id).at, entry.at)) fail(`entry ${entry.id} links the entry ${id}, which opens later (at ${entries.get(id).at})`)
 
   // Translation is its own work (./i18n.js): how each overlay stands is said, and fails nothing.
-  for (const { lang, texts, translated, wrong, unused } of translationState(content)) {
-    lines.push({ text: `i18n ${lang}: ${translated}/${texts} texts${unused ? `, ${unused} entries no text reads` : ''}${wrong.length ? `, ${wrong.length} that cannot stand (${wrong.slice(0, 3).map((w) => `${w.from.slice(0, 24)}: ${w.why}`).join('; ')}${wrong.length > 3 ? '; …' : ''})` : ''}` })
+  for (const { lang, texts, translated, wrong, unused } of translationState(content, vocabulary)) {
+    lines.push({ text: `i18n ${lang}: ${translated}/${texts} texts${unused ? `, ${unused} entries no text reads` : ''}${wrong.length ? `, ${wrong.length} that cannot stand (${wrong.slice(0, 3).map((w) => `${w.from.slice(0, 24)}${w.kind ? `/${w.kind}` : ''}: ${w.why}`).join('; ')}${wrong.length > 3 ? '; …' : ''})` : ''}` })
   }
   // Asked for, the circuit base also reports what each task's tests make of the answer's mutants (mutate.js): slow,
   // so it is no part of the check every change runs.

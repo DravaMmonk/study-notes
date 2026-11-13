@@ -28,3 +28,13 @@ test('typing a translation writes it; emptying one drops its entry; emptying not
   assert.deepEqual(translationOp('en', done, ' '), { op: 'i18n.set', lang: 'en', from: '玩具' })
   assert.equal(translationOp('en', missing, ''), null)
 })
+
+
+test('field variants can be edited without changing the default', () => {
+  const draft = { ...content, i18n: { en: { 甲: { default: 'A', levelTitle: 'First' } } } }
+  const rows = translationRows(draft, vocabulary, ['a', 'b'], 'en')
+  const title = rows.find((row) => row.from === '甲' && row.kind === 'levelTitle')
+  assert.equal(title.to, 'First')
+  assert.deepEqual(translationOp('en', title, 'One'), { op: 'i18n.set', lang: 'en', from: '甲', to: { default: 'A', levelTitle: 'One' } })
+  assert.deepEqual(translationOp('en', title, ''), { op: 'i18n.set', lang: 'en', from: '甲', to: 'A' })
+})

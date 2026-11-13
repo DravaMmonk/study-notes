@@ -19,6 +19,7 @@
 // has a parts.json (parts/schema.js), and content's S.ref('part') names a part of it (parts/define.js withParts). Such
 // a vocabulary also gives the families parts are coloured by (`family`), and may give widgets (`widget`): settings or
 // displays the kernel's controls cannot draw.
+import { OVERLAY } from './i18n.js'
 import { S, validate } from './schema.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { taskIdProblems } from './tasks.js'
@@ -106,9 +107,6 @@ export function additionProblems(before, after, at = 'vocabulary') {
  * file and the path in it. `domain`: the domain module, its vocabulary and the readers of its languages. A course blueprint (blueprint.json) is the kernel's, the same in every domain; so is the rule
  * that task ids are unique in a game and never another level's (tasks.js).
  */
-// An overlay (./i18n.js): a translation for each base text it knows.
-const OVERLAY = S.map(S.str())
-
 export function checkContent({ vocabulary: domainVocabulary, languages = null, names: domainNames = () => ({}) }, content) {
   const out = []
   const vocabulary = withParts(domainVocabulary, content.partDefs)

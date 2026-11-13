@@ -32,6 +32,9 @@
 //   section         where a field of a level goes in its form (SECTIONS); without it the studio reads it off the shape
 import { markupOf } from './markup.js'
 
+// The kinds of text for which an overlay can supply a separate translation.
+export const TEXT_KINDS = ['gameTitle', 'levelTitle', 'partName', 'partDescription', 'settingLabel', 'regionLabel', 'portLabel']
+
 export const SECTIONS = ['read', 'puzzle', 'tests', 'answers', 'course', 'tasks']
 export const HINTS = { view: ['grid', 'ticks', 'expr', 'icon'], section: SECTIONS }
 
@@ -44,6 +47,7 @@ export const S = {
   int: make('int'),
   str: make('str'),
   text: make('text'),
+  textKind: (kind, extra = {}) => ({ type: 'text', textKind: kind, ...extra }),
   oneOf: (values, extra = {}) => ({ type: 'oneOf', values, ...extra }),
   list: (of, extra = {}) => ({ type: 'list', of, ...extra }),
   map: (of, extra = {}) => ({ type: 'map', of, ...extra }),

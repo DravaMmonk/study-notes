@@ -30,7 +30,11 @@ const texts = (value) => {
 // A link renamed in a text is renamed in the overlays too (../i18n.js), in the text an entry is keyed by and in its
 // translation: the entry follows its text.
 const renameInOverlays = (ws, pattern, to) => {
-  ws.i18n = Object.fromEntries(Object.entries(ws.i18n ?? {}).map(([lang, memory]) => [lang, Object.fromEntries(Object.entries(memory).map(([from, text]) => [from.replace(pattern, `$1${to}$2`), text.replace(pattern, `$1${to}$2`)]))]))
+  const rename = (text) => text.replace(pattern, `$1${to}$2`)
+  const rewrite = (entry) => typeof entry === 'string' ? rename(entry)
+    : Object.fromEntries(Object.entries(entry).map(([kind, text]) => [kind, rename(text)]))
+  ws.i18n = Object.fromEntries(Object.entries(ws.i18n ?? {}).map(([lang, memory]) =>
+    [lang, Object.fromEntries(Object.entries(memory).map(([from, entry]) => [rename(from), rewrite(entry)]))]))
 }
 
 /** Every place naming level `id`: [{ file, path, how: 'field' | 'link' | 'open' }]. */

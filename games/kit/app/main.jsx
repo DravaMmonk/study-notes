@@ -34,7 +34,7 @@ async function open() {
   const problems = checkContent({ vocabulary }, content).map((p) => `${p.at}: ${p.says}`)
   if (problems.length) return { page: <Unreadable problems={problems} />, content: contentText }
   // The page plays the content with its translations laid over it (../engine/i18n.js); it was checked as written.
-  const game = define(localized(content))
+  const game = define(localized(content, vocabulary))
   const store = createProgress({ id: content.id, tasks: taskStamps(vocabulary, content) })
   // A level embedded in a note (`?embed&level=…&lang=…`, games/DESIGN.md 12.1): the note sets its language.
   const asked = new URL(window.location.href).searchParams

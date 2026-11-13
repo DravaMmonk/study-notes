@@ -12,6 +12,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { translationAt } from './i18n.js'
 
 export const GAMES_ROOT = resolve(import.meta.dirname, '../..')
 const TEMPLATES = (root) => resolve(root, 'kit/scaffold')
@@ -44,8 +45,8 @@ function register(root, id, content) {
   const q = (s) => JSON.stringify(s).replaceAll('"', "'")
   const title = content.title.zh ?? content.title
   // The hub lists a game in both languages: its English comes from its overlay (./i18n.js), where it has one.
-  const english = (text) => content.en?.[text.zh ?? text] ?? text.zh ?? text
-  const en = english(content.title)
+  const english = (text, kind) => translationAt(content.en?.[text.zh ?? text], kind) ?? text.zh ?? text
+  const en = english(content.title, 'gameTitle')
   const entry = [
     '  {',
     `    id: ${q(id)}, href: ${q(`${id}/index.html`)}, title: ${q(title)}, en: ${q(en)}, topic: { zh: ${q(title)}, en: ${q(en)} },`,

@@ -104,7 +104,11 @@ export function studioApp() {
     load(id) {
       if (id !== `\0${MODULE}`) return null
       const domains = readdirSync(DOMAINS).filter((d) => existsSync(gameModule(DOMAINS, d)))
-      return `export const DOMAINS = { ${domains.map((d) => `${JSON.stringify(d)}: () => import(${JSON.stringify(gameModule(DOMAINS, d))})`).join(', ')} }`
+      return `export const DOMAINS = { ${domains.map((d) => {
+        const entry = JSON.stringify(gameModule(DOMAINS, d))
+        const vocabulary = JSON.stringify(resolve(DOMAINS, d, 'vocabulary.js'))
+        return `${JSON.stringify(d)}: () => Promise.all([import(${entry}), import(${vocabulary})])`
+      }).join(', ')} }`
     },
     async configureServer(server) {
       const { TOOLS, lacking } = await import('../engine/ops/tools.js')

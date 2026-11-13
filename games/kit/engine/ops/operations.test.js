@@ -168,6 +168,18 @@ test('text.set changes a text, wherever it is; i18n.set writes how it reads in a
   assert.throws(() => run(ws, 'i18n.set', { lang: 'en', from: '没有这一条' }), /no entry/)
 })
 
+test('typed translations are checked, undoable and follow renamed links', () => {
+  const { ws } = toy()
+  const link = (id) => `<level-ref to="${id}"></level-ref>`
+  const from = `接着 ${link('a2')}`
+  const to = { default: `After ${link('a2')}`, partName: `Follow ${link('a2')}` }
+  roundTrip(ws, 'i18n.set', { lang: 'en', from, to })
+  assert.deepEqual(ws.i18n.en[from], to)
+  assert.throws(() => run(ws, 'i18n.set', { lang: 'en', from, to: { partName: 'Missing link' } }), /for partName links nothing/)
+  roundTrip(ws, 'level.rename', { level: 'a2', to: 'two' })
+  assert.deepEqual(ws.i18n.en[`接着 ${link('two')}`], { default: `After ${link('two')}`, partName: `Follow ${link('two')}` })
+})
+
 test('glossary.put, glossary.set and glossary.remove edit the encyclopedia', () => {
   const { ws } = toy()
   roundTrip(ws, 'glossary.put', { entry: 'f', data: { group: 'g', title: 'F', body: [] } })

@@ -17,9 +17,9 @@ const Row = memo(function Row({ row, lang, names, onEdit }) {
   const onSet = useCallback(({ zh }) => { const op = translationOp(lang, row, zh); if (op) onEdit(op) }, [lang, row, onEdit])
   return (
     <div className={`copy-row i18n-row is-${row.state}`}>
-      <div className="i18n-from" title={row.where}>{written(row.from)}</div>
+      <div className="i18n-from" title={row.where}>{written(row.from)}{row.kind && <small>{row.kind}</small>}</div>
       {row.state === 'unused'
-        ? <div className="i18n-unused"><span>{row.to}</span><button type="button" className="kit-btn is-icon" onClick={() => onEdit({ op: 'i18n.set', lang, from: row.from })} aria-label={tr('去掉这一条', 'Drop this entry')}><X size={13} aria-hidden="true" /></button></div>
+        ? <div className="i18n-unused"><span>{row.to}</span><button type="button" className="kit-btn is-icon" onClick={() => { const op = translationOp(lang, row, ''); if (op) onEdit(op) }} aria-label={tr('去掉这一条')}><X size={13} aria-hidden="true" /></button></div>
         : <TextField value={{ zh: row.to }} onSet={onSet} label={row.where} names={names} findings={row.why ? [row.why] : []} compact />}
     </div>
   )
@@ -39,7 +39,7 @@ export default function Translations({ content, vocabulary, order, names, onEdit
   return (
     <section className="copy-table">
       <div className="copy-bar">
-        <input className="field-input i18n-lang" list="i18n-langs" value={lang} onChange={(e) => setLang(e.target.value.trim())} placeholder="en" aria-label={tr('语言', 'Language')} />
+        <input className="field-input i18n-lang" list="i18n-langs" value={lang} onChange={(e) => setLang(e.target.value.trim())} placeholder="en" aria-label={tr('语言')} />
         <datalist id="i18n-langs">{langs.map((l) => <option key={l} value={l} />)}</datalist>
         {STATES.map(([s, zh, en]) => (
           <button key={s} type="button" className={`kit-btn is-label ${state === s ? 'is-on' : ''}`} aria-pressed={state === s} onClick={() => setState(state === s ? '' : s)}>{tr(zh, en)} {count(s)}</button>
@@ -48,7 +48,7 @@ export default function Translations({ content, vocabulary, order, names, onEdit
         <small>{rows.length}/{all.length}</small>
       </div>
       <div className="copy-rows">
-        {rows.map((row) => <Row key={`${row.state === 'unused' ? 'u' : 't'}${row.from}`} row={row} lang={lang} names={names} onEdit={onEdit} />)}
+        {rows.map((row) => <Row key={`${row.state === 'unused' ? 'u' : 't'}${row.from}:${row.kind ?? ''}`} row={row} lang={lang} names={names} onEdit={onEdit} />)}
       </div>
     </section>
   )

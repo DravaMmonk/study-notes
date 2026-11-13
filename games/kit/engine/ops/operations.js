@@ -16,7 +16,7 @@ import { NAME as PART_NAME, PARTS_FILE } from '../parts/schema.js'
 import { renameSlot } from '../../pipeline/blueprint.js'
 import { TASK_ID, findTask, newTaskId } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
-import { BASE, mistranslated } from '../i18n.js'
+import { BASE, mistranslated, TRANSLATION, translationEntries } from '../i18n.js'
 
 const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal') })
 const NEW_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('新的关卡 id（也是文件名）') })
@@ -292,13 +292,20 @@ export const OPERATIONS = {
   },
   'i18n.set': {
     about: t('写一条译文：一段原文在某种语言里怎么说（不给 to 就去掉这一条）'),
-    params: S.obj({ lang: S.str({ pattern: '^[a-z]{2}(-[A-Za-z]+)?$' }), from: S.str(), to: S.opt(S.str()) }),
+    params: S.obj({ lang: S.str({ pattern: '^[a-z]{2}(-[A-Za-z]+)?$' }), from: S.str(), to: S.opt(TRANSLATION) }),
     apply(ws, { lang, from, to }) {
       if (lang === BASE) fail(`${BASE} is the language content is written in: change the text itself (text.set)`)
       const memory = ws.i18n[lang] ?? {}
       const old = memory[from]
       if (to === undefined && old === undefined) fail(`i18n/${lang}.json has no entry for that text`)
-      if (to !== undefined && mistranslated(from, to)) fail(`the translation ${mistranslated(from, to)}`)
+      if (to !== undefined) {
+        const entries = Object.entries(translationEntries(to))
+        if (!entries.length) fail('a translation needs at least one text')
+        for (const [kind, text] of entries) {
+          const why = mistranslated(from, text)
+          if (why) fail(`the translation${kind === 'default' ? '' : ` for ${kind}`} ${why}`)
+        }
+      }
       const { [from]: _, ...rest } = memory
       ws.i18n = { ...ws.i18n, [lang]: to === undefined ? rest : { ...memory, [from]: to } }
       return { says: `i18n/${lang}: ${to === undefined ? 'dropped' : old === undefined ? 'translated' : 'retranslated'} ${JSON.stringify(from.slice(0, 30))}`, inverse: [{ op: 'i18n.set', lang, from, ...(old !== undefined && { to: old }) }] }
