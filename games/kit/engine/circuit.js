@@ -56,18 +56,40 @@ export const sourceOf = (id, key) => (key === null || key === undefined ? id : `
 /** A part's input ports for a node. */
 export const portsOf = (part, node) => (typeof part.inputs === 'function' ? part.inputs(node) : part.inputs ?? [])
 
+// A circuit's nodes by id and, for each node, the source wired into each of its ports: read once for as long as the
+// circuit holds the same nodes and wires (a board run tick after tick is evaluated thousands of times).
+const wirings = new WeakMap()
+function wiringOf(circuit) {
+  const { nodes, wires } = circuit
+  const kept = wirings.get(circuit)
+  if (kept && kept.nodes === nodes && kept.wires === wires && kept.sizes[0] === nodes.length && kept.sizes[1] === wires.length) return kept
+  const into = new Map()
+  for (const wire of wires) {
+    if (!into.has(wire.to)) into.set(wire.to, new Map())
+    into.get(wire.to).set(wire.port, wire.from)
+  }
+  const wiring = { nodes, wires, sizes: [nodes.length, wires.length], byId: new Map(nodes.map((node) => [node.id, node])), into }
+  wirings.set(circuit, wiring)
+  return wiring
+}
+
 /**
  * Evaluate a circuit. `parts` is the registry (an object, or a function of a type). `ctx` reaches every part's eval
  * (the test's inputs, a robot's sensors…). `targets` lists node ids to compute (default: all). `prepare(ins, node,
  * part)` may check or adjust a node's inputs before it runs (throw a PartError to refuse them).
  * Returns { values: Map(source → value), errors: Map(node id → message) }.
  */
-export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = null } = {}) {
+export const evaluate = (circuit, { targets = null, ...options } = {}) => evaluation(circuit, options).run(targets)
+
+/**
+ * An evaluation that can be asked for more: run(targets) computes what those nodes still lack and returns the same
+ * { values, errors } every time, so whoever asks for a circuit's outputs one at a time (a packed part, boards.js)
+ * computes each card once.
+ */
+export function evaluation(circuit, { parts, ctx = {}, prepare = null } = {}) {
   const partOf = typeof parts === 'function' ? parts : (type) => parts[type]
   if (!ctx.engine) ctx = { ...ctx, engine: { parts, prepare } }
-  const byId = new Map(circuit.nodes.map((node) => [node.id, node]))
-  const into = new Map()
-  for (const wire of circuit.wires) into.set(`${wire.to}\u0000${wire.port}`, wire.from)
+  const { byId, into } = wiringOf(circuit)
   const values = new Map()
   const errors = new Map()
   const done = new Set()
@@ -107,7 +129,7 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
     let missing = false
     let connected = 0
     for (const port of ports) {
-      const from = into.get(`${id}\u0000${port}`)
+      const from = into.get(id)?.get(port)
       const value = from === undefined ? undefined : pull(from)
       if (ids && from !== undefined) inIds[port] = ids.get(from) ?? null
       if (from !== undefined && value !== undefined) connected++
@@ -148,12 +170,18 @@ export function evaluate(circuit, { parts, ctx = {}, targets = null, prepare = n
     }
   }
 
-  for (const id of targets ?? circuit.nodes.map((node) => node.id)) {
-    const node = byId.get(id)
-    const part = node && partOf(node.type)
-    const keys = part?.outputs?.(node)
-    if (keys) for (const key of keys) run(id, key)
-    else run(id, null)
+  const result = { values, errors, ...(ids ? { ids } : {}) }
+  return {
+    ...result,
+    run(targets = null) {
+      for (const id of targets ?? circuit.nodes.map((node) => node.id)) {
+        const node = byId.get(id)
+        const part = node && partOf(node.type)
+        const keys = part?.outputs?.(node)
+        if (keys) for (const key of keys) run(id, key)
+        else run(id, null)
+      }
+      return result
+    },
   }
-  return { values, errors, ...(ids ? { ids } : {}) }
 }

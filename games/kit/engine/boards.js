@@ -2,7 +2,7 @@
 // sink is what the circuit gives under its name. The same circuit then serves as a level's board (bound to a test's
 // inputs) and as a packed part (a solved circuit used again as one part).
 import { paramsOf } from './forms.js'
-import { BROKEN, PartError, evaluate, portsOf, splitSource } from './circuit.js'
+import { BROKEN, PartError, evaluate, evaluation, portsOf, splitSource } from './circuit.js'
 
 export const nameOf = (node) => node.params?.name
 
@@ -76,6 +76,34 @@ function inputsReaching(circuit, inputs, ends, parts, ctx) {
  */
 export function packed({ circuit, inputs, outputs, parts, holds = false, inside: around = (ctx) => ctx, ...extra }) {
   const circuitOf = () => (typeof circuit === 'function' ? circuit() : circuit)
+  // The circuit inside is evaluated once for each evaluation outside (one ctx), whichever of the part's outputs are
+  // asked for and in whatever order: the cards two outputs share run once, and so do those of a part packed inside.
+  // An output asked for with an input bound otherwise (a part run again by hand) starts over.
+  const evaluations = new WeakMap()
+  // The circuit inside with a node's settings on it, kept while both stay the same.
+  const settled = new WeakMap()
+  const settledOf = (circuit, node, parts) => {
+    if (settled.get(node)?.circuit !== circuit) settled.set(node, { circuit, inner: withSettings(circuit, node.params, parts) })
+    return settled.get(node).inner
+  }
+  const inside = (ins, node, ctx) => {
+    if (!evaluations.has(ctx)) evaluations.set(ctx, new Map())
+    const circuit = circuitOf()
+    let own = evaluations.get(ctx).get(node)
+    if (!own || own.circuit !== circuit || Object.keys(ins).some((port) => port in own.bind && own.bind[port] !== ins[port])) {
+      const inner = settledOf(circuit, node, ctx.engine.parts)
+      const trace = ctx.trace && { push: (step) => ctx.trace.push({ ...step, path: [node.id, ...(step.path ?? [])] }) }
+      const engine = { parts: ctx.engine.parts, prepare: ctx.engine.prepare }
+      // On a run that trains, the inputs' numbers on the tape go in with them (tape.js).
+      const [bind, bindIds] = [{}, ctx.tape ? {} : undefined]
+      const { run } = evaluation(inner, { ...engine, ctx: { ...around(ctx), graph: inner, trace, scope: `${ctx.scope ?? ''}${node.id}/`, bindIds, bind, engine } })
+      own = { circuit, inner, bind, bindIds, run }
+      evaluations.get(ctx).set(node, own)
+    }
+    Object.assign(own.bind, ins)
+    if (own.bindIds) Object.assign(own.bindIds, ctx.tape.ins)
+    return own
+  }
   const dependencyKey = {}
   const keys = [...(outputs.length === 1 ? [null] : outputs), ...(holds ? [STATE] : [])]
   const many = keys.length > 1
@@ -102,12 +130,8 @@ export function packed({ circuit, inputs, outputs, parts, holds = false, inside:
     } : {}),
     eval: (ins, node, ctx, key) => {
       const partOf = partFn(ctx.engine.parts)
-      const inner = withSettings(circuitOf(), node.params, ctx.engine.parts)
-      const trace = ctx.trace && { push: (step) => ctx.trace.push({ ...step, path: [node.id, ...(step.path ?? [])] }) }
+      const { inner, run } = inside(ins, node, ctx)
       const scope = `${ctx.scope ?? ''}${node.id}/`
-      // On a run that trains, the inputs' numbers on the tape go in with them (tape.js).
-      const bindIds = ctx.tape ? { ...ctx.tape.ins } : undefined
-      const run = (targets) => runBoard(inner, { parts: ctx.engine.parts, prepare: ctx.engine.prepare, ctx: { ...around(ctx), graph: inner, trace, scope, bindIds }, bind: ins, targets })
       if (key === STATE) {
         const { values } = run(keepers(inner, partOf))
         for (const n of inner.nodes) if (partOf(n.type)?.store && values.has(n.id)) ctx.stores?.set(`${scope}${n.params.reg}`, values.get(n.id))

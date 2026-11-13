@@ -7,7 +7,8 @@
 //
 // runTest(task, circuit, test, parts) → { ticks: [{ tick, line, values, errors, outputs, trace, failed? }], want,
 //   error?, fail? }: a tick's `failed` is why its outputs are wrong, its `trace` what every card computed (inside
-//   packed parts too); `error` a board that says what it hears in the same tick
+//   packed parts too); `error` a board that says what it hears in the same tick. Untraced ({ traced: false }, a check
+//   that only wants the verdict), the run ends at its first wrong tick
 // entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): the bus and the
 //   inputs, each output against what is wanted, tick by tick
 import { boardNode, reacting, runTicks } from '../../engine/ticks.js'
@@ -72,16 +73,23 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   }
   const rivals = (test.contenders ?? []).map((frame, k) => contender(`rival${k}`, frame, frame.at ?? 0))
   const nodes = [sayer('world', test.bus.bits), boardNode({ id: 'you', circuit, parts, bind, traced }), ...rivals, ...(queue ? [queue.node] : []), ...(ecu ? [ecu.node] : []), ...(transport ? [transport.node] : []), ...(bridge ? [bridge.node] : []), ...(fleet ? [fleet.node] : []), ...(broadcast ? [broadcast.node] : [])]
-  const run = runTicks({ nodes, ticks: test.bus.bits.length, line: (said, tick) => {
-    const line = wiredAnd(said)
-    return test.flipTicks?.includes(tick) ? 1 - line : line
-  } })
   const want = task.want(test)
   const checked = [...(task.drives ? [{ name: 'send' }] : []), ...task.outputs]
-  const judged = judgeTicks(run.steps.map((step) => ({ tick: step.tick, line: step.line, sent: step.said.you, said: step.said, bind: bindings[step.tick], ...step.heard.you })), {
+  const tickOf = (step) => ({ tick: step.tick, line: step.line, sent: step.said.you, said: step.said, bind: bindings[step.tick], ...step.heard.you })
+  const judging = {
     checked, want: (name) => want[name], got: (tick, name) => name === 'send' && task.drives ? tick.sent ?? null : tick.outputs[name] ?? null,
     same: (a, b) => Array.isArray(a) && Array.isArray(b) ? a.length === b.length && a.every((value, index) => value === b[index]) : a === b,
+  }
+  const run = runTicks({
+    nodes, ticks: test.bus.bits.length,
+    line: (said, tick) => {
+      const line = wiredAnd(said)
+      return test.flipTicks?.includes(tick) ? 1 - line : line
+    },
+    // A run nobody replays ends at its first wrong tick: the verdict is the same, and a wrong board is told sooner.
+    ...(traced ? {} : { stop: (steps) => Boolean(judgeTicks([tickOf(steps.at(-1))], judging).fail) }),
   })
+  const judged = judgeTicks(run.steps.map(tickOf), judging)
   let emissions
   if (task.emits && test.emissions) {
     try {

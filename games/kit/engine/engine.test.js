@@ -89,6 +89,30 @@ test('a packed part traces each card inside with its path', () => {
   assert.ok(trace.some((s) => s.id === 'd' && !s.path && s.value === 4))
 })
 
+test('the outputs of a packed part share the cards they have in common, through a part packed inside too', () => {
+  let ran = 0
+  const counted = { ...PARTS, add: { inputs: ['a', 'b'], eval: ({ a, b }) => { ran++; return a + b } } }
+  const two = (nodes, wires) => ({ nodes: [{ id: 'in', type: 'input', params: { name: 'in' } }, { id: 'x', type: 'output', params: { name: 'x' } }, { id: 'y', type: 'output', params: { name: 'y' } }, ...nodes], wires })
+  const pair = packed({ circuit: two([{ id: 'a', type: 'add' }, { id: 'n', type: 'neg' }], w('in>a.a in>a.b a>x a>n n>y')), inputs: ['in'], outputs: ['x', 'y'] })
+  const outer = packed({ circuit: two([{ id: 'p', type: 'pair' }], w('in>p p#x>x p#y>y')), inputs: ['in'], outputs: ['x', 'y'] })
+  const parts = { ...counted, pair, outer }
+  const c = two([{ id: 'o', type: 'outer' }], w('in>o o#x>x o#y>y'))
+  assert.deepEqual(runBoard(c, { parts, bind: { in: 3 } }).outputs, { x: 6, y: -6 })
+  assert.equal(ran, 1)
+  // Each evaluation is its own: another input gives other values.
+  assert.deepEqual(runBoard(c, { parts, bind: { in: 4 } }).outputs, { x: 8, y: -8 })
+  assert.equal(ran, 2)
+})
+
+test('a circuit given other wires is read again', () => {
+  const c = io([{ id: 'n', type: 'neg' }], w('in>n n>out'))
+  assert.equal(runBoard(c, { parts: PARTS, bind: { in: 3 } }).outputs.out, -3)
+  c.wires = w('in>out')
+  assert.equal(runBoard(c, { parts: PARTS, bind: { in: 3 } }).outputs.out, 3)
+  c.wires.pop()
+  assert.equal(runBoard(c, { parts: PARTS, bind: { in: 3 } }).outputs.out, undefined)
+})
+
 test('the board inside a packed part shows its latest run up to a step, and the card that step is in', () => {
   const inner = io([{ id: 'a', type: 'add' }, { id: 'n', type: 'neg' }], w('in>a.a in>a.b a>n n>out'))
   const parts = { ...PARTS, dbl: packed({ circuit: inner, inputs: ['in'], outputs: ['out'] }) }
