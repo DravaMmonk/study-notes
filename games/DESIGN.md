@@ -828,10 +828,10 @@ Finish implementation and necessary review before submitting one release. Add la
 correctness or the requested behaviour. Report the selected checks and any unverified boundary accurately.
 
 Local verification and deployment are separate scopes. `deploy-games.yml` only builds and publishes the complete
-site; `test-kit.yml` runs the kit's unit tests when kit code changes, then the compatibility corpus
-(`npm run check` over every game, `games/DIRECTION.md` decision 17) as a report that never fails the run: it shows a
-kit change that broke a game's reference solutions. Content changes are still gated only by the studio and the
-operation set.
+site; `test-kit.yml` runs the kit's unit tests when kit code changes. Neither replays a game. Content changes are
+gated only by the studio and the operation set, and the compatibility corpus (`npm run check` over every game,
+`games/DIRECTION.md` decision 17), which shows a kit change that broke a game's reference solutions, is run on the
+platform by whoever develops a game or the kit (`npm run check`, the MCP `audit`), never by a GitHub workflow.
 A documentation-only local change does not require a deployment.
 
 ### 7.1 内容只经操作修改
