@@ -10,8 +10,9 @@
 - A.1 已完成。六种纯判定在 `engine/judge.js`，运行报告由 `engine/test-run.js` 汇总，电路经 `engine/circuit-run.js` 接回放和结果区。12 款游戏的检查输出逐字节一致。
 - A.2 已完成。《证明完毕》的定义和声明由领域组合共享判定，作者检查和一次判定组件共用它。12 款游戏的检查输出逐字节一致。
 - A.3 已完成。一次判定、结论行和电路结果区读取统一失败。定义关的值算错时显示应得和实得，超出步数的提示照旧。写检验玩法用共享判定检查每样作品。12 款游戏的检查输出逐字节一致。
-- `engine/circuit-domain.js` 仍承载作者侧检查（`checkCircuitTasks`）、schema（`levelSchema`）和课程读取（`circuitCourse`）。
-- 还在领域里的机制：`logic` 的作者检查（`validate.js`）、三个模板（`logic/templates/*.jsx`）、词序条上的树编辑器（`logic/ui/SentenceEditor.jsx`）、七张「造出的东西往后传」的表、八种玩法的屏。
+- B.1 已完成。电路和《证明完毕》共用 `engine/authoring.js` 检查参考解、错解、开局作品和搭出的件，变异评分仍按需执行。
+- `engine/circuit-domain.js` 仍负责电路的作者检查接线、schema（`levelSchema`）和课程读取（`circuitCourse`）。
+- 还在领域里的机制：三个模板（`logic/templates/*.jsx`）、词序条上的树编辑器（`logic/ui/SentenceEditor.jsx`）、七张「造出的东西往后传」的表、八种玩法的屏。
 - 量：`logic` 自写组件 2039 行（`engine/components.test.js`），只许降。
 
 ## 约定
@@ -33,12 +34,6 @@
 ---
 
 ## 阶段 B　作者侧的检查
-
-### B.1 建在判定上
-
-- 新文件 `engine/authoring.js`：给它一个判定和几样作品，查参考解过、naive 解不过、空作品不过、开局摆着的作品不过、搭出的件单独放上去能过；变异得分照旧按需。
-- `checkCircuitTasks` 只剩电路特有的两条（直通不过、用了手头没有的件）；`logic/validate.js` 里每种玩法各写一遍的那几条删掉。
-- 验收：全部游戏的检查输出不变；`logic/validate.js` 行数下降（现在 275 行）。
 
 ### B.2 只查改到的任务
 

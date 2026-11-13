@@ -56,6 +56,8 @@ import { S } from './schema.js'
 import { GAME_VIEWS, RESULTS, SHOW, START_VIEW, TASK_VIEWS, rowProblems, showProblems, viewsProblems } from './views.js'
 import { T as t, keyOf } from '../shell/i18n.js'
 import { mutationScore } from './mutate.js'
+import { checkWorks, scoreWorks } from './authoring.js'
+import { cases } from './judge.js'
 
 /* ---------- the board ---------- */
 
@@ -611,50 +613,55 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
           if (value !== undefined && !has(n.type, key, String(value))) problems.push(`${what} sets ${n.type}’s ${key} to ${value}, which the level does not hold`)
         }
       })
-      const passes = (b) => run(all, b, partOf).pass
+      const inspect = (work) => run(all, work, partOf)
+      const opening = board.startBoard(task)
+      const builds = level.builds && (level.builds.task ? task.taskId === level.builds.task : k === tasks.length - 1)
+      const outs = board.portsOut(task).map((o) => o.name)
+      const box = builds ? board.fromText([`p = ${level.builds.type}${level.builds.form ? `[form=${level.builds.form}]` : ''}(${board.portsIn(task).map((i) => board.sourceOf(task, i.name).replace('#', '.')).join(', ')})`, ...outs.map((o) => `${o} <- ${outs.length > 1 ? `p.${o}` : 'p'}`)], task, here) : null
+      const checked = checkWorks(inspect, {
+        reference: task.solution, naive: task.naive, built: box,
+        ...(task.starter ? { starter: opening } : { empty: opening }),
+      })
+      const ref = checked.reference
       strays(task.solution, 'the answer')
       if (task.starter) strays(task.starter, 'the starter')
-      const ref = run(all, task.solution, partOf)
       ref.runs.forEach((r, j) => {
         if (r.error || r.fail) problems.push(`the answer fails ${where(j)}${failure(r) ? ` ${failure(r)}` : ''}`)
       })
       const views = { ...circuit.views, ...task.views }
       problems.push(...viewsProblems(task.views), ...rowProblems(task.results, entries({ task, test: all.tests[0], run: ref.runs[0], sample: null }), views))
-      if (passes(board.startBoard(task))) problems.push(task.starter ? 'the board it opens on passes' : 'the empty board passes')
-      if (task.carry && passes(circuit.opening(task))) problems.push(`the board it carries on from (${task.carry}) passes as it is`)
-      if (task.carries && tasks[k - 1]?.solution && passes(board.carriedOnto(task, tasks[k - 1].solution))) problems.push('the task before’s board passes as it is')
+      if (checked.starter?.ok === false) problems.push('the board it opens on passes')
+      if (checked.empty?.ok === false) problems.push('the empty board passes')
+      if (task.carry && !checkWorks(inspect, { starter: circuit.opening(task) }).starter.ok) problems.push(`the board it carries on from (${task.carry}) passes as it is`)
+      if (task.carries && tasks[k - 1]?.solution && !checkWorks(inspect, { starter: board.carriedOnto(task, tasks[k - 1].solution) }).starter.ok) problems.push('the task before’s board passes as it is')
       if (task.solution.nodes.some((n) => !board.isFixed(n.type))) {
-        const outs = board.portsOut(task).map((o) => o.name)
         for (const name of board.portsIn(task).map((i) => i.name)) {
           const from = board.sourceOf(task, name)
-          if (passes({ nodes: board.fixedOf(task), wires: outs.map((to) => ({ from, to, port: 'in' })) })) problems.push(`the board that only wires ${name} straight through passes`)
+          if (inspect({ nodes: board.fixedOf(task), wires: outs.map((to) => ({ from, to, port: 'in' })) }).pass) problems.push(`the board that only wires ${name} straight through passes`)
         }
       }
       problems.push(...more(task, k, tasks, held))
-      for (const [k, work] of (task.works ?? []).entries()) if (!run({ ...task, tests: task.tests }, work.board, partOf).runs.some((r) => r.fail || r.error)) problems.push(`work ${k + 1} passes every check the task holds`)
+      const visible = (work) => run(task, work, partOf)
+      for (const [k, work] of (task.works ?? []).entries()) {
+        if (!checkWorks(visible, { naive: work.board }).naive.ok) problems.push(`work ${k + 1} passes every check the task holds`)
+      }
       let naive = ''
-      if (task.naive) {
+      if (checked.naive) {
         strays(task.naive, 'the naive answer')
-        const first = run(all, task.naive, partOf).runs.findIndex((r) => r.fail || r.error)
-        if (first < 0) problems.push('the naive answer passes')
-        else naive = `, naive fails ${where(first)}`
+        if (!checked.naive.ok) problems.push('the naive answer passes')
+        else naive = `, naive fails ${where(checked.naive.fail.check)}`
       }
-      const builds = level.builds && (level.builds.task ? task.taskId === level.builds.task : k === tasks.length - 1)
-      if (builds) {
-        const outs = board.portsOut(task).map((o) => o.name)
-        const box = board.fromText([`p = ${level.builds.type}${level.builds.form ? `[form=${level.builds.form}]` : ''}(${board.portsIn(task).map((i) => board.sourceOf(task, i.name).replace('#', '.')).join(', ')})`, ...outs.map((o) => `${o} <- ${outs.length > 1 ? `p.${o}` : 'p'}`)], task, here)
-        run(all, box, partOf).runs.forEach((r, j) => {
-          if (r.fail || r.error) problems.push(`its part ${level.builds.type} alone fails ${where(j)}`)
-        })
-      }
+      checked.built?.runs.forEach((r, j) => {
+        if (r.fail || r.error) problems.push(`its part ${level.builds.type} alone fails ${where(j)}`)
+      })
       // Asked for (`circuit.mutants`, npm run check -- --mutants): what the tests make of the answer's mutants
       // (./mutate.js), a report and never a failure. A mutant that lives is a
       // board the tests do not rule out, or another right answer.
       let mutated = ''
       if (circuit.mutants && !problems.length) {
         // One test at a time, stopping at the first a mutant fails: most die on the first.
-        const lives = (b) => all.tests.every((t) => run({ ...all, tests: [t] }, b, partOf).pass)
-        const score = mutationScore(task.solution, lives, { partOf, isFixed: board.isFixed, held: [...held] })
+        const judge = cases(all.tests, (work, test) => run({ ...all, tests: [test] }, work, partOf).fail)
+        const score = scoreWorks(judge, task.solution, (reference, passes) => mutationScore(reference, passes, { partOf, isFixed: board.isFixed, held: [...held] }))
         if (score.undeclared.length) problems.push(`inputs declared symmetric are not (${score.undeclared.join('; ')})`)
         if (score.made) mutated = `, mutants ${score.killed}/${score.made}${score.survivors.length ? ` (alive: ${score.survivors.join('; ')})` : ''}`
       }
