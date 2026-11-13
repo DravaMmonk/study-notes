@@ -100,8 +100,9 @@ function BoardScreen({ board, screen }) {
   // A part's description as it reads in this level (the game's revisions along the course: defineGame textAt), on the
   // board it sits on (the level's, or the one a built part runs).
   const descOf = (type, lvl = level) => game.textAt(board.textOf(lvl, type, lvl.revisions), entry.id)?.desc
-  // The shapes a card of a part with forms offers here: its first, and every one an upgrade passed before brings.
-  const formsOf = (type) => game.textAt(board.textOf(level, type, level.revisions), entry.id)?.forms ?? []
+  // The shapes a card of a part with forms offers here: those the task holds (../../../course.js holds).
+  const has = useMemo(() => game.logic.holdsIn(level, flags), [game, level, flags])
+  const formsOf = (type) => parts.rules[type].forms.filter((shape) => has(type, 'form', shape))
   const itemOf = (type) => ({ type, label: board.nameOf(level, type), desc: descOf(type), icon: board.iconOf(level, type), family: board.familyOf(level, type), packed: parts.packed?.({ type }), fresh: entry.fresh?.includes(type) })
 
   // What a card is drawn with: on the level's board, its own; inside a built part, that part's board, read only.
@@ -219,9 +220,8 @@ function BoardScreen({ board, screen }) {
   )
 }
 
-// The shapes a part with forms offers on its card here: its first, and those `more` brings, each with its label (its
-// text's `forms`, [{ key, label }]).
-const shapesOf = (part, text, more) => part.forms.filter((k, i) => i === 0 || more.includes(k)).map((k) => ({ key: k, label: text?.forms?.find((f) => f.key === k)?.label ?? k }))
+// The shapes a part with forms offers on its card here (`more`), each with its label (its text's `forms`, [{ key, label }]).
+const shapesOf = (part, text, more) => part.forms.filter((k) => more.includes(k)).map((k) => ({ key: k, label: text?.forms?.find((f) => f.key === k)?.label ?? k }))
 const DEPTHS = [2, 3, 4, 5, 6, 8, 10, 12]
 const WAYS = [2, 3, 4, 5, 6]
 

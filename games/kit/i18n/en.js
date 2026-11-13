@@ -1764,4 +1764,7 @@ export default {
   "都挡住了": "All caught",
   "这一样给出": "This one gives",
   "挡住了。": "Caught.",
+  "只在这个任务里多给的：一个元件，元件的一项设置（shift.border），或设置的一个取值（shift.border=wrap）；别的任务不因此得到它。withhold 也可以按同样的写法收起一项设置或一个取值": "what this task alone holds besides: a part, one of a part’s settings (shift.border) or one value of a setting (shift.border=wrap); no other task gets it by this. withhold may name a setting or a value the same way",
+  "这个任务带来的设置或取值（shift.border、shift.border=wrap）：从这里起一直可用。没有哪一关带来的设置和取值，从一开始就可用": "the settings and values this task brings in (shift.border, shift.border=wrap), held from here on. A setting or a value no level brings in is held from the start",
+  "成为元件的是哪个任务的板（不写是最后一个）：它后面的任务只是用这个元件": "the task whose board becomes the part (the last, when not said): the tasks after it only use the part",
 }

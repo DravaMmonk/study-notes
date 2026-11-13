@@ -171,13 +171,11 @@ export function passed(game, p, level, taskAt, score = null) {
 }
 
 /**
- * The flags a level is played with at task `taskAt`: what progress has unlocked, what the level grants, what the tasks
- * before it opened (with every level open, everything before it too), less what the level or the task withholds.
+ * The flags a level is played with at task `taskAt`: what progress has unlocked and what the tasks before it opened
+ * (with every level open, everything before it too). What a task holds by them, and what it gives or withholds for
+ * itself, is the course's to say (../course.js holds).
  */
 export function flagsIn(game, p, level, taskAt) {
-  const { tasks } = level
-  const opened = tasks.slice(0, taskAt).flatMap((t, k) => p.all || taskPassed(game, p, level.id, k) ? t.opens ?? [] : [])
-  const set = new Set([...game.flagsOf(p), ...(level.grants ?? []), ...opened, ...(p.all ? game.unlocksBefore(level) : [])])
-  for (const flag of tasks[taskAt].withhold ?? []) set.delete(flag)
-  return set
+  const opened = level.tasks.slice(0, taskAt).flatMap((t, k) => p.all || taskPassed(game, p, level.id, k) ? t.opens ?? [] : [])
+  return new Set([...game.flagsOf(p), ...opened, ...(p.all ? game.unlocksBefore(level) : [])])
 }

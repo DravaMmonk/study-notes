@@ -33,7 +33,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: '__name__',
-  version: 10,
+  version: 11,
   kinds: { op: OP_ITEMS, family: FAMILIES },
   game: GAME,
   level: LEVEL,

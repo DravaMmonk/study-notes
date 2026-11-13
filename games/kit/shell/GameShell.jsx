@@ -190,8 +190,7 @@ export default function GameShell({ game, store, author = null }) {
     setFails(count)
     setFailure({ info, fails: count })
   }
-  // A level (or the task played) may withhold a flag the player already has, when its puzzle is to build that very
-  // thing by hand. A task holds what the tasks before it in the level opened (`opens`).
+  // A task has the flags of what the tasks before it in the level opened (`opens`).
   const flags = useMemo(() => (level ? flagsIn(game, progress, level, taskAt) : new Set()), [game, progress, level, taskAt])
   // A reference in any text (refs.js): a level shows its number and title and asks before going there; a part or an
   // encyclopedia entry opens the box or the encyclopedia at it, or says where it opens while it is still locked.

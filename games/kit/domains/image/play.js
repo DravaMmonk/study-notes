@@ -58,7 +58,7 @@ const circuit = circuitPlay({
     const desc = descriptionOf(types, type) ?? ''
     return { name: types[type].label, desc: typeof cost === 'number' ? T(`${pick(desc, 'zh')}（计算量 ${cost}）`, `${pick(desc, 'en')} (cost ${cost})`) : desc }
   },
-  settings: ({ game, flags }, type) => game.image.kit.settingsOf(type, flags).filter((p) => !p.hidden).map((p) => ({
+  settings: ({ game, level, flags }, type) => game.image.kit.settingsOf(type, game.image.holdsIn(level, flags)).filter((p) => !p.hidden).map((p) => ({
     key: p.key,
     values: p.options ? p.options.map((o) => String(o[0])) : p.kind === 'number' ? [`${p.min}…${p.max}${p.step ? ` (${p.step})` : ''}`] : p.kind === 'kernel' ? ['[9 numbers]'] : null,
     about: p.label,

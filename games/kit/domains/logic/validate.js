@@ -8,7 +8,7 @@
 // gives that sentence on every row; so does a lemma, alone, give its statement on the task that proves each of its
 // shapes. A proof that holds parts back (`without`) does not use them, and no reference answer uses a part its level
 // cannot have (but for what its board starts with: a preset names cards of the answer).
-import { formsAt, reach } from '../../course.js'
+import { holds, reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
 import { runLevel } from '../../engine/tests.js'
 import { freeVars, parse, same, show } from './formula.js'
@@ -228,11 +228,13 @@ export function validate({ levels: given, course, logic }) {
       const m = countermodel(premises, parse(test.goal, { consts }))
       if (m) out.push({ level: level.id, fail: true, text: `${level.id}: ${test.goal} has a countermodel, so no proof can exist` })
     }
+    // What the task holds of each lemma's shapes (../../course.js holds).
+    const has = course ? holds(course, { id: level.id, task: level.task }, new Set()) : () => true
     const carried = level.lemmas ? reach(course, { id: level.id, task: level.task }).filter((p) => level.lemmas[p] && course.builder(p) !== level.id && !level.without?.includes(p)) : []
     for (const p of carried) {
       // A test that asks for a term asks for one proof in particular, not just any.
       const l = level.lemmas[p]
-      const forms = l.forms ? formsAt(course, l.forms[0].key, level.revisions?.[p], level.id) : null
+      const forms = l.forms ? l.forms.map((f) => f.key).filter((key) => has(p, 'form', key)) : null
       const gives = (t) => !t.term && lemmaGives(l, Object.values(t.premises ?? {}).map((x) => parse(x, { consts })), parse(t.goal, { consts }), forms)
       if (level.tests.every(gives)) out.push({ level: level.id, fail: true, text: `${level.id}: the lemma ${p} it carries proves it in one step` })
     }
@@ -255,10 +257,9 @@ export function validate({ levels: given, course, logic }) {
         } else if (!offered[kind].has(choiceKey(kind, value, level))) out.push({ level: level.id, fail: true, text: `${level.id}: the solution picks ${value} on ${n.type}, which its card does not offer (add it to the level's sentences)` })
       }
     }
-    // A card of a part with forms is in a shape the level offers: its first, or one an upgrade passed before brings.
+    // A card of a part with forms is in a shape the task holds.
     for (const n of level.solution.nodes.filter((m) => level.lemmas?.[m.type]?.forms && m.params?.form)) {
-      const l = level.lemmas[n.type]
-      if (!formsAt(course, l.forms[0].key, level.revisions?.[n.type], level.id).includes(n.params.form)) out.push({ level: level.id, fail: true, text: `${level.id}: the solution puts ${n.type} in the shape ${n.params.form}, which the level does not offer yet` })
+      if (!has(n.type, 'form', n.params.form)) out.push({ level: level.id, fail: true, text: `${level.id}: the solution puts ${n.type} in the shape ${n.params.form}, which the level does not offer yet` })
     }
     const banned = level.solution.nodes.filter((n) => level.without?.includes(n.type)).map((n) => n.type)
     if (banned.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${banned.join(', ')}, which the level holds back` })

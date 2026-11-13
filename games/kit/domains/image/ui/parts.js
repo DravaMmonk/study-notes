@@ -25,5 +25,8 @@ export function partsFor(kit, { sensors, outputLabels, colourOutputs = [] } = {}
   }
 }
 
+/** The parts box holds every setting of a part on its bench, whatever the player holds so far. */
+export const EVERY = () => true
+
 /** Hide the constant value until a side has been selected. */
-export const visibleSettings = (kit, node, flags) => kit.settingsOf(node.type, flags).filter((p) => !(node.type === 'arith' && p.key === 'constant' && (node.params.constantSide ?? 'none') === 'none'))
+export const visibleSettings = (kit, node, has) => kit.settingsOf(node.type, has).filter((p) => !(node.type === 'arith' && p.key === 'constant' && (node.params.constantSide ?? 'none') === 'none'))

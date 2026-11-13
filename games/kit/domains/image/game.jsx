@@ -52,8 +52,6 @@ export default function imageGame(content) {
   const allFlags = [...new Set(LEVELS.flatMap(shownUnlocks))]
   // The primitives, each from the levels that bring it in.
   const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type), icon: iconOf(type), at }))
-  // A part on a bench in the parts box shows every setting, whatever the player has unlocked so far.
-  const allFlagSet = new Set(allFlags)
   // The boards the parts box tries a part on, where a level's own reference (its last task's) spells it out in smaller
   // parts.
   const box = {
@@ -83,7 +81,7 @@ export default function imageGame(content) {
     unlocked: (level) => shownUnlocks(level).map(unlockOf),
     core: (level) => isCore(course, level),
     levelLabel: (level) => labels.get(level.id) ?? level.id,
-    parts: { all: [...primitives, ...allFlags.map(unlockOf)], demo: (part, { phone }) => createElement(PartDemo, { key: part.key, kit, flag: part.key, type: part.type ?? PART_OF_FLAG[part.key], home: part.at?.[0], flags: allFlagSet, phone, levels: LEVELS, box }) },
+    parts: { all: [...primitives, ...allFlags.map(unlockOf)], demo: (part, { phone }) => createElement(PartDemo, { key: part.key, kit, flag: part.key, type: part.type ?? PART_OF_FLAG[part.key], home: part.at?.[0], phone, levels: LEVELS, box }) },
     // A better circuit costs less, or as much with fewer parts.
     better: (score, best) => !best || score.cost < best.cost || (score.cost === best.cost && score.nodes < best.nodes),
     bestLabel: (best) => `${best.nodes} · ${best.cost}`,

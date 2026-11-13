@@ -3,7 +3,7 @@ import { Choice, DemoBench, SlotBoard } from '../../../circuit/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import Editor from './Editor.jsx'
 import { describe } from '../words.js'
-import { partsFor } from './parts.js'
+import { EVERY, partsFor } from './parts.js'
 import { levelSensors } from './sensors.js'
 import { KernelEditor, NumberEditor } from './phone/Editors.jsx'
 import { setParam } from './parameters.js'
@@ -66,7 +66,7 @@ function benchFor(kit, levels, box, flag, type, home, sample = false) {
   return { bench, graph, nodeType, ioKinds, colourOutputs, sensors: levelSensors(bench), views: { in: viewFor(source, 'in'), out: viewFor(source, 'out'), mid: viewFor(source, 'mid') } }
 }
 
-export default function PartDemo({ kit, flag, type, home, flags, phone, levels, box }) {
+export default function PartDemo({ kit, flag, type, home, phone, levels, box }) {
   const made = useMemo(() => benchFor(kit, levels, box, flag, type, home), [kit, levels, box, flag, type, home])
   const [graph, setGraph] = useState(() => made?.graph)
   const [test, setTest] = useState(0)
@@ -111,7 +111,7 @@ export default function PartDemo({ kit, flag, type, home, flags, phone, levels, 
   if (!phone) {
     return (
       <DemoBench {...common} note={{ zh: '更换测试图或修改元件设置，然后点击运行，查看每个元件的输出。', en: "Pick another test picture or change a part's settings, then run to see what each part outputs." }}>
-        <Editor kit={kit} graph={graph} onChange={onChange} run={run} testIndex={test} flags={flags} sensors={made.sensors} outputLabels={made.bench.outputLabels} colourOutputs={made.colourOutputs} views={made.views} ioKinds={made.ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={false} focus={made.nodeType} refit />
+        <Editor kit={kit} graph={graph} onChange={onChange} run={run} testIndex={test} has={EVERY} sensors={made.sensors} outputLabels={made.bench.outputLabels} colourOutputs={made.colourOutputs} views={made.views} ioKinds={made.ioKinds} scan={scan} onScan={setScan} theme={theme} hasPalette={false} focus={made.nodeType} refit />
       </DemoBench>
     )
   }
@@ -135,7 +135,7 @@ export default function PartDemo({ kit, flag, type, home, flags, phone, levels, 
     return param ? <ParamChip param={param} value={node.params?.[param.key]} /> : null
   }
   const node = graph.nodes.find((n) => n.id === sel)
-  const params = node ? settingsOf(node.type, flags) : []
+  const params = node ? settingsOf(node.type, EVERY) : []
   const change = (key, v) => onChange(setParam(kit, graph, node.id, key, v))
   const panel = !node ? (
     <p className="panel-note">{tr('点击一个元件，在此修改它的设置；然后运行，查看每个元件的输出。')}</p>

@@ -90,7 +90,7 @@ function ImageCircuit({ screen }) {
   const outputLabels = level.outputLabels ?? {}
   const colourOutputs = useMemo(() => Object.entries(level.tests[0].expected).filter(([, value]) => value?.c === 3).map(([name]) => name), [level])
   const views = { in: viewFor(level, 'in'), out: viewFor(level, 'out'), mid: viewFor(level, 'mid'), shows: level.shows, fresh: level.freshViews }
-  const { parts, card, corner, sheet } = useImageCards({ kit, graph: circuit, onChange: change, run: shown, testIndex: run.at, flags, sensors, outputLabels, colourOutputs, views, ioKinds, scan, onScan: setScan, theme, phone, test: playLevel.tests[run.at] })
+  const { parts, card, corner, sheet } = useImageCards({ kit, graph: circuit, onChange: change, run: shown, testIndex: run.at, has: useMemo(() => game.image.holdsIn(level, flags), [game, level, flags]), sensors, outputLabels, colourOutputs, views, ioKinds, scan, onScan: setScan, theme, phone, test: playLevel.tests[run.at] })
   const { shown: offered, folded } = game.image.offerIn(level, flags)
   const itemOf = (type) => ({ type, label: types[type].label, desc: describe(types, type), icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) })
 

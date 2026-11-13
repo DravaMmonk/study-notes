@@ -24,7 +24,8 @@ export const DEFAULT_VIEWS = {
 /** A face's blocks: parts.json's, or the default; the path each has in parts.json (null for a default one). */
 export const blocksOf = (def, face) => (def.views?.[face] ? def.views[face].map((b, k) => [b, ['views', face, k]]) : DEFAULT_VIEWS[face].map((b) => [b, null]))
 
-const optionCount = (s, allowed) => (s.options ? s.options.filter((o) => !allowed || allowed.includes(o.value)).length : Infinity)
+// How many values of a setting the course offers here: none of a setting it does not hold, whatever its control.
+const optionCount = (s, allowed) => (allowed && !allowed.length ? 0 : s.options ? s.options.filter((o) => !allowed || allowed.includes(o.value)).length : Infinity)
 
 /** The settings a node shows: their `when` holds, and the course offers more than one value of an option setting. */
 export function visibleSettings(def, params, defined) {

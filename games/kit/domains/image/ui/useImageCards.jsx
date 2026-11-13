@@ -22,7 +22,7 @@ import { IMAGE_VIEWS, KIND_NAMES, formatNumber, kindOf, nodeView, viewsIn } from
 export const NODE_W = 140
 const PORT_ROW = 20 // the height of a port's row on a card (games/kit/circuit CanvasEditor.jsx)
 
-export function useImageCards({ kit, graph, onChange, run, testIndex, flags, sensors, outputLabels, colourOutputs, views, ioKinds, scan, onScan, theme, focus, test, phone }) {
+export function useImageCards({ kit, graph, onChange, run, testIndex, has, sensors, outputLabels, colourOutputs, views, ioKinds, scan, onScan, theme, focus, test, phone }) {
   const [peek, setPeek] = useState(null)
   const [menu, setMenu] = useState(null) // id of the card whose view menu is open
   const values = run?.results[testIndex]?.values
@@ -71,7 +71,7 @@ export function useImageCards({ kit, graph, onChange, run, testIndex, flags, sen
     const outputs = node.type !== 'input' ? parts.outputs(node) : null
     return (
       <>
-        {settings && !ctx?.readOnly && visibleSettings(kit, node, flags).map((param, index) => (
+        {settings && !ctx?.readOnly && visibleSettings(kit, node, has).map((param, index) => (
           <ParamControl key={param.key} param={param} value={node.params[param.key]} onChange={(v) => onChange(setParam(kit, graph, node.id, param.key, v))} roomy={roomy} style={!roomy && node.type !== 'arith' && index === 0 && param.buttons ? { marginTop: -PORT_ROW * Math.max(1, parts.inputs(node).length) } : undefined} />
         ))}
         {node.type === 'input' && sensors?.[node.params.name]?.description && <details className="node-description" onPointerDown={(event) => event.stopPropagation()}><summary>{tr('说明')}</summary><p>{L(sensors[node.params.name].description)}</p></details>}
@@ -162,7 +162,7 @@ export function useImageCards({ kit, graph, onChange, run, testIndex, flags, sen
       const value = formatNumber(node.params.constant ?? 1)
       return node.params.constantSide === 'a' ? `${value} ${op} b` : `a ${op} ${value}`
     }
-    const param = visibleSettings(kit, node, flags)[0]
+    const param = visibleSettings(kit, node, has)[0]
     return param ? <ParamChip param={param} value={node.params?.[param.key] ?? param.default} /> : null
   }
   const sinkClass = (node, ctx) => {
@@ -173,7 +173,7 @@ export function useImageCards({ kit, graph, onChange, run, testIndex, flags, sen
     parts, corner,
     card: { body, head, caption, cardClass, thumb, sinkBody, sinkClass, tileExtra, nodeClass: (node) => node.type === 'input' && sensors?.[node.params.name]?.colour ? 'is-rgb-source' : '', wireState: (wire, ctx) => ((ctx ? ctx.view?.values : values)?.has(wire.from) ? 'live' : 'dead') },
     sheet: (node, ctx) => phone && !ctx.readOnly
-      ? <PhoneSettings key={node.id} label={parts.label(node)} node={node} settings={visibleSettings(kit, node, flags)} set={(key, value) => onChange(setParam(kit, graph, node.id, key, value))}>
+      ? <PhoneSettings key={node.id} label={parts.label(node)} node={node} settings={visibleSettings(kit, node, has)} set={(key, value) => onChange(setParam(kit, graph, node.id, key, value))}>
           {node.type === 'output' ? sinkBody(node, ctx) : body(node, ctx, true, false)}
         </PhoneSettings>
       : body(node, ctx, true),

@@ -268,10 +268,21 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
     )
   }
   // A defined part shows each output's value; with several, none of its own (its detail, `inspect`'s).
+  // What the task holds of a defined part's setting (../course.js holds): null when every value, [] when not the
+  // setting itself, else the values it holds.
+  const has = useMemo(() => circuit.holdsIn(level, flags), [circuit, level, flags])
+  const allowed = useMemo(() => (type, key) => {
+    const setting = defined?.of(type)?.setting[key]
+    if (!setting) return null
+    if (!has(type, key)) return []
+    const open = setting.options?.map((o) => o.value).filter((v) => has(type, key, String(v)))
+    return !open || open.length === setting.options.length ? null : open
+  }, [defined, has])
   const definedFaces = useMemo(() => defined && {
     ...defined,
+    allowed,
     value: (node, ctx, output, face) => (face === 'detail' && inspect ? inspect(node, ctx) : output ? <Value value={valueOf(node, output, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} of={valueKey(ctx, `${node.id}#${output}`)} /> : ctx.board.parts.outputs(node) ? null : value(node, ctx)),
-  }, [defined, inspect])
+  }, [defined, inspect, allowed])
 
   const itemOf = (type) => {
     const fresh = entry.fresh?.includes(type)
@@ -279,7 +290,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
       const b = builtBy(type).builds
       return { type, label: b.name, desc: b.desc, icon: CircuitBoard, family: 'built', packed: true }
     }
-    if (defined?.of(type)) return definedItem(type, defined.of(type), { fresh }, defined.allowed)
+    if (defined?.of(type)) return definedItem(type, defined.of(type), { fresh }, allowed)
     return { type, label: cards[type].name, desc: cards[type].desc, icon: cards[type].icon, family: cards[type].family, fresh }
   }
 
