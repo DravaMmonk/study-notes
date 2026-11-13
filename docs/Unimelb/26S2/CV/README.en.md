@@ -3,6 +3,7 @@
 These notes are written for learners who are new to computer vision. Each lecture first states the problem it sets out to solve and then works through it topic by topic; figures come with a note on what to look at, and the lecturer's own words come with an explanation of what they mean. **Key point / Difficult / Common mistake** mark places that deserve extra attention while studying; they are not predictions of what the exam will cover. Supplementary material is listed briefly or folded away, and each note ends with self-test questions to check your understanding.
 
 The [revision checklist and English–Chinese glossary](REVISION-GLOSSARY.md) covers the 21 content lecture notes, with a one-sentence explanation in each language for every term and a separate section for workshop additions.
+The [Lecture 23 revision keywords](L23-REVISION-KEYWORDS.md) follow the revision slides page by page and give English terms with Chinese equivalents.
 The [calculation question type summary](EXAM-CALCULATION-TYPES.md) separates examples in the revision slides and historical practice exam from exercises inferred from the current notes (Chinese explanations).
 The [concept-answer revision guide](EXAM-CONCEPT-ANSWERS.md) collects common mistakes, difficult reasoning chains and concise English model responses (Chinese study cues).
 

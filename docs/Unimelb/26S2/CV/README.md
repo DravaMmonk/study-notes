@@ -3,6 +3,7 @@
 这套笔记面向刚入门计算机视觉的学习者。
 
 术语表涵盖 21 篇讲次笔记和 Workshop 补充，每条附中英各一句解释，可逐条勾选。[复习清单与中英术语表](REVISION-GLOSSARY.md)
+[L23 复习 PPT 关键词](L23-REVISION-KEYWORDS.md)按页列出专题、英文关键词和中文对照。
 [期末计算题型摘要](EXAM-CALCULATION-TYPES.md)区分复习讲义及旧练习卷的直接例题，与根据现行笔记公式推演的练习方向。
 [易错点、难点与概念题英文短答](EXAM-CONCEPT-ANSWERS.md)汇总跨讲辨析与英文参考答法，供限时短答练习。
 
