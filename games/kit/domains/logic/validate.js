@@ -19,7 +19,7 @@ import { MACHINE_PARTS, MACHINE_TESTS, inputsOfLevel, rulePartsOf } from './mach
 import { SETTING_KINDS, choiceKey, choicesOf } from './choices.js'
 import { chipsFrom, chipsOf, missingChips } from './formulaTree.js'
 import { freeIn, parseTerm } from './pterm.js'
-import { termTaskOf } from './termTask.js'
+import { termJudge } from './termTask.js'
 import { missingForms } from './termTree.js'
 import { checkGates, rowsFor, startGates } from './gates.js'
 import { checkIso, judgeCases, sentenceOf, waysIn } from './iso.js'
@@ -151,12 +151,9 @@ export function validate({ levels: given, course, logic }) {
   }
   for (const level of levels.filter((l) => l.kind === 'term')) {
     const consts = level.consts ?? []
-    const task = termTaskOf(level)
+    const check = judgeFor(playFor(plays, level), termJudge(level))
     const answer = parseTerm(level.answer)
-    const judge = (work) => {
-      const why = task.check(parseTerm(work))
-      return why ? { why } : null
-    }
+    const judge = (work) => check(parseTerm(work))
     const { reference, naive, starter } = judgeWorks(judge, { reference: level.answer, naive: level.naive, starter: level.given })
     const reason = reference.fail?.why
     out.push({ level: level.id, fail: Boolean(reason), text: `${level.id} ${keyOf(level.title)}: term ${level.answer} ${reason ? `FAILS ${keyOf(reason)}` : 'PASS'}` })

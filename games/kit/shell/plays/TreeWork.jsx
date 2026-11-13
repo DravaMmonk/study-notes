@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { judgeFor } from '../../engine/plays.js'
 import TreeEditor from '../../strip/TreeEditor.jsx'
-import { L } from '../i18n.js'
+import { L, tr } from '../i18n.js'
 import { Brief, Level } from '../Layout.jsx'
 import { Markup } from '../Markup.jsx'
 import RunDock from '../RunDock.jsx'
@@ -31,6 +31,15 @@ function Examples({ examples }) {
   )
 }
 
+export function WorkGoal({ premises, goal }) {
+  return (
+    <section className="tm-given">
+      {premises.length > 0 && <p>{tr('已知', 'Given')} {premises.map(({ name, text }) => <span key={name} className="tm-premise"><code>{name}</code>：{L(text)}</span>)}</p>}
+      <p className="fo-say fo-prompt">{tr('要证', 'Prove')} <b>{L(goal)}</b></p>
+    </section>
+  )
+}
+
 export default function TreeWork({ screen, resource, play }) {
   const { game, level: entry, saved, save, solve, lastRun, keepRun, phone } = screen
   const [tree, setTree] = useState(() => saved?.tree ?? resource.initial ?? null)
@@ -54,7 +63,8 @@ export default function TreeWork({ screen, resource, play }) {
   }
   const stage = (
     <div className={play.stage}>
-      <p className="fo-say fo-prompt"><Markup text={resource.prompt} /></p>
+      {resource.prompt && <p className="fo-say fo-prompt"><Markup text={resource.prompt} /></p>}
+      {resource.goal && <WorkGoal premises={resource.premises} goal={resource.goal} />}
       {play.checks === 'shown' && resource.examples && <Examples examples={resource.examples} />}
       <TreeEditor tree={tree} onChange={change} chips={resource.chips(tree)} language={resource.language} scope={`${entry.id}:${entry.source.task}`} ref={editor} />
     </div>
@@ -62,7 +72,7 @@ export default function TreeWork({ screen, resource, play }) {
   const { failure } = verdict ?? {}
   const results = verdict?.pass ? <p className="lg-verdict is-pass" role="status">{L(resource.passed)}</p>
     : failure?.lines ? <div className="tree-evidence"><p>{L(failure.why)}</p>{failure.lines.length > 0 && <TextLines lines={failure.lines} />}</div>
-      : failure && <p className="lg-error">{L(failure.why)}</p>
+      : failure && <p className={resource.goal ? "lg-verdict is-fail" : "lg-error"} role={resource.goal ? "status" : undefined}>{L(failure.why)}</p>
   const dock = <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={entry.source.hint} phone={phone} />
   return <Level phone={phone} className={play.layout} brief={brief} stage={stage} results={results} dock={dock} />
