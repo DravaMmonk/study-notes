@@ -1,0 +1,67 @@
+{
+  "groups": [
+    {
+      "id": "waves",
+      "title": {
+        "zh": "声音"
+      }
+    }
+  ],
+  "entries": [
+    {
+      "id": "wave",
+      "group": "waves",
+      "title": {
+        "zh": "波形"
+      },
+      "at": "recipe",
+      "body": [
+        {
+          "zh": "一段声音按时间排开的样子：一串数，每一格记下那一刻的强弱，正的在上，负的在下。"
+        }
+      ]
+    },
+    {
+      "id": "pure-tone",
+      "group": "waves",
+      "title": { "zh": "纯音" },
+      "at": "recipe",
+      "body": [{ "zh": "波形均匀地一上一下的声音，只有一个音高。这里有三个：在整段里来回 1 次的低音，2 次的中音，3 次的高音。" }]
+    },
+    {
+      "id": "spectrum",
+      "group": "waves",
+      "title": { "zh": "频谱" },
+      "at": "recipe",
+      "body": [{ "zh": "一段声音里每个纯音各占几份。它和波形写的是同一段声音：波形按时间写，频谱按音高写。" }]
+    },
+    {
+      "id": "fourier",
+      "group": "waves",
+      "title": { "zh": "傅里叶变换" },
+      "at": "listen",
+      "body": [{ "zh": "从波形算出频谱。反过来，按频谱把纯音叠回波形，是它的逆变换。" }]
+    },
+    {
+      "id": "antiphase",
+      "group": "waves",
+      "title": { "zh": "反相" },
+      "at": "cancel",
+      "body": [{ "zh": "和原来的波形处处大小相同、方向相反。一段波形叠上它的反相，每一格都是 0。" }]
+    },
+    {
+      "id": "correlation",
+      "group": "waves",
+      "title": { "zh": "相关" },
+      "at": "match",
+      "body": [{ "zh": "两段波形逐格相乘，再取平均。两段同起同落时它是正的，各走各的时它是 0。" }]
+    },
+    {
+      "id": "orthogonal",
+      "group": "waves",
+      "title": { "zh": "正交" },
+      "at": "match",
+      "body": [{ "zh": "两段波形的相关是 0。不同的纯音彼此正交，所以量一个纯音的份量时，别的纯音不会混进读数。" }]
+    }
+  ]
+}

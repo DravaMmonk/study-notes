@@ -6,7 +6,7 @@ import ImageView from './ImageView.jsx'
 // Show the colour image alongside the values carried by its three channel outputs.
 export default function ColourPreview({ img, theme, onHover, selected, labels = false }) {
   const planes = useMemo(() => [img, ...[0, 1, 2].map((index) => channel(img, index))], [img])
-  const names = [tr('图', 'Image'), 'R', 'G', 'B']
+  const names = [tr('图'), 'R', 'G', 'B']
   return (
     <span className={`colour-preview ${labels ? 'has-labels' : ''}`}>
       {planes.map((plane, index) => (

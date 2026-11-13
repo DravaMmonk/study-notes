@@ -58,7 +58,7 @@ const circuit = circuitPlay({
     const desc = descriptionOf(types, type) ?? ''
     return { name: types[type].label, desc: typeof cost === 'number' ? T(`${pick(desc, 'zh')}（计算量 ${cost}）`, `${pick(desc, 'en')} (cost ${cost})`) : desc }
   },
-  settings: ({ game, flags }, type) => game.image.kit.settingsOf(type, flags).filter((p) => !p.hidden).map((p) => ({
+  settings: ({ game, level, flags }, type) => game.image.kit.settingsOf(type, game.image.holdsIn(level, flags)).filter((p) => !p.hidden).map((p) => ({
     key: p.key,
     values: p.options ? p.options.map((o) => String(o[0])) : p.kind === 'number' ? [`${p.min}…${p.max}${p.step ? ` (${p.step})` : ''}`] : p.kind === 'kernel' ? ['[9 numbers]'] : null,
     about: p.label,
@@ -102,6 +102,6 @@ const circuit = circuitPlay({
 })
 
 export const play = {
-  open: (ctx) => (ctx.level.kind === 'graph' ? circuit.open(ctx) : { covered: false, why: ctx.level.kind === 'probe' ? T('探针关（用指针读像素），不接电路', 'a probe level (reading pixels with the pointer); no board to wire') : T('参数台（转旋钮），不接电路', 'a parameter bench (turning knobs); no board to wire') }),
+  open: (ctx) => (ctx.level.kind === 'graph' ? circuit.open(ctx) : { covered: false, why: ctx.level.kind === 'probe' ? T('探针关（用指针读像素），不接电路') : T('参数台（转旋钮），不接电路') }),
   attempt: (ctx, text) => circuit.attempt(ctx, text),
 }

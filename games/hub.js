@@ -12,13 +12,15 @@ import { mountPress } from './press/press.js';
 import { mountDetach } from './detach/detach.js';
 import { mountStick } from './stick/stick.js';
 import { mountLoop } from './loop/loop.js';
-import { mountWave } from './wave/wave.js';
+import { mountWire } from './wire/wire.js';
+import { mountShear } from './shear/shear.js';
+import { mountEngine } from './engine/engine.js';
 
-// Card art: each game's illustration, mounted live into its row. All four are anatomy-kit figures built into plain
-// modules for this page (each folder's build.mjs): State Graph's robot Boxy, Vision Complete's filter press, Q.E.D.'s
-// Detach press and Syntax Graph's composing stick; Software Factory's agent loop (loop/) and The Car Talks' bus (wave/)
-// are plain line drawings.
-const ART = { grid: mountBoxy, pipeline: mountPress, detach: mountDetach, stick: mountStick, loop: mountLoop, wave: mountWave };
+// Card art: each game's illustration, mounted live into its row. The anatomy-kit figures are built into plain modules
+// for this page (each folder's build.mjs): State Graph's robot Boxy, Vision Complete's filter press, Q.E.D.'s Detach
+// press, Syntax Graph's composing stick, The Difference Engine's engine and The Linear Grid's shear rack; Software
+// Factory's agent loop and From One Wire's point-to-point link are plain line drawings.
+const ART = { grid: mountBoxy, pipeline: mountPress, detach: mountDetach, stick: mountStick, loop: mountLoop, wire: mountWire, shear: mountShear, engine: mountEngine };
 let unmount = [];
 
 function render() {
@@ -26,7 +28,7 @@ function render() {
   document.querySelector('#games').innerHTML = GAMES.filter(g => !g.hidden).map((g, i) => {
     const done = Math.min(solvedCount(g.id), g.levels), started = done > 0;
     return `<a class="game" href="${g.href}">
-      <div class="game-art" data-art="${g.art}"></div>
+      <div class="game-art"${g.art ? ` data-art="${g.art}"` : ''}></div>
       <div class="game-body">
         <p class="game-meta"><span class="game-no">${String(i + 1).padStart(2, '0')}</span>${pick(g.topic)}${g.dev ? `<em class="dev-tag">${tr('开发中', 'In development')}</em>` : ''}</p>
         <h2 class="game-title">${en ? g.en : g.title}<small lang="${en ? 'zh-CN' : 'en'}">${en ? g.title : g.en}</small></h2>

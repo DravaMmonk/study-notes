@@ -90,12 +90,12 @@ export default function Encyclopedia({ game, wiki, level, phone, start, onClose 
         {entry.body.map((paragraph, k) => <p key={k}><Markup text={paragraph} /></p>)}
         {entry.see?.length > 0 && (
           <footer className="wiki-see">
-            <span className="panel-label">{tr('相关词条', 'See also')}</span>
+            <span className="panel-label">{tr('相关词条')}</span>
             <div>
               {entry.see.map((other) => entries.find((e) => e.id === other)).filter(Boolean).map((e) =>
                 isOpen(e)
                   ? <button key={e.id} type="button" className="wiki-chip" onClick={() => pick(e.id)}><span>{L(titleOf(e))}</span></button>
-                  : <span key={e.id} className="wiki-chip is-locked">{tr('？？？', '???')}</span>,
+                  : <span key={e.id} className="wiki-chip is-locked">{tr('？？？')}</span>,
               )}
             </div>
           </footer>
@@ -106,10 +106,10 @@ export default function Encyclopedia({ game, wiki, level, phone, start, onClose 
 
   return (
     <Library
-      title={tr('百科', 'Encyclopedia')}
+      title={tr('百科')}
       subtitle={L(game.title)}
-      label={tr('词条', 'Entries')}
-      searchLabel={tr('查找词条', 'Find an entry')}
+      label={tr('词条')}
+      searchLabel={tr('查找词条')}
       groups={list}
       current={current}
       onPick={pick}

@@ -115,15 +115,15 @@ function InputControl({ type, value, onChange }) {
   if (type.endsWith('s')) {
     const text = Array.isArray(value) ? value.map((v) => (v === null ? '—' : typeof v === 'boolean' ? (v ? 'y' : 'n') : v)).join(' ') : ''
     const parse = (raw) => raw.split(/[\s,，]+/).filter(Boolean).map((x) => (x === '—' || x === '-' ? null : /^(y|是)$/i.test(x) ? true : /^(n|否)$/i.test(x) ? false : Number(x))).filter((x) => x === null || typeof x === 'boolean' || Number.isFinite(x))
-    return <input className="demo-list" defaultValue={text} onPointerDown={stop} onBlur={(event) => onChange(parse(event.target.value))} onKeyDown={(event) => event.key === 'Enter' && event.currentTarget.blur()} aria-label={tr('一段数，用空格隔开', 'A run of numbers, separated by spaces')} />
+    return <input className="demo-list" defaultValue={text} onPointerDown={stop} onBlur={(event) => onChange(parse(event.target.value))} onKeyDown={(event) => event.key === 'Enter' && event.currentTarget.blur()} aria-label={tr('一段数，用空格隔开')} />
   }
   const step = (d) => onChange(value === null || typeof value !== 'number' ? 0 : Math.round((value + d) * 100) / 100)
   return (
     <span className="demo-num" onPointerDown={stop}>
-      <button type="button" onClick={() => step(-1)} aria-label={tr('减 1', 'Minus 1')}>−</button>
+      <button type="button" onClick={() => step(-1)} aria-label={tr('减 1')}>−</button>
       <output>{signal(value)}</output>
-      <button type="button" onClick={() => step(1)} aria-label={tr('加 1', 'Plus 1')}>+</button>
-      <button type="button" className={value === null ? 'is-on' : ''} onClick={() => onChange(value === null ? 0 : null)} title={tr('「—」：这里什么也没有', '“—”: nothing here')}>—</button>
+      <button type="button" onClick={() => step(1)} aria-label={tr('加 1')}>+</button>
+      <button type="button" className={value === null ? 'is-on' : ''} onClick={() => onChange(value === null ? 0 : null)} title={tr('「—」：这里什么也没有')}>—</button>
     </span>
   )
 }
@@ -235,7 +235,7 @@ export default function PartDemo({ model, partKey, phone, tasks, borrow }) {
   w.probe = probe ?? {}
   const scene = (
     <div className="sg-bench-scene">
-      <Scene className="sg-bench-board" scene={{ ...V.scene(t, null, { ...o, bench: { cell, at: answerKeys, shown, reads, empty, typed, sel: null } }), look: robot.look }} opt={{ label: tr('测试棋盘', 'Test board'), ...(bench.L.boardOpt || { minScale: 0.5, maxScale: 1.1 }) }} onCell={onCell} />
+      <Scene className="sg-bench-board" scene={{ ...V.scene(t, null, { ...o, bench: { cell, at: answerKeys, shown, reads, empty, typed, sel: null } }), look: robot.look }} opt={{ label: tr('测试棋盘'), ...(bench.L.boardOpt || { minScale: 0.5, maxScale: 1.1 }) }} onCell={onCell} />
       <div className="sg-bench-view"><div className="cview"><RobotView ui={{ sensors: V.sensors, avail: bench.avail, lit: bench.lit, outs: V.outs, win: w }} /></div></div>
     </div>
   )
@@ -281,8 +281,8 @@ export default function PartDemo({ model, partKey, phone, tasks, borrow }) {
           )}
           {MERGES.includes(node.type) && (
             <div className="param is-choice">
-              <span>{tr('操作', 'Operation')}</span>
-              <Choice options={MERGES.map((k) => [k, def(k).tag])} value={node.type} onChange={(k) => setNode(node.id, { type: k })} label={tr('操作', 'Operation')} />
+              <span>{tr('操作')}</span>
+              <Choice options={MERGES.map((k) => [k, def(k).tag])} value={node.type} onChange={(k) => setNode(node.id, { type: k })} label={tr('操作')} />
             </div>
           )}
           <output className={`sg-val ${value ? 'is-on' : ''}`}>{value || '—'}</output>
@@ -295,7 +295,7 @@ export default function PartDemo({ model, partKey, phone, tasks, borrow }) {
     }
     // A built part's card opens to the board inside it.
     const head = (node) => isBuilt(node) && (
-      <button type="button" className="node-tool" aria-label={tr('打开', 'Open')} title={tr('打开', 'Open')} onPointerDown={(e) => e.stopPropagation()} onClick={open}><Maximize2 size={12} /></button>
+      <button type="button" className="node-tool" aria-label={tr('打开')} title={tr('打开')} onPointerDown={(e) => e.stopPropagation()} onClick={open}><Maximize2 size={12} /></button>
     )
     return (
       <DemoBench {...common} height="auto" note={note}>
@@ -319,16 +319,16 @@ export default function PartDemo({ model, partKey, phone, tasks, borrow }) {
   const tileExtra = (node) => (isGiven(node.type) ? '' : hasValue(node.type) ? `= ${node.params?.value ?? valueDefault(node.type)}` : L(def(node.type).tag ?? ''))
   const node = graph.nodes.find((n) => n.id === sel)
   const panel = opened ? null : !node ? (
-    <p className="panel-note">{tr('点一块，在这里改它：输入、常数，或汇合器的操作。点棋盘上的格子换机器人的位置。', 'Tap a block to change it here: an input, a constant or a merger’s operation. Tap a cell on the board to move the robot.')}</p>
+    <p className="panel-note">{tr('点一块，在这里改它：输入、常数，或汇合器的操作。点棋盘上的格子换机器人的位置。')}</p>
   ) : (
     <>
-      <div className="demo-panel-head"><b>{nameOf(node)}</b><small>{node.type === 'tap' || node.type === 'port' ? tr('输入', 'Input') : node.type === 'out' ? tr('答案', 'Answer') : L(def(node.type).tag ?? '')}</small></div>
+      <div className="demo-panel-head"><b>{nameOf(node)}</b><small>{node.type === 'tap' || node.type === 'port' ? tr('输入', 'Input') : node.type === 'out' ? tr('答案') : L(def(node.type).tag ?? '')}</small></div>
       {node.type === 'tap' && <InputControl key={`${sel}-${ti}-${cell}`} type={V.sensors[node.id].type} value={inputs[node.id] ?? null} onChange={(v) => setInput(node.id, v)} />}
       {hasValue(node.type) && <Choice options={(bench.L.consts || [0, 1, 2, 3, 4, 5]).map((v) => [v, String(v)])} value={node.params?.value ?? valueDefault(node.type)} onChange={(v) => setNode(node.id, { params: { ...node.params, value: v } })} label={tr('数值', 'Value')} roomy />}
-      {MERGES.includes(node.type) && <Choice options={MERGES.map((k) => [k, def(k).tag])} value={node.type} onChange={(k) => setNode(node.id, { type: k })} label={tr('操作', 'Operation')} roomy />}
+      {MERGES.includes(node.type) && <Choice options={MERGES.map((k) => [k, def(k).tag])} value={node.type} onChange={(k) => setNode(node.id, { type: k })} label={tr('操作')} roomy />}
       {!isGiven(node.type) && <p className="panel-note">{L(def(node.type).desc)}</p>}
-      {node.type !== 'tap' && <p className="panel-note">{probe ? tr(`上次运行：${valueOf(node.id) || '—'}`, `Last run: ${valueOf(node.id) || '—'}`) : tr('还没运行。', 'Not run yet.')}</p>}
-      {isBuilt(node) && <button type="button" className="sg-open" onClick={open}><Maximize2 size={14} />{tr('打开', 'Open')}</button>}
+      {node.type !== 'tap' && <p className="panel-note">{probe ? tr(`上次运行：${valueOf(node.id) || '—'}`, `Last run: ${valueOf(node.id) || '—'}`) : tr('还没运行。')}</p>}
+      {isBuilt(node) && <button type="button" className="sg-open" onClick={open}><Maximize2 size={14} />{tr('打开')}</button>}
     </>
   )
   return (

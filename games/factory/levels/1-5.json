@@ -1,27 +1,24 @@
 {
-  "title": { "zh": "读哪一个", "en": "Which one to read" },
+  "title": { "zh": "读哪一个" },
   "intro": [
     {
       "t": {
-        "zh": "全部读进去，窗口装不下：最早放进去的会被丢掉。要从函数名找到它所在的文件。",
-        "en": "Read everything in and the window cannot hold it: the oldest entries are dropped. Find the file a function lives in from its name."
+        "zh": "全部读进去，窗口装不下：最早放进去的会被丢掉。要从函数名找到它所在的文件。"
       }
     }
   ],
   "after": {
-    "zh": "窗口有限时，读对一个文件胜过读全部。上下文的顺序也算数：窗口从最早的那头开始丢。",
-    "en": "With a limited window, the right file beats every file. The order counts too: the window drops from the oldest end."
+    "zh": "窗口有限时，读对一个文件胜过读全部。上下文的顺序也算数：窗口从最早的那头开始丢。"
   },
   "tasks": [
     {
       "id": "1-5",
       "kind": "board",
       "brief": {
-        "zh": "这个仓库的文件都很长，模型的窗口是 1000 个 token。issue 只写了函数名。",
-        "en": "This repository’s files are long, and the model’s window is 1000 tokens. The issues name only the function."
+        "zh": "这个仓库的文件都很长，模型的窗口是 1000 个 token。issue 只写了函数名。"
       },
       "hint": [
-        { "zh": "测试区里列着仓库的每个文件和它的函数。", "en": "The test area lists every file of the repository with its functions." }
+        { "zh": "测试区里列着仓库的每个文件和它的函数。" }
       ],
       "window": 1000,
       "tests": [{ "issue": "date-format" }, { "issue": "list-order" }],

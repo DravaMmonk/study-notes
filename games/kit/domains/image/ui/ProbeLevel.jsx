@@ -32,7 +32,7 @@ export default function ProbeLevel({ level, onSolve, theme }) {
 
   return (
     <div className="probe">
-      <div className="probe-inputs" role="radiogroup" aria-label={tr('测试图', 'Test pictures')}>
+      <div className="probe-inputs" role="radiogroup" aria-label={tr('测试图')}>
         {level.probes.map(([label, img], index) => (
           <button key={keyOf(label)} role="radio" aria-checked={probe === index} className={`probe-choice ${probe === index ? 'is-active' : ''}`} {...mark(`probes[${index}]`, 'task', () => selectProbe(index))} onClick={() => selectProbe(index)}>
             <ImageView img={img} size={56} theme={theme} />
@@ -52,7 +52,7 @@ export default function ProbeLevel({ level, onSolve, theme }) {
         </figure>
       </div>
       <p className="pixel-probe" aria-live="polite">
-        {cell ? <>{tr(`第 ${cell.x + 1} 列、第 ${cell.y + 1} 行：`, `Column ${cell.x + 1}, row ${cell.y + 1}: `)}{tr('输入 ', 'input ')}<b>{at(input)}</b>{tr('，输出 ', ', output ')}<b>{at(output)}</b></> : tr('点击图中的格子（电脑上也可将鼠标悬停在格子上），读取它的数值。', 'Tap a cell in a picture (or hover over it on a computer) to read its value.')}
+        {cell ? <>{tr(`第 ${cell.x + 1} 列、第 ${cell.y + 1} 行：`, `Column ${cell.x + 1}, row ${cell.y + 1}: `)}{tr('输入 ')}<b>{at(input)}</b>{tr('，输出 ')}<b>{at(output)}</b></> : tr('点击图中的格子（电脑上也可将鼠标悬停在格子上），读取它的数值。')}
       </p>
       <div className="probe-question">
         <p {...mark('question')}>{L(level.question)}</p>

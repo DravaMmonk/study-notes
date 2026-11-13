@@ -1,12 +1,11 @@
 {
   "adds": ["res"],
   "tray": "resolution",
-  "title": { "zh": "推出空子句", "en": "Down to the empty clause" },
+  "title": { "zh": "推出空子句" },
   "intro": [
     {
       "t": {
-        "zh": "空子句里一个文字都没有，没有一项可能为真：它就是矛盾 ⊥。",
-        "en": "The empty clause has no literal in it, nothing that could be true: it is the contradiction ⊥."
+        "zh": "空子句里一个文字都没有，没有一项可能为真：它就是矛盾 ⊥。"
       }
     }
   ],
@@ -14,24 +13,23 @@
     {
       "id": "au-refute_1",
       "kind": "proof",
-      "step": { "zh": "两步", "en": "Two steps" },
+      "step": { "zh": "两步" },
       "tests": [{ "premises": { "p": "¬A ∨ B", "q": "A", "r": "¬B" }, "goal": "⊥" }],
       "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Alarm", "B": "Up" }],
-      "briefNote": { "zh": "只用「归结」。", "en": "With “Resolve” alone." },
-      "hint": [{ "zh": "「下雨」本身就是一条只有一项的子句。", "en": "“It rains” is itself a clause of one literal." }],
+      "briefNote": { "zh": "只用「归结」。" },
+      "hint": [{ "zh": "「下雨」本身就是一条只有一项的子句。" }],
       "solution": ["r1 = res(q, p)", "r2 = res(r1, r)", "goal <- r2"]
     },
     {
       "id": "au-refute_2",
       "kind": "proof",
-      "step": { "zh": "三步", "en": "Three steps" },
+      "step": { "zh": "三步" },
       "tests": [{ "premises": { "p": "A ∨ B", "q": "¬A ∨ C", "r": "¬B ∨ C", "s": "¬C" }, "goal": "⊥" }],
       "cases": [{ "A": "Bus", "B": "Bike", "C": "OnTime" }, { "A": "Coffee", "B": "Tea", "C": "Awake" }],
       "brief": {
-        "zh": "再从「我坐公交 ∨ 我骑车」「¬我坐公交 ∨ 我准时到」「¬我骑车 ∨ 我准时到」「¬我准时到」证明出 ⊥。",
-        "en": "Now prove ⊥ from “I take the bus ∨ I cycle”, “¬I take the bus ∨ I arrive on time”, “¬I cycle ∨ I arrive on time” and “¬I arrive on time”."
+        "zh": "再从「我坐公交 ∨ 我骑车」「¬我坐公交 ∨ 我准时到」「¬我骑车 ∨ 我准时到」「¬我准时到」证明出 ⊥。"
       },
-      "hint": [{ "zh": "两项相同的文字会并成一项。", "en": "Two copies of the same literal merge into one." }],
+      "hint": [{ "zh": "两项相同的文字会并成一项。" }],
       "solution": ["r1 = res(p, q)", "r2 = res(r1, r)", "r3 = res(r2, s)", "goal <- r3"]
     }
   ]

@@ -135,7 +135,7 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
   }
 }
 
-const EMPTY = T('从上方元件栏选择元件放到板上，再从元件右侧的圆点连线到另一元件左侧的圆点。', 'Add a part from the row above, then drag from a dot on its right side to a dot on another part’s left side.')
+const EMPTY = T('从上方元件栏选择元件放到板上，再从元件右侧的圆点连线到另一元件左侧的圆点。')
 const nothing = { values: new Map(), errors: new Map() }
 
 /**
@@ -143,7 +143,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *
  *   screen          the level screen's props (GameShell)          board, run    useLevelBoard, useLevelRun
  *   parts           the editor's description of the cards (circuit/model.js)
- *   defined         the parts a game defines as data (games/DESIGN.md 6.9, parts/faces.jsx): { of(type) → the part
+ *   defined         the parts a game defines as data (games/DESIGN.md 6.8, parts/faces.jsx): { of(type) → the part
  *                   resolved or null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) };
  *                   their cards, tiles, details, settings and new nodes are the kernel's, `parts` and `card` only the
  *                   domain's other nodes'
@@ -196,7 +196,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const top = { circuit, parts, top: true }
   // The boards inside packed parts hold defined parts too.
   const opened = packed && defined ? { ...packed, open: (node, at) => { const r = packed.open(node, at); return r && { ...r, parts: definedParts(r.parts, defined.of) } } } : packed
-  const inside = packed ? insideOf({ top, ...opened, card, dense, describe: describeOf, sheet: detailOf }) : null
+  const inside = packed ? insideOf({ top, ...opened, card, describe: describeOf, sheet: detailOf }) : null
   const isPacked = (node, at) => Boolean(inside?.is(node, at))
   const ctx = { view, board: top, path: [], readOnly: false }
   const step = packed?.trace?.()?.step
@@ -217,7 +217,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
     let k = 1
     while (taken.has(`${type}${k}`)) k += 1
     const id = `${type}${k}`
-    const [x, y] = spotIn(graph, region ?? null)
+    const [x, y] = spotIn(graph, region ?? null, Math.min(...graph.nodes.filter((n) => !n.in && parts.role(n) === 'sink' && Number.isFinite(n.x)).map((n) => n.x)))
     return { id, graph: { ...graph, nodes: [...graph.nodes, { id, type, params: defined?.of(type) ? defined.defaults(type) : defaults(type), x, y, ...(slot !== undefined ? { slot } : {}), ...(region ? { in: region } : {}) }] } }
   })
   // A new card goes into the region chosen last, while its frame is there and open.
@@ -246,7 +246,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
           <div className="cl-board">
             <CanvasEditor
               blocks={blockView}
-              key={level.id}
+              key={`${level.id}:${board.key ?? ''}`}
               scope={scope ?? level.id}
               graph={circuit}
               onChange={change}
@@ -257,7 +257,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
               overlay={canvas.overlay}
               corner={canvas.corner}
               body={card.body && ((node) => card.body(node, ctx))}
-              head={(node) => <>{card.head?.(node, ctx)}{(details || isDefined(node)) && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情', 'Inspect details')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onDetail={() => setDetail(node.id)} />}</>}
+              head={(node) => <>{card.head?.(node, ctx)}{(details || isDefined(node)) && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onDetail={() => setDetail(node.id)} />}</>}
               caption={card.caption && ((node) => card.caption(node, ctx))}
               outNote={card.outNote && ((node, key) => card.outNote(node, key, ctx))}
               cardClass={card.cardClass && ((node) => card.cardClass(node, ctx))}
@@ -289,7 +289,6 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
 function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, dense, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
-  const { game } = screen
   const { circuit: sourceCircuit, change } = board
   const circuit = useMemo(()=>phoneBlockBoard(sourceCircuit,parts),[sourceCircuit,parts])
   const [manualBlocks] = useSetting('manualBlocks')
@@ -375,11 +374,11 @@ function PhoneLevel({ blocks, screen, board, parts, ctx, card, inside, all, item
         </Sheet>
       )}
       {sheet?.slot !== undefined && (addSheet ? addSheet({ at: sheet.slot, region: sheet.region, place, close }) : (
-        <Sheet title={tr('放在这一格', 'Place in this slot')} onClose={close}>
+        <Sheet title={tr('放在这一格')} onClose={close}>
           <div className="cl-add">
             {all.map((item) => (
               <button key={item.type} type="button" data-family={item.family} className={item.packed ? 'is-packed' : ''} onClick={() => place(item.type)}>
-                <b>{item.icon && <i className="family-chip"><Glyph icon={item.icon} size={12} /></i>}{L(item.label)}{item.fresh && <em className="pb-new">{tr('新', 'new')}</em>}</b>
+                <b>{item.icon && <i className="family-chip"><Glyph icon={item.icon} size={12} /></i>}{L(item.label)}{item.fresh && <em className="pb-new">{tr('新')}</em>}</b>
                 {item.desc && <Text as="small" text={item.desc} />}
               </button>
             ))}

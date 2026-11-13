@@ -1,41 +1,35 @@
 {
-  "title": { "zh": "分拣机", "en": "Sorting machine" },
+  "title": { "zh": "分拣机" },
   "optional": true,
   "tray": "pipeline",
   "after": {
-    "zh": "这台分拣机把局部特征汇总成类别判断：卷积可以找不同的笔画，非线性和池化帮助处理位置变化，分类部分根据特征给各类打分。它在这些新零件上也通过了检查，说明它不只适用于训练例子；要了解它在实际使用中是否可靠，还需要更多有代表性的测试。",
-    "en": "This sorting machine combines local features into a class decision: convolutions can find different strokes, nonlinearities and pooling help with changes in position, and the classifier scores each class from the features. Passing on these new parts shows it works beyond the training examples; assessing reliability in practice requires more representative tests."
+    "zh": "这台分拣机把局部特征汇总成类别判断：卷积可以找不同的笔画，非线性和池化帮助处理位置变化，分类部分根据特征给各类打分。它在这些新零件上也通过了检查，说明它不只适用于训练例子；要了解它在实际使用中是否可靠，还需要更多有代表性的测试。"
   },
   "intro": [
     {
       "t": {
-        "zh": "分拣机正式上线：零件的位置、深浅都不一样，有的带噪点。最后几组是「新零件」，不参加训练，只用来检查。",
-        "en": "The sorter goes live: parts sit in different places, at different strengths, some with noise. The last few sets are \"new parts\" that take no part in training and are only checked."
+        "zh": "分拣机正式上线：零件的位置、深浅都不一样，有的带噪点。最后几组是「新零件」，不参加训练，只用来检查。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：一个 X", "en": "Set 1: an X" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组：一个 X" } }
     },
     {
       "t": {
-        "zh": "从图片到类别，网络先提取局部特征，再把特征汇总成类别分数。AlexNet 把卷积、激活、池化和分类层组合起来，用大量图片训练；这一关是缩小后的分类例子。",
-        "en": "From image to class, a network first extracts local features and then combines them into class scores. AlexNet combined convolution, activation, pooling and classification layers and trained on many images; this level is a much smaller classification example."
+        "zh": "从图片到类别，网络先提取局部特征，再把特征汇总成类别分数。AlexNet 把卷积、激活、池化和分类层组合起来，用大量图片训练；这一关是缩小后的分类例子。"
       }
     },
     {
       "t": {
-        "zh": "换一批新零件时，不一定从零开始：可以复用已经训练好的特征提取部分，只训练新的分类头；如果旧特征不够适合，也可以解冻部分层继续训练，这叫微调。这里仍然从当前任务训练。",
-        "en": "For a new set of parts, we do not always have to start from scratch: we can reuse a trained feature extractor and train only a new classification head. If the old features do not fit well enough, we can unfreeze some layers and train them further; this is fine-tuning. This level still trains on its current task."
+        "zh": "换一批新零件时，不一定从零开始：可以复用已经训练好的特征提取部分，只训练新的分类头；如果旧特征不够适合，也可以解冻部分层继续训练，这叫微调。这里仍然从当前任务训练。"
       }
     },
     {
       "t": {
-        "zh": "可以使用<level-ref to=\"4-18\"></level-ref>解锁的 Softmax 元件，把三类分数变成概率；也可以自己搭出这一步。",
-        "en": "Use the Softmax part unlocked in <level-ref to=\"4-18\"></level-ref> to turn three scores into probabilities, or build the conversion yourself."
+        "zh": "可以使用<level-ref to=\"4-18\"></level-ref>解锁的 Softmax 元件，把三类分数变成概率；也可以自己搭出这一步。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：输出三个概率，正确那一类大于 0.55，另两类小于 0.45。要想的问题：三类零件靠哪些笔画区分？网络要看出几种笔画？",
-        "en": "Your task in this level: output three probabilities, above 0.55 for the right class and below 0.45 for the other two. Something to think about: which strokes tell the three kinds apart? How many kinds of stroke must the network see?"
+        "zh": "这一关你要做的：输出三个概率，正确那一类大于 0.55，另两类小于 0.45。要想的问题：三类零件靠哪些笔画区分？网络要看出几种笔画？"
       }
     }
   ],
@@ -44,33 +38,31 @@
       "id": "4-21",
       "kind": "graph",
       "brief": {
-        "zh": "传送带上的零件有三种：X、O 和 +，位置、深浅都不一样，有的带噪点。输出三个概率，正确那一类要大于 0.55，另两类小于 0.45。列表最后的「新零件」不参加训练，只用来检查。",
-        "en": "The parts on the belt come in three kinds, X, O and +, at different places and strengths, some with noise. Output three probabilities: above 0.55 for the right class, below 0.45 for the other two. The \"new parts\" at the end of the list take no part in training and are only checked."
+        "zh": "传送带上的零件有三种：X、O 和 +，位置、深浅都不一样，有的带噪点。输出三个概率，正确那一类要大于 0.55，另两类小于 0.45。列表最后的「新零件」不参加训练，只用来检查。"
       },
       "hint": {
-        "zh": "一个卷积通道只能看出一种笔画，三类至少要几种？每一类的分，可以由每个通道的特征各给一点。搭好后多按几次训练，看两条误差线。",
-        "en": "One convolution channel can pick out only one kind of stroke; how many do three classes need at least? Each class's score can take a share from every channel's feature. Once built, train for a while and watch the two error lines."
+        "zh": "一个卷积通道只能看出一种笔画，三类至少要几种？每一类的分，可以由每个通道的特征各给一点。搭好后多按几次训练，看两条误差线。"
       },
       "outputs": ["px", "po", "pp"],
-      "outputLabels": { "px": { "zh": "是 X", "en": "Is X" }, "po": { "zh": "是 O", "en": "Is O" }, "pp": { "zh": "是 +", "en": "Is +" } },
+      "outputLabels": { "px": { "zh": "是 X" }, "po": { "zh": "是 O" }, "pp": { "zh": "是 +" } },
       "check": { "tolerance": 0.45 },
       "trainRate": 80,
       "scene": "sorter",
       "tests": [
-        { "label": { "zh": "X 1", "en": "X 1" }, "part": "X", "ox": 1, "oy": 2, "ink": 0.75, "seed": 0 },
-        { "label": { "zh": "X 2", "en": "X 2" }, "part": "X", "ox": 4, "oy": 3, "ink": 0.8, "seed": 0 },
-        { "label": { "zh": "X 3", "en": "X 3" }, "part": "X", "ox": 2, "oy": 5, "ink": 0.85, "seed": 0 },
-        { "label": { "zh": "X 4", "en": "X 4" }, "part": "X", "ox": 3, "oy": 1, "ink": 0.9, "seed": 10 },
-        { "label": { "zh": "O 1", "en": "O 1" }, "part": "O", "ox": 2, "oy": 4, "ink": 0.75, "seed": 0 },
-        { "label": { "zh": "O 2", "en": "O 2" }, "part": "O", "ox": 5, "oy": 5, "ink": 0.8, "seed": 0 },
-        { "label": { "zh": "O 3", "en": "O 3" }, "part": "O", "ox": 3, "oy": 1, "ink": 0.85, "seed": 0 },
-        { "label": { "zh": "O 4", "en": "O 4" }, "part": "O", "ox": 4, "oy": 3, "ink": 0.9, "seed": 11 },
-        { "label": { "zh": "+ 1", "en": "+ 1" }, "part": "P", "ox": 3, "oy": 0, "ink": 0.75, "seed": 0 },
-        { "label": { "zh": "+ 2", "en": "+ 2" }, "part": "P", "ox": 0, "oy": 1, "ink": 0.8, "seed": 0 },
-        { "label": { "zh": "+ 3", "en": "+ 3" }, "part": "P", "ox": 4, "oy": 3, "ink": 0.85, "seed": 0 },
-        { "label": { "zh": "+ 4", "en": "+ 4" }, "part": "P", "ox": 5, "oy": 5, "ink": 0.9, "seed": 12 },
+        { "label": { "zh": "X 1" }, "part": "X", "ox": 1, "oy": 2, "ink": 0.75, "seed": 0 },
+        { "label": { "zh": "X 2" }, "part": "X", "ox": 4, "oy": 3, "ink": 0.8, "seed": 0 },
+        { "label": { "zh": "X 3" }, "part": "X", "ox": 2, "oy": 5, "ink": 0.85, "seed": 0 },
+        { "label": { "zh": "X 4" }, "part": "X", "ox": 3, "oy": 1, "ink": 0.9, "seed": 10 },
+        { "label": { "zh": "O 1" }, "part": "O", "ox": 2, "oy": 4, "ink": 0.75, "seed": 0 },
+        { "label": { "zh": "O 2" }, "part": "O", "ox": 5, "oy": 5, "ink": 0.8, "seed": 0 },
+        { "label": { "zh": "O 3" }, "part": "O", "ox": 3, "oy": 1, "ink": 0.85, "seed": 0 },
+        { "label": { "zh": "O 4" }, "part": "O", "ox": 4, "oy": 3, "ink": 0.9, "seed": 11 },
+        { "label": { "zh": "+ 1" }, "part": "P", "ox": 3, "oy": 0, "ink": 0.75, "seed": 0 },
+        { "label": { "zh": "+ 2" }, "part": "P", "ox": 0, "oy": 1, "ink": 0.8, "seed": 0 },
+        { "label": { "zh": "+ 3" }, "part": "P", "ox": 4, "oy": 3, "ink": 0.85, "seed": 0 },
+        { "label": { "zh": "+ 4" }, "part": "P", "ox": 5, "oy": 5, "ink": 0.9, "seed": 12 },
         {
-          "label": { "zh": "新零件 X 1", "en": "New part X 1" },
+          "label": { "zh": "新零件 X 1" },
           "part": "X",
           "ox": 5,
           "oy": 4,
@@ -79,7 +71,7 @@
           "train": false
         },
         {
-          "label": { "zh": "新零件 X 2", "en": "New part X 2" },
+          "label": { "zh": "新零件 X 2" },
           "part": "X",
           "ox": 2,
           "oy": 2,
@@ -88,7 +80,7 @@
           "train": false
         },
         {
-          "label": { "zh": "新零件 O 1", "en": "New part O 1" },
+          "label": { "zh": "新零件 O 1" },
           "part": "O",
           "ox": 0,
           "oy": 5,
@@ -97,7 +89,7 @@
           "train": false
         },
         {
-          "label": { "zh": "新零件 O 2", "en": "New part O 2" },
+          "label": { "zh": "新零件 O 2" },
           "part": "O",
           "ox": 3,
           "oy": 3,
@@ -106,7 +98,7 @@
           "train": false
         },
         {
-          "label": { "zh": "新零件 + 1", "en": "New part + 1" },
+          "label": { "zh": "新零件 + 1" },
           "part": "P",
           "ox": 1,
           "oy": 0,
@@ -115,7 +107,7 @@
           "train": false
         },
         {
-          "label": { "zh": "新零件 + 2", "en": "New part + 2" },
+          "label": { "zh": "新零件 + 2" },
           "part": "P",
           "ox": 4,
           "oy": 4,
@@ -126,7 +118,7 @@
       ],
       "hidden": [
         {
-          "label": { "zh": "另一批 X 1", "en": "Another batch X 1" },
+          "label": { "zh": "另一批 X 1" },
           "part": "X",
           "ox": 3,
           "oy": 4,
@@ -135,7 +127,7 @@
           "train": false
         },
         {
-          "label": { "zh": "另一批 O 2", "en": "Another batch O 2" },
+          "label": { "zh": "另一批 O 2" },
           "part": "O",
           "ox": 4,
           "oy": 2,
@@ -144,7 +136,7 @@
           "train": false
         },
         {
-          "label": { "zh": "另一批 + 3", "en": "Another batch + 3" },
+          "label": { "zh": "另一批 + 3" },
           "part": "P",
           "ox": 1,
           "oy": 1,

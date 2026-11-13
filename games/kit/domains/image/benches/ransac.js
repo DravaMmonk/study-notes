@@ -55,10 +55,10 @@ export function ransacBench({ n, sigma, trials, tol }) {
 
 /** The bench model: knobs delta (the threshold, shared) and k (rounds, one per case); each case an outlier ratio. */
 export const ransac = {
-  about: t('共识：每轮随机抽两点连线、数支持它的点；旋钮 delta（门槛）和每个情形的 k（轮数）；每个情形是一种外点比例，算出几百次试验的成功率 rate 和超出预算的轮数 overBudget', 'consensus: each round joins two random points and counts the support; knobs delta (the threshold) and k per case (the rounds); each case is an outlier ratio, with the success rate over hundreds of trials and overBudget, the rounds over budget'),
+  about: t('共识：每轮随机抽两点连线、数支持它的点；旋钮 delta（门槛）和每个情形的 k（轮数）；每个情形是一种外点比例，算出几百次试验的成功率 rate 和超出预算的轮数 overBudget'),
   setup: S.obj({
     n: S.int(), sigma: S.num(), trials: S.int(), tol: S.obj({ theta: S.num(), rho: S.num() }),
-    solution: S.obj({ delta: S.num(), k: S.list(S.int()) }, { about: t('一组能过的设定：门槛 δ 和每一种外点比例的轮数', 'settings that pass: the threshold δ and the rounds for each outlier ratio') }),
+    solution: S.obj({ delta: S.num(), k: S.list(S.int()) }, { about: t('一组能过的设定：门槛 δ 和每一种外点比例的轮数') }),
   }),
   case: S.obj({ outliers: S.num(), budget: S.int() }),
   make({ solution, ...p }, bench) {

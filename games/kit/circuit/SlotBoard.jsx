@@ -202,7 +202,8 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   const regionsOf = (node) => parts.frames?.(node) ?? []
   const own = (node) => new Set(regionsOf(node).map((r) => r.name))
 
-  // Wires are drawn after layout from where the dots really are, and again while a wire is dragged.
+  // Wires are drawn after layout from where the dots really are, and again while a wire is dragged. A card's entry
+  // animation moves its dots without resizing the board, so wires are drawn again once it ends.
   useLayoutEffect(() => {
     const el = board.current
     if (!el) return undefined
@@ -210,7 +211,11 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     draw()
     const observer = new ResizeObserver(draw)
     observer.observe(el)
-    return () => observer.disconnect()
+    el.addEventListener('animationend', draw)
+    return () => {
+      observer.disconnect()
+      el.removeEventListener('animationend', draw)
+    }
   })
 
   const dotClass = (p, extra = '') => {
@@ -319,7 +324,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     for(const slot of free){
       const row=Math.floor(slot/cols)
       if(region===null&&hidden.has(row))continue
-      out.push(<div key={`slot-${slot}`} className={`pb-cell ${ranges.some(b=>b.view==='ports'&&row>=b.start&&row<b.end)?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot)}>{fixed?<div className="pb-cell is-blank" />:<button type="button" className="pb-slot" onClick={()=>onSlot(slot,region)} aria-label={tr('在这一格放置元件','Place a part in this slot')}><Plus size={20} /></button>}</div>)
+      out.push(<div key={`slot-${slot}`} className={`pb-cell ${ranges.some(b=>b.view==='ports'&&row>=b.start&&row<b.end)?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot)}>{fixed?<div className="pb-cell is-blank" />:<button type="button" className="pb-slot" onClick={()=>onSlot(slot,region)} aria-label={tr('在这一格放置元件')}><Plus size={20} /></button>}</div>)
     }
     return <div className={`pb-grid ${region?'is-region':'is-blocks'}`} data-cols={cols} data-size={size} style={{...style,...(region===null?{gridTemplateRows:tracks.join(' ')}:{})}} onClickCapture={region===null&&partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined){event.stopPropagation();event.preventDefault();pickRow(Number(row),placed)}}:undefined} onPointerOver={partitioning?(event)=>{const row=event.target.closest('[data-pick-row]')?.dataset.pickRow;if(row!==undefined)setHoverRow(Number(row))}:undefined}>{out}</div>
   }
@@ -365,7 +370,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
             {!isFolded && tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
           </div>
           {width && !isFolded && (
-            <button type="button" className="pb-frame-width" onClick={() => width.set(!width.narrow)} aria-label={width.narrow ? tr('单列，点击切换为双列', 'One column; tap for two') : tr('双列，点击切换为单列', 'Two columns; tap for one')} title={width.narrow ? tr('单列', 'One column') : tr('双列', 'Two columns')}>
+            <button type="button" className="pb-frame-width" onClick={() => width.set(!width.narrow)} aria-label={width.narrow ? tr('单列，点击切换为双列') : tr('双列，点击切换为单列')} title={width.narrow ? tr('单列') : tr('双列')}>
               {width.narrow ? <Square size={14} aria-hidden="true" /> : <Columns2 size={14} aria-hidden="true" />}
             </button>
           )}
@@ -384,8 +389,8 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
         {!fixed&&manualBlocks&&blocks&&<button type="button" className="pb-partition" aria-label={L(WORDS.partition)} aria-pressed={partitioning} onClick={()=>{setPartitioning(!partitioning);setStartRow(null)}}><Group size={16} /></button>}
         {history && (
           <span className="pb-steps">
-            <button type="button" onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销', 'Undo')}><Undo2 size={16} /></button>
-            <button type="button" onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做', 'Redo')} title={tr('重做', 'Redo')}><Redo2 size={16} /></button>
+            <button type="button" onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销')} title={tr('撤销')}><Undo2 size={16} /></button>
+            <button type="button" onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做')} title={tr('重做')}><Redo2 size={16} /></button>
           </span>
         )}
         <button type="button" className="pb-wiremode" onClick={cycle} aria-label={tr(`接线显示：${L(mode.label)}，点击切换为「${L(next.label)}」`, `Wires: ${L(mode.label)}; tap to switch to "${L(next.label)}"`)}>

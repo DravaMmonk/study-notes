@@ -1,0 +1,48 @@
+{
+  "title": { "zh": "转四分之一圈" },
+  "intro": [
+    {
+      "t": {
+        "zh": "把整个平面绕原点逆时针转四分之一圈，每一支箭头都跟着转。<part-ref to=\"part:vec\"></part-ref>把几个数从上到下排成一个向量，配上<part-ref to=\"part:num\"></part-ref>，就能写出一支固定的箭头。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "转动之后，格线仍然平行且等距，原点不动：这样的变换叫<wiki-ref to=\"linear-transformation\"></wiki-ref>。"
+  },
+  "adds": ["vec"],
+  "tasks": [
+    {
+      "id": "1-6",
+      "brief": {
+        "zh": "交出 v 绕原点逆时针转四分之一圈后的箭头。"
+      },
+      "hint": [
+        { "zh": "先看 î 和 ĵ 各转到了哪里。" },
+        {
+          "zh": "v 是几支 î 加几支 ĵ；转过去以后，这句话还成立吗？"
+        }
+      ],
+      "inputs": [{ "name": "v", "label": "v" }],
+      "outputs": [{ "name": "out", "label": { "zh": "转后" } }],
+      "tests": [
+        { "inputs": { "v": [1, 0] }, "expect": { "out": [0, 1] } },
+        { "inputs": { "v": [2, 1] }, "expect": { "out": [-1, 2] } },
+        { "inputs": { "v": [-3, 4] }, "expect": { "out": [-4, -3] } },
+        { "inputs": { "v": [0, -2] }, "expect": { "out": [2, 0] } }
+      ],
+      "solution": [
+        "x = entry[i=\"1\"](v)",
+        "y = entry[i=\"2\"](v)",
+        "z = num[value=\"0\"]()",
+        "o = num[value=\"1\"]()",
+        "n = num[value=\"-1\"]()",
+        "i = vec(z, o)",
+        "j = vec(n, z)",
+        "r = combo(x, y, i, j)",
+        "out <- r"
+      ],
+      "naive": ["x = entry[i=\"1\"](v)", "y = entry[i=\"2\"](v)", "r = vec(y, x)", "out <- r"]
+    }
+  ]
+}

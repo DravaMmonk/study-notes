@@ -98,8 +98,9 @@ export function validate(schema, value, { vocabulary = null, levels = null, lang
           for (const p of markupOf(v).problems) say(where, p)
           return
         }
-        if (!isObj(v) || typeof v.zh !== 'string' || typeof v.en !== 'string' || Object.keys(v).length !== 2) return say(where, `expected text, { zh, en } or a string, found ${show(v)}`)
-        for (const side of ['zh', 'en']) for (const p of markupOf(v[side]).problems) say(`${where}.${side}`, p)
+        // Content is written in one language; a translation belongs in the game's overlay (./i18n.js).
+        if (!isObj(v) || typeof v.zh !== 'string' || Object.keys(v).length !== 1) return say(where, `expected text, { zh } or a string, found ${show(v)}`)
+        for (const p of markupOf(v.zh).problems) say(`${where}.zh`, p)
         return
       case 'oneOf':
         if (!s.values.includes(v)) say(where, `expected one of ${s.values.map(show).join(', ')}, found ${show(v)}`)

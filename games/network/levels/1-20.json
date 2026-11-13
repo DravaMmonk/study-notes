@@ -1,36 +1,31 @@
 {
-  "title": { "zh": "哪一位翻了", "en": "Which bit flipped" },
+  "title": { "zh": "哪一位翻了" },
   "intro": [
     {
       "t": {
-        "zh": "到这里为止，校验码只用来判断收到的东西是好是坏。这一次每个<wiki-ref to=\"codeword\"></wiki-ref>只有 4 位数据，却带着 3 位校验码。",
-        "en": "So far check bits have only judged whether something arrived intact. This time each <wiki-ref to=\"codeword\"></wiki-ref> carries just 4 data bits, and 3 check bits."
+        "zh": "到这里为止，校验码只用来判断收到的东西是好是坏。这一次每个<wiki-ref to=\"codeword\"></wiki-ref>只有 4 位数据，却带着 3 位校验码。"
       }
     }
   ],
   "after": {
-    "zh": "找得出哪一位错了，就改得回来，不必请对方重发：这叫<wiki-ref to=\"error-correction\"></wiki-ref>。",
-    "en": "Knowing which bit is wrong is enough to put it right without asking for it again: this is <wiki-ref to=\"error-correction\"></wiki-ref>."
+    "zh": "找得出哪一位错了，就改得回来，不必请对方重发：这叫<wiki-ref to=\"error-correction\"></wiki-ref>。"
   },
   "tasks": [
     {
       "id": "1-20",
       "brief": {
-        "zh": "线上从第一拍起接连送来 7 位码字：4 位数据加 3 位校验码（生成式 1011），每个最多翻一位。码字最后一位到达的那一拍，输出翻的是第几位（先到的为第 1 位），没翻输出 0。",
-        "en": "From the first tick, 7-bit codewords come down the wire back to back: 4 data bits, then 3 check bits (generator 1011), with at most one bit flipped in each. On the tick a codeword's last bit arrives, output which bit flipped (the first to arrive is 1), or 0 if none."
+        "zh": "线上从第一拍起接连送来 7 位码字：4 位数据加 3 位校验码（生成式 1011），每个最多翻一位。码字最后一位到达的那一拍，输出翻的是第几位（先到的为第 1 位），没翻输出 0。"
       },
       "hint": [
         {
-          "zh": "先在纸上算：没有翻位时余数是多少？只翻第 1 位时呢？",
-          "en": "Work it out on paper first: what is the remainder when nothing flipped? When only bit 1 flipped?"
+          "zh": "先在纸上算：没有翻位时余数是多少？只翻第 1 位时呢？"
         },
         {
-          "zh": "7 个位置各翻一位，各留下什么余数？",
-          "en": "Flip each of the 7 positions in turn: what remainder does each leave?"
+          "zh": "7 个位置各翻一位，各留下什么余数？"
         }
       ],
-      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
-      "outputs": [{ "name": "pos", "label": { "zh": "翻了的位", "en": "Flipped bit" } }],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
+      "outputs": [{ "name": "pos", "label": { "zh": "翻了的位" } }],
       "tests": [
         {
           "ticks": 14,

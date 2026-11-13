@@ -3,7 +3,7 @@
 
 .optics-figure { margin: 0; }
 .optics-figure svg { display: block; width: 100%; height: auto; }
-.optics-figure svg text { font-family: var(--mono); font-size: var(--fs, 11px); }
+.optics-figure svg text { font-family: var(--mono); font-size: var(--fs, var(--fs-label)); }
 .optics-drag { touch-action: none; user-select: none; -webkit-user-select: none; }
 
 .optics-axis { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; }
@@ -28,8 +28,8 @@
 .optics-foot path { fill: var(--accent); }
 .optics-handle.is-dragging .optics-foot rect, .optics-handle:focus-visible .optics-foot rect { fill: color-mix(in srgb, var(--accent) 28%, var(--paper)); }
 
-.optics-inset { margin: 0; padding: 10px; }
-.optics-inset svg { width: 100%; height: auto; display: block; border-radius: 8px; }
+.optics-inset { margin: 0; padding: var(--sp-4); }
+.optics-inset svg { width: 100%; height: auto; display: block; border-radius: var(--r-md); }
 .optics-inset-bg { fill: var(--pre-bg); }
 .optics-inset-axis { stroke: var(--pre-line); stroke-width: 1; stroke-dasharray: 3 2; vector-effect: non-scaling-stroke; }
 .optics-tick { stroke: var(--pre-ink); stroke-width: .3; opacity: .7; }
@@ -38,7 +38,7 @@
 .optics-goal-line { stroke: var(--accent); stroke-width: .5; stroke-dasharray: 1.5 1; }
 
 @media (max-width: 760px) {
-  .optics-inset { padding: 6px; }
-  .optics-inset .bk-caption { margin-top: 4px; font-size: 10px; }
+  .optics-inset { padding: var(--sp-3); }
+  .optics-inset .bk-caption { margin-top: var(--sp-2); font-size: 10px; }
   .optics-tick-label { font-size: 5.4px; }
 }

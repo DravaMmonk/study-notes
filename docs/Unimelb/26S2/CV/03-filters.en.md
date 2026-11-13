@@ -183,6 +183,8 @@ If a 2D kernel can be written as the outer product of a column vector and a row 
 
 A $k\times k$ kernel originally needs about $k^2$ multiplications per pixel; after splitting it needs about $2k$ , and the difference is significant when $k$ is large. Gaussian kernels are often close to separable, or can be constructed as separable kernels.
 
+<!-- task: comp90086/separable -->
+
 ![Slide 40 - Separable filter calculation](assets/03-filters/slide-40.png)
 
 Associativity also allows several linear filters to be combined first and then applied to the image in a single pass. This can be faster, but it is not necessarily worthwhile if intermediate results must be kept, or if the combined kernel becomes too large.

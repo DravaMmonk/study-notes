@@ -1,50 +1,44 @@
 {
-  "title": { "zh": "塞一个 0", "en": "Slip in a 0" },
+  "title": { "zh": "塞一个 0" },
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"counterhold\"></part-ref>和<part-ref to=\"serializerhold\"></part-ref>都能停一拍了。两头再约好塞哪一位、塞在哪里：内容里每连着 5 个 1，发送方就多说一个 0，收的一方再把它去掉，内容里就不会出现旗标。这叫<wiki-ref to=\"stuffing\"></wiki-ref>。",
-        "en": "<part-ref to=\"counterhold\"></part-ref> and <part-ref to=\"serializerhold\"></part-ref> can both stand still for a tick. Now the ends agree on what to slip in and where: after every five 1s in a row in the content the sender says an extra 0, and the receiver takes it out again, so the content never looks like a flag. This is <wiki-ref to=\"stuffing\"></wiki-ref>."
+        "zh": "<part-ref to=\"counterhold\"></part-ref>和<part-ref to=\"serializerhold\"></part-ref>都能停一拍了。两头再约好塞哪一位、塞在哪里：内容里每连着 5 个 1，发送方就多说一个 0，收的一方再把它去掉，内容里就不会出现旗标。这叫<wiki-ref to=\"stuffing\"></wiki-ref>。"
       }
     }
   ],
   "builds": {
     "type": "framer",
-    "name": { "zh": "成帧器", "en": "Framer" },
+    "name": { "zh": "成帧器" },
     "desc": {
-      "zh": "把交来的字节一帧一帧地送出：「发送」为 1 时开始新的一帧，前后各加旗标 01111110，内容里每连着 5 个 1 多说一个 0；没有开始新帧时线上说旗标。「下一个」为 1 的那一拍取走眼前的字节，「末字节」为 1 的字节是一帧的最后一个。",
-      "en": "Sends the bytes handed to it frame by frame: a new frame begins while send is 1, with the flag 01111110 at each end and a 0 added after every five 1s in its content; flags fill the wire between frames. Next is 1 on the tick it takes the byte in front of it, and a byte with last 1 ends its frame."
+      "zh": "把交来的字节一帧一帧地送出：「发送」为 1 时开始新的一帧，前后各加旗标 01111110，内容里每连着 5 个 1 多说一个 0；没有开始新帧时线上说旗标。「下一个」为 1 的那一拍取走眼前的字节，「末字节」为 1 的字节是一帧的最后一个。"
     }
   },
   "tasks": [
     {
       "id": "1-40",
       "brief": {
-        "zh": "把交来的每一帧送出，前后各加一个旗标 01111110，只在「发送」为 1 时开始新的一帧；内容里每连着 5 个 1，就多说一个 0。「下一个」取走队首，「末字节」标出帧尾。",
-        "en": "Send each frame handed to you with a flag 01111110 before and after it, starting a new frame only while send is 1, and add a 0 after every five 1s in a row in the content. Next takes the byte in front; last marks a frame's final byte."
+        "zh": "把交来的每一帧送出，前后各加一个旗标 01111110，只在「发送」为 1 时开始新的一帧；内容里每连着 5 个 1，就多说一个 0。「下一个」取走队首，「末字节」标出帧尾。"
       },
       "hint": [
         {
-          "zh": "旗标原样说出，不做填充；填充只管内容。",
-          "en": "Flags go out as they are, unstuffed; only the content is stuffed."
+          "zh": "旗标原样说出，不做填充；填充只管内容。"
         },
         {
-          "zh": "多说 0 的那一拍，内容停一拍不走：正在说的那一位留到下一拍。",
-          "en": "On the tick of the extra 0 the content stands still: the bit that was due waits a tick."
+          "zh": "多说 0 的那一拍，内容停一拍不走：正在说的那一位留到下一拍。"
         },
         {
-          "zh": "该不该多说一个 0，要看刚说出去的内容里连着几个 1。",
-          "en": "Whether an extra 0 is due depends on how many 1s in a row the content has just put on the wire."
+          "zh": "该不该多说一个 0，要看刚说出去的内容里连着几个 1。"
         }
       ],
       "inputs": [
-        { "name": "byte", "label": { "zh": "队首", "en": "Next byte" } },
-        { "name": "last", "label": { "zh": "末字节", "en": "Last byte" } },
-        { "name": "send", "label": { "zh": "发送", "en": "Send" } }
+        { "name": "byte", "label": { "zh": "队首" } },
+        { "name": "last", "label": { "zh": "末字节" } },
+        { "name": "send", "label": { "zh": "发送" } }
       ],
-      "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
+      "outputs": [{ "name": "next", "label": { "zh": "下一个" } }],
       "pulls": { "input": "byte", "next": "next", "last": "last" },
-      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线" } }] },
       "tests": [
         {
           "ticks": 30,

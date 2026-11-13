@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "从哪开始", "en": "Where it starts" },
+  "title": { "zh": "从哪开始" },
   "intro": [
     {
       "t": {
-        "zh": "发送方随时可能开口，而空着的线读出来是 0：一个以 0 开头的字节和安静的线分不出来，收的一方不知道从哪一拍数起。于是两头约好：字节之前先说一个 1，叫<wiki-ref to=\"start-bit\"></wiki-ref>；字节之后说一个 0，叫<wiki-ref to=\"stop-bit\"></wiki-ref>。",
-        "en": "The sender may begin at any tick, and an idle wire reads 0: a byte that begins with 0s looks just like a quiet wire, and the receiver cannot tell where to start counting. So the ends agree that a 1, the <wiki-ref to=\"start-bit\"></wiki-ref>, comes before each byte, and a 0, the <wiki-ref to=\"stop-bit\"></wiki-ref>, after it."
+        "zh": "发送方随时可能开口，而空着的线读出来是 0：一个以 0 开头的字节和安静的线分不出来，收的一方不知道从哪一拍数起。于是两头约好：字节之前先说一个 1，叫<wiki-ref to=\"start-bit\"></wiki-ref>；字节之后说一个 0，叫<wiki-ref to=\"stop-bit\"></wiki-ref>。"
       }
     }
   ],
@@ -12,22 +11,19 @@
     {
       "id": "1-9",
       "brief": {
-        "zh": "对方随时可能先说一个 1，再送 8 位，最后说一个 0；每收到一个字节，就在它最后一位到达的那一拍输出它，其余各拍输出「—」。",
-        "en": "At any tick the far end may say a 1, then 8 bits, then a 0; output each byte on the tick its last bit arrives, and 「—」 on every other tick."
+        "zh": "对方随时可能先说一个 1，再送 8 位，最后说一个 0；每收到一个字节，就在它最后一位到达的那一拍输出它，其余各拍输出「—」。"
       },
       "hint": [
-        { "zh": "线空着的时候，来的第一个 1 就是起始位。", "en": "While the wire is idle, the first 1 to come is a start bit." },
+        { "zh": "线空着的时候，来的第一个 1 就是起始位。" },
         {
-          "zh": "正在收一个字节时，线上的 1 是数据，不是起始位。",
-          "en": "While a byte is coming in, a 1 on the wire is data, not a start bit."
+          "zh": "正在收一个字节时，线上的 1 是数据，不是起始位。"
         },
         {
-          "zh": "<part-ref to=\"deserializer\"></part-ref>从「开始」那一拍收进第一位。",
-          "en": "<part-ref to=\"deserializer\"></part-ref> takes in its first bit on the start tick."
+          "zh": "<part-ref to=\"deserializer\"></part-ref>从「开始」那一拍收进第一位。"
         }
       ],
-      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
-      "outputs": [{ "name": "byte", "label": { "zh": "字节", "en": "Byte" } }],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
+      "outputs": [{ "name": "byte", "label": { "zh": "字节" } }],
       "tests": [
         { "wires": { "line": { "send": [{ "bytes": [65], "format": "startstop" }] } } },
         { "wires": { "line": { "send": [{ "idle": 4 }, { "bytes": [0], "format": "startstop" }] } } },

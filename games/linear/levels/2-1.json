@@ -1,0 +1,60 @@
+{
+  "title": { "zh": "矩阵" },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"1-6\"></level-ref>和<level-ref to=\"1-7\"></level-ref>各自接好了 î、ĵ 的落点；换一个变换，板就得重接。把两个落点并排写成一张数表，当作一个值在线上传：这张表叫<wiki-ref to=\"matrix\"></wiki-ref>，第一列是 î 的落点，第二列是 ĵ 的落点。下图的矩阵把格子推歪了。"
+      },
+      "show": { "shape": "grid", "value": [[1, 1], [0, 1]], "views": ["carried"] }
+    },
+    {
+      "t": {
+        "zh": "<part-ref to=\"part:column\"></part-ref>从矩阵里取出一列。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "这个运算记作 Mx，叫<wiki-ref to=\"matrix-vector-product\"></wiki-ref>。"
+  },
+  "adds": ["column"],
+  "builds": {
+    "type": "apply",
+    "name": { "zh": "变换" },
+    "desc": {
+      "zh": "给出矩阵 M 把向量 x 送到的那一点 Mx。"
+    }
+  },
+  "tasks": [
+    {
+      "id": "2-1",
+      "brief": {
+        "zh": "交出矩阵 M 所表示的变换把 x 送到的那一点。"
+      },
+      "inputs": [{ "name": "M", "label": "M" }, { "name": "x", "label": "x" }],
+      "outputs": [{ "name": "out", "label": "Mx" }],
+      "tests": [
+        { "inputs": { "M": [[0, -1], [1, 0]], "x": [2, 1] }, "expect": { "out": [-1, 2] } },
+        { "inputs": { "M": [[1, 1], [0, 1]], "x": [1, 1] }, "expect": { "out": [2, 1] } },
+        { "inputs": { "M": [[2, 0], [0, 3]], "x": [1, -1] }, "expect": { "out": [2, -3] } },
+        { "inputs": { "M": [[1, -1], [1, 1]], "x": [3, 0] }, "expect": { "out": [3, 3] } }
+      ],
+      "hidden": [{ "inputs": { "M": [[1, 2], [2, 4]], "x": [1, 1] }, "expect": { "out": [3, 6] } }],
+      "solution": [
+        "a = column[j=\"1\"](M)",
+        "b = column[j=\"2\"](M)",
+        "x1 = entry[i=\"1\"](x)",
+        "x2 = entry[i=\"2\"](x)",
+        "r = combo(x1, x2, a, b)",
+        "out <- r"
+      ],
+      "naive": [
+        "a = column[j=\"1\"](M)",
+        "b = column[j=\"2\"](M)",
+        "x1 = entry[i=\"1\"](x)",
+        "x2 = entry[i=\"2\"](x)",
+        "r = combo(x2, x1, a, b)",
+        "out <- r"
+      ]
+    }
+  ]
+}

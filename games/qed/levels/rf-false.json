@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "算出来是假", "en": "It works out false" },
+  "title": { "zh": "算出来是假" },
   "intro": [
     {
       "t": {
-        "zh": "已知 complete 说：taut x 算出假，x 就不是永远成立。",
-        "en": "The given complete says: if taut x works out false, x does not always hold."
+        "zh": "已知 complete 说：taut x 算出假，x 就不是永远成立。"
       }
     }
   ],
@@ -12,8 +11,8 @@
     {
       "id": "rf-false_1",
       "kind": "term",
-      "step": { "zh": "第一题", "en": "Problem 1" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第一题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl"],
       "words": ["everyday", "terms", "reflection"],
       "consts": ["p", "q", "tt", "ff"],
@@ -35,13 +34,13 @@
       "goal": "¬Taut(conj(p, q))",
       "given": "sound rfl",
       "answer": "complete rfl",
-      "hint": [{ "zh": "先点检查，看核把 taut 算成了什么。", "en": "Check first and see what the kernel works taut out to." }]
+      "hint": [{ "zh": "先点检查，看核把 taut 算成了什么。" }]
     },
     {
       "id": "rf-false_2",
       "kind": "term",
-      "step": { "zh": "第二题", "en": "Problem 2" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第二题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl"],
       "words": ["everyday", "terms", "reflection"],
       "consts": ["p", "q", "tt", "ff"],
@@ -63,13 +62,13 @@
       "goal": "¬Taut(disj(p, q))",
       "answer": "complete rfl",
       "naive": "sound rfl",
-      "hint": [{ "zh": "p 和 q 都假的那一行呢？", "en": "What of the row where p and q are both false?" }]
+      "hint": [{ "zh": "p 和 q 都假的那一行呢？" }]
     },
     {
       "id": "rf-false_3",
       "kind": "term",
-      "step": { "zh": "第三题", "en": "Problem 3" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第三题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl"],
       "words": ["everyday", "terms", "reflection"],
       "consts": ["p", "q", "tt", "ff"],
@@ -90,7 +89,7 @@
       "premises": { "sound": "∀x. taut(x) = tt → Taut(x)", "complete": "∀x. taut(x) = ff → ¬Taut(x)" },
       "goal": "Taut(disj(q, neg(q))) ∧ ¬Taut(q)",
       "answer": "⟨sound rfl, complete rfl⟩",
-      "hint": [{ "zh": "一对，两边各算一次。", "en": "A pair, each side worked out once." }]
+      "hint": [{ "zh": "一对，两边各算一次。" }]
     }
   ]
 }

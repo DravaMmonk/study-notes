@@ -1,0 +1,44 @@
+{
+  "title": { "zh": "等差" },
+  "intro": [
+    {
+      "t": {
+        "zh": "到这里，数列都由测试交来。这一回没有输入，却要交出无穷多项：3, 5, 7, 9, …，每一项比上一项多 2。"
+      }
+    },
+    {
+      "t": {
+        "zh": "固定的 2 由新元件<part-ref to=\"part:const\"></part-ref>给出，它每一拍都交出设定的数。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "首项加上由上一项算出这一项的规则，整个数列就定了：这叫<wiki-ref to=\"recurrence\"></wiki-ref>。每一步加同一个数的，叫<wiki-ref to=\"arithmetic\"></wiki-ref>。"
+  },
+  "adds": ["const"],
+  "tasks": [
+    {
+      "id": "arith",
+      "brief": {
+        "zh": "交出首项 3、之后每项比上一项多 2 的数列。"
+      },
+      "hint": [
+        {
+          "zh": "寄存卡里该存的，是下一拍要交出的那一项。"
+        },
+        { "zh": "首项写在读寄存卡的初值上。" }
+      ],
+      "outputs": [{ "name": "a", "label": "aₙ" }],
+      "tests": [{ "want": { "a": [3, 5, 7, 9, 11, 13, 15, 17] } }],
+      "hidden": [{ "want": { "a": [3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25] } }],
+      "solution": [
+        "r = reg[reg=A, start=3]()",
+        "c = const[value=2]()",
+        "s = add(r, c)",
+        "k = keep[reg=A](s)",
+        "a <- r"
+      ],
+      "naive": ["c = const[value=3]()", "d = const[value=2]()", "s = add(c, d)", "a <- s"]
+    }
+  ]
+}

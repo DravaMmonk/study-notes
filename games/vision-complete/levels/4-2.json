@@ -1,29 +1,25 @@
 {
-  "title": { "zh": "两个旋钮", "en": "Two knobs" },
+  "title": { "zh": "两个旋钮" },
   "tray": "pipeline",
   "after": {
-    "zh": "两个旋钮时，误差是一片地形，梯度是一个箭头，指向上坡最陡的方向。这片山谷又窄又长，梯度总指着谷壁，路线就走成了之字形。w × 输入 + b 有一个名字：全连接层（这里只有一个输入）。",
-    "en": "With two knobs the error is a landscape, and the gradient is an arrow pointing up the steepest slope. This valley is long and narrow, so the gradient keeps pointing at the valley walls and the path zig-zags. w × input + b has a name: a dense layer (here with a single input)."
+    "zh": "两个旋钮时，误差是一片地形，梯度是一个箭头，指向上坡最陡的方向。这片山谷又窄又长，梯度总指着谷壁，路线就走成了之字形。w × 输入 + b 有一个名字：全连接层（这里只有一个输入）。"
   },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"4-1\"></level-ref>只有一个旋钮。这一关的规律多了一项：输出 = w × 输入 + b，两个旋钮要一起调。",
-        "en": "<level-ref to=\"4-1\"></level-ref> had a single knob. This level's rule has one more term: output = w × input + b, and the two knobs must be tuned together."
+        "zh": "<level-ref to=\"4-1\"></level-ref>只有一个旋钮。这一关的规律多了一项：输出 = w × 输入 + b，两个旋钮要一起调。"
       }
     },
     {
       "t": {
-        "zh": "w 和 b 各用一个<part-ref to=\"part:lrnConst\"></part-ref>。",
-        "en": "Use one <part-ref to=\"part:lrnConst\"></part-ref> for w and another for b."
+        "zh": "w 和 b 各用一个<part-ref to=\"part:lrnConst\"></part-ref>。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：让机器自己找到 w 和 b。要想的问题：两个旋钮时，「往下坡走」指的是往哪个方向走？",
-        "en": "Your task in this level: let the machine find w and b itself. Something to think about: with two knobs, which direction does \"walking downhill\" mean?"
+        "zh": "这一关你要做的：让机器自己找到 w 和 b。要想的问题：两个旋钮时，「往下坡走」指的是往哪个方向走？"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一个样本：x = 0.2", "en": "The first sample: x = 0.2" } }
+      "fig": { "test": 0, "caption": { "zh": "第一个样本：x = 0.2" } }
     }
   ],
   "unlocks": ["dense"],
@@ -32,31 +28,29 @@
       "id": "4-2",
       "kind": "graph",
       "brief": {
-        "zh": "规律变成 输出 = w × 输入 + b。两个旋钮都要机器自己找。",
-        "en": "The rule becomes output = w × input + b. The machine has to find both knobs itself."
+        "zh": "规律变成 输出 = w × 输入 + b。两个旋钮都要机器自己找。"
       },
       "hint": {
-        "zh": "两个旋钮一起下山。山谷又窄又长时，学习率大了会在两侧来回冲，小了又走得很慢。",
-        "en": "Both knobs walk downhill together. When the valley is long and narrow, a large learning rate bounces from side to side, and a small one crawls."
+        "zh": "两个旋钮一起下山。山谷又窄又长时，学习率大了会在两侧来回冲，小了又走得很慢。"
       },
-      "inputLabels": { "in": { "zh": "输入亮度", "en": "Input brightness" } },
+      "inputLabels": { "in": { "zh": "输入亮度" } },
       "check": { "tolerance": 0.01 },
       "trainRates": [0.1, 0.3, 0.7, 1.5],
       "scene": "samples",
       "setup": { "scale": 0.5, "offset": 0.2 },
       "tests": [
-        { "label": { "zh": "x = 0.2", "en": "x = 0.2" }, "x": 0.2 },
-        { "label": { "zh": "x = 0.3", "en": "x = 0.3" }, "x": 0.30000000000000004 },
-        { "label": { "zh": "x = 0.4", "en": "x = 0.4" }, "x": 0.4 },
-        { "label": { "zh": "x = 0.5", "en": "x = 0.5" }, "x": 0.5 },
-        { "label": { "zh": "x = 0.6", "en": "x = 0.6" }, "x": 0.6000000000000001 },
-        { "label": { "zh": "x = 0.7", "en": "x = 0.7" }, "x": 0.7 },
-        { "label": { "zh": "x = 0.8", "en": "x = 0.8" }, "x": 0.8 },
-        { "label": { "zh": "x = 0.9", "en": "x = 0.9" }, "x": 0.9000000000000001 }
+        { "label": { "zh": "x = 0.2" }, "x": 0.2 },
+        { "label": { "zh": "x = 0.3" }, "x": 0.30000000000000004 },
+        { "label": { "zh": "x = 0.4" }, "x": 0.4 },
+        { "label": { "zh": "x = 0.5" }, "x": 0.5 },
+        { "label": { "zh": "x = 0.6" }, "x": 0.6000000000000001 },
+        { "label": { "zh": "x = 0.7" }, "x": 0.7 },
+        { "label": { "zh": "x = 0.8" }, "x": 0.8 },
+        { "label": { "zh": "x = 0.9" }, "x": 0.9000000000000001 }
       ],
       "hidden": [
-        { "label": { "zh": "新样本 x = 0.1", "en": "New sample x = 0.1" }, "x": 0.1 },
-        { "label": { "zh": "新样本 x = 1.2", "en": "New sample x = 1.2" }, "x": 1.2 }
+        { "label": { "zh": "新样本 x = 0.1" }, "x": 0.1 },
+        { "label": { "zh": "新样本 x = 1.2" }, "x": 1.2 }
       ],
       "solution": [
         "w = lrnConst[p=[0.5]]()",

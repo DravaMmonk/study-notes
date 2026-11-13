@@ -1,25 +1,23 @@
 {
-  "title": { "zh": "一对一", "en": "One-to-one" },
+  "title": { "zh": "一对一" },
   "tray": "proof",
   "fact": "inject",
   "intro": [
     {
       "t": {
-        "zh": "同一个构造子造出的两个值相等，参数也相等：S a = S b，则 a = b。这叫<wiki-ref to=\"injectivity\"></wiki-ref>。声明没有直接给出这条规则，要借一个函数证出来：pred 取一个数的前一个。",
-        "en": "Two values made by the same constructor are equal only if their arguments are: if S a = S b, then a = b. This is <wiki-ref to=\"injectivity\"></wiki-ref>. The declaration does not give it as a rule; it is proved with the help of a function, pred, the number before a number."
+        "zh": "同一个构造子造出的两个值相等，参数也相等：S a = S b，则 a = b。这叫<wiki-ref to=\"injectivity\"></wiki-ref>。声明没有直接给出这条规则，要借一个函数证出来：pred 取一个数的前一个。"
       }
     }
   ],
   "after": {
-    "zh": "证出的一对一进了「数理规则书」。Lean 的内核里，同一件事叫 noConfusion。",
-    "en": "The one-to-one proved goes into the “Rule book of numbers”. In Lean’s kernel the same fact is called noConfusion."
+    "zh": "证出的一对一进了「数理规则书」。Lean 的内核里，同一件事叫 noConfusion。"
   },
   "tasks": [
     {
       "id": "in-inject_1",
       "kind": "define",
       "words": ["everyday", "terms"],
-      "step": { "zh": "前一个数", "en": "The one before" },
+      "step": { "zh": "前一个数" },
       "fn": "pred",
       "on": 0,
       "rows": [
@@ -34,26 +32,24 @@
       "solution": ["zero", "x"],
       "naive": ["zero", "pred(x)"],
       "brief": {
-        "zh": "给每一行选一个右边，让每个测试都算对。",
-        "en": "Pick a right side for every row so that every test works out right."
+        "zh": "给每一行写出右边。"
       },
-      "hint": [{ "zh": "0 前面没有数，就取 0。", "en": "Nothing comes before 0, so take 0." }]
+      "hint": [{ "zh": "0 前面没有数，就取 0。" }]
     },
     {
       "id": "in-inject_2",
       "kind": "proof",
-      "step": { "zh": "S 一对一", "en": "S is one-to-one" },
+      "step": { "zh": "S 一对一" },
       "consts": ["zero"],
       "words": ["everyday", "terms"],
       "cases": [],
       "tests": [{ "premises": { "p": "∀x. pred(s(x)) = x" }, "goal": "∀x. ∀y. s(x) = s(y) → x = y" }],
       "brief": {
-        "zh": "从 pred 的定义证出：若 S x = S y，则 x = y。",
-        "en": "From the definition of pred, prove: if S x = S y, then x = y."
+        "zh": "从 pred 的定义证出：若 S x = S y，则 x = y。"
       },
       "hint": [
-        { "zh": "pred 的定义分别取 a 和 b。", "en": "Take a, and then b, in pred’s definition." },
-        { "zh": "假设的 S a = S b 可以改写其中一句。", "en": "The assumed S a = S b can rewrite one of them." }
+        { "zh": "pred 的定义分别取 a 和 b。" },
+        { "zh": "假设的 S a = S b 可以改写其中一句。" }
       ],
       "solution": [
         "gx = allI[x=a](body: gy) {",

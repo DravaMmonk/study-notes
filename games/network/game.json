@@ -2,19 +2,16 @@
   "domain": "net",
   "vocabulary": 1,
   "title": {
-    "zh": "从一根线开始",
-    "en": "From One Wire"
+    "zh": "从一根线开始"
   },
   "views": {
     "bits": ["wave", "bands"]
   },
   "kicker": {
-    "zh": "计算机网络",
-    "en": "Computer networks"
+    "zh": "计算机网络"
   },
   "lede": {
-    "zh": "一根线，一拍一位，还会出错。从传一位话开始，一层层搭出自己的网卡。",
-    "en": "One wire, one bit a tick, and some bits go wrong. Start by passing a bit on, and build a network adapter of your own, layer by layer."
+    "zh": "一根线，一拍一位，还会出错。从传一位话开始，一层层搭出自己的网卡。"
   },
   "primitives": [
     "select",
@@ -59,12 +56,10 @@
     {
       "id": 1,
       "title": {
-        "zh": "一根线",
-        "en": "One wire"
+        "zh": "一根线"
       },
       "question": {
-        "zh": "一根一拍只送一位、还会出错的线，两头怎样互相送出一帧，并知道它完好？",
-        "en": "Over a wire that carries a bit a tick and gets some wrong, how do two ends send each other a frame and know it arrived intact?"
+        "zh": "一根一拍只送一位、还会出错的线，两头怎样互相送出一帧，并知道它完好？"
       },
       "foundation": [
         "1-1",
@@ -82,12 +77,12 @@
           "parallel": [
             {
               "id": "frames",
-              "title": { "zh": "从哪开始", "en": "Where it starts" },
+              "title": { "zh": "从哪开始" },
               "levels": ["1-9", "1-10", "1-11", "1-26", "1-12", "1-13", "1-27", "1-28", "1-40", "1-29", "1-30"]
             },
             {
               "id": "errors",
-              "title": { "zh": "线会出错", "en": "The wire errs" },
+              "title": { "zh": "线会出错" },
               "levels": ["1-31", "1-32", "1-14", "1-15", "1-16", "1-35"]
             }
           ]

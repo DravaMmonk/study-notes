@@ -1,21 +1,18 @@
 {
-  "title": { "zh": "训不动的深网", "en": "The deep net that will not train" },
+  "title": { "zh": "训不动的深网" },
   "tray": "pipeline",
   "after": {
-    "zh": "残差连接让输入沿捷径通过，并让卷积分支学习调整量：y = x + F(x)。当目标接近输入时，网络可以从接近原样通过的状态开始，再学习需要的改变。捷径也为梯度提供直接路径，但并不保证所有深层网络都能训练成功。这里的锐化任务本身很简单，不要求每一层都学到不同特征。",
-    "en": "A residual connection passes the input along a shortcut and lets the convolution branch learn an adjustment: y = x + F(x). When the target is close to the input, the network can start near the identity and learn the needed change. The shortcut also provides a direct path for gradients, but does not guarantee that every deep network will train successfully. The sharpening task here is simple and does not require every layer to learn a different feature."
+    "zh": "残差连接让输入沿捷径通过，并让卷积分支学习调整量：y = x + F(x)。当目标接近输入时，网络可以从接近原样通过的状态开始，再学习需要的改变。捷径也为梯度提供直接路径，但并不保证所有深层网络都能训练成功。这里的锐化任务本身很简单，不要求每一层都学到不同特征。"
   },
   "intro": [
     {
       "t": {
-        "zh": "网络堆得更深，可以让后面的层组合前面的结果，看到更大范围的特征。但层数一多，训练也可能变得困难。",
-        "en": "A deeper network can combine earlier results in later layers to see features over a wider area. But as layers accumulate, training can also become difficult."
+        "zh": "网络堆得更深，可以让后面的层组合前面的结果，看到更大范围的特征。但层数一多，训练也可能变得困难。"
       }
     },
     {
       "t": {
-        "zh": "先训练两层卷积，观察每一层如何扩大看到的范围。接着尝试训练六层网络，看看怎样让信号通过深层网络。",
-        "en": "First train two convolution layers and observe how each expands the area seen. Then try training a six-layer network and see how to help signals travel through it."
+        "zh": "先训练两层卷积，观察每一层如何扩大看到的范围。接着尝试训练六层网络，看看怎样让信号通过深层网络。"
       }
     }
   ],
@@ -23,20 +20,17 @@
   "tasks": [
     {
       "id": "4-16-features",
-      "step": { "zh": "学习大范围特征", "en": "Learn a wider feature" },
+      "step": { "zh": "学习大范围特征" },
       "kind": "graph",
       "optional": true,
       "brief": {
-        "zh": "训练两层 3×3 卷积，让输出呈现较大范围的亮度分布。目标等于连续做两次 3×3 平均；先观察亮点测试中，每一层的结果覆盖了多大范围。",
-        "en": "Train two 3×3 convolution layers to show brightness over a wider area. The target is two successive 3×3 averages; first observe how wide an area each layer covers in the bright-dot test."
+        "zh": "训练两层 3×3 卷积，让输出呈现较大范围的亮度分布。目标等于连续做两次 3×3 平均；先观察亮点测试中，每一层的结果覆盖了多大范围。"
       },
       "hint": {
-        "zh": "把两个卷积层串起来，训练它们；比较亮点经过第一层和第二层的图。一个 3×3 层能看到多远，两层又能看到多远？",
-        "en": "Connect two convolution layers in sequence and train them. Compare the bright dot after the first and second layers: how far can one 3×3 layer see, and how far can two?"
+        "zh": "把两个卷积层串起来，训练它们；比较亮点经过第一层和第二层的图。一个 3×3 层能看到多远，两层又能看到多远？"
       },
       "after": {
-        "zh": "第一层从附近提取亮度，第二层再组合第一层的结果，因而能看见更大的范围。这里学到的是简单的亮度分布特征；真实网络还可以逐层组合边缘、形状等更复杂的特征。",
-        "en": "The first layer extracts nearby brightness, and the second combines those results to see a wider area. Here the learned feature is a simple brightness distribution; real networks can also combine edges, shapes and other more complex features across layers."
+        "zh": "第一层从附近提取亮度，第二层再组合第一层的结果，因而能看见更大的范围。这里学到的是简单的亮度分布特征；真实网络还可以逐层组合边缘、形状等更复杂的特征。"
       },
       "check": { "tolerance": 0.02 },
       "trainRate": 1,
@@ -75,19 +69,19 @@
         }
       },
       "tests": [
-        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "square": { "x0": 7, "y0": 7, "s": 1 } } },
-        { "label": { "zh": "方块", "en": "Square" }, "in": { "square": { "x0": 4, "y0": 4, "s": 5 } } },
+        { "label": { "zh": "亮点" }, "in": { "square": { "x0": 7, "y0": 7, "s": 1 } } },
+        { "label": { "zh": "方块" }, "in": { "square": { "x0": 4, "y0": 4, "s": 5 } } },
         {
-          "label": { "zh": "字母 X", "en": "Letter X" },
+          "label": { "zh": "字母 X" },
           "in": { "glyph": { "letter": "X", "lo": 0, "hi": 1 } }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "字母 L", "en": "Letter L" },
+          "label": { "zh": "字母 L" },
           "in": { "glyph": { "letter": "L", "lo": 0, "hi": 1, "ox": 4, "oy": 3 } }
         },
-        { "label": { "zh": "另一方块", "en": "Another square" }, "in": { "square": { "x0": 8, "y0": 3, "s": 4 } } }
+        { "label": { "zh": "另一方块" }, "in": { "square": { "x0": 8, "y0": 3, "s": 4 } } }
       ],
       "solution": [
         "a = lrnConv[w=[0.1111111111111111,0.1111111111111111,0.1111111111111111,0.1111111111111111,0.1111111111111111,0.1111111111111111,0.1111111111111111,0.1111111111111111,0.1111111111111111]](in)",
@@ -101,15 +95,13 @@
     },
     {
       "id": "4-16",
-      "step": { "zh": "训练深网", "en": "Train a deep network" },
+      "step": { "zh": "训练深网" },
       "kind": "graph",
       "brief": {
-        "zh": "把至少 6 个卷积层串成一条路，训练它做一次轻微的锐化：输出 = 原图 + 0.25 ×（原图 − 3×3 平均）。",
-        "en": "Chain at least 6 conv layers into one path and train it to do a light sharpen: output = image + 0.25 × (image − 3×3 average)."
+        "zh": "把至少 6 个卷积层串成一条路，训练它做一次轻微的锐化：输出 = 原图 + 0.25 ×（原图 − 3×3 平均）。"
       },
       "hint": {
-        "zh": "每层都从很小的随机数开始，图每过一层就缩小几十倍。有没有办法让一层的权重哪怕很小，图也不至于缩没？",
-        "en": "Every layer starts from very small random numbers, so the image shrinks tens of times over at each layer. Is there a way for a layer to keep the image from shrinking away even when its weights are tiny?"
+        "zh": "每层都从很小的随机数开始，图每过一层就缩小几十倍。有没有办法让一层的权重哪怕很小，图也不至于缩没？"
       },
       "check": { "tolerance": 0.04 },
       "constraint": { "depth": { "min": 6 } },
@@ -117,20 +109,20 @@
       "scene": "filter",
       "setup": { "target": { "meanBlend": { "amount": -0.25 } } },
       "tests": [
-        { "label": { "zh": "字母 X", "en": "Letter X" }, "in": { "glyph": { "letter": "X" } } },
-        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
+        { "label": { "zh": "字母 X" }, "in": { "glyph": { "letter": "X" } } },
+        { "label": { "zh": "圆盘" }, "in": "disk" },
         {
-          "label": { "zh": "带噪方块", "en": "Noisy square" },
+          "label": { "zh": "带噪方块" },
           "in": { "noisy": { "of": { "square": { "x0": 3, "y0": 5, "s": 7 } }, "seed": 3, "amp": 0.2 } }
         },
-        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": { "checker": { "cell": 3 } } }
+        { "label": { "zh": "棋盘" }, "in": { "checker": { "cell": 3 } } }
       ],
       "hidden": [
         {
-          "label": { "zh": "字母 L", "en": "Letter L" },
+          "label": { "zh": "字母 L" },
           "in": { "glyph": { "letter": "L", "lo": 0.2, "hi": 0.8, "ox": 4, "oy": 3 } }
         },
-        { "label": { "zh": "竖条纹", "en": "Vertical stripes" }, "in": { "stripes": { "period": 6, "lo": 0.2, "hi": 0.8 } } }
+        { "label": { "zh": "竖条纹" }, "in": { "stripes": { "period": 6, "lo": 0.2, "hi": 0.8 } } }
       ],
       "solution": [
         "k0 = lrnConv[w=[-0.027777777777777776, -0.027777777777777776, -0.027777777777777776, -0.027777777777777776, 0.2222222222222222, -0.027777777777777776, -0.027777777777777776, -0.027777777777777776, -0.027777777777777776]](in)",

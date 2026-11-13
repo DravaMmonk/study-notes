@@ -1,5 +1,5 @@
 // A __name__ game on the circuit base's game (../../shell/circuit-game.js), its levels played on the domain's circuit
-// level (ui/Screen.jsx).
+// level (run.js).
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   ops.js        the engine resources a game's parts.json calls
@@ -12,18 +12,10 @@
 //   starter/      the smallest game on the domain (npm run new-game copies it)
 import { Binary } from 'lucide-react'
 import './ui/__name__.css'
-import { circuitGame } from '../../shell/circuit-game.js'
-import { iconOf } from '../../shell/parts/icons.js'
-import Screen from './ui/Screen.jsx'
+import { definedGame } from '../../shell/circuit-game.js'
+import * as play from './run.js'
 import { __name__Course } from './course.js'
 import { OPS } from './ops.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary, partDefs }. */
-export default function __name__Game(content) {
-  const __name__ = __name__Course(content)
-  const cards = Object.fromEntries(Object.entries(__name__.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: iconOf(d.icon) }]))
-  const game = circuitGame(content, __name__, { kind: { id: 'circuit', icon: Binary, label: { zh: '电路', en: 'Circuit' } }, Screen, cards })
-  // The game's own parts as the studio shows them (../../shell/parts/PartPreview.jsx).
-  game.defined = { of: (type) => __name__.defs[type] ?? null, defaults: __name__.defaultsOf, ops: OPS }
-  return game
-}
+export default (content) => definedGame(content, __name__Course(content), { kind: { id: 'circuit', icon: Binary, label: { zh: '电路', en: 'Circuit' } }, screen: { play }, ops: OPS })

@@ -1,5 +1,5 @@
 import { createElement, useEffect, useState } from 'react'
-import { L, tr } from './i18n.js'
+import { L, sideOf, tr } from './i18n.js'
 import { Lock } from 'lucide-react'
 import Library, { store, useSeen } from './Library.jsx'
 
@@ -67,7 +67,7 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
   const order = (part) => game.levels.indexOf(levelOf(game, part))
   const heading = (chapter) => {
     const kicker = (lang) => (chapter.kicker ? chapter.kicker[lang] ?? chapter.kicker : lang === 'zh' ? `第 ${chapter.number ?? chapter.id} 章` : `Chapter ${chapter.number ?? chapter.id}`)
-    return { zh: `${kicker('zh')} · ${chapter.title?.zh ?? chapter.title}`, en: `${kicker('en')} · ${chapter.title?.en ?? chapter.title}` }
+    return { zh: `${kicker('zh')} · ${chapter.title?.zh ?? chapter.title}`, en: `${kicker('en')} · ${sideOf(chapter.title, 'en')}` }
   }
   const groups = game.chapters.map((chapter) => ({
     id: String(chapter.id),
@@ -103,10 +103,10 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
 
   return (
     <Library
-      title={tr('元件箱', 'Components')}
+      title={tr('元件箱')}
       subtitle={tr(`${all.filter((part) => earned.has(part.key)).length} / ${all.length} 个元件`, `${all.filter((part) => earned.has(part.key)).length} of ${all.length} components`)}
       label={tr('元件', 'Components')}
-      searchLabel={tr('查找元件', 'Find a component')}
+      searchLabel={tr('查找元件')}
       filters={filters.length > 0 && <Filters filters={filters} current={filter} onPick={pickFilter} />}
       groups={groups}
       current={current}
@@ -125,12 +125,12 @@ function Filters({ filters, current, onPick }) {
     <button key={key ?? 'all'} type="button" className="parts-filter" aria-pressed={current === key} disabled={Boolean(lock)} onClick={() => onPick(key)}
       title={lock ? tr(`进行到第 ${lock} 关时解锁`, `Unlocks at level ${lock}`) : undefined}>
       {lock ? <Lock size={12} aria-hidden="true" /> : icon && <svg className="parts-filter-icon" viewBox="0 0 32 32" aria-hidden="true" dangerouslySetInnerHTML={{ __html: icon }} />}
-      <span>{lock ? tr('？？？', '???') : L(name)}</span>
+      <span>{lock ? tr('？？？') : L(name)}</span>
       {lock && <small>{lock}</small>}
     </button>
   )
   return (
-    <div className="parts-filters" role="group" aria-label={tr('筛选元件', 'Filter the parts')}>
+    <div className="parts-filters" role="group" aria-label={tr('筛选元件')}>
       {chip(null, { zh: '全部', en: 'All' })}
       {filters.map((f) => chip(f.key, f.name, f.icon, f.lock))}
     </div>

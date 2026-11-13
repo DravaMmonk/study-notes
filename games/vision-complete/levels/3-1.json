@@ -1,60 +1,51 @@
 {
-  "title": { "zh": "朝向光的表面", "en": "Facing the light" },
+  "title": { "zh": "朝向光的表面" },
   "tray": "pipeline",
   "intro": [
     {
       "t": {
-        "zh": "照片的明暗从哪里来？先从一块白色哑光表面开始：灯从相机方向照来，表面不同位置的倾斜程度会影响收到的光。",
-        "en": "Where does light and shade in a photograph come from? Start with a white matte surface lit from the camera direction. Its orientation affects how much light reaches each point."
+        "zh": "照片的明暗从哪里来？先从一块白色哑光表面开始：灯从相机方向照来，表面不同位置的倾斜程度会影响收到的光。"
       },
       "fig": { "figure": "surface-bump" }
     },
     {
       "t": {
-        "zh": "表面每一点都有一根垂直于表面的单位法线，表示它的朝向。把这根方向分成三个分量：x 指向右，y 指向下，z 指向相机；正负表示沿轴的哪个方向，大小表示朝那个方向的程度。这三张分量图已经作为输入给出。",
-        "en": "At each point, a unit normal points perpendicular to the surface and describes its orientation. Its three components follow the axes: x points right, y down, and z toward the camera. Their signs give direction along each axis, and their magnitudes show how much of the normal points along it. The three component images are given as inputs."
+        "zh": "表面每一点都有一根垂直于表面的单位法线，表示它的朝向。把这根方向分成三个分量：x 指向右，y 指向下，z 指向相机；正负表示沿轴的哪个方向，大小表示朝那个方向的程度。这三张分量图已经作为输入给出。"
       }
     }
   ],
   "after": {
-    "zh": "正面光下，法线的 z 分量给出表面朝向光的程度：正对光的地方最亮，倾斜的地方较暗。",
-    "en": "Under frontal light, the normal’s z component measures how directly the surface faces the light: points facing it are brightest and tilted points are darker."
+    "zh": "正面光下，法线的 z 分量给出表面朝向光的程度：正对光的地方最亮，倾斜的地方较暗。"
   },
   "tasks": [
     {
       "id": "3-1",
       "kind": "graph",
       "brief": {
-        "zh": "灯从正面照来，方向是 (0, 0, 1)。白色表面各点的亮度等于法线与灯方向夹角的余弦。用给出的法线分量画出亮度图；这一关不需要添加任何元件。",
-        "en": "The light shines from the front, in direction (0, 0, 1). Each point on the white surface has brightness equal to the cosine of the angle between its normal and the light direction. Draw the brightness image from the given normal components; you do not need to add any parts."
+        "zh": "灯从正面照来，方向是 (0, 0, 1)。白色表面各点的亮度等于法线与灯方向夹角的余弦。用给出的法线分量画出亮度图；这一关不需要添加任何元件。"
       },
       "hint": {
-        "zh": "灯的方向只有 z 分量；两个单位方向夹角的余弦，是对应分量相乘后相加。",
-        "en": "The light direction has only a z component. The cosine between two unit directions is the sum of their pairwise component products."
+        "zh": "灯的方向只有 z 分量；两个单位方向夹角的余弦，是对应分量相乘后相加。"
       },
       "inputs": ["nx", "ny", "nz", "albedo"],
       "inputLabels": {
-        "nx": { "zh": "法线 x", "en": "Normal x" },
-        "ny": { "zh": "法线 y", "en": "Normal y" },
-        "nz": { "zh": "法线 z", "en": "Normal z" },
-        "albedo": { "zh": "反射率", "en": "Reflectance" }
+        "nx": { "zh": "法线 x" },
+        "ny": { "zh": "法线 y" },
+        "nz": { "zh": "法线 z" },
+        "albedo": { "zh": "反射率" }
       },
       "inputDescriptions": {
         "nx": {
-          "zh": "法线在左右方向上的分量。鼓包两侧的朝向相反，所以图中一边暗、一边亮。",
-          "en": "The normal's left–right component. Opposite sides of the bump face opposite ways, so one side of the image is dark and the other light."
+          "zh": "法线在左右方向上的分量。鼓包两侧的朝向相反，所以图中一边暗、一边亮。"
         },
         "ny": {
-          "zh": "法线在上下方向上的分量。鼓包上下两侧的朝向相反。",
-          "en": "The normal's up–down component. The upper and lower sides of the bump face opposite ways."
+          "zh": "法线在上下方向上的分量。鼓包上下两侧的朝向相反。"
         },
         "nz": {
-          "zh": "法线朝向相机的分量。鼓包顶部和平板正对相机，图中较亮；鼓包斜坡较暗。",
-          "en": "The component of the normal toward the camera. The top of the bump and the flat plate face the camera and appear brighter in this image; the slopes appear darker."
+          "zh": "法线朝向相机的分量。鼓包顶部和平板正对相机，图中较亮；鼓包斜坡较暗。"
         },
         "albedo": {
-          "zh": "表面反射多少光。这里整块表面都是白色，反射率为 1，所以图中全白。",
-          "en": "How much light the surface reflects. Here the entire surface is white, with reflectance 1, so the image is white throughout."
+          "zh": "表面反射多少光。这里整块表面都是白色，反射率为 1，所以图中全白。"
         }
       },
       "views": { "in": "pixels", "out": "pixels", "mid": "pixels" },
@@ -62,19 +53,19 @@
       "setup": { "lamp": [0, 0, 1] },
       "tests": [
         {
-          "label": { "zh": "白色鼓包", "en": "White bump" },
+          "label": { "zh": "白色鼓包" },
           "height": [{ "dome": [8, 8, 6, 3] }],
           "paint": { "blank": { "v": 1 } }
         },
         {
-          "label": { "zh": "白色斜板", "en": "White tilted board" },
+          "label": { "zh": "白色斜板" },
           "height": [{ "tilt": [0.5, 0] }],
           "paint": { "blank": { "v": 1 } }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "白色横梁", "en": "White ridge" },
+          "label": { "zh": "白色横梁" },
           "height": [{ "ridge": [8, 5, 2.5] }],
           "paint": { "blank": { "v": 1 } }
         }

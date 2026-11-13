@@ -1,12 +1,11 @@
 {
-  "title": { "zh": "德摩根律", "en": "De Morgan" },
+  "title": { "zh": "德摩根律" },
   "tray": "proof",
   "builds": "dm",
   "intro": [
     {
       "t": {
-        "zh": "「既不是周六也不是周日」和「并非（周六或者周日）」是一回事；「并非（周六并且周日）」和「不是周六，或者不是周日」也是。这是<wiki-ref to=\"demorgan\"></wiki-ref>。",
-        "en": "“Neither Saturday nor Sunday” and “not (Saturday or Sunday)” say the same; so do “not (Saturday and Sunday)” and “not Saturday, or not Sunday”. These are <wiki-ref to=\"demorgan\"></wiki-ref>."
+        "zh": "「既不是周六也不是周日」和「并非（周六或者周日）」是一回事；「并非（周六并且周日）」和「不是周六，或者不是周日」也是。这是<wiki-ref to=\"demorgan\"></wiki-ref>。"
       }
     }
   ],
@@ -14,12 +13,12 @@
     {
       "id": "demorgan_1",
       "kind": "proof",
-      "step": { "zh": "并非或者", "en": "Not either" },
+      "step": { "zh": "并非或者" },
       "tests": [{ "premises": { "p": "¬(A ∨ B)" }, "goal": "¬A ∧ ¬B" }],
       "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
       "hint": [
-        { "zh": "要证的两半各是一个否定。", "en": "Each half of the goal is a negation." },
-        { "zh": "假设「今天是周六」，看它怎样和已知矛盾。", "en": "Assume “today is Saturday” and see how it contradicts the given." }
+        { "zh": "要证的两半各是一个否定。" },
+        { "zh": "假设「今天是周六」，看它怎样和已知矛盾。" }
       ],
       "solution": [
         "na = impI[A=A](body: m) {",
@@ -41,14 +40,13 @@
     {
       "id": "demorgan_2",
       "kind": "proof",
-      "step": { "zh": "两个都不", "en": "Neither" },
+      "step": { "zh": "两个都不" },
       "tests": [{ "premises": { "p": "¬A ∧ ¬B" }, "goal": "¬(A ∨ B)" }],
       "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
       "hint": [
-        { "zh": "要证的是一个否定。", "en": "The goal is a negation." },
+        { "zh": "要证的是一个否定。" },
         {
-          "zh": "假设「今天是周六 ∨ 今天是周日」，两种情况各推出矛盾。",
-          "en": "Assume “today is Saturday ∨ today is Sunday” and get a contradiction in each case."
+          "zh": "假设「今天是周六 ∨ 今天是周日」，两种情况各推出矛盾。"
         }
       ],
       "solution": [
@@ -71,14 +69,13 @@
     {
       "id": "demorgan_3",
       "kind": "proof",
-      "step": { "zh": "有一个不", "en": "One fails" },
+      "step": { "zh": "有一个不" },
       "tests": [{ "premises": { "p": "¬A ∨ ¬B" }, "goal": "¬(A ∧ B)" }],
       "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
       "hint": [
-        { "zh": "要证的又是一个否定。", "en": "The goal is again a negation." },
+        { "zh": "要证的又是一个否定。" },
         {
-          "zh": "假设「今天是周六 ∧ 今天是周日」，再对已知分情况。",
-          "en": "Assume “today is Saturday ∧ today is Sunday”, then take cases on the given."
+          "zh": "假设「今天是周六 ∧ 今天是周日」，再对已知分情况。"
         }
       ],
       "solution": [
@@ -101,12 +98,12 @@
     {
       "id": "demorgan_4",
       "kind": "proof",
-      "step": { "zh": "并非两个都", "en": "Not both" },
+      "step": { "zh": "并非两个都" },
       "tests": [{ "premises": { "p": "¬(A ∧ B)" }, "goal": "¬A ∨ ¬B" }],
       "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
       "hint": [
-        { "zh": "已知没说哪一个不成立。", "en": "The given does not say which one fails." },
-        { "zh": "今天是周六，或者不是：两边都讨论。", "en": "Today is Saturday, or it is not: take both sides." }
+        { "zh": "已知没说哪一个不成立。" },
+        { "zh": "今天是周六，或者不是：两边都讨论。" }
       ],
       "solution": [
         "l = lem[A=A]()",

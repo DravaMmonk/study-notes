@@ -44,7 +44,7 @@ export function SentenceButton({ value, onChange, build, title, placeholder, sco
         <button type="button" className={`lg-pick-sentence ${value ? '' : 'is-empty'}`} aria-expanded={Boolean(anchor)} disabled={disabled} onClick={(event) => setAnchor(event.currentTarget)}>
           {value ? words(build, value) : L(placeholder)}
         </button>
-        {clearable && value && !disabled && <button type="button" className="lg-pick-drop" onClick={() => onChange('')} aria-label={tr('清空', 'Clear')}><X size={12} /></button>}
+        {clearable && value && !disabled && <button type="button" className="lg-pick-drop" onClick={() => onChange('')} aria-label={tr('清空')}><X size={12} /></button>}
       </span>
       {anchor && <SentenceBox anchor={anchor} start={value ? build.read(value) : null} build={build} title={L(title)} scope={scope} onWhole={onChange} onClose={() => setAnchor(null)} />}
     </>

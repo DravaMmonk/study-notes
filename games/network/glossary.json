@@ -3,8 +3,7 @@
     {
       "id": "wire",
       "title": {
-        "zh": "一根线",
-        "en": "One wire"
+        "zh": "一根线"
       }
     }
   ],
@@ -13,18 +12,15 @@
       "id": "tick",
       "group": "wire",
       "title": {
-        "zh": "拍",
-        "en": "tick"
+        "zh": "拍"
       },
       "at": "1-1",
       "body": [
         {
-          "zh": "世界前进的一步。每一拍，每根线送一位，板上的电路从头算一遍：读进来的线，说出去的线，存下要留到下一拍的值。",
-          "en": "One step of the world. On each tick every wire carries one bit and the circuit on the board is worked out afresh: it reads the wires coming in, says on the wires going out, and stores what must last until the next tick."
+          "zh": "世界前进的一步。每一拍，每根线送一位，板上的电路从头算一遍：读进来的线，说出去的线，存下要留到下一拍的值。"
         },
         {
-          "zh": "真实的线路没有拍，位按时钟一个接一个地送；线的两头怎样对齐时钟，属于物理层，这里交给世界去做。",
-          "en": "A real line has no ticks; bits follow one another at a clock rate, and how the two ends keep their clocks in step belongs to the physical layer, which the world here takes care of."
+          "zh": "真实的线路没有拍，位按时钟一个接一个地送；线的两头怎样对齐时钟，属于物理层，这里交给世界去做。"
         }
       ],
       "see": ["bit", "delay"]
@@ -32,28 +28,25 @@
     {
       "id": "bit",
       "group": "wire",
-      "title": { "zh": "比特", "en": "bit" },
+      "title": { "zh": "比特" },
       "at": "1-1",
       "body": [
         {
-          "zh": "只有两种取值的最小信息单位，记作 0 和 1，也叫位。线上一拍送一位；更大的东西都由一串位组成。",
-          "en": "The smallest unit of information, with just two values, written 0 and 1. A wire carries one bit a tick; anything larger is made of a run of bits."
+          "zh": "只有两种取值的最小信息单位，记作 0 和 1，也叫位。线上一拍送一位；更大的东西都由一串位组成。"
         }
       ]
     },
     {
       "id": "delay",
       "group": "wire",
-      "title": { "zh": "延迟", "en": "delay" },
+      "title": { "zh": "延迟" },
       "at": "1-1",
       "body": [
         {
-          "zh": "一位从线的一头说出，到另一头收到，中间隔的时间。这里按拍数计；线越长，延迟越大。",
-          "en": "The time from a bit being said at one end of a wire to its arrival at the other, counted here in ticks; the longer the wire, the longer the delay."
+          "zh": "一位从线的一头说出，到另一头收到，中间隔的时间。这里按拍数计；线越长，延迟越大。"
         },
         {
-          "zh": "真实网络里，一帧到达的时间还取决于它有多长、线一秒送多少位；一拍只送一位时，这一点还看不出来。",
-          "en": "In a real network, when a frame arrives also depends on how long it is and how many bits a second the line carries; at one bit a tick this does not yet show."
+          "zh": "真实网络里，一帧到达的时间还取决于它有多长、线一秒送多少位；一拍只送一位时，这一点还看不出来。"
         }
       ],
       "see": ["tick"]
@@ -61,28 +54,25 @@
     {
       "id": "protocol",
       "group": "wire",
-      "title": { "zh": "协议", "en": "protocol" },
+      "title": { "zh": "协议" },
       "at": "1-1",
       "body": [
         {
-          "zh": "通信双方事先约好的规矩：线上的信号是什么意思，按什么格式、什么顺序说。双方的协议对不上，送过去的位再准确也没有用。",
-          "en": "The rules both sides of a conversation agree on in advance: what the signals on the wire mean, and in what format and order things are said. If the two sides' protocols differ, the bits are useless however faithfully they arrive."
+          "zh": "通信双方事先约好的规矩：线上的信号是什么意思，按什么格式、什么顺序说。双方的协议对不上，送过去的位再准确也没有用。"
         },
         {
-          "zh": "网络里的协议一层叠一层：下面的协议约定怎样送位，上面的协议约定这些位表示什么。",
-          "en": "Protocols in a network stack on one another: those below agree how bits are carried, those above what the bits mean."
+          "zh": "网络里的协议一层叠一层：下面的协议约定怎样送位，上面的协议约定这些位表示什么。"
         }
       ]
     },
     {
       "id": "byte",
       "group": "wire",
-      "title": { "zh": "字节", "en": "byte" },
+      "title": { "zh": "字节" },
       "at": "1-7",
       "body": [
         {
-          "zh": "8 位合成的一组，可以看作 0 到 255 的一个数。网络里的数据大多按字节计。",
-          "en": "A group of 8 bits, which can be read as a number from 0 to 255. Most data on a network is measured in bytes."
+          "zh": "8 位合成的一组，可以看作 0 到 255 的一个数。网络里的数据大多按字节计。"
         }
       ],
       "see": ["binary"]
@@ -90,12 +80,11 @@
     {
       "id": "binary",
       "group": "wire",
-      "title": { "zh": "二进制数", "en": "binary number" },
+      "title": { "zh": "二进制数" },
       "at": "1-7",
       "body": [
         {
-          "zh": "只用 0 和 1 两个数字写成的数，每一位的分量是它右边一位的两倍。8 位二进制数从左到右的分量是 128、64、32、16、8、4、2、1，例如 10110010 是 128 + 32 + 16 + 2 = 178。最左边的一位叫最高位。",
-          "en": "A number written with only the digits 0 and 1, each place worth twice the place to its right. The places of an 8-bit binary number are worth 128, 64, 32, 16, 8, 4, 2 and 1 from left to right, so 10110010 is 128 + 32 + 16 + 2 = 178. The leftmost bit is the top bit."
+          "zh": "只用 0 和 1 两个数字写成的数，每一位的分量是它右边一位的两倍。8 位二进制数从左到右的分量是 128、64、32、16、8、4、2、1，例如 10110010 是 128 + 32 + 16 + 2 = 178。最左边的一位叫最高位。"
         }
       ],
       "see": ["byte"]
@@ -103,16 +92,14 @@
     {
       "id": "serial",
       "group": "wire",
-      "title": { "zh": "串行传输", "en": "serial transmission" },
+      "title": { "zh": "串行传输" },
       "at": "1-7",
       "body": [
         {
-          "zh": "在一根线上把数据一位接一位地送出去。两头要约好位的先后：这里最高位在前。",
-          "en": "Sending data down one wire a bit after another. The two ends must agree on the order of the bits: here the top bit goes first."
+          "zh": "在一根线上把数据一位接一位地送出去。两头要约好位的先后：这里最高位在前。"
         },
         {
-          "zh": "真实的串口大多最低位在前，以太网也是逐字节最低位先送；先送哪一位只是约定，要紧的是两头一致。",
-          "en": "Most real serial ports send the lowest bit first, and so does Ethernet within each byte; which end goes first is only a convention, and what matters is that both ends share it."
+          "zh": "真实的串口大多最低位在前，以太网也是逐字节最低位先送；先送哪一位只是约定，要紧的是两头一致。"
         }
       ],
       "see": ["byte"]
@@ -120,16 +107,14 @@
     {
       "id": "start-bit",
       "group": "wire",
-      "title": { "zh": "起始位", "en": "start bit" },
+      "title": { "zh": "起始位" },
       "at": "1-9",
       "body": [
         {
-          "zh": "每个字节之前多说的一位，和线空着时的状态相反，告诉收的一方一个字节从下一拍开始。这样送字节的方式叫异步传输：两头不必事先约好在哪一拍开口。",
-          "en": "An extra bit before each byte, the opposite of the idle wire, telling the receiver that a byte begins on the next tick. Sending bytes this way is asynchronous transmission: the ends need not agree beforehand on when to begin."
+          "zh": "每个字节之前多说的一位，和线空着时的状态相反，告诉收的一方一个字节从下一拍开始。这样送字节的方式叫异步传输：两头不必事先约好在哪一拍开口。"
         },
         {
-          "zh": "真实的串口里线空着时是 1，起始位是 0，停止位是 1；道理相同，只是反过来。",
-          "en": "On a real serial port the idle wire is 1, the start bit 0 and the stop bit 1; the idea is the same, the other way round."
+          "zh": "真实的串口里线空着时是 1，起始位是 0，停止位是 1；道理相同，只是反过来。"
         }
       ],
       "see": ["stop-bit"]
@@ -137,12 +122,11 @@
     {
       "id": "stop-bit",
       "group": "wire",
-      "title": { "zh": "停止位", "en": "stop bit" },
+      "title": { "zh": "停止位" },
       "at": "1-9",
       "body": [
         {
-          "zh": "每个字节之后多说的一位，和线空着时的状态相同，让线回到空闲，下一个起始位才认得出来。",
-          "en": "An extra bit after each byte, the same as the idle wire, which returns the wire to rest so that the next start bit can be seen."
+          "zh": "每个字节之后多说的一位，和线空着时的状态相同，让线回到空闲，下一个起始位才认得出来。"
         }
       ],
       "see": ["start-bit"]
@@ -150,12 +134,11 @@
     {
       "id": "frame",
       "group": "wire",
-      "title": { "zh": "帧", "en": "frame" },
+      "title": { "zh": "帧" },
       "at": "1-11",
       "body": [
         {
-          "zh": "在一根线上作为一个整体送出的一段数据：开头和结尾都有标记，收的一方据此把它从位流里分出来。帧有多长，事先不一定知道。",
-          "en": "A piece of data sent over a link as one whole, marked at its start and end so the receiver can pick it out of the stream of bits. Its length need not be known in advance."
+          "zh": "在一根线上作为一个整体送出的一段数据：开头和结尾都有标记，收的一方据此把它从位流里分出来。帧有多长，事先不一定知道。"
         }
       ],
       "see": ["flag"]
@@ -163,12 +146,11 @@
     {
       "id": "flag",
       "group": "wire",
-      "title": { "zh": "旗标", "en": "flag" },
+      "title": { "zh": "旗标" },
       "at": "1-11",
       "body": [
         {
-          "zh": "标出一帧开头和结尾的固定位串 01111110。HDLC 和 PPP 这类协议用的就是它。",
-          "en": "The fixed bit pattern 01111110 that marks where a frame begins and ends. Protocols such as HDLC and PPP use exactly this one."
+          "zh": "标出一帧开头和结尾的固定位串 01111110。HDLC 和 PPP 这类协议用的就是它。"
         }
       ],
       "see": ["frame"]
@@ -176,12 +158,11 @@
     {
       "id": "framing",
       "group": "wire",
-      "title": { "zh": "成帧", "en": "framing" },
+      "title": { "zh": "成帧" },
       "at": "1-12",
       "body": [
         {
-          "zh": "把要送的数据分成一帧一帧，并标出每一帧的边界，让收的一方能从位流里把它们分出来。这里用旗标标出边界；也有协议在帧头写明帧有多长。",
-          "en": "Dividing the data to be sent into frames and marking where each begins and ends, so the receiver can pick them out of the stream of bits. Here flags mark the edges; other protocols state a frame's length in its header."
+          "zh": "把要送的数据分成一帧一帧，并标出每一帧的边界，让收的一方能从位流里把它们分出来。这里用旗标标出边界；也有协议在帧头写明帧有多长。"
         }
       ],
       "see": ["frame", "flag"]
@@ -189,12 +170,11 @@
     {
       "id": "stuffing",
       "group": "wire",
-      "title": { "zh": "位填充", "en": "bit stuffing" },
+      "title": { "zh": "位填充" },
       "at": "1-40",
       "body": [
         {
-          "zh": "发送方在帧的内容里每连着 5 个 1 之后多说一个 0，收的一方再把它去掉。这样内容里永远不会连着出现 6 个 1，也就不会被误认成旗标。代价是帧变长了一点，长多少取决于内容。",
-          "en": "After every five 1s in a row in a frame's content the sender adds a 0, and the receiver takes it out again. The content then never holds six 1s in a row, so it cannot be mistaken for a flag. The price is a slightly longer frame, by an amount that depends on the content."
+          "zh": "发送方在帧的内容里每连着 5 个 1 之后多说一个 0，收的一方再把它去掉。这样内容里永远不会连着出现 6 个 1，也就不会被误认成旗标。代价是帧变长了一点，长多少取决于内容。"
         }
       ],
       "see": ["flag"]
@@ -202,28 +182,25 @@
     {
       "id": "error-detection",
       "group": "wire",
-      "title": { "zh": "差错检测", "en": "error detection" },
+      "title": { "zh": "差错检测" },
       "at": "1-31",
       "body": [
         {
-          "zh": "发送方按约好的规则在数据后面附上几位校验位，收的一方按同一规则核对，以此判断数据在路上有没有被改。查出错只说明数据坏了，并不能把它改回来。",
-          "en": "The sender appends a few check bits to the data by an agreed rule, and the receiver checks them by the same rule to tell whether the data changed on the way. Detecting an error says only that the data is damaged; it does not put it right."
+          "zh": "发送方按约好的规则在数据后面附上几位校验位，收的一方按同一规则核对，以此判断数据在路上有没有被改。查出错只说明数据坏了，并不能把它改回来。"
         },
         {
-          "zh": "没有一种校验查得出所有错误：线恰好把数据改成另一份校验也相符的数据时，就查不出来。校验位越多、规则越好，这种情况越少。",
-          "en": "No check catches every error: if the wire happens to turn the data into other data whose check also matches, nothing shows. More check bits and a better rule make this rarer."
+          "zh": "没有一种校验查得出所有错误：线恰好把数据改成另一份校验也相符的数据时，就查不出来。校验位越多、规则越好，这种情况越少。"
         }
       ]
     },
     {
       "id": "parity",
       "group": "wire",
-      "title": { "zh": "奇偶校验位", "en": "parity bit" },
+      "title": { "zh": "奇偶校验位" },
       "at": "1-32",
       "body": [
         {
-          "zh": "附在数据后面的一位，使连它在内的 1 的个数为偶数（偶校验）或奇数（奇校验）。这里用偶校验。",
-          "en": "A bit appended to data so that the count of 1s, itself included, is even (even parity) or odd (odd parity). Even parity is used here."
+          "zh": "附在数据后面的一位，使连它在内的 1 的个数为偶数（偶校验）或奇数（奇校验）。这里用偶校验。"
         }
       ],
       "see": ["error-detection"]
@@ -231,12 +208,11 @@
     {
       "id": "carryless",
       "group": "wire",
-      "title": { "zh": "不进位除法", "en": "carry-less division" },
+      "title": { "zh": "不进位除法" },
       "at": "1-15",
       "body": [
         {
-          "zh": "像竖式长除法一样一步步除，只是加减都不进位、不借位：每一位上 0 和 1 的加和减都相同，结果是两位不同为 1、相同为 0。也叫模 2 除法。",
-          "en": "Long division done step by step as usual, except that adding and subtracting never carry or borrow: in each place, adding and subtracting 0s and 1s come to the same thing, 1 when the two bits differ and 0 when they agree. It is also called modulo-2 division."
+          "zh": "像竖式长除法一样一步步除，只是加减都不进位、不借位：每一位上 0 和 1 的加和减都相同，结果是两位不同为 1、相同为 0。也叫模 2 除法。"
         }
       ],
       "see": ["crc", "generator"]
@@ -244,16 +220,14 @@
     {
       "id": "generator",
       "group": "wire",
-      "title": { "zh": "生成式", "en": "generator" },
+      "title": { "zh": "生成式" },
       "at": "1-15",
       "body": [
         {
-          "zh": "CRC 里两头约好的除数，写成一串位，最高位总是 1。生成式有 n + 1 位，校验码就有 n 位：1011 给出 3 位校验码。",
-          "en": "The divisor both ends agree on for a CRC, written as a run of bits whose top bit is always 1. A generator of n + 1 bits gives an n-bit check: 1011 gives a 3-bit check."
+          "zh": "CRC 里两头约好的除数，写成一串位，最高位总是 1。生成式有 n + 1 位，校验码就有 n 位：1011 给出 3 位校验码。"
         },
         {
-          "zh": "真实网络用的生成式长得多，以太网用的是 33 位的生成式，校验码有 32 位。",
-          "en": "Real networks use much longer generators; Ethernet's has 33 bits and gives a 32-bit check."
+          "zh": "真实网络用的生成式长得多，以太网用的是 33 位的生成式，校验码有 32 位。"
         }
       ],
       "see": ["crc", "carryless"]
@@ -261,16 +235,14 @@
     {
       "id": "crc",
       "group": "wire",
-      "title": { "zh": "循环冗余校验", "en": "cyclic redundancy check" },
+      "title": { "zh": "循环冗余校验" },
       "at": "1-15",
       "body": [
         {
-          "zh": "一种差错检测：把数据当作一个大数，后面补上和校验码一样多的 0，不进位地除以生成式，余数就是校验码，跟在数据后面送出。简称 CRC。",
-          "en": "A kind of error detection: the data is read as one big number, as many 0s as the check has bits are appended, and it is divided without carries by the generator; the remainder is the check, sent after the data. It is known as CRC."
+          "zh": "一种差错检测：把数据当作一个大数，后面补上和校验码一样多的 0，不进位地除以生成式，余数就是校验码，跟在数据后面送出。简称 CRC。"
         },
         {
-          "zh": "它查得出奇偶校验漏掉的许多错误，硬件上又便宜，所以几乎每一种链路都用它。这里的生成式 1011 只有 4 位：任何一处翻位都查得出，两处翻位却只在相距不到 7 位时才一定查得出；正好相距 7 位或 7 的倍数时，余数仍是 0。一帧有几十位长，这样的两处翻位就可能漏掉。以太网的 32 位 CRC 在正常长度的帧里查得出任何两处翻位。",
-          "en": "It catches many errors that parity misses and is cheap in hardware, so nearly every kind of link uses it. The generator here, 1011, has only 4 bits: it catches any single flip, but two flips only when they are less than 7 bits apart; two flips exactly 7 bits apart, or any multiple of 7, leave a remainder of 0. In a frame dozens of bits long such a pair can slip through. Ethernet's 32-bit CRC catches any two flips in a frame of normal length."
+          "zh": "它查得出奇偶校验漏掉的许多错误，硬件上又便宜，所以几乎每一种链路都用它。这里的生成式 1011 只有 4 位：任何一处翻位都查得出，两处翻位却只在相距不到 7 位时才一定查得出；正好相距 7 位或 7 的倍数时，余数仍是 0。一帧有几十位长，这样的两处翻位就可能漏掉。以太网的 32 位 CRC 在正常长度的帧里查得出任何两处翻位。"
         }
       ],
       "see": ["generator", "carryless", "error-detection"]
@@ -278,16 +250,14 @@
     {
       "id": "layering",
       "group": "wire",
-      "title": { "zh": "分层", "en": "layering" },
+      "title": { "zh": "分层" },
       "at": "1-18",
       "body": [
         {
-          "zh": "把通信分成几层，每一层只用下一层提供的服务，也只向上一层提供自己的服务。网卡对上面只收发整帧的字节，对下面只收发位；上面不必知道旗标、填充和校验字节，换一种成帧的办法也不必改上面。",
-          "en": "Dividing communication into layers, each using only the service of the layer below and offering only its own to the layer above. A network adapter deals in the bytes of whole frames with the layer above and in bits with the wire below; the layer above never sees flags, stuffing or check bytes, and a different way of framing would not change it."
+          "zh": "把通信分成几层，每一层只用下一层提供的服务，也只向上一层提供自己的服务。网卡对上面只收发整帧的字节，对下面只收发位；上面不必知道旗标、填充和校验字节，换一种成帧的办法也不必改上面。"
         },
         {
-          "zh": "这一层叫数据链路层：它负责一根线两头之间的帧。真实的网卡还有地址、介质访问等许多事要做。",
-          "en": "This layer is the data link layer: it looks after frames between the two ends of one link. A real network adapter also deals with addresses, access to the medium and much else."
+          "zh": "这一层叫数据链路层：它负责一根线两头之间的帧。真实的网卡还有地址、介质访问等许多事要做。"
         }
       ],
       "see": ["frame", "protocol"]
@@ -295,12 +265,11 @@
     {
       "id": "ack",
       "group": "wire",
-      "title": { "zh": "确认", "en": "acknowledgement" },
+      "title": { "zh": "确认" },
       "at": "1-37",
       "body": [
         {
-          "zh": "收的一方回给发送方的一句话，说一帧到了，好不好。说「好」叫确认（ACK），说「坏」叫否认（NAK）。发送方靠它才知道对方收到了什么。",
-          "en": "A message the receiver sends back to say that a frame arrived, and whether it was intact. A positive answer is an ACK, a negative one a NAK. Only through it does the sender learn what the other end received."
+          "zh": "收的一方回给发送方的一句话，说一帧到了，好不好。说「好」叫确认（ACK），说「坏」叫否认（NAK）。发送方靠它才知道对方收到了什么。"
         }
       ],
       "see": ["frame", "error-detection"]
@@ -308,24 +277,22 @@
     {
       "id": "codeword",
       "group": "wire",
-      "title": { "zh": "码字", "en": "codeword" },
+      "title": { "zh": "码字" },
       "at": "1-20",
       "body": [
         {
-          "zh": "数据位和它的校验位合在一起的一整串位。4 位数据加 3 位校验码，就是 7 位的码字。",
-          "en": "The data bits and their check bits together, as one run of bits. 4 data bits with a 3-bit check make a 7-bit codeword."
+          "zh": "数据位和它的校验位合在一起的一整串位。4 位数据加 3 位校验码，就是 7 位的码字。"
         }
       ]
     },
     {
       "id": "error-correction",
       "group": "wire",
-      "title": { "zh": "纠错", "en": "error correction" },
+      "title": { "zh": "纠错" },
       "at": "1-20",
       "body": [
         {
-          "zh": "收的一方不只查出数据错了，还找出错在哪里并改回来，不必请对方重发。代价是要多附校验位。延迟很长、或者没法重发的地方，例如深空通信和存储介质，都靠纠错码。",
-          "en": "The receiver not only finds that data is wrong but finds where, and puts it right without asking for it again. The price is more check bits. Where delays are long or a resend is impossible, as in deep-space links and storage media, error-correcting codes do the work."
+          "zh": "收的一方不只查出数据错了，还找出错在哪里并改回来，不必请对方重发。代价是要多附校验位。延迟很长、或者没法重发的地方，例如深空通信和存储介质，都靠纠错码。"
         }
       ],
       "see": ["error-detection", "codeword"]

@@ -13,7 +13,7 @@ export function partsFor(kit, { sensors, outputLabels, colourOutputs = [] } = {}
   return {
     ...kit.BOARD_PARTS,
     inputs: (node) => node.type === 'output' && !colourOutputs.includes(node.params.name) ? ['in'] : kit.BOARD_PARTS.inputs(node),
-    outputs: (node) => node.type === 'input' ? (sensors?.[node.params.name]?.colour ? [{ key: null, label: tr('图', 'Image') }, ...['r', 'g', 'b'].map((key) => ({ key, label: key.toUpperCase() }))] : null) : kit.BOARD_PARTS.outputs(node),
+    outputs: (node) => node.type === 'input' ? (sensors?.[node.params.name]?.colour ? [{ key: null, label: tr('图') }, ...['r', 'g', 'b'].map((key) => ({ key, label: key.toUpperCase() }))] : null) : kit.BOARD_PARTS.outputs(node),
     label: (node) => {
       if (node.type === 'input') return sensors?.[node.params.name]?.label ?? tr('输入', 'Input')
       if (node.type === 'output') return outputLabels?.[node.params.name] ?? tr('输出', 'Output')
@@ -26,5 +26,8 @@ export function partsFor(kit, { sensors, outputLabels, colourOutputs = [] } = {}
   }
 }
 
+/** The parts box holds every setting of a part on its bench, whatever the player holds so far. */
+export const EVERY = () => true
+
 /** Hide the constant value until a side has been selected. */
-export const visibleSettings = (kit, node, flags) => kit.settingsOf(node.type, flags).filter((p) => p.options?.length !== 0 && (kit.shows?.(node.type, p.key, node.params) ?? true) && !(node.type === 'arith' && p.key === 'constant' && (node.params.constantSide ?? 'none') === 'none'))
+export const visibleSettings = (kit, node, has) => kit.settingsOf(node.type, has).filter((p) => p.options?.length !== 0 && kit.shows(node.type, p.key, node.params) && !(node.type === 'arith' && p.key === 'constant' && (node.params.constantSide ?? 'none') === 'none'))

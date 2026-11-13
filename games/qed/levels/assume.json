@@ -1,24 +1,21 @@
 {
-  "title": { "zh": "加一个假设", "en": "An assumption" },
+  "title": { "zh": "加一个假设" },
   "tray": "proof",
   "showcase": "a box has a region and two dots, and what is made inside leaves only through its conclusion",
   "intro": [
     {
       "t": {
-        "zh": "怎样证明「若 A，则 B」？可以先暂时假设 A，再看能否在这个条件下证明 B。<wiki-ref to=\"assumption\"></wiki-ref>只是推理的出发点，并不表示 A 已经成立。",
-        "en": "How can we prove “if A, then B”? We can temporarily assume A and prove B under that condition. An <wiki-ref to=\"assumption\"></wiki-ref> is a starting point for reasoning; it does not assert that A already holds."
+        "zh": "怎样证明「若 A，则 B」？可以先暂时假设 A，再看能否在这个条件下证明 B。<wiki-ref to=\"assumption\"></wiki-ref>只是推理的出发点，并不表示 A 已经成立。"
       }
     },
     {
       "t": {
-        "zh": "<part-ref to=\"part:impI\"></part-ref>用一个框表示这段推理。在元件上选择假设 A，框内就可以使用它；将框内证出的 B 接到「结论」，框外便得到 A → B。",
-        "en": "The <part-ref to=\"part:impI\"></part-ref> represents this reasoning with a box. Choose A as the assumption on the part and it becomes available inside. Connect the B proved inside to “Conclusion”, and the box gives A → B outside."
+        "zh": "<part-ref to=\"part:impI\"></part-ref>用一个框表示这段推理。在元件上选择假设 A，框内就可以使用它；将框内证出的 B 接到「结论」，框外便得到 A → B。"
       }
     },
     {
       "t": {
-        "zh": "离开框后，临时假设 A 不再作为已知；框外的结论说明的是：如果 A 成立，那么 B 成立。证明中用到的其他已知仍然保留。",
-        "en": "Outside the box, the temporary assumption A is no longer a given. The conclusion says that if A holds, B follows; any other givens used in the proof still remain."
+        "zh": "离开框后，临时假设 A 不再作为已知；框外的结论说明的是：如果 A 成立，那么 B 成立。证明中用到的其他已知仍然保留。"
       }
     }
   ],
@@ -26,14 +23,14 @@
     {
       "id": "assume_1",
       "kind": "proof",
-      "step": { "zh": "加一个假设", "en": "One assumption" },
+      "step": { "zh": "加一个假设" },
       "tests": [{ "premises": { "p": "A" }, "goal": "B → A" }],
       "cases": [{ "A": "Rain", "B": "Wind" }, { "A": "Coffee", "B": "Late" }],
       "adds": ["impI"],
-      "briefNote": { "zh": "用假设框。", "en": "With the assumption box." },
+      "briefNote": { "zh": "用假设框。" },
       "hint": [
-        { "zh": "目标「若」后面的是什么？", "en": "What follows the “if” in the goal?" },
-        { "zh": "框里看得见板上的已知。", "en": "From inside the box, the givens on the board are visible." }
+        { "zh": "目标「若」后面的是什么？" },
+        { "zh": "框里看得见板上的已知。" }
       ],
       "solution": ["f = impI[A=B](body: p)", "goal <- f"],
       "naive": ["f = impI[A=B]()", "goal <- p"]
@@ -41,15 +38,14 @@
     {
       "id": "assume_2",
       "kind": "proof",
-      "step": { "zh": "再加一个假设", "en": "One more assumption" },
+      "step": { "zh": "再加一个假设" },
       "tests": [{ "premises": { "p": "A" }, "goal": "B → (C → A)" }],
       "cases": [{ "A": "Rain", "B": "Sat", "C": "Wind" }, { "A": "Coffee", "B": "Late", "C": "Tea" }],
-      "hint": [{ "zh": "目标里有几个 →？", "en": "How many →s are in the goal?" }],
+      "hint": [{ "zh": "目标里有几个 →？" }],
       "intro": [
         {
           "t": {
-            "zh": "框里可以再放框。里面的框看得见外面框的假设，也看得见板上的已知。",
-            "en": "A box can sit inside a box. The inner one sees the outer one’s assumption and the givens on the board."
+            "zh": "框里可以再放框。里面的框看得见外面框的假设，也看得见板上的已知。"
           }
         }
       ],

@@ -55,7 +55,7 @@ body { color: var(--ink); background: var(--paper); -webkit-font-smoothing: anti
 .md-header__button:hover { color: var(--ink); opacity: 1; }
 .md-header__button.md-logo { margin: 0 .2rem 0 0; padding: .4rem; }
 .md-header__button.md-logo svg, .md-header__button.md-logo img { display: none; }
-.md-header__button.md-logo::before { content: ''; display: block; width: 14px; height: 14px; border-radius: 3px; background: linear-gradient(135deg, var(--ink) 0 50%, var(--accent) 50% 100%); box-shadow: 0 0 0 1px var(--rule); }
+.md-header__button.md-logo::before { content: ''; display: block; width: 14px; height: 14px; border-radius: var(--r-xs); background: linear-gradient(135deg, var(--ink) 0 50%, var(--accent) 50% 100%); box-shadow: 0 0 0 1px var(--rule); }
 .md-header__title { margin-left: .4rem; height: var(--bar-h); line-height: var(--bar-h); }
 .md-header__topic:first-child { font-family: var(--mono); font-size: var(--fs-label); font-weight: 500; letter-spacing: .2em; text-transform: uppercase; }
 .md-header__topic + .md-header__topic { font-family: var(--serif); font-size: var(--fs-small); font-weight: 500; letter-spacing: 0; }
@@ -117,13 +117,18 @@ body { color: var(--ink); background: var(--paper); -webkit-font-smoothing: anti
 .md-typeset h1 .headerlink { display: none; }
 .md-typeset .md-content__button { display: none; }
 .md-typeset .admonition, .md-typeset details {
-  border: 0; border-left: 2px solid var(--accent); border-radius: 0 2px 2px 0;
+  border: 0; border-left: 2px solid var(--accent); border-radius: 0 var(--r-xs) var(--r-xs) 0;
   background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); font-size: .9em;
 }
 .md-typeset :is(.admonition-title, summary) { background: transparent; color: var(--muted); font: 500 var(--fs-label)/1.6 var(--mono); letter-spacing: .06em; }
 .md-typeset :is(.admonition-title, summary)::before { background-color: var(--accent); }
 .md-typeset .tabbed-labels > label { font: var(--fs-label) var(--mono); letter-spacing: .06em; }
 .md-typeset .arithmatex { overflow-x: auto; }
+
+/* ---- bilingual reading (javascripts/site.js): each Chinese block sits close above its English one ---- */
+.md-typeset .bi-lead { margin-bottom: .35em; }
+.md-typeset .bi-lead + .bi-en { margin-top: .35em; }
+.md-typeset .bi-en { color: var(--muted); }
 
 /* ---- the home page: kit hero and cards (their prose spacing is in games/kit/prose.css) ---- */
 .md-typeset .kit-title::before { display: none; }
@@ -139,3 +144,6 @@ body { color: var(--ink); background: var(--paper); -webkit-font-smoothing: anti
 .md-footer__direction { color: var(--faint); font: var(--fs-label) var(--mono); letter-spacing: .1em; opacity: 1; }
 .md-footer-meta { display: none; }
 .md-top { color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--line), var(--lift); font: var(--fs-label) var(--mono); }
+
+/* A level of a notes edition (hooks/ui.py, games/DESIGN.md 12.1), as tall as its page says it is. */
+.md-typeset .task-embed { display: block; width: 100%; min-height: 160px; margin: var(--sp-9) 0; border: 0; border-radius: var(--r-lg); box-shadow: 0 0 0 1px var(--hairline); }

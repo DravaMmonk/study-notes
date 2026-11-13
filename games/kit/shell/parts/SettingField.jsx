@@ -5,7 +5,7 @@ import { L } from '../i18n.js'
 import { iconOf } from './icons.js'
 import { numberText } from '../../engine/number.js'
 
-// One setting of a part, the same in every game (games/DESIGN.md 6.9): a part definition names one of six controls
+// One setting of a part, the same in every game (games/DESIGN.md 6.8): a part definition names one of six controls
 // and the kernel draws it — compact on a desktop card, roomy in a sheet (`roomy`) and on a phone. The value a control
 // gives is what parts.json says (../../engine/parts/define.js coerce): a word for a select or buttons, a number for a
 // number or a slider, true or false for a toggle; a custom control is the domain's widget (`widgets[name]`).

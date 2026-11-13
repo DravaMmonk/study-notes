@@ -53,7 +53,7 @@ export function Embedding({ ctx, children }) {
   return (
     <div className="contrast-stage">
       {children && <div className="contrast-stage-head">{children}</div>}
-      <svg className="contrast-plane" viewBox="-1.32 -1.32 2.64 2.64" role="img" aria-label={tr('嵌入平面：每个视图是单位圆上的一点', 'Embedding plane: each view is a point on the unit circle')}>
+      <svg className="contrast-plane" viewBox="-1.32 -1.32 2.64 2.64" role="img" aria-label={tr('嵌入平面：每个视图是单位圆上的一点')}>
         <line className="plane-axis" x1="-1.25" y1="0" x2="1.25" y2="0" />
         <line className="plane-axis" x1="0" y1="-1.25" x2="0" y2="1.25" />
         <circle className="plane-circle" cx="0" cy="0" r="1" />
@@ -110,7 +110,7 @@ export function ChoiceMatrix({ ctx }) {
           ))}
         </tbody>
       </table>
-      <p className="bk-caption">{tr('数字为选中各视图的概率（%）；粗框标出真正的搭档。', 'Numbers are the probability of each pick (%); the bold frame marks the true partner.')}</p>
+      <p className="bk-caption">{tr('数字为选中各视图的概率（%）；粗框标出真正的搭档。')}</p>
     </figure>
   )
 }

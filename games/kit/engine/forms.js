@@ -18,6 +18,7 @@ export function formed(forms) {
     forms: forms.map((f) => f.key),
     inputs: (node) => portsOf(pick(node), node),
     params: (node) => paramsOf(pick(node), node),
+    symmetric: (node) => { const s = pick(node).symmetric; return typeof s === 'function' ? s(node) : s ?? [] },
     eval: (ins, node, ctx, key) => pick(node).eval(ins, node, ctx, key),
   }
 }

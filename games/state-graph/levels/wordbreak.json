@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "最少切几块", "en": "The fewest pieces" },
-  "short": { "zh": "每一块都得是词", "en": "Every piece must be a word" },
+  "title": { "zh": "最少切几块" },
+  "short": { "zh": "每一块都得是词" },
   "intro": [
     {
       "t": {
-        "zh": "一串字母没有空格，比如 catsanddog。把它切成词典里的词，<b>最少切成几块</b>？",
-        "en": "A string of letters with no spaces, such as catsanddog. Cut it into dictionary words: <b>how few pieces will do</b>?"
+        "zh": "一串字母没有空格，比如 catsanddog。把它切成词典里的词，<b>最少切成几块</b>？"
       },
       "fig": {
         "scene": {
@@ -27,33 +26,29 @@
     },
     {
       "t": {
-        "zh": "格子 i 记：<b>前 i 个字母最少切成几块</b>。第 0 格是开头，一个字母都没有，0 块。",
-        "en": "Cell i records: <b>the fewest pieces the first i letters can be cut into</b>. Cell 0 is the start, with no letters at all: 0 pieces."
+        "zh": "格子 i 记：<b>前 i 个字母最少切成几块</b>。第 0 格是开头，一个字母都没有，0 块。"
       }
     },
     {
       "t": {
-        "zh": "只看最后一块：它从前面某个切点开始，到这里结束。扫描臂扫过前面每个切点，一次送来<b>两段</b>：切点那里的格子，和从那里到这里那一块的代价。这一关，那一块是词就算 1，不是词就是「—」。",
-        "en": "Look only at the last piece: it starts at some earlier cut and ends here. The sweep arm sweeps every earlier cut and brings <b>two runs</b> at once: the cell at each cut, and what the piece from there to here costs. In this level a piece that is a word costs 1, and one that isn’t is “—”."
+        "zh": "只看最后一块：它从前面某个切点开始，到这里结束。扫描臂扫过前面每个切点，一次送来<b>两段</b>：切点那里的格子，和从那里到这里那一块的代价。这一关，那一块是词就算 1，不是词就是「—」。"
       }
     }
   ],
   "mission": {
-    "goal": { "zh": "算出每串字母最少切成几块词典里的词。", "en": "Work out the fewest dictionary words each string can be cut into." },
-    "how": { "zh": "词典写在测试旁边。", "en": "The dictionary is shown next to the tests." }
+    "goal": { "zh": "算出每串字母最少切成几块词典里的词。" },
+    "how": { "zh": "词典写在测试旁边。" }
   },
   "robot": "broom",
   "unlock": "wordbreak",
   "debrief": {
-    "title": { "zh": "切词", "en": "Word breaking" },
+    "title": { "zh": "切词" },
     "body": [
       {
-        "zh": "搜索引擎遇到 bestbuy、输入法遇到一串没打空格的拼音，都要先切词。",
-        "en": "A search engine that meets bestbuy, or a Chinese input method given a run of pinyin with no spaces, has to break it into words first."
+        "zh": "搜索引擎遇到 bestbuy、输入法遇到一串没打空格的拼音，都要先切词。"
       },
       {
-        "zh": "每个切点都试一遍，取最省的那个：来路的数量随数据变化，表照样能填。",
-        "en": "Try every cut and keep the cheapest: the number of ways in changes with the data, and the table fills all the same."
+        "zh": "每个切点都试一遍，取最省的那个：来路的数量随数据变化，表照样能填。"
       }
     ]
   },
@@ -65,8 +60,7 @@
         {
           "when": { "not": { "uses": "cost" } },
           "say": {
-            "zh": "扫描臂的第二段是每一块的代价：不是词的那一块是「—」，加法器会把它跳过。",
-            "en": "The arm’s second run is each piece’s cost: a piece that isn’t a word is “—”, and the Adder drops it."
+            "zh": "扫描臂的第二段是每一块的代价：不是词的那一块是「—」，加法器会把它跳过。"
           }
         }
       ],
@@ -74,12 +68,10 @@
       "after": "dictionary",
       "hints": [
         {
-          "zh": "每个切点：那里最少几块 + 这一块。加法器会把两段一项一项相加。",
-          "en": "At every cut: the fewest pieces up to there + this piece. An Adder adds two runs up item by item."
+          "zh": "每个切点：那里最少几块 + 这一块。加法器会把两段一项一项相加。"
         },
         {
-          "zh": "在所有切点里取较小。开头是 0 块：「是开头」放过一个 0。",
-          "en": "Take the smallest over all the cuts. The start is 0 pieces: let a 0 through with “is start”."
+          "zh": "在所有切点里取较小。开头是 0 块：「是开头」放过一个 0。"
         }
       ],
       "world": "pieces",

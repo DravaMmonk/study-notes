@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { evaluate, parse, print, problemsOf } from './expr.js'
 import { BUILTIN_ITEMS, BUILTINS } from './builtins.js'
 import { applyRules, defineParts, evalSettings, failedCheck, partDesc, partProblems, withParts } from './define.js'
+import { facesOf, holesOf, insideOf, keepsOf, regionsOf, settingsOf } from '../pieces.js'
 import { S } from '../schema.js'
 import { evaluate as run } from '../circuit.js'
 
@@ -25,7 +26,7 @@ const file = {
       settings: [{ key: 'k', control: 'slider', min: 1, max: 4, default: 2 }, { key: 'how', use: 'how' }, { key: 'lock', control: 'toggle', when: "eq($how, 'up')" }],
       compute: "match $how { up: scale(a, k=$k, how='up'), down: scale(a, k=$k, how=$how) }",
       rules: [{ on: 'how', when: "eq($how, 'down')", set: { k: 'plus($k, 1)' } }],
-      checks: [{ holds: 'le($k, 3)', say: { zh: 'k 太大', en: 'k is too big' } }],
+      checks: [{ holds: 'le($k, 3)', say: { zh: 'k 太大' } }],
       views: { tile: [{ show: 'summary', text: '{how} ×{k}' }], card: [{ show: 'row', blocks: [{ show: 'setting', key: 'k' }, { show: 'readout', label: 'k²', expr: 'times($k, $k)' }] }] },
     },
     split: { name: 'Split', desc: 'two', icon: 'Split', family: 'value', inputs: [{ name: 'a' }], outputs: [{ name: 'hi' }, { name: 'lo' }], compute: { hi: 'add(a, 1)', lo: 'add(a, -1)' } },
@@ -63,14 +64,26 @@ test('parts.json becomes engine parts: settings with their presets, one or sever
   assert.equal(values.get('t#hi'), 5)
   assert.equal(values.get('t#lo'), 3)
   assert.equal(PARTS.sum.eval({ a: null, b: 1 }, { params: {} }), null)
-  assert.throws(() => PARTS.scaled.eval({ a: 1 }, { params: { k: 4 } }), /too big/)
+  assert.throws(() => PARTS.scaled.eval({ a: 1 }, { params: { k: 4 } }), /太大/)
+})
+
+test('an optional input left unwired reads 「—」 and does not make the part give 「—」; wired to 「—」 it does', () => {
+  const some = { parts: { first: { name: 'First', desc: 'a, else b', icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b', optional: true }], compute: 'add(a, b)' } } }
+  const { PARTS } = defineParts(some, { add: { args: [{ name: 'a' }, { name: 'b' }], run: ([a, b]) => (b === undefined ? a : a + b) } })
+  assert.deepEqual(PARTS.first.optional, ['b'])
+  const registry = { ...PARTS, in: { inputs: [], eval: () => 5 }, none: { inputs: [], eval: () => null } }
+  const alone = { nodes: [{ id: 'x', type: 'in' }, { id: 'f', type: 'first' }], wires: [{ from: 'x', to: 'f', port: 'a' }] }
+  assert.equal(run(alone, { parts: registry }).values.get('f'), 5)
+  const blank = { nodes: [...alone.nodes, { id: 'n', type: 'none' }], wires: [...alone.wires, { from: 'n', to: 'f', port: 'b' }] }
+  assert.equal(run(blank, { parts: registry }).values.get('f'), null)
+  assert.deepEqual(partProblems(some, vocabulary), [])
 })
 
 test('interaction: rules follow a change, checks say what fails, settings-only expressions', () => {
   const { defs } = defineParts(file, OPS)
   assert.deepEqual(applyRules(defs.scaled, { k: 2, how: 'down' }, 'how', OPS), { k: 3, how: 'down' })
   assert.deepEqual(applyRules(defs.scaled, { k: 2, how: 'up' }, 'how', OPS), { k: 2, how: 'up' })
-  assert.deepEqual(failedCheck(defs.scaled, { k: 4 }, OPS), { zh: 'k 太大', en: 'k is too big' })
+  assert.deepEqual(failedCheck(defs.scaled, { k: 4 }, OPS), { zh: 'k 太大' })
   assert.equal(evalSettings('times($k, $k)', defs.scaled, { k: 3 }, OPS), 9)
 })
 
@@ -96,13 +109,36 @@ test('a parts.json that holds together has no problems; one that does not says w
   assert.deepEqual(Object.keys(withParts(vocabulary, file).kinds.part), ['sum', 'scaled', 'split'])
 })
 
+test('code and content pieces share both the vocabulary and the running registry', () => {
+  const code = { fixed: { inputs: [], eval: () => 4 } }
+  const mixed = { ...vocabulary, kinds: { ...vocabulary.kinds, part: { fixed: { about: 'a fixed number' } } } }
+  const data = { parts: { sum: file.parts.sum } }
+  assert.deepEqual(Object.keys(withParts(mixed, data).kinds.part), ['fixed', 'sum'])
+  assert.deepEqual(partProblems(data, mixed), [])
+  const { PARTS } = defineParts(data, OPS, code)
+  const board = { nodes: [{ id: 'f', type: 'fixed' }, { id: 's', type: 'sum' }], wires: [{ from: 'f', to: 's', port: 'a' }, { from: 'f', to: 's', port: 'b' }] }
+  assert.equal(run(board, { parts: PARTS }).values.get('s'), 8)
+})
+
+test('the piece readers expose the optional faces without renaming stored fields', () => {
+  const piece = { ...file.parts.scaled, regions: [{ name: 'body', opens: true }], inside: { task: 'work' }, keeps: ['a'] }
+  assert.equal(holesOf(piece), piece.inputs)
+  assert.equal(settingsOf(piece), piece.settings)
+  assert.equal(facesOf(piece), piece.views)
+  assert.equal(regionsOf(piece), piece.regions)
+  assert.equal(insideOf(piece), piece.inside)
+  assert.equal(keepsOf(piece), piece.keeps)
+  assert.deepEqual(partProblems({ ...file, parts: { ...file.parts, scaled: piece } }, vocabulary), [])
+  assert.deepEqual([holesOf({}), settingsOf({}), regionsOf({}), insideOf({}), facesOf({}), keepsOf({})], [[], [], [], null, {}, []])
+})
+
 test('a description names only the options that are open', () => {
   const def = {
-    desc: { zh: '按 a 运算 b。', en: 'a op b.' },
-    settings: [{ key: 'op', options: [{ value: 'add', about: { zh: '加。', en: 'Add.' } }, { value: 'div', about: { zh: '除，除数为 0 报错。', en: 'Divide; zero errs.' } }, { value: 'sub' }] }],
+    desc: { zh: '按 a 运算 b。' },
+    settings: [{ key: 'op', options: [{ value: 'add', about: { zh: '加。' } }, { value: 'div', about: { zh: '除，除数为 0 报错。' } }, { value: 'sub' }] }],
   }
-  assert.deepEqual(partDesc(def, () => ['add']), { zh: '按 a 运算 b。加。', en: 'a op b. Add.' })
-  assert.deepEqual(partDesc(def), { zh: '按 a 运算 b。加。除，除数为 0 报错。', en: 'a op b. Add. Divide; zero errs.' })
+  assert.deepEqual(partDesc(def, () => ['add']), { zh: '按 a 运算 b。加。' })
+  assert.deepEqual(partDesc(def), { zh: '按 a 运算 b。加。除，除数为 0 报错。' })
   assert.deepEqual(partDesc(def, () => ['sub']), def.desc)
   assert.equal(partDesc({ desc: 'plain', settings: [] }), 'plain')
 })

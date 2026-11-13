@@ -1,6 +1,9 @@
 // A changeset: several operations (operations.js) applied to a game together, as one change.
 //
-//   { why?: text, ops: [{ op: 'level.move', …its arguments }] }
+//   { why?: text, by?: who, ops: [{ op: 'level.move', …its arguments }] }
+//
+// `by` says who made the change, as the change log keeps it: a person's hand ('studio', 'cli') or an agent
+// ('agent:<step>:<model>'). What a person changed of what an agent wrote is read from it (games/DIRECTION.md 4).
 //
 // Each operation's arguments are checked against its schema, then it runs on the workspace (workspace.js) in order;
 // one that fails stops the changeset with nothing written. Then the game is checked as a whole: its content against
@@ -83,7 +86,7 @@ async function settle({ ws, changeset, domain, start, says, inverse, write, chec
       } catch (error) {
         return error.message
       }
-      append(ws, { why: changeset.why, ops: changeset.ops, files: changes.map((c) => ({ file: c.file, before: hashOf(c.before), after: hashOf(c.after) })), inverse, ...(undoes !== null && { undoes }) })
+      append(ws, { why: changeset.why, ...(changeset.by && { by: changeset.by }), ops: changeset.ops, files: changes.map((c) => ({ file: c.file, before: hashOf(c.before), after: hashOf(c.after) })), inverse, ...(undoes !== null && { undoes }) })
       return null
     })
   }

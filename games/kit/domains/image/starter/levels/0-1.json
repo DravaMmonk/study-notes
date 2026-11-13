@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "睁眼", "en": "Open your eyes" },
-  "after": { "zh": "你看到的每一张图，都只是一格一格的数字。", "en": "Every image you see is just a grid of numbers, cell by cell." },
+  "title": { "zh": "睁眼" },
+  "after": { "zh": "你看到的每一张图，都只是一格一格的数字。" },
   "intro": [
     {
       "t": {
-        "zh": "图在电脑里是一张数字表，每格是一个<wiki-ref to=\"pixel\"></wiki-ref>。",
-        "en": "Inside a computer an image is a table of numbers, each cell a <wiki-ref to=\"pixel\"></wiki-ref>."
+        "zh": "图在电脑里是一张数字表，每格是一个<wiki-ref to=\"pixel\"></wiki-ref>。"
       }
     }
   ],
@@ -13,15 +12,15 @@
     {
       "id": "0-1",
       "kind": "graph",
-      "brief": { "zh": "把输入接到输出。", "en": "Connect the input to the output." },
-      "hint": { "zh": "从「输入」右边的圆点拖到「输出」左边的圆点。", "en": "Drag from the dot on the right of “Input” to the dot on the left of “Output”." },
+      "brief": { "zh": "把输入接到输出。" },
+      "hint": { "zh": "从「输入」右边的圆点拖到「输出」左边的圆点。" },
       "scene": "filter",
       "setup": { "target": "same" },
       "tests": [
-        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" }
+        { "label": { "zh": "方块" }, "in": "square" },
+        { "label": { "zh": "圆盘" }, "in": "disk" }
       ],
-      "hidden": [{ "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 7 } } }],
+      "hidden": [{ "label": { "zh": "随机纹理" }, "in": { "noise": { "seed": 7 } } }],
       "solution": ["out <- in"]
     }
   ]

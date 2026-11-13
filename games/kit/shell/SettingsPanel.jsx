@@ -11,15 +11,15 @@ export default function SettingsPanel({ game, theme, onTheme, anchor, onClose })
   const phone = useMedia(PHONE)
   const entries = game ? settingsFor(game, { phone }) : []
   const chooseTheme = (id) => { applyTheme(id); onTheme(id); window.dispatchEvent(new CustomEvent('themechange', { detail: id })) }
-  return <Popover className="player-settings-popover" anchor={anchor} title={tr('设置', 'Settings')} onClose={onClose}>
+  return <Popover className="player-settings-popover" anchor={anchor} title={tr('设置')} onClose={onClose}>
     <div className="player-settings">
-      <section aria-label={tr('语言和主题', 'Language and theme')}>
-        <div className="player-setting"><span>{tr('语言', 'Language')}</span><span className="setting-options">{[['zh', '简体中文'], ['en', 'English']].map(([id, label]) => <button type="button" key={id} lang={id === 'zh' ? 'zh-CN' : 'en'} aria-pressed={currentLang() === id} onClick={() => applyLang(id)}>{label}</button>)}</span></div>
-        <div className="player-setting"><span>{tr('主题', 'Theme')}</span><span className="setting-options">{THEMES.map(([id, zh, en]) => <button type="button" key={id} aria-pressed={theme === id} onClick={() => chooseTheme(id)}>{tr(zh, en)}</button>)}</span></div>
+      <section aria-label={tr('语言和主题')}>
+        <div className="player-setting"><span>{tr('语言')}</span><span className="setting-options">{[['zh', '简体中文'], ['en', 'English']].map(([id, label]) => <button type="button" key={id} lang={id === 'zh' ? 'zh-CN' : 'en'} aria-pressed={currentLang() === id} onClick={() => applyLang(id)}>{label}</button>)}</span></div>
+        <div className="player-setting"><span>{tr('主题')}</span><span className="setting-options">{THEMES.map(([id, zh, en]) => <button type="button" key={id} aria-pressed={theme === id} onClick={() => chooseTheme(id)}>{tr(zh, en)}</button>)}</span></div>
       </section>
       {['display', 'edit'].map((group) => {
         const rows = entries.filter((s) => s.group === group)
-        return rows.length > 0 && <section key={group} aria-label={group === 'display' ? tr('显示', 'Display') : tr('编辑', 'Editing')}>
+        return rows.length > 0 && <section key={group} aria-label={group === 'display' ? tr('显示') : tr('编辑', 'Editing')}>
           {rows.map((setting) => {
             const value = settings.get(game, setting.key, { phone })
             return <div className="player-setting" key={setting.key}>

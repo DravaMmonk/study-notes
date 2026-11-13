@@ -3,7 +3,7 @@ import { mix, rgba, token, useCanvas } from './paint.js'
 import Plot from './Plot.jsx'
 import { centreBins, spectrumOf } from './spectrum.js'
 
-// A grey grid's spectrum (the view `spectrum`, games/DESIGN.md 6.10): the strength of each frequency it holds, zero
+// A grey grid's spectrum (the view `spectrum`, games/DESIGN.md 6.9): the strength of each frequency it holds, zero
 // frequency in the middle. A row (or two) is drawn as a plot of each frequency's amplitude, |F| / n, the value wanted
 // on the same axes where there is one; a picture as a map whose bright cell at (kx, ky) is a strong wave going kx
 // cycles across and ky down — log-scaled, the mean (the centre) left out of the scale, so faint waves still show.
@@ -49,5 +49,5 @@ function SpectrumMap({ value, size }) {
     ctx.lineTo(size, zy)
     ctx.stroke()
   }, size, height, [value])
-  return <canvas ref={canvas} className="sp" style={{ width: size, height }} aria-label={tr('频谱：中心是零频，越往外频率越高', 'Spectrum: the centre is zero frequency; frequency rises outwards')} />
+  return <canvas ref={canvas} className="sp" style={{ width: size, height }} aria-label={tr('频谱：中心是零频，越往外频率越高')} />
 }

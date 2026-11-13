@@ -1,49 +1,41 @@
 {
   "title": {
-    "zh": "修饰动作",
-    "en": "Telling about the action"
+    "zh": "修饰动作"
   },
   "intro": [
     {
       "t": {
-        "zh": "到这里，折起来的介词短语都挂在名词上，说明“什么样的”“谁的”，这样的修饰成分叫<wiki-ref to=\"attributive\"></wiki-ref>。",
-        "en": "So far every folded phrase has hung on a noun, telling what kind or whose; such a modifier is an <wiki-ref to=\"attributive\"></wiki-ref>."
+        "zh": "到这里，折起来的介词短语都挂在名词上，说明“什么样的”“谁的”，这样的修饰成分叫<wiki-ref to=\"attributive\"></wiki-ref>。"
       }
     },
     {
       "t": {
-        "zh": "介词短语也可以说明动作本身：在哪里做、用什么做、什么时候做。这时它挂在谓语的动词上，叫<wiki-ref to=\"adverbial\"></wiki-ref>。同一个介词短语挂在哪，只能看意思。",
-        "en": "A prepositional phrase can also tell about the action itself: where, with what, when it is done. Then it hangs on the verb, and is an <wiki-ref to=\"adverbial\"></wiki-ref>. Where a phrase hangs is told only by the meaning."
+        "zh": "介词短语也可以说明动作本身：在哪里做、用什么做、什么时候做。这时它挂在谓语的动词上，叫<wiki-ref to=\"adverbial\"></wiki-ref>。同一个介词短语挂在哪，只能看意思。"
       }
     }
   ],
   "debrief": {
     "title": {
-      "zh": "We train the model on a single GPU.",
-      "en": "We train the model on a single GPU."
+      "zh": "We train the model on a single GPU."
     },
     "body": [
       {
-        "zh": "<i>on a single GPU</i> 挂在 <i>train</i> 上：在一块 GPU 上训练模型。它紧跟着 <i>the model</i>，说明的却是动作。",
-        "en": "<i>on a single GPU</i> hangs on <i>train</i>: the training happens on one GPU. It follows <i>the model</i> but tells about the action."
+        "zh": "<i>on a single GPU</i> 挂在 <i>train</i> 上：在一块 GPU 上训练模型。它紧跟着 <i>the model</i>，说明的却是动作。"
       }
     ],
     "note": {
-      "zh": "说明“什么样的”挂名词，说明“在哪、怎么做”挂动词。",
-      "en": "What kind: on the noun. Where or how: on the verb."
+      "zh": "说明“什么样的”挂名词，说明“在哪、怎么做”挂动词。"
     }
   },
   "tasks": [
     {
       "id": "2-1",
       "brief": {
-        "zh": "标出主干，把修饰成分折起来，挂到它修饰的词上。",
-        "en": "Mark the skeleton and fold the modifier onto the word it modifies."
+        "zh": "标出主干，把修饰成分折起来，挂到它修饰的词上。"
       },
       "hint": [
         {
-          "zh": "在一块 GPU 上的，是模型，还是训练这件事？",
-          "en": "What is on a single GPU: the model, or the training?"
+          "zh": "在一块 GPU 上的，是模型，还是训练这件事？"
         }
       ],
       "sentence": "We train the model on a single GPU.",
@@ -54,8 +46,7 @@
           "to": "train",
           "misread": {
             "model": {
-              "zh": "挂在 <i>model</i> 上，意思是“装在一块 GPU 上的那个模型”。这里说的是训练在一块 GPU 上进行。",
-              "en": "Hung on <i>model</i>, it means the model that sits on one GPU. What happens on one GPU here is the training."
+              "zh": "挂在 <i>model</i> 上，意思是“装在一块 GPU 上的那个模型”。这里说的是训练在一块 GPU 上进行。"
             }
           }
         }

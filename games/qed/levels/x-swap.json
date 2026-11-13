@@ -1,5 +1,5 @@
 {
-  "title": { "zh": "不用框换顺序", "en": "Reordering without a box" },
+  "title": { "zh": "不用框换顺序" },
   "tray": "proof",
   "without": ["impI", "chain", "swap", "merge"],
   "tasks": [
@@ -9,12 +9,11 @@
       "kind": "proof",
       "tests": [{ "premises": { "p": "A → (B → C)" }, "goal": "B → (A → C)" }],
       "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
-      "briefNote": { "zh": "不用假设框。", "en": "Without the assumption box." },
+      "briefNote": { "zh": "不用假设框。" },
       "hint": [
-        { "zh": "已知能接进哪一种 S？套用以后得到什么？", "en": "Which S can the given go into, and what does Apply then give?" },
+        { "zh": "已知能接进哪一种 S？套用以后得到什么？" },
         {
-          "zh": "还缺的一段，K 能不能补上？两段首尾相接以后，照<level-ref to=\"x-chain\"></level-ref>接起来。",
-          "en": "Can K supply the missing piece? Once two pieces meet end to end, join them as in <level-ref to=\"x-chain\"></level-ref>."
+          "zh": "还缺的一段，K 能不能补上？两段首尾相接以后，照<level-ref to=\"x-chain\"></level-ref>接起来。"
         }
       ],
       "solution": [

@@ -25,20 +25,20 @@
 [data-type='pp'] { --type: var(--type-pp); }
 [data-type='rel'] { --type: var(--type-rel); }
 
-.sx-stage { box-sizing: border-box; width: min(100%, 880px); margin: 0 auto; padding: 22px 24px 28px; display: grid; gap: 14px; align-content: start; }
+.sx-stage { box-sizing: border-box; width: min(100%, 880px); margin: 0 auto; padding: var(--sp-7) var(--sp-7) var(--sp-7); display: grid; gap: var(--sp-5); align-content: start; }
 
 /* ---- the sentence ---- */
-.sx-sentence { margin: 0; padding: 18px 18px 22px; border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); font-family: var(--serif); font-size: 21px; line-height: 2.3; color: var(--heading); overflow-wrap: anywhere; }
+.sx-sentence { margin: 0; padding: var(--sp-6) var(--sp-6) var(--sp-7); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); font-family: var(--serif); font-size: 21px; line-height: 2.3; color: var(--heading); overflow-wrap: anywhere; }
 .sx-unit { white-space: pre-wrap; }
 /* A word over its role's name: the name sits under the word in the flow, so a short word ("We") is at least as wide as
    its name and the next word's name never runs into it. */
 .sx-stack { display: inline-grid; justify-items: start; line-height: 1.4; }
 .sx-unit[data-role] .sx-stack > :first-child { box-shadow: inset 0 -2.5px 0 var(--role); }
-.sx-role-label { margin-top: 2px; font-family: var(--mono); font-size: 10.5px; letter-spacing: var(--track-label); line-height: 1; white-space: nowrap; color: var(--role); }
+.sx-role-label { margin-top: var(--sp-1); font-family: var(--mono); font-size: 10.5px; letter-spacing: var(--track-label); line-height: 1; white-space: nowrap; color: var(--role); }
 .sx-word, .sx-fold { margin: 0; border: 0; font: inherit; color: inherit; cursor: pointer; }
-.sx-word { padding: 0 1px; border-radius: 4px; background: transparent; }
+.sx-word { padding: 0 1px; border-radius: var(--r-sm); background: transparent; }
 .sx-word:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
-.sx-fold { display: inline-flex; align-items: baseline; gap: 4px; padding: 0 9px; border-radius: 6px; background: color-mix(in srgb, var(--type) 14%, var(--canvas)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--type) 55%, transparent); font-family: var(--sans); font-size: 13.5px; color: var(--type); vertical-align: 0.12em; }
+.sx-fold { display: inline-flex; align-items: baseline; gap: var(--sp-2); padding: 0 var(--sp-4); border-radius: var(--r-sm); background: color-mix(in srgb, var(--type) 14%, var(--canvas)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--type) 55%, transparent); font-family: var(--sans); font-size: 13.5px; color: var(--type); vertical-align: 0.12em; }
 .sx-fold i { font-family: var(--serif); font-style: normal; font-size: 15px; color: var(--heading); }
 .sx-fold .sx-arrow { color: var(--muted); }
 .sx-fold.is-given { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--type) 30%, transparent); opacity: 0.8; cursor: default; }
@@ -53,9 +53,9 @@
 /* ---- the tray and notes ---- */
 .sx-note { margin: 0; font-size: var(--fs-ui); color: var(--muted); }
 .sx-note.is-bad { color: var(--fail); }
-.sx-tray { display: flex; flex-wrap: wrap; gap: 10px 18px; }
-.sx-group { display: flex; flex-wrap: wrap; gap: 6px; }
-.sx-act { min-height: 38px; padding: 6px 14px; border: 1px solid var(--rule); border-radius: 999px; background: var(--canvas); color: var(--ink); font: inherit; font-size: var(--fs-small); cursor: pointer; }
+.sx-tray { display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-6); }
+.sx-group { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+.sx-act { min-height: 38px; padding: var(--sp-3) var(--sp-5); border: 1px solid var(--rule); border-radius: var(--r-full); background: var(--canvas); color: var(--ink); font: inherit; font-size: var(--fs-small); cursor: pointer; }
 .sx-act[data-role] { border-color: color-mix(in srgb, var(--role) 60%, var(--rule)); color: var(--role); }
 .sx-act[data-type] { border-color: color-mix(in srgb, var(--type) 60%, var(--rule)); color: var(--type); }
 .sx-act:hover { background: var(--paper); }
@@ -63,10 +63,10 @@
 .sx-act.is-quiet { color: var(--muted); }
 
 /* ---- the check ---- */
-.sx-result { padding: 10px 14px; border-left: 3px solid var(--fail); border-radius: var(--r-sm); background: var(--canvas); font-size: var(--fs-ui); line-height: 1.55; }
+.sx-result { padding: var(--sp-4) var(--sp-5); border-left: 3px solid var(--fail); border-radius: var(--r-sm); background: var(--canvas); font-size: var(--fs-ui); line-height: 1.55; }
 .sx-result.is-pass { border-color: var(--sx-ok); color: var(--sx-ok); }
 .sx-result p { margin: 0; }
-.sx-result ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.sx-result ul { margin: 0; padding-left: var(--sp-6); display: grid; gap: var(--sp-2); }
 
 /* ---- the passed dialog's skeleton ---- */
 .sx-skeleton { margin: 0; font-family: var(--serif); font-size: 17px; color: var(--heading); }
@@ -74,4 +74,4 @@
 
 /* ---- the phone ---- */
 .level-phone.sx-level .sx-stage { padding: 0; }
-.level-phone.sx-level .sx-sentence { padding: 14px 12px 18px; font-size: 19px; }
+.level-phone.sx-level .sx-sentence { padding: var(--sp-5) var(--sp-5) var(--sp-6); font-size: 19px; }

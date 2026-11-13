@@ -1,0 +1,41 @@
+{
+  "parts": {
+    "add": {
+      "name": { "zh": "相加" },
+      "desc": {
+        "zh": "把两个形状相同的向量逐个分量相加：几何上，第二支箭头接在第一支的箭头尖上，和从起点指到终点。"
+      },
+      "icon": "Plus",
+      "family": "vector",
+      "inputs": [{ "name": "u" }, { "name": "v" }],
+      "compute": "add(u, v)"
+    },
+    "scale": {
+      "name": { "zh": "数乘" },
+      "desc": {
+        "zh": "数 k 乘向量 v 的每个分量：箭头沿原来的直线伸长或缩短 k 倍，k 为负时掉头。"
+      },
+      "icon": "Scaling",
+      "family": "vector",
+      "inputs": [{ "name": "k" }, { "name": "v" }],
+      "compute": "scale(k, v)"
+    },
+    "num": {
+      "name": { "zh": "常数" },
+      "desc": { "zh": "给出设定的那个数。" },
+      "icon": "Hash",
+      "family": "number",
+      "inputs": [],
+      "settings": [
+        {
+          "key": "value",
+          "control": "number",
+          "label": { "zh": "数" },
+          "step": 0.5,
+          "default": 1
+        }
+      ],
+      "compute": "$value"
+    }
+  }
+}

@@ -1,40 +1,38 @@
 {
   "consts": ["i"],
-  "title": { "zh": "量词的证明项", "en": "Quantifiers’ proof terms" },
+  "title": { "zh": "量词的证明项" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "「∀x. …」的证明也是函数，只是参数不是证明，而是一样东西：给它 t，它还你关于 t 的那句话的证明。这叫<wiki-ref to=\"dep-function\"></wiki-ref>，<part-ref to=\"part:allE\"></part-ref>写作 p i。「∃x. …」的证明是一<b>对</b>：一样东西（见证）和它满足那句话的证明；用它时写 p.elim (fun a h => …)。",
-        "en": "A proof of “∀x. …” is a function too, but its argument is a thing, not a proof: given t, it gives back a proof of the sentence about t. This is a <wiki-ref to=\"dep-function\"></wiki-ref>, and <part-ref to=\"part:allE\"></part-ref> is written p i. A proof of “∃x. …” is a <b>pair</b>: a thing (the witness) and a proof that it fits; using one is written p.elim (fun a h => …)."
+        "zh": "「∀x. …」的证明也是函数，只是参数不是证明，而是一样东西：给它 t，它还你关于 t 的那句话的证明。这叫<wiki-ref to=\"dep-function\"></wiki-ref>，<part-ref to=\"part:allE\"></part-ref>写作 p i。「∃x. …」的证明是一<b>对</b>：一样东西（见证）和它满足那句话的证明；用它时写 p.elim (fun a h => …)。"
       }
     }
   ],
-  "after": { "zh": "→ 就是不依赖参数的 ∀。", "en": "→ is just a ∀ that does not depend on its argument." },
+  "after": { "zh": "→ 就是不依赖参数的 ∀。" },
   "tasks": [
     {
       "id": "t-all_1",
       "kind": "proof",
       "terms": true,
-      "step": { "zh": "∀ 是函数", "en": "∀ is a function" },
+      "step": { "zh": "∀ 是函数" },
       "tests": [{ "premises": { "p": "∀x. P(x) → Q(x)", "q": "P(i)" }, "goal": "Q(i)", "term": "p i q" }],
       "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
-      "briefNote": { "zh": "证明项须为 p i q。", "en": "Its proof term must be p i q." },
-      "hint": [{ "zh": "p i：把安交给 p，得到的是关于安的那句话。", "en": "p i: hand Ann to p, and out comes the sentence about Ann." }],
+      "briefNote": { "zh": "证明项须为 p i q。" },
+      "hint": [{ "zh": "p i：把安交给 p，得到的是关于安的那句话。" }],
       "solution": ["e = allE[t=i](p)", "m = mp(e, q)", "goal <- m"]
     },
     {
       "id": "t-all_2",
       "kind": "proof",
       "terms": true,
-      "step": { "zh": "任取框是 fun", "en": "The for-any box is fun" },
+      "step": { "zh": "任取框是 fun" },
       "tests": [{ "goal": "∀x. P(x) → P(x)", "term": "fun a h => h" }],
       "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
-      "briefNote": { "zh": "证明项须为 fun a h => h。", "en": "Its proof term must be fun a h => h." },
+      "briefNote": { "zh": "证明项须为 fun a h => h。" },
       "hint": [
         {
-          "zh": "fun a 是任取框（a 是任取的那一样），fun h 是假设框。",
-          "en": "fun a is the for-any box (a the thing taken), fun h the assumption box."
+          "zh": "fun a 是任取框（a 是任取的那一样），fun h 是假设框。"
         }
       ],
       "solution": [
@@ -50,14 +48,13 @@
       "id": "t-all_3",
       "kind": "proof",
       "terms": true,
-      "step": { "zh": "∃ 是一对", "en": "∃ is a pair" },
+      "step": { "zh": "∃ 是一对" },
       "tests": [{ "premises": { "p": "P(i)" }, "goal": "∃x. P(x)", "term": "⟨i, p⟩" }],
       "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
-      "briefNote": { "zh": "证明项须为 ⟨i, p⟩。", "en": "Its proof term must be ⟨i, p⟩." },
+      "briefNote": { "zh": "证明项须为 ⟨i, p⟩。" },
       "hint": [
         {
-          "zh": "一对的左边是例子，右边是例子满足它的证明。",
-          "en": "The pair’s left is the example, its right the proof that the example fits."
+          "zh": "一对的左边是例子，右边是例子满足它的证明。"
         }
       ],
       "solution": ["i = exI(p)", "goal <- i"]
@@ -66,17 +63,15 @@
       "id": "t-all_4",
       "kind": "proof",
       "terms": true,
-      "step": { "zh": "实例框", "en": "Instance box" },
+      "step": { "zh": "实例框" },
       "tests": [{ "premises": { "p": "∃x. P(x) ∧ Q(x)" }, "goal": "∃x. P(x)", "term": "p.elim (fun a h => ⟨a, h.1⟩)" }],
       "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
       "briefNote": {
-        "zh": "证明项须为 p.elim (fun a h => ⟨a, h.1⟩)。",
-        "en": "Its proof term must be p.elim (fun a h => ⟨a, h.1⟩)."
+        "zh": "证明项须为 p.elim (fun a h => ⟨a, h.1⟩)。"
       },
       "hint": [
         {
-          "zh": "fun a h 是实例框：a 是那样东西，h 是它满足的那句。",
-          "en": "fun a h is the instance box: a is the thing, h the sentence it fits."
+          "zh": "fun a h 是实例框：a 是那样东西，h 是它满足的那句。"
         }
       ],
       "solution": [

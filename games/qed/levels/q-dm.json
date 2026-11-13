@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "量词的德摩根律", "en": "De Morgan for quantifiers" },
+  "title": { "zh": "量词的德摩根律" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "「没有人在喝酒」和「人人都没在喝酒」是一回事。∃ 像一个很长的「或者」，∀ 像一个很长的「并且」，所以<wiki-ref to=\"demorgan\"></wiki-ref>对量词也成立。",
-        "en": "“Nobody is drinking” and “everyone is not drinking” say the same. ∃ is like a long “or” and ∀ a long “and”, so <wiki-ref to=\"demorgan\"></wiki-ref> hold for quantifiers too."
+        "zh": "「没有人在喝酒」和「人人都没在喝酒」是一回事。∃ 像一个很长的「或者」，∀ 像一个很长的「并且」，所以<wiki-ref to=\"demorgan\"></wiki-ref>对量词也成立。"
       }
     },
     {
       "t": {
-        "zh": "四个方向都证出后，<part-ref to=\"lemma:dm\"></part-ref>多出四个形状。",
-        "en": "Once all four directions are proved, <part-ref to=\"lemma:dm\"></part-ref> gains four shapes."
+        "zh": "四个方向都证出后，<part-ref to=\"lemma:dm\"></part-ref>多出四个形状。"
       }
     }
   ],
@@ -19,14 +17,13 @@
     {
       "id": "q-dm_1",
       "kind": "proof",
-      "step": { "zh": "一个都没有", "en": "Not a single one" },
+      "step": { "zh": "一个都没有" },
       "tests": [{ "premises": { "p": "¬∃x. P(x)" }, "goal": "∀x. ¬P(x)" }],
       "cases": [{ "P": "Drinks" }, { "P": "Sings" }],
       "hint": [
-        { "zh": "任取一个 a，要证的是「¬a在喝酒」。", "en": "Take any a; the goal is “¬a is drinking”." },
+        { "zh": "任取一个 a，要证的是「¬a在喝酒」。" },
         {
-          "zh": "假设 a 在喝酒，它就是已知所否认的那种例子。",
-          "en": "Suppose a is drinking: then a is just the kind of example the given denies."
+          "zh": "假设 a 在喝酒，它就是已知所否认的那种例子。"
         }
       ],
       "solution": [
@@ -46,12 +43,12 @@
     {
       "id": "q-dm_2",
       "kind": "proof",
-      "step": { "zh": "都不，就是没有", "en": "All not is none" },
+      "step": { "zh": "都不，就是没有" },
       "tests": [{ "premises": { "p": "∀x. ¬P(x)" }, "goal": "¬∃x. P(x)" }],
       "cases": [{ "P": "Drinks" }, { "P": "Sings" }],
       "hint": [
-        { "zh": "要证的是一个否定：假设有人在喝酒。", "en": "The goal is a negation: suppose someone is drinking." },
-        { "zh": "把这个人取出来，已知对他也成立。", "en": "Take that person out; the given holds of them too." }
+        { "zh": "要证的是一个否定：假设有人在喝酒。" },
+        { "zh": "把这个人取出来，已知对他也成立。" }
       ],
       "solution": [
         "f = impI[A=\"exists x. P(x)\"](body: e) {",
@@ -70,12 +67,12 @@
     {
       "id": "q-dm_3",
       "kind": "proof",
-      "step": { "zh": "有一个不", "en": "One who does not" },
+      "step": { "zh": "有一个不" },
       "tests": [{ "premises": { "p": "∃x. ¬P(x)" }, "goal": "¬∀x. P(x)" }],
       "cases": [{ "P": "Drinks" }, { "P": "Sings" }],
       "hint": [
-        { "zh": "假设人人都在喝酒。", "en": "Suppose everyone is drinking." },
-        { "zh": "把那个没喝的人取出来：他也在「人人」之中。", "en": "Take out the one who is not drinking: they are among “everyone” too." }
+        { "zh": "假设人人都在喝酒。" },
+        { "zh": "把那个没喝的人取出来：他也在「人人」之中。" }
       ],
       "solution": [
         "f = impI[A=\"forall x. P(x)\"](body: e) {",
@@ -94,15 +91,14 @@
     {
       "id": "q-dm_4",
       "kind": "proof",
-      "step": { "zh": "并非人人", "en": "Not everyone" },
+      "step": { "zh": "并非人人" },
       "sentences": ["¬∃x. ¬P(x)"],
       "tests": [{ "premises": { "p": "¬∀x. P(x)" }, "goal": "∃x. ¬P(x)" }],
       "cases": [{ "P": "Drinks" }, { "P": "Sings" }],
       "hint": [
-        { "zh": "已知里没有一个具体的人可以举出来。试试反证。", "en": "The given names nobody to point to. Try proof by contradiction." },
+        { "zh": "已知里没有一个具体的人可以举出来。试试反证。" },
         {
-          "zh": "假设「¬∃x. ¬x在喝酒」，再看能不能证出人人都在喝酒。",
-          "en": "Assume “¬∃x. ¬x is drinking”, and see whether everyone drinking follows."
+          "zh": "假设「¬∃x. ¬x在喝酒」，再看能不能证出人人都在喝酒。"
         }
       ],
       "solution": [

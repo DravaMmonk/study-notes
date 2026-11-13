@@ -1,0 +1,9 @@
+/* The linear domain's screen: its cards' families. The rest is the circuit base's
+   (circuit/circuit.css .cs-). Colours come from the kit's tokens. */
+[data-family='given'] { --fam: var(--w0); }
+[data-family='number'] { --fam: var(--w2); }
+[data-family='vector'] { --fam: var(--w3); }
+[data-family='matrix'] { --fam: var(--w0); }
+[data-family='built'] { --fam: var(--w5); }
+[data-family='end'] { --fam: var(--accent); }
+

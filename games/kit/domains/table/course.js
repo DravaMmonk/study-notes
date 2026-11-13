@@ -295,7 +295,7 @@ export function tableCourse(content) {
     return fitted(from?.nodes ? clone(from) : blank(), s.given);
   };
 
-  /** The parts level L can really offer a player holding `flags` (the shell's: unlocks of solved levels, and grants). */
+  /** The parts level L can really offer a player holding `flags` (the shell's: the unlocks of solved levels). */
   const usableIn = (L, flags) => new Set(usable(course, { id: L.id }, flags));
   /** Everything the player has for level L: what it shows, and what it folds away ({ shown, folded }). */
   const offerIn = (L, flags) => offer(course, { id: L.id }, flags);

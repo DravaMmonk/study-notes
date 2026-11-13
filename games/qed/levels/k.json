@@ -1,37 +1,35 @@
 {
-  "title": { "zh": "多一个条件也无妨", "en": "One more condition does no harm" },
+  "title": { "zh": "多一个条件也无妨" },
   "tray": "proof",
   "builds": "axK",
-  "intro": [{ "t": { "zh": "这一关没有已知。", "en": "This level has no givens." } }],
+  "intro": [{ "t": { "zh": "这一关没有已知。" } }],
   "after": {
-    "zh": "在没有框的<wiki-ref to=\"hilbert\"></wiki-ref>里，K 是一条不用证的<wiki-ref to=\"axiom\"></wiki-ref>。",
-    "en": "In a <wiki-ref to=\"hilbert\"></wiki-ref>, which has no box, K is an <wiki-ref to=\"axiom\"></wiki-ref>, taken without proof."
+    "zh": "在没有框的<wiki-ref to=\"hilbert\"></wiki-ref>里，K 是一条不用证的<wiki-ref to=\"axiom\"></wiki-ref>。"
   },
   "tasks": [
     {
       "id": "k_1",
       "kind": "proof",
-      "step": { "zh": "假设什么，就得到什么", "en": "What you assume, you have" },
+      "step": { "zh": "假设什么，就得到什么" },
       "tests": [{ "goal": "A → A" }],
       "cases": [{ "A": "Rain" }, { "A": "Sat" }],
-      "hint": [{ "zh": "框里看得见哪些话？", "en": "What can be seen from inside the box?" }],
+      "hint": [{ "zh": "框里看得见哪些话？" }],
       "solution": ["f = impI[A=A](body: f.body)", "goal <- f"]
     },
     {
       "id": "k_2",
       "kind": "proof",
-      "step": { "zh": "多一个条件也无妨", "en": "An extra condition" },
+      "step": { "zh": "多一个条件也无妨" },
       "tests": [{ "goal": "A → (B → A)" }],
       "cases": [{ "A": "Rain", "B": "Wind" }, { "A": "Coffee", "B": "Late" }],
       "hint": [
-        { "zh": "目标里有几个 →？", "en": "How many →s are in the goal?" },
-        { "zh": "里面的框看得见外面框的假设。", "en": "The inner box sees the outer box’s assumption." }
+        { "zh": "目标里有几个 →？" },
+        { "zh": "里面的框看得见外面框的假设。" }
       ],
       "intro": [
         {
           "t": {
-            "zh": "已经成立的事，加上什么条件都还成立：不管刮不刮风，下雨就是下雨。这句话叫 <part-ref to=\"lemma:axK\"></part-ref>。",
-            "en": "What holds still holds under any extra condition: windy or not, it rains. The sentence is called <part-ref to=\"lemma:axK\"></part-ref>."
+            "zh": "已经成立的事，加上什么条件都还成立：不管刮不刮风，下雨就是下雨。这句话叫 <part-ref to=\"lemma:axK\"></part-ref>。"
           }
         }
       ],

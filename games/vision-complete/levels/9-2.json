@@ -1,36 +1,31 @@
 {
-  "title": { "zh": "分成几类", "en": "Into classes" },
+  "title": { "zh": "分成几类" },
   "tray": "recognition",
   "after": {
-    "zh": "分两类、各求中心、再分：这是 k 均值的一步。重复几步，分界就停在两堆像素之间。",
-    "en": "Split into two, find each centre, split again: that is one step of k-means. Repeat a few steps and the boundary settles between the two heaps of pixels."
+    "zh": "分两类、各求中心、再分：这是 k 均值的一步。重复几步，分界就停在两堆像素之间。"
   },
   "intro": [
     {
       "t": {
-        "zh": "没有人告诉机器哪些是前景、哪些是背景时，它能不能自己把像素分成几堆？",
-        "en": "When nobody tells the machine what is foreground and what is background, can it split the pixels into heaps by itself?"
+        "zh": "没有人告诉机器哪些是前景、哪些是背景时，它能不能自己把像素分成几堆？"
       }
     },
     {
       "t": {
-        "zh": "一个办法：先随便定一条亮度分界，按它把像素分成两类，看看两类各自的平均，再挪分界。",
-        "en": "One way: draw a boundary in brightness anywhere, split the pixels into two classes by it, look at each class's average, then move the boundary."
+        "zh": "一个办法：先随便定一条亮度分界，按它把像素分成两类，看看两类各自的平均，再挪分界。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：按说明里的规则，算出挪一次以后的新分界。",
-        "en": "Your task in this level: by the rule in the brief, work out the new boundary after one move."
+        "zh": "这一关你要做的：按说明里的规则，算出挪一次以后的新分界。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：圆斑", "en": "Set 1: a round patch" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组：圆斑" } }
     }
   ],
   "packs": {
-    "name": { "zh": "k 均值一步", "en": "One k-means step" },
+    "name": { "zh": "k 均值一步" },
     "desc": {
-      "zh": "按分界 m 把值分成两类，输出两类平均值的正中间。",
-      "en": "Splits the values into two classes at the boundary m and outputs halfway between the two class averages."
+      "zh": "按分界 m 把值分成两类，输出两类平均值的正中间。"
     }
   },
   "tasks": [
@@ -38,41 +33,39 @@
       "id": "9-2",
       "kind": "graph",
       "brief": {
-        "zh": "把像素按亮度分成两类：亮于分界 m 的一类，其余一类。算出两类各自的平均亮度，输出它们正中间的新分界。",
-        "en": "Split the pixels into two classes by brightness: those brighter than the boundary m, and the rest. Work out each class's average brightness and output the new boundary halfway between them."
+        "zh": "把像素按亮度分成两类：亮于分界 m 的一类，其余一类。算出两类各自的平均亮度，输出它们正中间的新分界。"
       },
       "hint": {
-        "zh": "一类的平均 = 这一类像素的亮度之和 ÷ 这一类的像素数。<part-ref to=\"mean\"></part-ref>除以的是全部像素数，两个平均相除就约掉了。",
-        "en": "A class's average = the sum of its pixels' brightness ÷ the number of its pixels. <part-ref to=\"mean\"></part-ref> divides by the number of all the pixels, which cancels when one average is divided by another."
+        "zh": "一类的平均 = 这一类像素的亮度之和 ÷ 这一类的像素数。<part-ref to=\"mean\"></part-ref>除以的是全部像素数，两个平均相除就约掉了。"
       },
       "inputs": ["img", "m"],
       "inputLabels": {
-        "img": { "zh": "图", "en": "Picture" },
-        "m": { "zh": "现在的分界 m", "en": "Boundary m now" }
+        "img": { "zh": "图" },
+        "m": { "zh": "现在的分界 m" }
       },
       "check": { "tolerance": 0.005 },
       "scene": "kmeans",
       "setup": { "expect": "step" },
       "tests": [
         {
-          "label": { "zh": "圆斑", "en": "A round patch" },
+          "label": { "zh": "圆斑" },
           "img": { "twoTone": { "seed": 51, "dark": 0.25, "bright": 0.75, "disc": [5, 6, 16] } },
           "m": 0.4
         },
         {
-          "label": { "zh": "右边一条", "en": "A strip on the right" },
+          "label": { "zh": "右边一条" },
           "img": { "twoTone": { "seed": 52, "dark": 0.2, "bright": 0.6, "rightOf": 10 } },
           "m": 0.3
         },
         {
-          "label": { "zh": "斜纹", "en": "Slanted stripes" },
+          "label": { "zh": "斜纹" },
           "img": { "twoTone": { "seed": 53, "dark": 0.4, "bright": 0.9, "stripes": [7, 3] } },
           "m": 0.7
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "圆斑，从低处分", "en": "Round patch, split low" },
+          "label": { "zh": "圆斑，从低处分" },
           "img": { "twoTone": { "seed": 51, "dark": 0.25, "bright": 0.75, "disc": [5, 6, 16] } },
           "m": 0.28
         }

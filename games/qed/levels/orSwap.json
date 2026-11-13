@@ -1,5 +1,5 @@
 {
-  "title": { "zh": "或者，换个顺序", "en": "Or, the other way round" },
+  "title": { "zh": "或者，换个顺序" },
   "tray": "proof",
   "tasks": [
     {
@@ -9,8 +9,7 @@
       "cases": [{ "A": "Bus", "B": "Bike" }, { "A": "Coffee", "B": "Tea" }],
       "hint": [
         {
-          "zh": "不知道是哪一边，就分情况。每种情况里，用补充换到对的位置。",
-          "en": "Not knowing which side, split into cases. In each, Add alternative puts it in the right place."
+          "zh": "不知道是哪一边，就分情况。每种情况里，用补充换到对的位置。"
         }
       ],
       "solution": [

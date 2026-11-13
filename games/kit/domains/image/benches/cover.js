@@ -131,7 +131,7 @@ const QUAD = S.list(pt, { min: 4 })
 
 /** The bench model: knob `pairs` (picked on the pictures) and `overlay`; quantities pairs (how many) and error. */
 export const cover = {
-  about: t('四个角：在封面和照片上连出对应点（旋钮 pairs），解出单应，把封面贴回照片；算出点对数 pairs 和误差 error', 'four corners: pair points on the cover and in the photo (knob pairs), solve the homography, paste the cover back; computes how many pairs and the error'),
+  about: t('四个角：在封面和照片上连出对应点（旋钮 pairs），解出单应，把封面贴回照片；算出点对数 pairs 和误差 error'),
   setup: S.obj({
     cover: S.obj({ w: num, h: num }), photo: S.obj({ w: num, h: num }),
     title: S.list(num, { min: 4 }), logo: S.list(num, { min: 4 }), quad: QUAD,
@@ -149,10 +149,10 @@ export const cover = {
           error: fit.error,
           fit,
           transform: n === 3
-            ? fit.model ? t('3 对点 → 仿射变换（6 个自由度）。', '3 pairs → affine transform (6 degrees of freedom).') : t('这 3 对点共线，无法确定变换。', 'These 3 pairs are collinear, so the transform is undetermined.')
+            ? fit.model ? t('3 对点 → 仿射变换（6 个自由度）。') : t('这 3 对点共线，无法确定变换。')
             : n === 4
-              ? fit.model ? t('4 对点 → 单应变换，用 DLT 求解（8 个自由度）。', '4 pairs → homography, solved with DLT (8 degrees of freedom).') : t('这 4 对点过于集中或共线，无法确定 H。', 'These 4 pairs are too clustered or collinear to determine H.')
-              : t('至少需要 3 对点才能贴上封面。', 'At least 3 pairs are needed to paste the cover on.'),
+              ? fit.model ? t('4 对点 → 单应变换，用 DLT 求解（8 个自由度）。') : t('这 4 对点过于集中或共线，无法确定 H。')
+              : t('至少需要 3 对点才能贴上封面。'),
         }
       },
     }

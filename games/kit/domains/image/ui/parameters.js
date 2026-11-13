@@ -7,12 +7,10 @@ export function pruneUnavailableWires(kit, graph) {
   }) }
 }
 
-export function setParams(kit, graph, id, patch, changed) {
+export function updateParams(kit, graph, id, next) {
   const nodes = graph.nodes.map((node) => {
     if (node.id !== id) return node
-    const edited = { ...node.params, ...patch }
-    const ruled = kit.applyRules?.(node.type, edited, changed) ?? edited
-    const params = { ...ruled }
+    const params = { ...next }
     for (const key of Object.keys(params)) {
       if (params[key] !== node.params[key]) params[key] = kit.snapSetting(node.type, key, params[key])
     }
@@ -21,4 +19,7 @@ export function setParams(kit, graph, id, patch, changed) {
   return pruneUnavailableWires(kit, { ...graph, nodes })
 }
 
-export const setParam = (kit, graph, id, key, value) => setParams(kit, graph, id, { [key]: value }, key)
+export function setParam(kit, graph, id, key, value) {
+  const node = graph.nodes.find((candidate) => candidate.id === id)
+  return updateParams(kit, graph, id, kit.applyRules(node.type, { ...node.params, [key]: value }, key))
+}

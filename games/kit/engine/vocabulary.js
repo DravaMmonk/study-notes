@@ -40,8 +40,8 @@ export const GLOSSARY = S.obj({
 export const OPEN = S.map(S.list(S.str({ pattern: '^[^@]*@[^@]+$' })))
 
 
-export function defineVocabulary({ domain, version, kinds, game, level, languages = {}, partOverrides = false }) {
-  return { domain, version, kinds, game, level, languages, ...(partOverrides && { partOverrides }) }
+export function defineVocabulary({ domain, version, kinds, game, level, languages = {} }) {
+  return { domain, version, kinds, game, level, languages }
 }
 
 /** The vocabulary as plain data: its kinds and items with what they are and their parameters, and the content schemas. */
@@ -87,6 +87,8 @@ export function additionProblems(before, after, at = 'vocabulary') {
     return before.flatMap((x, k) => (has(x) ? [] : [`${at}[${k}]: ${JSON.stringify(x).slice(0, 60)} is gone`]))
   }
   if (before && typeof before === 'object') {
+    // Adding an alternative preserves every value accepted by an existing schema.
+    if (before.type && before.type !== 'either' && after?.type === 'either' && after.of.some((choice) => additionProblems(before, choice, at).length === 0)) return []
     if (!after || typeof after !== 'object' || Array.isArray(after)) return [`${at}: was an object`]
     // The number of the version itself is what changes.
     const out = Object.entries(before).filter(([k]) => !(at === 'vocabulary' && k === 'version')).flatMap(([k, v]) => (k in after ? additionProblems(v, after[k], `${at}.${k}`) : [`${at}.${k} is gone`]))
@@ -104,13 +106,16 @@ export function additionProblems(before, after, at = 'vocabulary') {
  * file and the path in it. `domain`: the domain module, its vocabulary and the readers of its languages. A course blueprint (blueprint.json) is the kernel's, the same in every domain; so is the rule
  * that task ids are unique in a game and never another level's (tasks.js).
  */
+// An overlay (./i18n.js): a translation for each base text it knows.
+const OVERLAY = S.map(S.str())
+
 export function checkContent({ vocabulary: domainVocabulary, languages = null, names: domainNames = () => ({}) }, content) {
   const out = []
   const vocabulary = withParts(domainVocabulary, content.partDefs)
   const add = (problems, file) => out.push(...problems.map((p) => ({ at: `${file}${p.at === '(root)' ? '' : p.at}`, says: p.says })))
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
   // the one it may have: the audit findings it leaves open.
-  const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, ...game } = content
+  const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, i18n, ...game } = content
   const ids = new Set(levels.map((l) => l.id))
   // What the content itself names (S.name): the encyclopedia's entries and groups, and what the domain says.
   const names = { entry: new Set((glossary?.entries ?? []).map((e) => e.id)), group: new Set((glossary?.groups ?? []).map((g) => g.id)), ...domainNames(content) }
@@ -122,8 +127,9 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   out.push(...taskIdProblems(levels))
   add(validate(GLOSSARY, glossary, { vocabulary, levels: ids, names }), 'glossary.json')
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
+  for (const [lang, memory] of Object.entries(i18n ?? {})) add(validate(OVERLAY, memory, { vocabulary }), `i18n/${lang}.json`)
   if (definesParts(domainVocabulary)) {
-    if (parts === undefined && !domainVocabulary.partOverrides) out.push({ at: 'parts.json', says: `the ${domainVocabulary.domain} domain defines its parts as data: the game needs a parts.json` })
+    if (parts === undefined && !domainVocabulary.kinds.part) out.push({ at: 'parts.json', says: `the ${domainVocabulary.domain} domain defines its parts as data: the game needs a parts.json` })
     else if (parts !== undefined) out.push(...partProblems(parts, domainVocabulary))
   } else if (parts !== undefined) out.push({ at: 'parts.json', says: `the ${domainVocabulary.domain} domain defines its parts in code: parts.json is not read` })
   return out

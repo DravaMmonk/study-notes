@@ -1,0 +1,51 @@
+{
+  "domain": "market",
+  "vocabulary": 2,
+  "title": {
+    "zh": "看不见的手"
+  },
+  "kicker": {
+    "zh": "经济学"
+  },
+  "lede": {
+    "zh": "一家小店，每天进货，定一个价。先把一条街的买卖一块块搭出来，再搭一台只看自己货架就能找到价格的机器。"
+  },
+  "primitives": [
+    "mul",
+    "sub",
+    "min",
+    "const",
+    "div",
+    "add"
+  ],
+  "concept": {
+    "sub": "mul",
+    "div": "mul",
+    "add": "mul",
+    "min": "mul"
+  },
+  "eras": [
+    {
+      "id": 0,
+      "title": {
+        "zh": "一家小店"
+      },
+      "question": {
+        "zh": "价格定在哪里最合适，谁说了算？"
+      },
+      "foundation": [
+        "want",
+        "trade",
+        "clear",
+        "adjust",
+        "street"
+      ]
+    }
+  ],
+  "views": {
+    "ticks": [
+      "terms",
+      "dots"
+    ]
+  }
+}

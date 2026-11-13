@@ -1,15 +1,18 @@
 // Saved progress for a game on the shared shell. It lives in this browser only, under saveKey(<game id>):
 //
-//   { stamp, solved: [level id], flags: [flag], passed: [task key], data: { [task key]: what its screen keeps },
-//     slots: { [task key]: its other saved boards (slots.js) }, built: { [task key]: the board a part runs },
-//     best: { [level id]: score }, introSeen: { [level id | task key]: true }, seenPower, all }
+//   { stamps: { [task key]: stamp }, solved: [level id], flags: [flag], passed: [task key],
+//     data: { [task key]: what its screen keeps }, slots: { [task key]: its other saved boards (slots.js) },
+//     built: { [task key]: the board a part runs }, solutions: { [task key]: the passed work and its reference closure }, best: { [level id]: score },
+//     introSeen: { [level id | task key]: true }, seenPower, all }
 //
 // What a level is (solved, its best score) is kept by its id; what a puzzle is — its board, its other boards, whether
 // it is passed, the board a part runs — by its task's key (taskKey: the task's id, ../engine/tasks.js keyOf), so a
-// task moved within its level or to another, or levels made one, keeps it all. A level once solved stays solved, even
-// when it gains a task. `stamp` is the stamp of the puzzles it was made on (../engine/stamp.js): while the games are
-// in development no save is carried across a change, so a save made on other puzzles (or of any other shape) is not
-// read and the player starts afresh.
+// task moved within its level or to another, or levels made one, keeps it all. `stamps` says which puzzle each task's
+// save was made on (../engine/stamp.js): a task whose puzzle has changed since loses what was kept of it, and its
+// level is no longer solved; every other task keeps its save. A board that reads a part whose own level changed is
+// its screen's to judge when it opens (a domain's `open`), as any board that no longer fits.
+
+import { solutionStamp } from '../engine/stamp.js'
 
 /** The key a game's progress is saved under in this browser. */
 export const saveKey = (id) => `${id}.v2`
@@ -23,29 +26,50 @@ export function solvedCount(id) {
   }
 }
 
-const blank = (stamp = null) => ({ stamp, solved: [], flags: [], passed: [], skippedTasks: [], data: {}, slots: {}, built: {}, best: {}, seenPower: false, introSeen: {}, all: false })
+const blank = () => ({ stamps: {}, solved: [], flags: [], passed: [], skippedTasks: [], data: {}, slots: {}, built: {}, solutions: {}, best: {}, seenPower: false, introSeen: {}, all: false })
 
-/** A game's progress in this browser, kept under `id` for the puzzles `stamp` names. */
-export function createProgress({ id, stamp }) {
+const without = (kept, gone) => Object.fromEntries(Object.entries(kept ?? {}).filter(([key]) => !gone.has(key)))
+
+/** `stored` less what it kept of the tasks whose puzzle is no longer the one `tasks` names ({ [key]: { level, stamp } }). */
+export function current(stored, tasks) {
+  const gone = new Set(Object.keys(stored.stamps).filter((key) => tasks[key]?.stamp !== stored.stamps[key]))
+  if (!gone.size) return stored
+  const levels = new Set([...gone].map((key) => tasks[key]?.level))
+  return {
+    ...stored,
+    solved: stored.solved.filter((id) => !levels.has(id)),
+    passed: stored.passed.filter((key) => !gone.has(key)),
+    skippedTasks: (stored.skippedTasks ?? []).filter((key) => !gone.has(key)),
+    data: without(stored.data, gone),
+    slots: without(stored.slots, gone),
+    built: without(stored.built, gone),
+    solutions: without(stored.solutions, gone),
+    best: without(stored.best, levels),
+  }
+}
+
+/** A game's progress in this browser, kept under `id`. `tasks`: its tasks' stamps today (../engine/stamp.js taskStamps). */
+export function createProgress({ id, tasks = {} }) {
   const key = saveKey(id)
+  const stamps = Object.fromEntries(Object.entries(tasks).map(([task, { stamp }]) => [task, stamp]))
   return {
     key,
     load() {
       try {
         const stored = JSON.parse(window.localStorage.getItem(key))
-        return stored?.stamp === stamp ? { ...blank(stamp), ...stored } : blank(stamp)
+        return stored?.stamps ? { ...blank(), ...current({ ...blank(), ...stored }, tasks), stamps } : { ...blank(), stamps }
       } catch {
-        return blank(stamp)
+        return { ...blank(), stamps }
       }
     },
     save(progress) {
       try {
-        window.localStorage.setItem(key, JSON.stringify(progress))
+        window.localStorage.setItem(key, JSON.stringify({ ...progress, stamps }))
       } catch {
         // Storage may be full or blocked; the game still works for this session.
       }
     },
-    blank: () => ({ ...blank(stamp), seenPower: true }),
+    blank: () => ({ ...blank(), stamps, seenPower: true }),
   }
 }
 
@@ -131,13 +155,24 @@ export function earnedUnlocks(level, progress) {
   })
 }
 
+/** The work and the exact dependencies the game selected when the task passed. */
+export function recordSolution(game, p, level, taskAt, work) {
+  const task = level.tasks[taskAt]
+  const stamped = (entry) => ({ ...entry, puzzle: p.stamps?.[entry.key] })
+  return solutionStamp(stamped({ key: task.key, task: task.source, work }), (entry) =>
+    (game.workReferences?.(entry, p.built) ?? []).map(stamped))
+}
+
 /** Record the task and its board; solve the level once every task has actually passed. */
 export function passed(game, p, level, taskAt, score = null) {
   const built = kept(game, p, level, taskAt)
   const best = taskAt === level.tasks.length - 1 && score && game.better(score, p.best[level.id])
     ? { ...p.best, [level.id]: score } : p.best
+  const key = taskKey(level, taskAt)
+  const work = p.data[key]
+  const solutions = work == null ? p.solutions : { ...p.solutions, [key]: recordSolution(game, p, level, taskAt, work) }
   const taskRewards = level.tasks[taskAt].optional ? level.tasks[taskAt].opens ?? [] : []
-  const now = { ...p, built, best, flags: [...new Set([...p.flags, ...taskRewards])], passed: [...new Set([...p.passed, taskKey(level, taskAt)])], skippedTasks: (p.skippedTasks ?? []).filter((key) => key !== taskKey(level, taskAt)) }
+  const now = { ...p, built, best, solutions, flags: [...new Set([...p.flags, ...taskRewards])], passed: [...new Set([...p.passed, taskKey(level, taskAt)])], skippedTasks: (p.skippedTasks ?? []).filter((key) => key !== taskKey(level, taskAt)) }
   const required = level.tasks.map((task, k) => task.optional ? null : k).filter((k) => k !== null)
   const allRequiredPassed = (required.length ? required : level.tasks.map((_, k) => k)).every((k) => taskPassed(game, now, level.id, k))
   const mayFinish = p.all && !level.tasks[taskAt].optional ? nextRequiredTask(game, now, level.id, taskAt) === -1 : allRequiredPassed
@@ -150,13 +185,11 @@ export function passed(game, p, level, taskAt, score = null) {
 }
 
 /**
- * The flags a level is played with at task `taskAt`: what progress has unlocked, what the level grants, what the tasks
- * before it opened (with every level open, everything before it too), less what the level or the task withholds.
+ * The flags a level is played with at task `taskAt`: what progress has unlocked and what the tasks before it opened
+ * (with every level open, everything before it too). What a task holds by them, and what it gives or withholds for
+ * itself, is the course's to say (../course.js holds).
  */
 export function flagsIn(game, p, level, taskAt) {
-  const { tasks } = level
-  const opened = tasks.slice(0, taskAt).flatMap((t, k) => p.all || taskPassed(game, p, level.id, k) ? t.opens ?? [] : [])
-  const set = new Set([...game.flagsOf(p), ...(level.grants ?? []), ...opened, ...(p.all ? game.unlocksBefore(level) : [])])
-  for (const flag of tasks[taskAt].withhold ?? []) set.delete(flag)
-  return set
+  const opened = level.tasks.slice(0, taskAt).flatMap((t, k) => p.all || taskPassed(game, p, level.id, k) ? t.opens ?? [] : [])
+  return new Set([...game.flagsOf(p), ...opened, ...(p.all ? game.unlocksBefore(level) : [])])
 }

@@ -1,34 +1,30 @@
 {
-  "title": { "zh": "去网纹", "en": "Remove the screen" },
+  "title": { "zh": "去网纹" },
   "tray": "pipeline",
   "after": {
-    "zh": "一组规则的条纹，在频谱里只占一对点；照片本身的内容散在各处。把那对点挖掉，条纹就没了，照片几乎不受影响。修图软件的「去网纹」、去掉扫描件上的摩尔纹，都是这个办法。",
-    "en": "A regular stripe pattern takes up just one pair of dots in the spectrum, while the photo's own content is spread all over. Dig out that pair and the stripes are gone, with the photo hardly touched. \"Descreen\" in photo editors, and removing moiré from scans, work this way."
+    "zh": "一组规则的条纹，在频谱里只占一对点；照片本身的内容散在各处。把那对点挖掉，条纹就没了，照片几乎不受影响。修图软件的「去网纹」、去掉扫描件上的摩尔纹，都是这个办法。"
   },
   "intro": [
     {
       "t": {
-        "zh": "翻拍印刷的照片，或者扫描报纸上的图，常常带上一层规则的网纹：印刷时的网点和相机的像素格子叠在一起，浮出原来没有的条纹。",
-        "en": "Photographing a printed photo, or scanning a picture from a newspaper, often adds a regular screen of stripes: the printing dots and the camera's pixel grid overlap and stripes appear that were never there."
+        "zh": "翻拍印刷的照片，或者扫描报纸上的图，常常带上一层规则的网纹：印刷时的网点和相机的像素格子叠在一起，浮出原来没有的条纹。"
       }
     },
     {
       "t": {
-        "zh": "一组规则的条纹，在频谱里是什么样子？照片本身的内容又在频谱的哪里？",
-        "en": "What does a regular set of stripes look like in a spectrum? And where in the spectrum is the photo's own content?"
+        "zh": "一组规则的条纹，在频谱里是什么样子？照片本身的内容又在频谱的哪里？"
       },
       "fig": {
         "part": "fqSpectrum",
-        "caption": { "zh": "第一组测试照片的频谱", "en": "The spectrum of the first test photo" },
+        "caption": { "zh": "第一组测试照片的频谱" },
         "input": "test"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：按说明里的规则去掉网纹。每张照片的网纹方向和疏密都不一样。",
-        "en": "Your task in this level: remove the screen by the rule in the brief. Each photo's screen has a different direction and spacing."
+        "zh": "这一关你要做的：按说明里的规则去掉网纹。每张照片的网纹方向和疏密都不一样。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：竖网纹", "en": "Set 1: a vertical screen" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组：竖网纹" } }
     }
   ],
   "tasks": [
@@ -36,27 +32,25 @@
       "id": "2-9",
       "kind": "graph",
       "brief": {
-        "zh": "翻拍印刷的照片，常常带上一层规则的网纹。在频谱里，网纹是一对很亮的点。去掉频谱里半径 3 以外、比 0.6 还亮的格子，其余保持不变，输出去掉网纹的照片。每张照片的网纹方向和疏密都不一样。",
-        "en": "A photo of a printed picture often picks up a regular screen pattern. In the spectrum the screen is a pair of very bright dots. Remove the spectrum cells beyond radius 3 that are brighter than 0.6, keep everything else, and output the photo without its screen. Each photo's screen has a different direction and spacing."
+        "zh": "翻拍印刷的照片，常常带上一层规则的网纹。在频谱里，网纹是一对很亮的点。去掉频谱里半径 3 以外、比 0.6 还亮的格子，其余保持不变，输出去掉网纹的照片。每张照片的网纹方向和疏密都不一样。"
       },
       "hint": {
-        "zh": "网纹在哪，得从这张照片自己的频谱里找。找到的地方增益为 0，其余为 1。",
-        "en": "Where the screen is has to be found from this photo's own spectrum. Make the gain 0 where you find it and 1 everywhere else."
+        "zh": "网纹在哪，得从这张照片自己的频谱里找。找到的地方增益为 0，其余为 1。"
       },
       "inputs": ["in", "r"],
-      "inputLabels": { "in": { "zh": "照片", "en": "Photo" }, "r": { "zh": "频率半径", "en": "Frequency radius" } },
+      "inputLabels": { "in": { "zh": "照片" }, "r": { "zh": "频率半径" } },
       "check": { "tolerance": 0.02, "mismatches": 4 },
       "scene": "filter",
       "setup": { "target": { "descreen": { "threshold": 0.6, "radius": 3 } }, "given": { "r": "radius" } },
       "tests": [
         {
-          "label": { "zh": "竖网纹", "en": "Vertical screen" },
+          "label": { "zh": "竖网纹" },
           "in": {
             "screened": { "of": { "disk": { "cx": 15.5, "cy": 15.5, "r": 9, "lo": 0.25, "hi": 0.75, "size": 32 } }, "fx": 6, "fy": 0 }
           }
         },
         {
-          "label": { "zh": "横网纹", "en": "Horizontal screen" },
+          "label": { "zh": "横网纹" },
           "in": {
             "screened": {
               "of": { "glyph": { "letter": "T", "lo": 0.25, "hi": 0.75, "ox": 6, "oy": 6, "scale": 4, "size": 32 } },
@@ -66,7 +60,7 @@
           }
         },
         {
-          "label": { "zh": "斜网纹", "en": "Slanted screen" },
+          "label": { "zh": "斜网纹" },
           "in": {
             "screened": {
               "of": { "rect": { "x0": 8, "y0": 8, "w": 16, "h": 16, "lo": 0.25, "hi": 0.75, "size": 32 } },
@@ -78,7 +72,7 @@
       ],
       "hidden": [
         {
-          "label": { "zh": "另一种斜网纹", "en": "Another slanted screen" },
+          "label": { "zh": "另一种斜网纹" },
           "in": {
             "screened": {
               "of": { "glyph": { "letter": "L", "lo": 0.25, "hi": 0.75, "ox": 8, "oy": 5, "scale": 4, "size": 32 } },
@@ -88,7 +82,7 @@
           }
         },
         {
-          "label": { "zh": "细网纹", "en": "Fine screen" },
+          "label": { "zh": "细网纹" },
           "in": {
             "screened": { "of": { "disk": { "cx": 12, "cy": 18, "r": 7, "lo": 0.75, "hi": 0.25, "size": 32 } }, "fx": 9, "fy": 0 }
           }

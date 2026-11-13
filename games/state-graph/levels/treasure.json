@@ -1,34 +1,30 @@
 {
-  "title": { "zh": "往右往下找宝藏", "en": "Treasure, right or down" },
-  "short": { "zh": "两个方向，打个九折", "en": "Two directions, then a discount" },
+  "title": { "zh": "往右往下找宝藏" },
+  "short": { "zh": "两个方向，打个九折" },
   "intro": [
     {
       "t": {
-        "zh": "一张新地图：机器人只能往<b>右</b>或往<b>下</b>走。宝藏 10，地图边上一圈是悬崖，−10。",
-        "en": "A new map: the robot can only go <b>right</b> or <b>down</b>. The treasure is worth 10, and the edge of the map is a ring of cliffs at −10."
+        "zh": "一张新地图：机器人只能往<b>右</b>或往<b>下</b>走。宝藏 10，地图边上一圈是悬崖，−10。"
       }
     },
     {
       "t": {
-        "zh": "每一格的价值 = 往右、往下两格里较好的那个，<b>打个九折</b>。",
-        "en": "Each cell’s value = the better of the cells to the right and below, <b>discounted to 90%</b>."
+        "zh": "每一格的价值 = 往右、往下两格里较好的那个，<b>打个九折</b>。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "算出每一格的价值：往右、往下两格里较好的那个 × 0.9。",
-      "en": "Work out the value of every cell: the better of right and down × 0.9."
+      "zh": "算出每一格的价值：往右、往下两格里较好的那个 × 0.9。"
     },
     "how": {
-      "zh": "机器人一轮一轮地扫，直到表不再变。答案看起点那一格。",
-      "en": "The robot scans in rounds until the table stops changing. The answer is the start cell."
+      "zh": "机器人一轮一轮地扫，直到表不再变。答案看起点那一格。"
     }
   },
   "robot": "loop",
   "debrief": {
-    "title": { "zh": "格子世界的简化版", "en": "The grid world, simplified" },
-    "body": [{ "zh": "只有两个方向，每一格都只看右边和下面。", "en": "With two directions, every cell looks only right and down." }]
+    "title": { "zh": "格子世界的简化版" },
+    "body": [{ "zh": "只有两个方向，每一格都只看右边和下面。" }]
   },
   "tasks": [
     {
@@ -38,16 +34,14 @@
         {
           "when": { "any": [{ "uses": "up" }, { "uses": "left" }] },
           "say": {
-            "zh": "这张地图上只能往右或往下走：上面和左边走不过去。",
-            "en": "On this map you only move right or down: up and left can’t be reached."
+            "zh": "这张地图上只能往右或往下走：上面和左边走不过去。"
           }
         }
       ],
       "consts": [0, 0.5, 0.8, 0.9, 1],
       "hints": [
         {
-          "zh": "只能往右或往下：右边、下面接进「取较大」，再乘 0.9。",
-          "en": "Right or down only: wire right and down into a max, then multiply by 0.9."
+          "zh": "只能往右或往下：右边、下面接进「取较大」，再乘 0.9。"
         }
       ],
       "world": "vgrid",

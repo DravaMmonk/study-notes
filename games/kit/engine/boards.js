@@ -2,7 +2,7 @@
 // sink is what the circuit gives under its name. The same circuit then serves as a level's board (bound to a test's
 // inputs) and as a packed part (a solved circuit used again as one part).
 import { paramsOf } from './forms.js'
-import { BROKEN, PartError, evaluate } from './circuit.js'
+import { BROKEN, PartError, evaluate, evaluation, portsOf, splitSource } from './circuit.js'
 
 export const nameOf = (node) => node.params?.name
 
@@ -34,18 +34,27 @@ export function runBoard(circuit, { parts, ctx = {}, bind = {}, prepare = null, 
 export const STATE = '__state'
 
 // The inputs (of `inputs`) that reach the nodes `ends` of a circuit, by its wires.
-function inputsReaching(circuit, inputs, ends) {
+function inputsReaching(circuit, inputs, ends, parts, ctx) {
+  const partOf = parts && partFn(parts)
+  const nodes = new Map(circuit.nodes.map((node) => [node.id, node]))
   const into = new Map()
-  for (const w of circuit.wires) into.set(w.to, [...(into.get(w.to) ?? []), w.from.split('#')[0]])
+  for (const wire of circuit.wires) into.set(wire.to, [...(into.get(wire.to) ?? []), wire])
   const seen = new Set()
-  const stack = [...ends]
+  const reached = new Set()
+  const stack = ends.map((id) => [id, null])
   while (stack.length) {
-    const id = stack.pop()
-    if (seen.has(id)) continue
-    seen.add(id)
-    stack.push(...(into.get(id) ?? []))
+    const [id, key] = stack.pop()
+    const token = JSON.stringify([id, key])
+    if (seen.has(token)) continue
+    seen.add(token)
+    const node = nodes.get(id)
+    if (!node) continue
+    const part = partOf?.(node.type)
+    const wires = into.get(id) ?? []
+    if (!wires.length) reached.add(nameOf(node))
+    const ports = part ? (part.reads?.(node, key, ctx) ?? portsOf(part, node)) : null
+    for (const wire of wires) if (!ports || ports.includes(wire.port)) stack.push(splitSource(wire.from))
   }
-  const reached = new Set(circuit.nodes.filter((n) => seen.has(n.id) && !into.has(n.id)).map(nameOf))
   return inputs.filter((name) => reached.has(name))
 }
 
@@ -57,7 +66,7 @@ function inputsReaching(circuit, inputs, ends) {
  * Inside, the parts run with ctx.graph the circuit inside (and whatever `inside(ctx)` adds); a setting on the part
  * goes to every card inside that has the same setting; only the cards that reach the output asked for run, and each
  * output reads only the inputs that reach it, so a part can give one output from some inputs and another from the
- * output it fed (as a CAN controller says its next bit before it hears the bus); a traced run (circuit.js) sees each
+ * output it fed (a board can drive a line before hearing it); a traced run (circuit.js) sees each
  * card inside as a step of its own, its `path` the ids of the packed parts it is in, outermost first.
  *
  * A part that `holds` registers (a board run tick after tick, ticks.js) keeps them per instance: the cards inside run
@@ -65,8 +74,37 @@ function inputsReaching(circuit, inputs, ends) {
  * register (a part with `store`, naming its register by `params.reg`, or a packed part that holds), putting what they
  * keep into ctx.stores.
  */
-export function packed({ circuit, inputs, outputs, holds = false, inside: around = (ctx) => ctx, ...extra }) {
+export function packed({ circuit, inputs, outputs, parts, holds = false, inside: around = (ctx) => ctx, ...extra }) {
   const circuitOf = () => (typeof circuit === 'function' ? circuit() : circuit)
+  // The circuit inside is evaluated once for each evaluation outside (one ctx), whichever of the part's outputs are
+  // asked for and in whatever order: the cards two outputs share run once, and so do those of a part packed inside.
+  // An output asked for with an input bound otherwise (a part run again by hand) starts over.
+  const evaluations = new WeakMap()
+  // The circuit inside with a node's settings on it, kept while both stay the same.
+  const settled = new WeakMap()
+  const settledOf = (circuit, node, parts) => {
+    if (settled.get(node)?.circuit !== circuit) settled.set(node, { circuit, inner: withSettings(circuit, node.params, parts) })
+    return settled.get(node).inner
+  }
+  const inside = (ins, node, ctx) => {
+    if (!evaluations.has(ctx)) evaluations.set(ctx, new Map())
+    const circuit = circuitOf()
+    let own = evaluations.get(ctx).get(node)
+    if (!own || own.circuit !== circuit || Object.keys(ins).some((port) => port in own.bind && own.bind[port] !== ins[port])) {
+      const inner = settledOf(circuit, node, ctx.engine.parts)
+      const trace = ctx.trace && { push: (step) => ctx.trace.push({ ...step, path: [node.id, ...(step.path ?? [])] }) }
+      const engine = { parts: ctx.engine.parts, prepare: ctx.engine.prepare }
+      // On a run that trains, the inputs' numbers on the tape go in with them (tape.js).
+      const [bind, bindIds] = [{}, ctx.tape ? {} : undefined]
+      const { run } = evaluation(inner, { ...engine, ctx: { ...around(ctx), graph: inner, trace, scope: `${ctx.scope ?? ''}${node.id}/`, bindIds, bind, engine } })
+      own = { circuit, inner, bind, bindIds, run }
+      evaluations.get(ctx).set(node, own)
+    }
+    Object.assign(own.bind, ins)
+    if (own.bindIds) Object.assign(own.bindIds, ctx.tape.ins)
+    return own
+  }
+  const dependencyKey = {}
   const keys = [...(outputs.length === 1 ? [null] : outputs), ...(holds ? [STATE] : [])]
   const many = keys.length > 1
   const keepers = (inner, partOf) => inner.nodes.filter((n) => partOf(n.type)?.store || partOf(n.type)?.holds).map((n) => n.id)
@@ -77,16 +115,23 @@ export function packed({ circuit, inputs, outputs, holds = false, inside: around
     ...(many ? {
       outputs: () => keys,
       // An output reads the inputs that reach it; the cards keeping registers may read any.
-      reads: (_node, key) => (key === STATE ? inputs : inputsReaching(circuitOf(), inputs, circuitOf().nodes.filter((n) => nameOf(n) === (key ?? outputs[0])).map((n) => n.id))),
+      reads: (_node, key, ctx) => {
+        if (key === STATE) return inputs
+        const inner = circuitOf()
+        const cache = ctx?.dependencyCache
+        if (!cache) return inputsReaching(inner, inputs, inner.nodes.filter((n) => nameOf(n) === (key ?? outputs[0])).map((n) => n.id), parts, ctx)
+        if (!cache.has(dependencyKey)) cache.set(dependencyKey, new WeakMap())
+        const circuits = cache.get(dependencyKey)
+        if (!circuits.has(inner)) circuits.set(inner, new Map())
+        const keys = circuits.get(inner)
+        if (!keys.has(key)) keys.set(key, inputsReaching(inner, inputs, inner.nodes.filter((n) => nameOf(n) === (key ?? outputs[0])).map((n) => n.id), parts, ctx))
+        return keys.get(key)
+      },
     } : {}),
     eval: (ins, node, ctx, key) => {
       const partOf = partFn(ctx.engine.parts)
-      const inner = withSettings(circuitOf(), node.params, ctx.engine.parts)
-      const trace = ctx.trace && { push: (step) => ctx.trace.push({ ...step, path: [node.id, ...(step.path ?? [])] }) }
+      const { inner, run } = inside(ins, node, ctx)
       const scope = `${ctx.scope ?? ''}${node.id}/`
-      // On a run that trains, the inputs' numbers on the tape go in with them (tape.js).
-      const bindIds = ctx.tape ? { ...ctx.tape.ins } : undefined
-      const run = (targets) => runBoard(inner, { parts: ctx.engine.parts, prepare: ctx.engine.prepare, ctx: { ...around(ctx), graph: inner, trace, scope, bindIds }, bind: ins, targets })
       if (key === STATE) {
         const { values } = run(keepers(inner, partOf))
         for (const n of inner.nodes) if (partOf(n.type)?.store && values.has(n.id)) ctx.stores?.set(`${scope}${n.params.reg}`, values.get(n.id))
@@ -113,4 +158,12 @@ export function withSettings(circuit, params = {}, parts) {
     const own = keys.filter((k) => paramsOf(partOf(n.type), n).includes(k))
     return own.length ? { ...n, params: { ...n.params, ...Object.fromEntries(own.map((k) => [k, params[k]])) } } : n
   }) }
+}
+
+/** A board run once on `bind`, with what every card computed kept as the steps of the run: { values, errors, outputs,
+ * trace }. */
+export function runTraced(circuit, parts, bind) {
+  const trace = []
+  const { values, errors, outputs } = runBoard(circuit, { parts, bind, ctx: { trace } })
+  return { values, errors, outputs, trace }
 }

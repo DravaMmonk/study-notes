@@ -99,7 +99,7 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
   return (
     <article className="editor">
       <header className="editor-head">
-        <input className="editor-id" value={name} onChange={(e) => setName(e.target.value)} onBlur={rename} onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()} aria-label={tr('关卡 id', 'Level id')} size={Math.max(3, name.length)} />
+        <input className="editor-id" value={name} onChange={(e) => setName(e.target.value)} onBlur={rename} onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()} aria-label={tr('关卡 id')} size={Math.max(3, name.length)} />
         <h1>{L(value.title)}</h1>
         {form.tags && <TagChoice field={form} onEdit={edit} ctx={ctx} />}
         {form.shapes?.length > 1 && <Shapes field={form} onEdit={edit} ctx={ctx} />}
@@ -112,10 +112,10 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
         )}
         <span className="kit-spacer" />
         <span className="editor-tools">
-          <button type="button" className="kit-btn" onClick={() => onPlay(id, false)} title={tr('试玩', 'Play')} aria-label={tr('试玩', 'Play')}><Play size={14} aria-hidden="true" /></button>
-          <button type="button" className="kit-btn" onClick={() => onPlay(id, true)} title={tr(`载入参考解试玩（${MOD}+Enter）`, `Play with the reference (${MOD}+Enter)`)} aria-label={tr('载入参考解试玩', 'Play with the reference')}><CirclePlay size={14} aria-hidden="true" /></button>
-          <button type="button" className="kit-btn" onClick={() => onMove([id])} title={tr('移动', 'Move')} aria-label={tr('移动', 'Move')}><ArrowRightLeft size={14} aria-hidden="true" /></button>
-          <button type="button" className="kit-btn" onClick={copy} title={tr('复制成新的一关', 'Duplicate as a new level')} aria-label={tr('复制', 'Duplicate')}><Copy size={14} aria-hidden="true" /></button>
+          <button type="button" className="kit-btn" onClick={() => onPlay(id, false)} title={tr('试玩')} aria-label={tr('试玩')}><Play size={14} aria-hidden="true" /></button>
+          <button type="button" className="kit-btn" onClick={() => onPlay(id, true)} title={tr(`载入参考解试玩（${MOD}+Enter）`, `Play with the reference (${MOD}+Enter)`)} aria-label={tr('载入参考解试玩')}><CirclePlay size={14} aria-hidden="true" /></button>
+          <button type="button" className="kit-btn" onClick={() => onMove([id])} title={tr('移动')} aria-label={tr('移动')}><ArrowRightLeft size={14} aria-hidden="true" /></button>
+          <button type="button" className="kit-btn" onClick={copy} title={tr('复制成新的一关')} aria-label={tr('复制', 'Duplicate')}><Copy size={14} aria-hidden="true" /></button>
           <button type="button" className="kit-btn" onClick={() => { onEdit({ op: 'level.remove', level: id }); onSelect(null) }} title={tr('删除', 'Remove')} aria-label={tr('删除', 'Remove')}><Trash2 size={14} aria-hidden="true" /></button>
         </span>
       </header>
@@ -151,7 +151,7 @@ function EraEditor({ content, vocabulary, order, names, levelOptions, e, places,
       </header>
       <Rows form={part(false)} picked={field} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick, ctx)} />
       <details className="editor-course">
-        <summary>{tr('关卡的位置', 'Where the levels go')}</summary>
+        <summary>{tr('关卡的位置')}</summary>
         <Rows form={part(true)} picked={field} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick, ctx)} />
       </details>
       <CopyTable content={content} vocabulary={vocabulary} scope={e} order={playOrder} names={names} places={places} onEdit={onEdit} onJump={onJump} />
@@ -186,7 +186,7 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
   const types = Object.keys(content.partDefs?.parts ?? {})
   const [id, setId] = useState(at.part ?? '')
   useEffect(() => setId(at.part ?? ''), [at.part])
-  if (!hit?.field) return <article className="editor"><p className="editor-note">{tr('这一项已经不在了。', 'This is gone.')}</p></article>
+  if (!hit?.field) return <article className="editor"><p className="editor-note">{tr('这一项已经不在了。')}</p></article>
   const { at: findings } = placeFindings(shown.form, places.filter((p) => p.file === 'parts'))
   const rename = () => {
     if (id === at.part || !ID.test(id) || types.includes(id)) return
@@ -203,12 +203,12 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
       <header className="editor-head">
         {at.part !== undefined ? (
           <>
-            <input className="editor-id" value={id} onChange={(e) => setId(e.target.value)} onBlur={rename} onKeyDown={(e) => e.key === 'Enter' && rename()} aria-label={tr('元件的类型名', 'The part’s type')} spellCheck={false} />
+            <input className="editor-id" value={id} onChange={(e) => setId(e.target.value)} onBlur={rename} onKeyDown={(e) => e.key === 'Enter' && rename()} aria-label={tr('元件的类型名')} spellCheck={false} />
             <h1>{L(hit.field.value.name)}</h1>
             <span className="kit-spacer" />
             <span className="editor-tools">
-            <button type="button" className="kit-btn editor-tool" onClick={copy} title={tr('复制成新的元件', 'Duplicate as a new part')}><Copy size={14} /></button>
-            <button type="button" className="kit-btn editor-tool" onClick={() => { onEdit({ op: 'part.remove', part: at.part }); onSelect(null) }} title={tr('删掉这个元件（还有地方用到它时拒绝）', 'Remove the part (refused while it is used)')}><Trash2 size={14} /></button>
+            <button type="button" className="kit-btn editor-tool" onClick={copy} title={tr('复制成新的元件')}><Copy size={14} /></button>
+            <button type="button" className="kit-btn editor-tool" onClick={() => { onEdit({ op: 'part.remove', part: at.part }); onSelect(null) }} title={tr('删掉这个元件（还有地方用到它时拒绝）')}><Trash2 size={14} /></button>
             </span>
           </>
         ) : (
@@ -216,7 +216,7 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
             <span className="editor-id is-static">{at.preset}</span>
             <h1>{hit.field.value.label ? L(hit.field.value.label) : at.preset}</h1>
             <span className="kit-spacer" />
-            <span className="editor-tools"><button type="button" className="kit-btn editor-tool" onClick={() => { onEdit({ op: 'parts.unset', path }); onSelect(null) }} title={tr('删掉这份预设', 'Remove the preset')}><Trash2 size={14} /></button></span>
+            <span className="editor-tools"><button type="button" className="kit-btn editor-tool" onClick={() => { onEdit({ op: 'parts.unset', path }); onSelect(null) }} title={tr('删掉这份预设')}><Trash2 size={14} /></button></span>
           </>
         )}
       </header>

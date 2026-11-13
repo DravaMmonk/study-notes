@@ -1,0 +1,22 @@
+{
+  "__title__": "__title__",
+  "开发中": "In development",
+  "从相加和相减两块元件起步，亲手搭出算得更多的元件。": "Starting from Add and Subtract, build parts that work out more yourself.",
+  "加减": "Adding up",
+  "每块元件只算两个数，怎样算更多的数？": "Each part works on two numbers: how do you work on more?",
+  "差": "difference",
+  "一个数减去另一个数的结果。": "What taking one number from another gives.",
+  "相加": "Add",
+  "给出两个输入之和；只要有一个输入为「—」，就给出「—」。": "Gives the sum of its two inputs; gives 「—」 if either input is 「—」.",
+  "相减": "Subtract",
+  "给出第一个输入减去第二个输入的差；只要有一个输入为「—」，就给出「—」。": "Gives its first input less its second; gives 「—」 if either input is 「—」.",
+  "加了再减": "Add, then take away",
+  "板左边是这一关给的三个数，右边是要交出的结果。手上的两块元件各算两个数：一块求和，一块求<wiki-ref to=\"difference\"></wiki-ref>。": "The three numbers this level gives are on the left of the board, the result to give on the right. The two parts at hand each work on two numbers: one gives their sum, the other their <wiki-ref to=\"difference\"></wiki-ref>.",
+  "给出 a 加 b、再减去 c 的结果。": "Gives a plus b, less c.",
+  "交出 a 加 b、再减去 c 的结果。": "Give a plus b, less c.",
+  "一块元件的输出可以接到另一块元件的输入上。": "One part’s output can go into another part’s input.",
+  "结果": "Result",
+  "再来两个数": "Two numbers more",
+  "这一关给的数多了两个。": "This level gives two more numbers.",
+  "交出 a + b − c + d − e。": "Give a + b − c + d − e."
+}

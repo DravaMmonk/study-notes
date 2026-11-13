@@ -46,7 +46,7 @@ export function KernelRound({ ctx }) {
         <ArrowRight className="racer-arrow" size={20} strokeWidth={1.5} />
         <figure>
           <ImageView img={round.output} range={range} size={184} theme={ctx.theme} />
-          <figcaption className="bk-caption">{tr('输出', 'Output')}{range.lo < 0 ? tr('（灰 = 0）', ' (grey = 0)') : ''}</figcaption>
+          <figcaption className="bk-caption">{tr('输出', 'Output')}{range.lo < 0 ? tr('（灰 = 0）') : ''}</figcaption>
         </figure>
       </div>
       <p className="bk-caption racer-time">{timed ? <><Timer size={13} /> {tr(`第 ${p.index + 1} 轮 · ${seconds.toFixed(1)} 秒`, `Round ${p.index + 1} · ${seconds.toFixed(1)} s`)}</> : tr(`第 ${p.index + 1} 轮 · 不限时`, `Round ${p.index + 1} · no time limit`)}</p>
@@ -72,7 +72,7 @@ export function KernelChoices({ ctx }) {
   }, [ctx])
 
   return (
-    <div className="racer-choices" role="group" aria-label={tr('选择核', 'Choose a kernel')}>
+    <div className="racer-choices" role="group" aria-label={tr('选择核')}>
       {round.choices.map((k, i) => {
         const state = p.feedback ? (i === round.answer ? 'is-right' : i === p.feedback.chosen ? 'is-wrong' : 'is-dim') : ''
         return (

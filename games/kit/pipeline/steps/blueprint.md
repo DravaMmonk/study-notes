@@ -12,7 +12,7 @@ The current `parallel` layout requires all routes before the join.
 Describe the course, sources, knowledge, machines, mechanisms, parts, eras, series and slots in the schema's terms.
 Record `requests` for needed domain or kernel capabilities, with affected slots and status. Explain deferred scope,
 design tradeoffs and uncertain prerequisites. For each slot, provide enough of its question, actions and evidence
-for the level designer to develop and review it. Texts are bilingual and ids follow the schema.
+for the level designer to develop and review it. Texts are written in the game's base language and ids follow the schema.
 
 Write a changeset with `blueprint.put` or `blueprint.set` and run `./op --file <file>`, then `./gate`. The existing
 blueprint audit has both FAIL and REPORT findings; it may enforce stricter mechanical criteria than the handbook's

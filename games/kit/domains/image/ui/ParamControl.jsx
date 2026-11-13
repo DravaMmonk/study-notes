@@ -62,7 +62,7 @@ export default function ParamControl({ param, value, onChange, roomy, style }) {
     )
   }
   if (param.kind === 'kernel') {
-    if (param.learnable || param.fixed) {
+    if (param.learnable) {
       return (
         <div className={`param-kernel is-learned ${roomy ? 'is-roomy' : ''}`} onPointerDown={stop}>
           {value.map((w, i) => <output key={i} style={{ '--w': Math.max(-1, Math.min(1, w)) }}>{w.toFixed(2)}</output>)}
@@ -85,7 +85,7 @@ export default function ParamControl({ param, value, onChange, roomy, style }) {
       <span>{L(param.label)}</span>
       <span className="param-number">
         <NumberInput value={value ?? 0} onChange={onChange} label={L(param.label)} />
-        {param.pi && <button type="button" className="param-pi" onPointerDown={stop} onClick={() => onChange(timesPi(value ?? 0))} title={tr('乘以 π（当前为 0 时设为 π）', 'Multiply by π (sets π when the value is 0)')}>π</button>}
+        {param.pi && <button type="button" className="param-pi" onPointerDown={stop} onClick={() => onChange(timesPi(value ?? 0))} title={tr('乘以 π（当前为 0 时设为 π）')}>π</button>}
       </span>
     </label>
   )

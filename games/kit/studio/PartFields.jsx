@@ -1,4 +1,4 @@
-// The studio's controls for a part definition's own fields (games/DESIGN.md 6.7, 6.9): an expression — what a part
+// The studio's controls for a part definition's own fields (games/DESIGN.md 6.7, 6.8): an expression — what a part
 // computes, a rule's or a check's logic, a readout — and an icon of the kernel's table. An expression is code over the
 // engine's resources and nothing else: it is read and checked as it is typed (where it is wrong, the resources, inputs
 // and settings it may name), and a list beside it offers every resource of the domain (and the kernel's builtins), the
@@ -52,7 +52,7 @@ export function ExprField({ field, onSet, ctx, label }) {
     <div className={`field-expr ${said.ok ? '' : 'is-bad'}`}>
       <div className="expr-line">
         <input ref={box} className={`field-input is-code ${said.ok ? '' : 'is-bad'}`} value={draft ?? ''} spellCheck={false} aria-label={label} {...bind} onChange={(e) => { setDraft(e.target.value); onSet(e.target.value) }} />
-        <button type="button" className={`kit-btn expr-toggle ${open ? 'is-on' : ''}`} onClick={() => setOpen(!open)} title={tr('引擎资源、输入、设置', 'Resources, inputs, settings')}>ƒ</button>
+        <button type="button" className={`kit-btn expr-toggle ${open ? 'is-on' : ''}`} onClick={() => setOpen(!open)} title={tr('引擎资源、输入、设置')}>ƒ</button>
       </div>
       {said.at !== undefined && <pre className="expr-caret" aria-hidden="true">{`${' '.repeat(said.at)}^`}</pre>}
       {said.problems && <ul className="field-findings">{said.problems.map((p) => <li key={p}>{p}</li>)}</ul>}

@@ -1,5 +1,5 @@
 // The net domain's play hook for a blind session (../../engine/play/circuit.js tickPlay): a level of 《从一根线开始》
-// as its board screen (ui/Screen.jsx) shows it, in words — its wires in and inputs down the left, its wires out and
+// as its board screen (ui/screen.js) shows it, in words — its wires in and inputs down the left, its wires out and
 // outputs down the right, the parts it holds, every test as the waveform draws it (what arrives on each wire, the
 // inputs, the queue's head, and what each output and wire out should be, tick by tick, or in order) — and an attempt
 // judged as a run judges it.

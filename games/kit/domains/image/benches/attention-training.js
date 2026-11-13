@@ -37,7 +37,7 @@ function step(weights) {
 }
 
 export const attentionTraining = {
-  about: t('训练同一组图块产生 Q、K、V 的简化线性投影', 'train simplified linear projections that produce Q, K and V from the same patches'),
+  about: t('训练同一组图块产生 Q、K、V 的简化线性投影'),
   make() {
     const start = () => ({ weights: [0.55, 0.75, 0.45], steps: 0 })
     return {

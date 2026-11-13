@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "婴儿驯不了鳄鱼", "en": "Babies cannot tame crocodiles" },
+  "title": { "zh": "婴儿驯不了鳄鱼" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "卡罗尔的原题：「婴儿都不讲道理」「驯得了鳄鱼的都受人尊重」「不讲道理的都不受人尊重」。证明「婴儿都驯不了鳄鱼」。",
-        "en": "Carroll’s own puzzle: “babies are illogical”, “whoever can tame a crocodile is respected”, “illogical persons are not respected”. Prove “babies cannot tame crocodiles”."
+        "zh": "卡罗尔的原题：「婴儿都不讲道理」「驯得了鳄鱼的都受人尊重」「不讲道理的都不受人尊重」。证明「婴儿都驯不了鳄鱼」。"
       }
     }
   ],
@@ -22,12 +21,10 @@
       "cases": [{ "A": "Baby", "B": "Logical", "C": "Tamer", "D": "Respected" }],
       "hint": [
         {
-          "zh": "任取一个 a，假设它是婴儿；要证「¬a驯得了鳄鱼」，就再假设它驯得了，推出矛盾。",
-          "en": "Take any a and assume it is a baby; to prove “¬a can tame a crocodile”, assume it can, and reach a contradiction."
+          "zh": "任取一个 a，假设它是婴儿；要证「¬a驯得了鳄鱼」，就再假设它驯得了，推出矛盾。"
         },
         {
-          "zh": "婴儿 → 不讲道理 → 不受尊重；驯得了鳄鱼 → 受尊重：撞上了。",
-          "en": "Baby → illogical → not respected; tames crocodiles → respected: they clash."
+          "zh": "婴儿 → 不讲道理 → 不受尊重；驯得了鳄鱼 → 受尊重：撞上了。"
         }
       ],
       "solution": [

@@ -7,14 +7,14 @@ import './image.css'
 import '../../shell/bench/bench.css'
 import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
-import { introductions, isCore } from '../../course.js'
+import { introductions, isCore, levelLabels } from '../../course.js'
 import { imageCourse } from './course.js'
 import LevelScreen from './ui/LevelScreen.jsx'
 import PartDemo from './ui/PartDemo.jsx'
 import Hero from './ui/Hero.jsx'
 import IntroFigure from './ui/IntroFigure.jsx'
-import { familyOf, iconOf } from './ui/catalog.js'
 import { IMAGE_WIDGETS } from './ui/PartWidgets.jsx'
+import { familyOf, iconOf } from './ui/catalog.js'
 import { descriptionOf } from './words.js'
 
 // Unlock flags → the part (or option) they give in a course's part table, for the passed dialog and the parts box.
@@ -53,8 +53,6 @@ export default function imageGame(content) {
   const allFlags = [...new Set(LEVELS.flatMap(shownUnlocks))]
   // The primitives, each from the levels that bring it in.
   const primitives = [...introductions(course)].map(([type, at]) => ({ key: `part:${type}`, type, label: types[type].label, name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types), at }))
-  // A part on a bench in the parts box shows every setting, whatever the player has unlocked so far.
-  const allFlagSet = new Set(allFlags)
   // The boards the parts box tries a part on, where a level's own reference (its last task's) spells it out in smaller
   // parts.
   const box = {
@@ -62,8 +60,10 @@ export default function imageGame(content) {
     inLevel: content.box.inLevel,
     boards: Object.fromEntries(Object.entries(content.box.boards ?? {}).map(([flag, lines]) => [flag, kit.fromText(lines, image.levelById[content.box.inLevel[flag]].tasks.at(-1))])),
   }
+  const labels = levelLabels(content.eras, { notes: course.notes })
   const game = defineGame({
     id: content.id,
+    notes: course.notes,
     glossary: content.glossary,
     title: content.title,
     kicker: content.kicker,
@@ -81,7 +81,8 @@ export default function imageGame(content) {
     },
     unlocked: (level) => shownUnlocks(level).map(unlockOf),
     core: (level) => isCore(course, level),
-    parts: { all: [...primitives, ...allFlags.map(unlockOf)], demo: (part, { phone }) => createElement(PartDemo, { key: part.key, kit, flag: part.key, type: part.type ?? PART_OF_FLAG[part.key], home: part.at?.[0], flags: allFlagSet, phone, levels: LEVELS, box }) },
+    levelLabel: (level) => labels.get(level.id) ?? level.id,
+    parts: { all: [...primitives, ...allFlags.map(unlockOf)], demo: (part, { phone }) => createElement(PartDemo, { key: part.key, kit, flag: part.key, type: part.type ?? PART_OF_FLAG[part.key], home: part.at?.[0], phone, levels: LEVELS, box }) },
     // A better circuit costs less, or as much with fewer parts.
     better: (score, best) => !best || score.cost < best.cost || (score.cost === best.cost && score.nodes < best.nodes),
     bestLabel: (best) => `${best.nodes} · ${best.cost}`,

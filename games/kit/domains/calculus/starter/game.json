@@ -1,0 +1,19 @@
+{
+  "domain": "calculus",
+  "vocabulary": 1,
+  "title": { "zh": "__title__" },
+  "kicker": { "zh": "开发中" },
+  "lede": {
+    "zh": "第 n 拍算第 n 项。先逐项相加，再记住上一项。"
+  },
+  "primitives": ["add", "reg", "keep"],
+  "concept": { "keep": "reg" },
+  "eras": [
+    {
+      "id": 1,
+      "title": { "zh": "一拍一项" },
+      "question": { "zh": "板每拍算出数列的一项：怎样逐项运算，怎样用上前一项？" },
+      "foundation": ["1-1", "1-2"]
+    }
+  ]
+}

@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "两边一样", "en": "Both sides alike" },
+  "title": { "zh": "两边一样" },
   "consts": ["i", "j", "k"],
   "intro": [
     {
       "t": {
-        "zh": "化简器拿等式当改写规则，数与列表一章也证过不少等式。在 Lean 里，<b>a = b 也是一个类型</b>，它的证明项同样由核检查。",
-        "en": "The simplifier used equations as rewrite rules, and the chapter on numbers and lists proved many. In Lean, <b>a = b is a type too</b>, and its proof terms are checked by the kernel like any other."
+        "zh": "化简器拿等式当改写规则，数与列表一章也证过不少等式。在 Lean 里，<b>a = b 也是一个类型</b>，它的证明项同样由核检查。"
       }
     },
     {
       "t": {
-        "zh": "造等式的路只有一条：<b>rfl</b>，证两边一样的等式，比如 a = a。它就是证明板上的<part-ref to=\"part:refl\"></part-ref>。",
-        "en": "There is one way to make an equation: <b>rfl</b>, which proves an equation whose two sides are alike, such as a = a. It is <part-ref to=\"part:refl\"></part-ref> on the proof board."
+        "zh": "造等式的路只有一条：<b>rfl</b>，证两边一样的等式，比如 a = a。它就是证明板上的<part-ref to=\"part:refl\"></part-ref>。"
       }
     }
   ],
@@ -19,20 +17,20 @@
     {
       "id": "eq-rfl_1",
       "kind": "term",
-      "step": { "zh": "第一题", "en": "Problem 1" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第一题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": {},
       "goal": "i = i",
       "answer": "rfl",
-      "hint": [{ "zh": "新块 rfl 证的是两边一样的等式。", "en": "The new piece rfl proves an equation whose two sides are alike." }]
+      "hint": [{ "zh": "新块 rfl 证的是两边一样的等式。" }]
     },
     {
       "id": "eq-rfl_2",
       "kind": "term",
-      "step": { "zh": "第二题", "en": "Problem 2" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第二题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": {},
@@ -40,16 +38,15 @@
       "answer": "fun a => rfl",
       "hint": [
         {
-          "zh": "<part-ref to=\"part:allI\"></part-ref>是 fun：拿到 a，要证的是 a = a。",
-          "en": "<part-ref to=\"part:allI\"></part-ref> is a fun: given a, what is left is a = a."
+          "zh": "<part-ref to=\"part:allI\"></part-ref>是 fun：拿到 a，要证的是 a = a。"
         }
       ]
     },
     {
       "id": "eq-rfl_3",
       "kind": "term",
-      "step": { "zh": "第三题", "en": "Problem 3" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第三题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "forms": ["fun", "app", "pair", "fst", "snd", "inl", "inr", "elim", "absurd", "open", "rfl", "subst"],
       "words": ["everyday", "terms", "stars", "vectors"],
       "premises": { "p": "i = j" },
@@ -58,8 +55,7 @@
       "naive": "p",
       "hint": [
         {
-          "zh": "要证的等式两边都是晨星，用不着已知。",
-          "en": "Both sides of the equation are the Morning Star; the given is not needed."
+          "zh": "要证的等式两边都是晨星，用不着已知。"
         }
       ]
     }

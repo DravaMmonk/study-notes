@@ -4,12 +4,13 @@
 // course blueprint, blueprint.json (../pipeline/blueprint.js), which the checks read and the page does not. The page's
 // build (../app/vite.js) and the checks (content-node.js) both read the files and assemble them here into one content:
 //
-//   { id, domain, vocabulary, …game.json, levels: [{ id, …levels/<id>.json }], glossary, partDefs? (parts.json), blueprint? }
+//   { id, domain, vocabulary, …game.json, levels: [{ id, …levels/<id>.json }], glossary, partDefs? (parts.json), blueprint?,
+//     i18n? ({ lang: i18n/<lang>.json }, ./i18n.js) }
 
 /** One content from a game's files. `levels`: [[id, level]] in any order (they are kept sorted by id). */
-export function assemble({ id, game, levels, glossary, partDefs, blueprint }) {
+export function assemble({ id, game, levels, glossary, partDefs, blueprint, i18n }) {
   const sorted = [...levels].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-  return { id, ...game, levels: sorted.map(([levelId, level]) => ({ id: levelId, ...level })), glossary, ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}) }
+  return { id, ...game, levels: sorted.map(([levelId, level]) => ({ id: levelId, ...level })), glossary, ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}), ...(i18n && Object.keys(i18n).length ? { i18n } : {}) }
 }
 
 /** The content frozen all the way down, so nothing that reads it can write into it (the checks and the dev page read

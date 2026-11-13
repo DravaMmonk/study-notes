@@ -1,6 +1,6 @@
 {
-  "title": { "zh": "过强与过弱", "en": "Too strong, too weak" },
-  "declare": { "zh": "并且", "en": "and" },
+  "title": { "zh": "过强与过弱" },
+  "declare": { "zh": "并且" },
   "target": "Rain ∧ Wind",
   "sentences": ["Rain", "Wind"],
   "tests": [
@@ -17,8 +17,7 @@
   "intro": [
     {
       "t": {
-        "zh": "一份声明错，可以错在两边：<b>过强</b>，该能引入的时候引入不了；<b>过弱</b>，不该引入的时候也引入了。两种错误从引入和使用两个方向都能看出来。",
-        "en": "A declaration can be wrong on either side: <b>too strong</b>, failing to introduce when it should; <b>too weak</b>, introducing when it should not. Both faults show from the introduction and the use direction alike."
+        "zh": "一份声明错，可以错在两边：<b>过强</b>，该能引入的时候引入不了；<b>过弱</b>，不该引入的时候也引入了。两种错误从引入和使用两个方向都能看出来。"
       }
     }
   ],
@@ -26,7 +25,7 @@
     {
       "id": "decl-strength_1",
       "kind": "iso",
-      "step": { "zh": "过强的声明", "en": "A declaration too strong" },
+      "step": { "zh": "过强的声明" },
       "play": "audit",
       "want": "expose",
       "boards": [{ "rules": [{ "binds": [], "needs": ["Rain", "Wind", "Wet"] }] }],
@@ -45,26 +44,23 @@
       "intro": [
         {
           "t": {
-            "zh": "表上是一份别人写的「并且」声明。它的引入条件<b>过强</b>：有些本来足够证明「并且」的前提，却不能通过这份声明。请从引入和使用两个方向各写一条检验条例，找出它的错误。",
-            "en": "The table holds someone else’s declaration of “and”. Its introduction conditions are <b>too strong</b>: premises that should be enough to prove an “and” statement are not enough under this declaration. Write a test case for each direction, introduction and use, to expose its fault."
+            "zh": "表上是一份别人写的「并且」声明。它的引入条件<b>过强</b>：有些本来足够证明「并且」的前提，却不能通过这份声明。请从引入和使用两个方向各写一条检验条例，找出它的错误。"
           }
         }
       ],
       "brief": {
-        "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。",
-        "en": "Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree."
+        "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。"
       },
       "hint": [
         {
-          "zh": "按需求，「并且」要哪几样？这份声明的引入规则要哪几样？",
-          "en": "What does “and” need, by the requirement? What does this declaration’s intro rule ask for?"
+          "zh": "按需求，「并且」要哪几样？这份声明的引入规则要哪几样？"
         }
       ]
     },
     {
       "id": "decl-strength_2",
       "kind": "iso",
-      "step": { "zh": "过弱的声明", "en": "A declaration too weak" },
+      "step": { "zh": "过弱的声明" },
       "play": "audit",
       "want": "expose",
       "boards": [{ "rules": [{ "binds": [], "needs": ["Rain"] }, { "binds": [], "needs": ["Wind"] }] }],
@@ -80,25 +76,21 @@
       "intro": [
         {
           "t": {
-            "zh": "表上换成了另一份「并且」声明。这次引入条件<b>过弱</b>：有些本不够证明「并且」的前提，也被它接受了。",
-            "en": "The table now holds another declaration of “and”. This time its introduction conditions are <b>too weak</b>: it accepts premises that should not be enough to prove an “and” statement."
+            "zh": "表上换成了另一份「并且」声明。这次引入条件<b>过弱</b>：有些本不够证明「并且」的前提，也被它接受了。"
           }
         },
         {
           "t": {
-            "zh": "声明既决定何时能引入「下雨 ∧ 刮风」，也决定有了它能推出什么。请再次从这两个方向各写一条检验条例，找出声明的错误。",
-            "en": "A declaration determines both when “it rains ∧ it is windy” can be introduced and what follows from it. Again write a test case for each direction to expose the error."
+            "zh": "声明既决定何时能引入「下雨 ∧ 刮风」，也决定有了它能推出什么。请再次从这两个方向各写一条检验条例，找出声明的错误。"
           }
         }
       ],
       "brief": {
-        "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。",
-        "en": "Requirement: “it rains and it is windy” may be introduced only when “it rains” and “it is windy” are both proved. Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree."
+        "zh": "需求：「下雨并且刮风」只在「下雨」和「刮风」都已证出时才能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。"
       },
       "hint": [
         {
-          "zh": "这份声明的引入规则各要几样？按需求，「并且」要几样？",
-          "en": "How much does each of this declaration’s intro rules need? How much does “and” need, by the requirement?"
+          "zh": "这份声明的引入规则各要几样？按需求，「并且」要几样？"
         }
       ]
     }

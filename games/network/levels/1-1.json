@@ -1,13 +1,11 @@
 {
   "title": {
-    "zh": "传话",
-    "en": "Pass it on"
+    "zh": "传话"
   },
   "intro": [
     {
       "t": {
-        "zh": "两头之间只有一根线。线上分得出的只有两种状态，记作 0 和 1；两头对它们的约定，就是最初的<wiki-ref to=\"protocol\"></wiki-ref>。线每<wiki-ref to=\"tick\"></wiki-ref>送一<wiki-ref to=\"bit\"></wiki-ref>，从一头说出，过几拍才到另一头，中间隔的拍数叫<wiki-ref to=\"delay\"></wiki-ref>。这块板夹在两根线中间。",
-        "en": "There is only a wire between the two ends. It shows just two states, written 0 and 1, and what the ends agree they mean is their first <wiki-ref to=\"protocol\"></wiki-ref>. The wire carries one <wiki-ref to=\"bit\"></wiki-ref> a <wiki-ref to=\"tick\"></wiki-ref>: said at one end, it reaches the other some ticks later, and the ticks in between are the wire's <wiki-ref to=\"delay\"></wiki-ref>. This board sits between two wires."
+        "zh": "两头之间只有一根线。线上分得出的只有两种状态，记作 0 和 1；两头对它们的约定，就是最初的<wiki-ref to=\"protocol\"></wiki-ref>。线每<wiki-ref to=\"tick\"></wiki-ref>送一<wiki-ref to=\"bit\"></wiki-ref>，从一头说出，过几拍才到另一头，中间隔的拍数叫<wiki-ref to=\"delay\"></wiki-ref>。这块板夹在两根线中间。"
       }
     }
   ],
@@ -15,19 +13,17 @@
     {
       "id": "1-1",
       "brief": {
-        "zh": "每一拍把左线上听到的位说到右线上。",
-        "en": "Every tick, say on the right wire the bit heard on the left wire."
+        "zh": "每一拍把左线上听到的位说到右线上。"
       },
       "hint": [
-        { "zh": "这一关不必放任何元件。", "en": "No parts are needed here." },
+        { "zh": "这一关不必放任何元件。" },
         {
-          "zh": "从左线的输出口拉一根连线，接到右线上。",
-          "en": "Draw a connection from the left wire's output to the right wire."
+          "zh": "从左线的输出口拉一根连线，接到右线上。"
         }
       ],
       "wires": {
-        "in": [{ "name": "left", "label": { "zh": "左线", "en": "Left wire" }, "delay": 2 }],
-        "out": [{ "name": "right", "label": { "zh": "右线", "en": "Right wire" } }]
+        "in": [{ "name": "left", "label": { "zh": "左线" }, "delay": 2 }],
+        "out": [{ "name": "right", "label": { "zh": "右线" } }]
       },
       "tests": [
         { "wires": { "left": { "send": [{ "bits": "1011001" }] } } },

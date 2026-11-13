@@ -1,0 +1,18 @@
+{
+  "__title__": "__title__",
+  "开发中": "In development",
+  "一根线，每一拍上面有一位。先听它，再自己往上说。": "One line, one bit on it each tick. Listen to it first, then talk on it yourself.",
+  "一根线": "One line",
+  "线上每一拍有一位：怎样听它，怎样说？": "A bit on the line each tick: how to hear it, how to speak?",
+  "线": "The line",
+  "拍": "tick",
+  "世界前进的一步：每一拍，线上有一位，板上的电路算一遍。": "One step of the world: each tick the line carries one bit and the board computes once.",
+  "听线": "Listen",
+  "线上每一拍有一位：0 或 1。": "The line carries one bit each tick: 0 or 1.",
+  "每一拍交出线上的位。": "Give the bit on the line, every tick.",
+  "位": "Bit",
+  "晚一拍": "A tick late",
+  "板上的电路每一拍从头算一遍，算完什么也不留下。要留下一个值到下一拍，用一对新元件：<part-ref to=\"part:keep\"></part-ref>把值存进寄存卡，<part-ref to=\"part:reg\"></part-ref>下一拍读出它。": "The board computes afresh every tick and keeps nothing once done. To keep a value for the next tick there is a new pair of parts: <part-ref to=\"part:keep\"></part-ref> stores a value in a register, and <part-ref to=\"part:reg\"></part-ref> reads it out the next tick.",
+  "寄存卡让电路记得上一拍。": "A register lets a circuit remember the tick before.",
+  "每一拍把输入上一拍的值说到线上；第一拍说 0。": "Every tick, say on the line what the input was the tick before; say 0 on the first tick."
+}

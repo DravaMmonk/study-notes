@@ -1,0 +1,163 @@
+{
+  "title": {
+    "zh": "一天的买卖"
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "店里每天进一批货。想买的人比货少，货就剩下；想买的人比货多，就有人空手回去。"
+      }
+    },
+    {
+      "t": {
+        "zh": "卖出去的，是「想买」和「进货」里小的那个。<part-ref to=\"part:min\"></part-ref>给出两个数里小的。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "剩下的和没买到的不会同时出现：货不够时没有剩，货有剩时没人空手。"
+  },
+  "adds": [
+    "min"
+  ],
+  "tasks": [
+    {
+      "id": "trade",
+      "brief": {
+        "zh": "算出这一天卖出多少、剩下多少、多少人没买到。剩下 = 进货 − 卖出；没买到 = 想买 − 卖出。"
+      },
+      "inputs": [
+        {
+          "name": "top",
+          "label": {
+            "zh": "不要钱时想买"
+          }
+        },
+        {
+          "name": "slope",
+          "label": {
+            "zh": "每涨一块少"
+          }
+        },
+        {
+          "name": "price",
+          "label": {
+            "zh": "价格"
+          }
+        },
+        {
+          "name": "stock",
+          "label": {
+            "zh": "进货"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "sold",
+          "label": {
+            "zh": "卖出"
+          }
+        },
+        {
+          "name": "left",
+          "label": {
+            "zh": "剩下"
+          }
+        },
+        {
+          "name": "short",
+          "label": {
+            "zh": "没买到"
+          }
+        }
+      ],
+      "tests": [
+        {
+          "in": {
+            "top": 60,
+            "slope": 2,
+            "price": 20,
+            "stock": 20
+          },
+          "out": {
+            "sold": 20,
+            "left": 0,
+            "short": 0
+          }
+        },
+        {
+          "in": {
+            "top": 60,
+            "slope": 2,
+            "price": 10,
+            "stock": 20
+          },
+          "out": {
+            "sold": 20,
+            "left": 0,
+            "short": 20
+          }
+        },
+        {
+          "in": {
+            "top": 60,
+            "slope": 2,
+            "price": 25,
+            "stock": 20
+          },
+          "out": {
+            "sold": 10,
+            "left": 10,
+            "short": 0
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "in": {
+            "top": 105,
+            "slope": 3,
+            "price": 25,
+            "stock": 15
+          },
+          "out": {
+            "sold": 15,
+            "left": 0,
+            "short": 15
+          }
+        },
+        {
+          "in": {
+            "top": 40,
+            "slope": 4,
+            "price": 8,
+            "stock": 12
+          },
+          "out": {
+            "sold": 8,
+            "left": 4,
+            "short": 0
+          }
+        }
+      ],
+      "solution": [
+        "w = demand(top, slope, price)",
+        "s = min(w, stock)",
+        "l = sub(stock, s)",
+        "h = sub(w, s)",
+        "sold <- s",
+        "left <- l",
+        "short <- h"
+      ],
+      "naive": [
+        "w = demand(top, slope, price)",
+        "l = sub(stock, w)",
+        "h = sub(w, w)",
+        "sold <- w",
+        "left <- l",
+        "short <- h"
+      ]
+    }
+  ]
+}

@@ -1,12 +1,11 @@
 {
-  "title": { "zh": "若下雨，则地湿", "en": "If it rains, the ground is wet" },
+  "title": { "zh": "若下雨，则地湿" },
   "tray": "gates",
   "builds": "gImp",
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"table\"></level-ref>填过这句话的真值表。证明器里还没有 → 这个门。",
-        "en": "You filled in this sentence’s truth table in <level-ref to=\"table\"></level-ref>. The prover has no → gate yet."
+        "zh": "<level-ref to=\"table\"></level-ref>填过这句话的真值表。证明器里还没有 → 这个门。"
       }
     }
   ],
@@ -16,12 +15,11 @@
       "kind": "gates",
       "target": "Rain → Wet",
       "brief": {
-        "zh": "接一块电路，算出「若下雨，则地湿」在每一行的真值。",
-        "en": "Wire a board that works out the value of “if it rains, then the ground is wet” on every row."
+        "zh": "接一块电路，算出「若下雨，则地湿」在每一行的真值。"
       },
       "hint": [
-        { "zh": "它在哪些行为真？这些行有什么共同点？", "en": "On which rows is it true? What do those rows have in common?" },
-        { "zh": "没下雨的两行，加上地湿的两行。", "en": "The two rows without rain, and the two where the ground is wet." }
+        { "zh": "它在哪些行为真？这些行有什么共同点？" },
+        { "zh": "没下雨的两行，加上地湿的两行。" }
       ],
       "solution": ["n = gNot(Rain)", "o = gOr(n, Wet)", "out <- o"]
     }

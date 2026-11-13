@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "改已知", "en": "Rewriting the hypotheses" },
+  "title": { "zh": "改已知" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "要找矛盾的句子都在已知里，化简器却只改过目标。「改哪里」设成「已知」，改写和化简就从上往下查第一个目标的已知，改第一处对得上的。",
-        "en": "The sentences to search now sit among the hypotheses, but the simplifier has only ever rewritten goals. With Where set to Hypotheses, Rewrite and Simp look through the first goal’s hypotheses from the top and change the first place that fits."
+        "zh": "要找矛盾的句子都在已知里，化简器却只改过目标。「改哪里」设成「已知」，改写和化简就从上往下查第一个目标的已知，改第一处对得上的。"
       }
     }
   ],
@@ -14,7 +13,7 @@
       "id": "au-hyps",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         { "goal": "⊥", "hyps": ["Rain → Wet", "Rain", "¬Wet"], "becomes": [["¬Rain ∨ Wet; Rain; ¬Wet ⊢ ⊥"]] },
@@ -26,17 +25,14 @@
         { "goal": "⊥", "hyps": ["KA ↔ ¬KB", "¬¬KA"], "becomes": [["(¬KA ∨ ¬KB) ∧ (KB ∨ KA); KA ⊢ ⊥"]] }
       ],
       "brief": {
-        "zh": "设计一个证明助手，把每个目标的已知都化成合取范式。",
-        "en": "Design a proof assistant that brings every hypothesis of each goal to conjunctive normal form."
+        "zh": "设计一个证明助手，把每个目标的已知都化成合取范式。"
       },
       "hint": [
         {
-          "zh": "<level-ref to=\"sp-cnf\"></level-ref>的那串规则对付不了 ↔。",
-          "en": "The rules of <level-ref to=\"sp-cnf\"></level-ref> cannot deal with ↔."
+          "zh": "<level-ref to=\"sp-cnf\"></level-ref>的那串规则对付不了 ↔。"
         },
         {
-          "zh": "在那串规则最前面加上<part-ref to=\"lemma:iff\"></part-ref>。",
-          "en": "Put <part-ref to=\"lemma:iff\"></part-ref> at the front of those rules."
+          "zh": "在那串规则最前面加上<part-ref to=\"lemma:iff\"></part-ref>。"
         }
       ],
       "solution": [

@@ -1,47 +1,41 @@
 {
-  "title": { "zh": "只认颜色", "en": "Colour, not brightness" },
+  "title": { "zh": "只认颜色" },
   "tray": "pipeline",
   "after": {
-    "zh": "在本关的白光模型里，光照强弱会让 R、G、B 按相同比例变化。辨认颜色时，要看各通道的相对关系，而不是只看某个通道的亮度；这种描述颜色的相对关系称为色度。光源颜色变化或接近全黑时，仅靠这种关系可能无法可靠判断。",
-    "en": "In this level's neutral-light model, changing illumination scales R, G and B together. Identifying colour calls for comparing the channels relative to one another, rather than relying on the brightness of one channel alone. Such a description of colour is called chromaticity. When the light's colour changes or the signal is near black, this relationship alone may not be reliable."
+    "zh": "在本关的白光模型里，光照强弱会让 R、G、B 按相同比例变化。辨认颜色时，要看各通道的相对关系，而不是只看某个通道的亮度；这种描述颜色的相对关系称为色度。光源颜色变化或接近全黑时，仅靠这种关系可能无法可靠判断。"
   },
   "intro": [
     {
       "t": {
-        "zh": "要找红色物体，单看 R 够吗？红苹果在阴影里可能比强光下的浅色苹果有更小的 R。先用两只苹果做实验，再让电路在整个场景里找红色。",
-        "en": "Is R alone enough to find red objects? A red apple in shade can have a smaller R than a pale apple in bright light. First experiment with two apples, then build a circuit to find red throughout a scene."
+        "zh": "要找红色物体，单看 R 够吗？红苹果在阴影里可能比强光下的浅色苹果有更小的 R。先用两只苹果做实验，再让电路在整个场景里找红色。"
       }
     },
     {
       "t": {
-        "zh": "先比较两只苹果各自的 R、G、B 图。滑动光照强度，观察三张图和数值怎么变化；灯是白光，只改变强弱。再选出红苹果。",
-        "en": "First compare each apple's R, G and B images. Slide the light intensity and watch the three images and values change. The lamp is neutral white; only its strength changes. Then select the red apple."
+        "zh": "先比较两只苹果各自的 R、G、B 图。滑动光照强度，观察三张图和数值怎么变化；灯是白光，只改变强弱。再选出红苹果。"
       }
     }
   ],
   "tasks": [
     {
       "id": "3-6-light",
-      "step": { "zh": "观察光照", "en": "Observe the light" },
+      "step": { "zh": "观察光照" },
       "kind": "board",
       "brief": {
-        "zh": "两只苹果的颜色不同，在同一盏白灯下。调节光照强度，比较各自的 R、G、B 图与数值，找出红苹果。",
-        "en": "Two differently coloured apples sit under the same neutral white lamp. Adjust the light intensity, compare their R, G and B images and values, and find the red apple."
+        "zh": "两只苹果的颜色不同，在同一盏白灯下。调节光照强度，比较各自的 R、G、B 图与数值，找出红苹果。"
       },
       "hint": {
-        "zh": "不要只比较两只苹果的 R；分别看看每只苹果的 R 与自己的 G、B 有什么关系，再改变光照试试。",
-        "en": "Do not compare only the apples' R values. Compare each apple's R with its own G and B, then change the light and try again."
+        "zh": "不要只比较两只苹果的 R；分别看看每只苹果的 R 与自己的 G、B 有什么关系，再改变光照试试。"
       },
       "after": {
-        "zh": "在这个白光模型里，光照把同一个物体的三个通道按相同比例改变，因此可以比较通道之间的比例。接下来把这个想法用于整张图。",
-        "en": "In this neutral-light model, illumination scales all three channels of the same object together, so their proportions can be compared. Next, apply the idea to a whole image."
+        "zh": "在这个白光模型里，光照把同一个物体的三个通道按相同比例改变，因此可以比较通道之间的比例。接下来把这个想法用于整张图。"
       },
       "bench": {
         "model": "appleLight",
         "setup": { "colours": [[0.8, 0.18, 0.15], [0.75, 0.72, 0.65]], "red": 0 },
         "knobs": {
           "light": {
-            "label": { "zh": "白光强度", "en": "White light intensity" },
+            "label": { "zh": "白光强度" },
             "min": 0.2,
             "max": 1,
             "step": 0.05,
@@ -49,44 +43,41 @@
             "format": "fixed2"
           },
           "pick": {
-            "label": { "zh": "红苹果", "en": "Red apple" },
+            "label": { "zh": "红苹果" },
             "start": null,
             "choices": [{ "value": 0, "label": "A" }, { "value": 1, "label": "B" }]
           }
         },
-        "goal": [{ "of": "correct", "label": { "zh": "找到红苹果", "en": "Find the red apple" }, "is": true }],
+        "goal": [{ "of": "correct", "label": { "zh": "找到红苹果" }, "is": true }],
         "check": "submit",
         "win": {
-          "zh": "找到了。比较每只苹果三个通道的相对大小，再试试不同的光强。",
-          "en": "Found it. Compare each apple's three channels with one another, then try different light strengths."
+          "zh": "找到了。比较每只苹果三个通道的相对大小，再试试不同的光强。"
         },
-        "status": { "zh": "比较各通道后选择苹果，再检查。", "en": "Compare the channels, choose an apple, and check." },
+        "status": { "zh": "比较各通道后选择苹果，再检查。" },
         "layout": { "main": ["appleChannels", { "panel": ["knobs", "appleDecision"] }] }
       }
     },
     {
       "id": "3-8",
-      "step": { "zh": "找红色", "en": "Find red" },
+      "step": { "zh": "找红色" },
       "kind": "graph",
       "brief": {
-        "zh": "标出场景中所有红色区域，包括亮处和阴影里的红色区域。",
-        "en": "Mark every red area in the scene, including red areas in both light and shade."
+        "zh": "标出场景中所有红色区域，包括亮处和阴影里的红色区域。"
       },
       "hint": {
-        "zh": "阴影里的红苹果，R 并不大；阳光下的白纸，R 却很大。光照把三个数一起放大缩小，什么量不受它影响？",
-        "en": "A red apple in the shade has a small R; white paper in the sun has a big one. Lighting scales all three numbers together, so what stays the same?"
+        "zh": "阴影里的红苹果，R 并不大；阳光下的白纸，R 却很大。光照把三个数一起放大缩小，什么量不受它影响？"
       },
       "inputs": ["r", "g", "b"],
       "inputLabels": { "r": "R", "g": "G", "b": "B" },
       "scene": "redObjects",
       "tests": [
-        { "label": { "zh": "苹果", "en": "Apples" }, "layout": "apples", "light": "window" },
-        { "label": { "zh": "旗子", "en": "Flags" }, "layout": "flags", "light": "shade" },
-        { "label": { "zh": "花丛", "en": "Flowers" }, "layout": "flowers", "light": "dusk" }
+        { "label": { "zh": "苹果" }, "layout": "apples", "light": "window" },
+        { "label": { "zh": "旗子" }, "layout": "flags", "light": "shade" },
+        { "label": { "zh": "花丛" }, "layout": "flowers", "light": "dusk" }
       ],
       "hidden": [
-        { "label": { "zh": "水果摊", "en": "A fruit stall" }, "layout": "stall", "light": "patchy" },
-        { "label": { "zh": "街道", "en": "A street" }, "layout": "street", "light": "noon" }
+        { "label": { "zh": "水果摊" }, "layout": "stall", "light": "patchy" },
+        { "label": { "zh": "街道" }, "layout": "street", "light": "noon" }
       ],
       "solution": [
         "s1 = arith[op=add](r, g)",

@@ -1,7 +1,8 @@
 // Every game's page: the shared kit's styles and shell, around the game the page is for. The page is its domain's
 // code (virtual:game, from ./vite.js); the content it plays is read when the page opens (content.json beside it) and
 // checked against the domain's vocabulary first: content that does not fit is shown as what is wrong with it, never
-// handed to the domain. A domain never writes into its content: on the dev server the page reads it frozen.
+// handed to the domain. A domain never writes into its content: on the dev server the page reads it frozen. With
+// `?embed` the page is one level embedded in a note (../shell/EmbedShell.jsx).
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '../tokens.css'
@@ -11,8 +12,10 @@ import '../shell/shell.css'
 import '../views/views.css'
 import '../circuit/circuit.css'
 import { GameShell } from '../shell/index.js'
+import EmbedShell from '../shell/EmbedShell.jsx'
 import { createProgress } from '../shell/progress.js'
-import { contentStamp } from '../engine/stamp.js'
+import { taskStamps } from '../engine/stamp.js'
+import { localized } from '../engine/i18n.js'
 import { checkContent } from '../engine/vocabulary.js'
 import { deepFreeze } from '../engine/content.js'
 import { loadDomain } from 'virtual:game'
@@ -30,7 +33,20 @@ async function open() {
   const content = import.meta.env.DEV ? deepFreeze(parsed) : parsed
   const problems = checkContent({ vocabulary }, content).map((p) => `${p.at}: ${p.says}`)
   if (problems.length) return { page: <Unreadable problems={problems} />, content: contentText }
-  return { page: <GameShell game={define(content)} store={createProgress({ id: content.id, stamp: contentStamp(vocabulary, content) })} />, content: contentText }
+  // The page plays the content with its translations laid over it (../engine/i18n.js); it was checked as written.
+  const game = define(localized(content))
+  const store = createProgress({ id: content.id, tasks: taskStamps(vocabulary, content) })
+  // A level embedded in a note (`?embed&level=…&lang=…`, games/DESIGN.md 12.1): the note sets its language.
+  const asked = new URL(window.location.href).searchParams
+  if (asked.has('embed')) {
+    const lang = asked.get('lang')
+    if (lang === 'zh' || lang === 'en') {
+      document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'
+      window.dispatchEvent(new CustomEvent('langchange', { detail: lang }))
+    }
+    return { page: <EmbedShell game={game} store={store} levelId={asked.get('level')} />, content: contentText }
+  }
+  return { page: <GameShell game={game} store={store} />, content: contentText }
 }
 
 

@@ -1,19 +1,17 @@
 {
-  "title": { "zh": "每一条", "en": "One for each" },
+  "title": { "zh": "每一条" },
   "builds": "elimGen",
   "adds": ["anyR", "swapConcl", "consFront", "mkRule", "eachOf"],
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "板上是你在<level-ref to=\"gen-one\"></level-ref>搭的生成器，在它上面改。这一次输入的引入规则是一串，有几条都行，一条都没有也行。新元件「逐项处理」是一个框：对一串里的每一项各执行一遍，框里输出的东西排成新的一串。",
-        "en": "The board holds the generator you built in <level-ref to=\"gen-one\"></level-ref>; change it there. This time the intro rules come as a list, of any length, even empty. The new part For each is a frame: it runs once on each item of a list, and what it outputs inside forms a new list."
+        "zh": "板上是你在<level-ref to=\"gen-one\"></level-ref>搭的生成器，在它上面改。这一次输入的引入规则是一串，有几条都行，一条都没有也行。新元件「逐项处理」是一个框：对一串里的每一项各执行一遍，框里输出的东西排成新的一串。"
       }
     }
   ],
   "after": {
-    "zh": "<part-ref to=\"lemma:elimGen\"></part-ref>现在跑的是这块电路。Lean 的内核也这样由一个类型的各个构造子生成它的<wiki-ref to=\"recursor\"></wiki-ref>，所以不让人手写消去规则。",
-    "en": "The <part-ref to=\"lemma:elimGen\"></part-ref> now runs this board. Lean’s kernel likewise makes a type’s <wiki-ref to=\"recursor\"></wiki-ref> from its constructors, which is why it never lets you write an elimination rule."
+    "zh": "<part-ref to=\"lemma:elimGen\"></part-ref>现在跑的是这块电路。Lean 的内核也这样由一个类型的各个构造子生成它的<wiki-ref to=\"recursor\"></wiki-ref>，所以不让人手写消去规则。"
   },
   "tasks": [
     {
@@ -21,8 +19,8 @@
       "kind": "machine",
       "want": "elim",
       "inputs": [
-        { "name": "it", "label": { "zh": "它", "en": "It" } },
-        { "name": "ways", "label": { "zh": "引入规则（一串）", "en": "Intro rules (a list)" } }
+        { "name": "it", "label": { "zh": "它" } },
+        { "name": "ways", "label": { "zh": "引入规则（一串）" } }
       ],
       "tests": [
         { "it": "?A ∧ ?B", "ways": ["⟦?A; ?B⟧ ⟹ ?A ∧ ?B"], "elim": ["?A ∧ ?B", "⟦?A; ?B⟧ ⟹ ?R"] },
@@ -49,13 +47,11 @@
         }
       ],
       "brief": {
-        "zh": "设计一个证明助手：由一份声明的一串引入规则，生成它的消去规则。",
-        "en": "Design a proof assistant that makes a declaration’s elimination rule from its list of intro rules."
+        "zh": "设计一个证明助手：由一份声明的一串引入规则，生成它的消去规则。"
       },
       "hint": [
         {
-          "zh": "一串引入规则和要生成的消去规则，各有几项？",
-          "en": "How many items does the list of intro rules have, and how many the elimination rule to make?"
+          "zh": "一串引入规则和要生成的消去规则，各有几项？"
         }
       ],
       "solution": [

@@ -36,7 +36,7 @@ export const EXTENSIONS = {
   scene: isFn,
 }
 
-const isText = (v) => typeof v === 'string' || (v && typeof v.zh === 'string' && typeof v.en === 'string')
+const isText = (v) => typeof v === 'string' || (v && typeof v.zh === 'string')
 const strings = (v) => Array.isArray(v) && v.every((x) => typeof x === 'string')
 const isBoard = (b) => Boolean(b) && Array.isArray(b.nodes) && Array.isArray(b.wires)
 
@@ -90,13 +90,12 @@ export function vocabularyProblems(name, v) {
   if (v.level && !tasks) say('a level is a list of tasks (tasks.js taskLevel)')
   if (tasks && taskShapes(tasks).some((shape) => !shape.fields?.id || shape.fields.id.optional)) say('a level’s tasks need an id each (tasks.js TASK_ID_FIELD)')
   for (const [lang, it] of Object.entries(v.languages ?? {})) if (!isText(it?.about)) say(`the language ${lang} says nothing of what it is (about)`)
-  if (v.kinds?.op && v.kinds.part && !v.partOverrides) say('it gives engine resources and parts in code: a domain with resources defines its parts in each game’s parts.json')
   if (v.kinds?.op && !v.kinds.family) say('it gives engine resources but no families to colour parts by')
   for (const [where, schema] of schemas) {
     if (!schema) { say(`no ${where} schema`); continue }
     for (const [s, at] of schemasIn(schema, where)) {
       if (!TYPES.includes(s.type)) say(`${at}: ${JSON.stringify(s.type)} is no schema type`)
-      // A domain with engine resources gives its parts in each game's parts.json: its part kind is the content's.
+      // Parts come from the domain and the game’s content.
       if (s.type === 'syntax' && !v.languages?.[s.lang]) say(`${at}: names the language ${s.lang}, which the vocabulary has not`)
       if ((s.type === 'ref' || s.type === 'call') && !v.kinds?.[s.kind] && !(s.kind === 'part' && v.kinds?.op)) say(`${at}: names the kind ${s.kind}, which the vocabulary has not`)
       for (const [hint, values] of Object.entries(HINTS)) if (s[hint] !== undefined && !values.includes(s[hint])) say(`${at}: ${hint} ${JSON.stringify(s[hint])} is none of ${values.join(', ')}`)
@@ -132,7 +131,9 @@ function hookProblems(course) {
     if (!strings(level.unlocks ?? [])) say(`${at}: unlocks is not a list of flags`)
     list('adds', course.adds(level)).forEach((p) => parts.add(p))
     list('builds', course.builds(level)).forEach((p) => parts.add(p))
-    list('granted', course.granted(level))
+    list('opens', course.opens(level))
+    list('gives', course.gives(level))
+    list('withholds', course.withholds(level))
     list('uses', course.uses(level))
     const tray = course.tray(level)
     if (tray !== null && typeof tray !== 'string') say(`tray(${at}) is neither a tray nor null`)

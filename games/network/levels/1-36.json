@@ -1,19 +1,17 @@
 {
-  "title": { "zh": "校验停一拍", "en": "The check waits" },
+  "title": { "zh": "校验停一拍" },
   "intro": [
     {
       "t": {
-        "zh": "塞进去的 0 不是内容，收的一方算校验码时也不能把它算进去：<part-ref to=\"crc\"></part-ref>也要能停一拍。",
-        "en": "A stuffed 0 is not content, and the receiver must leave it out of the check as well: <part-ref to=\"crc\"></part-ref> must be able to stand still for a tick."
+        "zh": "塞进去的 0 不是内容，收的一方算校验码时也不能把它算进去：<part-ref to=\"crc\"></part-ref>也要能停一拍。"
       }
     }
   ],
   "builds": {
     "type": "crchold",
-    "name": { "zh": "带暂停的 CRC", "en": "Pausable CRC" },
+    "name": { "zh": "带暂停的 CRC" },
     "desc": {
-      "zh": "比 CRC 多一个「暂停」：到这一拍为止收进的位该跟的 3 位校验码（补上三个 0 后不进位地除以 1011 的余数，0 到 7 的数）；「重来」为 1 的那一拍从这一位重新算起，「暂停」为 1 的拍不收这一位，校验码停在原处。",
-      "en": "A CRC with a hold input: the 3 check bits due after the bits taken in so far (their carry-less remainder by 1011 with three 0s appended, a number from 0 to 7); on a tick restart is 1 it starts over from that bit, and on a tick hold is 1 it leaves that bit out and the check stands still."
+      "zh": "比 CRC 多一个「暂停」：到这一拍为止收进的位该跟的 3 位校验码（补上三个 0 后不进位地除以 1011 的余数，0 到 7 的数）；「重来」为 1 的那一拍从这一位重新算起，「暂停」为 1 的拍不收这一位，校验码停在原处。"
     },
     "replaces": ["crc"]
   },
@@ -21,19 +19,18 @@
     {
       "id": "1-36",
       "brief": {
-        "zh": "每一拍输出到这一拍为止收到的位该跟的 3 位校验码（补上三个 0 后不进位地除以 1011 的余数）；「重来」为 1 的拍从这一位重新算起，「暂停」为 1 的拍那一位不收进去。",
-        "en": "Every tick, output the 3 check bits due after the bits received so far (their carry-less remainder by 1011 with three 0s appended); on a tick restart is 1, start over from that bit, and leave out the bit of any tick hold is 1."
+        "zh": "每一拍输出到这一拍为止收到的位该跟的 3 位校验码（补上三个 0 后不进位地除以 1011 的余数）；「重来」为 1 的拍从这一位重新算起，「暂停」为 1 的拍那一位不收进去。"
       },
       "hint": [
-        { "zh": "「暂停」那一拍，记下的余数一位也不变。", "en": "On a hold tick, the remainder held does not change at all." }
+        { "zh": "「暂停」那一拍，记下的余数一位也不变。" }
       ],
       "carry": "1-15",
-      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
       "inputs": [
-        { "name": "restart", "label": { "zh": "重来", "en": "Restart" } },
-        { "name": "hold", "label": { "zh": "暂停", "en": "Hold" } }
+        { "name": "restart", "label": { "zh": "重来" } },
+        { "name": "hold", "label": { "zh": "暂停" } }
       ],
-      "outputs": [{ "name": "rem", "label": { "zh": "校验码", "en": "Check" } }],
+      "outputs": [{ "name": "rem", "label": { "zh": "校验码" } }],
       "tests": [
         {
           "ticks": 8,

@@ -1,0 +1,1430 @@
+{
+  "topic": {
+    "zh": "一元微积分：从一拍算一项的数列机器，搭到导数、积分和微分方程"
+  },
+  "learner": {
+    "zh": "会四则运算；不假设学过数列、极限、导数或积分。"
+  },
+  "endpoint": {
+    "zh": "给自己搭的机器一个函数，它算出导数、积分、泰勒多项式，解出一个常微分方程，并说得清误差随步长怎样变小。"
+  },
+  "scope": {
+    "zh": "这份蓝图写第 0 章「一拍一项」和第 1 章「越来越近」：数列、递推、求和与差分，到极限、级数收敛与发散，带两个专题。第 2–7 章各记一句，留待后续。"
+  },
+  "sources": [
+    "games/calculus/DESIGN.md",
+    "Stewart, Calculus: Early Transcendentals 8e",
+    "Graham, Knuth & Patashnik, Concrete Mathematics 2e"
+  ],
+  "mechanisms": [
+    {
+      "id": "tick-bus",
+      "where": {
+        "zh": "整个游戏：第 n 拍算第 n 项，寄存卡跨拍保存"
+      },
+      "why": {
+        "zh": "数列的递推就是逐拍的状态：首项是寄存卡的初值，递推式是接到存寄存卡上的电路；累加和差分都由玩家亲手接出，而不是一件现成的元件。没有共用线：世界只把输入数列一拍一项交给板。"
+      }
+    }
+  ],
+  "abilities": [
+    {
+      "id": "tick",
+      "about": {
+        "zh": "每拍跑一遍板，读各输入这一拍的项，交出各输出这一拍的项"
+      }
+    }
+  ],
+  "machines": [
+    {
+      "id": "sequencer",
+      "title": { "zh": "数列机" },
+      "can": ["tick"],
+      "lacks": {
+        "zh": "它算得出任意多项，却说不出一个数列「趋于」什么：1/2 + 1/4 + … 加到哪一项为止都不是 1。没有倒数，也比较不了两个数的大小。第 1 章加上倒数和比较，问「越来越近」是什么意思。"
+      }
+    },
+    {
+      "id": "approacher",
+      "title": { "zh": "逼近机" },
+      "can": ["tick"],
+      "lacks": {
+        "zh": "它沿着下标一项项走，只认得数列；函数 f(x) 要在任意实数 x 上取值，相邻两点要能任意近。第 2 章把函数放到步长 h 的网格上取样，让步长本身趋于 0。"
+      }
+    }
+  ],
+  "knowledge": [
+    {
+      "id": "sequence",
+      "term": { "zh": "数列" },
+      "about": {
+        "zh": "按下标排好的一串数 a₀, a₁, a₂, …；两个数列逐项相加，得到的仍是数列，第 n 项是两者第 n 项的和。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.1",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "三个数列每拍各来一项，合起来的数列第 n 项是多少？"
+      },
+      "misconception": {
+        "zh": "把数列当成一个数，而不是一项一项的整体。"
+      }
+    },
+    {
+      "id": "shift",
+      "term": { "zh": "下标平移" },
+      "depends": ["sequence"],
+      "about": {
+        "zh": "aₙ₋₁ 也是一个数列：原数列整体晚一项，开头补一个初值。"
+      },
+      "source": "Graham, Knuth & Patashnik, Concrete Mathematics 2e §2.6",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "板每一拍从头算，算完什么也不留：怎样交出上一项？"
+      },
+      "misconception": {
+        "zh": "以为机器自然记得上一步算过什么。"
+      }
+    },
+    {
+      "id": "recurrence",
+      "term": { "zh": "递推" },
+      "depends": ["shift"],
+      "about": {
+        "zh": "一个数列由首项和「怎样从上一项算出这一项」完全决定，例如首项 3、aₙ = aₙ₋₁ + 2。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.1",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "没有输入，要一项项交出 3, 5, 7, 9, …：无穷多项从哪里来？"
+      },
+      "misconception": {
+        "zh": "要给出无穷多项，就得把它们一项项写下来。"
+      }
+    },
+    {
+      "id": "index",
+      "term": { "zh": "下标" },
+      "depends": ["recurrence"],
+      "about": {
+        "zh": "第几项本身也是一个数列 0, 1, 2, …：首项 0、每项加 1 的递推；通项公式以它为自变量。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.1",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "板不知道现在是第几拍：怎样让它知道 n？"
+      }
+    },
+    {
+      "id": "general-term",
+      "term": { "zh": "通项公式" },
+      "depends": ["index"],
+      "about": {
+        "zh": "第 n 项直接由 n 算出，aₙ = f(n)，不经过前面的项。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.1",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "0, 1, 4, 9, 16, …：相邻两项差的不是同一个数，递推写不成「加一个常数」，第 n 项却很好算。"
+      },
+      "misconception": {
+        "zh": "数列只能一项项递推出来。"
+      }
+    },
+    {
+      "id": "geometric",
+      "term": { "zh": "等比数列" },
+      "depends": ["recurrence"],
+      "about": {
+        "zh": "每一项是上一项乘同一个数（公比）：aₙ = r·aₙ₋₁，长得比任何等差数列都快。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.2",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "3, 6, 12, 24, …：每一项加多少？加的数一直在变。"
+      },
+      "misconception": { "zh": "翻倍就是每次加上首项。" }
+    },
+    {
+      "id": "partial-sum",
+      "term": { "zh": "部分和" },
+      "depends": ["recurrence"],
+      "core": true,
+      "about": {
+        "zh": "Sₙ = a₀ + a₁ + … + aₙ；部分和本身是数列，由递推 Sₙ = Sₙ₋₁ + aₙ 算出。级数就是部分和的数列。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.2",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "前面所有项的和：项一拍只来一个，和却要用到全部。"
+      },
+      "misconception": {
+        "zh": "每拍把这一项和上一项加起来就是总和。"
+      }
+    },
+    {
+      "id": "difference",
+      "term": { "zh": "差分" },
+      "depends": ["shift"],
+      "core": true,
+      "about": {
+        "zh": "Δaₙ = aₙ − aₙ₋₁（约定 a₋₁ = 0）：数列每一步变了多少。二次的数列差分后是一次的，再差一次是常数。"
+      },
+      "source": "Graham, Knuth & Patashnik, Concrete Mathematics 2e §2.6",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "相邻两项差多少？板上没有减法。"
+      },
+      "misconception": {
+        "zh": "差分要用 aₙ₋₁ − aₙ，或者没有减法元件就做不到。"
+      }
+    },
+    {
+      "id": "inverse",
+      "term": { "zh": "求和与差分互逆" },
+      "depends": ["partial-sum", "difference"],
+      "core": true,
+      "about": {
+        "zh": "先累加再差分，先差分再累加，都回到原来的数列（a₋₁ = 0 时）：离散的微积分基本定理。"
+      },
+      "source": "Graham, Knuth & Patashnik, Concrete Mathematics 2e §2.6",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": {
+        "zh": "只知道一个数列每一步变了多少（或前几项的和），怎样还原它本身？"
+      },
+      "misconception": { "zh": "要撤销差分，就再差分一次。" }
+    },
+    {
+      "id": "infinitesimal",
+      "term": { "zh": "无穷小" },
+      "depends": ["general-term"],
+      "about": {
+        "zh": "越来越接近 0 的数列，如 1/(n+1)：每一项都不是 0，却能小过任何给定的正数。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.1",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "1, 1/2, 1/3, …：没有除法，怎样算出 1/(n+1)？"
+      },
+      "misconception": { "zh": "越来越小的数最后会等于 0。" }
+    },
+    {
+      "id": "inequality",
+      "term": { "zh": "比较" },
+      "depends": ["sequence"],
+      "about": {
+        "zh": "a < b 的真假写成 1 和 0，就是一个数列；乘上去，就能在两个数里挑一个：max(a, b) = a + [a < b]·(b − a)。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e Appendix A",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "板只会加和乘，算不出两个数里哪个大。"
+      }
+    },
+    {
+      "id": "distance",
+      "term": { "zh": "距离" },
+      "depends": ["inequality"],
+      "about": {
+        "zh": "|a − b| 是数轴上两点隔多远，不看谁在左边：它是 a − b 和 b − a 里较大的那个。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e Appendix A",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "a − b 时正时负；要的只是隔多远。"
+      },
+      "misconception": { "zh": "距离就是 a − b。" }
+    },
+    {
+      "id": "neighbourhood",
+      "term": { "zh": "邻域" },
+      "depends": ["distance"],
+      "about": {
+        "zh": "离 L 不到 ε 的所有数：|x − L| < ε。ε 是事先说好的「多近才算近」。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §2.4",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": { "zh": "「很近」没有尺度：先说好近到多少才算。" }
+    },
+    {
+      "id": "eventually",
+      "term": { "zh": "从某项起" },
+      "depends": ["recurrence"],
+      "about": {
+        "zh": "一件事从某一项起一直成立，前面有几项不成立也不要紧。这一拍以内，那一项就是最近一段连续成立的开头。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.1",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "一串 0 和 1：最近这段 1 从哪一项开始？一出现 0 就得重算。"
+      }
+    },
+    {
+      "id": "limit",
+      "term": { "zh": "极限" },
+      "depends": ["neighbourhood", "eventually", "infinitesimal"],
+      "core": true,
+      "about": {
+        "zh": "数列 aₙ 趋于 L：不管 ε 多小，总有一项 N，从它起每一项都在 L 的 ε 邻域里。记作 lim aₙ = L。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.1",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": {
+        "zh": "1/2 + 1/4 + … 加到哪一项都不是 1，凭什么说它趋于 1？"
+      },
+      "misconception": {
+        "zh": "趋于 L 就是越来越近，或者最后等于 L。"
+      }
+    },
+    {
+      "id": "divergence",
+      "term": { "zh": "发散" },
+      "depends": ["limit"],
+      "about": {
+        "zh": "找不到任何 L 让数列趋于它：不管 L 取几，总有某个 ε，N 一直被往后推。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.1",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "(−1)ⁿ 总在 1 和 −1 之间跳：它趋于什么？"
+      },
+      "misconception": {
+        "zh": "不跑到无穷大的数列都收敛。"
+      }
+    },
+    {
+      "id": "series",
+      "term": { "zh": "级数收敛" },
+      "depends": ["limit", "partial-sum"],
+      "core": true,
+      "about": {
+        "zh": "无穷多项相加的值，就是部分和数列的极限：1 + 1/2 + 1/4 + … = 2，因为 Sₙ 趋于 2。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.2",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "加无穷多项，永远加不完：等号右边的 2 从哪里来？"
+      }
+    },
+    {
+      "id": "harmonic",
+      "term": { "zh": "调和级数" },
+      "depends": ["series", "divergence", "infinitesimal"],
+      "core": true,
+      "about": {
+        "zh": "1 + 1/2 + 1/3 + …：每一项都趋于 0，部分和却超过任何界，发散。项趋于 0 只是级数收敛的必要条件。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.3",
+      "basis": "lecture",
+      "difficulty": "hard",
+      "wall": {
+        "zh": "每一项都越来越小，和还会无限变大吗？"
+      },
+      "misconception": { "zh": "项趋于 0，级数就收敛。" }
+    },
+    {
+      "id": "e",
+      "term": { "zh": "自然常数 e" },
+      "depends": ["series", "general-term"],
+      "about": {
+        "zh": "e = 1 + 1/1! + 1/2! + 1/3! + … ≈ 2.71828：阶乘长得极快，这个级数几项就稳定下来。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §11.10",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "一个由无穷多项定义的数，怎样一位位算出来？"
+      }
+    },
+    {
+      "id": "babylonian",
+      "term": { "zh": "巴比伦开方" },
+      "depends": ["limit", "recurrence"],
+      "about": {
+        "zh": "xₙ₊₁ = (xₙ + c/xₙ)/2 从任意正数起趋于 √c：猜得大了，c/xₙ 就小了，取两者的平均。收敛极快，每一步有效数字约翻一倍。"
+      },
+      "source": "Stewart, Calculus: Early Transcendentals 8e §3.8",
+      "basis": "lecture",
+      "difficulty": "learnable",
+      "wall": {
+        "zh": "只会加、乘和取倒数，怎样算出 √2？"
+      }
+    }
+  ],
+  "primitives": [
+    {
+      "part": "add",
+      "about": { "zh": "加：两个数相加。" },
+      "why": {
+        "zh": "板上一开始只有输入和输出；任何运算都要从一种接不出来的运算起步，加法是最小的那一种。"
+      }
+    },
+    {
+      "part": "reg",
+      "about": {
+        "zh": "读寄存卡：同名寄存卡里存的值，存入之前给初值。"
+      },
+      "why": {
+        "zh": "板每拍从头算；跨拍的值只能由寄存卡这一对元件保存，任何接法都接不出来。"
+      }
+    },
+    {
+      "part": "keep",
+      "about": {
+        "zh": "存寄存卡：接入的值存进同名寄存卡，下一拍读得出。"
+      },
+      "why": { "zh": "和读寄存卡是一对：一个存、一个读。" }
+    },
+    {
+      "part": "const",
+      "about": { "zh": "常数：给出设定的数。" },
+      "why": {
+        "zh": "输入只给变化的项；一个固定的公差、一个 −1，只能由常数给出。"
+      }
+    },
+    {
+      "part": "mul",
+      "about": { "zh": "乘：两个数相乘。" },
+      "why": {
+        "zh": "加法重复 n 次要 n 块元件，而 n 每拍在变；乘法接不出来。"
+      }
+    },
+    {
+      "part": "recip",
+      "about": { "zh": "倒数：1/x，x 为 0 时给「—」。" },
+      "why": {
+        "zh": "加和乘从整数出发只得到整数；1/(n+1) 这样越来越小的数接不出来。"
+      }
+    },
+    {
+      "part": "less",
+      "about": { "zh": "比较：a < b 时给 1，否则给 0。" },
+      "why": {
+        "zh": "加、乘、倒数都是光滑的运算，接不出「哪个大」这种跳变。"
+      }
+    }
+  ],
+  "built": [
+    {
+      "part": "count",
+      "about": { "zh": "下标：交出 0, 1, 2, …" },
+      "from": ["reg", "keep", "add", "const"]
+    },
+    {
+      "part": "sum",
+      "about": { "zh": "累加 Σ：交出输入到这一拍为止的部分和。" },
+      "from": ["reg", "keep", "add"]
+    },
+    {
+      "part": "diff",
+      "about": {
+        "zh": "差分 Δ：交出输入这一项减上一项（第一拍减 0）。"
+      },
+      "from": ["reg", "keep", "add", "mul", "const"]
+    },
+    {
+      "part": "max",
+      "about": { "zh": "较大者：a、b 里大的那个。" },
+      "from": ["less", "mul", "add", "const"]
+    },
+    {
+      "part": "dist",
+      "about": { "zh": "距离：|a − b|。" },
+      "from": ["max", "mul", "add", "const"]
+    },
+    {
+      "part": "near",
+      "about": { "zh": "邻域：|a − L| < ε 时为 1，否则为 0。" },
+      "from": ["dist", "less"]
+    },
+    {
+      "part": "since",
+      "about": {
+        "zh": "从此一直：输入最近一段连续为 1 从第几项起；这一拍为 0 时给 n + 1。"
+      },
+      "from": ["reg", "keep", "count", "mul", "add", "const"]
+    }
+  ],
+  "eras": [
+    {
+      "id": 0,
+      "machine": "sequencer",
+      "title": { "zh": "一拍一项" },
+      "question": {
+        "zh": "只会加和乘，怎样算出数列的任意一项、到这一项为止的和、相邻两项的差？"
+      },
+      "why": {
+        "zh": "从一台每拍从头算一遍、什么也不记得的板起步：先逐项运算，再用寄存卡记住上一项，于是有了递推、下标和通项，最后搭出求和与差分两件元件，看它们互相撤销。"
+      },
+      "series": [
+        {
+          "id": "terms",
+          "title": { "zh": "一项一项" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "sum3",
+              "title": { "zh": "三列合一" },
+              "task": {
+                "zh": "三个输入数列逐项相加，交出合起来的数列。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "两个数列相加，结果的第 n 项是什么？"
+              },
+              "chain": [
+                {
+                  "zh": "运行一次，看到三个输入每拍各来一项，输出每拍要一项。"
+                },
+                {
+                  "zh": "一块加只收两个数：先加两列，再把第三列加上去。"
+                },
+                {
+                  "zh": "每一拍的结果只看这一拍的三项：数列的加法是逐项的。"
+                }
+              ],
+              "uses": ["add", "sequence", "tick"],
+              "teaches": "sequence",
+              "adds": ["add"]
+            },
+            {
+              "id": "prev",
+              "title": { "zh": "上一项" },
+              "task": {
+                "zh": "每一拍交出输入上一拍的项；第一拍交出 0。"
+              },
+              "role": "foundation",
+              "question": { "zh": "怎样让机器交出 aₙ₋₁？" },
+              "chain": [
+                {
+                  "zh": "把输入直接接到输出，每一拍都早了一项。"
+                },
+                {
+                  "zh": "存寄存卡把这一拍的项存起来，读寄存卡下一拍才读得出。"
+                },
+                {
+                  "zh": "第一拍还什么也没存：初值就是 a₋₁。"
+                }
+              ],
+              "uses": ["reg", "keep", "shift", "sequence", "tick"],
+              "teaches": "shift",
+              "adds": ["reg", "keep"],
+              "naive": {
+                "zh": "把输入直接接到输出：看起来就是那个数列，却早了一项。"
+              }
+            },
+            {
+              "id": "arith",
+              "title": { "zh": "等差" },
+              "task": {
+                "zh": "没有输入：交出首项 3、之后每项比上一项多 2 的数列。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "没有输入，无穷多项从哪里来？"
+              },
+              "chain": [
+                {
+                  "zh": "板上只有寄存卡和加：要一个固定的 2，需要常数。"
+                },
+                {
+                  "zh": "读寄存卡给出上一项，加上 2 存回去，就是下一项。"
+                },
+                {
+                  "zh": "首项写在寄存卡的初值上：首项加递推式，整个数列就定了。"
+                }
+              ],
+              "uses": ["reg", "keep", "add", "const", "recurrence", "shift"],
+              "teaches": "recurrence",
+              "adds": ["const"],
+              "naive": {
+                "zh": "输出常数 3 再每拍加 2：板不记得，每拍都是 5。"
+              }
+            },
+            {
+              "id": "count",
+              "title": { "zh": "数数" },
+              "task": {
+                "zh": "交出 0, 1, 2, 3, …：这一拍是第几项。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "板不知道现在是第几拍，怎样让它知道 n？"
+              },
+              "chain": [
+                { "zh": "第几项每拍多 1，从 0 开始。" },
+                {
+                  "zh": "这正是首项 0、每项加 1 的递推，和上一关同一种接法。"
+                },
+                {
+                  "zh": "搭好以后它成了一件元件：以后的关直接拿 n 来算。"
+                }
+              ],
+              "uses": ["reg", "keep", "add", "const", "recurrence", "index"],
+              "teaches": "index",
+              "builds": "count"
+            },
+            {
+              "id": "square",
+              "title": { "zh": "平方数" },
+              "task": {
+                "zh": "交出 0, 1, 4, 9, 16, …：第 n 项是 n²。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "相邻两项的差一直在变，第 n 项还能直接算出来吗？"
+              },
+              "chain": [
+                {
+                  "zh": "试着写成等差的递推：1、3、5、7，加的数每拍不同。"
+                },
+                {
+                  "zh": "换个想法：第 n 项只和 n 有关，n 乘 n 就是它。"
+                },
+                {
+                  "zh": "下标接两次到乘上，不经过前面任何一项。"
+                }
+              ],
+              "uses": ["count", "mul", "general-term", "index"],
+              "teaches": "general-term",
+              "adds": ["mul"],
+              "naive": {
+                "zh": "首项 0、每项加 2 的递推：0, 2, 4, 6，第二项就错了。"
+              }
+            },
+            {
+              "id": "double",
+              "title": { "zh": "翻倍" },
+              "task": {
+                "zh": "交出首项 3、之后每项是上一项两倍的数列。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "每一项是上一项的两倍时，递推式长什么样？"
+              },
+              "chain": [
+                {
+                  "zh": "3, 6, 12, 24：前两步各加 3、6，加的数在变。"
+                },
+                {
+                  "zh": "不变的是比：每一项都是上一项乘 2。"
+                },
+                { "zh": "寄存卡给出上一项，乘 2 存回去。" }
+              ],
+              "uses": ["reg", "keep", "mul", "const", "recurrence", "geometric"],
+              "teaches": "geometric",
+              "naive": {
+                "zh": "每次加首项 3：3, 6, 9, 12，第三项起就落后了。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "sums",
+          "title": { "zh": "求和" },
+          "kind": "foundation",
+          "parallel": "two-ways",
+          "slots": [
+            {
+              "id": "sum",
+              "title": { "zh": "累加" },
+              "task": {
+                "zh": "每一拍交出输入到这一拍为止所有项的和。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "项一拍只来一个，怎样一直知道全部的和？"
+              },
+              "chain": [
+                {
+                  "zh": "把这一项和上一项加起来，第三拍就漏了第一项。"
+                },
+                {
+                  "zh": "存起来的不该是上一项，而是到上一拍为止的和。"
+                },
+                {
+                  "zh": "Sₙ = Sₙ₋₁ + aₙ：部分和也是一个递推，首项 0。"
+                }
+              ],
+              "uses": ["reg", "keep", "add", "partial-sum", "recurrence"],
+              "teaches": "partial-sum",
+              "builds": "sum",
+              "naive": {
+                "zh": "这一项加上一项：只记得最近两项。"
+              }
+            },
+            {
+              "id": "tri",
+              "title": { "zh": "三角形数" },
+              "task": { "zh": "交出 0 + 1 + … + n。" },
+              "role": "practice",
+              "question": {
+                "zh": "要求和的数列不是输入给的，而是板自己算的，怎么办？"
+              },
+              "chain": [
+                { "zh": "没有输入：要加的是 0, 1, 2, …" },
+                { "zh": "下标就是这个数列，把它接进累加。" }
+              ],
+              "uses": ["sum", "count", "partial-sum"],
+              "facet": {
+                "zh": "被求和的数列由板自己算出，不再由测试给出。"
+              },
+              "dimension": "scaffold"
+            },
+            {
+              "id": "tetra",
+              "title": { "zh": "堆球" },
+              "task": {
+                "zh": "交出三角形数的部分和：0, 1, 4, 10, 20, …"
+              },
+              "role": "practice",
+              "question": {
+                "zh": "部分和的部分和是什么样子？"
+              },
+              "chain": [
+                {
+                  "zh": "三角形数本身是部分和，再求一次和。"
+                },
+                { "zh": "两件累加串起来：每件都只管自己的和。" }
+              ],
+              "uses": ["sum", "count", "partial-sum"],
+              "facet": {
+                "zh": "求和叠两层：每一层的部分和都是下一层要加的数列。"
+              },
+              "dimension": "depth"
+            },
+            {
+              "id": "dsum",
+              "title": { "zh": "翻倍再求和" },
+              "task": { "zh": "交出 1 + 2 + 4 + … + 2ⁿ。" },
+              "role": "practice",
+              "question": {
+                "zh": "等比数列的部分和长成什么样？"
+              },
+              "chain": [
+                { "zh": "先搭出 1, 2, 4, 8, …，再接进累加。" },
+                {
+                  "zh": "看结果：1, 3, 7, 15，每个都比下一项少 1。"
+                }
+              ],
+              "uses": ["sum", "reg", "keep", "mul", "const", "geometric", "partial-sum"],
+              "facet": {
+                "zh": "等比数列的部分和仍按同一个公比增长：每个部分和都比下一项少 1。"
+              },
+              "dimension": "combine"
+            }
+          ]
+        },
+        {
+          "id": "diffs",
+          "title": { "zh": "差分" },
+          "kind": "foundation",
+          "parallel": "two-ways",
+          "slots": [
+            {
+              "id": "diff",
+              "title": { "zh": "差分" },
+              "task": {
+                "zh": "每一拍交出输入这一项减上一项；第一拍减 0。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "没有减法，怎样算出相邻两项差多少？"
+              },
+              "chain": [
+                {
+                  "zh": "上一项由寄存卡给出，和上一项那一关一样。"
+                },
+                { "zh": "减去一个数，就是加上它乘 −1。" },
+                {
+                  "zh": "顺序是这一项减上一项：数列变大时差分为正。"
+                }
+              ],
+              "uses": ["reg", "keep", "add", "mul", "const", "difference", "shift"],
+              "teaches": "difference",
+              "builds": "diff",
+              "naive": {
+                "zh": "上一项减这一项：大小对，符号反了。"
+              }
+            },
+            {
+              "id": "dsq",
+              "title": { "zh": "平方的差分" },
+              "task": { "zh": "交出 n² 的差分。" },
+              "role": "practice",
+              "question": { "zh": "平方数每一步变了多少？" },
+              "chain": [
+                { "zh": "先算出 n²，再接进差分。" },
+                {
+                  "zh": "结果 0, 1, 3, 5, 7：奇数，每次多 2。"
+                }
+              ],
+              "uses": ["diff", "count", "mul", "difference", "general-term"],
+              "facet": {
+                "zh": "被差分的数列由板自己算出；二次的数列差分后是一次的。"
+              },
+              "dimension": "scaffold"
+            },
+            {
+              "id": "ddsq",
+              "title": { "zh": "再差一次" },
+              "task": { "zh": "交出 n² 的差分的差分。" },
+              "role": "practice",
+              "question": { "zh": "差分再做一次，平方数会变成什么？" },
+              "chain": [
+                { "zh": "两件差分串起来。" },
+                {
+                  "zh": "开头几项之后一直是 2：二次的数列差两次变成常数。"
+                }
+              ],
+              "uses": ["diff", "count", "mul", "difference", "general-term"],
+              "facet": {
+                "zh": "差分叠两层：二次的数列差两次只剩常数，这就是差分机只用加法造表的原理。"
+              },
+              "dimension": "depth"
+            },
+            {
+              "id": "ddouble",
+              "title": { "zh": "翻倍的差分" },
+              "task": { "zh": "交出 1, 2, 4, 8, … 的差分。" },
+              "role": "practice",
+              "question": {
+                "zh": "等比数列每一步变了多少？"
+              },
+              "chain": [
+                {
+                  "zh": "先搭出 1, 2, 4, 8, …，再接进差分。"
+                },
+                {
+                  "zh": "结果 1, 1, 2, 4, 8：除了开头，差分就是数列自己晚一项。"
+                }
+              ],
+              "uses": ["diff", "reg", "keep", "mul", "const", "geometric", "difference"],
+              "facet": {
+                "zh": "翻倍数列的差分还是翻倍数列：它是自己的差分（以后的 eˣ 是自己的导数）。"
+              },
+              "dimension": "combine"
+            }
+          ]
+        },
+        {
+          "id": "undo",
+          "title": { "zh": "互逆" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "inverse",
+              "title": { "zh": "互逆" },
+              "task": {
+                "zh": "由一个数列的差分还原它；由部分和还原各项；由二阶差分还原数列。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "只知道一个数列每一步变了多少，怎样还原它本身？"
+              },
+              "chain": [
+                {
+                  "zh": "输入是差分：每一步变了多少。把变化一步步加起来，就回到数列。"
+                },
+                {
+                  "zh": "输入换成部分和：相邻两个和的差就是那一项。"
+                },
+                {
+                  "zh": "二阶差分要加回两次：每次累加撤销一次差分。"
+                }
+              ],
+              "uses": ["sum", "diff", "inverse", "partial-sum", "difference"],
+              "teaches": "inverse",
+              "naive": {
+                "zh": "对差分再做一次差分，以为那就是撤销。"
+              }
+            }
+          ]
+        },
+        {
+          "id": "stretch",
+          "title": { "zh": "挑战" },
+          "kind": "challenge",
+          "after": "ddouble",
+          "slots": [
+            {
+              "id": "cdouble",
+              "title": { "zh": "不用差分" },
+              "task": {
+                "zh": "不用差分元件、也不用乘，交出 1, 2, 4, 8, … 的差分。"
+              },
+              "role": "challenge",
+              "uses": ["reg", "keep", "add", "shift", "geometric", "difference"],
+              "question": {
+                "zh": "减不了，也乘不了 −1，差分还算得出来吗？"
+              },
+              "chain": [
+                {
+                  "zh": "先看要交出的数列本身：1, 1, 2, 4, 8, …"
+                },
+                {
+                  "zh": "从第二项起，它是翻倍数列晚了一项；第一项是 1 − 0。"
+                },
+                {
+                  "zh": "翻倍也不必乘：一个数加上它自己。"
+                }
+              ],
+              "naive": {
+                "zh": "把翻倍数列晚一项交出，初值照旧写 0：第一项就错了。"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "machine": "approacher",
+      "title": { "zh": "越来越近" },
+      "question": {
+        "zh": "1/2 + 1/4 + … 加到哪一项都不等于 1：「趋于」一个数究竟是什么意思？"
+      },
+      "why": {
+        "zh": "数列机算得出任意多项，却判断不了「越来越近」。这一章加上倒数和比较，把 ε-N 定义拆成几件元件——距离、邻域、从此一直——拼起来检查极限，再用它分清收敛和发散的级数。"
+      },
+      "series": [
+        {
+          "id": "small",
+          "title": { "zh": "越来越小" },
+          "kind": "foundation",
+          "parallel": "three-ways",
+          "slots": [
+            {
+              "id": "recip",
+              "title": { "zh": "倒数" },
+              "task": {
+                "zh": "交出 1, 1/2, 1/3, …：第 n 项是 1/(n+1)。"
+              },
+              "role": "foundation",
+              "question": { "zh": "没有除法，怎样算出 1/(n+1)？" },
+              "chain": [
+                {
+                  "zh": "除以一个数，就是乘它的倒数；这里只要倒数本身。"
+                },
+                {
+                  "zh": "1/n 在第一拍是 1/0：从 n+1 取倒数。"
+                }
+              ],
+              "uses": ["recip", "count", "add", "const", "infinitesimal", "general-term"],
+              "teaches": "infinitesimal",
+              "adds": ["recip"],
+              "naive": {
+                "zh": "直接取下标的倒数：第一拍是 1/0，没有值。"
+              }
+            },
+            {
+              "id": "halves",
+              "title": { "zh": "一半再一半" },
+              "task": {
+                "zh": "交出 1/2 + 1/4 + … 的部分和，和它与 1 的差距。"
+              },
+              "role": "practice",
+              "question": {
+                "zh": "部分和离 1 还差多少？这个差距会变成 0 吗？"
+              },
+              "chain": [
+                {
+                  "zh": "1/2, 1/4, … 是公比 1/2 的等比数列，累加起来。"
+                },
+                {
+                  "zh": "1 减去部分和：乘 −1 再加 1。差距每步减半，永远不是 0。"
+                }
+              ],
+              "uses": [
+                "reg",
+                "keep",
+                "mul",
+                "const",
+                "sum",
+                "add",
+                "infinitesimal",
+                "geometric",
+                "partial-sum"
+              ],
+              "facet": {
+                "zh": "部分和与 1 的差距本身是无穷小：部分和逼近 1，却没有哪一项等于 1。"
+              },
+              "dimension": "combine"
+            }
+          ]
+        },
+        {
+          "id": "close",
+          "title": { "zh": "多近才算近" },
+          "kind": "foundation",
+          "parallel": "three-ways",
+          "slots": [
+            {
+              "id": "max",
+              "title": { "zh": "较大者" },
+              "task": { "zh": "每一拍交出两个输入里大的那个。" },
+              "role": "foundation",
+              "question": {
+                "zh": "板只会算，怎样在两个数里挑出大的？"
+              },
+              "chain": [
+                { "zh": "比较给出 1 或 0：b 更大时是 1。" },
+                {
+                  "zh": "a 加上 (b − a) 乘这个 1 或 0：是 1 就变成 b，是 0 就还是 a。"
+                }
+              ],
+              "uses": ["less", "mul", "add", "const", "inequality"],
+              "teaches": "inequality",
+              "adds": ["less"],
+              "builds": "max"
+            },
+            {
+              "id": "dist",
+              "title": { "zh": "距离" },
+              "task": {
+                "zh": "每一拍交出两个输入隔多远：|a − b|。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "a − b 时正时负，怎样只要隔多远？"
+              },
+              "chain": [
+                {
+                  "zh": "a − b 和 b − a 一正一负（或都是 0）。"
+                },
+                { "zh": "取两者里大的那个。" }
+              ],
+              "uses": ["max", "mul", "add", "const", "distance"],
+              "teaches": "distance",
+              "builds": "dist",
+              "naive": { "zh": "只算 a − b：b 更大时成了负数。" }
+            },
+            {
+              "id": "near",
+              "title": { "zh": "邻域" },
+              "task": {
+                "zh": "aₙ 离 L 不到 ε 时交出 1，否则交出 0。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "怎样把「够近」变成一个能检查的 0 或 1？"
+              },
+              "chain": [
+                { "zh": "先量 aₙ 和 L 隔多远。" },
+                { "zh": "再和 ε 比较：小于 ε 就是够近。" }
+              ],
+              "uses": ["dist", "less", "neighbourhood", "distance"],
+              "teaches": "neighbourhood",
+              "builds": "near"
+            }
+          ]
+        },
+        {
+          "id": "since",
+          "title": { "zh": "从此以后" },
+          "kind": "foundation",
+          "parallel": "three-ways",
+          "slots": [
+            {
+              "id": "since",
+              "title": { "zh": "从此一直" },
+              "task": {
+                "zh": "输入每拍是 0 或 1：交出最近一段连续为 1 从第几项起；这一拍是 0 时交出 n + 1。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "一串 0 和 1，最近这段 1 从哪一项开始？"
+              },
+              "chain": [
+                {
+                  "zh": "这一拍是 1：开头和上一拍说的一样，由寄存卡记着。"
+                },
+                {
+                  "zh": "这一拍是 0：开头最早也得是下一项，n + 1。"
+                },
+                {
+                  "zh": "用输入当 1 和 0 在两者里挑：f·旧值 + (1 − f)·(n + 1)。"
+                }
+              ],
+              "uses": ["reg", "keep", "count", "mul", "add", "const", "eventually", "recurrence"],
+              "teaches": "eventually",
+              "builds": "since"
+            }
+          ]
+        },
+        {
+          "id": "limits",
+          "title": { "zh": "极限" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "limit",
+              "title": { "zh": "极限" },
+              "task": {
+                "zh": "aₙ 趋于 L：测试给出 ε，每一拍交出到这一拍为止的 N。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "加到哪一项都不等于 L，凭什么说它趋于 L？"
+              },
+              "chain": [
+                { "zh": "先说好多近才算近：ε。" },
+                {
+                  "zh": "每一拍检查 aₙ 在不在邻域里，看这段「在」从哪一项起。"
+                },
+                {
+                  "zh": "N 停住了，就是这一拍以内找到了 N；ε 越小，N 越往后。"
+                }
+              ],
+              "uses": ["near", "since", "limit", "neighbourhood", "eventually", "infinitesimal"],
+              "teaches": "limit",
+              "naive": {
+                "zh": "只看这一拍在不在邻域里：前面掉出去过也不管。"
+              }
+            },
+            {
+              "id": "ratio",
+              "title": { "zh": "趋于 3" },
+              "task": {
+                "zh": "aₙ = (3n + 1)/(n + 2)，L = 3：交出 N。"
+              },
+              "role": "practice",
+              "question": {
+                "zh": "极限不是 0 时，ε-N 照样适用吗？"
+              },
+              "chain": [
+                {
+                  "zh": "数列要自己算：分子乘分母的倒数。"
+                },
+                { "zh": "邻域以 3 为中心，其余照旧。" }
+              ],
+              "uses": ["near", "since", "recip", "mul", "add", "count", "const", "limit"],
+              "facet": {
+                "zh": "被检查的数列由板自己算出，极限不是 0。"
+              },
+              "dimension": "scaffold"
+            },
+            {
+              "id": "wobble",
+              "title": { "zh": "摆动着靠近" },
+              "task": { "zh": "aₙ = (−1)ⁿ/(n + 1)，L = 0：交出 N。" },
+              "role": "practice",
+              "question": {
+                "zh": "一会儿在左、一会儿在右，还算趋于 0 吗？"
+              },
+              "chain": [
+                {
+                  "zh": "(−1)ⁿ 是首项 1、公比 −1 的等比数列。"
+                },
+                {
+                  "zh": "距离不看方向：两边的项一样算近。"
+                }
+              ],
+              "uses": [
+                "near",
+                "since",
+                "recip",
+                "reg",
+                "keep",
+                "mul",
+                "add",
+                "count",
+                "const",
+                "limit",
+                "distance"
+              ],
+              "facet": {
+                "zh": "数列在 L 两侧来回摆动；邻域只看距离，摆动不妨碍收敛。"
+              },
+              "dimension": "combine"
+            },
+            {
+              "id": "diverge",
+              "title": { "zh": "来回跳" },
+              "task": {
+                "zh": "aₙ = (−1)ⁿ：测试给出 L 和 ε，交出 N。"
+              },
+              "role": "foundation",
+              "question": { "zh": "一个数列能不能哪儿也不趋于？" },
+              "chain": [
+                {
+                  "zh": "L 取 1：每隔一项就掉出邻域，N 一直被往后推。"
+                },
+                { "zh": "L 取别的数也一样：没有哪个 L 让 N 停下。" }
+              ],
+              "uses": ["near", "since", "reg", "keep", "mul", "const", "divergence", "limit"],
+              "teaches": "divergence"
+            }
+          ]
+        },
+        {
+          "id": "series",
+          "title": { "zh": "加不完的和" },
+          "kind": "foundation",
+          "slots": [
+            {
+              "id": "series",
+              "title": { "zh": "加得完的无穷" },
+              "task": {
+                "zh": "1 + 1/2 + 1/4 + … 趋于 2：测试给出 ε，交出 N。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "无穷多项相加，等号右边的 2 是什么意思？"
+              },
+              "chain": [
+                {
+                  "zh": "无穷多项加不完；能算的只有部分和。"
+                },
+                {
+                  "zh": "问部分和这个数列趋于什么：对它找 N。"
+                }
+              ],
+              "uses": ["sum", "near", "since", "reg", "keep", "mul", "const", "series", "limit", "partial-sum"],
+              "teaches": "series"
+            },
+            {
+              "id": "harmonic",
+              "title": { "zh": "调和级数" },
+              "task": {
+                "zh": "交出 1 + 1/2 + 1/3 + … 的部分和；再对测试给出的界 K，交出部分和从第几项起一直大于 K。"
+              },
+              "role": "foundation",
+              "question": {
+                "zh": "每一项都趋于 0，和还会无限变大吗？"
+              },
+              "chain": [
+                { "zh": "部分和长得很慢，看起来像停了。" },
+                {
+                  "zh": "给它一个界 K，比较「K 小于部分和」，从此一直：K 再大也找得到那一项。"
+                }
+              ],
+              "uses": [
+                "sum",
+                "recip",
+                "count",
+                "add",
+                "const",
+                "less",
+                "since",
+                "harmonic",
+                "series",
+                "infinitesimal",
+                "divergence"
+              ],
+              "teaches": "harmonic"
+            }
+          ]
+        },
+        {
+          "id": "e-topic",
+          "title": { "zh": "算出 e" },
+          "kind": "topic",
+          "after": "series",
+          "slots": [
+            {
+              "id": "fact",
+              "title": { "zh": "阶乘倒数" },
+              "task": {
+                "zh": "交出 1, 1, 1/2, 1/6, 1/24, …：第 n 项是 1/n!。"
+              },
+              "role": "intro",
+              "question": { "zh": "1/n! 不必先算出 n! 再取倒数吗？" },
+              "chain": [
+                {
+                  "zh": "n! = n·(n − 1)!：相邻两项只差一个因子。"
+                },
+                {
+                  "zh": "于是 1/n! = 1/(n − 1)! · 1/n：递推，每步乘一个倒数。"
+                }
+              ],
+              "uses": ["reg", "keep", "recip", "mul", "count", "add", "const", "recurrence", "general-term"]
+            },
+            {
+              "id": "euler",
+              "title": { "zh": "算出 e" },
+              "task": {
+                "zh": "交出 1 + 1/1! + 1/2! + … 的部分和，和它离 e 不到 ε 的 N。"
+              },
+              "role": "finale",
+              "question": {
+                "zh": "一个由无穷多项定义的数，几项才算得准？"
+              },
+              "chain": [
+                { "zh": "把阶乘倒数接进累加。" },
+                { "zh": "对 e 找 N：阶乘长得飞快，N 很小。" }
+              ],
+              "uses": [
+                "sum",
+                "near",
+                "since",
+                "reg",
+                "keep",
+                "recip",
+                "mul",
+                "count",
+                "add",
+                "const",
+                "e",
+                "series"
+              ],
+              "teaches": "e"
+            }
+          ]
+        },
+        {
+          "id": "root-topic",
+          "title": { "zh": "巴比伦开方" },
+          "kind": "topic",
+          "after": "limit",
+          "slots": [
+            {
+              "id": "babylon",
+              "title": { "zh": "巴比伦开方" },
+              "task": {
+                "zh": "从 x₀ = 1 起，交出 xₙ₊₁ = (xₙ + 2/xₙ)/2。"
+              },
+              "role": "intro",
+              "question": {
+                "zh": "只会加、乘和取倒数，怎样逼近 √2？"
+              },
+              "chain": [
+                {
+                  "zh": "猜 x 大了，2/x 就小了；√2 夹在两者之间。"
+                },
+                { "zh": "取两者的平均当下一次的猜测，存回寄存卡。" }
+              ],
+              "uses": ["reg", "keep", "recip", "mul", "add", "const", "recurrence"]
+            },
+            {
+              "id": "babylon-fast",
+              "title": { "zh": "快得多" },
+              "task": {
+                "zh": "交出 |xₙ² − 2| 和它小于 ε 的 N。"
+              },
+              "role": "step",
+              "question": { "zh": "巴比伦的猜测逼近得有多快？" },
+              "chain": [
+                { "zh": "误差用距离量：xₙ² 离 2 多远。" },
+                {
+                  "zh": "和 1/(n+1) 比：ε 缩小十倍，N 几乎不动。"
+                }
+              ],
+              "uses": ["dist", "less", "since", "reg", "keep", "recip", "mul", "add", "const", "limit"]
+            },
+            {
+              "id": "any-root",
+              "title": { "zh": "任意开方" },
+              "task": {
+                "zh": "测试给出正数 c：从 1 起，交出逼近 √c 的猜测。"
+              },
+              "role": "finale",
+              "question": {
+                "zh": "换成别的数，同一台机器还能开方吗？"
+              },
+              "chain": [
+                {
+                  "zh": "把 2 换成输入 c：c 乘 xₙ 的倒数。"
+                },
+                {
+                  "zh": "c 小于 1 时，第一次猜测大了，照样收回来。"
+                }
+              ],
+              "uses": ["reg", "keep", "recip", "mul", "add", "const", "babylonian", "limit"],
+              "teaches": "babylonian"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "parallel": [
+    {
+      "id": "two-ways",
+      "why": {
+        "zh": "求和与差分都只建在寄存卡、递推和下标上，彼此不需要；先做哪一路都行，汇合在互逆。"
+      }
+    },
+    {
+      "id": "three-ways",
+      "why": {
+        "zh": "倒数、比较和「从此一直」各建在第 0 章的元件上，彼此不需要；在极限汇合。"
+      }
+    }
+  ],
+  "requests": [
+    {
+      "id": "numbers",
+      "kind": "domain",
+      "status": "done",
+      "for": ["sum3", "prev", "arith", "count", "square", "double"],
+      "about": {
+        "zh": "值是数，不是位；板上没有线和「说」：只有输入数列和输出。原始元件：加、乘、常数、寄存卡一对。测试写出每个输入每拍的项和每个输出每拍应当的项（物化成数据，不由公式生成）。"
+      },
+      "note": {
+        "zh": "kit/domains/calculus：输入、输出数列两种固定卡，加、乘、常数、寄存卡一对；测试写明每拍的项；常数和初值是任意数（registerCards 的 numbers）。"
+      }
+    },
+    {
+      "id": "dots",
+      "kind": "kernel",
+      "status": "done",
+      "for": ["square", "double", "tri", "tetra", "dsum", "dsq", "ddsq", "ddouble", "inverse"],
+      "about": {
+        "zh": "一种画逐拍数值的显示方式：每一项一个点，横轴是下标、纵轴是值（数列图），和应当的项叠在一起，能一眼看出增长的快慢。"
+      },
+      "note": {
+        "zh": "逐拍的数值多了两种显示方式：逐项（每拍一列写出数）和数列图（每项一个点，应当的项画成圈，同一刻度）；游戏的 views 选用它们。"
+      }
+    },
+    {
+      "id": "tolerance",
+      "kind": "domain",
+      "status": "done",
+      "for": [
+        "recip",
+        "halves",
+        "limit",
+        "ratio",
+        "wobble",
+        "series",
+        "harmonic",
+        "fact",
+        "euler",
+        "babylon",
+        "babylon-fast",
+        "any-root"
+      ],
+      "about": {
+        "zh": "原始元件加上倒数（1/0 给「—」）和比较（a < b 给 1，否则 0）；测试的项按相对误差 10⁻⁹ 对照，运算顺序造成的末位差别不算错。"
+      },
+      "note": {
+        "zh": "kit/domains/calculus：原始元件 recip、less；run.js 的 same 按相对误差 10⁻⁹ 对照。"
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "about": {
+        "zh": "第 2–7 章：取样、导数、积分、基本定理、泰勒、微分方程"
+      },
+      "why": { "zh": "同上；框架在设计文档第 3 节" }
+    }
+  ]
+}

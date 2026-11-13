@@ -1,5 +1,6 @@
 # The kit's unit tests, when kit code changes. They read no real game (games/DESIGN.md), so content changes never
-# run them, and they never hold up a deploy.
+# run them, and they never hold up a deploy. No workflow replays a game: checking kit code against every game's
+# content (the compatibility corpus, games/DIRECTION.md decision 17) is the platform's to run.
 name: Test kit
 
 on:
@@ -32,6 +33,10 @@ jobs:
           cache: npm
           cache-dependency-path: trace-viewer/package-lock.json
       - run: npm ci
+      # Plain mistakes and the layering: no domain imports another, the kernel imports none.
+      - run: npm run lint:kit
+      # Every word the kit's code says has its English in the catalog.
+      - run: npm run words -- --check
       - run: npm test
       # The Unix model's conformance cases against the real kernel.
       - run: npm run conform

@@ -1,26 +1,25 @@
 {
   "domain": "logic",
   "vocabulary": 1,
-  "title": { "zh": "__title__", "en": "__title__" },
-  "kicker": { "zh": "开发中", "en": "In development" },
+  "title": { "zh": "__title__" },
+  "kicker": { "zh": "开发中" },
   "lede": {
-    "zh": "从真值表出发，把一句话接成一块电路，再用搭出的门搭更大的句子。",
-    "en": "Start from truth tables: wire a sentence as a circuit, then build bigger sentences from the gates you made."
+    "zh": "从真值表出发，把一句话接成一块电路，再用搭出的门搭更大的句子。"
   },
   "words": ["everyday"],
   "wordSets": {
     "everyday": {
-      "Rain": { "zh": "下雨", "en": "it rains" },
-      "Wind": { "zh": "刮风", "en": "it is windy" },
-      "Cold": { "zh": "很冷", "en": "it is cold" }
+      "Rain": { "zh": "下雨" },
+      "Wind": { "zh": "刮风" },
+      "Cold": { "zh": "很冷" }
     }
   },
   "primitives": ["gNot", "gAnd"],
   "lemmas": {},
   "gates": {
     "gOr": {
-      "name": { "zh": "或 ∨", "en": "Or ∨" },
-      "desc": { "zh": "a ∨ b：至少一个输入是真，就输出真。", "en": "a ∨ b: outputs true when at least one input is true." },
+      "name": { "zh": "或 ∨" },
+      "desc": { "zh": "a ∨ b：至少一个输入是真，就输出真。" },
       "ports": ["a", "b"]
     }
   },
@@ -30,8 +29,8 @@
       "machine": null,
       "foundation": ["g-not", "g-and", "g-or", "g-use"],
       "chapter": {
-        "title": { "zh": "真值电路", "en": "Truth circuits" },
-        "question": { "zh": "一句话在每一种情况下是真是假，能交给电路去算吗？", "en": "Can a circuit work out whether a sentence is true in every case?" }
+        "title": { "zh": "真值电路" },
+        "question": { "zh": "一句话在每一种情况下是真是假，能交给电路去算吗？" }
       }
     }
   ]

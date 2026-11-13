@@ -10,7 +10,7 @@ export default function PartActions({ onEdit, onMove, onRemove }) {
   return (
     <div className="sheet-actions">
       {onEdit && <button type="button" className="sheet-edit" onClick={onEdit}><Pencil size={15} />{tr('编辑', 'Edit')}</button>}
-      {onMove && <button type="button" className="sheet-move" onClick={onMove}><Move size={15} />{tr('移动', 'Move')}</button>}
+      {onMove && <button type="button" className="sheet-move" onClick={onMove}><Move size={15} />{tr('移动')}</button>}
       {onRemove && <button type="button" className="sheet-remove" onClick={onRemove}><Trash2 size={15} />{tr('删除', 'Delete')}</button>}
     </div>
   )

@@ -1,5 +1,5 @@
 {
-  "title": { "zh": "谁当了祖父母", "en": "Who are grandparents" },
+  "title": { "zh": "谁当了祖父母" },
   "tasks": [
     {
       "id": "q-grand",
@@ -7,12 +7,12 @@
       "consts": ["h", "i", "j", "k", "l", "m", "n"],
       "worlds": [
         {
-          "title": { "zh": "第一家", "en": "The first family" },
+          "title": { "zh": "第一家" },
           "things": ["i", "j", "k", "l", "m"],
           "preds": { "Parent": [["i", "j"], ["i", "k"], ["j", "l"], ["k", "m"]], "School": ["l"] }
         },
         {
-          "title": { "zh": "第二家", "en": "The second family" },
+          "title": { "zh": "第二家" },
           "things": ["i", "j", "k", "l", "m", "n"],
           "preds": {
             "Parent": [["j", "i"], ["i", "k"], ["i", "l"], ["k", "m"], ["l", "n"]],
@@ -20,17 +20,15 @@
           }
         }
       ],
-      "say": { "zh": "x 是某个人的祖父母。", "en": "x is a grandparent of someone." },
+      "say": { "zh": "x 是某个人的祖父母。" },
       "target": "∃y. ∃z. Parent(x, y) ∧ Parent(y, z)",
       "decoys": ["School(x)"],
       "brief": {
-        "zh": "拼一句带着 x 的话，在每一家里，让它正好选中当了祖父母的人。",
-        "en": "Build a sentence with x in it that picks out exactly the grandparents in each family."
+        "zh": "拼一句带着 x 的话，在每一家里，让它正好选中当了祖父母的人。"
       },
       "hint": [
         {
-          "zh": "x 是 y 的父母，y 又是 z 的父母。y 和 z 是谁？存在就行。",
-          "en": "x is a parent of y, and y of z. Who are y and z? Some, that is all."
+          "zh": "x 是 y 的父母，y 又是 z 的父母。y 和 z 是谁？存在就行。"
         }
       ]
     }

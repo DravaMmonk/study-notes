@@ -41,18 +41,18 @@ export default function Bulk({ content, vocabulary, ids, ctx, onAdd, onMove, onS
         <h1>{tr(`${levels.length} 关`, `${levels.length} levels`)}</h1>
         <div className="bulk-ids">{levels.map((l) => <button key={l.id} type="button" className="chip" onClick={() => onSelect({ level: l.id })}>{l.id}</button>)}</div>
         <span className="kit-spacer" />
-        <button type="button" className="kit-btn is-label" onClick={() => onMove(levels.map((l) => l.id))} title={tr('一起移动：点树上的槽位', 'Move together: pick a slot in the tree')}><ArrowRightLeft size={14} aria-hidden="true" /></button>
+        <button type="button" className="kit-btn is-label" onClick={() => onMove(levels.map((l) => l.id))} title={tr('一起移动：点树上的槽位')}><ArrowRightLeft size={14} aria-hidden="true" /></button>
       </header>
       <section className="bulk-step">
-        <select value={key} onChange={(e) => pickField(e.target.value)} aria-label={tr('字段', 'Field')}>
-          <option value="">{tr('字段……', 'Field…')}</option>
+        <select value={key} onChange={(e) => pickField(e.target.value)} aria-label={tr('字段')}>
+          <option value="">{tr('字段……')}</option>
           {fields.map((f) => <option key={f.key} value={f.key}>{f.key}</option>)}
         </select>
         {form && <Field field={form} label={null} onEdit={(path, edit, type) => setValue((v) => setDeep(v, path.slice(1), type === 'text' && edit.set ? { set: { ...getAt(v, path.slice(1)), ...edit.set } } : edit))} ctx={ctx} />}
         {field && (
           <div className="bulk-go">
-            <button type="button" className="kit-btn is-label is-solid" onClick={() => setPlan(bulkSet(vocabulary, levels, [key], value))}>{tr('全部设成这样', 'Set on all')}</button>
-            <button type="button" className="kit-btn is-label" onClick={() => setPlan(bulkUnset(levels, [key]))}>{tr('全部去掉', 'Remove from all')}</button>
+            <button type="button" className="kit-btn is-label is-solid" onClick={() => setPlan(bulkSet(vocabulary, levels, [key], value))}>{tr('全部设成这样')}</button>
+            <button type="button" className="kit-btn is-label" onClick={() => setPlan(bulkUnset(levels, [key]))}>{tr('全部去掉')}</button>
           </div>
         )}
       </section>

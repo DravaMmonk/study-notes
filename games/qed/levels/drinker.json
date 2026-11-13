@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "酒鬼悖论", "en": "The drinker paradox" },
+  "title": { "zh": "酒鬼悖论" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "酒吧里至少有一个人。「∃x. x在喝酒 → ∀y. y在喝酒」说的是：有这么一个人，只要他喝酒，大家就都在喝。",
-        "en": "There is at least one person in the pub. “∃x. x is drinking → ∀y. y is drinking” says: there is someone such that, if they drink, everyone drinks."
+        "zh": "酒吧里至少有一个人。「∃x. x在喝酒 → ∀y. y在喝酒」说的是：有这么一个人，只要他喝酒，大家就都在喝。"
       }
     }
   ],
   "after": {
-    "zh": "听着荒唐，却是经典逻辑的定理：证明说有这么一个人，却不指出是谁。",
-    "en": "It sounds absurd, yet it is a theorem of classical logic: the proof says such a person exists without saying who."
+    "zh": "听着荒唐，却是经典逻辑的定理：证明说有这么一个人，却不指出是谁。"
   },
   "tasks": [
     {
@@ -20,10 +18,9 @@
       "tests": [{ "goal": "∃x. D(x) → ∀y. D(y)" }],
       "cases": [{ "D": "Drinks" }, { "D": "Sings" }],
       "hint": [
-        { "zh": "别急着找那个人。先问：是不是大家都在喝？", "en": "Do not look for that person yet. Ask first: is everyone drinking?" },
+        { "zh": "别急着找那个人。先问：是不是大家都在喝？" },
         {
-          "zh": "不是大家都在喝时，<part-ref to=\"lemma:dm\"></part-ref>能给出什么？",
-          "en": "If not everyone is drinking, what does <part-ref to=\"lemma:dm\"></part-ref> give?"
+          "zh": "不是大家都在喝时，<part-ref to=\"lemma:dm\"></part-ref>能给出什么？"
         }
       ],
       "solution": [

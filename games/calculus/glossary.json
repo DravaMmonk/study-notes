@@ -1,0 +1,282 @@
+{
+  "groups": [{ "id": "sequences", "title": { "zh": "数列" } }],
+  "entries": [
+    {
+      "id": "sequence",
+      "group": "sequences",
+      "title": { "zh": "数列" },
+      "at": "sum3",
+      "body": [
+        {
+          "zh": "按顺序排好的一串数 a₀, a₁, a₂, …，第 n 个叫第 n 项，n 叫下标。这台机器第 n 拍算出第 n 项，所以拍数就是下标，从 0 数起。"
+        },
+        {
+          "zh": "两个数列逐项相加（或相乘），得到的仍是数列：它的第 n 项只取决于两者的第 n 项。"
+        }
+      ],
+      "see": ["index"]
+    },
+    {
+      "id": "shift",
+      "group": "sequences",
+      "title": { "zh": "下标平移" },
+      "at": "prev",
+      "body": [
+        {
+          "zh": "把数列整体挪一项：aₙ₋₁ 在第 n 拍交出原数列的第 n − 1 项，第一拍交出约定的初值。它让一项能用上前一项。"
+        }
+      ],
+      "see": ["recurrence"]
+    },
+    {
+      "id": "recurrence",
+      "group": "sequences",
+      "title": { "zh": "递推" },
+      "at": "arith",
+      "body": [
+        {
+          "zh": "用首项和「怎样由上一项算出这一项」来给出数列，例如 a₀ = 3，aₙ = aₙ₋₁ + 2。有限的一条规则，定出无穷多项。"
+        },
+        {
+          "zh": "在板上，首项是读寄存卡的初值，规则是接进存寄存卡的那段电路。"
+        }
+      ],
+      "see": ["shift", "arithmetic", "geometric"]
+    },
+    {
+      "id": "arithmetic",
+      "group": "sequences",
+      "title": { "zh": "等差数列" },
+      "at": "arith",
+      "body": [
+        {
+          "zh": "每一项比上一项多同一个数（公差 d）：aₙ = aₙ₋₁ + d，通项 aₙ = a₀ + n·d。"
+        }
+      ],
+      "see": ["geometric"]
+    },
+    {
+      "id": "index",
+      "group": "sequences",
+      "title": { "zh": "下标" },
+      "at": "count",
+      "body": [
+        {
+          "zh": "一项在数列里的位置 n。下标本身也是数列 0, 1, 2, …：首项 0、每项加 1 的递推。通项公式以它为自变量。"
+        }
+      ],
+      "see": ["general-term"]
+    },
+    {
+      "id": "general-term",
+      "group": "sequences",
+      "title": { "zh": "通项公式" },
+      "at": "square",
+      "body": [
+        {
+          "zh": "把第 n 项直接写成 n 的式子 aₙ = f(n)，例如 aₙ = n²。它不经过前面的项，任何一项都能单独算出。"
+        },
+        {
+          "zh": "同一个数列常常既有递推又有通项：等差数列 aₙ = aₙ₋₁ + 2 也就是 aₙ = 3 + 2n。"
+        }
+      ],
+      "see": ["recurrence"]
+    },
+    {
+      "id": "geometric",
+      "group": "sequences",
+      "title": { "zh": "等比数列" },
+      "at": "double",
+      "body": [
+        {
+          "zh": "每一项是上一项乘同一个数（公比 r）：aₙ = r·aₙ₋₁，通项 aₙ = a₀·rⁿ。r > 1 时它比任何等差数列长得都快。"
+        }
+      ],
+      "see": ["arithmetic"]
+    },
+    {
+      "id": "partial-sum",
+      "group": "sequences",
+      "title": { "zh": "部分和" },
+      "at": "sum",
+      "body": [
+        {
+          "zh": "数列到第 n 项为止的和 Sₙ = a₀ + a₁ + … + aₙ。部分和本身是数列，由递推 Sₙ = Sₙ₋₁ + aₙ 算出：寄存卡里只需记着到上一项为止的和。"
+        },
+        {
+          "zh": "把一个数列的各项一直加下去叫级数；级数是什么，就看它的部分和这个数列。"
+        }
+      ],
+      "see": ["difference", "inverse"]
+    },
+    {
+      "id": "difference",
+      "group": "sequences",
+      "title": { "zh": "差分" },
+      "at": "diff",
+      "body": [
+        {
+          "zh": "Δaₙ = aₙ − aₙ₋₁：数列每一步变了多少（这里约定 a₋₁ = 0）。变大为正，变小为负，不变为 0。"
+        },
+        {
+          "zh": "多项式的数列每差分一次降一次：平方数差一次是奇数，再差一次是常数。"
+        }
+      ],
+      "see": ["partial-sum", "inverse"]
+    },
+    {
+      "id": "inverse",
+      "group": "sequences",
+      "title": { "zh": "求和与差分互逆" },
+      "at": "inverse",
+      "body": [
+        {
+          "zh": "先累加再差分，或先差分再累加，都回到原数列（约定 a₋₁ = 0、和从 0 起）。所以只知道一个数列的差分，或只知道它的部分和，都能把它找回来。"
+        },
+        {
+          "zh": "这是微积分基本定理的离散形式：在连续的世界里，求和变成积分，差分变成导数。"
+        }
+      ],
+      "see": ["partial-sum", "difference"]
+    },
+    {
+      "id": "infinitesimal",
+      "group": "sequences",
+      "title": { "zh": "无穷小" },
+      "at": "recip",
+      "body": [
+        {
+          "zh": "越来越接近 0 的数列，如 1/(n+1)、1/2ⁿ：每一项都不是 0，却能小过任何给定的正数。它不是一个很小的数，而是一个数列的走向。"
+        }
+      ],
+      "see": ["limit"]
+    },
+    {
+      "id": "inequality",
+      "group": "sequences",
+      "title": { "zh": "比较" },
+      "at": "max",
+      "body": [
+        {
+          "zh": "a < b 的真假写成 1 和 0，就是一个数列。乘上去，就能在两个数里挑一个：max(a, b) = a + [a < b]·(b − a)，方括号是真为 1、假为 0。"
+        }
+      ],
+      "see": ["distance"]
+    },
+    {
+      "id": "distance",
+      "group": "sequences",
+      "title": { "zh": "距离" },
+      "at": "dist",
+      "body": [
+        {
+          "zh": "|a − b|：数轴上两点隔多远，不看谁在左边。它是 a − b 和 b − a 里较大的那个，从不为负，只在 a = b 时为 0。"
+        }
+      ],
+      "see": ["neighbourhood"]
+    },
+    {
+      "id": "neighbourhood",
+      "group": "sequences",
+      "title": { "zh": "邻域" },
+      "at": "near",
+      "body": [
+        {
+          "zh": "离 L 不到 ε 的所有数，|x − L| < ε，叫 L 的 ε 邻域。ε 是事先说好的「多近才算近」，取多小都可以，但必须大于 0。"
+        }
+      ],
+      "see": ["distance", "limit"]
+    },
+    {
+      "id": "eventually",
+      "group": "sequences",
+      "title": { "zh": "从某项起" },
+      "at": "since",
+      "body": [
+        {
+          "zh": "一件事从某一项起一直成立，前面有几项不成立也不要紧。板只跑有限拍：在这些拍以内，那一项就是最近一段连续成立的开头。"
+        }
+      ],
+      "see": ["limit"]
+    },
+    {
+      "id": "limit",
+      "group": "sequences",
+      "title": { "zh": "极限" },
+      "at": "limit",
+      "body": [
+        {
+          "zh": "数列 aₙ 趋于 L：不管 ε 多小，总有一项 N，从它起每一项都在 L 的 ε 邻域里。L 叫数列的极限，记作 lim aₙ = L。"
+        },
+        {
+          "zh": "这个定义不要求哪一项等于 L，也不要求越来越近；只要求「从某项起一直够近」，而「够近」由别人随便挑。机器只能跑有限拍，所以它找到的 N 只在这些拍以内成立，不是证明。"
+        }
+      ],
+      "see": ["neighbourhood", "eventually", "divergence"]
+    },
+    {
+      "id": "divergence",
+      "group": "sequences",
+      "title": { "zh": "发散" },
+      "at": "diverge",
+      "body": [
+        {
+          "zh": "找不到任何 L 让数列趋于它，数列就发散。(−1)ⁿ 从不跑远，仍然发散：不管 L 取几，ε 取 1/2，N 总被往后推。"
+        }
+      ],
+      "see": ["limit"]
+    },
+    {
+      "id": "series",
+      "group": "sequences",
+      "title": { "zh": "级数收敛" },
+      "at": "series",
+      "body": [
+        {
+          "zh": "无穷多项 a₀ + a₁ + … 相加的值，定义为部分和 Sₙ 的极限。部分和有极限，就说级数收敛，那个极限就是它的和：1 + 1/2 + 1/4 + … = 2。"
+        }
+      ],
+      "see": ["partial-sum", "harmonic"]
+    },
+    {
+      "id": "harmonic",
+      "group": "sequences",
+      "title": { "zh": "调和级数" },
+      "at": "harmonic",
+      "body": [
+        {
+          "zh": "1 + 1/2 + 1/3 + …：每一项都趋于 0，部分和却越过任何界，所以发散。它长得极慢，前一百项的和才约 5.19。"
+        },
+        {
+          "zh": "所以项趋于 0 只是级数收敛的必要条件，不是充分条件。"
+        }
+      ],
+      "see": ["series", "divergence"]
+    },
+    {
+      "id": "e",
+      "group": "sequences",
+      "title": { "zh": "自然常数 e" },
+      "at": "euler",
+      "body": [
+        {
+          "zh": "e = 1 + 1/1! + 1/2! + 1/3! + … ≈ 2.718281828。阶乘长得极快，这个级数几项就准到小数点后好几位。"
+        }
+      ],
+      "see": ["series"]
+    },
+    {
+      "id": "babylonian",
+      "group": "sequences",
+      "title": { "zh": "巴比伦开方" },
+      "at": "any-root",
+      "body": [
+        {
+          "zh": "xₙ₊₁ = (xₙ + c/xₙ)/2 从任意正数起趋于 √c：猜得大了，c/xₙ 就小了，平均两者。误差每步大约平方一次，有效数字一步翻一倍。"
+        },
+        { "zh": "它是牛顿法用在 x² − c = 0 上的一个特例。" }
+      ],
+      "see": ["limit"]
+    }
+  ]
+}

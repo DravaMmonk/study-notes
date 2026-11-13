@@ -21,6 +21,7 @@ import { auditBlueprint, conformance } from './blueprint.js'
 import { lintCopy } from './lint.js'
 import { lintPedagogy } from './pedagogy.js'
 import { reviewTerminology } from './terminology.js'
+import { translationState, textsIn } from '../engine/i18n.js'
 
 export const GAMES_DIR = resolve(import.meta.dirname, '../..')
 const finding = (rule, at, says) => ({ rule, at, says })
@@ -81,7 +82,7 @@ export const STEPS = [
     role: 'engineer',
     gate: async (id) => {
       const content = readContent(id)
-      const open = (content.blueprint?.requests ?? []).filter((r) => r.status === 'open').map((r) => finding('request-open', r.id, r.about.en ?? r.about))
+      const open = (content.blueprint?.requests ?? []).filter((r) => r.status === 'open').map((r) => finding('request-open', r.id, r.about.zh ?? r.about))
       const domain = await domainOf(content)
       const spec = domain.spec(content)
       const contract = [...domainProblems(content.domain, domain), ...specProblems(domain, content, spec), ...(await validateProblems(domain, content, spec)).problems].map((p) => finding('contract', content.domain, p))
@@ -133,12 +134,33 @@ export const STEPS = [
     },
   },
   {
+    // Translation is its own work (games/DIRECTION.md, decision 20): it follows the copy, holds nothing up (`aside`:
+    // the queue does not wait for it) and is asked for a language at a time (run translate --scope <lang>).
+    id: 'translate',
+    who: 'agent',
+    role: 'translator',
+    aside: true,
+    commands: ['op', 'check', 'gate'],
+    gate: async (id) => {
+      const content = readContent(id)
+      const texts = new Set(textsIn({ ...content, i18n: undefined, blueprint: undefined }))
+      const state = translationState(content)
+      return {
+        failures: state.flatMap(({ lang, wrong }) => wrong.map((w) => finding('i18n-wrong', `${lang}: ${w.from.slice(0, 40)}`, w.why))),
+        reports: state.flatMap(({ lang, translated, unused }) => [
+          ...(translated < texts.size ? [finding('i18n-missing', lang, `${texts.size - translated} of ${texts.size} texts read in the base language`)] : []),
+          ...(unused ? [finding('i18n-unused', lang, `${unused} entries no text reads any more`)] : []),
+        ]),
+      }
+    },
+  },
+  {
     id: 'queue',
     who: 'pipeline',
     role: 'pipeline',
     gate: async (id, state) => {
       const failures = []
-      for (const step of STEPS.filter((s) => s.id !== 'queue')) {
+      for (const step of STEPS.filter((s) => s.id !== 'queue' && !s.aside)) {
         const { failures: f } = await step.gate(id, state)
         failures.push(...f.map((x) => ({ ...x, rule: `${step.id}:${x.rule}` })))
       }

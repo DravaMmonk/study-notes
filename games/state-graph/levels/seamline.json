@@ -1,34 +1,30 @@
 {
-  "title": { "zh": "一根柱子", "en": "A single column" },
-  "short": { "zh": "能量一路加下来", "en": "Energy, added all the way down" },
+  "title": { "zh": "一根柱子" },
+  "short": { "zh": "能量一路加下来" },
   "intro": [
     {
       "t": {
-        "zh": "一张图只有 1 像素宽。每个像素有一个<b>能量</b>，写在格子左上角：越显眼的像素能量越高。",
-        "en": "A picture just 1 pixel wide. Every pixel has an <b>energy</b>, written in its cell’s top-left corner: the more it stands out, the higher its energy."
+        "zh": "一张图只有 1 像素宽。每个像素有一个<b>能量</b>，写在格子左上角：越显眼的像素能量越高。"
       }
     },
     {
       "t": {
-        "zh": "一条<b>缝</b>从顶走到底，每行经过一个像素。缝的能量是它经过的像素的能量之和。",
-        "en": "A <b>seam</b> runs from the top to the bottom, through one pixel in each row. A seam’s energy is the total energy of the pixels it passes through."
+        "zh": "一条<b>缝</b>从顶走到底，每行经过一个像素。缝的能量是它经过的像素的能量之和。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "这条缝从顶走到底，能量一共是多少？每格存「从顶走到这里的能量」。",
-      "en": "What is the total energy of the seam from top to bottom? Each cell holds “the energy from the top down to here”."
+      "zh": "这条缝从顶走到底，能量一共是多少？每格存「从顶走到这里的能量」。"
     },
-    "how": { "zh": "逐行，从顶行往下算。", "en": "Row by row, from the top down." }
+    "how": { "zh": "逐行，从顶行往下算。" }
   },
   "robot": "scout",
   "debrief": {
-    "title": { "zh": "一路加下来", "en": "Added all the way down" },
+    "title": { "zh": "一路加下来" },
     "body": [
       {
-        "zh": "一根柱子只有一条缝，表只是把能量一格格加下来。",
-        "en": "A single column has only one seam, and the table just adds the energy down cell by cell."
+        "zh": "一根柱子只有一条缝，表只是把能量一格格加下来。"
       }
     ]
   },
@@ -39,10 +35,9 @@
       "checkAll": true,
       "hints": [
         {
-          "zh": "到这一格的能量 = 到上一格的能量 + 这一格自己的能量。",
-          "en": "The energy down to this cell = the energy down to the cell above + this cell’s own."
+          "zh": "到这一格的能量 = 到上一格的能量 + 这一格自己的能量。"
         },
-        { "zh": "顶行上面什么也没有：在顶行送一个 0 进去。", "en": "Above the top row there is nothing: feed a 0 in on the top row." }
+        { "zh": "顶行上面什么也没有：在顶行送一个 0 进去。" }
       ],
       "world": "pic",
       "facts": ["energy", "top"],

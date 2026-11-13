@@ -1,35 +1,31 @@
 {
-  "title": { "zh": "杨辉三角", "en": "Pascal’s triangle" },
-  "short": { "zh": "表换了形状", "en": "A table of another shape" },
+  "title": { "zh": "杨辉三角" },
+  "short": { "zh": "表换了形状" },
   "intro": [
     {
       "t": {
-        "zh": "砖块一层层摆成三角形：第 1 层 1 块，第 2 层 2 块……从最顶上那块出发，每一步走到正下方或右下方的砖。",
-        "en": "Bricks are stacked in a triangle: 1 brick in row 1, 2 in row 2, and so on. Starting from the top brick, each step goes to the brick right below or below-right."
+        "zh": "砖块一层层摆成三角形：第 1 层 1 块，第 2 层 2 块……从最顶上那块出发，每一步走到正下方或右下方的砖。"
       }
     },
     {
       "t": {
-        "zh": "表的形状也变成了三角形：每一层只有那么几格。",
-        "en": "The table becomes a triangle too: each row has only so many cells."
+        "zh": "表的形状也变成了三角形：每一层只有那么几格。"
       }
     }
   ],
   "mission": {
-    "goal": { "zh": "走到最后一层的指定那块砖，一共有几条路？", "en": "How many ways are there down to the given brick of the last row?" },
-    "how": { "zh": "一层一层、从左往右算。", "en": "Row by row, left to right." }
+    "goal": { "zh": "走到最后一层的指定那块砖，一共有几条路？" },
+    "how": { "zh": "一层一层、从左往右算。" }
   },
   "robot": "scout",
   "debrief": {
-    "title": { "zh": "杨辉三角", "en": "Pascal’s triangle" },
+    "title": { "zh": "杨辉三角" },
     "body": [
       {
-        "zh": "每块砖的数 = 正上方 + 左上方。这就是杨辉三角，也是「从 n 个里选 k 个」的方法数。",
-        "en": "Each brick’s number = right above + up-left. This is Pascal’s triangle, and also the number of ways to choose k things out of n."
+        "zh": "每块砖的数 = 正上方 + 左上方。这就是杨辉三角，也是「从 n 个里选 k 个」的方法数。"
       },
       {
-        "zh": "表不一定是方的：只要每格知道自己的来路，什么形状都能填。",
-        "en": "A table need not be square: any shape can be filled, as long as each cell knows its ways in."
+        "zh": "表不一定是方的：只要每格知道自己的来路，什么形状都能填。"
       }
     ]
   },
@@ -41,19 +37,16 @@
         {
           "when": { "uses": "left" },
           "say": {
-            "zh": "往下走只会到正下方或右下方，所以来路在上一层：正上方和左上方。",
-            "en": "Moving down only reaches the brick below or below-right, so the ways in are on the row above: right above and up-left."
+            "zh": "往下走只会到正下方或右下方，所以来路在上一层：正上方和左上方。"
           }
         }
       ],
       "hints": [
         {
-          "zh": "只看最后一步：走到这块砖之前，你在哪一块上？",
-          "en": "Look only at the last step: before reaching this brick, which brick were you on?"
+          "zh": "只看最后一步：走到这块砖之前，你在哪一块上？"
         },
         {
-          "zh": "三角形左边缘和右边缘的砖，只有一块砖能走过来，另一边是「—」。",
-          "en": "Bricks on the triangle’s left and right edges can be reached from one brick only; the other side is “—”."
+          "zh": "三角形左边缘和右边缘的砖，只有一块砖能走过来，另一边是「—」。"
         }
       ],
       "world": "tri",

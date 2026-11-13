@@ -1,20 +1,20 @@
 {
-  "title": { "zh": "倒两次", "en": "Reversed twice" },
+  "title": { "zh": "倒两次" },
   "tray": "machine",
-  "after": { "zh": "这是 Isabelle 教程里的第一个定理。", "en": "This is the first theorem of the Isabelle tutorial." },
+  "after": { "zh": "这是 Isabelle 教程里的第一个定理。" },
   "tasks": [
     {
       "id": "in-revrev",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["list"],
       "defs": ["app", "len", "rev"],
       "tests": [{ "goal": "∀xs. rev(rev(xs)) = xs" }],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "化简卡在 rev (rev xs ++ [x]) 上。", "en": "Simp gets stuck on rev (rev xs ++ [x])." }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "化简卡在 rev (rev xs ++ [x]) 上。" }],
       "solution": [
         "c0r0 = math[use=[\"list.induct\"]]()",
         "c0 = rule(in, c0r0)",

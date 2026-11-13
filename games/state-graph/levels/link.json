@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "连线不交叉", "en": "Lines that never cross" },
-  "short": { "zh": "找出两串字共同的部分", "en": "Find what two strings share" },
+  "title": { "zh": "连线不交叉" },
+  "short": { "zh": "找出两串字共同的部分" },
   "intro": [
     {
       "t": {
-        "zh": "新的一章：比较两串文字。在两串字里<b>按顺序</b>都出现过的一串字，叫作它们的<b>公共子序列</b>。比如 ABCD 和 ACBD 里，A、B、D 就是一个。",
-        "en": "A new chapter: comparing two strings. A sequence of letters that appears <b>in order</b> in both strings is called a <b>common subsequence</b>. In ABCD and ACBD, for example, A, B, D is one."
+        "zh": "新的一章：比较两串文字。在两串字里<b>按顺序</b>都出现过的一串字，叫作它们的<b>公共子序列</b>。比如 ABCD 和 ACBD 里，A、B、D 就是一个。"
       },
       "fig": {
         "scene": {
@@ -29,14 +28,12 @@
     },
     {
       "t": {
-        "zh": "找公共子序列可以用连线：上下两个字相同，就连一根线。规则有三条：<b>只能连相同的字；每个字最多连一根线；线不能交叉。</b>",
-        "en": "You can find a common subsequence by drawing lines: link a top letter to an equal bottom letter. There are three rules: <b>only link equal letters; each letter takes at most one line; lines can’t cross.</b>"
+        "zh": "找公共子序列可以用连线：上下两个字相同，就连一根线。规则有三条：<b>只能连相同的字；每个字最多连一根线；线不能交叉。</b>"
       }
     },
     {
       "t": {
-        "zh": "为什么不能交叉？交叉说明这两个字在上面的顺序，和在下面的顺序是反的，读出来就不是同一串了。",
-        "en": "Why can’t they cross? Crossing lines mean the two letters come in one order on top and the opposite order below, so reading them off wouldn’t give the same sequence."
+        "zh": "为什么不能交叉？交叉说明这两个字在上面的顺序，和在下面的顺序是反的，读出来就不是同一串了。"
       },
       "fig": {
         "scene": {
@@ -59,36 +56,30 @@
     },
     {
       "t": {
-        "zh": "连上的线越多，公共子序列就越长。目标：<b>连出尽可能多的线。</b>",
-        "en": "The more lines, the longer the common subsequence. Your goal: <b>draw as many lines as you can.</b>"
+        "zh": "连上的线越多，公共子序列就越长。目标：<b>连出尽可能多的线。</b>"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "两道题里，都连出最多的线。只能连相同的字，每个字最多连一根线，线不能交叉。",
-      "en": "In both puzzles, draw as many lines as possible. Only link equal letters, each letter takes at most one line, and lines can’t cross."
+      "zh": "两道题里，都连出最多的线。只能连相同的字，每个字最多连一根线，线不能交叉。"
     },
     "how": {
-      "zh": "先点一个字，再点另一行里相同的字，就连上一根线。点一个已经连线的字，可以拆掉它的线。",
-      "en": "Click a letter, then the same letter in the other row, to draw a line. Click a letter that already has a line to remove it."
+      "zh": "先点一个字，再点另一行里相同的字，就连上一根线。点一个已经连线的字，可以拆掉它的线。"
     }
   },
   "debrief": {
-    "title": { "zh": "最长公共子序列", "en": "Longest common subsequence" },
+    "title": { "zh": "最长公共子序列" },
     "body": [
       {
-        "zh": "你连出的线，从左往右读，就是两串字共有的一串，叫作<b>公共子序列</b>。最多能连几根，就是<wiki-ref to=\"lcs\"></wiki-ref>的长度。",
-        "en": "Read from left to right, the lines you drew spell out a sequence both strings share: a <b>common subsequence</b>. The most lines you can draw is the length of the <wiki-ref to=\"lcs\"></wiki-ref>."
+        "zh": "你连出的线，从左往右读，就是两串字共有的一串，叫作<b>公共子序列</b>。最多能连几根，就是<wiki-ref to=\"lcs\"></wiki-ref>的长度。"
       },
       {
-        "zh": "它的用途很多：比较两份文件改了哪里、比对两段 DNA 有多像、判断两份作业是不是抄的。",
-        "en": "It has many uses: finding what changed between two versions of a file, measuring how alike two stretches of DNA are, telling whether one homework was copied from another."
+        "zh": "它的用途很多：比较两份文件改了哪里、比对两段 DNA 有多像、判断两份作业是不是抄的。"
       }
     ],
     "note": {
-      "zh": "公共子序列：两串字里，按顺序都出现的一串。连线不能交叉。",
-      "en": "Common subsequence: letters that appear in order in both strings. The lines can’t cross."
+      "zh": "公共子序列：两串字里，按顺序都出现的一串。连线不能交叉。"
     }
   },
   "tasks": [
@@ -98,12 +89,10 @@
       "tests": [{ "a": "CABD", "b": "ABCD" }, { "a": "ABCBDAB", "b": "BDCABA" }],
       "hints": [
         {
-          "zh": "先别连 C。C 在上面排第一，在下面排第三，连了它，A 和 B 就都连不上了。",
-          "en": "Leave C alone for now. C is first on top but third below, so linking it blocks both A and B."
+          "zh": "先别连 C。C 在上面排第一，在下面排第三，连了它，A 和 B 就都连不上了。"
         },
         {
-          "zh": "目标是 4 根。B、C、B、A 是一种连法，B、D、A、B 是另一种。",
-          "en": "The target is 4 lines. B, C, B, A is one way; B, D, A, B is another."
+          "zh": "目标是 4 根。B、C、B、A 是一种连法，B、D、A、B 是另一种。"
         }
       ]
     }

@@ -9,6 +9,8 @@
 // definitions it uses (by name, course.js) }; terms are written
 // as everywhere (u … z, xs, ys, zs variables; schematic.js). The equations (`equations`) are what later levels get by
 // the function's name (course.js).
+import { cases, hidden, inOrder, property, sameAs } from '../../engine/judge.js'
+import { sayTerm } from './notation.js'
 import { parseS, parseSide } from './schematic.js'
 import { T } from '../../shell/i18n.js'
 
@@ -70,38 +72,41 @@ export function evaluate(text, eqs) {
 const callsIn = (t, fn) => (isVar(t) ? [] : [...(t.f === fn ? [t] : []), ...t.args.flatMap((a) => callsIn(a, fn))])
 // The variables strictly inside a pattern (not the pattern itself).
 const inside = (p) => (isVar(p) ? [] : p.args.flatMap((a) => (isVar(a) ? [a.name] : [...inside(a)])))
-/** Whether every call of the function on a right side takes apart a smaller argument; the first row that does not. */
-export function smaller(level, picks) {
-  const bad = level.rows.findIndex((row, k) => {
+/** The first recursive row whose call does not take apart a smaller argument. */
+function nondecreasingRow(level, picks) {
+  return level.rows.findIndex((row, k) => {
     const lhs = parseSide(row.lhs)
     const calls = callsIn(parseSide(picks[k]), level.fn)
     if (level.on == null) return calls.length > 0
     const room = inside(lhs.args[level.on])
     return calls.some((c) => !isVar(c.args[level.on]) || !room.includes(c.args[level.on].name))
   })
-  return { pass: bad < 0, row: bad }
 }
 
-/**
- * Every check, the tests and then the recursion: { pass, rows: [{ kind: 'test', test, got: { value } | { loops },
- * pass } … { kind: 'smaller', pass, row }] }. Before every row is picked there is nothing to check.
- */
-export function checkDefine(level, picks) {
-  // The definitions it builds on (the level's `defs`), then its own rows.
-  const eqs = [...(level.defs ?? []), ...equations(level, picks)]
-  const rows = [
-    ...level.tests.map((test) => {
-      const got = evaluate(test.term, eqs)
-      return { kind: 'test', test, got, pass: Boolean(got.value) && key(got.value) === key(parseSide(test.value)) }
-    }),
-    { kind: 'smaller', ...smaller(level, picks) },
-  ]
-  return { pass: rows.every((r) => r.pass), rows }
-}
-
-/** Why a row failed, in words, for the verdict. */
-export function whyNot(row, say) {
-  if (row.kind === 'smaller') return T(`第 ${row.row + 1} 行的右边又用到了这个函数，可拆的那个参数没有变小：这样的定义可能永远算不完`, `Row ${row.row + 1} calls the function again on an argument that is no smaller: such a definition may never finish`)
-  if (row.got.loops) return T(`算 ${say(row.test.term).zh}，${BUDGET} 步还没算完`, `Working out ${say(row.test.term).en}, ${BUDGET} steps did not finish`)
-  return T(`${say(row.test.term).zh} 应当算出 ${say(row.test.value).zh}`, `${say(row.test.term).en} should work out to ${say(row.test.value).en}`)
+export function checkDefine(level) {
+  const complete = property(
+    (picks) => picks.every(Boolean) && picks.length === level.rows.length,
+    () => ({ why: T('每一行的右边都须写完', 'Every row needs a whole right side') }),
+  )
+  const say = (term) => sayTerm(term, level.notation)
+  const examples = hidden(cases(level.tests, (eqs, test) => {
+    const got = evaluate(test.term, eqs)
+    const term = say(parseSide(test.term))
+    if (got.loops) return {
+      why: T(`算 ${term.zh}，${BUDGET} 步还没算完`, `Working out ${term.en}, ${BUDGET} steps did not finish`),
+    }
+    return sameAs(parseSide(test.value), {
+      same: (want, got) => key(want) === key(got),
+      why: () => ({ subject: term, relation: 'evaluates', show: say }),
+    })(got.value)
+  }))
+  const termination = property((row) => row < 0, (row) => ({
+    at: { row, slot: 0 },
+    why: T(`第 ${row + 1} 行的右边又用到了这个函数，可拆的那个参数没有变小：这样的定义可能永远算不完`, `Row ${row + 1} calls the function again on an argument that is no smaller: such a definition may never finish`),
+  }))
+  return inOrder(
+    complete,
+    (picks) => examples([...(level.defs ?? []), ...equations(level, picks)]),
+    (picks) => termination(nondecreasingRow(level, picks)),
+  )
 }

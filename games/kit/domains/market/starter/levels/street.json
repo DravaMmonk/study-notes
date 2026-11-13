@@ -1,0 +1,129 @@
+{
+  "title": {
+    "zh": "看不见的手"
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "现在把调价器放到街上。街上的需求它一个数也读不到，每天只看得到昨天的价格、剩下的和没买到的。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "没有人告诉它出清价格是多少，它一天天调，自己走到了那里；行情变了，它又跟过去。这种一步步试出来的办法叫<wiki-ref to=\"tatonnement\"></wiki-ref>。"
+  },
+  "tasks": [
+    {
+      "id": "street",
+      "brief": {
+        "zh": "每条街开张 30 天。最后一天，剩下的和没买到的都要不到 1。"
+      },
+      "inputs": [
+        {
+          "name": "was",
+          "label": {
+            "zh": "昨天的价格"
+          }
+        },
+        {
+          "name": "left",
+          "label": {
+            "zh": "剩下"
+          }
+        },
+        {
+          "name": "short",
+          "label": {
+            "zh": "没买到"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "price",
+          "label": {
+            "zh": "价格"
+          },
+          "view": "dots"
+        }
+      ],
+      "tests": [
+        {
+          "shops": [
+            {
+              "stock": 20,
+              "top": 60,
+              "slope": 2,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        },
+        {
+          "shops": [
+            {
+              "stock": 15,
+              "top": 105,
+              "slope": 3,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        },
+        {
+          "shops": [
+            {
+              "stock": 12,
+              "top": 40,
+              "slope": 4,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        }
+      ],
+      "hidden": [
+        {
+          "shops": [
+            {
+              "stock": 20,
+              "top": 47,
+              "slope": 2,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        },
+        {
+          "shops": [
+            {
+              "stock": 30,
+              "top": 78,
+              "slope": 4,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        },
+        {
+          "shops": [
+            {
+              "stock": 10,
+              "top": 60,
+              "slope": 1,
+              "open": 10
+            }
+          ],
+          "ticks": 60
+        }
+      ],
+      "solution": [
+        "a = pricer(was, left, short)",
+        "price <- a"
+      ],
+      "naive": [
+        "price <- was"
+      ]
+    }
+  ]
+}

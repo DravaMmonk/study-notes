@@ -125,7 +125,7 @@ export default function GridInspector({ value, label, note, view, showSize = tru
       <strong>({active.x}, {active.y})</strong>
       {inspectPixel?inspectPixel(active.x,active.y):<><span>{raw(pixel(value, active.x, active.y))}</span>
       {explainPixel && <span className="gv-popover-calc">{explainPixel(active.x, active.y)}</span>}</>}
-      {(range[0] < 0 || range[1] > 1) && <small>{tr('显示亮度限制为 0–1，数值保持原样。', 'Display brightness is limited to 0–1; values are unchanged.')}</small>}
+      {(range[0] < 0 || range[1] > 1) && <small>{tr('显示亮度限制为 0–1，数值保持原样。')}</small>}
     </div>,document.body)}
   </figure>
 }

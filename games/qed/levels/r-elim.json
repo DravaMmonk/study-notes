@@ -1,18 +1,16 @@
 {
-  "title": { "zh": "规则作用于假设", "en": "A rule, then a given" },
+  "title": { "zh": "规则作用于假设" },
   "tray": "machine",
   "builds": "erule",
   "intro": [
     {
       "t": {
-        "zh": "到这里用过的规则都看目标：结论对上目标，前提成为新目标。拆解写成规则是 ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C：结论 ?C 对得上任何目标，第一条前提 ?A ∧ ?B 却无法从目标读出，成了一个全是 ? 的目标。",
-        "en": "The rules used so far all look at the goal: the conclusion fits it, the premises become new goals. Split as a rule is ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C: its conclusion ?C fits any goal, but its first premise ?A ∧ ?B cannot be read off the goal, and becomes a goal made of ?-letters."
+        "zh": "到这里用过的规则都看目标：结论对上目标，前提成为新目标。拆解写成规则是 ⟦?A ∧ ?B; ⟦?A; ?B⟧ ⟹ ?C⟧ ⟹ ?C：结论 ?C 对得上任何目标，第一条前提 ?A ∧ ?B 却无法从目标读出，成了一个全是 ? 的目标。"
       }
     },
     {
       "t": {
-        "zh": "规则从板上的「规则」输入接入；设计出的证明助手会成为新元件<part-ref to=\"lemma:erule\"></part-ref>，这个输入就是它的「规则」口。",
-        "en": "The rules come in at the board’s input Rules; the proof assistant you design becomes a new part, <part-ref to=\"lemma:erule\"></part-ref>, and that input is its port Rules."
+        "zh": "规则从板上的「规则」输入接入；设计出的证明助手会成为新元件<part-ref to=\"lemma:erule\"></part-ref>，这个输入就是它的「规则」口。"
       }
     }
   ],
@@ -22,8 +20,8 @@
       "kind": "machine",
       "want": "becomes",
       "inputs": [
-        { "name": "in", "label": { "zh": "目标", "en": "Goal" } },
-        { "name": "rules", "label": { "zh": "规则", "en": "Rules" } }
+        { "name": "in", "label": { "zh": "目标" } },
+        { "name": "rules", "label": { "zh": "规则" } }
       ],
       "tests": [
         {
@@ -41,14 +39,12 @@
         }
       ],
       "brief": {
-        "zh": "设计一个证明助手：拆开「并且」那条已知，把每个目标变成要的样子。",
-        "en": "Design a proof assistant that takes the “and” given apart, turning each goal into the one wanted."
+        "zh": "设计一个证明助手：拆开「并且」那条已知，把每个目标变成要的样子。"
       },
       "hint": [
-        { "zh": "全是 ? 的目标，什么能确定它？", "en": "What can settle a goal made of ?-letters?" },
+        { "zh": "全是 ? 的目标，什么能确定它？" },
         {
-          "zh": "倒着用规则之后，紧接着用<part-ref to=\"part:assumption\"></part-ref>。",
-          "en": "Right after the rule used backwards, <part-ref to=\"part:assumption\"></part-ref>."
+          "zh": "倒着用规则之后，紧接着用<part-ref to=\"part:assumption\"></part-ref>。"
         }
       ],
       "solution": ["c0 = rule(in, rules)", "c1 = assumption(c0)", "out <- c1"]

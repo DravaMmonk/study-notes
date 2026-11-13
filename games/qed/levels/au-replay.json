@@ -1,26 +1,24 @@
 {
-  "title": { "zh": "让核重放", "en": "Let the kernel replay it" },
+  "title": { "zh": "让核重放" },
   "builds": "metis",
   "adds": ["replay", "saturate", "clausify"],
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "新元件「重放」把证书交给核：用到的子句要确实由已知拆出，每一步要由 auto 从它的两条来源证出。全部通过，子句所来自的目标就证完了。",
-        "en": "The new card “Replay” hands the certificate to the kernel: each clause used must really come out of a hypothesis, and each step must be proved by auto from the two it came from. If all pass, the goal the clauses came from is proved."
+        "zh": "新元件「重放」把证书交给核：用到的子句要确实由已知拆出，每一步要由 auto 从它的两条来源证出。全部通过，子句所来自的目标就证完了。"
       }
     }
   ],
   "after": {
-    "zh": "Isabelle 里，Sledgehammer 找到的证明也由 metis 交给核重放。",
-    "en": "In Isabelle, proofs found by Sledgehammer are likewise replayed in the kernel by metis."
+    "zh": "Isabelle 里，Sledgehammer 找到的证明也由 metis 交给核重放。"
   },
   "tasks": [
     {
       "id": "au-replay",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         { "goal": "Coffee", "hyps": ["Alarm → Up", "Up → Coffee", "Alarm"] },
@@ -29,10 +27,9 @@
         { "goal": "¬Rain", "hyps": ["Rain → Wet", "¬Wet"] }
       ],
       "brief": {
-        "zh": "设计一个证明助手，证完每一个目标：证明助手找证书，核来重放。",
-        "en": "Design a proof assistant that proves every goal: the proof assistant finds a certificate, the kernel replays it."
+        "zh": "设计一个证明助手，证完每一个目标：证明助手找证书，核来重放。"
       },
-      "hint": [{ "zh": "证书要先有人找出来，再交给核。", "en": "Someone has to find the certificate before the kernel can have it." }],
+      "hint": [{ "zh": "证书要先有人找出来，再交给核。" }],
       "solution": ["c0 = clausify(in)", "c1 = saturate(c0)", "c2 = replay(c1)", "out <- c2"],
       "naive": ["c0 = clausify(in)", "c1 = saturate(c0)", "out <- c1"]
     }

@@ -34,8 +34,8 @@ export default function IntroSheet({ game, level, pages, marks = [], step, theme
     <div className="intro-scrim" onClick={onClose}>
       <section className="intro-card" role="dialog" aria-modal="true" aria-labelledby="intro-title" onClick={(event) => event.stopPropagation()}>
         <header className="intro-head">
-          <span className="intro-kicker">{game.levelLabel(level)} · {tr('引言', 'Intro')} {page + 1}/{pages.length}</span>
-          <button className="intro-close" onClick={onClose} aria-label={tr('关闭', 'Close')}><X size={18} /></button>
+          <span className="intro-kicker">{game.levelLabel(level)} · {tr('引言')} {page + 1}/{pages.length}</span>
+          <button className="intro-close" onClick={onClose} aria-label={tr('关闭')}><X size={18} /></button>
         </header>
         <h2 id="intro-title">{L(level.title)}{step && <small className="intro-step">{L(step)}</small>}</h2>
         <div className="intro-body" key={page}>
@@ -46,8 +46,8 @@ export default function IntroSheet({ game, level, pages, marks = [], step, theme
         <footer className="intro-foot">
           <span className="intro-dots" aria-hidden="true">{pages.map((_, i) => <i key={i} className={i === page ? 'is-on' : ''} />)}</span>
           {at && <AddMark at={at.at.replace(/\[\d+\]$/, '')} scope={at.scope} index={Number(/\[(\d+)\]$/.exec(at.at)[1])} label={{ zh: '一页', en: 'a page' }} />}
-          {page > 0 && <button className="intro-back" onClick={() => setPage(page - 1)}>{tr('上一页', 'Back')}</button>}
-          <button className="intro-next" onClick={() => (last ? onClose() : setPage(page + 1))}>{last ? tr('开始', 'Start') : tr('下一页', 'Next')}<ArrowRight size={15} /></button>
+          {page > 0 && <button className="intro-back" onClick={() => setPage(page - 1)}>{tr('上一页')}</button>}
+          <button className="intro-next" onClick={() => (last ? onClose() : setPage(page + 1))}>{last ? tr('开始') : tr('下一页')}<ArrowRight size={15} /></button>
         </footer>
       </section>
     </div>

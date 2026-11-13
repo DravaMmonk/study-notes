@@ -1,0 +1,119 @@
+{
+  "parts": {
+    "add": {
+      "name": { "zh": "相加" },
+      "desc": {
+        "zh": "把两个形状相同的向量逐个分量相加：画出来，第二支箭头接在第一支的箭头尖上，和从起点指到终点。"
+      },
+      "icon": "Plus",
+      "family": "vector",
+      "inputs": [{ "name": "u" }, { "name": "v" }],
+      "compute": "add(u, v)"
+    },
+    "scale": {
+      "name": { "zh": "数乘" },
+      "desc": {
+        "zh": "数 k 乘向量 v 的每个分量：箭头沿自己所在的直线伸缩 k 倍，k 为负时掉头。"
+      },
+      "icon": "Scaling",
+      "family": "vector",
+      "inputs": [{ "name": "k" }, { "name": "v" }],
+      "compute": "scale(k, v)"
+    },
+    "num": {
+      "name": { "zh": "常数" },
+      "desc": { "zh": "给出设定的那个数。" },
+      "icon": "Hash",
+      "family": "number",
+      "inputs": [],
+      "settings": [{ "key": "value", "control": "number", "label": { "zh": "数" }, "step": 0.5, "default": 1 }],
+      "compute": "$value"
+    },
+    "entry": {
+      "name": { "zh": "取分量" },
+      "desc": {
+        "zh": "给出向量从上往下数的第 i 个分量，一个数。"
+      },
+      "icon": "ArrowDown",
+      "family": "number",
+      "inputs": [{ "name": "v" }],
+      "settings": [
+        {
+          "key": "i",
+          "control": "buttons",
+          "label": { "zh": "第几个" },
+          "options": [{ "value": "1" }, { "value": "2" }, { "value": "3" }],
+          "default": "1"
+        }
+      ],
+      "compute": "entry(v, $i)",
+      "views": { "tile": [{ "show": "value" }, { "show": "setting", "key": "i", "as": "label" }] }
+    },
+    "vec": {
+      "name": { "zh": "拼向量" },
+      "desc": {
+        "zh": "把接进来的数从上到下排成一个向量；最后一个口可以不接。"
+      },
+      "icon": "Brackets",
+      "family": "vector",
+      "inputs": [{ "name": "a" }, { "name": "b" }, { "name": "c", "optional": true }],
+      "compute": "vec(a, b, c)"
+    },
+    "column": {
+      "name": { "zh": "取列" },
+      "desc": {
+        "zh": "给出矩阵从左往右数的第 j 列，一个向量。"
+      },
+      "icon": "Split",
+      "family": "matrix",
+      "inputs": [{ "name": "m" }],
+      "settings": [
+        {
+          "key": "j",
+          "control": "buttons",
+          "label": { "zh": "第几列" },
+          "options": [{ "value": "1" }, { "value": "2" }, { "value": "3" }],
+          "default": "1"
+        }
+      ],
+      "compute": "column(m, $j)"
+    },
+    "join": {
+      "name": { "zh": "并列" },
+      "desc": {
+        "zh": "把接进来的向量从左到右并排成一个矩阵，每个向量是一列；后两个口可以不接。"
+      },
+      "icon": "Merge",
+      "family": "matrix",
+      "inputs": [{ "name": "a" }, { "name": "b", "optional": true }, { "name": "c", "optional": true }],
+      "compute": "join(a, b, c)"
+    },
+    "arith": {
+      "name": { "zh": "算数" },
+      "desc": { "zh": "对两个数做所选的运算。" },
+      "icon": "Calculator",
+      "family": "number",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "settings": [
+        {
+          "key": "op",
+          "control": "buttons",
+          "label": { "zh": "运算" },
+          "options": [
+            { "value": "add", "label": "+", "about": { "zh": "a 加 b。" } },
+            { "value": "sub", "label": "−", "about": { "zh": "a 减 b。" } },
+            { "value": "mul", "label": "×", "about": { "zh": "a 乘 b。" } },
+            {
+              "value": "div",
+              "label": "÷",
+              "about": { "zh": "a 除以 b；b 为 0 时没有结果。" }
+            }
+          ],
+          "default": "mul"
+        }
+      ],
+      "compute": "arith(a, b, op=$op)",
+      "views": { "tile": [{ "show": "value" }, { "show": "setting", "key": "op", "as": "label" }] }
+    }
+  }
+}

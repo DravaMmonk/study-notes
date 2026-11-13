@@ -1,5 +1,5 @@
 {
-  "title": { "zh": "结合", "en": "Associativity" },
+  "title": { "zh": "结合" },
   "tray": "machine",
   "fact": "addAssoc",
   "tasks": [
@@ -7,14 +7,14 @@
       "id": "in-assoc",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["nat"],
       "defs": ["plus"],
       "tests": [{ "goal": "∀x. ∀y. ∀z. plus(plus(x, y), z) = plus(x, plus(y, z))" }],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "加法的定义拆的是左边的数。", "en": "Addition’s definition takes apart the number on the left." }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "加法的定义拆的是左边的数。" }],
       "solution": [
         "c0r0 = math[use=[\"nat.induct\"]]()",
         "c0 = rule(in, c0r0)",

@@ -1,41 +1,37 @@
 {
-  "title": { "zh": "认出旗标", "en": "Spot the flag" },
+  "title": { "zh": "认出旗标" },
   "intro": [
     {
       "t": {
-        "zh": "要送的往往不止一个字节，而是一串字节合成的一<wiki-ref to=\"frame\"></wiki-ref>，有几个字节事先不知道。收的一方只看见不停到来的位，分不出一帧从哪里开始、到哪里结束。两头于是约好一个记号 01111110，叫<wiki-ref to=\"flag\"></wiki-ref>，放在每一帧的开头和结尾；收的一方要在位流里随时认出它。",
-        "en": "What goes across is often not one byte but a <wiki-ref to=\"frame\"></wiki-ref>, a run of bytes whose length is not known in advance. The receiver sees only bits that keep coming, and cannot tell where a frame begins or ends. So the ends agree on a mark, 01111110, the <wiki-ref to=\"flag\"></wiki-ref>, at each end of every frame; the receiver must spot it anywhere in the stream."
+        "zh": "要送的往往不止一个字节，而是一串字节合成的一<wiki-ref to=\"frame\"></wiki-ref>，有几个字节事先不知道。收的一方只看见不停到来的位，分不出一帧从哪里开始、到哪里结束。两头于是约好一个记号 01111110，叫<wiki-ref to=\"flag\"></wiki-ref>，放在每一帧的开头和结尾；收的一方要在位流里随时认出它。"
       }
     }
   ],
   "builds": {
     "type": "flagspot",
-    "name": { "zh": "认旗标", "en": "Flag spotter" },
+    "name": { "zh": "认旗标" },
     "desc": {
-      "zh": "进线上最近收到的 8 位正好是 01111110 的那一拍为 1，其余各拍为 0。",
-      "en": "1 on each tick at which the last 8 bits on its wire in read 01111110, 0 on every other."
-    }
+      "zh": "进线上最近收到的 8 位正好是 01111110 的那一拍为 1，其余各拍为 0。"
+    },
+    "task": "1-11"
   },
   "tasks": [
     {
       "id": "1-11",
       "brief": {
-        "zh": "线上连续送来位；每当到这一拍为止最近 8 位是 01111110，就在那一拍输出 1，其余各拍输出 0。",
-        "en": "Bits keep coming down the wire; output 1 on every tick at which the last 8 bits read 01111110, and 0 on every other."
+        "zh": "线上连续送来位；每当到这一拍为止最近 8 位是 01111110，就在那一拍输出 1，其余各拍输出 0。"
       },
       "hint": [
-        { "zh": "旗标是一个 0，接着六个 1，再接一个 0。", "en": "A flag is a 0, then six 1s, then a 0." },
+        { "zh": "旗标是一个 0，接着六个 1，再接一个 0。" },
         {
-          "zh": "数一数到这一拍为止连着来了几个 1，来了 0 就从头数。",
-          "en": "Count how many 1s in a row have come so far, starting over at each 0."
+          "zh": "数一数到这一拍为止连着来了几个 1，来了 0 就从头数。"
         },
         {
-          "zh": "那六个 1 前面必须真有一个 0：线一开始就来的 1 不算。",
-          "en": "The six 1s must really follow a 0: 1s from the very first tick do not count."
+          "zh": "那六个 1 前面必须真有一个 0：线一开始就来的 1 不算。"
         }
       ],
-      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
-      "outputs": [{ "name": "flag", "label": { "zh": "旗标", "en": "Flag" } }],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
+      "outputs": [{ "name": "flag", "label": { "zh": "旗标" } }],
       "tests": [
         { "wires": { "line": { "send": [{ "bits": "01111110" }] } } },
         { "wires": { "line": { "send": [{ "bits": "011111101111110" }] } } },
@@ -73,6 +69,98 @@
         "kp = keep[reg=A](c)",
         "e6 = equal(p, six)",
         "h = select(e6, o, z)",
+        "f = select(line, z, h)",
+        "flag <- f"
+      ]
+    },
+    {
+      "id": "1-11_2",
+      "intro": [{ "t": { "zh": "认旗标搭好了，别人搭的却未必对。说一块板错了，得拿出一串让它说错的位来。" } }],
+      "brief": { "zh": "三块别人搭的板，各错一处。在两行里各排出进线上到达的位：三块板，每块至少在一行上说得和对的不一样。" },
+      "hint": [
+        { "zh": "先看每块板和自己搭的那块差在哪个元件上。" },
+        { "zh": "两行要挡住三块：有一行得让两块都说错。" },
+        { "zh": "一个旗标前后还能接什么，线一开头又是什么样，都可以排进去。" }
+      ],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
+      "outputs": [{ "name": "flag", "label": { "zh": "旗标" } }],
+      "works": [
+        {
+          "label": { "zh": "甲" },
+          "board": [
+            "z = const[value=0]()",
+            "o = const[value=1]()",
+            "six = const[value=6]()",
+            "zr = equal(line, z)",
+            "c = counter(zr)",
+            "p = reg[reg=A, start=0]()",
+            "kp = keep[reg=A](c)",
+            "e6 = equal(p, six)",
+            "h = select(e6, o, z)",
+            "f = select(line, z, h)",
+            "flag <- f"
+          ]
+        },
+        {
+          "label": { "zh": "乙" },
+          "board": [
+            "z = const[value=0]()",
+            "o = const[value=1]()",
+            "six = const[value=6]()",
+            "zr = equal(line, z)",
+            "c = counter(zr)",
+            "p = reg[reg=A, start=0]()",
+            "kp = keep[reg=A](c)",
+            "sr = reg[reg=B, start=0]()",
+            "e6 = equal(p, six)",
+            "h = select(e6, sr, z)",
+            "f = select(line, z, h)",
+            "s = select(zr, o, sr)",
+            "u = select(f, z, s)",
+            "ks = keep[reg=B](u)",
+            "flag <- f"
+          ]
+        },
+        {
+          "label": { "zh": "丙" },
+          "board": [
+            "z = const[value=0]()",
+            "o = const[value=1]()",
+            "six = const[value=6]()",
+            "zr = equal(line, z)",
+            "c = counter(zr)",
+            "lr = reg[reg=A, start=0]()",
+            "e6 = equal(c, six)",
+            "l = select(e6, o, lr)",
+            "n = select(zr, z, l)",
+            "kl = keep[reg=A](n)",
+            "sr = reg[reg=B, start=0]()",
+            "s = select(zr, o, sr)",
+            "ks = keep[reg=B](s)",
+            "h = select(lr, sr, z)",
+            "f = select(line, z, h)",
+            "flag <- f"
+          ]
+        }
+      ],
+      "tests": [
+        { "ticks": 16, "wires": { "line": { "send": [{ "bits": "1111111011111110" }] } } },
+        { "ticks": 16, "wires": { "line": { "send": [{ "bits": "011111101111110" }] } } }
+      ],
+      "want": { "flag": { "pattern": { "wire": "line", "bits": "01111110" } } },
+      "solution": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "six = const[value=6]()",
+        "zr = equal(line, z)",
+        "c = counter(zr)",
+        "p = reg[reg=A, start=0]()",
+        "kp = keep[reg=A](c)",
+        "sr = reg[reg=B, start=0]()",
+        "s = select(zr, o, sr)",
+        "ks = keep[reg=B](s)",
+        "e6 = equal(p, six)",
+        "h = select(e6, sr, z)",
         "f = select(line, z, h)",
         "flag <- f"
       ]

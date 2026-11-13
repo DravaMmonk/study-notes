@@ -83,4 +83,7 @@ test('a card added over another moves to the nearest clear spot beside it', () =
   const [x, y] = clearSpot([frame], [140, 120], [200, 40])
   assert.ok(x >= 416 || y >= 516)
   assert.equal(clearSpot([], [140, 120], [0, 0]), null)
+  const [lx, ly] = clearSpot([frame], [140, 120], [200, 40], 16, -1)
+  assert.ok(lx + 140 + 16 <= 0 || ly >= 516)
+  assert.ok(lx < 200)
 })

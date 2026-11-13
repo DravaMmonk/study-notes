@@ -24,3 +24,9 @@ test('every vocabulary is the version it says, kept, and every version only adds
     assert.deepEqual(versionProblems(dir, vocabulary), [], dir)
   }
 })
+
+test('adding an alternative preserves the existing schema', () => {
+  const before = S.obj({ value: S.int() })
+  assert.deepEqual(additionProblems(before, S.either(before, S.obj({ label: S.str() }))), [])
+  assert.notDeepEqual(additionProblems(before, S.either(S.obj({ value: S.str() }), S.obj({ label: S.str() }))), [])
+})

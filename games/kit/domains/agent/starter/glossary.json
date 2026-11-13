@@ -1,15 +1,14 @@
 {
-  "groups": [{ "id": "agent", "title": { "zh": "编码 agent", "en": "Coding agents" } }],
+  "groups": [{ "id": "agent", "title": { "zh": "编码 agent" } }],
   "entries": [
     {
       "id": "context",
       "group": "agent",
-      "title": { "zh": "上下文", "en": "context" },
+      "title": { "zh": "上下文" },
       "at": "0-1",
       "body": [
         {
-          "zh": "模型一次读进的那段文字：一组条目，每条占一些 token。模型只知道上下文里的东西。",
-          "en": "The text the model reads at once: a list of entries, each taking some tokens. The model knows only what is in its context."
+          "zh": "模型一次读进的那段文字：一组条目，每条占一些 token。模型只知道上下文里的东西。"
         }
       ]
     }

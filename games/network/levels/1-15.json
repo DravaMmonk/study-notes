@@ -1,51 +1,44 @@
 {
-  "title": { "zh": "边收边除", "en": "Divide as it comes" },
+  "title": { "zh": "边收边除" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-14\"></level-ref>的校验位只查得出奇数个错位：恰好翻两位时，校验照样相符。",
-        "en": "The parity bit of <level-ref to=\"1-14\"></level-ref> catches only an odd number of flips: with exactly two flipped, it still checks out."
+        "zh": "<level-ref to=\"1-14\"></level-ref>的校验位只查得出奇数个错位：恰好翻两位时，校验照样相符。"
       }
     },
     {
       "t": {
-        "zh": "更强的校验把一串位当作一个大数，后面补上几个 0，用<wiki-ref to=\"carryless\"></wiki-ref>除以约好的除数，这个除数叫<wiki-ref to=\"generator\"></wiki-ref>；余数就是跟在数据后面的校验码。这种校验叫<wiki-ref to=\"crc\"></wiki-ref>。",
-        "en": "A stronger check reads a run of bits as one big number, appends a few 0s and divides it, using <wiki-ref to=\"carryless\"></wiki-ref>, by an agreed divisor, the <wiki-ref to=\"generator\"></wiki-ref>; the remainder is the check sent after the data. This check is a <wiki-ref to=\"crc\"></wiki-ref>."
+        "zh": "更强的校验把一串位当作一个大数，后面补上几个 0，用<wiki-ref to=\"carryless\"></wiki-ref>除以约好的除数，这个除数叫<wiki-ref to=\"generator\"></wiki-ref>；余数就是跟在数据后面的校验码。这种校验叫<wiki-ref to=\"crc\"></wiki-ref>。"
       }
     }
   ],
   "builds": {
     "type": "crc",
-    "name": { "zh": "CRC", "en": "CRC" },
+    "name": { "zh": "CRC" },
     "desc": {
-      "zh": "到这一拍为止收进的位该跟的 3 位校验码（补上三个 0 后不进位地除以 1011 的余数，0 到 7 的数）；「重来」为 1 的那一拍从这一位重新算起。",
-      "en": "The 3 check bits due after the bits taken in so far (their carry-less remainder by 1011 with three 0s appended, a number from 0 to 7); on a tick restart is 1 it starts over from that bit."
+      "zh": "到这一拍为止收进的位该跟的 3 位校验码（补上三个 0 后不进位地除以 1011 的余数，0 到 7 的数）；「重来」为 1 的那一拍从这一位重新算起。"
     }
   },
   "tasks": [
     {
       "id": "1-15",
       "brief": {
-        "zh": "每一拍输出到这一拍为止收到的位该跟的 3 位校验码，即这些位补上三个 0 后不进位地除以 1011 的余数；「重来」为 1 的拍从这一位重新算起。",
-        "en": "Every tick, output the 3 check bits due after the bits received so far: their carry-less remainder by 1011 with three 0s appended, as a number. On a tick restart is 1, start over from that bit."
+        "zh": "每一拍输出到这一拍为止收到的位该跟的 3 位校验码，即这些位补上三个 0 后不进位地除以 1011 的余数；「重来」为 1 的拍从这一位重新算起。"
       },
       "hint": [
         {
-          "zh": "先在纸上把 1101 补上 000，不进位地除以 1011，看每一步余数怎样变。",
-          "en": "On paper, append 000 to 1101 and divide it by 1011 without carries, watching the remainder at each step."
+          "zh": "先在纸上把 1101 补上 000，不进位地除以 1011，看每一步余数怎样变。"
         },
         {
-          "zh": "三个寄存卡各记一位，就记得下除到这一拍为止的结果。",
-          "en": "Three registers, a bit each, are enough to hold where the division stands."
+          "zh": "三个寄存卡各记一位，就记得下除到这一拍为止的结果。"
         },
         {
-          "zh": "要的是补上三个 0 以后的余数：新来的一位先和结果的最高位比一比，再决定这一步减不减生成式。",
-          "en": "What is wanted is the remainder with three 0s appended: compare each new bit with the top bit held before deciding whether this step subtracts the generator."
+          "zh": "要的是补上三个 0 以后的余数：新来的一位先和结果的最高位比一比，再决定这一步减不减生成式。"
         }
       ],
-      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
-      "inputs": [{ "name": "restart", "label": { "zh": "重来", "en": "Restart" } }],
-      "outputs": [{ "name": "rem", "label": { "zh": "校验码", "en": "Check" } }],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
+      "inputs": [{ "name": "restart", "label": { "zh": "重来" } }],
+      "outputs": [{ "name": "rem", "label": { "zh": "校验码" } }],
       "tests": [
         {
           "ticks": 8,

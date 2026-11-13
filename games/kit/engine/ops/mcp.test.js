@@ -64,7 +64,7 @@ test('reading tools: vocabulary, audit, run_reference, blueprint, render, deps',
   assert.deepEqual(boards.map((b) => b.path), ['tasks[0].solution'])
   assert.match(boards[0].text, /^f = impI\[A=A\]\(body: m2\) \{/)
 
-  assert.match((await call('render', { game: GAME, level: 'suppose' })).data.text, /^suppose · Suppose\n[\s\S]*tasks\[0\]\.solution:\n {2}f = impI/)
+  assert.match((await call('render', { game: GAME, level: 'suppose' })).data.text, /^suppose · 假设一下\n[\s\S]*tasks\[0\]\.solution:\n {2}f = impI/)
   const svg = (await call('render', { game: GAME, level: 'suppose', format: 'svg' })).data
   assert.deepEqual(svg.boards.map((b) => b.path), ['tasks[0].solution'])
   assert.match(svg.boards[0].svg, /^<svg [^>]*viewBox[\s\S]*impI[\s\S]*<\/svg>$/)
@@ -81,22 +81,22 @@ test('changing tools: modify refuses a failing changeset and writes a passing on
   assert.ok(refused.problems.some((p) => p.startsWith('suppose')), refused.problems.join('\n'))
   assert.equal(existsSync(join(root, GAME, 'changes.jsonl')), false)
 
-  const hint = { op: 'text.set', level: 'suppose', path: 'tasks[0].hint[0]', en: 'Set the box’s “Assume” to “today is Saturday”, its first half.' }
+  const hint = { op: 'text.set', level: 'suppose', path: 'tasks[0].hint[0]', zh: '把框的「假设」设成「今天是周六」，也就是它的前一半。' }
   const preview = (await call('modify', { game: GAME, changeset: { ops: [hint] }, dryRun: true })).data
   assert.equal(preview.ok && !preview.written, true)
   assert.match(preview.diff, new RegExp(`^--- a/${GAME}/levels/suppose.json`))
   const done = (await call('modify', { game: GAME, changeset: { why: 'a clearer hint', ops: [hint] } })).data
   assert.equal(done.written, true, done.problems.join('\n'))
-  assert.equal(JSON.parse(readFileSync(join(root, GAME, 'levels', 'suppose.json'), 'utf8')).tasks[0].hint[0].en, hint.en)
+  assert.equal(JSON.parse(readFileSync(join(root, GAME, 'levels', 'suppose.json'), 'utf8')).tasks[0].hint[0].zh, hint.zh)
   assert.equal(JSON.parse(readFileSync(join(root, GAME, 'changes.jsonl'), 'utf8')).why, 'a clearer hint')
 })
 
 test('search and replace: hits across the game, a replace as a changeset that modify applies; history outside git says so', async () => {
-  const found = (await call('search', { game: GAME, query: { find: 'assume', kinds: ['text'] } })).data
+  const found = (await call('search', { game: GAME, query: { find: '假设', kinds: ['text'] } })).data
   assert.ok(found.count > 0 && found.hits.every((h) => h.kind === 'text' && h.at.length), JSON.stringify(found).slice(0, 300))
-  const { changeset, changes } = (await call('replace', { game: GAME, query: { find: 'Saturday', caseSensitive: true }, with: 'Sunday' })).data
-  assert.ok(changeset.ops.length >= 1 && changeset.ops.every((op) => op.op === 'text.set' && op.en && op.zh === undefined))
-  assert.ok(changes.every((c) => c.after.includes('Sunday') && !c.after.includes('Saturday')))
+  const { changeset, changes } = (await call('replace', { game: GAME, query: { find: '周六', caseSensitive: true }, with: '周日' })).data
+  assert.ok(changeset.ops.length >= 1 && changeset.ops.every((op) => op.op === 'text.set' && op.zh))
+  assert.ok(changes.every((c) => c.after.includes('周日') && !c.after.includes('周六')))
   const done = (await call('modify', { game: GAME, changeset })).data
   assert.equal(done.written, true, done.problems.join('\n'))
   assert.equal((await call('search', { game: GAME, query: { find: 'Saturday', caseSensitive: true } })).data.count, 0)

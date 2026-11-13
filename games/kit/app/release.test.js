@@ -28,3 +28,7 @@ test('refresh returns to the map and keeps other URL parameters', () => {
   assert.equal(url, 'https://example.test/games/vision/index.html?lang=zh&_refresh=42#x')
   assert.equal(cleanRefreshURL(url), 'https://example.test/games/vision/index.html?lang=zh#x')
 })
+
+test('an embedded level refreshes onto the same level', () => {
+  assert.equal(refreshURL('https://example.test/games/notes/index.html?embed=&level=separable&lang=zh', 42), 'https://example.test/games/notes/index.html?embed=&level=separable&lang=zh&_refresh=42')
+})

@@ -16,6 +16,10 @@ export { default as TestTabs } from './TestTabs.jsx'
 export { default as Sheet } from './Sheet.jsx'
 export { default as Popover } from './Popover.jsx'
 export { default as RowTable } from './RowTable.jsx'
+export { default as RuleRows } from './RuleRows.jsx'
+export { useCheckOnce } from './CheckOnce.jsx'
+export { default as Verdict } from './Verdict.jsx'
+export { default as NamedLines } from './NamedLines.jsx'
 export { ChoiceField, Field, InlineChoice } from './FormFields.jsx'
 export { default as Entries, EntriesSize } from './Entries.jsx'
 export { L, getLang, isPair, keyOf, tr } from './i18n.js'
@@ -26,7 +30,7 @@ export { PHONE, useMedia } from './useMedia.js'
  * Describe a game for GameShell. Required: id, title, kicker, lede ({ zh, en } pairs), chapters
  * ([{ id, title, track, label?, question?, number?, kicker? }], track: the chapter's level tree from kit/course.js
  * layout), levels ([{ id, chapter, title, kind, tasks: [{ key, kind?, step?, brief?, hint?, intro?, after?, carries?,
- * opens?, withhold? … }], requires?, unlocks?, keeps?, after?, note? … }], in play order, every level one task or more;
+ * opens? … }], requires?, unlocks?, keeps?, after?, note? … }], in play order, every level one task or more;
  * `keeps`: whether passing a task keeps the board it passed with in progress.built, for a part that runs it, by default
  * when the level unlocks something) and kinds ({ [kind]: { Screen, icon?, label? } }).
  * Optional:
@@ -47,6 +51,7 @@ export { PHONE, useMedia } from './useMedia.js'
  *   glossary      the encyclopedia: { groups: [{ id, title }], entries: [{ id, group, title, body, at?, see? }] }
  *   views         the views each shape is drawn in by default (game.json `views`, ../engine/views.js)
  *   levelLabel(level), isOpen(level, solved, all), better(score, best), bestLabel(best)
+ *   notes         a notes edition (games/DESIGN.md 12): every level open, each chapter listed in order on the map
  *
  * Text that grows as the course goes on (a part's description, say) may carry `revisions: [{ at | by, …fields }]`:
  * from the level `at` on, or once the level `by` is passed (an upgrade the player earns there), those fields replace

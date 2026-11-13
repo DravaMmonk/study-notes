@@ -9,8 +9,8 @@ import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
 import { TRAY, TRAYS } from '../../engine/trays.js'
 import { benchSchema, displayItems } from '../../engine/bench.js'
-import { IMAGE_OPS } from './engine/definitions.js'
 import { NODE_TYPES } from './engine/nodes.js'
+import { IMAGE_OPS } from './engine/definitions.js'
 import { PICTURES } from './items/pictures.js'
 import { SCENES } from './items/scenes/index.js'
 import { TARGETS } from './items/targets.js'
@@ -38,11 +38,11 @@ for (const spec of Object.values(NODE_TYPES)) {
 const UNLOCKS = Object.fromEntries([...FLAGS].map(([flag, about]) => [flag, { about }]))
 // The ways a picture is drawn (ui/views/views.js draws them).
 const VIEWS = {
-  pixels: { about: t('像素：亮度显示为灰度', 'pixels: brightness as grey level') },
-  terrain: { about: t('地形：亮度显示为高度', 'terrain: brightness as height') },
-  slope: { about: t('坡度：等高线和指向变亮最快方向的箭头', 'slope: contours, and arrows pointing where it brightens fastest') },
-  profile: { about: t('剖面：一行像素的亮度曲线', 'profile: the brightness along one row of pixels') },
-  spectrum: { about: t('频谱：各频率分量的强度', 'spectrum: the strength of each frequency') },
+  pixels: { about: t('像素：亮度显示为灰度') },
+  terrain: { about: t('地形：亮度显示为高度') },
+  slope: { about: t('坡度：等高线和指向变亮最快方向的箭头') },
+  profile: { about: t('剖面：一行像素的亮度曲线') },
+  spectrum: { about: t('频谱：各频率分量的强度') },
 }
 
 /* ---------- a level ---------- */
@@ -50,68 +50,68 @@ const VIEWS = {
 const TEXT = S.text()
 const ids = S.list(S.str())
 /** Blueprint text (../../circuit/text.js), one line a string: a reference board, a naive one. */
-const BOARD = S.board({ about: t('一块电路板的蓝图文本，每行一个字符串', 'a board as blueprint text, one string a line') })
+const BOARD = S.board({ about: t('一块电路板的蓝图文本，每行一个字符串') })
 const VIEW = S.ref('view')
-const VIEWS_OF = S.obj({ in: S.opt(VIEW), out: S.opt(VIEW), mid: S.opt(VIEW) }, { about: t('输入、输出、中间元件默认的画法', 'how the inputs, the outputs and the parts between are drawn at first') })
-const CHECK = S.obj({ tolerance: S.opt(S.num()), mismatches: S.opt(S.int({ min: 0 })) }, { about: t('一格差多少算对（tolerance），最多几格不对（mismatches）', 'how far a cell may be off (tolerance), how many cells may be wrong (mismatches)') })
+const VIEWS_OF = S.obj({ in: S.opt(VIEW), out: S.opt(VIEW), mid: S.opt(VIEW) }, { about: t('输入、输出、中间元件默认的画法') })
+const CHECK = S.obj({ tolerance: S.opt(S.num()), mismatches: S.opt(S.int({ min: 0 })) }, { about: t('一格差多少算对（tolerance），最多几格不对（mismatches）') })
 const SOURCE = S.either(S.oneOf(['test']), S.call('picture'))
 const FIGURE = S.either(
   S.obj({ test: S.int({ min: 0 }), task: S.opt(S.int({ min: 0 })), view: S.opt(VIEW), caption: S.opt(TEXT) }),
   S.obj({ part: S.ref('part'), params: S.opt(S.map(S.any())), input: S.opt(SOURCE), inputs: S.opt(S.list(SOURCE)), view: S.opt(VIEW), caption: S.opt(TEXT) }),
-  S.obj({ figure: S.str({ pattern: '^[a-z0-9-]+$', about: t('笔记插图的名字（trace-viewer/src/figures 登记的 id，检查时核对）', 'the id of one of the notes’ figures (as trace-viewer/src/figures registers it, checked)') }), caption: S.opt(TEXT) }),
+  S.obj({ figure: S.str({ pattern: '^[a-z0-9-]+$', about: t('笔记插图的名字（trace-viewer/src/figures 登记的 id，检查时核对）') }), caption: S.opt(TEXT) }),
 )
-const INTRO = S.list(S.obj({ t: TEXT, fig: S.opt(FIGURE) }), { section: 'read', about: t('引言：进关前读的几页，每页一段话和一张可选的图', 'the intro: pages read before playing, each a paragraph and maybe a figure') })
+const INTRO = S.list(S.obj({ t: TEXT, fig: S.opt(FIGURE) }), { section: 'read', about: t('引言：进关前读的几页，每页一段话和一张可选的图') })
 
 // What a level says once: its title, its intro, its pass text and its place in the course.
 const ONCE = {
   title: TEXT,
-  optional: S.opt(S.bool({ section: 'course', about: t('可跳过的关卡', 'a skippable level') })),
-  after: S.text({ about: t('通过这一关时说的话（最后一个任务的点题）', 'what passing the level says (its last task’s pass text)') }),
+  optional: S.opt(S.bool({ section: 'course', about: t('可跳过的关卡') })),
+  after: S.text({ about: t('通过这一关时说的话（最后一个任务的点题）') }),
   intro: INTRO,
   unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course' })),
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
   tray: TRAY,
-  grants: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一关自己就给出的设置选项（它要亲手用它搭出元件）；不能是元件', 'setting options the level gives for its own play (it builds a part with one); never a part') })),
-  packs: S.opt(S.obj({ name: TEXT, desc: TEXT }, { section: 'course', about: t('通关的电路成为一个元件：它的名字和说明', 'the passing circuit becomes a part: its name and description') })),
-  showcase: S.opt(S.str({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里', 'a new part may have a level that only places it: what is abstract about its use') })),
+  grants: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一关自己就给出的设置选项（它要亲手用它搭出元件）；不能是元件') })),
+  packs: S.opt(S.obj({ name: TEXT, desc: TEXT }, { section: 'course', about: t('通关的电路成为一个元件：它的名字和说明') })),
+  showcase: S.opt(S.str({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里') })),
 }
 // What every task says: what it asks, how to start, and what passing it says before the next (the last task's is the
 // level's); what it opens for the tasks after it, and what it keeps from a player who holds it already.
 const TASK = {
-  optional: S.opt(S.bool({ section: 'course', about: t('可跳过的任务', 'a skippable task') })),
+  optional: S.opt(S.bool({ section: 'course', about: t('可跳过的任务') })),
   brief: TEXT,
   hint: S.opt(TEXT),
-  after: S.opt(S.text({ about: t('这个任务通过时说的话（最后一个任务用这一关的点题）', 'what passing the task says (the last task says the level’s pass text)') })),
-  unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一段搭出的能力：后面的任务马上能用，整关通过时解锁', 'what this task builds: the tasks after it hold it at once, and passing the level unlocks it') })),
-  withhold: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一段亲手搭的东西：玩家已有也先收起', 'what this task builds by hand: kept from a player who holds it already') })),
-  carries: S.opt(S.bool({ about: t('从上一段的电路开始', 'start from the task before’s board') })),
+  after: S.opt(S.text({ about: t('这个任务通过时说的话（最后一个任务用这一关的点题）') })),
+  unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一段搭出的能力：后面的任务马上能用，整关通过时解锁') })),
+  withhold: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一段亲手搭的东西：玩家已有也先收起') })),
+  carries: S.opt(S.bool({ about: t('从上一段的电路开始') })),
 }
 /** What a circuit task says about its board. */
 const BOARD_FIELDS = {
   inputs: S.opt(ids),
   inputLabels: S.opt(S.map(TEXT)),
-  inputDescriptions: S.opt(S.map(TEXT, { about: t('输入元件的说明，按输入名填写', 'descriptions of input parts, keyed by input name') })),
+  inputDescriptions: S.opt(S.map(TEXT, { about: t('输入元件的说明，按输入名填写') })),
   outputs: S.opt(ids),
   outputLabels: S.opt(S.map(TEXT)),
   views: S.opt(VIEWS_OF),
   check: S.opt(CHECK),
   constraint: S.opt(S.call('constraint')),
-  trainRate: S.opt(S.num({ about: t('训练一步走多远', 'how far one training step goes') })),
-  trainRates: S.opt(S.list(S.num(), { about: t('能选的学习率（选了就不再回退步长）', 'the learning rates to choose from (a step is then taken as it is)') })),
+  trainRate: S.opt(S.num({ about: t('训练一步走多远') })),
+  trainRates: S.opt(S.list(S.num(), { about: t('能选的学习率（选了就不再回退步长）') })),
   solution: S.opt(BOARD),
   naive: S.opt(BOARD),
-  alsoFails: S.opt(S.list(BOARD, { about: t('也必须失败的电路', 'boards that must fail too') })),
+  alsoFails: S.opt(S.list(BOARD, { about: t('也必须失败的电路') })),
 }
 // A circuit task by its scene: the scene's setup, and its tests in the scene's shape.
 const GRAPH = S.by('scene', Object.fromEntries(Object.entries(SCENES).map(([name, scene]) => {
-  const test = S.obj({ label: TEXT, train: S.opt(S.bool({ about: t('false：不拿来训练，只用来检查训练（新样本）', 'false: not trained on, only checking the training (a new sample)') })), ...scene.test.fields })
+  const test = S.obj({ label: TEXT, train: S.opt(S.bool({ about: t('false：不拿来训练，只用来检查训练（新样本）') })), ...scene.test.fields })
   const setup = scene.setup && (Object.values(scene.setup.fields).every((f) => f.optional) ? S.opt(scene.setup) : scene.setup)
   return [name, S.obj({ kind: S.oneOf(['graph']), ...TASK, ...BOARD_FIELDS, scene: S.oneOf([name]), ...(setup ? { setup } : {}), tests: S.list(test, { min: 1, section: 'tests' }), hidden: S.opt(S.list(test, { section: 'tests' })) })]
 })))
 const PROBE = S.obj({
   kind: S.oneOf(['probe']),
   ...TASK,
-  part: S.ref('part', { about: t('台上的黑箱', 'the black box on the bench') }),
+  part: S.ref('part', { about: t('台上的黑箱') }),
   question: TEXT,
   answers: S.list(S.str()),
   answer: S.str(),
@@ -128,7 +128,12 @@ const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.int({ min: 0 }),
   foundation: S.list(ITEM),
-  topics: S.opt(S.list(S.obj({ id: S.str(), levels, after: S.opt(AFTER) }))),
+  topics: S.opt(S.list(S.obj({
+    id: S.str(),
+    code: S.opt(S.str({ pattern: '^[A-Z]$', about: t('地图上这个系列的字母，一个系列一个') })),
+    levels,
+    after: S.opt(AFTER),
+  }))),
   challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
   chapter: S.obj({ title: TEXT, lecture: TEXT, question: TEXT }),
 })
@@ -136,25 +141,25 @@ const GAME = S.obj({
   title: TEXT,
   kicker: TEXT,
   lede: S.text({ about: t('这款游戏教什么、学完能亲手做成什么，不写关卡数', 'what the game teaches and what the player ends up building, not how many levels') }),
-  power: S.obj({ title: TEXT, lines: S.list(TEXT) }, { about: t('第一次打开时的上电台词', 'the power-on lines on first opening') }),
-  primitives: S.list(S.ref('part'), { about: t('没有电路能搭出的元件', 'the parts no circuit builds') }),
+  mode: S.opt(S.oneOf(['notes'], { about: t('笔记版：一关对应一个笔记词条，所有关打开，不跑课程审计（手册第 12 节）') })),
+  power: S.obj({ title: TEXT, lines: S.list(TEXT) }, { about: t('第一次打开时的上电台词') }),
+  primitives: S.list(S.ref('part'), { about: t('没有电路能搭出的元件') }),
   trays: TRAYS,
-  concept: S.map(S.str(), { about: t('几个元件合起来是一个新概念', 'parts that are one new idea together') }),
-  replaces: S.map(S.list(S.ref('part')), { about: t('一个元件出现后取代的元件', 'the parts a part supersedes once met') }),
-  views: S.map(S.level(), { about: t('每种画法在哪一关引入（像素一开始就有）', 'the level each way of drawing a picture comes with (pixels from the start)') }),
+  concept: S.map(S.str(), { about: t('几个元件合起来是一个新概念') }),
+  replaces: S.map(S.list(S.ref('part')), { about: t('一个元件出现后取代的元件') }),
+  views: S.map(S.level(), { about: t('每种画法在哪一关引入（像素一开始就有）') }),
   eras: S.list(ERA, { min: 1 }),
   box: S.obj({
-    sample: S.level({ about: t('没有测试的关解锁的元件，在这一关的测试图上试', 'the level whose pictures a part from a level without tests is tried on') }),
-    inLevel: S.map(S.level(), { about: t('在这一关的参考电路里试的元件', 'parts tried inside a level’s own reference circuit') }),
-    boards: S.opt(S.map(BOARD, { about: t('试这个元件用的电路（参考电路里把它拆成了小元件时）', 'the board a part is tried on (where the reference spells it out in smaller parts)') })),
-  }, { about: t('元件箱怎么试一个元件', 'how the parts box tries a part') }),
-  quotes: S.opt(S.list(S.str(), { about: t('文案里可以照字面引用的名字（说的是别的东西）', 'names a text may quote rather than link (they mean something else there)') })),
+    sample: S.level({ about: t('没有测试的关解锁的元件，在这一关的测试图上试') }),
+    inLevel: S.map(S.level(), { about: t('在这一关的参考电路里试的元件') }),
+    boards: S.opt(S.map(BOARD, { about: t('试这个元件用的电路（参考电路里把它拆成了小元件时）') })),
+  }, { about: t('元件箱怎么试一个元件') }),
+  quotes: S.opt(S.list(S.str(), { about: t('文案里可以照字面引用的名字（说的是别的东西）') })),
 })
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 15,
-  partOverrides: true,
+  version: 17,
   kinds: {
     part: PARTS,
     op: Object.fromEntries(Object.entries(IMAGE_OPS).map(([name, { about, args }]) => [name, { about, args }])),

@@ -1,3 +1,4 @@
+import { flowSpots } from './layout.js'
 import { baseRefusal, byId, outputsOf, spotIn, srcKey, srcNode, srcOf } from './model.js'
 
 // A board as plain ASCII text: what the player copies out of a level, keeps in a notepad or sends on, and pastes back
@@ -360,11 +361,14 @@ export function read(text, graph, parts, types) {
         errors.push(say(st?.line, `「${frame}」没有叫「${region}」的区域。`, `“${frame}” has no region called “${region}”.`))
       }
     }
-    if (node.x === undefined && placed(parts, node)) {
-      const [x, y] = spotIn(out, node.in ?? null)
+    // A new card in a frame's region takes the next free cell of it; one on the board itself is placed once the
+    // wires are read, where they lead (layout.js flowSpots).
+    if (node.x === undefined && placed(parts, node) && node.in) {
+      const [x, y] = spotIn(out, node.in)
       Object.assign(node, { x, y })
     }
   }
+  const fresh = nodes.filter((n) => n.x === undefined && placed(parts, n))
   for (const w of parsed.wires) {
     if (failed.has(w.by) || missing.has(w.to) || missing.has(srcNode(w.from))) continue
     const to = byId(out, w.to)
@@ -397,6 +401,7 @@ export function read(text, graph, parts, types) {
     }
     out = { ...out, wires: [...out.wires, { from: from_, to: to.id, port }] }
   }
+  flowSpots(out, fresh)
   return errors.length ? { errors } : { graph: { ...graph, nodes: out.nodes, wires: out.wires } }
 }
 

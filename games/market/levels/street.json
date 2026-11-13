@@ -1,0 +1,476 @@
+{
+  "title": {
+    "zh": "看不见的手"
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "现在把调价器放到街上。街上的需求它一个数也读不到，每天只看得到昨天的价格、剩下的和没买到的。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "没有人告诉它出清价格是多少，它一天天调，自己走到了那里；行情变了，它又跟过去。这种一步步试出来的办法叫<wiki-ref to=\"tatonnement\"></wiki-ref>。"
+  },
+  "tasks": [
+    {
+      "id": "street",
+      "brief": {
+        "zh": "每条街开张 30 天。最后一天，剩下的和没买到的都要不到 1。"
+      },
+      "inputs": [
+        {
+          "name": "was",
+          "label": {
+            "zh": "昨天的价格"
+          }
+        },
+        {
+          "name": "left",
+          "label": {
+            "zh": "剩下"
+          }
+        },
+        {
+          "name": "short",
+          "label": {
+            "zh": "没买到"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "price",
+          "label": {
+            "zh": "价格"
+          },
+          "view": "dots"
+        }
+      ],
+      "tests": [
+        {
+          "shops": [
+            {
+              "stock": 20,
+              "top": 60,
+              "slope": 2,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        },
+        {
+          "shops": [
+            {
+              "stock": 15,
+              "top": 105,
+              "slope": 3,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        },
+        {
+          "shops": [
+            {
+              "stock": 12,
+              "top": 40,
+              "slope": 4,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        }
+      ],
+      "hidden": [
+        {
+          "shops": [
+            {
+              "stock": 20,
+              "top": 47,
+              "slope": 2,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        },
+        {
+          "shops": [
+            {
+              "stock": 30,
+              "top": 78,
+              "slope": 4,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        },
+        {
+          "shops": [
+            {
+              "stock": 10,
+              "top": 60,
+              "slope": 1,
+              "open": 10
+            }
+          ],
+          "ticks": 60
+        }
+      ],
+      "solution": [
+        "a = pricer(was, left, short)",
+        "price <- a"
+      ],
+      "naive": [
+        "price <- was"
+      ]
+    },
+    {
+      "id": "shift",
+      "brief": {
+        "zh": "两家店各定各的价，行情中途会变。60 天后，两家都要出清。"
+      },
+      "inputs": [
+        {
+          "name": "was1",
+          "label": {
+            "zh": "甲店昨天的价格"
+          }
+        },
+        {
+          "name": "left1",
+          "label": {
+            "zh": "甲店剩下"
+          }
+        },
+        {
+          "name": "short1",
+          "label": {
+            "zh": "甲店没买到"
+          }
+        },
+        {
+          "name": "was2",
+          "label": {
+            "zh": "乙店昨天的价格"
+          }
+        },
+        {
+          "name": "left2",
+          "label": {
+            "zh": "乙店剩下"
+          }
+        },
+        {
+          "name": "short2",
+          "label": {
+            "zh": "乙店没买到"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "price1",
+          "label": {
+            "zh": "甲店价格"
+          },
+          "view": "dots"
+        },
+        {
+          "name": "price2",
+          "label": {
+            "zh": "乙店价格"
+          },
+          "view": "dots"
+        }
+      ],
+      "tests": [
+        {
+          "shops": [
+            {
+              "stock": 20,
+              "top": 60,
+              "slope": 2,
+              "open": 10,
+              "shifts": [
+                {
+                  "at": 20,
+                  "top": 80
+                }
+              ]
+            },
+            {
+              "stock": 15,
+              "top": 105,
+              "slope": 3,
+              "open": 10,
+              "shifts": [
+                {
+                  "at": 30,
+                  "top": 75
+                }
+              ]
+            }
+          ],
+          "ticks": 60
+        }
+      ],
+      "hidden": [
+        {
+          "shops": [
+            {
+              "stock": 30,
+              "top": 78,
+              "slope": 4,
+              "open": 10,
+              "shifts": [
+                {
+                  "at": 15,
+                  "top": 110
+                }
+              ]
+            },
+            {
+              "stock": 10,
+              "top": 60,
+              "slope": 1,
+              "open": 10,
+              "shifts": [
+                {
+                  "at": 25,
+                  "top": 40
+                }
+              ]
+            }
+          ],
+          "ticks": 60
+        }
+      ],
+      "solution": [
+        "a = pricer(was1, left1, short1)",
+        "b = pricer(was2, left2, short2)",
+        "price1 <- a",
+        "price2 <- b"
+      ],
+      "naive": [
+        "price1 <- was1",
+        "price2 <- was2"
+      ]
+    },
+    {
+      "id": "catch",
+      "brief": {
+        "zh": "三块别人搭的调价器，各错一处。写两行检验：每行给出昨天的价格、剩下、没买到，和对的调价器该给的价格。对的要两行都过，三块错的每块至少被一行挡住。"
+      },
+      "inputs": [
+        {
+          "name": "was",
+          "label": {
+            "zh": "昨天的价格"
+          }
+        },
+        {
+          "name": "left",
+          "label": {
+            "zh": "剩下"
+          }
+        },
+        {
+          "name": "short",
+          "label": {
+            "zh": "没买到"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "price",
+          "label": {
+            "zh": "今天的价格"
+          }
+        }
+      ],
+      "works": [
+        {
+          "label": {
+            "zh": "甲"
+          },
+          "board": [
+            "k = const[value=0.25]()",
+            "d = mul(short, k)",
+            "n = add(was, d)",
+            "price <- n"
+          ]
+        },
+        {
+          "label": {
+            "zh": "乙"
+          },
+          "board": [
+            "g = sub(left, short)",
+            "k = const[value=0.25]()",
+            "d = mul(g, k)",
+            "n = add(was, d)",
+            "price <- n"
+          ]
+        },
+        {
+          "label": {
+            "zh": "丙"
+          },
+          "board": [
+            "g = sub(short, left)",
+            "k = const[value=0.5]()",
+            "d = mul(g, k)",
+            "n = add(was, d)",
+            "price <- n"
+          ]
+        }
+      ],
+      "tests": [
+        {
+          "in": {
+            "was": 10,
+            "left": 0,
+            "short": 20
+          },
+          "out": {
+            "price": 15
+          }
+        },
+        {
+          "in": {
+            "was": 20,
+            "left": 8,
+            "short": 0
+          },
+          "out": {
+            "price": 18
+          }
+        }
+      ],
+      "withhold": [
+        "pricer",
+        "demand",
+        "min",
+        "div"
+      ],
+      "solution": [
+        "g = sub(short, left)",
+        "k = const[value=0.25]()",
+        "d = mul(g, k)",
+        "n = add(was, d)",
+        "price <- n"
+      ]
+    },
+    {
+      "id": "mend",
+      "brief": {
+        "zh": "别人搭的调价器，有的街上它一直卖不完。看它在哪条街上出错，只许再添一块元件，把它修好。"
+      },
+      "inputs": [
+        {
+          "name": "was",
+          "label": {
+            "zh": "昨天的价格"
+          }
+        },
+        {
+          "name": "left",
+          "label": {
+            "zh": "剩下"
+          }
+        },
+        {
+          "name": "short",
+          "label": {
+            "zh": "没买到"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "price",
+          "label": {
+            "zh": "价格"
+          },
+          "view": "dots"
+        }
+      ],
+      "tests": [
+        {
+          "shops": [
+            {
+              "stock": 20,
+              "top": 30,
+              "slope": 2,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        },
+        {
+          "shops": [
+            {
+              "stock": 20,
+              "top": 60,
+              "slope": 2,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        }
+      ],
+      "hidden": [
+        {
+          "shops": [
+            {
+              "stock": 15,
+              "top": 40,
+              "slope": 3,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        },
+        {
+          "shops": [
+            {
+              "stock": 30,
+              "top": 78,
+              "slope": 4,
+              "open": 10
+            }
+          ],
+          "ticks": 30
+        }
+      ],
+      "withhold": [
+        "pricer",
+        "demand",
+        "min",
+        "div"
+      ],
+      "most": 4,
+      "starter": [
+        "k = const[value=0.25]()",
+        "d = mul(short, k)",
+        "n = add(was, d)",
+        "price <- n"
+      ],
+      "solution": [
+        "g = sub(short, left)",
+        "k = const[value=0.25]()",
+        "d = mul(g, k)",
+        "n = add(was, d)",
+        "price <- n"
+      ],
+      "naive": [
+        "k = const[value=0.25]()",
+        "d = mul(short, k)",
+        "n = add(was, d)",
+        "price <- n"
+      ]
+    }
+  ]
+}

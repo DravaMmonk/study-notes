@@ -1,11 +1,10 @@
 {
   "consts": ["h", "i", "j", "k", "l", "m", "n"],
-  "title": { "zh": "量词套量词", "en": "One inside another" },
+  "title": { "zh": "量词套量词" },
   "intro": [
     {
       "t": {
-        "zh": "量词里面还可以有量词。每个量词有自己的变量，管到它后面的整段：∀x. … ∃y. … 里，x 和 y 各指各的。量词管着的变量是<wiki-ref to=\"bound\"></wiki-ref>；没有量词管着的是<wiki-ref to=\"free\"></wiki-ref>，句子就说不清在讲谁。",
-        "en": "A quantifier may hold another. Each has its own variable and reaches over everything after it: in ∀x. … ∃y. …, x and y each stand for their own thing. A variable some quantifier covers is a <wiki-ref to=\"bound\"></wiki-ref>; one no quantifier covers is a <wiki-ref to=\"free\"></wiki-ref>, and then the sentence does not say whom it means."
+        "zh": "量词里面还可以有量词。每个量词有自己的变量，管到它后面的整段：∀x. … ∃y. … 里，x 和 y 各指各的。量词管着的变量是<wiki-ref to=\"bound\"></wiki-ref>；没有量词管着的是<wiki-ref to=\"free\"></wiki-ref>，句子就说不清在讲谁。"
       }
     }
   ],
@@ -13,14 +12,13 @@
     {
       "id": "fo-nested_1",
       "kind": "translate",
-      "step": { "zh": "第一句", "en": "Sentence 1" },
-      "brief": { "zh": "用下面的元件，把这句话拼成公式。", "en": "Build this sentence as a formula from the parts below." },
-      "say": { "zh": "每样东西都喜欢某样东西。", "en": "Everything likes something." },
+      "step": { "zh": "第一句" },
+      "brief": { "zh": "用下面的元件，把这句话拼成公式。" },
+      "say": { "zh": "每样东西都喜欢某样东西。" },
       "target": "∀x. ∃y. Likes(x, y)",
       "hint": [
         {
-          "zh": "外面是对所有 x，里面是有一个 y：x 喜欢的那样东西，另用一个变量。",
-          "en": "Outside, every x; inside, some y: the thing x likes takes another variable."
+          "zh": "外面是对所有 x，里面是有一个 y：x 喜欢的那样东西，另用一个变量。"
         }
       ],
       "decoys": ["∀x. Human(x) → ∃y. Parent(y, x)", "∃y. ∀x. Likes(x, y)"]
@@ -28,33 +26,31 @@
     {
       "id": "fo-nested_2",
       "kind": "translate",
-      "step": { "zh": "第二句", "en": "Sentence 2" },
-      "brief": { "zh": "用下面的元件，把这句话拼成公式。", "en": "Build this sentence as a formula from the parts below." },
-      "say": { "zh": "每个人都有父母。", "en": "Everyone has a parent." },
+      "step": { "zh": "第二句" },
+      "brief": { "zh": "用下面的元件，把这句话拼成公式。" },
+      "say": { "zh": "每个人都有父母。" },
       "target": "∀x. Human(x) → ∃y. Parent(y, x)",
       "hint": [
-        { "zh": "对所有 x，若 x 是人，则有一个 y 是 x 的父母。", "en": "For every x, if x is human, then some y is a parent of x." }
+        { "zh": "对所有 x，若 x 是人，则有一个 y 是 x 的父母。" }
       ],
       "decoys": ["∀x. ∃y. Likes(x, y)", "∃y. ∀x. Likes(x, y)"]
     },
     {
       "id": "fo-nested_3",
       "kind": "model",
-      "step": { "zh": "先说谁", "en": "Which comes first" },
-      "say": { "zh": "每样东西都喜欢某样东西。", "en": "Everything likes something." },
+      "step": { "zh": "先说谁" },
+      "say": { "zh": "每样东西都喜欢某样东西。" },
       "meant": "∀x. ∃y. Likes(x, y)",
       "brief": {
-        "zh": "上一段你把这句话拼成了公式；这是别人拼的。造一个世界，让两份译文真假不同。",
-        "en": "You built this sentence as a formula; this is someone else’s. Build a world where the two differ in truth."
+        "zh": "上一段你把这句话拼成了公式；这是别人拼的。造一个世界，让两份译文真假不同。"
       },
       "wrong": "∃y. ∀x. Likes(x, y)",
       "answer": { "size": 2, "preds": { "Likes": ["0,0", "1,1"] } },
       "hint": [
         {
-          "zh": "把它想成一个游戏：∀ 由对手挑，∃ 由你挑。第一句是对手先挑 x，你再挑 y；第二句是你先挑 y，对手再挑 x。",
-          "en": "Think of it as a game: the opponent picks for ∀, you pick for ∃. In the first, the opponent picks x first, then you pick y; in the second you pick y first, then the opponent picks x."
+          "zh": "把它想成一个游戏：∀ 由对手挑，∃ 由你挑。第一句是对手先挑 x，你再挑 y；第二句是你先挑 y，对手再挑 x。"
         },
-        { "zh": "每样东西各喜欢自己就行。", "en": "Let each thing like itself." }
+        { "zh": "每样东西各喜欢自己就行。" }
       ]
     }
   ]

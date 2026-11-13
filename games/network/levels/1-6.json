@@ -1,38 +1,34 @@
 {
-  "title": { "zh": "数拍", "en": "Count the ticks" },
+  "title": { "zh": "数拍" },
   "intro": [
     {
       "t": {
-        "zh": "寄存卡能把一个值留到下一拍，板却还不知道已经过了几拍：手上的元件只能选、只能存，没有一样能让一个数变大。新元件<part-ref to=\"part:add\"></part-ref>给出两个数之和。",
-        "en": "A register keeps a value for the next tick, but the board still cannot tell how many ticks have passed: the parts in hand can only pick and store, and none makes a number grow. The new part <part-ref to=\"part:add\"></part-ref> gives the sum of two numbers."
+        "zh": "寄存卡能把一个值留到下一拍，板却还不知道已经过了几拍：手上的元件只能选、只能存，没有一样能让一个数变大。新元件<part-ref to=\"part:add\"></part-ref>给出两个数之和。"
       }
     }
   ],
   "adds": ["add"],
   "builds": {
     "type": "counter",
-    "name": { "zh": "计数器", "en": "Counter" },
+    "name": { "zh": "计数器" },
     "desc": {
-      "zh": "自「重来」上一次为 1 起过了几拍：那一拍为 0；「重来」还没为 1 过时从第一拍数起。",
-      "en": "How many ticks since restart was last 1: 0 on that tick, and, until restart is first 1, counted from the very first tick."
+      "zh": "自「重来」上一次为 1 起过了几拍：那一拍为 0；「重来」还没为 1 过时从第一拍数起。"
     }
   },
   "tasks": [
     {
       "id": "1-6",
       "brief": {
-        "zh": "输出自「重来」上一次为 1 起已经过了几拍：那一拍为 0；「重来」还没为 1 过时，从第一拍数起。",
-        "en": "Output how many ticks have passed since restart was last 1: 0 on that tick, and, until restart is first 1, counted from the very first tick."
+        "zh": "输出自「重来」上一次为 1 起已经过了几拍：那一拍为 0；「重来」还没为 1 过时，从第一拍数起。"
       },
       "hint": [
         {
-          "zh": "先不管「重来」，只让输出每拍大一。",
-          "en": "Leave restart aside at first, and just make the output grow by one each tick."
+          "zh": "先不管「重来」，只让输出每拍大一。"
         },
-        { "zh": "「重来」那一拍的数是 0：这是一个选择。", "en": "On a restart tick the number is 0: that is a choice." }
+        { "zh": "「重来」那一拍的数是 0：这是一个选择。" }
       ],
-      "inputs": [{ "name": "reset", "label": { "zh": "重来", "en": "Restart" } }],
-      "outputs": [{ "name": "count", "label": { "zh": "拍数", "en": "Ticks" } }],
+      "inputs": [{ "name": "reset", "label": { "zh": "重来" } }],
+      "outputs": [{ "name": "count", "label": { "zh": "拍数" } }],
       "tests": [
         { "ticks": 6, "inputs": { "reset": [0, 0, 0, 0, 0, 0] } },
         { "ticks": 9, "inputs": { "reset": [0, 0, 0, 1, 0, 0, 0, 1, 0] } },

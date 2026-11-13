@@ -1,12 +1,12 @@
 {
-  "title": { "zh": "定义拼接和长度", "en": "Defining append and length" },
-  "intro": [{ "t": { "zh": "为列表定义两个函数：拼接和长度。", "en": "Define two functions on lists: append and length." } }],
+  "title": { "zh": "定义拼接和长度" },
+  "intro": [{ "t": { "zh": "为列表定义两个函数：拼接和长度。" } }],
   "tasks": [
     {
       "id": "def-list_1",
       "kind": "define",
       "words": ["everyday", "terms"],
-      "step": { "zh": "拼接", "en": "Append" },
+      "step": { "zh": "拼接" },
       "fn": "app",
       "on": 0,
       "rows": [
@@ -23,15 +23,13 @@
       "solution": ["ys", "cons(x, app(xs, ys))"],
       "naive": ["ys", "app(xs, cons(x, ys))"],
       "brief": {
-        "zh": "给每一行选一个右边，让每个测试都算对。",
-        "en": "Pick a right side for every row so that every test works out right."
+        "zh": "给每一行写出右边。"
       },
-      "hint": [{ "zh": "x :: xs 接上 ys，x 仍在最前面。", "en": "In x :: xs followed by ys, x is still in front." }],
+      "hint": [{ "zh": "x :: xs 接上 ys，x 仍在最前面。" }],
       "intro": [
         {
           "t": {
-            "zh": "xs ++ ys 把两个列表接起来，拆开的是前一个列表。",
-            "en": "xs ++ ys joins two lists; the one it takes apart is the first."
+            "zh": "xs ++ ys 把两个列表接起来，拆开的是前一个列表。"
           }
         }
       ]
@@ -40,7 +38,7 @@
       "id": "def-list_2",
       "kind": "define",
       "words": ["everyday", "terms"],
-      "step": { "zh": "长度", "en": "Length" },
+      "step": { "zh": "长度" },
       "fn": "len",
       "on": 0,
       "rows": [
@@ -54,10 +52,9 @@
       "solution": ["zero", "s(len(xs))"],
       "naive": ["zero", "len(xs)"],
       "brief": {
-        "zh": "给每一行选一个右边，让每个测试都算对。",
-        "en": "Pick a right side for every row so that every test works out right."
+        "zh": "给每一行写出右边。"
       },
-      "hint": [{ "zh": "多一样东西，长度加一。", "en": "One more thing, one longer." }]
+      "hint": [{ "zh": "多一样东西，长度加一。" }]
     }
   ]
 }

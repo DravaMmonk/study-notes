@@ -1,12 +1,11 @@
 {
-  "title": { "zh": "倒过来拼", "en": "Reversing an append" },
+  "title": { "zh": "倒过来拼" },
   "tray": "machine",
   "fact": "revApp",
   "intro": [
     {
       "t": {
-        "zh": "rev 把列表倒过来。先定义它，再看它和拼接的关系。",
-        "en": "rev reverses a list. Define it first, then see how it relates to append."
+        "zh": "rev 把列表倒过来。先定义它，再看它和拼接的关系。"
       }
     }
   ],
@@ -15,7 +14,7 @@
       "id": "in-revapp_1",
       "kind": "define",
       "words": ["everyday", "terms"],
-      "step": { "zh": "定义倒过来", "en": "Defining reverse" },
+      "step": { "zh": "定义倒过来" },
       "fn": "rev",
       "on": 0,
       "defs": ["app"],
@@ -38,29 +37,27 @@
       "solution": ["nil", "app(rev(xs), cons(x, nil))"],
       "naive": ["nil", "cons(x, rev(xs))"],
       "brief": {
-        "zh": "给每一行选一个右边，让每个测试都算对。",
-        "en": "Pick a right side for every row so that every test works out right."
+        "zh": "给每一行写出右边。"
       },
-      "hint": [{ "zh": "x :: xs 倒过来，x 在最后。", "en": "In x :: xs reversed, x comes last." }]
+      "hint": [{ "zh": "x :: xs 倒过来，x 在最后。" }]
     },
     {
       "id": "in-revapp_2",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
-      "step": { "zh": "倒过来拼", "en": "Reversing an append" },
+      "step": { "zh": "倒过来拼" },
       "types": ["list"],
       "defs": ["app", "len", "rev"],
       "tests": [{ "goal": "∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))" }],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
       "hint": [
         {
-          "zh": "[] 的情况要 rev ys = rev ys ++ []；另一种情况，两个 ++ 要换一种结合方式。",
-          "en": "The [] case needs rev ys = rev ys ++ []; the other needs two ++ grouped the other way."
+          "zh": "[] 的情况要 rev ys = rev ys ++ []；另一种情况，两个 ++ 要换一种结合方式。"
         },
-        { "zh": "这两件事，「数理规则书」里都有证出的等式。", "en": "The “Rule book of numbers” has equations proved for both." }
+        { "zh": "这两件事，「数理规则书」里都有证出的等式。" }
       ],
       "solution": [
         "c0r0 = math[use=[\"list.induct\"]]()",

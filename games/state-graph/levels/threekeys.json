@@ -1,28 +1,25 @@
 {
-  "title": { "zh": "三把钥匙", "en": "Three keys" },
-  "short": { "zh": "每多记一件事，表就翻一倍", "en": "Every extra thing doubles the table" },
+  "title": { "zh": "三把钥匙" },
+  "short": { "zh": "每多记一件事，表就翻一倍" },
   "intro": [
     {
       "t": {
-        "zh": "三把钥匙、三种颜色的门。状态三把都记着：一共几层？",
-        "en": "Three keys and doors of three colours. The state remembers all three keys: how many layers in all?"
+        "zh": "三把钥匙、三种颜色的门。状态三把都记着：一共几层？"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "算出合法路线的条数：所有层终点的数加起来。",
-      "en": "Work out the number of valid routes: the end cells of every layer, added up."
+      "zh": "算出合法路线的条数：所有层终点的数加起来。"
     },
-    "how": { "zh": "每一格把每一层都算一遍。", "en": "Every cell works out every layer." }
+    "how": { "zh": "每一格把每一层都算一遍。" }
   },
   "robot": "stack",
   "debrief": {
-    "title": { "zh": "状态爆炸", "en": "State explosion" },
+    "title": { "zh": "状态爆炸" },
     "body": [
       {
-        "zh": "三把钥匙，8 层；十把钥匙，1,024 层；二十把，一百多万层。每多记一件事，表就翻一倍。",
-        "en": "Three keys, 8 layers; ten keys, 1,024; twenty, over a million. Every extra thing remembered doubles the table."
+        "zh": "三把钥匙，8 层；十把钥匙，1,024 层；二十把，一百多万层。每多记一件事，表就翻一倍。"
       }
     ]
   },

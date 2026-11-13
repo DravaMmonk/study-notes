@@ -1,31 +1,30 @@
 {
   "adds": ["defer"],
   "tray": "machine",
-  "title": { "zh": "先问谁", "en": "Ask which first" },
+  "title": { "zh": "先问谁" },
   "intro": [
     {
       "t": {
-        "zh": "这一回，「多代」那条规则倒过来写：先找 ?x 的祖先 ?y，再看 ?y 是不是 ?z 的父母。意思不变。",
-        "en": "This time the rule for more generations is written the other way round: first an ancestor ?y of ?x, then whether ?y is a parent of ?z. The meaning is the same."
+        "zh": "这一回，「多代」那条规则倒过来写：先找 ?x 的祖先 ?y，再看 ?y 是不是 ?z 的父母。意思不变。"
       }
     }
   ],
-  "after": { "zh": "这类问题叫左递归。", "en": "This is known as left recursion." },
+  "after": { "zh": "这类问题叫左递归。" },
   "tasks": [
     {
       "id": "pl-order",
       "kind": "machine",
       "want": "answers",
-      "inputs": [{ "name": "in", "label": { "zh": "问题", "en": "Question" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "问题" } }],
       "backtrack": true,
       "rules": {
         "anc1": {
-          "name": { "zh": "祖先·一代", "en": "Ancestor: one generation" },
+          "name": { "zh": "祖先·一代" },
           "premises": ["Parent(?x, ?y)"],
           "conclusion": "Anc(?x, ?y)"
         },
         "anc3": {
-          "name": { "zh": "祖先·往上数", "en": "Ancestor: counting up" },
+          "name": { "zh": "祖先·往上数" },
           "premises": ["Anc(?x, ?y)", "Parent(?y, ?z)"],
           "conclusion": "Anc(?x, ?z)"
         }
@@ -42,10 +41,10 @@
           "answers": ["k", "l", "m"]
         }
       ],
-      "brief": { "zh": "设计一个证明助手，找出每个问题的所有答案。", "en": "Design a proof assistant that finds every answer to each question." },
+      "brief": { "zh": "设计一个证明助手，找出每个问题的所有答案。" },
       "hint": [
-        { "zh": "倒着用「往上数」以后，第一个目标又是一个「祖先」。", "en": "After “counting up” backwards, the first goal is an “ancestor” again." },
-        { "zh": "先证哪个子目标，?y 就能先定下来？", "en": "Which subgoal, proved first, settles ?y?" }
+        { "zh": "倒着用「往上数」以后，第一个目标又是一个「祖先」。" },
+        { "zh": "先证哪个子目标，?y 就能先定下来？" }
       ],
       "solution": [
         "c0 = search(in, body: c1) {",

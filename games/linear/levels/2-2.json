@@ -1,0 +1,62 @@
+{
+  "title": { "zh": "写下变换" },
+  "intro": [
+    {
+      "t": {
+        "zh": "反过来，说清一个变换，也就能写出它的矩阵。<part-ref to=\"part:join\"></part-ref>把几个向量从左到右并排成矩阵，每个向量是一列。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "主对角线以外全是 0 的方阵叫<wiki-ref to=\"diagonal-matrix\"></wiki-ref>：它只沿坐标轴伸缩。"
+  },
+  "adds": ["join"],
+  "tasks": [
+    {
+      "id": "2-2a",
+      "step": { "zh": "剪切" },
+      "brief": {
+        "zh": "î 不动、ĵ 推到 (k, 1)：交出这个剪切的矩阵。"
+      },
+      "inputs": [{ "name": "k", "label": "k" }],
+      "outputs": [{ "name": "S", "label": "S" }],
+      "tests": [
+        { "inputs": { "k": 1 }, "expect": { "S": [[1, 1], [0, 1]] } },
+        { "inputs": { "k": -2 }, "expect": { "S": [[1, -2], [0, 1]] } },
+        { "inputs": { "k": 0.5 }, "expect": { "S": [[1, 0.5], [0, 1]] } }
+      ],
+      "solution": [
+        "z = num[value=\"0\"]()",
+        "o = num[value=\"1\"]()",
+        "i = vec(o, z)",
+        "j = vec(k, o)",
+        "S0 = join(i, j)",
+        "S <- S0"
+      ],
+      "naive": [
+        "z = num[value=\"0\"]()",
+        "o = num[value=\"1\"]()",
+        "i = vec(o, z)",
+        "j = vec(k, o)",
+        "S0 = join(j, i)",
+        "S <- S0"
+      ]
+    },
+    {
+      "id": "2-2",
+      "step": { "zh": "拉伸" },
+      "brief": {
+        "zh": "交出横向伸缩 a 倍、纵向伸缩 b 倍的变换的矩阵。"
+      },
+      "inputs": [{ "name": "a", "label": "a" }, { "name": "b", "label": "b" }],
+      "outputs": [{ "name": "D", "label": "D" }],
+      "tests": [
+        { "inputs": { "a": 2, "b": 3 }, "expect": { "D": [[2, 0], [0, 3]] } },
+        { "inputs": { "a": -1, "b": 1 }, "expect": { "D": [[-1, 0], [0, 1]] } },
+        { "inputs": { "a": 0.5, "b": 0 }, "expect": { "D": [[0.5, 0], [0, 0]] } }
+      ],
+      "solution": ["z = num[value=\"0\"]()", "i = vec(a, z)", "j = vec(z, b)", "D0 = join(i, j)", "D <- D0"],
+      "naive": ["z = num[value=\"0\"]()", "i = vec(a, b)", "j = vec(z, z)", "D0 = join(i, j)", "D <- D0"]
+    }
+  ]
+}

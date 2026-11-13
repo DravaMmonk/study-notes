@@ -22,7 +22,7 @@ export const KEYS = [
 export default function Shortcuts({ onClose }) {
   return (
     <div className="palette-scrim" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose() }} onKeyDown={(e) => e.key === 'Escape' && onClose()}>
-      <div className="palette keys" role="dialog" aria-label={tr('快捷键', 'Keys')}>
+      <div className="palette keys" role="dialog" aria-label={tr('快捷键')}>
         <table>
           <tbody>
             {KEYS.map(([keys, zh, en]) => <tr key={keys}><th><kbd>{keys}</kbd></th><td>{tr(zh, en)}</td></tr>)}

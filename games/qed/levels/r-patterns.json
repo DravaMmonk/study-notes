@@ -1,12 +1,11 @@
 {
   "adds": ["uPattern", "unifier"],
   "tray": "machine",
-  "title": { "zh": "几个变量", "en": "Several variables" },
+  "title": { "zh": "几个变量" },
   "intro": [
     {
       "t": {
-        "zh": "?P(x, y) 是一句关于 x 和 y 的话。两个「对所有」逐层拆开，等式前记上 ⋀x y；?P 后面跟着两个不同的约束变量，仍是模式。",
-        "en": "?P(x, y) is a sentence about x and y. Two “for all” split one after the other mark the equation ⋀x y; ?P followed by two distinct bound variables is still a pattern."
+        "zh": "?P(x, y) 是一句关于 x 和 y 的话。两个「对所有」逐层拆开，等式前记上 ⋀x y；?P 后面跟着两个不同的约束变量，仍是模式。"
       }
     }
   ],
@@ -15,7 +14,7 @@
       "id": "r-patterns",
       "kind": "machine",
       "want": "unify",
-      "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "等式" } }],
       "tests": [
         { "eqs": ["∀x. ∀y. ?P(x, y) ≐ ∀x. ∀y. Likes(x, y) ∨ Likes(y, x)"] },
         { "eqs": ["∀x. ?P(x) ∧ ?Q(x) ≐ ∀y. Human(y) ∧ Likes(y, i)"] },
@@ -23,13 +22,11 @@
         { "eqs": ["∀x. ?P(x) ∧ ?A ≐ ∀y. Likes(y, i) ∧ Likes(y, j)"] }
       ],
       "brief": {
-        "zh": "设计一个证明助手：把每组等式解到底；对不上或者没有解的，说「失败」。",
-        "en": "Design a proof assistant that solves each set of equations to the end, or says “failed” when they do not fit or have no solution."
+        "zh": "设计一个证明助手：把每组等式解到底；对不上或者没有解的，说「失败」。"
       },
       "hint": [
         {
-          "zh": "?P 后面跟着几个变量，解出的函数就有几个参数，次序同 ?P 后面的次序。",
-          "en": "However many variables follow ?P, the function found has that many parameters, in the order they follow ?P."
+          "zh": "?P 后面跟着几个变量，解出的函数就有几个参数，次序同 ?P 后面的次序。"
         }
       ],
       "solution": [

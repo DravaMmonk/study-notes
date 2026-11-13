@@ -74,19 +74,19 @@ export default function GameFrame({ visible, content, play, part, task, go, edit
   return (
     <section className={`studio-play ${visible ? '' : 'is-hidden'}`}>
       <div className="studio-play-bar">
-        <span className="play-mode" role="radiogroup" aria-label={tr('模式', 'Mode')}>
-          <button type="button" role="radio" aria-checked={edit} className={edit ? 'is-on' : ''} onClick={() => onEdit(true)} title={tr('点画面上的字段在侧栏里改', 'Click a field on the page to edit it in the side panel')}><MousePointerClick size={13} aria-hidden="true" />{tr('编辑', 'Edit')}</button>
-          <button type="button" role="radio" aria-checked={!edit} className={!edit ? 'is-on' : ''} onClick={() => onEdit(false)}><Play size={13} aria-hidden="true" />{tr('试玩', 'Play')}</button>
+        <span className="play-mode" role="radiogroup" aria-label={tr('模式')}>
+          <button type="button" role="radio" aria-checked={edit} className={edit ? 'is-on' : ''} onClick={() => onEdit(true)} title={tr('点画面上的字段在侧栏里改')}><MousePointerClick size={13} aria-hidden="true" />{tr('编辑', 'Edit')}</button>
+          <button type="button" role="radio" aria-checked={!edit} className={!edit ? 'is-on' : ''} onClick={() => onEdit(false)}><Play size={13} aria-hidden="true" />{tr('试玩')}</button>
         </span>
         {part !== undefined ? <b>{part}</b> : play?.level && <b>{play.level}</b>}
         {play?.take && <code>{play.take.label}</code>}
         <span className="kit-spacer" />
         {part === undefined && play?.level && reference && !play.take && (
           <button type="button" className="kit-btn is-label" onClick={() => onReference(play.level)}>
-            <CirclePlay size={14} aria-hidden="true" />{tr('载入参考解', 'Load the reference')}
+            <CirclePlay size={14} aria-hidden="true" />{tr('载入参考解')}
           </button>
         )}
-        {play?.take && <button type="button" className="kit-btn is-label" onClick={onCancelTake}><X size={14} aria-hidden="true" />{tr('不用这块板', 'Leave the board')}</button>}
+        {play?.take && <button type="button" className="kit-btn is-label" onClick={onCancelTake}><X size={14} aria-hidden="true" />{tr('不用这块板')}</button>}
       </div>
       <iframe ref={frame} title={tr('游戏', 'Game')} src="/studio.html?play" />
     </section>

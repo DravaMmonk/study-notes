@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "a 说的话", "en": "What a says" },
+  "title": { "zh": "a 说的话" },
   "tray": "gates",
   "intro": [
     {
       "t": {
-        "zh": "岛上的人要么是<b>骑士</b>，只说真话；要么是<b>无赖</b>，只说假话。",
-        "en": "Everyone on the island is a <b>knight</b>, who only tells the truth, or a <b>knave</b>, who only lies."
+        "zh": "岛上的人要么是<b>骑士</b>，只说真话；要么是<b>无赖</b>，只说假话。"
       }
     }
   ],
@@ -16,12 +15,11 @@
       "target": "KA ↔ KB",
       "blind": true,
       "brief": {
-        "zh": "a 说：「b 是骑士。」把「a 说」译成逻辑，接成电路：a 的话和他的身份相符的行，输出真。",
-        "en": "a says: “b is a knight.” Translate “a says” into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is."
+        "zh": "a 说：「b 是骑士。」把「a 说」译成逻辑，接成电路：a 的话和他的身份相符的行，输出真。"
       },
       "hint": [
-        { "zh": "a 是骑士时，他的话怎样？a 不是骑士时呢？", "en": "If a is a knight, what about what he says? And if he is not?" },
-        { "zh": "「a 是骑士」和 a 的话之间是什么关系？", "en": "How do “a is a knight” and what a says relate?" }
+        { "zh": "a 是骑士时，他的话怎样？a 不是骑士时呢？" },
+        { "zh": "「a 是骑士」和 a 的话之间是什么关系？" }
       ],
       "solution": ["e = gIff(KA, KB)", "out <- e"],
       "naive": ["i = gImp(KA, KB)", "out <- i"]

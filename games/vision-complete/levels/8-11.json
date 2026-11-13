@@ -1,28 +1,24 @@
 {
-  "title": { "zh": "修一张旧照片", "en": "Mending an old photo" },
+  "title": { "zh": "修一张旧照片" },
   "after": {
-    "zh": "你训练的 3×3 核学会了「和邻居差得多的是噪声」，还原以后笔画就清楚了。扩散模型的去噪网络大得多，从纯噪声出发一步步猜噪声、去掉一点，最后画出一张没见过的图：每一步做的都是这一关的事。",
-    "en": "The 3×3 kernel you trained learnt that \"what differs a lot from its neighbours is noise\", and after restoring, the strokes are clear. A diffusion model's denoising network is far bigger: starting from pure noise it guesses the noise and removes a little, step after step, until a picture never seen before appears. Every step does what this level does."
+    "zh": "你训练的 3×3 核学会了「和邻居差得多的是噪声」，还原以后笔画就清楚了。扩散模型的去噪网络大得多，从纯噪声出发一步步猜噪声、去掉一点，最后画出一张没见过的图：每一步做的都是这一关的事。"
   },
   "intro": [
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"own-8-10\"></part-ref>由 x_t 和噪声 ε 还原 x₀。可真要用的时候，没人告诉你噪声是什么。",
-        "en": "The <part-ref to=\"own-8-10\"></part-ref> in the tray recovers x₀ from x_t and the noise ε. But when it is actually needed, nobody tells you what the noise was."
+        "zh": "托盘里的<part-ref to=\"own-8-10\"></part-ref>由 x_t 和噪声 ε 还原 x₀。可真要用的时候，没人告诉你噪声是什么。"
       }
     },
     {
       "t": {
-        "zh": "<part-ref to=\"part:learn3\"></part-ref>可以训练：按训练，它自己调权重。",
-        "en": "<part-ref to=\"part:learn3\"></part-ref> can be trained: press Train and it adjusts its own weights."
+        "zh": "<part-ref to=\"part:learn3\"></part-ref>可以训练：按训练，它自己调权重。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：修好一张满是噪点的旧照片，再标出字的笔画。",
-        "en": "Your task in this level: mend an old photo full of grain, then mark the strokes of the letter."
+        "zh": "这一关你要做的：修好一张满是噪点的旧照片，再标出字的笔画。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：字母 T", "en": "Set 1: letter T" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组：字母 T" } }
     }
   ],
   "tray": "generative",
@@ -31,28 +27,26 @@
       "id": "8-11",
       "kind": "graph",
       "brief": {
-        "zh": "一张印着字母的旧照片，满是噪点（ᾱ = 0.9）。这次不知道噪声是什么：训练一个元件从照片里猜出噪声，还原照片，再标出字的笔画。",
-        "en": "An old photo of a letter, full of grain (ᾱ = 0.9). This time the noise is unknown: train a part to guess the noise from the photo, restore the photo, then mark the strokes of the letter."
+        "zh": "一张印着字母的旧照片，满是噪点（ᾱ = 0.9）。这次不知道噪声是什么：训练一个元件从照片里猜出噪声，还原照片，再标出字的笔画。"
       },
       "hint": {
-        "zh": "噪声每一格都不一样，字的笔画却连成一片。一格和它的邻居差得多，多半是噪声。",
-        "en": "The noise differs from cell to cell, but the strokes of a letter join up. A cell very different from its neighbours is probably noise."
+        "zh": "噪声每一格都不一样，字的笔画却连成一片。一格和它的邻居差得多，多半是噪声。"
       },
       "inputs": ["xt", "ab"],
-      "inputLabels": { "xt": { "zh": "旧照片", "en": "Old photo" }, "ab": { "zh": "剩下多少 ᾱ", "en": "How much is left, ᾱ" } },
+      "inputLabels": { "xt": { "zh": "旧照片" }, "ab": { "zh": "剩下多少 ᾱ" } },
       "outputs": ["x0", "ink"],
-      "outputLabels": { "x0": { "zh": "还原的照片", "en": "Restored photo" }, "ink": { "zh": "字的笔画", "en": "Strokes of the letter" } },
+      "outputLabels": { "x0": { "zh": "还原的照片" }, "ink": { "zh": "字的笔画" } },
       "check": { "tolerance": 0.35, "mismatches": 25 },
       "trainRate": 2,
       "scene": "oldPhoto",
       "setup": { "ab": 0.9 },
       "tests": [
-        { "label": { "zh": "字母 T", "en": "Letter T" }, "letter": "T", "dx": 0, "dy": 0, "seed": 111 },
-        { "label": { "zh": "字母 X", "en": "Letter X" }, "letter": "X", "dx": 1, "dy": 0, "seed": 112 },
-        { "label": { "zh": "字母 O", "en": "Letter O" }, "letter": "O", "dx": 0, "dy": 1, "seed": 113 },
-        { "label": { "zh": "字母 F", "en": "Letter F" }, "letter": "F", "dx": 1, "dy": 1, "seed": 114 }
+        { "label": { "zh": "字母 T" }, "letter": "T", "dx": 0, "dy": 0, "seed": 111 },
+        { "label": { "zh": "字母 X" }, "letter": "X", "dx": 1, "dy": 0, "seed": 112 },
+        { "label": { "zh": "字母 O" }, "letter": "O", "dx": 0, "dy": 1, "seed": 113 },
+        { "label": { "zh": "字母 F" }, "letter": "F", "dx": 1, "dy": 1, "seed": 114 }
       ],
-      "hidden": [{ "label": { "zh": "字母 L", "en": "Letter L" }, "letter": "L", "dx": 0, "dy": 0, "seed": 115 }],
+      "hidden": [{ "label": { "zh": "字母 L" }, "letter": "L", "dx": 0, "dy": 0, "seed": 115 }],
       "solution": [
         "g = learn3[w=[-0.14, -0.39, -0.12, -0.44, 2.26, -0.41, -0.12, -0.39, -0.13]](xt)",
         "r = own-8-10(xt, g, ab)",

@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "合并石子", "en": "Merging stones" },
-  "short": { "zh": "在每个切分点上合并", "en": "Merge at every split point" },
+  "title": { "zh": "合并石子" },
+  "short": { "zh": "在每个切分点上合并" },
   "intro": [
     {
       "t": {
-        "zh": "一排石堆，每次只能把<b>相邻的两堆</b>合成一堆，花费是这两堆的重量之和。一直合到只剩一堆，最少要花多少？",
-        "en": "A row of stone piles. Each move merges <b>two neighbouring piles</b> into one, at a cost equal to their combined weight. Keep going until only one pile is left. What is the least it can cost?"
+        "zh": "一排石堆，每次只能把<b>相邻的两堆</b>合成一堆，花费是这两堆的重量之和。一直合到只剩一堆，最少要花多少？"
       }
     },
     {
       "t": {
-        "zh": "比如 3、1、2：先合 3 和 1（花 4），再和 2 合（花 6），一共 10；先合 1 和 2（花 3），再和 3 合（花 6），一共 9。顺序不同，花费也不同。",
-        "en": "Take 3, 1, 2: merge 3 and 1 first (cost 4), then with 2 (cost 6), 10 in all; or merge 1 and 2 first (cost 3), then with 3 (cost 6), 9 in all. A different order, a different cost."
+        "zh": "比如 3、1、2：先合 3 和 1（花 4），再和 2 合（花 6），一共 10；先合 1 和 2（花 3），再和 3 合（花 6），一共 9。顺序不同，花费也不同。"
       }
     },
     {
       "t": {
-        "zh": "还是区间表：格子 (i, j) 记「把第 i 到第 j 堆合成一堆，最少花多少」。单独一堆不用合，对角线上已经填好了 0。",
-        "en": "An interval table again: cell (i, j) records “the least it costs to merge piles i to j into one”. A single pile needs no merging, so the diagonal is already filled with 0."
+        "zh": "还是区间表：格子 (i, j) 记「把第 i 到第 j 堆合成一堆，最少花多少」。单独一堆不用合，对角线上已经填好了 0。"
       },
       "fig": {
         "scene": {
@@ -38,45 +35,38 @@
     },
     {
       "t": {
-        "zh": "最后一次合并，一定是把左边一大堆和右边一大堆合起来。左右在哪里分开？可能是任何一个<b>切分点</b>。想一想：最后这一下要花多少？在它之前的花费，又在表里的哪两格？",
-        "en": "The last merge always joins one big pile on the left with one big pile on the right. Where do left and right divide? It could be any <b>split point</b>. Think: what does this last merge cost? And which two cells of the table hold the cost of everything before it?"
+        "zh": "最后一次合并，一定是把左边一大堆和右边一大堆合起来。左右在哪里分开？可能是任何一个<b>切分点</b>。想一想：最后这一下要花多少？在它之前的花费，又在表里的哪两格？"
       }
     },
     {
       "t": {
-        "zh": "扫帚的扫描臂这次按切分点工作：每个切分点送来一对格子，排成「左段们」和「右段们」两整段。加法器能把两整段<b>一对一对</b>地相加。",
-        "en": "This time Broom’s sweep arm works by split point: each split point sends a pair of cells, lined up as two whole runs, “left parts” and “right parts”. An Adder can add two whole runs together <b>pair by pair</b>."
+        "zh": "扫帚的扫描臂这次按切分点工作：每个切分点送来一对格子，排成「左段们」和「右段们」两整段。加法器能把两整段<b>一对一对</b>地相加。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "每次只能合并相邻的两堆，花费是两堆重量之和。算出把一排石堆合成一堆的最少花费。",
-      "en": "Each move merges two neighbouring piles, costing their combined weight. Work out the least it costs to merge a row of piles into one."
+      "zh": "每次只能合并相邻的两堆，花费是两堆重量之和。算出把一排石堆合成一堆的最少花费。"
     },
     "how": {
-      "zh": "扫描臂送来每个切分点的左段和右段。机器人按长度从短到长扫，拼好电路就能运行。",
-      "en": "The sweep arm sends the left part and right part for every split point. The robot scans by length, shortest first, so once the circuit is built you can run it."
+      "zh": "扫描臂送来每个切分点的左段和右段。机器人按长度从短到长扫，拼好电路就能运行。"
     }
   },
   "robot": "broom",
   "unlock": "interval",
   "builds": { "ports": [{ "reads": "segL" }, { "reads": "segR" }, { "reads": "weight" }] },
   "debrief": {
-    "title": { "zh": "区间合并", "en": "Interval merging" },
+    "title": { "zh": "区间合并" },
     "body": [
       {
-        "zh": "每一格的来路是<b>所有切分点</b>：段越长，切分点越多。这种「最后一步把两段合起来」的结构，叫区间动态规划。",
-        "en": "Each cell’s ways in are <b>all its split points</b>: the longer the run, the more split points. This “the last step joins two parts” structure is called interval dynamic programming."
+        "zh": "每一格的来路是<b>所有切分点</b>：段越长，切分点越多。这种「最后一步把两段合起来」的结构，叫区间动态规划。"
       },
       {
-        "zh": "给一串算式加括号、矩阵连乘的最佳顺序、把一排相邻的文件两两合并，用的都是这种区间表。这块电路板存进了元件箱，叫<part-ref to=\"interval\"></part-ref>。",
-        "en": "Bracketing a chain of calculations, the best order for multiplying a chain of matrices, merging a row of neighbouring files two at a time: all of these use this kind of interval table. This board has gone into your Parts as the <part-ref to=\"interval\"></part-ref>."
+        "zh": "给一串算式加括号、矩阵连乘的最佳顺序、把一排相邻的文件两两合并，用的都是这种区间表。这块电路板存进了元件箱，叫<part-ref to=\"interval\"></part-ref>。"
       }
     ],
     "note": {
-      "zh": "区间合并：最后一步合并左段和右段；在所有切分点里挑最省的，再加整段的代价。",
-      "en": "Interval merging: the last step joins a left part and a right part; pick the cheapest split point, then add the cost of the whole run."
+      "zh": "区间合并：最后一步合并左段和右段；在所有切分点里挑最省的，再加整段的代价。"
     }
   },
   "tasks": [
@@ -86,12 +76,10 @@
       "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
       "hints": [
         {
-          "zh": "先只看一个切分点：最后一次合并之前，左段和右段各自合成一堆的花费在哪里？它们该怎么合起来？",
-          "en": "Look at a single split point first: before the last merge, where are the costs of merging the left part and the right part each into one pile? How should they be combined?"
+          "zh": "先只看一个切分点：最后一次合并之前，左段和右段各自合成一堆的花费在哪里？它们该怎么合起来？"
         },
         {
-          "zh": "所有切分点里挑最省的（取较小），再加上这一段的总重。",
-          "en": "Pick the cheapest of all the split points (min), then add this run’s total weight."
+          "zh": "所有切分点里挑最省的（取较小），再加上这一段的总重。"
         }
       ],
       "world": "interval",

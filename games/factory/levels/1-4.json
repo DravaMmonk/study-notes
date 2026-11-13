@@ -1,22 +1,20 @@
 {
-  "title": { "zh": "两个文件", "en": "Two files" },
+  "title": { "zh": "两个文件" },
   "intro": [
     {
       "t": {
-        "zh": "和<level-ref to=\"1-3\"></level-ref>一样的事，多了一个维度：一处修改要看的文件多了一个。",
-        "en": "The same as <level-ref to=\"1-3\"></level-ref>, one dimension more: the change needs one more file in view."
+        "zh": "和<level-ref to=\"1-3\"></level-ref>一样的事，多了一个维度：一处修改要看的文件多了一个。"
       }
     }
   ],
   "after": {
-    "zh": "每处修改的代码都要在上下文里。少了一个文件，那一处就是编的。",
-    "en": "Every change needs its code in the context. One file short, and that change is made up."
+    "zh": "每处修改的代码都要在上下文里。少了一个文件，那一处就是编的。"
   },
   "tasks": [
     {
       "id": "1-4",
       "kind": "board",
-      "brief": { "zh": "这次一个 issue 要改两个文件。", "en": "This time one issue changes two files." },
+      "brief": { "zh": "这次一个 issue 要改两个文件。" },
       "tests": [{ "issue": "member-discount" }, { "issue": "coupon" }],
       "solution": [
         "a = read[file=\"src/cart.js\"]()",

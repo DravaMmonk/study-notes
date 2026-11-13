@@ -7,7 +7,7 @@ import { chipsOf, complete, holesOf, joinsOnto, nodeAt, segmentOf, setAt } from 
 // Building a proof term from chips on the shared strip (games/kit/strip), written out as it reads with a box for each
 // empty place: the term tasks' board (TermScreen.jsx). `scope` is the names the term may use (premises, assumptions); `history` names whose undo it is.
 
-const GROUPS = [['name', T('名字', 'Names')], ['form', T('写法', 'Forms')]]
+const GROUPS = [['name', T('名字', 'Names')], ['form', T('写法')]]
 const pathOf = (key) => key.split('.').slice(1).map(Number)
 
 export default function TermEditor({ tree, onChange, scope, forms, history: scopeKey }) {
@@ -39,7 +39,7 @@ export default function TermEditor({ tree, onChange, scope, forms, history: scop
     <>
       <StripTools history={history} onClear={() => onChange(null)} empty={!tree} />
       <Strip line={[segmentOf(tree)]} label={T('证明项', 'proof term')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
-      {strip.note ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p> : <p className="ks-note">{tr('点击文字可以删除。', 'Tap words to delete them.')}</p>}
+      {strip.note ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p> : <p className="ks-note">{tr('点击文字可以删除。')}</p>}
       <Chips groups={groups} onChip={(key) => { strip.onChip(key) }} />
     </>
   )

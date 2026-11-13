@@ -1,0 +1,42 @@
+{
+  "parts": {
+    "mix": {
+      "name": {
+        "zh": "叠加"
+      },
+      "desc": {
+        "zh": "把两个一样长的波形逐格相加。"
+      },
+      "icon": "Plus",
+      "family": "wave",
+      "inputs": [
+        {
+          "name": "a"
+        },
+        {
+          "name": "b"
+        }
+      ],
+      "compute": "mix(a, b)"
+    },
+    "scale": {
+      "name": {
+        "zh": "音量"
+      },
+      "desc": {
+        "zh": "把波形的每一格乘以 k。"
+      },
+      "icon": "Scaling",
+      "family": "wave",
+      "inputs": [
+        {
+          "name": "k"
+        },
+        {
+          "name": "x"
+        }
+      ],
+      "compute": "scale(k, x)"
+    }
+  }
+}

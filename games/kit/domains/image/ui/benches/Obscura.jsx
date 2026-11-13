@@ -1,5 +1,5 @@
 import { useId, useRef, useState } from 'react'
-import { limitOf } from '../../../../engine/bench.js'
+import { goalOf, limitOf } from '../../../../engine/bench.js'
 import { tr } from '../../../../shell/i18n.js'
 import { useTween } from './optics-motion.js'
 import './optics.css'
@@ -92,7 +92,7 @@ export function ObscuraSide({ ctx }) {
 
   return (
     <figure className="optics-figure">
-      <svg ref={svg} className="optics-drag" viewBox={viewBox} style={{ '--fs': `${fs}px` }} role="img" aria-label={tr('暗箱侧视图', 'Camera obscura, side view')} onPointerMove={slide} onPointerUp={drop} onPointerCancel={drop}>
+      <svg ref={svg} className="optics-drag" viewBox={viewBox} style={{ '--fs': `${fs}px` }} role="img" aria-label={tr('暗箱侧视图')} onPointerMove={slide} onPointerUp={drop} onPointerCancel={drop}>
         <line className="optics-axis" x1={L.x0 + 20} y1={0} x2={m.TABLE + 40} y2={0} />
         <rect className="optics-table" x={-40} y={tableTop} width={m.TABLE + 70} height={9 * k} rx={2} />
         {/* the object */}
@@ -105,21 +105,21 @@ export function ObscuraSide({ ctx }) {
         <line className="optics-ray is-base" x1={0} y1={0} x2={s} y2={0} />
 
         {/* pinhole plate: two halves with the hole between */}
-        <g className={`optics-handle ${dragging === 'plate' ? 'is-dragging' : ''}`} tabIndex={0} role="slider" aria-label={tr('孔板位置 Z', 'Pinhole plate position Z')} aria-valuenow={state.Z} aria-valuemin={m.PLATE[0]} aria-valuemax={m.PLATE[1]} aria-valuetext={`Z = ${state.Z} mm`} onPointerDown={grab('plate')} onKeyDown={nudge('plate')}>
+        <g className={`optics-handle ${dragging === 'plate' ? 'is-dragging' : ''}`} tabIndex={0} role="slider" aria-label={tr('孔板位置 Z')} aria-valuenow={state.Z} aria-valuemin={m.PLATE[0]} aria-valuemax={m.PLATE[1]} aria-valuetext={`Z = ${state.Z} mm`} onPointerDown={grab('plate')} onKeyDown={nudge('plate')}>
           <rect className="optics-grip" x={Z - grip} y={Y(116) - fs * 1.6} width={grip * 2} height={tableTop - Y(116) + fs * 1.6 + 9 * k} rx={6 * u} />
           <rect className="optics-plate" x={Z - 2 * u} y={Y(116)} width={4 * u} height={Y(D / 2) - Y(116)} />
           <rect className="optics-plate" x={Z - 2 * u} y={Y(-D / 2)} width={4 * u} height={tableTop - Y(-D / 2)} />
           <Foot x={Z} y={tableTop} u={u} k={k} />
-          <text className="optics-tag" x={Z} y={Y(116) - fs * 0.5}>{tr('孔板', 'Plate')}</text>
+          <text className="optics-tag" x={Z} y={Y(116) - fs * 0.5}>{tr('孔板')}</text>
         </g>
 
         {/* screen */}
-        <g className={`optics-handle ${dragging === 'screen' ? 'is-dragging' : ''}`} tabIndex={0} role="slider" aria-label={tr('屏幕位置', 'Screen position')} aria-valuenow={state.s} aria-valuemin={state.Z + m.GAP} aria-valuemax={m.TABLE} aria-valuetext={`f = ${state.s - state.Z} mm`} onPointerDown={grab('screen')} onKeyDown={nudge('screen')}>
+        <g className={`optics-handle ${dragging === 'screen' ? 'is-dragging' : ''}`} tabIndex={0} role="slider" aria-label={tr('屏幕位置')} aria-valuenow={state.s} aria-valuemin={state.Z + m.GAP} aria-valuemax={m.TABLE} aria-valuetext={`f = ${state.s - state.Z} mm`} onPointerDown={grab('screen')} onKeyDown={nudge('screen')}>
           <rect className="optics-grip" x={s - grip + 2 * u} y={Y(60) - fs * 1.6} width={grip * 2} height={tableTop - Y(60) + fs * 1.6 + 9 * k} rx={6 * u} />
           <rect className="optics-screen" x={s} y={Y(60)} width={4 * u} height={tableTop - Y(60)} />
           <line className="optics-image" x1={s} y1={0} x2={s} y2={Y(v.image)} style={{ opacity: glow, strokeWidth: Math.max(1.5, v.blur * k) }} />
           <Foot x={s + 2 * u} y={tableTop} u={u} k={k} />
-          <text className="optics-tag" x={s + 2 * u} y={Y(60) - fs * 0.5}>{tr('屏幕', 'Screen')}</text>
+          <text className="optics-tag" x={s + 2 * u} y={Y(60) - fs * 0.5}>{tr('屏幕')}</text>
         </g>
 
         {/* dimensions, read from the real setting */}
@@ -127,7 +127,7 @@ export function ObscuraSide({ ctx }) {
         <Dimension x0={Z} x1={s} y={dimY} fs={fs} label={label('f', state.s - state.Z)} />
         <text className="optics-tag is-left" x={-8 * u} y={Y(m.ARROW / 2) + fs * 0.35}>{ctx.phone ? `X ${m.ARROW}` : `X = ${m.ARROW} mm`}</text>
       </svg>
-      <figcaption className="bk-caption">{ctx.phone ? tr('左右拖动孔板和屏幕 · 单位 mm', 'Drag the plate and screen sideways · units: mm') : tr('左右拖动孔板和屏幕（也可聚焦后按方向键，按住 Shift 每次移动 10 mm）', 'Drag the plate and screen sideways (or focus one and use the arrow keys; Shift moves 10 mm)')}</figcaption>
+      <figcaption className="bk-caption">{ctx.phone ? tr('左右拖动孔板和屏幕 · 单位 mm') : tr('左右拖动孔板和屏幕（也可聚焦后按方向键，按住 Shift 每次移动 10 mm）')}</figcaption>
     </figure>
   )
 }
@@ -138,10 +138,10 @@ export function ObscuraScreen({ ctx }) {
   const v = useShown(ctx, false)
   const glow = Math.min(1, Math.max(0.06, v.light * 0.7))
   const image = arrowShape(m.ARROW, m.SHAFT).map(([x, y]) => [(-x * v.f) / v.Z, (-y * v.f) / v.Z])
-  const goal = limitOf(ctx.bench.goal, 'height').near
+  const goal = limitOf(goalOf(ctx.bench, ctx.stage), 'height')?.near
   return (
     <figure className="bk-panel is-quiet optics-inset">
-      <svg viewBox="-26 -12 52 72" role="img" aria-label={tr('屏幕正面', 'Screen, front view')}>
+      <svg viewBox="-26 -12 52 72" role="img" aria-label={tr('屏幕正面')}>
         <defs>
           <filter id={blurId} filterUnits="userSpaceOnUse" x={-26} y={-12} width={52} height={72}>
             <feGaussianBlur stdDeviation={v.blur / 4} />
@@ -158,7 +158,7 @@ export function ObscuraScreen({ ctx }) {
         <line className="optics-inset-axis" x1={-26} y1={0} x2={26} y2={0} />
         <polygon className="optics-inset-image" points={pts(image.map(([x, y]) => [x, -y]))} filter={`url(#${CSS.escape(blurId)})`} style={{ opacity: glow }} />
       </svg>
-      <figcaption className="bk-caption">{tr('屏幕正面 · mm', 'Screen, front view · mm')}</figcaption>
+      <figcaption className="bk-caption">{tr('屏幕正面 · mm')}</figcaption>
     </figure>
   )
 }

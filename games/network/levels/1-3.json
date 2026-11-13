@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "两边都是 1", "en": "Both are 1" },
+  "title": { "zh": "两边都是 1" },
   "intro": [
     {
       "t": {
-        "zh": "到这里为止，说什么只取决于一根线。这一次板同时听两根线，说出的位由两根线一起决定。",
-        "en": "So far what the board says has depended on one wire. Now it listens to two, and what it says depends on both."
+        "zh": "到这里为止，说什么只取决于一根线。这一次板同时听两根线，说出的位由两根线一起决定。"
       }
     }
   ],
@@ -12,22 +11,20 @@
     {
       "id": "1-3",
       "brief": {
-        "zh": "听两根线：两根线上都是 1 时说 1，否则说 0。",
-        "en": "Listen to two wires: say 1 when both carry a 1, and 0 otherwise."
+        "zh": "听两根线：两根线上都是 1 时说 1，否则说 0。"
       },
       "hint": [
         {
-          "zh": "先固定线 A 的值，看线 B 该怎样决定输出。",
-          "en": "Hold wire A still and see how wire B should decide the output."
+          "zh": "先固定线 A 的值，看线 B 该怎样决定输出。"
         },
-        { "zh": "线 A 为 0 时，输出是什么？线 A 为 1 时呢？", "en": "When wire A is 0, what is the output? And when A is 1?" }
+        { "zh": "线 A 为 0 时，输出是什么？线 A 为 1 时呢？" }
       ],
       "wires": {
         "in": [
-          { "name": "a", "label": { "zh": "线 A", "en": "Wire A" } },
-          { "name": "b", "label": { "zh": "线 B", "en": "Wire B" } }
+          { "name": "a", "label": { "zh": "线 A" } },
+          { "name": "b", "label": { "zh": "线 B" } }
         ],
-        "out": [{ "name": "x", "label": { "zh": "出线", "en": "Wire out" } }]
+        "out": [{ "name": "x", "label": { "zh": "出线" } }]
       },
       "tests": [
         {

@@ -1,43 +1,37 @@
 {
-  "title": { "zh": "买卖一次股票", "en": "Buy once, sell once" },
-  "short": { "zh": "每天在哪一层", "en": "Which layer you are on each day" },
+  "title": { "zh": "买卖一次股票" },
+  "short": { "zh": "每天在哪一层" },
   "intro": [
     {
       "t": {
-        "zh": "你知道一只股票接下来每天的价格。只能<b>买一次、卖一次</b>，先买后卖，最多能赚多少？",
-        "en": "You know a stock’s price on each of the coming days. You may <b>buy once and sell once</b>, buying first. How much can you make at most?"
+        "zh": "你知道一只股票接下来每天的价格。只能<b>买一次、卖一次</b>，先买后卖，最多能赚多少？"
       }
     },
     {
       "t": {
-        "zh": "每天结束时，你处在三种状态之一：还没买、手里有股、卖掉了。每种状态一层，一天一列。",
-        "en": "At the end of each day you are in one of three states: not bought yet, holding, or sold. Each state is a layer, with a column for each day."
+        "zh": "每天结束时，你处在三种状态之一：还没买、手里有股、卖掉了。每种状态一层，一天一列。"
       }
     },
     {
       "t": {
-        "zh": "每一层都跑同一块电路板。左边一格是前一天的同一层；探针读<b>来处那层</b>的前一天。从来处走到这一层的进账写在「本格信息」里：买入要付今天的价，卖出能得今天的价。",
-        "en": "Every layer runs the same board. The cell to the left is the same layer the day before; the probe reads <b>the layer you come from</b>, the day before. What stepping over from there brings in is in the This cell panel: buying pays today’s price, selling earns it."
+        "zh": "每一层都跑同一块电路板。左边一格是前一天的同一层；探针读<b>来处那层</b>的前一天。从来处走到这一层的进账写在「本格信息」里：买入要付今天的价，卖出能得今天的价。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "算出最多能赚多少钱。一次也不买也行，那就是 0。",
-      "en": "Work out the most money you can make. Not trading at all is allowed, which makes 0."
+      "zh": "算出最多能赚多少钱。一次也不买也行，那就是 0。"
     },
     "how": {
-      "zh": "答案是最后一天「还没买」和「卖掉了」两层里较大的那个。",
-      "en": "The answer is the larger of the “not bought yet” and “sold” layers on the last day."
+      "zh": "答案是最后一天「还没买」和「卖掉了」两层里较大的那个。"
     }
   },
   "robot": "stack",
   "debrief": {
-    "title": { "zh": "状态写成了层", "en": "The state became layers" },
+    "title": { "zh": "状态写成了层" },
     "body": [
       {
-        "zh": "每一层存「到今天为止、今天处在这种状态，最多有多少钱」。买卖只是从一层走到另一层。",
-        "en": "Each layer holds “the most money you can have today, ending today in this state”. Buying and selling just move you from one layer to another."
+        "zh": "每一层存「到今天为止、今天处在这种状态，最多有多少钱」。买卖只是从一层走到另一层。"
       }
     ]
   },
@@ -49,19 +43,16 @@
         {
           "when": { "not": { "uses": "leftPrev" } },
           "say": {
-            "zh": "买和卖都是换一层：探针读来处那层的前一天。",
-            "en": "Buying and selling both change layer: the probe reads the layer you come from, the day before."
+            "zh": "买和卖都是换一层：探针读来处那层的前一天。"
           }
         }
       ],
       "hints": [
         {
-          "zh": "维持原样，还是从来处走过来？取较大。",
-          "en": "Stay as you were, or step over from where you come from? Take the larger."
+          "zh": "维持原样，还是从来处走过来？取较大。"
         },
         {
-          "zh": "从来处走过来 = 探针读到的 + 这一步的进账。",
-          "en": "Stepping over = what the probe reads + what the step brings in."
+          "zh": "从来处走过来 = 探针读到的 + 这一步的进账。"
         }
       ],
       "world": "stock",

@@ -6,8 +6,12 @@
 // Chinese folder titles, and has already sent a reader of the other language to the other version. Here the
 // header gets the language and theme buttons; links to notes are pointed at the
 // reader's language, with titles to match.
+//
+// Bilingual reading (notes only, 'fieldnotes.bilingual'): the page stays in the reader's language and the other
+// version is fetched and spliced in block by block, each Chinese block followed by its English one.
 (function () {
   const LANG_KEY = 'fieldnotes.lang';
+  const BI_KEY = 'fieldnotes.bilingual';
   const THEME_KEY = 'fieldnotes.theme';
   const data = window.__i18n || { lang: null, pairs: [], sections: {} };
 
@@ -20,6 +24,7 @@
   }
   const lang = preferred();
   const tr = (zh, en) => (lang === 'en' ? en : zh);
+  const bilingual = (() => { try { return localStorage.getItem(BI_KEY) === '1'; } catch (e) { return false; } })();
 
   const configNode = document.getElementById('__config');
   const base = new URL(configNode ? JSON.parse(configNode.textContent).base || '.' : '.', location.href);
@@ -34,7 +39,7 @@
 
   function retarget(link) {
     const href = link.getAttribute('href');
-    if (!href || /^(#|[a-z]+:)/i.test(href)) return;
+    if (!href || /^(#|mailto:|javascript:)/i.test(href)) return;
     const pair = byUrl.get(key(new URL(href, location.href).href));
     if (!pair || !pair[lang]) return;
     const hash = href.includes('#') ? href.slice(href.indexOf('#')) : '';
@@ -85,10 +90,15 @@
     // language is a different page here, so picking one goes to this page's translation.
     import(root() + 'assets/kit/menu.js').then(({ mountBarMenus }) => mountBarMenus(actions, {
       onLang: (next) => {
-        try { localStorage.setItem(LANG_KEY, next); } catch (e) { /* the switch still happens for this page */ }
-        if (here && here[next]) location.href = absolute(here[next].url) + location.hash;
+        try {
+          if (next === 'bi') localStorage.setItem(BI_KEY, '1');
+          else { localStorage.removeItem(BI_KEY); localStorage.setItem(LANG_KEY, next); }
+        } catch (e) { /* the switch still happens for this page */ }
+        const target = next !== 'bi' && here && here[next] ? absolute(here[next].url) : null;
+        if (target && target !== key(location.href)) location.href = target + location.hash;
         else location.reload();
       },
+      lang: { now: () => (bilingual ? 'bi' : lang), extra: [{ id: 'bi', label: '中英双语' }] },
       onTheme: applyTheme,
     })).catch(() => { /* without the kit the page still reads; it just has no menus */ });
 
@@ -113,8 +123,103 @@
     });
   }
 
+  // A level of a notes edition (<!-- task: game/level -->, hooks/ui.py; games/DESIGN.md 12.1): the game's page,
+  // embedded in the page's language, as tall as it says it is.
+  function embedTasks() {
+    const frames = [...document.querySelectorAll('iframe.task-embed[data-game]')];
+    frames.forEach((frame) => {
+      const url = new URL('index.html', frame.dataset.game);
+      url.search = new URLSearchParams({ embed: '', level: frame.dataset.level, lang: data.lang === 'en' ? 'en' : 'zh' });
+      frame.src = url.href;
+    });
+    window.addEventListener('message', (event) => {
+      const frame = frames.find((f) => f.contentWindow === event.source);
+      if (frame && event.data && event.data.kit === 'kit-embed-height') frame.style.height = `${event.data.height}px`;
+    });
+  }
+
+  // ---- bilingual reading ----
+  const ARTICLE = 'article.md-content__inner';
+  const HEADING = /^H[1-6]$/;
+  // Blocks shown once: code, diagrams, display maths and embeds read the same in both languages.
+  const SHARED = 'pre, .highlight, .mermaid, .arithmatex, iframe, hr';
+
+  const blocks = (article) => [...article.children].filter((el) => !el.matches('script, style, .md-content__button, .md-source-file'));
+
+  // The text a reader sees, without maths (typeset on this page, raw in the fetched one).
+  function prose(el) {
+    const copy = el.cloneNode(true);
+    copy.querySelectorAll('.arithmatex, mjx-container').forEach((m) => m.remove());
+    return copy.textContent.replace(/\s+/g, ' ').trim();
+  }
+
+  // Split at headings; when both versions have the same headings, blocks pair up within each section,
+  // so a paragraph added on one side shifts only its own section.
+  function sections(list) {
+    return list.reduce((acc, el) => {
+      if (!acc.length || HEADING.test(el.tagName)) acc.push([]);
+      acc[acc.length - 1].push(el);
+      return acc;
+    }, []);
+  }
+  function pairUp(mine, theirs) {
+    const a = sections(mine), b = sections(theirs);
+    const aligned = a.length === b.length && a.every((s, i) => s[0].tagName === b[i][0].tagName);
+    const groups = aligned ? a.map((s, i) => [s, b[i]]) : [[mine, theirs]];
+    return groups.flatMap(([x, y]) => Array.from({ length: Math.max(x.length, y.length) }, (_, i) => [x[i] || null, y[i] || null]));
+  }
+
+  // A block of the other version, made to live on this page: no duplicate ids, links resolved from where it came.
+  function adopt(el, from, otherLang) {
+    const node = document.importNode(el, true);
+    node.querySelectorAll('.headerlink').forEach((a) => a.remove());
+    [node, ...node.querySelectorAll('[id]')].forEach((n) => n.removeAttribute('id'));
+    node.querySelectorAll('[href], [src]').forEach((n) => ['href', 'src'].forEach((attr) => {
+      const v = n.getAttribute(attr);
+      if (v && !/^(#|[a-z]+:)/i.test(v)) n.setAttribute(attr, new URL(v, from).href);
+    }));
+    node.querySelectorAll('a[href]').forEach(retarget);
+    node.lang = otherLang === 'zh' ? 'zh-CN' : 'en';
+    return node;
+  }
+
+  function spliceTranslation() {
+    const other = { zh: 'en', en: 'zh' }[data.lang];
+    const article = document.querySelector(ARTICLE);
+    if (!bilingual || !other || !here || !here[other] || !article) return;
+    const from = absolute(here[other].url);
+    fetch(from)
+      .then((res) => (res.ok ? res.text() : Promise.reject(res.status)))
+      .then((html) => {
+        const theirs = new DOMParser().parseFromString(html, 'text/html').querySelector(ARTICLE);
+        if (!theirs) return;
+        const added = [];
+        let last = null;
+        pairUp(blocks(article), blocks(theirs)).forEach(([mine, alt]) => {
+          if (!alt || alt.matches(SHARED) || alt.querySelector('.mermaid, iframe') || (mine && prose(mine) === prose(alt))) {
+            last = mine || last;
+            return;
+          }
+          const node = adopt(alt, from, other);
+          added.push(node);
+          const [zh, en] = other === 'en' ? [mine, node] : [node, mine];
+          en?.classList.add('bi-en');
+          if (zh && en) zh.classList.add('bi-lead');
+          if (!mine) (last ? last.after(node) : article.append(node));
+          else if (other === 'en') mine.after(node);
+          else mine.before(node);
+          last = other === 'en' || !mine ? node : mine;
+        });
+        const mj = window.MathJax;
+        if (added.length && mj && mj.typesetPromise) (mj.startup?.promise || Promise.resolve()).then(() => mj.typesetPromise(added));
+      })
+      .catch(() => { /* opened from disk or offline: the page reads in one language */ });
+  }
+
   function start() {
     applyTheme(currentTheme());
+    spliceTranslation();
+    embedTasks();
     document.querySelectorAll('a[href]').forEach(retarget);
     titleSections();
     translateChrome();

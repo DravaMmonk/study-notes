@@ -1,5 +1,5 @@
-.separable-kernels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
-.separable-kernels figure { margin: 0; display: grid; justify-items: center; gap: 8px; }
-.separable-kernels figcaption { color: var(--muted); font-size: 13px; }
+.separable-kernels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-6); }
+.separable-kernels figure { margin: 0; display: grid; justify-items: center; gap: var(--sp-4); }
+.separable-kernels figcaption { color: var(--muted); font-size: var(--fs-ui); }
 .separable-kernel { display: grid; grid-template-columns: repeat(3, 1fr); width: min(100%, 120px); aspect-ratio: 1; border: 1px solid var(--rule); }
-.separable-kernel span { border: 1px solid rgba(128, 128, 128, .3); }
+.separable-kernel span { border: 1px solid var(--hairline); }

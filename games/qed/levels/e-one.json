@@ -1,5 +1,5 @@
 {
-  "title": { "zh": "一个人说话", "en": "One islander speaks" },
+  "title": { "zh": "一个人说话" },
   "tray": "gates",
   "tasks": [
     {
@@ -8,12 +8,11 @@
       "target": "KA ↔ (¬KA ∨ ¬KB)",
       "blind": true,
       "brief": {
-        "zh": "a 说：「我们俩里至少有一个是无赖。」把这件事译成逻辑，接成电路：a 的话和他的身份相符的行，输出真。",
-        "en": "a says: “At least one of us two is a knave.” Translate this into logic and wire it: the board outputs true on exactly the rows where what a says fits what a is."
+        "zh": "a 说：「我们俩里至少有一个是无赖。」把这件事译成逻辑，接成电路：a 的话和他的身份相符的行，输出真。"
       },
       "hint": [
-        { "zh": "先译 a 的话，再译「a 说」。", "en": "Translate what a says first, then “a says”." },
-        { "zh": "「a 是无赖」就是「a 不是骑士」。", "en": "“a is a knave” is “a is not a knight”." }
+        { "zh": "先译 a 的话，再译「a 说」。" },
+        { "zh": "「a 是无赖」就是「a 不是骑士」。" }
       ],
       "solution": ["na = gNot(KA)", "nb = gNot(KB)", "s = gOr(na, nb)", "e = gIff(KA, s)", "out <- e"]
     }

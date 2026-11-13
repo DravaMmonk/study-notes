@@ -22,8 +22,9 @@
 // topic may also name levels of earlier eras there (a topic that goes on from one in an earlier chapter): it requires
 // them, and hangs on its own era's track at its last `after`.
 // A part, once met, is usable in every level after it on the tree that plays with a tray listing it (see trays).
-// layout(eras) gives the play order, each level's place ({ era, role, topic | branch }), what it requires and each
-// era's track for the map; the shell opens a level once everything it requires is solved.
+// layout(eras, { notes }) gives the play order, each level's place ({ era, role, topic | branch }), what it requires
+// and each era's track for the map; the shell opens a level once everything it requires is solved. A notes course
+// requires nothing anywhere.
 //
 // defineCourse({
 //   levels      [{ id, unlocks: [flag] }]  in play order (layout(eras).order when the course has eras)
@@ -35,8 +36,12 @@
 //   primitives  [part]                     available from the start
 //   adds(level) → [part]                   the parts a level brings in (everything else carries, see reach)
 //   needs(part) → flag | null              the flag solving its builder level sets (null: built nowhere)
-//   builds(level) → [part]                 the parts solving the level unlocks
-//   granted(level) → [part]                parts a level hands out without their builder being solved
+//   builds(level) → [part]                 the parts solving the level unlocks; of a task ({ id, task }), those its
+//                                          level's tasks up to it have built by then
+//   opens(level) → [item]                  the settings and setting values a level brings in, as `adds` brings parts
+//                                          (see items below): each carries into every level after it
+//   gives(level) → [item]                  what a level (a task: { id, task }) holds beyond that, there only
+//   withholds(level) → [item]              what a level (a task) does not hold though it would, there only
 //   concept(part) → key | null             parts that are one new idea together (a merger's models), by default itself;
 //                                          null for a part that is never a new idea (a level's own givens: its axioms)
 //   machine(level) → machine | null        the machine a level is played on, checked against its era's
@@ -69,9 +74,20 @@
 //                                          growing); without it, topics are not checked so
 //   abstraction                            also audit the abstraction chain (bare-intro, unused); a course turns it on
 //                                          once its curriculum keeps it
+//   notes                                  a notes course (games/DESIGN.md 12): every level open, nothing requiring
+//                                          anything, and no audit (the checks skip it)
 // })
+//
+// What a level holds is one rule at every grain (games/DESIGN.md 2.8). An item is a part ('shift'), one of its
+// settings ('shift.border') or one value of a setting ('shift.border=wrap'): itemOf, readItem. A game has several
+// trays and a level plays with one; on it, an item is held by default as far as the course has got — a part once a
+// level before brought it in or the player built it, a setting or a value from the start unless the course opens it
+// somewhere (`opens`, by a level on the way; `needs`, by a flag the player earns) — and a level or a task then
+// changes that for itself alone: `gives` adds items, `withholds` takes items away, at any grain.
+//
 // met(course, level) is every part a level has met; reach(course, level) those of them its tray holds;
-// usable(course, level, flags) what it holds for a player;
+// usable(course, level, flags) the parts it holds for a player; holds(course, level, flags) whether it holds an item
+// of any grain;
 // offer(course, level, flags) splits that into what the level shows and what it folds away; fresh(course, level) the
 // ideas new in a level; introductions(course) where each primitive comes in; isCore(course, level) whether a level is
 // a milestone the map draws full size; audit(course) lists every broken rule.
@@ -84,7 +100,7 @@ export const RULE_TEXT = {
   'own-level': 'offered in the very level that builds it',
   'built-later': 'offered before the level that builds it',
   carried: 'named in a level that holds it anyway (a part met carries into every level after it)',
-  granted: 'handed out by a level (grants)',
+  granted: 'handed out by a level (gives)',
   'many-new': 'more than one new part in one level',
   unplaced: 'in no era',
   'off-tray': 'brought in or built, and on no tray, so no level can place it',
@@ -141,8 +157,8 @@ export function numbered(items, requires) {
  * letter) and place ('N2'), an era's challenges 'C1.1' …. A domain with its own numbering (the logic domain's topic
  * codes running across chapters) gives its own.
  */
-export function levelLabels(eras) {
-  const { requires } = layout(eras)
+export function levelLabels(eras, options) {
+  const { requires } = layout(eras, options)
   return new Map(eras.flatMap((era) => [
     ...numbered([...era.foundation, ...(era.practice ?? [])], requires).map((id, k) => [id, `${era.id}-${k + 1}`]),
     ...(era.topics ?? []).flatMap((t) => t.levels.map((id, k) => [id, `${t.code ?? t.id[0].toUpperCase()}${k + 1}`])),
@@ -162,7 +178,7 @@ export const eraLevels = (era) => [...pathLevels([...era.foundation, ...(era.pra
  * where `branches` are the optional topics and challenges hanging there ({ kind, id, title, levels, after }, after: the
  * levels they follow).
  */
-export function layout(eras) {
+export function layout(eras, { notes = false } = {}) {
   const place = new Map(), requires = new Map(), tracks = new Map()
   let before = [] // where the previous era's main path ended
   for (const era of eras) {
@@ -216,21 +232,23 @@ export function layout(eras) {
     tracks.set(era.id, track)
     before = ends
   }
+  // A notes course (games/DESIGN.md 12.1) opens every level: none requires another.
+  if (notes) for (const id of requires.keys()) requires.set(id, [])
   // Play order: each era's track, every branch right after the place it hangs from.
   const order = [...tracks.values()].flatMap((track) => track.flatMap((entry) => [...(entry.level ? [entry.level] : entry.parallel.flatMap((b) => b.levels)), ...entry.branches.flatMap((b) => b.levels)]))
   return { order, place, requires, tracks }
 }
 
-// A showcase's reason, written plainly or in each language.
-const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
+// A showcase's reason, written plainly or as a text.
+const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.zh?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, granted = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], finale = null, abstraction = false }) {
+export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, finale = null, abstraction = false, notes = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
   /** The level that builds a part: the first to set the flag it needs. */
   const builder = (part) => (needs(part) ? setBy.get(needs(part)) ?? null : null)
-  const plan = eras ? layout(eras) : null
+  const plan = eras ? layout(eras, { notes }) : null
   // Everything solved before a level can open: with eras, what it requires, all the way back; without, every level
   // before it in play order.
   const ancestors = new Map()
@@ -247,18 +265,20 @@ export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = (
     if (name !== null && !trays[name]) throw new Error(`level ${level.id} is played with the tray ${name}, which the game has not`)
     return name
   }
-  return { levels, eras, plan, trays, tray, primitives: new Set(primitives), adds, needs, builds, granted, concept, machine, uses, can, world, naive, replaces, local, needed, boards, showcase, declares, carries, openParts, finale, abstraction, index, builder, before: (a, b) => up(b).has(a) }
+  // The settings and values some level opens: held from that level on, not from the start.
+  const gated = new Set(levels.flatMap((l) => opens(l)))
+  return { levels, eras, plan, trays, tray, gated, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, world, naive, replaces, local, needed, boards, showcase, declares, carries, openParts, references, finale, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
 }
 
 /**
  * Every part a level has met, by the rule every course follows: the parts it brings in, and every part brought in or
  * built at a level before it on the tree (every level this one comes after), unless a part met since replaces it (an
  * upgrade, or a merger) or it stays where it is brought (`local`). So a level's spec names only the parts it brings in
- * (`adds`); a part the player builds needs no naming at all. In order: the level's own parts, then the carried ones in
- * the order they were met.
+ * (`adds`); a part the player builds needs no naming at all. A task ({ id, task }) has also met what the tasks before
+ * it in its level built. In order: the level's own parts, then the carried ones in the order they were met.
  */
 export function met(course, level) {
-  const own = course.adds(level)
+  const own = [...course.adds(level), ...builtBefore(course, level)]
   const earlier = course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => [...course.adds(l), ...course.builds(l)])
   const gone = new Set([...own, ...earlier].flatMap((p) => course.replaces(p)))
   const carried = earlier.filter((p) => !own.includes(p) && !gone.has(p) && !course.local(p))
@@ -276,33 +296,83 @@ export function reach(course, level) {
   return tray === null ? all : course.trays[tray].filter((p) => all.includes(p))
 }
 
+/** An item's address: a part, one of its settings (`key`), or one value of that setting. */
+export const itemOf = (part, key, value) => (key === undefined ? part : value === undefined ? `${part}.${key}` : `${part}.${key}=${value}`)
+/** An item read: { part, key?, value? } (a part's name has no dot; a value is everything after the first '='). */
+export function readItem(item) {
+  const dot = item.indexOf('.')
+  if (dot < 0) return { part: item }
+  const rest = item.slice(dot + 1)
+  const eq = rest.indexOf('=')
+  return eq < 0 ? { part: item.slice(0, dot), key: rest } : { part: item.slice(0, dot), key: rest.slice(0, eq), value: rest.slice(eq + 1) }
+}
+const isPartItem = (item) => !item.includes('.')
+// The parts the tasks before a task have built in its level; and those its level builds that they have not: the task
+// building a part does not hold it, even when an earlier level built it before (an upgrade works on the part's own
+// board), unless the level brings the part in by name (a part of the engine's own, met and unlocked in one level).
+const builtBefore = (course, level) => (level.task > 0 ? course.builds({ id: level.id, task: level.task - 1 }) : [])
+const building = (course, level) => (level.task === undefined ? [] : course.builds({ id: level.id }).filter((p) => !builtBefore(course, level).includes(p) && !course.adds(level).includes(p)))
+
+// Whether a player with `flags` has earned a part a level reaches: a primitive, and a built part once its builder
+// level is solved (until the content is fixed, a part no level builds, or one the level builds itself: audit reports
+// both). A part built on an optional level (a topic or a challenge) is held only by the levels that require that level.
+function earned(course, level, flags, p) {
+  if (course.primitives.has(p)) return true
+  const need = course.needs(p), by = course.builder(p)
+  if (!need || !by || by === level.id) return true
+  if (OPTIONAL.includes(course.plan?.place.get(by)?.role) && !course.before(by, level.id)) return false
+  return flags.has(need)
+}
+
 /**
- * The parts a level really holds for a player with `flags` (the unlocks of the levels solved, plus a level's grants):
- * of everything it can reach (or of `parts`, some it has met), a primitive, and a built part once its builder level is
- * solved (until the content is fixed, a part no level builds, or one the level builds itself: audit reports both). A
- * part built on an optional level (a topic or a challenge) is held only by the levels that require that level.
+ * The parts a level really holds for a player with `flags` (the unlocks of the levels solved): of everything it can
+ * reach (or of `parts`, some it has met), those the player has earned, and those the level gives (`gives`: in their
+ * place when it reaches them, after the rest when not), less those it withholds (`withholds`) and, of a task, those
+ * its level builds that no task before it has built (and the level does not bring in itself).
  */
 export function usable(course, level, flags, parts = reach(course, level)) {
-  return parts.filter((p) => {
-    if (course.primitives.has(p)) return true
-    const need = course.needs(p), by = course.builder(p)
-    if (!need || !by || by === level.id) return true
-    // A part built on an optional level is only for the levels that require that level.
-    if (OPTIONAL.includes(course.plan?.place.get(by)?.role) && !course.before(by, level.id)) return false
-    return flags.has(need)
-  })
+  const given = course.gives(level).filter(isPartItem)
+  const withheld = new Set([...course.withholds(level), ...building(course, level)])
+  return [...new Set([...parts.filter((p) => given.includes(p) || earned(course, level, flags, p)), ...given])].filter((p) => !withheld.has(p))
+}
+
+/**
+ * Whether a level holds an item for a player with `flags`: has(part), has(part, key), has(part, key, value), has.inside(part, form). A part
+ * as `usable` says. A setting, or a value of one, unless the level withholds it: when the level gives it; else, one
+ * that needs a flag once the player has the flag, one a level opens (`opens`) from that level on along the tree, and
+ * any other from the start. A value is held only with its setting.
+ */
+export function holds(course, level, flags) {
+  const given = new Set(course.gives(level))
+  const withheld = new Set(course.withholds(level))
+  let parts = null
+  let here = null
+  // The settings and values opened by this level and the levels it comes after.
+  const opened = () => (here ??= new Set([...course.opens(level), ...course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.opens(l))]))
+  const one = (item) => {
+    if (withheld.has(item)) return false
+    if (given.has(item)) return true
+    const need = course.needs(item)
+    if (need) return flags.has(need)
+    return !course.gated.has(item) || opened().has(item)
+  }
+  const has = (part, key, value) => {
+    if (key === undefined) return (parts ??= new Set(usable(course, level, flags))).has(part)
+    return one(itemOf(part, key)) && (value === undefined || one(itemOf(part, key, value)))
+  }
+  has.inside = (part, form, options) => course.references?.resolve(part, form, level, options) ?? null
+  has.forms = (part) => course.references?.forms(part, level) ?? []
+  return has
 }
 const OPTIONAL = ['intro', 'step', 'finale', 'challenge']
 
 /**
  * What a level shows of the parts it holds, so that a level with many parts does not leave the player lost: only the
  * ideas its reference answer uses (`needed`, by concept). Everything else is folded away, still usable. With no
- * reference to go by, or one built from parts the player cannot hold yet, every part shows. `also`: parts held here
- * beyond those its tray holds (a task's own level's part, proved by the task before it; the rule parts a machine's
- * rule book gives). Returns { shown, folded }.
+ * reference to go by, or one built from parts the player cannot hold yet, every part shows. Returns { shown, folded }.
  */
-export function offer(course, level, flags, also = []) {
-  const all = [...usable(course, level, flags), ...also]
+export function offer(course, level, flags) {
+  const all = usable(course, level, flags)
   // The answer goes by its parts (not a board's own fixed cards), and only when the player holds them all: a reference
   // built from parts the player cannot have yet says nothing about what to show.
   const isPart = (p) => course.primitives.has(p) || Boolean(course.needs(p)) || course.levels.some((l) => course.adds(l).includes(p))
@@ -368,7 +438,7 @@ export function audit(course) {
   const unbuilt = new Set()
   for (const level of levels) {
     for (const task of course.openParts(level)) if (task.staged && task.count > OPEN_PART_LIMIT) say('open-crowded', level.id, task.task, `${task.task}: ${task.count} loose parts (limit ${OPEN_PART_LIMIT}); split the task or build an earlier stage`)
-    const granted = new Set(course.granted(level))
+    const granted = new Set(course.gives(level))
     const earlier = levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.adds(l))
     // The ideas new here; a part built by the player is never new where it is first used.
     const ideas = fresh(course, level)
@@ -584,9 +654,3 @@ function bypass(course, say) {
     }
   }
 }
-
-/**
- * The forms a part's card offers in level `id` (engine/forms.js): its first, and every one an upgrade passed before
- * the level brings (`revisions` [{ by, forms }], as shell/index.js reads them).
- */
-export const formsAt = (course, first, revisions = [], id) => [first, ...revisions.filter((r) => r.by && r.forms && course.before(r.by, id)).flatMap((r) => r.forms)]

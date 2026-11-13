@@ -124,10 +124,10 @@ export function usePlayback({ count, stepsOf, check, final, onSolve, onFail, onT
     /** The run bar's controls and big button (RunDock), given the button's labels. */
     dock: ({ go, done }) => ({
       controls: [
-        { key: 'step', label: tr('步进', 'Step'), icon: <StepForward size={16} />, onClick: api.step },
-        ...(live ? [playing ? { key: 'pause', label: tr('暂停', 'Pause'), icon: <Pause size={16} />, onClick: api.pause } : { key: 'resume', label: tr('继续', 'Continue'), icon: <Play size={16} />, onClick: api.resume }] : []),
+        { key: 'step', label: tr('步进'), icon: <StepForward size={16} />, onClick: api.step },
+        ...(live ? [playing ? { key: 'pause', label: tr('暂停'), icon: <Pause size={16} />, onClick: api.pause } : { key: 'resume', label: tr('继续'), icon: <Play size={16} />, onClick: api.resume }] : []),
       ],
-      go: { label: live ? tr('跳至结果', 'Skip to the end') : passed ? done : go, busy: Boolean(live), pass: passed, onClick: api.play },
+      go: { label: live ? tr('跳至结果') : passed ? done : go, busy: Boolean(live), pass: passed, onClick: api.play },
     }),
   }
   return api

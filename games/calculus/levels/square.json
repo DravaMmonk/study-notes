@@ -1,0 +1,38 @@
+{
+  "title": { "zh": "平方数" },
+  "intro": [
+    {
+      "t": {
+        "zh": "0, 1, 4, 9, 16, …：相邻两项的差是 1, 3, 5, 7，一直在变，写不成「每项加同一个数」的递推。"
+      }
+    },
+    {
+      "t": {
+        "zh": "但第 n 项只和 n 有关。手上有了<part-ref to=\"count\"></part-ref>，再加一件新元件<part-ref to=\"part:mul\"></part-ref>，它把两个数乘起来。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "第 n 项直接由 n 算出，不经过前面任何一项：这叫<wiki-ref to=\"general-term\"></wiki-ref>。"
+  },
+  "adds": ["mul"],
+  "tasks": [
+    {
+      "id": "square",
+      "brief": {
+        "zh": "交出 0, 1, 4, 9, 16, …：第 n 项是 n²。"
+      },
+      "outputs": [{ "name": "q", "label": "n²" }],
+      "tests": [{ "want": { "q": [0, 1, 4, 9, 16, 25, 36, 49] } }],
+      "hidden": [{ "want": { "q": [0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121] } }],
+      "solution": ["n = count()", "m = mul(n, n)", "q <- m"],
+      "naive": [
+        "r = reg[reg=A, start=0]()",
+        "c = const[value=2]()",
+        "s = add(r, c)",
+        "k = keep[reg=A](s)",
+        "q <- r"
+      ]
+    }
+  ]
+}

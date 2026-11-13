@@ -1,0 +1,21 @@
+{
+  "__title__": "__title__",
+  "开发中": "In development",
+  "从叠加和音量两块元件起步，亲手搭出造波形的元件。": "Starting from Mix and Volume, build parts that make waves yourself.",
+  "叠加": "Mix",
+  "每块元件只做一件事，怎样造出更复杂的波形？": "Each part does one thing: how do you make a richer wave?",
+  "波形": "wave",
+  "一串按先后排好的数，每一格记下那一刻的高低。": "Numbers in order, each sample how high the wave stands at that moment.",
+  "把两个一样长的波形逐格相加。": "Adds two waves of the same length, sample by sample.",
+  "音量": "Volume",
+  "把波形的每一格乘以 k。": "Multiplies every sample of the wave by k.",
+  "放大再叠加": "Scale, then mix",
+  "板左边是这一关给的一个数和两段<wiki-ref to=\"wave\"></wiki-ref>，右边是要交出的波形。手上的两块元件各做一件事：一块把波形放大，一块把两段波形叠在一起。": "The number and the two <wiki-ref to=\"wave\"></wiki-ref> this level gives are on the left of the board, the wave to give on the right. The two parts at hand each do one thing: one makes a wave louder, the other lays two waves over each other.",
+  "给出 a 放大 k 倍、再叠上 b 的波形。": "Gives a made k times as loud, with b mixed in.",
+  "把 a 放大 k 倍，再叠上 b。": "Make a k times as loud, then mix in b.",
+  "一块元件的输出可以接到另一块元件的输入上。": "One part’s output can go into another part’s input.",
+  "结果": "Result",
+  "再叠一段": "One more wave",
+  "这一关给的波形多了一段。": "This level gives one more wave.",
+  "交出 p 倍的 a、q 倍的 b 和 c 叠在一起的波形。": "Give p times a, q times b and c, mixed together."
+}

@@ -1,16 +1,14 @@
 {
-  "title": { "zh": "by 后面是一个证明助手", "en": "A proof assistant after by" },
+  "title": { "zh": "by 后面是一个证明助手" },
   "intro": [
     {
       "t": {
-        "zh": "by 后面也可以是造好的证明助手：自建 auto、化简、证明重建器。它们只用规则，所以这一句照样由核证出。",
-        "en": "by may also be followed by a proof assistant already built: your own auto, Simp, the reconstructor. They use only rules, so the row is still proved by the kernel."
+        "zh": "by 后面也可以是造好的证明助手：自建 auto、化简、证明重建器。它们只用规则，所以这一句照样由核证出。"
       }
     }
   ],
   "after": {
-    "zh": "人写结构，证明助手补小步：真正的证明大多这样分工。",
-    "en": "People write the structure and proof assistants fill in the small steps: most real proofs are shared out this way."
+    "zh": "人写结构，证明助手补小步：真正的证明大多这样分工。"
   },
   "tasks": [
     {
@@ -40,13 +38,12 @@
         { "k": "have", "stmt": "InA ∧ InB", "using": ["c", "h1"], "by": "rule:mp" },
         { "k": "show", "stmt": "⊥", "using": ["s", "a1", "h2"], "by": "rule:mp" }
       ],
-      "brief": { "zh": "选出每一句的 by。", "en": "Choose each row’s by." },
+      "brief": { "zh": "选出每一句的 by。" },
       "hint": [
         {
-          "zh": "由等价和「进位是 1」得出两个输入都是 1，一个元件不够。",
-          "en": "From the equivalence and “the carry is 1” to both inputs being 1: one part is not enough."
+          "zh": "由等价和「进位是 1」得出两个输入都是 1，一个元件不够。"
         },
-        { "zh": "最后一句要在三句话里找出矛盾。", "en": "The last row looks for a contradiction among three sentences." }
+        { "zh": "最后一句要在三句话里找出矛盾。" }
       ]
     }
   ]

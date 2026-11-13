@@ -21,11 +21,11 @@ export default function TestTabs({ tests, states, index, onSelect, phone = false
       <button key={`${k}-${keyOf(t.label)}`} type="button" {...mark(t.sample ? 'sample' : t.hidden ? `hidden[${k - shown}]` : `tests[${k}]`, 'task', () => onSelect(k))} className={`${phone ? 'pb-test' : 'test-row'} ${k === index ? (phone ? 'is-on' : 'is-active') : ''} ${state ? `is-${state}` : ''} ${t.sample ? 'is-sample' : ''}`} onClick={() => onSelect(k)} aria-pressed={k === index}>
         {t.sample ? <Image size={phone ? 12 : 13} /> : state === 'pass' ? <Check size={phone ? 12 : 13} /> : state === 'fail' ? <X size={phone ? 12 : 13} /> : <Circle size={phone ? 10 : 11} />}
         <span>{L(t.label)}</span>
-        {t.hidden && <em className="hidden-tag">{tr('隐藏', 'hidden')}</em>}
+        {t.hidden && <em className="hidden-tag">{tr('隐藏')}</em>}
       </button>
     )
   })
   const add = edit && <AddMark at="tests" label={{ zh: '测试', en: 'a test' }} />
-  if (phone) return <nav className="pb-tests" aria-label={tr('测试', 'Tests')}>{tabs}{add}</nav>
+  if (phone) return <nav className="pb-tests" aria-label={tr('测试')}>{tabs}{add}</nav>
   return <ol className="test-list">{tabs.map((tab) => <li key={tab.key}>{tab}</li>)}{add && <li>{add}</li>}</ol>
 }

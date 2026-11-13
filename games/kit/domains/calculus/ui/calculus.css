@@ -1,0 +1,7 @@
+/* The calculus domain's screen: its cards' families. The rest is the circuit base's (circuit/circuit.css .cs-).
+   Colours come from the kit's tokens. */
+[data-family='given'] { --fam: var(--w0); }
+[data-family='memory'] { --fam: var(--n2); }
+[data-family='value'] { --fam: var(--w3); }
+[data-family='built'] { --fam: var(--w5); }
+[data-family='end'] { --fam: var(--accent); }

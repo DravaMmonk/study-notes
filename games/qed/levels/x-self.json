@@ -1,5 +1,5 @@
 {
-  "title": { "zh": "不用框恒等", "en": "Identity without a box" },
+  "title": { "zh": "不用框恒等" },
   "tray": "proof",
   "without": ["impI", "chain", "swap", "merge"],
   "tasks": [
@@ -8,12 +8,11 @@
       "kind": "proof",
       "tests": [{ "goal": "A → A" }],
       "cases": [{ "A": "Rain" }, { "A": "Sat" }],
-      "briefNote": { "zh": "不用假设框。", "en": "Without the assumption box." },
+      "briefNote": { "zh": "不用假设框。" },
       "hint": [
-        { "zh": "从 S 开始：S 套用两次之后得到的是什么？", "en": "Start from S: what does it give after two Applies?" },
+        { "zh": "从 S 开始：S 套用两次之后得到的是什么？" },
         {
-          "zh": "S 的第二句不一定是一个词。S 要的两句，都能用 K 造。",
-          "en": "S’s second sentence need not be a single word. Both sentences S then needs can be made with K."
+          "zh": "S 的第二句不一定是一个词。S 要的两句，都能用 K 造。"
         }
       ],
       "solution": [

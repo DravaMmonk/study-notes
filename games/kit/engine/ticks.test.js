@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { packed, sink, source } from './boards.js'
-import { boardNode, drive, hearing, register, runTicks, store } from './ticks.js'
+import { boardNode, drive, hearing, reacting, register, runTicks, store } from './ticks.js'
 
 const PARTS = {
   input: source(),
@@ -17,7 +17,7 @@ const PARTS = {
   min: { inputs: ['a', 'b'], eval: ({ a, b }) => Math.min(a, b) },
 }
 const w = (text) => text.split(' ').map((s) => { const [from, to] = s.split('>'); const [id, port = 'in'] = to.split('.'); return { from, to: id, port } })
-// A bus where the smallest value said wins, and nothing said reads 1 (a CAN bus with 0 dominant).
+// A bus where the smallest value said wins and an undriven line reads 1.
 const bus = (said) => Math.min(1, ...said.filter((v) => v !== undefined))
 const script = (id, bits) => ({ id, say: (t) => bits[t], hear: () => null })
 
@@ -73,4 +73,35 @@ test('a packed part with several outputs says from its registers before it hears
   assert.equal(error, undefined)
   assert.deepEqual(steps.map((s) => s.line), [1, 0, 0, 0])
   assert.deepEqual(steps.map((s) => s.heard.b.outputs.out), [1, 0, 0, 0])
+})
+
+test('nested packed outputs follow the inner output dependencies', () => {
+  const inner = {
+    nodes: [{ id: 'in', type: 'input', params: { name: 'line' } }, { id: 'r', type: 'bit', params: { reg: 'k' } }, { id: 's', type: 'set', params: { reg: 'k' } }, { id: 'say', type: 'output', params: { name: 'say' } }, { id: 'got', type: 'output', params: { name: 'got' } }],
+    wires: w('in>s r>say in>got'),
+  }
+  let chosen = inner
+  const relay = packed({ circuit: () => chosen, inputs: ['line'], outputs: ['say', 'got'], holds: true })
+  const wrapper = {
+    nodes: [{ id: 'in', type: 'input', params: { name: 'line' } }, { id: 'p', type: 'relay' }, { id: 'say', type: 'output', params: { name: 'say' } }, { id: 'got', type: 'output', params: { name: 'got' } }],
+    wires: w('in>p.line p#say>say p#got>got'),
+  }
+  const box = packed({ circuit: wrapper, inputs: ['line'], outputs: ['say', 'got'], parts: { ...PARTS, relay }, holds: true })
+  const board = { nodes: [{ id: 'rx', type: 'rx' }, { id: 'p', type: 'box' }, { id: 'tx', type: 'tx' }, { id: 'out', type: 'output', params: { name: 'out' } }], wires: w('rx>p.line p#say>tx p#got>out') }
+  const node = boardNode({ id: 'b', circuit: board, parts: { ...PARTS, relay, box } })
+  const { steps, error } = runTicks({ nodes: [node, script('w', [1, 0, 1, 1])], ticks: 4, line: bus })
+  assert.equal(error, undefined)
+  assert.deepEqual(steps.map((step) => step.line), [1, 0, 0, 0])
+  assert.deepEqual(steps.map((step) => step.heard.b.outputs.out), [1, 0, 0, 0])
+  chosen = { ...inner, wires: w('in>s in>say in>got') }
+  const changed = boardNode({ id: 'b', circuit: board, parts: { ...PARTS, relay, box } })
+  assert.ok(runTicks({ nodes: [changed, script('w', [1])], ticks: 1, line: bus }).error)
+})
+
+test('a world answers a board: what the board gives this tick is what the world shows it the next', () => {
+  // The board doubles what it reads; the world shows it back one more than it was given.
+  const circuit = { nodes: [{ id: 'seen', type: 'input', params: { name: 'seen' } }, { id: 'a', type: 'add' }, { id: 'out', type: 'output', params: { name: 'out' } }], wires: w('seen>a.a seen>a.b a>out') }
+  const world = reacting({ board: 'you', start: 1, reads: (state) => ({ seen: state }), step: (state, { out }) => ({ state: out + 1, shown: { was: state, given: out } }) })
+  const run = runTicks({ nodes: [boardNode({ id: 'you', circuit, parts: PARTS, bind: world.bind }), world.node], ticks: 3, line: () => null })
+  assert.deepEqual(run.steps.map((s) => s.heard.world), [{ was: 1, given: 2 }, { was: 3, given: 6 }, { was: 7, given: 14 }])
 })

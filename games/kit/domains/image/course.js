@@ -3,7 +3,7 @@
 // bench's model, a budget's check), the play order and the tree from its eras (../../course.js layout), each task with
 // the image domain's defaults, its level's palette in the order the player meets parts, the ways of drawing a picture
 // it has met so far, and the packed parts its solved circuits become (engine/own.js).
-import { defineCourse, eraLevels, layout, offer, reach, usable } from '../../course.js'
+import { defineCourse, eraLevels, holds, itemOf, layout, offer, reach, readItem } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
 import { trayIn } from '../../engine/trays.js'
 import { imageDefinitions } from './engine/definitions.js'
@@ -55,19 +55,23 @@ function playable({ intro: _, ...task }, kit, keep) {
  * eras give the order), views: { view: level id } the level each way of drawing a picture comes with (pixels is there
  * from the start), primitives (the parts no circuit builds), trays: { tray: [part] } (../../course.js trays),
  * concept: { part: idea } parts that are one new idea together, replaces: { part: [part] } the parts a part supersedes
- * once met }.
+ * once met }, mode: 'notes' for a notes edition (every level open, no audit).
  * A level is a list of tasks (../../engine/tasks.js), each read as the level with the task's fields over it. A level
  * names only the parts it brings in (`adds`) and the tray it plays with (`tray`): every part met or built before it
  * carries into it, as far as its tray lists it; see ../../course.js reach and offer. What a task unlocks, the tasks after it hold at once (`opens`); a
- * level that shows a new part alone says why (`showcase`).
- * Returns { CHAPTERS, LEVELS, levelById, course, kit, intros, usableIn(level, flags), offerIn(level, flags),
+ * level that shows a new part alone says why (`showcase`). A flag a level unlocks, gives for itself (`grants`) or
+ * keeps from a task (`withhold`) stands for every item that needs it (engine/nodes.js `unlock`: a part, one of its
+ * settings, one option of a choice); what a task holds of them is the kernel's rule (../../course.js holds).
+ * Returns { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn(level, flags), holdsIn(level, flags),
  * syncOwn(progress), blueprints }: each of LEVELS the fields its level says once, its place in the course and its
  * tasks as they play (`tasks`, each with its key); kit the image engine over the course's own part table
  * (engine/kit.js: NODE_TYPES and the parts its levels pack), so two courses read in one process never run each other's
  * packed parts. All of it is built anew: nothing that came from the content is written to.
  */
-export function imageCourse({ eras, levels, views = {}, primitives, trays, concept = {}, replaces = {}, partDefs }) {
-  const plan = layout(eras)
+export function imageCourse({ eras, levels, views = {}, primitives, trays, concept = {}, replaces = {}, mode, partDefs }) {
+  // A notes edition (games/DESIGN.md 12.1) opens every level.
+  const notes = mode === 'notes'
+  const plan = layout(eras, { notes })
   // Levels are read in play order: a level that packs its circuit is a part (engine/own.js) before the levels after
   // it, whose boards may hold it, are read.
   const content = Object.fromEntries(levels.map((level) => [level.id, level]))
@@ -137,6 +141,22 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
 
   // A node that names an `unlock` flag is built by the first level whose `unlocks` set it.
   const partsFor = (flags) => Object.keys(types).filter((t) => flags.includes(types[t].unlock))
+  // The flag an item needs (../../course.js items): a part's, a setting's, or an option's of a choice.
+  const flagOf = (item) => {
+    const { part, key, value } = readItem(item)
+    if (key === undefined) return types[part]?.unlock ?? null
+    const param = types[part]?.params?.find((p) => p.key === key)
+    return (value === undefined ? param?.unlock : param?.options?.find((o) => String(o[0]) === value)?.[2]) ?? null
+  }
+  // Every item that needs one of some flags.
+  const needing = new Map()
+  for (const [type, spec] of Object.entries(types)) {
+    const items = [type, ...(spec.params ?? []).flatMap((p) => [itemOf(type, p.key), ...(p.options ?? []).map((o) => itemOf(type, p.key, String(o[0])))])]
+    for (const item of items) if (flagOf(item)) needing.set(flagOf(item), [...(needing.get(flagOf(item)) ?? []), item])
+  }
+  const itemsFor = (flags = []) => flags.flatMap((flag) => needing.get(flag) ?? [])
+  // The flags a level's tasks up to task k have unlocked by then; its last task's passing unlocks the level's own.
+  const unlockedBy = (level, k) => [...level.tasks.slice(0, k + 1).flatMap((task) => task.opens), ...(k === level.tasks.length - 1 ? level.levelUnlocks : [])]
   // Every task's answer counts: a part only the first task of a level uses is used.
   const answers = (l) => placedById[l.id].tasks.map((t) => t.solution).filter((s) => s?.nodes)
   const course = defineCourse({
@@ -148,14 +168,16 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
     naive: (l) => placedById[l.id].tasks.some((t) => t.naive),
     primitives,
     adds: (l) => placedById[l.id].adds,
-    needs: (p) => types[p]?.unlock ?? null,
-    builds: (l) => partsFor(l.unlocks),
-    granted: (l) => partsFor(placedById[l.id].grants ?? []),
+    needs: flagOf,
+    builds: (l) => partsFor(l.task === undefined ? placedById[l.id].unlocks : unlockedBy(placedById[l.id], l.task)),
+    gives: (l) => itemsFor(placedById[l.id].grants),
+    withholds: (l) => itemsFor(placedById[l.id].tasks[l.task]?.withhold),
     replaces: (p) => replaces[p] ?? [],
     needed: (l) => (answers(l).length ? answers(l).flatMap((s) => s.nodes.map((n) => n.type)) : null),
     boards: answers,
     showcase: (l) => placedById[l.id].showcase ?? null,
     abstraction: true,
+    notes,
   })
   // A circuit level's palette is everything it can hold (../../course.js reach), in its tray's order; a board or probe
   // level has only what it brings in. Its tasks hold the same.
@@ -164,10 +186,12 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
     return { ...level, ...tray, tasks: level.tasks.map((task) => ({ ...task, ...tray })) }
   })
   const levelById = Object.fromEntries(LEVELS.map((level) => [level.id, level]))
-  /** The parts a level can really offer a player holding `flags` (the shell's: unlocks of solved levels, and grants). */
-  const usableIn = (level, flags) => usable(course, { id: level.id }, flags)
-  /** Everything the player has for a level: what it shows, and what it folds away ({ shown, folded }). */
-  const offerIn = (level, flags) => offer(course, { id: level.id }, flags)
+  // A level as the screens play it is one of its tasks (`task`, its index).
+  const at = (level) => ({ id: level.id, task: level.task })
+  /** Everything a player holding `flags` (the shell's: the unlocks of solved levels and of the tasks before it) has for a task: what it shows, and what it folds away ({ shown, folded }). */
+  const offerIn = (level, flags) => offer(course, at(level), flags)
+  /** Whether a task holds a part, one of its settings or one option of a choice: has(part), has(part, key), has(part, key, value). */
+  const holdsIn = (level, flags) => holds(course, at(level), flags)
 
-  return { CHAPTERS, LEVELS, levelById, course, kit, intros, usableIn, offerIn, syncOwn, blueprints }
+  return { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn, holdsIn, syncOwn, blueprints }
 }

@@ -1,16 +1,14 @@
 {
-  "title": { "zh": "定义加法", "en": "Defining addition" },
+  "title": { "zh": "定义加法" },
   "intro": [
     {
       "t": {
-        "zh": "数有了，还没有加法。定义一个函数，就是按要拆开的那个数，每个构造子写一行：0 + y 等于什么，S x + y 等于什么。右边可以再用加法，但要拆的数必须变小，否则算不完。",
-        "en": "There are numbers, but no addition yet. To define a function, write one row for each constructor of the number it takes apart: what 0 + y is, and what S x + y is. A right side may use addition again, but only on a smaller number, or it never finishes."
+        "zh": "数有了，还没有加法。定义一个函数，就是按要拆开的那个数，每个构造子写一行：0 + y 等于什么，S x + y 等于什么。右边可以再用加法，但要拆的数必须变小，否则算不完。"
       }
     }
   ],
   "after": {
-    "zh": "Lean 把这样的定义编译成自然数的递推子 Nat.rec。",
-    "en": "Lean compiles such a definition into the recursor of the numbers, Nat.rec."
+    "zh": "Lean 把这样的定义编译成自然数的递推子 Nat.rec。"
   },
   "tasks": [
     {
@@ -30,8 +28,8 @@
       ],
       "solution": ["y", "s(plus(x, y))"],
       "naive": ["y", "s(plus(s(x), y))"],
-      "brief": { "zh": "给每一行选一个右边，让每个测试都算对。", "en": "Pick a right side for every row so that every test works out right." },
-      "hint": [{ "zh": "S x + y 比 x + y 多一。", "en": "S x + y is one more than x + y." }]
+      "brief": { "zh": "给每一行写出右边。" },
+      "hint": [{ "zh": "S x + y 比 x + y 多一。" }]
     }
   ]
 }

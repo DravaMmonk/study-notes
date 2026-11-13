@@ -6,10 +6,10 @@ import { GLOSSARY } from '../engine/vocabulary.js'
 import { showPath } from '../engine/ops/edit.js'
 import { eraLevels } from '../course.js'
 
-const NOT_GAME = ['id', 'levels', 'glossary', 'domain', 'vocabulary', 'open', 'blueprint']
+const NOT_GAME = ['id', 'levels', 'glossary', 'domain', 'vocabulary', 'open', 'blueprint', 'i18n']
 /** The copy rule a text is held to: the field it is (a task's own field for a task's text). */
 export const textField = (path) => String(path[0] === 'tasks' ? path[2] ?? '' : path[0] === 'eras' ? path[2] ?? '' : path[0] ?? '')
-const pairOf = (v) => (typeof v === 'string' ? { zh: v, en: v } : v)
+const pairOf = (v) => (typeof v === 'string' ? { zh: v } : v)
 
 /**
  * The rows of `scope` (an era's index, 'all' or 'glossary'), `order` the levels in play order:

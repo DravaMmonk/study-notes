@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "绕一大圈", "en": "A long way round" },
+  "title": { "zh": "绕一大圈" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "三句已知首尾相接，最后又绕回起点「闹钟响了」。",
-        "en": "Three givens meet end to end, and the last comes back round to the start, “the alarm rings”."
+        "zh": "三句已知首尾相接，最后又绕回起点「闹钟响了」。"
       }
     }
   ],
@@ -20,8 +19,7 @@
       ],
       "hint": [
         {
-          "zh": "接成一段以后，「我坐公交」卡在两遍「闹钟响了」中间。",
-          "en": "Once joined into one piece, “I take the bus” sits between the two “the alarm rings”s."
+          "zh": "接成一段以后，「我坐公交」卡在两遍「闹钟响了」中间。"
         }
       ],
       "solution": ["c1 = chain(p, q)", "c2 = chain(c1, r)", "w = swap(c2)", "m = mp(w, d)", "g = merge(m)", "goal <- g"]

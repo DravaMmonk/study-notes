@@ -1,25 +1,23 @@
 {
-  "title": { "zh": "斜街", "en": "Slanted streets" },
-  "short": { "zh": "往右，或往右下", "en": "Right, or diagonally down-right" },
+  "title": { "zh": "斜街" },
+  "short": { "zh": "往右，或往右下" },
   "intro": [
     {
       "t": {
-        "zh": "回到斜街：每一步只能<b>往右</b>走一格，或者<b>往右下斜着</b>走一格。这次不算体力：从左上角出发，到右下角一共有几条路线？",
-        "en": "Back to the slanted streets: each step goes one cell <b>right</b>, or one cell <b>diagonally down and right</b>. No energy this time: starting from the top-left corner, how many routes reach the bottom-right corner?"
+        "zh": "回到斜街：每一步只能<b>往右</b>走一格，或者<b>往右下斜着</b>走一格。这次不算体力：从左上角出发，到右下角一共有几条路线？"
       },
       "fig": {
         "grid": {
           "R": 3,
           "C": 4,
           "moves": [[0, 1], [1, 1]],
-          "cells": { "0,0": { "corner": { "zh": "起", "en": "S" } }, "2,3": { "corner": { "zh": "终", "en": "E" } } }
+          "cells": { "0,0": { "corner": { "zh": "起" } }, "2,3": { "corner": { "zh": "终" } } }
         }
       }
     },
     {
       "t": {
-        "zh": "只看最后一步：到这个路口，要么是从<b>左边</b>走过来的，要么是从<b>左上</b>斜着过来的。从上面是走不过来的。",
-        "en": "Look only at the last step: you reach this crossing either from the <b>left</b>, or diagonally from the <b>up-left</b>. You can’t get here from above."
+        "zh": "只看最后一步：到这个路口，要么是从<b>左边</b>走过来的，要么是从<b>左上</b>斜着过来的。从上面是走不过来的。"
       },
       "fig": {
         "scene": {
@@ -30,17 +28,17 @@
               "y": 0,
               "w": 56,
               "h": 56,
-              "label": { "zh": "左上", "en": "up-left" },
+              "label": { "zh": "左上" },
               "cls": "lit"
             },
-            { "id": "u", "x": 66, "y": 0, "w": 56, "h": 56, "label": { "zh": "上面", "en": "up" }, "cls": "dimc" },
+            { "id": "u", "x": 66, "y": 0, "w": 56, "h": 56, "label": { "zh": "上面" }, "cls": "dimc" },
             {
               "id": "l",
               "x": 0,
               "y": 66,
               "w": 56,
               "h": 56,
-              "label": { "zh": "左边", "en": "left" },
+              "label": { "zh": "左边" },
               "cls": "lit"
             },
             { "id": "c", "x": 66, "y": 66, "w": 56, "h": 56, "value": "?", "cls": "sel" }
@@ -54,37 +52,31 @@
     },
     {
       "t": {
-        "zh": "路线计数器的三个口上写着「上」「左」「起」，可它只管把前两个口的数加起来，起点算 1。<b>你把哪两个格子接给它，它就加哪两个。</b>",
-        "en": "The Route Counter’s three ports are labeled “up”, “left” and “start”, but all it really does is add up the first two, with 1 at the start. <b>Whichever two cells you wire into it, those are the two it adds.</b>"
+        "zh": "路线计数器的三个口上写着「上」「左」「起」，可它只管把前两个口的数加起来，起点算 1。<b>你把哪两个格子接给它，它就加哪两个。</b>"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "每一步只能往右走一格，或往右下斜着走一格。算出从左上角到右下角有几条路线。",
-      "en": "Each step goes one cell right, or one cell diagonally down and right. Work out how many routes lead from the top-left corner to the bottom-right corner."
+      "zh": "每一步只能往右走一格，或往右下斜着走一格。算出从左上角到右下角有几条路线。"
     },
     "how": {
-      "zh": "点出这一关需要的格子和信息，再放元件、连线。走不到的格子会是「—」。",
-      "en": "Click the cells and facts this level needs, then place components and wire them. Cells that can’t be reached will be “—”."
+      "zh": "点出这一关需要的格子和信息，再放元件、连线。走不到的格子会是「—」。"
     }
   },
   "robot": "scout",
   "debrief": {
-    "title": { "zh": "零件不在乎方向", "en": "Parts don’t care about direction" },
+    "title": { "zh": "零件不在乎方向" },
     "body": [
       {
-        "zh": "路线计数器的口上写着「上」「左」，可你接给它的是「左边」和「左上」，它照样算对了。",
-        "en": "The Route Counter’s ports say “up” and “left”, yet you wired in “left” and “up-left”, and it still got the right answer."
+        "zh": "路线计数器的口上写着「上」「左」，可你接给它的是「左边」和「左上」，它照样算对了。"
       },
       {
-        "zh": "<b>零件只认结构，不认名字</b>：两个来源相加，起点算 1。只要新问题也是这个结构，旧零件就能直接拿来用。",
-        "en": "<b>A part cares about structure, not names</b>: add two sources, with 1 at the start. Whenever a new problem has this structure, the old part can be used as it is."
+        "zh": "<b>零件只认结构，不认名字</b>：两个来源相加，起点算 1。只要新问题也是这个结构，旧零件就能直接拿来用。"
       }
     ],
     "note": {
-      "zh": "零件只认结构：两个来源相加、起点算 1，换个方向照样能用。",
-      "en": "A part cares only about structure: two sources added, 1 at the start. It works in any direction."
+      "zh": "零件只认结构：两个来源相加、起点算 1，换个方向照样能用。"
     }
   },
   "tasks": [
@@ -95,19 +87,16 @@
         {
           "when": { "uses": "up" },
           "say": {
-            "zh": "这座城市不能往下直走，从上面是走不过来的。",
-            "en": "In this city you can’t go straight down, so nothing arrives from above."
+            "zh": "这座城市不能往下直走，从上面是走不过来的。"
           }
         }
       ],
       "hints": [
         {
-          "zh": "到一个路口的最后一步：从左边来（往右走了一格），或者从左上来（斜着走了一格）。",
-          "en": "The last step into a crossing comes either from the left (one cell right) or from the up-left (one cell diagonally)."
+          "zh": "到一个路口的最后一步：从左边来（往右走了一格），或者从左上来（斜着走了一格）。"
         },
         {
-          "zh": "把「左边」接到路线计数器的「上」口，「左上」接到「左」口，「是起点」接「起」口。口的名字不要紧，它只管把两个数加起来。",
-          "en": "Wire “left” into the Route Counter’s “up” port, “up-left” into its “left” port, and “is start” into its “start” port. The port names don’t matter; it just adds two numbers."
+          "zh": "把「左边」接到路线计数器的「上」口，「左上」接到「左」口，「是起点」接「起」口。口的名字不要紧，它只管把两个数加起来。"
         }
       ],
       "world": "grid",

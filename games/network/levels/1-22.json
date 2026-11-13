@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "连着几个 1", "en": "Ones in a row" },
+  "title": { "zh": "连着几个 1" },
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"counter\"></part-ref>数的是过了几拍。这一次要数的是线上连着来的 1。",
-        "en": "<part-ref to=\"counter\"></part-ref> counts the ticks that pass. This time what must be counted is the 1s in a row on the wire."
+        "zh": "<part-ref to=\"counter\"></part-ref>数的是过了几拍。这一次要数的是线上连着来的 1。"
       }
     }
   ],
@@ -12,12 +11,11 @@
     {
       "id": "1-22",
       "brief": {
-        "zh": "每一拍输出线上已经连着来了几个 1；来的是 0 的那一拍输出 0。",
-        "en": "Every tick, output how many 1s in a row have come down the wire; output 0 on a tick a 0 arrives."
+        "zh": "每一拍输出线上已经连着来了几个 1；来的是 0 的那一拍输出 0。"
       },
-      "hint": [{ "zh": "什么时候该从 0 数起？", "en": "When should the count start again from 0?" }],
-      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" }, "delay": 1 }] },
-      "outputs": [{ "name": "run", "label": { "zh": "连着的 1", "en": "Ones in a row" } }],
+      "hint": [{ "zh": "什么时候该从 0 数起？" }],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" }, "delay": 1 }] },
+      "outputs": [{ "name": "run", "label": { "zh": "连着的 1" } }],
       "tests": [
         {
           "wires": { "line": { "send": [{ "bits": "0110111" }] } },

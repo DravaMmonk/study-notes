@@ -1,0 +1,38 @@
+{
+  "title": { "zh": "斜推" },
+  "intro": [
+    {
+      "t": {
+        "zh": "这一次平面不转，而是横着推：x 轴上的点不动，越往上的点推得越远，ĵ 被推到 (k, 1)。推多远由输入 k 决定。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "这种变换叫<wiki-ref to=\"shear\"></wiki-ref>。"
+  },
+  "tasks": [
+    {
+      "id": "1-7",
+      "brief": { "zh": "交出 v 被推过之后的箭头。" },
+      "inputs": [{ "name": "k", "label": "k" }, { "name": "v", "label": "v" }],
+      "outputs": [{ "name": "out", "label": { "zh": "推后" } }],
+      "tests": [
+        { "inputs": { "k": 1, "v": [0, 1] }, "expect": { "out": [1, 1] } },
+        { "inputs": { "k": 2, "v": [1, 1] }, "expect": { "out": [3, 1] } },
+        { "inputs": { "k": -1, "v": [2, 3] }, "expect": { "out": [-1, 3] } },
+        { "inputs": { "k": 0.5, "v": [-2, 2] }, "expect": { "out": [-1, 2] } }
+      ],
+      "solution": [
+        "x = entry[i=\"1\"](v)",
+        "y = entry[i=\"2\"](v)",
+        "z = num[value=\"0\"]()",
+        "o = num[value=\"1\"]()",
+        "i = vec(o, z)",
+        "j = vec(k, o)",
+        "r = combo(x, y, i, j)",
+        "out <- r"
+      ],
+      "naive": ["out <- v"]
+    }
+  ]
+}

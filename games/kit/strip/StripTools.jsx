@@ -22,11 +22,11 @@ export function StripTools({ history, onClear, empty }) {
   return (
     <div className="ks-tools">
       <span className="ks-pill ks-clear">
-        <ClearButton onClear={empty ? null : onClear} size={16} title={tr('清空整句？', 'Clear the whole sentence?')} lines={[tr('已填入的内容将全部移除，清空后仍可撤销。', 'Everything filled in will be removed. You can undo this.')]} />
+        <ClearButton onClear={empty ? null : onClear} size={16} title={tr('清空整句？')} lines={[tr('已填入的内容将全部移除，清空后仍可撤销。')]} />
       </span>
       <span className="ks-pill">
-        <button type="button" onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销（⌘/Ctrl+Z）', 'Undo (⌘/Ctrl+Z)')}><Undo2 size={16} /></button>
-        <button type="button" onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做', 'Redo')} title={tr('重做（⇧⌘/Ctrl+Z）', 'Redo (⇧⌘/Ctrl+Z)')}><Redo2 size={16} /></button>
+        <button type="button" onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销')} title={tr('撤销（⌘/Ctrl+Z）')}><Undo2 size={16} /></button>
+        <button type="button" onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做')} title={tr('重做（⇧⌘/Ctrl+Z）')}><Redo2 size={16} /></button>
       </span>
     </div>
   )

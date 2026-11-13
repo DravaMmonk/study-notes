@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "逆用任取框", "en": "For-any box, backwards" },
+  "title": { "zh": "逆用任取框" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "逆用<part-ref to=\"part:allI\"></part-ref> ⟦⋀x. ?P(x)⟧ ⟹ ∀x. ?P(x)：合一器解出 ?P，新目标是 ⋀a. ?P(a)。⋀ 是规则自己的「对所有」，管的是目标而不是句子：a 是任取的一样东西，目标要对它成立。",
-        "en": "<part-ref to=\"part:allI\"></part-ref> used backwards, ⟦⋀x. ?P(x)⟧ ⟹ ∀x. ?P(x): the unifier finds ?P, and the new goal is ⋀a. ?P(a). ⋀ is the rules’ own “for all”, ruling over goals rather than sentences: a is any thing at all, and the goal must hold of it."
+        "zh": "逆用<part-ref to=\"part:allI\"></part-ref> ⟦⋀x. ?P(x)⟧ ⟹ ∀x. ?P(x)：合一器解出 ?P，新目标是 ⋀a. ?P(a)。⋀ 是规则自己的「对所有」，管的是目标而不是句子：a 是任取的一样东西，目标要对它成立。"
       }
     }
   ],
@@ -14,14 +13,14 @@
       "id": "r-allI",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "tests": [
         { "goal": "∀x. Student(x) ∧ Human(x) → Human(x) ∧ Student(x)" },
         { "goal": "∀y. Bird(y) ∧ Flies(y) → Flies(y) ∧ Bird(y)" }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
       "hint": [
-        { "zh": "去掉 ∀ 以后，剩下的是熟悉的拆开与拼成。", "en": "With the ∀ gone, what remains is the familiar splitting and joining." }
+        { "zh": "去掉 ∀ 以后，剩下的是熟悉的拆开与拼成。" }
       ],
       "solution": [
         "c0r0 = allI()",

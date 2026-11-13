@@ -1,31 +1,28 @@
 {
-  "title": { "zh": "模式合一", "en": "Pattern unification" },
+  "title": { "zh": "模式合一" },
   "adds": ["uPattern", "unifier"],
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "量词的规则里，元变量后面跟着变量：<part-ref to=\"part:allI\"></part-ref>是 ⟦⋀x. ?P(x)⟧ ⟹ ∀x. ?P(x)。?P 不是一句话，而是「一句关于 x 的话」。解 ∀x. ?P(x) ≐ ∀x. x是人 → x会死，要得到 ?P ≐ fun x => x是人 → x会死：?P 是以 x 为参数的函数。",
-        "en": "In the quantifier rules a metavariable is followed by variables: <part-ref to=\"part:allI\"></part-ref> is ⟦⋀x. ?P(x)⟧ ⟹ ∀x. ?P(x). ?P is not a sentence but “a sentence about x”. Solving ∀x. ?P(x) ≐ ∀x. x is human → x is mortal must give ?P ≐ fun x => x is human → x is mortal: ?P is a function with x as its parameter."
+        "zh": "量词的规则里，元变量后面跟着变量：<part-ref to=\"part:allI\"></part-ref>是 ⟦⋀x. ?P(x)⟧ ⟹ ∀x. ?P(x)。?P 不是一句话，而是「一句关于 x 的话」。解 ∀x. ?P(x) ≐ ∀x. x是人 → x会死，要得到 ?P ≐ fun x => x是人 → x会死：?P 是以 x 为参数的函数。"
       }
     },
     {
       "t": {
-        "zh": "两个「对所有」拆开时，两边的主体用同一个变量，等式前记上 ⋀x，表示 x 受量词约束。?A 不能把 x 带出去，所以 ∀x. ?A ≐ ∀x. x是人 无解（出现检查也查这一点）；?P(x) 可以，它本来就关于 x。新元件「模式合一」：?P 后面跟着互不相同的 ⋀ 变量时，解出 ?P。",
-        "en": "When two “for all” are split, both bodies get the same variable, and the equation is marked ⋀x: x is bound by a quantifier. ?A may not take x out with it, so ∀x. ?A ≐ ∀x. x is human has no solution (the occurs check checks this too); ?P(x) may, being about x in the first place. A new part, “Pattern unification”: when ?P is followed by distinct ⋀ variables, it solves ?P."
+        "zh": "两个「对所有」拆开时，两边的主体用同一个变量，等式前记上 ⋀x，表示 x 受量词约束。?A 不能把 x 带出去，所以 ∀x. ?A ≐ ∀x. x是人 无解（出现检查也查这一点）；?P(x) 可以，它本来就关于 x。新元件「模式合一」：?P 后面跟着互不相同的 ⋀ 变量时，解出 ?P。"
       }
     }
   ],
   "after": {
-    "zh": "元变量只跟着互不相同的约束变量时，解是唯一的，这叫<wiki-ref to=\"pattern\"></wiki-ref>（Miller 模式）。",
-    "en": "When a metavariable is followed only by distinct bound variables, the solution is unique: a <wiki-ref to=\"pattern\"></wiki-ref> (Miller’s patterns)."
+    "zh": "元变量只跟着互不相同的约束变量时，解是唯一的，这叫<wiki-ref to=\"pattern\"></wiki-ref>（Miller 模式）。"
   },
   "tasks": [
     {
       "id": "r-pattern",
       "kind": "machine",
       "want": "unify",
-      "inputs": [{ "name": "in", "label": { "zh": "等式", "en": "Equations" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "等式" } }],
       "tests": [
         { "eqs": ["∀x. ?P(x) ≐ ∀x. Human(x) → Mortal(x)"] },
         { "eqs": ["∃y. ?P(y) ∧ ?A ≐ ∃x. Likes(x, i) ∧ Rain"] },
@@ -33,15 +30,13 @@
         { "eqs": ["∀x. ?P(x) ∧ ?P(i) ≐ ∀x. Likes(x, x) ∧ Likes(i, j)"] }
       ],
       "brief": {
-        "zh": "设计一个证明助手：把每组等式解到底；对不上或者没有解的，说「失败」。",
-        "en": "Design a proof assistant that solves each set of equations to the end, or says “failed” when they do not fit or have no solution."
+        "zh": "设计一个证明助手：把每组等式解到底；对不上或者没有解的，说「失败」。"
       },
       "hint": [
         {
-          "zh": "合一器先做它能做的，剩下 ?P(x) 这样的等式交给新元件。",
-          "en": "Let the unifier do what it can, and pass an equation like ?P(x) that is left to the new part."
+          "zh": "合一器先做它能做的，剩下 ?P(x) 这样的等式交给新元件。"
         },
-        { "zh": "解出 ?P 以后，可能还要再合一一遍。", "en": "Once ?P is solved, there may be more unifying to do." }
+        { "zh": "解出 ?P 以后，可能还要再合一一遍。" }
       ],
       "solution": [
         "r = repeat(in, body: c1) {",

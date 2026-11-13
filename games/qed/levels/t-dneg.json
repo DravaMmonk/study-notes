@@ -1,45 +1,41 @@
 {
-  "title": { "zh": "双重否定的证明项", "en": "The term of double negation" },
+  "title": { "zh": "双重否定的证明项" },
   "intro": [
-    { "t": { "zh": "先把每个 ¬ 换成「→ ⊥」，再读要证的句子。", "en": "Turn every ¬ into “→ ⊥”, then read the sentence to prove." } }
+    { "t": { "zh": "先把每个 ¬ 换成「→ ⊥」，再读要证的句子。" } }
   ],
   "after": {
-    "zh": "反方向的 ¬¬A → A 写不出证明项：没有程序能从「A 不会不成立」变出 A 的证明。反证法要用，只能作为公理另外加上。",
-    "en": "The other way, ¬¬A → A, has no term: no program can conjure a proof of A out of “A cannot fail”. Proof by contradiction can only come in as an axiom of its own."
+    "zh": "反方向的 ¬¬A → A 写不出证明项：没有程序能从「A 不会不成立」变出 A 的证明。反证法要用，只能作为公理另外加上。"
   },
   "tasks": [
     {
       "id": "t-dneg_1",
       "kind": "term",
-      "step": { "zh": "第一题", "en": "Problem 1" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第一题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "premises": {},
       "goal": "Rain → ¬¬Rain",
       "answer": "fun a b => b a",
       "naive": "fun a b => a b",
       "hint": [
         {
-          "zh": "¬¬下雨 是 (下雨 → ⊥) → ⊥：它是一个函数，参数本身又是一个函数。",
-          "en": "¬¬it rains is (it rains → ⊥) → ⊥: a function whose argument is itself a function."
+          "zh": "¬¬下雨 是 (下雨 → ⊥) → ⊥：它是一个函数，参数本身又是一个函数。"
         },
         {
-          "zh": "拿到 a 和 b，谁能用在谁身上？b 等着一个下雨的证明。",
-          "en": "Given a and b, which can be used on which? b waits for a proof that it rains."
+          "zh": "拿到 a 和 b，谁能用在谁身上？b 等着一个下雨的证明。"
         }
       ]
     },
     {
       "id": "t-dneg_2",
       "kind": "term",
-      "step": { "zh": "第二题", "en": "Problem 2" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第二题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "premises": {},
       "goal": "¬¬¬Rain → ¬Rain",
       "answer": "fun a b => a (fun c => c b)",
       "hint": [
         {
-          "zh": "a 等着一个「¬¬下雨」，手里的 b 证的是下雨：第一题刚造过这样的东西。",
-          "en": "a waits for a “¬¬it rains”, and the b in hand proves it rains: the first problem just made such a thing."
+          "zh": "a 等着一个「¬¬下雨」，手里的 b 证的是下雨：第一题刚造过这样的东西。"
         }
       ]
     }

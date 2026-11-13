@@ -34,11 +34,11 @@ export default function Palette({ items, onRun, onClose }) {
   let group = null
   return (
     <div className="palette-scrim" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="palette" role="dialog" aria-label={tr('命令面板', 'Command palette')}>
+      <div className="palette" role="dialog" aria-label={tr('命令面板')}>
         <input
           className="palette-input" autoFocus value={typed} onChange={(e) => setTyped(e.target.value)} onKeyDown={key} spellCheck={false}
-          placeholder={asking ? asking.ask.placeholder : tr('关卡、字段、百科、检查……  > 操作  @ 字段', 'Levels, fields, entries, findings…  > actions  @ fields')}
-          aria-label={asking ? asking.ask.placeholder : tr('搜索', 'Search')}
+          placeholder={asking ? asking.ask.placeholder : tr('关卡、字段、百科、检查……  > 操作  @ 字段')}
+          aria-label={asking ? asking.ask.placeholder : tr('搜索')}
         />
         {asking && <p className="palette-ask">{asking.label}</p>}
         <ul className="palette-list" ref={list} role="listbox">

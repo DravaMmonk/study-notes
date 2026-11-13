@@ -1,9 +1,8 @@
-// A world run tick by tick, shared by the games where several nodes share a line (《车在说话》's CAN bus, 《从一根线开始》's
-// wires): at every tick each node says what it puts on the line, the line becomes what the domain's rule makes of all
-// it was given (a CAN bus: dominant when anyone says dominant), and each node hears it. What a node keeps from one tick
-// to the next is in its registers.
+// A world run tick by tick. At every tick each node says what it puts on the line, the domain's rule combines
+// those values, and each node hears the result. A node keeps values from one tick to the next in its registers.
 //
-// A node is { id, say(tick) → value | undefined (says nothing), hear(tick, line) → what it shows of the tick }. The
+// A node is { id, say(tick) → value | undefined (says nothing), hear(tick, line, heard) → what it shows of the tick
+// (heard: what the nodes before it showed of it) }. The
 // world's own nodes are scripts written that way; a player's board becomes one with boardNode. A board runs twice a
 // tick, in two halves, as a real controller does within one bit:
 //
@@ -55,6 +54,7 @@ const partFn = (parts) => (typeof parts === 'function' ? parts : (type) => parts
 export function boardNode({ id, circuit, parts, bind = () => ({}), ctx = {}, traced = false }) {
   const partOf = partFn(parts)
   const state = new Map()
+  const dependencyCache = new Map()
   const drives = circuit.nodes.filter((n) => partOf(n.type)?.drive)
   const held = (key) => state.get(key)
   return {
@@ -62,13 +62,13 @@ export function boardNode({ id, circuit, parts, bind = () => ({}), ctx = {}, tra
     board: true,
     say(tick) {
       if (!drives.length) return undefined
-      const { values } = runBoard(circuit, { parts, bind: bind(tick), targets: drives.map((n) => n.id), ctx: { ...ctx, half: 'say', tick, held } })
+      const { values } = runBoard(circuit, { parts, bind: bind(tick), targets: drives.map((n) => n.id), ctx: { ...ctx, dependencyCache, half: 'say', tick, held } })
       return values.get(drives[0].id)
     },
     hear(tick, line) {
       const stores = new Map()
       const trace = traced ? [] : undefined
-      const { values, errors } = runBoard(circuit, { parts, bind: bind(tick), ctx: { ...ctx, half: 'hear', tick, line, held, stores, trace } })
+      const { values, errors } = runBoard(circuit, { parts, bind: bind(tick), ctx: { ...ctx, dependencyCache, half: 'hear', tick, line, held, stores, trace } })
       for (const n of circuit.nodes) if (partOf(n.type)?.store && values.has(n.id)) stores.set(n.params.reg, values.get(n.id))
       for (const [key, value] of stores) state.set(key, value)
       const outputs = Object.fromEntries(circuit.nodes.filter((n) => partOf(n.type)?.sink && !partOf(n.type).store && !partOf(n.type).drive).map((n) => [n.params?.name, values.get(n.id)]))
@@ -96,9 +96,35 @@ export function runTicks({ nodes, ticks, line, stop = () => false }) {
       }
     }
     const value = line(nodes.map((n) => said[n.id]), tick)
-    const heard = Object.fromEntries(nodes.map((n) => [n.id, n.hear(tick, value)]))
+    // Each node hears the line, and what the nodes before it showed of this tick: a world placed after a board answers
+    // what the board just gave (reacting, below).
+    const heard = {}
+    for (const n of nodes) heard[n.id] = n.hear(tick, value, heard)
     steps.push({ tick, said, line: value, heard })
     if (stop(steps)) break
   }
   return { steps }
+}
+
+/**
+ * A world that answers a board (a market answering a price, a patient a dose): every tick the board reads what the
+ * world shows it, `reads(state, tick)`, and the world then takes what the board gave and moves on,
+ * `step(state, outputs, tick)` → { state, shown } (shown: what the tick looked like, for the results). The board never
+ * reads the answer to what it gives this very tick, only next tick's. Returns { bind, node }: `bind` for the board's
+ * node (boardNode), `node` the world's, to stand after the board `board` in runTicks; its hear() gives `shown`.
+ */
+export function reacting({ id = 'world', board, start, reads, step }) {
+  let state = start
+  return {
+    bind: (tick) => reads(state, tick),
+    node: {
+      id,
+      say: () => undefined,
+      hear(tick, _line, heard) {
+        const next = step(state, heard[board]?.outputs ?? {}, tick)
+        state = next.state
+        return next.shown
+      },
+    },
+  }
 }

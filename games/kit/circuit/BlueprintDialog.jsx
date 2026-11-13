@@ -70,12 +70,12 @@ export default function BlueprintDialog({ board, head, mode, onClose }) {
 
   return createPortal(
     <div className="dialog-scrim" onPointerDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="dialog blueprint" role="dialog" aria-modal="true" aria-label={tr('电路文本', 'The board as text')}>
-        <h2>{mode === 'show' ? tr('电路文本', 'The board as text') : tr('从文本导入', 'Import from text')}</h2>
+      <div className="dialog blueprint" role="dialog" aria-modal="true" aria-label={tr('电路文本')}>
+        <h2>{mode === 'show' ? tr('电路文本') : tr('从文本导入')}</h2>
         <p className="blueprint-note">
           {mode === 'show'
-            ? tr('这是这块电路的蓝图：可以复制或存为文件，在任意文本编辑器中修改后再导入。', 'This is the board’s blueprint: copy it or save it as a file, edit it in any text editor, then import it back.')
-            : tr('粘贴蓝图，或打开 .txt 文件。导入将替换这块板上的电路，此操作可以撤销。', 'Paste a blueprint or open a .txt file. Importing replaces the circuit on this board; you can undo it.')}
+            ? tr('这是这块电路的蓝图：可以复制或存为文件，在任意文本编辑器中修改后再导入。')
+            : tr('粘贴蓝图，或打开 .txt 文件。导入将替换这块板上的电路，此操作可以撤销。')}
         </p>
         <textarea
           ref={box}
@@ -86,7 +86,7 @@ export default function BlueprintDialog({ board, head, mode, onClose }) {
           autoCorrect="off"
           wrap="off"
           placeholder={'# blueprint 1\nn = gNot(Wind)\nout <- n'}
-          aria-label={tr('蓝图', 'Blueprint')}
+          aria-label={tr('蓝图')}
           onChange={(e) => {
             setText(e.target.value)
             setErrors([])
@@ -100,13 +100,13 @@ export default function BlueprintDialog({ board, head, mode, onClose }) {
         )}
         <input ref={file} type="file" accept=".txt,text/plain" hidden onChange={open} />
         <div className="blueprint-tools">
-          <button type="button" onClick={copy}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? tr('已复制', 'Copied') : tr('复制', 'Copy')}</button>
-          <button type="button" onClick={save}><Download size={14} />{tr('存为文件', 'Save as file')}</button>
-          <button type="button" onClick={() => file.current?.click()}><FileUp size={14} />{tr('打开文件', 'Open file')}</button>
+          <button type="button" onClick={copy}>{copied ? <Check size={14} /> : <Copy size={14} />}{copied ? tr('已复制') : tr('复制', 'Copy')}</button>
+          <button type="button" onClick={save}><Download size={14} />{tr('存为文件')}</button>
+          <button type="button" onClick={() => file.current?.click()}><FileUp size={14} />{tr('打开文件')}</button>
         </div>
         <div className="dialog-actions">
-          <button type="button" onClick={onClose}>{tr('关闭', 'Close')}</button>
-          {board.types && <button type="button" className="is-primary" disabled={!text.trim() || (mode === 'show' && !changed)} onClick={apply}>{tr('导入到这块板', 'Import to this board')}</button>}
+          <button type="button" onClick={onClose}>{tr('关闭')}</button>
+          {board.types && <button type="button" className="is-primary" disabled={!text.trim() || (mode === 'show' && !changed)} onClick={apply}>{tr('导入到这块板')}</button>}
         </div>
       </div>
     </div>,

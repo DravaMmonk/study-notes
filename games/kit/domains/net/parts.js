@@ -39,8 +39,8 @@ export const PARTS = {
       return t === null ? null : t ? yes ?? null : no ?? null
     },
   },
-  add: { inputs: ['a', 'b'], eval: strict(({ a, b }) => num(a) + num(b)) },
-  equal: { inputs: ['a', 'b'], eval: strict(({ a, b }) => num(a) === num(b)) },
+  add: { inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => num(a) + num(b)) },
+  equal: { inputs: ['a', 'b'], symmetric: ['a', 'b'], eval: strict(({ a, b }) => num(a) === num(b)) },
   bit: {
     inputs: ['n', 'i'],
     eval: strict(({ n, i }) => {

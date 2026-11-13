@@ -1,16 +1,17 @@
-// A game's parts.json made into parts (games/DESIGN.md 6.9): what the shared engine runs (../circuit.js), what a new
+// A game's parts.json made into parts (games/DESIGN.md 6.8): what the shared engine runs (../circuit.js), what a new
 // part starts with, and every place the file does not hold together. The part definitions are content; the engine
 // resources they call (the domain's `op` items, run by its ops.js) are the domain's code.
 //
 //   defineParts(file, ops)       → { PARTS, defs, defaultsOf(type) }
 //   partProblems(file, vocabulary) → [{ at, says }]
-//   withParts(vocabulary, file)  the vocabulary with the file's parts as its `part` kind (content's S.ref('part'))
+//   withParts(vocabulary, file)  the vocabulary with both code and file parts in its `part` kind (content's S.ref('part'))
 //   evalSettings(text, def, params, ops)   a settings-only expression (a readout, a rule, a check) on a node's settings
 //   applyRules(def, params, changed, ops)  a node's settings once the player changed one: the part's rules followed
 //   failedCheck(def, params, ops)          what the first check its settings fail says, or null
 //   partDesc(def, allowed)                 its description with the open options' abouts
 // Every expression may call the kernel's builtins (builtins.js) besides the domain's resources.
 import { PartError } from '../circuit.js'
+import { facesOf, holesOf, outletsOf, registerPieces, settingsOf } from '../pieces.js'
 import { validate } from '../schema.js'
 import { ExprError, evaluate, evaluateTaped, parse, problemsOf } from './expr.js'
 import { ICON_NAMES } from './icons.js'
@@ -53,8 +54,8 @@ export function coerce(s, raw) {
 
 /** One part of the file, resolved: its settings filled from the presets, keyed. */
 function resolvePart(def, presets, type) {
-  const settings = (def.settings ?? []).map((s) => resolveSetting(s, presets)).filter(Boolean)
-  return { ...def, type, settings, setting: Object.fromEntries(settings.map((s) => [s.key, s])), outputNames: def.outputs?.map((o) => o.name) ?? null }
+  const settings = settingsOf(def).map((s) => resolveSetting(s, presets)).filter(Boolean)
+  return { ...def, type, settings, setting: Object.fromEntries(settings.map((s) => [s.key, s])), outputNames: outletsOf(def).length ? outletsOf(def).map((o) => o.name) : null }
 }
 
 /** The trees a part computes with: one per output (null for an output whose text does not parse). */
@@ -78,7 +79,7 @@ const runner = (ops, ctx) => (name, args, named) => {
 const noCase = (v) => new PartError({ zh: `没有为 ${v} 写出运算`, en: `nothing is computed for ${v}` })
 
 /** A node's settings as computing reads them. */
-export const settingsFor = (def, params = {}) => Object.fromEntries(def.settings.map((s) => [s.key, coerce(s, params[s.key])]))
+export const settingsFor = (def, params = {}) => Object.fromEntries(settingsOf(def).map((s) => [s.key, coerce(s, params[s.key])]))
 
 /**
  * The value of a settings-only expression (a readout, an action's new value, its `when`) on a node's settings, or
@@ -120,25 +121,44 @@ export function failedCheck(def, params, ops) {
 }
 
 /**
+ * The inputs whose order does not matter to a node of a part: its expression (the case its settings pick) is one call
+ * of a resource declared symmetric (true, or { parameter: [values] } it is symmetric for), on inputs that all differ.
+ */
+function symmetricIn(tree, settings, ops) {
+  let t = tree
+  while (t && 'match' in t) t = t.cases[String('set' in t.match ? settings[t.match.set] : undefined)] ?? t.other
+  if (!t || !('call' in t)) return []
+  const declared = ops[t.call]?.symmetric
+  const valueOf = (a) => (a && 'set' in a ? settings[a.set] : a?.num ?? a?.str)
+  const holds = declared === true || (declared && typeof declared === 'object' && Object.entries(declared).every(([key, values]) => values.includes(valueOf(t.named[key]))))
+  const ins = t.args.map((a) => a.in)
+  return holds && ins.every((name) => name !== undefined) && new Set(ins).size === ins.length ? ins : []
+}
+
+/**
  * The file's parts for the engine: PARTS[type] = { inputs, outputs?, params, settings, defaults, eval }, `settings` the
  * values an option setting takes (a course may offer fewer), `defaults` a new node's settings. `ops`: the domain's
  * resources, { name: { run(args, named, ctx) } }.
  */
-export function defineParts(file, ops) {
+export function defineParts(file, ops, code = {}) {
   const presets = file?.presets ?? {}
   const defs = Object.fromEntries(Object.entries(file?.parts ?? {}).map(([type, def]) => [type, resolvePart(def, presets, type)]))
-  const PARTS = Object.fromEntries(Object.entries(defs).map(([type, def]) => {
+  const defined = Object.fromEntries(Object.entries(defs).map(([type, def]) => {
     const trees = treesOf(def)
-    const names = def.inputs.map((p) => p.name)
+    const names = holesOf(def).map((p) => p.name)
+    // An optional input left unwired reads 「—」 (undefined) and never makes the part give 「—」 by itself.
+    const optional = new Set(holesOf(def).filter((p) => p.optional).map((p) => p.name))
     const part = {
       inputs: names,
-      params: def.settings.map((s) => s.key),
-      defaults: Object.fromEntries(def.settings.map((s) => [s.key, defaultOf(s)])),
-      settings: Object.fromEntries(def.settings.filter((s) => OPTIONED.has(s.control)).map((s) => [s.key, s.options.map((o) => o.value)])),
+      ...(def.outputNames ? {} : { symmetric: (node) => symmetricIn(trees[''], settingsFor(def, node?.params), ops) }),
+      ...(optional.size ? { optional: [...optional] } : {}),
+      params: settingsOf(def).map((s) => s.key),
+      defaults: Object.fromEntries(settingsOf(def).map((s) => [s.key, defaultOf(s)])),
+      settings: Object.fromEntries(settingsOf(def).filter((s) => OPTIONED.has(s.control)).map((s) => [s.key, s.options.map((o) => o.value)])),
       eval: (ins, node, ctx, key) => {
         const failed = failedCheck(def, node?.params ?? {}, ops)
         if (failed) throw new PartError(failed)
-        if (def.nulls !== 'pass' && names.some((n) => ins[n] === null || ins[n] === undefined)) return null
+        if (def.nulls !== 'pass' && names.some((n) => ins[n] === null || (ins[n] === undefined && !optional.has(n)))) return null
         const tree = trees[def.outputNames ? key : '']
         if (!tree) throw new PartError({ zh: '这个元件的运算写错了', en: 'this part’s computation does not parse' })
         const env = { ins, settings: settingsFor(def, node?.params), run: runner(ops, ctx), noCase }
@@ -153,6 +173,7 @@ export function defineParts(file, ops) {
     if (def.outputNames) part.outputs = () => def.outputNames
     return [type, part]
   }))
+  const PARTS = registerPieces(code, defined)
   return {
     PARTS,
     defs,
@@ -166,20 +187,20 @@ export function defineParts(file, ops) {
  * through (a list of values; null or undefined: every option), each side of the text joined on its own.
  */
 export function partDesc(def, allowed = () => null) {
-  const extra = (def.settings ?? []).flatMap((s) => {
+  const extra = settingsOf(def).flatMap((s) => {
     const open = allowed(s.key)
     return (s.options ?? []).filter((o) => o.about && (!open || open.includes(o.value))).map((o) => o.about)
   })
   if (!extra.length) return def.desc
   const side = (lang) => [def.desc, ...extra].map((t) => (typeof t === 'string' ? t : t?.[lang] ?? '')).filter(Boolean).join(lang === 'zh' ? '' : ' ')
-  return { zh: side('zh'), en: side('en') }
+  return side('en') ? { zh: side('zh'), en: side('en') } : { zh: side('zh') }
 }
 
 /** The vocabulary with a parts.json's parts as its `part` kind: what content's S.ref('part') names. */
 export function withParts(vocabulary, file) {
   if (!definesParts(vocabulary)) return vocabulary
   const part = Object.fromEntries(Object.entries(file?.parts ?? {}).map(([type, def]) => [type, { about: def.desc ?? def.name ?? type }]))
-  return { ...vocabulary, kinds: { ...vocabulary.kinds, part: vocabulary.partOverrides ? { ...vocabulary.kinds.part, ...part } : part } }
+  return { ...vocabulary, kinds: { ...vocabulary.kinds, part: registerPieces(vocabulary.kinds.part, part) } }
 }
 
 /** Every place a parts.json does not hold together, as [{ at, says }] (at: parts.json and the path in it). */
@@ -216,11 +237,11 @@ export function partProblems(file, vocabulary) {
   for (const [type, raw] of Object.entries(file.parts)) {
     const at = `.parts.${type}`
     if (!ICONS.has(raw.icon)) say(`${at}.icon`, `${raw.icon} is no icon of the kernel’s table`)
-    const keys = (raw.settings ?? []).map((s) => s.key)
+    const keys = settingsOf(raw).map((s) => s.key)
     if (new Set(keys).size !== keys.length) say(`${at}.settings`, 'a setting key is written twice')
-    if (new Set(raw.inputs.map((p) => p.name)).size !== raw.inputs.length) say(`${at}.inputs`, 'an input is named twice')
-    if (raw.outputs && new Set(raw.outputs.map((p) => p.name)).size !== raw.outputs.length) say(`${at}.outputs`, 'an output is named twice')
-    for (const [k, s] of (raw.settings ?? []).entries()) {
+    if (new Set(holesOf(raw).map((p) => p.name)).size !== holesOf(raw).length) say(`${at}.inputs`, 'an input is named twice')
+    if (new Set(outletsOf(raw).map((p) => p.name)).size !== outletsOf(raw).length) say(`${at}.outputs`, 'an output is named twice')
+    for (const [k, s] of settingsOf(raw).entries()) {
       if (s.use && !presets[s.use]) { say(`${at}.settings[${k}].use`, `${s.use} is no preset of parts.json`); continue }
       settingProblems(resolveSetting(s, presets), `${at}.settings[${k}]`)
     }
@@ -236,7 +257,7 @@ export function partProblems(file, vocabulary) {
       for (const says of problemsOf(tree, { ops, inputs, settings: def.setting, fits })) say(where, says)
       return undefined
     }
-    for (const [k, s] of def.settings.entries()) if (s.when) check(s.when, `${at}.settings[${k}].when`, [])
+    for (const [k, s] of settingsOf(def).entries()) if (s.when) check(s.when, `${at}.settings[${k}].when`, [])
     for (const [k, rule] of (raw.rules ?? []).entries()) {
       if (rule.on && !def.setting[rule.on]) say(`${at}.rules[${k}].on`, `${rule.on} is no setting of the part`)
       if (rule.when) check(rule.when, `${at}.rules[${k}].when`, [])
@@ -255,17 +276,17 @@ export function partProblems(file, vocabulary) {
       for (const o of outputs) if (!(o in raw.compute)) say(`${at}.compute`, `nothing computes the output ${o}`)
       for (const o of Object.keys(raw.compute)) if (!outputs.includes(o)) say(`${at}.compute.${o}`, `${o} is no output of the part`)
     }
-    for (const [o, text] of exprs) check(text, `${at}.compute${o ? `.${o}` : ''}`, def.inputs.map((p) => p.name))
+    for (const [o, text] of exprs) check(text, `${at}.compute${o ? `.${o}` : ''}`, holesOf(def).map((p) => p.name))
     // The views: what each block names is there.
     for (const face of FACES) {
-      const blocks = raw.views?.[face] ?? []
+      const blocks = facesOf(raw)[face] ?? []
       const walk = (list, where) => list.forEach((b, k) => {
         const here = `${where}[${k}]`
         if (b.show === 'row') return walk(b.blocks, `${here}.blocks`)
         if (b.show === 'setting' && !def.setting[b.key]) say(`${here}.key`, `${b.key} is no setting of the part`)
         if (b.show === 'settings') for (const key of b.keys ?? []) if (!def.setting[key]) say(`${here}.keys`, `${key} is no setting of the part`)
         if (b.show === 'value' && b.output && !outputs?.includes(b.output)) say(`${here}.output`, `${b.output} is no output of the part`)
-        if (b.show === 'summary' && b.text) for (const side of typeof b.text === 'string' ? [b.text] : [b.text.zh, b.text.en]) for (const [, key] of side.matchAll(/\{([^}]*)\}/g)) if (!def.setting[key]) say(`${here}.text`, `{${key}} is no setting of the part`)
+        if (b.show === 'summary' && b.text) for (const side of typeof b.text === 'string' ? [b.text] : [b.text.zh, b.text.en].filter(Boolean)) for (const [, key] of side.matchAll(/\{([^}]*)\}/g)) if (!def.setting[key]) say(`${here}.text`, `{${key}} is no setting of the part`)
         if (b.show === 'readout') check(b.expr, `${here}.expr`, [])
         if (b.show === 'action') {
           for (const [key, text] of Object.entries(b.set)) {

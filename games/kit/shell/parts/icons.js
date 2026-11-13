@@ -1,4 +1,4 @@
-// The kernel's icon table drawn (games/DESIGN.md 6.9): every name ../../engine/parts/icons.js lists, as the lucide icon of
+// The kernel's icon table drawn (games/DESIGN.md 6.8): every name ../../engine/parts/icons.js lists, as the lucide icon of
 // that name. icons.test.js keeps the two lists the same.
 import {
   Activity, ArrowDown, ArrowLeft, ArrowLeftRight, ArrowRight, ArrowRightFromLine, ArrowRightLeft, ArrowUp,

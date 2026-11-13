@@ -1,19 +1,17 @@
 {
-  "title": { "zh": "停一拍", "en": "Stand still" },
+  "title": { "zh": "停一拍" },
   "intro": [
     {
       "t": {
-        "zh": "帧的内容里要是本身就有 01111110，<level-ref to=\"1-13\"></level-ref>里收的一方会把它当成旗标，一帧从中间被切断。要把它拆开，就得在内容里多塞一位；多塞的那一拍，别的都得停下等一拍，可<part-ref to=\"counter\"></part-ref>每拍都往前走。这一关先让计数器能停。",
-        "en": "If a frame's content itself holds 01111110, the receiver of <level-ref to=\"1-13\"></level-ref> takes it for a flag and cuts the frame in two. Breaking it up means slipping an extra bit into the content, and on that tick everything else must wait; but <part-ref to=\"counter\"></part-ref> moves on every tick. This level first makes the counter able to stand still."
+        "zh": "帧的内容里要是本身就有 01111110，<level-ref to=\"1-13\"></level-ref>里收的一方会把它当成旗标，一帧从中间被切断。要把它拆开，就得在内容里多塞一位；多塞的那一拍，别的都得停下等一拍，可<part-ref to=\"counter\"></part-ref>每拍都往前走。这一关先让计数器能停。"
       }
     }
   ],
   "builds": {
     "type": "counterhold",
-    "name": { "zh": "带暂停的计数器", "en": "Pausable counter" },
+    "name": { "zh": "带暂停的计数器" },
     "desc": {
-      "zh": "比计数器多一个「暂停」：给出自「重来」上一次为 1 起过了几拍，那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，数停在原处，「重来」同时为 1 时仍为 0。",
-      "en": "A counter with a hold input: how many ticks since restart was last 1, 0 on that tick and, until restart is first 1, counted from the very first tick; ticks on which hold is 1 do not count and the number stands still, though it is 0 if restart is 1 as well."
+      "zh": "比计数器多一个「暂停」：给出自「重来」上一次为 1 起过了几拍，那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，数停在原处，「重来」同时为 1 时仍为 0。"
     },
     "replaces": ["counter"]
   },
@@ -21,22 +19,20 @@
     {
       "id": "1-27",
       "brief": {
-        "zh": "输出自「重来」上一次为 1 起过了几拍：那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，那一拍的数和上一拍相同。",
-        "en": "Output how many ticks have passed since restart was last 1: 0 on that tick, and, until restart is first 1, counted from the very first tick. Ticks on which hold is 1 do not count, and on them the number stays as it was."
+        "zh": "输出自「重来」上一次为 1 起过了几拍：那一拍为 0，「重来」还没为 1 过时从第一拍数起；「暂停」为 1 的拍不算，那一拍的数和上一拍相同。"
       },
       "hint": [
-        { "zh": "「重来」和「暂停」同时为 1 时，「重来」优先。", "en": "When restart and hold are both 1, restart wins." },
+        { "zh": "「重来」和「暂停」同时为 1 时，「重来」优先。" },
         {
-          "zh": "要留到下一拍的值不止一个时，就用几个名字不同的寄存卡。",
-          "en": "When more than one value has to last until the next tick, use registers with different names."
+          "zh": "要留到下一拍的值不止一个时，就用几个名字不同的寄存卡。"
         }
       ],
       "carry": "1-6",
       "inputs": [
-        { "name": "reset", "label": { "zh": "重来", "en": "Restart" } },
-        { "name": "hold", "label": { "zh": "暂停", "en": "Hold" } }
+        { "name": "reset", "label": { "zh": "重来" } },
+        { "name": "hold", "label": { "zh": "暂停" } }
       ],
-      "outputs": [{ "name": "count", "label": { "zh": "拍数", "en": "Ticks" } }],
+      "outputs": [{ "name": "count", "label": { "zh": "拍数" } }],
       "tests": [
         { "ticks": 6, "inputs": { "reset": [0, 0, 0, 0, 0, 0], "hold": [0, 0, 0, 0, 0, 0] } },
         { "ticks": 9, "inputs": { "reset": [0, 0, 0, 1, 0, 0, 0, 1, 0], "hold": [0, 0, 0, 0, 0, 0, 0, 0, 0] } },

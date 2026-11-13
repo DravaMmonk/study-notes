@@ -1,42 +1,36 @@
 {
-  "title": { "zh": "可信的匹配", "en": "A match you can trust" },
+  "title": { "zh": "可信的匹配" },
   "tray": "geometry",
   "after": {
-    "zh": "重复的花纹里，第一名和第二名几乎一样近：这种匹配再像也不可信。距离比检验 d₁ / d₂ < 0.8 只接受第一名明显领先的匹配，整体变亮也不影响比值。",
-    "en": "In repeated texture the first and second places are almost equally close: however alike, such a match cannot be trusted. The ratio test d₁ / d₂ < 0.8 accepts only a match whose first place is clearly ahead, and an overall brightening does not change the ratio."
+    "zh": "重复的花纹里，第一名和第二名几乎一样近：这种匹配再像也不可信。距离比检验 d₁ / d₂ < 0.8 只接受第一名明显领先的匹配，整体变亮也不影响比值。"
   },
   "intro": [
     {
       "t": {
-        "zh": "两张图里各有一些好认的点，还要把它们配成对：左图的这个点，是右图的哪一个？最直接的办法是比外观，拿它周围的一小块，到右图里找最像的一块。",
-        "en": "Each image has some points that are easy to recognise, and they still have to be paired up: which point in the right image is this point from the left image? The most direct way is to compare how they look: take a small patch around it and search the right image for the most similar patch."
+        "zh": "两张图里各有一些好认的点，还要把它们配成对：左图的这个点，是右图的哪一个？最直接的办法是比外观，拿它周围的一小块，到右图里找最像的一块。"
       }
     },
     {
       "t": {
-        "zh": "像不像用距离 d 来量：两块逐格相减、平方、加起来再开方，d 越小越像。每个点在右图里最像的叫第一名，距离 d₁；其次是第二名，距离 d₂。",
-        "en": "Similarity is measured by a distance d: subtract the two patches pixel by pixel, square, add up, then take the square root. The smaller d is, the more alike they are. For each point, the closest match in the right image is first place, at distance d₁; the next is second place, at distance d₂."
+        "zh": "像不像用距离 d 来量：两块逐格相减、平方、加起来再开方，d 越小越像。每个点在右图里最像的叫第一名，距离 d₁；其次是第二名，距离 d₂。"
       }
     },
     {
       "t": {
-        "zh": "这一关把比较的结果直接交给你：每一格是一个关键点，三张图是它到三个候选的距离。最近的不一定可信：要是第二近的几乎一样近，这一对就可能是重复花纹配错了。",
-        "en": "This level hands you the comparisons directly: each cell is a keypoint, and the three maps are its distances to three candidates. The nearest is not always to be trusted: if the second nearest is almost as near, the pair may be a mistake caused by repeated texture."
+        "zh": "这一关把比较的结果直接交给你：每一格是一个关键点，三张图是它到三个候选的距离。最近的不一定可信：要是第二近的几乎一样近，这一对就可能是重复花纹配错了。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：按说明里的规则，输出每个关键点配上的候选编号，不可信的输出 0。",
-        "en": "Your task in this level: following the rule in the brief, output the number of the candidate each keypoint matches, and 0 when the match cannot be trusted."
+        "zh": "这一关你要做的：按说明里的规则，输出每个关键点配上的候选编号，不可信的输出 0。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组", "en": "Set 1" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组" } }
     }
   ],
   "packs": {
-    "name": { "zh": "匹配器", "en": "Matcher" },
+    "name": { "zh": "匹配器" },
     "desc": {
-      "zh": "最近的距离小于第二近的 0.8 倍时，输出最近那个的编号 1–3；否则输出 0。",
-      "en": "Outputs the number 1–3 of the nearest when its distance is under 0.8 times the second nearest; otherwise 0."
+      "zh": "最近的距离小于第二近的 0.8 倍时，输出最近那个的编号 1–3；否则输出 0。"
     }
   },
   "tasks": [
@@ -44,33 +38,31 @@
       "id": "6-4",
       "kind": "graph",
       "brief": {
-        "zh": "每一格是一个关键点，三张图是它到三个候选的距离。最近的距离 d₁ 小于第二近 d₂ 的 0.8 倍时，输出最近那个候选的编号 1、2 或 3；否则输出 0。",
-        "en": "Each cell is a keypoint, and the three maps are its distances to three candidates. When the nearest distance d₁ is less than 0.8 times the second nearest d₂, output the number of the nearest candidate, 1, 2 or 3; otherwise output 0."
+        "zh": "每一格是一个关键点，三张图是它到三个候选的距离。最近的距离 d₁ 小于第二近 d₂ 的 0.8 倍时，输出最近那个候选的编号 1、2 或 3；否则输出 0。"
       },
       "hint": {
-        "zh": "较小的那个 = 两个相加，再减去较大的那个。三个数里第二小的，是哪两个较小值里较大的？",
-        "en": "The smaller of two = their sum minus the larger. Of three numbers, which is the second smallest: the larger of which two smaller ones?"
+        "zh": "较小的那个 = 两个相加，再减去较大的那个。三个数里第二小的，是哪两个较小值里较大的？"
       },
       "inputs": ["d1", "d2", "d3"],
       "inputLabels": {
-        "d1": { "zh": "到候选 1 的距离", "en": "Distance to candidate 1" },
-        "d2": { "zh": "到候选 2 的距离", "en": "Distance to candidate 2" },
-        "d3": { "zh": "到候选 3 的距离", "en": "Distance to candidate 3" }
+        "d1": { "zh": "到候选 1 的距离" },
+        "d2": { "zh": "到候选 2 的距离" },
+        "d3": { "zh": "到候选 3 的距离" }
       },
       "outputs": ["idx"],
-      "outputLabels": { "idx": { "zh": "配上的候选", "en": "Matched candidate" } },
+      "outputLabels": { "idx": { "zh": "配上的候选" } },
       "check": { "tolerance": 0.1 },
       "scene": "distances",
       "tests": [
-        { "label": { "zh": "第一组", "en": "Set 1" }, "seed": 21, "ambiguous": [3, 9, 27, 40, 51] },
-        { "label": { "zh": "第二组", "en": "Set 2" }, "seed": 22, "ambiguous": [0, 14, 33, 47, 60, 62] },
+        { "label": { "zh": "第一组" }, "seed": 21, "ambiguous": [3, 9, 27, 40, 51] },
+        { "label": { "zh": "第二组" }, "seed": 22, "ambiguous": [0, 14, 33, 47, 60, 62] },
         {
-          "label": { "zh": "重复花纹多", "en": "Lots of repeated texture" },
+          "label": { "zh": "重复花纹多" },
           "seed": 23,
           "ambiguous": [1, 5, 8, 12, 19, 25, 30, 36, 44, 49, 55, 58]
         }
       ],
-      "hidden": [{ "label": { "zh": "第四组", "en": "Set 4" }, "seed": 24, "ambiguous": [2, 17, 29, 43, 56] }],
+      "hidden": [{ "label": { "zh": "第四组" }, "seed": 24, "ambiguous": [2, 17, 29, 43, 56] }],
       "solution": [
         "k8 = const[c=0.8]()",
         "two = const[c=2]()",

@@ -23,7 +23,7 @@ const both = (f) => {
   const pick = (lang) => (v) => (v && typeof v === 'object' && typeof v.zh === 'string' ? v[lang] : v)
   return T(f(pick('zh'), 'zh'), f(pick('en'), 'en'))
 }
-const HOW = { right: T('改对了', 'right'), wrong: T('改错了', 'wrong'), madeup: T('编造', 'made up') }
+const HOW = { right: T('改对了'), wrong: T('改错了'), madeup: T('编造') }
 
 /** A repository: each file with its tokens and functions, a function marked with what has been written to it. */
 const repoText = (repo, state, t) => Object.entries(repo.files).map(([file, f]) => `- ${file} (${f.tokens} tok): ${f.segs.map((s) => (state[`${file}#${s}`] ? `${s} [${t(HOW[state[`${file}#${s}`]])}]` : s)).join(', ')}`).join('\n')
@@ -37,7 +37,7 @@ const board = circuitPlay({
   },
   key: (_, type) => `part:${type}`,
   portLabel: (_, type, port) => PORT_LABELS[type]?.[port] ?? null,
-  settings: ({ game, level }, type) => (type === 'read' ? [{ key: 'file', values: game.agent.filesIn(level.source).map((f) => JSON.stringify(f)), about: level.source.machine.mode === 'once' ? null : T('请求口未接线时读它', 'read while the request input is unconnected') }] : []),
+  settings: ({ game, level }, type) => (type === 'read' ? [{ key: 'file', values: game.agent.filesIn(level.source).map((f) => JSON.stringify(f)), about: level.source.machine.mode === 'once' ? null : T('请求口未接线时读它') }] : []),
   given: ({ game, level: { source: lv } }) => both((t, lang) => {
     const m = lv.machine
     const machine = m.mode === 'once'
@@ -67,7 +67,6 @@ const board = circuitPlay({
 
 const MOVES = T(
   '每行一步，从头开始依次执行（相当于先点「重新开始」）：\n  add 文件     把仓库里的文件加入上下文\n  list         把目录加入上下文（仅循环）\n  drop k       把上下文的第 k 条移出（第 0 条是 issue，不能移出）\n  call         调用模型\n  test         运行测试：测试全部通过时过关',
-  'One move a line, played in order from a fresh start (as after Start over):\n  add FILE     put a file of the repository into the context\n  list         put the file list into the context (a loop only)\n  drop K       take entry K out of the context (entry 0, the issue, stays)\n  call         call the model\n  test         run the tests: the level passes when they all pass',
 )
 
 /** A hand task's moves as text, or why a line cannot be read. */

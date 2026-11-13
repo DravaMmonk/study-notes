@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "离旗标几位", "en": "Bits since the flag" },
+  "title": { "zh": "离旗标几位" },
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"flagspot\"></part-ref>在旗标结束的那一拍说 1。旗标标出的是位流里的一个位置，从那里数起，就知道一帧的位走到了哪里。",
-        "en": "<part-ref to=\"flagspot\"></part-ref> says 1 on the tick a flag ends. A flag marks a place in the bit stream, and counting from there tells how far a frame's bits have got."
+        "zh": "<part-ref to=\"flagspot\"></part-ref>在旗标结束的那一拍说 1。旗标标出的是位流里的一个位置，从那里数起，就知道一帧的位走到了哪里。"
       }
     }
   ],
@@ -12,12 +11,11 @@
     {
       "id": "1-26",
       "brief": {
-        "zh": "每一拍输出上一个旗标结束以后线上又来了几位：旗标结束的那一拍为 0；还没来过旗标时也输出 0。",
-        "en": "Every tick, output how many bits have come since the last flag ended: 0 on the tick it ends, and 0 before any flag has come."
+        "zh": "每一拍输出上一个旗标结束以后线上又来了几位：旗标结束的那一拍为 0；还没来过旗标时也输出 0。"
       },
-      "hint": [{ "zh": "旗标还没来过的时候，输出要停在 0。", "en": "Until a flag has come, the output must stay at 0." }],
-      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
-      "outputs": [{ "name": "n", "label": { "zh": "位数", "en": "Bits" } }],
+      "hint": [{ "zh": "旗标还没来过的时候，输出要停在 0。" }],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
+      "outputs": [{ "name": "n", "label": { "zh": "位数" } }],
       "tests": [
         {
           "wires": { "line": { "send": [{ "bits": "0111111010110" }] } },

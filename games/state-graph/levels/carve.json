@@ -1,56 +1,47 @@
 {
-  "title": { "zh": "剪掉它", "en": "Cut it out" },
-  "short": { "zh": "图片窄了，字母没变形", "en": "A narrower picture, letters intact" },
+  "title": { "zh": "剪掉它" },
+  "short": { "zh": "图片窄了，字母没变形" },
   "intro": [
     {
       "t": {
-        "zh": "在<level-ref to=\"seam\"></level-ref>里，你算出了缝表。这一关把缝真的剪掉。",
-        "en": "In <level-ref to=\"seam\"></level-ref> you worked out the seam table. This level you actually cut seams out."
+        "zh": "在<level-ref to=\"seam\"></level-ref>里，你算出了缝表。这一关把缝真的剪掉。"
       }
     },
     {
       "t": {
-        "zh": "第一条缝你来找：先点最底一行里最小的那一格，再一行一行往上倒推。上一行三个候选里，缝是从哪一格来的？",
-        "en": "You find the first seam: click the smallest cell in the bottom row, then trace back up row by row. Of the three candidates on the row above, which one did the seam come from?"
+        "zh": "第一条缝你来找：先点最底一行里最小的那一格，再一行一行往上倒推。上一行三个候选里，缝是从哪一格来的？"
       }
     },
     {
       "t": {
-        "zh": "剪掉一条以后，图片窄了一列，能量和缝表都要重新算。后面的缝交给机器，一共剪掉 8 条。最后和「直接压扁」比一比。",
-        "en": "Once a seam is cut, the picture is a column narrower, and the energy and seam table have to be worked out again. Leave the remaining seams to the machine, 8 in all. At the end, compare the result with simply squashing the picture."
+        "zh": "剪掉一条以后，图片窄了一列，能量和缝表都要重新算。后面的缝交给机器，一共剪掉 8 条。最后和「直接压扁」比一比。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "找出能量最小的缝，把它剪掉。一共剪掉 8 条缝，让图片窄 8 列。",
-      "en": "Find the lowest-energy seam and cut it out. Cut 8 seams in all, making the picture 8 columns narrower."
+      "zh": "找出能量最小的缝，把它剪掉。一共剪掉 8 条缝，让图片窄 8 列。"
     },
     "how": {
-      "zh": "第一条缝自己倒推：点最底一行最小的格子，再一行一行往上点。后面的缝可以让机器来剪。",
-      "en": "Trace the first seam back yourself: click the smallest cell in the bottom row, then click your way up row by row. The machine can cut the rest."
+      "zh": "第一条缝自己倒推：点最底一行最小的格子，再一行一行往上点。后面的缝可以让机器来剪。"
     }
   },
   "unlock": "seam",
   "debrief": {
-    "title": { "zh": "内容感知缩放", "en": "Content-aware resizing" },
+    "title": { "zh": "内容感知缩放" },
     "body": [
       {
-        "zh": "图片窄了 8 列，两个字母一点没变形：缝都从不起眼的背景里穿过去了。直接压扁的话，每个字母都会被挤瘦。",
-        "en": "The picture is 8 columns narrower, and neither letter is distorted at all: every seam slipped through unremarkable background. Squash the picture instead, and every letter gets squeezed thin."
+        "zh": "图片窄了 8 列，两个字母一点没变形：缝都从不起眼的背景里穿过去了。直接压扁的话，每个字母都会被挤瘦。"
       },
       {
-        "zh": "这叫<b>内容感知缩放</b>（seam carving）。修图软件把一张横幅照片改成竖屏时，用的就是它：一张缝表，加上一次倒推。",
-        "en": "This is called <b>content-aware resizing</b> (seam carving). When photo-editing software turns a landscape photo into a portrait one, this is how: a seam table, plus one trace back."
+        "zh": "这叫<b>内容感知缩放</b>（seam carving）。修图软件把一张横幅照片改成竖屏时，用的就是它：一张缝表，加上一次倒推。"
       },
       {
-        "zh": "你在《视觉完备》里算出的边缘，在这里成了机器人的地形。两个游戏共用的不只是底层的代码，还有思路。",
-        "en": "The edges you computed in Vision Complete became the robot’s terrain here. The two games share more than code underneath: they share ideas."
+        "zh": "你在《视觉完备》里算出的边缘，在这里成了机器人的地形。两个游戏共用的不只是底层的代码，还有思路。"
       }
     ],
     "note": {
-      "zh": "剪缝：从缝表最底一行最小的格子倒推，剪掉这条缝，图片窄一列。",
-      "en": "Seam carving: trace back from the smallest cell in the seam table’s bottom row, cut that seam out, and the picture is one column narrower."
+      "zh": "剪缝：从缝表最底一行最小的格子倒推，剪掉这条缝，图片窄一列。"
     }
   },
   "tasks": [

@@ -2,7 +2,7 @@
 // it is and the schema of its parameters, and the schemas of game.json and of one level. Content is these items and
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
-// A game's parts are its own, defined as data in its parts.json (games/DESIGN.md 6.9) over the engine resources here
+// A game's parts are its own, defined as data in its parts.json (games/DESIGN.md 6.8) over the engine resources here
 // (`op`, implemented in ops.js) and coloured by family (`family`, ui/__name__.css).
 
 import { S } from '../../engine/schema.js'
@@ -16,12 +16,12 @@ const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 /* ---------- what parts are made of ---------- */
 
 const FAMILIES = {
-  value: item(t('算数的元件', 'parts that work on numbers')),
+  value: item(t('算数的元件')),
 }
 
 /* ---------- a level ---------- */
 
-const VALUES = S.map(S.num(), { about: t('每个输入或输出的值，按名字', 'a value for each input or output, by name') })
+const VALUES = S.map(S.num(), { about: t('每个输入或输出的值，按名字') })
 const TEST = S.obj({ inputs: VALUES, expect: VALUES })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
 const LEVEL = levelSchema({
@@ -33,7 +33,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: '__name__',
-  version: 2,
+  version: 11,
   kinds: { op: OP_ITEMS, family: FAMILIES },
   game: GAME,
   level: LEVEL,

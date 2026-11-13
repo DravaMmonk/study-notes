@@ -1,59 +1,50 @@
 {
-  "title": { "zh": "这句话有多可能", "en": "How likely is this sentence" },
-  "short": { "zh": "取较小换成加起来，加换成乘", "en": "Min becomes sum, add becomes multiply" },
+  "title": { "zh": "这句话有多可能" },
+  "short": { "zh": "取较小换成加起来，加换成乘" },
   "intro": [
     {
       "t": {
-        "zh": "换个问题：不问「最好的标法是哪一种」，而问「把<b>所有</b>标法都算上，这句话出现的可能性有多大」。",
-        "en": "A different question: not “which tagging is best”, but “counting <b>every</b> tagging, how likely is this sentence to appear”."
+        "zh": "换个问题：不问「最好的标法是哪一种」，而问「把<b>所有</b>标法都算上，这句话出现的可能性有多大」。"
       }
     },
     {
       "t": {
-        "zh": "代价换成<b>可能性</b>（0 到 1 之间的数）：一条标法的可能性，是一路上所有可能性<b>乘起来</b>；整句的可能性，是所有标法<b>加起来</b>。句首存着 1。",
-        "en": "Costs become <b>probabilities</b> (numbers between 0 and 1): the probability of one tagging is every probability along the way <b>multiplied together</b>; the probability of the sentence is all the taggings <b>added up</b>. “Start” holds 1."
+        "zh": "代价换成<b>可能性</b>（0 到 1 之间的数）：一条标法的可能性，是一路上所有可能性<b>乘起来</b>；整句的可能性，是所有标法<b>加起来</b>。句首存着 1。"
       }
     },
     {
       "t": {
-        "zh": "和<level-ref to=\"tagging\"></level-ref>比一比：那一关只要最好的那一条，这一关所有标法都算数；一条标法里的各项，这次要乘起来。电路里哪些元件要换？数路线时，就是把所有路线加起来。",
-        "en": "Compare with <level-ref to=\"tagging\"></level-ref>: there you wanted only the best tagging; here every tagging counts, and the parts of a tagging are multiplied this time. Which components in the circuit need swapping? When counting routes, you added up every route."
+        "zh": "和<level-ref to=\"tagging\"></level-ref>比一比：那一关只要最好的那一条，这一关所有标法都算数；一条标法里的各项，这次要乘起来。电路里哪些元件要换？数路线时，就是把所有路线加起来。"
       }
     },
     {
       "t": {
-        "zh": "格子底下的小条，是这一格在这一列里占多大：条越长，这个词越可能是这种词性。",
-        "en": "The little bar under a cell shows its share of its column: the longer the bar, the more likely this word is to be this part of speech."
+        "zh": "格子底下的小条，是这一格在这一列里占多大：条越长，这个词越可能是这种词性。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "算出这句话出现的可能性：所有标法的可能性之和。每条标法的可能性，是一路上「跟在谁后面」和「这个词这么标」的可能性乘起来。",
-      "en": "Work out how likely the sentence is: the sum of the probabilities of every tagging. Each tagging’s probability is the “after …” and “this word, this tag” probabilities along the way, multiplied together."
+      "zh": "算出这句话出现的可能性：所有标法的可能性之和。每条标法的可能性，是一路上「跟在谁后面」和「这个词这么标」的可能性乘起来。"
     },
     "how": {
-      "zh": "电路的骨架和<level-ref to=\"tagging\"></level-ref>一样，想想哪些元件要换。",
-      "en": "The circuit’s skeleton is the same as <level-ref to=\"tagging\"></level-ref>’s: think about which components need swapping."
+      "zh": "电路的骨架和<level-ref to=\"tagging\"></level-ref>一样，想想哪些元件要换。"
     }
   },
   "robot": "reach",
   "adds": ["mul"],
   "debrief": {
-    "title": { "zh": "前向算法", "en": "The forward algorithm" },
+    "title": { "zh": "前向算法" },
     "body": [
       {
-        "zh": "同一张表，同一副骨架：维特比是「取较小、加」，这里是「加起来、乘」。前者找最好的一条，后者把所有的都算上。",
-        "en": "Same table, same skeleton: Viterbi is “min and add”, this is “sum and multiply”. The first finds the best tagging; the second counts them all."
+        "zh": "同一张表，同一副骨架：维特比是「取较小、加」，这里是「加起来、乘」。前者找最好的一条，后者把所有的都算上。"
       },
       {
-        "zh": "这叫<b>前向算法</b>。语音识别要比较「这段声音更像哪句话」，就是用它算每句话的可能性。",
-        "en": "This is the <b>forward algorithm</b>. When speech recognition compares “which sentence does this sound most resemble”, this is how it works out the probability of each sentence."
+        "zh": "这叫<b>前向算法</b>。语音识别要比较「这段声音更像哪句话」，就是用它算每句话的可能性。"
       }
     ],
     "note": {
-      "zh": "前向算法：把维特比的「取较小、加」换成「加起来、乘」。",
-      "en": "Forward algorithm: Viterbi’s “min and add” becomes “sum and multiply”."
+      "zh": "前向算法：把维特比的「取较小、加」换成「加起来、乘」。"
     }
   },
   "tasks": [
@@ -64,27 +55,24 @@
         {
           "when": { "any": [{ "has": "mmin" }, { "has": "mmax" }] },
           "say": {
-            "zh": "这次不挑最好的一条：所有标法都算数，用「加起来」。",
-            "en": "This time you don’t pick the best one: every tagging counts, so use “sum”."
+            "zh": "这次不挑最好的一条：所有标法都算数，用「加起来」。"
           }
         }
       ],
       "boardOpt": { "minScale": 0.62, "maxScale": 1.15 },
       "hints": [
         {
-          "zh": "从<level-ref to=\"tagging\"></level-ref>的电路出发：哪个元件把一条标法上的各项合起来，哪个元件在几种可能里挑？",
-          "en": "Start from <level-ref to=\"tagging\"></level-ref>’s circuit: which component joins the parts of one tagging, and which one chooses among the possibilities?"
+          "zh": "从<level-ref to=\"tagging\"></level-ref>的电路出发：哪个元件把一条标法上的各项合起来，哪个元件在几种可能里挑？"
         },
         {
-          "zh": "三种加起来，再乘上「这个词这么标」的可能性。",
-          "en": "Add the three together, then multiply by the “this word, this tag” probability."
+          "zh": "三种加起来，再乘上「这个词这么标」的可能性。"
         }
       ],
       "world": "tags",
       "facts": ["tN", "tV", "tA", "emit"],
       "tests": [
         {
-          "words": [{ "zh": "他", "en": "he" }, { "zh": "研究", "en": "studies" }, { "zh": "历史", "en": "history" }],
+          "words": [{ "zh": "他" }, { "zh": "研究" }, { "zh": "历史" }],
           "emit": [{ "N": 0.5 }, { "N": 0.2, "V": 0.4 }, { "N": 0.3 }],
           "start": { "N": 0.6, "V": 0.3, "A": 0.1 },
           "trans": {
@@ -95,10 +83,10 @@
         },
         {
           "words": [
-            { "zh": "进口", "en": "imports" },
-            { "zh": "彩电", "en": "TV" },
-            { "zh": "质量", "en": "quality" },
-            { "zh": "好", "en": "fine" }
+            { "zh": "进口" },
+            { "zh": "彩电" },
+            { "zh": "质量" },
+            { "zh": "好" }
           ],
           "emit": [{ "N": 0.2, "V": 0.3 }, { "N": 0.4 }, { "N": 0.3 }, { "A": 0.5, "V": 0.1 }],
           "start": { "N": 0.6, "V": 0.3, "A": 0.1 },

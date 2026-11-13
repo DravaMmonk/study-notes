@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "二选一", "en": "One of two" },
+  "title": { "zh": "二选一" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "「今天是周末」的意思是：今天是周六，<b>或者</b>今天是周日。至少一个成立，两个都成立也算：正是<level-ref to=\"g-or\"></level-ref>里的<part-ref to=\"lemma:gOr\"></part-ref>门。",
-        "en": "“It is the weekend” means: today is Saturday, <b>or</b> today is Sunday. At least one holds, and both count too: the <part-ref to=\"lemma:gOr\"></part-ref> gate of <level-ref to=\"g-or\"></level-ref>."
+        "zh": "「今天是周末」的意思是：今天是周六，<b>或者</b>今天是周日。至少一个成立，两个都成立也算：正是<level-ref to=\"g-or\"></level-ref>里的<part-ref to=\"lemma:gOr\"></part-ref>门。"
       }
     },
     {
       "t": {
-        "zh": "<level-ref to=\"decl-or\"></level-ref>声明了「或者」，随之有了<part-ref to=\"part:orI\"></part-ref>：有了一句话，「它 ∨ 任意一句」就成立。在元件上选它放在左边还是右边，就是选两条引入规则中的哪一条；另一边是哪句话，也在元件上选。",
-        "en": "<level-ref to=\"decl-or\"></level-ref> declared “or”, and with it came <part-ref to=\"part:orI\"></part-ref>: from a sentence, “it ∨ any other” holds. Choosing on the part whether it goes left or right chooses one of the two introduction rules; the other side is chosen on the part too."
+        "zh": "<level-ref to=\"decl-or\"></level-ref>声明了「或者」，随之有了<part-ref to=\"part:orI\"></part-ref>：有了一句话，「它 ∨ 任意一句」就成立。在元件上选它放在左边还是右边，就是选两条引入规则中的哪一条；另一边是哪句话，也在元件上选。"
       }
     }
   ],
@@ -22,10 +20,9 @@
       "tests": [{ "premises": { "p": "A" }, "goal": "B ∨ (A ∨ B)" }],
       "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Bus", "B": "Bike" }],
       "hint": [
-        { "zh": "从里往外拼。", "en": "Build it from the inside out." },
+        { "zh": "从里往外拼。" },
         {
-          "zh": "先引入「今天是周六 ∨ 今天是周日」（另一边放右边），再把它放到一句 ∨ 的右边。",
-          "en": "First bring in “today is Saturday ∨ today is Sunday” (the other side on the right), then put that on the right of another ∨."
+          "zh": "先引入「今天是周六 ∨ 今天是周日」（另一边放右边），再把它放到一句 ∨ 的右边。"
         }
       ],
       "solution": ["i = orI[other=B, side=right](p)", "j = orI[other=B, side=left](i)", "goal <- j"]

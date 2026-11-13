@@ -1,28 +1,24 @@
 {
-  "title": { "zh": "两个分数", "en": "Two scores" },
+  "title": { "zh": "两个分数" },
   "tray": "pipeline",
   "unlocks": ["softmax"],
   "after": {
-    "zh": "Softmax 将多个分数转换成总和为 1 的权重。分数之间的差决定权重的比例；相同的分数得到相同的权重。同一方法也适用于三个或更多分数。",
-    "en": "Softmax turns scores into weights that sum to 1. Differences between scores determine the ratios of the weights; equal scores receive equal weights. The same method works for three or more scores."
+    "zh": "Softmax 将多个分数转换成总和为 1 的权重。分数之间的差决定权重的比例；相同的分数得到相同的权重。同一方法也适用于三个或更多分数。"
   },
   "intro": [
     {
       "t": {
-        "zh": "分类器判断图像属于哪一类时，通常先为每个类别输出一个分数。分数可以是负数，也不一定加起来等于 1。",
-        "en": "A classifier usually gives each possible class a score. Scores can be negative and do not necessarily sum to 1."
+        "zh": "分类器判断图像属于哪一类时，通常先为每个类别输出一个分数。分数可以是负数，也不一定加起来等于 1。"
       }
     },
     {
       "t": {
-        "zh": "先看只有两个类别的情况：把两个分数转换成两个非负、总和为 1 的权重，以便比较各类别。这里使用 Softmax 的规则。",
-        "en": "Start with two classes: turn their scores into two nonnegative weights that sum to 1, so their relative support can be compared. Here we use the Softmax rule."
+        "zh": "先看只有两个类别的情况：把两个分数转换成两个非负、总和为 1 的权重，以便比较各类别。这里使用 Softmax 的规则。"
       }
     },
     {
       "t": {
-        "zh": "分别对两个分数取指数，再将每个结果除以两者之和。先亲手搭出这个计算，之后就可以使用 Softmax 元件。",
-        "en": "Take the exponential of each score, then divide each result by their sum. Build this calculation first; afterwards the Softmax part becomes available."
+        "zh": "分别对两个分数取指数，再将每个结果除以两者之和。先亲手搭出这个计算，之后就可以使用 Softmax 元件。"
       }
     }
   ],
@@ -31,28 +27,26 @@
       "id": "4-18",
       "kind": "graph",
       "brief": {
-        "zh": "给定两个分数 A、B，输出各自的 Softmax 权重：P(A) = e^A ÷ (e^A + e^B)，P(B) = e^B ÷ (e^A + e^B)。",
-        "en": "Given scores A and B, output their Softmax weights: P(A) = e^A ÷ (e^A + e^B), P(B) = e^B ÷ (e^A + e^B)."
+        "zh": "给定两个分数 A、B，输出各自的 Softmax 权重：P(A) = e^A ÷ (e^A + e^B)，P(B) = e^B ÷ (e^A + e^B)。"
       },
       "hint": {
-        "zh": "先分别用 exp 处理两个分数，再求和。两个权重使用同一个分母。",
-        "en": "Apply exp to each score, then add the results. The two weights share the same denominator."
+        "zh": "先分别用 exp 处理两个分数，再求和。两个权重使用同一个分母。"
       },
       "inputs": ["a", "b"],
-      "inputLabels": { "a": { "zh": "分数 A", "en": "Score A" }, "b": { "zh": "分数 B", "en": "Score B" } },
+      "inputLabels": { "a": { "zh": "分数 A" }, "b": { "zh": "分数 B" } },
       "outputs": ["pa", "pb"],
-      "outputLabels": { "pa": { "zh": "权重 A", "en": "Weight A" }, "pb": { "zh": "权重 B", "en": "Weight B" } },
+      "outputLabels": { "pa": { "zh": "权重 A" }, "pb": { "zh": "权重 B" } },
       "check": { "tolerance": 0.01 },
       "scene": "binaryScores",
       "tests": [
-        { "label": { "zh": "(1, 0)", "en": "(1, 0)" }, "s": [1, 0] },
-        { "label": { "zh": "(0, 0)", "en": "(0, 0)" }, "s": [0, 0] },
-        { "label": { "zh": "(-1, 1)", "en": "(-1, 1)" }, "s": [-1, 1] },
-        { "label": { "zh": "(2, 3)", "en": "(2, 3)" }, "s": [2, 3] }
+        { "label": { "zh": "(1, 0)" }, "s": [1, 0] },
+        { "label": { "zh": "(0, 0)" }, "s": [0, 0] },
+        { "label": { "zh": "(-1, 1)" }, "s": [-1, 1] },
+        { "label": { "zh": "(2, 3)" }, "s": [2, 3] }
       ],
       "hidden": [
-        { "label": { "zh": "(-2, -3)", "en": "(-2, -3)" }, "s": [-2, -3] },
-        { "label": { "zh": "(4, 1)", "en": "(4, 1)" }, "s": [4, 1] }
+        { "label": { "zh": "(-2, -3)" }, "s": [-2, -3] },
+        { "label": { "zh": "(4, 1)" }, "s": [4, 1] }
       ],
       "solution": [
         "ea = exp(a)",

@@ -21,7 +21,7 @@ const street = ({ cx = 5, house = null, sky = 0.2 } = {}) =>
     return sky
   })
 const carMask = ({ cx = 5 } = {}) => fromFn(16, 16, (x, y) => ((y >= 7 && y <= 10 && x >= cx && x < cx + 6) || (y === 11 && (x === cx + 1 || x === cx + 4)) ? 1 : 0))
-const STREET = S.obj({ cx: S.int({ about: t('车的左边在第几列', 'the column of the car’s left side') }), house: S.opt(S.int({ about: t('房子的左边在第几列', 'the column of the house’s left side') })) })
+const STREET = S.obj({ cx: S.int({ about: t('车的左边在第几列') }), house: S.opt(S.int({ about: t('房子的左边在第几列') })) })
 const streetOf = ({ cx, house }) => ({ cx, house: house ?? null })
 
 // Weights a classifier might have learnt: on the car, on the road (every car photo had road in it), on both, on the
@@ -71,10 +71,10 @@ const patchMask = (patches) => fromFn(16, 16, (x, y) => (patches.some(([px, py])
 
 export const EXPLAIN = {
   classifier: {
-    about: t('一条有车的街和一个线性分类器的权重（可以另给车的掩膜）；期望是每格的贡献、遮挡图、落在车上的分数比例、热图落在车上的比例，或体检的热图和判定', 'a street with a car and a linear classifier’s weights (and the car’s mask, maybe); each cell’s contribution, the occlusion map, the share of the score on the car, the share of the heat map on it, or the check-up’s heat map and verdict, expected'),
+    about: t('一条有车的街和一个线性分类器的权重（可以另给车的掩膜）；期望是每格的贡献、遮挡图、落在车上的分数比例、热图落在车上的比例，或体检的热图和判定'),
     setup: S.obj({
       check: S.oneOf(Object.keys(CHECKS)),
-      cover: S.opt(S.obj({ v: S.opt(S.num()), r: S.opt(S.int({ min: 1 })) }, { about: t('遮挡用的块：亮度 v，r × r（默认黑的 3 × 3）', 'the block covering: brightness v, r × r (black 3 × 3 at first)') })),
+      cover: S.opt(S.obj({ v: S.opt(S.num()), r: S.opt(S.int({ min: 1 })) }, { about: t('遮挡用的块：亮度 v，r × r（默认黑的 3 × 3）') })),
     }),
     test: S.obj({ street: STREET, weights: S.oneOf(Object.keys(WEIGHTS)) }),
     make: (test, { check, cover }) => {
@@ -86,8 +86,8 @@ export const EXPLAIN = {
     },
   },
   classToken: {
-    about: t('一条街、ViT 类别 token 的查询和车所在的图块；期望是注意力落在车上的比例', 'a street, a ViT class token’s query and the patches with the car; the share of attention on the car expected'),
-    test: S.obj({ street: STREET, query: S.oneOf(Object.keys(QUERIES)), patches: S.list(S.list(S.int(), { min: 2 }), { about: t('车所在的图块 [列, 行]', 'the patches with the car, [column, row]') }) }),
+    about: t('一条街、ViT 类别 token 的查询和车所在的图块；期望是注意力落在车上的比例'),
+    test: S.obj({ street: STREET, query: S.oneOf(Object.keys(QUERIES)), patches: S.list(S.list(S.int(), { min: 2 }), { about: t('车所在的图块 [列, 行]') }) }),
     make: ({ street: s, query, patches }) => {
       const x = street(streetOf(s))
       const m = patchMask(patches)

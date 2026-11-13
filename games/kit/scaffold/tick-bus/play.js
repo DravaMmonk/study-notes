@@ -1,5 +1,5 @@
 // The __name__ domain's play hook for a blind session (../../engine/play/circuit.js tickPlay): a level as its board
-// screen (ui/Screen.jsx) shows it, in words — the line and the level's inputs down the left, what it says and its
+// screen (ui/screen.js) shows it, in words — the line and the level's inputs down the left, what it says and its
 // outputs down the right, the parts it holds, every test as the waveform draws it (the line, the inputs and what each
 // output should be, tick by tick) — and an attempt judged as a run judges it.
 import { tickPlay } from '../../engine/play/circuit.js'

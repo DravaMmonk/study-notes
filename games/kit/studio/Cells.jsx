@@ -106,7 +106,7 @@ function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded
                   {removeCol && width > 1 && <button type="button" className="cell-x" onClick={() => removeCol(c)} aria-label={tr(`去掉第 ${c} 列`, `Remove column ${c}`)}><X size={10} /></button>}
                 </th>
               ))}
-              {addCol && <th><button type="button" className="cell-add" onClick={addCol} aria-label={tr('加一列', 'Add a column')}><Plus size={12} /></button></th>}
+              {addCol && <th><button type="button" className="cell-add" onClick={addCol} aria-label={tr('加一列')}><Plus size={12} /></button></th>}
             </tr>
           </thead>
         )}
@@ -128,13 +128,13 @@ function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded
                   <Cell value={row[c]} schema={colSchema(c)} r={r} c={c} onSet={(v) => set(r, c, v)} onPaste={(block) => paste(r, c, block)} style={shaded ? shade(row[c], lo, hi) : undefined} label={`${label} ${r},${c}`} />
                 </td>
               ))}
-              {one && addCol && <td><button type="button" className="cell-add" onClick={addCol} aria-label={tr('加一个', 'Add one')}><Plus size={12} /></button></td>}
-              {one && removeCol && row.length > 0 && <td><button type="button" className="cell-add" onClick={() => removeCol(row.length - 1)} aria-label={tr('去掉最后一个', 'Remove the last')}><Minus size={12} /></button></td>}
+              {one && addCol && <td><button type="button" className="cell-add" onClick={addCol} aria-label={tr('加一个')}><Plus size={12} /></button></td>}
+              {one && removeCol && row.length > 0 && <td><button type="button" className="cell-add" onClick={() => removeCol(row.length - 1)} aria-label={tr('去掉最后一个')}><Minus size={12} /></button></td>}
             </tr>
           ))}
         </tbody>
       </table>
-      {addRow && <button type="button" className="cell-add is-row" onClick={addRow} aria-label={tr('加一行', 'Add a row')}><Plus size={12} /></button>}
+      {addRow && <button type="button" className="cell-add is-row" onClick={addRow} aria-label={tr('加一行')}><Plus size={12} /></button>}
     </div>
   )
 }
@@ -160,8 +160,8 @@ export function GridField({ field, onSet, label }) {
         removeCol={flat ? null : (c) => put(rows.map((r) => r.filter((_, j) => j !== c)))}
       />
       <div className="brush">
-        <button type="button" className={`kit-btn is-label ${brush !== null ? 'is-on' : ''}`} onClick={() => setBrush(brush === null ? zero : null)} aria-pressed={brush !== null} title={tr('刷子：按住拖过格子，涂成这个值', 'Brush: drag over cells to paint them this value')}><Brush size={13} aria-hidden="true" /></button>
-        {brush !== null && <input className="cell" value={cellText(brush)} onChange={(e) => { const v = cellValue(field.cell, e.target.value); if (v !== undefined) setBrush(v) }} aria-label={tr('刷子的值', 'Brush value')} />}
+        <button type="button" className={`kit-btn is-label ${brush !== null ? 'is-on' : ''}`} onClick={() => setBrush(brush === null ? zero : null)} aria-pressed={brush !== null} title={tr('刷子：按住拖过格子，涂成这个值')}><Brush size={13} aria-hidden="true" /></button>
+        {brush !== null && <input className="cell" value={cellText(brush)} onChange={(e) => { const v = cellValue(field.cell, e.target.value); if (v !== undefined) setBrush(v) }} aria-label={tr('刷子的值')} />}
       </div>
     </div>
   )
@@ -219,7 +219,7 @@ export function TableField({ field, onSet, label }) {
 function NewKey({ value, setValue, taken, onAdd }) {
   return (
     <form className="field-row new-key" onSubmit={(e) => { e.preventDefault(); if (value && !taken.includes(value)) onAdd(value); setValue('') }}>
-      <input className="field-input is-key" value={value} onChange={(e) => setValue(e.target.value)} aria-label={tr('新的键', 'New key')} placeholder="+" />
+      <input className="field-input is-key" value={value} onChange={(e) => setValue(e.target.value)} aria-label={tr('新的键')} placeholder="+" />
     </form>
   )
 }
@@ -258,7 +258,7 @@ function TickRow({ values, cell, onSet, head = null, onRemove = null, label }) {
   }
   return (
     <div className="tick-row">
-      {head !== null && <span className="tick-head">{head}{onRemove && <button type="button" className="cell-x" onClick={onRemove} aria-label={tr('去掉这一行', 'Remove this row')}><X size={10} /></button>}</span>}
+      {head !== null && <span className="tick-head">{head}{onRemove && <button type="button" className="cell-x" onClick={onRemove} aria-label={tr('去掉这一行')}><X size={10} /></button>}</span>}
       <div className="ticks" role="group" aria-label={label}>
         {draft.map((v, k) => (editing === k ? (
           <input
@@ -285,8 +285,8 @@ function TickRow({ values, cell, onSet, head = null, onRemove = null, label }) {
         )))}
       </div>
       <span className="tick-len">
-        <button type="button" className="cell-add" onClick={() => onSet([...draft, draft.at(-1) ?? 0])} aria-label={tr('多一拍', 'One tick more')}><Plus size={11} /></button>
-        <button type="button" className="cell-add" disabled={!draft.length} onClick={() => onSet(draft.slice(0, -1))} aria-label={tr('少一拍', 'One tick less')}><Minus size={11} /></button>
+        <button type="button" className="cell-add" onClick={() => onSet([...draft, draft.at(-1) ?? 0])} aria-label={tr('多一拍')}><Plus size={11} /></button>
+        <button type="button" className="cell-add" disabled={!draft.length} onClick={() => onSet(draft.slice(0, -1))} aria-label={tr('少一拍')}><Minus size={11} /></button>
         <small>{draft.length}</small>
       </span>
     </div>

@@ -1,4 +1,4 @@
-// Which view each value is drawn in (games/DESIGN.md 6.10): a pick a value — an input or output of a task, a part's
+// Which view each value is drawn in (games/DESIGN.md 6.9): a pick a value — an input or output of a task, a part's
 // output on the board, a value inside a packed part — switched in its detail or its results row and kept on this
 // device by game and task, never in the board (a view changes nothing a run sees). A value with no pick starts in the
 // view its task port says (`view`), else the first its place offers.

@@ -1,0 +1,42 @@
+{
+  "title": { "zh": "另一套格子" },
+  "intro": [
+    {
+      "t": {
+        "zh": "平面上的格子由两支单位箭头画出：î = (1, 0)，ĵ = (0, 1)。说一点是 (3, 2)，意思是 3 支 î 加 2 支 ĵ。"
+      },
+      "show": { "shape": "grid", "value": [[3], [2]], "views": ["plane"] }
+    },
+    {
+      "t": {
+        "zh": "换两支箭头 b₁、b₂ 来画格子，同一对数就指向另一点。这两支箭头叫一组<wiki-ref to=\"basis\"></wiki-ref>，这对数叫那一点在这组基下的<wiki-ref to=\"coordinates\"></wiki-ref>。坐标是一个向量，<part-ref to=\"part:entry\"></part-ref>取出它的一个分量。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "同一点换一组基，坐标跟着变；坐标总是每支基箭头用了几倍。"
+  },
+  "adds": ["entry"],
+  "tasks": [
+    {
+      "id": "1-5",
+      "brief": {
+        "zh": "坐标 c 是按基 b₁、b₂ 写的，交出它所指的那一点（按 î、ĵ 写）。"
+      },
+      "inputs": [
+        { "name": "b1", "label": "b₁" },
+        { "name": "b2", "label": "b₂" },
+        { "name": "c", "label": "c" }
+      ],
+      "outputs": [{ "name": "out", "label": { "zh": "那一点" } }],
+      "tests": [
+        { "inputs": { "b1": [1, 0], "b2": [0, 1], "c": [3, 2] }, "expect": { "out": [3, 2] } },
+        { "inputs": { "b1": [2, 1], "b2": [-1, 1], "c": [1, 2] }, "expect": { "out": [0, 3] } },
+        { "inputs": { "b1": [1, 1], "b2": [1, -1], "c": [2, 1] }, "expect": { "out": [3, 1] } },
+        { "inputs": { "b1": [0, 2], "b2": [1, 0], "c": [-1, 0.5] }, "expect": { "out": [0.5, -2] } }
+      ],
+      "solution": ["x = entry[i=\"1\"](c)", "y = entry[i=\"2\"](c)", "p = combo(x, y, b1, b2)", "out <- p"],
+      "naive": ["out <- c"]
+    }
+  ]
+}

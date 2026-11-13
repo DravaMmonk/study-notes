@@ -11,7 +11,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link2 } from 'lucide-react'
 import { tr } from '../shell/i18n.js'
-import { REF, lacking, refProblems, untranslated } from '../engine/text.js'
+import { REF, refProblems } from '../engine/text.js'
 import { lintText } from '../pipeline/lint.js'
 import { OptionList } from './Picker.jsx'
 import { MOD } from './Shortcuts.jsx'
@@ -19,7 +19,7 @@ import { MOD } from './Shortcuts.jsx'
 const HAS_REF = /<(level|part|wiki)-ref to="[^"]+"><\/\1-ref>/
 const tag = (kind, to) => `<${kind}-ref to="${to}"></${kind}-ref>`
 const TRIGGERS = ['[[', '【【']
-const pairOf = (value) => (typeof value === 'string' ? { zh: value, en: value } : value ?? { zh: '', en: '' })
+const pairOf = (value) => (typeof value === 'string' ? { zh: value } : value ?? { zh: '' })
 
 /** What a chip says: a level's number and title, a part's name, an entry's title (in the side's language). */
 function chipText(names, kind, id, lang) {
@@ -205,10 +205,7 @@ function Side({ value, onChange, names, lang, label, api, onFocus, onLink }) {
   )
 }
 
-// A finding about the whole text quotes the text after a colon; beside the text itself the quote says nothing.
-const bare = (s) => s.replace(/^(has (?:different references in Chinese and English|no English|an empty English side|Chinese in its English side)): [\s\S]*$/, '$1')
-
-/** The findings on a pair: both sides there, links that resolve and match, the copy rules for its field. */
+/** The findings on a text: links that resolve, the copy rules for its field. */
 export function textFindings(pair, field, names) {
   if (!names) return []
   const zhNames = {
@@ -217,7 +214,6 @@ export function textFindings(pair, field, names) {
     wiki: new Map([...names.wiki].map(([k, n]) => [k, String(n?.zh ?? n ?? '')])),
   }
   const found = [
-    ...untranslated(pair, '').map((s) => s.trim()),
     ...refProblems(pair, '', zhNames, names.quotes ?? []).map((s) => s.trim()),
     ...lintText(field, pair).map((f) => `${f.rule}: ${f.says}`),
   ]
@@ -233,44 +229,35 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
   useEffect(() => {
     if (Date.now() - typing.current > 1500) setDraft(JSON.parse(key))
   }, [key])
-  const sides = { zh: useRef(null), en: useRef(null) }
-  const [side, setSide] = useState('zh')
+  const box = useRef(null)
   const [linking, setLinking] = useState(null) // the picker's first search while it is open
-  const set = useCallback((s) => (text) => {
+  const set = useCallback((text) => {
     typing.current = Date.now()
-    setDraft((d) => ({ ...d, [s]: text }))
-    onSet({ [s]: text })
+    setDraft({ zh: text })
+    onSet({ zh: text })
   }, [onSet])
   const options = useMemo(() => (names ? [
-    ...[...names.level].map(([id, l]) => ({ value: `level:${id}`, label: l.label, title: l.title, group: tr('关卡', 'Levels') })),
+    ...[...names.level].map(([id, l]) => ({ value: `level:${id}`, label: l.label, title: l.title, group: tr('关卡') })),
     ...[...names.part].map(([k, n]) => ({ value: `part:${k}`, label: k, title: n, group: tr('元件', 'Parts') })),
-    ...[...names.wiki].map(([k, n]) => ({ value: `wiki:${k}`, label: k, title: n, group: tr('百科', 'Encyclopedia') })),
+    ...[...names.wiki].map(([k, n]) => ({ value: `wiki:${k}`, label: k, title: n, group: tr('百科') })),
   ] : []), [names])
-  // The links the other side has more of than this side, first.
-  const missing = linking === null ? [] : lacking(draft[side === 'zh' ? 'en' : 'zh'] ?? '', draft[side] ?? '')
-  const offered = missing.length ? [
-    ...options.filter((o) => missing.includes(o.value)).map((o) => ({ ...o, group: side === 'zh' ? 'English' : '中文' })),
-    ...options.filter((o) => !missing.includes(o.value)),
-  ] : options
-  const link = (s) => (query) => { setSide(s); setLinking(query) }
-  const close = () => { setLinking(null); sides[side].current?.focus() }
-  const all = [...new Set([...textFindings(draft, field, names), ...findings].map(bare))]
+  const close = () => { setLinking(null); box.current?.focus() }
+  const all = [...new Set([...textFindings(draft, field, names), ...findings])]
   return (
     <div className={`field-text ${all.length ? 'has-findings' : ''} ${compact ? 'is-compact' : ''}`}>
       <div className="text-sides">
-        <Side value={draft.zh ?? ''} onChange={set('zh')} names={names} lang="zh" label={`${label} 中文`} api={sides.zh} onFocus={() => setSide('zh')} onLink={link('zh')} />
-        <Side value={draft.en ?? ''} onChange={set('en')} names={names} lang="en" label={`${label} English`} api={sides.en} onFocus={() => setSide('en')} onLink={link('en')} />
+        <Side value={draft.zh ?? ''} onChange={set} names={names} lang="zh" label={label} api={box} onLink={setLinking} />
       </div>
       {names && (
         <div className="text-tools">
-          <button type="button" className="text-link" onPointerDown={(e) => e.preventDefault()} onClick={() => setLinking(linking === null ? '' : null)} aria-label={tr('插入链接', 'Insert a link')} title={tr(`插入链接（${MOD}+L 或 [[）`, `Insert a link (${MOD}+L or [[)`)}><Link2 size={13} aria-hidden="true" /></button>
+          <button type="button" className="text-link" onPointerDown={(e) => e.preventDefault()} onClick={() => setLinking(linking === null ? '' : null)} aria-label={tr('插入链接')} title={tr(`插入链接（${MOD}+L 或 [[）`, `Insert a link (${MOD}+L or [[)`)}><Link2 size={13} aria-hidden="true" /></button>
           {linking !== null && (
             <OptionList
-              options={offered} value={null} query={linking} onClose={close}
+              options={options} value={null} query={linking} onClose={close}
               onPick={(v) => {
                 setLinking(null)
                 const [kind, ...id] = v.split(':')
-                sides[side].current?.insert(kind, id.join(':'))
+                box.current?.insert(kind, id.join(':'))
               }}
             />
           )}

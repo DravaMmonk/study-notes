@@ -1,44 +1,39 @@
 {
-  "title": { "zh": "送两份", "en": "Send it twice" },
+  "title": { "zh": "送两份" },
   "intro": [
     {
       "t": {
-        "zh": "这根线会翻位：收到的位错了，收的一方却毫不知情。最笨的办法是同一份话送两遍，两份不一样，就知道出了错。这叫<wiki-ref to=\"error-detection\"></wiki-ref>。",
-        "en": "This wire flips bits, and a bit that arrives wrong gives no sign of it. The crudest remedy is to say everything twice: when the copies disagree, something went wrong. This is <wiki-ref to=\"error-detection\"></wiki-ref>."
+        "zh": "这根线会翻位：收到的位错了，收的一方却毫不知情。最笨的办法是同一份话送两遍，两份不一样，就知道出了错。这叫<wiki-ref to=\"error-detection\"></wiki-ref>。"
       }
     }
   ],
   "builds": {
     "type": "xor",
-    "name": { "zh": "异或", "en": "XOR" },
+    "name": { "zh": "异或" },
     "desc": {
-      "zh": "两位不同为 1，相同为 0；碰到「—」给「—」。",
-      "en": "1 when two bits differ, 0 when they agree; 「—」 for 「—」."
+      "zh": "两位不同为 1，相同为 0；碰到「—」给「—」。"
     }
   },
   "tasks": [
     {
       "id": "1-31",
       "brief": {
-        "zh": "对方把每一位同时说在两根线上，线会翻位：两根线上的位不同时说 1，相同时说 0。",
-        "en": "The far end says every bit on two wires at once and the wires flip bits: say 1 when the two disagree and 0 when they agree."
+        "zh": "对方把每一位同时说在两根线上，线会翻位：两根线上的位不同时说 1，相同时说 0。"
       },
       "hint": [
         {
-          "zh": "<level-ref to=\"1-2\"></level-ref>和<level-ref to=\"1-3\"></level-ref>的做法，这里都用得上。",
-          "en": "What worked in <level-ref to=\"1-2\"></level-ref> and <level-ref to=\"1-3\"></level-ref> both help here."
+          "zh": "<level-ref to=\"1-2\"></level-ref>和<level-ref to=\"1-3\"></level-ref>的做法，这里都用得上。"
         },
         {
-          "zh": "线 A 为 0 时，输出和线 B 是什么关系？线 A 为 1 时呢？",
-          "en": "When wire A is 0, how does the output relate to wire B? And when A is 1?"
+          "zh": "线 A 为 0 时，输出和线 B 是什么关系？线 A 为 1 时呢？"
         }
       ],
       "wires": {
         "in": [
-          { "name": "a", "label": { "zh": "线 A", "en": "Wire A" } },
-          { "name": "b", "label": { "zh": "线 B", "en": "Wire B" } }
+          { "name": "a", "label": { "zh": "线 A" } },
+          { "name": "b", "label": { "zh": "线 B" } }
         ],
-        "out": [{ "name": "x", "label": { "zh": "出线", "en": "Wire out" } }]
+        "out": [{ "name": "x", "label": { "zh": "出线" } }]
       },
       "tests": [
         {

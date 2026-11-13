@@ -52,17 +52,17 @@ test('the bridge lists the tools, and says what is wrong with a call', async () 
 test('a pending changeset previewed: its content, lines by level and files, nothing written', async () => {
   const before = onDisk('levels/suppose.json')
   const ops = [
-    { op: 'text.set', level: 'suppose', path: 'tasks[0].brief', en: 'Prove it with a box.' },
+    { op: 'text.set', level: 'suppose', path: 'tasks[0].brief', zh: '用一个框证出它。' },
     { op: 'level.move', level: 'suppose', to: { before: 'apply', on: 'path' } },
   ]
   const { status, body } = await post('preview', { game: GAME, changeset: { ops } })
   assert.equal(status, 200)
   assert.equal(body.failed, null)
-  assert.equal(body.content.levels.find((l) => l.id === 'suppose').tasks[0].brief.en, 'Prove it with a box.')
+  assert.equal(body.content.levels.find((l) => l.id === 'suppose').tasks[0].brief.zh, '用一个框证出它。')
   assert.ok(body.order.includes('suppose') && body.lines.every((l) => Array.isArray(l.levels)))
   assert.ok(body.lines.some((l) => l.levels.includes('suppose') && /^suppose /.test(l.text)), 'a domain line is about its level')
   assert.deepEqual(body.changes.map((c) => c.file).sort(), [`${GAME}/game.json`, `${GAME}/levels/suppose.json`])
-  assert.equal(JSON.parse(body.changes.find((c) => c.file.endsWith('suppose.json')).after).tasks[0].brief.en, 'Prove it with a box.')
+  assert.equal(JSON.parse(body.changes.find((c) => c.file.endsWith('suppose.json')).after).tasks[0].brief.zh, '用一个框证出它。')
   assert.equal(onDisk('levels/suppose.json'), before, 'a preview writes nothing')
 
   const bad = (await post('preview', { game: GAME, changeset: { ops: [ops[0], { op: 'level.set', level: 'nope', path: 'x', value: 1 }] } })).body
@@ -84,7 +84,7 @@ test('a board seeded for the game, drawn as SVG', async () => {
 
 test('apply, read the log, undo: the content comes back as it was', async () => {
   const before = onDisk('levels/given.json')
-  const ops = [{ op: 'text.set', level: 'given', path: 'tasks[0].brief', en: 'Given that “today is Saturday”, prove it.' }]
+  const ops = [{ op: 'text.set', level: 'given', path: 'tasks[0].brief', zh: '已知「今天是周六」，证出它。' }]
   const done = (await post('modify', { game: GAME, changeset: { why: 'a shorter brief', ops } })).body
   assert.equal(done.written, true, done.problems.join('\n'))
   assert.notEqual(onDisk('levels/given.json'), before)

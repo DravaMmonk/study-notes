@@ -70,12 +70,12 @@ const WANTS = {
   bytes: ({ wire: w, format, poly, intactOnly }) => (test) => {
     const events = decode(format, wire(test, w), poly)
     const kept = intactOnly ? framesOf(events).filter((f) => f.intact).flatMap((f) => f.bytes) : events.filter((e) => e.byte !== undefined).map((e) => e.byte)
-    return { order: kept, words: intactOnly ? T('校验相符的帧里的字节', 'the bytes of the frames whose check fits') : T('收到的字节', 'the bytes received') }
+    return { order: kept, words: intactOnly ? T('校验相符的帧里的字节') : T('收到的字节') }
   },
-  ends: ({ wire: w, format, poly }) => (test) => ({ order: decode(format, wire(test, w), poly).filter((e) => e.end).map((e) => e.intact), words: T('每一帧结束时它的校验是否相符', 'at each frame’s end, whether its check fits') }),
-  sent: ({ format, poly }) => (test) => ({ far: { format, poly }, order: decodedOrder(format, queued(test), poly), words: T('线那头收到的', 'what the far end receives') }),
-  answers: ({ wire: w, format, poly }) => (test) => ({ far: { format, poly }, order: framesOf(decode(format, wire(test, w), poly)).flatMap((f) => [f.intact ? 1 : 0, 'end']), words: T('线那头收到的回帧', 'the replies the far end receives') }),
-  relayed: ({ wire: w, format, poly }) => (test) => ({ far: { format, poly }, order: framesOf(decode(format, wire(test, w), poly)).filter((f) => f.intact).flatMap((f) => [...f.bytes, 'end']), words: T('线那头收到的校验相符的帧', 'the frames the far end receives whose check fits') }),
+  ends: ({ wire: w, format, poly }) => (test) => ({ order: decode(format, wire(test, w), poly).filter((e) => e.end).map((e) => e.intact), words: T('每一帧结束时它的校验是否相符') }),
+  sent: ({ format, poly }) => (test) => ({ far: { format, poly }, order: decodedOrder(format, queued(test), poly), words: T('线那头收到的') }),
+  answers: ({ wire: w, format, poly }) => (test) => ({ far: { format, poly }, order: framesOf(decode(format, wire(test, w), poly)).flatMap((f) => [f.intact ? 1 : 0, 'end']), words: T('线那头收到的回帧') }),
+  relayed: ({ wire: w, format, poly }) => (test) => ({ far: { format, poly }, order: framesOf(decode(format, wire(test, w), poly)).filter((f) => f.intact).flatMap((f) => [...f.bytes, 'end']), words: T('线那头收到的校验相符的帧') }),
 }
 
 /** Events grouped into frames: [{ bytes, intact }]. */

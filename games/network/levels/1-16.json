@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "带上校验码", "en": "Append the check" },
+  "title": { "zh": "带上校验码" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-15\"></level-ref>在收的一方算出校验码。这一次换到发送的一方：校验码要紧跟在数据后面送出去。",
-        "en": "<level-ref to=\"1-15\"></level-ref> works out the check at the receiving end. Now the board is the sender, and the check has to follow the data onto the wire."
+        "zh": "<level-ref to=\"1-15\"></level-ref>在收的一方算出校验码。这一次换到发送的一方：校验码要紧跟在数据后面送出去。"
       }
     }
   ],
@@ -12,27 +11,23 @@
     {
       "id": "1-16",
       "brief": {
-        "zh": "把交来的字节从第一拍起逐位送出（最高位在前），紧接着送出它的 3 位校验码。",
-        "en": "Send the byte handed to you bit by bit from the first tick, top bit first, followed at once by its 3 check bits."
+        "zh": "把交来的字节从第一拍起逐位送出（最高位在前），紧接着送出它的 3 位校验码。"
       },
       "hint": [
         {
-          "zh": "说到线上的每一位，也要同时交给<part-ref to=\"crc\"></part-ref>。",
-          "en": "Every bit said on the wire should also go to <part-ref to=\"crc\"></part-ref>."
+          "zh": "说到线上的每一位，也要同时交给<part-ref to=\"crc\"></part-ref>。"
         },
         {
-          "zh": "字节说完的那一拍，校验码就定了；之后线上的位不该再改变它。",
-          "en": "The check is settled on the tick the byte is out; the bits on the wire after that must not change it."
+          "zh": "字节说完的那一拍，校验码就定了；之后线上的位不该再改变它。"
         },
         {
-          "zh": "校验码是 0 到 7 的数：它的 3 位排在一个 8 位数的最后。",
-          "en": "The check is a number from 0 to 7: its 3 bits are the last three of an 8-bit number."
+          "zh": "校验码是 0 到 7 的数：它的 3 位排在一个 8 位数的最后。"
         }
       ],
-      "inputs": [{ "name": "byte", "label": { "zh": "队首", "en": "Next byte" } }],
-      "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
+      "inputs": [{ "name": "byte", "label": { "zh": "队首" } }],
+      "outputs": [{ "name": "next", "label": { "zh": "下一个" } }],
       "pulls": { "input": "byte", "next": "next" },
-      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线" } }] },
       "tests": [
         { "ticks": 13, "queue": [[1]] },
         { "ticks": 13, "queue": [[178]] },

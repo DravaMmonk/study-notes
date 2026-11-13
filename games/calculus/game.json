@@ -1,0 +1,101 @@
+{
+  "domain": "calculus",
+  "vocabulary": 1,
+  "title": {
+    "zh": "差分机"
+  },
+  "kicker": {
+    "zh": "高等数学"
+  },
+  "lede": {
+    "zh": "只会加和乘的机器，一拍算出数列的一项。亲手接出求和与差分，看它们互相撤销；再把「越来越近」拼成电路，判断一个数列、一个级数究竟趋于什么。"
+  },
+  "primitives": [
+    "add",
+    "reg",
+    "keep",
+    "const",
+    "mul",
+    "recip",
+    "less"
+  ],
+  "concept": {
+    "keep": "reg"
+  },
+  "eras": [
+    {
+      "id": 0,
+      "title": {
+        "zh": "一拍一项"
+      },
+      "question": {
+        "zh": "只会加和乘，怎样算出数列的任意一项、到这一项为止的和、相邻两项的差？"
+      },
+      "foundation": [
+        "sum3",
+        "prev",
+        "arith",
+        "count",
+        "square",
+        "double",
+        {
+          "parallel": [
+            {
+              "id": "sums",
+              "title": { "zh": "求和" },
+              "levels": ["sum", "tri", "tetra", "dsum"]
+            },
+            {
+              "id": "diffs",
+              "title": { "zh": "差分" },
+              "levels": ["diff", "dsq", "ddsq", "ddouble"]
+            }
+          ]
+        },
+        "inverse"
+      ],
+      "challenges": [{ "level": "cdouble", "after": "ddouble" }]
+    },
+    {
+      "id": 1,
+      "title": { "zh": "越来越近" },
+      "question": {
+        "zh": "1/2 + 1/4 + … 加到哪一项都不等于 1：「趋于」一个数究竟是什么意思？"
+      },
+      "foundation": [
+        {
+          "parallel": [
+            { "id": "small", "title": { "zh": "越来越小" }, "levels": ["recip", "halves"] },
+            {
+              "id": "close",
+              "title": { "zh": "多近才算近" },
+              "levels": ["max", "dist", "near"]
+            },
+            { "id": "since", "title": { "zh": "从此以后" }, "levels": ["since"] }
+          ]
+        },
+        "limit",
+        "ratio",
+        "wobble",
+        "diverge",
+        "series",
+        "harmonic"
+      ],
+      "topics": [
+        {
+          "id": "e-topic",
+          "title": { "zh": "算出 e" },
+          "levels": ["fact", "euler"],
+          "after": "series"
+        },
+        {
+          "id": "root-topic",
+          "title": { "zh": "巴比伦开方" },
+          "levels": ["babylon", "babylon-fast", "any-root"],
+          "after": "limit"
+        }
+      ]
+    }
+  ],
+  "views": { "ticks": ["terms", "dots"] }
+}

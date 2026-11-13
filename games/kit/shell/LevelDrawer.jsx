@@ -30,11 +30,11 @@ export default function LevelDrawer({ game, current, solved, all, onOpen, onClos
     })
 
   return (
-    <nav className="level-drawer" aria-label={tr('关卡', 'Levels')}>
+    <nav className="level-drawer" aria-label={tr('关卡')}>
       <header className="drawer-head">
-        <span>{tr('关卡', 'Levels')}</span>
+        <span>{tr('关卡')}</span>
         <small>{levels.filter((level) => solved.has(level.id)).length} / {levels.length}</small>
-        <button className="drawer-close" onClick={onClose} aria-label={tr('收起关卡', 'Hide levels')} title={tr('收起关卡', 'Hide levels')}><PanelLeftClose size={16} /></button>
+        <button className="drawer-close" onClick={onClose} aria-label={tr('收起关卡')} title={tr('收起关卡')}><PanelLeftClose size={16} /></button>
       </header>
       <div className="drawer-list" ref={list}>
         {game.chapters.map((chapter) => {

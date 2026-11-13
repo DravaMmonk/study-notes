@@ -121,7 +121,7 @@ export default function Analyze({ game, level, saved, save, solve, lastRun, keep
   const markedAs = (role) => all.roles[role] && selection && all.roles[role][0] === selection.a && all.roles[role][1] === selection.b
   const tray = pending ? (
     <div className="sx-tray">
-      <button type="button" className="sx-act is-quiet" onClick={cancel}>{tr('取消', 'Cancel')}</button>
+      <button type="button" className="sx-act is-quiet" onClick={cancel}>{tr('取消')}</button>
     </div>
   ) : selection ? (
     <div className="sx-tray">
@@ -133,20 +133,20 @@ export default function Analyze({ game, level, saved, save, solve, lastRun, keep
       {types.length > 0 && (
         <div className="sx-group">
           {types.map((type) => (
-            <button key={type} type="button" className="sx-act" data-type={type} onClick={() => pickType(type)}>{tr('折成', 'Fold as')} {L(TYPES[type].name)}</button>
+            <button key={type} type="button" className="sx-act" data-type={type} onClick={() => pickType(type)}>{tr('折成')} {L(TYPES[type].name)}</button>
           ))}
         </div>
       )}
       <div className="sx-group">
-        {single?.kind === 'fold' && !isGiven(single.fold) && <button type="button" className="sx-act" onClick={() => { change(unfold(analysis, single.fold)); setSelection(null) }}>{tr('拆开', 'Unfold')}</button>}
-        <button type="button" className="sx-act is-quiet" onClick={cancel}>{tr('取消', 'Cancel')}</button>
+        {single?.kind === 'fold' && !isGiven(single.fold) && <button type="button" className="sx-act" onClick={() => { change(unfold(analysis, single.fold)); setSelection(null) }}>{tr('拆开')}</button>}
+        <button type="button" className="sx-act is-quiet" onClick={cancel}>{tr('取消')}</button>
       </div>
     </div>
   ) : null
 
   const status = note
     ? <p className={`sx-note ${note.bad ? 'is-bad' : ''}`} role="status">{L(note.text)}</p>
-    : !result && !selection && !analysis.folds.length && !Object.keys(analysis.roles).length ? <p className="sx-note">{tr('点击一个词作为选段的起点，再点击一个词作为终点。', 'Tap a word to start a selection and another to end it.')}</p> : null
+    : !result && !selection && !analysis.folds.length && !Object.keys(analysis.roles).length ? <p className="sx-note">{tr('点击一个词作为选段的起点，再点击一个词作为终点。')}</p> : null
 
   const brief = <Brief game={game} level={level} hint={spec.hint} />
   const stage = (
@@ -160,10 +160,10 @@ export default function Analyze({ game, level, saved, save, solve, lastRun, keep
   const results = result ? (
     <div className={`sx-result ${result.pass ? 'is-pass' : 'is-fail'}`} role="status">
       {result.pass
-        ? <p>{tr('分析正确。', 'Correct analysis.')}</p>
+        ? <p>{tr('分析正确。')}</p>
         : <ul>{result.findings.map((f, k) => <li key={k}><Markup text={f} /></li>)}</ul>}
     </div>
   ) : null
-  const dock = <RunDock go={{ label: result?.pass ? tr('分析正确', 'Correct') : tr('对照', 'Check'), pass: Boolean(result?.pass), onClick: go }} />
+  const dock = <RunDock go={{ label: result?.pass ? tr('分析正确') : tr('对照'), pass: Boolean(result?.pass), onClick: go }} />
   return <Level phone={phone} className="sx-level" brief={brief} stage={stage} results={results} dock={dock} />
 }

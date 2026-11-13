@@ -1,25 +1,23 @@
 {
-  "title": { "zh": "只标被迫的", "en": "Only what is forced" },
+  "title": { "zh": "只标被迫的" },
   "intro": [
     {
       "t": {
-        "zh": "饱和器每一圈把每一对都消一遍，大部分新子句用不上。这些子句每条至多一个不带 ¬ 的文字，叫 <b>Horn 子句</b>。",
-        "en": "Each round the saturator cancels every pair, and most new clauses go unused. In these clauses each has at most one literal without ¬: they are <b>Horn clauses</b>."
+        "zh": "饱和器每一圈把每一对都消一遍，大部分新子句用不上。这些子句每条至多一个不带 ¬ 的文字，叫 <b>Horn 子句</b>。"
       }
     }
   ],
   "adds": ["resolve"],
   "tray": "machine",
   "after": {
-    "zh": "SAT 求解器里，这叫<wiki-ref to=\"unit\"></wiki-ref>。",
-    "en": "In a SAT solver this is called <wiki-ref to=\"unit\"></wiki-ref>."
+    "zh": "SAT 求解器里，这叫<wiki-ref to=\"unit\"></wiki-ref>。"
   },
   "tasks": [
     {
       "id": "au-horn",
       "kind": "machine",
       "want": "refuted",
-      "inputs": [{ "name": "in", "label": { "zh": "子句", "en": "Clauses" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "子句" } }],
       "backtrack": true,
       "tests": [
         {
@@ -53,12 +51,11 @@
         }
       ],
       "brief": {
-        "zh": "设计一个证明助手推出 ⊥，子句的条数不能超过每组测试的限额。",
-        "en": "Design a proof assistant that reaches ⊥ without making more clauses than each test allows."
+        "zh": "设计一个证明助手推出 ⊥，子句的条数不能超过每组测试的限额。"
       },
       "hint": [
-        { "zh": "有几条子句一开始就只有一个文字。", "en": "Some clauses have a single literal from the start." },
-        { "zh": "只有一个文字的子句，就是已经被迫的事。", "en": "A one-literal clause is something already forced." }
+        { "zh": "有几条子句一开始就只有一个文字。" },
+        { "zh": "只有一个文字的子句，就是已经被迫的事。" }
       ],
       "solution": [
         "c0 = repeat(in, body: c1) {",

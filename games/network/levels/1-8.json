@@ -1,47 +1,41 @@
 {
-  "title": { "zh": "一位一位地收", "en": "Gather a byte" },
+  "title": { "zh": "一位一位地收" },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-7\"></level-ref>把一个字节拆成位送了出去。这一次换到线的另一头：把一位一位到来的位拼回一个数。",
-        "en": "<level-ref to=\"1-7\"></level-ref> takes a byte apart into bits and sends them. Now the board is at the other end of the wire, putting the bits back into a number as they come."
+        "zh": "<level-ref to=\"1-7\"></level-ref>把一个字节拆成位送了出去。这一次换到线的另一头：把一位一位到来的位拼回一个数。"
       }
     }
   ],
   "builds": {
     "type": "deserializer",
-    "name": { "zh": "按字节收", "en": "Shift in" },
+    "name": { "zh": "按字节收" },
     "desc": {
-      "zh": "从「开始」为 1 的那一拍起收进线上的 8 位，最高位在前；收满的那一拍给出这个字节，「收完」为 1；其余各拍字节是「—」，「收完」为 0。",
-      "en": "From the tick start is 1, takes in 8 bits off its wire in, top bit first; on the tick the eighth comes in gives the byte with done 1; on every other tick the byte is 「—」 and done 0."
+      "zh": "从「开始」为 1 的那一拍起收进线上的 8 位，最高位在前；收满的那一拍给出这个字节，「收完」为 1；其余各拍字节是「—」，「收完」为 0。"
     }
   },
   "tasks": [
     {
       "id": "1-8",
       "brief": {
-        "zh": "从「开始」为 1 的那一拍起收进线上的 8 位，最高位在前；收满 8 位的那一拍输出这个字节，「收完」为 1，其余各拍为 0。",
-        "en": "From the tick start is 1, take in the wire's 8 bits, top bit first; on the tick the eighth comes in, output the byte and make done 1, and 0 on every other tick."
+        "zh": "从「开始」为 1 的那一拍起收进线上的 8 位，最高位在前；收满 8 位的那一拍输出这个字节，「收完」为 1，其余各拍为 0。"
       },
       "hint": [
         {
-          "zh": "每收进一位，已经攒下的数要怎样变，才能让先到的位分量更大？",
-          "en": "With each new bit, what must happen to the number held so far, so that earlier bits end up worth more?"
+          "zh": "每收进一位，已经攒下的数要怎样变，才能让先到的位分量更大？"
         },
         {
-          "zh": "已经收了几位，<part-ref to=\"counter\"></part-ref>数得出来。",
-          "en": "<part-ref to=\"counter\"></part-ref> can count the bits taken in."
+          "zh": "已经收了几位，<part-ref to=\"counter\"></part-ref>数得出来。"
         },
         {
-          "zh": "「开始」那一拍收进的就是第一位，之前攒下的都不算。",
-          "en": "The bit on the start tick is the first one; whatever was gathered before it does not count."
+          "zh": "「开始」那一拍收进的就是第一位，之前攒下的都不算。"
         }
       ],
-      "wires": { "in": [{ "name": "line", "label": { "zh": "进线", "en": "Wire in" } }] },
-      "inputs": [{ "name": "start", "label": { "zh": "开始", "en": "Start" } }],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
+      "inputs": [{ "name": "start", "label": { "zh": "开始" } }],
       "outputs": [
-        { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
-        { "name": "done", "label": { "zh": "收完", "en": "Done" } }
+        { "name": "byte", "label": { "zh": "字节" } },
+        { "name": "done", "label": { "zh": "收完" } }
       ],
       "tests": [
         {

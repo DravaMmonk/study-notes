@@ -1,14 +1,13 @@
 {
   "words": ["everyday", "terms", "stars", "vectors"],
-  "symbolicWords": { "Bright": { "zh": "P({0})", "en": "P({0})" }, "Seen": { "zh": "Q({0})", "en": "Q({0})" } },
-  "title": { "zh": "换哪几处", "en": "Which places" },
+  "symbolicWords": { "Bright": { "zh": "P({0})" }, "Seen": { "zh": "Q({0})" } },
+  "title": { "zh": "换哪几处" },
   "tray": "proof",
   "consts": ["i", "j", "k"],
   "intro": [
     {
       "t": {
-        "zh": "同一样东西可以在一句话里出现好几次，等量代换只换点上的那几处。",
-        "en": "One thing can appear several times in a sentence, and rewriting replaces only the places ticked."
+        "zh": "同一样东西可以在一句话里出现好几次，等量代换只换点上的那几处。"
       }
     }
   ],
@@ -16,33 +15,30 @@
     {
       "id": "eq-motive_1",
       "kind": "proof",
-      "step": { "zh": "只换一处", "en": "Only one place" },
+      "step": { "zh": "只换一处" },
       "tests": [{ "premises": { "p": "i = j", "q": "Bright(i) ∧ Seen(i)" }, "goal": "Bright(j) ∧ Seen(i)" }],
       "cases": [],
       "brief": {
-        "zh": "已知 p：「晨星 = 昏星」、q：「晨星很亮 ∧ 晨星看得见」，证出「昏星很亮 ∧ 晨星看得见」。",
-        "en": "Given p: “the Morning Star = the Evening Star” and q: “the Morning Star is bright ∧ the Morning Star can be seen”, prove “the Evening Star is bright ∧ the Morning Star can be seen”."
+        "zh": "已知 p：「晨星 = 昏星」、q：「晨星很亮 ∧ 晨星看得见」，证出「昏星很亮 ∧ 晨星看得见」。"
       },
-      "hint": [{ "zh": "每个框都点上，证出的是哪一句？", "en": "With every box ticked, which sentence is proved?" }],
+      "hint": [{ "zh": "每个框都点上，证出的是哪一句？" }],
       "solution": ["w = rewrite[at=[0]](p, q)", "goal <- w"],
       "naive": ["w = rewrite[at=[0, 1]](p, q)", "goal <- w"]
     },
     {
       "id": "eq-motive_2",
       "kind": "proof",
-      "step": { "zh": "两个方向", "en": "Both ways" },
+      "step": { "zh": "两个方向" },
       "tests": [{ "premises": { "p": "i = j", "q": "Bright(i) ∧ Seen(j)" }, "goal": "Bright(j) ∧ Seen(i)" }],
       "cases": [],
       "brief": {
-        "zh": "从已知 p：「晨星 = 昏星」、q：「晨星很亮 ∧ 昏星看得见」证出「昏星很亮 ∧ 晨星看得见」。",
-        "en": "From p: “the Morning Star = the Evening Star” and q: “the Morning Star is bright ∧ the Evening Star can be seen”, prove “the Evening Star is bright ∧ the Morning Star can be seen”."
+        "zh": "从已知 p：「晨星 = 昏星」、q：「晨星很亮 ∧ 昏星看得见」证出「昏星很亮 ∧ 晨星看得见」。"
       },
       "hint": [
         {
-          "zh": "一处要把晨星换成昏星，另一处要把昏星换成晨星。",
-          "en": "One place wants the Morning Star turned into the Evening Star, the other the Evening Star into the Morning Star."
+          "zh": "一处要把晨星换成昏星，另一处要把昏星换成晨星。"
         },
-        { "zh": "第二种换法要一个倒过来的等式。", "en": "The second wants the equation turned round." }
+        { "zh": "第二种换法要一个倒过来的等式。" }
       ],
       "solution": [
         "r = refl[t=i]()",

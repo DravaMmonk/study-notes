@@ -1,33 +1,29 @@
 {
   "consts": ["h", "i", "j", "k", "l", "m", "n"],
-  "title": { "zh": "推不出", "en": "Does not follow" },
+  "title": { "zh": "推不出" },
   "intro": [
     {
       "t": {
-        "zh": "一段推理也能写成一句话：前提用「并且」连起来，作为「如果……那么……」的条件。",
-        "en": "A piece of reasoning can be written as one sentence too: the premises joined by “and”, as the condition of an “if … then …”."
+        "zh": "一段推理也能写成一句话：前提用「并且」连起来，作为「如果……那么……」的条件。"
       }
     }
   ],
   "after": {
-    "zh": "前提都真、结论为假的世界，叫<wiki-ref to=\"countermodel\"></wiki-ref>。",
-    "en": "A world where the premises hold and the conclusion fails is a <wiki-ref to=\"countermodel\"></wiki-ref>."
+    "zh": "前提都真、结论为假的世界，叫<wiki-ref to=\"countermodel\"></wiki-ref>。"
   },
   "tasks": [
     {
       "id": "m-counter_1",
       "kind": "translate",
-      "step": { "zh": "翻译", "en": "Translate" },
-      "brief": { "zh": "用下面的元件，把这句话拼成公式。", "en": "Build this sentence as a formula from the parts below." },
+      "step": { "zh": "翻译" },
+      "brief": { "zh": "用下面的元件，把这句话拼成公式。" },
       "say": {
-        "zh": "要是人都会死，苏格拉底又会死，那苏格拉底就是人。",
-        "en": "If every human is mortal and Socrates is mortal, then Socrates is human."
+        "zh": "要是人都会死，苏格拉底又会死，那苏格拉底就是人。"
       },
       "target": "(∀x. Human(x) → Mortal(x)) ∧ Mortal(h) → Human(h)",
       "hint": [
         {
-          "zh": "最外面是「如果……那么……」；条件是两句用「并且」连起来，第一句是一整句 ∀。",
-          "en": "The outermost piece is “if … then …”; the condition is two sentences joined by “and”, the first a whole ∀ sentence."
+          "zh": "最外面是「如果……那么……」；条件是两句用「并且」连起来，第一句是一整句 ∀。"
         }
       ],
       "decoys": []
@@ -35,30 +31,26 @@
     {
       "id": "m-counter_2",
       "kind": "model",
-      "step": { "zh": "造反例", "en": "Counterexample" },
+      "step": { "zh": "造反例" },
       "say": {
-        "zh": "要是人都会死，苏格拉底又会死，那苏格拉底就是人。",
-        "en": "If every human is mortal and Socrates is mortal, then Socrates is human."
+        "zh": "要是人都会死，苏格拉底又会死，那苏格拉底就是人。"
       },
       "brief": {
-        "zh": "这段推理写成了引理。造一个反例：前提都成立，结论不成立。",
-        "en": "The reasoning is written as a lemma. Build a counterexample: every premise holds and the goal fails."
+        "zh": "这段推理写成了引理。造一个反例：前提都成立，结论不成立。"
       },
       "given": ["∀x. Human(x) → Mortal(x)", "Mortal(h)"],
       "goal": "Human(h)",
       "answer": { "size": 1, "preds": { "Mortal": ["0"] }, "consts": { "h": 0 } },
-      "hint": [{ "zh": "苏格拉底也可以是一条会死的狗。", "en": "Socrates could be a mortal dog." }],
+      "hint": [{ "zh": "苏格拉底也可以是一条会死的狗。" }],
       "intro": [
         {
           "t": {
-            "zh": "上方是这段推理写成的引理：横线上是前提，横线下是结论，它说前提都成立时，结论也成立。造一个前提都成立、结论不成立的世界，就说明它推错了。",
-            "en": "Above is the reasoning written as a lemma: the premises over the line, the goal under it; it says the goal holds whenever the premises do. A world where the premises hold and the goal fails shows it is wrong."
+            "zh": "上方是这段推理写成的引理：横线上是前提，横线下是结论，它说前提都成立时，结论也成立。造一个前提都成立、结论不成立的世界，就说明它推错了。"
           }
         },
         {
           "t": {
-            "zh": "名字也要在世界里指一样东西：选好「苏格拉底」是哪一样。",
-            "en": "A name must stand for a thing in the world too: choose which thing is Socrates."
+            "zh": "名字也要在世界里指一样东西：选好「苏格拉底」是哪一样。"
           }
         }
       ]

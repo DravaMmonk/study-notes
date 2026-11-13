@@ -1,0 +1,62 @@
+{
+  "title": { "zh": "从 p 到 q" },
+  "intro": [
+    {
+      "t": {
+        "zh": "到这里为止的箭头都从原点出发。从一个点指向另一个点的箭头，起点不在原点；元件箱里也没有相减。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "q − p 是从 p 指向 q 的位移：减去一支箭头，就是加上它掉头后的样子。"
+  },
+  "tasks": [
+    {
+      "id": "1-3a",
+      "step": { "zh": "位移" },
+      "brief": {
+        "zh": "交出从 p 指向 q 的位移 d：从 p 出发走 d，正好到达 q。"
+      },
+      "hint": [{ "zh": "一支箭头乘以 −1，就掉了个头。" }],
+      "inputs": [{ "name": "p", "label": "p" }, { "name": "q", "label": "q" }],
+      "outputs": [{ "name": "d", "label": { "zh": "位移" } }],
+      "tests": [
+        { "inputs": { "p": [1, 1], "q": [3, 2] }, "expect": { "d": [2, 1] } },
+        { "inputs": { "p": [4, 0], "q": [0, 4] }, "expect": { "d": [-4, 4] } },
+        { "inputs": { "p": [-1, 2], "q": [-1, -2] }, "expect": { "d": [0, -4] } }
+      ],
+      "solution": ["n = num[value=\"-1\"]()", "np = scale(n, p)", "d0 = add(q, np)", "d <- d0"],
+      "naive": ["d0 = add(q, p)", "d <- d0"]
+    },
+    {
+      "id": "1-3",
+      "step": { "zh": "四分之一" },
+      "brief": { "zh": "交出从 p 走向 q、走了四分之一路程的那一点。" },
+      "inputs": [{ "name": "p", "label": "p" }, { "name": "q", "label": "q" }],
+      "outputs": [{ "name": "r", "label": { "zh": "那一点" } }],
+      "tests": [
+        { "inputs": { "p": [1, 1], "q": [3, 2] }, "expect": { "r": [1.5, 1.25] } },
+        { "inputs": { "p": [4, 0], "q": [0, 4] }, "expect": { "r": [3, 1] } },
+        { "inputs": { "p": [-1, 2], "q": [-1, -2] }, "expect": { "r": [-1, 1] } }
+      ],
+      "hidden": [{ "inputs": { "p": [2, 2], "q": [2, 2] }, "expect": { "r": [2, 2] } }],
+      "solution": [
+        "n = num[value=\"-1\"]()",
+        "np = scale(n, p)",
+        "d = add(q, np)",
+        "k = num[value=\"0.25\"]()",
+        "e = scale(k, d)",
+        "r0 = add(p, e)",
+        "r <- r0"
+      ],
+      "naive": [
+        "n = num[value=\"-1\"]()",
+        "np = scale(n, p)",
+        "d = add(q, np)",
+        "k = num[value=\"0.25\"]()",
+        "e = scale(k, d)",
+        "r <- e"
+      ]
+    }
+  ]
+}

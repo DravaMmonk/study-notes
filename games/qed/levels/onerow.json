@@ -1,21 +1,19 @@
 {
-  "title": { "zh": "地湿了，就下过雨？", "en": "Wet, so it rained?" },
+  "title": { "zh": "地湿了，就下过雨？" },
   "intro": [
     {
       "t": {
-        "zh": "有人这样推理：「若下雨，则地湿。现在地湿，所以刚才下过雨。」这个推理在所有情况下都成立吗？",
-        "en": "Someone reasons: “If it rains, then the ground is wet. The ground is wet, so it rained.” Does this inference hold in every case?"
+        "zh": "有人这样推理：「若下雨，则地湿。现在地湿，所以刚才下过雨。」这个推理在所有情况下都成立吗？"
       }
     },
     {
       "t": {
-        "zh": "要说明一个命题<b>不是</b>永真式，不必填完整张表，找到一行使它为假就够了。这一行叫<wiki-ref to=\"counterexample\"></wiki-ref>。",
-        "en": "To show that a proposition is <b>not</b> a tautology, you need not fill in the whole table: one row that makes it false is enough. Such a row is a <wiki-ref to=\"counterexample\"></wiki-ref>."
+        "zh": "要说明一个命题<b>不是</b>永真式，不必填完整张表，找到一行使它为假就够了。这一行叫<wiki-ref to=\"counterexample\"></wiki-ref>。"
       }
     },
-    { "t": { "zh": "点「试一试」，查看一行的结果。", "en": "Select “Try” to evaluate a row." } }
+    { "t": { "zh": "点「试一试」，查看一行的结果。" } }
   ],
-  "after": { "zh": "这种推理错误叫<b>肯定后件</b>。", "en": "This mistake is known as <b>affirming the consequent</b>." },
+  "after": { "zh": "这种推理错误叫<b>肯定后件</b>。" },
   "tasks": [
     {
       "id": "onerow",
@@ -23,14 +21,12 @@
       "ask": "counter",
       "formulas": ["(Rain → Wet) → (Wet → Rain)"],
       "brief": {
-        "zh": "找出一行，让「(下雨 → 地湿) → (地湿 → 下雨)」为假。",
-        "en": "Find a row that makes “(it rains → the ground is wet) → (the ground is wet → it rains)” false."
+        "zh": "找出一行，让「(下雨 → 地湿) → (地湿 → 下雨)」为假。"
       },
       "hint": [
-        { "zh": "地湿了，却没下雨，可能吗？", "en": "Could the ground be wet without rain?" },
+        { "zh": "地湿了，却没下雨，可能吗？" },
         {
-          "zh": "要使最外层的 → 为假，它的前件必须为真，后件必须为假。",
-          "en": "For the outermost → to be false, its antecedent must be true and its consequent false."
+          "zh": "要使最外层的 → 为假，它的前件必须为真，后件必须为假。"
         }
       ]
     }

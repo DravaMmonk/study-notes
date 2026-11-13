@@ -101,14 +101,14 @@ export default function ScriptScreen({ game, level: entry, saved, save, solve, l
                 <b className="sc-kw">{r.k}</b>
                 {names[i] && <code className="sc-name">{names[i]}</code>}
                 {(r.k === 'fix' || r.k === 'obtain') && (
-                  <select disabled={lock} value={r.thing ?? ''} onChange={(e) => set(i, { thing: e.target.value })} aria-label={tr('取的名字', 'Name taken')}>
+                  <select disabled={lock} value={r.thing ?? ''} onChange={(e) => set(i, { thing: e.target.value })} aria-label={tr('取的名字')}>
                     <option value="">…</option>
                     {(level.things ?? []).map((x) => <option key={x} value={x}>{L(level.notation.words?.[x] ?? T(x, x))}</option>)}
                   </select>
                 )}
                 {r.k !== 'fix' && (
-                  <select className="sc-stmt" disabled={lock} value={r.stmt ? keyOf(r.stmt) : ''} onChange={(e) => set(i, { stmt: e.target.value })} aria-label={tr('这一句', 'Sentence')}>
-                    <option value="">{tr('选择句子', 'Choose a sentence')}</option>
+                  <select className="sc-stmt" disabled={lock} value={r.stmt ? keyOf(r.stmt) : ''} onChange={(e) => set(i, { stmt: e.target.value })} aria-label={tr('这一句')}>
+                    <option value="">{tr('选择句子')}</option>
                     {sentences.map((f) => <option key={show(f)} value={show(f)}>{text(f)}</option>)}
                   </select>
                 )}
@@ -126,12 +126,12 @@ export default function ScriptScreen({ game, level: entry, saved, save, solve, l
                     <span className="sc-kw">by</span>
                     <select disabled={lock && r.by === 'proof'} value={r.by ?? ''} onChange={(e) => set(i, { by: e.target.value })}>
                       <option value="">…</option>
-                      <option value="proof">{tr('证明块（proof … qed）', 'a proof block (proof … qed)')}</option>
+                      <option value="proof">{tr('证明块（proof … qed）')}</option>
                       <optgroup label={tr('规则', 'Rules')}>
                         {methods.rules.map((m) => <option key={m.key} value={m.key}>{`${L(m.rule.name)} · ${m.key.slice(5)}`}</option>)}
                       </optgroup>
                       {methods.tactics.length > 0 && (
-                        <optgroup label={tr('自建策略', 'Your tactics')}>
+                        <optgroup label={tr('自建策略')}>
                           {methods.tactics.map((t) => <option key={t} value={t}>{methodText(t)}</option>)}
                         </optgroup>
                       )}
@@ -152,7 +152,7 @@ export default function ScriptScreen({ game, level: entry, saved, save, solve, l
       )}
     </div>
   )
-  const results = verdict ? <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('核已检查每一行。证明完毕。', 'The kernel has checked every row. Q.E.D.') : L(verdict.reason)}</p> : null
+  const results = verdict ? <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('核已检查每一行。证明完毕。') : L(verdict.reason)}</p> : null
   const dock = <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   return <Level phone={phone} className="fo-level sc-level" brief={brief} stage={stage} results={results} dock={dock} />

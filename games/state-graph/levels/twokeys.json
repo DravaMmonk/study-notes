@@ -1,34 +1,30 @@
 {
-  "title": { "zh": "两把钥匙", "en": "Two keys" },
-  "short": { "zh": "四种可能，四层", "en": "Four possibilities, four layers" },
+  "title": { "zh": "两把钥匙" },
+  "short": { "zh": "四种可能，四层" },
   "intro": [
     {
       "t": {
-        "zh": "这一关有<b>红、蓝两把钥匙</b>，也有红门和蓝门。穿过一扇门之前，必须捡过同色的钥匙。",
-        "en": "This level has <b>a red key and a blue key</b>, and red and blue doors. Before going through a door, you must have picked up the key of its colour."
+        "zh": "这一关有<b>红、蓝两把钥匙</b>，也有红门和蓝门。穿过一扇门之前，必须捡过同色的钥匙。"
       }
     },
     {
       "t": {
-        "zh": "一条路线手里的钥匙有四种可能：都没有、只有红、只有蓝、都有。表就叠成 4 层，每层装着「手里正好有这几把钥匙」的路线。",
-        "en": "A route can be holding its keys in four ways: none, only red, only blue, or both. So the table is stacked 4 layers deep, each holding the routes “carrying exactly these keys”."
+        "zh": "一条路线手里的钥匙有四种可能：都没有、只有红、只有蓝、都有。表就叠成 4 层，每层装着「手里正好有这几把钥匙」的路线。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "只能往右或往下走。算出合法路线的条数：四层终点的数加起来。",
-      "en": "Only right or down. Work out the number of valid routes: the end cells of the four layers, added up."
+      "zh": "只能往右或往下走。算出合法路线的条数：四层终点的数加起来。"
     },
-    "how": { "zh": "每一格把四层都算一遍。", "en": "Every cell works out all four layers." }
+    "how": { "zh": "每一格把四层都算一遍。" }
   },
   "robot": "stack",
   "debrief": {
-    "title": { "zh": "状态决定了表的形状", "en": "The state shapes the table" },
+    "title": { "zh": "状态决定了表的形状" },
     "body": [
       {
-        "zh": "两把钥匙，四种可能：都没有、只有红、只有蓝、都有。每种可能一层，表就有了 4 层，电路板却一点没变。",
-        "en": "Two keys, four possibilities: none, only red, only blue, both. One layer for each, so the table has 4 layers, yet the circuit board didn’t change at all."
+        "zh": "两把钥匙，四种可能：都没有、只有红、只有蓝、都有。每种可能一层，表就有了 4 层，电路板却一点没变。"
       }
     ]
   },
@@ -39,8 +35,7 @@
       "noTrace": true,
       "hints": [
         {
-          "zh": "先试试<level-ref to=\"keydoor\"></level-ref>的电路板。",
-          "en": "Try the board from <level-ref to=\"keydoor\"></level-ref> first."
+          "zh": "先试试<level-ref to=\"keydoor\"></level-ref>的电路板。"
         }
       ],
       "world": "keys",

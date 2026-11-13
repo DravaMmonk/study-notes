@@ -1,33 +1,29 @@
 {
-  "title": { "zh": "放大一倍", "en": "Twice the size" },
+  "title": { "zh": "放大一倍" },
   "after": {
-    "zh": "先补零放大、再用一个核走一遍，就是步幅为 2 的转置卷积：核决定空出来的格子从哪些邻居、按什么比例取数。分割网络的解码器靠它把小特征图一层层放大回原图大小。",
-    "en": "Zero-upsample first, then run a kernel over it: that is a transposed convolution with stride 2, and the kernel decides which neighbours, in what proportion, fill the empty cells. The decoder of a segmentation network uses it to enlarge small feature maps layer by layer back to the size of the picture."
+    "zh": "先补零放大、再用一个核走一遍，就是步幅为 2 的转置卷积：核决定空出来的格子从哪些邻居、按什么比例取数。分割网络的解码器靠它把小特征图一层层放大回原图大小。"
   },
   "intro": [
     {
       "t": {
-        "zh": "前几章的网络越往后图越小：池化、隔点取样一层层把 16×16 缩成几个数，最后回答「这是什么」。可要是问「每个像素是什么」，答案得和原图一样大。",
-        "en": "The networks of earlier chapters make the picture smaller and smaller: pooling and downsampling shrink 16×16 to a few numbers that answer \"what is this?\". But to ask \"what is every pixel?\", the answer has to be as big as the original."
+        "zh": "前几章的网络越往后图越小：池化、隔点取样一层层把 16×16 缩成几个数，最后回答「这是什么」。可要是问「每个像素是什么」，答案得和原图一样大。"
       }
     },
     {
       "t": {
-        "zh": "新原件<part-ref to=\"part:zeroUp\"></part-ref>把图放大一倍：每个像素放在 2×2 的左上角，另外三格补 0。",
-        "en": "The new primitive <part-ref to=\"part:zeroUp\"></part-ref> doubles the size: each pixel goes in the top left of a 2×2 block, and the other three cells are 0."
+        "zh": "新原件<part-ref to=\"part:zeroUp\"></part-ref>把图放大一倍：每个像素放在 2×2 的左上角，另外三格补 0。"
       },
       "fig": {
         "part": "zeroUp",
-        "caption": { "zh": "一个亮点补零放大", "en": "A bright dot, zero-upsampled" },
+        "caption": { "zh": "一个亮点补零放大" },
         "input": "impulse"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：把 8×8 的图放大成 16×16，每个像素变成一样的 2×2 一块。",
-        "en": "Your task in this level: enlarge an 8×8 picture to 16×16, every pixel becoming a 2×2 block of the same value."
+        "zh": "这一关你要做的：把 8×8 的图放大成 16×16，每个像素变成一样的 2×2 一块。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：方块", "en": "Set 1: square" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组：方块" } }
     }
   ],
   "adds": ["zeroUp"],
@@ -38,32 +34,30 @@
       "id": "9-4",
       "kind": "graph",
       "brief": {
-        "zh": "把 8×8 的图放大成 16×16：每个像素变成 2×2 的一小块，四格都一样。",
-        "en": "Enlarge an 8×8 picture to 16×16: every pixel becomes a 2×2 block, all four cells the same."
+        "zh": "把 8×8 的图放大成 16×16：每个像素变成 2×2 的一小块，四格都一样。"
       },
       "hint": {
-        "zh": "<part-ref to=\"part:zeroUp\"></part-ref>把每个像素放在 2×2 的左上角。剩下三格从哪里取数？",
-        "en": "<part-ref to=\"part:zeroUp\"></part-ref> puts each pixel in the top left of its 2×2. Where do the other three cells get their number?"
+        "zh": "<part-ref to=\"part:zeroUp\"></part-ref>把每个像素放在 2×2 的左上角。剩下三格从哪里取数？"
       },
       "scene": "filter",
       "setup": { "target": { "upsample": { "kernel": [1, 1, 0, 1, 1, 0, 0, 0, 0] } } },
       "tests": [
         {
-          "label": { "zh": "方块", "en": "Square" },
+          "label": { "zh": "方块" },
           "in": { "rect": { "x0": 2, "y0": 2, "w": 4, "h": 4, "size": 8 } }
         },
         {
-          "label": { "zh": "对角", "en": "Diagonal" },
+          "label": { "zh": "对角" },
           "in": { "diagonal": { "size": 8 } }
         },
         {
-          "label": { "zh": "斜坡", "en": "Ramp" },
+          "label": { "zh": "斜坡" },
           "in": { "rampX": { "size": 8 } }
         }
       ],
       "hidden": [
         {
-          "label": { "zh": "一个亮点", "en": "One bright dot" },
+          "label": { "zh": "一个亮点" },
           "in": { "impulse": { "x": 3, "y": 5, "size": 8 } }
         }
       ],

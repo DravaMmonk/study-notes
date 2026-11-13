@@ -16,7 +16,7 @@ import { resolve } from 'node:path'
 import { OPERATIONS } from './operations.js'
 import { openGame } from './workspace.js'
 import { adopt, readLog, runChangeset, undo } from './changeset.js'
-import { driftOf } from './log.js'
+import { authorship, driftOf } from './log.js'
 import { knownGames } from '../cli-args.js'
 import { GAMES_DIR } from '../content-node.js'
 import { closeGames } from '../games.mjs'
@@ -25,7 +25,7 @@ const USAGE = 'npm run op -- <game> (<op> key=value… | --file changeset.json |
 const argv = process.argv.slice(2)
 const flag = (name) => argv.includes(name)
 const option = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined)
-const words = argv.filter((a, k) => !a.startsWith('--') && !['--file', '--why'].includes(argv[k - 1]))
+const words = argv.filter((a, k) => !a.startsWith('--') && !['--file', '--why', '--by'].includes(argv[k - 1]))
 const value = (text) => {
   try {
     return JSON.parse(text)
@@ -43,7 +43,8 @@ const [game] = knownGames(words.slice(0, 1), USAGE)
 const ws = openGame(game, process.env.GAMES_ROOT ?? GAMES_DIR)
 const [what, ...rest] = words.slice(1)
 if (what === 'log') {
-  for (const e of readLog(ws)) console.log(`#${e.seq} ${e.at}${e.undoes ? ` (undoes #${e.undoes})` : ''}  ${e.why ?? ''}\n  ${e.adopt ? 'adopted the files as they are' : e.ops.map((o) => o.op).join(', ')}  →  ${e.files.map((f) => f.file).join(', ')}`)
+  for (const e of readLog(ws)) console.log(`#${e.seq} ${e.at}${e.by ? ` ${e.by}` : ''}${e.undoes ? ` (undoes #${e.undoes})` : ''}  ${e.why ?? ''}\n  ${e.adopt ? 'adopted the files as they are' : e.ops.map((o) => o.op).join(', ')}  →  ${e.files.map((f) => f.file).join(', ')}`)
+  for (const a of authorship(readLog(ws))) console.log(`${a.by}: ${a.changes} change(s), ${a.files} file(s)${a.by.startsWith('agent:') ? `, ${a.revised} later changed by a person` : ''}`)
   const drift = driftOf(ws, ws.onDisk())
   if (drift.length) console.log(`changed outside the log: ${drift.join(', ')} (adopt --why "…" takes them as they are)`)
   process.exit(0)
@@ -63,6 +64,8 @@ if (!changeset && what !== 'undo') {
   process.exit(1)
 }
 if (option('--why') && changeset) changeset.why = option('--why')
+// Who: --by, or what the caller's environment says (an agent's ./op, ../../pipeline/pipeline.mjs), or this command line.
+if (changeset && !changeset.by) changeset.by = option('--by') ?? process.env.GAMES_BY ?? 'cli'
 const options = { write: !flag('--dry-run') }
 const result = what === 'undo' ? await undo(ws, options) : await runChangeset(ws, changeset, options)
 await closeGames()

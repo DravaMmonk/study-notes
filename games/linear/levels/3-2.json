@@ -1,0 +1,27 @@
+{
+  "title": { "zh": "面积再放大" },
+  "intro": [
+    { "t": { "zh": "先 B 后 A：面积先被 B 放大，再被 A 放大。" } }
+  ],
+  "after": {
+    "zh": "det(AB) = det A · det B：两个倍数相乘。"
+  },
+  "tasks": [
+    {
+      "id": "3-2",
+      "brief": {
+        "zh": "交出先 B、再 A 这个变换把面积放大的倍数（翻面时为负）。"
+      },
+      "inputs": [{ "name": "A", "label": "A" }, { "name": "B", "label": "B" }],
+      "outputs": [{ "name": "d", "label": "det AB" }],
+      "tests": [
+        { "inputs": { "A": [[1, 1], [0, 1]], "B": [[2, 0], [0, 3]] }, "expect": { "d": 6 } },
+        { "inputs": { "A": [[0, -1], [1, 0]], "B": [[1, 2], [3, 4]] }, "expect": { "d": -2 } },
+        { "inputs": { "A": [[0, 1], [1, 0]], "B": [[0, 1], [1, 0]] }, "expect": { "d": 1 } },
+        { "inputs": { "A": [[1, 2], [2, 4]], "B": [[3, 0], [1, 1]] }, "expect": { "d": 0 } }
+      ],
+      "solution": ["p = compose(A, B)", "d0 = det(p)", "d <- d0"],
+      "naive": ["d0 = det(A)", "d <- d0"]
+    }
+  ]
+}

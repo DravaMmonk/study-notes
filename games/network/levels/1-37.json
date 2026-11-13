@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "回一声", "en": "Answer back" },
+  "title": { "zh": "回一声" },
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"nic\"></part-ref>收得到帧，也核对得了每一帧，发帧的一方却还不知道结果。线那头要听到回话，这叫<wiki-ref to=\"ack\"></wiki-ref>。",
-        "en": "<part-ref to=\"nic\"></part-ref> receives frames and checks each one, but the sender does not know the result yet. The far end needs an answer: an <wiki-ref to=\"ack\"></wiki-ref>."
+        "zh": "<part-ref to=\"nic\"></part-ref>收得到帧，也核对得了每一帧，发帧的一方却还不知道结果。线那头要听到回话，这叫<wiki-ref to=\"ack\"></wiki-ref>。"
       }
     }
   ],
@@ -12,19 +11,17 @@
     {
       "id": "1-37",
       "brief": {
-        "zh": "进线上每到一帧，就从出线回一个只有一个字节的帧：校验相符回 1，不符回 0。<part-ref to=\"nic\"></part-ref>在「发送」为 1 时取走输入上的字节，不论那是什么；没有回话等着时，「发送」为 0。",
-        "en": "For every frame that arrives on the wire in, send back a one-byte frame on the wire out: 1 if its check fits, 0 if not. <part-ref to=\"nic\"></part-ref> takes whatever byte is at its input once send is 1, so keep send at 0 until a reply is waiting."
+        "zh": "进线上每到一帧，就从出线回一个只有一个字节的帧：校验相符回 1，不符回 0。<part-ref to=\"nic\"></part-ref>在「发送」为 1 时取走输入上的字节，不论那是什么；没有回话等着时，「发送」为 0。"
       },
       "hint": [
         {
-          "zh": "一帧结束、知道它好坏以后，才有回话可说。",
-          "en": "There is an answer to give only once a frame has ended and its state is known."
+          "zh": "一帧结束、知道它好坏以后，才有回话可说。"
         },
-        { "zh": "回话要先留住，等网卡取走。", "en": "Hold the answer until the adapter takes it." }
+        { "zh": "回话要先留住，等网卡取走。" }
       ],
       "wires": {
-        "in": [{ "name": "rx", "label": { "zh": "进线", "en": "Wire in" } }],
-        "out": [{ "name": "tx", "label": { "zh": "出线", "en": "Wire out" } }]
+        "in": [{ "name": "rx", "label": { "zh": "进线" } }],
+        "out": [{ "name": "tx", "label": { "zh": "出线" } }]
       },
       "tests": [
         { "ticks": 72, "wires": { "rx": { "send": [{ "frames": [[65]], "format": "flagbyte" }] } } },

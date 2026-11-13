@@ -29,6 +29,8 @@ Increasing $\omega$ makes the ripples denser; increasing $A$ makes the peaks and
 
 ![Slide 8 - Sinusoid parameters](assets/04-fourier/slide-08.png)
 
+<!-- task: comp90086/sinusoid -->
+
 For images, slowly varying large-scale outlines are low frequencies; edges, fine textures and small details are high frequencies. The value of the frequency domain is that some variations which are not obvious in the spatial image become very obvious in the frequency distribution.
 
 ### What the Fourier transform outputs
@@ -153,8 +155,6 @@ If the Gaussian low-pass transfer function is $H_{\mathrm{LP}}$ , the correspond
 $$
 H_{\mathrm{HP}}=1-H_{\mathrm{LP}}.
 $$
-
-<!-- figure: harmonic-analyser -->
 
 ### The frequency domain and image compression
 

@@ -1,14 +1,15 @@
 import { isGrid, pixel } from '../engine/grid.js'
 import { numberText } from '../engine/number.js'
+import { VIEWS } from '../engine/views.js'
 import { L } from '../shell/i18n.js'
 import Timeline from '../shell/Timeline.jsx'
 import { WORDS } from '../shell/words.js'
 import { useViewPicks } from './choice.js'
 import GridInspector from './grid/GridInspector.jsx'
-import { DRAWN, SIZE, overlays } from './plots/drawn.js'
+import { DRAWN, SIZE, overlays, sized } from './plots/drawn.js'
 import ViewSwitch from './ViewSwitch.jsx'
 
-// A results area (games/DESIGN.md 6.10): the verdict first, then the rows content laid out (../../engine/views.js
+// A results area (games/DESIGN.md 6.9): the verdict first, then the rows content laid out (../../engine/views.js
 // rowsOf), each in the view kept for its value (./picks.js: an input's or output's, the one its card and detail draw),
 // switched in the row's head. Rows of values a tick (bits, ticks) share one
 // time axis; one-value rows (scalar) run on one line; a grid or a list is a row of its own. An output shows the
@@ -54,9 +55,9 @@ function GridRow({ entry, view, text, tool }) {
   const { label, given, got, want, tolerance = 0 } = entry
   const shown = !isOutput(entry) ? [[null, given]] : got === undefined ? [[WORDS.wanted, want]] : [[WORDS.result, got], [WORDS.wanted, want]]
   const paired = isGrid(got) && isGrid(want) && got.w === want.w && got.h === want.h && (got.c ?? 1) === (want.c ?? 1)
-  // One size for the row when its grids share it, written once beside its label.
+  // One size for the row when its grids share it, written once beside its label; arrows in the plane show it as they are.
   const grids = shown.map(([, v]) => v).filter(isGrid)
-  const size = grids.length && grids.every((g) => g.w === grids[0].w && g.h === grids[0].h && (g.c ?? 1) === (grids[0].c ?? 1)) ? `${grids[0].w} × ${grids[0].h}${(grids[0].c ?? 1) === 3 ? ' · RGB' : ''}` : null
+  const size = sized(view) && grids.length && grids.every((g) => g.w === grids[0].w && g.h === grids[0].h && (g.c ?? 1) === (grids[0].c ?? 1)) ? `${grids[0].w} × ${grids[0].h}${(grids[0].c ?? 1) === 3 ? ' · RGB' : ''}` : null
   const differs = paired ? (x, y) => (same(pixel(got, x, y), pixel(want, x, y), tolerance) ? '' : 'is-different') : undefined
   const read = paired ? (x, y) => <><span>{L(WORDS.result)} {cellText(pixel(got, x, y))}</span><span>{L(WORDS.wanted)} {cellText(pixel(want, x, y))}</span></> : undefined
   const plain = (word, v, k) => <figure key={k} className="rv-plain"><figcaption>{word && L(word)}</figcaption><b>{v === undefined ? '—' : L(text(v))}</b></figure>
@@ -93,11 +94,14 @@ function ListRow({ entry, text, tool }) {
 /** Rows of values a tick, on one time axis: a lane a value given, or a result and the values wanted under it. */
 function Track({ rows, text, at, count, marks }) {
   const lanes = rows.flatMap(({ entry, view, tool }) => {
-    const kind = view === 'wave' ? 'wave' : 'value'
-    if (!isOutput(entry)) return [{ key: entry.of, label: entry.label, kind, ticks: entry.given, tool }]
+    const kind = VIEWS[view]?.lane ?? 'value'
+    const format = entry.text ? { text: (value) => L(entry.text(value)) } : {}
+    if (!isOutput(entry)) return [{ key: entry.of, label: entry.label, kind, ticks: entry.given, tool, ...format }]
+    // A plot draws the values wanted as rings on the result's own lane, one scale for both.
+    if (kind === 'dots') return [{ key: entry.of, label: entry.label, kind, ticks: entry.got ?? [], want: Array.isArray(entry.want) ? entry.want : undefined, tool, ...format }]
     return [
-      { key: entry.of, label: entry.label, kind, ticks: entry.got ?? [], tool },
-      ...(Array.isArray(entry.want) ? [{ key: `${entry.of}:want`, label: WORDS.wanted, kind, ticks: entry.want.map((v) => (v === undefined ? null : v)) }] : []),
+      { key: entry.of, label: entry.label, kind, ticks: entry.got ?? [], tool, ...format },
+      ...(Array.isArray(entry.want) ? [{ key: `${entry.of}:want`, label: WORDS.wanted, kind, ticks: entry.want.map((v) => (v === undefined ? null : v)), ...format }] : []),
     ]
   })
   return (

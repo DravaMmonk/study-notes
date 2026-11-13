@@ -1,12 +1,11 @@
 {
-  "title": { "zh": "分配律", "en": "Distribution" },
+  "title": { "zh": "分配律" },
   "tray": "proof",
   "builds": "dist",
   "intro": [
     {
       "t": {
-        "zh": "「下雨，或者又刮风又地湿」和「下雨或刮风，并且下雨或地湿」是一回事：「或者」分配到「并且」上，就像乘法分配到加法上。「并且」在右边、在左边各一对，共四个方向。",
-        "en": "“It rains, or it is windy and wet” and “it rains or is windy, and it rains or is wet” say the same: “or” distributes over “and”, as multiplication does over addition. With the “and” on the right and on the left, that makes two pairs, four directions."
+        "zh": "「下雨，或者又刮风又地湿」和「下雨或刮风，并且下雨或地湿」是一回事：「或者」分配到「并且」上，就像乘法分配到加法上。「并且」在右边、在左边各一对，共四个方向。"
       }
     }
   ],
@@ -14,10 +13,10 @@
     {
       "id": "c-dist_1",
       "kind": "proof",
-      "step": { "zh": "分到右边", "en": "Out over the right" },
+      "step": { "zh": "分到右边" },
       "tests": [{ "premises": { "p": "A ∨ (B ∧ C)" }, "goal": "(A ∨ B) ∧ (A ∨ C)" }],
       "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Sat", "B": "Rest", "C": "Happy" }],
-      "hint": [{ "zh": "已知是一句「或者」。", "en": "The given is an “or”." }],
+      "hint": [{ "zh": "已知是一句「或者」。" }],
       "solution": [
         "e = orE(p, left: c1, right: c2) {",
         "  left {",
@@ -38,14 +37,13 @@
     {
       "id": "c-dist_2",
       "kind": "proof",
-      "step": { "zh": "合回来", "en": "Back together" },
+      "step": { "zh": "合回来" },
       "tests": [{ "premises": { "p": "(A ∨ B) ∧ (A ∨ C)" }, "goal": "A ∨ (B ∧ C)" }],
       "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Sat", "B": "Rest", "C": "Happy" }],
       "hint": [
-        { "zh": "拆开「并且」，得到两句「或者」。", "en": "Split the “and” into its two “or”s." },
+        { "zh": "拆开「并且」，得到两句「或者」。" },
         {
-          "zh": "两句「或者」先后分情况。只有两句都不给出「下雨」时，才要「刮风 ∧ 地湿」。",
-          "en": "Take cases on the two “or”s in turn. Only when neither gives “it rains” is “it is windy ∧ the ground is wet” needed."
+          "zh": "两句「或者」先后分情况。只有两句都不给出「下雨」时，才要「刮风 ∧ 地湿」。"
         }
       ],
       "solution": [
@@ -72,10 +70,10 @@
     {
       "id": "c-dist_3",
       "kind": "proof",
-      "step": { "zh": "分到左边", "en": "Out over the left" },
+      "step": { "zh": "分到左边" },
       "tests": [{ "premises": { "p": "(A ∧ B) ∨ C" }, "goal": "(A ∨ C) ∧ (B ∨ C)" }],
       "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Sat", "B": "Rest", "C": "Happy" }],
-      "hint": [{ "zh": "和第一段一样，只是左右换了。", "en": "As in the first task, left and right swapped." }],
+      "hint": [{ "zh": "和第一段一样，只是左右换了。" }],
       "solution": [
         "e = orE(p, left: c1, right: c2) {",
         "  left {",
@@ -96,10 +94,10 @@
     {
       "id": "c-dist_4",
       "kind": "proof",
-      "step": { "zh": "合回来（左边）", "en": "Back together, on the left" },
+      "step": { "zh": "合回来（左边）" },
       "tests": [{ "premises": { "p": "(A ∨ C) ∧ (B ∨ C)" }, "goal": "(A ∧ B) ∨ C" }],
       "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Sat", "B": "Rest", "C": "Happy" }],
-      "hint": [{ "zh": "和第二段一样，只是左右换了。", "en": "As in the second task, left and right swapped." }],
+      "hint": [{ "zh": "和第二段一样，只是左右换了。" }],
       "solution": [
         "s = andE(p)",
         "o1 = orE(s.left, left: o2, right: i3) {",

@@ -11,8 +11,8 @@ import { SEGMENT } from './parts/segment.js'
 
 // Every node the player can place. A node reads images on its input ports and writes one image on
 // `out`. `cost` is arithmetic operations per output pixel, the game's efficiency score.
-// `unlock` names the progress flag that makes a node, one of its settings, or (a third entry in `options`) one option
-// of a choice available. A choice with `buttons` is a set of buttons rather than a menu: 'pad' lays four directions
+// `unlock` names the progress flag a node, one of its settings, or (a third entry in `options`) one option of a choice
+// needs; what a level holds of them is the course's to say (../course.js, by the kernel's rule). A choice with `buttons` is a set of buttons rather than a menu: 'pad' lays four directions
 // out as a cross, 'grid' two by two.
 
 // Each direction by its name, shown as its arrow.
@@ -157,6 +157,23 @@ export const NODE_TYPES = {
 
   // ---- components earned by solving levels ----
   blur3h: { label: { zh: '横向三点平均', en: '3-point horizontal average' }, inputs: ['in'], params: [borderParam], eval: ({ in: a }, p) => correlate(a, [0, 0, 0, 1 / 3, 1 / 3, 1 / 3, 0, 0, 0], borderOf(p)), cost: 3, unlock: 'blur3h' },
+  // A 1D kernel of three weights, across or down: a kernel that is one row (or one column) of a 3×3.
+  line3: {
+    label: { zh: '一维三点核', en: '1D 3-point kernel' },
+    inputs: ['in'],
+    params: [
+      { key: 'axis', label: { zh: '方向', en: 'Direction' }, kind: 'select', options: [['x', { zh: '横', en: 'Across' }], ['y', { zh: '竖', en: 'Down' }]], default: 'x' },
+      ...['a', 'b', 'c'].map((key, k) => ({ key, label: key, kind: 'number', min: -4, max: 4, step: 1, default: k === 1 ? 1 : 0 })),
+      borderParam,
+    ],
+    eval: ({ in: a }, p) => {
+      const w = [p.a ?? 0, p.b ?? 1, p.c ?? 0]
+      const kernel = (p.axis ?? 'x') === 'x' ? [0, 0, 0, ...w, 0, 0, 0] : [0, w[0], 0, 0, w[1], 0, 0, w[2], 0]
+      return correlate(a, kernel, borderOf(p))
+    },
+    cost: 3,
+    unlock: 'line3',
+  },
   box3: { label: { zh: '3×3 平均', en: '3×3 average' }, inputs: ['in'], params: [borderParam], eval: ({ in: a }, p) => correlate(a, BOX3, borderOf(p)), cost: 6, unlock: 'box3' },
   gauss: {
     label: { zh: '高斯模糊', en: 'Gaussian blur' },
@@ -267,7 +284,8 @@ const decimalsOf = (step) => (String(step).split('.')[1] ?? '').length
  * What a course's part table says of each part (the course's table: NODE_TYPES and the parts its levels pack, own.js).
  *   inputsOf / outputsOf(type)       its ports
  *   snapSetting(type, key, value)    a setting on its step
- *   settingsOf(type, flags)          the settings a player holding `flags` can see, each choice cut to the options they hold
+ *   settingsOf(type, has)            the settings a level holds (has(type, key), has(type, key, value): ../../../course.js
+ *                                    holds), each choice cut to the values it holds
  *   defaultParams(type)              its settings as it is placed
  */
 export function specsOf(types) {
@@ -290,9 +308,9 @@ export function specsOf(types) {
     outputsOf: (type) => typeof types[type].outputs === 'function' ? types[type].outputs() : types[type].outputs ?? ['out'],
     inputsOf: (type) => types[type].inputs ?? [],
     snapSetting,
-    settingsOf: (type, flags) => paramsOf(type)
-      .filter((p) => !p.unlock || flags.has(p.unlock))
-      .map((p) => (p.options?.some((o) => o[2]) ? { ...p, options: p.options.filter((o) => !o[2] || flags.has(o[2])) } : p)),
+    settingsOf: (type, has) => paramsOf(type)
+      .filter((p) => has(type, p.key))
+      .map((p) => (p.options ? { ...p, options: p.options.filter((o) => has(type, p.key, String(o[0]))) } : p)),
     defaultParams: (type) => Object.fromEntries(paramsOf(type).map((param) => [param.key, Array.isArray(param.default) ? [...param.default] : param.default])),
   }
 }

@@ -1,35 +1,30 @@
 {
-  "title": { "zh": "有噪声的边", "en": "A noisy edge" },
+  "title": { "zh": "有噪声的边" },
   "tray": "pipeline",
   "after": {
-    "zh": "你先用 3×3 平均减弱噪声，再用横向差分量亮度变化，最后用阈值留下强响应。接下来解锁的 Sobel 也结合了差分与平滑：Sobel x 沿水平方向求差，同时沿竖直方向做加权平滑，Sobel y 则交换两个方向。",
-    "en": "You used a 3×3 average to reduce noise, a horizontal difference to measure intensity change, and a threshold to keep strong responses. The Sobel filters you unlock also combine differentiation and smoothing. Sobel x takes a horizontal difference with weighted vertical smoothing, while Sobel y swaps the two directions."
+    "zh": "你先用 3×3 平均减弱噪声，再用横向差分量亮度变化，最后用阈值留下强响应。接下来解锁的 Sobel 也结合了差分与平滑：Sobel x 沿水平方向求差，同时沿竖直方向做加权平滑，Sobel y 则交换两个方向。"
   },
   "intro": [
     {
       "t": {
-        "zh": "真实的照片都带着<b>噪声</b>：光线暗时，传感器收到的光少，每格的数会随机地偏高或偏低一点。把夜里拍的照片放大，看到的颗粒就是它。",
-        "en": "Real photos always carry <b>noise</b>: in dim light the sensor receives little light, and each cell's number comes out randomly a little too high or too low. Zoom into a photo taken at night and the grain you see is noise."
+        "zh": "真实的照片都带着<b>噪声</b>：光线暗时，传感器收到的光少，每格的数会随机地偏高或偏低一点。把夜里拍的照片放大，看到的颗粒就是它。"
       }
     },
     {
       "t": {
-        "zh": "<level-ref to=\"1-6\"></level-ref>的边缘检测在干净的图上很准。这一关的图里，每一格都在微微抖动，台阶两边本该平坦的地方也到处是小起伏。",
-        "en": "The edge detection from <level-ref to=\"1-6\"></level-ref> was accurate on clean images. In this level every cell jitters slightly, and the areas on either side of the step that should be flat are full of small bumps."
+        "zh": "<level-ref to=\"1-6\"></level-ref>的边缘检测在干净的图上很准。这一关的图里，每一格都在微微抖动，台阶两边本该平坦的地方也到处是小起伏。"
       }
     },
     {
       "t": {
-        "zh": "要想的问题：一个真正的台阶，和噪声造成的抖动，区别在哪里？",
-        "en": "Something to think about: how does a real step differ from the jitter caused by noise?"
+        "zh": "要想的问题：一个真正的台阶，和噪声造成的抖动，区别在哪里？"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：只在真正的台阶处输出 1，其余输出 0。每组测试的台阶位置不同，都是左暗右亮。",
-        "en": "Your task in this level: output 1 only at the real step and 0 everywhere else. Each test has its step in a different place, always dark on the left and bright on the right."
+        "zh": "这一关你要做的：只在真正的台阶处输出 1，其余输出 0。每组测试的台阶位置不同，都是左暗右亮。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组测试：带噪声的台阶", "en": "Set 1: a noisy step" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组测试：带噪声的台阶" } }
     }
   ],
   "unlocks": ["sobel"],
@@ -38,26 +33,24 @@
       "id": "1-7",
       "kind": "graph",
       "brief": {
-        "zh": "照片里有噪声。只在真正的台阶处输出 1（台阶都是左暗右亮）。",
-        "en": "The photo is noisy. Output 1 only at the real step (every step is dark on the left, bright on the right)."
+        "zh": "照片里有噪声。只在真正的台阶处输出 1（台阶都是左暗右亮）。"
       },
       "hint": {
-        "zh": "差分会把噪声一起放大。在求差之前，能不能先让噪声安静下来？",
-        "en": "Taking a difference amplifies the noise too. Before you take the difference, can you quieten the noise first?"
+        "zh": "差分会把噪声一起放大。在求差之前，能不能先让噪声安静下来？"
       },
       "views": { "in": "slope", "out": "terrain", "mid": "terrain" },
       "check": { "tolerance": 0.5, "mismatches": 4 },
       "scene": "noisyStep",
       "tests": [
-        { "label": { "zh": "台阶 x=5", "en": "Step x=5" }, "edge": 5, "seed": 1 },
-        { "label": { "zh": "台阶 x=8", "en": "Step x=8" }, "edge": 8, "seed": 2 },
-        { "label": { "zh": "台阶 x=11", "en": "Step x=11" }, "edge": 11, "seed": 3 },
-        { "label": { "zh": "台阶 x=7", "en": "Step x=7" }, "edge": 7, "seed": 4 }
+        { "label": { "zh": "台阶 x=5" }, "edge": 5, "seed": 1 },
+        { "label": { "zh": "台阶 x=8" }, "edge": 8, "seed": 2 },
+        { "label": { "zh": "台阶 x=11" }, "edge": 11, "seed": 3 },
+        { "label": { "zh": "台阶 x=7" }, "edge": 7, "seed": 4 }
       ],
       "hidden": [
-        { "label": { "zh": "新台阶 x=6", "en": "New step x=6" }, "edge": 6, "seed": 5 },
-        { "label": { "zh": "新台阶 x=9", "en": "New step x=9" }, "edge": 9, "seed": 7 },
-        { "label": { "zh": "新台阶 x=10", "en": "New step x=10" }, "edge": 10, "seed": 19 }
+        { "label": { "zh": "新台阶 x=6" }, "edge": 6, "seed": 5 },
+        { "label": { "zh": "新台阶 x=9" }, "edge": 9, "seed": 7 },
+        { "label": { "zh": "新台阶 x=10" }, "edge": 10, "seed": 19 }
       ],
       "solution": ["b = box3(in)", "d = diffx(b)", "t = threshold[t=0.15](d)", "out <- t"],
       "naive": ["d = diffx(in)", "t = threshold[t=0.15](d)", "out <- t"]

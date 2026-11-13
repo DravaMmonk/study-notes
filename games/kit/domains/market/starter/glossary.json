@@ -1,0 +1,57 @@
+{
+  "groups": [
+    {
+      "id": "market",
+      "title": {
+        "zh": "市场"
+      }
+    }
+  ],
+  "entries": [
+    {
+      "id": "demand",
+      "group": "market",
+      "title": {
+        "zh": "需求"
+      },
+      "at": "adjust",
+      "body": [
+        {
+          "zh": "在某个价格下，人们想买的数量。价格越高，想买的通常越少。"
+        }
+      ]
+    },
+    {
+      "id": "clearing",
+      "group": "market",
+      "title": {
+        "zh": "出清价格"
+      },
+      "at": "adjust",
+      "body": [
+        {
+          "zh": "在这个价格下，想买的数量正好等于要卖的数量：货卖完了，也没有人空手而归。价格比它高，货会剩下；比它低，有人买不到。"
+        }
+      ],
+      "see": [
+        "demand"
+      ]
+    },
+    {
+      "id": "tatonnement",
+      "group": "market",
+      "title": {
+        "zh": "试错调价"
+      },
+      "at": "street",
+      "body": [
+        {
+          "zh": "不去算出清价格，只看结果调：想买的比货多就涨价，货比想买的多就降价，差多少调多少。经济学里称为试错过程（tâtonnement）。"
+        }
+      ],
+      "see": [
+        "clearing"
+      ]
+    }
+  ]
+}

@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "夹在旗标之间", "en": "Between flags" },
+  "title": { "zh": "夹在旗标之间" },
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"flagspot\"></part-ref>在位流里认得出旗标。这一次换到发送的一方：给每一帧前后加上旗标再送出去，这叫<wiki-ref to=\"framing\"></wiki-ref>。一帧有几个字节，看队首的「末字节」就知道。上面交下一整帧时才让「发送」为 1；为 0 时队首还没有可送的帧，线上只说旗标。",
-        "en": "<part-ref to=\"flagspot\"></part-ref> spots flags in the bit stream. Now the board is the sender, putting a flag at each end of every frame it sends: this is <wiki-ref to=\"framing\"></wiki-ref>. How many bytes a frame holds shows in the last-byte mark at the head of the queue. The layer above sets send to 1 only once it has handed down a whole frame; while send is 0 there is no frame to send yet, and the wire says only flags."
+        "zh": "<part-ref to=\"flagspot\"></part-ref>在位流里认得出旗标。这一次换到发送的一方：给每一帧前后加上旗标再送出去，这叫<wiki-ref to=\"framing\"></wiki-ref>。一帧有几个字节，看队首的「末字节」就知道。上面交下一整帧时才让「发送」为 1；为 0 时队首还没有可送的帧，线上只说旗标。"
       }
     }
   ],
@@ -12,28 +11,25 @@
     {
       "id": "1-12",
       "brief": {
-        "zh": "把交来的每一帧送出，前后各加一个旗标 01111110，只在「发送」为 1 时开始新的一帧。「下一个」取走队首，「末字节」标出帧尾。",
-        "en": "Send each frame handed to you with a flag 01111110 before and after it, starting a new frame only while send is 1. Next takes the byte in front; last marks a frame's final byte."
+        "zh": "把交来的每一帧送出，前后各加一个旗标 01111110，只在「发送」为 1 时开始新的一帧。「下一个」取走队首，「末字节」标出帧尾。"
       },
       "hint": [
-        { "zh": "旗标就是字节 126。", "en": "A flag is the byte 126." },
+        { "zh": "旗标就是字节 126。" },
         {
-          "zh": "一帧的结尾旗标不能兼作下一帧的开头。",
-          "en": "A frame's closing flag cannot double as the next frame's opening one."
+          "zh": "一帧的结尾旗标不能兼作下一帧的开头。"
         },
         {
-          "zh": "没有帧要送的时候，线上可以一直说旗标。",
-          "en": "While there is no frame to send, the wire may keep saying flags."
+          "zh": "没有帧要送的时候，线上可以一直说旗标。"
         }
       ],
       "inputs": [
-        { "name": "byte", "label": { "zh": "队首", "en": "Next byte" } },
-        { "name": "last", "label": { "zh": "末字节", "en": "Last byte" } },
-        { "name": "send", "label": { "zh": "发送", "en": "Send" } }
+        { "name": "byte", "label": { "zh": "队首" } },
+        { "name": "last", "label": { "zh": "末字节" } },
+        { "name": "send", "label": { "zh": "发送" } }
       ],
-      "outputs": [{ "name": "next", "label": { "zh": "下一个", "en": "Next" } }],
+      "outputs": [{ "name": "next", "label": { "zh": "下一个" } }],
       "pulls": { "input": "byte", "next": "next", "last": "last" },
-      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线" } }] },
       "tests": [
         {
           "ticks": 28,

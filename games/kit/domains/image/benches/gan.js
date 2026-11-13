@@ -83,10 +83,10 @@ export function ganBench({ n: N, mode: MODE, width: WIDTH, rateD: LR_D, start: S
 
 /** The bench model: knobs dSteps, gSteps, gRate (the rhythm); act turn and reset; streak counts turns the rest held. */
 export const gan = {
-  about: t('骗过鉴定员：两支笔的生成器对一个鉴定员，按旋钮 dSteps、gSteps、gRate 定的节奏轮流训练；算出 left、right（两堆各占多少）、accuracy、streak（其余目标连续达到的回合数）', 'fooling the judge: a two-pen generator against a discriminator, trained in turns at the rhythm of knobs dSteps, gSteps, gRate; computes left, right (each cluster’s share), accuracy, and streak (turns in a row the other limits held)'),
+  about: t('骗过鉴定员：两支笔的生成器对一个鉴定员，按旋钮 dSteps、gSteps、gRate 定的节奏轮流训练；算出 left、right（两堆各占多少）、accuracy、streak（其余目标连续达到的回合数）'),
   setup: S.obj({
     n: S.int({ min: 1 }), mode: num, width: num, rateD: num, start: S.list(num, { min: 2 }),
-    good: S.obj({ dSteps: S.int(), gSteps: S.int(), gRate: num }, { about: t('一个能过关的节奏', 'a rhythm that wins') }),
+    good: S.obj({ dSteps: S.int(), gSteps: S.int(), gRate: num }, { about: t('一个能过关的节奏') }),
   }),
   make({ good: rhythm, ...p }, bench) {
     const rest = bench.goal.filter((l) => l.of !== 'streak')
@@ -106,8 +106,8 @@ export const gan = {
           round: t(`第 ${state.turn} 回合`, `Round ${state.turn}`),
           labels: running ? { turn10: t(`还剩 ${running} 回合`, `${running} ${running === 1 ? 'round' : 'rounds'} left`) } : {},
           say: merged && state.turn > 0
-            ? { tone: 'fail', text: t('两支笔已经重合，无法再分开：模式坍塌。', 'The two pens have merged and can no longer separate: mode collapse.') }
-            : { text: t('笔 1 和笔 2 各生成一半样本；竖线标出它们当前的位置。', 'Pen 1 and pen 2 each generate half the samples; the vertical lines mark their current positions.') },
+            ? { tone: 'fail', text: t('两支笔已经重合，无法再分开：模式坍塌。') }
+            : { text: t('笔 1 和笔 2 各生成一半样本；竖线标出它们当前的位置。') },
         }
       },
     }

@@ -1,7 +1,6 @@
 {
   "title": {
-    "zh": "是什么",
-    "en": "What it is"
+    "zh": "是什么"
   },
   "adds": [
     "role:comp"
@@ -9,44 +8,37 @@
   "intro": [
     {
       "t": {
-        "zh": "这句话的谓语是 <i>is</i>。它不是一个动作，后面也没有动作落到的东西；它只是把主语和后面那一块连起来，说主语是什么。这样的动词叫<wiki-ref to=\"linking-verb\"></wiki-ref>。",
-        "en": "This sentence’s verb is <i>is</i>. It is no action, and nothing after it is acted on; it only links the subject to what follows, saying what the subject is. Such a verb is a <wiki-ref to=\"linking-verb\"></wiki-ref>."
+        "zh": "这句话的谓语是 <i>is</i>。它不是一个动作，后面也没有动作落到的东西；它只是把主语和后面那一块连起来，说主语是什么。这样的动词叫<wiki-ref to=\"linking-verb\"></wiki-ref>。"
       }
     },
     {
       "t": {
-        "zh": "系动词后面那一块叫<wiki-ref to=\"complement\"></wiki-ref>。主干是主语、谓语、表语。",
-        "en": "What follows a linking verb is its <wiki-ref to=\"complement\"></wiki-ref>. The skeleton is then subject, verb, complement."
+        "zh": "系动词后面那一块叫<wiki-ref to=\"complement\"></wiki-ref>。主干是主语、谓语、表语。"
       }
     }
   ],
   "debrief": {
     "title": {
-      "zh": "The main contribution of this paper is a new loss function for imbalanced data.",
-      "en": "The main contribution of this paper is a new loss function for imbalanced data."
+      "zh": "The main contribution of this paper is a new loss function for imbalanced data."
     },
     "body": [
       {
-        "zh": "主干 <i>The main contribution is a new loss function</i>：本文的主要贡献是一个用于不平衡数据的新损失函数。论文里交代贡献、定义、结论，常常就是这样一个“主语 is 表语”。",
-        "en": "The skeleton is <i>The main contribution is a new loss function</i>. Papers state contributions, definitions and findings in just this shape: subject, <i>is</i>, complement."
+        "zh": "主干 <i>The main contribution is a new loss function</i>：本文的主要贡献是一个用于不平衡数据的新损失函数。论文里交代贡献、定义、结论，常常就是这样一个“主语 is 表语”。"
       }
     ],
     "note": {
-      "zh": "系动词后面是表语，说明主语是什么。",
-      "en": "After a linking verb comes a complement: what the subject is."
+      "zh": "系动词后面是表语，说明主语是什么。"
     }
   },
   "tasks": [
     {
       "id": "1-5",
       "brief": {
-        "zh": "标出主干，把修饰成分折起来。",
-        "en": "Mark the skeleton, folding the modifiers away."
+        "zh": "标出主干，把修饰成分折起来。"
       },
       "hint": [
         {
-          "zh": "<i>is</i> 后面那一块，是在说主语是什么吗？",
-          "en": "Is what follows <i>is</i> saying what the subject is?"
+          "zh": "<i>is</i> 后面那一块，是在说主语是什么吗？"
         }
       ],
       "sentence": "The main contribution of this paper is a new loss function for imbalanced data.",
@@ -70,8 +62,7 @@
       "misrole": {
         "obj": {
           "*": {
-            "zh": "<i>is</i> 后面跟的不是宾语：它不说动作落在什么上，而是说主语是什么。",
-            "en": "What follows <i>is</i> is no object: it does not say what is acted on, but what the subject is."
+            "zh": "<i>is</i> 后面跟的不是宾语：它不说动作落在什么上，而是说主语是什么。"
           }
         }
       }

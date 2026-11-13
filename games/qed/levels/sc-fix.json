@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "fix 是任取框", "en": "fix is the for-any box" },
+  "title": { "zh": "fix 是任取框" },
   "intro": [
     {
       "t": {
-        "zh": "要证「对所有 x」，块的第一句是 fix：任取一样东西，给它起个名字。",
-        "en": "To prove “for all x”, the block starts with fix: take any thing and give it a name."
+        "zh": "要证「对所有 x」，块的第一句是 fix：任取一样东西，给它起个名字。"
       }
     }
   ],
@@ -12,7 +11,7 @@
     {
       "id": "sc-fix",
       "kind": "script",
-      "brief": { "zh": "写一段脚本，证出要证的那句。", "en": "Write a script that proves the sentence." },
+      "brief": { "zh": "写一段脚本，证出要证的那句。" },
       "premises": { "p": "∀x. Student(x) → Human(x)", "q": "∀x. Human(x) → Mortal(x)" },
       "goal": "∀x. Student(x) → Mortal(x)",
       "things": ["a"],
@@ -29,7 +28,7 @@
         { "k": "assume", "stmt": "Student(a)" },
         { "k": "show", "stmt": "Mortal(a)", "using": ["p", "q", "a1"], "by": "auto" }
       ],
-      "hint": [{ "zh": "块里先 fix 一样东西。", "en": "In the block, fix a thing first." }]
+      "hint": [{ "zh": "块里先 fix 一样东西。" }]
     }
   ]
 }

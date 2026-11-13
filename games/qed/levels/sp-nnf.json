@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "否定范式", "en": "Negation normal form" },
+  "title": { "zh": "否定范式" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "<wiki-ref to=\"nnf\"></wiki-ref>：句子里没有 →，¬ 只贴在最小的句子上。",
-        "en": "<wiki-ref to=\"nnf\"></wiki-ref>: no → in the sentence, and every ¬ on a smallest sentence."
+        "zh": "<wiki-ref to=\"nnf\"></wiki-ref>：句子里没有 →，¬ 只贴在最小的句子上。"
       }
     }
   ],
@@ -14,7 +13,7 @@
       "id": "sp-nnf",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         { "goal": "¬(Rain → Wet)", "becomes": [["Rain ∧ ¬Wet"]] },
@@ -22,10 +21,10 @@
         { "goal": "¬∀x. Human(x) → Mortal(x)", "becomes": [["∃x. Human(x) ∧ ¬Mortal(x)"]] },
         { "goal": "¬∃x. Bird(x) ∧ ¬Flies(x)", "becomes": [["∀x. ¬Bird(x) ∨ Flies(x)"]] }
       ],
-      "brief": { "zh": "设计一个证明助手，把每个目标变成要的样子。", "en": "Design a proof assistant that turns each goal into the one wanted." },
+      "brief": { "zh": "设计一个证明助手，把每个目标变成要的样子。" },
       "hint": [
-        { "zh": "先去掉 →。", "en": "Get rid of → first." },
-        { "zh": "再看 ¬ 会出现在哪些连接词和量词前面。", "en": "Then see in front of which connectives and quantifiers a ¬ can stand." }
+        { "zh": "先去掉 →。" },
+        { "zh": "再看 ¬ 会出现在哪些连接词和量词前面。" }
       ],
       "solution": [
         "c0r0 = arrow[use=[\"arrow.elim\"]]()",

@@ -1,0 +1,39 @@
+{
+  "domain": "image",
+  "vocabulary": 16,
+  "title": { "zh": "计算机视觉笔记" },
+  "kicker": { "zh": "COMP90086 笔记版" },
+  "lede": {
+    "zh": "嵌在 COMP90086 笔记里的交互：每个知识点动手一次，先预测，再看结果。"
+  },
+  "mode": "notes",
+  "power": {
+    "title": { "zh": "计算机视觉笔记" },
+    "lines": [{ "zh": "每一关对应笔记里的一个知识点。" }]
+  },
+  "primitives": ["line3", "add"],
+  "concept": {},
+  "replaces": {},
+  "views": {},
+  "eras": [
+    {
+      "id": 1,
+      "foundation": ["projection"],
+      "chapter": {
+        "title": { "zh": "图像怎样形成和表示" },
+        "lecture": { "zh": "第 2 讲" },
+        "question": { "zh": "一张图里的数从哪里来？" }
+      }
+    },
+    {
+      "id": 2,
+      "foundation": ["separable", "sinusoid"],
+      "chapter": {
+        "title": { "zh": "怎样用固定规则处理图像" },
+        "lecture": { "zh": "第 3–4 讲" },
+        "question": { "zh": "一个核、一道波怎样改变一张图？" }
+      }
+    }
+  ],
+  "box": { "sample": "separable", "inLevel": {} }
+}

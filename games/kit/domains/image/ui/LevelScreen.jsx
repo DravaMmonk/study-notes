@@ -28,7 +28,7 @@ export default function LevelScreen(screen) {
 
   const brief = <Brief game={game} level={level} hint={level.hint} phone={phone} />
   const play = level.kind === 'board' ? (
-    <Suspense fallback={<div className="board-loading">{tr('载入中…', 'Loading…')}</div>}>
+    <Suspense fallback={<div className="board-loading">{tr('载入中…')}</div>}>
       <BenchLevel level={level} onSolve={() => solve(null)} theme={theme} />
     </Suspense>
   ) : <ProbeLevel level={level} onSolve={() => solve(null)} theme={theme} />
@@ -90,9 +90,9 @@ function ImageCircuit({ screen }) {
   const outputLabels = level.outputLabels ?? {}
   const colourOutputs = useMemo(() => Object.entries(level.tests[0].expected).filter(([, value]) => value?.c === 3).map(([name]) => name), [level])
   const views = { in: viewFor(level, 'in'), out: viewFor(level, 'out'), mid: viewFor(level, 'mid'), shows: level.shows, fresh: level.freshViews }
-  const { parts, card, corner, sheet } = useImageCards({ kit, graph: circuit, onChange: change, run: shown, testIndex: run.at, flags, sensors, outputLabels, colourOutputs, views, ioKinds, scan, onScan: setScan, theme, phone, test: playLevel.tests[run.at] })
+  const { parts, card, corner, sheet } = useImageCards({ kit, graph: circuit, onChange: change, run: shown, testIndex: run.at, has: useMemo(() => game.image.holdsIn(level, flags), [game, level, flags]), sensors, outputLabels, colourOutputs, views, ioKinds, scan, onScan: setScan, theme, phone, test: playLevel.tests[run.at] })
   const { shown: offered, folded } = game.image.offerIn(level, flags)
-  const itemOf = (type) => ({ type, label: types[type].label, desc: describe(types, type), icon: iconOf(type, types), family: familyOf(type, types), fresh: level.fresh?.includes(type) })
+  const itemOf = (type) => ({ type, label: types[type].label, desc: describe(types, type), icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) })
 
   const train = (steps) => {
     let next = circuit
@@ -109,19 +109,19 @@ function ImageCircuit({ screen }) {
 
   const training = hasLearnable(circuit) && (
     <section>
-      <h3 className="panel-label">{tr('训练', 'Training')}</h3>
+      <h3 className="panel-label">{tr('训练')}</h3>
       <div className="train-buttons">
         {level.trainRates && (
           <label className="train-rate">
-            <span>{tr('学习率', 'Learning rate')}</span>
+            <span>{tr('学习率')}</span>
             <select value={rate} onChange={(event) => setRate(Number(event.target.value))}>
               {level.trainRates.map((r) => <option key={r} value={r}>{r}</option>)}
             </select>
           </label>
         )}
-        <button onClick={() => train(1)}>{tr('训练 1 步', 'Train 1 step')}</button>
-        <button onClick={() => train(10)}>{tr('训练 10 步', 'Train 10 steps')}</button>
-        <button onClick={() => { change(resetTraining(circuit)); setLosses([]) }}>{tr('重置参数', 'Reset parameters')}</button>
+        <button onClick={() => train(1)}>{tr('训练 1 步')}</button>
+        <button onClick={() => train(10)}>{tr('训练 10 步')}</button>
+        <button onClick={() => { change(resetTraining(circuit)); setLosses([]) }}>{tr('重置参数')}</button>
       </div>
       <LossCurve losses={losses} />
     </section>
@@ -131,8 +131,8 @@ function ImageCircuit({ screen }) {
     <section className="score">
       <Readouts items={[
         { value: evaluated.score.nodes, label: T('元件', 'Parts') },
-        { value: evaluated.score.cost, label: T('计算量', 'Cost') },
-        evaluated.score.learned > 0 && { value: evaluated.score.learned, label: T('参数', 'Parameters') },
+        { value: evaluated.score.cost, label: T('计算量') },
+        evaluated.score.learned > 0 && { value: evaluated.score.learned, label: T('参数') },
       ]} />
       {evaluated.constraint && <p className="constraint">{L(evaluated.constraint)}</p>}
       {progress.best[level.id] && <p className="panel-note">{tr(`最佳：${progress.best[level.id].nodes} 个元件 · 计算量 ${progress.best[level.id].cost}`, `Best: ${progress.best[level.id].nodes} parts · cost ${progress.best[level.id].cost}`)}</p>}
@@ -181,7 +181,7 @@ function ImageCircuit({ screen }) {
     card={card}
     sheet={sheet}
     packed={packed}
-    addSheet={({ place, close }) => <AddSheet kit={kit} level={{ ...level, palette: [...offered, ...folded] }} graph={circuit} previewFrom={circuit.nodes.find((node) => node.type === 'input')?.id} test={test} title={tr('放在这一格', 'Place in this slot')} theme={theme} onAdd={place} onClose={close} />}
+    addSheet={({ place, close }) => <AddSheet kit={kit} level={{ ...level, palette: [...offered, ...folded] }} graph={circuit} previewFrom={circuit.nodes.find((node) => node.type === 'input')?.id} test={test} title={tr('放在这一格')} theme={theme} onAdd={place} onClose={close} />}
     describe={(node) => describe(types, node.type)}
     view={{ values: selected.values, errors: selected.errors }}
     canvas={{ width: 140, corner }}
@@ -197,7 +197,7 @@ function ImageCircuit({ screen }) {
 }
 
 function LossCurve({ losses }) {
-  if (!losses.length) return <p className="panel-note">{tr('尚未训练。每训练一步，所有可学习的权重都朝误差减小的方向微调一点。', 'Not trained yet. Each step moves every learnable weight slightly in the direction that reduces the error.')}</p>
+  if (!losses.length) return <p className="panel-note">{tr('尚未训练。每训练一步，所有可学习的权重都朝误差减小的方向微调一点。')}</p>
   // Both curves share one log scale: the error on the training tests and, when the level keeps new samples back, on those.
   const all = losses.flatMap((l) => [l.train, l.check]).filter((v) => v !== null && Number.isFinite(v))
   const lo = Math.log(Math.min(...all) + 1e-9)
@@ -206,7 +206,7 @@ function LossCurve({ losses }) {
   const checked = losses.at(-1).check !== null
   return (
     <figure className="loss">
-      <svg viewBox="0 0 200 60" preserveAspectRatio="none" role="img" aria-label={tr('损失曲线', 'Loss curve')}>
+      <svg viewBox="0 0 200 60" preserveAspectRatio="none" role="img" aria-label={tr('损失曲线')}>
         <polyline className="loss-area" points={`0,60 ${line('train').join(' ')} 200,60`} />
         <polyline points={line('train').join(' ')} />
         {checked && <polyline className="loss-check" points={line('check').join(' ')} />}
@@ -214,7 +214,7 @@ function LossCurve({ losses }) {
       <figcaption>
         {tr('训练误差', 'Training loss')} {losses.at(-1).train.toExponential(1)}
         {checked && <> · {tr('新样本误差', 'New-sample loss')} {losses.at(-1).check.toExponential(1)}</>}
-        <span>{tr('对数刻度', 'log scale')}</span>
+        <span>{tr('对数刻度')}</span>
       </figcaption>
     </figure>
   )

@@ -2,7 +2,7 @@
 // under `bypass` (match.js) and the part dependency graph (deps.js), on small made-up courses.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { againstOpen, audit, defineCourse, offer, reach } from '../course.js'
+import { againstOpen, audit, defineCourse, holds, itemOf, offer, reach, readItem, usable } from '../course.js'
 import { dependencies, dot, mermaid } from './deps.js'
 import { rebuilt } from './match.js'
 
@@ -179,4 +179,53 @@ test('a part on no tray, and a tray part nothing brings in, are reported', () =>
   const spec = { 1: { adds: ['a', 'b'] } }
   const course = sketch([{ foundation: ['1'] }], spec, { trays: { only: ['a', 'c'] }, tray: () => 'only' })
   assert.deepEqual(audit(course).filter((f) => f.rule.includes('tray')).map((f) => `${f.rule} ${f.part}`), ['off-tray b', 'tray-unmet c'])
+})
+
+test('an item is a part, one of its settings, or one value of a setting', () => {
+  assert.equal(itemOf('shift'), 'shift')
+  assert.equal(itemOf('shift', 'border'), 'shift.border')
+  assert.equal(itemOf('shift', 'border', 'wrap'), 'shift.border=wrap')
+  assert.deepEqual(readItem('shift'), { part: 'shift' })
+  assert.deepEqual(readItem('shift.border'), { part: 'shift', key: 'border' })
+  assert.deepEqual(readItem('gain.by=0.5'), { part: 'gain', key: 'by', value: '0.5' })
+})
+
+test('a task gives and withholds parts for itself alone, over what the course has it hold by default', () => {
+  const spec = { 1: { adds: ['a'] }, 2: { adds: ['b'], builds: 'P', uses: ['a', 'b'] }, 3: { withholds: ['a'], gives: ['Q', 'c'] }, 4: { builds: 'Q' }, 5: {} }
+  const course = sketch([{ foundation: ['1', '2', '3', '4', '5'] }], spec, { gives: (l) => spec[l.id]?.gives ?? [], withholds: (l) => spec[l.id]?.withholds ?? [] })
+  // By default: what the levels before brought, and a built part once its level is solved.
+  assert.deepEqual(usable(course, { id: '3' }, new Set()), ['b', 'Q', 'c'])
+  assert.deepEqual(usable(course, { id: '3' }, new Set(['P'])), ['b', 'P', 'Q', 'c'])
+  // The level after holds what the course gives it, no more and no less.
+  assert.deepEqual(usable(course, { id: '5' }, new Set(['P'])), ['a', 'b', 'P'])
+  const has = holds(course, { id: '3' }, new Set())
+  assert.deepEqual(['a', 'b', 'P', 'Q', 'c'].map((p) => has(p)), [false, true, false, true, true])
+})
+
+test('a setting and a value are held from the start, unless a level opens them or a flag earns them; a task gives and withholds them too', () => {
+  const spec = { 1: { adds: ['a'] }, 2: { opens: ['a.mode=fast'] }, 3: { withholds: ['a.mode=slow', 'a.gain'], gives: ['a.edge=wrap'] }, 4: { builds: 'W' }, 5: {} }
+  const course = sketch([{ foundation: ['1', '2', '3', '4', '5'] }], spec, {
+    opens: (l) => spec[l.id]?.opens ?? [],
+    gives: (l) => spec[l.id]?.gives ?? [],
+    withholds: (l) => spec[l.id]?.withholds ?? [],
+    needs: (item) => ({ 'a.edge=wrap': 'W', W: 'W' })[item] ?? null,
+  })
+  const at = (id, flags = []) => holds(course, { id }, new Set(flags))
+  // Nothing names a.mode=slow or a.gain: there from the start. a.mode=fast comes in at level 2.
+  assert.deepEqual([at('1')('a', 'mode', 'slow'), at('1')('a', 'gain'), at('1')('a', 'mode', 'fast'), at('2')('a', 'mode', 'fast'), at('5')('a', 'mode', 'fast')], [true, true, false, true, true])
+  // A value that needs a flag is the player's once earned.
+  assert.deepEqual([at('5')('a', 'edge', 'wrap'), at('5', ['W'])('a', 'edge', 'wrap')], [false, true])
+  // Level 3 alone: without a value and a whole setting (and so every value of it), with a value not earned yet.
+  assert.deepEqual([at('3')('a', 'mode', 'slow'), at('3')('a', 'gain'), at('3')('a', 'gain', '2'), at('3')('a', 'edge', 'wrap'), at('3')('a', 'mode', 'fast')], [false, false, false, true, true])
+  assert.deepEqual([at('4')('a', 'mode', 'slow'), at('4')('a', 'gain', '2'), at('4')('a', 'edge', 'wrap')], [true, true, false])
+})
+
+test('a task holds its level’s part once a task before it has built it; the task building it does not, though an earlier level built it', () => {
+  const spec = { 1: { adds: ['a'], builds: 'P' }, 2: { builds: 'P' }, 3: {} }
+  // Level 2 upgrades P at its second task of three.
+  const builds = (l) => (!spec[l.id]?.builds || (l.id === '2' && l.task !== undefined && l.task < 1) ? [] : [spec[l.id].builds])
+  const course = sketch([{ foundation: ['1', '2', '3'] }], spec, { builds })
+  const flags = new Set(['P'])
+  assert.deepEqual([0, 1, 2].map((task) => usable(course, { id: '2', task }, flags)), [['a'], ['a'], ['P', 'a']])
+  assert.deepEqual(usable(course, { id: '3', task: 0 }, flags), ['a', 'P'])
 })

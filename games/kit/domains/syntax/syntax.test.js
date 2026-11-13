@@ -119,7 +119,9 @@ test('a level as content: the vocabulary’s schema takes a list of tasks, and n
   const { sentence, folds, roles, misrole } = spec
   const task = { id: 'one', brief: T('做', 'Do'), sentence, folds, roles, misrole }
   const level = { title: T('题', 'Title'), adds: ['pp'], debrief: { title: T('句', 'Sentence'), body: [T('体', 'Body')] }, tasks: [task] }
-  const says = (v) => fits(vocabulary.level, v, { vocabulary }).map((p) => `${p.at}: ${p.says}`)
+  // Content is written in one language: the texts made above for the model, with their English taken off.
+  const base = (v) => JSON.parse(JSON.stringify(v, (key, x) => (key === 'en' ? undefined : x)))
+  const says = (v) => fits(vocabulary.level, base(v), { vocabulary }).map((p) => `${p.at}: ${p.says}`)
   assert.deepEqual(says(level), [])
   assert.deepEqual(says({ ...level, tasks: [{ ...task, step: T('一', 'One') }, { id: 'two', step: T('二', 'Two'), brief: T('做', 'Do'), sentence, roles }] }), [])
   assert.ok(says({ ...level, adds: ['role:who'] }).some((p) => /role:who.*no part/.test(p)))

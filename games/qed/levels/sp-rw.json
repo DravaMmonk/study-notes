@@ -1,42 +1,38 @@
 {
-  "title": { "zh": "改写", "en": "Rewrite" },
+  "title": { "zh": "改写" },
   "adds": ["rw"],
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "「刮风 ∧ ¬¬下雨」里的 ¬¬下雨 换成下雨，在证明板上要先拆开外面的「并且」，换掉里面那一句，再拼回去。",
-        "en": "To turn the ¬¬it rains in “it is windy ∧ ¬¬it rains” into it rains, the proof board must take the outer “and” apart, replace the part inside, and put it back together."
+        "zh": "「刮风 ∧ ¬¬下雨」里的 ¬¬下雨 换成下雨，在证明板上要先拆开外面的「并且」，换掉里面那一句，再拼回去。"
       }
     },
     {
       "t": {
-        "zh": "两句话等价，句子里出现一句的地方就能直接换成另一句。这样用的等价式叫<wiki-ref to=\"rewrite\"></wiki-ref>，新元件<part-ref to=\"part:rw\"></part-ref>按一条改写规则在目标里换一处。",
-        "en": "Where two sentences are equivalent, one can be swapped for the other right inside a sentence. An equivalence used this way is a <wiki-ref to=\"rewrite\"></wiki-ref>; the new part <part-ref to=\"part:rw\"></part-ref> uses one to change one place in the goal."
+        "zh": "两句话等价，句子里出现一句的地方就能直接换成另一句。这样用的等价式叫<wiki-ref to=\"rewrite\"></wiki-ref>，新元件<part-ref to=\"part:rw\"></part-ref>按一条改写规则在目标里换一处。"
       }
     }
   ],
   "after": {
-    "zh": "这是<wiki-ref to=\"simplifier\"></wiki-ref>的基本动作。",
-    "en": "This is the basic move of a <wiki-ref to=\"simplifier\"></wiki-ref>."
+    "zh": "这是<wiki-ref to=\"simplifier\"></wiki-ref>的基本动作。"
   },
   "tasks": [
     {
       "id": "sp-rw",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         { "goal": "Wind ∧ ¬¬Rain", "becomes": [["Wind ∧ Rain"]] },
         { "goal": "¬¬Wet → Slip", "becomes": [["Wet → Slip"]] },
         { "goal": "(Rain ∨ ¬¬Wind) ∧ Wet", "becomes": [["(Rain ∨ Wind) ∧ Wet"]] }
       ],
-      "brief": { "zh": "设计一个证明助手，去掉每个目标里的 ¬¬。", "en": "Design a proof assistant that takes the ¬¬ out of each goal." },
+      "brief": { "zh": "设计一个证明助手，去掉每个目标里的 ¬¬。" },
       "hint": [
         {
-          "zh": "<part-ref to=\"lemma:dneg\"></part-ref>的两个形状都可以当改写规则。",
-          "en": "Both shapes of <part-ref to=\"lemma:dneg\"></part-ref> can serve as rewrite rules."
+          "zh": "<part-ref to=\"lemma:dneg\"></part-ref>的两个形状都可以当改写规则。"
         }
       ],
       "solution": ["c0r0 = dneg[use=[\"dneg.elim\"]]()", "c0 = rw(in, c0r0)", "out <- c0"]

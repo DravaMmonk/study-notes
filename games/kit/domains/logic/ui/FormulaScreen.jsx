@@ -42,7 +42,7 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
         const name = thingName(notation, world)
         const extra = got.filter((d) => !wanted.includes(d)).map(name)
         const missing = wanted.filter((d) => !got.includes(d)).map(name)
-        if (extra.length || missing.length) return { pass: false, body: <div className="fo-why"><p>{L(world.title)}{tr('：', ': ')}{extra.length > 0 && tr(`多选了 ${extra.join('、')}；`, `wrongly picks ${extra.join(', ')}; `)}{missing.length > 0 && tr(`漏掉了 ${missing.join('、')}。`, `misses ${missing.join(', ')}.`)}</p></div> }
+        if (extra.length || missing.length) return { pass: false, body: <div className="fo-why"><p>{L(world.title)}{tr('：')}{extra.length > 0 && tr(`多选了 ${extra.join('、')}；`, `wrongly picks ${extra.join(', ')}; `)}{missing.length > 0 && tr(`漏掉了 ${missing.join('、')}。`, `misses ${missing.join(', ')}.`)}</p></div> }
       }
       return { pass: true }
     }
@@ -52,13 +52,13 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
       pass: false,
       body: (
         <div className="fo-why">
-          <p>{d.first ? tr('在下面的世界中，你写的句子为真，原句却为假：', 'In this world your sentence is true but the original is false:') : tr('在下面的世界中，原句为真，你写的句子却为假：', 'In this world the original is true but your sentence is false:')}</p>
+          <p>{d.first ? tr('在下面的世界中，你写的句子为真，原句却为假：') : tr('在下面的世界中，原句为真，你写的句子却为假：')}</p>
           <WorldText model={d.model} notation={notation} preds={level.vocab.preds} spell />
         </div>
       ),
     }
   }
-  const judge = () => (strays.length ? { pass: false, body: <p className="lg-error">{L(STRAY)}</p> } : whole ? compare() : { pass: false, body: <p className="lg-error">{tr('还有空位：句子的每个位置都须填写。', 'Some slots are still empty; every slot must be filled.')}</p> })
+  const judge = () => (strays.length ? { pass: false, body: <p className="lg-error">{L(STRAY)}</p> } : whole ? compare() : { pass: false, body: <p className="lg-error">{tr('还有空位：句子的每个位置都须填写。')}</p> })
   const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, judge)
   const editor = useRef(null)
   const check = () => {
@@ -84,7 +84,7 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
       <SentenceEditor tree={tree} onChange={change} chips={chips} notation={notation} scope={`${entry.id}:${level.task}`} ref={editor} />
     </div>
   )
-  const results = verdict ? (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。', 'Right in every family.') : tr('在每个小世界中，真假都与原句一致。', 'In every small world it has the same truth value as the original.')}</p> : verdict.body) : null
+  const results = verdict ? (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。') : tr('在每个小世界中，真假都与原句一致。')}</p> : verdict.body) : null
   const dock = <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />
   const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
   return <Level phone={phone} className="fo-level" brief={brief} stage={stage} results={results} dock={dock} />

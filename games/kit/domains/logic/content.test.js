@@ -8,7 +8,7 @@ import { parse } from './formula.js'
 import { render } from './notation.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
 import { LOGIC_TESTS, startProof } from './proof.js'
-import { runLevel } from '../../engine/tests.js'
+import { runOutputTests } from '../../engine/test-run.js'
 import { checkGates, gateParts, rowsFor, startGates } from './gates.js'
 import { deepFreeze } from '../../engine/content.js'
 import { readContent } from '../../engine/content-node.js'
@@ -188,14 +188,14 @@ test('a gate the player built runs the board it passed with; one that no longer 
 test('a lemma runs the proof the player passed its level with, a level of tasks one shape a task', () => {
   const run = (id, task) => {
     const t = level(id).tasks[task]
-    return runLevel(LOGIC_TESTS, t, t.solution)
+    return runOutputTests(LOGIC_TESTS, t, t.solution)
   }
   const chain = only('chain')
   const shape = proofShape(chain.lemmas)
   const read = (lines, one) => fromLines(lines, startProof(one), shape, Object.keys(shape.rules))
   // The player's own proof of chain, a detour through ∧: the lemma runs it, and the level built on chain still passes.
   const own = read(['f = impI[A=A](body: m2) {', '  body {', '    m1 = mp(p, f.body)', '    b = andI(m1, m1)', '    e = andE(b)', '    m2 = mp(q, e.left)', '  }', '}', 'goal <- f'], chain)
-  assert.equal(runLevel(LOGIC_TESTS, chain, own).pass, true)
+  assert.equal(runOutputTests(LOGIC_TESTS, chain, own).pass, true)
   syncOwn({ chain: own })
   assert.equal(course.proofs.chain[''].board(), own)
   // Another read of the same content (another game of the domain in this process) keeps its own boards.

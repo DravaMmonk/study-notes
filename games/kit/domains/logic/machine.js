@@ -4,7 +4,7 @@
 // that runs what it holds again and again (repeat, depth-first search, every goal) or tries several things (the
 // alternatives frame), a rewrite, or a step on clauses (resolution.js); the level's parts come from the course as
 // on every board. A part the player builds (the unifier, erule, frule, the introduction and elimination steps, auto,
-// simp, the clause machines) runs the board that built it: the player's, as it last passed (builtParts).
+// simp, the clause machines) runs the board that built it: the player's, as it last passed (builtMachine).
 //
 //   value   { kind: 'eqs', eqs: [equation], fail } (schematic.js) | { kind: 'state', … } (tactics.js)
 //           | { kind: 'clauses', set, from?, endless? } (resolution.js) | { kind: 'rules', keys, entries }
@@ -186,7 +186,7 @@ function firstThatApplies(rules, ctx, apply) {
       if (!ctx.backtrack) break
     }
   }
-  return out.length ? { results: out } : { fail: why ?? T('没有一条规则用得上', 'None of the rules applies') }
+  return out.length ? { results: out } : { fail: why ?? T('没有一条规则用得上') }
 }
 // A tactic card reading its rules from the port `rules` as well as the state from `in`.
 const usesRules = (t) => {
@@ -322,7 +322,7 @@ const search = {
     // A search that has not stopped gives what it found so far (the first is enough to prove a goal), and says it goes
     // on: asking for every answer then never ends.
     const none = stopped ? T(`搜了 ${LIMIT} 步还没停下来：有一条路走不到头`, `Searched ${LIMIT} steps without stopping: one path never ends`)
-      : depth < Infinity ? T(`${depth} 层以内都搜遍了，也没有证完`, `Searched everything within ${depth} levels without finishing`) : T('都搜遍了，也没有证完', 'Searched everything without finishing')
+      : depth < Infinity ? T(`${depth} 层以内都搜遍了，也没有证完`, `Searched everything within ${depth} levels without finishing`) : T('都搜遍了，也没有证完')
     const out = asValue(found, { ...firstOf(s), error: none })
     return stopped ? { ...out, endless: true } : out
   },
@@ -428,7 +428,7 @@ const append = {
   },
 }
 
-// A part the player builds: only its ports here; it runs the board that built it (builtParts).
+// A part the player builds: only its ports here; it runs the board that built it (builtMachine).
 const BUILT = (inputs = ['in']) => ({ inputs, built: true })
 /** The machine board's parts. */
 export const MACHINE_PARTS = {
@@ -489,7 +489,7 @@ const quantified = (f) => f.op === '∀' || f.op === '∃' || (f.op === '¬' ? q
  */
 function skolemStep(s) {
   const g = s.goals[0]
-  if (!g) return { fail: T('已经没有目标了', 'No goals left') }
+  if (!g) return { fail: T('已经没有目标了') }
   const fixes = [...(g.fixes ?? [])]
   // Names already about: the fixed things and every name in the goal.
   const used = new Set([...fixes, ...[...JSON.stringify(g).matchAll(/"f":"([^"]+)"/g)].map((m) => m[1])])
@@ -586,16 +586,16 @@ const canonical = (goals) => {
 /** Is the output what the test wants? '' or why not. */
 export function judge(want, test, out, level = {}) {
   const input = inputsOf(test, level).in
-  if (!out) return T('还没有东西接到「结果」', 'Nothing reaches the result yet')
+  if (!out) return T('还没有东西接到「结果」')
   if (want === 'elim') return judgeElim(test, out)
   if (want === 'proved') {
-    if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
+    if (out.kind !== 'state') return T('结果要一个证明状态')
     if (out.error) return out.error
     return out.goals.length ? T(`还剩 ${out.goals.length} 个目标没证完`, `${out.goals.length} goal${out.goals.length === 1 ? '' : 's'} still open`) : ''
   }
   if (want === 'becomes') {
-    if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
-    if (!test.becomes.length) return out.error ? '' : T('这一步应该做不了，证明助手却做了', 'This step should not apply, yet the proof assistant did it')
+    if (out.kind !== 'state') return T('结果要一个证明状态')
+    if (!test.becomes.length) return out.error ? '' : T('这一步应该做不了，证明助手却做了')
     if (out.error) return out.error
     const got = resultsOf(out).map((r) => canonical(r.goals))
     const wanted = test.becomes.map((r) => canonical(r.map(parseGoal)))
@@ -604,14 +604,14 @@ export function judge(want, test, out, level = {}) {
     return k < 0 ? '' : T(wanted.length > 1 ? `第 ${k + 1} 种结果的目标和要的不一样` : '得到的目标和要的不一样', wanted.length > 1 ? `Result ${k + 1} has other goals than wanted` : 'The goals made are not the ones wanted')
   }
   if (want === 'fails') {
-    if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
-    if (out.endless) return out.error ?? T('搜索停不下来', 'The search never stops')
-    if (!out.error) return out.goals.length ? T('这一句证不出来，证明助手却还没有说「证不出来」', 'This cannot be proved, yet the proof assistant has not said so') : T('这一句不该证得出来', 'This should not be provable')
+    if (out.kind !== 'state') return T('结果要一个证明状态')
+    if (out.endless) return out.error ?? T('搜索停不下来')
+    if (!out.error) return out.goals.length ? T('这一句证不出来，证明助手却还没有说「证不出来」') : T('这一句不该证得出来')
     return ''
   }
   if (want === 'answers') {
-    if (out.kind !== 'state') return T('结果要一个证明状态', 'The result must be a proof state')
-    if (out.endless) return T('要找出所有答案，可搜索停不下来：有一条路走不到头', 'Every answer is wanted, but the search never stops: one path never ends')
+    if (out.kind !== 'state') return T('结果要一个证明状态')
+    if (out.endless) return T('要找出所有答案，可搜索停不下来：有一条路走不到头')
     if (out.error) return out.error
     const got = answersIn(out)
     const wanted = [...new Set(test.answers)].sort()
@@ -621,59 +621,48 @@ export function judge(want, test, out, level = {}) {
     return T(`找到的答案是 ${list(got)}，应该是 ${list(wanted)}`, `The answers found are ${listEn(got)}; they should be ${listEn(wanted)}`)
   }
   if (want === 'unify') {
-    if (out.kind !== 'eqs') return T('结果要一组等式', 'The result must be a set of equations')
+    if (out.kind !== 'eqs') return T('结果要一组等式')
     const ref = solveEqs(input.eqs, { rules: FULL })
-    if (ref.fail) return out.fail ? '' : T('这组等式其实合一不了，结果却没有说「失败」', 'These equations have no unifier, yet the result does not say it failed')
-    if (out.fail) return T('这组等式能合一，结果却说失败了', 'These equations can be unified, yet the result says it failed')
-    if (!solved(out.eqs)) return T('还没解完：要每个等式左边都是一个 ?，右边里没有这些 ?', 'Not solved yet: each equation must have a ?-letter on the left, and none of those letters on any right side')
+    if (ref.fail) return out.fail ? '' : T('这组等式其实合一不了，结果却没有说「失败」')
+    if (out.fail) return T('这组等式能合一，结果却说失败了')
+    if (!solved(out.eqs)) return T('还没解完：要每个等式左边都是一个 ?，右边里没有这些 ?')
     const σ = Object.fromEntries(out.eqs.map((e) => [e.s.name, e.t]))
-    return input.eqs.every((e) => sameSide(instantiate(e.s, σ), instantiate(e.t, σ))) ? '' : T('结果代回去，原来的等式两边还不一样', 'Put back into the equations, the result does not make both sides equal')
+    return input.eqs.every((e) => sameSide(instantiate(e.s, σ), instantiate(e.t, σ))) ? '' : T('结果代回去，原来的等式两边还不一样')
   }
-  if (out.kind !== 'clauses') return T('结果要一组子句', 'The result must be a clause set')
+  if (out.kind !== 'clauses') return T('结果要一组子句')
   if (want === 'clauses') {
     const wanted = clauseSetOf(test.clauses).map((c) => c.key).sort()
     const got = out.set.map((c) => c.key).sort()
-    return wanted.join(';') === got.join(';') ? '' : T('拆出的子句和要的不一样', 'The clauses made are not the ones wanted')
+    return wanted.join(';') === got.join(';') ? '' : T('拆出的子句和要的不一样')
   }
   const has = refuted(out.set)
   if (want === 'refuted') {
-    if (!has) return T('结果里还没有空子句 ⊥', 'The result has no empty clause ⊥ yet')
+    if (!has) return T('结果里还没有空子句 ⊥')
     return test.budget && out.set.length > test.budget ? T(`推出 ⊥ 用了 ${out.set.length} 条子句，最多只能有 ${test.budget} 条`, `Reaching ⊥ took ${out.set.length} clauses; at most ${test.budget} are allowed`) : ''
   }
   // decide: ⊥ when the clauses cannot all hold; when they can, saturated without it.
   const start = input.kind === 'clauses' ? input.set : clausify(input, ctxOf(level, { nodes: [], wires: [] })).set
   const unsat = refuted(saturate(start).set)
-  if (unsat) return has ? '' : T('结果里还没有空子句 ⊥', 'The result has no empty clause ⊥ yet')
-  if (has) return T('结果里有 ⊥，可这组子句是可满足的：证明助手「证」出了假话', 'The result holds ⊥, yet these clauses can all hold: the proof assistant “proved” something false')
-  if (out.endless) return T('一直推出新子句，停不下来', 'New clauses keep coming: it never stops')
-  return resolveRound(out.set).length === out.set.length ? '' : T('结果还能再归结出新子句：还没饱和', 'The result still resolves into new clauses: not saturated yet')
+  if (unsat) return has ? '' : T('结果里还没有空子句 ⊥')
+  if (has) return T('结果里有 ⊥，可这组子句是可满足的：证明助手「证」出了假话')
+  if (out.endless) return T('一直推出新子句，停不下来')
+  return resolveRound(out.set).length === out.set.length ? '' : T('结果还能再归结出新子句：还没饱和')
 }
 
 const merged = (a = new Map(), b = new Map()) => new Map([...a, ...b])
-/**
- * The machine parts a course's levels build, each running the board that built it (a packed part, ../../engine/
- * boards.js): its inputs are the builder's inputs, its result the builder's. A part may be built by a chain of levels,
- * each an upgrade of the one before (games/DESIGN.md): it runs the board of the last of them the player passed, or the
- * last one's reference board. The cards inside use the rules of the level that uses the part and of the level that
- * built it, and backtrack where either does. `opens()` gives what a board shows of the part opened: { circuit, level }
- * (the level that built it, whose parts and words it is drawn in).
- */
-export function builtParts(chains, ownBoard) {
-  return Object.fromEntries(chains.map((chain) => {
-    const builder = () => chain.findLast((b) => ownBoard(b.taskId)) ?? chain.at(-1)
-    const circuit = () => ownBoard(builder().taskId) ?? builder().solution
-    const last = chain.at(-1)
-    const part = packed({
-      circuit,
-      inputs: inputsOfLevel(last).map((i) => i.name),
-      outputs: ['out'],
-      inside: (ctx) => {
-        const b = builder()
-        return { ...ctx, rules: { ...ruleBookOf(b), ...ctx.rules }, rewrites: { ...rewriteBookOf(b), ...ctx.rewrites }, ruleParts: merged(rulePartsOf(b), ctx.ruleParts), backtrack: ctx.backtrack || Boolean(b.backtrack) }
-      },
-    })
-    return [last.builds, { ...MACHINE_PARTS[last.builds], ...part, eval: failsAsState(part.eval), opens: () => ({ circuit: circuit(), level: builder() }) }]
-  }))
+/** A packed machine part reads the work and rules of its selected builder. */
+export function builtMachine(type, builder, reference, ownBoard) {
+  const circuit = () => ownBoard(builder().taskId) ?? builder().solution
+  const part = packed({
+    circuit,
+    inputs: inputsOfLevel(reference).map((i) => i.name),
+    outputs: ['out'],
+    inside: (ctx) => {
+      const b = builder()
+      return { ...ctx, rules: { ...ruleBookOf(b), ...ctx.rules }, rewrites: { ...rewriteBookOf(b), ...ctx.rewrites }, ruleParts: merged(rulePartsOf(b), ctx.ruleParts), backtrack: ctx.backtrack || Boolean(b.backtrack) }
+    },
+  })
+  return { ...MACHINE_PARTS[type], ...part, eval: failsAsState(part.eval), opens: () => ({ circuit: circuit(), level: builder() }) }
 }
 // A tactic that cannot go on gives the state it was handed with what went wrong, as every tactic does (a frame reads
 // it), and a state that failed already passes through.
@@ -695,7 +684,7 @@ const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBook
  *  `keys` wired in when it uses rules. */
 export const runTactic = (level, type, state, keys = null) => (level.built?.[type] ?? MACHINE_PARTS[type]).eval({ in: state, ...(keys ? { rules: rulesValue(keys.map((key) => ({ key }))) } : {}) }, { id: type, params: {} }, ctxOf(level, { nodes: [], wires: [] }, { engine: { parts: partsFor(level) } }))
 
-/** How a machine level runs and is judged, for the shared engine (../../engine/tests.js). */
+/** How a machine level runs and is judged, for the shared engine (../../engine/test-run.js). */
 export const MACHINE_TESTS = {
   runTest: (level, circuit, test) => {
     const run = runBoard(circuit, { parts: partsFor(level), bind: inputsOf(test, level), ctx: ctxOf(level, circuit) })

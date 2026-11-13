@@ -59,14 +59,14 @@ export default function SaveSlots({ phone = false, board = null }) {
   const current = slots.list[slots.at]
   return (
     <div className={`slots ${phone ? 'is-phone' : ''} ${open ? 'is-open' : ''} ${slots.take ? 'has-take' : ''}`} ref={root} onPointerDown={(e) => e.stopPropagation()}>
-      <button type="button" className="slots-toggle" onClick={() => (open ? close() : setOpen(true))} aria-expanded={open} aria-haspopup="menu" title={tr('这一关存下的电路', 'Boards saved on this level')}>
+      <button type="button" className="slots-toggle" onClick={() => (open ? close() : setOpen(true))} aria-expanded={open} aria-haspopup="menu" title={tr('这一关存下的电路')}>
         <Layers size={phone ? 15 : 14} aria-hidden="true" />
         <span>{labelOf(current)}</span>
         {slots.list.length > 1 && <small>{slots.at + 1}/{slots.list.length}</small>}
         <ChevronDown size={13} aria-hidden="true" />
       </button>
       {open && (
-        <div className="slots-menu" role="menu" aria-label={tr('这一关存下的电路', 'Boards saved on this level')}>
+        <div className="slots-menu" role="menu" aria-label={tr('这一关存下的电路')}>
           <ul>
             {slots.list.map((slot, k) => (
               <li key={slot.no} className={k === slots.at ? 'is-current' : ''}>
@@ -77,7 +77,7 @@ export default function SaveSlots({ phone = false, board = null }) {
                     defaultValue={slot.name}
                     placeholder={labelOf({ ...slot, name: '' })}
                     maxLength={40}
-                    aria-label={tr('电路名称', 'Board name')}
+                    aria-label={tr('电路名称')}
                     onFocus={(e) => e.target.select()}
                     onBlur={(e) => commit(k, e.target.value)}
                     onKeyDown={(e) => {
@@ -91,19 +91,19 @@ export default function SaveSlots({ phone = false, board = null }) {
                     <span>{labelOf(slot)}</span>
                   </button>
                 )}
-                <button type="button" className="slots-icon" onClick={() => setNaming(naming === k ? null : k)} aria-label={tr(`重命名「${labelOf(slot)}」`, `Rename “${labelOf(slot)}”`)} title={tr('重命名', 'Rename')}><Pencil size={13} /></button>
+                <button type="button" className="slots-icon" onClick={() => setNaming(naming === k ? null : k)} aria-label={tr(`重命名「${labelOf(slot)}」`, `Rename “${labelOf(slot)}”`)} title={tr('重命名')}><Pencil size={13} /></button>
                 {slots.list.length > 1 && <button type="button" className="slots-icon is-danger" onClick={act(() => setDropping(k))} aria-label={tr(`删除「${labelOf(slot)}」`, `Delete “${labelOf(slot)}”`)} title={tr('删除', 'Delete')}><X size={13} /></button>}
               </li>
             ))}
           </ul>
           <div className="slots-add">
-            <button type="button" role="menuitem" onClick={act(() => slots.add({ copy: false }))}><Plus size={13} aria-hidden="true" />{tr('新建空白电路', 'New empty board')}</button>
-            <button type="button" role="menuitem" onClick={act(() => slots.add({ copy: true }))}><Copy size={13} aria-hidden="true" />{tr('复制这块电路', 'Copy this board')}</button>
+            <button type="button" role="menuitem" onClick={act(() => slots.add({ copy: false }))}><Plus size={13} aria-hidden="true" />{tr('新建空白电路')}</button>
+            <button type="button" role="menuitem" onClick={act(() => slots.add({ copy: true }))}><Copy size={13} aria-hidden="true" />{tr('复制这块电路')}</button>
           </div>
           {board && (
             <div className="slots-add">
-              <button type="button" role="menuitem" onClick={act(() => setText('show'))}><FileText size={13} aria-hidden="true" />{tr('以文本查看 / 复制', 'View / copy as text')}</button>
-              {board.types && <button type="button" role="menuitem" onClick={act(() => setText('read'))}><ClipboardPaste size={13} aria-hidden="true" />{tr('从文本导入', 'Import from text')}</button>}
+              <button type="button" role="menuitem" onClick={act(() => setText('show'))}><FileText size={13} aria-hidden="true" />{tr('以文本查看 / 复制')}</button>
+              {board.types && <button type="button" role="menuitem" onClick={act(() => setText('read'))}><ClipboardPaste size={13} aria-hidden="true" />{tr('从文本导入')}</button>}
             </div>
           )}
         </div>
@@ -119,8 +119,8 @@ export default function SaveSlots({ phone = false, board = null }) {
       {dropping !== null && slots.list[dropping] && createPortal(
         <Dialog
           title={tr(`删除「${labelOf(slots.list[dropping])}」？`, `Delete “${labelOf(slots.list[dropping])}”?`)}
-          lines={[tr('删除后无法撤销。这一关的其他电路不受影响。', 'This cannot be undone. The other boards of this level are unaffected.')]}
-          actions={[[tr('取消', 'Cancel'), () => setDropping(null)], [tr('删除', 'Delete'), () => { slots.drop(dropping); setDropping(null) }]]}
+          lines={[tr('删除后无法撤销。这一关的其他电路不受影响。')]}
+          actions={[[tr('取消'), () => setDropping(null)], [tr('删除', 'Delete'), () => { slots.drop(dropping); setDropping(null) }]]}
           onClose={() => setDropping(null)}
         />,
         document.body,

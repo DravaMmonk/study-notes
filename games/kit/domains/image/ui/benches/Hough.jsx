@@ -88,8 +88,8 @@ export function HoughPlanes({ ctx }) {
   return (
     <div className="mb mb-hough-stage">
       <figure className="mb-hough-points">
-        <div className="mb-fig-head"><span className="bk-label">{tr('边缘点 · 图像空间', 'Edge points · image space')}</span></div>
-        <svg className="mb-svg" viewBox="-25 -25 50 50" role="img" aria-label={tr('边缘点和找到的直线', 'Edge points and the lines found')}>
+        <div className="mb-fig-head"><span className="bk-label">{tr('边缘点 · 图像空间')}</span></div>
+        <svg className="mb-svg" viewBox="-25 -25 50 50" role="img" aria-label={tr('边缘点和找到的直线')}>
           <defs>
             <clipPath id="mb-hough-clip"><rect x={-25} y={-25} width={50} height={50} /></clipPath>
           </defs>
@@ -105,19 +105,19 @@ export function HoughPlanes({ ctx }) {
             return <text key={`n${i}`} className="mb-line-name" x={line.rho * Math.cos(t) - Math.sin(t) * s} y={line.rho * Math.sin(t) + Math.cos(t) * s}>{NAMES[i]}</text>
           })}
         </svg>
-        <figcaption className="bk-caption">{tr('虚线 A、B 是要找的两条线；实线是票数最高的两个峰（红色：未匹配）', 'Dashed A and B are the two lines to find; solid lines are the two peaks with the most votes (red: no match)')}</figcaption>
+        <figcaption className="bk-caption">{tr('虚线 A、B 是要找的两条线；实线是票数最高的两个峰（红色：未匹配）')}</figcaption>
       </figure>
 
       <figure className="mb-hough-acc">
         <div className="mb-fig-head">
-          <span className="bk-label">{tr('累加器 · (θ, ρ) 参数空间', 'Accumulator · (θ, ρ) parameter space')}</span>
-          <div className="bk-seg mb-zoom" role="group" aria-label={tr('累加器视图', 'Accumulator view')}>
-            <button aria-pressed={zoom} onClick={() => setZoom(true)}>{tr('放大', 'Zoom in')}</button>
-            <button aria-pressed={!zoom} onClick={() => setZoom(false)}>{tr('全图', 'Full view')}</button>
+          <span className="bk-label">{tr('累加器 · (θ, ρ) 参数空间')}</span>
+          <div className="bk-seg mb-zoom" role="group" aria-label={tr('累加器视图')}>
+            <button aria-pressed={zoom} onClick={() => setZoom(true)}>{tr('放大')}</button>
+            <button aria-pressed={!zoom} onClick={() => setZoom(false)}>{tr('全图')}</button>
           </div>
         </div>
         <div className="mb-acc" ref={box}>
-          <canvas ref={canvas} aria-label={tr('累加器', 'Accumulator')} />
+          <canvas ref={canvas} aria-label={tr('累加器')} />
           <svg viewBox={`0 0 ${aw} ${ah}`} aria-hidden="true">
             {scene.lines.map((line, i) => (
               <g key={i} className="mb-acc-target" style={{ transform: `translate(${ax(line.theta)}px, ${ay(line.rho)}px)` }}>
@@ -135,7 +135,7 @@ export function HoughPlanes({ ctx }) {
           <span className="mb-axis is-x">θ {fmt(view.t0)}° → {fmt(view.t1)}°</span>
           <span className="mb-axis is-y">ρ {fmt(view.r1)} ↓ {fmt(view.r0)}</span>
         </div>
-        <figcaption className="bk-caption">{tr('每个边缘点在此沿一条曲线投票，格子颜色越深票数越多；圆圈 1、2 是两个最高峰，十字标出 A、B 的位置', 'Each edge point votes along a curve here; the darker a cell, the more votes. Circles 1 and 2 are the two highest peaks; the crosses mark A and B')}</figcaption>
+        <figcaption className="bk-caption">{tr('每个边缘点在此沿一条曲线投票，格子颜色越深票数越多；圆圈 1、2 是两个最高峰，十字标出 A、B 的位置')}</figcaption>
       </figure>
     </div>
   )

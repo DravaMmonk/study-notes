@@ -1,35 +1,32 @@
 {
-  "title": { "zh": "找出破绽", "en": "Find the flaw" },
-  "short": { "zh": "这次你来找反例", "en": "This time you find the counterexample" },
+  "title": { "zh": "找出破绽" },
+  "short": { "zh": "这次你来找反例" },
   "intro": [
     {
       "t": {
-        "zh": "一座迷宫，只能往右或往下走。其中一格放着<b>钥匙</b>，有的格子是<b>门</b>：拿过钥匙的人才能穿过门。",
-        "en": "A maze where you can only go right or down. One cell holds a <b>key</b>, and some cells are <b>doors</b>: only someone who has picked up the key can pass through a door."
+        "zh": "一座迷宫，只能往右或往下走。其中一格放着<b>钥匙</b>，有的格子是<b>门</b>：拿过钥匙的人才能穿过门。"
       },
       "fig": {
         "grid": {
           "R": 3,
           "C": 4,
           "cells": {
-            "0,0": { "corner": { "zh": "起", "en": "S" } },
-            "1,0": { "label": { "zh": "钥匙", "en": "key" }, "cls": "key" },
-            "1,2": { "label": { "zh": "门", "en": "door" }, "cls": "door" },
-            "2,3": { "corner": { "zh": "终", "en": "E" } }
+            "0,0": { "corner": { "zh": "起" } },
+            "1,0": { "label": { "zh": "钥匙" }, "cls": "key" },
+            "1,2": { "label": { "zh": "门" }, "cls": "door" },
+            "2,3": { "corner": { "zh": "终" } }
           }
         }
       }
     },
     {
       "t": {
-        "zh": "你的老朋友<part-ref to=\"counter\"></part-ref>被派来数路线。可它的状态只记一件事：<b>现在在哪一格</b>。",
-        "en": "Your old friend the <part-ref to=\"counter\"></part-ref> has been sent in to count the routes. But its state remembers only one thing: <b>which cell you are on</b>."
+        "zh": "你的老朋友<part-ref to=\"counter\"></part-ref>被派来数路线。可它的状态只记一件事：<b>现在在哪一格</b>。"
       }
     },
     {
       "t": {
-        "zh": "两条路线走到同一格，一条拿了钥匙，一条没拿，计数器会把它们存进<b>同一个格子</b>。可它们的未来不一样：前面是门的时候，一条能过，一条过不去。",
-        "en": "When two routes reach the same cell, one with the key and one without, the counter stores them in <b>the same cell</b>. But their futures differ: when a door lies ahead, one can get through and the other can’t."
+        "zh": "两条路线走到同一格，一条拿了钥匙，一条没拿，计数器会把它们存进<b>同一个格子</b>。可它们的未来不一样：前面是门的时候，一条能过，一条过不去。"
       },
       "fig": {
         "scene": {
@@ -43,7 +40,7 @@
               "y": 66,
               "w": 56,
               "h": 56,
-              "label": { "zh": "钥匙", "en": "key" },
+              "label": { "zh": "钥匙" },
               "value": "A",
               "cls": "key ra"
             },
@@ -54,7 +51,7 @@
               "y": 66,
               "w": 56,
               "h": 56,
-              "label": { "zh": "门", "en": "door" },
+              "label": { "zh": "门" },
               "cls": "door"
             }
           ],
@@ -70,40 +67,33 @@
     },
     {
       "t": {
-        "zh": "「状态相同、未来不同」的两段历史，叫作<wiki-ref to=\"counterexample\"></wiki-ref>。在<level-ref to=\"robber\"></level-ref>里，机器替你找出了反例。这一关，你来亲手找一个，证明只记位置是不够的。",
-        "en": "Two histories with “the same state but different futures” are called a <wiki-ref to=\"counterexample\"></wiki-ref>. In <level-ref to=\"robber\"></level-ref>, the machine found one for you. This level, you find one yourself, proving that remembering only the position isn’t enough."
+        "zh": "「状态相同、未来不同」的两段历史，叫作<wiki-ref to=\"counterexample\"></wiki-ref>。在<level-ref to=\"robber\"></level-ref>里，机器替你找出了反例。这一关，你来亲手找一个，证明只记位置是不够的。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "画两条只往右或往下走的路线，它们停在同一格，一条拿了钥匙、一条没拿，而前面就是门。以此证明只记位置的计数器会出错。",
-      "en": "Draw two routes that only go right or down and stop on the same cell, one with the key and one without, with a door just ahead. That proves a counter that remembers only position gets it wrong."
+      "zh": "画两条只往右或往下走的路线，它们停在同一格，一条拿了钥匙、一条没拿，而前面就是门。以此证明只记位置的计数器会出错。"
     },
     "how": {
-      "zh": "在规则面板里选择路线 A 或 B，从起点开始点格子，只能往右或往下。点路线的最后一格可以撤销。画好后点「检验」。",
-      "en": "Choose route A or B in the side panel and click cells starting from the start, going only right or down. Click a route’s last cell to undo. When you are done, click “Check”."
+      "zh": "在规则面板里选择路线 A 或 B，从起点开始点格子，只能往右或往下。点路线的最后一格可以撤销。画好后点「检验」。"
     }
   },
   "debrief": {
-    "title": { "zh": "你找到了一个反例", "en": "You found a counterexample" },
+    "title": { "zh": "你找到了一个反例" },
     "body": [
       {
-        "zh": "两条路线停在同一格，只记位置的计数器会把它们存进同一个格子。可一条带着钥匙、一条空着手，下一步一个能过门、一个过不去。",
-        "en": "The two routes stop on the same cell, so a counter that remembers only position stores them in the same cell. Yet one carries the key and the other is empty-handed: on the next step, one can go through the door and the other can’t."
+        "zh": "两条路线停在同一格，只记位置的计数器会把它们存进同一个格子。可一条带着钥匙、一条空着手，下一步一个能过门、一个过不去。"
       },
       {
-        "zh": "<b>状态相同、未来不同</b>，这就是状态设计有漏洞的铁证。",
-        "en": "<b>Same state, different futures</b>: that is hard proof the state design has a hole in it."
+        "zh": "<b>状态相同、未来不同</b>，这就是状态设计有漏洞的铁证。"
       },
       {
-        "zh": "修好它的办法你已经知道了：让状态多记一件事。",
-        "en": "You already know how to fix it: make the state remember one more thing."
+        "zh": "修好它的办法你已经知道了：让状态多记一件事。"
       }
     ],
     "note": {
-      "zh": "反例：两段历史落进同一个状态，未来却不一样。",
-      "en": "Counterexample: two histories that land in the same state but have different futures."
+      "zh": "反例：两段历史落进同一个状态，未来却不一样。"
     }
   },
   "tasks": [
@@ -112,8 +102,7 @@
       "mode": "breach",
       "maze": { "R": 4, "C": 5, "key": [1, 0], "doors": [[1, 3], [3, 2]] },
       "hintText": {
-        "zh": "钥匙在第 2 行最左边。让一条路线先往下拿钥匙，另一条先往右走，再让它们在某扇门的左边或上面汇合。",
-        "en": "The key is at the left end of row 2. Send one route down first to get the key and the other right first, then have them meet just left of or above a door."
+        "zh": "钥匙在第 2 行最左边。让一条路线先往下拿钥匙，另一条先往右走，再让它们在某扇门的左边或上面汇合。"
       }
     }
   ]

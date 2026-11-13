@@ -1,30 +1,29 @@
 {
-  "title": { "zh": "骑士与无赖", "en": "Knights and knaves" },
+  "title": { "zh": "骑士与无赖" },
   "tasks": [
     {
       "id": "kk-three_1",
       "kind": "gates",
       "tray": "gates",
-      "step": { "zh": "翻译", "en": "Translate" },
+      "step": { "zh": "翻译" },
       "blind": true,
       "target": "KA ↔ ¬KA ∨ KB",
       "brief": {
-        "zh": "岛上有 a、b 两人，a 说：「我是无赖，或者 b 是骑士。」把这句话接成电路：a 的话和他的身份相符的那几行，输出真。",
-        "en": "Two islanders, a and b; a says: “I am a knave, or b is a knight.” Wire it as a circuit: it outputs true on the rows where what a says fits what a is."
+        "zh": "岛上有 a、b 两人，a 说：「我是无赖，或者 b 是骑士。」把这句话接成电路：a 的话和他的身份相符的那几行，输出真。"
       },
-      "hint": [{ "zh": "a 的话是「¬a 是骑士 ∨ b 是骑士」。", "en": "What a says is “¬a is a knight ∨ b is a knight”." }],
+      "hint": [{ "zh": "a 的话是「¬a 是骑士 ∨ b 是骑士」。" }],
       "solution": ["na = gNot(KA)", "o = gOr(na, KB)", "e = gIff(KA, o)", "out <- e"]
     },
     {
       "id": "kk-three_2",
       "kind": "proof",
       "tray": "proof",
-      "step": { "zh": "证明", "en": "Prove" },
+      "step": { "zh": "证明" },
       "tests": [{ "premises": { "p": "A ↔ ¬A ∨ B" }, "goal": "A ∧ B" }],
       "cases": [{ "A": "KA", "B": "KB" }, { "A": "KC", "B": "KD" }],
       "hint": [
-        { "zh": "先证「a 是骑士」：他是不是骑士，两边都讨论。", "en": "First prove “a is a knight”: take both sides of whether he is." },
-        { "zh": "a 是骑士，他的话就是真的；再对他的话分情况。", "en": "If a is a knight, his statement is true; then take cases on it." }
+        { "zh": "先证「a 是骑士」：他是不是骑士，两边都讨论。" },
+        { "zh": "a 是骑士，他的话就是真的；再对他的话分情况。" }
       ],
       "solution": [
         "l = lem[A=A]()",

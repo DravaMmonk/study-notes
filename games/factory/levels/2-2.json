@@ -1,25 +1,22 @@
 {
-  "title": { "zh": "让它自己找", "en": "Let it look" },
+  "title": { "zh": "让它自己找" },
   "intro": [
     {
       "t": {
-        "zh": "只会读文件的板，在这里卡住：模型不知道该读哪个，就要一份目录，可没有元件回应它。新元件<part-ref to=\"part:list\"></part-ref>在模型要目录时，给出仓库的文件和每个文件里的函数。",
-        "en": "A board that can only read gets stuck here: not knowing what to read, the model asks for the file list, and nothing answers. The new part <part-ref to=\"part:list\"></part-ref> gives the repository’s files and the functions in each when the model asks for it."
+        "zh": "只会读文件的板，在这里卡住：模型不知道该读哪个，就要一份目录，可没有元件回应它。新元件<part-ref to=\"part:list\"></part-ref>在模型要目录时，给出仓库的文件和每个文件里的函数。"
       }
     }
   ],
   "adds": ["list"],
   "after": {
-    "zh": "模型先看目录，再读文件，再改：它用的工具越多，你要事先知道的越少。每个工具的结果都要接回去，它才看得到。",
-    "en": "The model looked at the list, read the file, then changed it: the more tools it has, the less you need to know beforehand. Every tool’s result has to be fed back for it to see."
+    "zh": "模型先看目录，再读文件，再改：它用的工具越多，你要事先知道的越少。每个工具的结果都要接回去，它才看得到。"
   },
   "tasks": [
     {
       "id": "2-2",
       "kind": "board",
       "brief": {
-        "zh": "这些 issue 只写了函数名。让模型自己找到它在哪个文件里。",
-        "en": "These issues name only the function. Let the model find which file it is in."
+        "zh": "这些 issue 只写了函数名。让模型自己找到它在哪个文件里。"
       },
       "tests": [{ "issue": "logout-session" }, { "issue": "login-case" }],
       "solution": [

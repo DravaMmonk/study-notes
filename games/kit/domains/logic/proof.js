@@ -34,16 +34,16 @@ const need = (ctx, what, got) => {
   return new PartError({ zh: `这里要 ${w.zh}，接进来的是 ${g.zh}`, en: `This needs ${w.en}; it got ${g.en}` })
 }
 const SHAPE = {
-  imp: T('一句「若…则…」', 'an “if … then …”'),
-  and: T('一句「…并且…」', 'an “… and …”'),
-  or: T('一句「…或者…」', 'an “… or …”'),
-  bot: T('矛盾 ⊥', 'a contradiction ⊥'),
-  nn: T('一句「并非并非…」', 'a “not not …”'),
-  all: T('一句「对所有 x…」', 'a “for all x …”'),
-  ex: T('一句「存在 x…」', 'a “there is an x …”'),
-  eq: T('一个等式', 'an equation'),
-  fits: T('一句这块元件接得上的话', 'a sentence this part accepts'),
-  clause: T('一条子句（几个字母或它们的否定用「或」连起来）', 'a clause (letters or their negations joined by or)'),
+  imp: T('一句「若…则…」'),
+  and: T('一句「…并且…」'),
+  or: T('一句「…或者…」'),
+  bot: T('矛盾 ⊥'),
+  nn: T('一句「并非并非…」'),
+  all: T('一句「对所有 x…」'),
+  ex: T('一句「存在 x…」'),
+  eq: T('一个等式'),
+  fits: T('一句这块元件接得上的话'),
+  clause: T('一条子句（几个字母或它们的否定用「或」连起来）'),
 }
 const sayIn = (ctx, f) => say(f, ctx.notation)
 const fail = (zh, en) => new PartError({ zh, en })
@@ -479,7 +479,7 @@ export function premisesOf(test, consts = []) {
 }
 
 /**
- * How a proof level runs and is judged, for the shared engine (../../engine/tests.js). A test is
+ * How a proof level runs and is judged, for the shared engine (../../engine/test-run.js). A test is
  * { premises: { name: formula text }, goal: formula text }; the level may name its constants (consts) and its lemmas.
  */
 export const LOGIC_TESTS = {

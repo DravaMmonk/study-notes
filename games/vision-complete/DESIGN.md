@@ -4,7 +4,7 @@
 
 所有类图灵完备游戏共同遵守的结构、规则和自动检查，见 [`games/DESIGN.md`](../../../games/DESIGN.md)；本文档只记录视觉完备自己的内容。
 
-本文档描述的是 `image` 领域上的《视觉完备》。已退役的《视觉实验室》分章方案见 [`chapter-map.md`](../../docs/Unimelb/26S2/CV/vision-game-specs/chapter-map.md)。
+《视觉完备》使用 `image` 领域。COMP90086 的笔记版（`games/comp90086/`）也使用该领域。
 
 ## 1. 研究：《图灵完备》的关卡设计在做什么
 

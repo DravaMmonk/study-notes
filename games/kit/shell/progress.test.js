@@ -1,18 +1,27 @@
-// node --test games/kit/shell — a game's progress in the browser: kept for the puzzles it was made on, and a save made
-// on other puzzles read as a fresh start.
+// node --test games/kit/shell — a game's progress in the browser: kept task by task for the puzzle each was made on.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, requiredLevels, taskOpen, taskPassed } from './progress.js'
+import { recordSolution } from './progress.js'
 
 const storage = new Map()
 globalThis.window = { localStorage: { getItem: (k) => storage.get(k) ?? null, setItem: (k, v) => storage.set(k, v) } }
 
-test('a save is read for the stamp it was made on, and on another stamp the player starts afresh', () => {
-  const made = createProgress({ id: 'g', stamp: 'aaaa' })
-  made.save({ ...made.load(), solved: ['1-1'] })
-  assert.deepEqual(createProgress({ id: 'g', stamp: 'aaaa' }).load().solved, ['1-1'])
-  const other = createProgress({ id: 'g', stamp: 'bbbb' }).load()
-  assert.deepEqual([other.stamp, other.solved], ['bbbb', []])
+test('a task whose puzzle changed loses its save, its level is unsolved, and every other task keeps its own', () => {
+  const tasks = { a: { level: 'one', stamp: 'aaaa' }, b: { level: 'one', stamp: 'bbbb' }, c: { level: 'two', stamp: 'cccc' } }
+  const made = createProgress({ id: 'g', tasks })
+  made.save({ ...made.load(), solved: ['one', 'two'], passed: ['a', 'b', 'c'], data: { a: 1, b: 2, c: 3 }, built: { b: 2, c: 3 }, best: { one: 5, two: 6 } })
+  assert.deepEqual(createProgress({ id: 'g', tasks }).load().solved, ['one', 'two'])
+  // b's puzzle changes; a task that is gone from the content (and a new one) changes nothing else.
+  const now = createProgress({ id: 'g', tasks: { a: tasks.a, b: { level: 'one', stamp: 'other' }, d: { level: 'two', stamp: 'dddd' } } }).load()
+  assert.deepEqual([now.solved, now.passed, now.data, now.built, now.best], [['two'], ['a'], { a: 1 }, {}, { two: 6 }])
+  assert.deepEqual(now.stamps, { a: 'aaaa', b: 'other', d: 'dddd' })
+})
+
+test('a save of another shape, or one that does not parse, reads as a fresh start', () => {
+  const made = createProgress({ id: 'h', tasks: { a: { level: 'one', stamp: 'aaaa' } } })
+  storage.set(made.key, JSON.stringify({ stamp: 'old', solved: ['one'] }))
+  assert.deepEqual(made.load().solved, [])
   storage.set(made.key, '{ not json')
   assert.deepEqual(made.load().solved, [])
 })
@@ -113,4 +122,15 @@ test('optional levels do not block the route and never count as solved', () => {
   assert.deepEqual(required('next'), ['start'])
   assert.equal(required('next').every((id) => new Set(['start']).has(id)), true)
   assert.equal(required('next').every((id) => new Set().has(id)), false)
+})
+
+test('recorded solutions preserve the referenced work when a later pass changes it', () => {
+  const level = { id: 'two', tasks: [{ key: 'outer', source: { id: 'two' } }] }
+  const game = {
+    workReferences: ({ key }, built) => key === 'outer' ? [{ key: 'inner', work: built.inner }] : [],
+  }
+  const before = recordSolution(game, { stamps: { outer: 'o', inner: 'i' }, built: { inner: ['first'] } }, level, 0, ['outer'])
+  const after = recordSolution(game, { stamps: { outer: 'o', inner: 'i' }, built: { inner: ['second'] } }, level, 0, ['outer'])
+  assert.notEqual(before.stamp, after.stamp)
+  assert.deepEqual(before.works.find(({ key }) => key === 'inner').work, ['first'])
 })

@@ -1,4 +1,4 @@
-// The parts of a game in the studio (games/DESIGN.md 6.7, 6.9): every part its parts.json defines — icon, name, type —
+// The parts of a game in the studio (games/DESIGN.md 6.7, 6.8): every part its parts.json defines — icon, name, type —
 // and every setting preset, a row each, in the file's order; findings on a part mark its row. A click opens it (its
 // faces on the page, its fields in the rows); + adds a part, blank and ready to be filled in, and opens it. A part is
 // copied, renamed and removed from the part's own page (PartEditor in Editor.jsx).
@@ -8,8 +8,8 @@ import { iconOf } from '../shell/parts/icons.js'
 
 /** A new part to fill in: one input, one output computed as that input, its name its type. */
 export const blankPart = (vocabulary) => ({
-  name: { zh: '新元件', en: 'New part' },
-  desc: { zh: '', en: '' },
+  name: { zh: '新元件' },
+  desc: { zh: '' },
   icon: 'Box',
   family: Object.keys(vocabulary?.kinds.family ?? {})[0] ?? 'value',
   inputs: [{ name: 'a' }],
@@ -51,7 +51,7 @@ export default function PartsList({ content, vocabulary, at, found, onSelect, on
           </button>
         )
       })}
-      <button type="button" className="parts-add" onClick={add} title={tr('加一个元件', 'Add a part')}><Plus size={13} aria-hidden="true" /></button>
+      <button type="button" className="parts-add" onClick={add} title={tr('加一个元件')}><Plus size={13} aria-hidden="true" /></button>
       <div className="parts-presets">
         {presets.map(([name, s]) => (
           <button key={name} type="button" className={`parts-row is-preset ${at?.preset === name ? 'is-on' : ''}`} onClick={() => onSelect({ preset: name })}>
@@ -59,7 +59,7 @@ export default function PartsList({ content, vocabulary, at, found, onSelect, on
             <code>{name}</code>
           </button>
         ))}
-        <button type="button" className="parts-add" onClick={addPreset} title={tr('加一份设置预设', 'Add a setting preset')}><Plus size={13} aria-hidden="true" /></button>
+        <button type="button" className="parts-add" onClick={addPreset} title={tr('加一份设置预设')}><Plus size={13} aria-hidden="true" /></button>
       </div>
     </nav>
   )

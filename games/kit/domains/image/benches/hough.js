@@ -82,7 +82,7 @@ const NAMES = ['A', 'B']
 
 /** The bench model: knob `bin` (an index into [Δθ°, Δρ] bin sizes); each case a scene; matched: lines found. */
 export const hough = {
-  about: t('投票：边缘点给经过它的每条直线投票；旋钮 bin 选分箱大小；每个情形是一张图，matched 是前两个峰对上的线数', 'voting: edge points vote for every line through them; knob bin picks the bin size; each case is a picture, and matched counts the lines the top two peaks hit'),
+  about: t('投票：边缘点给经过它的每条直线投票；旋钮 bin 选分箱大小；每个情形是一张图，matched 是前两个峰对上的线数'),
   setup: S.obj({ rhoMax: S.num(), tol: S.obj({ theta: S.num(), rho: S.num() }) }),
   case: S.obj({ seed: S.int(), lines: S.list(S.obj({ theta: S.num(), rho: S.num(), n: S.int(), from: S.opt(S.num()), to: S.opt(S.num()) })), outliers: S.int() }),
   make({ rhoMax, tol }, bench) {
@@ -104,9 +104,9 @@ export const hough = {
           dTheta: `${dTheta}°`,
           dRho: `${dRho} px`,
           cells: `${run.acc.nT}×${run.acc.nR}`,
-          peaksTitle: [scene.label, ' · ', t('票数最高的峰', 'peaks with the most votes')],
+          peaksTitle: [scene.label, ' · ', t('票数最高的峰')],
           peaks: {
-            head: [t('峰', 'Peak'), 'θ', 'ρ', t('票数', 'Votes'), t('匹配', 'Match')],
+            head: [t('峰'), 'θ', 'ρ', t('票数'), t('匹配')],
             rows: run.peaks.slice(0, 3).map((p, i) => {
               const hit = run.found.indexOf(i)
               return { dim: i >= 2, cells: [String(i + 1), `${p.theta.toFixed(1)}°`, p.rho.toFixed(1), String(p.votes), i < 2 ? { text: hit >= 0 ? NAMES[hit] : '—', tone: hit >= 0 ? 'pass' : 'fail' } : ''] }

@@ -4,7 +4,7 @@
 // can be checked against each other: an undo goes back only from the state its entry left, and a file changed outside
 // the operation set (by hand, by git) shows as drift until an `adopt` entry takes the files as they are.
 //
-//   { seq, at, why?, ops, step, files: [{ file, before, after }], inverse, undoes? }   a change
+//   { seq, at, why?, by?, ops, step, files: [{ file, before, after }], inverse, undoes? }   a change
 //   { seq, at, why, adopt: true, files: [{ file, after }] }                            the files taken as they are
 //
 // Writers (a changeset, an undo, an adoption) hold the game's lock (withLock) from checking the files against the
@@ -87,4 +87,26 @@ export function driftOf(ws, texts) {
   const whole = log.some((e) => e.adopt)
   const known = loggedState(ws)
   return [...texts].filter(([file, text]) => (known.has(file) ? known.get(file) !== hashOf(text) : whole && text !== null)).map(([file]) => file)
+}
+
+/**
+ * Who wrote what, and how much of what agents wrote a person then changed: [{ by, changes, files, revised }] by author,
+ * `files` the files its changes wrote and `revised` those a person's later change touched while the agent's was still
+ * the last word on them. Undos count as their author's changes; entries that say no author are 'unknown'.
+ */
+export function authorship(log) {
+  const authors = new Map()
+  const of = (by) => authors.get(by) ?? authors.set(by, { by, changes: 0, files: new Set(), revised: new Set() }).get(by)
+  const last = new Map()
+  for (const entry of log.filter((e) => !e.adopt)) {
+    const by = entry.by ?? 'unknown'
+    of(by).changes += 1
+    for (const { file } of entry.files) {
+      const before = last.get(file)
+      if (before?.startsWith('agent:') && !by.startsWith('agent:')) of(before).revised.add(file)
+      of(by).files.add(file)
+      last.set(file, by)
+    }
+  }
+  return [...authors.values()].map((a) => ({ by: a.by, changes: a.changes, files: a.files.size, revised: a.revised.size }))
 }

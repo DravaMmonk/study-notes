@@ -1,28 +1,24 @@
 {
-  "title": { "zh": "任取", "en": "For any" },
+  "title": { "zh": "任取" },
   "adds": ["allI"],
   "tray": "proof",
   "showcase": {
-    "zh": "任取框不开出假设，它管的是一个变量：框里的变量必须是新的，不能出现在还开着的假设里；光看说明，容易把它当成又一个假设框",
-    "en": "the for-any box opens no assumption but a variable, which must be new: it may not occur in any hypothesis still open; from its description alone it is easy to take it for another assumption box"
+    "zh": "任取框不开出假设，它管的是一个变量：框里的变量必须是新的，不能出现在还开着的假设里；光看说明，容易把它当成又一个假设框"
   },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"m-counter\"></level-ref>里，一个世界就说明了推不出。要说一句话在所有世界里都成立，世界却检查不完：只能回到证明板上，靠规则。",
-        "en": "In <level-ref to=\"m-counter\"></level-ref>, one world showed that something does not follow. To show a sentence holds in every world, the worlds cannot all be checked: it is back to the proof board and its rules."
+        "zh": "<level-ref to=\"m-counter\"></level-ref>里，一个世界就说明了推不出。要说一句话在所有世界里都成立，世界却检查不完：只能回到证明板上，靠规则。"
       }
     },
     {
       "t": {
-        "zh": "新元件<b>任取框</b>在框内取一个任意对象，并在元件上为它起名，例如 a。框内证出关于 a 的命题，框外便得到对所有对象成立的命题。a 不能出现在未解除的假设中。从这里起，对象用 a、b、c 命名，x、y、z 留给量词使用。",
-        "en": "The new <b>for-any box</b> takes an arbitrary object inside the box and names it on the part, for example a. A statement proved about a inside becomes a statement about every object outside. a must not appear in any open assumption. From here on, objects are named a, b or c, while x, y and z are reserved for quantifiers."
+        "zh": "新元件<b>任取框</b>在框内取一个任意对象，并在元件上为它起名，例如 a。框内证出关于 a 的命题，框外便得到对所有对象成立的命题。a 不能出现在未解除的假设中。从这里起，对象用 a、b、c 命名，x、y、z 留给量词使用。"
       }
     }
   ],
   "after": {
-    "zh": "「任取一个 a，……，所以对所有 x 成立」：数学证明里最常见的这句话，说的就是这个框。",
-    "en": "“Take any a …, so it holds for all x”: the commonest phrase in mathematical proofs means just this box."
+    "zh": "「任取一个 a，……，所以对所有 x 成立」：数学证明里最常见的这句话，说的就是这个框。"
   },
   "tasks": [
     {
@@ -31,10 +27,9 @@
       "tests": [{ "goal": "∀x. P(x) → P(x)" }],
       "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
       "hint": [
-        { "zh": "框里要证的，是把 x 换成 a 的那句话。", "en": "Inside the box, prove the sentence with a in place of x." },
+        { "zh": "框里要证的，是把 x 换成 a 的那句话。" },
         {
-          "zh": "框里随便取一样东西，叫它 a，证出「a是人 → a是人」；它对随便哪一样都成立，框外就是「对所有 x」。",
-          "en": "Inside the box take any thing, call it a, and prove “a is human → a is human”; holding for any one at all, outside it is “for all x”."
+          "zh": "框里随便取一样东西，叫它 a，证出「a是人 → a是人」；它对随便哪一样都成立，框外就是「对所有 x」。"
         }
       ],
       "solution": [

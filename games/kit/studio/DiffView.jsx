@@ -10,10 +10,10 @@ export function DiffFields({ rows, onPath = null }) {
     <div className="diff-fields">
       {rows.map((r) => (
         <div key={showPath(r.path)} className={`diff-row is-${r.as}`}>
-          {onPath ? <button type="button" className="field-key" onClick={() => onPath(r.path)}>{showPath(r.path) || tr('整个文件', 'whole file')}</button> : <span className="field-key">{showPath(r.path) || tr('整个文件', 'whole file')}</span>}
+          {onPath ? <button type="button" className="field-key" onClick={() => onPath(r.path)}>{showPath(r.path) || tr('整个文件')}</button> : <span className="field-key">{showPath(r.path) || tr('整个文件')}</span>}
           {r.as === 'text' ? (
             <div className="diff-text">
-              {['zh', 'en'].map((side) => <Side key={side} before={pick(r.before, side)} after={pick(r.after, side)} />)}
+              <Side before={pick(r.before, 'zh')} after={pick(r.after, 'zh')} />
             </div>
           ) : r.as === 'lines' ? <Lines before={(r.before ?? []).join('\n')} after={(r.after ?? []).join('\n')} /> : (
             <div className="diff-value">

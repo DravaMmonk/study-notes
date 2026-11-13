@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "只看前方 1 米", "en": "Only the metre in front" },
+  "title": { "zh": "只看前方 1 米" },
   "tray": "geometry",
   "after": {
-    "zh": "地板本来就在前面，算进来机器人就永远停着；所以只看可能有障碍的区域。真实的避障还会用相机的高度和角度，从深度算出每一点离地多高。",
-    "en": "The floor is always in front, so counting it would keep the robot stopped for ever; only the region where obstacles can be is checked. Real obstacle avoidance also uses the camera's height and angle to work out how high above the floor each point is."
+    "zh": "地板本来就在前面，算进来机器人就永远停着；所以只看可能有障碍的区域。真实的避障还会用相机的高度和角度，从深度算出每一点离地多高。"
   },
   "intro": [
     {
       "t": {
-        "zh": "地板没有纹理，算出来的距离在那几行乱跳。机器人只关心地面以上、离得很近的东西。",
-        "en": "The floor has no texture, so the distances worked out on those rows jump about. The robot only cares about things above the floor that are very close."
+        "zh": "地板没有纹理，算出来的距离在那几行乱跳。机器人只关心地面以上、离得很近的东西。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：标出地面以上、近到要停下的像素。",
-        "en": "Your task in this level: mark the pixels above the floor that are close enough to stop for."
+        "zh": "这一关你要做的：标出地面以上、近到要停下的像素。"
       },
-      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组：一个箱子", "en": "Set 1: a box" } }
+      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组：一个箱子" } }
     }
   ],
   "tasks": [
@@ -25,31 +22,30 @@
       "id": "7-11",
       "kind": "graph",
       "brief": {
-        "zh": "距离近于 1.2 米、又在地面以上的像素输出 1，其余 0。",
-        "en": "Output 1 for pixels closer than 1.2 m that are above the floor, otherwise 0."
+        "zh": "距离近于 1.2 米、又在地面以上的像素输出 1，其余 0。"
       },
-      "hint": { "zh": "阈值留下的是「大于」的那边。", "en": "A threshold keeps the \"greater than\" side." },
+      "hint": { "zh": "阈值留下的是「大于」的那边。" },
       "inputs": ["z", "region"],
-      "inputLabels": { "z": { "zh": "距离（米）", "en": "Distance (m)" }, "region": { "zh": "地面以上", "en": "Above the floor" } },
+      "inputLabels": { "z": { "zh": "距离（米）" }, "region": { "zh": "地面以上" } },
       "outputs": ["stop"],
-      "outputLabels": { "stop": { "zh": "要停", "en": "Stop" } },
+      "outputLabels": { "stop": { "zh": "要停" } },
       "views": { "in": "terrain" },
       "scene": "roomDepth",
       "tests": [
         {
-          "label": { "zh": "一个箱子", "en": "A box" },
+          "label": { "zh": "一个箱子" },
           "seed": 61,
           "obstacles": [{ "box": [4, 3, 10, 12], "d": 3 }],
           "floorSeed": 70
         },
         {
-          "label": { "zh": "远的箱子", "en": "A far box" },
+          "label": { "zh": "远的箱子" },
           "seed": 62,
           "obstacles": [{ "box": [6, 2, 12, 12], "d": 2 }],
           "floorSeed": 71
         },
         {
-          "label": { "zh": "一远一近", "en": "One far, one near" },
+          "label": { "zh": "一远一近" },
           "seed": 63,
           "obstacles": [{ "box": [1, 4, 7, 12], "d": 2 }, { "box": [9, 5, 14, 12], "d": 3 }],
           "floorSeed": 72
@@ -57,7 +53,7 @@
       ],
       "hidden": [
         {
-          "label": { "zh": "细的椅腿", "en": "A thin chair leg" },
+          "label": { "zh": "细的椅腿" },
           "seed": 64,
           "obstacles": [{ "box": [7, 1, 10, 12], "d": 3 }],
           "floorSeed": 70

@@ -16,7 +16,7 @@ import { fn, subst } from './formula.js'
 import { KERNEL_RULES, instantiate, metasIn, unify } from './schematic.js'
 import { T } from '../../shell/i18n.js'
 
-const NO_GOALS = T('已经没有目标了', 'No goals left')
+const NO_GOALS = T('已经没有目标了')
 // The names a fixed thing gets, in order.
 const FIXED = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'k', 'm', 'n']
 
@@ -124,7 +124,7 @@ export function assumption(s) {
   if (results.length) return { results }
   return { fail: late(why) ?? NONE }
 }
-const NONE = T('第一个目标和哪一条已知都对不上', 'The first goal fits none of its hypotheses')
+const NONE = T('第一个目标和哪一条已知都对不上')
 
 // Of the reasons unifying failed, the one worth saying: a metavariable that may not become a thing fixed after it.
 const late = (why) => why.find((w) => /之前留下|was left before/.test(w.en)) ?? null

@@ -1,6 +1,6 @@
 import { PartError } from '../../../engine/circuit.js'
 import { runBoard, sink, source } from '../../../engine/boards.js'
-import { runLevel as runTests } from '../../../engine/tests.js'
+import { runOutputTests } from '../../../engine/test-run.js'
 import { compare, image } from './image.js'
 import { channel, compose } from './colour.js'
 import { srcNode } from '../../../circuit/model.js'
@@ -110,7 +110,7 @@ export function runnerOf(types) {
     return { nodes: placed.length, cost: Math.round(cost * 10) / 10, learned }
   }
 
-  // How a test runs and is judged, for the shared engine's level runs (../../../engine/tests.js).
+  // How a test runs and is judged, for the shared engine's level runs (../../../engine/test-run.js).
   const IMAGE_TESTS = {
     runTest: (level, graph, test) => {
       const { values, errors } = evaluate(graph, test.inputs)
@@ -121,7 +121,7 @@ export function runnerOf(types) {
   }
 
   // Run every test of a level against a graph.
-  const runLevel = (level, graph) => runTests(IMAGE_TESTS, level, graph)
+  const runLevel = (level, graph) => runOutputTests(IMAGE_TESTS, level, graph)
 
   // The mean squared error of a graph over some tests. A training-only part (one with `variants`) makes that many
   // copies of every test, and the error counts them all.

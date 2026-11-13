@@ -42,13 +42,13 @@ export function Keypad({ value, onChange, step = 0.1, min, max, pi = false }) {
     return commit(show(bounded))
   }
   const keys = ['7', '8', '9', 'back', '4', '5', '6', '±', '1', '2', '3', '.', 'clear', '0', '-', '+', ...(pi ? ['π'] : [])]
-  const label = { back: <Delete size={20} />, clear: tr('清零', 'Clear'), '-': `−${step}`, '+': `＋${step}`, '±': '±' }
+  const label = { back: <Delete size={20} />, clear: tr('清零'), '-': `−${step}`, '+': `＋${step}`, '±': '±' }
   return (
     <div className="ph-keypad-wrap">
       <output className="ph-keypad-value" aria-live="polite">{draft}</output>
-      <div className="ph-keypad" role="group" aria-label={tr('数字键盘', 'Number keypad')}>
+      <div className="ph-keypad" role="group" aria-label={tr('数字键盘')}>
         {keys.map((key) => (
-          <button key={key} className={`ph-key ${/\d/.test(key) ? '' : 'is-fn'} ${key === '±' ? 'is-sign' : ''} ${key === 'π' ? 'is-pi' : ''}`} onClick={() => press(key)} aria-label={key === 'back' ? tr('删除一位', 'Delete a digit') : key === 'clear' ? tr('清零', 'Clear') : key === '±' ? tr('切换正负号', 'Change sign') : key === '-' ? tr(`减 ${step}`, `Minus ${step}`) : key === '+' ? tr(`加 ${step}`, `Plus ${step}`) : key}>
+          <button key={key} className={`ph-key ${/\d/.test(key) ? '' : 'is-fn'} ${key === '±' ? 'is-sign' : ''} ${key === 'π' ? 'is-pi' : ''}`} onClick={() => press(key)} aria-label={key === 'back' ? tr('删除一位') : key === 'clear' ? tr('清零') : key === '±' ? tr('切换正负号') : key === '-' ? tr(`减 ${step}`, `Minus ${step}`) : key === '+' ? tr(`加 ${step}`, `Plus ${step}`) : key}>
             {label[key] ?? key}
           </button>
         ))}
@@ -81,13 +81,13 @@ export function KernelEditor({ param, value, onChange, start = 4 }) {
     return (
       <div className="ph-kernel is-learned">
         {value.map((w, i) => <span key={i} style={{ '--w': Math.max(-1, Math.min(1, w)) }}>{w.toFixed(2)}</span>)}
-        <p>{tr('这些权重由训练决定，无法手动调整。', 'These weights are set by training and cannot be adjusted by hand.')}</p>
+        <p>{tr('这些权重由训练决定，无法手动调整。')}</p>
       </div>
     )
   }
   return (
     <div className="ph-kernel-edit">
-      <div className="ph-kernel" role="group" aria-label={tr('3×3 权重', '3×3 weights')}>
+      <div className="ph-kernel" role="group" aria-label={tr('3×3 权重')}>
         {value.map((w, i) => (
           <button key={i} className={i === cell ? 'is-on' : ''} style={{ '--w': Math.max(-1, Math.min(1, w)) }} onClick={() => { buzz(); setCell(i) }} aria-label={tr(`第 ${Math.floor(i / 3) + 1} 行第 ${(i % 3) + 1} 列，${show(w)}`, `Row ${Math.floor(i / 3) + 1}, column ${(i % 3) + 1}: ${show(w)}`)}>
             {show(w)}
@@ -124,7 +124,7 @@ export function InlineParam({ param, value, onChange, onKeypad }) {
   if (param.kind === 'kernel') {
     return (
       <div className="ph-kernel-edit">
-        <div className="ph-kernel is-compact" role="group" aria-label={tr('3×3 权重', '3×3 weights')}>
+        <div className="ph-kernel is-compact" role="group" aria-label={tr('3×3 权重')}>
           {value.map((w, i) => (
             <button key={i} className={i === cell ? 'is-on' : ''} style={{ '--w': Math.max(-1, Math.min(1, w)) }} onClick={() => { buzz(); setCell(i) }} aria-label={tr(`第 ${Math.floor(i / 3) + 1} 行第 ${(i % 3) + 1} 列，${show(w)}`, `Row ${Math.floor(i / 3) + 1}, column ${(i % 3) + 1}: ${show(w)}`)}>
               {show(w)}

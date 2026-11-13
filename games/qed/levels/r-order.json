@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "先拿出来", "en": "Take it out first" },
+  "title": { "zh": "先拿出来" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "有一个又是人、又喜欢安的人，所以有一个喜欢安、又是人的人。",
-        "en": "Someone is human and likes Ann, so someone likes Ann and is human."
+        "zh": "有一个又是人、又喜欢安的人，所以有一个喜欢安、又是人的人。"
       }
     }
   ],
@@ -14,13 +13,13 @@
       "id": "r-order",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标", "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
       "tests": [
         { "goal": "∃x. Likes(x, i) ∧ Human(x)", "hyps": ["∃x. Human(x) ∧ Likes(x, i)"] },
         { "goal": "∃y. Flies(y) ∧ Bird(y)", "hyps": ["∃x. Bird(x) ∧ Flies(x)"] }
       ],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。", "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "zh": "?t 能变成什么，取决于它是什么时候留下的。", "en": "What ?t may become depends on when it was left." }],
+      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "zh": "?t 能变成什么，取决于它是什么时候留下的。" }],
       "solution": [
         "c0r0 = exE()",
         "c1r0 = andE[use=[conjE]]()",

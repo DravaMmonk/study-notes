@@ -1,17 +1,15 @@
 {
-  "title": { "zh": "证不了自己不矛盾", "en": "It cannot prove itself consistent" },
+  "title": { "zh": "证不了自己不矛盾" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "最后一步。⌜不矛盾⌝ 是一句算术的话：「没有哪句话和它的否定都证得出」。头两句已知仍是证明器自己能做的事。第一句：<level-ref to=\"gd-con\"></level-ref>的整个推理，证明器自己也做得出（它证得出「若不矛盾，则 G 证不出」），所以证得出不矛盾，就证得出「G 证不出」。第二句：它证得出「G 证不出，则 G」（对角线），所以证得出「G 证不出」，就证得出 G。第三句是<level-ref to=\"gd-con\"></level-ref>的结论。",
-        "en": "The last step. ⌜consistent⌝ is a sentence of arithmetic: “no sentence is provable together with its negation”. The first two givens are again what the prover itself can do. The first: the prover can carry out the whole argument of <level-ref to=\"gd-con\"></level-ref> (it proves “if consistent, then G cannot be proved”), so proving consistency would prove “G cannot be proved”. The second: it proves “if G cannot be proved, then G” (the diagonal), so proving “G cannot be proved” would prove G. The third is what <level-ref to=\"gd-con\"></level-ref> proved."
+        "zh": "最后一步。⌜不矛盾⌝ 是一句算术的话：「没有哪句话和它的否定都证得出」。头两句已知仍是证明器自己能做的事。第一句：<level-ref to=\"gd-con\"></level-ref>的整个推理，证明器自己也做得出（它证得出「若不矛盾，则 G 证不出」），所以证得出不矛盾，就证得出「G 证不出」。第二句：它证得出「G 证不出，则 G」（对角线），所以证得出「G 证不出」，就证得出 G。第三句是<level-ref to=\"gd-con\"></level-ref>的结论。"
       }
     }
   ],
   "after": {
-    "zh": "这是第二不完备性定理，它让希尔伯特「用有限的方法证明数学不矛盾」的计划落了空。所以 Lean、Isabelle 这样的证明助手不去证自己可靠，而是把要信任的东西压到最小：一个很小的核和几条公理。",
-    "en": "This is the second incompleteness theorem, which ended Hilbert’s programme of proving mathematics consistent by finite means. So proof assistants such as Lean and Isabelle do not prove themselves sound; they keep what must be trusted as small as can be: a little kernel and a few axioms."
+    "zh": "这是第二不完备性定理，它让希尔伯特「用有限的方法证明数学不矛盾」的计划落了空。所以 Lean、Isabelle 这样的证明助手不去证自己可靠，而是把要信任的东西压到最小：一个很小的核和几条公理。"
   },
   "tasks": [
     {
@@ -27,10 +25,9 @@
         }
       ],
       "brief": {
-        "zh": "从这三句已知证出：「证明器不矛盾」证不出。",
-        "en": "From these three givens, prove: “the prover is consistent” cannot be proved."
+        "zh": "从这三句已知证出：「证明器不矛盾」证不出。"
       },
-      "hint": [{ "zh": "假设它证得出。", "en": "Assume it can be proved." }],
+      "hint": [{ "zh": "假设它证得出。" }],
       "solution": [
         "f = impI[A=\"Prov(cs)\"](body: m3) {",
         "  body {",

@@ -1,0 +1,54 @@
+{
+  "title": { "zh": "合成一个" },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"2-3\"></level-ref>里每支箭头都走了两遍变换。两个线性变换接连作用，格线仍然平行等距，原点仍然不动，所以合起来也是一个线性变换，也有它的矩阵。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "这就是<wiki-ref to=\"matrix-product\"></wiki-ref>：AB 表示先作用 B、再作用 A。"
+  },
+  "builds": {
+    "type": "compose",
+    "name": { "zh": "矩阵乘法" },
+    "desc": {
+      "zh": "给出先作用 B、再作用 A 的变换的矩阵 AB。"
+    }
+  },
+  "tasks": [
+    {
+      "id": "2-4",
+      "brief": { "zh": "交出先 B、再 A 这个变换的矩阵 AB。" },
+      "hint": [{ "zh": "它的第一列是 î 最后的落点。" }],
+      "inputs": [{ "name": "A", "label": "A" }, { "name": "B", "label": "B" }],
+      "outputs": [{ "name": "AB", "label": "AB" }],
+      "tests": [
+        { "inputs": { "A": [[1, 1], [0, 1]], "B": [[0, -1], [1, 0]] }, "expect": { "AB": [[1, -1], [1, 0]] } },
+        { "inputs": { "A": [[0, -1], [1, 0]], "B": [[1, 1], [0, 1]] }, "expect": { "AB": [[0, -1], [1, 1]] } },
+        { "inputs": { "A": [[2, 0], [0, 3]], "B": [[0, 1], [1, 0]] }, "expect": { "AB": [[0, 2], [3, 0]] } },
+        { "inputs": { "A": [[1, 2], [3, 4]], "B": [[0, 1], [1, 1]] }, "expect": { "AB": [[2, 3], [4, 7]] } }
+      ],
+      "hidden": [
+        { "inputs": { "A": [[2, 0], [0, 2]], "B": [[1, -1], [1, 1]] }, "expect": { "AB": [[2, -2], [2, 2]] } }
+      ],
+      "solution": [
+        "b1 = column[j=\"1\"](B)",
+        "b2 = column[j=\"2\"](B)",
+        "c1 = apply(A, b1)",
+        "c2 = apply(A, b2)",
+        "P = join(c1, c2)",
+        "AB <- P"
+      ],
+      "naive": [
+        "a1 = column[j=\"1\"](A)",
+        "a2 = column[j=\"2\"](A)",
+        "c1 = apply(B, a1)",
+        "c2 = apply(B, a2)",
+        "P = join(c1, c2)",
+        "AB <- P"
+      ]
+    }
+  ]
+}

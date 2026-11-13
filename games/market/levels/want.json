@@ -1,0 +1,132 @@
+{
+  "title": {
+    "zh": "想买的人"
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "一条街上想买的人有多少，看价格。价格越高，想买的人越少，这就是<wiki-ref to=\"demand\"></wiki-ref>。"
+      }
+    },
+    {
+      "t": {
+        "zh": "最简单的一种：不要钱时有一批人想买，价格每涨一块，就少固定的几个人。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "三个数就说清了一条街：不要钱时多少人想买，每涨一块少几个，现在卖多少钱。"
+  },
+  "adds": [
+    "mul",
+    "sub"
+  ],
+  "builds": {
+    "type": "demand",
+    "name": {
+      "zh": "需求"
+    },
+    "desc": {
+      "zh": "按价格给出想买的人数。"
+    }
+  },
+  "tasks": [
+    {
+      "id": "want",
+      "brief": {
+        "zh": "算出想买的人数：从「不要钱时想买」里，减去「每涨一块少」乘「价格」。"
+      },
+      "inputs": [
+        {
+          "name": "top",
+          "label": {
+            "zh": "不要钱时想买"
+          }
+        },
+        {
+          "name": "slope",
+          "label": {
+            "zh": "每涨一块少"
+          }
+        },
+        {
+          "name": "price",
+          "label": {
+            "zh": "价格"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "wanted",
+          "label": {
+            "zh": "想买"
+          }
+        }
+      ],
+      "tests": [
+        {
+          "in": {
+            "top": 60,
+            "slope": 2,
+            "price": 10
+          },
+          "out": {
+            "wanted": 40
+          }
+        },
+        {
+          "in": {
+            "top": 60,
+            "slope": 2,
+            "price": 20
+          },
+          "out": {
+            "wanted": 20
+          }
+        },
+        {
+          "in": {
+            "top": 105,
+            "slope": 3,
+            "price": 30
+          },
+          "out": {
+            "wanted": 15
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "in": {
+            "top": 40,
+            "slope": 4,
+            "price": 7
+          },
+          "out": {
+            "wanted": 12
+          }
+        },
+        {
+          "in": {
+            "top": 78,
+            "slope": 4,
+            "price": 12
+          },
+          "out": {
+            "wanted": 30
+          }
+        }
+      ],
+      "solution": [
+        "m = mul(slope, price)",
+        "w = sub(top, m)",
+        "wanted <- w"
+      ],
+      "naive": [
+        "w = sub(top, price)",
+        "wanted <- w"
+      ]
+    }
+  ]
+}

@@ -21,16 +21,16 @@ const fineNoise = (seed, std = 0.07) => {
 
 export const FREQUENCY = {
   waveform: {
-    about: t('一条 32 个点的波形：平均亮度 c 加几道波；期望是频率 k 那道波的振幅（没有就是 0）', 'a waveform of 32 points, an average c plus a few waves; the amplitude of the wave of frequency k (0 if there is none) is expected'),
+    about: t('一条 32 个点的波形：平均亮度 c 加几道波；期望是频率 k 那道波的振幅（没有就是 0）'),
     setup: S.obj({ k: S.int({ min: 0 }) }),
-    test: S.obj({ c: S.num(), waves: S.list(S.obj({ k: S.int({ min: 0 }), A: S.num(), phase: S.opt(S.num({ about: t('错开多少度', 'how many degrees it is shifted') })) })) }),
+    test: S.obj({ c: S.num(), waves: S.list(S.obj({ k: S.int({ min: 0 }), A: S.num(), phase: S.opt(S.num({ about: t('错开多少度') })) })) }),
     make: ({ c, waves }, { k }) => ({
       inputs: { in: [image(N, 1, c), ...waves.map((w) => wave(w.k, w.A, w.phase))].reduce((a, b) => zip(a, b, (p, q) => p + q)) },
       expected: { out: image(1, 1, waves.find((w) => w.k === k)?.A ?? 0) },
     }),
   },
   grainy: {
-    about: t('蒙着细颗粒的照片（32 × 32，低于 10 周的成分都去掉的噪声）；期望是照片轻轻模糊（σ = 1，复制边缘）', 'a photo under fine grain (32 × 32, noise with everything below 10 cycles removed); the photo gently blurred (σ = 1, the edge replicated) is expected'),
+    about: t('蒙着细颗粒的照片（32 × 32，低于 10 周的成分都去掉的噪声）；期望是照片轻轻模糊（σ = 1，复制边缘）'),
     test: S.obj({ photo: S.call('picture'), seed: S.int() }),
     make: ({ photo, seed }) => {
       const img = picture(photo)

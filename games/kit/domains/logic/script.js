@@ -73,10 +73,10 @@ export function proves(level, method, goal, hyps) {
   const done = (out) => (out && !out.error && !out.goals.length)
   if (method.startsWith('rule:')) {
     const r = book[method.slice(5)]
-    if (!r) return T('这一关没有这条规则', 'This level has no such rule')
+    if (!r) return T('这一关没有这条规则')
     const out = rule(s, r)
     if (out.fail) return out.fail
-    return closed(out.results) ? '' : T('规则用上了，可它的前提不全在 using 的事实里', 'The rule applies, but its premises are not all among the facts used')
+    return closed(out.results) ? '' : T('规则用上了，可它的前提不全在 using 的事实里')
   }
   if (method === 'auto' || method === 'metis') {
     const out = runTactic(level, method, s)
@@ -87,7 +87,7 @@ export function proves(level, method, goal, hyps) {
     if (out.error) return [out]
     return [out, ...(rule(out, KERNEL.refl).results ?? []), ...(assumption(out).results ?? [])]
   }
-  if (method === 'simp') return simpWith(s).some((x) => done(x) || closed([x])) ? '' : T('化简完了，两边还不一样', 'Simplified, and the two sides still differ')
+  if (method === 'simp') return simpWith(s).some((x) => done(x) || closed([x])) ? '' : T('化简完了，两边还不一样')
   if (method === 'induct') {
     const [type] = Object.keys(level.datatypes ?? {})
     const out = rule(s, book[`${type}.induct`])
@@ -98,9 +98,9 @@ export function proves(level, method, goal, hyps) {
       const one = { ...x, goals: [x.goals[0]] }
       return simpWith(one, ['hyp']).some((y) => (done(y) || closed([y])) && each({ ...x, inst: y.inst, goals: x.goals.slice(1) }))
     }
-    return out.results.some(each) ? '' : T('归纳的某一种情况没有证完', 'A case of the induction is not finished')
+    return out.results.some(each) ? '' : T('归纳的某一种情况没有证完')
   }
-  return T('还没选 by', 'Nothing chosen after by')
+  return T('还没选 by')
 }
 
 /**
@@ -170,7 +170,7 @@ export function checkScript(level, rows) {
   const ok = block(goal, env)
   const rest = k < rows.length
   const pass = Boolean(ok) && !rest && reasons.every((x) => !x)
-  const reason = pass ? '' : reasons.find(Boolean) ?? (rest ? T('show 了要证的那句以后，不能再写', 'Nothing may follow the show of what is to be proved') : T('还没有 show 要证的那一句', 'What is to be proved is not shown yet'))
+  const reason = pass ? '' : reasons.find(Boolean) ?? (rest ? T('show 了要证的那句以后，不能再写') : T('还没有 show 要证的那一句'))
   return { pass, rows: reasons, reason }
 }
 

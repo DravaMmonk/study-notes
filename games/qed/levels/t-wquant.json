@@ -1,65 +1,61 @@
 {
   "consts": ["i"],
-  "title": { "zh": "写量词", "en": "Write quantifiers" },
-  "intro": [{ "t": { "zh": "安这样表示东西的名字，也在下面的块里。", "en": "Names of things, such as Ann, are among the pieces below." } }],
+  "title": { "zh": "写量词" },
+  "intro": [{ "t": { "zh": "安这样表示东西的名字，也在下面的块里。" } }],
   "tasks": [
     {
       "id": "t-wquant_1",
       "kind": "term",
-      "step": { "zh": "第一题", "en": "Problem 1" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第一题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "premises": { "p": "∀x. Human(x) → Mortal(x)", "q": "Human(i)" },
       "goal": "Mortal(i)",
       "answer": "p i q",
       "hint": [
         {
-          "zh": "<part-ref to=\"part:allE\"></part-ref>写成应用，参数是那样东西：p 用在安上，再用在 q 上。",
-          "en": "<part-ref to=\"part:allE\"></part-ref> is an application whose argument is a thing: p used on Ann, then on q."
+          "zh": "<part-ref to=\"part:allE\"></part-ref>写成应用，参数是那样东西：p 用在安上，再用在 q 上。"
         }
       ]
     },
     {
       "id": "t-wquant_2",
       "kind": "term",
-      "step": { "zh": "第二题", "en": "Problem 2" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第二题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "premises": {},
       "goal": "∀x. Human(x) → Human(x)",
       "answer": "fun a b => b",
       "hint": [
         {
-          "zh": "<part-ref to=\"part:allI\"></part-ref>也是 fun，拿到的 a 是一样东西。",
-          "en": "<part-ref to=\"part:allI\"></part-ref> is a fun too, and the a it gets is a thing."
+          "zh": "<part-ref to=\"part:allI\"></part-ref>也是 fun，拿到的 a 是一样东西。"
         }
       ]
     },
     {
       "id": "t-wquant_3",
       "kind": "term",
-      "step": { "zh": "第三题", "en": "Problem 3" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第三题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "premises": { "p": "Human(i)" },
       "goal": "∃x. Human(x)",
       "answer": "⟨i, p⟩",
       "hint": [
         {
-          "zh": "<part-ref to=\"part:exI\"></part-ref>写成一对：左边是例子，右边是它满足的证明。",
-          "en": "<part-ref to=\"part:exI\"></part-ref> is a pair: the example on the left, the proof that it fits on the right."
+          "zh": "<part-ref to=\"part:exI\"></part-ref>写成一对：左边是例子，右边是它满足的证明。"
         }
       ]
     },
     {
       "id": "t-wquant_4",
       "kind": "term",
-      "step": { "zh": "第四题", "en": "Problem 4" },
-      "brief": { "zh": "用下面的块，拼出这句话的证明项。", "en": "Build the proof term of this sentence from the pieces below." },
+      "step": { "zh": "第四题" },
+      "brief": { "zh": "用下面的块，拼出这句话的证明项。" },
       "premises": { "p": "∃x. Human(x) ∧ Mortal(x)" },
       "goal": "∃x. Mortal(x)",
       "answer": "p.elim (fun a b => ⟨a, b.2⟩)",
       "hint": [
         {
-          "zh": "<part-ref to=\"part:exE\"></part-ref>写成「□.elim (fun _ _ => □)」：a 是那样东西，b 是它满足的那句。",
-          "en": "<part-ref to=\"part:exE\"></part-ref> is “□.elim (fun _ _ => □)”: a is the thing, b the sentence it fits."
+          "zh": "<part-ref to=\"part:exE\"></part-ref>写成「□.elim (fun _ _ => □)」：a 是那样东西，b 是它满足的那句。"
         }
       ]
     }

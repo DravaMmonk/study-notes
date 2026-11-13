@@ -1,0 +1,45 @@
+{
+  "domain": "market",
+  "vocabulary": 1,
+  "title": {
+    "zh": "__title__"
+  },
+  "kicker": {
+    "zh": "经济学"
+  },
+  "lede": {
+    "zh": "一家小店，每天进货，定一个价。先把一条街的买卖一块块搭出来，再搭一台只看自己货架就能找到价格的机器。"
+  },
+  "primitives": [
+    "const",
+    "add",
+    "sub",
+    "mul"
+  ],
+  "concept": {
+    "const": "add",
+    "sub": "add",
+    "mul": "add"
+  },
+  "eras": [
+    {
+      "id": 0,
+      "title": {
+        "zh": "一家小店"
+      },
+      "question": {
+        "zh": "价格定在哪里最合适，谁说了算？"
+      },
+      "foundation": [
+        "adjust",
+        "street"
+      ]
+    }
+  ],
+  "views": {
+    "ticks": [
+      "terms",
+      "dots"
+    ]
+  }
+}

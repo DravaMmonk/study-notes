@@ -1,31 +1,27 @@
 {
-  "title": { "zh": "方块模糊", "en": "Box blur" },
+  "title": { "zh": "方块模糊" },
   "tray": "pipeline",
   "after": {
-    "zh": "先横后竖，九次乘加变成六次。核能拆成一行乘一列时就能这样省，这叫可分离滤波；核越大省得越多。",
-    "en": "Horizontal first, then vertical: nine multiply-adds become six. You can save like this whenever a kernel splits into a row times a column. This is separable filtering; the bigger the kernel, the more you save."
+    "zh": "先横后竖，九次乘加变成六次。核能拆成一行乘一列时就能这样省，这叫可分离滤波；核越大省得越多。"
   },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"1-1\"></level-ref>和<level-ref to=\"1-2\"></level-ref>只看左右或上下，这一关看一整圈：每格换成它周围 3×3 九个格子的平均。横竖一视同仁，叫方块模糊。",
-        "en": "<level-ref to=\"1-1\"></level-ref> and <level-ref to=\"1-2\"></level-ref> looked only left and right, or up and down; this one looks all the way round: each cell becomes the average of the nine cells in the 3×3 block around it. Horizontal and vertical are treated alike, and this is called a box blur."
+        "zh": "<level-ref to=\"1-1\"></level-ref>和<level-ref to=\"1-2\"></level-ref>只看左右或上下，这一关看一整圈：每格换成它周围 3×3 九个格子的平均。横竖一视同仁，叫方块模糊。"
       }
     },
     {
       "t": {
-        "zh": "这一关多了一项限制：<b>计算量</b>，数的是每算出一个输出格子要做几次乘法和加法。一张手机照片有上千万个像素，视频每秒几十张，每格省一次，总数就省下很多。",
-        "en": "This level adds a limit: the <b>cost</b>, which counts how many multiplications and additions it takes to compute one output cell. A phone photo has over ten million pixels and video runs at dozens of frames a second, so saving one operation per cell adds up to a lot."
+        "zh": "这一关多了一项限制：<b>计算量</b>，数的是每算出一个输出格子要做几次乘法和加法。一张手机照片有上千万个像素，视频每秒几十张，每格省一次，总数就省下很多。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：做出 3×3 平均，计算量不超过 6。最直接的搭法会超标，你得找一种更省的算法。",
-        "en": "Your task in this level: make a 3×3 average with a cost of no more than 6. The most direct circuit goes over the limit, so you need to find a cheaper method."
+        "zh": "这一关你要做的：做出 3×3 平均，计算量不超过 6。最直接的搭法会超标，你得找一种更省的算法。"
       },
       "fig": {
         "test": 4,
-        "caption": { "zh": "一个亮点，期望是被摊成 3×3 的一小块", "en": "A bright dot: the expected output spreads it into a small 3×3 block" }
+        "caption": { "zh": "一个亮点，期望是被摊成 3×3 的一小块" }
       }
     }
   ],
@@ -35,29 +31,27 @@
       "id": "1-3",
       "kind": "graph",
       "brief": {
-        "zh": "每个像素换成它周围 3×3 九个格子的平均。计算量不能超过 6。",
-        "en": "Replace each pixel with the average of the nine cells in the 3×3 block around it. The cost must not exceed 6."
+        "zh": "每个像素换成它周围 3×3 九个格子的平均。计算量不能超过 6。"
       },
       "hint": {
-        "zh": "九个格子挨个加要 8 次加法。3×3 的方块，能不能拆成几步更小的平均？",
-        "en": "Adding up nine cells one by one takes 8 additions. Can the 3×3 block be split into a few smaller averages?"
+        "zh": "九个格子挨个加要 8 次加法。3×3 的方块，能不能拆成几步更小的平均？"
       },
       "constraint": { "cost": { "max": 6 } },
       "scene": "filter",
       "setup": { "target": { "box": { "size": 3 } } },
       "tests": [
-        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-        { "label": { "zh": "圆盘", "en": "Disc" }, "in": "disk" },
-        { "label": { "zh": "字母 T", "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
-        { "label": { "zh": "棋盘", "en": "Checkerboard" }, "in": "checker" },
-        { "label": { "zh": "亮点", "en": "Bright dot" }, "in": { "impulse": { "x": 7, "y": 7 } } }
+        { "label": { "zh": "方块" }, "in": "square" },
+        { "label": { "zh": "圆盘" }, "in": "disk" },
+        { "label": { "zh": "字母 T" }, "in": { "glyph": { "letter": "T" } } },
+        { "label": { "zh": "棋盘" }, "in": "checker" },
+        { "label": { "zh": "亮点" }, "in": { "impulse": { "x": 7, "y": 7 } } }
       ],
       "hidden": [
         {
-          "label": { "zh": "挪开的字母 L", "en": "Shifted letter L" },
+          "label": { "zh": "挪开的字母 L" },
           "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 2, "oy": 5 } }
         },
-        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 13 } } }
+        { "label": { "zh": "随机纹理" }, "in": { "noise": { "seed": 13 } } }
       ],
       "solution": [
         "kN = const[c=0.33]()",

@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "看车还是看路", "en": "The car or the road" },
+  "title": { "zh": "看车还是看路" },
   "tray": "recognition",
   "after": {
-    "zh": "比例接近 1，分类器认的是车；接近 0，它认的是路。训练集里每辆车都停在路上，只看路也能把训练集分对，这种捷径要这样查出来。比例是负数时，车上的格子在给分数扣分。",
-    "en": "Near 1, the classifier recognises the car; near 0, the road. Every car in the training set stood on a road, so looking at the road alone sorts the training set correctly; a shortcut like that is found this way. A negative fraction means the car's cells are pulling the score down."
+    "zh": "比例接近 1，分类器认的是车；接近 0，它认的是路。训练集里每辆车都停在路上，只看路也能把训练集分对，这种捷径要这样查出来。比例是负数时，车上的格子在给分数扣分。"
   },
   "intro": [
     {
       "t": {
-        "zh": "一张热图要人去看。要是有一千个模型、一万张照片，就得有一个数来回答「它认的是车还是路」。",
-        "en": "A heat map needs a person to look at it. With a thousand models and ten thousand photos, one number has to answer \"does it see the car or the road?\""
+        "zh": "一张热图要人去看。要是有一千个模型、一万张照片，就得有一个数来回答「它认的是车还是路」。"
       }
     },
     {
       "t": {
-        "zh": "这一关多给一张车的掩膜：车身和车轮上是 1，别处是 0。你要做的：输出分数里有多大比例来自车上。",
-        "en": "This level adds a mask of the car: 1 on the body and wheels, 0 elsewhere. Your task: output what fraction of the score comes from the car."
+        "zh": "这一关多给一张车的掩膜：车身和车轮上是 1，别处是 0。你要做的：输出分数里有多大比例来自车上。"
       },
-      "fig": { "test": 1, "caption": { "zh": "第二组：只看路的分类器", "en": "Set 2: a classifier that looks at the road" } }
+      "fig": { "test": 1, "caption": { "zh": "第二组：只看路的分类器" } }
     }
   ],
   "tasks": [
@@ -25,43 +22,41 @@
       "id": "11-4",
       "kind": "graph",
       "brief": {
-        "zh": "第三个输入是车的掩膜（车上是 1）。输出一个数：分类器的分数里，有多大比例来自车上的格子。",
-        "en": "The third input is the car's mask (1 on the car). Output one number: what fraction of the classifier's score comes from the cells on the car."
+        "zh": "第三个输入是车的掩膜（车上是 1）。输出一个数：分类器的分数里，有多大比例来自车上的格子。"
       },
       "hint": {
-        "zh": "<part-ref to=\"mean\"></part-ref>算出的平均都差同一个倍数，两个相除，倍数就消掉了。",
-        "en": "Averages from <part-ref to=\"mean\"></part-ref> are all off by the same factor; divide one by another and the factor cancels."
+        "zh": "<part-ref to=\"mean\"></part-ref>算出的平均都差同一个倍数，两个相除，倍数就消掉了。"
       },
       "inputs": ["in", "w", "m"],
       "inputLabels": {
-        "in": { "zh": "照片", "en": "Photo" },
-        "w": { "zh": "权重", "en": "Weights" },
-        "m": { "zh": "车的掩膜", "en": "Car mask" }
+        "in": { "zh": "照片" },
+        "w": { "zh": "权重" },
+        "m": { "zh": "车的掩膜" }
       },
       "check": { "tolerance": 0.01 },
       "scene": "classifier",
       "setup": { "check": "share" },
       "tests": [
-        { "label": { "zh": "老实的分类器", "en": "An honest classifier" }, "street": { "cx": 5 }, "weights": "car" },
+        { "label": { "zh": "老实的分类器" }, "street": { "cx": 5 }, "weights": "car" },
         {
-          "label": { "zh": "只看路的分类器", "en": "A classifier that looks at the road" },
+          "label": { "zh": "只看路的分类器" },
           "street": { "cx": 5 },
           "weights": "road"
         },
         {
-          "label": { "zh": "车和路都看", "en": "Looking at the car and the road" },
+          "label": { "zh": "车和路都看" },
           "street": { "cx": 4, "house": 12 },
           "weights": "both"
         },
         {
-          "label": { "zh": "看车底下的分类器", "en": "A classifier that looks under the car" },
+          "label": { "zh": "看车底下的分类器" },
           "street": { "cx": 5 },
           "weights": "shadow"
         }
       ],
       "hidden": [
-        { "label": { "zh": "车开到了左边", "en": "The car has moved left" }, "street": { "cx": 1 }, "weights": "car" },
-        { "label": { "zh": "看得宽一点", "en": "A wider look" }, "street": { "cx": 6, "house": 0 }, "weights": "wide" }
+        { "label": { "zh": "车开到了左边" }, "street": { "cx": 1 }, "weights": "car" },
+        { "label": { "zh": "看得宽一点" }, "street": { "cx": 6, "house": 0 }, "weights": "wide" }
       ],
       "solution": [
         "c = arith[op=mul](in, w)",

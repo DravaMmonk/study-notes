@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "每 8 拍一次", "en": "Every eighth tick" },
+  "title": { "zh": "每 8 拍一次" },
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"counter\"></part-ref>给出的是一个数，<part-ref to=\"part:select\"></part-ref>要的却是是或否：数到几的时候该做什么，还无从判断。新元件<part-ref to=\"part:equal\"></part-ref>说出两个数是否相同。",
-        "en": "<part-ref to=\"counter\"></part-ref> gives a number, but <part-ref to=\"part:select\"></part-ref> wants a yes or no: what to do once the count reaches a value cannot yet be decided. The new part <part-ref to=\"part:equal\"></part-ref> says whether two numbers are the same."
+        "zh": "<part-ref to=\"counter\"></part-ref>给出的是一个数，<part-ref to=\"part:select\"></part-ref>要的却是是或否：数到几的时候该做什么，还无从判断。新元件<part-ref to=\"part:equal\"></part-ref>说出两个数是否相同。"
       }
     }
   ],
@@ -13,21 +12,18 @@
     {
       "id": "1-21",
       "brief": {
-        "zh": "在第 7、15、23……拍说 1，其余各拍说 0（第一拍是第 0 拍）。",
-        "en": "Say 1 on ticks 7, 15, 23 and so on, and 0 on every other tick (the first tick is tick 0)."
+        "zh": "在第 7、15、23……拍说 1，其余各拍说 0（第一拍是第 0 拍）。"
       },
       "hint": [
         {
-          "zh": "<part-ref to=\"counter\"></part-ref>的「重来」也可以由板自己说了算。",
-          "en": "The board itself can decide when <part-ref to=\"counter\"></part-ref> restarts."
+          "zh": "<part-ref to=\"counter\"></part-ref>的「重来」也可以由板自己说了算。"
         },
-        { "zh": "数到 7 以后，计数要从 0 重新开始。", "en": "After 7, the count must start again from 0." },
+        { "zh": "数到 7 以后，计数要从 0 重新开始。" },
         {
-          "zh": "数到 7 的那一拍发生的事，要到下一拍才能让计数重来。",
-          "en": "What happens on the tick the count reaches 7 can restart it only on the tick after."
+          "zh": "数到 7 的那一拍发生的事，要到下一拍才能让计数重来。"
         }
       ],
-      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线" } }] },
       "tests": [
         { "ticks": 10, "expect": { "line": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0] } },
         { "ticks": 20, "expect": { "line": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0] } }

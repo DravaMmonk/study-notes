@@ -1,46 +1,41 @@
 {
-  "title": { "zh": "一位一位地发", "en": "One bit at a time" },
+  "title": { "zh": "一位一位地发" },
   "intro": [
     {
       "t": {
-        "zh": "要送过去的是 0 到 255 的数，线一拍却只送一位。一个<wiki-ref to=\"byte\"></wiki-ref>是 8 位的<wiki-ref to=\"binary\"></wiki-ref>，每一位的分量是后一位的两倍；把它拆成位，一拍一位地说出去，叫<wiki-ref to=\"serial\"></wiki-ref>。新元件<part-ref to=\"part:bit\"></part-ref>从一个数里取出指定的一位。",
-        "en": "What must go across is a number from 0 to 255, but the wire carries one bit a tick. A <wiki-ref to=\"byte\"></wiki-ref> is an 8-bit <wiki-ref to=\"binary\"></wiki-ref>, each place worth twice the next; taking it apart and saying it a bit a tick is <wiki-ref to=\"serial\"></wiki-ref>. The new part <part-ref to=\"part:bit\"></part-ref> takes a given bit out of a number."
+        "zh": "要送过去的是 0 到 255 的数，线一拍却只送一位。一个<wiki-ref to=\"byte\"></wiki-ref>是 8 位的<wiki-ref to=\"binary\"></wiki-ref>，每一位的分量是后一位的两倍；把它拆成位，一拍一位地说出去，叫<wiki-ref to=\"serial\"></wiki-ref>。新元件<part-ref to=\"part:bit\"></part-ref>从一个数里取出指定的一位。"
       }
     }
   ],
   "adds": ["bit"],
   "builds": {
     "type": "serializer",
-    "name": { "zh": "移位发送", "en": "Shift out" },
+    "name": { "zh": "移位发送" },
     "desc": {
-      "zh": "从「开始」为 1 的那一拍起，用 8 拍把那一拍的字节从最高位起逐位说出，之后说「—」（线上是 0）；说出最后一位的那一拍「送完」为 1。「开始」再为 1 时重新送。",
-      "en": "From the tick start is 1, says the byte of that tick bit by bit from the top over 8 ticks, then 「—」 (0 on a wire); done is 1 on the tick the last bit is said. Start again sends anew."
+      "zh": "从「开始」为 1 的那一拍起，用 8 拍把那一拍的字节从最高位起逐位说出，之后说「—」（线上是 0）；说出最后一位的那一拍「送完」为 1。「开始」再为 1 时重新送。"
     }
   },
   "tasks": [
     {
       "id": "1-7",
       "brief": {
-        "zh": "从「开始」为 1 的那一拍起，用 8 拍把那一拍输入的字节从最高位起逐位说到线上，之后说 0；最后一位说出的那一拍，「送完」为 1，其余各拍为 0。",
-        "en": "From the tick start is 1, say the byte input then on the wire bit by bit from the top over 8 ticks, then say 0; done is 1 on the tick the last bit is said and 0 on every other."
+        "zh": "从「开始」为 1 的那一拍起，用 8 拍把那一拍输入的字节从最高位起逐位说到线上，之后说 0；最后一位说出的那一拍，「送完」为 1，其余各拍为 0。"
       },
       "hint": [
         {
-          "zh": "<part-ref to=\"counter\"></part-ref>说得出从「开始」起过了几拍。",
-          "en": "<part-ref to=\"counter\"></part-ref> can tell how many ticks have passed since start."
+          "zh": "<part-ref to=\"counter\"></part-ref>说得出从「开始」起过了几拍。"
         },
-        { "zh": "「开始」之前和 8 位说完以后，线上都要是 0。", "en": "The wire must be 0 before start and after the eighth bit." },
+        { "zh": "「开始」之前和 8 位说完以后，线上都要是 0。" },
         {
-          "zh": "说到一半时，输入上的字节可能已经换了。",
-          "en": "Halfway through, the byte on the input may already have changed."
+          "zh": "说到一半时，输入上的字节可能已经换了。"
         }
       ],
       "inputs": [
-        { "name": "byte", "label": { "zh": "字节", "en": "Byte" } },
-        { "name": "start", "label": { "zh": "开始", "en": "Start" } }
+        { "name": "byte", "label": { "zh": "字节" } },
+        { "name": "start", "label": { "zh": "开始" } }
       ],
-      "wires": { "out": [{ "name": "line", "label": { "zh": "出线", "en": "Wire out" } }] },
-      "outputs": [{ "name": "done", "label": { "zh": "送完", "en": "Done" } }],
+      "wires": { "out": [{ "name": "line", "label": { "zh": "出线" } }] },
+      "outputs": [{ "name": "done", "label": { "zh": "送完" } }],
       "tests": [
         {
           "ticks": 10,

@@ -4,7 +4,7 @@ import { L, tr, T } from '../../../shell/i18n.js'
 import Readouts from '../../../shell/Readouts.jsx'
 import { isFixed, outputsOf, srcOf, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
-import { runLevel } from '../../../engine/tests.js'
+import { runOutputTests } from '../../../engine/test-run.js'
 import { parse } from '../formula.js'
 import { inductionCases } from '../proof.js'
 import { say } from '../notation.js'
@@ -75,7 +75,7 @@ function BoardScreen({ board, screen }) {
     ...(stepped
       ? { steps: { of: (k) => tracedOf(k).steps, check: (k) => board.tests.check(level, tests[k], tracedOf(k).run.outputs)[0].reason } }
       : { judge: () => {
-        const r = runLevel(board.tests, level, circuit)
+        const r = runOutputTests(board.tests, level, circuit)
         return { pass: r.pass, score: r.score, results: r.results.map((x) => ({ pass: x.pass, reason: x.checks[0].reason })) }
       } }),
     score: () => board.tests.score(level, circuit),
@@ -100,8 +100,9 @@ function BoardScreen({ board, screen }) {
   // A part's description as it reads in this level (the game's revisions along the course: defineGame textAt), on the
   // board it sits on (the level's, or the one a built part runs).
   const descOf = (type, lvl = level) => game.textAt(board.textOf(lvl, type, lvl.revisions), entry.id)?.desc
-  // The shapes a card of a part with forms offers here: its first, and every one an upgrade passed before brings.
-  const formsOf = (type) => game.textAt(board.textOf(level, type, level.revisions), entry.id)?.forms ?? []
+  // The shapes a card of a part with forms offers here: those the task holds (../../../course.js holds).
+  const has = useMemo(() => game.logic.holdsIn(level, flags), [game, level, flags])
+  const formsOf = (type) => parts.rules[type].forms.filter((shape) => has(type, 'form', shape))
   const itemOf = (type) => ({ type, label: board.nameOf(level, type), desc: descOf(type), icon: board.iconOf(level, type), family: board.familyOf(level, type), packed: parts.packed?.({ type }), fresh: entry.fresh?.includes(type) })
 
   // What a card is drawn with: on the level's board, its own; inside a built part, that part's board, read only.
@@ -120,7 +121,7 @@ function BoardScreen({ board, screen }) {
   const regionNote = (node, region, ctx) => {
     if (ctx.readOnly) return small(ctx.view.values.get(srcOf(node, region)))
     // A for-any box opens no assumption: its region holds the thing it takes.
-    if (node.type === 'allI') return node.params?.x ? <span className="lg-taken">{tr('任取的是', 'Taken:')} <b>{node.params.x}</b></span> : <i className="lg-mark">{tr('尚未命名', 'not named yet')}</i>
+    if (node.type === 'allI') return node.params?.x ? <span className="lg-taken">{tr('任取的是')} <b>{node.params.x}</b></span> : <i className="lg-mark">{tr('尚未命名')}</i>
     const v = view.values.get(srcOf(node, region))
     return v ? <Value v={v} text={text} small /> : <i className="lg-mark">{L(board.words.noOpen)}</i>
   }
@@ -130,13 +131,12 @@ function BoardScreen({ board, screen }) {
     if (node.type === 'natInd' && region) {
       let want = null
       try { const G = parse(node.params?.P ?? '', { consts: level.consts ?? [] }); if (G.op === '∀' && node.params?.x) want = inductionCases(G, node.params.x, level.consts)[region] } catch { want = null }
-      return want ? <span className="lg-taken">{tr('要证', 'To prove')} <b>{text(want)}</b></span> : <i className="lg-mark">{tr('请先选择要证的句子和名字', 'choose the sentence to prove and the name first')}</i>
+      return want ? <span className="lg-taken">{tr('要证', 'To prove')} <b>{text(want)}</b></span> : <i className="lg-mark">{tr('请先选择要证的句子和名字')}</i>
     }
     const [v, error] = [view.values.get(node.id), view.errors.get(node.id)]
     if (v) return <Value v={v} text={text} small />
-    return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('尚未接线', 'nothing wired in yet')}</i>
+    return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('尚未接线')}</i>
   }
-  const passed = run.passed
   const sinkMark = (node) => (parts.role(node) === 'sink' && result ? (result.pass ? 'is-pass' : 'is-fail') : '')
   // The steps of the test shown, so far: what each card gave, the current one marked.
   const shown = stepped ? run.playback.shown(run.at) : { list: [], at: -1 }
@@ -147,8 +147,8 @@ function BoardScreen({ board, screen }) {
   // On a phone the run shows under the board, in a window of a fixed size, from its first step on.
   const below = stepped ? began && (
     <section className="lg-preview">
-      <h3>{tr('运行过程', 'The run')}</h3>
-      {shown.list.length > 0 ? stepLog : <p className="lg-mark lg-preview-empty">{onThis ? tr('这组测试开始运行……', 'Running this test…') : tr('这组测试尚未运行。', 'This test has not run yet.')}</p>}
+      <h3>{tr('运行过程')}</h3>
+      {shown.list.length > 0 ? stepLog : <p className="lg-mark lg-preview-empty">{onThis ? tr('这组测试开始运行……') : tr('这组测试尚未运行。')}</p>}
       {verdict}
     </section>
   ) : verdict
@@ -184,8 +184,8 @@ function BoardScreen({ board, screen }) {
             <section className="lg-score">
               <Readouts items={[
                 { value: board.tests.score(level, circuit).steps, label: board.words.steps },
-                level.budget !== undefined && { value: level.budget, label: T('最多', 'At most') },
-                best && { value: best.steps, label: T('最少', 'Best') },
+                level.budget !== undefined && { value: level.budget, label: T('最多') },
+                best && { value: best.steps, label: T('最少') },
               ]} />
             </section>
           </>
@@ -220,9 +220,8 @@ function BoardScreen({ board, screen }) {
   )
 }
 
-// The shapes a part with forms offers on its card here: its first, and those `more` brings, each with its label (its
-// text's `forms`, [{ key, label }]).
-const shapesOf = (part, text, more) => part.forms.filter((k, i) => i === 0 || more.includes(k)).map((k) => ({ key: k, label: text?.forms?.find((f) => f.key === k)?.label ?? k }))
+// The shapes a part with forms offers on its card here (`more`), each with its label (its text's `forms`, [{ key, label }]).
+const shapesOf = (part, text, more) => part.forms.filter((k) => more.includes(k)).map((k) => ({ key: k, label: text?.forms?.find((f) => f.key === k)?.label ?? k }))
 const DEPTHS = [2, 3, 4, 5, 6, 8, 10, 12]
 const WAYS = [2, 3, 4, 5, 6]
 
@@ -241,12 +240,12 @@ function RuleList({ label, value, onChange, choices, disabled }) {
       {kept.map((k) => (
         <div key={k} className="lg-rule">
           <code>{labelOf(k)}</code>
-          {kept.length > 1 && !disabled && <button type="button" aria-label={tr('移除这条规则', 'Remove this rule')} onClick={() => onChange(kept.filter((x) => x !== k))}><X size={13} /></button>}
+          {kept.length > 1 && !disabled && <button type="button" aria-label={tr('移除这条规则')} onClick={() => onChange(kept.filter((x) => x !== k))}><X size={13} /></button>}
         </div>
       ))}
       {rest.length > 0 && !disabled && (
-        <select value="" aria-label={tr('添加规则', 'Add a rule')} onChange={(e) => e.target.value && onChange([...kept, e.target.value])}>
-          <option value="">{tr('＋ 添加规则', '+ Add a rule')}</option>
+        <select value="" aria-label={tr('添加规则')} onChange={(e) => e.target.value && onChange([...kept, e.target.value])}>
+          <option value="">{tr('＋ 添加规则')}</option>
           {rest.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
         </select>
       )}
@@ -271,14 +270,14 @@ function Setting({ s, node, board, parts, level, circuit, scene, setParam, forms
       const least = Math.max(2, ...held.map((r) => regions.indexOf(r) + 1))
       return <FormulaField label={s.label} value={String(value || 2)} onChange={set} choices={WAYS.filter((n) => n >= least).map((n) => ({ value: String(n), label: tr(`${n} 条`, `${n}`) }))} required disabled={disabled} />
     }
-    case 'depth': return <FormulaField label={s.label} value={String(value)} onChange={set} choices={DEPTHS.map((d) => ({ value: String(d), label: tr(`${d} 层`, `${d} levels`) }))} blank={T('不限', 'No limit')} disabled={disabled} />
+    case 'depth': return <FormulaField label={s.label} value={String(value)} onChange={set} choices={DEPTHS.map((d) => ({ value: String(d), label: tr(`${d} 层`, `${d} levels`) }))} blank={T('不限')} disabled={disabled} />
     case 'at': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'hyps', label: tr('已知', 'Hypotheses') }]} blank={T('目标', 'Goal')} disabled={disabled} />
-    case 'unit': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'unit', label: tr('只和单项子句', 'One-literal clauses only') }]} blank={T('任意两条', 'Any two')} disabled={disabled} />
+    case 'unit': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'unit', label: tr('只和单项子句') }]} blank={T('任意两条')} disabled={disabled} />
     // A sentence is built on the strip (SentencePick.jsx) from the pieces of the level's sentences; a thing is picked.
     case undefined: case 'formula': case 'exists': return (
       <div className="lg-field" onPointerDown={(e) => e.stopPropagation()}>
         <span>{L(s.label)}</span>
-        <SentenceButton value={value} onChange={set} build={scene.build} title={s.label} placeholder={s.blank ?? T('拼一句', 'Build a sentence')} scope={`${node.id}:${s.key}`} disabled={disabled} clearable={Boolean(s.blank)} />
+        <SentenceButton value={value} onChange={set} build={scene.build} title={s.label} placeholder={s.blank ?? T('拼一句')} scope={`${node.id}:${s.key}`} disabled={disabled} clearable={Boolean(s.blank)} />
       </div>
     )
     default: return <FormulaField label={s.label} value={value} onChange={set} choices={scene.choices[s.kind]} blank={s.blank} disabled={disabled} />
@@ -296,7 +295,7 @@ function CardBody({ node, board, parts, level, circuit, view, scene, setParam, t
   const outs = parts.outputs(node)?.filter((o) => !regions.has(o.key))
   const multi = outs && !(outs.length === 1 && outs[0].key === null) ? outs : null
   const held = regions.size ? within(circuit, node.id).size : 0
-  const problem = error && <span className={`lg-error ${error === MISSING ? 'is-missing' : ''}`}>{error === MISSING ? tr('等待接线', 'Not wired yet') : L(error)}</span>
+  const problem = error && <span className={`lg-error ${error === MISSING ? 'is-missing' : ''}`}>{error === MISSING ? tr('等待接线') : L(error)}</span>
   const settings = board.settings(parts, node, level)
   // A rule part shows the rules it gives of its own (its list); what comes in before them shows on the parts wired in.
   const ruled = settings.some((s) => s.kind === 'use')
@@ -305,7 +304,7 @@ function CardBody({ node, board, parts, level, circuit, view, scene, setParam, t
       {role === 'sink' && scene.want}
       {settings.map((s) => <Setting key={s.key} s={s} node={node} board={board} parts={parts} level={level} circuit={circuit} scene={scene} setParam={setParam} formsOf={formsOf} />)}
       {board.extra?.(node, setParam, { ins: Object.fromEntries(circuit.wires.filter((w) => w.to === node.id).map((w) => [w.port, view.values.get(w.from)])), text })}
-      {node.fold && <span className="lg-held">{held ? tr(`框内 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框内为空', 'Empty')}</span>}
+      {node.fold && <span className="lg-held">{held ? tr(`框内 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框内为空')}</span>}
       {role === 'source' && (board.ioBox ? <IoBox><Value v={value} text={text} /></IoBox> : <Value v={value} text={text} bare />)}
       {role === 'sink' && board.ioBox && !problem && <IoBox><Value v={value} text={text} /></IoBox>}
       {role !== 'source' && !(role === 'sink' && board.ioBox && !problem) && (!regions.size || node.fold) && !(ruled && !problem) && (problem || (multi ? multi.map((o) => (

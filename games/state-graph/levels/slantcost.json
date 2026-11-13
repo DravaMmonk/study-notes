@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "走不到的路口", "en": "Out of reach" },
-  "short": { "zh": "斜街上最省力", "en": "Least effort on slanted streets" },
+  "title": { "zh": "走不到的路口" },
+  "short": { "zh": "斜街上最省力" },
   "intro": [
     {
       "t": {
-        "zh": "另一座城市的街道是斜的：每一步只能<b>往右</b>走一格，或者<b>往右下斜着</b>走一格。每个路口还是要花体力。从左上角走到右下角，最少要花多少体力？",
-        "en": "In another city the streets are slanted: each step goes one cell <b>right</b>, or one cell <b>diagonally down and right</b>. Every crossing still costs energy. Going from the top-left corner to the bottom-right corner, what is the least energy you can spend?"
+        "zh": "另一座城市的街道是斜的：每一步只能<b>往右</b>走一格，或者<b>往右下斜着</b>走一格。每个路口还是要花体力。从左上角走到右下角，最少要花多少体力？"
       },
       "fig": {
         "grid": {
@@ -31,26 +30,23 @@
     },
     {
       "t": {
-        "zh": "到一个路口的最后一步，要么从<b>左边</b>来，要么从<b>左上</b>斜着来。这座城里，有的路口从起点根本走不到。",
-        "en": "The last step into a crossing comes either from the <b>left</b> or diagonally from the <b>up-left</b>. In this city, some crossings can’t be reached from the start at all."
+        "zh": "到一个路口的最后一步，要么从<b>左边</b>来，要么从<b>左上</b>斜着来。这座城里，有的路口从起点根本走不到。"
       }
     },
     {
       "t": {
-        "zh": "这一关的电路板要做成元件<part-ref to=\"min\"></part-ref>，以后用在来路更多的地方，所以板上多了一个输入<b>「来路三」</b>。这座城市里没有第三条来路，它一直是「—」；把它和左边、左上一起接进取较小，元件才有三个来路。",
-        "en": "This level’s board becomes the part <part-ref to=\"min\"></part-ref>, to be used where more ways lead in, so the board has one more input, <b>“way in 3”</b>. This city has no third way in, so it is always “—”; wire it into the min together with left and up-left, and the part gets three ways in."
+        "zh": "这一关的电路板要做成元件<part-ref to=\"min\"></part-ref>，以后用在来路更多的地方，所以板上多了一个输入<b>「来路三」</b>。这座城市里没有第三条来路，它一直是「—」；把它和左边、左上一起接进取较小，元件才有三个来路。"
       }
     },
     {
       "t": {
-        "zh": "新元件：<part-ref to=\"part:add\"></part-ref>，输出 a + b。它和「加起来」汇合器不一样：只要有一边是「—」，结果就是「—」。",
-        "en": "A new component: the <part-ref to=\"part:add\"></part-ref>, which outputs a + b. It differs from the “sum” Merger: if either side is “—”, the result is “—”."
+        "zh": "新元件：<part-ref to=\"part:add\"></part-ref>，输出 a + b。它和「加起来」汇合器不一样：只要有一边是「—」，结果就是「—」。"
       },
       "fig": {
         "circuit": {
           "taps": [{ "id": "a", "label": "a · —" }, { "id": "b", "label": "b · 4" }],
-          "parts": [{ "id": "p", "name": { "zh": "加法器", "en": "Adder" }, "tag": "a + b" }],
-          "outs": [{ "id": "o", "label": { "zh": "输出 · —", "en": "output · —" } }],
+          "parts": [{ "id": "p", "name": { "zh": "加法器" }, "tag": "a + b" }],
+          "outs": [{ "id": "o", "label": { "zh": "输出 · —" } }],
           "wires": [{ "from": "a", "to": "p", "kind": "off" }, { "from": "b", "to": "p" }, { "from": "p", "to": "o" }]
         }
       }
@@ -58,12 +54,10 @@
   ],
   "mission": {
     "goal": {
-      "zh": "每一步只能往右走一格，或往右下斜着走一格，每经过一个路口（包括起点和终点）都要花掉它左上角写的体力。算出从左上角到右下角最少要花多少体力。",
-      "en": "Each step goes one cell right or one cell diagonally down and right, and every crossing you pass through (start and end included) costs the energy in its top-left corner. Work out the least energy needed to get from the top-left corner to the bottom-right corner."
+      "zh": "每一步只能往右走一格，或往右下斜着走一格，每经过一个路口（包括起点和终点）都要花掉它左上角写的体力。算出从左上角到右下角最少要花多少体力。"
     },
     "how": {
-      "zh": "视野里的「左上」，就是斜着走过来的那一格。没通过时，看看机器人在走不到的路口上写了什么。",
-      "en": "In the view, “up-left” is the cell a diagonal step comes from. If a test fails, look at what the robot wrote on the crossings it can’t reach."
+      "zh": "视野里的「左上」，就是斜着走过来的那一格。没通过时，看看机器人在走不到的路口上写了什么。"
     }
   },
   "robot": "scout",
@@ -76,8 +70,8 @@
       { "start": { "sensor": "start" } },
       {
         "named": {
-          "label": { "zh": "本格代价", "en": "this cell’s cost" },
-          "short": { "zh": "价", "en": "cost" },
+          "label": { "zh": "本格代价" },
+          "short": { "zh": "价" },
           "sensor": "cost"
         }
       },
@@ -85,20 +79,17 @@
     ]
   },
   "debrief": {
-    "title": { "zh": "走不到，就一直走不到", "en": "Out of reach stays out of reach" },
+    "title": { "zh": "走不到，就一直走不到" },
     "body": [
       {
-        "zh": "走不到的路口没有来路，取较小得到「—」。「加起来」汇合器会跳过这个「—」，只留下体力，于是走不到的路口凭空有了一个数，还会被后面的路口挑中。",
-        "en": "A crossing out of reach has no way in, so the min gives “—”. The “sum” Merger skips that “—” and keeps just the energy, so the crossing suddenly holds a number, and later crossings may pick it."
+        "zh": "走不到的路口没有来路，取较小得到「—」。「加起来」汇合器会跳过这个「—」，只留下体力，于是走不到的路口凭空有了一个数，还会被后面的路口挑中。"
       },
       {
-        "zh": "加法器只要一边是「—」，就输出「—」：走不到的路口一直是「—」，后面的路口取较小时会跳过它。",
-        "en": "The Adder outputs “—” whenever either side is “—”: a crossing out of reach stays “—”, and later crossings skip it when they take the min."
+        "zh": "加法器只要一边是「—」，就输出「—」：走不到的路口一直是「—」，后面的路口取较小时会跳过它。"
       }
     ],
     "note": {
-      "zh": "加法器：有一边是「—」，结果就是「—」。「加起来」汇合器会跳过「—」。",
-      "en": "Adder: if either side is “—”, so is the result. The “sum” Merger skips “—”."
+      "zh": "加法器：有一边是「—」，结果就是「—」。「加起来」汇合器会跳过「—」。"
     }
   },
   "tasks": [
@@ -109,27 +100,22 @@
         {
           "when": { "uses": "up" },
           "say": {
-            "zh": "这座城市不能往下直走，从上面是走不过来的。",
-            "en": "In this city you can’t go straight down, so nothing arrives from above."
+            "zh": "这座城市不能往下直走，从上面是走不过来的。"
           }
         }
       ],
       "hints": [
         {
-          "zh": "从左上出发，只往右和往右下走，能走到左下角吗？那里该写什么？",
-          "en": "Leaving the top left and going only right or down-right, can you ever reach the bottom-left corner? What should be written there?"
+          "zh": "从左上出发，只往右和往右下走，能走到左下角吗？那里该写什么？"
         },
         {
-          "zh": "「加起来」汇合器会跳过「—」，所以走不到的路口加上体力，也成了一个数。用加法器加体力。",
-          "en": "The “sum” Merger skips “—”, so a crossing out of reach still turns into a number once its energy is added. Add the energy with an Adder."
+          "zh": "「加起来」汇合器会跳过「—」，所以走不到的路口加上体力，也成了一个数。用加法器加体力。"
         },
         {
-          "zh": "起点的来路全是「—」，加法器也会得出「—」。用放行闸在起点往取较小里送一个 0（常数放上去后，点它可以改成 0）。",
-          "en": "At the start every way in is “—”, so the Adder gives “—” too. Use a Pass gate to send a 0 into the min at the start (once the Constant is on the board, click it to change it to 0)."
+          "zh": "起点的来路全是「—」，加法器也会得出「—」。用放行闸在起点往取较小里送一个 0（常数放上去后，点它可以改成 0）。"
         },
         {
-          "zh": "「来路三」这一关一直是「—」，可它也是元件的一个口：和左边、左上一起接进取较小。",
-          "en": "“Way in 3” is always “—” in this level, but it is one of the part’s ports too: wire it into the min together with left and up-left."
+          "zh": "「来路三」这一关一直是「—」，可它也是元件的一个口：和左边、左上一起接进取较小。"
         }
       ],
       "world": "grid",

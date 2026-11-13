@@ -1,10 +1,9 @@
 {
-  "title": { "zh": "排除一个，剩下那个", "en": "Rule one out, the other remains" },
+  "title": { "zh": "排除一个，剩下那个" },
   "tray": "proof",
-  "intro": [{ "t": { "zh": "要么坐公交，要么骑车；没坐公交，那就是骑车。", "en": "Bus or bike; not the bus, so the bike." } }],
+  "intro": [{ "t": { "zh": "要么坐公交，要么骑车；没坐公交，那就是骑车。" } }],
   "after": {
-    "zh": "这叫<wiki-ref to=\"dsyll\"></wiki-ref>，「排除法」靠的就是它。",
-    "en": "This is the <wiki-ref to=\"dsyll\"></wiki-ref>, the logic behind every process of elimination."
+    "zh": "这叫<wiki-ref to=\"dsyll\"></wiki-ref>，「排除法」靠的就是它。"
   },
   "tasks": [
     {
@@ -14,8 +13,7 @@
       "cases": [{ "A": "Bus", "B": "Bike" }, { "A": "Coffee", "B": "Tea" }],
       "hint": [
         {
-          "zh": "分情况。「我坐公交」那一边撞上「¬我坐公交」，得到 ⊥；矛盾推出一切。",
-          "en": "Take cases. On the “I take the bus” side it runs into “¬I take the bus” and gives ⊥; from a contradiction, anything."
+          "zh": "分情况。「我坐公交」那一边撞上「¬我坐公交」，得到 ⊥；矛盾推出一切。"
         }
       ],
       "solution": [

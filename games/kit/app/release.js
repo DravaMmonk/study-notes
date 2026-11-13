@@ -5,10 +5,11 @@ export function assetSignature(document, base) {
   return assets.length ? assets.join('\n') : null
 }
 
-// An update returns to the map, preserving unrelated parameters and bypassing a cached HTML response once.
+// An update returns to the map, preserving unrelated parameters and bypassing a cached HTML response once. A level
+// embedded in a note (`?embed`) has no map: it reopens on its level.
 export function refreshURL(href, now = Date.now()) {
   const url = new URL(href)
-  url.searchParams.delete('level')
+  if (!url.searchParams.has('embed')) url.searchParams.delete('level')
   url.searchParams.set('_refresh', String(now))
   return url.href
 }

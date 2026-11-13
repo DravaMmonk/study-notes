@@ -20,7 +20,7 @@ import { L, T } from '../../shell/i18n.js'
 import { FIXED, KIND, PARTS, kindOf, wantsOf } from './parts.js'
 import { OUT_LABELS } from './words.js'
 
-const KIND_NAME = { [KIND.context]: T('上下文', 'a context'), [KIND.action]: T('动作', 'an action'), [KIND.flag]: T('是否通过', 'a pass flag') }
+const KIND_NAME = { [KIND.context]: T('上下文'), [KIND.action]: T('动作', 'an action'), [KIND.flag]: T('是否通过') }
 
 /**
  * How the editor wires a level's cards (../../circuit/model.js parts, without the drawing: ui/BoardScreen.jsx adds

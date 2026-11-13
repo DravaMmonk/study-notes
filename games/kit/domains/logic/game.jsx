@@ -7,8 +7,10 @@ import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
 import GatesScreen, { GateInside } from './ui/GatesScreen.jsx'
-import IsoScreen, { DeclaredRules } from './ui/IsoScreen.jsx'
-import DefineScreen from './ui/DefineScreen.jsx'
+import Declare from './templates/declare.jsx'
+import Audit from './templates/audit.jsx'
+import DeclaredRules from './ui/DeclaredRules.jsx'
+import Define from './templates/define.jsx'
 import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
 import { MACHINE, PROOF } from './ui/boards.jsx'
@@ -35,6 +37,9 @@ const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'proof'
  * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), levels,
  * glossary }.
  */
+// A rule board is played one of two ways, each its own template: a declaration to write, or someone's to find the fault in.
+const Iso = (props) => (props.level.source.play === 'audit' ? <Audit {...props} /> : <Declare {...props} />)
+
 export default function logicGame(content) {
   const logic = logicCourse(content)
   const { LEVELS, CHAPTERS, LABELS } = logic
@@ -70,7 +75,7 @@ export default function logicGame(content) {
     title: L.title,
     kind: L.kind,
     unlocks: L.unlocks,
-    // A level whose boards a part runs: one that builds it, and one that proves a lemma's shape (course.js lemmaProofs).
+    // A level whose boards a part runs: one that builds it, and one that proves a lemma's shape (course.js lemmaReferences).
     keeps: L.unlocks.length > 0 || logic.provers.has(L.id),
     brief: L.brief,
     after: L.after,
@@ -94,8 +99,8 @@ export default function logicGame(content) {
       machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
       truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
-      iso: { Screen: IsoScreen, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
-      define: { Screen: DefineScreen, icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },
+      iso: { Screen: Iso, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
+      define: { Screen: Define, icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },
       translate: { Screen: FormulaScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
       query: { Screen: FormulaScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
       model: { Screen: ModelScreen, icon: FileSignature, label: { zh: '造世界', en: 'Build a world' } },
@@ -133,5 +138,9 @@ export default function logicGame(content) {
     bestLabel: (best) => (best.unit === 'cases' ? tr(`${best.steps} 条`, `${best.steps} cases`) : tr(`${best.steps} 步`, `${best.steps} steps`)),
   })
   game.logic = logic
+  game.workReferences = (entry, built) => {
+    logic.syncOwn(built)
+    return logic.workReferences(entry.task, entry.work)
+  }
   return game
 }

@@ -1,31 +1,27 @@
 {
-  "title": { "zh": "灯老了", "en": "An ageing lamp" },
+  "title": { "zh": "灯老了" },
   "tray": "pipeline",
   "after": {
-    "zh": "灯光是乘上去的：亮度 = 灯 × 表面。乘回 1 ÷ 0.8 = 1.25，就回到了拍标准件时的灯光，再比较才公平。只调门槛不行：亮处因为灯暗掉的，比暗处凹坑掉的还多。",
-    "en": "Light multiplies: brightness = lamp × surface. Multiplying back by 1 ÷ 0.8 = 1.25 restores the lighting the reference was taken under, and only then is the comparison fair. Adjusting the threshold alone fails: bright areas lose more to the dim lamp than dark areas lose to a dent."
+    "zh": "灯光是乘上去的：亮度 = 灯 × 表面。乘回 1 ÷ 0.8 = 1.25，就回到了拍标准件时的灯光，再比较才公平。只调门槛不行：亮处因为灯暗掉的，比暗处凹坑掉的还多。"
   },
   "intro": [
     {
       "t": {
-        "zh": "质检台的灯用久了会变暗。现在拍的实物，只有当初拍标准件时 80% 的亮度。",
-        "en": "The station's lamp grows dimmer with use. Parts photographed now get only 80% of the light the reference was photographed under."
+        "zh": "质检台的灯用久了会变暗。现在拍的实物，只有当初拍标准件时 80% 的亮度。"
       }
     },
     {
       "t": {
-        "zh": "灯暗了，实物处处都比标准件暗，可零件并没有问题。质检台不能因此到处报警。",
-        "en": "With the lamp dimmer, the part is darker than the reference everywhere, yet nothing is wrong with it. The station must not raise alarms all over because of that."
+        "zh": "灯暗了，实物处处都比标准件暗，可零件并没有问题。质检台不能因此到处报警。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：还是只标出凹坑。要想的问题：灯暗了 20%，亮的地方和暗的地方，各暗了多少？",
-        "en": "Your task in this level: again, mark only the dents. Something to think about: with the lamp 20% dimmer, how much darker does a bright area get, and how much a dark one?"
+        "zh": "这一关你要做的：还是只标出凹坑。要想的问题：灯暗了 20%，亮的地方和暗的地方，各暗了多少？"
       },
       "fig": {
         "test": 2,
-        "caption": { "zh": "第三组：格板，亮格和暗格都变暗了", "en": "Set 3: a tile board, bright and dark tiles both dimmer" }
+        "caption": { "zh": "第三组：格板，亮格和暗格都变暗了" }
       }
     }
   ],
@@ -34,29 +30,27 @@
       "id": "0-11",
       "kind": "graph",
       "brief": {
-        "zh": "质检台的灯老了，只剩原来亮度的 80%：现在拍的实物整体偏暗，标准件还是以前拍的。只标出凹坑，不能因为灯暗了就到处报警。",
-        "en": "The station's lamp has aged to 80% of its old brightness: the part photographed now is darker all over, while the reference was taken before. Mark only the dents; the dimmer lamp must not set off alarms everywhere."
+        "zh": "质检台的灯老了，只剩原来亮度的 80%：现在拍的实物整体偏暗，标准件还是以前拍的。只标出凹坑，不能因为灯暗了就到处报警。"
       },
       "hint": {
-        "zh": "灯暗了 20%，亮的地方和暗的地方，各暗了多少？只调门槛够不够？",
-        "en": "With the lamp 20% dimmer, how much do bright areas lose, and how much dark ones? Is adjusting the threshold enough?"
+        "zh": "灯暗了 20%，亮的地方和暗的地方，各暗了多少？只调门槛够不够？"
       },
       "inputs": ["ref", "part"],
-      "inputLabels": { "ref": { "zh": "标准件", "en": "Reference" }, "part": { "zh": "实物", "en": "Part" } },
+      "inputLabels": { "ref": { "zh": "标准件" }, "part": { "zh": "实物" } },
       "scene": "station",
       "tests": [
-        { "label": { "zh": "平板", "en": "Plate" }, "part": "plate", "dents": [[5, 5, 2, 2], [0, 12, 2, 2]], "lamp": 0.8 },
-        { "label": { "zh": "圆环", "en": "Ring" }, "part": "ring", "dents": [[7, 0, 2, 2]], "lamp": 0.8 },
-        { "label": { "zh": "格板", "en": "Tiles" }, "part": "tile", "dents": [[1, 5, 2, 2], [9, 9, 2, 2]], "lamp": 0.8 }
+        { "label": { "zh": "平板" }, "part": "plate", "dents": [[5, 5, 2, 2], [0, 12, 2, 2]], "lamp": 0.8 },
+        { "label": { "zh": "圆环" }, "part": "ring", "dents": [[7, 0, 2, 2]], "lamp": 0.8 },
+        { "label": { "zh": "格板" }, "part": "tile", "dents": [[1, 5, 2, 2], [9, 9, 2, 2]], "lamp": 0.8 }
       ],
       "hidden": [
         {
-          "label": { "zh": "支架", "en": "Bracket" },
+          "label": { "zh": "支架" },
           "part": "bracket",
           "dents": [[2, 3, 3, 2], [8, 6, 2, 2]],
           "lamp": 0.8
         },
-        { "label": { "zh": "合格的格板", "en": "A good tile board" }, "part": "tile", "lamp": 0.8 }
+        { "label": { "zh": "合格的格板" }, "part": "tile", "lamp": 0.8 }
       ],
       "solution": ["kN = const[c=1.25]()", "k = mul(part, kN)", "d = sub(ref, k)", "m = threshold[t=0.07](d)", "out <- m"],
       "naive": ["d = sub(ref, part)", "m = threshold[t=0.17](d)", "out <- m"],

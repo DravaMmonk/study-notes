@@ -1,0 +1,45 @@
+{
+  "title": { "zh": "不用差分" },
+  "intro": [
+    {
+      "t": {
+        "zh": "<level-ref to=\"ddouble\"></level-ref>里的差分由<part-ref to=\"diff\"></part-ref>算出。这一回它不在托盘里，<part-ref to=\"part:mul\"></part-ref>也不在：既减不了，也乘不了 −1。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "翻倍数列的差分，一次减法也不用就算得出来。"
+  },
+  "tasks": [
+    {
+      "id": "cdouble",
+      "brief": {
+        "zh": "不用差分和乘，交出 1, 2, 4, 8, … 的差分。"
+      },
+      "hint": [
+        { "zh": "先看看要交出的数列本身长什么样。" },
+        { "zh": "翻倍不一定要乘。" }
+      ],
+      "outputs": [{ "name": "d", "label": "Δ(2ⁿ)" }],
+      "tests": [{ "want": { "d": [1, 1, 2, 4, 8, 16, 32, 64] } }],
+      "hidden": [{ "want": { "d": [1, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024] } }],
+      "withhold": ["diff", "mul"],
+      "solution": [
+        "r = reg[reg=A, start=1]()",
+        "s = add(r, r)",
+        "k = keep[reg=A](s)",
+        "p = reg[reg=B, start=1]()",
+        "q = keep[reg=B](r)",
+        "d <- p"
+      ],
+      "naive": [
+        "r = reg[reg=A, start=1]()",
+        "s = add(r, r)",
+        "k = keep[reg=A](s)",
+        "p = reg[reg=B, start=0]()",
+        "q = keep[reg=B](r)",
+        "d <- p"
+      ]
+    }
+  ]
+}

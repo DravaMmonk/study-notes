@@ -22,7 +22,7 @@ Lecture notes: [Lecture 3 · Linear filtering and borders](../03-filters.en.md);
 
 ## 2. Harmonic synthesiser (Lecture 4)
 
-<!-- figure: harmonic-analyser -->
+<!-- task: comp90086/sinusoid -->
 
 **What this device is**: a mechanical synthesiser. Eight wheels turn at different multiples of a base speed, and a cord adds up their up-and-down motion and passes it to a pen that draws on moving paper.
 

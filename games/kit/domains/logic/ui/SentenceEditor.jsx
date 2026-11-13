@@ -11,10 +11,12 @@ import { complete, holesOf, joinsOnto, kindAt, kidsOf, nodeAt, setAt, straysOf }
 //
 //   tree  the sentence (formulaTree.js; null: nothing yet)      onChange(tree)      chips  formulaTree.js chipsOf
 //   notation  the level's words      scope  the history's
+//   root  'term' for a thing built alone (a right side on the definition board, formulaTree.js termChips)
 
 const PLACES = ['①', '②', '③']
-export const STRAY = T('还不是完整的句子', 'Not a complete sentence yet')
-const GROUPS = [['pred', T('谓词', 'Predicates')], ['name', T('名字', 'Names')], ['var', T('变量', 'Variables')], ['quant', T('量词', 'Quantifiers')], ['conn', T('连接词', 'Connectives')]]
+export const STRAY = T('还不是完整的句子')
+const TERM = T('式子', 'Expression')
+const GROUPS = [['pred', T('谓词')], ['name', T('名字', 'Names')], ['var', T('变量')], ['quant', T('量词')], ['conn', T('连接词')]]
 const keyOf = (path) => ['r', ...path].join('.')
 const pathOf = (key) => key.split('.').slice(1).map(Number)
 
@@ -30,15 +32,15 @@ const template = (words, at) => words.split(/(\{\d\})/).filter(Boolean).map((w) 
  */
 function segmentOf(node, path, kind, notation, bracket = false) {
   const key = keyOf(path)
-  if (!node) return { hole: key, label: kind === 'term' ? T('东西', 'thing') : T('句子', 'sentence') }
+  if (!node) return { hole: key, label: kind === 'term' ? T('东西') : T('句子', 'sentence') }
   const piece = (family, parts) => ({ piece: key, family, parts: bracket ? ['(', ...parts, ')'] : parts })
-  // A thing where a sentence goes is marked: it is not a sentence yet. A function (s, plus) has a box for each thing.
-  if (node.t === 'fn' && node.args.length) return { ...piece('name', template(L(notation.words?.[node.f] ?? T('', '')) || `${node.f}(${node.args.map((_, k) => `{${k}}`).join(', ')})`, (k) => kid(k))), bad: kind === 'formula' }
-  if (node.t) return { ...piece(node.t === 'var' ? 'var' : 'name', [node.t === 'var' ? node.name : L(notation.words?.[node.f] ?? T(node.f, node.f))]), bad: kind === 'formula' }
   const kid = (k, inner) => {
     const { value, kind: takes } = kidsOf(node)[k]
     return segmentOf(value, [...path, k], takes, notation, inner && Boolean(value) && !value.t && value.op !== 'atom' && value.op !== '¬')
   }
+  // A thing where a sentence goes is marked: it is not a sentence yet. A function (s, plus) has a box for each thing.
+  if (node.t === 'fn' && node.args.length) return { ...piece('name', template(L(notation.words?.[node.f] ?? T('')) || `${node.f}(${node.args.map((_, k) => `{${k}}`).join(', ')})`, (k) => kid(k))), bad: kind === 'formula' }
+  if (node.t) return { ...piece(node.t === 'var' ? 'var' : 'name', [node.t === 'var' ? node.name : L(notation.words?.[node.f] ?? T(node.f, node.f))]), bad: kind === 'formula' }
   switch (node.op) {
     case 'atom': {
       const words = notation.words?.[node.pred] ? L(notation.words[node.pred]) : node.pred === '=' ? '{0} = {1}' : `${node.pred}(${node.args.map((_, k) => `{${k}}`).join(', ')})`
@@ -57,7 +59,7 @@ export function fixedLine(f, notation, key) {
   return [fix(segmentOf(f, [key], 'formula', notation))]
 }
 
-const SentenceEditor = forwardRef(function SentenceEditor({ tree, onChange, chips, notation, scope }, ref) {
+const SentenceEditor = forwardRef(function SentenceEditor({ tree, onChange, chips, notation, scope, root = 'formula' }, ref) {
   const byKey = useMemo(() => new Map(chips.map((c) => [c.key, c])), [chips])
   const change = onChange
   const history = useHistory(tree, change, scope, 0)
@@ -66,7 +68,7 @@ const SentenceEditor = forwardRef(function SentenceEditor({ tree, onChange, chip
       const path = pathOf(slot)
       const chip = byKey.get(key)
       // A thing may stand where a sentence goes (marked until a predicate takes it); a sentence never where a thing goes.
-      if (chip.kind === 'formula' && kindAt(tree, path) === 'term') return T('这里须填入一样东西：名字或变量。', 'This slot takes a thing: a name or a variable.')
+      if (chip.kind === 'formula' && kindAt(tree, path) === 'term') return T('这里须填入一样东西：名字或变量。')
       // Onto what the line ends with (see target): it becomes the piece's first part.
       const last = nodeAt(tree, path)
       change(setAt(tree, path, last ? setAt(chip.make(), [0], last) : chip.make()))
@@ -85,7 +87,7 @@ const SentenceEditor = forwardRef(function SentenceEditor({ tree, onChange, chip
     fixed: () => false,
   })
   useImperativeHandle(ref, () => ({ clearSelection: strip.clearSelection }), [strip])
-  const strays = straysOf(tree)
+  const strays = root === 'term' ? [] : straysOf(tree)
   // Where the next piece goes, always marked: the box picked, else the first box, else after the whole sentence.
   const first = holesOf(tree)[0]
   const next = strip.selected ?? (first ? keyOf(first.path) : complete(tree) ? 'end' : null)
@@ -95,11 +97,11 @@ const SentenceEditor = forwardRef(function SentenceEditor({ tree, onChange, chip
   const note = strip.note
     ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p>
     : strays.length ? <p className="ks-note is-bad" role="status">{L(STRAY)}</p>
-    : <p className="ks-note">{tr('点击文字可以删除。', 'Tap words to delete them.')}</p>
+    : <p className="ks-note">{tr('点击文字可以删除。')}</p>
   return (
     <>
       <StripTools history={history} onClear={() => change(null)} empty={!tree} />
-      <Strip line={[segmentOf(tree, [], 'formula', notation)]} label={T('公式', 'formula')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
+      <Strip line={[segmentOf(tree, [], root, notation)]} label={root === 'term' ? TERM : T('公式')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note}
       <Chips groups={groups} onChip={strip.onChip} />
     </>

@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "压成一行", "en": "Squash it into one row" },
-  "short": { "zh": "改写的方向决定含义", "en": "The rewrite direction is the meaning" },
+  "title": { "zh": "压成一行" },
+  "short": { "zh": "改写的方向决定含义" },
   "intro": [
     {
       "t": {
-        "zh": "仔细看背包表：每一行只用到<b>上一行</b>。那何必留着整张表？只留一行，每处理一件物品，就在这一行上原地改写。",
-        "en": "Look closely at the knapsack table: each row only uses <b>the row above</b>. So why keep the whole table? Keep just one row, and rewrite it in place for each item."
+        "zh": "仔细看背包表：每一行只用到<b>上一行</b>。那何必留着整张表？只留一行，每处理一件物品，就在这一行上原地改写。"
       },
       "fig": {
         "scene": {
@@ -32,18 +31,17 @@
             { "a": "1,2", "b": "2,3", "cls": "dim", "bend": 0, "off": 0 }
           ],
           "texts": [
-            { "x": -32, "y": -33, "t": { "zh": "容量", "en": "capacity" }, "anchor": "end" },
-            { "x": -32, "y": 5, "t": { "zh": "不放东西", "en": "nothing" }, "anchor": "end" },
-            { "x": -32, "y": 57, "t": { "zh": "相机 2kg · 3", "en": "camera 2kg · 3" }, "anchor": "end" },
-            { "x": -32, "y": 109, "t": { "zh": "水壶 1kg · 2", "en": "bottle 1kg · 2" }, "anchor": "end" }
+            { "x": -32, "y": -33, "t": { "zh": "容量" }, "anchor": "end" },
+            { "x": -32, "y": 5, "t": { "zh": "不放东西" }, "anchor": "end" },
+            { "x": -32, "y": 57, "t": { "zh": "相机 2kg · 3" }, "anchor": "end" },
+            { "x": -32, "y": 109, "t": { "zh": "水壶 1kg · 2" }, "anchor": "end" }
           ]
         }
       }
     },
     {
       "t": {
-        "zh": "原地改写有个风险：改 dp[w] 时要读 dp[w − 重量]。如果那一格<b>这一轮已经改过</b>，读到的就是「已经拿过这件物品」的值。",
-        "en": "Rewriting in place carries a risk: rewriting dp[w] reads dp[w − weight]. If that cell <b>has already been rewritten this round</b>, what you read is a value where the item “has already been taken”."
+        "zh": "原地改写有个风险：改 dp[w] 时要读 dp[w − 重量]。如果那一格<b>这一轮已经改过</b>，读到的就是「已经拿过这件物品」的值。"
       },
       "fig": {
         "scene": {
@@ -60,48 +58,40 @@
     },
     {
       "t": {
-        "zh": "这一关有两种背包：<b>每件最多拿一次</b>的，和<b>每件可以拿很多次</b>的（比如商店里每种东西都有很多件）。电路板不难：新的 dp[w] = 取较大（旧的 dp[w]，dp[w − 重量] + 价值）。视野里的红框 dp[w] 是写入新值的地方，在视野里点它，读到的是改写前的旧值；dp[w − 重量] 由伸缩臂够到。",
-        "en": "This level has two kinds of backpack: one where <b>each item can be taken at most once</b>, and one where <b>each item can be taken many times</b> (like a shop with plenty of everything). The board isn’t hard: new dp[w] = max(old dp[w], dp[w − weight] + value). The red frame dp[w] in the view is where the new value is written, and clicking it in the view reads the old value before it is rewritten; dp[w − weight] is what the telescopic arm reaches."
+        "zh": "这一关有两种背包：<b>每件最多拿一次</b>的，和<b>每件可以拿很多次</b>的（比如商店里每种东西都有很多件）。电路板不难：新的 dp[w] = 取较大（旧的 dp[w]，dp[w − 重量] + 价值）。视野里的红框 dp[w] 是写入新值的地方，在视野里点它，读到的是改写前的旧值；dp[w − 重量] 由伸缩臂够到。"
       }
     },
     {
       "t": {
-        "zh": "真正的门道在机器的<wiki-ref to=\"dirs\"></wiki-ref>：每件最多拿一次时，它<b>从右往左</b>改写；每件可以拿很多次时，它<b>从左往右</b>改写。同一块电路板，为什么换个方向，答案就不一样？",
-        "en": "The real trick is the machine’s <wiki-ref to=\"dirs\"></wiki-ref>: when each item can be taken at most once, it rewrites <b>right to left</b>; when each item can be taken many times, it rewrites <b>left to right</b>. Why does the same circuit board give different answers when only the direction changes?"
+        "zh": "真正的门道在机器的<wiki-ref to=\"dirs\"></wiki-ref>：每件最多拿一次时，它<b>从右往左</b>改写；每件可以拿很多次时，它<b>从左往右</b>改写。同一块电路板，为什么换个方向，答案就不一样？"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "一种背包每件最多拿一次，另一种每件可以拿很多次，总重量都不能超过容量。拼好电路，让四个测试都算对。",
-      "en": "In one kind of backpack each item can be taken at most once; in the other, many times. Either way, the total weight can’t exceed the capacity. Build the circuit so that all four tests come out right."
+      "zh": "一种背包每件最多拿一次，另一种每件可以拿很多次，总重量都不能超过容量。拼好电路，让四个测试都算对。"
     },
     "how": {
-      "zh": "黄色是正在改写的格子；红色表示读到了这一轮刚改过的值。",
-      "en": "Yellow is the cell being rewritten; red means a value rewritten earlier this round was read."
+      "zh": "黄色是正在改写的格子；红色表示读到了这一轮刚改过的值。"
     }
   },
   "robot": "reach",
   "unlock": "roll",
   "debrief": {
-    "title": { "zh": "方向就是含义", "en": "Direction is meaning" },
+    "title": { "zh": "方向就是含义" },
     "body": [
       {
-        "zh": "从右往左改写时，dp[w − 重量] 还没被这件物品改过，读到的是旧值，所以<b>每件最多拿一次</b>。",
-        "en": "Rewriting from right to left, dp[w − weight] hasn’t been touched by this item yet, so it reads an old value: <b>each item at most once</b>."
+        "zh": "从右往左改写时，dp[w − 重量] 还没被这件物品改过，读到的是旧值，所以<b>每件最多拿一次</b>。"
       },
       {
-        "zh": "从左往右改写时，dp[w − 重量] 可能已经拿过这件物品，再拿一次正好，所以<b>每件可以拿很多次</b>。",
-        "en": "Rewriting from left to right, dp[w − weight] may already include this item, and taking it again is just right: <b>each item as many times as you like</b>."
+        "zh": "从左往右改写时，dp[w − 重量] 可能已经拿过这件物品，再拿一次正好，所以<b>每件可以拿很多次</b>。"
       },
       {
-        "zh": "同一块电路板，只是方向不同，解决的就是两个不同的问题。这种只留一行的写法叫<b>滚动数组</b>，能把几千行的表压成一行。",
-        "en": "The same circuit board, just a different direction, solves two different problems. Keeping only one row like this is called a <b>rolling array</b>, and it can squash a table thousands of rows tall into a single row."
+        "zh": "同一块电路板，只是方向不同，解决的就是两个不同的问题。这种只留一行的写法叫<b>滚动数组</b>，能把几千行的表压成一行。"
       }
     ],
     "note": {
-      "zh": "一行原地改写：从右往左，每件一次；从左往右，每件无限次。",
-      "en": "One row rewritten in place: right to left, once each; left to right, unlimited."
+      "zh": "一行原地改写：从右往左，每件一次；从左往右，每件无限次。"
     }
   },
   "tasks": [
@@ -113,8 +103,7 @@
         {
           "when": { "not": { "all": [{ "uses": "old" }, { "uses": "src" }, { "uses": "value" }] } },
           "say": {
-            "zh": "电路板：新的 dp[w] = 取较大（旧的 dp[w]，dp[w − 重量] + 价值）。三样都要读进来：旧的 dp[w]、dp[w − 重量] 和物品价值。",
-            "en": "The circuit board: new dp[w] = max(old dp[w], dp[w − weight] + value). All three need reading in: the old dp[w], dp[w − weight] and the item value."
+            "zh": "电路板：新的 dp[w] = 取较大（旧的 dp[w]，dp[w − 重量] + 价值）。三样都要读进来：旧的 dp[w]、dp[w − 重量] 和物品价值。"
           }
         }
       ],
@@ -129,35 +118,35 @@
           "kind": "01",
           "W": 6,
           "items": [
-            { "n": { "zh": "罐头", "en": "can" }, "w": 1, "v": 1 },
-            { "n": { "zh": "雨衣", "en": "raincoat" }, "w": 3, "v": 4 },
-            { "n": { "zh": "毯子", "en": "blanket" }, "w": 4, "v": 5 }
+            { "n": { "zh": "罐头" }, "w": 1, "v": 1 },
+            { "n": { "zh": "雨衣" }, "w": 3, "v": 4 },
+            { "n": { "zh": "毯子" }, "w": 4, "v": 5 }
           ]
         },
         {
           "kind": "inf",
           "W": 7,
           "items": [
-            { "n": { "zh": "苹果", "en": "apple" }, "w": 2, "v": 3 },
-            { "n": { "zh": "西瓜", "en": "melon" }, "w": 3, "v": 5 }
+            { "n": { "zh": "苹果" }, "w": 2, "v": 3 },
+            { "n": { "zh": "西瓜" }, "w": 3, "v": 5 }
           ]
         },
         {
           "kind": "01",
           "W": 7,
           "items": [
-            { "n": { "zh": "相机", "en": "camera" }, "w": 3, "v": 4 },
-            { "n": { "zh": "水壶", "en": "bottle" }, "w": 4, "v": 5 },
-            { "n": { "zh": "零食", "en": "snacks" }, "w": 2, "v": 3 }
+            { "n": { "zh": "相机" }, "w": 3, "v": 4 },
+            { "n": { "zh": "水壶" }, "w": 4, "v": 5 },
+            { "n": { "zh": "零食" }, "w": 2, "v": 3 }
           ]
         },
         {
           "kind": "inf",
           "W": 9,
           "items": [
-            { "n": { "zh": "面粉", "en": "flour" }, "w": 5, "v": 9 },
-            { "n": { "zh": "大米", "en": "rice" }, "w": 3, "v": 5 },
-            { "n": { "zh": "白糖", "en": "sugar" }, "w": 2, "v": 3 }
+            { "n": { "zh": "面粉" }, "w": 5, "v": 9 },
+            { "n": { "zh": "大米" }, "w": 3, "v": 5 },
+            { "n": { "zh": "白糖" }, "w": 2, "v": 3 }
           ]
         }
       ],

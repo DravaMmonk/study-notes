@@ -11,8 +11,8 @@ import { T } from '../../../shell/i18n.js'
 
 
 // What a box's region gives at its left edge, and what goes into the dot at its right.
-const OPENS = T('假设', 'Assume')
-const CLOSES = T('结论', 'Conclusion')
+const OPENS = T('假设')
+const CLOSES = T('结论')
 const GIVES = T('得出', 'Result')
 
 /**
@@ -21,7 +21,7 @@ const GIVES = T('得出', 'Result')
  * where the level has a ∀ over sentences), 'name' (a particular thing: a, b,
  * c) or 'form' (which shape a part with several forms is in, engine/forms.js).
  */
-export const settingsOf = (parts, node, lemmas = {}) => [...(parts[node.type]?.forms ? [{ key: 'form', kind: 'form' }] : []), ...paramsOf(parts[node.type], node).map((key) => ({ key, label: lemmas[node.type]?.params?.[key] ?? RULE_TEXT[node.type]?.params?.[key] ?? key, kind: SETTING_KINDS[node.type]?.[key] ?? 'formula', blank: SETTING_KINDS[node.type]?.[key] === 'exists' ? T('自动', 'Automatic') : null }))]
+export const settingsOf = (parts, node, lemmas = {}) => [...(parts[node.type]?.forms ? [{ key: 'form', kind: 'form' }] : []), ...paramsOf(parts[node.type], node).map((key) => ({ key, label: lemmas[node.type]?.params?.[key] ?? RULE_TEXT[node.type]?.params?.[key] ?? key, kind: SETTING_KINDS[node.type]?.[key] ?? 'formula', blank: SETTING_KINDS[node.type]?.[key] === 'exists' ? T('自动') : null }))]
 
 /** A part's text with the game's revisions of it along the course (logicCourse `revisions`; defineGame textAt / textFor). */
 export const withRevisions = (text, list) => (text && list ? { ...text, revisions: list } : text)

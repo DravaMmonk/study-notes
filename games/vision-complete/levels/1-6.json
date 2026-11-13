@@ -1,29 +1,25 @@
 {
-  "title": { "zh": "台阶在哪", "en": "Where is the step?" },
+  "title": { "zh": "台阶在哪" },
   "tray": "pipeline",
   "after": {
-    "zh": "这是沿 x 方向的有符号前向差分。平坦处为 0，暗到亮为正，亮到暗为负。斜坡也有响应：每格亮度增加得一样多，差分就处处一样（图像边界除外）。差分量出局部亮度变化，可用来定位边缘。要量上下方向的变化，再做一次「下方像素 − 当前像素」。",
-    "en": "This is the signed forward difference along x. Flat areas give zero, dark-to-bright steps give a positive response, and bright-to-dark steps give a negative one. A ramp also responds: equal increases between pixels give a constant difference away from the image boundary. These differences measure local intensity change and help locate edges. To measure changes along y, subtract the current pixel from the pixel below."
+    "zh": "这是沿 x 方向的有符号前向差分。平坦处为 0，暗到亮为正，亮到暗为负。斜坡也有响应：每格亮度增加得一样多，差分就处处一样（图像边界除外）。差分量出局部亮度变化，可用来定位边缘。要量上下方向的变化，再做一次「下方像素 − 当前像素」。"
   },
   "intro": [
     {
       "t": {
-        "zh": "看一幅画，最先注意到的是轮廓：物体和背景的分界、衣服的褶、文字的笔画。在数字图里，这些地方的共同点是：亮度在很短的距离内突然变了。这就是<b>边缘</b>。",
-        "en": "When you look at a picture, the first thing you notice is outlines: where an object meets the background, the folds in clothing, the strokes of letters. In a digital image, what these places have in common is that the brightness changes suddenly over a very short distance. That is an <b>edge</b>."
+        "zh": "看一幅画，最先注意到的是轮廓：物体和背景的分界、衣服的褶、文字的笔画。在数字图里，这些地方的共同点是：亮度在很短的距离内突然变了。这就是<b>边缘</b>。"
       }
     },
     {
       "t": {
-        "zh": "找边缘是视觉里最基础的一步。扫描软件靠它找纸张的四边，车道保持系统靠它找车道线。",
-        "en": "Finding edges is the most basic step in vision. Scanning apps use it to find the four sides of a sheet of paper, and lane-keeping systems use it to find lane markings."
+        "zh": "找边缘是视觉里最基础的一步。扫描软件靠它找纸张的四边，车道保持系统靠它找车道线。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：每一格输出「右边邻居 − 自己」。结果可以是负数，看灰度不直观，用地形画法看起伏更清楚。",
-        "en": "Your task in this level: for every cell, output \"right neighbour − self\". The result can be negative, which is hard to read in greyscale; terrain view shows the rises and falls more clearly."
+        "zh": "这一关你要做的：每一格输出「右边邻居 − 自己」。结果可以是负数，看灰度不直观，用地形画法看起伏更清楚。"
       },
-      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组测试：台阶，用地形画法看", "en": "Set 1: a step, in terrain view" } }
+      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组测试：台阶，用地形画法看" } }
     }
   ],
   "unlocks": ["diffx"],
@@ -32,39 +28,38 @@
       "id": "1-6",
       "kind": "graph",
       "brief": {
-        "zh": "接出「右边像素 − 当前像素」，再比较前两组台阶。亮暗对调后，边缘的输出会怎样变？",
-        "en": "Wire up “right pixel − current pixel,” then compare the first two steps. What happens to the edge response when light and dark swap?"
+        "zh": "接出「右边像素 − 当前像素」，再比较前两组台阶。亮暗对调后，边缘的输出会怎样变？"
       },
       "views": { "in": "slope", "out": "terrain", "mid": "terrain" },
       "scene": "filter",
       "setup": { "target": "diffx" },
       "tests": [
         {
-          "label": { "zh": "暗到亮的台阶", "en": "Dark-to-bright step" },
+          "label": { "zh": "暗到亮的台阶" },
           "in": { "stepX": { "edge": 8, "lo": 0.15, "hi": 0.85 } }
         },
         {
-          "label": { "zh": "亮到暗的台阶", "en": "Bright-to-dark step" },
+          "label": { "zh": "亮到暗的台阶" },
           "in": { "stepX": { "edge": 8, "lo": 0.85, "hi": 0.15 } }
         },
         {
-          "label": { "zh": "平坦区域", "en": "Flat field" },
+          "label": { "zh": "平坦区域" },
           "in": { "stepX": { "edge": 8, "lo": 0.4, "hi": 0.4 } }
         },
-        { "label": { "zh": "方块", "en": "Square" }, "in": "square" },
-        { "label": { "zh": "斜坡", "en": "Ramp" }, "in": "rampX" },
-        { "label": { "zh": "字母 L", "en": "Letter L" }, "in": { "glyph": { "letter": "L" } } }
+        { "label": { "zh": "方块" }, "in": "square" },
+        { "label": { "zh": "斜坡" }, "in": "rampX" },
+        { "label": { "zh": "字母 L" }, "in": { "glyph": { "letter": "L" } } }
       ],
       "hidden": [
         {
-          "label": { "zh": "移位的亮到暗台阶", "en": "Shifted bright-to-dark step" },
+          "label": { "zh": "移位的亮到暗台阶" },
           "in": { "stepX": { "edge": 5, "lo": 0.85, "hi": 0.15 } }
         },
         {
-          "label": { "zh": "挪开的字母 F", "en": "Shifted letter F" },
+          "label": { "zh": "挪开的字母 F" },
           "in": { "glyph": { "letter": "F", "lo": 0.1, "hi": 0.9, "ox": 6, "oy": 4 } }
         },
-        { "label": { "zh": "随机纹理", "en": "Random texture" }, "in": { "noise": { "seed": 17 } } }
+        { "label": { "zh": "随机纹理" }, "in": { "noise": { "seed": 17 } } }
       ],
       "solution": ["l = shift[dir=left](in)", "d = arith[op=sub](l, in)", "out <- d"],
       "naive": ["l = shift[dir=right](in)", "d = arith[op=sub](l, in)", "out <- d"]

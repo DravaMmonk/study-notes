@@ -11,19 +11,19 @@ import { L, tr } from '../shell/i18n.js'
 
 export default function DemoBench({ tests = [], test = 0, onTest, onRun, onReset, state = 'idle', note, height = 340, panel, children }) {
   return (
-    <section className={`demo-bench is-${state}`} aria-label={tr('试一试', 'Try it')}>
+    <section className={`demo-bench is-${state}`} aria-label={tr('试一试')}>
       <header className="demo-bar">
-        <span className="panel-label">{tr('试一试', 'Try it')}</span>
+        <span className="panel-label">{tr('试一试')}</span>
         {tests.length > 1 && (
-          <div className="demo-tests" role="tablist" aria-label={tr('测试', 'Tests')}>
+          <div className="demo-tests" role="tablist" aria-label={tr('测试')}>
             {tests.map((t, k) => (
               <button key={k} type="button" role="tab" aria-selected={k === test} className="demo-test" onClick={() => onTest(k)}>{L(t.label)}</button>
             ))}
           </div>
         )}
-        <span className="demo-state" aria-live="polite">{state === 'stale' ? tr('已修改，请重新运行查看结果', 'Changed: run again to see the result') : state === 'ran' ? tr('运行完成', 'Run complete') : tr('还没运行', 'Not run yet')}</span>
+        <span className="demo-state" aria-live="polite">{state === 'stale' ? tr('已修改，请重新运行查看结果') : state === 'ran' ? tr('运行完成') : tr('还没运行')}</span>
         {onReset && <button type="button" className="demo-reset" onClick={onReset} aria-label={tr('恢复默认', 'Reset')} title={tr('恢复默认', 'Reset')}><RotateCcw size={14} /></button>}
-        <button type="button" className="demo-run" onClick={onRun}><Play size={14} /><span>{tr('运行', 'Run')}</span></button>
+        <button type="button" className="demo-run" onClick={onRun}><Play size={14} /><span>{tr('运行')}</span></button>
       </header>
       <div className={`demo-board ${height === 'auto' ? 'is-auto' : ''}`} style={height === 'auto' ? undefined : { height }}>{children}</div>
       {panel && <div className="demo-panel">{panel}</div>}

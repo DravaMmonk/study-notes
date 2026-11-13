@@ -39,17 +39,17 @@ const fresh = (tree, n = 1) => LETTERS.filter((x) => !boundIn(tree).includes(x))
 
 /** The forms a term is built from, in the order the chapter brings them in; one that starts with its first box (`leads`) can take the term the line ends with. */
 export const FORMS = [
-  { key: 'fun', text: 'fun _ => □', sub: T('造一个函数（框）', 'make a function (a box)'), make: (tree) => lam(fresh(tree)[0], null) },
-  { key: 'app', leads: true, text: '□ □', sub: T('应用（套用）', 'apply'), make: () => papp(null, null) },
-  { key: 'pair', text: '⟨□, □⟩', sub: T('一对', 'a pair'), make: () => pair(null, null) },
-  { key: 'fst', leads: true, text: '□.1', sub: T('左一半', 'left half'), make: () => fst(null) },
-  { key: 'snd', leads: true, text: '□.2', sub: T('右一半', 'right half'), make: () => snd(null) },
-  { key: 'inl', text: 'Or.inl □', sub: T('是左边', 'the left one'), make: () => inl(null) },
-  { key: 'inr', text: 'Or.inr □', sub: T('是右边', 'the right one'), make: () => inr(null) },
-  { key: 'elim', leads: true, text: '□.elim (fun _ => □) (fun _ => □)', sub: T('分情况', 'cases'), make: (tree) => { const [x, y] = fresh(tree, 2); return cases(null, x, null, y, null) } },
-  { key: 'absurd', text: 'False.elim □', sub: T('爆炸', 'Explosion'), make: () => absurd(null) },
-  { key: 'open', leads: true, text: '□.elim (fun _ _ => □)', sub: T('实例框', 'Instance box'), make: (tree) => { const [x, h] = fresh(tree, 2); return open(null, x, h, null) } },
-  { key: 'rfl', text: 'rfl', sub: T('两边一样', 'both sides alike'), make: () => rfl },
+  { key: 'fun', text: 'fun _ => □', sub: T('造一个函数（框）'), make: (tree) => lam(fresh(tree)[0], null) },
+  { key: 'app', leads: true, text: '□ □', sub: T('应用（套用）'), make: () => papp(null, null) },
+  { key: 'pair', text: '⟨□, □⟩', sub: T('一对'), make: () => pair(null, null) },
+  { key: 'fst', leads: true, text: '□.1', sub: T('左一半'), make: () => fst(null) },
+  { key: 'snd', leads: true, text: '□.2', sub: T('右一半'), make: () => snd(null) },
+  { key: 'inl', text: 'Or.inl □', sub: T('是左边'), make: () => inl(null) },
+  { key: 'inr', text: 'Or.inr □', sub: T('是右边'), make: () => inr(null) },
+  { key: 'elim', leads: true, text: '□.elim (fun _ => □) (fun _ => □)', sub: T('分情况'), make: (tree) => { const [x, y] = fresh(tree, 2); return cases(null, x, null, y, null) } },
+  { key: 'absurd', text: 'False.elim □', sub: T('爆炸'), make: () => absurd(null) },
+  { key: 'open', leads: true, text: '□.elim (fun _ _ => □)', sub: T('实例框'), make: (tree) => { const [x, h] = fresh(tree, 2); return open(null, x, h, null) } },
+  { key: 'rfl', text: 'rfl', sub: T('两边一样'), make: () => rfl },
   { key: 'subst', leads: true, text: '□ ▸ □', sub: T('等量代换', 'substitute'), make: () => psubst(null, null) },
 ]
 // The forms a strip offers unless its level says (the equality chapter adds rfl and ▸).

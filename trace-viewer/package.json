@@ -8,6 +8,8 @@
     "build": "vite build",
     "build:game": "vite build --config vite.game.config.js",
     "lint": "eslint .",
+    "words": "node ../games/kit/engine/words.mjs",
+    "lint:kit": "cd .. && trace-viewer/node_modules/.bin/eslint --config trace-viewer/eslint.kit.config.js games/kit",
     "preview": "vite preview",
     "preview:games": "vite preview --config vite.games.config.js",
     "check": "node ../games/kit/engine/check.js",

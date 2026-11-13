@@ -183,6 +183,8 @@ $$
 
 原本一个 $k\times k$ 卷积核每个像素约需 $k^2$ 次乘法；拆开后约需 $2k$ 次， $k$ 较大时差别很明显。高斯卷积核常常接近或可以构造成可分离卷积核。
 
+<!-- task: comp90086/separable -->
+
 ![Slide 40 - Separable filter calculation](assets/03-filters/slide-40.png)
 
 Associativity 还允许先合并多个线性滤波器，再对图像扫描一次。这样可以更快，但如果需要保留中间结果，或者合并后卷积核变得太大，就不一定值得。

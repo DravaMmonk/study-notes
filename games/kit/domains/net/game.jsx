@@ -1,5 +1,5 @@
 // A game on the net domain (《从一根线开始》) on the circuit base's game (../../shell/circuit-game.js), its levels
-// played tick by tick on the domain's screen (ui/Screen.jsx).
+// played tick by tick on the domain's screen (ui/screen.js).
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   wire.js       the world: point-to-point wires, their delay and flips, the formats the far ends speak
@@ -16,9 +16,9 @@
 import { Activity } from 'lucide-react'
 import './ui/net.css'
 import { circuitGame } from '../../shell/circuit-game.js'
-import Screen from './ui/Screen.jsx'
+import { screen } from './ui/screen.js'
 import { CARDS } from './ui/catalog.js'
 import { netCourse } from './course.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary }. */
-export default (content) => circuitGame(content, netCourse(content), { kind: { id: 'tick', icon: Activity, label: { zh: '逐拍', en: 'Tick by tick' } }, Screen, cards: CARDS })
+export default (content) => circuitGame(content, netCourse(content), { kind: { id: 'tick', icon: Activity, label: { zh: '逐拍', en: 'Tick by tick' } }, screen, cards: CARDS })

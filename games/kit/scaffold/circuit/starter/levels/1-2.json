@@ -1,13 +1,11 @@
 {
   "title": {
-    "zh": "再来两个数",
-    "en": "Two numbers more"
+    "zh": "再来两个数"
   },
   "intro": [
     {
       "t": {
-        "zh": "这一关给的数多了两个。",
-        "en": "This level gives two more numbers."
+        "zh": "这一关给的数多了两个。"
       }
     }
   ],
@@ -15,8 +13,7 @@
     {
       "id": "1-2",
       "brief": {
-        "zh": "交出 a + b − c + d − e。",
-        "en": "Give a + b − c + d − e."
+        "zh": "交出 a + b − c + d − e。"
       },
       "inputs": [
         {
@@ -44,8 +41,7 @@
         {
           "name": "out",
           "label": {
-            "zh": "结果",
-            "en": "Result"
+            "zh": "结果"
           }
         }
       ],

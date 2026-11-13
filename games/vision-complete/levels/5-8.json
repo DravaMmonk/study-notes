@@ -1,29 +1,25 @@
 {
-  "title": { "zh": "找近邻", "en": "Nearest neighbour" },
+  "title": { "zh": "找近邻" },
   "tray": "pipeline",
   "after": {
-    "zh": "编码器把同一张图的各种变形放到特征空间里相近的地方，再按余弦相似度找最近的一个：这就是以图搜图。对比学习练出来的编码器，正好适合这件事。",
-    "en": "The encoder puts the different versions of one picture close together in feature space; then the nearest one by cosine similarity is found. This is image search, and an encoder trained by contrastive learning is just right for it."
+    "zh": "编码器把同一张图的各种变形放到特征空间里相近的地方，再按余弦相似度找最近的一个：这就是以图搜图。对比学习练出来的编码器，正好适合这件事。"
   },
   "intro": [
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"embed\"></part-ref>把一张图变成一组特征，同一张图的各种变形得到的特征很接近。",
-        "en": "The <part-ref to=\"embed\"></part-ref> in the tray turns a picture into a set of features, and different versions of the same picture get features close to each other."
+        "zh": "托盘里的<part-ref to=\"embed\"></part-ref>把一张图变成一组特征，同一张图的各种变形得到的特征很接近。"
       }
     },
     {
       "t": {
-        "zh": "两组特征有多像，可以用余弦相似度来量：长度为 1 的两组特征，对应相乘再加起来。",
-        "en": "How alike two sets of features are can be measured by cosine similarity: for two sets of features of length 1, multiply them pair by pair and add up."
+        "zh": "两组特征有多像，可以用余弦相似度来量：长度为 1 的两组特征，对应相乘再加起来。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：三张候选里找出和要找的照片是同一张的那一张。",
-        "en": "Your task in this level: among three candidates, find the one that is the same photo as the one you are looking for."
+        "zh": "这一关你要做的：三张候选里找出和要找的照片是同一张的那一张。"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：T 找 T", "en": "Set 1: T finds T" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组：T 找 T" } }
     }
   ],
   "tasks": [
@@ -31,26 +27,24 @@
       "id": "5-8",
       "kind": "graph",
       "brief": {
-        "zh": "三张候选里有一张和要找的是同一张照片，只是挪了一点、调了颜色或加了噪声。是它的那一路输出 1，其余输出 0。",
-        "en": "One of the three candidates is the same photo as the one to find, only shifted a little, recoloured or noisy. Output 1 on its line and 0 on the others."
+        "zh": "三张候选里有一张和要找的是同一张照片，只是挪了一点、调了颜色或加了噪声。是它的那一路输出 1，其余输出 0。"
       },
       "hint": {
-        "zh": "逐像素比，亮的陌生人反而显得近。先把每张照片换成编码器的特征再比。",
-        "en": "Compared pixel by pixel, a bright stranger looks closer. Turn every photo into the encoder's features before comparing."
+        "zh": "逐像素比，亮的陌生人反而显得近。先把每张照片换成编码器的特征再比。"
       },
       "inputs": ["q", "a", "b", "c"],
       "inputLabels": {
-        "q": { "zh": "要找的照片", "en": "Photo to find" },
-        "a": { "zh": "候选 a", "en": "Candidate a" },
-        "b": { "zh": "候选 b", "en": "Candidate b" },
-        "c": { "zh": "候选 c", "en": "Candidate c" }
+        "q": { "zh": "要找的照片" },
+        "a": { "zh": "候选 a" },
+        "b": { "zh": "候选 b" },
+        "c": { "zh": "候选 c" }
       },
       "outputs": ["pa", "pb", "pc"],
-      "outputLabels": { "pa": { "zh": "是 a", "en": "Is a" }, "pb": { "zh": "是 b", "en": "Is b" }, "pc": { "zh": "是 c", "en": "Is c" } },
+      "outputLabels": { "pa": { "zh": "是 a" }, "pb": { "zh": "是 b" }, "pc": { "zh": "是 c" } },
       "scene": "nearest",
       "tests": [
         {
-          "label": { "zh": "T 找 T", "en": "T finds T" },
+          "label": { "zh": "T 找 T" },
           "q": { "glyph": { "letter": "T" } },
           "candidates": [
             { "glyph": { "letter": "L", "lo": 0.3, "hi": 1 } },
@@ -60,7 +54,7 @@
           "which": 1
         },
         {
-          "label": { "zh": "X 找 X", "en": "X finds X" },
+          "label": { "zh": "X 找 X" },
           "q": { "noisy": { "of": { "glyph": { "letter": "X" } }, "seed": 3, "amp": 0.1 } },
           "candidates": [
             { "glyph": { "letter": "X", "hi": 0.6, "oy": 4 } },
@@ -70,7 +64,7 @@
           "which": 0
         },
         {
-          "label": { "zh": "O 找 O", "en": "O finds O" },
+          "label": { "zh": "O 找 O" },
           "q": { "glyph": { "letter": "O", "ox": 2 } },
           "candidates": [
             { "glyph": { "letter": "F", "lo": 0.3, "hi": 1 } },
@@ -82,7 +76,7 @@
       ],
       "hidden": [
         {
-          "label": { "zh": "F 找 F", "en": "F finds F" },
+          "label": { "zh": "F 找 F" },
           "q": { "glyph": { "letter": "F", "lo": 0.2 } },
           "candidates": [
             { "glyph": { "letter": "T", "lo": 0.3, "hi": 1 } },

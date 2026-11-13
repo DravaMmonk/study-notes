@@ -9,7 +9,7 @@ import { FLAG, FORMATS, arrived, bitsOf, checkOf, decode, encode, remainder, sai
 import { PARTS } from './parts.js'
 import { board } from './board.js'
 import { primitivesOnly } from '../../engine/circuit-domain.js'
-import { runLevel } from './run.js'
+import { cells, check, runLevel } from './run.js'
 import { wantOf } from './wants.js'
 import { netCourse } from './course.js'
 import { assemble } from '../../engine/content.js'
@@ -95,6 +95,16 @@ test('a board on its wires: registers carry, the queue is pulled, the far end de
   assert.ok(!run.fail, 'ten 1s decode as 255 and a stray bit: exactly the queue')
 })
 
+test('a check a player writes is the bits arriving on each wire in, as long as the task’s longest test', () => {
+  const echo = { wires: W(['x'], ['y']), want: wantOf({ y: { echo: { wire: 'x' } } }), tests: [{ ticks: 3 }, { ticks: 5 }] }
+  assert.deepEqual(cells(echo), [{ name: 'x', label: 'x', shape: 'bits', ticks: 5 }])
+  const { test: row } = check(echo, { x: [1, 0, 1, 1, 0] })
+  assert.deepEqual(row, { ticks: 5, wires: { x: [1, 0, 1, 1, 0] }, inputs: {}, queue: [] })
+  const on = (lines) => runLevel({ ...echo, tests: [row] }, fromText(lines, echo, plain), partOf).runs[0].fail
+  assert.equal(on(['y <- x']), undefined)
+  assert.equal(on(['o = const[value=1]()', 'y <- o']).at.tick, 1, 'a board that always says 1 is caught on the first 0')
+})
+
 test('a built part takes its level’s wires as ports', () => {
   const lv = (id, { builds, adds, ...task }) => ({ id, title: id, ...(adds && { adds }), ...(builds && { builds }), tasks: [{ brief: id, ...task }] })
   const content = assemble({
@@ -129,7 +139,7 @@ test('a reply a frame, and yes standing for 1', () => {
   assert.deepEqual(wantOf({ x: { answers: { wire: 'a', format: 'flagbyte' } } })(t).x.order, [1, 'end', 1, 'end', 0, 'end'])
   const level = { outputs: [{ name: 'o', label: 'o' }], want: wantOf({ o: 'given' }), tests: [{ ticks: 2, wires: {}, inputs: {}, queue: [], expect: { o: [1, 0] } }] }
   const eq = fromText(['z = const[value=0]()', 'e = equal(z, z)', 'o <- e'], level, plain)
-  assert.equal(runLevel(level, eq, partOf).runs[0].fail.tick, 1)
+  assert.equal(runLevel(level, eq, partOf).runs[0].fail.at.tick, 1)
 })
 
 test('the starter game passes its checks', async () => {

@@ -151,11 +151,13 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     sizeOf: (n) => { const el=fresh?layer.current?.querySelector(`[data-piece="${CSS.escape(n.id)}"]`):null; const size = el ? [el.offsetWidth,el.offsetHeight] : geo.sizes[n.id] ?? [widthOf(n), height]; return { w: size[0], h: size[1] } },
     roleOf: parts.role,
     width: surface.current?.clientWidth ?? 1100,
+    height: surface.current?.clientHeight ?? Infinity,
     gapX: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-gap-x')),
     gapY: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-gap-y')),
     pad: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-pad')),
     portY: (id, key, side) => geo.offsets?.[side === 'out' ? outPort(key ? `${id}#${key}` : id) : inPort(id, key)] ?? 46,
   })
+  const gapOf=(name)=>Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name))||0
   const spacing={pad:Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-pad')),title:Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-head-height'))}
   const freshPlan=blocks?arrange():null
   const coordinatePlan=(plan,positions)=>({...plan,nodes:positions,units:plan.units.map(u=>{
@@ -238,7 +240,9 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const fit = () => {
     const box = surface.current?.getBoundingClientRect()
     if (!box || !box.width || !top.length) return
-    const xs = top.flatMap((n) => [n.x, n.x + sizeOf(n)[0]])
+    // A board with no input cards keeps their column (from the board's left edge, 0) in view: its outputs stay right.
+    const open = blocks && !top.some((n) => parts.role(n) === 'source')
+    const xs = [...top.flatMap((n) => [n.x, n.x + sizeOf(n)[0]]), ...(open ? [0] : [])]
     const ys = top.flatMap((n) => [n.y, n.y + sizeOf(n)[1]])
     const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
     const pad = 36
@@ -270,9 +274,17 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
       const el = ownIn(layer.current, `[data-node="${CSS.escape(n.id)}"]`)[0]
       return el ? [el.offsetWidth, el.offsetHeight] : sizeOf(n)
     }
-    const beside = (groups.length ? top : graph.nodes).filter((n) => n.id !== node.id && (n.in ?? null) === (node.in ?? null)).map((n) => [n.x, n.y, ...drawn(n)])
-    const candidate = arrange().nodes.get(node.id) ?? node
-    const spot = clearSpot(beside, drawn(node), [candidate.x, candidate.y])
+    const others = (groups.length ? top : graph.nodes).filter((n) => n.id !== node.id && (n.in ?? null) === (node.in ?? null))
+    const beside = others.map((n) => [n.x, n.y, ...drawn(n)])
+    const size = drawn(node)
+    // On the board itself a card goes left of the outputs, as wide as it is drawn, at the height it was given (or
+    // the outputs' top): a card reaching past their left edge is brought back, and one in the way of another moves
+    // on leftwards or down. Elsewhere it moves right or down from where the layout would put it.
+    const sinks = node.in ? [] : others.filter((n) => !n.hiddenBlock && parts.role(n) === 'sink' && Number.isFinite(n.x))
+    const edge = Math.min(...sinks.map((n) => n.x)) - Math.max(gapOf('--board-gap-x'), 56)
+    const want = sinks.length ? [Math.min(node.x ?? edge, edge - size[0]), Number.isFinite(node.y) ? node.y : Math.min(...sinks.map((n) => n.y))] : null
+    const candidate = want ? { x: want[0], y: want[1] } : arrange().nodes.get(node.id) ?? node
+    const spot = clearSpot(beside, size, [candidate.x, candidate.y], 16, want ? -1 : 1) ?? (want && (want[0] !== node.x || want[1] !== node.y) ? want : null)
     if (!spot) return
     moving.current = true
     onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, x: spot[0], y: spot[1] } : n)) }, { keep: true })
@@ -598,10 +610,10 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const outs = listed && !(listed.length === 1 && listed[0].key === null) ? listed : null
     const icon = parts.icon?.(node)
     const wired = (src) => graph.wires.some((w) => w.from === src)
-    const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点击后再点击另一个元件的输入口，也可以直接拖动连接', 'Click, then click an input on another part; or drag to it')} onClick={() => clickPort(outPort(src))}><i /></i>
+    const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点击后再点击另一个元件的输入口，也可以直接拖动连接')} onClick={() => clickPort(outPort(src))}><i /></i>
     const inDot = (port, extra = '') => {
       const wired = graph.wires.some((w) => w.to === node.id && w.port === port)
-      return <i className={`port port-in ${wired ? 'is-wired' : ''} ${portClass(inPort(node.id, port))} ${extra}`} data-p={inPort(node.id, port)} title={wired && !picking ? tr('点击取下这根连线，再点击其他输入口重新连接', 'Click to detach this wire, then click another input to reconnect it') : undefined} onClick={() => clickPort(inPort(node.id, port))}><i /></i>
+      return <i className={`port port-in ${wired ? 'is-wired' : ''} ${portClass(inPort(node.id, port))} ${extra}`} data-p={inPort(node.id, port)} title={wired && !picking ? tr('点击取下这根连线，再点击其他输入口重新连接') : undefined} onClick={() => clickPort(inPort(node.id, port))}><i /></i>
     }
     return (
       <div
@@ -618,7 +630,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
         <div className="node-head" data-drag onPointerDown={() => choose(node)}>
           <div className="node-heading">
             {regions.length > 0 && (
-              <button className="frame-fold" aria-label={node.fold ? tr('展开', 'Expand') : tr('折叠', 'Collapse')} aria-expanded={!node.fold} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, fold: !n.fold } : n)) }, { keep: true })}>
+              <button className="frame-fold" aria-label={node.fold ? tr('展开') : tr('折叠', 'Collapse')} aria-expanded={!node.fold} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, fold: !n.fold } : n)) }, { keep: true })}>
                 {node.fold ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
               </button>
             )}
@@ -628,7 +640,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
           <div className="node-actions">
             {head?.(node)}
             {removable(node) && (
-              <button className="node-delete" aria-label={tr('删除元件', 'Delete part')} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange(removeNode(graph, node.id))}>
+              <button className="node-delete" aria-label={tr('删除元件')} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange(removeNode(graph, node.id))}>
                 <X size={12} />
               </button>
             )}
@@ -781,7 +793,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
 
       {canDelete && (
         <button className="board-delete" onPointerDown={(e) => e.stopPropagation()} onClick={removeSelected}>
-          <Trash2 size={14} /> {selected.wire ? tr('删除连线', 'Delete wire') : tr('删除元件', 'Delete part')}
+          <Trash2 size={14} /> {selected.wire ? tr('删除连线') : tr('删除元件')}
         </button>
       )}
       {refused && <p className="board-refusal" role="status">{L(refused)}</p>}
@@ -796,16 +808,16 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
         {!readOnly && (
           <>
             {onClear && <><ClearButton onClear={onClear} /><i className="board-zoom-rule" aria-hidden="true" /></>}
-            <button onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销', 'Undo')} title={tr('撤销（⌘/Ctrl+Z）', 'Undo (⌘/Ctrl+Z)')}><Undo2 size={14} /></button>
-            <button onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做', 'Redo')} title={tr('重做（⇧⌘/Ctrl+Z）', 'Redo (⇧⌘/Ctrl+Z)')}><Redo2 size={14} /></button>
+            <button onClick={history.undo} disabled={!history.canUndo} aria-label={tr('撤销')} title={tr('撤销（⌘/Ctrl+Z）')}><Undo2 size={14} /></button>
+            <button onClick={history.redo} disabled={!history.canRedo} aria-label={tr('重做')} title={tr('重做（⇧⌘/Ctrl+Z）')}><Redo2 size={14} /></button>
             <i className="board-zoom-rule" aria-hidden="true" />
           </>
         )}
         {!readOnly&&blocks&&<button type="button" aria-label={L(WORDS.partition)} aria-pressed={partitioning} onClick={()=>{if(partitioning)selectionCancel.current?.();setPartitioning(!partitioning);setSelectionRect(null)}}><Group size={14} /></button>}
-        <button onClick={() => zoomAt(0.85, ...centre())} aria-label={tr('缩小', 'Zoom out')}><Minus size={14} /></button>
+        <button onClick={() => zoomAt(0.85, ...centre())} aria-label={tr('缩小')}><Minus size={14} /></button>
         <output>{Math.round(view.zoom * 100)}%</output>
-        <button onClick={() => zoomAt(1 / 0.85, ...centre())} aria-label={tr('放大', 'Zoom in')}><Plus size={14} /></button>
-        <button onClick={fit} aria-label={tr('适配画布', 'Fit to view')}><Maximize size={13} /></button>
+        <button onClick={() => zoomAt(1 / 0.85, ...centre())} aria-label={tr('放大')}><Plus size={14} /></button>
+        <button onClick={fit} aria-label={tr('适配画布')}><Maximize size={13} /></button>
       </div>
     </div>
   )

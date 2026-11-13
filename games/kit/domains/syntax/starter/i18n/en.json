@@ -1,0 +1,21 @@
+{
+  "__title__": "__title__",
+  "开发中": "In development",
+  "把修饰成分折起来，挂到它修饰的词上，主干就露出来了。": "Fold each modifier onto the word it modifies, and the skeleton shows.",
+  "主干": "The skeleton",
+  "第一章": "Era 1",
+  "一句话的主干在哪？": "Where is a sentence's skeleton?",
+  "句子成分": "Parts of a sentence",
+  "主语、谓语和宾语。": "The subject, the verb and the object.",
+  "标出这句话的主干。": "Mark the skeleton of this sentence.",
+  "The model learns a policy.": "The model learns a policy.",
+  "主语、谓语、宾语就是整句的主干。": "Subject, verb and object are the whole skeleton.",
+  "主干 = 谁 + 做什么 + 对什么。": "Skeleton = who + does what + to what.",
+  "标出主语、谓语和宾语。": "Mark the subject, the verb and the object.",
+  "修饰动作": "Telling about the action",
+  "介词短语也可以挂在动词上。": "A prepositional phrase can also hang on the verb.",
+  "We train the model on one GPU.": "We train the model on one GPU.",
+  "<i>on one GPU</i> 说明的是训练这件事。": "<i>on one GPU</i> tells about the training.",
+  "说明“在哪、怎么做”挂动词。": "Where or how: on the verb.",
+  "标出主干，把修饰成分挂到它修饰的词上。": "Mark the skeleton and fold the modifier onto the word it modifies."
+}

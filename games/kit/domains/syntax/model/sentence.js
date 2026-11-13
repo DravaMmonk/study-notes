@@ -126,18 +126,18 @@ export const standing = (tokens, folds, [a, b]) => {
 
 /** Why a..b cannot be folded as it stands, or null. */
 export function foldRefusal(analysis, a, b) {
-  if (analysis.folds.some((f) => f.a === a && f.b === b)) return pair('这一块已经折起来了。', 'This is folded already.')
-  if (analysis.folds.some((f) => crosses(f, { a, b }))) return pair('这样会把一块折好的成分切开。', 'That would cut through a folded piece.')
+  if (analysis.folds.some((f) => f.a === a && f.b === b)) return pair('这一块已经折起来了。')
+  if (analysis.folds.some((f) => crosses(f, { a, b }))) return pair('这样会把一块折好的成分切开。')
   const left = top(analysis.folds).find((f) => (f.b < a || f.a > b) && a <= f.to && f.to <= b)
-  if (left) return pair('这一块里有个词还挂着外面的一块修饰成分：修饰成分跟着它修饰的词走，要一起折进来。', 'A word in here still has a folded modifier hanging on it from outside: a modifier goes with its word, so take it in too.')
+  if (left) return pair('这一块里有个词还挂着外面的一块修饰成分：修饰成分跟着它修饰的词走，要一起折进来。')
   return null
 }
 
 /** Why a..b cannot hang on the word at `to`, or null. */
 export function targetRefusal(tokens, analysis, a, b, to) {
-  if (!tokens[to]?.word) return pair('要点一个词。', 'Tap a word.')
-  if (a <= to && to <= b) return pair('它修饰的词在这一块外面。', 'The word it modifies is outside it.')
-  if (hidden(analysis.folds, to)) return pair('这个词已经折在别的成分里了。', 'That word is folded inside another piece.')
+  if (!tokens[to]?.word) return pair('要点一个词。')
+  if (a <= to && to <= b) return pair('它修饰的词在这一块外面。')
+  if (hidden(analysis.folds, to)) return pair('这个词已经折在别的成分里了。')
   return null
 }
 
@@ -184,7 +184,7 @@ export function check(gold, analysis) {
 
   // Nothing marked at all: one finding for the skeleton, not one a role (which would tell which roles there are).
   if (!Object.keys(analysis.roles).length) {
-    find(pair('还没有标出主干。', 'The skeleton is not marked yet.'))
+    find(pair('还没有标出主干。'))
     return { pass: false, findings }
   }
   for (const role of Object.keys(ROLES)) {

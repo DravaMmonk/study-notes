@@ -38,6 +38,7 @@ import Tree from './Tree.jsx'
 import Search from './Search.jsx'
 import Editor from './Editor.jsx'
 import CopyTable from './CopyTable.jsx'
+import Translations from './Translations.jsx'
 import Compare from './Compare.jsx'
 import Audit from './Audit.jsx'
 import Review from './Review.jsx'
@@ -48,7 +49,7 @@ import Palette from './Palette.jsx'
 import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
-const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
+const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['i18n', '译文', 'Translation'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
 const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
 const SIZE = { tree: [180, 640], audit: [90, 900], side: [260, 900] } // px: the tree's width, the audit drawer's height, the side panel's width
@@ -103,7 +104,7 @@ function Resizer({ side, size, open, setLayout }) {
   }
   return (
     <div
-      className={`studio-resize is-${side} ${open ? '' : 'is-shut'}`} role="separator" aria-orientation={across ? 'vertical' : 'horizontal'} tabIndex={0} aria-label={tr('拖动改大小，双击收起', 'Drag to resize, double-click to fold')}
+      className={`studio-resize is-${side} ${open ? '' : 'is-shut'}`} role="separator" aria-orientation={across ? 'vertical' : 'horizontal'} tabIndex={0} aria-label={tr('拖动改大小，双击收起')}
       onPointerDown={drag} onDoubleClick={() => set({ [`${side}Open`]: !open })} onClick={() => !open && set({ [`${side}Open`]: true })}
       onKeyDown={(e) => {
         if (e.key === 'Enter') set({ [`${side}Open`]: !open })
@@ -427,18 +428,18 @@ export default function Studio() {
         if (!existing) write(list)
         return pickField([...base, ...m.path], true, list)
       }
-      const next = [...list, { show: 'text', text: { zh: '', en: '' } }]
+      const next = [...list, { show: 'text', text: { zh: '' } }]
       write(next)
       return pickField([...path, list.length], true, next)
     }
     if (m.type === 'pick') return pickField([...base, ...m.path], true)
     const list = def[key] ?? []
-    const blankOf = { rules: { set: {} }, checks: { holds: 'eq(1, 1)', say: { zh: '', en: '' } } }
+    const blankOf = { rules: { set: {} }, checks: { holds: 'eq(1, 1)', say: { zh: '' } } }
     edit({ op: 'parts.set', path: [...base, key], value: [...list, blankOf[key]] })
     return pickField([...base, key, list.length], true)
   }
   const apply = async () => {
-    const r = await call('modify', { game, changeset, base: head })
+    const r = await call('modify', { game, changeset: { ...changeset, by: 'studio' }, base: head })
     setSaid(r.ok ? { ok: true, text: r.says.join('; ') } : { ok: false, text: r.problems.join('\n') })
     if (r.ok) {
       setOps([])
@@ -475,7 +476,7 @@ export default function Studio() {
       const k = `${level}|${showPath(path)}`
       const value = content.levels.find((l) => l.id === level)
       const board = referenceFor(vocab.vocabulary, value, path)
-      if (!board) return setRuns((r) => ({ ...r, [k]: { covered: false, why: tr('这一关没有参考解', 'The level has no reference') } }))
+      if (!board) return setRuns((r) => ({ ...r, [k]: { covered: false, why: tr('这一关没有参考解') } }))
       setRuns((r) => ({ ...r, [k]: { running: true } }))
       const answer = await call('run_tests', { game, level, path: showPath(board), changeset }).catch((error) => ({ covered: false, why: error.message }))
       setRuns((r) => ({ ...r, [k]: answer }))
@@ -513,27 +514,27 @@ export default function Studio() {
   // The studio's actions: the palette lists them, the keys run the same ones.
   const level = at?.level && content?.levels.some((l) => l.id === at.level) ? at.level : null
   const ACTIONS = [
-    ['search', tr('在整款游戏里搜索、替换', 'Search and replace across the game'), `${MOD}+Shift+F`, openSearch],
-    ['copy', tr('文案表', 'Copy table'), '', () => setTab('copy')],
+    ['search', tr('在整款游戏里搜索、替换'), `${MOD}+Shift+F`, openSearch],
+    ['copy', tr('文案表'), '', () => setTab('copy')],
     ['compare', tr('比较', 'Compare'), '', () => setTab('compare')],
-    ['page', tr('画面：在游戏的页面上改', 'Page: edit on the game’s own page'), '', () => { setTab('page'); setPageEdit(true) }],
-    ['fields', tr('字段：这一关的全部字段', 'Fields: every field of the level'), '', () => setTab('fields')],
+    ['page', tr('画面：在游戏的页面上改'), '', () => { setTab('page'); setPageEdit(true) }],
+    ['fields', tr('字段：这一关的全部字段'), '', () => setTab('fields')],
     ...(level ? [
-      ['play-ref', tr('载入参考解试玩这一关', 'Play this level with its reference'), `${level} · ${MOD}+Enter`, () => playFrom(level, true)],
-      ['play', tr('试玩这一关（不显示编辑标记）', 'Play this level (no edit marks)'), level, () => { setPageEdit(false); playFrom(level, false) }],
-      ['duplicate', tr('复制这一关成新的一关……', 'Duplicate this level as…'), level, (id) => duplicate(level, id), { placeholder: tr(`${level} 的副本的 id`, `The id of ${level}’s copy`), value: `${level}-2` }],
-      ['rename', tr('给这一关换 id……', 'Rename this level…'), level, (id) => { edit({ op: 'level.rename', level, to: id }); select({ level: id }) }, { placeholder: tr(`${level} 的新 id`, `${level}’s new id`), value: level }],
-      ['move', tr('移动这一关', 'Move this level'), level, () => setMoving([level])],
+      ['play-ref', tr('载入参考解试玩这一关'), `${level} · ${MOD}+Enter`, () => playFrom(level, true)],
+      ['play', tr('试玩这一关（不显示编辑标记）'), level, () => { setPageEdit(false); playFrom(level, false) }],
+      ['duplicate', tr('复制这一关成新的一关……'), level, (id) => duplicate(level, id), { placeholder: tr(`${level} 的副本的 id`, `The id of ${level}’s copy`), value: `${level}-2` }],
+      ['rename', tr('给这一关换 id……'), level, (id) => { edit({ op: 'level.rename', level, to: id }); select({ level: id }) }, { placeholder: tr(`${level} 的新 id`, `${level}’s new id`), value: level }],
+      ['move', tr('移动这一关'), level, () => setMoving([level])],
     ] : []),
-    ['next', tr('下一处检查结果', 'Next finding'), 'F8', () => window.dispatchEvent(new CustomEvent('studio:finding', { detail: 1 }))],
-    ['previous', tr('上一处检查结果', 'Previous finding'), 'Shift+F8', () => window.dispatchEvent(new CustomEvent('studio:finding', { detail: -1 }))],
-    ...(ops.length ? [['drop', tr('去掉最后一个待定操作', 'Drop the last pending operation'), `${MOD}+Z`, () => back(ops.length - 1)]] : []),
-    ...(redo.length ? [['redo', tr('放回去掉的操作', 'Put a dropped operation back'), `${MOD}+Shift+Z`, again]] : []),
-    ...(ops.length ? [['review', tr(`看 ${ops.length} 个待定操作`, `Review ${ops.length} pending`), '', () => setTab('review')], ['discard', tr('全部放弃', 'Discard all'), '', () => setOps([])]] : []),
-    ['tree', tr('收起或打开左栏', 'Fold the left panel'), 'Alt+[', () => togglePanel('tree')],
-    ['audit', tr('收起或打开检查栏', 'Fold the audit drawer'), 'Alt+]', () => togglePanel('audit')],
-    ['side', tr('收起或打开侧栏', 'Fold the side panel'), 'Alt+\\', () => togglePanel('side')],
-    ['keys', tr('快捷键', 'Keys'), '?', () => setOverlay('keys')],
+    ['next', tr('下一处检查结果'), 'F8', () => window.dispatchEvent(new CustomEvent('studio:finding', { detail: 1 }))],
+    ['previous', tr('上一处检查结果'), 'Shift+F8', () => window.dispatchEvent(new CustomEvent('studio:finding', { detail: -1 }))],
+    ...(ops.length ? [['drop', tr('去掉最后一个待定操作'), `${MOD}+Z`, () => back(ops.length - 1)]] : []),
+    ...(redo.length ? [['redo', tr('放回去掉的操作'), `${MOD}+Shift+Z`, again]] : []),
+    ...(ops.length ? [['review', tr(`看 ${ops.length} 个待定操作`, `Review ${ops.length} pending`), '', () => setTab('review')], ['discard', tr('全部放弃'), '', () => setOps([])]] : []),
+    ['tree', tr('收起或打开左栏'), 'Alt+[', () => togglePanel('tree')],
+    ['audit', tr('收起或打开检查栏'), 'Alt+]', () => togglePanel('audit')],
+    ['side', tr('收起或打开侧栏'), 'Alt+\\', () => togglePanel('side')],
+    ['keys', tr('快捷键'), '?', () => setOverlay('keys')],
   ].map(([id, label, keys, run, ask]) => ({ id, label, keys, run, ...(ask && { ask }) }))
 
   const fields = useMemo(() => {
@@ -602,16 +603,16 @@ export default function Studio() {
           ))}
         </nav>
         <span className="kit-spacer" />
-        <button type="button" className="studio-palette" onClick={() => setOverlay('palette')} title={tr('命令面板', 'Command palette')}><Command size={13} aria-hidden="true" /><kbd>{MOD}K</kbd></button>
+        <button type="button" className="studio-palette" onClick={() => setOverlay('palette')} title={tr('命令面板')}><Command size={13} aria-hidden="true" /><kbd>{MOD}K</kbd></button>
         <i className={`studio-busy ${busy || !fresh ? 'is-on' : ''}`} aria-hidden="true" />
         <div className="kit-actions" ref={actions} />
       </header>
-      {!ready ? <div className="studio-loading">{tr('读取中……', 'Loading…')}</div> : (
+      {!ready ? <div className="studio-loading">{tr('读取中……')}</div> : (
         <div className={`studio-body is-${tab} ${layout.treeOpen ? '' : 'no-tree'} ${layout.auditOpen ? '' : 'no-audit'} ${layout.sideOpen ? '' : 'no-side'}`} style={style}>
           <aside className="studio-tree">
             <div className="side-tabs" role="tablist">
-              <button type="button" role="tab" aria-selected={side === 'tree'} className={side === 'tree' ? 'is-on' : ''} onClick={() => setSide('tree')} title={tr('课程', 'Course')}><ListTree size={14} aria-hidden="true" /></button>
-              <button type="button" role="tab" aria-selected={side === 'search'} className={side === 'search' ? 'is-on' : ''} onClick={openSearch} title={`${tr('搜索', 'Search')} (${MOD}+Shift+F)`}><SearchIcon size={14} aria-hidden="true" /></button>
+              <button type="button" role="tab" aria-selected={side === 'tree'} className={side === 'tree' ? 'is-on' : ''} onClick={() => setSide('tree')} title={tr('课程')}><ListTree size={14} aria-hidden="true" /></button>
+              <button type="button" role="tab" aria-selected={side === 'search'} className={side === 'search' ? 'is-on' : ''} onClick={openSearch} title={`${tr('搜索')} (${MOD}+Shift+F)`}><SearchIcon size={14} aria-hidden="true" /></button>
               {content.partDefs && <button type="button" role="tab" aria-selected={side === 'parts'} className={side === 'parts' ? 'is-on' : ''} onClick={() => setSide('parts')} title={tr('元件', 'Parts')}><Shapes size={14} aria-hidden="true" /></button>}
             </div>
             {side === 'parts' && content.partDefs
@@ -628,6 +629,11 @@ export default function Studio() {
                 {tab === 'copy' && (
                   <article className="editor is-wide">
                     <CopyTable content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={playOrder} names={names} places={places} onEdit={edit} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.level ? null : 'game')} />
+                  </article>
+                )}
+                {tab === 'i18n' && (
+                  <article className="editor is-wide">
+                    <Translations content={content} vocabulary={vocab.vocabulary} order={playOrder} names={names} onEdit={edit} />
                   </article>
                 )}
                 {tab === 'compare' && <Compare game={game} content={content} base={base} at={at} levelOptions={levelOptions} onJump={(lvl, path) => jump(lvl, path)} />}

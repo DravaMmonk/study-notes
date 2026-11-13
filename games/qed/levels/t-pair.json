@@ -1,37 +1,33 @@
 {
-  "title": { "zh": "其余的连接词是数据", "en": "The other connectives are data" },
+  "title": { "zh": "其余的连接词是数据" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "zh": "「若…则…」的证明是函数，别的连接词的证明是<b>数据</b>。「A ∧ B」的证明是一<b>对</b>，写作 ⟨a, b⟩，p.1、p.2 取出它的两半。「A ∨ B」只有一边成立，证明带着<b>标签</b>：Or.inl a 是「左边，证明是 a」，Or.inr b 是「右边」；分情况写作 p.elim f g，按标签决定用 f 还是 g。",
-        "en": "A proof of an “if … then …” is a function; the other connectives’ proofs are <b>data</b>. A proof of “A ∧ B” is a <b>pair</b>, written ⟨a, b⟩, and p.1 and p.2 take out its halves. In “A ∨ B” only one side holds, so its proof carries a <b>tag</b>: Or.inl a means “the left one, proved by a”, Or.inr b “the right one”; Cases is written p.elim f g, and the tag decides whether f or g is used."
+        "zh": "「若…则…」的证明是函数，别的连接词的证明是<b>数据</b>。「A ∧ B」的证明是一<b>对</b>，写作 ⟨a, b⟩，p.1、p.2 取出它的两半。「A ∨ B」只有一边成立，证明带着<b>标签</b>：Or.inl a 是「左边，证明是 a」，Or.inr b 是「右边」；分情况写作 p.elim f g，按标签决定用 f 还是 g。"
       }
     },
     {
       "t": {
-        "zh": "否定不需要新东西：¬A 就是 A → ⊥。⊥ 没有证明，像一个没有值的类型；万一有了一个，<b>False.elim</b> 把它当作任何一句的证明。",
-        "en": "Negation needs nothing new: ¬A is A → ⊥. ⊥ has no proof, like a type with no values; should one turn up, <b>False.elim</b> makes it a proof of any sentence."
+        "zh": "否定不需要新东西：¬A 就是 A → ⊥。⊥ 没有证明，像一个没有值的类型；万一有了一个，<b>False.elim</b> 把它当作任何一句的证明。"
       }
     }
   ],
   "after": {
-    "zh": "证明板上的每条规则，不是造一种值，就是用一种值。",
-    "en": "Every rule on the proof board either makes a kind of value or uses one."
+    "zh": "证明板上的每条规则，不是造一种值，就是用一种值。"
   },
   "tasks": [
     {
       "id": "t-pair_1",
       "kind": "proof",
       "terms": true,
-      "step": { "zh": "∧ 是一对", "en": "∧ is a pair" },
+      "step": { "zh": "∧ 是一对" },
       "tests": [{ "premises": { "p": "A ∧ B" }, "goal": "B ∧ A", "term": "⟨p.2, p.1⟩" }],
       "cases": [{ "A": "Rain", "B": "Sat" }, { "A": "Coffee", "B": "Late" }],
-      "briefNote": { "zh": "证明项须为 ⟨p.2, p.1⟩。", "en": "Its proof term must be ⟨p.2, p.1⟩." },
+      "briefNote": { "zh": "证明项须为 ⟨p.2, p.1⟩。" },
       "hint": [
         {
-          "zh": "⟨a, b⟩ 是拼成的一对；p.1 是 p 的左一半，p.2 是右一半。",
-          "en": "⟨a, b⟩ is a pair joined; p.1 is the left half of p, p.2 the right."
+          "zh": "⟨a, b⟩ 是拼成的一对；p.1 是 p 的左一半，p.2 是右一半。"
         }
       ],
       "solution": ["e = andE(p)", "i = andI(e.right, e.left)", "goal <- i"]
@@ -40,19 +36,17 @@
       "id": "t-pair_2",
       "kind": "proof",
       "terms": true,
-      "step": { "zh": "∨ 带着标签", "en": "∨ carries a tag" },
+      "step": { "zh": "∨ 带着标签" },
       "tests": [
         { "premises": { "p": "A ∨ B" }, "goal": "B ∨ A", "term": "p.elim (fun a => Or.inr a) (fun b => Or.inl b)" }
       ],
       "cases": [{ "A": "Rain", "B": "Sat" }, { "A": "Coffee", "B": "Late" }],
       "briefNote": {
-        "zh": "证明项须为 p.elim (fun a => Or.inr a) (fun b => Or.inl b)。",
-        "en": "Its proof term must be p.elim (fun a => Or.inr a) (fun b => Or.inl b)."
+        "zh": "证明项须为 p.elim (fun a => Or.inr a) (fun b => Or.inl b)。"
       },
       "hint": [
         {
-          "zh": "Or.inl、Or.inr 是贴上「左边」「右边」的标签；p.elim 后面的两个 fun 是分情况的两个格子。",
-          "en": "Or.inl and Or.inr put on the tags “left” and “right”; the two funs after p.elim are the two compartments of Cases."
+          "zh": "Or.inl、Or.inr 是贴上「左边」「右边」的标签；p.elim 后面的两个 fun 是分情况的两个格子。"
         }
       ],
       "solution": [
@@ -71,14 +65,13 @@
       "id": "t-pair_3",
       "kind": "proof",
       "terms": true,
-      "step": { "zh": "⊥ 是空的", "en": "⊥ is empty" },
+      "step": { "zh": "⊥ 是空的" },
       "tests": [{ "premises": { "p": "A", "q": "¬A" }, "goal": "B", "term": "False.elim (q p)" }],
       "cases": [{ "A": "Rain", "B": "Sat" }, { "A": "Coffee", "B": "Late" }],
-      "briefNote": { "zh": "证明项须为 False.elim (q p)。", "en": "Its proof term must be False.elim (q p)." },
+      "briefNote": { "zh": "证明项须为 False.elim (q p)。" },
       "hint": [
         {
-          "zh": "¬下雨 就是 下雨 → ⊥，所以 q p 是矛盾；False.elim 把矛盾变成想要的任何一句。",
-          "en": "¬it rains is it rains → ⊥, so q p is the contradiction; False.elim turns it into any sentence wanted."
+          "zh": "¬下雨 就是 下雨 → ⊥，所以 q p 是矛盾；False.elim 把矛盾变成想要的任何一句。"
         }
       ],
       "solution": ["m = mp(q, p)", "b = botE[C=B](m)", "goal <- b"]

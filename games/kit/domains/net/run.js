@@ -8,29 +8,22 @@
 // level  { wires, inputs, outputs, pulls?, want(test) → { name: { ticks } | { order, words, far? } } } (wants.js)
 //
 // runTest(level, circuit, test, parts) → { ticks: [{ tick, values, errors, outputs, bind, trace, failed? }], want,
-//   fail?, final? }: a tick's `failed` is why something was wrong on it, `final` why the run as a whole was (an order
-//   or the far end); `fail` the first of them
+//   fail? }: a tick's `failed` is why something was wrong on it; `fail` is the first failure
+// cells(task) → what a row the player writes as a check is made of, where a task gives works to catch: the bits
+//   arriving on each wire in, as many ticks as the task's longest test
+// check(task, row) → { test }   such a row as a test
 // entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): what arrives on
 //   each wire in, the inputs, the head of the queue, and each wire out and output against what is wanted, tick by
 //   tick or in order
 import { boardNode } from '../../engine/ticks.js'
+import { tickJudge, tickReport } from '../../engine/circuit-run.js'
+import { inOrder, sameAs } from '../../engine/judge.js'
+import { runTests } from '../../engine/test-run.js'
 import { farEnd } from './wants.js'
-import { T } from '../../shell/i18n.js'
+import { T, sideOf } from '../../shell/i18n.js'
 
-const show = (v) => (v === null || v === undefined ? '—' : v === true ? T('是', 'yes') : v === false ? T('否', 'no') : v === 'end' ? T('帧尾', 'end') : String(v))
-const L2 = (v, lang) => (typeof v === 'object' ? v[lang] : v)
-const list = (values, lang) => (values.length ? values.map((v) => L2(show(v), lang)).join(' ') : lang === 'zh' ? '（什么也没有）' : '(nothing)')
-
-/** Why `got` is not `want` at tick `tick` for `label`. */
-const wrong = (tick, label, want, got) => T(
-  `第 ${tick} 拍，「${label.zh ?? label}」应当是 ${L2(show(want), 'zh')}，这块板给出 ${L2(show(got), 'zh')}。`,
-  `At tick ${tick}, “${label.en ?? label}” should be ${L2(show(want), 'en')}; the board gives ${L2(show(got), 'en')}.`,
-)
-/** Why the values given in order are not the ones wanted. */
-const misordered = (label, words, want, got) => T(
-  `「${label.zh ?? label}」：${words.zh}应当是 ${list(want, 'zh')}，这块板给出 ${list(got, 'zh')}。`,
-  `“${label.en ?? label}”: ${words.en} should be ${list(want, 'en')}; the board gives ${list(got, 'en')}.`,
-)
+const show = (v) => (v === null || v === undefined ? '—' : v === true ? T('是', 'yes') : v === false ? T('否', 'no') : v === 'end' ? T('帧尾') : String(v))
+const list = (values, lang) => (values.length ? values.map((v) => sideOf(show(v), lang)).join(' ') : lang === 'zh' ? '（什么也没有）' : '(nothing)')
 
 /** Everything a level checks: its wires out and outputs, with their labels. */
 export const checked = (level) => [...(level.wires?.out ?? []), ...(level.outputs ?? [])]
@@ -51,7 +44,6 @@ export function runTest(level, circuit, test, parts) {
   const you = boardNode({ id: 'you', circuit, parts, bind, traced: true })
   const want = level.want(test)
   const out = []
-  let fail = null
   for (let t = 0; t < test.ticks; t++) {
     const given = bind(t)
     const { values, errors, outputs, trace } = you.hear(t, null)
@@ -59,41 +51,38 @@ export function runTest(level, circuit, test, parts) {
     for (const w of level.wires?.out ?? []) outputs[w.name] = typeof outputs[w.name] === 'boolean' ? Number(outputs[w.name]) : outputs[w.name] ?? 0
     const tick = { tick: t, values, errors, outputs, bind: given, trace }
     if (pulls && yes(outputs[pulls.next]) && head < queue.length) head += 1
-    if (!fail) {
-      for (const o of checked(level)) {
-        const w = want[o.name]?.ticks?.[t]
-        const got = outputs[o.name] ?? null
-        if (w !== undefined && !same(w, got)) {
-          fail = { tick: t, name: o.name, want: w, got }
-          tick.failed = wrong(t, o.label, w, got)
-          break
-        }
-      }
-    }
     out.push(tick)
   }
-  let final = null
-  for (const o of checked(level)) {
-    const w = want[o.name]
-    if (fail || !w?.order) continue
-    const values = out.map((t) => t.outputs[o.name] ?? null)
-    const got = w.far ? farEnd(w.far, values) : values.filter((v) => v !== null && v !== undefined)
-    if (got.length !== w.order.length || got.some((v, k) => !same(w.order[k], v))) {
-      fail = { name: o.name, want: w.order, got }
-      final = misordered(o.label, w.words, w.order, got)
-      break
-    }
-  }
-  return { ticks: out, want, ...(fail ? { fail } : {}), ...(final ? { final } : {}) }
+  const ports = checked(level)
+  const judge = tickJudge({ checked: ports, want: (name) => want[name]?.ticks, same, show })
+  const fail = judge(out)
+  if (fail) return { ...tickReport(out, fail), want }
+  const ordered = ports.filter((port) => want[port.name]?.order).map((port) => {
+    const expected = want[port.name]
+    return sameAs(expected.order, {
+      at: port.name,
+      got: (steps) => {
+        const values = steps.map((step) => step.outputs[port.name] ?? null)
+        return expected.far ? farEnd(expected.far, values) : values.filter((value) => value !== null)
+      },
+      same: (want, got) => got.length === want.length && got.every((value, k) => same(want[k], value)),
+      why: () => ({ relation: 'order', subject: port.label, words: expected.words, show: list }),
+    })
+  })
+  const final = inOrder(...ordered)(out)
+  return { ticks: out, want, ...(final ? { fail: final } : {}) }
 }
 
 /** Every test of a level on a board: { runs, pass }. */
-export function runLevel(level, circuit, parts) {
-  const runs = level.tests.map((test) => runTest(level, circuit, test, parts))
-  return { runs, pass: runs.every((r) => !r.fail) }
-}
+export const runLevel = runTests(runTest)
 
 export { show }
+
+/** A check's row: what arrives on each wire in, a bit a tick. A task that gives works reads wires only (course.js). */
+export const cells = (task) => (task.wires?.in ?? []).map((w) => ({ name: w.name, label: w.label, shape: 'bits', ticks: Math.max(...task.tests.map((t) => t.ticks)) }))
+
+/** A row the player wrote as a check, as a test: the bits as they arrive. */
+export const check = (task, row) => ({ test: { ticks: cells(task)[0].ticks, wires: Object.fromEntries(cells(task).map((c) => [c.name, row[c.name]])), inputs: {}, queue: [] } })
 
 const labelOf = (list, name) => list.find((x) => x.name === name).label
 

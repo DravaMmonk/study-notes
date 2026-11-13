@@ -3,7 +3,7 @@ import { S } from '../../../engine/schema.js'
 import { T as t } from '../../../shell/i18n.js'
 
 export const appleLight = {
-  about: t('白光下比较两个物体的 RGB 通道，调节光强并辨认红色物体', 'compare two objects in RGB channels under neutral light, adjust its intensity and identify the red object'),
+  about: t('白光下比较两个物体的 RGB 通道，调节光强并辨认红色物体'),
   setup: S.obj({ colours: S.list(S.list(S.num(), { min: 3, max: 3 }), { min: 2, max: 2 }), red: S.int({ min: 0, max: 1 }) }),
   make({ colours, red }) {
     return {

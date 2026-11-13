@@ -1,0 +1,100 @@
+{
+  "title": { "zh": "针孔投影与深度歧义" },
+  "intro": [],
+  "after": {
+    "zh": "像高是 f·H/Z：只看 f 和 Z 的比；亮度只看孔径和 f。孔板一动，Z 和 f 一起变。"
+  },
+  "tasks": [
+    {
+      "id": "projection",
+      "kind": "board",
+      "brief": {
+        "zh": "暗箱里的像高 20 毫米。每一步把它变成 40 毫米，但只能动这一步开着的旋钮。先算好位置，再检查。"
+      },
+      "bench": {
+        "model": "obscura",
+        "setup": { "arrow": 40, "shaft": 3, "table": 640, "gap": 20 },
+        "knobs": {
+          "Z": { "min": 150, "max": 520, "step": 1, "start": 300, "drawn": true },
+          "s": { "min": 170, "max": 640, "step": 1, "start": 450, "drawn": true },
+          "D": {
+            "label": { "zh": "孔径 D" },
+            "min": 1,
+            "max": 1,
+            "step": 1,
+            "start": 1,
+            "fixed": true,
+            "unit": " mm"
+          }
+        },
+        "check": "submit",
+        "stages": [
+          {
+            "title": { "zh": "只挪屏幕" },
+            "note": {
+              "zh": "孔板不动，屏幕挪到哪里，像高正好 40 毫米？"
+            },
+            "opens": ["s"],
+            "start": { "Z": 300, "s": 450, "D": 1 },
+            "goal": [
+              {
+                "of": "height",
+                "label": { "zh": "像高" },
+                "near": 40,
+                "atMost": 0.5,
+                "format": "fixed1",
+                "unit": " mm"
+              }
+            ]
+          },
+          {
+            "title": { "zh": "只挪孔板" },
+            "note": {
+              "zh": "屏幕回到原处，这次只挪孔板，像高还是要 40 毫米。"
+            },
+            "opens": ["Z"],
+            "start": { "Z": 300, "s": 450, "D": 1 },
+            "goal": [
+              {
+                "of": "height",
+                "label": { "zh": "像高" },
+                "near": 40,
+                "atMost": 0.5,
+                "format": "fixed1",
+                "unit": " mm"
+              }
+            ]
+          },
+          {
+            "title": { "zh": "不许变暗" },
+            "note": {
+              "zh": "两样都能挪：像高 40 毫米，而且屏上不比开始时暗。"
+            },
+            "opens": ["Z", "s"],
+            "start": { "Z": 300, "s": 450, "D": 1 },
+            "goal": [
+              {
+                "of": "height",
+                "label": { "zh": "像高" },
+                "near": 40,
+                "atMost": 0.5,
+                "format": "fixed1",
+                "unit": " mm"
+              },
+              {
+                "of": "light",
+                "label": { "zh": "亮度" },
+                "atLeast": 0.16,
+                "format": "fixed2"
+              }
+            ]
+          }
+        ],
+        "layout": {
+          "main": ["obscura"],
+          "foot": [{ "panel": ["step", "verdict"] }, { "row": ["obscuraScreen", "goals"], "narrow": true }]
+        }
+      }
+    }
+  ]
+}

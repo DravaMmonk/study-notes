@@ -1,0 +1,57 @@
+{
+  "title": { "zh": "倒推回去" },
+  "intro": [
+    {
+      "t": {
+        "zh": "到这里为止，都是知道 x，求它的落点 Ax。反过来，知道落点 b，原来的 x 在哪里？这就是解<wiki-ref to=\"linear-system\"></wiki-ref> Ax = b。只要 A 不把平面压扁（det A ≠ 0），答案只有一个。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "用行列式之比求解的方法叫<wiki-ref to=\"cramer-rule\"></wiki-ref>。"
+  },
+  "builds": {
+    "type": "solve",
+    "name": { "zh": "求解" },
+    "desc": { "zh": "给出满足 Ax = b 的 x（det A ≠ 0）。" }
+  },
+  "tasks": [
+    {
+      "id": "3-4",
+      "brief": {
+        "zh": "交出满足 Ax = b 的 x（这一关的 A 的行列式都不为 0）。"
+      },
+      "hint": [
+        {
+          "zh": "x 的第一个分量，等于 x 和 ĵ 张成的平行四边形的有向面积。"
+        },
+        {
+          "zh": "这个平行四边形经 A 变换后，变成 b 和 A 的第二列张成的平行四边形，面积放大了 det A 倍。"
+        }
+      ],
+      "inputs": [{ "name": "A", "label": "A" }, { "name": "b", "label": "b" }],
+      "outputs": [{ "name": "x", "label": "x" }],
+      "tests": [
+        { "inputs": { "A": [[3, -2], [2, 1]], "b": [12, 1] }, "expect": { "x": [2, -3] } },
+        { "inputs": { "A": [[1, 1], [1, -1]], "b": [3, 1] }, "expect": { "x": [2, 1] } },
+        { "inputs": { "A": [[2, 0], [0, 4]], "b": [1, 1] }, "expect": { "x": [0.5, 0.25] } },
+        { "inputs": { "A": [[0, -1], [1, 0]], "b": [-1, 2] }, "expect": { "x": [2, 1] } }
+      ],
+      "hidden": [{ "inputs": { "A": [[0, 1], [1, 0]], "b": [5, 7] }, "expect": { "x": [7, 5] } }],
+      "solution": [
+        "a1 = column[j=\"1\"](A)",
+        "a2 = column[j=\"2\"](A)",
+        "d = det(A)",
+        "m1 = join(b, a2)",
+        "m2 = join(a1, b)",
+        "d1 = det(m1)",
+        "d2 = det(m2)",
+        "x1 = arith[op=div](d1, d)",
+        "x2 = arith[op=div](d2, d)",
+        "x0 = vec(x1, x2)",
+        "x <- x0"
+      ],
+      "naive": ["x <- b"]
+    }
+  ]
+}

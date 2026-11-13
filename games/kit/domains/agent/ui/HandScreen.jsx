@@ -39,39 +39,39 @@ export default function HandScreen({ game, level: entry, saved, save, solve, pho
   const brief = (
     <Brief game={game} level={entry} hint={level.hint} phone={phone}>
       <section className="ag-score">
-        <Readouts items={[{ value: session.tokens, label: T('token', 'tokens') }, { value: level.machine.window, label: T('窗口', 'window') }]} />
+        <Readouts items={[{ value: session.tokens, label: T('token') }, { value: level.machine.window, label: T('窗口') }]} />
       </section>
     </Brief>
   )
   const stage = (
     <div className="ag-hand">
       <section className="ag-panel ag-hand-context">
-        <h3 className="ag-head">{tr('模型的上下文', 'The model’s context')}</h3>
+        <h3 className="ag-head">{tr('模型的上下文')}</h3>
         <ContextBar call={{ ...view, tokens: view.seen.reduce((n, e) => n + e.tokens, 0) }} window={level.machine.window} list={false} />
         <ol className="ag-chips">
           {session.context.map((e, k) => (
             <li key={k} data-kind={e.kind} className={view.dropped.includes(e) ? 'is-out' : ''}>
               <span>{L(entryText(e))}</span>
-              {e.kind !== 'issue' && <button type="button" aria-label={tr('移出上下文', 'Remove from the context')} onClick={() => act(['drop', k])}><X size={13} /></button>}
+              {e.kind !== 'issue' && <button type="button" aria-label={tr('移出上下文')} onClick={() => act(['drop', k])}><X size={13} /></button>}
             </li>
           ))}
         </ol>
         <div className="ag-hand-actions">
           <button type="button" className="ag-go" onClick={() => act(['call'])}><Play size={15} /><span>{tr('调用模型', 'Call the model')}</span></button>
-          {loop && <button type="button" onClick={() => act(['list'])}><FolderTree size={15} /><span>{tr('目录', 'File list')}</span></button>}
+          {loop && <button type="button" onClick={() => act(['list'])}><FolderTree size={15} /><span>{tr('目录')}</span></button>}
           <button type="button" onClick={() => act(['test'])}><FlaskConical size={15} /><span>{tr('运行测试', 'Run tests')}</span></button>
-          <button type="button" className="ag-quiet" onClick={reset} disabled={!ops.length}><RotateCcw size={14} /><span>{tr('重新开始', 'Start over')}</span></button>
+          <button type="button" className="ag-quiet" onClick={reset} disabled={!ops.length}><RotateCcw size={14} /><span>{tr('重新开始')}</span></button>
         </div>
       </section>
       <section className="ag-panel">
         <h3 className="ag-head">{L(issue.title)}</h3>
         <Text className="ag-issue" text={issue.text} />
-        <h3 className="ag-head">{tr('仓库', 'Repository')}</h3>
+        <h3 className="ag-head">{tr('仓库')}</h3>
         <RepoView repo={repo} state={session.state} onAdd={(file) => act(['add', file])} added={files} />
       </section>
       <section className="ag-panel">
-        <h3 className="ag-head">{tr('操作记录', 'Log')}</h3>
-        {session.log.length ? <Log log={session.log} /> : <p className="ag-note">{tr('点击仓库中的文件，将它加入上下文；也可以直接调用模型。', 'Click a file in the repository to add it to the context, or call the model directly.')}</p>}
+        <h3 className="ag-head">{tr('操作记录')}</h3>
+        {session.log.length ? <Log log={session.log} /> : <p className="ag-note">{tr('点击仓库中的文件，将它加入上下文；也可以直接调用模型。')}</p>}
       </section>
     </div>
   )
@@ -84,10 +84,10 @@ function Log({ log }) {
       {[...log].reverse().map((item, k) => (
         <li key={log.length - k} data-op={item.op}>
           {item.op === 'call' && <><b>{tr('模型', 'Model')}</b><span>{L(actionText(item.action))}</span><em>{tr(`看到 ${item.tokens} tok`, `saw ${item.tokens} tok`)}{item.dropped.length ? tr(` · 丢弃 ${item.dropped.length} 条`, ` · ${item.dropped.length} dropped`) : ''}</em></>}
-          {item.op === 'add' && <><b>{tr('你', 'You')}</b><span>{tr(`加入 ${item.file}`, `Added ${item.file}`)}</span></>}
-          {item.op === 'list' && <><b>{tr('你', 'You')}</b><span>{tr('加入目录', 'Added the file list')}</span></>}
-          {item.op === 'drop' && <><b>{tr('你', 'You')}</b><span>{tr(`移出 ${L(entryText(item.entry))}`, `Removed ${L(entryText(item.entry))}`)}</span></>}
-          {item.op === 'test' && <><b>{tr('测试', 'Tests')}</b><Report report={item.report} /></>}
+          {item.op === 'add' && <><b>{tr('你')}</b><span>{tr(`加入 ${item.file}`, `Added ${item.file}`)}</span></>}
+          {item.op === 'list' && <><b>{tr('你')}</b><span>{tr('加入目录')}</span></>}
+          {item.op === 'drop' && <><b>{tr('你')}</b><span>{tr(`移出 ${L(entryText(item.entry))}`, `Removed ${L(entryText(item.entry))}`)}</span></>}
+          {item.op === 'test' && <><b>{tr('测试')}</b><Report report={item.report} /></>}
         </li>
       ))}
     </ol>

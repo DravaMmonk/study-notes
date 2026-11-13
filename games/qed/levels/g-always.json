@@ -1,11 +1,10 @@
 {
-  "title": { "zh": "怎样都对，怎样都错", "en": "Always true, always false" },
+  "title": { "zh": "怎样都对，怎样都错" },
   "tray": "gates",
   "intro": [
     {
       "t": {
-        "zh": "<wiki-ref to=\"tautology\"></wiki-ref>在电路上是什么样子？接出这句话，看输出那一列。",
-        "en": "What does a <wiki-ref to=\"tautology\"></wiki-ref> look like as a circuit? Wire this sentence and watch the output column."
+        "zh": "<wiki-ref to=\"tautology\"></wiki-ref>在电路上是什么样子？接出这句话，看输出那一列。"
       }
     }
   ],
@@ -13,37 +12,33 @@
     {
       "id": "g-always_1",
       "kind": "gates",
-      "step": { "zh": "怎样都对", "en": "Always true" },
+      "step": { "zh": "怎样都对" },
       "target": "(Rain → Wet) ∨ (Wet → Rain)",
       "hideTarget": true,
       "brief": {
-        "zh": "接一块电路，算出「（若下雨，则地湿）或者（若地湿，则下雨）」在每一行的真值。",
-        "en": "Wire a board that works out the value of “(if it rains, the ground is wet) or (if the ground is wet, it rains)” on every row."
+        "zh": "接一块电路，算出「（若下雨，则地湿）或者（若地湿，则下雨）」在每一行的真值。"
       },
-      "hint": [{ "zh": "这句话由哪几部分组成？", "en": "What parts is the sentence made of?" }],
+      "hint": [{ "zh": "这句话由哪几部分组成？" }],
       "solution": ["i1 = gImp(Rain, Wet)", "i2 = gImp(Wet, Rain)", "o = gOr(i1, i2)", "out <- o"]
     },
     {
       "id": "g-always_2",
       "kind": "gates",
-      "step": { "zh": "怎样都错", "en": "Always false" },
+      "step": { "zh": "怎样都错" },
       "target": "(Rain → Wet) ∧ (Rain ∧ ¬Wet)",
       "hideTarget": true,
       "brief": {
-        "zh": "接一块电路，算出「（若下雨，则地湿）并且（下雨，并且地不湿）」在每一行的真值。",
-        "en": "Wire a board that works out the value of “(if it rains, the ground is wet) and (it rains and the ground is not wet)” on every row."
+        "zh": "接一块电路，算出「（若下雨，则地湿）并且（下雨，并且地不湿）」在每一行的真值。"
       },
       "hint": [
         {
-          "zh": "它由两半用与门接成，右边一半本身也是一个「并且」。",
-          "en": "It is two halves joined by an And gate, and the right half is itself an “and”."
+          "zh": "它由两半用与门接成，右边一半本身也是一个「并且」。"
         }
       ],
       "intro": [
         {
           "t": {
-            "zh": "每一行都为假的话叫<wiki-ref to=\"contradiction\"></wiki-ref>。",
-            "en": "A sentence false on every row is a <wiki-ref to=\"contradiction\"></wiki-ref>."
+            "zh": "每一行都为假的话叫<wiki-ref to=\"contradiction\"></wiki-ref>。"
           }
         }
       ],

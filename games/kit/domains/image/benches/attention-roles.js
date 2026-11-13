@@ -8,7 +8,7 @@ const vertical = [0,1,1,0, 0,1,1,0, 0,1,1,0, 0,1,1,0]
 const horizontal = [0,0,0,0, 1,1,1,1, 1,1,1,1, 0,0,0,0]
 
 export const attentionRoles = {
-  about: t('观察查询、键和值对图块注意力的影响', 'observe how queries, keys and values affect patch attention'),
+  about: t('观察查询、键和值对图块注意力的影响'),
   setup: S.obj({ role: S.oneOf(['query', 'key', 'value']) }),
   make({ role }) {
     return {

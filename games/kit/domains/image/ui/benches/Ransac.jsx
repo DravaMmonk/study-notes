@@ -30,8 +30,8 @@ export function RansacTrial({ ctx }) {
   const sample = trial.result ? trial.result.sampleIndex.map((i) => trial.points[i]) : []
   return (
     <figure className="mb mb-ransac-stage">
-      <span className="bk-label">{L(stage.label)} · {tr(`第 ${index + 1} 次试验`, `Trial ${index + 1}`)} · {tr('最佳一轮', 'best round')}</span>
-      <svg className="mb-svg" viewBox="-25 -25 50 50" role="img" aria-label={tr('一次试验：点、抽中的两点和找到的直线', 'One trial: the points, the two drawn points and the line found')}>
+      <span className="bk-label">{L(stage.label)} · {tr(`第 ${index + 1} 次试验`, `Trial ${index + 1}`)} · {tr('最佳一轮')}</span>
+      <svg className="mb-svg" viewBox="-25 -25 50 50" role="img" aria-label={tr('一次试验：点、抽中的两点和找到的直线')}>
         <defs>
           <clipPath id="mb-ransac-clip"><rect x={-24} y={-24} width={48} height={48} /></clipPath>
         </defs>
@@ -45,8 +45,8 @@ export function RansacTrial({ ctx }) {
       </svg>
       <p className="mb-trial-verdict">
         {trial.ok ? <Check size={15} className="mb-ok" /> : <X size={15} className="mb-bad" />}
-        <span className={trial.ok ? 'mb-ok' : 'mb-bad'}>{trial.ok ? tr('成功', 'Success') : tr('失败', 'Failure')}</span>
-        <span className="mb-readout">{tr('支持', 'Support')} <b>{trial.result?.inliers ?? 0}</b> {tr('个点', 'points')} · {tr('真内点', 'true inliers')} <b>{trial.inliers}</b>{tr(' 个', '')}</span>
+        <span className={trial.ok ? 'mb-ok' : 'mb-bad'}>{trial.ok ? tr('成功') : tr('失败')}</span>
+        <span className="mb-readout">{tr('支持')} <b>{trial.result?.inliers ?? 0}</b> {tr('个点')} · {tr('真内点')} <b>{trial.inliers}</b>{tr(' 个')}</span>
       </p>
     </figure>
   )

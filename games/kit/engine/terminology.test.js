@@ -4,7 +4,7 @@ import { termRegistry, termUsage } from './terminology.js'
 import { GLOSSARY } from './vocabulary.js'
 import { validate } from './schema.js'
 
-const t = (zh, en = zh) => ({ zh, en })
+const t = (zh) => ({ zh })
 const entry = (id, fields = {}) => ({ id, group: 'g', title: t('光轴', 'Optical axis'), body: [t('穿过小孔、垂直像平面的直线。', 'The line through the hole perpendicular to the image plane.')], ...fields })
 const registry = (...entries) => termRegistry({ entries })
 const place = (text, fields = {}) => ({ at: 'task.intro.zh', side: 'zh', text, ...fields })
@@ -17,7 +17,6 @@ test('the existing entry body is the definition; bilingual and neutral aliases s
   assert.deepEqual(r.failures, [])
   assert.equal(r.entries.get('axis').body, e.body)
   assert.equal(r.names.zh.get('相机轴'), 'axis')
-  assert.equal(r.names.en.get('camera axis'), 'axis')
   assert.equal(r.names.en.get('oa'), 'axis')
   assert.deepEqual(validate(GLOSSARY, { groups: [{ id: 'g', title: 'G' }], entries: [e] }), [])
   assert.ok(validate(GLOSSARY, { groups: [], entries: [entry('axis', { aliases: ['OA'], summary: 'a second definition' })] }).some((p) => p.at.endsWith('summary')))
@@ -28,7 +27,7 @@ test('empty names, empty/reference-only definitions and conflicting term names f
   assert.ok(rules(registry(entry('axis', { title: t('', 'Axis') })).failures).includes('term-name'))
   assert.ok(rules(registry(entry('axis'), entry('axis')).failures).includes('term-id'))
   const r = registry(entry('a', { aliases: [t('相机轴', '  Camera   AXIS ')] }), entry('b', { title: t('相机轴', 'camera axis') }))
-  assert.deepEqual(rules(r.failures), ['term-name-conflict', 'term-name-conflict'])
+  assert.deepEqual(rules(r.failures), ['term-name-conflict'])
 })
 
 test('explanations follow actual prerequisites, including parallel routes and optional branches', () => {
@@ -54,7 +53,7 @@ test('bad reference markup fails; either language is checked without mistaking p
 })
 
 test('bare names are candidates: longest match, Latin boundaries, literal symbols and whitespace', () => {
-  const r = registry(entry('axis', { aliases: ['OA'] }), entry('net', { title: 'Net' }), entry('language', { title: 'C++' }), entry('camera', { title: t('相机', 'Optical') }))
+  const r = registry(entry('axis', { aliases: ['OA', 'Optical axis'] }), entry('net', { title: 'Net' }), entry('language', { title: 'C++' }), entry('camera', { title: 'Optical' }))
   const use = (text, side = 'en', extra = {}) => termUsage(r, [place(text, { side, ...extra })], () => false)
   assert.equal(use('The OPTICAL\nAXIS moves.').reports.length, 1, 'longer term wins over Optical')
   assert.equal(use('Network is different.').reports.length, 0, 'Net is not inside Network')

@@ -1,23 +1,21 @@
 {
-  "title": { "zh": "倒着算", "en": "Work backwards" },
-  "short": { "zh": "机器换了方向，电路也得跟着换", "en": "The machine turns round, so must the circuit" },
+  "title": { "zh": "倒着算" },
+  "short": { "zh": "机器换了方向，电路也得跟着换" },
   "intro": [
     {
       "t": {
-        "zh": "之前机器总是从左上角开始，一行一行地算。<b>为什么不能随便从哪里开始？</b>",
-        "en": "So far the machine has always started in the top-left corner and worked row by row. <b>Why can’t it just start anywhere?</b>"
+        "zh": "之前机器总是从左上角开始，一行一行地算。<b>为什么不能随便从哪里开始？</b>"
       }
     },
     {
       "t": {
-        "zh": "因为每个格子要读它上面和左边的格子。如果那些格子还空着，机器就算不下去了。",
-        "en": "Because each cell reads the cells above it and to its left. If those are still empty, the machine can’t go on."
+        "zh": "因为每个格子要读它上面和左边的格子。如果那些格子还空着，机器就算不下去了。"
       },
       "fig": {
         "scene": {
           "cells": [
             { "id": "a", "x": 0, "y": 0, "w": 56, "h": 56, "value": 1, "cls": "lit" },
-            { "id": "b", "x": 66, "y": 0, "w": 56, "h": 56, "value": { "zh": "空", "en": "∅" }, "cls": "bad" },
+            { "id": "b", "x": 66, "y": 0, "w": 56, "h": 56, "value": { "zh": "空" }, "cls": "bad" },
             { "id": "c", "x": 0, "y": 66, "w": 56, "h": 56, "value": 1, "cls": "lit" },
             { "id": "d", "x": 66, "y": 66, "w": 56, "h": 56, "value": "?", "cls": "sel" }
           ],
@@ -30,8 +28,7 @@
     },
     {
       "t": {
-        "zh": "这一关的机器人装反了：它只会<b>从右下角出发，倒着一行一行地走</b>。格子角上的小数字，是它走到的先后顺序。",
-        "en": "This level’s robot has been fitted backwards: it can only <b>start from the bottom-right corner and walk the rows in reverse</b>. The small number in each cell’s corner is the order in which it gets there."
+        "zh": "这一关的机器人装反了：它只会<b>从右下角出发，倒着一行一行地走</b>。格子角上的小数字，是它走到的先后顺序。"
       },
       "fig": {
         "grid": {
@@ -56,40 +53,34 @@
     },
     {
       "t": {
-        "zh": "路线计数器要读上面和左边，可在这台机器上，那些格子总是还空着。换个想法：每一格里的数，能不能换一种意思？最后，答案要出现在起点。",
-        "en": "The Route Counter reads up and left, but on this machine those cells are always still empty. Think of it differently: could the number in each cell mean something else? In the end, the answer has to appear on the start."
+        "zh": "路线计数器要读上面和左边，可在这台机器上，那些格子总是还空着。换个想法：每一格里的数，能不能换一种意思？最后，答案要出现在起点。"
       }
     }
   ],
   "mission": {
     "goal": {
-      "zh": "路线仍然只能往右或往下走，但机器人从右下角倒着走。拼一块电路板，让左上角的起点格算出从起点到终点的路线数。",
-      "en": "Routes still only go right or down, but the robot walks backwards from the bottom-right corner. Build a board so that the start cell in the top-left corner ends up with the number of routes from start to end."
+      "zh": "路线仍然只能往右或往下走，但机器人从右下角倒着走。拼一块电路板，让左上角的起点格算出从起点到终点的路线数。"
     },
     "how": {
-      "zh": "「本格信息」里多了「是终点」。机器人读到还空着的格子，就会停下来。",
-      "en": "The This cell panel adds “is end”. If the robot reads a cell that is still empty, it stops."
+      "zh": "「本格信息」里多了「是终点」。机器人读到还空着的格子，就会停下来。"
     }
   },
   "robot": "ranger",
   "unlock": "order",
   "debrief": {
-    "title": { "zh": "顺序决定了能读谁", "en": "The order decides what can be read" },
+    "title": { "zh": "顺序决定了能读谁" },
     "body": [
       {
-        "zh": "机器从右下往左上算，每个格子被计算时，它右边和下面的格子都已经算好了，所以电路只能读这两个方向。",
-        "en": "The machine works from the bottom right to the top left, so whenever a cell is computed, the cells to its right and below are already done. That is why the circuit can only read those two directions."
+        "zh": "机器从右下往左上算，每个格子被计算时，它右边和下面的格子都已经算好了，所以电路只能读这两个方向。"
       },
       {
-        "zh": "<b>计算顺序和电路是一对</b>：先算被依赖的格子，再算依赖它们的格子。满足这个条件的顺序，程序员叫它「拓扑序」。",
-        "en": "<b>The order and the circuit go together</b>: compute the cells that others depend on before the cells that depend on them. Programmers call an order like that a “topological order”."
+        "zh": "<b>计算顺序和电路是一对</b>：先算被依赖的格子，再算依赖它们的格子。满足这个条件的顺序，程序员叫它「拓扑序」。"
       },
       {
-        "zh": "起点格的答案和以前一样。从起点数到终点，和从终点数回起点，是同一个问题的两种问法。",
-        "en": "The start cell’s answer is the same as before. Counting from the start to the end and counting back from the end to the start are two ways of asking the same question."
+        "zh": "起点格的答案和以前一样。从起点数到终点，和从终点数回起点，是同一个问题的两种问法。"
       }
     ],
-    "note": { "zh": "合法的顺序：每个格子都排在它要读的格子之后。", "en": "A valid order: every cell comes after the cells it reads." }
+    "note": { "zh": "合法的顺序：每个格子都排在它要读的格子之后。" }
   },
   "tasks": [
     {
@@ -99,30 +90,25 @@
         {
           "when": { "any": [{ "uses": "up" }, { "uses": "left" }, { "uses": "ul" }, { "uses": "ur" }, { "uses": "dl" }] },
           "say": {
-            "zh": "机器人从右下往左上走，到一个格子时，它上面和左边的格子还空着，不能读。",
-            "en": "The robot walks from the bottom right to the top left, so when it reaches a cell, the cells above and to its left are still empty and can’t be read."
+            "zh": "机器人从右下往左上走，到一个格子时，它上面和左边的格子还空着，不能读。"
           }
         },
         {
           "when": { "uses": "start" },
           "say": {
-            "zh": "从这里数到终点的话，路线是从终点「数回来」的。该放行 1 的是终点，不是起点。",
-            "en": "Counting from here to the end means counting back from the end. The 1 belongs on the end, not on the start."
+            "zh": "从这里数到终点的话，路线是从终点「数回来」的。该放行 1 的是终点，不是起点。"
           }
         }
       ],
       "hints": [
         {
-          "zh": "这台机器上，能读的只有右边和下面。从这一格出发，第一步能往哪走？",
-          "en": "On this machine, only right and down can be read. Leaving this cell, where can the first step go?"
+          "zh": "这台机器上，能读的只有右边和下面。从这一格出发，第一步能往哪走？"
         },
         {
-          "zh": "终点到终点，算 1 条路线：「是终点」放行一个 1。",
-          "en": "From the end to the end counts as 1 route: let a 1 through on “is end”."
+          "zh": "终点到终点，算 1 条路线：「是终点」放行一个 1。"
         },
         {
-          "zh": "路线计数器也能用：右边接「上」，下面接「左」，是终点接「起」。",
-          "en": "The Route Counter works too: right into “up”, down into “left”, and is end into “start”."
+          "zh": "路线计数器也能用：右边接「上」，下面接「左」，是终点接「起」。"
         }
       ],
       "world": "grid",

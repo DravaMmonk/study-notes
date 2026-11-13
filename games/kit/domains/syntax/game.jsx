@@ -61,7 +61,7 @@ export default function syntaxGame(content) {
     // What a level brings in: the roles and constructions it adds, named once it is passed.
     unlocked: (level) => (level.source.adds ?? []).map((key) => named.get(key)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon })),
     // The skeleton the sentence leaves once every modifier is folded.
-    passed: (level) => <p className="sx-skeleton"><small>{tr('主干', 'Skeleton')}</small>{skeleton(level.source.tasks.at(-1).gold)}</p>,
+    passed: (level) => <p className="sx-skeleton"><small>{tr('主干')}</small>{skeleton(level.source.tasks.at(-1).gold)}</p>,
     parts: { all: parts },
     kinds: { analyze: { Screen: Analyze, icon: BookOpenText, label: { zh: '拆句', en: 'Take apart' } } },
     // Fewer checks is better; right the first time earns the ★.

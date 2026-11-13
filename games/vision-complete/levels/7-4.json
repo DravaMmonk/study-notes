@@ -1,23 +1,20 @@
 {
-  "title": { "zh": "换一台相机", "en": "A different camera" },
+  "title": { "zh": "换一台相机" },
   "tray": "geometry",
   "after": {
-    "zh": "只有乘积 f·b 要紧：焦距翻倍、基线减半，测出来的距离一模一样。挑相机时比的是这个乘积。",
-    "en": "Only the product f·b matters: double the focal length and halve the baseline and the distances come out exactly the same. When choosing a camera, this product is what to compare."
+    "zh": "只有乘积 f·b 要紧：焦距翻倍、基线减半，测出来的距离一模一样。挑相机时比的是这个乘积。"
   },
   "intro": [
     {
       "t": {
-        "zh": "换一台双目相机，镜头和两台相机的间距都变了。",
-        "en": "Switch to a different stereo camera: both the lens and the distance between the two cameras change."
+        "zh": "换一台双目相机，镜头和两台相机的间距都变了。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：每组测试给出焦距 f 和基线 b，把视差图换成距离图。",
-        "en": "Your task in this level: each test gives the focal length f and the baseline b; turn the disparity map into a distance map."
+        "zh": "这一关你要做的：每组测试给出焦距 f 和基线 b，把视差图换成距离图。"
       },
-      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组：长焦", "en": "Set 1: a longer lens" } }
+      "fig": { "test": 0, "view": "terrain", "caption": { "zh": "第一组：长焦" } }
     }
   ],
   "tasks": [
@@ -25,38 +22,36 @@
       "id": "7-4",
       "kind": "graph",
       "brief": {
-        "zh": "换了一台双目相机，焦距 f 和基线 b 每组测试都不一样。把视差图换成距离图。",
-        "en": "A different stereo camera: the focal length f and the baseline b change from test to test. Turn the disparity map into a distance map."
+        "zh": "换了一台双目相机，焦距 f 和基线 b 每组测试都不一样。把视差图换成距离图。"
       },
       "hint": {
-        "zh": "<level-ref to=\"7-3\"></level-ref>的 3 是哪两个数相乘来的？",
-        "en": "Which two numbers multiplied together made <level-ref to=\"7-3\"></level-ref>'s 3?"
+        "zh": "<level-ref to=\"7-3\"></level-ref>的 3 是哪两个数相乘来的？"
       },
       "inputs": ["d", "f", "b"],
       "inputLabels": {
-        "d": { "zh": "视差（像素）", "en": "Disparity (pixels)" },
-        "f": { "zh": "焦距 f", "en": "Focal length f" },
-        "b": { "zh": "基线 b", "en": "Baseline b" }
+        "d": { "zh": "视差（像素）" },
+        "f": { "zh": "焦距 f" },
+        "b": { "zh": "基线 b" }
       },
       "views": { "in": "terrain", "out": "terrain" },
       "scene": "depth",
       "tests": [
         {
-          "label": { "zh": "长焦", "en": "A longer lens" },
+          "label": { "zh": "长焦" },
           "seed": 41,
           "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
           "f": 4,
           "b": 1.5
         },
         {
-          "label": { "zh": "基线窄", "en": "A narrow baseline" },
+          "label": { "zh": "基线窄" },
           "seed": 42,
           "layers": [{ "box": [7, 2, 10, 14], "d": 3 }],
           "f": 2,
           "b": 0.5
         },
         {
-          "label": { "zh": "都变了", "en": "Both changed" },
+          "label": { "zh": "都变了" },
           "seed": 43,
           "layers": [{ "box": [3, 3, 10, 10], "d": 2 }, { "box": [6, 7, 13, 14], "d": 3 }],
           "f": 6,
@@ -65,7 +60,7 @@
       ],
       "hidden": [
         {
-          "label": { "zh": "广角", "en": "Wide angle" },
+          "label": { "zh": "广角" },
           "seed": 41,
           "layers": [{ "box": [5, 4, 11, 12], "d": 2 }],
           "f": 1.5,

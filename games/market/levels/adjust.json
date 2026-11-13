@@ -1,0 +1,135 @@
+{
+  "title": {
+    "zh": "往哪边调"
+  },
+  "intro": [
+    {
+      "t": {
+        "zh": "店主不知道街上有多少人想买，只看得到昨天的结果：货剩了多少，多少人没买到。"
+      }
+    },
+    {
+      "t": {
+        "zh": "这就够了。有人没买到，说明价格低了，该涨；有货剩下，说明价格高了，该降。差得多就多调，差得少就少调。"
+      }
+    }
+  ],
+  "after": {
+    "zh": "这条规则里没有「不要钱时想买」，也没有「每涨一块少」：它不需要知道需求。"
+  },
+  "adds": [
+    "add"
+  ],
+  "builds": {
+    "type": "pricer",
+    "name": {
+      "zh": "调价器"
+    },
+    "desc": {
+      "zh": "按昨天剩下的和没买到的调整价格。"
+    }
+  },
+  "tasks": [
+    {
+      "id": "adjust",
+      "brief": {
+        "zh": "今天的价格 = 昨天的价格 +（没买到 − 剩下）× 0.25。"
+      },
+      "inputs": [
+        {
+          "name": "was",
+          "label": {
+            "zh": "昨天的价格"
+          }
+        },
+        {
+          "name": "left",
+          "label": {
+            "zh": "剩下"
+          }
+        },
+        {
+          "name": "short",
+          "label": {
+            "zh": "没买到"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "price",
+          "label": {
+            "zh": "价格"
+          }
+        }
+      ],
+      "tests": [
+        {
+          "in": {
+            "was": 10,
+            "left": 0,
+            "short": 20
+          },
+          "out": {
+            "price": 15
+          }
+        },
+        {
+          "in": {
+            "was": 25,
+            "left": 10,
+            "short": 0
+          },
+          "out": {
+            "price": 22.5
+          }
+        },
+        {
+          "in": {
+            "was": 20,
+            "left": 0,
+            "short": 0
+          },
+          "out": {
+            "price": 20
+          }
+        }
+      ],
+      "hidden": [
+        {
+          "in": {
+            "was": 30,
+            "left": 4,
+            "short": 0
+          },
+          "out": {
+            "price": 29
+          }
+        },
+        {
+          "in": {
+            "was": 7,
+            "left": 0,
+            "short": 8
+          },
+          "out": {
+            "price": 9
+          }
+        }
+      ],
+      "solution": [
+        "g = sub(short, left)",
+        "k = const[value=0.25]()",
+        "d = mul(g, k)",
+        "n = add(was, d)",
+        "price <- n"
+      ],
+      "naive": [
+        "k = const[value=0.25]()",
+        "d = mul(short, k)",
+        "n = add(was, d)",
+        "price <- n"
+      ]
+    }
+  ]
+}

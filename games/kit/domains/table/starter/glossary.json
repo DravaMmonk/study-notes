@@ -1,12 +1,12 @@
 {
-  "groups": [{ "id": "robot", "title": { "zh": "机器人", "en": "The robot" } }],
+  "groups": [{ "id": "robot", "title": { "zh": "机器人" } }],
   "entries": [
     {
       "id": "board",
       "group": "robot",
-      "title": { "zh": "电路板", "en": "circuit board" },
+      "title": { "zh": "电路板" },
       "at": "copy",
-      "body": [{ "zh": "一格的规则：只接一次，机器人在每一格上都运行它。", "en": "The rule for one cell: wired once, the robot runs it on every cell." }]
+      "body": [{ "zh": "一格的规则：只接一次，机器人在每一格上都运行它。" }]
     }
   ]
 }

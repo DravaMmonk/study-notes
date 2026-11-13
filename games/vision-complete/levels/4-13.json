@@ -1,29 +1,25 @@
 {
-  "title": { "zh": "蓝天与黄沙", "en": "Blue sky, yellow sand" },
+  "title": { "zh": "蓝天与黄沙" },
   "tray": "pipeline",
   "after": {
-    "zh": "颜色可以通过各通道之间的关系区分：即使整体明暗接近，蓝和黄也能呈现不同的通道组合。不同的滤波器可以关注不同的颜色对比。",
-    "en": "Colours can be distinguished by the relationships among channels: blue and yellow have different channel combinations even at similar overall brightness. Different filters can focus on different colour contrasts."
+    "zh": "颜色可以通过各通道之间的关系区分：即使整体明暗接近，蓝和黄也能呈现不同的通道组合。不同的滤波器可以关注不同的颜色对比。"
   },
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"4-12\"></level-ref>的核分辨的是红和绿。颜色还有另一组对立：蓝和黄。沙漠的天际线、海边的沙滩，交界两边常常一样亮，只是颜色不同。",
-        "en": "The kernel in <level-ref to=\"4-12\"></level-ref> told red from green. Colour has another opposition: blue and yellow. On a desert skyline or a beach, the two sides of the border are often equally bright and differ only in colour."
+        "zh": "<level-ref to=\"4-12\"></level-ref>的核分辨的是红和绿。颜色还有另一组对立：蓝和黄。沙漠的天际线、海边的沙滩，交界两边常常一样亮，只是颜色不同。"
       }
     },
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"lrn-rgb\"></part-ref>一个核横跨 R、G、B 三张图，27 个权重一起训练。",
-        "en": "The <part-ref to=\"lrn-rgb\"></part-ref> in the tray spans the R, G and B images with one kernel, its 27 weights trained together."
+        "zh": "托盘里的<part-ref to=\"lrn-rgb\"></part-ref>一个核横跨 R、G、B 三张图，27 个权重一起训练。"
       }
     },
     {
       "t": {
-        "zh": "这一关你要做的：只描出蓝与黄的交界，只是变亮变暗的地方要是 0。要想的问题：黄色和蓝色，在三张图里各是什么样？",
-        "en": "Your task: trace only the border between blue and yellow; places that just get brighter or darker must be 0. Something to think about: what do yellow and blue each look like in the three images?"
+        "zh": "这一关你要做的：只描出蓝与黄的交界，只是变亮变暗的地方要是 0。要想的问题：黄色和蓝色，在三张图里各是什么样？"
       },
-      "fig": { "test": 0, "caption": { "zh": "第一组：天和沙，一条平线", "en": "Set 1: sky and sand, a level line" } }
+      "fig": { "test": 0, "caption": { "zh": "第一组：天和沙，一条平线" } }
     }
   ],
   "tasks": [
@@ -31,29 +27,27 @@
       "id": "4-13",
       "kind": "graph",
       "brief": {
-        "zh": "输入是一张彩色风景，从 R、G、B 出口可以分别读取三个通道。只描出蓝与黄交界处的边，只是变亮变暗的地方输出 0。",
-        "en": "The input is a colour landscape; its R, G and B outputs provide the separate channels. Trace only the edges where blue meets yellow; output 0 where things only get brighter or darker."
+        "zh": "输入是一张彩色风景，从 R、G、B 出口可以分别读取三个通道。只描出蓝与黄交界处的边，只是变亮变暗的地方输出 0。"
       },
       "hint": {
-        "zh": "黄色的光，是哪两种颜色的光加起来的？ 训练时可以先给每个通道减去 0.5，让数据围绕 0 分布。",
-        "en": "Yellow light is made of which two colours of light added together? For training, you can first subtract 0.5 from each channel to centre the data around zero."
+        "zh": "黄色的光，是哪两种颜色的光加起来的？ 训练时可以先给每个通道减去 0.5，让数据围绕 0 分布。"
       },
       "inputs": ["photo"],
-      "inputLabels": { "photo": { "zh": "彩色照片", "en": "Colour photo" } },
+      "inputLabels": { "photo": { "zh": "彩色照片" } },
       "trainRate": 8,
       "scene": "rgbContrast",
       "setup": { "mix": "blueYellow" },
       "tests": [
-        { "label": { "zh": "天和沙，一条平线", "en": "Sky and sand, a level line" }, "paint": "skyline" },
-        { "label": { "zh": "只有明暗", "en": "Only light and dark" }, "paint": "greySquare" },
-        { "label": { "zh": "起伏的沙丘", "en": "Rolling dunes" }, "paint": "dunes" },
-        { "label": { "zh": "彩色噪点 A", "en": "Colour noise A" }, "noise": 41 },
-        { "label": { "zh": "彩色噪点 B", "en": "Colour noise B" }, "noise": 43 }
+        { "label": { "zh": "天和沙，一条平线" }, "paint": "skyline" },
+        { "label": { "zh": "只有明暗" }, "paint": "greySquare" },
+        { "label": { "zh": "起伏的沙丘" }, "paint": "dunes" },
+        { "label": { "zh": "彩色噪点 A" }, "noise": 41 },
+        { "label": { "zh": "彩色噪点 B" }, "noise": 43 }
       ],
       "hidden": [
-        { "label": { "zh": "斜着的沙坡", "en": "A slanting slope of sand" }, "paint": "slope" },
-        { "label": { "zh": "彩色噪点 C", "en": "Colour noise C" }, "noise": 47 },
-        { "label": { "zh": "灰色渐变", "en": "A grey gradient" }, "paint": "greyRamp" }
+        { "label": { "zh": "斜着的沙坡" }, "paint": "slope" },
+        { "label": { "zh": "彩色噪点 C" }, "noise": 47 },
+        { "label": { "zh": "灰色渐变" }, "paint": "greyRamp" }
       ],
       "solution": [
         "half = const[c=0.5]()",

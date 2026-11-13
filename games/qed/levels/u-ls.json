@@ -1,7 +1,7 @@
 {
-  "title": { "zh": "不接受自己的程序", "en": "Programs that reject themselves" },
+  "title": { "zh": "不接受自己的程序" },
   "tray": "proof",
-  "after": { "zh": "L_s 不是<b>可识别语言</b>。", "en": "L_s is not a <b>recognisable language</b>." },
+  "after": { "zh": "L_s 不是<b>可识别语言</b>。" },
   "tasks": [
     {
       "id": "u-ls",
@@ -9,10 +9,9 @@
       "tests": [{ "premises": { "r": "∃x. ∀y. M(x, c(y)) ↔ L(c(y))", "ls": "∀y. L(c(y)) ↔ ¬M(y, c(y))" }, "goal": "⊥" }],
       "cases": [{ "M": "Accepts", "L": "Ls" }],
       "brief": {
-        "zh": "⟨y⟩ 是图灵机 y 的编码。L_s 装的是不接受自己编码的机器的编码。假设有一台机器 x 识别 L_s，推出矛盾 ⊥。",
-        "en": "⟨y⟩ is the code of the Turing machine y. L_s holds the codes of machines that do not accept their own code. Supposing some machine x recognises L_s, get the contradiction ⊥."
+        "zh": "⟨y⟩ 是图灵机 y 的编码。L_s 装的是不接受自己编码的机器的编码。假设有一台机器 x 识别 L_s，推出矛盾 ⊥。"
       },
-      "hint": [{ "zh": "让 x 读它自己的编码。", "en": "Let x read its own code." }],
+      "hint": [{ "zh": "让 x 读它自己的编码。" }],
       "solution": [
         "e = exE[x=a](r, body: l) {",
         "  body {",

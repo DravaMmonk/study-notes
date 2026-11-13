@@ -2,7 +2,7 @@ import { tr } from '../../shell/i18n.js'
 import { mix, rgba, token, useCanvas } from './paint.js'
 import { rangeOf } from './range.js'
 
-// A grey grid as a map (the view `slope`, games/DESIGN.md 6.10): the picture faded, contour lines of equal value, and
+// A grey grid as a map (the view `slope`, games/DESIGN.md 6.9): the picture faded, contour lines of equal value, and
 // arrows for the gradient (Sobel): each points toward larger values, as long as it is steep there. Arrows cross the
 // contours at right angles and are longest where contours crowd.
 
@@ -85,5 +85,5 @@ export default function Slope({ value, size = 220 }) {
       ctx.fill()
     }
   }, size, height, [value])
-  return <canvas ref={canvas} className="sl" style={{ width: size, height }} aria-label={tr('坡度：箭头指向变大最快的方向，越长越陡', 'Slope: arrows point where values rise fastest; longer is steeper')} />
+  return <canvas ref={canvas} className="sl" style={{ width: size, height }} aria-label={tr('坡度：箭头指向变大最快的方向，越长越陡')} />
 }
