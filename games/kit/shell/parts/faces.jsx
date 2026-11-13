@@ -1,3 +1,4 @@
+import { holesOf, outletsOf } from '../../engine/pieces.js'
 import { applyRules, partDesc } from '../../engine/parts/define.js'
 import PartFace, { blocksOf } from './PartFace.jsx'
 import { iconOf } from './icons.js'
@@ -9,13 +10,13 @@ import { iconOf } from './icons.js'
 
 /** The editor's description of a defined part's card, field by field (null where the type is not defined). */
 export const definedCard = (def) => ({
-  inputs: def.inputs.map((p) => p.name),
+  inputs: holesOf(def).map((p) => p.name),
   role: 'part',
   label: def.name,
-  portLabel: (port) => def.inputs.find((p) => p.name === port)?.label ?? port,
+  portLabel: (port) => holesOf(def).find((p) => p.name === port)?.label ?? port,
   family: def.family,
   icon: iconOf(def.icon),
-  outputs: def.outputs ? def.outputs.map((o) => ({ key: o.name, label: o.label ?? o.name })) : null,
+  outputs: outletsOf(def).length ? outletsOf(def).map((o) => ({ key: o.name, label: o.label ?? o.name })) : null,
   cardWidth: def.width ?? null,
 })
 

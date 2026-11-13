@@ -366,6 +366,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、eng
 | `ticks.js` | 逐拍世界：几个节点共用一根线，每拍分「说」和「听」两半（说的一半只算通向驱动口的电路，读到这一拍的线就是回路），线的规则由领域给；寄存卡（`register` / `store`，按封装件的路径各存一份）。《车在说话》的总线用它，《从一根线开始》也将用它 `reacting` 是会反应的世界：板每拍读世界交给它的东西，世界拿走板这一拍给出的，下一拍交回结果（`market` 领域的街市）。 |
 | `judge.js` | 纯判定，接受一份作品，返回 `null` 或第一处失败 `{ at?, check?, want?, got?, why }`。`cases` 按例检查，`ticks` 按拍比较（跳过未指定期望的拍），`property` 检查性质，`sameAs` 对照参考值。`inOrder` 停在第一处失败，`hidden` 隐去检验列表并保留失败详情。位置可以是卡片 id、行和空位、树路径或带位置的拍号。 |
 | `failure-text.js` | 根据失败里的关系、位置、应得和实得生成结论文字。一次判定、结论行、电路结果和文字版运行共用它。定义的计算结果不符时列出应得和实得，超出步数时报告未算完。 |
+| `pieces.js` | 登记代码与内容给的件，并读取空位、设置、区域、内部、画法和保存。电路使用现有的 `inputs`、`settings` 和 `views` 字段，`regions`、`inside` 和 `keeps` 可选。 |
 | `authoring.js` | 用同一个判定检查几样作品。参考解和搭出的件单独运行时应通过，naive 解、空作品和开局作品应失败。保留运行报告供作者检查说明具体原因，变异评分按需执行。 |
 | `test-run.js` | 运行任务的各个测试，保留全部运行报告供回放和结果区读取，由判定提取首处失败。运行输出比较的任务也可评分并检查约束。 |
 | `circuit-run.js` | 把共享判定接到电路运行和回放上。`onceRun` 运行一次并给出结果行，`tickJudge` 和 `tickReport` 让逐拍电路在首个错误拍标出原因。 |
@@ -558,7 +559,7 @@ opens them to show the resulting feedback.
 }
 ```
 
-**一个元件**：`name`、`desc`（只写功能，第 4 节；只写每个选项都成立的部分，某个选项特有的作用写在那个选项的 `about` 里）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about?, optional? }`，`name` 是 ASCII；`optional` 的口可以不接，不接时运算在这里读到「—」，元件不因它给出「—」，接了而值是「—」时照 `nulls` 办）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）。
+**一个元件的面。** `engine/pieces.js` 将已有字段映射到对应的面。`regions` 描述区域，`inside.task` 指向内部作品，`keeps` 列出要保留的名字。任务引用解析和电路运行接入后续步骤。一个电路元件的字段包括`name`、`desc`（只写功能，第 4 节；只写每个选项都成立的部分，某个选项特有的作用写在那个选项的 `about` 里）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about?, optional? }`，`name` 是 ASCII；`optional` 的口可以不接，不接时运算在这里读到「—」，元件不因它给出「—」，接了而值是「—」时照 `nulls` 办）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）。
 
 **设置的控件只有六种**，都是内核的（`kit/shell/parts/SettingField.jsx`），桌面卡片上紧凑、手机单子里加大，同一份定义：
 
@@ -609,7 +610,7 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 
 例：一张「邻域加权」卡片上画方向、三个权重和边界，下面一个读数「权重和」（`plus(plus($a, $b), $c)`）和一个按钮「使权重和为 1」（`set: { a: over($a, plus(plus($a, $b), $c)), … }`，`when: ne(plus(plus($a, $b), $c), 0)`）；格位上一行 `{axis} [{a}, {b}, {c}]`。
 
-**内核替领域做的**：`kit/engine/parts/define.js` 的 `defineParts(file, ops)` 把 `parts.json` 变成引擎的元件表（`inputs`、`outputs`、`params`、`settings`、`eval`），给出每个元件的默认设置；`kit/shell/parts/` 的 `faces.jsx` 给出编辑器的元件描述（名字、口、口名、类别、图标、卡片宽）、托盘的条目和卡片的三面（`PartFace.jsx` 画块，`SettingField.jsx` 画设置）。电路关用 `CircuitLevel` 的 `defined`：领域交出 `{ of(type) → 定义或 null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) }`，定义了的元件的卡片、格位、详情、设置和新元件的默认值都由内核画、内核给，封装件里面的板也一样；领域只画关卡给的节点和封装件。封装件的设置是 `parts.json` 里的预设（关卡的 `builds.settings`），领域用同一个 `SettingField` 画。领域的 `game.jsx` 在游戏描述上挂 `defined = { of, defaults, ops, widgets? }`，studio 的元件页用它画元件（第 6.7 节）。领域的词汇表有 `op` 种类时，内容里的 `S.ref('part')` 指 `parts.json` 的元件（`kit/engine/parts/define.js` 的 `withParts` 把它们放进词汇表的 `part` 种类，检查和 studio 都用它）。
+**内核替领域做的**：`kit/engine/parts/define.js` 的 `defineParts(file, ops)` 把 `parts.json` 变成引擎的元件表（`inputs`、`outputs`、`params`、`settings`、`eval`），给出每个元件的默认设置；`kit/shell/parts/` 的 `faces.jsx` 给出编辑器的元件描述（名字、口、口名、类别、图标、卡片宽）、托盘的条目和卡片的三面（`PartFace.jsx` 画块，`SettingField.jsx` 画设置）。电路关用 `CircuitLevel` 的 `defined`：领域交出 `{ of(type) → 定义或 null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) }`，定义了的元件的卡片、格位、详情、设置和新元件的默认值都由内核画、内核给，封装件里面的板也一样；领域只画关卡给的节点和封装件。封装件的设置是 `parts.json` 里的预设（关卡的 `builds.settings`），领域用同一个 `SettingField` 画。领域的 `game.jsx` 在游戏描述上挂 `defined = { of, defaults, ops, widgets? }`，studio 的元件页用它画元件（第 6.7 节）。领域的词汇表有 `op` 种类时，`withParts` 将代码和 `parts.json` 登记的元件一起放进词汇表的 `part` 种类，`S.ref('part')` 可引用任一来源。电路注册表同样合并两份定义，同名时取内容定义。
 
 **操作**：`part.add`（新元件，或复制一个）、`part.remove`（还有关卡、课程或板用到它时拒绝）、`part.rename`（改到课程、关卡、板和 `configurations` 里的每一处）、`parts.set` / `parts.unset`（`parts.json` 里的一个字段，路径如 `parts.arithmetic.settings[0].options`、`presets.outside.default`），`text.set` 的 `in: 'parts'`。
 

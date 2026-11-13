@@ -430,8 +430,8 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
  * The course of a domain whose games define their own parts (content.partDefs: parts.json) over its engine resources,
  * its tests giving a value on every input and expecting one of every output.
  */
-export function definedCourse(content, { board, ops, read: readValue = (v) => v }) {
-  const { PARTS, defs, defaultsOf } = defineParts(content.partDefs, ops)
+export function definedCourse(content, { board, ops, parts, read: readValue = (v) => v }) {
+  const { PARTS, defs, defaultsOf } = defineParts(content.partDefs, ops, parts)
   const test = (t, task, say) => {
     for (const o of task.outputs) if (t.expect[o.name] === undefined) say(`a test expects nothing of the output ${o.name}`)
     for (const i of task.inputs) if (t.inputs[i.name] === undefined) say(`a test gives nothing on the input ${i.name}`)

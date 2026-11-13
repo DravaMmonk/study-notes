@@ -1,5 +1,6 @@
 import './parts.css'
 import { L } from '../i18n.js'
+import { facesOf, holesOf, outletsOf, settingsOf } from '../../engine/pieces.js'
 import { numberText } from '../../engine/number.js'
 import { evalSettings, failedCheck, partDesc, shows } from '../../engine/parts/define.js'
 import SettingField, { valueWords } from './SettingField.jsx'
@@ -22,14 +23,17 @@ export const DEFAULT_VIEWS = {
 }
 
 /** A face's blocks: parts.json's, or the default; the path each has in parts.json (null for a default one). */
-export const blocksOf = (def, face) => (def.views?.[face] ? def.views[face].map((b, k) => [b, ['views', face, k]]) : DEFAULT_VIEWS[face].map((b) => [b, null]))
+export function blocksOf(def, face) {
+  const blocks = facesOf(def)[face]
+  return blocks ? blocks.map((b, k) => [b, ['views', face, k]]) : DEFAULT_VIEWS[face].map((b) => [b, null])
+}
 
 // How many values of a setting the course offers here: none of a setting it does not hold, whatever its control.
 const optionCount = (s, allowed) => (allowed && !allowed.length ? 0 : s.options ? s.options.filter((o) => !allowed || allowed.includes(o.value)).length : Infinity)
 
 /** The settings a node shows: their `when` holds, and the course offers more than one value of an option setting. */
 export function visibleSettings(def, params, defined) {
-  return def.settings.map((s, k) => [s, k]).filter(([s]) => shows(s, def, params, defined.ops) && optionCount(s, defined.allowed?.(def.type, s.key)) > 1)
+  return settingsOf(def).map((s, k) => [s, k]).filter(([s]) => shows(s, def, params, defined.ops) && optionCount(s, defined.allowed?.(def.type, s.key)) > 1)
 }
 
 const fmt = (v, digits) => (typeof v === 'number' ? (digits === undefined ? numberText(v) : v.toFixed(digits)) : v === true ? '✓' : v === false ? '✗' : String(v ?? '—'))
@@ -81,8 +85,8 @@ export default function PartFace({ def, face, node, ctx, set, defined, phone = f
       case 'ports':
         return (
           <dl key={key} className="pf-ports" {...at}>
-            {def.inputs.map((p) => <div key={`in-${p.name}`}><dt>{L(p.label ?? p.name)}</dt><dd>{p.about ? L(p.about) : ''}</dd></div>)}
-            {(def.outputs ?? []).map((p) => <div key={`out-${p.name}`} className="is-out"><dt>{L(p.label ?? p.name)}</dt><dd>{p.about ? L(p.about) : ''}</dd></div>)}
+            {holesOf(def).map((p) => <div key={`in-${p.name}`}><dt>{L(p.label ?? p.name)}</dt><dd>{p.about ? L(p.about) : ''}</dd></div>)}
+            {outletsOf(def).map((p) => <div key={`out-${p.name}`} className="is-out"><dt>{L(p.label ?? p.name)}</dt><dd>{p.about ? L(p.about) : ''}</dd></div>)}
           </dl>
         )
       case 'widget': {

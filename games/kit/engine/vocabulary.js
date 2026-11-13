@@ -16,7 +16,7 @@
 // })
 //
 // A domain whose kinds hold engine resources (`op`, run by its ops.js) defines its parts as data: each of its games
-// has a parts.json (parts/schema.js), and content's S.ref('part') names a part of it (parts/define.js withParts). Such
+// has a parts.json (parts/schema.js), and content's S.ref('part') can name a part of it or a code-defined part (parts/define.js withParts). Such
 // a vocabulary also gives the families parts are coloured by (`family`), and may give widgets (`widget`): settings or
 // displays the kernel's controls cannot draw.
 import { S, validate } from './schema.js'

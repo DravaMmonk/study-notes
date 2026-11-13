@@ -4,6 +4,7 @@
 // same in every domain whose vocabulary has engine resources (the `op` kind); what it names (resources, families,
 // widgets) the domain's vocabulary gives.
 import { S } from '../schema.js'
+import { TASK_ID } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
 
 
@@ -70,20 +71,31 @@ const RULE = S.obj({ on: S.opt(NAME), when: S.opt(EXPR), set: S.map(EXPR, { abou
 /** A check: the settings must make `holds` true; else the card says `say`. */
 const CHECK = S.obj({ holds: EXPR, say: S.text() })
 const PORT = S.obj({ name: NAME, label: S.opt(S.text()), about: S.opt(S.text()), optional: S.opt(S.bool({ about: t('可以不接：不接时运算在这里读到「—」') })) })
+const REGION = S.obj({ name: NAME, label: S.opt(S.text()), opens: S.opt(S.bool()), closes: S.opt(S.bool()), gives: S.opt(S.list(NAME)) })
+const HOLES = { inputs: S.list(PORT), outputs: S.opt(S.list(PORT, { min: 2, about: t('几个输出时才写') })) }
+const SETTINGS = {
+  settings: S.opt(S.list(SETTING)),
+  rules: S.opt(S.list(RULE, { about: t('交互：一个设置改了，另几个跟着改') })),
+  checks: S.opt(S.list(CHECK, { about: t('设置必须满足的条件：不满足时卡片上说出原因，元件不计算') })),
+}
+const PAINT = {
+  icon: ICON,
+  family: S.ref('family'),
+  views: S.opt(S.obj({ card: S.opt(VIEW), tile: S.opt(VIEW), detail: S.opt(VIEW) }, { about: t('桌面卡片、手机格位、详情；不写用默认') })),
+  width: S.opt(S.int({ min: 96, max: 360, about: t('桌面卡片宽（像素）') })),
+}
+
 export const PART = S.obj({
   name: S.text(),
   desc: S.text({ about: t('只写功能：读哪些口、给出什么、碰到「—」怎么办') }),
-  icon: ICON,
-  family: S.ref('family'),
-  inputs: S.list(PORT),
-  outputs: S.opt(S.list(PORT, { min: 2, about: t('几个输出时才写') })),
-  settings: S.opt(S.list(SETTING)),
+  ...HOLES,
+  ...SETTINGS,
+  regions: S.opt(S.list(REGION)),
+  inside: S.opt(S.obj({ task: S.str({ pattern: TASK_ID }) })),
+  ...PAINT,
+  keeps: S.opt(S.list(NAME)),
   compute: S.either(EXPR, S.map(EXPR, { about: t('每个输出一个式子') })),
   nulls: S.opt(S.oneOf(['give', 'pass'], { about: t('give：任何输入是「—」就给「—」（默认）；pass：交给运算') })),
-  rules: S.opt(S.list(RULE, { about: t('交互：一个设置改了，另几个跟着改') })),
-  checks: S.opt(S.list(CHECK, { about: t('设置必须满足的条件：不满足时卡片上说出原因，元件不计算') })),
-  views: S.opt(S.obj({ card: S.opt(VIEW), tile: S.opt(VIEW), detail: S.opt(VIEW) }, { about: t('桌面卡片、手机格位、详情；不写用默认') })),
-  width: S.opt(S.int({ min: 96, max: 360, about: t('桌面卡片宽（像素）') })),
 })
 
 /** parts.json. */

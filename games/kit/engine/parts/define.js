@@ -4,13 +4,14 @@
 //
 //   defineParts(file, ops)       → { PARTS, defs, defaultsOf(type) }
 //   partProblems(file, vocabulary) → [{ at, says }]
-//   withParts(vocabulary, file)  the vocabulary with the file's parts as its `part` kind (content's S.ref('part'))
+//   withParts(vocabulary, file)  the vocabulary with both code and file parts in its `part` kind (content's S.ref('part'))
 //   evalSettings(text, def, params, ops)   a settings-only expression (a readout, a rule, a check) on a node's settings
 //   applyRules(def, params, changed, ops)  a node's settings once the player changed one: the part's rules followed
 //   failedCheck(def, params, ops)          what the first check its settings fail says, or null
 //   partDesc(def, allowed)                 its description with the open options' abouts
 // Every expression may call the kernel's builtins (builtins.js) besides the domain's resources.
 import { PartError } from '../circuit.js'
+import { facesOf, holesOf, outletsOf, registerPieces, settingsOf } from '../pieces.js'
 import { validate } from '../schema.js'
 import { ExprError, evaluate, evaluateTaped, parse, problemsOf } from './expr.js'
 import { ICON_NAMES } from './icons.js'
@@ -53,8 +54,8 @@ export function coerce(s, raw) {
 
 /** One part of the file, resolved: its settings filled from the presets, keyed. */
 function resolvePart(def, presets, type) {
-  const settings = (def.settings ?? []).map((s) => resolveSetting(s, presets)).filter(Boolean)
-  return { ...def, type, settings, setting: Object.fromEntries(settings.map((s) => [s.key, s])), outputNames: def.outputs?.map((o) => o.name) ?? null }
+  const settings = settingsOf(def).map((s) => resolveSetting(s, presets)).filter(Boolean)
+  return { ...def, type, settings, setting: Object.fromEntries(settings.map((s) => [s.key, s])), outputNames: outletsOf(def).length ? outletsOf(def).map((o) => o.name) : null }
 }
 
 /** The trees a part computes with: one per output (null for an output whose text does not parse). */
@@ -78,7 +79,7 @@ const runner = (ops, ctx) => (name, args, named) => {
 const noCase = (v) => new PartError({ zh: `没有为 ${v} 写出运算`, en: `nothing is computed for ${v}` })
 
 /** A node's settings as computing reads them. */
-export const settingsFor = (def, params = {}) => Object.fromEntries(def.settings.map((s) => [s.key, coerce(s, params[s.key])]))
+export const settingsFor = (def, params = {}) => Object.fromEntries(settingsOf(def).map((s) => [s.key, coerce(s, params[s.key])]))
 
 /**
  * The value of a settings-only expression (a readout, an action's new value, its `when`) on a node's settings, or
@@ -139,21 +140,21 @@ function symmetricIn(tree, settings, ops) {
  * values an option setting takes (a course may offer fewer), `defaults` a new node's settings. `ops`: the domain's
  * resources, { name: { run(args, named, ctx) } }.
  */
-export function defineParts(file, ops) {
+export function defineParts(file, ops, code = {}) {
   const presets = file?.presets ?? {}
   const defs = Object.fromEntries(Object.entries(file?.parts ?? {}).map(([type, def]) => [type, resolvePart(def, presets, type)]))
-  const PARTS = Object.fromEntries(Object.entries(defs).map(([type, def]) => {
+  const defined = Object.fromEntries(Object.entries(defs).map(([type, def]) => {
     const trees = treesOf(def)
-    const names = def.inputs.map((p) => p.name)
+    const names = holesOf(def).map((p) => p.name)
     // An optional input left unwired reads 「—」 (undefined) and never makes the part give 「—」 by itself.
-    const optional = new Set(def.inputs.filter((p) => p.optional).map((p) => p.name))
+    const optional = new Set(holesOf(def).filter((p) => p.optional).map((p) => p.name))
     const part = {
       inputs: names,
       ...(def.outputNames ? {} : { symmetric: (node) => symmetricIn(trees[''], settingsFor(def, node?.params), ops) }),
       ...(optional.size ? { optional: [...optional] } : {}),
-      params: def.settings.map((s) => s.key),
-      defaults: Object.fromEntries(def.settings.map((s) => [s.key, defaultOf(s)])),
-      settings: Object.fromEntries(def.settings.filter((s) => OPTIONED.has(s.control)).map((s) => [s.key, s.options.map((o) => o.value)])),
+      params: settingsOf(def).map((s) => s.key),
+      defaults: Object.fromEntries(settingsOf(def).map((s) => [s.key, defaultOf(s)])),
+      settings: Object.fromEntries(settingsOf(def).filter((s) => OPTIONED.has(s.control)).map((s) => [s.key, s.options.map((o) => o.value)])),
       eval: (ins, node, ctx, key) => {
         const failed = failedCheck(def, node?.params ?? {}, ops)
         if (failed) throw new PartError(failed)
@@ -172,6 +173,7 @@ export function defineParts(file, ops) {
     if (def.outputNames) part.outputs = () => def.outputNames
     return [type, part]
   }))
+  const PARTS = registerPieces(code, defined)
   return {
     PARTS,
     defs,
@@ -185,7 +187,7 @@ export function defineParts(file, ops) {
  * through (a list of values; null or undefined: every option), each side of the text joined on its own.
  */
 export function partDesc(def, allowed = () => null) {
-  const extra = (def.settings ?? []).flatMap((s) => {
+  const extra = settingsOf(def).flatMap((s) => {
     const open = allowed(s.key)
     return (s.options ?? []).filter((o) => o.about && (!open || open.includes(o.value))).map((o) => o.about)
   })
@@ -198,7 +200,7 @@ export function partDesc(def, allowed = () => null) {
 export function withParts(vocabulary, file) {
   if (!definesParts(vocabulary)) return vocabulary
   const part = Object.fromEntries(Object.entries(file?.parts ?? {}).map(([type, def]) => [type, { about: def.desc ?? def.name ?? type }]))
-  return { ...vocabulary, kinds: { ...vocabulary.kinds, part } }
+  return { ...vocabulary, kinds: { ...vocabulary.kinds, part: registerPieces(vocabulary.kinds.part, part) } }
 }
 
 /** Every place a parts.json does not hold together, as [{ at, says }] (at: parts.json and the path in it). */
@@ -235,11 +237,11 @@ export function partProblems(file, vocabulary) {
   for (const [type, raw] of Object.entries(file.parts)) {
     const at = `.parts.${type}`
     if (!ICONS.has(raw.icon)) say(`${at}.icon`, `${raw.icon} is no icon of the kernel’s table`)
-    const keys = (raw.settings ?? []).map((s) => s.key)
+    const keys = settingsOf(raw).map((s) => s.key)
     if (new Set(keys).size !== keys.length) say(`${at}.settings`, 'a setting key is written twice')
-    if (new Set(raw.inputs.map((p) => p.name)).size !== raw.inputs.length) say(`${at}.inputs`, 'an input is named twice')
-    if (raw.outputs && new Set(raw.outputs.map((p) => p.name)).size !== raw.outputs.length) say(`${at}.outputs`, 'an output is named twice')
-    for (const [k, s] of (raw.settings ?? []).entries()) {
+    if (new Set(holesOf(raw).map((p) => p.name)).size !== holesOf(raw).length) say(`${at}.inputs`, 'an input is named twice')
+    if (new Set(outletsOf(raw).map((p) => p.name)).size !== outletsOf(raw).length) say(`${at}.outputs`, 'an output is named twice')
+    for (const [k, s] of settingsOf(raw).entries()) {
       if (s.use && !presets[s.use]) { say(`${at}.settings[${k}].use`, `${s.use} is no preset of parts.json`); continue }
       settingProblems(resolveSetting(s, presets), `${at}.settings[${k}]`)
     }
@@ -255,7 +257,7 @@ export function partProblems(file, vocabulary) {
       for (const says of problemsOf(tree, { ops, inputs, settings: def.setting, fits })) say(where, says)
       return undefined
     }
-    for (const [k, s] of def.settings.entries()) if (s.when) check(s.when, `${at}.settings[${k}].when`, [])
+    for (const [k, s] of settingsOf(def).entries()) if (s.when) check(s.when, `${at}.settings[${k}].when`, [])
     for (const [k, rule] of (raw.rules ?? []).entries()) {
       if (rule.on && !def.setting[rule.on]) say(`${at}.rules[${k}].on`, `${rule.on} is no setting of the part`)
       if (rule.when) check(rule.when, `${at}.rules[${k}].when`, [])
@@ -274,10 +276,10 @@ export function partProblems(file, vocabulary) {
       for (const o of outputs) if (!(o in raw.compute)) say(`${at}.compute`, `nothing computes the output ${o}`)
       for (const o of Object.keys(raw.compute)) if (!outputs.includes(o)) say(`${at}.compute.${o}`, `${o} is no output of the part`)
     }
-    for (const [o, text] of exprs) check(text, `${at}.compute${o ? `.${o}` : ''}`, def.inputs.map((p) => p.name))
+    for (const [o, text] of exprs) check(text, `${at}.compute${o ? `.${o}` : ''}`, holesOf(def).map((p) => p.name))
     // The views: what each block names is there.
     for (const face of FACES) {
-      const blocks = raw.views?.[face] ?? []
+      const blocks = facesOf(raw)[face] ?? []
       const walk = (list, where) => list.forEach((b, k) => {
         const here = `${where}[${k}]`
         if (b.show === 'row') return walk(b.blocks, `${here}.blocks`)

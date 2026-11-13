@@ -11,6 +11,7 @@
 - A.2 已完成。《证明完毕》的定义和声明由领域组合共享判定，作者检查和一次判定组件共用它。12 款游戏的检查输出逐字节一致。
 - A.3 已完成。一次判定、结论行和电路结果区读取统一失败。定义关的值算错时显示应得和实得，超出步数的提示照旧。写检验玩法用共享判定检查每样作品。12 款游戏的检查输出逐字节一致。
 - B.1 已完成。电路和《证明完毕》共用 `engine/authoring.js` 检查参考解、错解、开局作品和搭出的件，变异评分仍按需执行。
+- C.1 已完成。`engine/pieces.js` 登记和读取件的面，电路元件定义与画面共用它。代码与 `parts.json` 可共同登记在同一款游戏。
 - `engine/circuit-domain.js` 仍负责电路的作者检查接线、schema（`levelSchema`）和课程读取（`circuitCourse`）。
 - 还在领域里的机制：三个模板（`logic/templates/*.jsx`）、词序条上的树编辑器（`logic/ui/SentenceEditor.jsx`）、七张「造出的东西往后传」的表、八种玩法的屏。
 - 量：`logic` 自写组件 2039 行（`engine/components.test.js`），只许降。
@@ -41,12 +42,6 @@
 - 验收：在《车在说话》上改一个任务的一段文字，写入前的检查从整款（约 1 分 46 秒）降到只跑这一个任务；改内核代码后缓存全部失效。
 
 ## 阶段 C　件
-
-### C.1 件和它的面
-
-- 件是名字加几个可有可无的面：空位、设置、区域、内部、画法、保存。`parts.json` 的 schema 按面重排；内核给出读一个面的函数，编辑器和判定只经它读。
-- `parts.json` 和代码里的件可以并存：`engine/parts/define.js` 的 `withParts` 现在会把词汇表里的件整个换掉，改成合并。这是 `logic` 的件逐步搬进 `parts.json` 的前提。
-- 验收：已有 `parts.json` 的游戏（`linear`、`signal`、`market`、`calculus` 和脚手架）内容只做机械改动，检查输出不变；合成领域的测试里一半的件在代码、一半在 `parts.json`。
 
 ### C.2 内部是一个引用
 
@@ -185,7 +180,6 @@ A 和 C 互不依赖，可以交替做。D.3 要 A 和 B 做完；D.5 要 C.1、
 - 每一条做完，同一个 commit 里更新 `games/DESIGN.md` 的对应处，并把这份计划里那一条删掉，在「现状」里记一行。
 
 **这一带已知的坑**
-- `engine/parts/define.js` 的 `withParts`：领域的词汇表一旦有 `op` 种类，它会用 `parts.json` 的件整个换掉词汇表里的件。C.1 之前不要给 `logic` 的词汇表加 `op`。
 - `engine/caught.js` 由 `shell/CircuitScreen.jsx` 和 `shell/Checks.jsx` 使用。
 - `logic/ui/SentenceEditor.jsx` 里带参数的函数项原来一放上去就整页崩（变量在定义前被用到），已修；D.1 提进内核时留意别带回去。
 - 内核里一次外层求值中，打包的件的各个输出共用一次内部求值（`engine/boards.js` 的 `packed`）。逐步回放里，被几个输出共用的卡只出现一次。

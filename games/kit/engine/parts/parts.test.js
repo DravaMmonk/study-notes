@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { evaluate, parse, print, problemsOf } from './expr.js'
 import { BUILTIN_ITEMS, BUILTINS } from './builtins.js'
 import { applyRules, defineParts, evalSettings, failedCheck, partDesc, partProblems, withParts } from './define.js'
+import { facesOf, holesOf, insideOf, keepsOf, regionsOf, settingsOf } from '../pieces.js'
 import { S } from '../schema.js'
 import { evaluate as run } from '../circuit.js'
 
@@ -106,6 +107,29 @@ test('a parts.json that holds together has no problems; one that does not says w
     'parts.json.parts.split.compute: nothing computes the output lo',
   ])
   assert.deepEqual(Object.keys(withParts(vocabulary, file).kinds.part), ['sum', 'scaled', 'split'])
+})
+
+test('code and content pieces share both the vocabulary and the running registry', () => {
+  const code = { fixed: { inputs: [], eval: () => 4 } }
+  const mixed = { ...vocabulary, kinds: { ...vocabulary.kinds, part: { fixed: { about: 'a fixed number' } } } }
+  const data = { parts: { sum: file.parts.sum } }
+  assert.deepEqual(Object.keys(withParts(mixed, data).kinds.part), ['fixed', 'sum'])
+  assert.deepEqual(partProblems(data, mixed), [])
+  const { PARTS } = defineParts(data, OPS, code)
+  const board = { nodes: [{ id: 'f', type: 'fixed' }, { id: 's', type: 'sum' }], wires: [{ from: 'f', to: 's', port: 'a' }, { from: 'f', to: 's', port: 'b' }] }
+  assert.equal(run(board, { parts: PARTS }).values.get('s'), 8)
+})
+
+test('the piece readers expose the optional faces without renaming stored fields', () => {
+  const piece = { ...file.parts.scaled, regions: [{ name: 'body', opens: true }], inside: { task: 'work' }, keeps: ['a'] }
+  assert.equal(holesOf(piece), piece.inputs)
+  assert.equal(settingsOf(piece), piece.settings)
+  assert.equal(facesOf(piece), piece.views)
+  assert.equal(regionsOf(piece), piece.regions)
+  assert.equal(insideOf(piece), piece.inside)
+  assert.equal(keepsOf(piece), piece.keeps)
+  assert.deepEqual(partProblems({ ...file, parts: { ...file.parts, scaled: piece } }, vocabulary), [])
+  assert.deepEqual([holesOf({}), settingsOf({}), regionsOf({}), insideOf({}), facesOf({}), keepsOf({})], [[], [], [], null, {}, []])
 })
 
 test('a description names only the options that are open', () => {
