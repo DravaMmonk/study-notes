@@ -2,6 +2,7 @@ import { useState } from 'react'
 import BitsField from './BitsField.jsx'
 import NumberField from './NumberField.jsx'
 import RowTable from './RowTable.jsx'
+import Verdict from './Verdict.jsx'
 import { L, T, tr } from './i18n.js'
 
 // The checks a player writes where a task gives the works (engine/caught.js), in the results area of the level: a
@@ -49,7 +50,7 @@ export default function Checks({ checks, gives, catches, verdict, phone }) {
   return (
     <div className="ck">
       <RowTable phone={phone} rows={rows} columns={columns} onChange={checks.set} fixed blank={blank(cells)} rowClass={(k) => (k === checks.at ? 'is-on' : '')} onPick={checks.pick} form={(row, set) => cells.map((c) => <div key={c.name}>{c.shape === 'bits' && <span className="bf-label">{L(c.label)}</span>}{field(c)(row, set)}</div>)} formTitle={(k) => T(`第 ${k + 1} 行`, `Row ${k + 1}`)} />
-      {verdict && <p className={`ck-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.text}</p>}
+      {verdict && <Verdict pass={verdict.pass}>{verdict.text}</Verdict>}
     </div>
   )
 }

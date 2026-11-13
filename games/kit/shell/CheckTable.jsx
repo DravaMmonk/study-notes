@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import RunDock from './RunDock.jsx'
+import Verdict from './Verdict.jsx'
 import { usePlayback } from './usePlayback.jsx'
 import { L } from './i18n.js'
 
@@ -48,7 +49,7 @@ export function useCheckTable({ columns, checks, wait = null, board, passed: pas
           </tbody>
         </table>
       </div>
-      {run?.over && <p className={`ct-verdict ${playback.passed ? 'is-pass' : 'is-fail'}`}>{playback.passed ? passedText : failed?.reason}</p>}
+      {run?.over && <Verdict pass={playback.passed}>{playback.passed ? passedText : failed?.reason}</Verdict>}
     </div>
   )
   return { table, dock: <RunDock {...playback.dock(words)} />, passed: playback.passed }

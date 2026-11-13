@@ -12,7 +12,7 @@ const CEILING = {
   'domains/agent': 324,
   'domains/can': 63,
   'domains/image': 2849,
-  'domains/logic': 2103,
+  'domains/logic': 2085,
   'domains/syntax': 159,
   'domains/table': 2413,
 }

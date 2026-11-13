@@ -1,22 +1,25 @@
 import { useMemo, useState } from 'react'
-import { Brief, Level, RunDock, TestTabs, useBoardCases } from '../../../shell/index.js'
+import { Brief, Level, NamedLines, RunDock, TestTabs, Verdict, useBoardCases } from '../../../shell/index.js'
 import { L, tr } from '../../../shell/i18n.js'
 import { say } from '../notation.js'
 import { judgeCases, sentenceOf, waysIn } from '../iso.js'
-import { DeclRules } from './IsoScreen.jsx'
-import CaseTable, { setOut } from './IsoCases.jsx'
-import RuleTable, { rulesOf } from './RuleTable.jsx'
+import { ruleLines } from './declare.jsx'
+import CaseTable, { setOut } from '../ui/IsoCases.jsx'
+import RuleTable, { rulesOf } from '../ui/RuleTable.jsx'
 import { boardOf, linesOf, problemsOf } from '../ruleLines.js'
 
-// Finding the fault in someone's declarations (the shared play 'audit', ../../../shell/useBoardCases.js): each test
-// case is one of their declarations, its rules on the rule table (RuleTable.jsx, read only), picked by its tab; the
+// The template of an audit task (a rule board with `play: 'audit'`): finding the fault in someone's declarations, on
+// the kit's boards-as-cases (../../../shell/useBoardCases.js, TestTabs.jsx), its rows of rules read only
+// (RuleRows.jsx through ui/RuleTable.jsx), the rules they give (NamedLines.jsx) and the table the player fills in
+// (RowTable.jsx through ui/IsoCases.jsx); nothing is drawn here. Each test
+// case is one of their declarations, its rules on the rule table (read only), picked by its tab; the
 // player writes the test cases (检验条例) in the table under it (iso.js judgeCases, ui/IsoCases.jsx), each what is given, a goal and whether it should be derivable. A
 // run goes through the boards: one passes when every expectation is what the requirement means and the board answers
 // one of the cases otherwise (or, by the level's `want`, every one as expected, or every one otherwise). Fewer cases is
 // the better score. The declaration may be the one the player wrote on an earlier level (`carry`).
 
 
-export default function FaultScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone, progress }) {
+export default function Audit({ game, level: entry, saved, save, solve, lastRun, keepRun, phone, progress }) {
   // The declaration the player wrote on an earlier level (`carry`), once it is one; else the level's own.
   const kept = entry.source.carry && progress?.solved?.includes(entry.source.carry) ? progress.data?.[entry.source.carry]?.rules : null
   const carried = kept && !problemsOf(entry.source, kept).length ? boardOf(linesOf(kept)) : null
@@ -92,10 +95,10 @@ export default function FaultScreen({ game, level: entry, saved, save, solve, la
   const stage = (
     <div className="fo-stage">
       <RuleTable level={level} rules={rulesOf(level, ways)} />
-      <DeclRules level={level} ways={ways} />
+      <NamedLines lines={ruleLines(level, ways)} />
       <CaseTable phone={phone} cases={cases} words={words} level={level} edit={change} rowClass={rowClass} onPick={setRow} result={result} />
     </div>
   )
-  const results = verdictText ? <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdictText}</p> : null
+  const results = verdictText ? <Verdict pass={verdict.pass}>{verdictText}</Verdict> : null
   return <Level phone={phone} className="fo-level lg-level" brief={brief} tests={tests} stage={stage} results={results} dock={dock} />
 }

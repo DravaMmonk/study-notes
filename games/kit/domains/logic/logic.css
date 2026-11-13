@@ -257,11 +257,6 @@
 
 
 /* The rules a declaration gives, as they stand: each named at the left, written out beside it. */
-.lg-decl-rules { margin: 0; padding: var(--sp-4) var(--sp-6); display: grid; gap: var(--sp-3); border-radius: var(--r-md); background: color-mix(in srgb, var(--paper) 55%, transparent); box-shadow: inset 0 0 0 1px var(--hairline); }
-.lg-decl-rules > div { display: grid; grid-template-columns: 4.6em minmax(0, 1fr); align-items: baseline; gap: var(--sp-5); }
-.lg-decl-rules dt { display: inline-flex; align-items: baseline; gap: var(--sp-2); color: var(--muted); font: 500 12px var(--sans); white-space: nowrap; }
-.lg-decl-rules dt i { color: var(--faint); font: 500 11px var(--mono); font-style: normal; }
-.lg-decl-rules dd { margin: 0; min-width: 0; color: var(--ink); font-size: 13.5px; line-height: 1.6; overflow-wrap: anywhere; }
 /* A sentence being built for one of them (ui/SentencePick.jsx, ui/RuleTable.jsx). */
 /* The rule table's for-any switch takes the quantifiers' colour. */
 .lg-rule-table .rr-lead button[aria-pressed='true'] { background: color-mix(in srgb, var(--fam-quant, var(--accent)) 13%, transparent); box-shadow: inset 0 0 0 1.5px var(--fam-quant, var(--accent)); }

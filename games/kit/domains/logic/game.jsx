@@ -7,7 +7,9 @@ import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
 import GatesScreen, { GateInside } from './ui/GatesScreen.jsx'
-import IsoScreen, { DeclaredRules } from './ui/IsoScreen.jsx'
+import Declare from './templates/declare.jsx'
+import Audit from './templates/audit.jsx'
+import DeclaredRules from './ui/DeclaredRules.jsx'
 import Define from './templates/define.jsx'
 import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
@@ -35,6 +37,9 @@ const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'proof'
  * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), levels,
  * glossary }.
  */
+// A rule board is played one of two ways, each its own template: a declaration to write, or someone's to find the fault in.
+const Iso = (props) => (props.level.source.play === 'audit' ? <Audit {...props} /> : <Declare {...props} />)
+
 export default function logicGame(content) {
   const logic = logicCourse(content)
   const { LEVELS, CHAPTERS, LABELS } = logic
@@ -94,7 +99,7 @@ export default function logicGame(content) {
       machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
       truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
-      iso: { Screen: IsoScreen, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
+      iso: { Screen: Iso, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
       define: { Screen: Define, icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },
       translate: { Screen: FormulaScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
       query: { Screen: FormulaScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
