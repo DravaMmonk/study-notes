@@ -5,7 +5,8 @@ import { Halt, MISSING, PartError, evaluate } from './circuit.js'
 import { packed, runBoard, sink, source } from './boards.js'
 import { walk } from './machine.js'
 import { insideAt, paceOf, viewAt } from './trace.js'
-import { runLevel, withHidden } from './tests.js'
+import { runOutputTests } from './test-run.js'
+import { withHidden } from './tests.js'
 
 const PARTS = {
   input: source(),
@@ -158,9 +159,9 @@ test('a level runs its tests through the domain, hidden ones too', () => {
   }
   const level = { tests: [{ inputs: { in: 1 }, expected: { out: -1 } }], hidden: [{ inputs: { in: 2 }, expected: { out: -2 } }], constraint: (s) => (s.nodes > 1 ? 'too many' : '') }
   const good = io([{ id: 'n', type: 'neg' }], w('in>n n>out'))
-  assert.equal(runLevel(domain, withHidden(level), good).pass, true)
+  assert.equal(runOutputTests(domain, withHidden(level), good).pass, true)
   const long = io([{ id: 'n', type: 'neg' }, { id: 'm', type: 'neg' }, { id: 'k', type: 'neg' }], w('in>n n>m m>k k>out'))
-  const run = runLevel(domain, level, long)
+  const run = runOutputTests(domain, level, long)
   assert.equal(run.results[0].pass, true)
   assert.equal(run.constraint, 'too many')
   assert.equal(run.pass, false)

@@ -1,6 +1,6 @@
 // Running a __name__ board on a test: the world says its bits, the player's board is one more node on the line
 // (../../engine/ticks.js), and every tick its outputs (and what it says, when it talks) are checked against what the
-// task wants (../../engine/circuit-domain.js judgeTicks).
+// task wants (../../engine/circuit-run.js tickJudge).
 //
 // test   { line: [bit | undefined per tick], inputs?: { name: [value per tick] } }   (course.js reads it)
 // task   { outputs: [{ name, label }], talks?, want(test) → { name: [value per tick] } }  undefined in `want`: any value
@@ -11,7 +11,8 @@
 // entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): the line and the
 //   inputs, what the board says and each output against what is wanted, tick by tick
 import { boardNode, runTicks } from '../../engine/ticks.js'
-import { judgeTicks, runTests } from '../../engine/circuit-domain.js'
+import { tickJudge, tickReport } from '../../engine/circuit-run.js'
+import { runTests } from '../../engine/test-run.js'
 import { LINE, lineOf, sayer } from './line.js'
 import { T } from '../../shell/i18n.js'
 
@@ -25,9 +26,9 @@ export function runTest(task, circuit, test, parts) {
   const run = runTicks({ nodes: [sayer('world', test.line), boardNode({ id: 'you', circuit, parts, bind, traced: true })], ticks: test.line.length, line: lineOf })
   const want = task.want(test)
   const ticks = run.steps.map((step) => ({ tick: step.tick, line: step.line, said: step.said.you ?? null, ...step.heard.you }))
-  const judged = judgeTicks(ticks, { checked: checked(task), want: (name) => want[name], got: (tick, name) => (task.talks && name === SAY.name ? tick.said : tick.outputs[name] ?? null) })
+  const judge = tickJudge({ checked: checked(task), want: (name) => want[name], got: (tick, name) => (task.talks && name === SAY.name ? tick.said : tick.outputs[name] ?? null) })
   const error = run.error && T('这块板这一拍要说的话取决于这一拍的线：说之前还听不到。')
-  return { ...judged, want, ...(error ? { error } : {}) }
+  return { ...tickReport(ticks, judge(ticks)), want, ...(error ? { error } : {}) }
 }
 
 /** Every test of a task on a board: { runs, pass }. */

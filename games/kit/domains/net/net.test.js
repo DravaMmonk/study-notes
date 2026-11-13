@@ -102,7 +102,7 @@ test('a check a player writes is the bits arriving on each wire in, as long as t
   assert.deepEqual(row, { ticks: 5, wires: { x: [1, 0, 1, 1, 0] }, inputs: {}, queue: [] })
   const on = (lines) => runLevel({ ...echo, tests: [row] }, fromText(lines, echo, plain), partOf).runs[0].fail
   assert.equal(on(['y <- x']), undefined)
-  assert.equal(on(['o = const[value=1]()', 'y <- o']).tick, 1, 'a board that always says 1 is caught on the first 0')
+  assert.equal(on(['o = const[value=1]()', 'y <- o']).at.tick, 1, 'a board that always says 1 is caught on the first 0')
 })
 
 test('a built part takes its level’s wires as ports', () => {
@@ -139,7 +139,7 @@ test('a reply a frame, and yes standing for 1', () => {
   assert.deepEqual(wantOf({ x: { answers: { wire: 'a', format: 'flagbyte' } } })(t).x.order, [1, 'end', 1, 'end', 0, 'end'])
   const level = { outputs: [{ name: 'o', label: 'o' }], want: wantOf({ o: 'given' }), tests: [{ ticks: 2, wires: {}, inputs: {}, queue: [], expect: { o: [1, 0] } }] }
   const eq = fromText(['z = const[value=0]()', 'e = equal(z, z)', 'o <- e'], level, plain)
-  assert.equal(runLevel(level, eq, partOf).runs[0].fail.tick, 1)
+  assert.equal(runLevel(level, eq, partOf).runs[0].fail.at.tick, 1)
 })
 
 test('the starter game passes its checks', async () => {

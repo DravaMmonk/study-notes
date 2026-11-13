@@ -479,7 +479,7 @@ export function premisesOf(test, consts = []) {
 }
 
 /**
- * How a proof level runs and is judged, for the shared engine (../../engine/tests.js). A test is
+ * How a proof level runs and is judged, for the shared engine (../../engine/test-run.js). A test is
  * { premises: { name: formula text }, goal: formula text }; the level may name its constants (consts) and its lemmas.
  */
 export const LOGIC_TESTS = {

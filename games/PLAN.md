@@ -7,7 +7,8 @@
 ## 现状（2026-11-14）
 
 - 已有的基础件：电路画布和手机格位、词序条（`kit/strip`）、填表（`shell/RowTable.jsx`）、规则行（`shell/RuleRows.jsx`）、一次判定（`shell/CheckOnce.jsx`）、结论行（`shell/Verdict.jsx`）、带名字的几行（`shell/NamedLines.jsx`）、玩家写检验（`shell/Checks.jsx`、`engine/caught.js`）、逐步回放（`shell/usePlayback.jsx`）、手头有什么（`kit/course.js` 的 `holds`，决策二十三）。
-- 还捆在一起的：`engine/circuit-domain.js` 一个文件里有判定（`runTests`、`judgeTicks`、`onceRun`）、作者侧检查（`checkCircuitTasks`）、schema（`levelSchema`）、课程读取（`circuitCourse`）。
+- A.1 已完成。六种纯判定在 `engine/judge.js`，运行报告由 `engine/test-run.js` 汇总，电路经 `engine/circuit-run.js` 接回放和结果区。12 款游戏的检查输出逐字节一致。
+- `engine/circuit-domain.js` 仍承载作者侧检查（`checkCircuitTasks`）、schema（`levelSchema`）和课程读取（`circuitCourse`）。
 - 还在领域里的机制：`logic` 的判定（`define.js`、`iso.js`、`validate.js`）、三个模板（`logic/templates/*.jsx`）、词序条上的树编辑器（`logic/ui/SentenceEditor.jsx`）、七张「造出的东西往后传」的表、八种玩法的屏。
 - 量：`logic` 自写组件 2062 行（`engine/components.test.js`），只许降。
 
@@ -30,13 +31,6 @@
 ---
 
 ## 阶段 A　判定
-
-### A.1 失败的形状和基本判定
-
-- 新文件 `engine/judge.js`，全是纯函数。一个判定是「作品 → 没有失败，或一处失败」；失败是 `{ at?, check?, want?, got?, why }`：在作品的哪里、第几条检验、要什么、得到什么、为什么。
-- 基本判定：`cases`（逐例）、`ticks`（逐拍，可以有不管的拍）、`property`（性质）、`sameAs`（等于参考）；组合：`inOrder`（依次，停在第一处失败）、`hidden`（检验不给看）。
-- `circuit-domain.js` 的 `judgeTicks`、`runTests`、`onceRun` 里比结果的那一段，和 `engine/tests.js` 的 `runLevel`，搬成上面这几个，原处删掉；`can`、`calculus`、`market`、`net`、`image` 和两个脚手架改引用。
-- 验收：`circuit-domain.js` 和 `tests.js` 里不再有判定的代码；全部游戏的检查输出不变；`judge.test.js` 在合成的作品上测每一种。
 
 ### A.2 定义和声明用它
 
@@ -143,7 +137,7 @@ D.1 → D.2 → D.3 → D.4 → D.5 → E.1
 
 A 和 C 互不依赖，可以交替做。D.3 要 A 和 B 做完；D.5 要 C.1、C.2、D.1；E.1 要前面全部。
 
-先做 A.1；整体的先后见下面「已定」的最后一条。
+执行顺序见下面「已定」的最后一条。
 
 ## 已定（执行时不用再问）
 
@@ -211,7 +205,7 @@ A 和 C 互不依赖，可以交替做。D.3 要 A 和 B 做完；D.5 要 C.1、
 
 **这一带已知的坑**
 - `engine/parts/define.js` 的 `withParts`：领域的词汇表一旦有 `op` 种类，它会用 `parts.json` 的件整个换掉词汇表里的件。C.1 之前不要给 `logic` 的词汇表加 `op`。
-- 判定现在的使用者：`judgeTicks` 和 `runTests` 被 `can/run.js`、`calculus/run.js`、`market/run.js`、`scaffold/tick-bus/run.js` 引用；`engine/tests.js` 的 `runLevel` 被 `image/engine/graph.js` 和 `logic/validate.js` 引用，`withHidden` 被 `circuit-domain.js`、`image/play.js`、`image/validate.js` 引用；`engine/caught.js` 被 `shell/CircuitScreen.jsx` 和 `shell/Checks.jsx` 引用。
+- `engine/caught.js` 由 `shell/CircuitScreen.jsx` 和 `shell/Checks.jsx` 使用。
 - `logic/ui/SentenceEditor.jsx` 里带参数的函数项原来一放上去就整页崩（变量在定义前被用到），已修；D.1 提进内核时留意别带回去。
 - 内核里一次外层求值中，打包的件的各个输出共用一次内部求值（`engine/boards.js` 的 `packed`）。逐步回放里，被几个输出共用的卡只出现一次。
 

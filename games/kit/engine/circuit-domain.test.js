@@ -3,7 +3,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { assemble } from './content.js'
-import { checkCircuitTasks, definedCourse, flowBoard, onceRun } from './circuit-domain.js'
+import { checkCircuitTasks, definedCourse, flowBoard } from './circuit-domain.js'
+import { onceRun } from './circuit-run.js'
 
 const text = (zh) => ({ zh })
 const OPS = {

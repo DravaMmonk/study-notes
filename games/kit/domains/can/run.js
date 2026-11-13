@@ -1,6 +1,6 @@
 // Running a board of 《车在说话》 on a test: the world's nodes say their bits, the player's board is one more node on the
 // bus (../../engine/ticks.js), and every tick its outputs are checked against what the task wants
-// (../../engine/circuit-domain.js judgeTicks).
+// (../../engine/circuit-run.js tickJudge).
 //
 // test   { bus: { bits, frames }, inputs?: { name: [value per tick] } }   (course.js builds the bus from content)
 // task   { outputs: [{ name, label }], want(test) → { name: [value per tick] } }  undefined in `want`: any value will do
@@ -12,7 +12,9 @@
 // entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): the bus and the
 //   inputs, each output against what is wanted, tick by tick
 import { boardNode, reacting, runTicks } from '../../engine/ticks.js'
-import { judgeTicks, runTests } from '../../engine/circuit-domain.js'
+import { tickJudge, tickReport } from '../../engine/circuit-run.js'
+import { sameAs } from '../../engine/judge.js'
+import { runTests } from '../../engine/test-run.js'
 import { BUS, contender, sayer, wiredAnd } from './bus.js'
 import { receivedFrames } from './frame-reception.js'
 import { ecuAdvance } from './ecu.js'
@@ -76,10 +78,10 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   const want = task.want(test)
   const checked = [...(task.drives ? [{ name: 'send' }] : []), ...task.outputs]
   const tickOf = (step) => ({ tick: step.tick, line: step.line, sent: step.said.you, said: step.said, bind: bindings[step.tick], ...step.heard.you })
-  const judging = {
+  const judge = tickJudge({
     checked, want: (name) => want[name], got: (tick, name) => name === 'send' && task.drives ? tick.sent ?? null : tick.outputs[name] ?? null,
     same: (a, b) => Array.isArray(a) && Array.isArray(b) ? a.length === b.length && a.every((value, index) => value === b[index]) : a === b,
-  }
+  })
   const run = runTicks({
     nodes, ticks: test.bus.bits.length,
     line: (said, tick) => {
@@ -87,37 +89,47 @@ export function runTest(task, circuit, test, parts, { traced = true } = {}) {
       return test.flipTicks?.includes(tick) ? 1 - line : line
     },
     // A run nobody replays ends at its first wrong tick: the verdict is the same, and a wrong board is told sooner.
-    ...(traced ? {} : { stop: (steps) => Boolean(judgeTicks([tickOf(steps.at(-1))], judging).fail) }),
+    ...(traced ? {} : { stop: (steps) => Boolean(judge([tickOf(steps.at(-1))])) }),
   })
-  const judged = judgeTicks(run.steps.map(tickOf), judging)
+  const steps = run.steps.map(tickOf)
+  const judged = tickReport(steps, judge(steps))
   let emissions
   if (task.emits && test.emissions) {
+    const emissionProblem = T('帧发送请求或仲裁结果不符合要求。', 'The frame requests or arbitration result do not match.')
     try {
       emissions = scheduleEmissions(judged.ticks, task.emits, test.emissions.peers)
       const { id, value, period, peers } = test.emissions
       const expected = scheduleFrames([...peers, ...[0, period, 2 * period].map((at) => ({ node: 'you', at, id, data: [value & 255, value >> 8] }))])
       const signature = (events) => events.map(({ node, id: frameId, data, start }) => ({ node, id: frameId, data, start }))
-      if (!judged.fail && JSON.stringify(signature(emissions)) !== JSON.stringify(signature(expected))) judged.fail = { name: task.emits.send, reason: 'scheduled frames differ' }
+      if (!judged.fail) judged.fail = sameAs(signature(expected), {
+        same: (want, got) => JSON.stringify(want) === JSON.stringify(got),
+        at: task.emits.send,
+        why: () => emissionProblem,
+      })(signature(emissions)) ?? undefined
     } catch (error) {
-      if (!judged.fail) judged.fail = { name: task.emits.send, reason: error.message }
+      if (!judged.fail) judged.fail = { at: task.emits.send, got: error.message, why: emissionProblem }
     }
-    if (judged.fail?.name === task.emits.send && !judged.final) judged.final = T('帧发送请求或仲裁结果不符合要求。', 'The frame requests or arbitration result do not match.')
+    if ((judged.fail?.at?.id ?? judged.fail?.at) === task.emits.send) judged.final = emissionProblem
   }
   if (queue && consumed !== test.queue.length && !judged.fail && !run.error) {
-    judged.fail = { name: task.pulls.input, remaining: test.queue.length - consumed }
-    judged.final = T('测试结束时队列里还有未取走的字节。', 'Bytes remain in the queue when the test ends.')
+    const why = T('测试结束时队列里还有未取走的字节。', 'Bytes remain in the queue when the test ends.')
+    judged.fail = { at: task.pulls.input, got: test.queue.length - consumed, want: 0, why }
+    judged.final = why
   }
   if (transport && (transportState.error || (!transportState.complete && !transportState.aborted)) && !judged.fail && !run.error) {
-    judged.fail = { name: task.transport.frame, reason: transportState.error ?? 'incomplete' }
-    judged.final = T('接收方未按流控规则收齐消息。', 'The receiver did not complete the message under its flow-control rules.')
+    const why = T('接收方未按流控规则收齐消息。', 'The receiver did not complete the message under its flow-control rules.')
+    judged.fail = { at: task.transport.frame, got: transportState.error, why }
+    judged.final = why
   }
   if (broadcast && (broadcastState.error || broadcastState.phase !== 'done') && !judged.fail && !run.error) {
-    judged.fail = { name: task.broadcastBridge.outgoing, reason: broadcastState.error ?? 'incomplete' }
-    judged.final = T('功能请求的帧交换没有完成。', 'The functional frame exchange did not complete.')
+    const why = T('功能请求的帧交换没有完成。', 'The functional frame exchange did not complete.')
+    judged.fail = { at: task.broadcastBridge.outgoing, got: broadcastState.error, why }
+    judged.final = why
   }
   if (bridge && (bridgeState.error || bridgeState.phase !== 'done') && !judged.fail && !run.error) {
-    judged.fail = { name: task.bridge.outgoing, reason: bridgeState.error ?? 'incomplete' }
-    judged.final = T('诊断帧交换没有完成。', 'The diagnostic frame exchange did not complete.')
+    const why = T('诊断帧交换没有完成。', 'The diagnostic frame exchange did not complete.')
+    judged.fail = { at: task.bridge.outgoing, got: bridgeState.error, why }
+    judged.final = why
   }
   const error = run.error && T('这块板这一拍要说的话取决于这一拍的总线：说之前还听不到。')
   const receptionOutputs = ['rxId', 'rxLength', 'rxByte', 'ready', 'kind']

@@ -17,9 +17,6 @@
 //     whose games define their own parts (parts.json, ./parts/define.js) over its engine resources `ops`, and whose
 //     tests give a value on every input and expect one of every output (`inputs`, `expect`); read(value, name, say) →
 //     a value as content writes it made a value on the wires
-//   onceRun({ same?, show?, tolerance?, says? }) → { runTest, runLevel, entries }: such a board run once on a test
-//     and its outputs checked against what the test expects (same(want, got, tolerance)); what a miss says is
-//     says(port, want, got), or by default both values in words (show); `entries` what the results area can show
 //   circuitCourse(content, { board, parts, read?, test?, kinds?, pack?, holds?, replaces?, unwanted? }) → { LEVELS,
 //     played, builtBy, CHAPTERS, course, partOf, BUILT, types, blueprints, wrong, offerIn, introductions, carried,
 //     opening, syncOwn }
@@ -36,9 +33,6 @@
 //     the course read as `circuit` (validate({ circuit }), the screen's game.circuit: ../shell/circuit-game.js)
 //   GAME, levelSchema({ builds, page?, ports, test, checks?, more?, shared?, kinds? }), NAME, PORT   the schemas of
 //     game.json and of a level, and of a card's name and a port, for the domain's vocabulary
-//   runTests(runTest) → run(task, board, parts), every test of a task run by the domain's runTest: { runs, pass }
-//   judgeTicks(ticks, { checked, want, got?, same?, show? }) → { ticks, fail? }   a tick board's run judged tick by
-//     tick against what the task wants of its outputs
 //   checkCircuitTasks(circuit, { run, entries, failure?, more?, kinds? }) → the domain's lines for npm run check
 //       run(task, board) → { runs: [{ fail?, error? }], pass }; entries({ task, test, run, sample }) what the results
 //       area can show of a test (../shell/CircuitScreen.jsx); failure(run) the words for a run that fails;
@@ -50,9 +44,8 @@
 import { stagesOf } from './stages.js'
 import { assemblySeries } from './assembly-series.js'
 import { print, read } from '../circuit/text.js'
-import { packed, runTraced, sink, source, withSettings } from './boards.js'
+import { packed, sink, source, withSettings } from './boards.js'
 import { defineParts } from './parts/define.js'
-import { isGrid } from './grid.js'
 import { formed } from './forms.js'
 import { portsOf } from './circuit.js'
 import { withHidden } from './tests.js'
@@ -60,8 +53,8 @@ import { TASK_ID, taskLevel, taskLevels } from './tasks.js'
 import { TRAY, TRAYS, partNames, trayIn } from './trays.js'
 import { defineCourse, eraLevels, holds as holding, layout, offer, readItem, usable } from '../course.js'
 import { S } from './schema.js'
-import { GAME_VIEWS, RESULTS, SHOW, START_VIEW, TASK_VIEWS, rowProblems, showProblems, valueText, viewsProblems } from './views.js'
-import { T as t, keyOf, sideOf } from '../shell/i18n.js'
+import { GAME_VIEWS, RESULTS, SHOW, START_VIEW, TASK_VIEWS, rowProblems, showProblems, viewsProblems } from './views.js'
+import { T as t, keyOf } from '../shell/i18n.js'
 import { mutationScore } from './mutate.js'
 
 /* ---------- the board ---------- */
@@ -573,54 +566,6 @@ export const TEST_WORDS = {
   failed: (fails, n) => t(`可见的测试全部通过，但 ${n} 个隐藏测试中有 ${fails} 个没有通过：这块板可能只是恰好合上了这几个测试。`, `Every test shown passes, but ${fails} of ${n} hidden ${n === 1 ? 'test fails' : 'tests fail'}: the board may only happen to fit these.`),
 }
 
-
-/**
- * A run's ticks ([{ tick, outputs, … }]) judged against what a task wants: the first tick on which a port of `checked`
- * ([{ name, label }]) gives other than `want(name)[tick]` (undefined: anything will do) is the run's `fail`
- * ({ tick, name, want, got }), and that tick gets `failed`, why in words. `got(tick, name)` is what the board gave
- * there (its output by default), `same(want, got)` whether that is what is wanted, `show` a value in words.
- * Returns { ticks, fail? }.
- */
-export function judgeTicks(ticks, { checked, want, got = (tick, name) => tick.outputs[name] ?? null, same = (a, b) => a === b, show = valueText }) {
-  const word = (v, lang) => (typeof show(v) === 'object' ? show(v)[lang] : show(v))
-  for (const tick of ticks) {
-    for (const { name, label } of checked) {
-      const w = want(name)?.[tick.tick]
-      const g = got(tick, name)
-      if (w === undefined || same(w, g)) continue
-      const failed = t(`第 ${tick.tick} 拍，「${sideOf(label, 'zh')}」应当是 ${word(w, 'zh')}，这块板给出 ${word(g, 'zh')}。`, `At tick ${tick.tick}, “${sideOf(label, 'en')}” should be ${word(w, 'en')}; the board gives ${word(g, 'en')}.`)
-      return { ticks: ticks.map((x) => (x === tick ? { ...x, failed } : x)), fail: { tick: tick.tick, name, want: w, got: g } }
-    }
-  }
-  return { ticks }
-}
-
-/** A task's every test on a board, each run by `runTest(task, board, test, parts)`: { runs, pass }. */
-export const runTests = (runTest) => (task, board, parts) => {
-  const runs = task.tests.map((test) => runTest(task, board, test, parts))
-  return { runs, pass: runs.every((r) => !r.fail && !r.error) }
-}
-
-/**
- * A board run once on a test whose `inputs` are bound to the task's inputs (./boards.js runTraced, every card it
- * computes traced), each output checked against what the test expects of it.
- */
-export function onceRun({ same = (a, b) => a === b, show = valueText, tolerance, says = () => null } = {}) {
-  const runTest = (task, circuit, test, partOf) => {
-    const run = runTraced(circuit, partOf, test.inputs)
-    const out = task.outputs.find((o) => !same(test.expect[o.name], run.outputs[o.name] ?? null, tolerance))
-    if (!out) return run
-    const [want, got] = [test.expect[out.name], run.outputs[out.name] ?? null]
-    const why = says(out, want, got) ?? t(`「${sideOf(out.label, 'zh')}」应当是 ${show(want)}，这块板给出 ${show(got)}。`, `“${sideOf(out.label, 'en')}” should be ${show(want)}; the board gives ${show(got)}.`)
-    return { ...run, fail: { name: out.name, want, got, why } }
-  }
-  const shape = (v) => (isGrid(v) ? 'grid' : 'scalar')
-  const entries = ({ task, test, run }) => [
-    ...task.inputs.map((i) => ({ of: i.name, label: i.label, shape: shape(test.inputs[i.name]), given: test.inputs[i.name], shown: false })),
-    ...task.outputs.map((o) => ({ of: o.name, label: o.label, shape: shape(test.expect[o.name]), got: run.outputs[o.name] ?? null, want: test.expect[o.name], ...(tolerance === undefined ? {} : { tolerance }) })),
-  ]
-  return { runTest, runLevel: runTests(runTest), entries }
-}
 
 /* ---------- the checks ---------- */
 

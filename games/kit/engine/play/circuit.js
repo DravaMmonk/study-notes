@@ -179,7 +179,7 @@ export function tickPlay({ run, given, lanes, more = () => [], registers = null,
     run: ({ game, level: { source: task }, solved }, board) => {
       const { partOf } = game.circuit
       const shown = run({ ...task, tests: testsOf(task, solved) }, board, partOf)
-      const tests = untilFail(shown.runs.map((r, k) => ({ label: label(k), pass: !failed(r), says: r.error ?? r.final ?? r.ticks.find((t) => t.failed)?.failed ?? null })))
+      const tests = untilFail(shown.runs.map((r, k) => ({ label: label(k), pass: !failed(r), says: r.error ?? r.final ?? r.fail?.why ?? null })))
       const n = task.hidden.length
       const hidden = solved || !n ? null : run({ ...task, tests: task.hidden }, board, partOf).runs.filter(failed).length
       return {

@@ -4,7 +4,7 @@ import { L, tr, T } from '../../../shell/i18n.js'
 import Readouts from '../../../shell/Readouts.jsx'
 import { isFixed, outputsOf, srcOf, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
-import { runLevel } from '../../../engine/tests.js'
+import { runOutputTests } from '../../../engine/test-run.js'
 import { parse } from '../formula.js'
 import { inductionCases } from '../proof.js'
 import { say } from '../notation.js'
@@ -75,7 +75,7 @@ function BoardScreen({ board, screen }) {
     ...(stepped
       ? { steps: { of: (k) => tracedOf(k).steps, check: (k) => board.tests.check(level, tests[k], tracedOf(k).run.outputs)[0].reason } }
       : { judge: () => {
-        const r = runLevel(board.tests, level, circuit)
+        const r = runOutputTests(board.tests, level, circuit)
         return { pass: r.pass, score: r.score, results: r.results.map((x) => ({ pass: x.pass, reason: x.checks[0].reason })) }
       } }),
     score: () => board.tests.score(level, circuit),

@@ -10,7 +10,7 @@
 // cannot have (but for what its board starts with: a preset names cards of the answer).
 import { holds, reach } from '../../course.js'
 import { keyOf } from '../../shell/i18n.js'
-import { runLevel } from '../../engine/tests.js'
+import { runOutputTests } from '../../engine/test-run.js'
 import { freeVars, parse, same, show } from './formula.js'
 import { parseS } from './schematic.js'
 import { countermodel } from './models.js'
@@ -147,10 +147,10 @@ export function validate({ levels: given, course, logic }) {
     const holds = new Set([...reach(course, { id: level.id, task: level.task }), ...rulePartsOf(level).keys(), 'in', 'out'])
     const missing = [...new Set(level.solution.nodes.filter((n) => !presetIds(level).includes(n.id)).map((n) => n.type).filter((t) => !holds.has(t) && !(level.task > 0 && t === builder.get(level.id))))]
     if (missing.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
-    const good = runLevel(MACHINE_TESTS, level, level.solution)
+    const good = runOutputTests(MACHINE_TESTS, level, level.solution)
     out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: machine ${good.pass ? 'PASS' : `FAIL ${good.results.filter((r) => !r.pass).map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} cards]` })
     if (level.naive) {
-      const bad = runLevel(MACHINE_TESTS, level, level.naive)
+      const bad = runOutputTests(MACHINE_TESTS, level, level.naive)
       out.push({ level: level.id, fail: bad.pass, text: `  naive ${bad.pass ? 'PASSES (bad)' : 'fails'}` })
     }
     if (level.budget !== undefined && good.score.steps > level.budget) out.push({ level: level.id, fail: true, text: `${level.id}: the solution breaks its budget` })
@@ -196,7 +196,7 @@ export function validate({ levels: given, course, logic }) {
   for (const level of levels.filter((l) => l.builds && MACHINE_PARTS[l.builds] && l.kind === 'machine')) {
     const names = inputsOfLevel(level).map((i) => i.name)
     const alone = { nodes: [...names.map((name) => ({ id: name, type: 'in', params: { name } })), { id: 'x', type: level.builds, params: {} }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [...names.map((name) => ({ from: name, to: 'x', port: name })), { from: 'x', to: 'out', port: 'in' }] }
-    const run = runLevel(MACHINE_TESTS, level, alone)
+    const run = runOutputTests(MACHINE_TESTS, level, alone)
     if (!run.pass) out.push({ level: level.id, fail: true, text: `${level.id}: the part ${level.builds}, alone, does not pass the level that builds it` })
   }
   // A lemma runs the proof of each of its shapes (course.js lemmaProofs): its card alone, in that shape, fed the
@@ -208,7 +208,7 @@ export function validate({ levels: given, course, logic }) {
       const card = { id: 'x', type, params: { ...form, ...Object.fromEntries(paramsOf(part, { params: form }).map((m) => [m, m])) } }
       const names = Object.keys(level.schema.premises ?? {})
       const alone = { nodes: [...startProof(level).nodes, card], wires: [...names.map((name, k) => ({ from: name, to: 'x', port: `p${k}` })), { from: 'x', to: 'goal', port: 'in' }] }
-      const run = runLevel(LOGIC_TESTS, level, alone)
+      const run = runOutputTests(LOGIC_TESTS, level, alone)
       const failed = run.results.find((r) => !r.pass)
       if (failed) out.push({ level: level.id, fail: true, text: `${level.id}: the lemma ${type}${key ? ` (${key})` : ''}, alone, does not give its statement: ${keyOf(failed.errors.get('x') ?? failed.checks[0].reason)}` })
     }
@@ -263,10 +263,10 @@ export function validate({ levels: given, course, logic }) {
     }
     const banned = level.solution.nodes.filter((n) => level.without?.includes(n.type)).map((n) => n.type)
     if (banned.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${banned.join(', ')}, which the level holds back` })
-    const good = runLevel(LOGIC_TESTS, level, level.solution)
+    const good = runOutputTests(LOGIC_TESTS, level, level.solution)
     out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: solution ${good.pass ? 'PASS' : `FAIL ${good.results.map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} steps]` })
     if (level.naive) {
-      const bad = runLevel(LOGIC_TESTS, level, level.naive)
+      const bad = runOutputTests(LOGIC_TESTS, level, level.naive)
       out.push({ level: level.id, fail: bad.pass, text: `  naive ${bad.pass ? 'PASSES (bad)' : 'fails'}` })
     }
   }

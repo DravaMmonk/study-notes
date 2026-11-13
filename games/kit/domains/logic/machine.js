@@ -695,7 +695,7 @@ const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBook
  *  `keys` wired in when it uses rules. */
 export const runTactic = (level, type, state, keys = null) => (level.built?.[type] ?? MACHINE_PARTS[type]).eval({ in: state, ...(keys ? { rules: rulesValue(keys.map((key) => ({ key }))) } : {}) }, { id: type, params: {} }, ctxOf(level, { nodes: [], wires: [] }, { engine: { parts: partsFor(level) } }))
 
-/** How a machine level runs and is judged, for the shared engine (../../engine/tests.js). */
+/** How a machine level runs and is judged, for the shared engine (../../engine/test-run.js). */
 export const MACHINE_TESTS = {
   runTest: (level, circuit, test) => {
     const run = runBoard(circuit, { parts: partsFor(level), bind: inputsOf(test, level), ctx: ctxOf(level, circuit) })

@@ -26,7 +26,8 @@ test('a recurrence counts with a register, and a wrong term fails where it is wr
   const made = fromText(lines, level, plain)
   assert.equal(runLevel(level, made, partOf).pass, true)
   const wrong = { ...level, tests: [read({ want: { n: [0, 1, 3, 3] } })] }
-  assert.deepEqual(runLevel(wrong, made, partOf).runs[0].fail, { tick: 2, name: 'n', want: 3, got: 2 })
+  const { at, want, got } = runLevel(wrong, made, partOf).runs[0].fail
+  assert.deepEqual({ at, want, got }, { at: { tick: 2, id: 'n' }, want: 3, got: 2 })
   // Written out and read back, a board writes the same text again.
   const text = toText(made, level, plain)
   assert.deepEqual(toText(fromText(text, level, plain), level, plain), text)

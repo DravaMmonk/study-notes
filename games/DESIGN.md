@@ -145,7 +145,7 @@
 | 规格 | 传感器、输出、测试、隐藏测试 | 各游戏的关卡数据（数据游戏：`levels/<id>.json`，字段由领域的词汇表给出 schema） |
 | 参考解 / naive 解 | 证明规格可解 / 证明直觉解法不够 | 数据游戏写成蓝图文本；`npm run check` 运行它们（各领域的 `validate`） |
 | 反例 | 失败时具体的那组输入、期望、实际，以及第一处偏离 | 各游戏的失败面板（《状态之图》能定位到第一格算错） |
-| 代价 | 元件数、求值步数、读取次数、表的大小 | `kit/engine/tests.js` 的 `score` 钩子；《视觉完备》算计算量 |
+| 代价 | 元件数、求值步数、读取次数、表的大小 | `kit/engine/test-run.js` 的 `score` 钩子；《视觉完备》算计算量 |
 | 世界 | 机体工作的地方：一张图、一张表、一排房子 | `domains/table/model/worlds/`；《视觉完备》测试数据 |
 | 词汇表 | 内容能引用的全部项：元件、世界、机体、玩法、引言图、诊断条件…… | `domains/<领域>/vocabulary.js`（`kit/engine/vocabulary.js` 的 `defineVocabulary`） |
 
@@ -362,7 +362,10 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、eng
 | `boards.js` | 电路自己的输入和输出（按名字绑定）；封装件是一块固定内容的电路，当一个元件用：一个或几个结果口，每个结果口只读通向它的输入；`holds` 的封装件里的寄存卡按它的路径各存一份 |
 | `machine.js` | 机体运行时：按顺序在每一步跑一遍电路板，读写一张表；可以一遍一遍扫到不再变。《状态之图》的机器人和《一切皆文件》的逐行机器都是它 |
 | `ticks.js` | 逐拍世界：几个节点共用一根线，每拍分「说」和「听」两半（说的一半只算通向驱动口的电路，读到这一拍的线就是回路），线的规则由领域给；寄存卡（`register` / `store`，按封装件的路径各存一份）。《车在说话》的总线用它，《从一根线开始》也将用它 `reacting` 是会反应的世界：板每拍读世界交给它的东西，世界拿走板这一拍给出的，下一拍交回结果（`market` 领域的街市）。 |
-| `tests.js` | 跑一关的测试（含隐藏测试）、判定、评分、约束 |
+| `judge.js` | 纯判定，接受一份作品，返回 `null` 或第一处失败 `{ at?, check?, want?, got?, why }`。`cases` 按例检查，`ticks` 按拍比较（跳过未指定期望的拍），`property` 检查性质，`sameAs` 对照参考值。`inOrder` 停在第一处失败，`hidden` 隐去检验列表并保留失败详情。位置可以是卡片 id、行和空位、树路径或带位置的拍号。 |
+| `test-run.js` | 运行任务的各个测试，保留全部运行报告供回放和结果区读取，由判定提取首处失败。运行输出比较的任务也可评分并检查约束。 |
+| `circuit-run.js` | 把共享判定接到电路运行和回放上。`onceRun` 运行一次并给出结果行，`tickJudge` 和 `tickReport` 让逐拍电路在首个错误拍标出原因。 |
+| `tests.js` | 将隐藏测试附在可见测试后，标记显示状态。 |
 | `schema.js` | 内容的 schema：可打印成数据的类型（文字、数、列表、对象、按字段分开的几种形状、引用词汇表的项），`validate` 报出每一处不合的路径 |
 | `bench.js` | 参数台的数据（第 6.4 节）：旋钮、目标（限制）、按钮、版面块和内核显示项的 schema，`benchSchema(模型)` 给出一关的参数台的 schema；起始值、判定（`judge`）、一步里能过的全部设定（`passingSettings`）、数的写法 |
 | `vocabulary.js` | 领域的词汇表：`defineVocabulary` 把一个领域能被内容引用的项和 schema 收在一起，`describe` 打印成数据，`checkContent` 按它查一份内容 |
@@ -374,7 +377,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、eng
 | `contract.js` | 领域的契约（第 6.3 节），`contract.test.js` 对每个领域和每款数据游戏跑它 |
 | `seed.js` | 运行里的随机数的种子（`seedOf`）：判定是内容、任务和板的纯函数（`games/DIRECTION.md` 决策十三），领域算的东西不读时钟、不用未播种的随机数；要抽随机数的元件从它拿到的输入取种子。`contract.test.js` 扫每个领域界面之外的代码，出现 `Math.random`、`Date.now`、`new Date`、`performance.now` 就失败 |
 | `scaffold.js` | `npm run new-domain`、`npm run new-game`：从 `kit/scaffold/<机制>/` 生成领域，从领域的 `starter/` 开新游戏（第 6.3 节） |
-| `circuit-domain.js` | 电路领域的底座：`circuitBoard`（领域只列出关卡给板的几种固定卡）、`circuitCourse`（从内容读出课程、每个任务、搭出的元件；玩家的板存在这份课程里，不是模块级单例）、`checkCircuitTasks`（每个电路关都要过的检查）、`circuitSpec`（检查读的 spec，课程读出挂在 `circuit` 上）、`GAME` 和 `levelSchema`（词汇表里 game.json 和一关的 schema，领域只交板的口、测试和要求）；页面一侧是 `shell/circuit-game.js` 的 `circuitGame`（外壳的游戏描述，`game.circuit`）和 `shell/CircuitScreen.jsx`。领域只写任务怎么读、怎么跑、结果区和文案；一关里也可以有不是板的任务（`kinds`：读图填格、选择判定、参数台，由领域读、在领域自己的屏上玩）。`net`、`can`、`vision` 和两个脚手架模板建在它上面，数据流、元件写在 `parts.json` 里、测试给出每个输入并期望每个输出的领域（`linear`、`signal` 和 `circuit` 模板）再少写一层：板是 `flowBoard()`，课程经 `definedCourse` 读，运行和结果区由 `onceRun` 给，页面一侧是 `definedGame`；`npm run duplication`（`duplication.js`，`npm test` 里按文件类别设上限）量它们还逐字写着多少一样的代码 |
+| `circuit-domain.js` | 电路领域的底座：`circuitBoard`（领域只列出关卡给板的几种固定卡）、`circuitCourse`（从内容读出课程、每个任务、搭出的元件；玩家的板存在这份课程里，不是模块级单例）、`checkCircuitTasks`（每个电路关都要过的检查）、`circuitSpec`（检查读的 spec，课程读出挂在 `circuit` 上）、`GAME` 和 `levelSchema`（词汇表里 game.json 和一关的 schema，领域只交板的口、测试和要求）；页面一侧是 `shell/circuit-game.js` 的 `circuitGame`（外壳的游戏描述，`game.circuit`）和 `shell/CircuitScreen.jsx`。领域只写任务怎么读、怎么跑、结果区和文案；一关里也可以有不是板的任务（`kinds`：读图填格、选择判定、参数台，由领域读、在领域自己的屏上玩）。`net`、`can`、`vision` 和两个脚手架模板建在它上面，数据流、元件写在 `parts.json` 里、测试给出每个输入并期望每个输出的领域（`linear`、`signal` 和 `circuit` 模板）再少写一层：板是 `flowBoard()`，课程经 `definedCourse` 读，运行和结果区由 `circuit-run.js` 的 `onceRun` 给，页面一侧是 `definedGame`；`npm run duplication`（`duplication.js`，`npm test` 里按文件类别设上限）量它们还逐字写着多少一样的代码 |
 | `ops/` | 操作集（第 7 节）：变更集可以写 `by`（谁改的：`studio`、`cli`、`agent:<步>:<模型>`），修改日志照记，`npm run op -- <游戏> log` 末尾按作者统计（`log.js` 的 `authorship`：agent 写的文件有多少后来被人改过）；`operations.js` 每种修改一个操作，`changeset.js` 把几个操作当一次修改跑完、整款游戏检查、写盘和记日志；`workspace.js` 打开一款游戏的文件，`place.js` 在课程里取出、放进一关，`refs.js` 找出提到一关的每一处，`search.js` 在整款游戏里搜索、把替换写成操作，`json.js` 按统一格式写文件；`cli.js` 是 `npm run op`，`mcp.js` 是 MCP 服务器，`tools.js` 是它和 studio 共用的工具 |
 | `play/` | 一关在文字里的样子和对一次尝试的判定（`play.js`，电路关的公共部分在 `circuit.js`），`run_tests` 用它；盲玩 harness 的其余部分（一局的记录、统计、CLI、盲玩 agent）暂停，见第 6.6 节 |
 

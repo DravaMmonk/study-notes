@@ -32,8 +32,8 @@ test('a row passes when every output is the number asked for, and says which is 
   const on = (tests) => runLevel({ ...adjust, tests }, adjust.solution, circuit.forTask(adjust).partOf).runs[0]
   assert.equal(on([{ in: { was: 10, left: 0, short: 20 }, out: { price: 15 } }]).fail, undefined)
   const wrong = on([{ in: { was: 10, left: 0, short: 20 }, out: { price: 16 } }])
-  assert.deepEqual(wrong.fail, { name: 'price', want: 16, got: 15 })
-  assert.match(wrong.said.zh, /应当是 16/)
+  assert.deepEqual([wrong.fail.at, wrong.fail.want, wrong.fail.got], ['price', 16, 15])
+  assert.match(wrong.fail.why.zh, /应当是 16/)
 })
 
 test('a board reads what its price did only the tick after, and a street passes when every shop has cleared on its last tick', () => {
@@ -45,6 +45,6 @@ test('a board reads what its price did only the tick after, and a street passes 
   assert.ok(Math.abs(run.ticks.at(-1).trades[0].price - 20) < 0.001, 'the rule settles where the stock just sells')
   assert.equal(run.fail, undefined)
   const early = on(2)
-  assert.equal(early.fail.name, 'price')
-  assert.match(early.said.zh, /都要不到 1/)
+  assert.equal(early.fail.at, 'price')
+  assert.match(early.fail.why.zh, /都要不到 1/)
 })

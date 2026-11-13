@@ -11,9 +11,8 @@
 //        portsOf); `most` the parts its board may hold: a task that opens on a board to mend (its `starter`) says how
 //        much may be added to it, and a board over that fails every test
 //
-// runLevel(task, circuit, parts) → { runs, pass }, a run a test: a row's { values, errors, outputs, trace, fail?,
-//   said? } (a board run once, ../../engine/boards.js), a street's { ticks: [{ tick, values, errors, outputs, trace,
-//   read, trades }], fail?, said? }
+// runLevel(task, circuit, parts) → { runs, pass }, a run a test: a row's { values, errors, outputs, trace, fail? } (a board run once, ../../engine/boards.js), a street's { ticks: [{ tick, values, errors, outputs, trace,
+//   read, trades }], fail? }
 // once(task) → whether the task's tests are rows
 // check(task, row) → { test } | { unfilled } | { why }   a row the player wrote as a check, when the task gives works to catch
 // entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): a row's numbers
@@ -21,22 +20,21 @@
 //   turned away, and what the street has earned so far (shown, never asked for)
 import { runTraced } from '../../engine/boards.js'
 import { boardNode, reacting, runTicks } from '../../engine/ticks.js'
-import { runTests } from '../../engine/circuit-domain.js'
+import { outputJudge } from '../../engine/circuit-run.js'
+import { property } from '../../engine/judge.js'
+import { runTests } from '../../engine/test-run.js'
 import { valueText as show } from '../../engine/views.js'
 import { T } from '../../shell/i18n.js'
 import { portsOf, trade } from './world.js'
 
 const TOLERANCE = 1e-9
 const same = (a, b) => typeof a === 'number' && typeof b === 'number' && Math.abs(a - b) <= TOLERANCE
-const label = (port, side) => port.label[side] ?? port.label.zh ?? port.label
 
 /** A row: the board run once on the numbers given, every output the number asked for. */
 function runRow(task, circuit, test, parts) {
   const run = runTraced(circuit, parts, test.in)
-  const out = task.outputs.find((o) => !same(run.outputs[o.name], test.out[o.name]))
-  if (!out) return run
-  const [want, got] = [test.out[out.name], run.outputs[out.name] ?? null]
-  return { ...run, fail: { name: out.name, want, got }, said: T(`「${label(out, 'zh')}」应当是 ${show(want)}，这块板给出 ${show(got)}。`, `“${label(out, 'en')}” should be ${show(want)}; the board gives ${show(got)}.`) }
+  const fail = outputJudge(task.outputs, test.out, { same, show })(run)
+  return fail ? { ...run, fail } : run
 }
 
 /** A board's ticks on a street: every tick it gives each shop its price and reads the tick after what came of it. */
@@ -69,7 +67,8 @@ function runStreet(task, circuit, test, parts) {
   const { left, short } = ticks.at(-1).trades[k]
   const name = portsOf(test.shops.length)[k].price
   const shop = name.slice(5)
-  return { ticks, fail: { name, want: 0, got: left || short }, said: T(`最后一天${shop ? `，${shop} 号店` : ''}剩下 ${show(left)}，没买到 ${show(short)}：两边都要不到 1。`, `On the last day${shop ? ` shop ${shop}` : ''} had ${show(left)} left and turned ${show(short)} away: both have to be under 1.`) }
+  const why = T(`最后一天${shop ? `，${shop} 号店` : ''}剩下 ${show(left)}，没买到 ${show(short)}：两边都要不到 1。`, `On the last day${shop ? ` shop ${shop}` : ''} had ${show(left)} left and turned ${show(short)} away: both have to be under 1.`)
+  return { ticks, fail: { at: name, want: 0, got: left || short, why } }
 }
 
 /** How many parts a board holds: its nodes but the task's own cards. */
@@ -78,8 +77,14 @@ const held = (circuit, parts) => circuit.nodes.filter((node) => { const part = p
 /** Every test of a task on a board: { runs, pass }. A board holding more parts than the task allows fails each. */
 export const runLevel = runTests((task, circuit, test, parts) => {
   const run = (test.shops ? runStreet : runRow)(task, circuit, test, parts)
-  if (!task.most || held(circuit, parts) <= task.most) return run
-  return { ...run, fail: { name: task.outputs[0].name, want: task.most, got: held(circuit, parts) }, said: T(`这块板最多放 ${task.most} 块元件，现在有 ${held(circuit, parts)} 块。`, `This board may hold ${task.most} parts; it holds ${held(circuit, parts)}.`) }
+  if (!task.most) return run
+  const fail = property((count) => count <= task.most, (count) => ({
+    at: task.outputs[0].name,
+    want: task.most,
+    got: count,
+    why: T(`这块板最多放 ${task.most} 块元件，现在有 ${count} 块。`, `This board may hold ${task.most} parts; it holds ${count}.`),
+  }))(held(circuit, parts))
+  return fail ? { ...run, fail } : run
 })
 
 /** A row of numbers the player wrote as a check (../../shell/AuditScreen.jsx), as a test: its numbers for the task's

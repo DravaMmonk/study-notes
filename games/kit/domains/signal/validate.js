@@ -8,6 +8,6 @@ export function validate({ circuit }) {
   return checkCircuitTasks(circuit, {
     run: runLevel,
     entries,
-    failure: (r) => (r.fail ? `(${r.fail.name}: want ${show(r.fail.want)}, got ${show(r.fail.got)})` : ''),
+    failure: (r) => (r.fail ? `(${r.fail.at}: want ${show(r.fail.want)}, got ${show(r.fail.got)})` : ''),
   })
 }

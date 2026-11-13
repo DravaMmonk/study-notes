@@ -214,7 +214,7 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   const at = !run.run ? (timed ? 0 : -1) : shown.list.length ? (shown.at >= 0 ? shown.at : shown.list.length - 1) : -1
   const tick = timed && at >= 0 ? runOf.ticks[at] : null
   // A work run tick by tick stands on the tick a row catches it (its last, where none does).
-  const caughtAt = works && ticked && run.over && runOf.ticks ? runOf.fail?.tick ?? runOf.ticks.length - 1 : -1
+  const caughtAt = works && ticked && run.over && runOf.ticks ? runOf.fail?.at?.tick ?? runOf.ticks.length - 1 : -1
   const view = timed ? tick ?? undefined : caughtAt >= 0 ? runOf.ticks[caughtAt] : works && ticked ? undefined : whole || !run.run ? runOf : viewAt(runOf.trace, at)
   const ended = whole ? run.over : Boolean(run.run && (run.run.test > run.at || run.run.over))
 
@@ -323,13 +323,13 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
   // What the work on view gives on a row: its outputs, or on a board run tick by tick where it first goes wrong.
   const gave = (r) => (!r.ticks ? level.outputs.map((o) => L(show(r.outputs[o.name] ?? null))).join(' · ')
     : !r.fail ? tr('和对的一样', 'As a sound one')
-    : r.fail.tick === undefined ? L(says(r))
-    : tr(`第 ${r.fail.tick} 拍给出 ${L(show(r.fail.got))}`, `${L(show(r.fail.got))} at tick ${r.fail.tick}`))
+    : r.fail.at?.tick === undefined ? L(says(r))
+    : tr(`第 ${r.fail.at.tick} 拍给出 ${L(show(r.fail.got))}`, `${L(show(r.fail.got))} at tick ${r.fail.at.tick}`))
   const gives = (k) => (run.over && found.works ? gave(found.works[run.at][k]) : null)
   const written = works && <Checks checks={checks} phone={onPhone} gives={gives} catches={(k) => Boolean(run.over && found.works && (found.works[run.at][k].fail || found.works[run.at][k].error))} verdict={run.over ? { pass: !uncaught(run.at), text: uncaught(run.at) || tr('挡住了。') } : null} />
   const results = works
-    ? caughtAt < 0 ? written : <>{written}<Results rows={rows} text={show} verdict={[]} at={-1} count={test.ticks} marks={runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} /></>
-    : <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.tick !== undefined ? [runOf.fail.tick] : []} />
+    ? caughtAt < 0 ? written : <>{written}<Results rows={rows} text={show} verdict={[]} at={-1} count={test.ticks} marks={runOf.fail?.at?.tick !== undefined ? [runOf.fail.at.tick] : []} /></>
+    : <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.at?.tick !== undefined ? [runOf.fail.at.tick] : []} />
   // The scene comes first: beside the results on a desktop, above them on a phone.
   const strip = scene ? <div className="cs-told"><div className="cs-scene">{scene}</div><div className="cs-rows">{results}</div></div> : results
 
