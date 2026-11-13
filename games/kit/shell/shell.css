@@ -713,3 +713,5 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .level-phone .bf-bit { width: calc((100% - 7 * var(--sp-1)) / 8); height: 2.4em; font-size: var(--fs-touch-input); touch-action: manipulation; }
 .bf-text { font-family: var(--mono); letter-spacing: 0.06em; }
 .bf-label { display: block; margin-bottom: var(--sp-3); color: var(--muted); font-size: var(--fs-small); }
+
+.rr-empty { color: var(--faint); font-style: normal; font-size: var(--fs-small); }

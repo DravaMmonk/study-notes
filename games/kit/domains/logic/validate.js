@@ -1,4 +1,6 @@
 // Check the domain's reference works, the pieces they use, and the properties specific to proof tasks.
+import { judgeFor, playFor } from '../../engine/plays.js'
+import { plays } from './plays.js'
 import { checkWorks, judgeWorks } from '../../engine/authoring.js'
 import { failureText } from '../../engine/failure-text.js'
 import { holds, reach } from '../../course.js'
@@ -99,7 +101,7 @@ export function validate({ levels: given, course, logic }) {
     }
   }
   for (const level of levels.filter((l) => l.kind === 'define')) {
-    const { reference: { fail }, naive } = judgeWorks(checkDefine(level), { reference: level.solution, naive: level.naive })
+    const { reference: { fail }, naive } = judgeWorks(judgeFor(playFor(plays, level), checkDefine(level)), { reference: level.solution, naive: level.naive })
     out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: definition of ${level.fn} ${fail ? `FAIL on row ${(fail.check ?? level.tests.length) + 1}` : 'PASS'}` })
     if (naive?.ok === false) out.push({ level: level.id, fail: true, text: `  naive definition of ${level.fn} PASSES (bad)` })
     level.rows.forEach((row, k) => { if (!row.choices.includes(level.solution[k])) out.push({ level: level.id, fail: true, text: `${level.id}: row ${k + 1}'s answer is not among its choices` }) })

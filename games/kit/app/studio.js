@@ -1,6 +1,6 @@
 // The studio's server side (games/DESIGN.md 6.7), a Vite plugin for the dev server (npm run studio): the tools the
 // MCP server offers (../engine/ops/tools.js) as HTTP endpoints, and the module that gives the studio's page every
-// domain's game.jsx. Like the MCP server it has no logic of its own: every change is a changeset run by the operation
+// domain's game.js. Like the MCP server it has no logic of its own: every change is a changeset run by the operation
 // set, every check npm run check's.
 //
 //   GET  /studio/api/              the tools: { name: { about, params } }
@@ -14,6 +14,7 @@
 import { readdirSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { Worker } from 'node:worker_threads'
+import { gameModule } from '../engine/game-module.js'
 
 const PREFIX = '/studio/api/'
 const DOMAINS = resolve(import.meta.dirname, '../domains')
@@ -95,15 +96,15 @@ export function bridge(tools, lacking, aside = null) {
   }
 }
 
-/** The plugin: the bridge on the dev server, and `virtual:studio-domains` ({ domain: () => import(its game.jsx) }). */
+/** The plugin: the bridge on the dev server, and `virtual:studio-domains` ({ domain: () => import(its game.js) }). */
 export function studioApp() {
   return {
     name: 'studio',
     resolveId: (id) => (id === MODULE ? `\0${id}` : null),
     load(id) {
       if (id !== `\0${MODULE}`) return null
-      const domains = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'game.jsx')))
-      return `export const DOMAINS = { ${domains.map((d) => `${JSON.stringify(d)}: () => import(${JSON.stringify(resolve(DOMAINS, d, 'game.jsx'))})`).join(', ')} }`
+      const domains = readdirSync(DOMAINS).filter((d) => existsSync(gameModule(DOMAINS, d)))
+      return `export const DOMAINS = { ${domains.map((d) => `${JSON.stringify(d)}: () => import(${JSON.stringify(gameModule(DOMAINS, d))})`).join(', ')} }`
     },
     async configureServer(server) {
       const { TOOLS, lacking } = await import('../engine/ops/tools.js')

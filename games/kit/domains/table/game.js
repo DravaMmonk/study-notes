@@ -1,6 +1,7 @@
 // A table game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the table domain's screen (every level played through its mode), its
 // parts box by robot, and its intro pictures.
+import { createElement } from 'react'
 import { Cable, Grid3x3 } from 'lucide-react'
 import './ui/table.css'
 import { defineGame } from '../../shell/index.js'
@@ -19,7 +20,7 @@ import { tableCourse } from './course.js'
 const doneText = ({ head, body = [] }) => [...(head ? [T(`<b>${head.zh}</b>`, `<b>${head.en}</b>`)] : []), ...body]
 
 function IntroFigure({ fig }) {
-  return <div className="fig" dangerouslySetInnerHTML={{ __html: sceneSVG(fig, { pad: 12, maxScale: 1.3 }) }} />
+  return createElement('div', { className: 'fig', dangerouslySetInnerHTML: { __html: sceneSVG(fig, { pad: 12, maxScale: 1.3 }) } })
 }
 
 /**
@@ -102,7 +103,7 @@ export default function tableGame(content) {
       demo: (part, { phone, progress }) => {
         table.syncOwn(progress.built)
         const key = part.key.replace(/^part:/, '')
-        return <PartDemo key={part.key} model={table.model} partKey={key} phone={phone} tasks={lastTasks} borrow={part.at ? { [key]: part.at[0] } : borrow} />
+        return createElement(PartDemo, { key: part.key, model: table.model, partKey: key, phone, tasks: lastTasks, borrow: part.at ? { [key]: part.at[0] } : borrow })
       },
       filters: robotFilters,
     },

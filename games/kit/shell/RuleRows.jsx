@@ -38,16 +38,16 @@ export default function RuleRows({ head = null, rows, editor = null, more = null
     <div className={`rr ${wide ? 'is-wide' : ''} ${className}`}>
       {head && (
         <div className="rr-row is-head">
-          <span className="rr-name">{head.name}</span>
-          <span className="rr-body">{head.body}</span>
+          <span className="rr-name">{L(head.name)}</span>
+          <span className="rr-body">{head.goal === undefined ? head.body : <><b className="rr-goal">{L(head.goal)}</b><span className="rr-end">{L(head.end)}</span></>}</span>
         </div>
       )}
       {rows.map((row, k) => (
         <div key={k} className="rr-row">
-          <span className="rr-name">{row.name}</span>
+          <span className="rr-name">{row.when && <>{L(row.when)} ⟹ </>}{row.equation ? <><b>{L(row.name)}</b> =</> : L(row.name)}{row.mark !== undefined && <i>{row.mark}</i>}</span>
           <span className="rr-body">
-            {row.lead && <span className="rr-lead">{row.lead}</span>}
-            {!row.slots.length && !editor && row.empty}
+            {row.toggle && <span className="rr-lead"><button type="button" aria-pressed={row.toggle.on} disabled={!editor} onClick={row.toggle.run}>{L(row.toggle.label)}</button></span>}
+            {!row.slots.length && !editor && row.empty && <i className="rr-empty">{L(row.empty)}</i>}
             {row.slots.map((slot, j) => (
               <span key={j} className="rr-item">
                 <button
@@ -58,18 +58,18 @@ export default function RuleRows({ head = null, rows, editor = null, more = null
                   disabled={!editor}
                   onClick={(event) => setSheet({ row: k, slot: j, anchor: event.currentTarget })}
                 >
-                  {slot.text ?? L(blank)}
+                  {L(slot.text ?? blank)}
                 </button>
                 {/* What comes between two slots stays with the one before it, so a wrapped row never starts with it. */}
-                {j < row.slots.length - 1 ? <span className="rr-sep">；</span> : row.end && <span className="rr-end">{row.end}</span>}
+                {j < row.slots.length - 1 ? <span className="rr-sep">；</span> : row.end && <span className="rr-end">{L(row.end)}</span>}
               </span>
             ))}
-            {editor && row.add && <button type="button" className="rr-add" onClick={() => add(k)} aria-label={L(row.add.label)}><Plus size={14} />{row.add.text}</button>}
+            {editor && row.add && <button type="button" className="rr-add" onClick={() => add(k)} aria-label={L(row.add.label)}><Plus size={14} />{L(row.add.text)}</button>}
           </span>
           {editor && row.drop && <button type="button" className="rr-drop" onClick={row.drop.run} aria-label={L(row.drop.label)}><X size={14} /></button>}
         </div>
       ))}
-      {editor && more && <button type="button" className="rr-more" onClick={more.run}><Plus size={14} />{more.text}</button>}
+      {editor && more && <button type="button" className="rr-more" onClick={more.run}><Plus size={14} />{L(more.text)}</button>}
       {editing && <Popover anchor={sheet.anchor} title={editor.title(sheet.row, sheet.slot)} onClose={close}>{editor.render(sheet.row, sheet.slot)}</Popover>}
     </div>
   )

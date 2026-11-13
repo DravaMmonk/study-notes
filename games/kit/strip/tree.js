@@ -6,16 +6,16 @@
 //     → { nodeAt, setAt, holesOf, kindAt, complete, trailing, outward }
 
 export function holeTree({ kids, withKid, root = 'any' }) {
-  const nodeAt = (tree, path) => path.reduce((node, k) => (node ? kids(node)[k]?.value ?? null : null), tree)
+  const nodeAt = (tree, path) => path.reduce((node, k) => (node != null ? kids(node)[k]?.value ?? null : null), tree)
   const setAt = (tree, path, value) => {
     if (!path.length) return value
     const [k, ...rest] = path
     return withKid(tree, k, setAt(kids(tree)[k].value, rest, value))
   }
   // Every empty hole, in reading order, with the kind it takes.
-  const holesOf = (tree, path = [], kind = root) => (tree ? kids(tree).flatMap((kid, k) => holesOf(kid.value, [...path, k], kid.kind)) : [{ path, kind }])
+  const holesOf = (tree, path = [], kind = root) => (tree != null ? kids(tree).flatMap((kid, k) => holesOf(kid.value, [...path, k], kid.kind)) : [{ path, kind }])
   const kindAt = (tree, path) => (path.length ? kids(nodeAt(tree, path.slice(0, -1)))[path[path.length - 1]].kind : root)
-  const complete = (tree) => Boolean(tree) && !holesOf(tree).length
+  const complete = (tree) => tree != null && !holesOf(tree).length
   // The last whole thing of a kind the line ends with: down the last child each time, the deepest node of that kind,
   // if it is complete (null when the line ends with a box). A piece that needs something in front of it (→ after a
   // sentence, .1 after a term) takes this one, as a calculator's operator takes the last number.
@@ -24,12 +24,12 @@ export function holeTree({ kids, withKid, root = 'any' }) {
     let node = tree
     let path = []
     let at = root
-    while (node) {
+    while (node != null) {
       if (at === kind) found = path
       const list = kids(node)
       if (!list.length) break
       const last = list.length - 1
-      if (!list[last].value) return null
+      if (list[last].value == null) return null
       ;[node, path, at] = [list[last].value, [...path, last], list[last].kind]
     }
     return found && complete(nodeAt(tree, found)) ? found : null

@@ -20,7 +20,7 @@ const TreeEditor = forwardRef(function TreeEditor({ tree, onChange, chips, langu
       if (refused) return refused
       const made = chip.make(tree)
       const last = nodeAt(tree, path)
-      onChange(setAt(tree, path, last ? setAt(made, [0], last) : made))
+      onChange(setAt(tree, path, last != null ? setAt(made, [0], last) : made))
       return null
     },
     take: (slot) => onChange(setAt(tree, treePath(slot), null)),
@@ -46,7 +46,7 @@ const TreeEditor = forwardRef(function TreeEditor({ tree, onChange, chips, langu
   const note = strip.note ?? (problem ? { text: problem, bad: true } : null)
   return (
     <>
-      <StripTools history={history} onClear={() => onChange(null)} empty={!tree} />
+      <StripTools history={history} onClear={() => onChange(null)} empty={tree == null} />
       <Strip line={language.line(tree)} label={language.label} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
       {note ? <p className={`ks-note ${note.bad ? 'is-bad' : ''}`} role="status">{L(note.text)}</p> : <p className="ks-note">{tr('点击文字可以删除。')}</p>}
       <Chips groups={groups} onChip={strip.onChip} />

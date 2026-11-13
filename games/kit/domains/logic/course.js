@@ -4,6 +4,8 @@
 // a proof level with `builds` makes the lemma game.json lemmas[type] a part, a truth circuit a gate (gates.js
 // builtGates), a machine level a machine part (machine.js builtMachine); every one runs the player's board (a lemma, the
 // proof of each of its shapes: lemmaReferences).
+import { playFor } from '../../engine/plays.js'
+import { plays } from './plays.js'
 import { pieceReferences } from '../../engine/pieces.js'
 import { defineCourse, eraLevels, holds, itemOf, layout, met, numbered, offer } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
@@ -184,7 +186,7 @@ export function logicCourse(content) {
   const rawTasks = [...tasksOf.values()].flat()
   const declaredWorks = rawTasks.flatMap((task) => [
     ...(task.datatype ? [{ kind: 'type', type: task.datatype.type, form: null, task, value: () => typeOf(task) }] : []),
-    ...(task.kind === 'define' ? [{ kind: 'function', type: task.fn, form: null, task, value: () => equations(task, task.solution) }] : []),
+    ...(playFor(plays, task)?.gives === 'reference' ? [{ kind: 'function', type: task.fn, form: null, task, value: () => equations(task, task.solution) }] : []),
     ...(task.fact ? [{ kind: 'fact', type: task.fact, form: null, task }] : []),
   ])
   const symbols = plan.order.flatMap((id) => (given.get(id)?.symbols ?? []).map((type) => ({

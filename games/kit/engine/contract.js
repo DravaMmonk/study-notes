@@ -11,7 +11,7 @@
 //                                           place (each such level fails, none but those after it), and with every built part
 //                                           running its board unplugged (syncOwn: each builder level fails, but one whose
 //                                           parts the spec lists as builtIn, which must not)
-//   gameProblems(content, spec, game)       game.jsx's game (the shell's description) plays the same levels
+//   gameProblems(content, spec, game)       game.js's game (the shell's description) plays the same levels
 //
 // Each returns what is wrong as [string], empty when the contract holds (validateProblems: { problems, … }).
 import { RULE_TEXT, audit } from '../course.js'
@@ -308,13 +308,13 @@ export async function validateProblems(domain, content, spec) {
   return { problems: out, runsOwn, builders }
 }
 
-/** The game game.jsx makes of a content (the shell's description, ../shell/index.js defineGame) against the spec. */
+/** The game game.js makes of a content (the shell's description, ../shell/index.js defineGame) against the spec. */
 export function gameProblems(content, spec, game) {
   const out = []
-  const say = (text) => out.push(`game.jsx: ${text}`)
+  const say = (text) => out.push(`game.js: ${text}`)
   if (game.id !== content.id) say(`id ${game.id}, the content's is ${content.id}`)
   for (const key of ['title', 'kicker', 'lede']) if (!isText(game[key])) say(`no ${key}`)
-  if (!Array.isArray(game.chapters) || !Array.isArray(game.levels)) return [...out, 'game.jsx: no chapters or no levels']
+  if (!Array.isArray(game.chapters) || !Array.isArray(game.levels)) return [...out, 'game.js: no chapters or no levels']
   if (!same(game.levels.map((l) => l.id), spec.levels.map((l) => l.id))) say('its levels are not the spec’s, in play order')
   const chapters = new Set(game.chapters.map((c) => c.id))
   for (const l of game.levels) {

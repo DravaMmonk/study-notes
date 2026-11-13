@@ -1,0 +1,9 @@
+{
+  "title": { "zh": "一条等式" },
+  "tasks": [{
+    "id": "1-1",
+    "kind": "equation",
+    "brief": { "zh": "用手头的数字和加号写出右边，使两边的值相等。" },
+    "rows": [{ "total": 5, "chips": [0, 2, 3], "reference": "2 + 3", "naive": "0 + 3" }]
+  }]
+}

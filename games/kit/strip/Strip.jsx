@@ -1,3 +1,4 @@
+import './strip.css'
 import { Fragment } from 'react'
 import { L, tr } from '../shell/i18n.js'
 

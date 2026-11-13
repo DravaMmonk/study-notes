@@ -1,0 +1,10 @@
+{
+  "groups": [{ "id": "sum", "title": { "zh": "加法" } }],
+  "entries": [{
+    "id": "equals",
+    "group": "sum",
+    "title": { "zh": "等式" },
+    "body": [{ "zh": "等号两边的式子有相同的值。" }],
+    "at": "1-1"
+  }]
+}

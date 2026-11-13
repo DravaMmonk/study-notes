@@ -1,16 +1,14 @@
 // A logic game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the logic domain's screens (a proof on the circuit editor, a truth table,
 // a machine board …), its parts box of proved lemmas and built parts, and its map art.
+import { createElement } from 'react'
 import { Braces, CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
 import GatesScreen, { GateInside } from './ui/GatesScreen.jsx'
-import Declare from './templates/declare.jsx'
-import Audit from './templates/audit.jsx'
 import DeclaredRules from './ui/DeclaredRules.jsx'
-import Define from './templates/define.jsx'
 import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
 import { MACHINE, PROOF } from './ui/boards.jsx'
@@ -21,11 +19,14 @@ import { iconOf, nameOf, textOf } from './ui/catalog.js'
 import { MACHINE_TEXT, RULE_TEXT } from './partText.js'
 import TermScreen from './ui/TermScreen.jsx'
 import ScriptScreen from './ui/ScriptScreen.jsx'
-import '../../strip/strip.css'
 import { PRIMITIVE_GATES } from './gates.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
 import { RULES } from './proof.js'
 import { logicCourse } from './course.js'
+import { playScreen } from '../../shell/plays/Play.jsx'
+import { plays } from './plays.js'
+import { declaration, definition } from './rowValues.js'
+import { audit } from './auditWork.js'
 
 // A level's declaration task, if it has one: a declaration on the rule board (iso.js).
 const isoOf = (level) => level.tasks.find((t) => t.kind === 'iso') ?? null
@@ -37,8 +38,7 @@ const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'proof'
  * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), levels,
  * glossary }.
  */
-// A rule board is played one of two ways, each its own template: a declaration to write, or someone's to find the fault in.
-const Iso = (props) => (props.level.source.play === 'audit' ? <Audit {...props} /> : <Declare {...props} />)
+const Play = playScreen(plays, { declaration, definition, audit })
 
 export default function logicGame(content) {
   const logic = logicCourse(content)
@@ -99,8 +99,8 @@ export default function logicGame(content) {
       machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
       truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
-      iso: { Screen: Iso, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
-      define: { Screen: Define, icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },
+      iso: { Screen: Play, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
+      define: { Screen: Play, icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },
       translate: { Screen: FormulaScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
       query: { Screen: FormulaScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
       model: { Screen: ModelScreen, icon: FileSignature, label: { zh: '造世界', en: 'Build a world' } },
@@ -115,7 +115,7 @@ export default function logicGame(content) {
     ],
     passed: (level) => {
       const declared = isoOf(level.source)
-      return declared ? <DeclaredRules level={declared} /> : null
+      return declared ? createElement(DeclaredRules, { level: declared }) : null
     },
     core: (level) => isCore(logic.course, level),
     parts: {
@@ -130,7 +130,7 @@ export default function logicGame(content) {
         const type = part.key.slice('lemma:'.length)
         if (!gates[type]?.built) return null
         logic.syncOwn(progress.built)
-        return <GateInside key={part.key} type={type} gates={gates} />
+        return createElement(GateInside, { key: part.key, type, gates })
       },
     },
     // Fewer steps (proof steps, or gates) is better; fewer cases, where the player writes them (iso.js judgeCases).

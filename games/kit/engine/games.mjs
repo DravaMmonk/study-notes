@@ -1,9 +1,10 @@
 // A game's whole definition (the shell's levels, parts box and encyclopedia), made under node for the checks from its
-// content (content.js): its domain's game.jsx loaded through vite, as the build loads it, with the few browser globals
+// content (content.js): its domain's game.js loaded through vite, as the build loads it, with the few browser globals
 // the games touch at import time stubbed. vite and the games' packages are trace-viewer's, wherever node runs from.
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { gameModule } from './game-module.js'
 
 const ROOT = resolve(import.meta.dirname, '../../../trace-viewer')
 const DOMAINS = resolve(import.meta.dirname, '../domains')
@@ -28,10 +29,10 @@ export async function loadModule(file) {
   return server.ssrLoadModule(file)
 }
 
-/** The game made from `content` as the shell gets it (its domain's game.jsx over it). */
+/** The game made from `content` as the shell gets it (its domain's game.js over it). */
 export async function gameOf(content) {
   await serve()
-  const defineGame = (await server.ssrLoadModule(resolve(DOMAINS, content.domain, 'game.jsx'))).default
+  const defineGame = (await server.ssrLoadModule(gameModule(DOMAINS, content.domain))).default
   return defineGame(content)
 }
 

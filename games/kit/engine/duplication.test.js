@@ -14,7 +14,7 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { FILES, duplicated, measure } from './duplication.js'
 
-const CEILING = { 'board.js': 2, 'course.js': 2, 'run.js': 2, 'validate.js': 3, 'vocabulary.js': 16, 'domain.js': 1, 'play.js': 2, 'game.jsx': 0, 'ui/screen.js': 3, 'ui/catalog.js': 5 }
+const CEILING = { 'board.js': 2, 'course.js': 2, 'run.js': 2, 'validate.js': 3, 'vocabulary.js': 16, 'domain.js': 1, 'play.js': 2, 'game.js': 0, 'ui/screen.js': 3, 'ui/catalog.js': 5 }
 
 test('a line counts as written out again when three domains have it, their names aside, comments and imports left out', () => {
   const file = (name, text) => ({ key: name, name, text })

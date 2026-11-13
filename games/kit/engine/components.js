@@ -4,12 +4,12 @@
 // (games/DESIGN.md 6.3), and each is a piece no other game shares. This counts them.
 //
 //   components(kit) → { 'domains/market': 0, 'domains/agent': 324, … }   lines of .jsx a domain or a template holds,
-//     its game.jsx (the game's description: no component) and its map's illustration (Hero.jsx, hero.jsx: a drawing,
+//     its map's illustration (Hero.jsx, hero.jsx: a drawing,
 //     one a game) left out
 import { readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
-const OWN = /^(game|hero)\.jsx$/i
+const OWN = /^hero\.jsx$/i
 
 const files = (dir) => readdirSync(dir).flatMap((name) => {
   const path = join(dir, name)

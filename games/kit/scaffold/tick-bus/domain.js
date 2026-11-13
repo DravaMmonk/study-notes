@@ -1,6 +1,6 @@
 // The __name__ domain for the checks (games/DESIGN.md 6.3): its vocabulary, a game's spec from its content (the circuit
 // base's, ../../engine/circuit-domain.js circuitSpec), the domain's checks and its play hook for blind sessions
-// (play.js). Nothing here draws: the page's side is game.jsx.
+// (play.js). Nothing here draws: the page's side is game.js.
 import { circuitNames, circuitSpec } from '../../engine/circuit-domain.js'
 import { vocabulary } from './vocabulary.js'
 import { __name__Course } from './course.js'

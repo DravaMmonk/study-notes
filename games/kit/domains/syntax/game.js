@@ -10,8 +10,8 @@
 //   ui/                 the level screen (desktop and phone) and the map's picture
 //   domain.js           the vocabulary, spec and checks for npm run check (validate.js)
 //   syntax.test.js      folding, refusals, the check, the content contract (npm test)
+import { createElement } from 'react'
 import { BookOpenText, CornerDownRight, Quote, Rows3, SquareStack } from 'lucide-react'
-import '../../strip/strip.css'
 import './ui/syntax.css'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'
@@ -61,7 +61,7 @@ export default function syntaxGame(content) {
     // What a level brings in: the roles and constructions it adds, named once it is passed.
     unlocked: (level) => (level.source.adds ?? []).map((key) => named.get(key)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon })),
     // The skeleton the sentence leaves once every modifier is folded.
-    passed: (level) => <p className="sx-skeleton"><small>{tr('主干')}</small>{skeleton(level.source.tasks.at(-1).gold)}</p>,
+    passed: (level) => createElement('p', { className: 'sx-skeleton' }, createElement('small', null, tr('主干')), skeleton(level.source.tasks.at(-1).gold)),
     parts: { all: parts },
     kinds: { analyze: { Screen: Analyze, icon: BookOpenText, label: { zh: '拆句', en: 'Take apart' } } },
     // Fewer checks is better; right the first time earns the ★.

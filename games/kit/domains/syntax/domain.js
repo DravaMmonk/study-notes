@@ -1,6 +1,6 @@
 // The syntax domain for the checks (games/DESIGN.md 6.3): its vocabulary, a game's spec from its content (the course,
 // its levels in play order and the texts a player reads) and the domain's checks. Nothing here draws: the page's side
-// is game.jsx.
+// is game.js.
 
 import { vocabulary } from './vocabulary.js'
 import { partNames } from '../../engine/trays.js'

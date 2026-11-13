@@ -1,0 +1,8 @@
+{
+  "domain": "__name__",
+  "vocabulary": 1,
+  "title": { "zh": "__title__" },
+  "kicker": { "zh": "加法" },
+  "lede": { "zh": "用数字和加号补齐等式。" },
+  "order": ["1-1", "1-2"]
+}

@@ -48,7 +48,7 @@ export function measure(kit, files) {
 }
 
 /** The kinds of file a domain on the base has. */
-export const FILES = ['board.js', 'course.js', 'run.js', 'validate.js', 'vocabulary.js', 'domain.js', 'play.js', 'game.jsx', 'ui/screen.js', 'ui/catalog.js']
+export const FILES = ['board.js', 'course.js', 'run.js', 'validate.js', 'vocabulary.js', 'domain.js', 'play.js', 'game.js', 'ui/screen.js', 'ui/catalog.js']
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   for (const [file, by] of Object.entries(measure(resolve(import.meta.dirname, '..'), FILES))) {

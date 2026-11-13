@@ -11,7 +11,7 @@ const WAY = ['1', '2', '3']
 /**
  * What passing a declaration gives, shown when it is passed: its rules for any sentences, those that make it (one
  * for each way), and the one that takes it apart, made from them (iso.js declaredRules) or the level's own (equality,
- * the numbers). The proof-board parts they are from here on are listed with what the level unlocks (game.jsx
+ * the numbers). The proof-board parts they are from here on are listed with what the level unlocks (game.js
  * unlocked).
  */
 export default function DeclaredRules({ level }) {

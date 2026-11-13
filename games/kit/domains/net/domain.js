@@ -1,6 +1,6 @@
 // The net domain for the checks (games/DESIGN.md 6.3): its vocabulary, a game's spec from its content (the circuit
 // base's, ../../engine/circuit-domain.js circuitSpec), the domain's checks, its play hook for blind sessions (play.js)
-// and its headless drawing of a level (scene.js, an SVG string). The page's side is game.jsx.
+// and its headless drawing of a level (scene.js, an SVG string). The page's side is game.js.
 import { circuitNames, circuitSpec } from '../../engine/circuit-domain.js'
 import { vocabulary } from './vocabulary.js'
 import { netCourse } from './course.js'

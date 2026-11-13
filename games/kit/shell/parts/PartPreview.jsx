@@ -13,7 +13,7 @@ import { definedParts, nextParams } from './faces.jsx'
 // interaction, as the expressions parts.json writes. Its settings move as a player would move them (rules followed,
 // readouts and actions live); nothing is wired to it, so its value shows as a placeholder.
 //
-//   game      the game's description; game.defined = { of(type), defaults(type), ops, widgets? } (the domain's game.jsx)
+//   game      the game's description; game.defined = { of(type), defaults(type), ops, widgets? } (the domain's game.js)
 //   type      the part shown          edit      { picked (a path in the part), pick(path), add(path) } or null
 // Every block, setting, expression and face carries the path of what it is in the part (data-pf); in edit mode a
 // click picks it, and a face's + adds a block to it.

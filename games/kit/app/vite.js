@@ -1,6 +1,6 @@
 // The Vite plugin that makes trace-viewer/game.html every game's page. `virtual:game` gives the page its game: in a
 // build the one named by GAME, on the dev server whichever /game/<id>/ the address names. A game's page is code
-// only — its domain (`virtual:game/<id>`: the domain's game.jsx and vocabulary) — and reads the game's content when
+// only — its domain (`virtual:game/<id>`: the domain's game.js and vocabulary) — and reads the game's content when
 // it opens: content.json beside the page (games/DESIGN.md 6.1: games/<id>/game.json, levels/*.json, glossary.json,
 // parts.json, assembled by ../engine/content.js). A build writes content.json next to the page; the dev server reads
 // it off the files on every request. So content changes without a build. The page's title, description and tab icon
@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { GAMES } from '../../games.js'
 import { isDataGame, readContent } from '../engine/content-node.js'
+import { gameModule as domainEntry } from '../engine/game-module.js'
 
 const GAMES_DIR = resolve(import.meta.dirname, '../..')
 const KIT = resolve(import.meta.dirname, '..')
@@ -17,11 +18,11 @@ const PREFIX = 'virtual:game/'
 const CONTENT = 'content.json'
 const q = JSON.stringify
 
-/** The module that is game `id`'s domain as the page takes it: { define (its game.jsx), vocabulary }. */
+/** The module that is game `id`'s domain as the page takes it: { define (its game.js), vocabulary }. */
 function gameModule(id) {
   const { domain } = JSON.parse(readFileSync(resolve(GAMES_DIR, id, 'game.json'), 'utf8'))
   return [
-    `import define from ${q(resolve(KIT, 'domains', domain, 'game.jsx'))}`,
+    `import define from ${q(domainEntry(resolve(KIT, 'domains'), domain))}`,
     `import { vocabulary } from ${q(resolve(KIT, 'domains', domain, 'vocabulary.js'))}`,
     'export default { define, vocabulary }',
   ].join('\n')
