@@ -15,11 +15,13 @@ adding or reordering levels, adding parts or machine abilities, or changing the 
 
 The design rules live in the repository, not in this skill. Before designing or reviewing, read:
 
-1. `games/DESIGN.md` — the shared handbook: principles (§1), course structure and practice clusters (§2,
+1. `games/DIRECTION.md` decisions 22–24, especially [decision 24](../../../games/DIRECTION.md#决策二十四底座是一组基础件玩法是它们的配置) — who supplies the work and its checks, how a task gets its pieces, and how the kernel composes a way to play.
+2. [`games/PLAN.md`](../../../games/PLAN.md) — the implementation order, settled decisions, scope and acceptance checks for decision 24. Follow these two documents where the current implementation or handbook still describes an earlier architecture.
+3. `games/DESIGN.md` — the shared handbook: principles (§1), course structure and practice clusters (§2,
    especially §2.3), level spec (§4), audit rules (§5), engine layering (§6), interface (§6.9), author workflow (§7), pitfalls (§8)
    and case studies (§9–11).
-2. `games/<game>/DESIGN.md` (or `CURRICULUM.md`) — the topic's own design.
-3. The game's content (`games/DESIGN.md` §6.1): `games/<game>/game.json` (eras, parts), `levels/<id>.json`
+4. `games/<game>/DESIGN.md` (or `CURRICULUM.md`) — the topic's own design.
+5. The game's content (`games/DESIGN.md` §6.1): `games/<game>/game.json` (eras, parts), `levels/<id>.json`
    and `glossary.json`, written in its domain's vocabulary (`games/kit/domains/<domain>/vocabulary.js`).
 
 Keep the relevant game design and handbook aligned with the implemented course. Document substantive design
@@ -27,10 +29,21 @@ changes and general lessons where they help future work; use the user's scope an
 
 ## Implementation contracts
 
-- Three layers: kernel (`games/kit/engine`, `circuit`, `shell`), domain (`games/kit/domains/<domain>`: vocabulary,
-  model, items, ui), content (`games/<game>/`). Content is data only: it picks vocabulary items `{ item: params }`
-  and writes tests, copy and reference / naive boards as blueprint text, never a function. Anything new (an engine
-  resource, a world, a check, a panel) goes into the domain's vocabulary and implementation.
+- The kernel (`games/kit/`) owns mechanisms and components: editors, judging, author checks, playback, feedback,
+  and piece availability. When a play needs a mechanism, implement it in the kernel first.
+- A domain (`games/kit/domains/<domain>/`) supplies how its values compare and read, how a work runs on a case,
+  and the subject's own properties. It declares its vocabulary and configures play using kernel components.
+  Components and templates belong to the kernel. Existing domain screens and templates are migration targets in
+  `games/PLAN.md`.
+- A work is the board, strip or table a player makes. A piece has a name and optional faces (`holes`,
+  `settings`, `regions`, `inside`, `faces`, `keeps`). Editors and judges read the faces they use. A task gets
+  pieces through the availability rule in decision 23. A piece's inside refers to the work from a task.
+- A play template is a configuration of the editor, judge, runner, check visibility and source of built works.
+  A judge returns success or the first structured failure (`{ at?, check?, want?, got?, why }`).
+  Compose it from cases, ticks, properties, reference comparisons, ordered checks and hidden checks. Sound works
+  pass every check and each wrong work fails at least one.
+- Content (`games/<game>/`) is data. It picks vocabulary items `{ item: params }` and supplies tests, copy and
+  reference / naive boards as blueprint text.
 - Where the domain gives engine resources (`op` kind), a game's primitive parts are content: `games/<game>/parts.json`
   (`games/DESIGN.md` §6.8) — ports, settings in the six kernel controls, an ASCII expression calling only resources
   and kernel builtins, interaction rules and checks, and the card / tile / detail views. Change a part there (studio's
@@ -57,13 +70,14 @@ changes and general lessons where they help future work; use the user's scope an
   and a gate, each product written through the operation set, every run and gate recorded in `pipeline.json`. When a
   later step stops on an earlier one's product, hand its report back (`run <step> --from <later step>`); do not work
   around it in the later step.
-- Choose built parts or presets based on the learning goal and their later use. A built part executes the board
-  the player passed with; its interface and the level that unlocks it must agree with the current engine contract.
+- Choose built pieces or presets based on the learning goal and their later use. A built piece runs the player's
+  passing work by default, using the reference when no player work is available. A play can choose the reference
+  explicitly. The piece's interface and its unlocking task agree with the engine contract.
 - Content changes go through the operation set (`games/DESIGN.md` §7.1): `npm run op -- <game> …`, the MCP
   server's `modify`, or the studio (`npm run studio`, §6.7: the same tools over HTTP; a level edited on the
   game's own page, played from the pending changeset, a click on a field on screen opening its schema control in the
   side panel and a + adding a task, hint, page or test where it shows; fields with no place on screen as rows), never JSON edited by hand. A changeset is checked as a whole and written
-  only when it passes, with its save migration generated; read the game's `vocabulary` (MCP) or `npm run op -- list`
+  only when it passes. Read the game's `vocabulary` (MCP) or `npm run op -- list`
   first. A wording changed across a game is the `replace` tool's changeset (MCP, or the studio's search), run through
   `modify` like any other — never a find-and-replace on the files. The studio knows no domain: it picks a generic kernel control from a value's schema shape; where the shape
   does not say how a value reads, the vocabulary adds a declarative hint to the schema (`view: 'grid' | 'ticks'`,
@@ -71,7 +85,8 @@ changes and general lessons where they help future work; use the user's scope an
   never an editor.
 - Validate the changed scope using `games/DESIGN.md` §7.0. Curriculum checks name the affected game
   (`npm run check -- <game>`); module changes run relevant test files. Do not default to the full kit suite,
-  all-game checks or all-game builds for a local edit. Reuse a successful operation-set check for unchanged content.
+  all-game checks or all-game builds for a local edit. For the decision 24 refactor, capture each game's check
+  output before each numbered item and compare it byte for byte after the change as specified in `games/PLAN.md`.
 - Part types, port names and setting values are ASCII, so every board prints as a blueprint (`kit/circuit/text.js`,
   `games/DESIGN.md` §6): symbols go in labels; a notation that is symbolic by nature gets a `parts.text` spelling.
 
