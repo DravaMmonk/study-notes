@@ -3,9 +3,10 @@ import { defineGame } from '../index.js'
 import { playFor } from '../../engine/plays.js'
 import BoardChecks from './BoardChecks.jsx'
 import Rows from './Rows.jsx'
+import TreeWork from './TreeWork.jsx'
 import ValueTables from './ValueTables.jsx'
 
-const SCREENS = { once: Rows, boards: BoardChecks, table: ValueTables }
+const SCREENS = { once: Rows, check: TreeWork, boards: BoardChecks, table: ValueTables }
 
 /** Assemble the components named by a play, with the domain's value and run resources. */
 export function playScreen(plays, resources) {

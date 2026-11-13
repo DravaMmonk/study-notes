@@ -13,7 +13,8 @@ import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
 import { MACHINE, PROOF } from './ui/boards.jsx'
 import { ModelScreen } from './ui/WorldScreens.jsx'
-import FormulaScreen from './ui/FormulaScreen.jsx'
+import QueryScreen from './ui/QueryScreen.jsx'
+import { translation } from './formulaWork.js'
 import { iconOf, nameOf, textOf } from './ui/catalog.js'
 import { MACHINE_TEXT, RULE_TEXT } from './partText.js'
 import TermScreen from './ui/TermScreen.jsx'
@@ -38,7 +39,7 @@ const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'proof'
  * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), levels,
  * glossary }.
  */
-const Play = playScreen(plays, { declaration, definition, audit, truth })
+const Play = playScreen(plays, { declaration, definition, audit, truth, translation })
 
 export default function logicGame(content) {
   const logic = logicCourse(content)
@@ -101,8 +102,8 @@ export default function logicGame(content) {
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
       iso: { Screen: Play, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
       define: { Screen: Play, icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },
-      translate: { Screen: FormulaScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
-      query: { Screen: FormulaScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
+      translate: { Screen: Play, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
+      query: { Screen: QueryScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
       model: { Screen: ModelScreen, icon: FileSignature, label: { zh: '造世界', en: 'Build a world' } },
       term: { Screen: TermScreen, icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
       script: { Screen: ScriptScreen, icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },

@@ -6,45 +6,10 @@ import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { MAX_WORLD, builtWorld, claimIn } from '../fol.js'
 import { fixedLine } from '../sentenceLanguage.js'
+import { MARKS } from '../worldValues.js'
 import { Markup } from '../../../shell/Markup.jsx'
 
-// Worlds in 《证明完毕》's first-order levels: a world in words (WorldText, for the translation and query screens in
-// FormulaScreen.jsx), and the counterexample level (ModelScreen): on top, as a translation level has it, the
-// sentence or reasoning in words (`say`); under it, what someone wrote for it, wrong (fol.js claimIn: a lemma that does
-// not follow, or a translation unlike what the words mean), on a strip that cannot be changed; below, the world the player builds against it (how many things, which thing each name stands
-// for, what holds of each; a relation of two as a grid). A run goes through the sentences, marking each one's truth in
-// the world, and passes when the world is a counterexample.
-
-const MARKS = ['①', '②', '③', '④']
-
-/** What a thing is called: a named world's thing by its words, a built world's by its mark. */
-export const thingName = (notation, world) => (k) => (world ? L(notation.words?.[world.things[k]] ?? { zh: world.things[k], en: world.things[k] }) : MARKS[k])
-
-/** A world in words: how many things, and every atom true in it, as sentences. */
-export function WorldText({ model, notation, preds, world = null, spell = false }) {
-  const name = thingName(notation, world)
-  const sayAtom = (p, args) => (notation.words?.[p] ? L(notation.words[p]) : `${p}({0})`).replace(/\{(\d)\}/g, (_, k) => name(args[Number(k)]))
-  const atoms = preds.flatMap(([p, n]) => {
-    const ext = model.preds[p]
-    if (n === 0) return ext ? [L(say({ op: 'atom', pred: p, args: [] }, notation))] : []
-    return [...(ext ?? [])].map((key) => sayAtom(p, key.split(',').map(Number)))
-  })
-  // A countermodel spells out what does not hold too: what is left out is easy to miss, and it is often the point.
-  const tuples = (n) => (n === 0 ? [[]] : tuples(n - 1).flatMap((t) => model.domain.map((d) => [...t, d])))
-  const missing = spell ? preds.filter(([p]) => p in model.preds).flatMap(([p, n]) => (n === 0
-    ? (model.preds[p] ? [] : [L(say({ op: 'atom', pred: p, args: [] }, notation))])
-    : tuples(n).filter((args) => !model.preds[p]?.has(args.join(','))).map((args) => sayAtom(p, args)))) : []
-  // A named world's things are their own names: only other names need saying.
-  const consts = Object.entries(model.fns).filter(([c, m]) => m.has('') && !world?.things.includes(c)).map(([c, m]) => `${L(notation.words?.[c] ?? T(c, c))} = ${name(m.get(''))}`)
-  return (
-    <div className="fo-world">
-      <p>{tr(`这个世界有 ${model.domain.length} 样东西：`, `This world has ${model.domain.length} thing${model.domain.length === 1 ? '' : 's'}: `)}<b>{model.domain.map(name).join(tr('、'))}</b></p>
-      {consts.length > 0 && <p>{consts.join(tr('；'))}</p>}
-      <p>{atoms.length ? atoms.join(tr('；')) : tr('什么都不成立。')}</p>
-      {missing.length > 0 && atoms.length > 0 && <p className="fo-not">{tr('不成立：')}{missing.join(tr('；'))}</p>}
-    </div>
-  )
-}
+// Build a world that separates a translation from its intended meaning or refutes an inference.
 
 export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
   const level = entry.source

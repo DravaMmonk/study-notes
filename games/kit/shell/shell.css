@@ -747,3 +747,9 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .vt-verdict { margin: 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.6; }
 .vt-verdict.is-pass { color: var(--status); }
 .vt-verdict.is-fail { color: var(--fail); }
+
+.tree-evidence { display: grid; gap: var(--sp-3); padding: var(--sp-4) var(--sp-5); border-radius: var(--r-md); background: color-mix(in srgb, var(--fail) 6%, var(--paper)); font-size: var(--fs-small); }
+.tree-evidence p { margin: 0; }
+.tree-description { display: grid; gap: var(--sp-2); font-size: var(--fs-small); line-height: 1.6; color: var(--body, var(--ink)); }
+.tree-description p { margin: 0; }
+.tree-description .is-muted { color: var(--muted); }

@@ -9,7 +9,7 @@ const fields = {
   gives: S.opt(S.oneOf(['reference'])),
 }
 export const PLAY = S.by('editor', {
-  tree: S.obj({ ...fields, editor: S.oneOf(['tree']), judge: S.oneOf(['once']) }),
+  tree: S.obj({ ...fields, editor: S.oneOf(['tree']), judge: S.oneOf(['once', 'check']) }),
   values: S.obj({ ...fields, editor: S.oneOf(['values']), judge: S.oneOf(['table']) }),
   checks: S.obj({ ...fields, editor: S.oneOf(['checks']), judge: S.oneOf(['boards']) }),
 })
