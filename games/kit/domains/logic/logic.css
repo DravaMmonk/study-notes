@@ -247,12 +247,6 @@
 
 /* The definition board (ui/DefineScreen.jsx): a row a case, its right side picked; the tests under them. */
 .lg-define { max-width: 720px; margin: 0 auto; padding: var(--sp-7) var(--sp-7) var(--sp-8); display: grid; gap: var(--sp-6); }
-.lg-define .lg-rows { width: 100%; }
-.lg-defs { display: grid; gap: var(--sp-4); }
-.lg-def-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-4); font-size: 15px; }
-.lg-def-when { color: var(--muted); }
-.lg-def-lhs { font-weight: 600; color: var(--ink); }
-.lg-def-row select { min-width: 10em; max-width: 100%; padding: var(--sp-3) var(--sp-4); border: 1px solid var(--line, rgba(0,0,0,.15)); border-radius: var(--r-md); background: var(--panel, transparent); color: var(--ink); font: inherit; }
 
 /* The test cases of a declaration (ui/IsoCases.jsx, on the shared RowTable): a result that disagrees, a run's rows. */
 .lg-wrong { color: var(--fail); font-weight: 600; }
@@ -262,42 +256,6 @@
 .rt-row.is-fail td.lg-result { color: var(--fail); }
 
 
-/* A declaration's intro rules as a table to fill in (ui/RuleTable.jsx): the goal, a row for each rule, its premises
-   one after another with the add button at the end of the last; a little larger than the test-case table. */
-/* The rule table (ui/RuleTable.jsx): a card of rows, the conclusion on top, then each condition with its premises as
-   sentences to press; the rules it declares under it (ui/IsoScreen.jsx DeclRules). */
-.lg-rule-table { display: grid; overflow: hidden; border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line), 0 1px 2px rgba(30, 26, 18, .04); font-size: 15px; }
-.lg-rt-row { position: relative; display: grid; grid-template-columns: 6.8em minmax(0, 1fr) 28px; align-items: center; gap: var(--sp-4) var(--sp-5); padding: var(--sp-5) var(--sp-4) var(--sp-5) var(--sp-6); border-top: 1px solid var(--hairline); }
-.lg-rt-row:first-child { border-top: 0; }
-.lg-rt-row.is-goal { grid-template-columns: 6.8em minmax(0, 1fr); padding-block: var(--sp-5); background: color-mix(in srgb, var(--accent) 6%, var(--paper)); }
-.lg-rt-name { display: inline-flex; align-items: baseline; gap: var(--sp-2); color: var(--muted); font: 500 12.5px var(--sans); letter-spacing: .02em; white-space: nowrap; }
-.lg-rt-name i { min-width: 18px; height: 18px; padding: 0 var(--sp-2); display: inline-grid; place-items: center; border-radius: var(--r-sm); color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 14%, transparent); font: 600 11px var(--mono); font-style: normal; }
-.lg-rt-goal { color: var(--heading, var(--ink)); font-family: var(--serif); font-size: 17px; font-weight: 600; }
-.lg-rt-needs { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) 0; }
-.lg-rt-need { display: inline-flex; align-items: center; }
-.lg-rt-sep { padding: 0 var(--sp-3) 0 var(--sp-1); color: var(--faint); }
-.lg-rt-true { margin-left: var(--sp-4); color: var(--muted); font-size: 13.5px; white-space: nowrap; }
-.lg-rt-premise { min-height: 34px; padding: var(--sp-1) var(--sp-5); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font: 15.5px var(--serif); text-align: left; cursor: pointer; transition: box-shadow 140ms ease, background 140ms ease; }
-.lg-rt-premise:hover { box-shadow: inset 0 0 0 1.5px var(--rule); }
-.lg-rt-premise[aria-expanded='true'] { background: color-mix(in srgb, var(--accent) 9%, var(--paper)); box-shadow: inset 0 0 0 2px var(--accent); }
-.lg-rt-premise.is-blank { color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1px var(--rule); font-size: 13.5px; }
-.lg-rt-premise.is-bad { color: var(--fail); background: color-mix(in srgb, var(--fail) 7%, var(--paper)); box-shadow: inset 0 0 0 1.5px var(--fail); }
-.lg-rt-premise:disabled { padding: 0; background: none; box-shadow: none; cursor: default; }
-.lg-rt-add { min-width: 34px; min-height: 34px; margin-left: var(--sp-4); padding: 0 var(--sp-4); display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); border: 1px dashed var(--rule); border-radius: var(--r-md); color: var(--muted); background: transparent; font: 13px var(--sans); cursor: pointer; transition: color 140ms ease, border-color 140ms ease, background 140ms ease; }
-.lg-rt-needs > .lg-rt-add:first-child, .lg-rt-any + .lg-rt-add { margin-left: 0; padding: 0 var(--sp-5); }
-.lg-rt-add:hover, .lg-rt-more:hover { color: var(--accent-ink); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
-.lg-rt-any { min-height: 30px; margin-right: var(--sp-4); padding: 0 var(--sp-5); border: 0; border-radius: var(--r-full); color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1px var(--line); font: 500 13px var(--sans); cursor: pointer; }
-.lg-rt-any[aria-pressed='true'] { color: var(--ink); background: color-mix(in srgb, var(--fam-quant, var(--accent)) 13%, transparent); box-shadow: inset 0 0 0 1.5px var(--fam-quant, var(--accent)); }
-.lg-rt-any:disabled { cursor: default; }
-.lg-rt-drop { width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: var(--r-md); color: var(--faint); background: transparent; cursor: pointer; opacity: 0; transition: opacity 140ms ease; }
-.lg-rt-row:hover .lg-rt-drop, .lg-rt-drop:focus-visible { opacity: 1; }
-.lg-rt-drop:hover { color: var(--fail); background: var(--hover); }
-.lg-rt-more { min-height: 44px; padding: 0 var(--sp-6); display: flex; align-items: center; gap: var(--sp-3); border: 0; border-top: 1px dashed var(--line); color: var(--muted); background: transparent; font: 500 13.5px var(--sans); text-align: left; cursor: pointer; transition: color 140ms ease, background 140ms ease; }
-.level-phone .lg-rt-row { grid-template-columns: minmax(0, 1fr) 28px; padding: var(--sp-4) var(--sp-3) var(--sp-5) var(--sp-5); }
-.level-phone .lg-rt-row.is-goal { grid-template-columns: minmax(0, 1fr); }
-.level-phone .lg-rt-name { grid-column: 1 / -1; }
-.level-phone .lg-rt-drop { position: absolute; top: 6px; right: 6px; opacity: 1; }
-.level-phone .lg-rt-premise { min-height: 38px; }
 /* The rules a declaration gives, as they stand: each named at the left, written out beside it. */
 .lg-decl-rules { margin: 0; padding: var(--sp-4) var(--sp-6); display: grid; gap: var(--sp-3); border-radius: var(--r-md); background: color-mix(in srgb, var(--paper) 55%, transparent); box-shadow: inset 0 0 0 1px var(--hairline); }
 .lg-decl-rules > div { display: grid; grid-template-columns: 4.6em minmax(0, 1fr); align-items: baseline; gap: var(--sp-5); }
@@ -305,6 +263,8 @@
 .lg-decl-rules dt i { color: var(--faint); font: 500 11px var(--mono); font-style: normal; }
 .lg-decl-rules dd { margin: 0; min-width: 0; color: var(--ink); font-size: 13.5px; line-height: 1.6; overflow-wrap: anywhere; }
 /* A sentence being built for one of them (ui/SentencePick.jsx, ui/RuleTable.jsx). */
+/* The rule table's for-any switch takes the quantifiers' colour. */
+.lg-rule-table .rr-lead button[aria-pressed='true'] { background: color-mix(in srgb, var(--fam-quant, var(--accent)) 13%, transparent); box-shadow: inset 0 0 0 1.5px var(--fam-quant, var(--accent)); }
 .lg-sentence-box { display: grid; gap: var(--sp-4); }
 .lg-pick-sentence { max-width: 100%; min-height: 28px; padding: var(--sp-1) var(--sp-4); border: 1px solid var(--hairline); border-radius: var(--r-md); color: var(--ink); background: var(--paper); font: inherit; text-align: left; cursor: pointer; }
 .lg-pick-sentence.is-empty { color: var(--muted); border-style: dashed; }

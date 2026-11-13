@@ -28,7 +28,7 @@
       "solution": ["zero", "plus(x, sum(xs))"],
       "naive": ["zero", "sum(xs)"],
       "brief": {
-        "zh": "给每一行选一个右边，让每个测试都算对。"
+        "zh": "给每一行写出右边，让每个测试都算对。"
       },
       "hint": [{ "zh": "x :: xs 的和里有 x。" }],
       "intro": [{ "t": { "zh": "sum 从后往前加。" } }]
@@ -55,7 +55,7 @@
       "solution": ["y", "itsum(xs, plus(y, x))"],
       "naive": ["zero", "itsum(xs, plus(y, x))"],
       "brief": {
-        "zh": "给每一行选一个右边，让每个测试都算对。"
+        "zh": "给每一行写出右边，让每个测试都算对。"
       },
       "hint": [{ "zh": "走到头时，y 里已经是加好的和。" }],
       "intro": [

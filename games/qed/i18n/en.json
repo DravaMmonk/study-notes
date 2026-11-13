@@ -911,7 +911,6 @@
   "定义拼接和长度": "Defining append and length",
   "为列表定义两个函数：拼接和长度。": "Define two functions on lists: append and length.",
   "拼接": "Append",
-  "给每一行选一个右边，让每个测试都算对。": "Pick a right side for every row so that every test works out right.",
   "x :: xs 接上 ys，x 仍在最前面。": "In x :: xs followed by ys, x is still in front.",
   "xs ++ ys 把两个列表接起来，拆开的是前一个列表。": "xs ++ ys joins two lists; the one it takes apart is the first.",
   "长度": "Length",
@@ -2102,5 +2101,6 @@
   "S 的第二句不一定是一个词。S 要的两句，都能用 K 造。": "S’s second sentence need not be a single word. Both sentences S then needs can be made with K.",
   "不用框换顺序": "Reordering without a box",
   "已知能接进哪一种 S？套用以后得到什么？": "Which S can the given go into, and what does Apply then give?",
-  "还缺的一段，K 能不能补上？两段首尾相接以后，照<level-ref to=\"x-chain\"></level-ref>接起来。": "Can K supply the missing piece? Once two pieces meet end to end, join them as in <level-ref to=\"x-chain\"></level-ref>."
+  "还缺的一段，K 能不能补上？两段首尾相接以后，照<level-ref to=\"x-chain\"></level-ref>接起来。": "Can K supply the missing piece? Once two pieces meet end to end, join them as in <level-ref to=\"x-chain\"></level-ref>.",
+  "给每一行写出右边，让每个测试都算对。": "Write a right side for every row so that every test works out right."
 }

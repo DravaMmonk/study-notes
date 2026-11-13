@@ -23,7 +23,7 @@
       "solution": ["ys", "cons(x, app(xs, ys))"],
       "naive": ["ys", "app(xs, cons(x, ys))"],
       "brief": {
-        "zh": "给每一行选一个右边，让每个测试都算对。"
+        "zh": "给每一行写出右边，让每个测试都算对。"
       },
       "hint": [{ "zh": "x :: xs 接上 ys，x 仍在最前面。" }],
       "intro": [
@@ -52,7 +52,7 @@
       "solution": ["zero", "s(len(xs))"],
       "naive": ["zero", "len(xs)"],
       "brief": {
-        "zh": "给每一行选一个右边，让每个测试都算对。"
+        "zh": "给每一行写出右边，让每个测试都算对。"
       },
       "hint": [{ "zh": "多一样东西，长度加一。" }]
     }

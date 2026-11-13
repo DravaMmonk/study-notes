@@ -118,3 +118,20 @@ export function chipsFrom(formulas, { consts = [], notation = {} } = {}) {
   const pieces = { kind: 'translate', consts, vars, vocab, notation: { ...notation, symbols: ['∀', '∃'] }, connectives: ['¬', '∧', '∨', '→', '↔', '⊥'] }
   return chipsOf(pieces).filter((c) => needed.has(c.key))
 }
+
+/**
+ * The chips some terms are built from, and nothing more (a right side on the definition board): their functions, each
+ * with a box for every argument, their names and their variables, each kind in the order of its names.
+ */
+export function termChips(terms, notation = {}) {
+  const fns = new Map()
+  const vars = new Set()
+  const walk = (t) => {
+    if (t.t === 'var') return vars.add(t.name)
+    fns.set(t.f, t.args.length)
+    t.args.forEach(walk)
+  }
+  terms.forEach(walk)
+  const named = [...fns].sort(([a], [b]) => (a < b ? -1 : 1))
+  return chipsOf({ kind: 'translate', consts: [], vars: [...vars].sort(), vocab: { preds: [], consts: named.filter(([, n]) => n === 0).map(([c]) => c), fns: named.filter(([, n]) => n > 0) }, notation: { ...notation, symbols: [] }, connectives: [] })
+}

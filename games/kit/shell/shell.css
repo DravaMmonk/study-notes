@@ -551,6 +551,59 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .parts-rules tr:last-child td { border-bottom: 1px solid var(--hairline); }
 .parts-rules code { font: 13px/1.5 var(--mono); overflow-wrap: anywhere; }
 
+/* Rows of rules to fill in (RuleRows.jsx): a card of rows, a head on top, then each row's name and its slots as
+   buttons to press, each opening its editor beside it; the words that end a row, the button that adds a slot, the one
+   that drops the row, and under the rows the one that adds a row. */
+.rr { display: grid; overflow: hidden; border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line), 0 1px 2px rgba(30, 26, 18, .04); font-size: 15px; }
+.rr-row { position: relative; display: grid; grid-template-columns: 6.8em minmax(0, 1fr) 28px; align-items: center; gap: var(--sp-4) var(--sp-5); padding: var(--sp-5) var(--sp-4) var(--sp-5) var(--sp-6); border-top: 1px solid var(--hairline); }
+.rr-row:first-child { border-top: 0; }
+.rr-row.is-head { grid-template-columns: 6.8em minmax(0, 1fr); padding-block: var(--sp-5); background: color-mix(in srgb, var(--accent) 6%, var(--paper)); }
+.rr-name { display: inline-flex; align-items: baseline; gap: var(--sp-2); color: var(--muted); font: 500 12.5px var(--sans); letter-spacing: .02em; white-space: nowrap; }
+.rr-name i { min-width: 18px; height: 18px; padding: 0 var(--sp-2); display: inline-grid; place-items: center; border-radius: var(--r-sm); color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 14%, transparent); font: 600 11px var(--mono); font-style: normal; }
+.rr-goal { color: var(--heading, var(--ink)); font-family: var(--serif); font-size: 17px; font-weight: 600; }
+.rr-body { min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4) 0; }
+.rr-item { display: inline-flex; align-items: center; }
+.rr-sep { padding: 0 var(--sp-3) 0 var(--sp-1); color: var(--faint); }
+.rr-end { margin-left: var(--sp-4); color: var(--muted); font-size: 13.5px; white-space: nowrap; }
+.rr-slot { min-height: 34px; padding: var(--sp-1) var(--sp-5); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--line); font: 15.5px var(--serif); text-align: left; cursor: pointer; transition: box-shadow 140ms ease, background 140ms ease; }
+.rr-slot:hover { box-shadow: inset 0 0 0 1.5px var(--rule); }
+.rr-slot[aria-expanded='true'] { background: color-mix(in srgb, var(--accent) 9%, var(--paper)); box-shadow: inset 0 0 0 2px var(--accent); }
+.rr-slot.is-blank { color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1px var(--rule); font-size: 13.5px; }
+.rr-slot.is-bad { color: var(--fail); background: color-mix(in srgb, var(--fail) 7%, var(--paper)); box-shadow: inset 0 0 0 1.5px var(--fail); }
+.rr-slot:disabled { padding: 0; background: none; box-shadow: none; cursor: default; }
+.rr-add { min-width: 34px; min-height: 34px; margin-left: var(--sp-4); padding: 0 var(--sp-4); display: inline-flex; align-items: center; justify-content: center; gap: var(--sp-2); border: 1px dashed var(--rule); border-radius: var(--r-md); color: var(--muted); background: transparent; font: 13px var(--sans); cursor: pointer; transition: color 140ms ease, border-color 140ms ease, background 140ms ease; }
+.rr-body > .rr-add:first-child, .rr-lead + .rr-add { margin-left: 0; padding: 0 var(--sp-5); }
+.rr-add:hover, .rr-more:hover { color: var(--accent-ink); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, transparent); }
+.rr-lead button { min-height: 30px; margin-right: var(--sp-4); padding: 0 var(--sp-5); border: 0; border-radius: var(--r-full); color: var(--muted); background: transparent; box-shadow: inset 0 0 0 1px var(--line); font: 500 13px var(--sans); cursor: pointer; }
+.rr-lead button[aria-pressed='true'] { color: var(--ink); background: color-mix(in srgb, var(--accent) 13%, transparent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.rr-lead button:disabled { cursor: default; }
+.rr-drop { width: 28px; height: 28px; display: grid; place-items: center; border: 0; border-radius: var(--r-md); color: var(--faint); background: transparent; cursor: pointer; opacity: 0; transition: opacity 140ms ease; }
+.rr-row:hover .rr-drop, .rr-drop:focus-visible { opacity: 1; }
+.rr-drop:hover { color: var(--fail); background: var(--hover); }
+.rr-more { min-height: 44px; padding: 0 var(--sp-6); display: flex; align-items: center; gap: var(--sp-3); border: 0; border-top: 1px dashed var(--line); color: var(--muted); background: transparent; font: 500 13.5px var(--sans); text-align: left; cursor: pointer; transition: color 140ms ease, background 140ms ease; }
+.level-phone .rr-row { grid-template-columns: minmax(0, 1fr) 28px; padding: var(--sp-4) var(--sp-3) var(--sp-5) var(--sp-5); }
+.level-phone .rr-row.is-head { grid-template-columns: minmax(0, 1fr); }
+.level-phone .rr-name { grid-column: 1 / -1; }
+.level-phone .rr-drop { position: absolute; top: 6px; right: 6px; opacity: 1; }
+.level-phone .rr-slot { min-height: 38px; }
+.rr-lead { display: inline-flex; align-items: center; color: var(--muted); }
+.rr-name b { color: var(--ink); font: 600 15px var(--serif); letter-spacing: 0; white-space: normal; }
+.rr.is-wide .rr-row { grid-template-columns: minmax(6.8em, auto) minmax(0, 1fr) 28px; }
+
+/* A table of checks run down row by row (CheckTable.jsx): each row turns right or wrong as the run reaches it, the
+   result in its last column, and under the table what the run came to. */
+.ct { display: grid; gap: var(--sp-5); }
+.ct-scroll { overflow-x: auto; max-width: 100%; }
+.ct-rows { border-collapse: collapse; font-size: 12.5px; width: 100%; }
+.ct-rows th, .ct-rows td { padding: var(--sp-1) var(--sp-4); text-align: center; border-bottom: 1px solid var(--line); }
+.ct-rows th { color: var(--muted); font-weight: 500; }
+.ct-rows .ct-result { min-width: 7em; white-space: nowrap; }
+.ct-rows tr.is-pass .ct-result { color: var(--status); }
+.ct-rows tr.is-fail .ct-result { color: var(--fail); }
+.ct-verdict { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.ct-verdict.is-pass { color: var(--status); }
+.ct-verdict.is-fail { color: var(--fail); }
+
 /* A table the player fills in (RowTable.jsx): tall rows that open a form, a large add button, and the form's fields
    (FormFields.jsx). */
 .rt { display: flex; flex-direction: column; gap: var(--sp-4); min-width: 0; max-width: 100%; }
