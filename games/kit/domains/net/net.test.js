@@ -9,7 +9,7 @@ import { FLAG, FORMATS, arrived, bitsOf, checkOf, decode, encode, remainder, sai
 import { PARTS } from './parts.js'
 import { board } from './board.js'
 import { primitivesOnly } from '../../engine/circuit-domain.js'
-import { runLevel } from './run.js'
+import { cells, check, runLevel } from './run.js'
 import { wantOf } from './wants.js'
 import { netCourse } from './course.js'
 import { assemble } from '../../engine/content.js'
@@ -93,6 +93,16 @@ test('a board on its wires: registers carry, the queue is pulled, the far end de
   const run = runLevel(send, once, partOf).runs[0]
   assert.deepEqual(run.ticks.map((t) => t.bind.byte), [255, null, null, null, null, null, null, null, null, null])
   assert.ok(!run.fail, 'ten 1s decode as 255 and a stray bit: exactly the queue')
+})
+
+test('a check a player writes is the bits arriving on each wire in, as long as the task’s longest test', () => {
+  const echo = { wires: W(['x'], ['y']), want: wantOf({ y: { echo: { wire: 'x' } } }), tests: [{ ticks: 3 }, { ticks: 5 }] }
+  assert.deepEqual(cells(echo), [{ name: 'x', label: 'x', shape: 'bits', ticks: 5 }])
+  const { test: row } = check(echo, { x: [1, 0, 1, 1, 0] })
+  assert.deepEqual(row, { ticks: 5, wires: { x: [1, 0, 1, 1, 0] }, inputs: {}, queue: [] })
+  const on = (lines) => runLevel({ ...echo, tests: [row] }, fromText(lines, echo, plain), partOf).runs[0].fail
+  assert.equal(on(['y <- x']), undefined)
+  assert.equal(on(['o = const[value=1]()', 'y <- o']).tick, 1, 'a board that always says 1 is caught on the first 0')
 })
 
 test('a built part takes its level’s wires as ports', () => {

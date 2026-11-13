@@ -5,7 +5,7 @@ import { caught } from './caught.js'
 
 // Boards here are functions of a row's `x`; a test is { x, y }; a run fails when the board gives another y.
 const task = { inputs: [{ name: 'x' }], outputs: [{ name: 'y' }], solution: (x) => 2 * x, works: [{ board: (x) => x + 2 }, { board: (x) => x * x }] }
-const check = (_, row) => (row.x < 0 ? { why: 'never below zero' } : { test: row })
+const check = (_, row) => (row.y === null ? { unfilled: true } : row.x < 0 ? { why: 'never below zero' } : { test: row })
 const run = (board, tests) => tests.map((t) => (board(t.x) === t.y ? {} : { fail: true }))
 const on = (rows) => caught({ task, rows, check, run })
 

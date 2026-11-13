@@ -36,6 +36,7 @@ export function netCourse(content) {
       for (const name of pulledOf(task)) if (!(task.inputs ?? []).some((i) => i.name === name)) say(`it pulls into ${name}, which is no input`)
       if (!(task.outputs ?? []).some((o) => o.name === task.pulls.next)) say(`it asks for the next byte on ${task.pulls.next}, which is no output`)
     }
+    if (task.works && (!task.wires?.in?.length || task.inputs?.length || task.pulls)) say('a task that gives works reads wires in only: a check is the bits arriving on them')
     return { ...task, want: wantOf(task.want) }
   }
   // A test read: what reading it finds that its schema cannot say, then the test run out.

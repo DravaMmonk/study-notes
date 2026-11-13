@@ -56,7 +56,7 @@ import { isGrid } from './grid.js'
 import { formed } from './forms.js'
 import { portsOf } from './circuit.js'
 import { withHidden } from './tests.js'
-import { taskLevel, taskLevels } from './tasks.js'
+import { TASK_ID, taskLevel, taskLevels } from './tasks.js'
 import { TRAY, TRAYS, partNames, trayIn } from './trays.js'
 import { defineCourse, eraLevels, layout, offer, usable } from '../course.js'
 import { S } from './schema.js'
@@ -441,8 +441,9 @@ export const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
 /** A port of a task's board: one of its fixed cards, named and labelled. */
 export const PORT = S.obj({ name: NAME, label: S.text(), view: START_VIEW })
 
-/** The part a level builds: its last task's board, packed (circuitCourse), named and described. */
-export const BUILT_PART = { type: NAME, name: S.text(), desc: S.text() }
+/** The part a level builds: its last task's board (or the task `task` names: a task after it then only uses the
+ * part), packed (circuitCourse), named and described. */
+export const BUILT_PART = { type: NAME, name: S.text(), desc: S.text(), task: S.opt(S.str({ pattern: TASK_ID, about: t('成为元件的是哪个任务的板（不写是最后一个）：它后面的任务只是用这个元件') })) }
 const BUILDS = S.opt(S.obj(BUILT_PART, { section: 'course', about: t('通过后最后一个任务的板成为元件 type：它的输入口和结果口就是那个任务的输入和输出') }))
 
 /**

@@ -12,7 +12,8 @@
     "name": { "zh": "认旗标" },
     "desc": {
       "zh": "进线上最近收到的 8 位正好是 01111110 的那一拍为 1，其余各拍为 0。"
-    }
+    },
+    "task": "1-11"
   },
   "tasks": [
     {
@@ -68,6 +69,98 @@
         "kp = keep[reg=A](c)",
         "e6 = equal(p, six)",
         "h = select(e6, o, z)",
+        "f = select(line, z, h)",
+        "flag <- f"
+      ]
+    },
+    {
+      "id": "1-11_2",
+      "intro": [{ "t": { "zh": "认旗标搭好了，别人搭的却未必对。说一块板错了，得拿出一串让它说错的位来。" } }],
+      "brief": { "zh": "三块别人搭的板，各错一处。在两行里各排出进线上到达的位：三块板，每块至少在一行上说得和对的不一样。" },
+      "hint": [
+        { "zh": "先看每块板和自己搭的那块差在哪个元件上。" },
+        { "zh": "两行要挡住三块：有一行得让两块都说错。" },
+        { "zh": "一个旗标前后还能接什么，线一开头又是什么样，都可以排进去。" }
+      ],
+      "wires": { "in": [{ "name": "line", "label": { "zh": "进线" } }] },
+      "outputs": [{ "name": "flag", "label": { "zh": "旗标" } }],
+      "works": [
+        {
+          "label": { "zh": "甲" },
+          "board": [
+            "z = const[value=0]()",
+            "o = const[value=1]()",
+            "six = const[value=6]()",
+            "zr = equal(line, z)",
+            "c = counter(zr)",
+            "p = reg[reg=A, start=0]()",
+            "kp = keep[reg=A](c)",
+            "e6 = equal(p, six)",
+            "h = select(e6, o, z)",
+            "f = select(line, z, h)",
+            "flag <- f"
+          ]
+        },
+        {
+          "label": { "zh": "乙" },
+          "board": [
+            "z = const[value=0]()",
+            "o = const[value=1]()",
+            "six = const[value=6]()",
+            "zr = equal(line, z)",
+            "c = counter(zr)",
+            "p = reg[reg=A, start=0]()",
+            "kp = keep[reg=A](c)",
+            "sr = reg[reg=B, start=0]()",
+            "e6 = equal(p, six)",
+            "h = select(e6, sr, z)",
+            "f = select(line, z, h)",
+            "s = select(zr, o, sr)",
+            "u = select(f, z, s)",
+            "ks = keep[reg=B](u)",
+            "flag <- f"
+          ]
+        },
+        {
+          "label": { "zh": "丙" },
+          "board": [
+            "z = const[value=0]()",
+            "o = const[value=1]()",
+            "six = const[value=6]()",
+            "zr = equal(line, z)",
+            "c = counter(zr)",
+            "lr = reg[reg=A, start=0]()",
+            "e6 = equal(c, six)",
+            "l = select(e6, o, lr)",
+            "n = select(zr, z, l)",
+            "kl = keep[reg=A](n)",
+            "sr = reg[reg=B, start=0]()",
+            "s = select(zr, o, sr)",
+            "ks = keep[reg=B](s)",
+            "h = select(lr, sr, z)",
+            "f = select(line, z, h)",
+            "flag <- f"
+          ]
+        }
+      ],
+      "tests": [
+        { "ticks": 16, "wires": { "line": { "send": [{ "bits": "1111111011111110" }] } } },
+        { "ticks": 16, "wires": { "line": { "send": [{ "bits": "011111101111110" }] } } }
+      ],
+      "want": { "flag": { "pattern": { "wire": "line", "bits": "01111110" } } },
+      "solution": [
+        "z = const[value=0]()",
+        "o = const[value=1]()",
+        "six = const[value=6]()",
+        "zr = equal(line, z)",
+        "c = counter(zr)",
+        "p = reg[reg=A, start=0]()",
+        "kp = keep[reg=A](c)",
+        "sr = reg[reg=B, start=0]()",
+        "s = select(zr, o, sr)",
+        "ks = keep[reg=B](s)",
+        "e6 = equal(p, six)",
+        "h = select(e6, sr, z)",
         "f = select(line, z, h)",
         "flag <- f"
       ]

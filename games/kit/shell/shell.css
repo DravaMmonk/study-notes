@@ -652,6 +652,13 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .ck { display: grid; gap: var(--sp-4); }
 .ck input { width: 7em; }
 .ck-caught { color: var(--fail); font-weight: 600; }
+/* A run of bits the player sets (BitsField.jsx): a key a tick. */
+.bf { display: flex; flex-wrap: wrap; gap: var(--sp-1); }
+.bf-bit { width: 1.6em; height: 1.9em; padding: 0; border: 1px solid var(--line); border-radius: var(--r-xs); background: transparent; color: var(--faint); font: var(--fs-ui)/1 var(--mono); cursor: pointer; }
+.bf-bit.is-on { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+.level-phone .bf-bit { width: calc((100% - 7 * var(--sp-1)) / 8); height: 2.4em; font-size: var(--fs-touch-input); touch-action: manipulation; }
+.bf-text { font-family: var(--mono); letter-spacing: 0.06em; }
+.bf-label { display: block; margin-bottom: var(--sp-3); color: var(--muted); font-size: var(--fs-small); }
 .ck-verdict { margin: 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.6; }
 .ck-verdict.is-pass { color: var(--status); }
 .ck-verdict.is-fail { color: var(--fail); }

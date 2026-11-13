@@ -10,6 +10,9 @@
 // runTest(level, circuit, test, parts) → { ticks: [{ tick, values, errors, outputs, bind, trace, failed? }], want,
 //   fail?, final? }: a tick's `failed` is why something was wrong on it, `final` why the run as a whole was (an order
 //   or the far end); `fail` the first of them
+// cells(task) → what a row the player writes as a check is made of, where a task gives works to catch: the bits
+//   arriving on each wire in, as many ticks as the task's longest test
+// check(task, row) → { test }   such a row as a test
 // entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): what arrives on
 //   each wire in, the inputs, the head of the queue, and each wire out and output against what is wanted, tick by
 //   tick or in order
@@ -94,6 +97,12 @@ export function runLevel(level, circuit, parts) {
 }
 
 export { show }
+
+/** A check's row: what arrives on each wire in, a bit a tick. A task that gives works reads wires only (course.js). */
+export const cells = (task) => (task.wires?.in ?? []).map((w) => ({ name: w.name, label: w.label, shape: 'bits', ticks: Math.max(...task.tests.map((t) => t.ticks)) }))
+
+/** A row the player wrote as a check, as a test: the bits as they arrive. */
+export const check = (task, row) => ({ test: { ticks: cells(task)[0].ticks, wires: Object.fromEntries(cells(task).map((c) => [c.name, row[c.name]])), inputs: {}, queue: [] } })
 
 const labelOf = (list, name) => list.find((x) => x.name === name).label
 

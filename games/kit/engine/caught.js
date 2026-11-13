@@ -3,10 +3,12 @@
 // passes every check, and every wrong work fails at least one.
 //
 //   caught({ task, rows, check, run }) → what the rows come to
-//     rows                 [{ card: number | null }] a number for every card of the task
-//     check(task, row)     → { test } | { why }: the row as a test of the domain's, or why its world never shows it
+//     rows                 [row] what the player wrote, a row a check, in the domain's shape (numbers a card, the bits
+//                          arriving on a wire…)
+//     check(task, row)     → { test } | { unfilled: true } | { why }: the row as a test of the domain's, that it is
+//                          not filled in yet, or why its world never shows it
 //     run(board, tests)    → [run] a board on tests (a run fails by `fail` or `error`)
-//   → { row, why: 'unfilled' | 'never' | 'unsound', said? }   the first row that is no check yet: a number missing, a
+//   → { row, why: 'unfilled' | 'never' | 'unsound', said? }   the first row that is no check yet: a cell missing, a
 //       case that never happens (`said`: the domain's reason), or an expectation the sound work does not meet
 //   → { tests, works: [[run]], catches: [row | -1] }   each work's runs on the rows, and the first row that catches
 //       it (-1: none does)
@@ -14,10 +16,9 @@
 const failing = (r) => Boolean(r.fail || r.error)
 
 export function caught({ task, rows, check, run }) {
-  const ports = [...(task.inputs ?? []), ...task.outputs]
-  const unfilled = rows.findIndex((row) => ports.some((p) => typeof row[p.name] !== 'number'))
-  if (unfilled >= 0) return { row: unfilled, why: 'unfilled' }
   const read = rows.map((row) => check(task, row))
+  const unfilled = read.findIndex((r) => r.unfilled)
+  if (unfilled >= 0) return { row: unfilled, why: 'unfilled' }
   const never = read.findIndex((r) => r.why)
   if (never >= 0) return { row: never, why: 'never', said: read[never].why }
   const tests = read.map((r) => r.test)
