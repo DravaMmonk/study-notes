@@ -72,3 +72,14 @@ test('a blueprint’s cards are placed where its wires lead',()=>{
  assert.equal(at('s').y,110,'between the two cards that feed it')
  assert.equal(at('out').x,980)
 })
+test('a card stands clear of a wire that passes its column',()=>{
+ // x feeds n two columns on; s and m stand in the columns between, fed from y.
+ const g={nodes:[{id:'x',type:'in'},{id:'y',type:'in'},{id:'s'},{id:'m'},{id:'n'},{id:'out',type:'out'}],wires:[{from:'y',to:'s',port:'a'},{from:'s',to:'m',port:'a'},{from:'x',to:'n',port:'a'},{from:'m',to:'n',port:'b'},{from:'n',to:'out',port:'in'}]}
+ const p=pipelineLayout(g,[],{...options,width:1400})
+ const at=(id)=>p.nodes.get(id)
+ const [from,to]=[at('x').y+46,at('n').y+46]
+ for(const id of ['s','m']){
+  const [top,bottom]=[at(id).y,at(id).y+64]
+  assert(Math.max(from,to)<top||Math.min(from,to)>bottom,`${id} at ${top}..${bottom} is off the wire from ${from} to ${to}`)
+ }
+})
