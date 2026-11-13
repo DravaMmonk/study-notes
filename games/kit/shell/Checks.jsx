@@ -14,8 +14,9 @@ import { L, T, tr } from './i18n.js'
 const blank = (ports) => () => Object.fromEntries(ports.map((p) => [p.name, null]))
 
 export function useChecks(screen, task) {
-  const ports = [...(task.inputs ?? []), ...task.outputs]
-  const [state, setState] = useState(() => ({ rows: task.works && screen.saved?.work?.length === task.tests.length ? screen.saved.work : task.tests.map(blank(ports)), version: 0, at: 0 }))
+  // Only a task that gives works has checks to keep: any other holds none (and need not have cards of this kind).
+  const ports = task.works ? [...(task.inputs ?? []), ...task.outputs] : []
+  const [state, setState] = useState(() => ({ rows: !task.works ? [] : screen.saved?.work?.length === task.tests.length ? screen.saved.work : task.tests.map(blank(ports)), version: 0, at: 0 }))
   const set = (rows) => {
     setState((s) => ({ ...s, rows, version: s.version + 1 }))
     screen.save({ work: rows })

@@ -23,7 +23,7 @@ test('blocks wrap, private constants follow consumers, and layout is determinist
 test('the lane between sources and sinks is capped, and still holds wider content',()=>{
  const ends=[{id:'in',type:'in'},{id:'out',type:'out'}]
  const empty=pipelineLayout({nodes:ends,wires:[]},[],{...options,width:2000,lane:300})
- assert.equal(empty.nodes.get('out').x-(empty.nodes.get('in').x+100),300+24*2)
+ assert.equal(empty.nodes.get('out').x-(empty.nodes.get('in').x+100),300+56*2)
  const narrow=pipelineLayout({nodes:ends,wires:[]},[],{...options,width:400,lane:300})
  assert.equal(narrow.width,400)
  const full=pipelineLayout(graph,blocks,{...options,lane:50})
@@ -42,14 +42,25 @@ test('mode reflow retains the changed block anchor and never mutates stored coor
  assert.equal(after.units[0].x,before.units[0].x);assert.equal(after.units[0].y,before.units[0].y)
  assert.deepEqual(graph,saved)
 })
-test('a row wraps only where the view could no longer fit it, so a short chain stays in one row',()=>{
- const g={nodes:[{id:'in',type:'in'},{id:'a'},{id:'b'},{id:'c'},{id:'out',type:'out'}],wires:[{from:'in',to:'a',port:'a'},{from:'in',to:'c',port:'b'},{from:'a',to:'b',port:'a'},{from:'b',to:'c',port:'a'},{from:'c',to:'out',port:'in'}]}
- const narrow={...options,width:420}
- const wrapped=pipelineLayout(g,[],narrow)
- assert(wrapped.nodes.get('c').y>wrapped.nodes.get('a').y,'at full size the third part goes to a row below')
- const fitted=pipelineLayout(g,[],{...narrow,fit:0.7})
- assert.equal(fitted.nodes.get('c').y,fitted.nodes.get('a').y)
- assert(fitted.nodes.get('a').x<fitted.nodes.get('b').x&&fitted.nodes.get('b').x<fitted.nodes.get('c').x,'and the parts run left to right as the wires do')
+test('columns run on or start a band below, whichever the board shows larger, and never wider than the most',()=>{
+ const g={nodes:[{id:'in',type:'in'},{id:'a'},{id:'b'},{id:'c'},{id:'out',type:'out'}],wires:[{from:'in',to:'a',port:'a'},{from:'a',to:'b',port:'a'},{from:'b',to:'c',port:'a'},{from:'c',to:'out',port:'in'}]}
+ const x=(p,id)=>p.nodes.get(id).x,y=(p,id)=>p.nodes.get(id).y
+ const low=pipelineLayout(g,[],{...options,width:560,height:120})
+ assert(x(low,'a')<x(low,'b')&&x(low,'b')<x(low,'c'),'a low board takes the long row, left to right as the wires run')
+ assert.equal(y(low,'c'),y(low,'a'),'a chain runs level')
+ const tall=pipelineLayout(g,[],{...options,width:560,height:900})
+ assert(y(tall,'c')>y(tall,'a'),'a tall one of the same width, a band below')
+ const capped=pipelineLayout(g,[],{...options,width:5000,height:120,most:560})
+ assert(y(capped,'c')>y(capped,'a'),'and no board lays a row wider than the most')
+ assert(capped.width<=560)
+})
+test('a wire never runs behind a card: a constant stands in the column before what it feeds, beside its other feeder',()=>{
+ const g={nodes:[{id:'x',type:'in'},{id:'s'},{id:'k'},{id:'m'},{id:'out',type:'out'}],wires:[{from:'x',to:'s',port:'a'},{from:'s',to:'m',port:'a'},{from:'k',to:'m',port:'b'},{from:'m',to:'out',port:'in'}]}
+ const p=pipelineLayout(g,[],options)
+ assert.equal(p.nodes.get('k').x,p.nodes.get('s').x)
+ assert.notEqual(p.nodes.get('k').y,p.nodes.get('s').y)
+ assert(p.nodes.get('m').x-(p.nodes.get('s').x+100)>=56,'with room for the wires between the columns')
+ assert.equal(p.nodes.get('x').x,0)
 })
 test('a blueprint’s cards are placed where its wires lead',()=>{
  const g={nodes:[{id:'x',x:20,y:40},{id:'y',x:20,y:180},{id:'out',x:980,y:40},{id:'s'},{id:'k'},{id:'m'},{id:'n'}],wires:[{from:'x',to:'s',port:'a'},{from:'y',to:'s',port:'b'},{from:'s',to:'m',port:'a'},{from:'k',to:'m',port:'b'},{from:'m',to:'n',port:'a'},{from:'n',to:'out',port:'in'}]}

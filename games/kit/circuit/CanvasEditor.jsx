@@ -151,8 +151,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     sizeOf: (n) => { const el=fresh?layer.current?.querySelector(`[data-piece="${CSS.escape(n.id)}"]`):null; const size = el ? [el.offsetWidth,el.offsetHeight] : geo.sizes[n.id] ?? [widthOf(n), height]; return { w: size[0], h: size[1] } },
     roleOf: parts.role,
     width: surface.current?.clientWidth ?? 1100,
-    // Cards still read at seven tenths: a row wraps only where fitting it would shrink them past that.
-    fit: Math.max(minFit, 0.7),
+    height: surface.current?.clientHeight ?? Infinity,
     gapX: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-gap-x')),
     gapY: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-gap-y')),
     pad: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-pad')),
