@@ -4,7 +4,8 @@
 //
 // A node has inputs (named ports) and one output, which may feed any number of inputs; an input takes one wire. A
 // node may have several outputs instead (`parts.outputs`): a wire from one of them starts at `<node>#<key>`. `x, y` place a card on the desktop board, `slot` a block on the phone's grid; neither changes what the
-// circuit computes. A node may sit inside a frame (`in`, `fold`: frames.js). Anything else on a node (params, a
+// circuit computes. A node may sit inside a frame (`in`, `fold`: frames.js). A frame may save its phone column span.
+// Anything else on a node (params, a
 // value, a view) belongs to the game.
 //
 // A level may put parts and wires on the board before the player starts (its `preset`, put in by withPreset): they are
@@ -25,7 +26,7 @@
 //   outputs?(node) → [{ key, label, short?, glyph? }] a node with several outputs, or null for one; an output
 //                                          goes by its glyph (SVG markup) when it has one, else by its short name
 import { cardColumns, slotColumns } from './card-size.js'
-import { REGION_INSET } from './slot-metrics.js'
+import { REGION_INSET, SLOT_GUTTER } from './slot-metrics.js'
 import { wouldCycle } from '../graph.js'
 import { frameEdges, moveInto, scopeRefusal, within } from './frames.js'
 
@@ -92,7 +93,7 @@ export function withPreset(graph, preset) {
   const nodes = preset.nodes.map((n) => {
     const at = had.get(n.id)
     const params = settingsOf(n, at)
-    return { ...n, ...(at && { x: at.x, y: at.y, slot: at.slot }), ...(params && { params }), locked: true }
+    return { ...n, ...(at && { x: at.x, y: at.y, slot: at.slot, span: at.span }), ...(params && { params }), locked: true }
   })
   const ids = new Set(nodes.map((n) => n.id))
   const wires = preset.wires.map((w) => ({ ...w, locked: true }))
@@ -187,14 +188,14 @@ export function layout(graph, parts) {
   }
 }
 
-// Phone slots: each grid has the same column count, with a part sitting in a numbered cell (row × cols + column)
+// Phone slots: each grid numbers its cells by row × cols + column, with a part sitting in a cell
 // and staying there. A part keeps its saved `slot` when it fits there; parts without one take the first free cells in
 // data-flow order. The last row keeps room for a new part.
 //
 // A frame's regions (frames.js) are grids of their own, inside the frame's block: `region` names one, and a part's
 // slot counts in the grid of the region it sits in. The frame spans the rows its regions take, each region a row for
 // its head (the value it opens), its own rows, and a row for its foot (the dot its result goes into), so its cells line
-// up with the cells beside it. Frames span the whole row. A card whose value needs more than one column also spans the row.
+// up with the cells beside it. Each frame's regions use the columns it covers in its parent grid.
 //
 //   { cell: id → slot, span: id → [columns, rows], cols, rows, size, frameHeads, free: [slot] }
 // `frameHeads` includes nested headings so the phone subgrid can put the first region directly after its title.
@@ -202,18 +203,29 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
   const { steps } = layout(graph, parts)
   const regions = (n) => parts.frames?.(n) ?? []
   const byNode = new Map(steps.map((node) => [node.id, node]))
-  const available = (r) => r === null ? parts.availableWidth ?? Infinity : available(byId(graph, r.split('/')[0])?.in ?? null) - REGION_INSET
+  const rootWidth = parts.availableWidth ?? Infinity
+  const rootCols = slotColumns(parts, rootWidth, parts.heldPieces)
+  const dimensions = (r) => {
+    if (r === null) return [rootCols, rootWidth]
+    const frame = byNode.get(r.split('/')[0])
+    if (!frame) return [rootCols, rootWidth]
+    const [cols, width] = dimensions(frame.in ?? null)
+    const span = Number.isInteger(frame.span) && frame.span > 0 ? Math.min(frame.span, cols) : cols
+    const columnWidth = (width - (cols - 1) * SLOT_GUTTER) / cols
+    return [span, span * columnWidth + (span - 1) * SLOT_GUTTER - REGION_INSET]
+  }
   const grids = new Map()
-  const cols = slotColumns(parts, parts.availableWidth, parts.heldPieces)
   const place = (r) => {
     if (grids.has(r)) return grids.get(r)
-    const width = available(r)
+    const [cols, width] = dimensions(r)
     const used = new Set()
     const cell = new Map()
     const span = new Map()
     const sizeOf = (n) => {
       const frames = regions(n)
-      return [cardColumns(parts, n, width, cols), frames.length ? 1 + frames.reduce((sum, g) => sum + 2 + place(`${n.id}/${g.name}`).rows, 0) : 1]
+      if (!frames.length) return [cardColumns(parts, n, width, cols), 1]
+      const children = frames.map((g) => place(`${n.id}/${g.name}`))
+      return [children[0].cols, 1 + children.reduce((sum, child) => sum + 2 + child.rows, 0)]
     }
     const cellsOf = (at, [w, h]) => {
       const [row, col] = [Math.floor(at / cols), at % cols]
@@ -245,10 +257,11 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
       const frames = regions(byNode.get(id))
       if (!frames.length) continue
       let row = Math.floor(slot / cols)
-      frameHeads.add(row++)
+      if (span.get(id)[0] === cols) frameHeads.add(row)
+      row++
       for (const region of frames) {
         const child = place(`${id}/${region.name}`)
-        for (const head of child.frameHeads) frameHeads.add(row + 1 + head)
+        if (span.get(id)[0] === cols) for (const head of child.frameHeads) frameHeads.add(row + 1 + head)
         row += child.rows + 2
       }
     }

@@ -20,7 +20,6 @@ export function slotColumns(parts, available, held) {
 
 /** Span enough columns for the ports and at least half the displayed sentence in two lines. */
 export function cardColumns(parts, node, available, columns) {
-  if (parts.frames?.(node)?.length) return columns
   const slot = (available - (columns - 1) * SLOT_GUTTER) / columns
   const ports = Math.max(parts.inputs?.(node)?.length ?? 0, parts.outputs?.(node)?.length ?? 1)
   const sentence = parts.sentenceWidths?.[node.id] ?? 0

@@ -1,5 +1,5 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
-import { Group, Info, EyeOff, Plus, Redo2, Spline, Undo2, Waypoints } from 'lucide-react'
+import { Columns2, Group, Info, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
 import { blockRows, rowMembers } from './blocks.js'
 import { foldedPartsOf } from './folding.js'
 import BlockHeader from './BlockHeader.jsx'
@@ -137,7 +137,11 @@ const readMode = () => {
 /** The most outputs a source holds before it takes a row of its own (two rows of four dots, on a phone's half row). */
 const WIDE = 8
 
-export default function SlotBoard({ blocks = null, onPartitionHint, canMove = () => true, graph, parts: givenParts, boardRef, onSentenceWidths, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, fixed = false, nodeClass, outNote, history, onClear, onChange, types, regionNote, resultNote }) {
+// Row numbers are logical; the even tracks are the gaps between them.
+const rowTracks = (rows, headings) => Array.from({ length: rows }, (_, row) =>
+  row === 0 ? 'auto' : `${headings.has(row - 1) ? 'var(--sp-2)' : 'var(--pb-row-gap)'} auto`).join(' ')
+
+export default function SlotBoard({ blocks = null, onPartitionHint, canMove = () => true, graph, parts: givenParts, boardRef, onSentenceWidths, nameOf, thumb, tileExtra, sinkBody, sinkClass, picking, moving, canLand, onPort, onNode, onSlot, onResizeFrame, fixed = false, nodeClass, outNote, history, onClear, onChange, types, regionNote, resultNote }) {
   const portMask = useId()
   const ownRef = useRef(null)
   const board = boardRef ?? ownRef
@@ -355,7 +359,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       const row=Math.floor(slot/cols)
       if(region===null&&hidden.has(row))continue
       const node=graph.nodes.find(n=>n.id===id),isFolded=foldedParts.has(id)
-      if((parts.frames?.(node)??[]).length){out.push(frameBlock(node,slot,region,at(slot,span.get(id))));continue}
+      if((parts.frames?.(node)??[]).length){out.push(frameBlock(node,slot,region,at(slot,span.get(id)),span.get(id)[0],cols));continue}
       const extra=!isFolded&&tileExtra?.(node)
       const tileHeight = !isFolded && cardView(parts.valueView?.(node)).tileHeight
       out.push(<div key={id} className={`pb-cell ${isFolded?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot, span.get(id))}>
@@ -376,12 +380,18 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
 
   // A frame: rows of the grid it sits in, for each region a row for its head, the region's rows, and a row for its
   // foot, the dot its result goes into; its name (held to drag it) and inputs over them, its output under them.
-  function frameBlock(node, slot, region, style) {
+  function frameBlock(node, slot, region, style, width, columns) {
     const isFolded = foldedParts.has(node.id)
+    const resizable = !fixed && !isFolded && !partitioning && columns > 1 && onResizeFrame && canMove(node.id)
+    const next = width === columns ? 1 : width + 1
+    const WidthIcon = width === 1 ? Square : Columns2
+    const widthLabel = next === columns ? tr('展开到整行', 'Expand to full row') : tr(`改为占 ${next} 格`, `Use ${next} ${next === 1 ? 'slot' : 'slots'}`)
+    const localHeads = new Set([0])
     const ports = inputs(node)
     let row = 3
     const regions = regionsOf(node).map((r) => {
-      const rows = placement(graph, parts, `${node.id}/${r.name}`, { fixed }).rows
+      const { rows, frameHeads } = placement(graph, parts, `${node.id}/${r.name}`, { fixed })
+      for (const head of frameHeads) localHeads.add((row + 1) / 2 + head)
       const section = (
         <section key={r.name} className="pb-region" style={{ gridRow: `${row} / span ${2 * rows + 3}` }}>
           {/* Its head row: its name, and the value it opens with the dot that gives it. */}
@@ -406,13 +416,14 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       return section
     })
     return (
-      <div key={node.id} className="pb-cell is-frame" data-slot={slot} data-region={region ?? ''} style={style}>
-        <div className={`pb-frame ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={parts.cardStyle?.(node)}>
+      <div key={node.id} className={`pb-cell is-frame ${width < columns ? 'is-partial' : ''}`} data-slot={slot} data-region={region ?? ''} style={style}>
+        <div className={`pb-frame ${parts.packed?.(node) ? 'is-packed' : ''} ${nodeClass?.(node) ?? ''} ${moving === node.id ? 'is-moving' : ''}`} data-piece={node.id} data-family={parts.family(node)} style={{ ...parts.cardStyle?.(node), ...(width < columns && { gridTemplateRows: rowTracks((row - 1) / 2, localHeads) }) }}>
           {ports.length > 0 && <span className={`pb-ins ${ports.length > 1 ? 'is-many' : ''}`}>{ports}</span>}
           <div className="pb-frame-head" data-drag={fixed || !canMove(node.id) ? undefined : true} role="button" tabIndex={0} onClick={() => onNode(node.id)} aria-label={nameOf(node)}>
             <span className="pb-name">{icon(node)}{nameOf(node)}</span>
             {!isFolded && tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
           </div>
+          {resizable && <button type="button" className="pb-frame-width" onClick={() => onResizeFrame(node.id, next === columns ? undefined : next)} aria-label={widthLabel} title={widthLabel}><WidthIcon size={14} aria-hidden="true" /></button>}
           {regions}
           {outDots(node, isFolded)}
         </div>

@@ -77,6 +77,28 @@ test('the tray sets the number of columns, including inside frames, even when th
   assert.equal(placement(board, { ...phone, availableWidth: 600 }).cols, 4)
 })
 
+test('frames span the saved number of columns and can share rows with a card or another frame', () => {
+  const resized = { ...board, nodes: board.nodes.map((n) => n.id === 'f' ? { ...n, span: 1 } : n) }
+  const side = placement(resized, parts)
+  assert.deepEqual([...side.cell], [['f', 0], ['g', 1]])
+  assert.deepEqual(side.span.get('f'), [1, 5])
+  assert.deepEqual([...side.frameHeads], [])
+  const both = { ...resized, nodes: resized.nodes.map((n) => n.id === 'g' ? { ...n, type: 'box', span: 1 } : n) }
+  assert.deepEqual([...placement(both, parts).cell], [['f', 0], ['g', 1]])
+})
+
+test('a frame passes its width to its regions, limiting the saved width of nested frames', () => {
+  const phone = { ...parts, availableWidth: 450, heldPieces: [{ type: 'part' }] }
+  const nested = { ...board, nodes: board.nodes.map((n) => n.id === 'f' ? { ...n, span: 2 } : n.id === 'm' ? { ...n, type: 'box', span: 3 } : n) }
+  assert.equal(placement(nested, phone).span.get('f')[0], 2)
+  assert.equal(placement(nested, phone, 'f/body').span.get('m')[0], 2)
+  assert.equal(placement(nested, phone, 'm/body').cols, 2)
+  const narrow = { ...nested, nodes: nested.nodes.map((n) => n.id === 'f' ? { ...n, span: 1 } : n) }
+  assert.equal(placement(narrow, phone, 'm/body').cols, 1)
+  const old = { ...board, nodes: board.nodes.map((n) => n.id === 'f' ? { ...n, narrow: true } : n) }
+  assert.equal(placement(old, phone).span.get('f')[0], 3)
+})
+
 test('a frame part has its own inputs, one per region, and outputs for the regions that open', () => {
   const part = framePart(['ab'], [{ name: 'left', opens: true }, { name: 'right', opens: false }])
   assert.deepEqual(part.inputs, ['ab', 'left', 'right'])

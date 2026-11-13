@@ -24,9 +24,10 @@ export function useHistory(graph, onChange, scope = null, merge = MERGE_MS) {
     if (s.scope !== scope) Object.assign(s, { scope, past: [], future: [], at: 0 })
     else if (shot !== s.shot) {
       const now = Date.now()
-      if (now - s.at > merge) s.past = [...s.past.slice(1 - DEPTH), s.graph]
+      if (s.separate || now - s.at > merge) s.past = [...s.past.slice(1 - DEPTH), s.graph]
       s.future = []
-      s.at = now
+      s.at = s.separate ? 0 : now
+      s.separate = false
       render()
     }
     Object.assign(s, { shot, graph })
@@ -43,5 +44,5 @@ export function useHistory(graph, onChange, scope = null, merge = MERGE_MS) {
     render()
   }
   const s = h.current
-  return { undo: () => step('past', 'future'), redo: () => step('future', 'past'), canUndo: s.past.length > 0, canRedo: s.future.length > 0 }
+  return { undo: () => step('past', 'future'), redo: () => step('future', 'past'), canUndo: s.past.length > 0, canRedo: s.future.length > 0, separate: () => { s.separate = true } }
 }

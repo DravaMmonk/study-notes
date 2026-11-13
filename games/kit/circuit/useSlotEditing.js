@@ -35,7 +35,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
   const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
   const [moving, setMoving] = useState(null) // a part's id, while choosing the slot it moves to
   // A change never takes off what the level locked on the board (model.js keepLocked).
-  const onChange = (next) => given(keepLocked(graph, next))
+  const onChange = (next, options) => given(keepLocked(graph, next), options)
   const history = useHistory(graph, onChange, scope)
   const [toast, setToast] = useState(null) // a { zh, en } pair, read in the current language when shown
   const { sources, steps, sinks } = layout(graph, parts)
@@ -175,6 +175,18 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     openSlot?.(at, region)
   }
 
+  const resizeFrame = (id, span) => {
+    history.separate()
+    setToast(null)
+    setPicking(null)
+    setMoving(null)
+    onChange({ ...graph, nodes: graph.nodes.map((node) => {
+      if (node.id !== id) return node
+      const { span: _span, ...rest } = node
+      return span === undefined ? rest : { ...rest, span }
+    }) }, { keep: true })
+  }
+
   // Placing parts. Wiring is always the player's.
   const place = (type, at, region = null) => {
     const made = create(graph, type, at, region)
@@ -268,7 +280,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
 
   return {
     picking, moving, startMove, unpick: () => { setPicking(null); setMoving(null) }, canLand, onPort, onNode, onSlot, nameOf,
-    place, placeFirstFree, remove, edit, toast, say: setToast, pickNote,
+    place, placeFirstFree, resizeFrame, remove, edit, toast, say: setToast, pickNote,
     history: { ...history, undo: step(history.undo), redo: step(history.redo) },
     sources, steps, sinks,
   }

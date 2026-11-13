@@ -420,7 +420,7 @@
 /* The floor cards stand on: it takes presses (to pan, or to choose it), and cards on it are placed from its corner. */
 .frame-field { position: relative; pointer-events: auto; cursor: grab; }
 
-/* A frame on the phone board (SlotBoard frameBlock): a full row wide, held by its name to drag it.
+/* A frame on the phone board (SlotBoard frameBlock): as wide as the columns it covers, held by its name to drag it.
    It spans rows of the grid it sits in (a subgrid), for each region a head row, the region's rows and a foot row, so
    the cells beside it line up with its rows. Its edges are a cell's, as a part's are: its name and padding sit inside
    them, making its first and last rows a little taller. */
@@ -439,6 +439,12 @@
 .pb-region-value [data-card-sentence] { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 .pb-frame-head { grid-column: 1 / -1; position: relative; padding: var(--sp-2) var(--sp-3) 0; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: var(--sp-1) var(--sp-4); color: var(--ink); cursor: grab; touch-action: none; user-select: none; }
 .pb-frame > .pb-ins + .pb-frame-head { padding-top: calc(var(--pb-dot) / 2 + var(--sp-3)); }
+.pb-frame:has(> .pb-frame-width) > .pb-frame-head { min-height: calc(var(--pb-target) - var(--sp-3)); align-content: center; padding-inline-end: var(--pb-target); }
+.pb-frame-width { position: absolute; inset: 0 0 auto auto; z-index: 4; width: var(--pb-target); height: var(--pb-target); display: grid; place-items: center; padding: 0; border: 0; border-radius: var(--r-md); color: var(--muted); background: transparent; }
+.pb-frame-width:active { color: var(--ink); background: var(--hover); }
+/* A partial frame sizes its own rows so a slot beside it cannot stretch its regions. */
+.pb-cell.is-partial > .pb-frame { align-self: start; }
+.pb-region-head > b, .pb-region-head > em, .pb-closes > em { flex-shrink: 0; }
 
 
 /* Compact tiles follow the content. The picture face keeps the space reserved for its preview. */

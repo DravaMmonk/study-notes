@@ -371,6 +371,7 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
         onPort={editing.onPort}
         onNode={editing.onNode}
         onSlot={editing.onSlot}
+        onResizeFrame={editing.resizeFrame}
         history={editing.history}
         onClear={onClear}
         onChange={change}

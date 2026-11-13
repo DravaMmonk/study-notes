@@ -347,7 +347,7 @@ export function read(text, graph, parts, types) {
     node.params = { ...parts.defaults?.(node.type), ...Object.fromEntries(Object.entries(st.settings).map(([key, x]) => [key, unread(node, key, x)])) }
     if (st.in) node.in = st.in
     const before = graph.nodes.find((n) => n.id === st.id && n.type === st.type && placed(parts, n) && (n.in ?? null) === (st.in ?? null))
-    if (before) Object.assign(node, Object.fromEntries(['x', 'y', 'slot', 'fold'].filter((f) => f in before).map((f) => [f, before[f]])))
+    if (before) Object.assign(node, Object.fromEntries(['x', 'y', 'slot', 'fold', 'span'].filter((f) => f in before).map((f) => [f, before[f]])))
     nodes.push(node)
   }
   // Where each new card goes, and whether every region it names is one its frame has.
