@@ -1,6 +1,6 @@
 /* global process */
 // npm run duplication — how much the domains on the circuit base (circuit-domain.js) still write out the same code:
-// for each kind of file a domain has (course.js, ui/Screen.jsx…), the lines of each file that stand word for word in
+// for each kind of file a domain has (course.js, ui/screen.js…), the lines of each file that stand word for word in
 // at least three of the domains' files of that kind. A line is compared without comments or indentation, with the
 // domain's own name made the same in every domain (`net`, `__name__`), and only when it is longer than 8 characters
 // (a brace, `})` say nothing); imports are left out, since they only name what a file uses.
@@ -48,7 +48,7 @@ export function measure(kit, files) {
 }
 
 /** The kinds of file a domain on the base has. */
-export const FILES = ['board.js', 'course.js', 'run.js', 'validate.js', 'vocabulary.js', 'domain.js', 'play.js', 'game.jsx', 'ui/Screen.jsx', 'ui/catalog.js']
+export const FILES = ['board.js', 'course.js', 'run.js', 'validate.js', 'vocabulary.js', 'domain.js', 'play.js', 'game.jsx', 'ui/screen.js', 'ui/catalog.js']
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   for (const [file, by] of Object.entries(measure(resolve(import.meta.dirname, '..'), FILES))) {

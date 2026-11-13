@@ -1,5 +1,5 @@
 // A linear game on the circuit base's game (../../shell/circuit-game.js), its levels played on the domain's circuit
-// level (ui/Screen.jsx), its map drawn with a shear rack (ui/Hero.jsx).
+// level (run.js), its map drawn with a shear rack (ui/Hero.jsx).
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   ops.js        the engine resources a game's parts.json calls
@@ -13,10 +13,10 @@
 import { Grid3x3 } from 'lucide-react'
 import './ui/linear.css'
 import { definedGame } from '../../shell/circuit-game.js'
-import Screen from './ui/Screen.jsx'
+import * as play from './run.js'
 import Hero from './ui/Hero.jsx'
 import { linearCourse } from './course.js'
 import { OPS } from './ops.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary, partDefs }. */
-export default (content) => definedGame(content, linearCourse(content), { kind: { id: 'circuit', icon: Grid3x3, label: { zh: '电路', en: 'Circuit' } }, Screen, Hero, ops: OPS })
+export default (content) => definedGame(content, linearCourse(content), { kind: { id: 'circuit', icon: Grid3x3, label: { zh: '电路', en: 'Circuit' } }, screen: { play, judged: true }, Hero, ops: OPS })

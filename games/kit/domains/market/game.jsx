@@ -1,5 +1,5 @@
 // A market game on the circuit base's game (../../shell/circuit-game.js), its levels played a tick at a time on the
-// domain's screen (ui/Screen.jsx) against a street that answers the board's prices.
+// domain's screen (ui/screen.js) against a street that answers the board's prices.
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   world.js      a street of shops: who buys at a price, one tick of trade
@@ -15,9 +15,9 @@
 import { Store } from 'lucide-react'
 import './ui/market.css'
 import { circuitGame } from '../../shell/circuit-game.js'
-import Screen from './ui/Screen.jsx'
+import { screen } from './ui/screen.js'
 import { CARDS } from './ui/catalog.js'
 import { marketCourse } from './course.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary }. */
-export default (content) => circuitGame(content, marketCourse(content), { kind: { id: 'street', icon: Store, label: { zh: '街市', en: 'Street' } }, Screen, cards: CARDS })
+export default (content) => circuitGame(content, marketCourse(content), { kind: { id: 'street', icon: Store, label: { zh: '街市', en: 'Street' } }, screen, cards: CARDS })

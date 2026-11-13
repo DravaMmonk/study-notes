@@ -1,5 +1,5 @@
 // A __name__ game on the circuit base's game (../../shell/circuit-game.js), its levels played tick by tick on the
-// domain's screen (ui/Screen.jsx).
+// domain's screen (ui/screen.js).
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   line.js       the world: the line's rule and the world's node
@@ -16,9 +16,9 @@
 import { Activity } from 'lucide-react'
 import './ui/__name__.css'
 import { circuitGame } from '../../shell/circuit-game.js'
-import Screen from './ui/Screen.jsx'
+import { screen } from './ui/screen.js'
 import { CARDS } from './ui/catalog.js'
 import { __name__Course } from './course.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary }. */
-export default (content) => circuitGame(content, __name__Course(content), { kind: { id: 'tick', icon: Activity, label: { zh: '逐拍', en: 'Tick by tick' } }, Screen, cards: CARDS })
+export default (content) => circuitGame(content, __name__Course(content), { kind: { id: 'tick', icon: Activity, label: { zh: '逐拍', en: 'Tick by tick' } }, screen, cards: CARDS })

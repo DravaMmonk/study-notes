@@ -1,5 +1,5 @@
 // A signal game on the circuit base's game (../../shell/circuit-game.js), its levels played on the domain's circuit
-// level (ui/Screen.jsx).
+// level (run.js).
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   values.js     the values on the wires: a number, and a wave (a grid of one row)
@@ -14,9 +14,9 @@
 import { AudioWaveform } from 'lucide-react'
 import './ui/signal.css'
 import { definedGame } from '../../shell/circuit-game.js'
-import Screen from './ui/Screen.jsx'
+import * as play from './run.js'
 import { signalCourse } from './course.js'
 import { OPS } from './ops.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary, partDefs }. */
-export default (content) => definedGame(content, signalCourse(content), { kind: { id: 'circuit', icon: AudioWaveform, label: { zh: '电路', en: 'Circuit' } }, Screen, ops: OPS })
+export default (content) => definedGame(content, signalCourse(content), { kind: { id: 'circuit', icon: AudioWaveform, label: { zh: '电路', en: 'Circuit' } }, screen: { play, judged: true }, ops: OPS })

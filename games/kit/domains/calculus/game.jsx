@@ -1,5 +1,5 @@
 // A calculus game on the circuit base's game (../../shell/circuit-game.js), its levels played a term a tick on the
-// domain's screen (ui/Screen.jsx), its map drawn with a difference engine (ui/Hero.jsx).
+// domain's screen (ui/screen.js), its map drawn with a difference engine (ui/Hero.jsx).
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   parts.js      the cards of a board and what each computes
@@ -14,10 +14,10 @@
 import { Sigma } from 'lucide-react'
 import './ui/calculus.css'
 import { circuitGame } from '../../shell/circuit-game.js'
-import Screen from './ui/Screen.jsx'
+import { screen } from './ui/screen.js'
 import Hero from './ui/Hero.jsx'
 import { CARDS } from './ui/catalog.js'
 import { calculusCourse } from './course.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary }. */
-export default (content) => circuitGame(content, calculusCourse(content), { kind: { id: 'sequence', icon: Sigma, label: { zh: '数列', en: 'Sequence' } }, Screen, cards: CARDS, Hero })
+export default (content) => circuitGame(content, calculusCourse(content), { kind: { id: 'sequence', icon: Sigma, label: { zh: '数列', en: 'Sequence' } }, screen, cards: CARDS, Hero })

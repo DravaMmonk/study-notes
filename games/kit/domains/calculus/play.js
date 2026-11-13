@@ -1,5 +1,5 @@
 // The calculus domain's play hook for a blind session (../../engine/play/circuit.js tickPlay): a level as its board
-// screen (ui/Screen.jsx) shows it, in words — the input sequences down the left, the output sequences down the right,
+// screen (ui/screen.js) shows it, in words — the input sequences down the left, the output sequences down the right,
 // the parts it holds, every test as the results draw it (each input's terms and each output's wanted terms, tick by
 // tick) — and an attempt judged as a run judges it.
 import { tickPlay } from '../../engine/play/circuit.js'

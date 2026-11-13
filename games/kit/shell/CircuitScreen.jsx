@@ -1,3 +1,5 @@
+import { SCENES } from '../views/plots/scenes.js'
+import { valueText } from '../engine/views.js'
 import { useMemo, useState } from 'react'
 import { stagesOf } from '../engine/stages.js'
 import { ArrowRightFromLine, CircuitBoard } from 'lucide-react'
@@ -327,4 +329,29 @@ export default function CircuitScreen({ screen, cards, run: runOn, says, show, e
       </ViewScope.Provider>
     </SettingsContext.Provider>
   )
+}
+
+/**
+ * The screen of a domain on the circuit base, from what the domain declares (its ui/screen.js; plain data and pure
+ * functions, no component of its own):
+ *
+ *   play         the domain's run.js whole: its runLevel, entries, and where it has them show (how a value reads; else
+ *                the kit's valueText) and once (which tasks run the board once a test)
+ *   says, portLabels?, words?, judged?, canvas?, sample?   as CircuitScreen takes them
+ *   registers?   what registerCards takes: the settings of the cards a tick board keeps registers with
+ *   scene?({ task, test, run, at }) → [{ part, ...props }]   the test's scene, each a kit part by name (SCENES:
+ *                'chart' …) with the props it draws from
+ *   parts?       { name: Component }, scene parts of the domain's own, for what the kit has no part for yet
+ */
+export function circuitScreen({ play, registers, scene, parts = {}, ...declared }) {
+  const played = { run: play.runLevel, entries: play.entries, show: play.show ?? valueText, once: play.once }
+  const fields = registers ? registerCards(registers) : {}
+  const drawn = { ...SCENES, ...parts }
+  const figure = scene && ((told) => (scene(told) ?? []).map(({ part, ...props }, k) => {
+    const Part = drawn[part]
+    return <Part key={k} {...props} />
+  }))
+  return function Screen(screen) {
+    return <CircuitScreen screen={screen} defined={screen.game.defined} {...played} {...declared} {...fields} figure={figure} />
+  }
 }

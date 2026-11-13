@@ -1,5 +1,5 @@
 // A __name__ game on the circuit base's game (../../shell/circuit-game.js), its levels played on the domain's circuit
-// level (ui/Screen.jsx).
+// level (run.js).
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   ops.js        the engine resources a game's parts.json calls
@@ -13,9 +13,9 @@
 import { Binary } from 'lucide-react'
 import './ui/__name__.css'
 import { definedGame } from '../../shell/circuit-game.js'
-import Screen from './ui/Screen.jsx'
+import * as play from './run.js'
 import { __name__Course } from './course.js'
 import { OPS } from './ops.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary, partDefs }. */
-export default (content) => definedGame(content, __name__Course(content), { kind: { id: 'circuit', icon: Binary, label: { zh: '电路', en: 'Circuit' } }, Screen, ops: OPS })
+export default (content) => definedGame(content, __name__Course(content), { kind: { id: 'circuit', icon: Binary, label: { zh: '电路', en: 'Circuit' } }, screen: { play }, ops: OPS })

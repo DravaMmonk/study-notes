@@ -1,5 +1,5 @@
 // A bus game (《车在说话》) on the circuit base's game (../../shell/circuit-game.js), its levels played tick by tick on
-// the domain's screen (ui/Screen.jsx), its map drawn with controllers on one bus (ui/Hero.jsx).
+// the domain's screen (ui/screen.js), its map drawn with controllers on one bus (ui/Hero.jsx).
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   bus.js        the bus: wired-AND, CAN frames (stuffing, CRC-15), the world's nodes
@@ -17,11 +17,11 @@
 import { Activity, Hand } from 'lucide-react'
 import './ui/can.css'
 import { circuitGame } from '../../shell/circuit-game.js'
-import Screen from './ui/Screen.jsx'
+import { screen } from './ui/screen.js'
 import PaperScreen from './ui/PaperScreen.jsx'
 import Hero from './ui/Hero.jsx'
 import { CARDS } from './ui/catalog.js'
 import { canCourse } from './course.js'
 
 /** content (../../engine/content.js): { id, title, kicker, lede, primitives, concept, eras, levels, glossary }. */
-export default (content) => circuitGame(content, canCourse(content), { kind: { id: 'bus', icon: Activity, label: { zh: '总线', en: 'Bus' } }, Screen, cards: CARDS, Hero, kinds: { paper: { Screen: PaperScreen, icon: Hand, label: { zh: '纸笔', en: 'By hand' } } } })
+export default (content) => circuitGame(content, canCourse(content), { kind: { id: 'bus', icon: Activity, label: { zh: '总线', en: 'Bus' } }, screen, cards: CARDS, Hero, kinds: { paper: { Screen: PaperScreen, icon: Hand, label: { zh: '纸笔', en: 'By hand' } } } })

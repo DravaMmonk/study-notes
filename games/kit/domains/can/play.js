@@ -1,5 +1,5 @@
 // The can domain's play hook for a blind session (../../engine/play/circuit.js tickPlay): a task of 《车在说话》 as its
-// board screen (ui/Screen.jsx) shows it, in words — the bus and the task's inputs down the left, its outputs down the
+// board screen (ui/screen.js) shows it, in words — the bus and the task's inputs down the left, its outputs down the
 // right, the parts it holds, every bus as the waveform draws it (the line, the inputs and what each output should be,
 // tick by tick) — and an attempt judged as a run judges it.
 import { tickPlay } from '../../engine/play/circuit.js'
