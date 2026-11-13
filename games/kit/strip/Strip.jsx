@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import { L, tr } from '../shell/i18n.js'
 
 // The strip: what is being built, written out as it reads, with a framed box for every place still empty, the way a
@@ -8,6 +9,7 @@ import { L, tr } from '../shell/i18n.js'
 //   line     [segment]   the whole thing in reading order
 //   segment  a string (text that belongs to no piece: a full stop, a fixed word)
 //          | { hole: key, label: { zh, en } }                    an empty place, its label written faintly inside
+//          | { region: [segment] }  a region drawn in brackets
 //          | { piece: key, family?, fixed?, dim?, bad?, parts: [segment] }  a piece put in: its strings are its words
 //            (`bad`: marked red, it does not belong where it stands yet)
 //   next      where the next chip goes, always marked: a hole's key, or 'end' (a caret after the line, where a piece
@@ -34,6 +36,13 @@ function Segments({ parts, owner = null, next, selected, flash, onSlot }) {
         </button>
       )
     }
+    if (part.region) return (
+      <Fragment key={k}>
+        <span className="ks-plain" aria-hidden="true">(</span>
+        <Segments parts={part.region} owner={owner} next={next} selected={selected} flash={flash} onSlot={onSlot} />
+        <span className="ks-plain" aria-hidden="true">)</span>
+      </Fragment>
+    )
     if (part.hole) {
       const name = L(part.label)
       return (

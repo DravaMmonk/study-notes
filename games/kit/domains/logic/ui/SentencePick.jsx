@@ -5,10 +5,11 @@ import Popover from '../../../shell/Popover.jsx'
 import { show } from '../formula.js'
 import { complete, straysOf } from '../formulaTree.js'
 import { say } from '../notation.js'
-import SentenceEditor from './SentenceEditor.jsx'
+import TreeEditor from '../../../strip/TreeEditor.jsx'
+import { sentenceLanguage } from '../sentenceLanguage.js'
 
 // Where a sentence is filled in (《证明完毕》: a test case's premises and goal, a proof card's setting), it is built on the
-// strip (SentenceEditor.jsx), as a premise on the rule table is: a button shows the sentence, and opens the editor to
+// strip (TreeEditor.jsx), as a premise on the rule table is: a button shows the sentence, and opens the editor to
 // build or change it, beside the button on a desktop and in a sheet on a phone (Popover.jsx). A change holds at once:
 // each time the sentence is whole it is the value; one never finished leaves the value as it was.
 //
@@ -29,7 +30,7 @@ function SentenceBox({ anchor, start, build, title, scope, onWhole, onClose }) {
   return (
     <Popover anchor={anchor} title={title} onClose={onClose}>
       <div className="lg-sentence-box">
-        <SentenceEditor tree={tree} onChange={change} chips={build.chips} notation={build.notation} scope={scope} />
+        <TreeEditor tree={tree} onChange={change} chips={build.chips} language={sentenceLanguage(build.notation)} scope={scope} />
       </div>
     </Popover>
   )

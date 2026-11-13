@@ -6,14 +6,15 @@ import { parseS, parseSide } from '../schematic.js'
 import { say, sayTerm } from '../notation.js'
 import { complete, termChips } from '../formulaTree.js'
 import { checkDefine } from '../define.js'
-import SentenceEditor from '../ui/SentenceEditor.jsx'
+import TreeEditor from '../../../strip/TreeEditor.jsx'
+import { sentenceLanguage } from '../sentenceLanguage.js'
 
 // The template of a definition task (define.js): the kit's rows of rules (../../../shell/RuleRows.jsx) and a check in
 // one go (../../../shell/CheckOnce.jsx), as a declaration is (declare.jsx), and nothing drawn here. A template is how one way of playing puts the
 // kit's components together, before any level is written; a level only fills it in.
 //
 //   rows     one for each constructor of the argument the function takes apart (or each value of its condition): its
-//            left side given, its right side a term the player builds on the strip (ui/SentenceEditor.jsx) from the
+//            left side given, its right side a term the player builds on the strip (strip/TreeEditor.jsx) from the
 //            pieces the row's choices are made of
 //   check    the level's tests (what each term should work out to), then whether every call on a right side takes
 //            apart a smaller argument; they stay out of sight, and a failure says the first one that is wrong
@@ -57,7 +58,7 @@ export default function Define({ game, level: entry, saved, save, solve, lastRun
         title: (k) => `${term(level.rows[k].lhs)} =`,
         render: (k) => (
           <div className="lg-sentence-box">
-            <SentenceEditor key={k} root="term" tree={sides[k]} onChange={(tree) => write(k, tree)} chips={chips[k]} notation={level.notation} scope={`${entry.id}:${level.task}:${k}`} />
+            <TreeEditor key={k} tree={sides[k]} onChange={(tree) => write(k, tree)} chips={chips[k]} language={sentenceLanguage(level.notation, 'term')} scope={`${entry.id}:${level.task}:${k}`} />
           </div>
         ),
       }}

@@ -6,7 +6,7 @@
 //
 //   chip   { key, kind: 'formula' | 'term', group, text, make() }
 //   path   the child indices from the root to a node: [] is the root, [1, 0] the first child of its second child
-import { BOT, all, atom, bin, ex, fn, not, signature, tvar } from './formula.js'
+import { BOT, all, atom, bin, ex, fn, freeVars, not, signature, tvar } from './formula.js'
 import { holeTree } from '../../strip/tree.js'
 
 // The connectives a level offers unless it says (`connectives`): ↔ and ⊥ are the declared ones' (chapter 3).
@@ -37,6 +37,15 @@ function withKid(node, k, value) {
 
 const tree = holeTree({ kids: kidsOf, withKid, root: 'formula' })
 export const { nodeAt, setAt, holesOf, kindAt, complete } = tree
+
+/** Whether a variable is introduced on the path to the edited slot. */
+export function bindsAt(node, path, name) {
+  for (const slot of path) {
+    if ((node.op === '∀' || node.op === '∃') && node.v === name) return true
+    node = kidsOf(node)[slot].value
+  }
+  return false
+}
 
 const PREC = { '→': 1, '∨': 2, '∧': 3 }
 /**
@@ -116,7 +125,8 @@ export function chipsFrom(formulas, { consts = [], notation = {} } = {}) {
   const vocab = { preds: [...preds, ...equal], consts: [...fns].filter(([, n]) => n === 0).map(([c]) => c), fns: [...fns].filter(([, n]) => n > 0) }
   const vars = [...needed].filter((k) => k.startsWith('v:')).map((k) => k.slice(2))
   const pieces = { kind: 'translate', consts, vars, vocab, notation: { ...notation, symbols: ['∀', '∃'] }, connectives: ['¬', '∧', '∨', '→', '↔', '⊥'] }
-  return chipsOf(pieces).filter((c) => needed.has(c.key))
+  const free = new Set(formulas.flatMap((formula) => [...freeVars(formula)]))
+  return chipsOf(pieces).filter((c) => needed.has(c.key)).map((chip) => chip.group === 'var' && free.has(chip.text) ? { ...chip, free: true } : chip)
 }
 
 /**

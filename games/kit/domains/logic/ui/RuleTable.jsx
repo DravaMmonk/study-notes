@@ -5,13 +5,14 @@ import { say } from '../notation.js'
 import { sentenceOf } from '../iso.js'
 import { complete, straysOf } from '../formulaTree.js'
 import { blankRule, premiseChips, problemsOf } from '../ruleLines.js'
-import SentenceEditor from './SentenceEditor.jsx'
+import TreeEditor from '../../../strip/TreeEditor.jsx'
+import { sentenceLanguage } from '../sentenceLanguage.js'
 
 // A declaration's intro rules on the kit's rows of rules (../../../shell/RuleRows.jsx, ../ruleLines.js): the sentence
 // it introduces (结论), then a row for each intro rule (成立条件), its premises one after another, ended by 「均为真。」
 // (「为真。」 for one premise) and the button that adds one more; a level that takes things (`thing`) has a for-any
 // switch before the first. A premise is a sentence, built or changed with the translate tasks' strip and chips
-// (SentenceEditor.jsx); a premise left empty when the editor closes is gone. Read only (no onChange), for someone's
+// (TreeEditor.jsx); a premise left empty when the editor closes is gone. Read only (no onChange), for someone's
 // declaration.
 //
 //   level  the declaration level      rules  [rule]      onChange(rules) | null      scope  the histories'
@@ -45,7 +46,7 @@ export default function RuleTable({ level, rules, onChange = null, scope = '' })
     title: (k) => tr(`成立条件 ${k + 1} 的前提`, `A premise of condition ${k + 1}`),
     render: (k, j) => (
       <div className="lg-sentence-box">
-        <SentenceEditor key={`${k}.${j}`} tree={rules[k].needs[j]} onChange={(tree) => setNeed(k, j, tree)} chips={chips} notation={level.notation} scope={`${scope}:${k}.${j}`} />
+        <TreeEditor key={`${k}.${j}`} tree={rules[k].needs[j]} onChange={(tree) => setNeed(k, j, tree)} chips={chips} language={sentenceLanguage(level.notation, 'formula', rules[k].binds)} scope={`${scope}:${k}.${j}`} />
       </div>
     ),
     close: (k, j) => {

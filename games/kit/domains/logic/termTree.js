@@ -4,9 +4,10 @@
 // Or.inr □, □.elim (fun _ => □) (fun _ => □), False.elim □, □.elim (fun _ _ => □) (∃ taken out). A name is a premise's, a
 // thing's (the level's names of things), a lemma's (used as a function of its premises) or one a form bound. A form that binds a name takes the first letter free in
 // the term, so a name is never bound twice.
-import { holeTree } from '../../strip/tree.js'
+import { holeTree, treeKey } from '../../strip/tree.js'
 import { absurd, cases, fst, inl, inr, lam, open, pair, papp, psubst, pvar, rfl, snd } from './pterm.js'
 import { T } from '../../shell/i18n.js'
+import { OUTSIDE } from './sentenceLanguage.js'
 
 const LETTERS = 'abcdefgjk'.split('')
 const KID = { lam: ['body'], app: ['f', 'a'], pair: ['a', 'b'], fst: ['p'], snd: ['p'], inl: ['a'], inr: ['a'], cases: ['p', 'l', 'r'], absurd: ['p'], open: ['p', 'body'], subst: ['h', 'p'] }
@@ -55,6 +56,18 @@ export const FORMS = [
 // The forms a strip offers unless its level says (the equality chapter adds rfl and ▸).
 export const BASIC = ['fun', 'app', 'pair', 'fst', 'snd', 'inl', 'inr', 'elim', 'absurd', 'open']
 
+/** Names introduced by a binder are available only in its own child region. */
+export function namesAt(node, path) {
+  const names = []
+  for (const slot of path) {
+    if (node.k === 'lam' && slot === 0) names.push(node.x)
+    if (node.k === 'cases' && slot > 0) names.push(slot === 1 ? node.x : node.y)
+    if (node.k === 'open' && slot === 1) names.push(node.x, node.h)
+    node = kids(node)[slot].value
+  }
+  return names
+}
+
 /** The chips of a proof term: the names in scope (premises, assumptions), those the term binds so far, the forms. */
 export function chipsOf(scope, tree, forms = BASIC) {
   const names = [...scope, ...boundIn(tree)]
@@ -74,7 +87,7 @@ export function missingForms(term, forms = BASIC) {
  * that is not a name, a pair or a projection keeps brackets where it is an argument or what is projected.
  */
 export function segmentOf(node, path = [], bracket = false) {
-  const key = ['r', ...path].join('.')
+  const key = treeKey(path)
   if (!node) return { hole: key, label: T('证明项', 'proof term') }
   const piece = (family, parts) => ({ piece: key, family, parts: bracket ? ['(', ...parts, ')'] : parts })
   const atomic = (n) => !n || ['var', 'pair', 'fst', 'snd'].includes(n.k)
@@ -84,7 +97,7 @@ export function segmentOf(node, path = [], bracket = false) {
   }
   switch (node.k) {
     case 'var': return piece('name', [node.name])
-    case 'lam': return piece('fun', [`fun ${node.x} => `, kid(0)])
+    case 'lam': return piece('fun', [`fun ${node.x} => `, { region: [kid(0)] }])
     // The function of an application may itself be one (p q r); anything else in it keeps its brackets.
     case 'app': return piece('app', [segmentOf(node.f, [...path, 0], Boolean(node.f) && !atomic(node.f) && node.f.k !== 'app'), ' ', kid(1, true)])
     case 'pair': return piece('pair', ['⟨', kid(0), ', ', kid(1), '⟩'])
@@ -92,12 +105,21 @@ export function segmentOf(node, path = [], bracket = false) {
     case 'snd': return piece('pair', [kid(0, true), '.2'])
     case 'inl': return piece('or', ['Or.inl ', kid(0, true)])
     case 'inr': return piece('or', ['Or.inr ', kid(0, true)])
-    case 'cases': return piece('or', [kid(0, true), `.elim (fun ${node.x} => `, kid(1), `) (fun ${node.y} => `, kid(2), ')'])
+    case 'cases': return piece('or', [kid(0, true), '.elim ', { region: [`fun ${node.x} => `, kid(1)] }, ' ', { region: [`fun ${node.y} => `, kid(2)] }])
     case 'absurd': return piece('absurd', ['False.elim ', kid(0, true)])
-    case 'open': return piece('or', [kid(0, true), `.elim (fun ${node.x} ${node.h} => `, kid(1), ')'])
+    case 'open': return piece('or', [kid(0, true), '.elim ', { region: [`fun ${node.x} ${node.h} => `, kid(1)] }])
     case 'rfl': return piece('name', ['rfl'])
     // An application binds tighter than ▸: addZero m ▸ v.
     case 'subst': return piece('app', [segmentOf(node.h, [...path, 0], Boolean(node.h) && !atomic(node.h) && node.h.k !== 'app'), ' ▸ ', kid(1)])
     default: return piece('name', ['?'])
   }
 }
+
+export const languageOf = (scope) => ({
+  nodeAt, setAt, holesOf, joinsOnto, complete,
+  label: T('证明项', 'proof term'),
+  line: (tree) => [segmentOf(tree)],
+  groups: [['name', T('名字', 'Names')], ['form', T('写法')]],
+  refuse: (tree, path, chip) => chip.group === 'name' && !scope.includes(chip.text) && !namesAt(tree, path).includes(chip.text)
+    ? OUTSIDE : null,
+})

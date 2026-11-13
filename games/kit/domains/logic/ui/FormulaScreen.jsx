@@ -6,11 +6,12 @@ import { freeVars, parse } from '../formula.js'
 import { difference, extent, structureOf } from '../fol.js'
 import { chipsOf, complete, straysOf } from '../formulaTree.js'
 import { WorldText, thingName } from './WorldScreens.jsx'
-import SentenceEditor, { STRAY } from './SentenceEditor.jsx'
+import TreeEditor from '../../../strip/TreeEditor.jsx'
+import { sentenceLanguage, STRAY } from '../sentenceLanguage.js'
 import { Markup } from '../../../shell/Markup.jsx'
 
 // Translate and query tasks (《证明完毕》 chapter 5): one sentence said in words, built as a formula from chips
-// (SentenceEditor.jsx). A translation passes when it means the same as the sentence in every small world, and shows a world where it does
+// (TreeEditor.jsx). A translation passes when it means the same as the sentence in every small world, and shows a world where it does
 // not otherwise; a query (x left free) passes when it picks out the right things in each of the level's worlds.
 //
 //   level  { kind: 'translate' | 'query', say: { zh, en }, target: formula text, decoys?: [formula text] }
@@ -81,7 +82,7 @@ export default function FormulaScreen({ game, level: entry, saved, save, solve, 
           ))}
         </div>
       )}
-      <SentenceEditor tree={tree} onChange={change} chips={chips} notation={notation} scope={`${entry.id}:${level.task}`} ref={editor} />
+      <TreeEditor tree={tree} onChange={change} chips={chips} language={sentenceLanguage(notation, 'formula', level.kind === 'query' ? ['x'] : [])} scope={`${entry.id}:${level.task}`} ref={editor} />
     </div>
   )
   const results = verdict ? (verdict.pass ? <p className="lg-verdict is-pass" role="status">{level.kind === 'query' ? tr('每一家都选对了。') : tr('在每个小世界中，真假都与原句一致。')}</p> : verdict.body) : null

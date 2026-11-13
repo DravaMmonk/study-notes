@@ -5,7 +5,7 @@ import { Strip } from '../../../strip/index.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { MAX_WORLD, builtWorld, claimIn } from '../fol.js'
-import { fixedLine } from './SentenceEditor.jsx'
+import { fixedLine } from '../sentenceLanguage.js'
 import { Markup } from '../../../shell/Markup.jsx'
 
 // Worlds in 《证明完毕》's first-order levels: a world in words (WorldText, for the translation and query screens in

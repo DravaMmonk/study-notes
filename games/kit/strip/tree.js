@@ -43,3 +43,6 @@ export function holeTree({ kids, withKid, root = 'any' }) {
   }
   return { nodeAt, setAt, holesOf, kindAt, complete, trailing, outward }
 }
+
+export const treeKey = (path) => ['r', ...path].join('.')
+export const treePath = (key) => key.split('.').slice(1).map(Number)
