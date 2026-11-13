@@ -256,6 +256,64 @@
         "price1 <- was1",
         "price2 <- was2"
       ]
+    },
+    {
+      "id": "break",
+      "brief": {
+        "zh": "这块调价器只会涨：今天 = 昨天 + 没买到 × 0.25，货剩下它不管。开张前的价格是 10。给它一条街：好的调价器 30 天后出清，它却不能。"
+      },
+      "outputs": [
+        {
+          "name": "stock",
+          "label": {
+            "zh": "进货"
+          }
+        },
+        {
+          "name": "top",
+          "label": {
+            "zh": "不要钱时想买"
+          }
+        },
+        {
+          "name": "slope",
+          "label": {
+            "zh": "每涨一块少"
+          }
+        }
+      ],
+      "tests": [
+        {
+          "breaks": "adjust",
+          "ticks": 30,
+          "open": 10
+        }
+      ],
+      "withhold": [
+        "mul",
+        "sub",
+        "min",
+        "demand",
+        "div",
+        "add",
+        "pricer"
+      ],
+      "solution": [
+        "a = const[value=20]()",
+        "b = const[value=30]()",
+        "c = const[value=2]()",
+        "stock <- a",
+        "top <- b",
+        "slope <- c"
+      ],
+      "naive": [
+        "a = const[value=20]()",
+        "b = const[value=60]()",
+        "c = const[value=2]()",
+        "stock <- a",
+        "top <- b",
+        "slope <- c"
+      ]
     }
   ]
 }

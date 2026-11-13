@@ -125,7 +125,10 @@
         "price <- n"
       ],
       "naive": [
-        "price <- was"
+        "k = const[value=0.25]()",
+        "d = mul(short, k)",
+        "n = add(was, d)",
+        "price <- n"
       ]
     }
   ]

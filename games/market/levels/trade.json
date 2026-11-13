@@ -18,9 +18,73 @@
     "zh": "剩下的和没买到的不会同时出现：货不够时没有剩，货有剩时没人空手。"
   },
   "adds": [
+    "const",
     "min"
   ],
   "tasks": [
+    {
+      "id": "count",
+      "brief": {
+        "zh": "先自己算一次。这条街不要钱时 60 人想买，每涨一块少 2 人；今天卖 25 块，进了 20 件。卖出多少，剩下多少，多少人没买到？"
+      },
+      "outputs": [
+        {
+          "name": "sold",
+          "label": {
+            "zh": "卖出"
+          }
+        },
+        {
+          "name": "left",
+          "label": {
+            "zh": "剩下"
+          }
+        },
+        {
+          "name": "short",
+          "label": {
+            "zh": "没买到"
+          }
+        }
+      ],
+      "tests": [
+        {
+          "given": {
+            "top": 60,
+            "slope": 2,
+            "price": 25,
+            "stock": 20
+          },
+          "answer": {
+            "sold": 10,
+            "left": 10,
+            "short": 0
+          }
+        }
+      ],
+      "withhold": [
+        "mul",
+        "sub",
+        "min",
+        "demand"
+      ],
+      "starter": [
+        "a = const[value=0]()",
+        "b = const[value=0]()",
+        "c = const[value=0]()",
+        "sold <- a",
+        "left <- b",
+        "short <- c"
+      ],
+      "solution": [
+        "a = const[value=10]()",
+        "b = const[value=10]()",
+        "c = const[value=0]()",
+        "sold <- a",
+        "left <- b",
+        "short <- c"
+      ]
+    },
     {
       "id": "trade",
       "brief": {

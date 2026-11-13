@@ -12,10 +12,11 @@ import { topAt } from '../world.js'
 /** What a test draws, a shop each: { name, top, slope, tops, stock?, points: [[wanted, price]] }, the last point the
  * one shown. */
 function shops(task, test, run, at) {
-  if (test.shops) {
+  const street = test.shops ?? (test.breaks ? run?.street ?? [] : null)
+  if (street) {
     const shown = run ? run.ticks.slice(0, at + 1) : []
-    return test.shops.map((shop, k) => ({
-      name: task.outputs[k].label,
+    return street.map((shop, k) => ({
+      name: test.breaks ? T('它的价格', 'Its price') : task.outputs[k].label,
       top: topAt(shop, Math.max(0, at)),
       tops: [shop.top, ...(shop.shifts ?? []).map((s) => s.top)],
       slope: shop.slope,
@@ -23,7 +24,7 @@ function shops(task, test, run, at) {
       points: shown.map((t) => t.trades[k]).filter((t) => t.price !== null).map((t) => [t.sold + t.short, t.price]),
     }))
   }
-  const { top, slope, stock, price = run?.outputs.price } = test.in
+  const { top, slope, stock, price = run?.outputs.price } = test.in ?? test.given
   return top === undefined || slope === undefined ? [] : [{ name: T('价格'), top, tops: [top], slope, stock, points: typeof price === 'number' ? [[Math.max(0, top - slope * price), price]] : [] }]
 }
 
