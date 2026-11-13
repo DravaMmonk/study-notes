@@ -715,3 +715,35 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .bf-label { display: block; margin-bottom: var(--sp-3); color: var(--muted); font-size: var(--fs-small); }
 
 .rr-empty { color: var(--faint); font-style: normal; font-size: var(--fs-small); }
+
+/* Value tables. */
+.vt-stage { max-width: 720px; margin: 0 auto; padding: var(--sp-7) var(--sp-7) var(--sp-8); display: grid; gap: var(--sp-6); }
+.vt-table { border-collapse: separate; border-spacing: 0; font-size: 14px; background: var(--paper); border-radius: var(--r-md); box-shadow: var(--card); overflow: hidden; }
+.vt-table th, .vt-table td { min-width: 44px; height: 40px; padding: 0 var(--sp-5); text-align: center; border-bottom: 1px solid var(--hairline); }
+.vt-table th { color: var(--muted); font-weight: 500; background: var(--canvas); }
+.vt-table th.is-value, .vt-table td.is-value { border-left: 1px solid var(--line); min-width: 120px; }
+.vt-table td.is-t { color: var(--status); }
+.vt-table td.is-f { color: var(--fail); }
+.vt-table tr.is-wrong td { background: color-mix(in srgb, var(--fail) 10%, var(--paper)); }
+.vt-cell { min-width: 64px; height: 30px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-full); color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13px; cursor: pointer; }
+.vt-cell.is-t { color: var(--paper); background: var(--status); box-shadow: none; }
+.vt-cell.is-f { color: var(--paper); background: var(--fail); box-shadow: none; }
+.vt-cell.is-shown { display: inline-grid; place-items: center; cursor: default; }
+.vt-claim { padding: var(--sp-5) var(--sp-5); display: grid; gap: var(--sp-4); border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--card); }
+.vt-claim.is-wrong { box-shadow: 0 0 0 2px var(--fail), var(--card); }
+.vt-claim header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); }
+.vt-claim header b { margin-right: auto; font-size: 16px; font-weight: 600; color: var(--ink); }
+.vt-claim summary { color: var(--muted); font-size: 12.5px; cursor: pointer; }
+.vt-claim details .vt-table { margin-top: var(--sp-4); box-shadow: none; outline: 1px solid var(--hairline); }
+.vt-mark-pick { display: flex; gap: var(--sp-3); }
+.vt-mark-pick button { height: 32px; padding: 0 var(--sp-5); border: 0; border-radius: var(--r-full); color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13px; cursor: pointer; }
+.vt-mark-pick button[aria-pressed='true'] { color: var(--paper); background: var(--ink); box-shadow: none; }
+
+@media (max-width: 760px) {
+  .vt-table { width: 100%; }
+  .vt-table th, .vt-table td { min-width: 0; padding: 0 var(--sp-3); }
+}
+.level-phone .vt-stage { width: 100%; margin: 0; padding: 0; }
+.vt-verdict { margin: 0; color: var(--muted); font-size: var(--fs-small); line-height: 1.6; }
+.vt-verdict.is-pass { color: var(--status); }
+.vt-verdict.is-fail { color: var(--fail); }

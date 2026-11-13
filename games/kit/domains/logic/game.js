@@ -12,7 +12,6 @@ import DeclaredRules from './ui/DeclaredRules.jsx'
 import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
 import { MACHINE, PROOF } from './ui/boards.jsx'
-import TruthScreen from './ui/TruthScreen.jsx'
 import { ModelScreen } from './ui/WorldScreens.jsx'
 import FormulaScreen from './ui/FormulaScreen.jsx'
 import { iconOf, nameOf, textOf } from './ui/catalog.js'
@@ -27,6 +26,7 @@ import { playScreen } from '../../shell/plays/Play.jsx'
 import { plays } from './plays.js'
 import { declaration, definition } from './rowValues.js'
 import { audit } from './auditWork.js'
+import { truth } from './truthValues.js'
 
 // A level's declaration task, if it has one: a declaration on the rule board (iso.js).
 const isoOf = (level) => level.tasks.find((t) => t.kind === 'iso') ?? null
@@ -38,7 +38,7 @@ const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'proof'
  * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), levels,
  * glossary }.
  */
-const Play = playScreen(plays, { declaration, definition, audit })
+const Play = playScreen(plays, { declaration, definition, audit, truth })
 
 export default function logicGame(content) {
   const logic = logicCourse(content)
@@ -97,7 +97,7 @@ export default function logicGame(content) {
     kinds: {
       proof: { Screen: boardScreen(PROOF), icon: Workflow, label: { zh: '证明', en: 'Proof' } },
       machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
-      truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
+      truth: { Screen: Play, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
       iso: { Screen: Play, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
       define: { Screen: Play, icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },

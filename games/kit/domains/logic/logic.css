@@ -70,35 +70,6 @@
 .cl-sheet .lg-card { padding: 0; gap: var(--sp-5); }
 .cl-sheet .lg-field select { height: 40px; font-size: 16px; }
 
-/* ---- truth tables ---- */
-.lg-truth { max-width: 720px; margin: 0 auto; padding: var(--sp-7) var(--sp-7) var(--sp-8); display: grid; gap: var(--sp-6); }
-.lg-table { border-collapse: separate; border-spacing: 0; font-size: 14px; background: var(--paper); border-radius: var(--r-md); box-shadow: var(--card); overflow: hidden; }
-.lg-table th, .lg-table td { min-width: 44px; height: 40px; padding: 0 var(--sp-5); text-align: center; border-bottom: 1px solid var(--hairline); }
-.lg-table th { color: var(--muted); font-weight: 500; background: var(--canvas); }
-.lg-table th.is-formula, .lg-table td.is-formula { border-left: 1px solid var(--line); min-width: 120px; }
-.lg-table td.is-t { color: var(--status); }
-.lg-table td.is-f { color: var(--fail); }
-.lg-table tr.is-wrong td { background: color-mix(in srgb, var(--fail) 10%, var(--paper)); }
-.lg-cell { min-width: 64px; height: 30px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-full); color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13px; cursor: pointer; }
-.lg-cell.is-t { color: var(--paper); background: var(--status); box-shadow: none; }
-.lg-cell.is-f { color: var(--paper); background: var(--fail); box-shadow: none; }
-.lg-cell.is-shown { display: inline-grid; place-items: center; cursor: default; }
-.lg-claim { padding: var(--sp-5) var(--sp-5); display: grid; gap: var(--sp-4); border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--card); }
-.lg-claim.is-wrong { box-shadow: 0 0 0 2px var(--fail), var(--card); }
-.lg-claim header { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-4); }
-.lg-claim header b { margin-right: auto; font-size: 16px; font-weight: 600; color: var(--ink); }
-.lg-claim summary { color: var(--muted); font-size: 12.5px; cursor: pointer; }
-.lg-claim details .lg-table { margin-top: var(--sp-4); box-shadow: none; outline: 1px solid var(--hairline); }
-.lg-mark-pick { display: flex; gap: var(--sp-3); }
-.lg-mark-pick button { height: 32px; padding: 0 var(--sp-5); border: 0; border-radius: var(--r-full); color: var(--muted); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline); font: inherit; font-size: 13px; cursor: pointer; }
-.lg-mark-pick button[aria-pressed='true'] { color: var(--paper); background: var(--ink); box-shadow: none; }
-
-/* ---- map art ---- */
-
-@media (max-width: 760px) {
-  .lg-table { width: 100%; }
-  .lg-table th, .lg-table td { min-width: 0; padding: 0 var(--sp-3); }
-}
 .lg-field select { font-family: var(--sans); }
 
 /* Truth circuits (GatesScreen): a card's value on the row picked, and the truth table under the board. */
@@ -124,7 +95,7 @@
 .fo-stage select { max-width: 100%; text-overflow: ellipsis; }
 .fo-stage b, .fo-stage code { overflow-wrap: anywhere; }
 /* On a phone the page already has its margins. */
-.level-phone .fo-stage, .level-phone .lg-truth, .level-phone .lg-define { width: 100%; margin: 0; padding: 0; }
+.level-phone .fo-stage, .level-phone .lg-define { width: 100%; margin: 0; padding: 0; }
 .fo-item { display: grid; gap: var(--sp-4); padding: var(--sp-5) var(--sp-6); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--hairline); }
 .fo-item.is-pass { box-shadow: inset 0 0 0 1.5px var(--status); }
 .fo-item.is-fail { box-shadow: inset 0 0 0 1.5px var(--fail); }
