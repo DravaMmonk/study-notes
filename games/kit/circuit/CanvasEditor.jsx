@@ -157,6 +157,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     pad: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-pad')),
     portY: (id, key, side) => geo.offsets?.[side === 'out' ? outPort(key ? `${id}#${key}` : id) : inPort(id, key)] ?? 46,
   })
+  const gapOf=(name)=>Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name))||0
   const spacing={pad:Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-pad')),title:Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-head-height'))}
   const freshPlan=blocks?arrange():null
   const coordinatePlan=(plan,positions)=>({...plan,nodes:positions,units:plan.units.map(u=>{
@@ -273,9 +274,17 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
       const el = ownIn(layer.current, `[data-node="${CSS.escape(n.id)}"]`)[0]
       return el ? [el.offsetWidth, el.offsetHeight] : sizeOf(n)
     }
-    const beside = (groups.length ? top : graph.nodes).filter((n) => n.id !== node.id && (n.in ?? null) === (node.in ?? null)).map((n) => [n.x, n.y, ...drawn(n)])
-    const candidate = arrange().nodes.get(node.id) ?? node
-    const spot = clearSpot(beside, drawn(node), [candidate.x, candidate.y])
+    const others = (groups.length ? top : graph.nodes).filter((n) => n.id !== node.id && (n.in ?? null) === (node.in ?? null))
+    const beside = others.map((n) => [n.x, n.y, ...drawn(n)])
+    const size = drawn(node)
+    // On the board itself a card goes left of the outputs, as wide as it is drawn, at the height it was given (or
+    // the outputs' top): a card reaching past their left edge is brought back, and one in the way of another moves
+    // on leftwards or down. Elsewhere it moves right or down from where the layout would put it.
+    const sinks = node.in ? [] : others.filter((n) => !n.hiddenBlock && parts.role(n) === 'sink' && Number.isFinite(n.x))
+    const edge = Math.min(...sinks.map((n) => n.x)) - Math.max(gapOf('--board-gap-x'), 56)
+    const want = sinks.length ? [Math.min(node.x ?? edge, edge - size[0]), Number.isFinite(node.y) ? node.y : Math.min(...sinks.map((n) => n.y))] : null
+    const candidate = want ? { x: want[0], y: want[1] } : arrange().nodes.get(node.id) ?? node
+    const spot = clearSpot(beside, size, [candidate.x, candidate.y], 16, want ? -1 : 1) ?? (want && (want[0] !== node.x || want[1] !== node.y) ? want : null)
     if (!spot) return
     moving.current = true
     onChange({ ...graph, nodes: graph.nodes.map((n) => (n.id === node.id ? { ...n, x: spot[0], y: spot[1] } : n)) }, { keep: true })

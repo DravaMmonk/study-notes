@@ -282,14 +282,14 @@ export function freeSpot(graph, { w = 140, h = 170, cols = 3, rows = 5, x0 = 200
 
 /**
  * Where a card of size `size` ([w, h]) wanted at `at` ([x, y]) can sit clear of `boxes` ([x, y, w, h] each, the cards
- * beside it as drawn), `gap` apart: `at` itself if it is clear, else the nearest clear spot right of it or below it,
- * on a 20px grid. Null when `at` is already clear.
+ * beside it as drawn), `gap` apart: `at` itself if it is clear, else the nearest clear spot on a 20px grid, sideways
+ * (right, or with `toward` -1 left) or below. Null when `at` is already clear.
  */
-export function clearSpot(boxes, [w, h], [x0, y0], gap = 16) {
+export function clearSpot(boxes, [w, h], [x0, y0], gap = 16, toward = 1) {
   const clear = (x, y) => boxes.every(([bx, by, bw, bh]) => x >= bx + bw + gap || x + w + gap <= bx || y >= by + bh + gap || y + h + gap <= by)
   if (clear(x0, y0)) return null
   for (let d = 1; d < 200; d++) {
-    for (let j = 0; j <= d; j++) if (clear(x0 + (d - j) * 20, y0 + j * 20)) return [x0 + (d - j) * 20, y0 + j * 20]
+    for (let j = 0; j <= d; j++) if (clear(x0 + toward * (d - j) * 20, y0 + j * 20)) return [x0 + toward * (d - j) * 20, y0 + j * 20]
   }
   return null
 }
