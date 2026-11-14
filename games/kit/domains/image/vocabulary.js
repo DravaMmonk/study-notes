@@ -72,7 +72,6 @@ const ONCE = {
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
   tray: TRAY,
   grants: S.opt(S.list(S.ref('unlock'), { section: 'course', about: t('这一关自己就给出的设置选项（它要亲手用它搭出元件）；不能是元件') })),
-  packs: S.opt(S.obj({ name: TEXT, desc: TEXT }, { section: 'course', about: t('通关的电路成为一个元件：它的名字和说明') })),
   showcase: S.opt(S.str({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里') })),
 }
 // What every task says: what it asks, how to start, and what passing it says before the next (the last task's is the
@@ -159,7 +158,8 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 17,
+  version: 18,
+  removes: [{ at: 'level.packs', why: 'a built piece is a parts.json entry whose inside refers to the task that builds it' }],
   kinds: {
     part: PARTS,
     op: Object.fromEntries(Object.entries(IMAGE_OPS).map(([name, { about, args }]) => [name, { about, args }])),

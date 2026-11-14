@@ -7,7 +7,7 @@
   "intro": [
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"own-7-5\"></part-ref>输出两个三维向量的叉积 a × b。"
+        "zh": "托盘里的<part-ref to=\"cross\"></part-ref>输出两个三维向量的叉积 a × b。"
       }
     },
     {
@@ -74,8 +74,8 @@
           }
         }
       ],
-      "solution": ["l1 = own-7-5(p, q)", "l2 = own-7-5(r, s)", "x = own-7-5(l1, l2)", "out <- x"],
-      "naive": ["l1 = own-7-5(p, q)", "out <- l1"]
+      "solution": ["l1 = cross(p, q)", "l2 = cross(r, s)", "x = cross(l1, l2)", "out <- x"],
+      "naive": ["l1 = cross(p, q)", "out <- l1"]
     }
   ]
 }

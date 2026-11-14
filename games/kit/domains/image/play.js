@@ -97,8 +97,8 @@ const circuit = circuitPlay({
       score: run.score,
     }
   },
-  // A level that packs its circuit keeps the one that passed, so editing it later cannot break the part.
-  keep: ({ level }, graph) => (level.packs ? { ...graph, passed: { nodes: graph.nodes, wires: graph.wires } } : graph),
+  // A task a built piece runs keeps the circuit that passed, so editing it later cannot break the piece.
+  keep: ({ game, level }, graph) => (game.image.publishedBy(level.key).length ? { ...graph, passed: { nodes: graph.nodes, wires: graph.wires } } : graph),
 })
 
 export const play = {

@@ -10,7 +10,7 @@ import { picture } from './items/pictures.js'
 import { imageCourse } from './course.js'
 import domain from './domain.js'
 
-// A course of three levels: one packs its circuit, one holds that part, one is two tasks.
+// A course of three levels: one a built piece runs, one holds that piece, one is two tasks.
 const L = (s) => ({ zh: s, en: s })
 const square = { square: { x0: 4, y0: 4, s: 8 } }
 const filter = (id, rest) => ({ id, kind: 'graph', brief: L('b'), scene: 'filter', setup: { target: 'same' }, tests: [{ label: L('t'), in: square }], ...rest })
@@ -19,10 +19,11 @@ const content = deepFreeze({
   primitives: ['const', 'add', 'sub', 'mul', 'arith', 'merge'],
   eras: [{ id: 0, foundation: ['wide', 'use', 'two'], chapter: { title: L('c'), lecture: L('l'), question: L('q') } }],
   levels: [
-    level('wide', [filter('wide', { solution: ['l = shift[dir=left](in)', 'r = shift[dir=right](in)', 'h = max(l, r)', 'out <- h'] })], { packs: { name: L('p'), desc: L('d') } }),
-    level('use', [filter('use', { solution: ['k = const[c="pi/8"]()', 'm = arith[op=mul](in, k)', 'p = own-wide(m)', 'out <- p'], naive: ['out <- in'] })]),
+    level('wide', [filter('wide', { solution: ['l = shift[dir=left](in)', 'r = shift[dir=right](in)', 'h = max(l, r)', 'out <- h'] })]),
+    level('use', [filter('use', { solution: ['k = const[c="pi/8"]()', 'm = arith[op=mul](in, k)', 'p = widen(m)', 'out <- p'], naive: ['out <- in'] })]),
     level('two', [filter('two_1', { solution: ['s = shift[dir=up, n=2](in)', 'out <- s'] }), filter('two_2', { solution: ['t = threshold[t=0.3](in)', 'out <- t'] })]),
   ],
+  partDefs: { parts: { widen: { name: L('p'), desc: L('d'), inside: [{ task: 'wide' }] } } },
 })
 const image = imageCourse(content)
 const { fromText, toText } = image.kit

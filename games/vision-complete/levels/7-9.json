@@ -38,14 +38,14 @@
       "hidden": [{ "label": { "zh": "列换了顺序" }, "columns": [1, 0, 2] }],
       "solution": [
         "k = const[c=3]()",
-        "e = own-7-5(c1, c2)",
+        "e = cross(c1, c2)",
         "m = arith[op=mul](e, z)",
         "a = fqMean(m)",
         "w = arith[op=mul](a, k)",
         "q = arith[op=div](e, w)",
         "out <- q"
       ],
-      "naive": ["e = own-7-5(c1, c2)", "out <- e"]
+      "naive": ["e = cross(c1, c2)", "out <- e"]
     }
   ]
 }

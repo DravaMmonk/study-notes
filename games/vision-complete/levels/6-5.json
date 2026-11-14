@@ -7,7 +7,7 @@
   "intro": [
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"own-6-4\"></part-ref>接上三个距离，它给出配上的候选编号。"
+        "zh": "托盘里的<part-ref to=\"matcher\"></part-ref>接上三个距离，它给出配上的候选编号。"
       }
     },
     {
@@ -67,7 +67,7 @@
         "s1 = fqMean(q1)",
         "s2 = fqMean(q2)",
         "s3 = fqMean(q3)",
-        "m = own-6-4(s1, s2, s3)",
+        "m = matcher(s1, s2, s3)",
         "idx <- m"
       ],
       "naive": [
@@ -88,7 +88,7 @@
         "s1 = fqMean(q1)",
         "s2 = fqMean(q2)",
         "s3 = fqMean(q3)",
-        "m = own-6-4(s1, s2, s3)",
+        "m = matcher(s1, s2, s3)",
         "idx <- m"
       ]
     }

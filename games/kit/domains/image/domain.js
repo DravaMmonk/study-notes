@@ -6,9 +6,10 @@ import { imageCourse } from './course.js'
 import { validate } from './validate.js'
 import { play } from './play.js'
 import { partNames } from '../../engine/trays.js'
+import { builtPieces } from '../../engine/pieces.js'
 
-/** An image game's part names, for its trays: each packing level's own part. */
-const names = (content) => partNames(content.levels.filter((l) => l.packs).map((l) => `own-${l.id}`))
+/** An image game's part names, for its trays: its built pieces. */
+const names = (content) => partNames(Object.keys(builtPieces(content.partDefs)))
 
 /** An image game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content) {
@@ -22,10 +23,11 @@ function spec(content) {
     intros: image.intros,
     blueprints: image.blueprints,
     kit: image.kit,
-    // The board each packing level's part runs, by its last task's key: the screens keep it as that task's passed board.
-    syncOwn: (built) => image.syncOwn({ solved: image.LEVELS.filter((l) => built[l.tasks.at(-1).key]).map((l) => l.id), data: built }),
+    publishedBy: image.publishedBy,
+    // The board each built piece runs, by its task's key: the screens keep it as that task's passed board.
+    syncOwn: (built) => image.syncOwn({ solved: image.LEVELS.filter((l) => l.tasks.some((t) => built[t.key])).map((l) => l.id), data: built }),
     // The built parts that run no circuit (games/DIRECTION.md §2, 4): a part a level unlocks is the engine's own
-    // implementation; only a level that packs its circuit (own-<level>) runs the player's board.
+    // implementation; only a built piece of parts.json (inside) runs the player's board.
     builtIn: [...new Set(image.course.levels.flatMap((l) => image.course.builds(l)))].filter((p) => !image.kit.types[p]?.kit),
     texts: { chapters: image.CHAPTERS, intros: image.intros, glossary: content.glossary.entries },
     quotes: content.quotes ?? [],

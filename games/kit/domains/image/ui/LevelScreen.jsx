@@ -71,7 +71,7 @@ function ImageCircuit({ screen }) {
       },
     },
     onSolve(score) {
-      if (level.packs) screen.save({ ...circuit, passed: { nodes: circuit.nodes, wires: circuit.wires } })
+      if (game.image.publishedBy(level.key).length) screen.save({ ...circuit, passed: { nodes: circuit.nodes, wires: circuit.wires } })
       screen.solve(score)
     },
   })
@@ -92,7 +92,7 @@ function ImageCircuit({ screen }) {
   const views = { in: viewFor(level, 'in'), out: viewFor(level, 'out'), mid: viewFor(level, 'mid'), shows: level.shows, fresh: level.freshViews }
   const { parts, card, corner, sheet } = useImageCards({ kit, graph: circuit, onChange: change, run: shown, testIndex: run.at, has: useMemo(() => game.image.holdsIn(level, flags), [game, level, flags]), sensors, outputLabels, colourOutputs, views, ioKinds, scan, onScan: setScan, theme, phone, test: playLevel.tests[run.at] })
   const { shown: offered, folded } = game.image.offerIn(level, flags)
-  const itemOf = (type) => ({ type, label: types[type].label, desc: describe(types, type), icon: iconOf(type), family: familyOf(type), fresh: level.fresh?.includes(type) })
+  const itemOf = (type) => ({ type, label: types[type].label, desc: describe(types, type), icon: iconOf(type, types), family: familyOf(type, types), fresh: level.fresh?.includes(type) })
 
   const train = (steps) => {
     let next = circuit
@@ -151,7 +151,7 @@ function ImageCircuit({ screen }) {
     open(node) {
       const inner = types[node.type]?.circuitOf?.()
       if (!inner) return null
-      const builder = game.image.levelById[node.type.slice('own-'.length)].tasks.at(-1)
+      const builder = game.image.builtBy(node.type)
       const expected = builder.tests[0].expected
       return {
         circuit: inner,
@@ -162,7 +162,7 @@ function ImageCircuit({ screen }) {
         }),
       }
     },
-    edit: (node) => openRef('level', node.type.slice('own-'.length)),
+    edit: (node) => openRef('level', game.image.builtBy(node.type).id),
     trace() {
       const trace = []
       kit.evaluate(circuit, test.inputs, null, trace)

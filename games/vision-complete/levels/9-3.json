@@ -7,7 +7,7 @@
   "intro": [
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"own-9-2\"></part-ref>按分界 m 把值分成两类，输出两类平均值的正中间。"
+        "zh": "托盘里的<part-ref to=\"kmeansStep\"></part-ref>按分界 m 把值分成两类，输出两类平均值的正中间。"
       }
     },
     {
@@ -59,9 +59,9 @@
         }
       ],
       "solution": [
-        "a = own-9-2(img, m)",
-        "b = own-9-2(img, a)",
-        "c = own-9-2(img, b)",
+        "a = kmeansStep(img, m)",
+        "b = kmeansStep(img, a)",
+        "c = kmeansStep(img, b)",
         "d = arith[op=sub](img, c)",
         "t = threshold[t=0](d)",
         "out <- t"

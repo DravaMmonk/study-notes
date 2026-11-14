@@ -30,5 +30,5 @@ const FAMILY_OF = {
   dg_encode: 'learned', dg_decode: 'learned', dg_decoder: 'learned', dg_mu: 'learned', dg_sigma: 'learned', dg_sample: 'learned', dg_reparam: 'learned',
 }
 
-export const familyOf = (type, types) => types?.[type]?.definition?.family ?? (type.startsWith('own-') ? 'own' : FAMILY_OF[type] ?? 'other')
+export const familyOf = (type, types) => types?.[type]?.definition?.family ?? (types?.[type]?.circuitOf ? 'own' : FAMILY_OF[type] ?? 'other')
 export const iconOf = (type, types) => definedIcon(types?.[type]?.definition?.icon) ?? (type === 'output' ? ArrowRightToLine : FAMILIES[familyOf(type, types)].icon)

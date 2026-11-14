@@ -7,7 +7,7 @@
   "intro": [
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"own-6-2\"></part-ref>在比 3×3 邻居都不小、又大于 0.3 的格子输出 1，其余输出 0。"
+        "zh": "托盘里的<part-ref to=\"peaks\"></part-ref>在比 3×3 邻居都不小、又大于 0.3 的格子输出 1，其余输出 0。"
       }
     },
     {
@@ -38,7 +38,13 @@
         },
         { "label": { "zh": "一个角" }, "in": { "corner": { "x0": 5, "y0": 7 } } }
       ],
-      "solution": ["gk = const[c=2]()", "h = harris(in)", "g = arith[op=mul](h, gk)", "p = own-6-2(g)", "out <- p"],
+      "solution": [
+        "gk = const[c=2]()",
+        "h = harris(in)",
+        "g = arith[op=mul](h, gk)",
+        "p = peaks(g)",
+        "out <- p"
+      ],
       "naive": ["h = harris(in)", "t = threshold[t=0.22](h)", "out <- t"]
     }
   ]

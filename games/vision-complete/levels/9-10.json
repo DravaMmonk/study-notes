@@ -70,9 +70,9 @@
       ],
       "solution": [
         "k0 = const[c=0.5]()",
-        "a1 = own-9-2(in, k0)",
-        "a2 = own-9-2(in, a1)",
-        "a3 = own-9-2(in, a2)",
+        "a1 = kmeansStep(in, k0)",
+        "a2 = kmeansStep(in, a1)",
+        "a3 = kmeansStep(in, a2)",
         "n = arith[op=sub](in, a3)",
         "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](n)",
         "f = threshold[t=0](n)",

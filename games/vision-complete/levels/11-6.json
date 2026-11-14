@@ -56,7 +56,7 @@
       ],
       "solution": [
         "c = arith[op=mul]()",
-        "h = own-11-2(in, w)",
+        "h = occlusion(in, w)",
         "r = relu(h)",
         "cm = arith[op=mul](r, m)",
         "b = fqMean(r)",
@@ -75,7 +75,7 @@
       "alsoFails": [
         [
           "c = arith[op=mul]()",
-          "h = own-11-2(in, w)",
+          "h = occlusion(in, w)",
           "cm = arith[op=mul](h, m)",
           "b = fqMean(h)",
           "a = fqMean(cm)",

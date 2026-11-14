@@ -391,11 +391,11 @@ export const OPERATIONS = {
     },
   },
   'part.rename': {
-    about: t('给一个元件换类型名：课程、关卡、板、链接里的每一处一起改，存下的板也跟着改'),
-    params: S.obj({ part: PART_NAME, to: PART_NAME }),
+    about: t('给一个元件换类型名：课程、关卡、板、链接里的每一处一起改，存下的板也跟着改；parts.json 还没有、只在内容里提到的件也可以'),
+    params: S.obj({ part: S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_-]*$' }), to: PART_NAME }),
     apply(ws, { part, to }, { vocabulary, domain }) {
       partsOf(ws)
-      if (!ws.partDefs.parts[part]) fail(`no part ${part}`)
+      if (!ws.partDefs.parts[part] && !partRefs(ws, vocabulary, part).length) fail(`no part ${part}`)
       if (Object.hasOwn(domain?.vocabulary.kinds.part ?? {}, part)) {
         fail(`the engine uses the part id ${part}; edit its name instead`)
       }

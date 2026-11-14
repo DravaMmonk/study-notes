@@ -5,6 +5,7 @@
 // it has met so far, and the packed parts its solved circuits become (engine/own.js).
 import { defineCourse, eraLevels, holds, itemOf, layout, offer, reach, readItem } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
+import { builtPieces, publications } from '../../engine/pieces.js'
 import { trayIn } from '../../engine/trays.js'
 import { imageDefinitions } from './engine/definitions.js'
 import { ownPart } from './engine/own.js'
@@ -72,14 +73,19 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
   // A notes edition (games/DESIGN.md 12.1) opens every level.
   const notes = mode === 'notes'
   const plan = layout(eras, { notes })
-  // Levels are read in play order: a level that packs its circuit is a part (engine/own.js) before the levels after
-  // it, whose boards may hold it, are read.
+  // Levels are read in play order: a task a built piece of parts.json refers to makes that piece a part
+  // (engine/own.js) before the levels after it, whose boards may hold it, are read.
   const content = Object.fromEntries(levels.map((level) => [level.id, level]))
   const definitions = imageDefinitions(partDefs)
   const { types } = definitions
   const kit = { ...imageKit(types), ...definitions }
-  // The circuits the player passed the packing levels with, by level id (syncOwn).
+  const pieces = builtPieces(partDefs)
+  const published = new Map()
+  for (const p of publications(pieces)) published.set(p.task, [...(published.get(p.task) ?? []), p.type])
+  // The circuits the player passed the publishing tasks with, by task id (syncOwn).
   const own = new Map()
+  // The task that publishes each built piece, as played.
+  const builders = new Map()
   // Every level's tasks made playable, by level id.
   const played = new Map()
   const blueprints = []
@@ -87,11 +93,14 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
     if (!content[id]) throw new Error(`route names a level that does not exist: ${id}`)
     const tasks = taskLevels(content[id]).map((task) => playable(task, kit, (bp) => blueprints.push({ level: id, task: task.task, key: task.taskId, ...bp })))
     played.set(id, tasks)
-    // The part a level packs runs its last task's board.
-    const last = tasks.at(-1)
-    if (content[id].packs && last.kind !== 'graph') throw new Error(`level ${id} packs its circuit, but its last task is a ${last.kind}, no circuit`)
-    if (content[id].packs) types[`own-${id}`] = ownPart(last, () => own.get(id) ?? last.solution, types)
+    // A built piece runs the board of the task it refers to.
+    for (const task of tasks) for (const type of published.get(task.taskId) ?? []) {
+      if (task.kind !== 'graph') throw new Error(`parts.json's ${type} runs task ${task.taskId}, a ${task.kind}, no circuit`)
+      types[type] = ownPart(task, type, pieces[type], () => own.get(task.taskId) ?? task.solution, types)
+      builders.set(type, task)
+    }
   }
+  for (const p of publications(pieces)) if (!builders.has(p.type)) throw new Error(`parts.json's ${p.type} runs task ${p.task}, which no level has`)
   const intros = Object.fromEntries(levels.map((level) => [level.id, level.intro]))
   const chapterOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era.id])))
   const { requires } = plan
@@ -111,7 +120,8 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
     freshViews: Object.keys(views).filter((view) => views[view] === id),
   })
 
-  const unlocksOf = (level) => [...(level.unlocks ?? []), ...(level.packs ? [`own-${level.id}`] : [])]
+  // What a task unlocks: the flags its level names, and the pieces it publishes.
+  const unlocksOf = (task) => [...(task.unlocks ?? []), ...(published.get(task.taskId) ?? [])]
   // A task as the shell plays it (../../shell/GameShell.jsx): the domain's defaults under it, its level's place in the
   // course, its key and name (`step`, from the content's task `given`), and what it opens for the tasks after it. A level
   // unlocks what any of its tasks does, and is of its last task's kind.
@@ -119,23 +129,21 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
   const placed = plan.order.map((id) => {
     const { tasks, intro: _, ...once } = content[id]
     const all = played.get(id).map((task, k) => read(id, task, tasks[k]))
-    return { ...once, id, levelUnlocks: unlocksOf({ ...once, id }), kind: all.at(-1).kind, chapter: chapterOf.get(id), requires: requires.get(id) ?? [], adds: once.adds ?? [], unlocks: [...new Set([...unlocksOf({ ...once, id }), ...all.flatMap((t) => t.unlocks)])], tasks: all }
+    return { ...once, id, levelUnlocks: once.unlocks ?? [], kind: all.at(-1).kind, chapter: chapterOf.get(id), requires: requires.get(id) ?? [], adds: once.adds ?? [], unlocks: [...new Set([...(once.unlocks ?? []), ...all.flatMap((t) => t.unlocks)])], tasks: all }
   })
   for (const level of levels) if (!placed.some((l) => l.id === level.id)) throw new Error(`level ${level.id} is not on the route`)
   const placedById = Object.fromEntries(placed.map((level) => [level.id, level]))
   const CHAPTERS = eras.map((era) => ({ id: era.id, ...era.chapter, track: plan.tracks.get(era.id) }))
 
-  // A level that packs its circuit offers it as a part once solved: the player's own passing circuit, from the board
-  // played on its last task or, when that one has not passed, from one of the task's other saved boards (shell/slots.js).
+  // A built piece runs the player's own passing circuit once solved, from the board played on the task it refers to
+  // or, when that one has not passed, from one of the task's other saved boards (shell/slots.js).
   const syncOwn = (progress) => {
-    for (const level of placed) {
-      if (!level.packs) continue
-      const { key } = level.tasks.at(-1)
-      const data = progress.solved.includes(level.id) ? progress.data[key] : null
+    for (const { id, taskId: key } of builders.values()) {
+      const data = progress.solved.includes(id) ? progress.data[key] : null
       const waiting = progress.slots?.[key]?.list.find((slot) => slot.data?.passed)?.data
       const circuit = progress.built?.[key] ?? data?.passed ?? waiting?.passed ?? data
-      if (circuit?.nodes) own.set(level.id, circuit)
-      else own.delete(level.id)
+      if (circuit?.nodes) own.set(key, circuit)
+      else own.delete(key)
     }
   }
 
@@ -156,7 +164,7 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
   }
   const itemsFor = (flags = []) => flags.flatMap((flag) => needing.get(flag) ?? [])
   // The flags a level's tasks up to task k have unlocked by then; its last task's passing unlocks the level's own.
-  const unlockedBy = (level, k) => [...level.tasks.slice(0, k + 1).flatMap((task) => task.opens), ...(k === level.tasks.length - 1 ? level.levelUnlocks : [])]
+  const unlockedBy = (level, k) => [...level.tasks.slice(0, k + 1).flatMap((task) => [...task.opens, ...(published.get(task.key) ?? [])]), ...(k === level.tasks.length - 1 ? level.levelUnlocks : [])]
   // Every task's answer counts: a part only the first task of a level uses is used.
   const answers = (l) => placedById[l.id].tasks.map((t) => t.solution).filter((s) => s?.nodes)
   const course = defineCourse({
@@ -193,5 +201,9 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
   /** Whether a task holds a part, one of its settings or one option of a choice: has(part), has(part, key), has(part, key, value). */
   const holdsIn = (level, flags) => holds(course, at(level), flags)
 
-  return { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn, holdsIn, syncOwn, blueprints }
+  /** The task a built piece runs, as the screens play it; the pieces a task (by its key) publishes. */
+  const builtBy = (type) => (builders.has(type) ? levelById[builders.get(type).id].tasks[builders.get(type).task] : null)
+  const publishedBy = (key) => published.get(key) ?? []
+
+  return { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn, holdsIn, syncOwn, builtBy, publishedBy, pieces, blueprints }
 }

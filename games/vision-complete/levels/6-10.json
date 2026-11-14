@@ -57,7 +57,7 @@
         "t = threshold(in)",
         "h = hough(t)",
         "s = arith[op=mul](h, sk)",
-        "p = own-6-2(s)",
+        "p = peaks(s)",
         "out <- p"
       ],
       "naive": [

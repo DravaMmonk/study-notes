@@ -6,7 +6,7 @@
   "intro": [
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"own-8-10\"></part-ref>由 x_t 和噪声 ε 还原 x₀。可真要用的时候，没人告诉你噪声是什么。"
+        "zh": "托盘里的<part-ref to=\"restore\"></part-ref>由 x_t 和噪声 ε 还原 x₀。可真要用的时候，没人告诉你噪声是什么。"
       }
     },
     {
@@ -49,7 +49,7 @@
       "hidden": [{ "label": { "zh": "字母 L" }, "letter": "L", "dx": 0, "dy": 0, "seed": 115 }],
       "solution": [
         "g = learn3[w=[-0.14, -0.39, -0.12, -0.44, 2.26, -0.41, -0.12, -0.39, -0.13]](xt)",
-        "r = own-8-10(xt, g, ab)",
+        "r = restore(xt, g, ab)",
         "t = threshold(r)",
         "x0 <- r",
         "ink <- t"

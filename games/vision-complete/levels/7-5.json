@@ -23,10 +23,6 @@
     }
   ],
   "unlocks": ["wrap"],
-  "packs": {
-    "name": { "zh": "叉积" },
-    "desc": { "zh": "输出两个三维向量的叉积 a × b。" }
-  },
   "grants": ["wrap"],
   "tasks": [
     {

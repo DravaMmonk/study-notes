@@ -7,7 +7,7 @@
   "intro": [
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"own-8-7\"></part-ref>把 x₀ 一步加噪到第 t 步：输出 √ᾱ·x₀ + √(1 − ᾱ)·ε。"
+        "zh": "托盘里的<part-ref to=\"addNoise\"></part-ref>把 x₀ 一步加噪到第 t 步：输出 √ᾱ·x₀ + √(1 − ᾱ)·ε。"
       }
     },
     {
@@ -25,7 +25,7 @@
         "zh": "先按 a1 加一次噪，再对结果按 a2 加一次噪。输出加了两次以后的图。"
       },
       "hint": {
-        "zh": "<level-ref to=\"8-7\"></level-ref>的<part-ref to=\"own-8-7\"></part-ref>接两次。"
+        "zh": "<level-ref to=\"8-7\"></level-ref>的<part-ref to=\"addNoise\"></part-ref>接两次。"
       },
       "inputs": ["x0", "e1", "e2", "a1", "a2"],
       "inputLabels": {
@@ -42,8 +42,8 @@
         { "label": { "zh": "两大步" }, "letter": "X", "seeds": [95, 96], "ab": [0.4, 0.5] }
       ],
       "hidden": [{ "label": { "zh": "字母 O" }, "letter": "O", "seeds": [97, 98], "ab": [0.7, 0.7] }],
-      "solution": ["n1 = own-8-7(x0, e1, a1)", "n2 = own-8-7(n1, e2, a2)", "out <- n2"],
-      "naive": ["ab = arith[op=mul](a1, a2)", "n = own-8-7(x0, e1, ab)", "out <- n"]
+      "solution": ["n1 = addNoise(x0, e1, a1)", "n2 = addNoise(n1, e2, a2)", "out <- n2"],
+      "naive": ["ab = arith[op=mul](a1, a2)", "n = addNoise(x0, e1, ab)", "out <- n"]
     }
   ]
 }

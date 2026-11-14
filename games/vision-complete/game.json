@@ -1,6 +1,6 @@
 {
   "domain": "image",
-  "vocabulary": 17,
+  "vocabulary": 18,
   "title": { "zh": "视觉完备" },
   "kicker": { "zh": "COMP90086 · 计算机视觉" },
   "lede": {
@@ -122,16 +122,16 @@
       "maxpool",
       "attention",
       "harris",
-      "own-6-2",
-      "own-6-4",
+      "peaks",
+      "matcher",
       "hough",
       "ransac",
       "warp",
       "homography",
       "argmin4",
       "disparity",
-      "own-7-5",
-      "own-7-7"
+      "cross",
+      "epiline"
     ],
     "generative": [
       "dg_encode",
@@ -167,16 +167,16 @@
       "max",
       "maxpool",
       "attention",
-      "own-6-2",
+      "peaks",
       "dg_encoder",
       "dg_decoder",
       "dg_mu",
       "dg_sigma",
       "dg_sample",
       "dg_reparam",
-      "own-8-7",
+      "addNoise",
       "learn3",
-      "own-8-10"
+      "restore"
     ],
     "recognition": [
       "zeroUp",
@@ -211,13 +211,13 @@
       "max",
       "maxpool",
       "attention",
-      "own-6-2",
+      "peaks",
       "tconv",
-      "own-9-6",
-      "own-9-2",
-      "own-10-1",
-      "own-10-7",
-      "own-11-2"
+      "unpool",
+      "kmeansStep",
+      "iou",
+      "apMeter",
+      "occlusion"
     ]
   },
   "concept": {

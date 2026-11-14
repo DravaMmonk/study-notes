@@ -7,7 +7,7 @@
   "intro": [
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"own-10-1\"></part-ref>输出两个框掩膜的交并比：重叠面积除以合起来的面积。"
+        "zh": "托盘里的<part-ref to=\"iou\"></part-ref>输出两个框掩膜的交并比：重叠面积除以合起来的面积。"
       }
     },
     {
@@ -25,7 +25,7 @@
         "zh": "检测出的框和标注的框 IoU 大于 0.5 时输出 1，否则 0。"
       },
       "hint": {
-        "zh": "<level-ref to=\"10-1\"></level-ref>的<part-ref to=\"own-10-1\"></part-ref>接一个门槛。"
+        "zh": "<level-ref to=\"10-1\"></level-ref>的<part-ref to=\"iou\"></part-ref>接一个门槛。"
       },
       "inputs": ["a", "b"],
       "inputLabels": {
@@ -61,12 +61,12 @@
         { "label": { "zh": "不重叠" }, "a": [0, 0, 5, 5], "b": [8, 8, 14, 14] }
       ],
       "solution": [
-        "i = own-10-1(a, b)",
+        "i = iou(a, b)",
         "t = threshold(i)",
         "ok <- t"
       ],
       "naive": [
-        "i = own-10-1(a, b)",
+        "i = iou(a, b)",
         "ok <- i"
       ]
     }

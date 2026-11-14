@@ -23,12 +23,6 @@
     }
   ],
   "unlocks": ["long-shift"],
-  "packs": {
-    "name": { "zh": "AP 计" },
-    "desc": {
-      "zh": "读按分数排好的对错、名次和标注数 G，输出 AP。"
-    }
-  },
   "grants": ["long-shift"],
   "tasks": [
     {

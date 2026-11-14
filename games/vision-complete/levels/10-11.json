@@ -68,10 +68,10 @@
         "a = kernel3[w=[0, 0, 0, 0, 0.25, 0.25, 0, 0.25, 0.25]](in)",
         "s = arith[op=mul](k, sk)",
         "d = downsample(a)",
-        "p = own-6-2(s)",
+        "p = peaks(s)",
         "k2 = kernel3[w=[1, -1, 1, -1, 1, -1, 1, -1, 1]](d)",
         "s2 = arith[op=mul](k2, sk)",
-        "p2 = own-6-2(s2)",
+        "p2 = peaks(s2)",
         "u = tconv(p2)",
         "m = max(p, u)",
         "out <- m"

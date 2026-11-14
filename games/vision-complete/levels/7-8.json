@@ -7,7 +7,7 @@
   "intro": [
     {
       "t": {
-        "zh": "托盘里的<part-ref to=\"own-7-7\"></part-ref>读 F 的三列和点 (x, y)，输出极线 F·p。"
+        "zh": "托盘里的<part-ref to=\"epiline\"></part-ref>读 F 的三列和点 (x, y)，输出极线 F·p。"
       }
     },
     {
@@ -53,7 +53,7 @@
         "k = const[c=3]()",
         "n = const[c=-1]()",
         "lim = const[c=0.05]()",
-        "l = own-7-7(c1, c2, c3, px, py)",
+        "l = epiline(c1, c2, c3, px, py)",
         "m = arith[op=mul](l, q)",
         "a = fqMean(m)",
         "s = arith[op=mul](a, k)",
@@ -66,7 +66,7 @@
       "naive": [
         "k = const[c=3]()",
         "lim = const[c=0.05]()",
-        "l = own-7-7(c1, c2, c3, px, py)",
+        "l = epiline(c1, c2, c3, px, py)",
         "m = arith[op=mul](l, q)",
         "a = fqMean(m)",
         "s = arith[op=mul](a, k)",

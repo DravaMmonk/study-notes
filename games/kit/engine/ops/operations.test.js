@@ -319,6 +319,25 @@ test('the first part of a game makes its parts.json', () => {
   assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum'])
 })
 
+test('part.rename renames a part only the content names; renaming a task carries the inside references to it', () => {
+  const { ws } = toy()
+  ws.levels.set('a1', { ...level(ws, 'a1'), solution: ['m = own-a1()', 'out <- m'] })
+  const renamed = run(ws, 'part.rename', { part: 'own-a1', to: 'made' })
+  assert.deepEqual(level(ws, 'a1').solution, ['m = made()', 'out <- m'])
+  assert.throws(() => run(ws, 'part.rename', { part: 'none', to: 'x' }), /no part none/)
+  run(ws, 'part.add', { part: 'made', data: { name: 'M', desc: 'm', inside: [{ task: 'a1' }] } })
+  run(ws, 'task.rename', { task: 'a1', to: 'a1x' })
+  assert.deepEqual(ws.partDefs.parts.made.inside, [{ task: 'a1x' }])
+  run(ws, 'level.rename', { level: 'a1', to: 'a0' })
+  assert.deepEqual(ws.partDefs.parts.made.inside, [{ task: 'a1x' }])
+  run(ws, 'task.rename', { task: 'a1x', to: 'a0' })
+  run(ws, 'level.rename', { level: 'a0', to: 'a1' })
+  assert.deepEqual(ws.partDefs.parts.made.inside, [{ task: 'a1' }])
+  ws.partDefs = { parts: {} }
+  undone(ws, renamed.inverse)
+  assert.deepEqual(level(ws, 'a1').solution, ['m = own-a1()', 'out <- m'])
+})
+
 test('the part operations edit parts.json, refuse to remove a part still used, and rename it everywhere', () => {
   const ws = partsToy()
   const before = JSON.stringify(ws.content())

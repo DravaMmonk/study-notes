@@ -51,7 +51,7 @@
       ],
       "solution": [
         "b = box3(in)",
-        "p = own-6-2(b)",
+        "p = peaks(b)",
         "out <- p"
       ],
       "naive": [

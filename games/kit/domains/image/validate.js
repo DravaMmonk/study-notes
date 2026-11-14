@@ -1,7 +1,7 @@
 // The image domain's checks for `npm run check` (../../engine/checks.js), over a game's spec (domain.js): every level
 // has an intro whose figures exist, every bench proves its lesson (its item's verify, items/benches.js), and every
 // circuit task keeps hidden tests, cannot be met by a constant, passes with its reference circuit and fails with its
-// naive ones; a level that packs its circuit is passed by that part alone, wired to its last task's inputs. The parts'
+// naive ones; a task a built piece runs is passed by that piece alone, wired to the task's inputs. The parts'
 // own text has English too.
 import { existsSync, readdirSync } from 'node:fs'
 import { keyOf } from '../../shell/i18n.js'
@@ -15,9 +15,10 @@ const FIGURE_IDS = { conv: 'conv-press', stereo: 'stereo-rangefinder', ransac: '
 const figuresDir = new URL('../../../../trace-viewer/src/figures/', import.meta.url)
 const FIGURES = readdirSync(figuresDir).filter((name) => existsSync(new URL(`${name}/figure.js`, figuresDir))).map((name) => FIGURE_IDS[name] ?? name)
 
-/** spec: { levels, intros, kit, course } (kit: the course's, engine/kit.js). Returns [{ text, fail?, level? }]: a line
+/** spec: { levels, intros, kit, course, publishedBy } (kit: the course's, engine/kit.js; publishedBy(key) the built
+ *  pieces a task runs inside). Returns [{ text, fail?, level? }]: a line
  *  about one level names it. A notes edition's levels may go without an intro: the note introduces them. */
-export function validate({ levels, intros, kit, course, memo = (_id, _name, f) => f() }) {
+export function validate({ levels, intros, kit, course, publishedBy, memo = (_id, _name, f) => f() }) {
   const { runLevel } = kit
   const out = []
   const failAt = (text, level) => out.push({ text, fail: true, ...(level ? { level } : {}) })
@@ -28,8 +29,8 @@ export function validate({ levels, intros, kit, course, memo = (_id, _name, f) =
   }
 
   // Every task is checked as a level of its own, a task of a level of several named by its place (`1-11/1`); `home` is
-  // its level, `last` whether it is the level's last task (the one a packed part runs).
-  const played = levels.flatMap((level) => level.tasks.map((task, k) => ({ ...task, id: level.tasks.length > 1 ? `${level.id}/${k + 1}` : level.id, home: level.id, last: k === level.tasks.length - 1 })))
+  // its level.
+  const played = levels.flatMap((level) => level.tasks.map((task, k) => ({ ...task, id: level.tasks.length > 1 ? `${level.id}/${k + 1}` : level.id, home: level.id })))
   // A task's checks, run or read back while nothing they read has changed (memo: ../../engine/check-cache.js).
   for (const level of played) out.push(...memo(level.home, `task ${level.id}`, () => {
     const out = []
@@ -74,10 +75,10 @@ export function validate({ levels, intros, kit, course, memo = (_id, _name, f) =
       if (bad.run.pass) fail(text)
       else say(text)
     }
-    // The part a level packs, alone between its last task's inputs and its output, passes that task's tests.
-    if (level.packs && level.last) {
+    // A built piece, alone between its task's inputs and its output, passes that task's tests.
+    for (const type of publishedBy(level.key)) {
       const board = startBoard(level)
-      board.nodes.push({ id: 'part', type: `own-${level.home}`, x: 300, y: 60, params: {} })
+      board.nodes.push({ id: 'part', type, x: 300, y: 60, params: {} })
       board.wires.push(...level.inputs.map((name) => ({ from: name, to: 'part', port: name })), { from: 'part', to: level.outputs[0], port: 'in' })
       const run = runLevel({ ...withHidden(level), constraint: undefined }, board)
       if (run.pass) say(`  its part alone passes`)
