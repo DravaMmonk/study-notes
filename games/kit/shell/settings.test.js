@@ -7,15 +7,21 @@ const memory = () => { let text = null; return { getItem: () => text, setItem: (
 test('device settings use defaults, validate choices and separate games', () => {
   const storage = memory(), prefs = createSettings(() => storage)
   assert.equal(prefs.get(game, 'manualBlocks'), false)
+  assert.equal(prefs.get(game, 'playbackSpeed'), 1)
   assert.equal(prefs.get(game, 'connectionLabels'), false)
   assert.equal(prefs.get(game, 'connectionLabels', {phone:true}), true)
   prefs.set(game, 'connectionLabels', false)
   assert.equal(prefs.get(game, 'connectionLabels', {phone:true}), false)
   prefs.set(game, 'manualBlocks', true)
+  prefs.set(game, 'playbackSpeed', 2)
+  prefs.set(game, 'playbackSpeed', 0)
   assert.equal(prefs.get({ ...game, id: 'b' }, 'manualBlocks'), false)
+  assert.equal(prefs.get({ ...game, id: 'b' }, 'playbackSpeed'), 1)
   assert.equal(createSettings(() => storage).get(game, 'manualBlocks'), true)
+  assert.equal(createSettings(() => storage).get(game, 'playbackSpeed'), 2)
   prefs.reset(game)
   assert.equal(prefs.get(game, 'manualBlocks'), false)
+  assert.equal(prefs.get(game, 'playbackSpeed'), 1)
 })
 test('unavailable or malformed storage falls back to defaults', () => {
   for (const storage of [{ getItem() { throw Error('denied') }, setItem() { throw Error('denied') } }, { getItem: () => '{', setItem() {} }]) {

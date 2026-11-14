@@ -1,7 +1,6 @@
 // Cut the seam: walk the cheapest seam back up the seam table by hand, cut it, then let the machine carve more, and
 // compare the carved picture with one squeezed to the same width.
 import { useRef, useState } from 'react'
-import { paceOf } from '../../../../engine/trace.js'
 import { E } from '../../model/scene.js'
 import { seamTable, seamPath, shade } from '../../model/worlds/picture.js'
 import { tr } from '../../lang.js'
@@ -60,7 +59,7 @@ export default function Seam({ game, level, phone, solve, fail }) {
     for (let k = 0; k < n && now[0].length > 2; k++) {
       const seam = seamPath(now)
       setPath(seam)
-      await player.wait(paceOf(0, n).per)
+      await player.wait(player.pace(0, n).per)
       if (!player.alive) return
       now = cutOut(now, seam)
       count++

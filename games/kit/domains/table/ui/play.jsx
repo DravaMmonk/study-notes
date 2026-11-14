@@ -3,8 +3,10 @@
 // and stepped (usePlayer), passing and failing, the keys a screen listens to, and a level's text (content strings
 // carry their own markup).
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { paceOf } from '../../../engine/trace.js'
 import { Brief, RunDock } from '../../../shell/index.js'
 import { L } from '../../../shell/i18n.js'
+import { useSetting } from '../../../shell/useSetting.js'
 import { tr } from '../lang.js'
 import { Markup } from '../../../shell/Markup.jsx'
 
@@ -44,17 +46,17 @@ export function useToast() {
  * starts, ends, pauses or goes on; leaving the screen skips what is left (`alive` turns false, so a run stops there).
  */
 export function usePlayer() {
+  const [speed] = useSetting('playbackSpeed')
   const [, redraw] = useReducer((n) => n + 1, 0)
   const player = useRef(null)
   if (!player.current) {
     const p = {
-      running: false, skipping: false, paused: false, alive: true, wake: null, tell: () => {},
-      /** A run starts; `paused` holds it on its first step. */
-      begin(paused = false) { Object.assign(p, { running: true, skipping: false, paused }); p.tell() },
-      end() { p.running = false; p.tell() },
-      skip() { Object.assign(p, { skipping: true, paused: false }); p.tell(); p.wake?.() },
-      pause() { p.paused = true; p.tell() },
-      resume() { p.paused = false; p.tell(); p.wake?.() },
+      running: false, skipping: false, paused: false, alive: true, wake: null,
+      pace(test, steps) { return paceOf(test, steps, p.speed) },
+      end() { p.running = false; redraw() },
+      skip() { Object.assign(p, { skipping: true, paused: false }); redraw(); p.wake?.() },
+      pause() { p.paused = true; redraw() },
+      resume() { p.paused = false; redraw(); p.wake?.() },
       /** One step on while paused. */
       step() { p.wake?.() },
       wait(ms) {
@@ -70,7 +72,7 @@ export function usePlayer() {
     player.current = p
   }
   const p = player.current
-  p.tell = redraw
+  p.begin = (paused = false) => { Object.assign(p, { running: true, skipping: false, paused, speed }); redraw() }
   useEffect(() => {
     p.alive = true
     return () => {

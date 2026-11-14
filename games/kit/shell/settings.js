@@ -46,5 +46,13 @@ export function createSettings(storage = () => globalThis.localStorage) {
 }
 export const settings = createSettings()
 const staged = (game) => [...(game.circuit?.played?.values() ?? [])].some((tasks) => tasks.some((t) => t.carry || t.carries))
+defineSetting({
+  key: 'playbackSpeed',
+  group: 'display',
+  label: { zh: '自动步进速度', en: 'Playback speed' },
+  kind: 'choice',
+  default: 1,
+  options: [0.5, 1, 2].map((value) => ({ value, label: `${value}×` })),
+})
 defineSetting({ key: 'manualBlocks', group: 'edit', label: WORDS.manualBlocks, kind: 'toggle', default: false, when: (game,{phone=false}={})=>phone&&staged(game) })
 defineSetting({ key: 'connectionLabels', group: 'display', label: { zh: '跨段连线画成标签', en: 'Label cross-section wires' }, kind: 'toggle', default: (_game, { phone = false } = {}) => phone, when: staged })

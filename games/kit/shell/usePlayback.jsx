@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Pause, Play, StepForward } from 'lucide-react'
 import { paceOf } from '../engine/trace.js'
 import { tr } from './i18n.js'
+import { useSetting } from './useSetting.js'
 
 // Playing a level's tests step by step, the same in every game: Run plays every test in turn (the first slowly, the
 // rest fast: ../engine/trace.js paceOf), Step goes one step at a time (pausing a run under way), Pause and Continue
@@ -21,12 +22,13 @@ import { tr } from './i18n.js'
 //
 // A run is { test, step, playing, results: [{ pass, reason }], over, final?, n, id }: step −1 before the test's first
 // step, steps.length once its check has run; n moves made from the start, so the same board replays it from a fresh
-// run; id tells one run from another.
+// run; id tells one run from another. Each new run captures the current playback speed.
 
 let runs = 0
 const reduced = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
 export function usePlayback({ count, stepsOf, check, final, onSolve, onFail, onTest, board, kept, onKeep }) {
+  const [speed] = useSetting('playbackSpeed')
   const cache = useMemo(() => new Map(), [board])
   const steps = (k) => {
     if (!cache.has(k)) cache.set(k, stepsOf(k))
@@ -55,7 +57,7 @@ export function usePlayback({ count, stepsOf, check, final, onSolve, onFail, onT
     for (let k = 1; k < by && !cur.over && cur.test === r.test; k++) cur = advance(cur)
     return cur
   }
-  const fresh = (playing) => ({ test: 0, step: -1, playing, results: [], over: false, n: 0, id: ++runs })
+  const fresh = (playing) => ({ test: 0, step: -1, playing, results: [], over: false, n: 0, id: ++runs, speed })
   const finish = (r) => {
     let cur = r
     for (let k = 0; k < 1e6 && !cur.over; k++) cur = advance(cur)
@@ -75,7 +77,7 @@ export function usePlayback({ count, stepsOf, check, final, onSolve, onFail, onT
 
   useEffect(() => {
     if (!run?.playing) return undefined
-    const { per, stride } = paceOf(run.test, steps(run.test).length)
+    const { per, stride } = paceOf(run.test, steps(run.test).length, run.speed)
     const id = setTimeout(() => setRun(advanceBy(run, stride)), per)
     return () => clearTimeout(id)
   }, [run])
