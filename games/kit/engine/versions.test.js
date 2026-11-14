@@ -18,6 +18,17 @@ test('a version may add items, values and optional fields, and nothing else', ()
   assert.match(additionProblems(describe(v1), next({ level: S.obj({ mode: S.oneOf(['run', 'read']), n: S.str() }) }))[0], /"int" became "str"/)
 })
 
+test('a version removes or changes only what it declares, and declares only what it removes', () => {
+  const removes = [{ at: 'level.n', why: 'gone into the parts' }]
+  assert.deepEqual(additionProblems(describe(v1), next({ removes, level: S.obj({ mode: S.oneOf(['run', 'read']) }) })), [])
+  assert.deepEqual(additionProblems(describe(v1), next({ removes, level: S.obj({ mode: S.oneOf(['run', 'read']), n: S.str() }) })), [])
+  assert.match(additionProblems(describe(v1), next({ removes, level: S.obj({ n: S.int() }) }))[0], /fields\.mode is gone/)
+  assert.match(additionProblems(describe(v1), next({ removes }))[0], /level\.n is declared removed, and nothing there goes/)
+  // The version after says nothing of it.
+  const v2 = next({ removes, level: S.obj({ mode: S.oneOf(['run', 'read']) }) })
+  assert.deepEqual(additionProblems(v2, describe({ ...v1, version: 3, level: S.obj({ mode: S.oneOf(['run', 'read']) }) })), [])
+})
+
 test('every vocabulary is the version it says, kept, and every version only adds to the one before', async () => {
   for (const dir of vocabularyDirs()) {
     const { vocabulary } = await import(resolve(dir, 'vocabulary.js'))

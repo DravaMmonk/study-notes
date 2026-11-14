@@ -7,6 +7,9 @@
 //   version   raised whenever something is added; each version's printing (describe) is kept beside the domain as
 //             versions/<n>.json, and a version only adds to the one before (additionProblems: nothing goes or
 //             changes, a field added to an object is optional), so content written for an older version still fits
+//   removes?  [{ at, why }]   what this version takes away or changes, and why: `at` a path of the vocabulary as its
+//             problems are said, without `vocabulary.` and `.fields` ('level.builds'). Only the version that removes
+//             something declares it, and the official games are migrated to it through the operation set
 //   kinds     { kind: { item: { about, params? } } }   about: what the item is, { zh, en }; params: its schema
 //             (schema.js), absent for an item that takes none
 //   game      the schema of a game's game.json
@@ -41,8 +44,8 @@ export const GLOSSARY = S.obj({
 export const OPEN = S.map(S.list(S.str({ pattern: '^[^@]*@[^@]+$' })))
 
 
-export function defineVocabulary({ domain, version, kinds, game, level, languages = {} }) {
-  return { domain, version, kinds, game, level, languages }
+export function defineVocabulary({ domain, version, kinds, game, level, languages = {}, removes }) {
+  return { domain, version, kinds, game, level, languages, ...(removes ? { removes } : {}) }
 }
 
 /** The vocabulary as plain data: its kinds and items with what they are and their parameters, and the content schemas. */
@@ -79,20 +82,34 @@ export function fromSnapshot({ root, shared }) {
 
 /**
  * Where vocabulary `after` (printed, describe) does more than add to `before`: something gone or changed, or a new
- * field of an object that content written for `before` would lack (not optional). [string], each with its path.
+ * field of an object that content written for `before` would lack (not optional), unless `after` declares it removed
+ * (`removes`); and a removal it declares that removes nothing. [string], each with its path.
  */
-export function additionProblems(before, after, at = 'vocabulary') {
+export function additionProblems(before, after) {
+  const removes = after?.removes ?? []
+  const found = changes(before, after)
+  const covers = (r, problem) => {
+    const path = problem.split(/[ :]/)[0].replace(/^vocabulary\./, '').replace(/\.fields(?=[.[]|$)/g, '')
+    return path === r.at || path.startsWith(`${r.at}.`) || path.startsWith(`${r.at}[`)
+  }
+  return [
+    ...found.filter((p) => !removes.some((r) => covers(r, p))),
+    ...removes.filter((r) => !found.some((p) => covers(r, p))).map((r) => `vocabulary.removes: ${r.at} is declared removed, and nothing there goes or changes`),
+  ]
+}
+
+function changes(before, after, at = 'vocabulary') {
   if (Array.isArray(before)) {
     if (!Array.isArray(after)) return [`${at}: was a list`]
-    const has = (x) => after.some((y) => additionProblems(x, y).length === 0)
+    const has = (x) => after.some((y) => changes(x, y).length === 0)
     return before.flatMap((x, k) => (has(x) ? [] : [`${at}[${k}]: ${JSON.stringify(x).slice(0, 60)} is gone`]))
   }
   if (before && typeof before === 'object') {
     // Adding an alternative preserves every value accepted by an existing schema.
-    if (before.type && before.type !== 'either' && after?.type === 'either' && after.of.some((choice) => additionProblems(before, choice, at).length === 0)) return []
+    if (before.type && before.type !== 'either' && after?.type === 'either' && after.of.some((choice) => changes(before, choice, at).length === 0)) return []
     if (!after || typeof after !== 'object' || Array.isArray(after)) return [`${at}: was an object`]
-    // The number of the version itself is what changes.
-    const out = Object.entries(before).filter(([k]) => !(at === 'vocabulary' && k === 'version')).flatMap(([k, v]) => (k in after ? additionProblems(v, after[k], `${at}.${k}`) : [`${at}.${k} is gone`]))
+    // The number of the version itself is what changes, and what a version removes is said by that version alone.
+    const out = Object.entries(before).filter(([k]) => !(at === 'vocabulary' && (k === 'version' || k === 'removes'))).flatMap(([k, v]) => (k in after ? changes(v, after[k], `${at}.${k}`) : [`${at}.${k} is gone`]))
     // A schema object's new field is one old content lacks: it must be optional.
     if (before.type === 'obj' && after.type === 'obj') for (const [k, f] of Object.entries(after.fields ?? {})) if (!(k in (before.fields ?? {})) && !f.optional) out.push(`${at}.fields.${k} is new and not optional`)
     // A bound a schema gains narrows what old content may be.
