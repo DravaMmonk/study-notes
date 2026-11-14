@@ -20,15 +20,6 @@
   "adds": [
     "add"
   ],
-  "builds": {
-    "type": "pricer",
-    "name": {
-      "zh": "调价器"
-    },
-    "desc": {
-      "zh": "按昨天剩下的和没买到的调整价格。"
-    }
-  },
   "tasks": [
     {
       "id": "adjust",

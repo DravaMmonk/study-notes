@@ -7,7 +7,7 @@
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { BUILT_PART, GAME, NAME, PORT, levelSchema } from '../../engine/level-schema.js'
+import { GAME, NAME, PORT, REMOVES, levelSchema } from '../../engine/level-schema.js'
 import { FORMATS } from './wire.js'
 import { T as t } from '../../shell/i18n.js'
 
@@ -77,7 +77,6 @@ const TEST = S.obj({
 })
 // What a level says once; then each task: its puzzle, done in turn (../../engine/level-schema.js levelSchema).
 const LEVEL = levelSchema({
-  builds: S.opt(S.obj({ ...BUILT_PART, replaces: S.opt(S.list(NAME, { about: t('它取代的搭出的元件：从这一关往后，托盘里给它，不再给那些') })) }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type：它的口就是那个任务的进线、输入、出线和输出') })),
   test: TEST,
   ports: {
     wires: S.opt(S.obj({ in: S.opt(S.list(WIRE)), out: S.opt(S.list(WIRE)) }, { about: t('板听的进线、板说的出线；它们和输入输出一样是板的口') })),
@@ -94,7 +93,8 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'net',
-  version: 10,
+  version: 11,
+  removes: REMOVES,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

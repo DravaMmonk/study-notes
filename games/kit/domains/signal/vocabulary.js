@@ -7,7 +7,7 @@
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { GAME, PORT, levelSchema } from '../../engine/level-schema.js'
+import { GAME, PORT, REMOVES, levelSchema } from '../../engine/level-schema.js'
 import { OP_ITEMS } from './ops.js'
 import { T as t } from '../../shell/i18n.js'
 
@@ -36,7 +36,8 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'signal',
-  version: 5,
+  version: 6,
+  removes: REMOVES,
   kinds: { op: OP_ITEMS, family: FAMILIES },
   game: GAME,
   level: LEVEL,

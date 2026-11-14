@@ -10,7 +10,8 @@
 //                    a level opened afresh, at that task;  { type: 'look', theme, lang } the studio's theme and language;
 //                  { type: 'content', content } the content edited, the level staying open as it is;
 //                  { type: 'edit', on, picked } edit mode and the field picked;  { type: 'go', task } go to a task;
-//                  { type: 'part', content, part } a part of parts.json shown (../shell/parts/PartPreview.jsx)
+//                  { type: 'part', content, part } a part of parts.json shown (../shell/parts/PartPreview.jsx; a built
+//                  piece, the board it runs: the game's parts.demo)
 //   page → studio  { type: 'ready' } once it listens; { type: 'take', level, path, text };
 //                  { type: 'pick' | 'add', level, task, at, scope, index? }; { type: 'task', level, task };
 //                  { type: 'start', level, task, port, view } the view a port's value starts in, switched on the page;
@@ -113,7 +114,10 @@ export default function Play() {
   }), [level, take, editing, go])
   if (part) {
     const parts = edit.on ? { picked: edit.picked, pick: (path) => say({ type: 'pick', part: part.type, path }), add: (path) => say({ type: 'add', part: part.type, path }) } : null
-    return part.game.defined ? <PartPreview game={part.game} type={part.type} edit={parts} /> : null
+    if (part.game.defined?.of(part.type)) return <PartPreview game={part.game} type={part.type} edit={parts} />
+    // A built piece shows the board it runs, as the parts box does.
+    const piece = part.game.parts?.all.find((p) => p.piece === part.type)
+    return piece ? part.game.parts.demo?.(piece, { progress: {} }) ?? null : null
   }
   if (!shown) return null
   return <GameShell key={shown.no} game={shown.game} store={shown.game.store} author={author} />

@@ -1,0 +1,27 @@
+{
+  "parts": {
+    "count": {
+      "name": { "zh": "下标 n" },
+      "desc": { "zh": "交出这一拍是第几项：0, 1, 2, …" },
+      "inside": [{ "task": "count" }]
+    },
+    "sum": { "name": { "zh": "累加 Σ" }, "desc": { "zh": "交出输入到这一拍为止所有项的和。" }, "inside": [{ "task": "sum" }] },
+    "diff": {
+      "name": { "zh": "差分 Δ" },
+      "desc": { "zh": "交出输入这一项减上一项；第一拍减 0。" },
+      "inside": [{ "task": "diff" }]
+    },
+    "max": { "name": { "zh": "较大者" }, "desc": { "zh": "交出 a、b 里大的那个。" }, "inside": [{ "task": "max" }] },
+    "dist": { "name": { "zh": "距离" }, "desc": { "zh": "交出 |a − b|。" }, "inside": [{ "task": "dist" }] },
+    "near": {
+      "name": { "zh": "邻域" },
+      "desc": { "zh": "aₙ 离 L 不到 ε 时为 1，否则为 0。" },
+      "inside": [{ "task": "near" }]
+    },
+    "since": {
+      "name": { "zh": "从此一直" },
+      "desc": { "zh": "输入最近一段连续为 1 从第几项起；这一拍为 0 时给 n + 1。" },
+      "inside": [{ "task": "since" }]
+    }
+  }
+}

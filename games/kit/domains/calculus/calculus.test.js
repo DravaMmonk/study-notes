@@ -63,10 +63,11 @@ test('a task that withholds a part keeps it from the tray and from its answer', 
     id: 't',
     game: { domain: 'calculus', vocabulary: 1, title: { zh: 't', en: 't' }, kicker: { zh: 't', en: 't' }, lede: { zh: 't', en: 't' }, primitives: ['add', 'const', 'reg', 'keep'], concept: { keep: 'reg' }, eras: [{ id: 0, title: { zh: 't', en: 't' }, question: { zh: 't', en: 't' }, foundation: ['a', 'b'] }] },
     levels: [
-      ['a', { ...level('a', { solution: counter }), adds: ['add', 'const', 'reg', 'keep'], builds: { type: 'count', name: { zh: 'n', en: 'n' }, desc: { zh: 'n', en: 'n' } } }],
+      ['a', { ...level('a', { solution: counter }), adds: ['add', 'const', 'reg', 'keep'] }],
       ['b', level('b', { withhold: withhold, solution })],
     ],
     glossary: { groups: [], entries: [] },
+    partDefs: { parts: { count: { name: { zh: 'n', en: 'n' }, desc: { zh: 'n', en: 'n' }, inside: [{ task: 'a' }] } } },
   })
   const fair = calculusCourse(content(['count'], counter))
   const task = fair.played.get('b')[0]

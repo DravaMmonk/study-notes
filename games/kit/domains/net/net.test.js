@@ -106,15 +106,16 @@ test('a check a player writes is the bits arriving on each wire in, as long as t
 })
 
 test('a built part takes its level’s wires as ports', () => {
-  const lv = (id, { builds, adds, ...task }) => ({ id, title: id, ...(adds && { adds }), ...(builds && { builds }), tasks: [{ brief: id, ...task }] })
+  const lv = (id, { adds, ...task }) => ({ id, title: id, ...(adds && { adds }), tasks: [{ id, brief: id, ...task }] })
   const content = assemble({
     id: 't',
     game: { domain: 'net', vocabulary: 1, title: 't', kicker: 'k', lede: 'l', primitives: ['reg', 'keep'], eras: [{ id: 1, title: 'e', question: 'q', foundation: ['1-1', '1-2'] }] },
     levels: [
-      ['1-1', lv('1-1', { adds: ['reg', 'keep'], wires: W(['a'], ['b']), tests: [{ wires: { a: { send: [{ bits: '1011' }] } } }], want: { b: { late: { wire: 'a', first: 0 } } }, solution: ['r = reg[reg=A, start=0]()', 'k = keep[reg=A](a)', 'b <- r'], builds: { type: 'delay', name: 'delay', desc: 'd' } })],
+      ['1-1', lv('1-1', { adds: ['reg', 'keep'], wires: W(['a'], ['b']), tests: [{ wires: { a: { send: [{ bits: '1011' }] } } }], want: { b: { late: { wire: 'a', first: 0 } } }, solution: ['r = reg[reg=A, start=0]()', 'k = keep[reg=A](a)', 'b <- r'] })],
       ['1-2', lv('1-2', { wires: W(['x'], ['y']), tests: [{ wires: { x: { send: [{ bits: '1101' }] } } }], want: { y: { late: { wire: 'x', first: 0 } } }, solution: ['d = delay(x)', 'y <- d'] })],
     ],
     glossary: { groups: [], entries: [] },
+    partDefs: { parts: { delay: { name: 'delay', desc: 'd', inside: [{ task: '1-1' }] } } },
   })
   const net = netCourse(content)
   assert.deepEqual(net.wrong, [])

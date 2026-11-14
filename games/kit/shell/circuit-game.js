@@ -1,6 +1,7 @@
 // A game on a circuit domain (../engine/circuit-preset.js) on the shared shell, from its content (games/DESIGN.md 6.3):
 // the course read becomes the shell's game description, every level played by the domain's screen (CircuitScreen.jsx)
-// and the parts box holding the game's primitives and the parts its levels build. The course read is `game.circuit`.
+// and the parts box holding the game's primitives and its built pieces (`piece`: the parts.json entry; each opens on
+// the board it runs). The course read is `game.circuit`.
 //
 //   circuitGame(content, circuit, { kind: { id, icon, label }, screen, cards, Hero?, kinds?, IntroFigure? })
 //     screen       what the domain declares of its screen (its ui/screen.js; CircuitScreen.jsx circuitScreen): the
@@ -15,9 +16,10 @@
 //     domain declares only its run.js (`screen: { play }`) and what it adds;
 //     own parts (parts.json, the course read's `defs`): its cards are those parts, and `game.defined` is what draws
 //     them, on its screens (CircuitScreen `defined`) and in the studio (parts/PartPreview.jsx)
+import { createElement } from 'react'
 import { CircuitBoard } from 'lucide-react'
 import { introductions, isCore, levelLabels } from '../course.js'
-import { circuitScreen } from './CircuitScreen.jsx'
+import { BuiltBoard, circuitScreen } from './CircuitScreen.jsx'
 import { defineGame } from './index.js'
 import { iconOf } from './parts/icons.js'
 
@@ -31,7 +33,8 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
     const { name, desc, icon, revisions } = cards[type]
     return { key: `part:${type}`, name, desc, ...defined({ revisions }), icon, at, atTasks: at.flatMap((id) => circuit.introductions(type, id)) }
   })
-  const built = [...new Map(LEVELS.filter((L) => L.builds).map((L) => [L.builds.type, { key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }])).values()]
+  // The built pieces, in the order the course builds them.
+  const built = [...new Set(LEVELS.flatMap((L) => L.unlocks))].map((type) => ({ key: type, piece: type, name: circuit.pieces[type].name, desc: circuit.pieces[type].desc, icon: CircuitBoard }))
   const labels = levelLabels(content.eras, { notes: course.notes })
   const kindOf = (T) => (kinds[T.kind] ? T.kind : kind.id)
   const game = defineGame({
@@ -59,8 +62,8 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
         requires: L.requires,
         title: L.title,
         kind: kindOf(tasks.at(-1)),
-        unlocks: L.builds ? [L.builds.type] : [],
-        keeps: Boolean(L.builds) || circuit.carried.has(L.id),
+        unlocks: L.unlocks,
+        keeps: L.unlocks.length > 0 || circuit.carried.has(L.id),
         intro: L.intro,
         after: L.after,
         afterShow: L.afterShow,
@@ -74,7 +77,15 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
     intro: (level) => level.intro,
     IntroFigure,
     kinds: { [kind.id]: { Screen, icon: kind.icon, label: kind.label }, ...kinds },
-    parts: { all: [...primitives, ...built] },
+    parts: {
+      all: [...primitives, ...built],
+      // A built piece shows the board it runs: the one the player passed its task with, else the reference.
+      demo: (part, { progress }) => {
+        if (!part.piece) return null
+        circuit.syncOwn(progress?.built)
+        return createElement(BuiltBoard, { key: part.key, course: circuit, type: part.piece, cards })
+      },
+    },
     unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ label: b.name, icon: b.icon })),
   })
   game.circuit = circuit

@@ -10,11 +10,6 @@
   "after": {
     "zh": "|a − b| 叫两数的<wiki-ref to=\"distance\"></wiki-ref>：只量隔多远，不看谁在左边。"
   },
-  "builds": {
-    "type": "dist",
-    "name": { "zh": "距离" },
-    "desc": { "zh": "交出 |a − b|。" }
-  },
   "tasks": [
     {
       "id": "dist",

@@ -194,10 +194,13 @@ export function validate(schema, value, { vocabulary = null, levels = null, lang
   return out
 }
 
+// Of an either's shapes, the first of the kind of `v` that has all its fields.
+const kin = (s, v) => s.of.find((x) => (isObj(v) ? (x.type === 'obj' && Object.keys(v).every((k) => k in x.fields)) || x.type === 'by' || x.type === 'map' : Array.isArray(v) ? x.type === 'list' : false))
+
 /**
  * Every place in `value` that `schema` gives the type `type` (a 'level', a 'board', a 'text'…), as [{ path, value,
  * schema }]: `path` the keys from `value` down to it, `schema` the one there (its hints too). Where the schema allows several shapes (either), the value is read as the
- * one it fits; a value fitting none is not looked into.
+ * one it fits, or as shapeAt reads one fitting none (the first shape of its kind that has all its fields).
  */
 export function find(schema, value, type, { vocabulary = null } = {}) {
   const out = []
@@ -216,7 +219,7 @@ export function find(schema, value, type, { vocabulary = null } = {}) {
         if (isObj(v)) for (const [k, f] of Object.entries(s.fields)) walk(f, v[k], [...path, k])
         return
       case 'either': {
-        const shape = s.of.find((x) => fits(x, v))
+        const shape = s.of.find((x) => fits(x, v)) ?? kin(s, v)
         if (shape) walk(shape, v, path)
         return
       }
@@ -248,8 +251,7 @@ export function shapeAt(schema, value, path, { vocabulary = null } = {}) {
     for (;;) {
       if (s?.type === 'either') {
         const fit = s.of.find((x) => validate(x, v, { vocabulary }).length === 0)
-        const kin = s.of.find((x) => (isObj(v) ? (x.type === 'obj' && Object.keys(v).every((k) => k in x.fields)) || x.type === 'by' || x.type === 'map' : Array.isArray(v) ? x.type === 'list' : false))
-        s = fit ?? kin ?? null
+        s = fit ?? kin(s, v) ?? null
       } else if (s?.type === 'by') s = isObj(v) ? s.cases[v[s.field]] ?? null : null
       else return
     }

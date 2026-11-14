@@ -21,15 +21,6 @@
     "mul",
     "sub"
   ],
-  "builds": {
-    "type": "demand",
-    "name": {
-      "zh": "需求"
-    },
-    "desc": {
-      "zh": "按价格给出想买的人数。"
-    }
-  },
   "tasks": [
     {
       "id": "want",

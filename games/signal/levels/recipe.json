@@ -49,7 +49,6 @@
   ],
   "after": { "zh": "同样三个纯音，份量不同，叠出来的波形就不同。" },
   "adds": ["tone", "scale", "mix"],
-  "builds": { "type": "synth", "name": { "zh": "合成器" }, "desc": { "zh": "按低、中、高三个份量，把三个纯音叠成一段波形。" } },
   "tasks": [
     {
       "id": "one-tone",

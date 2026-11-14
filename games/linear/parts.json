@@ -114,6 +114,31 @@
       ],
       "compute": "arith(a, b, op=$op)",
       "views": { "tile": [{ "show": "value" }, { "show": "setting", "key": "op", "as": "label" }] }
+    },
+    "combo": {
+      "name": { "zh": "线性组合" },
+      "desc": { "zh": "给出 a·v + b·w：v 伸缩 a 倍、w 伸缩 b 倍，再相加。" },
+      "inside": [{ "task": "1-4" }]
+    },
+    "apply": {
+      "name": { "zh": "变换" },
+      "desc": { "zh": "给出矩阵 M 把向量 x 送到的那一点 Mx。" },
+      "inside": [{ "task": "2-1" }]
+    },
+    "compose": {
+      "name": { "zh": "矩阵乘法" },
+      "desc": { "zh": "给出先作用 B、再作用 A 的变换的矩阵 AB。" },
+      "inside": [{ "task": "2-4" }]
+    },
+    "det": {
+      "name": { "zh": "行列式" },
+      "desc": { "zh": "给出 2 × 2 矩阵 M 的行列式：它把面积放大的倍数，翻面时为负。" },
+      "inside": [{ "task": "3-1" }]
+    },
+    "solve": {
+      "name": { "zh": "求解" },
+      "desc": { "zh": "给出满足 Ax = b 的 x（det A ≠ 0）。" },
+      "inside": [{ "task": "3-4" }]
     }
   }
 }

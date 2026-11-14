@@ -1,38 +1,36 @@
 // The schemas of a circuit game's content (games/DESIGN.md 6.2): a level and its tasks, and game.json, for a domain's
 // vocabulary. A domain gives what is its own (a task's fixed cards, a test, its checks) and gets the rest:
 //
-//   levelSchema({ builds, page?, ports, test, checks?, more?, shared?, kinds? })   a level
-//   GAME                                                                          game.json
-//   NAME, PORT, BUILT_PART                                                        a card's name, a port, a built part
-import { TASK_ID, taskLevel } from './tasks.js'
+//   levelSchema({ page?, ports, test, checks?, more?, shared?, kinds? })   a level
+//   GAME                                                                  game.json
+//   NAME, PORT                                                            a card's name, a port
+//   REMOVES                                                               what the version without `builds` removed
+import { taskLevel } from './tasks.js'
 import { TRAY, TRAYS } from './trays.js'
 import { S } from './schema.js'
 import { GAME_VIEWS, RESULTS, SHOW, START_VIEW, TASK_VIEWS } from './views.js'
 import { T as t } from '../shell/i18n.js'
 
-/** A card's name: a port's, a register's, a part's a level builds. */
+/** A card's name: a port's, a register's, a built piece's. */
 export const NAME = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_]*$' })
 /** An item a task gives, withholds or opens (../course.js itemOf): a part, one of its settings, one value of a setting. */
 const HELD = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_-]*(\\.[A-Za-z_][A-Za-z0-9_]*(=.+)?)?$' })
 /** A port of a task's board: one of its fixed cards, named and labelled. */
 export const PORT = S.obj({ name: NAME, label: S.text(), view: START_VIEW })
 
-/** The part a level builds: its last task's board (or the task `task` names: a task after it then only uses the
- * part), packed (circuitCourse), named and described. */
-export const BUILT_PART = { type: NAME, name: S.text(), desc: S.text(), task: S.opt(S.str({ pattern: TASK_ID, about: t('成为元件的是哪个任务的板（不写是最后一个）：它后面的任务只是用这个元件') })) }
-const BUILDS = S.opt(S.obj(BUILT_PART, { section: 'course', about: t('通过后最后一个任务的板成为元件 type：它的输入口和结果口就是那个任务的输入和输出') }))
+/** What a domain's vocabulary removed when its built parts went into parts.json (games/DIRECTION.md decision 7). */
+export const REMOVES = [{ at: 'level.builds', why: 'a built piece is a parts.json entry whose inside refers to the task that builds it' }]
 
 /**
  * The schema of a level (./tasks.js taskLevel): what it says once, then its tasks, each a puzzle on its own board. The
- * domain gives what is its own: `builds` the schema of the part a level's last board becomes (S.opt; by default
- * BUILT_PART), `ports` a task's fixed cards ({ inputs, outputs, … }; outputs by default one or more PORTs), `test` one
+ * domain gives what is its own: `ports` a task's fixed cards ({ inputs, outputs, … }; outputs by default one or more PORTs), `test` one
  * test, `checks` what a task's outputs must be beyond what its tests say ({ want }), `more` the task's other fields,
  * `page` one page of an introduction ({ t } by default). A domain whose levels also hold tasks of other kinds
  * (circuitCourse kinds) gives `kinds` ({ kind: fields }): every task then says its `kind`, a board's being 'circuit',
  * and every task has `shared`'s fields too. An introduction page and the pass text may each show a value (./views.js
  * SHOW), drawn by the kit as a figure.
  */
-export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text(), show: S.opt(SHOW) }), ports, test, checks = {}, more = {}, shared = {}, kinds = null }) => {
+export const levelSchema = ({ page = S.obj({ t: S.text(), show: S.opt(SHOW) }), ports, test, checks = {}, more = {}, shared = {}, kinds = null }) => {
   const own = {
     ...shared,
     stage: S.opt(S.text({ section: 'read', about: t('这次升级留下的管线分段名称') })),
@@ -68,7 +66,6 @@ export const levelSchema = ({ builds = BUILDS, page = S.obj({ t: S.text(), show:
     note: S.opt(S.text()),
     adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
     tray: TRAY,
-    builds,
     showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：为什么') })),
   }, kinds ? S.by('kind', { circuit: kind('circuit', board), ...Object.fromEntries(Object.entries(kinds).map(([k, fields]) => [k, kind(k, { ...own, ...fields })])) }) : board)
 }
@@ -98,6 +95,7 @@ export const GAME = S.obj({
   primitives: S.list(S.ref('part')),
   trays: TRAYS,
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念') })),
+  replaces: S.opt(S.map(S.list(NAME), { about: t('搭出的件取代的搭出的件：从搭出它的那一关往后，托盘里给它，不再给那些') })),
   eras: S.list(ERA, { min: 1 }),
   views: GAME_VIEWS,
 })

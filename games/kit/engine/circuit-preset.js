@@ -14,6 +14,7 @@
 //       kinds { kind: check(task) → { problems, ok } } the domain's checks of a task that is no board
 import { withHidden } from './tests.js'
 import { partNames } from './trays.js'
+import { builtPieces } from './pieces.js'
 import { holds as holding, usable } from '../course.js'
 import { rowProblems, showProblems, viewsProblems } from './views.js'
 import { keyOf } from '../shell/i18n.js'
@@ -32,8 +33,8 @@ export function circuitDomain(domain, { vocabulary, course, run, entries, failur
   }
 }
 
-/** A circuit game's part names (domain.js names): the parts its levels build. */
-export const circuitNames = (content) => partNames(content.levels.filter((l) => l.builds).map((l) => l.builds.type))
+/** A circuit game's part names (domain.js names): its built pieces. */
+export const circuitNames = (content) => partNames(Object.keys(builtPieces(content.partDefs)))
 
 export const circuitSpec = (domain, courseOf) => (content) => {
   const circuit = courseOf(content)
@@ -64,7 +65,7 @@ export const circuitSpec = (domain, courseOf) => (content) => {
 export function checkCircuitTasks(circuit, { run, entries, failure = () => '', more = () => [], kinds = {}, memo = (_id, _name, f) => f() }) {
   const { LEVELS, course, board } = circuit
   const noted = (ref) => (board.ticks ? `, ${ref.runs.reduce((n, r) => n + (r.ticks?.length ?? 1), 0)} ticks` : '')
-  const built = new Set(LEVELS.filter((L) => L.builds).map((L) => L.builds.type))
+  const built = new Set(LEVELS.flatMap((L) => L.unlocks))
   const out = [...circuit.wrong, ...viewsProblems(circuit.views)].map((text) => ({ text, fail: true }))
   // The values a level's introduction pages and pass text show, its own and its tasks'.
   for (const level of LEVELS) {
@@ -97,11 +98,12 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
       })
       const inspect = (work) => run(all, work, partOf)
       const opening = board.startBoard(task)
-      const builds = level.builds && (level.builds.task ? task.taskId === level.builds.task : k === tasks.length - 1)
+      // The pieces this task publishes, each placed alone and wired to its cards.
+      const publishes = level.builds.filter((b) => b.at === k)
       const outs = board.portsOut(task).map((o) => o.name)
-      const box = builds ? board.fromText([`p = ${level.builds.type}${level.builds.form ? `[form=${level.builds.form}]` : ''}(${board.portsIn(task).map((i) => board.sourceOf(task, i.name).replace('#', '.')).join(', ')})`, ...outs.map((o) => `${o} <- ${outs.length > 1 ? `p.${o}` : 'p'}`)], task, here) : null
+      const box = ({ type, form }) => board.fromText([`p = ${type}${form ? `[form=${form}]` : ''}(${board.portsIn(task).map((i) => board.sourceOf(task, i.name).replace('#', '.')).join(', ')})`, ...outs.map((o) => `${o} <- ${outs.length > 1 ? `p.${o}` : 'p'}`)], task, here)
       const checked = checkWorks(inspect, {
-        reference: task.solution, naive: task.naive, built: box,
+        reference: task.solution, naive: task.naive,
         ...(task.starter ? { starter: opening } : { empty: opening }),
       })
       const ref = checked.reference
@@ -133,8 +135,8 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
         if (!checked.naive.ok) problems.push('the naive answer passes')
         else naive = `, naive fails ${where(checked.naive.fail.check)}`
       }
-      checked.built?.runs.forEach((r, j) => {
-        if (r.fail || r.error) problems.push(`its part ${level.builds.type} alone fails ${where(j)}`)
+      for (const piece of publishes) checkWorks(inspect, { built: box(piece) }).built.runs.forEach((r, j) => {
+        if (r.fail || r.error) problems.push(`its part ${piece.type} alone fails ${where(j)}`)
       })
       // Asked for (`circuit.mutants`, npm run check -- --mutants): what the tests make of the answer's mutants
       // (./mutate.js), a report and never a failure. A mutant that lives is a
@@ -148,7 +150,7 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
         if (score.made) mutated = `, mutants ${score.killed}/${score.made}${score.survivors.length ? ` (alive: ${score.survivors.join('; ')})` : ''}`
       }
       const hidden = task.hidden.length ? ` + ${task.hidden.length} hidden` : ''
-      return { problems, text: `${head}${problems.length ? problems.join('; ') : `answer PASS (${task.tests.length} tests${hidden}${noted(ref)})${naive}${mutated}${builds ? `, part ${level.builds.type} PASS` : ''}`}` }
+      return { problems, text: `${head}${problems.length ? problems.join('; ') : `answer PASS (${task.tests.length} tests${hidden}${noted(ref)})${naive}${mutated}${publishes.map((b) => `, part ${b.type} PASS`).join('')}`}` }
     })
     return { level: level.id, fail: said.some((x) => x.problems.length > 0), text: `${level.id} ${keyOf(level.title)}: ${said.map((x) => x.text).join(' · ')}` }
   }))

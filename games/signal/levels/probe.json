@@ -8,7 +8,6 @@
     }
   ],
   "after": { "zh": "借来的测音，里面就是这样一块板。" },
-  "builds": { "type": "probe", "name": { "zh": "自制测音" }, "desc": { "zh": "给出波形 x 里纯音 t 的份量，一个数。" } },
   "tasks": [
     {
       "id": "probe",

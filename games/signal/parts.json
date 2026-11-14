@@ -113,6 +113,16 @@
       "family": "number",
       "inputs": [{ "name": "x" }],
       "compute": "mean(x)"
+    },
+    "synth": {
+      "name": { "zh": "合成器" },
+      "desc": { "zh": "按低、中、高三个份量，把三个纯音叠成一段波形。" },
+      "inside": [{ "task": "recipe" }]
+    },
+    "probe": {
+      "name": { "zh": "自制测音" },
+      "desc": { "zh": "给出波形 x 里纯音 t 的份量，一个数。" },
+      "inside": [{ "task": "probe" }]
     }
   }
 }

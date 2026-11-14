@@ -8,11 +8,6 @@
     }
   ],
   "adds": ["add"],
-  "builds": {
-    "type": "trip",
-    "name": { "zh": "三段路" },
-    "desc": { "zh": "给出 u + v + w。" }
-  },
   "tasks": [
     {
       "id": "1-1",

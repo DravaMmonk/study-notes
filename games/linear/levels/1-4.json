@@ -10,13 +10,6 @@
   "after": {
     "zh": "固定 v、w，让 a、b 取遍所有的数，得到的全部点叫 v 和 w 的<wiki-ref to=\"span\"></wiki-ref>。"
   },
-  "builds": {
-    "type": "combo",
-    "name": { "zh": "线性组合" },
-    "desc": {
-      "zh": "给出 a·v + b·w：v 伸缩 a 倍、w 伸缩 b 倍，再相加。"
-    }
-  },
   "tasks": [
     {
       "id": "1-4",

@@ -7,7 +7,7 @@
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { GAME, PORT, levelSchema } from '../../engine/level-schema.js'
+import { GAME, PORT, REMOVES, levelSchema } from '../../engine/level-schema.js'
 import { T as t } from '../../shell/i18n.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -49,7 +49,8 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: '__name__',
-  version: 10,
+  version: 11,
+  removes: REMOVES,
   kinds: { part: PARTS, want: WANTS },
   game: GAME,
   level: LEVEL,

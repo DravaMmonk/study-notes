@@ -121,14 +121,23 @@ test('code and content pieces share both the vocabulary and the running registry
 })
 
 test('the piece readers expose the optional faces without renaming stored fields', () => {
-  const piece = { ...file.parts.scaled, regions: [{ name: 'body', opens: true }], inside: { task: 'work' }, keeps: ['a'] }
+  const piece = { ...file.parts.scaled, regions: [{ name: 'body', opens: true }], keeps: ['a'] }
+  const built = { name: { zh: '做成的' }, desc: { zh: '跑 work 的板。' }, inside: [{ task: 'work' }, { task: 'better' }] }
   assert.equal(holesOf(piece), piece.inputs)
   assert.equal(settingsOf(piece), piece.settings)
   assert.equal(facesOf(piece), piece.views)
   assert.equal(regionsOf(piece), piece.regions)
-  assert.equal(insideOf(piece), piece.inside)
+  assert.equal(insideOf(built), built.inside)
   assert.equal(keepsOf(piece), piece.keeps)
-  assert.deepEqual(partProblems({ ...file, parts: { ...file.parts, scaled: piece } }, vocabulary), [])
+  assert.deepEqual(partProblems({ ...file, parts: { ...file.parts, scaled: piece, made: built } }, vocabulary), [])
+  // A piece computes or has an inside, never both; a built one's ports are its task's board's.
+  assert.notDeepEqual(partProblems({ ...file, parts: { made: { ...built, compute: 'a' } } }, vocabulary), [])
+  assert.notDeepEqual(partProblems({ ...file, parts: { made: { ...built, inputs: [] } } }, vocabulary), [])
+  assert.deepEqual(Object.keys(defineParts({ ...file, parts: { ...file.parts, made: built } }, OPS).defs), Object.keys(file.parts))
+  // A domain with its primitives in code keeps its built pieces alone in parts.json.
+  const coded = { ...vocabulary, kinds: { part: { wire: { about: 'a wire' } } } }
+  assert.deepEqual(partProblems({ parts: { made: built } }, coded), [])
+  assert.ok(partProblems({ parts: { scaled: file.parts.scaled } }, coded).some((p) => /holds its built pieces alone/.test(p.says)))
   assert.deepEqual([holesOf({}), settingsOf({}), regionsOf({}), insideOf({}), facesOf({}), keepsOf({})], [[], [], [], null, {}, []])
 })
 

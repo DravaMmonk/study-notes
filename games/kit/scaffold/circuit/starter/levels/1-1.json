@@ -13,15 +13,6 @@
     "add",
     "sub"
   ],
-  "builds": {
-    "type": "addSub",
-    "name": {
-      "zh": "加了再减"
-    },
-    "desc": {
-      "zh": "给出 a 加 b、再减去 c 的结果。"
-    }
-  },
   "tasks": [
     {
       "id": "1-1",

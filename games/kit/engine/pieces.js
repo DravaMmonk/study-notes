@@ -7,6 +7,12 @@ export const insideOf = (piece) => piece.inside ?? null
 export const facesOf = (piece) => piece.views ?? {}
 export const keepsOf = (piece) => piece.keeps ?? []
 
+/** A parts.json's built pieces (those with an inside), by type. */
+export const builtPieces = (file) => Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, piece]) => insideOf(piece)))
+
+/** What built pieces publish: one entry a reference, { type, form (null when none), task (its id) }, in the order written. */
+export const publications = (pieces) => Object.entries(pieces).flatMap(([type, piece]) => insideOf(piece).map(({ task, form }) => ({ type, form: form ?? null, task })))
+
 /** Register named pieces from code and from a game's content. The content supplies the definition of a shared name. */
 export function registerPieces(code, content) {
   return { ...code, ...content }

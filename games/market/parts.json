@@ -1,0 +1,10 @@
+{
+  "parts": {
+    "demand": { "name": { "zh": "需求" }, "desc": { "zh": "按价格给出想买的人数。" }, "inside": [{ "task": "want" }] },
+    "pricer": {
+      "name": { "zh": "调价器" },
+      "desc": { "zh": "按昨天剩下的和没买到的调整价格。" },
+      "inside": [{ "task": "adjust" }]
+    }
+  }
+}

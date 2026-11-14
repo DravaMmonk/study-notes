@@ -13,15 +13,6 @@
     "mix",
     "scale"
   ],
-  "builds": {
-    "type": "blend",
-    "name": {
-      "zh": "放大再叠加"
-    },
-    "desc": {
-      "zh": "给出 a 放大 k 倍、再叠上 b 的波形。"
-    }
-  },
   "tasks": [
     {
       "id": "1-1",

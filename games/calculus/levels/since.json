@@ -15,13 +15,6 @@
   "after": {
     "zh": "一件事可以<wiki-ref to=\"eventually\"></wiki-ref>一直成立，前面有几项不成立也不要紧。"
   },
-  "builds": {
-    "type": "since",
-    "name": { "zh": "从此一直" },
-    "desc": {
-      "zh": "输入最近一段连续为 1 从第几项起；这一拍为 0 时给 n + 1。"
-    }
-  },
   "tasks": [
     {
       "id": "since-next",

@@ -11,13 +11,6 @@
   "after": {
     "zh": "Δaₙ = aₙ − aₙ₋₁ 叫<wiki-ref to=\"difference\"></wiki-ref>：数列每一步变了多少，变大为正，变小为负。"
   },
-  "builds": {
-    "type": "diff",
-    "name": { "zh": "差分 Δ" },
-    "desc": {
-      "zh": "交出输入这一项减上一项；第一拍减 0。"
-    }
-  },
   "tasks": [
     {
       "id": "diff",

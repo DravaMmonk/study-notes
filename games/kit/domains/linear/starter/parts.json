@@ -36,6 +36,7 @@
         }
       ],
       "compute": "$value"
-    }
+    },
+    "trip": { "name": { "zh": "三段路" }, "desc": { "zh": "给出 u + v + w。" }, "inside": [{ "task": "1-1" }] }
   }
 }

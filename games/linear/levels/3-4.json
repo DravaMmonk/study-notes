@@ -10,11 +10,6 @@
   "after": {
     "zh": "用行列式之比求解的方法叫<wiki-ref to=\"cramer-rule\"></wiki-ref>。"
   },
-  "builds": {
-    "type": "solve",
-    "name": { "zh": "求解" },
-    "desc": { "zh": "给出满足 Ax = b 的 x（det A ≠ 0）。" }
-  },
   "tasks": [
     {
       "id": "3-4",

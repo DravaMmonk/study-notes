@@ -46,8 +46,6 @@ export function netCourse(content) {
     if (task.pulls && !t.queue) say('a test gives the board no queue to pull from')
     return testOf(task, t)
   }
-  // A built part keeps its own registers; a part may replace the ones its level makes redundant. The output that asks
-  // for the next byte of the queue is wanted of nothing.
-  const builders = new Map(content.levels.filter((L) => L.builds).map((L) => [L.builds.type, L]))
-  return circuitCourse(content, { board, parts: PARTS, read, test, holds: true, replaces: (part) => builders.get(part)?.builds.replaces ?? [], unwanted: (task) => (task.pulls ? [task.pulls.next] : []) })
+  // A built part keeps its own registers. The output that asks for the next byte of the queue is wanted of nothing.
+  return circuitCourse(content, { board, parts: PARTS, read, test, holds: true, unwanted: (task) => (task.pulls ? [task.pulls.next] : []) })
 }

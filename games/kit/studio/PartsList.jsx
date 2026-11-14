@@ -1,4 +1,5 @@
-// The parts of a game in the studio (games/DESIGN.md 6.7, 6.8): every part its parts.json defines — icon, name, type —
+// The parts of a game in the studio (games/DESIGN.md 6.7, 6.8): every piece its parts.json defines, primitive or built
+// (inside) — icon, name, type —
 // and every setting preset, a row each, in the file's order; findings on a part mark its row. A click opens it (its
 // faces on the page, its fields in the rows); + adds a part, blank and ready to be filled in, and opens it. A part is
 // copied, renamed and removed from the part's own page (PartEditor in Editor.jsx).
@@ -40,7 +41,7 @@ export default function PartsList({ content, vocabulary, at, found, onSelect, on
   return (
     <nav className="parts-list" aria-label={tr('元件', 'Parts')}>
       {parts.map(([type, def]) => {
-        const Icon = iconOf(def.icon)
+        const Icon = iconOf(def.icon ?? (def.inside ? 'CircuitBoard' : null))
         const n = found(type)
         return (
           <button key={type} type="button" className={`parts-row ${at?.part === type ? 'is-on' : ''}`} onClick={() => onSelect({ part: type })} title={L(def.desc ?? '')}>

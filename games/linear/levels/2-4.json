@@ -10,13 +10,6 @@
   "after": {
     "zh": "这就是<wiki-ref to=\"matrix-product\"></wiki-ref>：AB 表示先作用 B、再作用 A。"
   },
-  "builds": {
-    "type": "compose",
-    "name": { "zh": "矩阵乘法" },
-    "desc": {
-      "zh": "给出先作用 B、再作用 A 的变换的矩阵 AB。"
-    }
-  },
   "tasks": [
     {
       "id": "2-4",

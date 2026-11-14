@@ -17,13 +17,6 @@
     "zh": "这个运算记作 Mx，叫<wiki-ref to=\"matrix-vector-product\"></wiki-ref>。"
   },
   "adds": ["column"],
-  "builds": {
-    "type": "apply",
-    "name": { "zh": "变换" },
-    "desc": {
-      "zh": "给出矩阵 M 把向量 x 送到的那一点 Mx。"
-    }
-  },
   "tasks": [
     {
       "id": "2-1",

@@ -11,7 +11,6 @@ import { parse } from '../../circuit/text.js'
 import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.js'
 import { PATHS, describe, locate, putIn, takeOut } from './place.js'
 import { levelRefs, partRefs, renamePartRefs, renameRefs } from './refs.js'
-import { definesParts } from '../parts/define.js'
 import { NAME as PART_NAME, PARTS_FILE } from '../parts/schema.js'
 import { renameSlot } from '../../pipeline/blueprint.js'
 import { TASK_ID, findTask, newTaskId } from '../tasks.js'
@@ -54,11 +53,16 @@ const indexIn = (tasks, level, { after, first }) => {
 }
 /** The place a task is at in its level, said as task.move and task.add take it. */
 const placeOf = (tasks, k) => (k === 0 ? { first: true } : { after: tasks[k - 1].id })
-/** The game's parts.json, where its domain defines parts as data (one is written the first time it is edited). */
-const partsOf = (ws, vocabulary) => {
-  if (!definesParts(vocabulary)) fail(`the ${vocabulary.domain} domain defines its parts in code`)
+/** The game's parts.json (one is written the first time it is edited): its pieces, or its built ones alone where its domain defines primitives in code. */
+const partsOf = (ws) => {
   if (ws.partDefs === undefined) ws.partDefs = { parts: {} }
   return ws.partDefs
+}
+/** Built pieces' inside references to task `from` made to name `to` (a task renamed, or a level with its task). */
+const renameInside = (ws, from, to) => {
+  if (!ws.partDefs) return
+  const moved = (refs) => refs.map((ref) => (ref.task === from ? { ...ref, task: to } : ref))
+  ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries(Object.entries(ws.partDefs.parts).map(([type, piece]) => [type, piece.inside ? { ...piece, inside: moved(piece.inside) } : piece])) }
 }
 const blueprintLines = (text) => {
   const lines = text.replace(/\n$/, '').split('\n')
@@ -174,6 +178,7 @@ export const OPERATIONS = {
       const old = levelOf(ws, level)
       const data = old.tasks?.some((x) => x.id === level) ? { ...old, tasks: old.tasks.map((x) => (x.id === level ? { ...x, id: to } : x)) } : old
       ws.levels = new Map([...ws.levels].map(([id, l]) => (id === level ? [to, data] : [id, l])))
+      if (data !== old) renameInside(ws, level, to)
       ws.basis.set(`levels/${to}.json`, ws.original.get(`levels/${level}.json`) ?? ws.basis.get(`levels/${level}.json`))
       const n = renameRefs(ws, vocabulary, level, to)
       if (ws.blueprint !== undefined) ws.blueprint = renameSlot(ws.blueprint, level, to)
@@ -237,7 +242,7 @@ export const OPERATIONS = {
     },
   },
   'task.rename': {
-    about: t('给一个任务换 id；玩家存下的东西跟着换'),
+    about: t('给一个任务换 id；搭出的件对它的引用和玩家存下的东西跟着换'),
     params: S.obj({ task: TASK, to: TASK }),
     apply(ws, { task, to }, { vocabulary }) {
       const { level, at } = taskOf(ws, task)
@@ -245,6 +250,7 @@ export const OPERATIONS = {
       if (to !== level && ws.levels.has(to)) fail(`${to} is a level’s id`)
       const base = levelOf(ws, level)
       ws.levels.set(level, { ...base, tasks: base.tasks.map((x, k) => (k === at ? { ...x, id: to } : x)) })
+      renameInside(ws, task, to)
       return { says: `${level}: task ${task} → ${to}`, inverse: [{ op: 'task.rename', task: to, to: task }] }
     },
   },
@@ -361,7 +367,7 @@ export const OPERATIONS = {
     about: t('加一个元件（parts.json）：它的定义，after 那个元件后面'),
     params: S.obj({ part: PART_NAME, data: S.map(S.any()), after: S.opt(PART_NAME) }),
     apply(ws, { part, data, after }, { vocabulary }) {
-      partsOf(ws, vocabulary)
+      partsOf(ws)
       if (ws.partDefs.parts[part]) fail(`there is a part ${part} already`)
       const entries = Object.entries(ws.partDefs.parts)
       const k = after === undefined ? entries.length : entries.findIndex(([type]) => type === after) + 1
@@ -374,7 +380,7 @@ export const OPERATIONS = {
     about: t('删掉一个元件（parts.json）；课程、关卡、板或文字还提到它时拒绝；玩家存下的放着它的板去掉'),
     params: S.obj({ part: PART_NAME }),
     apply(ws, { part }, { vocabulary }) {
-      partsOf(ws, vocabulary)
+      partsOf(ws)
       const entries = Object.entries(ws.partDefs.parts)
       const k = entries.findIndex(([type]) => type === part)
       if (k < 0) fail(`no part ${part}`)
@@ -388,7 +394,7 @@ export const OPERATIONS = {
     about: t('给一个元件换类型名：课程、关卡、板、链接里的每一处一起改，存下的板也跟着改'),
     params: S.obj({ part: PART_NAME, to: PART_NAME }),
     apply(ws, { part, to }, { vocabulary, domain }) {
-      partsOf(ws, vocabulary)
+      partsOf(ws)
       if (!ws.partDefs.parts[part]) fail(`no part ${part}`)
       if (Object.hasOwn(domain?.vocabulary.kinds.part ?? {}, part)) {
         fail(`the engine uses the part id ${part}; edit its name instead`)
@@ -403,7 +409,7 @@ export const OPERATIONS = {
     about: t('设 parts.json 的一个字段：parts.<元件>.settings[0].default、presets.<预设>.options……'),
     params: S.obj({ path: PATH, value: S.any() }),
     apply(ws, { path, value }, { vocabulary }) {
-      partsOf(ws, vocabulary)
+      partsOf(ws)
       const keys = parsePath(path)
       if (keys.length < 3 && keys[0] === 'parts') fail('a whole part is added with part.add, renamed with part.rename')
       // A first face can be written independently even before the part has a views object.
@@ -422,7 +428,7 @@ export const OPERATIONS = {
     about: t('去掉 parts.json 的一个字段，或列表里的一项'),
     params: S.obj({ path: PATH }),
     apply(ws, { path }, { vocabulary }) {
-      partsOf(ws, vocabulary)
+      partsOf(ws)
       const keys = parsePath(path)
       if (keys.length < 3 && keys[0] === 'parts') fail('a whole part is removed with part.remove')
       const back = typeof keys.at(-1) === 'number' ? { op: 'parts.set', path: keys.slice(0, -1), value: getAt(ws.partDefs, keys.slice(0, -1)) } : { op: 'parts.set', path: keys, value: getAt(ws.partDefs, keys) }

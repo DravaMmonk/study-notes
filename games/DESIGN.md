@@ -554,7 +554,7 @@ opens them to show the resulting feedback.
 
 ### 6.8 元件定义（`parts.json`）
 
-**元件是内容，引擎资源是领域。** 一款游戏的原始元件写在它自己的 `parts.json` 里：口、设置、运算、三面视图都是数据，studio 能直接改，`npm run check` 能查。领域只给**引擎资源**（词汇表的 `op` 种类，实现在领域的 `ops.js`）：一个有名字、有参数的基本运算，比如逐值相加、按坐标采样、按核滤波；和**自定义控件**（`widget` 种类）：内核的控件画不出来的设置或显示。元件按游戏隔离（第 6.3 节）在这里是自然的：同一个领域的两款游戏各有自己的 `parts.json`，名字、说明、口、默认值互不牵动。关卡给的节点（输入、输出、线）和搭出的封装件不在 `parts.json` 里：前者是领域的，后者是关卡的。
+**元件是内容，引擎资源是领域。** 一款游戏的原始元件写在它自己的 `parts.json` 里：口、设置、运算、三面视图都是数据，studio 能直接改，`npm run check` 能查。领域只给**引擎资源**（词汇表的 `op` 种类，实现在领域的 `ops.js`）：一个有名字、有参数的基本运算，比如逐值相加、按坐标采样、按核滤波；和**自定义控件**（`widget` 种类）：内核的控件画不出来的设置或显示。元件按游戏隔离（第 6.3 节）在这里是自然的：同一个领域的两款游戏各有自己的 `parts.json`，名字、说明、口、默认值互不牵动。关卡给的节点（输入、输出、线）不在 `parts.json` 里，是领域的。搭出的件也是 `parts.json` 的一项：它不写 `compute`，写 `inside: [{ task, form? }]`，两者必有且只有一个；它不写口，口从被引用任务的板读出；同一个 `form`（或都不写）的几条按先后是升级链，`form` 不同是件的几种形态。哪一关搭出它、通过哪一关打开它，由课程从引用反推，关卡不写。元件在代码里的领域（`net`、`calculus`、`market`）的 `parts.json` 只放搭出的件。
 
 ```json
 {
@@ -571,7 +571,7 @@ opens them to show the resulting feedback.
 }
 ```
 
-**一个元件的面。** `engine/pieces.js` 将已有字段映射到对应的面。`regions` 描述区域，`inside.task` 指向内部作品，`keeps` 列出要保留的名字。课程中的封装件和引理使用 `pieceReferences` 登记发布作品的任务。《证明完毕》的门、机器元件、等式、类型、函数和符号也登记在同一处，领域把取出的作品转为规则、等式或元件。定义出的函数选择参考作品。`holds().inside()` 按关卡路径选出引用。直接由 `parts.json` 发布内部作品的接入随数据化元件迁移。一个电路元件的字段包括`name`、`desc`（只写功能，第 4 节；只写每个选项都成立的部分，某个选项特有的作用写在那个选项的 `about` 里）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about?, optional? }`，`name` 是 ASCII；`optional` 的口可以不接，不接时运算在这里读到「—」，元件不因它给出「—」，接了而值是「—」时照 `nulls` 办）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）、`regions`（有区域的元件是框，`kit/circuit/frames.js`：每个区域 `{ name, label?, opens?, closes?, when? }`；`opens` 的区域在框里给出一个值，`closes` 的区域把框里做出的东西交回元件，不 closes 的由元件自己当函数跑（资源调 `ctx.region(名字)`，`frames.js` 的 `runRegion`：区域里只能读框给的值和框外的常量），`when` 照设置决定这个区域在不在）。资源除了参数还看得到它在哪张卡上跑：`ctx.node`、`ctx.ins`、`ctx.key`（要的是哪个区域给的值）。
+**一个元件的面。** `engine/pieces.js` 将已有字段映射到对应的面。`regions` 描述区域，`inside` 列出内部作品的引用（`builtPieces`、`publications` 读出搭出的件和每个任务发布哪些件），`keeps` 列出要保留的名字。课程中的封装件和引理使用 `pieceReferences` 登记发布作品的任务。《证明完毕》的门、机器元件、等式、类型、函数和符号也登记在同一处，领域把取出的作品转为规则、等式或元件。定义出的函数选择参考作品。`holds().inside()` 按关卡路径选出引用。直接由 `parts.json` 发布内部作品的接入随数据化元件迁移。一个电路元件的字段包括`name`、`desc`（只写功能，第 4 节；只写每个选项都成立的部分，某个选项特有的作用写在那个选项的 `about` 里）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about?, optional? }`，`name` 是 ASCII；`optional` 的口可以不接，不接时运算在这里读到「—」，元件不因它给出「—」，接了而值是「—」时照 `nulls` 办）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）、`regions`（有区域的元件是框，`kit/circuit/frames.js`：每个区域 `{ name, label?, opens?, closes?, when? }`；`opens` 的区域在框里给出一个值，`closes` 的区域把框里做出的东西交回元件，不 closes 的由元件自己当函数跑（资源调 `ctx.region(名字)`，`frames.js` 的 `runRegion`：区域里只能读框给的值和框外的常量），`when` 照设置决定这个区域在不在）。资源除了参数还看得到它在哪张卡上跑：`ctx.node`、`ctx.ins`、`ctx.key`（要的是哪个区域给的值）。
 
 **设置的控件只有八种**，都是内核的（`kit/shell/parts/SettingField.jsx`），桌面卡片上紧凑、手机单子里加大，同一份定义：
 

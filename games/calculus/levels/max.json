@@ -16,11 +16,6 @@
     "zh": "真假写成 1 和 0，乘上去就能挑选：<wiki-ref to=\"inequality\"></wiki-ref>也成了算术。"
   },
   "adds": ["less"],
-  "builds": {
-    "type": "max",
-    "name": { "zh": "较大者" },
-    "desc": { "zh": "交出 a、b 里大的那个。" }
-  },
   "tasks": [
     {
       "id": "max",

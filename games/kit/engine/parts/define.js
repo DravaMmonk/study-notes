@@ -2,7 +2,8 @@
 // part starts with, and every place the file does not hold together. The part definitions are content; the engine
 // resources they call (the domain's `op` items, run by its ops.js) are the domain's code.
 //
-//   defineParts(file, ops)       → { PARTS, defs, defaultsOf(type) }
+//   defineParts(file, ops)       → { PARTS, defs, defaultsOf(type) }   of its primitives; a built piece (an inside, no
+//                                compute) is the course's to make (../board-course.js, ../pieces.js builtPieces)
 //   partProblems(file, vocabulary) → [{ at, says }]
 //   withParts(vocabulary, file)  the vocabulary with both code and file parts in its `part` kind (content's S.ref('part'))
 //   evalSettings(text, def, params, ops)   a settings-only expression (a readout, a rule, a check) on a node's settings
@@ -14,7 +15,7 @@
 // (ctx.region(name), ../../circuit/frames.js runRegion).
 import { PartError } from '../circuit.js'
 import { runRegion } from '../../circuit/frames.js'
-import { facesOf, holesOf, outletsOf, regionsOf, registerPieces, settingsOf } from '../pieces.js'
+import { builtPieces, facesOf, holesOf, insideOf, outletsOf, regionsOf, registerPieces, settingsOf } from '../pieces.js'
 import { validate } from '../schema.js'
 import { ExprError, evaluate, evaluateTaped, parse, problemsOf } from './expr.js'
 import { ICON_NAMES } from './icons.js'
@@ -162,7 +163,7 @@ function symmetricIn(tree, settings, ops) {
  */
 export function defineParts(file, ops, code = {}) {
   const presets = file?.presets ?? {}
-  const defs = Object.fromEntries(Object.entries(file?.parts ?? {}).map(([type, def]) => [type, resolvePart(def, presets, type)]))
+  const defs = Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, def]) => !insideOf(def)).map(([type, def]) => [type, resolvePart(def, presets, type)]))
   const defined = Object.fromEntries(Object.entries(defs).map(([type, def]) => {
     const trees = treesOf(def)
     const names = holesOf(def).map((p) => p.name)
@@ -234,8 +235,10 @@ export function partDesc(def, allowed = () => null) {
 
 /** The vocabulary with a parts.json's parts as its `part` kind: what content's S.ref('part') names. */
 export function withParts(vocabulary, file) {
-  if (!definesParts(vocabulary)) return vocabulary
-  const part = Object.fromEntries(Object.entries(file?.parts ?? {}).map(([type, def]) => [type, { about: def.desc ?? def.name ?? type }]))
+  // A domain with its primitives in code has its built pieces alone in parts.json.
+  const pieces = definesParts(vocabulary) ? file?.parts ?? {} : builtPieces(file)
+  if (!definesParts(vocabulary) && !Object.keys(pieces).length) return vocabulary
+  const part = Object.fromEntries(Object.entries(pieces).map(([type, def]) => [type, { about: def.desc ?? def.name ?? type }]))
   return { ...vocabulary, kinds: { ...vocabulary.kinds, part: registerPieces(vocabulary.kinds.part, part) } }
 }
 
@@ -244,10 +247,12 @@ export function partProblems(file, vocabulary) {
   const out = []
   const say = (at, says) => out.push({ at: `parts.json${at}`, says })
   const vocab = withParts(vocabulary, file)
+  // A domain with its primitives in code keeps its built pieces alone here.
+  if (!definesParts(vocabulary)) for (const [type, raw] of Object.entries(file?.parts ?? {})) if (!insideOf(raw)) say(`.parts.${type}`, `the ${vocabulary.domain} domain defines its primitives in code: parts.json holds its built pieces alone (inside)`)
   for (const p of validate(PARTS_FILE, file, { vocabulary: vocab })) say(p.at === '(root)' ? '' : p.at, p.says)
   if (out.length) return out
   const ops = { ...BUILTIN_ITEMS, ...vocabulary.kinds.op }
-  for (const name of Object.keys(vocabulary.kinds.op)) if (BUILTINS[name]) say('', `the domain’s resource ${name} takes the name of a kernel builtin`)
+  for (const name of Object.keys(vocabulary.kinds.op ?? {})) if (BUILTINS[name]) say('', `the domain’s resource ${name} takes the name of a kernel builtin`)
   const fits = (schema, v) => validate(schema, v, { vocabulary: vocab }).length === 0
   const presets = file.presets ?? {}
   const settingProblems = (s, at) => {
@@ -273,7 +278,8 @@ export function partProblems(file, vocabulary) {
   for (const [name, s] of Object.entries(presets)) settingProblems(s, `.presets.${name}`)
   for (const [type, raw] of Object.entries(file.parts)) {
     const at = `.parts.${type}`
-    if (!ICONS.has(raw.icon)) say(`${at}.icon`, `${raw.icon} is no icon of the kernel’s table`)
+    const built = Boolean(insideOf(raw))
+    if ((!built || raw.icon) && !ICONS.has(raw.icon)) say(`${at}.icon`, `${raw.icon} is no icon of the kernel’s table`)
     const keys = settingsOf(raw).map((s) => s.key)
     if (new Set(keys).size !== keys.length) say(`${at}.settings`, 'a setting key is written twice')
     if (new Set(holesOf(raw).map((p) => p.name)).size !== holesOf(raw).length) say(`${at}.inputs`, 'an input is named twice')
@@ -309,16 +315,18 @@ export function partProblems(file, vocabulary) {
       }
     }
     for (const [k, c] of (raw.checks ?? []).entries()) check(c.holds, `${at}.checks[${k}].holds`, [])
-    // What it computes: an expression for its one output, or one for each of its outputs.
+    // What it computes: an expression for its one output, or one for each of its outputs; a built piece runs its inside.
     const outputs = def.outputNames
-    const exprs = typeof raw.compute === 'string' ? [['', raw.compute]] : Object.entries(raw.compute)
-    if (!outputs && typeof raw.compute !== 'string') say(`${at}.compute`, 'a part with one output computes one expression')
-    if (outputs && typeof raw.compute === 'string') say(`${at}.compute`, `a part with outputs computes one expression each: { ${outputs.join(', ')} }`)
-    if (outputs && typeof raw.compute !== 'string') {
-      for (const o of outputs) if (!(o in raw.compute)) say(`${at}.compute`, `nothing computes the output ${o}`)
-      for (const o of Object.keys(raw.compute)) if (!outputs.includes(o)) say(`${at}.compute.${o}`, `${o} is no output of the part`)
+    if (!built) {
+      const exprs = typeof raw.compute === 'string' ? [['', raw.compute]] : Object.entries(raw.compute)
+      if (!outputs && typeof raw.compute !== 'string') say(`${at}.compute`, 'a part with one output computes one expression')
+      if (outputs && typeof raw.compute === 'string') say(`${at}.compute`, `a part with outputs computes one expression each: { ${outputs.join(', ')} }`)
+      if (outputs && typeof raw.compute !== 'string') {
+        for (const o of outputs) if (!(o in raw.compute)) say(`${at}.compute`, `nothing computes the output ${o}`)
+        for (const o of Object.keys(raw.compute)) if (!outputs.includes(o)) say(`${at}.compute.${o}`, `${o} is no output of the part`)
+      }
+      for (const [o, text] of exprs) check(text, `${at}.compute${o ? `.${o}` : ''}`, [...holesOf(def).map((p) => p.name), ...regionNames])
     }
-    for (const [o, text] of exprs) check(text, `${at}.compute${o ? `.${o}` : ''}`, [...holesOf(def).map((p) => p.name), ...regionNames])
     // The views: what each block names is there.
     for (const face of FACES) {
       const blocks = facesOf(raw)[face] ?? []

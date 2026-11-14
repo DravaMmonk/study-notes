@@ -88,18 +88,36 @@ const PAINT = {
   views: S.opt(S.obj({ card: S.opt(VIEW), tile: S.opt(VIEW), detail: S.opt(VIEW) }, { about: t('桌面卡片、手机格位、详情；不写用默认') })),
 }
 
-export const PART = S.obj({
+const NAMED = {
   name: S.textKind('partName'),
   desc: S.textKind('partDescription', { about: t('只写功能：读哪些口、给出什么、碰到「—」怎么办') }),
+}
+/** A primitive: it computes an expression over the domain's engine resources. */
+export const PRIMITIVE = S.obj({
+  ...NAMED,
   ...HOLES,
   ...SETTINGS,
   regions: S.opt(S.list(REGION)),
-  inside: S.opt(S.obj({ task: S.str({ pattern: TASK_ID }) })),
   ...PAINT,
   keeps: S.opt(S.list(NAME)),
   compute: S.either(EXPR, S.map(EXPR, { about: t('每个输出一个式子') })),
   nulls: S.opt(S.oneOf(['give', 'pass'], { about: t('give：任何输入是「—」就给「—」（默认）；pass：交给运算') })),
 })
+/**
+ * A built piece: inside, it runs the work of a task (the player's passing one, else the reference). References of one
+ * form (or none) are an upgrade chain in order; of different forms, the piece's shapes. Its ports are the task's board's.
+ */
+export const INSIDE = S.list(S.obj({ task: S.str({ pattern: TASK_ID }), form: S.opt(NAME) }), { min: 1, about: t('里面跑哪个任务的作品：同一个 form（或都不写）的几条按先后是升级链，form 不同是件的几种形态') })
+export const BUILT = S.obj({
+  ...NAMED,
+  inside: INSIDE,
+  ...SETTINGS,
+  icon: S.opt(ICON),
+  family: S.opt(S.ref('family')),
+  views: PAINT.views,
+})
+/** A piece: a primitive (compute) or a built one (inside), never both. */
+export const PART = S.either(PRIMITIVE, BUILT)
 
 /** parts.json. */
 export const PARTS_FILE = S.obj({

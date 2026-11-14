@@ -1,8 +1,14 @@
 {
   "domain": "net",
-  "vocabulary": 1,
+  "vocabulary": 11,
   "title": {
     "zh": "从一根线开始"
+  },
+  "replaces": {
+    "counterhold": ["counter"],
+    "serializerhold": ["serializer"],
+    "deserializerhold": ["deserializer"],
+    "crchold": ["crc"]
   },
   "views": {
     "bits": ["wave", "bands"]

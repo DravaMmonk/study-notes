@@ -149,13 +149,13 @@ function Value({ value, error, show, of }) {
 
 /** The editor's description of a task's cards (../circuit/model.js): the board's wiring, drawn. */
 export function partsFor(level, circuit, { cards, portLabels }) {
-  const { board, BUILT, builtBy } = circuit
+  const { board, BUILT, builtBy, pieces } = circuit
   const wiring = board.wiring(level, circuit)
   // A fixed card the domain does not draw its own way: a source on the left, a sink on the right.
   const given = (node) => board.isFixed(node.type) && !cards[node.type]
   return {
     ...wiring,
-    label: (node) => (board.isFixed(node.type) ? board.labelOf(level, node.id) : BUILT[node.type] ? builtBy(node.type, node.params).builds.name : cards[node.type]?.name ?? node.type),
+    label: (node) => (board.isFixed(node.type) ? board.labelOf(level, node.id) : BUILT[node.type] ? pieces[node.type].name : cards[node.type]?.name ?? node.type),
     portLabel: (node, port) => (BUILT[node.type] ? labelOf(board.portsIn(builtBy(node.type, node.params)), port) : portLabels[node.type]?.[port] ?? ''),
     family: (node) => (BUILT[node.type] ? 'built' : given(node) ? (wiring.role(node) === 'sink' ? 'end' : 'given') : cards[node.type]?.family),
     icon: (node) => (BUILT[node.type] ? CircuitBoard : given(node) ? ArrowRightFromLine : cards[node.type]?.icon),
@@ -172,7 +172,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const circuit = course.forTask(level)
   // The parts defined as data a task holds: its view's, where its course registers some per task, else the game's.
   const defined = circuit.defined ?? gameDefined
-  const { board: kind, BUILT, builtBy } = circuit
+  const { board: kind, BUILT, builtBy, pieces } = circuit
   // A task that gives works (things made, each wrong in its own way) is played from the other side: the board shows
   // the work a tab picks and is not the player's, and the player writes the checks in the results (Checks.jsx).
   const works = level.works ?? null
@@ -321,7 +321,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const itemOf = (type) => {
     const fresh = entry.fresh?.includes(type)
     if (BUILT[type]) {
-      const b = builtBy(type).builds
+      const b = pieces[type]
       return { type, label: b.name, desc: b.desc, icon: CircuitBoard, family: 'built', packed: true }
     }
     if (defined?.of(type)) return definedItem(type, defined.of(type), { fresh }, allowed)
@@ -461,7 +461,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
           }}
           canvas={canvas}
           brief={{ hint: level.hint, children: <>{(told?.(level, onView) ?? []).map((line, k) => <p key={k} className="cs-said">{line.label && <>{L(line.label)} </>}<b>{L(line.text)}</b></p>)}{readouts && <Readouts items={readouts(level, drawn)} />}</> }}
-          describe={(n) => (BUILT[n.type] ? builtBy(n.type, n.params).builds.desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
+          describe={(n) => (BUILT[n.type] ? pieces[n.type].desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
           results={strip}
           tabs={!table}
           words={works ? { go: tr('运行检验'), done: tr('都挡住了') } : { go: L(says.go ?? (judged ? WORDS.check : WORDS.run)), done: L(says.done ?? WORDS.passed) }}
