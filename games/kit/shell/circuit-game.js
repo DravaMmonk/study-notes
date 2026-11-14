@@ -25,7 +25,7 @@ import { iconOf } from './parts/icons.js'
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
 
 export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds = {}, IntroFigure }) {
-  const Screen = circuitScreen({ ...screen, cards })
+  const Screen = circuitScreen({ ...screen, cards, course: (game) => game.circuit })
   const { LEVELS, CHAPTERS, course } = circuit
   const primitives = [...introductions(course)].map(([type, at]) => {
     const { name, desc, icon, revisions } = cards[type]

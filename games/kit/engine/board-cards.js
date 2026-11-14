@@ -73,7 +73,8 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140 }) {
     inputs: (n) => {
       if (sinks.has(n.type)) return ['in']
       if (isFixed(n.type)) return []
-      if (circuit.BUILT[n.type]) return portsIn(circuit.builtBy(n.type, n.params)).map((p) => p.name)
+      // A built part's inputs are its own ports (by default its board's inputs, in the shape the node's form picks).
+      if (circuit.BUILT[n.type]) return portsOf(circuit.BUILT[n.type], n)
       const part = circuit.partOf(n.type)
       return part ? portsOf(part, n) : []
     },
