@@ -7,7 +7,6 @@ import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
-import GatesScreen, { GateInside } from './ui/GatesScreen.jsx'
 import DeclaredRules from './ui/DeclaredRules.jsx'
 import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
@@ -22,6 +21,9 @@ import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
 import { RULES } from './proof.js'
 import { logicCourse } from './course.js'
 import { playScreen } from '../../shell/plays/Play.jsx'
+import { BuiltBoard, circuitScreen } from '../../shell/CircuitScreen.jsx'
+import { iconOf as partIcon } from '../../shell/parts/icons.js'
+import { gatesScreen } from './ui/gates.js'
 import { plays } from './plays.js'
 import { declaration, definition } from './rowValues.js'
 import { audit } from './auditWork.js'
@@ -44,6 +46,8 @@ export default function logicGame(content) {
   const { LEVELS, CHAPTERS, LABELS } = logic
   const lemmas = content.lemmas ?? {}
   const { gates } = logic
+  // The parts parts.json defines (the primitive gates), as the circuit screen draws them.
+  const cards = Object.fromEntries(Object.entries(logic.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: partIcon(d.icon), family: d.family }]))
   // How parts' descriptions grow along the course (the components box reads them as far as the player has got).
   const revisions = logic.revisions ?? {}
   // A built part is a proved lemma, a gate built on a truth circuit or a machine part (simp, auto…).
@@ -98,7 +102,7 @@ export default function logicGame(content) {
       proof: { Screen: boardScreen(PROOF), icon: Workflow, label: { zh: '证明', en: 'Proof' } },
       machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
       truth: { Screen: Play, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
-      gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
+      gates: { Screen: circuitScreen({ ...gatesScreen, cards }), icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
       iso: { Screen: Play, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
       define: { Screen: Play, icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },
       translate: { Screen: Play, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
@@ -130,7 +134,7 @@ export default function logicGame(content) {
         const type = part.key.slice('lemma:'.length)
         if (!gates[type]?.built) return null
         logic.syncOwn(progress.built)
-        return createElement(GateInside, { key: part.key, type, gates })
+        return createElement(BuiltBoard, { key: part.key, course: logic.truthCircuits, type, cards })
       },
     },
     // Fewer steps (proof steps, or gates) is better; fewer cases, where the player writes them (iso.js judgeCases).
@@ -138,6 +142,7 @@ export default function logicGame(content) {
     bestLabel: (best) => (best.unit === 'cases' ? tr(`${best.steps} 条`, `${best.steps} cases`) : tr(`${best.steps} 步`, `${best.steps} steps`)),
   })
   game.logic = logic
+  game.defined = { of: (type) => logic.defs[type] ?? null, defaults: logic.defaultsOf, ops: {} }
   game.workReferences = (entry, built) => {
     logic.syncOwn(built)
     return logic.workReferences(entry.task, entry.work)

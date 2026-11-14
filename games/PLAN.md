@@ -30,9 +30,10 @@
 - E.1 已完成。`circuit-domain.js` 拆成基础件：板的固定卡 `engine/board-cards.js`、课程读取 `engine/board-course.js`、schema `engine/level-schema.js`、`TEST_WORDS` 进 `engine/tests.js`；`engine/circuit-preset.js` 只做拼装，`circuitDomain(…)` 给出电路领域的 `domain.js`，各电路领域和两个模板的 `validate.js` 删掉。11 款游戏的检查输出逐字节一致；它不碰《证明完毕》，所以先于 D.5 做完。
 - 还在领域里的机制：八种玩法的屏。
 - 真值电路的检验表已提到内核，目标列由玩法配置控制，文字试玩共用这份配置。
-- 量：`logic` 自写组件 884 行（`engine/components.test.js`），只许降。
+- 量：`logic` 自写组件 730 行（`engine/components.test.js`），只许降。
 - 手机格位已按固定托盘确定尺寸。宽、高各自取最常见档位，空位与卡片顶边对齐。
-- D.5 第一步：真值电路的原始门 `gNot`、`gAnd` 搬进 `games/qed/parts.json`（调用内核内置函数，`gates.js` 不再有 `PRIMITIVE_GATES`），`logic` 词汇表第 2 版加上 `op`（暂无资源）和 `family`，studio 的元件页能看、能改它们。检查输出只有 `i18n en` 的计数变了（2104 → 2108，四段搬进来的文字都已译）。真值电路的屏、证明板和证明助手的件与屏还在领域里。
+- D.5 第一步：真值电路的原始门 `gNot`、`gAnd` 搬进 `games/qed/parts.json`（调用内核内置函数，`gates.js` 不再有 `PRIMITIVE_GATES`），`logic` 词汇表第 2 版加上 `op`（暂无资源）和 `family`，studio 的元件页能看、能改它们。检查输出只有 `i18n en` 的计数变了（2104 → 2108，四段搬进来的文字都已译）。
+- D.5 第二步：真值电路的屏换成内核的电路屏。`CircuitScreen` 读声明里给的课程（`course`），能把检验排成一张表在表里选（`table`，目标列由玩法定），并接受最后一条性质检验（`final`）、成绩（`score`）和读数（`readouts`）；元件箱里搭出的件画成它跑的板（`BuiltBoard`）。搭出件的输入口取件自己的口。证明板和证明助手的件与屏还在领域里。
 
 ## 约定
 

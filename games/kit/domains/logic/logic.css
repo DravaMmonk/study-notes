@@ -73,9 +73,6 @@
 .lg-field select { font-family: var(--sans); }
 
 /* Truth circuits (GatesScreen): a card's value on the row picked, and the truth table under the board. */
-.lg-tv { font: 600 13px/1.3 var(--mono, ui-monospace, monospace); }
-.lg-tv.is-true { color: var(--status); }
-.lg-tv.is-false { color: var(--fail); }
 .lg-scroll-x { overflow-x: auto; max-width: 100%; }
 /* A result column keeps its room before the run fills it, and a cell of several sentences gives each its own line. */
 

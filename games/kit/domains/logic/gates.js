@@ -7,8 +7,21 @@
 // kernel's defined parts) and the ones its levels build (game.json gates, each { name, desc, ports }), which run the
 // board of the level that builds them (builtGates).
 import { packed, runBoard, sink, source } from '../../engine/boards.js'
+import { OUTPUTS, circuitBoard } from '../../engine/board-cards.js'
 import { parse } from './formula.js'
+import { say } from './notation.js'
 import { lettersOf, rowsOf, valueOn } from './truth.js'
+import { T } from '../../shell/i18n.js'
+
+/** A truth circuit's board: a card for each letter of the target on the left, the sentence's output on the right. */
+export const GATE_BOARD = circuitBoard({
+  cards: [
+    { type: 'letter', side: 'left', of: (task) => rowsFor(task).letters.map((name) => ({ name, label: say(parse(name), task.notation) })) },
+    { ...OUTPUTS, of: () => [{ name: 'out', label: T('这句话') }] },
+  ],
+  right: 760,
+  gap: 120,
+})
 
 /** The engine's parts for a board of gates: a letter is a source, the output a sink, every gate its own part. */
 export const gateParts = (gates = {}) => ({ letter: source(), out: sink(), ...gates })
@@ -71,10 +84,44 @@ export function checkGates(level, circuit) {
 export const countGates = (level, circuit) => circuit.nodes.filter((n) => level.gates[n.type]).length
 
 /** The board a level starts from: a card for each letter of its target, and the output. */
-export function startGates(level) {
-  const { letters } = rowsFor(level)
-  return {
-    nodes: [...letters.map((name, k) => ({ id: name, type: 'letter', params: { name }, x: 20, y: 40 + k * 120 })), { id: 'out', type: 'out', params: { name: 'out' }, x: 760, y: 40 }],
-    wires: [],
-  }
+export const startGates = (level) => GATE_BOARD.startBoard(level)
+
+/** A level's tests: a row of the target's truth table each, the letters its inputs and the target's value its output. */
+export const gateTests = (level) => rowsFor(level).rows.map(({ row, want }) => ({ inputs: row, expect: { out: want } }))
+
+const WRONG_ROW = T('这一行的结果错误')
+/** Every test run (the kernel's circuit screen, ../../shell/CircuitScreen.jsx run): its values, trace and failure. */
+export const runGates = (level, circuit) => ({
+  runs: level.tests.map((test) => {
+    const trace = []
+    const run = runRow(level, circuit, test.inputs, trace)
+    return { ...run, trace, ...(run.value === test.expect.out ? {} : { fail: { why: WRONG_ROW } }) }
+  }),
+})
+
+/** Why a board that gives every row is still wrong: it uses more gates than the level allows. */
+export function overBudget(level, circuit) {
+  const gates = countGates(level, circuit)
+  return level.budget !== undefined && gates > level.budget ? T(`每一行都正确，但用了 ${gates} 个门，这一关最多允许 ${level.budget} 个。`, `Every row is correct, but it uses ${gates} gates; this level allows ${level.budget}.`) : ''
+}
+
+/**
+ * A course's truth circuits as the kernel's circuit screen reads a course read (../../engine/board-course.js forTask):
+ * the board, the gates a task holds (its `gates`), and the gates the levels build (`built`, from `builders`, the task
+ * building each) as packed parts that open on the board they run.
+ */
+export function gateCourse({ built, builders, offerIn, holdsIn, syncOwn }) {
+  const builtBy = (type) => builders[type] && { ...builders[type], builds: { type, name: built[type].name, desc: built[type].desc } }
+  const forTask = (task) => ({
+    board: GATE_BOARD,
+    BUILT: built,
+    builtBy,
+    partOf: (type) => GATE_BOARD.FIXED_PARTS[type] ?? task.gates[type],
+    syncOwn,
+    offerIn,
+    holdsIn,
+    opening: (t) => GATE_BOARD.startBoard(t),
+    stageChain: () => [],
+  })
+  return { BUILT: built, builtBy, forTask }
 }

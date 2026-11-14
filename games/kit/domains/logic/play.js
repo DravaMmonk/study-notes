@@ -1,5 +1,5 @@
 // The logic domain's play hook for a blind session (../../engine/play/): a truth-circuit level of 《证明完毕》 as its
-// screen (ui/GatesScreen.jsx) shows it, in words — a card for each letter, the sentence's output, the gates the level
+// screen (ui/gates.js) shows it, in words — a card for each letter, the sentence's output, the gates the level
 // holds, the sentence's truth table (without the target column on a level that hides it, without the sentence on a
 // blind one) — and an attempt run down the table row by row as the screen runs it, stopping on the first wrong row,
 // then held to the level's gate budget.
@@ -11,7 +11,7 @@
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
 import { gateShape } from './blueprint.js'
 import { parse } from './formula.js'
-import { checkGates, rowsFor, startGates } from './gates.js'
+import { checkGates, overBudget, rowsFor, startGates } from './gates.js'
 import { gatesPlayFor } from './plays.js'
 import { say } from './notation.js'
 import { T } from '../../shell/i18n.js'
@@ -57,7 +57,7 @@ const gates = circuitPlay({
     const over = checked.results.every((r) => r.pass) && checked.overBudget
     return {
       tests,
-      says: over ? [T(`每一行都正确，但用了 ${checked.gates} 个门，这一关最多允许 ${L.budget} 个。`, `Every row is correct, but it uses ${checked.gates} gates; this level allows ${L.budget}.`)] : checked.pass ? [T('每一行都正确：这块电路算出了这句话的完整真值表。')] : [],
+      says: over ? [overBudget(L, graph)] : checked.pass ? [T('每一行都正确：这块电路算出了这句话的完整真值表。')] : [],
       pass: checked.pass,
       score: { steps: checked.gates },
     }
