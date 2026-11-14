@@ -8,7 +8,7 @@
 //   npm run op -- <game> log                               the change log, and the files changed outside it
 //   npm run op -- <game> adopt --why <text>                take the files as they are into the log
 //
-// --dry-run prints the diff and writes nothing; --why "…" says why (the change log keeps it); --json prints the result
+// --dry-run prints the diff and writes nothing; --fresh checks every level again (../check-cache.js); --why "…" says why (the change log keeps it); --json prints the result
 // as JSON. A changeset that fails any check is never written, and the command exits 1. GAMES_ROOT points it at a copy
 // of the games folder.
 import { readFileSync } from 'node:fs'
@@ -17,11 +17,12 @@ import { OPERATIONS } from './operations.js'
 import { openGame } from './workspace.js'
 import { adopt, readLog, runChangeset, undo } from './changeset.js'
 import { authorship, driftOf } from './log.js'
+import { checkCache } from '../check-cache.js'
 import { knownGames } from '../cli-args.js'
 import { GAMES_DIR } from '../content-node.js'
 import { closeGames } from '../games.mjs'
 
-const USAGE = 'npm run op -- <game> (<op> key=value… | --file changeset.json | undo | log) [--dry-run] [--why "…"] [--json]  ·  npm run op -- list'
+const USAGE = 'npm run op -- <game> (<op> key=value… | --file changeset.json | undo | log) [--dry-run] [--fresh] [--why "…"] [--json]  ·  npm run op -- list'
 const argv = process.argv.slice(2)
 const flag = (name) => argv.includes(name)
 const option = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined)
@@ -66,7 +67,8 @@ if (!changeset && what !== 'undo') {
 if (option('--why') && changeset) changeset.why = option('--why')
 // Who: --by, or what the caller's environment says (an agent's ./op, ../../pipeline/pipeline.mjs), or this command line.
 if (changeset && !changeset.by) changeset.by = option('--by') ?? process.env.GAMES_BY ?? 'cli'
-const options = { write: !flag('--dry-run') }
+// The repository's games keep their checks between runs (../check-cache.js); --fresh, or a copy (GAMES_ROOT), checks afresh.
+const options = { write: !flag('--dry-run'), cache: flag('--fresh') || process.env.GAMES_ROOT ? null : checkCache(game) }
 const result = what === 'undo' ? await undo(ws, options) : await runChangeset(ws, changeset, options)
 await closeGames()
 

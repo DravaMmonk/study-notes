@@ -9,6 +9,7 @@ import { pathToFileURL } from 'node:url'
 import { find, shapeAt } from '../schema.js'
 import { describe } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
+import { checkCache } from '../check-cache.js'
 import { GAMES_DIR, domainOf, readContent } from '../content-node.js'
 import { gameOf } from '../games.mjs'
 import { flagsIn, fresh } from '../../shell/progress.js'
@@ -29,6 +30,8 @@ export const lacking = (tool, args) => Object.entries(tool.params).filter(([k, s
 const ROOT = process.env.GAMES_ROOT ?? GAMES_DIR
 const { GAMES } = await import(pathToFileURL(resolve(ROOT, 'games.js')).href)
 const listed = (id) => hubCount(readFileSync(resolve(ROOT, 'games.js'), 'utf8'), id)
+// The repository's games keep their checks between calls (../check-cache.js); a copy of them (GAMES_ROOT) is checked afresh.
+const kept = (id) => (process.env.GAMES_ROOT ? null : checkCache(id))
 const known = (game) => {
   if (!GAMES.some((g) => g.id === game)) throw new Error(`no game ${game}; the games are ${GAMES.map((g) => g.id).join(', ')}`)
   return game
@@ -83,7 +86,7 @@ export const TOOLS = {
     params: { game: 'string', mutants: 'boolean?' },
     async run({ game, mutants = false }) {
       const content = readContent(known(game), ROOT)
-      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game), mutants })
+      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game), mutants, cache: kept(game) })
       return { ok: !lines.some((l) => l.fail), failures: lines.filter((l) => l.fail).map((l) => l.text), lines: lines.map((l) => `${l.fail ? 'FAIL ' : ''}${l.text}`) }
     },
   },
@@ -91,7 +94,7 @@ export const TOOLS = {
     about: 'Apply a changeset { why?, by?, ops: [{ op, …args }] } to a game (by: who makes it, e.g. agent:<step>:<model>; the change log keeps it): every op checked and run, the whole game checked; written only when nothing fails (dryRun: preview only). base: the seq of the log’s last entry the caller saw (preview and log give it as head): refused when the game has changed since. The operations and their arguments: the vocabulary tool.',
     params: { game: 'string', changeset: 'object', dryRun: 'boolean?', base: 'number?' },
     async run({ game, changeset, dryRun = false, base = null }) {
-      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: !dryRun, base })
+      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: !dryRun, base, cache: kept(game) })
       return { ok: r.ok, written: r.ok && !dryRun, says: r.says, problems: r.problems, files: r.files, diff: r.diff, undo: r.inverse }
     },
   },
@@ -167,7 +170,7 @@ export const TOOLS = {
     about: 'A game as a changeset would leave it, nothing written: its content, every line of the check with the levels it is about, each file changed (its text before and after), the operation that failed if one did, and the change log (check false: the content checked against its vocabulary only, which is quick; the whole check runs the domain’s). The studio shows a game through it.',
     params: { game: 'string', changeset: 'object?', check: 'boolean?' },
     async run({ game, changeset = { ops: [] }, check = true }) {
-      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false, check })
+      const r = await runChangeset(openGame(known(game), ROOT), changeset, { write: false, check, cache: kept(game) })
       const { content } = r
       // Copy problems count levels in play order, which only a content that fits its vocabulary has (and only the whole
       // check reports them: a quick preview does without the order).

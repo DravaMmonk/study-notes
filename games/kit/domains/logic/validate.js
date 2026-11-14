@@ -38,8 +38,10 @@ const reportNaive = (out, { id: level }, naive) => {
 }
 
 /** spec: domain.js spec(content). Returns [{ text, fail?, level? }]: a line about one level names it. */
-export function validate({ levels: given, course, logic }) {
+export function validate({ levels: given, course, logic, memo = (_id, _name, f) => f() }) {
   const out = logic.wrong.map((text) => ({ fail: true, text }))
+  // What judges a task's works goes through memo (../../engine/check-cache.js), by its level and its place there: run,
+  // or read back while nothing it reads has changed.
   // Every task of a level is checked as a level of its own (course.js readTasks), named by its step where it has one.
   const builder = new Map(given.map((l) => [l.id, l.builds]))
   const levels = given.flatMap((l) => l.tasks.map((t) => (t.step ? { ...t, title: { zh: `${t.title.zh} · ${t.step.zh}`, en: `${t.title.en} · ${t.step.en}` } } : t)))
@@ -79,9 +81,11 @@ export function validate({ levels: given, course, logic }) {
       else if (!level.worlds.some((w) => extent(f, structureOf(w, [f])).length)) out.push({ level: level.id, fail: true, text: `${level.id}: ${level.target} picks out nothing in any world` })
     }
     if (level.kind === 'model') {
-      const judge = judgeFor(playFor(plays, level), worldCheck(level).judge)
-      const fail = Boolean(judge(level.answer))
-      out.push({ level: level.id, fail, text: `${level.id} ${keyOf(level.title)}: world ${fail ? 'FAIL' : 'PASS'}` })
+      out.push(...memo(level.id, `model ${level.task ?? 0}`, () => {
+        const judge = judgeFor(playFor(plays, level), worldCheck(level).judge)
+        const fail = Boolean(judge(level.answer))
+        return [{ level: level.id, fail, text: `${level.id} ${keyOf(level.title)}: world ${fail ? 'FAIL' : 'PASS'}` }]
+      }))
     }
   }
   for (const level of levels.filter((l) => l.kind === 'truth')) {
@@ -91,105 +95,133 @@ export function validate({ levels: given, course, logic }) {
     out.push({ level: level.id, fail: bad.length > 0 || !mixed, text: `${level.id} ${keyOf(level.title)}: (truth ${level.ask}) ${bad.length ? `a formula has no ${level.ask === 'sat' ? 'true' : 'false'} row` : mixed ? 'ok' : 'every formula gives the same answer'}` })
   }
   for (const level of levels.filter((l) => l.kind === 'gates')) {
-    const { reference: good, naive } = compare((work) => gateReport(level, work), level)
-    out.push({ level: level.id, fail: !good.ok, text: `${level.id} ${keyOf(level.title)}: circuit ${good.ok ? 'PASS' : 'FAIL'} [${good.gates} gates]` })
-    reportNaive(out, level, naive)
-    // The gate a level builds runs its board (gates.js builtGates): alone, fed the level's letters, it passes the level.
-    if (level.builds && level.gates[level.builds]) {
-      const { letters } = rowsFor(level)
-      const alone = { nodes: [...startGates(level).nodes, { id: 'x', type: level.builds, params: {} }], wires: [...letters.map((l, k) => ({ from: l, to: 'x', port: level.gates[level.builds].ports[k] })), { from: 'x', to: 'out', port: 'in' }] }
-      if (!checkWorks((work) => gateReport({ ...level, budget: undefined }, work), { built: alone }).built.ok) out.push({ level: level.id, fail: true, text: `${level.id}: the gate ${level.builds}, alone, does not give its sentence` })
-    }
+    out.push(...memo(level.id, `gates ${level.task ?? 0}`, () => {
+      const out = []
+      const { reference: good, naive } = compare((work) => gateReport(level, work), level)
+      out.push({ level: level.id, fail: !good.ok, text: `${level.id} ${keyOf(level.title)}: circuit ${good.ok ? 'PASS' : 'FAIL'} [${good.gates} gates]` })
+      reportNaive(out, level, naive)
+      // The gate a level builds runs its board (gates.js builtGates): alone, fed the level's letters, it passes the level.
+      if (level.builds && level.gates[level.builds]) {
+        const { letters } = rowsFor(level)
+        const alone = { nodes: [...startGates(level).nodes, { id: 'x', type: level.builds, params: {} }], wires: [...letters.map((l, k) => ({ from: l, to: 'x', port: level.gates[level.builds].ports[k] })), { from: 'x', to: 'out', port: 'in' }] }
+        if (!checkWorks((work) => gateReport({ ...level, budget: undefined }, work), { built: alone }).built.ok) out.push({ level: level.id, fail: true, text: `${level.id}: the gate ${level.builds}, alone, does not give its sentence` })
+      }
+      return out
+    }))
   }
   for (const level of levels.filter((l) => l.kind === 'define')) {
-    const { reference: { fail }, naive } = judgeWorks(judgeFor(playFor(plays, level), checkDefine(level)), { reference: level.solution, naive: level.naive })
-    out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: definition of ${level.fn} ${fail ? `FAIL on row ${(fail.check ?? level.tests.length) + 1}` : 'PASS'}` })
-    if (naive?.ok === false) out.push({ level: level.id, fail: true, text: `  naive definition of ${level.fn} PASSES (bad)` })
-    level.rows.forEach((row, k) => { if (!row.choices.includes(level.solution[k])) out.push({ level: level.id, fail: true, text: `${level.id}: row ${k + 1}'s answer is not among its choices` }) })
+    out.push(...memo(level.id, `define ${level.task ?? 0}`, () => {
+      const out = []
+      const { reference: { fail }, naive } = judgeWorks(judgeFor(playFor(plays, level), checkDefine(level)), { reference: level.solution, naive: level.naive })
+      out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: definition of ${level.fn} ${fail ? `FAIL on row ${(fail.check ?? level.tests.length) + 1}` : 'PASS'}` })
+      if (naive?.ok === false) out.push({ level: level.id, fail: true, text: `  naive definition of ${level.fn} PASSES (bad)` })
+      level.rows.forEach((row, k) => { if (!row.choices.includes(level.solution[k])) out.push({ level: level.id, fail: true, text: `${level.id}: row ${k + 1}'s answer is not among its choices` }) })
+      return out
+    }))
   }
   for (const level of levels.filter((l) => l.kind === 'iso')) {
-    const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
-    const judge = checkIso(level, words)
-    const { reference: { fail }, naive } = judgeWorks(judge, { reference: level.solution, naive: level.play === 'audit' ? null : level.naive })
-    out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: declaration ${fail ? `FAIL ${keyOf(failureText(fail))}` : 'PASS'} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
-    // A declaration to write: its reference can be filled in on the rule table (one layer of ⟹, each premise built
-    // from the pieces of the level's sentences, things taken only where the level allows it).
-    if (level.play !== 'audit') {
-      const chips = premiseChips(level)
-      const missing = waysIn(level.solution).flatMap((way) => [
-        ...(way.binds.length && !level.thing ? ['any thing'] : []),
-        ...way.needs.flatMap((need) => (typeof need !== 'string' ? ['a premise with premises'] : missingChips(sentenceOf(level, need), chips))),
-      ])
-      if (missing.length) out.push({ level: level.id, fail: true, text: `  the reference declaration cannot be filled in: ${[...new Set(missing)].join(', ')}` })
-    }
-    // Checking by the diagram: the reference cases catch every board, the naive ones do not; each board fails.
-    if (level.play === 'audit') {
-      const cases = judgeCases(level, level.answer, words)
-      const loose = level.boards.findIndex((_, k) => cases.judge(k))
-      out.push({ level: level.id, fail: loose >= 0, text: `  cases ${loose < 0 ? 'PASS' : `FAIL on board ${loose + 1}: ${keyOf(cases.judge(loose))}`} [${level.answer.length} cases]` })
-      if (level.naive && level.boards.every((_, k) => !judgeCases(level, level.naive, words).judge(k))) out.push({ level: level.id, fail: true, text: '  naive cases PASS (bad)' })
-      // The reference cases fill the cases set out, and keep the goal and expectation the level fixes.
-      const set = level.slots.length ?? level.slots
-      if (level.answer.length !== set) out.push({ level: level.id, fail: true, text: `  the reference answer has ${level.answer.length} cases for ${set} set out` })
-      if (Array.isArray(level.slots) && level.slots.some((c, k) => (c.keep ?? []).some((s) => !level.answer[k]?.given.includes(s)))) out.push({ level: level.id, fail: true, text: '  a reference case drops a premise its case keeps' })
-      if (Array.isArray(level.slots) && level.slots.some((c, k) => (c.fixed ?? []).some((cell) => JSON.stringify(c[cell]) !== JSON.stringify(level.answer[k]?.[cell])))) out.push({ level: level.id, fail: true, text: '  a reference case changes a cell its case fixes' })
-      if (level.answer.some((c) => level.caseGoal && c.goal !== level.caseGoal)) out.push({ level: level.id, fail: true, text: '  a reference case breaks the goal the level fixes' })
-      // A board to check is right (want 'agree'); one to catch is wrong.
-      level.boards.forEach(({ board }, k) => { if (!judge(board) !== (level.want === 'agree')) out.push({ level: level.id, fail: true, text: `  board ${k + 1} ${level.want === 'agree' ? 'fails' : 'passes'} every situation (bad)` }) })
-      continue
-    }
-    reportNaive(out, level, naive)
+    out.push(...memo(level.id, `iso ${level.task ?? 0}`, () => {
+      const out = []
+      const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
+      const judge = checkIso(level, words)
+      const { reference: { fail }, naive } = judgeWorks(judge, { reference: level.solution, naive: level.play === 'audit' ? null : level.naive })
+      out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: declaration ${fail ? `FAIL ${keyOf(failureText(fail))}` : 'PASS'} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
+      // A declaration to write: its reference can be filled in on the rule table (one layer of ⟹, each premise built
+      // from the pieces of the level's sentences, things taken only where the level allows it).
+      if (level.play !== 'audit') {
+        const chips = premiseChips(level)
+        const missing = waysIn(level.solution).flatMap((way) => [
+          ...(way.binds.length && !level.thing ? ['any thing'] : []),
+          ...way.needs.flatMap((need) => (typeof need !== 'string' ? ['a premise with premises'] : missingChips(sentenceOf(level, need), chips))),
+        ])
+        if (missing.length) out.push({ level: level.id, fail: true, text: `  the reference declaration cannot be filled in: ${[...new Set(missing)].join(', ')}` })
+      }
+      // Checking by the diagram: the reference cases catch every board, the naive ones do not; each board fails.
+      if (level.play === 'audit') {
+        const cases = judgeCases(level, level.answer, words)
+        const loose = level.boards.findIndex((_, k) => cases.judge(k))
+        out.push({ level: level.id, fail: loose >= 0, text: `  cases ${loose < 0 ? 'PASS' : `FAIL on board ${loose + 1}: ${keyOf(cases.judge(loose))}`} [${level.answer.length} cases]` })
+        if (level.naive && level.boards.every((_, k) => !judgeCases(level, level.naive, words).judge(k))) out.push({ level: level.id, fail: true, text: '  naive cases PASS (bad)' })
+        // The reference cases fill the cases set out, and keep the goal and expectation the level fixes.
+        const set = level.slots.length ?? level.slots
+        if (level.answer.length !== set) out.push({ level: level.id, fail: true, text: `  the reference answer has ${level.answer.length} cases for ${set} set out` })
+        if (Array.isArray(level.slots) && level.slots.some((c, k) => (c.keep ?? []).some((s) => !level.answer[k]?.given.includes(s)))) out.push({ level: level.id, fail: true, text: '  a reference case drops a premise its case keeps' })
+        if (Array.isArray(level.slots) && level.slots.some((c, k) => (c.fixed ?? []).some((cell) => JSON.stringify(c[cell]) !== JSON.stringify(level.answer[k]?.[cell])))) out.push({ level: level.id, fail: true, text: '  a reference case changes a cell its case fixes' })
+        if (level.answer.some((c) => level.caseGoal && c.goal !== level.caseGoal)) out.push({ level: level.id, fail: true, text: '  a reference case breaks the goal the level fixes' })
+        // A board to check is right (want 'agree'); one to catch is wrong.
+        level.boards.forEach(({ board }, k) => { if (!judge(board) !== (level.want === 'agree')) out.push({ level: level.id, fail: true, text: `  board ${k + 1} ${level.want === 'agree' ? 'fails' : 'passes'} every situation (bad)` }) })
+        return out
+      }
+      reportNaive(out, level, naive)
+      return out
+    }))
   }
   for (const level of levels.filter((l) => l.kind === 'machine')) {
-    // Every part of the answer is one its tray holds, a rule part one its books have.
-    const holds = new Set([...reach(course, { id: level.id, task: level.task }), ...rulePartsOf(level).keys(), 'in', 'out'])
-    const missing = [...new Set(level.solution.nodes.filter((n) => !presetIds(level).includes(n.id)).map((n) => n.type).filter((t) => !holds.has(t) && !(level.task > 0 && t === builder.get(level.id))))]
-    if (missing.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
-    const { reference: good, naive } = compare((work) => runOutputTests(MACHINE_TESTS, level, work), level)
-    out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: machine ${good.pass ? 'PASS' : `FAIL ${good.results.filter((r) => !r.pass).map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} cards]` })
-    reportNaive(out, level, naive)
-    if (level.budget !== undefined && good.score.steps > level.budget) out.push({ level: level.id, fail: true, text: `${level.id}: the solution breaks its budget` })
+    out.push(...memo(level.id, `machine ${level.task ?? 0}`, () => {
+      const out = []
+      // Every part of the answer is one its tray holds, a rule part one its books have.
+      const holds = new Set([...reach(course, { id: level.id, task: level.task }), ...rulePartsOf(level).keys(), 'in', 'out'])
+      const missing = [...new Set(level.solution.nodes.filter((n) => !presetIds(level).includes(n.id)).map((n) => n.type).filter((t) => !holds.has(t) && !(level.task > 0 && t === builder.get(level.id))))]
+      if (missing.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
+      const { reference: good, naive } = compare((work) => runOutputTests(MACHINE_TESTS, level, work), level)
+      out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: machine ${good.pass ? 'PASS' : `FAIL ${good.results.filter((r) => !r.pass).map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} cards]` })
+      reportNaive(out, level, naive)
+      if (level.budget !== undefined && good.score.steps > level.budget) out.push({ level: level.id, fail: true, text: `${level.id}: the solution breaks its budget` })
+      return out
+    }))
   }
   for (const level of levels.filter((l) => l.kind === 'term')) {
-    const consts = level.consts ?? []
-    const check = judgeFor(playFor(plays, level), termJudge(level))
-    const answer = parseTerm(level.answer)
-    const judge = (work) => check(parseTerm(work))
-    const { reference, naive, starter } = judgeWorks(judge, { reference: level.answer, naive: level.naive, starter: level.given })
-    const reason = reference.fail?.why
-    out.push({ level: level.id, fail: Boolean(reason), text: `${level.id} ${keyOf(level.title)}: term ${level.answer} ${reason ? `FAILS ${keyOf(reason)}` : 'PASS'}` })
-    // Every name the term uses is a chip of the task: a premise, a thing, a lemma it offers (`uses`).
-    const offered = new Set([...Object.keys(level.premises ?? {}), ...consts, ...(level.uses ?? [])])
-    const unoffered = [...freeIn(answer)].filter((n) => !offered.has(n))
-    if (unoffered.length) out.push({ level: level.id, fail: true, text: `${level.id}: ${level.answer} names ${unoffered.join(', ')}, which no chip gives` })
-    const unbuilt = missingForms(answer, level.forms)
-    if (unbuilt.length) out.push({ level: level.id, fail: true, text: `${level.id}: ${level.answer} uses forms no chip makes: ${unbuilt.join(', ')}` })
-    if (naive?.ok === false) out.push({ level: level.id, fail: true, text: `${level.id}: the naive term ${level.naive} checks` })
-    // A term handed over to mend is wrong to begin with, and can be built on with the chips.
-    if (starter?.ok === false) out.push({ level: level.id, fail: true, text: `${level.id}: the given term ${level.given} already checks` })
-    if (level.given && missingForms(parseTerm(level.given), level.forms).length) out.push({ level: level.id, fail: true, text: `${level.id}: the given term ${level.given} uses forms no chip makes` })
+    out.push(...memo(level.id, `term ${level.task ?? 0}`, () => {
+      const out = []
+      const consts = level.consts ?? []
+      const check = judgeFor(playFor(plays, level), termJudge(level))
+      const answer = parseTerm(level.answer)
+      const judge = (work) => check(parseTerm(work))
+      const { reference, naive, starter } = judgeWorks(judge, { reference: level.answer, naive: level.naive, starter: level.given })
+      const reason = reference.fail?.why
+      out.push({ level: level.id, fail: Boolean(reason), text: `${level.id} ${keyOf(level.title)}: term ${level.answer} ${reason ? `FAILS ${keyOf(reason)}` : 'PASS'}` })
+      // Every name the term uses is a chip of the task: a premise, a thing, a lemma it offers (`uses`).
+      const offered = new Set([...Object.keys(level.premises ?? {}), ...consts, ...(level.uses ?? [])])
+      const unoffered = [...freeIn(answer)].filter((n) => !offered.has(n))
+      if (unoffered.length) out.push({ level: level.id, fail: true, text: `${level.id}: ${level.answer} names ${unoffered.join(', ')}, which no chip gives` })
+      const unbuilt = missingForms(answer, level.forms)
+      if (unbuilt.length) out.push({ level: level.id, fail: true, text: `${level.id}: ${level.answer} uses forms no chip makes: ${unbuilt.join(', ')}` })
+      if (naive?.ok === false) out.push({ level: level.id, fail: true, text: `${level.id}: the naive term ${level.naive} checks` })
+      // A term handed over to mend is wrong to begin with, and can be built on with the chips.
+      if (starter?.ok === false) out.push({ level: level.id, fail: true, text: `${level.id}: the given term ${level.given} already checks` })
+      if (level.given && missingForms(parseTerm(level.given), level.forms).length) out.push({ level: level.id, fail: true, text: `${level.id}: the given term ${level.given} uses forms no chip makes` })
+      return out
+    }))
   }
   for (const level of levels.filter((l) => l.kind === 'script')) {
-    const judge = judgeFor(playFor(plays, level), scriptJudge(level))
-    const { reference: ref, naive, starter } = judgeWorks(judge, { reference: level.answer, naive: level.naive, starter: level.given })
-    out.push({ level: level.id, fail: !ref.ok, text: `${level.id} ${keyOf(level.title)}: script ${ref.ok ? 'PASS' : `FAILS ${keyOf(ref.fail.why)}`}` })
-    const consts = [...(level.consts ?? []), ...(level.things ?? [])]
-    const sentences = new Set(sentencesOf(level).map((f) => show(f)))
-    const { rules, tactics } = methodsOf(level)
-    const methods = new Set(['proof', ...rules.map((m) => m.key), ...tactics])
-    for (const r of level.answer) {
-      if (r.stmt && !sentences.has(show(parse(r.stmt, { consts })))) out.push({ level: level.id, fail: true, text: `${level.id}: the script states ${r.stmt}, which no row can choose` })
-      if (r.by && !methods.has(r.by)) out.push({ level: level.id, fail: true, text: `${level.id}: the script proves a row by ${r.by}, which the level does not offer` })
-      if (r.thing && !(level.things ?? []).includes(r.thing)) out.push({ level: level.id, fail: true, text: `${level.id}: the script takes ${r.thing}, which no row can name` })
-    }
-    if (naive?.ok === false) out.push({ level: level.id, fail: true, text: `${level.id}: the naive script checks` })
-    if (starter?.ok === false) out.push({ level: level.id, fail: true, text: `${level.id}: the given script already checks` })
+    out.push(...memo(level.id, `script ${level.task ?? 0}`, () => {
+      const out = []
+      const judge = judgeFor(playFor(plays, level), scriptJudge(level))
+      const { reference: ref, naive, starter } = judgeWorks(judge, { reference: level.answer, naive: level.naive, starter: level.given })
+      out.push({ level: level.id, fail: !ref.ok, text: `${level.id} ${keyOf(level.title)}: script ${ref.ok ? 'PASS' : `FAILS ${keyOf(ref.fail.why)}`}` })
+      const consts = [...(level.consts ?? []), ...(level.things ?? [])]
+      const sentences = new Set(sentencesOf(level).map((f) => show(f)))
+      const { rules, tactics } = methodsOf(level)
+      const methods = new Set(['proof', ...rules.map((m) => m.key), ...tactics])
+      for (const r of level.answer) {
+        if (r.stmt && !sentences.has(show(parse(r.stmt, { consts })))) out.push({ level: level.id, fail: true, text: `${level.id}: the script states ${r.stmt}, which no row can choose` })
+        if (r.by && !methods.has(r.by)) out.push({ level: level.id, fail: true, text: `${level.id}: the script proves a row by ${r.by}, which the level does not offer` })
+        if (r.thing && !(level.things ?? []).includes(r.thing)) out.push({ level: level.id, fail: true, text: `${level.id}: the script takes ${r.thing}, which no row can name` })
+      }
+      if (naive?.ok === false) out.push({ level: level.id, fail: true, text: `${level.id}: the naive script checks` })
+      if (starter?.ok === false) out.push({ level: level.id, fail: true, text: `${level.id}: the given script already checks` })
+      return out
+    }))
   }
   for (const level of levels.filter((l) => l.builds && MACHINE_PARTS[l.builds] && l.kind === 'machine')) {
-    const names = inputsOfLevel(level).map((i) => i.name)
-    const alone = { nodes: [...names.map((name) => ({ id: name, type: 'in', params: { name } })), { id: 'x', type: level.builds, params: {} }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [...names.map((name) => ({ from: name, to: 'x', port: name })), { from: 'x', to: 'out', port: 'in' }] }
-    const { built: run } = checkWorks((work) => runOutputTests(MACHINE_TESTS, level, work), { built: alone })
-    if (!run.ok) out.push({ level: level.id, fail: true, text: `${level.id}: the part ${level.builds}, alone, does not pass the level that builds it` })
+    out.push(...memo(level.id, `built ${level.task ?? 0}`, () => {
+      const out = []
+      const names = inputsOfLevel(level).map((i) => i.name)
+      const alone = { nodes: [...names.map((name) => ({ id: name, type: 'in', params: { name } })), { id: 'x', type: level.builds, params: {} }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [...names.map((name) => ({ from: name, to: 'x', port: name })), { from: 'x', to: 'out', port: 'in' }] }
+      const { built: run } = checkWorks((work) => runOutputTests(MACHINE_TESTS, level, work), { built: alone })
+      if (!run.ok) out.push({ level: level.id, fail: true, text: `${level.id}: the part ${level.builds}, alone, does not pass the level that builds it` })
+      return out
+    }))
   }
   // A lemma runs the proof of each of its shapes (course.js lemmaProofs): its card alone, in that shape, fed the
   // premises of the task that proves it in order and set to the task's own letters, gives the statement on every test.
@@ -200,9 +232,11 @@ export function validate({ levels: given, course, logic }) {
       const card = { id: 'x', type, params: { ...form, ...Object.fromEntries(paramsOf(part, { params: form }).map((m) => [m, m])) } }
       const names = Object.keys(level.schema.premises ?? {})
       const alone = { nodes: [...startProof(level).nodes, card], wires: [...names.map((name, k) => ({ from: name, to: 'x', port: `p${k}` })), { from: 'x', to: 'goal', port: 'in' }] }
-      const { built: run } = checkWorks((work) => runOutputTests(LOGIC_TESTS, level, work), { built: alone })
-      const failed = run.results[run.fail?.check]
-      if (failed) out.push({ level: level.id, fail: true, text: `${level.id}: the lemma ${type}${key ? ` (${key})` : ''}, alone, does not give its statement: ${keyOf(failed.errors.get('x') ?? failed.checks[0].reason)}` })
+      out.push(...memo(level.id, `lemma ${type} ${key} ${level.task ?? 0}`, () => {
+        const { built: run } = checkWorks((work) => runOutputTests(LOGIC_TESTS, level, work), { built: alone })
+        const failed = run.results[run.fail?.check]
+        return failed ? [{ level: level.id, fail: true, text: `${level.id}: the lemma ${type}${key ? ` (${key})` : ''}, alone, does not give its statement: ${keyOf(failed.errors.get('x') ?? failed.checks[0].reason)}` }] : []
+      }))
     }
   }
   // An equation a machine level proves is what its every test proves.
@@ -211,53 +245,57 @@ export function validate({ levels: given, course, logic }) {
     if (!level.tests.every((t) => t.goal && same(parseS(t.goal), statement))) out.push({ level: level.id, fail: true, text: `${level.id}: its tests are not all the equation ${level.fact} it proves` })
   }
   for (const level of levels.filter((l) => l.kind === 'proof')) {
-    const consts = level.consts ?? []
-    // Induction is no first-order consequence (worlds with numbers past every S…S 0 satisfy the definitions and not
-    // the conclusion), so a proof that uses it is not held to the countermodel search.
-    const induction = (level.solution?.nodes ?? []).some((n) => n.type === 'natInd')
-    for (const test of induction ? [] : level.tests) {
-      const premises = Object.values(test.premises ?? {}).map((t) => parse(t, { consts }))
-      const m = countermodel(premises, parse(test.goal, { consts }))
-      if (m) out.push({ level: level.id, fail: true, text: `${level.id}: ${test.goal} has a countermodel, so no proof can exist` })
-    }
-    // What the task holds of each lemma's shapes (../../course.js holds).
-    const has = course ? holds(course, { id: level.id, task: level.task }, new Set()) : () => true
-    const carried = level.lemmas ? reach(course, { id: level.id, task: level.task }).filter((p) => level.lemmas[p] && course.builder(p) !== level.id && !level.without?.includes(p)) : []
-    for (const p of carried) {
-      // A test that asks for a term asks for one proof in particular, not just any.
-      const l = level.lemmas[p]
-      const forms = l.forms ? l.forms.map((f) => f.key).filter((key) => has(p, 'form', key)) : null
-      const gives = (t) => !t.term && lemmaGives(l, Object.values(t.premises ?? {}).map((x) => parse(x, { consts })), parse(t.goal, { consts }), forms)
-      if (level.tests.every(gives)) out.push({ level: level.id, fail: true, text: `${level.id}: the lemma ${p} it carries proves it in one step` })
-    }
-    // A later task of a level may use what the level builds.
-    const held = course && new Set([...reach(course, { id: level.id, task: level.task }), 'premise', 'goal', ...(level.task > 0 && builder.get(level.id) ? [builder.get(level.id)] : [])])
-    const missing = held ? [...new Set(level.solution.nodes.filter((n) => !presetIds(level).includes(n.id)).map((n) => n.type).filter((t) => !held.has(t)))] : []
-    if (missing.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
-    // Every sentence, term or variable the reference proof picks on a card is one the card offers (choices.js).
-    const offer = choicesOf(level)
-    const offered = Object.fromEntries(Object.entries(offer).map(([kind, list]) => [kind, new Set(list.map((x) => (typeof x === 'string' ? x : show(x))))]))
-    const sentenceChips = chipsFrom(offer.formula, { consts: level.consts ?? [] })
-    for (const n of level.solution.nodes) {
-      for (const [key, value] of Object.entries(n.params ?? {})) {
-        const kind = SETTING_KINDS[n.type]?.[key] ?? 'formula'
-        if (typeof value !== 'string' || ['name', 'side', 'form'].includes(key) || !(RULES[n.type]?.params ?? level.lemmas?.[n.type]?.metas ?? []).includes(key)) continue
-        // A sentence is built from the pieces of the level's sentences; a thing is picked from those offered.
-        if (kind === 'formula' || kind === 'exists') {
-          const missing = missingChips(parse(value, { consts: level.consts ?? [] }), sentenceChips)
-          if (missing.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution builds ${value} on ${n.type} from pieces its card does not offer: ${missing.join(', ')} (add a sentence with them to the level's sentences)` })
-        } else if (!offered[kind].has(choiceKey(kind, value, level))) out.push({ level: level.id, fail: true, text: `${level.id}: the solution picks ${value} on ${n.type}, which its card does not offer (add it to the level's sentences)` })
+    out.push(...memo(level.id, `proof ${level.task ?? 0}`, () => {
+      const out = []
+      const consts = level.consts ?? []
+      // Induction is no first-order consequence (worlds with numbers past every S…S 0 satisfy the definitions and not
+      // the conclusion), so a proof that uses it is not held to the countermodel search.
+      const induction = (level.solution?.nodes ?? []).some((n) => n.type === 'natInd')
+      for (const test of induction ? [] : level.tests) {
+        const premises = Object.values(test.premises ?? {}).map((t) => parse(t, { consts }))
+        const m = countermodel(premises, parse(test.goal, { consts }))
+        if (m) out.push({ level: level.id, fail: true, text: `${level.id}: ${test.goal} has a countermodel, so no proof can exist` })
       }
-    }
-    // A card of a part with forms is in a shape the task holds.
-    for (const n of level.solution.nodes.filter((m) => level.lemmas?.[m.type]?.forms && m.params?.form)) {
-      if (!has(n.type, 'form', n.params.form)) out.push({ level: level.id, fail: true, text: `${level.id}: the solution puts ${n.type} in the shape ${n.params.form}, which the level does not offer yet` })
-    }
-    const banned = level.solution.nodes.filter((n) => level.without?.includes(n.type)).map((n) => n.type)
-    if (banned.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${banned.join(', ')}, which the level holds back` })
-    const { reference: good, naive } = compare((work) => runOutputTests(LOGIC_TESTS, level, work), level)
-    out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: solution ${good.pass ? 'PASS' : `FAIL ${good.results.map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} steps]` })
-    reportNaive(out, level, naive)
+      // What the task holds of each lemma's shapes (../../course.js holds).
+      const has = course ? holds(course, { id: level.id, task: level.task }, new Set()) : () => true
+      const carried = level.lemmas ? reach(course, { id: level.id, task: level.task }).filter((p) => level.lemmas[p] && course.builder(p) !== level.id && !level.without?.includes(p)) : []
+      for (const p of carried) {
+        // A test that asks for a term asks for one proof in particular, not just any.
+        const l = level.lemmas[p]
+        const forms = l.forms ? l.forms.map((f) => f.key).filter((key) => has(p, 'form', key)) : null
+        const gives = (t) => !t.term && lemmaGives(l, Object.values(t.premises ?? {}).map((x) => parse(x, { consts })), parse(t.goal, { consts }), forms)
+        if (level.tests.every(gives)) out.push({ level: level.id, fail: true, text: `${level.id}: the lemma ${p} it carries proves it in one step` })
+      }
+      // A later task of a level may use what the level builds.
+      const held = course && new Set([...reach(course, { id: level.id, task: level.task }), 'premise', 'goal', ...(level.task > 0 && builder.get(level.id) ? [builder.get(level.id)] : [])])
+      const missing = held ? [...new Set(level.solution.nodes.filter((n) => !presetIds(level).includes(n.id)).map((n) => n.type).filter((t) => !held.has(t)))] : []
+      if (missing.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
+      // Every sentence, term or variable the reference proof picks on a card is one the card offers (choices.js).
+      const offer = choicesOf(level)
+      const offered = Object.fromEntries(Object.entries(offer).map(([kind, list]) => [kind, new Set(list.map((x) => (typeof x === 'string' ? x : show(x))))]))
+      const sentenceChips = chipsFrom(offer.formula, { consts: level.consts ?? [] })
+      for (const n of level.solution.nodes) {
+        for (const [key, value] of Object.entries(n.params ?? {})) {
+          const kind = SETTING_KINDS[n.type]?.[key] ?? 'formula'
+          if (typeof value !== 'string' || ['name', 'side', 'form'].includes(key) || !(RULES[n.type]?.params ?? level.lemmas?.[n.type]?.metas ?? []).includes(key)) continue
+          // A sentence is built from the pieces of the level's sentences; a thing is picked from those offered.
+          if (kind === 'formula' || kind === 'exists') {
+            const missing = missingChips(parse(value, { consts: level.consts ?? [] }), sentenceChips)
+            if (missing.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution builds ${value} on ${n.type} from pieces its card does not offer: ${missing.join(', ')} (add a sentence with them to the level's sentences)` })
+          } else if (!offered[kind].has(choiceKey(kind, value, level))) out.push({ level: level.id, fail: true, text: `${level.id}: the solution picks ${value} on ${n.type}, which its card does not offer (add it to the level's sentences)` })
+        }
+      }
+      // A card of a part with forms is in a shape the task holds.
+      for (const n of level.solution.nodes.filter((m) => level.lemmas?.[m.type]?.forms && m.params?.form)) {
+        if (!has(n.type, 'form', n.params.form)) out.push({ level: level.id, fail: true, text: `${level.id}: the solution puts ${n.type} in the shape ${n.params.form}, which the level does not offer yet` })
+      }
+      const banned = level.solution.nodes.filter((n) => level.without?.includes(n.type)).map((n) => n.type)
+      if (banned.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${banned.join(', ')}, which the level holds back` })
+      const { reference: good, naive } = compare((work) => runOutputTests(LOGIC_TESTS, level, work), level)
+      out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: solution ${good.pass ? 'PASS' : `FAIL ${good.results.map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} steps]` })
+      reportNaive(out, level, naive)
+      return out
+    }))
   }
   return out
 }

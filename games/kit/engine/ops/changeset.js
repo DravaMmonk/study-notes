@@ -10,7 +10,8 @@
 // its vocabulary, the course audit, the copy checks and its domain's checks (reference answers run, naive ones fail) —
 // npm run check's rules (../checks.js). Only a changeset with no failure is written, with an entry in the game's change
 // log (<game>/changes.jsonl, append only): what ran, the files and the changeset that undoes it. One that is refused,
-// or only previewed, leaves the workspace as it found it.
+// or only previewed, leaves the workspace as it found it. `cache`: the game's kept checks (../check-cache.js), so only the
+// levels the changeset touches, and the levels after them its puzzles and answers reach, are checked again.
 import { validate } from '../schema.js'
 import { checkContent } from '../vocabulary.js'
 import { withParts } from '../parts/define.js'
@@ -29,7 +30,7 @@ export { LOG, readLog } from './log.js'
  * failed, or null), lines (every line of the check), diff, files, changes ([{ file, before, after }] texts), content
  * (the game as the changeset leaves it, null when an operation failed), inverse (the changeset undoing it) }.
  */
-export async function runChangeset(ws, changeset, { write = false, check = true, undoes = null, base = null, domain: given = null } = {}) {
+export async function runChangeset(ws, changeset, { write = false, check = true, undoes = null, base = null, domain: given = null, cache = null } = {}) {
   const domain = given ?? (await domainOf(ws.content()))
   const start = ws.snapshot()
   const says = []
@@ -58,18 +59,18 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   // Whatever throws from here on (a domain's spec, its checks, the whole game's check) refuses the changeset and
   // leaves the workspace as it was found: fail restores it.
   try {
-    return await settle({ ws, changeset, domain, start, says, inverse, write, check, undoes, base })
+    return await settle({ ws, changeset, domain, start, says, inverse, write, check, undoes, base, cache })
   } catch (error) {
     return fail([`the changeset could not be settled: ${error.message}`])
   }
 }
 
 // The whole game's check, and the write or the restore, after every operation of a changeset has run.
-async function settle({ ws, changeset, domain, start, says, inverse, write, check, undoes, base }) {
+async function settle({ ws, changeset, domain, start, says, inverse, write, check, undoes, base, cache }) {
   const content = ws.content()
   // The hub's count goes with the change (workspace.js), so it is checked against the levels there are now.
   const listed = hubCount(ws.hub, ws.id) === null ? null : ws.levels.size
-  const lines = check ? await checkGame(content, { domain, listed }) : checkContent(domain, content).map((p) => ({ fail: true, text: `content: ${p.at}: ${p.says}` }))
+  const lines = check ? await checkGame(content, { domain, listed, cache }) : checkContent(domain, content).map((p) => ({ fail: true, text: `content: ${p.at}: ${p.says}` }))
   const problems = lines.filter((l) => l.fail).map((l) => l.text)
   const changes = ws.changes()
   const diff = ws.diff()

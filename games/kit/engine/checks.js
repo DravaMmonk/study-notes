@@ -20,13 +20,15 @@ import { GLOSSARY, checkContent } from './vocabulary.js'
 import { find } from './schema.js'
 import { withParts } from './parts/define.js'
 import { termRegistry } from './terminology.js'
+import { noMemo } from './check-cache.js'
 
 /**
  * Everything checked on game `content`, as lines [{ text, fail? }]. listed: how many levels the hub says it has.
  * `domain`: its domain module (content-node.js domainOf). Content that does not fit the vocabulary is not built into a course: what
- * is wrong with it is all there is to say. `mutants`: also the mutation report of each circuit task.
+ * is wrong with it is all there is to say. `mutants`: also the mutation report of each circuit task. `cache`: the game's
+ * kept checks (check-cache.js), which the domain's checks of an unchanged level are read from; never with `mutants`.
  */
-export async function checkGame(content, { domain, listed, mutants = false }) {
+export async function checkGame(content, { domain, listed, mutants = false, cache = null }) {
   const lines = []
   const fail = (text) => lines.push({ fail: true, text })
   const wrong = checkContent(domain, content)
@@ -86,6 +88,9 @@ export async function checkGame(content, { domain, listed, mutants = false }) {
   }
   // Asked for, the circuit base also reports what each task's tests make of the answer's mutants (mutate.js): slow,
   // so it is no part of the check every change runs.
-  lines.push(...(await domain.validate(mutants && spec.circuit ? { ...spec, circuit: { ...spec.circuit, mutants: true } } : spec)))
+  // A domain's check of one level goes through `memo` (check-cache.js), which runs it or hands back what it said last.
+  const memo = cache && !mutants ? cache.memo(content, spec) : noMemo
+  lines.push(...(await domain.validate(mutants && spec.circuit ? { ...spec, memo, circuit: { ...spec.circuit, mutants: true } } : { ...spec, memo })))
+  if (cache && !mutants) cache.save()
   return lines
 }

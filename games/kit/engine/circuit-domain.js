@@ -33,7 +33,7 @@
 //     the course read as `circuit` (validate({ circuit }), the screen's game.circuit: ../shell/circuit-game.js)
 //   GAME, levelSchema({ builds, page?, ports, test, checks?, more?, shared?, kinds? }), NAME, PORT   the schemas of
 //     game.json and of a level, and of a card's name and a port, for the domain's vocabulary
-//   checkCircuitTasks(circuit, { run, entries, failure?, more?, kinds? }) → the domain's lines for npm run check
+//   checkCircuitTasks(circuit, { run, entries, failure?, more?, kinds?, memo? }) → the domain's lines for npm run check
 //       run(task, board) → { runs: [{ fail?, error? }], pass }; entries({ task, test, run, sample }) what the results
 //       area can show of a test (../shell/CircuitScreen.jsx); failure(run) the words for a run that fails;
 //       kinds { kind: check(task) → { problems, ok } } the domain's checks of a task that is no board
@@ -592,7 +592,7 @@ export const TEST_WORDS = {
  * own problems (held: the parts the task holds); a task of another kind is the domain's to check (`kinds`). A tick
  * board's line says how many ticks the reference ran.
  */
-export function checkCircuitTasks(circuit, { run, entries, failure = () => '', more = () => [], kinds = {} }) {
+export function checkCircuitTasks(circuit, { run, entries, failure = () => '', more = () => [], kinds = {}, memo = (_id, _name, f) => f() }) {
   const { LEVELS, course, board } = circuit
   const noted = (ref) => (board.ticks ? `, ${ref.runs.reduce((n, r) => n + (r.ticks?.length ?? 1), 0)} ticks` : '')
   const built = new Set(LEVELS.filter((L) => L.builds).map((L) => L.builds.type))
@@ -602,7 +602,8 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
     const shows = [...(level.intro ?? []).map((p, k) => [p.show, `intro[${k}].show`]), [level.afterShow, 'afterShow'], ...level.tasks.flatMap((task, j) => (task.intro ?? []).map((p, k) => [p.show, `tasks[${j}].intro[${k}].show`]))]
     for (const [show, where] of shows) if (show) out.push(...showProblems(show, `${level.id} ${where}`).map((text) => ({ level: level.id, text, fail: true })))
   }
-  for (const level of LEVELS) {
+  // A level's line, run or (memo, ./check-cache.js) read back from when nothing it reads had changed.
+  for (const level of LEVELS) out.push(memo(level.id, 'tasks', () => {
     const tasks = circuit.played.get(level.id)
     const said = tasks.map((task, k) => {
       const here = circuit.forTask(task)
@@ -680,7 +681,7 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
       const hidden = task.hidden.length ? ` + ${task.hidden.length} hidden` : ''
       return { problems, text: `${head}${problems.length ? problems.join('; ') : `answer PASS (${task.tests.length} tests${hidden}${noted(ref)})${naive}${mutated}${builds ? `, part ${level.builds.type} PASS` : ''}`}` }
     })
-    out.push({ level: level.id, fail: said.some((x) => x.problems.length > 0), text: `${level.id} ${keyOf(level.title)}: ${said.map((x) => x.text).join(' · ')}` })
-  }
+    return { level: level.id, fail: said.some((x) => x.problems.length > 0), text: `${level.id} ${keyOf(level.title)}: ${said.map((x) => x.text).join(' · ')}` }
+  }))
   return out
 }

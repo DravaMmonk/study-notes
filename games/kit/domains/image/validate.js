@@ -17,11 +17,10 @@ const FIGURES = readdirSync(figuresDir).filter((name) => existsSync(new URL(`${n
 
 /** spec: { levels, intros, kit, course } (kit: the course's, engine/kit.js). Returns [{ text, fail?, level? }]: a line
  *  about one level names it. A notes edition's levels may go without an intro: the note introduces them. */
-export function validate({ levels, intros, kit, course }) {
+export function validate({ levels, intros, kit, course, memo = (_id, _name, f) => f() }) {
   const { runLevel } = kit
   const out = []
   const failAt = (text, level) => out.push({ text, fail: true, ...(level ? { level } : {}) })
-  const sayAt = (text, level) => out.push({ text, ...(level ? { level } : {}) })
 
   for (const level of levels) {
     if (course.notes && !intros[level.id]?.length) continue
@@ -31,16 +30,18 @@ export function validate({ levels, intros, kit, course }) {
   // Every task is checked as a level of its own, a task of a level of several named by its place (`1-11/1`); `home` is
   // its level, `last` whether it is the level's last task (the one a packed part runs).
   const played = levels.flatMap((level) => level.tasks.map((task, k) => ({ ...task, id: level.tasks.length > 1 ? `${level.id}/${k + 1}` : level.id, home: level.id, last: k === level.tasks.length - 1 })))
-  for (const level of played) {
-    const fail = (text) => failAt(text, level.home)
-    const say = (text) => sayAt(text, level.home)
+  // A task's checks, run or read back while nothing they read has changed (memo: ../../engine/check-cache.js).
+  for (const level of played) out.push(...memo(level.home, `task ${level.id}`, () => {
+    const out = []
+    const fail = (text) => out.push({ text, fail: true, level: level.home })
+    const say = (text) => out.push({ text, level: level.home })
     if (level.kind !== 'graph') {
       // Boards and probes may export verify(): '' when the level is winnable and its lesson holds.
       const problem = level.verify ? level.verify() : ''
       const line = `${level.id} ${keyOf(level.title)}: (${level.kind}${level.board ? ` ${level.board}` : ''}) ${level.verify ? (problem ? problem : 'verified') : 'no verify()'}`
       if (problem) fail(line)
       else say(line)
-      continue
+      return out
     }
     const report = (graph) => {
       const run = runLevel(level, graph)
@@ -82,6 +83,7 @@ export function validate({ levels, intros, kit, course }) {
       if (run.pass) say(`  its part alone passes`)
       else fail(`${level.id}: its packed part, wired to the level's inputs, fails ${run.results.filter((r) => !r.pass).length} test(s)`)
     }
-  }
+    return out
+  }))
   return out
 }
