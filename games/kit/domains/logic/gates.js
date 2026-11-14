@@ -8,6 +8,7 @@
 // board of the level that builds them (builtGates).
 import { packed, runBoard, sink, source } from '../../engine/boards.js'
 import { OUTPUTS, circuitBoard } from '../../engine/board-cards.js'
+import { boardView } from '../../engine/board-view.js'
 import { parse } from './formula.js'
 import { say } from './notation.js'
 import { lettersOf, rowsOf, valueOn } from './truth.js'
@@ -106,22 +107,8 @@ export function overBudget(level, circuit) {
 }
 
 /**
- * A course's truth circuits as the kernel's circuit screen reads a course read (../../engine/board-course.js forTask):
- * the board, the gates a task holds (its `gates`), and the gates the levels build (`built`, from `builders`, the task
- * building each) as packed parts that open on the board they run.
+ * A course's truth circuits as the kernel's circuit screen reads a course read (../../engine/board-view.js): the board,
+ * the gates a task holds (its `gates`), and the gates the levels build (`built`, from `builders`, the task building
+ * each) as packed parts that open on the board they run.
  */
-export function gateCourse({ built, builders, offerIn, holdsIn, syncOwn }) {
-  const builtBy = (type) => builders[type] && { ...builders[type], builds: { type, name: built[type].name, desc: built[type].desc } }
-  const forTask = (task) => ({
-    board: GATE_BOARD,
-    BUILT: built,
-    builtBy,
-    partOf: (type) => GATE_BOARD.FIXED_PARTS[type] ?? task.gates[type],
-    syncOwn,
-    offerIn,
-    holdsIn,
-    opening: (t) => GATE_BOARD.startBoard(t),
-    stageChain: () => [],
-  })
-  return { BUILT: built, builtBy, forTask }
-}
+export const gateCourse = ({ built, builders, offerIn, holdsIn, syncOwn }) => boardView({ board: GATE_BOARD, parts: (task) => task.gates, built: () => built, builder: (type) => builders[type], offerIn, holdsIn, syncOwn })

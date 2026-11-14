@@ -1,4 +1,4 @@
-// The logic domain's boards for BoardScreen (《证明完毕》): how each runs and is judged, what its wires carry and how a
+// The logic domain's machine board for BoardScreen (《证明完毕》): how it runs and is judged, what its wires carry and how a
 // card shows it, what a test asks and how the board's cards are described to the editor.
 //
 //   board  { tests, parts(level), start(level), lock(level, saved), fits(saved, level, parts), Value({ v, text, small, bare }),
@@ -9,40 +9,19 @@ import { L, T, tr } from '../../../shell/i18n.js'
 import { WORDS } from '../../../shell/words.js'
 import Entries from '../../../shell/Entries.jsx'
 import { presetOf, regionsFit, withPreset } from '../../../circuit/index.js'
-import { startProof } from '../proof.js'
-import { fn, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '../formula.js'
-import { choicesOf } from '../choices.js'
-import { sentencePicker } from '../sentenceLanguage.js'
-import { vocabulary } from '../fol.js'
-import { LOGIC_TESTS } from '../proof.js'
+import { fn, show, tvar } from '../formula.js'
 import { MACHINE_PARTS, MACHINE_TESTS, RULE_PART, MATH, choicesOfPart, inputsOf, inputsOfLevel, parseGoal, rulePartsOf, startMachine } from '../machine.js'
 import { machineShape } from '../blueprint.js'
 import { parseS, ruleText } from '../schematic.js'
 import { rewriteText } from '../rewrite.js'
-import { say, sayTerm } from '../notation.js'
+import { say } from '../notation.js'
 import { constructorsOf } from '../datatype.js'
 import { paramsOf } from '../../../engine/forms.js'
 import { certificate, clauseFormula, refuted } from '../resolution.js'
 import { elimOf, genRuleText } from '../elimgen.js'
-import { printTerm } from '../pterm.js'
-import { familyOf, iconOf, nameOf, partsFor, settingsOf, textOf, withRevisions } from './catalog.js'
+import { nameOf, withRevisions } from './catalog.js'
 import { MACHINE_TEXT } from '../partText.js'
 
-
-/* ---------- proofs ---------- */
-
-/** A judgment: the formula proved, the hypotheses it still rests on, and (from chapter 7, `terms`) its proof term. */
-function Judgment({ v, text, small = false, bare = false, terms = false }) {
-  if (!v) return null
-  const hyps = [...v.hyps.values()]
-  return (
-    <span className={`lg-formula ${small ? 'is-small' : ''}`}>
-      <b data-card-sentence>{text(v.formula)}</b>
-      {terms && v.term && <code className="lg-term" title={tr('证明项', 'Proof term')}>{printTerm(v.term)}</code>}
-      {!small && !bare && hyps.length > 0 && <small>{tr('依赖')} {hyps.map(text).join(tr('；'))}</small>}
-    </span>
-  )
-}
 
 // A board's start with the level's preset in place (`preset`: ids of its reference answer, course.js), and the preset
 // put back into a saved board (a board saved before the level had one, or before it changed).
@@ -55,111 +34,12 @@ const withLevel = (start) => {
   return { start: (level) => withPreset(start(level), presetFor(level)), lock: (level, saved) => withPreset(saved, presetFor(level)) }
 }
 
-const premiseNames = (level) => Object.keys(level.schema.premises ?? {}).sort().join()
-const names = (circuit) => circuit.nodes.filter((n) => n.type === 'premise').map((n) => n.params.name).sort().join()
 // A saved board still fits: every card a part the board has, every wire into a port its card has, every card in a
 // region of a frame that is there.
 const fitsBoard = (circuit, parts) => {
   const byId = new Map(circuit.nodes.map((n) => [n.id, n]))
   return circuit.nodes.every((n) => parts.role(n) !== 'part' || parts.rules[n.type]) && regionsFit(circuit, parts)
     && circuit.wires.every((w) => byId.has(w.to) && parts.inputs(byId.get(w.to)).includes(w.port))
-}
-
-// Building a card's sentence (strip/TreePick.jsx): the chips of the level's sentences, in the schema's letters, each
-// letter's chip saying this test's sentence for it.
-function sentenceBuild(level, test, offer, text) {
-  const consts = level.consts ?? []
-  const arity = new Map(vocabulary(offer.formula).preds)
-  const lettered = Object.entries(test.subst ?? {}).map(([letter, to]) => [letter, arity.get(letter) > 0 && to.op === 'atom' && level.notation.words?.[to.pred]
-    ? level.notation.words[to.pred]
-    : { zh: text(to), en: text(to) }])
-  const notation = { ...level.notation, words: { ...level.notation.words, ...Object.fromEntries(lettered) } }
-  const read = (value) => parse(value, { consts })
-  return sentencePicker(offer.formula, { read, consts, notation, text: (value) => text(replaceAtoms(read(value), test.subst)) })
-}
-
-export const PROOF = {
-  tests: LOGIC_TESTS,
-  parts: (level) => partsFor(level.lemmas, Object.keys(level.schema.premises ?? {})),
-  ...withLevel(startProof),
-  fits: (saved, level, parts) => names(saved) === premiseNames(level) && fitsBoard(saved, parts),
-  Value: Judgment,
-  // A card holds the schema's letters and shows them as this test's sentences, so its choices are the schema's own
-  // sentences (../choices.js), renamed whenever the test changes.
-  scene: (level, test, text) => {
-    const consts = level.consts ?? []
-    const goal = parse(test.goal, { consts })
-    const premises = Object.values(test.premises ?? {}).map((t) => parse(t, { consts }))
-    const offer = choicesOf(level)
-    const sentence = (f) => ({ value: show(f), label: text(replaceAtoms(f, test.subst)) })
-    return {
-      // Chapter 7 names each premise (its proof term is that name) and may ask for the proof's term too.
-      sequent: <>{premises.length > 0 && <>{tr('已知', 'Given')} <b>{Object.entries(test.premises).map(([name, t]) => `${level.terms ? `${name}: ` : ''}${text(parse(t, { consts }))}`).join(tr('；'))}</b> · </>}{tr('要证', 'prove')} <b>{text(goal)}</b>{test.term && <> · {tr('证明项应为', 'with the proof term')} <code className="lg-term">{test.term}</code></>}</>,
-      premiseNames: Object.keys(test.premises ?? {}),
-      want: <span className="lg-want">{tr('要证', 'Prove')} <b>{text(goal)}</b>{test.term && <><br />{tr('证明项应为', 'Proof term')} <code className="lg-term">{test.term}</code></>}</span>,
-      // A sentence on a card is built from the pieces of the level's sentences, each letter shown as this test's.
-      build: sentenceBuild(level, test, offer, text),
-      choices: {
-        term: offer.term.map((t) => ({ value: t, label: L(sayTerm(parse(`${t} = ${t}`, { consts }).args[0], level.notation)) })),
-        // What choosing an instance puts in: a thing, or a sentence when the level has a ∀ over sentences.
-        instance: offer.instance.map((t) => (offer.term.includes(t) ? { value: t, label: L(sayTerm(parse(`${t} = ${t}`, { consts }).args[0], level.notation)) } : sentence(parse(t, { consts })))),
-        name: offer.name.map((v) => ({ value: v, label: v })),
-      },
-    }
-  },
-  settings: (parts, node, level) => settingsOf(parts.rules, node, level.lemmas),
-  extra: (node, setParam, { ins, text }) => (node.type === 'orI' ? (
-    <div className="lg-side" role="group" aria-label={tr('另一边放在')} onPointerDown={(e) => e.stopPropagation()}>
-      <span>{tr('另一边放')}</span>
-      {[['left', tr('左')], ['right', tr('右')]].map(([side, label]) => (
-        <button key={side} type="button" aria-pressed={(node.params.side ?? 'right') === side} onClick={() => setParam(node.id, 'side', side)}>{label}</button>
-      ))}
-    </div>
-  ) : node.type === 'rewrite' && <Occurrences node={node} ins={ins} setParam={setParam} text={text} />),
-  nameOf: (level, type) => nameOf(level.lemmas ?? {}, type),
-  textOf: (level, type, revisions) => textOf(level.lemmas ?? {}, type, revisions),
-  iconOf: (level, type) => iconOf(level.lemmas ?? {}, type),
-  familyOf: (level, type) => familyOf(level.lemmas ?? {}, type),
-  words: {
-    steps: T('步数'),
-    go: WORDS.check,
-    passed: T('证明完毕'),
-    pass: T('目标已证出，没有未解除的假设。'),
-    idle: T('每组测试都须通过：目标收到的句子要与待证的句子一致，且不留未解除的假设。'),
-    reached: T('已证出'),
-    notYet: T('还没有'),
-    noOpen: T('尚无假设'),
-    empty: T('从上方元件栏选择规则放到板上，再把元件右侧的圆点连到另一元件左侧的圆点。'),
-  },
-}
-
-// A rewrite card's choice: φ with every s in a box, ticked to be replaced by t. The boxes appear once s = t and φ
-// are wired in.
-const MARK = '\u0001'
-function Occurrences({ node, ins, setParam, text }) {
-  const [e, p] = [ins.eq?.formula, ins.p?.formula]
-  // A term in the level's words: the left side of t = t as the board writes it.
-  const say = (t) => text({ op: 'atom', pred: '=', args: [t, t] }).split(' = ')[0]
-  if (!e || !p) return <span className="lg-mark">{tr('接入 s = t 和 φ(s) 后，这里会框出每一处 s')}</span>
-  if (e.op !== 'atom' || e.pred !== '=') return null
-  const s = e.args[0]
-  const n = occurrences(p, s)
-  if (!n) return null
-  const at = node.params.at ?? []
-  const toggle = (k) => setParam(node.id, 'at', at.includes(k) ? at.filter((x) => x !== k) : [...at, k].sort((a, b) => a - b))
-  // φ written with a marker for each occurrence, then cut at the markers.
-  const pieces = text(replaceTerm(p, s, (k) => tvar(`${MARK}${k}${MARK}`), () => true)).split(new RegExp(`${MARK}(\\d+)${MARK}`))
-  const term = say(s)
-  return (
-    <div className="lg-occ" role="group" aria-label={tr('选择要替换的位置')} onPointerDown={(ev) => ev.stopPropagation()}>
-      <small>{tr(`勾选要替换为 ${say(e.args[1])} 的位置`, `Tick the occurrences to replace with ${say(e.args[1])}`)}</small>
-      <span className="lg-occ-text">
-        {pieces.map((piece, i) => (i % 2 ? (
-          <button key={i} type="button" aria-pressed={at.includes(Number(piece))} onClick={() => toggle(Number(piece))}>{term}</button>
-        ) : <span key={i}>{piece}</span>))}
-      </span>
-    </div>
-  )
 }
 
 /* ---------- machines ---------- */
@@ -258,7 +138,7 @@ const MATH_NAME = T('数理规则书')
 function rulePartName(level, type) {
   if (type === MATH) return MATH_NAME
   const r = rulePartsOf(level).get(type)[0].rule
-  if (r.part || level.lemmas?.[type]) return nameOf(level.lemmas ?? {}, type)
+  if (r.part || level.lemmas?.[type]) return nameOf(level, type)
   return ruleName(level, r)
 }
 /** A rule of a rule part's, written out: an inference rule, or a rewrite rule (an equation given goes by its name). */

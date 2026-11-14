@@ -5,13 +5,8 @@ import Readouts from '../../../shell/Readouts.jsx'
 import { isFixed, outputsOf, srcOf, within } from '../../../circuit/index.js'
 import { MISSING } from '../../../engine/circuit.js'
 import { runOutputTests } from '../../../engine/test-run.js'
-import { parse } from '../formula.js'
-import { inductionCases } from '../proof.js'
 import { say } from '../notation.js'
-import { RowText } from '../../../shell/plays/FieldRows.jsx'
-import { scriptLines } from '../script.js'
 import FormulaField from './FormulaField.jsx'
-import { TreeButton } from '../../../strip/TreePick.jsx'
 import { formOf } from '../../../engine/forms.js'
 import { machineSteps, machineViewAt } from './stepping.js'
 import { openRef } from '../../../shell/refs.js'
@@ -121,19 +116,12 @@ function BoardScreen({ board, screen }) {
   const small = (v) => (v ? <Value v={v} text={text} small /> : null)
   const regionNote = (node, region, ctx) => {
     if (ctx.readOnly) return small(ctx.view.values.get(srcOf(node, region)))
-    // A for-any box opens no assumption: its region holds the thing it takes.
-    if (node.type === 'allI') return node.params?.x ? <span className="lg-taken">{tr('任取的是')} <b>{node.params.x}</b></span> : <i className="lg-mark">{tr('尚未命名')}</i>
     const v = view.values.get(srcOf(node, region))
     return v ? <Value v={v} text={text} small /> : <i className="lg-mark">{L(board.words.noOpen)}</i>
   }
   // By a region's result: what the frame gives (or why it gives nothing yet); each box of Induction proves its own case.
   const resultNote = (node, region, ctx) => {
     if (ctx.readOnly) return small(ctx.view.values.get(node.id))
-    if (node.type === 'natInd' && region) {
-      let want = null
-      try { const G = parse(node.params?.P ?? '', { consts: level.consts ?? [] }); if (G.op === '∀' && node.params?.x) want = inductionCases(G, node.params.x, level.consts)[region] } catch { want = null }
-      return want ? <span className="lg-taken">{tr('要证', 'To prove')} <b>{text(want)}</b></span> : <i className="lg-mark">{tr('请先选择要证的句子和名字')}</i>
-    }
     const [v, error] = [view.values.get(node.id), view.errors.get(node.id)]
     if (v) return <Value v={v} text={text} small />
     return error && error !== MISSING ? <span className="lg-error">{L(error)}</span> : <i className="lg-mark">{tr('尚未接线')}</i>
@@ -177,11 +165,9 @@ function BoardScreen({ board, screen }) {
       }}
       canvas={{ height: 150, emptyNote: board.words.empty }}
       brief={{
-        text: level.kind === 'proof' ? tests.at(-1).caseBrief : undefined,
         hint: level.hint,
         children: (
           <>
-            {level.script && <RowText lines={scriptLines(level.script, (t) => text(parse(t, { consts: [...(level.consts ?? []), ...(level.things ?? [])] })))} />}
             <section className="lg-score">
               <Readouts items={[
                 { value: board.tests.score(level, circuit).steps, label: board.words.steps },
@@ -274,14 +260,7 @@ function Setting({ s, node, board, parts, level, circuit, scene, setParam, forms
     case 'depth': return <FormulaField label={s.label} value={String(value)} onChange={set} choices={DEPTHS.map((d) => ({ value: String(d), label: tr(`${d} 层`, `${d} levels`) }))} blank={T('不限')} disabled={disabled} />
     case 'at': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'hyps', label: tr('已知', 'Hypotheses') }]} blank={T('目标', 'Goal')} disabled={disabled} />
     case 'unit': return <FormulaField label={s.label} value={value} onChange={set} choices={[{ value: 'unit', label: tr('只和单项子句') }]} blank={T('任意两条')} disabled={disabled} />
-    // A sentence is built on the strip (SentencePick.jsx) from the pieces of the level's sentences; a thing is picked.
-    case undefined: case 'formula': case 'exists': return (
-      <div className="lg-field" onPointerDown={(e) => e.stopPropagation()}>
-        <span>{L(s.label)}</span>
-        <TreeButton value={value} onChange={set} build={scene.build} title={s.label} placeholder={s.blank ?? T('拼一句')} scope={`${node.id}:${s.key}`} disabled={disabled} clearable={Boolean(s.blank)} />
-      </div>
-    )
-    default: return <FormulaField label={s.label} value={value} onChange={set} choices={scene.choices[s.kind]} blank={s.blank} disabled={disabled} />
+    default: return null
   }
 }
 
@@ -304,7 +283,6 @@ function CardBody({ node, board, parts, level, circuit, view, scene, setParam, t
     <div className="lg-card">
       {role === 'sink' && scene.want}
       {settings.map((s) => <Setting key={s.key} s={s} node={node} board={board} parts={parts} level={level} circuit={circuit} scene={scene} setParam={setParam} formsOf={formsOf} />)}
-      {board.extra?.(node, setParam, { ins: Object.fromEntries(circuit.wires.filter((w) => w.to === node.id).map((w) => [w.port, view.values.get(w.from)])), text })}
       {node.fold && <span className="lg-held">{held ? tr(`框内 ${held} 步`, held === 1 ? '1 step inside' : `${held} steps inside`) : tr('框内为空')}</span>}
       {role === 'source' && (board.ioBox ? <IoBox><Value v={value} text={text} /></IoBox> : <Value v={value} text={text} bare />)}
       {role === 'sink' && board.ioBox && !problem && <IoBox><Value v={value} text={text} /></IoBox>}

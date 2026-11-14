@@ -1,27 +1,8 @@
-// What the logic domain's parts are called and what they do (《证明完毕》), as a player reads them: each rule's name,
-// what it does and its ports, written with letters for any sentence (a part is a pattern), the settings on its card and
-// a box's regions; the same for the machine board's parts. The vocabulary's items (vocabulary.js) are named by them.
+// What the machine board's parts are called and what they do (《证明完毕》), as a player reads them: each part's name,
+// what it does, its ports, the settings on its card and a frame's regions. The vocabulary's items (vocabulary.js) are
+// named by them.
 import { T } from '../../shell/i18n.js'
 
-
-/** Every rule: name, what it does, port labels, setting labels and the regions of a box (`frames`). */
-export const RULE_TEXT = {
-  mp: { name: T('套用'), desc: T('由 A → B 和 A 得到 B。'), ports: { imp: 'A → B', a: 'A' } },
-  impI: { name: T('假设框'), desc: T('带一个框，A 在元件上设定。框内可以使用假设 A；框内证出 B 并接到「结论」，元件输出 A → B。'), params: { A: T('假设') }, frames: { body: T('框内') } },
-  andI: { name: T('拼接', 'Join'), desc: T('接入 A 和 B，得到 A ∧ B。'), ports: { a: 'A', b: 'B' } },
-  andE: { name: T('拆解'), desc: T('接入 A ∧ B，两个输出口分别得到 A 和 B。'), ports: { ab: 'A ∧ B' }, outs: { left: ['A', 'A'], right: ['B', 'B'] } },
-  orI: { name: T('补充'), desc: T('接入 A，选定另一句 B 和它的位置，得到 A ∨ B 或 B ∨ A；不需要证明 B。'), ports: { a: 'A' }, params: { other: T('另一边') } },
-  orE: { name: T('分类讨论'), desc: T('接入 A ∨ B，在两个框中分别假设 A、B。两个框都证出同一句 C 并接到各自的「结论」时，元件输出 C。'), ports: { ab: 'A ∨ B' }, frames: { left: T('情况一'), right: T('情况二') } },
-  botE: { name: T('爆炸'), desc: T('由矛盾 ⊥ 得到元件上选定的任意一句。'), ports: { bot: '⊥' }, params: { C: T('得出', 'Conclude') } },
-  raa: { name: T('反证法'), desc: T('由 ¬¬A 得到 A（双重否定消去）。'), ports: { nna: '¬¬A' } },
-  allI: { name: T('任取框'), desc: T('在元件上为任意对象取名 a，在框内证明 P(a) 并接到「结论」，框外得到 ∀x. P(x)。a 不能出现在未解除的假设中。'), params: { x: T('名字', 'Name') }, frames: { body: T('框内') } },
-  allE: { name: T('选定一例'), desc: T('接入 ∀x. P(x)，选定对象 t，得到 P(t)。'), ports: { all: '∀x. P(x)' }, params: { t: T('哪一样') } },
-  exI: { name: T('概括'), desc: T('接入 P(t)，以 t 为例得到 ∃x. P(x)。只有一个相符的存在命题时自动输出；有多个时，在元件上选择要得出的命题。'), ports: { a: 'P(t)' }, params: { target: T('要得出') } },
-  exE: { name: T('实例框'), desc: T('接入 ∃x. P(x)，在元件上为存在的对象取名 a。框内可以假设 P(a)；证出 C 并接到「结论」后，框外得到 C。C 中不能出现 a，a 也不能出现在未解除的假设中。'), ports: { ex: '∃x. P(x)' }, params: { x: T('见证') }, frames: { body: T('框内') } },
-  natInd: { name: T('数学归纳法'), desc: T('带两个框，证元件上选定的 ∀x. P(x)。第一个框证 P(0)；第二个框内的数记作 a（在元件上命名，不能出现在未解除的假设中），可以使用假设 P(a)，要证 P(S a)。两个框都证完，元件输出 ∀x. P(x)。'), params: { P: T('要证', 'Prove'), x: T('名字', 'Name') }, frames: { zero: T('0 的情况'), step: T('从 a 到 S a') } },
-  refl: { name: T('自反律'), desc: T('在元件上选定一样东西 t，得到 t = t。'), params: { t: T('哪一样') } },
-  rewrite: { name: T('等量代换', 'Rewrite'), desc: T('接入 s = t 和一句含 s 的话；元件标出这句话里的每一处 s，勾选的几处换成 t。'), ports: { eq: 's = t', p: 'φ(s)' } },
-}
 
 /** The machine board's parts (../machine.js): name, what each does, and the regions of a frame. */
 export const MACHINE_TEXT = {

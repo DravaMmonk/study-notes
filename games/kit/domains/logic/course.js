@@ -17,10 +17,11 @@ import { MACHINE_PARTS, axiomPartsOf, builtMachine, startMachine } from './machi
 import { render, say, sayTerm } from './notation.js'
 import { typeOf } from './iso.js'
 import { equations } from './define.js'
-import { provesShape, startProof } from './proof.js'
+import { PROOF_BOARD, provesShape, startProof } from './proof.js'
+import { partsOf } from './ops.js'
+import { boardView } from '../../engine/board-view.js'
 import { keptBoards } from './built.js'
 import { builtGates, gateCourse, gateTests, startGates } from './gates.js'
-import { defineParts } from '../../engine/parts/define.js'
 import { boardOf } from './ruleLines.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
 
@@ -46,7 +47,8 @@ const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
  *               on): a machine level with `fact` one of them proves it, and from then on it is a rule and a rewrite rule
  *               of the rule book of numbers (machine.js MATH), in every level after that one (`proven`)
  *   gates       { type: { name, desc, ports } } the gates the player builds on a truth circuit (gates.js)
- *   partDefs    parts.json: the primitive gates (../../engine/parts/define.js), over the kernel's builtins
+ *   partDefs    parts.json: the primitive gates and the proof rules (../../engine/parts/define.js), over the domain's
+ *               engine resources (ops.js)
  *   revisions   { type: [{ at | by: level id, desc?, forms? }] } a part's description as it grows along the course,
  *               and the shapes (forms) an upgrade earned at `by` adds to its card
  *   machines    [type] the machine-board parts the player builds (machine.js, named in ui/catalog.js MACHINE_TEXT): a
@@ -76,8 +78,8 @@ const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
  * parts of its rule book (blueprint.js machineShape), which holds every rule met whatever the tray; and a lemma's
  * shapes after its first are values of its `form` that the upgrade proving them opens (`revisions`: by, forms).
  * Returns { LEVELS, CHAPTERS, LABELS, course, offerIn(task, flags), holdsIn(task, flags), machines, revisions, proofs,
- * gates: the gates built, defs and defaultsOf: the parts parts.json defines and a new node's settings, truthCircuits: the truth circuits as the kernel's circuit
- * screen reads a course, wrong: what reading the content found wrong, … }: each of LEVELS { id, title, …, tasks }, its
+ * gates: the gates built, defs and defaultsOf: the parts parts.json defines and a new node's settings, truthCircuits and proofBoards: the truth circuits and
+ * the proofs as the kernel's circuit screen reads a course, wrong: what reading the content found wrong, … }: each of LEVELS { id, title, …, tasks }, its
  * tasks as read (`task` the index, `taskId` the id). Reading builds all of it anew: the content is never written to.
  */
 // A proof level's tests from its schema and cases (see logicCourse), and the schema kept for the cards' choices.
@@ -214,8 +216,14 @@ export function logicCourse(content) {
   // The gates the levels build, filled in once the levels that build them are read (builtGates); a board of gates is
   // read by their ports alone. A truth circuit holds those and the primitive gates (parts.json), each with its name.
   const gatePieces = {}
-  const { PARTS, defs, defaultsOf } = defineParts(content.partDefs, {})
-  const boardGates = Object.fromEntries(Object.entries(PARTS).map(([type, part]) => [type, { ...part, name: defs[type].name, desc: defs[type].desc }]))
+  // The parts: parts.json's and the lemmas', each on the board of its family.
+  const { PARTS, defs, defaultsOf } = partsOf(content.partDefs, lemmas)
+  const onBoard = (...families) => Object.fromEntries(Object.entries(PARTS).filter(([type]) => families.includes(defs[type].family)))
+  const primitiveGates = onBoard('gate')
+  const boardGates = Object.fromEntries(Object.entries(primitiveGates).map(([type, part]) => [type, { ...part, name: defs[type].name, desc: defs[type].desc }]))
+  // A proof's parts: the proof rules and the lemmas, and the board's premises and goal.
+  const proofTypes = Object.keys(onBoard('rule', 'box', 'lemma'))
+  const proofParts = { ...PROOF_BOARD.FIXED_PARTS, ...onBoard('rule', 'box', 'lemma') }
   // The proofs the lemmas run, filled in the same way (lemmaReferences).
   const lemmaPieces = {}
   const gatePorts = Object.fromEntries(Object.entries(gates).map(([type, g]) => [type, { inputs: g.ports }]))
@@ -238,13 +246,13 @@ export function logicCourse(content) {
   const answers = (one) => {
     const read = (field, start, shape, types) => (one[field] ? { [field]: board(one, field, start, shape, types) } : {})
     if (one.kind === 'proof') {
-      const shape = proofShape(lemmas)
-      return { ...one, ...read('solution', startProof(one), shape, Object.keys(shape.rules)), ...read('naive', startProof(one), shape, Object.keys(shape.rules)) }
+      const shape = proofShape(proofParts)
+      return { ...one, parts: proofParts, ...read('solution', startProof(one), shape, proofTypes), ...read('naive', startProof(one), shape, proofTypes) }
     }
     if (one.kind === 'gates') {
-      const shape = gateShape({ ...PARTS, ...gatePorts })
-      const types = [...Object.keys(PARTS), ...Object.keys(gates)]
-      return { ...one, tests: gateTests(one), hidden: [], ...read('solution', startGates(one), shape, types), ...read('naive', startGates(one), shape, types) }
+      const shape = gateShape({ ...primitiveGates, ...gatePorts })
+      const types = [...Object.keys(primitiveGates), ...Object.keys(gates)]
+      return { ...one, tests: gateTests(one), ...read('solution', startGates(one), shape, types), ...read('naive', startGates(one), shape, types) }
     }
     return one
   }
@@ -261,7 +269,7 @@ export function logicCourse(content) {
       const notation = { words: l.words ?? words, symbols: known, propertyWords: l.propertyWords ?? l.kind === 'proof' }
       const expanded = l.cases ? expand(l, notation) : {}
       // A machine board's axioms are parts the level brings with it (machine.js axiomPartsOf).
-      return answers({ ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: expanded.tests.at(-1).caseBrief } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter, requires, unlocks, lemmas, proofs: lemmaPieces, facts, gates: boardGates, revisions, notation })
+      return answers({ ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: expanded.tests.at(-1).caseBrief } : {}), adds: [...(l.adds ?? []), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter, requires, unlocks, lemmas, proofs: lemmaPieces, facts, gates: boardGates, partDefs: defs, revisions, notation })
     }
     const all = tasksOf.get(id).map(read)
     const last = all.at(-1)
@@ -412,6 +420,8 @@ export function logicCourse(content) {
   const holdsIn = (task, flags) => holds(course, at(task), flags)
   // The truth circuits as the kernel's circuit screen reads them (gates.js gateCourse).
   const truthCircuits = gateCourse({ built: gatePieces, builders: gateBuilders, offerIn, holdsIn, syncOwn: kept.sync })
+  // The proofs, the same way: their parts are the proof rules and the lemmas (proofParts).
+  const proofBoards = boardView({ board: PROOF_BOARD, parts: () => proofParts, offerIn, holdsIn, syncOwn: kept.sync })
   function workReferences(task, work) {
     if (!task) return []
     const source = tasksOf.get(task.id)?.[task.task]
@@ -433,7 +443,7 @@ export function logicCourse(content) {
     })
     return [...named, ...boards]
   }
-  return { LEVELS, CHAPTERS, LABELS, course, workReferences, offerIn, holdsIn, machines, revisions, proofs: lemmaPieces, gates: gatePieces, defs, defaultsOf, truthCircuits, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
+  return { LEVELS, CHAPTERS, LABELS, course, workReferences, offerIn, holdsIn, machines, revisions, proofs: lemmaPieces, gates: gatePieces, defs, defaultsOf, truthCircuits, proofBoards, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
 }
 
 /** Find the proof work a lemma's form publishes, by its statement and the level that introduces it. */

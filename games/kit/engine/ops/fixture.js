@@ -51,6 +51,13 @@ const GLOSSARY = {
   }],
 }
 
+// Its parts (parts.json): Apply and the assumption box over the domain's resources.
+const PARTS = {
+  parts: {
+    mp: { name: T('套用', 'Apply'), desc: T('由 A → B 和 A 得到 B。', 'From A → B and A, B.'), icon: 'GitFork', family: 'rule', inputs: [{ name: 'imp', label: T('A → B') }, { name: 'a', label: T('A') }], compute: 'mp(imp, a)' },
+    impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A，证出 B，得到 A → B。', 'Assume A inside, prove B, get A → B.'), icon: 'Box', family: 'box', inputs: [], settings: [{ key: 'A', control: 'tree', label: T('假设', 'Assume') }], regions: [{ name: 'body', label: T('框内', 'Inside'), opens: true, closes: true }], compute: 'impI(body)' },
+  },
+}
 const LEVELS = {
   given: {
     title: T('照抄', 'Copy'),
@@ -103,6 +110,7 @@ export function proofsRoot() {
   const put = (file, value) => writeFileSync(join(root, ID, file), `${JSON.stringify(value, null, 2)}\n`)
   put('game.json', GAME)
   put('glossary.json', GLOSSARY)
+  put('parts.json', PARTS)
   for (const [id, level] of Object.entries(LEVELS)) put(`levels/${id}.json`, level)
   writeFileSync(join(root, 'games.js'), `export const GAMES = [\n  {\n    id: '${ID}', levels: ${Object.keys(LEVELS).length},\n  },\n]\n`)
   return { root, id: ID }

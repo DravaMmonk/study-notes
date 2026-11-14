@@ -15,7 +15,7 @@ export const gatesScreen = {
   course: (game) => game.logic.truthCircuits,
   play: { runLevel: runGates, show: TF },
   table: gatesPlayFor,
-  told: (level) => (level.blind ? null : { label: T('这句话'), text: say(parse(level.target), level.notation) }),
+  told: (level) => (level.blind ? [] : [{ label: T('这句话'), text: say(parse(level.target), level.notation) }]),
   final: overBudget,
   score: (level, circuit) => ({ steps: countGates(level, circuit) }),
   readouts: (level, circuit) => [{ value: countGates(level, circuit), label: T('门') }, level.budget !== undefined && { value: level.budget, label: T('最多') }],

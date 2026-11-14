@@ -13,8 +13,9 @@ import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
 import { TRAY, TRAYS } from '../../engine/trays.js'
 import { RULES } from './proof.js'
+import { OP_ITEMS } from './ops.js'
 import { MACHINE_PARTS } from './machine.js'
-import { MACHINE_TEXT, RULE_TEXT } from './partText.js'
+import { MACHINE_TEXT } from './partText.js'
 import { T as t } from '../../shell/i18n.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -41,10 +42,23 @@ const WORDS = S.list(S.either(S.str(), S.map(S.text())), { about: t('用哪几�
 /* ---------- the parts ---------- */
 
 const named = (texts, keys) => Object.fromEntries(keys.map((k) => [k, item(texts[k].name)]))
-const PROOF_RULES = Object.keys(RULES).filter((k) => RULE_TEXT[k])
 const PART_ITEMS = {
-  ...named(RULE_TEXT, PROOF_RULES),
-  // The primitive gates: a game's parts.json defines them.
+  // The proof rules and the primitive gates: a game's parts.json defines them.
+  mp: item(t('套用', 'Apply')),
+  impI: item(t('假设框', 'Assumption box')),
+  andI: item(t('拼接', 'Join')),
+  andE: item(t('拆解', 'Split')),
+  orI: item(t('补充', 'Add alternative')),
+  orE: item(t('分类讨论', 'Case analysis')),
+  botE: item(t('爆炸', 'Explosion')),
+  raa: item(t('反证法', 'By contradiction')),
+  allI: item(t('任取框', 'For-any box')),
+  allE: item(t('选定一例', 'Choose an instance')),
+  exI: item(t('概括', 'Generalise')),
+  exE: item(t('实例框', 'Instance box')),
+  natInd: item(t('数学归纳法', 'Mathematical induction')),
+  refl: item(t('自反律', 'Reflexivity')),
+  rewrite: item(t('等量代换', 'Rewrite')),
   gNot: item(t('非 ¬')),
   gAnd: item(t('与 ∧')),
   ...named(MACHINE_TEXT, Object.keys(MACHINE_PARTS).filter((k) => MACHINE_TEXT[k])),
@@ -55,6 +69,9 @@ const PART_ITEMS = {
 // How a game's parts.json colours its parts.
 const FAMILIES = {
   gate: item(t('逻辑门')),
+  rule: item(t('推理规则', 'Inference rule')),
+  box: item(t('带框的规则', 'Rule with a box')),
+  lemma: item(t('证出的引理', 'Proved lemma')),
 }
 
 /* ---------- what levels are and want ---------- */
@@ -239,11 +256,11 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 2,
+  version: 3,
   kinds: {
     part: PART_ITEMS,
-    // The engine resources parts.json may call beyond the kernel's builtins (../../engine/parts/builtins.js): none yet.
-    op: {},
+    // The engine resources parts.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).
+    op: OP_ITEMS,
     family: FAMILIES,
     kind: KINDS,
     want: WANTS,

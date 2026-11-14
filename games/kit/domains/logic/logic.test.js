@@ -12,12 +12,17 @@ import { parse, same, show, subst, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
 import { MACHINE_PARTS, MACHINE_TESTS, rulePartOf } from './machine.js'
 import { genRuleText } from './elimgen.js'
-import { LOGIC_TESTS, RULES, lemmaGives } from './proof.js'
+import { LOGIC_TESTS, PROOF_BOARD, RULES, lemmaGives } from './proof.js'
+import { partsOf } from './ops.js'
+import { readContent } from '../../engine/content-node.js'
 import { printTerm } from './pterm.js'
 import { validate } from './validate.js'
 import { T } from '../../shell/i18n.js'
 
-const run = (level, circuit) => runOutputTests(LOGIC_TESTS, level, circuit)
+// A proof runs on the parts the starter defines (its parts.json) and the level's lemmas.
+const STARTER = readContent('starter', import.meta.dirname).partDefs
+const proofParts = (lemmas) => ({ ...PROOF_BOARD.FIXED_PARTS, ...partsOf(STARTER, lemmas).PARTS })
+const run = (level, circuit) => runOutputTests(LOGIC_TESTS, { parts: proofParts(level.lemmas), ...level }, circuit)
 
 /* ---------- boards written short ---------- */
 
@@ -30,11 +35,11 @@ const wiresOf = (wires) => wires.map((w) => {
   return { from, to: id, port }
 })
 const cardsOf = (nodes, registry) => Object.entries(nodes).map(([id, [type, params = {}, where]]) => ({
-  id, type, params, ...(where ? { in: where.includes('/') ? where : `${where}/${registry[nodes[where][0]].frames()[0].name}` } : {}),
+  id, type, params, ...(where ? { in: where.includes('/') ? where : `${where}/${registry[nodes[where][0]].frames({ params: nodes[where][1] ?? {} })[0].name}` } : {}),
 }))
 /** A proof of a level's goal from its premises. */
 const proof = (nodes, wires, { premises = [] } = {}) => ({
-  nodes: [...premises.map((name) => ({ id: name, type: 'premise', params: { name } })), ...cardsOf(nodes, RULES), { id: 'goal', type: 'goal', params: { name: 'goal' } }],
+  nodes: [...premises.map((name) => ({ id: name, type: 'premise', params: { name } })), ...cardsOf(nodes, proofParts()), { id: 'goal', type: 'goal', params: { name: 'goal' } }],
   wires: wiresOf(wires),
 })
 /** A machine board: its inputs (named), the cards, and the result `out`. */
@@ -212,7 +217,7 @@ test('countermodels: Peirce has none classically, (A → B) → A has one, the q
 
 test('the domain check runs reference and naive proofs', () => {
   const s = proof({ m: ['mp'] }, ['p>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] })
-  const level = { id: 'mp', kind: 'proof', title: 'mp', tests: [{ premises: { p: 'A → B', q: 'A' }, goal: 'B' }], solution: s }
+  const level = { id: 'mp', kind: 'proof', title: 'mp', tests: [{ premises: { p: 'A → B', q: 'A' }, goal: 'B' }], solution: s, parts: proofParts() }
   const lines = (naive) => validate({ levels: [{ id: 'mp', tasks: [{ ...level, task: 0, naive }] }], logic: { wrong: [] } })
   assert.deepEqual(lines(proof({}, ['q>goal'], { premises: ['p', 'q'] })).filter((l) => l.fail), [])
   assert.equal(lines(s).filter((l) => l.fail).length, 1)
@@ -290,18 +295,17 @@ test('a lemma over a quantified letter fits any variable and keeps it', async ()
   const { lemma } = await import('./proof.js')
   const qdm = lemma({ statement: '∃x. ¬P', premises: ['¬∀x. P'], metas: ['P'] })
   const proofs = { qdm: { '': provenBy({ premises: { p: '¬∀x. P(x)' }, goal: '∃x. ¬P(x)' }, NOT_ALL) } }
-  const got = qdm.eval({ p0: { formula: parse('¬∀y. D(y)'), hyps: new Map(), term: null } }, { type: 'qdm', params: {} }, { proofs })
+  const got = qdm.eval({ p0: { formula: parse('¬∀y. D(y)'), hyps: new Map(), term: null } }, { type: 'qdm', params: {} }, { proofs, engine: { parts: proofParts() } })
   assert.ok(same(got.formula, parse('∃y. ¬D(y)')))
   assert.ok(lemmaGives({ statement: '∃x. ¬P', premises: ['¬∀x. P'], metas: ['P'] }, [parse('¬∀z. R(z, z)')], parse('∃z. ¬R(z, z)')))
 })
 
 test('Example reads off its example, and picks the one ∃ sentence that fits', async () => {
-  const { RULES } = await import('./proof.js')
-  const input = { a: { formula: parse('Likes(a, a)'), hyps: new Map(), term: null } }
-  const ctx = { consts: [], subst: {}, exists: [parse('∃x. Likes(x, x)')] }
-  assert.ok(same(RULES.exI.eval(input, { params: {} }, ctx).formula, parse('∃x. Likes(x, x)')))
-  assert.ok(same(RULES.exI.eval(input, { params: { target: '∃x. Likes(a, x)' } }, ctx).formula, parse('∃x. Likes(a, x)')))
-  assert.throws(() => RULES.exI.eval(input, { params: {} }, { ...ctx, exists: [parse('∃x. Likes(x, x)'), parse('∃x. Likes(x, a)')] }))
+  const input = [{ formula: parse('Likes(a, a)'), hyps: new Map(), term: null }]
+  const ctx = { consts: [], subst: {}, exists: [parse('∃x. Likes(x, x)')], node: { params: {} } }
+  assert.ok(same(RULES.exI.run(input, {}, ctx).formula, parse('∃x. Likes(x, x)')))
+  assert.ok(same(RULES.exI.run(input, {}, { ...ctx, node: { params: { target: '∃x. Likes(a, x)' } } }).formula, parse('∃x. Likes(a, x)')))
+  assert.throws(() => RULES.exI.run(input, {}, { ...ctx, exists: [parse('∃x. Likes(x, x)'), parse('∃x. Likes(x, a)')] }))
 })
 
 test('a lemma of several shapes computes as the shape its card is switched to', async () => {
@@ -315,8 +319,8 @@ test('a lemma of several shapes computes as the shape its card is switched to', 
   const notOr = proof({ na: ['impI', { A: 'A' }], i: ['orI', { other: 'B', side: 'right' }, 'na'], m: ['mp', {}, 'na'], nb: ['impI', { A: 'B' }], i2: ['orI', { other: 'A', side: 'left' }, 'nb'], m2: ['mp', {}, 'nb'], c: ['andI'] }, ['na#body>i.a', 'p>m.imp', 'i>m.a', 'm>na.body', 'nb#body>i2.a', 'p>m2.imp', 'i2>m2.a', 'm2>nb.body', 'na>c.a', 'nb>c.b', 'c>goal'], { premises: ['p'] })
   const proofs = { dm: { notOr: provenBy({ premises: { p: '¬(A ∨ B)' }, goal: '¬A ∧ ¬B' }, notOr), notAll: provenBy({ premises: { p: '¬∀x. P(x)' }, goal: '∃x. ¬P(x)' }, NOT_ALL) } }
   assert.deepEqual(dm.forms, ['notOr', 'notAll'])
-  assert.ok(same(dm.eval(j('¬(Rain ∨ Wind)'), { type: 'dm', params: {} }, { proofs }).formula, parse('¬Rain ∧ ¬Wind')))
-  assert.ok(same(dm.eval(j('¬∀y. D(y)'), { type: 'dm', params: { form: 'notAll' } }, { proofs }).formula, parse('∃y. ¬D(y)')))
+  assert.ok(same(dm.eval(j('¬(Rain ∨ Wind)'), { type: 'dm', params: {} }, { proofs, engine: { parts: proofParts() } }).formula, parse('¬Rain ∧ ¬Wind')))
+  assert.ok(same(dm.eval(j('¬∀y. D(y)'), { type: 'dm', params: { form: 'notAll' } }, { proofs, engine: { parts: proofParts() } }).formula, parse('∃y. ¬D(y)')))
   assert.ok(lemmaGives({ metas: ['P'], forms: [{ key: 'notAll', statement: '∃x. ¬P', premises: ['¬∀x. P'] }] }, [parse('¬∀y. D(y)')], parse('∃y. ¬D(y)'), ['notAll']))
   assert.equal(lemmaGives({ metas: ['P'], forms: [{ key: 'notAll', statement: '∃x. ¬P', premises: ['¬∀x. P'] }] }, [parse('¬∀y. D(y)')], parse('∃y. ¬D(y)'), []), false)
 })

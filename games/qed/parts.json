@@ -15,6 +15,167 @@
       "family": "gate",
       "inputs": [{ "name": "a" }, { "name": "b" }],
       "compute": "and(a, b)"
+    },
+    "mp": {
+      "name": { "zh": "套用" },
+      "desc": { "zh": "由 A → B 和 A 得到 B。" },
+      "icon": "GitFork",
+      "family": "rule",
+      "inputs": [{ "name": "imp", "label": { "zh": "A → B" } }, { "name": "a", "label": { "zh": "A" } }],
+      "compute": "mp(imp, a)"
+    },
+    "impI": {
+      "name": { "zh": "假设框" },
+      "desc": { "zh": "带一个框，A 在元件上设定。框内可以使用假设 A；框内证出 B 并接到「结论」，元件输出 A → B。" },
+      "icon": "Box",
+      "family": "box",
+      "inputs": [],
+      "settings": [{ "key": "A", "control": "tree", "label": { "zh": "假设" } }],
+      "regions": [{ "name": "body", "label": { "zh": "框内" }, "opens": true, "closes": true }],
+      "compute": "impI(body)"
+    },
+    "andI": {
+      "name": { "zh": "拼接" },
+      "desc": { "zh": "接入 A 和 B，得到 A ∧ B。" },
+      "icon": "GitFork",
+      "family": "rule",
+      "inputs": [{ "name": "a", "label": { "zh": "A" } }, { "name": "b", "label": { "zh": "B" } }],
+      "compute": "andI(a, b)"
+    },
+    "andE": {
+      "name": { "zh": "拆解" },
+      "desc": { "zh": "接入 A ∧ B，两个输出口分别得到 A 和 B。" },
+      "icon": "GitFork",
+      "family": "rule",
+      "inputs": [{ "name": "ab", "label": { "zh": "A ∧ B" } }],
+      "outputs": [{ "name": "left", "label": { "zh": "A" } }, { "name": "right", "label": { "zh": "B" } }],
+      "compute": { "left": "andE(ab)", "right": "andE(ab)" }
+    },
+    "orI": {
+      "name": { "zh": "补充" },
+      "desc": { "zh": "接入 A，选定另一句 B 和它的位置，得到 A ∨ B 或 B ∨ A；不需要证明 B。" },
+      "icon": "GitFork",
+      "family": "rule",
+      "inputs": [{ "name": "a", "label": { "zh": "A" } }],
+      "settings": [
+        { "key": "other", "control": "tree", "label": { "zh": "另一边" } },
+        {
+          "key": "side",
+          "control": "buttons",
+          "label": { "zh": "另一边放" },
+          "options": [
+            { "value": "left", "label": { "zh": "左" } },
+            { "value": "right", "label": { "zh": "右" } }
+          ],
+          "default": "right"
+        }
+      ],
+      "compute": "orI(a)"
+    },
+    "orE": {
+      "name": { "zh": "分类讨论" },
+      "desc": { "zh": "接入 A ∨ B，在两个框中分别假设 A、B。两个框都证出同一句 C 并接到各自的「结论」时，元件输出 C。" },
+      "icon": "Box",
+      "family": "box",
+      "inputs": [{ "name": "ab", "label": { "zh": "A ∨ B" } }],
+      "regions": [
+        { "name": "left", "label": { "zh": "情况一" }, "opens": true, "closes": true },
+        { "name": "right", "label": { "zh": "情况二" }, "opens": true, "closes": true }
+      ],
+      "compute": "orE(ab, left, right)"
+    },
+    "botE": {
+      "name": { "zh": "爆炸" },
+      "desc": { "zh": "由矛盾 ⊥ 得到元件上选定的任意一句。" },
+      "icon": "GitFork",
+      "family": "rule",
+      "inputs": [{ "name": "bot", "label": { "zh": "⊥" } }],
+      "settings": [{ "key": "C", "control": "tree", "label": { "zh": "得出" } }],
+      "compute": "botE(bot)"
+    },
+    "raa": {
+      "name": { "zh": "反证法" },
+      "desc": { "zh": "由 ¬¬A 得到 A（双重否定消去）。" },
+      "icon": "GitFork",
+      "family": "rule",
+      "inputs": [{ "name": "nna", "label": { "zh": "¬¬A" } }],
+      "compute": "raa(nna)"
+    },
+    "allI": {
+      "name": { "zh": "任取框" },
+      "desc": { "zh": "在元件上为任意对象取名 a，在框内证明 P(a) 并接到「结论」，框外得到 ∀x. P(x)。a 不能出现在未解除的假设中。" },
+      "icon": "Box",
+      "family": "box",
+      "inputs": [],
+      "settings": [{ "key": "x", "control": "select", "label": { "zh": "名字" }, "from": "names()" }],
+      "regions": [{ "name": "body", "label": { "zh": "框内" }, "closes": true }],
+      "compute": "allI(body)"
+    },
+    "allE": {
+      "name": { "zh": "选定一例" },
+      "desc": { "zh": "接入 ∀x. P(x)，选定对象 t，得到 P(t)。" },
+      "icon": "GitFork",
+      "family": "rule",
+      "inputs": [{ "name": "all", "label": { "zh": "∀x. P(x)" } }],
+      "settings": [{ "key": "t", "control": "select", "label": { "zh": "哪一样" }, "from": "instances()" }],
+      "compute": "allE(all)"
+    },
+    "exI": {
+      "name": { "zh": "概括" },
+      "desc": { "zh": "接入 P(t)，以 t 为例得到 ∃x. P(x)。只有一个相符的存在命题时自动输出；有多个时，在元件上选择要得出的命题。" },
+      "icon": "GitFork",
+      "family": "rule",
+      "inputs": [{ "name": "a", "label": { "zh": "P(t)" } }],
+      "settings": [{ "key": "target", "control": "tree", "label": { "zh": "要得出" }, "optional": true }],
+      "compute": "exI(a)"
+    },
+    "exE": {
+      "name": { "zh": "实例框" },
+      "desc": {
+        "zh": "接入 ∃x. P(x)，在元件上为存在的对象取名 a。框内可以假设 P(a)；证出 C 并接到「结论」后，框外得到 C。C 中不能出现 a，a 也不能出现在未解除的假设中。"
+      },
+      "icon": "Box",
+      "family": "box",
+      "inputs": [{ "name": "ex", "label": { "zh": "∃x. P(x)" } }],
+      "settings": [{ "key": "x", "control": "select", "label": { "zh": "见证" }, "from": "names()" }],
+      "regions": [{ "name": "body", "label": { "zh": "框内" }, "opens": true, "closes": true }],
+      "compute": "exE(ex, body)"
+    },
+    "natInd": {
+      "name": { "zh": "数学归纳法" },
+      "desc": {
+        "zh": "带两个框，证元件上选定的 ∀x. P(x)。第一个框证 P(0)；第二个框内的数记作 a（在元件上命名，不能出现在未解除的假设中），可以使用假设 P(a)，要证 P(S a)。两个框都证完，元件输出 ∀x. P(x)。"
+      },
+      "icon": "Box",
+      "family": "box",
+      "inputs": [],
+      "settings": [
+        { "key": "P", "control": "tree", "label": { "zh": "要证" } },
+        { "key": "x", "control": "select", "label": { "zh": "名字" }, "from": "names()" }
+      ],
+      "regions": [
+        { "name": "zero", "label": { "zh": "0 的情况" }, "closes": true },
+        { "name": "step", "label": { "zh": "从 a 到 S a" }, "opens": true, "closes": true }
+      ],
+      "compute": "natInd(zero, step)"
+    },
+    "refl": {
+      "name": { "zh": "自反律" },
+      "desc": { "zh": "在元件上选定一样东西 t，得到 t = t。" },
+      "icon": "GitFork",
+      "family": "rule",
+      "inputs": [],
+      "settings": [{ "key": "t", "control": "select", "label": { "zh": "哪一样" }, "from": "things()" }],
+      "compute": "refl()"
+    },
+    "rewrite": {
+      "name": { "zh": "等量代换" },
+      "desc": { "zh": "接入 s = t 和一句含 s 的话；元件标出这句话里的每一处 s，勾选的几处换成 t。" },
+      "icon": "GitFork",
+      "family": "rule",
+      "inputs": [{ "name": "eq", "label": { "zh": "s = t" } }, { "name": "p", "label": { "zh": "φ(s)" } }],
+      "settings": [{ "key": "at", "control": "list", "label": { "zh": "换哪几处" }, "from": "occurrences(eq, p)" }],
+      "compute": "rewrite(eq, p)"
     }
   }
 }

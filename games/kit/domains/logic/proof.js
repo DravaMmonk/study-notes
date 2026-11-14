@@ -12,9 +12,9 @@
 // on every judgment are what make a proof sound. A rule that does not fit throws a PartError saying what it needed
 // and what reached it.
 import { MISSING, PartError } from '../../engine/circuit.js'
-import { framePart } from '../../circuit/frames.js'
 import { formed } from '../../engine/forms.js'
-import { runBoard, sink, source } from '../../engine/boards.js'
+import { runBoard } from '../../engine/boards.js'
+import { circuitBoard } from '../../engine/board-cards.js'
 import { BOT, all, allVars, and, bin, eq, fn, freeVars, imp, mentionsSentence, occurrences, or, parse, replaceAtoms, replaceTerm, same, signature, subst, substSentence, termsOf, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
 import { choicesOf } from './choices.js'
@@ -87,11 +87,7 @@ export function inductionCases(G, a, consts = []) {
   const at = (t) => subst(G.body, G.v, t)
   return { zero: at(parse('zero = zero', { consts }).args[0]), hyp: at(tvar(a)), step: at(fn('s', [tvar(a)])) }
 }
-export const RULES = {
-  // The proof's own ends: a premise, and the goal.
-  premise: source(),
-  goal: sink(),
-
+const BODIES = {
   // ---- the rule that uses an “if … then …” up: modus ponens ----
   mp: {
     inputs: ['imp', 'a'],
@@ -105,8 +101,7 @@ export const RULES = {
 
   // ---- natural deduction ----
   impI: {
-    ...framePart([], [{ name: 'body', opens: true }]),
-    params: ['A'],
+    inputs: ['body'],
     eval: ({ body }, node, ctx, key) => {
       const A = param(node, 'A', ctx)
       return key ? assumed(node, key, A, ctx) : proved(imp(A, body.formula), without(body.hyps, hypId(node, 'body')), lam(hypName(node, ctx), body.term))
@@ -117,7 +112,6 @@ export const RULES = {
   // is (A → B) ∧ (B → A) to the rules, so taking it apart gives its two directions.
   andE: {
     inputs: ['ab'],
-    outputs: () => ['left', 'right'],
     eval: ({ ab }, _n, ctx, key) => {
       const f = asAnd(ab.formula)
       if (f.op !== '∧') throw need(ctx, SHAPE.and, ab.formula)
@@ -126,7 +120,6 @@ export const RULES = {
   },
   orI: {
     inputs: ['a'],
-    params: ['other'],
     eval: ({ a }, node, ctx) => {
       const other = param(node, 'other', ctx)
       const left = node.params?.side === 'left'
@@ -134,7 +127,7 @@ export const RULES = {
     },
   },
   orE: {
-    ...framePart(['ab'], [{ name: 'left', opens: true }, { name: 'right', opens: true }]),
+    inputs: ['ab', 'left', 'right'],
     eval: ({ ab, left: l, right: r }, node, ctx, key) => {
       if (ab.formula.op !== '∨') throw need(ctx, SHAPE.or, ab.formula)
       if (key) return assumed(node, key, key === 'left' ? ab.formula.a : ab.formula.b, ctx)
@@ -145,7 +138,6 @@ export const RULES = {
   },
   botE: {
     inputs: ['bot'],
-    params: ['C'],
     eval: ({ bot }, node, ctx) => {
       if (bot.formula.op !== '⊥') throw need(ctx, SHAPE.bot, bot.formula)
       return proved(param(node, 'C', ctx), bot.hyps, absurd(bot.term))
@@ -181,8 +173,7 @@ export const RULES = {
 
   // ---- quantifiers and equality ----
   allI: {
-    ...framePart([], [{ name: 'body', opens: false }]),
-    params: ['x'],
+    inputs: ['body'],
     eval: ({ body }, node, ctx) => {
       const x = node.params?.x
       if (!x) throw fail('先选好任取的那一样叫什么', 'Name the thing taken first')
@@ -200,7 +191,6 @@ export const RULES = {
   },
   allE: {
     inputs: ['all'],
-    params: ['t'],
     eval: ({ all: a }, node, ctx) => {
       if (a.formula.op !== '∀') throw need(ctx, SHAPE.all, a.formula)
       // A ∀ over sentences takes a sentence chosen on the part in place of R.
@@ -213,7 +203,6 @@ export const RULES = {
   // or, left unchosen, the level's one ∃ sentence the input is an example of.
   exI: {
     inputs: ['a'],
-    params: ['target'],
     eval: ({ a }, node, ctx) => {
       if (node.params?.target) {
         const target = param(node, 'target', ctx)
@@ -228,8 +217,7 @@ export const RULES = {
     },
   },
   exE: {
-    ...framePart(['ex'], [{ name: 'body', opens: true }]),
-    params: ['x'],
+    inputs: ['ex', 'body'],
     eval: ({ ex: e, body }, node, ctx, key) => {
       if (e.formula.op !== '∃') throw need(ctx, SHAPE.ex, e.formula)
       const y = node.params?.x
@@ -245,8 +233,7 @@ export const RULES = {
   // The sentence chosen on the card, ∀x. φ(x), from two boxes: the first proves φ(0); the second takes a number a
   // (named on the card), opens φ(a) as the induction hypothesis and proves φ(S a). Like For any, a must be new.
   natInd: {
-    ...framePart([], [{ name: 'zero', opens: false }, { name: 'step', opens: true }]),
-    params: ['P', 'x'],
+    inputs: ['zero', 'step'],
     eval: ({ zero, step }, node, ctx, key) => {
       const G = param(node, 'P', ctx)
       if (G.op !== '∀') throw need(ctx, SHAPE.all, G)
@@ -263,7 +250,7 @@ export const RULES = {
       return proved(G, new Map([...zero.hyps, ...open]), term)
     },
   },
-  refl: { inputs: [], params: ['t'], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t), new Map(), rfl) } },
+  refl: { inputs: [], eval: (_, node, ctx) => { const t = termOf(node, ctx); return proved(eq(t, t), new Map(), rfl) } },
   // From s = t and a proof of φ, φ with the occurrences of s the card marks (params.at, their places in order) replaced
   // by t. The card shows φ with each s in a box to tick (ui/boards.jsx).
   rewrite: {
@@ -274,12 +261,41 @@ export const RULES = {
       const [s, t] = f.args
       const n = occurrences(p.formula, s)
       if (!n) { const [a, b] = [sayTerm(s, ctx.notation), sayIn(ctx, p.formula)]; throw fail(`「${b.zh}」里没有 ${a.zh}`, `“${b.en}” does not mention ${a.en}`) }
-      const at = (node.params?.at ?? []).filter((k) => k < n)
-      if (!at.length) throw fail('在元件上点框，选出要换掉的那几处', 'Tick the boxes on the part to choose which to replace')
+      const at = (node.params?.at ?? []).map(Number).filter((k) => k < n)
+      if (!at.length) throw fail('在元件上选出要换掉的那几处', 'Choose on the part which places to replace')
       return proved(replaceTerm(p.formula, s, t, (k) => at.includes(k)), union(e, p), psubst(e.term, p.term))
     },
   },
 }
+
+const ABOUT = {
+  mp: T('套用：由 A → B 和 A 得到 B', 'Apply: from A → B and A, B'),
+  impI: T('假设框：框里假设 A 证出 B，得到 A → B', 'Assumption box: assume A inside, prove B, get A → B'),
+  andI: T('拼接：由 A 和 B 得到 A ∧ B', 'Join: from A and B, A ∧ B'),
+  andE: T('拆解：由 A ∧ B 得到 A、B', 'Split: from A ∧ B, A and B'),
+  orI: T('补充：由 A 得到 A ∨ B', 'Add alternative: from A, A ∨ B'),
+  orE: T('分类讨论：由 A ∨ B 和两个框得到 C', 'Case analysis: from A ∨ B and two boxes, C'),
+  botE: T('爆炸：由 ⊥ 得到任意一句', 'Explosion: from ⊥, anything'),
+  raa: T('反证法：由 ¬¬A 得到 A', 'By contradiction: from ¬¬A, A'),
+  res: T('归结：两条子句消去一对文字', 'Resolution: cancel one pair of literals'),
+  allI: T('任取框：框里证 P(a)，得到 ∀x. P(x)', 'For-any box: prove P(a) inside, get ∀x. P(x)'),
+  allE: T('选定一例：由 ∀x. P(x) 得到 P(t)', 'Choose an instance: from ∀x. P(x), P(t)'),
+  exI: T('概括：由 P(t) 得到 ∃x. P(x)', 'Generalise: from P(t), ∃x. P(x)'),
+  exE: T('实例框：由 ∃x. P(x) 和框得到 C', 'Witness box: from ∃x. P(x) and a box, C'),
+  natInd: T('数学归纳法', 'Induction'),
+  refl: T('自反律：t = t', 'Reflexivity: t = t'),
+  rewrite: T('等量代换：由 s = t 和 φ(s) 得到 φ(t)', 'Rewrite: from s = t and φ(s), φ(t)'),
+}
+/**
+ * The proof rules as engine resources (a game's parts.json makes each a part, games/DESIGN.md 6.8): a resource's
+ * arguments are its part's inputs, a box's regions included, in order; the card it runs on and the region whose value
+ * it gives come with ctx (../../engine/parts/define.js).
+ */
+export const RULES = Object.fromEntries(Object.entries(BODIES).map(([type, b]) => [type, {
+  about: ABOUT[type],
+  args: b.inputs.map((name) => ({ name })),
+  run: (values, _named, ctx) => b.eval(Object.fromEntries(b.inputs.map((name, k) => [name, values[k]])), ctx.node, ctx, ctx.key ?? undefined),
+}]))
 
 /* ---------- lemmas: rules the player proved ---------- */
 
@@ -372,7 +388,6 @@ function lemmaForm({ name, statement, premises = [], metas }, key, suffix = '') 
   return {
     inputs: schemas.map((_, k) => `p${k}`),
     params: open,
-    lemma: { statement, premises },
     eval: (ins, node, ctx) => {
       const bind = {}
       const given = schemas.map((s, k) => {
@@ -408,7 +423,7 @@ function byProof({ type, key, name, bind, binders }, givens, want, ctx) {
   const subst = Object.fromEntries(Object.entries(bind).filter(([m]) => !m.startsWith('$')).map(([m, f]) => [m, arity.get(m) && binders[m] ? property(m, f) : f]))
   const premises = Object.fromEntries(names.map((n, k) => [n, proved(givens[k], new Map([[n, givens[k]]]), pvar(n))]))
   const goals = circuit.nodes.filter((n) => n.type === 'goal').map((n) => n.id)
-  const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premises, targets: goals, ctx: { consts, notation: ctx.notation, subst, graph: circuit, exists: choicesOf(level).exists, proofs: ctx.proofs, proving: [...(ctx.proving ?? []), type] } })
+  const run = runBoard(circuit, { parts: ctx.engine.parts, bind: premises, targets: goals, ctx: { consts, notation: ctx.notation, subst, exists: choicesOf(level).exists, lemmas: ctx.lemmas, proofs: ctx.proofs, proving: [...(ctx.proving ?? []), type] } })
   const got = run.outputs.goal
   const problem = (!got && [...run.errors.values()].find((e) => e !== MISSING)) || closes(got, want, names, ctx.notation)
   if (!problem) return got.formula
@@ -455,19 +470,82 @@ export function closes(judgment, goal, premiseIds, notation = null) {
   return ''
 }
 
-/** The board a proof level starts from: a card for each of its premises (by the names its tests give them), and the goal. */
-export const startProof = (level) => ({
-  nodes: [...Object.keys(level.tests[0].premises ?? {}).map((name, k) => ({ id: name, type: 'premise', params: { name }, x: 20, y: 40 + k * 130 })), { id: 'goal', type: 'goal', params: { name: 'goal' }, x: 900, y: 40 }],
-  wires: [],
+/** A proof's board: a card for each premise on the left (by the names its tests give them), the goal on the right. */
+export const PROOF_BOARD = circuitBoard({
+  cards: [
+    { type: 'premise', side: 'left', of: (task) => Object.keys(task.tests[0].premises ?? {}).map((name, k, all) => ({ name, label: all.length > 1 ? T(`已知 ${k + 1}`, `Given ${k + 1}`) : T('已知', 'Given') })) },
+    { type: 'goal', side: 'right', of: () => [{ name: 'goal', label: T('目标', 'Goal') }] },
+  ],
+  right: 900,
+  gap: 130,
 })
+/** The board a proof level starts from: its premises and its goal. */
+export const startProof = (level) => PROOF_BOARD.startBoard(level)
 
-/** The rules a level can use: every rule, and its lemmas ({ type: { statement, premises, metas } }). */
-// A lemma whose card is one of the kit's (`card`) runs as that card: resolution cancels one pair of literals wherever
-// they stand in clauses of any length, which no one instance of the proof of A ∨ B, ¬A ∨ C ⟹ B ∨ C covers.
-const ruleSets = new WeakMap()
-export const rulesOf = (lemmas = {}) => {
-  if (!ruleSets.has(lemmas)) ruleSets.set(lemmas, { ...RULES, ...Object.fromEntries(Object.entries(lemmas).map(([type, l]) => [type, l.card ? RULES[l.card] : lemma(l)])) })
-  return ruleSets.get(lemmas)
+// A lemma's part, by its definition: one card of several shapes when it has forms.
+const lemmaParts = new WeakMap()
+const lemmaPart = (l) => {
+  if (!lemmaParts.has(l)) lemmaParts.set(l, lemma(l))
+  return lemmaParts.get(l)
+}
+/** The resource a lemma's card runs (lemmaPieces): the proof that proved the shape it is in, on the card's inputs. */
+export const LEMMA = {
+  about: T('引理：照证出它的那段证明来推', 'A lemma: runs the proof that proved it'),
+  args: [],
+  run: (_values, _named, ctx) => lemmaPart(ctx.lemmas[ctx.node.type]).eval(ctx.ins, ctx.node, ctx),
+}
+// A thing in the level's words: the left side of t = t as the level writes it.
+const thingText = (t, ctx) => sayTerm(parse(`${t} = ${t}`, { consts: ctx.task.consts ?? [] }).args[0], ctx.task.notation)
+/**
+ * What a proof card's settings offer, worked out on the screen for its task (ctx.task, ctx.text: a formula in the
+ * test's words; ../ui/proof.js): the particular things to name, the things to choose, the instances to put in (a
+ * thing, or a sentence where the level has a ∀ over sentences), and the places a rewrite may replace.
+ */
+export const OPTIONS = {
+  names: { about: T('能取的名字', 'Names to take'), args: [], run: (_v, _n, ctx) => choicesOf(ctx.task).name.map((value) => ({ value, label: value })) },
+  things: { about: T('能选的东西', 'Things to choose'), args: [], run: (_v, _n, ctx) => choicesOf(ctx.task).term.map((value) => ({ value, label: thingText(value, ctx) })) },
+  instances: {
+    about: T('能代入的东西或句子', 'Things or sentences to put in'),
+    args: [],
+    run: (_v, _n, ctx) => {
+      const offer = choicesOf(ctx.task)
+      return offer.instance.map((value) => ({ value, label: offer.term.includes(value) ? thingText(value, ctx) : ctx.text(parse(value, { consts: ctx.task.consts ?? [] })) }))
+    },
+  },
+  occurrences: {
+    about: T('φ 里 s 出现的每一处', 'Each place s stands in φ'),
+    args: [{ name: 'eq' }, { name: 'p' }],
+    run: ([e, p]) => {
+      const f = e?.formula
+      if (!f || !p || f.op !== 'atom' || f.pred !== '=') return []
+      return Array.from({ length: occurrences(p.formula, f.args[0]) }, (_, k) => ({ value: String(k), label: String(k + 1) }))
+    },
+  },
+}
+
+/**
+ * The parts a game's lemmas make (game.json lemmas), registered by the course beside parts.json's: a lemma's card has an
+ * input for each premise, a sentence to set for each letter its premises leave open and, with forms, its shape; it
+ * runs the proof that proved it (LEMMA), or the kit's card it names (`card`).
+ */
+export function lemmaPieces(lemmas = {}) {
+  return Object.fromEntries(Object.entries(lemmas).map(([type, l]) => {
+    const forms = l.forms ?? [l]
+    const open = [...new Set(forms.flatMap((f) => lemmaForm({ metas: l.metas, ...f }, '').params))]
+    const inputs = (forms[0].premises ?? []).map((premise, k) => ({ name: `p${k}`, label: l.ports?.[k] ?? premise }))
+    return [type, {
+      name: l.name,
+      desc: l.desc,
+      icon: 'Puzzle',
+      family: 'lemma',
+      inputs,
+      settings: [
+        ...(l.forms ? [{ key: 'form', control: 'select', label: T('形状', 'Shape'), options: l.forms.map((f) => ({ value: f.key, label: { zh: f.label, en: f.label } })) }] : []),
+        ...open.map((m) => ({ key: m, control: 'tree', label: l.params?.[m] ?? { zh: m, en: m } })),
+      ],
+      compute: l.card ? `${l.card}(${inputs.map((p) => p.name).join(', ')})` : 'lemma()',
+    }]
+  }))
 }
 
 /** A test's premises as judgments, each its own hypothesis (named by the premise). */
@@ -485,7 +563,7 @@ export function premisesOf(test, consts = []) {
 export const LOGIC_TESTS = {
   runTest: (level, circuit, test) => {
     const consts = level.consts ?? []
-    const run = runBoard(circuit, { parts: rulesOf(level.lemmas), bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, graph: circuit, exists: choicesOf(level).exists, proofs: level.proofs } })
+    const run = runBoard(circuit, { parts: level.parts, bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, exists: choicesOf(level).exists, lemmas: level.lemmas, proofs: level.proofs } })
     return { ...run, outputs: { goal: run.outputs.goal } }
   },
   // A test may ask for the proof's term too (chapter 7): the same up to the names it binds.

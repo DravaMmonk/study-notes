@@ -43,10 +43,8 @@ const CONTENT = {
     ] },
   },
   gates: { gOr: { name: L('或', 'Or'), desc: L('d'), ports: ['a', 'b'] } },
-  partDefs: { parts: {
-    gNot: { name: L('非'), desc: L('d'), icon: 'ToggleLeft', family: 'gate', inputs: [{ name: 'a' }], compute: 'not(a)' },
-    gAnd: { name: L('与'), desc: L('d'), icon: 'ToggleLeft', family: 'gate', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'and(a, b)' },
-  } },
+  // The parts the starter defines (its parts.json): the gates and the proof rules.
+  partDefs: readContent('starter', import.meta.dirname).partDefs,
   revisions: { half: [{ by: 'half', forms: ['right'] }] },
   eras: [{ id: 'one', machine: null, foundation: ['or', 'chain', 'useChain', 'half', 'useHalf', 'eqSym', 'andDef', 'eqUse', 'eqTerm', 'rows', 'negate'], chapter: { title: L('c'), question: L('q') } }],
   levels: [
@@ -95,19 +93,19 @@ test('the course written here reads without fault', () => {
 test('a proof reads from blueprint text and prints back the same', () => {
   const lines = ['f = impI[A=B](body: g) {', '  body {', '    g = impI[A=C](body: p)', '  }', '}', 'goal <- f']
   const one = { tests: [{ premises: { p: 'A' }, goal: 'B → (C → A)' }] }
-  const shape = proofShape()
-  const board = fromLines(lines, startProof(one), shape, Object.keys(shape.rules))
+  const shape = proofShape(only('chain').parts)
+  const board = fromLines(lines, startProof(one), shape, Object.keys(only('chain').parts))
   assert.deepEqual(board.nodes.find((n) => n.id === 'g'), { ...board.nodes.find((n) => n.id === 'g'), type: 'impI', params: { A: 'C' }, in: 'f/body' })
   assert.deepEqual(toLines(board, shape), lines)
   // A sentence on a card is written in ASCII and read back in the game's symbols.
-  const and = fromLines(['f = impI[A="A & B"](body: p)', 'goal <- f'], startProof(one), shape, Object.keys(shape.rules))
+  const and = fromLines(['f = impI[A="A & B"](body: p)', 'goal <- f'], startProof(one), shape, Object.keys(only('chain').parts))
   assert.equal(and.nodes.find((n) => n.id === 'f').params.A, 'A ∧ B')
 })
 
 test('blueprint text that does not fit the board says which line', () => {
   const one = { tests: [{ premises: { p: 'A' }, goal: 'A' }] }
-  const shape = proofShape()
-  assert.throws(() => fromLines(['m = mp(p, nope)', 'goal <- m'], startProof(one), shape, Object.keys(shape.rules)), /Line 1/)
+  const shape = proofShape(only('chain').parts)
+  assert.throws(() => fromLines(['m = mp(p, nope)', 'goal <- m'], startProof(one), shape, Object.keys(only('chain').parts)), /Line 1/)
 })
 
 test('every reference answer prints back as the text it was read from: proofs, a lemma used, a gate, a machine', () => {
@@ -116,7 +114,7 @@ test('every reference answer prints back as the text it was read from: proofs, a
     for (const t of l.tasks) {
       const raw = CONTENT.levels.find((x) => x.id === l.id).tasks[t.task].solution
       kinds.add(t.kind)
-      const shape = t.kind === 'proof' ? proofShape(t.lemmas) : t.kind === 'machine' ? machineShape(t) : t.kind === 'gates' ? gateShape(t.gates) : null
+      const shape = t.kind === 'proof' ? proofShape(t.parts) : t.kind === 'machine' ? machineShape(t) : t.kind === 'gates' ? gateShape(t.gates) : null
       if (shape) assert.deepEqual(toLines(t.solution, shape), raw, `${l.id} ${t.task}`)
     }
   }
@@ -195,8 +193,8 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
     return runOutputTests(LOGIC_TESTS, t, t.solution)
   }
   const chain = only('chain')
-  const shape = proofShape(chain.lemmas)
-  const read = (lines, one) => fromLines(lines, startProof(one), shape, Object.keys(shape.rules))
+  const shape = proofShape(chain.parts)
+  const read = (lines, one) => fromLines(lines, startProof(one), shape, Object.keys(chain.parts))
   // The player's own proof of chain, a detour through ∧: the lemma runs it, and the level built on chain still passes.
   const own = read(['f = impI[A=A](body: m2) {', '  body {', '    m1 = mp(p, f.body)', '    b = andI(m1, m1)', '    e = andE(b)', '    m2 = mp(q, e.left)', '  }', '}', 'goal <- f'], chain)
   assert.equal(runOutputTests(LOGIC_TESTS, chain, own).pass, true)

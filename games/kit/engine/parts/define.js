@@ -10,7 +10,7 @@
 //   failedCheck(def, params, ops)          what the first check its settings fail says, or null
 //   partDesc(def, allowed)                 its description with the open options' abouts
 // Every expression may call the kernel's builtins (builtins.js) besides the domain's resources. A resource sees the card
-// it runs on (ctx.node, ctx.key: the region whose value it gives, if any) and can run one of its regions as a function
+// it runs on (ctx.node, ctx.ins its inputs, ctx.key the region whose value it gives, if any) and can run one of its regions as a function
 // (ctx.region(name), ../../circuit/frames.js runRegion).
 import { PartError } from '../circuit.js'
 import { runRegion } from '../../circuit/frames.js'
@@ -194,7 +194,7 @@ export function defineParts(file, ops, code = {}) {
         if (def.nulls !== 'pass' && read.some((n) => ins[n] === null || (ins[n] === undefined && !optional.has(n)))) return null
         const tree = trees[def.outputNames ? key : '']
         if (!tree) throw new PartError({ zh: '这个元件的运算写错了', en: 'this part’s computation does not parse' })
-        const card = { ...ctx, node, key, region: (name) => runRegion(node, ctx, name) }
+        const card = { ...ctx, node, key, ins, region: (name) => runRegion(node, ctx, name) }
         const env = { ins, settings: settingsFor(def, node?.params), run: runner(ops, card), noCase }
         if (!ctx?.tape) return evaluate(tree, env)
         // A run that trains: number the values on the tape (../tape.js); a parameter resource makes this card a leaf.
@@ -316,7 +316,7 @@ export function partProblems(file, vocabulary) {
       for (const o of outputs) if (!(o in raw.compute)) say(`${at}.compute`, `nothing computes the output ${o}`)
       for (const o of Object.keys(raw.compute)) if (!outputs.includes(o)) say(`${at}.compute.${o}`, `${o} is no output of the part`)
     }
-    for (const [o, text] of exprs) check(text, `${at}.compute${o ? `.${o}` : ''}`, holesOf(def).map((p) => p.name))
+    for (const [o, text] of exprs) check(text, `${at}.compute${o ? `.${o}` : ''}`, [...holesOf(def).map((p) => p.name), ...regionNames])
     // The views: what each block names is there.
     for (const face of FACES) {
       const blocks = facesOf(raw)[face] ?? []

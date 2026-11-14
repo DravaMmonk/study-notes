@@ -12,7 +12,7 @@ import { parseS } from './schematic.js'
 import { countermodel } from './models.js'
 import { extent, structureOf } from './fol.js'
 import { premiseChips } from './ruleLines.js'
-import { LOGIC_TESTS, RULES, lemmaGives, rulesOf, startProof } from './proof.js'
+import { LOGIC_TESTS, lemmaGives, startProof } from './proof.js'
 import { paramsOf } from '../../engine/forms.js'
 import { scriptJudge, methodsOf, sentencesOf } from './script.js'
 import { lettersOf, tautology } from './truth.js'
@@ -227,9 +227,9 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
   // premises of the task that proves it in order and set to the task's own letters, gives the statement on every test.
   for (const [type, shapes] of Object.entries(logic.proofs ?? {})) {
     for (const [key, { level }] of Object.entries(shapes)) {
-      const part = rulesOf(level.lemmas)[type]
+      const part = level.parts[type]
       const form = key ? { form: key } : {}
-      const card = { id: 'x', type, params: { ...form, ...Object.fromEntries(paramsOf(part, { params: form }).map((m) => [m, m])) } }
+      const card = { id: 'x', type, params: { ...form, ...Object.fromEntries(paramsOf(part, { params: form }).filter((m) => m !== 'form').map((m) => [m, m])) } }
       const names = Object.keys(level.schema.premises ?? {})
       const alone = { nodes: [...startProof(level).nodes, card], wires: [...names.map((name, k) => ({ from: name, to: 'x', port: `p${k}` })), { from: 'x', to: 'goal', port: 'in' }] }
       out.push(...memo(level.id, `lemma ${type} ${key} ${level.task ?? 0}`, () => {
@@ -277,7 +277,7 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
       for (const n of level.solution.nodes) {
         for (const [key, value] of Object.entries(n.params ?? {})) {
           const kind = SETTING_KINDS[n.type]?.[key] ?? 'formula'
-          if (typeof value !== 'string' || ['name', 'side', 'form'].includes(key) || !(RULES[n.type]?.params ?? level.lemmas?.[n.type]?.metas ?? []).includes(key)) continue
+          if (typeof value !== 'string' || ['name', 'side', 'form'].includes(key) || !(level.parts[n.type]?.params ?? []).includes(key)) continue
           // A sentence is built from the pieces of the level's sentences; a thing is picked from those offered.
           if (kind === 'formula' || kind === 'exists') {
             const missing = missingChips(parse(value, { consts: level.consts ?? [] }), sentenceChips)

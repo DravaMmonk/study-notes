@@ -10,11 +10,10 @@ import { tr } from '../../shell/i18n.js'
 import DeclaredRules from './ui/DeclaredRules.jsx'
 import Hero from './ui/Hero.jsx'
 import { boardScreen } from './ui/BoardScreen.jsx'
-import { MACHINE, PROOF } from './ui/boards.jsx'
+import { MACHINE } from './ui/boards.jsx'
 import { worldCheck } from './worldValues.js'
 import { query, translation } from './formulaWork.js'
-import { iconOf, nameOf, textOf } from './ui/catalog.js'
-import { MACHINE_TEXT, RULE_TEXT } from './partText.js'
+import { MACHINE_TEXT } from './partText.js'
 import { proofTerm } from './termTask.js'
 import { script } from './scriptValues.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
@@ -24,6 +23,8 @@ import { playScreen } from '../../shell/plays/Play.jsx'
 import { BuiltBoard, circuitScreen } from '../../shell/CircuitScreen.jsx'
 import { iconOf as partIcon } from '../../shell/parts/icons.js'
 import { gatesScreen } from './ui/gates.js'
+import { proofScreen } from './ui/proof.js'
+import { OPS } from './ops.js'
 import { plays } from './plays.js'
 import { declaration, definition } from './rowValues.js'
 import { audit } from './auditWork.js'
@@ -46,12 +47,12 @@ export default function logicGame(content) {
   const { LEVELS, CHAPTERS, LABELS } = logic
   const lemmas = content.lemmas ?? {}
   const { gates } = logic
-  // The parts parts.json defines (the primitive gates), as the circuit screen draws them.
+  // The parts the game defines (parts.json's and its lemmas'), as the circuit screen draws them.
   const cards = Object.fromEntries(Object.entries(logic.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: partIcon(d.icon), family: d.family }]))
   // How parts' descriptions grow along the course (the components box reads them as far as the player has got).
   const revisions = logic.revisions ?? {}
   // A built part is a proved lemma, a gate built on a truth circuit or a machine part (simp, auto…).
-  const machines = Object.fromEntries(logic.machines.map((type) => [type, RULE_TEXT[type] ?? MACHINE_TEXT[type]]))
+  const machines = Object.fromEntries(logic.machines.map((type) => [type, MACHINE_TEXT[type]]))
   const built = { ...gates, ...lemmas, ...machines }
   // A part that stays where it is brought (`local`) is in no components box and unlocks nothing to show.
   const kept = ([type]) => !logic.course.local(type)
@@ -61,10 +62,9 @@ export default function logicGame(content) {
   const kernelRules = (type) => KERNEL_RULES.filter((r) => r.part === type).map((r) => ({ text: ruleText(r) }))
   const lemmaRows = (type) => lemmaRules(type, lemmas[type]).map((r, k) => ({ text: ruleText(r), ...(k ? { form: r.key.split('.')[1] } : {}) }))
   const primitives = [...introductions(logic.course)].map(([type, at]) => {
-    const gate = logic.defs[type] ?? MACHINE_TEXT[type]
-    const text = textOf(lemmas, type, revisions)
+    const text = logic.defs[type] ?? MACHINE_TEXT[type]
     const rules = kernelRules(type)
-    return { key: `part:${type}`, name: gate?.name ?? nameOf(lemmas, type), desc: gate?.desc ?? text?.desc, revisions: gate ? revisions[type] : text?.revisions, icon: gate ? Cpu : iconOf(lemmas, type), at, ...(rules.length ? { rules } : {}) }
+    return { key: `part:${type}`, name: text?.name ?? type, desc: text?.desc, revisions: revisions[type], icon: logic.defs[type] ? cards[type].icon : Cpu, at, ...(rules.length ? { rules } : {}) }
   })
   // A part is new in the level that first brings its idea in (`adds`); everything else carries (../../course.js reach).
   const levels = LEVELS.map((L, index) => ({
@@ -99,7 +99,7 @@ export default function logicGame(content) {
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.source.intro,
     kinds: {
-      proof: { Screen: boardScreen(PROOF), icon: Workflow, label: { zh: '证明', en: 'Proof' } },
+      proof: { Screen: circuitScreen({ ...proofScreen, cards }), icon: Workflow, label: { zh: '证明', en: 'Proof' } },
       machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
       truth: { Screen: Play, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: circuitScreen({ ...gatesScreen, cards }), icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
@@ -126,7 +126,7 @@ export default function logicGame(content) {
       all: [
         ...primitives,
         ...Object.entries(gates).filter(kept).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: CircuitBoard })),
-        ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: iconOf(lemmas, type), rules: lemmaRows(type) })),
+        ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: cards[type].icon, rules: lemmaRows(type) })),
         ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: CircuitBoard })),
       ],
       // A gate the player built shows the board it runs: the one the player passed its level with.
@@ -142,7 +142,7 @@ export default function logicGame(content) {
     bestLabel: (best) => (best.unit === 'cases' ? tr(`${best.steps} 条`, `${best.steps} cases`) : tr(`${best.steps} 步`, `${best.steps} steps`)),
   })
   game.logic = logic
-  game.defined = { of: (type) => logic.defs[type] ?? null, defaults: logic.defaultsOf, ops: {} }
+  game.defined = { of: (type) => logic.defs[type] ?? null, defaults: logic.defaultsOf, ops: OPS }
   game.workReferences = (entry, built) => {
     logic.syncOwn(built)
     return logic.workReferences(entry.task, entry.work)

@@ -29,11 +29,11 @@ const COMMON = {
 }
 const RANGE = { min: S.opt(S.num()), max: S.opt(S.num()), step: S.opt(S.num({ min: 0 })), unit: S.opt(S.text()) }
 // Options are written out, or worked out by an expression on the card's inputs (`from`: a resource giving [{ value, label }]).
-const FROM = S.opt(S.str({ view: 'expr', about: t('式子：由元件的输入算出选项') }))
+const FROM = S.opt(S.str({ view: 'expr', about: t('式子：由元件的输入算出选项', 'an expression: the options worked out of the part’s inputs') }))
 const CONTROL = {
   select: { options: S.opt(OPTIONS), from: FROM },
   list: { options: S.opt(OPTIONS), from: FROM },
-  tree: { optional: S.opt(S.bool({ about: t('可以不填') })) },
+  tree: { optional: S.opt(S.bool({ about: t('可以不填', 'may be left empty') })) },
   buttons: { options: S.opt(OPTIONS), from: FROM, layout: S.opt(S.oneOf(LAYOUTS, { about: t('row 一行，column 一列，grid 两两一行，pad 上下左右四向（选项 up、left、right、down）') })) },
   number: { ...RANGE, integer: S.opt(S.bool()), stepper: S.opt(S.bool({ about: t('两边加 − / + 按钮') })) },
   slider: { ...RANGE, min: S.num(), max: S.num(), marks: S.opt(S.list(S.num(), { about: t('刻度') })) },
