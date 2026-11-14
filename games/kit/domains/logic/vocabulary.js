@@ -2,8 +2,9 @@
 // is and the schema of its parameters, and the schemas of game.json and of one level. Content is these items and
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
-// The items are implemented next to them: proof rules in proof.js, gates in gates.js, the machine board's parts in
-// machine.js (their names in partText.js), the level kinds in course.js and ui/, a machine's wants in machine.js judge,
+// The items are implemented next to them: proof rules in proof.js, the machine board's parts in machine.js (their
+// names in partText.js), the primitive gates in a game's parts.json (`op` the resources its parts call, `family` how
+// they are coloured), the level kinds in course.js and ui/, a machine's wants in machine.js judge,
 // and the proof-term forms in termTree.js. Sentences are text in the
 // notation formula.js and schematic.js read; a board is blueprint text (blueprint.js).
 
@@ -12,7 +13,6 @@ import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
 import { TRAY, TRAYS } from '../../engine/trays.js'
 import { RULES } from './proof.js'
-import { PRIMITIVE_GATES } from './gates.js'
 import { MACHINE_PARTS } from './machine.js'
 import { MACHINE_TEXT, RULE_TEXT } from './partText.js'
 import { T as t } from '../../shell/i18n.js'
@@ -44,10 +44,17 @@ const named = (texts, keys) => Object.fromEntries(keys.map((k) => [k, item(texts
 const PROOF_RULES = Object.keys(RULES).filter((k) => RULE_TEXT[k])
 const PART_ITEMS = {
   ...named(RULE_TEXT, PROOF_RULES),
-  ...named(PRIMITIVE_GATES, Object.keys(PRIMITIVE_GATES)),
+  // The primitive gates: a game's parts.json defines them.
+  gNot: item(t('非 ¬')),
+  gAnd: item(t('与 ∧')),
   ...named(MACHINE_TEXT, Object.keys(MACHINE_PARTS).filter((k) => MACHINE_TEXT[k])),
   // The machine board's rule part that gives the goal's own hypotheses as rewrite rules (rewrite.js).
   hyp: item(t('已知里的等式')),
+}
+
+// How a game's parts.json colours its parts.
+const FAMILIES = {
+  gate: item(t('逻辑门')),
 }
 
 /* ---------- what levels are and want ---------- */
@@ -232,9 +239,12 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 1,
+  version: 2,
   kinds: {
     part: PART_ITEMS,
+    // The engine resources parts.json may call beyond the kernel's builtins (../../engine/parts/builtins.js): none yet.
+    op: {},
+    family: FAMILIES,
     kind: KINDS,
     want: WANTS,
     form: FORMS,

@@ -37,10 +37,10 @@ export const machineShape = (level) => {
   return { ...shapeOf(partOf, { sources: ['in'], sinks: ['out'] }), ruleParts }
 }
 
-/** A board of gates' shape, with the gates the course builds. */
-export const gateShape = (built = {}) => {
-  const gates = gateParts(built)
-  return shapeOf((type) => gates[type], { sources: ['letter'], sinks: ['out'] })
+/** A board of gates' shape, with the gates it holds. */
+export const gateShape = (gates = {}) => {
+  const parts = gateParts(gates)
+  return shapeOf((type) => parts[type], { sources: ['letter'], sinks: ['out'] })
 }
 
 /** A board as blueprint lines, one string a line (no header). */

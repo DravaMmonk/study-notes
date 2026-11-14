@@ -2,32 +2,16 @@
 // values of its letters. Its test is every row of the sentence's truth table, the way 《状态之图》's robot runs one board
 // on every cell: the board passes when it gives the sentence's value on every row.
 //
-// A gates level: { kind: 'gates', target: formula text (in WORDS letters), builds?: gate type, budget?: gates allowed }.
-// The gates the course starts from are 'gNot' and 'gAnd'; the others are built (game.json gates, each { name, desc,
-// ports }) and run the board of the level that builds them (builtGates).
+// A gates level: { kind: 'gates', target: formula text (in WORDS letters), builds?: gate type, budget?: gates allowed,
+// gates }. Its `gates` are every gate its board may hold, by type: the game's primitive gates (parts.json, run as the
+// kernel's defined parts) and the ones its levels build (game.json gates, each { name, desc, ports }), which run the
+// board of the level that builds them (builtGates).
 import { packed, runBoard, sink, source } from '../../engine/boards.js'
 import { parse } from './formula.js'
 import { lettersOf, rowsOf, valueOn } from './truth.js'
-import { T } from '../../shell/i18n.js'
 
-
-/** The gates the course starts from. */
-export const PRIMITIVE_GATES = {
-  gNot: { name: T('非 ¬'), desc: T('¬a：输入是真，输出假；输入是假，输出真。'), ports: ['a'], f: ([a]) => !a },
-  gAnd: { name: T('与 ∧'), desc: T('a ∧ b：两个输入都是真，才输出真；否则输出假。'), ports: ['a', 'b'], f: ([a, b]) => a && b },
-}
-
-/** Every gate a course knows: the primitive ones and the ones its levels build. */
-export const gatesOf = (built = {}) => ({ ...PRIMITIVE_GATES, ...built })
-export const isGate = (type, built = {}) => Boolean(gatesOf(built)[type])
-
-/** The engine's parts for a board of gates: a letter is a source, the output a sink, a primitive gate its function,
- *  a built gate the board it runs. */
-export function gateParts(built = {}) {
-  const parts = { letter: source(), out: sink() }
-  for (const [type, g] of Object.entries(PRIMITIVE_GATES)) parts[type] = { inputs: g.ports, eval: (ins) => g.f(g.ports.map((p) => ins[p])) }
-  return { ...parts, ...built }
-}
+/** The engine's parts for a board of gates: a letter is a source, the output a sink, every gate its own part. */
+export const gateParts = (gates = {}) => ({ letter: source(), out: sink(), ...gates })
 
 /**
  * The gates a course's levels build (game.json gates: { type: { name, desc, ports } }), each a packed part
@@ -47,7 +31,7 @@ export function builtGates(gates, builders, ownBoard) {
     }
     const fits = new WeakMap()
     const passes = (board) => {
-      if (!fits.has(board)) fits.set(board, checkGates({ ...level, gates: all }, board).pass)
+      if (!fits.has(board)) fits.set(board, checkGates(level, board).pass)
       return fits.get(board)
     }
     const circuit = () => {
@@ -84,7 +68,7 @@ export function checkGates(level, circuit) {
   return { pass: results.every((r) => r.pass) && !overBudget, results, gates, overBudget }
 }
 
-export const countGates = (level, circuit) => circuit.nodes.filter((n) => isGate(n.type, level.gates)).length
+export const countGates = (level, circuit) => circuit.nodes.filter((n) => level.gates[n.type]).length
 
 /** The board a level starts from: a card for each letter of its target, and the output. */
 export function startGates(level) {

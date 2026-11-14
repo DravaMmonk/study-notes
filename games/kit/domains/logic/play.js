@@ -11,7 +11,7 @@
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
 import { gateShape } from './blueprint.js'
 import { parse } from './formula.js'
-import { checkGates, gatesOf, rowsFor, startGates } from './gates.js'
+import { checkGates, rowsFor, startGates } from './gates.js'
 import { gatesPlayFor } from './plays.js'
 import { say } from './notation.js'
 import { T } from '../../shell/i18n.js'
@@ -35,7 +35,7 @@ const gates = circuitPlay({
     const { shown, folded } = game.logic.offerIn(L, flags)
     return { start: startGates(L), parts: gateShape(L.gates), types: [...shown, ...folded] }
   },
-  part: ({ level }, type) => gatesOf(level.source.gates)[type],
+  part: ({ level }, type) => level.source.gates[type],
   given: ({ level: { source: L } }) => {
     const { letters } = rowsFor(L)
     const words = (lang) => letters.map((l) => `${l}: ${lang === 'en' ? 'input' : '输入'} “${pick(say(parse(l), L.notation), lang)}”`).join('\n')

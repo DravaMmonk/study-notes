@@ -43,6 +43,10 @@ const CONTENT = {
     ] },
   },
   gates: { gOr: { name: L('或', 'Or'), desc: L('d'), ports: ['a', 'b'] } },
+  partDefs: { parts: {
+    gNot: { name: L('非'), desc: L('d'), icon: 'ToggleLeft', family: 'gate', inputs: [{ name: 'a' }], compute: 'not(a)' },
+    gAnd: { name: L('与'), desc: L('d'), icon: 'ToggleLeft', family: 'gate', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'and(a, b)' },
+  } },
   revisions: { half: [{ by: 'half', forms: ['right'] }] },
   eras: [{ id: 'one', machine: null, foundation: ['or', 'chain', 'useChain', 'half', 'useHalf', 'eqSym', 'andDef', 'eqUse', 'eqTerm', 'rows', 'negate'], chapter: { title: L('c'), question: L('q') } }],
   levels: [

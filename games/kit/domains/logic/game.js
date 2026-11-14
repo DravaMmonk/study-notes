@@ -18,7 +18,6 @@ import { iconOf, nameOf, textOf } from './ui/catalog.js'
 import { MACHINE_TEXT, RULE_TEXT } from './partText.js'
 import { proofTerm } from './termTask.js'
 import { script } from './scriptValues.js'
-import { PRIMITIVE_GATES } from './gates.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
 import { RULES } from './proof.js'
 import { logicCourse } from './course.js'
@@ -58,7 +57,7 @@ export default function logicGame(content) {
   const kernelRules = (type) => KERNEL_RULES.filter((r) => r.part === type).map((r) => ({ text: ruleText(r) }))
   const lemmaRows = (type) => lemmaRules(type, lemmas[type]).map((r, k) => ({ text: ruleText(r), ...(k ? { form: r.key.split('.')[1] } : {}) }))
   const primitives = [...introductions(logic.course)].map(([type, at]) => {
-    const gate = PRIMITIVE_GATES[type] ?? MACHINE_TEXT[type]
+    const gate = logic.defs[type] ?? MACHINE_TEXT[type]
     const text = textOf(lemmas, type, revisions)
     const rules = kernelRules(type)
     return { key: `part:${type}`, name: gate?.name ?? nameOf(lemmas, type), desc: gate?.desc ?? text?.desc, revisions: gate ? revisions[type] : text?.revisions, icon: gate ? Cpu : iconOf(lemmas, type), at, ...(rules.length ? { rules } : {}) }

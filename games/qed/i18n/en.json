@@ -2102,5 +2102,9 @@
   "不用框换顺序": "Reordering without a box",
   "已知能接进哪一种 S？套用以后得到什么？": "Which S can the given go into, and what does Apply then give?",
   "还缺的一段，K 能不能补上？两段首尾相接以后，照<level-ref to=\"x-chain\"></level-ref>接起来。": "Can K supply the missing piece? Once two pieces meet end to end, join them as in <level-ref to=\"x-chain\"></level-ref>.",
-  "给每一行写出右边。": "Write a right side for every row."
+  "给每一行写出右边。": "Write a right side for every row.",
+  "非 ¬": "Not ¬",
+  "¬a：输入是真，输出假；输入是假，输出真。": "¬a: true in gives false out; false in gives true out.",
+  "与 ∧": "And ∧",
+  "a ∧ b：两个输入都是真，才输出真；否则输出假。": "a ∧ b: outputs true only when both inputs are true; otherwise false."
 }

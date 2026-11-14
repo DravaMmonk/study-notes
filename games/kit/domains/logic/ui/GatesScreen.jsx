@@ -9,7 +9,7 @@ import { MISSING } from '../../../engine/circuit.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { openRef } from '../../../shell/refs.js'
-import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, startGates } from '../gates.js'
+import { checkGates, countGates, rowsFor, runRow, startGates } from '../gates.js'
 import { gateShape } from '../blueprint.js'
 import { gatesPlayFor } from '../plays.js'
 
@@ -26,31 +26,30 @@ const TF = (v) => (v === undefined ? '—' : v ? tr('真', 'T') : tr('假', 'F')
 const WRONG_ROW = T('这一行的结果错误')
 const SOURCE = T('输入', 'Input')
 /** The editor's description of a board of gates (../../circuit/model.js), with a level's words for its letters. */
-function gatePartsFor(built, wordOf) {
-  const all = gatesOf(built)
+function gatePartsFor(all, wordOf) {
   return {
-    ...gateShape(built),
+    ...gateShape(all),
     label: (node) => (node.type === 'letter' ? wordOf(node.params.name) ?? SOURCE : node.type === 'out' ? T('这句话') : all[node.type]?.name ?? node.type),
-    portLabel: (node, port) => (all[node.type] && all[node.type].ports.length > 1 ? port : ''),
-    family: (node) => (node.type === 'letter' ? 'given' : node.type === 'out' ? 'end' : PRIMITIVE_GATES[node.type] ? 'gate' : 'built'),
+    portLabel: (node, port) => (all[node.type] && all[node.type].inputs.length > 1 ? port : ''),
+    family: (node) => (node.type === 'letter' ? 'given' : node.type === 'out' ? 'end' : all[node.type]?.built ? 'built' : 'gate'),
     // A gate the player built runs the board that built it: a packed part.
     packed: (node) => Boolean(all[node.type]?.built),
-    icon: (node) => (node.type === 'letter' ? ArrowRightFromLine : node.type === 'out' ? CircleDot : PRIMITIVE_GATES[node.type] ? ToggleLeft : CircuitBoard),
+    icon: (node) => (node.type === 'letter' ? ArrowRightFromLine : node.type === 'out' ? CircleDot : all[node.type]?.built ? CircuitBoard : ToggleLeft),
     rules: all,
   }
 }
 // The board inside a built gate: its letters are the gate's ports, its output the gate's.
-const insideParts = (gates) => ({ ...gatePartsFor(gates, (name) => ({ zh: name, en: name })), label: (node) => (node.type === 'letter' ? { zh: node.params.name, en: node.params.name } : node.type === 'out' ? T('输出', 'Out') : gatesOf(gates)[node.type]?.name ?? node.type) })
+const insideParts = (gates) => ({ ...gatePartsFor(gates, (name) => ({ zh: name, en: name })), label: (node) => (node.type === 'letter' ? { zh: node.params.name, en: node.params.name } : node.type === 'out' ? T('输出', 'Out') : gates[node.type]?.name ?? node.type) })
 
 // What a built gate on a board (of `gates`) runs, and where it is edited.
 const packedOf = (gates) => ({
   open: (node, at) => {
-    const gate = gatesOf(at.level?.gates ?? gates)[node.type]
+    const gate = (at.level?.gates ?? gates)[node.type]
     if (!gate?.built) return null
     const { circuit, level } = gate.opens()
     return { circuit, level, parts: insideParts(level.gates) }
   },
-  edit: (node, at) => openRef('level', gatesOf(at.level?.gates ?? gates)[node.type].opens().level.id),
+  edit: (node, at) => openRef('level', (at.level?.gates ?? gates)[node.type].opens().level.id),
 })
 // What a card shows: its value on the row picked, or why it gives nothing yet.
 const card = {
@@ -159,5 +158,5 @@ function CardValue({ value, error }) {
 export function GateInside({ type, gates }) {
   const { circuit, level } = gates[type].opens()
   const top = { circuit, level, parts: insideParts(level.gates) }
-  return <PackedBoard top={top} {...packedOf(level.gates)} card={card} describe={(node) => (top.parts.role(node) === 'part' ? gatesOf(level.gates)[node.type]?.desc : null)} sheet={card.body} />
+  return <PackedBoard top={top} {...packedOf(level.gates)} card={card} describe={(node) => (top.parts.role(node) === 'part' ? level.gates[node.type]?.desc : null)} sheet={card.body} />
 }

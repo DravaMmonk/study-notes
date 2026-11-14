@@ -1,0 +1,20 @@
+{
+  "parts": {
+    "gNot": {
+      "name": { "zh": "非 ¬" },
+      "desc": { "zh": "¬a：输入是真，输出假；输入是假，输出真。" },
+      "icon": "ToggleLeft",
+      "family": "gate",
+      "inputs": [{ "name": "a" }],
+      "compute": "not(a)"
+    },
+    "gAnd": {
+      "name": { "zh": "与 ∧" },
+      "desc": { "zh": "a ∧ b：两个输入都是真，才输出真；否则输出假。" },
+      "icon": "ToggleLeft",
+      "family": "gate",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "and(a, b)"
+    }
+  }
+}

@@ -10,7 +10,7 @@ import { components } from './components.js'
 const CEILING = {
   'domains/agent': 324,
   'domains/image': 2868,
-  'domains/logic': 884,
+  'domains/logic': 883,
   'domains/syntax': 159,
   'domains/table': 2411,
 }

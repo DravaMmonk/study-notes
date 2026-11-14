@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { definePlays } from '../../engine/plays.js'
+import { defineParts } from '../../engine/parts/define.js'
 import { play } from './play.js'
+
+// The gate the level holds, as a game's parts.json defines it.
+const gNot = { name: { zh: '非' }, desc: { zh: 'd' }, icon: 'ToggleLeft', family: 'gate', inputs: [{ name: 'a' }], compute: 'not(a)' }
+const gates = { gNot: { ...defineParts({ parts: { gNot } }, {}).PARTS.gNot, name: gNot.name, desc: gNot.desc } }
 
 test('the circuit template requires an explicit target column policy', () => {
   const circuit = { editor: 'circuit', judge: 'cases' }
@@ -20,7 +25,7 @@ test('text play follows the circuit target policy in the table and on failure', 
     [{ hideTarget: true }, false, true],
     [{ blind: true, hideTarget: false }, false, false],
   ]) {
-    const source = { kind: 'gates', target: '¬A', ...fields }
+    const source = { kind: 'gates', target: '¬A', gates, ...fields }
     const ctx = { game, level: { kind: 'gates', source }, progress: { built: {} } }
     const opened = play.open(ctx)
     assert.equal(opened.given.en.includes('the sentence'), showSentence)
