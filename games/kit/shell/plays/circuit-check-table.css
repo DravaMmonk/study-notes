@@ -1,0 +1,8 @@
+.circuit-check-table { border-collapse: collapse; font-size: var(--fs-ui); width: max-content; max-width: 100%; }
+.circuit-check-table th, .circuit-check-table td { padding: var(--sp-1) var(--sp-4); text-align: center; border-bottom: 1px solid var(--line); }
+.circuit-check-table th { color: var(--muted); font-weight: 500; }
+.circuit-check-table tbody tr { cursor: pointer; }
+.circuit-check-table tbody tr.is-on { background: var(--hover); }
+.circuit-check-table tbody tr.is-pass td:last-child { color: var(--status); }
+.circuit-check-table tbody tr.is-fail td:last-child { color: var(--fail); }
+.circuit-check-table td:last-child { white-space: nowrap; }

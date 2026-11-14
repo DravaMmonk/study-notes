@@ -12,6 +12,7 @@ import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
 import { gateShape } from './blueprint.js'
 import { parse } from './formula.js'
 import { checkGates, gatesOf, rowsFor, startGates } from './gates.js'
+import { gatesPlayFor } from './plays.js'
 import { say } from './notation.js'
 import { T } from '../../shell/i18n.js'
 
@@ -22,9 +23,9 @@ const pick = (v, lang) => (v && typeof v === 'object' ? v[lang] : v)
 function table(level, lang) {
   const { letters, rows } = rowsFor(level)
   const word = (l) => pick(say(parse(l), level.notation), lang)
-  const hide = level.blind || level.hideTarget
-  const head = [...letters.map((l) => `${l} (${word(l)})`), ...(hide ? [] : [lang === 'en' ? 'target' : '目标真值'])]
-  return [head.join(' | '), ...rows.map((r, k) => `${lang === 'en' ? 'row' : '行'} ${k + 1}: ${[...letters.map((l) => TF(r.row[l], lang)), ...(hide ? [] : [TF(r.want, lang)])].join(' | ')}`)].join('\n')
+  const showTarget = gatesPlayFor(level).target === 'shown'
+  const head = [...letters.map((l) => `${l} (${word(l)})`), ...(showTarget ? [lang === 'en' ? 'target' : '目标真值'] : [])]
+  return [head.join(' | '), ...rows.map((r, k) => `${lang === 'en' ? 'row' : '行'} ${k + 1}: ${[...letters.map((l) => TF(r.row[l], lang)), ...(showTarget ? [TF(r.want, lang)] : [])].join(' | ')}`)].join('\n')
 }
 
 const gates = circuitPlay({
@@ -45,12 +46,13 @@ const gates = circuitPlay({
   tests: ({ level: { source: L } }) => [{ label: T('真值表'), text: T(table(L, 'zh'), table(L, 'en')) }],
   run: ({ level: { source: L } }, graph) => {
     const checked = checkGates(L, graph)
+    const showTarget = gatesPlayFor(L).target === 'shown'
     const { letters } = rowsFor(L)
     const rowText = (r, lang) => letters.map((l) => `${l}=${TF(r.row[l], lang)}`).join(', ')
     const tests = untilFail(checked.results.map((r, k) => ({
       label: T(`第 ${k + 1} 行（${rowText(r, 'zh')}）`, `Row ${k + 1} (${rowText(r, 'en')})`),
       pass: r.pass,
-      says: r.pass ? null : T(`这一行的结果错误：电路输出 ${TF(r.got, 'zh')}${L.blind || L.hideTarget ? '' : `，应当是 ${TF(r.want, 'zh')}`}。`, `This row is wrong: the circuit outputs ${TF(r.got, 'en')}${L.blind || L.hideTarget ? '' : `; it should be ${TF(r.want, 'en')}`}.`),
+      says: r.pass ? null : T(`这一行的结果错误：电路输出 ${TF(r.got, 'zh')}${showTarget ? `，应当是 ${TF(r.want, 'zh')}` : ''}。`, `This row is wrong: the circuit outputs ${TF(r.got, 'en')}${showTarget ? `; it should be ${TF(r.want, 'en')}` : ''}.`),
     })))
     const over = checked.results.every((r) => r.pass) && checked.overBudget
     return {

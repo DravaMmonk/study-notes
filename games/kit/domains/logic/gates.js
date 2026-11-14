@@ -2,9 +2,7 @@
 // values of its letters. Its test is every row of the sentence's truth table, the way 《状态之图》's robot runs one board
 // on every cell: the board passes when it gives the sentence's value on every row.
 //
-// A gates level: { kind: 'gates', target: formula text (in WORDS letters), hideTarget?: true (the target value column
-// is not shown, so the table does not give the answer away), blind?: true (the sentence is not shown either: it is
-// said in words only, and putting it into gates is the puzzle), builds?: gate type, budget?: gates allowed }.
+// A gates level: { kind: 'gates', target: formula text (in WORDS letters), builds?: gate type, budget?: gates allowed }.
 // The gates the course starts from are 'gNot' and 'gAnd'; the others are built (game.json gates, each { name, desc,
 // ports }) and run the board of the level that builds them (builtGates).
 import { packed, runBoard, sink, source } from '../../engine/boards.js'

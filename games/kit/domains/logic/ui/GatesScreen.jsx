@@ -3,7 +3,7 @@ import { ArrowRightFromLine, CircleDot, CircuitBoard, ToggleLeft } from 'lucide-
 import { CircuitLevel, useLevelBoard, useLevelRun } from '../../../shell/index.js'
 import { L, T, tr } from '../../../shell/i18n.js'
 import Readouts from '../../../shell/Readouts.jsx'
-import { WORDS } from '../../../shell/words.js'
+import CircuitCheckTable from '../../../shell/plays/CircuitCheckTable.jsx'
 import { PackedBoard } from '../../../circuit/Inside.jsx'
 import { MISSING } from '../../../engine/circuit.js'
 import { parse } from '../formula.js'
@@ -11,14 +11,15 @@ import { say } from '../notation.js'
 import { openRef } from '../../../shell/refs.js'
 import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, startGates } from '../gates.js'
 import { gateShape } from '../blueprint.js'
+import { gatesPlayFor } from '../plays.js'
 
 // A truth-circuit level (《证明完毕》, gates.js) on the kit's circuit level (../../../shell/CircuitLevel.jsx): a card for
 // each letter on the left, the sentence's output on the right, gates as parts. The tests are the rows of the sentence's
 // truth table, picked in the table itself (no row tabs, whose labels would spell the row out twice): picking one shows
 // on every card what the board computes on that row. Running goes down the table one row at a time, as a machine
 // filling it in (each row a test of no steps): each row's card values and result show in turn, and the run stops on the
-// first row it gets wrong. A `hideTarget` level does not show the target value column; a `blind` one does not show its
-// sentence either: it is a puzzle said in words. A gate the player built opens to show the board it runs (read only,
+// first row it gets wrong. The play configures the target column, and a blind puzzle hides the sentence. A gate the
+// player built opens to show the board it runs (read only,
 // each card's value on the row picked), and the components box shows it too (GateInside).
 
 const TF = (v) => (v === undefined ? '—' : v ? tr('真', 'T') : tr('假', 'F'))
@@ -93,8 +94,12 @@ export default function GatesScreen(screen) {
   }, [level, circuit, row])
   const { shown: palette, folded } = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
   const sentence = L(say(parse(level.target), level.notation))
-  const hideTarget = level.blind || level.hideTarget
-  const states = run.states
+  const checkRows = rows.map(({ row, want }, k) => ({
+    given: Object.fromEntries(letters.map((l) => [l, TF(row[l])])),
+    want: TF(want),
+    got: run.run && k < run.run.results.length ? TF(checked.results[k].got) : !run.run && k === run.at ? TF(view.value) : '',
+    state: run.states[k],
+  }))
   const over = run.run?.over
   const verdictText = !over ? null
     : run.passed ? tr('每一行都正确：这块电路算出了这句话的完整真值表。')
@@ -109,20 +114,7 @@ export default function GatesScreen(screen) {
   const table = (
     <div className="lg-strip">
       {!level.blind && <p className="lg-sequent">{tr('这句话')} <b>{sentence}</b></p>}
-      <table className="lg-rows">
-        <thead>
-          <tr>{letters.map((l) => <th key={l}>{L(word(l))}</th>)}{!hideTarget && <th>{L(WORDS.wanted)}</th>}<th>{L(WORDS.result)}</th></tr>
-        </thead>
-        <tbody>
-          {rows.map((r, k) => (
-            <tr key={k} className={`${k === run.at ? 'is-on' : ''} ${states[k] ? `is-${states[k]}` : ''}`} onClick={() => run.select(k)}>
-              {letters.map((l) => <td key={l}>{L(TF(r.row[l]))}</td>)}
-              {!hideTarget && <td>{L(TF(r.want))}</td>}
-              <td>{run.run && k < run.run.results.length ? L(TF(checked.results[k].got)) : !run.run && k === run.at ? L(TF(view.value)) : ''}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <CircuitCheckTable play={gatesPlayFor(level)} inputs={letters.map((l) => ({ key: l, label: word(l) }))} rows={checkRows} at={run.at} select={run.select} />
       {verdictText && <p className={`lg-verdict ${run.passed ? 'is-pass' : 'is-fail'}`}>{verdictText}</p>}
     </div>
   )
