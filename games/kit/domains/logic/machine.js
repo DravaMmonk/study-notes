@@ -39,7 +39,7 @@
 // of them in turn (tactics.js).
 import { PartError } from '../../engine/circuit.js'
 import { packed, runBoard } from '../../engine/boards.js'
-import { all, fn, subst, tvar } from './formula.js'
+import { FORMULA_TEXT, all, fn, subst, tvar } from './formula.js'
 import { KERNEL, answerOf, asValue, assumption, defer, depthFirst, resultsOf, rule, startState } from './tactics.js'
 import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, ruleOf, ruleText, sameSide, sideText, solveEqs, solved } from './schematic.js'
 import { rewrite, rewriteBookOf, rewriteText, simplify } from './rewrite.js'
@@ -500,6 +500,7 @@ export const inputsOfLevel = (level) => level.inputs ?? [{ name: 'in', label: { 
 
 /** A machine board: an `in` card for each of a level's inputs on the left, the result `out` on the right. */
 export const MACHINE_BOARD = circuitBoard({
+  text: FORMULA_TEXT,
   cards: [
     { type: 'in', side: 'left', of: (task) => inputsOfLevel(task) },
     { type: 'out', side: 'right', of: () => [{ name: 'out', label: T('结果', 'Result') }] },

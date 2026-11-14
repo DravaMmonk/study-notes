@@ -541,7 +541,7 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .step-log-item.is-fail { box-shadow: inset 0 0 0 1.5px var(--fail); }
 .step-log-head { display: flex; gap: var(--sp-4); align-items: baseline; font: 600 12.5px var(--sans); color: var(--muted); }
 .step-log-head b { font: 600 12px var(--mono); color: var(--ink); min-width: 1.6em; }
-.step-log-value { max-height: calc(5 * 18.8px); max-width: 100%; overflow: auto; font-size: 13px; }
+.step-log-value { max-height: calc(5 * 18.8px); max-width: 100%; overflow: auto; font-size: 13px; white-space: pre-line; }
 .step-log-value b, .step-log-value code { white-space: nowrap; }
 .step-log-why { font: 600 12.5px var(--sans); color: var(--fail); }
 

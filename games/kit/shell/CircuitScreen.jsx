@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react'
 import { stagesOf } from '../engine/stages.js'
 import { ArrowRightFromLine, CircuitBoard } from 'lucide-react'
 import { MISSING } from '../engine/circuit.js'
-import { viewAt } from '../engine/trace.js'
+import { traceSteps, viewAt } from '../engine/trace.js'
 import { outputsOf, srcOf } from '../circuit/model.js'
 import { TEST_WORDS } from '../engine/tests.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
@@ -30,6 +30,7 @@ import { PHONE, useMedia } from './useMedia.js'
 import Readouts from './Readouts.jsx'
 import CircuitCheckTable from './plays/CircuitCheckTable.jsx'
 import { PackedBoard } from '../circuit/Inside.jsx'
+import StepLog from './StepLog.jsx'
 
 // The level screen of a domain on the circuit base (engine/circuit-preset.js, the game's course read: `course`), on
 // the kit's circuit level (CircuitLevel.jsx): the level's fixed cards down the left and right
@@ -80,6 +81,8 @@ import { PackedBoard } from '../circuit/Inside.jsx'
 //   final?(task, board)   why the whole run fails though every test passed (over budget…), or ''
 //   score?(task, board)   the score the level is passed with
 //   readouts?(task, board) → [{ value, label }]   the numbers under the task (Readouts.jsx)
+//   log                   a board run once keeps a step log under its results (StepLog.jsx): every step run so far, the
+//                         card named after the built parts it is in, what it gave or why it failed, the current one marked
 //   className             the domain's class on the level
 
 const reportedFailure = (run) => run.error ?? (run.final ? null : failureText(run.fail))
@@ -163,7 +166,7 @@ export function partsFor(level, circuit, { cards, portLabels }) {
 /** The run of a board that has not run: nothing on any card. */
 const NOTHING = { values: new Map(), errors: new Map(), outputs: {}, trace: [] }
 
-export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, check, cells, sample, ready, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, final, score, readouts, language, context, className = '' }) {
+export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, check, cells, sample, ready, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, final, score, readouts, language, context, log = false, className = '' }) {
   const { game, level: entry, solved, flags, progress } = screen
   const level = entry.source
   const circuit = course.forTask(level)
@@ -372,9 +375,38 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
       verdict={run.over ? { pass: !uncaught(run.at), text: uncaught(run.at) || tr('挡住了。') } : null}
     />
   )
+  // The step log of a board run once: the steps shown so far, each card named on the board it is on (a built part's
+  // inside, at any depth), its value in the words of the task and the test on view.
+  const logged = log && !timed && !whole && run.run && runOf?.trace
+  const named = useMemo(() => {
+    if (!logged) return []
+    const boards = new Map()
+    const boardAt = (path) => {
+      const key = path.join('/')
+      if (!boards.has(key)) {
+        let at = { circuit: drawn, level, parts }
+        for (const id of path) {
+          const node = at?.circuit.nodes.find((n) => n.id === id)
+          const inside = node && course.forTask(at.level).BUILT[node.type]?.opens?.(node.params)
+          at = inside ? { ...inside, parts: partsFor(inside.level, course.forTask(inside.level), { cards, portLabels }) } : null
+        }
+        boards.set(key, at)
+      }
+      return boards.get(key)
+    }
+    return traceSteps(runOf.trace, {
+      nameAt: (path, id) => {
+        const at = boardAt(path)
+        const node = at?.circuit.nodes.find((n) => n.id === id)
+        return node ? at.parts.label(node) : null
+      },
+      partName: (type) => cards[type]?.name ?? type,
+    })
+  }, [logged, runOf, drawn, level, parts, course, cards, portLabels])
+  const stepLog = logged && <StepLog steps={named.slice(0, shown.list.length).map((s) => ({ label: s.label, value: s.value === undefined ? null : <Show value={s.value} scene="card" text={show} />, failed: s.failed }))} at={shown.at} />
   const results = works
     ? caughtAt < 0 ? written : <>{written}<Results rows={rows} text={show} verdict={[]} at={-1} count={test.ticks} marks={runOf.fail?.at?.tick !== undefined ? [runOf.fail.at.tick] : []} /></>
-    : <Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.at?.tick !== undefined ? [runOf.fail.at.tick] : []} />
+    : <><Results rows={rows} text={show} verdict={[verdict, run.run?.over && run.run.final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.at?.tick !== undefined ? [runOf.fail.at.tick] : []} />{stepLog}</>
   // A table of cases: a row a test, what the board gives on each as the run reaches it (before a run, on the row picked).
   const ins = kind.portsIn(level)
   const out = kind.portsOut(level)[0]?.name

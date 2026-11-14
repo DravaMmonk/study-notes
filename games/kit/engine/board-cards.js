@@ -1,7 +1,7 @@
 // The board of a circuit task (games/DESIGN.md 6.3): the cards the task gives it, where they stand, how a saved board
 // still fits the task, and the board as blueprint text. A domain says which cards its tasks give:
 //
-//   circuitBoard({ cards, ticks, right, gap }) → { ticks, FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, labelOf,
+//   circuitBoard({ cards, ticks, right, gap, text }) → { ticks, FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, labelOf,
 //     sourceOf, fixedOf, startBoard, fits, carriedOnto, wiring, fromText, toText }
 //       cards  [{ type, side: 'left' | 'right', of(task) → [{ name, label }], params?(port), part?, group?(task) }]
 //              in board order: the cards a level gives (its inputs, outputs, wires…), each a source on the left or a sink
@@ -9,6 +9,8 @@
 //              members: [port name] }] ports of a left card that stand on one card together, one output a member (a
 //              board reads it as `group.member`), while the task's ports, and a part its board becomes, stay one each
 //       ticks  the board runs tick by tick (./ticks.js), so its wires may feed back
+//       text   how a card's settings read from and spell as blueprint text ({ read(node, key, v), value(node, key, v) }:
+//              ../circuit/text.js); by default a setting is kept as the words it is written in
 //     A task that gives the board it opens on (`starter`, blueprint text read like its answer) starts on a copy of it.
 //   INPUTS, OUTPUTS   the cards most boards are given: a task's inputs down the left, its outputs down the right
 //   flowBoard()       the board of a domain whose levels give just those, run once
@@ -20,7 +22,10 @@ import { print, read } from '../circuit/text.js'
 import { sink, source } from './boards.js'
 import { portsOf } from './circuit.js'
 
-export function circuitBoard({ cards, ticks = false, right = 980, gap = 140 }) {
+// A setting kept as the words it is written in ({ reg: 'A', start: '1' }); the parts read them.
+const WORDS = { read: (_node, _key, v) => String(v) }
+
+export function circuitBoard({ cards, ticks = false, right = 980, gap = 140, text = WORDS }) {
   const FIXED = cards.map((c) => c.type)
   // A left card that groups ports gives each member as an output of its own.
   const grouping = source({ outputs: (node) => node.params?.members?.split(',') ?? null, eval: (_, node, ctx, key) => ctx.bind?.[node.params.members ? key : node.params.name] })
@@ -68,8 +73,7 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140 }) {
     loops: ticks,
     // What keeps a value for the next tick: a card that stores a register, or a built part that holds its own.
     holds: (n) => Boolean(circuit.partOf(n.type)?.store || circuit.partOf(n.type)?.holds),
-    // A setting is kept as the words it is written in ({ reg: 'A', start: '1' }); the parts read them.
-    text: { read: (_node, _key, v) => String(v) },
+    text,
     inputs: (n) => {
       if (sinks.has(n.type)) return ['in']
       if (isFixed(n.type)) return []

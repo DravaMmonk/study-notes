@@ -1,7 +1,8 @@
 // Replaying a run step by step, the same in every game. A traced evaluation (circuit.js, `ctx.trace`) lists every
 // node computed, in the order it ran: { id, key, value } or { id, key, error }, a frame going round adding its own
 // entries. A board replays it by showing, after each step, only what had been computed by then.
-import { sourceOf } from './circuit.js'
+import { MISSING, sourceOf } from './circuit.js'
+import { T } from '../shell/i18n.js'
 
 /** The values and errors a board shows once the first `upTo + 1` entries of a trace have run. */
 export function viewAt(trace, upTo) {
@@ -12,6 +13,28 @@ export function viewAt(trace, upTo) {
     else values.set(sourceOf(e.id, e.key), e.value)
   }
   return { values, errors }
+}
+
+const join = (a, b, mark = '·') => T(`${a.zh} ${mark} ${b.zh}`, `${a.en} ${mark} ${b.en}`)
+const words = (x) => (typeof x === 'string' ? T(x, x) : x)
+
+/**
+ * A run's steps as its step log reads them (../shell/StepLog.jsx), one for every trace entry, in the order they ran:
+ * { label, value, failed }. A step is named by its card (`nameAt(path, id)`, path the packed parts it is in), after the
+ * packed parts it is in, outermost first; a frame's step by the round it goes into (`round`), a part's own step inside
+ * (`inner`) by what it says it did (`label`) or the part it applied (`sub`: `partName(type)`). A card that cannot
+ * compute fails its step, and says why.
+ */
+export function traceSteps(trace, { nameAt, partName }) {
+  return trace.map((e) => {
+    const path = e.path ?? []
+    const own = words(nameAt(path, e.id) ?? e.id)
+    const what = e.inner && (e.label ?? (e.sub ? partName(e.sub) : null))
+    const step = what ? join(own, words(what)) : e.round ? join(own, T(`第 ${e.round} 轮`, `round ${e.round}`)) : own
+    const label = path.reduceRight((inner, _, k) => join(words(nameAt(path.slice(0, k), path[k]) ?? path[k]), inner, '›'), step)
+    const failed = e.error === undefined ? null : e.error === MISSING ? T(`「${own.zh}」缺少输入`, `“${own.en}” is missing an input`) : words(e.error)
+    return { label, value: e.value, failed }
+  })
 }
 
 const samePath = (a = [], b = []) => a.length === b.length && a.every((id, k) => id === b[k])

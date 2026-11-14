@@ -15,7 +15,7 @@ import { MISSING, PartError } from '../../engine/circuit.js'
 import { formed } from '../../engine/forms.js'
 import { runBoard } from '../../engine/boards.js'
 import { circuitBoard } from '../../engine/board-cards.js'
-import { BOT, all, allVars, and, bin, eq, fn, freeVars, imp, mentionsSentence, occurrences, or, parse, replaceAtoms, replaceTerm, same, signature, subst, substSentence, termsOf, tvar } from './formula.js'
+import { BOT, FORMULA_TEXT, all, allVars, and, bin, eq, fn, freeVars, imp, mentionsSentence, occurrences, or, parse, replaceAtoms, replaceTerm, same, signature, subst, substSentence, termsOf, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
 import { choicesOf } from './choices.js'
 import { cancelOne, disjunction, literalsIn } from './resolution.js'
@@ -472,6 +472,7 @@ export function closes(judgment, goal, premiseIds, notation = null) {
 
 /** A proof's board: a card for each premise on the left (by the names its tests give them), the goal on the right. */
 export const PROOF_BOARD = circuitBoard({
+  text: FORMULA_TEXT,
   cards: [
     { type: 'premise', side: 'left', of: (task) => Object.keys(task.tests[0].premises ?? {}).map((name, k, all) => ({ name, label: all.length > 1 ? T(`已知 ${k + 1}`, `Given ${k + 1}`) : T('已知', 'Given') })) },
     { type: 'goal', side: 'right', of: () => [{ name: 'goal', label: T('目标', 'Goal') }] },
