@@ -7,7 +7,7 @@
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { BUILT_PART, GAME, NAME, PORT, levelSchema } from '../../engine/circuit-domain.js'
+import { BUILT_PART, GAME, NAME, PORT, levelSchema } from '../../engine/level-schema.js'
 import { FORMATS } from './wire.js'
 import { T as t } from '../../shell/i18n.js'
 
@@ -75,7 +75,7 @@ const TEST = S.obj({
   expect: S.opt(S.map(S.list(S.any()), { view: 'ticks', about: t('given 要的值：每个输出每一拍的值，null 是「—」') })),
   ticks: S.opt(S.int({ min: 1, about: t('跑多少拍（默认：给的东西都到达以后再过两拍）') })),
 })
-// What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
+// What a level says once; then each task: its puzzle, done in turn (../../engine/level-schema.js levelSchema).
 const LEVEL = levelSchema({
   builds: S.opt(S.obj({ ...BUILT_PART, replaces: S.opt(S.list(NAME, { about: t('它取代的搭出的元件：从这一关往后，托盘里给它，不再给那些') })) }, { section: 'course', about: t('通过后最后一个任务的板成为元件 type：它的口就是那个任务的进线、输入、出线和输出') })),
   test: TEST,

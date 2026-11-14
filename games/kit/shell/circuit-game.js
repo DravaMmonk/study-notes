@@ -1,4 +1,4 @@
-// A game on a circuit domain (../engine/circuit-domain.js) on the shared shell, from its content (games/DESIGN.md 6.3):
+// A game on a circuit domain (../engine/circuit-preset.js) on the shared shell, from its content (games/DESIGN.md 6.3):
 // the course read becomes the shell's game description, every level played by the domain's screen (CircuitScreen.jsx)
 // and the parts box holding the game's primitives and the parts its levels build. The course read is `game.circuit`.
 //

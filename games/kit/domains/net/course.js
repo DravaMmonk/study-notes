@@ -7,10 +7,10 @@
 // inputs and outputs), and the course the shared audit checks.
 //
 // A test runs for `ticks` ticks, by default until two ticks after the last thing it gives arrives.
-// Returns the course read (../../engine/circuit-domain.js circuitCourse): LEVELS, played (level id → its tasks read),
+// Returns the course read (../../engine/board-course.js circuitCourse): LEVELS, played (level id → its tasks read),
 // CHAPTERS, course, partOf, BUILT, offerIn, opening, carried, syncOwn, blueprints, and `wrong`, what reading the content
 // found that its schema cannot say.
-import { circuitCourse } from '../../engine/circuit-domain.js'
+import { circuitCourse } from '../../engine/board-course.js'
 import { arrived, said } from './wire.js'
 import { board } from './board.js'
 import { PARTS } from './parts.js'

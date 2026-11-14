@@ -1,9 +1,11 @@
-// node --test (npm test) — what a task on the circuit base holds (circuit-domain.js over ../course.js holds): a part,
+// node --test (npm test) — what a task on the circuit preset holds (board-course.js over ../course.js holds): a part,
 // one of its settings, one value of a setting, by the course's progress and by what the task gives or withholds.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { assemble } from './content.js'
-import { checkCircuitTasks, definedCourse, flowBoard } from './circuit-domain.js'
+import { checkCircuitTasks } from './circuit-preset.js'
+import { definedCourse } from './board-course.js'
+import { flowBoard } from './board-cards.js'
 import { onceRun } from './circuit-run.js'
 
 const text = (zh) => ({ zh })

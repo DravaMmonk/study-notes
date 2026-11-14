@@ -14,6 +14,6 @@
 //   s = add(r, c)
 //   k = keep[reg=A](s)
 //   seq <- r
-import { INPUTS, OUTPUTS, circuitBoard } from '../../engine/circuit-domain.js'
+import { INPUTS, OUTPUTS, circuitBoard } from '../../engine/board-cards.js'
 
 export const board = circuitBoard({ ticks: true, cards: [INPUTS, OUTPUTS] })

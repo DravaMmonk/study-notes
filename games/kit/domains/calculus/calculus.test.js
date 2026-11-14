@@ -5,7 +5,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { PARTS } from './parts.js'
 import { board } from './board.js'
-import { primitivesOnly } from '../../engine/circuit-domain.js'
+import { primitivesOnly } from '../../engine/board-cards.js'
 import { runLevel } from './run.js'
 import domain from './domain.js'
 

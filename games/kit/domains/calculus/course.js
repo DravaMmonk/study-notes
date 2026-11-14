@@ -5,9 +5,9 @@
 // checks.
 //
 // A test runs as many ticks as its wanted terms are long; every input gives a term for each of those ticks.
-// Returns the circuit base's course (../../engine/circuit-domain.js circuitCourse); `wrong` is what reading the
+// Returns the circuit base's course (../../engine/board-course.js circuitCourse); `wrong` is what reading the
 // content found that its schema cannot say (an input with too few terms, outputs of different lengths).
-import { circuitCourse } from '../../engine/circuit-domain.js'
+import { circuitCourse } from '../../engine/board-course.js'
 import { board } from './board.js'
 import { PARTS } from './parts.js'
 

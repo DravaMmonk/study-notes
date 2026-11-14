@@ -28,7 +28,7 @@ import { failureText } from '../failure-text.js'
 
 import { print, read } from '../../circuit/text.js'
 import { outputsOf } from '../../circuit/model.js'
-import { TEST_WORDS } from '../circuit-domain.js'
+import { TEST_WORDS } from '../tests.js'
 import { valueText } from '../views.js'
 import { T } from '../../shell/i18n.js'
 
@@ -119,7 +119,7 @@ export function circuitPlay(hook) {
 }
 
 /**
- * The play hook of a domain on the circuit base whose boards run tick by tick (../circuit-domain.js, the course read as
+ * The play hook of a domain on the circuit base whose boards run tick by tick (../circuit-preset.js, the course read as
  * `game.circuit`; ../../shell/CircuitScreen.jsx its screen): the board a task opens on, the tray's parts with their
  * components-box keys and settings, every test as the waveform draws it — a lane a row, a tick a column, 「—」 nothing,
  * · anything — and an attempt judged as the screen judges a run: test by test, stopping at the first that fails, the
@@ -135,7 +135,7 @@ export function circuitPlay(hook) {
  *                               (../../shell/CircuitScreen.jsx registerCards): reg and keep name one of `names`, reg
  *                               starts as 「—」, 0 or 1, const is a number from 0 to `top`
  *   settings   { type: [{ key, values, about? }] } what can be set on the game's other primitives
- *   words      what the game calls its tests (../circuit-domain.js TEST_WORDS)
+ *   words      what the game calls its tests (../tests.js TEST_WORDS)
  */
 export function tickPlay({ run, given, lanes, more = () => [], registers = null, settings = {}, show = valueText, words = TEST_WORDS }) {
   const offered = {

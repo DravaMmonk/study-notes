@@ -7,7 +7,7 @@
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { GAME, PORT, levelSchema } from '../../engine/circuit-domain.js'
+import { GAME, PORT, levelSchema } from '../../engine/level-schema.js'
 import { T as t } from '../../shell/i18n.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -35,7 +35,7 @@ const TEST = S.obj({
   line: BITS,
   inputs: S.opt(S.map(S.list(S.int()), { about: t('每个输入每一拍的值') })),
 })
-// What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
+// What a level says once; then each task: its puzzle, done in turn (../../engine/level-schema.js levelSchema).
 const LEVEL = levelSchema({
   test: TEST,
   ports: {

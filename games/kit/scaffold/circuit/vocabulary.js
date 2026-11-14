@@ -7,7 +7,7 @@
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { GAME, PORT, levelSchema } from '../../engine/circuit-domain.js'
+import { GAME, PORT, levelSchema } from '../../engine/level-schema.js'
 import { OP_ITEMS } from './ops.js'
 import { T as t } from '../../shell/i18n.js'
 
@@ -23,7 +23,7 @@ const FAMILIES = {
 
 const VALUES = S.map(S.num(), { about: t('每个输入或输出的值，按名字') })
 const TEST = S.obj({ inputs: VALUES, expect: VALUES })
-// What a level says once; then each task: its puzzle, done in turn (../../engine/circuit-domain.js levelSchema).
+// What a level says once; then each task: its puzzle, done in turn (../../engine/level-schema.js levelSchema).
 const LEVEL = levelSchema({
   test: TEST,
   ports: {

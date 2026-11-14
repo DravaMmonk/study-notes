@@ -27,7 +27,7 @@
 - 决策二十的字段译文已实现。页面、操作集、检查、翻译流水线与 Studio 共用原文键和字段种类。
 - D.5 的卡片宽度由共用编辑器按件的面、值视图和可用宽度计算；手机格位优先两列，短句卡由内容撑高，窄框减少内边距。
 - D.4 造世界已完成。反例世界作为一条玩家检验，内核负责选择和布尔表格、逐步显示给定句子的结果。判定先拒绝空论域和非世界输入，作者侧只检查参考世界。四道翻译反例的误报 `naive fails` 已删除。
-- `engine/circuit-domain.js` 仍负责电路的作者检查接线、schema（`levelSchema`）和课程读取（`circuitCourse`）。
+- E.1 已完成。`circuit-domain.js` 拆成基础件：板的固定卡 `engine/board-cards.js`、课程读取 `engine/board-course.js`、schema `engine/level-schema.js`、`TEST_WORDS` 进 `engine/tests.js`；`engine/circuit-preset.js` 只做拼装，`circuitDomain(…)` 给出电路领域的 `domain.js`，各电路领域和两个模板的 `validate.js` 删掉。11 款游戏的检查输出逐字节一致；它不碰《证明完毕》，所以先于 D.5 做完。
 - 还在领域里的机制：八种玩法的屏。
 - 真值电路的检验表已提到内核，目标列由玩法配置控制，文字试玩共用这份配置。
 - 量：`logic` 自写组件 884 行（`engine/components.test.js`），只许降。
@@ -59,14 +59,6 @@
 - 这一条依赖 C.1（并存）、C.2（引用）、D.1（括号和框是同一个面）。
 - 名称、说明及设置、区域、端口标签搬进内容时，保留不同含义的原有英文，按已核对的清单统一同义译法。
 - 验收：`logic/proof.js` 的 `RULES`、`machine.js` 的 `MACHINE_PARTS`、`gates.js` 的 `PRIMITIVE_GATES` 里只剩引擎资源；studio 的元件页能看、能改《证明完毕》的件；`logic` 自写组件的行数降到 0 或只剩写明原因的几项。
-
-## 阶段 E　拆电路底座
-
-### E.1 电路底座成为一份预设
-
-- `circuit-domain.js` 里剩下的东西（课程读取、schema）按 A–D 的基础件重写成配置；建在它上面的领域（`net`、`market`、`calculus`、`linear`、`signal`、两个脚手架）内容和领域代码只做机械改动。
-- 放在最后，因为用它的领域最多。
-- 验收：全部游戏的检查输出不变；全部游戏能构建；每款在浏览器里打开一关走通。
 
 ---
 

@@ -10,6 +10,6 @@
 //
 //   s = add(a, b)
 //   sum <- s
-import { flowBoard } from '../../engine/circuit-domain.js'
+import { flowBoard } from '../../engine/board-cards.js'
 
 export const board = flowBoard()

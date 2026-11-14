@@ -1,11 +1,18 @@
-// The __name__ domain for the checks (games/DESIGN.md 6.3): its vocabulary, a game's spec from its content (the circuit
-// base's, ../../engine/circuit-domain.js circuitSpec), the domain's checks and its play hook for blind sessions
-// (play.js). Nothing here draws: the page's side is game.js.
-import { circuitNames, circuitSpec } from '../../engine/circuit-domain.js'
+// The __name__ domain for the checks (games/DESIGN.md 6.3): the circuit preset (../../engine/circuit-preset.js) over its
+// vocabulary, its course and its runs, each run tick by tick on its line (run.js; a reference board that says in a tick what it hears
+// in that tick has a loop, and fails), and its play hook for blind sessions (play.js). Nothing here draws: the page's
+// side is game.js.
+import { circuitDomain } from '../../engine/circuit-preset.js'
 import { vocabulary } from './vocabulary.js'
 import { __name__Course } from './course.js'
-import { validate } from './validate.js'
+import { entries, runLevel } from './run.js'
 import { play } from './play.js'
 
-// The tools' other hooks on a domain (kit/engine/contract.js EXTENSIONS: changes, scene) go here too.
-export default { vocabulary, names: circuitNames, spec: circuitSpec('__name__', __name__Course), validate, play }
+export default circuitDomain('__name__', {
+  vocabulary,
+  course: __name__Course,
+  run: runLevel,
+  entries,
+  failure: (r) => (r.error ? '(a loop)' : r.fail ? `at tick ${r.fail.at?.tick} (${(r.fail.at?.id ?? r.fail.at)}: want ${r.fail.want}, got ${r.fail.got})` : ''),
+  play,
+})

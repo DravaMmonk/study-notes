@@ -12,6 +12,6 @@
 //   d = mul(g, k)
 //   n = add(was, d)
 //   price <- n
-import { INPUTS, OUTPUTS, circuitBoard } from '../../engine/circuit-domain.js'
+import { INPUTS, OUTPUTS, circuitBoard } from '../../engine/board-cards.js'
 
 export const board = circuitBoard({ ticks: true, cards: [INPUTS, OUTPUTS] })

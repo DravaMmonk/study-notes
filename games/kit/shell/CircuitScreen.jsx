@@ -8,7 +8,7 @@ import { ArrowRightFromLine, CircuitBoard } from 'lucide-react'
 import { MISSING } from '../engine/circuit.js'
 import { viewAt } from '../engine/trace.js'
 import { outputsOf, srcOf } from '../circuit/model.js'
-import { TEST_WORDS } from '../engine/circuit-domain.js'
+import { TEST_WORDS } from '../engine/tests.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 import { rowsOf } from '../engine/views.js'
 import { SettingsContext } from './useSetting.js'
@@ -27,7 +27,7 @@ import { useEdit } from './edit.js'
 import NumberField from './NumberField.jsx'
 import { PHONE, useMedia } from './useMedia.js'
 
-// The level screen of a domain on the circuit base (engine/circuit-domain.js, the game's course read as
+// The level screen of a domain on the circuit base (engine/circuit-preset.js, the game's course read as
 // `game.circuit`), on the kit's circuit level (CircuitLevel.jsx): the level's fixed cards down the left and right
 // (named by the ports its task gives them), the parts it holds between, the parts the player built as packed parts
 // that open to show the board they run. A run plays every test in turn and stops on the first that fails; hidden tests
@@ -61,7 +61,7 @@ import { PHONE, useMedia } from './useMedia.js'
 //                         its values tick by tick so far, each switched between its views there (tickDetail)
 //   card?                 faces of a card over the base's (CircuitLevel card)
 //   canvas                { height } of a part's card on the desktop board
-//   words                 what the game calls its tests (../engine/circuit-domain.js TEST_WORDS)
+//   words                 what the game calls its tests (../engine/tests.js TEST_WORDS)
 //   className             the domain's class on the level
 
 const reportedFailure = (run) => run.error ?? (run.final ? null : failureText(run.fail))

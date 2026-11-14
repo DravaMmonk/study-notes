@@ -1,10 +1,14 @@
-// The signal domain for the checks (games/DESIGN.md 6.3): its vocabulary, a game's spec from its content (the circuit
-// base's, ../../engine/circuit-domain.js circuitSpec) and the domain's checks. Nothing here draws: the page's side is
-// game.js.
-import { circuitNames, circuitSpec } from '../../engine/circuit-domain.js'
+// The signal domain for the checks (games/DESIGN.md 6.3): the circuit preset (../../engine/circuit-preset.js) over its
+// vocabulary, its course and its runs, each test run once (run.js). Nothing here draws: the page's side is game.js.
+import { circuitDomain } from '../../engine/circuit-preset.js'
 import { vocabulary } from './vocabulary.js'
 import { signalCourse } from './course.js'
-import { validate } from './validate.js'
+import { entries, runLevel, show } from './run.js'
 
-// The tools' hooks on a domain (kit/engine/contract.js EXTENSIONS: changes, play, scene) go here too.
-export default { vocabulary, names: circuitNames, spec: circuitSpec('signal', signalCourse), validate }
+export default circuitDomain('signal', {
+  vocabulary,
+  course: signalCourse,
+  run: runLevel,
+  entries,
+  failure: (r) => (r.fail ? `(${r.fail.at}: want ${show(r.fail.want)}, got ${show(r.fail.got)})` : ''),
+})

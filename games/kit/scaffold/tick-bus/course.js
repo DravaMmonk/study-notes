@@ -10,7 +10,7 @@
 // blueprints, wrong }: LEVELS, the levels as content writes them with their place in the course; played: level id →
 // its tasks read, each the level with the task's fields (and `task`, its index); `wrong`, what reading the content
 // found that its schema cannot say (a board that does not read, an output with nothing wanted).
-import { circuitCourse } from '../../engine/circuit-domain.js'
+import { circuitCourse } from '../../engine/board-course.js'
 import { bitsOf } from './line.js'
 import { board } from './board.js'
 import { PARTS } from './parts.js'

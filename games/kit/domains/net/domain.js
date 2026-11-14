@@ -1,12 +1,19 @@
-// The net domain for the checks (games/DESIGN.md 6.3): its vocabulary, a game's spec from its content (the circuit
-// base's, ../../engine/circuit-domain.js circuitSpec), the domain's checks, its play hook for blind sessions (play.js)
-// and its headless drawing of a level (scene.js, an SVG string). The page's side is game.js.
-import { circuitNames, circuitSpec } from '../../engine/circuit-domain.js'
+// The net domain for the checks (games/DESIGN.md 6.3): the circuit preset (../../engine/circuit-preset.js) over its
+// vocabulary, its course and its runs, each run tick by tick on its wires (run.js), its play hook for blind sessions
+// (play.js) and its headless drawing of a level (scene.js, an SVG string). Nothing here draws: the page's side is game.js.
+import { circuitDomain } from '../../engine/circuit-preset.js'
 import { vocabulary } from './vocabulary.js'
 import { netCourse } from './course.js'
-import { validate } from './validate.js'
+import { entries, runLevel } from './run.js'
 import { play } from './play.js'
 import { scene } from './scene.js'
 
-// The tools' other hooks on a domain (kit/engine/contract.js EXTENSIONS: play, scene) go here too.
-export default { vocabulary, names: circuitNames, spec: circuitSpec('net', netCourse), validate, play, scene }
+export default circuitDomain('net', {
+  vocabulary,
+  course: netCourse,
+  run: runLevel,
+  entries,
+  failure: (r) => (r.fail ? `${r.fail.at?.tick !== undefined ? `at tick ${r.fail.at?.tick} ` : ''}(${(r.fail.at?.id ?? r.fail.at)}: want ${JSON.stringify(r.fail.want)}, got ${JSON.stringify(r.fail.got)})` : ''),
+  play,
+  scene,
+})
