@@ -6,6 +6,10 @@ export const regionsOf = (piece) => piece.regions ?? []
 export const insideOf = (piece) => piece.inside ?? null
 export const facesOf = (piece) => piece.views ?? {}
 export const keepsOf = (piece) => piece.keeps ?? []
+// A built piece run by an engine resource instead of its inside (its inside still says what it is and where it is
+// earned); a piece's description as it grows along the course.
+export const cardOf = (piece) => piece.card ?? null
+export const revisionsOf = (piece) => piece.revisions ?? []
 
 /** A parts.json's built pieces (those with an inside), by type. */
 export const builtPieces = (file) => Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, piece]) => insideOf(piece)))

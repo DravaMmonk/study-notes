@@ -9,6 +9,7 @@ import { play } from './play.js'
 import { parse } from './formula.js'
 import { parseS, parseSide } from './schematic.js'
 import { parseTerm } from './pterm.js'
+import { builtPieces } from '../../engine/pieces.js'
 
 // The readers of the vocabulary's languages: why a text cannot be read, or null.
 const reads = (parser) => (text) => {
@@ -21,8 +22,9 @@ const reads = (parser) => (text) => {
 }
 const languages = { formula: reads(parse), side: reads(parseSide), condition: reads(parseS), term: reads(parseTerm) }
 
-// What a part's name may be (vocabulary.js PART): the vocabulary's parts, and the game's lemmas, gates and equations.
-const names = (content) => ({ part: new Set([...Object.keys(vocabulary.kinds.part), ...Object.keys(content.lemmas ?? {}), ...Object.keys(content.gates ?? {}), ...Object.keys(content.facts ?? {}), ...(content.machines ?? [])]) })
+// What a part's name may be (vocabulary.js PART): the vocabulary's parts, and the game's built pieces (lemmas, gates,
+// machine parts and equations).
+const names = (content) => ({ part: new Set([...Object.keys(vocabulary.kinds.part), ...Object.keys(builtPieces(content.partDefs))]) })
 
 /** A logic game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content) {
@@ -38,9 +40,9 @@ function spec(content) {
     syncOwn: logic.syncOwn,
     // The built parts that do not run a board syncOwn hands them unchecked: a gate runs the board kept for it only when
     // that board passes its level (gates.js builtGates), and a lemma with a card runs as the kit's card (proof.js).
-    builtIn: [...new Set(logic.course.levels.flatMap((l) => logic.course.builds(l)))].filter((p) => content.gates?.[p] || content.lemmas?.[p]?.card),
+    builtIn: [...new Set(logic.course.levels.flatMap((l) => logic.course.builds(l)))].filter((p) => logic.gates[p] || logic.lemmas[p]?.card),
     quotes: content.quotes ?? [],
-    texts: { chapters: logic.CHAPTERS, lemmas: content.lemmas, facts: content.facts ?? {}, gates: content.gates ?? {}, revisions: content.revisions ?? {}, glossary: content.glossary.entries },
+    texts: { chapters: logic.CHAPTERS, ...logic.texts, glossary: content.glossary.entries },
   }
 }
 

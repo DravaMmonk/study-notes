@@ -1,6 +1,5 @@
 {
   "title": { "zh": "让核重放" },
-  "builds": "metis",
   "adds": ["replay", "saturate", "clausify"],
   "tray": "machine",
   "intro": [

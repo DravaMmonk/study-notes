@@ -2,7 +2,6 @@
   "symbols": ["∨"],
   "title": { "zh": "下雨或者刮风" },
   "tray": "gates",
-  "builds": "gOr",
   "intro": [
     {
       "t": {

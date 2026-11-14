@@ -1,7 +1,6 @@
 {
   "title": { "zh": "若下雨，则地湿" },
   "tray": "gates",
-  "builds": "gImp",
   "intro": [
     {
       "t": {

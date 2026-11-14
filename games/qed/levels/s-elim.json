@@ -1,7 +1,6 @@
 {
   "title": { "zh": "按形状分解假设" },
   "tray": "machine",
-  "builds": "elimRules",
   "intro": [
     {
       "t": {

@@ -511,12 +511,6 @@ export const MACHINE_BOARD = circuitBoard({
 /** The board a machine level starts from: its inputs and its result. */
 export const startMachine = (level) => MACHINE_BOARD.startBoard(level)
 
-/** The ports of the parts the player builds, as a blueprint names them (each runs the board of the level building it). */
-export const BUILT_PORTS = {
-  elimGen: ['it', 'ways'], unifier: ['in'], erule: ['in', 'rules'], frule: ['in', 'rules'], introRules: ['in'], elimRules: ['in'],
-  auto: ['in'], simp: ['in', 'rules'], saturate: ['in'], clausify: ['in'], metis: ['in'],
-}
-
 /* ---------- rule parts ---------- */
 
 // A sentence in the level's words, in each language, for names made of it.
@@ -656,10 +650,9 @@ export function judge(want, test, out, level = {}) {
 }
 
 const merged = (a = new Map(), b = new Map()) => new Map([...a, ...b])
-// The settings a part the player builds takes beyond its board's (simp works on the goal or the hypotheses).
-const BUILT_SETTINGS = { simp: ['at'] }
-/** A packed machine part reads the work and rules of its selected builder. */
-export function builtMachine(type, builder, reference, ownBoard) {
+/** A packed machine part reads the work and rules of its selected builder; `params` the settings its piece takes beyond
+ *  its board's (simp works on the goal or the hypotheses). */
+export function builtMachine(type, builder, reference, ownBoard, params = []) {
   const circuit = () => ownBoard(builder().taskId) ?? builder().solution
   const part = packed({
     circuit,
@@ -670,7 +663,7 @@ export function builtMachine(type, builder, reference, ownBoard) {
       return { ...ctx, rules: { ...ruleBookOf(b), ...ctx.rules }, rewrites: { ...rewriteBookOf(b), ...ctx.rewrites }, ruleParts: merged(rulePartsOf(b), ctx.ruleParts), backtrack: ctx.backtrack || Boolean(b.backtrack) }
     },
   })
-  return { ...part, built: true, params: BUILT_SETTINGS[type] ?? [], eval: failsAsState(part.eval), opens: () => ({ circuit: circuit(), level: builder() }) }
+  return { ...part, built: true, params, eval: failsAsState(part.eval), opens: () => ({ circuit: circuit(), level: builder() }) }
 }
 // A tactic that cannot go on gives the state it was handed with what went wrong, as every tactic does (a frame reads
 // it), and a state that failed already passes through.

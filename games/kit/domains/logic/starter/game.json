@@ -15,14 +15,6 @@
     }
   },
   "primitives": ["gNot", "gAnd"],
-  "lemmas": {},
-  "gates": {
-    "gOr": {
-      "name": { "zh": "或 ∨" },
-      "desc": { "zh": "a ∨ b：至少一个输入是真，就输出真。" },
-      "ports": ["a", "b"]
-    }
-  },
   "eras": [
     {
       "id": "circuits",

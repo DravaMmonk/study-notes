@@ -1,7 +1,6 @@
 {
   "title": { "zh": "规则作用于假设" },
   "tray": "machine",
-  "builds": "erule",
   "intro": [
     {
       "t": {

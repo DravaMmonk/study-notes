@@ -472,6 +472,12 @@
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "replay(in)"
+    },
+    "gOr": {
+      "name": { "zh": "或 ∨" },
+      "desc": { "zh": "a ∨ b：至少一个输入是真，就输出真。" },
+      "family": "gate",
+      "inside": [{ "task": "g-or" }]
     }
   }
 }

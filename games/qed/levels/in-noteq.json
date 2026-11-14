@@ -1,7 +1,6 @@
 {
   "title": { "zh": "不等于自己的后一个" },
   "tray": "machine",
-  "fact": "succNeq",
   "intro": [{ "t": { "zh": "没有哪个数等于它自己的后一个：x ≠ S x。" } }],
   "tasks": [
     {

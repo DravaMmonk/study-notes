@@ -1,7 +1,6 @@
 {
   "title": { "zh": "蕴涵析取互化" },
   "tray": "proof",
-  "builds": "arrow",
   "intro": [
     {
       "t": {

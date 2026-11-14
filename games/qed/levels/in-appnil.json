@@ -1,7 +1,6 @@
 {
   "title": { "zh": "接一个空列表" },
   "tray": "machine",
-  "fact": "appNil",
   "intro": [
     {
       "t": {

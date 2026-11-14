@@ -2,7 +2,6 @@
   "adds": ["introRules", "elimRules"],
   "tray": "machine",
   "title": { "zh": "自建 auto" },
-  "builds": "auto",
   "intro": [
     {
       "t": {

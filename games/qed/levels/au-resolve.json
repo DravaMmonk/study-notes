@@ -1,7 +1,6 @@
 {
   "title": { "zh": "归结" },
   "tray": "proof",
-  "builds": "res",
   "intro": [
     {
       "t": {

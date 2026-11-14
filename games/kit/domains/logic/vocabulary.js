@@ -2,9 +2,9 @@
 // is and the schema of its parameters, and the schemas of game.json and of one level. Content is these items and
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
-// The items are implemented next to them: proof rules in proof.js, the machine board's parts in machine.js (their
-// names in partText.js), the primitive gates in a game's parts.json (`op` the resources its parts call, `family` how
-// they are coloured), the level kinds in course.js and ui/, a machine's wants in machine.js judge,
+// The items are implemented next to them: proof rules in proof.js, the machine board's parts in machine.js, the
+// parts and the built pieces in a game's parts.json (`op` the resources its parts call, `family` how they are coloured
+// and what a built piece is: course.js readBuilt), the level kinds in course.js and ui/, a machine's wants in machine.js judge,
 // and the proof-term forms in termTree.js. Sentences are text in the
 // notation formula.js and schematic.js read; a board is blueprint text (blueprint.js).
 
@@ -166,8 +166,6 @@ const COURSE = {
   without: S.opt(S.list(PART, { section: 'course', about: t('这一关不给的元件（一段证明不许用框）') })),
   symbols: S.opt(S.list(S.oneOf(['¬', '∧', '∨', '→', '↔', '⊥', '∀', '∃']), { about: t('从这一关起在公式里出现的连接词') })),
   showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里') })),
-  builds: S.opt(S.str({ section: 'course', about: t('通过后做成元件：game.json 的引理、门，或机器板上的元件') })),
-  fact: S.opt(S.str({ section: 'course', about: t('这一关证出的等式（game.json facts）') })),
 }
 // How a task's sentences read and what it asks, said by the task or, for all its tasks, by its level.
 const READING = {
@@ -188,7 +186,7 @@ const ANY = {
   adds: COURSE.adds,
   tray: COURSE.tray,
   without: COURSE.without,
-  fact: COURSE.fact,
+  rule: S.opt(S.obj({ premises: S.list(S.str()), conclusion: S.str() }, { about: t('这个任务证出的等式进规则书时的样子（不写就是等式本身）') })),
 }
 const RULE_ROWS = S.list(S.obj({ binds: ids, needs: SENTENCES }), { about: t('一份声明：每条引入规则一行，取的东西和前提（规则表的写法）') })
 const CASE = S.obj({ given: SENTENCES, goal: S.opt(SENTENCE), make: S.bool(), uses: S.opt(SENTENCES) })
@@ -263,15 +261,6 @@ const ERA = S.obj({
   challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
   chapter: S.obj({ title: S.text(), question: S.text() }),
 })
-const LEMMA = S.obj({
-  name: S.text(), desc: S.text(), statement: S.opt(SENTENCE), premises: S.opt(SENTENCES), metas: ids, ports: SENTENCES,
-  params: S.opt(S.map(S.text(), { about: t('元件上要选的字母的名字') })),
-  forms: S.opt(S.list(S.obj({ key: S.str(), label: S.str(), statement: SENTENCE, premises: SENTENCES }), { about: t('一个元件的几种形状') })),
-  card: S.opt(S.oneOf(Object.keys(RULES).filter((k) => !['premise', 'goal'].includes(k)), { about: t('照这张卡跑（它能做得比证出的形状更多）') })),
-}, { about: t('玩家证出的引理：一个模式，之后当元件用') })
-const FACT = S.obj({ name: S.text(), statement: SENTENCE, desc: S.text(), rule: S.opt(S.obj({ premises: S.list(S.str()), conclusion: S.str() })) })
-const GATE = S.obj({ name: S.text(), desc: S.text(), ports: S.list(S.str(), { about: t('门的口，依次接搭出它那一关的字母') }) })
-const REVISION = S.obj({ at: S.opt(S.level()), by: S.opt(S.level()), desc: S.opt(S.text()), forms: S.opt(ids) })
 const GAME = S.obj({
   title: S.text(),
   kicker: S.text(),
@@ -282,18 +271,18 @@ const GAME = S.obj({
   trays: TRAYS,
   concept: S.opt(S.map(S.str(), { about: t('几块元件合起来是一个新想法') })),
   local: S.opt(S.list(PART, { about: t('留在带来它的那一关，不进元件箱') })),
-  machines: S.opt(S.list(S.ref('part'), { about: t('玩家在机器板上搭出的元件') })),
-  lemmas: S.map(LEMMA),
-  facts: S.opt(S.map(FACT)),
-  gates: S.opt(S.map(GATE)),
-  revisions: S.opt(S.map(S.list(REVISION), { about: t('元件的说明和形状随课程长') })),
   eras: S.list(ERA, { min: 1 }),
   quotes: S.opt(S.list(S.str(), { about: t('文案里可以直接引用、不用链接的名字') })),
 })
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 4,
+  version: 5,
+  // Built pieces are parts.json entries whose inside refers to the tasks that build them (games/DIRECTION.md 24).
+  removes: [
+    ...['game.lemmas', 'game.facts', 'game.gates', 'game.machines', 'game.revisions', 'level.builds', 'level.fact'].map((at) => ({ at, why: 'a built piece and its revisions are a parts.json entry whose inside refers to the tasks that build it' })),
+    ...Object.keys(BY_KIND).map((kind) => ({ at: `level.tasks.of.cases.${kind}.fact`, why: 'a proved equation is a parts.json entry whose inside refers to the task that proves it' })),
+  ],
   kinds: {
     part: PART_ITEMS,
     // The engine resources parts.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).

@@ -1,7 +1,6 @@
 {
   "title": { "zh": "前向推理" },
   "tray": "machine",
-  "builds": "frule",
   "intro": [
     {
       "t": {

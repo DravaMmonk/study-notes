@@ -1,7 +1,6 @@
 {
   "title": { "zh": "一对一" },
   "tray": "proof",
-  "fact": "inject",
   "intro": [
     {
       "t": {
@@ -42,6 +41,7 @@
       "step": { "zh": "S 一对一" },
       "consts": ["zero"],
       "words": ["everyday", "terms"],
+      "rule": { "premises": ["s(?x) = s(?y)", "⟦?x = ?y⟧ ⟹ ?C"], "conclusion": "?C" },
       "cases": [],
       "tests": [{ "premises": { "p": "∀x. pred(s(x)) = x" }, "goal": "∀x. ∀y. s(x) = s(y) → x = y" }],
       "brief": {

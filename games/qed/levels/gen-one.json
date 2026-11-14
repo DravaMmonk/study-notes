@@ -1,5 +1,4 @@
 {
-  "builds": "elimGen",
   "title": { "zh": "拆开它" },
   "adds": ["anyR", "swapConcl", "consFront", "mkRule"],
   "tray": "machine",

@@ -132,7 +132,7 @@
 
 - 电路预设（`kit/engine/circuit-preset.js`）：任务的 `withhold`、`grants`、`opens` 直接是配置项；`parts.json` 定义的元件，卡片上只出现手里有的设置和取值（`CircuitScreen` 的 `allowed`），元件说明只写到已经打开的选项；参考解把一项设置设成手里没有的取值，检查报错。
 - `image`：内容里写的仍是解锁标记（`unlocks`、`grants`、`withhold`），一个标记代表所有要它的配置项（一个元件、一项设置或一个选项，`engine/nodes.js` 的 `unlock`）；外壳只管玩家挣到了哪些标记，不再自己加减。
-- `logic`：`without` 是任务收起的元件；证明助手板上的规则元件是任务多给的（规则书里的每条规则都在，不看托盘）；引理的几种形状是它 `form` 这项设置的取值，证出它的那段任务通过后打开（`revisions` 的 `by`）。
+- `logic`：`without` 是任务收起的元件；证明助手板上的规则元件是任务多给的（规则书里的每条规则都在，不看托盘）；引理的几种形状是它 `form` 这项设置的取值，证出它的那段任务通过后打开（`parts.json` 里它 `inside` 的第一条以后带 `form` 的引用）。
 
 ## 3. 基本元素和引擎里的对应
 
@@ -191,7 +191,7 @@
 
 中文和英文各自自然、准确；共享手机和桌面文案时用控件名称而非依赖屏幕位置。名称、术语和引用要与内容一致，重排后检查先修关系和链接的可用性。元件说明以功能、输入输出及相关约定为主。
 
-**现有内容能力。** 元件说明使用双语纯文本；正文可用 `<level-ref>`、`<part-ref>` 和 `<wiki-ref>` 引用已注册的关卡、元件和词条，链接显示的名字随内容更新。`revisions` 可按 `at` 或 `by` 更新说明；一个元件的形状什么时候可用是第 2.8 节的规则（《证明完毕》的 `by` 同时是打开这些形状的那一关）；选项说明由元件定义提供。词汇表中的引用和可用性由 `npm run check` 检查。
+**现有内容能力。** 元件说明使用双语纯文本；正文可用 `<level-ref>`、`<part-ref>` 和 `<wiki-ref>` 引用已注册的关卡、元件和词条，链接显示的名字随内容更新。件的 `revisions`（`parts.json`）可按 `at` 或 `by` 更新说明；一个元件的形状什么时候可用是第 2.8 节的规则（《证明完毕》里证出这个形状的任务所在的那一关打开它）；选项说明由元件定义提供。词汇表中的引用和可用性由 `npm run check` 检查。
 
 ### 4.3 术语、路线与互动评审
 
@@ -301,7 +301,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、eng
 
 | 文件 | 内容 |
 |---|---|
-| `game.json` | `domain`（交给哪个领域）、`vocabulary`（写它时对的词汇表版本）、`open`（可选：课程还没做到的审计结果，第 5 节）、标题、简介、课程（`eras`、`primitives`、`concept`、搭出的元件的名字和说明）、领域要的其余全局设置 |
+| `game.json` | `domain`（交给哪个领域）、`vocabulary`（写它时对的词汇表版本）、`open`（可选：课程还没做到的审计结果，第 5 节）、标题、简介、课程（`eras`、`primitives`、`concept`、`replaces`）、领域要的其余全局设置 |
 | `levels/<id>.json` | 一关一个文件，文件名就是关卡 id；字段由领域按玩法给出 schema |
 | `glossary.json` | 百科：`{ groups, entries }` |
 | `parts.json` | 这款游戏的元件（第 6.8 节）：每个元件的口、设置、运算（对领域引擎资源的调用）和三面视图，加上几个元件共用的设置预设；元件定义成数据的领域才有 |
@@ -554,7 +554,7 @@ opens them to show the resulting feedback.
 
 ### 6.8 元件定义（`parts.json`）
 
-**元件是内容，引擎资源是领域。** 一款游戏的原始元件写在它自己的 `parts.json` 里：口、设置、运算、三面视图都是数据，studio 能直接改，`npm run check` 能查。领域只给**引擎资源**（词汇表的 `op` 种类，实现在领域的 `ops.js`）：一个有名字、有参数的基本运算，比如逐值相加、按坐标采样、按核滤波；和**自定义控件**（`widget` 种类）：内核的控件画不出来的设置或显示。元件按游戏隔离（第 6.3 节）在这里是自然的：同一个领域的两款游戏各有自己的 `parts.json`，名字、说明、口、默认值互不牵动。关卡给的节点（输入、输出、线）不在 `parts.json` 里，是领域的。搭出的件也是 `parts.json` 的一项：它不写 `compute`，写 `inside: [{ task, form? }]`，两者必有且只有一个；它不写口，口从被引用任务的板读出；同一个 `form`（或都不写）的几条按先后是升级链，`form` 不同是件的几种形态。哪一关搭出它、通过哪一关打开它，由课程从引用反推，关卡不写。元件在代码里的领域（`net`、`calculus`、`market`）的 `parts.json` 只放搭出的件。
+**元件是内容，引擎资源是领域。** 一款游戏的原始元件写在它自己的 `parts.json` 里：口、设置、运算、三面视图都是数据，studio 能直接改，`npm run check` 能查。领域只给**引擎资源**（词汇表的 `op` 种类，实现在领域的 `ops.js`）：一个有名字、有参数的基本运算，比如逐值相加、按坐标采样、按核滤波；和**自定义控件**（`widget` 种类）：内核的控件画不出来的设置或显示。元件按游戏隔离（第 6.3 节）在这里是自然的：同一个领域的两款游戏各有自己的 `parts.json`，名字、说明、口、默认值互不牵动。关卡给的节点（输入、输出、线）不在 `parts.json` 里，是领域的。搭出的件也是 `parts.json` 的一项：它不写 `compute`，写 `inside: [{ task, form? }]`，两者必有且只有一个；它不写口，口从被引用任务的板读出；同一个 `form`（或都不写）的几条按先后是升级链，`form` 不同是件的几种形态。哪一关搭出它、通过哪一关打开它，由课程从引用反推，关卡不写。元件在代码里的领域（`net`、`calculus`、`market`）的 `parts.json` 只放搭出的件。搭出的件可以写 `card`：不跑内部的作品，照一个引擎资源跑（内部仍说它是什么、在哪里得到）；每种形态的名字写在引用上（`label`）。每样件都可以写 `revisions`：说明随课程长（`at` 那一关起，或 `by` 那一关通过以后），元件箱照进度读。
 
 ```json
 {
@@ -630,7 +630,7 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 
 **内容的形状**：`kit/engine/content.js` 把 `parts.json` 组装成内容的 `partDefs`（不叫 `parts`：原型游戏的 `game.json` 有自己的 `parts` 字段）。
 
-**现状**：数据流电路的脚手架（`kit/scaffold/circuit/`）的元件定义成数据，它生成的游戏和它的 `starter/` 各有 `parts.json`。《证明完毕》的门、推理规则和证明助手的元件都在 `games/qed/parts.json`；课程再按内容登记几种件：game.json 的引理（`proof.js` 的 `lemmaPieces`）、每个证明助手任务规则书里的规则元件（`machine.js` 的 `rulePieces`，设置是它给出的规则，`list`），它们和 `parts.json` 的元件一样由 `defineParts` 变成引擎的元件，一张屏的视图（`engine/board-view.js` 的 `defined`）把它们交给 `CircuitScreen`。逐拍总线的脚手架和 `net` 领域的寄存卡、说话卡是有状态的元件，要等内核给出「有状态的引擎资源」（寄存、跨拍保存）再搬；原型领域（`table`、`image`、`agent`、`syntax`）的元件仍在领域代码里，随阶段 6.5 按专题重做时换成 `parts.json`。自定义控件的机制已在内核（`widget` 种类、`SettingField` 的 `custom`），还没有领域用到它。
+**现状**：数据流电路的脚手架（`kit/scaffold/circuit/`）的元件定义成数据，它生成的游戏和它的 `starter/` 各有 `parts.json`。《证明完毕》的门、推理规则、证明助手的元件，以及搭出的件（引理、门、证明助手上搭出的元件、证出的等式，按 `family` 分：`lemma`、`gate`、`built`、`rule`，`domains/logic/course.js` 的 `readBuilt`）都在 `games/qed/parts.json`：引理每种形状的前提和结论是它引用的证明任务的已知和目标，字母是它的 `tree` 设置，形状的名字写在引用上（`label`），归结照引擎资源跑（`card`）；等式的陈述是证出它的任务的目标，进规则书的写法不同时由那个任务写（`rule`）。课程再登记几种件：引理的卡片（`proof.js` 的 `lemmaPieces`）、每个证明助手任务规则书里的规则元件（`machine.js` 的 `rulePieces`，设置是它给出的规则，`list`），它们和 `parts.json` 的元件一样由 `defineParts` 变成引擎的元件，一张屏的视图（`engine/board-view.js` 的 `defined`）把它们交给 `CircuitScreen`。逐拍总线的脚手架和 `net` 领域的寄存卡、说话卡是有状态的元件，要等内核给出「有状态的引擎资源」（寄存、跨拍保存）再搬；原型领域（`table`、`image`、`agent`、`syntax`）的元件仍在领域代码里，随阶段 6.5 按专题重做时换成 `parts.json`。自定义控件的机制已在内核（`widget` 种类、`SettingField` 的 `custom`），还没有领域用到它。
 
 ### 6.9 界面
 

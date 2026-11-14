@@ -1,7 +1,6 @@
 {
   "title": { "zh": "换一换条件的顺序" },
   "tray": "proof",
-  "builds": "swap",
   "intro": [
     {
       "t": {

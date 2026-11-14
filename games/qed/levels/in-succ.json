@@ -1,7 +1,6 @@
 {
   "title": { "zh": "S 加在右边" },
   "tray": "machine",
-  "fact": "addSucc",
   "tasks": [
     {
       "id": "in-succ",

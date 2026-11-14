@@ -1,6 +1,5 @@
 {
   "title": { "zh": "饱和器" },
-  "builds": "saturate",
   "adds": ["resolve"],
   "tray": "machine",
   "intro": [

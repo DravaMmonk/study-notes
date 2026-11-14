@@ -1,7 +1,6 @@
 {
   "title": { "zh": "分配律" },
   "tray": "proof",
-  "builds": "dist",
   "intro": [
     {
       "t": {

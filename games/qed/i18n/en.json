@@ -2234,5 +2234,22 @@
   "子句集中的每一对子句各试一次：一条中的某个文字与另一条中的相反文字能合一时，消去这一对，其余文字合成新子句加入子句集，并记下它的两条父子句。舍弃永真子句和重复子句。可以在元件上设定只与单文字子句归结。": "Tries every pair of clauses in the set once: when a literal of one unifies with the complement of a literal of the other, that pair is cancelled and the remaining literals form a new clause, added with a record of its two parents. Tautologies and duplicates are dropped. It can be set to resolve only against one-literal clauses.",
   "外部证明器": "Someone else’s prover",
   "快速证明器：两条子句间的相反文字一次全部消去，逐轮进行，直到推出 ⊥ 或不再产生新子句。每条新子句也记下两条父子句。": "A fast prover: it cancels all complementary literals between two clauses at once, round after round until ⊥ appears or no new clause does. It too records the two parents of each new clause.",
-  "子句集中有 ⊥ 时，把推出 ⊥ 的步骤交给核检查：用到的每条输入子句须由某条已知拆出；每一步须由它的两条父子句（变量按合一结果代入）经自建 auto 证出。全部通过，拆出这些子句的目标即证完；某一步不通过，指出是哪一步。": "When the clause set contains ⊥, the steps to ⊥ go to the kernel: each input clause used must come from a hypothesis, and each step must be proved from its two parents (variables instantiated by unification) by Own auto. If all pass, the goal the clauses came from is proved; otherwise it names the failing step."
+  "子句集中有 ⊥ 时，把推出 ⊥ 的步骤交给核检查：用到的每条输入子句须由某条已知拆出；每一步须由它的两条父子句（变量按合一结果代入）经自建 auto 证出。全部通过，拆出这些子句的目标即证完；某一步不通过，指出是哪一步。": "When the clause set contains ⊥, the steps to ⊥ go to the kernel: each input clause used must come from a hypothesis, and each step must be proved from its two parents (variables instantiated by unification) by Own auto. If all pass, the goal the clauses came from is proved; otherwise it names the failing step.",
+  "接入一份声明（所声明的句子和它的引入规则列表），输出这份声明的消去规则。": "Wire in a declaration (the declared sentence and its list of introduction rules); gives the declaration’s elimination rule.",
+  "合一器": "Unifier",
+  "把一组等式解到底：每个等式左边是一个 ?-字母，右边不含这些 ?-字母（最一般合一子）；无法合一时报告失败。": "Solves a set of equations to the end: each with a ?-letter on the left and none of those letters on any right side (the most general unifier); reports failure if there is none.",
+  "接入规则：规则的结论与第一个目标合一，第一条前提与它的一条已知合一，这个目标换成其余的前提，每条一个目标。接入多条时用第一条适用的。": "Takes rules: the rule’s conclusion is unified with the first goal and its first premise with one of that goal’s hypotheses; the goal is replaced by the remaining premises, one goal each. Given several rules, it uses the first that applies.",
+  "接入规则：规则的第一条前提与第一个目标的一条已知合一，结论加入已知；其余前提各成一个目标，排在前面。接入多条时用第一条适用的。": "Takes rules: the rule’s first premise is unified with one of the first goal’s hypotheses and its conclusion is added to the hypotheses; each remaining premise becomes a goal, placed first. Given several rules, it uses the first that applies.",
+  "分解目标": "Goal apart",
+  "把每条引入规则逆用于第一个目标：拼接、假设框、补充的左右两条、任取框、概括。每条相合的规则给出一种结果。": "Applies every introduction rule backwards to the first goal: Join, the assumption box, Add alternative left and right, the for-any box, Generalise. Each rule that fits gives one result.",
+  "分解假设": "Use a given",
+  "把每条消去规则用于已知：拆解、分类讨论、套用「若…则…」、爆炸、实例框，以及选定一例后再使用。每种相合的用法给出一种结果。": "Applies every elimination rule to the hypotheses: Split, Case analysis, applying an “if”, Explosion, the instance box, and choose an instance then use it. Each fit gives one result.",
+  "深度优先搜索，直到证完：每一步依次尝试由假设得证、分解目标、分解假设；回到原状态的路径不再继续。": "Searches depth first until done: each step tries Assumption, then Goal apart, then Use a given; a path back to an earlier state is not followed.",
+  "化简": "Simp",
+  "接入改写规则列表：每一轮用第一条相合的规则改写一处，逐轮重复，直到没有规则相合。": "Takes a list of rewrite rules: each round, the first that fits rewrites one place, round after round, until none fits.",
+  "完整子句化": "Into clauses, all the way",
+  "把待证句子的否定加入已知，把已知化为合取范式并消去 ∃，再拆成子句。": "Adds the negated goal to the hypotheses, brings them to CNF, removes the ∃s and splits them into clauses.",
+  "逐轮归结，直到推出 ⊥，或不再产生新子句。": "Resolves round after round until ⊥ appears or no new clause does.",
+  "证明重建器": "Reconstructor",
+  "把目标化为子句，找出推出 ⊥ 的证书，再由核重放检查：通过则目标证完；证书没有通过检查时，元件失败。": "Turns the goal into clauses, finds a certificate that reaches ⊥ and has the kernel replay it: if it passes, the goal is closed; if the certificate fails the check, the part fails."
 }

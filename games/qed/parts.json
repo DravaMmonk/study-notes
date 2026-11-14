@@ -19,6 +19,7 @@
     "mp": {
       "name": { "zh": "套用" },
       "desc": { "zh": "由 A → B 和 A 得到 B。" },
+      "revisions": [{ "at": "bot", "desc": { "zh": "由 A → B 和 A 得到 B。¬A 即 A → ⊥，所以由 ¬A 和 A 得到矛盾 ⊥。" } }],
       "icon": "GitFork",
       "family": "rule",
       "inputs": [{ "name": "imp", "label": { "zh": "A → B" } }, { "name": "a", "label": { "zh": "A" } }],
@@ -45,6 +46,9 @@
     "andE": {
       "name": { "zh": "拆解" },
       "desc": { "zh": "接入 A ∧ B，两个输出口分别得到 A 和 B。" },
+      "revisions": [
+        { "at": "iffUse", "desc": { "zh": "接入 A ∧ B，两个输出口分别得到 A 和 B。A ↔ B 表示 (A → B) ∧ (B → A)，也可以这样拆解。" } }
+      ],
       "icon": "GitFork",
       "family": "rule",
       "inputs": [{ "name": "ab", "label": { "zh": "A ∧ B" } }],
@@ -243,6 +247,14 @@
       "desc": {
         "zh": "找到两边结构相同的等式（都是「并且」、都是同一个谓词……），分解为对应部分之间的等式：?A ∧ ?B ≐ 下雨 ∧ 刮风 分解为 ?A ≐ 下雨 和 ?B ≐ 刮风。¬A 按 A → ⊥ 分解。"
       },
+      "revisions": [
+        {
+          "at": "r-pattern",
+          "desc": {
+            "zh": "找到两边结构相同的等式，分解为对应部分之间的等式。两边都是「对所有」（或都是「存在」）时，取出两边的主体，用同一个变量 x，并在等式前记上 ⋀x，表示 x 受量词约束。"
+          }
+        }
+      ],
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
@@ -267,6 +279,12 @@
     "uCheck": {
       "name": { "zh": "出现检查" },
       "desc": { "zh": "找到等式 ?A ≐ t，t 含有 ?A 而不是 ?A 本身时，报告失败。" },
+      "revisions": [
+        {
+          "at": "r-pattern",
+          "desc": { "zh": "找到等式 ?A ≐ t，?A 不能取 t 时报告失败：t 含有 ?A 而不是 ?A 本身，或者 t 含有前面 ⋀ 约束的变量。" }
+        }
+      ],
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
@@ -293,6 +311,12 @@
     "repeat": {
       "name": { "zh": "重复框" },
       "desc": { "zh": "框收到输入，框内的输出接到「结果」后再送回框内，逐轮重复，直到结果不再变化，输出最后一轮的结果；某一轮失败时，停在失败前的一轮。" },
+      "revisions": [
+        {
+          "at": "s-results",
+          "desc": { "zh": "框收到输入，框内的输出接到「结果」后再送回框内，逐轮重复，直到结果不再变化，输出最后一轮的结果；某一轮失败时，停在失败前的一轮。有几种结果时，只沿第一种继续。" }
+        }
+      ],
       "icon": "Repeat",
       "family": "loop",
       "inputs": [{ "name": "in" }],
@@ -310,6 +334,9 @@
     "assumption": {
       "name": { "zh": "由假设得证" },
       "desc": { "zh": "第一个目标与它的一条已知合一：成功时这个目标证完，相应的 ?-字母随之确定。从上往下查找，用第一条合得上的已知。" },
+      "revisions": [
+        { "at": "s-results", "desc": { "zh": "第一个目标与它的一条已知合一：成功时这个目标证完。每一条合得上的已知给出一种结果，按从上往下的顺序。" } }
+      ],
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
@@ -326,6 +353,9 @@
     "append": {
       "name": { "zh": "依次尝试" },
       "desc": { "zh": "每个框收到相同的状态；输出第一个没有失败的框的结果。在元件上选定框的数目。" },
+      "revisions": [
+        { "at": "s-results", "desc": { "zh": "每个框收到相同的状态；依次输出第一个框的每一种结果、下一个框的每一种结果……失败的框没有结果。在元件上选定框的数目。" } }
+      ],
       "icon": "Box",
       "family": "loop",
       "inputs": [{ "name": "in" }],
@@ -398,6 +428,14 @@
       "desc": {
         "zh": "接入改写规则：在第一个目标中，由外向内、从左到右找到第一处与规则左边相合的位置，换成规则右边，只换这一处。规则带条件时，每个条件成为新目标，排在这个目标之后。接入多条时用第一条相合的；没有一处相合，元件失败。"
       },
+      "revisions": [
+        {
+          "at": "au-hyps",
+          "desc": {
+            "zh": "接入改写规则：在第一个目标中，由外向内、从左到右找到第一处与规则左边相合的位置，换成规则右边，只换这一处。规则带条件时，每个条件成为新目标，排在这个目标之后。接入多条时用第一条相合的；没有一处相合，元件失败。「改哪里」选「已知」时，改写第一个目标中从上往下第一条相合的已知。"
+          }
+        }
+      ],
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }, { "name": "rules", "label": { "zh": "规则" } }],
@@ -472,6 +510,346 @@
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "replay(in)"
+    },
+    "gOr": {
+      "name": { "zh": "或 ∨" },
+      "desc": { "zh": "a ∨ b：两个输入里至少有一个是真，就输出真；都是假，输出假。" },
+      "family": "gate",
+      "inside": [{ "task": "g-or" }]
+    },
+    "gImp": {
+      "name": { "zh": "若…则… →" },
+      "desc": { "zh": "a → b：只在 a 是真、b 是假时输出假；其余都输出真。" },
+      "family": "gate",
+      "inside": [{ "task": "g-imp" }]
+    },
+    "gIff": {
+      "name": { "zh": "等价 ↔" },
+      "desc": { "zh": "a ↔ b：a 和 b 同真或同假时输出真；一真一假时输出假。" },
+      "family": "gate",
+      "inside": [{ "task": "g-iff" }]
+    },
+    "axK": {
+      "name": { "zh": "K" },
+      "desc": { "zh": "在元件上选定两句 A、B，输出 A → (B → A)。" },
+      "family": "lemma",
+      "settings": [
+        { "key": "A", "control": "tree", "label": { "zh": "第一句" } },
+        { "key": "B", "control": "tree", "label": { "zh": "第二句" } }
+      ],
+      "inside": [{ "task": "k_2" }]
+    },
+    "axS": {
+      "name": { "zh": "S" },
+      "desc": { "zh": "在元件上选定三句 A、B、C，输出 (A → (B → C)) → ((A → B) → (A → C))。" },
+      "family": "lemma",
+      "settings": [
+        { "key": "A", "control": "tree", "label": { "zh": "第一句" } },
+        { "key": "B", "control": "tree", "label": { "zh": "第二句" } },
+        { "key": "C", "control": "tree", "label": { "zh": "第三句" } }
+      ],
+      "inside": [{ "task": "s" }]
+    },
+    "chain": {
+      "name": { "zh": "串联" },
+      "desc": { "zh": "由 A → B 和 B → C 得到 A → C。" },
+      "family": "lemma",
+      "settings": [
+        { "key": "A", "control": "tree" },
+        { "key": "B", "control": "tree" },
+        { "key": "C", "control": "tree" }
+      ],
+      "inside": [{ "task": "chain" }]
+    },
+    "swap": {
+      "name": { "zh": "交换" },
+      "desc": { "zh": "由 A → (B → C) 得到 B → (A → C)。" },
+      "family": "lemma",
+      "settings": [
+        { "key": "A", "control": "tree" },
+        { "key": "B", "control": "tree" },
+        { "key": "C", "control": "tree" }
+      ],
+      "inside": [{ "task": "swap" }]
+    },
+    "merge": {
+      "name": { "zh": "合并" },
+      "desc": { "zh": "由 A → (A → B) 得到 A → B。" },
+      "family": "lemma",
+      "settings": [{ "key": "A", "control": "tree" }, { "key": "B", "control": "tree" }],
+      "inside": [{ "task": "twice" }]
+    },
+    "dm": {
+      "name": { "zh": "德摩根律" },
+      "desc": { "zh": "否定与「或者」「并且」互换，四种形状在元件上切换：¬(A ∨ B) 与 ¬A ∧ ¬B 互推，¬(A ∧ B) 与 ¬A ∨ ¬B 互推。" },
+      "family": "lemma",
+      "settings": [
+        { "key": "A", "control": "tree" },
+        { "key": "B", "control": "tree" },
+        { "key": "P", "control": "tree" }
+      ],
+      "inside": [
+        { "task": "demorgan_1", "form": "notOr", "label": "¬(A ∨ B) → ¬A ∧ ¬B" },
+        { "task": "demorgan_2", "form": "andNot", "label": "¬A ∧ ¬B → ¬(A ∨ B)" },
+        { "task": "demorgan_3", "form": "orNot", "label": "¬A ∨ ¬B → ¬(A ∧ B)" },
+        { "task": "demorgan_4", "form": "notAnd", "label": "¬(A ∧ B) → ¬A ∨ ¬B" },
+        { "task": "q-dm_1", "form": "notEx", "label": "¬∃x. P → ∀x. ¬P" },
+        { "task": "q-dm_2", "form": "allNot", "label": "∀x. ¬P → ¬∃x. P" },
+        { "task": "q-dm_3", "form": "exNot", "label": "∃x. ¬P → ¬∀x. P" },
+        { "task": "q-dm_4", "form": "notAll", "label": "¬∀x. P → ∃x. ¬P" }
+      ],
+      "revisions": [{ "by": "q-dm", "desc": { "zh": "否定与「或者」「并且」「存在」「对所有」互换，八种形状在元件上切换。" } }]
+    },
+    "dneg": {
+      "name": { "zh": "双重否定律" },
+      "desc": { "zh": "两种形状在元件上切换：由 ¬¬A 得到 A；由 A 得到 ¬¬A。" },
+      "family": "lemma",
+      "settings": [{ "key": "A", "control": "tree" }],
+      "inside": [
+        { "task": "c-dneg_1", "form": "elim", "label": "¬¬A → A" },
+        { "task": "c-dneg_2", "form": "intro", "label": "A → ¬¬A" }
+      ],
+      "revisions": [{ "at": "sp-rw", "desc": { "zh": "两种形状在元件上切换：由 ¬¬A 得到 A；由 A 得到 ¬¬A。每种形状也是一条改写规则。" } }]
+    },
+    "arrow": {
+      "name": { "zh": "蕴涵析取互化" },
+      "desc": { "zh": "两种形状在元件上切换：由 A → B 得到 ¬A ∨ B；由 ¬A ∨ B 得到 A → B。" },
+      "family": "lemma",
+      "settings": [{ "key": "A", "control": "tree" }, { "key": "B", "control": "tree" }],
+      "inside": [
+        { "task": "c-arrow_1", "form": "elim", "label": "A → B ⟹ ¬A ∨ B" },
+        { "task": "c-arrow_2", "form": "intro", "label": "¬A ∨ B ⟹ A → B" }
+      ],
+      "revisions": [
+        { "at": "sp-rw", "desc": { "zh": "两种形状在元件上切换：由 A → B 得到 ¬A ∨ B；由 ¬A ∨ B 得到 A → B。每种形状也是一条改写规则。" } }
+      ]
+    },
+    "dist": {
+      "name": { "zh": "分配律" },
+      "desc": {
+        "zh": "「或者」对「并且」分配，四种形状在元件上切换：A ∨ (B ∧ C) 与 (A ∨ B) ∧ (A ∨ C) 互推，(A ∧ B) ∨ C 与 (A ∨ C) ∧ (B ∨ C) 互推。"
+      },
+      "family": "lemma",
+      "settings": [
+        { "key": "A", "control": "tree" },
+        { "key": "B", "control": "tree" },
+        { "key": "C", "control": "tree" }
+      ],
+      "inside": [
+        { "task": "c-dist_1", "form": "orAndR", "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)" },
+        { "task": "c-dist_2", "form": "andOrR", "label": "(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)" },
+        { "task": "c-dist_3", "form": "orAndL", "label": "(A ∧ B) ∨ C ⟹ (A ∨ C) ∧ (B ∨ C)" },
+        { "task": "c-dist_4", "form": "andOrL", "label": "(A ∨ C) ∧ (B ∨ C) ⟹ (A ∧ B) ∨ C" }
+      ],
+      "revisions": [
+        {
+          "at": "sp-rw",
+          "desc": {
+            "zh": "「或者」对「并且」分配，四种形状在元件上切换：A ∨ (B ∧ C) 与 (A ∨ B) ∧ (A ∨ C) 互推，(A ∧ B) ∨ C 与 (A ∨ C) ∧ (B ∨ C) 互推。每种形状也是一条改写规则。"
+          }
+        }
+      ]
+    },
+    "iff": {
+      "name": { "zh": "等价展开" },
+      "desc": { "zh": "两种形状在元件上切换：由 A ↔ B 得到 (¬A ∨ B) ∧ (¬B ∨ A)，反过来也可以。每种形状也是一条改写规则。" },
+      "family": "lemma",
+      "settings": [{ "key": "A", "control": "tree" }, { "key": "B", "control": "tree" }],
+      "inside": [
+        { "task": "au-iff_1", "form": "elim", "label": "A ↔ B ⟹ (¬A ∨ B) ∧ (¬B ∨ A)" },
+        { "task": "au-iff_2", "form": "intro", "label": "(¬A ∨ B) ∧ (¬B ∨ A) ⟹ A ↔ B" }
+      ]
+    },
+    "res": {
+      "name": { "zh": "归结" },
+      "desc": { "zh": "接入两条子句，一条含 A，另一条含 ¬A，位置不限：消去这一对，其余部分用「或者」连起来；什么都不剩时得到矛盾 ⊥。一次只消一对。" },
+      "family": "lemma",
+      "settings": [
+        { "key": "A", "control": "tree" },
+        { "key": "B", "control": "tree" },
+        { "key": "C", "control": "tree" }
+      ],
+      "inside": [{ "task": "au-resolve" }],
+      "card": "res"
+    },
+    "liar": {
+      "name": { "zh": "说谎者悖论" },
+      "desc": { "zh": "由 A ↔ ¬A 得到矛盾 ⊥。" },
+      "family": "lemma",
+      "settings": [{ "key": "A", "control": "tree" }],
+      "inside": [{ "task": "kk-one_2" }]
+    },
+    "lem": {
+      "name": { "zh": "排中律" },
+      "desc": { "zh": "在元件上选定一句 A，输出 A ∨ ¬A。" },
+      "family": "lemma",
+      "settings": [{ "key": "A", "control": "tree" }],
+      "inside": [{ "task": "raa_2" }]
+    },
+    "elimGen": {
+      "name": { "zh": "消去规则生成器" },
+      "desc": { "zh": "接入一份声明（所声明的句子和它的引入规则列表），输出这份声明的消去规则。" },
+      "family": "built",
+      "inside": [{ "task": "gen-one" }, { "task": "gen-each" }, { "task": "gen-ex" }]
+    },
+    "unifier": {
+      "name": { "zh": "合一器" },
+      "desc": { "zh": "把一组等式解到底：每个等式左边是一个 ?-字母，右边不含这些 ?-字母（最一般合一子）；无法合一时报告失败。" },
+      "family": "built",
+      "inside": [{ "task": "r-unifier" }],
+      "revisions": [
+        {
+          "at": "r-pattern",
+          "desc": { "zh": "把一组等式解到底：每个等式左边是一个 ?-字母，右边不含这些 ?-字母（最一般合一子）；无法合一时报告失败。?P(x) 这类等式不求解，原样保留。" }
+        }
+      ]
+    },
+    "erule": {
+      "name": { "zh": "规则作用于假设" },
+      "desc": { "zh": "接入规则：规则的结论与第一个目标合一，第一条前提与它的一条已知合一，这个目标换成其余的前提，每条一个目标。接入多条时用第一条适用的。" },
+      "family": "built",
+      "inside": [{ "task": "r-elim" }],
+      "revisions": [
+        {
+          "at": "s-results",
+          "desc": { "zh": "接入规则：规则的结论与第一个目标合一，第一条前提与它的一条已知合一，这个目标换成其余的前提，每条一个目标。每一条规则、每一条合得上的已知都给出一种结果。" }
+        }
+      ]
+    },
+    "frule": {
+      "name": { "zh": "前向推理" },
+      "desc": { "zh": "接入规则：规则的第一条前提与第一个目标的一条已知合一，结论加入已知；其余前提各成一个目标，排在前面。接入多条时用第一条适用的。" },
+      "family": "built",
+      "inside": [{ "task": "r-drule" }]
+    },
+    "introRules": {
+      "name": { "zh": "分解目标" },
+      "desc": { "zh": "把每条引入规则逆用于第一个目标：拼接、假设框、补充的左右两条、任取框、概括。每条相合的规则给出一种结果。" },
+      "family": "built",
+      "inside": [{ "task": "s-intro" }]
+    },
+    "elimRules": {
+      "name": { "zh": "分解假设" },
+      "desc": { "zh": "把每条消去规则用于已知：拆解、分类讨论、套用「若…则…」、爆炸、实例框，以及选定一例后再使用。每种相合的用法给出一种结果。" },
+      "family": "built",
+      "inside": [{ "task": "s-elim" }]
+    },
+    "auto": {
+      "name": { "zh": "自建 auto" },
+      "desc": { "zh": "深度优先搜索，直到证完：每一步依次尝试由假设得证、分解目标、分解假设；回到原状态的路径不再继续。" },
+      "family": "built",
+      "inside": [{ "task": "s-auto" }]
+    },
+    "simp": {
+      "name": { "zh": "化简" },
+      "desc": { "zh": "接入改写规则列表：每一轮用第一条相合的规则改写一处，逐轮重复，直到没有规则相合。" },
+      "family": "built",
+      "settings": [
+        {
+          "key": "at",
+          "control": "select",
+          "label": { "zh": "改哪里" },
+          "options": [
+            { "value": "goal", "label": { "zh": "目标" } },
+            { "value": "hyps", "label": { "zh": "已知" } }
+          ],
+          "default": "goal"
+        }
+      ],
+      "inside": [{ "task": "sp-simp" }],
+      "revisions": [
+        { "at": "au-hyps", "desc": { "zh": "接入改写规则列表：每一轮用第一条相合的规则改写一处，逐轮重复，直到没有规则相合。「改哪里」选「已知」时，改写第一个目标的已知。" } }
+      ]
+    },
+    "clausify": {
+      "name": { "zh": "完整子句化" },
+      "desc": { "zh": "把待证句子的否定加入已知，把已知化为合取范式并消去 ∃，再拆成子句。" },
+      "family": "built",
+      "inside": [{ "task": "au-clauses" }]
+    },
+    "saturate": {
+      "name": { "zh": "饱和器" },
+      "desc": { "zh": "逐轮归结，直到推出 ⊥，或不再产生新子句。" },
+      "family": "built",
+      "inside": [{ "task": "au-saturate" }]
+    },
+    "metis": {
+      "name": { "zh": "证明重建器" },
+      "desc": { "zh": "把目标化为子句，找出推出 ⊥ 的证书，再由核重放检查：通过则目标证完；证书没有通过检查时，元件失败。" },
+      "family": "built",
+      "inside": [{ "task": "au-replay" }]
+    },
+    "addZero": {
+      "name": { "zh": "加零" },
+      "desc": { "zh": "x + 0 = x：一条规则，也是化简的一条改写规则（从左往右）。" },
+      "family": "rule",
+      "inside": [{ "task": "in-zero_3" }]
+    },
+    "addSucc": {
+      "name": { "zh": "加后继" },
+      "desc": { "zh": "x + S y = S (x + y)：一条规则，也是化简的一条改写规则（从左往右）。" },
+      "family": "rule",
+      "inside": [{ "task": "in-succ" }]
+    },
+    "addComm": {
+      "name": { "zh": "加法交换" },
+      "desc": { "zh": "x + y = y + x：一条规则，也是一条改写规则；放进化简会来回改写，停不下来。" },
+      "family": "rule",
+      "inside": [{ "task": "in-comm" }]
+    },
+    "addAssoc": {
+      "name": { "zh": "加法结合" },
+      "desc": { "zh": "(x + y) + z = x + (y + z)：一条规则，也是化简的一条改写规则（从左往右）。" },
+      "family": "rule",
+      "inside": [{ "task": "in-assoc" }]
+    },
+    "appNil": {
+      "name": { "zh": "接空列表" },
+      "desc": { "zh": "xs ++ [] = xs：一条规则，也是化简的一条改写规则（从左往右）。" },
+      "family": "rule",
+      "inside": [{ "task": "in-appnil" }]
+    },
+    "appAssoc": {
+      "name": { "zh": "拼接结合" },
+      "desc": { "zh": "(xs ++ ys) ++ zs = xs ++ (ys ++ zs)：一条规则，也是化简的一条改写规则（从左往右）。" },
+      "family": "rule",
+      "inside": [{ "task": "in-appassoc" }]
+    },
+    "revApp": {
+      "name": { "zh": "倒过拼接" },
+      "desc": { "zh": "rev (xs ++ ys) = rev ys ++ rev xs：一条规则，也是化简的一条改写规则（从左往右）。" },
+      "family": "rule",
+      "inside": [{ "task": "in-revapp_2" }]
+    },
+    "inject": {
+      "name": { "zh": "一对一" },
+      "desc": { "zh": "S x = S y → x = y，用作拆分规则：已知中有 S ?x = S ?y 时，换成由 ?x = ?y 继续证。" },
+      "family": "rule",
+      "inside": [{ "task": "in-inject_2" }]
+    },
+    "ifTrue": {
+      "name": { "zh": "如果为真" },
+      "desc": { "zh": "u = 真 → (若 u 则 v 否则 w) = v：一条规则，也是一条带条件的改写规则。" },
+      "family": "rule",
+      "inside": [{ "task": "sort-if_1" }]
+    },
+    "ifFalse": {
+      "name": { "zh": "如果为假" },
+      "desc": { "zh": "u = 假 → (若 u 则 v 否则 w) = w：一条规则，也是一条带条件的改写规则。" },
+      "family": "rule",
+      "inside": [{ "task": "sort-if_2" }]
+    },
+    "succNeq": {
+      "name": { "zh": "不等于后继" },
+      "desc": { "zh": "x ≠ S x：一条规则。" },
+      "family": "rule",
+      "inside": [{ "task": "in-noteq" }]
+    },
+    "insLen": {
+      "name": { "zh": "插入长一格" },
+      "desc": { "zh": "len (ins x xs) = S (len xs)：一条规则，也是化简的一条改写规则（从左往右）。" },
+      "family": "rule",
+      "inside": [{ "task": "sort-insLen" }]
     }
   }
 }

@@ -31,7 +31,6 @@ const GAME = {
     },
   },
   primitives: ['mp', 'impI'],
-  lemmas: {},
   eras: [{
     id: 'ground',
     machine: 'prover',

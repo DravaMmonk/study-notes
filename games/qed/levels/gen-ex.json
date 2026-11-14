@@ -1,6 +1,5 @@
 {
   "title": { "zh": "生成器遇上任取" },
-  "builds": "elimGen",
   "adds": ["anyR", "swapConcl", "consFront", "mkRule", "eachOf", "keepBound"],
   "tray": "machine",
   "intro": [

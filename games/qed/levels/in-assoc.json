@@ -1,7 +1,6 @@
 {
   "title": { "zh": "结合" },
   "tray": "machine",
-  "fact": "addAssoc",
   "tasks": [
     {
       "id": "in-assoc",

@@ -11,7 +11,6 @@ import { tr } from '../../shell/i18n.js'
 import Hero from './ui/Hero.jsx'
 import { worldCheck } from './worldValues.js'
 import { query, translation } from './formulaWork.js'
-import { BUILT_TEXT } from './partText.js'
 import { proofTerm } from './termTask.js'
 import { script } from './scriptValues.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
@@ -44,15 +43,27 @@ const Play = playScreen(plays, { declaration, definition, audit, truth, translat
 export default function logicGame(content) {
   const logic = logicCourse(content)
   const { LEVELS, CHAPTERS, LABELS } = logic
-  const lemmas = content.lemmas ?? {}
-  const { gates } = logic
+  const { gates, lemmas, pieces } = logic
   // The parts the game defines (parts.json's and its lemmas'), as the circuit screen draws them.
   const cards = Object.fromEntries(Object.entries(logic.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: partIcon(d.icon), family: d.family }]))
   // How parts' descriptions grow along the course (the components box reads them as far as the player has got).
   const revisions = logic.revisions ?? {}
-  // A built part is a proved lemma, a gate built on a truth circuit or a machine part (simp, auto…).
-  const machines = Object.fromEntries(logic.machines.map((type) => [type, BUILT_TEXT[type]]))
-  const built = { ...gates, ...lemmas, ...machines }
+  // A built part is a proved lemma, a gate built on a truth circuit or a machine part (simp, auto…): a piece of
+  // parts.json.
+  const machines = Object.fromEntries(logic.machines.map((type) => [type, pieces[type]]))
+  // The course read a built piece opens on, for the components box: a gate's truth circuit; a machine part's machine
+  // board, as the last task it refers to holds it; a lemma's proof of its first shape; a proved equation's task.
+  const tasks = new Map(LEVELS.flatMap((L) => L.tasks).map((task) => [task.taskId, task]))
+  const boardOf = (type) => {
+    if (gates[type]?.built) return logic.truthCircuits
+    if (machines[type]) return { ...logic.machineBoards, BUILT: logic.machineBoards.forTask(tasks.get(pieces[type].inside.at(-1).task)).BUILT }
+    const proof = lemmas[type] && Object.values(logic.proofs[type] ?? {})[0]
+    if (proof) return { ...logic.proofBoards, BUILT: { [type]: { opens: () => ({ circuit: proof.board(), level: proof.level }) } } }
+    // A proved equation, in the studio: the reference answer of the task that proves it.
+    const task = logic.facts[type] && tasks.get(pieces[type].inside[0].task)
+    const boards = task && { proof: logic.proofBoards, machine: logic.machineBoards }[task.kind]
+    return boards ? { ...boards, BUILT: { [type]: { opens: () => ({ circuit: task.solution, level: task }) } } } : null
+  }
   // A part that stays where it is brought (`local`) is in no components box and unlocks nothing to show.
   const kept = ([type]) => !logic.course.local(type)
   // The rules and gates the course starts from, each from the levels that bring it in.
@@ -61,7 +72,7 @@ export default function logicGame(content) {
   const kernelRules = (type) => KERNEL_RULES.filter((r) => r.part === type).map((r) => ({ text: ruleText(r) }))
   const lemmaRows = (type) => lemmaRules(type, lemmas[type]).map((r, k) => ({ text: ruleText(r), ...(k ? { form: r.key.split('.')[1] } : {}) }))
   const primitives = [...introductions(logic.course)].map(([type, at]) => {
-    const text = logic.defs[type] ?? BUILT_TEXT[type]
+    const text = logic.defs[type] ?? pieces[type]
     const rules = kernelRules(type)
     return { key: `part:${type}`, name: text?.name ?? type, desc: text?.desc, revisions: revisions[type], icon: logic.defs[type] ? cards[type].icon : Cpu, at, ...(rules.length ? { rules } : {}) }
   })
@@ -77,7 +88,7 @@ export default function logicGame(content) {
     title: L.title,
     kind: L.kind,
     unlocks: L.unlocks,
-    // A level whose boards a part runs: one that builds it, and one that proves a lemma's shape (course.js lemmaReferences).
+    // A level whose boards a part runs: one that builds it, and one that proves a lemma's shape (course.js lemmaWorks).
     keeps: L.unlocks.length > 0 || logic.provers.has(L.id),
     brief: L.brief,
     after: L.after,
@@ -113,7 +124,7 @@ export default function logicGame(content) {
     // What passing a level gives: the parts it builds, and the proof-board parts a declaration or a generator gives (its
     // rules, from here on).
     unlocked: (level) => [
-      ...level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !logic.course.local(type)).map((type) => ({ label: built[type].name })),
+      ...level.unlocks.map((flag) => flag.slice('lemma:'.length)).filter((type) => !logic.course.local(type)).map((type) => ({ label: pieces[type].name })),
       ...(givesRules(level) ? level.source.adds : []).filter((type) => RULES[type]).map((type) => primitives.find((p) => p.key === `part:${type}`)).filter(Boolean).map((p) => ({ label: p.name, icon: p.icon, family: 'rule' })),
     ],
     passed: (level) => {
@@ -124,16 +135,16 @@ export default function logicGame(content) {
     parts: {
       all: [
         ...primitives,
-        ...Object.entries(gates).filter(kept).map(([type, g]) => ({ key: `lemma:${type}`, name: g.name, desc: g.desc, icon: CircuitBoard })),
-        ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, name: l.name, desc: l.desc, revisions: revisions[type], icon: cards[type].icon, rules: lemmaRows(type) })),
-        ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, name: m.name, desc: m.desc, revisions: revisions[type], icon: CircuitBoard })),
+        ...Object.entries(gates).filter(kept).map(([type, g]) => ({ key: `lemma:${type}`, piece: type, name: g.name, desc: g.desc, icon: CircuitBoard })),
+        ...Object.entries(lemmas).filter(kept).map(([type, l]) => ({ key: `lemma:${type}`, piece: type, name: l.name, desc: l.desc, revisions: revisions[type], icon: cards[type].icon, rules: lemmaRows(type) })),
+        ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, piece: type, name: m.name, desc: m.desc, revisions: revisions[type], icon: CircuitBoard })),
       ],
-      // A gate the player built shows the board it runs: the one the player passed its level with.
+      // A built piece shows the board it runs: the one the player passed its task with, else the reference.
       demo: (part, { progress }) => {
-        const type = part.key.slice('lemma:'.length)
-        if (!gates[type]?.built) return null
-        logic.syncOwn(progress.built)
-        return createElement(BuiltBoard, { key: part.key, course: logic.truthCircuits, type, cards })
+        const shown = part.piece && boardOf(part.piece)
+        if (!shown) return null
+        logic.syncOwn(progress?.built)
+        return createElement(BuiltBoard, { key: part.key, course: shown, type: part.piece, cards })
       },
     },
     // Fewer steps (proof steps, or gates) is better; fewer cases, where the player writes them (iso.js judgeCases).

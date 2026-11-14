@@ -88,9 +88,12 @@ const PAINT = {
   views: S.opt(S.obj({ card: S.opt(VIEW), tile: S.opt(VIEW), detail: S.opt(VIEW) }, { about: t('桌面卡片、手机格位、详情；不写用默认') })),
 }
 
+/** A description as it grows along the course: from level `at` on, or once level `by` is passed (shell/index.js). */
+export const REVISION = S.obj({ at: S.opt(S.level()), by: S.opt(S.level()), desc: S.text() }, { about: t('说明随课程长：从 at 那一关起，或通过 by 那一关以后，换成这一句') })
 const NAMED = {
   name: S.textKind('partName'),
   desc: S.textKind('partDescription', { about: t('只写功能：读哪些口、给出什么、碰到「—」怎么办') }),
+  revisions: S.opt(S.list(REVISION, { min: 1 })),
 }
 /** A primitive: it computes an expression over the domain's engine resources. */
 export const PRIMITIVE = S.obj({
@@ -107,10 +110,11 @@ export const PRIMITIVE = S.obj({
  * A built piece: inside, it runs the work of a task (the player's passing one, else the reference). References of one
  * form (or none) are an upgrade chain in order; of different forms, the piece's shapes. Its ports are the task's board's.
  */
-export const INSIDE = S.list(S.obj({ task: S.str({ pattern: TASK_ID }), form: S.opt(NAME) }), { min: 1, about: t('里面跑哪个任务的作品：同一个 form（或都不写）的几条按先后是升级链，form 不同是件的几种形态') })
+export const INSIDE = S.list(S.obj({ task: S.str({ pattern: TASK_ID }), form: S.opt(NAME), label: S.opt(S.str({ about: t('这种形态在元件上叫什么') })) }), { min: 1, about: t('里面跑哪个任务的作品：同一个 form（或都不写）的几条按先后是升级链，form 不同是件的几种形态') })
 export const BUILT = S.obj({
   ...NAMED,
   inside: INSIDE,
+  card: S.opt(S.ref('op', { about: t('不跑内部的作品，照这个引擎资源跑（它能做的比证出的更多）；内部仍说它是什么、在哪里得到') })),
   ...SETTINGS,
   icon: S.opt(ICON),
   family: S.opt(S.ref('family')),

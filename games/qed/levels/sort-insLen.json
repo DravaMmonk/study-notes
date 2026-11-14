@@ -1,7 +1,6 @@
 {
   "title": { "zh": "插一个，长一格" },
   "tray": "machine",
-  "fact": "insLen",
   "intro": [{ "t": { "zh": "插进一个元素，列表就长一格。" } }],
   "tasks": [
     {

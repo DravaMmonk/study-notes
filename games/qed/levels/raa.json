@@ -1,7 +1,6 @@
 {
   "title": { "zh": "要么成立，要么不成立" },
   "tray": "proof",
-  "builds": "lem",
   "intro": [
     {
       "t": {

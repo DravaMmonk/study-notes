@@ -1,7 +1,6 @@
 {
   "title": { "zh": "接起来" },
   "tray": "proof",
-  "builds": "chain",
   "intro": [
     {
       "t": {

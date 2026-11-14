@@ -1,7 +1,6 @@
 {
   "title": { "zh": "多一个条件也无妨" },
   "tray": "proof",
-  "builds": "axK",
   "intro": [{ "t": { "zh": "这一关没有已知。" } }],
   "after": {
     "zh": "在没有框的<wiki-ref to=\"hilbert\"></wiki-ref>里，K 是一条不用证的<wiki-ref to=\"axiom\"></wiki-ref>。"

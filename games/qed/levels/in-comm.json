@@ -1,7 +1,6 @@
 {
   "title": { "zh": "交换" },
   "tray": "machine",
-  "fact": "addComm",
   "tasks": [
     {
       "id": "in-comm",

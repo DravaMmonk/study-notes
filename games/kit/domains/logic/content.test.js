@@ -16,7 +16,7 @@ import domain from './domain.js'
 
 const L = (zh, en = zh) => ({ zh, en })
 // A level of one task (its id the level's): what it says once, then the task.
-const ONCE = ['title', 'intro', 'after', 'adds', 'fold', 'without', 'showcase', 'builds', 'fact', 'symbols']
+const ONCE = ['title', 'intro', 'after', 'adds', 'fold', 'without', 'showcase', 'symbols']
 const one = ({ id, ...fields }) => ({
   id,
   ...Object.fromEntries(Object.entries(fields).filter(([k]) => ONCE.includes(k))),
@@ -35,24 +35,21 @@ const CONTENT = {
     properties: { P: L('{0}具有该性质', '{0} has that property'), Q: L('{0}具有该性质', '{0} has that property') },
   },
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'allE', 'allI', 'rewrite'],
-  lemmas: {
-    chain: { name: L('串联', 'Chain'), desc: L('d'), statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'], ports: ['A → B', 'B → C'] },
-    half: { name: L('取一半', 'Half'), desc: L('d'), metas: ['A', 'B'], ports: ['A ∧ B'], forms: [
-      { key: 'left', label: 'A ∧ B ⟹ A', statement: 'A', premises: ['A ∧ B'] },
-      { key: 'right', label: 'A ∧ B ⟹ B', statement: 'B', premises: ['A ∧ B'] },
-    ] },
-  },
-  gates: { gOr: { name: L('或', 'Or'), desc: L('d'), ports: ['a', 'b'] } },
-  // The parts the starter defines (its parts.json): the gates and the proof rules.
-  partDefs: readContent('starter', import.meta.dirname).partDefs,
-  revisions: { half: [{ by: 'half', forms: ['right'] }] },
+  // The parts the starter defines (its parts.json: the gates and the proof rules), and the pieces built here: a gate,
+  // a lemma, and a lemma of two shapes, each shape the proof of a task.
+  partDefs: { parts: {
+    ...Object.fromEntries(Object.entries(readContent('starter', import.meta.dirname).partDefs.parts).filter(([, p]) => !p.inside)),
+    gOr: { name: L('或', 'Or'), desc: L('d'), family: 'gate', inside: [{ task: 'or' }] },
+    chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'lemma', settings: ['A', 'B', 'C'].map((key) => ({ key, control: 'tree' })), inside: [{ task: 'chain' }] },
+    half: { name: L('取一半', 'Half'), desc: L('d'), family: 'lemma', settings: ['A', 'B'].map((key) => ({ key, control: 'tree' })), inside: [{ task: 'half_l', form: 'left', label: 'A ∧ B ⟹ A' }, { task: 'half_r', form: 'right', label: 'A ∧ B ⟹ B' }] },
+  } },
   eras: [{ id: 'one', machine: null, foundation: ['or', 'chain', 'useChain', 'half', 'useHalf', 'eqSym', 'andDef', 'eqUse', 'eqTerm', 'rows', 'negate'], chapter: { title: L('c'), question: L('q') } }],
   levels: [
-    one({ id: 'or', kind: 'gates', symbols: ['∨'], title: L('or'), target: 'Rain ∨ Wind', builds: 'gOr', brief: L('b'), solution: ['n1 = gNot(Rain)', 'n2 = gNot(Wind)', 'a = gAnd(n1, n2)', 'n3 = gNot(a)', 'out <- n3'] }),
-    proofLevel('chain', { title: L('接起来', 'Join them'), symbols: ['→', '∧', '∀'], builds: 'chain', tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }],
+    one({ id: 'or', kind: 'gates', symbols: ['∨'], title: L('or'), target: 'Rain ∨ Wind', brief: L('b'), solution: ['n1 = gNot(Rain)', 'n2 = gNot(Wind)', 'a = gAnd(n1, n2)', 'n3 = gNot(a)', 'out <- n3'] }),
+    proofLevel('chain', { title: L('接起来', 'Join them'), symbols: ['→', '∧', '∀'], tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }],
       solution: box('f = impI[A=A](body: m2)', ['m1 = mp(p, f.body)', 'm2 = mp(q, m1)'], 'f') }),
     proofLevel('useChain', { tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Wind', B: 'Wet', C: 'Slip' }], solution: ['c = chain(p, q)', 'goal <- c'] }),
-    { id: 'half', title: L('half'), builds: 'half', tasks: [
+    { id: 'half', title: L('half'), tasks: [
       { id: 'half_l', kind: 'proof', step: L('l'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['e = andE(p)', 'goal <- e.left'] },
       { id: 'half_r', kind: 'proof', step: L('r'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'B' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['e = andE(p)', 'goal <- e.right'] },
     ] },
@@ -170,7 +167,7 @@ test('a gate the player built runs the board it passed with; one that no longer 
   const gates = builder.gates
   const or = (board) => {
     syncOwn(board ? { or: board } : {})
-    const alone = { nodes: [...startGates(builder).nodes, { id: 'x', type: 'gOr', params: {} }], wires: [{ from: 'Rain', to: 'x', port: 'a' }, { from: 'Wind', to: 'x', port: 'b' }, { from: 'x', to: 'out', port: 'in' }] }
+    const alone = { nodes: [...startGates(builder).nodes, { id: 'x', type: 'gOr', params: {} }], wires: [{ from: 'Rain', to: 'x', port: 'Rain' }, { from: 'Wind', to: 'x', port: 'Wind' }, { from: 'x', to: 'out', port: 'in' }] }
     return rowsFor(builder).rows.map(({ row }) => runBoard(alone, { parts: gateParts(gates), bind: row }).outputs.out)
   }
   const truth = rowsFor(builder).rows.map((r) => r.want)

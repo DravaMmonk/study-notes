@@ -1,7 +1,6 @@
 {
   "title": { "zh": "两个方向都对" },
   "tray": "gates",
-  "builds": "gIff",
   "symbols": ["↔"],
   "intro": [
     {

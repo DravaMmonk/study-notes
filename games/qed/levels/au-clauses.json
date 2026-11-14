@@ -1,6 +1,5 @@
 {
   "title": { "zh": "子句化" },
-  "builds": "clausify",
   "adds": ["toClauses", "skolem"],
   "tray": "machine",
   "intro": [

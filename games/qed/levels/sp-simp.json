@@ -1,7 +1,6 @@
 {
   "title": { "zh": "几条一起" },
   "tray": "machine",
-  "builds": "simp",
   "intro": [
     {
       "t": {

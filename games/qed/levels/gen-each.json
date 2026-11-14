@@ -1,6 +1,5 @@
 {
   "title": { "zh": "每一条" },
-  "builds": "elimGen",
   "adds": ["anyR", "swapConcl", "consFront", "mkRule", "eachOf"],
   "tray": "machine",
   "intro": [

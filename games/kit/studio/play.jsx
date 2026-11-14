@@ -116,8 +116,8 @@ export default function Play() {
     const parts = edit.on ? { picked: edit.picked, pick: (path) => say({ type: 'pick', part: part.type, path }), add: (path) => say({ type: 'add', part: part.type, path }) } : null
     if (part.game.defined?.of(part.type)) return <PartPreview game={part.game} type={part.type} edit={parts} />
     // A built piece shows the board it runs, as the parts box does.
-    const piece = part.game.parts?.all.find((p) => p.piece === part.type)
-    return piece ? part.game.parts.demo?.(piece, { progress: {} }) ?? null : null
+    const piece = part.game.parts?.all.find((p) => p.piece === part.type) ?? { key: part.type, piece: part.type }
+    return part.game.parts?.demo?.(piece, { progress: {} }) ?? null
   }
   if (!shown) return null
   return <GameShell key={shown.no} game={shown.game} store={shown.game.store} author={author} />

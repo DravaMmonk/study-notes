@@ -34,7 +34,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
     return { key: `part:${type}`, name, desc, ...defined({ revisions }), icon, at, atTasks: at.flatMap((id) => circuit.introductions(type, id)) }
   })
   // The built pieces, in the order the course builds them.
-  const built = [...new Set(LEVELS.flatMap((L) => L.unlocks))].map((type) => ({ key: type, piece: type, name: circuit.pieces[type].name, desc: circuit.pieces[type].desc, icon: CircuitBoard }))
+  const built = [...new Set(LEVELS.flatMap((L) => L.unlocks))].map((type) => ({ key: type, piece: type, name: circuit.pieces[type].name, desc: circuit.pieces[type].desc, ...defined({ revisions: circuit.pieces[type].revisions }), icon: CircuitBoard }))
   const labels = levelLabels(content.eras, { notes: course.notes })
   const kindOf = (T) => (kinds[T.kind] ? T.kind : kind.id)
   const game = defineGame({
@@ -97,7 +97,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
 }
 
 export function definedGame(content, circuit, { ops, ...own }) {
-  const cards = Object.fromEntries(Object.entries(circuit.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: iconOf(d.icon) }]))
+  const cards = Object.fromEntries(Object.entries(circuit.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, ...defined({ revisions: d.revisions }), icon: iconOf(d.icon) }]))
   const screen = { canvas: { height: 96 }, ...own.screen }
   return Object.assign(circuitGame(content, circuit, { ...own, screen, cards }), { defined: { of: (type) => circuit.defs[type] ?? null, defaults: circuit.defaultsOf, ops } })
 }

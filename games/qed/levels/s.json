@@ -1,7 +1,6 @@
 {
   "title": { "zh": "在条件下套用" },
   "tray": "proof",
-  "builds": "axS",
   "intro": [
     {
       "t": {

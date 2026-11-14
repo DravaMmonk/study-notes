@@ -1,7 +1,6 @@
 {
   "title": { "zh": "德摩根律" },
   "tray": "proof",
-  "builds": "dm",
   "intro": [
     {
       "t": {
