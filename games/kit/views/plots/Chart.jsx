@@ -9,7 +9,7 @@ import { L } from '../../shell/i18n.js'
 //   labels   [{ at: [x, y], text, under? }]      a line's name by it; `under`, below the x axis at its x
 //   series   [{ points: [[x, y]], kind }]        dots: 'was' where the point has been, oldest first (fading back);
 //                                                'given' what the scene was handed (joined faintly); 'want' where
-//                                                the point is wanted (rings)
+//                                                the point is wanted (rings); 'met' checked points (joined at adjacent ticks)
 //   point    { at: [x, y], reads }               where it is now; `reads` written at the y axis at its height
 //   gap      { from: [x, y], to: [x, y] }        a stretch the point is off by
 //   state    'over' | 'under' | 'met'            how the point stands, the colour of the point, `reads` and the gap
@@ -19,7 +19,7 @@ import { L } from '../../shell/i18n.js'
 
 const [W, H, LEFT, BASE, TOP, RIGHT] = [246, 156, 52, 136, 18, 234]
 
-const DOT = { was: 2.2, given: 1.8, want: 3.4 }
+const DOT = { was: 2.2, given: 1.8, want: 3.4, met: 3.2 }
 
 export default function Chart({ label, x: across, y: up, lines = [], labels = [], series = [], point, gap, state }) {
   const along = ({ min = 0, max }, v) => (Math.min(max, Math.max(min, v)) - min) / (max - min || 1)
@@ -36,7 +36,12 @@ export default function Chart({ label, x: across, y: up, lines = [], labels = []
       {labels.map((l, k) => <text key={k} className="ch-name" x={x(l.at[0]) + (l.under ? 0 : 4)} y={l.under ? BASE + 13 : y(l.at[1]) - 5} textAnchor={l.under ? 'middle' : 'start'}>{L(l.text)}</text>)}
       {series.map(({ points, kind }, s) => (
         <g key={s} className={`ch-dots is-${kind}`}>
-          {kind === 'given' && points.length > 1 && <path d={points.map(([px, py], k) => `${k ? 'L' : 'M'}${x(px)} ${y(py)}`).join('')} />}
+          {(kind === 'given' || kind === 'met') && points.length > 1 && (
+            <path d={points.map(([px, py], k) => {
+              const joinsPrevious = k > 0 && (kind === 'given' || px === points[k - 1][0] + 1)
+              return `${joinsPrevious ? 'L' : 'M'}${x(px)} ${y(py)}`
+            }).join('')} />
+          )}
           {points.map(([px, py], k) => <circle key={k} cx={x(px)} cy={y(py)} r={DOT[kind]} opacity={kind === 'was' ? 0.2 + (0.6 * (k + 1)) / (points.length + 1) : undefined} />)}
         </g>
       ))}
