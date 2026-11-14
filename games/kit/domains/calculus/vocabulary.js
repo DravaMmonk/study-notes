@@ -37,11 +37,12 @@ const TEST = S.obj({
 const LEVEL = levelSchema({
   test: TEST,
   ports: { inputs: S.opt(S.list(PORT)), outputs: S.opt(S.list(PORT)) },
+  more: { carries: S.opt(S.bool({ section: 'course', about: t('从上一个任务的电路板开始') })) },
 })
 
 export const vocabulary = defineVocabulary({
   domain: 'calculus',
-  version: 8,
+  version: 9,
   kinds: { part: PARTS },
   game: GAME,
   level: LEVEL,

@@ -198,9 +198,6 @@
   "先不管近不近，只看一串 0 和 1：最近这段连续的 1 从哪一项开始？": "Leave closeness aside for now and look at a run of 0s and 1s: where did the latest unbroken stretch of 1s begin?",
   "一件事可以<wiki-ref to=\"eventually\"></wiki-ref>一直成立，前面有几项不成立也不要紧。": "Something can hold <wiki-ref to=\"eventually\"></wiki-ref>, whatever the terms before it did.",
   "输入最近一段连续为 1 从第几项起；这一拍为 0 时给 n + 1。": "Where the latest unbroken run of 1s in its input began; n + 1 when this tick is 0.",
-  "输入每拍是 0 或 1：交出最近一段连续为 1 从第几项起；这一拍是 0 时交出 n + 1。": "The input is 0 or 1 each tick: give where the latest unbroken run of 1s began; give n + 1 when this tick is 0.",
-  "这一拍是 1 时，开头和上一拍说的一样。": "When this tick is 1, the start is what the tick before said.",
-  "输入本身就是 1 或 0，可以拿它在两个数里挑。": "The input is itself 1 or 0: it can pick between two numbers.",
   "平方数": "Squares",
   "0, 1, 4, 9, 16, …：相邻两项的差是 1, 3, 5, 7，一直在变，写不成「每项加同一个数」的递推。": "0, 1, 4, 9, 16, …: the gaps between terms are 1, 3, 5, 7, always changing, so no “add the same number each time” recurrence fits.",
   "但第 n 项只和 n 有关。手上有了<part-ref to=\"count\"></part-ref>，再加一件新元件<part-ref to=\"part:mul\"></part-ref>，它把两个数乘起来。": "But the n-th term depends only on n. With <part-ref to=\"count\"></part-ref> in hand, one more part comes in: <part-ref to=\"part:mul\"></part-ref>, which multiplies two numbers.",
@@ -231,5 +228,13 @@
   "交出 0 + 1 + … + n。": "Give 0 + 1 + … + n.",
   "摆动着靠近": "Closing in, side to side",
   "1, −1/2, 1/3, −1/4, …：一会儿在 0 的右边，一会儿在左边。它也算趋于 0 吗？": "1, −1/2, 1/3, −1/4, …: now right of 0, now left. Does it tend to 0 as well?",
-  "交出 aₙ = (−1)ⁿ/(n + 1)；测试给出 ε，交出它离 0 不到 ε 的 N。": "Give aₙ = (−1)ⁿ/(n + 1); the test gives ε: give the N at which it comes within ε of 0."
+  "交出 aₙ = (−1)ⁿ/(n + 1)；测试给出 ε，交出它离 0 不到 ε 的 N。": "Give aₙ = (−1)ⁿ/(n + 1); the test gives ε: give the N at which it comes within ε of 0.",
+  "下一项的下标": "The next index",
+  "第 n 拍输出 n + 1。第一拍的下标 n 为 0。": "At tick n, output n + 1. The first tick has index 0.",
+  "输入为 0": "Input is 0",
+  "输入为 0 时，输出 n + 1；输入为 1 时，暂时输出 0。": "When the input is 0, output n + 1. When it is 1, output 0 for now.",
+  "怎样把输入的 0 和 1 对调，让它决定 n + 1 是否通过？": "How can you swap the input’s 0 and 1 so it controls whether n + 1 passes through?",
+  "沿用上一拍": "Keep the previous output",
+  "输入为 0 时，输出 n + 1；输入为 1 时，沿用上一拍的输出。第一拍没有上一拍，初值为 0。": "When the input is 0, output n + 1. When it is 1, repeat the previous output. Before the first tick, the initial value is 0.",
+  "用寄存卡记住上一拍的输出，再让它只在输入为 1 时通过。": "Use a register to remember the previous output, and let it through only when the input is 1."
 }
