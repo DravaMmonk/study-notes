@@ -31,9 +31,13 @@ export function blocksOf(def, face) {
 // How many values of a setting the course offers here: none of a setting it does not hold, whatever its control.
 const optionCount = (s, allowed) => (allowed && !allowed.length ? 0 : s.options ? s.options.filter((o) => !allowed || allowed.includes(o.value)).length : Infinity)
 
-/** The settings a node shows: their `when` holds, and the course offers more than one value of an option setting. */
-export function visibleSettings(def, params, defined) {
-  return settingsOf(def).map((s, k) => [s, k]).filter(([s]) => (defined.visible?.(def.type, s.key) ?? true) && shows(s, def, params, defined.ops) && optionCount(s, defined.allowed?.(def.type, s.key)) > 1)
+/**
+ * The settings a node shows, their options worked out on it (a setting's `from`: defined.options(def, setting, node,
+ * ctx)): their `when` holds, and the course offers more than one value of an option setting (a list, any).
+ */
+export function visibleSettings(def, params, defined, node = null, ctx = null) {
+  const resolved = (s) => (s.from ? { ...s, options: defined.options?.(def, s, node, ctx) ?? [] } : s)
+  return settingsOf(def).map((s, k) => [resolved(s), k]).filter(([s]) => (defined.visible?.(def.type, s.key) ?? true) && shows(s, def, params, defined.ops) && (s.from ? s.options.length > 0 : optionCount(s, defined.allowed?.(def.type, s.key)) > 1))
 }
 
 const fmt = (v, digits) => (typeof v === 'number' ? (digits === undefined ? numberText(v) : v.toFixed(digits)) : v === true ? '✓' : v === false ? '✗' : String(v ?? '—'))
@@ -41,12 +45,12 @@ const fmt = (v, digits) => (typeof v === 'number' ? (digits === undefined ? numb
 export default function PartFace({ def, face, node, ctx, set, defined, phone = false, roomy = false, blocks: given, mark = () => ({}) }) {
   const params = node.params ?? {}
   const readOnly = Boolean(ctx?.readOnly) || !set
-  const shown = visibleSettings(def, params, defined)
+  const shown = visibleSettings(def, params, defined, node, ctx)
   const list = given ?? blocksOf(def, face)
   const words = (s) => valueWords(s, params[s.key] ?? s.default ?? s.options?.[0]?.value)
   const setting = (s, k) => (
     <div key={s.key} className="pf-slot" {...mark(['settings', k])}>
-      <SettingField setting={s} value={params[s.key] ?? s.default} allowed={defined.allowed?.(def.type, s.key) ?? null} readOnly={readOnly} roomy={roomy} phone={phone} widgets={defined.widgets} onChange={(v) => set({ [s.key]: v }, s.key)} />
+      <SettingField setting={s} value={params[s.key] ?? s.default} allowed={defined.allowed?.(def.type, s.key) ?? null} readOnly={readOnly} roomy={roomy} phone={phone} widgets={defined.widgets} language={defined.language} onChange={(v) => set({ [s.key]: v }, s.key)} />
     </div>
   )
   const block = (b, path, key) => {

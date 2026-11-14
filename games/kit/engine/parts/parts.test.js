@@ -142,3 +142,35 @@ test('a description names only the options that are open', () => {
   assert.deepEqual(partDesc(def, () => ['sub']), def.desc)
   assert.equal(partDesc({ desc: 'plain', settings: [] }), 'plain')
 })
+
+test('a part with regions is a frame: its resource sees the card and the region, and can run a region as a function', () => {
+  const FRAME_OPS = {
+    // The box: inside its region, the value it was handed; outside, what came back from the region, plus one.
+    box: { about: 'box', args: [{ name: 'x' }, { name: 'back' }], run: ([x, back], _named, ctx) => (ctx.key ? x : back + 1) },
+    // A loop: the region run on the value three times.
+    thrice: { about: 'loop', args: [{ name: 'x' }], run: ([x], _named, ctx) => { const round = ctx.region('body'); return round(round(round(x))) } },
+    twice: { about: '2x', args: [{ name: 'x' }], run: ([x]) => x * 2 },
+    named: { about: 'id', args: [], run: (_args, _named, ctx) => ctx.node.id },
+  }
+  const frames = {
+    parts: {
+      box: { name: 'Box', desc: 'b', icon: 'Box', family: 'value', inputs: [{ name: 'x' }], regions: [{ name: 'body', opens: true, closes: true }], compute: 'box(x, body)' },
+      thrice: { name: 'Thrice', desc: 't', icon: 'Repeat', family: 'value', inputs: [{ name: 'x' }], regions: [{ name: 'body', opens: true }, { name: 'more', opens: true, when: "eq($more, 'yes')" }], settings: [{ key: 'more', control: 'select', options: [{ value: 'no' }, { value: 'yes' }] }], compute: 'thrice(x)' },
+      twice: { name: 'Twice', desc: 'd', icon: 'Plus', family: 'value', inputs: [{ name: 'x' }], compute: 'twice(x)' },
+      named: { name: 'Named', desc: 'n', icon: 'Plus', family: 'value', inputs: [], compute: 'named()' },
+    },
+  }
+  const { PARTS } = defineParts(frames, FRAME_OPS)
+  assert.deepEqual(PARTS.thrice.frames({ params: {} }), [{ name: 'body', opens: true }])
+  assert.deepEqual(PARTS.thrice.frames({ params: { more: 'yes' } }).map((r) => r.name), ['body', 'more'])
+  assert.deepEqual(PARTS.box.outputs({ params: {} }), [null, 'body'])
+  const parts = { in: { inputs: [], source: true, eval: () => 5 }, ...PARTS }
+  const boxed = { nodes: [{ id: 'i', type: 'in' }, { id: 'b', type: 'box' }, { id: 'd', type: 'twice', in: 'b/body' }], wires: [{ from: 'i', to: 'b', port: 'x' }, { from: 'b#body', to: 'd', port: 'x' }, { from: 'd', to: 'b', port: 'body' }] }
+  assert.equal(run(boxed, { parts, ctx: { graph: boxed } }).values.get('b'), 11)
+  const loop = { nodes: [{ id: 'i', type: 'in' }, { id: 'l', type: 'thrice' }, { id: 'd', type: 'twice', in: 'l/body' }], wires: [{ from: 'i', to: 'l', port: 'x' }, { from: 'l#body', to: 'd', port: 'x' }, { from: 'd', to: 'l', port: 'body' }] }
+  assert.equal(run(loop, { parts, ctx: { graph: loop } }).values.get('l'), 40)
+  // Inside, a card may not read a board input that is no constant.
+  const leak = { ...loop, wires: [...loop.wires.filter((w) => w.to !== 'd'), { from: 'i', to: 'd', port: 'x' }] }
+  assert.match(run(leak, { parts, ctx: { graph: leak } }).errors.get('l').en, /only what the frame opens/)
+  assert.equal(run({ nodes: [{ id: 'n', type: 'named' }], wires: [] }, { parts }).values.get('n'), 'n')
+})

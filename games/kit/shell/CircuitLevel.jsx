@@ -180,7 +180,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const edit = useEdit()
   const [target, setTarget] = useState(null) // the frame region a new card goes into (desktop)
   const [detail, setDetail] = useState(null)
-  const parts = useMemo(() => (defined ? definedParts(given, defined.of) : given), [given, defined?.of])
+  const parts = useMemo(() => (defined ? definedParts(given, defined.of, defined.ops) : given), [given, defined?.of])
   const circuit = useMemo(() => withNewSlots(blockPreset(stored, stages?.stages ?? [], parts), parts), [stored, stages, parts])
   const change = (next, options = {}) => board.change(next, options)
   const displayedBoard = { ...board, circuit, change }
@@ -198,7 +198,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   // Packed parts: what each one runs, and what every card inside it gives at the step shown.
   const top = { circuit, parts, top: true }
   // The boards inside packed parts hold defined parts too.
-  const opened = packed && defined ? { ...packed, open: (node, at) => { const r = packed.open(node, at); return r && { ...r, parts: definedParts(r.parts, defined.of) } } } : packed
+  const opened = packed && defined ? { ...packed, open: (node, at) => { const r = packed.open(node, at); return r && { ...r, parts: definedParts(r.parts, defined.of, defined.ops) } } } : packed
   const inside = packed ? insideOf({ top, ...opened, card, describe: describeOf, sheet: detailOf }) : null
   const isPacked = (node, at) => Boolean(inside?.is(node, at))
   const ctx = { view, board: top, path: [], readOnly: false }

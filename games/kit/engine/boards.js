@@ -21,11 +21,11 @@ export function outputsOf(circuit, parts, values) {
 
 /**
  * Evaluate a circuit with its sources bound. Returns { values, errors, outputs }, outputs by sink name.
- * Every part's ctx carries `engine` ({ parts, prepare }) so a packed part can run its circuit.
+ * Every part's ctx carries `engine` ({ parts, prepare }) so a packed part can run its circuit, and `graph` the board.
  */
 export function runBoard(circuit, { parts, ctx = {}, bind = {}, prepare = null, targets = null }) {
   const engine = { parts, prepare }
-  const { values, errors, ids } = evaluate(circuit, { parts, prepare, targets, ctx: { ...ctx, bind, engine } })
+  const { values, errors, ids } = evaluate(circuit, { parts, prepare, targets, ctx: { graph: circuit, ...ctx, bind, engine } })
   return { values, errors, outputs: outputsOf(circuit, parts, values), ...(ids ? { ids } : {}) }
 }
 

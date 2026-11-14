@@ -78,3 +78,6 @@
 .pp.is-editing [data-pf] { cursor: pointer; }
 .pp.is-editing [data-pf]:hover { outline: 1px dashed var(--accent); outline-offset: 2px; }
 .pp [data-picked], .pp .is-picked { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pf-list { display: flex; flex-wrap: wrap; gap: var(--sp-1); align-items: center; }
+.pf-list-item { display: inline-flex; align-items: center; gap: var(--sp-1); }
+.pf-list-item button { border: 0; background: none; padding: 0; color: var(--muted); cursor: pointer; }

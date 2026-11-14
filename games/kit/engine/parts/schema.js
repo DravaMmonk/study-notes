@@ -1,5 +1,5 @@
 // The schema of a game's parts.json (games/DESIGN.md 6.8): the parts a game's course starts from, as data — their
-// ports, their settings (one of six kernel controls), what they compute (an expression over the domain's engine
+// ports, their settings (one of the kernel controls), what they compute (an expression over the domain's engine
 // resources, expr.js) and their three views — and setting presets several parts share. The schema is the kernel's, the
 // same in every domain whose vocabulary has engine resources (the `op` kind); what it names (resources, families,
 // widgets) the domain's vocabulary gives.
@@ -13,8 +13,8 @@ const WORD = S.str({ pattern: '^[A-Za-z0-9_][A-Za-z0-9_.-]*$', about: t('ASCII �
 export const EXPR = S.str({ view: 'expr', about: t('一行式子：调用领域的引擎资源') })
 export const ICON = S.str({ view: 'icon', about: t('内核图标表里的一个名字') })
 
-/** The six controls a setting is edited with (../../shell/parts/SettingField.jsx). */
-export const CONTROLS = ['select', 'buttons', 'number', 'slider', 'toggle', 'custom']
+/** The controls a setting is edited with (../../shell/parts/SettingField.jsx). */
+export const CONTROLS = ['select', 'buttons', 'number', 'slider', 'toggle', 'list', 'tree', 'custom']
 /** The layouts of a group of small buttons. */
 export const LAYOUTS = ['row', 'column', 'grid', 'pad']
 
@@ -28,9 +28,13 @@ const COMMON = {
   fixed: S.opt(S.bool({ about: t('只显示，玩家不能改') })),
 }
 const RANGE = { min: S.opt(S.num()), max: S.opt(S.num()), step: S.opt(S.num({ min: 0 })), unit: S.opt(S.text()) }
+// Options are written out, or worked out by an expression on the card's inputs (`from`: a resource giving [{ value, label }]).
+const FROM = S.opt(S.str({ view: 'expr', about: t('式子：由元件的输入算出选项') }))
 const CONTROL = {
-  select: { options: OPTIONS },
-  buttons: { options: OPTIONS, layout: S.opt(S.oneOf(LAYOUTS, { about: t('row 一行，column 一列，grid 两两一行，pad 上下左右四向（选项 up、left、right、down）') })) },
+  select: { options: S.opt(OPTIONS), from: FROM },
+  list: { options: S.opt(OPTIONS), from: FROM },
+  tree: { optional: S.opt(S.bool({ about: t('可以不填') })) },
+  buttons: { options: S.opt(OPTIONS), from: FROM, layout: S.opt(S.oneOf(LAYOUTS, { about: t('row 一行，column 一列，grid 两两一行，pad 上下左右四向（选项 up、left、right、down）') })) },
   number: { ...RANGE, integer: S.opt(S.bool()), stepper: S.opt(S.bool({ about: t('两边加 − / + 按钮') })) },
   slider: { ...RANGE, min: S.num(), max: S.num(), marks: S.opt(S.list(S.num(), { about: t('刻度') })) },
   toggle: { on: S.opt(S.text()), off: S.opt(S.text()) },
@@ -71,7 +75,7 @@ const RULE = S.obj({ on: S.opt(NAME), when: S.opt(EXPR), set: S.map(EXPR, { abou
 /** A check: the settings must make `holds` true; else the card says `say`. */
 const CHECK = S.obj({ holds: EXPR, say: S.text() })
 const PORT = S.obj({ name: NAME, label: S.opt(S.textKind('portLabel')), about: S.opt(S.text()), optional: S.opt(S.bool({ about: t('可以不接：不接时运算在这里读到「—」') })) })
-const REGION = S.obj({ name: NAME, label: S.opt(S.textKind('regionLabel')), opens: S.opt(S.bool()), closes: S.opt(S.bool()), gives: S.opt(S.list(NAME)) })
+const REGION = S.obj({ name: NAME, label: S.opt(S.textKind('regionLabel')), opens: S.opt(S.bool()), closes: S.opt(S.bool()), gives: S.opt(S.list(NAME)), when: S.opt(EXPR) })
 const HOLES = { inputs: S.list(PORT), outputs: S.opt(S.list(PORT, { min: 2, about: t('几个输出时才写') })) }
 const SETTINGS = {
   settings: S.opt(S.list(SETTING)),

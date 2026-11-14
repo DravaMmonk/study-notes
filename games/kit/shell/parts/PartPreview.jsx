@@ -37,7 +37,7 @@ export default function PartPreview({ game, type, edit }) {
   const def = defined.of(type)
   const [params, setParams] = useState(() => defined.defaults(type))
   useEffect(() => setParams(defined.defaults(type)), [type, def]) // eslint-disable-line react-hooks/exhaustive-deps
-  const parts = useMemo(() => definedParts(base, defined.of), [defined])
+  const parts = useMemo(() => definedParts(base, defined.of, defined.ops), [defined])
   if (!def) return <p className="pp-none">{tr(`parts.json 里没有元件 ${type}`, `parts.json has no part ${type}`)}</p>
   const node = { id: 'p', type, params, x: 40, y: 30 }
   const graph = { nodes: [node], wires: [] }

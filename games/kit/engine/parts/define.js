@@ -9,9 +9,12 @@
 //   applyRules(def, params, changed, ops)  a node's settings once the player changed one: the part's rules followed
 //   failedCheck(def, params, ops)          what the first check its settings fail says, or null
 //   partDesc(def, allowed)                 its description with the open options' abouts
-// Every expression may call the kernel's builtins (builtins.js) besides the domain's resources.
+// Every expression may call the kernel's builtins (builtins.js) besides the domain's resources. A resource sees the card
+// it runs on (ctx.node, ctx.key: the region whose value it gives, if any) and can run one of its regions as a function
+// (ctx.region(name), ../../circuit/frames.js runRegion).
 import { PartError } from '../circuit.js'
-import { facesOf, holesOf, outletsOf, registerPieces, settingsOf } from '../pieces.js'
+import { runRegion } from '../../circuit/frames.js'
+import { facesOf, holesOf, outletsOf, regionsOf, registerPieces, settingsOf } from '../pieces.js'
 import { validate } from '../schema.js'
 import { ExprError, evaluate, evaluateTaped, parse, problemsOf } from './expr.js'
 import { ICON_NAMES } from './icons.js'
@@ -20,6 +23,8 @@ import { FACES, PARTS_FILE } from './schema.js'
 
 const ICONS = new Set(ICON_NAMES)
 const OPTIONED = new Set(['select', 'buttons'])
+// The settings whose value is a list of options, and those holding a tree as text (a sentence the domain's language reads).
+const LISTED = new Set(['list'])
 const NUMERIC = new Set(['number', 'slider'])
 
 /** Whether a vocabulary's domain defines its parts as data: it gives engine resources. */
@@ -37,9 +42,11 @@ export function resolveSetting(setting, presets = {}) {
 /** The value a setting starts with. */
 export function defaultOf(s) {
   if (s.default !== undefined) return s.default
-  if (OPTIONED.has(s.control)) return s.options[0].value
+  if (OPTIONED.has(s.control)) return s.options?.[0]?.value ?? null
   if (NUMERIC.has(s.control)) return Math.min(s.max ?? Infinity, Math.max(s.min ?? -Infinity, 0))
   if (s.control === 'toggle') return false
+  if (LISTED.has(s.control)) return []
+  if (s.control === 'tree') return ''
   return null
 }
 
@@ -48,7 +55,9 @@ export function coerce(s, raw) {
   const v = raw === undefined || raw === null || raw === '' ? defaultOf(s) : raw
   if (NUMERIC.has(s.control)) return Number(v)
   if (s.control === 'toggle') return v === true || v === 'true'
-  if (OPTIONED.has(s.control)) return String(v)
+  if (LISTED.has(s.control)) return Array.isArray(v) ? v.map(String) : []
+  if (OPTIONED.has(s.control)) return v === null ? null : String(v)
+  if (s.control === 'tree') return v === null ? '' : String(v)
   return v
 }
 
@@ -69,6 +78,17 @@ function treesOf(def) {
   }
   if (typeof def.compute === 'string') return { '': read(def.compute) }
   return Object.fromEntries(Object.entries(def.compute ?? {}).map(([k, text]) => [k, read(text)]))
+}
+
+/** The options a setting offers on a node: its own, or those its `from` works out of the card's inputs. */
+export function optionsOf(s, def, { params = {}, ins = {}, ctx = {} } = {}, ops = {}) {
+  if (!s.from) return s.options ?? []
+  try {
+    const got = evaluate(parse(s.from), { ins, settings: settingsFor(def, params), run: runner(ops, ctx), noCase })
+    return Array.isArray(got) ? got : []
+  } catch {
+    return []
+  }
 }
 
 const runner = (ops, ctx) => (name, args, named) => {
@@ -148,20 +168,34 @@ export function defineParts(file, ops, code = {}) {
     const names = holesOf(def).map((p) => p.name)
     // An optional input left unwired reads 「—」 (undefined) and never makes the part give 「—」 by itself.
     const optional = new Set(holesOf(def).filter((p) => p.optional).map((p) => p.name))
+    // A part with regions is a frame (../../circuit/frames.js): an input for each region shown, what is made inside
+    // it; an output for each region that opens, the value it opens with, read off the part's own inputs.
+    const regions = regionsOf(def)
+    const shown = (node) => regions.filter((r) => !r.when || evalSettings(r.when, def, node?.params ?? {}, ops))
+    const framed = regions.length ? {
+      inputs: (node) => [...names, ...shown(node).map((r) => r.name)],
+      frames: (node) => shown(node).map((r) => ({ name: r.name, opens: Boolean(r.opens) })),
+      outputs: (node) => [null, ...shown(node).filter((r) => r.opens).map((r) => r.name)],
+      // A region that closes gives the part what was made inside it; one that does not is run by the part itself.
+      reads: (node, key) => (key ? names : [...names, ...shown(node).filter((r) => r.closes).map((r) => r.name)]),
+    } : null
     const part = {
       inputs: names,
-      ...(def.outputNames ? {} : { symmetric: (node) => symmetricIn(trees[''], settingsFor(def, node?.params), ops) }),
+      ...(def.outputNames || framed ? {} : { symmetric: (node) => symmetricIn(trees[''], settingsFor(def, node?.params), ops) }),
       ...(optional.size ? { optional: [...optional] } : {}),
+      ...framed,
       params: settingsOf(def).map((s) => s.key),
       defaults: Object.fromEntries(settingsOf(def).map((s) => [s.key, defaultOf(s)])),
-      settings: Object.fromEntries(settingsOf(def).filter((s) => OPTIONED.has(s.control)).map((s) => [s.key, s.options.map((o) => o.value)])),
+      settings: Object.fromEntries(settingsOf(def).filter((s) => OPTIONED.has(s.control) && s.options).map((s) => [s.key, s.options.map((o) => o.value)])),
       eval: (ins, node, ctx, key) => {
         const failed = failedCheck(def, node?.params ?? {}, ops)
         if (failed) throw new PartError(failed)
-        if (def.nulls !== 'pass' && names.some((n) => ins[n] === null || (ins[n] === undefined && !optional.has(n)))) return null
+        const read = framed ? framed.reads(node, key) : names
+        if (def.nulls !== 'pass' && read.some((n) => ins[n] === null || (ins[n] === undefined && !optional.has(n)))) return null
         const tree = trees[def.outputNames ? key : '']
         if (!tree) throw new PartError({ zh: '这个元件的运算写错了', en: 'this part’s computation does not parse' })
-        const env = { ins, settings: settingsFor(def, node?.params), run: runner(ops, ctx), noCase }
+        const card = { ...ctx, node, key, region: (name) => runRegion(node, ctx, name) }
+        const env = { ins, settings: settingsFor(def, node?.params), run: runner(ops, card), noCase }
         if (!ctx?.tape) return evaluate(tree, env)
         // A run that trains: number the values on the tape (../tape.js); a parameter resource makes this card a leaf.
         const tape = ctx.tape
@@ -215,7 +249,8 @@ export function partProblems(file, vocabulary) {
   const fits = (schema, v) => validate(schema, v, { vocabulary: vocab }).length === 0
   const presets = file.presets ?? {}
   const settingProblems = (s, at) => {
-    if (OPTIONED.has(s.control)) {
+    if ((OPTIONED.has(s.control) || LISTED.has(s.control)) && !s.options === !s.from) say(at, 'a setting with options gives them, or works them out (from), not both')
+    if (OPTIONED.has(s.control) && s.options) {
       const values = s.options.map((o) => String(o.value))
       if (new Set(values).size !== values.length) say(`${at}.options`, 'an option value is written twice')
       if (s.default !== undefined && !values.includes(String(s.default))) say(`${at}.default`, `${JSON.stringify(s.default)} is none of its options`)
@@ -258,6 +293,11 @@ export function partProblems(file, vocabulary) {
       return undefined
     }
     for (const [k, s] of settingsOf(def).entries()) if (s.when) check(s.when, `${at}.settings[${k}].when`, [])
+    for (const [k, s] of settingsOf(def).entries()) if (s.from) check(s.from, `${at}.settings[${k}].from`, holesOf(def).map((p) => p.name))
+    const regionNames = regionsOf(raw).map((r) => r.name)
+    if (new Set([...holesOf(raw).map((p) => p.name), ...regionNames]).size !== holesOf(raw).length + regionNames.length) say(`${at}.regions`, 'a region is named twice, or like an input')
+    if (regionNames.length && outletsOf(raw).length) say(`${at}.outputs`, 'a part with regions has one output of its own')
+    for (const [k, r] of regionsOf(raw).entries()) if (r.when) check(r.when, `${at}.regions[${k}].when`, [])
     for (const [k, rule] of (raw.rules ?? []).entries()) {
       if (rule.on && !def.setting[rule.on]) say(`${at}.rules[${k}].on`, `${rule.on} is no setting of the part`)
       if (rule.when) check(rule.when, `${at}.rules[${k}].when`, [])
