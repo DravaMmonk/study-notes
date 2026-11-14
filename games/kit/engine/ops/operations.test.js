@@ -312,6 +312,13 @@ function partsToy() {
 }
 const prun = (ws, op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: withParts(PVOCAB, ws.partDefs), domain: { vocabulary: PVOCAB } })
 
+test('the first part of a game makes its parts.json', () => {
+  const ws = partsToy()
+  ws.partDefs = undefined
+  prun(ws, 'part.add', { part: 'sum', data: sum })
+  assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum'])
+})
+
 test('the part operations edit parts.json, refuse to remove a part still used, and rename it everywhere', () => {
   const ws = partsToy()
   const before = JSON.stringify(ws.content())
@@ -328,6 +335,7 @@ test('the part operations edit parts.json, refuse to remove a part still used, a
   assert.equal(JSON.stringify(ws.content()), before, 'the inverses put parts.json back')
   assert.throws(() => prun(ws, 'part.remove', { part: 'sum' }), /still named at game.json primitives\[0\], levels\/a1.json adds\[0\], levels\/a1.json brief.zh, levels\/a1.json solution\[0\]/)
   assert.throws(() => prun(ws, 'parts.set', { path: 'parts.sum', value: {} }), /part.add/)
+  assert.throws(() => prun(ws, 'part.add', { part: 'twice', data: sum, after: 'none' }), /no part none/)
   const renamed = prun(ws, 'part.rename', { part: 'sum', to: 'plus' })
   assert.deepEqual(ws.game.primitives, ['plus'])
   assert.deepEqual(ws.levels.get('a1').adds, ['plus'])

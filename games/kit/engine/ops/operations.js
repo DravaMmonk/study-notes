@@ -365,7 +365,7 @@ export const OPERATIONS = {
       if (ws.partDefs.parts[part]) fail(`there is a part ${part} already`)
       const entries = Object.entries(ws.partDefs.parts)
       const k = after === undefined ? entries.length : entries.findIndex(([type]) => type === after) + 1
-      if (k === 0) fail(`no part ${after}`)
+      if (after !== undefined && k === 0) fail(`no part ${after}`)
       ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries([...entries.slice(0, k), [part, data], ...entries.slice(k)]) }
       return { says: `parts: added ${part}`, inverse: [{ op: 'part.remove', part }] }
     },

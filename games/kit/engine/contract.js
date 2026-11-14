@@ -76,7 +76,8 @@ export function vocabularyProblems(name, v) {
   if (!v.kinds || !Object.keys(v.kinds).length) say('it has no kinds')
   const schemas = [['game', v.game], ['level', v.level]]
   for (const [kind, items] of Object.entries(v.kinds ?? {})) {
-    if (!Object.keys(items).length) say(`the kind ${kind} has no items`)
+    // A domain whose parts compute with the kernel's builtins alone gives no resources of its own.
+    if (!Object.keys(items).length && kind !== 'op') say(`the kind ${kind} has no items`)
     for (const [item, it] of Object.entries(items)) {
       if (!isText(it.about)) say(`${kind}.${item} says nothing of what it is (about)`)
       if (it.params) schemas.push([`${kind}.${item}`, it.params])
