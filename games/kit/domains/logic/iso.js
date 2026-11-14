@@ -40,9 +40,11 @@
 // it is not the plain cases (a family indexed by things, as =): { premises: [text], conclusion: text } in metavariables
 // (schematic.js), datatype: the type it declares (chapter 12, typeOf), whose rules the kernel makes (datatype.js) }.
 import { runBoard } from '../../engine/boards.js'
-import { meta, parse, show, subst as substF } from './formula.js'
+import { atom, fn, meta, parse, show, subst as substF, tvar } from './formula.js'
+import { say } from './notation.js'
+import { constructorsOf, datatypeRules } from './datatype.js'
 import { ruleOf, ruleText } from './schematic.js'
-import { T } from '../../shell/i18n.js'
+import { L, T, tr } from '../../shell/i18n.js'
 import { cases, hidden, inOrder, sameAs } from '../../engine/judge.js'
 
 export const DECL = 'decl'
@@ -425,3 +427,24 @@ export const setOut = (level) => Array.isArray(level.slots)
     fixed: c.fixed,
   }))
   : Array.from({ length: level.slots }, () => blankCase(level))
+
+// Ways are numbered 1 2 3.
+const WAY = ['1', '2', '3']
+/**
+ * What passing a declaration gives, said when it is passed (the passed dialog's lines): its rules for any sentences,
+ * those that make it (one for each way), and the one that takes it apart, made from them (declaredRules); for a type
+ * (chapter 12), its constructors and the rules the kernel makes of them.
+ */
+export function declaredLines(level) {
+  const text = (f) => L(say(f, level.notation))
+  if (level.datatype) {
+    const type = typeOf(level)
+    const thing = (c) => text(atom('=', [fn(c.f, c.args.map(tvar)), fn(c.f, c.args.map(tvar))])).split(' = ')[0]
+    return {
+      label: T('声明给出的规则'),
+      lines: [`${level.datatype.type} = ${constructorsOf(type).map(thing).join(' | ')}`, ...datatypeRules(level.datatype.type, type).map((r) => `${L(r.name)}：${ruleText(r, text)}`)],
+    }
+  }
+  const rules = declaredRules(level, waysIn(level.solution))
+  return { label: T('声明给出的规则'), lines: [...rules.make.map((r, k) => `${tr(`引入规则 ${WAY[k]}：`, `Intro rule ${WAY[k]}: `)}${wayText(r, text)}`), `${tr('消去规则：')}${wayText(rules.take, text)}`] }
+}

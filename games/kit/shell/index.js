@@ -45,7 +45,8 @@ export { PHONE, useMedia } from './useMedia.js'
  *                 demo?(part, { phone, progress }) → the part on a bench to try (React; games/kit/circuit DemoBench),
  *                 filters?(progress) → [{ key, name, icon?, lock?, keys }] to narrow the box, such as by robot }
  *   unlocked(level)  what passing a level unlocks [{ label, icon?, family? }] for the passed dialog
- *   passed(level)    more for the passed dialog, after the level's key idea (React), such as what the level built
+ *   passed(level)    more for the passed dialog, after the level's key idea: { label, lines } or null, such as the
+ *                    rules a level declared
  *   core(level)   whether the map draws a level full size (a milestone: ../course.js isCore) or smaller
  *   note(level)   the level's key idea, shown when it is passed (default: level.note ?? level.after)
  *   glossary      the encyclopedia: { groups: [{ id, title }], entries: [{ id, group, title, body, at?, see? }] }

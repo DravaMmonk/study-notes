@@ -1,81 +1,21 @@
-/* The logic domain's screens (《证明完毕》): proof cards on the shared circuit editor, the box trail, the phone board's
-   formulas and sheets, and truth tables. Colours come from the kit's tokens. */
+/* The logic domain's screens (《证明完毕》): its parts' families on the kit's circuit screen, and the screens its plays
+   configure (first-order levels, definitions, the rule table). Colours come from the kit's tokens. */
 [data-family='given'] { --fam: var(--w0); }
 [data-family='hyp'] { --fam: var(--w4); }
 [data-family='rule'] { --fam: var(--n2); }
 [data-family='box'] { --fam: var(--w1); }
-[data-family='lemma'] { --fam: var(--n1); }
+[data-family='lemma'], [data-family='tactic'] { --fam: var(--n1); }
+[data-family='loop'] { --fam: var(--w1); }
 [data-family='end'] { --fam: var(--accent); }
 
-/* ---- cards ---- */
-.lg-card { padding: var(--sp-2) var(--sp-4) 0; display: grid; gap: var(--sp-3); }
-.lg-formula { min-width: 0; display: grid; gap: var(--sp-1); }
-.lg-formula b { font-family: var(--sans); font-size: 13px; font-weight: 600; color: var(--ink); overflow-wrap: anywhere; }
-/* A proof term (chapter 6): Lean's notation, in the mono face, under what it proves. */
-.lg-term { font-family: var(--mono); font-size: 11px; color: var(--accent-ink); overflow-wrap: anywhere; }
-.lg-formula small { color: var(--muted); font-family: var(--sans); font-size: 10px; line-height: 1.4; overflow-wrap: anywhere; }
-.lg-formula.is-small b { font-size: 11px; font-weight: 500; }
-.lg-out { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: var(--sp-3); }
-.lg-out em { color: var(--muted); font: normal 10px var(--mono); }
+/* ---- what a screen says wrong, and its verdict ---- */
 .lg-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
-/* A clause set on the machine board: one clause a line, ⊥ standing out once it is in, and how many. */
-.lg-clauses { min-width: 0; display: grid; gap: var(--sp-1); }
-.lg-clauses code { font: 500 12px/1.4 var(--sans); color: var(--ink); overflow-wrap: anywhere; }
-.lg-clauses small { color: var(--muted); font-size: 10.5px; }
-.lg-clauses .lg-bot { color: var(--status); font-size: 12px; }
-.lg-clauses .lg-fail-tag { color: var(--fail); font-size: 12px; }
 .lg-error.is-missing { color: var(--faint); }
-.lg-want { color: var(--muted); font-size: 11.5px; }
-.lg-want b { color: var(--ink); }
-.lg-node.is-pass { box-shadow: 0 0 0 2px var(--status), var(--card); }
-.lg-node.is-fail { box-shadow: 0 0 0 2px var(--fail), var(--card); }
 .node-verdict { margin-left: auto; font-style: normal; font-size: 11px; color: var(--muted); }
-
-.lg-field { display: grid; gap: var(--sp-2); }
-.lg-field label { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: var(--sp-3); }
-.lg-field label > span { color: var(--muted); font-size: 11px; }
-.lg-field select { min-width: 0; height: 26px; padding: 0 var(--sp-3); border: 1px solid var(--line); border-radius: var(--r-sm); color: var(--ink); background: var(--canvas); font: 12.5px var(--mono); }
-.lg-field select:focus { outline: none; border-color: var(--fam, var(--accent)); background: var(--paper); }
-
-.lg-side { display: flex; align-items: center; gap: var(--sp-2); color: var(--muted); font-size: 11px; }
-.lg-side span { margin-right: auto; }
-.lg-side button { height: 24px; padding: 0 var(--sp-4); border: 0; border-radius: var(--r-full); color: var(--muted); background: var(--canvas); font: inherit; cursor: pointer; }
-.lg-side button[aria-pressed='true'] { color: var(--paper); background: var(--ink); }
-/* A folded box: how much it holds. */
-.lg-held { color: var(--muted); font-size: 11.5px; }
-/* What a box region assumes: at its left edge, or first in its grid on a phone. */
-.frame-region-head .lg-formula b, .pb-region-head .lg-formula b, .pb-closes .lg-formula b { color: var(--ink); font-weight: 600; }
-.frame-region-result .lg-formula { font-family: var(--sans, inherit); font-size: 11.5px; }
-
-/* ---- the strip and the brief ---- */
-.lg-strip { display: grid; gap: var(--sp-3); }
-.lg-strip.is-tables { gap: var(--sp-5); }
-.lg-sequent { margin: 0; font-size: 13px; color: var(--muted); }
-.lg-sequent b { margin: 0 var(--sp-2); color: var(--ink); }
 .lg-verdict { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .lg-verdict.is-pass { color: var(--status); }
 .lg-verdict.is-fail { color: var(--fail); }
-
-/* ---- phone ---- */
-.lg-chips { display: grid; gap: var(--sp-1); }
-.lg-mark { color: var(--faint); font-style: normal; font-size: 11px; }
-.lg-sink { display: grid; gap: var(--sp-1); }
-/* A machine's input and result: no taller than a step's result in the run (shell.css .step-log-value), shorter when it
-   holds less, scrolling past it. A long line wraps inside the card's width rather than widening the card, so the box
-   only ever scrolls one way. */
-.lg-io { min-width: 0; max-width: 100%; font-size: 13px; line-height: 1.4; }
-.lg-io b, .lg-io code { white-space: normal; overflow-wrap: anywhere; }
-.cl-phone.lg-level .pb-thumb .lg-formula b { font-size: 14px; font-weight: 600; }
-.cl-phone.lg-level .pb-thumb .lg-chips { gap: var(--sp-2); }
-.cl-sheet .lg-card { padding: 0; gap: var(--sp-5); }
-.cl-sheet .lg-field select { height: 40px; font-size: 16px; }
-
-.lg-field select { font-family: var(--sans); }
-
-/* Truth circuits (GatesScreen): a card's value on the row picked, and the truth table under the board. */
 .lg-scroll-x { overflow-x: auto; max-width: 100%; }
-/* A result column keeps its room before the run fills it, and a cell of several sentences gives each its own line. */
-
 
 /* First-order levels (ui/WorldScreens.jsx): sentences to write, the vocabulary as buttons, worlds in words, and a world
    to build. */
@@ -102,28 +42,12 @@
 
 
 /* A rewrite card's choice: the sentence with each s in a box; a ticked box becomes t. */
-.lg-occ { display: grid; gap: var(--sp-2); }
-.lg-occ small { color: var(--muted); font-size: 11.5px; }
-.lg-occ-text { font-weight: 600; line-height: 2; overflow-wrap: anywhere; }
-.lg-occ-text button { margin: 0 var(--sp-1); padding: 1px var(--sp-3); border: 1.5px dashed var(--muted); border-radius: var(--r-sm); color: var(--ink); background: transparent; font: inherit; cursor: pointer; }
-.lg-occ-text button[aria-pressed='true'] { border-style: solid; border-color: var(--accent); background: color-mix(in srgb, var(--accent) 22%, transparent); }
 
 /* A rule part's rules, in the order it gives them, each written out with × to take it off; a menu under them adds
    one. A long list scrolls. */
-.lg-rules { display: grid; gap: var(--sp-2); max-height: 13em; overflow-y: auto; overscroll-behavior: contain; }
-.lg-rule { display: flex; align-items: flex-start; gap: var(--sp-2); padding: var(--sp-1) var(--sp-2) var(--sp-1) var(--sp-4); border-radius: var(--r-sm); background: color-mix(in srgb, var(--accent) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent); }
-.lg-rule code { flex: 1; min-width: 0; padding: 1px 0; font: 12px/1.45 var(--mono); color: var(--ink); overflow-wrap: anywhere; }
-.lg-rule button { flex: none; width: 20px; height: 20px; padding: 0; display: grid; place-items: center; border: 0; border-radius: var(--r-sm); color: var(--muted); background: none; cursor: pointer; }
-.lg-rule button:hover { color: var(--fail); background: var(--hover); }
-.lg-rules select { width: 100%; padding: var(--sp-2) var(--sp-3); border: 1.5px dashed var(--muted); border-radius: var(--r-sm); color: var(--muted); background: transparent; font: 12px var(--mono); }
 
 /* The phone's preview under the result: the run's steps and its verdict, in a window of one fixed size that shows
    once the run has a step to show. */
-.lg-preview { box-sizing: border-box; height: 280px; margin: var(--sp-5) 0 var(--sp-2); padding: var(--sp-4) var(--sp-5) var(--sp-5); border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--rule); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: var(--sp-3); scroll-margin-bottom: var(--sp-5); overflow: hidden; }
-.lg-preview h3 { margin: 0; color: var(--muted); font: 600 12px var(--mono); letter-spacing: .08em; }
-.lg-preview .step-log { margin: 0; height: auto; max-height: none; min-height: 0; align-content: start; }
-.lg-preview .lg-preview-empty { margin: 0; display: grid; place-items: center; text-align: center; }
-.lg-preview .lg-verdict { margin: 0; max-height: 4.6em; overflow: auto; }
 
 /* Formulas built from chips (formulaWork.js, on the shared strip): the sentence to say, and a colour per kind of piece. */
 .fo-prompt { font-size: 20px; }
@@ -145,13 +69,10 @@
 .tm-level [data-family='or'] { --fam: var(--fam-or); }
 .tm-level [data-family='absurd'] { --fam: var(--fam-absurd); }
 .tm-level .ks-chip b { font-family: var(--mono); font-size: 15px; }
-.lg-taken { font-size: 12px; color: var(--muted); }
-.lg-taken b { font-family: var(--serif); font-size: 14px; color: var(--ink); }
 
 /* The board a built part runs, read only (circuit/Inside.jsx): a sheet over it shows its settings without changing them. */
-.cl-readonly :is(.lg-rules, .lg-occ button) { pointer-events: none; }
-.cl-readonly .lg-rules :is(select, button) { display: none; }
-.kit-board.is-readonly .lg-rules :is(select, button) { display: none; }
+button) { display: none; }
+button) { display: none; }
 
 /* The definition board (ui/DefineScreen.jsx): a row a case, its right side picked; the tests under them. */
 .lg-define { max-width: 720px; margin: 0 auto; padding: var(--sp-7) var(--sp-7) var(--sp-8); display: grid; gap: var(--sp-6); }

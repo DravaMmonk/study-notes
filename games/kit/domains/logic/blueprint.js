@@ -5,7 +5,6 @@
 import { print, read } from '../../circuit/text.js'
 import { portsOf } from '../../engine/circuit.js'
 import { FORMULA_TEXT } from './formula.js'
-import { MACHINE_PARTS, RULE_PART, rulePartsOf } from './machine.js'
 import { gateParts } from './gates.js'
 
 /**
@@ -26,12 +25,8 @@ export function shapeOf(partOf, { sources, sinks }) {
 /** A proof's shape, with the parts it holds. */
 export const proofShape = (parts) => shapeOf((type) => parts[type], { sources: ['premise'], sinks: ['goal'] })
 
-/** A machine board's shape, with the level's rule parts (none on the generator's board, which carries rules as values). */
-export const machineShape = (level) => {
-  const ruleParts = level.want === 'elim' ? new Map() : rulePartsOf(level)
-  const partOf = (type) => MACHINE_PARTS[type] ?? (ruleParts.has(type) ? RULE_PART : undefined)
-  return { ...shapeOf(partOf, { sources: ['in'], sinks: ['out'] }), ruleParts }
-}
+/** A machine board's shape, with the parts it holds (`partOf`). */
+export const machineShape = (partOf) => shapeOf(partOf, { sources: ['in'], sinks: ['out'] })
 
 /** A board of gates' shape, with the gates it holds. */
 export const gateShape = (gates = {}) => {

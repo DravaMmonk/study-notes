@@ -176,6 +176,302 @@
       "inputs": [{ "name": "eq", "label": { "zh": "s = t" } }, { "name": "p", "label": { "zh": "φ(s)" } }],
       "settings": [{ "key": "at", "control": "list", "label": { "zh": "换哪几处" }, "from": "occurrences(eq, p)" }],
       "compute": "rewrite(eq, p)"
+    },
+    "anyR": {
+      "name": { "zh": "任意结论" },
+      "desc": { "zh": "输出 ?R：任意一句话。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [],
+      "compute": "anyR()"
+    },
+    "swapConcl": {
+      "name": { "zh": "替换结论" },
+      "desc": { "zh": "接入一条规则和一句话：保留规则的前提，结论换成这句话。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "rule", "label": { "zh": "规则" } }, { "name": "to", "label": { "zh": "换成" } }],
+      "compute": "swapConcl(rule, to)"
+    },
+    "consFront": {
+      "name": { "zh": "添加首项" },
+      "desc": { "zh": "把「这一样」放在「一串」的最前面；「一串」接入的不是列表时，把两者组成一个列表。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "first", "label": { "zh": "这一样" } }, { "name": "rest", "label": { "zh": "一串" } }],
+      "compute": "consFront(first, rest)"
+    },
+    "mkRule": {
+      "name": { "zh": "构造规则" },
+      "desc": { "zh": "由前提（列表或单项）和结论构造规则 ⟦前提⟧ ⟹ 结论。句子直接作为前提；规则成为带自身假设的前提。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [
+        { "name": "premises", "label": { "zh": "前提" } },
+        { "name": "conclusion", "label": { "zh": "结论" } }
+      ],
+      "compute": "mkRule(premises, conclusion)"
+    },
+    "eachOf": {
+      "name": { "zh": "逐项处理" },
+      "desc": { "zh": "接入列表：框每次收到其中一项，框内的输出接到「结果」；每一项处理一次，结果按原顺序组成列表。" },
+      "icon": "Box",
+      "family": "loop",
+      "inputs": [{ "name": "in" }],
+      "regions": [{ "name": "body", "label": { "zh": "每一样" }, "opens": true }],
+      "compute": "eachOf(in)"
+    },
+    "keepBound": {
+      "name": { "zh": "保留⋀" },
+      "desc": { "zh": "接入一条规则。规则以约束变量开头（⋀x. …）时，框内处理其后的规则，输出时在结果前保留这些约束变量；没有约束变量时，框内直接处理输入。" },
+      "icon": "Box",
+      "family": "loop",
+      "inputs": [{ "name": "in" }],
+      "regions": [{ "name": "body", "label": { "zh": "约束变量之后的规则" }, "opens": true }],
+      "compute": "keepBound(in)"
+    },
+    "uDelete": {
+      "name": { "zh": "删除" },
+      "desc": { "zh": "找到两边相同的等式 t ≐ t，删去它。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "uDelete(in)"
+    },
+    "uDecompose": {
+      "name": { "zh": "分解" },
+      "desc": {
+        "zh": "找到两边结构相同的等式（都是「并且」、都是同一个谓词……），分解为对应部分之间的等式：?A ∧ ?B ≐ 下雨 ∧ 刮风 分解为 ?A ≐ 下雨 和 ?B ≐ 刮风。¬A 按 A → ⊥ 分解。"
+      },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "uDecompose(in)"
+    },
+    "uConflict": {
+      "name": { "zh": "冲突" },
+      "desc": { "zh": "找到两边都不是 ?-字母、结构却不同的等式（一边是「并且」一边是「或者」，或是两个不同的句子……），报告失败。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "uConflict(in)"
+    },
+    "uSwap": {
+      "name": { "zh": "定向" },
+      "desc": { "zh": "找到只有右边是 ?-字母的等式 t ≐ ?A，改写为 ?A ≐ t。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "uSwap(in)"
+    },
+    "uCheck": {
+      "name": { "zh": "出现检查" },
+      "desc": { "zh": "找到等式 ?A ≐ t，t 含有 ?A 而不是 ?A 本身时，报告失败。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "uCheck(in)"
+    },
+    "uEliminate": {
+      "name": { "zh": "消元" },
+      "desc": { "zh": "找到等式 ?A ≐ t（t 不含 ?A），而 ?A 还出现在其他等式中：把那些等式中的 ?A 全部换成 t。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "uEliminate(in)"
+    },
+    "uPattern": {
+      "name": { "zh": "模式合一" },
+      "desc": {
+        "zh": "找到等式 ⋀x. ?P(x) ≐ t：?P 的参数是受 ⋀ 约束、互不相同的变量，t 中没有其他 ⋀ 变量。解出 ?P ≐ fun x => t。?P 的参数不是这样的变量时（?P(安)、?P(?t)），保留原等式不变。"
+      },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "uPattern(in)"
+    },
+    "repeat": {
+      "name": { "zh": "重复框" },
+      "desc": { "zh": "框收到输入，框内的输出接到「结果」后再送回框内，逐轮重复，直到结果不再变化，输出最后一轮的结果；某一轮失败时，停在失败前的一轮。" },
+      "icon": "Repeat",
+      "family": "loop",
+      "inputs": [{ "name": "in" }],
+      "regions": [{ "name": "body", "label": { "zh": "每一轮" }, "opens": true, "closes": true }],
+      "compute": "repeat(in, body)"
+    },
+    "rule": {
+      "name": { "zh": "逆用规则" },
+      "desc": { "zh": "从「规则」口接入规则，用第一条适用的：第一个目标与规则的结论合一，换成规则的前提（每条前提一个目标，前提自带的假设加入已知）。尚未确定的 ?-字母留在目标中。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }, { "name": "rules", "label": { "zh": "规则" } }],
+      "compute": "rule(in, rules)"
+    },
+    "assumption": {
+      "name": { "zh": "由假设得证" },
+      "desc": { "zh": "第一个目标与它的一条已知合一：成功时这个目标证完，相应的 ?-字母随之确定。从上往下查找，用第一条合得上的已知。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "assumption(in)"
+    },
+    "defer": {
+      "name": { "zh": "目标后移" },
+      "desc": { "zh": "把第一个目标移到最后，原来的第二个目标成为第一个。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "defer(in)"
+    },
+    "append": {
+      "name": { "zh": "依次尝试" },
+      "desc": { "zh": "每个框收到相同的状态；输出第一个没有失败的框的结果。在元件上选定框的数目。" },
+      "icon": "Box",
+      "family": "loop",
+      "inputs": [{ "name": "in" }],
+      "settings": [
+        {
+          "key": "ways",
+          "control": "select",
+          "label": { "zh": "框" },
+          "options": [
+            { "value": "2", "label": { "zh": "2 条" } },
+            { "value": "3", "label": { "zh": "3 条" } },
+            { "value": "4", "label": { "zh": "4 条" } },
+            { "value": "5", "label": { "zh": "5 条" } },
+            { "value": "6", "label": { "zh": "6 条" } }
+          ],
+          "default": "2"
+        }
+      ],
+      "regions": [
+        { "name": "first", "label": { "zh": "先试" }, "opens": true },
+        { "name": "second", "label": { "zh": "再试" }, "opens": true },
+        { "name": "third", "label": { "zh": "再试" }, "opens": true, "when": "ge($ways, 3)" },
+        { "name": "fourth", "label": { "zh": "再试" }, "opens": true, "when": "ge($ways, 4)" },
+        { "name": "fifth", "label": { "zh": "再试" }, "opens": true, "when": "ge($ways, 5)" },
+        { "name": "sixth", "label": { "zh": "再试" }, "opens": true, "when": "ge($ways, 6)" }
+      ],
+      "compute": "append(in)"
+    },
+    "search": {
+      "name": { "zh": "回溯搜索" },
+      "desc": {
+        "zh": "深度优先搜索：框内的元件对收到的状态走一步，再从得到的每种结果继续；一条路走到底再回溯走下一条，直到没有目标。输出找到的每一个证完的状态。回到原状态的一步（目标没有减少，已知也没有增加）不再继续。可以在元件上设定最大深度。"
+      },
+      "icon": "Search",
+      "family": "loop",
+      "inputs": [{ "name": "in" }],
+      "settings": [
+        {
+          "key": "depth",
+          "control": "select",
+          "label": { "zh": "最多" },
+          "options": [
+            { "value": "any", "label": { "zh": "不限" } },
+            { "value": "2", "label": { "zh": "2 层" } },
+            { "value": "3", "label": { "zh": "3 层" } },
+            { "value": "4", "label": { "zh": "4 层" } },
+            { "value": "5", "label": { "zh": "5 层" } },
+            { "value": "6", "label": { "zh": "6 层" } },
+            { "value": "8", "label": { "zh": "8 层" } },
+            { "value": "10", "label": { "zh": "10 层" } },
+            { "value": "12", "label": { "zh": "12 层" } }
+          ],
+          "default": "any"
+        }
+      ],
+      "regions": [{ "name": "body", "label": { "zh": "每一步" }, "opens": true }],
+      "compute": "search(in)"
+    },
+    "each": {
+      "name": { "zh": "逐个目标" },
+      "desc": { "zh": "框内的元件对每个目标各执行一次，每次只看到这一个目标；任一目标失败，整个元件失败。" },
+      "icon": "Rows3",
+      "family": "loop",
+      "inputs": [{ "name": "in" }],
+      "regions": [{ "name": "body", "label": { "zh": "逐个目标" }, "opens": true }],
+      "compute": "each(in)"
+    },
+    "rw": {
+      "name": { "zh": "改写" },
+      "desc": {
+        "zh": "接入改写规则：在第一个目标中，由外向内、从左到右找到第一处与规则左边相合的位置，换成规则右边，只换这一处。规则带条件时，每个条件成为新目标，排在这个目标之后。接入多条时用第一条相合的；没有一处相合，元件失败。"
+      },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }, { "name": "rules", "label": { "zh": "规则" } }],
+      "settings": [
+        {
+          "key": "at",
+          "control": "select",
+          "label": { "zh": "改哪里" },
+          "options": [
+            { "value": "goal", "label": { "zh": "目标" } },
+            { "value": "hyps", "label": { "zh": "已知" } }
+          ],
+          "default": "goal"
+        }
+      ],
+      "compute": "rw(in, rules)"
+    },
+    "skolem": {
+      "name": { "zh": "Skolem 化" },
+      "desc": {
+        "zh": "消去第一个目标的已知中所有的 ∃：外层没有 ∀ 的，像实例框一样取出那一样东西；在 ∀ 之内的，换成一个新函数，参数是外层所有 ∀ 的变量（sk1(x)……）。已知须先化为否定范式。"
+      },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "skolem(in)"
+    },
+    "toClauses": {
+      "name": { "zh": "析出子句" },
+      "desc": { "zh": "第一个目标须为 ⊥：把它的已知拆成子句。每条已知须为合取范式；拆开「并且」，每串「或者」成为一条子句，去掉 ∀，变量按「对所有」理解。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "toClauses(in)"
+    },
+    "resolve": {
+      "name": { "zh": "一轮归结" },
+      "desc": {
+        "zh": "子句集中的每一对子句各试一次：一条中的某个文字与另一条中的相反文字能合一时，消去这一对，其余文字合成新子句加入子句集，并记下它的两条父子句。舍弃永真子句和重复子句。可以在元件上设定只与单文字子句归结。"
+      },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "settings": [
+        {
+          "key": "unit",
+          "control": "select",
+          "label": { "zh": "和谁消" },
+          "options": [
+            { "value": "any", "label": { "zh": "任意两条" } },
+            { "value": "unit", "label": { "zh": "只和单项子句" } }
+          ],
+          "default": "any"
+        }
+      ],
+      "compute": "resolve(in)"
+    },
+    "oracle": {
+      "name": { "zh": "外部证明器" },
+      "desc": { "zh": "快速证明器：两条子句间的相反文字一次全部消去，逐轮进行，直到推出 ⊥ 或不再产生新子句。每条新子句也记下两条父子句。" },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "oracle(in)"
+    },
+    "replay": {
+      "name": { "zh": "重放" },
+      "desc": {
+        "zh": "子句集中有 ⊥ 时，把推出 ⊥ 的步骤交给核检查：用到的每条输入子句须由某条已知拆出；每一步须由它的两条父子句（变量按合一结果代入）经自建 auto 证出。全部通过，拆出这些子句的目标即证完；某一步不通过，指出是哪一步。"
+      },
+      "icon": "Sigma",
+      "family": "tactic",
+      "inputs": [{ "name": "in" }],
+      "compute": "replay(in)"
     }
   }
 }

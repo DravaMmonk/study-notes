@@ -14,8 +14,6 @@ import { taskLevel } from '../../engine/tasks.js'
 import { TRAY, TRAYS } from '../../engine/trays.js'
 import { RULES } from './proof.js'
 import { OP_ITEMS } from './ops.js'
-import { MACHINE_PARTS } from './machine.js'
-import { MACHINE_TEXT } from './partText.js'
 import { T as t } from '../../shell/i18n.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
@@ -41,7 +39,6 @@ const WORDS = S.list(S.either(S.str(), S.map(S.text())), { about: t('用哪几�
 
 /* ---------- the parts ---------- */
 
-const named = (texts, keys) => Object.fromEntries(keys.map((k) => [k, item(texts[k].name)]))
 const PART_ITEMS = {
   // The proof rules and the primitive gates: a game's parts.json defines them.
   mp: item(t('套用', 'Apply')),
@@ -61,7 +58,44 @@ const PART_ITEMS = {
   rewrite: item(t('等量代换', 'Rewrite')),
   gNot: item(t('非 ¬')),
   gAnd: item(t('与 ∧')),
-  ...named(MACHINE_TEXT, Object.keys(MACHINE_PARTS).filter((k) => MACHINE_TEXT[k])),
+  // The machine board's parts: a game's parts.json defines them, but those the player builds (a level's board).
+  anyR: item(t('任意结论', 'Any conclusion')),
+  swapConcl: item(t('替换结论', 'Swap conclusion')),
+  consFront: item(t('添加首项', 'Put first')),
+  mkRule: item(t('构造规则', 'Make a rule')),
+  eachOf: item(t('逐项处理', 'For each')),
+  keepBound: item(t('保留⋀', 'Keep ⋀')),
+  elimGen: item(t('消去规则生成器', 'Elimination rule generator')),
+  uDelete: item(t('删除', 'Delete')),
+  uDecompose: item(t('分解', 'Decompose')),
+  uConflict: item(t('冲突', 'Conflict')),
+  uSwap: item(t('定向', 'Orient')),
+  uCheck: item(t('出现检查', 'Occurs check')),
+  uEliminate: item(t('消元', 'Eliminate')),
+  uPattern: item(t('模式合一', 'Pattern unification')),
+  unifier: item(t('合一器', 'Unifier')),
+  repeat: item(t('重复框', 'Repeat frame')),
+  rule: item(t('逆用规则', 'Rule')),
+  assumption: item(t('由假设得证', 'Assumption')),
+  erule: item(t('规则作用于假设', 'Rule on a given')),
+  frule: item(t('前向推理', 'Forward')),
+  defer: item(t('目标后移', 'Defer')),
+  append: item(t('依次尝试', 'Alternatives')),
+  search: item(t('回溯搜索', 'Search')),
+  each: item(t('逐个目标', 'Every goal')),
+  introRules: item(t('分解目标', 'Goal apart')),
+  elimRules: item(t('分解假设', 'Use a given')),
+  auto: item(t('自建 auto', 'Own auto')),
+  rw: item(t('改写', 'Rewrite')),
+  simp: item(t('化简', 'Simp')),
+  skolem: item(t('Skolem 化', 'Skolemise')),
+  toClauses: item(t('析出子句', 'Into clauses')),
+  resolve: item(t('一轮归结', 'A round of resolution')),
+  saturate: item(t('饱和器', 'Saturator')),
+  oracle: item(t('外部证明器', 'Someone else’s prover')),
+  replay: item(t('重放', 'Replay')),
+  clausify: item(t('完整子句化', 'Into clauses, all the way')),
+  metis: item(t('证明重建器', 'Reconstructor')),
   // The machine board's rule part that gives the goal's own hypotheses as rewrite rules (rewrite.js).
   hyp: item(t('已知里的等式')),
 }
@@ -72,6 +106,9 @@ const FAMILIES = {
   rule: item(t('推理规则', 'Inference rule')),
   box: item(t('带框的规则', 'Rule with a box')),
   lemma: item(t('证出的引理', 'Proved lemma')),
+  tactic: item(t('证明助手的元件', 'Proof assistant part')),
+  loop: item(t('带框的证明助手元件', 'Proof assistant part with a frame')),
+  built: item(t('搭出的元件', 'Built part')),
 }
 
 /* ---------- what levels are and want ---------- */
@@ -256,7 +293,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 3,
+  version: 4,
   kinds: {
     part: PART_ITEMS,
     // The engine resources parts.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).

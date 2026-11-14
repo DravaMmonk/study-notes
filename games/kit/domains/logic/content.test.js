@@ -114,7 +114,7 @@ test('every reference answer prints back as the text it was read from: proofs, a
     for (const t of l.tasks) {
       const raw = CONTENT.levels.find((x) => x.id === l.id).tasks[t.task].solution
       kinds.add(t.kind)
-      const shape = t.kind === 'proof' ? proofShape(t.parts) : t.kind === 'machine' ? machineShape(t) : t.kind === 'gates' ? gateShape(t.gates) : null
+      const shape = t.kind === 'proof' ? proofShape(t.parts) : t.kind === 'machine' ? machineShape(t.parts) : t.kind === 'gates' ? gateShape(t.gates) : null
       if (shape) assert.deepEqual(toLines(t.solution, shape), raw, `${l.id} ${t.task}`)
     }
   }

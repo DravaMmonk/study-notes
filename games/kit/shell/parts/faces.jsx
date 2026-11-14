@@ -55,7 +55,8 @@ export function definedParts(base, of, ops = {}) {
     outputs: field('outputs', null),
     frames: field('frames', []),
     hasSettings: field('hasSettings'),
-    packed: (node) => (of(node.type) ? false : base.packed?.(node) ?? false),
+    // A part the player built stays packed though it has settings of its own (drawn from its definition).
+    packed: (node) => base.packed?.(node) ?? false,
   }
 }
 

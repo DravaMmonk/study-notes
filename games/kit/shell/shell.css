@@ -204,6 +204,8 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .dialog.is-failed h2 { color: var(--fail); }
 .dialog-note { margin-top: var(--sp-5) !important; padding: var(--sp-5) var(--sp-5); border-radius: var(--r-md); background: var(--canvas); font-size: 15px !important; }
 .dialog-note .panel-label { margin-bottom: var(--sp-2); }
+.dialog-lines { display: grid; gap: var(--sp-1); }
+.dialog-lines code { font: inherit; overflow-wrap: anywhere; }
 .dialog-quiet { color: var(--muted) !important; font-family: var(--sans) !important; font-size: 13px !important; }
 .dialog-extra { margin: var(--sp-4) 0; }
 

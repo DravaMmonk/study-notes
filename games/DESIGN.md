@@ -410,7 +410,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、eng
 
 - 所有游戏都是数据游戏：内容只有 JSON，领域给出词汇表（`kit/domains/<领域>/vocabulary.js`），封装件跑学习者的电路（《句法之图》《软件工厂》没有封装件）。
 - 图像领域借用笔记站的插图和基础样式（`trace-viewer/src/figures`、`index.css`），所以 kit 对 `trace-viewer` 还有这一处依赖。
-- 《证明完毕》（`games/qed`）第 0–15 章都已做：`kit/domains/logic` 给出证明关（规则即元件，假设框是画布上的框：区域左边给出假设，区域里证出的接回框的输入口）、真值表、真值电路、规则板、机器板等十一种关卡，词汇表和两个入口。真值电路的两个原始门（非、与）是内容：写在 `games/qed/parts.json`，用内核的内置函数 `not`、`and` 计算；真值电路的屏是内核的电路屏（检验是真值表的行，`CircuitScreen` 的 `table`）。证明板的推理规则也写在 `parts.json`，调用领域的引擎资源（`proof.js` `RULES`），带框的规则是有区域的件；引理是课程按 game.json 登记的件；证明板的屏是内核的电路屏。机器板的元件和屏还在领域里（`PLAN.md` D.5）。证明板上证出的引理跑证出它的那块证明板：每个形状跑证出那个形状的那段任务的板，字母换成这次用到的句子，给出的是那块板推出的东西；那块板对这几句推不出陈述时（比如任取框选的名字正好出现在这几句里），引理不给结果，说出是哪一关的证明、在这里差在哪。证明项不变，仍是它的名字套在前提的证明项上（第 13 章起写证明项要用到）：命名的定理按名字用。归结（`card`）是唯一的例外：它照 kit 的卡片跑，对任意长的子句、任意位置的一对文字都行，这超出了一个证明的任何一个实例。
+- 《证明完毕》（`games/qed`）第 0–15 章都已做：`kit/domains/logic` 给出证明关（规则即元件，假设框是画布上的框：区域左边给出假设，区域里证出的接回框的输入口）、真值表、真值电路、规则板、机器板等十一种关卡，词汇表和两个入口。真值电路的两个原始门（非、与）是内容：写在 `games/qed/parts.json`，用内核的内置函数 `not`、`and` 计算；真值电路的屏是内核的电路屏（检验是真值表的行，`CircuitScreen` 的 `table`）。证明板的推理规则和证明助手的元件也写在 `parts.json`，调用领域的引擎资源（`proof.js` `RULES`、`machine.js` `MACHINE_PARTS`），带框的规则、重复框和搜索是有区域的件；引理、规则元件由课程登记，玩家搭出的证明助手元件是封装件。三种板的屏都是内核的电路屏，领域只交声明（`ui/gates.js`、`ui/proof.js`、`ui/machine.js`）：卡片上的句子用 `tree` 设置拼，任取框的名字、等量代换的位置、规则元件给出的规则由资源算出选项，证明助手的值写成几行字，逐步运行时卡片随步更新；规则板声明给出的规则在过关单子上（`passed` 给出的几行字）。`logic` 不再自写组件（地图插画除外）。证明板上证出的引理跑证出它的那块证明板：每个形状跑证出那个形状的那段任务的板，字母换成这次用到的句子，给出的是那块板推出的东西；那块板对这几句推不出陈述时（比如任取框选的名字正好出现在这几句里），引理不给结果，说出是哪一关的证明、在这里差在哪。证明项不变，仍是它的名字套在前提的证明项上（第 13 章起写证明项要用到）：命名的定理按名字用。归结（`card`）是唯一的例外：它照 kit 的卡片跑，对任意长的子句、任意位置的一对文字都行，这超出了一个证明的任何一个实例。
 - 《句法之图》（`games/syntax-graph`）拆计算机论文里的长难句，已有前三章：`kit/domains/syntax` 给出分词、把关卡用词写的答案变成下标、折叠（一段修饰成分收成一块，挂在它修饰的词上）和标主干的规则（放的时候拒绝切开已折的块、修饰成分跟着它的词走）、与答案的对照（挂错时说出那样挂的意思）、词汇表（成分和结构、机体）和 `game.js`；`validate` 查每句答案自洽、能按某个顺序折出来、只用这一关已有的结构。一句话是一行词，不走电路编辑器，也不用词序条。
 - 《软件工厂》（`games/factory`）已有第 0–2 章：`kit/domains/agent` 给出确定性的模拟模型（`model.js`，每条规则一个单元测试）、抽象仓库和测试报告（`world.js`）、每轮跑一遍板的机器（`run.js`）、第 0 章玩家自己当循环的手动关（`hand.js`）、词汇表和两个入口；板上的运行用 `usePlayback`，一轮是一步。
 - 《从一根线开始》（`games/network`）用逐拍世界（`engine/ticks.js`）、有状态多输出的封装件（`engine/boards.js` 的 `packed`：`outputs`、`holds`）和波形图（`shell/Timeline.jsx`）。整帧的线留给网络第 2 代。
@@ -418,7 +418,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach、stick、eng
 - 《拆音》（`games/signal`）是一个切片，检验「主线只用借来的元件、支线才把它搭出来」的编排：`kit/domains/signal` 从 `circuit` 模板生成，线上流动数和波形（一行的网格，用 `plot` 画），引擎资源是纯音、叠加、数乘、份量、逐格乘、平均六个。设计、发现和没有验证的见 `games/signal/DESIGN.md`。
 - 桌面画布拒绝一根线时，会在板子上说出 `parts.refuse` 给的原因（手机格位原本就有），所有电路游戏都受益。
 - 《一切皆文件》的领域模块只有引擎部分（模拟内核、逐行机器、一致性用例，都有单元测试），还没有关卡界面和 `defineXGame`；第一个原型关卡做出来时再加。
-- 电路关界面（`kit/shell/CircuitLevel.jsx`）：《软件工厂》的板、《从一根线开始》、《证明完毕》的证明板、机器板和真值电路已经用它；《视觉完备》（`image/ui/LevelScreen.jsx`）和《状态之图》（`table/ui/modes/Circuit.jsx`）还是各写一份。这两款游戏按专题重做时换上它，不再单独迁移；新游戏的电路关一开始就用它。
+- 电路关界面（`kit/shell/CircuitLevel.jsx`）：《软件工厂》的板、《从一根线开始》、《证明完毕》的证明板、机器板和真值电路已经用它（《证明完毕》的三种板都经内核的 `CircuitScreen`）；《视觉完备》（`image/ui/LevelScreen.jsx`）和《状态之图》（`table/ui/modes/Circuit.jsx`）还是各写一份。这两款游戏按专题重做时换上它，不再单独迁移；新游戏的电路关一开始就用它。
 - 最后一次运行（第 6.9 节）：只差《视觉完备》的电路关，它按专题重做时换上 `CircuitLevel` 就接上了。同一处还要改：《视觉完备》的探针关和参数台画在它的电路关界面里，手机上多套一层 `PinnedPlay`，窗口跨过手机宽度时它们被重新打开，运行和参数台的旋钮都回到开头。
 - 代价度量：引擎有 `score` 钩子，《视觉完备》算计算量，证明按步数；《状态之图》还没有。
 - 封装件跑学习者的电路、步进到元件里面：契约测试查每个搭建关的元件是不是真的跑交给它的板，内置实现由领域的 `spec.builtIn` 声明（`image`：关卡解锁、不打包电路的元件；`logic`：门只跑通过了那一关的板，带 `card` 的引理照 kit 的卡片跑，比如归结）。《视觉完备》、《证明完毕》的机器板和真值电路、《状态之图》和《从一根线开始》已经跑电路；《证明完毕》的机器板能步进进去，真值电路上搭出的门能在详情里打开（只读，元件上是这一行的值），元件箱里也能看门跑的那块电路；《视觉完备》的封装件还不能展开；《状态之图》的封装件在元件箱里能打开，看它跑的那块电路（只读，元件上是试一试最近一次运行的值），关卡里运行时还不能步进进去；证明板上的引理跑证明，但还不能展开看里面。
@@ -571,9 +571,9 @@ opens them to show the resulting feedback.
 }
 ```
 
-**一个元件的面。** `engine/pieces.js` 将已有字段映射到对应的面。`regions` 描述区域，`inside.task` 指向内部作品，`keeps` 列出要保留的名字。课程中的封装件和引理使用 `pieceReferences` 登记发布作品的任务。《证明完毕》的门、机器元件、等式、类型、函数和符号也登记在同一处，领域把取出的作品转为规则、等式或元件。定义出的函数选择参考作品。`holds().inside()` 按关卡路径选出引用。直接由 `parts.json` 发布内部作品的接入随数据化元件迁移。一个电路元件的字段包括`name`、`desc`（只写功能，第 4 节；只写每个选项都成立的部分，某个选项特有的作用写在那个选项的 `about` 里）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about?, optional? }`，`name` 是 ASCII；`optional` 的口可以不接，不接时运算在这里读到「—」，元件不因它给出「—」，接了而值是「—」时照 `nulls` 办）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）。
+**一个元件的面。** `engine/pieces.js` 将已有字段映射到对应的面。`regions` 描述区域，`inside.task` 指向内部作品，`keeps` 列出要保留的名字。课程中的封装件和引理使用 `pieceReferences` 登记发布作品的任务。《证明完毕》的门、机器元件、等式、类型、函数和符号也登记在同一处，领域把取出的作品转为规则、等式或元件。定义出的函数选择参考作品。`holds().inside()` 按关卡路径选出引用。直接由 `parts.json` 发布内部作品的接入随数据化元件迁移。一个电路元件的字段包括`name`、`desc`（只写功能，第 4 节；只写每个选项都成立的部分，某个选项特有的作用写在那个选项的 `about` 里）、`icon`（内核图标表 `kit/engine/parts/icons.js` 里的名字，外壳按同一张表画，`kit/shell/parts/icons.js`）、`family`（类别的颜色：领域词汇表 `family` 种类里的一项，颜色在领域的样式里）、`inputs`（每个 `{ name, label?, about?, optional? }`，`name` 是 ASCII；`optional` 的口可以不接，不接时运算在这里读到「—」，元件不因它给出「—」，接了而值是「—」时照 `nulls` 办）、`outputs`（只有一个输出时不写；几个时每个 `{ name, label? }`）、`settings`、`compute`、`nulls`（默认 `give`：任何一个输入是「—」就给「—」；`pass`：把「—」交给运算）、`rules`、`checks`、`views`、`width`（桌面卡片宽，像素）、`regions`（有区域的元件是框，`kit/circuit/frames.js`：每个区域 `{ name, label?, opens?, closes?, when? }`；`opens` 的区域在框里给出一个值，`closes` 的区域把框里做出的东西交回元件，不 closes 的由元件自己当函数跑（资源调 `ctx.region(名字)`，`frames.js` 的 `runRegion`：区域里只能读框给的值和框外的常量），`when` 照设置决定这个区域在不在）。资源除了参数还看得到它在哪张卡上跑：`ctx.node`、`ctx.ins`、`ctx.key`（要的是哪个区域给的值）。
 
-**设置的控件只有六种**，都是内核的（`kit/shell/parts/SettingField.jsx`），桌面卡片上紧凑、手机单子里加大，同一份定义：
+**设置的控件只有八种**，都是内核的（`kit/shell/parts/SettingField.jsx`），桌面卡片上紧凑、手机单子里加大，同一份定义：
 
 | `control` | 是什么 | 自己的字段 | 值 |
 |---|---|---|---|
@@ -582,9 +582,11 @@ opens them to show the resulting feedback.
 | `number` | 数字 | `min`、`max`、`step`、`integer`、`unit`、`stepper`（两边加 − / +） | 数 |
 | `slider` | 拖拉条 | `min`、`max`（必填）、`step`、`unit`、`marks`（刻度） | 数 |
 | `toggle` | 开关 | `on`、`off`（两端的字） | 真假 |
+| `list` | 依次选几项 | `options`，或 `from` | 选了的选项，按选的先后 |
+| `tree` | 拼一句 | `optional`（可以不填） | 一句话的文字：屏幕给出这个任务、这个测试的语言（`CircuitScreen` 的 `language`），词序条拼出（`strip/TreePick.jsx`） |
 | `custom` | 自定义 | `widget`（领域 `widget` 种类的一项）、`params`（合那一项的 schema） | 那一项说 |
 
-每个设置都有：`key`（ASCII，写进蓝图文本）、`label`、`about`（悬停和单子里的一行说明）、`options` 的每一项也可以有 `about`（这个选项做什么：一句完整的话），`default`、`when`（只读设置的式子，为真时才出现：`eq($axis, 'x')`）、`fixed`（只显示，玩家不能改）、`use`（取 `presets` 里的一份，再用自己写的字段覆盖）。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的封装件用（关卡的 `builds.settings` 列出预设的名字）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
+每个设置都有：`key`（ASCII，写进蓝图文本）、`label`、`about`（悬停和单子里的一行说明）、`options` 的每一项也可以有 `about`（这个选项做什么：一句完整的话），`default`、`when`（只读设置的式子，为真时才出现：`eq($axis, 'x')`）、`fixed`（只显示，玩家不能改）、`use`（取 `presets` 里的一份，再用自己写的字段覆盖）。`select`、`buttons`、`list` 的选项可以不写出来，写 `from`：一个式子，由领域的资源按卡片接进来的值算出 `[{ value, label }]`（资源这时看到屏幕给的 `context`：任务、测试的文字和这张卡）——《证明完毕》里任取框能取的名字、等量代换能换的位置都是这样算出来的。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的封装件用（关卡的 `builds.settings` 列出预设的名字）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
 
 **运算是一行 ASCII 表达式**（`kit/engine/parts/expr.js`），只能调用领域的引擎资源：
 
@@ -628,7 +630,7 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 
 **内容的形状**：`kit/engine/content.js` 把 `parts.json` 组装成内容的 `partDefs`（不叫 `parts`：原型游戏的 `game.json` 有自己的 `parts` 字段）。
 
-**现状**：数据流电路的脚手架（`kit/scaffold/circuit/`）的元件定义成数据，它生成的游戏和它的 `starter/` 各有 `parts.json`。逐拍总线的脚手架和 `net` 领域的寄存卡、说话卡是有状态的元件，要等内核给出「有状态的引擎资源」（寄存、跨拍保存）再搬；原型领域（`table`、`image`、`logic`、`agent`、`syntax`）的元件仍在领域代码里，随阶段 6.5 按专题重做时换成 `parts.json`。自定义控件的机制已在内核（`widget` 种类、`SettingField` 的 `custom`），还没有领域用到它。
+**现状**：数据流电路的脚手架（`kit/scaffold/circuit/`）的元件定义成数据，它生成的游戏和它的 `starter/` 各有 `parts.json`。《证明完毕》的门、推理规则和证明助手的元件都在 `games/qed/parts.json`；课程再按内容登记几种件：game.json 的引理（`proof.js` 的 `lemmaPieces`）、每个证明助手任务规则书里的规则元件（`machine.js` 的 `rulePieces`，设置是它给出的规则，`list`），它们和 `parts.json` 的元件一样由 `defineParts` 变成引擎的元件，一张屏的视图（`engine/board-view.js` 的 `defined`）把它们交给 `CircuitScreen`。逐拍总线的脚手架和 `net` 领域的寄存卡、说话卡是有状态的元件，要等内核给出「有状态的引擎资源」（寄存、跨拍保存）再搬；原型领域（`table`、`image`、`agent`、`syntax`）的元件仍在领域代码里，随阶段 6.5 按专题重做时换成 `parts.json`。自定义控件的机制已在内核（`widget` 种类、`SettingField` 的 `custom`），还没有领域用到它。
 
 ### 6.9 界面
 

@@ -69,8 +69,6 @@
 .sx-result ul { margin: 0; padding-left: var(--sp-6); display: grid; gap: var(--sp-2); }
 
 /* ---- the passed dialog's skeleton ---- */
-.sx-skeleton { margin: 0; font-family: var(--serif); font-size: 17px; color: var(--heading); }
-.sx-skeleton small { display: block; font-family: var(--mono); font-size: var(--fs-label); letter-spacing: var(--track-label); color: var(--muted); }
 
 /* ---- the phone ---- */
 .level-phone.sx-level .sx-stage { padding: 0; }

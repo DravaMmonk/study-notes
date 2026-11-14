@@ -183,6 +183,8 @@ export function defineParts(file, ops, code = {}) {
       inputs: names,
       ...(def.outputNames || framed ? {} : { symmetric: (node) => symmetricIn(trees[''], settingsFor(def, node?.params), ops) }),
       ...(optional.size ? { optional: [...optional] } : {}),
+      // A part registered by a course may run with none of its inputs, all optional, wired (`bare`).
+      ...(def.bare ? { bare: true } : {}),
       ...framed,
       params: settingsOf(def).map((s) => s.key),
       defaults: Object.fromEntries(settingsOf(def).map((s) => [s.key, defaultOf(s)])),

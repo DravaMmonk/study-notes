@@ -2,18 +2,16 @@
 // becomes the shell's game description, with the logic domain's screens (a proof on the circuit editor, a truth table,
 // a machine board …), its parts box of proved lemmas and built parts, and its map art.
 import { createElement } from 'react'
+import { declaredLines } from './iso.js'
 import { Braces, CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
-import DeclaredRules from './ui/DeclaredRules.jsx'
 import Hero from './ui/Hero.jsx'
-import { boardScreen } from './ui/BoardScreen.jsx'
-import { MACHINE } from './ui/boards.jsx'
 import { worldCheck } from './worldValues.js'
 import { query, translation } from './formulaWork.js'
-import { MACHINE_TEXT } from './partText.js'
+import { BUILT_TEXT } from './partText.js'
 import { proofTerm } from './termTask.js'
 import { script } from './scriptValues.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
@@ -24,6 +22,7 @@ import { BuiltBoard, circuitScreen } from '../../shell/CircuitScreen.jsx'
 import { iconOf as partIcon } from '../../shell/parts/icons.js'
 import { gatesScreen } from './ui/gates.js'
 import { proofScreen } from './ui/proof.js'
+import { machineScreen } from './ui/machine.js'
 import { OPS } from './ops.js'
 import { plays } from './plays.js'
 import { declaration, definition } from './rowValues.js'
@@ -52,7 +51,7 @@ export default function logicGame(content) {
   // How parts' descriptions grow along the course (the components box reads them as far as the player has got).
   const revisions = logic.revisions ?? {}
   // A built part is a proved lemma, a gate built on a truth circuit or a machine part (simp, auto…).
-  const machines = Object.fromEntries(logic.machines.map((type) => [type, MACHINE_TEXT[type]]))
+  const machines = Object.fromEntries(logic.machines.map((type) => [type, BUILT_TEXT[type]]))
   const built = { ...gates, ...lemmas, ...machines }
   // A part that stays where it is brought (`local`) is in no components box and unlocks nothing to show.
   const kept = ([type]) => !logic.course.local(type)
@@ -62,7 +61,7 @@ export default function logicGame(content) {
   const kernelRules = (type) => KERNEL_RULES.filter((r) => r.part === type).map((r) => ({ text: ruleText(r) }))
   const lemmaRows = (type) => lemmaRules(type, lemmas[type]).map((r, k) => ({ text: ruleText(r), ...(k ? { form: r.key.split('.')[1] } : {}) }))
   const primitives = [...introductions(logic.course)].map(([type, at]) => {
-    const text = logic.defs[type] ?? MACHINE_TEXT[type]
+    const text = logic.defs[type] ?? BUILT_TEXT[type]
     const rules = kernelRules(type)
     return { key: `part:${type}`, name: text?.name ?? type, desc: text?.desc, revisions: revisions[type], icon: logic.defs[type] ? cards[type].icon : Cpu, at, ...(rules.length ? { rules } : {}) }
   })
@@ -100,7 +99,7 @@ export default function logicGame(content) {
     intro: (level) => level.source.intro,
     kinds: {
       proof: { Screen: circuitScreen({ ...proofScreen, cards }), icon: Workflow, label: { zh: '证明', en: 'Proof' } },
-      machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
+      machine: { Screen: circuitScreen({ ...machineScreen, cards }), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
       truth: { Screen: Play, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
       gates: { Screen: circuitScreen({ ...gatesScreen, cards }), icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
       iso: { Screen: Play, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
@@ -119,7 +118,7 @@ export default function logicGame(content) {
     ],
     passed: (level) => {
       const declared = isoOf(level.source)
-      return declared ? createElement(DeclaredRules, { level: declared }) : null
+      return declared ? declaredLines(declared) : null
     },
     core: (level) => isCore(logic.course, level),
     parts: {

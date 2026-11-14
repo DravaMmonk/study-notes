@@ -37,17 +37,18 @@
 // whole list, in order. A rule list is a constant: it may be wired into a frame from outside. Until a level says
 // `backtrack`, a tactic gives only its first result; from then on, every result, and each card after it works on each
 // of them in turn (tactics.js).
-import { PartError, evaluate } from '../../engine/circuit.js'
-import { packed, runBoard, sink, source } from '../../engine/boards.js'
-import { framePart, within } from '../../circuit/frames.js'
+import { PartError } from '../../engine/circuit.js'
+import { packed, runBoard } from '../../engine/boards.js'
 import { all, fn, subst, tvar } from './formula.js'
 import { KERNEL, answerOf, asValue, assumption, defer, depthFirst, resultsOf, rule, startState } from './tactics.js'
-import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, ruleOf, sameSide, sideText, solveEqs, solved } from './schematic.js'
-import { rewrite, rewriteBookOf, simplify } from './rewrite.js'
+import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, ruleOf, ruleText, sameSide, sideText, solveEqs, solved } from './schematic.js'
+import { rewrite, rewriteBookOf, rewriteText, simplify } from './rewrite.js'
 import { datatypesRules } from './datatype.js'
 import { clausesOfState, oracleRound, parseClause, refuted, replay, resolveRound, saturate } from './resolution.js'
 import { GEN_PARTS, anyValue, elimInputs, judgeElim, listValue } from './elimgen.js'
-import { T } from '../../shell/i18n.js'
+import { L, T } from '../../shell/i18n.js'
+import { circuitBoard } from '../../engine/board-cards.js'
+import { say } from './notation.js'
 
 const fail = (zh, en) => new PartError({ zh, en })
 export const clausesValue = (set, extra = {}) => ({ kind: 'clauses', set, ...extra })
@@ -127,11 +128,8 @@ export const ownRules = (entries, use) => {
   return use?.length ? use.filter((k) => keys.includes(k)) : keys.slice(0, 1)
 }
 /** A rule part: the list wired into it (`before`), then its own rules. */
-export const RULE_PART = {
+const RULE_PART = {
   inputs: ['before'],
-  optional: ['before'],
-  bare: true,
-  params: ['use'],
   eval: ({ before }, node, ctx) => {
     const entries = ctx.ruleParts?.get(node.type)
     if (!entries) throw fail('这一关没有这条规则', 'This level has no such rule')
@@ -210,68 +208,16 @@ const eqsIn = (v) => {
 const unifyCard = (r) => ({ inputs: ['in'], eval: ({ in: v }) => { const e = eqsIn(v); if (e.fail) return e; const next = UNIFY_RULES[r](e.eqs, {}); return next ? eqsValue(next.eqs, next.fail ?? null) : e } })
 
 /**
- * What a frame's region makes of a value, run on its own: the cards inside the frame (frames inside it with their own),
- * with what the region opens with given as the value. Only what the frame opens can be read inside it.
- */
-function regionRun(node, ctx, region) {
-  const graph = ctx.graph
-  const deep = within(graph, node.id)
-  const top = new Map(graph.nodes.map((n) => [n.id, n]))
-  // The region a card inside the frame sits in, at the frame's own level.
-  const regionOf = (n) => {
-    let at = n
-    while (at?.in && at.in.split('/')[0] !== node.id) at = top.get(at.in.split('/')[0])
-    return at?.in?.split('/')[1]
-  }
-  const inside = graph.nodes.filter((n) => deep.has(n.id) && regionOf(n) === region)
-  const ids = new Set(inside.map((n) => n.id))
-  const back = graph.wires.find((w) => w.to === node.id && w.port === region)
-  if (!back) throw fail('框里还没有接到「结果」上', 'Nothing inside is wired to the result yet')
-  // A rule list made outside the frame is a constant, and so is what a part with no inputs gives (Any conclusion): the
-  // parts it comes of run inside too.
-  const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  const constants = new Set()
-  const partOf = (type) => (typeof ctx.engine.parts === 'function' ? ctx.engine.parts(type) : ctx.engine.parts[type])
-  const constant = (id) => {
-    if (constants.has(id)) return true
-    const node = byId.get(id)
-    if (node?.type === 'in' && node.params?.name === 'rules') return constants.add(id)
-    const part = node && node.type !== 'in' && partOf(node.type)
-    if (Array.isArray(part?.inputs) && !part.inputs.length && !part.frames) return constants.add(id)
-    if (!ctx.ruleParts?.has(node?.type)) return false
-    constants.add(id)
-    return graph.wires.filter((w) => w.to === id).every((w) => constant(w.from.split('#')[0]))
-  }
-  for (const w of graph.wires.filter((x) => ids.has(x.to))) {
-    if (!ids.has(w.from.split('#')[0]) && w.from !== `${node.id}#${region}` && !constant(w.from.split('#')[0])) throw fail('框里只能用框开出来的东西，和框外的规则、常量', 'Inside the frame, only what the frame opens can be used, and rules and constants from outside')
-  }
-  const OPEN = '__open'
-  const sub = {
-    nodes: [{ id: OPEN, type: '__open' }, ...inside.map(({ in: _, ...n }) => n), ...[...constants].filter((id) => !ids.has(id)).map((id) => { const { in: _, ...n } = byId.get(id); return n })],
-    wires: graph.wires.filter((w) => ids.has(w.to) || constants.has(w.to)).map((w) => (w.from === `${node.id}#${region}` ? { ...w, from: OPEN } : w)),
-  }
-  const parts = ctx.engine.parts
-  // quiet: the cards' steps stay out of a traced run (a search shows its steps its own way).
-  return (value, quiet = false) => {
-    const { values } = evaluate(sub, { parts: (type) => (type === '__open' ? { inputs: [], eval: () => value } : typeof parts === 'function' ? parts(type) : parts[type]), ctx: quiet ? { ...ctx, trace: null } : ctx })
-    // A region that only passes on what it opens with gives it back.
-    const out = back.from === `${node.id}#${region}` ? value : values.get(back.from)
-    if (out === undefined) throw fail('框里有一个元件算不出来', 'A part inside cannot compute')
-    return out
-  }
-}
-
-/**
  * The repeat frame: what its region makes from the value it opens with is fed back in, again and again, until it
  * stops changing (or a clause set holds ⊥, an equation set fails, no goal is left, or a tactic fails: then the round
  * before stands). On proof states it follows the first result only. Its region shows the first round; the frame gives
  * the last.
  */
 const repeat = {
-  ...framePart(['in'], [{ name: 'body', opens: true }]),
+  inputs: ['in', 'body'],
   eval: ({ in: v, body }, node, ctx, key) => {
     if (key) return v
-    const round = regionRun(node, ctx, 'body')
+    const round = ctx.region('body')
     const first = (x) => (x.kind === 'state' ? firstOf(x) : x)
     const same2 = (a, b) => JSON.stringify(a) === JSON.stringify(b)
     let cur = first(v)
@@ -301,15 +247,12 @@ const LIMIT = 250
  * deeper, every state with no goal left found, in order. A path stops at the card's depth, when it has one.
  */
 const search = {
-  ...framePart(['in'], [{ name: 'body', opens: true }]),
-  // It runs its region itself, at every step.
-  reads: () => ['in'],
-  params: ['depth'],
+  inputs: ['in'],
   eval: ({ in: v }, node, ctx, key) => {
     if (key) return v
     const s = stateIn(v)
     if (s.error) return s
-    const round = regionRun(node, ctx, 'body')
+    const round = ctx.region('body')
     const depth = Number(node.params?.depth) || Infinity
     let k = 0
     // A traced run sees each step of the search: what the frame hands its region, then the region's cards.
@@ -330,14 +273,12 @@ const search = {
 
 /** Every goal: the region run on each goal of the state in turn, each on its own (Isabelle's ALLGOALS, Lean's <;>). */
 const each = {
-  ...framePart(['in'], [{ name: 'body', opens: true }]),
-  // It runs its region itself, on every goal.
-  reads: () => ['in'],
+  inputs: ['in'],
   eval: ({ in: v }, node, ctx, key) => {
     if (key) return v
     const s = stateIn(v)
     if (s.error) return s
-    const round = regionRun(node, ctx, 'body')
+    const round = ctx.region('body')
     const put = (g, σ) => ({ ...g, hyps: g.hyps.map((h) => instantiate(h, σ ?? {})), goal: instantiate(g.goal, σ ?? {}) })
     // Partial results: the goals made so far, and what is known; each goal of the start is done on each of them.
     let partial = (ctx.backtrack ? resultsOf(s) : [firstOf(s)]).map((x) => ({ ...x, goals: [] }))
@@ -361,16 +302,14 @@ const each = {
  * result an item of the list it gives. Its region shows the first item's run.
  */
 const eachOf = {
-  ...framePart(['in'], [{ name: 'body', opens: true }]),
-  // It runs its region itself, on every item.
-  reads: () => ['in'],
+  inputs: ['in'],
   eval: ({ in: v }, node, ctx, key) => {
     if (v?.kind !== 'list') throw fail('这里要一串：框对其中的每一样各做一遍', 'This needs a list: the frame works on each of its items')
     if (key) {
       if (!v.items.length) throw fail('这一串是空的：框里一次也不做', 'The list is empty: nothing inside runs')
       return v.items[0]
     }
-    const round = regionRun(node, ctx, 'body')
+    const round = ctx.region('body')
     return listValue(v.items.map((item, k) => {
       ctx.trace?.push({ id: node.id, key: 'body', value: item, round: k + 1 })
       return round(item)
@@ -383,14 +322,13 @@ const eachOf = {
  * them, and the same bound variables put back in front of what comes out; a value with none runs through as it is.
  */
 const keepBound = {
-  ...framePart(['in'], [{ name: 'body', opens: true }]),
-  reads: () => ['in'],
+  inputs: ['in'],
   eval: ({ in: v }, node, ctx, key) => {
     if (!v) throw fail('这里要接进一样东西', 'Something has to be wired in here')
     const inner = v.kind === 'any' ? v.body : v
     if (key) return inner
     ctx.trace?.push({ id: node.id, key: 'body', value: inner, round: 1 })
-    const out = regionRun(node, ctx, 'body')(inner)
+    const out = ctx.region('body')(inner)
     return v.kind === 'any' ? anyValue(v.vars, out) : out
   },
 }
@@ -407,19 +345,14 @@ export const waysOf = (node) => WAYS.slice(0, Math.min(WAYS.length, Math.max(2, 
  * one's failure is the frame's.
  */
 const append = {
-  inputs: (node) => ['in', ...waysOf(node)],
-  frames: (node) => waysOf(node).map((name) => ({ name, opens: true })),
-  outputs: (node) => [null, ...waysOf(node)],
-  // The frame reads only what it is handed: it runs its regions itself, one after another.
-  reads: () => ['in'],
-  params: ['ways'],
+  inputs: ['in'],
   eval: ({ in: v }, node, ctx, key) => {
     if (key || v?.error) return v
     const got = []
     for (const way of waysOf(node)) {
       // A traced run sees each region tried: what it opens with, then its cards.
       ctx.trace?.push({ id: node.id, key: way, value: v })
-      const out = regionRun(node, ctx, way)(v)
+      const out = ctx.region(way)(v)
       got.push(out)
       if (!out.error && !ctx.backtrack) break
     }
@@ -428,19 +361,14 @@ const append = {
   },
 }
 
-// A part the player builds: only its ports here; it runs the board that built it (builtMachine).
-const BUILT = (inputs = ['in']) => ({ inputs, built: true })
-/** The machine board's parts. */
-export const MACHINE_PARTS = {
-  in: source(),
-  out: sink(),
-  // The elimination-rule generator (chapter 12, elimgen.js): rules taken apart and put together, for each, and what the
-  // player builds of them.
+// The machine board's parts, each as what it runs on: its inputs (a frame's own; repeat's region gives it its first
+// round) and how it computes.
+const BODIES = {
+  // The elimination-rule generator (chapter 12, elimgen.js): rules taken apart and put together, and for each.
   ...GEN_PARTS,
   eachOf,
   keepBound,
-  elimGen: BUILT(['it', 'ways']),
-  // Unification (chapter 8): its rules, the unifier built from them, and patterns.
+  // Unification (chapter 8): its rules, and patterns.
   uDelete: unifyCard('delete'),
   uDecompose: unifyCard('decompose'),
   uConflict: unifyCard('conflict'),
@@ -448,35 +376,46 @@ export const MACHINE_PARTS = {
   uCheck: unifyCard('check'),
   uEliminate: unifyCard('eliminate'),
   uPattern: unifyCard('pattern'),
-  unifier: BUILT(),
   repeat,
-  // Tactics (chapters 8 and 9): rule and assumption, and what the player builds of them.
+  // Tactics (chapters 8 and 9).
   rule: ruleCard(rule),
   assumption: tactic(assumption),
-  erule: BUILT(['in', 'rules']),
-  frule: BUILT(['in', 'rules']),
   defer: tactic(defer),
   append,
   search,
   each,
-  introRules: BUILT(),
-  elimRules: BUILT(),
-  auto: BUILT(),
-  // Rewriting (chapter 10): one rule once, and simp, which the player builds of it, on the goal or the hypotheses.
-  rw: { ...usesRules((s, ctx, node, rules) => firstThatApplies(wired(rules, ctx.rewrites, NOT_REWRITE), ctx, (r) => rewrite(s, r, atOf(node)))), params: ['at'] },
-  simp: { ...BUILT(['in', 'rules']), params: ['at'] },
-  // Clauses (chapter 11, resolution.js): ∃ out of the hypotheses, a state split into clauses, a round of resolution
-  // (the saturator is built of rounds), someone else's prover, and the certificate replayed in the kernel; what the
-  // player builds of them.
+  // Rewriting (chapter 10): one rule once, on the goal or the hypotheses.
+  rw: usesRules((s, ctx, node, rules) => firstThatApplies(wired(rules, ctx.rewrites, NOT_REWRITE), ctx, (r) => rewrite(s, r, atOf(node)))),
+  // Clauses (chapter 11, resolution.js): ∃ out of the hypotheses, a state split into clauses, a round of resolution,
+  // someone else's prover, and the certificate replayed in the kernel.
   skolem: tactic(skolemStep),
   toClauses: { inputs: ['in'], eval: ({ in: v }) => toClauses(v) },
-  resolve: { inputs: ['in'], params: ['unit'], eval: ({ in: v }, node) => { const c = clausesIn(v); return { ...c, set: resolveRound(c.set, { unit: node.params?.unit === 'unit' }) } } },
-  saturate: BUILT(),
+  resolve: { inputs: ['in'], eval: ({ in: v }, node) => { const c = clausesIn(v); return { ...c, set: resolveRound(c.set, { unit: node.params?.unit === 'unit' }) } } },
   oracle: { inputs: ['in'], eval: ({ in: v }, node, ctx) => saturated(clausesIn(v), node, ctx, oracleRound) },
   replay: { inputs: ['in'], eval: ({ in: v }) => replayed(clausesIn(v)) },
-  clausify: BUILT(),
-  metis: BUILT(),
+  // A rule part: the rules wired in before it, then its own (machine.js rulePieces).
+  rules: RULE_PART,
 }
+const ABOUT = {
+  anyR: T('任意结论', 'Any conclusion'), swapConcl: T('替换结论', 'Swap conclusion'), consFront: T('添加首项', 'Put first'), mkRule: T('构造规则', 'Make a rule'),
+  eachOf: T('逐项处理', 'For each'), keepBound: T('保留⋀', 'Keep ⋀'), repeat: T('重复框', 'Repeat frame'),
+  uDelete: T('删除', 'Delete'), uDecompose: T('分解', 'Decompose'), uConflict: T('冲突', 'Conflict'), uSwap: T('定向', 'Orient'),
+  uCheck: T('出现检查', 'Occurs check'), uEliminate: T('消元', 'Eliminate'), uPattern: T('模式合一', 'Pattern unification'),
+  rule: T('逆用规则', 'Rule'), assumption: T('由假设得证', 'Assumption'), defer: T('目标后移', 'Defer'), append: T('依次尝试', 'Alternatives'),
+  search: T('回溯搜索', 'Search'), each: T('逐个目标', 'Every goal'), rw: T('改写', 'Rewrite'), skolem: T('Skolem 化', 'Skolemise'),
+  toClauses: T('析出子句', 'Into clauses'), resolve: T('一轮归结', 'A round of resolution'), oracle: T('外部证明器', 'Someone else’s prover'),
+  replay: T('重放', 'Replay'), rules: T('规则元件：给出它的规则', 'A rule part: the rules it gives'),
+}
+/**
+ * The machine board's parts as engine resources (a game's parts.json makes each a part, games/DESIGN.md 6.8): a
+ * resource's arguments are its part's inputs, in order; the card it runs on, the region whose value it gives and the
+ * regions to run come with ctx (../../engine/parts/define.js).
+ */
+export const MACHINE_PARTS = Object.fromEntries(Object.entries(BODIES).map(([type, b]) => [type, {
+  about: ABOUT[type],
+  args: b.inputs.map((name) => ({ name })),
+  run: (values, _named, ctx) => b.eval(Object.fromEntries(b.inputs.map((name, k) => [name, values[k]])), ctx.node, ctx, ctx.key ?? undefined),
+}]))
 
 // The fixed things Skolem's ∃ out of a hypothesis may name, in order.
 const FRESH = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'k', 'm', 'n']
@@ -559,11 +498,77 @@ const clauseSetOf = (texts) => [...new Map(texts.map((c) => parseClause(c, parse
 /** The names and labels of a level's inputs. */
 export const inputsOfLevel = (level) => level.inputs ?? [{ name: 'in', label: { zh: '输入', en: 'Input' } }]
 
-/** The board a machine level starts from: an `in` card for each of its inputs, and the result `out`. */
-export const startMachine = (level) => ({
-  nodes: [...inputsOfLevel(level).map((i, k) => ({ id: i.name, type: 'in', params: { name: i.name }, x: 20, y: 40 + k * 130 })), { id: 'out', type: 'out', params: { name: 'out' }, x: 900, y: 40 }],
-  wires: [],
+/** A machine board: an `in` card for each of a level's inputs on the left, the result `out` on the right. */
+export const MACHINE_BOARD = circuitBoard({
+  cards: [
+    { type: 'in', side: 'left', of: (task) => inputsOfLevel(task) },
+    { type: 'out', side: 'right', of: () => [{ name: 'out', label: T('结果', 'Result') }] },
+  ],
+  right: 900,
+  gap: 130,
 })
+/** The board a machine level starts from: its inputs and its result. */
+export const startMachine = (level) => MACHINE_BOARD.startBoard(level)
+
+/** The ports of the parts the player builds, as a blueprint names them (each runs the board of the level building it). */
+export const BUILT_PORTS = {
+  elimGen: ['it', 'ways'], unifier: ['in'], erule: ['in', 'rules'], frule: ['in', 'rules'], introRules: ['in'], elimRules: ['in'],
+  auto: ['in'], simp: ['in', 'rules'], saturate: ['in'], clausify: ['in'], metis: ['in'],
+}
+
+/* ---------- rule parts ---------- */
+
+// A sentence in the level's words, in each language, for names made of it.
+const inWords = (level, write) => T(write((f) => say(f, level.notation).zh), write((f) => say(f, level.notation).en))
+// A definition as the level writes it, in the level's words: 'c ⟹ l = r'.
+function defText(d, text) {
+  const [cond, eq] = d.includes('⟹') ? d.split('⟹') : [null, d]
+  return `${cond ? `${cond.split(';').map((c) => text(parseS(c.trim()))).join('; ')} ⟹ ` : ''}${text(parseS(eq.trim()))}`
+}
+const MATH_NAME = T('数理规则书')
+/** A rule part's name: the rule book of numbers, the proof-board part or lemma it is, or its rule's own name. */
+function rulePartName(level, type) {
+  if (type === MATH) return MATH_NAME
+  const r = rulePartsOf(level).get(type)[0].rule
+  if (r.part || level.lemmas?.[type]) return level.lemmas?.[type]?.name ?? level.partDefs?.[type]?.name ?? T(type, type)
+  return r.group === 'def' ? inWords(level, (text) => defText(r.text, text)) : r.name
+}
+/** A rule of a rule part's, written out: an inference rule, or a rewrite rule (an equation given goes by its name). */
+export const ruleWritten = (e, text) => (e.book === 'rule' ? ruleText(e.rule, text) : rewriteText(e.rule, text) || L(e.rule.name))
+const AFTER = T('接入其他规则元件时，本元件的规则排在它们之后。')
+const joined = (a, b) => T(`${a.zh}${b.zh}`, `${a.en} ${b.en}`)
+/** A rule part as every one is (machine.js RULE_PART): the rules wired in before it, then those added on it. */
+export const RULE_PIECE = {
+  name: T('规则元件', 'Rule part'),
+  desc: joined(T('给出这个元件的规则。在元件上添加要给出的规则，按添加顺序排列。'), AFTER),
+  icon: 'GitFork',
+  family: 'rule',
+  inputs: [{ name: 'before', label: T('前面'), optional: true }],
+  settings: [{ key: 'use', control: 'list', label: T('给出的规则', 'Its rules'), from: 'ruleChoices()' }],
+  bare: true,
+  compute: 'rules(before)',
+}
+/**
+ * The rule parts a level holds, as the course registers them beside parts.json's: one for each part its rule books'
+ * rules belong to (rulePartsOf), named after it, giving the rules added on it.
+ */
+export function rulePieces(level) {
+  return Object.fromEntries([...rulePartsOf(level).keys()].map((type) => {
+    const several = choicesOfPart(rulePartsOf(level).get(type)).length > 1
+    const desc = type === MATH ? joined(T('给出这一关的数与列表规则：类型声明生成的规则、定义中的等式和已证出的等式。在元件上添加要给出的规则，按添加顺序排列。'), AFTER)
+      : several ? RULE_PIECE.desc : joined(T('给出这个元件的规则。'), AFTER)
+    return [type, { ...RULE_PIECE, name: rulePartName(level, type), desc }]
+  }))
+}
+/** The rules a rule part offers to add, each written out in the test's words (ctx: the task, its text, the card). */
+export const RULE_CHOICES = {
+  about: T('规则元件能给出的规则', 'The rules a rule part can give'),
+  args: [],
+  run: (_v, _n, ctx) => {
+    const entries = rulePartsOf(ctx.task).get(ctx.node?.type) ?? []
+    return choicesOfPart(entries).map((key) => ({ value: key, label: ruleWritten(entries.find((e) => e.key === key), ctx.text) }))
+  },
+}
 
 /** A question's answers in a list of results: what its ?-letters become in each that has no goal left. */
 export const answersIn = (out) => [...new Set(resultsOf(out).filter((s) => !s.error && !s.goals.length).map((s) => answerOf(s).map(sideText).join(', ')))].sort()
@@ -650,6 +655,8 @@ export function judge(want, test, out, level = {}) {
 }
 
 const merged = (a = new Map(), b = new Map()) => new Map([...a, ...b])
+// The settings a part the player builds takes beyond its board's (simp works on the goal or the hypotheses).
+const BUILT_SETTINGS = { simp: ['at'] }
 /** A packed machine part reads the work and rules of its selected builder. */
 export function builtMachine(type, builder, reference, ownBoard) {
   const circuit = () => ownBoard(builder().taskId) ?? builder().solution
@@ -662,7 +669,7 @@ export function builtMachine(type, builder, reference, ownBoard) {
       return { ...ctx, rules: { ...ruleBookOf(b), ...ctx.rules }, rewrites: { ...rewriteBookOf(b), ...ctx.rewrites }, ruleParts: merged(rulePartsOf(b), ctx.ruleParts), backtrack: ctx.backtrack || Boolean(b.backtrack) }
     },
   })
-  return { ...MACHINE_PARTS[type], ...part, eval: failsAsState(part.eval), opens: () => ({ circuit: circuit(), level: builder() }) }
+  return { ...part, built: true, params: BUILT_SETTINGS[type] ?? [], eval: failsAsState(part.eval), opens: () => ({ circuit: circuit(), level: builder() }) }
 }
 // A tactic that cannot go on gives the state it was handed with what went wrong, as every tactic does (a frame reads
 // it), and a state that failed already passes through.
@@ -676,18 +683,18 @@ const failsAsState = (run) => (ins, node, ctx) => {
   }
 }
 
-/** The parts a level's board runs: the machine's (those the player built running their boards), and rule parts. */
-const partsFor = (level) => (type) => level.built?.[type] ?? MACHINE_PARTS[type] ?? RULE_PART
-const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), ruleParts: rulePartsOf(level), backtrack: Boolean(level.backtrack), ...extra })
+// What a machine runs with: the level's books and rule parts, whether it backtracks, and the board input that is a
+// constant (a level's rules, for a frame's region: ../../circuit/frames.js runRegion).
+const ctxOf = (level, circuit, extra = {}) => ({ graph: circuit, rules: ruleBookOf(level), rewrites: rewriteBookOf(level), ruleParts: rulePartsOf(level), backtrack: Boolean(level.backtrack), constants: ['rules'], ...extra })
 
 /** A machine part run on a proof state with a level's rule and rewrite books (chapter 15: a script's by), the rules
  *  `keys` wired in when it uses rules. */
-export const runTactic = (level, type, state, keys = null) => (level.built?.[type] ?? MACHINE_PARTS[type]).eval({ in: state, ...(keys ? { rules: rulesValue(keys.map((key) => ({ key }))) } : {}) }, { id: type, params: {} }, ctxOf(level, { nodes: [], wires: [] }, { engine: { parts: partsFor(level) } }))
+export const runTactic = (level, type, state, keys = null) => level.parts(type).eval({ in: state, ...(keys ? { rules: rulesValue(keys.map((key) => ({ key }))) } : {}) }, { id: type, params: {} }, ctxOf(level, { nodes: [], wires: [] }, { engine: { parts: level.parts } }))
 
 /** How a machine level runs and is judged, for the shared engine (../../engine/test-run.js). */
 export const MACHINE_TESTS = {
   runTest: (level, circuit, test) => {
-    const run = runBoard(circuit, { parts: partsFor(level), bind: inputsOf(test, level), ctx: ctxOf(level, circuit) })
+    const run = runBoard(circuit, { parts: level.parts, bind: inputsOf(test, level), ctx: ctxOf(level, circuit) })
     return { ...run, outputs: { out: run.outputs.out } }
   },
   // The run of one test with every step it took, in order (../../engine/circuit.js trace): only what reaches the
@@ -695,7 +702,7 @@ export const MACHINE_TESTS = {
   // run, as before it: the inputs, and a card that reaches nothing with what it gives or lacks.
   trace: (level, circuit, test) => {
     const trace = []
-    runBoard(circuit, { parts: partsFor(level), bind: inputsOf(test, level), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
+    runBoard(circuit, { parts: level.parts, bind: inputsOf(test, level), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
     return { trace, run: MACHINE_TESTS.runTest(level, circuit, test) }
   },
   check: (level, test, outputs) => {

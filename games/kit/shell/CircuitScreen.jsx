@@ -42,7 +42,8 @@ import { PackedBoard } from '../circuit/Inside.jsx'
 // task lays out (`results`) or the domain's default ones, of the entries the domain offers.
 //
 // A domain brings only what is its own:
-//   course                the course read (engine/board-course.js circuitCourse): forTask(task) → the task's view
+//   course                the course read (engine/board-course.js circuitCourse): forTask(task) → the task's view (its
+//                         `defined`, when it registers parts of its own per task: engine/board-view.js)
 //   cards                 { type: { name, desc, icon, family } } its cards as the tray and boards show them (a fixed
 //                         card it leaves out is drawn as a source in the family 'given', or a sink in 'end')
 //   run(task, board, partOf) → { runs: [{ fail?, error?, ticks? | trace?, … }] }   its run.js
@@ -58,7 +59,8 @@ import { PackedBoard } from '../circuit/Inside.jsx'
 //                         is one to show (on a board run tick by tick, from its first tick), `at` the tick shown
 //   judged                a board run once is checked in one go, with nothing to step through
 //   sample?(task, board) → the board's run on the task's `sample`, a tab after the tests, never judged (judged boards)
-//   ready?(board, held)   the board as the task holds it (held: the parts its tray holds), on opening and every change
+//   ready?(board, held, task)   the board as the task holds it (held: the parts its tray holds), on opening and every
+//                         change (a preset locked back in…)
 //   settings?(node, set, ctx)  a card's own settings (CardField; registerCards for registers, constants and forms)
 //   defaults?(type)       a new card's settings
 //   portLabels?           { type: { port: label } }               defined?  the game's parts.json parts (CircuitLevel)
@@ -161,10 +163,12 @@ export function partsFor(level, circuit, { cards, portLabels }) {
 /** The run of a board that has not run: nothing on any card. */
 const NOTHING = { values: new Map(), errors: new Map(), outputs: {}, trace: [] }
 
-export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, check, cells, sample, ready, settings, defaults, portLabels = {}, defined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, final, score, readouts, language, context, className = '' }) {
+export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, check, cells, sample, ready, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, final, score, readouts, language, context, className = '' }) {
   const { game, level: entry, solved, flags, progress } = screen
   const level = entry.source
   const circuit = course.forTask(level)
+  // The parts defined as data a task holds: its view's, where its course registers some per task, else the game's.
+  const defined = circuit.defined ?? gameDefined
   const { board: kind, BUILT, builtBy } = circuit
   // A task that gives works (things made, each wrong in its own way) is played from the other side: the board shows
   // the work a tab picks and is not the player's, and the player writes the checks in the results (Checks.jsx).
@@ -177,7 +181,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const parts = useMemo(() => partsFor(level, circuit, { cards, portLabels }), [level, circuit, cards, portLabels])
   const { shown: palette, folded } = useMemo(() => circuit.offerIn(level, flags), [circuit, level, flags])
   const held = useMemo(() => new Set([...palette, ...folded]), [palette, folded])
-  const hold = (b) => (ready ? ready(b, held) : b)
+  const hold = (b) => (ready ? ready(b, held, level) : b)
   // A task that goes on from the task before (`carries`) opens on that board, its ports swapped for its own, unless
   // its new starter parts are added without replacing the inherited work.
   const opening = () => circuit.opening(level, progress.built)
@@ -307,7 +311,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
     ...defined,
     allowed,
     language: language?.(level, onView),
-    options: (def, setting, node, ctx) => optionsOf(setting, def, { params: node?.params, ins: node ? insOf(node, ctx) : {}, ctx: context?.(level, onView) ?? {} }, defined.ops),
+    options: (def, setting, node, ctx) => optionsOf(setting, def, { params: node?.params, ins: node ? insOf(node, ctx) : {}, ctx: { ...context?.(level, onView), node } }, defined.ops),
     value: (node, ctx, output, face) => (face === 'detail' && inspect ? inspect(node, ctx) : output ? <Value value={valueOf(node, output, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} of={valueKey(ctx, `${node.id}#${output}`)} /> : ctx.board.parts.outputs(node) ? null : value(node, ctx)),
   }, [defined, inspect, allowed, level, onView, drawn])
 
@@ -434,7 +438,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
           packed={{
             open: (node) => {
               const inside = BUILT[node.type]?.opens?.(node.params)
-              return inside && { ...inside, parts: partsFor(inside.level, circuit, { cards, portLabels }) }
+              return inside && { ...inside, parts: partsFor(inside.level, course.forTask(inside.level), { cards, portLabels }) }
             },
             edit: (node) => {
               const builder = builtBy(node.type, node.params)

@@ -115,7 +115,7 @@ export default function SettingField({ setting, value, onChange, allowed = null,
 
 /** The words for a setting's value: its option's label, a number (rounded as the kit writes numbers) with its unit, the side of a toggle. */
 export function valueWords(setting, value) {
-  if (setting.control === 'list') return (value ?? []).map((v) => L(setting.options?.find((x) => String(x.value) === v)?.label ?? v)).join(' ')
+  if (setting.control === 'list') return (Array.isArray(value) ? value : []).map((v) => L(setting.options?.find((x) => String(x.value) === v)?.label ?? v)).join(' ')
   if (setting.options) {
     const o = setting.options.find((x) => String(x.value) === String(value))
     return o ? L(o.label ?? o.value) : String(value ?? '')

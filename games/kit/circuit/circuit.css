@@ -633,3 +633,4 @@
   .cs-told { flex-direction: row; align-items: flex-start; }
   .cs-rows { flex: 1; }
 }
+.cs-card .vw-value, .pf-value .vw-value { white-space: pre-line; }

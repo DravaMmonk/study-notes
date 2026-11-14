@@ -64,6 +64,8 @@ export function SolvedDialog({ game, level, onStay, onExit }) {
   useEscape(onStay)
   const unlocked = game.unlocked(level)
   const note = game.note(level)
+  // What else passing it gives, as the game says it: a label and its lines (rules declared, a sentence's skeleton…).
+  const passed = game.passed(level)
   return (
     <div className="dialog-scrim">
       <div className="dialog is-solved" role="dialog" aria-modal="true" aria-label={tr('通过', 'Passed')}>
@@ -73,7 +75,12 @@ export function SolvedDialog({ game, level, onStay, onExit }) {
         <Paragraphs text={level.after} />
         {level.afterShow && <Show {...readShow(level.afterShow)} scene="figure" />}
         {note && note !== level.after && <p className="dialog-note"><span className="panel-label">{tr('要点')}</span><span><Markup text={note} /></span></p>}
-        {game.passed(level)}
+        {passed && (
+          <div className="dialog-note">
+            <span className="panel-label">{L(passed.label)}</span>
+            <div className="dialog-lines">{passed.lines.map((line, k) => <code key={k}>{L(line)}</code>)}</div>
+          </div>
+        )}
         {unlocked.length > 0 && (
           <div className="unlocked">
             <span className="panel-label">{tr('解锁')}</span>
