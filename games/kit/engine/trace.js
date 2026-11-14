@@ -40,12 +40,11 @@ export function insideAt(trace, path, { upTo = trace.length - 1, step = null } =
   return { values, errors, lit }
 }
 
-// Every stepped run in every game plays at the same pace: ms a step on the first test (slow enough to follow), and on
-// the tests after it (fast), and the most a test may take before steps start going several to a frame.
+// Base intervals for the first and later tests, with duration thresholds for grouping steps into frames.
 const PACE = [{ per: 650, most: 12000 }, { per: 110, most: 1700 }]
 
-/** How fast test `test` of a run plays, given its step count: { per: ms a frame, stride: steps a frame }. */
-export function paceOf(test, steps) {
+/** Apply the playback speed to the frame interval while keeping the same number of steps per frame. */
+export function paceOf(test, steps, speed) {
   const { per, most } = PACE[test === 0 ? 0 : 1]
-  return { per, stride: Math.max(1, Math.ceil((Math.max(1, steps) * per) / most)) }
+  return { per: per / speed, stride: Math.max(1, Math.ceil((Math.max(1, steps) * per) / most)) }
 }

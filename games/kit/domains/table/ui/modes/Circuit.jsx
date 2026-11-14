@@ -15,7 +15,6 @@ import { Pause, Play, StepForward } from 'lucide-react'
 import { Sheet, TestStatus, Workbench } from '../../../../shell/index.js'
 import { L as text } from '../../../../shell/i18n.js'
 import { WORDS } from '../../../../shell/words.js'
-import { paceOf } from '../../../../engine/trace.js'
 import { fixedTray } from '../../../../course.js'
 import { WORLDS, windowOf } from '../../model/worlds.js'
 import { ROBOTS } from '../../model/robots.js'
@@ -228,7 +227,7 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
       const { t: test, res, mm, ok, stop, view } = judge(model, s, b, k, opt)
       put((x) => ({ ti: k, view, ...mark(k, 'run')(x) }))
       // The kit's pace (several steps a frame on a long run); a paused run goes one step at a time.
-      const { per, stride } = paceOf(k, stop)
+      const { per, stride } = player.pace(k, stop)
       const by = () => (player.paused ? 1 : stride)
       for (let j = Math.min(by(), stop); ; j = Math.min(j + by(), stop)) {
         put((x) => ({ view: { ...x.view, k: j } }))
