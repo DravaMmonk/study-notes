@@ -12,12 +12,17 @@ import { studioApp } from '../games/kit/app/studio.js'
 // on the site.
 const GAMES_DIR = resolve(import.meta.dirname, '../games')
 const IDS = new Set(GAMES.map((game) => game.id))
-const gamePaths = () => ({
-  name: 'game-paths',
+const localPaths = (studio) => ({
+  name: 'local-paths',
   configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
+    server.middlewares.use(async (req, res, next) => {
       const url = new URL(req.url, 'http://localhost')
       const path = url.pathname
+      if (studio && path === '/') {
+        res.statusCode = 302
+        res.setHeader('Location', `/studio.html${url.search}`)
+        return res.end()
+      }
       const moved = path === '/game.html' ? GAMES[0].id : null
       if (moved || path === '/game' || path === '/game/') {
         res.statusCode = 302
@@ -45,10 +50,10 @@ const gamePaths = () => ({
 })
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   // The shared game shell lives outside this project (games/kit/shell); resolve its React from here.
   resolve: { dedupe: ['react', 'react-dom', 'lucide-react', 'katex'] },
-  plugins: [react(), gamePaths(), gameApp(), studioApp()],
+  plugins: [react(), localPaths(mode === 'studio'), gameApp(), studioApp()],
   server: {
     fs: {
       allow: ['..'],
@@ -62,4 +67,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))
