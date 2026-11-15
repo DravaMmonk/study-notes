@@ -1,4 +1,5 @@
 import { Play, RotateCcw } from 'lucide-react'
+import TestTabs from '../shell/TestTabs.jsx'
 import { L, tr } from '../shell/i18n.js'
 
 // A small bench for trying one part, the same in every game (the parts box, games/kit/shell/PartsBook.jsx): a row of
@@ -14,13 +15,7 @@ export default function DemoBench({ tests = [], test = 0, onTest, onRun, onReset
     <section className={`demo-bench is-${state}`} aria-label={tr('试一试')}>
       <header className="demo-bar">
         <span className="panel-label">{tr('试一试')}</span>
-        {tests.length > 1 && (
-          <div className="demo-tests" role="tablist" aria-label={tr('测试')}>
-            {tests.map((t, k) => (
-              <button key={k} type="button" role="tab" aria-selected={k === test} className="demo-test" onClick={() => onTest(k)}>{L(t.label)}</button>
-            ))}
-          </div>
-        )}
+        {tests.length > 1 && <TestTabs tests={tests} index={test} onSelect={onTest} inline authored={false} />}
         <span className="demo-state" aria-live="polite">{state === 'stale' ? tr('已修改，请重新运行查看结果') : state === 'ran' ? tr('运行完成') : tr('还没运行')}</span>
         {onReset && <button type="button" className="demo-reset" onClick={onReset} aria-label={tr('恢复默认', 'Reset')} title={tr('恢复默认', 'Reset')}><RotateCcw size={14} /></button>}
         <button type="button" className="demo-run" onClick={onRun}><Play size={14} /><span>{tr('运行')}</span></button>

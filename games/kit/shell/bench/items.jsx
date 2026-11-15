@@ -2,6 +2,7 @@ import { ArrowRight, Check, Circle, RotateCcw, X } from 'lucide-react'
 import { formatValue, knobKind, knobStart, needText, rowValue } from '../../engine/bench.js'
 import { L, keyOf, tr } from '../i18n.js'
 import { useMark } from '../edit.js'
+import TestTabs from '../TestTabs.jsx'
 import Plot, { Legend } from './Plot.jsx'
 import { Rich } from './Rich.jsx'
 
@@ -183,17 +184,12 @@ function Stages({ ctx }) {
 
 function Cases({ params, ctx }) {
   const { cases, verdicts, caseIndex, setCase, phone } = ctx
-  const n = verdicts.filter((j) => j.pass).length
+  const states = verdicts.map(({ pass }) => pass ? 'pass' : 'fail')
+  const n = states.filter((state) => state === 'pass').length
   return (
     <>
-      <div className="bk-seg bench-cases" role="group">
-        {cases.map((c, i) => (
-          <button key={keyOf(c.label)} type="button" aria-pressed={i === caseIndex} onClick={() => setCase(i)}>
-            {verdicts[i].pass ? <Check size={14} className="bench-ok" /> : <X size={14} className="bench-bad" />}
-            <Rich text={c.label} />
-          </button>
-        ))}
-      </div>
+      <TestTabs tests={cases} states={states} index={caseIndex} onSelect={setCase}
+        phone={phone} inline authored={false} label={(text) => <Rich text={text} />} />
       {params.passed && !phone && <span className={`bk-chip ${n === cases.length ? 'is-pass' : ''}`}>{n} / {cases.length} <Rich text={params.passed} /></span>}
     </>
   )

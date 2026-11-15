@@ -78,8 +78,6 @@
 .bench .bk-stack > :is(.bk-label, .bk-note, .bk-caption) { margin: 0; }
 .bench-dock { position: sticky; z-index: 3; bottom: 8px; }
 .bench-dock > .bk-panel { box-shadow: inset 0 0 0 1px var(--hairline), 0 14px 30px -12px rgba(0, 0, 0, .35); }
-.bench-ok { color: var(--status); }
-.bench-bad { color: var(--fail); }
 .bench-muted { color: var(--muted); }
 
 /* Knobs, buttons, cases. */
@@ -99,7 +97,6 @@
 .bench-actions .bk-btn:not(.bench-quiet) { white-space: nowrap; }
 .bench-actions .bk-btn { flex: 1 1 auto; min-width: 0; font-variant-numeric: tabular-nums; }
 .bench-actions .bench-quiet { flex: none; color: var(--muted); background: transparent; box-shadow: none; }
-.bench-cases > button { display: inline-flex; align-items: center; gap: var(--gap-local); }
 
 /* Steps and verdicts. */
 .bench-step:not(.is-pass) > svg:first-child { color: var(--faint); }

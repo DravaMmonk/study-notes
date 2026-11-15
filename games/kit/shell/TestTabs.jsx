@@ -9,23 +9,28 @@ import { AddMark } from './EditMarks.jsx'
  * solved) say so; a sample (a larger picture the board also runs on, never judged) shows a picture instead. While the
  * studio edits, each tab is a test of the content to pick (edit.js), and a + adds one.
  *
- *   tests   [{ label, hidden?, sample? }]   states  ['pass' | 'fail' | null]   index, onSelect(index)   phone   inline for tabs inside a board
+ * With no states, the tabs only select an example. Inline tabs sit inside the play area; authored tabs can pick tests
+ * from the current task in Studio.
  */
-export default function TestTabs({ tests, states, index, onSelect, phone = false, inline = false }) {
+export default function TestTabs({ tests, states, index, onSelect, phone = false, inline = false, authored = true, label = L }) {
   const edit = useEdit()
   const mark = useMark()
   const shown = tests.filter((t) => !t.hidden && !t.sample).length
   const tabs = tests.map((t, k) => {
-    const state = states[k] ?? null
+    const state = states?.[k] ?? null
+    const active = k === index ? (phone ? 'is-on' : 'is-active') : ''
+    const field = t.sample ? 'sample' : t.hidden ? `hidden[${k - shown}]` : `tests[${k}]`
     return (
-      <button key={`${k}-${keyOf(t.label)}`} type="button" {...mark(t.sample ? 'sample' : t.hidden ? `hidden[${k - shown}]` : `tests[${k}]`, 'task', () => onSelect(k))} className={`${phone ? 'pb-test' : 'test-row'} ${k === index ? (phone ? 'is-on' : 'is-active') : ''} ${state ? `is-${state}` : ''} ${t.sample ? 'is-sample' : ''}`} onClick={() => onSelect(k)} aria-pressed={k === index}>
-        {t.sample ? <Image size={phone ? 12 : 13} /> : state === 'pass' ? <Check size={phone ? 12 : 13} /> : state === 'fail' ? <X size={phone ? 12 : 13} /> : <Circle size={phone ? 10 : 11} />}
-        <span>{L(t.label)}</span>
+      <button key={`${k}-${keyOf(t.label)}`} type="button" {...(authored && mark(field, 'task', () => onSelect(k)))}
+        className={`${phone ? 'pb-test' : 'test-row'} ${active} ${state ? `is-${state}` : ''} ${t.sample ? 'is-sample' : ''}`}
+        onClick={() => onSelect(k)} aria-pressed={k === index}>
+        {t.sample ? <Image size={phone ? 12 : 13} /> : state === 'pass' ? <Check size={phone ? 12 : 13} /> : state === 'fail' ? <X size={phone ? 12 : 13} /> : states && <Circle size={phone ? 10 : 11} />}
+        <span>{label(t.label)}</span>
         {t.hidden && <em className="hidden-tag">{tr('隐藏')}</em>}
       </button>
     )
   })
-  const add = edit && <AddMark at="tests" label={{ zh: '测试', en: 'a test' }} />
+  const add = authored && edit && <AddMark at="tests" label={{ zh: '测试', en: 'a test' }} />
   if (phone) return <nav className={inline ? 'pb-tests tests-inline' : 'pb-tests'} aria-label={tr('测试')}>{tabs}{add}</nav>
   return <ol className={inline ? 'test-list tests-inline' : 'test-list'}>{tabs.map((tab) => <li key={tab.key}>{tab}</li>)}{add && <li>{add}</li>}</ol>
 }
