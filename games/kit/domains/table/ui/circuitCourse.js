@@ -57,7 +57,7 @@ export function robotCircuits(table) {
         syncOwn: table.syncOwn,
         holdsIn: (_, flags) => holds(course, { id: task.id, task: task.task }, flags),
         offerIn: table.offerIn,
-        opening: (_, _built, kept, progress) => withDesktopAnchors(restoreRobotBoard(model, task, kept) ?? table.opening(task, progress)),
+        opening: (_, progress) => withDesktopAnchors(table.opening(task, progress)),
         stageChain: () => [],
       })
       return views.get(task)

@@ -417,6 +417,8 @@ must not translate the game root or hide the run bar; map pages retain normal do
 Phone result drawers start folded, including circuit levels. The player can expand them manually; Run/Step/Check
 opens them to show the resulting feedback.
 
+电路课程统一按 `carries` 找本关上一任务，或按 `carry` 找指定关的最后一项任务。开板时读取已通过的作品，并由当前玩法核对它能否接到本任务的固定端口。完整游戏页和笔记嵌入页只传当前任务的存档，继承由电路课程处理。《证明完毕》的续证任务沿用上一段的证明卡和有效接线，使用本段给定的前提和目标。
+
 ### 6.4 参数台
 
 **电路拼不出来的机制用参数台**（机体的物理传感器、连续信号的采样、几万步的训练、几百次随机试验、一场对抗）：玩家不接线，只转旋钮、按按钮，看模拟怎么变。所有参数台是同一个界面（`kit/shell/bench/Bench.jsx`），数据和判定在 `kit/engine/bench.js`（node 下也能跑，`npm run check` 用它）。它放在内核，因为参数台不属于哪个专题：网络（窗口、重传）、总线（位时间）都会有。

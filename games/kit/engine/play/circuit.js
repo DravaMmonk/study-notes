@@ -107,7 +107,7 @@ export function playBoard({ game, level: { source: task }, progress, flags }) {
   const view = game.circuit.forTask(task)
   view.syncOwn(progress.built, progress)
   const { types } = view.offerIn(task, flags)
-  return { start: view.opening(task, progress.built, undefined, progress), parts: view.board.wiring(task, view), types }
+  return { start: view.opening(task, progress), parts: view.board.wiring(task, view), types }
 }
 
 /** A play hook for a circuit domain (see the top of this file). */

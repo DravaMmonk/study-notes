@@ -1,5 +1,5 @@
 import { circuitBoard } from '../../../engine/board-cards.js'
-import { boardView } from '../../../engine/board-view.js'
+import { boardView, previousCircuitTask } from '../../../engine/board-view.js'
 import { inheritedBoard } from '../../../shell/progress.js'
 import { T } from '../../../shell/i18n.js'
 import { startBoard } from './board.js'
@@ -49,11 +49,9 @@ export function imageBoards(image) {
     offerIn: image.offerIn,
     holdsIn: image.holdsIn,
     syncOwn: (_built, progress) => image.syncOwn(progress),
-    opening(task, _built, inherited, progress) {
-      const source = task.carries
-        ? image.levelById[task.id]?.tasks[task.task - 1]
-        : image.levelById[task.carry]?.tasks.at(-1)
-      const previous = inherited ?? inheritedBoard(progress, source)
+    opening(task, progress) {
+      const source = previousCircuitTask(task, (id) => image.levelById[id]?.tasks)
+      const previous = inheritedBoard(progress, source)
       const offers = (circuit) => circuit.nodes.every((node) => fixed.isFixed(node.type) || task.palette.includes(node.type))
       return kit.fits(previous, task) && offers(previous) ? previous : startBoard(task)
     },

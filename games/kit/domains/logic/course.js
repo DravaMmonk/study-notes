@@ -548,7 +548,7 @@ export function logicCourse(content) {
   // The truth circuits as the kernel's circuit screen reads them (gates.js gateCourse).
   const truthCircuits = gateCourse({ built: gatePieces, builders: gateBuilders, offerIn, holdsIn, syncOwn: kept.sync })
   // The proofs, the same way: their parts are the proof rules and the lemmas (proofParts).
-  const proofBoards = boardView({ board: PROOF_BOARD, parts: () => proofParts, offerIn, holdsIn, syncOwn: kept.sync })
+  const proofBoards = boardView({ board: PROOF_BOARD, parts: () => proofParts, offerIn, holdsIn, syncOwn: kept.sync, tasksAt: (id) => byId.get(id)?.tasks })
   // The machines: the parts the player built as packed parts, a task's rule parts registered for it.
   const machineBoards = boardView({
     board: MACHINE_BOARD,

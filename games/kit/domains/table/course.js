@@ -6,6 +6,7 @@
 
 import { splitSource } from '../../engine/wire-source.js';
 import { packed } from '../../engine/boards.js';
+import { previousCircuitTask } from '../../engine/board-view.js';
 import { inheritedBoard } from '../../shell/progress.js';
 import { deepFreeze } from '../../engine/content.js';
 import { taskLevels } from '../../engine/tasks.js';
@@ -312,7 +313,7 @@ export function tableCourse(content) {
    *  (`data`): the first task's of a level that starts from another (`carry`) is that level's last task's, a task that
    *  goes on from the task before (`carries`) has that one's, else it is empty; fitted to what the task gives. */
   const opening = (s, progress) => {
-    const prior = s.task === 0 ? s.carry && played.get(s.carry)?.at(-1) : s.carries && played.get(s.id)[s.task - 1];
+    const prior = s.task === 0 || s.carries ? previousCircuitTask(s, (id) => played.get(id)) : undefined;
     const from = inheritedBoard(progress, prior);
     return restoreRobotBoard(model, s, from) ?? fitted(blank(), s.given);
   };
