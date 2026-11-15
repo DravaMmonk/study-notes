@@ -10,7 +10,7 @@ import { boardOf, checkDeclaration, linesOf, premiseChips, problemsOf } from './
 import { runOutputTests } from '../../engine/test-run.js'
 import { parse, same, show, subst, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
-import { MACHINE_BOARD, MACHINE_TESTS, RULE_PIECE, rulePartOf } from './machine.js'
+import { MACHINE_BOARD, MACHINE_TESTS, RULE_PIECE, rulePartOf, runMachine } from './machine.js'
 import { defineParts } from '../../engine/parts/define.js'
 import { OPS } from './ops.js'
 import { genRuleText } from './elimgen.js'
@@ -405,6 +405,17 @@ test('a machine backtracks once its level says so, and a search finds every answ
   const either = wireRules(machine({ g: ['rule', { rule: 'conjI,grand' }], a: ['assumption'], b: ['assumption'] }, ['in>g.in', 'g>a.in', 'a>b.in', 'b>out']), ask)
   assert.equal(either.nodes.filter((n) => n.type === 'grand' || n.type === 'andI').length, 2)
   assert.equal(runOutputTests(MACHINE_TESTS, onMachine(ask), either).pass, true)
+})
+
+test('a proof machine must meet its card budget after its cases pass', () => {
+  const task = { kind: 'machine', want: 'proved', tests: [{ goal: 'Rain', hyps: ['Rain'] }] }
+  const board = machine({ a: ['assumption'] }, ['in>a.in', 'a>out'])
+  assert.equal(runMachine(onMachine({ ...task, budget: 1 }), board).pass, true)
+  const report = runMachine(onMachine({ ...task, budget: 0 }), board)
+  assert.deepEqual(report.runs.map((run) => run.pass), [true])
+  assert.equal(report.score.steps, 1)
+  assert.equal(report.pass, false)
+  assert.equal(report.fail.why, report.constraint)
 })
 
 test('a written term may use a lemma as a function of its premises, and take out what there is', async () => {

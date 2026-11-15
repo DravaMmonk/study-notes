@@ -16,7 +16,7 @@ import { LOGIC_TESTS, lemmaGives, startProof } from './proof.js'
 import { paramsOf } from '../../engine/forms.js'
 import { scriptJudge, methodsOf, sentencesOf } from './script.js'
 import { lettersOf, tautology } from './truth.js'
-import { MACHINE_PARTS, MACHINE_TESTS, inputsOfLevel, rulePartsOf } from './machine.js'
+import { MACHINE_PARTS, inputsOfLevel, rulePartsOf, runMachine } from './machine.js'
 import { SETTING_KINDS, choiceKey, choicesOf } from './choices.js'
 import { chipsFrom, chipsOf, missingChips } from './formulaTree.js'
 import { freeIn, parseTerm } from './pterm.js'
@@ -159,10 +159,11 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
       const holds = new Set([...reach(course, { id: level.id, task: level.task }), ...rulePartsOf(level).keys(), 'in', 'out'])
       const missing = [...new Set(level.solution.nodes.filter((n) => !presetIds(level).includes(n.id)).map((n) => n.type).filter((t) => !holds.has(t) && !(level.task > 0 && t === builder.get(level.id))))]
       if (missing.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
-      const { reference: good, naive } = compare((work) => runOutputTests(MACHINE_TESTS, level, work), level)
-      out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: machine ${good.pass ? 'PASS' : `FAIL ${good.runs.filter((r) => !r.pass).map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} cards]` })
+      const { reference: good, naive } = compare((work) => runMachine(level, work), level)
+      const failures = good.runs.filter((r) => !r.pass).map((r) => keyOf(r.checks[0].reason))
+      const verdict = good.pass ? 'PASS' : `FAIL ${failures.length ? failures.join('; ') : keyOf(good.constraint)}`
+      out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: machine ${verdict} [${good.score.steps} cards]` })
       reportNaive(out, level, naive)
-      if (level.budget !== undefined && good.score.steps > level.budget) out.push({ level: level.id, fail: true, text: `${level.id}: the solution breaks its budget` })
       return out
     }))
   }
@@ -214,7 +215,7 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
       const out = []
       const names = inputsOfLevel(level).map((i) => i.name)
       const alone = { nodes: [...names.map((name) => ({ id: name, type: 'in', params: { name } })), { id: 'x', type: level.builds, params: {} }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [...names.map((name) => ({ from: name, to: 'x', port: name })), { from: 'x', to: 'out', port: 'in' }] }
-      const { built: run } = checkWorks((work) => runOutputTests(MACHINE_TESTS, level, work), { built: alone })
+      const { built: run } = checkWorks((work) => runMachine(level, work), { built: alone })
       if (!run.ok) out.push({ level: level.id, fail: true, text: `${level.id}: the part ${level.builds}, alone, does not pass the level that builds it` })
       return out
     }))

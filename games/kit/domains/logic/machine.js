@@ -40,6 +40,7 @@
 import { sameJson } from '../../engine/json-value.js'
 import { PartError } from '../../engine/circuit.js'
 import { packed, runBoard } from '../../engine/boards.js'
+import { runOutputTests } from '../../engine/test-run.js'
 import { FORMULA_TEXT, all, fn, subst, tvar } from './formula.js'
 import { KERNEL, answerOf, asValue, assumption, defer, depthFirst, resultsOf, rule, startState } from './tactics.js'
 import { FULL, UNIFY_RULES, instantiate, lemmaRules, parseEquation, parseS, ruleOf, ruleText, sameSide, sideText, solveEqs, solved } from './schematic.js'
@@ -701,4 +702,12 @@ export const MACHINE_TESTS = {
   },
   // Rule parts are what the cards read, not steps of the machine.
   score: (level, circuit) => ({ steps: circuit.nodes.filter((n) => n.type !== 'in' && n.type !== 'out' && !rulePartsOf(level).has(n.type)).length }),
+}
+
+/** Use the same case checks and card budget in play and authoring. */
+export function runMachine(level, board, options) {
+  const constraint = ({ steps }) => level.budget !== undefined && steps > level.budget
+    ? T(`所有测试都正确，但用了 ${steps} 张卡，这一关最多允许 ${level.budget} 张。`, `Every test is correct, but the board uses ${steps} cards; this level allows ${level.budget}.`)
+    : ''
+  return runOutputTests(MACHINE_TESTS, { ...level, constraint }, board, options)
 }

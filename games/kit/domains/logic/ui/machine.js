@@ -4,12 +4,11 @@
 // parts running the boards that built them). A run goes through every test step by step, each card computing a step;
 // the results show the test's inputs, what it wants and what reaches the result. Values (equations, proof states,
 // clause sets, rules) read as lines of text.
-import { runOutputTests } from '../../../engine/test-run.js'
 import { L, T, tr } from '../../../shell/i18n.js'
 import { fn, tvar } from '../formula.js'
 import { say } from '../notation.js'
 import { withPreset } from '../../../circuit/model.js'
-import { MACHINE_TESTS, inputsOf, inputsOfLevel, parseGoal, ruleWritten } from '../machine.js'
+import { inputsOf, inputsOfLevel, parseGoal, ruleWritten, runMachine } from '../machine.js'
 import { constructorsOf } from '../datatype.js'
 import { certificate, clauseFormula, refuted } from '../resolution.js'
 import { elimOf, genRuleText } from '../elimgen.js'
@@ -67,7 +66,7 @@ function wantOf(task, test) {
   return L(WANT[test.want ?? task.want])
 }
 
-const runLevel = (task, board, _parts, { traced = true } = {}) => runOutputTests(MACHINE_TESTS, task, board, { traced })
+const runLevel = (task, board, _parts, { traced = true } = {}) => runMachine(task, board, { traced })
 
 /** What the results show of a test: the types and definitions it reads, its inputs, what it wants, the result. */
 const entries = ({ task, test, run }) => {
