@@ -1,16 +1,16 @@
 // What a circuit is asked to make of one picture (vocabulary.js target), for the scene of a picture in and the
 // picture a rule makes of it out (scenes/index.js filter). Each item is make(params) → (picture) → the expected one.
 import { S, callOf } from '../../../engine/schema.js'
-import { correlate, downsample, flipKernel, fromFn, gaussianKernel, image, map, shift, zip } from '../engine/image.js'
+import { correlate, downsample, flipKernel, fromFn, gaussianKernel, image, map, row, shift, zip } from '../engine/image.js'
 import { boxBlur3, boxKernel, gradientMagnitude, harrisResponse, horizontalDifference, peaksOf, squaredGradient } from '../engine/filters.js'
 import { applyGain, highpass, lowpass, magnitudeSpectrum } from '../engine/fourier.js'
+import { cross3 } from '../engine/match.js'
 import { attentionWeights } from '../engine/attention.js'
 import { zeroUp } from '../engine/parts/segment.js'
 import { T as t } from '../../../shell/i18n.js'
 
 const SHAPE = S.oneOf(['disk', 'gauss'])
-const vec = (...v) => ({ w: 3, h: 1, data: Float32Array.from(v) })
-const cross = (a, b) => vec(a.data[1] * b.data[2] - a.data[2] * b.data[1], a.data[2] * b.data[0] - a.data[0] * b.data[2], a.data[0] * b.data[1] - a.data[1] * b.data[0])
+const cross = (a, b) => row(cross3(a.data, b.data))
 // Every cell's distance from the centre of a spectrum the size of `img` (frequency (0, 0)).
 const radiusOf = (img) => fromFn(img.w, img.h, (x, y) => Math.hypot(x - img.w / 2, y - img.h / 2))
 const BORDER = S.opt(S.oneOf(['zero', 'edge', 'wrap']))

@@ -7,6 +7,9 @@ export function image(w = SIZE, h = SIZE, fill = 0, c = 1) {
   return { w, h, ...(c === 1 ? {} : { c }), data: new Float32Array(w * h * c).fill(fill) }
 }
 
+/** One-dimensional samples stored as a single Float32 row. */
+export const row = (values) => ({ w: values.length, h: 1, data: Float32Array.from(values) })
+
 export const at = (img, x, y) => img.data[y * img.w + x]
 
 export function map(img, fn) {

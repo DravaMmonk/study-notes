@@ -2,7 +2,7 @@
 // cloths that match under one lamp only, paint and light split apart, coloured scenes under uneven light, and a
 // painted metal sheet photographed under three lamps (photometric stereo).
 import { S } from '../../../../engine/schema.js'
-import { fromFn, image, map, random, zip } from '../../engine/image.js'
+import { fromFn, image, map, random, zip, row } from '../../engine/image.js'
 import { gradientMagnitude } from '../../engine/filters.js'
 import { NODE_TYPES } from '../../engine/nodes.js'
 import { CURVES } from '../../engine/parts/light.js'
@@ -64,7 +64,6 @@ const shaded = (normals, albedo, l) => NODE_TYPES.shade.eval({ nx: normals[0], n
 
 /* ---------- spectra ---------- */
 
-const row = (values) => fromFn(values.length, 1, (x) => values[x])
 const reading = (spectrum) => Object.fromEntries([['ro', 'R'], ['go', 'G'], ['bo', 'B']].map(([out, channel]) => [out, NODE_TYPES.sense.eval({ in: spectrum }, { channel })]))
 // A spectrum every sensor reads as 0: a fixed wiggle with the three curves taken out of it, at most 0.3.
 const METAMER = (() => {

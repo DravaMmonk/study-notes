@@ -2,11 +2,11 @@
 // and its brightened partner, lanes on a road, a line among specks, one cell's gradient directions, and a book cover
 // pasted back onto a photo of it.
 import { S } from '../../../../engine/schema.js'
-import { fromFn, image, map, random, zip } from '../../engine/image.js'
+import { fromFn, image, map, random, zip, row } from '../../engine/image.js'
 import { peaksOf, sobelGradient } from '../../engine/filters.js'
 import { homographyDLT, project } from '../../engine/match.js'
 import { NODE_TYPES } from '../../engine/nodes.js'
-import { pairsOf, row, warp } from '../../engine/parts/matching.js'
+import { pairsOf, warp } from '../../engine/parts/matching.js'
 import { picture } from '../pictures.js'
 import { T as t } from '../../../../shell/i18n.js'
 

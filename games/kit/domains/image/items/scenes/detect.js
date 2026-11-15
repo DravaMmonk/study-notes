@@ -1,11 +1,10 @@
 // Scenes of detection (scenes/index.js): two boxes and how much they overlap, ranked lists of detections into AP,
 // anchor boxes and their corrections, X- and O-marked boxes on a shelf, and dogs as solid blobs.
 import { S } from '../../../../engine/schema.js'
-import { correlate, fromFn, gaussianKernel, image, random, zip } from '../../engine/image.js'
+import { correlate, fromFn, gaussianKernel, image, random, zip, row } from '../../engine/image.js'
 import { T as t } from '../../../../shell/i18n.js'
 
 const num = (v) => image(1, 1, v)
-const row = (values) => ({ w: values.length, h: 1, data: Float32Array.from(values) })
 const BOX = S.list(S.int(), { min: 4, about: t('一个框：x0, y0, x1, y1（不含 x1、y1）') })
 
 const boxMask = ([x0, y0, x1, y1]) => fromFn(16, 16, (x, y) => (x >= x0 && x < x1 && y >= y0 && y < y1 ? 1 : 0))

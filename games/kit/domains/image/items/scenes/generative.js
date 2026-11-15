@@ -2,9 +2,9 @@
 // blobs drawn from a latent code at μ + σ·ε, and diffusion: a letter noised in one step or two, restored from its
 // noise, and an old photo restored without knowing the noise.
 import { S } from '../../../../engine/schema.js'
-import { GLYPHS, fromFn, image, patterns, random, zip } from '../../engine/image.js'
+import { GLYPHS, fromFn, image, patterns, random, zip, row } from '../../engine/image.js'
 import { NODE_TYPES } from '../../engine/nodes.js'
-import { blob, blobAt, code, gaussian } from '../../engine/parts/generative.js'
+import { blob, blobAt, gaussian } from '../../engine/parts/generative.js'
 import { LETTER } from '../pictures.js'
 import { T as t } from '../../../../shell/i18n.js'
 
@@ -48,14 +48,14 @@ export const GENERATIVE = {
     about: t('噪声 ε（两个数）；期望是潜码 μ + σ·ε 画出的斑点。given：μ 和 σ 也是输入'),
     setup: S.obj({ mu: Z, sigma: Z, given: S.opt(S.bool()) }),
     test: S.obj({ eps: Z }),
-    make: ({ eps }, { mu, sigma, given }) => ({ inputs: { eps: code(eps), ...(given ? { mu: code(mu), sigma: code(sigma) } : {}) }, expected: { out: drawn(mu, sigma, eps) } }),
+    make: ({ eps }, { mu, sigma, given }) => ({ inputs: { eps: row(eps), ...(given ? { mu: row(mu), sigma: row(sigma) } : {}) }, expected: { out: drawn(mu, sigma, eps) } }),
   },
   sides: {
     about: t('噪声 ε 和画哪边 c（0 左，1 右），另给左右两个中心和 σ；期望是那一边 μ + σ·ε 画出的斑点'),
     setup: S.obj({ left: Z, right: Z, sigma: Z }),
     test: S.obj({ eps: Z, c: S.oneOf([0, 1]) }),
     make: ({ eps, c }, { left, right, sigma }) => ({
-      inputs: { eps: code(eps), c: image(1, 1, c), left: code(left), right: code(right), sigma: code(sigma) },
+      inputs: { eps: row(eps), c: image(1, 1, c), left: row(left), right: row(right), sigma: row(sigma) },
       expected: { out: drawn(c ? right : left, sigma, eps) },
     }),
   },

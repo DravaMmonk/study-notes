@@ -1,6 +1,9 @@
 // Maths for chapter 6 (matching): window distances, Hough voting, RANSAC line fitting, and the
 // direct linear transform (DLT) for a homography. Plain functions on plain numbers, no images API.
 
+/** Cross product of two three-dimensional vectors, for homogeneous points and lines. */
+export const cross3 = ([ax, ay, az], [bx, by, bz]) => [ay * bz - az * by, az * bx - ax * bz, ax * by - ay * bx]
+
 // ---------- appearance: window distance and the two nearest candidates ----------
 
 // Euclidean distance between two (2r+1)² windows, the square root of their SSD.

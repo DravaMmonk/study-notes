@@ -1,7 +1,8 @@
 // Scenes of the third dimension (scenes/index.js): stereo pairs of textured layers, disparity maps to turn into
 // distance, epipolar geometry of one camera pair, and a robot vacuum's view of a room with obstacles.
 import { S } from '../../../../engine/schema.js'
-import { addNoise, fromFn, image, map, random, zip } from '../../engine/image.js'
+import { addNoise, fromFn, image, map, random, zip, row } from '../../engine/image.js'
+import { cross3 } from '../../engine/match.js'
 import { T as t } from '../../../../shell/i18n.js'
 
 const num = S.num()
@@ -31,21 +32,19 @@ const depthOf = (d, fb) => map(d, (v) => fb / v)
 
 // One camera pair's fundamental matrix F, of rank 2 (its third row a mix of the first two), by its columns. The
 // epipolar line of p = (x, y, 1) in the right image is l′ = F·p.
-const vec = (...v) => ({ w: 3, h: 1, data: Float32Array.from(v) })
 const F = [
   [0, -0.02, 0.4],
   [0.03, 0, -0.5],
   [-0.38, 0.47, 0.12],
 ]
 F[2] = F[0].map((v, j) => -2 * v + 0.5 * F[1][j])
-const column = (j) => vec(F[0][j], F[1][j], F[2][j])
-const epiline = (x, y) => vec(...F.map((r) => r[0] * x + r[1] * y + r[2]))
+const column = (j) => row([F[0][j], F[1][j], F[2][j]])
+const epiline = (x, y) => row(F.map((r) => r[0] * x + r[1] * y + r[2]))
 const COLUMNS = { c1: column(0), c2: column(1), c3: column(2) }
-const cross = (a, b) => vec(a.data[1] * b.data[2] - a.data[2] * b.data[1], a.data[2] * b.data[0] - a.data[0] * b.data[2], a.data[0] * b.data[1] - a.data[1] * b.data[0])
 // The epipole e′, where every epipolar line in the right image meets: perpendicular to every column of F.
 const EPIPOLE = (() => {
-  const e = cross(column(0), column(1))
-  return vec(e.data[0] / e.data[2], e.data[1] / e.data[2], 1)
+  const [u, v, w] = row(cross3(column(0).data, column(1).data)).data
+  return row([u / w, v / w, 1])
 })()
 
 // A robot vacuum's stereo camera (f·b = 3): a far wall, a textureless floor in the bottom rows, obstacles. The region
@@ -94,7 +93,7 @@ export const STEREO = {
     make: ({ x, y, q: [qx, qy] }) => {
       const l = epiline(x, y).data
       const v = l[0] * qx + l[1] * qy + l[2]
-      return { inputs: { ...COLUMNS, px: image(1, 1, x), py: image(1, 1, y), q: vec(qx, qy, 1) }, expected: { on: image(1, 1, Math.abs(v) < 0.05 ? 1 : 0) } }
+      return { inputs: { ...COLUMNS, px: image(1, 1, x), py: image(1, 1, y), q: row([qx, qy, 1]) }, expected: { on: image(1, 1, Math.abs(v) < 0.05 ? 1 : 0) } }
     },
   },
   epipole: {
@@ -102,7 +101,7 @@ export const STEREO = {
     test: S.obj({ columns: S.list(S.int({ min: 0, max: 2 }), { min: 3 }) }),
     make: ({ columns }) => {
       const [c1, c2, c3] = columns.map(column)
-      return { inputs: { c1, c2, c3, z: vec(0, 0, 1) }, expected: { out: EPIPOLE } }
+      return { inputs: { c1, c2, c3, z: row([0, 0, 1]) }, expected: { out: EPIPOLE } }
     },
   },
   room: {

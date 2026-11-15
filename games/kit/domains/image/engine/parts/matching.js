@@ -1,7 +1,7 @@
 // Parts for finding the same point again (视觉完备 chapter 6): Hough voting, RANSAC and homographies, and warping a
 // picture by one. Points come from a mask's bright pixels; a homography travels as a 1×9 row and pairs of points as a
 // row of x, y, x′, y′ four at a time.
-import { fromFn, random } from '../image.js'
+import { fromFn, random, row } from '../image.js'
 import { distanceToLine, homographyDLT, houghAccumulate, invert3, project, ransacLine } from '../match.js'
 
 const HOUGH_BINS = 16
@@ -11,8 +11,7 @@ export const pointsOf = (img) => {
   for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) if (img.data[y * img.w + x] > 0.5) points.push([x, y])
   return points
 }
-// A homography as a 1×9 row, and pairs of points as a row of x, y, x′, y′ four at a time.
-export const row = (values) => ({ w: values.length, h: 1, data: Float32Array.from(values) })
+// Pairs of points as a row of x, y, x′, y′ four at a time.
 export const pairsOf = (signal) => Array.from({ length: Math.floor(signal.w / 4) }, (_, i) => ({ from: [signal.data[4 * i], signal.data[4 * i + 1]], to: [signal.data[4 * i + 2], signal.data[4 * i + 3]] }))
 const reprojection = (H, { from, to }) => Math.hypot(...project(H, ...from).map((v, i) => v - to[i]))
 function robustHomography(pairs, k, next) {

@@ -1,17 +1,12 @@
 // Parts for drawing what was never seen (视觉完备 chapter 8): an autoencoder that squeezes a blob into a few numbers,
 // trained and fixed encoders and decoders, sampling from a latent code and reparameterising it.
-import { fromFn, image, random } from '../image.js'
+import { fromFn, random, row } from '../image.js'
 import { seedOf } from '../../../../engine/seed.js'
 
 export const BLOB_SIGMA = 1.6
 export const UNIT = 4 // one latent unit moves the blob 4 pixels
 export const blob = (px, py) => fromFn(16, 16, (x, y) => Math.exp(-((x - px) ** 2 + (y - py) ** 2) / (2 * BLOB_SIGMA * BLOB_SIGMA)))
 export const blobAt = (zx, zy) => blob(7.5 + UNIT * zx, 7.5 + UNIT * zy)
-export const code = (values) => {
-  const out = image(values.length, 1)
-  values.forEach((v, i) => (out.data[i] = v))
-  return out
-}
 
 // The encoder reads the image's column and row profiles in 8 bins each (two columns or rows per bin)
 // and keeps k numbers: z_j = Σ a_j·columns + Σ b_j·rows. Weights for up to 3 numbers, 16 per number.
@@ -27,13 +22,13 @@ export function profiles(img) {
   }
   return bins
 }
-export function encode(img, w, k) {
+export function enrow(img, w, k) {
   if (img.w !== 16 || img.h !== 16) throw new Error('编码器要一张 16×16 的图')
   const bins = profiles(img)
-  return code(Array.from({ length: k }, (_, j) => bins.reduce((sum, b, i) => sum + b * w[j * 16 + i], 0)))
+  return row(Array.from({ length: k }, (_, j) => bins.reduce((sum, b, i) => sum + b * w[j * 16 + i], 0)))
 }
 // The decoder draws one blob; where it goes is a linear function of the code: p = A·z + b.
-export function decode(z, w) {
+export function derow(z, w) {
   if (z.h !== 1 || z.w > MAX_CODE) throw new Error('解码器要接编码（一行数字）')
   const k = z.w
   let px = w[6]
@@ -67,7 +62,7 @@ export const GENERATIVE = {
       // Hidden from the card (its flag is never earned) but still trained: 48 weights.
       { key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, unlock: 'dg-weights-hidden', default: ENCODER_START },
     ],
-    eval: ({ in: a }, p) => encode(a, p.w ?? ENCODER_START, Number(p.k ?? 1)),
+    eval: ({ in: a }, p) => enrow(a, p.w ?? ENCODER_START, Number(p.k ?? 1)),
     cost: 16,
     unlock: 'dg-autoencoder',
   },
@@ -76,7 +71,7 @@ export const GENERATIVE = {
     description: { zh: '由那几个数画回一张图（权重靠训练）', en: 'Draws an image back from those numbers (weights come from training)' },
     inputs: ['in'],
     params: [{ key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, unlock: 'dg-weights-hidden', default: DECODER_START }],
-    eval: ({ in: z }, p) => decode(z, p.w ?? DECODER_START),
+    eval: ({ in: z }, p) => derow(z, p.w ?? DECODER_START),
     cost: 16,
     unlock: 'dg-autoencoder',
   },
@@ -96,7 +91,7 @@ export const GENERATIVE = {
         sx += v * x
         sy += v * y
       }
-      return code([(sx / total - 7.5) / UNIT, (sy / total - 7.5) / UNIT])
+      return row([(sx / total - 7.5) / UNIT, (sy / total - 7.5) / UNIT])
     },
     cost: 16,
     unlock: 'dg-decoder',
@@ -117,7 +112,7 @@ export const GENERATIVE = {
     description: { zh: '两个可训练的数：分布的中心', en: 'Two trainable numbers: the centre of the distribution' },
     inputs: [],
     params: [{ key: 'w', label: 'μ', kind: 'kernel', learnable: true, default: [0, 0] }],
-    eval: (_, p) => code(p.w ?? [0, 0]),
+    eval: (_, p) => row(p.w ?? [0, 0]),
     cost: 0,
     unlock: 'dg-latent',
   },
@@ -126,7 +121,7 @@ export const GENERATIVE = {
     description: { zh: '两个可训练的数：分布有多散', en: 'Two trainable numbers: how spread out the distribution is' },
     inputs: [],
     params: [{ key: 'w', label: 'σ', kind: 'kernel', learnable: true, default: [1, 1] }],
-    eval: (_, p) => code(p.w ?? [1, 1]),
+    eval: (_, p) => row(p.w ?? [1, 1]),
     cost: 0,
     unlock: 'dg-latent',
   },
@@ -138,7 +133,7 @@ export const GENERATIVE = {
     // same board on the same test always gives the same verdict.
     eval: ({ mu, sigma }) => {
       const next = random(seedOf(mu.data, sigma.data))
-      return code(Array.from(mu.data, (m, i) => m + sigma.data[i] * gaussian(next)))
+      return row(Array.from(mu.data, (m, i) => m + sigma.data[i] * gaussian(next)))
     },
     cost: 2,
     unlock: 'dg-latent',
@@ -147,7 +142,7 @@ export const GENERATIVE = {
     label: { zh: '重参数化 μ + σ·ε', en: 'Reparameterization μ + σ·ε' },
     description: { zh: '随机只从 ε 进来，μ、σ 照常求导', en: 'Randomness enters only through ε; μ and σ differentiate as usual' },
     inputs: ['mu', 'sigma', 'eps'],
-    eval: ({ mu, sigma, eps }) => code(Array.from(mu.data, (m, i) => m + sigma.data[i] * eps.data[i])),
+    eval: ({ mu, sigma, eps }) => row(Array.from(mu.data, (m, i) => m + sigma.data[i] * eps.data[i])),
     cost: 2,
     unlock: 'dg-reparam',
   },
