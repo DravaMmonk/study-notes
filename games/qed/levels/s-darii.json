@@ -1,6 +1,6 @@
 {
   "title": { "en": "Some pets are fluffy", "zh": "有的宠物毛茸茸" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "tasks": [
     {
       "id": "s-darii",

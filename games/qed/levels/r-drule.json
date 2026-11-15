@@ -1,6 +1,6 @@
 {
   "title": { "en": "One step forward", "zh": "前向推理" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

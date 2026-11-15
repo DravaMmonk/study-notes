@@ -137,7 +137,7 @@ function hookProblems(course) {
     list('withholds', course.withholds(level))
     list('uses', course.uses(level))
     const tray = course.tray(level)
-    if (tray !== null && typeof tray !== 'string') say(`tray(${at}) is neither a tray nor null`)
+    if (tray !== null && !strings(tray)) say(`tray(${at}) is neither a list of trays nor null`)
     list('declares', course.declares(level))
     list('carries', course.carries(level))
     const needed = course.needed(level)

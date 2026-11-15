@@ -1,6 +1,6 @@
 {
   "title": { "en": "One-to-one", "zh": "一对一" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

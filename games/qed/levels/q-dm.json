@@ -1,6 +1,6 @@
 {
   "title": { "en": "De Morgan for quantifiers", "zh": "量词的德摩根律" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

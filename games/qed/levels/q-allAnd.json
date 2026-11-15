@@ -1,6 +1,6 @@
 {
   "title": { "en": "∀ over both sides", "zh": "∀ 拆到两边" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "tasks": [
     {
       "id": "q-allAnd",

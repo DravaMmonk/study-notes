@@ -1,6 +1,6 @@
 {
   "title": { "en": "The contrapositive, backwards", "zh": "逆否，反过来" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

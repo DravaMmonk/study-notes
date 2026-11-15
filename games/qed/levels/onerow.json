@@ -16,6 +16,7 @@
     { "t": { "en": "Select “Try” to evaluate a row.", "zh": "点「试一试」，查看一行的结果。" } }
   ],
   "after": { "en": "This mistake is known as <b>affirming the consequent</b>.", "zh": "这种推理错误叫<b>肯定后件</b>。" },
+  "tray": "formula",
   "tasks": [
     {
       "id": "onerow",

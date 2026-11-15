@@ -1,5 +1,6 @@
 {
   "title": { "en": "A borrowed name stays", "zh": "借来的名字不能带走" },
+  "tray": "formula",
   "tasks": [
     {
       "id": "q-witness",

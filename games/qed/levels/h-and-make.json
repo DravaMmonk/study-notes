@@ -1,6 +1,6 @@
 {
   "title": { "en": "Defining “and”", "zh": "定义「并且」" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

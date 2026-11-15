@@ -1,6 +1,6 @@
 {
   "title": { "en": "If it rains, the ground is wet", "zh": "若下雨，则地湿" },
-  "tray": "gates",
+  "tray": ["gates", "formula"],
   "intro": [
     {
       "t": {

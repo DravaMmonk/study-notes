@@ -1,6 +1,6 @@
 {
   "title": { "en": "Two that do not meet", "zh": "对不上的两句" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "tasks": [
     {
       "id": "mergeBoth",

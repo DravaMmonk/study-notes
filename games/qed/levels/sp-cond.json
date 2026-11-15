@@ -1,6 +1,6 @@
 {
   "title": { "en": "A rule with a condition", "zh": "带条件的规则" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

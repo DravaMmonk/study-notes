@@ -1,6 +1,6 @@
 {
   "title": { "en": "auto, after one step by contradiction", "zh": "auto 加一步反证法" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

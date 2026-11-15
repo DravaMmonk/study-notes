@@ -1,6 +1,6 @@
 {
   "title": { "en": "One sentence nested inside another", "zh": "一句里套着一句" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

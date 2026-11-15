@@ -12,6 +12,7 @@
     "en": "Lean compiles such a definition into the recursor of the numbers, Nat.rec.",
     "zh": "Lean 把这样的定义编译成自然数的递推子 Nat.rec。"
   },
+  "tray": "formula",
   "tasks": [
     {
       "id": "def-plus",

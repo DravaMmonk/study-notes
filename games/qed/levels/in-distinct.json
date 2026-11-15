@@ -1,6 +1,6 @@
 {
   "title": { "en": "0 is not 1", "zh": "0 不等于 1" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

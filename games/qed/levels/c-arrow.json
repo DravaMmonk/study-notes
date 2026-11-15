@@ -1,6 +1,6 @@
 {
   "title": { "en": "Arrow away", "zh": "蕴涵析取互化" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

@@ -1,6 +1,6 @@
 {
   "title": { "en": "Joining without a box", "zh": "不用框接起来" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "without": ["impI", "chain", "swap", "merge"],
   "after": {
     "en": "Any box can be traded for K, S and Apply: the <wiki-ref to=\"deduction\"></wiki-ref>.",

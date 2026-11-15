@@ -1,6 +1,6 @@
 {
   "title": { "en": "Peirce’s law", "zh": "皮尔士律" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

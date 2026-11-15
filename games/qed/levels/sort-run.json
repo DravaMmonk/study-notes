@@ -1,6 +1,6 @@
 {
   "title": { "en": "Sorting", "zh": "排一排" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

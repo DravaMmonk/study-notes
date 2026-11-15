@@ -1,5 +1,6 @@
 {
   "title": { "en": "Zero on the right", "zh": "0 加在右边" },
+  "tray": "formula",
   "showcase": {
     "en": "the induction rule concludes ∀x. ?P(x): used backwards, ?P is read off the goal, and its two premises are two goals; among the second goal’s givens is just the sentence for x",
     "zh": "归纳规则的结论是 ∀x. ?P(x)：倒着用，?P 从目标里读出来，两条前提就是两个目标；第二个目标的已知里，正是对 x 成立的那一句"
@@ -20,7 +21,7 @@
     {
       "id": "in-zero_1",
       "kind": "machine",
-      "tray": "machine",
+      "tray": ["machine", "formula"],
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
       "backtrack": true,
@@ -45,7 +46,7 @@
     {
       "id": "in-zero_2",
       "kind": "proof",
-      "tray": "proof",
+      "tray": ["proof", "formula"],
       "step": { "en": "On the proof board", "zh": "在证明板上" },
       "adds": ["natInd"],
       "consts": ["zero"],
@@ -93,7 +94,7 @@
     {
       "id": "in-zero_3",
       "kind": "machine",
-      "tray": "machine",
+      "tray": ["machine", "formula"],
       "want": "proved",
       "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
       "backtrack": true,

@@ -1,6 +1,6 @@
 {
   "title": { "en": "Negation pushed in", "zh": "推进否定" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

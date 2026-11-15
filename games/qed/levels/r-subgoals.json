@@ -1,6 +1,6 @@
 {
   "title": { "en": "One goal becomes several", "zh": "一个目标变几个" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

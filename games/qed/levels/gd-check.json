@@ -1,6 +1,6 @@
 {
   "title": { "en": "Checking a proof is a computation", "zh": "检查证明是一次计算" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

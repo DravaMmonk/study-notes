@@ -1,6 +1,6 @@
 {
   "title": { "en": "For-any box, backwards", "zh": "逆用任取框" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

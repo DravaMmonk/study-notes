@@ -1,6 +1,6 @@
 {
   "title": { "en": "contrapositive", "zh": "逆否" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

@@ -1,6 +1,6 @@
 {
   "title": { "en": "Into and, or, not", "zh": "翻译成与或非" },
-  "tray": "gates",
+  "tray": ["gates", "formula"],
   "intro": [
     {
       "t": {

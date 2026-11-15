@@ -1,6 +1,6 @@
 {
   "title": { "en": "Whichever it is", "zh": "不管哪一种" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

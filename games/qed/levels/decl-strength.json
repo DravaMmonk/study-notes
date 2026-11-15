@@ -1,5 +1,6 @@
 {
   "title": { "en": "Too strong, too weak", "zh": "过强与过弱" },
+  "tray": "formula",
   "declare": { "en": "And", "zh": "并且" },
   "target": "Rain ∧ Wind",
   "sentences": ["Rain", "Wind"],

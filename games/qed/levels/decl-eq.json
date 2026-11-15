@@ -13,6 +13,7 @@
     "en": "This introduction rule is <b>reflexivity</b>; the elimination rule of equality is <b>substitution</b>.",
     "zh": "这条引入规则就是<b>自反律</b>；相等的消去规则是<b>等量代换</b>。"
   },
+  "tray": "formula",
   "tasks": [
     {
       "id": "decl-eq",

@@ -1,6 +1,6 @@
 {
   "title": { "en": "Merging without a box", "zh": "不用框合并" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "without": ["impI", "chain", "swap", "merge"],
   "tasks": [
     {

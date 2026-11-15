@@ -1,6 +1,6 @@
 {
   "title": { "en": "Two conditions, one condition", "zh": "两个条件，一个条件" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

@@ -1,6 +1,6 @@
 {
   "title": { "en": "Defining “or”", "zh": "定义「或者」" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

@@ -1,6 +1,6 @@
 {
   "title": { "en": "Swap the conditions", "zh": "换一换条件的顺序" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

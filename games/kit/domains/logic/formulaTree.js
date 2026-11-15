@@ -9,8 +9,8 @@
 import { BOT, all, atom, bin, ex, fn, freeVars, not, signature, tvar } from './formula.js'
 import { holeTree } from '../../strip/tree.js'
 
-// The connectives a level offers unless it says (`connectives`): ↔ and ⊥ are the declared ones' (chapter 3).
-const CONNECTIVES = ['¬', '∧', '∨', '→']
+// The supported connective marks. The course's selected trays decide which of these are present.
+const CONNECTIVES = ['¬', '∧', '∨', '→', '↔', '⊥']
 const QUANTIFIERS = ['∀', '∃']
 
 /** The children of a node, each with the kind of thing its hole takes. */
@@ -78,12 +78,12 @@ export function chipsOf(level) {
   const preds = [...level.vocab.preds].sort(([a], [b]) => (a < b ? -1 : 1))
   const order = level.consts ?? []
   const consts = [...level.vocab.consts].sort((a, b) => order.indexOf(a) - order.indexOf(b))
-  const quantifiers = QUANTIFIERS.filter((q) => level.notation.symbols.includes(q))
+  const pieces = level.notation.formulaPieces
+  const ordered = (symbols) => pieces ? Object.keys(pieces).filter((symbol) => symbols.includes(symbol)) : symbols
+  const quantifiers = ordered(QUANTIFIERS).filter((q) => level.notation.symbols.includes(q))
   const vars = level.vars ?? (level.kind === 'query' ? ['x', 'y', 'z'] : quantifiers.length ? ['x', 'y'] : [])
   const fns = level.vocab.fns ?? []
-  const pieces = level.notation.formulaPieces
-  const registered = (symbol) => pieces === undefined || Boolean(pieces[symbol])
-  const connectives = (level.connectives ?? CONNECTIVES).filter(registered)
+  const connectives = ordered(level.connectives ?? CONNECTIVES)
   return [
     // A predicate (`leads`) can take a thing the line ends with as its first place.
     ...preds.map(([p, n]) => ({ key: `P:${p}`, kind: 'formula', group: 'pred', pred: p, places: n, leads: n > 0, make: () => atom(p, Array(n).fill(null)) })),
@@ -91,7 +91,7 @@ export function chipsOf(level) {
     // A function (s, plus) is a thing with a box for each of its things.
     ...fns.map(([f, n]) => ({ key: `f:${f}`, kind: 'term', group: 'name', name: f, places: n, make: () => fn(f, Array(n).fill(null)) })),
     ...vars.map((v) => ({ key: `v:${v}`, kind: 'term', group: 'var', text: v, make: () => tvar(v) })),
-    ...quantifiers.filter(registered).flatMap((q) => vars.filter((v) => level.kind !== 'query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', piece: pieces?.[q], text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),
+    ...quantifiers.flatMap((q) => vars.filter((v) => level.kind !== 'query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', piece: pieces?.[q], text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),
     // A connective between two sentences (`leads`) can take the sentence the line ends with as its first.
     ...connectives.map((c) => ({ key: c, kind: 'formula', group: 'conn', piece: pieces?.[c], text: pieces?.[c]?.name ?? c, leads: !['¬', '⊥'].includes(c), make: () => (c === '¬' ? not(null) : c === '⊥' ? BOT : bin(c, null, null)) })),
   ]
@@ -127,7 +127,7 @@ export function chipsFrom(formulas, { consts = [], notation = {} } = {}) {
   const equal = needed.has('P:=') ? [['=', 2]] : []
   const vocab = { preds: [...preds, ...equal], consts: [...fns].filter(([, n]) => n === 0).map(([c]) => c), fns: [...fns].filter(([, n]) => n > 0) }
   const vars = [...needed].filter((k) => k.startsWith('v:')).map((k) => k.slice(2))
-  const pieces = { kind: 'translate', consts, vars, vocab, notation: { ...notation, symbols: ['∀', '∃'] }, connectives: ['¬', '∧', '∨', '→', '↔', '⊥'] }
+  const pieces = { kind: 'translate', consts, vars, vocab, notation: { ...notation, symbols: ['∀', '∃'] } }
   const free = new Set(formulas.flatMap((formula) => [...freeVars(formula)]))
   return chipsOf(pieces).filter((c) => needed.has(c.key)).map((chip) => chip.group === 'var' && free.has(chip.text) ? { ...chip, free: true } : chip)
 }

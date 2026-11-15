@@ -1,6 +1,6 @@
 {
   "title": { "en": "How far Not reaches", "zh": "「非」管到哪里" },
-  "tray": "gates",
+  "tray": ["gates", "formula"],
   "intro": [
     {
       "t": {

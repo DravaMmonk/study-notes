@@ -1,6 +1,6 @@
 {
   "title": { "en": "Induction is one sentence", "zh": "归纳法是一句话" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "consts": ["zero"],
   "words": ["everyday", "terms"],
   "intro": [

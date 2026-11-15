@@ -18,6 +18,7 @@
     "en": "Test cases see only what can be derived, not how a rule is written; the kernel keeps to the rule written down.",
     "zh": "检验条例只看推得出什么，看不出规则的写法；证明核却只认写下来的那一条。"
   },
+  "tray": "formula",
   "tasks": [
     {
       "id": "decl-order",

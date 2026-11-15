@@ -1,6 +1,6 @@
 {
   "title": { "en": "Swap", "zh": "交换" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "tasks": [
     {
       "id": "in-comm",

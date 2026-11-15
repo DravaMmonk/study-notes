@@ -1,6 +1,6 @@
 {
   "adds": ["introRules", "elimRules"],
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "title": { "en": "Your own auto", "zh": "自建 auto" },
   "intro": [
     {

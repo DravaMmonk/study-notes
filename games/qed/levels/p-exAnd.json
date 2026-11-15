@@ -1,4 +1,5 @@
 {
+  "tray": "formula",
   "consts": ["h", "i", "j", "k", "l", "m", "n"],
   "title": { "en": "Splitting ∃", "zh": "∃ 也不能随便拆" },
   "tasks": [

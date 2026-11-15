@@ -1,6 +1,6 @@
 {
   "title": { "en": "Under “for all”", "zh": "在「对所有」底下" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

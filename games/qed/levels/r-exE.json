@@ -1,6 +1,6 @@
 {
   "title": { "en": "Taking out, backwards", "zh": "逆用实例框" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

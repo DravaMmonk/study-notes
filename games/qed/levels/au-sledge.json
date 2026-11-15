@@ -1,6 +1,6 @@
 {
   "adds": ["saturate", "clausify"],
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "title": { "en": "Hand it to the prover", "zh": "交给证明器" },
   "after": {
     "en": "A ⊥ reached by the proof assistant is vouched for by nothing but itself: the clauses were not proved by the kernel.",

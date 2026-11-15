@@ -1,6 +1,6 @@
 {
   "title": { "en": "One way or the other", "zh": "不是这样就是那样" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

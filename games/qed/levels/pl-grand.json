@@ -1,6 +1,6 @@
 {
   "title": { "en": "Who is a grandparent", "zh": "谁是祖父母" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

@@ -1,7 +1,7 @@
 {
   "title": { "en": "Taking it apart", "zh": "拆开它" },
   "adds": ["anyR", "swapConcl", "consFront", "mkRule"],
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

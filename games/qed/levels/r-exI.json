@@ -1,6 +1,6 @@
 {
   "title": { "en": "Generalise, backwards", "zh": "逆用概括" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

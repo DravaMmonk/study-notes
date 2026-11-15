@@ -1,6 +1,6 @@
 {
   "title": { "en": "Both of them", "zh": "两个都要" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

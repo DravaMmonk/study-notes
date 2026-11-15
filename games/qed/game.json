@@ -1,6 +1,6 @@
 {
   "domain": "logic",
-  "vocabulary": 7,
+  "vocabulary": 8,
   "title": { "en": "Q.E.D.", "zh": "证明完毕" },
   "kicker": {
     "en": "In development · Build proofs and proof assistants as circuits",
@@ -304,7 +304,17 @@
       "elimGen"
     ],
     "resolution": ["res"],
-    "certificate": ["clausify", "replay"]
+    "certificate": ["clausify", "replay"],
+    "formula": [
+      "formulaForall",
+      "formulaExists",
+      "formulaNot",
+      "formulaAnd",
+      "formulaOr",
+      "formulaImplies",
+      "formulaIff",
+      "formulaFalse"
+    ]
   },
   "concept": {
     "anyR": "rulecraft",

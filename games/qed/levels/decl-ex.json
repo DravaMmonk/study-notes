@@ -1,6 +1,7 @@
 {
   "adds": ["exI", "exE"],
   "title": { "en": "Declaring “there is”", "zh": "声明「存在」" },
+  "tray": "formula",
   "declare": { "en": "Some", "zh": "存在" },
   "target": "∃y. Human(y)",
   "sentences": ["Human(x)", "Mortal(x)"],

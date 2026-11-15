@@ -1,6 +1,6 @@
 {
   "title": { "en": "Babies cannot tame crocodiles", "zh": "婴儿驯不了鳄鱼" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

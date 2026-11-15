@@ -1,6 +1,6 @@
 {
   "title": { "en": "I cannot be proved", "zh": "我证不出" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

@@ -1,6 +1,6 @@
 {
   "title": { "en": "Sentences become numbers", "zh": "句子变成数" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

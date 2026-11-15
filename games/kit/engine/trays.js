@@ -7,8 +7,14 @@ import { T as t } from '../shell/i18n.js'
 /** game.json `trays`: { [tray]: [part] }. */
 export const TRAYS = S.opt(S.map(S.list(S.either(S.ref('part'), S.name('part'))), { section: 'course', about: t('几套托盘：每套是一串元件，按托盘上的先后排；关卡用其中一套，托盘上的元件在带来它或搭出它的那一关之后可用。不写时每关拿到见过的所有元件') }))
 
-/** A level's or a task's `tray`. */
-export const TRAY = S.opt(S.str({ section: 'course', about: t('这一关（这个任务）用的托盘；游戏只有一套托盘时不用写') }))
+const SINGLE = S.opt(S.str({ section: 'course', about: t('这一关（这个任务）用的托盘；游戏只有一套托盘时不用写') }))
+
+/** A single group or an ordered list of groups used by a level or task. */
+export const TRAY = S.opt({
+  ...S.either(SINGLE, S.list(S.str(), { min: 1 })),
+  section: 'course',
+  about: t('这一关或任务用的托盘，可按顺序选用多组', 'Tray or ordered list of trays used in this level or task'),
+})
 
 /** The names of the parts a game's levels build, for its trays (domain.js names; the vocabulary's go by reference). */
 export const partNames = (built = []) => ({ part: new Set(built) })

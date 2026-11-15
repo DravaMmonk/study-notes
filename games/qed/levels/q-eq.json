@@ -1,6 +1,6 @@
 {
   "title": { "en": "The Morning Star is the Evening Star", "zh": "晨星就是昏星" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

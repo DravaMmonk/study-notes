@@ -1,6 +1,6 @@
 {
   "title": { "en": "S on the right", "zh": "S 加在右边" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "tasks": [
     {
       "id": "in-succ",

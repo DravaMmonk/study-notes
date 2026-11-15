@@ -1,6 +1,6 @@
 {
   "title": { "en": "Defining equality: reflexivity", "zh": "定义相等：自反" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

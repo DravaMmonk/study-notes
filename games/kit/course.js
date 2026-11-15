@@ -31,8 +31,7 @@
 //   eras?                                  the course's eras, for the era rules of the audit
 //   trays       { [tray]: [part] }         the game's trays, each a list of parts in the order it shows them: a board
 //                                          of one kind (a truth circuit, a proof board), or a topic's own set of parts
-//   tray(level) → tray | null              the tray a level is played with ({ id, task? }: a task may name its own);
-//                                          null for a level that places no parts, which holds every part met
+//   tray(level) → tray | [tray] | null      which trays a level or task plays with, or null for every part met
 //   primitives  [part]                     available from the start
 //   adds(level) → [part]                   the parts a level brings in (everything else carries, see reach)
 //   needs(part) → flag | null              the flag solving its builder level sets (null: built nowhere)
@@ -261,9 +260,11 @@ export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = (
     return set
   }
   const tray = (level) => {
-    const name = trayOf(level)
-    if (name !== null && !trays[name]) throw new Error(`level ${level.id} is played with the tray ${name}, which the game has not`)
-    return name
+    const selection = trayOf(level)
+    if (selection === null) return null
+    const names = Array.isArray(selection) ? selection : [selection]
+    for (const name of names) if (!Object.hasOwn(trays, name)) throw new Error(`level ${level.id} is played with the tray ${name}, which the game has not`)
+    return names
   }
   // The settings and values some level opens: held from that level on, not from the start.
   const gated = new Set(levels.flatMap((l) => opens(l)))
@@ -285,23 +286,23 @@ export function met(course, level) {
   return [...new Set([...own, ...carried])]
 }
 
-/**
- * Every part a level can ever hold: of the parts it has met, those its tray lists, in the tray's order. So a board
- * of one kind (a truth circuit) keeps its parts while the course plays on others, and a topic that changes subject
- * plays with a tray of its own. A level with no tray holds every part met.
- */
-export function reach(course, level) {
-  const all = met(course, level)
-  const tray = course.tray(level)
-  return tray === null ? all : course.trays[tray].filter((p) => all.includes(p))
+/** The pieces in the level's selected groups, without duplicates and in the requested order. */
+function trayPieces(course, level) {
+  const trays = course.tray(level)
+  return trays === null ? null : [...new Set(trays.flatMap((name) => course.trays[name]))]
 }
 
-/** The fixed pieces of a tray, or the whole course's piece list for an implicit tray. */
+/** The parts a level has met that its selected trays list. An implicit tray holds every part met. */
+export function reach(course, level) {
+  const all = met(course, level)
+  const trays = trayPieces(course, level)
+  return trays === null ? all : trays.filter((part) => all.includes(part))
+}
+
+/** The fixed pieces of selected trays, or the whole course's piece list for an implicit tray. */
 export function fixedTray(course, level) {
-  const tray = course.tray(level)
-  return tray === null
-    ? [...new Set([...course.primitives, ...course.levels.flatMap((entry) => course.builds(entry))])]
-    : course.trays[tray]
+  return trayPieces(course, level)
+    ?? [...new Set([...course.primitives, ...course.levels.flatMap((entry) => course.builds(entry))])]
 }
 
 /** An item's address: a part, one of its settings (`key`), or one value of that setting. */

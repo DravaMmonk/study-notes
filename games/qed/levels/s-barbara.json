@@ -1,6 +1,6 @@
 {
   "title": { "en": "All cats are pets", "zh": "猫都是宠物" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

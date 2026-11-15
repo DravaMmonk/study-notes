@@ -1,7 +1,7 @@
 {
   "title": { "en": "Among the givens", "zh": "由假设得证" },
   "adds": ["assumption"],
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

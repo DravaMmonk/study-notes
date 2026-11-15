@@ -257,9 +257,8 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'table',
-  version: 2,
+  version: 3,
   // A part or an idea a level unlocks is a pieces.json entry whose inside refers to the task that builds or teaches it.
-  removes: ['level.unlock', 'level.builds', 'game.parts'].map((at) => ({ at, why: 'a piece a level unlocks is a parts.json entry whose inside refers to the task that builds or teaches it' })),
   kinds: {
     part: PARTS,
     world: WORLDS,

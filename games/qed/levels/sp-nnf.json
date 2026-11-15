@@ -1,6 +1,6 @@
 {
   "title": { "en": "negation normal form", "zh": "否定范式" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

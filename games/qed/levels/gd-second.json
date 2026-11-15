@@ -1,6 +1,6 @@
 {
   "title": { "en": "It cannot prove itself consistent", "zh": "证不了自己不矛盾" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

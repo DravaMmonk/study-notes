@@ -1,6 +1,6 @@
 {
   "title": { "en": "Associativity", "zh": "结合" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "tasks": [
     {
       "id": "in-assoc",

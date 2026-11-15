@@ -1,6 +1,6 @@
 {
   "title": { "en": "Three islanders speak", "zh": "三个人说话" },
-  "tray": "gates",
+  "tray": ["gates", "formula"],
   "intro": [{ "t": { "en": "Three people, and the table has eight rows.", "zh": "三个人，表有八行。" } }],
   "after": {
     "en": "Finding a row on which several sentences are all true is the <wiki-ref to=\"satisfiable\"></wiki-ref> problem (SAT).",

@@ -1,6 +1,6 @@
 {
   "title": { "en": "Distribute", "zh": "分配律" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

@@ -50,8 +50,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: '__name__',
-  version: 14,
-  removes: [{ at: 'level.tasks.of.works', why: 'retire the unused circuit test-writing mode' }],
+  version: 15,
   kinds: { op: {}, family: FAMILIES, want: WANTS },
   game: GAME,
   level: LEVEL,

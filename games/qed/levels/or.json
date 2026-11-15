@@ -1,6 +1,6 @@
 {
   "title": { "en": "One of two", "zh": "二选一" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

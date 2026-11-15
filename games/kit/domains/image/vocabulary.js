@@ -158,8 +158,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 19,
-  removes: [{ at: 'game.eras.of.chapter.lecture', why: 'chapter labels describe the game and can be omitted' }],
+  version: 20,
   kinds: {
     part: PARTS,
     op: Object.fromEntries(Object.entries(IMAGE_OPS).map(([name, { about, args }]) => [name, { about, args }])),

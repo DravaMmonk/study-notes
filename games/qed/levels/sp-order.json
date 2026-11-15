@@ -1,6 +1,6 @@
 {
   "title": { "en": "Which first", "zh": "先后" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

@@ -24,6 +24,7 @@
     "en": "Logicians call this reading of “if … then …” <b>material implication</b>.",
     "zh": "逻辑学把这样理解的「若…则…」称为<b>实质蕴涵</b>。"
   },
+  "tray": "formula",
   "tasks": [
     {
       "id": "table",

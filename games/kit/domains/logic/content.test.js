@@ -4,6 +4,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { runBoard } from '../../engine/boards.js'
 import { logicCourse } from './course.js'
+import { fixedTray } from '../../course.js'
 import { chipsOf } from './formulaTree.js'
 import { parse } from './formula.js'
 import { render } from './notation.js'
@@ -245,4 +246,29 @@ test('formula chips use the registered pieces and keep contextual names', () => 
   assert.equal(not.make().op, '¬')
   assert.equal(rain.make().pred, 'Rain')
   assert.ok(level.notation.symbols.includes('∨'))
+})
+
+test('formula and circuit groups share a task, combining in order and respecting unlocks', () => {
+  const content = readContent('starter', import.meta.dirname)
+  content.trays = {
+    gates: ['gNot', 'gAnd'],
+    basic: ['formulaAnd', 'formulaNot'],
+    extended: ['formulaOr', 'formulaNot'],
+  }
+  const levels = content.levels
+  const first = levels.find(({ id }) => id === 'g-not')
+  first.tray = ['gates', 'basic', 'extended']
+  const last = levels.find(({ id }) => id === 'g-use')
+  last.tray = ['gates', 'extended', 'basic']
+  last.without = ['formulaNot']
+  const logic = logicCourse(content)
+  const read = (id) => logic.LEVELS.find((level) => level.id === id).tasks[0]
+  const chips = (id) => chipsOf({
+    kind: 'translate', notation: read(id).notation, vocab: { preds: [['Rain', 0]], consts: [] },
+  }).map(({ key }) => key)
+
+  assert.deepEqual(chips('g-not'), ['P:Rain', '¬'])
+  assert.deepEqual(chips('g-use'), ['P:Rain', '∨', '∧'])
+  assert.deepEqual(fixedTray(logic.course, read('g-use')), ['gNot', 'gAnd', 'formulaOr', 'formulaNot', 'formulaAnd'])
+  assert.ok(Object.values(logic.offerIn(read('g-use'), new Set())).flat().every((type) => ['gNot', 'gAnd'].includes(type)))
 })

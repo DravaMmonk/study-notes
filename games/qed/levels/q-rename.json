@@ -1,6 +1,6 @@
 {
   "title": { "en": "Another name", "zh": "换个名字" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "tasks": [
     {
       "id": "q-rename",

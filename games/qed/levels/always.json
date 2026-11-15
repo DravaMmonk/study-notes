@@ -19,6 +19,7 @@
     "en": "Whether a proposition is a tautology depends only on its <b>logical form</b>: put other propositions in place of its atoms and the verdict stays the same.",
     "zh": "一个命题是否永真，只取决于它的<b>逻辑形式</b>：把其中的基本命题换成别的，结论不变。"
   },
+  "tray": "formula",
   "tasks": [
     {
       "id": "always",

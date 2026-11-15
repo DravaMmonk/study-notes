@@ -18,11 +18,12 @@
     "en": "This is the island’s form of the <wiki-ref to=\"liar\"></wiki-ref>.",
     "zh": "这是<wiki-ref to=\"liar\"></wiki-ref>在岛上的样子。"
   },
+  "tray": "formula",
   "tasks": [
     {
       "id": "kk-one_1",
       "kind": "gates",
-      "tray": "gates",
+      "tray": ["gates", "formula"],
       "step": { "en": "Translate", "zh": "翻译" },
       "blind": true,
       "target": "KA ↔ ¬KA",
@@ -36,7 +37,7 @@
     {
       "id": "kk-one_2",
       "kind": "proof",
-      "tray": "proof",
+      "tray": ["proof", "formula"],
       "step": { "en": "Proof", "zh": "证明" },
       "tests": [{ "premises": { "p": "A ↔ ¬A" }, "goal": "⊥" }],
       "cases": [{ "A": "KA" }, { "A": "KC" }],

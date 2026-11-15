@@ -18,6 +18,7 @@
     "en": "“Exactly one agrees” cannot be declared, though: an introduction rule can say what makes a sentence, never what stops it.",
     "zh": "「恰好一人同意」却写不成声明：引入规则只能说有了什么就造得出，说不了有了什么就造不出。"
   },
+  "tray": "formula",
   "tasks": [
     {
       "id": "decl-two",

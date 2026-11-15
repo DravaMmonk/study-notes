@@ -1,6 +1,6 @@
 {
   "title": { "en": "Until it cannot", "zh": "做到做不动" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

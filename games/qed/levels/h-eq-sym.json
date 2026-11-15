@@ -1,6 +1,6 @@
 {
   "title": { "en": "Defining equality: symmetry", "zh": "定义相等：对称" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

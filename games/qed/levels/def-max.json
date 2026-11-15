@@ -8,6 +8,7 @@
       }
     }
   ],
+  "tray": "formula",
   "tasks": [
     {
       "id": "def-max_1",

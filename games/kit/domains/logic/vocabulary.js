@@ -254,11 +254,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 7,
-  removes: [
-    ...['level.tasks.of.cases.term', 'kinds.kind.term', 'languages.term'].map((at) => ({ at, why: 'retire the proof-term writing play' })),
-    ...['termFun', 'termApp', 'termPair', 'termFst', 'termSnd', 'termInl', 'termInr', 'termCases', 'termAbsurd', 'termOpen', 'termRefl', 'termSubst'].map((mark) => ({ at: `kinds.mark.${mark}`, why: 'retire the proof-term writing keys' })),
-  ],
+  version: 8,
   kinds: {
     part: PART_ITEMS,
     // The engine resources pieces.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).

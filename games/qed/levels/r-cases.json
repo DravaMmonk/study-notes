@@ -1,6 +1,6 @@
 {
   "title": { "en": "Case by case", "zh": "分情况" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

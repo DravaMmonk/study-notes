@@ -9,7 +9,7 @@ import { symbolFor } from './stripPieces.js'
 import { playFor } from '../../engine/plays.js'
 import { plays } from './plays.js'
 import { builtPieces, cardOf, pieceReferences, revisionsOf, settingsOf } from '../../engine/pieces.js'
-import { defineCourse, eraLevels, holds, itemOf, layout, met, numbered, offer } from '../../course.js'
+import { defineCourse, eraLevels, holds, itemOf, layout, met, numbered, offer, usable } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
 import { keyOf } from '../../shell/i18n.js'
 import { trayIn } from '../../engine/trays.js'
@@ -250,9 +250,6 @@ export function logicCourse(content) {
     if (marks.has(piece.mark)) wrong.push(`pieces.json: ${piece.type} repeats the strip mark ${piece.mark}`)
     marks.add(piece.mark)
   }
-  const formulaPieces = Object.fromEntries(Object.values(strips).filter((piece) => Object.hasOwn(symbolFor, piece.mark))
-    .map((piece) => [symbolFor[piece.mark], piece]))
-  const introduced = (ids = []) => ids.flatMap((id) => Object.hasOwn(symbolFor, strips[id]?.mark) ? [symbolFor[strips[id].mark]] : [])
   const built = readBuilt(content)
   const { lemmas, facts, gates, machines, revisions } = built
   // The levels as the course reads them: each with the piece it builds, and each task with the equation it proves.
@@ -335,33 +332,20 @@ export function logicCourse(content) {
     }
     return one
   }
-  // A level writes formulas in its own words (notation.js) and with every symbol introduced by then: the symbols of
-  // the levels before it in play order, and its own.
-  const known = new Set()
+  // Register task metadata before resolving notation or reading any answers.
   const LEVELS = plan.order.map((id) => {
     const level = given.get(id)
     if (!level) throw new Error(`an era names a level that does not exist: ${id}`)
-    for (const symbol of introduced(level.adds)) known.add(symbol)
     const chapter = eraOf.get(id)
     const requires = plan.requires.get(id) ?? []
     const unlocks = level.builds ? [`lemma:${level.builds}`] : []
-    const read = (l) => {
-      for (const symbol of introduced(l.adds)) known.add(symbol)
-      const symbols = [...known].filter((symbol) => !l.without?.includes(formulaPieces[symbol]?.type))
-      const allowed = (pieces) => l.without?.length
-        ? Object.fromEntries(Object.entries(pieces).filter(([, piece]) => !l.without.includes(piece.type)))
-        : pieces
-      const allowedFormula = allowed(formulaPieces)
-      const notation = { words: l.words ?? words, symbols, formulaPieces: allowedFormula, propertyWords: l.propertyWords ?? l.kind === 'proof' }
-      const expanded = l.cases ? expand(l, notation) : {}
-      // A machine board's axioms are parts the level brings with it (machine.js axiomPartsOf).
-      return answers({ ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: expanded.tests.at(-1).caseBrief } : {}), adds: [...(l.adds ?? []).filter((type) => !strips[type]), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter, requires, unlocks, lemmas, proofs: lemmaPieces, facts, gates: boardGates, partDefs: defs, revisions, notation })
-    }
-    const all = tasksOf.get(id).map(read)
+    const all = tasksOf.get(id).map((task) => ({
+      ...task,
+      adds: [...new Set([...(level.adds ?? []).filter((type) => strips[type]), ...(task.adds ?? []),
+        ...(task.kind === 'machine' ? axiomPartsOf(task) : [])])],
+      chapter, requires, unlocks,
+    }))
     const last = all.at(-1)
-    // The level: what it says once, and what the course reads of it off its last task (its kind and brief on the map,
-    // what it holds back, the connective it declares). A part the level or any task brings in is new to the level,
-    // whichever task it is.
     return {
       id, title: level.title, intro: level.intro, after: level.after, kind: last.kind, brief: last.brief, builds: level.builds, fact: last.fact, showcase: level.showcase,
       without: last.without, declare: last.declare, adds: [...new Set(all.flatMap((t) => t.adds))], chapter, requires, unlocks, tasks: all,
@@ -372,7 +356,7 @@ export function logicCourse(content) {
   const TASKS = LEVELS.flatMap((l) => l.tasks)
   // The rules each connective's declaration brings in, by the connective's name.
   const rules = LEVELS.filter((level) => level.declare && level.adds?.length).map((level) => ({
-    kind: 'declaration', type: keyOf(level.declare), form: null, task: level.tasks.at(-1), value: level.adds,
+    kind: 'declaration', type: keyOf(level.declare), form: null, task: level.tasks.at(-1), value: level.adds.filter((type) => !strips[type]),
   }))
   for (const [type, list] of Object.entries(revisions)) for (const r of list) if (!byId.has(r.at ?? r.by)) throw new Error(`the revision of ${type} names a level that does not exist: ${r.at ?? r.by}`)
   // A level's number: on an era's main path the era and its place, a parallel set row by row ('1-4', numbered), in a topic its
@@ -413,9 +397,14 @@ export function logicCourse(content) {
     eras,
     trays,
     tray: (l) => trayIn(trays, taskOf(l).tray),
-    primitives: [...primitives, ...axioms],
-    concept: (p) => concept[p] ?? (axioms.includes(p) ? null : p),
-    adds: (l) => byId.get(l.id).adds,
+    primitives: [...primitives, ...axioms, ...Object.keys(strips)],
+    concept: (p) => strips[p] ? null : concept[p] ?? (axioms.includes(p) ? null : p),
+    adds: (l) => {
+      const level = byId.get(l.id)
+      if (l.task === undefined) return level.adds
+      const stripAdds = level.tasks.slice(0, l.task + 1).flatMap((task) => task.adds.filter((type) => strips[type]))
+      return [...level.adds.filter((type) => !strips[type]), ...stripAdds]
+    },
     needs: (p) => (isBuilt(p) ? `lemma:${p}` : null),
     local: (p) => local.includes(p) || axioms.includes(p),
     builds: (l) => (byId.get(l.id).builds ? [byId.get(l.id).builds] : []),
@@ -425,6 +414,7 @@ export function logicCourse(content) {
       .filter((form) => l.task === undefined || references.resolve(type, form, null, { kind: 'lemma', reference: true })?.task.task < l.task).map((form) => itemOf(type, 'form', form))),
     // On a machine board, the rule parts of the task's rule book among the parts met, whatever its tray lists.
     gives: (l) => {
+      if (l.editor === 'strip') return []
       const task = byId.get(l.id).tasks[l.task]
       if (task?.kind !== 'machine') return []
       const rules = ruleTypes(task)
@@ -446,6 +436,29 @@ export function logicCourse(content) {
     showcase: (l) => byId.get(l.id).showcase ?? null,
     abstraction: true,
   })
+  const noFlags = new Set()
+  for (const one of TASKS) {
+    // Machine rulebook parts are board grants. Fixed formula keys come from the same selected trays.
+    const keys = usable(course, { id: one.id, task: one.task, editor: 'strip' }, noFlags)
+    const formulaPieces = Object.fromEntries(keys.flatMap((type) => {
+      const piece = strips[type]
+      return piece && Object.hasOwn(symbolFor, piece.mark) ? [[symbolFor[piece.mark], piece]] : []
+    }))
+    const notation = {
+      words: one.words ?? words,
+      symbols: Object.keys(formulaPieces),
+      formulaPieces,
+      propertyWords: one.propertyWords ?? one.kind === 'proof',
+    }
+    const expanded = one.cases ? expand(one, notation) : {}
+    Object.assign(one, answers({
+      ...one, ...declarations(one, one.id), ...(!one.brief && expanded.schema ? { brief: expanded.tests.at(-1).caseBrief } : {}),
+      ...(WORLD_KINDS.includes(one.kind) ? { vocab: vocabOf(one) } : {}), ...expanded,
+      ...(one.kind === 'machine' ? { tests: one.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}),
+      lemmas, proofs: lemmaPieces, facts, gates: boardGates, partDefs: defs, revisions, notation,
+    }))
+  }
+  for (const level of LEVELS) level.brief = level.tasks.at(-1).brief
   for (const one of TASKS) {
     const source = tasksOf.get(one.id)[one.task]
     for (const [kind, names, action] of [['type', source.types, 'declared'], ['function', source.defs, 'defined']]) {
@@ -525,7 +538,10 @@ export function logicCourse(content) {
     return [type, { name, desc, icon: 'CircuitBoard', family: 'built', inputs: p.inputs.map((port) => ({ name: port, ...(port === 'rules' ? { label: T('规则', 'Rules') } : {}) })), settings, compute: '0' }]
   }))
   /** What a task's tray holds for a player with `flags`, as what it shows and what it folds away. */
-  const offerIn = (task, flags) => offer(course, at(task), flags)
+  const offerIn = (task, flags) => {
+    const { shown, folded } = offer(course, at(task), flags)
+    return { shown: shown.filter((type) => !strips[type]), folded: folded.filter((type) => !strips[type]) }
+  }
   /** Whether a task holds a part, or a shape of one: has(part), has(part, 'form', shape) (../../course.js holds). */
   const holdsIn = (task, flags) => holds(course, at(task), flags)
   // The truth circuits as the kernel's circuit screen reads them (gates.js gateCourse).

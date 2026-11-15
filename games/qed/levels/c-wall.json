@@ -1,6 +1,6 @@
 {
   "title": { "en": "What auto cannot prove", "zh": "auto 证不出的" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

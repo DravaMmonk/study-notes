@@ -1,6 +1,6 @@
 {
   "title": { "en": "Apply", "zh": "套用" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

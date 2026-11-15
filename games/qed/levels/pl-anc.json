@@ -1,6 +1,6 @@
 {
   "title": { "en": "Any number of generations", "zh": "隔多少代都行" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

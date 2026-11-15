@@ -1,6 +1,6 @@
 {
   "title": { "en": "The givens by their shape", "zh": "按形状分解假设" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

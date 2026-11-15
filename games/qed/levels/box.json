@@ -1,6 +1,6 @@
 {
   "title": { "en": "Assume, then apply", "zh": "先假设，再套用" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     { "t": { "en": "On a Saturday, if it rains I rest at home. It is raining.", "zh": "周六的话，下雨我就在家休息。今天下雨了。" } }
   ],

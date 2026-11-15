@@ -1,6 +1,6 @@
 {
   "title": { "en": "An if is a case split", "zh": "如果就分情况" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

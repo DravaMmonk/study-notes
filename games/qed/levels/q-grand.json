@@ -1,5 +1,6 @@
 {
   "title": { "en": "Who are grandparents", "zh": "谁当了祖父母" },
+  "tray": "formula",
   "tasks": [
     {
       "id": "q-grand",

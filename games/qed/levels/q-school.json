@@ -1,5 +1,6 @@
 {
   "title": { "en": "Parents whose children all go to school", "zh": "孩子都在上学的家长" },
+  "tray": "formula",
   "tasks": [
     {
       "id": "q-school",

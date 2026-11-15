@@ -1,11 +1,12 @@
 {
   "title": { "en": "Two islanders", "zh": "两个岛民" },
   "intro": [{ "t": { "en": "b says nothing, but what a says mentions him.", "zh": "b 什么也没说，可 a 的话提到了他。" } }],
+  "tray": "formula",
   "tasks": [
     {
       "id": "kk-two_1",
       "kind": "gates",
-      "tray": "gates",
+      "tray": ["gates", "formula"],
       "step": { "en": "Translate", "zh": "翻译" },
       "blind": true,
       "target": "KA ↔ ¬KA ∧ ¬KB",
@@ -24,7 +25,7 @@
     {
       "id": "kk-two_2",
       "kind": "proof",
-      "tray": "proof",
+      "tray": ["proof", "formula"],
       "step": { "en": "Proof", "zh": "证明" },
       "tests": [{ "premises": { "p": "A ↔ ¬A ∧ ¬B" }, "goal": "¬A ∧ B" }],
       "cases": [{ "A": "KA", "B": "KB" }, { "A": "KC", "B": "KD" }],

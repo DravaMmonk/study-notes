@@ -1,6 +1,6 @@
 {
   "title": { "en": "Several at once", "zh": "几条一起" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

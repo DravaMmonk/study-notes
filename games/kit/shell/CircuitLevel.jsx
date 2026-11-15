@@ -1,3 +1,4 @@
+import { editorOf } from '../engine/pieces.js'
 import { useElementSize } from '../views/useElementSize.js'
 import { portNotes } from '../circuit/card-ports.js'
 import { traySize } from '../circuit/card-size.js'
@@ -253,7 +254,9 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const testTabs = tabs && <TestTabs tests={run.tests} states={run.states} index={run.at} onSelect={run.select} phone={phone} />
 
   if (phone) {
-    const size = traySize(fixedTray(game.course, level.source ?? level), trayParts ?? parts, partDefaults)
+    const cards = fixedTray(game.course, level.source ?? level)
+      .filter((type) => editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')
+    const size = traySize(cards, trayParts ?? parts, partDefaults)
     return (
       <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, size, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )

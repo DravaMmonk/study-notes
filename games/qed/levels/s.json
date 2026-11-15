@@ -1,6 +1,6 @@
 {
   "title": { "en": "Apply under a condition", "zh": "在条件下套用" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

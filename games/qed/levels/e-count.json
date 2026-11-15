@@ -1,6 +1,6 @@
 {
   "title": { "en": "At least and at most", "zh": "至少与最多" },
-  "tray": "gates",
+  "tray": ["gates", "formula"],
   "intro": [
     {
       "t": {

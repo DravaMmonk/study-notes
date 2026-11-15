@@ -1,6 +1,6 @@
 {
   "title": { "en": "Two islanders speak", "zh": "两个人说话" },
-  "tray": "gates",
+  "tray": ["gates", "formula"],
   "tasks": [
     {
       "id": "e-two",

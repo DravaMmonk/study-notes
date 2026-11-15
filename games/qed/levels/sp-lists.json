@@ -1,6 +1,6 @@
 {
   "title": { "en": "Lists too", "zh": "列表也一样" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

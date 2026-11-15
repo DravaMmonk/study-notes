@@ -8,6 +8,7 @@
       }
     }
   ],
+  "tray": "formula",
   "tasks": [
     {
       "id": "decl-list",

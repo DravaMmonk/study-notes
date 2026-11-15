@@ -1,7 +1,7 @@
 {
   "title": { "en": "Every goal", "zh": "每个目标都做一遍" },
   "adds": ["each"],
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

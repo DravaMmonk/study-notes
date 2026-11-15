@@ -1,6 +1,6 @@
 {
   "title": { "en": "None lost", "zh": "一个都不少" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [{ "t": { "en": "A list is as long after sorting as before.", "zh": "排序前后，列表一样长。" } }],
   "after": {
     "en": "A program and its properties, written and proved in one system: this is <b>program verification</b>.",

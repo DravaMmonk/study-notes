@@ -1,6 +1,6 @@
 {
   "title": { "en": "Append associates too", "zh": "拼接也结合" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "tasks": [
     {
       "id": "in-appassoc",

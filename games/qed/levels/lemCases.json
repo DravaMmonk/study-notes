@@ -1,6 +1,6 @@
 {
   "title": { "en": "Take both sides", "zh": "两边都讨论" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

@@ -1,6 +1,6 @@
 {
   "title": { "en": "Three islanders", "zh": "三个人" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

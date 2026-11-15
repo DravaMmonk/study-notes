@@ -68,9 +68,10 @@ export default function logicGame(content) {
   const kernelRules = (type) => KERNEL_RULES.filter((r) => r.part === type).map((r) => ({ text: ruleText(r) }))
   const lemmaRows = (type) => lemmaRules(type, lemmas[type]).map((r, k) => ({ text: ruleText(r), ...(k ? { form: r.key.split('.')[1] } : {}) }))
   const primitives = [...introductions(logic.course)].map(([type, at]) => {
-    const text = logic.defs[type] ?? pieces[type]
+    const strip = logic.strips[type]
+    const text = logic.defs[type] ?? pieces[type] ?? strip
     const rules = kernelRules(type)
-    return { key: `part:${type}`, name: text?.name ?? type, desc: text?.desc, revisions: revisions[type], icon: logic.defs[type] ? cards[type].icon : Cpu, at, ...(rules.length ? { rules } : {}) }
+    return { key: `part:${type}`, piece: type, name: text?.name ?? type, desc: text?.desc, revisions: revisions[type], icon: cards[type]?.icon ?? (strip ? partIcon(strip.icon) : Cpu), at, ...(rules.length ? { rules } : {}) }
   })
   // A part is new in the level that first brings its idea in (`adds`); everything else carries (../../course.js reach).
   const levels = LEVELS.map((L, index) => ({

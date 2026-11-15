@@ -12,6 +12,7 @@
     "en": "So the quantifier’s variable is renamed before substituting; the prover’s <part-ref to=\"part:allE\"></part-ref> does this by itself.",
     "zh": "所以代入前要先给量词的变量改名；证明器的<part-ref to=\"part:allE\"></part-ref>会自动这样做。"
   },
+  "tray": "formula",
   "tasks": [
     {
       "id": "q-capture",

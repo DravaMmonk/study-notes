@@ -1,6 +1,6 @@
 {
   "title": { "en": "More rewrite rules", "zh": "更多改写规则" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

@@ -1,6 +1,6 @@
 {
   "title": { "en": "Two directions", "zh": "两个方向" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

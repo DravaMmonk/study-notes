@@ -1,4 +1,5 @@
 {
+  "tray": "formula",
   "consts": ["h", "i", "j", "k", "l", "m", "n"],
   "title": { "en": "Does not follow", "zh": "推不出" },
   "intro": [

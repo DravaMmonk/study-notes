@@ -1,6 +1,6 @@
 {
   "title": { "en": "Double negation", "zh": "双重否定律" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

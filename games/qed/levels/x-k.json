@@ -1,6 +1,6 @@
 {
   "title": { "en": "Without the box: K and S", "zh": "不用框：K 和 S" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "without": ["impI", "chain", "swap", "merge"],
   "intro": [
     {

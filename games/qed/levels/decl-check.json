@@ -1,5 +1,6 @@
 {
   "title": { "en": "Checking a declaration", "zh": "检验声明" },
+  "tray": "formula",
   "declare": { "en": "And", "zh": "并且" },
   "target": "Rain ∧ Wind",
   "sentences": ["Rain", "Wind"],

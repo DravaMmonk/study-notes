@@ -1,6 +1,6 @@
 {
   "title": { "en": "No effect, no cause", "zh": "没有结果，就没有起因" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

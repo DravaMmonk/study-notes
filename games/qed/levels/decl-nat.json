@@ -18,6 +18,7 @@
     "en": "A type declared this way is an <wiki-ref to=\"inductive\"></wiki-ref>. The kernel makes three kinds of rule from it: cases, induction, and the constructors all being different.",
     "zh": "这样声明出来的类型叫<wiki-ref to=\"inductive\"></wiki-ref>。证明核由它生成三样规则：按情况分、归纳、构造子互不相同。"
   },
+  "tray": "formula",
   "tasks": [
     {
       "id": "decl-nat",

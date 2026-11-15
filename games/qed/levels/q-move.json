@@ -1,6 +1,6 @@
 {
   "title": { "en": "Moving a quantifier out", "zh": "量词挪出来" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

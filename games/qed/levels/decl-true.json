@@ -12,6 +12,7 @@
     "en": "True is often written ⊤, the very opposite of ⊥: knowing it holds tells you nothing more.",
     "zh": "「真」常写作 ⊤，和 ⊥ 正好相对：知道它成立，并没有多知道什么。"
   },
+  "tray": "formula",
   "tasks": [
     {
       "id": "decl-true",

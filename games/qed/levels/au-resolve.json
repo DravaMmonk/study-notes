@@ -1,6 +1,6 @@
 {
   "title": { "en": "Resolve", "zh": "归结" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

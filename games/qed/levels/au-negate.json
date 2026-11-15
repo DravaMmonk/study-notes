@@ -1,6 +1,6 @@
 {
   "title": { "en": "Proving it backwards", "zh": "反过来证" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

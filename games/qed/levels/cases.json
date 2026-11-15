@@ -1,6 +1,6 @@
 {
   "title": { "en": "Case by case", "zh": "分情况" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

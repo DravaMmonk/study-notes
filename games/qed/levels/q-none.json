@@ -1,5 +1,6 @@
 {
   "title": { "en": "Who has no children", "zh": "谁没有孩子" },
+  "tray": "formula",
   "tasks": [
     {
       "id": "q-none",

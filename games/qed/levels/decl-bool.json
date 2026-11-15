@@ -12,6 +12,7 @@
     "en": "Every “if” in a program is, in a proof, a split into cases on a truth value.",
     "zh": "程序里的每一个「如果」，在证明里就是对真假值分一次情况。"
   },
+  "tray": "formula",
   "tasks": [
     {
       "id": "decl-bool",

@@ -1,6 +1,6 @@
 {
   "title": { "en": "A step that may not apply", "zh": "可做可不做" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

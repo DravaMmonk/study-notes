@@ -19,6 +19,7 @@
     "en": "The elimination rule of ⊥ has no case to handle, so once ⊥ is held, every goal is derivable: the <b>principle of explosion</b>. “Not” comes from contradiction too: ¬A is defined as A → ⊥, “if A held, it would lead to a contradiction”. So with A and ¬A both as premises, Apply gives ⊥, and from it any statement follows.",
     "zh": "⊥ 的消去规则没有任何情况需要处理，所以一旦有了 ⊥，任何目标都可推导，这就是<b>爆炸原理</b>。「非」也由矛盾而来：¬A 定义为 A → ⊥，即「如果 A 成立，就会导致矛盾」。因此 A 与 ¬A 同时作为前提时，套用即得 ⊥，进而可以推出任何命题。"
   },
+  "tray": "formula",
   "tasks": [
     {
       "id": "decl-bot",

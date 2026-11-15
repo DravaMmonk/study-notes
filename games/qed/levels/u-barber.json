@@ -1,6 +1,6 @@
 {
   "title": { "en": "The barber", "zh": "理发师" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

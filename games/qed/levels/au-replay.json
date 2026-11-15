@@ -1,7 +1,7 @@
 {
   "title": { "en": "Let the kernel replay it", "zh": "让核重放" },
   "adds": ["replay", "saturate", "clausify"],
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

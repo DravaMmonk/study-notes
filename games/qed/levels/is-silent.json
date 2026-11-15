@@ -1,6 +1,6 @@
 {
   "title": { "en": "What does not follow", "zh": "推不出的" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "tasks": [
     {
       "id": "is-silent",

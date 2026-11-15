@@ -1,6 +1,6 @@
 {
   "title": { "en": "conjunctive normal form", "zh": "合取范式" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

@@ -1,6 +1,7 @@
 {
   "adds": ["orI", "orE"],
   "title": { "en": "Declaring “or”", "zh": "声明「或者」" },
+  "tray": "formula",
   "declare": { "en": "Or", "zh": "或者" },
   "target": "Sat ∨ Sun",
   "sentences": ["Sat", "Sun"],

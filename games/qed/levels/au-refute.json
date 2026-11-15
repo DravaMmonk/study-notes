@@ -1,6 +1,6 @@
 {
   "adds": ["res"],
-  "tray": "resolution",
+  "tray": ["resolution", "formula"],
   "title": { "en": "Down to the empty clause", "zh": "推出空子句" },
   "intro": [
     {

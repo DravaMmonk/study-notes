@@ -1,6 +1,6 @@
 {
   "title": { "en": "Chain, then merge", "zh": "接起来，再合并" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "tasks": [
     {
       "id": "mergeUse",

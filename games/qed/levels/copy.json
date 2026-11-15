@@ -1,6 +1,6 @@
 {
   "title": { "en": "Copy", "zh": "照抄" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

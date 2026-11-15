@@ -1,6 +1,6 @@
 {
   "title": { "en": "Left to right only", "zh": "只从左往右" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

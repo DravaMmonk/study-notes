@@ -1,6 +1,6 @@
 {
   "title": { "en": "Take it out first", "zh": "先拿出来" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

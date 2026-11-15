@@ -1,5 +1,6 @@
 {
   "title": { "en": "Declaring “if and only if”", "zh": "声明「当且仅当」" },
+  "tray": "formula",
   "declare": { "en": "if and only if", "zh": "当且仅当" },
   "target": "Rain ↔ Wet",
   "sentences": ["Rain → Wet", "Wet → Rain"],

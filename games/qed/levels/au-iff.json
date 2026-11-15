@@ -8,11 +8,12 @@
       }
     }
   ],
+  "tray": "formula",
   "tasks": [
     {
       "id": "au-iff_1",
       "kind": "proof",
-      "tray": "proof",
+      "tray": ["proof", "formula"],
       "step": { "en": "Equivalence to two ors", "zh": "等价变成两串「或者」" },
       "tests": [{ "premises": { "p": "A ↔ B" }, "goal": "(¬A ∨ B) ∧ (¬B ∨ A)" }],
       "cases": [{ "A": "Sat", "B": "Rest" }, { "A": "KA", "B": "KB" }],
@@ -24,7 +25,7 @@
     {
       "id": "au-iff_2",
       "kind": "proof",
-      "tray": "proof",
+      "tray": ["proof", "formula"],
       "step": { "en": "And back", "zh": "再变回来" },
       "tests": [{ "premises": { "p": "(¬A ∨ B) ∧ (¬B ∨ A)" }, "goal": "A ↔ B" }],
       "cases": [{ "A": "Sat", "B": "Rest" }, { "A": "KA", "B": "KB" }],
@@ -40,7 +41,7 @@
     {
       "id": "au-iff_3",
       "kind": "machine",
-      "tray": "machine",
+      "tray": ["machine", "formula"],
       "want": "becomes",
       "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
       "backtrack": true,

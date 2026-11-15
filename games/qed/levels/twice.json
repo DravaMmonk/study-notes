@@ -1,6 +1,6 @@
 {
   "title": { "en": "The same condition twice", "zh": "同一个条件说两遍" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

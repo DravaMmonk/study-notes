@@ -1,6 +1,6 @@
 {
   "title": { "en": "Givens that contradict", "zh": "自相矛盾的已知" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

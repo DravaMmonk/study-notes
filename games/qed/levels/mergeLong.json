@@ -1,6 +1,6 @@
 {
   "title": { "en": "A long way round", "zh": "绕一大圈" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

@@ -1,6 +1,6 @@
 {
   "title": { "en": "De Morgan", "zh": "德摩根律" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {

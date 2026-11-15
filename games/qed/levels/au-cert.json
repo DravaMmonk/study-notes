@@ -10,11 +10,12 @@
     }
   ],
   "after": { "en": "Finding a proof is hard; checking one is easy.", "zh": "找证明难，查证明容易。" },
+  "tray": "formula",
   "tasks": [
     {
       "id": "au-cert_1",
       "kind": "machine",
-      "tray": "machine",
+      "tray": ["machine", "formula"],
       "want": "refuted",
       "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
       "backtrack": true,
@@ -35,7 +36,7 @@
     {
       "id": "au-cert_2",
       "kind": "proof",
-      "tray": "resolution",
+      "tray": ["resolution", "formula"],
       "step": { "en": "Replay it", "zh": "照着重放" },
       "tests": [{ "premises": { "p": "¬A ∨ B", "q": "¬B ∨ C", "r": "A", "s": "¬C" }, "goal": "⊥" }],
       "cases": [{ "A": "Alarm", "B": "Up", "C": "Coffee" }],

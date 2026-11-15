@@ -1,6 +1,6 @@
 {
   "title": { "en": "One more condition does no harm", "zh": "多一个条件也无妨" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [{ "t": { "en": "This level has no givens.", "zh": "这一关没有已知。" } }],
   "after": {
     "en": "In a <wiki-ref to=\"hilbert\"></wiki-ref>, which has no box, K is an <wiki-ref to=\"axiom\"></wiki-ref>, taken without proof.",

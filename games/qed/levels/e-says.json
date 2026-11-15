@@ -1,6 +1,6 @@
 {
   "title": { "en": "What a says", "zh": "a 说的话" },
-  "tray": "gates",
+  "tray": ["gates", "formula"],
   "intro": [
     {
       "t": {

@@ -1,6 +1,6 @@
 {
   "title": { "en": "Appending nothing", "zh": "接一个空列表" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

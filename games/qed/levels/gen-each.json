@@ -1,7 +1,7 @@
 {
   "title": { "en": "One for each", "zh": "每一条" },
   "adds": ["anyR", "swapConcl", "consFront", "mkRule", "eachOf"],
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

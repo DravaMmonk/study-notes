@@ -1,6 +1,6 @@
 {
   "adds": ["frule"],
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "title": { "en": "The same given twice", "zh": "同一条用两次" },
   "intro": [
     {

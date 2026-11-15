@@ -1,6 +1,6 @@
 {
   "title": { "en": "Reversing an append", "zh": "倒过来拼" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

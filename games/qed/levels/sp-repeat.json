@@ -1,6 +1,6 @@
 {
   "title": { "en": "Until nothing fits", "zh": "改到改不动" },
-  "tray": "machine",
+  "tray": ["machine", "formula"],
   "intro": [
     {
       "t": {

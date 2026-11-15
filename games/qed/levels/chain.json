@@ -1,6 +1,6 @@
 {
   "title": { "en": "Join them", "zh": "接起来" },
-  "tray": "proof",
+  "tray": ["proof", "formula"],
   "intro": [
     {
       "t": {
