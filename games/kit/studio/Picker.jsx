@@ -24,11 +24,13 @@ export function OptionList({ options, value, onPick, onClose, anchor, onOutside 
     const position = () => {
       const rect = trigger.getBoundingClientRect()
       const panel = trigger.closest('.studio-tree, .studio-side')?.getBoundingClientRect()
-      const width = Math.min(460, (panel?.width ?? window.innerWidth) - 16)
+      const maxWidth = Math.min(460, (panel?.width ?? window.innerWidth) - 16)
+      node.style.width = searchable ? `${maxWidth}px` : 'max-content'
+      node.style.maxWidth = `${maxWidth}px`
+      const width = searchable ? maxWidth : node.getBoundingClientRect().width
       const spaceBelow = window.innerHeight - rect.bottom - 8
       const openAbove = spaceBelow < 220 && rect.top > spaceBelow
       Object.assign(node.style, {
-        width: `${width}px`,
         left: `${Math.max(8, Math.min(rect.left, (panel?.right ?? window.innerWidth) - width - 8))}px`,
         top: openAbove ? 'auto' : `${rect.bottom + 4}px`,
         bottom: openAbove ? `${window.innerHeight - rect.top + 4}px` : 'auto',
@@ -42,7 +44,7 @@ export function OptionList({ options, value, onPick, onClose, anchor, onOutside 
       window.removeEventListener('resize', position)
       window.removeEventListener('scroll', position, true)
     }
-  }, [anchor, floating, overlay])
+  }, [anchor, floating, overlay, searchable])
   const shown = useMemo(() => {
     const q = searchable ? query.trim().toLowerCase() : ''
     return q ? options.filter((o) => `${o.value} ${o.label ?? ''} ${words(o.title)} ${words(o.about)} ${words(o.group)}`.toLowerCase().includes(q)) : options
