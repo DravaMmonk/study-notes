@@ -5,7 +5,14 @@ import { useSetting } from './useSetting.js'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, newPartSlot, phoneBlockBoard, blockOfPart } from '../circuit/blocks.js'
 import { Info } from 'lucide-react'
-import { CanvasEditor, Notice, Palette, PartActions, SlotBoard, Tray, spotIn, useSlotEditing } from '../circuit/index.js'
+import CanvasEditor from '../circuit/CanvasEditor.jsx'
+import Notice from '../circuit/Notice.jsx'
+import Palette from '../circuit/Palette.jsx'
+import PartActions from '../circuit/PartActions.jsx'
+import SlotBoard from '../circuit/SlotBoard.jsx'
+import Tray from '../circuit/Tray.jsx'
+import { spotIn } from '../circuit/model.js'
+import { useSlotEditing } from '../circuit/useSlotEditing.js'
 import Glyph from '../circuit/Glyph.jsx'
 import { InsideBoard, PackedDetail, PackedTools, insideOf } from '../circuit/Inside.jsx'
 import { WORDS } from './words.js'
@@ -153,7 +160,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   card            the faces of a card, each (node, ctx): body, head, caption, cardClass, outNote (node, key, ctx),
  *                   wireState (wire, ctx), regionNote / resultNote (node, region, ctx); on a phone thumb, tileExtra,
  *                   sinkBody, sinkClass, nodeClass
- *   canvas          more for the desktop editor: height, emptyNote, corner, minFit, overlay
+ *   canvas          more for the desktop editor: height, emptyNote, corner, minFit
  *   brief           { text, tip, hint, children } the brief (Layout.jsx Brief), with the level's own panels under it
  *   results, resultsTitle, resultsAside   what a run gives (the strip on a desktop, below the board on a phone)
  *   below           on a phone, under the board (what a run shows as it goes, the level's own panels)
@@ -252,7 +259,6 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
               parts={parts}
               height={canvas.height}
               minFit={canvas.minFit}
-              overlay={canvas.overlay}
               corner={canvas.corner}
               body={card.body && ((node) => card.body(node, ctx))}
               head={(node) => <>{card.head?.(node, ctx)}{(details || isDefined(node)) && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onDetail={() => setDetail(node.id)} />}</>}

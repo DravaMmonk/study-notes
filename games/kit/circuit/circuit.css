@@ -327,15 +327,7 @@
 .glyph-text { font: 600 11px/1 var(--mono); }
 .pb-glyph { display: inline-grid; vertical-align: -1px; }
 
-/* ---- floating windows over the desktop board (FloatWindow) and the compact parts list ---- */
-.float-window { position: absolute; z-index: 8; width: 212px; max-height: calc(100% - 24px); display: flex; flex-direction: column; border-radius: var(--r-lg); background: color-mix(in srgb, var(--paper) 94%, transparent); box-shadow: 0 0 0 1px var(--rule), 0 14px 32px -18px rgba(0, 0, 0, .45); backdrop-filter: blur(10px); }
-.float-head { height: 32px; flex: none; padding: 0 var(--sp-2) 0 var(--sp-4); display: flex; align-items: center; gap: var(--sp-3); border-bottom: 1px solid var(--hairline); color: var(--muted); font: var(--fs-label)/1 var(--mono); letter-spacing: .08em; cursor: grab; user-select: none; touch-action: none; }
-.float-head:active { cursor: grabbing; }
-.float-head span { flex: 1; }
-.float-head button { width: 26px; height: 26px; display: grid; place-items: center; border: 0; border-radius: var(--r-md); color: var(--muted); background: transparent; cursor: pointer; }
-.float-head button:hover { color: var(--ink); background: var(--hover); }
-.float-window.is-folded .float-head { border-bottom: 0; }
-.float-body { min-height: 0; padding: var(--sp-3); }
+/* ---- the compact desktop parts list ---- */
 .palette.is-compact { gap: var(--sp-1); }
 .palette.is-compact .palette-item { position: relative; min-height: 32px; padding: var(--sp-1) var(--sp-4) var(--sp-1) var(--sp-2); grid-template-columns: 22px minmax(0, 1fr) 12px; gap: var(--sp-3); background: transparent; box-shadow: none; }
 .palette.is-compact .family-chip { width: 20px; height: 20px; }

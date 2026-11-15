@@ -64,9 +64,8 @@ function pointerPose(pointers) {
  * @param caption(node) a fixed card's line under its title (what it carries)
  * @param outNote(node, key) beside each of a card's several outputs (parts.outputs), after its name: what it carries.
  *   Those outputs run down the card's right edge; the body starts on the row below the lowest port on either side.
- * @param cardClass(node), wireState(wire) → 'live' | 'dead' | null, height (for fitting), emptyNote, overlay
- * Windows floating over the board (FloatWindow, in `overlay`) are kept clear when fitting: the circuit goes between
- * them or below them, wherever it shows larger. With `refit` the circuit is fitted again whenever the board changes
+ * @param cardClass(node), wireState(wire) → 'live' | 'dead' | null, height (for fitting), emptyNote
+ * With `refit` the circuit is fitted again whenever the board changes
  * size (a bench in the parts box, whose panel can open narrow and then grow). `regionNote(node, region)` is what a
  * region's left edge says beside its dot (the assumption it makes), `resultNote(node, region)` what its right edge
  * says beside the dot its result goes into (what the frame gives); `onTarget(region | null)` hears where a new card
@@ -77,7 +76,7 @@ function pointerPose(pointers) {
  * board for undo (a level's stage): a new one starts the history over. A `readOnly` board (a part's demonstration)
  * only shows: it pans, zooms and fits, and nothing on it moves.
  */
-export default function CanvasEditor({ blocks = null, graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, height = 230, emptyNote, overlay, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
+export default function CanvasEditor({ blocks = null, graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, height = 230, emptyNote, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
   const [connectionLabels] = useSetting('connectionLabels')
   // A change never takes off what the level locked on the board (model.js keepLocked).
   const onChange = readOnly ? () => {} : (next, opt) => {
@@ -235,19 +234,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     setGeo(next)
   })
 
-  // The part of the board the floating windows leave free: the band between the windows on the left and those on the
-  // right, or the strip below them all. With no windows, the whole board.
-  const rooms = (box) => {
-    const wins = [...surface.current.querySelectorAll('.float-window')].map((el) => el.getBoundingClientRect())
-    if (!wins.length) return [{ left: 0, right: 0, top: 0 }]
-    const middle = box.left + box.width / 2
-    const left = Math.max(0, ...wins.filter((b) => b.left + b.width / 2 < middle).map((b) => b.right - box.left))
-    const right = Math.max(0, ...wins.filter((b) => b.left + b.width / 2 >= middle).map((b) => box.right - b.left))
-    const top = Math.max(0, ...wins.map((b) => b.bottom - box.top))
-    return [{ left, right, top: 0 }, { left: 0, right: 0, top }]
-  }
-  // Fit the whole circuit into the board, in whichever free part shows it larger (below the windows, on a tie: a
-  // circuit too big for either then runs on down the board instead of under a window).
+  // Fit the entire circuit into the available board area.
   const fit = () => {
     const box = surface.current?.getBoundingClientRect()
     if (!box || !box.width || !top.length) return
@@ -257,17 +244,10 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const ys = top.flatMap((n) => [n.y, n.y + sizeOf(n)[1]])
     const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)]
     const pad = 36
-    const best = rooms(box)
-      .map(({ left, right, top }) => {
-        const [w, h] = [box.width - left - right, box.height - top]
-        // Which room shows it larger is judged before the floor (minFit), which would make them tie.
-        const raw = Math.min(1.1, (w - pad * 2) / (x1 - x0), (h - pad * 2) / (y1 - y0))
-        const zoom = clampZoom(Math.max(minFit, raw))
-        const spare = w - (x1 - x0) * zoom
-        return { raw, zoom, x: left + (spare > pad * 2 ? spare / 2 : pad) - x0 * zoom, y: top + pad - y0 * zoom }
-      })
-      .reduce((a, b) => (b.raw >= a.raw ? b : a))
-    setView({ x: best.x, y: best.y, zoom: best.zoom })
+    const fitted = Math.min(1.1, (box.width - pad * 2) / (x1 - x0), (box.height - pad * 2) / (y1 - y0))
+    const zoom = clampZoom(Math.max(minFit, fitted))
+    const spare = box.width - (x1 - x0) * zoom
+    setView({ x: Math.max(pad, spare / 2) - x0 * zoom, y: pad - y0 * zoom, zoom })
   }
   // A card just added (a new part, a removal undone) that lands over another card where it sits (the board, or a
   // region) moves to the nearest spot clear of them all, as they are drawn: a frame is far bigger than a card.
@@ -332,14 +312,11 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const added = top.filter((n) => !before.has(n.id))
     const box = surface.current?.getBoundingClientRect()
     if (!added.length || !box) return
-    // Outside, or under a floating window.
-    const wins = [...surface.current.querySelectorAll('.float-window')].map((el) => el.getBoundingClientRect())
     const outside = added.some((n) => {
       const x = n.x * view.zoom + view.x
       const y = n.y * view.zoom + view.y
       const width = widthOf(n)
-      const [cx, cy] = [box.left + x + (width * view.zoom) / 2, box.top + y + (30 * view.zoom)]
-      return x < 0 || y < 0 || x + width * view.zoom > box.width || y + 60 * view.zoom > box.height || wins.some((b) => cx > b.left && cx < b.right && cy > b.top && cy < b.bottom)
+      return x < 0 || y < 0 || x + width * view.zoom > box.width || y + 60 * view.zoom > box.height
     })
     if (outside) fit()
   })
@@ -410,7 +387,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const beginPan = (event) => {
     const card = event.target.closest('.node')
     const field = event.target.closest('.frame-field')
-    if (event.button > 0 || (card && !card.contains(field)) || event.target.closest('.kw, button, input, select, label, .float-window, .board-zoom')) return
+    if (event.button > 0 || (card && !card.contains(field)) || event.target.closest('.kw, button, input, select, label, .board-zoom')) return
     setSelected(null)
     pick(null)
     setTarget(field?.dataset.region ?? null)
@@ -788,7 +765,6 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
         </button>
       )}
       {refused && <p className="board-refusal" role="status">{L(refused)}</p>}
-      {overlay}
       {!readOnly && (
         <div className="board-corner" onPointerDown={(e) => e.stopPropagation()}>
           <SaveSlots board={{ graph, parts, change: onChange, types }} />

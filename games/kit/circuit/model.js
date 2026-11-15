@@ -296,13 +296,6 @@ export function moveToSlot(graph, parts, id, at, region = null) {
   }
 }
 
-/** Somewhere on the desktop board, right of `near`, that no other card covers. */
-export function placeNear(graph, near, { w = 140, h = 170 } = {}) {
-  let [x, y] = near ? [near.x + w + 10, near.y] : [200, 60]
-  for (let tries = 0; tries < 40 && graph.nodes.some((n) => Math.abs(n.x - x) < w && Math.abs(n.y - y) < h); tries++) y += h + 10
-  return [x, y]
-}
-
 /** The first free cell of a loose grid between the sources and the sinks, for a part added on the desktop. */
 export function freeSpot(graph, { w = 140, h = 170, cols = 3, rows = 5, x0 = 200, y0 = 40, dx = 150, dy = 190 } = {}) {
   for (let row = 0; row < rows; row++) {

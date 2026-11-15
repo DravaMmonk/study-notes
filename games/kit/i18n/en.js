@@ -779,7 +779,6 @@ export default {
   "拉近与推开：没有标签，训练编码器让每张图的两个变形版本互相认出；旋钮 push；算出 worst（认对搭档的最低概率）、negative（负对平均 sim）": "pull close, push apart: with no labels, train an encoder so two altered views of each picture find each other; knob push; computes worst (the lowest chance of picking the partner) and negative (the mean sim of negative pairs)",
   "拖动区块": "Move block",
   "拖动改大小，双击收起": "Drag to resize, double-click to fold",
-  "拖动标题栏移动窗口": "Drag the title bar to move the window",
   "拖动调整结果区高度，双击恢复自动高度": "Drag to resize the results area; double-click to fit it again",
   "拖动调整高度 · 双击恢复自动高度": "Drag to resize · double-click to fit",
   "拦截闸": "Block gate",
