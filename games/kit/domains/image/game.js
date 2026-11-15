@@ -16,7 +16,6 @@ import { imageCircuit } from './ui/circuit.js'
 import { imageBoards } from './engine/board-view.js'
 import { imagePreview } from './engine/preview.js'
 import { gridProbeScreen } from '../../shell/GridProbe.jsx'
-import { NODE_TYPES } from './engine/nodes.js'
 import { rangeOf } from './ui/display.js'
 import { imageHero, imageIntroduction } from './ui/intro.js'
 import WeightGrid from '../../shell/parts/WeightGrid.jsx'
@@ -24,9 +23,7 @@ import { familyOf, iconOf } from './ui/catalog.js'
 import { descriptionOf } from './words.js'
 
 const BenchLevel = lazy(() => import('./ui/benches/BenchLevel.jsx'))
-const Probe = gridProbeScreen(({ probes, part, question, answers, answer, wrong }) => ({
-  examples: probes, run: (input) => NODE_TYPES[part].eval({ in: input }), rangeFor: rangeOf, question, answers, answer, wrong,
-}))
+const Probe = gridProbeScreen(rangeOf)
 // Unlock flags → the part (or option) they give in a course's part table, for the passed dialog and the parts box.
 const partOfFlag = (types) => {
   const map = Object.fromEntries(Object.entries(types).filter(([, spec]) => spec.unlock).map(([type, spec]) => [spec.unlock, type]))

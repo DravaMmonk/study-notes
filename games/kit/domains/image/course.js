@@ -7,9 +7,11 @@ import { defineCourse, eraLevels, holds, itemOf, layout, offer, reach, readItem 
 import { taskLevels } from '../../engine/tasks.js'
 import { builtPieces, publications } from '../../engine/pieces.js'
 import { trayIn } from '../../engine/trays.js'
+import { gridProbe } from '../../engine/grid-probe.js'
 import { imageDefinitions } from './engine/definitions.js'
 import { ownPart } from './engine/own.js'
 import { imageKit } from './engine/kit.js'
+import { NODE_TYPES } from './engine/nodes.js'
 import { picture } from './items/pictures.js'
 import { testsOf } from './items/scenes/index.js'
 import { constraintOf } from './items/constraints.js'
@@ -46,7 +48,13 @@ function circuit({ scene, setup, tests, hidden, solution, naive, alsoFails, cons
 /** A task as its screen and the checks take it, its level's fields under its own (`intro` stays with the content);
  *  keep as for circuit. */
 function playable({ intro: _, ...task }, kit, keep) {
-  if (task.kind === 'probe') return { ...task, probes: task.probes.map((p) => [p.label, picture(p.picture)]) }
+  if (task.kind === 'probe') {
+    const { probes, part, question, answers, answer, wrong, ...rest } = task
+    const examples = probes.map(({ label, picture: source }) => ({ label, input: picture(source) }))
+    const run = (input) => NODE_TYPES[part].eval({ in: input })
+    const { verify, ...probe } = gridProbe({ examples, run, question, answers, answer, wrong })
+    return { ...rest, probe, verify }
+  }
   if (task.kind === 'board') return { ...task, board: task.bench.model, ...benchOf(task.bench) }
   return circuit(task, kit, keep)
 }

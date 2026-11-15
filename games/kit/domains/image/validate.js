@@ -37,9 +37,8 @@ export function validate({ levels, intros, kit, course, publishedBy, memo = (_id
     const fail = (text) => out.push({ text, fail: true, level: level.home })
     const say = (text) => out.push({ text, level: level.home })
     if (level.kind !== 'graph') {
-      // Boards and probes may export verify(): '' when the level is winnable and its lesson holds.
-      const problem = level.verify ? level.verify() : ''
-      const line = `${level.id} ${keyOf(level.title)}: (${level.kind}${level.board ? ` ${level.board}` : ''}) ${level.verify ? (problem ? problem : 'verified') : 'no verify()'}`
+      const problem = level.verify()
+      const line = `${level.id} ${keyOf(level.title)}: (${level.kind}${level.board ? ` ${level.board}` : ''}) ${problem || 'verified'}`
       if (problem) fail(line)
       else say(line)
       return out

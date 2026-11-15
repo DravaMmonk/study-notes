@@ -6,21 +6,21 @@ import { L, keyOf, tr } from './i18n.js'
 import './grid-probe.css'
 
 /** Bind a black-box exercise whose examples and replies are grid data. */
-export function gridProbeScreen(read) {
+export function gridProbeScreen(rangeFor) {
   return function GridProbe({ level, onSolve }) {
-    const { examples, run, rangeFor, question, answers, answer, wrong } = useMemo(() => read(level), [level])
+    const { examples, run, question, answers, judge, wrong } = level.probe
     const mark = useMark()
     const [active, setActive] = useState(0)
     const [rejected, setRejected] = useState(null)
     const [point, setPoint] = useState(null)
-    const input = examples[active][1]
+    const { input } = examples[active]
     const output = useMemo(() => run(input), [run, input])
     const select = (index) => {
       setActive(index)
       setPoint(null)
     }
     const choose = (choice) => {
-      if (keyOf(choice) !== answer) return setRejected(choice)
+      if (!judge(choice)) return setRejected(choice)
       setRejected(null)
       onSolve()
     }
@@ -42,9 +42,9 @@ export function gridProbeScreen(read) {
     return (
       <div className="probe">
         <div className="probe-inputs" role="radiogroup" aria-label={tr('测试图')}>
-          {examples.map(([label, value], index) => (
+          {examples.map(({ label, input }, index) => (
             <button key={keyOf(label)} type="button" role="radio" aria-checked={active === index} className={`probe-choice ${active === index ? 'is-active' : ''}`} {...mark(`probes[${index}]`, 'task', () => select(index))} onClick={() => select(index)}>
-              <GridPicture value={value} range={rangeFor(value)} scale={56 / value.w} />
+              <GridPicture value={input} range={rangeFor(input)} scale={56 / input.w} />
               <span>{L(label)}</span>
             </button>
           ))}
