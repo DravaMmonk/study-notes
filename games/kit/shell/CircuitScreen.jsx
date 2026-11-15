@@ -1,4 +1,4 @@
-import { sourceOf, splitSource, srcNode } from '../engine/wire-source.js'
+import { sourceOf, srcNode } from '../engine/wire-source.js'
 import { caught } from '../engine/caught.js'
 import Checks, { checksSay, useChecks } from './Checks.jsx'
 import { VIEWS, valueText } from '../engine/views.js'
@@ -219,18 +219,8 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const surface = useWorld({ screen: { ...screen, fail: failWorld }, task: level, test: onView, run, report: runOf, at, ended, circuit: drawn, change, version: board.version })
   const view = surface?.value ?? computed
 
-  const setParam = (node, key, value) => {
-    const next = { ...node, params: { ...node.params, [key]: value } }
-    const nodes = drawn.nodes.map(n => n.id === node.id ? next : n)
-    if (key !== 'form') return change({ ...drawn, nodes })
-    const inputs = new Set(parts.inputs(next))
-    const outputs = parts.outputs(next)
-    const wires = drawn.wires.filter(wire => {
-      if (wire.to === node.id && !inputs.has(wire.port)) return false
-      const [from, port] = splitSource(wire.from)
-      return from !== node.id || (outputs ? outputs.some(output => output.key === port) : port === null)
-    })
-    change({ ...drawn, nodes, wires })
+  const setParam = (node, ctx, key, value) => {
+    if (!ctx.readOnly) ctx.setParams(node, { ...node.params, [key]: value })
   }
   // A card shows its value; a card on the right, what reaches it (as its own value: the output's view).
   const valueOf = (node, key, v) => v.values.get(sourceOf(node.id, key))
@@ -243,7 +233,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const showsValue = (node, ctx) => !ctx.board.parts.outputs(node) || (ctx.board.parts.role(node) === 'source' && outputsOf(ctx.board.parts, node).some(({ key }) => key === null))
   const cardSettings = (node, ctx) => settings?.(node, { ...ctx, task: ctx.board.level ?? level }).map(({ key, label, value, options }) => (
     <CardField key={key} label={label} value={value} options={options} disabled={ctx.readOnly}
-      onChange={(picked) => setParam(node, key, options.find(([option]) => String(option) === picked)[0])} />
+      onChange={(picked) => setParam(node, ctx, key, options.find(([option]) => String(option) === picked)[0])} />
   ))
   const body = (node, ctx) => {
     const drawing = ctx.path.length ? null : surface?.cardDrawing?.(node, ctx.readOnly)
@@ -447,7 +437,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
           pad={surface?.pad ? <Dock pad={surface.pad} /> : undefined}
           tabs={!table}
           words={works ? { go: tr('运行检验'), done: tr('都挡住了') } : { go: L(says.go ?? (judged ? WORDS.check : WORDS.run)), done: L(says.done ?? WORDS.passed) }}
-          sheet={sheet ? (node, ctx) => sheet(node, ctx, (key) => (v) => !ctx.readOnly && setParam(node, key, v)) : timed ? tickDetail : undefined}
+          sheet={sheet ? (node, ctx) => sheet(node, ctx, (key) => (v) => setParam(node, ctx, key, v)) : timed ? tickDetail : undefined}
           details={details || (!sheet && Boolean(timed))}
           packed={{
             open: packed.open,

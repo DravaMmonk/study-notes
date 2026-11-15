@@ -123,6 +123,9 @@ export function evalSettings(text, def, params, ops) {
 /** Whether a setting shows on a node: its `when` holds (one that cannot be worked out does not). */
 export const shows = (s, def, params, ops) => !s.when || Boolean(evalSettings(s.when, def, params, ops))
 
+/** The regions the current settings expose, for the engine and the editor. */
+export const activeRegions = (def, node, ops) => regionsOf(def).filter((region) => shows(region, def, node?.params ?? {}, ops))
+
 /**
  * A node's settings once the player set `changed` (null: an action set several): every rule on that setting (or on
  * any) whose `when` holds sets its settings, in order, each reading the settings as the rules before left them.
@@ -177,9 +180,8 @@ export function defineParts(file, ops, code = {}) {
     const optional = new Set(holesOf(def).filter((p) => p.optional).map((p) => p.name))
     // A part with regions is a frame (../../circuit/frames.js): an input for each region shown, what is made inside
     // it; an output for each region that opens, the value it opens with, read off the part's own inputs.
-    const regions = regionsOf(def)
-    const shown = (node) => regions.filter((r) => !r.when || evalSettings(r.when, def, node?.params ?? {}, ops))
-    const framed = regions.length ? {
+    const shown = (node) => activeRegions(def, node, ops)
+    const framed = regionsOf(def).length ? {
       inputs: (node) => [...names, ...shown(node).map((r) => r.name)],
       frames: (node) => shown(node).map((r) => ({ name: r.name, opens: Boolean(r.opens) })),
       outputs: (node) => [null, ...shown(node).filter((r) => r.opens).map((r) => r.name)],

@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { cardPorts, portNotes } from './card-ports.js'
-import { baseRefusal, connect, keepLocked, presetOf, removeNode, spotIn, withPreset } from './model.js'
+import { baseRefusal, connect, editNodeSettings, keepLocked, presetOf, removeNode, spotIn, withPreset } from './model.js'
 
 const board = { nodes: [{ id: 'in', type: 'in', x: 0, y: 0 }, { id: 'out', type: 'out', x: 400, y: 0 }], wires: [] }
 const preset = { nodes: [{ id: 'p', type: 'oracle', x: 200, y: 0 }], wires: [{ from: 'p', to: 'out', port: 'in' }] }
@@ -84,4 +84,33 @@ test('a new card on the board goes left of the outputs, clear of what is there',
   const [x] = spotIn(graph, null, 600)
   assert(x + 170 <= 600)
   assert(Math.abs(x - 370) >= 170)
+})
+
+
+test('changing a card shape preserves occupied regions and preset wires, and drops unused ports atomically', () => {
+  const regions = (node) => node.type === 'frame' && node.params.extra ? [{ name: 'body', opens: true }] : []
+  const parts = {
+    role: (node) => node.id === 'out' ? 'sink' : 'part',
+    frames: regions,
+    inputs: (node) => ['in', ...regions(node).map(({ name }) => name)],
+    outputs: (node) => [{ key: null }, ...regions(node).map(({ name }) => ({ key: name }))],
+  }
+  const empty = {
+    nodes: [...board.nodes, { id: 'f', type: 'frame', params: { extra: true } }],
+    wires: [
+      { from: 'in', to: 'f', port: 'in' },
+      { from: 'f#body', to: 'f', port: 'body' },
+      { from: 'f', to: 'out', port: 'in' },
+    ],
+  }
+  const occupied = { ...empty, nodes: [...empty.nodes, { id: 'child', in: 'f/body' }] }
+  const locked = { ...empty, wires: empty.wires.map((wire) => wire.port === 'body' ? { ...wire, locked: true } : wire) }
+  const close = (graph) => editNodeSettings(graph, parts, 'f', { extra: false })
+  assert.match(close(occupied).reason.en, /Move the parts/)
+  assert.match(close(locked).reason.en, /disconnect/)
+  const { graph: closed } = close(empty)
+  assert.deepEqual(closed.nodes.at(-1).params, { extra: false })
+  assert.deepEqual(closed.wires, [empty.wires[0], empty.wires[2]])
+  assert.deepEqual(empty.nodes.at(-1).params, { extra: true })
+  assert.equal(empty.wires.length, 3)
 })

@@ -1,5 +1,5 @@
-import { holesOf, outletsOf, regionsOf } from '../../engine/pieces.js'
-import { applyRules, evalSettings, partDesc } from '../../engine/parts/define.js'
+import { holesOf, outletsOf } from '../../engine/pieces.js'
+import { activeRegions, applyRules, partDesc } from '../../engine/parts/define.js'
 import { T } from '../i18n.js'
 import PartFace, { blocksOf } from './PartFace.jsx'
 import { iconOf } from './icons.js'
@@ -17,7 +17,7 @@ const OPENS = T('收到')
  * region that opens what that region opens with.
  */
 export const definedCard = (def, node = null, ops = {}) => {
-  const regions = regionsOf(def).filter((r) => !r.when || evalSettings(r.when, def, node?.params ?? {}, ops))
+  const regions = activeRegions(def, node, ops)
   const opening = regions.filter((r) => r.opens)
   return {
     inputs: [...holesOf(def).map((p) => p.name), ...regions.map((r) => r.name)],

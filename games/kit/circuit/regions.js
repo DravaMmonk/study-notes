@@ -13,6 +13,14 @@ export const frameId = (address) => splitRegion(address)[0]
 export const partRegions = (partOf) => (node) => partOf(node.type)?.frames?.(node) ?? []
 export const regionsOf = (parts, node) => (node && parts.frames?.(node)) ?? []
 
+/** Whether the editor can still place a card in the chosen region. */
+export function isOpenRegion(graph, parts, address) {
+  if (!address) return false
+  const [id, name] = splitRegion(address)
+  const frame = graph.nodes.find((node) => node.id === id)
+  return Boolean(frame && !frame.fold && regionsOf(parts, frame).some((region) => region.name === name))
+}
+
 /** Index a board's regions for queries in either direction. */
 export function frameTree(nodes) {
   const byId = new Map(nodes.map((node) => [node.id, node]))

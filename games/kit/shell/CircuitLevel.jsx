@@ -12,7 +12,8 @@ import Palette from '../circuit/Palette.jsx'
 import PartActions from '../circuit/PartActions.jsx'
 import SlotBoard from '../circuit/SlotBoard.jsx'
 import Tray from '../circuit/Tray.jsx'
-import { spotIn } from '../circuit/model.js'
+import { editNodeSettings, spotIn } from '../circuit/model.js'
+import { isOpenRegion } from '../circuit/regions.js'
 import { useSlotEditing } from '../circuit/useSlotEditing.js'
 import Glyph from '../circuit/Glyph.jsx'
 import { InsideBoard, PackedDetail, PackedTools, insideOf } from '../circuit/Inside.jsx'
@@ -184,16 +185,27 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const edit = useEdit()
   const [target, setTarget] = useState(null) // the frame region a new card goes into (desktop)
   const [detail, setDetail] = useState(null)
+  const [settingError, setSettingError] = useState(null)
   const parts = useMemo(() => (defined ? definedParts(given, defined.of, defined.ops) : given), [given, defined?.of])
   const circuit = useMemo(() => withNewSlots(blockPreset(stored, stages?.stages ?? [], parts), parts), [stored, stages, parts])
   const change = (next, options = {}) => board.change(next, options)
   const displayedBoard = { ...board, circuit, change }
-  // A defined part's settings change on the board it is on (the level's: packed boards are read only).
-  const setNode = (node, params) => change({ ...circuit, nodes: circuit.nodes.map((n) => (n.id === node.id ? { ...n, params } : n)) })
+  const setNode = (node, params) => {
+    const next = editNodeSettings(circuit, parts, node.id, params)
+    setSettingError(next.reason ? { id: node.id, reason: next.reason, stored } : null)
+    if (!next.reason) change(next.graph)
+  }
+  const settingNote = (node) => settingError?.stored === stored && settingError.id === node.id
+    ? <p className="pf-check" role="status">{L(settingError.reason)}</p>
+    : null
   const own = { wireState: (wire, ctx) => (ctx.view?.values.get(wire.from) !== undefined ? 'live' : 'dead'), ...faces }
   const card = defined ? definedFaces(own, { defined, change: setNode, phone }) : own
   const isDefined = (node) => Boolean(defined?.of(node.type))
-  const detailOf = (node, c) => (isDefined(node) ? card.detail(node, c) : (sheet ?? card.body)?.(node, c))
+  const detailOf = (node, c) => {
+    const content = isDefined(node) ? card.detail(node, c) : (sheet ?? card.body)?.(node, c)
+    const note = !c.readOnly && settingNote(node)
+    return note ? <>{content}{note}</> : content
+  }
 
   const describeOf = (node, c) => {
     const text = !isDefined(node) && describe?.(node, c)
@@ -205,7 +217,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const opened = packed && defined ? { ...packed, open: (node, at) => { const r = packed.open(node, at); return r && { ...r, parts: definedParts(r.parts, defined.of, defined.ops) } } } : packed
   const inside = packed ? insideOf({ top, ...opened, card, describe: describeOf, sheet: detailOf }) : null
   const isPacked = (node, at) => Boolean(inside?.is(node, at))
-  const ctx = { view, board: top, path: [], readOnly: false }
+  const ctx = { view, board: top, path: [], readOnly: false, setParams: setNode }
   const step = packed?.trace?.()?.step
   const blockItems = blocksOf(circuit, parts)
   const active = step?.path?.[0] ?? step?.id
@@ -227,7 +239,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
     return { id, graph: { ...graph, nodes: [...graph.nodes, { id, type, params: partDefaults(type), x, y, ...(slot !== undefined ? { slot } : {}), ...(region ? { in: region } : {}) }] } }
   })
   // A new card goes into the region chosen last, while its frame is there and open.
-  const into = target && circuit.nodes.some((n) => n.id === target.split('/')[0] && !n.fold) ? target : null
+  const into = isOpenRegion(circuit, parts, target) ? target : null
   const add = (type) => change(make(circuit, type, { region: into, ...(!into ? { slot: newPartSlot(circuit, parts) } : {}) }).graph)
   const onClear = circuit.nodes.some((n) => parts.role(n) === 'part' && !n.locked) || board.clearable?.(circuit) ? board.clear : null
 
@@ -261,7 +273,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
               height={canvas.height}
               minFit={canvas.minFit}
               corner={canvas.corner}
-              body={card.body && ((node) => card.body(node, ctx))}
+              body={(node) => <>{card.body?.(node, ctx)}{detail !== node.id && settingNote(node)}</>}
               head={(node) => <>{card.head?.(node, ctx)}{(details || isDefined(node)) && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onDetail={() => setDetail(node.id)} />}</>}
               caption={card.caption && ((node) => card.caption(node, ctx))}
               cardClass={card.cardClass && ((node) => card.cardClass(node, ctx))}

@@ -22,7 +22,7 @@ import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { cardPorts } from './card-ports.js'
 import { moveInto } from './frames.js'
-import { regionAddress, regionsOf } from './regions.js'
+import { isOpenRegion, regionAddress, regionsOf } from './regions.js'
 import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, parsePort, removeNode, removeWire } from './model.js'
 import { useHistory } from './useHistory.js'
 import { alignTerminals, spaceNodes } from './spacing.js'
@@ -136,8 +136,12 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const geoRef = useRef(geo)
   const [, redraw] = useReducer((n) => n + 1, 0)
   // The region the next new card goes into ('<frame>/<region>'), or null for the board itself.
-  const [target, setTarget] = useState(null)
-  useEffect(() => onTarget?.(target), [target])
+  const [chosen, setTarget] = useState(null)
+  const target = isOpenRegion(graph, parts, chosen) ? chosen : null
+  useEffect(() => {
+    if (chosen && !target) setTarget(null)
+    onTarget?.(target)
+  }, [target, chosen])
   // Why the last wire tried was refused (parts.refuse), shown on the board for a moment, as the phone board does.
   const [refused, setRefused] = useState(null)
   useEffect(() => {

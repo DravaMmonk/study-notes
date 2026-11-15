@@ -28,12 +28,12 @@
 //   text?: { sets?(node), read?(node, key, value), opens?(node, key) }   as text (text.js): the settings a given
 //                                          node's statement may write, a setting read back, and the settings of a given
 //                                          node switched on to give output `key` a wire reads (null when it cannot)
-import { srcNode } from '../engine/wire-source.js'
+import { splitSource, srcNode } from '../engine/wire-source.js'
 import { cardColumns, slotColumns, slotWidth } from './card-size.js'
 import { SLOT_GUTTER } from './slot-metrics.js'
 import { wouldCycle } from '../graph.js'
 import { frameEdges, moveInto, scopeRefusal } from './frames.js'
-import { frameId, frameTree, regionAddress, regionsOf } from './regions.js'
+import { frameId, frameTree, regionAddress, regionsFit, regionsOf } from './regions.js'
 
 // Port ids, the same on the desktop board and the phone: an output is `o|<node>`, an input `i|<node>|<port>`.
 // `id` of an output is a wire's source: a node's id, or `<node>#<key>` for one of several outputs.
@@ -125,6 +125,30 @@ const settingsOf = (preset, at) => {
   if (!preset.fixed) return at.params
   if (preset.fixed === true) return preset.params
   return { ...at.params, ...Object.fromEntries(preset.fixed.filter((k) => preset.params && k in preset.params).map((k) => [k, preset.params[k]])) }
+}
+
+/** Change one card's settings without stranding cards or disconnecting preset wires. */
+export function editNodeSettings(graph, parts, id, params) {
+  const before = byId(graph, id)
+  if (!before) return { graph }
+  const next = { ...before, params }
+  const nodes = graph.nodes.map((node) => node.id === id ? next : node)
+  if (!regionsFit({ nodes }, parts)) {
+    return { reason: { zh: '请先移出要关闭的区域里的元件。', en: 'Move the parts out of the regions you want to close first.' } }
+  }
+
+  const inputs = new Set(parts.inputs(next))
+  const outputs = new Set(outputsOf(parts, next).map(({ key }) => key))
+  const wires = []
+  for (const wire of graph.wires) {
+    const [from, key] = splitSource(wire.from)
+    if ((wire.to !== id || inputs.has(wire.port)) && (from !== id || outputs.has(key))) {
+      wires.push(wire)
+    } else if (wire.locked) {
+      return { reason: { zh: '这个设置会断开关卡接好的线。', en: 'This setting would disconnect a wire placed by the level.' } }
+    }
+  }
+  return { graph: { ...graph, nodes, wires } }
 }
 
 /** Whether a wire is one a level put in. */
