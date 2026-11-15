@@ -49,8 +49,8 @@ export function taskStamps(vocabulary, content, { courseField } = {}) {
   }))
 }
 
-// Omit board presentation when identifying the work a run executes.
-function workOf(work) {
+/** Omit board presentation when identifying the work a run executes. */
+export function workOf(work) {
   if (!Array.isArray(work?.nodes) || !Array.isArray(work?.wires)) return work
   return {
     nodes: work.nodes.map(({ id, type, params, in: region }) => ({ id, type, params, region })),

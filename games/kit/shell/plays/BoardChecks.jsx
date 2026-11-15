@@ -12,11 +12,11 @@ import { useSavedWork } from './useWork.js'
 
 /** Inspect given works and write cases that check how they behave. */
 export default function BoardChecks({ screen, resource, play }) {
-  const { phone, lastRun, keepRun } = screen
+  const { phone } = screen
   const [row, setRow] = useState(0)
   const [at, select] = useState(0)
   const { tabs, initial, judge, stepsOf, checks: { resultLabel, ...fields } } = resource
-  const { work, change, finish } = useSavedWork(screen, {
+  const { work, change, history, finish } = useSavedWork(screen, {
     read: () => initial,
     write: (work) => ({ work }),
   })
@@ -27,8 +27,8 @@ export default function BoardChecks({ screen, resource, play }) {
     onSolve: () => finish(resource.score(work)),
     onTest: select,
     board: work,
-    kept: lastRun,
-    onKeep: keepRun,
+    kept: history.lastRun,
+    onKeep: history.keepRun,
   })
   const { run, passed, states } = playback
   const result = resource.result(work, at, playback.shown(at).list.length)

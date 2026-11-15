@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { completedRun, keepRunMark, playbackMark, runKey } from './run-marks.js'
+import { completedRun, keepRunMark, markForWork, playbackMark, runKey, runWorkKey } from './run-marks.js'
 
 test('clearing one slot preserves another task with the same slot number', () => {
   const shifted = runKey('shift', 2)
@@ -17,4 +17,17 @@ test('a completed run and a pause before the first step keep distinct marks', ()
   assert.equal(playbackMark({ playing: true, n: 3 }), null)
   assert.deepEqual(playbackMark({ playing: false, n: 0 }), { moves: 0 })
   assert.equal(playbackMark({ over: true, playing: false, n: 4 }), completedRun)
+})
+
+test('a run mark follows the judged wiring and settings across changes to board presentation', () => {
+  const input = { id: 'in', type: 'input', x: 0, params: { value: 2, enabled: true } }
+  const out = { id: 'out', type: 'output' }
+  const wire = { from: 'in', to: 'out', port: 'in' }
+  const board = { nodes: [input, out], wires: [wire] }
+  const mark = { workKey: runWorkKey(board), mark: completedRun }
+  const laidOut = { ...board, nodes: [{ ...input, x: 120, slot: 3, params: { enabled: true, value: 2 } }, out], blocks: [{ nodes: ['in'] }] }
+  assert.equal(markForWork(mark, runWorkKey(laidOut)), completedRun)
+  assert.equal(markForWork(mark, runWorkKey({ ...board, wires: [] })), undefined)
+  const edited = { ...board, nodes: [{ ...input, params: { ...input.params, value: 3 } }, out] }
+  assert.equal(markForWork(mark, runWorkKey(edited)), undefined)
 })

@@ -38,7 +38,7 @@ const SITE = { games: '../index.html' }
  * `lastRun` is how the screen marked its board's last run (per task and slot, while the level stays open), or
  * undefined: the screen replays that run on the board when it opens, so a run outlives another task or slot, but not
  * leaving the level.
- * `keepRun(mark)` keeps a new mark (null: none, as once the board changes).
+ * Screens bind those marks to their judged work through useRunHistory before saving or restoring them.
  *
  * The screen lays itself out with Workbench / PhonePage and Brief from Layout.jsx.
  *

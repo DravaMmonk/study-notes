@@ -1,5 +1,14 @@
-import { useState } from 'react'
-import { keepRunMark, runKey } from './run-marks.js'
+import { useMemo, useState } from 'react'
+import { keepRunMark, markForWork, runKey, runWorkKey } from './run-marks.js'
+
+/** Bind a slot's run history to the work that this editor actually judges. */
+export function useRunHistory({ lastRun, keepRun }, work) {
+  const workKey = useMemo(() => runWorkKey(work), [work])
+  return {
+    lastRun: markForWork(lastRun, workKey),
+    keepRun: (mark, judged = work) => keepRun?.(mark && { workKey: judged === work ? workKey : runWorkKey(judged), mark }),
+  }
+}
 
 /** Run marks live in memory for one visit, across task and slot changes. */
 export function useLevelRuns(task, slot) {

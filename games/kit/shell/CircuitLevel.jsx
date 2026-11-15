@@ -31,6 +31,7 @@ import { useEdit } from './edit.js'
 import { PickMark } from './EditMarks.jsx'
 import { usePlayback } from './usePlayback.jsx'
 import { checkAction, useCheckOnce } from './useCheckOnce.js'
+import { useRunHistory } from './useLevelRuns.js'
 import Workbench, { TestStatus } from './Workbench.jsx'
 import { definedFaces } from './parts/faces.jsx'
 
@@ -83,6 +84,7 @@ export function useLevelBoard(screen, { open, fresh, clearable }) {
  */
 export function useLevelRun(screen, board, { tests, steps = null, judge = null, hidden = null, score, onSolve, onFail, guard, at: first = 0 }) {
   const [at, setAt] = useState(null)
+  const history = useRunHistory(screen, board.circuit)
   const failureAt = (verdict) => {
     const found = verdict?.results.findIndex((result, k) => k < tests.length && !tests[k].sample && !result.pass) ?? -1
     return found < 0 ? first : found
@@ -99,14 +101,14 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
     onFail,
     onTest: setAt,
     board: board.version,
-    kept: steps ? screen.lastRun : undefined,
-    onKeep: steps ? screen.keepRun : undefined,
+    kept: steps ? history.lastRun : undefined,
+    onKeep: steps ? history.keepRun : undefined,
   })
   const judged = () => {
     const v = judge()
     return { ...v, hiddenFailed: v.pass ? hiddenFails : 0 }
   }
-  const { verdict, check, reset } = useCheckOnce(steps ? {} : screen, judged, (v) => {
+  const { verdict, check, reset } = useCheckOnce(steps ? {} : history, judged, (v) => {
     if (v.pass && !v.hiddenFailed) solve(v.score ?? score?.())
     else if (!v.pass) setAt(failureAt(v))
   })
