@@ -739,6 +739,7 @@ export default {
   "手机端简略视图": "Phone tile",
   "打开": "Open",
   "打开变更集": "Open a changeset",
+  "打开这个任务": "Open this task",
   "打开文件": "Open file",
   "打开的旋钮": "the open knobs",
   "扫地机器人的双目：远墙、没有纹理的地面、障碍物，另给地面以上的区域；期望是区域里的距离，或 1.2 米内要停的地方": "a robot vacuum’s stereo pair, a far wall, a textureless floor and obstacles, with the region above the floor given; the distance in the region, or where to stop within 1.2 m, expected",

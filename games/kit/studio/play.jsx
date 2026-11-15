@@ -18,7 +18,8 @@
 //                  { type: 'pick' | 'add', part | preset, path } a field of a part (or of a setting preset, shown
 //                  as the part presets/<name>) picked, an item added to one;
 //                  { type: 'pick', file, path } a field of game.json (file 'game', on the map) or of the glossary
-//                  (file 'glossary', in the encyclopedia; an entry by its id) picked
+//                  (file 'glossary', in the encyclopedia; an entry by its id) picked;
+//                  { type: 'task-go', task } a step of a built piece's upgrade chain clicked: go to that task
 import '../wires.css'
 import '../shell/shell.css'
 import '../views/views.css'
@@ -125,14 +126,17 @@ export default function Play() {
     const which = preset !== null ? { preset } : { part: part.type }
     const parts = edit.on ? { picked: edit.picked, pick: (path) => say({ type: 'pick', ...which, path }), add: (path) => say({ type: 'add', ...which, path }) } : null
     if (preset !== null) return <PresetSheet name={preset} setting={part.game.partDefs?.presets?.[preset]} game={part.game} edit={parts} />
-    if (part.game.defined?.of(part.type)) return <PartPreview game={part.game} type={part.type} edit={parts} />
-    // A built piece shows the board it runs, as the parts box does, and beside it its own fields.
-    const piece = part.game.parts?.all.find((p) => p.piece === part.type) ?? { key: part.type, piece: part.type }
+    const toTask = (task) => say({ type: 'task-go', task })
+    if (part.game.defined?.of(part.type)) return <PartPreview game={part.game} type={part.type} edit={parts} onTask={toTask} />
+    // A built piece shows the board it runs, as the parts box does, and beside it its own fields; a piece just added is
+    // shown once the content holding it comes.
     const def = part.game.partDefs?.parts?.[part.type]
+    if (!def) return null
+    const piece = part.game.parts?.all.find((p) => p.piece === part.type) ?? { key: part.type, piece: part.type }
     return (
       <div className="pp-built">
         <div className="pp-built-board">{part.game.parts?.demo?.(piece, { progress: {} }) ?? null}</div>
-        {def && <PieceSheet def={def} edit={parts} />}
+        {def && <PieceSheet def={def} edit={parts} onTask={toTask} />}
       </div>
     )
   }

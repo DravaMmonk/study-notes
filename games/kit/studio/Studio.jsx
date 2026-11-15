@@ -27,6 +27,7 @@ import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
 import { call } from './api.js'
 import { blank, boardsOf, placesOf, pushOp, referenceFor } from './form.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
+import { findTask } from '../engine/tasks.js'
 import { addFor, markOf, markPath } from './marks.js'
 import { withParts } from '../engine/parts/define.js'
 import { DEFAULT_VIEWS } from '../shell/parts/PartFace.jsx'
@@ -275,7 +276,7 @@ export default function Studio() {
     return content.levels.map((l) => {
       const era = eraOf.get(l.id)
       const shown = label.get(l.id)?.label ?? l.id
-      return { value: l.id, label: shown, title: l.title, group: era ? `${era.id} ${L(era.title ?? era.chapter?.title) ?? ''}` : null, ...(shown !== l.id && { about: l.id }) }
+      return { value: l.id, label: shown, title: l.title, group: era ? `${era.id} ${L(era.title ?? era.chapter?.title) ?? ''}` : null, ...(shown !== l.id && { about: l.id }), ...(Array.isArray(l.tasks) && { tasks: l.tasks.map((task) => ({ id: task.id, ...(task.step && { step: task.step }) })) }) }
     }).sort((a, b) => playOrder.indexOf(a.value) - playOrder.indexOf(b.value))
   }, [content, rawNames, playOrder])
 
@@ -412,8 +413,17 @@ export default function Studio() {
     select({ game: true }, true)
     return pickField([])
   }
+  // A step of a built piece's upgrade chain clicked: its task, on the page and in the side panel.
+  const onTaskGo = ({ task }) => {
+    const found = findTask(content.levels, task)
+    if (!found) return select({ level: task })
+    select({ level: found.level })
+    setPageTask(found.at)
+    return pickField(['tasks', found.at])
+  }
   const onPage = (m) => {
     if (m.type === 'take') return onTake(m)
+    if (m.type === 'task-go') return onTaskGo(m)
     if (m.file) return onFilePage(m)
     if (m.type === 'start') return onStart(m)
     if (m.part !== undefined || m.preset !== undefined) return onPartPage(m)
@@ -648,7 +658,7 @@ export default function Studio() {
               {content.partDefs && <button type="button" role="tab" aria-selected={side === 'parts'} className={side === 'parts' ? 'is-on' : ''} onClick={() => setSide('parts')} title={tr('元件', 'Parts')}><Shapes size={14} aria-hidden="true" /></button>}
             </div>
             {side === 'parts' && content.partDefs
-              ? <PartsList content={content} vocabulary={vocab.vocabulary} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={(next) => { select(next); if (!['page', 'fields'].includes(tab)) setTab('page') }} onEdit={edit} />
+              ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={(next) => { select(next); if (!['page', 'fields'].includes(tab)) setTab('page') }} onEdit={edit} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={jump} />
               : <Tree game={game} content={content} marks={marks} at={at} picked={picked} setPicked={setPicked} onSelect={select} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(lvl, k) => { select({ level: lvl }); pickField(['tasks', k]) }} onTaskMove={moveTask} />}

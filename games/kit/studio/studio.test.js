@@ -14,12 +14,13 @@ import { resolve } from 'node:path'
 import { domainOf, readContent } from '../engine/content-node.js'
 import {
   blank, boardsOf, cellText, cellValue, formOf, gridRows, gridValue, moved, opFor, pastedCells, placeFindings, placesOf, pushOp, recast,
-  referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, tickValue, tickValues, toggled,
+  referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, taskOptionsOf, tickValue, tickValues, toggled,
 } from './form.js'
 import { lintText } from '../pipeline/lint.js'
 import { courseTree, stays } from './tree.js'
 import { fieldDiff } from './diff.js'
 import { lacking } from '../engine/text.js'
+import { taskIdsOf } from '../engine/tasks.js'
 
 const VOCAB = defineVocabulary({
   domain: 'toy',
@@ -403,4 +404,13 @@ test('task operations stand alone in a pending changeset, but a task renamed aga
   const up = { op: 'task.move', task: 'a', to: { level: 'p', first: true } }
   assert.equal(pushOp([up], up).length, 2)
   assert.deepEqual(pushOp([{ op: 'task.rename', task: 'a', to: 'ab' }], { op: 'task.rename', task: 'ab', to: 'abc' }), [{ op: 'task.rename', task: 'a', to: 'abc' }])
+})
+
+test('a task is picked from the tasks of the game, grouped by level in course order', () => {
+  const levels = [{ id: 'a', tasks: [{ id: 'a' }, { id: 'a_2', step: { zh: '再来' } }] }, { id: 'b' }]
+  assert.deepEqual([...taskIdsOf(levels)], ['a', 'a_2', 'b'])
+  const options = taskOptionsOf([{ value: 'b', label: '1-1', title: { zh: '乙' } }, { value: 'a', label: '1-2', title: { zh: '甲' }, tasks: levels[0].tasks }])
+  assert.deepEqual(options.map((o) => [o.value, o.label, o.group]), [['b', '1-1', '1-1 乙'], ['a', '1-2 · 1', '1-2 甲'], ['a_2', '1-2 · 2', '1-2 甲']])
+  assert.deepEqual(formOf(S.task(), 'a_2', { vocabulary: null }).kind, 'choice')
+  assert.equal(formOf(S.task(), 'a_2', { vocabulary: null }).of, 'task')
 })

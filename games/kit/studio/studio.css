@@ -618,6 +618,9 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .parts-row.is-preset { grid-template-columns: minmax(0, 1fr) auto; }
 .parts-add { height: var(--row); display: grid; place-items: center; border: 1px dashed var(--line); border-radius: 4px; color: var(--faint); background: none; cursor: pointer; }
 .parts-add:hover { color: var(--ink); }
+.parts-adds { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.parts-adds .parts-add { display: flex; align-items: center; justify-content: center; gap: 2px; }
+.parts-pick { position: absolute; z-index: 5; top: calc(100% + 4px); left: 0; width: min(360px, 80vw); }
 .parts-presets { display: grid; gap: 1px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--hairline); }
 .field-expr { display: grid; gap: 4px; min-width: 0; }
 .expr-line { display: flex; gap: 4px; }

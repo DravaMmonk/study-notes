@@ -15,7 +15,7 @@ import { ChevronRight, Copy, GripVertical, Minus, Pencil, Play, Plus, RotateCcw,
 import { L, tr } from '../shell/i18n.js'
 import { boardSvg } from '../circuit/svg.js'
 import { showPath } from '../engine/ops/edit.js'
-import { blank, moved, recast, revertOf, shapeName, summaryOf } from './form.js'
+import { blank, moved, recast, revertOf, shapeName, summaryOf, taskOptionsOf } from './form.js'
 import { Chips, Choice, Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { GridField, NumbersField, TableField, TicksField, WaveField } from './Cells.jsx'
@@ -133,7 +133,7 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
       case 'str': return <StringField field={field} onSet={set} label={name} />
       case 'expr': return <ExprField field={field} onSet={set} ctx={ctx} label={name} />
       case 'icon': return <IconField field={field} onSet={set} label={name} />
-      case 'choice': return <Choice options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.options} value={field.value} onPick={set} label={name} />
+      case 'choice': return <Choice options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.of === 'task' && ctx.levelOptions ? taskOptionsOf(ctx.levelOptions) : field.options} value={field.value} onPick={set} label={name} />
       case 'chips': return <Chips options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.options} values={Array.isArray(field.value) ? field.value : []} onSet={set} label={name} />
       case 'board': return <BoardField field={field} onSet={set} ctx={ctx} label={name} />
       case 'grid': return <GridField field={field} onSet={set} label={name} />

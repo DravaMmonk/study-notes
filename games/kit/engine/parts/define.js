@@ -4,7 +4,7 @@
 //
 //   defineParts(file, ops)       → { PARTS, defs, defaultsOf(type) }   of its primitives; a built piece (an inside, no
 //                                compute) is the course's to make (../board-course.js, ../pieces.js builtPieces)
-//   partProblems(file, vocabulary) → [{ at, says }]
+//   partProblems(file, vocabulary, { tasks? }) → [{ at, says }]   tasks: the game's task ids (a reference to none fails)
 //   withParts(vocabulary, file)  the vocabulary with both code and file parts in its `part` kind (content's S.ref('part'))
 //   evalSettings(text, def, params, ops)   a settings-only expression (a readout, a rule, a check) on a node's settings
 //   applyRules(def, params, changed, ops)  a node's settings once the player changed one: the part's rules followed
@@ -256,13 +256,13 @@ export function withParts(vocabulary, file) {
 }
 
 /** Every place a parts.json does not hold together, as [{ at, says }] (at: parts.json and the path in it). */
-export function partProblems(file, vocabulary) {
+export function partProblems(file, vocabulary, { tasks = null } = {}) {
   const out = []
   const say = (at, says) => out.push({ at: `parts.json${at}`, says })
   const vocab = withParts(vocabulary, file)
   // A domain with its primitives in code keeps its built pieces alone here.
   if (!definesParts(vocabulary)) for (const [type, raw] of Object.entries(file?.parts ?? {})) if (!insideOf(raw)) say(`.parts.${type}`, `the ${vocabulary.domain} domain defines its primitives in code: parts.json holds its built pieces alone (inside)`)
-  for (const p of validate(PARTS_FILE, file, { vocabulary: vocab })) say(p.at === '(root)' ? '' : p.at, p.says)
+  for (const p of validate(PARTS_FILE, file, { vocabulary: vocab, tasks })) say(p.at === '(root)' ? '' : p.at, p.says)
   if (out.length) return out
   const ops = { ...BUILTIN_ITEMS, ...vocabulary.kinds.op }
   for (const name of Object.keys(vocabulary.kinds.op ?? {})) if (BUILTINS[name]) say('', `the domain’s resource ${name} takes the name of a kernel builtin`)

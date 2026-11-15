@@ -497,5 +497,7 @@ export function BuiltBoard({ course, type, cards, portLabels = {} }) {
     openRef('level', builder.id, builder.task)
   }
   const describe = (node, ctx) => (ctx.board.parts.role(node) === 'part' && !course.BUILT[node.type] ? L(cards[node.type]?.desc) : null)
+  // A piece whose inside runs no board (its task is none) has none to show.
+  if (!course.BUILT[type]) return null
   return <PackedBoard top={drawn(course.BUILT[type].opens())} open={open} edit={edit} card={{}} describe={describe} />
 }

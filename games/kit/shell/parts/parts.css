@@ -34,7 +34,7 @@
 .pf-text, .pf-desc { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
 .pf-check { margin: 0; color: var(--fail); font-size: 11px; line-height: 1.4; }
 .pf-ports { display: grid; gap: var(--sp-1); margin: 0; font-size: 12px; }
-.pp-list .pp-code > span:last-child, .pp-chip { font-size: var(--fs-ui); }
+.pp-list .pp-code > span:last-child, .pp-chip, .pp-step { font-size: var(--fs-ui); }
 .pf-ports > div { display: grid; grid-template-columns: minmax(4em, auto) minmax(0, 1fr); gap: var(--sp-4); }
 .pf-ports dt { font-family: var(--mono); }
 .pf-ports dt::before { content: '● '; color: var(--fam, var(--accent)); font-size: 9px; }
@@ -98,3 +98,10 @@
 .pp-sheet.is-editing [data-pf]:hover { outline: 1px dashed var(--accent); outline-offset: 2px; }
 .pp-sheet [data-picked] { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (max-width: 720px) { .pp-built { grid-template-columns: minmax(0, 1fr); } }
+.pp-chains { display: grid; gap: var(--sp-2); }
+.pp-chain { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2); margin: 0; padding: 0; list-style: none; }
+.pp-step { display: inline-flex; align-items: center; gap: var(--sp-2); padding: 1px var(--sp-2) 1px var(--sp-4); border-radius: var(--r-sm); background: var(--paper); box-shadow: 0 0 0 1px var(--line); font-family: var(--mono); }
+.pp-arrow { color: var(--faint); }
+.pp-step small { color: var(--muted); font-family: var(--sans); }
+.pp-go { display: grid; place-items: center; width: 18px; height: 18px; padding: 0; border: 0; border-radius: var(--r-sm); color: var(--muted); background: none; cursor: pointer; }
+.pp-go:hover { color: var(--ink); background: var(--canvas); }

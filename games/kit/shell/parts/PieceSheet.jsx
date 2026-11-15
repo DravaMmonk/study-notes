@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { ArrowUpRight, Plus } from 'lucide-react'
 import { L, tr } from '../i18n.js'
 import { iconOf } from './icons.js'
 import SettingField from './SettingField.jsx'
@@ -7,7 +7,8 @@ import SettingField from './SettingField.jsx'
 // A piece's own fields as the studio's part page draws them (games/DESIGN.md 6.7): each carries its path in the piece
 // (data-pf); in edit mode a click picks it, and a + adds an item to a list. PieceSheet is a built piece's — beside the
 // board it runs, its name and description, the descriptions it grows along the course, the tasks whose work runs
-// inside (with each one's form and label), the engine resource its card runs instead, its settings; the rows it is
+// inside (each form an upgrade chain of tasks, a step's label on it), the engine resource its card runs instead, its
+// settings; the rows it is
 // made of (revisions, ports, settings) are a primitive's too (PartPreview.jsx). PresetSheet is a setting preset's.
 //
 //   def   the piece as parts.json writes it      edit   { picked (a path in the piece), pick(path), add(path) } or null
@@ -22,7 +23,7 @@ export const marker = (edit) => ({
 
 /** In edit mode, a click on a marked element picks its field (a + adds instead). */
 export const picker = (edit) => (e) => {
-  if (!edit || e.target.closest('.pp-add, .pp-adds')) return
+  if (!edit || e.target.closest('.pp-add, .pp-adds, .pp-go')) return
   const hit = e.target.closest('[data-pf]')
   if (!hit) return
   e.preventDefault()
@@ -69,7 +70,36 @@ export const Ports = ({ def, edit }) => <Chips def={def} edit={edit} keys={['inp
 /** A piece's settings, every one (the faces draw only those a player can move). */
 export const Settings = ({ def, edit }) => <Chips def={def} edit={edit} keys={['settings']} name={settingName} />
 
-export default function PieceSheet({ def, edit }) {
+/**
+ * What runs inside a built piece: its references, one row a form (or one row when none is written), each an upgrade
+ * chain — the work of each step's task replaces the one before. A step picks its reference; its arrow goes to the task;
+ * a + adds a reference (its task picked in the side panel).
+ */
+export function Chains({ def, edit, onTask }) {
+  const { mark, add } = marker(edit)
+  const forms = new Map()
+  def.inside.forEach((ref, k) => forms.set(ref.form ?? '', [...(forms.get(ref.form ?? '') ?? []), [ref, k]]))
+  return (
+    <div className="pp-chains">
+      {[...forms].map(([form, steps]) => (
+        <ol key={form} className="pp-chain">
+          {form && <li className="pp-code-label">{form}</li>}
+          {steps.map(([ref, k], n) => [
+            n > 0 && <li key={`${k}>`} className="pp-arrow" aria-hidden="true">→</li>,
+            <li key={k} className="pp-step" {...mark(['inside', k])}>
+              <span>{ref.task}</span>
+              {ref.label && <small>{ref.label}</small>}
+              {onTask && <button type="button" className="pp-go" title={tr('打开这个任务')} onClick={(e) => { e.stopPropagation(); onTask(ref.task) }}><ArrowUpRight size={12} /></button>}
+            </li>,
+          ])}
+        </ol>
+      ))}
+      {edit && <div className="pp-list-add">{add(['inside'])}</div>}
+    </div>
+  )
+}
+
+export default function PieceSheet({ def, edit, onTask }) {
   const { mark } = marker(edit)
   const Icon = iconOf(def.icon ?? 'CircuitBoard')
   return (
@@ -80,14 +110,7 @@ export default function PieceSheet({ def, edit }) {
       </header>
       <p className="pf-desc" {...mark(['desc'])}>{L(def.desc)}</p>
       <Revisions def={def} edit={edit} />
-      <ol className="pp-list">
-        {def.inside.map((ref, k) => (
-          <li key={k} className="pp-code" {...mark(['inside', k])}>
-            <span className="pp-code-label">{ref.task}</span>
-            <code>{[ref.form, ref.label].filter(Boolean).join(' · ')}</code>
-          </li>
-        ))}
-      </ol>
+      <Chains def={def} edit={edit} onTask={onTask} />
       {def.card && <div className="pp-code" {...mark(['card'])}><span className="pp-code-label">card</span><code>{def.card}</code></div>}
       <Settings def={def} edit={edit} />
     </div>

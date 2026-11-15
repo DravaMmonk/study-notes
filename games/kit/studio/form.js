@@ -33,6 +33,7 @@ import { newTaskId } from '../engine/tasks.js'
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 const fits = (schema, value, vocabulary) => validate(schema, value, { vocabulary }).length === 0
 const NUM = ['num', 'int']
+// A task is no table's cell: it is picked from the tasks grouped by level (taskOptionsOf), item by item.
 const SCALAR = ['num', 'int', 'str', 'bool', 'oneOf', 'ref', 'level']
 const isBit = (s) => s.type === 'oneOf' && s.values.length === 2 && s.values.includes(0) && s.values.includes(1)
 /** A value a cell holds: a scalar, or one of an either of scalars (a number, or null for 「—」). */
@@ -48,8 +49,19 @@ function choicesOf(schema, ctx) {
   if (schema.type === 'oneOf') return { options: schema.values.map((v) => ({ value: v })) }
   if (schema.type === 'ref') return { options: itemsOf(ctx.vocabulary, schema.kind), of: schema.kind }
   if (schema.type === 'level') return { options: (ctx.levels ?? []).map((id) => ({ value: id })), of: 'level' }
+  if (schema.type === 'task') return { options: (ctx.levels ?? []).map((id) => ({ value: id })), of: 'task' }
   return null
 }
+
+/**
+ * The tasks of a game to pick from, grouped by level in course order (`levelOptions`: the levels as the level picker
+ * has them, each with its `tasks` — [{ id, step }] — or none for a level of one task, whose id is the level's).
+ */
+export const taskOptionsOf = (levelOptions) => levelOptions.flatMap((l) => {
+  const group = [l.label, l.title && (typeof l.title === 'string' ? l.title : l.title.zh)].filter(Boolean).join(' ')
+  if (!l.tasks) return [{ value: l.value, label: l.label, title: l.title, group }]
+  return l.tasks.map((task, k) => ({ value: task.id, label: `${l.label} · ${k + 1}`, title: task.step ?? l.title, group, ...(task.id !== l.value && { about: task.id }) }))
+})
 
 /**
  * The shape of `value` where `schema` allows several (either): the one it fits, else the first of its kind (an object
@@ -106,6 +118,7 @@ export function formOf(schema, value, ctx, path = []) {
     case 'oneOf':
     case 'ref':
     case 'level':
+    case 'task':
       return { ...base, kind: 'choice', ...choicesOf(schema, ctx) }
     case 'call': {
       const [item, params] = value === undefined ? [null, {}] : callOf(value)
@@ -160,6 +173,7 @@ export function blank(schema, ctx) {
     case 'oneOf': return schema.values[0]
     case 'ref': return Object.keys(vocabulary?.kinds[schema.kind] ?? {})[0] ?? ''
     case 'level': return levels[0] ?? ''
+    case 'task': return ''
     case 'list': return Array.from({ length: schema.min ?? 0 }, () => blank(schema.of, ctx))
     case 'map': return {}
     case 'board': return []

@@ -4,7 +4,6 @@
 // same in every domain whose vocabulary has engine resources (the `op` kind); what it names (resources, families,
 // widgets) the domain's vocabulary gives.
 import { S } from '../schema.js'
-import { TASK_ID } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
 
 
@@ -113,7 +112,7 @@ export const PRIMITIVE = S.obj({
  * A built piece: inside, it runs the work of a task (the player's passing one, else the reference). References of one
  * form (or none) are an upgrade chain in order; of different forms, the piece's shapes. Its ports are the task's board's.
  */
-export const INSIDE = S.list(S.obj({ task: S.str({ pattern: TASK_ID }), form: S.opt(NAME), label: S.opt(S.str({ about: t('这种形态在元件上叫什么') })) }), { min: 1, about: t('里面跑哪个任务的作品：同一个 form（或都不写）的几条按先后是升级链，form 不同是件的几种形态') })
+export const INSIDE = S.list(S.obj({ task: S.task(), form: S.opt(NAME), label: S.opt(S.str({ about: t('这种形态在元件上叫什么') })) }), { min: 1, about: t('里面跑哪个任务的作品：同一个 form（或都不写）的几条按先后是升级链，form 不同是件的几种形态') })
 export const BUILT = S.obj({
   ...NAMED,
   inside: INSIDE,

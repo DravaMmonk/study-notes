@@ -6,7 +6,7 @@
 // ctx: { vocabulary, domain }. A level's tasks (../tasks.js) are added, removed, moved (in a level or to another: two
 // levels made one, or one split) and renamed by id. No operation looks after players' saves: while the games are in
 // development a save made on other puzzles is not read (../stamp.js).
-import { S, shapeAt } from '../schema.js'
+import { S, find, shapeAt } from '../schema.js'
 import { parse } from '../../circuit/text.js'
 import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.js'
 import { PATHS, describe, locate, putIn, takeOut } from './place.js'
@@ -58,11 +58,11 @@ const partsOf = (ws) => {
   if (ws.partDefs === undefined) ws.partDefs = { parts: {} }
   return ws.partDefs
 }
-/** Built pieces' inside references to task `from` made to name `to` (a task renamed, or a level with its task). */
+/** Every reference to task `from` in parts.json (each `S.task()` field: a built piece's inside) made to name `to` (a
+ *  task renamed, or a level with its task). */
 const renameInside = (ws, from, to) => {
   if (!ws.partDefs) return
-  const moved = (refs) => refs.map((ref) => (ref.task === from ? { ...ref, task: to } : ref))
-  ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries(Object.entries(ws.partDefs.parts).map(([type, piece]) => [type, piece.inside ? { ...piece, inside: moved(piece.inside) } : piece])) }
+  for (const { path } of find(PARTS_FILE, ws.partDefs, 'task').filter((hit) => hit.value === from)) ws.partDefs = setAt(ws.partDefs, path, to)
 }
 const blueprintLines = (text) => {
   const lines = text.replace(/\n$/, '').split('\n')

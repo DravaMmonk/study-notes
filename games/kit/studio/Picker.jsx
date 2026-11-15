@@ -12,7 +12,7 @@ const head = (o) => (o ? `${o.label ?? String(o.value)}${o.title ? ` ${L(o.title
 const paramsOf = (o) => (o.params?.type === 'obj' ? Object.keys(o.params.fields) : o.params ? [o.params.type] : [])
 
 /** Closes when a pointer goes down outside `ref`, or on Escape. */
-function useDismiss(ref, open, close) {
+export function useDismiss(ref, open, close) {
   useEffect(() => {
     if (!open) return undefined
     const down = (e) => { if (!ref.current?.contains(e.target)) close() }

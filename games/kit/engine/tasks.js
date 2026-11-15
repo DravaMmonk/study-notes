@@ -46,6 +46,9 @@ export const taskLevels = ({ tasks, ...level }) => tasks.map((task, k) => {
   return { ...level, ...own, task: k, taskId }
 })
 
+/** Every task id of a game's levels: a level of tasks, its tasks'; a level of one task, its own id. */
+export const taskIdsOf = (levels) => new Set(levels.flatMap((l) => (Array.isArray(l.tasks) ? l.tasks.map((task) => task.id) : [l.id])))
+
 /** The level holding task `id` and the task's place there: { level, at } (level: its id), or null. */
 export function findTask(levels, id) {
   for (const l of levels) {

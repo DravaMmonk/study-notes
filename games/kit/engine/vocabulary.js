@@ -25,7 +25,7 @@
 import { OVERLAY } from './i18n.js'
 import { S, validate } from './schema.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
-import { taskIdProblems } from './tasks.js'
+import { taskIdProblems, taskIdsOf } from './tasks.js'
 import { definesParts, partProblems, withParts } from './parts/define.js'
 
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
@@ -143,7 +143,7 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   add(validate(GLOSSARY, glossary, { vocabulary, levels: ids, names }), 'glossary.json')
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
   for (const [lang, memory] of Object.entries(i18n ?? {})) add(validate(OVERLAY, memory, { vocabulary }), `i18n/${lang}.json`)
-  if (parts !== undefined) out.push(...partProblems(parts, domainVocabulary))
+  if (parts !== undefined) out.push(...partProblems(parts, domainVocabulary, { tasks: taskIdsOf(levels) }))
   else if (definesParts(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'parts.json', says: `the ${domainVocabulary.domain} domain defines its parts as data: the game needs a parts.json` })
   return out
 }

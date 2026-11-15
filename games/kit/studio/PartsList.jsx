@@ -1,11 +1,16 @@
 // The parts of a game in the studio (games/DESIGN.md 6.7, 6.8): every piece its parts.json defines, primitive or built
 // (inside) — icon, name, type —
 // and every setting preset, a row each, in the file's order; findings on a part mark its row. A click opens it (its
-// faces on the page, its fields in the rows); + adds a part, blank and ready to be filled in, and opens it. A part is
-// copied, renamed and removed from the part's own page (PartEditor in Editor.jsx).
-import { Plus } from 'lucide-react'
+// faces on the page, its fields in the rows). The two + add a piece and open it: a primitive, blank and ready to be
+// filled in; a built piece, made from a task picked (grouped by level, in course order), the work of which runs
+// inside it — its ports are that task's board's. A part is copied, renamed and removed from the part's own page
+// (PartEditor in Editor.jsx).
+import { useRef, useState } from 'react'
+import { Box, CircuitBoard, Plus } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { iconOf } from '../shell/parts/icons.js'
+import { OptionList, useDismiss } from './Picker.jsx'
+import { taskOptionsOf } from './form.js'
 
 /** A new part to fill in: one input, one output computed as that input, its name its type. */
 export const blankPart = (vocabulary) => ({
@@ -17,6 +22,9 @@ export const blankPart = (vocabulary) => ({
   compute: 'a',
 })
 
+/** A new built piece: the work of task `task` runs inside it; named after what the task is called. */
+export const builtPart = (task, name) => ({ name: { zh: name || task }, desc: { zh: '' }, inside: [{ task }] })
+
 /** A name for a new part or preset not taken yet. */
 export const freeName = (taken, stem) => {
   let k = 1
@@ -24,13 +32,24 @@ export const freeName = (taken, stem) => {
   return `${stem}${k}`
 }
 
-export default function PartsList({ content, vocabulary, at, found, onSelect, onEdit }) {
+export default function PartsList({ content, vocabulary, levelOptions, at, found, onSelect, onEdit }) {
   const file = content.partDefs ?? { parts: {} }
   const parts = Object.entries(file.parts ?? {})
   const presets = Object.entries(file.presets ?? {})
+  const [picking, setPicking] = useState(false)
+  const box = useRef(null)
+  useDismiss(box, picking, () => setPicking(false))
+  const tasks = levelOptions ? taskOptionsOf(levelOptions) : []
   const add = () => {
     const type = freeName(parts.map(([t]) => t), 'part')
     onEdit({ op: 'part.add', part: type, data: blankPart(vocabulary) })
+    onSelect({ part: type })
+  }
+  const build = (task) => {
+    setPicking(false)
+    const picked = tasks.find((o) => o.value === task)
+    const type = freeName(parts.map(([t]) => t), 'piece')
+    onEdit({ op: 'part.add', part: type, data: builtPart(task, picked?.title && L(picked.title)) })
     onSelect({ part: type })
   }
   const addPreset = () => {
@@ -52,7 +71,11 @@ export default function PartsList({ content, vocabulary, at, found, onSelect, on
           </button>
         )
       })}
-      <button type="button" className="parts-add" onClick={add} title={tr('加一个元件')}><Plus size={13} aria-hidden="true" /></button>
+      <div className="parts-adds" ref={box}>
+        <button type="button" className="parts-add" onClick={add} title={tr('加一个基础件', 'Add a primitive piece')}><Plus size={12} aria-hidden="true" /><Box size={13} aria-hidden="true" /></button>
+        <button type="button" className="parts-add" onClick={() => setPicking(!picking)} aria-expanded={picking} title={tr('用一个任务的作品搭一个件', 'Build a piece from a task’s work')}><Plus size={12} aria-hidden="true" /><CircuitBoard size={13} aria-hidden="true" /></button>
+        {picking && <div className="parts-pick"><OptionList options={tasks} value={null} onPick={build} onClose={() => setPicking(false)} /></div>}
+      </div>
       <div className="parts-presets">
         {presets.map(([name, s]) => (
           <button key={name} type="button" className={`parts-row is-preset ${at?.preset === name ? 'is-on' : ''}`} onClick={() => onSelect({ preset: name })}>

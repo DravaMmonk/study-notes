@@ -35,16 +35,11 @@
 - F.1 已完成。每款游戏的件，基础的和搭出的，都是 `parts.json` 的一项：搭出的件写 `inside: [{ task, form?, label? }]`，口从被引用任务的板读出，哪一关搭出、打开它由引用反推（电路预设的 `board-course.js`、`image`、`logic` 的 `readBuilt`、`table`）。删掉的有关卡的 `builds`、`packs`、`unlock`、`fact`，game.json 的 `parts`、`lemmas`、`gates`、`machines`、`facts`、`revisions`，以及 `BUILT_TEXT`；词汇表删改由那一版的 `removes` 写明（决策七），`net`、`calculus`、`market`、`linear`、`signal`、`image`、`logic`、`table` 和两个电路模板各升一版，内容经操作集迁移。件有了 `card`、`revisions` 和引用的 `label`。元件箱和 studio 的元件页打开搭出的件时画出它跑的板。检查输出只有《证明完毕》的 `i18n en` 计数变了（2236 → 2253：证明助手元件的名字和说明从代码搬进内容）；搭出的门的口改按真值电路的字母命名。
 - F.2 已完成。按拍运行的基础元件也在各自游戏的 `parts.json`：内核的内建 `held(register, start)` 读寄存器，件的面 `keeps: { input, register }` 存寄存器（汇点，下一拍起生效，寄存器按封装路径分开），数字设置可以默认为「—」；`idle` 由可以不接的口覆盖。`net`、`calculus`、`market` 和逐拍总线模板的 `parts.js` 删掉，元件经操作集写进 `network`、`calculus`、`market` 和各 `starter/` 的 `parts.json`，领域只交引擎资源（`ops.js`；模板只用内建），词汇表各升一版并写明 `removes: kinds.part`；`ticks.js` 的 `register`、`store` 和外壳的 `registerCards` 删掉，`partsCourse` 是这类领域共用的课程读法。检查输出只有译文计数变了（`network` 291/299 → 313/321，`calculus` 238/238 → 253/253：元件的名字、说明和设置标签从代码搬进内容）。
 - G.0 已完成。studio 每个画面页都能改它展示的东西的字段（手册 §6.7）：搭出的件在板旁画出自己的字段，基础件画出修订、口和全部设置，设置预设有了画面；游戏首页的引语、标题、导语和每一章，百科词条的标题、正文、相关词条点开即改（侧栏多了 `glossary.json`）；画面上方的名字打开全部字段，画面上没有位置的也够得到。
+- G.1 已完成。内核有了 `S.task()`（任务的 id：检查拒绝不存在的任务，`task.rename` 按它找出每一处），`inside[].task` 用它，studio 按关分组、按课程顺序选任务。件列表的「+」分成基础件和搭出的件（先选任务，生成 `inside: [{ task }]`）；件的画面把内部引用按 `form` 画成升级链，点一步在侧栏打开那条引用，↗ 跳到那个任务。
 
 ## 阶段 G　studio 跟上件的登记表
 
 F.1、F.2 之后，件都登记在 `parts.json`，但 studio 还是按「元件」做的。依次做下面五条，每条一个或几个提交；验收都包括在游戏副本（`GAMES_ROOT`）上用浏览器走一遍：做出改动、应用、撤销。
-
-### G.1 能新建搭出的件
-
-- 内核加 `S.task()` 引用和它的控件：按关分组、按课程顺序列出任务（照 `S.level()` 的选关控件），`inside[].task` 改用它，作者检查拒绝指向不存在的任务。
-- 件页的 `+` 分成两种：基础件（现在的 `blankPart`）和搭出的件（先选任务，口从那个任务的板读出，生成 `inside: [{ task }]`）。
-- 同一个 `form`（或都不写）下的几条引用画成一条升级链，每一步能点到那个任务。
 
 ### G.2 件列表按托盘分组
 

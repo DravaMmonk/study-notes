@@ -6,7 +6,7 @@ import { L, tr } from '../i18n.js'
 import { evalSettings } from '../../engine/parts/define.js'
 import PartFace from './PartFace.jsx'
 import { definedParts, nextParams } from './faces.jsx'
-import { Ports, Revisions, Settings } from './PieceSheet.jsx'
+import { Chains, Ports, Revisions, Settings } from './PieceSheet.jsx'
 
 // A defined part as the studio designs it (games/DESIGN.md 6.7, 6.8): its three faces side by side — the desktop
 // card on the game's own canvas, the phone tile on its slot board, the detail both share — drawn by the game's page
@@ -18,6 +18,7 @@ import { Ports, Revisions, Settings } from './PieceSheet.jsx'
 //   game      the game's description; game.defined = { of(type), defaults(type), ops, widgets? } (the domain's game.js),
 //             game.partDefs parts.json as the studio edits it
 //   type      the part shown          edit      { picked (a path in the part), pick(path), add(path) } or null
+//   onTask(task)  a step of a built piece's chain followed to its task (a built piece's ports are its task's board's)
 // Every block, setting, expression and face carries the path of what it is in the part (data-pf); in edit mode a
 // click picks it, and a face's + adds a block to it.
 
@@ -35,7 +36,7 @@ function Code({ path, label, text, picked, ok = null }) {
   )
 }
 
-export default function PartPreview({ game, type, edit }) {
+export default function PartPreview({ game, type, edit, onTask = null }) {
   const defined = game.defined
   const def = defined.of(type)
   const [params, setParams] = useState(() => defined.defaults(type))
@@ -52,7 +53,7 @@ export default function PartPreview({ game, type, edit }) {
   const face = (name, extra = {}) => <PartFace def={def} face={name} node={node} ctx={ctx} set={set} defined={shown} mark={mark} {...extra} />
   const tile = (pick) => (d) => (d.views?.tile ? d.views.tile.map((b, k) => [b, ['views', 'tile', k]]) : [[{ show: 'value' }, null], [{ show: 'summary' }, null]]).filter(([b]) => pick(b.show === 'value'))
   const pick = (e) => {
-    if (!edit || e.target.closest('.pp-add, .pp-adds')) return
+    if (!edit || e.target.closest('.pp-add, .pp-adds, .pp-go')) return
     const hit = e.target.closest('[data-pf]')
     if (!hit) return
     e.preventDefault()
@@ -91,7 +92,7 @@ export default function PartPreview({ game, type, edit }) {
       </div>
       <div className="pp-logic">
         <Revisions def={raw} edit={edit} />
-        <Ports def={raw} edit={edit} />
+        {raw.inside ? <Chains def={raw} edit={edit} onTask={onTask} /> : <Ports def={raw} edit={edit} />}
         <Settings def={raw} edit={edit} />
         {compute.map(([o, text]) => <Code key={o || 'out'} path={['compute', ...(o ? [o] : [])]} label={o || null} text={text} picked={edit?.picked} />)}
         {def.keeps && <Code path={['keeps']} label="keeps" text={`${def.keeps.input} → $${def.keeps.register}`} picked={edit?.picked} />}

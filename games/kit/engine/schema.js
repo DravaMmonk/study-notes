@@ -58,6 +58,7 @@ export const S = {
   ref: (kind, extra = {}) => ({ type: 'ref', kind, ...extra }),
   call: (kind, extra = {}) => ({ type: 'call', kind, ...extra }),
   level: make('level'),
+  task: make('task'),
   board: make('board'),
   syntax: (lang, extra = {}) => ({ type: 'syntax', lang, ...extra }),
   name: (kind, extra = {}) => ({ type: 'name', kind, ...extra }),
@@ -75,7 +76,7 @@ const bare = (params) => !params || (params.type === 'obj' && Object.values(para
  * → why it cannot be read, or null }) reads syntax; `names` ({ kind: Set }) the names the content defines; `at` is
  * the path of `value`.
  */
-export function validate(schema, value, { vocabulary = null, levels = null, languages = null, names = null, at = '' } = {}) {
+export function validate(schema, value, { vocabulary = null, levels = null, tasks = null, languages = null, names = null, at = '' } = {}) {
   const out = []
   // `shape`: the value is not the shape asked for at all (a by's field names no case), not just wrong inside.
   const say = (where, says, shape = false) => out.push({ at: where || '(root)', says, ...(shape ? { shape } : {}) })
@@ -131,7 +132,7 @@ export function validate(schema, value, { vocabulary = null, levels = null, lang
         return
       }
       case 'either': {
-        const tries = s.of.map((x) => validate(x, v, { vocabulary, levels, languages, names, at: where }))
+        const tries = s.of.map((x) => validate(x, v, { vocabulary, levels, tasks, languages, names, at: where }))
         if (tries.every((t) => t.length)) {
           // The closest fit says what is wrong: a shape the value has (no problem with the value itself, only inside it),
           // then the fewest problems.
@@ -154,6 +155,10 @@ export function validate(schema, value, { vocabulary = null, levels = null, lang
       case 'level':
         if (typeof v !== 'string') say(where, `expected a level id, found ${show(v)}`)
         else if (levels && !levels.has(v)) say(where, `${show(v)} is no level of this game`)
+        return
+      case 'task':
+        if (typeof v !== 'string') say(where, `expected a task id, found ${show(v)}`)
+        else if (tasks && !tasks.has(v)) say(where, `${show(v)} is no task of this game`)
         return
       case 'name':
         if (typeof v !== 'string') say(where, `expected the name of a ${s.kind}, found ${show(v)}`)
