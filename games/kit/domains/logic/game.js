@@ -15,8 +15,7 @@ import { script } from './scriptValues.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
 import { RULES } from './proof.js'
 import { logicCourse } from './course.js'
-import { playScreen } from '../../shell/plays/Play.jsx'
-import { circuitScreen } from '../../shell/CircuitScreen.jsx'
+import { playKinds } from '../../shell/plays/Play.jsx'
 import { iconOf as partIcon } from '../../shell/parts/icons.js'
 import { gatesScreen } from './ui/gates.js'
 import { proofScreen } from './ui/proof.js'
@@ -37,8 +36,6 @@ const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'proof'
  * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), levels,
  * glossary }.
  */
-const Play = playScreen(plays, { declaration, definition, audit, truth, translation, query, proofTerm, script, worldCheck })
-
 export default function logicGame(content) {
   const logic = logicCourse(content)
   const { LEVELS, CHAPTERS, LABELS } = logic
@@ -93,7 +90,7 @@ export default function logicGame(content) {
     after: L.after,
     // A level is its tasks (../../engine/tasks.js): the shell plays each as the level with the task's fields over it,
     // its screen reading the task as the course read it (`source`).
-    tasks: L.tasks.map((t) => ({ key: t.taskId, kind: t.kind, step: t.step, source: t, brief: t.brief, after: t.after, carries: t.carries, intro: t.intro })),
+    tasks: L.tasks.map((t) => ({ key: t.taskId, kind: t.kind, play: t.play, step: t.step, source: t, brief: t.brief, after: t.after, carries: t.carries, intro: t.intro })),
   }))
   const game = defineGame({
     id: content.id,
@@ -107,19 +104,22 @@ export default function logicGame(content) {
     levels,
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.source.intro,
-    kinds: {
-      proof: { Screen: circuitScreen({ ...proofScreen, cards }), icon: Workflow, label: { zh: '证明', en: 'Proof' } },
-      machine: { Screen: circuitScreen({ ...machineScreen, cards }), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
-      truth: { Screen: Play, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
-      gates: { Screen: circuitScreen({ ...gatesScreen, cards }), icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
-      iso: { Screen: Play, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
-      define: { Screen: Play, icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },
-      translate: { Screen: Play, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
-      query: { Screen: Play, icon: Search, label: { zh: '查询', en: 'Query' } },
-      model: { Screen: Play, icon: FileSignature, label: { zh: '造世界', en: 'Build a world' } },
-      term: { Screen: Play, icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
-      script: { Screen: Play, icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
-    },
+    kinds: playKinds(plays, {
+      declaration, definition, audit, truth, translation, query, proofTerm, script, worldCheck,
+      proof: { ...proofScreen, cards }, machine: { ...machineScreen, cards }, gates: { ...gatesScreen, cards },
+    }, {
+      proof: { icon: Workflow, label: { zh: '证明', en: 'Proof' } },
+      machine: { icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
+      truth: { icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
+      gates: { icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
+      iso: { icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
+      define: { icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },
+      translate: { icon: Languages, label: { zh: '翻译', en: 'Translate' } },
+      query: { icon: Search, label: { zh: '查询', en: 'Query' } },
+      model: { icon: FileSignature, label: { zh: '造世界', en: 'Build a world' } },
+      term: { icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
+      script: { icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
+    }),
     // What passing a level gives: the parts it builds, and the proof-board parts a declaration or a generator gives (its
     // rules, from here on).
     unlocked: (level) => [

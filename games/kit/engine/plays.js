@@ -1,4 +1,3 @@
-import { BOARD_PLAY, SIMULATION_PLAY } from './board-play.js'
 import { hidden } from './judge.js'
 import { S, validate } from './schema.js'
 
@@ -9,15 +8,38 @@ const fields = {
   layout: S.str(),
   gives: S.opt(S.oneOf(['reference'])),
 }
+const label = S.obj({ zh: S.str(), en: S.str() })
+const circuit = (judge, options = {}) => S.obj({
+  editor: S.oneOf(['circuit']),
+  judge: S.oneOf([judge]),
+  resources: S.str(),
+  label: S.opt(label),
+  layout: S.opt(S.str()),
+  ...options,
+})
+
 export const PLAY = S.by('editor', {
-  board: BOARD_PLAY,
-  circuit: S.by('judge', {
-    simulation: SIMULATION_PLAY,
-    cases: S.obj({ editor: S.oneOf(['circuit']), judge: S.oneOf(['cases']), target: S.oneOf(['shown', 'hidden']) }),
-    outputs: S.obj({
-      editor: S.oneOf(['circuit']), judge: S.oneOf(['outputs']), checks: S.oneOf(['afterPass']),
-      layout: S.str(),
+  board: S.obj({
+    editor: S.oneOf(['board']),
+    judge: S.oneOf(['hand']),
+    resources: S.str(),
+    label,
+    layout: S.obj({
+      boardLabel: label,
+      cardClass: S.str(),
+      noteClass: S.str(),
+      afterClass: S.str(),
+      phoneClass: S.str(),
+      desktopClass: S.str(),
+      panelClass: S.str(),
     }),
+  }),
+  circuit: S.by('judge', {
+    once: circuit('once'),
+    steps: circuit('steps'),
+    simulation: circuit('simulation'),
+    cases: circuit('cases', { target: S.oneOf(['shown', 'hidden']) }),
+    outputs: circuit('outputs', { checks: S.oneOf(['afterPass']) }),
   }),
   workshop: S.obj({
     editor: S.oneOf(['workshop']), judge: S.oneOf(['exercise']), resources: S.str(), layout: S.str(), pinOnPhone: S.bool(),
@@ -38,8 +60,7 @@ export function definePlays(plays) {
   return plays
 }
 
-export function playFor(plays, { kind, play }) {
-  return plays[play ?? kind]
-}
+export const playId = ({ kind, play }) => play ?? kind
+export const playFor = (plays, task) => plays[playId(task)]
 
 export const judgeFor = (play, judge) => play.checks === 'hidden' ? hidden(judge) : judge

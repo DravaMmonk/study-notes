@@ -1,3 +1,4 @@
+import { playId } from './plays.js'
 // The domain contract (games/DESIGN.md 6.3): what a domain gives the kernel, checked mechanically. A domain that
 // passes it is one `npm run check`, the shell, and every tool built on them (the operation set, the MCP, the blind-play
 // harness, the studio) can take without knowing anything about it. contract.test.js runs it over every domain and
@@ -319,6 +320,10 @@ export function gameProblems(content, spec, game) {
   const chapters = new Set(game.chapters.map((c) => c.id))
   for (const l of game.levels) {
     if (!game.kinds?.[l.kind] || !isFn(game.kinds[l.kind].Screen)) say(`${l.id}: the kind ${l.kind} has no Screen`)
+    for (const task of l.tasks ?? []) {
+      const chosen = playId({ ...l, ...task })
+      if (!isFn(game.kinds?.[chosen]?.Screen)) say(`${l.id}/${task.key}: the play ${chosen} has no Screen`)
+    }
     if (!chapters.has(l.chapter)) say(`${l.id}: in no chapter`)
   }
   const keys = (game.parts?.all ?? []).map((p) => p.key)

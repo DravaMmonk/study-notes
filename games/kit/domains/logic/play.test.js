@@ -9,7 +9,7 @@ const gNot = { name: { zh: '非' }, desc: { zh: 'd' }, icon: 'ToggleLeft', famil
 const gates = { gNot: { ...defineParts({ parts: { gNot } }, {}).PARTS.gNot, name: gNot.name, desc: gNot.desc } }
 
 test('the circuit template requires an explicit target column policy', () => {
-  const circuit = { editor: 'circuit', judge: 'cases' }
+  const circuit = { editor: 'circuit', judge: 'cases', resources: 'gates' }
   assert.throws(() => definePlays({ circuit }), /is missing/)
   assert.throws(() => definePlays({ circuit: { ...circuit, target: 'sometimes' } }), /expected one of/)
   for (const target of ['shown', 'hidden']) {

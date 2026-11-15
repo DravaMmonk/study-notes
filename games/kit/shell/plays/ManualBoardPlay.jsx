@@ -1,13 +1,13 @@
 import { Fragment, useRef } from 'react'
 import { Trash2 } from 'lucide-react'
-import { CheckIcon, Dock, SkipIcon } from './BoardControls.jsx'
-import TestTabs from './TestTabs.jsx'
-import InteractiveDrawing from './InteractiveDrawing.jsx'
-import { Brief, PhonePage } from './Layout.jsx'
-import { Markup } from './Markup.jsx'
-import Workbench from './Workbench.jsx'
-import { L } from './i18n.js'
-import { useToast } from './useBoardInteraction.jsx'
+import { CheckIcon, Dock, SkipIcon } from '../BoardControls.jsx'
+import TestTabs from '../TestTabs.jsx'
+import InteractiveDrawing from '../InteractiveDrawing.jsx'
+import { Brief, PhonePage } from '../Layout.jsx'
+import { Markup } from '../Markup.jsx'
+import Workbench from '../Workbench.jsx'
+import { L } from '../i18n.js'
+import { useToast } from '../useBoardInteraction.jsx'
 
 const icons = { check: CheckIcon, skip: SkipIcon, trash: Trash2 }
 
@@ -91,38 +91,38 @@ function withIcon(action) {
   return Icon ? { ...action, icon: <Icon size={16} /> } : action
 }
 
-/** Bind a board resource once. It supplies drawing targets, player actions and feedback as data. */
-export function manualBoardScreen(useBoard) {
-  return function ManualBoardPlay(screen) {
-    const { brief: { text, hint }, game, level, phone, play: { layout } } = screen
-    const [toast, toastEl] = useToast()
-    const boardRef = useRef(null)
-    const scrollRef = useRef(null)
-    const revealBoard = () => {
-      const page = scrollRef.current
-      if (phone && page && boardRef.current) page.scrollTop += boardRef.current.getBoundingClientRect().top - page.getBoundingClientRect().top - 8
-    }
-    const { drawing, capacity, note, cards, dock, tests, states, ti, onTest, comparison } = useBoard({ ...screen, toast, revealBoard })
-    const panel = <div className={layout.panelClass}>{cards.map((card, i) => <PlayCard key={i} {...card} />)}</div>
-    const brief = <Brief game={game} level={level} text={text} hint={hint}>{!phone && panel}</Brief>
-    const board = (
-      <section ref={boardRef} className={layout.cardClass} aria-label={L(layout.boardLabel)}>
-        {tests && <TestTabs tests={tests} states={states} index={ti} onSelect={onTest} phone={phone} inline />}
-        {capacity ? <CapacityBoard {...capacity} /> : <InteractiveDrawing {...drawing} />}
-        <p className={layout.noteClass}>{L(note)}</p>
-        <div className={layout.afterClass}>{comparison && <Comparison {...comparison} />}</div>
-      </section>
-    )
-    const bar = <Dock {...dock} meta={<Markup text={dock.meta} />} go={withIcon(dock.go)} secondary={withIcon(dock.secondary)} />
-    return phone ? (
-      <PhonePage scrollRef={scrollRef} brief={brief} className={layout.phoneClass} dock={bar}>
-        {board}{panel}{toastEl}
-      </PhonePage>
-    ) : (
-      <>
-        <Workbench className={layout.desktopClass} brief={brief} stage={board} scroll dock={bar} />
-        {toastEl}
-      </>
-    )
+/** The board shell receives drawing targets, player actions and feedback from the bound resource. */
+export default function ManualBoardPlay({ screen, play, resource: { useBoard, briefOf } }) {
+  const { game, level, phone } = screen
+  const { layout } = play
+  const { text, hint } = briefOf(level.source)
+  const [toast, toastEl] = useToast()
+  const boardRef = useRef(null)
+  const scrollRef = useRef(null)
+  const revealBoard = () => {
+    const page = scrollRef.current
+    if (phone && page && boardRef.current) page.scrollTop += boardRef.current.getBoundingClientRect().top - page.getBoundingClientRect().top - 8
   }
+  const { drawing, capacity, note, cards, dock, tests, states, ti, onTest, comparison } = useBoard({ ...screen, play, toast, revealBoard })
+  const panel = <div className={layout.panelClass}>{cards.map((card, i) => <PlayCard key={i} {...card} />)}</div>
+  const brief = <Brief game={game} level={level} text={text} hint={hint}>{!phone && panel}</Brief>
+  const board = (
+    <section ref={boardRef} className={layout.cardClass} aria-label={L(layout.boardLabel)}>
+      {tests && <TestTabs tests={tests} states={states} index={ti} onSelect={onTest} phone={phone} inline />}
+      {capacity ? <CapacityBoard {...capacity} /> : <InteractiveDrawing {...drawing} />}
+      <p className={layout.noteClass}>{L(note)}</p>
+      <div className={layout.afterClass}>{comparison && <Comparison {...comparison} />}</div>
+    </section>
+  )
+  const bar = <Dock {...dock} meta={<Markup text={dock.meta} />} go={withIcon(dock.go)} secondary={withIcon(dock.secondary)} />
+  return phone ? (
+    <PhonePage scrollRef={scrollRef} brief={brief} className={layout.phoneClass} dock={bar}>
+      {board}{panel}{toastEl}
+    </PhonePage>
+  ) : (
+    <>
+      <Workbench className={layout.desktopClass} brief={brief} stage={board} scroll dock={bar} />
+      {toastEl}
+    </>
+  )
 }

@@ -65,10 +65,9 @@ function language(task, test) {
 export const proofScreen = {
   course: (game) => game.logic.proofBoards,
   play: { runLevel, show, entries },
-  judged: true,
   language,
   context: (task, test) => ({ task, text: textOf(task, test) }),
-  // A script the proof follows (chapter 15), a line each, indented as its blocks are.
+  // A script the proof follows, a line each, indented as its blocks are.
   told: (task, test) => (task.script ? scriptLines(task.script, (t) => textOf(task, test)(parse(t, { consts: [...(task.consts ?? []), ...(task.things ?? [])] }))).map(([depth, text]) => ({ text: `${'  '.repeat(depth)}${text}` })) : []),
   score: (task, circuit) => LOGIC_TESTS.score(task, circuit),
   readouts: (task, circuit) => [{ value: LOGIC_TESTS.score(task, circuit).steps, label: T('步数') }],

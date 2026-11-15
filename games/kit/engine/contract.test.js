@@ -54,3 +54,19 @@ for (const name of names.filter((d) => existsSync(resolve(DOMAINS, d, 'starter')
   })
 }
 
+
+test('the game contract checks the effective play of each task', () => {
+  const text = { en: 'Test' }
+  const content = { id: 'sample' }
+  const spec = { levels: [{ id: 'first' }] }
+  const game = {
+    id: content.id,
+    title: text, kicker: text, lede: text,
+    chapters: [{ id: 0 }],
+    levels: [{ id: 'first', chapter: 0, kind: 'board', tasks: [{ key: 'first' }, { key: 'audit', play: 'checks' }] }],
+    kinds: { board: { Screen() {} } },
+  }
+  assert.deepEqual(gameProblems(content, spec, game), ['game.js: first/audit: the play checks has no Screen'])
+  game.kinds.checks = { Screen() {} }
+  assert.deepEqual(gameProblems(content, spec, game), [])
+})

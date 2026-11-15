@@ -1,7 +1,7 @@
 // An image game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the image domain's level screens (circuits, benches, the probe), its
 // parts box and its intro figures.
-import { createElement, lazy } from 'react'
+import { lazy } from 'react'
 import '../../../../trace-viewer/src/index.css'
 import './image.css'
 import '../../shell/bench/bench.css'
@@ -9,11 +9,10 @@ import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore, levelLabels } from '../../course.js'
 import { imageCourse } from './course.js'
-import { playFor } from '../../engine/plays.js'
-import { workshopScreen } from '../../shell/WorkshopPlay.jsx'
+import { playKinds } from '../../shell/plays/Play.jsx'
 import { plays } from './plays.js'
 import { partsFor } from '../../shell/CircuitScreen.jsx'
-import { imageCircuitScreen } from './ui/circuit.js'
+import { imageCircuit } from './ui/circuit.js'
 import { imageBoards } from './engine/board-view.js'
 import { imagePreview } from './engine/preview.js'
 import { gridProbeScreen } from '../../shell/GridProbe.jsx'
@@ -28,12 +27,6 @@ const BenchLevel = lazy(() => import('./ui/benches/BenchLevel.jsx'))
 const Probe = gridProbeScreen(({ probes, part, question, answers, answer, wrong }) => ({
   examples: probes, run: (input) => NODE_TYPES[part].eval({ in: input }), rangeFor: rangeOf, question, answers, answer, wrong,
 }))
-const Workshop = workshopScreen({ parameters: BenchLevel, probe: Probe })
-
-function ImageExercise(screen) {
-  return createElement(Workshop, { ...screen, play: playFor(plays, screen.level) })
-}
-
 // Unlock flags → the part (or option) they give in a course's part table, for the passed dialog and the parts box.
 const partOfFlag = (types) => {
   const map = Object.fromEntries(Object.entries(types).filter(([, spec]) => spec.unlock).map(([type, spec]) => [spec.unlock, type]))
@@ -73,7 +66,6 @@ export default function imageGame(content) {
   const cards = Object.fromEntries(Object.keys(types).map((type) => [type, {
     name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types),
   }]))
-  const Graph = imageCircuitScreen(image, boards, cards)
   const levels = LEVELS.map((level) => ({ ...level, tasks: level.tasks.map((task) => ({ ...task, source: task })) }))
   const labels = levelLabels(content.eras, { notes: course.notes })
   const game = defineGame({
@@ -90,11 +82,11 @@ export default function imageGame(content) {
     levels,
     intro: (level) => image.intros[level.id],
     IntroFigure: imageIntroduction,
-    kinds: {
-      graph: { Screen: Graph, icon: Workflow, label: { zh: '搭电路', en: 'Build a circuit' } },
-      board: { Screen: ImageExercise, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
-      probe: { Screen: ImageExercise, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
-    },
+    kinds: playKinds(plays, { imageCircuit: imageCircuit(image, boards, cards), parameters: BenchLevel, probe: Probe }, {
+      graph: { icon: Workflow, label: { zh: '搭电路', en: 'Build a circuit' } },
+      board: { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
+      probe: { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
+    }),
     unlocked: (level) => shownUnlocks(level).map(unlockOf),
     core: (level) => isCore(course, level),
     levelLabel: (level) => labels.get(level.id) ?? level.id,

@@ -1,11 +1,9 @@
-import { circuitScreen } from '../../../shell/CircuitScreen.jsx'
 import { T } from '../../../shell/i18n.js'
 import { valueText } from '../../../engine/views.js'
 import { isGrid } from '../../../engine/grid.js'
 import { checkingTests } from '../engine/graph.js'
 import { startBoard, tidyImageBoard } from '../engine/board.js'
 import { INPUT_LABELS } from '../words.js'
-import { plays } from '../plays.js'
 
 const viewName = (name) => name === 'terrain' ? 'surface' : name
 
@@ -42,16 +40,14 @@ const show = (value) => isGrid(value)
   ? value.w * value.h === 1 && (value.c ?? 1) === 1 ? valueText(value.data[0]) : `${value.w} × ${value.h}${value.c === 3 ? ' · RGB' : ''}`
   : valueText(value)
 
-export function imageCircuitScreen(image, boards, cards) {
+export function imageCircuit(image, boards, cards) {
   const { kit } = image
   const runLevel = (task, board) => {
     const { results, ...report } = kit.runLevel(task, board)
     return { ...report, runs: results }
   }
-  return circuitScreen({
-    course: () => boards, cards, play: { runLevel, entries, show }, judged: true,
-    className: plays.graph.layout,
-    revealOnPass: plays.graph.checks === 'afterPass',
+  return {
+    course: () => boards, cards, play: { runLevel, entries, show },
     canvas: { height: 220 },
     fresh: startBoard,
     ready: (board) => tidyImageBoard(kit, board),
@@ -83,5 +79,5 @@ export function imageCircuitScreen(image, boards, cards) {
         return { circuit, history }
       },
     },
-  })
+  }
 }

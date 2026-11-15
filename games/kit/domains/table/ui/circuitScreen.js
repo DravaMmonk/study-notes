@@ -13,7 +13,7 @@ const cards = Object.fromEntries(Object.entries({ ...PRIMITIVES, ...fixedCards }
   type, { ...card, family: 'sg', icon: lookIcon(type) },
 ]))
 
-export const robotScreenFor = ({ model }, play) => ({
+export const robotScreenFor = ({ model }) => ({
   course: (game) => game.robotCircuits,
   cards,
   fresh: freshBoard,
@@ -30,6 +30,5 @@ export const robotScreenFor = ({ model }, play) => ({
   testLabel: testName,
   final: (task, work) => task.ports.length ? portsProblem(work, task.ports) : null,
   useWorld: useRobotWorld,
-  className: play.layout,
   canvas: { height: 170, minFit: 0.62 },
 })

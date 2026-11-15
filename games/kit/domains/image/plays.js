@@ -4,6 +4,7 @@ export const plays = definePlays({
   graph: {
     editor: 'circuit',
     judge: 'outputs',
+    resources: 'imageCircuit',
     checks: 'afterPass',
     layout: 'level-graph',
   },

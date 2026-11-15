@@ -1,3 +1,4 @@
+import { playId } from '../engine/plays.js'
 import { createElement, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, BookMarked, BookOpen, PanelLeft } from 'lucide-react'
 import { applyTheme } from '../theme.js'
@@ -268,7 +269,7 @@ export default function GameShell({ game, store, author = null }) {
   const pageMarks = pages.map((_, k) => (k < own.length ? { at: `intro[${k}]`, scope: 'level' } : { at: `intro[${k - own.length}]`, scope: 'task' }))
   const introKey = level && (taskAt === 0 ? level.id : key)
   const intro = pages.length > 0
-  const kind = level && game.kinds[played.kind]
+  const kind = level && game.kinds[playId(played)]
 
   // The studio's editor: what is picked, and every pick or + said with the level and the task played.
   const authoring = author?.edit ?? null

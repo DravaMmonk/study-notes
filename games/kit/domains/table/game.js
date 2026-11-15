@@ -7,10 +7,9 @@ import './ui/table.css'
 import { defineGame } from '../../shell/index.js'
 import { eraLevels, introductions, isCore, pathLevels } from '../../course.js'
 import { plays } from './plays.js'
-import { circuitScreen } from '../../shell/CircuitScreen.jsx'
+import { playKinds } from '../../shell/plays/Play.jsx'
 import { robotCircuits } from './ui/circuitCourse.js'
 import { robotScreenFor } from './ui/circuitScreen.js'
-import { manualBoardScreen } from '../../shell/ManualBoardPlay.jsx'
 import { handResources } from './ui/modes/index.js'
 import Hero from './ui/hero.jsx'
 import { sceneSVG } from './ui/svg.js'
@@ -21,18 +20,9 @@ import { ROBOTS } from './model/robots.js'
 import { T, lazy, tr } from './lang.js'
 import { tableCourse } from './course.js'
 
-const handScreens = Object.fromEntries(Object.entries(handResources).map(([name, useBoard]) => [name, manualBoardScreen(useBoard)]))
-
-const handScreen = (play) => (screen) => {
-  const { mission, hints } = screen.level.source
-  return createElement(handScreens[play.resources], { ...screen, play, brief: { text: [mission.goal, mission.how], hint: hints } })
-}
-
-const kindsFor = (table) => Object.fromEntries(Object.entries(plays).map(([key, play]) => [key, {
-  Screen: play.editor === 'circuit' ? circuitScreen(robotScreenFor(table, play)) : handScreen(play),
-  icon: play.editor === 'circuit' ? Cable : Grid3x3,
-  label: play.label,
-}]))
+const briefOf = ({ mission, hints }) => ({ text: [mission.goal, mission.how], hint: hints })
+const hand = Object.fromEntries(Object.entries(handResources).map(([name, useBoard]) => [name, { useBoard, briefOf }]))
+const icons = Object.fromEntries(Object.entries(plays).map(([name, play]) => [name, { icon: play.editor === 'circuit' ? Cable : Grid3x3 }]))
 
 /** A task's `done` as the shell's pass text of a task: its head in bold, then its paragraphs. */
 const doneText = ({ head, body = [] }) => [...(head ? [T(`<b>${head.zh ?? head.en}</b>`, `<b>${head.en ?? head.zh}</b>`)] : []), ...body]
@@ -108,7 +98,7 @@ export default function tableGame(content) {
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.intro,
     IntroFigure,
-    kinds: kindsFor(table),
+    kinds: playKinds(plays, { ...hand, robot: robotScreenFor(table) }, icons),
     unlocked: (level) => level.unlocks.map((k) => ({ label: PARTS[k].name })),
     core: (level) => isCore(course, level),
     parts: {

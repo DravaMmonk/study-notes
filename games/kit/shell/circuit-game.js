@@ -3,13 +3,11 @@
 // and the parts box holding the game's primitives and its built pieces (`piece`: the pieces.json entry; each opens on
 // the board it runs). The course read is `game.circuit`.
 //
-//   circuitGame(content, circuit, { kind: { id, icon, label }, screen, cards, Hero?, kinds?, IntroFigure? })
+//   circuitGame(content, circuit, { kind: { id, icon, label }, screen, cards, Hero?, IntroFigure? })
 //     screen       what the domain declares of its screen (its ui/screen.js; CircuitScreen.jsx circuitScreen): the
 //                  kit draws it, the domain writes no component
 //     cards        { type: { name, desc, icon, revisions? } } the domain's cards, as the parts box shows a primitive
 //     Hero         the map's illustration, when the game draws one
-//     kinds        { kind: { Screen, icon, label } } the screens of the tasks that are no board (the course read's
-//                  kinds); a level's kind is its last task's
 //     IntroFigure  what draws an introduction page's figure (index.js)
 //   definedGame(content, circuit, { ops, cards?, …circuitGame's })   the game of a domain whose games define their
 //     own parts: its screen says what a failed run gives as its reason and the room a card's picture takes, so the
@@ -19,15 +17,17 @@
 //     them, on its screens (CircuitScreen `defined`) and as the circuit editor previews them (../circuit/preview.jsx)
 import { CircuitBoard } from 'lucide-react'
 import { introductions, isCore, levelLabels } from '../course.js'
-import { circuitScreen } from './CircuitScreen.jsx'
+import { definePlays } from '../engine/plays.js'
+import { playKinds } from './plays/Play.jsx'
 import { defineGame } from './index.js'
 import { iconOf } from './parts/icons.js'
 
 /** The fields of an object that hold something. */
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
 
-export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds = {}, IntroFigure }) {
-  const Screen = circuitScreen({ ...screen, cards, course: (game) => game.circuit })
+export function circuitGame(content, circuit, { kind, screen, cards, Hero, IntroFigure }) {
+  const plays = definePlays({ [kind.id]: { editor: 'circuit', judge: 'steps', resources: kind.id } })
+  const resources = { [kind.id]: { ...screen, cards, course: (game) => game.circuit } }
   const { LEVELS, CHAPTERS, course } = circuit
   const primitives = [...introductions(course)].map(([type, at]) => {
     const { name, desc, icon, revisions } = cards[type]
@@ -36,7 +36,6 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
   // The built pieces, in the order the course builds them.
   const built = [...new Set(LEVELS.flatMap((L) => L.unlocks))].map((type) => ({ key: type, piece: type, name: circuit.pieces[type].name, desc: circuit.pieces[type].desc, ...defined({ revisions: circuit.pieces[type].revisions }), icon: CircuitBoard }))
   const labels = levelLabels(content.eras, { notes: course.notes })
-  const kindOf = (T) => (kinds[T.kind] ? T.kind : kind.id)
   const game = defineGame({
     id: content.id,
     title: content.title,
@@ -61,7 +60,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
         chapter: L.era,
         requires: L.requires,
         title: L.title,
-        kind: kindOf(tasks.at(-1)),
+        kind: kind.id,
         unlocks: L.unlocks,
         keeps: L.unlocks.length > 0 || circuit.carried.has(L.id),
         intro: L.intro,
@@ -70,13 +69,13 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
         note: L.note,
         tasks: tasks.map((T, k) => {
           const { step, brief, hint, intro, after, carries } = L.tasks[k]
-          return { key: T.taskId, kind: kindOf(T), ...defined({ step, brief, hint, intro, after, carries }), fresh: T.fresh, source: T }
+          return { key: T.taskId, ...defined({ step, brief, hint, intro, after, carries }), fresh: T.fresh, source: T }
         }),
       }
     }),
     intro: (level) => level.intro,
     IntroFigure,
-    kinds: { [kind.id]: { Screen, icon: kind.icon, label: kind.label }, ...kinds },
+    kinds: playKinds(plays, resources, { [kind.id]: kind }),
     parts: {
       all: [...primitives, ...built],
       // A built piece shows the board it runs: the one the player passed its task with, else the reference.

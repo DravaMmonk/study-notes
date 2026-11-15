@@ -511,9 +511,11 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
  *   says, portLabels?, words?, judged?, canvas?, sample?, table?, figure?, told?, final?, score?, readouts?   as CircuitScreen
  *                takes them
  */
-export function circuitScreen({ play, course, ...declared }) {
+export function circuitScreen(config, { play, course, ...declared }) {
   const played = { run: play.runLevel, entries: play.entries, show: play.show ?? valueText, once: play.once, check: play.check, cells: play.cells }
+  const judged = config.judge === 'once' || config.judge === 'outputs'
+  const revealOnPass = config.checks === 'afterPass'
   return function Screen(screen) {
-    return <CircuitScreen screen={screen} course={course(screen.game)} defined={screen.game.defined} {...played} {...declared} />
+    return <CircuitScreen screen={screen} course={course(screen.game)} defined={screen.game.defined} {...played} {...declared} judged={judged} revealOnPass={revealOnPass} className={config.layout} />
   }
 }

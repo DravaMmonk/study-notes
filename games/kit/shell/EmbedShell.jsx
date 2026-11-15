@@ -1,3 +1,4 @@
+import { playId } from '../engine/plays.js'
 import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Maximize2 } from 'lucide-react'
 import { L, tr } from './i18n.js'
@@ -65,7 +66,7 @@ export default function EmbedShell({ game, store, levelId }) {
     else next[runAt] = mark
     return next
   })
-  const kind = game.kinds[played.kind]
+  const kind = game.kinds[playId(played)]
   const page = new URL(window.location.href)
   page.search = new URLSearchParams({ level: level.id }).toString()
 
