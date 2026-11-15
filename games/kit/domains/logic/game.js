@@ -146,7 +146,7 @@ export default function logicGame(content) {
         return { inside: { course: shown, cards } }
       },
     },
-    // Fewer steps (proof steps, or gates) is better; fewer cases, where the player writes them (iso.js judgeCases).
+    // Fewer steps (proof steps, or gates) is better; fewer cases, where the player writes them (audit-cases.js).
     better: (score, best) => Boolean(score) && (!best || score.steps < best.steps),
     bestLabel: (best) => (best.unit === 'cases' ? tr(`${best.steps} 条`, `${best.steps} cases`) : tr(`${best.steps} 步`, `${best.steps} steps`)),
   })

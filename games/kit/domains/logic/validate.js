@@ -23,7 +23,8 @@ import { freeIn, parseTerm } from './pterm.js'
 import { termJudge } from './termTask.js'
 import { missingForms } from './termTree.js'
 import { checkGates, rowsFor, startGates } from './gates.js'
-import { checkIso, judgeCases, sentenceOf, waysIn } from './iso.js'
+import { checkIso, sentenceOf, waysIn } from './iso.js'
+import { runAudit } from './audit-cases.js'
 import { checkDefine } from './define.js'
 import { say } from './notation.js'
 import { presetIds } from './course.js'
@@ -134,10 +135,10 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
       }
       // Checking by the diagram: the reference cases catch every board, the naive ones do not; each board fails.
       if (level.play === 'audit') {
-        const cases = judgeCases(level, level.answer, words)
-        const loose = level.boards.findIndex((_, k) => cases.judge(k))
-        out.push({ level: level.id, fail: loose >= 0, text: `  cases ${loose < 0 ? 'PASS' : `FAIL on board ${loose + 1}: ${keyOf(cases.judge(loose))}`} [${level.answer.length} cases]` })
-        if (level.naive && level.boards.every((_, k) => !judgeCases(level, level.naive, words).judge(k))) out.push({ level: level.id, fail: true, text: '  naive cases PASS (bad)' })
+        const { reference: cases, naive } = checkWorks((work) => runAudit(level, work, words), { reference: level.answer, naive: level.naive })
+        const miss = cases.fail
+        out.push({ level: level.id, fail: !cases.ok, text: `  cases ${cases.ok ? 'PASS' : `FAIL on board ${miss.check + 1}: ${keyOf(miss.why)}`} [${level.answer.length} cases]` })
+        if (naive?.ok === false) out.push({ level: level.id, fail: true, text: '  naive cases PASS (bad)' })
         // The reference cases fill the cases set out, and keep the goal and expectation the level fixes.
         const set = level.slots.length ?? level.slots
         if (level.answer.length !== set) out.push({ level: level.id, fail: true, text: `  the reference answer has ${level.answer.length} cases for ${set} set out` })

@@ -23,7 +23,7 @@
 //
 // Checking by the diagram (`play`, ../../shell/plays/BoardChecks.jsx): the level's test cases are boards
 // (`boards: [{ board }]`), each someone's declaration that is wrong. In 'audit' they are locked and the player writes
-// the test cases instead (judgeCases), in the same form as the level's. Each expectation is judged by the level's
+// the test cases instead (audit-cases.js), in the same form as the level's. Each expectation is judged by the level's
 // reference answer, so a case that says what the requirement does not mean is wrong; a board passes when every
 // expectation is right and the board goes wrong on one of them. Fewer cases is the better score.
 //
@@ -252,7 +252,7 @@ export function derives(level, circuit, test) {
 }
 
 /** A test's premises, as a phrase: 前提为「下雨」、「刮风」 (or 没有前提). */
-const givenText = (test, words) => {
+export const givenText = (test, words) => {
   const has = test.given.map(words)
   return has.length
     ? T(`前提为${has.map((h) => `「${h.zh}」`).join('、')}`, `with the premises ${has.map((h) => `“${h.en}”`).join(', ')}`)
@@ -296,56 +296,6 @@ export function checkIso(level, words) {
 export function propositionsOf(level) {
   const all = [...level.sentences, level.target, ...level.tests.flatMap((t) => [...t.given, ...(t.goal ? [t.goal] : [])])]
   return [...new Set(all)]
-}
-
-/**
- * The player's cases (tests, as the level's) against the level's boards (the play 'audit', ../../shell/plays/BoardChecks.jsx):
- * { rows: [{ right, wants, derived: [per board] }], caught: [k of the case that catches each board, or -1], wrong: why the cases
- * themselves do not do (none yet, one not filled in, or an expectation the requirement does not mean), or null; judge(b): why
- * board b passes, or null }. A row is right when its expectation is what the reference answer gives. What a board must do
- * is the level's `want`: by default be caught (a right row it answers otherwise); 'agree', answer every row as expected
- * (checking a declaration that is right); 'expose', answer every row otherwise. A case may be set out beforehand with some
- * of its cells filled in (`slots: [case]`, each with `fixed`: the cells the player cannot change); a goal not filled in yet is '',
- * an expectation null.
- */
-export function judgeCases(level, cases, words) {
-  const name = level.declare
-  const boards = level.boards.map((b) => b.board)
-  const open = (c) => c.goal === '' || c.make === null
-  const rows = cases.map((c) => {
-    if (open(c)) return { right: false, wants: null, derived: boards.map(() => null) }
-    const wants = derives(level, level.solution, c).derived
-    return { right: wants === c.make, wants, derived: boards.map((board) => derives(level, board, c).derived) }
-  })
-  const caught = boards.map((_, b) => rows.findIndex((r) => r.right && r.derived[b] !== r.wants))
-  const bad = rows.findIndex((r) => !r.right)
-  const goal = (c) => (c.goal ? words(c.goal) : name)
-  const may = (yes) => (yes ? T('可推导', 'derivable') : T('不可推导', 'not derivable'))
-  // A case whose expectation is fixed: the cells the player fills in are what has to change.
-  const reconsider = (k) => {
-    const c = cases[k]
-    if (c.goal === '') return T(`第 ${k + 1} 条条例还没有填目标。`, `Case ${k + 1} has no goal yet.`)
-    if (c.make === null) return T(`第 ${k + 1} 条条例还没有填预期。`, `Case ${k + 1} has no expectation yet.`)
-    const at = givenText(c, words)
-    if (c.fixed?.includes('make')) return T(`第 ${k + 1} 条条例：按需求，${at.zh}时「${goal(c).zh}」${may(rows[k].wants).zh}，和这一条的预期不同。请改写这一条空着的部分。`, `Case ${k + 1}: according to the requirement, ${at.en}, “${goal(c).en}” is ${may(rows[k].wants).en}, unlike this case’s expectation. Rewrite the part of it left for you.`)
-    return T(`第 ${k + 1} 条条例的预期与需求不符。请重新考虑：${at.zh}时，按需求「${goal(c).zh}」是否可推导？`, `The expectation of case ${k + 1} does not agree with the requirement. Reconsider: ${at.en}, is “${goal(c).en}” derivable according to the requirement?`)
-  }
-  const wrong = !cases.length ? T('还没有条例。请添加一条，写明前提、目标，以及目标是否应当可推导。')
-    : bad >= 0 ? reconsider(bad)
-    : null
-  const judge = (b) => {
-    if (wrong) return wrong
-    if (level.want === 'agree') {
-      const k = rows.findIndex((r) => r.derived[b] !== r.wants)
-      return k < 0 ? null : T(`第 ${k + 1} 条条例上，这份声明的结果与预期不符。`, `On case ${k + 1}, this declaration’s result disagrees with the expectation.`)
-    }
-    if (level.want === 'expose') {
-      const k = rows.findIndex((r) => r.derived[b] === r.wants)
-      return k < 0 ? null : T(`第 ${k + 1} 条条例上，这份声明的结果与预期相符，没有暴露它的错误。`, `On case ${k + 1}, this declaration’s result agrees with the expectation and does not reveal its fault.`)
-    }
-    return caught[b] >= 0 ? null : T('各条条例的预期都正确，但这份声明在每一条上都得出了正确结论，还没有暴露它的错误。')
-  }
-  return { rows, caught, wrong, judge }
 }
 
 const premise = (show, hyps = [], fixes = []) => ({ fixes, hyps, show })
@@ -416,18 +366,6 @@ export const startIso = () => ({ nodes: [{ id: DECL, type: DECL, params: { ways:
 export const hypCard = (id, sentence, at) => ({ id, type: 'hyp', params: { name: sentence }, ...at })
 export const thingCard = (id, name, at) => ({ id, type: 'thing', params: { name }, ...at })
 
-
-/** A blank audit case or the editable cases set out by a level. */
-export const blankCase = (level) => ({ given: [], goal: level.caseGoal ?? '', make: level.caseMake ?? null })
-export const setOut = (level) => Array.isArray(level.slots)
-  ? level.slots.map((c) => ({
-    given: c.fixed.includes('given') ? c.given : c.keep ?? [],
-    ...(c.keep ? { keep: c.keep } : {}),
-    goal: c.fixed.includes('goal') ? c.goal : '',
-    make: c.fixed.includes('make') ? c.make : null,
-    fixed: c.fixed,
-  }))
-  : Array.from({ length: level.slots }, () => blankCase(level))
 
 // Ways are numbered 1 2 3.
 const WAY = ['1', '2', '3']

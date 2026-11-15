@@ -1,5 +1,6 @@
 import { L, T } from '../../shell/i18n.js'
-import { blankCase, judgeCases, sentenceOf, setOut, waysIn } from './iso.js'
+import { blankCase, runAudit, setOut } from './audit-cases.js'
+import { sentenceOf, waysIn } from './iso.js'
 import { say } from './notation.js'
 import { boardOf, linesOf, problemsOf } from './ruleLines.js'
 import { caseCells, DERIVABLE } from './auditCells.js'
@@ -10,25 +11,21 @@ export function audit(source, { progress, saved }) {
   const carried = kept && !problemsOf(source, kept).length ? boardOf(linesOf(kept)) : null
   const level = carried ? { ...source, boards: [{ board: carried }] } : source
   const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
-  const report = (work) => judgeCases(level, work, words)
+  let lastWork, lastReport
+  const report = (work) => {
+    if (work !== lastWork) {
+      lastReport = runAudit(level, work, words)
+      lastWork = work
+    }
+    return lastReport
+  }
   const empty = setOut(level)
   return {
     level, empty,
     saved: saved?.work?.length === empty.length ? saved : null,
     label: (k) => level.boards[k].label ?? T(`声明 ${k + 1}`, `Declaration ${k + 1}`),
-    judge: (k, work) => report(work).judge(k),
-    stepsOf: (k, work) => {
-      const j = report(work)
-      const steps = []
-      for (const row of j.rows) {
-        const wrong = !row.right ? j.wrong
-          : level.want === 'agree' && row.derived[k] !== row.wants ? j.judge(k)
-          : level.want === 'expose' && row.derived[k] === row.wants ? j.judge(k) : null
-        steps.push(wrong ? { failed: L(wrong) } : {})
-        if (wrong) break
-      }
-      return steps
-    },
+    judge: (k, work) => report(work).runs[k].fail?.why,
+    stepsOf: (k, work) => report(work).runs[k].steps.map((step) => step.failed ? { failed: L(step.failed) } : step),
     rows: (board) => declarationValues(level, waysIn(board).map((way) => ({ binds: way.binds, needs: way.needs.map((need) => sentenceOf(level, need)) }))),
     lines: (board, read) => ruleLines(level, waysIn(board), read),
     score: (work) => ({ steps: work.length, unit: 'cases' }),

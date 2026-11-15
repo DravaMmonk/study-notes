@@ -3,6 +3,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { checkIso, declaredRules, derives, follows, settle, waysIn } from './iso.js'
+import { runAudit } from './audit-cases.js'
 import { parseSide, ruleText } from './schematic.js'
 import { checkDefine } from './define.js'
 import { failureText } from '../../engine/failure-text.js'
@@ -552,6 +553,23 @@ test('declarations check incomplete premises before hidden derivability cases', 
   assert.deepEqual(judge([{ binds: [], needs: [null] }]).at, { row: 0, slot: 0 })
   assert.equal(judge([{ binds: [], needs: [] }]).got, true)
   assert.equal(judge([{ binds: [], needs: [parse('A'), parse('B')] }]), null)
+})
+
+test('an audit stops at an unfinished case before grading the supplied declarations', () => {
+  const complete = { given: ['A', 'B'], make: true }
+  const unfinished = { given: [], goal: '', make: null }
+  const level = {
+    target: 'A ∧ B', sentences: ['A', 'B'], declare: T('并且', 'and'), want: 'agree',
+    solution: declaration(['A', 'B']), boards: [{ board: declaration() }],
+  }
+  const words = (text) => T(text, text)
+  const blocked = runAudit(level, [complete, unfinished], words)
+  assert.deepEqual(blocked.fail.at, { row: 1 })
+  assert.match(blocked.fail.why.en, /Case 2 has no goal/)
+  assert.deepEqual(blocked.runs[0].steps, [{}, { failed: blocked.fail.why }])
+  const graded = runAudit(level, [complete], words)
+  assert.deepEqual(graded.fail.at, { row: 0 })
+  assert.deepEqual(graded.runs[0].steps, [{ failed: graded.fail.why }])
 })
 
 test('a declaration by premise cards: joined they are one way needing both, apart two ways, none no way', () => {
