@@ -4,6 +4,7 @@
 // upgrade chains (the task whose work runs inside it). Each event says where in the level's content it is written, so
 // a tick can open that field.
 import { readItem } from '../course.js'
+import { builtPieces, publications } from './pieces.js'
 import { findTask } from './tasks.js'
 
 /** The path in a level's content (`value`, without its id) of the first list item naming `type` (a part, or one of
@@ -52,10 +53,15 @@ export function pieceFlow(course, content, type) {
       if (course.withholds(grain).some((item) => readItem(item).part === type)) push({ kind: 'withholds', level: l.id, ...scope, path: where(task) })
     }
   }
-  for (const ref of content.partDefs?.parts?.[type]?.inside ?? []) {
+  const built = builtPieces(content.partDefs)
+  for (const ref of publications(content.levels, built)) {
+    if (ref.type !== type || !ref.task) continue
     const found = findTask(content.levels, ref.task)
-    const level = found?.level ?? (levelOf.has(ref.task) ? ref.task : null)
-    if (level) push({ kind: 'step', level, ...(found && { task: found.at }), ...(ref.form && { form: ref.form }), path: found ? ['tasks', found.at] : [] })
+    const index = levelOf.get(found.level).tasks[found.at].publishes.findIndex(
+      (entry) => entry.piece === type && entry.variant === ref.variant,
+    )
+    push({ kind: 'step', level: found.level, task: found.at, ...(ref.form && { form: ref.form }),
+      path: ['tasks', found.at, 'publishes', index] })
   }
   const order = new Map(course.levels.map((l, k) => [l.id, k]))
   const rank = (e) => (e.level === null ? -1 : order.get(e.level) ?? course.levels.length)

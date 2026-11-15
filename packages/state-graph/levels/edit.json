@@ -129,7 +129,8 @@
         "m = mmin(a, g1, g0)",
         "cell <- m"
       ],
-      "border0": false
+      "border0": false,
+      "publishes": [{ "piece": "cost", "variant": "base" }]
     }
   ]
 }

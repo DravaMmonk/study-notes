@@ -159,7 +159,8 @@
         "m = mmin(a, b, c)",
         "e = add(m, facts.emit)",
         "cell <- e"
-      ]
+      ],
+      "publishes": [{ "piece": "viterbi", "variant": "base" }]
     }
   ]
 }

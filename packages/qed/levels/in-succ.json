@@ -44,7 +44,8 @@
         "c2 = simp(c1, c2r2)",
         "c3 = rule(c2, c3r0)",
         "out <- c3"
-      ]
+      ],
+      "publishes": [{ "piece": "addSucc", "variant": "base" }]
     }
   ]
 }

@@ -61,7 +61,8 @@
         "  }",
         "}",
         "goal <- gx"
-      ]
+      ],
+      "publishes": [{ "piece": "inject", "variant": "base" }]
     }
   ]
 }

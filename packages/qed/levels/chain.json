@@ -25,7 +25,8 @@
         "  }",
         "}",
         "goal <- f"
-      ]
+      ],
+      "publishes": [{ "piece": "chain", "variant": "base" }]
     }
   ]
 }

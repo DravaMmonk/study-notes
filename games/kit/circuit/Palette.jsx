@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Glyph from './Glyph.jsx'
 import { ChevronRight, Plus } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
+import TrayMenu, { trayItemCount } from './TrayMenu.jsx'
 
 // The desktop parts list, the same in every game: click a part to put it on the board (in the first free spot),
 // then wire it from its dots. `compact` shows each part as one line (its icon, name and short tag) with what it does
@@ -18,23 +19,29 @@ export default function Palette({ items, folded = [], onAdd, compact = false }) 
     const edge = (item.closest('.kit-board') ?? document.documentElement).getBoundingClientRect().right
     item.dataset.tip = item.getBoundingClientRect().right + 12 + tip.offsetWidth > edge ? 'left' : 'right'
   }
+  const piece = (item) => (
+    <button key={item.type} className={`palette-item ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-family={item.family} style={item.style} onClick={() => onAdd(item.type)} title={compact ? undefined : L(item.desc)} onPointerEnter={compact ? aim : undefined} onFocus={compact ? aim : undefined} aria-description={compact ? L(item.desc) : undefined}>
+      <i className="family-chip"><Glyph icon={item.icon} size={14} /></i>
+      <span className="palette-text">
+        <span>{L(item.label)}{item.fresh && <em className="pb-new">{tr('新')}</em>}</span>
+        {compact ? item.tag && <small>{L(item.tag)}</small> : <small>{L(item.desc)}</small>}
+      </span>
+      <Plus size={14} className="palette-add" />
+      {compact && item.desc && <span className="palette-tip" role="tooltip">{L(item.desc)}</span>}
+    </button>
+  )
+  const entry = (item, hidden = false) => item.children
+    ? <TrayMenu key={item.menu} entry={item} className="palette-more" renderPiece={(child) => piece({ ...child, folded: hidden })} />
+    : piece({ ...item, folded: hidden })
+  const count = trayItemCount(folded)
   if (!items.length && !folded.length) return <p className="panel-note">{tr('这一关不需要元件。')}</p>
   return (
     <div className={`palette ${compact ? 'is-compact' : ''}`}>
-      {[...items, ...(more ? folded.map((item) => ({ ...item, folded: true })) : [])].map((item) => (
-        <button key={item.type} className={`palette-item ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-family={item.family} style={item.style} onClick={() => onAdd(item.type)} title={compact ? undefined : L(item.desc)} onPointerEnter={compact ? aim : undefined} onFocus={compact ? aim : undefined} aria-description={compact ? L(item.desc) : undefined}>
-          <i className="family-chip"><Glyph icon={item.icon} size={14} /></i>
-          <span className="palette-text">
-            <span>{L(item.label)}{item.fresh && <em className="pb-new">{tr('新')}</em>}</span>
-            {compact ? item.tag && <small>{L(item.tag)}</small> : <small>{L(item.desc)}</small>}
-          </span>
-          <Plus size={14} className="palette-add" />
-          {compact && item.desc && <span className="palette-tip" role="tooltip">{L(item.desc)}</span>}
-        </button>
-      ))}
+      {items.map((item) => entry(item))}
+      {more && folded.map((item) => entry(item, true))}
       {folded.length > 0 && (
         <button type="button" className={`palette-more ${more ? 'is-open' : ''}`} onClick={() => setMore(!more)} aria-expanded={more} title={tr('这一关不必用到、但可以使用的元件')}>
-          <span>{more ? tr('收起', 'Show fewer') : tr(`更多 ${folded.length}`, `${folded.length} more`)}</span>
+          <span>{more ? tr('收起', 'Show fewer') : tr(`更多 ${count}`, `${count} more`)}</span>
           <ChevronRight size={14} />
         </button>
       )}

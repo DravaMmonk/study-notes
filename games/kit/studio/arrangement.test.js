@@ -1,7 +1,19 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { eraLevels, layout } from '../course.js'
-import { boardGeometry, linkKey, wiringBoard, wiringRefusal } from './arrangement.js'
+import { boardGeometry, linkKey, projectWires, wiringBoard, wiringRefusal } from './arrangement.js'
+
+test('cross-game links distinguish local IDs and retain both course and inferred reasons', () => {
+  const arcs = projectWires([
+    { fromGame: 'intro', from: '1', to: '2', source: 'course' },
+    { fromGame: 'intro', from: '1', to: '2', source: 'knowledge', required: true },
+    { from: '1', to: '2', source: 'reference', detail: 'pipe' },
+  ])
+  assert.deepEqual(arcs.map(linkKey), ['["intro:1","2"]', '["1","2"]'])
+  assert.equal(arcs[0].fromLevel, '1')
+  assert.equal(arcs[0].required, true)
+  assert.deepEqual(arcs[0].causes.map(({ source }) => source), ['course', 'knowledge'])
+})
 
 test('a chapter board keeps individual ports and links to external levels', () => {
   const era = {

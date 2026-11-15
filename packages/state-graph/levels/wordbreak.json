@@ -71,7 +71,8 @@
         "g = pass(facts.ground, z)",
         "m = mmin(a, g)",
         "cell <- m"
-      ]
+      ],
+      "publishes": [{ "piece": "wordbreak", "variant": "base" }]
     }
   ]
 }

@@ -34,7 +34,8 @@
         "  }",
         "}",
         "out <- r"
-      ]
+      ],
+      "publishes": [{ "piece": "unifier", "variant": "base" }]
     }
   ]
 }

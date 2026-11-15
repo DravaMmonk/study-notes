@@ -48,7 +48,8 @@
         "  }",
         "}",
         "out <- c1"
-      ]
+      ],
+      "publishes": [{ "piece": "addComm", "variant": "base" }]
     }
   ]
 }

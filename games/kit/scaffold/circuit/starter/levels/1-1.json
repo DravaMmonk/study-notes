@@ -74,7 +74,8 @@
         "s = add(a, b)",
         "d = sub(s, c)",
         "out <- d"
-      ]
+      ],
+      "publishes": [{ "piece": "addSub", "variant": "base" }]
     }
   ]
 }

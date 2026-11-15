@@ -38,7 +38,8 @@
         "@level.r-elim.tasks.r-elim.hint.0",
         "@level.r-elim.tasks.r-elim.hint.1"
       ],
-      "solution": ["c0 = rule(in, rules)", "c1 = assumption(c0)", "out <- c1"]
+      "solution": ["c0 = rule(in, rules)", "c1 = assumption(c0)", "out <- c1"],
+      "publishes": [{ "piece": "erule", "variant": "base" }]
     }
   ]
 }

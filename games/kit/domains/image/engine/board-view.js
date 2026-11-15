@@ -28,7 +28,7 @@ export function imageBoards(image) {
     startBoard,
     fits: kit.fits,
     wiring(task, circuit) {
-      const parts = kit.boardParts(task.tests[0])
+      const parts = kit.boardParts(task.tests?.[0])
       return {
         ...fixed.wiring(task, circuit),
         ...parts,
@@ -39,7 +39,7 @@ export function imageBoards(image) {
     },
   }
   const built = Object.fromEntries(Object.entries(pieces).map(([type, piece]) => [
-    type, { ...piece, ...kit.types[type], opens: () => ({ circuit: kit.types[type].circuitOf(), level: image.builtBy(type) }) },
+    type, { ...piece, ...kit.types[type], opens: () => ({ circuit: kit.types[type].circuitOf(), level: image.builtBy(type) ?? image.referenceOf(type) }) },
   ]))
   return boardView({
     board,

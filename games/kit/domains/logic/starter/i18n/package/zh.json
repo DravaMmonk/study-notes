@@ -1,4 +1,9 @@
 {
+  "course.eras.circuits.chapter.question": "一句话在每一种情况下是真是假，能交给电路去算吗？",
+  "course.eras.circuits.chapter.title": "真值电路",
+  "course.wordSets.everyday.Cold": "很冷",
+  "course.wordSets.everyday.Rain": "下雨",
+  "course.wordSets.everyday.Wind": "刮风",
   "glossary.entries.circuit.body.0": "接一次、在真值表的每一行上运行的电路：输出这句话在那一行的真值。",
   "glossary.entries.circuit.title": "真值电路",
   "glossary.groups.logic.title": "逻辑",

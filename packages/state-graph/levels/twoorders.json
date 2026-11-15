@@ -63,7 +63,8 @@
         "@level.twoorders.tasks.twoorders_2.hints.1"
       ],
       "ask": "@level.twoorders.tasks.twoorders_2.ask",
-      "carries": true
+      "carries": true,
+      "publishes": [{ "piece": "anyorder", "variant": "base" }]
     }
   ]
 }

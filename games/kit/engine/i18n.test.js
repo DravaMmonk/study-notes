@@ -32,7 +32,7 @@ test('catalog text keeps its identity through serialization and resolves each la
     en: { 'piece.counter.name': 'Route Counter' },
     zh: { 'piece.counter.name': '路线计数器', 'piece.counter.desc': '数路线' },
   }, 'package i18n')
-  const source = { name: '@piece.counter.name', desc: '@piece.counter.desc', inside: [{ task: 'stamp' }] }
+  const source = { name: '@piece.counter.name', desc: '@piece.counter.desc', inside: [{ id: 'base', reference: {} }] }
   const piece = JSON.parse(JSON.stringify(read(source)))
   assert.deepEqual(sourceValue(piece), source)
   assert.deepEqual(languagesOf([piece.name, piece.desc]), ['en', 'zh'])

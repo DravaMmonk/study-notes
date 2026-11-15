@@ -27,7 +27,8 @@
         "@level.au-saturate.tasks.au-saturate.hint.1"
       ],
       "solution": ["c0 = repeat(in, body: c1) {", "  body {", "    c1 = resolve(c0.body)", "  }", "}", "out <- c0"],
-      "naive": ["c0 = resolve(in)", "out <- c0"]
+      "naive": ["c0 = resolve(in)", "out <- c0"],
+      "publishes": [{ "piece": "saturate", "variant": "base" }]
     }
   ]
 }

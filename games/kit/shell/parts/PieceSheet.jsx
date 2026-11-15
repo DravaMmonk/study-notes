@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowUpRight, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { L, tr } from '../i18n.js'
 import { iconOf } from './icons.js'
 import SettingField from './SettingField.jsx'
@@ -7,10 +7,7 @@ import { defaultOf } from '../../engine/parts/define.js'
 
 // A piece's own fields as the studio's piece page draws them (games/DESIGN.md 6.7): each carries its path in the piece
 // (data-pf); in edit mode a click picks it (picker, on the page around them), and a + adds an item to a list.
-// PieceSheet is a built piece's — beside the board it runs, its name and description, the descriptions it grows along
-// the course, the tasks whose work runs inside (each form an upgrade chain of tasks, a step's label on it), the engine
-// resource its card runs instead, its settings; the rows it is made of (revisions, ports, settings) are a primitive's
-// too (../../circuit/preview.jsx). SettingSheet previews a setting definition.
+// PieceSheet shows the piece's independent implementations and settings. SettingSheet previews a setting definition.
 //
 //   def   the piece as pieces.json writes it      edit   { picked (a path in the piece), pick(path), add(path) } or null
 
@@ -24,29 +21,12 @@ export const marker = (edit) => ({
 
 /** In edit mode, a click on a marked element picks its field (a + adds instead). */
 export const picker = (edit) => (e) => {
-  if (!edit || e.target.closest('.pp-add, .pp-adds, .pp-go')) return
+  if (!edit || e.target.closest('.pp-add, .pp-adds')) return
   const hit = e.target.closest('[data-pf]')
   if (!hit) return
   e.preventDefault()
   e.stopPropagation()
   edit.pick(JSON.parse(hit.dataset.pf))
-}
-
-/** The descriptions a piece grows along the course: from level `at` on (→), or once level `by` is passed (✓). */
-export function Revisions({ def, edit }) {
-  const { mark, add } = marker(edit)
-  if (!def.revisions?.length && !edit) return null
-  return (
-    <ol className="pp-list">
-      {(def.revisions ?? []).map((r, k) => (
-        <li key={k} className="pp-code" {...mark(['revisions', k])}>
-          <span className="pp-code-label">{r.at ? `${r.at} →` : r.by ? `${r.by} ✓` : ''}</span>
-          <span>{L(r.desc)}</span>
-        </li>
-      ))}
-      {edit && <li className="pp-list-add">{add(['revisions'])}</li>}
-    </ol>
-  )
 }
 
 /** A row of chips, one a item of the list `key` of the piece, named by `name`; a + adds one. */
@@ -71,33 +51,11 @@ export const Ports = ({ def, edit }) => <Chips def={def} edit={edit} keys={['inp
 /** A piece's settings, every one (the faces draw only those a player can move). */
 export const Settings = ({ def, edit }) => <Chips def={def} edit={edit} keys={['settings']} name={settingName} />
 
-/**
- * What runs inside a built piece: its references, one row a form (or one row when none is written), each an upgrade
- * chain — the work of each step's task replaces the one before. A step picks its reference; its arrow goes to the task;
- * a + adds a reference (its task picked in the side panel). `label(task)` is how the map numbers a task.
- */
-export function Chains({ def, edit, onTask, label = (task) => task }) {
-  const { mark, add } = marker(edit)
-  const forms = new Map()
-  for (const [k, ref] of (def.inside ?? []).entries()) forms.set(ref.form ?? '', [...(forms.get(ref.form ?? '') ?? []), [ref, k]])
-  return (
-    <div className="pp-chains">
-      {[...forms].map(([form, steps]) => (
-        <ol key={form} className="pp-chain">
-          {form && <li className="pp-code-label">{form}</li>}
-          {steps.map(([ref, k], n) => [
-            n > 0 && <li key={`${k}>`} className="pp-arrow" aria-hidden="true">→</li>,
-            <li key={k} className="pp-step" {...mark(['inside', k])}>
-              <span title={ref.task}>{label(ref.task)}</span>
-              {ref.label && <small>{ref.label}</small>}
-              {onTask && <button type="button" className="pp-go" title={tr('打开这个任务')} onClick={(e) => { e.stopPropagation(); onTask(ref.task) }}><ArrowUpRight size={12} /></button>}
-            </li>,
-          ])}
-        </ol>
-      ))}
-      {edit && <div className="pp-list-add">{add(['inside'])}</div>}
-    </div>
-  )
+/** A built piece's named implementations. */
+export function Implementations({ def, edit }) {
+  return <Chips def={def} edit={edit} keys={['inside']} name={(ref) => (
+    <><code>{ref.id}</code>{ref.form && <span>{ref.form}</span>}{ref.label && <small>{ref.label}</small>}</>
+  )} />
 }
 
 /** A piece's icon and name over what it does: the faces every piece has. */
@@ -115,13 +73,12 @@ export function Named({ def, edit }) {
   )
 }
 
-export default function PieceSheet({ def, edit, onTask, label }) {
+export default function PieceSheet({ def, edit }) {
   const { mark } = marker(edit)
   return (
     <div className={`pp-sheet ${edit ? 'is-editing' : ''}`}>
       <Named def={def} edit={edit} />
-      <Revisions def={def} edit={edit} />
-      <Chains def={def} edit={edit} onTask={onTask} label={label} />
+      <Implementations def={def} edit={edit} />
       {def.card && <div className="pp-code" {...mark(['card'])}><span className="pp-code-label">card</span><code>{def.card}</code></div>}
       <Settings def={def} edit={edit} />
     </div>

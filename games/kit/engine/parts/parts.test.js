@@ -144,7 +144,7 @@ test('code and content pieces share both the vocabulary and the running registry
 test('the piece readers expose the optional faces without renaming stored fields', () => {
   const piece = { ...file.parts.scaled, regions: [{ name: 'body', opens: true }] }
   const keeping = { keeps: { input: 'in', register: 'reg' } }
-  const built = { name: { en: '做成的' }, desc: { en: 'The board that runs work.' }, inside: [{ task: 'work' }, { task: 'better' }] }
+  const built = { name: { en: '做成的' }, desc: { en: 'The board that runs work.' }, inside: [{ id: 'base', reference: {} }, { id: 'better', reference: {} }] }
   assert.equal(holesOf(piece), piece.inputs)
   assert.equal(settingsOf(piece), piece.settings)
   assert.equal(facesOf(piece), piece.views)
@@ -155,9 +155,6 @@ test('the piece readers expose the optional faces without renaming stored fields
   // A piece computes or has an inside, never both; a built one's ports are its task's board's.
   assert.notDeepEqual(partProblems({ ...file, parts: { made: { ...built, compute: 'a' } } }, vocabulary), [])
   assert.notDeepEqual(partProblems({ ...file, parts: { made: { ...built, inputs: [] } } }, vocabulary), [])
-  // What runs inside is a task of the game: one it does not have is refused, given the game's tasks.
-  assert.deepEqual(partProblems({ ...file, parts: { made: built } }, vocabulary, { tasks: new Set(['work', 'better']) }), [])
-  assert.deepEqual(partProblems({ ...file, parts: { made: built } }, vocabulary, { tasks: new Set(['work']) }).map((p) => [p.at, p.says]), [['pieces.json.parts.made.inside[1].task', '"better" is no task of this game']])
   assert.deepEqual(Object.keys(defineParts({ ...file, parts: { ...file.parts, made: built } }, OPS).defs), Object.keys(file.parts))
   // A domain with its primitives in code keeps its built pieces alone in pieces.json.
   const coded = { ...vocabulary, kinds: { part: { wire: { about: 'a wire' } } } }

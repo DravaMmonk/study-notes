@@ -1,0 +1,27 @@
+{
+  "domain": "image",
+  "vocabulary": 24,
+  "power": {
+    "title": "@course.power.title",
+    "lines": [
+      "@course.power.lines.0",
+      "@course.power.lines.1",
+      "@course.power.lines.2",
+      "@course.power.lines.3"
+    ]
+  },
+  "box": {
+    "sample": "1-1",
+    "inLevel": { "dg-decoder": "8-4", "dg-reparam": "8-4" },
+    "boards": {
+      "dg-reparam": [
+        "m = dg_mu[w=[0.4, -0.3]]()",
+        "s = dg_sigma[w=[0.5, 0.25]]()",
+        "r = dg_reparam(m, s, eps)",
+        "d = dg_decoder(r)",
+        "out <- d"
+      ]
+    }
+  },
+  "quotes": ["采样", "异或", "训练"]
+}

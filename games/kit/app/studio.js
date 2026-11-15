@@ -14,11 +14,28 @@
 import { readdirSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { Worker } from 'node:worker_threads'
+import { pathToFileURL } from 'node:url'
 import { gameModule } from '../engine/game-module.js'
+import { eraLevels } from '../course.js'
+import { PROJECT_DIR, isDataGame, readContent } from '../engine/content-node.js'
 
 const PREFIX = '/studio/api/'
 const DOMAINS = resolve(import.meta.dirname, '../domains')
 const MODULE = 'virtual:studio-domains'
+
+const courseCatalog = {
+  about: 'List placed levels in other games for cross-game prerequisite links.',
+  params: { game: 'string' },
+  async run({ game }) {
+    const root = process.env.GAMES_ROOT ?? PROJECT_DIR
+    const { GAMES } = await import(pathToFileURL(resolve(root, 'games', 'games.js')).href)
+    return GAMES.filter(({ id }) => id !== game && isDataGame(id, root)).map(({ id }) => {
+      const content = readContent(id, root)
+      const placed = new Set((content.eras ?? []).flatMap(eraLevels))
+      return { game: id, title: content.title, levels: content.levels.filter(({ id }) => placed.has(id)).map(({ id, title }) => ({ id, title })) }
+    })
+  },
+}
 
 /** Whether a call is a slow read (it goes to the second lane), and whether it writes (it waits for both). */
 export const slow = (name, args) => (name === 'preview' && args.check !== false) || name === 'run_tests'
@@ -114,7 +131,7 @@ export function studioApp() {
       const { TOOLS, lacking } = await import('../engine/ops/tools.js')
       const { closeGames } = await import('../engine/games.mjs')
       const lane = worker()
-      server.middlewares.use(bridge(TOOLS, lacking, lane))
+      server.middlewares.use(bridge({ ...TOOLS, course_catalog: courseCatalog }, lacking, lane))
       server.httpServer?.on('close', () => {
         lane.close()
         closeGames()

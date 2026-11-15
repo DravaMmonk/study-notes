@@ -44,7 +44,8 @@
         "@level.r-drule.tasks.r-drule.hint.0",
         "@level.r-drule.tasks.r-drule.hint.1"
       ],
-      "solution": ["c0r0 = mp[use=[cut]]()", "c0 = rule(in, c0r0)", "c1 = erule(c0, rules)", "out <- c1"]
+      "solution": ["c0r0 = mp[use=[cut]]()", "c0 = rule(in, c0r0)", "c1 = erule(c0, rules)", "out <- c1"],
+      "publishes": [{ "piece": "frule", "variant": "base" }]
     }
   ]
 }

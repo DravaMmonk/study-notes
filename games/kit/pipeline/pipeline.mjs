@@ -9,7 +9,7 @@
 //                                  only there, Bash only the step's commands), then the step's gate runs; --from hands
 //                                  it the last report of a later step that stopped on this one's product
 //   gate <step>                    run the step's gate and record it; exit 1 when it fails
-//   eras                           game.json's eras as the blueprint lays them out (for the level designer)
+//   eras                           the course's eras as the blueprint lays them out (for the level designer)
 //   terminology [--json]           read-only term registry, reference errors and literal-name review candidates
 //   pedagogy                       read-only structural pedagogy findings (no pipeline state written)
 //   lint                           the copy lint
@@ -70,7 +70,7 @@ const COMMANDS = {
   check: { run: () => `node ../games/kit/engine/check.js ${game}`, about: './check   npm run check for this game: vocabulary, course audit, copy and links, every reference / naive answer' },
   gate: { run: (step) => `node ../games/kit/pipeline/pipeline.mjs ${game} gate ${step} "$@"`, about: './gate [--scope <scope>]   this step\'s gate: every failure names a rule' },
   deps: { run: () => `node ../games/kit/engine/deps.js ${game} --levels`, about: './deps   the part dependency graph (Mermaid), levels included' },
-  eras: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} eras`, about: './eras   game.json\'s eras as the blueprint lays them out' },
+  eras: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} eras`, about: './eras   the course\'s eras as the blueprint lays them out' },
   lint: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} lint`, about: './lint   the copy lint' },
   pedagogy: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} pedagogy`, about: './pedagogy   read-only structural pedagogy findings; reports still need semantic review' },
   terminology: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} terminology "$@"`, about: './terminology [--json]   this game\'s glossary registry, reference checks and literal-name candidates for semantic review' },

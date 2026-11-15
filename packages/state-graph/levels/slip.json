@@ -80,7 +80,8 @@
         "cell <- x"
       ],
       "rounds": true,
-      "arrows": true
+      "arrows": true,
+      "publishes": [{ "piece": "expect", "variant": "base" }]
     }
   ]
 }

@@ -1,10 +1,5 @@
 {
-  "course.eras.0.chapter.label": "Image processing",
-  "course.eras.0.chapter.question": "What is an image?",
-  "course.eras.0.chapter.title": "Opening eyes",
   "course.kicker": "In development",
   "course.lede": "Just parts, tests and a set of inputs and outputs. Start from “wire the picture to the output” and build the circuits that process images yourself.",
-  "course.power.lines.0": "Vision chip powered on.",
-  "course.power.title": "Power on",
   "course.title": "__title__"
 }

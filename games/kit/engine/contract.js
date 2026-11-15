@@ -1,3 +1,4 @@
+import { trayMembers } from './trays.js'
 import { sameJson } from './json-value.js'
 import { playId } from './plays.js'
 // The domain contract (games/DESIGN.md 6.3): what a domain gives the kernel, checked mechanically. A domain that
@@ -153,7 +154,7 @@ function hookProblems(course) {
     const showcase = course.showcase(level)
     if (showcase !== null && !isText(showcase)) say(`showcase(${at}) is neither a reason nor null`)
   }
-  for (const [name, list] of Object.entries(course.trays)) if (!strings(list)) say(`tray ${name} is not a list of parts`)
+  for (const [name, list] of Object.entries(course.trays)) if (!Array.isArray(list) || !strings(trayMembers(list))) say(`tray ${name} does not resolve to a list of parts`)
   for (const p of parts) {
     const c = course.concept(p)
     if (c !== null && typeof c !== 'string') say(`concept(${p}) is neither a name nor null`)

@@ -1,0 +1,20 @@
+{
+  "main": [
+    "msum",
+    "const",
+    "pass",
+    "block",
+    "counter",
+    "many",
+    "mmin",
+    "mmax",
+    "add",
+    "min",
+    "not",
+    "cost",
+    "mul",
+    "choose",
+    "interval",
+    "value"
+  ]
+}

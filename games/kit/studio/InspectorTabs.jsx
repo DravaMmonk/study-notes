@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef } from 'react'
 import { X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
+import { contentFileFor } from '../engine/content.js'
 import { showPath } from '../engine/ops/edit.js'
 
 /** Identify a saved location by its file selection and field path. */
@@ -9,10 +10,10 @@ export const inspectorTabKey = (at, path) => JSON.stringify([at, path])
 function describe({ at, path }, content) {
   const owner = at.level ?? at.part ?? at.setting
     ?? (at.era !== undefined ? L(content.eras?.[at.era]?.title) || content.eras?.[at.era]?.id : null)
-  const file = at.level ? `levels/${at.level}.json` : at.part || at.setting ? 'pieces.json' : at.glossary ? 'glossary.json' : 'game.json'
+  const file = at.level ? `levels/${at.level}.json` : at.part || at.setting ? 'pieces.json' : at.glossary ? 'glossary.json' : contentFileFor(path)
   const nestedRoot = at.part || at.setting || at.era !== undefined
   const ancestor = nestedRoot && path.length < 2
-  const relative = nestedRoot && !ancestor ? path.slice(2) : path
+  const relative = nestedRoot && !ancestor ? path.slice(2) : file === 'trays.json' ? path.slice(1) : path
   const label = [ancestor ? file : owner ?? file, showPath(relative)].filter(Boolean).join(' · ')
   return { label, title: [file, showPath(path)].filter(Boolean).join(' › ') }
 }

@@ -108,18 +108,46 @@ test('a board that becomes a part reads exactly its ports', () => {
 
 // A course of two levels written here: the first builds a route counter, the second runs it behind a block gate.
 const t = s => ({ zh: s, en: s });
+const counterSolution = ['k = const[value=1]()', 'g = pass(facts.start, k)', 'm = msum(view.up, view.left, g)', 'cell <- m'];
+const counterPorts = [{ way: { n: 1, sensor: 'up' } }, { way: { n: 2, sensor: 'left' } }, { start: { sensor: 'start' } }];
 const twoLevels = () => ({
   id: 't', title: t('t'), primitives: ['msum', 'const', 'pass', 'block'],
-  partDefs: { parts: { counter: { name: t('counter'), desc: t('d'), inside: [{ task: 'build' }] } } },
+  partDefs: { parts: { counter: { name: t('counter'), desc: t('d'), inside: [{ id: 'base', reference: { mode: 'circuit', world: 'grid', robot: 'scout', facts: ['start'], solution: counterSolution, ports: counterPorts } }] } } },
   eras: [{ id: 'e', machine: 'scout', levels: [{ id: 'build' }, { id: 'reuse' }], links: [{ from: 'build', to: 'reuse' }], chapter: { title: t('e'), desc: t('e') } }],
   levels: [
     { id: 'build', intro: [], robot: 'scout', adds: ['msum', 'const', 'pass'],
-      tasks: [{ id: 'build', mode: 'circuit', world: 'grid', facts: ['start'], ports: [{ way: { n: 1, sensor: 'up' } }, { way: { n: 2, sensor: 'left' } }, { start: { sensor: 'start' } }], tests: [{ R: 3, C: 4 }], expected: [10], solution: ['k = const[value=1]()', 'g = pass(facts.start, k)', 'm = msum(view.up, view.left, g)', 'cell <- m'] }] },
+      tasks: [{ id: 'build', publishes: [{ piece: 'counter', variant: 'base' }], mode: 'circuit', world: 'grid', facts: ['start'], ports: counterPorts, tests: [{ R: 3, C: 4 }], expected: [10], solution: counterSolution }] },
     { id: 'reuse', intro: [], robot: 'scout', adds: ['block'],
       tasks: [{ id: 'reuse', mode: 'circuit', world: 'grid', facts: ['start', 'rock'],
         tests: [{ R: 4, C: 4, rocks: [[1, 1]] }, { R: 4, C: 5, rocks: [[1, 2], [2, 0]] }, { R: 5, C: 5, rocks: [[1, 3], [2, 1], [3, 3]] }], expected: [8, 12, 10],
         solution: ['c = counter(view.up, view.left, facts.start)', 'b = block(facts.rock, c)', 'cell <- b'] }] },
   ],
+});
+
+test('a robot runs a packaged circuit without a local publishing task', () => {
+  const content = twoLevels();
+  content.levels[0].tasks[0].publishes = [];
+  content.levels[0].adds.push('counter');
+  const table = tableCourse(content);
+  const task = table.played.get('reuse')[0];
+  const result = table.run(WORLDS[task.world], task.tests[0], task.solution, task);
+  assert.deepEqual(table.wrong, []);
+  assert.equal(result.value, task.expected[0]);
+});
+
+test('the parts box lists only choices open on its selected robot', () => {
+  const content = twoLevels();
+  content.levels[0].tasks[0].consts = [1, 2];
+  content.levels[1].robot = 'ranger';
+  content.levels[1].adds.push('mmin');
+  content.levels[1].tasks[0].consts = [3];
+  const table = tableCourse(content);
+  const values = (type, options) => table.settingsIn(type, { flags: new Set(), open: () => true, ...options })[0]?.values.map(({ value }) => value);
+  assert.deepEqual(values('msum', { scope: 'scout' }), ['msum']);
+  assert.deepEqual(values('msum', { scope: 'ranger' }), ['msum', 'mmin']);
+  assert.deepEqual(values('const', { scope: 'scout' }), [1, 2]);
+  assert.deepEqual(values('const', { scope: 'ranger' }), [3]);
+  assert.equal(values('msum', { scope: 'ranger', open: () => false }), undefined);
 });
 
 test('carried boards use the reference until the prerequisite has passed', async () => {

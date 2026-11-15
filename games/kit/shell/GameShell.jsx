@@ -64,7 +64,12 @@ const SITE = { games: '../index.html' }
 export default function GameShell({ game, store, author = null }) {
   const viewportRoot = useRef(null)
   const [progress, setProgress] = useState(() => store.load())
-  const [levelId, setLevelId] = useState(() => new URLSearchParams(window.location.search).get('level'))
+  const [, refreshExternalPasses] = useState(0)
+  const [levelId, setLevelId] = useState(() => {
+    const id = new URLSearchParams(window.location.search).get('level')
+    const level = game.byId[id]
+    return level && (author || game.isOpen(level, new Set(progress.solved), progress.all)) ? id : null
+  })
   // The tasks of a level passed so far (all of them once it is solved), and the one played: the first not yet passed.
   const firstTask = (id) => openTask(game, progress, id)
   const [taskAt, setTaskAt] = useState(() => (levelId && game.byId[levelId] ? firstTask(levelId) : 0))
@@ -269,7 +274,14 @@ export default function GameShell({ game, store, author = null }) {
     setGone(wanted.n)
     if (wanted.task !== taskAt) goTask(wanted.task)
   }
-  useEffect(() => { window.addEventListener('storage', settings.notify); return () => window.removeEventListener('storage', settings.notify) }, [])
+  useEffect(() => {
+    const refresh = (event) => {
+      settings.notify(event)
+      if (event.key?.endsWith('.v2') && event.key !== store.key) refreshExternalPasses((value) => value + 1)
+    }
+    window.addEventListener('storage', refresh)
+    return () => window.removeEventListener('storage', refresh)
+  }, [store.key])
   const titleMark = edit ? { 'data-edit': 'title', ...(same(edit, 'title', 'level') && { 'data-picked': '' }), onClickCapture: (e) => { e.stopPropagation(); edit.pick({ at: 'title', scope: 'level' }) } } : {}
 
   return (

@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, skipOptionalTask, taskOpen, taskPassed } from './progress.js'
-import { recordSolution } from './progress.js'
+import { passedLevelIn, recordSolution } from './progress.js'
 
 const storage = new Map()
 globalThis.window = { localStorage: { getItem: (k) => storage.get(k) ?? null, setItem: (k, v) => storage.set(k, v) } }
@@ -24,6 +24,16 @@ test('a save of another shape, or one that does not parse, reads as a fresh star
   assert.deepEqual(made.load().solved, [])
   storage.set(made.key, '{ not json')
   assert.deepEqual(made.load().solved, [])
+})
+
+test('a cross-game gate requires a recorded pass for the exact level', () => {
+  const source = createProgress({ id: 'source' })
+  source.save({ ...source.load(), solved: ['0-10'], all: true })
+  assert.equal(passedLevelIn('source', '0-10'), true)
+  assert.equal(passedLevelIn('source', '0-1'), false)
+  assert.equal(passedLevelIn('anotherGame', '0-10'), false)
+  storage.set(source.key, JSON.stringify({ solved: '0-10' }))
+  assert.equal(passedLevelIn('source', '0-10'), false)
 })
 
 const level = { id: 'level', tasks: [{ key: 'first' }, { key: 'second' }, { key: 'last' }], unlocks: ['part'] }

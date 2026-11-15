@@ -11,7 +11,8 @@ import { inheritedBoard } from '../../shell/progress.js';
 import { deepFreeze } from '../../engine/content.js';
 import { taskLevels } from '../../engine/tasks.js';
 import { trayIn } from '../../engine/trays.js';
-import { defineCourse, eraLevels, layout, levelLabels, offer, reach } from '../../course.js';
+import { defineCourse, eraLevels, levelLabels, offer, reach } from '../../course.js';
+import { courseLayout } from '../../engine/course-dependencies.js';
 import { T, hydrate, lazy, tr } from './lang.js';
 import { builtPieces, publications, settingsOf } from '../../engine/pieces.js';
 import { isGiven, modelsOf, partsOf } from './model/parts.js';
@@ -101,22 +102,20 @@ export function tableCourse(content) {
   // What building the course finds wrong with its content beyond its schema (validate.js reports it).
   const wrong = [];
   const say = (level, text) => wrong.push(`${level}: ${text}`);
-  // The pieces the levels unlock (pieces.json, ../../engine/pieces.js builtPieces): a part or an idea, each unlocked by
-  // the level of the task it refers to. A task whose board is given ports (`ports`) builds a part, its board run as one
-  // part with the piece's number (its `value` setting); any other task teaches an idea.
+  // An implementation with ports is a robot circuit. Other piece entries are ideas taught by a task.
   const pieces = builtPieces(hydrated.partDefs);
   const PARTS = Object.fromEntries(Object.entries(pieces).map(([type, p]) => [type, { name: p.name, desc: p.desc }]));
   const levelOf = new Map(hydrated.levels.flatMap(L => L.tasks.map(t => [t.id, L])));
   const unlocking = new Map();
-  for (const { type, task } of publications(pieces)) {
-    const L = levelOf.get(task);
-    if (!L) say('pieces.json', `${type} refers to task ${task}, which no level has`);
-    else if (unlocking.has(L.id)) say(L.id, `it unlocks both ${unlocking.get(L.id).type} and ${type}`);
-    else unlocking.set(L.id, { type, task, ports: L.tasks.find(t => t.id === task).ports });
+  const implementations = publications(hydrated.levels, pieces);
+  for (const entry of implementations) if (entry.task) {
+    const L = levelOf.get(entry.task);
+    if (unlocking.has(L.id)) say(L.id, `it unlocks both ${unlocking.get(L.id).type} and ${entry.type}`);
+    else unlocking.set(L.id, entry);
   }
   const levels = hydrated.levels.map(L => {
-    const u = unlocking.get(L.id);
-    return u ? { ...L, unlock: u.type, ...(u.ports ? { builds: { task: u.task, setting: settingsOf(pieces[u.type]).find(x => x.key === 'value')?.default } } : {}) } : L;
+    const award = unlocking.get(L.id);
+    return award ? { ...L, unlock: award.type, ...(award.reference.ports ? { builds: { task: award.task } } : {}) } : L;
   });
   // Every board the content writes as blueprint text, with how it reads back on its task (domain.js blueprints); the
   // shell keeps a task's board under the task's id.
@@ -127,18 +126,17 @@ export function tableCourse(content) {
   /** A run that reports a broken board instead of throwing (the checks). */
   const run = (V, t, board, o) => { try { return model.runCircuit(V, t, board, o); } catch (e) { return { error: String(e) }; } };
 
-  // The boards the player passed the building levels with, by level id (the shell's progress.built, kept by task: a
-  // level's part runs its last task's board).
+  // A stored board that still fits the published interface takes precedence over the package's reference.
   const own = new Map();
-  // A kept board is fitted to its task first (a board kept by an older save may lack what the task gives, its output
-  // among them). One that does not read exactly the part's ports then (kept from before the part had them) cannot be
-  // the part: the part runs the level's reference board until the level is passed again.
   const fits = new WeakMap();
-  const ownBoard = (id, s) => {
-    const b = own.get(id);
-    if (!b) return s.solution;
-    if (!fits.has(b)) { const f = restoreRobotBoard(model, s, b); fits.set(b, f && !portsProblem(f, s.ports) ? f : null); }
-    return fits.get(b) ?? s.solution;
+  const ownBoard = (task, artifact) => {
+    const b = own.get(task);
+    if (!b) return artifact.solution();
+    if (!fits.has(b)) {
+      const fitted = restoreRobotBoard(model, artifact, b);
+      fits.set(b, fitted && !portsProblem(fitted, artifact.ports) ? fitted : null);
+    }
+    return fits.get(b) ?? artifact.solution();
   };
 
   const LABELS = levelLabels(eras);
@@ -151,9 +149,10 @@ export function tableCourse(content) {
     levels: eraLevels(era),
   }));
 
-  const plan = layout(eras);
+  const plan = courseLayout(hydrated);
   const given = new Map(levels.map(L => [L.id, L]));
-  const ordered = [...plan.order.filter(id => given.has(id)).map(id => given.get(id)), ...levels.filter(L => !plan.place.has(L.id))];
+  for (const entry of implementations) if (entry.reference.ports) registerBuilt(entry);
+  const ordered = plan.order.filter(id => given.has(id)).map(id => given.get(id));
   for (const id of plan.order) if (!given.has(id)) say(id, 'an era names a level that does not exist');
 
   /** A circuit task as played: its world's defaults, what its board is given (on a task that builds a part, the part's
@@ -209,7 +208,6 @@ export function tableCourse(content) {
       const where = tasks.length > 1 ? `${L.id} task ${s.taskId}` : L.id;
       return isCircuit(s) ? circuitTask(L, s, robot, k === tasks.length - 1, where) : s.mode === 'fill' && s.grid ? gridTask(s) : s;
     }));
-    if (L.builds) registerBuilt(L, read.get(L.id).find(s => s.taskId === L.builds.task));
     const pages = L.intro.map(page => (page.fig ? { ...page, fig: figure(page.fig) } : page));
     return {
       ...L,
@@ -218,23 +216,47 @@ export function tableCourse(content) {
     };
   });
 
-  /** The part a level builds: its task's board run as one part (packed), the player's once they pass the level. */
-  function registerBuilt(L, s) {
-    if (!isCircuit(s)) return say(L.id, 'it builds a part, but the task it refers to is no circuit');
-    const W = WORLDS[s.world], ports = s.ports, out = W.outs[0];
+  /** Register a package circuit by its own interface. A publishing task can supply the stored board. */
+  function registerBuilt({ type, task, level, reference }) {
+    const W = WORLDS[reference.world];
+    const robot = ROBOTS[reference.robot];
+    if (!W || !robot) return say('pieces.json', `${type} needs a valid reference world and robot`);
+    if (built[type]) return say('pieces.json', `${type} defines more than one robot circuit`);
+    const out = W.outs[0];
+    const source = levelOf.get(task)?.tasks.find(s => s.id === task);
+    const labels = source?.ports?.map(c => portOf(portCall(c), W));
+    const ports = reference.ports.map((c, index) => {
+      const port = portOf(portCall(c), W);
+      return labels?.[index]?.sensor === port.sensor && labels?.[index]?.input === port.input
+        ? { ...port, label: labels[index].label, short: labels[index].short } : port;
+    });
+    const given = {
+      offers: offersOf({ ...reference, facts: reference.facts ?? [] }, robot),
+      inputs: ports.filter(p => p.input).map(p => p.input),
+      outs: W.outs.map(o => o[0]),
+    };
+    let board;
+    const artifact = { ...reference, given, ports, solution: () => (board ??= robotBlueprint(model, given, W).read(reference.solution)) };
     const index = Object.fromEntries(ports.map((p, k) => [p.sensor ?? p.input, String(k)]));
     const idle = type => (type.startsWith('bool') ? false : null);
-    built[L.unlock] = {
-      name: PARTS[L.unlock]?.name ?? L.unlock, desc: PARTS[L.unlock]?.desc ?? '', level: L.id,
+    const setting = settingsOf(pieces[type]).find(x => x.key === 'value')?.default;
+    const running = () => ownBoard(task, artifact);
+    built[type] = {
+      ...PARTS[type], level, artifact, setting,
       ins: ports.map(p => p.type), labels: ports.map(p => p.short), portLabels: ports.map(p => p.label), sensors: ports.map(p => p.sensor), inputs: ports.map(p => p.input),
-      out: out[0], outType: out[3], setting: L.builds.setting,
-      board: () => ownBoard(L.id, s),
+      out: out[0], outType: out[3],
+      board: running,
       part: {
-        ...packed({ circuit: () => asPacked(ownBoard(L.id, s)), inputs: ports.map((_, k) => String(k)), outputs: [out[0]], inside: ctx => ({ ...ctx, ports: index }) }),
-        params: L.builds.setting !== undefined ? ['value'] : [],
+        ...packed({ circuit: () => asPacked(running()), inputs: ports.map((_, k) => String(k)), outputs: [out[0]], inside: ctx => ({ ...ctx, ports: index }) }),
+        params: setting !== undefined ? ['value'] : [],
         idle: port => idle(ports[+port].type),
       },
     };
+  }
+
+  for (const [type, part] of Object.entries(built)) {
+    try { part.artifact.solution(); }
+    catch (error) { say('pieces.json', `${type}: ${error.en ?? error.message}`); }
   }
 
   const byId = new Map(LEVELS.map(L => [L.id, L]));
@@ -242,6 +264,7 @@ export function tableCourse(content) {
   const course = defineCourse({
     levels: LEVELS.map(L => ({ id: L.id, unlocks: L.unlock ? [L.unlock] : [] })),
     eras,
+    plan,
     trays,
     tray: l => trayIn(trays, byId.get(l.id).tray),
     primitives: PRIMITIVES,
@@ -255,7 +278,8 @@ export function tableCourse(content) {
     uses: l => usesOf(circuitOf(l.id)),
     can: m => ROBOTS[m]?.can ?? null,
     // What a level's reference boards use (the parts placed, not what the level gives).
-    needed: l => { const sols = circuitOf(l.id).map(s => s.solution).filter(Boolean); return sols.length ? sols.flatMap(b => b.nodes.filter(n => !isGiven(n.type)).map(n => n.type)) : null; },
+    featured: l => [...(byId.get(l.id).featuredParts ?? []), ...(read.get(l.id)?.[l.task]?.featuredParts ?? [])],
+    needed: l => { const sols = circuitOf(l.id).filter(s => l.task === undefined || s.task === l.task).map(s => s.solution).filter(Boolean); return sols.length ? sols.flatMap(b => b.nodes.filter(n => !isGiven(n.type)).map(n => n.type)) : null; },
     boards: l => circuitOf(l.id).map(s => s.solution).filter(Boolean),
     showcase: l => byId.get(l.id).showcase ?? null,
     // A level that starts from an earlier level's board (`carry`) requires that level.
@@ -270,10 +294,12 @@ export function tableCourse(content) {
     return [L.id, read.get(L.id).map(s => (isCircuit(s) ? { ...s, palette } : s))];
   }));
 
-  // The shell keeps boards by task (../../shell/progress.js): a level's part runs its last task's.
   const syncOwn = (kept = {}) => {
     own.clear();
-    for (const [id, tasks] of played) { const b = kept[tasks.at(-1).taskId]; if (b?.nodes) own.set(id, b); }
+    for (const { task, level } of implementations) {
+      const b = kept[task];
+      if (played.has(level) && b?.nodes) own.set(task, b);
+    }
   };
   /** The board circuit task `s` opens on before it has one of its own, from the boards the player keeps by task
    *  (`data`): the first task's of a level that starts from another (`carry`) is that level's last task's, a task that
@@ -286,7 +312,7 @@ export function tableCourse(content) {
 
   /** All usable types, with each switchable family shown as one tray item. */
   const offerIn = (level, flags) => {
-    const { shown, folded, types } = offer(course, { id: level.id }, flags);
+    const { shown, folded, types } = offer(course, { id: level.id, task: level.task }, flags);
     const first = (type) => {
       const models = modelsOf(type);
       return !models || type === types.find((name) => models.includes(name));
@@ -294,5 +320,22 @@ export function tableCourse(content) {
     return { shown: shown.filter(first), folded: folded.filter(first), types };
   };
 
-  return { LEVELS, played, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, model, run, syncOwn, opening, offerIn, blueprints, wrong };
+  /** Settings offered by open tasks on the selected robot, in their actual playable forms. */
+  const settingsIn = (type, { scope, flags, open }) => {
+    const tasks = [...played.values()].flat().filter(s => isCircuit(s) && (!scope || s.robot === scope) && open(s));
+    const available = tasks.map(task => ({ task, types: offerIn(task, flags).types }));
+    const merger = modelsOf(type);
+    if (merger) {
+      const values = merger.filter(mode => available.some(({ types }) => types.includes(mode)));
+      return values.length ? [{
+        key: 'model', label: T('模式', 'Mode'),
+        values: values.map(value => ({ value, label: model.def(value).tag })),
+      }] : [];
+    }
+    const values = [...new Set(available.filter(({ types }) => types.includes(type))
+      .flatMap(({ task }) => model.valueOptions(type, task) ?? []))];
+    return values.length ? [{ key: 'value', label: T('数值', 'Value'), values: values.map(value => ({ value, label: String(value) })) }] : [];
+  };
+
+  return { LEVELS, played, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, model, run, syncOwn, opening, offerIn, settingsIn, blueprints, wrong };
 }

@@ -59,7 +59,8 @@
         "  }",
         "}",
         "out <- c0"
-      ]
+      ],
+      "publishes": [{ "piece": "elimRules", "variant": "base" }]
     }
   ]
 }

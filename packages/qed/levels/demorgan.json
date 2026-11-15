@@ -32,7 +32,8 @@
         "}",
         "c = andI(na, nb)",
         "goal <- c"
-      ]
+      ],
+      "publishes": [{ "piece": "dm", "variant": "notOr" }]
     },
     {
       "id": "demorgan_2",
@@ -59,7 +60,8 @@
         "}",
         "e = andE(p)",
         "goal <- f"
-      ]
+      ],
+      "publishes": [{ "piece": "dm", "variant": "andNot" }]
     },
     {
       "id": "demorgan_3",
@@ -86,7 +88,8 @@
         "  }",
         "}",
         "goal <- f"
-      ]
+      ],
+      "publishes": [{ "piece": "dm", "variant": "orNot" }]
     },
     {
       "id": "demorgan_4",
@@ -115,7 +118,8 @@
         "  }",
         "}",
         "goal <- e"
-      ]
+      ],
+      "publishes": [{ "piece": "dm", "variant": "notAnd" }]
     }
   ]
 }

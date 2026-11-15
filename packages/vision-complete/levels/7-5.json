@@ -68,7 +68,8 @@
         "q = arith[op=mul](a2, b1)",
         "c = arith[op=sub](p, q)",
         "out <- c"
-      ]
+      ],
+      "publishes": [{ "piece": "cross", "variant": "base" }]
     }
   ]
 }

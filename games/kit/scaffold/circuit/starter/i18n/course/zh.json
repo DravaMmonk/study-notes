@@ -1,7 +1,1 @@
-{
-  "course.eras.1.question": "每块元件只算两个数，怎样算更多的数？",
-  "course.eras.1.title": "加减",
-  "course.kicker": "开发中",
-  "course.lede": "从相加和相减两块元件起步，亲手搭出算得更多的元件。",
-  "course.title": "__title__"
-}
+{ "course.kicker": "开发中", "course.lede": "从相加和相减两块元件起步，亲手搭出算得更多的元件。", "course.title": "__title__" }

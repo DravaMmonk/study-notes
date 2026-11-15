@@ -1,18 +1,4 @@
 {
-  "course.eras.broom.chapter.desc": "The sweep arm passes over a whole run of cells, so the number of ways in is no longer fixed.",
-  "course.eras.broom.chapter.title": "Many ways in",
-  "course.eras.paper.chapter.desc": "Build the answer to a big problem out of the answers to small ones.",
-  "course.eras.paper.chapter.title": "Pen and paper",
-  "course.eras.ranger.chapter.desc": "It sees further, two cells away; it sees more, the two words a table compares; and it can scan the other way round.",
-  "course.eras.ranger.chapter.title": "Seeing further",
-  "course.eras.reach.chapter.desc": "A telescopic arm reaches a cell however far away.",
-  "course.eras.reach.chapter.title": "A longer arm",
-  "course.eras.scout.chapter.desc": "On every cell the robot runs the same circuit board, and a finished board becomes a component.",
-  "course.eras.scout.chapter.title": "Build a machine",
-  "course.eras.settle.chapter.desc": "When the arrows loop round, scan again and again.",
-  "course.eras.settle.chapter.title": "Scan until it settles",
-  "course.eras.stack.chapter.desc": "When one number can’t remember enough, remember one more thing.",
-  "course.eras.stack.chapter.title": "When the state falls short",
   "course.kicker": "Dynamic programming puzzles, from scratch",
   "course.lede": "No programming or algorithms background needed. Starting from counting routes by hand, you learn to break a big problem into a table and fill it in cell by cell; in the end you wire up the circuit boards that count routes, compare words and pack a backpack, and see why they are so fast.",
   "course.title": "State Graph"

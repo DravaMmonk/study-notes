@@ -5,6 +5,7 @@ import { createElement } from 'react'
 import { Cable, Grid3x3 } from 'lucide-react'
 import './ui/table.css'
 import { defineGame } from '../../shell/index.js'
+import { taskOpen } from '../../shell/progress.js'
 import { eraLevels, introductions, isCore } from '../../course.js'
 import { plays } from './plays.js'
 import { playKinds } from '../../shell/plays/Play.jsx'
@@ -17,7 +18,7 @@ import { pieceDemo } from './ui/pieceDemo.js'
 import { lookIcon } from './ui/looks.js'
 import { PRIMITIVES, modelsOf } from './model/parts.js'
 import { ROBOTS } from './model/robots.js'
-import { T, lazy, tr } from './lang.js'
+import { T } from './lang.js'
 import { tableCourse } from './course.js'
 
 const briefOf = ({ mission, hints }) => ({ text: [mission.goal, mission.how], hint: hints })
@@ -70,7 +71,7 @@ export default function tableGame(content) {
     const twin = !modelsOf(k) && cards.some(([o]) => o !== k && String(PRIMITIVES[o].name) === String(c.name))
     return twin ? T(`${c.name.zh} · ${c.tag.zh}`, `${c.name.en} · ${c.tag.en}`) : c.name
   }
-  const descOf = (k) => (modelsOf(k) ? lazy(() => modelsOf(k).map((m) => tr(`「${PRIMITIVES[m].tag}」${PRIMITIVES[m].desc}`, `<i>${PRIMITIVES[m].tag}</i>: ${PRIMITIVES[m].desc}`)).join('<br>')) : PRIMITIVES[k].desc)
+  const descOf = (k) => (modelsOf(k) ? T('用所选模式把几个输入合并成一个值。', 'Combines the inputs into one value using the selected mode.') : PRIMITIVES[k].desc)
   const primitives = cards.map(([k, at]) => ({ key: `part:${k}`, name: nameOf(k), desc: descOf(k), icon: lookIcon(k), at }))
 
   // The components box by robot: a robot can use every part earned in its era and the eras before it (parts carry over,
@@ -113,6 +114,14 @@ export default function tableGame(content) {
         return { experiment: spec }
       },
       filters: robotFilters,
+      settings: (part, progress, scope) => {
+        const solved = new Set(progress.solved)
+        return table.settingsIn(part.piece ?? part.key.replace(/^part:/, ''), {
+          scope,
+          flags: new Set(game.flagsOf(progress)),
+          open: (task) => game.isOpen(game.byId[task.id], solved, progress.all) && taskOpen(game, progress, task.id, task.task),
+        })
+      },
     },
   })
   game.table = table

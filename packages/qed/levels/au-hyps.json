@@ -46,5 +46,9 @@
         "out <- c0"
       ]
     }
+  ],
+  "pieceRevisions": [
+    { "piece": "rw", "at": true, "desc": "@piece.rw.revisions.0.desc" },
+    { "piece": "simp", "at": true, "desc": "@piece.simp.revisions.0.desc" }
   ]
 }

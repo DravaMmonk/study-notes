@@ -16,7 +16,8 @@
         "@level.g-imp.tasks.g-imp.hint.0",
         "@level.g-imp.tasks.g-imp.hint.1"
       ],
-      "solution": ["n = gNot(Rain)", "o = gOr(n, Wet)", "out <- o"]
+      "solution": ["n = gNot(Rain)", "o = gOr(n, Wet)", "out <- o"],
+      "publishes": [{ "piece": "gImp", "variant": "base" }]
     }
   ]
 }

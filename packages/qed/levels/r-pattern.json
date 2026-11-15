@@ -38,5 +38,10 @@
         "out <- r"
       ]
     }
+  ],
+  "pieceRevisions": [
+    { "piece": "uDecompose", "at": true, "desc": "@piece.uDecompose.revisions.0.desc" },
+    { "piece": "uCheck", "at": true, "desc": "@piece.uCheck.revisions.0.desc" },
+    { "piece": "unifier", "at": true, "desc": "@piece.unifier.revisions.0.desc" }
   ]
 }

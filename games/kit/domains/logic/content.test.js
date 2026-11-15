@@ -13,7 +13,8 @@ import { LOGIC_TESTS, startProof } from './proof.js'
 import { runOutputTests } from '../../engine/test-run.js'
 import { checkGates, gateParts, rowsFor, startGates } from './gates.js'
 import { deepFreeze } from '../../engine/content.js'
-import { readStarter } from '../../engine/content-node.js'
+import { readContent, readStarter } from '../../engine/content-node.js'
+import { trayDisplay } from '../../engine/trays.js'
 import domain from './domain.js'
 
 const L = (zh, en = zh) => ({ zh, en })
@@ -29,6 +30,12 @@ const box = (head, body, out) => [`${head} {`, '  body {', ...body.map((l) => ` 
 // A course of every shape this file reads: a gate built on a truth circuit, a lemma built and used, a lemma of two
 // shapes built by a level of two tasks and used by another, first-order levels with names and properties, a proposition
 // quantified, a level whose letters read through symbolicWords, and a machine.
+const GATE = { kind: 'gates', target: 'Rain ∨ Wind', solution: ['n1 = gNot(Rain)', 'n2 = gNot(Wind)', 'a = gAnd(n1, n2)', 'n3 = gNot(a)', 'out <- n3'] }
+const CHAIN = { kind: 'proof', tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }],
+  solution: box('f = impI[A=A](body: m2)', ['m1 = mp(p, f.body)', 'm2 = mp(q, m1)'], 'f') }
+const halfOf = (form, goal) => ({
+  kind: 'proof', tests: [{ premises: { p: 'A ∧ B' }, goal }], solution: ['e = andE(p)', `goal <- e.${form}`],
+})
 const CONTENT = {
   words: ['everyday'],
   wordSets: {
@@ -41,19 +48,19 @@ const CONTENT = {
   // a lemma, and a lemma of two shapes, each shape the proof of a task.
   partDefs: { settings: { ...readStarter(import.meta.dirname).partDefs.settings, formula: { control: 'tree' } }, parts: {
     ...Object.fromEntries(Object.entries(readStarter(import.meta.dirname).partDefs.parts).filter(([, p]) => !p.inside)),
-    gOr: { name: L('或', 'Or'), desc: L('d'), family: 'gate', inside: [{ task: 'or' }] },
-    chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'lemma', settings: ['A', 'B', 'C'].map((key) => ({ key, setting: 'formula' })), inside: [{ task: 'chain' }] },
-    half: { name: L('取一半', 'Half'), desc: L('d'), family: 'lemma', settings: ['A', 'B'].map((key) => ({ key, setting: 'formula' })), inside: [{ task: 'half_l', form: 'left', label: 'A ∧ B ⟹ A' }, { task: 'half_r', form: 'right', label: 'A ∧ B ⟹ B' }] },
+    gOr: { name: L('或', 'Or'), desc: L('d'), family: 'gate', inside: [{ id: 'base', reference: GATE }] },
+    chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'lemma', settings: ['A', 'B', 'C'].map((key) => ({ key, setting: 'formula' })), inside: [{ id: 'base', reference: CHAIN }] },
+    half: { name: L('取一半', 'Half'), desc: L('d'), family: 'lemma', settings: ['A', 'B'].map((key) => ({ key, setting: 'formula' })), inside: [{ id: 'left', form: 'left', label: 'A ∧ B ⟹ A', reference: halfOf('left', 'A') }, { id: 'right', form: 'right', label: 'A ∧ B ⟹ B', reference: halfOf('right', 'B') }] },
   } },
   eras: [{ id: 'one', machine: null, levels: [{ id: 'or' }, { id: 'chain' }, { id: 'useChain' }, { id: 'half' }, { id: 'useHalf' }, { id: 'eqSym' }, { id: 'andDef' }, { id: 'eqUse' }, { id: 'eqTerm' }, { id: 'rows' }, { id: 'negate' }], links: [{ from: 'or', to: 'chain' }, { from: 'chain', to: 'useChain' }, { from: 'useChain', to: 'half' }, { from: 'half', to: 'useHalf' }, { from: 'useHalf', to: 'eqSym' }, { from: 'eqSym', to: 'andDef' }, { from: 'andDef', to: 'eqUse' }, { from: 'eqUse', to: 'eqTerm' }, { from: 'eqTerm', to: 'rows' }, { from: 'rows', to: 'negate' }], chapter: { title: L('c'), question: L('q') } }],
   levels: [
-    one({ id: 'or', kind: 'gates', adds: ['formulaOr'], title: L('or'), target: 'Rain ∨ Wind', brief: L('b'), solution: ['n1 = gNot(Rain)', 'n2 = gNot(Wind)', 'a = gAnd(n1, n2)', 'n3 = gNot(a)', 'out <- n3'] }),
-    proofLevel('chain', { title: L('接起来', 'Join them'), adds: ['formulaImplies', 'formulaAnd', 'formulaForall'], tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }],
+    one({ id: 'or', publishes: [{ piece: 'gOr', variant: 'base' }], kind: 'gates', adds: ['formulaOr'], title: L('or'), target: 'Rain ∨ Wind', brief: L('b'), solution: ['n1 = gNot(Rain)', 'n2 = gNot(Wind)', 'a = gAnd(n1, n2)', 'n3 = gNot(a)', 'out <- n3'] }),
+    proofLevel('chain', { publishes: [{ piece: 'chain', variant: 'base' }], title: L('接起来', 'Join them'), adds: ['formulaImplies', 'formulaAnd', 'formulaForall'], tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }],
       solution: box('f = impI[A=A](body: m2)', ['m1 = mp(p, f.body)', 'm2 = mp(q, m1)'], 'f') }),
     proofLevel('useChain', { tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Wind', B: 'Wet', C: 'Slip' }], solution: ['c = chain(p, q)', 'goal <- c'] }),
     { id: 'half', title: L('half'), tasks: [
-      { id: 'half_l', kind: 'proof', step: L('l'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['e = andE(p)', 'goal <- e.left'] },
-      { id: 'half_r', kind: 'proof', step: L('r'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'B' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['e = andE(p)', 'goal <- e.right'] },
+      { id: 'half_l', publishes: [{ piece: 'half', variant: 'left' }], kind: 'proof', step: L('l'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['e = andE(p)', 'goal <- e.left'] },
+      { id: 'half_r', publishes: [{ piece: 'half', variant: 'right' }], kind: 'proof', step: L('r'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'B' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['e = andE(p)', 'goal <- e.right'] },
     ] },
     { id: 'useHalf', title: L('useHalf'), tasks: [
       { id: 'useHalf_l', kind: 'proof', step: L('l'), tests: [{ premises: { p: 'A ∧ B' }, goal: 'A ∧ A' }], cases: [{ A: 'Rain', B: 'Wet' }], solution: ['h = half(p)', 'c = andI(h, h)', 'goal <- c'] },
@@ -204,7 +211,7 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   assert.notEqual(other.proofs.chain[''].board(), own)
   assert.equal(run('useChain', 0).pass, true)
   syncOwn({ chain: { ...own, wires: [...own.wires, { from: 'missing', to: 'goal', port: 'in' }] } })
-  assert.equal(course.proofs.chain[''].board(), chain.solution)
+  assert.equal(course.proofs.chain[''].board(), chain.pieceSolution)
   // A kept proof that does not prove chain's statement: the level built on it cannot pass, and says why.
   syncOwn({ chain: read(['f = impI[A=A](body: m1) {', '  body {', '    m1 = mp(p, f.body)', '  }', '}', 'goal <- f'], chain) })
   const broken = run('useChain', 0)
@@ -215,7 +222,7 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   const empty = (one) => ({ nodes: startProof(one).nodes, wires: [] })
   const [left, right] = level('half').tasks
   syncOwn({ half_r: empty(right) })
-  assert.equal(course.proofs.half.left.board(), left.solution)
+  assert.equal(course.proofs.half.left.board(), left.pieceSolution)
   assert.equal(run('useHalf', 0).pass, true)
   assert.equal(run('useHalf', 1).pass, false)
   syncOwn({ half_l: empty(left) })
@@ -273,4 +280,20 @@ test('formula and circuit groups share a task, combining in order and respecting
   const { shown, folded, types } = logic.offerIn(read('g-use'), new Set())
   assert.deepEqual(types, [...shown, ...folded])
   assert.ok(types.every((type) => ['gNot', 'gAnd'].includes(type)))
+})
+
+test('a proof tray groups disjunction rules and leaves truth gates off the proof board', () => {
+  const logic = logicCourse(readContent('qed'))
+  const task = logic.LEVELS.find(({ id }) => id === 'cases').tasks[0]
+  const { shown, folded, types } = logic.proofBoards.forTask(task).offerIn(task, new Set())
+  assert.ok(!types.includes('gOr'))
+  const display = trayDisplay(logic.course, task, shown.map((type) => ({ type })), folded.map((type) => ({ type })))
+  assert.deepEqual(display.items.find(({ menu }) => menu).children.map(({ type }) => type), ['orI', 'orE'])
+})
+
+test('a machine reference can use rule cards granted by its task', () => {
+  const logic = logicCourse(readContent('qed'))
+  const task = logic.LEVELS.find(({ id }) => id === 'in-distinct').tasks.at(-1)
+  const { shown } = logic.machineBoards.forTask(task).offerIn(task, new Set())
+  assert.ok(shown.includes('math'))
 })

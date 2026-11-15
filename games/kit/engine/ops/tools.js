@@ -98,7 +98,7 @@ export const TOOLS = {
     params: { game: 'string', mutants: 'boolean?' },
     async run({ game, mutants = false }) {
       const content = readContent(known(game), ROOT)
-      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game), mutants, cache: kept(game) })
+      const lines = await checkGame(content, { domain: await domainOf(content), listed: listed(game), mutants, cache: kept(game), root: ROOT })
       return { ok: !lines.some((l) => l.fail), failures: lines.filter((l) => l.fail).map((l) => l.text), lines: lines.map((l) => `${l.fail ? 'FAIL ' : ''}${l.text}`) }
     },
   },

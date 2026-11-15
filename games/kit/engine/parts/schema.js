@@ -1,13 +1,14 @@
 // The schema of a game's pieces.json (games/DESIGN.md 6.8): every piece the course gives, as data. A piece has the
-// faces every piece has (its name, what it does, its description along the course, its icon and family) and the
+// faces every piece has (its name, what it does, its icon and family) and the
 // faces of the editor it is made with (`editor`; the circuit's when it names none), each editor declaring its own:
 //   circuit  a primitive's ports, its settings (one of the kernel controls), what it computes (an expression over the
-//            domain's engine resources, expr.js) and its three views; or a built piece's inside, the work of a task.
+//            domain's engine resources, expr.js) and its three views; or a built piece's independent board and interface.
 //            Its rule: a piece computes (or keeps an input), or runs an inside, never both
 //   strip    the block on a strip that marks what it stands for (`mark`, an item of the domain's `mark` kind)
 // and the setting definitions referenced by its pieces. The schema is the kernel's, the same in every domain; what it names
 // (resources, families, widgets, marks) the domain's vocabulary gives.
 import { S } from '../schema.js'
+import { PIECE_REFERENCE_FIELDS } from '../pieces.js'
 import { T as t } from '../../shell/i18n.js'
 
 
@@ -103,13 +104,10 @@ const PAINT = {
   views: S.opt(S.obj({ card: S.opt(VIEW), tile: S.opt(VIEW), detail: S.opt(VIEW) }, { about: t('桌面卡片、手机格位、详情；不写用默认') })),
 }
 
-/** A description as it grows along the course: from level `at` on, or once level `by` is passed (shell/index.js). */
-export const REVISION = S.obj({ at: S.opt(S.level()), by: S.opt(S.level()), desc: S.text() }, { about: t('说明随课程长：从 at 那一关起，或通过 by 那一关以后，换成这一句') })
 /** The faces every piece has, whatever its editor. */
 const NAMED = {
   name: S.text(),
   desc: S.text({ about: t('只写功能：读哪些口、给出什么、碰到「—」怎么办') }),
-  revisions: S.opt(S.list(REVISION, { min: 1 })),
 }
 /**
  * A primitive: it computes an expression over the domain's engine resources, or keeps an input (`keeps`): a sink that
@@ -126,10 +124,18 @@ export const PRIMITIVE = S.obj({
   nulls: S.opt(S.oneOf(['give', 'pass'], { about: t('give：任何输入是「—」就给「—」（默认）；pass：交给运算') })),
 })
 /**
- * A built piece: inside, it runs the work of a task (the player's passing one, else the reference). References of one
- * form (or none) are an upgrade chain in order; of different forms, the piece's shapes. Its ports are the task's board's.
+ * A built piece has named implementations. A task can publish player work to any one of them.
  */
-export const INSIDE = S.list(S.obj({ task: S.task(), form: S.opt(NAME), label: S.opt(S.str({ about: t('这种形态在元件上叫什么') })) }), { min: 1, about: t('里面跑哪个任务的作品：同一个 form（或都不写）的几条按先后是升级链，form 不同是件的几种形态') })
+const REFERENCE = S.obj(Object.fromEntries(PIECE_REFERENCE_FIELDS
+  .map((key) => [key, S.opt(key === 'solution' ? S.board() : S.any())])),
+{ about: t('可独立读取的参考作品和接口', 'A standalone reference work and its interface') })
+
+export const INSIDE = S.list(S.obj({
+  id: NAME,
+  form: S.opt(NAME),
+  label: S.opt(S.str({ about: t('这种形态在元件上叫什么') })),
+  reference: REFERENCE,
+}), { min: 1 })
 export const BUILT = S.obj({
   ...NAMED,
   inside: INSIDE,
@@ -171,7 +177,7 @@ export function pieceCreationOptions(vocabulary, tasks = []) {
   return choices
 }
 
-export const builtPart = (task, name) => ({ name: { en: name || task }, desc: { en: '' }, inside: [{ task }] })
+export const builtPart = (reference, name) => ({ name: { en: name }, desc: { en: '' }, inside: [{ id: 'base', reference }] })
 
 /** pieces.json. */
 export const PARTS_FILE = S.obj({

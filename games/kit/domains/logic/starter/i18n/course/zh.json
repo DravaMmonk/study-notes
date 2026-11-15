@@ -1,10 +1,1 @@
-{
-  "course.eras.circuits.chapter.question": "一句话在每一种情况下是真是假，能交给电路去算吗？",
-  "course.eras.circuits.chapter.title": "真值电路",
-  "course.kicker": "开发中",
-  "course.lede": "从真值表出发，把一句话接成一块电路，再用搭出的门搭更大的句子。",
-  "course.title": "__title__",
-  "course.wordSets.everyday.Cold": "很冷",
-  "course.wordSets.everyday.Rain": "下雨",
-  "course.wordSets.everyday.Wind": "刮风"
-}
+{ "course.kicker": "开发中", "course.lede": "从真值表出发，把一句话接成一块电路，再用搭出的门搭更大的句子。", "course.title": "__title__" }

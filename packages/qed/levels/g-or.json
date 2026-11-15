@@ -17,7 +17,8 @@
         "@level.g-or.tasks.g-or.hint.0",
         "@level.g-or.tasks.g-or.hint.1"
       ],
-      "solution": ["n1 = gNot(Rain)", "n2 = gNot(Wind)", "a = gAnd(n1, n2)", "n3 = gNot(a)", "out <- n3"]
+      "solution": ["n1 = gNot(Rain)", "n2 = gNot(Wind)", "a = gAnd(n1, n2)", "n3 = gNot(a)", "out <- n3"],
+      "publishes": [{ "piece": "gOr", "variant": "base" }]
     }
   ]
 }

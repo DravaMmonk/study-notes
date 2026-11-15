@@ -35,7 +35,8 @@
         "  }",
         "}",
         "goal <- e"
-      ]
+      ],
+      "publishes": [{ "piece": "res", "variant": "base" }]
     }
   ]
 }

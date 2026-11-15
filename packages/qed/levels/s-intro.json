@@ -54,7 +54,8 @@
         "  }",
         "}",
         "out <- c0"
-      ]
+      ],
+      "publishes": [{ "piece": "introRules", "variant": "base" }]
     }
   ]
 }

@@ -38,7 +38,8 @@
         "@level.kk-one.tasks.kk-one_2.hint.0",
         "@level.kk-one.tasks.kk-one_2.hint.1"
       ],
-      "solution": ["e = andE(p)", "g = merge(e.left)", "m1 = mp(e.right, g)", "m2 = mp(g, m1)", "goal <- m2"]
+      "solution": ["e = andE(p)", "g = merge(e.left)", "m1 = mp(e.right, g)", "m2 = mp(g, m1)", "goal <- m2"],
+      "publishes": [{ "piece": "liar", "variant": "base" }]
     }
   ]
 }

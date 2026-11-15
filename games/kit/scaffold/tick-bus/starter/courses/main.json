@@ -1,0 +1,13 @@
+{
+  "primitives": ["reg", "keep"],
+  "concept": { "keep": "reg" },
+  "eras": [
+    {
+      "id": 1,
+      "title": "@course.eras.1.title",
+      "question": "@course.eras.1.question",
+      "levels": [{ "id": "1-1" }, { "id": "1-2" }],
+      "links": [{ "from": "1-1", "to": "1-2" }]
+    }
+  ]
+}

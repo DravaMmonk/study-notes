@@ -28,7 +28,8 @@
           "t": "@level.k.tasks.k_2.intro.0.t"
         }
       ],
-      "solution": ["f = impI[A=A](body: g) {", "  body {", "    g = impI[A=B](body: f.body)", "  }", "}", "goal <- f"]
+      "solution": ["f = impI[A=A](body: g) {", "  body {", "    g = impI[A=B](body: f.body)", "  }", "}", "goal <- f"],
+      "publishes": [{ "piece": "axK", "variant": "base" }]
     }
   ]
 }

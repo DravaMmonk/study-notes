@@ -63,7 +63,8 @@
       "expected": [9, 18, 30],
       "solution": ["a = add(view.segL, view.segR)", "m = mmin(a)", "b = add(m, facts.weight)", "cell <- b"],
       "scan": "len",
-      "diag": 0
+      "diag": 0,
+      "publishes": [{ "piece": "interval", "variant": "base" }]
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { earnedUnlocks } from './progress.js'
+import { earnedUnlocks, passedLevelIn } from './progress.js'
 // The game shell shared by every game in the study notes (React). A game is content on top of it: see defineGame.
 
 export { default as GameShell } from './GameShell.jsx'
@@ -68,7 +68,11 @@ export function defineGame(def) {
   // Without `requires`, a level opens once the one before it is passed.
   const requiresOf = (level) => level.requires ?? (index.get(level.id) > 0 ? [levels[index.get(level.id) - 1].id] : [])
   const required = (level) => plan?.required.get(level.id) ?? requiresOf(level)
-  const isOpen = def.isOpen ?? ((level, solved, all = false) => all || required(level).every((id) => solved.has(id)))
+  const external = (id) => plan?.external?.get(id) ?? []
+  const pendingExternal = (id) => external(id).filter(({ game, level }) => !passedLevelIn(game, level))
+  const isOpen = def.isOpen ?? ((level, solved, all = false) => all || (
+    required(level).every((id) => solved.has(id)) && pendingExternal(level.id).length === 0
+  ))
   // Every level `level` comes after: what it requires, and what those require in turn.
   const ancestorsOf = (direct) => {
     const before = new Map()
@@ -95,6 +99,8 @@ export function defineGame(def) {
     missing: (level, solved) => required(level).filter((id) => !solved.has(id)).map((id) => byId[id]),
     // Every level still to pass before `level` opens: the unsolved ones among all it comes after.
     needed: (level, solved) => [...gates(level)].filter((id) => !solved.has(id)).map((id) => byId[id]),
+    externalNeeded: (level, solved) => [...new Map([level.id, ...[...gates(level)].filter((id) => !solved.has(id))]
+      .flatMap(pendingExternal).map((gate) => [`${gate.game}:${gate.level}`, gate])).values()],
     // Everything a player has unlocked by the time `level` opens: the unlocks of every level it comes after.
     unlocksBefore: (level) => [...ancestors(level)].flatMap((id) => byId[id].unlocks ?? []),
     // What a player has unlocked: every solved level's unlocks (so a level that has since come to unlock something gives

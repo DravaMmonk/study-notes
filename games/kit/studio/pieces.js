@@ -3,6 +3,7 @@
 // order the course gives them in. A game without trays has one group, in that order. Domain-free: only the content
 // and where the course first gives each piece.
 import { readItem } from '../course.js'
+import { trayMembers } from '../engine/trays.js'
 
 /**
  * [{ tray (null: none), types: [type] }]. `types` the pieces of pieces.json; `trays` game.json's; `at(type)` the level
@@ -15,7 +16,7 @@ export function pieceGroups(types, { trays = null, at = () => null, order = [], 
   if (!trays || !Object.keys(trays).length) return [{ tray: null, types: sorted(types) }]
   const placed = new Set()
   const groups = Object.entries(trays).map(([tray, items]) => {
-    const own = [...new Set(items.map((item) => readItem(item).part))].filter((type) => types.includes(type) && !placed.has(type))
+    const own = [...new Set(trayMembers(items).map((item) => readItem(item).part))].filter((type) => types.includes(type) && !placed.has(type))
     own.forEach((type) => placed.add(type))
     return { tray, types: sorted(own) }
   })

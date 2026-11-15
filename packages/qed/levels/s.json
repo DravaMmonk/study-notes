@@ -33,7 +33,8 @@
         "  }",
         "}",
         "goal <- f"
-      ]
+      ],
+      "publishes": [{ "piece": "axS", "variant": "base" }]
     }
   ]
 }

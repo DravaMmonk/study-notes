@@ -1,0 +1,28 @@
+{
+  "mode": "notes",
+  "primitives": ["line3", "add"],
+  "concept": {},
+  "replaces": {},
+  "views": {},
+  "eras": [
+    {
+      "id": 1,
+      "chapter": {
+        "title": "@course.eras.1.chapter.title",
+        "label": "@course.eras.1.chapter.label",
+        "question": "@course.eras.1.chapter.question"
+      },
+      "levels": [{ "id": "projection" }]
+    },
+    {
+      "id": 2,
+      "chapter": {
+        "title": "@course.eras.2.chapter.title",
+        "label": "@course.eras.2.chapter.label",
+        "question": "@course.eras.2.chapter.question"
+      },
+      "levels": [{ "id": "separable" }, { "id": "sinusoid" }],
+      "links": [{ "from": "projection", "to": "separable" }, { "from": "separable", "to": "sinusoid" }]
+    }
+  ]
+}

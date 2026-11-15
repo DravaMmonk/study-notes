@@ -42,7 +42,8 @@
         "  }",
         "}",
         "out <- c0"
-      ]
+      ],
+      "publishes": [{ "piece": "auto", "variant": "base" }]
     }
   ]
 }

@@ -75,7 +75,8 @@
         "}",
         "r = raa(f)",
         "goal <- r"
-      ]
+      ],
+      "publishes": [{ "piece": "lem", "variant": "base" }]
     }
   ]
 }

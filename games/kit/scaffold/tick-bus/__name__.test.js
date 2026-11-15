@@ -44,17 +44,7 @@ test('a board that says what it hears this very tick has a loop', () => {
 })
 
 test('the starter game passes its checks', async () => {
-  const { assemble } = await import('../../engine/content.js')
-  const { readFileSync, readdirSync } = await import('node:fs')
-  const dir = new URL('./starter/', import.meta.url)
-  const json = (f) => JSON.parse(readFileSync(new URL(f, dir), 'utf8'))
-  const content = assemble({
-    id: 'starter',
-    game: json('game.json'),
-    levels: readdirSync(new URL('levels/', dir)).map((f) => [f.slice(0, -5), json(`levels/${f}`)]),
-    glossary: json('glossary.json'),
-    partDefs: json('pieces.json'),
-  })
+  const content = readStarter(import.meta.dirname)
   const lines = await domain.validate(domain.spec(content))
   assert.deepEqual(lines.filter((l) => l.fail), [])
 })

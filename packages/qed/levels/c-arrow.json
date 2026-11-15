@@ -26,7 +26,8 @@
         "  }",
         "}",
         "goal <- e"
-      ]
+      ],
+      "publishes": [{ "piece": "arrow", "variant": "elim" }]
     },
     {
       "id": "c-arrow_2",
@@ -50,7 +51,8 @@
         "  }",
         "}",
         "goal <- f"
-      ]
+      ],
+      "publishes": [{ "piece": "arrow", "variant": "intro" }]
     }
   ]
 }

@@ -92,6 +92,16 @@ export default function imageGame(content) {
     levelLabel: (level) => labels.get(level.id) ?? level.id,
     parts: {
       all: [...primitives, ...allFlags.map(unlockOf)],
+      settings: (part, progress) => {
+        const flags = new Set(game.flagsOf(progress))
+        const earned = (flag) => !flag || progress.all || flags.has(flag)
+        return (types[part.piece]?.params ?? []).filter((param) => earned(param.unlock)).map((param) => ({
+          key: param.key,
+          label: param.label ?? param.key,
+          values: (param.options ?? []).filter(([, , flag]) => earned(flag))
+            .map(([value, label]) => ({ value, label })),
+        }))
+      },
       preview: (part, { progress }) => {
         if (progress?.solved) image.syncOwn(progress)
         const made = imagePreview(image, content.box, part)

@@ -9,6 +9,8 @@ import { usePref } from './prefs.js'
 import { taskOptionsOf } from './form.js'
 import { pieceGroups } from './pieces.js'
 import { builtPart, pieceCreationOptions } from '../engine/parts/schema.js'
+import { findTask } from '../engine/tasks.js'
+import { pieceReference } from '../engine/pieces.js'
 
 /** A name for a new piece not taken yet. */
 export const freeName = (taken, stem) => {
@@ -17,7 +19,7 @@ export const freeName = (taken, stem) => {
   return `${stem}${k}`
 }
 
-export default function PartsList({ content, vocabulary, levelOptions, order = [], earned = new Map(), at, activeTray, found, onSelect, onTray, onEdit }) {
+export default function PartsList({ content, vocabulary, levelOptions, order = [], earned = new Map(), at, activeTray, found, onSelect, onTray, onOps }) {
   const [query, setQuery] = useState('')
   const [sort, setSort] = usePref('piece-list-sort', 'tray')
   const { folded, toggle } = useSidebarFolds('folded-trays', content.id)
@@ -29,18 +31,24 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
     ...option, label: L(option.label),
     ...(option.value === 'task' && { children: tasks.map((task) => ({ ...task, value: `task:${task.value}` })) }),
   }))
-  const add = (data) => {
-    const type = freeName(parts.map(([t]) => t), 'part')
-    onEdit({ op: 'piece.add', piece: type, data })
-    onSelect({ part: type })
-  }
   const create = (value) => {
+    const type = freeName(parts.map(([id]) => id), 'part')
     if (value.startsWith('task:')) {
-      const task = tasks.find((option) => option.value === value.slice('task:'.length))
-      add(builtPart(task.value, task.title && L(task.title)))
+      const option = tasks.find((task) => task.value === value.slice('task:'.length))
+      const found = findTask(content.levels, option.value)
+      if (!found) return
+      const level = content.levels.find(({ id }) => id === found.level)
+      const task = level.tasks[found.at]
+      const data = builtPart(pieceReference({ ...level, ...task }), option.title && L(option.title))
+      onOps([
+        { op: 'piece.add', piece: type, data },
+        { op: 'level.set', level: found.level, path: ['tasks', found.at, 'publishes'],
+          value: [...(task.publishes ?? []), { piece: type, variant: data.inside[0].id }] },
+      ])
     } else {
-      add(choices.find((option) => option.value === value).data)
+      onOps([{ op: 'piece.add', piece: type, data: choices.find((option) => option.value === value).data }])
     }
+    onSelect({ part: type })
   }
   const matches = sidebarSearch(query)
   const shown = parts.filter(([id, def]) => matches(id, L(def.name))).map(([id]) => id)

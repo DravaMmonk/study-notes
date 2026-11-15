@@ -10,6 +10,7 @@ import { markupOf } from './markup.js'
 import { checkContent, defineVocabulary, describe } from './vocabulary.js'
 import { assemble } from './content.js'
 import { isDataGame, readContent } from './content-node.js'
+import { dependencyProblemsInProject } from './project-dependencies.js'
 
 const VOCAB = defineVocabulary({
   domain: 'toy',
@@ -144,7 +145,10 @@ test('a data game is read from its folder', () => {
   const dir = mkdtempSync(join(tmpdir(), 'games-'))
   mkdirSync(join(dir, 'games', 'toy'), { recursive: true })
   mkdirSync(join(dir, 'packages', 'shared-toy', 'levels'), { recursive: true })
-  writeFileSync(join(dir, 'games', 'toy', 'game.json'), JSON.stringify({ package: 'shared-toy', domain: 'toy', vocabulary: 1, title: 'Toy' }))
+  mkdirSync(join(dir, 'packages', 'shared-toy', 'courses'), { recursive: true })
+  writeFileSync(join(dir, 'games', 'toy', 'game.json'), JSON.stringify({ package: 'shared-toy', course: 'main', title: 'Toy' }))
+  writeFileSync(join(dir, 'packages', 'shared-toy', 'package.json'), JSON.stringify({ domain: 'toy', vocabulary: 1 }))
+  writeFileSync(join(dir, 'packages', 'shared-toy', 'courses', 'main.json'), '{}')
   writeFileSync(join(dir, 'packages', 'shared-toy', 'levels', 'one.json'), JSON.stringify({ mode: 'read', text: 'hello' }))
   writeFileSync(join(dir, 'packages', 'shared-toy', 'glossary.json'), JSON.stringify({ groups: [], entries: [] }))
   assert.equal(isDataGame('toy', dir), true)
@@ -152,4 +156,11 @@ test('a data game is read from its folder', () => {
   const content = readContent('toy', dir)
   assert.deepEqual(content.levels, [{ id: 'one', mode: 'read', text: 'hello' }])
   assert.deepEqual(checkContent({ vocabulary: VOCAB }, content), [])
+
+  writeFileSync(join(dir, 'packages', 'shared-toy', 'courses', 'draft.json'), JSON.stringify({ order: ['one'] }))
+  assert.deepEqual(dependencyProblemsInProject(content, dir), [])
+  assert.deepEqual(dependencyProblemsInProject({ ...content, levels: [] }, dir), [{
+    at: 'packages/shared-toy/courses/draft.json',
+    says: 'the course references one, which is missing from its package',
+  }])
 })

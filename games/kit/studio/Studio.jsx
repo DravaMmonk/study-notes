@@ -729,7 +729,7 @@ export default function Studio() {
             {side === 'settings'
               ? <SettingsList key={game} file={content.partDefs} vocabulary={vocab.vocabulary} selected={at?.setting} onSelect={openSetting} onEdit={edit} />
               : side === 'parts' && content.partDefs
-              ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} activeTray={at?.game && field?.path?.[0] === 'trays' ? field.path[1] : null} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={select} onTray={openTray} onEdit={edit} />
+              ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} activeTray={at?.game && field?.path?.[0] === 'trays' ? field.path[1] : null} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={select} onTray={openTray} onOps={addOps} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file, { stayOnTab: true })} />
               : <Tree game={game} content={content} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask}
@@ -747,7 +747,7 @@ export default function Studio() {
             {tab !== 'page' && (
               <div className="studio-scroll">
                 {tab === 'arrange' && (
-                  <Arrangement key={game} content={content} at={at} options={levelOptions} pending={saving || shown.ops !== ops}
+                  <Arrangement key={game} content={content} base={base} at={at} options={levelOptions} pending={saving || shown.ops !== ops}
                     save={{ dirty: ops.length > 0, problems: result.problems, ready: result.ok && ops.length > 0 && !saving, saving, said: ops.length && said?.ok ? null : said, apply }}
                     onSelect={select}
                     onEdit={edit} onMove={(id) => { setSide('tree'); setLayout((value) => ({ ...value, treeOpen: true })); setMoving([id]) }} />

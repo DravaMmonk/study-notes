@@ -121,7 +121,8 @@
       ],
       "ask": "@level.prefix.tasks.prefix_2.ask",
       "noArm": true,
-      "checkAll": true
+      "checkAll": true,
+      "publishes": [{ "piece": "sweep", "variant": "base" }]
     }
   ]
 }

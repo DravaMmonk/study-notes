@@ -24,7 +24,7 @@ export function takeOut(eras, id) {
   const next = structuredClone(eras)
   const chapter = next[was.era]
   const [entry] = chapter.levels.splice(was.index, 1)
-  for (const era of next) if (era.links) setLinks(era, era.links.filter(({ from, to }) => from !== id && to !== id))
+  for (const era of next) if (era.links) setLinks(era, era.links.filter(({ fromGame, from, to }) => (fromGame || from !== id) && to !== id))
   return { eras: next, was, entry }
 }
 

@@ -654,7 +654,7 @@ const merged = (a = new Map(), b = new Map()) => new Map([...a, ...b])
 /** A packed machine part reads the work and rules of its selected builder; `params` the settings its piece takes beyond
  *  its board's (simp works on the goal or the hypotheses). */
 export function builtMachine(type, builder, reference, ownBoard, params = []) {
-  const circuit = () => ownBoard(builder().taskId) ?? builder().solution
+  const circuit = () => ownBoard(builder().taskId) ?? builder().pieceSolution
   const part = packed({
     circuit,
     inputs: inputsOfLevel(reference).map((i) => i.name),

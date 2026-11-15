@@ -55,7 +55,8 @@
         "c = consFront(it, e)",
         "m = mkRule(c, r)",
         "out <- m"
-      ]
+      ],
+      "publishes": [{ "piece": "elimGen", "variant": "v2" }]
     }
   ]
 }

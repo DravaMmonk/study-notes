@@ -1,10 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ListOrdered, Save, Trash2 } from 'lucide-react'
-import { eraLevels, layout } from '../course.js'
+import { eraLevels } from '../course.js'
+import { courseLayout } from '../engine/course-dependencies.js'
 import { L, tr } from '../shell/i18n.js'
 import { Picker } from './Picker.jsx'
 import ArrangementBoard from './ArrangementBoard.jsx'
-import { linkKey, wiringBoard, wiringRefusal } from './arrangement.js'
+import { externalPort, implicitWireChanges, linkKey, projectWires, wiringBoard, wiringRefusal } from './arrangement.js'
+import { call } from './api.js'
 import { confirmDelete } from './delete.js'
 
 const nameOf = (era) => L(era.title ?? era.chapter?.title) ?? String(era.id)
@@ -14,12 +16,32 @@ const message = (reason) => ({
   cycle: tr('这条连线会形成循环依赖。', 'This wire would create a cycle.'),
 })[reason]
 
-export default function Arrangement({ content, at, options, pending, save, onSelect, onEdit, onMove }) {
+export default function Arrangement({ content, base, at, options, pending, save, onSelect, onEdit, onMove }) {
   const { eras } = content
   const notes = content.mode === 'notes'
-  const { place, requires } = useMemo(() => layout(eras), [eras])
+  const { place, dependencyLinks } = useMemo(() => courseLayout(content), [content])
+  const [catalog, setCatalog] = useState([])
+  const [catalogError, setCatalogError] = useState('')
+  useEffect(() => {
+    let active = true
+    call('course_catalog', { game: content.id }).then(
+      (result) => { if (active) setCatalog(result) },
+      (error) => { if (active) setCatalogError(error.message) },
+    )
+    return () => { active = false }
+  }, [content.id])
+  const external = useMemo(() => new Map(catalog.flatMap(({ game, title, levels }) =>
+    levels.map(({ id, title: name }) => [externalPort(game, id), { game, id, title: name, group: title ?? game }]))), [catalog])
   const levels = useMemo(() => new Map(options.map((option) => [option.value, option])), [options])
-  const links = useMemo(() => eras.flatMap((era) => era.links ?? []), [eras])
+  const links = useMemo(() => projectWires(dependencyLinks), [dependencyLinks])
+  const savedLinks = useMemo(() => base && projectWires(courseLayout(base).dependencyLinks), [base])
+  const wireChanges = useMemo(() => base?.id === content.id && save.dirty && savedLinks
+    ? implicitWireChanges(savedLinks, links) : null, [base?.id, content.id, save.dirty, savedLinks, links])
+  const requires = useMemo(() => {
+    const map = new Map([...place.keys()].map((id) => [id, []]))
+    for (const { from, to } of links) map.get(to)?.push(from)
+    return map
+  }, [place, links])
   const indices = useMemo(() => new Map(eras.map((era, index) => [era.id, index])), [eras])
   const index = indices.get(place.get(at?.level)?.era) ?? at?.era ?? 0
   const era = eras[index] ?? eras[0]
@@ -33,40 +55,52 @@ export default function Arrangement({ content, at, options, pending, save, onSel
   if (!era) return <p className="studio-loading">{tr('没有章节', 'No chapters')}</p>
   const picked = board.hosted.has(armed) ? armed : null
   const wire = board.edges.find((edge) => linkKey(edge) === highlight)
+  const nameOfLevel = (id) => L((levels.get(id) ?? external.get(id))?.title)
   const describe = (id) => {
-    const title = L(levels.get(id)?.title)
+    const title = nameOfLevel(id)
     return title ? `${id} ${title}` : id
   }
-  const label = (id) => <><code>{id}</code><span>{L(levels.get(id)?.title)}</span>{place.get(id)?.optional && <small>{tr('可选', 'Optional')}</small>}</>
+  const label = (id) => <><code>{id}</code><span>{nameOfLevel(id)}</span>{place.get(id)?.optional && <small>{tr('可选', 'Optional')}</small>}</>
   const resetWire = () => { setArmed(null); setHighlight(null); setNotice('') }
   const setField = (path, values) => onEdit(values.length ? { op: 'game.set', path, value: values } : { op: 'game.unset', path })
   const updateLink = (link, value) => {
     const destination = indices.get(place.get(link.to).era)
     const old = eras[destination].links ?? []
     const key = linkKey(link)
-    const next = old.some((item) => linkKey(item) === key)
-      ? old.flatMap((item) => linkKey(item) === key ? value ? [value] : [] : [item])
+    const keyOf = (item) => linkKey({ ...item, from: item.fromGame ? externalPort(item.fromGame, item.from) : item.from })
+    const next = old.some((item) => keyOf(item) === key)
+      ? old.flatMap((item) => keyOf(item) === key ? value ? [value] : [] : [item])
       : [...old, value]
     setField(['eras', destination, 'links'], next)
   }
   const connect = (from, to) => {
-    if (pending) return
+    if (pending || !place.has(to)) return
     const problem = wiringRefusal(requires, from, to)
     if (problem) { setNotice(message(problem)); return }
     const edge = { from, to }
-    updateLink(edge, edge)
+    const split = from.indexOf(':')
+    updateLink(edge, split < 0 ? edge : { fromGame: from.slice(0, split), from: from.slice(split + 1), to })
     setArmed(null)
     setNotice('')
     setHighlight(linkKey(edge))
   }
   const chooseWire = (edge) => { resetWire(); setHighlight(linkKey(edge)) }
   const removeWire = () => {
-    if (!wire || pending || !confirmDelete(`${wire.from} → ${wire.to}`)) return
+    if (wire?.source !== 'course' || pending || !confirmDelete(`${wire.from} → ${wire.to}`)) return
     updateLink(wire, null)
     resetWire()
   }
-  const outside = options.filter(({ value }) => place.has(value) && !board.hosted.has(value))
-    .map(({ value, title, group }) => ({ value, label: value, title, group }))
+  const outside = [
+    ...options.filter(({ value }) => place.has(value)).map(({ value, title, group }) => ({ value, label: value, title, group })),
+    ...[...external].map(([value, { title, group }]) => ({ value, label: value, title, group })),
+  ].filter(({ value }) => !board.hosted.has(value))
+  const reasons = wire?.causes.filter(({ source }) => source !== 'course').map(({ source, detail }) => {
+    const label = source === 'knowledge' ? tr('知识前置', 'Knowledge prerequisite') : tr('由参考解推导', 'Inferred from reference')
+    return detail ? `${label} · ${detail}` : label
+  }) ?? []
+  const isExternal = (id) => !place.has(id)
+  const pinWire = (edge) => updateLink(edge, { from: edge.fromLevel ?? edge.from, to: edge.to,
+    ...(edge.fromGame && { fromGame: edge.fromGame }), ...(edge.required && { required: true }) })
 
   return (
     <article className="arrange" onKeyDown={(event) => {
@@ -87,18 +121,24 @@ export default function Arrangement({ content, at, options, pending, save, onSel
           <Save size={14} aria-hidden="true" />{save.saving ? tr('正在保存', 'Saving') : tr('保存变更', 'Save changes')}
         </button>
       </header>
+      {catalogError && <p className="arrange-saved is-error" role="status">{catalogError}</p>}
       <div className="arrange-actions">
         {wire ? <>
           <strong>{describe(wire.from)} → {describe(wire.to)}</strong>
-          {place.get(wire.from)?.optional && <label>
+          {reasons.length > 0 && <span>{reasons.join(' / ')}</span>}
+          {wire.source === 'course' && reasons.length === 0 && place.get(wire.from)?.optional && <label>
             <input type="checkbox" checked={wire.required ?? false} disabled={pending} onChange={(e) => {
               updateLink(wire, { from: wire.from, to: wire.to, ...(e.target.checked && { required: true }) })
             }} />
             {tr('须完成可选前置', 'Require this optional level')}
           </label>}
-          <button type="button" className="kit-btn is-label" disabled={pending} onClick={removeWire}>
-            <Trash2 size={13} aria-hidden="true" />{tr('断开连线', 'Disconnect')}
-          </button>
+          {wire.source === 'course'
+            ? <button type="button" className="kit-btn is-label" disabled={pending} onClick={removeWire}>
+              <Trash2 size={13} aria-hidden="true" />{tr('断开连线', 'Disconnect')}
+            </button>
+            : <button type="button" className="kit-btn is-label" disabled={pending} onClick={() => pinWire(wire)}>
+              {tr('保存为显式前置', 'Keep as explicit prerequisite')}
+            </button>}
         </> : selected ? <>
           <strong>{describe(selected)}</strong>
           <label>
@@ -122,11 +162,21 @@ export default function Arrangement({ content, at, options, pending, save, onSel
       {save.dirty && <p className={`arrange-saved ${save.problems.length ? 'is-error' : ''}`} role="status">
         {save.problems[0] ?? tr('保存后编排变更才会生效。', 'Save to apply course changes.')}
       </p>}
+      {wireChanges && (wireChanges.added.length > 0 || wireChanges.removed.length > 0) && (
+        <details className="arrange-saved">
+          <summary>{tr(`推导前置新增 ${wireChanges.added.length} 条，移除 ${wireChanges.removed.length} 条`,
+            `Inferred prerequisites · ${wireChanges.added.length} added, ${wireChanges.removed.length} removed`)}</summary>
+          <ul>
+            {wireChanges.added.map((edge) => <li key={`add:${linkKey(edge)}`}>+ {describe(edge.from)} → {describe(edge.to)}</li>)}
+            {wireChanges.removed.map((edge) => <li key={`remove:${linkKey(edge)}`}>− {describe(edge.from)} → {describe(edge.to)}</li>)}
+          </ul>
+        </details>
+      )}
       {save.said && <p className={`arrange-saved ${save.said.ok ? '' : 'is-error'}`} role="status">
         {save.said.ok ? tr('已保存到 game.json。', 'Saved to game.json.') : save.said.text}
       </p>}
-      <ArrangementBoard key={era.id} board={board} label={label} describe={describe} active={selected} picked={picked} wire={highlight} pending={pending}
-        onLevel={(level) => { resetWire(); onSelect({ level }) }} onWire={chooseWire}
+      <ArrangementBoard key={era.id} board={board} label={label} describe={describe} active={selected} picked={picked} wire={highlight} pending={pending} isExternal={isExternal}
+        onLevel={(level) => { resetWire(); if (isExternal(level)) setArmed(level); else onSelect({ level }) }} onWire={chooseWire}
         onPick={(id) => { resetWire(); setArmed(picked === id ? null : id) }} onConnect={connect} onCancel={resetWire} />
     </article>
   )

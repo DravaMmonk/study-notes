@@ -55,7 +55,7 @@ export function lintText(field, text) {
   return out
 }
 
-/** The copy findings over a game's levels, game.json texts and glossary. */
+/** The copy findings over a game's levels, configuration texts and glossary. */
 export function lintCopy(content) {
   const out = []
   const add = (at, field, text) => out.push(...lintText(field, text).map((f) => ({ ...f, at })))

@@ -32,7 +32,8 @@
         "@level.sp-simp.tasks.sp-simp.hint.0",
         "@level.sp-simp.tasks.sp-simp.hint.1"
       ],
-      "solution": ["c0 = repeat(in, body: c1) {", "  body {", "    c1 = rw(c0.body, rules)", "  }", "}", "out <- c0"]
+      "solution": ["c0 = repeat(in, body: c1) {", "  body {", "    c1 = rw(c0.body, rules)", "  }", "}", "out <- c0"],
+      "publishes": [{ "piece": "simp", "variant": "base" }]
     }
   ]
 }

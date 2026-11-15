@@ -77,7 +77,7 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 @keyframes needed-pulse { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 18%, transparent); } }
 .map-needed { position: fixed; z-index: 30; left: 50%; bottom: 20px; width: min(560px, calc(100vw - 32px)); transform: translateX(-50%); display: flex; align-items: flex-start; gap: var(--sp-4); padding: var(--sp-5) var(--sp-5) var(--sp-5) var(--sp-6); border-radius: var(--r-lg); color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--rule), 0 18px 40px -18px rgba(0, 0, 0, .45); font-size: 13.5px; line-height: 1.6; }
 .map-needed p { margin: 0; flex: 1; }
-.map-needed p button { margin: var(--sp-1) var(--sp-2) 0 0; padding: 1px var(--sp-4); border: 0; border-radius: var(--r-full); color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 14%, transparent); font: inherit; font-weight: 600; cursor: pointer; }
+.map-needed p :is(button, a) { display: inline-block; margin: var(--sp-1) var(--sp-2) 0 0; padding: 1px var(--sp-4); border: 0; border-radius: var(--r-full); color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 14%, transparent); font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
 .map-needed-close { flex: none; width: 26px; height: 26px; display: grid; place-items: center; padding: 0; border: 0; border-radius: var(--r-full); color: var(--muted); background: transparent; cursor: pointer; }
 .level-drawer .map-needed { position: absolute; bottom: 12px; width: calc(100% - 24px); }
 .map-pad { flex: none; width: 16px; height: 16px; display: grid; place-items: center; border-radius: var(--r-full); color: var(--paper); background: var(--paper); box-shadow: 0 0 0 2px var(--rule); }
@@ -554,6 +554,7 @@ level-ref, part-ref, wiki-ref { display: inline; }
 .parts-rules td { padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--hairline); }
 .parts-rules tr:last-child td { border-bottom: 1px solid var(--hairline); }
 .parts-rules code { font: 13px/1.5 var(--mono); overflow-wrap: anywhere; }
+.parts-setting { display: inline-block; margin: var(--sp-1) var(--sp-2) var(--sp-1) 0; padding: var(--sp-1) var(--sp-3); border: 1px solid var(--hairline); border-radius: var(--r-full); }
 
 /* Rows of rules to fill in (RuleRows.jsx): a card of rows, a head on top, then each row's name and its slots as
    buttons to press, each opening its editor beside it; the words that end a row, the button that adds a slot, the one

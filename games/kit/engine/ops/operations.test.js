@@ -17,15 +17,16 @@ import { withParts } from '../parts/define.js'
 import { taskLevel } from '../tasks.js'
 import { textKey } from '../i18n.js'
 import { writeContentFixture } from './fixture.js'
+import { TRAYS } from '../trays.js'
 
-const ERA = S.obj({ id: S.str(), ...COURSE_FIELDS })
+const ERA = S.obj({ id: S.str(), title: S.opt(S.text()), ...COURSE_FIELDS })
 const VOCAB = defineVocabulary({
   domain: 'toy',
   version: 1,
   kinds: { part: { a: { about: 'a' }, b: { about: 'b' }, c: { about: 'c' } } },
-  game: S.obj({ title: S.text(), eras: S.list(ERA), carry: S.opt(S.map(S.level())) }),
+  game: S.obj({ title: S.text(), eras: S.list(ERA), carry: S.opt(S.map(S.level())), trays: TRAYS }),
   // What a toy level says once is its whole puzzle; its one task is only its id.
-  level: taskLevel({ title: S.text(), brief: S.opt(S.text()), tests: S.opt(S.list(S.any())), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()), from: S.opt(S.level()) }, {}),
+  level: taskLevel({ title: S.text(), brief: S.opt(S.text()), tests: S.opt(S.list(S.any())), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()), from: S.opt(S.level()) }, {}, { parts: true }),
 })
 // The toy's course: the main path in order, every level requiring the one before.
 const DOMAIN = {
@@ -56,11 +57,11 @@ const run = (ws, op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: VOCAB
 const undone = (ws, inverse) => { for (const { op, ...args } of inverse) run(ws, op, args) }
 /** Runs op, checks its inverse restores the content exactly, and returns what it did (with the content after it). */
 function roundTrip(ws, op, args) {
-  const before = JSON.stringify(ws.content())
+  const before = ws.content()
   const done = run(ws, op, args)
   const after = ws.content()
   undone(ws, done.inverse)
-  assert.equal(JSON.stringify(ws.content()), before, `${op}: its inverse puts the content back`)
+  assert.deepEqual(ws.content(), before, `${op}: its inverse puts the content back`)
   run(ws, op, args)
   return { ...done, after }
 }
@@ -145,11 +146,33 @@ test('level.add puts a new level in; level.remove refuses while anything names t
   assert.deepEqual(ws.game.eras[1].links, [{ from: 'a3', to: 'b1' }])
 })
 
-test('game.set and game.unset edit game.json', () => {
+test('game.set and game.unset edit the assembled configuration', () => {
   const { ws } = toy()
   roundTrip(ws, 'game.set', { path: 'title', value: { en: '玩具' } })
   roundTrip(ws, 'game.unset', { path: 'carry' })
   assert.equal(ws.game.carry, undefined)
+})
+
+test('course and tray changes write to the package and retain other courses’ translations', async () => {
+  const { root } = toy()
+  const pkg = join(root, 'packages', 'toy')
+  const other = 'course.other.one.title'
+  writeFileSync(join(pkg, 'courses', 'other.json'), JSON.stringify({
+    eras: [{ id: 'one', title: `@${other}`, levels: [{ id: 'b1' }] }],
+  }))
+  const locale = join(pkg, 'i18n', 'en.json')
+  writeFileSync(locale, JSON.stringify({ ...JSON.parse(readFileSync(locale)), [other]: 'An alternate opening' }))
+
+  const ws = openGame('toy', root)
+  const result = await runChangeset(ws, { ops: [
+    { op: 'game.set', path: 'eras[0].title', value: { en: 'Opening' } },
+    { op: 'game.set', path: 'trays', value: { main: ['a', 'b'] } },
+  ] }, { write: true, check: false, domain: DOMAIN })
+  assert.equal(result.ok, true, result.problems.join('\n'))
+  assert.deepEqual(result.files.sort(), ['packages/toy/courses/main.json', 'packages/toy/i18n/en.json', 'packages/toy/trays.json'])
+  assert.deepEqual(JSON.parse(readFileSync(join(pkg, 'trays.json'))), { main: ['a', 'b'] })
+  assert.equal(JSON.parse(readFileSync(locale))[other], 'An alternate opening')
+  assert.equal(openGame('toy', root).game.eras[0].title.en, 'Opening')
 })
 
 test('text.set edits one language at a field path and round trips', () => {
@@ -342,20 +365,24 @@ test('the first part of a game makes its pieces.json', () => {
   assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum'])
 })
 
-test('piece.rename renames a part only the content names; renaming a task carries the inside references to it', () => {
+test('piece.rename renames a part only the content names; renaming tasks retains their publications', () => {
   const { ws } = toy()
   ws.levels.set('a1', { ...level(ws, 'a1'), solution: ['m = own-a1()', 'out <- m'] })
   const renamed = run(ws, 'piece.rename', { piece: 'own-a1', to: 'made' })
   assert.deepEqual(level(ws, 'a1').solution, ['m = made()', 'out <- m'])
   assert.throws(() => run(ws, 'piece.rename', { piece: 'none', to: 'x' }), /no part none/)
-  run(ws, 'piece.add', { piece: 'made', data: { name: 'M', desc: 'm', inside: [{ task: 'a1' }] } })
+  const inside = [{ id: 'base', reference: { solution: ['out <- in'] } }]
+  run(ws, 'piece.add', { piece: 'made', data: { name: 'M', desc: 'm', inside } })
+  const publishes = [{ piece: 'made', variant: 'base' }]
+  run(ws, 'level.set', { level: 'a1', path: ['tasks', 0, 'publishes'], value: publishes })
   run(ws, 'task.rename', { task: 'a1', to: 'a1x' })
-  assert.deepEqual(ws.partDefs.parts.made.inside, [{ task: 'a1x' }])
+  assert.deepEqual(ws.partDefs.parts.made.inside, inside)
   run(ws, 'level.rename', { level: 'a1', to: 'a0' })
-  assert.deepEqual(ws.partDefs.parts.made.inside, [{ task: 'a1x' }])
+  assert.deepEqual(ws.partDefs.parts.made.inside, inside)
   run(ws, 'task.rename', { task: 'a1x', to: 'a0' })
   run(ws, 'level.rename', { level: 'a0', to: 'a1' })
-  assert.deepEqual(ws.partDefs.parts.made.inside, [{ task: 'a1' }])
+  assert.deepEqual(ws.partDefs.parts.made.inside, inside)
+  assert.deepEqual(level(ws, 'a1').tasks[0].publishes, publishes)
   ws.partDefs = { parts: {} }
   undone(ws, renamed.inverse)
   assert.deepEqual(level(ws, 'a1').solution, ['m = own-a1()', 'out <- m'])

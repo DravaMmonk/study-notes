@@ -3,7 +3,8 @@
 // bench's model, a budget's check), the play order and the tree from its eras (../../course.js layout), each task with
 // the image domain's defaults, its level's palette in the order the player meets parts, the ways of drawing a picture
 // it has met so far, and the packed parts its solved circuits become (engine/own.js).
-import { defineCourse, eraLevels, holds, itemOf, layout, offer, reach, readItem } from '../../course.js'
+import { defineCourse, eraLevels, holds, itemOf, offer, reach, readItem } from '../../course.js'
+import { courseLayout } from '../../engine/course-dependencies.js'
 import { taskLevels } from '../../engine/tasks.js'
 import { builtPieces, publications } from '../../engine/pieces.js'
 import { trayIn } from '../../engine/trays.js'
@@ -78,19 +79,20 @@ function playable({ intro: _, ...task }, kit, keep) {
  * (engine/kit.js: NODE_TYPES and the parts its levels pack), so two courses read in one process never run each other's
  * packed parts. All of it is built anew: nothing that came from the content is written to.
  */
-export function imageCourse({ eras, levels, views = {}, primitives, trays, concept = {}, replaces = {}, mode, partDefs }) {
+export function imageCourse(config) {
+  const { eras, levels, views = {}, primitives, trays, concept = {}, replaces = {}, mode, partDefs } = config
   // A notes edition (games/DESIGN.md 12.1) opens every level.
   const notes = mode === 'notes'
-  const plan = layout(eras, { notes })
-  // Levels are read in play order: a task a built piece of pieces.json refers to makes that piece a part
-  // (engine/own.js) before the levels after it, whose boards may hold it, are read.
+  const plan = courseLayout(config)
+  // Register every package implementation before reading tasks that can place it.
   const content = Object.fromEntries(levels.map((level) => [level.id, level]))
   const definitions = imageDefinitions(partDefs)
   const { types } = definitions
   const kit = { ...imageKit(types), ...definitions }
   const pieces = builtPieces(partDefs)
   const published = new Map()
-  for (const p of publications(pieces)) published.set(p.task, [...(published.get(p.task) ?? []), p.type])
+  const implementations = publications(levels, pieces)
+  for (const { task, type } of implementations) if (task) published.set(task, [...(published.get(task) ?? []), type])
   // The circuits the player passed the publishing tasks with, by task id (syncOwn).
   const own = new Map()
   // The task that publishes each built piece, as played.
@@ -98,18 +100,26 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
   // Every level's tasks made playable, by level id.
   const played = new Map()
   const blueprints = []
+  const references = new Map()
+  for (const { type, task, reference } of implementations) {
+    if (references.has(type)) throw new Error(`image piece ${type} must have one implementation`)
+    const io = { inputs: reference.inputs ?? ['in'], outputs: reference.outputs ?? ['out'] }
+    let circuit
+    const board = () => (circuit ??= kit.fromText(reference.solution, io))
+    references.set(type, { task: { ...reference, ...io }, board })
+    types[type] = ownPart(io, type, pieces[type], () => own.get(task) ?? board(), types)
+  }
   for (const id of plan.order) {
     if (!content[id]) throw new Error(`route names a level that does not exist: ${id}`)
     const tasks = taskLevels(content[id]).map((task) => playable(task, kit, (bp) => blueprints.push({ level: id, task: task.task, key: task.taskId, ...bp })))
     played.set(id, tasks)
-    // A built piece runs the board of the task it refers to.
+    // A publishing task can supply the player's board over the reference implementation.
     for (const task of tasks) for (const type of published.get(task.taskId) ?? []) {
       if (task.kind !== 'graph') throw new Error(`pieces.json's ${type} runs task ${task.taskId}, a ${task.kind}, no circuit`)
-      types[type] = ownPart(task, type, pieces[type], () => own.get(task.taskId) ?? task.solution, types)
       builders.set(type, task)
     }
   }
-  for (const p of publications(pieces)) if (!builders.has(p.type)) throw new Error(`pieces.json's ${p.type} runs task ${p.task}, which no level has`)
+  for (const { board } of references.values()) board()
   const intros = Object.fromEntries(levels.map((level) => [level.id, level.intro]))
   const chapterOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era.id])))
   const { requires } = plan
@@ -137,7 +147,6 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
     const all = played.get(id).map((task, k) => read(id, task, tasks[k]))
     return { ...once, id, levelUnlocks: once.unlocks ?? [], kind: all.at(-1).kind, chapter: chapterOf.get(id), requires: requires.get(id) ?? [], adds: once.adds ?? [], unlocks: [...new Set([...(once.unlocks ?? []), ...all.flatMap((t) => t.unlocks)])], tasks: all }
   })
-  for (const level of levels) if (!placed.some((l) => l.id === level.id)) throw new Error(`level ${level.id} is not on the route`)
   const placedById = Object.fromEntries(placed.map((level) => [level.id, level]))
   const CHAPTERS = eras.map((era) => ({ id: era.id, ...era.chapter, track: plan.tracks.get(era.id) }))
 
@@ -173,10 +182,11 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
   // The flags a level's tasks up to task k have unlocked by then; its last task's passing unlocks the level's own.
   const unlockedBy = (level, k) => [...level.tasks.slice(0, k + 1).flatMap((task) => [...task.opens, ...(published.get(task.key) ?? [])]), ...(k === level.tasks.length - 1 ? level.levelUnlocks : [])]
   // Every task's answer counts: a part only the first task of a level uses is used.
-  const answers = (l) => placedById[l.id].tasks.map((t) => t.solution).filter((s) => s?.nodes)
+  const answers = (l) => placedById[l.id].tasks.filter((task, k) => l.task === undefined || l.task === k).map((t) => t.solution).filter((s) => s?.nodes)
   const course = defineCourse({
     levels: placed.map((l) => ({ id: l.id, unlocks: l.unlocks })),
     eras,
+    plan,
     trays,
     tray: (l) => trayIn(trays, placedById[l.id].tray),
     concept: (p) => concept[p] ?? p,
@@ -187,6 +197,7 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
     gives: (l) => itemsFor(placedById[l.id].grants),
     withholds: (l) => itemsFor(placedById[l.id].tasks[l.task]?.withhold),
     replaces: (p) => replaces[p] ?? [],
+    featured: (l) => [...(content[l.id].featuredParts ?? []), ...(content[l.id].tasks[l.task]?.featuredParts ?? [])],
     needed: (l) => (answers(l).length ? answers(l).flatMap((s) => s.nodes.map((n) => n.type)) : null),
     boards: answers,
     carries: (l) => content[l.id].carry ? [content[l.id].carry] : [],
@@ -212,5 +223,7 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
   const builtBy = (type) => (builders.has(type) ? levelById[builders.get(type).id].tasks[builders.get(type).task] : null)
   const publishedBy = (key) => published.get(key) ?? []
 
-  return { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn, holdsIn, syncOwn, builtBy, publishedBy, pieces, blueprints }
+  const referenceOf = (type) => references.get(type)?.task ?? null
+
+  return { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn, holdsIn, syncOwn, builtBy, referenceOf, publishedBy, pieces, blueprints }
 }

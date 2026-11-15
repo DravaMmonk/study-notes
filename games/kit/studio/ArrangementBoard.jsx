@@ -4,7 +4,7 @@ import { useElementSize } from '../views/useElementSize.js'
 import { usePointerSession } from '../views/usePointerSession.js'
 import { boardGeometry, linkKey, wireCurve } from './arrangement.js'
 
-export default function ArrangementBoard({ board, label, describe, active, picked, wire, pending, onLevel, onPick, onWire, onConnect, onCancel }) {
+export default function ArrangementBoard({ board, label, describe, active, picked, wire, pending, isExternal, onLevel, onPick, onWire, onConnect, onCancel }) {
   const scroller = useRef(null)
   const canvas = useRef(null)
   const width = useElementSize(scroller)?.width ?? 520
@@ -79,7 +79,7 @@ export default function ArrangementBoard({ board, label, describe, active, picke
             const name = `${describe(edge.from)} → ${describe(edge.to)}`
             const d = wireCurve(ports.get(edge.from).output, ports.get(edge.to).input)
             return (
-              <g key={key} className={wire === key ? 'is-picked' : active === edge.from || active === edge.to ? 'is-near' : ''}>
+              <g key={key} className={`${wire === key ? 'is-picked' : active === edge.from || active === edge.to ? 'is-near' : ''} ${edge.source === 'course' ? '' : 'is-derived'}`}>
                 <path className="course-wire-line" d={d} markerEnd="url(#course-wire-arrow)" />
                 <path className="course-wire-hit" d={d} role="button" tabIndex={0} aria-label={name}
                   onClick={() => onWire(edge)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onWire(edge) } }}>
@@ -99,7 +99,7 @@ export default function ArrangementBoard({ board, label, describe, active, picke
               {label(id)}
             </button>
             <button type="button" className={`course-port is-input ${(picked || drag) && (drag?.from ?? picked) !== id ? 'is-ready' : ''}`}
-              data-course-input={id} aria-label={`${tr('输入', 'Input')} ${id}`} title={tr('前置输入', 'Prerequisite input')} disabled={pending}
+              data-course-input={isExternal(id) ? undefined : id} aria-label={`${tr('输入', 'Input')} ${id}`} title={tr('前置输入', 'Prerequisite input')} disabled={pending || isExternal(id)}
               onClick={() => { if (picked) onConnect(picked, id); else onLevel(id) }} />
             <button type="button" className={`course-port is-output ${id === picked || id === drag?.from ? 'is-picked' : ''}`}
               aria-label={`${tr('输出', 'Output')} ${id}`} aria-pressed={id === picked} title={tr('后续输出', 'Successor output')}

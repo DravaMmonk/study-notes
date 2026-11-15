@@ -26,12 +26,12 @@ const sums = [{ inputs: { a: 5, b: 3 }, expect: { out: 8 } }, { inputs: { a: 1, 
 const differences = [{ inputs: { a: 5, b: 3 }, expect: { out: 2 } }, { inputs: { a: 1, b: 4 }, expect: { out: -3 } }]
 const task = (id, tests, how, more = {}) => ({ id, brief: text(id), ...ports, tests, solution: [`c = calc[how=${how}](a, b)`, 'out <- c'], ...more })
 const level = (id, tasks, more = {}) => [id, { title: text(id), tasks, ...more }]
-const course = (levels) => definedCourse(assemble({
+const course = (levels, definitions = partDefs) => definedCourse(assemble({
   id: 't',
   game: { domain: 't', vocabulary: 1, title: text('t'), kicker: text('t'), lede: text('t'), primitives: ['calc'], eras: [{ id: 1, title: text('一'), question: text('？'), levels: levels.map(([id]) => ({ id })), links: levels.slice(1).map(([to], i) => ({ from: levels[i][0], to })) }] },
   levels,
   glossary: { groups: [], entries: [] },
-  partDefs,
+  partDefs: definitions,
 }), { board: flowBoard(), ops: OPS })
 const failures = (read) => {
   const { runLevel, entries } = onceRun({})
@@ -62,8 +62,12 @@ test('a task gives and withholds a value for itself alone, and its answer keeps 
   // Two is given the way to subtract before three brings it in; one has not got it.
   assert.deepEqual(['one', 'two', 'three', 'four'].map((id) => has(id)('calc', 'how', 'minus')), [false, true, true, true])
   assert.deepEqual(failures(read), [])
-  // Without the gift, two's answer sets a value it does not hold; four cannot subtract once that is withheld.
-  assert.match(failures(course(levels(task('two', differences, 'minus'), task('three', differences, 'minus')))).join('\n'), /two: .*sets calc’s how to minus, which the level does not hold/)
+  // A task cannot use a value opened by a later task of its own level.
+  const premature = course([
+    level('one', [task('one', sums, 'plus')], { adds: ['calc'] }),
+    level('two', [task('two-a', differences, 'minus'), task('two-b', differences, 'minus', { opens: ['calc.how=minus'] })]),
+  ])
+  assert.match(failures(premature).join('\n'), /two: .*sets calc’s how to minus, which the level does not hold/)
   const kept = course([...levels(task('two', sums, 'plus'), task('three', differences, 'minus')).slice(0, 3), level('four', [task('four', sums, 'plus', { withhold: ['calc.how=minus'] })])])
   assert.deepEqual([kept.holdsIn(kept.played.get('four')[0], [])('calc', 'how', 'minus'), kept.holdsIn(kept.played.get('four')[0], [])('calc', 'how', 'plus')], [false, true])
   assert.deepEqual(failures(kept), [])
@@ -77,4 +81,14 @@ test('an item a task names is one of the game’s: a part, a setting of several 
     'one: opens names calc.how=times: times is no value of calc’s how',
     'one: it opens calc, a part: a part is brought in by adds',
   ])
+})
+
+test('a packaged circuit runs even when no task publishes it', () => {
+  const reference = { ...ports, solution: ['c = calc[how=plus](a, b)', 'out <- c'] }
+  const read = course([
+    level('one', [task('one', sums, 'plus', { solution: ['w = wrapped(a, b)', 'out <- w'] })], { adds: ['calc', 'wrapped'] }),
+  ], { ...partDefs, parts: { ...partDefs.parts, wrapped: { name: text('wrapped'), desc: text('wrapper'), inside: [{ id: 'base', reference }] } } })
+  assert.deepEqual(read.wrong, [])
+  assert.deepEqual(failures(read), [])
+  assert.equal(read.builtBy('wrapped'), null)
 })

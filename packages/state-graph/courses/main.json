@@ -1,0 +1,207 @@
+{
+  "primitives": ["msum", "mmin", "mmax", "many", "const", "pass", "block", "add", "not", "mul"],
+  "concept": { "const": "pass", "many": "msum" },
+  "eras": [
+    {
+      "id": "paper",
+      "machine": null,
+      "chapter": { "title": "@course.eras.paper.chapter.title", "desc": "@course.eras.paper.chapter.desc" },
+      "levels": [{ "id": "trace" }, { "id": "lastStep" }, { "id": "city" }],
+      "links": [{ "from": "trace", "to": "lastStep" }, { "from": "lastStep", "to": "city" }]
+    },
+    {
+      "id": "scout",
+      "machine": "scout",
+      "chapter": { "title": "@course.eras.scout.chapter.title", "desc": "@course.eras.scout.chapter.desc" },
+      "levels": [
+        { "id": "copy" },
+        { "id": "confluence" },
+        { "id": "stamp" },
+        { "id": "rocks" },
+        { "id": "cheapest" },
+        { "id": "reach" },
+        { "id": "slantcost" },
+        { "id": "slant" },
+        { "id": "maxcoins" },
+        { "id": "pascal" },
+        { "id": "pits" },
+        { "id": "seamline", "optional": true },
+        { "id": "seamslant", "optional": true },
+        { "id": "seam", "optional": true },
+        { "id": "carve", "optional": true },
+        { "id": "lawn", "optional": true }
+      ],
+      "links": [
+        { "from": "city", "to": "copy" },
+        { "from": "copy", "to": "confluence" },
+        { "from": "confluence", "to": "stamp" },
+        { "from": "stamp", "to": "rocks" },
+        { "from": "rocks", "to": "reach" },
+        { "from": "stamp", "to": "cheapest" },
+        { "from": "cheapest", "to": "slantcost" },
+        { "from": "reach", "to": "slant" },
+        { "from": "slantcost", "to": "slant" },
+        { "from": "slant", "to": "pascal" },
+        { "from": "reach", "to": "maxcoins" },
+        { "from": "slantcost", "to": "maxcoins" },
+        { "from": "pascal", "to": "pits" },
+        { "from": "maxcoins", "to": "pits" },
+        { "from": "slantcost", "to": "seamline" },
+        { "from": "seamline", "to": "seamslant", "required": true },
+        { "from": "seamslant", "to": "seam", "required": true },
+        { "from": "seam", "to": "carve", "required": true },
+        { "from": "pascal", "to": "lawn" }
+      ]
+    },
+    {
+      "id": "ranger",
+      "machine": "ranger",
+      "chapter": { "title": "@course.eras.ranger.chapter.title", "desc": "@course.eras.ranger.chapter.desc" },
+      "levels": [
+        { "id": "stairs" },
+        { "id": "order" },
+        { "id": "nim" },
+        { "id": "link" },
+        { "id": "lcs" },
+        { "id": "palin" },
+        { "id": "brokenstairs" },
+        { "id": "lps" },
+        { "id": "replace", "optional": true },
+        { "id": "edit", "optional": true },
+        { "id": "spell", "optional": true },
+        { "id": "parity", "optional": true },
+        { "id": "localalign", "optional": true },
+        { "id": "piles", "optional": true }
+      ],
+      "links": [
+        { "from": "pits", "to": "stairs" },
+        { "from": "stairs", "to": "order" },
+        { "from": "stairs", "to": "nim" },
+        { "from": "order", "to": "link" },
+        { "from": "nim", "to": "link" },
+        { "from": "link", "to": "lcs" },
+        { "from": "lcs", "to": "palin" },
+        { "from": "palin", "to": "brokenstairs" },
+        { "from": "palin", "to": "lps" },
+        { "from": "lcs", "to": "replace" },
+        { "from": "replace", "to": "edit", "required": true },
+        { "from": "edit", "to": "spell", "required": true },
+        { "from": "nim", "to": "parity" },
+        { "from": "lcs", "to": "localalign" },
+        { "from": "nim", "to": "piles" }
+      ]
+    },
+    {
+      "id": "reach",
+      "machine": "reach",
+      "chapter": { "title": "@course.eras.reach.chapter.title", "desc": "@course.eras.reach.chapter.desc" },
+      "levels": [
+        { "id": "frog" },
+        { "id": "frogfar" },
+        { "id": "tagging" },
+        { "id": "safefrog" },
+        { "id": "forward" },
+        { "id": "pack", "optional": true },
+        { "id": "knaptable", "optional": true },
+        { "id": "knapmany", "optional": true },
+        { "id": "knapmix", "optional": true },
+        { "id": "coinways", "optional": true },
+        { "id": "roll", "optional": true }
+      ],
+      "links": [
+        { "from": "brokenstairs", "to": "frog" },
+        { "from": "lps", "to": "frog" },
+        { "from": "frog", "to": "frogfar" },
+        { "from": "frogfar", "to": "safefrog" },
+        { "from": "frog", "to": "tagging" },
+        { "from": "tagging", "to": "forward" },
+        { "from": "frogfar", "to": "pack" },
+        { "from": "pack", "to": "knaptable", "required": true },
+        { "from": "knaptable", "to": "knapmany", "required": true },
+        { "from": "knapmany", "to": "knapmix", "required": true },
+        { "from": "knapmany", "to": "coinways", "required": true },
+        { "from": "knapmix", "to": "roll", "required": true }
+      ]
+    },
+    {
+      "id": "broom",
+      "machine": "broom",
+      "chapter": { "title": "@course.eras.broom.chapter.title", "desc": "@course.eras.broom.chapter.desc" },
+      "levels": [
+        { "id": "prefix" },
+        { "id": "rising" },
+        { "id": "stones" },
+        { "id": "change" },
+        { "id": "twoorders" },
+        { "id": "parse" },
+        { "id": "wordbreak", "optional": true },
+        { "id": "wordcost", "optional": true },
+        { "id": "segment", "optional": true },
+        { "id": "maxsub", "optional": true }
+      ],
+      "links": [
+        { "from": "safefrog", "to": "prefix" },
+        { "from": "forward", "to": "prefix" },
+        { "from": "prefix", "to": "rising" },
+        { "from": "rising", "to": "stones" },
+        { "from": "stones", "to": "twoorders" },
+        { "from": "twoorders", "to": "parse" },
+        { "from": "rising", "to": "change" },
+        { "from": "rising", "to": "wordbreak" },
+        { "from": "wordbreak", "to": "wordcost", "required": true },
+        { "from": "wordcost", "to": "segment", "required": true },
+        { "from": "prefix", "to": "maxsub" }
+      ]
+    },
+    {
+      "id": "stack",
+      "machine": "stack",
+      "chapter": { "title": "@course.eras.stack.chapter.title", "desc": "@course.eras.stack.chapter.desc" },
+      "levels": [
+        { "id": "robber" },
+        { "id": "breach" },
+        { "id": "keydoor" },
+        { "id": "stock1" },
+        { "id": "cooldown" },
+        { "id": "twokeys", "optional": true },
+        { "id": "threekeys", "optional": true },
+        { "id": "enough", "optional": true },
+        { "id": "ring", "optional": true }
+      ],
+      "links": [
+        { "from": "parse", "to": "robber" },
+        { "from": "change", "to": "robber" },
+        { "from": "robber", "to": "breach" },
+        { "from": "breach", "to": "keydoor" },
+        { "from": "keydoor", "to": "stock1" },
+        { "from": "stock1", "to": "cooldown" },
+        { "from": "keydoor", "to": "twokeys" },
+        { "from": "twokeys", "to": "threekeys", "required": true },
+        { "from": "threekeys", "to": "enough", "required": true },
+        { "from": "robber", "to": "ring" }
+      ]
+    },
+    {
+      "id": "settle",
+      "machine": "loop",
+      "chapter": { "title": "@course.eras.settle.chapter.title", "desc": "@course.eras.settle.chapter.desc" },
+      "levels": [
+        { "id": "loop" },
+        { "id": "value" },
+        { "id": "arrows" },
+        { "id": "treasure", "optional": true },
+        { "id": "slip", "optional": true },
+        { "id": "ice", "optional": true }
+      ],
+      "links": [
+        { "from": "cooldown", "to": "loop" },
+        { "from": "loop", "to": "value" },
+        { "from": "value", "to": "arrows" },
+        { "from": "value", "to": "treasure" },
+        { "from": "treasure", "to": "slip", "required": true },
+        { "from": "slip", "to": "ice", "required": true }
+      ]
+    }
+  ],
+  "borrow": { "seam": "seam" }
+}

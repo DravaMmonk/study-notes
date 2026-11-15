@@ -24,7 +24,7 @@
 // of the field, every point from a source and taught somewhere, one point a slot, every point on the slot that needs
 // it and soon used again, nothing used before it is there, built parts used later, practice that shows a new facet,
 // series that do not depend on each other branched, abstraction rising. conformance(bp, content, spec) checks
-// a game's levels against its blueprint once they exist. erasOf(bp) is game.json's eras as the blueprint lays them out.
+// a game's levels against its blueprint once they exist. erasOf(bp) is the course's eras as the blueprint lays them out.
 import { firstText, isText, textEntries } from '../engine/i18n.js'
 import { S, validate } from '../engine/schema.js'
 import { layout } from '../course.js'
@@ -155,7 +155,7 @@ export const REPORTED = new Set(['bp-bare', 'bp-lonely', 'bp-heavy', 'bp-ladder'
 /** Every slot of the blueprint with its era and series, in the order the eras list them. */
 export const slotsOf = (bp) => bp.eras.flatMap((era) => era.series.flatMap((series) => series.slots.map((slot) => ({ ...slot, era, series }))))
 
-/** game.json's eras as the blueprint lays them out (games/kit/course.js layout). */
+/** The course's eras as the blueprint lays them out (games/kit/course.js layout). */
 export function erasOf(bp) {
   let ends = []
   return bp.eras.map((era) => {
@@ -444,8 +444,8 @@ export function renameSlot(bp, from, to) {
 /** The rules a game's levels are checked by against its blueprint (conformance). */
 export const CONFORMANCE_RULES = {
   'bp-levels': 'a slot has no level, or a level no slot',
-  'bp-eras': 'game.json’s eras are not the blueprint’s (npm run pipeline -- <game> eras prints them)',
-  'bp-primitives': 'game.json’s primitives are not the blueprint’s',
+  'bp-eras': 'the course’s eras differ from the blueprint (npm run pipeline -- <game> eras prints them)',
+  'bp-primitives': 'the course’s primitives differ from the blueprint',
   'bp-adds': 'a level adds other parts than its slot',
   'bp-builds': 'a level builds another part than its slot, or none',
   'bp-uses': 'a level’s reference answer leaves out a part its slot stands on',
@@ -475,9 +475,9 @@ export function conformance(bp, content, spec) {
   for (const s of slots) if (!levels.has(s.id)) say('bp-levels', s.id, 'the slot has no level')
   for (const id of levels.keys()) if (!slots.some((s) => s.id === id)) say('bp-levels', id, 'the level is in no slot')
   const plain = (v) => JSON.stringify(v, (_key, value) => isText(value) ? Object.fromEntries(textEntries(value)) : value)
-  if (plain(erasOf(bp)) !== plain(content.eras)) say('bp-eras', 'game.json', 'its eras differ from the blueprint’s')
+  if (plain(erasOf(bp)) !== plain(content.eras)) say('bp-eras', 'course.json', 'its eras differ from the blueprint’s')
   const prims = bp.primitives.map((p) => p.part).sort()
-  if (plain(prims) !== plain([...(content.primitives ?? [])].sort())) say('bp-primitives', 'game.json', `the blueprint has ${prims.join(', ')}`)
+  if (plain(prims) !== plain([...(content.primitives ?? [])].sort())) say('bp-primitives', 'course.json', `the blueprint has ${prims.join(', ')}`)
   const parts = new Set([...bp.primitives.map((p) => p.part), ...bp.built.map((b) => b.part)])
   const course = spec.course
   for (const s of slots) {

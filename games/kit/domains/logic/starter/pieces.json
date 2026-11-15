@@ -544,7 +544,16 @@
       "name": "@piece.gOr.name",
       "desc": "@piece.gOr.desc",
       "family": "gate",
-      "inside": [{ "task": "g-or" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "gates",
+            "solution": ["n1 = gNot(Rain)", "n2 = gNot(Wind)", "a = gAnd(n1, n2)", "n3 = gNot(a)", "out <- n3"],
+            "target": "Rain ∨ Wind"
+          }
+        }
+      ]
     },
     "formulaNot": {
       "editor": "strip",

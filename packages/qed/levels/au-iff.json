@@ -17,7 +17,8 @@
       "hint": [
         "@level.au-iff.tasks.au-iff_1.hint.0"
       ],
-      "solution": ["e = andE(p)", "a1 = arrow(e.left)", "a2 = arrow(e.right)", "c = andI(a1, a2)", "goal <- c"]
+      "solution": ["e = andE(p)", "a1 = arrow(e.left)", "a2 = arrow(e.right)", "c = andI(a1, a2)", "goal <- c"],
+      "publishes": [{ "piece": "iff", "variant": "elim" }]
     },
     {
       "id": "au-iff_2",
@@ -33,7 +34,8 @@
         "a2 = arrow[form=intro](e.right)",
         "c = andI(a1, a2)",
         "goal <- c"
-      ]
+      ],
+      "publishes": [{ "piece": "iff", "variant": "intro" }]
     },
     {
       "id": "au-iff_3",

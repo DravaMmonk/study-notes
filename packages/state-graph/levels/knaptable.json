@@ -220,7 +220,8 @@
         }
       ],
       "expected": [7, 46, 9],
-      "solution": ["a = add(view.upk, facts.value)", "m = mmax(view.up, a)", "cell <- m"]
+      "solution": ["a = add(view.upk, facts.value)", "m = mmax(view.up, a)", "cell <- m"],
+      "publishes": [{ "piece": "choose", "variant": "base" }]
     }
   ]
 }

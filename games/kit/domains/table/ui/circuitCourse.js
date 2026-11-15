@@ -23,7 +23,7 @@ export function robotCircuits(table) {
     name: part.name,
     desc: part.desc,
     opens: (params) => ({
-      level: builders[type],
+      level: builders[type] ?? part.artifact,
       circuit: withDesktopAnchors({
         ...part.board(),
         nodes: part.board().nodes.map((node) => part.setting === undefined || !model.hasValue(node.type)

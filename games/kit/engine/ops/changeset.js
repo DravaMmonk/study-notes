@@ -17,6 +17,8 @@ import { checkContent } from '../vocabulary.js'
 import { withParts } from '../parts/define.js'
 import { checkGame } from '../checks.js'
 import { domainOf } from '../content-node.js'
+import { courseLevelCount } from '../content.js'
+import { dependencyProblemsInProject } from '../project-dependencies.js'
 import { OPERATIONS } from './operations.js'
 import { hubCount } from './workspace.js'
 import { append, hashOf, headOf, readLog, withLock } from './log.js'
@@ -71,8 +73,14 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
 async function settle({ ws, changeset, domain, start, says, inverse, write, check, undoes, base, cache }) {
   const content = ws.content()
   // The hub's count goes with the change (workspace.js), so it is checked against the levels there are now.
-  const listed = hubCount(ws.hub, ws.id) === null ? null : ws.levels.size
-  const lines = check ? await checkGame(content, { domain, listed, cache }) : checkContent(domain, content).map((p) => ({ fail: true, text: `content: ${p.at}: ${p.says}` }))
+  const listed = hubCount(ws.hub, ws.id) === null ? null : courseLevelCount(content, ws.levels.size)
+  let lines
+  if (check) lines = await checkGame(content, { domain, listed, cache, root: ws.root })
+  else {
+    const wrong = checkContent(domain, content)
+    if (!wrong.length) wrong.push(...dependencyProblemsInProject(content, ws.root))
+    lines = wrong.map((p) => ({ fail: true, text: `content: ${p.at}: ${p.says}` }))
+  }
   const problems = lines.filter((l) => l.fail).map((l) => l.text)
   const changes = ws.changes()
   const diff = ws.diff()

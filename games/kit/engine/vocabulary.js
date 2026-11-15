@@ -24,11 +24,13 @@
 // displays the kernel's controls cannot draw.
 import { S, validate } from './schema.js'
 import { dependencyCycle, eraLevels, layout } from '../course.js'
+import { courseDependencies } from './course-dependencies.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { taskIdProblems, taskIdsOf } from './tasks.js'
 import { partProblems, withParts } from './parts/define.js'
+import { implementationProblems } from './parts/dependencies.js'
 import { makesPieces, PARTS_FILE } from './parts/schema.js'
-import { hasCatalogSource } from './content.js'
+import { configurationFiles, hasCatalogSource } from './content.js'
 import { catalogTextProblems } from './content-text.js'
 
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
@@ -136,7 +138,9 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, ...game } = content
   if (hasCatalogSource(content)) {
     const courseKeys = new Map(), packageKeys = new Map()
-    out.push(...catalogTextProblems(game, vocabulary.game, 'game.json', vocabulary, courseKeys))
+    for (const [file, value] of Object.entries(configurationFiles(game))) {
+      out.push(...catalogTextProblems(file === 'trays.json' ? { trays: value } : value, vocabulary.game, file, vocabulary, file === 'game.json' ? courseKeys : packageKeys))
+    }
     out.push(...catalogTextProblems(blueprint, BLUEPRINT, 'blueprint.json', vocabulary, courseKeys))
     out.push(...catalogTextProblems(glossary, GLOSSARY, 'glossary.json', vocabulary, packageKeys))
     out.push(...catalogTextProblems(parts, PARTS_FILE, 'pieces.json', vocabulary, packageKeys))
@@ -160,15 +164,17 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
     }
     for (const [e, era] of game.eras.entries()) {
       const local = new Set(eraLevels(era)), pairs = new Set()
-      for (const [k, { from, to }] of (era.links ?? []).entries()) {
+      for (const [k, { fromGame, from, to }] of (era.links ?? []).entries()) {
         const at = `game.json.eras[${e}].links[${k}]`
-        const key = JSON.stringify([from, to])
-        if (!placed.has(from) || !local.has(to)) out.push({ at, says: 'the source must be placed and the destination must be in this chapter' })
+        const key = JSON.stringify([fromGame, from, to])
+        if ((!fromGame && !placed.has(from)) || !local.has(to)) out.push({ at, says: 'the source must be placed and the destination must be in this chapter' })
         if (pairs.has(key)) out.push({ at, says: 'this prerequisite link is already present' })
         pairs.add(key)
       }
     }
-    const cycle = dependencyCycle(layout(game.eras).requires)
+    const dependencies = courseDependencies(content)
+    out.push(...dependencies.problems)
+    const cycle = dependencyCycle(layout(game.eras, { links: dependencies.links }).requires)
     if (cycle) out.push({ at: 'game.json.eras', says: `circular prerequisites: ${cycle.join(' → ')}` })
   }
   if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')
@@ -176,7 +182,10 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   out.push(...taskIdProblems(levels))
   add(validate(GLOSSARY, glossary, { vocabulary, levels: ids, names }), 'glossary.json')
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
-  if (parts !== undefined) out.push(...partProblems(parts, domainVocabulary, { tasks: taskIdsOf(levels) }))
+  if (parts !== undefined) {
+    const problems = partProblems(parts, domainVocabulary, { tasks: taskIdsOf(levels) })
+    out.push(...(problems.length ? problems : implementationProblems(parts)))
+  }
   else if (makesPieces(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'pieces.json', says: `the ${domainVocabulary.domain} domain's pieces are data: the game needs a pieces.json` })
   return out
 }

@@ -17,6 +17,16 @@ import { solutionStamp } from '../engine/stamp.js'
 /** The key a game's progress is saved under in this browser. */
 export const saveKey = (id) => `${id}.v2`
 
+/** Read another game's recorded level pass on the site's shared origin. */
+export function passedLevelIn(game, level) {
+  try {
+    const solved = JSON.parse(window.localStorage.getItem(saveKey(game)))?.solved
+    return Array.isArray(solved) && solved.includes(level)
+  } catch {
+    return false
+  }
+}
+
 /** How many levels of game `id` this browser has solved (the hub reads it; all games share the site's origin). */
 export function solvedCount(id) {
   try {

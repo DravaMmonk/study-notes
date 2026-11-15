@@ -9,11 +9,11 @@
 // notation formula.js and schematic.js read; a board is blueprint text (blueprint.js).
 
 import { symbolFor } from './stripPieces.js'
-import { COURSE_FIELDS, COURSE_SCHEMA_REMOVAL } from '../../engine/course-schema.js'
+import { COURSE_FIELDS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
-import { TRAY, TRAYS } from '../../engine/trays.js'
+import { TRAY, TRAYS, TRAY_SCHEMA_CHANGE } from '../../engine/trays.js'
 import { RULES } from './proof.js'
 import { OP_ITEMS } from './ops.js'
 import { T as t } from '../../shell/i18n.js'
@@ -223,7 +223,7 @@ const TASK = S.by('kind', Object.fromEntries(Object.entries(BY_KIND).map(([kind,
 })])))
 // A level: its title, introduction and pass text, its place in the course, what its tasks share (how they read, a
 // declaration's sentence and cases), then its tasks.
-const LEVEL = taskLevel({ title: S.text(), intro: S.opt(INTRO), after: AFTER_TEXT, ...COURSE, ...READING, ...opts(ISO) }, TASK)
+const LEVEL = taskLevel({ title: S.text(), intro: S.opt(INTRO), after: AFTER_TEXT, ...COURSE, ...READING, ...opts(ISO) }, TASK, { parts: true })
 
 /* ---------- game.json ---------- */
 
@@ -249,8 +249,8 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 11,
-  removes: [COURSE_SCHEMA_REMOVAL],
+  version: 12,
+  removes: [TRAY_SCHEMA_CHANGE],
   kinds: {
     part: PART_ITEMS,
     // The engine resources pieces.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).

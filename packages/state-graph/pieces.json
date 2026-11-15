@@ -6,93 +6,420 @@
     "counter": {
       "name": "@piece.counter.name",
       "desc": "@piece.counter.desc",
-      "inside": [{ "task": "stamp" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": [
+              "k = const[value=1]()",
+              "g = pass(facts.start, k)",
+              "m = msum(view.up, view.left, g)",
+              "cell <- m"
+            ],
+            "world": "grid",
+            "robot": "scout",
+            "ports": [
+              { "way": { "n": 1, "sensor": "up" } },
+              { "way": { "n": 2, "sensor": "left" } },
+              { "start": { "sensor": "start" } }
+            ],
+            "facts": ["start"]
+          }
+        }
+      ]
     },
     "order": {
       "name": "@piece.order.name",
       "desc": "@piece.order.desc",
-      "inside": [{ "task": "order" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": ["c = counter(view.right, view.down, facts.end)", "cell <- c"],
+            "world": "grid",
+            "robot": "ranger",
+            "facts": ["start", "end"]
+          }
+        }
+      ]
     },
     "min": {
       "name": "@piece.min.name",
       "desc": "@piece.min.desc",
-      "inside": [{ "task": "slantcost" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": [
+              "m = mmin(view.left, view.ul, way3)",
+              "k = const[value=0]()",
+              "g = pass(facts.start, k)",
+              "s = mmin(m, g)",
+              "a = add(s, facts.cost)",
+              "cell <- a"
+            ],
+            "world": "grid",
+            "robot": "scout",
+            "ports": [
+              { "way": { "n": 1, "sensor": "left" } },
+              { "way": { "n": 2, "sensor": "ul" } },
+              { "start": { "sensor": "start" } },
+              {
+                "named": {
+                  "label": "cost",
+                  "short": "cost",
+                  "sensor": "cost"
+                }
+              },
+              { "way": { "n": 3, "input": "way3" } }
+            ],
+            "facts": ["start", "cost"]
+          }
+        }
+      ]
     },
     "layer": {
       "name": "@piece.layer.name",
       "desc": "@piece.layer.desc",
-      "inside": [{ "task": "robber_2" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": [
+              "n = mmax(view.pn, view.pr)",
+              "a = add(view.pn, facts.money)",
+              "b = mmax(n, a)",
+              "no <- n",
+              "yes <- a",
+              "best <- b"
+            ],
+            "world": "rob2",
+            "robot": "stack",
+            "facts": ["money"]
+          }
+        }
+      ]
     },
     "align": {
       "name": "@piece.align.name",
       "desc": "@piece.align.desc",
-      "inside": [{ "task": "lcs" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": [
+              "k = const[value=1]()",
+              "a = add(view.ul, k)",
+              "g = pass(facts.same, a)",
+              "m = mmax(view.up, view.left, g)",
+              "cell <- m"
+            ],
+            "world": "align",
+            "robot": "ranger",
+            "facts": ["same"]
+          }
+        }
+      ]
     },
     "cost": {
       "name": "@piece.cost.name",
       "desc": "@piece.cost.desc",
-      "inside": [{ "task": "edit" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": [
+              "k = const[value=1]()",
+              "n = mmin(view.up, view.left, view.ul)",
+              "z = const[value=0]()",
+              "g1 = pass(facts.same, view.ul)",
+              "a = add(n, k)",
+              "g0 = pass(facts.start, z)",
+              "m = mmin(a, g1, g0)",
+              "cell <- m"
+            ],
+            "world": "align",
+            "robot": "ranger",
+            "ports": [
+              { "reads": "ul" },
+              { "reads": "up" },
+              { "reads": "left" },
+              { "reads": "same" },
+              { "reads": "start" }
+            ],
+            "facts": ["same", "start"]
+          }
+        }
+      ]
     },
     "choose": {
       "name": "@piece.choose.name",
       "desc": "@piece.choose.desc",
-      "inside": [{ "task": "knaptable" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": ["a = add(view.upk, facts.value)", "m = mmax(view.up, a)", "cell <- m"],
+            "world": "knap",
+            "robot": "reach",
+            "ports": [
+              {
+                "named": {
+                  "label": "up",
+                  "short": "up",
+                  "sensor": "up"
+                }
+              },
+              {
+                "named": {
+                  "label": "upk",
+                  "short": "upk",
+                  "sensor": "upk"
+                }
+              },
+              {
+                "named": {
+                  "label": "value",
+                  "short": "value",
+                  "sensor": "value"
+                }
+              }
+            ],
+            "facts": ["value"]
+          }
+        }
+      ]
     },
     "roll": {
       "name": "@piece.roll.name",
       "desc": "@piece.roll.desc",
-      "inside": [{ "task": "roll" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": ["a = add(view.src, facts.value)", "m = mmax(view.old, a)", "cell <- m"],
+            "world": "roll",
+            "robot": "reach",
+            "facts": ["value"],
+            "dirs": { "01": "desc", "inf": "asc" }
+          }
+        }
+      ]
     },
     "judge": {
       "name": "@piece.judge.name",
       "desc": "@piece.judge.desc",
-      "inside": [{ "task": "piles" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": [
+              "a = not(view.up)",
+              "b = not(view.left)",
+              "c = not(view.ul)",
+              "m = many(a, b, c)",
+              "cell <- m"
+            ],
+            "world": "piles",
+            "robot": "ranger"
+          }
+        }
+      ]
     },
     "sweep": {
       "name": "@piece.sweep.name",
       "desc": "@piece.sweep.desc",
-      "inside": [{ "task": "prefix_2" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": ["a = add(view.prev, facts.money)", "cell <- a"],
+            "world": "prefix",
+            "robot": "broom",
+            "facts": ["money"]
+          }
+        }
+      ]
     },
     "wordbreak": {
       "name": "@piece.wordbreak.name",
       "desc": "@piece.wordbreak.desc",
-      "inside": [{ "task": "wordbreak" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": [
+              "a = add(view.seg, view.cost)",
+              "z = const[value=0]()",
+              "g = pass(facts.ground, z)",
+              "m = mmin(a, g)",
+              "cell <- m"
+            ],
+            "world": "pieces",
+            "robot": "broom",
+            "facts": ["ground"]
+          }
+        }
+      ]
     },
     "interval": {
       "name": "@piece.interval.name",
       "desc": "@piece.interval.desc",
-      "inside": [{ "task": "stones" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": [
+              "a = add(view.segL, view.segR)",
+              "m = mmin(a)",
+              "b = add(m, facts.weight)",
+              "cell <- b"
+            ],
+            "world": "interval",
+            "robot": "broom",
+            "ports": [{ "reads": "segL" }, { "reads": "segR" }, { "reads": "weight" }],
+            "facts": ["weight"]
+          }
+        }
+      ]
     },
     "anyorder": {
       "name": "@piece.anyorder.name",
       "desc": "@piece.anyorder.desc",
-      "inside": [{ "task": "twoorders_2" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": ["c = interval(view.segL, view.segR, facts.weight)", "cell <- c"],
+            "world": "interval",
+            "robot": "broom",
+            "facts": ["weight"]
+          }
+        }
+      ]
     },
     "value": {
       "name": "@piece.value.name",
       "desc": "@piece.value.desc",
-      "inside": [{ "task": "value" }],
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": [
+              "a = mmax(view.up, view.down, view.left)",
+              "k = const[value=0.9]()",
+              "b = mmax(a, view.right)",
+              "x = mul(b, k)",
+              "cell <- x"
+            ],
+            "world": "vgrid",
+            "robot": "loop",
+            "ports": [
+              { "way": { "n": 1, "sensor": "up" } },
+              { "way": { "n": 2, "sensor": "down" } },
+              { "way": { "n": 3, "sensor": "left" } },
+              { "way": { "n": 4, "sensor": "right" } }
+            ]
+          }
+        }
+      ],
       "settings": [{"key": "value", "setting": "value_value"}]
     },
     "expect": {
       "name": "@piece.expect.name",
       "desc": "@piece.expect.desc",
-      "inside": [{ "task": "slip" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": [
+              "k8 = const[value=0.8]()",
+              "k2 = const[value=0.2]()",
+              "k9 = const[value=0.9]()",
+              "a = mul(k8, view.right)",
+              "b = mul(k2, view.down)",
+              "c = mul(k8, view.down)",
+              "d = mul(k2, view.right)",
+              "p = add(a, b)",
+              "q = add(c, d)",
+              "m = mmax(p, q)",
+              "x = mul(m, k9)",
+              "cell <- x"
+            ],
+            "world": "vgrid",
+            "robot": "loop",
+            "facts": ["slip", "grip"]
+          }
+        }
+      ]
     },
     "viterbi": {
       "name": "@piece.viterbi.name",
       "desc": "@piece.viterbi.desc",
-      "inside": [{ "task": "tagging" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": [
+              "a = add(view.pN, facts.tN)",
+              "b = add(view.pV, facts.tV)",
+              "c = add(view.pA, facts.tA)",
+              "m = mmin(a, b, c)",
+              "e = add(m, facts.emit)",
+              "cell <- e"
+            ],
+            "world": "tags",
+            "robot": "reach",
+            "facts": ["tN", "tV", "tA", "emit"]
+          }
+        }
+      ]
     },
     "local": {
       "name": "@piece.local.name",
       "desc": "@piece.local.desc",
-      "inside": [{ "task": "localalign" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "mode": "circuit",
+            "solution": [
+              "a = add(view.ul, facts.score)",
+              "k = const[value=-1]()",
+              "z = const[value=0]()",
+              "b = add(view.up, k)",
+              "c = add(view.left, k)",
+              "m = mmax(a, b, c)",
+              "n = mmax(m, z)",
+              "cell <- n"
+            ],
+            "world": "local",
+            "robot": "ranger",
+            "facts": ["score"]
+          }
+        }
+      ]
     },
     "seam": {
       "name": "@piece.seam.name",
       "desc": "@piece.seam.desc",
-      "inside": [{ "task": "carve" }]
+      "inside": [{ "id": "base", "reference": { "mode": "seam" } }]
     }
   }
 }

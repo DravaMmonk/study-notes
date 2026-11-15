@@ -50,7 +50,8 @@
         "m = arith[op=mul](u, e)",
         "out <- m"
       ],
-      "naive": ["u = tconv(small)", "out <- u"]
+      "naive": ["u = tconv(small)", "out <- u"],
+      "publishes": [{ "piece": "unpool", "variant": "base" }]
     }
   ]
 }

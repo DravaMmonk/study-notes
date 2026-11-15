@@ -32,7 +32,8 @@
         "  }",
         "}",
         "goal <- g"
-      ]
+      ],
+      "publishes": [{ "piece": "dm", "variant": "notEx" }]
     },
     {
       "id": "q-dm_2",
@@ -56,7 +57,8 @@
         "  }",
         "}",
         "goal <- f"
-      ]
+      ],
+      "publishes": [{ "piece": "dm", "variant": "allNot" }]
     },
     {
       "id": "q-dm_3",
@@ -80,7 +82,8 @@
         "  }",
         "}",
         "goal <- f"
-      ]
+      ],
+      "publishes": [{ "piece": "dm", "variant": "exNot" }]
     },
     {
       "id": "q-dm_4",
@@ -112,7 +115,9 @@
         "}",
         "r2 = raa(k)",
         "goal <- r2"
-      ]
+      ],
+      "publishes": [{ "piece": "dm", "variant": "notAll" }]
     }
-  ]
+  ],
+  "pieceRevisions": [{ "piece": "dm", "desc": "@piece.dm.revisions.0.desc" }]
 }

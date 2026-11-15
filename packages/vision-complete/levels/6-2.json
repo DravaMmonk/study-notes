@@ -54,7 +54,8 @@
         "m = arith[op=mul](eq, big)",
         "out <- m"
       ],
-      "naive": ["big = threshold[t=0.3](in)", "out <- big"]
+      "naive": ["big = threshold[t=0.3](in)", "out <- big"],
+      "publishes": [{ "piece": "peaks", "variant": "base" }]
     }
   ]
 }

@@ -106,7 +106,8 @@
         "s = mmin(m, g)",
         "a = add(s, facts.cost)",
         "cell <- a"
-      ]
+      ],
+      "publishes": [{ "piece": "min", "variant": "base" }]
     }
   ]
 }

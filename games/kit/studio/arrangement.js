@@ -1,7 +1,33 @@
 // The board always connects individual levels.
 import { dependencyCycle, dependencyLayers } from '../course.js'
 
+export const externalPort = (game, id) => `${game}:${id}`
+
 export const linkKey = ({ from, to }) => JSON.stringify([from, to])
+
+/** Render one wire per pair while retaining every reason the prerequisite exists. */
+export function projectWires(links) {
+  const byPair = new Map()
+  for (const link of links) {
+    const edge = link.fromGame ? { ...link, fromLevel: link.from, from: externalPort(link.fromGame, link.from) } : link
+    const key = linkKey(edge)
+    const previous = byPair.get(key)
+    const causes = [...(previous?.causes ?? []), { source: edge.source, detail: edge.detail }]
+    const shown = !previous || edge.source === 'course' ? edge : previous
+    byPair.set(key, { ...shown, causes, required: previous?.required || edge.required })
+  }
+  return [...byPair.values()]
+}
+
+/** Describe induced changes in the effective graph while the author edits a course. */
+export function implicitWireChanges(before, after) {
+  const identity = (edge) => `${linkKey(edge)}:${Boolean(edge.required)}`
+  const diff = (one, other) => {
+    const known = new Set(other.map(identity))
+    return one.filter((edge) => edge.causes.some(({ source }) => source === 'reference') && !known.has(identity(edge)))
+  }
+  return { added: diff(after, before), removed: diff(before, after) }
+}
 
 export function wiringBoard(levelIds, pins, requires, links) {
   const inside = new Set(levelIds)

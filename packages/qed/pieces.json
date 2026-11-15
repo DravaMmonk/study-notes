@@ -191,12 +191,6 @@
     "mp": {
       "name": "@piece.mp.name",
       "desc": "@piece.mp.desc",
-      "revisions": [
-        {
-          "at": "bot",
-          "desc": "@piece.mp.revisions.0.desc"
-        }
-      ],
       "icon": "GitFork",
       "family": "rule",
       "inputs": [
@@ -229,12 +223,6 @@
     "andE": {
       "name": "@piece.andE.name",
       "desc": "@piece.andE.desc",
-      "revisions": [
-        {
-          "at": "iffUse",
-          "desc": "@piece.andE.revisions.0.desc"
-        }
-      ],
       "icon": "GitFork",
       "family": "rule",
       "inputs": [{ "name": "ab", "label": "@piece.andE.inputs.0.label" }],
@@ -430,12 +418,6 @@
     "uDecompose": {
       "name": "@piece.uDecompose.name",
       "desc": "@piece.uDecompose.desc",
-      "revisions": [
-        {
-          "at": "r-pattern",
-          "desc": "@piece.uDecompose.revisions.0.desc"
-        }
-      ],
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
@@ -460,12 +442,6 @@
     "uCheck": {
       "name": "@piece.uCheck.name",
       "desc": "@piece.uCheck.desc",
-      "revisions": [
-        {
-          "at": "r-pattern",
-          "desc": "@piece.uCheck.revisions.0.desc"
-        }
-      ],
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
@@ -490,12 +466,6 @@
     "repeat": {
       "name": "@piece.repeat.name",
       "desc": "@piece.repeat.desc",
-      "revisions": [
-        {
-          "at": "s-results",
-          "desc": "@piece.repeat.revisions.0.desc"
-        }
-      ],
       "icon": "Repeat",
       "family": "loop",
       "inputs": [{ "name": "in" }],
@@ -515,12 +485,6 @@
     "assumption": {
       "name": "@piece.assumption.name",
       "desc": "@piece.assumption.desc",
-      "revisions": [
-        {
-          "at": "s-results",
-          "desc": "@piece.assumption.revisions.0.desc"
-        }
-      ],
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
@@ -537,12 +501,6 @@
     "append": {
       "name": "@piece.append.name",
       "desc": "@piece.append.desc",
-      "revisions": [
-        {
-          "at": "s-results",
-          "desc": "@piece.append.revisions.0.desc"
-        }
-      ],
       "icon": "Box",
       "family": "loop",
       "inputs": [{ "name": "in" }],
@@ -579,12 +537,6 @@
     "rw": {
       "name": "@piece.rw.name",
       "desc": "@piece.rw.desc",
-      "revisions": [
-        {
-          "at": "au-hyps",
-          "desc": "@piece.rw.revisions.0.desc"
-        }
-      ],
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }, { "name": "rules", "label": "@piece.rw.inputs.1.label" }],
@@ -636,54 +588,178 @@
       "name": "@piece.gOr.name",
       "desc": "@piece.gOr.desc",
       "family": "gate",
-      "inside": [{ "task": "g-or" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "gates",
+            "solution": ["n1 = gNot(Rain)", "n2 = gNot(Wind)", "a = gAnd(n1, n2)", "n3 = gNot(a)", "out <- n3"],
+            "target": "Rain ∨ Wind"
+          }
+        }
+      ]
     },
     "gImp": {
       "name": "@piece.gImp.name",
       "desc": "@piece.gImp.desc",
       "family": "gate",
-      "inside": [{ "task": "g-imp" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "gates",
+            "solution": ["n = gNot(Rain)", "o = gOr(n, Wet)", "out <- o"],
+            "target": "Rain → Wet"
+          }
+        }
+      ]
     },
     "gIff": {
       "name": "@piece.gIff.name",
       "desc": "@piece.gIff.desc",
       "family": "gate",
-      "inside": [{ "task": "g-iff" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "gates",
+            "solution": ["i1 = gImp(Rain, Wet)", "i2 = gImp(Wet, Rain)", "a = gAnd(i1, i2)", "out <- a"],
+            "target": "(Rain → Wet) ∧ (Wet → Rain)"
+          }
+        }
+      ]
     },
     "axK": {
       "name": "@piece.axK.name",
       "desc": "@piece.axK.desc",
       "family": "lemma",
       "settings": [{"key": "A", "setting": "axK_A"}, {"key": "B", "setting": "axK_B"}],
-      "inside": [{ "task": "k_2" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "f = impI[A=A](body: g) {",
+              "  body {",
+              "    g = impI[A=B](body: f.body)",
+              "  }",
+              "}",
+              "goal <- f"
+            ],
+            "tests": [{ "goal": "A → (B → A)" }]
+          }
+        }
+      ]
     },
     "axS": {
       "name": "@piece.axS.name",
       "desc": "@piece.axS.desc",
       "family": "lemma",
       "settings": [{"key": "A", "setting": "axS_A"}, {"key": "B", "setting": "axS_B"}, {"key": "C", "setting": "axS_C"}],
-      "inside": [{ "task": "s" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "f = impI[A=\"A -> (B -> C)\"](body: g) {",
+              "  body {",
+              "    g = impI[A=\"A -> B\"](body: h) {",
+              "      body {",
+              "        h = impI[A=A](body: m3) {",
+              "          body {",
+              "            m1 = mp(f.body, h.body)",
+              "            m2 = mp(g.body, h.body)",
+              "            m3 = mp(m1, m2)",
+              "          }",
+              "        }",
+              "      }",
+              "    }",
+              "  }",
+              "}",
+              "goal <- f"
+            ],
+            "tests": [{ "goal": "(A → (B → C)) → ((A → B) → (A → C))" }]
+          }
+        }
+      ]
     },
     "chain": {
       "name": "@piece.chain.name",
       "desc": "@piece.chain.desc",
       "family": "lemma",
       "settings": [{"key": "A", "setting": "chain_A"}, {"key": "B", "setting": "chain_B"}, {"key": "C", "setting": "chain_C"}],
-      "inside": [{ "task": "chain" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "f = impI[A=A](body: m2) {",
+              "  body {",
+              "    m1 = mp(p, f.body)",
+              "    m2 = mp(q, m1)",
+              "  }",
+              "}",
+              "goal <- f"
+            ],
+            "tests": [{ "goal": "A → C", "premises": { "p": "A → B", "q": "B → C" } }]
+          }
+        }
+      ]
     },
     "swap": {
       "name": "@piece.swap.name",
       "desc": "@piece.swap.desc",
       "family": "lemma",
       "settings": [{"key": "A", "setting": "swap_A"}, {"key": "B", "setting": "swap_B"}, {"key": "C", "setting": "swap_C"}],
-      "inside": [{ "task": "swap" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "f = impI[A=B](body: g) {",
+              "  body {",
+              "    g = impI[A=A](body: m2) {",
+              "      body {",
+              "        m1 = mp(p, g.body)",
+              "        m2 = mp(m1, f.body)",
+              "      }",
+              "    }",
+              "  }",
+              "}",
+              "goal <- f"
+            ],
+            "tests": [{ "goal": "B → (A → C)", "premises": { "p": "A → (B → C)" } }]
+          }
+        }
+      ]
     },
     "merge": {
       "name": "@piece.merge.name",
       "desc": "@piece.merge.desc",
       "family": "lemma",
       "settings": [{"key": "A", "setting": "merge_A"}, {"key": "B", "setting": "merge_B"}],
-      "inside": [{ "task": "twice" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "f = impI[A=A](body: m2) {",
+              "  body {",
+              "    m1 = mp(p, f.body)",
+              "    m2 = mp(m1, f.body)",
+              "  }",
+              "}",
+              "goal <- f"
+            ],
+            "tests": [{ "goal": "A → B", "premises": { "p": "A → (A → B)" } }]
+          }
+        }
+      ]
     },
     "dm": {
       "name": "@piece.dm.name",
@@ -691,19 +767,202 @@
       "family": "lemma",
       "settings": [{"key": "A", "setting": "dm_A"}, {"key": "B", "setting": "dm_B"}, {"key": "P", "setting": "dm_P"}],
       "inside": [
-        { "task": "demorgan_1", "form": "notOr", "label": "¬(A ∨ B) → ¬A ∧ ¬B" },
-        { "task": "demorgan_2", "form": "andNot", "label": "¬A ∧ ¬B → ¬(A ∨ B)" },
-        { "task": "demorgan_3", "form": "orNot", "label": "¬A ∨ ¬B → ¬(A ∧ B)" },
-        { "task": "demorgan_4", "form": "notAnd", "label": "¬(A ∧ B) → ¬A ∨ ¬B" },
-        { "task": "q-dm_1", "form": "notEx", "label": "¬∃x. P → ∀x. ¬P" },
-        { "task": "q-dm_2", "form": "allNot", "label": "∀x. ¬P → ¬∃x. P" },
-        { "task": "q-dm_3", "form": "exNot", "label": "∃x. ¬P → ¬∀x. P" },
-        { "task": "q-dm_4", "form": "notAll", "label": "¬∀x. P → ∃x. ¬P" }
-      ],
-      "revisions": [
         {
-          "by": "q-dm",
-          "desc": "@piece.dm.revisions.0.desc"
+          "id": "notOr",
+          "form": "notOr",
+          "label": "¬(A ∨ B) → ¬A ∧ ¬B",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "na = impI[A=A](body: m) {",
+              "  body {",
+              "    i = orI[other=B, side=right](na.body)",
+              "    m = mp(p, i)",
+              "  }",
+              "}",
+              "nb = impI[A=B](body: m2) {",
+              "  body {",
+              "    i2 = orI[other=A, side=left](nb.body)",
+              "    m2 = mp(p, i2)",
+              "  }",
+              "}",
+              "c = andI(na, nb)",
+              "goal <- c"
+            ],
+            "tests": [{ "goal": "¬A ∧ ¬B", "premises": { "p": "¬(A ∨ B)" } }]
+          }
+        },
+        {
+          "id": "andNot",
+          "form": "andNot",
+          "label": "¬A ∧ ¬B → ¬(A ∨ B)",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "f = impI[A=\"A | B\"](body: o) {",
+              "  body {",
+              "    o = orE(f.body, left: m1, right: m2) {",
+              "      left {",
+              "        m1 = mp(e.left, o.left)",
+              "      }",
+              "      right {",
+              "        m2 = mp(e.right, o.right)",
+              "      }",
+              "    }",
+              "  }",
+              "}",
+              "e = andE(p)",
+              "goal <- f"
+            ],
+            "tests": [{ "goal": "¬(A ∨ B)", "premises": { "p": "¬A ∧ ¬B" } }]
+          }
+        },
+        {
+          "id": "orNot",
+          "form": "orNot",
+          "label": "¬A ∨ ¬B → ¬(A ∧ B)",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "f = impI[A=\"A & B\"](body: o) {",
+              "  body {",
+              "    e = andE(f.body)",
+              "    o = orE(p, left: m1, right: m2) {",
+              "      left {",
+              "        m1 = mp(o.left, e.left)",
+              "      }",
+              "      right {",
+              "        m2 = mp(o.right, e.right)",
+              "      }",
+              "    }",
+              "  }",
+              "}",
+              "goal <- f"
+            ],
+            "tests": [{ "goal": "¬(A ∧ B)", "premises": { "p": "¬A ∨ ¬B" } }]
+          }
+        },
+        {
+          "id": "notAnd",
+          "form": "notAnd",
+          "label": "¬(A ∧ B) → ¬A ∨ ¬B",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "l = lem[A=A]()",
+              "e = orE(l, left: i1, right: i2) {",
+              "  left {",
+              "    g = impI[A=B](body: m) {",
+              "      body {",
+              "        c = andI(e.left, g.body)",
+              "        m = mp(p, c)",
+              "      }",
+              "    }",
+              "    i1 = orI[other=\"~A\", side=left](g)",
+              "  }",
+              "  right {",
+              "    i2 = orI[other=\"~B\", side=right](e.right)",
+              "  }",
+              "}",
+              "goal <- e"
+            ],
+            "tests": [{ "goal": "¬A ∨ ¬B", "premises": { "p": "¬(A ∧ B)" } }]
+          }
+        },
+        {
+          "id": "notEx",
+          "form": "notEx",
+          "label": "¬∃x. P → ∀x. ¬P",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "g = allI[x=a](body: f) {",
+              "  body {",
+              "    f = impI[A=\"P(a)\"](body: m) {",
+              "      body {",
+              "        i = exI(f.body)",
+              "        m = mp(p, i)",
+              "      }",
+              "    }",
+              "  }",
+              "}",
+              "goal <- g"
+            ],
+            "tests": [{ "goal": "∀x. ¬P(x)", "premises": { "p": "¬∃x. P(x)" } }]
+          }
+        },
+        {
+          "id": "allNot",
+          "form": "allNot",
+          "label": "∀x. ¬P → ¬∃x. P",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "f = impI[A=\"exists x. P(x)\"](body: e) {",
+              "  body {",
+              "    e = exE[x=a](f.body, body: m) {",
+              "      body {",
+              "        a = allE[t=a](p)",
+              "        m = mp(a, e.body)",
+              "      }",
+              "    }",
+              "  }",
+              "}",
+              "goal <- f"
+            ],
+            "tests": [{ "goal": "¬∃x. P(x)", "premises": { "p": "∀x. ¬P(x)" } }]
+          }
+        },
+        {
+          "id": "exNot",
+          "form": "exNot",
+          "label": "∃x. ¬P → ¬∀x. P",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "f = impI[A=\"forall x. P(x)\"](body: e) {",
+              "  body {",
+              "    e = exE[x=a](p, body: m) {",
+              "      body {",
+              "        a = allE[t=a](f.body)",
+              "        m = mp(e.body, a)",
+              "      }",
+              "    }",
+              "  }",
+              "}",
+              "goal <- f"
+            ],
+            "tests": [{ "goal": "¬∀x. P(x)", "premises": { "p": "∃x. ¬P(x)" } }]
+          }
+        },
+        {
+          "id": "notAll",
+          "form": "notAll",
+          "label": "¬∀x. P → ∃x. ¬P",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "k = impI[A=\"~exists x. ~P(x)\"](body: m2) {",
+              "  body {",
+              "    g = allI[x=a](body: r1) {",
+              "      body {",
+              "        j = impI[A=\"~P(a)\"](body: mj) {",
+              "          body {",
+              "            i = exI(j.body)",
+              "            mj = mp(k.body, i)",
+              "          }",
+              "        }",
+              "        r1 = raa(j)",
+              "      }",
+              "    }",
+              "    m2 = mp(p, g)",
+              "  }",
+              "}",
+              "r2 = raa(k)",
+              "goal <- r2"
+            ],
+            "tests": [{ "goal": "∃x. ¬P(x)", "premises": { "p": "¬∀x. P(x)" } }]
+          }
         }
       ]
     },
@@ -713,13 +972,32 @@
       "family": "lemma",
       "settings": [{"key": "A", "setting": "dneg_A"}],
       "inside": [
-        { "task": "c-dneg_1", "form": "elim", "label": "¬¬A → A" },
-        { "task": "c-dneg_2", "form": "intro", "label": "A → ¬¬A" }
-      ],
-      "revisions": [
         {
-          "at": "sp-rw",
-          "desc": "@piece.dneg.revisions.0.desc"
+          "id": "elim",
+          "form": "elim",
+          "label": "¬¬A → A",
+          "reference": {
+            "kind": "proof",
+            "solution": ["r = raa(p)", "goal <- r"],
+            "tests": [{ "goal": "A", "premises": { "p": "¬¬A" } }]
+          }
+        },
+        {
+          "id": "intro",
+          "form": "intro",
+          "label": "A → ¬¬A",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "f = impI[A=\"~A\"](body: m) {",
+              "  body {",
+              "    m = mp(f.body, p)",
+              "  }",
+              "}",
+              "goal <- f"
+            ],
+            "tests": [{ "goal": "¬¬A", "premises": { "p": "A" } }]
+          }
         }
       ]
     },
@@ -729,13 +1007,49 @@
       "family": "lemma",
       "settings": [{"key": "A", "setting": "arrow_A"}, {"key": "B", "setting": "arrow_B"}],
       "inside": [
-        { "task": "c-arrow_1", "form": "elim", "label": "A → B ⟹ ¬A ∨ B" },
-        { "task": "c-arrow_2", "form": "intro", "label": "¬A ∨ B ⟹ A → B" }
-      ],
-      "revisions": [
         {
-          "at": "sp-rw",
-          "desc": "@piece.arrow.revisions.0.desc"
+          "id": "elim",
+          "form": "elim",
+          "label": "A → B ⟹ ¬A ∨ B",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "l = lem[A=A]()",
+              "e = orE(l, left: i1, right: i2) {",
+              "  left {",
+              "    m = mp(p, e.left)",
+              "    i1 = orI[other=\"~A\", side=left](m)",
+              "  }",
+              "  right {",
+              "    i2 = orI[other=B, side=right](e.right)",
+              "  }",
+              "}",
+              "goal <- e"
+            ],
+            "tests": [{ "goal": "¬A ∨ B", "premises": { "p": "A → B" } }]
+          }
+        },
+        {
+          "id": "intro",
+          "form": "intro",
+          "label": "¬A ∨ B ⟹ A → B",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "f = impI[A=A](body: e) {",
+              "  body {",
+              "    e = orE(p, left: b, right: e.right) {",
+              "      left {",
+              "        m = mp(e.left, f.body)",
+              "        b = botE[C=B](m)",
+              "      }",
+              "    }",
+              "  }",
+              "}",
+              "goal <- f"
+            ],
+            "tests": [{ "goal": "A → B", "premises": { "p": "¬A ∨ B" } }]
+          }
         }
       ]
     },
@@ -745,15 +1059,113 @@
       "family": "lemma",
       "settings": [{"key": "A", "setting": "dist_A"}, {"key": "B", "setting": "dist_B"}, {"key": "C", "setting": "dist_C"}],
       "inside": [
-        { "task": "c-dist_1", "form": "orAndR", "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)" },
-        { "task": "c-dist_2", "form": "andOrR", "label": "(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)" },
-        { "task": "c-dist_3", "form": "orAndL", "label": "(A ∧ B) ∨ C ⟹ (A ∨ C) ∧ (B ∨ C)" },
-        { "task": "c-dist_4", "form": "andOrL", "label": "(A ∨ C) ∧ (B ∨ C) ⟹ (A ∧ B) ∨ C" }
-      ],
-      "revisions": [
         {
-          "at": "sp-rw",
-          "desc": "@piece.dist.revisions.0.desc"
+          "id": "orAndR",
+          "form": "orAndR",
+          "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "e = orE(p, left: c1, right: c2) {",
+              "  left {",
+              "    i1 = orI[other=B, side=right](e.left)",
+              "    i2 = orI[other=C, side=right](e.left)",
+              "    c1 = andI(i1, i2)",
+              "  }",
+              "  right {",
+              "    s = andE(e.right)",
+              "    j1 = orI[other=A, side=left](s.left)",
+              "    j2 = orI[other=A, side=left](s.right)",
+              "    c2 = andI(j1, j2)",
+              "  }",
+              "}",
+              "goal <- e"
+            ],
+            "tests": [{ "goal": "(A ∨ B) ∧ (A ∨ C)", "premises": { "p": "A ∨ (B ∧ C)" } }]
+          }
+        },
+        {
+          "id": "andOrR",
+          "form": "andOrR",
+          "label": "(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "s = andE(p)",
+              "o1 = orE(s.left, left: i1, right: o2) {",
+              "  left {",
+              "    i1 = orI[other=\"B & C\", side=right](o1.left)",
+              "  }",
+              "  right {",
+              "    o2 = orE(s.right, left: i2, right: i3) {",
+              "      left {",
+              "        i2 = orI[other=\"B & C\", side=right](o2.left)",
+              "      }",
+              "      right {",
+              "        c = andI(o1.right, o2.right)",
+              "        i3 = orI[other=A, side=left](c)",
+              "      }",
+              "    }",
+              "  }",
+              "}",
+              "goal <- o1"
+            ],
+            "tests": [{ "goal": "A ∨ (B ∧ C)", "premises": { "p": "(A ∨ B) ∧ (A ∨ C)" } }]
+          }
+        },
+        {
+          "id": "orAndL",
+          "form": "orAndL",
+          "label": "(A ∧ B) ∨ C ⟹ (A ∨ C) ∧ (B ∨ C)",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "e = orE(p, left: c1, right: c2) {",
+              "  left {",
+              "    s = andE(e.left)",
+              "    i1 = orI[other=C, side=right](s.left)",
+              "    i2 = orI[other=C, side=right](s.right)",
+              "    c1 = andI(i1, i2)",
+              "  }",
+              "  right {",
+              "    j1 = orI[other=A, side=left](e.right)",
+              "    j2 = orI[other=B, side=left](e.right)",
+              "    c2 = andI(j1, j2)",
+              "  }",
+              "}",
+              "goal <- e"
+            ],
+            "tests": [{ "goal": "(A ∨ C) ∧ (B ∨ C)", "premises": { "p": "(A ∧ B) ∨ C" } }]
+          }
+        },
+        {
+          "id": "andOrL",
+          "form": "andOrL",
+          "label": "(A ∨ C) ∧ (B ∨ C) ⟹ (A ∧ B) ∨ C",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "s = andE(p)",
+              "o1 = orE(s.left, left: o2, right: i3) {",
+              "  left {",
+              "    o2 = orE(s.right, left: i1, right: i2) {",
+              "      left {",
+              "        c = andI(o1.left, o2.left)",
+              "        i1 = orI[other=C, side=right](c)",
+              "      }",
+              "      right {",
+              "        i2 = orI[other=\"A & B\", side=left](o2.right)",
+              "      }",
+              "    }",
+              "  }",
+              "  right {",
+              "    i3 = orI[other=\"A & B\", side=left](o1.right)",
+              "  }",
+              "}",
+              "goal <- o1"
+            ],
+            "tests": [{ "goal": "(A ∧ B) ∨ C", "premises": { "p": "(A ∨ C) ∧ (B ∨ C)" } }]
+          }
         }
       ]
     },
@@ -763,8 +1175,38 @@
       "family": "lemma",
       "settings": [{"key": "A", "setting": "iff_A"}, {"key": "B", "setting": "iff_B"}],
       "inside": [
-        { "task": "au-iff_1", "form": "elim", "label": "A ↔ B ⟹ (¬A ∨ B) ∧ (¬B ∨ A)" },
-        { "task": "au-iff_2", "form": "intro", "label": "(¬A ∨ B) ∧ (¬B ∨ A) ⟹ A ↔ B" }
+        {
+          "id": "elim",
+          "form": "elim",
+          "label": "A ↔ B ⟹ (¬A ∨ B) ∧ (¬B ∨ A)",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "e = andE(p)",
+              "a1 = arrow(e.left)",
+              "a2 = arrow(e.right)",
+              "c = andI(a1, a2)",
+              "goal <- c"
+            ],
+            "tests": [{ "goal": "(¬A ∨ B) ∧ (¬B ∨ A)", "premises": { "p": "A ↔ B" } }]
+          }
+        },
+        {
+          "id": "intro",
+          "form": "intro",
+          "label": "(¬A ∨ B) ∧ (¬B ∨ A) ⟹ A ↔ B",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "e = andE(p)",
+              "a1 = arrow[form=intro](e.left)",
+              "a2 = arrow[form=intro](e.right)",
+              "c = andI(a1, a2)",
+              "goal <- c"
+            ],
+            "tests": [{ "goal": "A ↔ B", "premises": { "p": "(¬A ∨ B) ∧ (¬B ∨ A)" } }]
+          }
+        }
       ]
     },
     "res": {
@@ -772,7 +1214,34 @@
       "desc": "@piece.res.desc",
       "family": "lemma",
       "settings": [{"key": "A", "setting": "res_A"}, {"key": "B", "setting": "res_B"}, {"key": "C", "setting": "res_C"}],
-      "inside": [{ "task": "au-resolve" }],
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "e = orE(p, left: e2, right: o2) {",
+              "  left {",
+              "    e2 = orE(q, left: b, right: o) {",
+              "      left {",
+              "        m = mp(e2.left, e.left)",
+              "        b = botE[C=\"B | C\"](m)",
+              "      }",
+              "      right {",
+              "        o = orI[other=B, side=left](e2.right)",
+              "      }",
+              "    }",
+              "  }",
+              "  right {",
+              "    o2 = orI[other=C, side=right](e.right)",
+              "  }",
+              "}",
+              "goal <- e"
+            ],
+            "tests": [{ "goal": "B ∨ C", "premises": { "p": "A ∨ B", "q": "¬A ∨ C" } }]
+          }
+        }
+      ],
       "card": "res"
     },
     "liar": {
@@ -780,30 +1249,143 @@
       "desc": "@piece.liar.desc",
       "family": "lemma",
       "settings": [{"key": "A", "setting": "liar_A"}],
-      "inside": [{ "task": "kk-one_2" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "e = andE(p)",
+              "g = merge(e.left)",
+              "m1 = mp(e.right, g)",
+              "m2 = mp(g, m1)",
+              "goal <- m2"
+            ],
+            "tests": [{ "goal": "⊥", "premises": { "p": "A ↔ ¬A" } }]
+          }
+        }
+      ]
     },
     "lem": {
       "name": "@piece.lem.name",
       "desc": "@piece.lem.desc",
       "family": "lemma",
       "settings": [{"key": "A", "setting": "lem_A"}],
-      "inside": [{ "task": "raa_2" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "f = impI[A=\"~(A | ~A)\"](body: m2) {",
+              "  body {",
+              "    na = impI[A=A](body: m) {",
+              "      body {",
+              "        i = orI[other=\"~A\", side=right](na.body)",
+              "        m = mp(f.body, i)",
+              "      }",
+              "    }",
+              "    i2 = orI[other=A, side=left](na)",
+              "    m2 = mp(f.body, i2)",
+              "  }",
+              "}",
+              "r = raa(f)",
+              "goal <- r"
+            ],
+            "tests": [{ "goal": "A ∨ ¬A" }]
+          }
+        }
+      ]
     },
     "elimGen": {
       "name": "@piece.elimGen.name",
       "desc": "@piece.elimGen.desc",
       "family": "built",
-      "inside": [{ "task": "gen-one" }, { "task": "gen-each" }, { "task": "gen-ex" }]
+      "inside": [
+        {
+          "id": "v1",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "r = anyR()",
+              "s = swapConcl(ways, r)",
+              "c = consFront(it, s)",
+              "m = mkRule(c, r)",
+              "out <- m"
+            ],
+            "want": "elim",
+            "inputs": [{ "name": "it", "label": "it" }, { "name": "ways", "label": "ways" }]
+          }
+        },
+        {
+          "id": "v2",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "r = anyR()",
+              "e = eachOf(ways, body: s) {",
+              "  body {",
+              "    s = swapConcl(e.body, r)",
+              "  }",
+              "}",
+              "c = consFront(it, e)",
+              "m = mkRule(c, r)",
+              "out <- m"
+            ],
+            "want": "elim",
+            "inputs": [{ "name": "it", "label": "it" }, { "name": "ways", "label": "ways" }]
+          }
+        },
+        {
+          "id": "v3",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "r = anyR()",
+              "e = eachOf(ways, body: a) {",
+              "  body {",
+              "    a = keepBound(e.body, body: s) {",
+              "      body {",
+              "        s = swapConcl(a.body, r)",
+              "      }",
+              "    }",
+              "  }",
+              "}",
+              "c = consFront(it, e)",
+              "m = mkRule(c, r)",
+              "out <- m"
+            ],
+            "want": "elim",
+            "inputs": [{ "name": "it", "label": "it" }, { "name": "ways", "label": "ways" }]
+          }
+        }
+      ]
     },
     "unifier": {
       "name": "@piece.unifier.name",
       "desc": "@piece.unifier.desc",
       "family": "built",
-      "inside": [{ "task": "r-unifier" }],
-      "revisions": [
+      "inside": [
         {
-          "at": "r-pattern",
-          "desc": "@piece.unifier.revisions.0.desc"
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "r = repeat(in, body: c5) {",
+              "  body {",
+              "    c0 = uDecompose(r.body)",
+              "    c1 = uDelete(c0)",
+              "    c2 = uSwap(c1)",
+              "    c3 = uEliminate(c2)",
+              "    c4 = uCheck(c3)",
+              "    c5 = uConflict(c4)",
+              "  }",
+              "}",
+              "out <- r"
+            ],
+            "want": "unify",
+            "inputs": [{ "name": "in", "label": "in" }]
+          }
         }
       ]
     },
@@ -811,11 +1393,16 @@
       "name": "@piece.erule.name",
       "desc": "@piece.erule.desc",
       "family": "built",
-      "inside": [{ "task": "r-elim" }],
-      "revisions": [
+      "inside": [
         {
-          "at": "s-results",
-          "desc": "@piece.erule.revisions.0.desc"
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": ["c0 = rule(in, rules)", "c1 = assumption(c0)", "out <- c1"],
+            "want": "becomes",
+            "inputs": [{ "name": "in", "label": "in" }, { "name": "rules", "label": "rules" }],
+            "tests": [{ "goal": "Wind ∧ Rain" }]
+          }
         }
       ]
     },
@@ -823,36 +1410,165 @@
       "name": "@piece.frule.name",
       "desc": "@piece.frule.desc",
       "family": "built",
-      "inside": [{ "task": "r-drule" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": ["c0r0 = mp[use=[cut]]()", "c0 = rule(in, c0r0)", "c1 = erule(c0, rules)", "out <- c1"],
+            "want": "becomes",
+            "inputs": [{ "name": "in", "label": "in" }, { "name": "rules", "label": "rules" }],
+            "tests": [{ "goal": "Mortal(h)" }]
+          }
+        }
+      ]
     },
     "introRules": {
       "name": "@piece.introRules.name",
       "desc": "@piece.introRules.desc",
       "family": "built",
-      "inside": [{ "task": "s-intro" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0 = append[ways=\"6\"](in, first: c1, second: c2, third: c3, fourth: c4, fifth: c5, sixth: c6) {",
+              "  first {",
+              "    c1r0 = andI()",
+              "    c1 = rule(c0.first, c1r0)",
+              "  }",
+              "  second {",
+              "    c2r0 = impI()",
+              "    c2 = rule(c0.second, c2r0)",
+              "  }",
+              "  third {",
+              "    c3r0 = orI[use=[disjI1]]()",
+              "    c3 = rule(c0.third, c3r0)",
+              "  }",
+              "  fourth {",
+              "    c4r0 = orI[use=[disjI2]]()",
+              "    c4 = rule(c0.fourth, c4r0)",
+              "  }",
+              "  fifth {",
+              "    c5r0 = allI()",
+              "    c5 = rule(c0.fifth, c5r0)",
+              "  }",
+              "  sixth {",
+              "    c6r0 = exI()",
+              "    c6 = rule(c0.sixth, c6r0)",
+              "  }",
+              "}",
+              "out <- c0"
+            ],
+            "want": "becomes",
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "Rain ∧ Wind" }]
+          }
+        }
+      ]
     },
     "elimRules": {
       "name": "@piece.elimRules.name",
       "desc": "@piece.elimRules.desc",
       "family": "built",
-      "inside": [{ "task": "s-elim" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0 = append[ways=\"6\"](in, first: c1, second: c2, third: c3, fourth: c4, fifth: c5, sixth: c6) {",
+              "  first {",
+              "    c1r0 = andE[use=[conjE]]()",
+              "    c1 = erule(c0.first, c1r0)",
+              "  }",
+              "  second {",
+              "    c2r0 = orE()",
+              "    c2 = erule(c0.second, c2r0)",
+              "  }",
+              "  third {",
+              "    c3r0 = mp[use=[impE]]()",
+              "    c3 = erule(c0.third, c3r0)",
+              "  }",
+              "  fourth {",
+              "    c4r0 = botE()",
+              "    c4 = erule(c0.fourth, c4r0)",
+              "  }",
+              "  fifth {",
+              "    c5r0 = exE()",
+              "    c5 = erule(c0.fifth, c5r0)",
+              "  }",
+              "  sixth {",
+              "    c6r0 = allE[use=[allE]]()",
+              "    c6 = erule(c0.sixth, c6r0)",
+              "  }",
+              "}",
+              "out <- c0"
+            ],
+            "want": "becomes",
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "Wet" }]
+          }
+        }
+      ]
     },
     "auto": {
       "name": "@piece.auto.name",
       "desc": "@piece.auto.desc",
       "family": "built",
-      "inside": [{ "task": "s-auto" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0 = search(in, body: c1) {",
+              "  body {",
+              "    c1 = append[ways=\"3\"](c0.body, first: c2, second: c3, third: c4) {",
+              "      first {",
+              "        c2 = assumption(c1.first)",
+              "      }",
+              "      second {",
+              "        c3 = introRules(c1.second)",
+              "      }",
+              "      third {",
+              "        c4 = elimRules(c1.third)",
+              "      }",
+              "    }",
+              "  }",
+              "}",
+              "out <- c0"
+            ],
+            "want": "proved",
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "Rain ∧ (Wind ∨ Wet) → (Rain ∧ Wind) ∨ (Rain ∧ Wet)" }]
+          }
+        }
+      ]
     },
     "simp": {
       "name": "@piece.simp.name",
       "desc": "@piece.simp.desc",
       "family": "built",
       "settings": [{"key": "at", "setting": "simp_at"}],
-      "inside": [{ "task": "sp-simp" }],
-      "revisions": [
+      "inside": [
         {
-          "at": "au-hyps",
-          "desc": "@piece.simp.revisions.0.desc"
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0 = repeat(in, body: c1) {",
+              "  body {",
+              "    c1 = rw(c0.body, rules)",
+              "  }",
+              "}",
+              "out <- c0"
+            ],
+            "want": "becomes",
+            "inputs": [{ "name": "in", "label": "in" }, { "name": "rules", "label": "rules" }],
+            "tests": [{ "goal": "¬(Rain ∨ ¬Wind)" }]
+          }
         }
       ]
     },
@@ -860,91 +1576,499 @@
       "name": "@piece.clausify.name",
       "desc": "@piece.clausify.desc",
       "family": "built",
-      "inside": [{ "task": "au-clauses" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0r0 = raa()",
+              "c1r0 = impI()",
+              "c2r0 = iff[use=[\"iff.elim\"]]()",
+              "c0 = rule(in, c0r0)",
+              "c2r1 = arrow[use=[\"arrow.elim\"]](c2r0)",
+              "c1 = rule(c0, c1r0)",
+              "c2r2 = dneg[use=[\"dneg.elim\"]](c2r1)",
+              "c2r3 = dm[use=[\"dm.notOr\", \"dm.notAnd\", \"dm.notEx\", \"dm.notAll\"]](c2r2)",
+              "c2r7 = dist[use=[\"dist.orAndR\", \"dist.orAndL\"]](c2r3)",
+              "c2 = simp[at=hyps](c1, c2r7)",
+              "c3 = skolem(c2)",
+              "c4 = toClauses(c3)",
+              "out <- c4"
+            ],
+            "want": "clauses",
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "Wet" }]
+          }
+        }
+      ]
     },
     "saturate": {
       "name": "@piece.saturate.name",
       "desc": "@piece.saturate.desc",
       "family": "built",
-      "inside": [{ "task": "au-saturate" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0 = repeat(in, body: c1) {",
+              "  body {",
+              "    c1 = resolve(c0.body)",
+              "  }",
+              "}",
+              "out <- c0"
+            ],
+            "want": "decide",
+            "inputs": [{ "name": "in", "label": "in" }]
+          }
+        }
+      ]
     },
     "metis": {
       "name": "@piece.metis.name",
       "desc": "@piece.metis.desc",
       "family": "built",
-      "inside": [{ "task": "au-replay" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": ["c0 = clausify(in)", "c1 = saturate(c0)", "c2 = replay(c1)", "out <- c2"],
+            "want": "proved",
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "Coffee" }]
+          }
+        }
+      ]
     },
     "addZero": {
       "name": "@piece.addZero.name",
       "desc": "@piece.addZero.desc",
       "family": "rule",
-      "inside": [{ "task": "in-zero_3" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0r0 = math[use=[\"nat.induct\"]]()",
+              "c0 = rule(in, c0r0)",
+              "c1 = each(c0, body: c3) {",
+              "  body {",
+              "    c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
+              "    c3r0 = refl()",
+              "    c2r2 = hyp(c2r0)",
+              "    c2 = simp(c1.body, c2r2)",
+              "    c3 = rule(c2, c3r0)",
+              "  }",
+              "}",
+              "out <- c1"
+            ],
+            "want": "proved",
+            "defs": ["plus"],
+            "types": ["nat"],
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "∀x. plus(x, zero) = x" }]
+          }
+        }
+      ]
     },
     "addSucc": {
       "name": "@piece.addSucc.name",
       "desc": "@piece.addSucc.desc",
       "family": "rule",
-      "inside": [{ "task": "in-succ" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0r0 = math[use=[\"nat.induct\"]]()",
+              "c0 = rule(in, c0r0)",
+              "c1 = each(c0, body: c4) {",
+              "  body {",
+              "    c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
+              "    c3r0 = allI()",
+              "    c4r0 = refl()",
+              "    c2r2 = hyp(c2r0)",
+              "    c2 = simp(c1.body, c2r2)",
+              "    c3 = rule(c2, c3r0)",
+              "    c4 = rule(c3, c4r0)",
+              "  }",
+              "}",
+              "out <- c1"
+            ],
+            "want": "proved",
+            "defs": ["plus"],
+            "types": ["nat"],
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "∀x. ∀y. plus(x, s(y)) = s(plus(x, y))" }]
+          }
+        }
+      ]
     },
     "addComm": {
       "name": "@piece.addComm.name",
       "desc": "@piece.addComm.desc",
       "family": "rule",
-      "inside": [{ "task": "in-comm" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0r0 = math[use=[\"nat.induct\"]]()",
+              "c0 = rule(in, c0r0)",
+              "c1 = each(c0, body: c4) {",
+              "  body {",
+              "    c2r0 = allI()",
+              "    c3r0 = math[use=[\"def.0\", \"def.1\", addZero, addSucc]]()",
+              "    c4r0 = refl()",
+              "    c3r4 = hyp(c3r0)",
+              "    c2 = rule(c1.body, c2r0)",
+              "    c3 = simp(c2, c3r4)",
+              "    c4 = rule(c3, c4r0)",
+              "  }",
+              "}",
+              "out <- c1"
+            ],
+            "want": "proved",
+            "defs": ["plus"],
+            "types": ["nat"],
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "∀x. ∀y. plus(x, y) = plus(y, x)" }]
+          }
+        }
+      ]
     },
     "addAssoc": {
       "name": "@piece.addAssoc.name",
       "desc": "@piece.addAssoc.desc",
       "family": "rule",
-      "inside": [{ "task": "in-assoc" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0r0 = math[use=[\"nat.induct\"]]()",
+              "c0 = rule(in, c0r0)",
+              "c1 = each(c0, body: c5) {",
+              "  body {",
+              "    c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
+              "    c5r0 = refl()",
+              "    c2r2 = hyp(c2r0)",
+              "    c2 = simp(c1.body, c2r2)",
+              "    c3 = repeat(c2, body: c4) {",
+              "      body {",
+              "        c4r0 = allI()",
+              "        c4 = rule(c3.body, c4r0)",
+              "      }",
+              "    }",
+              "    c5 = rule(c3, c5r0)",
+              "  }",
+              "}",
+              "out <- c1"
+            ],
+            "want": "proved",
+            "defs": ["plus"],
+            "types": ["nat"],
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "∀x. ∀y. ∀z. plus(plus(x, y), z) = plus(x, plus(y, z))" }]
+          }
+        }
+      ]
     },
     "appNil": {
       "name": "@piece.appNil.name",
       "desc": "@piece.appNil.desc",
       "family": "rule",
-      "inside": [{ "task": "in-appnil" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0r0 = math[use=[\"list.induct\"]]()",
+              "c0 = rule(in, c0r0)",
+              "c1 = each(c0, body: c3) {",
+              "  body {",
+              "    c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
+              "    c3r0 = refl()",
+              "    c2r2 = hyp(c2r0)",
+              "    c2 = simp(c1.body, c2r2)",
+              "    c3 = rule(c2, c3r0)",
+              "  }",
+              "}",
+              "out <- c1"
+            ],
+            "want": "proved",
+            "defs": ["app", "len"],
+            "types": ["list"],
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "∀xs. app(xs, nil) = xs" }]
+          }
+        }
+      ]
     },
     "appAssoc": {
       "name": "@piece.appAssoc.name",
       "desc": "@piece.appAssoc.desc",
       "family": "rule",
-      "inside": [{ "task": "in-appassoc" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0r0 = math[use=[\"list.induct\"]]()",
+              "c0 = rule(in, c0r0)",
+              "c1 = each(c0, body: c5) {",
+              "  body {",
+              "    c2r0 = math[use=[\"def.0\", \"def.1\"]]()",
+              "    c5r0 = refl()",
+              "    c2r2 = hyp(c2r0)",
+              "    c2 = simp(c1.body, c2r2)",
+              "    c3 = repeat(c2, body: c4) {",
+              "      body {",
+              "        c4r0 = allI()",
+              "        c4 = rule(c3.body, c4r0)",
+              "      }",
+              "    }",
+              "    c5 = rule(c3, c5r0)",
+              "  }",
+              "}",
+              "out <- c1"
+            ],
+            "want": "proved",
+            "defs": ["app", "len"],
+            "types": ["list"],
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "∀xs. ∀ys. ∀zs. app(app(xs, ys), zs) = app(xs, app(ys, zs))" }]
+          }
+        }
+      ]
     },
     "revApp": {
       "name": "@piece.revApp.name",
       "desc": "@piece.revApp.desc",
       "family": "rule",
-      "inside": [{ "task": "in-revapp_2" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0r0 = math[use=[\"list.induct\"]]()",
+              "c0 = rule(in, c0r0)",
+              "c1 = each(c0, body: c4) {",
+              "  body {",
+              "    c2r0 = allI()",
+              "    c3r0 = math[use=[\"def.0\", \"def.1\", \"def.4\", \"def.5\", appNil, appAssoc]]()",
+              "    c4r0 = refl()",
+              "    c3r6 = hyp(c3r0)",
+              "    c2 = rule(c1.body, c2r0)",
+              "    c3 = simp(c2, c3r6)",
+              "    c4 = rule(c3, c4r0)",
+              "  }",
+              "}",
+              "out <- c1"
+            ],
+            "want": "proved",
+            "defs": ["app", "len", "rev"],
+            "types": ["list"],
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "∀xs. ∀ys. rev(app(xs, ys)) = app(rev(ys), rev(xs))" }]
+          }
+        }
+      ]
     },
     "inject": {
       "name": "@piece.inject.name",
       "desc": "@piece.inject.desc",
       "family": "rule",
-      "inside": [{ "task": "in-inject_2" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "proof",
+            "solution": [
+              "gx = allI[x=a](body: gy) {",
+              "  body {",
+              "    gy = allI[x=b](body: f) {",
+              "      body {",
+              "        f = impI[A=\"s(a) = s(b)\"](body: w2) {",
+              "          body {",
+              "            e1 = allE[t=a](p)",
+              "            e2 = allE[t=b](p)",
+              "            w1 = rewrite[at=[0]](f.body, e1)",
+              "            w2 = rewrite[at=[0]](w1, e2)",
+              "          }",
+              "        }",
+              "      }",
+              "    }",
+              "  }",
+              "}",
+              "goal <- gx"
+            ],
+            "rule": { "premises": ["s(?x) = s(?y)", "⟦?x = ?y⟧ ⟹ ?C"], "conclusion": "?C" },
+            "tests": [{ "goal": "∀x. ∀y. s(x) = s(y) → x = y", "premises": { "p": "∀x. pred(s(x)) = x" } }]
+          }
+        }
+      ]
     },
     "ifTrue": {
       "name": "@piece.ifTrue.name",
       "desc": "@piece.ifTrue.desc",
       "family": "rule",
-      "inside": [{ "task": "sort-if_1" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c2r0 = impI()",
+              "c3r0 = math[use=[\"def.0\", \"def.1\"]]()",
+              "c4r0 = refl()",
+              "c0 = repeat(in, body: c1) {",
+              "  body {",
+              "    c1r0 = allI()",
+              "    c1 = rule(c0.body, c1r0)",
+              "  }",
+              "}",
+              "c3r2 = hyp(c3r0)",
+              "c2 = rule(c0, c2r0)",
+              "c3 = simp(c2, c3r2)",
+              "c4 = rule(c3, c4r0)",
+              "out <- c4"
+            ],
+            "want": "proved",
+            "defs": ["if"],
+            "types": ["bool"],
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "∀u. ∀v. ∀w. u = tt → if(u, v, w) = v" }]
+          }
+        }
+      ]
     },
     "ifFalse": {
       "name": "@piece.ifFalse.name",
       "desc": "@piece.ifFalse.desc",
       "family": "rule",
-      "inside": [{ "task": "sort-if_2" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c2r0 = impI()",
+              "c3r0 = math[use=[\"def.0\", \"def.1\"]]()",
+              "c4r0 = refl()",
+              "c0 = repeat(in, body: c1) {",
+              "  body {",
+              "    c1r0 = allI()",
+              "    c1 = rule(c0.body, c1r0)",
+              "  }",
+              "}",
+              "c3r2 = hyp(c3r0)",
+              "c2 = rule(c0, c2r0)",
+              "c3 = simp(c2, c3r2)",
+              "c4 = rule(c3, c4r0)",
+              "out <- c4"
+            ],
+            "want": "proved",
+            "defs": ["if"],
+            "types": ["bool"],
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "∀u. ∀v. ∀w. u = ff → if(u, v, w) = w" }]
+          }
+        }
+      ]
     },
     "succNeq": {
       "name": "@piece.succNeq.name",
       "desc": "@piece.succNeq.desc",
       "family": "rule",
-      "inside": [{ "task": "in-noteq" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0r0 = math[use=[\"nat.induct\"]]()",
+              "c1r0 = impI()",
+              "c2r0 = math[use=[\"nat.distinct1\"]]()",
+              "c3r0 = impI()",
+              "c4r0 = math[use=[inject]]()",
+              "c5r0 = mp[use=[mp]]()",
+              "c0 = rule(in, c0r0)",
+              "c1 = rule(c0, c1r0)",
+              "c2 = erule(c1, c2r0)",
+              "c3 = rule(c2, c3r0)",
+              "c4 = erule(c3, c4r0)",
+              "c5 = erule(c4, c5r0)",
+              "c6 = assumption(c5)",
+              "out <- c6"
+            ],
+            "want": "proved",
+            "types": ["nat"],
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "∀x. ¬(x = s(x))" }]
+          }
+        }
+      ]
     },
     "insLen": {
       "name": "@piece.insLen.name",
       "desc": "@piece.insLen.desc",
       "family": "rule",
-      "inside": [{ "task": "sort-insLen" }]
+      "inside": [
+        {
+          "id": "base",
+          "reference": {
+            "kind": "machine",
+            "solution": [
+              "c0r0 = math[use=[\"list.induct\"]]()",
+              "c1r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
+              "c2r0 = allI()",
+              "c3r0 = refl()",
+              "c4r0 = allI()",
+              "c5r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
+              "c6r0 = math[use=[\"bool.exhaust\"]]()",
+              "c7r0 = math[use=[ifTrue]]()",
+              "c8r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
+              "c9r0 = refl()",
+              "c11r0 = math[use=[ifFalse]]()",
+              "c12r0 = math[use=[\"def.0\", \"def.1\", \"def.2\", \"def.3\", \"def.4\", \"def.5\", \"def.6\", \"def.7\", \"def.8\", \"def.9\", \"def.10\"]]()",
+              "c13r0 = refl()",
+              "c0 = rule(in, c0r0)",
+              "c12r11 = hyp(c12r0)",
+              "c1 = simp(c0, c1r0)",
+              "c2 = rule(c1, c2r0)",
+              "c3 = rule(c2, c3r0)",
+              "c4 = rule(c3, c4r0)",
+              "c5 = simp(c4, c5r0)",
+              "c6 = rule(c5, c6r0)",
+              "c7 = rw(c6, c7r0)",
+              "c8 = simp(c7, c8r0)",
+              "c9 = rule(c8, c9r0)",
+              "c10 = assumption(c9)",
+              "c11 = rw(c10, c11r0)",
+              "c12 = simp(c11, c12r11)",
+              "c13 = rule(c12, c13r0)",
+              "c14 = assumption(c13)",
+              "out <- c14"
+            ],
+            "want": "proved",
+            "defs": ["le", "if", "ins", "sort", "len"],
+            "types": ["list", "bool"],
+            "inputs": [{ "name": "in", "label": "in" }],
+            "tests": [{ "goal": "∀xs. ∀x. len(ins(x, xs)) = s(len(xs))" }]
+          }
+        }
+      ]
     },
     "formulaNot": {
       "editor": "strip",

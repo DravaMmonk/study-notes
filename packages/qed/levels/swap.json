@@ -28,7 +28,8 @@
         "  }",
         "}",
         "goal <- f"
-      ]
+      ],
+      "publishes": [{ "piece": "swap", "variant": "base" }]
     }
   ]
 }

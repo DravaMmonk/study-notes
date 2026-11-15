@@ -115,7 +115,8 @@
         "c0 = simp(in, c0r0)",
         "c1 = rule(c0, c1r0)",
         "out <- c1"
-      ]
+      ],
+      "publishes": [{ "piece": "addZero", "variant": "base" }]
     }
   ]
 }

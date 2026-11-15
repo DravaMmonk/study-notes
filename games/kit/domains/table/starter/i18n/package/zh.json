@@ -1,4 +1,6 @@
 {
+  "course.eras.scout.chapter.desc": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。",
+  "course.eras.scout.chapter.title": "造一台机器",
   "glossary.entries.board.body.0": "一格的规则：只接一次，机器人在每一格上都运行它。",
   "glossary.entries.board.title": "电路板",
   "glossary.groups.robot.title": "机器人",

@@ -53,7 +53,8 @@
         "b = arith[op=mul](eps, om)",
         "x = arith[op=add](a, b)",
         "out <- x"
-      ]
+      ],
+      "publishes": [{ "piece": "addNoise", "variant": "base" }]
     }
   ]
 }

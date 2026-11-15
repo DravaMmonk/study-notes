@@ -25,7 +25,8 @@
         "}",
         "goal <- f"
       ],
-      "naive": ["m = mp(p, p)", "goal <- m"]
+      "naive": ["m = mp(p, p)", "goal <- m"],
+      "publishes": [{ "piece": "merge", "variant": "base" }]
     }
   ]
 }

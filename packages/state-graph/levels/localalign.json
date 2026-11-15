@@ -68,7 +68,8 @@
         "n = mmax(m, z)",
         "cell <- n"
       ],
-      "border0": true
+      "border0": true,
+      "publishes": [{ "piece": "local", "variant": "base" }]
     }
   ]
 }

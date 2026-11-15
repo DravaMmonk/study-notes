@@ -96,7 +96,8 @@
       "expected": [35, 21],
       "solution": ["c = counter(view.right, view.down, facts.end)", "cell <- c"],
       "scan": "rowBR",
-      "answerAt": "start"
+      "answerAt": "start",
+      "publishes": [{ "piece": "order", "variant": "base" }]
     }
   ]
 }

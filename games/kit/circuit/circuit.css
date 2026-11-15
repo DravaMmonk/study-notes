@@ -623,3 +623,10 @@
   .cs-rows { flex: 1; }
 }
 .cs-card .vw-value, .pf-value .vw-value { white-space: pre-line; }
+
+/* A tray menu reveals related pieces without placing a card. */
+.tray-menu-toggle svg { transition: transform 120ms ease; }
+.tray-menu.is-open > .tray-menu-toggle svg { transform: rotate(90deg); }
+.palette .tray-menu-toggle { width: 100%; justify-content: space-between; text-align: left; }
+.palette .tray-menu-items { display: grid; margin-inline-start: var(--sp-4); }
+.pb-tray .tray-menu, .pb-tray .tray-menu-items { display: flex; gap: var(--sp-4); flex: none; }

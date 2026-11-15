@@ -1,0 +1,20 @@
+{
+  "words": ["everyday"],
+  "primitives": ["gNot", "gAnd"],
+  "eras": [
+    {
+      "id": "circuits",
+      "machine": null,
+      "chapter": {
+        "title": "@course.eras.circuits.chapter.title",
+        "question": "@course.eras.circuits.chapter.question"
+      },
+      "levels": [{ "id": "g-not" }, { "id": "g-and" }, { "id": "g-or" }, { "id": "g-use" }],
+      "links": [
+        { "from": "g-not", "to": "g-and" },
+        { "from": "g-and", "to": "g-or" },
+        { "from": "g-or", "to": "g-use" }
+      ]
+    }
+  ]
+}

@@ -48,7 +48,8 @@
         "q = arith[op=div](mi, u)",
         "out <- q"
       ],
-      "naive": ["i = arith[op=mul](a, b)", "ma = fqMean(a)", "mi = fqMean(i)", "q = arith[op=div](mi, ma)", "out <- q"]
+      "naive": ["i = arith[op=mul](a, b)", "ma = fqMean(a)", "mi = fqMean(i)", "q = arith[op=div](mi, ma)", "out <- q"],
+      "publishes": [{ "piece": "iou", "variant": "base" }]
     }
   ]
 }

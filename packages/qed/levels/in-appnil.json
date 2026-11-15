@@ -34,7 +34,8 @@
         "  }",
         "}",
         "out <- c1"
-      ]
+      ],
+      "publishes": [{ "piece": "appNil", "variant": "base" }]
     }
   ]
 }

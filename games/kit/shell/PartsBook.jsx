@@ -74,6 +74,7 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
     const demo = editorFor(piece).preview(piece, { game, scene: 'detail', entry: part, phone, progress: box.progress })
     // A rule a shape gives shows once the part has that shape.
     const rules = (part.rules ?? []).filter((r) => !r.form || part.forms?.includes(r.form))
+    const settings = game.parts.settings?.(part, box.progress, narrow?.key) ?? []
     return (
       <article className="wiki-article parts-article" key={key} data-family={part.family}>
         {back}
@@ -84,6 +85,14 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
           <section className="parts-rules">
             <h3>{tr('给出的规则', 'Rules it gives')}</h3>
             <table><tbody>{rules.map((r) => <tr key={r.text}><td><code>{r.text}</code></td></tr>)}</tbody></table>
+          </section>
+        )}
+        {settings.length > 0 && (
+          <section className="parts-rules">
+            <h3>{tr('已解锁的设置', 'Unlocked settings')}</h3>
+            <table><tbody>{settings.map(({ key, label, values }) => (
+              <tr key={key}><td>{L(label)}</td><td>{values.map(({ value, label }) => <span className="parts-setting" key={value}>{L(label)}</span>)}</td></tr>
+            ))}</tbody></table>
           </section>
         )}
         {demo}

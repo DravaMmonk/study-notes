@@ -1,7 +1,8 @@
 // The Vite plugin that makes trace-viewer/game.html every game's page. `virtual:game` gives the page its game: in a
 // build the one named by GAME, on the dev server whichever /game/<id>/ the address names. A game's page is code
 // only — its domain (`virtual:game/<id>`: the domain's game.js and vocabulary) — and reads the game's content when
-// it opens: content.json beside the page (games/DESIGN.md 6.1: games/<id>/game.json and its package's levels, glossary and pieces, assembled by ../engine/content.js). A build writes content.json next to the page; the dev server reads
+// it opens: content.json beside the page (games/DESIGN.md 6.1: the selected course and its package, assembled by
+// ../engine/content.js). A build writes content.json next to the page; the dev server reads
 // it off the files on every request. So content changes without a build. The page's title, description and tab icon
 // come from the hub's list (../../games.js).
 import { resolve } from 'node:path'

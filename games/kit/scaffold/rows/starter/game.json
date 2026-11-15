@@ -1,8 +1,1 @@
-{
-  "domain": "__name__",
-  "vocabulary": 1,
-  "title": "@course.title",
-  "kicker": "@course.kicker",
-  "lede": "@course.lede",
-  "order": ["1-1", "1-2"]
-}
+{ "course": "main", "title": "@course.title", "kicker": "@course.kicker", "lede": "@course.lede" }

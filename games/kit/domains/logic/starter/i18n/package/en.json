@@ -1,4 +1,9 @@
 {
+  "course.eras.circuits.chapter.question": "Can a circuit work out whether a sentence is true in every case?",
+  "course.eras.circuits.chapter.title": "Truth circuits",
+  "course.wordSets.everyday.Cold": "it is cold",
+  "course.wordSets.everyday.Rain": "it rains",
+  "course.wordSets.everyday.Wind": "it is windy",
   "glossary.entries.circuit.body.0": "A circuit wired once and run on every row of a truth table: it outputs the sentence’s value on that row.",
   "glossary.entries.circuit.title": "Truth circuits",
   "glossary.groups.logic.title": "Logic",

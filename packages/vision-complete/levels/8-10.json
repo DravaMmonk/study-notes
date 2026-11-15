@@ -40,7 +40,8 @@
         "q = arith[op=div](d, s1)",
         "out <- q"
       ],
-      "naive": ["s1 = sqrt(ab)", "q = arith[op=div](xt, s1)", "out <- q"]
+      "naive": ["s1 = sqrt(ab)", "q = arith[op=div](xt, s1)", "out <- q"],
+      "publishes": [{ "piece": "restore", "variant": "base" }]
     }
   ]
 }

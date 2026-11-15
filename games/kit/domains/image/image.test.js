@@ -22,15 +22,16 @@ const L = (s) => ({ zh: s, en: s })
 const square = { square: { x0: 4, y0: 4, s: 8 } }
 const filter = (id, rest) => ({ id, kind: 'graph', brief: L('b'), scene: 'filter', setup: { target: 'same' }, tests: [{ label: L('t'), in: square }], ...rest })
 const level = (id, tasks, once = {}) => ({ id, title: L(id), after: L('a'), intro: [{ t: L('i') }], ...once, tasks })
+const wide = ['l = shift[dir=left](in)', 'r = shift[dir=right](in)', 'h = max(l, r)', 'out <- h']
 const content = deepFreeze({
   primitives: ['const', 'add', 'sub', 'mul', 'arith', 'merge'],
   eras: [{ id: 0, levels: [{ id: 'wide' }, { id: 'use' }, { id: 'two' }], links: [{ from: 'wide', to: 'use' }, { from: 'use', to: 'two' }], chapter: { title: L('c'), label: L('l'), question: L('q') } }],
   levels: [
-    level('wide', [filter('wide', { solution: ['l = shift[dir=left](in)', 'r = shift[dir=right](in)', 'h = max(l, r)', 'out <- h'] })]),
+    level('wide', [filter('wide', { solution: wide, publishes: [{ piece: 'widen', variant: 'base' }] })]),
     level('use', [filter('use', { solution: ['k = const[c="pi/8"]()', 'm = arith[op=mul](in, k)', 'p = widen(m)', 'out <- p'], naive: ['out <- in'] })]),
     level('two', [filter('two_1', { solution: ['s = shift[dir=up, n=2](in)', 'out <- s'] }), filter('two_2', { carries: true, solution: ['t = threshold[t=0.3](in)', 'out <- t'] })], { adds: ['shift'] }),
   ],
-  partDefs: { parts: { widen: { name: L('p'), desc: L('d'), inside: [{ task: 'wide' }] } } },
+  partDefs: { parts: { widen: { name: L('p'), desc: L('d'), inside: [{ id: 'base', reference: { solution: wide } }] } } },
 })
 const image = imageCourse(content)
 const { fromText, toText } = image.kit

@@ -8,11 +8,11 @@ test('a piece’s flow: from the start, brought in, given and withheld, supersed
   const content = {
     levels: [
       { id: 'a', adds: ['p'], tasks: [{ id: 'a' }] },
-      { id: 'b', tasks: [{ id: 'b' }, { id: 'b_2', withhold: ['p'] }] },
+      { id: 'b', tasks: [{ id: 'b', publishes: [{ piece: 'm', variant: 'base' }] }, { id: 'b_2', withhold: ['p'] }] },
       { id: 'c', tasks: [{ id: 'c', grants: ['p.k=1'] }] },
-      { id: 'd', tasks: [{ id: 'd' }] },
+      { id: 'd', tasks: [{ id: 'd', publishes: [{ piece: 'm', variant: 'two' }] }] },
     ],
-    partDefs: { parts: { m: { inside: [{ task: 'b' }, { task: 'd', form: 'two' }] } } },
+    partDefs: { parts: { m: { inside: [{ id: 'base', reference: {} }, { id: 'two', form: 'two', reference: {} }] } } },
   }
   const byId = new Map(content.levels.map((l) => [l.id, l]))
   const own = (l) => (l.task === undefined ? [] : byId.get(l.id).tasks[l.task])
@@ -34,7 +34,7 @@ test('a piece’s flow: from the start, brought in, given and withheld, supersed
     { kind: 'replaced', level: 'd', by: 'q', path: null },
   ])
   assert.deepEqual(pieceFlow(course, content, 'm'), [
-    { kind: 'step', level: 'b', task: 0, path: ['tasks', 0] },
-    { kind: 'step', level: 'd', task: 0, form: 'two', path: ['tasks', 0] },
+    { kind: 'step', level: 'b', task: 0, path: ['tasks', 0, 'publishes', 0] },
+    { kind: 'step', level: 'd', task: 0, form: 'two', path: ['tasks', 0, 'publishes', 0] },
   ])
 })

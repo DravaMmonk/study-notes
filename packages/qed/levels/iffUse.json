@@ -38,5 +38,6 @@
         "goal <- f"
       ]
     }
-  ]
+  ],
+  "pieceRevisions": [{ "piece": "andE", "at": true, "desc": "@piece.andE.revisions.0.desc" }]
 }

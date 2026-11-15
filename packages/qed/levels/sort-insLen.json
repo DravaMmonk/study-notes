@@ -50,7 +50,8 @@
         "c13 = rule(c12, c13r0)",
         "c14 = assumption(c13)",
         "out <- c14"
-      ]
+      ],
+      "publishes": [{ "piece": "insLen", "variant": "base" }]
     }
   ]
 }

@@ -34,5 +34,11 @@
         "out <- c3"
       ]
     }
+  ],
+  "pieceRevisions": [
+    { "piece": "repeat", "at": true, "desc": "@piece.repeat.revisions.0.desc" },
+    { "piece": "assumption", "at": true, "desc": "@piece.assumption.revisions.0.desc" },
+    { "piece": "append", "at": true, "desc": "@piece.append.revisions.0.desc" },
+    { "piece": "erule", "at": true, "desc": "@piece.erule.revisions.0.desc" }
   ]
 }

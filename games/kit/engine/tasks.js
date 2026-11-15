@@ -14,25 +14,42 @@ export const TASK_ID = '^[A-Za-z0-9][A-Za-z0-9_-]*$'
 /** A task's id, which every task has (a domain writing its own task schema puts this in it). */
 export const TASK_ID_FIELD = S.str({ pattern: TASK_ID, about: t('任务的 id：整款游戏里唯一，玩家存下的板跟着它走（只有一个任务的关通常就用关的 id）') })
 
+const FEATURED_PARTS = S.opt(S.list(S.ref('part'), {
+  section: 'course', about: t('默认展开的可用元件，参考解所用的件会自动展开。', 'Available parts to show alongside those used by the reference answer.'),
+}))
+
+const PUBLISHES = S.opt(S.list(S.obj({ piece: S.ref('part'), variant: S.str({ pattern: TASK_ID }) }), {
+  section: 'course', about: t('通过任务后，作品可以作为指定元件的实现。', 'Use the passing work as the implementation of a named piece variant.'),
+}))
+
+const PIECE_REVISIONS = S.opt(S.list(S.obj({
+  piece: S.ref('part'), at: S.opt(S.bool()), desc: S.text(),
+})))
+
 const OWN = {
   id: TASK_ID_FIELD,
   step: S.opt(S.text({ about: t('这个任务的名字，写在任务条上（一关只有一个任务时不显示）') })),
 }
 
 /** A task shape with the fields every task has: an object's own, or each shape of a by- or either-schema's. */
-const owned = (s) => (s.type === 'by' ? { ...s, cases: Object.fromEntries(Object.entries(s.cases).map(([k, c]) => [k, owned(c)])) }
-  : s.type === 'either' ? { ...s, of: s.of.map(owned) }
-    : { ...s, fields: { ...OWN, ...s.fields } })
+const owned = (s, fields) => (s.type === 'by' ? { ...s, cases: Object.fromEntries(Object.entries(s.cases).map(([k, c]) => [k, owned(c, fields)])) }
+  : s.type === 'either' ? { ...s, of: s.of.map((option) => owned(option, fields)) }
+    : { ...s, fields: { ...fields, ...s.fields } })
 
 /**
  * A level's schema: the fields it says once (`once`) and its tasks, each an id, an optional name and `task`'s fields;
  * `task` may instead be a by-schema (S.by('kind', { … })), tasks of several shapes, each case an object of its fields
  * (or itself a by- or either-schema of such objects).
  */
-export const taskLevel = (once, task) => S.obj({
-  ...once,
-  tasks: S.list(task.type === 'by' ? owned(task) : S.obj({ ...OWN, ...task }), { min: 1, section: 'tasks', about: t('依次做的任务，最后一个通过就通过这一关') }),
-})
+export const taskLevel = (once, task, { parts = false } = {}) => {
+  const keys = parts ? { ...OWN, publishes: PUBLISHES, featuredParts: FEATURED_PARTS } : OWN
+  return S.obj({
+    ...(parts ? { featuredParts: FEATURED_PARTS, pieceRevisions: PIECE_REVISIONS } : {}),
+    ...once,
+    requires: S.opt(S.list(S.level(), { section: 'course', about: t('这关固有的知识前置', 'Knowledge prerequisites for this level') })),
+    tasks: S.list(task.type === 'by' ? owned(task, keys) : S.obj({ ...keys, ...task }), { min: 1, section: 'tasks', about: t('依次做的任务，最后一个通过就通过这一关') }),
+  })
+}
 
 /** The schema of a level's tasks in a vocabulary (its level a taskLevel), or null. */
 export const tasksSchema = (vocabulary) => vocabulary.level?.fields?.tasks?.of ?? null

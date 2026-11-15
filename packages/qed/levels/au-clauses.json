@@ -62,7 +62,8 @@
         "c1 = skolem(c0)",
         "c2 = toClauses(c1)",
         "out <- c2"
-      ]
+      ],
+      "publishes": [{ "piece": "clausify", "variant": "base" }]
     }
   ]
 }

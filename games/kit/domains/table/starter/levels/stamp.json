@@ -57,7 +57,8 @@
       "naive": [
         "m = msum(view.up, view.left)",
         "cell <- m"
-      ]
+      ],
+      "publishes": [{ "piece": "counter", "variant": "base" }]
     }
   ]
 }

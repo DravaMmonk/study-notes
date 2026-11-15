@@ -5,7 +5,7 @@ import { L, tr } from '../shell/i18n.js'
 import { evalSettings } from '../engine/parts/define.js'
 import PartFace from '../shell/parts/PartFace.jsx'
 import { definedParts, nextParams } from '../shell/parts/faces.jsx'
-import PieceSheet, { Chains, Ports, Revisions, Settings, marker } from '../shell/parts/PieceSheet.jsx'
+import PieceSheet, { Implementations, Ports, Settings, marker } from '../shell/parts/PieceSheet.jsx'
 
 // The circuit editor's pieces drawn (games/DESIGN.md 6.7, 6.8). A primitive's scenes are its three faces — the desktop
 // card on the game's own canvas, the phone tile on its slot board, the detail both share — drawn by the game's page
@@ -98,8 +98,8 @@ export function preview(piece, { game, scene, edit = null, state = [undefined, (
 }
 
 /** The fields no scene draws: a faced piece's rows of fields and what it computes, or a built piece's sheet. */
-export function Sheet({ piece, game, edit, state = [undefined, () => {}], onTask, label }) {
-  if (!faced(piece, game)) return <PieceSheet def={piece} edit={edit} onTask={onTask} label={label} />
+export function Sheet({ piece, game, edit, state = [undefined, () => {}] }) {
+  if (!faced(piece, game)) return <PieceSheet def={piece} edit={edit} />
   const defined = game.defined
   const def = defined.of(piece.type)
   const params = paramsOf(piece.type, defined, state)
@@ -107,8 +107,7 @@ export function Sheet({ piece, game, edit, state = [undefined, () => {}], onTask
   const compute = def.keeps ? [] : typeof def.compute === 'string' ? [['', def.compute]] : Object.entries(def.compute)
   return (
     <div className="pp-logic">
-      <Revisions def={piece} edit={edit} />
-      {piece.inside ? <Chains def={piece} edit={edit} onTask={onTask} label={label} /> : <Ports def={piece} edit={edit} />}
+      {piece.inside ? <Implementations def={piece} edit={edit} /> : <Ports def={piece} edit={edit} />}
       <Settings def={piece} edit={edit} />
       {compute.map(([o, text]) => <Code key={o || 'out'} path={['compute', ...(o ? [o] : [])]} label={o || null} text={text} picked={edit?.picked} />)}
       {def.keeps && <Code path={['keeps']} label="keeps" text={`${def.keeps.input} → $${def.keeps.register}`} picked={edit?.picked} />}

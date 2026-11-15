@@ -32,7 +32,8 @@
         "c5 = erule(c4, c5r0)",
         "c6 = assumption(c5)",
         "out <- c6"
-      ]
+      ],
+      "publishes": [{ "piece": "succNeq", "variant": "base" }]
     }
   ]
 }

@@ -4,11 +4,11 @@
 //
 // The items are implemented next to their schemas: parts in engine/nodes.js and engine/parts/, pictures, scenes,
 // targets, budgets, bench models and bench displays in items/.
-import { COURSE_FIELDS, COURSE_SCHEMA_REMOVAL } from '../../engine/course-schema.js'
+import { COURSE_FIELDS } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
-import { TRAY, TRAYS } from '../../engine/trays.js'
+import { TRAY, TRAYS, TRAY_SCHEMA_CHANGE } from '../../engine/trays.js'
 import { benchSchema, displayItems } from '../../engine/bench.js'
 import { NODE_TYPES } from './engine/nodes.js'
 import { IMAGE_OPS } from './engine/definitions.js'
@@ -149,8 +149,8 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 23,
-  removes: [COURSE_SCHEMA_REMOVAL],
+  version: 24,
+  removes: [TRAY_SCHEMA_CHANGE],
   kinds: {
     part: PARTS,
     op: Object.fromEntries(Object.entries(IMAGE_OPS).map(([name, { about, args }]) => [name, { about, args }])),
@@ -176,5 +176,5 @@ export const vocabulary = defineVocabulary({
   },
   game: GAME,
   // A level is a list of tasks (../../engine/tasks.js), each by its kind, and a circuit task by its scene too.
-  level: taskLevel(ONCE, S.by('kind', { graph: GRAPH, probe: PROBE, board: BENCH })),
+  level: taskLevel(ONCE, S.by('kind', { graph: GRAPH, probe: PROBE, board: BENCH }), { parts: true }),
 })

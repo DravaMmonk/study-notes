@@ -29,7 +29,8 @@
         "  }",
         "}",
         "goal <- e"
-      ]
+      ],
+      "publishes": [{ "piece": "dist", "variant": "orAndR" }]
     },
     {
       "id": "c-dist_2",
@@ -60,7 +61,8 @@
         "  }",
         "}",
         "goal <- o1"
-      ]
+      ],
+      "publishes": [{ "piece": "dist", "variant": "andOrR" }]
     },
     {
       "id": "c-dist_3",
@@ -84,7 +86,8 @@
         "  }",
         "}",
         "goal <- e"
-      ]
+      ],
+      "publishes": [{ "piece": "dist", "variant": "orAndL" }]
     },
     {
       "id": "c-dist_4",
@@ -112,7 +115,8 @@
         "  }",
         "}",
         "goal <- o1"
-      ]
+      ],
+      "publishes": [{ "piece": "dist", "variant": "andOrL" }]
     }
   ]
 }

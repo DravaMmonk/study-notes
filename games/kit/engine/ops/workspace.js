@@ -1,12 +1,12 @@
-// A data game's files opened for operations (./operations.js): game.json, glossary.json, levels/<id>.json, pieces.json
-// (when the game has one; a domain that defines parts as data always gives one) and the
+// A data game's files opened for operations (./operations.js): the game selector, its course and package configuration,
+// glossary.json, levels/<id>.json, pieces.json (when present), and the
 // course blueprint (blueprint.json, when the game has one or an operation writes one) as values an operation replaces
 // (never mutates), the text each file had, and the hub's level count for the game
 // (games/games.js). Nothing reaches the disk until write(); diff() previews it.
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, relative, resolve } from 'node:path'
-import { assemble, deepFreeze } from '../content.js'
-import { PROJECT_DIR, catalogFiles, gameDirectory, levelFiles, splitGameConfig } from '../content-node.js'
+import { assemble, combineConfiguration, configurationFiles, courseLevelCount, deepFreeze } from '../content.js'
+import { PROJECT_DIR, catalogFiles, gameDirectory, levelFiles, packageConfigPaths, splitGameConfig } from '../content-node.js'
 import { catalogReader, sourceValue } from '../catalogs.js'
 import { catalogsOf, normalizeText } from '../content-text.js'
 import { GLOSSARY } from '../vocabulary.js'
@@ -37,9 +37,11 @@ export function openGame(id, root = PROJECT_DIR) {
   const config = resolve(dir, 'game.json')
   if (!existsSync(config)) throw new Error(`no data game ${id} in ${root}`)
   const original = new Map([['game.json', read(config)]])
-  const { game, packageId, packageDir } = splitGameConfig(parse(original.get('game.json'), config), root)
+  const { game, packageId, packageDir, courseId } = splitGameConfig(parse(original.get('game.json'), config), root)
+  const packagePaths = packageConfigPaths(packageDir, courseId)
   const pathFor = (file) => {
     if (file.startsWith(`${PACKAGE_I18N}/`)) return relative(root, resolve(packageDir, file.slice('package/'.length)))
+    if (Object.hasOwn(packagePaths, file)) return relative(root, packagePaths[file])
     const inPackage = file.startsWith('levels/') || file === 'pieces.json' || file === 'glossary.json'
     return relative(root, resolve(inPackage ? packageDir : dir, file))
   }
@@ -64,14 +66,21 @@ export function openGame(id, root = PROJECT_DIR) {
     package: catalogReader(packageCatalog, resolve(packageDir, 'i18n')),
   }
   const keyed = (catalogs) => new Set(Object.values(catalogs).flatMap(Object.keys))
+  const gameConfig = combineConfiguration({
+    'game.json': readers.course(game, pathFor('game.json')),
+    ...Object.fromEntries(Object.keys(packagePaths).map((file) => [
+      file, readers.package(load(file, file === 'trays.json'), pathFor(file)),
+    ])),
+  })
   const ws = {
     id,
     root,
     dir,
     packageId,
     packageDir,
+    courseId,
     pathFor,
-    game: readers.course(game, pathFor('game.json')),
+    game: gameConfig,
     glossary: readers.package(load('glossary.json'), pathFor('glossary.json')),
     blueprint: readers.course(load('blueprint.json', true), pathFor('blueprint.json')),
     partDefs: readers.package(load('pieces.json', true), pathFor('pieces.json')),
@@ -85,6 +94,9 @@ export function openGame(id, root = PROJECT_DIR) {
     basis: new Map(),
     hub: read(resolve(root, HUB)),
   }
+  // A package may hold several courses. Keep translations owned by its other courses.
+  ws.packageCatalog = packageCatalog
+  ws.activePackageKeys = keyed(catalogsOf(PACKAGE_I18N, ...packageValues(ws)))
   return Object.assign(ws, {
     /** The game as one content (../content.js), frozen: the operations put new values in, nothing writes into one. */
     content: () => deepFreeze(assemble({ id, game: ws.game, glossary: ws.glossary, partDefs: ws.partDefs, levels: [...ws.levels], blueprint: ws.blueprint, fromDisk: true })),
@@ -103,7 +115,12 @@ export function openGame(id, root = PROJECT_DIR) {
   })
 }
 
-const fileNames = (levels) => ['game.json', 'glossary.json', 'pieces.json', 'blueprint.json', ...[...levels].map((id) => `levels/${id}.json`)]
+const fileNames = (levels) => ['game.json', 'package.json', 'course.json', 'trays.json', 'glossary.json', 'pieces.json', 'blueprint.json', ...[...levels].map((id) => `levels/${id}.json`)]
+
+function packageValues(ws) {
+  const { 'game.json': _, ...packaged } = configurationFiles(ws.game)
+  return [...Object.values(packaged), ws.glossary, ws.partDefs, ...ws.levels.values()]
+}
 
 function normalize(ws, vocabulary, previous) {
   const reservations = { ...ws.reservations }
@@ -111,7 +128,18 @@ function normalize(ws, vocabulary, previous) {
   function assign(value, was, schema, prefix, scope) {
     return value === was ? value : normalizeText(value, schema, prefix, { previous: was, vocabulary, reserved: keyOf(scope) })
   }
-  ws.game = assign(ws.game, previous.game, vocabulary.game, 'course', 'course')
+  if (ws.game !== previous.game) {
+    const files = configurationFiles(ws.game), before = configurationFiles(previous.game)
+    const prefixes = { 'game.json': 'game', 'package.json': 'package', 'course.json': `course.${ws.courseId}`, 'trays.json': 'tray' }
+    for (const [file, value] of Object.entries(files)) {
+      const trays = file === 'trays.json'
+      const scope = file === 'game.json' ? 'course' : 'package'
+      files[file] = trays
+        ? assign({ trays: value }, { trays: before[file] }, vocabulary.game, prefixes[file], scope).trays
+        : assign(value, before[file], vocabulary.game, prefixes[file], scope)
+    }
+    ws.game = combineConfiguration(files)
+  }
   ws.blueprint = assign(ws.blueprint, previous.blueprint, BLUEPRINT, 'blueprint', 'course')
   ws.glossary = assign(ws.glossary, previous.glossary, GLOSSARY, 'glossary', 'package')
   ws.partDefs = assign(ws.partDefs, previous.partDefs, PARTS_FILE, 'pieces', 'package')
@@ -123,11 +151,22 @@ const localizationFiles = (prefix, catalogs) => Object.entries(catalogs).map(([l
 
 function changes(ws) {
   const out = []
-  const configuration = new Map([['game.json', { package: ws.packageId, ...ws.game }], ['glossary.json', ws.glossary], ...(ws.partDefs === undefined ? [] : [['pieces.json', ws.partDefs]]), ...(ws.blueprint === undefined ? [] : [['blueprint.json', ws.blueprint]]), ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level])])
+  const files = configurationFiles(ws.game)
+  const configuration = new Map([...Object.entries(files),
+    ['game.json', { package: ws.packageId, course: ws.courseId, ...files['game.json'] }],
+    ['glossary.json', ws.glossary], ...(ws.partDefs === undefined ? [] : [['pieces.json', ws.partDefs]]),
+    ...(ws.blueprint === undefined ? [] : [['blueprint.json', ws.blueprint]]), ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level]),
+  ])
+  const active = catalogsOf(PACKAGE_I18N, ...packageValues(ws))
+  const packageCatalog = Object.fromEntries([...new Set([...Object.keys(ws.packageCatalog), ...Object.keys(active)])].sort()
+    .flatMap((lang) => {
+      const entries = { ...Object.fromEntries(Object.entries(ws.packageCatalog[lang] ?? {}).filter(([key]) => !ws.activePackageKeys.has(key))), ...active[lang] }
+      return Object.keys(entries).length ? [[lang, Object.fromEntries(Object.entries(entries).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0))]] : []
+    }))
   const now = new Map([
     ...[...configuration].map(([file, value]) => [file, sourceValue(value)]),
-    ...localizationFiles(COURSE_I18N, catalogsOf(COURSE_I18N, ws.game, ws.blueprint)),
-    ...localizationFiles(PACKAGE_I18N, catalogsOf(PACKAGE_I18N, ws.glossary, ws.partDefs, ...ws.levels.values())),
+    ...localizationFiles(COURSE_I18N, catalogsOf(COURSE_I18N, files['game.json'], ws.blueprint)),
+    ...localizationFiles(PACKAGE_I18N, packageCatalog),
   ])
   for (const [file, value] of now) {
     const before = ws.original.get(file) ?? null
@@ -136,7 +175,8 @@ function changes(ws) {
   }
   for (const [file, before] of ws.original) if (!now.has(file) && before !== null) out.push({ file: ws.pathFor(file), before, after: null })
   const listed = hubCount(ws.hub, ws.id)
-  if (listed !== null && listed !== ws.levels.size) out.push({ file: HUB, before: ws.hub, after: ws.hub.replace(hubEntry(ws.id), `$1${ws.levels.size}`) })
+  const count = courseLevelCount(ws.game, ws.levels.size)
+  if (listed !== null && listed !== count) out.push({ file: HUB, before: ws.hub, after: ws.hub.replace(hubEntry(ws.id), `$1${count}`) })
   return out
 }
 
@@ -162,6 +202,9 @@ function write(ws, localeFiles) {
   // What was written is what the files hold now.
   ws.original = new Map([...fileNames(ws.levels.keys()), ...localeFiles()]
     .map((file) => [file, read(resolve(ws.root, ws.pathFor(file)))]))
+  ws.packageCatalog = Object.fromEntries(localeFiles().filter((file) => file.startsWith(`${PACKAGE_I18N}/`))
+    .map((file) => [file.slice(PACKAGE_I18N.length + 1, -'.json'.length), parse(ws.original.get(file), ws.pathFor(file))]))
+  ws.activePackageKeys = new Set(Object.values(catalogsOf(PACKAGE_I18N, ...packageValues(ws))).flatMap(Object.keys))
   ws.hub = read(resolve(ws.root, HUB))
   return done.map((c) => c.file)
 }

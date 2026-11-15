@@ -50,5 +50,6 @@
         "goal <- f"
       ]
     }
-  ]
+  ],
+  "pieceRevisions": [{ "piece": "mp", "at": true, "desc": "@piece.mp.revisions.0.desc" }]
 }

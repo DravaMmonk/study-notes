@@ -1,7 +1,7 @@
 // Read the game configuration and its content package for the build and author tools.
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { assemble } from './content.js'
+import { assemble, combineConfiguration } from './content.js'
 import { catalogReader } from './catalogs.js'
 
 export const PROJECT_DIR = resolve(import.meta.dirname, '../../..')
@@ -20,16 +20,42 @@ export const gameDirectory = (id, root = PROJECT_DIR) => resolve(root, 'games', 
 /** Whether a game has its own course configuration. */
 export const isDataGame = (id, root = PROJECT_DIR) => existsSync(resolve(gameDirectory(id, root), 'game.json'))
 
-/** Keep the package selector separate from the domain's course configuration. */
-export function splitGameConfig({ package: packageId, ...game }, root = PROJECT_DIR) {
-  if (typeof packageId !== 'string' || !/^[a-z][a-z0-9-]*$/.test(packageId)) {
-    throw new Error('game.json needs a package ID with lowercase letters, digits and dashes')
+const selector = (id, label) => {
+  if (typeof id !== 'string' || !/^[a-z][a-z0-9-]*$/.test(id)) {
+    throw new Error(`game.json needs a ${label} ID with lowercase letters, digits and dashes`)
   }
-  return { packageId, packageDir: resolve(root, 'packages', packageId), game }
+  return id
+}
+
+/** Keep the two selectors separate from the game's presentation. */
+export function splitGameConfig({ package: packageId, course: courseId, ...game }, root = PROJECT_DIR) {
+  const packageDir = resolve(root, 'packages', selector(packageId, 'package'))
+  return { packageId, packageDir, courseId: selector(courseId, 'course'), game }
+}
+
+/** Locations within a package, keyed by the logical configuration filenames. */
+export const packageConfigPaths = (dir, course) => ({
+  'package.json': resolve(dir, 'package.json'),
+  'course.json': resolve(dir, 'courses', `${course}.json`),
+  'trays.json': resolve(dir, 'trays.json'),
+})
+
+function packageConfiguration(packageDir, courseId) {
+  const paths = packageConfigPaths(packageDir, courseId)
+  return Object.fromEntries(Object.entries(paths).map(([file, path]) => [file, file === 'trays.json' && !existsSync(path) ? undefined : json(path)]))
 }
 
 export function readGameConfig(id, root = PROJECT_DIR) {
-  return splitGameConfig(json(resolve(gameDirectory(id, root), 'game.json')), root)
+  const { game: meta, ...location } = splitGameConfig(json(resolve(gameDirectory(id, root), 'game.json')), root)
+  const files = { 'game.json': meta, ...packageConfiguration(location.packageDir, location.courseId) }
+  return { ...location, files, game: combineConfiguration(files) }
+}
+
+/** Every named course in the package, including courses without a game selector. */
+export function readPackageCourses(packageDir) {
+  const folder = resolve(packageDir, 'courses')
+  return readdirSync(folder).filter((name) => name.endsWith('.json')).sort()
+    .map((name) => [name.slice(0, -'.json'.length), json(resolve(folder, name))])
 }
 
 /** The level files of a content package, [[id, path]]. */
@@ -52,7 +78,7 @@ export function readPlaytests(id, dir = GAMES_DIR) {
   return existsSync(folder) ? readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => json(resolve(folder, f))) : []
 }
 
-function readFiles(id, game, packageDir, gameDir, courseLocales, packageLocales) {
+function readFiles(id, files, packageDir, gameDir, courseLocales, packageLocales) {
   const blueprint = resolve(gameDir, 'blueprint.json')
   const parts = resolve(packageDir, 'pieces.json')
   const courseText = catalogReader(readCatalogs(courseLocales), courseLocales)
@@ -60,7 +86,9 @@ function readFiles(id, game, packageDir, gameDir, courseLocales, packageLocales)
   const read = (reader, path) => reader(json(path), path)
   return assemble({
     id,
-    game: courseText(game, resolve(gameDir, 'game.json')),
+    game: combineConfiguration(Object.fromEntries(Object.entries(files).map(([file, value]) => [
+      file, (file === 'game.json' ? courseText : packageText)(value, file),
+    ]))),
     levels: levelFiles(packageDir).map(([levelId, file]) => [levelId, read(packageText, file)]),
     glossary: read(packageText, resolve(packageDir, 'glossary.json')),
     partDefs: existsSync(parts) ? read(packageText, parts) : undefined,
@@ -70,15 +98,17 @@ function readFiles(id, game, packageDir, gameDir, courseLocales, packageLocales)
 }
 
 export function readContent(id, root = PROJECT_DIR) {
-  const { game, packageDir } = readGameConfig(id, root)
+  const { files, packageDir } = readGameConfig(id, root)
   const gameDir = gameDirectory(id, root)
-  return readFiles(id, game, packageDir, gameDir, resolve(gameDir, 'i18n'), resolve(packageDir, 'i18n'))
+  return readFiles(id, files, packageDir, gameDir, resolve(gameDir, 'i18n'), resolve(packageDir, 'i18n'))
 }
 
 /** A domain's uninstalled starter keeps the course and package files together. */
 export function readStarter(domainDir) {
   const dir = resolve(domainDir, 'starter')
-  return readFiles('starter', json(resolve(dir, 'game.json')), dir, dir, resolve(dir, 'i18n/course'), resolve(dir, 'i18n/package'))
+  const { course, ...game } = json(resolve(dir, 'game.json'))
+  const files = { 'game.json': game, ...packageConfiguration(dir, selector(course, 'course')) }
+  return readFiles('starter', files, dir, dir, resolve(dir, 'i18n/course'), resolve(dir, 'i18n/package'))
 }
 
 /** The domain module (../domains/<domain>/domain.js) of a content. */

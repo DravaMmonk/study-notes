@@ -689,3 +689,5 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
   .course-board { max-height: 66vh; }
   .course-port { width: 44px; height: 44px; }
 }
+
+.course-board-wires .is-derived > .course-wire-line { stroke-dasharray: 5 4; }

@@ -79,7 +79,8 @@
         "s = arith[op=mul](a, kN)",
         "q = arith[op=div](s, g)",
         "out <- q"
-      ]
+      ],
+      "publishes": [{ "piece": "apMeter", "variant": "base" }]
     }
   ]
 }

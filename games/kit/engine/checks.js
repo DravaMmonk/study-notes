@@ -21,6 +21,7 @@ import { find } from './schema.js'
 import { withParts } from './parts/define.js'
 import { termRegistry } from './terminology.js'
 import { noMemo } from './check-cache.js'
+import { dependencyProblemsInProject } from './project-dependencies.js'
 
 /**
  * Everything checked on game `content`, as lines [{ text, fail? }]. listed: how many levels the hub says it has.
@@ -28,10 +29,11 @@ import { noMemo } from './check-cache.js'
  * is wrong with it is all there is to say. `mutants`: also the mutation report of each circuit task. `cache`: the game's
  * kept checks (check-cache.js), which the domain's checks of an unchanged level are read from; never with `mutants`.
  */
-export async function checkGame(content, { domain, listed, mutants = false, cache = null }) {
+export async function checkGame(content, { domain, listed, mutants = false, cache = null, root }) {
   const lines = []
   const fail = (text) => lines.push({ fail: true, text })
   const wrong = checkContent(domain, content)
+  if (!wrong.length) wrong.push(...dependencyProblemsInProject(content, root))
   for (const p of wrong) fail(`content: ${p.at}: ${p.says}`)
   if (wrong.length) return lines
   for (const f of termRegistry(content.glossary).failures) fail(`terminology ${f.rule} ${f.at}: ${f.says}`)

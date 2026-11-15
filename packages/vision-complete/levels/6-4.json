@@ -100,7 +100,8 @@
         "ok = threshold[t=0](gap)",
         "sum = merge(i1, w2, w3)",
         "idx <- sum"
-      ]
+      ],
+      "publishes": [{ "piece": "matcher", "variant": "base" }]
     }
   ]
 }

@@ -3,6 +3,7 @@ import { useElementSize } from '../views/useElementSize.js'
 import { portNotes } from '../circuit/card-ports.js'
 import { traySize } from '../circuit/card-size.js'
 import { fixedTray } from '../course.js'
+import { trayDisplay } from '../engine/trays.js'
 import { useSetting } from './useSetting.js'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, phoneBlockBoard, blockOfPart } from '../circuit/blocks.js'
@@ -234,6 +235,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   }
 
   const all = [...items, ...folded]
+  const display = trayDisplay(game.course, level.source ?? level, items, folded)
   const partDefaults = (type) => defined?.of(type) ? defined.defaults(type) : defaults(type)
   const make = create ?? ((graph, type, { slot, region } = {}) => {
     const taken = new Set(graph.nodes.map((n) => n.id))
@@ -258,7 +260,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
       .filter((type) => editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')
     const size = traySize(cards, trayParts ?? parts, partDefaults)
     return (
-      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: detailOf, addSheet, size, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
+      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, trayItems: display.items, trayFolded: display.folded, types, make, describeOf, sheet: detailOf, addSheet, size, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )
   }
   const detailNode = circuit.nodes.find((node) => node.id === detail)
@@ -267,7 +269,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
       rootRef={root}
       className={`cl-level ${className}`}
       brief={briefEl}
-      parts={(all.length > 0 || edit) && <>{all.length > 0 && <Palette compact items={items} folded={folded} onAdd={add} />}<PickMark at="adds" scope="level" label={{ zh: '带来的元件', en: 'Parts it brings' }} /></>}
+      parts={(all.length > 0 || edit) && <>{all.length > 0 && <Palette compact items={display.items} folded={display.folded} onAdd={add} />}<PickMark at="adds" scope="level" label={{ zh: '带来的元件', en: 'Parts it brings' }} /></>}
       stage={
         <div className="cl-stage">
           <div className="cl-board">
@@ -323,7 +325,7 @@ function blockActions(circuit, parts, change) {
 // The level on a phone: the shared slot board, the tests pinned at the top, the results below the board, the tray and the run
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
-function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, size, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
+function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, trayItems, trayFolded, types, make, describeOf, sheet: sheetBody, addSheet, size, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
   const { circuit: sourceCircuit, change } = board
   const boardRef = useRef(null)
   const availableWidth = useElementSize(boardRef)?.width || Infinity
@@ -371,7 +373,7 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
   const body = node && sheetBody(node, ctx)
   const place = (type) => { editing.place(type, sheet.slot, sheet.region); close() }
   return (
-    <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={items} folded={folded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
+    <PhonePage rootRef={root} scrollRef={scroller} onScroll={follow ? onScroll : undefined} className={`cl-phone ${className}`} brief={brief} tests={tests} tray={<Tray items={trayItems} folded={trayFolded} onPick={editing.placeFirstFree} />} results={results} dock={dock}>
       <SlotBoard
         boardRef={boardRef}
         blocks={{ ...blocks, ...blockActions(circuit, parts, change) }}

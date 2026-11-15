@@ -83,7 +83,8 @@
         "  }",
         "}",
         "out <- c1"
-      ]
+      ],
+      "publishes": [{ "piece": "revApp", "variant": "base" }]
     }
   ]
 }

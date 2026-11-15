@@ -29,5 +29,10 @@
       ],
       "solution": ["c0r0 = dneg[use=[\"dneg.elim\"]]()", "c0 = rw(in, c0r0)", "out <- c0"]
     }
+  ],
+  "pieceRevisions": [
+    { "piece": "dneg", "at": true, "desc": "@piece.dneg.revisions.0.desc" },
+    { "piece": "arrow", "at": true, "desc": "@piece.arrow.revisions.0.desc" },
+    { "piece": "dist", "at": true, "desc": "@piece.dist.revisions.0.desc" }
   ]
 }

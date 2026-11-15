@@ -45,7 +45,12 @@ export function boardView({ board, parts, built = () => ({}), builder = () => nu
       return Object.hasOwn(available, type) ? available[type] : undefined
     },
     syncOwn,
-    offerIn,
+    offerIn: (task, flags) => {
+      const { shown, folded, types } = offerIn(task, flags)
+      const available = parts(task)
+      const supported = (type) => Object.hasOwn(available, type)
+      return { shown: shown.filter(supported), folded: folded.filter(supported), types: types.filter(supported) }
+    },
     holdsIn,
     opening: opening ?? open,
     stageChain: () => [],

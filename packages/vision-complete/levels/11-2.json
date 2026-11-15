@@ -69,7 +69,8 @@
         "k = arith[op=mul](b, n)",
         "out <- k"
       ],
-      "naive": ["n = const[c=9]()", "c = arith[op=mul](in, w)", "b = box3(c)", "k = arith[op=mul](b, n)", "out <- k"]
+      "naive": ["n = const[c=9]()", "c = arith[op=mul](in, w)", "b = box3(c)", "k = arith[op=mul](b, n)", "out <- k"],
+      "publishes": [{ "piece": "occlusion", "variant": "base" }]
     }
   ]
 }

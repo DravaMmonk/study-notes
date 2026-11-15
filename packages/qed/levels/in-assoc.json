@@ -33,7 +33,8 @@
         "  }",
         "}",
         "out <- c1"
-      ]
+      ],
+      "publishes": [{ "piece": "addAssoc", "variant": "base" }]
     }
   ]
 }

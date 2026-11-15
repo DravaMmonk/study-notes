@@ -271,7 +271,8 @@
         "m = mmax(view.up, view.left, g)",
         "cell <- m"
       ],
-      "border0": true
+      "border0": true,
+      "publishes": [{ "piece": "align", "variant": "base" }]
     }
   ]
 }

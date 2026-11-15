@@ -102,7 +102,8 @@
         "cell <- x"
       ],
       "rounds": true,
-      "arrows": true
+      "arrows": true,
+      "publishes": [{ "piece": "value", "variant": "base" }]
     }
   ]
 }

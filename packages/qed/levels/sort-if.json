@@ -54,7 +54,8 @@
         "c3 = simp(c2, c3r0)",
         "c4 = rule(c3, c4r0)",
         "out <- c4"
-      ]
+      ],
+      "publishes": [{ "piece": "ifTrue", "variant": "base" }]
     },
     {
       "id": "sort-if_2",
@@ -84,7 +85,8 @@
         "c3 = simp(c2, c3r2)",
         "c4 = rule(c3, c4r0)",
         "out <- c4"
-      ]
+      ],
+      "publishes": [{ "piece": "ifFalse", "variant": "base" }]
     }
   ]
 }

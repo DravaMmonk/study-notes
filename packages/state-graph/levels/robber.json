@@ -194,7 +194,8 @@
         "@level.robber.tasks.robber_2.hints.2"
       ],
       "tip": "@level.robber.tasks.robber_2.tip",
-      "unlockToast": "@level.robber.tasks.robber_2.unlockToast"
+      "unlockToast": "@level.robber.tasks.robber_2.unlockToast",
+      "publishes": [{ "piece": "layer", "variant": "base" }]
     }
   ]
 }

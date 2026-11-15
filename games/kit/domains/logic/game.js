@@ -52,11 +52,12 @@ export default function logicGame(content) {
   const tasks = new Map(LEVELS.flatMap((L) => L.tasks).map((task) => [task.taskId, task]))
   const boardOf = (type) => {
     if (gates[type]?.built) return logic.truthCircuits
-    if (machines[type]) return { ...logic.machineBoards, BUILT: logic.machineBoards.forTask(tasks.get(pieces[type].inside.at(-1).task)).BUILT }
+    const producer = tasks.get(logic.publishers[type]?.at(-1))
+    if (machines[type] && producer) return { ...logic.machineBoards, BUILT: logic.machineBoards.forTask(producer).BUILT }
     const proof = lemmas[type] && Object.values(logic.proofs[type] ?? {})[0]
     if (proof) return { ...logic.proofBoards, BUILT: { [type]: { opens: () => ({ circuit: proof.board(), level: proof.level }) } } }
     // A proved equation, in the studio: the reference answer of the task that proves it.
-    const task = logic.facts[type] && tasks.get(pieces[type].inside[0].task)
+    const task = logic.facts[type] && tasks.get(logic.publishers[type]?.[0])
     const boards = task && { proof: logic.proofBoards, machine: logic.machineBoards }[task.kind]
     return boards ? { ...boards, BUILT: { [type]: { opens: () => ({ circuit: task.solution, level: task }) } } } : null
   }

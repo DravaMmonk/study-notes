@@ -55,12 +55,12 @@
 //
 // What a level holds is one rule at every grain (games/DESIGN.md 2.8). An item is a part ('shift'), one of its
 // settings ('shift.border') or one value of a setting ('shift.border=wrap'): itemOf, readItem. A game has several
-// trays and a level plays with one; on it, an item is held by default as far as the course has got — a part once a
+// trays that set the display order; an item is held by default as far as the course has got — a part once a
 // level before brought it in or the player built it, a setting or a value from the start unless the course opens it
 // somewhere (`opens`, by a level on the way; `needs`, by a flag the player earns) — and a level or a task then
 // changes that for itself alone: `gives` adds items, `withholds` takes items away, at any grain.
 //
-// met(course, level) is every part a level has met; reach(course, level) those of them its tray holds;
+// met(course, level) is every part a level has met; reach(course, level) puts them in display order;
 // usable(course, level, flags) the parts it holds for a player; holds(course, level, flags) whether it holds an item
 // of any grain;
 // offer(course, level, flags) splits that into what the level shows and what it folds away; fresh(course, level) the
@@ -68,6 +68,7 @@
 // a milestone the map draws full size; audit(course) lists every broken rule.
 import { OPEN_PART_LIMIT } from './engine/stages.js'
 import { rebuilt } from './engine/match.js'
+import { trayMembers } from './engine/trays.js'
 
 /** What each rule of the audit means, for reports (./engine/checks.js). */
 export const RULE_TEXT = {
@@ -78,7 +79,6 @@ export const RULE_TEXT = {
   granted: 'handed out by a level (gives)',
   'many-new': 'more than one new part in one level',
   unplaced: 'in no era',
-  'off-tray': 'brought in or built, and on no tray, so no level can place it',
   'tray-unmet': 'on a tray, and no level brings it in or builds it',
   machine: 'played on a machine of a later era',
   mechanism: 'played on a machine that cannot do what its board uses',
@@ -130,7 +130,7 @@ export function dependencyLayers(ids, requires) {
 }
 
 /** Direct author prerequisites, effective unlock gates, and chapter information. */
-export function layout(eras, { notes = false } = {}) {
+export function layout(eras, { notes = false, links = eras.flatMap((era) => era.links ?? []) } = {}) {
   const place = new Map(), requires = new Map(), tracks = new Map()
   const incoming = new Map()
   for (const era of eras) {
@@ -140,8 +140,8 @@ export function layout(eras, { notes = false } = {}) {
     }
     tracks.set(era.id, eraLevels(era))
   }
-  if (!notes) for (const era of eras) for (const link of era.links ?? []) incoming.get(link.to)?.push(link)
-  for (const [id, links] of incoming) requires.set(id, links.map(({ from }) => from))
+  if (!notes) for (const link of links) if (!link.fromGame) incoming.get(link.to)?.push(link)
+  for (const [id, links] of incoming) requires.set(id, [...new Set(links.map(({ from }) => from))])
 
   const order = dependencyOrder([...place.keys()], requires)
   const required = new Map()
@@ -183,13 +183,13 @@ export function dependencyCycle(requires) {
 // A showcase's reason, written plainly or as a text.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, replaces = () => [], local = () => false, needed = () => null, boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, abstraction = false, notes = false }) {
+export function defineCourse({ levels, eras = null, plan: suppliedPlan = null, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, replaces = () => [], local = () => false, needed = () => null, featured = () => [], boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, abstraction = false, notes = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
   /** The level that builds a part: the first to set the flag it needs. */
   const builder = (part) => (needs(part) ? setBy.get(needs(part)) ?? null : null)
-  const plan = eras ? layout(eras, { notes }) : null
+  const plan = suppliedPlan ?? (eras ? layout(eras, { notes }) : null)
   // Everything solved before a level can open: with eras, what it requires, all the way back; without, every level
   // before it in play order.
   const ancestors = new Map()
@@ -210,7 +210,7 @@ export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = (
   }
   // The settings and values some level opens: held from that level on, not from the start.
   const gated = new Set(levels.flatMap((l) => opens(l)))
-  return { levels, eras, plan, trays, tray, gated, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, replaces, local, needed, boards, showcase, declares, carries, openParts, references, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, trays, tray, gated, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, replaces, local, needed, featured, boards, showcase, declares, carries, openParts, references, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -222,7 +222,8 @@ export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = (
  */
 export function met(course, level) {
   const own = [...course.adds(level), ...builtBefore(course, level)]
-  const earlier = course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => [...course.adds(l), ...course.builds(l)])
+  const external = [...(course.plan?.externalItems?.get(level.id) ?? [])].filter(isPartItem)
+  const earlier = [...external, ...course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => [...course.adds(l), ...course.builds(l)])]
   const gone = new Set([...own, ...earlier].flatMap((p) => course.replaces(p)))
   const carried = earlier.filter((p) => !own.includes(p) && !gone.has(p) && !course.local(p))
   return [...new Set([...own, ...carried])]
@@ -231,14 +232,16 @@ export function met(course, level) {
 /** The pieces in the level's selected groups, without duplicates and in the requested order. */
 function trayPieces(course, level) {
   const trays = course.tray(level)
-  return trays === null ? null : [...new Set(trays.flatMap((name) => course.trays[name]))]
+  return trays === null ? null : [...new Set(trays.flatMap((name) => trayMembers(course.trays[name])))]
 }
 
-/** The parts a level has met that its selected trays list. An implicit tray holds every part met. */
+/** All parts a level has met, ordered with members of its selected trays first. */
 export function reach(course, level) {
   const all = met(course, level)
   const trays = trayPieces(course, level)
-  return trays === null ? all : trays.filter((part) => all.includes(part))
+  if (trays === null) return all
+  const metSet = new Set(all)
+  return [...new Set([...trays.filter((part) => metSet.has(part)), ...all])]
 }
 
 /** The fixed pieces of selected trays, or the whole course's piece list for an implicit tray. */
@@ -269,6 +272,7 @@ const building = (course, level) => (level.task === undefined ? [] : course.buil
 // both). A part built on an optional level is held only by the levels that require that level.
 function earned(course, level, flags, p) {
   if (course.primitives.has(p)) return true
+  if (course.plan?.externalItems?.get(level.id)?.has(p)) return true
   const need = course.needs(p), by = course.builder(p)
   if (!need || !by || by === level.id) return true
   if (course.plan?.place.get(by)?.optional && !course.before(by, level.id)) return false
@@ -302,7 +306,7 @@ export function holds(course, level, flags) {
   const opened = () => (here ??= new Set([...course.opens(level), ...course.levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.opens(l))]))
   const one = (item) => {
     if (withheld.has(item)) return false
-    if (given.has(item)) return true
+    if (given.has(item) || course.plan?.externalItems?.get(level.id)?.has(item)) return true
     const need = course.needs(item)
     if (need) return flags.has(need)
     return !course.gated.has(item) || opened().has(item)
@@ -316,25 +320,12 @@ export function holds(course, level, flags) {
   return has
 }
 
-/**
- * What a level shows of the parts it holds, so that a level with many parts does not leave the player lost: only the
- * ideas its reference answer uses (`needed`, by concept). Everything else is folded away, still usable. With no
- * reference to go by, or one built from parts the player cannot hold yet, every part shows. Returns { shown, folded, types }, with `types` listing the shown
- * types followed by the folded ones.
- */
+/** The reference and author-selected parts are shown first; other usable parts stay folded. */
 export function offer(course, level, flags) {
   const all = usable(course, level, flags)
-  // The answer goes by its parts (not a board's own fixed cards), and only when the player holds them all: a reference
-  // built from parts the player cannot have yet says nothing about what to show.
-  const isPart = (p) => course.primitives.has(p) || Boolean(course.needs(p)) || course.levels.some((l) => course.adds(l).includes(p))
-  // A part that is no idea of its own (a level's givens) goes by itself.
-  const idea = (p) => course.concept(p) ?? p
-  const held = new Set(all.map(idea))
-  const parts = course.needed(level)?.filter(isPart)
-  const ideas = parts && parts.every((p) => held.has(idea(p))) ? new Set(parts.map(idea)) : null
-  const shows = (p) => !ideas || ideas.has(idea(p))
-  const shown = all.filter(shows)
-  const folded = all.filter((p) => !shows(p))
+  const foreground = new Set([...(course.needed(level) ?? []), ...course.featured(level)])
+  const shown = all.filter((part) => foreground.has(part))
+  const folded = all.filter((part) => !foreground.has(part))
   return { shown, folded, types: [...shown, ...folded] }
 }
 
@@ -458,22 +449,12 @@ export function againstOpen(found, open = {}) {
   })
 }
 
-/**
- * off-tray, tray-unmet: in a course with trays, every part a level playing with a tray brings in or builds is on a
- * tray, unless it stays in that level (`local`: a scene's part, preset on its board) or is the level's own given
- * (concept null: a domain places those itself); and every part a tray lists is brought in or built somewhere.
- */
+/** Tray entries describe real course pieces, regardless of where players first meet those pieces. */
 function trayRules(course, say) {
-  const listed = new Set(Object.values(course.trays).flat())
-  if (!listed.size) return
-  const met = new Set()
-  for (const level of course.levels) {
-    for (const p of [...course.adds(level), ...course.builds(level)]) {
-      if (!met.has(p) && !listed.has(p) && course.tray(level) !== null && !course.local(p) && course.concept(p) !== null) say('off-tray', level.id, p, 'on no tray')
-      met.add(p)
-    }
+  const met = new Set(course.levels.flatMap((level) => [...course.adds(level), ...course.builds(level)]))
+  for (const [name, entries] of Object.entries(course.trays)) for (const p of trayMembers(entries)) {
+    if (!met.has(p)) say('tray-unmet', '', p, `tray ${name} lists it, and no level brings it in or builds it`)
   }
-  for (const [name, parts] of Object.entries(course.trays)) for (const p of parts) if (!met.has(p)) say('tray-unmet', '', p, `tray ${name} lists it, and no level brings it in or builds it`)
 }
 
 /**
