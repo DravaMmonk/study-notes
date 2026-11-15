@@ -56,14 +56,16 @@ import Palette from './Palette.jsx'
 import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
+const SAVED_VIEW = window.history.state?.studio
 const TABS = [['page', '画面', 'Page'], ['arrange', '编排', 'Arrangement'], ['groups', '分组', 'Groups'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
 const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
 
 const piecePath = (at) => at?.part !== undefined ? ['parts', at.part] : at?.setting !== undefined ? ['settings', at.setting] : null
+const selectionPath = (at) => piecePath(at) ?? (at?.era !== undefined ? ['eras', at.era] : at ? [] : null)
 
-/** Keep the studio's place in the address: the game, what is selected, the tab. */
-const remember = (game, at, tab) => {
+/** Keep the selection in the address and the editor details in the same history entry. */
+const remember = (game, at, tab, field, playLevel, task) => {
   const url = new URL(window.location.href)
   url.searchParams.set('game', game)
   for (const k of ['level', 'era', 'part', 'setting', 'glossary']) url.searchParams.delete(k)
@@ -73,7 +75,8 @@ const remember = (game, at, tab) => {
   if (at?.setting !== undefined) url.searchParams.set('setting', at.setting)
   if (at?.glossary) url.searchParams.set('glossary', '1')
   url.searchParams.set('tab', tab)
-  window.history.replaceState({}, '', url)
+  const inspector = field?.path ? { path: field.path } : field?.missing ? { missing: field.missing } : null
+  window.history.replaceState({ studio: { inspector, playLevel, task, gameRoot: Boolean(at?.game) } }, '', url)
 }
 const editable = (el) => el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))
 const paletteKey = (event) => (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k'
@@ -94,20 +97,24 @@ export default function Studio() {
   const [rawNames, setRawNames] = useState(null)
   const [busy, setBusy] = useState(false)
   const [rev, setRev] = useState(0) // bumped when the files change (apply, undo)
-  const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('era') ? { era: Number(QUERY.get('era')) } : QUERY.get('part') ? { part: QUERY.get('part') } : QUERY.get('setting') ? { setting: QUERY.get('setting') } : QUERY.get('glossary') ? { glossary: true } : null))
-  const [picked, setPicked] = useState(() => new Set(QUERY.get('level') ? [QUERY.get('level')] : []))
+  const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('era') ? { era: Number(QUERY.get('era')) } : QUERY.get('part') ? { part: QUERY.get('part') } : QUERY.get('setting') ? { setting: QUERY.get('setting') } : QUERY.get('glossary') ? { glossary: true } : SAVED_VIEW?.gameRoot ? { game: true } : null))
+  const [picked, setPicked] = useState(() => new Set(at?.level ? [at.level] : []))
   const [tab, setTab] = useState(() => {
     const requested = QUERY.get('tab')
     if (requested === 'i18n') return 'copy'
     return TABS.some(([id]) => id === requested) ? requested : 'page'
   })
-  const [play, setPlay] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level'), seed: null, take: null } : null)) // { level, seed, take }
+  const [play, setPlay] = useState(() => {
+    const level = SAVED_VIEW?.playLevel ?? at?.level
+    return level ? { level, seed: null, take: null } : null
+  }) // { level, seed, take }
   const [field, setField] = useState(() => {
-    const path = piecePath(at)
+    if (SAVED_VIEW) return SAVED_VIEW.inspector
+    const path = selectionPath(at)
     return path ? { path } : null
   }) // the field in the side panel: { path, focus? } | { missing } | null
   const [pageEdit, setPageEdit] = usePref('page-edit', true) // the page as the editor, or the game alone
-  const [pageTask, setPageTask] = useState(0) // the task the page plays
+  const [pageTask, setPageTask] = useState(() => SAVED_VIEW?.task ?? 0) // the task the page plays
   const [go, setGo] = useState(null) // a task for the page to go to: { task }
   const [moving, setMoving] = useState(null) // the levels being moved in the tree
   const [said, setSaid] = useState(null) // what the last apply or undo said
@@ -138,7 +145,8 @@ export default function Studio() {
     const menus = mountBarMenus(actions.current, {})
     return () => menus.destroy()
   }, [])
-  useEffect(() => remember(game, at, tab), [game, at, tab])
+  const playId = play?.level
+  useEffect(() => remember(game, at, tab, field, playId, pageTask), [game, at, tab, field, playId, pageTask])
 
   // A game opened: its vocabulary; nothing pending.
   useEffect(() => {
@@ -296,7 +304,7 @@ export default function Studio() {
   }
   const openTreeItem = (next, keep) => {
     select(next, keep)
-    pickField(next.era === undefined ? [] : ['eras', next.era])
+    pickField(selectionPath(next))
   }
   /** Find a field in the inspector. Search results keep the current workspace tab. */
   const jump = (level, path, file = null, { stayOnTab = false } = {}) => {
