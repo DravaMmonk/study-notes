@@ -12,7 +12,8 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { earnedUnlocks, firstTask as openTask, flagsIn, inheritedBoard, nextRequiredTask, passed, saved as savedAt, taskKey, taskOpen, taskPassed } from './progress.js'
+import { earnedUnlocks, firstTask as openTask, flagsIn, nextRequiredTask, passed, saved as savedAt, skipOptionalTask } from './progress.js'
+import { playedTask } from './played-task.js'
 import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { playFrame } from './viewport.js'
@@ -135,7 +136,7 @@ export default function GameShell({ game, store, author = null }) {
   const [left, setLeft] = useState(null) // the level last left for the map, which the map opens at
   const open = (id, task) => {
     if (!id) setLeft(levelId)
-    clearRuns()
+    if (id !== levelId) clearRuns()
     setLevelId(id)
     setTaskAt(id && game.byId[id] ? task ?? firstTask(id) : 0)
     setTaskWon(null)
@@ -156,7 +157,6 @@ export default function GameShell({ game, store, author = null }) {
 
   // The task played, as a level of its own: the level with what the task changes, and its steps for the brief.
   const tasks = level?.tasks ?? []
-  const isPassed = (k) => taskPassed(game, progress, level.id, k)
   const goTask = (k) => {
     setTaskAt(k)
     setTaskWon(null)
@@ -164,14 +164,12 @@ export default function GameShell({ game, store, author = null }) {
     setFails(0)
   }
   const skipTask = (k) => {
-    const skipped = taskKey(level, k)
-    setProgress((p) => ({ ...p, skippedTasks: [...new Set([...(p.skippedTasks ?? []), skipped])] }))
+    setProgress((p) => skipOptionalTask(p, level, k))
     goTask(k + 1)
   }
-  const played = level && { ...level, ...tasks[taskAt], optionalLevel: Boolean(level.optional), skipLevel: () => open(null), steps: { names: tasks.map((t) => t.step), optional: tasks.map((t) => Boolean(t.optional)), at: taskAt, passed: tasks.map((_, k) => isPassed(k)), open: tasks.map((_, k) => taskOpen(game, progress, level.id, k)), go: goTask, skip: skipTask } }
-  // A task that goes on from the one before (`carries`) opens on that task's board until it has one of its own.
-  const key = level ? taskKey(level, taskAt) : null
-  const kept = () => progress.data[key] ?? (tasks[taskAt].carries && taskAt > 0 ? inheritedBoard(progress, { ...tasks[taskAt - 1], id: level.id }) : undefined)
+  const task = level && playedTask(game, progress, level, taskAt, { go: goTask, skip: skipTask })
+  const key = task?.key ?? null
+  const played = task && { ...task.played, optionalLevel: Boolean(level.optional), skipLevel: () => open(null) }
 
   // What a level screen can do to the shell.
   const save = (data) => setProgress((p) => savedAt(p, level, taskAt, data))
@@ -347,7 +345,7 @@ export default function GameShell({ game, store, author = null }) {
             )}
             <EditContext.Provider value={edit}>
               {kind
-                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: kept(), save, solved: solved.has(level.id) || isPassed(taskAt), solve, fail, ...run, flags, progress, theme, phone })}</SlotsContext.Provider>
+                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: task.saved, save, solved: task.solved, solve, fail, ...run, flags, progress, theme, phone })}</SlotsContext.Provider>
                 : <div className="board-loading">{tr('这类关卡尚在制作中。')}</div>}
             </EditContext.Provider>
           </div>

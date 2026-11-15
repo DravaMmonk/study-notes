@@ -1070,7 +1070,7 @@ npm run op -- <游戏> log                                    看修改日志
 
 - **一门课一款数据游戏，`game.json` 写 `mode: "notes"`。** 一章对应笔记的一讲，一关对应一个词条：关的 id 就是词条的锚点 id（`convolution`、`iou`），任务按需要。没有关卡树和解锁，所有关打开；元件仍按游戏隔离（自己的 `pieces.json`），搭出的元件在笔记里是预制件，跑它那一关的参考解，可以打开看里面。
 - **检查只管内容对不对，不管编排。** 词汇表、参考解通过、naive 解失败、参数台的课成立、选择判定的 naive 判错、文案的链接照常；编排审计（`idle-idea`、`bare-intro`、`unused`、`bypass`、`many-new`、托盘和关卡树的几条）是为一台逐层长大的机器写的，`mode: "notes"` 的游戏不跑它们。
-- **嵌入。** 笔记里单独一行写 `<!-- task: <游戏>/<关> -->`。它嵌入的是这款游戏自己的页面（`?embed&level=…&lang=…`，`kit/app/main.jsx` 交给 `kit/shell/EmbedShell.jsx`），放在 iframe 里，页面把自己的高度告诉笔记，所以笔记的样式和游戏互不干扰：Fieldnotes 在阅读器里换（`trace-viewer/src/lib/content.js`、`src/figures/task.js`），笔记站在构建时换（`hooks/ui.py`，游戏的发布地址是 `mkdocs.yml` 的 `extra.games`；`docs/javascripts/site.js` 按页面的语言填上地址、跟着高度）。主题跟着共用的存储键走。共用版面（`Workbench`、`PhonePage`、`Brief`）读 `kit/shell/embed.js` 的上下文，排成笔记里的一块：没有任务栏、标题、地图、存档切换、引言窗和通关窗口，上面那段正文就是引言，下面那段正文就是点题；只留任务的一句话、玩的地方（板定高）、结果区和运行键，一角一个「展开」去这款游戏的关卡页。存档和游戏是同一套 `progress`，按任务 id 记；一个任务过了，结果留在原地，下一个任务从任务条打开。
+- **嵌入。** 笔记里单独一行写 `<!-- task: <游戏>/<关> -->`。它嵌入的是这款游戏自己的页面（`?embed&level=…&lang=…`，`kit/app/main.jsx` 交给 `kit/shell/EmbedShell.jsx`），放在 iframe 里，页面把自己的高度告诉笔记，所以笔记的样式和游戏互不干扰：Fieldnotes 在阅读器里换（`trace-viewer/src/lib/content.js`、`src/figures/task.js`），笔记站在构建时换（`hooks/ui.py`，游戏的发布地址是 `mkdocs.yml` 的 `extra.games`；`docs/javascripts/site.js` 按页面的语言填上地址、跟着高度）。主题跟着共用的存储键走。共用版面（`Workbench`、`PhonePage`、`Brief`）读 `kit/shell/embed.js` 的上下文，排成笔记里的一块：没有任务栏、标题、地图、存档切换、引言窗和通关窗口，上面那段正文就是引言，下面那段正文就是点题；只留任务的一句话、玩的地方（板定高）、结果区和运行键，一角一个「展开」去这款游戏的关卡页。游戏页和嵌入页共用 `progress`，按任务 id 记，也共用任务切换状态与作品继承。跳过可选任务会写进进度。一个任务过了，结果留在原地，下一个任务从任务条打开。
 - **旧插图硬切换。** `trace-viewer/src/figures` 里的装置图是只演示、不检验的手写交互。一个词条做成笔记关时，笔记里的那张图换成它，注册表里没人用的图删掉，不并存。
 
 ### 12.2 给一个知识点选交互

@@ -137,6 +137,15 @@ export function openAt(game, p, id, k) {
 /** Progress with what the level's screen keeps at task `taskAt`. */
 export const saved = (p, level, taskAt, data) => ({ ...p, data: { ...p.data, [taskKey(level, taskAt)]: data } })
 
+/** Remember a skipped optional task so the next visit opens on unfinished required work. */
+export function skipOptionalTask(progress, level, at) {
+  if (!level.tasks[at]?.optional) return progress
+  const key = taskKey(level, at)
+  const skippedTasks = progress.skippedTasks ?? []
+  if (skippedTasks.includes(key)) return progress
+  return { ...progress, skippedTasks: [...skippedTasks, key] }
+}
+
 /** The boards kept for the parts that run them, once `level` passes at `taskAt` (`keeps`, by default a level that
  *  unlocks something). */
 function kept(game, p, level, taskAt) {

@@ -1,7 +1,7 @@
 // node --test games/kit/shell — a game's progress in the browser: kept task by task for the puzzle each was made on.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, requiredLevels, taskOpen, taskPassed } from './progress.js'
+import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, requiredLevels, skipOptionalTask, taskOpen, taskPassed } from './progress.js'
 import { recordSolution } from './progress.js'
 
 const storage = new Map()
@@ -93,7 +93,9 @@ test('optional tasks can be skipped without granting their rewards or appearing 
   const onlyExtra = passed(g, start, l, 0)
   assert.deepEqual(onlyExtra.solved, [])
   assert.deepEqual(onlyExtra.flags, ['extra-part'])
-  const skipped = { ...start, skippedTasks: ['extra'] }
+  const skipped = skipOptionalTask(start, l, 0)
+  assert.equal(skipOptionalTask(skipped, l, 0), skipped)
+  assert.equal(skipOptionalTask(start, l, 1), start)
   assert.equal(firstTask(g, skipped, 'mixed'), 1)
   const done = passed(g, skipped, l, 1)
   assert.deepEqual(done.solved, ['mixed'])
