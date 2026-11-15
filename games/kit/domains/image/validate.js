@@ -4,6 +4,7 @@
 // naive ones; a task a built piece runs is passed by that piece alone, wired to the task's inputs. The parts'
 // own text has English too.
 import { existsSync, readdirSync } from 'node:fs'
+import { checkWorks } from '../../engine/authoring.js'
 import { keyOf } from '../../shell/i18n.js'
 import { withHidden } from '../../engine/tests.js'
 import { startBoard } from './engine/board.js'
@@ -43,11 +44,10 @@ export function validate({ levels, intros, kit, course, publishedBy, memo = (_id
       else say(line)
       return out
     }
-    const report = (graph) => {
-      const run = runLevel(level, graph)
-      const detail = run.runs.map((r, i) => `${keyOf(level.tests[i].label)}:${r.checks.map((c) => `${c.pass ? '✓' : '✗'}${c.wrong}/${Number.isFinite(c.worst) ? c.worst.toFixed(3) : '∞'}`).join(',')}`).join('  ')
-      return { run, detail }
-    }
+    const all = withHidden(level)
+    const inspect = (graph) => runLevel(all, graph)
+    const visible = (run) => run.runs.slice(0, level.tests.length)
+    const describe = (run) => visible(run).map((r, i) => `${keyOf(level.tests[i].label)}:${r.checks.map((c) => `${c.pass ? '✓' : '✗'}${c.wrong}/${Number.isFinite(c.worst) ? c.worst.toFixed(3) : '∞'}`).join(',')}`).join('  ')
     // An output that expects the same flat image in every test can be met by a constant, whatever the circuit.
     for (const name of Object.keys(level.tests[0]?.expected ?? {})) {
       const first = level.tests[0].expected[name]?.data?.[0]
@@ -57,22 +57,25 @@ export function validate({ levels, intros, kit, course, publishedBy, memo = (_id
     const hidden = level.hidden ?? []
     if (!hidden.length) fail(`${level.id}: 没有隐藏测试`)
     for (const t of hidden) if (level.tests.some((v) => keyOf(v.label) === keyOf(t.label))) fail(`${level.id}: 隐藏测试「${keyOf(t.label)}」和可见测试重名`)
+    const { reference: good, naive } = checkWorks(inspect, { reference: level.solution, naive: level.naive })
     if (hidden.length) {
-      const hiddenRun = runLevel({ ...level, tests: hidden }, level.solution)
-      const detail = hiddenRun.runs.map((r, i) => `${keyOf(hidden[i].label)}:${r.checks.map((c) => `${c.pass ? '✓' : '✗'}${c.wrong}`).join(',')}`).join('  ')
-      const line = `${level.id} hidden: solution ${hiddenRun.runs.every((r) => r.pass) ? 'PASS' : 'FAIL'}  ${detail}`
-      if (hiddenRun.runs.every((r) => r.pass)) say(line)
+      const hiddenRuns = good.runs.slice(level.tests.length)
+      const pass = hiddenRuns.every((r) => r.pass)
+      const detail = hiddenRuns.map((r, i) => `${keyOf(hidden[i].label)}:${r.checks.map((c) => `${c.pass ? '✓' : '✗'}${c.wrong}`).join(',')}`).join('  ')
+      const line = `${level.id} hidden: solution ${pass ? 'PASS' : 'FAIL'}  ${detail}`
+      if (pass) say(line)
       else fail(line)
     }
-    const good = report(level.solution)
-    const line = `${level.id} ${keyOf(level.title)}: solution ${good.run.pass ? 'PASS' : 'FAIL'} [n=${good.run.score.nodes} c=${good.run.score.cost}${good.run.constraint ? ` ${keyOf(good.run.constraint)}` : ''}]  ${good.detail}`
-    if (good.run.pass) say(line)
+    const visiblePass = visible(good).every((run) => run.pass) && !good.constraint
+    const line = `${level.id} ${keyOf(level.title)}: solution ${visiblePass ? 'PASS' : 'FAIL'} [n=${good.score.nodes} c=${good.score.cost}${good.constraint ? ` ${keyOf(good.constraint)}` : ''}]  ${describe(good)}`
+    if (visiblePass) say(line)
     else fail(line)
-    for (const [name, graph] of [['naive', level.naive], ...(level.alsoFails ?? []).map((g, i) => [`fail${i}`, g])]) {
-      if (!graph) continue
-      const bad = report(graph)
-      const text = `  ${name} ${bad.run.pass ? 'PASSES (bad)' : 'fails'}${bad.run.constraint ? ` (${keyOf(bad.run.constraint)})` : ''}  ${bad.detail}`
-      if (bad.run.pass) fail(text)
+    const examples = (level.alsoFails ?? []).map((graph, i) => [`fail${i}`, checkWorks(inspect, { naive: graph }).naive])
+    for (const [name, bad] of [['naive', naive], ...examples]) {
+      if (!bad) continue
+      const detail = bad.constraint ? ` (${keyOf(bad.constraint)})` : bad.fail?.check >= level.tests.length ? ' (hidden test)' : ''
+      const text = `  ${name} ${bad.ok ? 'fails' : 'PASSES (bad)'}${detail}  ${describe(bad)}`
+      if (!bad.ok) fail(text)
       else say(text)
     }
     // A built piece, alone between its task's inputs and its output, passes that task's tests.
@@ -80,7 +83,7 @@ export function validate({ levels, intros, kit, course, publishedBy, memo = (_id
       const board = startBoard(level)
       board.nodes.push({ id: 'part', type, x: 300, y: 60, params: {} })
       board.wires.push(...level.inputs.map((name) => ({ from: name, to: 'part', port: name })), { from: 'part', to: level.outputs[0], port: 'in' })
-      const run = runLevel({ ...withHidden(level), constraint: undefined }, board)
+      const run = runLevel({ ...all, constraint: undefined }, board)
       if (run.pass) say(`  its part alone passes`)
       else fail(`${level.id}: its packed part, wired to the level's inputs, fails ${run.runs.filter((r) => !r.pass).length} test(s)`)
     }
