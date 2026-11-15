@@ -121,14 +121,15 @@ test('code and content pieces share both the vocabulary and the running registry
 })
 
 test('the piece readers expose the optional faces without renaming stored fields', () => {
-  const piece = { ...file.parts.scaled, regions: [{ name: 'body', opens: true }], keeps: ['a'] }
+  const piece = { ...file.parts.scaled, regions: [{ name: 'body', opens: true }] }
+  const keeping = { keeps: { input: 'in', register: 'reg' } }
   const built = { name: { zh: '做成的' }, desc: { zh: '跑 work 的板。' }, inside: [{ task: 'work' }, { task: 'better' }] }
   assert.equal(holesOf(piece), piece.inputs)
   assert.equal(settingsOf(piece), piece.settings)
   assert.equal(facesOf(piece), piece.views)
   assert.equal(regionsOf(piece), piece.regions)
   assert.equal(insideOf(built), built.inside)
-  assert.equal(keepsOf(piece), piece.keeps)
+  assert.equal(keepsOf(keeping), keeping.keeps)
   assert.deepEqual(partProblems({ ...file, parts: { ...file.parts, scaled: piece, made: built } }, vocabulary), [])
   // A piece computes or has an inside, never both; a built one's ports are its task's board's.
   assert.notDeepEqual(partProblems({ ...file, parts: { made: { ...built, compute: 'a' } } }, vocabulary), [])
@@ -138,7 +139,7 @@ test('the piece readers expose the optional faces without renaming stored fields
   const coded = { ...vocabulary, kinds: { part: { wire: { about: 'a wire' } } } }
   assert.deepEqual(partProblems({ parts: { made: built } }, coded), [])
   assert.ok(partProblems({ parts: { scaled: file.parts.scaled } }, coded).some((p) => /holds its built pieces alone/.test(p.says)))
-  assert.deepEqual([holesOf({}), settingsOf({}), regionsOf({}), insideOf({}), facesOf({}), keepsOf({})], [[], [], [], null, {}, []])
+  assert.deepEqual([holesOf({}), settingsOf({}), regionsOf({}), insideOf({}), facesOf({}), keepsOf({})], [[], [], [], null, {}, null])
 })
 
 test('a description names only the options that are open', () => {
@@ -182,4 +183,14 @@ test('a part with regions is a frame: its resource sees the card and the region,
   const leak = { ...loop, wires: [...loop.wires.filter((w) => w.to !== 'd'), { from: 'i', to: 'd', port: 'x' }] }
   assert.match(run(leak, { parts, ctx: { graph: leak } }).errors.get('l').en, /only what the frame opens/)
   assert.equal(run({ nodes: [{ id: 'n', type: 'named' }], wires: [] }, { parts }).values.get('n'), 'n')
+})
+
+test('a part keeps an input in the register a setting names, or computes, never both', () => {
+  const keep = { name: { zh: '存' }, desc: { zh: '存进寄存器。' }, icon: 'Box', family: 'value', inputs: [{ name: 'in' }], settings: [{ key: 'reg', control: 'select', options: [{ value: 'A' }] }], keeps: { input: 'in', register: 'reg' } }
+  assert.deepEqual(partProblems({ parts: { keep } }, vocabulary), [])
+  assert.ok(partProblems({ parts: { keep: { ...keep, compute: 'in' } } }, vocabulary).some((p) => /one of the two/.test(p.says)))
+  assert.ok(partProblems({ parts: { keep: { ...keep, keeps: { input: 'x', register: 'r' } } } }, vocabulary).length === 2)
+  const { PARTS } = defineParts({ parts: { keep } }, OPS)
+  assert.equal(PARTS.keep.sink && PARTS.keep.store, true)
+  assert.equal(PARTS.keep.register({ params: {} }), 'A')
 })

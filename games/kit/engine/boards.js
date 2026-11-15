@@ -134,7 +134,7 @@ export function packed({ circuit, inputs, outputs, parts, holds = false, inside:
       const scope = `${ctx.scope ?? ''}${node.id}/`
       if (key === STATE) {
         const { values } = run(keepers(inner, partOf))
-        for (const n of inner.nodes) if (partOf(n.type)?.store && values.has(n.id)) ctx.stores?.set(`${scope}${n.params.reg}`, values.get(n.id))
+        for (const n of inner.nodes) if (partOf(n.type)?.store && values.has(n.id)) ctx.stores?.set(`${scope}${partOf(n.type).register(n)}`, values.get(n.id))
         return null
       }
       const name = key ?? outputs[0]

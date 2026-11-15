@@ -1727,4 +1727,6 @@ export default {
   "不跑内部的作品，照这个引擎资源跑（它能做的比证出的更多）；内部仍说它是什么、在哪里得到": "runs this engine resource instead of the work inside (it can do more than what was proved); the inside still says what the piece is and where it is earned",
   "这个任务证出的等式进规则书时的样子（不写就是等式本身）": "how the equation this task proves enters the rule book (when not said, the equation itself)",
   "这块板给出的口：parts.json 里引用这个任务的件是一个元件，口就是这些": "the ports this board gives: the parts.json piece referring to this task is a part, and these are its ports",
+  "把这个输入存进设置 register 说的寄存器，下一拍起读得到（held）；存的件不写 compute": "keeps this input in the register its setting `register` names, readable from the next tick on (held); a keeping part writes no compute",
+  "寄存器 register 此刻存的值；还没存过时给 start": "what register `register` holds now; `start` until something is kept in it",
 }

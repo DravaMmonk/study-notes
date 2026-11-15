@@ -28,8 +28,8 @@ export const register = ({ start = null, ...extra } = {}) => ({
   },
 })
 
-/** A sink keeping what reaches it in register `params.reg`, from the next tick on. */
-export const store = (extra = {}) => ({ inputs: ['in'], sink: true, store: true, eval: () => undefined, ...extra })
+/** A sink keeping what reaches it in register `params.reg`, from the next tick on (`register(node)`: the register's name). */
+export const store = (extra = {}) => ({ inputs: ['in'], sink: true, store: true, eval: () => undefined, register: (node) => node.params?.reg, ...extra })
 
 /** A sink whose value the node says on the line this tick. */
 export const drive = (extra = {}) => ({ inputs: ['in'], sink: true, drive: true, eval: () => undefined, ...extra })
@@ -69,7 +69,7 @@ export function boardNode({ id, circuit, parts, bind = () => ({}), ctx = {}, tra
       const stores = new Map()
       const trace = traced ? [] : undefined
       const { values, errors } = runBoard(circuit, { parts, bind: bind(tick), ctx: { ...ctx, dependencyCache, half: 'hear', tick, line, held, stores, trace } })
-      for (const n of circuit.nodes) if (partOf(n.type)?.store && values.has(n.id)) stores.set(n.params.reg, values.get(n.id))
+      for (const n of circuit.nodes) if (partOf(n.type)?.store && values.has(n.id)) stores.set(partOf(n.type).register(n), values.get(n.id))
       for (const [key, value] of stores) state.set(key, value)
       const outputs = Object.fromEntries(circuit.nodes.filter((n) => partOf(n.type)?.sink && !partOf(n.type).store && !partOf(n.type).drive).map((n) => [n.params?.name, values.get(n.id)]))
       return { values, errors, outputs, ...(trace ? { trace } : {}) }

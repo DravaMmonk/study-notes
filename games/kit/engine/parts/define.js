@@ -15,7 +15,7 @@
 // (ctx.region(name), ../../circuit/frames.js runRegion).
 import { PartError } from '../circuit.js'
 import { runRegion } from '../../circuit/frames.js'
-import { builtPieces, facesOf, holesOf, insideOf, outletsOf, regionsOf, registerPieces, settingsOf } from '../pieces.js'
+import { builtPieces, facesOf, holesOf, insideOf, keepsOf, outletsOf, regionsOf, registerPieces, settingsOf } from '../pieces.js'
 import { validate } from '../schema.js'
 import { ExprError, evaluate, evaluateTaped, parse, problemsOf } from './expr.js'
 import { ICON_NAMES } from './icons.js'
@@ -54,7 +54,7 @@ export function defaultOf(s) {
 /** A setting's value as computing reads it: numbers for a number or a slider, true or false for a toggle. */
 export function coerce(s, raw) {
   const v = raw === undefined || raw === null || raw === '' ? defaultOf(s) : raw
-  if (NUMERIC.has(s.control)) return Number(v)
+  if (NUMERIC.has(s.control)) return v === null ? null : Number(v)
   if (s.control === 'toggle') return v === true || v === 'true'
   if (LISTED.has(s.control)) return Array.isArray(v) ? v.map(String) : []
   if (OPTIONED.has(s.control)) return v === null ? null : String(v)
@@ -180,6 +180,16 @@ export function defineParts(file, ops, code = {}) {
       // A region that closes gives the part what was made inside it; one that does not is run by the part itself.
       reads: (node, key) => (key ? names : [...names, ...shown(node).filter((r) => r.closes).map((r) => r.name)]),
     } : null
+    // A part that keeps an input is a sink storing it in the register its setting names (../ticks.js).
+    const kept = keepsOf(def)
+    if (kept) {
+      const setting = def.setting[kept.register]
+      return [type, {
+        inputs: [kept.input], sink: true, store: true, eval: () => undefined, register: (node) => coerce(setting, node?.params?.[kept.register]),
+        params: settingsOf(def).map((s) => s.key), defaults: Object.fromEntries(settingsOf(def).map((s) => [s.key, defaultOf(s)])),
+        settings: Object.fromEntries(settingsOf(def).filter((s) => OPTIONED.has(s.control) && s.options).map((s) => [s.key, s.options.map((o) => o.value)])),
+      }]
+    }
     const part = {
       inputs: names,
       ...(def.outputNames || framed ? {} : { symmetric: (node) => symmetricIn(trees[''], settingsFor(def, node?.params), ops) }),
@@ -317,7 +327,12 @@ export function partProblems(file, vocabulary) {
     for (const [k, c] of (raw.checks ?? []).entries()) check(c.holds, `${at}.checks[${k}].holds`, [])
     // What it computes: an expression for its one output, or one for each of its outputs; a built piece runs its inside.
     const outputs = def.outputNames
-    if (!built) {
+    if (!built && Boolean(raw.compute) === Boolean(raw.keeps)) say(at, 'a primitive computes (compute) or keeps an input (keeps), one of the two')
+    if (raw.keeps) {
+      if (!holesOf(raw).some((p) => p.name === raw.keeps.input)) say(`${at}.keeps.input`, `${raw.keeps.input} is no input of the part`)
+      if (!def.setting[raw.keeps.register]) say(`${at}.keeps.register`, `${raw.keeps.register} is no setting of the part`)
+    }
+    if (!built && raw.compute) {
       const exprs = typeof raw.compute === 'string' ? [['', raw.compute]] : Object.entries(raw.compute)
       if (!outputs && typeof raw.compute !== 'string') say(`${at}.compute`, 'a part with one output computes one expression')
       if (outputs && typeof raw.compute === 'string') say(`${at}.compute`, `a part with outputs computes one expression each: { ${outputs.join(', ')} }`)

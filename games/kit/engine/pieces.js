@@ -5,7 +5,7 @@ export const settingsOf = (piece) => piece.settings ?? []
 export const regionsOf = (piece) => piece.regions ?? []
 export const insideOf = (piece) => piece.inside ?? null
 export const facesOf = (piece) => piece.views ?? {}
-export const keepsOf = (piece) => piece.keeps ?? []
+export const keepsOf = (piece) => piece.keeps ?? null
 // A built piece run by an engine resource instead of its inside (its inside still says what it is and where it is
 // earned); a piece's description as it grows along the course.
 export const cardOf = (piece) => piece.card ?? null

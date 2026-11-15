@@ -95,15 +95,18 @@ const NAMED = {
   desc: S.textKind('partDescription', { about: t('只写功能：读哪些口、给出什么、碰到「—」怎么办') }),
   revisions: S.opt(S.list(REVISION, { min: 1 })),
 }
-/** A primitive: it computes an expression over the domain's engine resources. */
+/**
+ * A primitive: it computes an expression over the domain's engine resources, or keeps an input (`keeps`): a sink that
+ * stores what reaches `input` in the register its setting `register` names, read from the next tick on (held()).
+ */
 export const PRIMITIVE = S.obj({
   ...NAMED,
   ...HOLES,
   ...SETTINGS,
   regions: S.opt(S.list(REGION)),
   ...PAINT,
-  keeps: S.opt(S.list(NAME)),
-  compute: S.either(EXPR, S.map(EXPR, { about: t('每个输出一个式子') })),
+  keeps: S.opt(S.obj({ input: NAME, register: NAME }, { about: t('把这个输入存进设置 register 说的寄存器，下一拍起读得到（held）；存的件不写 compute') })),
+  compute: S.opt(S.either(EXPR, S.map(EXPR, { about: t('每个输出一个式子') }))),
   nulls: S.opt(S.oneOf(['give', 'pass'], { about: t('give：任何输入是「—」就给「—」（默认）；pass：交给运算') })),
 })
 /**
