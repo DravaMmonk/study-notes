@@ -271,6 +271,8 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const added = before && graph.nodes.filter((n) => !before.has(n.id))
     if (added?.length !== 1 || graph.nodes.length !== before.size + 1) return
     const [node] = added
+    // A terminal added to the board (the workshop's ports) stands where it was put, in its own column.
+    if (parts.role(node) !== 'part') return
     const drawn = (n) => {
       const el = ownIn(layer.current, `[data-node="${CSS.escape(n.id)}"]`)[0]
       return el ? [el.offsetWidth, el.offsetHeight] : sizeOf(n)

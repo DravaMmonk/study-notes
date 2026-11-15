@@ -2,8 +2,8 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { packed, runBoard, sink, source } from './boards.js'
 import {
-  captureWorkshop, featureWorkshop, loadWorkshop, publishWorkshop, workshopAvailable, workshopEntries,
-  trayKey, workshopIdentity, workshopInTray, workshopParts,
+  addWorkshopPort, captureWorkshop, draftWorkshop, dropWorkshopPort, featureWorkshop, loadWorkshop, nameWorkshopPort,
+  publishWorkshop, workshopAvailable, workshopEntries, workshopPorts, trayKey, workshopIdentity, workshopInTray, workshopParts,
 } from './workshop.js'
 
 const inNode = (id) => ({ id, type: 'in', params: { name: id } })
@@ -115,4 +115,66 @@ test('publishing a replacement for another reward works even when its old reward
   const installed = publishWorkshop(recorded, upgrade, { id: upgrade.id, lineage: 'new', replaces: ['old'] })
   assert.deepEqual(workshopEntries(installed).map(({ id }) => id), [manual.id, upgrade.id])
   assert.equal(publishWorkshop(installed, take(base()), { id: 'older', lineage: 'old' }), installed)
+})
+
+test('the interface lists a board\'s own terminals and the outputs read from a shared source', () => {
+  const shared = { ...drawing, role: ({ type }) => type === 'bank' ? 'source' : drawing.role({ type }), outputs: ({ type }) => type === 'bank' ? [{ key: 'x' }, { key: 'y' }] : null }
+  const graph = {
+    nodes: [inNode('a'), { id: 'bank', type: 'bank' }, { id: 'mul', type: 'multiply', params: { factor: 2 } }, outNode('out')],
+    wires: [wire('bank#y', 'mul'), wire('mul', 'out')],
+  }
+  const ports = workshopPorts(graph, shared, { inputs: { 'bank#y': 'height' } })
+  assert.deepEqual(ports.inputs.map(({ ref, name, wired, plain }) => [ref, name, wired, plain]), [['a', 'a', false, true], ['bank#y', 'height', true, false]])
+  assert.deepEqual(ports.outputs.map(({ ref, name, wired }) => [ref, name, wired]), [['out', 'out', true]])
+})
+
+test('terminals are added beside the last of their side and removed with their wires, never the last one', () => {
+  const start = { nodes: [{ ...inNode('in'), x: 20, y: 40 }, { ...outNode('out'), x: 900, y: 40 }], wires: [] }
+  const two = addWorkshopPort(start, drawing, 'inputs')
+  assert.deepEqual(two.nodes.at(-1), { id: 'in1', type: 'in', params: { name: 'in1' }, x: 20, y: 160 })
+  const three = addWorkshopPort(two, drawing, 'inputs')
+  assert.equal(three.nodes.at(-1).y, 280)
+  assert.equal(addWorkshopPort(start, drawing, 'outputs').nodes.at(-1).id, 'out1')
+  const wired = { ...two, wires: [wire('in1', 'out')] }
+  assert.deepEqual(dropWorkshopPort(wired, drawing, 'inputs', 'in1'), { ...start, wires: [] })
+  assert.equal(dropWorkshopPort(start, drawing, 'inputs', 'in'), start)
+  assert.equal(addWorkshopPort({ nodes: [outNode('out')], wires: [] }, drawing, 'inputs'), null)
+})
+
+test('a port name is trimmed and must be unique on its side', () => {
+  const graph = addWorkshopPort(base(), drawing, 'inputs')
+  const ports = workshopPorts(graph, drawing)
+  assert.deepEqual(nameWorkshopPort({}, ports, 'inputs', 'in', ' 底数 '), { inputs: { in: '底数' } })
+  assert.equal(nameWorkshopPort({}, ports, 'inputs', 'in', 'in1'), null)
+  assert.equal(nameWorkshopPort({}, ports, 'inputs', 'in', '  '), null)
+  assert.deepEqual(nameWorkshopPort({}, ports, 'outputs', 'out', 'in1'), { outputs: { out: 'in1' } })
+})
+
+test('a snapshot takes the interface\'s names and input order, and runs under them', () => {
+  const add = { inputs: ['a', 'b'], eval: ({ a, b }) => a - b }
+  const parts = { ...drawing, inputs: ({ type }) => type === 'sub' ? ['a', 'b'] : ['in'] }
+  const graph = {
+    nodes: [inNode('first'), inNode('second'), { id: 'sub', type: 'sub' }, outNode('out')],
+    wires: [wire('second', 'sub', 'b'), wire('first', 'sub', 'a'), wire('sub', 'out')],
+  }
+  const lookup = (type) => type === 'sub' ? add : resolve(type)
+  const piece = take(graph, {
+    parts, resolve: lookup, names: { inputs: { first: '被减数' }, outputs: { out: '差' } }, order: ['first', 'second'],
+  })
+  assert.deepEqual(piece.inputs, ['被减数', 'second'])
+  assert.deepEqual(piece.outputs, ['差'])
+  const library = publishWorkshop(empty(), piece, { id: piece.id })
+  const board = {
+    nodes: [inNode('x'), inNode('y'), { id: 'p', type: piece.id }, outNode('out')],
+    wires: [wire('x', 'p', '被减数'), wire('y', 'p', 'second'), wire('p', 'out')],
+  }
+  assert.equal(runBoard(board, { parts: workshopParts(library, lookup), bind: { x: 9, y: 4 } }).outputs.out, 5)
+})
+
+test('a tray keeps one draft until it is cleared', () => {
+  const tray = trayKey('local', 'first')
+  const kept = draftWorkshop(empty(), tray, { graph: base(), names: {} })
+  assert.deepEqual(kept.drafts[tray].graph, base())
+  assert.deepEqual(draftWorkshop(kept, tray, null).drafts, {})
+  assert.deepEqual(loadWorkshop({ getItem: () => JSON.stringify({ pieces: {}, published: {}, featured: {} }) }).drafts, {})
 })

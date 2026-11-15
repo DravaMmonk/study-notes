@@ -27,10 +27,3 @@
   .ph-sheet, .ph-scrim { animation: none; }
 }
 
-.ph-sheet.workshop-sheet { width: min(100%, 960px); }
-.workshop { display: grid; gap: var(--sp-4); min-width: 0; }
-.workshop-form { display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: end; }
-.workshop-form label { display: grid; gap: var(--sp-2); }
-.workshop-feature { display: flex; gap: var(--sp-2); align-items: center; }
-.workshop .cl-level { min-height: 360px; }
-.workshop .cl-level .cl-stage { min-height: 300px; }

@@ -27,7 +27,7 @@ export function Level({ phone, stage, ...props }) {
  * A level on a phone, the same in every game: one page. The tests (their tabs) pinned at the top; in between, what
  * scrolls: the task in its foldable 任务 card, the play area, and below it what a run or check gives (`results`); at the
  * bottom the tray (parts to place) and the run bar, pinned. A run, a step or a check brings the results into view
- * (RunDock). `results` null or left out: nothing below the play area.
+ * (RunDock). `results` null or left out: nothing below the play area; `brief` null: no task card.
  *
  * Embedded in a note (embed.js), the page is a block in the note's flow: nothing pinned and nothing scrolling of its
  * own, the task open above the play area, the tray and the run bar under the results.
@@ -40,7 +40,7 @@ export function PhonePage({ rootRef, scrollRef, onScroll, className = '', brief,
     <div ref={rootRef} className={`level-phone ${embed ? 'is-embed' : ''} ${className}`}>
       {tests}
       <div ref={scrollRef} className="pl-scroll" onScroll={onScroll}>
-        {embed ? <div className="task-body">{brief}</div> : <TaskCard>{brief}</TaskCard>}
+        {brief && (embed ? <div className="task-body">{brief}</div> : <TaskCard>{brief}</TaskCard>)}
         {children}
         {results && <section ref={box} className="pl-results" aria-label={tr('结果', 'Results')}>{results}</section>}
       </div>

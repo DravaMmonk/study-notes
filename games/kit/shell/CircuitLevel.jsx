@@ -5,7 +5,7 @@ import { traySize } from '../circuit/card-size.js'
 import { fixedTray } from '../course.js'
 import { trayDisplay } from '../engine/trays.js'
 import { useSetting } from './useSetting.js'
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { isValidElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, phoneBlockBoard, blockOfPart } from '../circuit/blocks.js'
 import { Info } from 'lucide-react'
 import CanvasEditor from '../circuit/CanvasEditor.jsx'
@@ -167,7 +167,8 @@ const nothing = { values: new Map(), errors: new Map() }
  *                   wireState (wire, ctx), regionNote / resultNote (node, region, ctx); on a phone thumb, tileExtra,
  *                   sinkBody, sinkClass, nodeClass
  *   canvas          more for the desktop editor: height, emptyNote, corner, minFit
- *   brief           { text, tip, hint, children } the brief (Layout.jsx Brief), with the level's own panels under it
+ *   brief           { text, tip, hint, children } the brief (Layout.jsx Brief), with the level's own panels under it;
+ *                   an element stands in its place (a board that is no level: the workshop); null: none
  *   results, resultsTitle, resultsAside   what a run gives (the strip on a desktop, below the board on a phone)
  *   below           on a phone, under the board (what a run shows as it goes, the level's own panels)
  *   follow          on a phone, { began, key }: while a run shows under the board, the page keeps to its bottom
@@ -177,7 +178,8 @@ const nothing = { values: new Map(), errors: new Map() }
  *   packed          { open(node, board) → { circuit, parts, … } the board a packed part runs (null: not one),
  *                     edit(node, board) go to the level that builds it, trace() → { trace, upTo?, step? } the traced
  *                     evaluation the board shows now (engine/circuit.js ctx.trace), or null }
- *   words           { go, done } the run button     meta, pad   the run bar's line; an element in its place (a keypad)
+ *   words           { go, done } the run button     meta, pad   the run bar's line; an element in its place (a keypad;
+ *                   null: the board is not run)
  *   tabs            false: the tests are picked in the results, not in tabs
  *   scope           names the board for undo (a level's stage; default the level)
  */
@@ -251,8 +253,8 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const protectedIds = lockedCards(circuit)
   const onClear = circuit.nodes.some((n) => canRemoveCard(parts, n, protectedIds)) || board.clearable?.(circuit) ? board.clear : null
 
-  const briefEl = brief && <Brief game={game} level={level} text={brief.text} tip={brief.tip} hint={brief.hint}>{brief.children}</Brief>
-  const dock = pad ?? <RunDock meta={meta} {...run.dock(words ?? { go: L(WORDS.run), done: L(WORDS.passed) })} />
+  const briefEl = isValidElement(brief) ? brief : brief && <Brief game={game} level={level} text={brief.text} tip={brief.tip} hint={brief.hint}>{brief.children}</Brief>
+  const dock = pad !== undefined ? pad : <RunDock meta={meta} {...run.dock(words ?? { go: L(WORDS.run), done: L(WORDS.passed) })} />
   const testTabs = tabs && <TestTabs tests={run.tests} states={run.states} index={run.at} onSelect={run.select} phone={phone} />
 
   if (phone) {

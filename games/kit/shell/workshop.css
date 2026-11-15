@@ -1,0 +1,52 @@
+/* The workshop page (Workshop.jsx): the draft's interface beside its board, and the parts made on the tray. */
+.ws-panel { min-width: 0; display: flex; flex-direction: column; gap: var(--gap-section); }
+.ws-face { display: flex; flex-direction: column; gap: var(--gap-group); }
+.ws-name, .ws-desc, .ws-port-name { min-width: 0; width: 100%; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.ws-name:focus, .ws-desc:focus, .ws-port-name:focus { outline: none; }
+.ws-name::placeholder, .ws-desc::placeholder { color: var(--faint); }
+.ws-name { padding-bottom: var(--sp-3); border-bottom: 1px solid var(--rule); color: var(--heading); font: 500 var(--fs-h3)/1.3 var(--serif); letter-spacing: -.01em; }
+.ws-name:focus { border-bottom-color: var(--accent); }
+.ws-desc { resize: none; field-sizing: content; color: var(--body); font: var(--fs-small)/var(--lh-ui) var(--sans); }
+
+.ws-ports, .ws-shelf { display: grid; gap: var(--sp-3); }
+.ws-ports[data-side='inputs'] { --io: var(--select); }
+.ws-ports[data-side='outputs'] { --io: var(--accent); }
+.ws-ports header, .ws-shelf header { min-height: var(--sp-7); display: flex; align-items: center; justify-content: space-between; }
+.ws-ports h2, .ws-shelf h2 { margin: 0; color: var(--muted); font: var(--fs-label)/1 var(--mono); letter-spacing: var(--track-label); }
+.ws-ports ul, .ws-shelf ul { margin: 0; padding: 0; display: grid; gap: var(--sp-2); list-style: none; }
+.ws-ports li { min-height: var(--sp-8); padding: 0 var(--sp-2) 0 var(--sp-4); display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--sp-4); border-radius: var(--r-md); background: var(--canvas); box-shadow: inset 0 0 0 1px var(--hairline), inset 3px 0 0 var(--io); }
+.ws-ports li:focus-within { box-shadow: inset 0 0 0 1px var(--rule), inset 3px 0 0 var(--io); }
+.ws-ports li.ws-none { display: block; min-height: 0; padding: 0; background: none; box-shadow: none; color: var(--faint); font-size: var(--fs-label); line-height: var(--lh-ui); }
+.ws-dot { width: var(--sp-4); height: var(--sp-4); border-radius: var(--r-full); box-shadow: inset 0 0 0 1.5px var(--port-mark); }
+.ws-ports[data-side='outputs'] li:not(.is-wired) .ws-dot { box-shadow: inset 0 0 0 1.5px var(--fail); }
+.ws-ports li.is-wired .ws-dot { background: var(--io); box-shadow: none; }
+.ws-ports li:not(.is-wired) .ws-port-name { color: var(--muted); }
+.ws-port-name { height: var(--sp-7); color: var(--ink); font: var(--fs-ui)/1 var(--mono); text-overflow: ellipsis; }
+.ws-port-name[aria-invalid] { color: var(--fail); }
+.ws-tool { width: var(--sp-7); height: var(--sp-7); padding: 0; display: grid; place-items: center; border: 0; border-radius: var(--r-sm); color: var(--muted); background: transparent; cursor: pointer; }
+.ws-tool:hover, .ws-tool.is-on { color: var(--ink); background: var(--hover); }
+.ws-tool.is-on { color: var(--accent-ink); }
+.ws-tool:focus-visible, .ws-pack:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.ws-pack { min-height: calc(var(--sp-8) + var(--sp-4)); margin-top: var(--sp-3); padding: 0 var(--sp-6); display: flex; align-items: center; justify-content: center; gap: var(--sp-4); border: 0; border-radius: var(--r-md); color: var(--paper); background: var(--ink); font: 600 var(--fs-ui)/1 var(--sans); letter-spacing: .02em; cursor: pointer; }
+.ws-pack:hover { background: var(--heading); box-shadow: var(--lift); }
+.ws-notice { margin: 0; color: var(--muted); font: var(--fs-ui)/var(--lh-ui) var(--sans); }
+.ws-notice.is-fail { color: var(--fail); }
+
+.ws-shelf li { min-height: var(--sp-8); display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: var(--sp-4); }
+.ws-shelf li span { overflow: hidden; color: var(--ink); font-size: var(--fs-ui); white-space: nowrap; text-overflow: ellipsis; }
+.ws-shelf li small { color: var(--faint); font: var(--fs-label)/1 var(--mono); }
+
+/* In the top bar: the page's name, then its trays. */
+.bench-title { flex: none; }
+.bench-trays { min-width: 0; flex: 1; display: flex; gap: var(--sp-1); overflow-x: auto; scrollbar-width: none; }
+.game-bar .bench-trays .kit-btn { flex: none; width: auto; padding: 0 var(--sp-4); }
+/* The way in from a circuit level's brief. */
+.cs-workshop { align-self: flex-start; margin-left: calc(var(--sp-4) * -1); }
+
+@media (max-width: 760px) {
+  .ws-panel { padding: var(--sp-6) var(--sp-5) var(--sp-7); }
+  .ws-desc, .ws-port-name { font-size: var(--fs-touch-input); }
+  .ws-ports li { min-height: calc(var(--sp-8) + var(--sp-5)); }
+  .ws-tool { width: calc(var(--sp-8) + var(--sp-4)); height: calc(var(--sp-8) + var(--sp-4)); }
+}

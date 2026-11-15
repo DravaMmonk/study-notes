@@ -117,7 +117,6 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const level = entry.source
   const base = course.forTask(level)
   const profile = screen.workshop
-  const [workshopOpen, setWorkshopOpen] = useState(false)
   const defined = base.defined ?? gameDefined
   const { board: kind, BUILT, pieces } = base
   const onPhone = useMedia(PHONE)
@@ -341,12 +340,14 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   // The scene comes first: beside the results on a desktop, above them on a phone.
   const strip = cases || (surface?.drawing && !rows.length ? <div className="cs-scene">{scene}{results}</div> : scene ? <div className="cs-told"><div className="cs-scene">{scene}</div><div className="cs-rows">{results}</div></div> : results)
 
-  const workshop = (workshopOpen || screen.workshopOnly) && (
-    <Workshop screen={screen} board={drawn} parts={parts} packed={packed} cards={itemOf}
-      defined={definedFaces} defaults={defaults} types={offers.types} library={library} initial={screen.workshopTray ?? pickedTrays[0] ?? ''}
-      available={available} capture={capture} put={put} update={update} onClose={screen.onWorkshopClose ?? (() => setWorkshopOpen(false))} />
+  // The workshop page plays this screen's board kind on a draft of its own (GameShell).
+  if (screen.workshopOnly) return (
+    <SettingsContext.Provider value={views}>
+      <Workshop screen={screen} tray={screen.workshopTray} carry={screen.workshopCarry} board={drawn} parts={parts} packed={packed} cards={itemOf}
+        defined={definedFaces} defaults={defaults} types={offers.types} library={library}
+        available={available} capture={capture} put={put} update={update} />
+    </SettingsContext.Provider>
   )
-  if (screen.workshopOnly) return <SettingsContext.Provider value={views}>{workshop}</SettingsContext.Provider>
   return (
     <SettingsContext.Provider value={views}>
       <ViewScope.Provider value={viewControls ? { ...scope, profileScan } : scope}>
@@ -387,7 +388,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
             ...faces,
           }}
           canvas={canvas}
-          brief={{ hint: surface?.hint ?? level.hint, text: surface?.text, tip: surface?.tip, children: <>{(told?.(level, onView) ?? []).map((line, k) => <p key={k} className="cs-said">{line.label && <>{L(line.label)} </>}<b>{L(line.text)}</b></p>)}{readouts && <Readouts items={readouts(level, drawn, checked)} />}{!onPhone && practice.panel}{profile && <button type="button" className="kit-btn" onClick={() => setWorkshopOpen(true)}>{tr('元件工坊', 'Component workshop')}</button>}{workshopNotice && <p role="status">{workshopNotice}</p>}</> }}
+          brief={{ hint: surface?.hint ?? level.hint, text: surface?.text, tip: surface?.tip, children: <>{(told?.(level, onView) ?? []).map((line, k) => <p key={k} className="cs-said">{line.label && <>{L(line.label)} </>}<b>{L(line.text)}</b></p>)}{readouts && <Readouts items={readouts(level, drawn, checked)} />}{!onPhone && practice.panel}{profile && screen.onWorkshop && <button type="button" className="kit-btn is-label cs-workshop" onClick={() => screen.onWorkshop(pickedTrays[0] ?? null)}><CircuitBoard size={15} /><span>{tr('元件工坊', 'Component workshop')}</span></button>}{workshopNotice && <p role="status">{workshopNotice}</p>}</> }}
           below={onPhone && practice.panel}
           describe={(n) => (known(n.type) ? resolve.definition(n.type).description : BUILT[n.type] ? pieces[n.type].desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
           results={strip}
@@ -409,7 +410,6 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
           }}
         />
         {surface?.notice}
-        {workshop}
         </PlaneExtent.Provider>
       </ViewScope.Provider>
     </SettingsContext.Provider>
