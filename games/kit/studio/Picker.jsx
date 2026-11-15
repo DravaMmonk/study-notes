@@ -14,7 +14,7 @@ const head = (o) => (o ? `${o.label ?? String(o.value)}${o.title ? ` ${L(o.title
 const paramsOf = (o) => (o.params?.type === 'obj' ? Object.keys(o.params.fields) : o.params ? [o.params.type] : [])
 
 /** The popover's list: a search box (starting at `query`) over every word of each option, arrows and Enter to pick, Escape to leave. */
-export function OptionList({ options, value, onPick, onClose, anchor, onOutside = onClose, floating = false, autoFocus = true, query: first = '' }) {
+export function OptionList({ options, value, onPick, onClose, anchor, onOutside = onClose, floating = false, searchable = true, autoFocus = true, query: first = '' }) {
   const [query, setQuery] = useState(first)
   const overlay = useOverlay(onClose, { onOutside, anchor: () => anchor.current })
   useLayoutEffect(() => {
@@ -44,18 +44,22 @@ export function OptionList({ options, value, onPick, onClose, anchor, onOutside 
     }
   }, [anchor, floating, overlay])
   const shown = useMemo(() => {
-    const q = query.trim().toLowerCase()
+    const q = searchable ? query.trim().toLowerCase() : ''
     return q ? options.filter((o) => `${o.value} ${o.label ?? ''} ${words(o.title)} ${words(o.about)} ${words(o.group)}`.toLowerCase().includes(q)) : options
-  }, [options, query])
+  }, [options, query, searchable])
   const { at, setAt, list, onKeyDown } = useListCursor(shown, {
     initial: Math.max(0, shown.findIndex((o) => o.value === value)),
     onConfirm: (option) => { if (option) onPick(option.value) },
   })
+  useLayoutEffect(() => {
+    if (!searchable && autoFocus) list.current?.focus({ preventScroll: true })
+  }, [list, searchable, autoFocus])
   let group = null
   return (
-    <div ref={overlay} className={`pick-pop ${floating ? 'is-floating' : ''}`} role="dialog">
-      <input className="pick-search" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={onKeyDown} autoFocus={autoFocus} placeholder={tr('搜索')} aria-label={tr('搜索')} />
-      <ul className="pick-list" ref={list} role="listbox">
+    <div ref={overlay} className={`pick-pop ${floating ? 'is-floating' : ''} ${searchable ? '' : 'is-list-only'}`} role="dialog">
+      {searchable && <input className="pick-search" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={onKeyDown} autoFocus={autoFocus} placeholder={tr('搜索')} aria-label={tr('搜索')} />}
+      <ul className="pick-list" ref={list} role="listbox"
+        tabIndex={searchable ? undefined : -1} onKeyDown={searchable ? undefined : onKeyDown}>
         {shown.map((o, k) => {
           const g = o.group ? L(o.group) : null
           const heading = g && g !== group ? <li key={`g ${g}`} className="pick-group">{g}</li> : null
@@ -78,12 +82,16 @@ export function OptionList({ options, value, onPick, onClose, anchor, onOutside 
 }
 
 /** One value among many: a button showing the choice, a popover to search and pick. */
-export function Picker({ options, value, onPick, label = '', placeholder = '—', add = false, icon: Icon }) {
+export function Picker({ options, value, onPick, label = '', placeholder = '—', add = false, icon: Icon, searchable = true }) {
   const [open, setOpen] = useState(false)
   const [submenu, setSubmenu] = useState(null)
   const box = useRef(null)
   const picked = options.find((o) => o.value === value)
-  const close = () => { setOpen(false); setSubmenu(null) }
+  const dismiss = () => { setOpen(false); setSubmenu(null) }
+  const close = () => {
+    dismiss()
+    if (!searchable) box.current?.firstElementChild?.focus()
+  }
   const choose = (key) => {
     const choice = (submenu ?? options).find((o) => o.value === key)
     if (choice?.children) setSubmenu(choice.children)
@@ -102,16 +110,16 @@ export function Picker({ options, value, onPick, label = '', placeholder = '—'
           <ChevronDown size={14} aria-hidden="true" />
         </>}
       </button>
-      {open && <OptionList key={submenu ? 'submenu' : 'menu'} floating anchor={box} options={submenu ?? options} value={submenu ? undefined : value}
-        onPick={choose} onClose={close} />}
+      {open && <OptionList key={submenu ? 'submenu' : 'menu'} floating searchable={searchable} anchor={box} options={submenu ?? options} value={submenu ? undefined : value}
+        onPick={choose} onClose={close} onOutside={dismiss} />}
     </div>
   )
 }
 
 /** The shared creation button, with the same overlay for its available actions. */
-export function AddMenu({ label = tr('新增', 'Add'), options, onPick, icon }) {
+export function AddMenu({ label = tr('新增', 'Add'), options, onPick, icon, searchable }) {
   if (!options.length) return null
-  return <Picker add icon={icon} options={options} onPick={onPick} label={label} placeholder={label} />
+  return <Picker add icon={icon} searchable={searchable} options={options} onPick={onPick} label={label} placeholder={label} />
 }
 
 /** Add a key with a name entered by the author. */
