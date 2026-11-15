@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Markup } from './Markup.jsx'
 
-export const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches
 export const buzz = (pattern) => {
   try {
     if (navigator.vibrate) navigator.vibrate(pattern)

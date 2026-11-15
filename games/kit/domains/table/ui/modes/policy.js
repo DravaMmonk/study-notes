@@ -8,7 +8,8 @@ import { settle, policy, tileAt } from '../../model/worlds/value.js'
 import { ROBOTS } from '../../model/robots.js'
 import { T, tr } from '../../lang.js'
 import { boardDrawing } from '../scene.js'
-import { buzz, reduced, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
+import { reduced } from '../../../../shell/useMedia.js'
+import { buzz, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
 const LABEL = { gold: T('宝藏', 'treasure'), trap: T('陷阱', 'trap') }
 

@@ -3,6 +3,7 @@ import { Pause, Play, StepForward } from 'lucide-react'
 import { paceOf } from '../engine/trace.js'
 import { tr } from './i18n.js'
 import { useSetting } from './useSetting.js'
+import { reduced } from './useMedia.js'
 
 // Playing a level's tests step by step, the same in every game: Run plays every test in turn (the first slowly, the
 // rest fast: ../engine/trace.js paceOf), Step goes one step at a time (pausing a run under way), Pause and Continue
@@ -18,6 +19,7 @@ import { useSetting } from './useSetting.js'
 //   onTest?(k)       the run moved on to test k
 //   board            anything that changes the board: a new one cancels the run
 //   kept?            how far the board's last run had gone (onKeep's mark): it opens there, held, without solving again
+//   immediate        show the first step as soon as the player starts
 //   onKeep?(mark)    the run stands still (held or over) after `mark` moves, or there is none (null)
 //
 // A run is { test, step, playing, results: [{ pass, reason }], over, final?, n, id }: step −1 before the test's first
@@ -25,9 +27,8 @@ import { useSetting } from './useSetting.js'
 // run; id tells one run from another. Each new run captures the current playback speed.
 
 let runs = 0
-const reduced = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
-export function usePlayback({ count, stepsOf, check, final, onSolve, onFail, onTest, board, kept, onKeep }) {
+export function usePlayback({ count, stepsOf, check, final, onSolve, onFail, onTest, board, kept, onKeep, immediate = false }) {
   const [speed] = useSetting('playbackSpeed')
   const cache = useMemo(() => new Map(), [board])
   const steps = (k) => {
@@ -106,7 +107,7 @@ export function usePlayback({ count, stepsOf, check, final, onSolve, onFail, onT
     play: () => {
       if (live) { setRun(finish(run)); return }
       const start = fresh(true)
-      setRun(reduced() ? finish(start) : start)
+      setRun(reduced() ? finish(start) : immediate ? advance(start) : start)
     },
     resume: () => live && setRun({ ...run, playing: true }),
     pause: () => live && setRun({ ...run, playing: false }),

@@ -1,13 +1,14 @@
 // Cut the seam: walk the cheapest seam back up the seam table by hand, cut it, then let the machine carve more, and
 // compare the carved picture with one squeezed to the same width.
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { E } from '../../model/scene.js'
 import { seamTable, seamPath, shade } from '../../model/worlds/picture.js'
 import { tr } from '../../lang.js'
 import { boardDrawing } from '../scene.js'
 import { sceneSVG } from '../svg.js'
-import { usePacedRun } from '../../../../shell/usePacedRun.js'
-import { buzz, reduced, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
+import { usePlayback } from '../../../../shell/usePlayback.jsx'
+import { reduced } from '../../../../shell/useMedia.js'
+import { buzz, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
 const rc = (id) => id.split(',').map(Number)
 /** The picture with one pixel of each row taken out, along `path` ([r, c] a row). */
@@ -23,16 +24,47 @@ function pictureFigure(img, label) {
   return { label, drawing: { markup: sceneSVG({ cells, edges: [] }, { pad: 2, maxScale: 1.6, label }), className: 'sg-figure' } }
 }
 
+/** Trace frames hold the next seam on the image before it is removed. */
+function cutting({ img, cuts }, count) {
+  const steps = []
+  for (let k = 0; k < count && img[0].length > 2; k++) {
+    const path = seamPath(img)
+    steps.push({ img, cuts, path })
+    img = cutOut(img, path)
+    cuts++
+  }
+  return { steps, end: { img, cuts } }
+}
+
 export default function useSeam({ level, solve, fail, revealBoard }) {
   const L = level.source
-  const [img, setImg] = useState(() => L.img.map((r) => r.slice()))
-  const [cuts, setCuts] = useState(0)
-  const [path, setPath] = useState([])
+  const [work, setWork] = useState(() => ({ img: L.img, cuts: 0 }))
+  const [handPath, setPath] = useState([])
   const [msg, setMsg] = useState(null) // { cls, body() }
-  const [auto, setAuto] = useState(false)
-  const player = usePacedRun()
+  const [batch, setBatch] = useState(null)
   const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
+  const playback = usePlayback({
+    count: 1,
+    board: batch,
+    stepsOf: () => batch.steps,
+    check: () => '',
+    immediate: true,
+    onSolve: () => {
+      setWork(batch.end)
+      setBatch(null)
+      if (batch.end.cuts >= L.cuts) later(verdict.pass, reduced() ? 0 : 900)
+    },
+  })
+  useEffect(() => {
+    if (batch) playback.play()
+  }, [batch])
+
+  const framed = playback.shown(0).list.at(-1)
+  const { img, cuts } = framed ?? work
+  const path = framed?.path ?? handPath
+  const auto = cuts > 0
+  const running = batch !== null
   const W = img[0].length, H = img.length
   const { e, f } = seamTable(img)
   const top = path.length === H
@@ -41,27 +73,12 @@ export default function useSeam({ level, solve, fail, revealBoard }) {
     const C = L.img[0].length, keep = Array.from({ length: w }, (_, k) => Math.round((k * (C - 1)) / Math.max(1, w - 1)))
     return L.img.map((row) => keep.map((c) => row[c]))
   }
-
-  /** The machine finds and cuts `n` seams, one at a time, each shown before it goes. */
-  const carve = async (n) => {
-    player.begin()
+  const carve = (count) => {
+    const next = cutting(work, count)
+    if (!next.steps.length) return
+    setBatch(next)
     revealBoard()
-    let now = img, count = cuts
-    for (let k = 0; k < n && now[0].length > 2; k++) {
-      const seam = seamPath(now)
-      setPath(seam)
-      await player.wait(player.pace(0, n).per)
-      if (!player.alive) return
-      now = cutOut(now, seam)
-      count++
-      setImg(now)
-      setCuts(count)
-      setPath([])
-    }
-    player.end()
-    if (count >= L.cuts) later(verdict.pass, reduced() ? 0 : 900)
   }
-  const running = player.running
 
   const onCell = (id) => {
     if (running || auto || top) return
@@ -92,10 +109,8 @@ export default function useSeam({ level, solve, fail, revealBoard }) {
     buzz(8)
   }
   const cutIt = () => {
-    setImg(cutOut(img, path))
-    setCuts(cuts + 1)
+    setWork({ img: cutOut(img, path), cuts: cuts + 1 })
     setPath([])
-    setAuto(true)
     setMsg({ cls: 'good', body: () => tr('剪掉了！图片窄了一列。', 'Cut! The picture is one column narrower.') })
     buzz(15)
   }
@@ -118,7 +133,7 @@ export default function useSeam({ level, solve, fail, revealBoard }) {
       : !top ? tr('再往上一行：三个虚线框里，哪一格的数 + 当前格子的能量，正好等于当前格子的数？', 'Up another row: of the three dashed frames, which cell’s number + the current pixel’s energy exactly equals the current cell’s number?')
         : tr('这条缝找到了，图片上标红的就是它。点「剪掉」。', 'Seam found: it is the one marked in red on the picture. Click “Cut it”.')
   const dock = running
-    ? { meta: tr(`剪了 <b>${cuts}</b> 条`, `<b>${cuts}</b> cut`), go: { label: tr('跳过动画', 'Skip animation'), busy: true, onClick: player.skip } }
+    ? { meta: tr(`剪了 <b>${cuts}</b> 条`, `<b>${cuts}</b> cut`), go: { label: tr('跳过动画', 'Skip animation'), busy: true, onClick: playback.play } }
     : auto
       ? cuts >= L.cuts
         ? { meta: tr('剪完了', 'All cut') }

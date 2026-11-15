@@ -6,7 +6,8 @@ import { E, W } from '../../model/scene.js'
 import { L as text } from '../../../../shell/i18n.js'
 import { tr } from '../../lang.js'
 import { boardDrawing } from '../scene.js'
-import { buzz, reduced, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
+import { reduced } from '../../../../shell/useMedia.js'
+import { buzz, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
 const rc = (id) => id.split(',').map(Number)
 

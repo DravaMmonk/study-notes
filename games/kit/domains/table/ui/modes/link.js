@@ -4,7 +4,8 @@ import { lcsLen } from '../../model/algo.js'
 import { E } from '../../model/scene.js'
 import { tr } from '../../lang.js'
 import { boardDrawing } from '../scene.js'
-import { buzz, reduced, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
+import { reduced } from '../../../../shell/useMedia.js'
+import { buzz, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
 export default function useLink({ level, saved, save, solve, fail, toast }) {
   const L = level.source
