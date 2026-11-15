@@ -41,27 +41,14 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
     setFilter(key)
     store.write(filterKey, key)
   }
-  const [current, setCurrent] = useState(() => {
+  const initial = (last) => {
     const open = all.filter((part) => earned.has(part.key))
-    return (open.find((part) => part.key === start?.id) ?? open.find((part) => !seen.has(part.key)) ?? open.find((part) => part.key === store.read(lastKey, null)) ?? open[0])?.key ?? null
-  })
-  const [shownOnce, setShownOnce] = useState(!phone)
-  useEffect(() => {
-    if (current === null || !shownOnce) return
-    markSeen(current)
-    store.write(lastKey, current)
-  }, [current, shownOnce]) // eslint-disable-line react-hooks/exhaustive-deps
+    return (open.find((part) => !seen.has(part.key)) ?? open.find((part) => part.key === last) ?? open[0])?.key ?? null
+  }
   // Opening a part reference from another panel selects that part directly.
   useEffect(() => {
-    if (!start) return
-    setFilter(null)
-    setCurrent(start.id)
-    setShownOnce(true)
+    if (start) setFilter(null)
   }, [start])
-  const pick = (key) => {
-    setCurrent(key)
-    setShownOnce(true)
-  }
 
   const chip = (part, size) => part.icon && <i className="family-chip" data-family={part.family}>{createElement(part.icon, { size, strokeWidth: 1.7 })}</i>
   // One group per chapter, headed as on the map, each in the order its parts are earned.
@@ -112,8 +99,9 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
       searchLabel={tr('查找元件')}
       filters={filters.length > 0 && <Filters filters={filters} current={filter} onPick={pickFilter} />}
       groups={groups}
-      current={current}
-      onPick={pick}
+      initial={initial}
+      lastKey={lastKey}
+      markSeen={markSeen}
       article={article}
       phone={phone}
       onClose={onClose}

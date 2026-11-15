@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { L, T, tr, isPair } from './i18n.js'
-import Library, { store, useSeen } from './Library.jsx'
+import Library, { useSeen } from './Library.jsx'
 import { Markup } from './Markup.jsx'
 import { fileMark } from './edit.js'
 
@@ -52,27 +52,10 @@ export default function Encyclopedia({ game, wiki, level, phone, start, edit = n
   const { groups, entries, isOpen, seen, markSeen } = wiki
   const lastKey = `${game.id}.wiki.last`
   // Opening inside a level shows what that level brings in; otherwise what was read last, or the first entry.
-  const [current, setCurrent] = useState(() => {
+  const initial = (last) => {
     const open = entries.filter(isOpen)
     const here = level && open.filter((entry) => entry.at === level.id)
-    return (open.find((entry) => entry.id === start?.id) ?? here?.find((entry) => !seen.has(entry.id)) ?? here?.[0] ?? open.find((entry) => entry.id === store.read(lastKey, null)) ?? open[0])?.id ?? null
-  })
-  const [shownOnce, setShownOnce] = useState(!phone)
-  useEffect(() => {
-    if (current === null || !shownOnce) return
-    markSeen(current)
-    store.write(lastKey, current)
-  }, [current, shownOnce]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // A reference clicked inside the encyclopedia moves to that entry.
-  useEffect(() => {
-    if (!start) return
-    setCurrent(start.id)
-    setShownOnce(true)
-  }, [start])
-  const pick = (id) => {
-    setCurrent(id)
-    setShownOnce(true)
+    return (here?.find((entry) => !seen.has(entry.id)) ?? here?.[0] ?? open.find((entry) => entry.id === last) ?? open[0])?.id ?? null
   }
   const list = groups.map((group) => ({
     id: group.id,
@@ -80,7 +63,7 @@ export default function Encyclopedia({ game, wiki, level, phone, start, edit = n
     items: entries.filter((e) => e.group === group.id).map((e) => ({ id: e.id, title: titleOf(e), open: isOpen(e), unread: !seen.has(e.id), lock: e.at && game.byId[e.at] ? game.levelLabel(game.byId[e.at]) : null })),
   }))
 
-  const article = (id, back) => {
+  const article = (id, back, pick) => {
     const entry = entries.find((e) => e.id === id)
     const group = groups.find((g) => g.id === entry.group)
     return (
@@ -112,8 +95,9 @@ export default function Encyclopedia({ game, wiki, level, phone, start, edit = n
       label={tr('词条')}
       searchLabel={tr('查找词条')}
       groups={list}
-      current={current}
-      onPick={pick}
+      initial={initial}
+      lastKey={lastKey}
+      markSeen={markSeen}
       article={article}
       phone={phone}
       onClose={onClose}

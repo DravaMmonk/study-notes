@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { ArrowLeft, Lock, Search, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { useEscape } from './Dialogs.jsx'
@@ -7,7 +7,8 @@ import { useEscape } from './Dialogs.jsx'
 // right; on a phone, the list and then one entry at a time. The encyclopedia and the components box are both one.
 //
 // groups: [{ id, title?, items: [{ id, title, open, unread?, lock? }] }]   lock: what opens it (a level label)
-// article(id, back): the open entry (back is the phone's way to the list, or null)
+// initial(last): the entry to open when no reference was followed
+// article(id, back, open): the entry, a phone back button, and a way to follow an entry link
 // filters: optional controls shown under the search box (the components box's robot filter)
 
 const read = (key, fallback) => {
@@ -40,13 +41,26 @@ export function useSeen(key) {
   return { seen, markSeen }
 }
 
-export default function Library({ title, subtitle, label, groups, current, onPick, article, phone, onClose, searchLabel, filters, start }) {
+export default function Library({ title, subtitle, label, groups, initial, lastKey, markSeen, article, phone, onClose, searchLabel, filters, start }) {
   const [query, setQuery] = useState('')
+  const [selected, setSelected] = useState(() => start?.id ?? initial(read(lastKey, null)))
   // Opened at an entry (a reference clicked), a phone shows that entry rather than the list.
-  const [reading, setReading] = useState(current !== null && (!phone || Boolean(start)))
+  const [reading, setReading] = useState(!phone || Boolean(start))
+  const open = groups.flatMap((group) => group.items.filter((item) => item.open))
+  const current = open.some((item) => item.id === selected) ? selected : open[0]?.id ?? null
+  const showsArticle = !phone || reading
   useEffect(() => {
-    if (start) setReading(true)
+    if (!start) return
+    setSelected(start.id)
+    setReading(true)
   }, [start])
+  const remember = useEffectEvent((id) => {
+    markSeen(id)
+    store.write(lastKey, id)
+  })
+  useEffect(() => {
+    if (current !== null && showsArticle) remember(current)
+  }, [current, showsArticle])
   // The entry shown is in view in the list too, when it was chosen from outside the list (on opening, or by a
   // reference); an entry clicked in the list leaves the list where it is.
   const nav = useRef(null)
@@ -60,9 +74,9 @@ export default function Library({ title, subtitle, label, groups, current, onPic
   }, [current])
   useEscape(onClose)
 
-  const show = (id) => {
-    clicked.current = id !== current
-    onPick(id)
+  const show = (id, fromList = false) => {
+    clicked.current = fromList && id !== current
+    setSelected(id)
     setReading(true)
   }
   const q = query.trim().toLowerCase()
@@ -85,7 +99,7 @@ export default function Library({ title, subtitle, label, groups, current, onPic
             {group.items.map((item) => (
               <li key={item.id}>
                 {item.open ? (
-                  <button type="button" className={`wiki-item ${item.id === current && (reading || !phone) ? 'is-current' : ''}`} onClick={() => show(item.id)} aria-current={item.id === current ? 'true' : undefined}>
+                  <button type="button" className={`wiki-item ${item.id === current && showsArticle ? 'is-current' : ''}`} onClick={() => show(item.id, true)} aria-current={item.id === current ? 'true' : undefined}>
                     {item.lead}
                     <span>{L(item.title)}</span>
                     {item.unread && <i className="wiki-dot" aria-label={tr('未读')} />}
@@ -116,7 +130,7 @@ export default function Library({ title, subtitle, label, groups, current, onPic
         </header>
         <div className="wiki-body">
           {(!phone || !reading) && list}
-          {(!phone || reading) && (current !== null ? article(current, back) : <p className="panel-note wiki-empty">{tr('请从左侧选择一项。')}</p>)}
+          {showsArticle && (current !== null ? article(current, back, show) : <p className="panel-note wiki-empty">{tr('请从左侧选择一项。')}</p>)}
         </div>
       </div>
     </div>
