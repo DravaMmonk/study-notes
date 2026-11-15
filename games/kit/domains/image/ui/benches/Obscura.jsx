@@ -1,7 +1,7 @@
-import { useId, useRef, useState } from 'react'
+import { useId, useMemo, useRef, useState } from 'react'
 import { goalOf, limitOf } from '../../../../engine/bench.js'
 import { tr } from '../../../../shell/i18n.js'
-import { useTween } from './optics-motion.js'
+import { useTween } from '../../../../views/useTween.js'
 import './optics.css'
 
 // The camera obscura's two pictures (bench model `obscura`). The side view, in millimetres: drag the pinhole plate and
@@ -28,7 +28,8 @@ const pts = (list) => list.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).jo
 // The drawn optics follow a tweened copy of the setting.
 function useShown(ctx, instant) {
   const { Z, s, D } = ctx.values
-  const [tZ, tS, tD] = useTween([Z, s, D], { instant })
+  const target = useMemo(() => [Z, s, D], [Z, s, D])
+  const [tZ, tS, tD] = useTween(target, { instant })
   return ctx.model.view({ Z: tZ, s: tS, D: tD })
 }
 

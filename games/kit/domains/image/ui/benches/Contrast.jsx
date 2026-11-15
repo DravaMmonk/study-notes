@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
 import { GridPicture } from '../../../../views/grid/GridView.jsx'
-import { useMedia } from '../../../../shell/useMedia.js'
+import { useTween } from '../../../../views/useTween.js'
 import { L, tr } from '../../../../shell/i18n.js'
 import './contrast.css'
 
@@ -8,47 +7,16 @@ import './contrast.css'
 // quiz view (never trained on) on the unit circle and the dots glide as it trains; and the table of each view's
 // chances of picking each other view as its partner.
 
-const REDUCED = '(prefers-reduced-motion: reduce)'
 const pct = (x) => `${Math.round(x * 100)}%`
 
 // Ease every angle along the shorter way round the circle, so dots glide on the circle, not through it.
-const mixAngles = (from, to, e) =>
-  to.map((b, i) => {
-    const a = from[i] ?? b
-    return a + Math.atan2(Math.sin(b - a), Math.cos(b - a)) * e
-  })
-
-// Animate the angles towards their targets over `ms` (ease-out); reduced motion shows the targets at once.
-function useEased(target, ms) {
-  const reduced = useMedia(REDUCED)
-  const [shown, setShown] = useState(target)
-  const last = useRef(target)
-  useEffect(() => {
-    if (reduced) {
-      last.current = target
-      return undefined
-    }
-    const from = last.current
-    const start = performance.now()
-    let frame = 0
-    const tick = (now) => {
-      const k = Math.min(1, (now - start) / ms)
-      const value = mixAngles(from, target, 1 - (1 - k) ** 3)
-      last.current = value
-      setShown(value)
-      if (k < 1) frame = requestAnimationFrame(tick)
-    }
-    frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
-  }, [target, reduced, ms])
-  return reduced ? target : shown
-}
+const mixAngle = (from, to, progress) => from + Math.atan2(Math.sin(to - from), Math.cos(to - from)) * progress
 
 const tagOf = (m, i) => `${m.NAMES[m.quiz[i].image]}${(i % 2) + 1}`
 
 export function Embedding({ ctx, children }) {
   const m = ctx.model
-  const shown = useEased(ctx.view.angles, 360)
+  const shown = useTween(ctx.view.angles, { ms: 360, interpolate: mixAngle })
   const at = (i, r = 1) => [Math.cos(shown[i]) * r, -Math.sin(shown[i]) * r]
   return (
     <div className="contrast-stage">

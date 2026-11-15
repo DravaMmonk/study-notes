@@ -1,6 +1,6 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useMedia } from '../../../../shell/useMedia.js'
+import { useLayoutEffect, useMemo, useState } from 'react'
 import { L, tr } from '../../../../shell/i18n.js'
+import { useTween } from '../../../../views/useTween.js'
 import './gan.css'
 
 // The GAN duel's chart (bench model `gan`): one x axis (the data value, −4…4) for the histograms of real and generated
@@ -9,35 +9,6 @@ import './gan.css'
 
 const BINS = 32
 const TRACE = 60
-const REDUCED = '(prefers-reduced-motion: reduce)'
-const lerp = (from, to, e) => to.map((b, i) => (from[i] ?? b) + (b - (from[i] ?? b)) * e)
-
-// Animate numbers towards their target (ease-out); reduced motion shows the target at once.
-function useEased(target, ms) {
-  const reduced = useMedia(REDUCED)
-  const [shown, setShown] = useState(target)
-  const last = useRef(target)
-  useEffect(() => {
-    if (reduced) {
-      last.current = target
-      return undefined
-    }
-    const from = last.current
-    const start = performance.now()
-    let frame = 0
-    const tick = (now) => {
-      const k = Math.min(1, (now - start) / ms)
-      const value = lerp(from, target, 1 - (1 - k) ** 3)
-      last.current = value
-      setShown(value)
-      if (k < 1) frame = requestAnimationFrame(tick)
-    }
-    frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
-  }, [target, reduced, ms])
-  return reduced ? target : shown
-}
-
 // The rendered width of an element, so the chart's viewBox is drawn 1:1 and its text stays legible.
 function useWidth(fallback) {
   const [node, setNode] = useState(null)
@@ -59,7 +30,7 @@ export function GanChart({ ctx }) {
 
   // The drawing eases between turns; the readouts always show the true state.
   const target = useMemo(() => [...state.pens, ...state.w], [state])
-  const eased = useEased(target, 200)
+  const eased = useTween(target, { ms: 200 })
   const pens = eased.slice(0, 2)
   const w = eased.slice(2)
 

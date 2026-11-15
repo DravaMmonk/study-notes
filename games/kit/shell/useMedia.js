@@ -13,6 +13,7 @@ export function useMedia(query) {
   )
 }
 
-export const reduced = () => typeof window !== 'undefined' && Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)
+export const REDUCED_MOTION = '(prefers-reduced-motion: reduce)'
+export const reduced = () => typeof window !== 'undefined' && Boolean(window.matchMedia?.(REDUCED_MOTION).matches)
 
 export const PHONE = '(max-width: 760px)'
