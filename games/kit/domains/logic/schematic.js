@@ -13,7 +13,7 @@
 //
 // Some things are fixed (a, b … that a for-any box or Take the one there is took): a metavariable left by a rule may
 // only become a thing that was fixed before it was left (`scopes`: { name: [fixed name] }, `fixed`: every fixed name).
-import { BOT, all, and, atom, bin, ex, fn, imp, meta, parse, same, show, showTerm, subst, tvar } from './formula.js'
+import { BOT, all, and, atom, bin, ex, fn, imp, meta, parse, same, sameTerm, show, showTerm, subst, tvar } from './formula.js'
 import { T } from '../../shell/i18n.js'
 
 export const isMetaName = (name) => name.startsWith('?')
@@ -63,8 +63,8 @@ function head(x0) {
 }
 /** Are two sides the same (up to the names of bound variables)? */
 export function sameSide(a, b) {
-  if (isTerm(a) || isTerm(b)) return isTerm(a) && isTerm(b) && showTerm(a) === showTerm(b)
-  if (a.op === 'lam' || b.op === 'lam') return a.op === b.op && a.params.length === b.params.length && same(renameLam(a, b.params).body, b.body)
+  if (isTerm(a) || isTerm(b)) return isTerm(a) && isTerm(b) && sameTerm(a, b)
+  if (a.op === 'lam' || b.op === 'lam') return a.op === b.op && a.params.length === b.params.length && same(a.body, b.body, a.params.map((name, k) => [name, b.params[k]]))
   return same(a, b)
 }
 const renameLam = (l, params) => ({ ...l, params, body: l.params.reduce((f, p, k) => subst(f, p, tvar(params[k])), l.body) })

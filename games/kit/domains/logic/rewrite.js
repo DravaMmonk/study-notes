@@ -9,8 +9,8 @@
 // ¬¬A: either way round is a rule), the equations proved (the course's `facts`, chapter 12), the level's definitions (`defs`: equations, maybe with conditions, their
 // variables standing for anything), and the goal's own hypotheses (the card's rule 'hyp': the first hypothesis that is
 // an equation or an equivalence and fits somewhere, its ∀ variables standing for anything).
-import { atom, bin, fn, same, show, showTerm, subst, tvar } from './formula.js'
-import { instantiate, isMetaName, lemmaRules, metasIn, parseS, sideText } from './schematic.js'
+import { atom, bin, fn, show, showTerm, subst, tvar } from './formula.js'
+import { instantiate, isMetaName, lemmaRules, metasIn, parseS, sameSide, sideText } from './schematic.js'
 import { T } from '../../shell/i18n.js'
 
 const isTerm = (x) => 't' in x
@@ -18,7 +18,6 @@ const NO_GOALS = T('已经没有目标了')
 
 /* ---------- matching ---------- */
 
-const termKey = (t) => showTerm(t)
 // The free variables of a formula or term.
 function freeIn(x, out = new Set(), bound = new Set()) {
   if (isTerm(x)) {
@@ -37,9 +36,7 @@ function freeIn(x, out = new Set(), bound = new Set()) {
 function bind(σ, name, value) {
   const had = σ[name]
   if (!had) { σ[name] = value; return true }
-  if (isTerm(had) || isTerm(value)) return isTerm(had) && isTerm(value) && termKey(had) === termKey(value)
-  if (had.op === 'lam' || value.op === 'lam') return had.op === value.op && had.params.join() === value.params.join() && same(had.body, value.body)
-  return same(had, value)
+  return sameSide(had, value)
 }
 // The pattern p (a rule's side, with ?-letters) fitted to x, filling σ. `env` pairs the pattern's bound variables with
 // x's, `inside` the variables bound inside the pattern around x (a ?-letter applied to bound variables, ?P(x), may

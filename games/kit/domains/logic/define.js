@@ -10,6 +10,7 @@
 // as everywhere (u … z, xs, ys, zs variables; schematic.js). The equations (`equations`) are what later levels get by
 // the function's name (course.js).
 import { cases, hidden, inOrder, property, sameAs } from '../../engine/judge.js'
+import { sameTerm } from './formula.js'
 import { sayTerm } from './notation.js'
 import { parseS, parseSide } from './schematic.js'
 import { T } from '../../shell/i18n.js'
@@ -20,20 +21,19 @@ export const BUDGET = 200
 /** The definition as equations, written as a level's definitions are: 'c ⟹ l = r' or 'l = r'. */
 export const equations = (level, picks) => level.rows.map((row, k) => `${row.when ? `${row.when} ⟹ ` : ''}${row.lhs} = ${picks[k]}`)
 
-const key = (t) => JSON.stringify(t)
 const isVar = (t) => t.t === 'var'
 // σ extended so that the pattern (its variables standing for anything) is t; null when it cannot be.
 function match(p, t, σ) {
   if (isVar(p)) {
-    if (!(p.name in σ)) return { ...σ, [p.name]: t }
-    return key(σ[p.name]) === key(t) ? σ : null
+    if (!Object.hasOwn(σ, p.name)) return { ...σ, [p.name]: t }
+    return sameTerm(σ[p.name], t) ? σ : null
   }
   if (isVar(t) || p.f !== t.f || p.args.length !== t.args.length) return null
   let cur = σ
   for (let k = 0; k < p.args.length && cur; k++) cur = match(p.args[k], t.args[k], cur)
   return cur
 }
-const fill = (t, σ) => (isVar(t) ? σ[t.name] ?? t : { ...t, args: t.args.map((a) => fill(a, σ)) })
+const fill = (t, σ) => (isVar(t) ? (Object.hasOwn(σ, t.name) ? σ[t.name] : t) : { ...t, args: t.args.map((a) => fill(a, σ)) })
 // A row as a rule: its left and right sides, and its condition (an equation) if it has one.
 const ruleOf = (text) => {
   const [cond, eq] = text.includes('⟹') ? text.split('⟹').map((x) => x.trim()) : [null, text]
@@ -50,7 +50,7 @@ function normal(t, rules, spent) {
   for (const r of rules) {
     const σ = match(r.lhs, inner, {})
     if (!σ) continue
-    if (r.when && key(normal(fill(r.when.l, σ), rules, spent)) !== key(normal(fill(r.when.r, σ), rules, spent))) continue
+    if (r.when && !sameTerm(normal(fill(r.when.l, σ), rules, spent), normal(fill(r.when.r, σ), rules, spent))) continue
     if (++spent.n > BUDGET) throw new Loops()
     return normal(fill(r.rhs, σ), rules, spent)
   }
@@ -96,7 +96,7 @@ export function checkDefine(level) {
       why: T(`算 ${term.zh}，${BUDGET} 步还没算完`, `Working out ${term.en}, ${BUDGET} steps did not finish`),
     }
     return sameAs(parseSide(test.value), {
-      same: (want, got) => key(want) === key(got),
+      same: sameTerm,
       why: () => ({ subject: term, relation: 'evaluates', show: say }),
     })(got.value)
   }))

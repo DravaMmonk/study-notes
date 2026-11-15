@@ -177,15 +177,6 @@ export function substSentence(f, R, by) {
   return f
 }
 
-/** f with the free sentence or property letter R renamed S. */
-const renameSentence = (f, R, S) => {
-  if (f.op === 'atom') return f.pred === R ? atom(S, f.args) : f
-  if (f.op === '¬') return not(renameSentence(f.a, R, S))
-  if (f.op === '∀' || f.op === '∃') return f.prop && f.v === R ? f : { ...f, body: renameSentence(f.body, R, S) }
-  if (f.a) return bin(f.op, renameSentence(f.a, R, S), renameSentence(f.b, R, S))
-  return f
-}
-
 /** Whether the sentence or property letter R occurs free in f. */
 export const mentionsSentence = (f, R) => {
   if (f.op === 'atom') return f.pred === R
@@ -259,30 +250,42 @@ export function subst(f, v, by) {
 
 /* ---------- equality up to renaming bound variables ---------- */
 
-const sameTerm = (s, t, env) => {
-  if (s.t !== t.t) return false
-  if (s.t === 'var') return (env.get(s.name) ?? s.name) === t.name
-  return s.f === t.f && s.args.length === t.args.length && s.args.every((a, k) => sameTerm(a, t.args[k], env))
+// The nearest binder wins on each side. Free names have to agree literally.
+function sameName(a, b, binders) {
+  const left = binders.findLastIndex(([name]) => name === a)
+  const right = binders.findLastIndex(([, name]) => name === b)
+  return left === right && (left >= 0 || a === b)
 }
-// ¬A means A → ⊥, and A ↔ B means (A → B) ∧ (B → A): each is one formula with its meaning to every comparison.
+
+export function sameTerm(s, t, binders = []) {
+  if (s.t !== t.t) return false
+  if (s.t === 'var') return sameName(s.name, t.name, binders)
+  return s.f === t.f && s.args.length === t.args.length && s.args.every((a, k) => sameTerm(a, t.args[k], binders))
+}
+
+// ¬A means A → ⊥, and A ↔ B means (A → B) ∧ (B → A).
 const unneg = (f) => (f.op === '¬' ? bin('→', f.a, BOT) : f.op === '↔' ? bin('∧', bin('→', f.a, f.b), bin('→', f.b, f.a)) : f)
-/** Are two formulas the same, up to the names of bound variables (and ¬A being A → ⊥, A ↔ B both directions)? */
-export function same(f0, g0, env = new Map()) {
+function sameFormula(f0, g0, terms, props) {
   const f = unneg(f0)
   const g = unneg(g0)
   if (f.op !== g.op) return false
   switch (f.op) {
-    case 'atom': return f.pred === g.pred && f.args.length === g.args.length && f.args.every((t, k) => sameTerm(t, g.args[k], env))
-    case 'meta': return f.name === g.name && (f.args ?? []).length === (g.args ?? []).length && (f.args ?? []).every((t, k) => sameTerm(t, g.args[k], env))
+    case 'atom':
+      return sameName(f.pred, g.pred, props) && f.args.length === g.args.length && f.args.every((t, k) => sameTerm(t, g.args[k], terms))
+    case 'meta':
+      return f.name === g.name && (f.args ?? []).length === (g.args ?? []).length && (f.args ?? []).every((t, k) => sameTerm(t, g.args[k], terms))
     case '⊥': return true
-    case '∀': case '∃':
+    case '∀': case '∃': {
       if (Boolean(f.prop) !== Boolean(g.prop)) return false
-      // Two sentence letters bound alike: compare with g's renamed to f's.
-      if (f.prop) return same(f.body, f.v === g.v ? g.body : renameSentence(g.body, g.v, f.v), env)
-      return same(f.body, g.body, new Map([...env, [f.v, g.v]]))
-    default: return same(f.a, g.a, env) && same(f.b, g.b, env)
+      const pair = [f.v, g.v]
+      return f.prop ? sameFormula(f.body, g.body, terms, [...props, pair]) : sameFormula(f.body, g.body, [...terms, pair], props)
+    }
+    default: return sameFormula(f.a, g.a, terms, props) && sameFormula(f.b, g.b, terms, props)
   }
 }
+
+/** Compare formulas up to renaming bound variables. Enclosing function parameters pair the two bodies' outer binders. */
+export const same = (f, g, params = []) => sameFormula(f, g, params, [])
 
 /** The proposition letters and predicates (with their arities) and the functions a set of formulas uses. */
 export function signature(formulas) {

@@ -333,6 +333,31 @@ test('a lemma of several shapes computes as the shape its card is switched to', 
   assert.equal(lemmaGives({ metas: ['P'], forms: [{ key: 'notAll', statement: '∃x. ¬P', premises: ['¬∀x. P'] }] }, [parse('¬∀y. D(y)')], parse('∃y. ¬D(y)'), []), false)
 })
 
+test('formula and function equality compare the binders each occurrence refers to', async () => {
+  const { sameSide, solveEqs } = await import('./schematic.js')
+  const compares = (left, right, expected) => {
+    assert.equal(same(parse(left), parse(right)), expected)
+    assert.equal(same(parse(right), parse(left)), expected)
+  }
+  compares('∀x. Human(y)', '∀y. Human(y)', false)
+  compares('∀x. ∀y. Human(x)', '∀z. ∀z. Human(z)', false)
+  compares('∀x. ∀x. Human(x)', '∀y. ∀z. Human(z)', true)
+  compares('∀P. Q(x)', '∀Q. Q(x)', false)
+  compares('∀P. ∀Q. P(x)', '∀A. ∀A. A(x)', false)
+  compares('∀P. ∀P. P(x)', '∀Q. ∀R. R(x)', true)
+  compares('∀R. ¬R', '∀S. S → ⊥', true)
+
+  const lambda = (params, text) => ({ op: 'lam', params, body: parse(text) })
+  const left = lambda(['x', 'y'], 'Likes(x, y)')
+  const swapped = lambda(['y', 'x'], 'Likes(y, x)')
+  assert.equal(sameSide(left, swapped), true)
+  const free = lambda(['x'], 'Human(y)')
+  const bound = lambda(['y'], 'Human(y)')
+  assert.equal(sameSide(free, bound), false)
+  assert.equal(sameSide(bound, free), false)
+  assert.ok(solveEqs([{ s: free, t: bound, bound: [] }]).fail)
+})
+
 test('unification solves sentences with ?-letters, patterns as functions, and refuses what has no solution', async () => {
   const { FULL, parseEquation, sideText, solveEqs } = await import('./schematic.js')
   const solve = (text) => {
