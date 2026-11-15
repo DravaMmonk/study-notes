@@ -17,7 +17,7 @@
 // palette (Ctrl/⌘+K) reaches every place and action, ? lists the keys.
 import './studio.css'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { Command, ListTree, Search as SearchIcon, Shapes } from 'lucide-react'
+import { Command, ListTree, Search as SearchIcon, Shapes, SlidersHorizontal } from 'lucide-react'
 import { GAMES } from '../../games.js'
 import { mountBarMenus } from '../menu.js'
 import { L, getLang, tr } from '../shell/i18n.js'
@@ -33,6 +33,7 @@ import { addFor, markOf, markPath } from './marks.js'
 import { withParts } from '../engine/parts/define.js'
 import { DEFAULT_VIEWS } from '../shell/parts/PartFace.jsx'
 import PartsList from './PartsList.jsx'
+import SettingsList from './SettingsList.jsx'
 import { itemOf } from './worklist.js'
 import { paletteIndex } from './palette.js'
 import { bulkMove } from './bulk.js'
@@ -505,6 +506,11 @@ export default function Studio() {
     : field?.path && sideFile?.game ? { file: 'game', path: JSON.stringify(field.path) }
     : field?.path && sideFile?.glossary ? { file: 'glossary', path: JSON.stringify(field.path[0] === 'entries' && Number.isInteger(field.path[1]) ? ['entries', content.glossary.entries[field.path[1]]?.id, ...field.path.slice(2)] : field.path) }
     : null
+  const openSetting = (setting) => {
+    setSide('settings')
+    setTab('fields')
+    select({ setting })
+  }
   const sideCtx = vocab && content && {
     vocabulary: vocab.vocabulary,
     levels: content.levels.map((l) => l.id),
@@ -512,8 +518,9 @@ export default function Studio() {
     levelOptions,
     textField,
     lang,
-    onSetting: (setting) => select({ setting }),
-    onPiece: (part) => select({ part }),
+    onSetting: openSetting,
+    onSettings: () => setSide('settings'),
+    onPiece: (part) => { setSide('parts'); select({ part }) },
     ...(sideFile?.level && {
       onBoard: (path) => onBoard(sideFile.level, showPath(path)),
       before: (path) => {
@@ -641,8 +648,11 @@ export default function Studio() {
               <button type="button" role="tab" aria-selected={side === 'tree'} className={side === 'tree' ? 'is-on' : ''} onClick={() => setSide('tree')} title={tr('课程')}><ListTree size={14} aria-hidden="true" /></button>
               <button type="button" role="tab" aria-selected={side === 'search'} className={side === 'search' ? 'is-on' : ''} onClick={openSearch} title={`${tr('搜索')} (${MOD}+Shift+F)`}><SearchIcon size={14} aria-hidden="true" /></button>
               {content.partDefs && <button type="button" role="tab" aria-selected={side === 'parts'} className={side === 'parts' ? 'is-on' : ''} onClick={() => setSide('parts')} title={tr('件', 'Pieces')}><Shapes size={14} aria-hidden="true" /></button>}
+              <button type="button" role="tab" aria-selected={side === 'settings'} className={side === 'settings' ? 'is-on' : ''} onClick={() => setSide('settings')} title={tr('设置', 'Settings')}><SlidersHorizontal size={14} aria-hidden="true" /></button>
             </div>
-            {side === 'parts' && content.partDefs
+            {side === 'settings'
+              ? <SettingsList key={game} file={content.partDefs} vocabulary={vocab.vocabulary} selected={at?.setting} onSelect={openSetting} onEdit={edit} />
+              : side === 'parts' && content.partDefs
               ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={(next) => { select(next); if (!['page', 'fields'].includes(tab)) setTab('page') }} onEdit={edit} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={jump} />

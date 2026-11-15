@@ -5,7 +5,7 @@ import { S } from './schema.js'
 import { solutionStamp, taskStamps } from './stamp.js'
 
 const TASK = S.obj({ id: S.str(), brief: S.text(), tests: S.list(S.num()) })
-const vocabulary = { level: S.obj({ id: S.str(), title: S.text(), size: S.num(), tasks: S.list(TASK) }) }
+const vocabulary = { kinds: { setting: { amount: {} } }, level: S.obj({ id: S.str(), title: S.text(), size: S.num(), tasks: S.list(TASK) }) }
 const text = (zh) => ({ zh, en: zh })
 const content = (change = {}) => ({
   partDefs: change.parts ?? null,
@@ -37,6 +37,15 @@ test('words are no part of a stamp, and a task moved to another level like it ke
   const moved = content()
   moved.levels[1].tasks.push(moved.levels[0].tasks.pop())
   assert.deepEqual([stamps(moved).b, taskStamps(vocabulary, moved).b.level], [stamps(content()).b, 'two'])
+})
+
+test('unused setting definitions do not invalidate work', () => {
+  const file = { parts: { add: { name: 'Add' } } }
+  const settings = { amount: { control: 'number', default: 2 } }
+  const unused = { ...file, settings }
+  assert.deepEqual(stamps(content({ parts: file })), stamps(content({ parts: unused })))
+  const used = { ...unused, parts: { add: { ...file.parts.add, settings: [{ key: 'amount', setting: 'amount' }] } } }
+  assert.notDeepEqual(stamps(content({ parts: unused })), stamps(content({ parts: used })))
 })
 
 test('a solution stamp includes the selected works throughout a shared reference closure', () => {

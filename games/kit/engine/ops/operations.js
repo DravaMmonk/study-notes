@@ -11,6 +11,7 @@ import { parse } from '../../circuit/text.js'
 import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.js'
 import { PATHS, describe, locate, putIn, takeOut } from './place.js'
 import { levelRefs, partRefs, renamePartRefs, renameRefs } from './refs.js'
+import { settingReferences } from '../pieces.js'
 import { GLOSSARY } from '../vocabulary.js'
 import { NAME as PART_NAME, PARTS_FILE, SETTING } from '../parts/schema.js'
 import { renameSlot } from '../../pipeline/blueprint.js'
@@ -389,21 +390,44 @@ export const OPERATIONS = {
     },
   },
   'setting.add': {
-    about: t('新建设置定义并加到件上', 'Create a setting definition and attach it to a piece'),
-    params: S.obj({ piece: PART_NAME, setting: PART_NAME, key: PART_NAME, data: SETTING }),
-    apply(ws, { piece, setting, key, data }) {
+    about: t('新建独立的设置定义', 'Create a setting definition'),
+    params: S.obj({ setting: PART_NAME, data: SETTING }),
+    apply(ws, { setting, data }) {
       const file = partsOf(ws)
-      const part = file.parts[piece]
-      if (!Object.hasOwn(file.parts, piece) || part.editor === 'strip') fail(`${piece} has no setting face`)
       if (Object.hasOwn(file.settings ?? {}, setting)) fail(`there is a setting ${setting} already`)
-      if (part.settings?.some((binding) => binding.key === key)) fail(`${piece} already uses key ${key}`)
-      const path = ['parts', piece, 'settings']
-      const inverse = [
-        restore('pieces', file, path, {}),
-        ...(file.settings === undefined ? [restore('pieces', file, ['settings'], {})] : [restore('pieces', file, ['settings', setting], {})]),
-      ]
-      ws.partDefs = setAt({ ...file, settings: { ...file.settings, [setting]: data } }, path, [...(part.settings ?? []), { key, setting }])
-      return { says: `${piece}: added setting ${setting}`, inverse }
+      const path = file.settings === undefined ? ['settings'] : ['settings', setting]
+      ws.partDefs = { ...file, settings: { ...file.settings, [setting]: data } }
+      return { says: `pieces: added setting ${setting}`, inverse: [restore('pieces', file, path, {})] }
+    },
+  },
+  'setting.rename': {
+    about: t('更改设置定义的 ID 并更新所有引用', 'Rename a setting definition and update its references'),
+    params: S.obj({ setting: PART_NAME, to: PART_NAME }),
+    apply(ws, { setting, to }) {
+      const file = partsOf(ws)
+      if (!Object.hasOwn(file.settings ?? {}, setting)) fail(`no setting ${setting}`)
+      if (Object.hasOwn(file.settings, to)) fail(`there is a setting ${to} already`)
+      const uses = settingReferences(file, setting)
+      const parts = { ...file.parts }
+      for (const piece of new Set(uses.map((use) => use.piece))) {
+        const def = parts[piece]
+        parts[piece] = { ...def, settings: def.settings.map((ref) => ref.setting === setting ? { ...ref, setting: to } : ref) }
+      }
+      const settings = Object.fromEntries(Object.entries(file.settings).map(([id, def]) => [id === setting ? to : id, def]))
+      ws.partDefs = { ...file, parts, settings }
+      return { says: `pieces: setting ${setting} → ${to}`, inverse: [{ op: 'setting.rename', setting: to, to: setting }] }
+    },
+  },
+  'setting.remove': {
+    about: t('删除没有被件引用的设置定义', 'Delete an unused setting definition'),
+    params: S.obj({ setting: PART_NAME }),
+    apply(ws, { setting }) {
+      const file = partsOf(ws)
+      if (!Object.hasOwn(file.settings ?? {}, setting)) fail(`no setting ${setting}`)
+      const uses = settingReferences(file, setting)
+      if (uses.length) fail(`${setting} is still used by ${uses.map(({ piece, key }) => `${piece}.${key}`).join(', ')}`)
+      ws.partDefs = unsetAt(file, ['settings', setting])
+      return { says: `pieces: removed setting ${setting}`, inverse: [restore('pieces', file, ['settings'], {})] }
     },
   },
   'pieces.set': {

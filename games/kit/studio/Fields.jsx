@@ -19,7 +19,7 @@ import { blank, moved, recast, revertOf, shapeName, summaryOf, taskOptionsOf } f
 import { Chips, Choice, Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { GridField, NumbersField, TableField, TicksField, WaveField } from './Cells.jsx'
-import { AddFields, AddSetting, ExprField, IconField } from './PartFields.jsx'
+import { AddFields, AttachSetting, ExprField, IconField } from './PartFields.jsx'
 import { useDraft } from './draft.js'
 
 
@@ -275,7 +275,7 @@ function ListField({ field, onEdit, ctx }) {
           </div>
         )
       })}
-      {field.bindings ? <AddSetting field={field} ctx={ctx} onAttach={(binding) => put([...values, binding])} /> : <button type="button" className="field-add" onClick={() => onEdit([...field.path, items.length], { set: items.length ? structuredCopy(values.at(-1)) : blank(field.of, ctx) }, field.of.type)} aria-label={tr('加一项')}><Plus size={13} aria-hidden="true" /></button>}
+      {field.bindings ? <AttachSetting field={field} ctx={ctx} onAttach={(binding) => put([...values, binding])} /> : <button type="button" className="field-add" onClick={() => onEdit([...field.path, items.length], { set: items.length ? structuredCopy(values.at(-1)) : blank(field.of, ctx) }, field.of.type)} aria-label={tr('加一项')}><Plus size={13} aria-hidden="true" /></button>}
     </div>
   )
 }

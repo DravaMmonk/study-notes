@@ -4,14 +4,13 @@
 // and settings it may name), and a list beside it offers every resource of the domain (and the kernel's builtins), the
 // part's inputs and its settings, each put in at the caret with a click.
 import { useMemo, useRef, useState } from 'react'
-import { L, T, tr } from '../shell/i18n.js'
+import { L, tr } from '../shell/i18n.js'
 import { ExprError, parse, problemsOf } from '../engine/parts/expr.js'
 import { resolveSettings, settingReferences } from '../engine/pieces.js'
 import { BUILTIN_ITEMS } from '../engine/parts/builtins.js'
 import { ICON_NAMES } from '../engine/parts/icons.js'
 import { validate } from '../engine/schema.js'
 import { ICONS } from '../shell/parts/icons.js'
-import { settingControlOptions } from '../engine/parts/schema.js'
 import { formOf } from './form.js'
 import { Picker } from './Picker.jsx'
 import { useDraft } from './draft.js'
@@ -92,34 +91,19 @@ export function IconField({ field, onSet, label }) {
   )
 }
 
-/** Attach an existing setting or create a definition and its first binding together. */
-export function AddSetting({ field, ctx, onAttach }) {
-  const controls = settingControlOptions(ctx.vocabulary)
-  const existing = formOf(field.of.fields.setting, undefined, ctx).options
-  const newSetting = T('新建设置', 'New setting')
-  const existingSetting = T('引用已有设置', 'Use existing setting')
-  const options = [
-    ...controls.map(({ value }) => ({ value: `new:${value}`, label: value, group: newSetting })),
-    ...existing.map((o) => ({ ...o, value: `existing:${o.value}`, label: o.value, group: existingSetting })),
-  ]
-  const pick = (value) => {
-    const [action, id] = value.split(':')
-    const keys = new Set(field.items.map(({ value: binding }) => binding.key))
-    const stem = action === 'new' ? 'setting' : id
-    let key = stem
-    for (let n = 2; keys.has(key); n += 1) key = `${stem}${n}`
-    if (action === 'existing') {
-      onAttach({ key, setting: id })
-      return
-    }
-    const piece = field.path[1]
-    const taken = new Set(existing.map((o) => o.value))
-    const name = `${piece}_${key}`
-    let setting = name
-    for (let n = 2; taken.has(setting); n += 1) setting = `${name}${n}`
-    ctx.onAddSetting({ piece, setting, key, data: controls.find((option) => option.value === id).data })
+/** Bind a setting definition to a unique local key on this piece. */
+export function AttachSetting({ field, ctx, onAttach }) {
+  const options = formOf(field.of.fields.setting, undefined, ctx).options
+  const label = tr('引用设置', 'Attach setting')
+  const pick = (setting) => {
+    const keys = new Set(field.items.map(({ value }) => value.key))
+    let key = setting
+    for (let n = 2; keys.has(key); n += 1) key = `${setting}${n}`
+    onAttach({ key, setting })
   }
-  return <Picker options={options} onPick={pick} label={tr('添加设置', 'Add setting')} placeholder={tr('添加设置', 'Add setting')} />
+  return options.length
+    ? <Picker options={options} onPick={pick} label={label} placeholder={label} />
+    : <button className="kit-btn is-label" type="button" onClick={ctx.onSettings}>{tr('打开设置管理', 'Open settings manager')}</button>
 }
 
 /** Show which pieces will see edits to this setting, with a link to each reference. */

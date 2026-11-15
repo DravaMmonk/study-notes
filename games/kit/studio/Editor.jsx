@@ -14,6 +14,8 @@ import { useWorkspaceKeys } from '../shell/useOverlay.js'
 import { getAt, showPath } from '../engine/ops/edit.js'
 import { blank, fieldAt, fileForm, formOf, gameFields, opFor, placeFindings, sectionsOf } from './form.js'
 import { holdsLevels } from '../engine/schema.js'
+import { settingReferences } from '../engine/pieces.js'
+import { NAME as PART_NAME } from '../engine/parts/schema.js'
 import { freeName } from './PartsList.jsx'
 import { Field, Shapes, TagChoice } from './Fields.jsx'
 import Rows from './Rows.jsx'
@@ -23,6 +25,7 @@ import { usePref } from './prefs.js'
 import { MOD } from './Shortcuts.jsx'
 
 const ID = /^[A-Za-z0-9][A-Za-z0-9_-]*$/
+const PIECE_ID = new RegExp(PART_NAME.pattern)
 const SECTION = {
   read: ['文案', 'Copy'], puzzle: ['谜题', 'Puzzle'], tests: ['测试', 'Tests'], answers: ['答案', 'Answers'], course: ['课程', 'Course'], tasks: ['任务', 'Tasks'],
 }
@@ -170,49 +173,51 @@ function GameEditor({ content, base, vocabulary, order, names, levelOptions, fie
   )
 }
 
-/** A part of pieces.json, or one of its setting definitions: its fields as rows, and the part's own actions. */
+/** An independently selected piece or setting definition, with its fields and definition actions. */
 function PartEditor({ content, base, vocabulary, order, names, levelOptions, at, places, field, onEdit, onSelect, onPick }) {
   const file = { parts: true }
   const ctx = ctxOf({ vocabulary, order, names, levelOptions }, { partDefs: content.partDefs })
   const shown = fileForm(content, vocabulary, file, order)
-  const path = at.part !== undefined ? ['parts', at.part] : ['settings', at.setting]
+  const kind = at.part !== undefined ? 'part' : 'setting'
+  const isPiece = kind === 'part'
+  const selected = at[kind]
+  const path = [`${kind}s`, selected]
   const hit = fieldAt(shown.form, path)
-  const types = Object.keys(content.partDefs?.parts ?? {})
-  const [id, setId] = useState(at.part ?? '')
-  useEffect(() => setId(at.part ?? ''), [at.part])
+  const taken = Object.keys(content.partDefs?.[path[0]] ?? {})
+  const [id, setId] = useState(selected)
+  useEffect(() => setId(selected), [selected])
   if (!hit?.field) return <article className="editor"><p className="editor-note">{tr('这一项已经不在了。')}</p></article>
   const { at: findings } = placeFindings(shown.form, places.filter((p) => p.file === 'parts'))
   const rename = () => {
-    if (id === at.part || !ID.test(id) || types.includes(id)) return
-    onEdit({ op: 'piece.rename', piece: at.part, to: id })
-    onSelect({ part: id })
+    if (id === selected || !PIECE_ID.test(id) || taken.includes(id)) return
+    onEdit(isPiece ? { op: 'piece.rename', piece: selected, to: id } : { op: 'setting.rename', setting: selected, to: id })
+    onSelect({ [kind]: id })
   }
   const copy = () => {
-    const to = freeName(types, `${at.part}_`)
-    onEdit({ op: 'piece.add', piece: to, data: JSON.parse(JSON.stringify(hit.field.value)), after: at.part })
-    onSelect({ part: to })
+    const to = freeName(taken, `${selected}_`)
+    const data = hit.field.value
+    onEdit(isPiece ? { op: 'piece.add', piece: to, data, after: selected } : { op: 'setting.add', setting: to, data })
+    onSelect({ [kind]: to })
+  }
+  const definition = hit.field.value
+  const inUse = !isPiece && settingReferences(content.partDefs, selected).length > 0
+  const remove = () => {
+    onEdit(isPiece ? { op: 'piece.remove', piece: selected } : { op: 'setting.remove', setting: selected })
+    onSelect(null)
   }
   return (
     <article className="editor">
       <header className="editor-head">
-        {at.part !== undefined ? (
-          <>
-            <input className="editor-id" value={id} onChange={(e) => setId(e.target.value)} onBlur={rename} onKeyDown={(e) => e.key === 'Enter' && rename()} aria-label={tr('件的类型名')} spellCheck={false} />
-            <h1>{L(hit.field.value.name)}</h1>
-            <span className="kit-spacer" />
-            <span className="editor-tools">
-            <button type="button" className="kit-btn editor-tool" onClick={copy} title={tr('复制成新的件')}><Copy size={14} /></button>
-            <button type="button" className="kit-btn editor-tool" onClick={() => { onEdit({ op: 'piece.remove', piece: at.part }); onSelect(null) }} title={tr('删掉这个件（还有地方用到它时拒绝）')}><Trash2 size={14} /></button>
-            </span>
-          </>
-        ) : (
-          <>
-            <span className="editor-id is-static">{at.setting}</span>
-            <h1>{hit.field.value.label ? L(hit.field.value.label) : at.setting}</h1>
-            <span className="kit-spacer" />
-            <span className="editor-tools"><button type="button" className="kit-btn editor-tool" onClick={() => { onEdit({ op: 'pieces.unset', path }); onSelect(null) }} title={tr('删掉这项设置')}><Trash2 size={14} /></button></span>
-          </>
-        )}
+        <input className="editor-id" value={id} onChange={(e) => setId(e.target.value)} onBlur={rename} onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur() }}
+          aria-label={isPiece ? tr('件的类型名') : tr('设置 ID', 'Setting ID')} spellCheck={false} />
+        <h1>{L(isPiece ? definition.name : definition.label) || selected}</h1>
+        <span className="kit-spacer" />
+        <span className="editor-tools">
+          <button type="button" className="kit-btn editor-tool" onClick={copy} title={isPiece ? tr('复制成新的件') : tr('复制设置', 'Duplicate setting')}><Copy size={14} /></button>
+          <button type="button" className="kit-btn editor-tool" onClick={remove} disabled={inUse} title={isPiece
+            ? tr('删掉这个件（还有地方用到它时拒绝）')
+            : inUse ? tr('仍有件引用这项设置', 'This setting is still used by pieces') : tr('删除设置', 'Delete setting')}><Trash2 size={14} /></button>
+        </span>
       </header>
       <Rows form={hit.field} picked={field} findings={findings} before={beforeIn(base?.partDefs)} onPick={onPick} onAdd={addIn(file, onEdit, onPick, ctx)} />
     </article>

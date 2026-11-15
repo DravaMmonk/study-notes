@@ -588,7 +588,7 @@ Studio 分隔条、工作台尺寸和手机底部面板共用指针会话。拖�
 | `tree` | 拼一句 | `optional`（可以不填） | 一句话的文字：屏幕给出这个任务、这个测试的语言（`CircuitScreen` 的 `language`），词序条拼出（`strip/TreePick.jsx`） |
 | `custom` | 自定义 | `widget`（领域 `widget` 种类的一项）、`params`（合那一项的 schema） | 那一项说 |
 
-设置定义统一放在顶层 `settings`。件用 `{ key, setting }` 引用一项定义，`key` 是写入蓝图和存档的本地键。Studio 从件的设置区新建或引用设置，引用共用的定义时列出使用它的件。件菜单、设置控件及引用的选项都由内核提供。每份定义包含：`label`、`about`（悬停和单子里的一行说明）、`options` 的每一项也可以有 `about`（这个选项做什么：一句完整的话），`default`、`when`（只读设置的式子，为真时才出现：`eq($axis, 'x')`）、`fixed`（只显示，玩家不能改）。`select`、`buttons`、`list` 的选项可以不写出来，写 `from`：一个式子，由领域的资源按卡片接进来的值算出 `[{ value, label }]`（资源这时看到屏幕给的 `context`：任务、测试的文字和这张卡）——《证明完毕》里任取框能取的名字、等量代换能换的位置都是这样算出来的。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的件用（它在 `pieces.json` 那一项的 `settings`）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
+设置定义统一放在顶层 `settings`。件用 `{ key, setting }` 引用一项定义，`key` 是写入蓝图和存档的本地键。Studio 左栏的「设置」独立创建、编辑、复制、改名和删除定义，并列出使用它的件。件的设置区选择已有定义与本地键；改名同步更新引用，定义有引用时拒绝删除。件菜单、设置控件及引用的选项都由内核提供。每份定义包含：`label`、`about`（悬停和单子里的一行说明）、`options` 的每一项也可以有 `about`（这个选项做什么：一句完整的话），`default`、`when`（只读设置的式子，为真时才出现：`eq($axis, 'x')`）、`fixed`（只显示，玩家不能改）。`select`、`buttons`、`list` 的选项可以不写出来，写 `from`：一个式子，由领域的资源按卡片接进来的值算出 `[{ value, label }]`（资源这时看到屏幕给的 `context`：任务、测试的文字和这张卡）——《证明完毕》里任取框能取的名字、等量代换能换的位置都是这样算出来的。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的件用（它在 `pieces.json` 那一项的 `settings`）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
 
 **运算是一行 ASCII 表达式**（`kit/engine/parts/expr.js`），只能调用领域的引擎资源：
 
@@ -628,7 +628,7 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 
 **内核替领域做的**：`kit/engine/parts/define.js` 的 `defineParts(file, ops)` 把 `pieces.json` 变成引擎的元件表（`inputs`、`outputs`、`params`、`settings`、`eval`），给出每个元件的默认设置；`kit/shell/parts/` 的 `faces.jsx` 给出编辑器的元件描述（名字、口、口名、类别、图标、卡片宽）、托盘的条目和卡片的三面（`PartFace.jsx` 画块，`SettingField.jsx` 画设置）。电路关用 `CircuitLevel` 的 `defined`：领域交出 `{ of(type) → 定义或 null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) }`，定义了的元件的卡片、格位、详情、设置和新元件的默认值都由内核画、内核给，封装件里面的板也一样；领域只画关卡给的节点和封装件。搭出的件的设置写在它在 `pieces.json` 的那一项（`settings`，可以 `use` 预设），领域用同一个 `SettingField` 画。领域的 `game.js` 在游戏描述上挂 `defined = { of, defaults, ops, widgets? }`，studio 的元件页用它画元件（第 6.7 节）。领域的词汇表有 `op` 种类时，`withParts` 将代码和 `pieces.json` 登记的元件一起放进词汇表的 `part` 种类，`S.ref('part')` 可引用任一来源。电路注册表同样合并两份定义，同名时取内容定义。
 
-**操作**：`piece.add`（新件，或复制一个；参数 `piece`）、`piece.remove`（还有关卡、课程或板用到它时拒绝）、`piece.rename`（改到课程、关卡、板和 `configurations` 里的每一处）、`setting.add`（同时创建设置定义和引用）、`pieces.set` / `pieces.unset`（`pieces.json` 里的一个字段，路径如 `parts.arithmetic.settings[0].options`、`presets.outside.default`：文件里件的表仍叫 `parts`），`text.set` 的 `in: 'pieces'`。改名之前的修改日志照原样写着 `part.*`、`parts.set` 和 `parts.json`，是历史，不再能撤销。
+**操作**：`piece.add`（新件，或复制一个；参数 `piece`）、`piece.remove`（还有关卡、课程或板用到它时拒绝）、`piece.rename`（改到课程、关卡、板和 `configurations` 里的每一处）、`setting.add`、`setting.rename`、`setting.remove`（设置定义的独立管理，改名同步引用）、`pieces.set` / `pieces.unset`（`pieces.json` 里的一个字段，路径如 `parts.arithmetic.settings[0].setting`、`settings.outside.default`：文件里件的表仍叫 `parts`），`text.set` 的 `in: 'pieces'`。改名之前的修改日志照原样写着 `part.*`、`parts.set` 和 `parts.json`，是历史，不再能撤销。
 
 **内容的形状**：`kit/engine/content.js` 把 `pieces.json` 组装成内容的 `partDefs`（不叫 `parts`：原型游戏的 `game.json` 有自己的 `parts` 字段）。
 

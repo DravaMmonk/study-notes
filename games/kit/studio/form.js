@@ -496,7 +496,7 @@ export function pushOp(ops, op) {
   // A task's id typed a letter at a time is one rename, from the id it had.
   if (op.op === 'task.rename' && last?.op === 'task.rename' && last.to === op.task) return [...ops.slice(0, -1), { ...op, task: last.task }]
   // Adding, removing and renaming never stand for one another; nor do task operations, each placed against the one before.
-  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'level.rename'].includes(op.op) || op.op.startsWith('task.') || op.op === 'setting.add') return [...ops, op]
+  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'level.rename'].includes(op.op) || op.op.startsWith('task.') || op.op.startsWith('setting.')) return [...ops, op]
   return [...ops.slice(0, -1), op]
 }
 
