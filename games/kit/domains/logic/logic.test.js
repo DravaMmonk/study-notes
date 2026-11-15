@@ -12,7 +12,7 @@ import { runOutputTests } from '../../engine/test-run.js'
 import { parse, same, show, subst, substMany, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
 import { MACHINE_BOARD, MACHINE_TESTS, RULE_PIECE, rulePartOf, runMachine } from './machine.js'
-import { defineParts } from '../../engine/parts/define.js'
+import { compileParts } from '../../engine/parts/define.js'
 import { OPS } from './ops.js'
 import { LOGIC_TESTS, PROOF_BOARD, RULES, lemmaGives } from './proof.js'
 import { partsOf } from './ops.js'
@@ -28,7 +28,7 @@ const run = (level, circuit) => runOutputTests(LOGIC_TESTS, { parts: proofParts(
 // A machine runs on the starter's machine parts, and a rule part for every rule part type.
 const STARTER_DEFINED = partsOf(STARTER)
 const MACHINE_ONLY = Object.fromEntries(Object.entries(STARTER_DEFINED.PARTS).filter(([type]) => ['tactic', 'loop'].includes(STARTER_DEFINED.defs[type].family)))
-const RULE_ENGINE = defineParts({ parts: { rules: RULE_PIECE } }, OPS).PARTS.rules
+const RULE_ENGINE = compileParts({ rules: RULE_PIECE }, OPS).PARTS.rules
 const machineParts = (type) => MACHINE_BOARD.FIXED_PARTS[type] ?? MACHINE_ONLY[type] ?? RULE_ENGINE
 const onMachine = (level) => ({ parts: machineParts, ...level })
 

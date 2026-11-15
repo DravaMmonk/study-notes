@@ -14,6 +14,7 @@ import { L, tr } from '../shell/i18n.js'
 import { getAt, setAt, showPath } from '../engine/ops/edit.js'
 import { blank, fieldAt, fileForm, moved, opFor, placeFindings, taskListOps } from './form.js'
 import { Field } from './Fields.jsx'
+import { SettingUsers } from './PartFields.jsx'
 import { Picker } from './Picker.jsx'
 
 export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, onEdit, onOps, onPick, onClose, onLevel }) {
@@ -77,10 +78,17 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   const isTask = tasked && path.length === 2 && path[0] === 'tasks'
   const list = typeof last === 'number' && !isTask ? getAt(shown.value, parent) : null
   const optional = !list && hit.entry?.optional
-  const ctxHere = { ...ctx, findings, partDefs: content.partDefs }
+  const ctxHere = {
+    ...ctx, findings, partDefs,
+    onAddSetting: (data) => {
+      onEdit({ op: 'setting.add', ...data })
+      ctx.onSetting(data.setting)
+    },
+  }
   return (
     <div className="insp">
       <Head path={path} file={file} root={root} onPick={onPick} onClose={onClose} />
+      {root[0] === 'settings' && <SettingUsers file={partDefs} id={root[1]} onPiece={ctx.onPiece} />}
       {optional && (
         <div className="insp-tools">
           <span>{tr('可选的字段')}</span>
@@ -95,7 +103,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
           <span className="kit-spacer" />
           <button type="button" disabled={last === 0} onClick={() => { edit(parent, { set: moved(list, last, last - 1) }, 'list'); onPick([...parent, last - 1]) }} title={tr('上移')}><ArrowUp size={13} /></button>
           <button type="button" disabled={last === list.length - 1} onClick={() => { edit(parent, { set: moved(list, last, last + 1) }, 'list'); onPick([...parent, last + 1]) }} title={tr('下移')}><ArrowDown size={13} /></button>
-          <button type="button" onClick={() => { edit(parent, { set: [...list.slice(0, last + 1), JSON.parse(JSON.stringify(list[last])), ...list.slice(last + 1)] }, 'list'); onPick([...parent, last + 1]) }} title={tr('复制一份')}><Copy size={13} /></button>
+          {!(root[0] === 'parts' && path[2] === 'settings' && path.length === 4) && <button type="button" onClick={() => { edit(parent, { set: [...list.slice(0, last + 1), JSON.parse(JSON.stringify(list[last])), ...list.slice(last + 1)] }, 'list'); onPick([...parent, last + 1]) }} title={tr('复制一份')}><Copy size={13} /></button>}
           <button type="button" onClick={() => { edit(path, { unset: true }, null); onPick(list.length > 1 ? [...parent, Math.max(0, last - 1)] : parent) }} title={tr('去掉')}><Trash2 size={13} /></button>
         </div>
       )}

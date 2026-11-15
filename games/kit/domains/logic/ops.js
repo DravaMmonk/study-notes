@@ -3,7 +3,7 @@
 // the machine board's parts and the rules a rule part offers are machine.js's.
 import { LEMMA, OPTIONS, RULES, lemmaPieces } from './proof.js'
 import { MACHINE_PARTS, RULE_CHOICES } from './machine.js'
-import { defineParts } from '../../engine/parts/define.js'
+import { compileParts, defineParts } from '../../engine/parts/define.js'
 
 /** The resources by name: { about, args, run(args, named, ctx) }. */
 export const OPS = { ...RULES, ...OPTIONS, lemma: LEMMA, ...MACHINE_PARTS, ruleChoices: RULE_CHOICES }
@@ -11,4 +11,13 @@ export const OPS = { ...RULES, ...OPTIONS, lemma: LEMMA, ...MACHINE_PARTS, ruleC
 export const OP_ITEMS = Object.fromEntries(Object.entries(OPS).map(([name, { run: _, ...item }]) => [name, item]))
 
 /** A game's parts (../../engine/parts/define.js defineParts): its pieces.json's, and those its lemmas make. */
-export const partsOf = (partDefs, lemmas = {}) => defineParts({ ...partDefs, parts: { ...partDefs?.parts, ...lemmaPieces(lemmas) } }, OPS)
+export function partsOf(partDefs, lemmas = {}) {
+  const authored = defineParts(partDefs, OPS)
+  const generated = compileParts(lemmaPieces(lemmas), OPS)
+  const PARTS = { ...authored.PARTS, ...generated.PARTS }
+  return {
+    PARTS,
+    defs: { ...authored.defs, ...generated.defs },
+    defaultsOf: (type) => ({ ...(PARTS[type]?.defaults ?? {}) }),
+  }
+}

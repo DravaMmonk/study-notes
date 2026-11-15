@@ -5,7 +5,7 @@
 //            domain's engine resources, expr.js) and its three views; or a built piece's inside, the work of a task.
 //            Its rule: a piece computes (or keeps an input), or runs an inside, never both
 //   strip    the block on a strip that marks what it stands for (`mark`, an item of the domain's `mark` kind)
-// and setting presets several parts share. The schema is the kernel's, the same in every domain; what it names
+// and the setting definitions referenced by its pieces. The schema is the kernel's, the same in every domain; what it names
 // (resources, families, widgets, marks) the domain's vocabulary gives.
 import { S } from '../schema.js'
 import { T as t } from '../../shell/i18n.js'
@@ -16,8 +16,6 @@ const WORD = S.str({ pattern: '^[A-Za-z0-9_][A-Za-z0-9_.-]*$', about: t('ASCII �
 export const EXPR = S.str({ view: 'expr', about: t('一行式子：调用领域的引擎资源') })
 export const ICON = S.str({ view: 'icon', about: t('内核图标表里的一个名字') })
 
-/** The controls a setting is edited with (../../shell/parts/SettingField.jsx). */
-export const CONTROLS = ['select', 'buttons', 'number', 'slider', 'toggle', 'list', 'tree', 'custom']
 /** The layouts of a group of small buttons. */
 export const LAYOUTS = ['row', 'column', 'grid', 'pad']
 
@@ -43,15 +41,29 @@ const CONTROL = {
   toggle: { on: S.opt(S.text()), off: S.opt(S.text()) },
   custom: { widget: S.ref('widget'), params: S.opt(S.any()) },
 }
-const controlled = (fields) => S.by('control', Object.fromEntries(CONTROLS.map((c) => [c, S.obj({ ...fields, control: S.oneOf([c]), ...COMMON, ...CONTROL[c] })])))
+/** A setting definition, referenced by any number of pieces. */
+export const SETTING = S.by('control', Object.fromEntries(Object.entries(CONTROL).map(([control, fields]) => [
+  control, S.obj({ control: S.oneOf([control]), ...COMMON, ...fields }),
+])))
 
-/** A preset: a whole setting but for its key, which each part using it gives. */
-export const PRESET = controlled({})
-/** A part's setting: a whole one, or a preset (`use`) with some of its fields written over. */
-export const SETTING = S.either(
-  controlled({ key: NAME }),
-  S.obj({ key: NAME, use: NAME, ...COMMON, options: S.opt(OPTIONS), ...RANGE }, { about: t('取一份预设，再覆盖几项') }),
-)
+/** Controls available when authoring a setting, with a usable starting definition. */
+export function settingControlOptions(vocabulary) {
+  const widget = Object.keys(vocabulary?.kinds.widget ?? {})[0]
+  return Object.keys(SETTING.cases).filter((control) => control !== 'custom' || widget).map((control) => ({
+    value: control,
+    data: {
+      control,
+      ...('options' in CONTROL[control] && { options: [{ value: 'a' }, { value: 'b' }] }),
+      ...(control === 'slider' && { min: 0, max: 1 }),
+      ...(control === 'custom' && { widget }),
+    },
+  }))
+}
+
+const SETTING_BINDING = S.obj({
+  key: NAME,
+  setting: S.ref('setting', { about: t('此件引用的设置定义', 'The setting definition this piece uses') }),
+})
 
 const leaf = {
   value: S.obj({ show: S.oneOf(['value']), output: S.opt(NAME) }, { about: t('输出上的值') }),
@@ -81,7 +93,7 @@ const PORT = S.obj({ name: NAME, label: S.opt(S.text()), about: S.opt(S.text()),
 const REGION = S.obj({ name: NAME, label: S.opt(S.text()), opens: S.opt(S.bool()), closes: S.opt(S.bool()), gives: S.opt(S.list(NAME)), when: S.opt(EXPR) })
 const HOLES = { inputs: S.list(PORT), outputs: S.opt(S.list(PORT, { min: 2, about: t('几个输出时才写') })) }
 const SETTINGS = {
-  settings: S.opt(S.list(SETTING)),
+  settings: S.opt(S.list(SETTING_BINDING, { view: 'setting-bindings' })),
   rules: S.opt(S.list(RULE, { about: t('交互：一个设置改了，另几个跟着改') })),
   checks: S.opt(S.list(CHECK, { about: t('设置必须满足的条件：不满足时卡片上说出原因，元件不计算') })),
 }
@@ -148,8 +160,21 @@ export const BLANKS = {
 /** Whether a domain's games make pieces of some editor out of what its vocabulary gives: their content names them as parts. */
 export const makesPieces = (vocabulary) => Object.values(BLANKS).some((blank) => blank(vocabulary))
 
+/** Piece creation options read by authoring tools. A built piece needs a task before it has data. */
+export function pieceCreationOptions(vocabulary, tasks = []) {
+  const labels = { circuit: t('电路件', 'Circuit piece'), strip: t('词序条块', 'Strip piece') }
+  const choices = Object.entries(BLANKS).flatMap(([value, blank]) => {
+    const data = blank(vocabulary)
+    return data ? [{ value, label: labels[value], data }] : []
+  })
+  if (tasks.length) choices.push({ value: 'task', label: t('用任务作品搭件', 'Build from a task') })
+  return choices
+}
+
+export const builtPart = (task, name) => ({ name: { en: name || task }, desc: { en: '' }, inside: [{ task }] })
+
 /** pieces.json. */
 export const PARTS_FILE = S.obj({
-  presets: S.opt(S.map(PRESET, { keys: '^[A-Za-z_][A-Za-z0-9_]*$', about: t('几个元件共用的设置') })),
+  settings: S.opt(S.map(SETTING, { keys: NAME.pattern })),
   parts: S.map(PART, { keys: '^[A-Za-z_][A-Za-z0-9_]*$' }),
 })

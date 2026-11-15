@@ -128,9 +128,10 @@ export function formOf(schema, value, ctx, path = []) {
       return { ...base, kind: 'call', of: schema.kind, item, options: itemsOf(vocabulary, schema.kind), params: spec ? formOf(spec, params, ctx, [...path, item]) : null }
     }
     case 'list': {
-      const control = listControl(schema, ctx)
+      const bindings = schema.view === 'setting-bindings'
+      const control = bindings ? null : listControl(schema, ctx)
       if (control) return { ...base, ...control }
-      return { ...base, kind: 'list', of: schema.of, ...(schema.section === 'tests' && { tests: true }), items: (Array.isArray(value) ? value : []).map((x, k) => formOf(schema.of, x, ctx, [...path, k])) }
+      return { ...base, kind: 'list', of: schema.of, ...(bindings && { bindings: true }), ...(schema.section === 'tests' && { tests: true }), items: (Array.isArray(value) ? value : []).map((x, k) => formOf(schema.of, x, ctx, [...path, k])) }
     }
     case 'map': {
       const control = listControl(schema, ctx)
@@ -143,7 +144,9 @@ export function formOf(schema, value, ctx, path = []) {
         kind: 'obj',
         fields: Object.entries(schema.fields).map(([key, s]) => ({
           key, optional: Boolean(s.optional), ...(s.about && { about: s.about }), schema: s,
-          field: isObj(value) && value[key] !== undefined ? formOf(s, value[key], ctx, [...path, key]) : null,
+          field: isObj(value) && (value[key] !== undefined || s.view === 'setting-bindings')
+            ? formOf(s, value[key] === undefined ? [] : value[key], ctx, [...path, key])
+            : null,
         })),
       }
     case 'by': {
@@ -360,7 +363,7 @@ export function placesOf(lines, order) {
     if (!line.fail) continue
     const content = /^content: levels\/(.+?)\.json((?:\.[^\s:[]+|\[\d+\])*): (.*)$/.exec(line.text)
     if (content) { out.push({ level: content[1], path: keysOf(content[2]), says: content[3] }); continue }
-    const parts = /^content: parts\.json((?:\.[^\s:[]+|\[\d+\])*): (.*)$/.exec(line.text)
+    const parts = /^content: pieces\.json((?:\.[^\s:[]+|\[\d+\])*): (.*)$/.exec(line.text)
     if (parts) { out.push({ file: 'parts', path: keysOf(parts[1]), says: parts[2] }); continue }
     const copy = /^text levels\.(\d+)((?:\.[^\s.]+)*) (.*)$/.exec(line.text)
     if (copy && order[Number(copy[1])]) { out.push({ level: order[Number(copy[1])], path: keysOf(copy[2]), says: copy[3] }); continue }
@@ -493,7 +496,7 @@ export function pushOp(ops, op) {
   // A task's id typed a letter at a time is one rename, from the id it had.
   if (op.op === 'task.rename' && last?.op === 'task.rename' && last.to === op.task) return [...ops.slice(0, -1), { ...op, task: last.task }]
   // Adding, removing and renaming never stand for one another; nor do task operations, each placed against the one before.
-  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'level.rename'].includes(op.op) || op.op.startsWith('task.')) return [...ops, op]
+  if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'level.rename'].includes(op.op) || op.op.startsWith('task.') || op.op === 'setting.add') return [...ops, op]
   return [...ops.slice(0, -1), op]
 }
 

@@ -1,4 +1,52 @@
 {
+  "settings": {
+    "reg_reg": {
+      "control": "select",
+      "label": {
+        "en": "Name",
+        "zh": "名字"
+      },
+      "options": [
+        {
+          "value": "A"
+        },
+        {
+          "value": "B"
+        },
+        {
+          "value": "C"
+        },
+        {
+          "value": "D"
+        }
+      ],
+      "default": "A"
+    },
+    "reg_start": {"control": "number", "label": {"en": "Start", "zh": "初值"}, "default": null},
+    "keep_reg": {
+      "control": "select",
+      "label": {
+        "en": "Name",
+        "zh": "名字"
+      },
+      "options": [
+        {
+          "value": "A"
+        },
+        {
+          "value": "B"
+        },
+        {
+          "value": "C"
+        },
+        {
+          "value": "D"
+        }
+      ],
+      "default": "A"
+    },
+    "const_value": {"control": "number", "label": {"en": "Value", "zh": "数值"}, "min": 0, "max": 32, "integer": true, "default": 0}
+  },
   "parts": {
     "reg": {
       "name": { "en": "Register", "zh": "读寄存卡" },
@@ -9,16 +57,7 @@
       "icon": "ArrowUpFromLine",
       "family": "memory",
       "inputs": [],
-      "settings": [
-        {
-          "key": "reg",
-          "control": "select",
-          "label": { "en": "Name", "zh": "名字" },
-          "options": [{ "value": "A" }, { "value": "B" }, { "value": "C" }, { "value": "D" }],
-          "default": "A"
-        },
-        { "key": "start", "control": "number", "label": { "en": "Start", "zh": "初值" }, "default": null }
-      ],
+      "settings": [{"key": "reg", "setting": "reg_reg"}, {"key": "start", "setting": "reg_start"}],
       "compute": "held($reg, $start)"
     },
     "keep": {
@@ -30,15 +69,7 @@
       "icon": "ArrowDownToLine",
       "family": "memory",
       "inputs": [{ "name": "in" }],
-      "settings": [
-        {
-          "key": "reg",
-          "control": "select",
-          "label": { "en": "Name", "zh": "名字" },
-          "options": [{ "value": "A" }, { "value": "B" }, { "value": "C" }, { "value": "D" }],
-          "default": "A"
-        }
-      ],
+      "settings": [{"key": "reg", "setting": "keep_reg"}],
       "keeps": { "input": "in", "register": "reg" }
     },
     "const": {
@@ -47,17 +78,7 @@
       "icon": "Hash",
       "family": "value",
       "inputs": [],
-      "settings": [
-        {
-          "key": "value",
-          "control": "number",
-          "label": { "en": "Value", "zh": "数值" },
-          "min": 0,
-          "max": 32,
-          "integer": true,
-          "default": 0
-        }
-      ],
+      "settings": [{"key": "value", "setting": "const_value"}],
       "compute": "$value"
     }
   }

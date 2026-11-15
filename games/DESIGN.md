@@ -296,7 +296,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach）：用 anat
 | `game.json` | `domain`（交给哪个领域）、`vocabulary`（写它时对的词汇表版本）、`open`（可选：课程还没做到的审计结果，第 5 节）、标题、简介、课程（`eras`、`primitives`、`concept`、`replaces`）、领域要的其余全局设置 |
 | `levels/<id>.json` | 一关一个文件，文件名就是关卡 id；字段由领域按玩法给出 schema |
 | `glossary.json` | 百科：`{ groups, entries }` |
-| `pieces.json` | 这款游戏的元件（第 6.8 节）：每个元件的口、设置、运算（对领域引擎资源的调用）和三面视图，加上几个元件共用的设置预设；元件定义成数据的领域才有 |
+| `pieces.json` | 这款游戏的元件（第 6.8 节）：每个元件的口、设置、运算（对领域引擎资源的调用）和三面视图，加上件引用的设置定义；元件定义成数据的领域才有 |
 | `changes.jsonl` | 修改日志（操作集写，只追加，`kit/engine/ops/log.js`）：每次修改一行，记下它跑了哪些操作、为什么、改了的每个文件改前改后的哈希、撤销它的变更集（第 7 节）；`adopt` 一行把游戏的全部文件照现状收进日志（手改、git 改过之后） |
 | `blueprint.json` | 课程蓝图（第 7.2 节，流水线做出的游戏才有）：机体阶梯、要教的知识点（术语、出处、撞上的墙）、原始元件和搭出的元件、每章的系列和每关的位置（slot：问题、思维链、带来的知识点），向领域提的需求；schema 是内核的 `BLUEPRINT`（`kit/pipeline/blueprint.js`），经操作集写（`blueprint.put`、`blueprint.set`）；`check` 按 schema 查它，页面不读它 |
 | `pipeline.json` | 流水线的记录（第 7.2 节）：每一步跑过的 agent（模型、用量、调用了几次命令、写下的变更集）、每次闸门的结果、评审队列里的那一项；只由 `npm run pipeline` 写 |
@@ -500,7 +500,7 @@ opens them to show the resulting feedback.
 | 搜索 | 左栏的另一个页签（Ctrl/⌘+Shift+F）：在整款游戏里搜一个词或正则（区分大小写、整词），范围是文字、板的每一行、关卡和词条的 id（三个开关）；链接标签里面永远不算（替换不会弄坏链接）。结果按关分组，每处一行，前后带一段上下文（链接显示成它指向的 id），点一下跳到那个字段。写了替换的词，每处显示换成什么，可以逐处去掉；「替换」把剩下的写成操作加进待定的变更集（一段文字一个 `text.set`；一块板一个 `level.blueprint`），「为什么改」空着时填上「把 X 换成 Y」——之后和别的修改一样在审计里查、在评审里看、应用或放弃。id 只搜不换（换 id 是 `level.rename`，会改到每一处提到它的地方） | `text.set`、`level.blueprint`；工具 `search`、`replace` |
 | 画面 | 主区的第一个页签，选中一关时的样子：一个 iframe（`studio.html?play`，`kit/studio/play.jsx`、`GameFrame.jsx`），把变更集留下的内容交给领域的 `game.js`，在外壳里玩这一关，和游戏自己的页面一样；改了只换内容，这一关、这个任务、板和运行都留着。存档单独存（存在游戏 `studio.<游戏>` 名下），所有关都打开。**编辑模式**（默认；上方一个开关切到「试玩」，只剩游戏本身）下，外壳把画面上是内容字段的那几块标出来（`kit/shell/edit.js`：标题、目标的每段、每条提示、引言的每页、任务条上这个任务的名字、每个测试页签、带来的元件），悬停描一圈虚线，点一下就在侧栏打开它（不再当玩的点击；测试页签照样切到那个测试）；侧栏里选中的字段在画面上描实线。一个标记说的是它在画面上的位置（`at`，比如 `hint[1]`、`tests[2]`）和它属于这一关还是这个任务（`scope`），`kit/studio/marks.js` 照内容找到它是哪个字段：这个任务有就是任务的（`tasks[1].hint[1]`），否则是关的；画面拆成几段的一段文字是整段；内容里没有的（领域生成的字）侧栏说清楚。能加东西的地方有个「+」：加一条提示、一页引言（接在这一页后面）、一个测试（照最后一个复制）、一个任务（`task.add`，照正在做的这个任务复制、插在它后面，不带 id、名字和它自己的引言，所以马上能玩，画面跳到它）、没有引言的关上的「+ 引言」；只有字的新项是空的，等人写。编辑模式下引言不自己弹出，从顶栏打开；任务条一直在，所有任务都能点开。没选关时画面是游戏的首页：引语、标题、导语点一下打开 `game.json` 的那个字段，一章的头打开那一章（`eras` 的那一项）；百科里词条的标题、每段正文、相关词条打开百科的那个字段（侧栏的 `glossary.json`：文字是 `text.set`，别的字段是那一条的 `glossary.set`）。画面上方的名字点一下是全部字段。点树上的关就在画面打开它；「载入参考解」把参考板写进存档再打开（工具 `seed`）；Ctrl/⌘+Enter 一步做完 | `text.set`（关、`game.json`、百科）；`level.set`（加项是整张列表的一个 `level.set`）；`task.add`；`glossary.set`；工具 `seed` |
 | 字段 | 主区的第二个页签：一关、一章（`game.json` 的那一项）、`game.json` 的每个字段一行（`kit/studio/Rows.jsx`）：字段名、一行摘要（列表是几项和前几项）、改过的点、检查说到它的条数；一关的任务每个一组（头上是任务的 id 和名字），组里是这个任务的字段。点一行就在侧栏打开它。没有画面位置的字段（课程、答案、`game.json`）在这里改，画面上有的也能在这里一眼看全。一关分成几段：玩家读到的（文案）、谜题、测试、答案、课程（带来和搭出的元件、沿用）、任务；每段可以折起来（记住，对每一关都一样），Alt+1… 跳到第几段。头上一行是 id、标题、形状（`S.by`，几层就几个，切换时保留两种形状共有的字段；`S.either` 的写法按各自独有的字段起名）、各段的跳转和几个图标：试玩、载入参考解试玩、移动、复制成新的一关（`level.add`，放在它后面）、删除（`level.remove`）；能改 id（`level.rename`）。可选字段缺着时是一排「+ 字段名」，点了加上空的并在侧栏打开。选中一章时，这一章自己的字段在上（关卡放在哪里的那几个字段收起来，那是树的事），下面是这一章的文案表 | `level.rename`、`level.add`、`level.remove`、`level.set` |
-| 件 | 左栏的第三个页签（「件 / Pieces」）：这款游戏 `pieces.json` 里的每个件（图标、名字、类型）和每份设置预设，一行一个。件按 `game.json` 的 `trays` 分组（托盘的名字在组头；一个件在几个托盘里时归第一个），组内按课程里第一次拿到它的先后排（`game.json` 的 `primitives` 最先；工具 `names` 给出每个件在哪一关拿到），不在任何托盘里的放在最后一组；没有托盘的游戏只有一组（`kit/studio/pieces.js`）；列表底部的「新增」菜单按领域支持的类型显示电路件、词序条块、用任务作品搭件和设置预设。在任务列表中选中作品后，连接口随任务作品生成。点击已有的件或新增后直接打开它的配置 | `piece.add`、`piece.remove`、`piece.rename`、`pieces.set`、`pieces.unset`、`text.set`（`in: pieces`） |
+| 件 | 左栏的第三个页签（「件 / Pieces」）：这款游戏 `pieces.json` 里的每个件（图标、名字、类型）一行一个。件按 `game.json` 的 `trays` 分组（托盘的名字在组头；一个件在几个托盘里时归第一个），组内按课程里第一次拿到它的先后排（`game.json` 的 `primitives` 最先；工具 `names` 给出每个件在哪一关拿到），不在任何托盘里的放在最后一组；没有托盘的游戏只有一组（`kit/studio/pieces.js`）；列表底部的「新增」菜单按领域支持的类型显示内核提供的电路件、词序条块和用任务作品搭件。在任务列表中选中作品后，连接口随任务作品生成。点击已有的件或新增后直接打开它的配置；可选字段由内核 schema 生成下拉框，设置从件的设置区添加或引用 | `piece.add`、`piece.remove`、`piece.rename`、`pieces.set`、`pieces.unset`、`text.set`（`in: pieces`） |
 | 侧栏 | 右边，选中的一个字段（一关的、`game.json` 的、`pieces.json` 的或百科 `glossary.json` 的）：从画面上点的、字段里点的、检查结果（F8）、命令面板、搜索结果跳过去的，都在这里打开（跳过去的光标落进它的控件）；一个任务的字段在别的任务上时画面跟着换到那个任务。头上是它的路径（`1-1 › tasks › 2 › brief`），每一步都能点，回到外层的字段（点关的 id 是整关的全部字段）；下面是词汇表的 `about` 和按 schema 生成的控件（下表，和以前表单的同一套）、检查说到它的话、改回去的 ↶。列表里的一项能上移、下移、复制、去掉，可选的字段能去掉，还没有的可选字段能加上。一个有 id 的任务的工具是任务操作：上移、下移、复制成新的任务、去掉（不是这一关唯一的任务时）、挪进另一关（排在那一关的任务最后；这一关只有这一个任务时是「并进」，同时删掉这一关）；改它的 `id` 是 `task.rename`。什么都没选时，侧栏说怎样选 | 控件的操作（下表）；`task.move`、`task.add`、`task.remove`、`task.rename`、`level.remove` |
 | 批量修改 | 树上选了几关时表单换成它：对这几关都有的一个字段，用 schema 给的同一种控件写一个值，「全部设成这样」或「全部去掉」；按 JSON merge patch 改几个字段；给带来的元件（`adds`）加上、拿掉几样；一起移动（再点树上的槽位）。先列出要加的操作（一关一个）和跳过的关、为什么跳过（没有这个字段、已经是这个值、不带元件……），再加进变更集（`kit/studio/bulk.js`） | 一关一个 `level.set` / `text.set` / `level.blueprint`、`level.unset`、`level.patch`、`level.adds`、`level.move` |
 | 文案表 | 「文案」页签每行显示字段名和两列可编辑的文本，两列各有下拉框，可以选择或新增语言。可以按章节、整款游戏、百科或元件查看，按字段、文字、问题和缺少文本筛选。章节表单可直接打开相应范围。 | `text.set` |
@@ -553,12 +553,12 @@ Studio 的命令面板和可搜索选项共用列表的键盘导航。上下键�
 
 ```json
 {
-  "presets": { "outside": { "control": "select", "label": { "en": "Outside" }, "options": [...], "default": "zero" } },
+  "settings": { "arithmeticOp": { "control": "buttons", "options": [{ "value": "add", "label": "+" }, ...], "default": "add" } },
   "parts": {
     "arithmetic": {
       "name": { "en": "Arithmetic" }, "desc": {...}, "icon": "Plus", "family": "value",
       "inputs": [{ "name": "a" }, { "name": "b" }],
-      "settings": [{ "key": "op", "control": "buttons", "options": [{ "value": "add", "label": "+" }, ...], "default": "add" }],
+      "settings": [{ "key": "op", "setting": "arithmeticOp" }],
       "compute": "match $op { add: add(a, b), sub: sub(a, b), mul: mul(a, b), div: div(a, b) }",
       "views": { "tile": [{ "show": "setting", "key": "op", "as": "label" }] }
     }
@@ -581,7 +581,7 @@ Studio 的命令面板和可搜索选项共用列表的键盘导航。上下键�
 | `tree` | 拼一句 | `optional`（可以不填） | 一句话的文字：屏幕给出这个任务、这个测试的语言（`CircuitScreen` 的 `language`），词序条拼出（`strip/TreePick.jsx`） |
 | `custom` | 自定义 | `widget`（领域 `widget` 种类的一项）、`params`（合那一项的 schema） | 那一项说 |
 
-每个设置都有：`key`（ASCII，写进蓝图文本）、`label`、`about`（悬停和单子里的一行说明）、`options` 的每一项也可以有 `about`（这个选项做什么：一句完整的话），`default`、`when`（只读设置的式子，为真时才出现：`eq($axis, 'x')`）、`fixed`（只显示，玩家不能改）、`use`（取 `presets` 里的一份，再用自己写的字段覆盖）。`select`、`buttons`、`list` 的选项可以不写出来，写 `from`：一个式子，由领域的资源按卡片接进来的值算出 `[{ value, label }]`（资源这时看到屏幕给的 `context`：任务、测试的文字和这张卡）——《证明完毕》里任取框能取的名字、等量代换能换的位置都是这样算出来的。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的件用（它在 `pieces.json` 那一项的 `settings`）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
+设置定义统一放在顶层 `settings`。件用 `{ key, setting }` 引用一项定义，`key` 是写入蓝图和存档的本地键。Studio 从件的设置区新建或引用设置，引用共用的定义时列出使用它的件。件菜单、设置控件及引用的选项都由内核提供。每份定义包含：`label`、`about`（悬停和单子里的一行说明）、`options` 的每一项也可以有 `about`（这个选项做什么：一句完整的话），`default`、`when`（只读设置的式子，为真时才出现：`eq($axis, 'x')`）、`fixed`（只显示，玩家不能改）。`select`、`buttons`、`list` 的选项可以不写出来，写 `from`：一个式子，由领域的资源按卡片接进来的值算出 `[{ value, label }]`（资源这时看到屏幕给的 `context`：任务、测试的文字和这张卡）——《证明完毕》里任取框能取的名字、等量代换能换的位置都是这样算出来的。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的件用（它在 `pieces.json` 那一项的 `settings`）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
 
 **运算是一行 ASCII 表达式**（`kit/engine/parts/expr.js`），只能调用领域的引擎资源：
 
@@ -621,7 +621,7 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 
 **内核替领域做的**：`kit/engine/parts/define.js` 的 `defineParts(file, ops)` 把 `pieces.json` 变成引擎的元件表（`inputs`、`outputs`、`params`、`settings`、`eval`），给出每个元件的默认设置；`kit/shell/parts/` 的 `faces.jsx` 给出编辑器的元件描述（名字、口、口名、类别、图标、卡片宽）、托盘的条目和卡片的三面（`PartFace.jsx` 画块，`SettingField.jsx` 画设置）。电路关用 `CircuitLevel` 的 `defined`：领域交出 `{ of(type) → 定义或 null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) }`，定义了的元件的卡片、格位、详情、设置和新元件的默认值都由内核画、内核给，封装件里面的板也一样；领域只画关卡给的节点和封装件。搭出的件的设置写在它在 `pieces.json` 的那一项（`settings`，可以 `use` 预设），领域用同一个 `SettingField` 画。领域的 `game.js` 在游戏描述上挂 `defined = { of, defaults, ops, widgets? }`，studio 的元件页用它画元件（第 6.7 节）。领域的词汇表有 `op` 种类时，`withParts` 将代码和 `pieces.json` 登记的元件一起放进词汇表的 `part` 种类，`S.ref('part')` 可引用任一来源。电路注册表同样合并两份定义，同名时取内容定义。
 
-**操作**：`piece.add`（新件，或复制一个；参数 `piece`）、`piece.remove`（还有关卡、课程或板用到它时拒绝）、`piece.rename`（改到课程、关卡、板和 `configurations` 里的每一处）、`pieces.set` / `pieces.unset`（`pieces.json` 里的一个字段，路径如 `parts.arithmetic.settings[0].options`、`presets.outside.default`：文件里件的表仍叫 `parts`），`text.set` 的 `in: 'pieces'`。改名之前的修改日志照原样写着 `part.*`、`parts.set` 和 `parts.json`，是历史，不再能撤销。
+**操作**：`piece.add`（新件，或复制一个；参数 `piece`）、`piece.remove`（还有关卡、课程或板用到它时拒绝）、`piece.rename`（改到课程、关卡、板和 `configurations` 里的每一处）、`setting.add`（同时创建设置定义和引用）、`pieces.set` / `pieces.unset`（`pieces.json` 里的一个字段，路径如 `parts.arithmetic.settings[0].options`、`presets.outside.default`：文件里件的表仍叫 `parts`），`text.set` 的 `in: 'pieces'`。改名之前的修改日志照原样写着 `part.*`、`parts.set` 和 `parts.json`，是历史，不再能撤销。
 
 **内容的形状**：`kit/engine/content.js` 把 `pieces.json` 组装成内容的 `partDefs`（不叫 `parts`：原型游戏的 `game.json` 有自己的 `parts` 字段）。
 

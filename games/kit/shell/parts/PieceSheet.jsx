@@ -3,13 +3,14 @@ import { ArrowUpRight, Plus } from 'lucide-react'
 import { L, tr } from '../i18n.js'
 import { iconOf } from './icons.js'
 import SettingField from './SettingField.jsx'
+import { defaultOf } from '../../engine/parts/define.js'
 
 // A piece's own fields as the studio's piece page draws them (games/DESIGN.md 6.7): each carries its path in the piece
 // (data-pf); in edit mode a click picks it (picker, on the page around them), and a + adds an item to a list.
 // PieceSheet is a built piece's — beside the board it runs, its name and description, the descriptions it grows along
 // the course, the tasks whose work runs inside (each form an upgrade chain of tasks, a step's label on it), the engine
 // resource its card runs instead, its settings; the rows it is made of (revisions, ports, settings) are a primitive's
-// too (../../circuit/preview.jsx). PresetSheet is a setting preset's.
+// too (../../circuit/preview.jsx). SettingSheet previews a setting definition.
 //
 //   def   the piece as pieces.json writes it      edit   { picked (a path in the piece), pick(path), add(path) } or null
 
@@ -63,7 +64,7 @@ export function Chips({ def, edit, keys, name }) {
 }
 
 const portName = (p) => (p.label ? L(p.label) : p.name)
-const settingName = (s) => (s.label ? L(s.label) : s.key ?? s.use)
+const settingName = (s) => (s.label ? L(s.label) : s.key)
 
 /** A primitive's ports, in and out. */
 export const Ports = ({ def, edit }) => <Chips def={def} edit={edit} keys={['inputs', 'outputs']} name={portName} />
@@ -127,8 +128,8 @@ export default function PieceSheet({ def, edit, onTask, label }) {
   )
 }
 
-/** A setting preset of pieces.json: the control it draws (moved as a player would), its label and its options. */
-export function PresetSheet({ name, setting, game, edit }) {
+/** A setting definition of pieces.json: the control it draws (moved as a player would), its label and its options. */
+export function SettingSheet({ name, setting, game, edit }) {
   const { mark } = marker(edit)
   const [value, setValue] = useState(undefined)
   if (!setting) return null
@@ -139,7 +140,7 @@ export function PresetSheet({ name, setting, game, edit }) {
       <div className={`pp-sheet ${edit ? 'is-editing' : ''}`} onClickCapture={picker(edit)}>
         <h3 {...mark(['label'])}>{setting.label ? L(setting.label) : name}</h3>
         <div {...mark(['control'])}>
-          <SettingField setting={shown} value={value ?? setting.default ?? setting.options?.[0]?.value} allowed={null} roomy widgets={game.defined?.widgets} language={game.defined?.language} onChange={setValue} />
+          <SettingField setting={shown} value={value ?? defaultOf(setting)} allowed={null} roomy widgets={game.defined?.widgets} language={game.defined?.language} onChange={setValue} />
         </div>
         <Chips def={setting} edit={edit} keys={['options']} name={(o) => (o.label ? L(o.label) : String(o.value))} />
       </div>

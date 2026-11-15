@@ -16,7 +16,7 @@
 import { sideOf } from '../../shell/i18n.js'
 import { PartError } from '../circuit.js'
 import { runRegion } from '../../circuit/frames.js'
-import { editorOf, facesOf, holesOf, insideOf, keepsOf, outletsOf, regionsOf, registerPieces, settingsOf } from '../pieces.js'
+import { editorOf, facesOf, holesOf, insideOf, keepsOf, outletsOf, regionsOf, registerPieces, resolveSettings, settingsOf } from '../pieces.js'
 import { validate } from '../schema.js'
 import { ExprError, evaluate, evaluateTaped, parse, problemsOf } from './expr.js'
 import { ICON_NAMES } from './icons.js'
@@ -33,15 +33,6 @@ const circuitPrimitive = (piece) => editorOf(piece) === 'circuit' && !insideOf(p
 
 /** Whether a vocabulary's domain defines its parts as data: it gives engine resources. */
 export const definesParts = (vocabulary) => Boolean(vocabulary?.kinds?.op)
-
-/** A setting with its preset filled in (`use`), or null when the preset is not there. */
-export function resolveSetting(setting, presets = {}) {
-  if (!setting.use) return setting
-  const preset = presets[setting.use]
-  if (!preset) return null
-  const { use: _, ...own } = setting
-  return { ...preset, ...own }
-}
 
 /** The value a setting starts with. */
 export function defaultOf(s) {
@@ -68,9 +59,9 @@ export function coerce(s, raw) {
   return v
 }
 
-/** One part of the file, resolved: its settings filled from the presets, keyed. */
-function resolvePart(def, presets, type) {
-  const settings = settingsOf(def).map((s) => resolveSetting(s, presets)).filter(Boolean)
+/** A part prepared for the circuit, with its resolved settings indexed by key. */
+function indexPart(def, type) {
+  const settings = settingsOf(def)
   return { ...def, type, settings, setting: Object.fromEntries(settings.map((s) => [s.key, s])), outputNames: outletsOf(def).length ? outletsOf(def).map((o) => o.name) : null }
 }
 
@@ -172,8 +163,13 @@ function symmetricIn(tree, settings, ops) {
  * resources, { name: { run(args, named, ctx) } }.
  */
 export function defineParts(file, ops, code = {}) {
-  const presets = file?.presets ?? {}
-  const defs = Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, def]) => circuitPrimitive(def)).map(([type, def]) => [type, resolvePart(def, presets, type)]))
+  const parts = Object.fromEntries(Object.entries(file?.parts ?? {}).map(([type, def]) => [type, { ...def, settings: resolveSettings(file, def) }]))
+  return compileParts(parts, ops, code)
+}
+
+/** Compile circuit definitions already carrying resolved settings, including parts generated in code. */
+export function compileParts(parts, ops, code = {}) {
+  const defs = Object.fromEntries(Object.entries(parts).filter(([, def]) => circuitPrimitive(def)).map(([type, def]) => [type, indexPart(def, type)]))
   const defined = Object.fromEntries(Object.entries(defs).map(([type, def]) => {
     const trees = treesOf(def)
     const names = holesOf(def).map((p) => p.name)
@@ -257,9 +253,10 @@ export function partDesc(def, allowed = () => null) {
 export function withParts(vocabulary, file) {
   // A domain with its circuit primitives in code has only its other pieces in pieces.json.
   const pieces = Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, piece]) => definesParts(vocabulary) || !circuitPrimitive(piece)))
-  if (!definesParts(vocabulary) && !Object.keys(pieces).length) return vocabulary
+  if (!file) return vocabulary
   const part = Object.fromEntries(Object.entries(pieces).map(([type, def]) => [type, { about: def.desc ?? def.name ?? type }]))
-  return { ...vocabulary, kinds: { ...vocabulary.kinds, part: registerPieces(vocabulary.kinds.part, part) } }
+  const setting = Object.assign(Object.create(null), Object.fromEntries(Object.entries(file.settings ?? {}).map(([id, def]) => [id, { about: def?.label ?? def?.about }])))
+  return { ...vocabulary, kinds: { ...vocabulary.kinds, part: registerPieces(vocabulary.kinds.part, part), setting } }
 }
 
 /** Every place a pieces.json does not hold together, as [{ at, says }] (at: pieces.json and the path in it). */
@@ -274,7 +271,6 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
   const ops = { ...BUILTIN_ITEMS, ...vocabulary.kinds.op }
   for (const name of Object.keys(vocabulary.kinds.op ?? {})) if (BUILTINS[name]) say('', `the domain’s resource ${name} takes the name of a kernel builtin`)
   const fits = (schema, v) => validate(schema, v, { vocabulary: vocab }).length === 0
-  const presets = file.presets ?? {}
   const settingProblems = (s, at) => {
     if ((OPTIONED.has(s.control) || LISTED.has(s.control)) && !s.options === !s.from) say(at, 'a setting with options gives them, or works them out (from), not both')
     if (OPTIONED.has(s.control) && s.options) {
@@ -295,7 +291,7 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
       if (w && (w.params ? !fits(w.params, s.params) : s.params !== undefined)) say(`${at}.params`, w.params ? `the parameters do not fit the widget ${s.widget}` : `the widget ${s.widget} takes no parameters`)
     }
   }
-  for (const [name, s] of Object.entries(presets)) settingProblems(s, `.presets.${name}`)
+  for (const [name, s] of Object.entries(file.settings ?? {})) settingProblems(s, `.settings.${name}`)
   for (const [type, raw] of Object.entries(file.parts)) {
     const at = `.parts.${type}`
     const built = Boolean(insideOf(raw))
@@ -306,11 +302,7 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
     if (new Set(keys).size !== keys.length) say(`${at}.settings`, 'a setting key is written twice')
     if (new Set(holesOf(raw).map((p) => p.name)).size !== holesOf(raw).length) say(`${at}.inputs`, 'an input is named twice')
     if (new Set(outletsOf(raw).map((p) => p.name)).size !== outletsOf(raw).length) say(`${at}.outputs`, 'an output is named twice')
-    for (const [k, s] of settingsOf(raw).entries()) {
-      if (s.use && !presets[s.use]) { say(`${at}.settings[${k}].use`, `${s.use} is no preset of pieces.json`); continue }
-      settingProblems(resolveSetting(s, presets), `${at}.settings[${k}]`)
-    }
-    const def = resolvePart(raw, presets, type)
+    const def = indexPart({ ...raw, settings: resolveSettings(file, raw) }, type)
     const check = (text, where, inputs) => {
       let tree
       try {
@@ -322,8 +314,8 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
       for (const says of problemsOf(tree, { ops, inputs, settings: def.setting, fits })) say(where, says)
       return undefined
     }
-    for (const [k, s] of settingsOf(def).entries()) if (s.when) check(s.when, `${at}.settings[${k}].when`, [])
-    for (const [k, s] of settingsOf(def).entries()) if (s.from) check(s.from, `${at}.settings[${k}].from`, holesOf(def).map((p) => p.name))
+    for (const [k, s] of settingsOf(def).entries()) if (s.when) check(s.when, `.settings.${raw.settings[k].setting}.when`, [])
+    for (const [k, s] of settingsOf(def).entries()) if (s.from) check(s.from, `.settings.${raw.settings[k].setting}.from`, holesOf(def).map((p) => p.name))
     const regionNames = regionsOf(raw).map((r) => r.name)
     if (new Set([...holesOf(raw).map((p) => p.name), ...regionNames]).size !== holesOf(raw).length + regionNames.length) say(`${at}.regions`, 'a region is named twice, or like an input')
     if (regionNames.length && outletsOf(raw).length) say(`${at}.outputs`, 'a part with regions has one output of its own')

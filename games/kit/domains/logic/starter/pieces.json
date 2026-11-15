@@ -1,4 +1,207 @@
 {
+  "settings": {
+    "impI_A": {"control": "tree", "label": {"en": "Assume", "zh": "假设"}},
+    "orI_other": {"control": "tree", "label": {"en": "Other side", "zh": "另一边"}},
+    "orI_side": {
+      "control": "buttons",
+      "label": {
+        "en": "Other side goes",
+        "zh": "另一边放"
+      },
+      "options": [
+        {
+          "value": "left",
+          "label": {
+            "en": "Left",
+            "zh": "左"
+          }
+        },
+        {
+          "value": "right",
+          "label": {
+            "en": "Right",
+            "zh": "右"
+          }
+        }
+      ],
+      "default": "right"
+    },
+    "botE_C": {"control": "tree", "label": {"en": "Conclude", "zh": "得出"}},
+    "allI_x": {"control": "select", "label": {"en": "Name", "zh": "名字"}, "from": "names()"},
+    "allE_t": {"control": "select", "label": {"en": "Which thing", "zh": "哪一样"}, "from": "instances()"},
+    "exI_target": {"control": "tree", "label": {"en": "Conclusion to derive", "zh": "要得出"}, "optional": true},
+    "exE_x": {"control": "select", "label": {"en": "Witness", "zh": "见证"}, "from": "names()"},
+    "natInd_P": {"control": "tree", "label": {"en": "Prove", "zh": "要证"}},
+    "natInd_x": {"control": "select", "label": {"en": "Name", "zh": "名字"}, "from": "names()"},
+    "refl_t": {"control": "select", "label": {"en": "Which thing", "zh": "哪一样"}, "from": "things()"},
+    "rewrite_at": {"control": "list", "label": {"en": "Replace at", "zh": "换哪几处"}, "from": "occurrences(eq, p)"},
+    "append_ways": {
+      "control": "select",
+      "label": {
+        "en": "Regions",
+        "zh": "框"
+      },
+      "options": [
+        {
+          "value": "2",
+          "label": {
+            "en": "2 clauses",
+            "zh": "2 条"
+          }
+        },
+        {
+          "value": "3",
+          "label": {
+            "en": "3 clauses",
+            "zh": "3 条"
+          }
+        },
+        {
+          "value": "4",
+          "label": {
+            "en": "4 clauses",
+            "zh": "4 条"
+          }
+        },
+        {
+          "value": "5",
+          "label": {
+            "en": "5",
+            "zh": "5 条"
+          }
+        },
+        {
+          "value": "6",
+          "label": {
+            "en": "6",
+            "zh": "6 条"
+          }
+        }
+      ],
+      "default": "2"
+    },
+    "search_depth": {
+      "control": "select",
+      "label": {
+        "en": "At most",
+        "zh": "最多"
+      },
+      "options": [
+        {
+          "value": "any",
+          "label": {
+            "en": "Any",
+            "zh": "不限"
+          }
+        },
+        {
+          "value": "2",
+          "label": {
+            "en": "2 levels",
+            "zh": "2 层"
+          }
+        },
+        {
+          "value": "3",
+          "label": {
+            "en": "3 levels",
+            "zh": "3 层"
+          }
+        },
+        {
+          "value": "4",
+          "label": {
+            "en": "4 levels",
+            "zh": "4 层"
+          }
+        },
+        {
+          "value": "5",
+          "label": {
+            "en": "5 levels",
+            "zh": "5 层"
+          }
+        },
+        {
+          "value": "6",
+          "label": {
+            "en": "6 levels",
+            "zh": "6 层"
+          }
+        },
+        {
+          "value": "8",
+          "label": {
+            "en": "8 levels",
+            "zh": "8 层"
+          }
+        },
+        {
+          "value": "10",
+          "label": {
+            "en": "10 levels",
+            "zh": "10 层"
+          }
+        },
+        {
+          "value": "12",
+          "label": {
+            "en": "12 levels",
+            "zh": "12 层"
+          }
+        }
+      ],
+      "default": "any"
+    },
+    "rw_at": {
+      "control": "select",
+      "label": {
+        "en": "Where",
+        "zh": "改哪里"
+      },
+      "options": [
+        {
+          "value": "goal",
+          "label": {
+            "en": "Goal",
+            "zh": "目标"
+          }
+        },
+        {
+          "value": "hyps",
+          "label": {
+            "en": "Hypotheses",
+            "zh": "已知"
+          }
+        }
+      ],
+      "default": "goal"
+    },
+    "resolve_unit": {
+      "control": "select",
+      "label": {
+        "en": "Cancel with",
+        "zh": "和谁消"
+      },
+      "options": [
+        {
+          "value": "any",
+          "label": {
+            "en": "Any two",
+            "zh": "任意两条"
+          }
+        },
+        {
+          "value": "unit",
+          "label": {
+            "en": "Only with unit clauses",
+            "zh": "只和单项子句"
+          }
+        }
+      ],
+      "default": "any"
+    }
+  },
   "parts": {
     "gNot": {
       "name": { "en": "Not ¬", "zh": "非 ¬" },
@@ -39,7 +242,7 @@
       "icon": "Box",
       "family": "box",
       "inputs": [],
-      "settings": [{ "key": "A", "control": "tree", "label": { "en": "Assume", "zh": "假设" } }],
+      "settings": [{"key": "A", "setting": "impI_A"}],
       "regions": [{ "name": "body", "label": { "en": "Inside", "zh": "框内" }, "opens": true, "closes": true }],
       "compute": "impI(body)"
     },
@@ -75,19 +278,7 @@
       "icon": "GitFork",
       "family": "rule",
       "inputs": [{ "name": "a", "label": { "en": "A", "zh": "A" } }],
-      "settings": [
-        { "key": "other", "control": "tree", "label": { "en": "Other side", "zh": "另一边" } },
-        {
-          "key": "side",
-          "control": "buttons",
-          "label": { "en": "Other side goes", "zh": "另一边放" },
-          "options": [
-            { "value": "left", "label": { "en": "Left", "zh": "左" } },
-            { "value": "right", "label": { "en": "Right", "zh": "右" } }
-          ],
-          "default": "right"
-        }
-      ],
+      "settings": [{"key": "other", "setting": "orI_other"}, {"key": "side", "setting": "orI_side"}],
       "compute": "orI(a)"
     },
     "orE": {
@@ -114,7 +305,7 @@
       "icon": "GitFork",
       "family": "rule",
       "inputs": [{ "name": "bot", "label": { "en": "⊥", "zh": "⊥" } }],
-      "settings": [{ "key": "C", "control": "tree", "label": { "en": "Conclude", "zh": "得出" } }],
+      "settings": [{"key": "C", "setting": "botE_C"}],
       "compute": "botE(bot)"
     },
     "raa": {
@@ -134,9 +325,7 @@
       "icon": "Box",
       "family": "box",
       "inputs": [],
-      "settings": [
-        { "key": "x", "control": "select", "label": { "en": "Name", "zh": "名字" }, "from": "names()" }
-      ],
+      "settings": [{"key": "x", "setting": "allI_x"}],
       "regions": [{ "name": "body", "label": { "en": "Inside", "zh": "框内" }, "closes": true }],
       "compute": "allI(body)"
     },
@@ -149,14 +338,7 @@
       "icon": "GitFork",
       "family": "rule",
       "inputs": [{ "name": "all", "label": { "en": "∀x. P(x)", "zh": "∀x. P(x)" } }],
-      "settings": [
-        {
-          "key": "t",
-          "control": "select",
-          "label": { "en": "Which thing", "zh": "哪一样" },
-          "from": "instances()"
-        }
-      ],
+      "settings": [{"key": "t", "setting": "allE_t"}],
       "compute": "allE(all)"
     },
     "exI": {
@@ -168,14 +350,7 @@
       "icon": "GitFork",
       "family": "rule",
       "inputs": [{ "name": "a", "label": { "en": "P(t)", "zh": "P(t)" } }],
-      "settings": [
-        {
-          "key": "target",
-          "control": "tree",
-          "label": { "en": "Conclusion to derive", "zh": "要得出" },
-          "optional": true
-        }
-      ],
+      "settings": [{"key": "target", "setting": "exI_target"}],
       "compute": "exI(a)"
     },
     "exE": {
@@ -187,9 +362,7 @@
       "icon": "Box",
       "family": "box",
       "inputs": [{ "name": "ex", "label": { "en": "∃x. P(x)", "zh": "∃x. P(x)" } }],
-      "settings": [
-        { "key": "x", "control": "select", "label": { "en": "Witness", "zh": "见证" }, "from": "names()" }
-      ],
+      "settings": [{"key": "x", "setting": "exE_x"}],
       "regions": [{ "name": "body", "label": { "en": "Inside", "zh": "框内" }, "opens": true, "closes": true }],
       "compute": "exE(ex, body)"
     },
@@ -202,10 +375,7 @@
       "icon": "Box",
       "family": "box",
       "inputs": [],
-      "settings": [
-        { "key": "P", "control": "tree", "label": { "en": "Prove", "zh": "要证" } },
-        { "key": "x", "control": "select", "label": { "en": "Name", "zh": "名字" }, "from": "names()" }
-      ],
+      "settings": [{"key": "P", "setting": "natInd_P"}, {"key": "x", "setting": "natInd_x"}],
       "regions": [
         { "name": "zero", "label": { "en": "The case 0", "zh": "0 的情况" }, "closes": true },
         { "name": "step", "label": { "en": "From a to S a", "zh": "从 a 到 S a" }, "opens": true, "closes": true }
@@ -218,9 +388,7 @@
       "icon": "GitFork",
       "family": "rule",
       "inputs": [],
-      "settings": [
-        { "key": "t", "control": "select", "label": { "en": "Which thing", "zh": "哪一样" }, "from": "things()" }
-      ],
+      "settings": [{"key": "t", "setting": "refl_t"}],
       "compute": "refl()"
     },
     "rewrite": {
@@ -235,14 +403,7 @@
         { "name": "eq", "label": { "en": "s = t", "zh": "s = t" } },
         { "name": "p", "label": { "en": "φ(s)", "zh": "φ(s)" } }
       ],
-      "settings": [
-        {
-          "key": "at",
-          "control": "list",
-          "label": { "en": "Replace at", "zh": "换哪几处" },
-          "from": "occurrences(eq, p)"
-        }
-      ],
+      "settings": [{"key": "at", "setting": "rewrite_at"}],
       "compute": "rewrite(eq, p)"
     },
     "anyR": {
@@ -458,21 +619,7 @@
       "icon": "Box",
       "family": "loop",
       "inputs": [{ "name": "in" }],
-      "settings": [
-        {
-          "key": "ways",
-          "control": "select",
-          "label": { "en": "Regions", "zh": "框" },
-          "options": [
-            { "value": "2", "label": { "en": "2 clauses", "zh": "2 条" } },
-            { "value": "3", "label": { "en": "3 clauses", "zh": "3 条" } },
-            { "value": "4", "label": { "en": "4 clauses", "zh": "4 条" } },
-            { "value": "5", "label": { "en": "5", "zh": "5 条" } },
-            { "value": "6", "label": { "en": "6", "zh": "6 条" } }
-          ],
-          "default": "2"
-        }
-      ],
+      "settings": [{"key": "ways", "setting": "append_ways"}],
       "regions": [
         { "name": "first", "label": { "en": "Try first", "zh": "先试" }, "opens": true },
         { "name": "second", "label": { "en": "Then", "zh": "再试" }, "opens": true },
@@ -492,25 +639,7 @@
       "icon": "Search",
       "family": "loop",
       "inputs": [{ "name": "in" }],
-      "settings": [
-        {
-          "key": "depth",
-          "control": "select",
-          "label": { "en": "At most", "zh": "最多" },
-          "options": [
-            { "value": "any", "label": { "en": "Any", "zh": "不限" } },
-            { "value": "2", "label": { "en": "2 levels", "zh": "2 层" } },
-            { "value": "3", "label": { "en": "3 levels", "zh": "3 层" } },
-            { "value": "4", "label": { "en": "4 levels", "zh": "4 层" } },
-            { "value": "5", "label": { "en": "5 levels", "zh": "5 层" } },
-            { "value": "6", "label": { "en": "6 levels", "zh": "6 层" } },
-            { "value": "8", "label": { "en": "8 levels", "zh": "8 层" } },
-            { "value": "10", "label": { "en": "10 levels", "zh": "10 层" } },
-            { "value": "12", "label": { "en": "12 levels", "zh": "12 层" } }
-          ],
-          "default": "any"
-        }
-      ],
+      "settings": [{"key": "depth", "setting": "search_depth"}],
       "regions": [{ "name": "body", "label": { "en": "Each step", "zh": "每一步" }, "opens": true }],
       "compute": "search(in)"
     },
@@ -535,18 +664,7 @@
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }, { "name": "rules", "label": { "en": "Rule", "zh": "规则" } }],
-      "settings": [
-        {
-          "key": "at",
-          "control": "select",
-          "label": { "en": "Where", "zh": "改哪里" },
-          "options": [
-            { "value": "goal", "label": { "en": "Goal", "zh": "目标" } },
-            { "value": "hyps", "label": { "en": "Hypotheses", "zh": "已知" } }
-          ],
-          "default": "goal"
-        }
-      ],
+      "settings": [{"key": "at", "setting": "rw_at"}],
       "compute": "rw(in, rules)"
     },
     "skolem": {
@@ -580,18 +698,7 @@
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
-      "settings": [
-        {
-          "key": "unit",
-          "control": "select",
-          "label": { "en": "Cancel with", "zh": "和谁消" },
-          "options": [
-            { "value": "any", "label": { "en": "Any two", "zh": "任意两条" } },
-            { "value": "unit", "label": { "en": "Only with unit clauses", "zh": "只和单项子句" } }
-          ],
-          "default": "any"
-        }
-      ],
+      "settings": [{"key": "unit", "setting": "resolve_unit"}],
       "compute": "resolve(in)"
     },
     "oracle": {

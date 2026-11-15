@@ -603,6 +603,9 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .insp-move .pick-button { flex: 1; min-width: 0; }
 
 /* ---- parts (PartsList.jsx, PartFields.jsx) ---- */
+.setting-users { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; padding: 6px 10px; border-bottom: 1px solid var(--line); color: var(--muted); font: var(--fs-mini) var(--mono); }
+.setting-users button { padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: none; cursor: pointer; }
+.setting-users button:hover { background: var(--hover); }
 .parts-list { display: grid; gap: 1px; padding: 6px; }
 .parts-row { min-height: var(--row); display: grid; grid-template-columns: 18px minmax(0, 1fr) auto auto; align-items: center; gap: 6px; padding: 2px 6px; border: 0; border-radius: 4px; color: var(--ink); background: none; text-align: left; font-size: var(--fs); cursor: pointer; }
 .parts-row:hover { background: var(--hover); }
@@ -610,7 +613,6 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .parts-row > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .parts-row code { color: var(--faint); font: 11px var(--mono); }
 .parts-row .family-chip { width: 18px; height: 18px; display: grid; place-items: center; border-radius: 4px; color: var(--muted); background: var(--canvas); }
-.parts-row.is-preset { grid-template-columns: minmax(0, 1fr) auto; }
 .parts-add { min-height: var(--row); display: flex; align-items: center; justify-content: center; gap: 4px; border: 1px dashed var(--line); border-radius: 4px; color: var(--faint); background: none; cursor: pointer; }
 .parts-add:hover { color: var(--ink); }
 .parts-group { display: grid; gap: 1px; }
@@ -618,7 +620,6 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .parts-rule { margin: 6px 4px; border: 0; border-top: 1px solid var(--hairline); }
 .parts-adds { display: grid; gap: 4px; margin-top: 6px; }
 .parts-adds .pick-pop { position: static; width: 100%; max-height: 260px; }
-.parts-presets { display: grid; gap: 1px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--hairline); }
 .field-expr { display: grid; gap: 4px; min-width: 0; }
 .expr-line { display: flex; gap: 4px; }
 .expr-line input { flex: 1 1 auto; min-width: 0; font-family: var(--mono); }

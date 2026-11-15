@@ -1,14 +1,56 @@
 {
-  "presets": {
+  "settings": {
     "border": {
-      "label": { "en": "Border", "zh": "边界" },
+      "label": {
+        "en": "Border",
+        "zh": "边界"
+      },
       "control": "select",
       "options": [
-        { "value": "zero", "label": { "en": "Pad with 0", "zh": "补 0" } },
-        { "value": "edge", "label": { "en": "Replicate edge", "zh": "复制边缘" } }
+        {
+          "value": "zero",
+          "label": {
+            "en": "Pad with 0",
+            "zh": "补 0"
+          }
+        },
+        {
+          "value": "edge",
+          "label": {
+            "en": "Replicate edge",
+            "zh": "复制边缘"
+          }
+        }
       ],
       "default": "zero"
-    }
+    },
+    "line3_axis": {
+      "label": {
+        "en": "Direction",
+        "zh": "方向"
+      },
+      "control": "select",
+      "options": [
+        {
+          "value": "x",
+          "label": {
+            "en": "Across",
+            "zh": "横"
+          }
+        },
+        {
+          "value": "y",
+          "label": {
+            "en": "Down",
+            "zh": "竖"
+          }
+        }
+      ],
+      "default": "x"
+    },
+    "line3_a": {"label": "a", "control": "number", "min": -4, "max": 4, "step": 1, "default": 0},
+    "line3_b": {"label": "b", "control": "number", "min": -4, "max": 4, "step": 1, "default": 1},
+    "line3_c": {"label": "c", "control": "number", "min": -4, "max": 4, "step": 1, "default": 0}
   },
   "parts": {
     "line3": {
@@ -20,22 +62,7 @@
       "icon": "Grid3x3",
       "family": "neighbour",
       "inputs": [{ "name": "in", "label": "" }],
-      "settings": [
-        {
-          "key": "axis",
-          "label": { "en": "Direction", "zh": "方向" },
-          "control": "select",
-          "options": [
-            { "value": "x", "label": { "en": "Across", "zh": "横" } },
-            { "value": "y", "label": { "en": "Down", "zh": "竖" } }
-          ],
-          "default": "x"
-        },
-        { "key": "a", "label": "a", "control": "number", "min": -4, "max": 4, "step": 1, "default": 0 },
-        { "key": "b", "label": "b", "control": "number", "min": -4, "max": 4, "step": 1, "default": 1 },
-        { "key": "c", "label": "c", "control": "number", "min": -4, "max": 4, "step": 1, "default": 0 },
-        { "key": "border", "use": "border" }
-      ],
+      "settings": [{"key": "axis", "setting": "line3_axis"}, {"key": "a", "setting": "line3_a"}, {"key": "b", "setting": "line3_b"}, {"key": "c", "setting": "line3_c"}, {"key": "border", "setting": "border"}],
       "compute": "image_line3(in, $axis, $a, $b, $c, $border)"
     },
     "add": {

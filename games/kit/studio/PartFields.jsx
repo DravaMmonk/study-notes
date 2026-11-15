@@ -4,21 +4,24 @@
 // and settings it may name), and a list beside it offers every resource of the domain (and the kernel's builtins), the
 // part's inputs and its settings, each put in at the caret with a click.
 import { useMemo, useRef, useState } from 'react'
-import { L, tr } from '../shell/i18n.js'
+import { L, T, tr } from '../shell/i18n.js'
 import { ExprError, parse, problemsOf } from '../engine/parts/expr.js'
-import { resolveSetting } from '../engine/parts/define.js'
+import { resolveSettings, settingReferences } from '../engine/pieces.js'
 import { BUILTIN_ITEMS } from '../engine/parts/builtins.js'
 import { ICON_NAMES } from '../engine/parts/icons.js'
 import { validate } from '../engine/schema.js'
 import { ICONS } from '../shell/parts/icons.js'
+import { settingControlOptions } from '../engine/parts/schema.js'
+import { formOf } from './form.js'
+import { Picker } from './Picker.jsx'
 import { useDraft } from './draft.js'
 
 /** The part an expression at `path` belongs to in pieces.json, and whether it may read the part's inputs. */
 function partAt(file, path) {
   if (path[0] !== 'parts' || !file?.parts?.[path[1]]) return null
   const raw = file.parts[path[1]]
-  const settings = Object.fromEntries((raw.settings ?? []).map((s) => resolveSetting(s, file.presets)).filter(Boolean).map((s) => [s.key, s]))
-  return { inputs: path[2] === 'compute' ? raw.inputs.map((p) => p.name) : [], settings }
+  const settings = Object.fromEntries(resolveSettings(file, raw).map((s) => [s.key, s]))
+  return { inputs: path[2] === 'compute' ? (raw.inputs ?? []).map((p) => p.name) : [], settings }
 }
 
 export function ExprField({ field, onSet, ctx, label }) {
@@ -87,4 +90,51 @@ export function IconField({ field, onSet, label }) {
       </div>
     </div>
   )
+}
+
+/** Attach an existing setting or create a definition and its first binding together. */
+export function AddSetting({ field, ctx, onAttach }) {
+  const controls = settingControlOptions(ctx.vocabulary)
+  const existing = formOf(field.of.fields.setting, undefined, ctx).options
+  const newSetting = T('新建设置', 'New setting')
+  const existingSetting = T('引用已有设置', 'Use existing setting')
+  const options = [
+    ...controls.map(({ value }) => ({ value: `new:${value}`, label: value, group: newSetting })),
+    ...existing.map((o) => ({ ...o, value: `existing:${o.value}`, label: o.value, group: existingSetting })),
+  ]
+  const pick = (value) => {
+    const [action, id] = value.split(':')
+    const keys = new Set(field.items.map(({ value: binding }) => binding.key))
+    const stem = action === 'new' ? 'setting' : id
+    let key = stem
+    for (let n = 2; keys.has(key); n += 1) key = `${stem}${n}`
+    if (action === 'existing') {
+      onAttach({ key, setting: id })
+      return
+    }
+    const piece = field.path[1]
+    const taken = new Set(existing.map((o) => o.value))
+    const name = `${piece}_${key}`
+    let setting = name
+    for (let n = 2; taken.has(setting); n += 1) setting = `${name}${n}`
+    ctx.onAddSetting({ piece, setting, key, data: controls.find((option) => option.value === id).data })
+  }
+  return <Picker options={options} onPick={pick} label={tr('添加设置', 'Add setting')} placeholder={tr('添加设置', 'Add setting')} />
+}
+
+/** Show which pieces will see edits to this setting, with a link to each reference. */
+export function SettingUsers({ file, id, onPiece }) {
+  const uses = settingReferences(file, id)
+  if (!uses.length) return null
+  return <div className="setting-users">
+    <span>{tr('引用此设置的件', 'Pieces using this setting')}</span>
+    {uses.map(({ piece, key }) => <button key={`${piece}:${key}`} type="button" onClick={() => onPiece(piece)}>{piece}.{key}</button>)}
+  </div>
+}
+
+/** Add an optional field offered by the current engine schema. */
+export function AddFields({ fields, onAdd }) {
+  const label = tr('添加字段', 'Add field')
+  return <Picker options={fields.map(({ key, about }) => ({ value: key, about }))}
+    onPick={(key) => onAdd(fields.find((field) => field.key === key))} label={label} placeholder={label} />
 }

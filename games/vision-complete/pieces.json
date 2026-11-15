@@ -1,5 +1,5 @@
 {
-  "presets": {
+  "settings": {
     "dir": {
       "label": {
         "en": "Direction",
@@ -50,7 +50,447 @@
         }
       ],
       "default": "zero"
-    }
+    },
+    "const_c": {"label": "=", "control": "number", "min": -100, "max": 100, "step": 0.01, "default": 1},
+    "arith_op": {
+      "label": {
+        "en": "Operation",
+        "zh": "运算"
+      },
+      "control": "buttons",
+      "layout": "grid",
+      "options": [
+        {
+          "value": "add",
+          "label": "+"
+        },
+        {
+          "value": "sub",
+          "label": "−"
+        },
+        {
+          "value": "mul",
+          "label": "×"
+        },
+        {
+          "value": "div",
+          "label": "÷"
+        }
+      ],
+      "default": "add"
+    },
+    "arith_constantSide": {
+      "label": {
+        "en": "Constant side",
+        "zh": "常数位置"
+      },
+      "control": "select",
+      "options": [
+        {
+          "value": "none",
+          "label": {
+            "en": "Off",
+            "zh": "关闭"
+          }
+        },
+        {
+          "value": "a",
+          "label": {
+            "en": "Left a",
+            "zh": "左 a"
+          }
+        },
+        {
+          "value": "b",
+          "label": {
+            "en": "Right b",
+            "zh": "右 b"
+          }
+        }
+      ],
+      "default": "none"
+    },
+    "arith_constant": {
+      "label": {
+        "en": "Constant",
+        "zh": "常数"
+      },
+      "control": "number",
+      "min": -100,
+      "max": 100,
+      "step": 0.01,
+      "default": 1,
+      "when": "match $constantSide { none: 0, a: 1, b: 1 }"
+    },
+    "lrnConst_p": {"label": {"en": "Value", "zh": "值"}, "control": "custom", "widget": "imageKernel", "fixed": true, "default": [1]},
+    "learn3_w": {
+      "label": {
+        "en": "Weights",
+        "zh": "权重"
+      },
+      "control": "custom",
+      "widget": "imageKernel",
+      "fixed": true,
+      "default": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "lrnConv_w": {
+      "label": {
+        "en": "Weights",
+        "zh": "权重"
+      },
+      "control": "custom",
+      "widget": "imageKernel",
+      "fixed": true,
+      "default": [
+        0.0076,
+        0.0109,
+        -0.0112,
+        0.0049,
+        -0.0166,
+        0.0037,
+        0.0088,
+        -0.0017,
+        0.0162
+      ]
+    },
+    "dg_encode_k": {
+      "label": {
+        "en": "How many numbers",
+        "zh": "几个数"
+      },
+      "control": "select",
+      "options": [
+        {
+          "value": "1",
+          "label": {
+            "en": "1",
+            "zh": "1 个"
+          }
+        },
+        {
+          "value": "2",
+          "label": {
+            "en": "2",
+            "zh": "2 个"
+          }
+        },
+        {
+          "value": "3",
+          "label": {
+            "en": "3",
+            "zh": "3 个"
+          }
+        }
+      ],
+      "default": "1"
+    },
+    "dg_encode_w": {
+      "label": {
+        "en": "Weights",
+        "zh": "权重"
+      },
+      "control": "custom",
+      "widget": "imageKernel",
+      "fixed": true,
+      "default": [
+        0.203,
+        -0.112,
+        -0.077,
+        0.033,
+        -0.296,
+        -0.183,
+        0.278,
+        0.217,
+        -0.156,
+        -0.147,
+        -0.274,
+        -0.195,
+        0.044,
+        0.263,
+        0.102,
+        0.067,
+        -0.213,
+        -0.128,
+        -0.266,
+        -0.113,
+        -0.254,
+        -0.199,
+        -0.209,
+        0.219,
+        0.188,
+        0.104,
+        -0.023,
+        -0.228,
+        -0.127,
+        0.247,
+        -0.251,
+        0.058,
+        -0.108,
+        -0.117,
+        0.066,
+        -0.024,
+        0.024,
+        0.064,
+        0.205,
+        0.055,
+        -0.22,
+        0.298,
+        0.058,
+        0.172,
+        -0.239,
+        0.264,
+        -0.054,
+        0.097
+      ]
+    },
+    "dg_decode_w": {
+      "label": {
+        "en": "Weights",
+        "zh": "权重"
+      },
+      "control": "custom",
+      "widget": "imageKernel",
+      "fixed": true,
+      "default": [
+        0.155,
+        0.201,
+        0.015,
+        0.083,
+        0.003,
+        -0.08,
+        0,
+        0
+      ]
+    },
+    "dg_mu_w": {"label": "μ", "control": "custom", "widget": "imageKernel", "fixed": true, "default": [0, 0]},
+    "dg_sigma_w": {"label": "σ", "control": "custom", "widget": "imageKernel", "fixed": true, "default": [1, 1]},
+    "shift_n": {"label": {"en": "Steps", "zh": "格数"}, "control": "number", "min": 1, "max": 16, "step": 1, "default": 1},
+    "shift_border": {
+      "label": {
+        "en": "Border",
+        "zh": "边界"
+      },
+      "control": "select",
+      "options": [
+        {
+          "value": "zero",
+          "label": {
+            "en": "Pad with 0",
+            "zh": "补 0"
+          }
+        },
+        {
+          "value": "edge",
+          "label": {
+            "en": "Replicate edge",
+            "zh": "复制边缘"
+          }
+        },
+        {
+          "value": "wrap",
+          "label": {
+            "en": "Wrap round",
+            "zh": "循环"
+          }
+        }
+      ],
+      "default": "zero"
+    },
+    "threshold_t": {"label": ">", "control": "number", "min": -10, "max": 10, "step": 0.01, "default": 0.5},
+    "gauss_sigma": {"label": "σ", "control": "number", "min": 0.5, "max": 2.5, "step": 0.1, "default": 1},
+    "kernel3_w": {"label": {"en": "Weights", "zh": "权重"}, "control": "custom", "widget": "imageKernel", "default": [0, 0, 0, 0, 1, 0, 0, 0, 0]},
+    "fqWave_k": {"label": {"en": "Frequency k", "zh": "频率 k"}, "control": "number", "min": 0, "max": 16, "step": 1, "default": 1},
+    "fqWave_form": {
+      "label": {
+        "en": "Shape",
+        "zh": "形状"
+      },
+      "control": "select",
+      "options": [
+        {
+          "value": "cos",
+          "label": "cos"
+        },
+        {
+          "value": "sin",
+          "label": "sin"
+        }
+      ],
+      "default": "cos"
+    },
+    "fqLowpass_shape": {
+      "label": {
+        "en": "Mask",
+        "zh": "掩膜"
+      },
+      "control": "select",
+      "options": [
+        {
+          "value": "disk",
+          "label": {
+            "en": "Hard disk",
+            "zh": "硬圆盘"
+          }
+        },
+        {
+          "value": "gauss",
+          "label": {
+            "en": "Gaussian",
+            "zh": "高斯"
+          }
+        }
+      ],
+      "default": "disk"
+    },
+    "fqLowpass_R": {"label": {"en": "Radius R", "zh": "半径 R"}, "control": "number", "min": 0.5, "max": 16, "step": 0.5, "default": 8},
+    "shade_lx": {"label": {"en": "Lamp x", "zh": "灯 x"}, "control": "number", "min": -1, "max": 1, "step": 0.05, "default": 0},
+    "shade_ly": {"label": {"en": "Lamp y", "zh": "灯 y"}, "control": "number", "min": -1, "max": 1, "step": 0.05, "default": 0},
+    "shade_lz": {"label": {"en": "Lamp z", "zh": "灯 z"}, "control": "number", "min": -1, "max": 1, "step": 0.05, "default": 1},
+    "sense_channel": {
+      "label": {
+        "en": "Sensor",
+        "zh": "感光"
+      },
+      "control": "select",
+      "options": [
+        {
+          "value": "R",
+          "label": "R"
+        },
+        {
+          "value": "G",
+          "label": "G"
+        },
+        {
+          "value": "B",
+          "label": "B"
+        }
+      ],
+      "default": "R"
+    },
+    "lrnDense_p": {"label": "w, b", "control": "custom", "widget": "imageKernel", "fixed": true, "default": [1, 0]},
+    "lrnRgb_w": {
+      "label": {
+        "en": "Weights",
+        "zh": "权重"
+      },
+      "control": "custom",
+      "widget": "imageKernel",
+      "fixed": true,
+      "default": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "lrnRes_w": {
+      "label": {
+        "en": "Weights",
+        "zh": "权重"
+      },
+      "control": "custom",
+      "widget": "imageKernel",
+      "fixed": true,
+      "default": [
+        0.0076,
+        0.0109,
+        -0.0112,
+        0.0049,
+        -0.0166,
+        0.0037,
+        0.0088,
+        -0.0017,
+        0.0162
+      ]
+    },
+    "attention_s": {"label": {"en": "q scale", "zh": "q 放大"}, "control": "number", "min": 0, "max": 100, "step": 1, "default": 1},
+    "attention_P": {
+      "label": {
+        "en": "Patch size",
+        "zh": "图块边长"
+      },
+      "control": "select",
+      "options": [
+        {
+          "value": "2",
+          "label": "2"
+        },
+        {
+          "value": "4",
+          "label": "4"
+        },
+        {
+          "value": "8",
+          "label": "8"
+        }
+      ],
+      "default": "4"
+    },
+    "harris_k": {"label": "k", "control": "number", "min": 0.01, "max": 0.2, "step": 0.01, "default": 0.05},
+    "ransac_k": {"label": {"en": "Rounds k", "zh": "轮数 k"}, "control": "number", "min": 1, "max": 200, "step": 1, "default": 10},
+    "ransac_d": {"label": "δ", "control": "number", "min": 0.25, "max": 3, "step": 0.25, "default": 1},
+    "homography_k": {"label": {"en": "Rounds k", "zh": "轮数 k"}, "control": "number", "min": 0, "max": 200, "step": 10, "default": 0},
+    "disparity_window": {
+      "label": {
+        "en": "Window",
+        "zh": "窗口"
+      },
+      "control": "select",
+      "options": [
+        {
+          "value": "1",
+          "label": "1×1"
+        },
+        {
+          "value": "3",
+          "label": "3×3"
+        },
+        {
+          "value": "5",
+          "label": "5×5"
+        },
+        {
+          "value": "7",
+          "label": "7×7"
+        }
+      ],
+      "default": "3"
+    },
+    "tconv_w": {"label": {"en": "Weights", "zh": "权重"}, "control": "custom", "widget": "imageKernel", "default": [1, 1, 0, 1, 1, 0, 0, 0, 0]}
   },
   "parts": {
     "const": {
@@ -65,17 +505,7 @@
       "icon": "Hash",
       "family": "pixel",
       "inputs": [],
-      "settings": [
-        {
-          "key": "c",
-          "label": "=",
-          "control": "number",
-          "min": -100,
-          "max": 100,
-          "step": 0.01,
-          "default": 1
-        }
-      ],
+      "settings": [{"key": "c", "setting": "const_c"}],
       "compute": "image_const($c)"
     },
     "add": {
@@ -168,81 +598,7 @@
           "label": "b"
         }
       ],
-      "settings": [
-        {
-          "key": "op",
-          "label": {
-            "en": "Operation",
-            "zh": "运算"
-          },
-          "control": "buttons",
-          "layout": "grid",
-          "options": [
-            {
-              "value": "add",
-              "label": "+"
-            },
-            {
-              "value": "sub",
-              "label": "−"
-            },
-            {
-              "value": "mul",
-              "label": "×"
-            },
-            {
-              "value": "div",
-              "label": "÷"
-            }
-          ],
-          "default": "add"
-        },
-        {
-          "key": "constantSide",
-          "label": {
-            "en": "Constant side",
-            "zh": "常数位置"
-          },
-          "control": "select",
-          "options": [
-            {
-              "value": "none",
-              "label": {
-                "en": "Off",
-                "zh": "关闭"
-              }
-            },
-            {
-              "value": "a",
-              "label": {
-                "en": "Left a",
-                "zh": "左 a"
-              }
-            },
-            {
-              "value": "b",
-              "label": {
-                "en": "Right b",
-                "zh": "右 b"
-              }
-            }
-          ],
-          "default": "none"
-        },
-        {
-          "key": "constant",
-          "label": {
-            "en": "Constant",
-            "zh": "常数"
-          },
-          "control": "number",
-          "min": -100,
-          "max": 100,
-          "step": 0.01,
-          "default": 1,
-          "when": "match $constantSide { none: 0, a: 1, b: 1 }"
-        }
-      ],
+      "settings": [{"key": "op", "setting": "arith_op"}, {"key": "constantSide", "setting": "arith_constantSide"}, {"key": "constant", "setting": "arith_constant"}],
       "nulls": "pass",
       "compute": "image_arith(a, b, $op, $constantSide, $constant)"
     },
@@ -358,21 +714,7 @@
       "icon": "Activity",
       "family": "learned",
       "inputs": [],
-      "settings": [
-        {
-          "key": "p",
-          "label": {
-            "en": "Value",
-            "zh": "值"
-          },
-          "control": "custom",
-          "widget": "imageKernel",
-          "fixed": true,
-          "default": [
-            1
-          ]
-        }
-      ],
+      "settings": [{"key": "p", "setting": "lrnConst_p"}],
       "compute": "image_lrnConst($p)"
     },
     "learn3": {
@@ -392,29 +734,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "w",
-          "label": {
-            "en": "Weights",
-            "zh": "权重"
-          },
-          "control": "custom",
-          "widget": "imageKernel",
-          "fixed": true,
-          "default": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
-        }
-      ],
+      "settings": [{"key": "w", "setting": "learn3_w"}],
       "compute": "image_learn3(in, $w)"
     },
     "lrnConv": {
@@ -434,29 +754,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "w",
-          "label": {
-            "en": "Weights",
-            "zh": "权重"
-          },
-          "control": "custom",
-          "widget": "imageKernel",
-          "fixed": true,
-          "default": [
-            0.0076,
-            0.0109,
-            -0.0112,
-            0.0049,
-            -0.0166,
-            0.0037,
-            0.0088,
-            -0.0017,
-            0.0162
-          ]
-        }
-      ],
+      "settings": [{"key": "w", "setting": "lrnConv_w"}],
       "compute": "image_lrnConv(in, $w)"
     },
     "warp": {
@@ -552,100 +850,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "k",
-          "label": {
-            "en": "How many numbers",
-            "zh": "几个数"
-          },
-          "control": "select",
-          "options": [
-            {
-              "value": "1",
-              "label": {
-                "en": "1",
-                "zh": "1 个"
-              }
-            },
-            {
-              "value": "2",
-              "label": {
-                "en": "2",
-                "zh": "2 个"
-              }
-            },
-            {
-              "value": "3",
-              "label": {
-                "en": "3",
-                "zh": "3 个"
-              }
-            }
-          ],
-          "default": "1"
-        },
-        {
-          "key": "w",
-          "label": {
-            "en": "Weights",
-            "zh": "权重"
-          },
-          "control": "custom",
-          "widget": "imageKernel",
-          "fixed": true,
-          "default": [
-            0.203,
-            -0.112,
-            -0.077,
-            0.033,
-            -0.296,
-            -0.183,
-            0.278,
-            0.217,
-            -0.156,
-            -0.147,
-            -0.274,
-            -0.195,
-            0.044,
-            0.263,
-            0.102,
-            0.067,
-            -0.213,
-            -0.128,
-            -0.266,
-            -0.113,
-            -0.254,
-            -0.199,
-            -0.209,
-            0.219,
-            0.188,
-            0.104,
-            -0.023,
-            -0.228,
-            -0.127,
-            0.247,
-            -0.251,
-            0.058,
-            -0.108,
-            -0.117,
-            0.066,
-            -0.024,
-            0.024,
-            0.064,
-            0.205,
-            0.055,
-            -0.22,
-            0.298,
-            0.058,
-            0.172,
-            -0.239,
-            0.264,
-            -0.054,
-            0.097
-          ]
-        }
-      ],
+      "settings": [{"key": "k", "setting": "dg_encode_k"}, {"key": "w", "setting": "dg_encode_w"}],
       "compute": "image_dg_encode(in, $k, $w)"
     },
     "dg_decode": {
@@ -665,28 +870,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "w",
-          "label": {
-            "en": "Weights",
-            "zh": "权重"
-          },
-          "control": "custom",
-          "widget": "imageKernel",
-          "fixed": true,
-          "default": [
-            0.155,
-            0.201,
-            0.015,
-            0.083,
-            0.003,
-            -0.08,
-            0,
-            0
-          ]
-        }
-      ],
+      "settings": [{"key": "w", "setting": "dg_decode_w"}],
       "compute": "image_dg_decode(in, $w)"
     },
     "dg_mu": {
@@ -698,19 +882,7 @@
       "icon": "Activity",
       "family": "learned",
       "inputs": [],
-      "settings": [
-        {
-          "key": "w",
-          "label": "μ",
-          "control": "custom",
-          "widget": "imageKernel",
-          "fixed": true,
-          "default": [
-            0,
-            0
-          ]
-        }
-      ],
+      "settings": [{"key": "w", "setting": "dg_mu_w"}],
       "compute": "image_dg_mu($w)"
     },
     "dg_sigma": {
@@ -722,19 +894,7 @@
       "icon": "Activity",
       "family": "learned",
       "inputs": [],
-      "settings": [
-        {
-          "key": "w",
-          "label": "σ",
-          "control": "custom",
-          "widget": "imageKernel",
-          "fixed": true,
-          "default": [
-            1,
-            1
-          ]
-        }
-      ],
+      "settings": [{"key": "w", "setting": "dg_sigma_w"}],
       "compute": "image_dg_sigma($w)"
     },
     "dg_sample": {
@@ -777,56 +937,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "dir",
-          "use": "dir"
-        },
-        {
-          "key": "n",
-          "label": {
-            "en": "Steps",
-            "zh": "格数"
-          },
-          "control": "number",
-          "min": 1,
-          "max": 16,
-          "step": 1,
-          "default": 1
-        },
-        {
-          "key": "border",
-          "label": {
-            "en": "Border",
-            "zh": "边界"
-          },
-          "control": "select",
-          "options": [
-            {
-              "value": "zero",
-              "label": {
-                "en": "Pad with 0",
-                "zh": "补 0"
-              }
-            },
-            {
-              "value": "edge",
-              "label": {
-                "en": "Replicate edge",
-                "zh": "复制边缘"
-              }
-            },
-            {
-              "value": "wrap",
-              "label": {
-                "en": "Wrap round",
-                "zh": "循环"
-              }
-            }
-          ],
-          "default": "zero"
-        }
-      ],
+      "settings": [{"key": "dir", "setting": "dir"}, {"key": "n", "setting": "shift_n"}, {"key": "border", "setting": "shift_border"}],
       "compute": "image_shift(in, $dir, $n, $border)"
     },
     "invert": {
@@ -865,17 +976,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "t",
-          "label": ">",
-          "control": "number",
-          "min": -10,
-          "max": 10,
-          "step": 0.01,
-          "default": 0.5
-        }
-      ],
+      "settings": [{"key": "t", "setting": "threshold_t"}],
       "compute": "image_threshold(in, $t)"
     },
     "blur3h": {
@@ -895,12 +996,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "border",
-          "use": "border"
-        }
-      ],
+      "settings": [{"key": "border", "setting": "border"}],
       "compute": "image_blur3h(in, $border)"
     },
     "box3": {
@@ -920,12 +1016,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "border",
-          "use": "border"
-        }
-      ],
+      "settings": [{"key": "border", "setting": "border"}],
       "compute": "image_box3(in, $border)"
     },
     "gauss": {
@@ -945,21 +1036,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "sigma",
-          "label": "σ",
-          "control": "number",
-          "min": 0.5,
-          "max": 2.5,
-          "step": 0.1,
-          "default": 1
-        },
-        {
-          "key": "border",
-          "use": "border"
-        }
-      ],
+      "settings": [{"key": "sigma", "setting": "gauss_sigma"}, {"key": "border", "setting": "border"}],
       "compute": "image_gauss(in, $sigma, $border)"
     },
     "diffx": {
@@ -995,12 +1072,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "border",
-          "use": "border"
-        }
-      ],
+      "settings": [{"key": "border", "setting": "border"}],
       "compute": "image_sobelx(in, $border)"
     },
     "sobely": {
@@ -1017,12 +1089,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "border",
-          "use": "border"
-        }
-      ],
+      "settings": [{"key": "border", "setting": "border"}],
       "compute": "image_sobely(in, $border)"
     },
     "kernel3": {
@@ -1042,32 +1109,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "w",
-          "label": {
-            "en": "Weights",
-            "zh": "权重"
-          },
-          "control": "custom",
-          "widget": "imageKernel",
-          "default": [
-            0,
-            0,
-            0,
-            0,
-            1,
-            0,
-            0,
-            0,
-            0
-          ]
-        },
-        {
-          "key": "border",
-          "use": "border"
-        }
-      ],
+      "settings": [{"key": "w", "setting": "kernel3_w"}, {"key": "border", "setting": "border"}],
       "compute": "image_kernel3(in, $w, $border)"
     },
     "cos": {
@@ -1095,39 +1137,7 @@
       "icon": "Waves",
       "family": "frequency",
       "inputs": [],
-      "settings": [
-        {
-          "key": "k",
-          "label": {
-            "en": "Frequency k",
-            "zh": "频率 k"
-          },
-          "control": "number",
-          "min": 0,
-          "max": 16,
-          "step": 1,
-          "default": 1
-        },
-        {
-          "key": "form",
-          "label": {
-            "en": "Shape",
-            "zh": "形状"
-          },
-          "control": "select",
-          "options": [
-            {
-              "value": "cos",
-              "label": "cos"
-            },
-            {
-              "value": "sin",
-              "label": "sin"
-            }
-          ],
-          "default": "cos"
-        }
-      ],
+      "settings": [{"key": "k", "setting": "fqWave_k"}, {"key": "form", "setting": "fqWave_form"}],
       "compute": "image_fqWave($k, $form)"
     },
     "fqMean": {
@@ -1185,45 +1195,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "shape",
-          "label": {
-            "en": "Mask",
-            "zh": "掩膜"
-          },
-          "control": "select",
-          "options": [
-            {
-              "value": "disk",
-              "label": {
-                "en": "Hard disk",
-                "zh": "硬圆盘"
-              }
-            },
-            {
-              "value": "gauss",
-              "label": {
-                "en": "Gaussian",
-                "zh": "高斯"
-              }
-            }
-          ],
-          "default": "disk"
-        },
-        {
-          "key": "R",
-          "label": {
-            "en": "Radius R",
-            "zh": "半径 R"
-          },
-          "control": "number",
-          "min": 0.5,
-          "max": 16,
-          "step": 0.5,
-          "default": 8
-        }
-      ],
+      "settings": [{"key": "shape", "setting": "fqLowpass_shape"}, {"key": "R", "setting": "fqLowpass_R"}],
       "compute": "image_fqLowpass(in, $shape, $R)"
     },
     "downsample": {
@@ -1270,44 +1242,7 @@
           "name": "albedo"
         }
       ],
-      "settings": [
-        {
-          "key": "lx",
-          "label": {
-            "en": "Lamp x",
-            "zh": "灯 x"
-          },
-          "control": "number",
-          "min": -1,
-          "max": 1,
-          "step": 0.05,
-          "default": 0
-        },
-        {
-          "key": "ly",
-          "label": {
-            "en": "Lamp y",
-            "zh": "灯 y"
-          },
-          "control": "number",
-          "min": -1,
-          "max": 1,
-          "step": 0.05,
-          "default": 0
-        },
-        {
-          "key": "lz",
-          "label": {
-            "en": "Lamp z",
-            "zh": "灯 z"
-          },
-          "control": "number",
-          "min": -1,
-          "max": 1,
-          "step": 0.05,
-          "default": 1
-        }
-      ],
+      "settings": [{"key": "lx", "setting": "shade_lx"}, {"key": "ly", "setting": "shade_ly"}, {"key": "lz", "setting": "shade_lz"}],
       "compute": "image_shade(nx, ny, nz, albedo, $lx, $ly, $lz)"
     },
     "sense": {
@@ -1327,31 +1262,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "channel",
-          "label": {
-            "en": "Sensor",
-            "zh": "感光"
-          },
-          "control": "select",
-          "options": [
-            {
-              "value": "R",
-              "label": "R"
-            },
-            {
-              "value": "G",
-              "label": "G"
-            },
-            {
-              "value": "B",
-              "label": "B"
-            }
-          ],
-          "default": "R"
-        }
-      ],
+      "settings": [{"key": "channel", "setting": "sense_channel"}],
       "compute": "image_sense(in, $channel)"
     },
     "gradmag": {
@@ -1368,12 +1279,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "border",
-          "use": "border"
-        }
-      ],
+      "settings": [{"key": "border", "setting": "border"}],
       "compute": "image_gradmag(in, $border)"
     },
     "lrnDense": {
@@ -1393,19 +1299,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "p",
-          "label": "w, b",
-          "control": "custom",
-          "widget": "imageKernel",
-          "fixed": true,
-          "default": [
-            1,
-            0
-          ]
-        }
-      ],
+      "settings": [{"key": "p", "setting": "lrnDense_p"}],
       "compute": "image_lrnDense(in, $p)"
     },
     "softmax": {
@@ -1529,47 +1423,7 @@
           "label": "b"
         }
       ],
-      "settings": [
-        {
-          "key": "w",
-          "label": {
-            "en": "Weights",
-            "zh": "权重"
-          },
-          "control": "custom",
-          "widget": "imageKernel",
-          "fixed": true,
-          "default": [
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0
-          ]
-        }
-      ],
+      "settings": [{"key": "w", "setting": "lrnRgb_w"}],
       "compute": "image_lrnRgb(r, g, b, $w)"
     },
     "maxpool": {
@@ -1608,29 +1462,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "w",
-          "label": {
-            "en": "Weights",
-            "zh": "权重"
-          },
-          "control": "custom",
-          "widget": "imageKernel",
-          "fixed": true,
-          "default": [
-            0.0076,
-            0.0109,
-            -0.0112,
-            0.0049,
-            -0.0166,
-            0.0037,
-            0.0088,
-            -0.0017,
-            0.0162
-          ]
-        }
-      ],
+      "settings": [{"key": "w", "setting": "lrnRes_w"}],
       "compute": "image_lrnRes(in, $w)"
     },
     "attention": {
@@ -1655,43 +1487,7 @@
           "name": "V"
         }
       ],
-      "settings": [
-        {
-          "key": "s",
-          "label": {
-            "en": "q scale",
-            "zh": "q 放大"
-          },
-          "control": "number",
-          "min": 0,
-          "max": 100,
-          "step": 1,
-          "default": 1
-        },
-        {
-          "key": "P",
-          "label": {
-            "en": "Patch size",
-            "zh": "图块边长"
-          },
-          "control": "select",
-          "options": [
-            {
-              "value": "2",
-              "label": "2"
-            },
-            {
-              "value": "4",
-              "label": "4"
-            },
-            {
-              "value": "8",
-              "label": "8"
-            }
-          ],
-          "default": "4"
-        }
-      ],
+      "settings": [{"key": "s", "setting": "attention_s"}, {"key": "P", "setting": "attention_P"}],
       "nulls": "pass",
       "compute": "image_attention(Q, K, V, $s, $P)"
     },
@@ -1731,17 +1527,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "k",
-          "label": "k",
-          "control": "number",
-          "min": 0.01,
-          "max": 0.2,
-          "step": 0.01,
-          "default": 0.05
-        }
-      ],
+      "settings": [{"key": "k", "setting": "harris_k"}],
       "compute": "image_harris(in, $k)"
     },
     "hough": {
@@ -1780,29 +1566,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "k",
-          "label": {
-            "en": "Rounds k",
-            "zh": "轮数 k"
-          },
-          "control": "number",
-          "min": 1,
-          "max": 200,
-          "step": 1,
-          "default": 10
-        },
-        {
-          "key": "d",
-          "label": "δ",
-          "control": "number",
-          "min": 0.25,
-          "max": 3,
-          "step": 0.25,
-          "default": 1
-        }
-      ],
+      "settings": [{"key": "k", "setting": "ransac_k"}, {"key": "d", "setting": "ransac_d"}],
       "compute": "image_ransac(in, $k, $d)"
     },
     "homography": {
@@ -1821,20 +1585,7 @@
           "name": "pairs"
         }
       ],
-      "settings": [
-        {
-          "key": "k",
-          "label": {
-            "en": "Rounds k",
-            "zh": "轮数 k"
-          },
-          "control": "number",
-          "min": 0,
-          "max": 200,
-          "step": 10,
-          "default": 0
-        }
-      ],
+      "settings": [{"key": "k", "setting": "homography_k"}],
       "compute": "image_homography(pairs, $k)"
     },
     "disparity": {
@@ -1864,35 +1615,7 @@
           }
         }
       ],
-      "settings": [
-        {
-          "key": "window",
-          "label": {
-            "en": "Window",
-            "zh": "窗口"
-          },
-          "control": "select",
-          "options": [
-            {
-              "value": "1",
-              "label": "1×1"
-            },
-            {
-              "value": "3",
-              "label": "3×3"
-            },
-            {
-              "value": "5",
-              "label": "5×5"
-            },
-            {
-              "value": "7",
-              "label": "7×7"
-            }
-          ],
-          "default": "3"
-        }
-      ],
+      "settings": [{"key": "window", "setting": "disparity_window"}],
       "compute": "image_disparity(left, right, $window)"
     },
     "dg_encoder": {
@@ -1977,28 +1700,7 @@
           "label": ""
         }
       ],
-      "settings": [
-        {
-          "key": "w",
-          "label": {
-            "en": "Weights",
-            "zh": "权重"
-          },
-          "control": "custom",
-          "widget": "imageKernel",
-          "default": [
-            1,
-            1,
-            0,
-            1,
-            1,
-            0,
-            0,
-            0,
-            0
-          ]
-        }
-      ],
+      "settings": [{"key": "w", "setting": "tconv_w"}],
       "compute": "image_tconv(in, $w)"
     },
     "peaks": {

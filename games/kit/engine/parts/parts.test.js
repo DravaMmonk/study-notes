@@ -19,12 +19,16 @@ const vocabulary = {
   kinds: { op: Object.fromEntries(Object.entries(OPS).map(([k, { run: _, ...item }]) => [k, item])), family: { value: { about: 'numbers' } } },
 }
 const file = {
-  presets: { how: { control: 'buttons', label: 'how', options: [{ value: 'up' }, { value: 'down' }], default: 'up' } },
+  settings: {
+    how: { control: 'buttons', label: 'how', options: [{ value: 'up' }, { value: 'down' }], default: 'up' },
+    scale: { control: 'slider', min: 1, max: 4, default: 2 },
+    lock: { control: 'toggle', when: "eq($how, 'up')" },
+  },
   parts: {
     sum: { name: 'Sum', desc: 'a + b', icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'add(a, b)' },
     scaled: {
       name: 'Scaled', desc: 'a scaled', icon: 'Scaling', family: 'value', inputs: [{ name: 'a' }],
-      settings: [{ key: 'k', control: 'slider', min: 1, max: 4, default: 2 }, { key: 'how', use: 'how' }, { key: 'lock', control: 'toggle', when: "eq($how, 'up')" }],
+      settings: [{ key: 'k', setting: 'scale' }, { key: 'how', setting: 'how' }, { key: 'lock', setting: 'lock' }],
       compute: "match $how { up: scale(a, k=$k, how='up'), down: scale(a, k=$k, how=$how) }",
       rules: [{ on: 'how', when: "eq($how, 'down')", set: { k: 'plus($k, 1)' } }],
       checks: [{ holds: 'le($k, 3)', say: { en: 'k is too large' } }],
@@ -54,7 +58,7 @@ test('if works out only the branch it takes; a builtin’s numbers are plain num
   assert.deepEqual(said('times(plus($k, 1), 2)'), [])
 })
 
-test('pieces.json becomes engine parts: settings with their presets, one or several outputs, 「—」 given on', () => {
+test('pieces.json becomes engine parts: settings resolved from shared definitions, one or several outputs, 「—」 given on', () => {
   const { PARTS, defaultsOf } = defineParts(file, OPS)
   assert.deepEqual(defaultsOf('scaled'), { k: 2, how: 'up', lock: false })
   assert.deepEqual(PARTS.scaled.settings, { how: ['up', 'down'] })
@@ -94,21 +98,36 @@ test('a pieces.json that holds together has no problems; one that does not says 
   const bad = structuredClone(file)
   bad.parts.sum.compute = 'add(a, c)'
   bad.parts.sum.icon = 'Nope'
-  bad.parts.scaled.settings[0].default = 9
+  bad.settings.scale.default = 9
   bad.parts.scaled.compute = 'match $how { up: a }'
   bad.parts.split.compute = { hi: 'add(a, 1)' }
   bad.parts.scaled.views.tile[0].text = '{nope}'
   bad.parts.scaled.rules[0].set = { z: '1' }
   assert.deepEqual(partProblems(bad, vocabulary).map((p) => `${p.at}: ${p.says}`), [
+    'pieces.json.settings.scale.default: 9 is not a number in its range',
     'pieces.json.parts.sum.icon: Nope is no icon of the kernel’s table',
     'pieces.json.parts.sum.compute: c is no input of the part (its inputs: a, b)',
-    'pieces.json.parts.scaled.settings[0].default: 9 is not a number in its range',
     'pieces.json.parts.scaled.rules[0].set.z: z is no setting of the part',
     'pieces.json.parts.scaled.compute: match $how has no case for down',
     'pieces.json.parts.scaled.views.tile[0].text: {nope} is no setting of the part',
     'pieces.json.parts.split.compute: nothing computes the output lo',
   ])
   assert.deepEqual(Object.keys(withParts(vocabulary, file).kinds.part), ['sum', 'scaled', 'split'])
+})
+
+test('a shared setting uses local keys and missing definitions are rejected', () => {
+  const data = structuredClone(file)
+  data.parts.sum.settings = [{ key: 'direction', setting: 'how' }]
+  assert.deepEqual(partProblems(data, vocabulary), [])
+  data.settings.how.default = 'down'
+  const { defaultsOf } = defineParts(data, OPS)
+  assert.equal(defaultsOf('sum').direction, 'down')
+  assert.equal(defaultsOf('scaled').how, 'down')
+  delete data.settings.how
+  assert.deepEqual(partProblems(data, vocabulary).map(({ at }) => at), [
+    'pieces.json.parts.sum.settings[0].setting',
+    'pieces.json.parts.scaled.settings[1].setting',
+  ])
 })
 
 test('code and content pieces share both the vocabulary and the running registry', () => {
@@ -187,9 +206,10 @@ test('a part with regions is a frame: its resource sees the card and the region,
     named: { about: 'id', args: [], run: (_args, _named, ctx) => ctx.node.id },
   }
   const frames = {
+    settings: { more: { control: 'select', options: [{ value: 'no' }, { value: 'yes' }] } },
     parts: {
       box: { name: 'Box', desc: 'b', icon: 'Box', family: 'value', inputs: [{ name: 'x' }], regions: [{ name: 'body', opens: true, closes: true }], compute: 'box(x, body)' },
-      thrice: { name: 'Thrice', desc: 't', icon: 'Repeat', family: 'value', inputs: [{ name: 'x' }], regions: [{ name: 'body', opens: true }, { name: 'more', opens: true, when: "eq($more, 'yes')" }], settings: [{ key: 'more', control: 'select', options: [{ value: 'no' }, { value: 'yes' }] }], compute: 'thrice(x)' },
+      thrice: { name: 'Thrice', desc: 't', icon: 'Repeat', family: 'value', inputs: [{ name: 'x' }], regions: [{ name: 'body', opens: true }, { name: 'more', opens: true, when: "eq($more, 'yes')" }], settings: [{ key: 'more', setting: 'more' }], compute: 'thrice(x)' },
       twice: { name: 'Twice', desc: 'd', icon: 'Plus', family: 'value', inputs: [{ name: 'x' }], compute: 'twice(x)' },
       named: { name: 'Named', desc: 'n', icon: 'Plus', family: 'value', inputs: [], compute: 'named()' },
     },
@@ -210,18 +230,19 @@ test('a part with regions is a frame: its resource sees the card and the region,
 })
 
 test('a part keeps an input in the register a setting names, or computes, never both', () => {
-  const keep = { name: { en: '存' }, desc: { en: 'Store it in the register.' }, icon: 'Box', family: 'value', inputs: [{ name: 'in' }], settings: [{ key: 'reg', control: 'select', options: [{ value: 'A' }] }], keeps: { input: 'in', register: 'reg' } }
-  assert.deepEqual(partProblems({ parts: { keep } }, vocabulary), [])
-  assert.ok(partProblems({ parts: { keep: { ...keep, compute: 'in' } } }, vocabulary).some((p) => /one of the two/.test(p.says)))
-  assert.ok(partProblems({ parts: { keep: { ...keep, keeps: { input: 'x', register: 'r' } } } }, vocabulary).length === 2)
-  const { PARTS } = defineParts({ parts: { keep } }, OPS)
+  const settings = { register: { control: 'select', options: [{ value: 'A' }] } }
+  const keep = { name: { en: '存' }, desc: { en: 'Store it in the register.' }, icon: 'Box', family: 'value', inputs: [{ name: 'in' }], settings: [{ key: 'reg', setting: 'register' }], keeps: { input: 'in', register: 'reg' } }
+  assert.deepEqual(partProblems({ settings, parts: { keep } }, vocabulary), [])
+  assert.ok(partProblems({ settings, parts: { keep: { ...keep, compute: 'in' } } }, vocabulary).some((p) => /one of the two/.test(p.says)))
+  assert.ok(partProblems({ settings, parts: { keep: { ...keep, keeps: { input: 'x', register: 'r' } } } }, vocabulary).length === 2)
+  const { PARTS } = defineParts({ settings, parts: { keep } }, OPS)
   assert.equal(PARTS.keep.sink && PARTS.keep.store, true)
   assert.equal(PARTS.keep.register({ params: {} }), 'A')
 })
 
 test('an optional number left unset reads 「—」, and a new card starts from its default', () => {
-  const start = { key: 'start', control: 'number', default: 0, optional: true }
-  const { PARTS, defaultsOf } = defineParts({ parts: { r: { name: { en: 'r' }, desc: { en: 'd' }, icon: 'Box', family: 'value', inputs: [], settings: [start], compute: '$start' } } }, OPS)
+  const start = { control: 'number', default: 0, optional: true }
+  const { PARTS, defaultsOf } = defineParts({ settings: { start }, parts: { r: { name: { en: 'r' }, desc: { en: 'd' }, icon: 'Box', family: 'value', inputs: [], settings: [{ key: 'start', setting: 'start' }], compute: '$start' } } }, OPS)
   assert.deepEqual(defaultsOf('r'), { start: 0 })
   assert.equal(PARTS.r.eval({}, { params: {} }, {}), null)
   assert.equal(PARTS.r.eval({}, { params: { start: '3' } }, {}), 3)

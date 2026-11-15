@@ -1,4 +1,7 @@
 {
+  "settings": {
+    "value_value": {"control": "number", "default": 0.9}
+  },
   "parts": {
     "counter": {
       "name": { "en": "Route Counter", "zh": "路线计数器" },
@@ -111,7 +114,7 @@
         "zh": "取最多四条来路里最大的，再乘上元件上的数（比如 0.9）。"
       },
       "inside": [{ "task": "value" }],
-      "settings": [{ "key": "value", "control": "number", "default": 0.9 }]
+      "settings": [{"key": "value", "setting": "value_value"}]
     },
     "expect": {
       "name": { "en": "Expectation", "zh": "期望" },

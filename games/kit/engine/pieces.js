@@ -16,8 +16,22 @@ export const keepsOf = (piece) => piece.keeps ?? null
 export const cardOf = (piece) => piece.card ?? null
 export const revisionsOf = (piece) => piece.revisions ?? []
 
+/** Resolve a content piece's bindings to the setting face the circuit reads. */
+export function resolveSettings(file, piece) {
+  return settingsOf(piece).flatMap(({ key, setting }) => Object.hasOwn(file?.settings ?? {}, setting)
+    ? [{ ...file.settings[setting], key }]
+    : [])
+}
+
+/** Pieces and local keys referring to a setting definition. */
+export function settingReferences(file, id) {
+  return Object.entries(file?.parts ?? {}).flatMap(([piece, def]) => settingsOf(def)
+    .filter(({ setting }) => setting === id).map(({ key }) => ({ piece, key })))
+}
+
 /** A pieces.json's built pieces (those with an inside), by type. */
-export const builtPieces = (file) => Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, piece]) => insideOf(piece)))
+export const builtPieces = (file) => Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, piece]) => insideOf(piece))
+  .map(([type, piece]) => [type, { ...piece, settings: resolveSettings(file, piece) }]))
 
 /** What built pieces publish: one entry a reference, { type, form (null when none), task (its id) }, in the order written. */
 export const publications = (pieces) => Object.entries(pieces).flatMap(([type, piece]) => insideOf(piece).map(({ task, form }) => ({ type, form: form ?? null, task })))

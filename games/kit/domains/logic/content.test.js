@@ -38,11 +38,11 @@ const CONTENT = {
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'allE', 'allI', 'rewrite'],
   // The parts the starter defines (its pieces.json: the gates and the proof rules), and the pieces built here: a gate,
   // a lemma, and a lemma of two shapes, each shape the proof of a task.
-  partDefs: { parts: {
+  partDefs: { settings: { ...readContent('starter', import.meta.dirname).partDefs.settings, formula: { control: 'tree' } }, parts: {
     ...Object.fromEntries(Object.entries(readContent('starter', import.meta.dirname).partDefs.parts).filter(([, p]) => !p.inside)),
     gOr: { name: L('或', 'Or'), desc: L('d'), family: 'gate', inside: [{ task: 'or' }] },
-    chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'lemma', settings: ['A', 'B', 'C'].map((key) => ({ key, control: 'tree' })), inside: [{ task: 'chain' }] },
-    half: { name: L('取一半', 'Half'), desc: L('d'), family: 'lemma', settings: ['A', 'B'].map((key) => ({ key, control: 'tree' })), inside: [{ task: 'half_l', form: 'left', label: 'A ∧ B ⟹ A' }, { task: 'half_r', form: 'right', label: 'A ∧ B ⟹ B' }] },
+    chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'lemma', settings: ['A', 'B', 'C'].map((key) => ({ key, setting: 'formula' })), inside: [{ task: 'chain' }] },
+    half: { name: L('取一半', 'Half'), desc: L('d'), family: 'lemma', settings: ['A', 'B'].map((key) => ({ key, setting: 'formula' })), inside: [{ task: 'half_l', form: 'left', label: 'A ∧ B ⟹ A' }, { task: 'half_r', form: 'right', label: 'A ∧ B ⟹ B' }] },
   } },
   eras: [{ id: 'one', machine: null, foundation: ['or', 'chain', 'useChain', 'half', 'useHalf', 'eqSym', 'andDef', 'eqUse', 'eqTerm', 'rows', 'negate'], chapter: { title: L('c'), question: L('q') } }],
   levels: [

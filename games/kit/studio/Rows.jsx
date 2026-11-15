@@ -11,6 +11,7 @@ import { Plus } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { showPath } from '../engine/ops/edit.js'
 import { summaryOf } from './form.js'
+import { AddFields } from './PartFields.jsx'
 
 /** What a row says of its field: a list's length and first items, else the value in one line. */
 function sumOf(field) {
@@ -65,7 +66,9 @@ export default function Rows({ form, keys = null, picked = null, findings, befor
           ))}
         </div>
       ) : <Row key={f.key} name={f.key} field={f.field} about={f.about ?? f.field.about} picked={picked} findings={findings} before={before} onPick={onPick} />))}
-      {absent.length > 0 && (
+      {absent.length > 0 && (form.path[0] === 'parts' && form.path.length === 2 ? (
+        <AddFields fields={absent} onAdd={(f) => onAdd([...form.path, f.key], f.schema)} />
+      ) : (
         <div className="field-absent">
           {absent.map((f) => (
             <button key={f.key} type="button" title={f.about ? L(f.about) : undefined} onClick={() => onAdd([...form.path, f.key], f.schema)}>
@@ -73,7 +76,7 @@ export default function Rows({ form, keys = null, picked = null, findings, befor
             </button>
           ))}
         </div>
-      )}
+      ))}
     </div>
   )
 }

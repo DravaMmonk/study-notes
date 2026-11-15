@@ -61,7 +61,7 @@ export function OptionList({ options, value, onPick, onClose, autoFocus = true, 
 }
 
 /** One value among many: a button showing the choice, a popover to search and pick. */
-export function Picker({ options, value, onPick, label = '' }) {
+export function Picker({ options, value, onPick, label = '', placeholder = '—' }) {
   const [open, setOpen] = useState(false)
   const box = useRef(null)
   useDismiss(box, open, () => setOpen(false))
@@ -72,7 +72,7 @@ export function Picker({ options, value, onPick, label = '' }) {
         type="button" className={`pick-button ${picked ? '' : 'is-unknown'}`} aria-haspopup="listbox" aria-expanded={open} aria-label={label}
         onClick={() => setOpen(!open)} onKeyDown={(e) => { if (e.key === 'ArrowDown' || (e.key.length === 1 && /\w/.test(e.key))) setOpen(true) }}
       >
-        <span className="pick-name"><b>{picked ? picked.label ?? String(picked.value) : value === undefined ? '—' : String(value)}</b>{picked?.title && <span>{L(picked.title)}</span>}</span>
+        <span className="pick-name"><b>{picked ? picked.label ?? String(picked.value) : value === undefined ? placeholder : String(value)}</b>{picked?.title && <span>{L(picked.title)}</span>}</span>
         {picked?.about && <span className="pick-about">{L(picked.about)}</span>}
         <ChevronDown size={14} aria-hidden="true" />
       </button>

@@ -6,7 +6,7 @@
 //
 //   play: { level, seed, take }  a level opened afresh (on a board, or taking one), at `task`;  go: { task } a task to go to
 //   part: a piece of pieces.json shown instead (the scenes its editor draws and its fields, PieceView.jsx;
-//         presets/<name>, a setting preset, the control it draws); picked is then the path picked in it
+//         settings/<name>, a setting definition, the control it draws); picked is then the path picked in it
 //   onRoot(): the name of what is shown, clicked in edit mode: every field of it in the side panel, those the screen
 //         does not draw too;  footer: what goes under the page (a piece's way through the course, Flow.jsx)
 import { useEffect, useRef, useState } from 'react'

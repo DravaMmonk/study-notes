@@ -19,7 +19,7 @@ import { blank, moved, recast, revertOf, shapeName, summaryOf, taskOptionsOf } f
 import { Chips, Choice, Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { GridField, NumbersField, TableField, TicksField, WaveField } from './Cells.jsx'
-import { ExprField, IconField } from './PartFields.jsx'
+import { AddFields, AddSetting, ExprField, IconField } from './PartFields.jsx'
 import { useDraft } from './draft.js'
 
 
@@ -136,7 +136,12 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
       case 'str': return <StringField field={field} onSet={set} label={name} />
       case 'expr': return <ExprField field={field} onSet={set} ctx={ctx} label={name} />
       case 'icon': return <IconField field={field} onSet={set} label={name} />
-      case 'choice': return <Choice options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.of === 'task' && ctx.levelOptions ? taskOptionsOf(ctx.levelOptions) : field.options} value={field.value} onPick={set} label={name} />
+      case 'choice':
+        if (field.of === 'setting') return <div className="expr-line">
+          <Picker options={field.options} value={field.value} onPick={set} label={tr('已有设置', 'Existing setting')} />
+          <button type="button" className="kit-btn is-label" onClick={() => ctx.onSetting(field.value)} disabled={!ctx.onSetting || !field.options.some((o) => o.value === field.value)}>{tr('编辑设置', 'Edit setting')}</button>
+        </div>
+        return <Choice options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.of === 'task' && ctx.levelOptions ? taskOptionsOf(ctx.levelOptions) : field.options} value={field.value} onPick={set} label={name} />
       case 'chips': return <Chips options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.options} values={Array.isArray(field.value) ? field.value : []} onSet={set} label={name} />
       case 'board': return <BoardField field={field} onSet={set} ctx={ctx} label={name} />
       case 'grid': return <GridField field={field} onSet={set} label={name} />
@@ -215,7 +220,7 @@ const SCALARS = ['text', 'num', 'bool', 'str', 'choice', 'chips', 'numbers', 'ti
 function ListField({ field, onEdit, ctx }) {
   const items = field.items
   const values = items.map((i) => i.value)
-  const inline = items.length > 0 && SCALARS.includes(items[0].kind)
+  const inline = field.bindings || items.length > 0 && SCALARS.includes(items[0].kind)
   const [open, setOpen] = useState(() => new Set(items.length <= 2 ? items.map((_, k) => k) : []))
   const [drag, setDrag] = useState(null)
   const [over, setOver] = useState(null)
@@ -265,7 +270,7 @@ function ListField({ field, onEdit, ctx }) {
               {inline && <div className="li-body"><Field field={item} label={null} onEdit={onEdit} ctx={ctx} /></div>}
               {result && <TestMark result={result} />}
               <span className="li-tools">
-                <button type="button" onClick={() => put([...values.slice(0, k + 1), structuredCopy(values[k]), ...values.slice(k + 1)])} aria-label={tr('复制这一项')}><Copy size={12} /></button>
+                {!field.bindings && <button type="button" onClick={() => put([...values.slice(0, k + 1), structuredCopy(values[k]), ...values.slice(k + 1)])} aria-label={tr('复制这一项')}><Copy size={12} /></button>}
                 <button type="button" onClick={() => onEdit(item.path, { unset: true }, null)} aria-label={tr('去掉这一项')}><X size={13} /></button>
               </span>
             </div>
@@ -280,7 +285,7 @@ function ListField({ field, onEdit, ctx }) {
       })}
       {run?.tests && run.tests.length !== items.length && run.tests.map((t, k) => <TestShows key={k} result={t} />)}
       {run && !run.covered && !run.running && <p className="field-note">{L(run.why)}</p>}
-      <button type="button" className="field-add" onClick={() => onEdit([...field.path, items.length], { set: items.length ? structuredCopy(values.at(-1)) : blank(field.of, ctx) }, field.of.type)} aria-label={tr('加一项')}><Plus size={13} aria-hidden="true" /></button>
+      {field.bindings ? <AddSetting field={field} ctx={ctx} onAttach={(binding) => put([...values, binding])} /> : <button type="button" className="field-add" onClick={() => onEdit([...field.path, items.length], { set: items.length ? structuredCopy(values.at(-1)) : blank(field.of, ctx) }, field.of.type)} aria-label={tr('加一项')}><Plus size={13} aria-hidden="true" /></button>}
     </div>
   )
 }
@@ -342,7 +347,9 @@ export function ObjField({ field, onEdit, ctx, keys = null }) {
   return (
     <div className="field-obj">
       {runs.map((run) => (run.short && run.fields.length > 1 ? <div key={run.fields[0].key} className="field-grid">{run.fields.map(one)}</div> : run.fields.map(one)))}
-      {absent.length > 0 && (
+      {absent.length > 0 && (field.path[0] === 'parts' && field.path.length === 2 ? (
+        <AddFields fields={absent} onAdd={(f) => onEdit([...field.path, f.key], { set: blank(f.schema, ctx) }, f.schema.type)} />
+      ) : (
         <div className="field-absent">
           {absent.map((f) => (
             <button key={f.key} type="button" title={f.about ? L(f.about) : undefined} onClick={() => onEdit([...field.path, f.key], { set: blank(f.schema, ctx) }, f.schema.type)}>
@@ -350,7 +357,7 @@ export function ObjField({ field, onEdit, ctx, keys = null }) {
             </button>
           ))}
         </div>
-      )}
+      ))}
     </div>
   )
 }

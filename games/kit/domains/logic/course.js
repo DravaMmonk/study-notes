@@ -17,7 +17,7 @@ import { parse, replaceAtoms, show } from './formula.js'
 import { claimSentences, vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
 import { MACHINE_BOARD, RULE_PIECE, axiomPartsOf, builtMachine, inputsOfLevel, rulePartsOf, rulePieces, startMachine } from './machine.js'
-import { defineParts } from '../../engine/parts/define.js'
+import { compileParts } from '../../engine/parts/define.js'
 import { presetCardIds, presetOf, withPreset } from '../../circuit/presets.js'
 import { T } from '../../shell/i18n.js'
 import { render, say, sayTerm } from './notation.js'
@@ -300,7 +300,7 @@ export function logicCourse(content) {
   // A machine's parts: the machine board's pieces.json parts, the parts the player builds and the rule parts of its
   // rule books (every rule part the same engine part, RULE_PIECE).
   const machineParts = onBoard('tactic', 'loop')
-  const RULE_ENGINE = defineParts({ parts: { rules: RULE_PIECE } }, OPS).PARTS.rules
+  const RULE_ENGINE = compileParts({ rules: RULE_PIECE }, OPS).PARTS.rules
   // The rule parts a task holds (none on the generator's board, which carries rules as values).
   const ruleTypes = (task) => (task.want === 'elim' ? new Map() : rulePartsOf(task))
   // The proofs the lemmas run, filled in the same way (lemmaWorks).
@@ -517,7 +517,7 @@ export function logicCourse(content) {
   // The parts a machine task registers itself: its rule parts, and a built part's face where it takes settings.
   const pieces = new WeakMap()
   const piecesOf = (task) => {
-    if (!pieces.has(task)) pieces.set(task, defineParts({ parts: { ...rulePieces(task), ...builtFaces(task) } }, OPS).defs)
+    if (!pieces.has(task)) pieces.set(task, compileParts({ ...rulePieces(task), ...builtFaces(task) }, OPS).defs)
     return pieces.get(task)
   }
   const builtFaces = (task) => Object.fromEntries(Object.entries(task.built ?? {}).filter(([type, p]) => p && settingsOf(built.pieces[type]).length).map(([type, p]) => {

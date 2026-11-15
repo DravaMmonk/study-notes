@@ -15,8 +15,8 @@
 //   page → studio  { type: 'ready' } once it listens; { type: 'take', level, path, text };
 //                  { type: 'pick' | 'add', level, task, at, scope, index? }; { type: 'task', level, task };
 //                  { type: 'start', level, task, port, view } the view a port's value starts in, switched on the page;
-//                  { type: 'pick' | 'add', part | preset, path } a field of a part (or of a setting preset, shown
-//                  as the part presets/<name>) picked, an item added to one;
+//                  { type: 'pick' | 'add', part | setting, path } a field of a part (or of a setting definition, shown
+//                  as the part settings/<name>) picked, an item added to one;
 //                  { type: 'pick', file, path } a field of game.json (file 'game', on the map) or of the glossary
 //                  (file 'glossary', in the encyclopedia; an entry by its id) picked;
 //                  { type: 'task-go', task } a step of a built piece's upgrade chain clicked: go to that task
@@ -28,7 +28,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { GameShell, getLang } from '../shell/index.js'
 import { createProgress, openAt, saved } from '../shell/progress.js'
 import { DOMAINS } from 'virtual:studio-domains'
-import { PresetSheet } from '../shell/parts/PieceSheet.jsx'
+import { SettingSheet } from '../shell/parts/PieceSheet.jsx'
 import PieceView from './PieceView.jsx'
 
 const say = (message) => window.parent.postMessage(message, window.location.origin)
@@ -119,11 +119,11 @@ export default function Play() {
     go,
   }), [level, take, editing, go])
   if (part) {
-    // A setting preset goes as presets/<name>: its page is the control it draws and its fields.
-    const preset = part.type.startsWith('presets/') ? part.type.slice('presets/'.length) : null
-    const which = preset !== null ? { preset } : { part: part.type }
+    // A setting definition goes as settings/<name>: its page is the control it draws and its fields.
+    const setting = part.type.startsWith('settings/') ? part.type.slice('settings/'.length) : null
+    const which = setting !== null ? { setting } : { part: part.type }
     const parts = edit.on ? { picked: edit.picked, pick: (path) => say({ type: 'pick', ...which, path }), add: (path) => say({ type: 'add', ...which, path }) } : null
-    if (preset !== null) return <PresetSheet name={preset} setting={part.game.partDefs?.presets?.[preset]} game={part.game} edit={parts} />
+    if (setting !== null) return <SettingSheet name={setting} setting={part.game.partDefs?.settings?.[setting]} game={part.game} edit={parts} />
     const toTask = (task) => say({ type: 'task-go', task })
     // A task as the map numbers it: its level's label, and which task of the level when it has several.
     const taskLabel = (task) => {

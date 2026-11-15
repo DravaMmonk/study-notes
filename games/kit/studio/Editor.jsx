@@ -5,7 +5,7 @@
 // levels: every text in play order, to read a chapter's copy through and fix it in place); or the rest of game.json.
 // The level's own actions are operations: level.rename, level.add (a copy after it), level.remove, and moving it in
 // the tree. A row says how many findings of the check are on its field and whether the pending changes touched it. A
-// part of pieces.json (and a setting preset) is a file of its own here: its fields as rows, and its own actions —
+// part of pieces.json (and a setting definition) is a file of its own here: its fields as rows, and its own actions —
 // piece.rename, piece.add (a copy after it), piece.remove.
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRightLeft, ChevronRight, Copy, Play, CirclePlay, Trash2 } from 'lucide-react'
@@ -29,7 +29,7 @@ export default function Editor({ content, base, vocab, at, picked, field, places
   const { vocabulary } = vocab
   const order = useMemo(() => content.levels.map((l) => l.id), [content])
   const common = { vocabulary, order, names, levelOptions, onEdit, onSelect, onPick, field: field?.path ? showPath(field.path) : null }
-  if (at?.part !== undefined || at?.preset !== undefined) return <PartEditor {...common} content={content} base={base} at={at} places={places} onPlay={onPlay} />
+  if (at?.part !== undefined || at?.setting !== undefined) return <PartEditor {...common} content={content} base={base} at={at} places={places} onPlay={onPlay} />
   if (picked.length > 1) return <Bulk content={content} vocabulary={vocabulary} ids={picked} ctx={ctxOf(common)} onAdd={onOps} onMove={onMove} onSelect={onSelect} />
   if (at?.level && content.levels.some((l) => l.id === at.level)) return <LevelEditor key={at.level} {...common} {...{ content, base, id: at.level, places, onPlay, onMove }} />
   if (at?.era !== undefined && content.eras?.[at.era]) return <EraEditor {...common} content={content} e={at.era} onCopy={onCopy} />
@@ -174,12 +174,12 @@ function GameEditor({ content, base, vocabulary, order, names, levelOptions, fie
   )
 }
 
-/** A part of pieces.json, or one of its setting presets: its fields as rows, and the part's own actions. */
+/** A part of pieces.json, or one of its setting definitions: its fields as rows, and the part's own actions. */
 function PartEditor({ content, base, vocabulary, order, names, levelOptions, at, places, field, onEdit, onSelect, onPick }) {
   const file = { parts: true }
   const ctx = ctxOf({ vocabulary, order, names, levelOptions }, { partDefs: content.partDefs })
   const shown = fileForm(content, vocabulary, file, order)
-  const path = at.part !== undefined ? ['parts', at.part] : ['presets', at.preset]
+  const path = at.part !== undefined ? ['parts', at.part] : ['settings', at.setting]
   const hit = fieldAt(shown.form, path)
   const types = Object.keys(content.partDefs?.parts ?? {})
   const [id, setId] = useState(at.part ?? '')
@@ -211,10 +211,10 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
           </>
         ) : (
           <>
-            <span className="editor-id is-static">{at.preset}</span>
-            <h1>{hit.field.value.label ? L(hit.field.value.label) : at.preset}</h1>
+            <span className="editor-id is-static">{at.setting}</span>
+            <h1>{hit.field.value.label ? L(hit.field.value.label) : at.setting}</h1>
             <span className="kit-spacer" />
-            <span className="editor-tools"><button type="button" className="kit-btn editor-tool" onClick={() => { onEdit({ op: 'pieces.unset', path }); onSelect(null) }} title={tr('删掉这份预设')}><Trash2 size={14} /></button></span>
+            <span className="editor-tools"><button type="button" className="kit-btn editor-tool" onClick={() => { onEdit({ op: 'pieces.unset', path }); onSelect(null) }} title={tr('删掉这项设置')}><Trash2 size={14} /></button></span>
           </>
         )}
       </header>

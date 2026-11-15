@@ -1,4 +1,260 @@
 {
+  "settings": {
+    "impI_A": {"control": "tree", "label": {"en": "Assume", "zh": "假设"}},
+    "orI_other": {"control": "tree", "label": {"en": "Other side", "zh": "另一边"}},
+    "orI_side": {
+      "control": "buttons",
+      "label": {
+        "en": "Other side goes",
+        "zh": "另一边放"
+      },
+      "options": [
+        {
+          "value": "left",
+          "label": {
+            "en": "Left",
+            "zh": "左"
+          }
+        },
+        {
+          "value": "right",
+          "label": {
+            "en": "Right",
+            "zh": "右"
+          }
+        }
+      ],
+      "default": "right"
+    },
+    "botE_C": {"control": "tree", "label": {"en": "Conclude", "zh": "得出"}},
+    "allI_x": {"control": "select", "label": {"en": "Name", "zh": "名字"}, "from": "names()"},
+    "allE_t": {"control": "select", "label": {"en": "Which thing", "zh": "哪一样"}, "from": "instances()"},
+    "exI_target": {"control": "tree", "label": {"en": "Conclusion to derive", "zh": "要得出"}, "optional": true},
+    "exE_x": {"control": "select", "label": {"en": "Witness", "zh": "见证"}, "from": "names()"},
+    "natInd_P": {"control": "tree", "label": {"en": "Prove", "zh": "要证"}},
+    "natInd_x": {"control": "select", "label": {"en": "Name", "zh": "名字"}, "from": "names()"},
+    "refl_t": {"control": "select", "label": {"en": "Which thing", "zh": "哪一样"}, "from": "things()"},
+    "rewrite_at": {"control": "list", "label": {"en": "Which occurrences to replace", "zh": "换哪几处"}, "from": "occurrences(eq, p)"},
+    "append_ways": {
+      "control": "select",
+      "label": {
+        "en": "Regions",
+        "zh": "框"
+      },
+      "options": [
+        {
+          "value": "2",
+          "label": {
+            "en": "2 clauses",
+            "zh": "2 条"
+          }
+        },
+        {
+          "value": "3",
+          "label": {
+            "en": "3 clauses",
+            "zh": "3 条"
+          }
+        },
+        {
+          "value": "4",
+          "label": {
+            "en": "4 clauses",
+            "zh": "4 条"
+          }
+        },
+        {
+          "value": "5",
+          "label": {
+            "en": "5",
+            "zh": "5 条"
+          }
+        },
+        {
+          "value": "6",
+          "label": {
+            "en": "6",
+            "zh": "6 条"
+          }
+        }
+      ],
+      "default": "2"
+    },
+    "search_depth": {
+      "control": "select",
+      "label": {
+        "en": "At most",
+        "zh": "最多"
+      },
+      "options": [
+        {
+          "value": "any",
+          "label": {
+            "en": "Any",
+            "zh": "不限"
+          }
+        },
+        {
+          "value": "2",
+          "label": {
+            "en": "2 levels",
+            "zh": "2 层"
+          }
+        },
+        {
+          "value": "3",
+          "label": {
+            "en": "3 levels",
+            "zh": "3 层"
+          }
+        },
+        {
+          "value": "4",
+          "label": {
+            "en": "4 levels",
+            "zh": "4 层"
+          }
+        },
+        {
+          "value": "5",
+          "label": {
+            "en": "5 levels",
+            "zh": "5 层"
+          }
+        },
+        {
+          "value": "6",
+          "label": {
+            "en": "6 levels",
+            "zh": "6 层"
+          }
+        },
+        {
+          "value": "8",
+          "label": {
+            "en": "8 levels",
+            "zh": "8 层"
+          }
+        },
+        {
+          "value": "10",
+          "label": {
+            "en": "10 levels",
+            "zh": "10 层"
+          }
+        },
+        {
+          "value": "12",
+          "label": {
+            "en": "12 levels",
+            "zh": "12 层"
+          }
+        }
+      ],
+      "default": "any"
+    },
+    "rw_at": {
+      "control": "select",
+      "label": {
+        "en": "Where",
+        "zh": "改哪里"
+      },
+      "options": [
+        {
+          "value": "goal",
+          "label": {
+            "en": "Goal",
+            "zh": "目标"
+          }
+        },
+        {
+          "value": "hyps",
+          "label": {
+            "en": "Hypotheses",
+            "zh": "已知"
+          }
+        }
+      ],
+      "default": "goal"
+    },
+    "resolve_unit": {
+      "control": "select",
+      "label": {
+        "en": "Cancel with",
+        "zh": "和谁消"
+      },
+      "options": [
+        {
+          "value": "any",
+          "label": {
+            "en": "Any two",
+            "zh": "任意两条"
+          }
+        },
+        {
+          "value": "unit",
+          "label": {
+            "en": "Only with unit clauses",
+            "zh": "只和单项子句"
+          }
+        }
+      ],
+      "default": "any"
+    },
+    "axK_A": {"control": "tree", "label": {"en": "First", "zh": "第一句"}},
+    "axK_B": {"control": "tree", "label": {"en": "Second", "zh": "第二句"}},
+    "axS_A": {"control": "tree", "label": {"en": "First", "zh": "第一句"}},
+    "axS_B": {"control": "tree", "label": {"en": "Second", "zh": "第二句"}},
+    "axS_C": {"control": "tree", "label": {"en": "Third", "zh": "第三句"}},
+    "chain_A": {"control": "tree"},
+    "chain_B": {"control": "tree"},
+    "chain_C": {"control": "tree"},
+    "swap_A": {"control": "tree"},
+    "swap_B": {"control": "tree"},
+    "swap_C": {"control": "tree"},
+    "merge_A": {"control": "tree"},
+    "merge_B": {"control": "tree"},
+    "dm_A": {"control": "tree"},
+    "dm_B": {"control": "tree"},
+    "dm_P": {"control": "tree"},
+    "dneg_A": {"control": "tree"},
+    "arrow_A": {"control": "tree"},
+    "arrow_B": {"control": "tree"},
+    "dist_A": {"control": "tree"},
+    "dist_B": {"control": "tree"},
+    "dist_C": {"control": "tree"},
+    "iff_A": {"control": "tree"},
+    "iff_B": {"control": "tree"},
+    "res_A": {"control": "tree"},
+    "res_B": {"control": "tree"},
+    "res_C": {"control": "tree"},
+    "liar_A": {"control": "tree"},
+    "lem_A": {"control": "tree"},
+    "simp_at": {
+      "control": "select",
+      "label": {
+        "en": "Where",
+        "zh": "改哪里"
+      },
+      "options": [
+        {
+          "value": "goal",
+          "label": {
+            "en": "Goal",
+            "zh": "目标"
+          }
+        },
+        {
+          "value": "hyps",
+          "label": {
+            "en": "Hypotheses",
+            "zh": "已知"
+          }
+        }
+      ],
+      "default": "goal"
+    }
+  },
   "parts": {
     "gNot": {
       "name": { "en": "Not ¬", "zh": "非 ¬" },
@@ -48,7 +304,7 @@
       "icon": "Box",
       "family": "box",
       "inputs": [],
-      "settings": [{ "key": "A", "control": "tree", "label": { "en": "Assume", "zh": "假设" } }],
+      "settings": [{"key": "A", "setting": "impI_A"}],
       "regions": [{ "name": "body", "label": { "en": "Inside", "zh": "框内" }, "opens": true, "closes": true }],
       "compute": "impI(body)"
     },
@@ -93,19 +349,7 @@
       "icon": "GitFork",
       "family": "rule",
       "inputs": [{ "name": "a", "label": { "en": "A", "zh": "A" } }],
-      "settings": [
-        { "key": "other", "control": "tree", "label": { "en": "Other side", "zh": "另一边" } },
-        {
-          "key": "side",
-          "control": "buttons",
-          "label": { "en": "Other side goes", "zh": "另一边放" },
-          "options": [
-            { "value": "left", "label": { "en": "Left", "zh": "左" } },
-            { "value": "right", "label": { "en": "Right", "zh": "右" } }
-          ],
-          "default": "right"
-        }
-      ],
+      "settings": [{"key": "other", "setting": "orI_other"}, {"key": "side", "setting": "orI_side"}],
       "compute": "orI(a)"
     },
     "orE": {
@@ -132,7 +376,7 @@
       "icon": "GitFork",
       "family": "rule",
       "inputs": [{ "name": "bot", "label": { "en": "⊥", "zh": "⊥" } }],
-      "settings": [{ "key": "C", "control": "tree", "label": { "en": "Conclude", "zh": "得出" } }],
+      "settings": [{"key": "C", "setting": "botE_C"}],
       "compute": "botE(bot)"
     },
     "raa": {
@@ -152,9 +396,7 @@
       "icon": "Box",
       "family": "box",
       "inputs": [],
-      "settings": [
-        { "key": "x", "control": "select", "label": { "en": "Name", "zh": "名字" }, "from": "names()" }
-      ],
+      "settings": [{"key": "x", "setting": "allI_x"}],
       "regions": [{ "name": "body", "label": { "en": "Inside", "zh": "框内" }, "closes": true }],
       "compute": "allI(body)"
     },
@@ -167,14 +409,7 @@
       "icon": "GitFork",
       "family": "rule",
       "inputs": [{ "name": "all", "label": { "en": "∀x. P(x)", "zh": "∀x. P(x)" } }],
-      "settings": [
-        {
-          "key": "t",
-          "control": "select",
-          "label": { "en": "Which thing", "zh": "哪一样" },
-          "from": "instances()"
-        }
-      ],
+      "settings": [{"key": "t", "setting": "allE_t"}],
       "compute": "allE(all)"
     },
     "exI": {
@@ -186,14 +421,7 @@
       "icon": "GitFork",
       "family": "rule",
       "inputs": [{ "name": "a", "label": { "en": "P(t)", "zh": "P(t)" } }],
-      "settings": [
-        {
-          "key": "target",
-          "control": "tree",
-          "label": { "en": "Conclusion to derive", "zh": "要得出" },
-          "optional": true
-        }
-      ],
+      "settings": [{"key": "target", "setting": "exI_target"}],
       "compute": "exI(a)"
     },
     "exE": {
@@ -205,9 +433,7 @@
       "icon": "Box",
       "family": "box",
       "inputs": [{ "name": "ex", "label": { "en": "∃x. P(x)", "zh": "∃x. P(x)" } }],
-      "settings": [
-        { "key": "x", "control": "select", "label": { "en": "Witness", "zh": "见证" }, "from": "names()" }
-      ],
+      "settings": [{"key": "x", "setting": "exE_x"}],
       "regions": [{ "name": "body", "label": { "en": "Inside", "zh": "框内" }, "opens": true, "closes": true }],
       "compute": "exE(ex, body)"
     },
@@ -220,10 +446,7 @@
       "icon": "Box",
       "family": "box",
       "inputs": [],
-      "settings": [
-        { "key": "P", "control": "tree", "label": { "en": "Prove", "zh": "要证" } },
-        { "key": "x", "control": "select", "label": { "en": "Name", "zh": "名字" }, "from": "names()" }
-      ],
+      "settings": [{"key": "P", "setting": "natInd_P"}, {"key": "x", "setting": "natInd_x"}],
       "regions": [
         { "name": "zero", "label": { "en": "The case 0", "zh": "0 的情况" }, "closes": true },
         { "name": "step", "label": { "en": "From a to S a", "zh": "从 a 到 S a" }, "opens": true, "closes": true }
@@ -236,9 +459,7 @@
       "icon": "GitFork",
       "family": "rule",
       "inputs": [],
-      "settings": [
-        { "key": "t", "control": "select", "label": { "en": "Which thing", "zh": "哪一样" }, "from": "things()" }
-      ],
+      "settings": [{"key": "t", "setting": "refl_t"}],
       "compute": "refl()"
     },
     "rewrite": {
@@ -253,14 +474,7 @@
         { "name": "eq", "label": { "en": "s = t", "zh": "s = t" } },
         { "name": "p", "label": { "en": "φ(s)", "zh": "φ(s)" } }
       ],
-      "settings": [
-        {
-          "key": "at",
-          "control": "list",
-          "label": { "en": "Which occurrences to replace", "zh": "换哪几处" },
-          "from": "occurrences(eq, p)"
-        }
-      ],
+      "settings": [{"key": "at", "setting": "rewrite_at"}],
       "compute": "rewrite(eq, p)"
     },
     "anyR": {
@@ -521,21 +735,7 @@
       "icon": "Box",
       "family": "loop",
       "inputs": [{ "name": "in" }],
-      "settings": [
-        {
-          "key": "ways",
-          "control": "select",
-          "label": { "en": "Regions", "zh": "框" },
-          "options": [
-            { "value": "2", "label": { "en": "2 clauses", "zh": "2 条" } },
-            { "value": "3", "label": { "en": "3 clauses", "zh": "3 条" } },
-            { "value": "4", "label": { "en": "4 clauses", "zh": "4 条" } },
-            { "value": "5", "label": { "en": "5", "zh": "5 条" } },
-            { "value": "6", "label": { "en": "6", "zh": "6 条" } }
-          ],
-          "default": "2"
-        }
-      ],
+      "settings": [{"key": "ways", "setting": "append_ways"}],
       "regions": [
         { "name": "first", "label": { "en": "Try first", "zh": "先试" }, "opens": true },
         { "name": "second", "label": { "en": "Then", "zh": "再试" }, "opens": true },
@@ -555,25 +755,7 @@
       "icon": "Search",
       "family": "loop",
       "inputs": [{ "name": "in" }],
-      "settings": [
-        {
-          "key": "depth",
-          "control": "select",
-          "label": { "en": "At most", "zh": "最多" },
-          "options": [
-            { "value": "any", "label": { "en": "Any", "zh": "不限" } },
-            { "value": "2", "label": { "en": "2 levels", "zh": "2 层" } },
-            { "value": "3", "label": { "en": "3 levels", "zh": "3 层" } },
-            { "value": "4", "label": { "en": "4 levels", "zh": "4 层" } },
-            { "value": "5", "label": { "en": "5 levels", "zh": "5 层" } },
-            { "value": "6", "label": { "en": "6 levels", "zh": "6 层" } },
-            { "value": "8", "label": { "en": "8 levels", "zh": "8 层" } },
-            { "value": "10", "label": { "en": "10 levels", "zh": "10 层" } },
-            { "value": "12", "label": { "en": "12 levels", "zh": "12 层" } }
-          ],
-          "default": "any"
-        }
-      ],
+      "settings": [{"key": "depth", "setting": "search_depth"}],
       "regions": [{ "name": "body", "label": { "en": "Each step", "zh": "每一步" }, "opens": true }],
       "compute": "search(in)"
     },
@@ -607,18 +789,7 @@
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }, { "name": "rules", "label": { "en": "Rule", "zh": "规则" } }],
-      "settings": [
-        {
-          "key": "at",
-          "control": "select",
-          "label": { "en": "Where", "zh": "改哪里" },
-          "options": [
-            { "value": "goal", "label": { "en": "Goal", "zh": "目标" } },
-            { "value": "hyps", "label": { "en": "Hypotheses", "zh": "已知" } }
-          ],
-          "default": "goal"
-        }
-      ],
+      "settings": [{"key": "at", "setting": "rw_at"}],
       "compute": "rw(in, rules)"
     },
     "skolem": {
@@ -652,18 +823,7 @@
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
-      "settings": [
-        {
-          "key": "unit",
-          "control": "select",
-          "label": { "en": "Cancel with", "zh": "和谁消" },
-          "options": [
-            { "value": "any", "label": { "en": "Any two", "zh": "任意两条" } },
-            { "value": "unit", "label": { "en": "Only with unit clauses", "zh": "只和单项子句" } }
-          ],
-          "default": "any"
-        }
-      ],
+      "settings": [{"key": "unit", "setting": "resolve_unit"}],
       "compute": "resolve(in)"
     },
     "oracle": {
@@ -722,10 +882,7 @@
         "zh": "在元件上选定两句 A、B，输出 A → (B → A)。"
       },
       "family": "lemma",
-      "settings": [
-        { "key": "A", "control": "tree", "label": { "en": "First", "zh": "第一句" } },
-        { "key": "B", "control": "tree", "label": { "en": "Second", "zh": "第二句" } }
-      ],
+      "settings": [{"key": "A", "setting": "axK_A"}, {"key": "B", "setting": "axK_B"}],
       "inside": [{ "task": "k_2" }]
     },
     "axS": {
@@ -735,40 +892,28 @@
         "zh": "在元件上选定三句 A、B、C，输出 (A → (B → C)) → ((A → B) → (A → C))。"
       },
       "family": "lemma",
-      "settings": [
-        { "key": "A", "control": "tree", "label": { "en": "First", "zh": "第一句" } },
-        { "key": "B", "control": "tree", "label": { "en": "Second", "zh": "第二句" } },
-        { "key": "C", "control": "tree", "label": { "en": "Third", "zh": "第三句" } }
-      ],
+      "settings": [{"key": "A", "setting": "axS_A"}, {"key": "B", "setting": "axS_B"}, {"key": "C", "setting": "axS_C"}],
       "inside": [{ "task": "s" }]
     },
     "chain": {
       "name": { "en": "Chain", "zh": "串联" },
       "desc": { "en": "From A → B and B → C, gives A → C.", "zh": "由 A → B 和 B → C 得到 A → C。" },
       "family": "lemma",
-      "settings": [
-        { "key": "A", "control": "tree" },
-        { "key": "B", "control": "tree" },
-        { "key": "C", "control": "tree" }
-      ],
+      "settings": [{"key": "A", "setting": "chain_A"}, {"key": "B", "setting": "chain_B"}, {"key": "C", "setting": "chain_C"}],
       "inside": [{ "task": "chain" }]
     },
     "swap": {
       "name": { "en": "Swap", "zh": "交换" },
       "desc": { "en": "From A → (B → C), gives B → (A → C).", "zh": "由 A → (B → C) 得到 B → (A → C)。" },
       "family": "lemma",
-      "settings": [
-        { "key": "A", "control": "tree" },
-        { "key": "B", "control": "tree" },
-        { "key": "C", "control": "tree" }
-      ],
+      "settings": [{"key": "A", "setting": "swap_A"}, {"key": "B", "setting": "swap_B"}, {"key": "C", "setting": "swap_C"}],
       "inside": [{ "task": "swap" }]
     },
     "merge": {
       "name": { "en": "Merge", "zh": "合并" },
       "desc": { "en": "From A → (A → B), gives A → B.", "zh": "由 A → (A → B) 得到 A → B。" },
       "family": "lemma",
-      "settings": [{ "key": "A", "control": "tree" }, { "key": "B", "control": "tree" }],
+      "settings": [{"key": "A", "setting": "merge_A"}, {"key": "B", "setting": "merge_B"}],
       "inside": [{ "task": "twice" }]
     },
     "dm": {
@@ -778,11 +923,7 @@
         "zh": "否定与「或者」「并且」互换，四种形状在元件上切换：¬(A ∨ B) 与 ¬A ∧ ¬B 互推，¬(A ∧ B) 与 ¬A ∨ ¬B 互推。"
       },
       "family": "lemma",
-      "settings": [
-        { "key": "A", "control": "tree" },
-        { "key": "B", "control": "tree" },
-        { "key": "P", "control": "tree" }
-      ],
+      "settings": [{"key": "A", "setting": "dm_A"}, {"key": "B", "setting": "dm_B"}, {"key": "P", "setting": "dm_P"}],
       "inside": [
         { "task": "demorgan_1", "form": "notOr", "label": "¬(A ∨ B) → ¬A ∧ ¬B" },
         { "task": "demorgan_2", "form": "andNot", "label": "¬A ∧ ¬B → ¬(A ∨ B)" },
@@ -810,7 +951,7 @@
         "zh": "两种形状在元件上切换：由 ¬¬A 得到 A；由 A 得到 ¬¬A。"
       },
       "family": "lemma",
-      "settings": [{ "key": "A", "control": "tree" }],
+      "settings": [{"key": "A", "setting": "dneg_A"}],
       "inside": [
         { "task": "c-dneg_1", "form": "elim", "label": "¬¬A → A" },
         { "task": "c-dneg_2", "form": "intro", "label": "A → ¬¬A" }
@@ -832,7 +973,7 @@
         "zh": "两种形状在元件上切换：由 A → B 得到 ¬A ∨ B；由 ¬A ∨ B 得到 A → B。"
       },
       "family": "lemma",
-      "settings": [{ "key": "A", "control": "tree" }, { "key": "B", "control": "tree" }],
+      "settings": [{"key": "A", "setting": "arrow_A"}, {"key": "B", "setting": "arrow_B"}],
       "inside": [
         { "task": "c-arrow_1", "form": "elim", "label": "A → B ⟹ ¬A ∨ B" },
         { "task": "c-arrow_2", "form": "intro", "label": "¬A ∨ B ⟹ A → B" }
@@ -854,11 +995,7 @@
         "zh": "「或者」对「并且」分配，四种形状在元件上切换：A ∨ (B ∧ C) 与 (A ∨ B) ∧ (A ∨ C) 互推，(A ∧ B) ∨ C 与 (A ∨ C) ∧ (B ∨ C) 互推。"
       },
       "family": "lemma",
-      "settings": [
-        { "key": "A", "control": "tree" },
-        { "key": "B", "control": "tree" },
-        { "key": "C", "control": "tree" }
-      ],
+      "settings": [{"key": "A", "setting": "dist_A"}, {"key": "B", "setting": "dist_B"}, {"key": "C", "setting": "dist_C"}],
       "inside": [
         { "task": "c-dist_1", "form": "orAndR", "label": "A ∨ (B ∧ C) ⟹ (A ∨ B) ∧ (A ∨ C)" },
         { "task": "c-dist_2", "form": "andOrR", "label": "(A ∨ B) ∧ (A ∨ C) ⟹ A ∨ (B ∧ C)" },
@@ -882,7 +1019,7 @@
         "zh": "两种形状在元件上切换：由 A ↔ B 得到 (¬A ∨ B) ∧ (¬B ∨ A)，反过来也可以。每种形状也是一条改写规则。"
       },
       "family": "lemma",
-      "settings": [{ "key": "A", "control": "tree" }, { "key": "B", "control": "tree" }],
+      "settings": [{"key": "A", "setting": "iff_A"}, {"key": "B", "setting": "iff_B"}],
       "inside": [
         { "task": "au-iff_1", "form": "elim", "label": "A ↔ B ⟹ (¬A ∨ B) ∧ (¬B ∨ A)" },
         { "task": "au-iff_2", "form": "intro", "label": "(¬A ∨ B) ∧ (¬B ∨ A) ⟹ A ↔ B" }
@@ -895,11 +1032,7 @@
         "zh": "接入两条子句，一条含 A，另一条含 ¬A，位置不限：消去这一对，其余部分用「或者」连起来；什么都不剩时得到矛盾 ⊥。一次只消一对。"
       },
       "family": "lemma",
-      "settings": [
-        { "key": "A", "control": "tree" },
-        { "key": "B", "control": "tree" },
-        { "key": "C", "control": "tree" }
-      ],
+      "settings": [{"key": "A", "setting": "res_A"}, {"key": "B", "setting": "res_B"}, {"key": "C", "setting": "res_C"}],
       "inside": [{ "task": "au-resolve" }],
       "card": "res"
     },
@@ -907,14 +1040,14 @@
       "name": { "en": "The liar", "zh": "说谎者悖论" },
       "desc": { "en": "From A ↔ ¬A, gives the contradiction ⊥.", "zh": "由 A ↔ ¬A 得到矛盾 ⊥。" },
       "family": "lemma",
-      "settings": [{ "key": "A", "control": "tree" }],
+      "settings": [{"key": "A", "setting": "liar_A"}],
       "inside": [{ "task": "kk-one_2" }]
     },
     "lem": {
       "name": { "en": "Excluded middle", "zh": "排中律" },
       "desc": { "en": "Choose a sentence A on the part; gives A ∨ ¬A.", "zh": "在元件上选定一句 A，输出 A ∨ ¬A。" },
       "family": "lemma",
-      "settings": [{ "key": "A", "control": "tree" }],
+      "settings": [{"key": "A", "setting": "lem_A"}],
       "inside": [{ "task": "raa_2" }]
     },
     "elimGen": {
@@ -1005,18 +1138,7 @@
         "zh": "接入改写规则列表：每一轮用第一条相合的规则改写一处，逐轮重复，直到没有规则相合。"
       },
       "family": "built",
-      "settings": [
-        {
-          "key": "at",
-          "control": "select",
-          "label": { "en": "Where", "zh": "改哪里" },
-          "options": [
-            { "value": "goal", "label": { "en": "Goal", "zh": "目标" } },
-            { "value": "hyps", "label": { "en": "Hypotheses", "zh": "已知" } }
-          ],
-          "default": "goal"
-        }
-      ],
+      "settings": [{"key": "at", "setting": "simp_at"}],
       "inside": [{ "task": "sp-simp" }],
       "revisions": [
         {

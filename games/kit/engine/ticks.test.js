@@ -6,9 +6,13 @@ import { boardNode, drive, hearing, runTicks } from './ticks.js'
 import { defineParts } from './parts/define.js'
 
 // The registers as parts defined as data: reg reads one (0 until kept), bit too (1), set keeps one.
-const name = { key: 'reg', control: 'select', options: ['n', 'last', 'k'].map((value) => ({ value })) }
-const reading = (start) => ({ name: 'r', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: [name, { key: 'start', control: 'number', default: start }], compute: 'held($reg, $start)' })
-const REGISTERS = defineParts({ parts: { reg: reading(0), bit: reading(1), set: { name: 's', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'in' }], settings: [name], keeps: { input: 'in', register: 'reg' } } } }, {}).PARTS
+const name = { key: 'reg', setting: 'reg' }
+const reading = (start) => ({ name: 'r', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: [name, { key: 'start', setting: `start${start}` }], compute: 'held($reg, $start)' })
+const REGISTERS = defineParts({ settings: {
+  reg: { control: 'select', options: ['n', 'last', 'k'].map((value) => ({ value })) },
+  start0: { control: 'number', default: 0 },
+  start1: { control: 'number', default: 1 },
+}, parts: { reg: reading(0), bit: reading(1), set: { name: 's', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'in' }], settings: [name], keeps: { input: 'in', register: 'reg' } } } }, {}).PARTS
 const PARTS = {
   input: source(),
   output: sink(),
@@ -103,9 +107,13 @@ test('nested packed outputs follow the inner output dependencies', () => {
 
 test('parts defined as data read and keep registers, and two packed counters count apart', async () => {
   const { defineParts } = await import('./parts/define.js')
-  const reg = { key: 'reg', control: 'select', options: [{ value: 'A' }, { value: 'B' }], default: 'A' }
-  const file = { parts: {
-    read: { name: 'read', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: [reg, { key: 'start', control: 'number', default: null }], compute: 'held($reg, $start)' },
+  const reg = { key: 'reg', setting: 'register' }
+  const file = { settings: {
+    register: { control: 'select', options: [{ value: 'A' }, { value: 'B' }], default: 'A' },
+    start: { control: 'number', default: null },
+    by: { control: 'number', default: 1 },
+  }, parts: {
+    read: { name: 'read', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: [reg, { key: 'start', setting: 'start' }], compute: 'held($reg, $start)' },
     keep: { name: 'keep', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'in' }], settings: [reg], keeps: { input: 'in', register: 'reg' } },
     inc: { name: 'inc', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'a' }], compute: 'plus(a, 1)' },
   } }
@@ -122,8 +130,8 @@ test('parts defined as data read and keep registers, and two packed counters cou
   assert.equal(PARTS.read.eval({}, { params: { reg: 'B', start: '' } }, {}), null)
   // Two counters packed on one board, each keeping its own A: one steps by 1, the other by 2.
   const step = { name: 'step', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'a' }, { name: 'by' }], compute: 'plus(a, by)' }
-  const by = { name: 'by', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: [{ key: 'n', control: 'number', default: 1 }], compute: '$n' }
-  const more = defineParts({ parts: { ...file.parts, step, by } }, {}).PARTS
+  const by = { name: 'by', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: [{ key: 'n', setting: 'by' }], compute: '$n' }
+  const more = defineParts({ ...file, parts: { ...file.parts, step, by } }, {}).PARTS
   const inner = { nodes: [{ id: 'r', type: 'read', params: { reg: 'A', start: '0' } }, { id: 's', type: 'step', params: {} }, { id: 'k', type: 'keep', params: { reg: 'A' } }, { id: 'n', type: 'in', params: { name: 'n' } }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [{ from: 'r', to: 's', port: 'a' }, { from: 'n', to: 's', port: 'by' }, { from: 's', to: 'k', port: 'in' }, { from: 'r', to: 'out', port: 'in' }] }
   const all = { ...more, in: source(), out: sink() }
   const count = packed({ circuit: inner, inputs: ['n'], outputs: ['out'], parts: all, holds: true })

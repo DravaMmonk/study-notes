@@ -56,17 +56,17 @@ const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
 const SIZE = { tree: [180, 640], audit: [90, 900], side: [260, 900] } // px: the tree's width, the audit drawer's height, the side panel's width
 
-const piecePath = (at) => at?.part !== undefined ? ['parts', at.part] : at?.preset !== undefined ? ['presets', at.preset] : null
+const piecePath = (at) => at?.part !== undefined ? ['parts', at.part] : at?.setting !== undefined ? ['settings', at.setting] : null
 
 /** Keep the studio's place in the address: the game, what is selected, the tab. */
 const remember = (game, at, tab) => {
   const url = new URL(window.location.href)
   url.searchParams.set('game', game)
-  for (const k of ['level', 'era', 'part', 'preset', 'glossary']) url.searchParams.delete(k)
+  for (const k of ['level', 'era', 'part', 'setting', 'glossary']) url.searchParams.delete(k)
   if (at?.level) url.searchParams.set('level', at.level)
   if (at?.era !== undefined) url.searchParams.set('era', at.era)
   if (at?.part !== undefined) url.searchParams.set('part', at.part)
-  if (at?.preset !== undefined) url.searchParams.set('preset', at.preset)
+  if (at?.setting !== undefined) url.searchParams.set('setting', at.setting)
   if (at?.glossary) url.searchParams.set('glossary', '1')
   url.searchParams.set('tab', tab)
   window.history.replaceState({}, '', url)
@@ -135,7 +135,7 @@ export default function Studio() {
   const [rawNames, setRawNames] = useState(null)
   const [busy, setBusy] = useState(false)
   const [rev, setRev] = useState(0) // bumped when the files change (apply, undo)
-  const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('era') ? { era: Number(QUERY.get('era')) } : QUERY.get('part') ? { part: QUERY.get('part') } : QUERY.get('preset') ? { preset: QUERY.get('preset') } : QUERY.get('glossary') ? { glossary: true } : null))
+  const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('era') ? { era: Number(QUERY.get('era')) } : QUERY.get('part') ? { part: QUERY.get('part') } : QUERY.get('setting') ? { setting: QUERY.get('setting') } : QUERY.get('glossary') ? { glossary: true } : null))
   const [picked, setPicked] = useState(() => new Set(QUERY.get('level') ? [QUERY.get('level')] : []))
   const [tab, setTab] = useState(() => {
     const requested = QUERY.get('tab')
@@ -306,7 +306,7 @@ export default function Studio() {
   }, [])
 
   const select = (next, keep = false) => {
-    const other = next?.level !== at?.level || next?.era !== at?.era || Boolean(next?.game) !== Boolean(at?.game) || Boolean(next?.glossary) !== Boolean(at?.glossary) || next?.part !== at?.part || next?.preset !== at?.preset
+    const other = next?.level !== at?.level || next?.era !== at?.era || Boolean(next?.game) !== Boolean(at?.game) || Boolean(next?.glossary) !== Boolean(at?.glossary) || next?.part !== at?.part || next?.setting !== at?.setting
     setAt(next)
     setMoving(null)
     const root = piecePath(next)
@@ -335,7 +335,7 @@ export default function Studio() {
       return
     }
     if (level) select({ level })
-    else if (file === 'pieces') select(keys[0] === 'presets' ? { preset: keys[1] } : { part: keys[1] })
+    else if (file === 'pieces') select(keys[0] === 'settings' ? { setting: keys[1] } : { part: keys[1] })
     else if (keys[0] === 'eras') select({ era: keys[1] })
     else select({ game: true })
     if (!level && tab === 'page') setTab('fields')
@@ -355,9 +355,9 @@ export default function Studio() {
     const game = /^content: game\.json((?:\.[^\s:[]+|\[\d+\])*): /.exec(item.text)
     if (game) return jump(null, game[1].replace(/^\./, ''), 'game')
     if (/^content: glossary\.json/.test(item.text)) return jump(null, null, 'glossary')
-    const part = /^content: parts\.json\.(parts|presets)\.([^\s.:[]+)((?:\.[^\s:[]+|\[\d+\])*): /.exec(item.text)
+    const part = /^content: pieces\.json\.(parts|settings)\.([^\s.:[]+)((?:\.[^\s:[]+|\[\d+\])*): /.exec(item.text)
     if (part) {
-      select(part[1] === 'parts' ? { part: part[2] } : { preset: part[2] })
+      select(part[1] === 'parts' ? { part: part[2] } : { setting: part[2] })
       return pickField(parsePath(`${part[1]}.${part[2]}${part[3]}`), true)
     }
     if (item.levels[0]) select({ level: item.levels[0] })
@@ -446,7 +446,7 @@ export default function Studio() {
     if (m.type === 'task-go') return onTaskGo(m)
     if (m.file) return onFilePage(m)
     if (m.type === 'start') return onStart(m)
-    if (m.part !== undefined || m.preset !== undefined) return onPartPage(m)
+    if (m.part !== undefined || m.setting !== undefined) return onPartPage(m)
     if (m.type === 'task') { if (m.level === play?.level) setPageTask(m.task); return undefined }
     const value = levelValue(m.level)
     if (!value) return undefined
@@ -468,7 +468,7 @@ export default function Studio() {
   // The part page: a field of the part picked, or a block (a rule, a check) added to it; a face still drawn by default
   // is first written out as its default blocks.
   const onPartPage = (m) => {
-    const base = m.preset !== undefined ? ['presets', m.preset] : ['parts', m.part]
+    const base = m.setting !== undefined ? ['settings', m.setting] : ['parts', m.part]
     const def = getAt(content?.partDefs, base)
     if (!def) return undefined
     const [key, face] = m.path
@@ -486,7 +486,9 @@ export default function Studio() {
       write(next)
       return pickField([...path, list.length], true, next)
     }
-    if (m.type === 'pick') return pickField([...base, ...m.path], true)
+    if (m.type === 'pick' || (m.part !== undefined && key === 'settings' && m.path.length === 1)) {
+      return pickField([...base, ...m.path], true)
+    }
     // An item added to a list of the part: blank as its schema has it (a rule and a check, one that already reads).
     const path = [...base, ...m.path]
     const schema = shapeAt(PARTS_FILE, content.partDefs, path, { vocabulary: vocab.vocabulary })
@@ -547,7 +549,7 @@ export default function Studio() {
   const pendingFace = field?.pendingFace && ops.some((op) => op.op === 'pieces.set' && op.value === field.pendingFace && !shown?.ops.includes(op)) ? field.pendingFace : null
   const pageMark = field?.path && sideFile?.level && sideFile.level === play?.level ? { ...markOf(levelValue(sideFile.level), field.path), level: sideFile.level }
     : field?.path && at?.part !== undefined && field.path[0] === 'parts' && field.path[1] === at.part ? JSON.stringify(field.path.slice(2))
-    : field?.path && at?.preset !== undefined && field.path[0] === 'presets' && field.path[1] === at.preset ? JSON.stringify(field.path.slice(2))
+    : field?.path && at?.setting !== undefined && field.path[0] === 'settings' && field.path[1] === at.setting ? JSON.stringify(field.path.slice(2))
     : field?.path && sideFile?.game ? { file: 'game', path: JSON.stringify(field.path) }
     : field?.path && sideFile?.glossary ? { file: 'glossary', path: JSON.stringify(field.path[0] === 'entries' && Number.isInteger(field.path[1]) ? ['entries', content.glossary.entries[field.path[1]]?.id, ...field.path.slice(2)] : field.path) }
     : null
@@ -558,6 +560,8 @@ export default function Studio() {
     levelOptions,
     textField,
     lang,
+    onSetting: (setting) => select({ setting }),
+    onPiece: (part) => select({ part }),
     ...(sideFile?.level && {
       onBoard: (path) => onBoard(sideFile.level, showPath(path)),
       tests: { of: (path) => tests.of(sideFile.level, path), run: (path) => tests.run(sideFile.level, path) },
@@ -709,7 +713,7 @@ export default function Studio() {
               </div>
             )}
             <GameFrame
-              visible={tab === 'page'} content={content} play={play} part={at?.part ?? (at?.preset !== undefined ? `presets/${at.preset}` : undefined)} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
+              visible={tab === 'page'} content={content} play={play} part={at?.part ?? (at?.setting !== undefined ? `settings/${at.setting}` : undefined)} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
               reference={play && referenceOf(play.level)} onReference={playLevel} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
               footer={at?.part !== undefined && <Flow game={game} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />}
             />

@@ -16,10 +16,11 @@ const RULES = {
   add: (x, y) => x + y,
 }
 const FILE = {
+  settings: { value: { control: 'number', default: 0 } },
   parts: {
     mul: { name: 'mul', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'mul(a, b)' },
     add: { name: 'add', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'add(a, b)' },
-    weight: { name: 'weight', inputs: [], settings: [{ key: 'value', control: 'number', default: 0 }], compute: 'param($value)' },
+    weight: { name: 'weight', inputs: [], settings: [{ key: 'value', setting: 'value' }], compute: 'param($value)' },
   },
 }
 const { PARTS } = defineParts(FILE, OPS)

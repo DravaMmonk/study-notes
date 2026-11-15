@@ -12,7 +12,7 @@ import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.j
 import { PATHS, describe, locate, putIn, takeOut } from './place.js'
 import { levelRefs, partRefs, renamePartRefs, renameRefs } from './refs.js'
 import { GLOSSARY } from '../vocabulary.js'
-import { NAME as PART_NAME, PARTS_FILE } from '../parts/schema.js'
+import { NAME as PART_NAME, PARTS_FILE, SETTING } from '../parts/schema.js'
 import { renameSlot } from '../../pipeline/blueprint.js'
 import { TASK_ID, findTask, newTaskId } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
@@ -388,8 +388,26 @@ export const OPERATIONS = {
       return { says: `pieces: ${part} → ${to} (${n} reference(s))`, inverse: [{ op: 'piece.rename', piece: to, to: part }] }
     },
   },
+  'setting.add': {
+    about: t('新建设置定义并加到件上', 'Create a setting definition and attach it to a piece'),
+    params: S.obj({ piece: PART_NAME, setting: PART_NAME, key: PART_NAME, data: SETTING }),
+    apply(ws, { piece, setting, key, data }) {
+      const file = partsOf(ws)
+      const part = file.parts[piece]
+      if (!Object.hasOwn(file.parts, piece) || part.editor === 'strip') fail(`${piece} has no setting face`)
+      if (Object.hasOwn(file.settings ?? {}, setting)) fail(`there is a setting ${setting} already`)
+      if (part.settings?.some((binding) => binding.key === key)) fail(`${piece} already uses key ${key}`)
+      const path = ['parts', piece, 'settings']
+      const inverse = [
+        restore('pieces', file, path, {}),
+        ...(file.settings === undefined ? [restore('pieces', file, ['settings'], {})] : [restore('pieces', file, ['settings', setting], {})]),
+      ]
+      ws.partDefs = setAt({ ...file, settings: { ...file.settings, [setting]: data } }, path, [...(part.settings ?? []), { key, setting }])
+      return { says: `${piece}: added setting ${setting}`, inverse }
+    },
+  },
   'pieces.set': {
-    about: t('设 pieces.json 的一个字段：parts.<件>.settings[0].default、presets.<预设>.options……'),
+    about: t('设 pieces.json 的一个字段：parts.<件>.settings[0].setting、settings.<设置>.options……'),
     params: S.obj({ path: PATH, value: S.any() }),
     apply(ws, { path, value }, { vocabulary }) {
       partsOf(ws)
