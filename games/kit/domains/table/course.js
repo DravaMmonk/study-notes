@@ -250,12 +250,15 @@ export function tableCourse(content) {
       ...PARTS[type], level, artifact, setting,
       ins: ports.map(p => p.type), labels: ports.map(p => p.short), portLabels: ports.map(p => p.label), sensors: ports.map(p => p.sensor), inputs: ports.map(p => p.input),
       out: out[0], outType: out[3],
-      board: running,
-      part: {
-        ...packed({ circuit: () => asPacked(running()), inputs: ports.map((_, k) => String(k)), outputs: [out[0]], inside: ctx => ({ ...ctx, ports: index }) }),
-        params: setting !== undefined ? ['value'] : [],
+      part: packed({
+        circuit: () => asPacked(running()),
+        inputs: ports.map((_, k) => String(k)),
+        outputs: [out[0]],
+        parts: model.partOf,
+        inside: ctx => ({ ...ctx, ports: index }),
+        ...(setting !== undefined && { params: ['value'], defaults: { value: setting } }),
         idle: port => idle(ports[+port].type),
-      },
+      }),
     };
   }
 

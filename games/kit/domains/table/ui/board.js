@@ -4,7 +4,7 @@
 
 import { sourceOf, srcNode } from '../../../engine/wire-source.js';
 import { CARDS, isCard, isGiven } from '../model/parts.js';
-import { picksOf, roleOf } from '../model/board.js';
+import { roleOf } from '../model/board.js';
 import { placement } from '../../../circuit/model.js';
 import { wiring } from '../model/wiring.js';
 import { lookIcon } from './looks.js';
@@ -44,11 +44,17 @@ export function withDesktopAnchors(b) {
   };
 }
 
-/** A card's outputs, one per sensor it reads, by the sensor's name; a fact goes by its symbol (glyphs.js). */
-export function outputsOf(node, sensors) {
-  if (!isCard(node.type)) return null;
+/** Draw the shared sensor ports by their short names or symbols. */
+export function robotWiring(model, terms) {
+  const rules = wiring(model, terms);
   const glyph = m => (m?.family === 'here' && ICONS[m.icon] ? `<svg class="glyph" viewBox="0 0 48 32" aria-hidden="true">${ICONS[m.icon]}</svg>` : undefined);
-  return picksOf(node).map(p => ({ key: p, label: sensors[p]?.label ?? p, short: String(sensors[p]?.short ?? p), glyph: glyph(sensors[p]) }));
+  return {
+    ...rules,
+    outputs: node => rules.outputs(node)?.map(port => {
+      const sensor = terms.sensors[port.key];
+      return { ...port, short: String(sensor?.short ?? port.key), glyph: glyph(sensor) };
+    }) ?? null,
+  };
 }
 
 /**
@@ -77,12 +83,10 @@ export function partsFor(model, b, u) {
   };
   const byId = (graph, id) => graph.nodes.find(n => n.id === id);
   return {
-    ...wiring(model, u),
+    ...robotWiring(model, u),
     label,
     portLabel: (node, port) => (isGiven(node.type) ? '' : def(node.type).labels?.[+port] ?? ''),
     family: () => 'sg',
-    // Each sensor a card reads is an output of its own, shown by the sensor's name or glyph.
-    outputs: node => outputsOf(node, u.sensors),
     // A port input and a sensor go by their short name; an output by an arrow; a part shows its look (looks.js).
     icon: node => (node.type === 'tap' ? String(u.sensors[node.params.sensor].short) : node.type === 'port' ? String(u.ports?.[node.id]?.short ?? '') : node.type === 'out' ? '→' : lookIcon(node.type)),
     cardStyle: node => ({ '--fam': colour(node) }),

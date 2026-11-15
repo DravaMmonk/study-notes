@@ -136,6 +136,24 @@ test('a robot runs a packaged circuit without a local publishing task', () => {
   assert.equal(result.value, task.expected[0]);
 });
 
+test('a configurable robot part opens and runs the same setting, including its default', () => {
+  const content = twoLevels();
+  content.partDefs.settings = { countValue: { control: 'number', default: 2 } };
+  content.partDefs.parts.counter.settings = [{ key: 'value', setting: 'countValue' }];
+  const { model, played, syncOwn } = tableCourse(content);
+  const builder = played.get('build')[0];
+  const reuse = played.get('reuse')[0];
+  // The passing board may hold a different value from the one the enclosing card declares.
+  syncOwn({ build: { ...builder.solution, nodes: builder.solution.nodes.map(node => node.id === 'k' ? { ...node, params: { value: 4 } } : node) } });
+  const part = model.built.counter.part;
+  for (const [params, value] of [[{}, 2], [{ value: 3 }, 3], [{ value: 0 }, 0]]) {
+    const graph = { ...reuse.solution, nodes: reuse.solution.nodes.map(node => node.id === 'c' ? { ...node, params } : node) };
+    const run = model.runCircuit(WORLDS[reuse.world], reuse.tests[0], graph, reuse);
+    assert.equal(run.value, reuse.expected[0] * value);
+    assert.equal(part.board(params).nodes.find(node => node.id === 'k').params.value, value);
+  }
+});
+
 test('robot workshop blueprints round-trip and restore with the same ports and signal checks', () => {
   const table = tableCourse(twoLevels());
   const task = table.played.get('reuse')[0];

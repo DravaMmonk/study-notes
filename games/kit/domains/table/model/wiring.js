@@ -5,10 +5,12 @@
 // model: the course's board model (run.js modelOf); u = { sensors, outs, offers? } of the world the board runs in
 // (offers: what each card may read on this task, { view: [sensor], facts: [sensor] }).
 
+import { portsOf } from '../../../engine/circuit.js';
+import { paramsOf } from '../../../engine/forms.js';
 import { printLines, readLines } from '../../../circuit/text.js';
 import { boardFits, isCircuitBoard } from '../../../circuit/model.js';
 import { WORLDS } from './worlds.js';
-import { isCard, isGiven, PRIMITIVES } from './parts.js';
+import { isCard, PRIMITIVES } from './parts.js';
 import { blank, fitted, picksOf, roleOf } from './board.js';
 
 export function wiring(model, u) {
@@ -18,13 +20,16 @@ export function wiring(model, u) {
     role: roleOf,
     signalOf: (board, src) => model.srcType(board, io, src),
     // What the level gives stays on the board: only a card's outputs change.
-    inputs: node => (node.type === 'out' ? ['in'] : !node.type || isGiven(node.type) ? [] : model.def(node.type).ins.map((_, k) => String(k))),
+    inputs: node => {
+      const part = model.partOf(node.type);
+      return part ? portsOf(part, node) : [];
+    },
     // Each sensor a card reads is an output of its own.
-    outputs: node => (isCard(node.type) ? picksOf(node).map(p => ({ key: p, label: u.sensors[p]?.label ?? p })) : null),
+    outputs: node => model.partOf(node.type)?.outputs?.(node)?.map(key => ({ key, label: u.sensors[key]?.label ?? key })) ?? null,
     // As text (../../../circuit/text.js): a card is written out with what it reads.
     // A card a wire reads a sensor of is switched on for it, if the task offers that sensor (in the card's order).
     text: {
-      settings: node => model.def(node.type).params ?? [],
+      settings: node => paramsOf(model.partOf(node.type), node),
       sets: node => (isCard(node.type) ? ['picks'] : []),
       check: (node, key, value) => {
         if (key !== 'picks') return null;

@@ -8,7 +8,7 @@ export const cardPosition = (node) => Object.fromEntries(['x', 'y', 'slot', 'spa
 
 // The same depth calculation is used for imported cards and headless drawings. A feedback edge contributes a
 // finite depth from the first revisit, so an import or preview can still place every card.
-function columnDepths(ids, before) {
+export function columnDepths(ids, before, minDepth = () => 0) {
   const own = new Set(ids)
   const depth = new Map()
   const visit = (id, seen) => {
@@ -16,7 +16,7 @@ function columnDepths(ids, before) {
     if (seen.has(id)) return 0
     seen.add(id)
     const upstream = before(id).filter((parent) => own.has(parent))
-    const value = Math.max(0, ...upstream.map((parent) => visit(parent, seen) + 1))
+    const value = Math.max(minDepth(id), ...upstream.map((parent) => visit(parent, seen) + 1))
     depth.set(id, value)
     return value
   }

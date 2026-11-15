@@ -1,16 +1,17 @@
-import { splitSource } from '../../../engine/wire-source.js'
+import { columnDepths } from '../../../circuit/layout.js'
+import { indexEdges } from '../../../graph.js'
+import { splitSource, wireEdges } from '../../../engine/wire-source.js'
 import { T } from '../../../shell/i18n.js'
 import { signal } from '../model/format.js'
 import { WORLDS, windowOf } from '../model/worlds.js'
 import { ROBOTS } from '../model/robots.js'
-import { isCard, isGiven } from '../model/parts.js'
+import { isCard, isGiven, modelsOf } from '../model/parts.js'
 import { picksOf } from '../model/board.js'
-import { fill } from '../items/labels.js'
+import { testLabel } from '../model/verdict.js'
+import { termsOf } from './circuitCourse.js'
 import { partsFor, withDesktopAnchors } from './board.js'
 import { boardDrawing } from './scene.js'
 import { robotDrawing } from './robotDrawing.js'
-
-const MERGES = ['msum', 'mmin', 'mmax']
 
 /** A board with each sensor its cards read on a card of its own ('tap'): the bench sets each one by hand. */
 function asTaps(b) {
@@ -52,36 +53,27 @@ function benchFor(model, tasks, borrow, key) {
   const lit = circuit.nodes.filter((n) => n.type === 'tap').map((n) => n.params.sensor)
   const focus = new Set(b ? [key] : L.adds ?? [])
   const avail = [...s.given.offers.view, ...s.given.offers.facts]
-  const ports = Object.fromEntries(s.ports.filter((p) => p.input).map((p) => [p.input, { label: p.label, short: p.short }]))
   const { tallest, ...xy } = columns(circuit)
-  return { L, s, V, o: s, robot, runs, circuit: place(circuit, xy), lit, avail, ports, focus, built: b ? key : null, height: Math.round(Math.min(440, Math.max(260, tallest * 0.6 + 40))) }
+  return { L, s, V, o: s, robot, runs, circuit: place(circuit, xy), lit, avail, focus, built: b ? key : null, height: Math.round(Math.min(440, Math.max(260, tallest * 0.6 + 40))) }
 }
 const place = (circ, xy) => ({ ...circ, nodes: circ.nodes.map((n) => ({ ...n, x: xy[n.id][0], y: xy[n.id][1] })) })
 
 /** Where the cards start: in columns by how far they are from the inputs, so the board reads left to right. */
 function columns(circ) {
-  const into = (id) => circ.wires.filter((w) => w.to === id).map((w) => w.from)
-  const depth = new Map(circ.nodes.filter((n) => isGiven(n.type) && n.type !== 'out').map((n) => [n.id, 0]))
-  const of = (id, seen = new Set()) => {
-    if (depth.has(id)) return depth.get(id)
-    if (seen.has(id)) return 1
-    seen.add(id)
-    const d = 1 + Math.max(0, ...into(id).map((f) => of(f, seen)))
-    depth.set(id, d)
-    return d
-  }
+  const sources = new Set(circ.nodes.filter((node) => isGiven(node.type)).map(({ id }) => id))
+  const ids = circ.nodes.filter(({ type }) => type !== 'out').map(({ id }) => id)
+  const depth = columnDepths(ids, indexEdges(wireEdges(circ.wires)).before, (id) => sources.has(id) ? 0 : 1)
   const parts = circ.nodes.filter((n) => !isGiven(n.type))
-  parts.forEach((n) => of(n.id))
   const last = Math.max(1, ...parts.map((n) => depth.get(n.id)))
   circ.nodes.filter((n) => n.type === 'out').forEach((n) => depth.set(n.id, last + 1))
   // Inputs are short cards and stack closer; every column is centred on the tallest.
-  const ids = circ.nodes.map((n) => n.id)
+  const placed = circ.nodes.map((n) => n.id)
   const gap = (d) => (d === 0 ? 124 : 150)
   const count = new Map()
-  ids.forEach((id) => count.set(depth.get(id), (count.get(depth.get(id)) ?? 0) + 1))
+  placed.forEach((id) => count.set(depth.get(id), (count.get(depth.get(id)) ?? 0) + 1))
   const tallest = Math.max(...[...count].map(([d, n]) => n * gap(d)))
   const rows = new Map(), xy = {}
-  for (const id of ids) {
+  for (const id of placed) {
     const d = depth.get(id), k = rows.get(d) ?? 0
     rows.set(d, k + 1)
     xy[id] = [20 + d * 205, 20 + (tallest - count.get(d) * gap(d)) / 2 + k * gap(d)]
@@ -102,9 +94,9 @@ const choice = (key, label, options, value, change) => ({ key, kind: 'choice', l
 export function pieceDemo(model, tasks, borrow, key) {
   const bench = benchFor(model, tasks, borrow, key)
   if (!bench) return null
-  const { L, s, V, robot, runs, circuit, lit, avail, ports, focus, built, height } = bench
+  const { L, s, V, robot, runs, circuit, lit, avail, focus, built, height } = bench
   const { def, hasValue, valueDefault, valueOptions } = model
-  const terms = { sensors: V.sensors, outs: V.outs, ports }
+  const terms = termsOf(s)
   const tagsOf = (node) => hasValue(node.type) ? `= ${node.params?.value ?? valueDefault(node.type)}` : def(node.type).tag
 
   const view = ({ test, state, report, graph, change, update }) => {
@@ -161,7 +153,8 @@ export function pieceDemo(model, tasks, borrow, key) {
       if (tap) controls.push({ key: `${id}-${test}-${cell}`, kind: V.sensors[id].type, value, shown: signal(value), change: (next) => setInput(id, next) })
       const values = valueOptions(type, L)
       if (values) controls.push(choice('value', T('数值', 'Value'), values.map((n) => [n, String(n)]), params?.value ?? valueDefault(type), (value) => change(id, { params: { ...params, value } })))
-      if (MERGES.includes(type)) controls.push(choice('model', T('操作'), MERGES.map((other) => [other, def(other).tag]), type, (next) => change(id, { type: next })))
+      const models = modelsOf(type)
+      if (models) controls.push(choice('model', T('操作'), models.map((other) => [other, def(other).tag]), type, (next) => change(id, { type: next })))
       return {
         value: tap ? signal(value) : value,
         controls, isInput: tap, focus: focus.has(type), canOpen: Boolean(built && type === built),
@@ -187,9 +180,7 @@ export function pieceDemo(model, tasks, borrow, key) {
         const node = graph.nodes.find((item) => item.id === id)
         if (!node || !built || node.type !== built) return null
         const builtPiece = model.built[built]
-        const board = builtPiece.board()
-        const setting = node.params?.value
-        const inner = setting === undefined ? board : { ...board, nodes: board.nodes.map((item) => (hasValue(item.type) ? { ...item, params: { ...item.params, value: setting } } : item)) }
+        const inner = builtPiece.part.board(node.params)
         const probe = {}
         try {
           model.evaluate(inner, (port) => inputs[port] ?? null, V.outs.map(([id]) => id), probe)
@@ -208,7 +199,7 @@ export function pieceDemo(model, tasks, borrow, key) {
   }
   return {
     graph: circuit,
-    tests: runs.map(({ t }) => ({ label: L.testLabel ? fill(L.testLabel, t) : V.label(t) })),
+    tests: runs.map(({ t }) => ({ label: testLabel(L, V, t) })),
     start: (k) => ({ cell: runs[k].start, table: new Map(runs[k].table), typed: new Set(), overrides: {} }),
     view,
     layout: { scene: 'sg-bench-scene', canvas: 'sg-bench-canvas', inside: 'sg-inside', back: 'sg-inside-back', open: 'sg-open', body: 'sg-body', tag: 'sg-tag', value: 'sg-val', thumb: 'sg-thumb' },

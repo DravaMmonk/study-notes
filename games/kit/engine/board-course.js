@@ -27,7 +27,7 @@
 // of a domain in one process never share them.
 import { stagesOf } from './stages.js'
 import { builtPieces, pieceReferences, publications } from './pieces.js'
-import { packed, withSettings } from './boards.js'
+import { packed } from './boards.js'
 import { defineParts } from './parts/define.js'
 import { formed } from './forms.js'
 import { taskLevels } from './tasks.js'
@@ -155,7 +155,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       outputs: board.portsOut(artifact).map((p) => p.name),
       parts: partOf,
       ...(holds ? { holds: true } : {}),
-      opens: (params) => ({ circuit: withSettings(running(), params, partOf), level: context }),
+      opens: (params) => ({ circuit: part.board(params), level: context }),
     })
     readArtifacts.push(read)
     revisions.push({ type, variant, form, task: context, part })

@@ -79,8 +79,9 @@ function inputsReaching(circuit, inputs, ends, parts, ctx) {
  * output; several: one output each, keyed by name). `circuit` is the circuit or a function returning it (the player's
  * latest passing one). Anything else on `extra` is the part's own.
  *
- * Inside, the parts run with ctx.graph the circuit inside (and whatever `inside(ctx)` adds); a setting on the part
- * goes to every card inside that has the same setting; only the cards that reach the output asked for run, and each
+ * A setting (or a declared default) goes to every card inside that takes it. `board(params, parts)` shows the circuit
+ * with the same settings as evaluation. Inside, ctx.graph is that circuit (with whatever `inside(ctx)` adds).
+ * Only the cards that reach the output asked for run, and each
  * output reads only the inputs that reach it, so a part can give one output from some inputs and another from the
  * output it fed (a board can drive a line before hearing it); a traced run (circuit.js) sees each
  * card inside as a step of its own, its `path` the ids of the packed parts it is in, outermost first.
@@ -92,6 +93,7 @@ function inputsReaching(circuit, inputs, ends, parts, ctx) {
  */
 export function packed({ circuit, inputs, outputs, parts, holds = false, inside: around = (ctx) => ctx, ...extra }) {
   const circuitOf = () => (typeof circuit === 'function' ? circuit() : circuit)
+  const configure = (board, params, parts) => withSettings(board, extra.defaults ? { ...extra.defaults, ...params } : params, parts)
   // The circuit inside is evaluated once for each evaluation outside (one ctx), whichever of the part's outputs are
   // asked for and in whatever order: the cards two outputs share run once, and so do those of a part packed inside.
   // An output asked for with an input bound otherwise (a part run again by hand) starts over.
@@ -99,7 +101,7 @@ export function packed({ circuit, inputs, outputs, parts, holds = false, inside:
   // The circuit inside with a node's settings on it, kept while both stay the same.
   const settled = new WeakMap()
   const settledOf = (circuit, node, parts) => {
-    if (settled.get(node)?.circuit !== circuit) settled.set(node, { circuit, inner: withSettings(circuit, node.params, parts) })
+    if (settled.get(node)?.circuit !== circuit) settled.set(node, { circuit, inner: configure(circuit, node.params, parts) })
     return settled.get(node).inner
   }
   const inside = (ins, node, ctx) => {
@@ -128,6 +130,10 @@ export function packed({ circuit, inputs, outputs, parts, holds = false, inside:
   return {
     inputs,
     ...extra,
+    board(params, references = parts) {
+      const circuit = circuitOf()
+      return configure(circuit, params, partsInBoard(circuit, references))
+    },
     ...(holds ? { holds: true } : {}),
     ...(many ? {
       outputs: () => keys,
@@ -167,7 +173,7 @@ export function packed({ circuit, inputs, outputs, parts, holds = false, inside:
 }
 
 // A circuit with a packed part's settings put on every card inside that takes them.
-export function withSettings(circuit, params = {}, parts) {
+function withSettings(circuit, params = {}, parts) {
   const keys = Object.keys(params).filter((k) => params[k] !== undefined && params[k] !== '')
   if (!keys.length) return circuit
   const partOf = partFn(parts)
