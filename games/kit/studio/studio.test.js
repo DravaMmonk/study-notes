@@ -223,8 +223,6 @@ test('each kind of value takes its control: from its shape, or from the hints a 
   // Numbers carry their range and step.
   const n = kind(S.num({ min: 0, max: 1, step: 0.05 }), 0.5)
   assert.deepEqual([n.kind, n.min, n.max, n.step], ['num', 0, 1, 0.05])
-  // A level's tests are cards that can be run.
-  assert.equal(kind(S.list(S.obj({ bus: S.obj({ idle: S.int() }) }), { section: 'tests' }), []).tests, true)
 })
 
 test('cells are typed and read back; a pasted block, a tick flipped, an item moved, a folded item summed up', () => {

@@ -107,7 +107,6 @@ export default function Studio() {
   const [go, setGo] = useState(null) // a task for the page to go to: { task }
   const [moving, setMoving] = useState(null) // the levels being moved in the tree
   const [said, setSaid] = useState(null) // what the last apply or undo said
-  const [runs, setRuns] = useState({}) // test runs: `${level}|${path}` → the run_tests answer
   const [layout, setLayout] = usePref('layout', { tree: 240, audit: 220, side: 380, treeOpen: true, auditOpen: true, sideOpen: true })
   const [resize, setResize] = useState(null)
   const [side, setSide] = usePref('side', 'tree')
@@ -163,7 +162,6 @@ export default function Studio() {
   useEffect(() => {
     const no = ++seq.current
     setBusy(true)
-    setRuns({})
     const timer = window.setTimeout(async () => {
       const r = await call('preview', { game, changeset, check: false }).catch((error) => ({ ok: false, problems: [error.message], content: null, failed: null }))
       if (no !== seq.current) return
@@ -496,19 +494,6 @@ export default function Studio() {
     edit({ op: 'level.add', level: id, data: value, to: { after: level } })
     select({ level: id })
   }
-  const tests = {
-    of: (level, path) => runs[`${level}|${showPath(path)}`] ?? null,
-    run: async (level, path) => {
-      const k = `${level}|${showPath(path)}`
-      const value = content.levels.find((l) => l.id === level)
-      const board = referenceFor(vocab.vocabulary, value, path.slice(0, -1))
-      if (!board) return setRuns((r) => ({ ...r, [k]: { covered: false, why: tr('这一关没有参考解') } }))
-      const pending = { running: true }
-      setRuns((r) => ({ ...r, [k]: pending }))
-      const answer = await call('run_tests', { game, level, path: showPath(board), changeset }).catch((error) => ({ covered: false, why: error.message }))
-      setRuns((r) => r[k] === pending ? { ...r, [k]: answer } : r)
-    },
-  }
   const togglePanel = (which) => setLayout((l) => ({ ...l, [`${which}Open`]: !l[`${which}Open`] }))
   // The side panel's field: its control's context (as the forms had it), and the mark the page draws it with.
   const sideFile = at?.level && content?.levels.some((l) => l.id === at.level) ? { level: at.level } : pieceRoot ? { parts: true, root: pieceRoot } : at?.glossary ? { glossary: true } : at ? { game: true } : null
@@ -530,7 +515,6 @@ export default function Studio() {
     onPiece: (part) => select({ part }),
     ...(sideFile?.level && {
       onBoard: (path) => onBoard(sideFile.level, showPath(path)),
-      tests: { of: (path) => tests.of(sideFile.level, path), run: (path) => tests.run(sideFile.level, path) },
       before: (path) => {
         const was = base?.levels.find((l) => l.id === sideFile.level)
         if (!was) return [false, undefined]

@@ -9,9 +9,9 @@
 //
 //   <Field field label onEdit ctx />   onEdit(path, { set } | { unset: true }, type)
 //   ctx: { vocabulary, levels, levelOptions, names, onBoard(path), findings: Map(showPath → [says]),
-//          before(path) → [had, value] (the field before the pending changes), tests: { of(path), run(path) } }
+//          before(path) → [had, value] (the field before the pending changes) }
 import { useEffect, useRef, useState } from 'react'
-import { ChevronRight, Copy, GripVertical, Minus, Pencil, Play, Plus, RotateCcw, X } from 'lucide-react'
+import { ChevronRight, Copy, GripVertical, Minus, Pencil, Plus, RotateCcw, X } from 'lucide-react'
 import { getLang, L, tr } from '../shell/i18n.js'
 import { boardSvg } from '../circuit/svg.js'
 import { showPath } from '../engine/ops/edit.js'
@@ -214,8 +214,7 @@ const SCALARS = ['text', 'num', 'bool', 'str', 'choice', 'chips', 'numbers', 'ti
 
 /**
  * A list: each item with a handle to drag it elsewhere (or Alt+↑ / Alt+↓), a copy and a remove. Items that are
- * objects fold into a one-line summary. A level's tests (section 'tests') are cards that show what the level's screen
- * shows of each and how its reference does on it, run on demand (the run_tests tool).
+ * objects fold into a one-line summary.
  */
 function ListField({ field, onEdit, ctx }) {
   const items = field.items
@@ -225,7 +224,6 @@ function ListField({ field, onEdit, ctx }) {
   const [drag, setDrag] = useState(null)
   const [over, setOver] = useState(null)
   const put = (next) => onEdit(field.path, { set: next }, 'list')
-  const run = field.tests ? ctx.tests?.of(field.path) : null
   const fold = (k) => setOpen((s) => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n })
   const drop = (k) => {
     if (drag !== null && drag !== k) put(moved(values, drag, k))
@@ -234,20 +232,16 @@ function ListField({ field, onEdit, ctx }) {
   }
   return (
     <div className={`field-list ${inline ? 'is-inline' : ''}`}>
-      {(field.tests || (!inline && items.length > 2)) && (
+      {(!inline && items.length > 2) && (
         <div className="list-tools">
-          {field.tests && ctx.tests && <button type="button" className="kit-btn is-label" onClick={() => ctx.tests.run(field.path)} disabled={run?.running}><Play size={13} aria-hidden="true" />{tr('运行参考解')}</button>}
-          {run && !run.running && <TestsSum run={run} />}
-          {run?.refused && <ul className="field-findings">{run.refused.map((r, k) => <li key={k}>{L(r)}</li>)}</ul>}
-          {!inline && items.length > 2 && <button type="button" className="kit-btn is-label" onClick={() => setOpen(open.size ? new Set() : new Set(items.map((_, k) => k)))}>{open.size ? tr('全部收起') : tr('全部展开')}</button>}
+          <button type="button" className="kit-btn is-label" onClick={() => setOpen(open.size ? new Set() : new Set(items.map((_, k) => k)))}>{open.size ? tr('全部收起') : tr('全部展开')}</button>
         </div>
       )}
       {items.map((item, k) => {
-        const result = run?.tests?.length === items.length ? run.tests[k] : null
         const isOpen = inline || open.has(k)
         return (
           <div
-            key={k} className={`li ${isOpen ? 'is-open' : ''} ${over === k ? 'is-over' : ''} ${drag === k ? 'is-dragging' : ''} ${result ? (result.pass ? 'is-pass' : result.pass === false ? 'is-fail' : '') : ''}`}
+            key={k} className={`li ${isOpen ? 'is-open' : ''} ${over === k ? 'is-over' : ''} ${drag === k ? 'is-dragging' : ''}`}
             onDragOver={(e) => { if (drag !== null) { e.preventDefault(); setOver(k) } }} onDrop={(e) => { e.preventDefault(); drop(k) }}
           >
             <div className="li-head">
@@ -268,7 +262,6 @@ function ListField({ field, onEdit, ctx }) {
                 </button>
               )}
               {inline && <div className="li-body"><Field field={item} label={null} onEdit={onEdit} ctx={ctx} /></div>}
-              {result && <TestMark result={result} />}
               <span className="li-tools">
                 {!field.bindings && <button type="button" onClick={() => put([...values.slice(0, k + 1), structuredCopy(values[k]), ...values.slice(k + 1)])} aria-label={tr('复制这一项')}><Copy size={12} /></button>}
                 <button type="button" onClick={() => onEdit(item.path, { unset: true }, null)} aria-label={tr('去掉这一项')}><X size={13} /></button>
@@ -276,45 +269,18 @@ function ListField({ field, onEdit, ctx }) {
             </div>
             {!inline && isOpen && (
               <div className="li-body">
-                {result && <TestShows result={result} />}
                 <Field field={item} label={null} onEdit={onEdit} ctx={ctx} />
               </div>
             )}
           </div>
         )
       })}
-      {run?.tests && run.tests.length !== items.length && run.tests.map((t, k) => <TestShows key={k} result={t} />)}
-      {run && !run.covered && !run.running && <p className="field-note">{L(run.why)}</p>}
       {field.bindings ? <AddSetting field={field} ctx={ctx} onAttach={(binding) => put([...values, binding])} /> : <button type="button" className="field-add" onClick={() => onEdit([...field.path, items.length], { set: items.length ? structuredCopy(values.at(-1)) : blank(field.of, ctx) }, field.of.type)} aria-label={tr('加一项')}><Plus size={13} aria-hidden="true" /></button>}
     </div>
   )
 }
 
 const structuredCopy = (v) => (v === undefined ? v : JSON.parse(JSON.stringify(v)))
-
-function TestsSum({ run }) {
-  if (!run.covered) return null
-  const passed = run.tests.filter((t) => t.pass).length
-  return (
-    <span className={`tests-sum ${run.pass ? 'is-pass' : 'is-fail'}`}>
-      {run.refused ? tr('参考解读不进来') : `${passed}/${run.tests.length}`}
-      {run.hidden?.count ? ` · ${tr('隐藏')} ${run.hidden.count - (run.hidden.failed ?? 0)}/${run.hidden.count}` : ''}
-    </span>
-  )
-}
-
-const TestMark = ({ result }) => <span className={`test-mark ${result.pass ? 'is-pass' : result.pass === false ? 'is-fail' : ''}`}>{result.pass ? '✓' : result.pass === false ? '✗' : '·'}</span>
-
-/** A test as the level's screen shows it (what it gives and what it expects), and what the run said. */
-function TestShows({ result }) {
-  return (
-    <div className="test-shows">
-      {result.label && <b>{L(result.label)}</b>}
-      {result.shows && <pre>{L(result.shows)}</pre>}
-      {result.says && <p>{L(result.says)}</p>}
-    </div>
-  )
-}
 
 function MapField({ field, onEdit, ctx }) {
   const [key, setKey] = useState('')

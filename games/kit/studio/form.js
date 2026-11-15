@@ -11,7 +11,7 @@
 //   expr      a part's expression (view: 'expr', ../engine/parts/expr.js)     icon   a name of the kernel's icon table
 //   choice    options: [{ value, about? }], of?       oneOf; ref (the items of a vocabulary kind); level (the game's levels)
 //   call      item, options (the kind's items), params: field | null       { item: params } or 'item'
-//   list      items: [field], of (the items' schema), tests (the list is a level's tests: section 'tests')
+//   list      items: [field], of (the items' schema)
 //   map       entries: [{ key, field }], of
 //   obj       fields: [{ key, field | null (an optional field not there), optional, about?, schema }]
 //   grid      cell (the numbers' schema), cols: null (rows of numbers), or a flat list's width ('square': √length)
@@ -131,7 +131,7 @@ export function formOf(schema, value, ctx, path = []) {
       const bindings = schema.view === 'setting-bindings'
       const control = bindings ? null : listControl(schema, ctx)
       if (control) return { ...base, ...control }
-      return { ...base, kind: 'list', of: schema.of, ...(bindings && { bindings: true }), ...(schema.section === 'tests' && { tests: true }), items: (Array.isArray(value) ? value : []).map((x, k) => formOf(schema.of, x, ctx, [...path, k])) }
+      return { ...base, kind: 'list', of: schema.of, ...(bindings && { bindings: true }), items: (Array.isArray(value) ? value : []).map((x, k) => formOf(schema.of, x, ctx, [...path, k])) }
     }
     case 'map': {
       const control = listControl(schema, ctx)
