@@ -4,7 +4,7 @@ import { CARDS, PRIMITIVES } from '../model/parts.js'
 import { signal } from '../model/format.js'
 import { lookIcon } from './looks.js'
 import { robotRun, testName } from './circuitRun.js'
-import { toGraph } from './board.js'
+import { withDesktopAnchors } from './board.js'
 import { freshBoard, hasSensors } from './circuitCourse.js'
 import { useRobotWorld } from './useRobotWorld.js'
 
@@ -18,7 +18,7 @@ export const robotScreenFor = ({ model }) => ({
   cards,
   fresh: freshBoard,
   clearable: hasSensors,
-  ready: (board, _held, task) => toGraph(fitted(board, task.given)),
+  ready: (board, _held, task) => withDesktopAnchors(fitted(board, task.given)),
   defaults: (type) => model.hasValue(type) ? { value: model.valueDefault(type) } : {},
   settings: (node, { task }) => model.hasValue(node.type) ? [{
     key: 'value',

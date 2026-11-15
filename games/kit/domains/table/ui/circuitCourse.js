@@ -2,7 +2,7 @@ import { holds } from '../../../course.js'
 import { blank, fitted, picksOf } from '../model/board.js'
 import { CARDS, isGiven, modelsOf } from '../model/parts.js'
 import { WORLDS } from '../model/worlds.js'
-import { outputsOf, toGraph } from './board.js'
+import { outputsOf, withDesktopAnchors } from './board.js'
 import { restoreRobotBoard, wiring } from '../model/wiring.js'
 
 export function termsOf(task) {
@@ -26,7 +26,7 @@ export function robotCircuits(table) {
     desc: part.desc,
     opens: (params) => ({
       level: builders[type],
-      circuit: toGraph({
+      circuit: withDesktopAnchors({
         ...part.board(),
         nodes: part.board().nodes.map((node) => part.setting === undefined || !model.hasValue(node.type)
           ? node : { ...node, params: { ...node.params, value: params?.value ?? part.setting } }),
@@ -63,7 +63,7 @@ export function robotCircuits(table) {
           const usable = table.usableIn(task, flags)
           return { shown: shelf(shown.filter((type) => usable.has(type))), folded: shelf(folded.filter((type) => usable.has(type))) }
         },
-        opening: (_, _built, kept, progress) => toGraph(restoreRobotBoard(model, task, kept) ?? table.opening(task, progress)),
+        opening: (_, _built, kept, progress) => withDesktopAnchors(restoreRobotBoard(model, task, kept) ?? table.opening(task, progress)),
         stageChain: () => [],
       })
       return views.get(task)
@@ -71,5 +71,5 @@ export function robotCircuits(table) {
   }
 }
 
-export const freshBoard = (task) => toGraph(fitted(blank(), task.given))
+export const freshBoard = (task) => withDesktopAnchors(fitted(blank(), task.given))
 export const hasSensors = (board) => board.nodes.some((node) => picksOf(node).length)

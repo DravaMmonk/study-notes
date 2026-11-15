@@ -2,6 +2,7 @@ import { srcNode } from '../engine/wire-source.js'
 import { cardWidth } from './card-size.js'
 import { moveToSlot, placement } from './model.js'
 import { frameId, frameTree } from './regions.js'
+import { slotGrid } from './slot-grid.js'
 import { layoutOrder, pipelineLayout } from './layout.js'
 
 export const BLOCK_VIEWS = ['full', 'ports', 'hidden']
@@ -38,16 +39,16 @@ export function blockSlots(board, parts) {
     const grouped=unit.id.startsWith('block:')
     if((grouped||unit.nodes.some(id=>placed.span.get(id).some(n=>n>1)))&&cursor%placed.cols)cursor+=placed.cols-cursor%placed.cols
     const start=cursor
-    const occupied=new Set()
-    for(const id of [...unit.nodes].sort((a,b)=>ordered.indexOf(a)-ordered.indexOf(b))) {
-      const [w,h]=placed.span.get(id), covering=(at)=>Array.from({length:w*h},(_,k)=>at+Math.floor(k/w)*placed.cols+k%w)
-      let at=0
-      while(at%placed.cols+w>placed.cols||covering(at).some(i=>occupied.has(i)))at++
-      covering(at).forEach(i=>occupied.add(i));cells.set(id,cursor+at)
+    const grid = slotGrid(placed.cols)
+    for (const id of [...unit.nodes].sort((a, b) => ordered.indexOf(a) - ordered.indexOf(b))) {
+      const span = placed.span.get(id)
+      const at = grid.firstFree(span)
+      grid.take(at, span)
+      cells.set(id, cursor + at)
     }
-    const height=Math.ceil((Math.max(...occupied)+1)/placed.cols)+1
-    if(grouped)bounds.set(unit.id.slice(6),{slot:start,rows:height})
-    cursor+=grouped?height*placed.cols:Math.max(...occupied)+1
+    const height = Math.ceil((grid.last + 1) / placed.cols) + 1
+    if (grouped) bounds.set(unit.id.slice(6), { slot: start, rows: height })
+    cursor += grouped ? height * placed.cols : grid.last + 1
   }
   return {...board,blocks:blocks.map(({ins:_ins,outs:_outs,...b})=>({...b,...bounds.get(b.id)})),nodes:board.nodes.map(n=>cells.has(n.id)?{...n,slot:cells.get(n.id)}:n)}
 }
@@ -147,22 +148,24 @@ export function transferBlockMembers(board,parts,assignments) {
 }
 
 /** Newly carried parts use free, ungrouped rows without rewriting any existing slot. */
-export function withNewSlots(board,parts) {
-  const added=editable(board,parts).filter(n=>!Number.isInteger(n.slot))
-  if(!added.length)return board
-  const newIds=new Set(added.map(n=>n.id)),base={...board,nodes:board.nodes.filter(n=>!newIds.has(n.id))}
-  const placed=placement(base,parts),ranges=blockRows(base,parts,placed),taken=new Set([...placed.cell.values()]),slots=new Map()
-  for(const n of added){
-    let at=0
-    while(taken.has(at)||ranges.some(b=>Math.floor(at/placed.cols)>=b.start&&Math.floor(at/placed.cols)<b.end))at++
-    slots.set(n.id,at);taken.add(at)
+export function withNewSlots(board, parts) {
+  const added = editable(board, parts).filter((node) => !Number.isInteger(node.slot) || node.slot < 0)
+  if (!added.length) return board
+  const newIds = new Set(added.map((node) => node.id))
+  const base = { ...board, nodes: board.nodes.filter((node) => !newIds.has(node.id)) }
+  const placed = placement(base, parts)
+  const { span: spans } = placement(board, parts)
+  const grid = slotGrid(placed.cols)
+  for (const [id, at] of placed.cell) grid.take(at, placed.span.get(id))
+  for (const { start, end } of blockRows(base, parts, placed)) grid.take(start * placed.cols, [placed.cols, end - start])
+  const slots = new Map()
+  for (const node of added) {
+    const span = spans.get(node.id)
+    const at = grid.firstFree(span)
+    grid.take(at, span)
+    slots.set(node.id, at)
   }
-  return {...board,nodes:board.nodes.map(n=>slots.has(n.id)?{...n,slot:slots.get(n.id)}:n)}
-}
-
-export function newPartSlot(board,parts) {
-  const placed=placement(board,parts),ranges=blockRows(board,parts,placed)
-  return placed.free.find(slot=>!ranges.some(b=>Math.floor(slot/placed.cols)>=b.start&&Math.floor(slot/placed.cols)<b.end))??placed.size
+  return { ...board, nodes: board.nodes.map((node) => slots.has(node.id) ? { ...node, slot: slots.get(node.id) } : node) }
 }
 
 export function movePhonePart(board,parts,id,slot,region=null,canMove=()=>true) {

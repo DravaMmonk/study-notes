@@ -32,6 +32,7 @@ import { splitSource, srcNode, wireEdges } from '../engine/wire-source.js'
 import { sameJson } from '../engine/json-value.js'
 import { cardColumns, slotColumns, slotWidth } from './card-size.js'
 import { SLOT_GUTTER } from './slot-metrics.js'
+import { slotGrid } from './slot-grid.js'
 import { dependencyOrder, indexEdges, wouldCycle } from '../graph.js'
 import { keepFixedSettings, lockedCards, lockedRefusal, PRESET_PORT_REFUSAL } from './presets.js'
 import { frameEdges, moveInto, scopeRefusal } from './frames.js'
@@ -214,7 +215,7 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
       return Number.isInteger(span) && span > 0 ? Math.min(span, width) : width
     }, rootCols)
     const width = cols * columnWidth + (cols - 1) * SLOT_GUTTER
-    const used = new Set()
+    const grid = slotGrid(cols)
     const cell = new Map()
     const span = new Map()
     const sizeOf = (n) => {
@@ -223,26 +224,23 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
       const children = frames.map((g) => place(regionAddress(n.id, g.name)))
       return [children[0].cols, 1 + children.reduce((sum, child) => sum + 2 + child.rows, 0)]
     }
-    const cellsOf = (at, [w, h]) => {
-      const [row, col] = [Math.floor(at / cols), at % cols]
-      if (col + w > cols) return null
-      return Array.from({ length: w * h }, (_, k) => (row + Math.floor(k / w)) * cols + col + (k % w))
-    }
-    const fits = (n, at) => cellsOf(at, sizeOf(n))?.every((c) => !used.has(c))
-    const take = (n, at) => {
-      cell.set(n.id, at)
-      span.set(n.id, sizeOf(n))
-      for (const c of cellsOf(at, sizeOf(n))) used.add(c)
+    const take = (node, at, size) => {
+      cell.set(node.id, at)
+      span.set(node.id, size)
+      grid.take(at, size)
     }
     const here = ancestors ? steps.filter((n) => (n.in ?? null) === r) : []
-    for (const node of here) if (Number.isInteger(node.slot) && node.slot >= 0 && fits(node, node.slot)) take(node, node.slot)
+    for (const node of here) {
+      if (!Number.isInteger(node.slot) || node.slot < 0) continue
+      const size = sizeOf(node)
+      if (grid.fits(node.slot, size)) take(node, node.slot, size)
+    }
     for (const node of here) {
       if (cell.has(node.id)) continue
-      let at = 0
-      while (!fits(node, at)) at += 1
-      take(node, at)
+      const size = sizeOf(node)
+      take(node, grid.firstFree(size), size)
     }
-    const last = used.size ? Math.floor(Math.max(...used) / cols) + 1 : 0
+    const last = Math.ceil((grid.last + 1) / cols)
     const reserved=r===null?Math.max(0,...(graph.blocks??[]).filter(b=>Number.isInteger(b.slot)&&Number.isInteger(b.rows)).map(b=>Math.floor(b.slot/cols)+b.rows)):0
     const rows = fixed ? Math.max(1, last) : Math.max(last, reserved) + 1
     const size = rows * cols
@@ -259,7 +257,7 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
         row += child.rows + 2
       }
     }
-    const result = { cell, span, cols, rows, size, frameHeads, free: Array.from({ length: size }, (_, at) => at).filter((at) => !used.has(at)) }
+    const result = { cell, span, cols, rows, size, frameHeads, free: Array.from({ length: size }, (_, at) => at).filter((at) => !grid.has(at)) }
     grids.set(r, result)
     return result
   }

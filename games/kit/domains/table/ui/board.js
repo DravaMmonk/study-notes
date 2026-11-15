@@ -1,11 +1,11 @@
 // A table board on the shared circuit editor (../../../circuit), the one Vision Complete uses. The board is already
-// the editor's shape (../model/board.js): graph() only gives every node a place (x, y on the desktop, a slot on the
-// phone) and change() keeps what the board stores; the editor's description of the nodes (partsFor) refuses a wire the
-// engine would refuse, with the engine's own reason.
+// the editor's shape (../model/board.js). Its desktop anchors start the canvas layout, and the parts description
+// adds names and colours to the shared wiring rules.
 
 import { sourceOf, srcNode } from '../../../engine/wire-source.js';
 import { CARDS, isCard, isGiven } from '../model/parts.js';
-import { picksOf, placement } from '../model/board.js';
+import { picksOf, roleOf } from '../model/board.js';
+import { placement } from '../../../circuit/model.js';
 import { wiring } from '../model/wiring.js';
 import { lookIcon } from './looks.js';
 import { ICONS } from './glyphs.js';
@@ -22,22 +22,24 @@ function home(kind, k, slot) {
 }
 const kindOf = n => (isCard(n.type) ? 'card' : n.type === 'port' || n.type === 'tap' ? 'tap' : n.type === 'out' ? 'out' : 'part');
 
-/** The board as the editor shows it: every node placed. A node with a place keeps it; a new one goes to its home spot,
- *  or on down its column to the first free one, so cards never land on each other. */
-export function toGraph(b) {
-  const { cell } = placement(b), taken = b.nodes.filter(n => n.x !== undefined).map(n => [n.x, n.y]);
+/** Initial desktop anchors. The shared editor assigns and saves the phone slots. */
+export function withDesktopAnchors(b) {
+  const positioned = node => Number.isFinite(node.x) && Number.isFinite(node.y);
+  if (b.nodes.every(positioned)) return b;
+  const { cell } = placement(b, { role: roleOf });
+  const taken = b.nodes.filter(positioned).map(n => [n.x, n.y]);
   const clash = ([x, y]) => taken.some(([a, c]) => Math.abs(a - x) < 170 && Math.abs(c - y) < 100);
   const count = { card: 0, tap: 0, out: 0 };
   return {
     ...b,
     nodes: b.nodes.map(n => {
       const kind = kindOf(n), k = kind === 'part' ? 0 : count[kind]++;
-      const slot = kind === 'part' ? cell[n.id] : undefined;
-      if (n.x !== undefined) return slot === undefined ? n : { ...n, slot };
+      if (positioned(n)) return n;
+      const slot = cell.get(n.id);
       let [x, y] = home(kind, k, slot);
       for (let tries = 0; tries < 60 && clash([x, y]); tries++) y += kind === 'card' ? 300 : kind === 'out' ? 140 : kind === 'tap' ? 120 : 170;
       taken.push([x, y]);
-      return { ...n, x, y, ...(slot === undefined ? {} : { slot }) };
+      return { ...n, x, y };
     }),
   };
 }

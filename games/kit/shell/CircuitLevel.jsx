@@ -4,7 +4,7 @@ import { traySize } from '../circuit/card-size.js'
 import { fixedTray } from '../course.js'
 import { useSetting } from './useSetting.js'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, newPartSlot, phoneBlockBoard, blockOfPart } from '../circuit/blocks.js'
+import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, phoneBlockBoard, blockOfPart } from '../circuit/blocks.js'
 import { Info } from 'lucide-react'
 import CanvasEditor from '../circuit/CanvasEditor.jsx'
 import Notice from '../circuit/Notice.jsx'
@@ -188,7 +188,10 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const [detail, setDetail] = useState(null)
   const [settingError, setSettingError] = useState(null)
   const parts = useMemo(() => (defined ? definedParts(given, defined.of, defined.ops) : given), [given, defined?.of])
-  const circuit = useMemo(() => withNewSlots(blockPreset(stored, stages?.stages ?? [], parts), parts), [stored, stages, parts])
+  const circuit = useMemo(() => {
+    const opening = blockPreset(stored, stages?.stages ?? [], parts)
+    return phone ? opening : withNewSlots(opening, parts)
+  }, [stored, stages, parts, phone])
   const change = (next, options = {}) => board.change(next, options)
   const displayedBoard = { ...board, circuit, change }
   const setNode = (node, params) => {
@@ -241,7 +244,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   })
   // A new card goes into the region chosen last, while its frame is there and open.
   const into = isOpenRegion(circuit, parts, target) ? target : null
-  const add = (type) => change(make(circuit, type, { region: into, ...(!into ? { slot: newPartSlot(circuit, parts) } : {}) }).graph)
+  const add = (type) => change(withNewSlots(make(circuit, type, { region: into }).graph, parts))
   const protectedIds = lockedCards(circuit)
   const onClear = circuit.nodes.some((n) => parts.role(n) === 'part' && !protectedIds.has(n.id)) || board.clearable?.(circuit) ? board.clear : null
 
@@ -322,7 +325,7 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
   const boardRef = useRef(null)
   const availableWidth = useElementSize(boardRef)?.width || Infinity
   const parts = { ...givenParts, availableWidth, traySize: size }
-  const circuit = useMemo(()=>phoneBlockBoard(sourceCircuit,parts),[sourceCircuit,parts])
+  const circuit = useMemo(() => phoneBlockBoard(withNewSlots(sourceCircuit, parts), parts), [sourceCircuit, parts])
   const [manualBlocks] = useSetting('manualBlocks')
   const canMove = (id) => manualBlocks || !blockOfPart(circuit,id)?.startsWith('course:')
   const [sheet, setSheet] = useState(null) // { node } or { slot, region }

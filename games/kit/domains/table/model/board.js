@@ -29,6 +29,8 @@ export const usesSensor = (b, id) => b.wires.some(w => {
 });
 /** The parts of a type on the board (with this value, when one is given). */
 export const partsOfType = (b, type, value) => b.nodes.filter(n => n.type === type && (value === undefined || n.params?.value === value));
+export const roleOf = node => node.type === 'out' ? 'sink' : isGiven(node.type) ? 'source' : 'part';
+
 /** The parts the player placed. */
 export const placed = b => b.nodes.filter(n => !isGiven(n.type));
 
@@ -86,16 +88,4 @@ export function portsProblem(board, ports) {
   if (extra.length) return tr(`这块电路板要做成元件，它的输入只能是元件的口；它还读了：${extra.join('、')}。`, `This board becomes a part, so it may read only the part’s ports; it also reads: ${extra.join(', ')}.`);
   if (missing.length) return tr(`这块电路板要做成元件，元件的每个口都要接进电路；还没接的：${missing.map(name).join('、')}。`, `This board becomes a part, so every port of the part must be wired in; not yet: ${missing.map(name).join(', ')}.`);
   return null;
-}
-
-/**
- * Phone slots on a two-column board: every placed part keeps its slot while that slot is free; the rest take the first
- * free slots in the order they were added. The board always ends with an empty row. Given nodes take no slot.
- */
-export function placement(b) {
-  const cell = {}, used = new Set(), parts = placed(b);
-  parts.forEach(n => { const a = n.slot; if (Number.isInteger(a) && a >= 0 && !used.has(a)) { cell[n.id] = a; used.add(a); } });
-  parts.forEach(n => { if (cell[n.id] === undefined) { let a = 0; while (used.has(a)) a++; cell[n.id] = a; used.add(a); } });
-  const even = v => v + (v % 2), size = even(Math.max(-1, ...used) + 1) + 2;
-  return { cell, size, free: Array.from({ length: size }, (_, a) => a).filter(a => !used.has(a)) };
 }

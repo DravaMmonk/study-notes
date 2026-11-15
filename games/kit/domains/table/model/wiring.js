@@ -9,7 +9,7 @@ import { printLines, readLines } from '../../../circuit/text.js';
 import { boardFits, isCircuitBoard } from '../../../circuit/model.js';
 import { WORLDS } from './worlds.js';
 import { isCard, isGiven, PRIMITIVES } from './parts.js';
-import { blank, fitted, picksOf } from './board.js';
+import { blank, fitted, picksOf, roleOf } from './board.js';
 
 /** The board a graph of the editor stands for: what a board keeps of each node. */
 export const fromGraph = graph => ({
@@ -21,7 +21,7 @@ export function wiring(model, u) {
   const io = { sensors: u.sensors, outs: u.outs };
   return {
     // What the level gives is a source (on top on a phone) or a sink; the rest are parts.
-    role: node => (node.type === 'out' ? 'sink' : isGiven(node.type) ? 'source' : 'part'),
+    role: roleOf,
     // What the level gives stays on the board: only a card's outputs change.
     inputs: node => (node.type === 'out' ? ['in'] : !node.type || isGiven(node.type) ? [] : model.def(node.type).ins.map((_, k) => String(k))),
     // Each sensor a card reads is an output of its own.

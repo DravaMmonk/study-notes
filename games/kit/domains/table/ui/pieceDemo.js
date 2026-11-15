@@ -6,7 +6,7 @@ import { ROBOTS } from '../model/robots.js'
 import { isCard, isGiven } from '../model/parts.js'
 import { picksOf } from '../model/board.js'
 import { fill } from '../items/labels.js'
-import { partsFor, toGraph } from './board.js'
+import { partsFor, withDesktopAnchors } from './board.js'
 import { boardDrawing } from './scene.js'
 import { robotDrawing } from './robotDrawing.js'
 
@@ -197,7 +197,7 @@ export function pieceDemo(model, tasks, borrow, key) {
         }
         const parts = partsFor(model, inner, terms)
         return {
-          graph: toGraph(inner), name: builtPiece.name, parts, height,
+          graph: withDesktopAnchors(inner), name: builtPiece.name, parts, height,
           readout: (item) => ({ value: valueOf(report && probe, item.id), controls: [], hide: isCard(item.type), tag: parts.role(item) === 'part' ? tagsOf(item) : '' }),
           outNote: (item, port) => (isCard(item.type) ? signal(inputs[port] ?? null) : null),
           wireState: wireStateOf(report && probe),

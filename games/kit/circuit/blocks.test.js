@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {blockSlots,assignBlock,translateBlock,blocksOf,blockPreset,editBlock,createBlock,rectangleMembers,rowMembers,blockRows,withNewSlots,newPartSlot,phoneBlockBoard,blockAtSlot,blockOfPart,transferBlockMembers,movePhonePart} from './blocks.js'
+import {blockSlots,assignBlock,translateBlock,blocksOf,blockPreset,editBlock,createBlock,rectangleMembers,rowMembers,blockRows,withNewSlots,phoneBlockBoard,blockAtSlot,blockOfPart,transferBlockMembers,movePhonePart} from './blocks.js'
 import {print} from './text.js'
 import {placement} from './model.js'
 const parts={role:n=>n.type==='in'?'source':n.type==='out'?'sink':'part',inputs:()=>['in'],outputs:()=>null}
@@ -41,6 +41,36 @@ test('new carried parts occupy ungrouped slots while existing placements stay un
  assert.equal(fresh.x,900)
 })
 
+test('a new part uses the first cell outside an existing frame footprint', () => {
+  const framed = { ...parts, frames: (node) => node.type === 'frame' ? [{ name: 'body' }] : [] }
+  const saved = { nodes: [{ id: 'frame', type: 'frame', slot: 0 }], wires: [], blocks: [] }
+  const frame = placement(saved, framed)
+  const board = {
+    ...saved,
+    nodes: [...saved.nodes, { id: 'new' }],
+    wires: [{ from: 'new', to: 'frame', port: 'in' }],
+  }
+  const after = withNewSlots(board, framed)
+  const shown = placement(after, framed)
+  assert.equal(shown.cell.get('frame'), 0)
+  assert.equal(shown.cell.get('new'), frame.free[0])
+  assert.equal(after.nodes.find((node) => node.id === 'new').slot, frame.free[0])
+})
+
+test('a new wide part skips a partial row and the insertion row of a block', () => {
+  const framed = { ...parts, frames: (node) => node.type === 'frame' ? [{ name: 'body' }] : [] }
+  const board = {
+    nodes: [{ id: 'loose', slot: 0 }, { id: 'held', slot: 2 }, { id: 'new', type: 'frame' }],
+    wires: [],
+    blocks: [{ id: 'kept', nodes: ['held'], slot: 2, rows: 2 }],
+  }
+  const after = withNewSlots(board, framed)
+  const shown = placement(after, framed)
+  assert.equal(shown.cell.get('loose'), 0)
+  assert.equal(shown.cell.get('held'), 2)
+  assert.equal(shown.cell.get('new'), 6)
+})
+
 test('hiding remembers the prior visible mode across saved-board reloads',()=>{
  let b=createBlock({...graph,blocks:[]},parts,['a','b'])
  b=editBlock(b,parts,b.blocks[0].id,{view:'full'})
@@ -52,7 +82,8 @@ test('hiding remembers the prior visible mode across saved-board reloads',()=>{
 
 test('new loose parts avoid vacant cells inside an existing block',()=>{
  const b=blockPreset(graph,[{id:'old',nodes:['a']}],parts)
- assert(newPartSlot(b,parts)>=2)
+ const updated=withNewSlots({...b,nodes:[...b.nodes,{id:'new'}]},parts)
+ assert(updated.nodes.find((node)=>node.id==='new').slot>=2)
 })
 
 test('frame-internal connections do not become hidden-block boundary stubs',()=>{
