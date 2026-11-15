@@ -1,6 +1,6 @@
 // node --test (npm test) — how much of its own interface each domain still writes as components (components.js). A
 // domain on the circuit base writes none: it declares its screen (ui/screen.js) and the kit draws it. The domains
-// written before the base (image, logic, table, agent, syntax) hold their own screens; their numbers go down as
+// written before the base (image, logic, table) hold their own screens; their numbers go down as
 // screens move onto the kit.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -8,10 +8,8 @@ import { resolve } from 'node:path'
 import { components } from './components.js'
 
 const CEILING = {
-  'domains/agent': 324,
   'domains/image': 2870,
   'domains/logic': 2039,
-  'domains/syntax': 159,
   'domains/table': 2413,
 }
 

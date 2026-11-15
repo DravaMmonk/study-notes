@@ -1,5 +1,5 @@
 /* The anatomy kit's inks taken from the site's theme (kit/tokens.css), for the games' illustrations built with the
-   kit (games/detach, games/stick): put class="iso an" on the figure's wrapper and data-theme="dark" or "light" on it
+   kit (games/detach): put class="iso an" on the figure's wrapper and data-theme="dark" or "light" on it
    (each figure's live code follows the page). Boxy (games/boxy) carries its own copy with the robot's colours. */
 .iso.an{
   --an-dark:var(--ink);
