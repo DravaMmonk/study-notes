@@ -53,8 +53,6 @@
     }
   },
   "robot": "broom",
-  "unlock": "interval",
-  "builds": { "ports": [{ "reads": "segL" }, { "reads": "segR" }, { "reads": "weight" }] },
   "debrief": {
     "title": { "zh": "区间合并" },
     "body": [
@@ -73,6 +71,7 @@
     {
       "id": "stones",
       "mode": "circuit",
+      "ports": [{ "reads": "segL" }, { "reads": "segR" }, { "reads": "weight" }],
       "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
       "hints": [
         {

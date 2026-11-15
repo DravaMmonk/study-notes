@@ -84,7 +84,6 @@
     }
   },
   "robot": "broom",
-  "unlock": "sweep",
   "debrief": {
     "title": { "zh": "能用上一格，就别重扫" },
     "body": [

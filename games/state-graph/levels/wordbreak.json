@@ -40,7 +40,6 @@
     "how": { "zh": "词典写在测试旁边。" }
   },
   "robot": "broom",
-  "unlock": "wordbreak",
   "debrief": {
     "title": { "zh": "切词" },
     "body": [

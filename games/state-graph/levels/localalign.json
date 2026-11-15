@@ -32,7 +32,6 @@
     }
   },
   "robot": "ranger",
-  "unlock": "local",
   "debrief": {
     "title": { "zh": "局部对齐" },
     "body": [

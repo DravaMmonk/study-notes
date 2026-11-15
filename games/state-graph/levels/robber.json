@@ -161,7 +161,6 @@
     }
   },
   "robot": "stack",
-  "unlock": "layer",
   "debrief": {
     "title": { "zh": "多记一件事，问题就解开了" },
     "body": [

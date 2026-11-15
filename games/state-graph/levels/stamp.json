@@ -45,14 +45,6 @@
   "robot": "scout",
   "adds": ["const", "pass"],
   "carry": "confluence",
-  "unlock": "counter",
-  "builds": {
-    "ports": [
-      { "way": { "n": 1, "sensor": "up" } },
-      { "way": { "n": 2, "sensor": "left" } },
-      { "start": { "sensor": "start" } }
-    ]
-  },
   "debrief": {
     "title": { "zh": "你拼出了第一台机器" },
     "body": [
@@ -74,6 +66,11 @@
     {
       "id": "stamp",
       "mode": "circuit",
+      "ports": [
+        { "way": { "n": 1, "sensor": "up" } },
+        { "way": { "n": 2, "sensor": "left" } },
+        { "start": { "sensor": "start" } }
+      ],
       "guide": [
         {
           "until": { "reads": "start" },

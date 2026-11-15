@@ -62,22 +62,6 @@
   },
   "robot": "scout",
   "adds": ["add"],
-  "unlock": "min",
-  "builds": {
-    "ports": [
-      { "way": { "n": 1, "sensor": "left" } },
-      { "way": { "n": 2, "sensor": "ul" } },
-      { "start": { "sensor": "start" } },
-      {
-        "named": {
-          "label": { "zh": "本格代价" },
-          "short": { "zh": "价" },
-          "sensor": "cost"
-        }
-      },
-      { "way": { "n": 3, "input": "way3" } }
-    ]
-  },
   "debrief": {
     "title": { "zh": "走不到，就一直走不到" },
     "body": [
@@ -96,6 +80,13 @@
     {
       "id": "slantcost",
       "mode": "circuit",
+      "ports": [
+        { "way": { "n": 1, "sensor": "left" } },
+        { "way": { "n": 2, "sensor": "ul" } },
+        { "start": { "sensor": "start" } },
+        { "named": { "label": { "zh": "本格代价" }, "short": { "zh": "价" }, "sensor": "cost" } },
+        { "way": { "n": 3, "input": "way3" } }
+      ],
       "diagnose": [
         {
           "when": { "uses": "up" },

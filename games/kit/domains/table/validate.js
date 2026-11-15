@@ -30,10 +30,11 @@ export function validate({ levels, table }) {
         if (s.tests.every((t, i) => { const r = run(V, t, s.naive, s); return !r.error && r.value === s.expected[i]; })) bad(L.id, `${where}: its naive board passes every test`);
       }
     }
-    if (L.builds && tasks.at(-1).mode === 'circuit') checkBuilt(L, tasks.at(-1));
+    const builder = L.builds && tasks.find(s => s.taskId === L.builds.task);
+    if (builder?.mode === 'circuit') checkBuilt(L, builder);
   }
 
-  /** The part a level builds against the board it stands for, its last task's. */
+  /** The part a level builds against the board it stands for, its task's. */
   function checkBuilt(L, s) {
     const V = WORLDS[s.world], b = table.model.built[L.unlock];
     const why = portsProblem(s.solution, s.ports);

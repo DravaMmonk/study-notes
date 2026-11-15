@@ -64,16 +64,6 @@
     }
   },
   "robot": "loop",
-  "unlock": "value",
-  "builds": {
-    "ports": [
-      { "way": { "n": 1, "sensor": "up" } },
-      { "way": { "n": 2, "sensor": "down" } },
-      { "way": { "n": 3, "sensor": "left" } },
-      { "way": { "n": 4, "sensor": "right" } }
-    ],
-    "setting": 0.9
-  },
   "debrief": {
     "title": { "zh": "价值迭代" },
     "body": [
@@ -92,6 +82,12 @@
     {
       "id": "value",
       "mode": "circuit",
+      "ports": [
+        { "way": { "n": 1, "sensor": "up" } },
+        { "way": { "n": 2, "sensor": "down" } },
+        { "way": { "n": 3, "sensor": "left" } },
+        { "way": { "n": 4, "sensor": "right" } }
+      ],
       "diagnose": [
         {
           "when": { "not": { "has": "mul" } },

@@ -6,10 +6,11 @@ import { vocabulary } from './vocabulary.js';
 import { tableCourse } from './course.js';
 import { validate } from './validate.js';
 import { play } from './play.js';
+import { builtPieces } from '../../engine/pieces.js';
 
 /** A table game's spec, as the checks read one (../../engine/checks.js). */
-// What a level may unlock and a tray may list (vocabulary.js): the parts and ideas game.json names.
-const names = content => ({ part: new Set(Object.keys(content.parts ?? {})) });
+// What a tray may list (vocabulary.js): the parts and ideas parts.json names.
+const names = content => ({ part: new Set(Object.keys(builtPieces(content.partDefs))) });
 
 function spec(content) {
   const table = tableCourse(content);

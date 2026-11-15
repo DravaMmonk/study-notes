@@ -141,7 +141,7 @@
 | 传感器 | 关卡给电路的一个有名字的值：一张测试图、机器人看到的一格、脚下格子的一条信息 | `kit/circuit/sensors.js` 的统一形状 `{ id, label, short?, type, family?, named? }` |
 | 输入元件 | 电路板上固定的输入，按传感器的种类分（《状态之图》：视野、本格信息），不能放也不能删。元件一开始没有输出口；学习者点一个传感器（在元件上，或在输入窗口里），元件就多一个读它的输出口，再点一下就去掉 | `domains/table/model/parts.js` 的输入元件（读到的传感器存在 `params.picks`）；kit 的 `parts.outputs` 支持一个元件多个输出 |
 | 原始元件 | 课程起点，内部不在本专题关心的范围 | 课程声明的 `primitives`（`games/kit/course.js`） |
-| 中层元件 / 封装件 | 学习者搭出、解锁后当一个元件用，打开能看里面 | 由一关搭出（`needs` / `builds`）；`kit/engine/boards.js` 的 `packed` 把通关时记下的电路当一个元件跑 |
+| 中层元件 / 封装件 | 学习者搭出、解锁后当一个元件用，打开能看里面 | `parts.json` 里写 `inside` 的一项，引用搭出它的任务；哪一关搭出、打开它由引用反推（课程钩子 `needs` / `builds`）；`kit/engine/boards.js` 的 `packed` 把通关时记下的电路当一个元件跑 |
 | 规格 | 传感器、输出、测试、隐藏测试 | 各游戏的关卡数据（数据游戏：`levels/<id>.json`，字段由领域的词汇表给出 schema） |
 | 参考解 / naive 解 | 证明规格可解 / 证明直觉解法不够 | 数据游戏写成蓝图文本；`npm run check` 运行它们（各领域的 `validate`） |
 | 反例 | 失败时具体的那组输入、期望、实际，以及第一处偏离 | 各游戏的失败面板（《状态之图》能定位到第一格算错） |
@@ -542,7 +542,7 @@ opens them to show the resulting feedback.
 
 板在侧栏里画成 SVG（只读蓝图文本，不认识领域：每个元件一个框，写上类型、名字和设置，按读谁排成列；框的区域画在框里；关卡给的节点在两边）；电路编辑器就是游戏里的那一个（`kit/circuit`，经外壳的 `SlotsContext.take`），所以元件、托盘、接线规则和玩家看到的完全一样。领域可以给一个**显示**：`domain.js` 的 `scene(spec, 关卡)` 把一关无头地画成 SVG（《从一根线开始》画每个测试的输入和预期输出波形），表单头上显示它，MCP 的 `render` 也给它；领域不给编辑器。
 
-**提示用在哪里**：`view: 'grid'`——《状态之图》的矩阵（花费、金币、能量、图）、《视觉完备》的卷积核（`kit/domains/image/items/targets.js` 的 `KERNEL`、赛车台的核）；`view: 'ticks'`——《从一根线开始》测试的输入、`given` 要的值、位串 `bits`；`section`——每个领域的测试列表（`tests`、`hidden`，《证明完毕》的 `cases`、定义关的测试）是 `tests`，带来、折叠、搭出的元件和展示理由（`adds`、`fold`、`builds`、`unlock`、`grants`、`showcase`……）是 `course`，有任务的关的 `tasks` 是 `tasks`，《视觉完备》带插图的引言是 `read`。
+**提示用在哪里**：`view: 'grid'`——《状态之图》的矩阵（花费、金币、能量、图）、《视觉完备》的卷积核（`kit/domains/image/items/targets.js` 的 `KERNEL`、赛车台的核）；`view: 'ticks'`——《从一根线开始》测试的输入、`given` 要的值、位串 `bits`；`section`——每个领域的测试列表（`tests`、`hidden`，《证明完毕》的 `cases`、定义关的测试）是 `tests`，带来、折叠的元件和展示理由（`adds`、`fold`、`grants`、`showcase`……）是 `course`，有任务的关的 `tasks` 是 `tasks`，《视觉完备》带插图的引言是 `read`。
 
 **没有做的控件和原因**：图像（按像素画的图）——内容里没有按像素写的图，《视觉完备》的图都是有名字的图案加参数（`S.call('picture')`），《状态之图》的小图是数的矩阵，用矩阵的刷子；世界——各领域的世界参数都是上面这些形状的组合（坐标对、矩阵、记录），没有一个需要单独的控件；坐标对的列表（石头、墙、陷阱）没有在棋盘上点格子的控件——要知道棋盘大小就得认识兄弟字段 `R`、`C`，需要一个说明「这些点落在哪张格子上」的提示，留到按专题重做时有内容用它再加。「运行参考解」在《状态之图》的电路关上不可用：它的 `play` 钩子只能在一局之内从头玩到这一关时打开，单独打开一关时读不进参考解（`run_tests` 照实报出读不进的行）；《证明完毕》的证明板钩子不支持（第 6.6 节）。
 
@@ -554,7 +554,7 @@ opens them to show the resulting feedback.
 
 ### 6.8 元件定义（`parts.json`）
 
-**元件是内容，引擎资源是领域。** 一款游戏的原始元件写在它自己的 `parts.json` 里：口、设置、运算、三面视图都是数据，studio 能直接改，`npm run check` 能查。领域只给**引擎资源**（词汇表的 `op` 种类，实现在领域的 `ops.js`）：一个有名字、有参数的基本运算，比如逐值相加、按坐标采样、按核滤波；和**自定义控件**（`widget` 种类）：内核的控件画不出来的设置或显示。元件按游戏隔离（第 6.3 节）在这里是自然的：同一个领域的两款游戏各有自己的 `parts.json`，名字、说明、口、默认值互不牵动。关卡给的节点（输入、输出、线）不在 `parts.json` 里，是领域的。搭出的件也是 `parts.json` 的一项：它不写 `compute`，写 `inside: [{ task, form? }]`，两者必有且只有一个；它不写口，口从被引用任务的板读出；同一个 `form`（或都不写）的几条按先后是升级链，`form` 不同是件的几种形态。哪一关搭出它、通过哪一关打开它，由课程从引用反推，关卡不写。元件在代码里的领域（`net`、`calculus`、`market`）的 `parts.json` 只放搭出的件。搭出的件可以写 `card`：不跑内部的作品，照一个引擎资源跑（内部仍说它是什么、在哪里得到）；每种形态的名字写在引用上（`label`）。每样件都可以写 `revisions`：说明随课程长（`at` 那一关起，或 `by` 那一关通过以后），元件箱照进度读。
+**元件是内容，引擎资源是领域。** 一款游戏的原始元件写在它自己的 `parts.json` 里：口、设置、运算、三面视图都是数据，studio 能直接改，`npm run check` 能查。领域只给**引擎资源**（词汇表的 `op` 种类，实现在领域的 `ops.js`）：一个有名字、有参数的基本运算，比如逐值相加、按坐标采样、按核滤波；和**自定义控件**（`widget` 种类）：内核的控件画不出来的设置或显示。元件按游戏隔离（第 6.3 节）在这里是自然的：同一个领域的两款游戏各有自己的 `parts.json`，名字、说明、口、默认值互不牵动。关卡给的节点（输入、输出、线）不在 `parts.json` 里，是领域的。搭出的件也是 `parts.json` 的一项：它不写 `compute`，写 `inside: [{ task, form? }]`，两者必有且只有一个；它不写口，口从被引用任务的板读出；同一个 `form`（或都不写）的几条按先后是升级链，`form` 不同是件的几种形态。哪一关搭出它、通过哪一关打开它，由课程从引用反推，关卡不写。元件在代码里的领域（`net`、`calculus`、`market`、`table`）的 `parts.json` 只放搭出的件；《状态之图》的想法（填表顺序、分层……）也是这样的件，引用教它的那个任务，被引用的任务给出口（`ports`）的才是能放上板的元件。搭出的件可以写 `card`：不跑内部的作品，照一个引擎资源跑（内部仍说它是什么、在哪里得到）；每种形态的名字写在引用上（`label`）。每样件都可以写 `revisions`：说明随课程长（`at` 那一关起，或 `by` 那一关通过以后），元件箱照进度读。
 
 ```json
 {
@@ -586,7 +586,7 @@ opens them to show the resulting feedback.
 | `tree` | 拼一句 | `optional`（可以不填） | 一句话的文字：屏幕给出这个任务、这个测试的语言（`CircuitScreen` 的 `language`），词序条拼出（`strip/TreePick.jsx`） |
 | `custom` | 自定义 | `widget`（领域 `widget` 种类的一项）、`params`（合那一项的 schema） | 那一项说 |
 
-每个设置都有：`key`（ASCII，写进蓝图文本）、`label`、`about`（悬停和单子里的一行说明）、`options` 的每一项也可以有 `about`（这个选项做什么：一句完整的话），`default`、`when`（只读设置的式子，为真时才出现：`eq($axis, 'x')`）、`fixed`（只显示，玩家不能改）、`use`（取 `presets` 里的一份，再用自己写的字段覆盖）。`select`、`buttons`、`list` 的选项可以不写出来，写 `from`：一个式子，由领域的资源按卡片接进来的值算出 `[{ value, label }]`（资源这时看到屏幕给的 `context`：任务、测试的文字和这张卡）——《证明完毕》里任取框能取的名字、等量代换能换的位置都是这样算出来的。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的封装件用（关卡的 `builds.settings` 列出预设的名字）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
+每个设置都有：`key`（ASCII，写进蓝图文本）、`label`、`about`（悬停和单子里的一行说明）、`options` 的每一项也可以有 `about`（这个选项做什么：一句完整的话），`default`、`when`（只读设置的式子，为真时才出现：`eq($axis, 'x')`）、`fixed`（只显示，玩家不能改）、`use`（取 `presets` 里的一份，再用自己写的字段覆盖）。`select`、`buttons`、`list` 的选项可以不写出来，写 `from`：一个式子，由领域的资源按卡片接进来的值算出 `[{ value, label }]`（资源这时看到屏幕给的 `context`：任务、测试的文字和这张卡）——《证明完毕》里任取框能取的名字、等量代换能换的位置都是这样算出来的。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的件用（它在 `parts.json` 那一项的 `settings`）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
 
 **运算是一行 ASCII 表达式**（`kit/engine/parts/expr.js`），只能调用领域的引擎资源：
 
@@ -624,7 +624,7 @@ match $op { add: add(a, b), sub: sub(a, b), _: a }    按一个设置的值分�
 
 例：一张「邻域加权」卡片上画方向、三个权重和边界，下面一个读数「权重和」（`plus(plus($a, $b), $c)`）和一个按钮「使权重和为 1」（`set: { a: over($a, plus(plus($a, $b), $c)), … }`，`when: ne(plus(plus($a, $b), $c), 0)`）；格位上一行 `{axis} [{a}, {b}, {c}]`。
 
-**内核替领域做的**：`kit/engine/parts/define.js` 的 `defineParts(file, ops)` 把 `parts.json` 变成引擎的元件表（`inputs`、`outputs`、`params`、`settings`、`eval`），给出每个元件的默认设置；`kit/shell/parts/` 的 `faces.jsx` 给出编辑器的元件描述（名字、口、口名、类别、图标、卡片宽）、托盘的条目和卡片的三面（`PartFace.jsx` 画块，`SettingField.jsx` 画设置）。电路关用 `CircuitLevel` 的 `defined`：领域交出 `{ of(type) → 定义或 null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) }`，定义了的元件的卡片、格位、详情、设置和新元件的默认值都由内核画、内核给，封装件里面的板也一样；领域只画关卡给的节点和封装件。封装件的设置是 `parts.json` 里的预设（关卡的 `builds.settings`），领域用同一个 `SettingField` 画。领域的 `game.js` 在游戏描述上挂 `defined = { of, defaults, ops, widgets? }`，studio 的元件页用它画元件（第 6.7 节）。领域的词汇表有 `op` 种类时，`withParts` 将代码和 `parts.json` 登记的元件一起放进词汇表的 `part` 种类，`S.ref('part')` 可引用任一来源。电路注册表同样合并两份定义，同名时取内容定义。
+**内核替领域做的**：`kit/engine/parts/define.js` 的 `defineParts(file, ops)` 把 `parts.json` 变成引擎的元件表（`inputs`、`outputs`、`params`、`settings`、`eval`），给出每个元件的默认设置；`kit/shell/parts/` 的 `faces.jsx` 给出编辑器的元件描述（名字、口、口名、类别、图标、卡片宽）、托盘的条目和卡片的三面（`PartFace.jsx` 画块，`SettingField.jsx` 画设置）。电路关用 `CircuitLevel` 的 `defined`：领域交出 `{ of(type) → 定义或 null, defaults(type), ops, value(node, ctx, output, face), widgets?, allowed?(type, key) }`，定义了的元件的卡片、格位、详情、设置和新元件的默认值都由内核画、内核给，封装件里面的板也一样；领域只画关卡给的节点和封装件。搭出的件的设置写在它在 `parts.json` 的那一项（`settings`，可以 `use` 预设），领域用同一个 `SettingField` 画。领域的 `game.js` 在游戏描述上挂 `defined = { of, defaults, ops, widgets? }`，studio 的元件页用它画元件（第 6.7 节）。领域的词汇表有 `op` 种类时，`withParts` 将代码和 `parts.json` 登记的元件一起放进词汇表的 `part` 种类，`S.ref('part')` 可引用任一来源。电路注册表同样合并两份定义，同名时取内容定义。
 
 **操作**：`part.add`（新元件，或复制一个）、`part.remove`（还有关卡、课程或板用到它时拒绝）、`part.rename`（改到课程、关卡、板和 `configurations` 里的每一处）、`parts.set` / `parts.unset`（`parts.json` 里的一个字段，路径如 `parts.arithmetic.settings[0].options`、`presets.outside.default`），`text.set` 的 `in: 'parts'`。
 

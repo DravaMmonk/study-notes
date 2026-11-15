@@ -76,7 +76,6 @@
     }
   },
   "robot": "reach",
-  "unlock": "roll",
   "debrief": {
     "title": { "zh": "方向就是含义" },
     "body": [

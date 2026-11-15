@@ -101,10 +101,6 @@
     }
   },
   "robot": "ranger",
-  "unlock": "cost",
-  "builds": {
-    "ports": [{ "reads": "ul" }, { "reads": "up" }, { "reads": "left" }, { "reads": "same" }, { "reads": "start" }]
-  },
   "debrief": {
     "title": { "zh": "编辑距离" },
     "body": [
@@ -123,6 +119,13 @@
     {
       "id": "edit",
       "mode": "circuit",
+      "ports": [
+        { "reads": "ul" },
+        { "reads": "up" },
+        { "reads": "left" },
+        { "reads": "same" },
+        { "reads": "start" }
+      ],
       "testLabel": "{left} → {top}",
       "trace": "edit",
       "after": "edit",

@@ -32,7 +32,6 @@
     }
   },
   "robot": "loop",
-  "unlock": "expect",
   "debrief": {
     "title": { "zh": "期望" },
     "body": [

@@ -177,9 +177,7 @@ const ONCE = {
   showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里') })),
   adds: S.opt(S.list(S.ref('part'), { section: 'course' })),
   tray: TRAY,
-  unlock: S.opt(S.name('part', { section: 'course', about: t('通过它解锁的元件或想法（game.json 的 parts）') })),
   carry: S.opt(S.level({ about: t('第一个任务从这一关玩家留下的电路板开始（必须是先修）') })),
-  builds: S.opt(S.obj({ ports: S.list(S.call('port')), setting: S.opt(S.num()) }, { section: 'course', about: t('通过后最后一个任务的电路板成为元件 unlock：它的口，和它带的一个数') })),
   debrief: S.obj({ title: S.text(), body: TEXTS, note: S.opt(S.text()) }),
 };
 /** What every task has: the mode it is played in (the screen), and its hints. */
@@ -203,6 +201,7 @@ const CIRCUIT = {
   tip: S.opt(S.text()),
   carries: S.opt(S.bool({ about: t('从上一个任务的电路板开始') })),
   unlockToast: S.opt(S.text({ about: t('第一次打开这个任务时说的一句') })),
+  ports: S.opt(S.list(S.call('port'), { section: 'course', about: t('这块板给出的口：parts.json 里引用这个任务的件是一个元件，口就是这些') })),
   noArm: S.opt(S.bool()),
   naive: S.opt(BOARD),
   guide: S.opt(S.list(S.obj({ until: S.opt(S.call('condition')), say: S.text() }), { about: t('一步步的引导：显示第一条 until 还不成立的') })),
@@ -251,14 +250,15 @@ const GAME = S.obj({
   primitives: S.list(S.ref('part')),
   trays: TRAYS,
   concept: S.opt(S.map(S.str(), { about: t('几个元件合起来是一个新概念') })),
-  parts: S.map(S.obj({ name: S.text(), desc: S.text() }), { about: t('关卡解锁的元件和想法：元件箱里的名字和说明') }),
   eras: S.list(ERA, { min: 1 }),
   borrow: S.opt(S.map(S.level(), { about: t('一个想法在元件箱里借用哪一关的电路板') })),
 });
 
 export const vocabulary = defineVocabulary({
   domain: 'table',
-  version: 1,
+  version: 2,
+  // A part or an idea a level unlocks is a parts.json entry whose inside refers to the task that builds or teaches it.
+  removes: ['level.unlock', 'level.builds', 'game.parts'].map((at) => ({ at, why: 'a piece a level unlocks is a parts.json entry whose inside refers to the task that builds or teaches it' })),
   kinds: {
     part: PARTS,
     world: WORLDS,

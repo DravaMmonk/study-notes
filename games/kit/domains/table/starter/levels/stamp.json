@@ -25,28 +25,6 @@
     "const",
     "pass"
   ],
-  "unlock": "counter",
-  "builds": {
-    "ports": [
-      {
-        "way": {
-          "n": 1,
-          "sensor": "up"
-        }
-      },
-      {
-        "way": {
-          "n": 2,
-          "sensor": "left"
-        }
-      },
-      {
-        "start": {
-          "sensor": "start"
-        }
-      }
-    ]
-  },
   "debrief": {
     "title": {
       "zh": "板成了元件"
@@ -65,6 +43,11 @@
         {
           "zh": "「是起点」接放行闸的条件口，常数 1 接数口，再把放行闸接进汇合器。"
         }
+      ],
+      "ports": [
+        { "way": { "n": 1, "sensor": "up" } },
+        { "way": { "n": 2, "sensor": "left" } },
+        { "start": { "sensor": "start" } }
       ],
       "world": "grid",
       "facts": [

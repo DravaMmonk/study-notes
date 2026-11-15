@@ -1,4 +1,4 @@
-// A table game's course, from its content (games/<id>/: game.json, levels, glossary; vocabulary.js says what may be
+// A table game's course, from its content (games/<id>/: game.json, levels, glossary, parts.json; vocabulary.js says what may be
 // in it): the play order and the tree from its eras (../../course.js layout), each level's number, chapter and
 // introduction, its tasks as they are played (a circuit task with what its board is given, its palette and its reference
 // board), the parts its levels build (each running the board it was built from: a packed part, ../../engine/boards.js),
@@ -11,6 +11,7 @@ import { taskLevels } from '../../engine/tasks.js';
 import { trayIn } from '../../engine/trays.js';
 import { defineCourse, eraLevels, layout, offer, pathLevels, reach, usable } from '../../course.js';
 import { T, hydrate, lazy, tr } from './lang.js';
+import { builtPieces, publications, settingsOf } from '../../engine/pieces.js';
 import { isGiven, modelsOf, partsOf } from './model/parts.js';
 import { blank, clone, fitted, fromText, portsProblem, splitSrc, toText } from './model/board.js';
 import { ROBOTS } from './model/robots.js';
@@ -93,10 +94,28 @@ const isCircuit = T => T.mode === 'circuit';
 export function tableCourse(content) {
   // The content with its texts made bilingual strings (lang.js hydrate), a copy frozen as the content is: what the
   // course works out is built beside it, never written into it.
-  const { eras, trays, levels, parts: PARTS, primitives: PRIMITIVES } = deepFreeze(hydrate(content));
+  const hydrated = deepFreeze(hydrate(content));
+  const { eras, trays, primitives: PRIMITIVES } = hydrated;
   // What building the course finds wrong with its content beyond its schema (validate.js reports it).
   const wrong = [];
   const say = (level, text) => wrong.push(`${level}: ${text}`);
+  // The pieces the levels unlock (parts.json, ../../engine/pieces.js builtPieces): a part or an idea, each unlocked by
+  // the level of the task it refers to. A task whose board is given ports (`ports`) builds a part, its board run as one
+  // part with the piece's number (its `value` setting); any other task teaches an idea.
+  const pieces = builtPieces(hydrated.partDefs);
+  const PARTS = Object.fromEntries(Object.entries(pieces).map(([type, p]) => [type, { name: p.name, desc: p.desc }]));
+  const levelOf = new Map(hydrated.levels.flatMap(L => L.tasks.map(t => [t.id, L])));
+  const unlocking = new Map();
+  for (const { type, task } of publications(pieces)) {
+    const L = levelOf.get(task);
+    if (!L) say('parts.json', `${type} refers to task ${task}, which no level has`);
+    else if (unlocking.has(L.id)) say(L.id, `it unlocks both ${unlocking.get(L.id).type} and ${type}`);
+    else unlocking.set(L.id, { type, task, ports: L.tasks.find(t => t.id === task).ports });
+  }
+  const levels = hydrated.levels.map(L => {
+    const u = unlocking.get(L.id);
+    return u ? { ...L, unlock: u.type, ...(u.ports ? { builds: { task: u.task, setting: settingsOf(pieces[u.type]).find(x => x.key === 'value')?.default } } : {}) } : L;
+  });
   // Every board the content writes as blueprint text, with how it reads back on its task (domain.js blueprints); the
   // shell keeps a task's board under the task's id.
   const blueprints = [];
@@ -141,12 +160,12 @@ export function tableCourse(content) {
   const ordered = [...plan.order.filter(id => given.has(id)).map(id => given.get(id)), ...levels.filter(L => !plan.place.has(L.id))];
   for (const id of plan.order) if (!given.has(id)) say(id, 'an era names a level that does not exist');
 
-  /** A circuit task as played: its world's defaults, what its board is given (on the last task of a level that builds a
-   *  part, the part's ports), and its reference and naive boards read from their blueprint text. */
+  /** A circuit task as played: its world's defaults, what its board is given (on a task that builds a part, the part's
+   *  ports), and its reference and naive boards read from their blueprint text. */
   function circuitTask(L, s, robot, last, where) {
     const W = WORLDS[s.world];
     const task = { ...s, facts: s.facts ?? [], dirs: s.dirs ?? {}, filter: s.filter ?? 'all', remember: s.remember ?? [] };
-    const ports = last && L.builds ? L.builds.ports.map(c => portOf(portCall(c), W)) : [];
+    const ports = (s.ports ?? []).map(c => portOf(portCall(c), W));
     const inputs = { offers: offersOf(task, robot), inputs: ports.filter(p => p.input).map(p => p.input), outs: W.outs.map(o => o[0]) };
     const read = text => fitted(fromText(text, inputs), inputs);
     const board = (text, naive) => {
@@ -194,7 +213,7 @@ export function tableCourse(content) {
       const where = tasks.length > 1 ? `${L.id} task ${s.taskId}` : L.id;
       return isCircuit(s) ? circuitTask(L, s, robot, k === tasks.length - 1, where) : s.mode === 'fill' && s.grid ? gridTask(s) : s;
     }));
-    if (L.builds) registerBuilt(L, read.get(L.id).at(-1));
+    if (L.builds) registerBuilt(L, read.get(L.id).find(s => s.taskId === L.builds.task));
     const pages = L.intro.map(page => (page.fig ? { ...page, fig: figure(page.fig) } : page));
     return {
       ...L,
@@ -203,11 +222,10 @@ export function tableCourse(content) {
     };
   });
 
-  /** The part a level builds: its last task's board run as one part (packed), the player's once they pass the level. */
+  /** The part a level builds: its task's board run as one part (packed), the player's once they pass the level. */
   function registerBuilt(L, s) {
-    if (!isCircuit(s)) return say(L.id, 'it builds a part, but its last task is no circuit');
+    if (!isCircuit(s)) return say(L.id, 'it builds a part, but the task it refers to is no circuit');
     const W = WORLDS[s.world], ports = s.ports, out = W.outs[0];
-    if (!PARTS[L.unlock]) say(L.id, `builds ${L.unlock}, which game.json parts does not name`);
     const index = Object.fromEntries(ports.map((p, k) => [p.sensor ?? p.input, String(k)]));
     const idle = type => (type.startsWith('bool') ? false : null);
     built[L.unlock] = {

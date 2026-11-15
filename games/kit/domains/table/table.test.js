@@ -46,12 +46,11 @@ test('a board that becomes a part reads exactly its ports', () => {
 const t = s => ({ zh: s, en: s });
 const twoLevels = () => ({
   id: 't', title: t('t'), primitives: ['msum', 'const', 'pass', 'block'],
-  parts: { counter: { name: t('counter'), desc: t('d') } },
+  partDefs: { parts: { counter: { name: t('counter'), desc: t('d'), inside: [{ task: 'build' }] } } },
   eras: [{ id: 'e', machine: 'scout', foundation: ['build', 'reuse'], chapter: { title: t('e'), desc: t('e') } }],
   levels: [
-    { id: 'build', intro: [], robot: 'scout', adds: ['msum', 'const', 'pass'], unlock: 'counter',
-      builds: { ports: [{ way: { n: 1, sensor: 'up' } }, { way: { n: 2, sensor: 'left' } }, { start: { sensor: 'start' } }] },
-      tasks: [{ id: 'build', mode: 'circuit', world: 'grid', facts: ['start'], tests: [{ R: 3, C: 4 }], expected: [10], solution: ['k = const[value=1]()', 'g = pass(facts.start, k)', 'm = msum(view.up, view.left, g)', 'cell <- m'] }] },
+    { id: 'build', intro: [], robot: 'scout', adds: ['msum', 'const', 'pass'],
+      tasks: [{ id: 'build', mode: 'circuit', world: 'grid', facts: ['start'], ports: [{ way: { n: 1, sensor: 'up' } }, { way: { n: 2, sensor: 'left' } }, { start: { sensor: 'start' } }], tests: [{ R: 3, C: 4 }], expected: [10], solution: ['k = const[value=1]()', 'g = pass(facts.start, k)', 'm = msum(view.up, view.left, g)', 'cell <- m'] }] },
     { id: 'reuse', intro: [], robot: 'scout', adds: ['block'],
       tasks: [{ id: 'reuse', mode: 'circuit', world: 'grid', facts: ['start', 'rock'],
         tests: [{ R: 4, C: 4, rocks: [[1, 1]] }, { R: 4, C: 5, rocks: [[1, 2], [2, 0]] }, { R: 5, C: 5, rocks: [[1, 3], [2, 1], [3, 3]] }], expected: [8, 12, 10],

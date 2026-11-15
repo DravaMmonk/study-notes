@@ -90,7 +90,6 @@
     }
   },
   "robot": "reach",
-  "unlock": "viterbi",
   "debrief": {
     "title": { "zh": "维特比算法" },
     "body": [

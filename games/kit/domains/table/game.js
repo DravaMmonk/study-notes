@@ -24,7 +24,8 @@ function IntroFigure({ fig }) {
 }
 
 /**
- * content (../../engine/content.js): { id, title, kicker, lede, eras, primitives, parts, borrow?: { part: level id }
+ * content (../../engine/content.js): { id, title, kicker, lede, eras, primitives, partDefs (parts.json: the parts and
+ * ideas its levels unlock), borrow?: { part: level id }
  * the level whose board a part that is an idea is tried on, levels, glossary }.
  */
 export default function tableGame(content) {
@@ -97,7 +98,7 @@ export default function tableGame(content) {
     core: (level) => isCore(course, level),
     parts: {
       // The primitives, and the parts a level that is played unlocks (a retired level's card would never be earned).
-      all: [...primitives, ...Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, name: part.name, desc: part.desc, icon: lookIcon(key) }))],
+      all: [...primitives, ...Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, piece: key, name: part.name, desc: part.desc, icon: lookIcon(key) }))],
       // The part on a bench: its level's board (a primitive's, the level that brings it in), with inputs, constants and
       // models to change and a Run button. A built part runs, and opens to show, the board the player passed its level with.
       demo: (part, { phone, progress }) => {

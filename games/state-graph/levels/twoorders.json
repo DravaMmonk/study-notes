@@ -27,7 +27,6 @@
     }
   },
   "robot": "broom",
-  "unlock": "anyorder",
   "debrief": {
     "title": { "zh": "合法的顺序不止一种" },
     "body": [
