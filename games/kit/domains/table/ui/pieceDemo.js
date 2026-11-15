@@ -6,7 +6,8 @@ import { indexEdges } from '../../../graph.js'
 import { splitSource, wireEdges } from '../../../engine/wire-source.js'
 import { T } from '../../../shell/i18n.js'
 import { signal } from '../model/format.js'
-import { WORLDS, windowOf } from '../model/worlds.js'
+import { recordReads } from '../model/world.js'
+import { WORLDS } from '../model/worlds.js'
 import { ROBOTS } from '../model/robots.js'
 import { isCard, isGiven, modelsOf } from '../model/parts.js'
 import { picksOf } from '../model/board.js'
@@ -14,7 +15,7 @@ import { testLabel } from '../model/verdict.js'
 import { experimentParts } from './board.js'
 import { probeValues, wireStateOf } from './circuitRun.js'
 import { boardDrawing } from './scene.js'
-import { robotDrawing } from './robotDrawing.js'
+import { robotDrawing, robotWindow } from './robotDrawing.js'
 
 /** A board with each sensor its cards read on a card of its own ('tap'): the bench sets each one by hand. */
 function asTaps(b) {
@@ -55,9 +56,8 @@ function benchFor(model, tasks, borrow, key) {
     : asTaps(s.solution)
   const lit = circuit.nodes.filter((n) => n.type === 'tap').map((n) => n.params.sensor)
   const focus = new Set(b ? [key] : L.adds ?? [])
-  const avail = [...s.given.offers.view, ...s.given.offers.facts]
   const { tallest, ...xy } = columns(circuit)
-  return { L, s, V, o: s, robot, runs, circuit: place(circuit, xy), lit, avail, focus, built: b ? key : null, height: Math.round(Math.min(440, Math.max(260, tallest * 0.6 + 40))) }
+  return { L, s, V, o: s, robot, runs, circuit: place(circuit, xy), lit, focus, built: b ? key : null, height: Math.round(Math.min(440, Math.max(260, tallest * 0.6 + 40))) }
 }
 const place = (circ, xy) => ({ ...circ, nodes: circ.nodes.map((n) => ({ ...n, x: xy[n.id][0], y: xy[n.id][1] })) })
 
@@ -92,7 +92,7 @@ const choice = (key, label, options, value, change) => ({ key, kind: 'choice', l
 export function pieceDemo(model, course, tasks, borrow, key) {
   const bench = benchFor(model, tasks, borrow, key)
   if (!bench) return null
-  const { L, s, V, robot, runs, circuit, lit, avail, focus, built, height } = bench
+  const { L, s, V, robot, runs, circuit, lit, focus, built, height } = bench
   const { def, hasValue, valueDefault, valueOptions } = model
   const taskView = course.forTask(s)
   const packed = packedBoards(course, (opened, view) => ({
@@ -109,13 +109,7 @@ export function pieceDemo(model, course, tasks, borrow, key) {
     const answerKeys = Object.values(keys)
     const shown = new Map(table)
     if (!report) answerKeys.forEach((key) => shown.delete(key))
-    const reads = new Set(), empty = new Set()
-    const get = (key) => {
-      reads.add(key)
-      if (shown.has(key)) return shown.get(key)
-      empty.add(key)
-      return null
-    }
+    const { reads, empty, get } = recordReads(shown)
     const input = (id) => (id in overrides ? overrides[id] : V.read(t, cell, id, get, s))
     const inputs = Object.fromEntries(lit.map((id) => [id, input(id)]))
     const inputKey = (id) => {
@@ -131,21 +125,10 @@ export function pieceDemo(model, course, tasks, borrow, key) {
         : { ...state, table: new Map(table).set(key, value), typed: new Set(typed).add(key) })
     }
 
-    const mark = (item) => ({
-      ...item,
-      value: item.key !== null && shown.has(item.key) ? signal(shown.get(item.key)) : '',
-      state: empty.has(item.key) ? 'empty' : reads.has(item.key) ? 'read' : '',
-    })
-    const win = windowOf(V, t, cell, robot.vision, s)
-    win.wins = win.wins.map((item) => ({ ...item, cells: item.cells.map(mark) }))
-    if (win.arm?.cells) win.arm.cells = win.arm.cells.map(mark)
-    if (win.arm?.sweeps) win.arm.sweeps = win.arm.sweeps.map((item) => ({ ...item, cells: item.cells.map(mark) }))
-    if (win.arm && (s.noArm || !robot.arm)) win.arm = null
-    if (win.arm) win.arm.filter = s.filter
-    Object.assign(win, { facts: (s.facts ?? []).map((id) => ({ id, value: signal(input(id)) })), robot, probe: report?.probe ?? {} })
+    const window = robotWindow({ world: V, test: t, task: s, robot, cell, shown, reads, empty, lit, readFact: input })
     const drawings = [
       { editable: true, drawing: boardDrawing({ ...V.scene(t, null, { ...s, bench: { cell, at: answerKeys, shown, reads, empty, typed, sel: null } }), look: robot.look }, { label: T('测试棋盘'), ...(L.boardOpt || { minScale: 0.5, maxScale: 1.1 }) }, null, 'sg-bench-board') },
-      { frame: 'sg-bench-view', drawing: robotDrawing({ sensors: V.sensors, avail, lit, win }) },
+      { frame: 'sg-bench-view', drawing: robotDrawing(window) },
     ]
     const readout = (node) => {
       const controls = []

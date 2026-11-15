@@ -1,3 +1,4 @@
+import { tableAt } from '../../../engine/machine.js'
 import { splitSource } from '../../../engine/wire-source.js'
 import { useEffect, useState } from 'react'
 import { tr, lazy } from '../lang.js'
@@ -5,12 +6,13 @@ import { ROBOTS } from '../model/robots.js'
 import { picksOf, withPicks } from '../model/board.js'
 import { isCard, modelsOf } from '../model/parts.js'
 import { signal } from '../model/format.js'
-import { WORLDS, windowOf } from '../model/worlds.js'
+import { recordReads } from '../model/world.js'
+import { WORLDS } from '../model/worlds.js'
 import { guideAt } from '../items/conditions.js'
 import { trace } from '../items/traces.js'
 import { panelData } from '../items/panels.js'
 import { boardDrawing } from './scene.js'
-import { robotDrawing } from './robotDrawing.js'
+import { robotDrawing, robotWindow } from './robotDrawing.js'
 import { missingRobotOutput, robotHint, tutorialFailure } from '../model/verdict.js'
 import { probeValues, wireStateOf } from './circuitRun.js'
 import { buzz, typing, useToast, useVerdict } from '../../../shell/useBoardInteraction.jsx'
@@ -24,13 +26,8 @@ function sandbox(model, world, task, test, circuit, state, workshopParts) {
   const keys = world.keys(test, cell)
   const shown = new Map(world.base?.(test, task) ?? [])
   for (const [key, value] of Object.entries(state.typed)) shown.set(key, value)
-  const reads = new Set(), empty = new Set(), probe = {}
-  const get = (key) => {
-    reads.add(key)
-    if (shown.has(key)) return shown.get(key)
-    empty.add(key)
-    return null
-  }
+  const { reads, empty, get } = recordReads(shown)
+  const probe = {}
   try {
     const { out } = model.evaluate(circuit, (id, layer) => world.read(test, cell, id, get, task, layer), world.outs.map(([key]) => key), probe, undefined, workshopParts)
     for (const [id, key] of Object.entries(keys)) shown.set(key, out[id])
@@ -46,32 +43,16 @@ function visible(run, at, ended, state) {
   return { ...view, k: at + 1, end: ended, focus: state.focus, res }
 }
 
-function sensorWindow(world, test, task, view, box, circuit, read, robot) {
-  const step = view && view.res.steps[view.focus ?? view.k - 1]
-  const cell = step?.cell ?? box.cell
-  const reads = step ? new Set(step.reads) : box.reads
-  const shown = box?.shown ?? new Map(view.res.base)
-  if (view) for (const s of view.res.steps.slice(0, (view.focus ?? view.k - 1) + 1)) {
-    for (const [key, value] of s.writes ?? []) shown.set(key, value)
+function observe(view, box) {
+  if (!view) return box
+  const stepAt = view.focus ?? view.k - 1
+  const { cell, reads, empty, probe } = view.res.steps[stepAt]
+  return {
+    cell, probe,
+    shown: tableAt(view.res, stepAt + 1),
+    reads: new Set(reads),
+    empty: new Set(empty === undefined ? [] : [empty]),
   }
-  const isEmpty = (key) => (step ? step.empty === key : box.empty.has(key))
-  const paint = (x) => ({
-    ...x,
-    value: x.v !== undefined ? signal(x.v) : x.key !== null && shown.has(x.key) ? signal(shown.get(x.key)) : '',
-    state: isEmpty(x.key) ? 'empty' : reads.has(x.key) ? 'read' : '',
-  })
-  const win = windowOf(world, test, cell, robot.vision, task)
-  win.wins = win.wins.map((w) => ({ ...w, cells: w.cells.map(paint) }))
-  if (win.arm && (task.noArm || !robot.arm)) win.arm = null
-  if (win.arm?.cells) win.arm.cells = win.arm.cells.map(paint)
-  if (win.arm?.sweeps) win.arm.sweeps = win.arm.sweeps.map((s) => ({ ...s, cells: s.cells.map(paint) }))
-  if (win.arm) win.arm.filter = task.filter
-  win.facts = task.facts.map((id) => ({ id, value: signal(read(id, cell, shown, 'self')) }))
-  win.robot = robot
-  const avail = [...task.given.offers.view, ...task.given.offers.facts]
-  const lit = circuit.nodes.flatMap(picksOf)
-  const probe = step?.probe ?? box?.probe ?? {}
-  return { win, avail, lit, sensors: world.sensors, cell, shown, probe }
 }
 
 function noteOf(task, world, view, k) {
@@ -107,7 +88,12 @@ export function useRobotWorld({ screen, task, test, run, report, at, ended, circ
   const live = Boolean(run.run && !run.run.over)
   const box = view ? null : sandbox(model, world, task, test, circuit, state, workshopParts)
   const read = (id, cell, values, layer) => world.read(test, cell, id, (key) => values.get(key) ?? null, task, layer)
-  const ui = sensorWindow(world, test, task, view, box, circuit, read, robot)
+  const observation = observe(view, box)
+  const { cell, shown, probe } = observation
+  const ui = robotWindow({
+    world, test, task, robot, ...observation, lit: circuit.nodes.flatMap(picksOf),
+    readFact: (id) => read(id, cell, shown, 'self'),
+  })
   const onCell = (id) => {
     if (live) return
     if (!view) {
@@ -165,7 +151,7 @@ export function useRobotWorld({ screen, task, test, run, report, at, ended, circ
   } : null
   const scene = { ...world.scene(test, view, { ...task, ...(view?.end && view.pass && task.trace ? trace(task.trace, test) : {}), bench: box }), look: robot.look }
   const after = task.after ? panelData(task.after, test, view, run.states) : null
-  const values = probeValues(ui.probe)
+  const values = probeValues(probe)
   return {
     notice,
     pad,
@@ -180,7 +166,7 @@ export function useRobotWorld({ screen, task, test, run, report, at, ended, circ
     after,
     returnAction: view?.end && !live ? { label: T('回到棋盘测试', 'Back to the test board'), onClick: () => put({ bench: true, focus: null }) } : null,
     cardDrawing: (node, readOnly) => isCard(node.type) ? robotDrawing(ui, node.type, readOnly ? null : toggle) : null,
-    portValue: (node, port) => isCard(node.type) ? signal(read(port, ui.cell, ui.shown, 'self')) : undefined,
+    portValue: (node, port) => isCard(node.type) ? signal(read(port, cell, shown, 'self')) : undefined,
     wireState: wireStateOf(values),
     choices: (node) => choices(node.type),
     swap: (node, type) => {

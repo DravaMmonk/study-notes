@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { Halt, MISSING, PartError, evaluate } from './circuit.js'
 import { packed, runBoard, sink, source } from './boards.js'
-import { walk } from './machine.js'
+import { tableAt, walk } from './machine.js'
 import { insideAt, paceOf, viewAt } from './trace.js'
 import { reportRuns, runOutputTests } from './test-run.js'
 import { withHidden } from './tests.js'
@@ -143,12 +143,15 @@ test('a walk fills a table and stops at a key not written yet', () => {
   assert.equal(run([1, 2, 3, 4, 5]).value, 8)
   const stopped = run([1, 3, 2])
   assert.deepEqual(stopped.error, { cell: 3, key: 2 })
+  assert.deepEqual([...tableAt(stopped, stopped.steps.length)], [[0, 1], [1, 1]])
 })
 
 test('a walk in rounds settles', () => {
   const r = walk({ order: [1, 2], keys: (i) => ({ v: i }), rounds: true, step: (i, get) => ({ out: { v: Math.min(5, (get(3 - i) ?? 0) + 1) } }), answer: (t) => t.get(2) })
   assert.equal(r.value, 5)
   assert.ok(r.rounds > 1)
+  assert.deepEqual([...tableAt(r, 2)], [[1, 1], [2, 2]])
+  assert.deepEqual(tableAt(r, r.steps.length), r.table)
 })
 
 test('a level runs its tests through the domain, hidden ones too', () => {

@@ -13,6 +13,8 @@ import { modelOf } from './model/run.js';
 import { partsOf } from './model/parts.js';
 import { restoreRobotBoard, robotBlueprint, wiring } from './model/wiring.js';
 import { WORLDS } from './model/worlds.js';
+import { ROBOTS } from './model/robots.js';
+import { robotWindow } from './ui/robotDrawing.js';
 import { inspectRobotCase, robotConstraint } from './model/verdict.js';
 import { validate } from './validate.js';
 
@@ -36,6 +38,19 @@ test('author checks use intermediate cells when the task grades the entire table
   const check = (task) => validate({ levels, table: { run, wrong: [], played: new Map([['example', [task]]]) } });
   assert.deepEqual(check(task), [{ text: '2 runs' }]);
   assert.match(check({ ...task, checkAll: false })[0].text, /naive board passes every test/);
+});
+
+test('the robot window shows intrinsic sweep values and recorded table values', () => {
+  const world = WORLDS.pieces;
+  const picture = robotWindow({
+    world, test: { s: 'cats', dict: { cats: 0, ats: 2 } }, robot: ROBOTS.broom,
+    task: { facts: [], given: { offers: { view: ['seg', 'cost'], facts: [] } } },
+    cell: { i: 4, id: '4' }, shown: new Map([['0', 5], ['1', null]]), reads: new Set(['0', '2']),
+    empty: new Set(['2']), lit: ['cost'],
+  });
+  const [prior, cost] = picture.win.arm.sweeps;
+  assert.deepEqual(cost.cells.map(({ value }) => value), ['0', '2', '—', '—']);
+  assert.deepEqual(prior.cells.map(({ value, state }) => [value, state]), [['5', 'read'], ['—', ''], ['', 'empty'], ['', '']]);
 });
 
 test('blueprint text reads into a board and writes back the same', () => {

@@ -2,11 +2,34 @@
 import { L } from '../../../shell/i18n.js'
 import { ICONS } from './glyphs.js'
 import { tr } from '../lang.js'
+import { signal } from '../model/format.js'
+import { windowOf } from '../model/world.js'
 import { MARKS, markOf, robotGlyph } from './svg.js'
 
 const esc = (v) => String(L(v) ?? '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch])
 const mark = (kind) => Object.hasOwn(MARKS, kind) ? `<svg class="mk mk-${esc(kind)} mk-ico" viewBox="0 0 12 12" aria-hidden="true">${MARKS[kind]}</svg>` : ''
 const svg = (shape, cls, box) => `<svg class="${cls}" viewBox="${box}" aria-hidden="true">${shape}</svg>`
+
+/** Paint one robot observation for both the task and the component experiment. */
+export function robotWindow({ world, test, task, robot, cell, shown, reads, empty, lit, readFact }) {
+  const paint = (sample) => ({
+    ...sample,
+    value: sample.v !== undefined ? signal(sample.v) : sample.key !== null && shown.has(sample.key) ? signal(shown.get(sample.key)) : '',
+    state: empty.has(sample.key) ? 'empty' : reads.has(sample.key) ? 'read' : '',
+  })
+  const window = windowOf(world, test, cell, robot.vision, task)
+  const arm = !task.noArm && robot.arm ? window.arm : null
+  const win = {
+    robot,
+    wins: window.wins.map((pane) => ({ ...pane, cells: pane.cells.map(paint) })),
+    arm: arm && (arm.sweeps
+      ? { ...arm, sweeps: arm.sweeps.map((sweep) => ({ ...sweep, cells: sweep.cells.map(paint) })) }
+      : { ...arm, cells: arm.cells.map(paint) }),
+    facts: task.facts.map((id) => ({ id, value: signal(readFact(id)) })),
+  }
+  const avail = [...task.given.offers.view, ...task.given.offers.facts]
+  return { win, avail, lit, sensors: world.sensors }
+}
 
 export function robotDrawing({ sensors, avail, lit, win }, part, onPick) {
   const picked = avail.filter((x) => lit.includes(x))

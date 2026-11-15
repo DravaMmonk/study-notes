@@ -31,6 +31,7 @@
 // o: the task's settings (course.js): dirs, scan, filter (the sweeping arm's filter), rounds (scan again and again
 //   until the table stops changing), remember (the keys a maze's layers keep), and its world's other parameters.
 
+import { tableAt } from '../../../engine/machine.js';
 import { E } from './scene.js';
 import { T } from '../lang.js';
 import { signal } from './format.js';
@@ -103,6 +104,18 @@ export const visibleSensors = (V, vision) => Object.values(V.sensors).filter(s =
 /** The sensors of one family (the arm's, the facts about its own cell). */
 export const sensorsOf = (V, family) => Object.values(V.sensors).filter(s => s.family === family).map(s => s.id);
 
+/** Read a sandbox table, recording which cells were read and which were empty. */
+export function recordReads(shown) {
+  const reads = new Set(), empty = new Set();
+  const get = (key) => {
+    reads.add(key);
+    if (shown.has(key)) return shown.get(key);
+    empty.add(key);
+    return null;
+  };
+  return { get, reads, empty };
+}
+
 /** The robot's window: (2·vision + 1)² board cells around it, plus the arm's cells. */
 export function windowOf(V, t, c, vision, o = {}) {
   const n = 2 * vision + 1, [r, col] = V.here(t, c), cells = [];
@@ -130,8 +143,7 @@ export function look(view, answerKeys, base = [], bench = null) {
   const chg = new Set();
   if (view) {
     const { res, k } = view, focused = view.focus !== null && view.focus !== undefined;
-    shown = new Map(res.base);
-    res.steps.slice(0, k).forEach(s => (s.writes || []).forEach(([key, v]) => shown.set(key, v)));
+    shown = tableAt(res, k);
     const ai = focused ? view.focus : view.halt || !view.end ? k - 1 : -1;
     act = ai >= 0 ? res.steps[ai] : null;
     last = res.steps[k - 1];

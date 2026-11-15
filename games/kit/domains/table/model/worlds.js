@@ -15,6 +15,6 @@ import { vgrid } from './worlds/value.js';
 import { tags } from './worlds/tags.js';
 import { pic } from './worlds/picture.js';
 
-export { visibleSensors, sensorsOf, windowOf } from './world.js';
+export { visibleSensors, sensorsOf } from './world.js';
 
 export const WORLDS = { grid, gridYes, piles, tri, lawn, strip, pile, coins, pieces, rob1, rob2, ring, prefix, heights, gains, keys: keysMaze, river, stock, align, local, knap, roll, interval, vgrid, tags, pic };

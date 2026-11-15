@@ -75,7 +75,7 @@ export const coins = line({
  *  may stand alone at t.letter, when the level allows it. null: the piece can't be cut off. */
 const pieceCost = (t, w) => {
   const d = Array.isArray(t.dict) ? Object.fromEntries(t.dict.map(x => [x, 1])) : t.dict;
-  return w in d ? d[w] : w.length === 1 && t.letter !== undefined ? t.letter : null;
+  return Object.hasOwn(d, w) ? d[w] : w.length === 1 && t.letter !== undefined ? t.letter : null;
 };
 /** Cutting a string into pieces at the least cost: position i is "the first i letters". The arm sweeps every earlier
  *  cut point j and brings two segments of the same length: the table there, and what the piece from j to here costs. */
@@ -87,7 +87,14 @@ export const pieces = line({
     const js = Array.from({ length: i }, (_, j) => j);
     return { label: tr('扫过前面每个切点', 'sweeps every earlier cut'), sweeps: [
       { sensor: 'seg', label: tr('切在那里', 'cut there'), cells: js.map(j => ({ key: String(j), label: String(j) })) },
-      { sensor: 'cost', label: tr('那里到这里的一块', 'the piece from there to here'), cells: js.map(j => ({ key: null, label: t.s.slice(j, i), v: pieceCost(t, t.s.slice(j, i)), out: pieceCost(t, t.s.slice(j, i)) === null })) },
+      {
+        sensor: 'cost',
+        label: tr('那里到这里的一块', 'the piece from there to here'),
+        cells: js.map(j => {
+          const label = t.s.slice(j, i), v = pieceCost(t, label);
+          return { key: null, label, v, out: v === null };
+        }),
+      },
     ] };
   },
   segment: (t, { i }, get, o, id) => Array.from({ length: i }, (_, j) => (id === 'cost' ? pieceCost(t, t.s.slice(j, i)) : get(String(j)))),

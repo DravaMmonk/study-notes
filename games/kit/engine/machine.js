@@ -3,6 +3,15 @@
 // steps, which table keys a step writes, and what the answer is; the board reads earlier keys through `get`.
 import { Halt } from './circuit.js'
 
+/** The table at a point in a walk, after the first `count` recorded steps. */
+export function tableAt({ base, steps }, count) {
+  const table = new Map(base)
+  for (const step of steps.slice(0, count)) {
+    for (const [key, value] of step.writes ?? []) table.set(key, value)
+  }
+  return table
+}
+
 /** How many times a walk in rounds may repeat before it counts as never settling. */
 export const MAX_ROUNDS = 50
 
