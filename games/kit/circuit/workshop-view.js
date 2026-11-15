@@ -89,7 +89,6 @@ export function workshopView(circuit, library, available, runtime) {
             defaults: (type) => known(type) ? {} : original.defaults?.(type),
             text: { ...original.text, settings: (node) => own(node) ? [] : original.text?.settings?.(node) },
             inputs: (node) => own(node) ? indexes.get(node.type).inputs : original.inputs(node),
-            availableInputs: (node, ports) => own(node) ? ports : original.availableInputs?.(node, ports) ?? ports,
             outputs: (node) => own(node) ? outputsOf(indexes.get(node.type)) : original.outputs(node),
             packed: (node) => own(node) || original.packed?.(node),
             portLabel: (node, port) => own(node) ? port : original.portLabel?.(node, port),

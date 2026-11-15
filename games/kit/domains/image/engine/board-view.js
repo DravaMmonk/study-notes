@@ -32,7 +32,6 @@ export function imageBoards(image) {
       return {
         ...fixed.wiring(task, circuit),
         ...parts,
-        availableInputs: (node, ports) => ports.filter((port) => parts.inputs(node).includes(port)),
         portLabel: (node, port) => fixed.isFixed(node.type) ? labels[port] ?? String(port).toUpperCase() : kit.types[node.type]?.inputLabels?.[port] ?? labels[port] ?? port,
         valueView: (node) => (node.type === 'input' ? task.views?.in : node.type === 'output' ? task.views?.out : task.views?.mid ?? task.views?.out) ?? 'pixels',
       }

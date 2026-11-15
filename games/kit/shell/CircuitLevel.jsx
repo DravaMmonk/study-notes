@@ -31,7 +31,7 @@ import { PickMark } from './EditMarks.jsx'
 import { usePlayback } from './usePlayback.jsx'
 import { checkAction, useCheckOnce } from './useCheckOnce.js'
 import Workbench, { TestStatus } from './Workbench.jsx'
-import { definedFaces, definedParts } from './parts/faces.jsx'
+import { definedFaces } from './parts/faces.jsx'
 
 // A circuit level, the same in every game (games/DESIGN.md 6.3): the board the player wires on the shared editor
 // (a desktop's canvas, a phone's slot board), the parts to place (palette, tray), the level's saved boards (the
@@ -183,7 +183,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   tabs            false: the tests are picked in the results, not in tabs
  *   scope           names the board for undo (a level's stage; default the level)
  */
-export default function CircuitLevel({ screen, board, run, stages = null, parts: given, trayParts, defined = null, items = [], folded = [], types, create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
+export default function CircuitLevel({ screen, board, run, stages = null, parts, trayParts, defined = null, items = [], folded = [], types, create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
   const { game, level, phone } = screen
   const stored = board.circuit
   const ownRoot = useRef(null)
@@ -192,7 +192,6 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const [target, setTarget] = useState(null) // the frame region a new card goes into (desktop)
   const [detail, setDetail] = useState(null)
   const [settingError, setSettingError] = useState(null)
-  const parts = useMemo(() => (defined ? definedParts(given, defined.of, defined.ops) : given), [given, defined?.of])
   const circuit = useMemo(() => {
     const opening = blockPreset(stored, stages?.stages ?? [], parts)
     return phone ? opening : withNewSlots(opening, parts)
@@ -222,9 +221,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   }
   // Packed parts: what each one runs, and what every card inside it gives at the step shown.
   const top = { circuit, parts, level: level.source, top: true }
-  // The boards inside packed parts hold defined parts too.
-  const opened = packed && defined ? { ...packed, open: (node, at) => { const r = packed.open(node, at); return r && { ...r, parts: definedParts(r.parts, defined.of, defined.ops) } } } : packed
-  const inside = packed ? insideOf({ top, ...opened, card, describe: describeOf, sheet: detailOf }) : null
+  const inside = packed ? insideOf({ top, ...packed, card, describe: describeOf, sheet: detailOf }) : null
   const isPacked = (node, at) => Boolean(inside?.is(node, at))
   const ctx = { view, board: top, path: [], readOnly: false, setParams: setNode }
   const step = packed?.trace?.()?.step

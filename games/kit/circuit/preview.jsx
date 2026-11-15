@@ -2,9 +2,11 @@ import { lazy, Suspense, useMemo } from 'react'
 import CanvasEditor from './CanvasEditor.jsx'
 import SlotBoard from './SlotBoard.jsx'
 import { L, tr } from '../shell/i18n.js'
-import { evalSettings } from '../engine/parts/define.js'
+import { circuitBoard, primitivesOnly } from '../engine/board-cards.js'
+import { definitionPorts, evalSettings } from '../engine/parts/define.js'
 import PartFace from '../shell/parts/PartFace.jsx'
-import { definedParts, nextParams } from '../shell/parts/faces.jsx'
+import { nextParams } from '../shell/parts/faces.jsx'
+import { withPartLabels } from './board-parts.js'
 import PieceSheet, { Implementations, Ports, Settings, marker } from '../shell/parts/PieceSheet.jsx'
 
 // The circuit editor's pieces drawn (games/DESIGN.md 6.7, 6.8). A primitive's scenes are its three faces — the desktop
@@ -25,7 +27,7 @@ const BuiltBoard = lazy(() => import('./BuiltBoard.jsx'))
 
 const NONE = { values: new Map(), errors: new Map() }
 const at = (path) => JSON.stringify(path)
-const base = { inputs: () => [], role: () => 'part', label: () => '', portLabel: () => '', family: () => null, icon: () => null, outputs: () => null, packed: () => false }
+const previewBoard = circuitBoard({ cards: [] })
 
 function Code({ path, label, text, picked, ok = null }) {
   return (
@@ -46,7 +48,10 @@ function Face({ piece, game, scene, edit, state }) {
   const def = defined.of(type)
   const params = paramsOf(type, defined, state)
   const setParams = state[1]
-  const parts = useMemo(() => definedParts(base, defined.of, defined.ops), [defined])
+  const parts = useMemo(() => {
+    const circuit = primitivesOnly(previewBoard, { [type]: definitionPorts(def, defined.ops) })
+    return withPartLabels(previewBoard.wiring(null, circuit), defined.of)
+  }, [type, def, defined])
   const node = { id: 'p', type, params, x: 40, y: 30 }
   const graph = { nodes: [node], wires: [] }
   const set = (patch, changed) => setParams((p) => nextParams(def, { params: p ?? defined.defaults(type) }, patch, changed, defined.ops))
@@ -92,7 +97,7 @@ export function preview(piece, { game, scene, edit = null, state = [undefined, (
   if (sample || experiment || inside) return <Suspense key={shown.key} fallback={<div className="board-loading">{tr('载入中…')}</div>}>
     {sample && <SampleCircuit example={sample} defined={game.defined} phone={phone} />}
     {experiment && <PieceExperiment spec={experiment} phone={phone} />}
-    {inside && <BuiltBoard type={shown.piece} {...inside} />}
+    {inside && <BuiltBoard type={shown.piece} defined={game.defined} {...inside} />}
   </Suspense>
   return faced(piece, game) ? <Face piece={piece} game={game} scene={scene} edit={edit} state={state} /> : null
 }

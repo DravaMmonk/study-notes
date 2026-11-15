@@ -10,6 +10,7 @@ import { useWorkshop } from './useWorkshop.js'
 export function useCircuitWorkshop({ screen, course, base, cards, portLabels, defined, defaults, settings, ready }) {
   const { game, level: entry, flags, workshop: profile } = screen
   const level = entry.source
+  const definition = base.defined ?? defined
   const { library, update } = useWorkshop()
   const [notice, setWorkshopNotice] = useState('')
   const offers = useMemo(() => base.offerIn(level, flags), [base, level, flags])
@@ -26,8 +27,8 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
   }))
   const workshop = workshopView(base, library, available, runtime)
   const { known, view: circuit, resolve } = workshop
-  const parts = partsFor(level, circuit, { cards, portLabels })
-  const packed = packedView(course, { cards, portLabels }, workshop)
+  const parts = partsFor(level, circuit, { cards, portLabels, defined })
+  const packed = packedView(course, { cards, portLabels, defined }, workshop)
   const personal = workshopEntries(library).filter((piece) => available(piece)
     && !(piece.tray && JSON.parse(piece.tray)[0] === game.id && offers.types.includes(piece.rewardType)))
   const pickedTrays = game.course?.tray(level) ?? []
@@ -47,7 +48,7 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
     open: (node) => openForCapture(node, { level, circuit: graph, parts }),
     needsSnapshot: (type) => Boolean(game.partDefs?.parts?.[type]?.inside),
     ...details, domain: profile.domain, parts, resolve: runtime, identity,
-    defaults: (type) => defined?.of(type) ? defined.defaults(type) : defaults?.(type),
+    defaults: (type) => definition?.of(type) ? definition.defaults(type) : defaults?.(type),
     book: library,
   })
   const put = (piece, lineage, rank, replaces) => update((current) => publishWorkshop(current, piece, {

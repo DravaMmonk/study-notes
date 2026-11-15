@@ -107,7 +107,9 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140, tex
         const outs = portsOut(circuit.builtBy(n.type, n.params))
         return outs.length > 1 ? outs.map((o) => ({ key: o.name, label: o.label })) : null
       }
-      return circuit.partOf(n.type)?.outputs?.(n)?.map((key) => ({ key, label: isFixed(n.type) ? labelOf(task, key) : key })) ?? null
+      const keys = circuit.partOf(n.type)?.outputs?.(n)
+      if (!keys || (keys.length === 1 && keys[0] === null)) return null
+      return keys.map((key) => ({ key, label: isFixed(n.type) ? labelOf(task, key) : key }))
     },
   })
 

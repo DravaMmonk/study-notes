@@ -215,6 +215,8 @@ test('a part with regions is a frame: its resource sees the card and the region,
   assert.deepEqual(PARTS.thrice.frames({ params: {} }), [{ name: 'body', opens: true }])
   assert.deepEqual(PARTS.thrice.frames({ params: { more: 'yes' } }).map((r) => r.name), ['body', 'more'])
   assert.deepEqual(PARTS.box.outputs({ params: {} }), [null, 'body'])
+  assert.deepEqual(PARTS.thrice.inputs({ params: {} }), ['x', 'body'])
+  assert.deepEqual(PARTS.thrice.outputs({ params: { more: 'yes' } }), [null, 'body', 'more'])
   const parts = { in: { inputs: [], source: true, eval: () => 5 }, ...PARTS }
   const boxed = { nodes: [{ id: 'i', type: 'in' }, { id: 'b', type: 'box' }, { id: 'd', type: 'twice', in: 'b/body' }], wires: [{ from: 'i', to: 'b', port: 'x' }, { from: 'b#body', to: 'd', port: 'x' }, { from: 'd', to: 'b', port: 'body' }] }
   assert.equal(run(boxed, { parts, ctx: { graph: boxed } }).values.get('b'), 11)

@@ -4,16 +4,15 @@ import CanvasEditor from './CanvasEditor.jsx'
 import DemoBench, { useExampleRun } from './DemoBench.jsx'
 import SlotBoard from './SlotBoard.jsx'
 import { L, T } from '../shell/i18n.js'
-import { definedFaces, definedParts } from '../shell/parts/faces.jsx'
+import { definedFaces } from '../shell/parts/faces.jsx'
 import Show from '../views/Show.jsx'
 
 // A fixed example wired around a piece, run on the supplied cases. The editor supplies the same setting controls as a task.
 export default function SampleCircuit({ example, defined, phone }) {
-  const { board: start, tests, run, view, prepare } = example
+  const { board: start, parts, tests, run, view, prepare } = example
   const [board, setBoard] = useState(start)
   const { test, select, report, status, complete, invalidate, clear } = useExampleRun()
   const [selected, setSelected] = useState(null)
-  const parts = definedParts(example.parts, defined.of, defined.ops)
   const visible = report?.[test] ?? { values: new Map(board.nodes.flatMap((node) => {
     const value = tests[test].inputs[node.params?.name]
     return parts.role(node) === 'source' && value !== undefined ? [[node.id, value]] : []
@@ -25,7 +24,7 @@ export default function SampleCircuit({ example, defined, phone }) {
     return given !== undefined ? <Show value={given} scene="card" views={view?.(node, given)} /> : error ? <small>{L(error)}</small> : null
   }
   const edit = (node, params) => {
-    setBoard((cur) => prepare({ ...cur, nodes: cur.nodes.map((n) => n.id === node.id ? { ...n, params } : n) }))
+    setBoard((cur) => prepare({ ...cur, nodes: cur.nodes.map((n) => n.id === node.id ? { ...n, params } : n) }, parts))
     invalidate()
   }
   const faces = definedFaces({ body: value, thumb: value }, { defined: { ...defined, value }, change: edit, phone })

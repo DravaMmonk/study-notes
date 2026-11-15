@@ -167,48 +167,54 @@ export function defineParts(file, ops, code = {}) {
   return compileParts(parts, ops, code)
 }
 
+/** The ports of a defined part, including the regions its current settings open. */
+export function definitionPorts(def, ops) {
+  const kept = keepsOf(def)
+  if (kept) return { inputs: [kept.input] }
+  const names = holesOf(def).map((port) => port.name)
+  const outputs = outletsOf(def).map((port) => port.name)
+  if (!regionsOf(def).length) return { inputs: names, ...(outputs.length && { outputs: () => outputs }) }
+  const shown = (node) => activeRegions(def, node, ops)
+  return {
+    inputs: (node) => [...names, ...shown(node).map((region) => region.name)],
+    frames: (node) => shown(node).map((region) => ({ name: region.name, opens: Boolean(region.opens) })),
+    outputs: outputs.length ? () => outputs : (node) => [null, ...shown(node).filter((region) => region.opens).map((region) => region.name)],
+    // A region that closes gives the part what was made inside it. A region's own output only reads ordinary inputs.
+    reads: (node, key) => key ? names : [...names, ...shown(node).filter((region) => region.closes).map((region) => region.name)],
+  }
+}
+
 /** Compile circuit definitions already carrying resolved settings, including parts generated in code. */
 export function compileParts(parts, ops, code = {}) {
   const defs = Object.fromEntries(Object.entries(parts).filter(([, def]) => circuitPrimitive(def)).map(([type, def]) => [type, indexPart(def, type)]))
   const defined = Object.fromEntries(Object.entries(defs).map(([type, def]) => {
     const trees = treesOf(def)
-    const names = holesOf(def).map((p) => p.name)
+    const ports = definitionPorts(def, ops)
     // An optional input left unwired reads 「—」 (undefined) and never makes the part give 「—」 by itself.
     const optional = new Set(holesOf(def).filter((p) => p.optional).map((p) => p.name))
-    // A part with regions is a frame (../../circuit/frames.js): an input for each region shown, what is made inside
-    // it; an output for each region that opens, the value it opens with, read off the part's own inputs.
-    const shown = (node) => activeRegions(def, node, ops)
-    const framed = regionsOf(def).length ? {
-      inputs: (node) => [...names, ...shown(node).map((r) => r.name)],
-      frames: (node) => shown(node).map((r) => ({ name: r.name, opens: Boolean(r.opens) })),
-      outputs: (node) => [null, ...shown(node).filter((r) => r.opens).map((r) => r.name)],
-      // A region that closes gives the part what was made inside it; one that does not is run by the part itself.
-      reads: (node, key) => (key ? names : [...names, ...shown(node).filter((r) => r.closes).map((r) => r.name)]),
-    } : null
     // A part that keeps an input is a sink storing it in the register its setting names (../ticks.js).
     const kept = keepsOf(def)
     if (kept) {
       const setting = def.setting[kept.register]
       return [type, {
-        inputs: [kept.input], sink: true, store: true, collect: (ins) => ins[kept.input], eval: () => undefined, register: (node) => coerce(setting, node?.params?.[kept.register]),
+        ...ports, sink: true, store: true, collect: (ins) => ins[kept.input], eval: () => undefined, register: (node) => coerce(setting, node?.params?.[kept.register]),
         params: settingsOf(def).map((s) => s.key), defaults: Object.fromEntries(settingsOf(def).map((s) => [s.key, defaultOf(s)])),
         settings: Object.fromEntries(settingsOf(def).filter((s) => OPTIONED.has(s.control) && s.options).map((s) => [s.key, s.options.map((o) => o.value)])),
       }]
     }
     const part = {
-      inputs: names,
-      ...(def.outputNames || framed ? {} : { symmetric: (node) => symmetricIn(trees[''], settingsFor(def, node?.params), ops) }),
+      ...ports,
+      ...(ports.outputs ? {} : { symmetric: (node) => symmetricIn(trees[''], settingsFor(def, node?.params), ops) }),
       ...(optional.size ? { optional: [...optional] } : {}),
       // A part registered by a course may run with none of its inputs, all optional, wired (`bare`).
       ...(def.bare ? { bare: true } : {}),
-      ...framed,
       params: settingsOf(def).map((s) => s.key),
       defaults: Object.fromEntries(settingsOf(def).map((s) => [s.key, defaultOf(s)])),
       settings: Object.fromEntries(settingsOf(def).filter((s) => OPTIONED.has(s.control) && s.options).map((s) => [s.key, s.options.map((o) => o.value)])),
       eval: (ins, node, ctx, key) => {
         const failed = failedCheck(def, node?.params ?? {}, ops)
         if (failed) throw new PartError(failed)
-        const read = framed ? framed.reads(node, key) : names
+        const read = ports.reads ? ports.reads(node, key) : ports.inputs
         if (def.nulls !== 'pass' && read.some((n) => ins[n] === null || (ins[n] === undefined && !optional.has(n)))) return null
         const tree = trees[def.outputNames ? key : '']
         if (!tree) throw new PartError({ zh: '这个元件的运算写错了', en: 'this part’s computation does not parse' })
@@ -222,7 +228,6 @@ export function compileParts(parts, ops, code = {}) {
         return v
       },
     }
-    if (def.outputNames) part.outputs = () => def.outputNames
     return [type, part]
   }))
   const PARTS = registerPieces(code, defined)

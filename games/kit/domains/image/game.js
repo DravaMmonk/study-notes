@@ -106,7 +106,7 @@ export default function imageGame(content) {
         image.syncOwn(progress?.built)
         const made = imagePreview(image, content.box, part)
         return {
-          sample: made && { ...made, parts: partsFor(made.task, boards.forTask(made.task), { cards, portLabels: {} }) },
+          sample: made && { ...made, parts: partsFor(made.task, boards.forTask(made.task), { cards, portLabels: {}, defined: game.defined }) },
           inside: boards.BUILT[part.piece] && { course: boards, cards },
         }
       },

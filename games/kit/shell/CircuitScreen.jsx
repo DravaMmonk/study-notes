@@ -123,7 +123,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const onPhone = useMedia(PHONE)
   const timed = Boolean(kind.ticks) && !once?.(level)
   base.syncOwn(progress.built)
-  const workshopState = useCircuitWorkshop({ screen, course, base, cards, portLabels, defined, defaults, settings, ready })
+  const workshopState = useCircuitWorkshop({ screen, course, base, cards, portLabels, defined: gameDefined, defaults, settings, ready })
   const { offers, has, known, circuit, resolve, parts, packed, palette, folded, types, held, hasPersonal,
     hold, capture, put, publish, library, update, available, pickedTrays, notice: workshopNotice } = workshopState
   const pass = (score, graph) => { publish(graph); screen.solve(score, graph) }
