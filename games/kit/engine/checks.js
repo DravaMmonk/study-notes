@@ -59,9 +59,9 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   // References to levels, parts and entries: the names come from the game as the shell gets it.
   const game = await gameOf(content)
   const names = {
-    level: new Map(game.levels.map((l) => [l.id, String(l.title?.zh ?? l.title)])),
-    part: new Map((game.parts?.all ?? []).map((p) => [p.key, String(p.name?.zh ?? p.name)])),
-    wiki: new Map((game.glossary?.entries ?? []).map((e) => [e.id, String(e.title?.zh ?? e.title)])),
+    level: new Map(game.levels.map((l) => [l.id, String(l.title?.en ?? l.title)])),
+    part: new Map((game.parts?.all ?? []).map((p) => [p.key, String(p.name?.en ?? p.name)])),
+    wiki: new Map((game.glossary?.entries ?? []).map((e) => [e.id, String(e.title?.en ?? e.title)])),
   }
   const parts = (game.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, desc: p.desc, revisions: p.revisions }))
   for (const [name, value] of Object.entries({ levels: spec.levels, ...(spec.texts ?? {}), parts })) for (const problem of refProblems(value, name, names, spec.quotes)) fail(`text ${problem}`)
@@ -72,7 +72,7 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   const entries = new Map((game.glossary?.entries ?? []).map((e) => [e.id, e]))
   const opensBy = (at, where) => !at || at === where || (where && spec.course.before(at, where))
   const linked = (schema, value, kind) => find(schema, value, 'text', { vocabulary })
-    .map(({ value: v }) => (typeof v === 'string' ? v : v.zh))
+    .map(({ value: v }) => (typeof v === 'string' ? v : v.en))
     .flatMap((s) => [...s.matchAll(REF)].filter((m) => m[1] === kind).map((m) => m[2]))
   const levelLinks = (kind) => content.levels.map(({ id, ...level }) => [id, [...new Set(linked(vocabulary.level, level, kind))]])
   for (const [id, links] of levelLinks('wiki')) for (const entry of links) if (entries.has(entry) && !opensBy(entries.get(entry).at, id)) fail(`${id} links the entry ${entry}, which opens later (at ${entries.get(entry).at})`)

@@ -240,7 +240,7 @@ export function layout(eras, { notes = false } = {}) {
 }
 
 // A showcase's reason, written plainly or as a text.
-const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.zh?.trim() ?? '')
+const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
 export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, finale = null, abstraction = false, notes = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))

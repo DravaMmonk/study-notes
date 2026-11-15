@@ -1,5 +1,5 @@
 // Translation, apart from the making of a game (games/DIRECTION.md, decision 20). A game's content is written in one
-// language, the base: every text in it is { zh: '…' } (or a plain string, which reads the same in every language).
+// language, the base: every text in it is { en: '…' } (or a plain string, which reads the same in every language).
 // Another language is an overlay beside the content, games/<id>/i18n/<lang>.json:
 //
 // A key is the base text. Its value is a translation, or an object with a default and overrides by schema field kind.
@@ -13,9 +13,9 @@ export const TRANSLATION = S.either(S.str(), S.map(S.str(), { keys: `^(?:${['def
 export const OVERLAY = S.map(TRANSLATION)
 
 /** The language content is written in. */
-export const BASE = 'zh'
+export const BASE = 'en'
 
-/** Whether `v` is a text as content writes it: { zh } alone. */
+/** Whether `v` is a text as content writes it: { en } alone. */
 export const isBaseText = (v) => v !== null && typeof v === 'object' && !Array.isArray(v) && typeof v[BASE] === 'string' && Object.keys(v).length === 1
 
 /** Every base text in `value`, in order, repeats included. */

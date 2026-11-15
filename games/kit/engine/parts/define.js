@@ -13,6 +13,7 @@
 // Every expression may call the kernel's builtins (builtins.js) besides the domain's resources. A resource sees the card
 // it runs on (ctx.node, ctx.ins its inputs, ctx.key the region whose value it gives, if any) and can run one of its regions as a function
 // (ctx.region(name), ../../circuit/frames.js runRegion).
+import { sideOf } from '../../shell/i18n.js'
 import { PartError } from '../circuit.js'
 import { runRegion } from '../../circuit/frames.js'
 import { editorOf, facesOf, holesOf, insideOf, keepsOf, outletsOf, regionsOf, registerPieces, settingsOf } from '../pieces.js'
@@ -244,8 +245,9 @@ export function partDesc(def, allowed = () => null) {
     return (s.options ?? []).filter((o) => o.about && (!open || open.includes(o.value))).map((o) => o.about)
   })
   if (!extra.length) return def.desc
-  const side = (lang) => [def.desc, ...extra].map((t) => (typeof t === 'string' ? t : t?.[lang] ?? '')).filter(Boolean).join(lang === 'zh' ? '' : ' ')
-  return side('en') ? { zh: side('zh'), en: side('en') } : { zh: side('zh') }
+  const texts = [def.desc, ...extra]
+  const langs = ['en', 'zh'].filter((lang) => texts.some((text) => text?.[lang]))
+  return Object.fromEntries((langs.length ? langs : ['en']).map((lang) => [lang, texts.map((text) => sideOf(text, lang)).filter(Boolean).join(lang === 'zh' ? '' : ' ')]))
 }
 
 /** The vocabulary with a pieces.json's pieces as its `part` kind: what content's S.ref('part') names. */

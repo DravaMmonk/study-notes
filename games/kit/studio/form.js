@@ -5,7 +5,7 @@
 // (`view`, `step`, `section`).
 //
 // A field: { path, kind, value, about?, optional?, … } by kind:
-//   text      { zh } (a string reads the same in every language)
+//   text      { en } (a string reads the same in every language)
 //   num       min?, max?, step, int                       a slider too when both ends are known
 //   bool, str (pattern?), any (JSON), board (blueprint lines)
 //   expr      a part's expression (view: 'expr', ../engine/parts/expr.js)     icon   a name of the kernel's icon table
@@ -58,7 +58,7 @@ function choicesOf(schema, ctx) {
  * has them, each with its `tasks` — [{ id, step }] — or none for a level of one task, whose id is the level's).
  */
 export const taskOptionsOf = (levelOptions) => levelOptions.flatMap((l) => {
-  const group = [l.label, l.title && (typeof l.title === 'string' ? l.title : l.title.zh)].filter(Boolean).join(' ')
+  const group = [l.label, l.title && (typeof l.title === 'string' ? l.title : l.title.en)].filter(Boolean).join(' ')
   if (!l.tasks) return [{ value: l.value, label: l.label, title: l.title, group }]
   return l.tasks.map((task, k) => ({ value: task.id, label: `${l.label} · ${k + 1}`, title: task.step ?? l.title, group, ...(task.id !== l.value && { about: task.id }) }))
 })
@@ -101,7 +101,7 @@ export function formOf(schema, value, ctx, path = []) {
   const base = { path, value, ...(schema.about && { about: schema.about }), ...(schema.optional && { optional: true }) }
   switch (schema.type) {
     case 'text':
-      return { ...base, kind: 'text' }
+      return { ...base, kind: 'text', ...(schema.textKind && { textKind: schema.textKind }) }
     case 'num':
     case 'int':
       return { ...base, kind: 'num', int: schema.type === 'int', step: schema.step ?? 1, ...(schema.min !== undefined && { min: schema.min }), ...(schema.max !== undefined && { max: schema.max }) }
@@ -163,7 +163,7 @@ export function formOf(schema, value, ctx, path = []) {
 export function blank(schema, ctx) {
   const { vocabulary, levels = [] } = ctx
   switch (schema.type) {
-    case 'text': return { zh: '' }
+    case 'text': return { en: '' }
     case 'num':
     case 'int': return schema.min ?? 0
     case 'bool': return false
@@ -317,7 +317,7 @@ export function summaryOf(value, width = 90) {
   const walk = (v, key) => {
     if (words.join(' ').length > width) return
     if (v === null || v === undefined) return
-    if (isObj(v) && typeof v.zh === 'string') return words.push(plain(v.zh))
+    if (isObj(v) && typeof v.en === 'string') return words.push(plain(v.en))
     if (typeof v !== 'object') return words.push(key ? `${key} ${plain(v)}` : plain(v))
     if (Array.isArray(v)) {
       if (v.every((x) => typeof x !== 'object' || x === null)) return words.push(`${key ? `${key} ` : ''}[${v.slice(0, 12).map((x) => (x === null ? '—' : x)).join(' ')}${v.length > 12 ? ' …' : ''}]`)
@@ -408,7 +408,7 @@ export function opFor(file, path, edit, type = null) {
   const keys = parsePath(path)
   // The glossary: a text by text.set; any other field of an entry by a merge patch of the entry's top field.
   if (file.glossary) {
-    if (type === 'text' && !edit.unset && edit.set !== null && typeof edit.set === 'object') return { op: 'text.set', in: 'glossary', path: keys, zh: edit.set.zh }
+    if (type === 'text' && !edit.unset && edit.set !== null && typeof edit.set === 'object') return { op: 'text.set', in: 'glossary', path: keys, en: edit.set.en }
     if (keys[0] === 'entries' && keys.length >= 3) {
       const entry = file.glossary.entries[keys[1]]
       const [top, ...rest] = keys.slice(2)
@@ -426,7 +426,7 @@ export function opFor(file, path, edit, type = null) {
   // pieces.json: a field of it (a whole part is added, removed and renamed by the part operations).
   if (file.parts) {
     if (edit.unset) return { op: 'pieces.unset', path: keys }
-    if (type === 'text' && edit.set !== null && typeof edit.set === 'object') return { op: 'text.set', in: 'pieces', path: keys, zh: edit.set.zh }
+    if (type === 'text' && edit.set !== null && typeof edit.set === 'object') return { op: 'text.set', in: 'pieces', path: keys, en: edit.set.en }
     return { op: 'pieces.set', path: keys, value: edit.set }
   }
   const where = file.level !== undefined ? { level: file.level } : {}
@@ -434,7 +434,7 @@ export function opFor(file, path, edit, type = null) {
   if (edit.unset) return { op: op('unset'), ...where, path: keys }
   if (!keys.length && file.level !== undefined) return { op: 'level.replace', level: file.level, data: edit.set }
   if (type === 'text' && edit.set !== null && typeof edit.set === 'object') {
-    return { op: 'text.set', ...(file.level !== undefined ? where : { in: 'game' }), path: keys, zh: edit.set.zh }
+    return { op: 'text.set', ...(file.level !== undefined ? where : { in: 'game' }), path: keys, en: edit.set.en }
   }
   if (type === 'board' && file.level !== undefined) return { op: 'level.blueprint', level: file.level, path: keys, text: edit.set.join('\n') }
   return { op: op('set'), ...where, path: keys, value: edit.set }

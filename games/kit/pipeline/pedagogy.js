@@ -25,14 +25,14 @@ export const PEDAGOGY_RULES = {
 
 /** The keys under which a level holds what the player reads as prose. */
 const PROSE = new Set(['t', 'brief', 'hint', 'after', 'note', 'why', 'given'])
-const isText = (v) => v && typeof v === 'object' && typeof v.zh === 'string'
+const isText = (v) => v && typeof v === 'object' && typeof v.en === 'string'
 
-/** Every prose text in a level, with where it is: [{ where, zh }]. */
+/** Every prose text in a level, with where it is: [{ where, text }]. */
 function proseOf(level) {
   const out = []
   const walk = (v, path, key) => {
     if (isText(v) || typeof v === 'string') {
-      if (PROSE.has(key)) out.push({ where: path, zh: (isText(v) ? v.zh : v).trim() })
+      if (PROSE.has(key)) out.push({ where: path, text: (isText(v) ? v.en : v).trim() })
       return
     }
     if (Array.isArray(v)) v.forEach((x, k) => walk(x, `${path}[${k}]`, key))
@@ -96,11 +96,11 @@ export function lintPedagogy(content, spec) {
   // The same prose twice.
   const seen = new Map()
   for (const level of content.levels) {
-    for (const { where, zh } of proseOf(level)) {
-      if (zh.length < 8) continue
-      const first = seen.get(zh)
-      if (first) say('pd-repeat-text', `${level.id} ${where}`, `“${zh.slice(0, 40)}${zh.length > 40 ? '…' : ''}” is also ${first}`)
-      else seen.set(zh, `${level.id} ${where}`)
+    for (const { where, text } of proseOf(level)) {
+      if (text.length < 8) continue
+      const first = seen.get(text)
+      if (first) say('pd-repeat-text', `${level.id} ${where}`, `“${text.slice(0, 40)}${text.length > 40 ? '…' : ''}” is also ${first}`)
+      else seen.set(text, `${level.id} ${where}`)
     }
   }
 

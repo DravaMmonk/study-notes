@@ -4,7 +4,7 @@ import { termRegistry, termUsage } from './terminology.js'
 import { GLOSSARY } from './vocabulary.js'
 import { validate } from './schema.js'
 
-const t = (zh) => ({ zh })
+const t = (zh, en) => ({ zh, en })
 const entry = (id, fields = {}) => ({ id, group: 'g', title: t('光轴', 'Optical axis'), body: [t('穿过小孔、垂直像平面的直线。', 'The line through the hole perpendicular to the image plane.')], ...fields })
 const registry = (...entries) => termRegistry({ entries })
 const place = (text, fields = {}) => ({ at: 'task.intro.zh', side: 'zh', text, ...fields })
@@ -18,15 +18,15 @@ test('the existing entry body is the definition; bilingual and neutral aliases s
   assert.equal(r.entries.get('axis').body, e.body)
   assert.equal(r.names.zh.get('相机轴'), 'axis')
   assert.equal(r.names.en.get('oa'), 'axis')
-  assert.deepEqual(validate(GLOSSARY, { groups: [{ id: 'g', title: 'G' }], entries: [e] }), [])
+  assert.deepEqual(validate(GLOSSARY, { groups: [{ id: 'g', title: 'G' }], entries: [{ ...e, title: { en: e.title.en }, body: [{ en: e.body[0].en }], aliases: [{ en: 'Camera axis' }, 'OA'] }] }), [])
   assert.ok(validate(GLOSSARY, { groups: [], entries: [entry('axis', { aliases: ['OA'], summary: 'a second definition' })] }).some((p) => p.at.endsWith('summary')))
 })
 
 test('empty names, empty/reference-only definitions and conflicting term names fail', () => {
-  assert.ok(rules(registry(entry('axis', { title: t('', 'Axis'), aliases: [t('别名', '')], body: [t(ref('other'), '<b> </b>')] })).failures).includes('term-definition'))
-  assert.ok(rules(registry(entry('axis', { title: t('', 'Axis') })).failures).includes('term-name'))
+  assert.ok(rules(registry(entry('axis', { title: t('光轴', ''), aliases: [t('别名', '')], body: [t(ref('other'), '<b> </b>')] })).failures).includes('term-definition'))
+  assert.ok(rules(registry(entry('axis', { title: t('光轴', '') })).failures).includes('term-name'))
   assert.ok(rules(registry(entry('axis'), entry('axis')).failures).includes('term-id'))
-  const r = registry(entry('a', { aliases: [t('相机轴', '  Camera   AXIS ')] }), entry('b', { title: t('相机轴', 'camera axis') }))
+  const r = registry(entry('a', { aliases: [t('相机轴', '  Camera   AXIS ')] }), entry('b', { title: t('另一条轴', 'camera axis') }))
   assert.deepEqual(rules(r.failures), ['term-name-conflict'])
 })
 

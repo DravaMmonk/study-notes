@@ -1,10 +1,10 @@
 {
-  "title": { "zh": "接一个空列表" },
+  "title": { "en": "Appending nothing" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "<level-ref to=\"decl-list\"></level-ref>声明的 list = [] | x :: xs 也给出同样几类规则；它的归纳从 xs 走到 x :: xs。"
+        "en": "The list = [] | x :: xs declared in <level-ref to=\"decl-list\"></level-ref> gives the same kinds of rule; its induction steps from xs to x :: xs."
       }
     }
   ],
@@ -13,14 +13,14 @@
       "id": "in-appnil",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": { "en": "Goal" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["list"],
       "defs": ["app", "len"],
       "tests": [{ "goal": "∀xs. app(xs, nil) = xs" }],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
-      "hint": [{ "zh": "「数理规则书」里有 list 的归纳规则。" }],
+      "brief": { "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "en": "The “Rule book of numbers” has an induction rule for list." }],
       "solution": [
         "c0r0 = math[use=[\"list.induct\"]]()",
         "c0 = rule(in, c0r0)",

@@ -82,7 +82,7 @@ export const STEPS = [
     role: 'engineer',
     gate: async (id) => {
       const content = readContent(id)
-      const open = (content.blueprint?.requests ?? []).filter((r) => r.status === 'open').map((r) => finding('request-open', r.id, r.about.zh ?? r.about))
+      const open = (content.blueprint?.requests ?? []).filter((r) => r.status === 'open').map((r) => finding('request-open', r.id, r.about.en ?? r.about))
       const domain = await domainOf(content)
       const spec = domain.spec(content)
       const contract = [...domainProblems(content.domain, domain), ...specProblems(domain, content, spec), ...(await validateProblems(domain, content, spec)).problems].map((p) => finding('contract', content.domain, p))

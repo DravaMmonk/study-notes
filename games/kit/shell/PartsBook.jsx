@@ -69,7 +69,7 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
   const order = (part) => game.levels.indexOf(levelOf(game, part))
   const heading = (chapter) => {
     const kicker = (lang) => (chapter.kicker ? chapter.kicker[lang] ?? chapter.kicker : lang === 'zh' ? `第 ${chapter.number ?? chapter.id} 章` : `Chapter ${chapter.number ?? chapter.id}`)
-    return { zh: `${kicker('zh')} · ${chapter.title?.zh ?? chapter.title}`, en: `${kicker('en')} · ${sideOf(chapter.title, 'en')}` }
+    return { zh: `${kicker('zh')} · ${sideOf(chapter.title, 'zh')}`, en: `${kicker('en')} · ${sideOf(chapter.title, 'en')}` }
   }
   const groups = game.chapters.map((chapter) => ({
     id: String(chapter.id),

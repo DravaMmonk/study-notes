@@ -57,7 +57,7 @@ export function introProblems(pages, level, figures) {
   const problems = []
   pages.forEach((page, i) => {
     const where = `第 ${i + 1} 页`
-    const text = isPair(page.t) ? page.t.zh : page.t
+    const text = isPair(page.t) ? (page.t.en ?? page.t.zh) : page.t
     if (!text || !text.trim()) problems.push(`${where}没有文字`)
     const fig = page.fig
     if (!fig) return

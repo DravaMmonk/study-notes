@@ -2,13 +2,13 @@
   "domain": "table",
   "vocabulary": 1,
   "title": {
-    "zh": "__title__"
+    "en": "__title__"
   },
   "kicker": {
-    "zh": "开发中"
+    "en": "In development"
   },
   "lede": {
-    "zh": "不需要任何编程或算法基础。机器人在表上一格一格地算，你接出它每一格跑的电路板，再把拼好的板当元件用。"
+    "en": "No programming or algorithms background needed. A robot works across a table cell by cell; you wire the board it runs on every cell, then use a finished board as a part."
   },
   "primitives": [
     "msum",
@@ -28,10 +28,10 @@
       ],
       "chapter": {
         "title": {
-          "zh": "造一台机器"
+          "en": "Build a machine"
         },
         "desc": {
-          "zh": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。"
+          "en": "On every cell the robot runs the same circuit board, and a finished board becomes a component."
         }
       }
     }

@@ -149,7 +149,7 @@ export default function Studio() {
   const [side, setSide] = usePref('side', 'tree')
   const [copyScope, setCopyScope] = useState(null) // the copy tab's scope: an era's index, 'all' or 'glossary'
   const [overlay, setOverlay] = useState(null) // 'palette' | 'keys'
-  const [, setLang] = useState(getLang)
+  const [lang, setLang] = useState(getLang)
 
   useEffect(() => {
     const onLang = () => setLang(getLang())
@@ -457,7 +457,7 @@ export default function Studio() {
         if (!existing) write(list)
         return pickField([...base, ...m.path], true, list)
       }
-      const next = [...list, { show: 'text', text: { zh: '' } }]
+      const next = [...list, { show: 'text', text: { en: '' } }]
       write(next)
       return pickField([...path, list.length], true, next)
     }
@@ -467,7 +467,7 @@ export default function Studio() {
     const schema = shapeAt(PARTS_FILE, content.partDefs, path, { vocabulary: vocab.vocabulary })
     if (schema?.type !== 'list') return undefined
     const list = getAt(content.partDefs, path) ?? []
-    const blankOf = { rules: { set: {} }, checks: { holds: 'eq(1, 1)', say: { zh: '' } } }
+    const blankOf = { rules: { set: {} }, checks: { holds: 'eq(1, 1)', say: { en: '' } } }
     edit({ op: 'pieces.set', path, value: [...list, (m.path.length === 1 && blankOf[key]) || blank(schema.of, { vocabulary: vocab.vocabulary, levels: playOrder })] })
     return pickField([...path, list.length], true)
   }
@@ -531,6 +531,7 @@ export default function Studio() {
     names,
     levelOptions,
     textField,
+    lang,
     ...(sideFile?.level && {
       onBoard: (path) => onBoard(sideFile.level, showPath(path)),
       tests: { of: (path) => tests.of(sideFile.level, path), run: (path) => tests.run(sideFile.level, path) },

@@ -17,7 +17,7 @@ import { BLANKS } from '../engine/parts/schema.js'
 import { editorOf } from '../engine/pieces.js'
 
 /** A new built piece: the work of task `task` runs inside it; named after what the task is called. */
-export const builtPart = (task, name) => ({ name: { zh: name || task }, desc: { zh: '' }, inside: [{ task }] })
+export const builtPart = (task, name) => ({ name: { en: name || task }, desc: { en: '' }, inside: [{ task }] })
 
 /** A name for a new part or preset not taken yet. */
 export const freeName = (taken, stem) => {

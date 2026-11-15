@@ -141,7 +141,7 @@ export const TOOLS = {
         const board = boards.find((b) => b.path === showPath(parsePath(path)))
         return board ? { text: board.text } : { text: JSON.stringify(getAt(value, path), null, 2) }
       }
-      const pick = (v) => (v && typeof v === 'object' && 'zh' in v ? v.zh : v)
+      const pick = (v) => (v && typeof v === 'object' && 'en' in v ? v.en : v)
       // What sort of level it is: its fields that pick one of a few (its kind or mode, its world, its robot…), by its schema.
       const { vocabulary } = await domainOf(content)
       const shape = shapeAt(vocabulary.level, value, [], { vocabulary })
@@ -259,7 +259,7 @@ export const TOOLS = {
     },
   },
   search: {
-    about: 'Find text across a game (as a changeset would leave it): every text pair side by side (never inside a link tag), every board line, the ids of levels and entries. query: { find, regex?, caseSensitive?, word?, sides?: [zh, en], kinds?: [text, board, id] }. The hits in play order, each with its file, level, path and the spans matched.',
+    about: 'Find text across a game (as a changeset would leave it): the English source text (never inside a link tag), every board line, the ids of levels and entries. query: { find, regex?, caseSensitive?, word?, kinds?: [text, board, id] }. The hits in play order, each with its file, level, path and the spans matched.',
     params: { game: 'string', query: 'object', changeset: 'object?' },
     async run({ game, query, changeset = null }) {
       const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)

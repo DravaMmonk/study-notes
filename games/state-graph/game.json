@@ -1,10 +1,10 @@
 {
   "domain": "table",
   "vocabulary": 2,
-  "title": { "zh": "状态之图" },
-  "kicker": { "zh": "从零开始的动态规划解谜" },
+  "title": { "en": "State Graph" },
+  "kicker": { "en": "Dynamic programming puzzles, from scratch" },
   "lede": {
-    "zh": "不需要任何编程或算法基础。从手数路线开始，学会把一个大问题拆成一张表，一格一格地填出来；最后能亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。"
+    "en": "No programming or algorithms background needed. Starting from counting routes by hand, you learn to break a big problem into a table and fill it in cell by cell; in the end you wire up the circuit boards that count routes, compare words and pack a backpack, and see why they are so fast."
   },
   "primitives": ["msum", "mmin", "mmax", "many", "const", "pass", "block", "add", "not", "mul"],
   "trays": {
@@ -34,9 +34,9 @@
       "machine": null,
       "foundation": ["trace", "lastStep", "city"],
       "chapter": {
-        "title": { "zh": "纸笔" },
+        "title": { "en": "Pen and paper" },
         "desc": {
-          "zh": "用小问题的答案，拼出大问题的答案。"
+          "en": "Build the answer to a big problem out of the answers to small ones."
         }
       }
     },
@@ -49,22 +49,22 @@
         "stamp",
         {
           "parallel": [
-            { "id": "rocks", "title": { "zh": "石头" }, "levels": ["rocks", "reach"] },
-            { "id": "cost", "title": { "zh": "花费" }, "levels": ["cheapest", "slantcost"] }
+            { "id": "rocks", "title": { "en": "Rocks" }, "levels": ["rocks", "reach"] },
+            { "id": "cost", "title": { "en": "Costs" }, "levels": ["cheapest", "slantcost"] }
           ]
         }
       ],
       "chapter": {
-        "title": { "zh": "造一台机器" },
+        "title": { "en": "Build a machine" },
         "desc": {
-          "zh": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。"
+          "en": "On every cell the robot runs the same circuit board, and a finished board becomes a component."
         }
       },
       "practice": [
         {
           "parallel": [
-            { "id": "shape", "title": { "zh": "换形状" }, "levels": ["slant", "pascal"] },
-            { "id": "coins", "title": { "zh": "金币" }, "levels": ["maxcoins"] }
+            { "id": "shape", "title": { "en": "New shapes" }, "levels": ["slant", "pascal"] },
+            { "id": "coins", "title": { "en": "Coins" }, "levels": ["maxcoins"] }
           ]
         },
         "pits"
@@ -75,8 +75,8 @@
           "code": "S",
           "after": "slantcost",
           "levels": ["seamline", "seamslant", "seam", "carve"],
-          "title": { "zh": "图里的缝" },
-          "desc": { "zh": "在一张图里，找一条最不起眼的缝。" }
+          "title": { "en": "Seams in a picture" },
+          "desc": { "en": "Find the least noticeable seam in a picture." }
         }
       ],
       "challenges": [{ "level": "lawn", "after": "pascal" }]
@@ -88,8 +88,8 @@
         "stairs",
         {
           "parallel": [
-            { "id": "back", "title": { "zh": "倒着扫" }, "levels": ["order"] },
-            { "id": "win", "title": { "zh": "输赢" }, "levels": ["nim"] }
+            { "id": "back", "title": { "en": "Scanning backwards" }, "levels": ["order"] },
+            { "id": "win", "title": { "en": "Winning" }, "levels": ["nim"] }
           ]
         },
         "link",
@@ -97,16 +97,16 @@
         "palin"
       ],
       "chapter": {
-        "title": { "zh": "看得更远" },
+        "title": { "en": "Seeing further" },
         "desc": {
-          "zh": "看得更远：两步之外的格子；看得更全：表头上的两个词；还能换个方向扫。"
+          "en": "It sees further, two cells away; it sees more, the two words a table compares; and it can scan the other way round."
         }
       },
       "practice": [
         {
           "parallel": [
-            { "id": "broken", "title": { "zh": "坏台阶" }, "levels": ["brokenstairs"] },
-            { "id": "lps", "title": { "zh": "回文子序列" }, "levels": ["lps"] }
+            { "id": "broken", "title": { "en": "Broken steps" }, "levels": ["brokenstairs"] },
+            { "id": "lps", "title": { "en": "Palindromic subsequences" }, "levels": ["lps"] }
           ]
         }
       ],
@@ -116,8 +116,8 @@
           "code": "E",
           "after": "lcs",
           "levels": ["replace", "edit", "spell"],
-          "title": { "zh": "拼写纠错" },
-          "desc": { "zh": "输错一个词，找出词典里最接近的那个。" }
+          "title": { "en": "Spelling correction" },
+          "desc": { "en": "A word is mistyped: find the closest one in the dictionary." }
         }
       ],
       "challenges": [
@@ -133,14 +133,14 @@
         "frog",
         {
           "parallel": [
-            { "id": "jump", "title": { "zh": "跳法" }, "levels": ["frogfar", "safefrog"] },
-            { "id": "sentence", "title": { "zh": "句子" }, "levels": ["tagging", "forward"] }
+            { "id": "jump", "title": { "en": "Ways to jump" }, "levels": ["frogfar", "safefrog"] },
+            { "id": "sentence", "title": { "en": "Sentences" }, "levels": ["tagging", "forward"] }
           ]
         }
       ],
       "chapter": {
-        "title": { "zh": "伸长手臂" },
-        "desc": { "zh": "伸缩臂能够到任意远的一格。" }
+        "title": { "en": "A longer arm" },
+        "desc": { "en": "A telescopic arm reaches a cell however far away." }
       },
       "topics": [
         {
@@ -148,8 +148,8 @@
           "code": "K",
           "after": "frogfar",
           "levels": ["pack", "knaptable", "knapmany", "knapmix"],
-          "title": { "zh": "背包" },
-          "desc": { "zh": "容量有限，拿什么最值钱？" }
+          "title": { "en": "The backpack" },
+          "desc": { "en": "With limited room, what is most worth taking?" }
         }
       ],
       "challenges": [{ "level": "coinways", "after": "knapmany" }, { "level": "roll", "after": "knapmix" }]
@@ -159,9 +159,9 @@
       "machine": "broom",
       "foundation": ["prefix", "rising"],
       "chapter": {
-        "title": { "zh": "一格多来路" },
+        "title": { "en": "Many ways in" },
         "desc": {
-          "zh": "扫描臂扫过一整段格子，来路的数量不再固定。"
+          "en": "The sweep arm passes over a whole run of cells, so the number of ways in is no longer fixed."
         }
       },
       "practice": [
@@ -169,10 +169,10 @@
           "parallel": [
             {
               "id": "interval",
-              "title": { "zh": "区间" },
+              "title": { "en": "Intervals" },
               "levels": ["stones", "twoorders", "parse"]
             },
-            { "id": "change", "title": { "zh": "零钱" }, "levels": ["change"] }
+            { "id": "change", "title": { "en": "Change" }, "levels": ["change"] }
           ]
         }
       ],
@@ -182,8 +182,8 @@
           "code": "W",
           "after": "rising",
           "levels": ["wordbreak", "wordcost", "segment"],
-          "title": { "zh": "切单词" },
-          "desc": { "zh": "一串没有空格的字母，切成词典里的词。" }
+          "title": { "en": "Cutting words" },
+          "desc": { "en": "A string with no spaces, cut into dictionary words." }
         }
       ],
       "challenges": [{ "level": "maxsub", "after": "prefix" }]
@@ -193,8 +193,8 @@
       "machine": "stack",
       "foundation": ["robber", "breach", "keydoor"],
       "chapter": {
-        "title": { "zh": "状态不够用" },
-        "desc": { "zh": "一个数记不住的时候，就多记一件事。" }
+        "title": { "en": "When the state falls short" },
+        "desc": { "en": "When one number can’t remember enough, remember one more thing." }
       },
       "practice": ["stock1", "cooldown"],
       "challenges": [{ "level": "ring", "after": "robber" }],
@@ -204,8 +204,8 @@
           "code": "D",
           "after": "keydoor",
           "levels": ["twokeys", "threekeys", "enough"],
-          "title": { "zh": "设计状态" },
-          "desc": { "zh": "该记住什么，这次由你决定。" }
+          "title": { "en": "Designing the state" },
+          "desc": { "en": "This time, you decide what to remember." }
         }
       ]
     },
@@ -214,8 +214,8 @@
       "machine": "loop",
       "foundation": ["loop"],
       "chapter": {
-        "title": { "zh": "扫到不再变" },
-        "desc": { "zh": "箭头绕成了圈，就一遍一遍地扫。" }
+        "title": { "en": "Scan until it settles" },
+        "desc": { "en": "When the arrows loop round, scan again and again." }
       },
       "practice": ["value", "arrows"],
       "topics": [
@@ -224,9 +224,9 @@
           "code": "V",
           "after": "value",
           "levels": ["treasure", "slip", "ice"],
-          "title": { "zh": "格子世界" },
+          "title": { "en": "The grid world" },
           "desc": {
-            "zh": "机器人在格子里找宝藏，越远的宝藏越不值钱。"
+            "en": "The robot hunts for treasure on a grid, and the further it is, the less it is worth."
           }
         }
       ]

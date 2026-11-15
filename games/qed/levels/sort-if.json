@@ -1,30 +1,30 @@
 {
-  "title": { "zh": "如果就分情况" },
+  "title": { "en": "An if is a case split" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "if 的定义只认写明的真、假。条件是 c ≤ a 这样的式子时，化简不知道它的真假，就会卡住。从定义证出两条带条件的规则：条件等于真，取「则」那一边；等于假，取「否则」那一边。"
+        "en": "if’s definition knows only a true or false written out. When the condition is something like c ≤ a, Simp cannot tell which it is, and gets stuck. From the definition, prove two rules with a condition: when the condition equals true, take the “then” side; when false, the “else” side."
       }
     }
   ],
-  "after": { "zh": "两条规则进了「数理规则书」。" },
+  "after": { "en": "The two rules go into the “Rule book of numbers”." },
   "tasks": [
     {
       "id": "sort-if_1",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": { "en": "Goal" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
-      "step": { "zh": "条件为真" },
+      "step": { "en": "A true condition" },
       "types": ["bool"],
       "defs": ["if"],
       "tests": [{ "goal": "∀u. ∀v. ∀w. u = tt → if(u, v, w) = v" }],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "brief": { "en": "Design a proof assistant that proves every goal." },
       "hint": [
-        { "zh": "u = 真 要先进已知。" },
-        { "zh": "已知里的等式能把 u 换掉。" }
+        { "en": "u = true has to be among the givens first." },
+        { "en": "The equation given can replace u." }
       ],
       "solution": [
         "c2r0 = impI()",
@@ -62,15 +62,15 @@
       "id": "sort-if_2",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": { "en": "Goal" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
-      "step": { "zh": "条件为假" },
+      "step": { "en": "A false condition" },
       "types": ["bool"],
       "defs": ["if"],
       "tests": [{ "goal": "∀u. ∀v. ∀w. u = ff → if(u, v, w) = w" }],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
-      "hint": [{ "zh": "与条件为真时相同。" }],
+      "brief": { "en": "Design a proof assistant that proves every goal." },
+      "hint": [{ "en": "As with a true condition." }],
       "solution": [
         "c2r0 = impI()",
         "c3r0 = math[use=[\"def.0\", \"def.1\"]]()",

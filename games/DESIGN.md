@@ -303,7 +303,7 @@ games/<插图>/   每款游戏的标题图（boxy、press、detach）：用 anat
 | `blueprint.json` | 课程蓝图（第 7.2 节，流水线做出的游戏才有）：机体阶梯、要教的知识点（术语、出处、撞上的墙）、原始元件和搭出的元件、每章的系列和每关的位置（slot：问题、思维链、带来的知识点），向领域提的需求；schema 是内核的 `BLUEPRINT`（`kit/pipeline/blueprint.js`），经操作集写（`blueprint.put`、`blueprint.set`）；`check` 按 schema 查它，页面不读它 |
 | `pipeline.json` | 流水线的记录（第 7.2 节）：每一步跑过的 agent（模型、用量、调用了几次命令、写下的变更集）、每次闸门的结果、评审队列里的那一项；只由 `npm run pipeline` 写 |
 
-- 文字只写基准语言一种：`{ "zh": … }`；与语言无关的符号（`a + b`）可以写成一个字符串。译文不在内容里，在覆盖层里（下表的 `i18n/`，第 6.10 节）。
+- 文字只写基准语言一种：`{ "en": … }`；与语言无关的符号（`a + b`）可以写成一个字符串。译文不在内容里，在覆盖层里（下表的 `i18n/`，第 6.10 节）。
 - 引用词汇表的地方写成单键对象 `{ "项名": 参数 }`，没有参数的项也可以只写项名。例如诊断：`{ "when": { "uses": "right" }, "say": {…} }`；条件可以用 `all`、`any`、`not` 组合。
 - 参考解、naive 解、预置电路都写成蓝图文本（`kit/circuit/text.js`，每行一个字符串的列表），和玩家导出、导入的是同一种文本。
 - 文件按统一的格式写：两格缩进，一个对象或列表连同键和后面的逗号不超过 112 列就写在一行，否则展开（`kit/engine/ops/json.js`）。早先写成的文件不全是这个格式；操作集改一个文件时，没变的部分照原文留下，只有新写的部分用这个格式，所以 diff 只有改了的那几行。
@@ -544,10 +544,10 @@ opens them to show the resulting feedback.
 
 ```json
 {
-  "presets": { "outside": { "control": "select", "label": { "zh": "图外假设", "en": "Outside" }, "options": [...], "default": "zero" } },
+  "presets": { "outside": { "control": "select", "label": { "en": "Outside" }, "options": [...], "default": "zero" } },
   "parts": {
     "arithmetic": {
-      "name": { "zh": "四则运算", "en": "Arithmetic" }, "desc": {...}, "icon": "Plus", "family": "value",
+      "name": { "en": "Arithmetic" }, "desc": {...}, "icon": "Plus", "family": "value",
       "inputs": [{ "name": "a" }, { "name": "b" }],
       "settings": [{ "key": "op", "control": "buttons", "options": [{ "value": "add", "label": "+" }, ...], "default": "add" }],
       "compute": "match $op { add: add(a, b), sub: sub(a, b), mul: mul(a, b), div: div(a, b) }",
@@ -822,17 +822,18 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 ### 6.10 译文
 
-**做游戏和做翻译分开**（`games/DIRECTION.md` 决策二十）。内容只写基准语言（现在是中文，`kit/engine/i18n.js` 的 `BASE`）；别的语言是游戏文件夹里的覆盖层 `i18n/<语言>.json`：
+**做游戏和做翻译分开**（`games/DIRECTION.md` 决策二十）。内容只写基准语言（英语，见 `kit/engine/i18n.js`）；别的语言是游戏文件夹里的覆盖层 `i18n/<语言>.json`：
 
 ```json
-{ "把两个向量首尾相接。": "Put the two vectors tip to tail." }
+{ "Put the two vectors tip to tail.": "把两个向量首尾相接。" }
 ```
 
 - **键就是原文。** 默认每句原文有一份译文。字段种类的含义有区别时，值可写成 `{ "default": "Append", "partName": "Join" }`。字段种类由 schema 提供，当前包括游戏标题、关卡标题、元件名、元件说明、设置标签、区域标签和端口标签。没有专用译文的字段读 `default`；没有可用译文时读基准语言。译文随原文和字段种类移动，改名时原文键和各份译文的链接一并更新。
 - **页面玩的是盖上译文的内容。** 页面打开时先按词汇表查内容（只有基准语言），再用 `localized` 给每段文字加上它有的语言；一段译文标记坏了，或者链接和原文不一样，就不盖上去，那一段读基准语言。检查、操作集、studio、流水线的每一步读的都是没盖译文的内容。
 - **译文不拦任何事。** `npm run check` 给每种语言报一行，从不算失败。分母是不重复的基准文字数；某句在所有实际出现的字段种类都有有效译文才计入分子。出错和未使用的译文按实际覆盖项计数。译文的闸门是流水线的 `translate` 一步（`npm run pipeline -- <游戏> gate translate`）：站不住的是失败，没译的和没人读的是报告；`queue` 不等它。
+- **在 Studio 编辑。**右上角的语言菜单同时控制「文案」、侧栏编辑和画面预览。选英语时用 `text.set` 编辑英文原文，选中文时用 `i18n.set` 编辑 `i18n/zh.json`；缺译时以英文原文提示待译内容。「译文」仍可集中浏览各语言的译文。新文案先写英文原文。
 - **写译文**用操作 `i18n.set`（第 7.1 节），和别的修改一样进修改日志、能撤销；人在 studio 的「译文」页签里写（第 6.7 节），agent 经 MCP 或流水线的 `translate` 一步。
-- **内核和领域的代码自己说的话**是同一个办法：代码里只写基准语言，`tr('清空')`、`T('清空')`（`kit/shell/i18n.js`）；英文在词表 `kit/i18n/en.js` 里，同样按原文做键。`npm run words` 把代码里两种语言一起写的调用搬进词表，`npm run words -- --check`（kit 变更时 CI 也跑）在某个词没有词表条目时失败。两种情形仍然在代码里把两种语言一起写：用值拼出来的句子（`` T(`第 ${n} 关`, `Level ${n}`) ``，要等有了带占位符的写法），和同一句中文在不同地方要译成不同英文的。代码读内容里的文字时用 `sideOf(文字, 语言)`，没有译文就取基准语言。
+- **内核和领域的界面用语**沿用独立的词表：代码里以中文索引词条，`tr('清空')`、`T('清空')`（`kit/shell/i18n.js`）；英文在词表 `kit/i18n/en.js` 里，同样按原文做键。`npm run words` 把代码里两种语言一起写的调用搬进词表，`npm run words -- --check`（kit 变更时 CI 也跑）在某个词没有词表条目时失败。两种情形仍然在代码里把两种语言一起写：用值拼出来的句子（`` T(`第 ${n} 关`, `Level ${n}`) ``，要等有了带占位符的写法），和同一句中文在不同地方要译成不同英文的。代码读内容里的文字时用 `sideOf(文字, 语言)`，没有译文就取英文原文。
 
 ---
 

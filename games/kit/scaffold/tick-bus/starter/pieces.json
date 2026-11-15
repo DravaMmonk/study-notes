@@ -1,8 +1,8 @@
 {
   "parts": {
     "reg": {
-      "name": { "zh": "读寄存卡" },
-      "desc": { "zh": "给出同名寄存卡中存的值；尚未存入时，给出初值（「—」或设定的数）。" },
+      "name": { "en": "Register" },
+      "desc": { "en": "Gives the value held in the register of the same name; before anything is stored, gives its start value (「—」 or the number set)." },
       "icon": "ArrowUpFromLine",
       "family": "memory",
       "inputs": [],
@@ -10,17 +10,17 @@
         {
           "key": "reg",
           "control": "select",
-          "label": { "zh": "名字" },
+          "label": { "en": "Name" },
           "options": [{ "value": "A" }, { "value": "B" }, { "value": "C" }, { "value": "D" }],
           "default": "A"
         },
-        { "key": "start", "control": "number", "label": { "zh": "初值" }, "default": null }
+        { "key": "start", "control": "number", "label": { "en": "Start" }, "default": null }
       ],
       "compute": "held($reg, $start)"
     },
     "keep": {
-      "name": { "zh": "存寄存卡" },
-      "desc": { "zh": "把接入的值存进同名寄存卡，从下一拍起可以读出。" },
+      "name": { "en": "Keep" },
+      "desc": { "en": "Stores its input in the register of the same name; it can be read from the next tick on." },
       "icon": "ArrowDownToLine",
       "family": "memory",
       "inputs": [{ "name": "in" }],
@@ -28,7 +28,7 @@
         {
           "key": "reg",
           "control": "select",
-          "label": { "zh": "名字" },
+          "label": { "en": "Name" },
           "options": [{ "value": "A" }, { "value": "B" }, { "value": "C" }, { "value": "D" }],
           "default": "A"
         }
@@ -36,8 +36,8 @@
       "keeps": { "input": "in", "register": "reg" }
     },
     "const": {
-      "name": { "zh": "常数" },
-      "desc": { "zh": "始终给出设定的数。" },
+      "name": { "en": "Constant" },
+      "desc": { "en": "Always gives the number it is set to." },
       "icon": "Hash",
       "family": "value",
       "inputs": [],
@@ -45,7 +45,7 @@
         {
           "key": "value",
           "control": "number",
-          "label": { "zh": "数值" },
+          "label": { "en": "Value" },
           "min": 0,
           "max": 32,
           "integer": true,

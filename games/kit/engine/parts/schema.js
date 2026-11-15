@@ -142,8 +142,8 @@ export const PART = S.either(...Object.values(EDITORS).flatMap((shape) => (shape
 
 /** A new piece of each editor, ready to fill in, where the domain's vocabulary gives what it is made of (null: not). */
 export const BLANKS = {
-  circuit: (vocabulary) => (vocabulary?.kinds.op ? { name: { zh: '新元件' }, desc: { zh: '' }, icon: 'Box', family: Object.keys(vocabulary.kinds.family ?? {})[0] ?? 'value', inputs: [{ name: 'a' }], compute: 'a' } : null),
-  strip: (vocabulary) => (vocabulary?.kinds.mark ? { editor: 'strip', name: { zh: '新块' }, desc: { zh: '' }, icon: 'Box', mark: Object.keys(vocabulary.kinds.mark)[0] } : null),
+  circuit: (vocabulary) => (vocabulary?.kinds.op ? { name: { en: 'New part' }, desc: { en: '' }, icon: 'Box', family: Object.keys(vocabulary.kinds.family ?? {})[0] ?? 'value', inputs: [{ name: 'a' }], compute: 'a' } : null),
+  strip: (vocabulary) => (vocabulary?.kinds.mark ? { editor: 'strip', name: { en: 'New block' }, desc: { en: '' }, icon: 'Box', mark: Object.keys(vocabulary.kinds.mark)[0] } : null),
 }
 /** Whether a domain's games make pieces of some editor out of what its vocabulary gives: their content names them as parts. */
 export const makesPieces = (vocabulary) => Object.values(BLANKS).some((blank) => blank(vocabulary))

@@ -9,7 +9,7 @@
 // piece.rename, piece.add (a copy after it), piece.remove.
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRightLeft, ChevronRight, Copy, Play, CirclePlay, Trash2 } from 'lucide-react'
-import { L, tr } from '../shell/i18n.js'
+import { L, getLang, tr } from '../shell/i18n.js'
 import { getAt, showPath } from '../engine/ops/edit.js'
 import { blank, fieldAt, fileForm, formOf, gameFields, opFor, placeFindings, sectionsOf } from './form.js'
 import { holdsLevels } from '../engine/schema.js'
@@ -58,7 +58,7 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
   const was = base?.levels.find((l) => l.id === id)
   const form = formOf(vocabulary.level, value, { vocabulary, levels: order })
   const { at: findings, rest } = placeFindings(form, places.filter((p) => p.level === id))
-  const ctx = ctxOf({ vocabulary, order, names, levelOptions })
+  const ctx = ctxOf({ vocabulary, order, names, levelOptions }, { lang: getLang(), i18n: content.i18n, onTranslate: onEdit, titleKind: 'levelTitle' })
   const before = beforeIn(was && (({ id: __, ...v }) => v)(was))
   const sections = form.kind === 'obj' ? sectionsOf(form) : null
   const [name, setName] = useState(id)

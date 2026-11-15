@@ -1,10 +1,10 @@
 {
-  "title": { "zh": "第一处" },
+  "title": { "en": "The first place" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "<part-ref to=\"part:rw\"></part-ref>只换一处。对得上的地方不止一处时，它从外往里、从左往右，换第一处。"
+        "en": "<part-ref to=\"part:rw\"></part-ref> changes one place. When more than one place fits, it changes the first, going outside in and left to right."
       }
     }
   ],
@@ -13,15 +13,15 @@
       "id": "sp-where",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": { "en": "Goal" } }],
       "backtrack": true,
       "tests": [
         { "goal": "¬¬Rain ∧ ¬¬Wind", "becomes": [["Rain ∧ Wind"]] },
         { "goal": "¬¬(¬¬Rain → Wet)", "becomes": [["Rain → Wet"]] },
         { "goal": "¬¬¬¬Wind", "becomes": [["Wind"]] }
       ],
-      "brief": { "zh": "设计一个证明助手，把每个目标变成要的样子。" },
-      "hint": [{ "zh": "每个目标里有两处 ¬¬。" }],
+      "brief": { "en": "Design a proof assistant that transforms each goal into the required form." },
+      "hint": [{ "en": "Each goal has two ¬¬s." }],
       "solution": [
         "c0r0 = dneg[use=[\"dneg.elim\"]]()",
         "c1r0 = dneg[use=[\"dneg.elim\"]]()",

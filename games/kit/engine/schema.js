@@ -106,8 +106,8 @@ export function validate(schema, value, { vocabulary = null, levels = null, task
           return
         }
         // Content is written in one language; a translation belongs in the game's overlay (./i18n.js).
-        if (!isObj(v) || typeof v.zh !== 'string' || Object.keys(v).length !== 1) return say(where, `expected text, { zh } or a string, found ${show(v)}`)
-        for (const p of markupOf(v.zh).problems) say(`${where}.zh`, p)
+        if (!isObj(v) || typeof v.en !== 'string' || Object.keys(v).length !== 1) return say(where, `expected text, { en } or a string, found ${show(v)}`)
+        for (const p of markupOf(v.en).problems) say(`${where}.en`, p)
         return
       case 'oneOf':
         if (!s.values.includes(v)) say(where, `expected one of ${s.values.map(show).join(', ')}, found ${show(v)}`)

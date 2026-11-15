@@ -9,7 +9,6 @@ import { eraLevels } from '../course.js'
 const NOT_GAME = ['id', 'levels', 'glossary', 'domain', 'vocabulary', 'open', 'blueprint', 'i18n']
 /** The copy rule a text is held to: the field it is (a task's own field for a task's text). */
 export const textField = (path) => String(path[0] === 'tasks' ? path[2] ?? '' : path[0] === 'eras' ? path[2] ?? '' : path[0] ?? '')
-const pairOf = (v) => (typeof v === 'string' ? { zh: v } : v)
 
 /**
  * The rows of `scope` (an era's index, 'all' or 'glossary'), `order` the levels in play order:
@@ -17,7 +16,7 @@ const pairOf = (v) => (typeof v === 'string' ? { zh: v } : v)
  */
 export function copyRows(content, vocabulary, scope, order) {
   const rows = []
-  const add = (file, name, at) => ({ path, value }) => rows.push({ key: `${name}|${showPath(path)}`, file, name, path, value: pairOf(value), field: at === 'glossary' ? String(path.at(-2) === 'body' ? 'body' : path.at(-1)) : textField(path) })
+  const add = (file, name, at) => ({ path, value, schema }) => rows.push({ key: `${name}|${showPath(path)}`, file, name, path, value, kind: schema?.textKind ?? (path.length === 1 && path[0] === 'title' ? file.game ? 'gameTitle' : file.level ? 'levelTitle' : undefined : undefined), field: at === 'glossary' ? String(path.at(-2) === 'body' ? 'body' : path.at(-1)) : textField(path) })
   if (scope === 'glossary') {
     for (const t of find(GLOSSARY, content.glossary, 'text')) {
       const entry = content.glossary[t.path[0]]?.[t.path[1]]

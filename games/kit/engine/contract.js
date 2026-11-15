@@ -34,7 +34,7 @@ export const EXTENSIONS = {
   play: (p) => Boolean(p) && isFn(p.open) && isFn(p.attempt),
 }
 
-const isText = (v) => typeof v === 'string' || (v && typeof v.zh === 'string')
+const isText = (v) => typeof v === 'string' || (v && (typeof v.en === 'string' || typeof v.zh === 'string'))
 const strings = (v) => Array.isArray(v) && v.every((x) => typeof x === 'string')
 const isBoard = (b) => Boolean(b) && Array.isArray(b.nodes) && Array.isArray(b.wires)
 

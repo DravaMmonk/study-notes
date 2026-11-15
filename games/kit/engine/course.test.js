@@ -132,7 +132,7 @@ test('the part dependency graph: where each part comes in, what a built part is 
   assert.match(text, /p2_P\[\["P · 2 · used 2"\]\]/)
   assert.match(text, /p2_P -\.-> p3_Q/)
   assert.doesNotMatch(text, /era_2/)
-  assert.match(mermaid(graph, { levels: true }), /subgraph era_2\["2 · 二"\]\n {4}l3_3\["3"\]/)
+  assert.match(mermaid(graph, { levels: true }), /subgraph era_2\["2 · Two"\]\n {4}l3_3\["3"\]/)
   assert.match(dot(graph, { levels: true }), /l1_2 -> p2_P \[penwidth=2\];/)
 })
 

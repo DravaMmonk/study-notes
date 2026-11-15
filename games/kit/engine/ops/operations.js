@@ -275,9 +275,9 @@ export const OPERATIONS = {
   },
   'text.set': {
     about: t('改一段文字（一关、game.json、百科或 pieces.json 里的）；译文在覆盖层里，用 i18n.set'),
-    params: S.obj({ level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary', 'pieces'])), path: PATH, zh: S.str() }),
-    apply(ws, { level, in: where, path, zh }, { vocabulary }) {
-      if ((level === undefined) === (where === undefined)) fail('name the text’s file: a level, or in: game, glossary or parts')
+    params: S.obj({ level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary', 'pieces'])), path: PATH, en: S.str() }),
+    apply(ws, { level, in: where, path, en }, { vocabulary }) {
+      if ((level === undefined) === (where === undefined)) fail('name the text’s file: a level, or in: game, glossary or pieces')
       if (where === 'pieces' && ws.partDefs === undefined) fail('the game has no pieces.json')
       const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : where === 'game' ? [ws.game, vocabulary.game] : where === 'pieces' ? [ws.partDefs, PARTS_FILE] : [ws.glossary, null]
       const keys = parsePath(path)
@@ -285,10 +285,10 @@ export const OPERATIONS = {
       if (schema && shape?.type !== 'text') fail(`${showPath(keys)} is not a text`)
       const old = getAt(value, keys)
       if (old === undefined && (where === 'glossary' || where === 'pieces')) fail(`${where}.json has no text at ${showPath(keys)}`)
-      const next = { zh }
+      const next = { en }
       const file = level ?? where
       // The glossary and pieces.json have no field operations: their text goes back as a text.
-      const inverse = [where === 'glossary' || where === 'pieces' ? { op: 'text.set', in: where, path: keys, zh: typeof old === 'string' ? old : old.zh } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
+      const inverse = [where === 'glossary' || where === 'pieces' ? { op: 'text.set', in: where, path: keys, en: typeof old === 'string' ? old : old.en } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
       if (level !== undefined) setLevel(ws, level, keys, next, vocabulary)
       else if (where === 'game') ws.game = setAt(ws.game, keys, next)
       else if (where === 'pieces') ws.partDefs = setAt(ws.partDefs, keys, next, orderOf(PARTS_FILE, ws.partDefs, vocabulary))

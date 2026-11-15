@@ -39,7 +39,7 @@ export function dependencies(course) {
   return { eras, parts, made, levels }
 }
 
-const textOf = (t) => (t === undefined || t === null ? '' : typeof t === 'object' ? t.zh ?? t.en ?? '' : String(t))
+const textOf = (t) => (t === undefined || t === null ? '' : typeof t === 'object' ? t.en ?? t.zh ?? '' : String(t))
 const safe = (s) => String(s).replace(/[^A-Za-z0-9_]/g, '_')
 /** One id per part and per level, in the format's own alphabet. */
 function ids(graph) {

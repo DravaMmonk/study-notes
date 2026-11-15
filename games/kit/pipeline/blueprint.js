@@ -253,14 +253,14 @@ export function auditBlueprint(bp) {
   // Knowledge comes from the sources, and is knowledge: a primitive is a tool, not a point. (A built part may embody a
   // point the player builds: cropping is built as crop.)
   const low = (x) => String(x ?? '').trim().toLowerCase()
-  const toolNames = new Set(bp.primitives.flatMap((p) => [p.part, p.about?.zh, p.about?.en].map(low)).filter(Boolean))
+  const toolNames = new Set(bp.primitives.flatMap((p) => [p.part, p.about?.en ?? p.about].map(low)).filter(Boolean))
   for (const k of bp.knowledge) {
     if (!k.term || !k.source || !k.basis || !k.difficulty) {
       say('bp-point', k.id, `it has no ${[!k.term && 'term', !k.source && 'source', !k.basis && 'basis', !k.difficulty && 'difficulty'].filter(Boolean).join(' and no ')}`)
       continue
     }
     if (!bp.sources.some((src) => k.source.startsWith(src))) say('bp-source', k.id, `cites ${k.source}, no file of the sources`)
-    if ([k.id, k.term.zh, k.term.en].map(low).some((n) => toolNames.has(n))) say('bp-part-point', k.id, 'it is named as a primitive')
+    if ([k.id, k.term.en ?? k.term].map(low).some((n) => toolNames.has(n))) say('bp-part-point', k.id, 'it is named as a primitive')
   }
   if (Object.keys(bp.trays ?? {}).length > 1) for (const era of bp.eras) if (!bp.trays[era.tray]) say('bp-tray', `era ${era.id}`, era.tray ? `it plays with ${era.tray}, which is no tray` : 'it does not say which tray it plays with')
   if (out.some((f) => f.rule === 'bp-refs' || f.rule === 'bp-unique')) return out
@@ -419,7 +419,7 @@ export function auditBlueprint(bp) {
     if (madeHere.size && last && !last.slots.some((s) => s.uses.some((u) => madeHere.has(u)))) say('bp-abstraction', last.id, `stands on none of ${[...madeHere].join(', ')}`)
   }
 
-  for (const r of bp.requests ?? []) if (r.status === 'open') say('bp-open', r.id, `${r.kind} request open: ${r.about.zh ?? r.about}`)
+  for (const r of bp.requests ?? []) if (r.status === 'open') say('bp-open', r.id, `${r.kind} request open: ${r.about.en ?? r.about}`)
   return out
 }
 

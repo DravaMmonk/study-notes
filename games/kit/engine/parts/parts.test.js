@@ -27,7 +27,7 @@ const file = {
       settings: [{ key: 'k', control: 'slider', min: 1, max: 4, default: 2 }, { key: 'how', use: 'how' }, { key: 'lock', control: 'toggle', when: "eq($how, 'up')" }],
       compute: "match $how { up: scale(a, k=$k, how='up'), down: scale(a, k=$k, how=$how) }",
       rules: [{ on: 'how', when: "eq($how, 'down')", set: { k: 'plus($k, 1)' } }],
-      checks: [{ holds: 'le($k, 3)', say: { zh: 'k 太大' } }],
+      checks: [{ holds: 'le($k, 3)', say: { en: 'k is too large' } }],
       views: { tile: [{ show: 'summary', text: '{how} ×{k}' }], card: [{ show: 'row', blocks: [{ show: 'setting', key: 'k' }, { show: 'readout', label: 'k²', expr: 'times($k, $k)' }] }] },
     },
     split: { name: 'Split', desc: 'two', icon: 'Split', family: 'value', inputs: [{ name: 'a' }], outputs: [{ name: 'hi' }, { name: 'lo' }], compute: { hi: 'add(a, 1)', lo: 'add(a, -1)' } },
@@ -65,7 +65,7 @@ test('pieces.json becomes engine parts: settings with their presets, one or seve
   assert.equal(values.get('t#hi'), 5)
   assert.equal(values.get('t#lo'), 3)
   assert.equal(PARTS.sum.eval({ a: null, b: 1 }, { params: {} }), null)
-  assert.throws(() => PARTS.scaled.eval({ a: 1 }, { params: { k: 4 } }), /太大/)
+  assert.throws(() => PARTS.scaled.eval({ a: 1 }, { params: { k: 4 } }), /too large/)
 })
 
 test('an optional input left unwired reads 「—」 and does not make the part give 「—」; wired to 「—」 it does', () => {
@@ -84,7 +84,7 @@ test('interaction: rules follow a change, checks say what fails, settings-only e
   const { defs } = defineParts(file, OPS)
   assert.deepEqual(applyRules(defs.scaled, { k: 2, how: 'down' }, 'how', OPS), { k: 3, how: 'down' })
   assert.deepEqual(applyRules(defs.scaled, { k: 2, how: 'up' }, 'how', OPS), { k: 2, how: 'up' })
-  assert.deepEqual(failedCheck(defs.scaled, { k: 4 }, OPS), { zh: 'k 太大' })
+  assert.deepEqual(failedCheck(defs.scaled, { k: 4 }, OPS), { en: 'k is too large' })
   assert.equal(evalSettings('times($k, $k)', defs.scaled, { k: 3 }, OPS), 9)
 })
 
@@ -124,7 +124,7 @@ test('code and content pieces share both the vocabulary and the running registry
 test('the piece readers expose the optional faces without renaming stored fields', () => {
   const piece = { ...file.parts.scaled, regions: [{ name: 'body', opens: true }] }
   const keeping = { keeps: { input: 'in', register: 'reg' } }
-  const built = { name: { zh: '做成的' }, desc: { zh: '跑 work 的板。' }, inside: [{ task: 'work' }, { task: 'better' }] }
+  const built = { name: { en: '做成的' }, desc: { en: 'The board that runs work.' }, inside: [{ task: 'work' }, { task: 'better' }] }
   assert.equal(holesOf(piece), piece.inputs)
   assert.equal(settingsOf(piece), piece.settings)
   assert.equal(facesOf(piece), piece.views)
@@ -149,7 +149,7 @@ test('the piece readers expose the optional faces without renaming stored fields
 test('a piece of another editor has its own faces: a block on a strip marks an item of the domain’s mark kind', () => {
   // A domain with no engine resources, whose games' pieces are blocks: they are its parts all the same.
   const marking = { domain: 'marks', version: 1, kinds: { mark: { noun: { about: 'a noun' }, verb: { about: 'a verb' } } } }
-  const block = { editor: 'strip', name: { zh: '名词' }, desc: { zh: '一个名词。' }, icon: 'Rows3', mark: 'noun' }
+  const block = { editor: 'strip', name: { en: '名词' }, desc: { en: 'A noun.' }, icon: 'Rows3', mark: 'noun' }
   assert.equal(editorOf(block), 'strip')
   assert.equal(editorOf(file.parts.sum), 'circuit')
   assert.equal(markOf(block), 'noun')
@@ -209,7 +209,7 @@ test('a part with regions is a frame: its resource sees the card and the region,
 })
 
 test('a part keeps an input in the register a setting names, or computes, never both', () => {
-  const keep = { name: { zh: '存' }, desc: { zh: '存进寄存器。' }, icon: 'Box', family: 'value', inputs: [{ name: 'in' }], settings: [{ key: 'reg', control: 'select', options: [{ value: 'A' }] }], keeps: { input: 'in', register: 'reg' } }
+  const keep = { name: { en: '存' }, desc: { en: 'Store it in the register.' }, icon: 'Box', family: 'value', inputs: [{ name: 'in' }], settings: [{ key: 'reg', control: 'select', options: [{ value: 'A' }] }], keeps: { input: 'in', register: 'reg' } }
   assert.deepEqual(partProblems({ parts: { keep } }, vocabulary), [])
   assert.ok(partProblems({ parts: { keep: { ...keep, compute: 'in' } } }, vocabulary).some((p) => /one of the two/.test(p.says)))
   assert.ok(partProblems({ parts: { keep: { ...keep, keeps: { input: 'x', register: 'r' } } } }, vocabulary).length === 2)
@@ -220,7 +220,7 @@ test('a part keeps an input in the register a setting names, or computes, never 
 
 test('an optional number left unset reads 「—」, and a new card starts from its default', () => {
   const start = { key: 'start', control: 'number', default: 0, optional: true }
-  const { PARTS, defaultsOf } = defineParts({ parts: { r: { name: { zh: 'r' }, desc: { zh: 'd' }, icon: 'Box', family: 'value', inputs: [], settings: [start], compute: '$start' } } }, OPS)
+  const { PARTS, defaultsOf } = defineParts({ parts: { r: { name: { en: 'r' }, desc: { en: 'd' }, icon: 'Box', family: 'value', inputs: [], settings: [start], compute: '$start' } } }, OPS)
   assert.deepEqual(defaultsOf('r'), { start: 0 })
   assert.equal(PARTS.r.eval({}, { params: {} }, {}), null)
   assert.equal(PARTS.r.eval({}, { params: { start: '3' } }, {}), 3)

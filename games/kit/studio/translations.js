@@ -1,5 +1,5 @@
 // The translation table's rows: base texts in play order, expanded where the overlay has field variants.
-import { mistranslated, translationContexts, translationEntries } from '../engine/i18n.js'
+import { BASE, mistranslated, translationAt, translationContexts, translationEntries } from '../engine/i18n.js'
 import { showPath } from '../engine/ops/edit.js'
 import { copyRows } from './copy.js'
 
@@ -8,7 +8,7 @@ export function translationRows(content, vocabulary, order, lang) {
   const contexts = translationContexts(content, vocabulary)
   const seen = new Map()
   for (const row of [...copyRows(content, vocabulary, 'all', order), ...copyRows(content, vocabulary, 'glossary', order)]) {
-    const from = row.value?.zh
+    const from = row.value?.[BASE]
     if (contexts.has(from) && !seen.has(from)) seen.set(from, `${row.name} ${showPath(row.path)}`)
   }
   for (const from of contexts.keys()) if (!seen.has(from)) seen.set(from, '')
@@ -52,4 +52,14 @@ export function translationOp(lang, row, to) {
   const variants = to.trim() ? { ...rest, [row.kind]: to } : rest
   const keys = Object.keys(variants)
   return keys.length ? { ...op, to: keys.length === 1 && keys[0] === 'default' ? variants.default : variants } : op
+}
+
+/** Resolve the side to edit. Neutral strings and new fields still edit the source. */
+export function copySide(value, lang, i18n, fieldKind) {
+  const from = value?.[BASE]
+  if (lang === BASE || !from?.trim()) return { lang: BASE, text: typeof value === 'string' ? value : from ?? '' }
+  const entry = i18n?.[lang]?.[from]
+  const to = translationAt(entry, fieldKind)
+  const kind = entry && typeof entry === 'object' ? (Object.hasOwn(entry, fieldKind) ? fieldKind : 'default') : undefined
+  return { lang, text: to ?? '', from, to, ...(kind !== undefined && { entry, kind }) }
 }

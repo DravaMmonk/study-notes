@@ -1,94 +1,94 @@
 {
   "parts": {
     "counter": {
-      "name": { "zh": "路线计数器" },
-      "desc": { "zh": "把两条来路的数加起来；「起点」口是「是」时，再加 1。「—」不算在内，什么都没收到时输出「—」。" },
+      "name": { "en": "Route Counter" },
+      "desc": { "en": "Adds up the numbers on its two ways in, plus 1 when its “start” port is “yes”. A “—” is left out; with nothing to add, it outputs “—”." },
       "inside": [{ "task": "stamp" }]
     },
     "order": {
-      "name": { "zh": "填表顺序" },
-      "desc": { "zh": "每个格子都要排在它要读的格子之后。顺序反过来，电路读的方向也得跟着反过来。" },
+      "name": { "en": "Fill Order" },
+      "desc": { "en": "Every cell must come after the cells it reads. Reverse the order, and the directions the circuit reads must reverse too." },
       "inside": [{ "task": "order" }]
     },
     "min": {
-      "name": { "zh": "最省格" },
-      "desc": { "zh": "取最多三条来路里最小的（「起点」口是「是」时，0 也算一条来路），再加上本格代价。来路全是「—」时，输出「—」。" },
+      "name": { "en": "Cheapest Cell" },
+      "desc": { "en": "Takes the smallest of up to three ways in (when its “start” port is “yes”, 0 counts as a way in too), then adds this cell’s cost. When every way in is “—”, it outputs “—”." },
       "inside": [{ "task": "slantcost" }]
     },
     "layer": {
-      "name": { "zh": "分层" },
-      "desc": { "zh": "把表复制成几层，让状态多记一件会影响未来的事。" },
+      "name": { "en": "Layers" },
+      "desc": { "en": "Copy the table into several layers, so the state remembers one more thing that affects the future." },
       "inside": [{ "task": "robber_2" }]
     },
     "align": {
-      "name": { "zh": "对齐表" },
-      "desc": { "zh": "一个词放上面，一个词放左边。字相同，左上 + 1；否则取上面和左边中较大的。" },
+      "name": { "en": "Alignment Table" },
+      "desc": { "en": "One word along the top, the other down the left. If the letters match, up-left + 1; otherwise the larger of up and left." },
       "inside": [{ "task": "lcs" }]
     },
     "cost": {
-      "name": { "zh": "编辑距离器" },
-      "desc": { "zh": "输出这几个数里最小的：上面、左边、左上三者中最小的 + 1；字相同时的左上；起点上的 0。" },
+      "name": { "en": "Edit Distance Meter" },
+      "desc": { "en": "Outputs the smallest of: the smallest of up, left and up-left, plus 1; up-left itself when the letters match; 0 on the start." },
       "inside": [{ "task": "edit" }]
     },
     "choose": {
-      "name": { "zh": "择优器" },
-      "desc": { "zh": "输出「不换」和「换来 + 加上」两者中较大的那个。" },
+      "name": { "en": "Best Choice" },
+      "desc": { "en": "Outputs the larger of “keep” and “swap for” plus “plus”." },
       "inside": [{ "task": "knaptable" }]
     },
     "roll": {
-      "name": { "zh": "滚动数组" },
-      "desc": { "zh": "只留一行原地改写。改写的方向，决定每件物品能用几次。" },
+      "name": { "en": "Rolling Array" },
+      "desc": { "en": "Keep just one row and rewrite it in place. The direction you rewrite in decides how many times each item can be used." },
       "inside": [{ "task": "roll" }]
     },
     "judge": {
-      "name": { "zh": "输赢判定器" },
-      "desc": { "zh": "读三个对手局面：只要有一个是「输」，这一格就是「赢」；否则是「输」。" },
+      "name": { "en": "Win/Lose Judge" },
+      "desc": { "en": "Reads the three positions the opponent could face: if any of them is a loss, this cell is a win; otherwise a loss." },
       "inside": [{ "task": "piles" }]
     },
     "sweep": {
-      "name": { "zh": "扫描臂" },
-      "desc": { "zh": "一次读一整段格子。可每格都从头扫一遍很慢：能用上一格存好的答案，就别重扫。" },
+      "name": { "en": "Sweep Arm" },
+      "desc": { "en": "Reads a whole run of cells at once. But sweeping from the start on every cell is slow: if the previous cell has already stored the answer, use it instead of sweeping again." },
       "inside": [{ "task": "prefix_2" }]
     },
     "wordbreak": {
-      "name": { "zh": "切词" },
-      "desc": { "zh": "前面某个位置能切开，而且那一截刚好是个词，这里就能切开。" },
+      "name": { "en": "Word Breaker" },
+      "desc": { "en": "If some earlier position can be split and the piece from there to here is exactly a word, this position can be split too." },
       "inside": [{ "task": "wordbreak" }]
     },
     "interval": {
-      "name": { "zh": "区间合并器" },
-      "desc": { "zh": "左段和右段是两串数：按切分点一一相加，取最小的，再加上整段代价。" },
+      "name": { "en": "Interval Merger" },
+      "desc": { "en": "Its left and right parts are two runs of numbers: it adds them split point by split point, takes the smallest, then adds the cost of the whole run." },
       "inside": [{ "task": "stones" }]
     },
     "anyorder": {
-      "name": { "zh": "多种顺序" },
-      "desc": { "zh": "只要每个格子都排在它要读的格子之后，什么顺序都行。" },
+      "name": { "en": "Many Orders" },
+      "desc": { "en": "Any order works, as long as every cell comes after the cells it reads." },
       "inside": [{ "task": "twoorders_2" }]
     },
     "value": {
-      "name": { "zh": "打折器" },
-      "desc": { "zh": "取最多四条来路里最大的，再乘上元件上的数（比如 0.9）。" },
+      "name": { "en": "Discounter" },
+      "desc": { "en": "Takes the largest of up to four ways in, then multiplies it by the number set on its part (0.9, say)." },
       "inside": [{ "task": "value" }],
       "settings": [{ "key": "value", "control": "number", "default": 0.9 }]
     },
     "expect": {
-      "name": { "zh": "期望" },
-      "desc": { "zh": "结果不确定时，把每种结果按可能性加权，再比较。" },
+      "name": { "en": "Expectation" },
+      "desc": { "en": "When the outcome is uncertain, weight each outcome by how likely it is, then compare." },
       "inside": [{ "task": "slip" }]
     },
     "viterbi": {
-      "name": { "zh": "维特比" },
-      "desc": { "zh": "每一列每一种标签，记下到这里最省的解释：上一列各行加上转移代价，取较小。" },
+      "name": { "en": "Viterbi" },
+      "desc": { "en": "For every tag in every column, keep the cheapest explanation up to here: each row of the previous column plus its transition cost, then the min." },
       "inside": [{ "task": "tagging" }]
     },
     "local": {
-      "name": { "zh": "局部对齐" },
-      "desc": { "zh": "低于 0 就截成 0：重新开始，比背着负分走下去强。答案在表里最大的那一格。" },
+      "name": { "en": "Local Alignment" },
+      "desc": { "en": "Anything below 0 is cut to 0: starting afresh beats carrying a negative score along. The answer is the largest cell in the table." },
       "inside": [{ "task": "localalign" }]
     },
     "seam": {
-      "name": { "zh": "剪缝" },
-      "desc": { "zh": "每一格 = 本格能量 + 上面三格里最小的。从最底一行最小的格子倒推，剪掉这条缝。" },
+      "name": { "en": "Seam Carving" },
+      "desc": { "en": "Each cell = its own energy + the smallest of the three cells above it. Trace back from the smallest cell in the bottom row, and cut that seam out." },
       "inside": [{ "task": "carve" }]
     }
   }

@@ -14,20 +14,20 @@ const written = (text) => text.replace(REF, (_, kind, id) => `⟦${id}⟧`)
 const STATES = [['missing', '未译', 'Missing'], ['wrong', '有误', 'Wrong'], ['done', '已译', 'Done'], ['unused', '无人读', 'Unused']]
 
 const Row = memo(function Row({ row, lang, names, onEdit }) {
-  const onSet = useCallback(({ zh }) => { const op = translationOp(lang, row, zh); if (op) onEdit(op) }, [lang, row, onEdit])
+  const onSet = useCallback((value) => { const op = translationOp(lang, row, value[lang]); if (op) onEdit(op) }, [lang, row, onEdit])
   return (
     <div className={`copy-row i18n-row is-${row.state}`}>
       <div className="i18n-from" title={row.where}>{written(row.from)}{row.kind && <small>{row.kind}</small>}</div>
       {row.state === 'unused'
         ? <div className="i18n-unused"><span>{row.to}</span><button type="button" className="kit-btn is-icon" onClick={() => { const op = translationOp(lang, row, ''); if (op) onEdit(op) }} aria-label={tr('去掉这一条')}><X size={13} aria-hidden="true" /></button></div>
-        : <TextField value={{ zh: row.to }} onSet={onSet} label={row.where} names={names} findings={row.why ? [row.why] : []} compact />}
+        : <TextField key={lang} value={row.to} lang={lang} onSet={onSet} label={row.where} names={names} findings={row.why ? [row.why] : []} compact />}
     </div>
   )
 }, (a, b) => a.lang === b.lang && a.names === b.names && a.onEdit === b.onEdit && JSON.stringify(a.row) === JSON.stringify(b.row))
 
 export default function Translations({ content, vocabulary, order, names, onEdit }) {
   const langs = Object.keys(content.i18n ?? {})
-  const [lang, setLang] = useState(langs[0] ?? '')
+  const [lang, setLang] = useState('zh')
   const [state, setState] = useState('')
   const [query, setQuery] = useState('')
   const all = useMemo(() => (lang ? translationRows(content, vocabulary, order, lang) : []), [content, vocabulary, order, lang])
@@ -39,7 +39,7 @@ export default function Translations({ content, vocabulary, order, names, onEdit
   return (
     <section className="copy-table">
       <div className="copy-bar">
-        <input className="field-input i18n-lang" list="i18n-langs" value={lang} onChange={(e) => setLang(e.target.value.trim())} placeholder="en" aria-label={tr('语言')} />
+        <input className="field-input i18n-lang" list="i18n-langs" value={lang} onChange={(e) => setLang(e.target.value.trim())} placeholder="zh" aria-label={tr('语言', 'Language')} />
         <datalist id="i18n-langs">{langs.map((l) => <option key={l} value={l} />)}</datalist>
         {STATES.map(([s, zh, en]) => (
           <button key={s} type="button" className={`kit-btn is-label ${state === s ? 'is-on' : ''}`} aria-pressed={state === s} onClick={() => setState(state === s ? '' : s)}>{tr(zh, en)} {count(s)}</button>

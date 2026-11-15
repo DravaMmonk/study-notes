@@ -43,14 +43,14 @@ function register(root, id, content) {
   const end = text.lastIndexOf('];')
   if (end < 0) fail(`${file} has no list of games to add to`)
   const q = (s) => JSON.stringify(s).replaceAll('"', "'")
-  const title = content.title.zh ?? content.title
-  // The hub lists a game in both languages: its English comes from its overlay (./i18n.js), where it has one.
-  const english = (text, kind) => translationAt(content.en?.[text.zh ?? text], kind) ?? text.zh ?? text
-  const en = english(content.title, 'gameTitle')
+  const source = (text) => text.en ?? text
+  const chinese = (text, kind) => translationAt(content.zh[source(text)], kind) ?? source(text)
+  const en = source(content.title)
+  const title = chinese(content.title, 'gameTitle')
   const entry = [
     '  {',
     `    id: ${q(id)}, href: ${q(`${id}/index.html`)}, title: ${q(title)}, en: ${q(en)}, topic: { zh: ${q(title)}, en: ${q(en)} },`,
-    `    desc: { zh: ${q(content.lede.zh)}, en: ${q(english(content.lede))} },`,
+    `    desc: { zh: ${q(chinese(content.lede))}, en: ${q(source(content.lede))} },`,
     `    levels: ${content.levels}, dev: true, hidden: true,`,
     `    page: { icon: 'M16 32h32M32 16v32', description: ${q(`${title} ${en}`)} },`,
     '  },',
@@ -82,8 +82,8 @@ export function newGame({ root = GAMES_ROOT, id, domain, title = id }) {
   const dir = resolve(root, id)
   fill(starter, dir, { __title__: title })
   const game = JSON.parse(readFileSync(resolve(dir, 'game.json'), 'utf8'))
-  const overlay = resolve(dir, 'i18n/en.json')
-  register(root, id, { title: game.title, lede: game.lede, en: existsSync(overlay) ? JSON.parse(readFileSync(overlay, 'utf8')) : {}, levels: readdirSync(resolve(dir, 'levels')).filter((f) => f.endsWith('.json')).length })
+  const overlay = resolve(dir, 'i18n/zh.json')
+  register(root, id, { title: game.title, lede: game.lede, zh: existsSync(overlay) ? JSON.parse(readFileSync(overlay, 'utf8')) : {}, levels: readdirSync(resolve(dir, 'levels')).filter((f) => f.endsWith('.json')).length })
   return dir
 }
 
