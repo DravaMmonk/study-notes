@@ -1,5 +1,6 @@
 import { cardWidth } from './card-size.js'
 import { useElementSize } from '../views/useElementSize.js'
+import { usePointerSession } from '../views/usePointerSession.js'
 import useBlockDrag from './useBlockDrag.js'
 import { containerUnderPointer } from './dropTarget.js'
 import { assignBlock, rectangleMembers } from './blocks.js'
@@ -46,6 +47,13 @@ const ownIn = (layer, selector) => [...(layer?.querySelectorAll(selector) ?? [])
 const REGION = { w: 240, h: 120, pad: 24 }
 const clampZoom = (z) => Math.min(1.5, Math.max(0.35, Math.round(z * 100) / 100))
 const curve = (a, b) => kitCurve(a, b, 'x', 48)
+
+function pointerPose(pointers) {
+  const points = [...pointers.values()]
+  const mid = points.reduce(([x, y], point) => [x + point[0] / points.length, y + point[1] / points.length], [0, 0])
+  const spread = points.length > 1 ? Math.hypot(points[0][0] - points[1][0], points[0][1] - points[1][1]) : 0
+  return { mid, spread }
+}
 
 /**
  * @param graph, onChange(graph, { keep })   `keep`: a change to save that does not change what the circuit computes
@@ -106,7 +114,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const [partitioning,setPartitioning]=useState(false)
   const [selectionRect,setSelectionRect]=useState(null)
   const committed=useRef(false)
-  const selectionCancel=useRef(null)
+  const { track: trackSelection, cancel: cancelSelection } = usePointerSession()
   const lastModes=useRef(new Map())
   const [selected, setSelected] = useState(null) // { node: id } or { wire }
   const [drag, setDrag] = useState(null)
@@ -351,7 +359,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
       const dialog = [...document.querySelectorAll('[role="dialog"]')].at(-1)
       if (dialog && !dialog.contains(surface.current)) return
       const key = event.key.toLowerCase()
-      if(key==='escape'&&partitioning){selectionCancel.current?.();setPartitioning(false);setSelectionRect(null);return}
+      if(key==='escape'&&partitioning){cancelSelection();setPartitioning(false);setSelectionRect(null);return}
       if ((event.metaKey || event.ctrlKey) && (key === 'z' || (key === 'y' && event.ctrlKey))) {
         event.preventDefault()
         return key === 'y' || event.shiftKey ? history.redo() : history.undo()
@@ -374,22 +382,27 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
       return { zoom, x: cx - (cx - v.x) * k, y: cy - (cy - v.y) * k }
     })
 
-  const beginPartition=(event)=>{
-    if(event.button>0||event.target.closest('.block-header,.board-zoom,.board-corner'))return
-    event.preventDefault();event.stopPropagation()
-    const start=pointIn(layer.current,event.clientX,event.clientY)
-    let end=start
-    setSelectionRect([start,start])
-    const move=e=>{end=pointIn(layer.current,e.clientX,e.clientY);setSelectionRect([start,end])}
-    const finish=()=>{
-      window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',finish);window.removeEventListener('pointercancel',cancel)
-      const ids=rectangleMembers(graph,parts,[start,end],n=>painting?.nodes.get(n.id)??n,sizeOf)
-      if(ids.length)blocks.create(ids)
-      setSelectionRect(null);setPartitioning(false)
-    }
-    const cancel=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',finish);window.removeEventListener('pointercancel',cancel);setSelectionRect(null);setPartitioning(false)}
-    selectionCancel.current=cancel
-    window.addEventListener('pointermove',move);window.addEventListener('pointerup',finish);window.addEventListener('pointercancel',cancel)
+  const beginPartition = (event) => {
+    if (event.button > 0 || !event.isPrimary || event.target.closest('.block-header,.board-zoom,.board-corner')) return
+    event.preventDefault()
+    event.stopPropagation()
+    const start = pointIn(layer.current, event.clientX, event.clientY)
+    let end = start
+    trackSelection(event, {
+      move(next) {
+        end = pointIn(layer.current, next.clientX, next.clientY)
+        setSelectionRect([start, end])
+      },
+      finish(commit) {
+        if (commit) {
+          const ids = rectangleMembers(graph, parts, [start, end], (node) => painting?.nodes.get(node.id) ?? node, sizeOf)
+          if (ids.length) blocks.create(ids)
+        }
+        setSelectionRect(null)
+        setPartitioning(false)
+      },
+    })
+    setSelectionRect([start, start])
   }
   // Background: one pointer pans, two pointers pinch-zoom around their midpoint.
   // Any press on the background pans: not one on a card, a wire, a control or a window floating over the board.
@@ -401,52 +414,32 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     setSelected(null)
     pick(null)
     setTarget(field?.dataset.region ?? null)
-    const box = surface.current.getBoundingClientRect()
+    event.currentTarget.setPointerCapture(event.pointerId)
     pointers.current.set(event.pointerId, [event.clientX, event.clientY])
-    const snapshot = () => {
-      const points = [...pointers.current.values()]
-      const mid = points.reduce((s, p) => [s[0] + p[0] / points.length, s[1] + p[1] / points.length], [0, 0])
-      const spread = points.length > 1 ? Math.hypot(points[0][0] - points[1][0], points[0][1] - points[1][1]) : 0
-      return { mid, spread, count: points.length }
-    }
-    let last = snapshot()
-    const move = (e) => {
-      if (!pointers.current.has(e.pointerId)) return
-      pointers.current.set(e.pointerId, [e.clientX, e.clientY])
-      const now = snapshot()
-      const before = last
-      last = now
-      if (now.count !== before.count) return
-      setView((v) => {
-        let { x, y, zoom } = v
-        if (now.count > 1 && before.spread > 0) {
-          const next = clampZoom(zoom * (now.spread / before.spread))
-          const k = next / zoom
-          const cx = now.mid[0] - box.left
-          const cy = now.mid[1] - box.top
-          x = cx - (cx - x) * k
-          y = cy - (cy - y) * k
-          zoom = next
-        }
-        return { zoom, x: x + now.mid[0] - before.mid[0], y: y + now.mid[1] - before.mid[1] }
-      })
-    }
-    const up = (e) => {
-      pointers.current.delete(e.pointerId)
-      if (pointers.current.size) {
-        last = snapshot()
-        return
-      }
-      window.removeEventListener('pointermove', move)
-      window.removeEventListener('pointerup', up)
-      window.removeEventListener('pointercancel', up)
-    }
-    if (pointers.current.size === 1) {
-      window.addEventListener('pointermove', move)
-      window.addEventListener('pointerup', up)
-      window.addEventListener('pointercancel', up)
-    }
   }
+  const movePointer = (event) => {
+    if (picking) setPointer(pointIn(layer.current, event.clientX, event.clientY))
+    const active = pointers.current
+    if (!active.has(event.pointerId)) return
+    const before = pointerPose(active)
+    active.set(event.pointerId, [event.clientX, event.clientY])
+    const now = pointerPose(active)
+    const box = event.currentTarget.getBoundingClientRect()
+    setView((v) => {
+      let { x, y, zoom } = v
+      if (before.spread > 0) {
+        const next = clampZoom(zoom * (now.spread / before.spread))
+        const k = next / zoom
+        const cx = now.mid[0] - box.left
+        const cy = now.mid[1] - box.top
+        x = cx - (cx - x) * k
+        y = cy - (cy - y) * k
+        zoom = next
+      }
+      return { zoom, x: x + now.mid[0] - before.mid[0], y: y + now.mid[1] - before.mid[1] }
+    })
+  }
+  const endPan = (event) => pointers.current.delete(event.pointerId)
 
   useEffect(() => {
     const node = surface.current
@@ -745,7 +738,8 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const canDelete = Boolean(selected?.wire && !isLocked(graph, selected.wire)) || Boolean(selectedNode && removable(selectedNode))
 
   return (
-    <div className={`board kit-board ${picking ? 'is-picking' : ''} ${readOnly ? 'is-readonly' : ''}`} ref={surface} onPointerDownCapture={partitioning?beginPartition:undefined} onPointerDown={beginPan} onPointerMove={picking ? (e) => setPointer(pointIn(layer.current, e.clientX, e.clientY)) : undefined}>
+    <div className={`board kit-board ${picking ? 'is-picking' : ''} ${readOnly ? 'is-readonly' : ''}`} ref={surface} onPointerDownCapture={partitioning ? beginPartition : undefined}
+      onPointerDown={beginPan} onPointerMove={movePointer} onPointerUp={endPan} onPointerCancel={endPan} onLostPointerCapture={endPan}>
       <div className="board-grid" style={{ backgroundPosition: `${view.x}px ${view.y}px`, backgroundSize: `${20 * view.zoom}px ${20 * view.zoom}px` }} />
       {!placed && emptyNote && <p className="board-empty">{L(emptyNote)}</p>}
       <div className="board-layer" ref={layer} onAnimationEnd={redraw} style={{ transform: `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`, transformOrigin: '0 0' }}>
@@ -810,7 +804,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
             <i className="board-zoom-rule" aria-hidden="true" />
           </>
         )}
-        {!readOnly&&blocks&&<button type="button" aria-label={L(WORDS.partition)} aria-pressed={partitioning} onClick={()=>{if(partitioning)selectionCancel.current?.();setPartitioning(!partitioning);setSelectionRect(null)}}><Group size={14} /></button>}
+        {!readOnly&&blocks&&<button type="button" aria-label={L(WORDS.partition)} aria-pressed={partitioning} onClick={()=>{if(partitioning)cancelSelection();setPartitioning(!partitioning);setSelectionRect(null)}}><Group size={14} /></button>}
         <button onClick={() => zoomAt(0.85, ...centre())} aria-label={tr('缩小')}><Minus size={14} /></button>
         <output>{Math.round(view.zoom * 100)}%</output>
         <button onClick={() => zoomAt(1 / 0.85, ...centre())} aria-label={tr('放大')}><Plus size={14} /></button>

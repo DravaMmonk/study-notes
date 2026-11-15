@@ -2,6 +2,7 @@ import { EyeOff } from 'lucide-react'
 import { useLayoutEffect, useRef } from 'react'
 import { L, tr } from './i18n.js'
 import { useEmbed } from './embed.js'
+import { usePointerSession } from '../views/usePointerSession.js'
 
 /**
  * A level on a desktop, the same in every game and every kind of level.
@@ -88,6 +89,7 @@ const setHeight = (el, h) => {
 }
 
 function WorldHandle({ rootRef }) {
+  const { track } = usePointerSession()
   useLayoutEffect(() => {
     let h = null
     try { h = Number(localStorage.getItem(WORLD_KEY)) || null } catch { /* storage may be off */ }
@@ -120,17 +122,20 @@ function WorldHandle({ rootRef }) {
     try { if (h) localStorage.setItem(WORLD_KEY, String(h)) } catch { /* storage may be off */ }
   }
   const down = (event) => {
+    if (event.button > 0 || !event.isPrimary) return
     event.preventDefault()
-    const bottom = rootRef.current.getBoundingClientRect().bottom
+    const el = rootRef.current
+    const bottom = el.getBoundingClientRect().bottom
+    const original = ['--world-h', '--world-max'].map((key) => [key, el.style.getPropertyValue(key)])
     let last = null
-    const move = (e) => { last = size(bottom - e.clientY) }
-    const up = () => {
-      window.removeEventListener('pointermove', move)
-      window.removeEventListener('pointerup', up)
-      keep(last)
-    }
-    window.addEventListener('pointermove', move)
-    window.addEventListener('pointerup', up)
+    track(event, {
+      move(next) { last = size(bottom - next.clientY) },
+      finish(commit) {
+        if (commit) keep(last)
+        else for (const [key, value] of original) el.style.setProperty(key, value)
+      },
+      escape: true,
+    })
   }
   const fit = () => {
     rootRef.current?.style.removeProperty('--world-h')

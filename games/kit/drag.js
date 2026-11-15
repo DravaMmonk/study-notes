@@ -11,6 +11,7 @@
 // While a piece moves it is translated (in its own, unscaled pixels) and never animated, so it stays under the
 // pointer; the app commits the new position on drop. Touch drags start after a short hold, so a quick swipe still
 // scrolls. A finished drag swallows the click that would follow it.
+import { trackPointer } from './pointer.js';
 
 const HOLD = 170, SLOP = 6, EDGE = 56, DWELL = 18; // DWELL: frames in an edge strip before it scrolls
 const buzz = ms => { try { if (navigator.vibrate) navigator.vibrate(ms); } catch { /* no haptics */ } };
@@ -59,7 +60,11 @@ export function enableDrag(root, handlers) {
   function start() {
     g.on = true;
     root.classList.add('dragging', `drag-${g.kind}`);
-    if (g.kind === 'piece') { g.el.classList.add('lift'); g.el.style.transition = 'none'; }
+    if (g.kind === 'piece') {
+      g.style = { transform: g.el.style.transform, transition: g.el.style.transition };
+      g.el.classList.add('lift');
+      g.el.style.transition = 'none';
+    }
     if (g.kind === 'tray') {
       g.ghost = g.el.cloneNode(true);
       g.ghost.classList.add('ghost');
@@ -95,56 +100,49 @@ export function enableDrag(root, handlers) {
       const next = Math.max(0, Math.min(g.scrollMax, g.scroller.scrollTop + dy));
       if (next !== g.scroller.scrollTop) { g.scroller.scrollTop = next; update(); }
     }
-    requestAnimationFrame(tick);
+    g.frame = requestAnimationFrame(tick);
   }
 
   function finish(drop) {
-    window.removeEventListener('pointermove', onMove);
-    window.removeEventListener('pointerup', onUp);
-    window.removeEventListener('pointercancel', onCancel);
     clearTimeout(g.timer);
+    cancelAnimationFrame(g.frame);
     const done = g;
     g = null;
     root.classList.remove('dragging', 'armed', `drag-${done.kind}`);
     done.el.classList.remove('lift', 'armed');
-    done.el.style.transform = '';
-    done.el.style.transition = '';
+    if (done.style) Object.assign(done.el.style, done.style);
     if (done.ghost) done.ghost.remove();
     if (done.over) done.over.classList.remove('over');
     if (done.on) {
-      swallowUntil = performance.now() + 40;
-      if (drop) done.h.drop(done);
+      if (drop) {
+        swallowUntil = performance.now() + 40;
+        done.h.drop(done);
+      }
       else if (done.h.end) done.h.end();
     }
   }
 
   function onMove(e) {
-    if (!g || e.pointerId !== g.pid) return;
     g.x = e.clientX;
     g.y = e.clientY;
     const far = Math.hypot(g.x - g.x0, g.y - g.y0) > SLOP;
     if (!g.on) {
-      if (!g.armed) { if (far) finish(false); return; }
+      if (!g.armed) { if (far) g.cancel(); return; }
       if (!far) return;
       start();
     }
     update();
   }
-  const onUp = e => { if (g && e.pointerId === g.pid) finish(true); };
-  const onCancel = e => { if (g && e.pointerId === g.pid) finish(false); };
-
   const onDown = e => {
     const h = handlers();
     if (g || e.button > 0 || !h) return;
     const t = target(e.target, h.portAt?.(e.target, e.clientX, e.clientY));
     if (!t || !root.contains(t.el)) return;
     const touch = e.pointerType !== 'mouse', scroller = h.scroller || scrollParent(t.el);
-    g = { ...t, h, scroller, sc: scaleOf(t.el), scrollMax: Math.max(0, scroller.scrollHeight - scroller.clientHeight), dx: 0, dy: 0, pid: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, st0: scroller.scrollTop, armed: !touch, on: false, over: null };
+    g = { ...t, h, scroller, sc: scaleOf(t.el), scrollMax: Math.max(0, scroller.scrollHeight - scroller.clientHeight), dx: 0, dy: 0, x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY, st0: scroller.scrollTop, armed: !touch, on: false, over: null };
     if (!touch && t.kind !== 'tray') e.preventDefault();
     if (touch) g.timer = setTimeout(() => { if (g && !g.on) { g.armed = true; root.classList.add('armed'); g.el.classList.add('armed'); buzz(6); } }, HOLD);
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
-    window.addEventListener('pointercancel', onCancel);
+    g.cancel = trackPointer(e.pointerId, { move: onMove, finish, escape: true });
   };
   // Once a touch drag is armed, the finger moves the part instead of the page.
   const onTouch = e => { if (g && g.armed) e.preventDefault(); };
@@ -153,6 +151,7 @@ export function enableDrag(root, handlers) {
   root.addEventListener('touchmove', onTouch, { passive: false });
   root.addEventListener('contextmenu', onMenu);
   return () => {
+    g?.cancel();
     root.removeEventListener('pointerdown', onDown);
     root.removeEventListener('touchmove', onTouch);
     root.removeEventListener('contextmenu', onMenu);

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { tr } from '../../shell/i18n.js'
 import { cellNumber, pixel, pixelText } from '../../engine/grid.js'
 import { useElementSize } from '../useElementSize.js'
+import { usePointerSession } from '../usePointerSession.js'
 import GridView from './GridView.jsx'
 import { denseCell, fitFrame, inspectorCell, thumbCell } from './layout.js'
 
@@ -25,26 +26,32 @@ function useFrameMax(root, on) {
 
 /** Mouse drags pan the frame; a drag never ends as a cell click. Touch pans by native scrolling. */
 function usePan(frame) {
-  const drag = useRef(null)
-  const onPointerDown = (e) => {
-    if (e.pointerType !== 'mouse' || e.button !== 0) return
+  const { track } = usePointerSession()
+  const dragged = useRef(false)
+  const onPointerDown = (event) => {
+    dragged.current = false
+    if (event.pointerType !== 'mouse' || event.button !== 0) return
     const el = frame.current
     if (el.scrollWidth <= el.clientWidth && el.scrollHeight <= el.clientHeight) return
-    drag.current = { x: e.clientX, y: e.clientY, left: el.scrollLeft, top: el.scrollTop, moved: false }
-    const move = (m) => {
-      const d = drag.current
-      if (!d.moved && Math.hypot(m.clientX - d.x, m.clientY - d.y) < 4) return
-      d.moved = true
-      el.scrollLeft = d.left - (m.clientX - d.x)
-      el.scrollTop = d.top - (m.clientY - d.y)
-    }
-    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up) }
-    window.addEventListener('pointermove', move)
-    window.addEventListener('pointerup', up)
+    const start = { x: event.clientX, y: event.clientY, left: el.scrollLeft, top: el.scrollTop }
+    track(event, {
+      move(next) {
+        const dx = next.clientX - start.x
+        const dy = next.clientY - start.y
+        if (!dragged.current && Math.hypot(dx, dy) < 4) return
+        dragged.current = true
+        el.scrollLeft = start.left - dx
+        el.scrollTop = start.top - dy
+      },
+      finish(commit) { if (!commit) dragged.current = false },
+    })
   }
-  const onClickCapture = (e) => {
-    if (drag.current?.moved) { e.stopPropagation(); e.preventDefault() }
-    drag.current = null
+  const onClickCapture = (event) => {
+    if (dragged.current && event.detail > 0) {
+      event.stopPropagation()
+      event.preventDefault()
+    }
+    dragged.current = false
   }
   return { onPointerDown, onClickCapture }
 }
