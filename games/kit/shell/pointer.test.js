@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { trackPointer } from '../pointer.js'
 
-const emit = (target, type, data) => target.dispatchEvent(Object.assign(new Event(type), data))
+const emit = (target, type, data) => target.dispatchEvent(Object.assign(new Event(type, { cancelable: true }), data))
 
 test('a pointer session ignores other pointers and finishes once', (t) => {
   const target = new EventTarget()
@@ -28,10 +28,12 @@ test('Escape, pointer cancellation, blur and disposal end without committing', (
   for (const [type, data] of [['keydown', { key: 'Escape' }], ['pointercancel', { pointerId: 4 }], ['blur', {}], [null]]) {
     const cancel = trackPointer(4, { move: () => assert.fail('moved after disposal'), finish: (commit) => events.push(commit), escape: true })
     if (type === null) cancel()
+    else if (type === 'keydown') assert.equal(emit(target, type, data), false)
     else emit(target, type, data)
     cancel()
     emit(target, 'pointermove', { pointerId: 4 })
     emit(target, 'pointerup', { pointerId: 4 })
   }
+  assert.equal(emit(target, 'keydown', { key: 'Escape' }), true)
   assert.deepEqual(events, [false, false, false, false])
 })

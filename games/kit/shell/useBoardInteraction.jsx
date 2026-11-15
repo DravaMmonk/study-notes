@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Markup } from './Markup.jsx'
+import { topOverlay } from './overlay-keys.js'
 
 export const buzz = (pattern) => {
   try {
@@ -63,7 +64,7 @@ export function useKeys(onKey) {
   handler.current = onKey
   useEffect(() => {
     const listen = (event) => {
-      if (!document.querySelector('.dialog-scrim, .ph-scrim, .intro-scrim')) handler.current(event)
+      if (!event.defaultPrevented && !topOverlay()) handler.current(event)
     }
     document.addEventListener('keydown', listen)
     return () => document.removeEventListener('keydown', listen)

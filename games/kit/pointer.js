@@ -9,19 +9,23 @@ export function trackPointer(pointerId, { move, finish, escape = false }) {
     target.removeEventListener('pointerup', onUp)
     target.removeEventListener('pointercancel', onCancel)
     target.removeEventListener('blur', cancel)
-    if (escape) target.removeEventListener('keydown', onKey)
+    if (escape) target.removeEventListener('keydown', onKey, { capture: true })
     finish(commit, event)
   }
   const cancel = () => end(false)
   const onMove = (event) => { if (event.pointerId === pointerId) move(event) }
   const onUp = (event) => { if (event.pointerId === pointerId) end(true, event) }
   const onCancel = (event) => { if (event.pointerId === pointerId) cancel() }
-  const onKey = (event) => { if (event.key === 'Escape') cancel() }
+  const onKey = (event) => {
+    if (event.key !== 'Escape' || event.defaultPrevented) return
+    event.preventDefault()
+    cancel()
+  }
 
   target.addEventListener('pointermove', onMove)
   target.addEventListener('pointerup', onUp)
   target.addEventListener('pointercancel', onCancel)
   target.addEventListener('blur', cancel)
-  if (escape) target.addEventListener('keydown', onKey)
+  if (escape) target.addEventListener('keydown', onKey, { capture: true })
   return cancel
 }

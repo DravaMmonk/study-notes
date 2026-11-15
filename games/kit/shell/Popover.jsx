@@ -1,7 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Sheet from './Sheet.jsx'
 import { PHONE, useMedia } from './useMedia.js'
+import { useOverlayKeys } from './overlay-keys.js'
 
 // Something to fill in that belongs to one button (a sentence on 《证明完毕》's rule table, a test case's goal…): on a
 // desktop a box beside the button, pointing at it, like a tooltip that holds an editor; on a phone the usual bottom
@@ -19,7 +20,7 @@ export default function Popover({ anchor, title, onClose, children, className = 
 }
 
 function Box({ anchor, label, onClose, children, className }) {
-  const box = useRef(null)
+  const box = useOverlayKeys(onClose)
   const [at, setAt] = useState(null) // { left, top, below, arrow, room }
   // Under the button when it fits there, else over it; never past the window's edges. It follows the button as the
   // page scrolls or what it holds grows.
@@ -50,14 +51,9 @@ function Box({ anchor, label, onClose, children, className }) {
     }
   }, [anchor])
   useEffect(() => {
-    const onKey = (event) => event.key === 'Escape' && onClose()
     const onDown = (event) => !box.current?.contains(event.target) && !anchor.contains(event.target) && onClose()
-    window.addEventListener('keydown', onKey)
     window.addEventListener('pointerdown', onDown, true)
-    return () => {
-      window.removeEventListener('keydown', onKey)
-      window.removeEventListener('pointerdown', onDown, true)
-    }
+    return () => window.removeEventListener('pointerdown', onDown, true)
   }, [anchor, onClose])
   // Inside the level, so its colours and words carry over; fixed to the window, so no board's zoom or scroll moves it.
   return createPortal(

@@ -3,20 +3,22 @@ import { createPortal } from 'react-dom'
 import { L, tr } from './i18n.js'
 import { numberKey, numberValue } from './number-entry.js'
 import { numberText } from '../engine/number.js'
+import { useOverlayKeys } from './overlay-keys.js'
 
 function NumberPad({ label, value, onCancel, onCommit, onNext }) {
   const [draft,setDraft] = useState({text:String(value),replace:true})
   const root = useRef(null)
+  const overlay = useOverlayKeys(onCancel)
   useEffect(()=>{root.current?.focus()},[])
   const parsed = numberValue(draft.text)
   const press=(key)=>setDraft((s)=>numberKey(s,key))
   const keys=[['7','7'],['8','8'],['9','9'],['erase','⌫'],['4','4'],['5','5'],['6','6'],['sign','±'],['1','1'],['2','2'],['3','3'],['/','÷'],['0','0'],['.','.'],['e','e'],['clear','C']]
   const keyLabel=(key)=>key==='erase'?tr('退格'):key==='clear'?tr('清空数值'):key==='sign'?tr('切换正负号'):key==='/'?tr('输入分数'):key==='e'?tr('科学计数指数'):key
-  return createPortal(<div className="number-pad-scrim" onPointerDown={(e)=>{e.stopPropagation();if(e.target===e.currentTarget)onCancel()}}>
+  return createPortal(<div ref={overlay} className="number-pad-scrim" onPointerDown={(e)=>{e.stopPropagation();if(e.target===e.currentTarget)onCancel()}}>
     <section className="number-pad" role="dialog" aria-modal="true" aria-label={tr('数字小键盘')} tabIndex={-1} ref={root} onKeyDown={(e)=>{
+      if(e.key==='Escape')return
       e.stopPropagation()
-      if(e.key==='Escape'){e.preventDefault();onCancel()}
-      else if(e.key==='Enter'&&e.target.tagName!=='BUTTON'){e.preventDefault();if(parsed!==null)onCommit(parsed)}
+      if(e.key==='Enter'&&e.target.tagName!=='BUTTON'){e.preventDefault();if(parsed!==null)onCommit(parsed)}
       else if(/^\d$/.test(e.key)||['.','/','e','E','-','Backspace','Delete'].includes(e.key)){e.preventDefault();press(e.key==='Backspace'?'erase':e.key==='Delete'?'clear':e.key==='-'?'sign':e.key.toLowerCase())}
     }}>
       <header><strong>{L(label)}</strong><span>{tr('数字小键盘')}</span></header>

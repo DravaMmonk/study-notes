@@ -9,6 +9,7 @@ import { assignBlock, rectangleMembers } from './blocks.js'
 import { WORDS } from '../shell/words.js'
 import BlockHeader from './BlockHeader.jsx'
 import { useSetting } from '../shell/useSetting.js'
+import { topOverlay } from '../shell/overlay-keys.js'
 import { useEffect, useEffectEvent, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import { foldedPartsOf } from './folding.js'
 import ClearButton from './ClearButton.jsx'
@@ -346,9 +347,9 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   // a dialog over another board has the keys.
   useEffect(() => {
     const onKey = (event) => {
-      if (/input|select|textarea/i.test(document.activeElement?.tagName)) return
-      const dialog = [...document.querySelectorAll('[role="dialog"]')].at(-1)
-      if (dialog && !dialog.contains(surface.current)) return
+      if (event.defaultPrevented || /input|select|textarea/i.test(document.activeElement?.tagName)) return
+      const overlay = topOverlay()
+      if (overlay && !overlay.contains(surface.current)) return
       const key = event.key.toLowerCase()
       if(key==='escape'&&partitioning){cancelSelection();setPartitioning(false);setSelectionRect(null);return}
       if ((event.metaKey || event.ctrlKey) && (key === 'z' || (key === 'y' && event.ctrlKey))) {

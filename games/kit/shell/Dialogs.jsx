@@ -1,19 +1,9 @@
-import { createElement, isValidElement, useEffect } from 'react'
+import { createElement, isValidElement } from 'react'
 import { L, keyOf, tr } from './i18n.js'
 import { Markup } from './Markup.jsx'
 import { readShow } from '../engine/views.js'
 import Show from '../views/Show.jsx'
-
-// Escape closes the dialog or sheet on top. Every overlay of the shell uses it, so the key does the same thing in
-// every game.
-export function useEscape(onClose) {
-  useEffect(() => {
-    if (!onClose) return undefined
-    const onKey = (event) => event.key === 'Escape' && onClose()
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
-}
+import { useOverlayKeys } from './overlay-keys.js'
 
 // Content text: bilingual pairs or a list of them; blank lines separate explanation and formula paragraphs.
 function Paragraphs({ text }) {
@@ -24,9 +14,9 @@ function Paragraphs({ text }) {
 /** A plain dialog: a mono title, lines of text, buttons; the last button is the primary one. `top`: over every other
  *  overlay (a reference clicked inside one). */
 export function Dialog({ title, lines, actions, intro, top, onClose }) {
-  useEscape(onClose)
+  const overlay = useOverlayKeys(onClose)
   return (
-    <div className={`dialog-scrim ${top ? 'is-top' : ''}`}>
+    <div ref={overlay} className={`dialog-scrim ${top ? 'is-top' : ''}`}>
       <div className={`dialog ${intro ? 'is-intro' : ''}`} role="dialog" aria-modal="true" aria-label={title}>
         <h2>{title}</h2>
         {lines.map((line, index) => <p key={index} style={{ '--line': index }}>{line}</p>)}
@@ -42,9 +32,9 @@ export function Dialog({ title, lines, actions, intro, top, onClose }) {
 
 /** A task of a level passed (GameShell tasks): what it taught, and the way on to the next task. */
 export function TaskDoneDialog({ game, level, task, index, next, revisit, onStay, onNext }) {
-  useEscape(onStay)
+  const overlay = useOverlayKeys(onStay)
   return (
-    <div className="dialog-scrim">
+    <div ref={overlay} className="dialog-scrim">
       <div className="dialog is-solved" role="dialog" aria-modal="true" aria-label={tr('任务完成')}>
         <div className="solved-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" /><path d="M12 20.5l5.5 5.5L28.5 14" /></svg></div>
         <h2>{game.levelLabel(level)} {L(level.title)} · {tr(`任务 ${index + 1} 完成`, `Task ${index + 1} complete`)}</h2>
@@ -61,13 +51,13 @@ export function TaskDoneDialog({ game, level, task, index, next, revisit, onStay
 
 /** A level passed: what it taught, what it unlocked, its key idea, and the way back to the map. */
 export function SolvedDialog({ game, level, onStay, onExit }) {
-  useEscape(onStay)
+  const overlay = useOverlayKeys(onStay)
   const unlocked = game.unlocked(level)
   const note = game.note(level)
   // What else passing it gives, as the game says it: a label and its lines (rules declared, a sentence's skeleton…).
   const passed = game.passed(level)
   return (
-    <div className="dialog-scrim">
+    <div ref={overlay} className="dialog-scrim">
       <div className="dialog is-solved" role="dialog" aria-modal="true" aria-label={tr('通过', 'Passed')}>
         <div className="solved-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" /><path d="M12 20.5l5.5 5.5L28.5 14" /></svg></div>
         <h2>{tr('通过', 'Passed')} · {game.levelLabel(level)} {L(level.title)}</h2>
@@ -106,10 +96,10 @@ export function SolvedDialog({ game, level, onStay, onExit }) {
 /** A run that did not pass: what went wrong (`extra`, more to show under it, is markup or a React element), and from
  *  the second miss on, the level's hint. */
 export function FailDialog({ fail, fails, onClose }) {
-  useEscape(onClose)
+  const overlay = useOverlayKeys(onClose)
   const hint = fail.hint
   return (
-    <div className="dialog-scrim">
+    <div ref={overlay} className="dialog-scrim">
       <div className="dialog is-failed" role="dialog" aria-modal="true" aria-label={tr('未通过', 'Not passed')}>
         <h2>{tr('未通过', 'Not passed')}</h2>
         {fail.head && <h3 className="dialog-title"><Markup text={fail.head} /></h3>}

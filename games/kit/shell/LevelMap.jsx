@@ -1,7 +1,7 @@
 import { Text } from './Layout.jsx'
 import { fileMark } from './edit.js'
 import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useEscape } from './Dialogs.jsx'
+import { useOverlayKeys } from './overlay-keys.js'
 import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
@@ -469,9 +469,9 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
  *  all progress, which asks twice. */
 function ProgressDialog({ progress, onAll, onReset, onClose }) {
   const [armed, setArmed] = useState(false)
-  useEscape(onClose)
+  const overlay = useOverlayKeys(onClose)
   return (
-    <div className="dialog-scrim" onClick={onClose}>
+    <div ref={overlay} className="dialog-scrim" onClick={onClose}>
       <div className="dialog progress-dialog" role="dialog" aria-modal="true" aria-label={tr('进度')} onClick={(event) => event.stopPropagation()}>
         <h2>{tr('进度')}</h2>
         <div className="map-all">

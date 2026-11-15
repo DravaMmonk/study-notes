@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { ArrowUpFromLine, Check, ChevronDown, ClipboardPaste, Copy, FileText, Layers, Pencil, Plus, X } from 'lucide-react'
 import { Dialog } from '../shell/Dialogs.jsx'
 import { tr } from '../shell/i18n.js'
+import { useOverlayKeys } from '../shell/overlay-keys.js'
 import BlueprintDialog from './BlueprintDialog.jsx'
 import { print } from './text.js'
 
@@ -31,17 +32,16 @@ export default function SaveSlots({ phone = false, board = null }) {
   const [dropping, setDropping] = useState(null) // the slot asked about before it goes
   const [text, setText] = useState(null) // the blueprint dialog: 'show' | 'read'
   const root = useRef(null)
+  const menu = useOverlayKeys(() => {
+    if (naming === null) setOpen(false)
+    else setNaming(null)
+  }, { active: Boolean(slots) && open })
   useEffect(() => {
     if (!open) return undefined
     const away = (event) => !root.current?.contains(event.target) && setOpen(false)
-    const key = (event) => event.key === 'Escape' && naming === null && setOpen(false)
     document.addEventListener('pointerdown', away)
-    window.addEventListener('keydown', key)
-    return () => {
-      document.removeEventListener('pointerdown', away)
-      window.removeEventListener('keydown', key)
-    }
-  }, [open, naming])
+    return () => document.removeEventListener('pointerdown', away)
+  }, [open])
   if (!slots) return null
 
   const close = () => {
@@ -66,7 +66,7 @@ export default function SaveSlots({ phone = false, board = null }) {
         <ChevronDown size={13} aria-hidden="true" />
       </button>
       {open && (
-        <div className="slots-menu" role="menu" aria-label={tr('这一关存下的电路')}>
+        <div ref={menu} className="slots-menu" role="menu" aria-label={tr('这一关存下的电路')}>
           <ul>
             {slots.list.map((slot, k) => (
               <li key={slot.no} className={k === slots.at ? 'is-current' : ''}>
@@ -82,7 +82,6 @@ export default function SaveSlots({ phone = false, board = null }) {
                     onBlur={(e) => commit(k, e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') commit(k, e.target.value)
-                      if (e.key === 'Escape') setNaming(null)
                     }}
                   />
                 ) : (

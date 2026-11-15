@@ -1,4 +1,4 @@
-import { createElement, useEffect, useState } from 'react'
+import { createElement, useState } from 'react'
 import { ArrowRight, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { Markup } from './Markup.jsx'
@@ -6,6 +6,7 @@ import { readShow } from '../engine/views.js'
 import Show from '../views/Show.jsx'
 import { useMark } from './edit.js'
 import { AddMark } from './EditMarks.jsx'
+import { useOverlayKeys } from './overlay-keys.js'
 
 // A level's introduction, or a task's (`step`: its name): a few pages to read before playing, each with an optional picture
 // the game draws (its IntroFigure). It opens by itself the first time and again from the bar. On a phone it is a
@@ -16,22 +17,22 @@ export default function IntroSheet({ game, level, pages, marks = [], step, theme
   const mark = useMark()
   const last = page === pages.length - 1
 
-  useEffect(() => {
-    const onKey = (event) => {
-      if (event.key === 'Escape') onClose()
+  const overlay = useOverlayKeys(onClose, {
+    active: pages.length > 0,
+    onKey(event) {
+      if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return false
       if (event.key === 'ArrowRight') setPage((p) => Math.min(pages.length - 1, p + 1))
-      if (event.key === 'ArrowLeft') setPage((p) => Math.max(0, p - 1))
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose, pages.length])
+      else setPage((p) => Math.max(0, p - 1))
+      return true
+    },
+  })
 
   if (!pages.length) return null
   const current = pages[Math.min(page, pages.length - 1)]
   const at = marks[page]
 
   return (
-    <div className="intro-scrim" onClick={onClose}>
+    <div ref={overlay} className="intro-scrim" onClick={onClose}>
       <section className="intro-card" role="dialog" aria-modal="true" aria-labelledby="intro-title" onClick={(event) => event.stopPropagation()}>
         <header className="intro-head">
           <span className="intro-kicker">{game.levelLabel(level)} · {tr('引言')} {page + 1}/{pages.length}</span>

@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { tr } from './i18n.js'
 import { EntriesSize, SHEET } from './Entries.jsx'
+import { useOverlayKeys } from './overlay-keys.js'
 import './sheet.css'
 
 // A centered dialog on desktop and a draggable bottom sheet on phones.
@@ -9,15 +10,10 @@ import './sheet.css'
 export default function Sheet({ title, onClose, children, footer, actions }) {
   const [drag, setDrag] = useState(0)
   const start = useRef(null)
-
-  useEffect(() => {
-    const onKey = (event) => event.key === 'Escape' && onClose()
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [onClose])
+  const overlay = useOverlayKeys(onClose)
 
   return (
-    <div className="ph-scrim" onClick={onClose}>
+    <div ref={overlay} className="ph-scrim" onClick={onClose}>
       <div className="ph-sheet" role="dialog" aria-modal="true" aria-label={title} style={{ transform: drag ? `translateY(${drag}px)` : undefined }} onClick={(event) => event.stopPropagation()}>
         <div
           className="ph-handle"

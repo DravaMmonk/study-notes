@@ -125,14 +125,6 @@ export default function GameShell({ game, store, author = null }) {
     document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'
     document.title = tr(`${game.title.zh} — ${game.title.en}`, `${game.title.en} — ${game.title.zh}`)
   }, [game, lang])
-  // Escape closes the level drawer; dialogs and sheets close themselves (Dialogs.jsx useEscape).
-  useEffect(() => {
-    if (!drawer) return undefined
-    const onKey = (event) => event.key === 'Escape' && setDrawer(false)
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [drawer])
-
   const [left, setLeft] = useState(null) // the level last left for the map, which the map opens at
   const open = (id, task) => {
     if (!id) setLeft(levelId)

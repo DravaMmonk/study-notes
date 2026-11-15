@@ -1,7 +1,7 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { ArrowLeft, Lock, Search, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
-import { useEscape } from './Dialogs.jsx'
+import { useOverlayKeys } from './overlay-keys.js'
 
 // A book of entries, after the encyclopedia in Turing Complete: entries by group on the left, the open entry on the
 // right; on a phone, the list and then one entry at a time. The encyclopedia and the components box are both one.
@@ -72,7 +72,7 @@ export default function Library({ title, subtitle, label, groups, initial, lastK
     }
     nav.current?.querySelector('.wiki-item.is-current')?.scrollIntoView({ block: 'center' })
   }, [current])
-  useEscape(onClose)
+  const overlay = useOverlayKeys(onClose)
 
   const show = (id, fromList = false) => {
     clicked.current = fromList && id !== current
@@ -122,7 +122,7 @@ export default function Library({ title, subtitle, label, groups, initial, lastK
 
   const back = phone ? <button type="button" className="kit-btn is-label wiki-back" onClick={() => setReading(false)}><ArrowLeft size={15} /><span>{tr('返回列表')}</span></button> : null
   return (
-    <div className="ph-scrim wiki-scrim" onClick={onClose}>
+    <div ref={overlay} className="ph-scrim wiki-scrim" onClick={onClose}>
       <div className={`wiki ${phone ? 'is-phone' : ''}`} role="dialog" aria-modal="true" aria-label={title} onClick={(event) => event.stopPropagation()}>
         <header className="wiki-head">
           <h2>{title}{subtitle && <small>{subtitle}</small>}</h2>

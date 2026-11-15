@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, Copy, Download, FileUp } from 'lucide-react'
-import { useEscape } from '../shell/Dialogs.jsx'
+import { useOverlayKeys } from '../shell/overlay-keys.js'
 import { tr } from '../shell/i18n.js'
 import { headOf, print, read } from './text.js'
 
@@ -20,7 +20,7 @@ export default function BlueprintDialog({ board, head, mode, onClose }) {
   const [copied, setCopied] = useState(false)
   const file = useRef(null)
   const box = useRef(null)
-  useEscape(onClose)
+  const overlay = useOverlayKeys(onClose)
 
   const copy = async () => {
     try {
@@ -69,7 +69,7 @@ export default function BlueprintDialog({ board, head, mode, onClose }) {
   const changed = text !== shown
 
   return createPortal(
-    <div className="dialog-scrim" onPointerDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div ref={overlay} className="dialog-scrim" onPointerDown={(e) => e.target === e.currentTarget && onClose()}>
       <div className="dialog blueprint" role="dialog" aria-modal="true" aria-label={tr('电路文本')}>
         <h2>{mode === 'show' ? tr('电路文本') : tr('从文本导入')}</h2>
         <p className="blueprint-note">

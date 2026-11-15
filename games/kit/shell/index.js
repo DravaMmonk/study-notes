@@ -3,7 +3,7 @@ import { earnedUnlocks, requiredLevels } from './progress.js'
 
 export { default as GameShell } from './GameShell.jsx'
 export { Brief, Level, PhonePage, PinnedPlay, TaskCard, Text } from './Layout.jsx'
-export { Dialog, useEscape } from './Dialogs.jsx'
+export { Dialog } from './Dialogs.jsx'
 export { default as Workbench, TestStatus } from './Workbench.jsx'
 export { default as CircuitLevel, useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 export { default as RunDock } from './RunDock.jsx'
