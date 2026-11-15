@@ -98,7 +98,8 @@ export default function useLink({ level, saved, save, solve, fail, toast }) {
     edges,
   }
   return {
-    tests: L.tests.map((x, k) => ({ label: `${tr(`第 ${k + 1} 题`, `Puzzle ${k + 1}`)} · ${x.a} / ${x.b}`, status: solvedIn(links, k) ? 'pass' : null })),
+    tests: L.tests.map((x, k) => ({ label: `${tr(`第 ${k + 1} 题`, `Puzzle ${k + 1}`)} · ${x.a} / ${x.b}` })),
+    states: L.tests.map((_, k) => solvedIn(links, k) ? 'pass' : null),
     ti,
     onTest: selectTest,
     drawing: boardDrawing(scene, { label: tr('棋盘', 'Board'), maxScale: 1.3 }, onCell),

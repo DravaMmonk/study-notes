@@ -1,6 +1,7 @@
 import { Fragment, useRef } from 'react'
 import { Trash2 } from 'lucide-react'
-import { CheckIcon, Dock, SkipIcon, TestChips } from './BoardControls.jsx'
+import { CheckIcon, Dock, SkipIcon } from './BoardControls.jsx'
+import TestTabs from './TestTabs.jsx'
 import InteractiveDrawing from './InteractiveDrawing.jsx'
 import { Brief, PhonePage } from './Layout.jsx'
 import { Markup } from './Markup.jsx'
@@ -101,12 +102,12 @@ export function manualBoardScreen(useBoard) {
       const page = scrollRef.current
       if (phone && page && boardRef.current) page.scrollTop += boardRef.current.getBoundingClientRect().top - page.getBoundingClientRect().top - 8
     }
-    const { drawing, capacity, note, cards, dock, tests, ti, onTest, comparison } = useBoard({ ...screen, toast, revealBoard })
+    const { drawing, capacity, note, cards, dock, tests, states, ti, onTest, comparison } = useBoard({ ...screen, toast, revealBoard })
     const panel = <div className={layout.panelClass}>{cards.map((card, i) => <PlayCard key={i} {...card} />)}</div>
     const brief = <Brief game={game} level={level} text={text} hint={hint}>{!phone && panel}</Brief>
     const board = (
       <section ref={boardRef} className={layout.cardClass} aria-label={L(layout.boardLabel)}>
-        {tests && <TestChips tests={tests} ti={ti} onTest={onTest} />}
+        {tests && <TestTabs tests={tests} states={states} index={ti} onSelect={onTest} phone={phone} inline />}
         {capacity ? <CapacityBoard {...capacity} /> : <InteractiveDrawing {...drawing} />}
         <p className={layout.noteClass}>{L(note)}</p>
         <div className={layout.afterClass}>{comparison && <Comparison {...comparison} />}</div>

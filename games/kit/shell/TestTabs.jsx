@@ -9,9 +9,9 @@ import { AddMark } from './EditMarks.jsx'
  * solved) say so; a sample (a larger picture the board also runs on, never judged) shows a picture instead. While the
  * studio edits, each tab is a test of the content to pick (edit.js), and a + adds one.
  *
- *   tests   [{ label, hidden?, sample? }]   states  ['pass' | 'fail' | null]   index, onSelect(index)   phone
+ *   tests   [{ label, hidden?, sample? }]   states  ['pass' | 'fail' | null]   index, onSelect(index)   phone   inline for tabs inside a board
  */
-export default function TestTabs({ tests, states, index, onSelect, phone = false }) {
+export default function TestTabs({ tests, states, index, onSelect, phone = false, inline = false }) {
   const edit = useEdit()
   const mark = useMark()
   const shown = tests.filter((t) => !t.hidden && !t.sample).length
@@ -26,6 +26,6 @@ export default function TestTabs({ tests, states, index, onSelect, phone = false
     )
   })
   const add = edit && <AddMark at="tests" label={{ zh: '测试', en: 'a test' }} />
-  if (phone) return <nav className="pb-tests" aria-label={tr('测试')}>{tabs}{add}</nav>
-  return <ol className="test-list">{tabs.map((tab) => <li key={tab.key}>{tab}</li>)}{add && <li>{add}</li>}</ol>
+  if (phone) return <nav className={inline ? 'pb-tests tests-inline' : 'pb-tests'} aria-label={tr('测试')}>{tabs}{add}</nav>
+  return <ol className={inline ? 'test-list tests-inline' : 'test-list'}>{tabs.map((tab) => <li key={tab.key}>{tab}</li>)}{add && <li>{add}</li>}</ol>
 }

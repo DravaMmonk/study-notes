@@ -99,7 +99,8 @@ export default function usePack({ level, saved, save, solve, fail, toast }) {
       remaining: t.W - used,
       onToggle: toggle,
     },
-    tests: L.tests.map((x, k) => ({ label: tr(`第 ${k + 1} 题 · ${x.W} kg 背包`, `Puzzle ${k + 1} · ${x.W} kg backpack`), status: solvedIn(bags, k) ? 'pass' : null })),
+    tests: L.tests.map((x, k) => ({ label: tr(`第 ${k + 1} 题 · ${x.W} kg 背包`, `Puzzle ${k + 1} · ${x.W} kg backpack`) })),
+    states: L.tests.map((_, k) => solvedIn(bags, k) ? 'pass' : null),
     ti,
     onTest: pick,
     cards: [{

@@ -483,7 +483,7 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
   .wb-hidden.is-fail { color: var(--fail); }
 }
 
-/* A level's tests (TestTabs): chips in a circuit level's strip on a desktop, tabs across the top of the phone page. */
+/* TestTabs: desktop chips, a phone test bar, or tabs set inline above a board. */
 .hidden-tag { padding: 0 var(--sp-2); border-radius: var(--r-sm); color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 16%, transparent); font-family: var(--mono); font-size: 10px; font-style: normal; line-height: 1.6; }
 .test-list { margin: var(--sp-5) 0 var(--sp-6); padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: var(--sp-3); }
 .test-row { min-height: 30px; padding: 0 var(--sp-4) 0 var(--sp-4); display: flex; align-items: center; gap: var(--sp-3); border: 0; border-radius: var(--r-md); color: var(--ink); background: var(--canvas); font-size: 12px; cursor: pointer; transition: box-shadow 160ms ease, background 160ms ease; }
@@ -500,6 +500,7 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .pb-test.is-pass svg { color: var(--status); }
 .pb-test.is-fail svg { color: var(--fail); }
 .pb-test .hidden-tag { margin-left: var(--sp-1); }
+.tests-inline { margin: 0; padding: 0; border: 0; background: transparent; }
 .pb-test.is-on { color: var(--ink); background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink); }
 
 /* A reference inside a text (refs.js): a link chip, an icon and the name of a level (with its number), a part or an

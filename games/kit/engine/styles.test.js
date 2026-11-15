@@ -16,7 +16,7 @@ const CEILING = {
   strip: { sizes: 6, colours: 0 },
   image: { sizes: 41, colours: 22 },
   logic: { sizes: 38, colours: 22 },
-  table: { sizes: 97, colours: 5 },
+  table: { sizes: 95, colours: 5 },
 }
 
 test('sizes, spacing and radii written in pixels count in a style sheet; a colour written out counts in a style sheet or a string in code', () => {
