@@ -5,7 +5,7 @@ import { T } from '../../../shell/i18n.js'
 import { startBoard } from './board.js'
 import { INPUT_LABELS } from '../words.js'
 
-// CircuitScreen's board vocabulary, over the same node types and blueprint text as the image runner.
+// The image circuit configuration shared by the screen and the text play hook.
 export function imageBoards(image) {
   const { kit, pieces } = image
   const ports = (task, side) => {
@@ -50,8 +50,10 @@ export function imageBoards(image) {
     holdsIn: image.holdsIn,
     syncOwn: (_built, progress) => image.syncOwn(progress),
     opening(task, _built, inherited, progress) {
-      const source = task.carry && image.levelById[task.carry]?.tasks.at(-1)
-      const previous = inherited ?? inheritedBoard(progress, source && { ...source, id: task.carry })
+      const source = task.carries
+        ? image.levelById[task.id]?.tasks[task.task - 1]
+        : image.levelById[task.carry]?.tasks.at(-1)
+      const previous = inherited ?? inheritedBoard(progress, source)
       const offers = (circuit) => circuit.nodes.every((node) => fixed.isFixed(node.type) || task.palette.includes(node.type))
       return kit.fits(previous, task) && offers(previous) ? previous : startBoard(task)
     },

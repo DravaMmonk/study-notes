@@ -40,10 +40,10 @@ const show = (value) => isGrid(value)
   ? value.w * value.h === 1 && (value.c ?? 1) === 1 ? valueText(value.data[0]) : `${value.w} × ${value.h}${value.c === 3 ? ' · RGB' : ''}`
   : valueText(value)
 
-export function imageCircuit(image, boards, cards) {
+export function imageCircuit(image, cards) {
   const { kit } = image
   return {
-    course: () => boards,
+    course: (game) => game.circuit,
     cards,
     play: { runLevel: (task, graph, _partOf, options) => kit.runLevel(task, graph, options), entries, show },
     canvas: { height: 220 },
