@@ -1,7 +1,7 @@
 // node --test games/kit/shell — a game's progress in the browser: kept task by task for the puzzle each was made on.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, skipOptionalTask, taskOpen, taskPassed } from './progress.js'
+import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, saved, skipOptionalTask, taskOpen, taskPassed } from './progress.js'
 import { passedLevelIn, recordSolution } from './progress.js'
 
 const storage = new Map()
@@ -90,6 +90,20 @@ test('passing a carried task retains its passing circuit when the working board 
   const done = passed(g, { ...fresh(), data: { 'source-task': board } }, source, 0)
   assert.deepEqual(done.built['source-task'], board)
   assert.deepEqual(inheritedBoard({ ...done, data: { 'source-task': { nodes: [], wires: [] } } }, { id: 'source', ...source.tasks[0] }), board)
+})
+
+test('passing records the circuit that ran even when the task has never saved it or has a different draft', () => {
+  const work = { nodes: [{ id: 'passing' }], wires: [] }
+  const draft = { nodes: [{ id: 'draft' }], wires: [] }
+  const key = level.tasks[0].key
+  for (const start of [fresh(), saved(fresh(), level, 0, draft)]) {
+    const result = passed(game, start, level, 0, null, work)
+    assert.deepEqual(result.data[key], work)
+    assert.deepEqual(result.built[key], work)
+    assert.deepEqual(result.solutions[key].works.find((entry) => entry.key === key).work.nodes.map(({ id }) => id), ['passing'])
+    const edited = saved(result, level, 0, draft)
+    assert.deepEqual(edited.built[key], work)
+  }
 })
 
 

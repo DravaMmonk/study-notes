@@ -103,7 +103,7 @@ export default function imageGame(content) {
         }))
       },
       preview: (part, { progress }) => {
-        if (progress?.solved) image.syncOwn(progress)
+        image.syncOwn(progress?.built)
         const made = imagePreview(image, content.box, part)
         return {
           sample: made && { ...made, parts: partsFor(made.task, boards.forTask(made.task), { cards, portLabels: {} }) },

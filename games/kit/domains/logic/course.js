@@ -27,7 +27,7 @@ import { equations } from './define.js'
 import { PROOF_BOARD, startProof } from './proof.js'
 import { OPS, partsOf } from './ops.js'
 import { boardView, fitsCircuit } from '../../engine/board-view.js'
-import { keptBoards } from './built.js'
+import { keptBoards } from '../../engine/kept-boards.js'
 import { builtGates, gateCourse, gateTests, startGates } from './gates.js'
 import { lettersOf } from './truth.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
@@ -238,7 +238,7 @@ function readTasks(level, wordSets) {
 }
 
 export function logicCourse(content) {
-  // The boards the player passed the building levels with: this content's (built.js).
+  // The boards the player passed the building levels with, in this course.
   const kept = keptBoards((key, board) => {
     const task = taskById.get(key)
     const boards = { proof: proofBoards, machine: machineBoards, gates: truthCircuits }[task?.kind]
@@ -314,7 +314,7 @@ export function logicCourse(content) {
     try {
       const read = (lines) => fromLines(lines, start, shape, types)
       const b = read(one[field])
-      // Its place in the saves (built.js): its task's id.
+      // Its place in the saved passing work is its task id.
       blueprints.push({ level: one.id, task: one.task, key: one.taskId, board: b, write: (x) => toLines(x, shape), read, ...(field === 'naive' ? { naive: true } : {}) })
       return b
     } catch (e) {

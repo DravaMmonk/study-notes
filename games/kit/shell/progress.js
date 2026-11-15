@@ -177,8 +177,9 @@ export function recordSolution(game, p, level, taskAt, work) {
     (game.workReferences?.(entry, p.built) ?? []).map(stamped))
 }
 
-/** Record the task and its board; solve the level once every task has actually passed. */
-export function passed(game, p, level, taskAt, score = null) {
+/** Record the exact work judged on this pass and finish the level when its required tasks have passed. */
+export function passed(game, progress, level, taskAt, score = null, passingWork) {
+  const p = passingWork === undefined ? progress : saved(progress, level, taskAt, passingWork)
   const built = kept(game, p, level, taskAt)
   const best = taskAt === level.tasks.length - 1 && score && game.better(score, p.best[level.id])
     ? { ...p.best, [level.id]: score } : p.best

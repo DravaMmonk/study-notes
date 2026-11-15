@@ -32,6 +32,7 @@ import { defineParts } from './parts/define.js'
 import { formed } from './forms.js'
 import { taskLevels } from './tasks.js'
 import { fitsCircuit, previousCircuitTask } from './board-view.js'
+import { keptBoards } from './kept-boards.js'
 import { trayIn } from './trays.js'
 import { defineCourse, eraLevels, holds as holding, offer, readItem } from '../course.js'
 import { courseLayout } from './course-dependencies.js'
@@ -47,7 +48,8 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
   const given = new Map(levels.map((l) => [l.id, l]))
   const eraOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era])))
   // The boards the player passed the building levels with (the shell's progress.built), by task id: this content's.
-  const own = new Map()
+  const tasksByWork = new Map()
+  const own = keptBoards((key, board) => fits(board, tasksByWork.get(key)))
   const BUILT = {}
   const revisions = []
   const readBuilders = new Map()
@@ -145,7 +147,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       }
       return referenceBoard
     }
-    const running = () => own.get(context.taskId) ?? read()
+    const running = () => own.board(context.taskId) ?? read()
     const part = packed({
       circuit: running,
       inputs: board.portsIn(artifact).map((p) => p.name),
@@ -197,6 +199,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
   const artifactOrder = new Map(implementations.map(({ type, variant }, index) => [JSON.stringify([type, variant]), index]))
   const orderOf = ({ type, variant }) => artifactOrder.get(JSON.stringify([type, variant]))
   revisions.sort((a, b) => orderOf(a) - orderOf(b))
+  for (const { task } of revisions) tasksByWork.set(task.taskId, task)
   const CHAPTERS = eras.map((era) => ({ id: era.id, title: era.title, question: era.question, track: plan.tracks.get(era.id) }))
   const byId = new Map(LEVELS.map((L) => [L.id, L]))
   // A course level is a level, or one of its tasks (`task`, its index): what that task holds and its answer.
@@ -232,7 +235,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       const shown = stagesOf({ task, board: task.solution, chain: result.stageChain(task), isFixed: (n) => board.isFixed(n.type) })
       return { task: task.taskId, staged: shown.stages.length > 0, count: shown.loose.length }
     }),
-    references: pieceReferences(revisions, { before: (a, b) => course.before(a, b), passed: (task) => own.has(task.taskId) }),
+    references: pieceReferences(revisions, { before: (a, b) => course.before(a, b), passed: (task) => Boolean(own.board(task.taskId)) }),
     abstraction: true,
     notes,
   })
@@ -345,12 +348,8 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     },
     views: content.views ?? null,
     // The shell keeps boards by task (../shell/progress.js), including the task each form publishes.
-    syncOwn: (built = {}) => {
-      own.clear()
-      for (const { task } of revisions) {
-        const b = built[task.taskId]
-        if (fits(b, task)) own.set(task.taskId, b)
-      }
+    syncOwn: (built) => {
+      own.sync(built, tasksByWork.keys())
       refresh(BUILT)
       for (const { task, view } of scopes.values()) refresh(view.BUILT, task)
     },

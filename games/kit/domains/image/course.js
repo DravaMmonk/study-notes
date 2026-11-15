@@ -6,6 +6,7 @@
 import { defineCourse, eraLevels, holds, itemOf, offer, reach, readItem } from '../../course.js'
 import { courseLayout } from '../../engine/course-dependencies.js'
 import { taskLevels } from '../../engine/tasks.js'
+import { keptBoards } from '../../engine/kept-boards.js'
 import { builtPieces, publications } from '../../engine/pieces.js'
 import { trayIn } from '../../engine/trays.js'
 import { gridProbe } from '../../engine/grid-probe.js'
@@ -74,7 +75,7 @@ function playable({ intro: _, ...task }, kit, keep) {
  * keeps from a task (`withhold`) stands for every item that needs it (engine/nodes.js `unlock`: a part, one of its
  * settings, one option of a choice); what a task holds of them is the kernel's rule (../../course.js holds).
  * Returns { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn(level, flags), holdsIn(level, flags),
- * syncOwn(progress), blueprints }: each of LEVELS the fields its level says once, its place in the course and its
+ * syncOwn(built), blueprints }: each of LEVELS the fields its level says once, its place in the course and its
  * tasks as they play (`tasks`, each with its key); kit the image engine over the course's own part table
  * (engine/kit.js: NODE_TYPES and the parts its levels pack), so two courses read in one process never run each other's
  * packed parts. All of it is built anew: nothing that came from the content is written to.
@@ -93,8 +94,11 @@ export function imageCourse(config) {
   const published = new Map()
   const implementations = publications(levels, pieces)
   for (const { task, type } of implementations) if (task) published.set(task, [...(published.get(task) ?? []), type])
-  // The circuits the player passed the publishing tasks with, by task id (syncOwn).
-  const own = new Map()
+  const publishingTasks = new Map()
+  const own = keptBoards((key, board) => {
+    const task = publishingTasks.get(key)
+    return task && kit.fits(board, task)
+  })
   // The task that publishes each built piece, as played.
   const builders = new Map()
   // Every level's tasks made playable, by level id.
@@ -107,7 +111,7 @@ export function imageCourse(config) {
     let circuit
     const board = () => (circuit ??= kit.fromText(reference.solution, io))
     references.set(type, { task: { ...reference, ...io }, board })
-    types[type] = ownPart(io, type, pieces[type], () => own.get(task) ?? board(), types)
+    types[type] = ownPart(io, type, pieces[type], () => own.board(task) ?? board(), types)
   }
   for (const id of plan.order) {
     if (!content[id]) throw new Error(`route names a level that does not exist: ${id}`)
@@ -117,6 +121,7 @@ export function imageCourse(config) {
     for (const task of tasks) for (const type of published.get(task.taskId) ?? []) {
       if (task.kind !== 'graph') throw new Error(`pieces.json's ${type} runs task ${task.taskId}, a ${task.kind}, no circuit`)
       builders.set(type, task)
+      publishingTasks.set(task.taskId, task)
     }
   }
   for (const { board } of references.values()) board()
@@ -149,19 +154,6 @@ export function imageCourse(config) {
   })
   const placedById = Object.fromEntries(placed.map((level) => [level.id, level]))
   const CHAPTERS = eras.map((era) => ({ id: era.id, ...era.chapter, track: plan.tracks.get(era.id) }))
-
-  // A built piece runs the player's own passing circuit once solved, from the board played on the task it refers to
-  // or, when that one has not passed, from one of the task's other saved boards (shell/slots.js).
-  const syncOwn = (progress) => {
-    for (const task of builders.values()) {
-      const { id, taskId: key } = task
-      const data = progress.solved.includes(id) ? progress.data[key] : null
-      const waiting = progress.slots?.[key]?.list.find((slot) => slot.data?.passed)?.data
-      const circuit = progress.built?.[key] ?? data?.passed ?? waiting?.passed ?? data
-      if (kit.fits(circuit, task)) own.set(key, circuit)
-      else own.delete(key)
-    }
-  }
 
   // A node that names an `unlock` flag is built by the first level whose `unlocks` set it.
   const partsFor = (flags) => Object.keys(types).filter((t) => flags.includes(types[t].unlock))
@@ -225,5 +217,5 @@ export function imageCourse(config) {
 
   const referenceOf = (type) => references.get(type)?.task ?? null
 
-  return { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn, holdsIn, syncOwn, builtBy, referenceOf, publishedBy, pieces, blueprints }
+  return { CHAPTERS, LEVELS, levelById, course, kit, intros, offerIn, holdsIn, syncOwn: own.sync, builtBy, referenceOf, publishedBy, pieces, blueprints }
 }

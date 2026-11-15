@@ -112,7 +112,7 @@ function Value({ value, error, show, of, views }) {
 
 const noWorld = () => null
 
-export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, sample, ready, fresh, keep, clearable, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, readouts, valueViews, viewControls, language, context, training, testLabel, useWorld = noWorld, log = false, revealOnPass = false, className = '' }) {
+export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, sample, ready, fresh, clearable, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, readouts, valueViews, viewControls, language, context, training, testLabel, useWorld = noWorld, log = false, revealOnPass = false, className = '' }) {
   const { game, level: entry, solved, progress } = screen
   const level = entry.source
   const base = course.forTask(level)
@@ -121,11 +121,11 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const { board: kind, BUILT, pieces } = base
   const onPhone = useMedia(PHONE)
   const timed = Boolean(kind.ticks) && !once?.(level)
-  base.syncOwn(progress.built, progress)
+  base.syncOwn(progress.built)
   const workshopState = useCircuitWorkshop({ screen, course, base, cards, portLabels, defined, defaults, settings, ready })
   const { offers, has, known, circuit, resolve, parts, packed, palette, folded, types, held, hasPersonal,
     fits, hold, capture, put, publish, library, update, available, pickedTrays, notice: workshopNotice } = workshopState
-  const pass = (score, graph) => { publish(graph); screen.solve(score) }
+  const pass = (score, graph) => { publish(graph); screen.solve(score, graph) }
   const opening = () => circuit.opening(level, progress)
   const fitted = (saved) => {
     if (fits(saved)) {
@@ -164,7 +164,6 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
       onFail: (last) => surface.fail?.(last, checked.runs),
       onSolve: (score) => surface.solve ? surface.solve(score) : pass(score, drawn),
     }),
-    ...(keep && { onSolve: (s) => { const work = keep(level, drawn); if (work) screen.save(work); pass(s, drawn) } }),
   })
 
   // The sample (judged boards): the board's run on it, and the reference's, never judged.

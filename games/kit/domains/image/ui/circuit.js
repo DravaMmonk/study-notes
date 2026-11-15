@@ -58,7 +58,6 @@ export function imageCircuit(image, cards) {
     canvas: { height: 220 },
     fresh: startBoard,
     ready: (board, _task, parts) => tidyImageBoard(board, parts),
-    keep: (task, board) => image.publishedBy(task.key).length ? { ...board, passed: { nodes: board.nodes, wires: board.wires } } : null,
     viewControls: (task) => ({ options: IMAGE_VIEWS, fresh: (task.freshViews ?? []).map(viewName) }),
     valueViews: (task, node, value) => viewsOf(task, value, node.type === 'input' ? 'in' : node.type === 'output' ? 'out' : 'mid'),
     readouts(_task, _board, report) {

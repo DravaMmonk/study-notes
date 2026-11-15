@@ -25,7 +25,7 @@ function spec(content) {
     kit: image.kit,
     publishedBy: image.publishedBy,
     // The board each built piece runs, by its task's key: the screens keep it as that task's passed board.
-    syncOwn: (built) => image.syncOwn({ solved: image.LEVELS.filter((l) => l.tasks.some((t) => built[t.key])).map((l) => l.id), data: built }),
+    syncOwn: image.syncOwn,
     // The built parts that run no circuit (games/DIRECTION.md §2, 4): a part a level unlocks is the engine's own
     // implementation; only a built piece of pieces.json (inside) runs the player's board.
     builtIn: [...new Set(image.course.levels.flatMap((l) => image.course.builds(l)))].filter((p) => !image.kit.types[p]?.kit),

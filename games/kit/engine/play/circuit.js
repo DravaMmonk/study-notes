@@ -104,7 +104,7 @@ function givens(board) {
 /** The same circuit view, opening work and usable types as the level screen. */
 export function playBoard({ game, level: { source: task }, progress, flags }) {
   const view = game.circuit.forTask(task)
-  view.syncOwn(progress.built, progress)
+  view.syncOwn(progress.built)
   const { types } = view.offerIn(task, flags)
   return { start: view.opening(task, progress), parts: view.board.wiring(task, view), types }
 }

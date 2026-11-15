@@ -67,8 +67,7 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
   })
 
   const pass = (at, data, score = null) => {
-    const p = data === undefined ? record.progress : saved(record.progress, at.level, at.task, data)
-    record.progress = passed(game, p, at.level, at.task, score)
+    record.progress = passed(game, record.progress, at.level, at.task, score, data)
   }
 
   /** The level played now, skipping the plays the hook does not cover. Returns { at, opened, skipped: [lines] }. */

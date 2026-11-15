@@ -64,8 +64,6 @@ const circuit = circuitPlay({
       score: checked.score,
     }
   },
-  // A task a built piece runs keeps the circuit that passed, so editing it later cannot break the piece.
-  keep: ({ game, level }, graph) => (game.image.publishedBy(level.key).length ? { ...graph, passed: { nodes: graph.nodes, wires: graph.wires } } : graph),
 })
 
 export const play = {

@@ -7,6 +7,7 @@
 import { splitSource } from '../../engine/wire-source.js';
 import { packed } from '../../engine/boards.js';
 import { previousCircuitTask } from '../../engine/board-view.js';
+import { keptBoards } from '../../engine/kept-boards.js';
 import { inheritedBoard } from '../../shell/progress.js';
 import { deepFreeze } from '../../engine/content.js';
 import { taskLevels } from '../../engine/tasks.js';
@@ -127,10 +128,11 @@ export function tableCourse(content) {
   const run = (V, t, board, o) => { try { return model.runCircuit(V, t, board, o); } catch (e) { return { error: String(e) }; } };
 
   // A stored board that still fits the published interface takes precedence over the package's reference.
-  const own = new Map();
+  const publishingTasks = new Set();
+  const own = keptBoards(key => publishingTasks.has(key));
   const fits = new WeakMap();
   const ownBoard = (task, artifact) => {
-    const b = own.get(task);
+    const b = own.board(task);
     if (!b) return artifact.solution();
     if (!fits.has(b)) {
       const fitted = restoreRobotBoard(model, artifact, b);
@@ -294,13 +296,7 @@ export function tableCourse(content) {
     return [L.id, read.get(L.id).map(s => (isCircuit(s) ? { ...s, palette } : s))];
   }));
 
-  const syncOwn = (kept = {}) => {
-    own.clear();
-    for (const { task, level } of implementations) {
-      const b = kept[task];
-      if (played.has(level) && b?.nodes) own.set(task, b);
-    }
-  };
+  for (const { task, level } of implementations) if (played.has(level)) publishingTasks.add(task);
   /** The board circuit task `s` opens on before it has one of its own, from the boards the player keeps by task
    *  (`data`): the first task's of a level that starts from another (`carry`) is that level's last task's, a task that
    *  goes on from the task before (`carries`) has that one's, else it is empty; fitted to what the task gives. */
@@ -337,5 +333,5 @@ export function tableCourse(content) {
     return values.length ? [{ key: 'value', label: T('数值', 'Value'), values: values.map(value => ({ value, label: String(value) })) }] : [];
   };
 
-  return { LEVELS, played, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, model, run, syncOwn, opening, offerIn, settingsIn, blueprints, wrong };
+  return { LEVELS, played, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, model, run, syncOwn: own.sync, opening, offerIn, settingsIn, blueprints, wrong };
 }

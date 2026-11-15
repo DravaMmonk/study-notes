@@ -77,7 +77,7 @@ export default function EmbedShell({ game, store, levelId }) {
               saved,
               save: (data) => setProgress((p) => savedAt(p, level, taskAt, data)),
               solved,
-              solve: (score) => setProgress((p) => passed(game, p, level, taskAt, score)),
+              solve: (score, work) => setProgress((p) => passed(game, p, level, taskAt, score, work)),
               fail: () => {},
               ...run,
               flags,

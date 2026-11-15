@@ -49,7 +49,7 @@ export function imageBoards(image) {
     runtime: kit.partOf,
     offerIn: image.offerIn,
     holdsIn: image.holdsIn,
-    syncOwn: (_built, progress) => image.syncOwn(progress),
+    syncOwn: image.syncOwn,
     opening(task, progress, viewOf) {
       const source = previousCircuitTask(task, (id) => image.levelById[id]?.tasks)
       const previous = inheritedBoard(progress, source)
