@@ -27,7 +27,7 @@ import { L, T, tr } from './i18n.js'
 import { WORDS } from './words.js'
 import Workshop from './Workshop.jsx'
 import { useCircuitWorkshop } from './useCircuitWorkshop.js'
-import { lookupBoard } from '../circuit/packed-boards.js'
+import { lookupBoard, packedWorkStamp } from '../circuit/packed-boards.js'
 import { definedItem } from './parts/faces.jsx'
 import { optionsOf } from '../engine/parts/define.js'
 import { useEdit } from './edit.js'
@@ -138,11 +138,15 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const stages = useMemo(() => stagesOf({ task: level, board: board.circuit, chain: circuit.stageChain(level, progress.built), isFixed: (n) => kind.isFixed(n.type) }), [level, board.circuit, circuit, progress.built, kind])
   const [alreadySolved] = useState(solved)
   const revealed = alreadySolved || (revealOnPass && solved)
-  const { shown: tests, checked, hidden, report } = useMemo(() => runTestGroups(level, revealed,
-    (task, traceCount) => runOn(task, drawn, base.partOf, { traced: true, traceCount, ...(hasPersonal(drawn) && { workshopParts: resolve }) })),
-  [level, revealed, board.version, base, progress.built, library])
+  const { shown: tests, checked, hidden, report, signature } = useMemo(() => ({
+    ...runTestGroups(level, revealed, (task, traceCount) => runOn(task, drawn, base.partOf, {
+      traced: true, traceCount, ...(hasPersonal(drawn) && { workshopParts: resolve }),
+    })),
+    signature: packedWorkStamp({ level, circuit: drawn, parts }, packed.open),
+  }), [level, revealed, board.version, base, progress.built, library])
   const stepsOf = (r) => (timed ? r.ticks.map((tick) => tick.failed ? { ...tick, failed: failureText(tick.failed) } : tick) : r.trace)
   const run = useLevelRun(screen, board, {
+    signature,
     tests: [...tests.map((t, k) => ({ label: L(t.label ?? testLabel?.(level, t, k) ?? words.label(k)), hidden: t.hidden })), ...(judged && level.sample ? [{ label: L(WORDS.sample), sample: true }] : [])],
     ...(judged
       ? { judge: () => ({ pass: checked.pass, score: checked.score, results: report.runs.map((r) => ({ pass: !failureOf(r), reason: L(finalFailure(r)) ?? '' })) }) }
@@ -165,7 +169,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
 
   // The sample (judged boards): the board's run on it, and the reference's, never judged.
   const onSample = Boolean(level.sample) && run.at === tests.length
-  const sampled = useMemo(() => (onSample ? { run: sample(level, drawn), want: sample(level, level.solution) } : null), [onSample, level, board.version])
+  const sampled = useMemo(() => (onSample ? { run: sample(level, drawn), want: sample(level, level.solution) } : null), [onSample, level, run.revision])
   // The step shown: the one a run is on (or its last, once past it). Before a run a tick board shows its first tick,
   // as a preview, and a board run once the whole run; a judged board always its whole run.
   const whole = judged || Boolean(table)
@@ -180,7 +184,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const ended = whole ? run.over : Boolean(run.run && (run.run.test > run.at || run.run.over))
 
   const failWorld = ({ panel, ...info }) => screen.fail(panel ? { ...info, extra: <TracePanel panel={panel} /> } : info)
-  const surface = useWorld({ screen: { ...screen, fail: failWorld, solve: (score) => pass(score, drawn) }, workshopParts: hasPersonal(drawn) ? resolve : undefined, task: level, test: onView, run, report: runOf, held, at, ended, circuit: drawn, change, version: board.version })
+  const surface = useWorld({ screen: { ...screen, fail: failWorld, solve: (score) => pass(score, drawn) }, workshopParts: hasPersonal(drawn) ? resolve : undefined, task: level, test: onView, run, report: runOf, held, at, ended, circuit: drawn, change, version: run.revision })
   const view = surface?.value ?? computed
 
   const setParam = (node, ctx, key, value) => {

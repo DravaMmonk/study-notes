@@ -1,11 +1,7 @@
-import { canonicalJson, sameJson } from '../engine/json-value.js'
-import { workOf } from '../engine/stamp.js'
+import { sameJson } from '../engine/json-value.js'
 
 /** A running board is identified by its task and saved slot. */
 export const runKey = (task, no) => `${task}#${no}`
-
-/** Identify judged work without any layout-only fields. */
-export const runWorkKey = (work) => canonicalJson(workOf(work)) ?? ''
 
 /** A slot can only restore a mark for the work it actually recorded. */
 export const markForWork = (entry, workKey) => entry?.workKey === workKey ? entry?.mark : undefined

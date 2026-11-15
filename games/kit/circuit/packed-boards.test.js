@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { lookupBoard, packedBoards } from './packed-boards.js'
+import { lookupBoard, packedBoards, packedWorkStamp } from './packed-boards.js'
 
 test('nested packed boards and edit destinations resolve against their own parent task', () => {
   const inner = { level: 'inside', circuit: { nodes: [{ id: 'again', type: 'shared', params: { form: 'second' } }] } }
@@ -29,4 +29,16 @@ test('nested packed boards and edit destinations resolve against their own paren
   assert.strictEqual(at(['first', 'again']), opened)
   assert.equal(resolutions, 1)
   assert.equal(packed.builder(inner.circuit.nodes[0], at(['first'])), 'correct')
+})
+
+test('a packed run changes only when its selected dependency work changes', () => {
+  const work = (taskId, nodes) => ({ level: { taskId }, circuit: { nodes, wires: [] } })
+  const top = work('outer', [{ id: 'a', type: 'stage' }])
+  const stage = work('middle', [{ id: 'a', type: 'part', params: { form: 'second' } }])
+  const leaf = (value) => work('chosen', [{ id: 'number', type: 'const', params: { value } }])
+  const stamp = (choices) => packedWorkStamp(top, (node, at) => at === top ? stage : at === stage ? choices[node.params.form] : undefined)
+  const first = leaf(1)
+  const second = leaf(2)
+  assert.equal(stamp({ first, second }), stamp({ first: leaf(9), second }))
+  assert.notEqual(stamp({ first, second }), stamp({ first, second: leaf(3) }))
 })

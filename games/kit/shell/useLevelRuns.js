@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react'
-import { keepRunMark, markForWork, runKey, runWorkKey } from './run-marks.js'
+import { workSignature } from '../engine/stamp.js'
+import { keepRunMark, markForWork, runKey } from './run-marks.js'
 
 /** Bind a slot's run history to the work that this editor actually judges. */
-export function useRunHistory({ lastRun, keepRun }, work) {
-  const workKey = useMemo(() => runWorkKey(work), [work])
+export function useRunHistory({ lastRun, keepRun }, work, signature) {
+  const workKey = useMemo(() => signature ?? workSignature(work), [work, signature])
   return {
     lastRun: markForWork(lastRun, workKey),
-    keepRun: (mark, judged = work) => keepRun?.(mark && { workKey: judged === work ? workKey : runWorkKey(judged), mark }),
+    keepRun: (mark, judged = work) => keepRun?.(mark && { workKey: judged === work ? workKey : workSignature(judged), mark }),
   }
 }
 

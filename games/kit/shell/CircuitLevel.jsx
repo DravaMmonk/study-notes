@@ -5,7 +5,7 @@ import { traySize } from '../circuit/card-size.js'
 import { fixedTray } from '../course.js'
 import { trayDisplay } from '../engine/trays.js'
 import { useSetting } from './useSetting.js'
-import { isValidElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { isValidElement, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { blockPreset, blocksOf, createBlock, editBlock, withNewSlots, phoneBlockBoard, blockOfPart } from '../circuit/blocks.js'
 import { Info } from 'lucide-react'
 import CanvasEditor from '../circuit/CanvasEditor.jsx'
@@ -78,13 +78,15 @@ export function useLevelBoard(screen, { open, fresh, clearable }) {
  *   hidden    { count, failed, words: { note, failed(n) } } hidden tests run with every run and
  *             only say how many fail
  *   score()   the score the level is passed with (judge: the verdict's)
+ *   signature the judged work and its resolved dependencies, unchanged by presentation edits
  *   onSolve?  instead of passing the level when every test passes (another stage follows, the board must still be made
  *             a part…); onFail?(run) when a stepped run stops short; guard?() → true when a run may not start yet
  *   at        the test a level opens on
  */
-export function useLevelRun(screen, board, { tests, steps = null, judge = null, hidden = null, score, onSolve, onFail, guard, at: first = 0 }) {
+export function useLevelRun(screen, board, { tests, steps = null, judge = null, hidden = null, score, signature, onSolve, onFail, guard, at: first = 0 }) {
   const [at, setAt] = useState(null)
-  const history = useRunHistory(screen, board.circuit)
+  const history = useRunHistory(screen, board.circuit, signature)
+  const revision = useMemo(() => ({ version: board.version, signature }), [board.version, signature])
   const failureAt = (verdict) => {
     const found = verdict?.results.findIndex((result, k) => k < tests.length && !tests[k].sample && !result.pass) ?? -1
     return found < 0 ? first : found
@@ -100,7 +102,7 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
     onSolve: () => solve(score?.()),
     onFail,
     onTest: setAt,
-    board: board.version,
+    board: revision,
     kept: steps ? history.lastRun : undefined,
     onKeep: steps ? history.keepRun : undefined,
   })
@@ -113,12 +115,12 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
     else if (!v.pass) setAt(failureAt(v))
   })
   // A change to what the board computes drops the verdict on it.
-  const version = useRef(board.version)
-  useEffect(() => {
-    if (version.current === board.version) return
-    version.current = board.version
+  const previous = useRef(revision)
+  useLayoutEffect(() => {
+    if (previous.current === revision) return
+    previous.current = revision
     if (!steps) reset()
-  }, [board.version])
+  }, [revision])
   const states = steps ? playback.states : tests.map((t, k) => {
     const result = verdict?.results[k]
     return !t.sample && result ? (result.pass ? 'pass' : 'fail') : null
@@ -131,6 +133,7 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
     : verdict?.hiddenFailed ?? 0
   return {
     tests,
+    revision,
     stepped: Boolean(steps),
     at: shownAt,
     select: setAt,

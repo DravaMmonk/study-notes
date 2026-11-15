@@ -1,4 +1,5 @@
 import { workView } from './workshop-view.js'
+import { solutionStamp, workSignature } from '../engine/stamp.js'
 
 /** Resolve packed parts and open their boards with the workshop versions captured on the work. */
 export function packedBoards(course, draw) {
@@ -25,4 +26,13 @@ export function lookupBoard(top, open) {
     return boards.get(key)
   }
   return at
+}
+
+/** Identify a circuit and the actual implementations of its packed parts in their own scopes. */
+export function packedWorkStamp(top, open) {
+  const entry = (at, type) => ({ key: `${type}:${at.level.taskId}`, work: workSignature(at.circuit), at })
+  return solutionStamp(entry(top, ''), ({ at }) => at.circuit.nodes.flatMap((node) => {
+    const child = open(node, at)
+    return child?.circuit ? [entry(child, node.type)] : []
+  })).stamp
 }

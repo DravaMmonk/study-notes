@@ -7,6 +7,7 @@ import { find, sectionOf, shapeAt } from './schema.js'
 import { PARTS_FILE } from './parts/schema.js'
 import { isText } from './i18n.js'
 import { editorOf, settingsOf } from './pieces.js'
+import { canonicalJson } from './json-value.js'
 
 const PUZZLE = ['puzzle', 'tests']
 
@@ -50,13 +51,16 @@ export function taskStamps(vocabulary, content, { courseField } = {}) {
 }
 
 /** Omit board presentation when identifying the work a run executes. */
-export function workOf(work) {
+function workOf(work) {
   if (!Array.isArray(work?.nodes) || !Array.isArray(work?.wires)) return work
   return {
     nodes: work.nodes.map(({ id, type, params, in: region }) => ({ id, type, params, region })),
     wires: work.wires.map(({ from, to, port }) => ({ from, to, port })),
   }
 }
+
+/** Compare the executed work while ignoring board layout and JSON object key order. */
+export const workSignature = (work) => canonicalJson(workOf(work)) ?? ''
 
 /**
  * Record a work and the transitive closure of the works it uses. A resolver returns the task key, selected work and

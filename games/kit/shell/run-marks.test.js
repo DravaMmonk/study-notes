@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { completedRun, keepRunMark, markForWork, playbackMark, runKey, runWorkKey } from './run-marks.js'
+import { workSignature } from '../engine/stamp.js'
+import { completedRun, keepRunMark, markForWork, playbackMark, runKey } from './run-marks.js'
 
 test('clearing one slot preserves another task with the same slot number', () => {
   const shifted = runKey('shift', 2)
@@ -24,10 +25,10 @@ test('a run mark follows the judged wiring and settings across changes to board 
   const out = { id: 'out', type: 'output' }
   const wire = { from: 'in', to: 'out', port: 'in' }
   const board = { nodes: [input, out], wires: [wire] }
-  const mark = { workKey: runWorkKey(board), mark: completedRun }
+  const mark = { workKey: workSignature(board), mark: completedRun }
   const laidOut = { ...board, nodes: [{ ...input, x: 120, slot: 3, params: { enabled: true, value: 2 } }, out], blocks: [{ nodes: ['in'] }] }
-  assert.equal(markForWork(mark, runWorkKey(laidOut)), completedRun)
-  assert.equal(markForWork(mark, runWorkKey({ ...board, wires: [] })), undefined)
+  assert.equal(markForWork(mark, workSignature(laidOut)), completedRun)
+  assert.equal(markForWork(mark, workSignature({ ...board, wires: [] })), undefined)
   const edited = { ...board, nodes: [{ ...input, params: { ...input.params, value: 3 } }, out] }
-  assert.equal(markForWork(mark, runWorkKey(edited)), undefined)
+  assert.equal(markForWork(mark, workSignature(edited)), undefined)
 })
