@@ -7,7 +7,7 @@ import { cardPorts } from './card-ports.js'
 import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, lockedRefusal, outPort, parsePort, placement, removeNode } from './model.js'
 import { drawWires } from './SlotBoard.jsx'
 import { blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
-import { regionsFit } from './frames.js'
+import { regionAddress, regionsFit, regionsOf } from './regions.js'
 import { useHistory } from './useHistory.js'
 import { visibleSlot } from './visibleSlot.js'
 
@@ -51,7 +51,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
       const { cell } = placement(g, parts, region)
       for (const id of [...cell.keys()].sort((x, y) => cell.get(x) - cell.get(y))) {
         ordered.push(id)
-        for (const r of parts.frames?.(byId(g, id)) ?? []) walk(`${id}/${r.name}`)
+        for (const r of regionsOf(parts, byId(g, id))) walk(regionAddress(id, r.name))
       }
     }
     walk(null)

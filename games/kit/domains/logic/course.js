@@ -25,6 +25,7 @@ import { PROOF_BOARD, startProof } from './proof.js'
 import { OPS, partsOf } from './ops.js'
 import { boardView } from '../../engine/board-view.js'
 import { keptBoards } from './built.js'
+import { partRegions, regionsFit } from '../../circuit/regions.js'
 import { builtGates, gateCourse, gateTests, startGates } from './gates.js'
 import { lettersOf } from './truth.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
@@ -233,7 +234,12 @@ function readTasks(level, wordSets) {
 
 export function logicCourse(content) {
   // The boards the player passed the building levels with: this content's (built.js).
-  const kept = keptBoards()
+  const kept = keptBoards((key, board) => {
+    if (!board.nodes.some((node) => node.in != null)) return true
+    const task = taskById.get(key)
+    const boards = { proof: proofBoards, machine: machineBoards, gates: truthCircuits }[task?.kind]
+    return Boolean(boards && regionsFit(board, { frames: partRegions(boards.forTask(task).partOf) }))
+  })
   const { eras, trays, wordSets = {}, primitives, concept = {}, local = [] } = content
   const built = readBuilt(content)
   const { lemmas, facts, gates, machines, revisions } = built

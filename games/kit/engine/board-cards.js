@@ -22,6 +22,7 @@ import { sourceOf, srcNode } from './wire-source.js'
 import { printLines, readLines } from '../circuit/text.js'
 import { sink, source } from './boards.js'
 import { portsOf } from './circuit.js'
+import { partRegions, regionsFit } from '../circuit/regions.js'
 
 // A setting kept as the words it is written in ({ reg: 'A', start: '1' }); the parts read them.
 const WORDS = { read: (_node, _key, v) => String(v) }
@@ -55,10 +56,12 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140, tex
   const isFixed = (type) => FIXED.includes(type)
   const sinks = new Set(cards.filter((c) => c.side === 'right').map((c) => c.type))
 
-  /** Whether a saved board still fits its task: the task's fixed cards as they are set, and every card one the domain knows. */
+  /** Whether a saved board still fits its task's fixed cards, available parts and regions. */
   const fits = (board, task, partOf) => {
     const given = (nodes) => nodes.filter((n) => isFixed(n.type)).map((n) => JSON.stringify([n.id, n.type, Object.entries(n.params ?? {}).sort()])).sort().join()
-    return given(board.nodes) === given(fixedOf(task)) && board.nodes.every((n) => partOf(n.type))
+    return given(board.nodes) === given(fixedOf(task))
+      && board.nodes.every((n) => partOf(n.type))
+      && regionsFit(board, { frames: partRegions(partOf) })
   }
 
   /** A board from another level brought onto `task`: its placed parts and their wires, and its wires to the fixed cards this task has too. */
@@ -78,6 +81,7 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140, tex
     // What keeps a value for the next tick: a card that stores a register, or a built part that holds its own.
     holds: (n) => Boolean(circuit.partOf(n.type)?.store || circuit.partOf(n.type)?.holds),
     text,
+    frames: partRegions(circuit.partOf),
     inputs: (n) => {
       if (sinks.has(n.type)) return ['in']
       if (isFixed(n.type)) return []

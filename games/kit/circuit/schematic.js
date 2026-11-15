@@ -1,5 +1,6 @@
 import { splitSource } from '../engine/wire-source.js'
 import { dependencyOrder } from './layout.js'
+import { frameId, frameTree, regionAddress, regionsOf } from './regions.js'
 
 // A board set out to be read, not edited (Schematic.jsx): each scope (the board itself, or a frame's region:
 // frames.js) is rows from top to bottom, every part below everything it reads, the board's sources its first row and
@@ -14,25 +15,24 @@ import { dependencyOrder } from './layout.js'
 const mean = (values) => values.reduce((a, b) => a + b, 0) / values.length
 
 export function schematic(graph, parts) {
-  const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  const scopeOf = (id) => byId.get(id)?.in ?? null
-  const isRegion = (id, name) => (parts.frames?.(byId.get(id) ?? {}) ?? []).some((r) => r.name === name)
-  const parent = (scope) => scopeOf(scope.split('/')[0])
+  const tree = frameTree(graph.nodes)
+  const regionOf = (id) => tree.node(id)?.in ?? null
+  const hasRegion = (id, name) => regionsOf(parts, tree.node(id)).some((region) => region.name === name)
   const role = (n) => parts.role(n)
 
   // Each wire as legs, one per scope it runs in, outermost first: from a node there (or the scope's top edge) to a
   // node there (or its bottom edge).
   const legsOf = (w) => {
     const [src, key] = splitSource(w.from)
-    const start = key !== null && isRegion(src, key) ? { scope: `${src}/${key}` } : { scope: scopeOf(src), id: src }
-    const end = isRegion(w.to, w.port) ? { scope: `${w.to}/${w.port}` } : { scope: scopeOf(w.to), id: w.to }
-    const scopes = []
-    for (let s = end.scope; ; s = parent(s)) {
-      scopes.unshift(s)
-      if (s === start.scope) break
-      if (s === null) return []
-    }
-    return scopes.map((scope, k) => ({ scope, a: k === 0 ? start.id : undefined, b: k === scopes.length - 1 ? end.id : scopes[k + 1].split('/')[0] }))
+    const start = key !== null && hasRegion(src, key) ? { scope: regionAddress(src, key) } : { scope: regionOf(src), id: src }
+    const end = hasRegion(w.to, w.port) ? { scope: regionAddress(w.to, w.port) } : { scope: regionOf(w.to), id: w.to }
+    const parents = tree.ancestors(end.scope)
+    if (!parents) return []
+    const path = [null, ...parents]
+    const first = path.indexOf(start.scope)
+    if (first < 0) return []
+    const scopes = path.slice(first)
+    return scopes.map((scope, k) => ({ scope, a: k === 0 ? start.id : undefined, b: k === scopes.length - 1 ? end.id : frameId(scopes[k + 1]) }))
   }
   const legs = graph.wires.map(legsOf)
 

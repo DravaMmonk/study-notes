@@ -5,6 +5,7 @@ import Glyph from './Glyph.jsx'
 import { cardPorts } from './card-ports.js'
 import { schematic } from './schematic.js'
 import { inPort, outPort } from './model.js'
+import { regionAddress } from './regions.js'
 
 // A board to read, the same on a desktop and a phone: small chips in rows from top to bottom (schematic.js), each a
 // part's name over what it holds, thin wires between their edges. Nothing on it is edited: no ports to press, no
@@ -145,7 +146,7 @@ export default function Schematic({ graph, parts, value, param, outNote, regionN
               {regionNote?.(node, r.name)}
               {r.opens && anchor(outPort(sourceOf(node.id, r.name)))}
             </header>
-            {rows(`${node.id}/${r.name}`)}
+            {rows(regionAddress(node.id, r.name))}
             <footer>
               {anchor(inPort(node.id, r.name))}
               <em>{L(parts.portLabel?.(node, r.name) ?? '')}</em>

@@ -21,7 +21,8 @@ import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { cardPorts } from './card-ports.js'
-import { moveInto, regionsOf } from './frames.js'
+import { moveInto } from './frames.js'
+import { regionAddress, regionsOf } from './regions.js'
 import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, parsePort, removeNode, removeWire } from './model.js'
 import { useHistory } from './useHistory.js'
 import { alignTerminals, spaceNodes } from './spacing.js'
@@ -502,7 +503,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const choose = (node) => {
     setSelected({ node: node.id })
     const first = regionsOf(parts, node)[0]
-    setTarget(first && !node.fold ? `${node.id}/${first.name}` : node.in ?? null)
+    setTarget(first && !node.fold ? regionAddress(node.id, first.name) : node.in ?? null)
   }
   // The region under a dragged card's pointer (not one of its own), or null for the board: anywhere inside its outline
   // counts, its head too, not just the field its cards sit on. Its field is returned, where the card's place counts from.
@@ -526,6 +527,10 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const positioned = region === (node.in ?? null)
       ? { ...graph, nodes: graph.nodes.map(n=>n.id===g.id?{...n,x,y}:n) }
       : moveInto(graph,parts,g.id,region,x,y)
+    if (positioned === graph) {
+      setTarget(node.in ?? null)
+      return
+    }
     const next=assignBlock(positioned,parts,g.id,region===null?blockAt(g):null)
     onChange(next, { keep: next.wires.length === graph.wires.length })
     setTarget(region)
@@ -640,7 +645,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
         {regions.length > 0 && !node.fold && (
           <div className="frame-regions">
             {regions.map((r) => {
-              const key = `${node.id}/${r.name}`
+              const key = regionAddress(node.id, r.name)
               const inside = graph.nodes.filter((n) => n.in === key)
               const w = Math.max(REGION.w, ...inside.map((n) => n.x + sizeOf(n)[0] + REGION.pad))
               const h = Math.max(REGION.h, ...inside.map((n) => n.y + sizeOf(n)[1] + REGION.pad))

@@ -32,7 +32,8 @@ import { srcNode } from '../engine/wire-source.js'
 import { cardColumns, slotColumns, slotWidth } from './card-size.js'
 import { SLOT_GUTTER } from './slot-metrics.js'
 import { wouldCycle } from '../graph.js'
-import { frameEdges, moveInto, regionsOf, scopeRefusal, within } from './frames.js'
+import { frameEdges, moveInto, scopeRefusal } from './frames.js'
+import { frameId, frameTree, regionAddress, regionsOf } from './regions.js'
 
 // Port ids, the same on the desktop board and the phone: an output is `o|<node>`, an input `i|<node>|<port>`.
 // `id` of an output is a wire's source: a node's id, or `<node>#<key>` for one of several outputs.
@@ -65,7 +66,7 @@ export function connect(graph, id, port, from) {
 
 /** The board without node `id`, and without whatever sits inside it (a frame's cards, frames.js), with their wires. */
 export function removeNode(graph, id) {
-  const gone = new Set([id, ...within(graph, id)])
+  const gone = frameTree(graph.nodes).included([id])
   return { ...graph, nodes: graph.nodes.filter((n) => !gone.has(n.id)), wires: graph.wires.filter((w) => !gone.has(srcNode(w.from)) && !gone.has(w.to)) }
 }
 export const removeWire = (graph, wire) => ({ ...graph, wires: graph.wires.filter((w) => !(w.to === wire.to && w.port === wire.port)) })
@@ -202,20 +203,18 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
   const { steps } = layout(graph, parts)
   const regions = (n) => regionsOf(parts, n)
   const byNode = new Map(steps.map((node) => [node.id, node]))
+  const tree = frameTree(graph.nodes)
   const rootWidth = parts.availableWidth ?? Infinity
   const rootCols = slotColumns(rootWidth, parts.traySize)
   const columnWidth = slotWidth(rootWidth, rootCols)
-  const columnsIn = (r) => {
-    if (r === null) return rootCols
-    const frame = byNode.get(r.split('/')[0])
-    if (!frame) return rootCols
-    const cols = columnsIn(frame.in ?? null)
-    return Number.isInteger(frame.span) && frame.span > 0 ? Math.min(frame.span, cols) : cols
-  }
   const grids = new Map()
   const place = (r) => {
     if (grids.has(r)) return grids.get(r)
-    const cols = columnsIn(r)
+    const ancestors = tree.ancestors(r)
+    const cols = (ancestors ?? []).reduce((width, address) => {
+      const span = byNode.get(frameId(address))?.span
+      return Number.isInteger(span) && span > 0 ? Math.min(span, width) : width
+    }, rootCols)
     const width = cols * columnWidth + (cols - 1) * SLOT_GUTTER
     const used = new Set()
     const cell = new Map()
@@ -223,7 +222,7 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
     const sizeOf = (n) => {
       const frames = regions(n)
       if (!frames.length) return [cardColumns(parts, n, width, cols), 1]
-      const children = frames.map((g) => place(`${n.id}/${g.name}`))
+      const children = frames.map((g) => place(regionAddress(n.id, g.name)))
       return [children[0].cols, 1 + children.reduce((sum, child) => sum + 2 + child.rows, 0)]
     }
     const cellsOf = (at, [w, h]) => {
@@ -237,7 +236,7 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
       span.set(n.id, sizeOf(n))
       for (const c of cellsOf(at, sizeOf(n))) used.add(c)
     }
-    const here = steps.filter((n) => (n.in ?? null) === r)
+    const here = ancestors ? steps.filter((n) => (n.in ?? null) === r) : []
     for (const node of here) if (Number.isInteger(node.slot) && node.slot >= 0 && fits(node, node.slot)) take(node, node.slot)
     for (const node of here) {
       if (cell.has(node.id)) continue
@@ -257,7 +256,7 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
       if (span.get(id)[0] === cols) frameHeads.add(row)
       row++
       for (const region of frames) {
-        const child = place(`${id}/${region.name}`)
+        const child = place(regionAddress(id, region.name))
         if (span.get(id)[0] === cols) for (const head of child.frameHeads) frameHeads.add(row + 1 + head)
         row += child.rows + 2
       }

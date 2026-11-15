@@ -1,7 +1,9 @@
 // node --test games/kit/circuit — frames: which wires a box lets through, moving cards in and out, taking one off.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { framePart, moveInto, regionsFit, scopeOf } from './frames.js'
+import { framePart, moveInto } from './frames.js'
+import { flowBoard } from '../engine/board-cards.js'
+import { frameTree, regionsFit } from './regions.js'
 import { baseRefusal, clearSpot, moveToSlot, placement, removeNode } from './model.js'
 import { traySize } from './card-size.js'
 
@@ -13,8 +15,9 @@ const board = {
 }
 
 test('a card knows the regions it sits in', () => {
-  assert.deepEqual(scopeOf(board, 'm'), ['f/body'])
-  assert.deepEqual(scopeOf(board, 'g'), [])
+  const tree = frameTree(board.nodes)
+  assert.deepEqual(tree.ancestors(tree.node('m').in), ['f/body'])
+  assert.deepEqual(tree.ancestors(tree.node('g').in), [])
 })
 
 test('wires run inward, and a box reads back what was made from it', () => {
@@ -111,6 +114,21 @@ test('a saved board fits while every card sits in a region its frame has', () =>
   assert.equal(regionsFit(board, parts), true)
   assert.equal(regionsFit({ ...board, nodes: [...board.nodes, { id: 'x', in: 'f/gone' }] }, parts), false)
   assert.equal(regionsFit({ ...board, nodes: [...board.nodes, { id: 'y', in: 'missing/body' }] }, parts), false)
+})
+
+test('a frame cannot be stored or moved inside itself, even through another frame', () => {
+  const nested = { ...board, nodes: board.nodes.map((node) => node.id === 'm' ? { ...node, type: 'box' } : node) }
+  const put = (region) => ({ ...nested, nodes: nested.nodes.map((node) => node.id === 'f' ? { ...node, in: region } : node) })
+  const kind = flowBoard()
+  const part = { frames: (node) => parts.frames(node) }
+  const partOf = (type) => type === 'box' ? part : {}
+  assert.ok(kind.fits(nested, {}, partOf))
+  for (const region of ['f/body', 'm/body', 'g/body', 'm/body/extra', '']) {
+    assert.equal(kind.fits(put(region), {}, partOf), false)
+    assert.equal(moveInto(nested, parts, 'f', region, 0, 0), nested)
+  }
+  assert.deepEqual([...frameTree(put('m/body').nodes).included(['f'])], ['f', 'm'])
+  assert.equal(placement(put('m/body'), parts, 'f/body').cell.size, 0)
 })
 
 test('a card added over another moves to the nearest clear spot beside it', () => {

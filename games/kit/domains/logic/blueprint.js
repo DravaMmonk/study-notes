@@ -2,7 +2,8 @@
 // and a board of gates, read and printed through the shape of their parts. Content writes reference and naive boards
 // this way, the same text a player copies out of a level and pastes back. The editors' descriptions (ui/) add names,
 // labels and icons to the same shapes.
-import { print, read } from '../../circuit/text.js'
+import { printLines, read } from '../../circuit/text.js'
+import { partRegions } from '../../circuit/regions.js'
 import { portsOf } from '../../engine/circuit.js'
 import { FORMULA_TEXT } from './formula.js'
 import { gateParts } from './gates.js'
@@ -17,7 +18,7 @@ export function shapeOf(partOf, { sources, sinks }) {
     inputs: (node) => (sinks.includes(node.type) ? ['in'] : sources.includes(node.type) ? [] : partOf(node.type) ? portsOf(partOf(node.type), node) : []),
     role: (node) => (sources.includes(node.type) ? 'source' : sinks.includes(node.type) ? 'sink' : 'part'),
     outputs: (node) => partOf(node.type)?.outputs?.(node)?.map((key) => ({ key, label: '' })) ?? null,
-    frames: (node) => partOf(node.type)?.frames?.(node) ?? [],
+    frames: partRegions(partOf),
     text: FORMULA_TEXT,
   }
 }
@@ -35,7 +36,7 @@ export const gateShape = (gates = {}) => {
 }
 
 /** A board as blueprint lines, one string a line (no header). */
-export const toLines = (board, shape) => print(board, shape).split('\n').filter((line) => line && !line.startsWith('#'))
+export { printLines as toLines }
 
 /**
  * The board some blueprint lines describe, on the level's start (its own nodes): every type the shape knows may be

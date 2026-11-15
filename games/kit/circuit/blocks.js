@@ -1,7 +1,7 @@
 import { srcNode } from '../engine/wire-source.js'
 import { cardWidth } from './card-size.js'
 import { moveToSlot, placement } from './model.js'
-import { scopeOf } from './frames.js'
+import { frameId, frameTree } from './regions.js'
 import { dependencyOrder, pipelineLayout } from './layout.js'
 
 export const BLOCK_VIEWS = ['full', 'ports', 'hidden']
@@ -9,13 +9,13 @@ const editable = (board, parts) => board.nodes.filter((n) => !n.in && parts.role
 
 export function blocksOf(board, parts) {
   const valid = new Set(editable(board, parts).map((n) => n.id)), used = new Set(), ids = new Set()
+  const tree = frameTree(board.nodes)
   return (board.blocks ?? []).flatMap((block) => {
     if (!block.id || ids.has(block.id)) return []
     ids.add(block.id)
     const nodes = (block.nodes ?? []).filter((id) => valid.has(id) && !used.has(id) && (used.add(id), true))
     if (!nodes.length) return []
-    const roots=new Set(nodes)
-    const within = new Set([...nodes,...board.nodes.filter(n=>n.in&&scopeOf(board,n.id).some(scope=>roots.has(scope.split('/')[0]))).map(n=>n.id)])
+    const within = tree.included(nodes)
     return [{id:block.id,note:block.note ?? '',view:BLOCK_VIEWS.includes(block.view)?block.view:'ports',nodes,...(['full','ports'].includes(block.lastView)?{lastView:block.lastView}:{}),
       ...(Number.isInteger(block.slot)&&block.slot>=0?{slot:block.slot}:{}),
       ...(Number.isInteger(block.rows)&&block.rows>0?{rows:block.rows}:{}),
@@ -135,7 +135,8 @@ export function blockAtSlot(board,parts,slot,region=null) {
 }
 
 export function blockOfPart(board,id) {
-  const ancestors=new Set([id,...scopeOf(board,id).map(scope=>scope.split('/')[0])])
+  const tree = frameTree(board.nodes)
+  const ancestors = new Set([id, ...(tree.ancestors(tree.node(id)?.in) ?? []).map(frameId)])
   return (board.blocks??[]).find(b=>b.nodes.some(n=>ancestors.has(n)))?.id??null
 }
 

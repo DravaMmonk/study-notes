@@ -3,6 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { framePart } from './frames.js'
 import { headOf, parse, print, read } from './text.js'
+import { boardSvg } from './svg.js'
 
 // A small game: two inputs and an output given by the level, gates with ports a and b, a constant with a value, a
 // part with two outputs, and a box (a frame with one region that opens a value).
@@ -64,6 +65,13 @@ test('a text read onto a fresh board lays new cards out', () => {
   const { graph } = read(print(board, parts), fresh, parts, TYPES)
   assert.deepEqual(shape(graph), shape(board))
   assert.ok(graph.nodes.every((n) => Number.isFinite(n.x) && Number.isFinite(n.y)))
+})
+
+test('reading and drawing a blueprint reject a frame redeclared inside itself', () => {
+  const text = 'f = box() {\n  body {\n    f = box()\n  }\n}'
+  const { errors } = read(text, { nodes: given, wires: [] }, parts, TYPES)
+  assert.match(errors[0].en, /Line 3: .*written twice/)
+  assert.throws(() => boardSvg(text), (error) => error.en === errors[0].en)
 })
 
 test('hand-written text: comments, named ports, any order', () => {

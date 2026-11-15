@@ -15,6 +15,7 @@ import { MISSING, PartError } from '../../engine/circuit.js'
 import { formed } from '../../engine/forms.js'
 import { runBoard } from '../../engine/boards.js'
 import { circuitBoard } from '../../engine/board-cards.js'
+import { frameTree, regionAddress } from '../../circuit/regions.js'
 import { BOT, FORMULA_TEXT, all, allVars, and, asAnd, asImp, bin, eq, fn, freeVars, imp, mentionsSentence, occurrences, or, parse, replaceAtoms, replaceTerm, same, signature, subst, substSentence, termsOf, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
 import { choicesOf } from './choices.js'
@@ -70,15 +71,14 @@ function exampleIn(target, f) {
 const without = (hyps, id) => new Map([...hyps].filter(([k]) => k !== id))
 
 /** The hypothesis id of the assumption a box's region opens. */
-export const hypId = (node, region) => `${node.id}/${region}`
+export const hypId = (node, region) => regionAddress(node.id, region)
 // The name a box gives its assumption in the proof term: h1 for the outermost box, h2 inside it, and so on.
-const depthOf = (node, ctx) => {
-  const byId = new Map((ctx.graph?.nodes ?? []).map((n) => [n.id, n]))
-  let d = 1
-  for (let at = node.in; at; at = byId.get(at.split('/')[0])?.in) d++
-  return d
+const hypName = (node, ctx) => {
+  if (!node.in) return 'h1'
+  const scope = frameTree(ctx.graph?.nodes ?? []).ancestors(node.in)
+  if (!scope) throw fail('框的区域出现循环嵌套', 'Frame regions form a containment cycle')
+  return `h${scope.length + 1}`
 }
-const hypName = (node, ctx) => `h${depthOf(node, ctx)}`
 const assumed = (node, region, formula, ctx) => proved(formula, new Map([[hypId(node, region), formula]]), pvar(hypName(node, ctx)))
 /** What induction on ∀x. φ(x) asks of its boxes, with a the second box's number: φ(0), and φ(S a) from φ(a). */
 export function inductionCases(G, a, consts = []) {

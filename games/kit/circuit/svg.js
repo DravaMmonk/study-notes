@@ -1,6 +1,7 @@
 import { splitSource, srcNode } from '../engine/wire-source.js'
 import { parse } from './text.js'
 import { flowLayout } from './layout.js'
+import { frameId, regionAddress, splitRegion } from './regions.js'
 
 // A board drawn without a browser or React: its blueprint text (text.js) as one SVG string, for whoever cannot run
 // the editors (the MCP's render, the studio's previews). It draws what the text says and nothing a game alone
@@ -44,7 +45,7 @@ export function boardSvg(lines, { title = null } = {}) {
     return list
   }
   const scopes = new Set(statements.map((s) => s.in).filter(Boolean))
-  for (const w of wires) if (!scopes.has(`${w.to}/${w.port}`)) pinOf(w.to, w.port)
+  for (const w of wires) if (!scopes.has(regionAddress(w.to, w.port))) pinOf(w.to, w.port)
   const rank = (p) => (p[0] === '#' ? Number(p.slice(1)) : Infinity)
   for (const list of pins.values()) list.sort((a, b) => (rank(a) === rank(b) ? 0 : rank(a) - rank(b)))
   const pinCount = (id) => pins.get(id)?.length ?? 0
@@ -69,7 +70,7 @@ export function boardSvg(lines, { title = null } = {}) {
     const { type, sub } = labelOf(s)
     const ports = pinCount(s.id)
     const base = { w: textWidth(type, sub, ...(pins.get(s.id) ?? []).map((p) => `${p}  `)), h: W.head + W.line + Math.max(0, ports - 1) * W.line + W.pad }
-    const regions = [...new Set(statements.filter((x) => x.in?.startsWith(`${s.id}/`)).map((x) => x.in))]
+    const regions = [...new Set(statements.filter((x) => frameId(x.in) === s.id).map((x) => x.in))]
     if (!regions.length) return base
     let y = base.h
     let w = base.w
@@ -132,18 +133,18 @@ export function boardSvg(lines, { title = null } = {}) {
     const b = box.get(s.id)
     for (const r of b.frame ?? []) {
       const rb = regionBox.get(r)
-      out.push(`<rect class="bp-region" x="${rb.x}" y="${rb.y}" width="${rb.w}" height="${rb.h}" rx="5"/><text class="bp-label" x="${rb.x + 6}" y="${rb.y + 11}">${esc(r.split('/')[1])}</text>`)
+      out.push(`<rect class="bp-region" x="${rb.x}" y="${rb.y}" width="${rb.w}" height="${rb.h}" rx="5"/><text class="bp-label" x="${rb.x + 6}" y="${rb.y + 11}">${esc(splitRegion(r)[1])}</text>`)
     }
   }
   for (const w of wires) {
     const [id, key] = splitSource(w.from)
     const from = box.get(id)
     const to = box.get(w.to)
-    const region = key && regionBox.get(`${id}/${key}`)
+    const region = key && regionBox.get(regionAddress(id, key))
     // A region's value comes from the region's own left edge; any other from the node's right.
     const [x1, y1] = region ? [region.x + 4, region.y + 6] : [from.x + from.w, from.y + W.head - 4]
     // What a region makes goes into the frame at the region's right edge.
-    const into = regionBox.get(`${w.to}/${w.port}`)
+    const into = regionBox.get(regionAddress(w.to, w.port))
     const [x2, y2] = into ? [into.x + into.w - 4, into.y + 6] : [to.x, pinY(w.to, w.port)]
     const bend = Math.max(24, Math.abs(x2 - x1) / 2)
     out.push(`<path class="bp-wire" d="M${x1} ${y1} C${x1 + bend} ${y1} ${x2 - bend} ${y2} ${x2} ${y2}"/>`)

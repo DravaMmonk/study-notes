@@ -10,6 +10,7 @@
 import { sourceOf, splitSource, srcNode } from '../engine/wire-source.js'
 import { T } from '../shell/i18n.js'
 import { PartError, evaluate } from '../engine/circuit.js'
+import { frameTree, regionAddress, regionsFit, regionsOf } from './regions.js'
 
 // Any game can use frames: a domain makes a frame part with framePart (its eval gets the region's name as `key` for
 // what that region opens, and null for the frame's own result), the editors (CanvasEditor, SlotBoard) draw and edit
@@ -29,39 +30,8 @@ export const framePart = (own, regions) => ({
   reads: (_node, key) => (key ? own : undefined),
 })
 
-/** Whether every card that sits in a region sits in one its frame still has (a saved board still fits the game). */
-export function regionsFit(graph, parts) {
-  const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  return graph.nodes.every((n) => {
-    if (!n.in) return true
-    const [id, name] = n.in.split('/')
-    return byId.has(id) && regionsOf(parts, byId.get(id)).some((r) => r.name === name)
-  })
-}
-
-/** The regions a node is inside, outermost first ('<frame>/<region>' each). */
-export function scopeOf(graph, id) {
-  const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  const out = []
-  for (let n = byId.get(id); n?.in; n = byId.get(n.in.split('/')[0])) out.unshift(n.in)
-  return out
-}
-
-export const regionsOf = (parts, node) => (node && parts.frames?.(node)) ?? []
 const opens = (parts, node, key) => regionsOf(parts, node).some((r) => r.name === key && r.opens)
 const isRegion = (parts, node, port) => regionsOf(parts, node).some((r) => r.name === port)
-
-/** Where a wire's source is seen from: the regions around its node, and the region it opens, if it is one. */
-const sourceScope = (graph, parts, src) => {
-  const [id, key] = splitSource(src)
-  const node = graph.nodes.find((n) => n.id === id)
-  return opens(parts, node, key) ? [...scopeOf(graph, id), `${id}/${key}`] : scopeOf(graph, id)
-}
-/** Where an input reads from: the regions around its node, and the region it closes, for a region's input. */
-const portScope = (graph, parts, to, port) => {
-  const node = graph.nodes.find((n) => n.id === to)
-  return isRegion(parts, node, port) ? [...scopeOf(graph, to), `${to}/${port}`] : scopeOf(graph, to)
-}
 
 /**
  * The edges for loop checks on a board with frames: a region's own output stands apart from its frame (a node of
@@ -83,39 +53,28 @@ export function frameEdges(graph, parts) {
 }
 
 /** Why a wire may not run here on a board with frames, or null. */
-export function scopeRefusal(graph, parts, from, to, port) {
-  const [seen, at] = [sourceScope(graph, parts, from), portScope(graph, parts, to, port)]
-  if (seen.length <= at.length && seen.every((r, k) => r === at[k])) return null
+export function scopeRefusal(graph, parts, from, to, port, tree = frameTree(graph.nodes)) {
+  const [source, key] = splitSource(from)
+  const fromNode = tree.node(source)
+  const toNode = tree.node(to)
+  const seen = tree.ancestors(opens(parts, fromNode, key) ? regionAddress(source, key) : fromNode?.in)
+  const at = tree.ancestors(isRegion(parts, toNode, port) ? regionAddress(to, port) : toNode?.in)
+  if (seen && at && seen.length <= at.length && seen.every((region, i) => region === at[i])) return null
   return T('此处无法使用：框里得出的结果只能在框里使用；要带出框外，请接到框的结论上。')
 }
 
-/** Every node inside the frame `id`, at any depth. */
-export function within(graph, id) {
-  const out = new Set()
-  let grew = true
-  while (grew) {
-    grew = false
-    for (const n of graph.nodes) {
-      const host = n.in?.split('/')[0]
-      if (host && (host === id || out.has(host)) && !out.has(n.id)) { out.add(n.id); grew = true }
-    }
-  }
-  return out
-}
-
-/**
- * Node `id` moved into `region` ('<frame>/<name>', or null for the board itself) at x, y there; the wires it can no
- * longer keep go. A frame never goes inside itself: then nothing changes.
- */
+/** Move a card into a region or onto the board, keeping only the wires still in scope. */
 export function moveInto(graph, parts, id, region, x, y) {
-  if (region && (region.split('/')[0] === id || within(graph, id).has(region.split('/')[0]))) return graph
-  const nodes = graph.nodes.map((n) => {
-    if (n.id !== id) return n
-    const { in: _, ...rest } = n
-    return { ...rest, ...(region ? { in: region } : {}), x, y }
+  if (!graph.nodes.some((node) => node.id === id)) return graph
+  const nodes = graph.nodes.map((node) => {
+    if (node.id !== id) return node
+    const { in: _, ...rest } = node
+    return { ...rest, ...(region === null ? {} : { in: region }), x, y }
   })
   const moved = { ...graph, nodes }
-  return { ...moved, wires: moved.wires.filter((w) => !scopeRefusal(moved, parts, w.from, w.to, w.port)) }
+  if (!regionsFit(moved, parts)) return graph
+  const tree = frameTree(nodes)
+  return { ...moved, wires: moved.wires.filter((w) => !scopeRefusal(moved, parts, w.from, w.to, w.port, tree)) }
 }
 
 const fail = (zh, en) => new PartError(T(zh, en))
@@ -129,16 +88,11 @@ const fail = (zh, en) => new PartError(T(zh, en))
  */
 export function runRegion(node, ctx, region) {
   const graph = ctx.graph
-  const deep = within(graph, node.id)
-  const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  // The region a card inside the frame sits in, at the frame's own level.
-  const regionOf = (n) => {
-    let at = n
-    while (at?.in && at.in.split('/')[0] !== node.id) at = byId.get(at.in.split('/')[0])
-    return at?.in?.split('/')[1]
-  }
-  const inside = graph.nodes.filter((n) => deep.has(n.id) && regionOf(n) === region)
-  const ids = new Set(inside.map((n) => n.id))
+  const tree = frameTree(graph.nodes)
+  const scope = regionAddress(node.id, region)
+  if (tree.ancestors(scope) === null) throw fail('框的区域出现循环嵌套', 'Frame regions form a containment cycle')
+  const ids = tree.included(graph.nodes.filter((part) => part.in === scope).map((part) => part.id))
+  const inside = graph.nodes.filter((part) => ids.has(part.id))
   const back = graph.wires.find((w) => w.to === node.id && w.port === region)
   if (!back) throw fail('框里还没有接到「结果」上', 'Nothing inside is wired to the result yet')
   const parts = ctx.engine.parts
@@ -147,7 +101,7 @@ export function runRegion(node, ctx, region) {
   const constants = new Set()
   const constant = (id) => {
     if (constants.has(id)) return true
-    const n = byId.get(id)
+    const n = tree.node(id)
     const part = n && partOf(n.type)
     if (!part || part.frames) return false
     const fixed = part.source ? Boolean(ctx.constants?.includes(n.params?.name)) : graph.wires.filter((w) => w.to === id).every((w) => constant(srcNode(w.from)))
@@ -160,7 +114,7 @@ export function runRegion(node, ctx, region) {
   const OPEN = '__open'
   const strip = ({ in: _, ...n }) => n
   const sub = {
-    nodes: [{ id: OPEN, type: OPEN }, ...inside.map(strip), ...[...constants].filter((id) => !ids.has(id)).map((id) => strip(byId.get(id)))],
+    nodes: [{ id: OPEN, type: OPEN }, ...inside.map(strip), ...[...constants].filter((id) => !ids.has(id)).map((id) => strip(tree.node(id)))],
     wires: graph.wires.filter((w) => ids.has(w.to) || constants.has(w.to)).map((w) => (w.from === opened ? { ...w, from: OPEN } : w)),
   }
   return (value, quiet = false) => {

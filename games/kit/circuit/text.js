@@ -1,6 +1,7 @@
 import { sourceOf, splitSource, srcNode } from '../engine/wire-source.js'
 import { flowSpots } from './layout.js'
 import { baseRefusal, byId, outputsOf, spotIn } from './model.js'
+import { regionAddress, regionProblems, regionsOf } from './regions.js'
 
 // A board as plain ASCII text: what the player copies out of a level, keeps in a notepad or sends on, and pastes back
 // (a blueprint). It says what the board computes and nothing about how it is laid out:
@@ -52,12 +53,12 @@ export function printSource(from) {
 /** What a node is set to: its params. */
 const settingsOf = (node) => node.params ?? {}
 const placed = (parts, node) => (parts.removable ? parts.removable(node) : parts.role(node) === 'part')
-const regionsOf = (parts, node) => (parts.frames?.(node) ?? []).map((r) => r.name)
+const regionNames = (parts, node) => regionsOf(parts, node).map((region) => region.name)
 
 /** Node ids, each after what it reads; what a frame's regions make for it does not count (it is written inside it). */
 function flow(graph, parts) {
   const ids = graph.nodes.map((n) => n.id)
-  const edges = graph.wires.filter((w) => !regionsOf(parts, byId(graph, w.to) ?? {}).includes(w.port)).map((w) => [srcNode(w.from), w.to])
+  const edges = graph.wires.filter((w) => !regionNames(parts, byId(graph, w.to)).includes(w.port)).map((w) => [srcNode(w.from), w.to])
   const out = []
   const left = new Set(ids)
   while (left.size) {
@@ -82,7 +83,7 @@ export function print(graph, parts, head = {}) {
     const own = settingsOf(node)
     const keys = fields ? Object.keys(own).filter((k) => fields.includes(k)) : Object.keys(own)
     const set = keys.map((k) => `${name(k)}=${value(ascii(node, k, own[k]))}`)
-    const regions = regionsOf(parts, node)
+    const regions = regionNames(parts, node)
     const ports = parts.inputs(node)
     const wired = new Map(into(node.id).map((w) => [w.port, w.from]))
     const plain = ports.filter((p) => !regions.includes(p))
@@ -97,16 +98,16 @@ export function print(graph, parts, head = {}) {
     for (const id of ids) {
       const node = byId(graph, id)
       if (!placed(parts, node) || (node.in ?? null) !== scope) continue
-      const regions = regionsOf(parts, node)
-      if (!regions.some((r) => graph.nodes.some((n) => n.in === `${id}/${r}`))) {
+      const regions = regionNames(parts, node)
+      if (!regions.some((r) => graph.nodes.some((n) => n.in === regionAddress(id, r)))) {
         lines.push(statement(node, pad))
         continue
       }
       lines.push(`${statement(node, pad)} {`)
       for (const r of regions) {
-        if (!graph.nodes.some((n) => n.in === `${id}/${r}`)) continue
+        if (!graph.nodes.some((n) => n.in === regionAddress(id, r))) continue
         lines.push(`${pad}  ${name(r)} {`)
-        block(`${id}/${r}`, `${pad}    `)
+        block(regionAddress(id, r), `${pad}    `)
         lines.push(`${pad}  }`)
       }
       lines.push(`${pad}}`)
@@ -232,6 +233,7 @@ export function parse(text) {
     return sourceOf(node, ident())
   }
   const statements = []
+  const declared = new Set()
   const wires = []
   const block = (scope) => {
     while (k < ts.length && peek() !== '}') {
@@ -243,6 +245,8 @@ export function parse(text) {
         wires.push({ from: src(), to: id, port, line: first })
         continue
       }
+      if (declared.has(id)) throw say(first, `「${id}」写了两次。`, `“${id}” is written twice.`)
+      declared.add(id)
       const st = { id, settings: {}, in: scope, line: first }
       if (peek() === '=') {
         next('=')
@@ -279,11 +283,13 @@ export function parse(text) {
       next(')')
       statements.push(st)
       if (peek() === '{') {
+        if (!id || id.includes('/')) throw say(first, '框的名字不能为空，也不能含有「/」。', 'A frame name cannot be empty or contain a slash.')
         next('{')
         while (peek() !== '}') {
           const region = ident()
           next('{')
-          block(`${id}/${region}`)
+          if (!region) throw say(first, '区域的名字不能为空。', 'A region name cannot be empty.')
+          block(regionAddress(id, region))
           next('}')
         }
         next('}')
@@ -314,7 +320,6 @@ export function read(text, graph, parts, types) {
   const unread = (node, key, v) => (parts.text?.read ? parts.text.read(node, key, v) : v)
   const givens = graph.nodes.filter((n) => !placed(parts, n))
   const nodes = givens.map((n) => ({ ...n }))
-  const seen = new Set()
   // Statements refused (by index) and the nodes they leave out: their wires say nothing more.
   const failed = new Set()
   const missing = new Set()
@@ -333,12 +338,6 @@ export function read(text, graph, parts, types) {
     return true
   }
   for (const st of parsed.statements) {
-    if (seen.has(st.id)) {
-      errors.push(say(st.line, `「${st.id}」写了两次。`, `“${st.id}” is written twice.`))
-      failed.add(parsed.statements.indexOf(st))
-      continue
-    }
-    seen.add(st.id)
     const given = nodes.find((n) => n.id === st.id && givens.some((g) => g.id === n.id))
     if (given) {
       const fields = parts.text?.sets?.(given) ?? []
@@ -375,17 +374,13 @@ export function read(text, graph, parts, types) {
     if (before) Object.assign(node, Object.fromEntries(['x', 'y', 'slot', 'fold', 'span'].filter((f) => f in before).map((f) => [f, before[f]])))
     nodes.push(node)
   }
-  // Where each new card goes, and whether every region it names is one its frame has.
+  const invalid = regionProblems({ nodes }, parts)
+  if (invalid.length) {
+    const lines = new Map(parsed.statements.map(({ id, line }) => [id, line]))
+    return { errors: [...errors, ...invalid.map(({ id, zh, en }) => say(lines.get(id), zh, en))] }
+  }
   let out = { nodes, wires: [] }
   for (const node of nodes) {
-    if (node.in) {
-      const [frame, region] = node.in.split('/')
-      const box = nodes.find((n) => n.id === frame)
-      if (!box || !regionsOf(parts, box).includes(region)) {
-        const st = parsed.statements.find((s) => s.id === node.id)
-        errors.push(say(st?.line, `「${frame}」没有叫「${region}」的区域。`, `“${frame}” has no region called “${region}”.`))
-      }
-    }
     // A new card in a frame's region takes the next free cell of it; one on the board itself is placed once the
     // wires are read, where they lead (layout.js flowSpots).
     if (node.x === undefined && placed(parts, node) && node.in) {
@@ -402,7 +397,7 @@ export function read(text, graph, parts, types) {
       errors.push(say(w.line, `没有叫「${w.to}」的元件。`, `There is no node called “${w.to}”.`))
       continue
     }
-    const regions = regionsOf(parts, to)
+    const regions = regionNames(parts, to)
     const plain = parts.inputs(to).filter((p) => !regions.includes(p))
     const port = typeof w.port === 'number' ? plain[w.port] : w.port
     if (port === undefined || !parts.inputs(to).includes(port)) {

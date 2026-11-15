@@ -5,12 +5,12 @@
 // two games never share them.
 
 /** A store of kept boards: { sync(built) — every screen that runs built parts hands it progress.built first —, board(key) → the board or null }. */
-export function keptBoards() {
+export function keptBoards(fits) {
   const own = new Map()
   return {
     sync: (built = {}) => {
       own.clear()
-      for (const [key, b] of Object.entries(built)) if (b?.nodes) own.set(key, b)
+      for (const [key, b] of Object.entries(built)) if (b?.nodes && fits(key, b)) own.set(key, b)
     },
     board: (key) => own.get(key) ?? null,
   }

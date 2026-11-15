@@ -18,6 +18,7 @@ import { slotPortAt } from './slot-ports.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { feeding, inPort, layout, outPort, parsePort, placement } from './model.js'
+import { regionAddress } from './regions.js'
 
 // The phone circuit board, the same in every game: the sources on top, parts in a grid of slots that
 // keep their place, the sinks at the bottom. A block's inputs are dots on its top edge and its output a dot on its
@@ -374,7 +375,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     const ports = inputDots(node, card)
     let row = 3
     const regions = ownRegions.map((r) => {
-      const { rows, frameHeads } = placement(graph, parts, `${node.id}/${r.name}`, { fixed })
+      const { rows, frameHeads } = placement(graph, parts, regionAddress(node.id, r.name), { fixed })
       for (const head of frameHeads) localHeads.add((row + 1) / 2 + head)
       const section = (
         <section key={r.name} className="pb-region" style={{ gridRow: `${row} / span ${2 * rows + 3}` }}>
@@ -385,7 +386,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
             {!isFolded && <span className="pb-region-value">{regionNote?.(node, r.name)}</span>}
             {r.opens && <span className="pb-out">{dot(outPort(sourceOf(node.id, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(sourceOf(node.id, r.name)) ? 'is-wired' : ''}`)}</span>}
           </header>
-          {grid(`${node.id}/${r.name}`, { gridRow: `3 / span ${2 * rows - 1}` })}
+          {grid(regionAddress(node.id, r.name), { gridRow: `3 / span ${2 * rows - 1}` })}
           {/* Its foot row: the dot its result goes into, and what the frame gives. */}
           <footer className="pb-closes">
             <span className="pb-ins">

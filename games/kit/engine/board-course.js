@@ -34,6 +34,7 @@ import { taskLevels } from './tasks.js'
 import { trayIn } from './trays.js'
 import { defineCourse, eraLevels, holds as holding, layout, offer, readItem } from '../course.js'
 import { T as t } from '../shell/i18n.js'
+import { partRegions, regionsFit } from '../circuit/regions.js'
 
 export function circuitCourse(content, { board, parts, read: readOwn = (task) => task, test: readTest = (t) => t, kinds = {}, holds = false, unwanted = () => [] }) {
   const { eras, trays, primitives, levels, concept = {}, replaces = {} } = content
@@ -250,6 +251,11 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     }
     return scopes.get(task.taskId).view
   }
+  const regionParts = { frames: partRegions(partOf) }
+  const passedBoard = (task, built) => {
+    const saved = built[task?.taskId]
+    return saved?.nodes && regionsFit(saved, regionParts) ? saved : task?.solution
+  }
   const result = {
     LEVELS,
     played,
@@ -276,15 +282,15 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     // reference), or its fixed cards alone.
     opening: (task, built = {}, previous = null) => {
       const from = task.carry ? played.get(task.carry)?.at(-1) : task.carries ? played.get(task.id)?.[task.task - 1] : null
-      const saved = built[from?.taskId]
-      const b = previous ?? (saved?.nodes ? saved : from?.solution)
+      const b = previous?.nodes && regionsFit(previous, regionParts) ? previous : passedBoard(from, built)
       if (!b) return board.startBoard(task)
       const carried = board.carriedOnto(task, b)
       const ids = new Set(carried.nodes.map((n) => n.id))
       const added = task.starter?.nodes.filter((n) => !board.isFixed(n.type) && !ids.has(n.id)) ?? []
       const addedIds = new Set(added.map((n) => n.id))
       const wires = task.starter?.wires.filter((w) => addedIds.has(w.to)) ?? []
-      return { ...carried, nodes: [...carried.nodes, ...added], wires: [...carried.wires, ...wires] }
+      const opening = { ...carried, nodes: [...carried.nodes, ...added], wires: [...carried.wires, ...wires] }
+      return regionsFit(opening, regionParts) ? opening : board.startBoard(task)
     },
     // The passed boards that led to this task, oldest first. Missing boards contribute no ownership.
     stageChain: (task, built = {}) => {
@@ -295,8 +301,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
         if (!previous || seen.has(previous.taskId)) return
         seen.add(previous.taskId)
         visit(previous)
-        const saved = built[previous.taskId]
-        const b = saved?.nodes ? saved : previous.solution
+        const b = passedBoard(previous, built)
         if (b?.nodes) chain.push({ id: previous.taskId, label: previous.stage ?? byId.get(previous.id).title, board: b })
       }
       visit(task)

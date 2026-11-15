@@ -1,4 +1,4 @@
-import { regionsOf } from './frames.js'
+import { regionsOf } from './regions.js'
 import { outputsOf } from './model.js'
 
 /** The ports on the card itself and the ports shown within its frame regions. */
