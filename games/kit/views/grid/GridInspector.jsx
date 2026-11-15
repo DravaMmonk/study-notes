@@ -62,15 +62,23 @@ export default function GridInspector({ value, label, note, view, showSize = tru
   const size = useElementSize(frame)
   const pan = usePan(frame)
   const [point, setPoint] = useState(null)
-  useEffect(()=>{
-    if(!point)return
-    const dismiss=()=>setPoint(null)
-    const outside=(event)=>{if(!root.current?.contains(event.target))dismiss()}
-    window.addEventListener('scroll',dismiss,true)
-    window.addEventListener('resize',dismiss)
-    document.addEventListener('pointerdown',outside,true)
-    return ()=>{window.removeEventListener('scroll',dismiss,true);window.removeEventListener('resize',dismiss);document.removeEventListener('pointerdown',outside,true)}
-  },[point])
+  useEffect(() => {
+    if (!point) return undefined
+    const dismiss = () => setPoint(null)
+    const moved = () => {
+      const box = point.anchor.getBoundingClientRect()
+      if (!point.anchor.isConnected || box.left !== point.box.left || box.top !== point.box.top) dismiss()
+    }
+    const outside = (event) => { if (!root.current?.contains(event.target)) dismiss() }
+    window.addEventListener('scroll', moved, true)
+    window.addEventListener('resize', dismiss)
+    document.addEventListener('pointerdown', outside, true)
+    return () => {
+      window.removeEventListener('scroll', moved, true)
+      window.removeEventListener('resize', dismiss)
+      document.removeEventListener('pointerdown', outside, true)
+    }
+  }, [point])
   const cellOf = fit && dense ? denseCell : inspectorCell
   const cell = cellOf(value)
   const info = view === 'numbers'
@@ -80,11 +88,16 @@ export default function GridInspector({ value, label, note, view, showSize = tru
   const scale = size && size.width > 2 && size.height > 2 ? Math.min((size.width - 2) / value.w, (size.height - 2) / value.h) : thumbCell(value)
   const range = value.data.reduce(([lo, hi], v) => [Math.min(lo, v), Math.max(hi, v)], [Infinity, -Infinity])
   const select = (x, y, event, pinned) => {
-    const cell = event.currentTarget.getBoundingClientRect()
-    const width = Math.min(220, window.innerWidth-24)
-    const left = Math.max(12,Math.min(window.innerWidth-width-12,cell.left+cell.width/2-width/2))
-    const above=cell.bottom+190>window.innerHeight-12&&cell.top>190
-    setPoint((p) => pinned && p?.pinned && p.x === x && p.y === y ? null : { x, y, pinned, width, left, top: above?cell.top:cell.bottom, above })
+    const anchor = event.currentTarget
+    const box = anchor.getBoundingClientRect()
+    const width = Math.min(220, window.innerWidth - 24)
+    const left = Math.max(12, Math.min(window.innerWidth - width - 12, box.left + (box.width - width) / 2))
+    const above = box.bottom + 190 > window.innerHeight - 12 && box.top > 190
+    setPoint((p) => {
+      if (p?.pinned && !pinned) return p
+      if (p?.pinned && p.anchor === anchor) return null
+      return { x, y, anchor, box, pinned, width, left, top: above ? box.top : box.bottom, above }
+    })
   }
   const active = point && point.x < value.w && point.y < value.h ? point : null
   const meta = [showSize && `${value.w} × ${value.h}${value.c === 3 ? ' · RGB' : ''}`, note].filter(Boolean).join(' · ')
