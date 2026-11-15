@@ -211,7 +211,7 @@ docs/**/*.[pP][pP][sS][xX]
 /site-private/
 
 # Held while an operation writes a game (games/kit/engine/ops/log.js)
-games/*/changes.lock
+packages/*/changes.lock
 
 # Backup of course files removed from public Git
 /.private-course-materials/

@@ -50,7 +50,7 @@ const alive = (pid) => {
 
 /** Run `fn` holding game `ws`'s lock (another writer waits, up to `wait` ms; a lock its writer left by dying is taken). */
 export function withLock(ws, fn, { wait = 5000 } = {}) {
-  const path = resolve(ws.dir, LOCK)
+  const path = resolve(ws.packageDir, LOCK)
   const until = Date.now() + wait
   for (;;) {
     try {

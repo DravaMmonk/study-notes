@@ -1,4 +1,5 @@
 {
+  "package": "comp90086",
   "domain": "image",
   "vocabulary": 21,
   "title": { "en": "Computer Vision Notes", "zh": "计算机视觉笔记" },

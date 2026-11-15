@@ -5,7 +5,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { bitsOf, lineOf } from './line.js'
 import { defineParts } from '../../engine/parts/define.js'
-import { readContent } from '../../engine/content-node.js'
+import { readStarter } from '../../engine/content-node.js'
 import { board } from './board.js'
 import { primitivesOnly } from '../../engine/board-cards.js'
 import { runLevel } from './run.js'
@@ -13,7 +13,7 @@ import { wantOf } from './wants.js'
 import domain from './domain.js'
 
 // The starter's parts (its pieces.json), over the kernel's builtins.
-const { PARTS } = defineParts(readContent('starter', import.meta.dirname).partDefs, {})
+const { PARTS } = defineParts(readStarter(import.meta.dirname).partDefs, {})
 const plain = primitivesOnly(board, PARTS)
 const { fromText, toText } = board
 const { partOf } = plain

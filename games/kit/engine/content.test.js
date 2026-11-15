@@ -144,10 +144,11 @@ test('content is checked file by file', () => {
 
 test('a data game is read from its folder', () => {
   const dir = mkdtempSync(join(tmpdir(), 'games-'))
-  mkdirSync(join(dir, 'toy', 'levels'), { recursive: true })
-  writeFileSync(join(dir, 'toy', 'game.json'), JSON.stringify({ domain: 'toy', vocabulary: 1, title: 'Toy' }))
-  writeFileSync(join(dir, 'toy', 'levels', 'one.json'), JSON.stringify({ mode: 'read', text: 'hello' }))
-  writeFileSync(join(dir, 'toy', 'glossary.json'), JSON.stringify({ groups: [], entries: [] }))
+  mkdirSync(join(dir, 'games', 'toy'), { recursive: true })
+  mkdirSync(join(dir, 'packages', 'shared-toy', 'levels'), { recursive: true })
+  writeFileSync(join(dir, 'games', 'toy', 'game.json'), JSON.stringify({ package: 'shared-toy', domain: 'toy', vocabulary: 1, title: 'Toy' }))
+  writeFileSync(join(dir, 'packages', 'shared-toy', 'levels', 'one.json'), JSON.stringify({ mode: 'read', text: 'hello' }))
+  writeFileSync(join(dir, 'packages', 'shared-toy', 'glossary.json'), JSON.stringify({ groups: [], entries: [] }))
   assert.equal(isDataGame('toy', dir), true)
   assert.equal(isDataGame('none', dir), false)
   const content = readContent('toy', dir)

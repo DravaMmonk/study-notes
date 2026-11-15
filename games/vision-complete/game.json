@@ -1,4 +1,5 @@
 {
+  "package": "vision-complete",
   "domain": "image",
   "vocabulary": 21,
   "title": { "en": "Vision Complete", "zh": "视觉完备" },

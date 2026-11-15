@@ -105,12 +105,13 @@ const LEVELS = {
 
 export function proofsRoot() {
   const root = mkdtempSync(join(tmpdir(), 'games-'))
-  mkdirSync(join(root, ID, 'levels'), { recursive: true })
-  const put = (file, value) => writeFileSync(join(root, ID, file), `${JSON.stringify(value, null, 2)}\n`)
-  put('game.json', GAME)
+  mkdirSync(join(root, 'games', ID), { recursive: true })
+  mkdirSync(join(root, 'packages', ID, 'levels'), { recursive: true })
+  const put = (file, value) => writeFileSync(join(root, 'packages', ID, file), `${JSON.stringify(value, null, 2)}\n`)
+  writeFileSync(join(root, 'games', ID, 'game.json'), `${JSON.stringify({ package: ID, ...GAME }, null, 2)}\n`)
   put('glossary.json', GLOSSARY)
   put('pieces.json', PARTS)
   for (const [id, level] of Object.entries(LEVELS)) put(`levels/${id}.json`, level)
-  writeFileSync(join(root, 'games.js'), `export const GAMES = [\n  {\n    id: '${ID}', levels: ${Object.keys(LEVELS).length},\n  },\n]\n`)
+  writeFileSync(join(root, 'games', 'games.js'), `export const GAMES = [\n  {\n    id: '${ID}', levels: ${Object.keys(LEVELS).length},\n  },\n]\n`)
   return { root, id: ID }
 }

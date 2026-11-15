@@ -1,4 +1,4 @@
-// A __name__ game's course, from its content (games/<id>/: game.json, levels, glossary, pieces.json; vocabulary.js says what
+// A __name__ game's course, from its course configuration and content package ( vocabulary.js says what
 // may be in it), read by the circuit base (../../engine/board-course.js definedCourse): the play order and level
 // tree from its eras, each level's tasks with their tests, reference boards and naive boards, the game's parts as its
 // pieces.json defines them over the domain's engine resources (ops.js), and the parts its levels build (each running

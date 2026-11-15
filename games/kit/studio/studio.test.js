@@ -11,7 +11,7 @@ import { defineVocabulary } from '../engine/vocabulary.js'
 import { putIn, takeOut } from '../engine/ops/place.js'
 import { existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { domainOf, readContent } from '../engine/content-node.js'
+import { domainOf, readStarter } from '../engine/content-node.js'
 import {
   blank, boardPaths, cellText, cellValue, formOf, gridRows, gridValue, moved, opFor, pastedCells, placeFindings, placesOf, pushOp, recast,
   referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, taskOptionsOf, tickValue, tickValues, toggled,
@@ -49,7 +49,7 @@ const ctx = { vocabulary: VOCAB, levels: ['a', 'b'] }
 // Every domain's starter game, as content.js assembles it: the studio's forms on content no real game owns.
 const DOMAINS = resolve(import.meta.dirname, '../domains')
 const STARTERS = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'starter', 'game.json')))
-const starter = (d) => readContent('starter', resolve(DOMAINS, d))
+const starter = (d) => readStarter(resolve(DOMAINS, d))
 const LEVEL = { kind: 'board', title: { en: '甲' }, adds: ['add'], tests: [{ input: 3 }], gen: { rows: { n: 2 } }, pick: ['x'], solution: ['s = add(in)', 'out <- s'], extra: { any: 1 } }
 
 test('a level reads as fields by its schema: its shape (by), texts, choices from the vocabulary, calls, boards', () => {

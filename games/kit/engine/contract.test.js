@@ -6,7 +6,7 @@ import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { readContent } from './content-node.js'
+import { readStarter } from './content-node.js'
 import { audit } from '../course.js'
 import { checkContent } from './vocabulary.js'
 import { domainProblems, gameProblems, specProblems, validateProblems } from './contract.js'
@@ -43,7 +43,7 @@ test('no domain computes from a clock or an unseeded random source', () => {
 for (const name of names.filter((d) => existsSync(resolve(DOMAINS, d, 'starter')))) {
   test(`${name}: its starter game fits the vocabulary, passes the audit and the contract`, async () => {
     const domain = await load(name)
-    const content = readContent('starter', resolve(DOMAINS, name))
+    const content = readStarter(resolve(DOMAINS, name))
     assert.deepEqual(checkContent(domain, content), [])
     const spec = domain.spec(content)
     assert.deepEqual(audit(spec.course), [])

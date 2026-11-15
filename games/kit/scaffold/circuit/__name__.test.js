@@ -3,7 +3,7 @@
 // new-game copies) passes its own checks.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readContent } from '../../engine/content-node.js'
+import { readStarter } from '../../engine/content-node.js'
 import { defineParts, partProblems } from '../../engine/parts/define.js'
 import { OPS } from './ops.js'
 import { vocabulary } from './vocabulary.js'
@@ -13,7 +13,7 @@ import { runLevel } from './run.js'
 import domain from './domain.js'
 
 const level = { inputs: [{ name: 'a', label: 'a' }, { name: 'b', label: 'b' }], outputs: [{ name: 'sum', label: 'Sum' }], tests: [{ inputs: { a: 2, b: 3 }, expect: { sum: 5 } }] }
-const content = readContent('starter', import.meta.dirname)
+const content = readStarter(import.meta.dirname)
 const { PARTS } = defineParts(content.partDefs, OPS)
 const plain = primitivesOnly(board, PARTS)
 const { fromText, toText } = board

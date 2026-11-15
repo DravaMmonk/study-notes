@@ -1,4 +1,5 @@
 {
+  "package": "qed",
   "domain": "logic",
   "vocabulary": 9,
   "title": { "en": "Q.E.D.", "zh": "证明完毕" },

@@ -10,7 +10,7 @@ import assert from 'node:assert/strict'
 import { existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { closeGames } from '../games.mjs'
-import { readContent } from '../content-node.js'
+import { readStarter } from '../content-node.js'
 import { loadPlay } from './node.mjs'
 import { createPlay } from './play.js'
 import { fresh } from '../../shell/progress.js'
@@ -53,7 +53,7 @@ test('every domain with a play hook has a starter game to play it on', () => {
 let naives = 0
 for (const name of withPlay.filter((d) => existsSync(resolve(DOMAINS, d, 'starter')))) {
   test(`${name}: the reference passes through the play interface, the naive answer fails, nothing hidden shows`, async () => {
-    const content = readContent('starter', resolve(DOMAINS, name))
+    const content = readStarter(resolve(DOMAINS, name))
     const { shell, hook, course } = await loadPlay(content)
     const record = newSession({ game: content.id, session: 'test', player: { kind: 'script' }, attempts: 50, progress: fresh() })
     const play = createPlay({ game: shell, course, hook, record })

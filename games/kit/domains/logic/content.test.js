@@ -13,7 +13,7 @@ import { LOGIC_TESTS, startProof } from './proof.js'
 import { runOutputTests } from '../../engine/test-run.js'
 import { checkGates, gateParts, rowsFor, startGates } from './gates.js'
 import { deepFreeze } from '../../engine/content.js'
-import { readContent } from '../../engine/content-node.js'
+import { readStarter } from '../../engine/content-node.js'
 import domain from './domain.js'
 
 const L = (zh, en = zh) => ({ zh, en })
@@ -39,8 +39,8 @@ const CONTENT = {
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'allE', 'allI', 'rewrite'],
   // The parts the starter defines (its pieces.json: the gates and the proof rules), and the pieces built here: a gate,
   // a lemma, and a lemma of two shapes, each shape the proof of a task.
-  partDefs: { settings: { ...readContent('starter', import.meta.dirname).partDefs.settings, formula: { control: 'tree' } }, parts: {
-    ...Object.fromEntries(Object.entries(readContent('starter', import.meta.dirname).partDefs.parts).filter(([, p]) => !p.inside)),
+  partDefs: { settings: { ...readStarter(import.meta.dirname).partDefs.settings, formula: { control: 'tree' } }, parts: {
+    ...Object.fromEntries(Object.entries(readStarter(import.meta.dirname).partDefs.parts).filter(([, p]) => !p.inside)),
     gOr: { name: L('或', 'Or'), desc: L('d'), family: 'gate', inside: [{ task: 'or' }] },
     chain: { name: L('串联', 'Chain'), desc: L('d'), family: 'lemma', settings: ['A', 'B', 'C'].map((key) => ({ key, setting: 'formula' })), inside: [{ task: 'chain' }] },
     half: { name: L('取一半', 'Half'), desc: L('d'), family: 'lemma', settings: ['A', 'B'].map((key) => ({ key, setting: 'formula' })), inside: [{ task: 'half_l', form: 'left', label: 'A ∧ B ⟹ A' }, { task: 'half_r', form: 'right', label: 'A ∧ B ⟹ B' }] },
@@ -225,7 +225,7 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
 })
 
 test('reading a game on the domain never writes into its content', () => {
-  const spec = domain.spec(deepFreeze(readContent('starter', import.meta.dirname)))
+  const spec = domain.spec(deepFreeze(readStarter(import.meta.dirname)))
   assert.deepEqual(spec.logic.wrong, [])
   // The parts the player builds run the boards kept for them, or their levels' reference boards.
   spec.syncOwn({})
@@ -235,7 +235,7 @@ test('reading a game on the domain never writes into its content', () => {
 
 
 test('formula chips use the registered pieces and keep contextual names', () => {
-  const content = readContent('starter', import.meta.dirname)
+  const content = readStarter(import.meta.dirname)
   const level = logicCourse(content).LEVELS.at(-1).tasks.at(-1)
   const chips = chipsOf({
     kind: 'translate', notation: level.notation, vocab: { preds: [['Rain', 0]], consts: [] },
@@ -249,7 +249,7 @@ test('formula chips use the registered pieces and keep contextual names', () => 
 })
 
 test('formula and circuit groups share a task, combining in order and respecting unlocks', () => {
-  const content = readContent('starter', import.meta.dirname)
+  const content = readStarter(import.meta.dirname)
   content.trays = {
     gates: ['gNot', 'gAnd'],
     basic: ['formulaAnd', 'formulaNot'],

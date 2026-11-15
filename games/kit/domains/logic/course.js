@@ -1,4 +1,4 @@
-// A logic game's course, from its content (games/<id>/: game.json, levels, glossary, pieces.json; vocabulary.js says what
+// A logic game's course, from its course configuration and content package ( vocabulary.js says what
 // may be in it): the play order and the tree from its eras (../../course.js layout), each level's number and the parts it
 // can really offer, its reference and naive answers as the boards they write (blueprint.js), and its built pieces
 // (pieces.json `inside`, readBuilt): a lemma proved on the proof board, a gate built on a truth circuit (gates.js

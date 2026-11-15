@@ -7,10 +7,10 @@ import assert from 'node:assert/strict'
 import { S } from '../engine/schema.js'
 import { defineVocabulary } from '../engine/vocabulary.js'
 import { putIn, takeOut } from '../engine/ops/place.js'
-import { cpSync, existsSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readFileSync, mkdtempSync, readdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { domainOf, readContent } from '../engine/content-node.js'
+import { domainOf, readStarter } from '../engine/content-node.js'
 import { eraLevels } from '../course.js'
 import { openGame } from '../engine/ops/workspace.js'
 import { runChangeset } from '../engine/ops/changeset.js'
@@ -62,11 +62,16 @@ test('bulk edits are one operation a level, and the levels an edit does not fit 
 // Every domain's starter game, as content.js assembles it; and one opened for operations in a temp games folder.
 const DOMAINS = resolve(import.meta.dirname, '../domains')
 const STARTERS = readdirSync(DOMAINS).filter((d) => existsSync(resolve(DOMAINS, d, 'starter', 'game.json')))
-const starter = (d) => readContent('starter', resolve(DOMAINS, d))
+const starter = (d) => readStarter(resolve(DOMAINS, d))
 function openStarter(d) {
   const root = mkdtempSync(join(tmpdir(), 'studio-tools-'))
-  cpSync(resolve(DOMAINS, d, 'starter'), join(root, d), { recursive: true })
-  writeFileSync(join(root, 'games.js'), `export const GAMES = [{ id: '${d}', levels: ${readdirSync(join(root, d, 'levels')).length} }]\n`)
+  const dir = join(root, 'games', d)
+  const pkg = join(root, 'packages', d)
+  mkdirSync(dir, { recursive: true })
+  cpSync(resolve(DOMAINS, d, 'starter'), pkg, { recursive: true, filter: (file) => !file.endsWith('/game.json') })
+  const game = JSON.parse(readFileSync(resolve(DOMAINS, d, 'starter/game.json'), 'utf8'))
+  writeFileSync(join(dir, 'game.json'), JSON.stringify({ package: d, ...game }))
+  writeFileSync(join(root, 'games', 'games.js'), `export const GAMES = [{ id: '${d}', levels: ${readdirSync(join(pkg, 'levels')).length} }]\n`)
   return openGame(d, root)
 }
 

@@ -10,7 +10,7 @@ import { find, shapeAt } from '../schema.js'
 import { describe } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
 import { checkCache } from '../check-cache.js'
-import { GAMES_DIR, domainOf, readContent } from '../content-node.js'
+import { PROJECT_DIR, domainOf, readContent } from '../content-node.js'
 import { gameOf } from '../games.mjs'
 import { pieceFlow } from '../flow.js'
 import { flagsIn, fresh } from '../../shell/progress.js'
@@ -26,11 +26,10 @@ import { replaceOps, searchContent } from './search.js'
 /** The arguments a call to `tool` lacks. */
 export const lacking = (tool, args) => Object.entries(tool.params).filter(([k, spec]) => !spec.endsWith('?') && args?.[k] === undefined).map(([k]) => k)
 
-// The games folder the tools work on: the repository's, or GAMES_ROOT (a copy, for trying changes out), and the games
-// its hub list (games.js) names.
-const ROOT = process.env.GAMES_ROOT ?? GAMES_DIR
-const { GAMES } = await import(pathToFileURL(resolve(ROOT, 'games.js')).href)
-const listed = (id) => hubCount(readFileSync(resolve(ROOT, 'games.js'), 'utf8'), id)
+// The tools use the repository layout, or a copy with games/ and packages/ under GAMES_ROOT.
+const ROOT = process.env.GAMES_ROOT ?? PROJECT_DIR
+const { GAMES } = await import(pathToFileURL(resolve(ROOT, 'games', 'games.js')).href)
+const listed = (id) => hubCount(readFileSync(resolve(ROOT, 'games', 'games.js'), 'utf8'), id)
 // The repository's games keep their checks between calls (../check-cache.js); a copy of them (GAMES_ROOT) is checked afresh.
 const kept = (id) => (process.env.GAMES_ROOT ? null : checkCache(id))
 const known = (game) => {
@@ -285,16 +284,17 @@ export const TOOLS = {
     },
   },
   history: {
-    about: 'A file of a game as git holds it at a revision (default HEAD): a level (level), game.json (file: game.json) or another file of the game folder, read from the repository the games folder is in. A games folder outside git (a GAMES_ROOT copy) says so.',
+    about: 'Read a course or package file from git at a revision (default HEAD). Pass a level ID or a file name relative to the course or its package.',
     params: { game: 'string', level: 'string?', file: 'string?', rev: 'string?' },
     async run({ game, level, file, rev = 'HEAD' }) {
-      const dir = resolve(ROOT, known(game))
+      const ws = openGame(known(game), ROOT)
       const name = level !== undefined ? `levels/${level}.json` : file ?? 'game.json'
-      const path = relative(dir, resolve(dir, name))
-      if (path.startsWith('..')) throw new Error(`${name} is outside ${game}`)
+      const fileName = relative(ws.dir, resolve(ws.dir, name))
+      if (fileName.startsWith('..')) throw new Error(`${name} is outside ${game}`)
+      const path = ws.pathFor(fileName)
       let text
       try {
-        text = execFileSync('git', ['-C', dir, 'show', `${rev}:./${path}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+        text = execFileSync('git', ['-C', ROOT, 'show', `${rev}:./${path}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
       } catch (error) {
         return { found: false, rev, file: name, why: String(error.stderr ?? error.message).trim().split('\n')[0] }
       }

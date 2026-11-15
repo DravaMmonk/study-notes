@@ -37,16 +37,18 @@ const DOMAIN = {
 
 function toy() {
   const root = mkdtempSync(join(tmpdir(), 'ops-toy-'))
-  mkdirSync(join(root, 'toy', 'levels'), { recursive: true })
-  const put = (file, value) => writeFileSync(join(root, 'toy', file), `${JSON.stringify(value, null, 2)}\n`)
+  mkdirSync(join(root, 'packages', 'toy', 'levels'), { recursive: true })
+  const put = (file, value) => writeFileSync(join(root, file === 'game.json' ? 'games' : 'packages', 'toy', file), `${JSON.stringify(value, null, 2)}\n`)
+  mkdirSync(join(root, 'games', 'toy'), { recursive: true })
   put('game.json', {
+    package: 'toy',
     domain: 'toy', vocabulary: 1, title: { en: 'Toy' },
     eras: [{ id: 'one', path: ['a1', { parallel: [['a2'], ['a3']] }], optional: ['a3'], groups: [{ title: 'Grouped', levels: ['a2', 'a3'] }] }, { id: 'two', path: ['b1', 'b2'], branches: [{ levels: ['c1'], after: ['b1'] }] }],
     carry: { x: 'a2' },
   })
   put('glossary.json', { groups: [{ id: 'g', title: 'G' }], entries: [{ id: 'e', group: 'g', title: { en: 'E' }, body: ['see <level-ref to="a2"></level-ref>'], at: 'a2' }] })
   for (const id of ['a1', 'a2', 'a3', 'b1', 'b2', 'c1']) put(`levels/${id}.json`, { title: { en: id }, tests: [1], ...(id === 'b1' && { from: 'a2', brief: { en: 'after <level-ref to="a2"></level-ref>', zh: '接着 <level-ref to="a2"></level-ref>' } }), tasks: [{ id }] })
-  writeFileSync(join(root, 'games.js'), "export const GAMES = [{ id: 'toy', levels: 6 }]\n")
+  writeFileSync(join(root, 'games', 'games.js'), "export const GAMES = [{ id: 'toy', levels: 6 }]\n")
   return { root, ws: openGame('toy', root) }
 }
 const run = (ws, op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: VOCAB, domain: DOMAIN })
@@ -175,23 +177,23 @@ test('the log keeps each file’s hashes; a write lands only on the files and th
   const done = await runChangeset(ws, one, { write: true, check: false, domain: DOMAIN })
   assert.equal(done.ok, true, done.problems.join('\n'))
   const [entry] = readLog(ws)
-  assert.deepEqual(entry.files.map((f) => [f.file, typeof f.before, typeof f.after]), [['toy/levels/a1.json', 'string', 'string']])
+  assert.deepEqual(entry.files.map((f) => [f.file, typeof f.before, typeof f.after]), [['packages/toy/levels/a1.json', 'string', 'string']])
   // Two writers that opened the game at once: the second is refused, the first's change stands.
   const a = openGame('toy', root)
   const b = openGame('toy', root)
   assert.equal((await runChangeset(a, { ops: [{ op: 'level.set', level: 'a2', path: 'brief', value: 'a' }] }, { write: true, check: false, domain: DOMAIN })).ok, true)
   const late = await runChangeset(b, { ops: [{ op: 'level.set', level: 'a2', path: 'brief', value: 'b' }] }, { write: true, check: false, domain: DOMAIN })
-  assert.match(late.problems[0], /changed on disk since the game was opened: toy\/levels\/a2.json/)
-  assert.equal(JSON.parse(readFileSync(join(root, 'toy', 'levels', 'a2.json'), 'utf8')).brief, 'a')
+  assert.match(late.problems[0], /changed on disk since the game was opened: packages\/toy\/levels\/a2.json/)
+  assert.equal(JSON.parse(readFileSync(join(root, 'packages', 'toy', 'levels', 'a2.json'), 'utf8')).brief, 'a')
   // A base that is not the log's last entry is refused.
   const stale = await runChangeset(openGame('toy', root), one, { write: true, check: false, base: 1, domain: DOMAIN })
   assert.match(stale.problems[0], /changed since you saw it \(its log is at #2, not #1\)/)
   assert.deepEqual(readLog(ws).map((e) => e.seq), [1, 2])
   // A file changed by hand: drift, and the change before it cannot be undone over it; adopting takes it.
-  writeFileSync(join(root, 'toy', 'levels', 'a2.json'), `${JSON.stringify({ title: { en: 'a2' }, tests: [1], brief: 'hand' }, null, 2)}\n`)
+  writeFileSync(join(root, 'packages', 'toy', 'levels', 'a2.json'), `${JSON.stringify({ title: { en: 'a2' }, tests: [1], brief: 'hand' }, null, 2)}\n`)
   const now = openGame('toy', root)
-  assert.deepEqual(driftOf(now, now.onDisk()), ['toy/levels/a2.json'])
-  assert.match((await undo(now, { write: true, check: false, domain: DOMAIN })).problems[0], /#2 cannot be undone: changed since it was made: toy\/levels\/a2.json/)
+  assert.deepEqual(driftOf(now, now.onDisk()), ['packages/toy/levels/a2.json'])
+  assert.match((await undo(now, { write: true, check: false, domain: DOMAIN })).problems[0], /#2 cannot be undone: changed since it was made: packages\/toy\/levels\/a2.json/)
   adopt(now, 'edited by hand')
   assert.deepEqual(driftOf(now, now.onDisk()), [])
 })
@@ -202,7 +204,7 @@ test('a changeset whose domain throws while it is settled is refused and leaves 
   for (const broken of [{ ...DOMAIN, spec: () => { throw new Error('the domain broke') } }, { ...DOMAIN, validate: () => { throw new Error('the checks broke') } }]) {
     const { root, ws } = toy()
     const before = JSON.stringify(ws.content())
-    const files = () => ['game.json', 'levels/a1.json'].map((f) => readFileSync(join(root, 'toy', f), 'utf8')).join()
+    const files = () => ['game.json', 'levels/a1.json'].map((f) => readFileSync(join(root, f.startsWith('levels/') ? 'packages' : 'games', 'toy', f), 'utf8')).join()
     const disk = files()
     const r = await runChangeset(ws, op, { write: true, check: true, domain: broken })
     assert.equal(r.ok, false)
@@ -230,8 +232,8 @@ test('a changeset is checked as a whole, writes only when it passes, logs, and u
     { op: 'level.add', level: 'n1', data: { title: 'N', tasks: [{ id: 'n1' }] }, to: { after: 'first' } },
   ] }, { write: true, check: false, domain: DOMAIN })
   assert.equal(done.ok, true, done.problems.join('\n'))
-  assert.ok(existsSync(join(root, 'toy', 'levels', 'first.json')) && !existsSync(join(root, 'toy', 'levels', 'b2.json')))
-  assert.match(readFileSync(join(root, 'games.js'), 'utf8'), /levels: 7/)
+  assert.ok(existsSync(join(root, 'packages', 'toy', 'levels', 'first.json')) && !existsSync(join(root, 'packages', 'toy', 'levels', 'b2.json')))
+  assert.match(readFileSync(join(root, 'games', 'games.js'), 'utf8'), /levels: 7/)
   assert.deepEqual(readLog(ws).map((e) => [e.seq, e.why, e.files.length]), [[1, why, 6]])
 
   // An undo meant for a change that is no longer the last is refused: the log moved on since the caller looked.
@@ -283,9 +285,10 @@ const PVOCAB = defineVocabulary({
 const sum = { name: { en: '和' }, desc: { en: 'a + b' }, icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'add(a, b)' }
 function partsToy() {
   const root = mkdtempSync(join(tmpdir(), 'ops-ptoy-'))
-  mkdirSync(join(root, 'ptoy', 'levels'), { recursive: true })
-  const put = (file, value) => writeFileSync(join(root, 'ptoy', file), `${JSON.stringify(value, null, 2)}\n`)
-  put('game.json', { domain: 'ptoy', vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], eras: [{ id: 'one', path: ['a1'] }] })
+  mkdirSync(join(root, 'packages', 'ptoy', 'levels'), { recursive: true })
+  const put = (file, value) => writeFileSync(join(root, file === 'game.json' ? 'games' : 'packages', 'ptoy', file), `${JSON.stringify(value, null, 2)}\n`)
+  mkdirSync(join(root, 'games', 'ptoy'), { recursive: true })
+  put('game.json', { package: 'ptoy', domain: 'ptoy', vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], eras: [{ id: 'one', path: ['a1'] }] })
   put('glossary.json', { groups: [], entries: [] })
   put('pieces.json', { parts: { sum } })
   put('levels/a1.json', { title: 'A', brief: { en: '用 <part-ref to="sum"></part-ref>' }, adds: ['sum'], solution: ['s = sum(a, b)', 'out <- s'] })

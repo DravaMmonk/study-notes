@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { plainBoard } from '../../engine/contract.js';
-import { readContent } from '../../engine/content-node.js';
+import { readStarter } from '../../engine/content-node.js';
 import { readLines } from '../../circuit/text.js';
 import { tableCourse } from './course.js';
 import { fitted, portsProblem } from './model/board.js';
@@ -67,7 +67,7 @@ test('robot blueprints refuse a second wire, sink sources and unavailable sensor
 });
 
 test('a grouped merger stays available to blueprints under each unlocked model', () => {
-  const content = readContent('starter', import.meta.dirname);
+  const content = readStarter(import.meta.dirname);
   content.primitives = [...content.primitives, 'mmin'];
   const merge = content.levels.find((level) => level.id === 'merge');
   merge.adds = [...merge.adds, 'mmin'];
@@ -181,7 +181,7 @@ test('a built part runs the board its level’s last task was passed with, when 
 test('reading a course never writes into its content', async () => {
   const { deepFreeze } = await import('../../engine/content.js');
   const { default: domain } = await import('./domain.js');
-  const spec = domain.spec(deepFreeze(readContent('starter', import.meta.dirname)));
+  const spec = domain.spec(deepFreeze(readStarter(import.meta.dirname)));
   assert.deepEqual(spec.table.wrong, []);
   assert.ok(domain.validate(spec).every(l => !l.fail));
   spec.syncOwn({});

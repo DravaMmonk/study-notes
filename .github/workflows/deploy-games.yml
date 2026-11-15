@@ -7,6 +7,7 @@ on:
     branches: [main]
     paths:
       - 'games/**'
+      - 'packages/**'
       # Design notes and specs are not on the site; the kit's own Markdown is read by its code.
       - '!games/**/*.md'
       - 'games/kit/**/*.md'

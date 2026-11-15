@@ -79,16 +79,16 @@ test('changing tools: modify refuses a failing changeset and writes a passing on
   const refused = (await call('modify', { game: GAME, changeset: { ops: [goal] } })).data
   assert.equal(refused.ok, false)
   assert.ok(refused.problems.some((p) => p.startsWith('suppose')), refused.problems.join('\n'))
-  assert.equal(existsSync(join(root, GAME, 'changes.jsonl')), false)
+  assert.equal(existsSync(join(root, 'games', GAME, 'changes.jsonl')), false)
 
   const hint = { op: 'text.set', level: 'suppose', path: 'tasks[0].hint[0]', lang: 'en', value: 'Set the box’s assumption to “Today is Saturday”, the first half of the sentence.' }
   const preview = (await call('modify', { game: GAME, changeset: { ops: [hint] }, dryRun: true })).data
   assert.equal(preview.ok && !preview.written, true)
-  assert.match(preview.diff, new RegExp(`^--- a/${GAME}/levels/suppose.json`))
+  assert.match(preview.diff, new RegExp(`^--- a/packages/${GAME}/levels/suppose.json`))
   const done = (await call('modify', { game: GAME, changeset: { why: 'a clearer hint', ops: [hint] } })).data
   assert.equal(done.written, true, done.problems.join('\n'))
-  assert.equal(JSON.parse(readFileSync(join(root, GAME, 'levels', 'suppose.json'), 'utf8')).tasks[0].hint[0].en, hint.value)
-  assert.equal(JSON.parse(readFileSync(join(root, GAME, 'changes.jsonl'), 'utf8')).why, 'a clearer hint')
+  assert.equal(JSON.parse(readFileSync(join(root, 'packages', GAME, 'levels', 'suppose.json'), 'utf8')).tasks[0].hint[0].en, hint.value)
+  assert.equal(JSON.parse(readFileSync(join(root, 'games', GAME, 'changes.jsonl'), 'utf8')).why, 'a clearer hint')
 })
 
 test('search and replace: hits across the game, a replace as a changeset that modify applies; history outside git says so', async () => {

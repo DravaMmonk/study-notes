@@ -10,7 +10,7 @@
 //
 // --dry-run prints the diff and writes nothing; --fresh checks every level again (../check-cache.js); --why "…" says why (the change log keeps it); --json prints the result
 // as JSON. A changeset that fails any check is never written, and the command exits 1. GAMES_ROOT points it at a copy
-// of the games folder.
+// of the project with games/ and packages/.
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { OPERATIONS } from './operations.js'
@@ -19,7 +19,7 @@ import { adopt, readLog, runChangeset, undo } from './changeset.js'
 import { authorship, driftOf } from './log.js'
 import { checkCache } from '../check-cache.js'
 import { knownGames } from '../cli-args.js'
-import { GAMES_DIR } from '../content-node.js'
+import { PROJECT_DIR } from '../content-node.js'
 import { closeGames } from '../games.mjs'
 
 const USAGE = 'npm run op -- <game> (<op> key=value… | --file changeset.json | undo | log) [--dry-run] [--fresh] [--why "…"] [--json]  ·  npm run op -- list'
@@ -41,7 +41,7 @@ if (words[0] === 'list') {
 }
 
 const [game] = knownGames(words.slice(0, 1), USAGE)
-const ws = openGame(game, process.env.GAMES_ROOT ?? GAMES_DIR)
+const ws = openGame(game, process.env.GAMES_ROOT ?? PROJECT_DIR)
 const [what, ...rest] = words.slice(1)
 if (what === 'log') {
   for (const e of readLog(ws)) console.log(`#${e.seq} ${e.at}${e.by ? ` ${e.by}` : ''}${e.undoes ? ` (undoes #${e.undoes})` : ''}  ${e.why ?? ''}\n  ${e.adopt ? 'adopted the files as they are' : e.ops.map((o) => o.op).join(', ')}  →  ${e.files.map((f) => f.file).join(', ')}`)

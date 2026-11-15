@@ -1,4 +1,4 @@
-// An image game's course, from its content (games/<id>/: game.json, levels, glossary; vocabulary.js says what may be
+// An image game's course, from its course configuration and content package ( vocabulary.js says what may be
 // in it): every task of every level made playable from its data (tests from its scene, boards from their blueprints, a
 // bench's model, a budget's check), the play order and the tree from its eras (../../course.js layout), each task with
 // the image domain's defaults, its level's palette in the order the player meets parts, the ways of drawing a picture

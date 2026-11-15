@@ -1,4 +1,4 @@
-// The games on the hub page. To add a game, put it in its own folder under games/ and add an entry here.
+// The games on the hub page. Each entry has a course in games/<id>/game.json that selects a content package.
 // `title` is the Chinese name and `en` the English one; topic and desc are { zh, en } pairs (hub.js picks one).
 // `levels` is how many levels the game has, as its spec lists them; `npm run check` fails when the two differ.
 // `page` is the game's own page (games/kit/app): the path drawn on its tab icon and its description for search engines.

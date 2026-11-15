@@ -1,4 +1,5 @@
 {
+  "package": "state-graph",
   "domain": "table",
   "vocabulary": 4,
   "title": { "en": "State Graph", "zh": "状态之图" },

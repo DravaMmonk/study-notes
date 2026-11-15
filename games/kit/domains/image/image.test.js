@@ -4,7 +4,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { deepFreeze } from '../../engine/content.js'
-import { readContent } from '../../engine/content-node.js'
+import { readStarter } from '../../engine/content-node.js'
 import { fresh } from '../../shell/progress.js'
 import { boxBlur3, gradientMagnitude, horizontalDifference, sobelGradient, squaredGradient } from './engine/filters.js'
 import { at, fromFn } from './engine/image.js'
@@ -145,7 +145,7 @@ test('a packed image trace and its test verdict share the evaluated output', () 
 
 // The domain's starter read frozen: a write into its content anywhere in the read throws.
 test('a course read writes nothing into its content', () => {
-  const spec = domain.spec(deepFreeze(readContent('starter', import.meta.dirname)))
+  const spec = domain.spec(deepFreeze(readStarter(import.meta.dirname)))
   spec.syncOwn({})
   for (const level of spec.levels) assert.ok(level.tasks.length && level.tasks.every((t) => t.key && t.palette), level.id)
 })

@@ -1,6 +1,5 @@
-// A data game's content (games/DESIGN.md 6.1): its folder games/<id>/ holds game.json, one file a level in levels/
-// (named by the level's id), glossary.json and, where its domain defines parts as data, pieces.json (parts/define.js),
-// and nothing that runs; a game made by the agent pipeline also holds its
+// A data game combines its course (games/<id>/game.json) with the levels, glossary and pieces in its content
+// package. A game made by the agent pipeline also holds its
 // course blueprint, blueprint.json (../pipeline/blueprint.js), which the checks read and the page does not. The page's
 // build (../app/vite.js) and the checks (content-node.js) both read the files and assemble them here into one content:
 //

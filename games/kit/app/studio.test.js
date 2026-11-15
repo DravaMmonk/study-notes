@@ -34,7 +34,7 @@ const post = async (tool, args, raw = null) => {
   const res = await fetch(`${base}/studio/api/${tool}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: raw ?? JSON.stringify(args) })
   return { status: res.status, body: await res.json() }
 }
-const onDisk = (file) => readFileSync(join(root, GAME, file), 'utf8')
+const onDisk = (file) => readFileSync(join(root, 'packages', GAME, file), 'utf8')
 
 test('the bridge lists the tools, and says what is wrong with a call', async () => {
   const list = await (await fetch(`${base}/studio/api/`)).json()
@@ -53,7 +53,7 @@ test('a pending changeset previewed: its content, lines by level and files, noth
   const before = onDisk('levels/suppose.json')
   const ops = [
     { op: 'text.set', level: 'suppose', path: 'tasks[0].brief', lang: 'en', value: 'Prove it with one box.' },
-    { op: 'level.move', level: 'suppose', to: { before: 'apply', on: 'path' } },
+    { op: 'game.set', path: ['title'], value: { en: 'Proofs with assumptions' } },
   ]
   const { status, body } = await post('preview', { game: GAME, changeset: { ops } })
   assert.equal(status, 200)
@@ -61,7 +61,7 @@ test('a pending changeset previewed: its content, lines by level and files, noth
   assert.equal(body.content.levels.find((l) => l.id === 'suppose').tasks[0].brief.en, 'Prove it with one box.')
   assert.ok(body.order.includes('suppose') && body.lines.every((l) => Array.isArray(l.levels)))
   assert.ok(body.lines.some((l) => l.levels.includes('suppose') && /^suppose /.test(l.text)), 'a domain line is about its level')
-  assert.deepEqual(body.changes.map((c) => c.file).sort(), [`${GAME}/game.json`, `${GAME}/levels/suppose.json`])
+  assert.deepEqual(body.changes.map((c) => c.file).sort(), [`games/${GAME}/game.json`, `packages/${GAME}/levels/suppose.json`])
   assert.equal(JSON.parse(body.changes.find((c) => c.file.endsWith('suppose.json')).after).tasks[0].brief.en, 'Prove it with one box.')
   assert.equal(onDisk('levels/suppose.json'), before, 'a preview writes nothing')
 

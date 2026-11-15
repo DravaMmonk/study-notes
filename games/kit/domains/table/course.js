@@ -1,4 +1,4 @@
-// A table game's course, from its content (games/<id>/: game.json, levels, glossary, pieces.json; vocabulary.js says what may be
+// A table game's course, from its course configuration and content package ( vocabulary.js says what may be
 // in it): the play order and the tree from its eras (../../course.js layout), each level's number, chapter and
 // introduction, its tasks as they are played (a circuit task with what its board is given, its palette and its reference
 // board), the parts its levels build (each running the board it was built from: a packed part, ../../engine/boards.js),

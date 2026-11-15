@@ -4,9 +4,9 @@
 // (never mutates), the text each file had, and the hub's level count for the game
 // (games/games.js). Nothing reaches the disk until write(); diff() previews it.
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { dirname, relative, resolve } from 'node:path'
 import { assemble, deepFreeze } from '../content.js'
-import { GAMES_DIR, levelFiles } from '../content-node.js'
+import { PROJECT_DIR, gameDirectory, levelFiles, splitGameConfig } from '../content-node.js'
 import { writeJson } from './json.js'
 import { unified } from './diff.js'
 
@@ -19,30 +19,42 @@ const parse = (text, file) => {
   }
 }
 
-const HUB = 'games.js'
+const HUB = 'games/games.js'
 const hubEntry = (id) => new RegExp(`(id: '${id.replace(/[-]/g, '\\-')}'[\\s\\S]*?\\blevels: )(\\d+)`)
 /** How many levels the hub's list (games.js) says game `id` has, or null when it does not list it. */
 export const hubCount = (text, id) => (text?.match(hubEntry(id)) ? Number(text.match(hubEntry(id))[2]) : null)
 
-/** Game `id` under `root` (the games folder) opened: { id, root, game, glossary, levels: Map, … }. */
-export function openGame(id, root = GAMES_DIR) {
-  const dir = resolve(root, id)
-  if (!existsSync(resolve(dir, 'game.json'))) throw new Error(`no data game ${id} in ${root}`)
-  const original = new Map()
-  const load = (file) => {
-    const text = read(resolve(dir, file))
-    original.set(file, text)
-    return parse(text, `${id}/${file}`)
+/** Open a course and its package for author operations. */
+export function openGame(id, root = PROJECT_DIR) {
+  const dir = gameDirectory(id, root)
+  const config = resolve(dir, 'game.json')
+  if (!existsSync(config)) throw new Error(`no data game ${id} in ${root}`)
+  const original = new Map([['game.json', read(config)]])
+  const { game, packageId, packageDir } = splitGameConfig(parse(original.get('game.json'), config), root)
+  const pathFor = (file) => {
+    const inPackage = file.startsWith('levels/') || file === 'pieces.json' || file === 'glossary.json'
+    return relative(root, resolve(inPackage ? packageDir : dir, file))
   }
+  const onDisk = (file) => read(resolve(root, pathFor(file)))
+  const load = (file, optional = false) => {
+    const text = onDisk(file)
+    if (text === null && optional) return undefined
+    original.set(file, text)
+    return parse(text, pathFor(file))
+  }
+  const levels = () => levelFiles(packageDir).map(([levelId]) => levelId).sort()
   const ws = {
     id,
     root,
     dir,
-    game: load('game.json'),
+    packageId,
+    packageDir,
+    pathFor,
+    game,
     glossary: load('glossary.json'),
-    blueprint: existsSync(resolve(dir, 'blueprint.json')) ? load('blueprint.json') : undefined,
-    partDefs: existsSync(resolve(dir, 'pieces.json')) ? load('pieces.json') : undefined,
-    levels: new Map(levelFiles(id, root).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([levelId]) => [levelId, load(`levels/${levelId}.json`)])),
+    blueprint: load('blueprint.json', true),
+    partDefs: load('pieces.json', true),
+    levels: new Map(levels().map((levelId) => [levelId, load(`levels/${levelId}.json`)])),
     original,
     // A file that takes over another's content (a level renamed) is laid out like the text it came from.
     basis: new Map(),
@@ -59,22 +71,23 @@ export function openGame(id, root = GAMES_DIR) {
     /** The changes as a unified diff. */
     diff: () => ws.changes().map((c) => unified(c.file, c.before, c.after)).join('\n'),
     write: () => write(ws),
-    /** Every file of the game as it is on disk now, by its path under the games folder (`<id>/levels/x.json`). */
-    onDisk: () => new Map(['game.json', 'glossary.json', 'pieces.json', 'blueprint.json', ...levelFiles(id, root).map(([levelId]) => `levels/${levelId}.json`)].map((file) => [`${id}/${file}`, read(resolve(dir, file))]).filter(([file, text]) => text !== null || ws.original.has(file.slice(id.length + 1)))),
+    /** The course and package files, keyed by their project-relative paths. */
+    onDisk: () => new Map([...new Set([...fileNames(levels()), ...ws.original.keys()])]
+      .map((file) => [pathFor(file), onDisk(file)])),
   })
 }
 
-const fileNames = (ws) => ['game.json', 'glossary.json', 'pieces.json', 'blueprint.json', ...[...ws.levels.keys()].map((id) => `levels/${id}.json`)]
+const fileNames = (levels) => ['game.json', 'glossary.json', 'pieces.json', 'blueprint.json', ...[...levels].map((id) => `levels/${id}.json`)]
 
 function changes(ws) {
   const out = []
-  const now = new Map([['game.json', ws.game], ['glossary.json', ws.glossary], ...(ws.partDefs === undefined ? [] : [['pieces.json', ws.partDefs]]), ...(ws.blueprint === undefined ? [] : [['blueprint.json', ws.blueprint]]), ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level])])
+  const now = new Map([['game.json', { package: ws.packageId, ...ws.game }], ['glossary.json', ws.glossary], ...(ws.partDefs === undefined ? [] : [['pieces.json', ws.partDefs]]), ...(ws.blueprint === undefined ? [] : [['blueprint.json', ws.blueprint]]), ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level])])
   for (const [file, value] of now) {
     const before = ws.original.get(file) ?? null
     const after = writeJson(value, before ?? ws.basis.get(file) ?? null)
-    if (after !== before) out.push({ file: `${ws.id}/${file}`, before, after })
+    if (after !== before) out.push({ file: ws.pathFor(file), before, after })
   }
-  for (const [file, before] of ws.original) if (!now.has(file) && before !== null) out.push({ file: `${ws.id}/${file}`, before, after: null })
+  for (const [file, before] of ws.original) if (!now.has(file) && before !== null) out.push({ file: ws.pathFor(file), before, after: null })
   const listed = hubCount(ws.hub, ws.id)
   if (listed !== null && listed !== ws.levels.size) out.push({ file: HUB, before: ws.hub, after: ws.hub.replace(hubEntry(ws.id), `$1${ws.levels.size}`) })
   return out
@@ -83,7 +96,9 @@ function changes(ws) {
 function write(ws) {
   const done = ws.changes()
   // A file changed on disk since it was opened is not written over: the change was made against another text.
-  const moved = done.filter(({ file, before }) => read(resolve(ws.root, file)) !== before).map(({ file }) => file)
+  const config = ws.pathFor('game.json')
+  const expected = new Map([[config, ws.original.get('game.json')], ...done.map(({ file, before }) => [file, before])])
+  const moved = [...expected].filter(([file, before]) => read(resolve(ws.root, file)) !== before).map(([file]) => file)
   if (moved.length) throw new Error(`changed on disk since the game was opened: ${moved.join(', ')}; open it again`)
   for (const { file, after } of done) {
     const path = resolve(ws.root, file)
@@ -96,7 +111,7 @@ function write(ws) {
     }
   }
   // What was written is what the files hold now.
-  ws.original = new Map(fileNames(ws).map((file) => [file, read(resolve(ws.dir, file))]))
+  ws.original = new Map(fileNames(ws.levels.keys()).map((file) => [file, read(resolve(ws.root, ws.pathFor(file)))]))
   ws.hub = read(resolve(ws.root, HUB))
   return done.map((c) => c.file)
 }

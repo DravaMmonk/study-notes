@@ -3,22 +3,22 @@
 //
 //   npm run new-domain -- <name> --mechanism <mechanism> [--game <id>]   kit/domains/<name>/ from kit/scaffold/<mechanism>/,
 //                                                                         and its starter game as games/<id> (default <name>)
-//   npm run new-game -- <id> --domain <domain> [--title <title>]         games/<id>/ from the domain's starter/
+//   npm run new-game -- <id> --domain <domain> [--title <title>]         games/<id>/ and packages/<id>/ from the domain's starter/
 //
 // A template is a working domain whose files say `__name__` where the domain's name goes (in their text and their
 // names) and whose starter game says `__title__` for its title; the result passes the domain contract (contract.js),
 // `npm run check`, `npm test` and builds. A new game is registered in the hub's list (games.js) as hidden and in
-// development, so it builds and plays at its address before it is shown. Both run on `root`, the games folder.
+// development, so it builds and plays at its address before it is shown. Both run on `root`, the project directory.
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { PROJECT_DIR, gameDirectory } from './content-node.js'
 import { firstText } from './i18n.js'
 
-export const GAMES_ROOT = resolve(import.meta.dirname, '../..')
-const TEMPLATES = (root) => resolve(root, 'kit/scaffold')
+const TEMPLATES = (root) => resolve(root, 'games/kit/scaffold')
 
 /** The mechanisms the scaffold has a template for (games/DESIGN.md 6.5 says what each suits). */
-export const mechanisms = (root = GAMES_ROOT) => readdirSync(TEMPLATES(root)).filter((m) => statSync(resolve(TEMPLATES(root), m)).isDirectory())
+export const mechanisms = (root = PROJECT_DIR) => readdirSync(TEMPLATES(root)).filter((m) => statSync(resolve(TEMPLATES(root), m)).isDirectory())
 
 const fail = (text) => {
   throw new Error(text)
@@ -26,21 +26,20 @@ const fail = (text) => {
 
 /** A folder copied with `__name__` and `__title__` filled in, in file names and in text. */
 function fill(from, to, words) {
-  const put = (s) => Object.entries(words).reduce((t, [k, v]) => t.replaceAll(k, v), s)
-  mkdirSync(to, { recursive: true })
-  for (const name of readdirSync(from)) {
-    const src = resolve(from, name)
-    const dest = resolve(to, put(name))
-    if (statSync(src).isDirectory()) fill(src, dest, words)
-    else writeFileSync(dest, put(readFileSync(src, 'utf8')))
+  const put = (s) => Object.entries(words).reduce((t, [k, v]) => t.replaceAll(k, () => v), s)
+  if (statSync(from).isFile()) {
+    writeFileSync(to, put(readFileSync(from, 'utf8')))
+    return
   }
+  mkdirSync(to, { recursive: true })
+  for (const name of readdirSync(from)) fill(resolve(from, name), resolve(to, put(name)), words)
 }
 
 /** The hub entry of a game (../../games.js): hidden and in development until it is ready to show. */
 const gameText = (value, lang) => value?.[lang] ?? firstText(value)
 
 function register(root, id, content) {
-  const file = resolve(root, 'games.js')
+  const file = resolve(root, 'games', 'games.js')
   const text = readFileSync(file, 'utf8')
   const end = text.lastIndexOf('];')
   if (end < 0) fail(`${file} has no list of games to add to`)
@@ -66,32 +65,40 @@ const isDocs = (name) => name.endsWith('.md')
 /** Why game `id` cannot be made under `root`, or nothing. */
 function gameRefused(root, id) {
   if (!/^[a-z][a-z0-9-]*$/.test(id ?? '')) return `a game id is lowercase letters, digits and dashes: ${id}`
-  const dir = resolve(root, id)
+  const dir = gameDirectory(id, root)
   if (existsSync(dir) && readdirSync(dir).some((name) => !isDocs(name))) return `games/${id} is there already`
-  if (readFileSync(resolve(root, 'games.js'), 'utf8').includes(`id: '${id}'`)) return `games.js lists ${id} already`
+  if (existsSync(resolve(root, 'packages', id))) return `packages/${id} is there already`
+  if (readFileSync(resolve(root, 'games', 'games.js'), 'utf8').includes(`id: '${id}'`)) return `games.js lists ${id} already`
   return null
 }
 
 /** games/<id>/ from the starter game of `domain`, registered on the hub. Returns the folder. */
-export function newGame({ root = GAMES_ROOT, id, domain, title = id }) {
-  const starter = resolve(root, 'kit/domains', domain ?? '', 'starter')
-  if (!domain || !existsSync(resolve(root, 'kit/domains', domain, 'domain.js'))) fail(`no domain ${domain} in kit/domains`)
+export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
+  const starter = resolve(root, 'games/kit/domains', domain ?? '', 'starter')
+  if (!domain || !existsSync(resolve(root, 'games/kit/domains', domain, 'domain.js'))) fail(`no domain ${domain} in kit/domains`)
   if (!existsSync(starter)) fail(`the domain ${domain} has no starter game (kit/domains/${domain}/starter/) to copy`)
   const refused = gameRefused(root, id)
   if (refused) fail(refused)
-  const dir = resolve(root, id)
-  fill(starter, dir, { __title__: title })
-  const game = JSON.parse(readFileSync(resolve(dir, 'game.json'), 'utf8'))
-  register(root, id, { title: game.title, lede: game.lede, levels: readdirSync(resolve(dir, 'levels')).filter((f) => f.endsWith('.json')).length })
+  const dir = gameDirectory(id, root)
+  const packageDir = resolve(root, 'packages', id)
+  const words = { __title__: JSON.stringify(title).slice(1, -1) }
+  const game = JSON.parse(readFileSync(resolve(starter, 'game.json'), 'utf8').replaceAll('__title__', () => words.__title__))
+  mkdirSync(dir, { recursive: true })
+  mkdirSync(packageDir, { recursive: true })
+  for (const name of readdirSync(starter)) {
+    if (name !== 'game.json') fill(resolve(starter, name), resolve(packageDir, name), words)
+  }
+  writeFileSync(resolve(dir, 'game.json'), `${JSON.stringify({ package: id, ...game }, null, 2)}\n`)
+  register(root, id, { title: game.title, lede: game.lede, levels: readdirSync(resolve(packageDir, 'levels')).filter((f) => f.endsWith('.json')).length })
   return dir
 }
 
 /** kit/domains/<name>/ from the template of `mechanism`, and its starter game as games/<game>. Returns both folders. */
-export function newDomain({ root = GAMES_ROOT, name, mechanism, game = name }) {
+export function newDomain({ root = PROJECT_DIR, name, mechanism, game = name }) {
   if (!/^[a-z][a-z0-9]*$/.test(name ?? '')) fail(`a domain name is lowercase letters and digits, a word: ${name}`)
   const known = mechanisms(root)
   if (!known.includes(mechanism)) fail(`no template for the mechanism ${mechanism}; the scaffold has ${known.join(', ')} (games/DESIGN.md 6.5 says what the others lack)`)
-  const dir = resolve(root, 'kit/domains', name)
+  const dir = resolve(root, 'games/kit/domains', name)
   if (existsSync(dir)) fail(`kit/domains/${name} is there already`)
   // Nothing is written unless both the domain and its game can be.
   const refused = gameRefused(root, game)
