@@ -4,6 +4,7 @@
 
 import { WORLDS } from './worlds.js';
 import { MAX_ROUNDS } from './run.js';
+import { portsProblem } from './board.js';
 import { signal } from './format.js';
 import { explain } from '../items/explains.js';
 import { fill } from '../items/labels.js';
@@ -13,9 +14,10 @@ import { lazy, tr } from '../lang.js';
 export const testLabel = (L, V, t) => (L.testLabel ? fill(L.testLabel, t) : V.label(t));
 
 /** First step whose outputs differ from the reference board's; scanning in rounds, the first cell that settled wrong. */
-function firstMismatch(model, s, t, res, o) {
+function firstMismatch(run, s, t, res, o) {
   if (!s.solution || s.noTrace) return null
-  const ref = model.runCircuit(WORLDS[s.world], t, s.solution, { ...o, traced: false })
+  const ref = run(WORLDS[s.world], t, s.solution, { ...o, traced: false })
+  if (ref.error) return null
   if (s.rounds) {
     const key = [...ref.table.keys()].find((x) => res.table.get(x) !== ref.table.get(x))
     if (key === undefined) return null
@@ -29,25 +31,28 @@ function firstMismatch(model, s, t, res, o) {
   return null
 }
 
-function runCase(run, task, board, index, options = task) {
+export function runRobotCase(run, task, board, index, options = task) {
   const t = task.tests[index]
   const res = run(WORLDS[task.world], t, board, options)
   return { t, res, pass: !res.error && res.value === task.expected[index] }
 }
 
-/** Test k of circuit task `s` (course.js played) run on board `b` (by the course's board model, run.js modelOf): its
- *  result, the first step gone wrong (or cell settled wrong), the view of its end. */
-function inspect(model, s, b, k, o) {
-  const { t, res, pass } = runCase(model.runCircuit, s, b, k, o)
-  // A level that grades every cell (checkAll) compares the whole table, not just the answer.
-  const mm = res.error || s.onFail || (!s.checkAll && pass) ? null : firstMismatch(model, s, t, res, o)
+/** Judge the robot's answer and any required cell checks. Live and text play can also locate an output mismatch. */
+export function inspectRobotCase(run, s, b, k, { traced = false, diagnose = traced } = {}) {
+  const options = { ...s, traced }
+  const { t, res, pass } = runRobotCase(run, s, b, k, options)
+  const compare = b !== s.solution && !res.error && !s.onFail && (s.checkAll || (!pass && diagnose))
+  const mm = compare ? firstMismatch(run, s, t, res, options) : null
   const ok = pass && !mm
-  const stop = mm && mm.key === undefined ? mm.q + 1 : res.steps.length
+  const stop = mm && mm.key === undefined ? mm.q + 1 : res.steps?.length ?? 0
   return { t, res, mm, ok, stop, view: { res, k: 0, pass: ok, end: false, halt: Boolean(res.error && !res.error.diverge) || (Boolean(mm) && mm.key === undefined), focus: null, badKey: mm ? mm.key : undefined } }
 }
 
-// The basic test result is shared; live play also identifies the first mismatch for replay and feedback.
-export const judges = { robot: { runCase, inspect } }
+/** A board published as a part must match the task's declared inputs. */
+export function robotConstraint(task, board) {
+  const publishes = task.builds && task.builds.task === task.taskId
+  return task.ports.length || publishes ? portsProblem(board, task.ports) : null
+}
 
 /**
  * Why test k of a task failed, as the fail dialog says it: { head, body }, each worded again in the current language

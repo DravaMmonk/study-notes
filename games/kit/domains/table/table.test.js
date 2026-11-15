@@ -4,8 +4,23 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fitted, fromText, portsProblem, toText } from './model/board.js';
+import { inspectRobotCase, robotConstraint } from './model/verdict.js';
+import { validate } from './validate.js';
 
 const given = { offers: { view: ['up', 'left'], facts: ['start', 'rock'] }, inputs: [], outs: ['cell'] };
+
+test('author checks use intermediate cells when the task grades the entire table', () => {
+  const solution = { cell: 4 };
+  const naive = { cell: 3 };
+  const task = { mode: 'circuit', world: 'grid', ports: [], tests: [{}], expected: [8], solution, naive, checkAll: true };
+  const run = (_world, _test, board) => ({ value: 8, steps: [{ writes: [['cell', board.cell]] }] });
+  assert.equal(inspectRobotCase(run, task, naive, 0).ok, false);
+  assert.equal(inspectRobotCase(run, task, naive, 0, { traced: true }).ok, false);
+  const levels = [{ id: 'example' }];
+  const check = (task) => validate({ levels, table: { run, wrong: [], played: new Map([['example', [task]]]) } });
+  assert.deepEqual(check(task), [{ text: '2 runs' }]);
+  assert.match(check({ ...task, checkAll: false })[0].text, /naive board passes every test/);
+});
 
 test('blueprint text reads into a board and writes back the same', () => {
   const lines = ['m = msum(view.up, view.left)', 'k = const[value=1]()', 'g = pass(facts.start, k)', 's = msum(m, g)', 'cell <- s'];
@@ -38,6 +53,9 @@ test('a board that becomes a part reads exactly its ports', () => {
   const ports = [{ sensor: 'up', label: 'up' }, { sensor: 'left', label: 'left' }, { input: 'way3', label: 'way in 3' }];
   const g = { ...given, inputs: ['way3'] };
   assert.equal(portsProblem(fromText(['m = mmin(view.up, view.left, way3)', 'cell <- m'], g), ports), null);
+  const readsSensor = fromText(['cell <- view.up'], given);
+  assert.equal(robotConstraint({ ports: [], taskId: 'example' }, readsSensor), null);
+  assert.ok(robotConstraint({ ports: [], taskId: 'example', builds: { task: 'example' } }, readsSensor));
   assert.match(String(portsProblem(fromText(['m = mmin(view.up, view.left)', 'cell <- m'], g), ports)), /way in 3|来路|way3/);
   assert.match(String(portsProblem(fromText(['m = mmin(view.up, view.left, way3, facts.rock)', 'cell <- m'], g), ports)), /rock/);
 });

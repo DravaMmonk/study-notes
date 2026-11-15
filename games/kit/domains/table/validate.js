@@ -3,9 +3,10 @@
 // fails one, and every part a level builds is that level's last board: it reads exactly the part's ports, and the part
 // alone, wired to the level's sensors, passes the task's tests and fills the same table, cell by cell.
 
-import { judges } from './model/verdict.js';
+import { sameJson } from '../../engine/json-value.js';
+import { inspectRobotCase, robotConstraint, runRobotCase } from './model/verdict.js';
 import { playOf } from './plays.js';
-import { fitted, fromText, portsProblem } from './model/board.js';
+import { fitted, fromText } from './model/board.js';
 
 /** spec: domain.js spec(content). Returns [{ text, fail?, level? }]: a line about one level names it. */
 export function validate({ levels, table }) {
@@ -18,30 +19,28 @@ export function validate({ levels, table }) {
     const tasks = table.played.get(L.id);
     for (const s of tasks.filter(x => playOf(x).editor === 'circuit')) {
       const where = tasks.length > 1 ? `${L.id} task ${s.taskId}` : L.id;
-      const { runCase } = judges[playOf(s).resources];
       if (s.solution) {
+        const why = robotConstraint(s, s.solution);
+        if (why) bad(L.id, `${where}: ${String(why)}`);
         s.tests.forEach((_, i) => {
           runs++;
-          const { res, pass } = runCase(run, s, s.solution, i);
-          if (!pass) bad(L.id, `${where} test ${i + 1}: the reference gives ${res.error ? JSON.stringify(res.error) : res.value}, expected ${s.expected[i]}`);
+          const { res, ok } = inspectRobotCase(run, s, s.solution, i);
+          if (!ok) bad(L.id, `${where} test ${i + 1}: the reference gives ${res.error ? JSON.stringify(res.error) : res.value}, expected ${s.expected[i]}`);
         });
       }
       // A challenge's naive board must fail somewhere: the challenge is what it takes beyond the obvious.
       if (s.naive) {
         runs++;
-        if (s.tests.every((_, i) => runCase(run, s, s.naive, i).pass)) bad(L.id, `${where}: its naive board passes every test`);
+        if (s.tests.every((_, i) => inspectRobotCase(run, s, s.naive, i).ok) && !robotConstraint(s, s.naive)) bad(L.id, `${where}: its naive board passes every test`);
       }
     }
     const builder = L.builds && tasks.find(s => s.taskId === L.builds.task);
-    if (builder && playOf(builder).editor === 'circuit') checkBuilt(L, builder);
+    if (builder?.solution && playOf(builder).editor === 'circuit') checkBuilt(L, builder);
   }
 
   /** The part a level builds against the board it stands for, its task's. */
   function checkBuilt(L, s) {
     const b = table.model.built[L.unlock];
-    const { runCase } = judges[playOf(s).resources];
-    const why = portsProblem(s.solution, s.ports);
-    if (why) bad(L.id, `${L.id}: ${String(why)}`);
     const consts = s.solution.nodes.filter(n => n.type === 'const');
     if (b.setting !== undefined && (consts.length !== 1 || consts[0].params?.value !== b.setting)) bad(L.id, `${L.id}: a part with a setting (${b.setting}) is built from a board with that one constant`);
     // The part alone, fed what its ports stand for.
@@ -50,9 +49,9 @@ export function validate({ levels, table }) {
     const box = fitted(fromText([`p = ${L.unlock}${b.setting !== undefined ? `[value=${b.setting}]` : ''}(${args.join(', ')})`, `${b.out} <- p`], s.given), s.given);
     s.tests.forEach((_, i) => {
       runs++;
-      const { res: a, pass } = runCase(run, s, box, i), { res: ref } = runCase(run, s, s.solution, i);
+      const { res: a, pass } = runRobotCase(run, s, box, i), { res: ref } = runRobotCase(run, s, s.solution, i);
       if (!pass) bad(L.id, `${L.id}: its part gives ${a.error ? JSON.stringify(a.error) : a.value} on test ${i + 1}, expected ${s.expected[i]}`);
-      else if (ref.table && [...ref.table].some(([key, v]) => JSON.stringify(a.table.get(key)) !== JSON.stringify(v))) bad(L.id, `${L.id}: its part fills the table differently from the level's board on test ${i + 1}`);
+      else if (ref.table && [...ref.table].some(([key, v]) => !sameJson(a.table.get(key), v))) bad(L.id, `${L.id}: its part fills the table differently from the level's board on test ${i + 1}`);
     });
   }
 

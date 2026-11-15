@@ -17,6 +17,7 @@ import { blank, clone, fitted, fromText, portsProblem, splitSrc, toText } from '
 import { ROBOTS } from './model/robots.js';
 import { WORLDS, sensorsOf, visibleSensors } from './model/worlds.js';
 import { modelOf } from './model/run.js';
+import { runRobotCase } from './model/verdict.js';
 import { gridScene, visionFig } from './model/scene.js';
 import { figure } from './items/figures.js';
 
@@ -282,7 +283,8 @@ export function tableCourse(content) {
             const V = WORLDS[s.world];
             const same = s.world === fs.world || (V.outs.map(o => o[0]).join() === WORLDS[fs.world].outs.map(o => o[0]).join() && FAMILY[s.world] && FAMILY[s.world] === FAMILY[fs.world]);
             if (!same) return `the finale ${end} plays in another world`;
-            const bad = s.tests.findIndex((t, i) => { const r = run(V, t, fs.solution, s); return r.error || r.value !== s.expected[i]; });
+            // Cross-level reuse checks the answer: boards from different worlds can fill different intermediate tables.
+            const bad = s.tests.findIndex((_, i) => !runRobotCase(run, s, fs.solution, i).pass);
             if (bad >= 0) return `the finale's board fails ${tasks.length > 1 ? `task ${s.taskId}, ` : ''}test ${bad + 1}`;
           }
           return null;

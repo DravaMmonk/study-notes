@@ -11,9 +11,8 @@
 //
 // Text here is in the shell's language (lang.js tr), which a blind session chooses before the game loads.
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
-import { portsProblem } from './model/board.js'
 import { WORLDS } from './model/worlds.js'
-import { judges, testLabel, whyFailed } from './model/verdict.js'
+import { inspectRobotCase, robotConstraint, testLabel, whyFailed } from './model/verdict.js'
 import { fromGraph, wiring } from './model/wiring.js'
 import { diagnosisOf, guideAt } from './items/conditions.js'
 import { tr } from './lang.js'
@@ -80,11 +79,11 @@ const circuit = circuitPlay({
     const label = (t) => testLabel(s, V, t)
     const miss = V.outs.find(([id]) => !b.wires.some((w) => w.to === id))
     if (miss) return { tests: [], says: [tr(`输出口「${str(miss[1])}」还没接线`, `The output “${str(miss[1])}” is not wired yet`)], pass: false }
-    const { inspect } = judges[playOf(s).resources]
+    const { runCircuit } = ctx.game.table.model
     const results = []
     let failed = null
     for (let k = 0; k < s.tests.length && !failed; k++) {
-      const j = inspect(ctx.game.table.model, s, b, k, s)
+      const j = inspectRobotCase(runCircuit, s, b, k, { diagnose: true })
       results.push({ label: `${tr('测试', 'Test')} ${k + 1} · ${str(label(j.t))}`, pass: j.ok })
       if (!j.ok) failed = { k, ...j }
     }
@@ -101,7 +100,7 @@ const circuit = circuitPlay({
       return { tests, says: hint ? [`${tr('提示', 'Hint')}: ${str(hint)}`] : [], pass: false }
     }
     // A board that becomes a part must read exactly the part's ports, or the part would not do what the board did.
-    const notPart = s.ports.length ? portsProblem(b, s.ports) : null
+    const notPart = robotConstraint(s, b)
     if (notPart) return { tests, says: [`${tr('还不能做成元件', 'Not a part yet')}: ${str(notPart)}`], pass: false }
     return { tests, pass: true }
   },
