@@ -1,16 +1,23 @@
 import { T as t } from '../shell/i18n.js'
-import { failureOf } from './test-run.js'
+import { failureOf, reportRuns } from './test-run.js'
 
 /** A level's tests followed by its hidden ones, each marked hidden. */
 export const withHidden = (level) => (level.hidden?.length ? { ...level, tests: [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] } : level)
 
-/** Split the cases shown to the player from those checked without showing them. */
+/** Choose what the player can see while keeping the full test order for the runner. */
 export function splitTests(task, revealed) {
-  return revealed ? { tests: withHidden(task).tests, hidden: [] } : { tests: task.tests, hidden: task.hidden ?? [] }
+  const all = withHidden(task)
+  const shown = revealed ? all.tests : task.tests
+  return { all, shown, hiddenCount: all.tests.length - shown.length }
 }
 
-export function countFailedTests(tests, run) {
-  return tests.length ? run(tests).runs.filter(failureOf).length : 0
+/** Judge all cases once, then keep the visible runs and only the failed count for concealed cases. */
+export function runTestGroups(task, revealed, run) {
+  const { all, shown, hiddenCount } = splitTests(task, revealed)
+  const report = run(all, shown.length)
+  const hidden = hiddenCount ? { count: hiddenCount, failed: report.runs.slice(shown.length).filter(failureOf).length } : null
+  const checked = hidden ? reportRuns(report.runs.slice(0, shown.length), report) : report
+  return { shown, checked, hidden, pass: report.pass }
 }
 
 /**

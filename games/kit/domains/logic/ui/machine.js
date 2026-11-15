@@ -64,7 +64,7 @@ function wantOf(task, test) {
   return L(WANT[test.want ?? task.want])
 }
 
-const runLevel = (task, board, _parts, { traced = true } = {}) => runMachine(task, board, { traced })
+const runLevel = (task, board, _parts, options) => runMachine(task, board, { traced: true, ...options })
 
 /** What the results show of a test: the types and definitions it reads, its inputs, what it wants, the result. */
 const entries = ({ task, test, run }) => {

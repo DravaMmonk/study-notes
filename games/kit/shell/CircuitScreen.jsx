@@ -10,7 +10,7 @@ import { MISSING } from '../engine/circuit.js'
 import { traceSteps, viewAt } from '../engine/trace.js'
 import { isCircuitBoard, outputsOf } from '../circuit/model.js'
 import { isFixed } from '../circuit/presets.js'
-import { countFailedTests, splitTests, TEST_WORDS } from '../engine/tests.js'
+import { runTestGroups, TEST_WORDS } from '../engine/tests.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 import { rowsOf } from '../engine/views.js'
 import { SettingsContext } from './useSetting.js'
@@ -52,8 +52,8 @@ import './training.css'
 //                         `defined`, when it registers parts of its own per task: engine/board-view.js)
 //   cards                 { type: { name, desc, icon, family } } its cards as the tray and boards show them (a fixed
 //                         card it leaves out is drawn as a source in the family 'given', or a sink in 'end')
-//   run(task, board, partOf, { traced }) → { runs, fail, pass, score?, constraint? }   each run holds fail?, error?, ticks? | trace?, …
-//   (hidden tests can skip collecting traces; a test with a `label` is called by it)
+//   run(task, board, partOf, { traced, traceCount }) → { runs, fail, pass, score?, constraint? }   each run holds fail?, error?, ticks? | trace?, …
+//   (trace only the first `traceCount` tests; a test with a `label` is called by it)
 //   once?(task)           on a tick board, whether this task's tests each run the board once (a run then holds a trace,
 //                         as on a board run once, and the results show it so)
 //   show(value, { task, test })   a value in words, as a card and the results show it, in the words of the task and
@@ -157,21 +157,20 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const stages = useMemo(() => stagesOf({ task: level, board: board.circuit, chain: circuit.stageChain(level, progress.built), isFixed: (n) => kind.isFixed(n.type) }), [level, board.circuit, circuit, progress.built, kind])
   const [alreadySolved] = useState(solved)
   const revealed = alreadySolved || (revealOnPass && solved)
-  const { tests, hidden } = useMemo(() => splitTests(level, revealed), [level, revealed])
-  const checked = useMemo(() => runOn({ ...level, tests }, drawn, circuit.partOf, { traced: true }), [level, tests, board.version, circuit, progress.built])
-  const hiddenFailed = useMemo(() => countFailedTests(hidden, (cases) => runOn({ ...level, tests: cases }, drawn, circuit.partOf, { traced: false })), [level, hidden, board.version, circuit, progress.built])
+  const { shown: tests, checked, hidden } = useMemo(() => runTestGroups(level, revealed,
+    (task, traceCount) => runOn(task, drawn, circuit.partOf, { traced: true, traceCount })),
+  [level, revealed, board.version, circuit, progress.built])
   const stepsOf = (r) => (timed ? r.ticks.map((tick) => tick.failed ? { ...tick, failed: failureText(tick.failed) } : tick) : r.trace)
   const run = useLevelRun(screen, board, {
     tests: [...tests.map((t, k) => ({ label: L(t.label ?? testLabel?.(level, t, k) ?? words.label(k)), hidden: t.hidden })), ...(judged && level.sample ? [{ label: L(WORDS.sample), sample: true }] : [])],
     ...(judged
       ? { judge: () => ({ pass: checked.pass, score: checked.score, results: checked.runs.map((r) => ({ pass: !failureOf(r), reason: L(finalFailure(r)) ?? '' })) }) }
-      : { steps: { of: (k) => (table ? [] : stepsOf(checked.runs[k])), check: (k) => finalFailure(checked.runs[k]) ?? '', final: () => L(checked.constraint) } }),
-    hidden: {
-      count: hidden.length,
-      fails: () => hiddenFailed,
+      : { steps: { of: (k) => (table ? [] : stepsOf(checked.runs[k])), check: (k) => finalFailure(checked.runs[k]) ?? '', final: L(checked.constraint) } }),
+    hidden: hidden && {
+      ...hidden,
       words: {
-        note: L(words.note(hidden.length)),
-        failed: (n) => L(words.failed(n, hidden.length)),
+        note: L(words.note(hidden.count)),
+        failed: (n) => L(words.failed(n, hidden.count)),
       },
     },
     score: () => checked.score,
@@ -329,7 +328,10 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
     })
   }, [logged, runOf, drawn, level, parts, packed, cards])
   const stepLog = logged && <StepLog steps={named.slice(0, shown.list.length).map((s) => ({ label: s.label, value: s.value === undefined ? null : <Show value={s.value} scene="card" text={show} />, failed: s.failed }))} at={shown.at} />
-  const results = <><Results rows={rows} text={show} verdict={[verdict, judged && ended ? checked.constraint : run.run?.over && run.run.final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.at?.tick !== undefined ? [runOf.fail.at.tick] : []} />{stepLog}</>
+  const final = judged
+    ? ended && (checked.constraint || (run.hidden?.failed && run.hidden.note))
+    : run.run?.over && run.run.final
+  const results = <><Results rows={rows} text={show} verdict={[verdict, final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.at?.tick !== undefined ? [runOf.fail.at.tick] : []} />{stepLog}</>
   // A table of cases: a row a test, what the board gives on each as the run reaches it (before a run, on the row picked).
   const ins = kind.portsIn(level)
   const out = kind.portsOut(level)[0]?.name

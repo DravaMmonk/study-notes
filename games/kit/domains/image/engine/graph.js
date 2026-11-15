@@ -97,7 +97,8 @@ export function runnerOf(types) {
   }
 
   // Only a board with packed parts needs a trace to display their internal values.
-  const runLevel = (level, graph, { traced = false } = {}) => runOutputTests(IMAGE_TESTS, level, graph, {
+  const runLevel = (level, graph, { traced = false, traceCount } = {}) => runOutputTests(IMAGE_TESTS, level, graph, {
+    traceCount,
     traced: traced && graph.nodes.some(({ type }) => types[type]?.circuitOf),
   })
 

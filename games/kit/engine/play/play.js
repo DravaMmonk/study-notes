@@ -180,8 +180,8 @@ export function createPlay({ game, course, hook, record, now = () => new Date() 
     const lines = []
     const state = (t) => (t.pass === null ? (en ? 'not run' : '未运行') : t.pass ? (en ? 'pass' : '通过') : `${en ? 'FAIL' : '未通过'}${t.says ? ` — ${say(t.says)}` : ''}`)
     for (const t of r.tests ?? []) lines.push(`- ${say(t.label)}: ${state(t)}`)
-    // Hidden tests say how many fail, and only once every test shown passes (../../shell/CircuitLevel.jsx).
-    if (r.hidden?.count && (r.tests ?? []).every((t) => t.pass)) lines.push(r.hidden.failed ? say(r.hidden.says) : en ? `- ${r.hidden.count} hidden test(s): pass` : `- ${r.hidden.count} 条隐藏测试：通过`)
+    // Like the circuit screen, show hidden counts after both the visible cases and the board constraint pass.
+    if (r.hidden?.count && !r.constraint && (r.tests ?? []).every((t) => t.pass)) lines.push(r.hidden.failed ? say(r.hidden.says) : en ? `- ${r.hidden.count} hidden test(s): pass` : `- ${r.hidden.count} 条隐藏测试：通过`)
     for (const s of r.says ?? []) lines.push(say(s))
     return lines.join('\n')
   }

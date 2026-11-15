@@ -9,12 +9,14 @@ export function reportRuns(runs, { score, constraint } = {}) {
   return { runs, fail, pass: !fail, score, constraint }
 }
 
-export const runTests = (runTest) => (task, work, parts) =>
-  reportRuns(task.tests.map((test) => runTest(task, work, test, parts)))
+const caseOptions = (options, at) => at >= (options?.traceCount ?? Infinity) ? { ...options, traced: false } : options
+
+export const runTests = (runTest) => (task, work, parts, options) =>
+  reportRuns(task.tests.map((test, at) => runTest(task, work, test, parts, caseOptions(options, at))))
 
 export function runOutputTests(domain, task, work, options) {
-  const runs = task.tests.map((test) => {
-    const run = domain.runTest(task, work, test, options)
+  const runs = task.tests.map((test, at) => {
+    const run = domain.runTest(task, work, test, caseOptions(options, at))
     const checks = domain.check(task, test, run.outputs)
     const fail = firstFailure(checks, ({ name, pass, reason }) => pass ? null : { at: name, why: reason }) ?? failureOf(run)
     return { ...run, checks, fail, pass: !fail }

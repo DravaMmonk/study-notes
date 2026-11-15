@@ -5,7 +5,7 @@
 // test   { line: [bit | undefined per tick], inputs?: { name: [value per tick] } }   (course.js reads it)
 // task   { outputs: [{ name, label }], talks?, want(test) → { name: [value per tick] } }  undefined in `want`: any value
 //
-// runTest(task, circuit, test, parts) → { ticks: [{ tick, line, said, values, errors, outputs, trace, failed? }], want,
+// runTest(task, circuit, test, parts, { traced = true } = {}) → { ticks: [{ tick, line, said, values, errors, outputs, trace, failed? }], want,
 //   error?, fail? }: a tick's `failed` is why its outputs are wrong, its `trace` what every card computed (inside packed
 //   parts too); `error` a board that says what it hears in the same tick
 // entries({ task, test, run }) → what the results area can show of a test (../../engine/views.js): the line and the
@@ -21,9 +21,9 @@ const SAY = { name: 'say', label: T('说') }
 /** What a task checks every tick: what it says (when it talks), then its outputs. */
 export const checked = (task) => [...(task.talks ? [SAY] : []), ...(task.outputs ?? [])]
 
-export function runTest(task, circuit, test, parts) {
+export function runTest(task, circuit, test, parts, { traced = true } = {}) {
   const bind = (tick) => Object.fromEntries(Object.entries(test.inputs ?? {}).map(([name, values]) => [name, values[tick] ?? null]))
-  const run = runTicks({ nodes: [sayer('world', test.line), boardNode({ id: 'you', circuit, parts, bind, traced: true })], ticks: test.line.length, line: lineOf })
+  const run = runTicks({ nodes: [sayer('world', test.line), boardNode({ id: 'you', circuit, parts, bind, traced })], ticks: test.line.length, line: lineOf })
   const want = task.want(test)
   const ticks = run.steps.map((step) => ({ tick: step.tick, line: step.line, said: step.said.you ?? null, ...step.heard.you }))
   const judge = tickJudge({ checked: checked(task), want: (name) => want[name], got: (tick, name) => (task.talks && name === SAY.name ? tick.said : tick.outputs[name] ?? null) })

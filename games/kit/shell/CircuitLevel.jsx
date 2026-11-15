@@ -69,9 +69,9 @@ export function useLevelBoard(screen, { open, fresh, clearable }) {
  *
  *   tests     [{ label, hidden?, sample? }] the tests shown (a hidden test is listed once the level is solved; a sample,
  *             after the tests, is a larger picture the board also runs on, never judged; judge levels only)
- *   steps     { of(k) → test k's steps, check(k) → why test k is wrong or '', final?() → why the whole run fails }
+ *   steps     { of(k) → test k's steps, check(k) → why test k is wrong or '', final? → why the whole run fails }
  *   judge()   → { pass, results: [{ pass, reason }], score? }: every test checked at once
- *   hidden    { count, fails() → how many fail, words: { note, failed(n) } } hidden tests run with every run and
+ *   hidden    { count, failed, words: { note, failed(n) } } hidden tests run with every run and
  *             only say how many fail
  *   score()   the score the level is passed with (judge: the verdict's)
  *   onSolve?  instead of passing the level when every test passes (another stage follows, the board must still be made
@@ -81,13 +81,13 @@ export function useLevelBoard(screen, { open, fresh, clearable }) {
 export function useLevelRun(screen, board, { tests, steps = null, judge = null, hidden = null, score, onSolve, onFail, guard, at: first = 0 }) {
   const [at, setAt] = useState(first)
   const solve = (s) => (onSolve ? onSolve(s) : screen.solve(s))
-  const hiddenFails = () => (hidden?.count ? hidden.fails() : 0)
+  const hiddenFails = hidden?.failed ?? 0
   const missed = (n) => (n ? hidden.words.failed(n) : '')
   const playback = usePlayback({
     count: tests.length,
     stepsOf: (k) => (steps ? steps.of(k) : []),
     check: (k) => steps?.check(k) ?? '',
-    final: () => steps?.final?.() || missed(hiddenFails()),
+    final: () => steps?.final || missed(hiddenFails),
     onSolve: () => solve(score?.()),
     onFail,
     onTest: setAt,
@@ -97,7 +97,7 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
   })
   const judged = () => {
     const v = judge()
-    return { ...v, hiddenFailed: v.pass ? hiddenFails() : 0 }
+    return { ...v, hiddenFailed: v.pass ? hiddenFails : 0 }
   }
   const { verdict, check, reset } = useCheckOnce(steps ? {} : screen, judged, (v) => {
     if (v.pass && !v.hiddenFailed) solve(v.score ?? score?.())
@@ -114,7 +114,9 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
   const passed = steps ? playback.passed : Boolean(verdict?.pass && !verdict.hiddenFailed)
   const live = Boolean(playback.run && !playback.run.over)
   const shownAt = Math.min(at, tests.length - 1)
-  const failedHidden = steps ? (playback.run?.final && hiddenFails()) || 0 : verdict?.hiddenFailed ?? 0
+  const failedHidden = steps
+    ? (playback.run?.final && !steps.final ? hiddenFails : 0)
+    : verdict?.hiddenFailed ?? 0
   return {
     tests,
     stepped: Boolean(steps),
@@ -130,8 +132,6 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
     result: steps ? playback.run?.results[shownAt] : verdict?.results[shownAt],
     /** Whether the last run or check is over (or none was made): its verdict stands. */
     over: steps ? Boolean(playback.run?.over) : Boolean(verdict),
-    /** The hidden tests that failed the last run, when every test shown passed. */
-    hiddenFailed: failedHidden,
     hidden: hidden?.count ? { count: hidden.count, failed: failedHidden, note: failedHidden ? missed(failedHidden) : hidden.words.note } : null,
     /** The run bar's buttons, given the big button's labels (RunDock). */
     dock: ({ go, done }) => {

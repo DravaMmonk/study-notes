@@ -29,7 +29,7 @@ import { failureText } from '../failure-text.js'
 
 import { print, read } from '../../circuit/text.js'
 import { outputsOf } from '../../circuit/model.js'
-import { TEST_WORDS } from '../tests.js'
+import { runTestGroups, splitTests, TEST_WORDS } from '../tests.js'
 import { valueText } from '../views.js'
 import { T } from '../../shell/i18n.js'
 
@@ -148,7 +148,6 @@ export function circuitPlay(hook) {
  */
 export function tickPlay({ run, given, lanes, more = () => [], settings = {}, show = valueText, words = TEST_WORDS }) {
   const word = (v, lang) => (typeof show(v) === 'object' ? show(v)[lang] : show(v))
-  const testsOf = (task, solved) => (solved ? [...task.tests, ...task.hidden] : task.tests)
   const label = words.label
   const text = (task, test, lang) => {
     const rows = [
@@ -172,21 +171,21 @@ export function tickPlay({ run, given, lanes, more = () => [], settings = {}, sh
     key: ({ game }, type) => (game.circuit.BUILT[type] ? type : `part:${type}`),
     settings: ({ game }, type) => (game.circuit.BUILT[type] ? [] : game.defined?.of(type) ? definedSettings(game.defined.of(type)) : settings[type] ?? []),
     given: ({ level }) => given(level.source),
-    tests: ({ level: { source: task }, solved }) => testsOf(task, solved).map((test, k) => ({ label: label(k), text: T(text(task, test, 'zh'), text(task, test, 'en')) })),
+    tests: ({ level: { source: task }, solved }) => splitTests(task, solved).shown.map((test, k) => ({ label: label(k), text: T(text(task, test, 'zh'), text(task, test, 'en')) })),
     notes: ({ level: { source: task }, solved }) => {
-      const n = task.hidden.length
-      return !solved && n ? [words.note(n)] : []
+      const { hiddenCount } = splitTests(task, solved)
+      return hiddenCount ? [words.note(hiddenCount)] : []
     },
     run: ({ game, level: { source: task }, solved }, board) => {
       const { partOf } = game.circuit
-      const shown = run({ ...task, tests: testsOf(task, solved) }, board, partOf)
-      const tests = untilFail(shown.runs.map((r, k) => ({ label: label(k), pass: !failureOf(r), says: r.error ?? r.final ?? failureText(r.fail) })))
-      const n = task.hidden.length
-      const hidden = solved || !n ? null : run({ ...task, tests: task.hidden }, board, partOf).runs.filter(failureOf).length
+      const { checked, hidden, pass } = runTestGroups(task, solved, (all) => run(all, board, partOf, { traced: false }))
+      const tests = untilFail(checked.runs.map((r, k) => ({ label: label(k), pass: !failureOf(r), says: r.error ?? r.final ?? failureText(r.fail) })))
       return {
         tests,
-        hidden: hidden === null ? null : { count: n, failed: hidden, says: words.failed(hidden, n) },
-        pass: shown.pass && !hidden,
+        hidden: hidden && { ...hidden, says: words.failed(hidden.failed, hidden.count) },
+        constraint: checked.constraint,
+        says: checked.constraint ? [checked.constraint] : [],
+        pass,
       }
     },
   })

@@ -7,7 +7,7 @@
 // one number): what the test strip draws as pixels. The probe levels (reading pixels with the pointer) and the
 // parameter benches are not covered: neither takes a board.
 import { circuitPlay } from '../../engine/play/circuit.js'
-import { countFailedTests, splitTests } from '../../engine/tests.js'
+import { runTestGroups, splitTests, TEST_WORDS } from '../../engine/tests.js'
 import { plays } from './plays.js'
 import { startBoard } from './engine/board.js'
 import { INPUT_LABELS, descriptionOf } from './words.js'
@@ -43,7 +43,8 @@ function opening({ game, level, progress }) {
   return fits(carried) && offers(carried) ? carried : startBoard(L)
 }
 
-const testsOf = ({ level, solved }) => splitTests(level, solved && plays.graph.checks === 'afterPass')
+const revealed = ({ solved }) => solved && plays.graph.checks === 'afterPass'
+const testsOf = (ctx) => splitTests(ctx.level, revealed(ctx))
 
 const circuit = circuitPlay({
   board: (ctx) => {
@@ -74,32 +75,30 @@ const circuit = circuitPlay({
     ].join('\n')
     return T(side('zh'), side('en'))
   },
-  tests: (ctx) => testsOf(ctx).tests.map((t) => ({
+  tests: (ctx) => testsOf(ctx).shown.map((t) => ({
     label: t.label,
     text: [...Object.entries(t.inputs).map(([name, img]) => `${name}:\n${picture(img)}`), ...Object.entries(t.expected).map(([name, img]) => `${name} (target):\n${picture(img)}`)].join('\n'),
   })),
   notes: (ctx) => {
-    const { hidden } = testsOf(ctx)
-    return hidden.length ? [T(`另有 ${hidden.length} 组隐藏测试，运行测试时一并检查，通关后公开。`, `${hidden.length} more hidden tests are checked with every run and shown once you pass.`)] : []
+    const { hiddenCount } = testsOf(ctx)
+    return hiddenCount ? [TEST_WORDS.note(hiddenCount)] : []
   },
   run: (ctx, graph) => {
     const L = ctx.level
     const { shown, folded } = ctx.game.image.offerIn(L, ctx.flags)
-    const { tests: visible, hidden } = testsOf(ctx)
-    const play = { ...L, tests: visible, palette: [...shown, ...folded], folded }
     const { runLevel } = ctx.game.image.kit
-    const run = runLevel(play, graph)
+    const { shown: visible, checked, hidden, pass } = runTestGroups(L, revealed(ctx),
+      (task) => runLevel({ ...task, palette: [...shown, ...folded], folded }, graph))
     // A failed test says, output by output, how far its picture is from the target.
     const why = (r, lang) => r.checks.filter((c) => !c.pass).map((c) => `${c.name}: ${pick(c.reason, lang)}`).join(lang === 'en' ? '; ' : '；')
-    const tests = run.runs.map((r, k) => ({ label: play.tests[k].label, pass: r.pass, says: r.pass ? null : T(why(r, 'zh'), why(r, 'en')) }))
-    const hiddenCount = hidden.length
-    const hiddenFailed = countFailedTests(hidden, (cases) => runLevel({ ...L, tests: cases }, graph))
+    const tests = checked.runs.map((r, k) => ({ label: visible[k].label, pass: r.pass, says: r.pass ? null : T(why(r, 'zh'), why(r, 'en')) }))
     return {
       tests,
-      says: [...(run.constraint ? [run.constraint] : []), T(`元件 ${run.score.nodes} · 计算量 ${run.score.cost}`, `Parts ${run.score.nodes} · cost ${run.score.cost}`)],
-      hidden: hiddenCount ? { count: hiddenCount, failed: hiddenFailed, says: T(`以下测试全部通过，但 ${hiddenCount} 组隐藏测试中有 ${hiddenFailed} 组未通过：电路可能只是恰好适用于这几张图。`, `Every test passes, but ${hiddenFailed} of ${hiddenCount} hidden tests fail: the circuit may only happen to work on these pictures.`) } : null,
-      pass: run.pass && !hiddenFailed,
-      score: run.score,
+      says: [...(checked.constraint ? [checked.constraint] : []), T(`元件 ${checked.score.nodes} · 计算量 ${checked.score.cost}`, `Parts ${checked.score.nodes} · cost ${checked.score.cost}`)],
+      hidden: hidden && { ...hidden, says: TEST_WORDS.failed(hidden.failed, hidden.count) },
+      constraint: checked.constraint,
+      pass,
+      score: checked.score,
     }
   },
   // A task a built piece runs keeps the circuit that passed, so editing it later cannot break the piece.

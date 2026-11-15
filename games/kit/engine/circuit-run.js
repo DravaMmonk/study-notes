@@ -1,5 +1,5 @@
 // Connect the shared judges to circuit evaluation, replay and the result rows.
-import { runTraced } from './boards.js'
+import { runBoard } from './boards.js'
 import { isGrid } from './grid.js'
 import { inOrder, sameAs, ticks } from './judge.js'
 import { runTests } from './test-run.js'
@@ -30,8 +30,9 @@ export function tickReport(steps, fail) {
 }
 
 export function onceRun({ same = (a, b) => a === b, show = valueText, tolerance, says } = {}) {
-  const runTest = (task, circuit, test, partOf) => {
-    const run = runTraced(circuit, partOf, test.inputs)
+  const runTest = (task, circuit, test, parts, { traced = true } = {}) => {
+    const trace = traced ? [] : null
+    const run = { ...runBoard(circuit, { parts, bind: test.inputs, ctx: { trace } }), ...(trace && { trace }) }
     const judge = outputJudge(task.outputs, test.expect, { same: (want, got) => same(want, got, tolerance), show, says })
     const fail = judge(run)
     return fail ? { ...run, fail } : run
