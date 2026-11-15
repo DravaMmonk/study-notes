@@ -527,6 +527,8 @@ opens them to show the resulting feedback.
 | 板 | `S.board()` | SVG 缩略图（`kit/circuit/svg.js`），点它就切到画面，在游戏自己的电路编辑器里打开这块板，编辑器上「用作 <字段>」把板写回这个字段（`level.blueprint`），「不用这块板」放弃；「蓝图文本」可以直接改，读不进的行写在下面 |
 | 其余 | `S.any()` 和说不清的形状 | JSON |
 
+矩阵和波形共用涂刷交互。按住时预览改动，放开时把整次涂刷写成一个字段操作。按 Esc 或取消指针操作会清掉草稿。
+
 板在侧栏里画成 SVG（只读蓝图文本，不认识领域：每个元件一个框，写上类型、名字和设置，按读谁排成列；框的区域画在框里；关卡给的节点在两边）；电路编辑器就是游戏里的那一个（`kit/circuit`，经外壳的 `SlotsContext.take`），所以元件、托盘、接线规则和玩家看到的完全一样。MCP 的 `render` 也可以从同一份蓝图生成 SVG。
 
 **提示用在哪里**：`view: 'grid'`——《状态之图》的矩阵（花费、金币、能量、图）、《视觉完备》的卷积核（`kit/domains/image/items/targets.js` 的 `KERNEL`、赛车台的核）；`view: 'ticks'`——逐拍总线脚手架的输入和值序列、位串 `bits`；`section`——每个领域的测试列表（`tests`、`hidden`，《证明完毕》的 `cases`、定义关的测试）是 `tests`，带来、折叠的元件和展示理由（`adds`、`fold`、`grants`、`showcase`……）是 `course`，有任务的关的 `tasks` 是 `tasks`，《视觉完备》带插图的引言是 `read`。

@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Brush, Minus, Plus, X } from 'lucide-react'
 import { tr } from '../shell/i18n.js'
+import { usePointerSession } from '../views/usePointerSession.js'
 import { blank, cellText, cellValue, gridRows, gridValue, nullable, pastedCells, tableOf, tableValue, tickValue, tickValues, toggled } from './form.js'
 
 /** Focus the cell at (r, c) of the table holding `from`. */
@@ -65,21 +66,61 @@ function Cell({ value, schema, r, c, onSet, onPaste, style, label }) {
 /** The shade of a number among the matrix's numbers. */
 const shade = (v, lo, hi) => (typeof v === 'number' && hi > lo ? { '--shade': `${Math.round((100 * (v - lo)) / (hi - lo)) * 0.42}%` } : undefined)
 
+/** Paint a local draft while held, and replace the field once on release. */
+function useCellPaint(value, onSet, write) {
+  const [draft, setDraft] = useState(null)
+  const { track } = usePointerSession()
+  const begin = (event, colourAt) => {
+    if (event.button !== 0 || !event.isPrimary) return
+    const area = event.currentTarget
+    const addressOf = (hit) => {
+      const cell = hit?.closest('[data-paint]')
+      return cell && area.contains(cell) ? cell.dataset.paint.split(',').map(Number) : null
+    }
+    const address = addressOf(event.target)
+    if (address === null) return
+    const colour = colourAt(address)
+    if (colour === undefined) return
+    event.preventDefault()
+    if (area.contains(area.ownerDocument.activeElement)) area.ownerDocument.activeElement.blur()
+
+    let next = value
+    const paint = (at) => {
+      const updated = write(next, at, colour)
+      if (updated === next) return
+      next = updated
+      setDraft(next)
+    }
+    track(event, {
+      move(pointer) {
+        const at = addressOf(area.ownerDocument.elementFromPoint(pointer.clientX, pointer.clientY))
+        if (at !== null) paint(at)
+      },
+      finish(commit) {
+        if (commit && next !== value) onSet(next)
+        setDraft(null)
+      },
+      escape: true,
+    })
+    paint(address)
+  }
+  return { shown: draft ?? value, begin }
+}
+
 /**
  * A grid of cells: rows of values (ragged rows read as wide as the widest). colSchema(c) types a column; header and
  * rowHeads label them (null: numbered); the rest says what may be added and removed.
  */
 function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded = false, addRow, addCol, removeRow, removeCol, brush = null, label, one = false }) {
-  const width = Math.max(1, ...rows.map((r) => r.length), header?.length ?? 0)
-  const nums = rows.flat().filter((v) => typeof v === 'number')
+  const write = (values, [r, c], v) => {
+    if (values[r][c] === v) return values
+    return values.map((row, i) => (i === r ? Array.from({ length: Math.max(row.length, c + 1) }, (_, j) => (j === c ? v : row[j] ?? blank(colSchema(j), {}))) : row))
+  }
+  const { shown, begin } = useCellPaint(rows, onRows, write)
+  const width = Math.max(1, ...shown.map((r) => r.length), header?.length ?? 0)
+  const nums = shown.flat().filter((v) => typeof v === 'number')
   const [lo, hi] = [Math.min(...nums), Math.max(...nums)]
-  const painting = useRef(false)
-  useEffect(() => {
-    const up = () => { painting.current = false }
-    window.addEventListener('pointerup', up)
-    return () => window.removeEventListener('pointerup', up)
-  }, [])
-  const set = (r, c, v) => onRows(rows.map((row, i) => (i === r ? Array.from({ length: Math.max(row.length, c + 1) }, (_, j) => (j === c ? v : row[j] ?? blank(colSchema(j), {}))) : row)))
+  const set = (r, c, v) => onRows(write(rows, [r, c], v))
   // A pasted block lands from (r, c), the table growing to hold it.
   const paste = (r, c, block) => {
     const next = rows.map((row) => [...row])
@@ -92,7 +133,6 @@ function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded
     })
     onRows(next)
   }
-  const paint = (r, c) => brush !== null && set(r, c, brush)
   return (
     <div className={`sheet ${one ? 'is-one' : ''}`}>
       <table className={`cells ${shaded ? 'is-shaded' : ''} ${brush !== null ? 'is-brush' : ''}`} aria-label={label}>
@@ -110,8 +150,8 @@ function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded
             </tr>
           </thead>
         )}
-        <tbody>
-          {rows.map((row, r) => (
+        <tbody onPointerDown={brush === null ? undefined : (event) => begin(event, () => brush)}>
+          {shown.map((row, r) => (
             <tr key={r}>
               {!one && (
                 <th scope="row">
@@ -120,11 +160,7 @@ function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded
                 </th>
               )}
               {Array.from({ length: width }, (_, c) => (
-                <td
-                  key={c}
-                  onPointerDown={(e) => { if (brush !== null) { e.preventDefault(); painting.current = true; paint(r, c) } }}
-                  onPointerEnter={() => painting.current && paint(r, c)}
-                >
+                <td key={c} data-paint={`${r},${c}`}>
                   <Cell value={row[c]} schema={colSchema(c)} r={r} c={c} onSet={(v) => set(r, c, v)} onPaste={(block) => paste(r, c, block)} style={shaded ? shade(row[c], lo, hi) : undefined} label={`${label} ${r},${c}`} />
                 </td>
               ))}
@@ -228,30 +264,20 @@ function NewKey({ value, setValue, taken, onAdd }) {
 
 /** One row of ticks: click (or drag) to flip bits, type a number into a cell, Delete for 「—」. */
 function TickRow({ values, cell, onSet, head = null, onRemove = null, label }) {
-  const [draft, setDraft] = useState(values)
   const [editing, setEditing] = useState(null)
-  const paint = useRef(null) // the value a drag paints, while it lasts
-  const now = useRef(values)
-  const show = (next) => { now.current = next; setDraft(next) }
-  const key = JSON.stringify(values)
-  useEffect(() => { if (paint.current === null) show(JSON.parse(key)) }, [key])
-  useEffect(() => {
-    const up = () => {
-      if (paint.current === null) return
-      paint.current = null
-      onSet(now.current)
-    }
-    window.addEventListener('pointerup', up)
-    return () => window.removeEventListener('pointerup', up)
-  }, [onSet])
+  const write = (data, [k], v) => data[k] === v ? data : data.map((x, i) => (i === k ? v : x))
+  const { shown, begin } = useCellPaint(values, onSet, write)
+  const toggle = ([k]) => {
+    const v = values[k]
+    return typeof v === 'number' && v !== 0 && v !== 1 ? undefined : toggled(v)
+  }
   const empty = nullable(cell)
-  const put = (k, v) => show(now.current.map((x, i) => (i === k ? v : x)))
-  const commit = (k, v) => onSet(draft.map((x, i) => (i === k ? v : x)))
+  const commit = (k, v) => onSet(write(values, [k], v))
   const press = (e, k) => {
     const go = (j) => { e.preventDefault(); e.currentTarget.parentElement.children[j]?.focus() }
     if (e.key === 'ArrowRight') go(k + 1)
     else if (e.key === 'ArrowLeft') go(k - 1)
-    else if (e.key === ' ') { e.preventDefault(); commit(k, toggled(draft[k])) }
+    else if (e.key === ' ') { e.preventDefault(); commit(k, toggled(values[k])) }
     else if ((e.key === 'Delete' || e.key === 'Backspace') && empty) { e.preventDefault(); commit(k, null) }
     else if (/^\d$/.test(e.key) && cellValue(cell, e.key) !== undefined && cell.type !== 'oneOf') setEditing(k)
     else if (e.key === '0' || e.key === '1') commit(k, Number(e.key))
@@ -259,8 +285,8 @@ function TickRow({ values, cell, onSet, head = null, onRemove = null, label }) {
   return (
     <div className="tick-row">
       {head !== null && <span className="tick-head">{head}{onRemove && <button type="button" className="cell-x" onClick={onRemove} aria-label={tr('去掉这一行')}><X size={10} /></button>}</span>}
-      <div className="ticks" role="group" aria-label={label}>
-        {draft.map((v, k) => (editing === k ? (
+      <div className="ticks" role="group" aria-label={label} onPointerDown={(event) => begin(event, toggle)}>
+        {shown.map((v, k) => (editing === k ? (
           <input
             key={k} className="tick is-typing" autoFocus defaultValue={cellText(v)} aria-label={`${label} ${k}`}
             onBlur={(e) => { const x = cellValue(cell, e.target.value); setEditing(null); if (x !== undefined) commit(k, x) }}
@@ -268,15 +294,8 @@ function TickRow({ values, cell, onSet, head = null, onRemove = null, label }) {
           />
         ) : (
           <button
-            key={k} type="button" tabIndex={0} aria-label={`${label} ${k}: ${v === null ? '—' : v}`}
+            key={k} type="button" tabIndex={0} data-paint={k} aria-label={`${label} ${k}: ${v === null ? '—' : v}`}
             className={`tick ${v === 1 || v === true ? 'is-high' : v === 0 || v === false ? 'is-low' : v === null || v === undefined ? 'is-none' : 'is-value'} ${k % 8 === 0 ? 'is-mark' : ''}`}
-            onPointerDown={(e) => {
-              if (typeof v === 'number' && v !== 0 && v !== 1) return
-              e.preventDefault()
-              paint.current = toggled(v)
-              put(k, paint.current)
-            }}
-            onPointerEnter={() => paint.current !== null && put(k, paint.current)}
             onDoubleClick={() => setEditing(k)}
             onKeyDown={(e) => press(e, k)}
           >
@@ -285,9 +304,9 @@ function TickRow({ values, cell, onSet, head = null, onRemove = null, label }) {
         )))}
       </div>
       <span className="tick-len">
-        <button type="button" className="cell-add" onClick={() => onSet([...draft, draft.at(-1) ?? 0])} aria-label={tr('多一拍')}><Plus size={11} /></button>
-        <button type="button" className="cell-add" disabled={!draft.length} onClick={() => onSet(draft.slice(0, -1))} aria-label={tr('少一拍')}><Minus size={11} /></button>
-        <small>{draft.length}</small>
+        <button type="button" className="cell-add" onClick={() => onSet([...values, values.at(-1) ?? 0])} aria-label={tr('多一拍')}><Plus size={11} /></button>
+        <button type="button" className="cell-add" disabled={!values.length} onClick={() => onSet(values.slice(0, -1))} aria-label={tr('少一拍')}><Minus size={11} /></button>
+        <small>{values.length}</small>
       </span>
     </div>
   )

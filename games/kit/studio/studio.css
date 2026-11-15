@@ -324,6 +324,7 @@ button.chip { padding: 0 7px; cursor: pointer; }
 select.cell { width: auto; min-width: 46px; }
 .cells.is-shaded .cell { background: color-mix(in srgb, var(--accent) var(--shade, 0%), var(--paper)); }
 .cells.is-brush .cell { cursor: crosshair; caret-color: transparent; }
+.cells.is-brush td, .tick[data-paint] { touch-action: none; }
 .cell:focus { outline: none; box-shadow: 0 0 0 2px var(--accent); position: relative; z-index: 1; }
 .cell.is-bad { box-shadow: 0 0 0 2px var(--fail); }
 .table-field .cell { width: auto; min-width: 64px; field-sizing: content; max-width: 32ch; text-align: left; }
