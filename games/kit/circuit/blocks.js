@@ -2,7 +2,7 @@ import { srcNode } from '../engine/wire-source.js'
 import { cardWidth } from './card-size.js'
 import { moveToSlot, placement } from './model.js'
 import { frameId, frameTree } from './regions.js'
-import { dependencyOrder, pipelineLayout } from './layout.js'
+import { layoutOrder, pipelineLayout } from './layout.js'
 
 export const BLOCK_VIEWS = ['full', 'ports', 'hidden']
 const editable = (board, parts) => board.nodes.filter((n) => !n.in && parts.role(n) === 'part')
@@ -32,9 +32,9 @@ export function blockSlots(board, parts) {
   const units = blocks.map((b)=>({id:`block:${b.id}`,nodes:b.nodes})).concat(roots.filter((n)=>!owner.has(n.id)).map((n)=>({id:n.id,nodes:[n.id]})))
   const unitOf = new Map(units.flatMap((u)=>u.nodes.map((id)=>[id,u.id])))
   const links = board.wires.flatMap((w)=>unitOf.has(srcNode(w.from))&&unitOf.has(w.to)&&unitOf.get(srcNode(w.from))!==unitOf.get(w.to)?[{from:unitOf.get(srcNode(w.from)),to:unitOf.get(w.to)}]:[])
-  const ordered = dependencyOrder(roots,board.wires).map((n)=>n.id), cells = new Map(), bounds = new Map()
+  const ordered = layoutOrder(roots,board.wires).map((n)=>n.id), cells = new Map(), bounds = new Map()
   let cursor=0
-  for(const unit of dependencyOrder(units,links)) {
+  for(const unit of layoutOrder(units,links)) {
     const grouped=unit.id.startsWith('block:')
     if((grouped||unit.nodes.some(id=>placed.span.get(id).some(n=>n>1)))&&cursor%placed.cols)cursor+=placed.cols-cursor%placed.cols
     const start=cursor

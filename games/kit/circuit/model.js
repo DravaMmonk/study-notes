@@ -28,11 +28,11 @@
 //   text?: { sets?(node), read?(node, key, value), opens?(node, key) }   as text (text.js): the settings a given
 //                                          node's statement may write, a setting read back, and the settings of a given
 //                                          node switched on to give output `key` a wire reads (null when it cannot)
-import { splitSource, srcNode } from '../engine/wire-source.js'
+import { splitSource, srcNode, wireEdges } from '../engine/wire-source.js'
 import { sameJson } from '../engine/json-value.js'
 import { cardColumns, slotColumns, slotWidth } from './card-size.js'
 import { SLOT_GUTTER } from './slot-metrics.js'
-import { wouldCycle } from '../graph.js'
+import { dependencyOrder, indexEdges, wouldCycle } from '../graph.js'
 import { keepFixedSettings, lockedCards, lockedRefusal, PRESET_PORT_REFUSAL } from './presets.js'
 import { frameEdges, moveInto, scopeRefusal } from './frames.js'
 import { frameId, frameTree, regionAddress, regionsFit, regionsOf } from './regions.js'
@@ -128,19 +128,6 @@ export function editNodeSettings(graph, parts, id, params) {
   return { graph: { ...graph, nodes, wires } }
 }
 
-// Whether a wire from → to closes a loop that runs through no part holding its value (holds(id)).
-function openLoop(edges, from, to, holds) {
-  if (holds(from) || holds(to)) return false
-  const seen = new Set([to])
-  const todo = [to]
-  while (todo.length) {
-    const at = todo.pop()
-    if (at === from) return true
-    for (const [a, b] of edges) if (a === at && !seen.has(b) && !holds(b)) { seen.add(b); todo.push(b) }
-  }
-  return false
-}
-
 /**
  * Why a proposed wire is refused. A game's `refuse` adds its own rules after the shared rules. On a
  * board with frames (`parts.frames`, frames.js) a wire also has to run inward, and a region's own output stands
@@ -152,11 +139,12 @@ export function wireRefusal(graph, parts, wire) {
   if (unavailable) return unavailable
   const locked = lockedRefusal(graph, to, port)
   if (locked) return locked
-  const { edges, from: start } = parts.frames ? frameEdges(graph, parts) : { edges: graph.wires.map((w) => [srcNode(w.from), w.to]), from: srcNode }
+  const { edges, from: start } = parts.frames ? frameEdges(graph, parts) : { edges: wireEdges(graph.wires), from: srcNode }
   if (start(from) === to) return { zh: '一个元件不能读它自己。', en: 'A part cannot read itself.' }
   // A board run tick by tick may feed back (parts.loops), but only through a part that keeps what it is given for the
   // next tick (parts.holds): a loop of parts that each answer at once has no tick to wait on.
-  if (parts.loops ? openLoop(edges, start(from), to, (id) => parts.holds?.(byId(graph, id) ?? {})) : wouldCycle(edges, start(from), to)) return { zh: '这样会绕成一个圈：这个元件要等自己算完，才能算自己。', en: 'That would make a loop: this part would have to wait for itself to finish.' }
+  const holds = parts.loops ? (id) => parts.holds?.(byId(graph, id) ?? {}) : undefined
+  if (wouldCycle(edges, start(from), to, holds)) return { zh: '这样会绕成一个圈：这个元件要等自己算完，才能算自己。', en: 'That would make a loop: this part would have to wait for itself to finish.' }
   const scope = parts.frames ? scopeRefusal(graph, parts, from, to, port) : null
   return scope ?? parts.refuse?.(graph, from, to, port) ?? null
 }
@@ -186,28 +174,11 @@ export function boardFits(board, parts, knows) {
   return true
 }
 
-/** Nodes in data-flow order (each after everything it reads); nodes caught in a loop come last. */
-export function order(graph) {
-  const ins = new Map(graph.nodes.map((n) => [n.id, 0]))
-  for (const w of graph.wires) if (ins.has(w.to) && ins.has(srcNode(w.from))) ins.set(w.to, ins.get(w.to) + 1)
-  const queue = graph.nodes.filter((n) => !ins.get(n.id)).map((n) => n.id)
-  const out = []
-  while (queue.length) {
-    const id = queue.shift()
-    out.push(id)
-    for (const w of graph.wires) {
-      if (srcNode(w.from) !== id || !ins.has(w.to)) continue
-      ins.set(w.to, ins.get(w.to) - 1)
-      if (!ins.get(w.to)) queue.push(w.to)
-    }
-  }
-  return [...out, ...graph.nodes.map((n) => n.id).filter((id) => !out.includes(id))]
-}
-
 /** Sources, parts in data-flow order, and sinks. */
 export function layout(graph, parts) {
-  const ids = order(graph)
-  const nodes = ids.map((id) => byId(graph, id)).filter(Boolean)
+  const byNode = new Map(graph.nodes.map((node) => [node.id, node]))
+  const { ordered, pending } = dependencyOrder([...byNode.keys()], indexEdges(wireEdges(graph.wires)), { stable: false })
+  const nodes = [...ordered, ...pending].map((id) => byNode.get(id))
   return {
     sources: graph.nodes.filter((n) => parts.role(n) === 'source'),
     steps: nodes.filter((n) => parts.role(n) === 'part'),

@@ -1,4 +1,5 @@
-import { sourceOf, splitSource, srcNode } from '../engine/wire-source.js'
+import { dependencyOrder, indexEdges } from '../graph.js'
+import { sourceOf, splitSource, srcNode, wireEdges } from '../engine/wire-source.js'
 import { cardPosition, flowSpots } from './layout.js'
 import { byId, hasOutput, inPort, spotIn, wirePortRefusal, wireRefusal } from './model.js'
 import { isFixed, keepFixedSettings, keepLocked, lockedCards, PRESET_PORT_REFUSAL } from './presets.js'
@@ -59,18 +60,10 @@ const regionNames = (parts, node) => regionsOf(parts, node).map((region) => regi
 
 /** Node ids, each after what it reads; what a frame's regions make for it does not count (it is written inside it). */
 function flow(graph, parts) {
-  const ids = graph.nodes.map((n) => n.id)
-  const edges = graph.wires.filter((w) => !regionNames(parts, byId(graph, w.to)).includes(w.port)).map((w) => [srcNode(w.from), w.to])
-  const out = []
-  const left = new Set(ids)
-  while (left.size) {
-    const ready = ids.filter((id) => left.has(id) && !edges.some(([a, b]) => b === id && left.has(a) && a !== id))
-    for (const id of ready.length ? ready : [[...left][0]]) {
-      out.push(id)
-      left.delete(id)
-    }
-  }
-  return out
+  const nodes = new Map(graph.nodes.map((node) => [node.id, node]))
+  const inputs = graph.wires.filter((wire) => !regionNames(parts, nodes.get(wire.to)).includes(wire.port))
+  const edges = wireEdges(inputs).filter(([from, to]) => from !== to)
+  return dependencyOrder([...nodes.keys()], indexEdges(edges), { breakCycles: true }).ordered
 }
 
 /**

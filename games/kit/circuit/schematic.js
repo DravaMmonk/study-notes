@@ -1,5 +1,5 @@
 import { splitSource } from '../engine/wire-source.js'
-import { dependencyOrder } from './layout.js'
+import { layoutOrder } from './layout.js'
 import { frameId, frameTree, regionAddress, regionsOf } from './regions.js'
 
 // A board set out to be read, not edited (Schematic.jsx): each scope (the board itself, or a frame's region:
@@ -46,7 +46,7 @@ export function schematic(graph, parts) {
     const inner = new Set(steps.map((n) => n.id))
     const edges = legs.flat().filter((l) => l.scope === scope && inner.has(l.a) && inner.has(l.b) && l.a !== l.b).map((l) => ({ from: l.a, to: l.b }))
     const depth = new Map()
-    for (const n of dependencyOrder(steps, edges)) depth.set(n.id, Math.max(0, ...edges.filter((e) => e.to === n.id && depth.has(e.from)).map((e) => depth.get(e.from) + 1)))
+    for (const n of layoutOrder(steps, edges)) depth.set(n.id, Math.max(0, ...edges.filter((e) => e.to === n.id && depth.has(e.from)).map((e) => depth.get(e.from) + 1)))
     // A part that reads nothing (a constant) sits just above the first part that reads it.
     for (const n of steps) {
       const readers = edges.filter((e) => e.from === n.id).map((e) => depth.get(e.to))

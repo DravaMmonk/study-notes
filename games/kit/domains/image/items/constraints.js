@@ -2,7 +2,8 @@
 // fail one. Each item is check(params) → (score, graph) → '' or what is over, as the shared level runs take a level's
 // constraint (../../../engine/tests.js).
 import { S, callOf } from '../../../engine/schema.js'
-import { order } from '../engine/graph.js'
+import { dependencyOrder, indexEdges, reaches } from '../../../graph.js'
+import { wireEdges } from '../../../engine/wire-source.js'
 import { T as t } from '../../../shell/i18n.js'
 
 
@@ -11,9 +12,11 @@ const LAYERS = new Set(['lrnConv', 'lrnRes', 'learn3', 'kernel3'])
 /** The most trainable layers met on any one path from an input to the output. */
 export function depthOf(graph) {
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
+  const edges = indexEdges(wireEdges(graph.wires))
   const depth = new Map()
-  for (const id of order(graph)) {
-    const before = graph.wires.filter((w) => w.to === id).map((w) => depth.get(w.from) ?? 0)
+  const { ordered } = dependencyOrder([...byId.keys()], edges)
+  for (const id of ordered) {
+    const before = edges.before(id).map((parent) => depth.get(parent) ?? 0)
     depth.set(id, Math.max(0, ...before) + (LAYERS.has(byId.get(id).type) ? 1 : 0))
   }
   return Math.max(0, ...graph.nodes.filter((n) => n.type === 'output').map((n) => depth.get(n.id) ?? 0))
@@ -21,20 +24,10 @@ export function depthOf(graph) {
 
 /** Whether an input can reach the output without passing an encoder (the autoencoder's bottleneck). */
 function bypassesBottleneck(graph) {
-  const next = new Map()
-  for (const wire of graph.wires) next.set(wire.from, [...(next.get(wire.from) ?? []), wire.to])
-  const kind = new Map(graph.nodes.map((n) => [n.id, n.type]))
-  const stack = graph.nodes.filter((n) => n.type === 'input').map((n) => n.id)
-  const seen = new Set()
-  while (stack.length) {
-    const id = stack.pop()
-    if (seen.has(id)) continue
-    seen.add(id)
-    if (kind.get(id) === 'output') return true
-    if (kind.get(id) === 'dg_encode') continue
-    stack.push(...(next.get(id) ?? []))
-  }
-  return false
+  const { after } = indexEdges(wireEdges(graph.wires))
+  const kind = new Map(graph.nodes.map((node) => [node.id, node.type]))
+  const inputs = graph.nodes.filter((node) => node.type === 'input').map((node) => node.id)
+  return reaches(inputs, (id) => kind.get(id) === 'output', (id) => kind.get(id) === 'dg_encode' ? [] : after(id))
 }
 
 export const CONSTRAINTS = {

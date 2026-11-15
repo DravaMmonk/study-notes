@@ -1,25 +1,32 @@
-import { srcKey, srcNode } from '../engine/wire-source.js'
+import { srcKey, srcNode, wireEdges } from '../engine/wire-source.js'
 import { curve } from '../wires.js'
+import { dependencyOrder, indexEdges } from '../graph.js'
 
 /** The fields that position or fold a card without changing what it computes. */
 export const cardPosition = (node) => Object.fromEntries(['x', 'y', 'slot', 'span', 'fold'].filter((key) => node?.[key] !== undefined).map((key) => [key, node[key]]))
 
-// Data-flow columns shared by compact circuit placement and headless SVGs. Cycles keep a
-// finite depth; sources outside the supplied nodes do not add a column.
-export function flowLayout(nodes, wires, { sizeOf, gapX = 44, gapY = 14 } = {}) {
-  const ids = new Set(nodes.map((n) => n.id))
+// The same depth calculation is used for imported cards and headless drawings. A feedback edge contributes a
+// finite depth from the first revisit, so an import or preview can still place every card.
+function columnDepths(ids, before) {
+  const own = new Set(ids)
   const depth = new Map()
-  const depthOf = (id, seen = new Set()) => {
+  const visit = (id, seen) => {
     if (depth.has(id)) return depth.get(id)
     if (seen.has(id)) return 0
     seen.add(id)
-    const inputs = wires.filter((w) => w.to === id).map((w) => srcNode(w.from)).filter((src) => ids.has(src))
-    const d = inputs.length ? 1 + Math.max(...inputs.map((src) => depthOf(src, seen))) : 0
-    depth.set(id, d)
-    return d
+    const upstream = before(id).filter((parent) => own.has(parent))
+    const value = Math.max(0, ...upstream.map((parent) => visit(parent, seen) + 1))
+    depth.set(id, value)
+    return value
   }
+  for (const id of ids) visit(id, new Set())
+  return depth
+}
+
+export function flowLayout(nodes, wires, { sizeOf, gapX = 44, gapY = 14 } = {}) {
+  const depth = columnDepths(nodes.map((node) => node.id), indexEdges(wireEdges(wires)).before)
   const columns = []
-  for (const node of nodes) (columns[depthOf(node.id)] ??= []).push(node)
+  for (const node of nodes) (columns[depth.get(node.id)] ??= []).push(node)
   const positions = new Map()
   let x = 0, h = 0
   for (const column of columns.filter(Boolean)) {
@@ -40,21 +47,17 @@ export function flowLayout(nodes, wires, { sizeOf, gapX = 44, gapY = 14 } = {}) 
 const sourceId = (wire) => srcNode(wire.from)
 const mean = (values) => values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0
 
-/** Stable dependency order, including the cycles formed by grouping a larger acyclic circuit. */
-export function dependencyOrder(nodes, wires) {
-  const pending = new Map(nodes.map((n) => [n.id, n]))
-  const result = []
-  while (pending.size) {
-    const ready = [...pending.values()].filter((n) => wires.every((w) => w.to !== n.id || !pending.has(sourceId(w))))
-    for (const n of ready.length ? ready : [pending.values().next().value]) { result.push(n); pending.delete(n.id) }
-  }
-  return result
+/** Stable layout order, including the cycles formed by grouping a larger acyclic circuit. */
+export function layoutOrder(nodes, wires) {
+  const byId = new Map(nodes.map((node) => [node.id, node]))
+  const { ordered } = dependencyOrder([...byId.keys()], indexEdges(wireEdges(wires)), { breakCycles: true })
+  return ordered.map((id) => byId.get(id))
 }
 
 /** Dependency columns use upstream barycentres and actual port offsets instead of card centres. */
 export function alignedLayout(nodes, wires, { sizeOf, portY = () => 48, gapX = 24, gapY = 16 }) {
   const own = new Set(nodes.map((n) => n.id)), positions = new Map(), depths = new Map()
-  const ordered = dependencyOrder(nodes, wires)
+  const ordered = layoutOrder(nodes, wires)
   for (const n of ordered) depths.set(n.id, Math.max(0, ...wires.filter((w) => w.to === n.id && own.has(sourceId(w))).map((w) => (depths.get(sourceId(w)) ?? -1) + 1)))
   const columns = new Map()
   for (const n of ordered) { const d = depths.get(n.id); columns.set(d, [...(columns.get(d) ?? []), n]) }
@@ -114,7 +117,7 @@ export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY = () => 48
   })
   // A column a depth; a unit nothing feeds, one left of the first it feeds.
   const depth = new Map()
-  for (const u of dependencyOrder(units, links)) depth.set(u.id, Math.max(0, ...links.filter((l) => l.to === u.id && depth.has(l.from)).map((l) => depth.get(l.from) + 1)))
+  for (const u of layoutOrder(units, links)) depth.set(u.id, Math.max(0, ...links.filter((l) => l.to === u.id && depth.has(l.from)).map((l) => depth.get(l.from) + 1)))
   for (const u of units) {
     const fed = links.filter((l) => l.from === u.id).map((l) => depth.get(l.to))
     if (fed.length && !links.some((l) => l.to === u.id)) depth.set(u.id, Math.max(0, Math.min(...fed) - 1))
@@ -303,18 +306,8 @@ export function flowSpots(graph, fresh, { x0 = 240, y0 = 40, dx = 200, dy = 150 
   if (!fresh.length) return
   const mine = new Set(fresh.map((n) => n.id))
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  const into = (id) => graph.wires.filter((w) => w.to === id).map(sourceId)
-  const outOf = (id) => graph.wires.filter((w) => sourceId(w) === id).map((w) => w.to)
-  const depth = new Map()
-  const depthOf = (id, seen = new Set()) => {
-    if (depth.has(id)) return depth.get(id)
-    if (seen.has(id)) return 0
-    seen.add(id)
-    const d = Math.max(0, ...into(id).filter((src) => mine.has(src)).map((src) => depthOf(src, seen) + 1))
-    depth.set(id, d)
-    return d
-  }
-  for (const n of fresh) depthOf(n.id)
+  const { before: into, after: outOf } = indexEdges(wireEdges(graph.wires))
+  const depth = columnDepths([...mine], into)
   // A card nothing new feeds stands just left of what it feeds, not a board's width away from it.
   for (const n of fresh) {
     const fed = outOf(n.id).filter((id) => mine.has(id)).map((id) => depth.get(id))

@@ -9,6 +9,7 @@ import { boxBlur3, gradientMagnitude, horizontalDifference, sobelGradient, squar
 import { at, fromFn } from './engine/image.js'
 import { outputImages } from './engine/graph.js'
 import { picture } from './items/pictures.js'
+import { constraintOf, depthOf } from './items/constraints.js'
 import { imageCourse } from './course.js'
 import domain from './domain.js'
 
@@ -98,4 +99,22 @@ test('a course read writes nothing into its content', () => {
   const spec = domain.spec(deepFreeze(readContent('starter', import.meta.dirname)))
   spec.syncOwn({})
   for (const level of spec.levels) assert.ok(level.tasks.length && level.tasks.every((t) => t.key && t.palette), level.id)
+})
+
+test('network constraints follow wires from named outputs', () => {
+  const nodes = [{ id: 'in', type: 'input' }, { id: 'out', type: 'output' }]
+  const encoded = {
+    nodes: [...nodes, { id: 'e', type: 'dg_encode', params: { k: 2 } }],
+    wires: [{ from: 'in', to: 'e', port: 'input' }, { from: 'e', to: 'out', port: 'r' }],
+  }
+  const bottleneck = constraintOf({ bottleneck: { max: 2 } })
+  assert.equal(bottleneck({}, encoded), '')
+  const bypass = { ...encoded, wires: [...encoded.wires, { from: 'in#b', to: 'out', port: 'b' }] }
+  assert.match(bottleneck({}, bypass).en, /does not pass through the encoder/)
+
+  const layers = {
+    nodes: [...nodes, { id: 'a', type: 'learn3' }, { id: 'b', type: 'lrnConv' }],
+    wires: [{ from: 'in#r', to: 'a', port: 'input' }, { from: 'a#result', to: 'b', port: 'input' }, { from: 'b#result', to: 'out', port: 'in' }],
+  }
+  assert.equal(depthOf(layers), 2)
 })

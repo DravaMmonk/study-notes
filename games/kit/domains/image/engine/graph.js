@@ -3,27 +3,6 @@ import { runBoard, sink, source } from '../../../engine/boards.js'
 import { runOutputTests } from '../../../engine/test-run.js'
 import { compare, image } from './image.js'
 import { channel, compose } from './colour.js'
-import { srcNode } from '../../../engine/wire-source.js'
-
-// A graph is { nodes: [{ id, type, x, y, params }], wires: [{ from, to, port }] } where `from` and
-// `to` are node ids and `port` is the input port name on `to`. Each node has a single output.
-
-export function order(graph) {
-  const incoming = new Map(graph.nodes.map((node) => [node.id, 0]))
-  for (const wire of graph.wires) incoming.set(wire.to, (incoming.get(wire.to) ?? 0) + 1)
-  const ready = graph.nodes.filter((node) => !incoming.get(node.id)).map((node) => node.id)
-  const result = []
-  while (ready.length) {
-    const id = ready.shift()
-    result.push(id)
-    for (const wire of graph.wires) {
-      if (srcNode(wire.from) !== id) continue
-      incoming.set(wire.to, incoming.get(wire.to) - 1)
-      if (!incoming.get(wire.to)) ready.push(wire.to)
-    }
-  }
-  return result
-}
 
 // A single number (1×1) meets a bigger input by filling its whole size; any other mismatch is an error, except for a
 // part whose inputs are different things by nature (`anySize`: a picture, a matrix and a canvas).
