@@ -1,20 +1,16 @@
 // The parts of a game in the studio (games/DESIGN.md 6.7, 6.8): every piece its pieces.json defines, primitive or built
 // (inside) — icon, name, type — grouped by tray in the order the course gives them (pieces.js), then every setting
 // preset, a row each; findings on a part mark its row. A click opens it (its
-// faces on the page, its fields in the rows). The + add a piece and open it: one of each editor the domain's vocabulary
-// gives what it is made of (../engine/parts/schema.js BLANKS), blank and ready to be filled in; a built piece, made
-// from a task picked (grouped by level, in course order), the work of which runs inside it — its ports are that task's
-// board's. A part is copied, renamed and removed from the part's own page
-// (PartEditor in Editor.jsx).
+// faces on the page, its fields in the inspector). A single add menu offers the available editors, building from
+// a task, and setting presets.
 import { useRef, useState } from 'react'
-import { Box, CircuitBoard, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { iconOf } from '../shell/parts/icons.js'
 import { OptionList, useDismiss } from './Picker.jsx'
 import { taskOptionsOf } from './form.js'
 import { pieceGroups } from './pieces.js'
 import { BLANKS } from '../engine/parts/schema.js'
-import { editorOf } from '../engine/pieces.js'
 
 /** A new built piece: the work of task `task` runs inside it; named after what the task is called. */
 export const builtPart = (task, name) => ({ name: { en: name || task }, desc: { en: '' }, inside: [{ task }] })
@@ -30,18 +26,26 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
   const file = content.partDefs ?? { parts: {} }
   const parts = Object.entries(file.parts ?? {})
   const presets = Object.entries(file.presets ?? {})
-  const [picking, setPicking] = useState(false)
+  const [adding, setAdding] = useState(null)
   const box = useRef(null)
-  useDismiss(box, picking, () => setPicking(false))
+  useDismiss(box, adding !== null, () => setAdding(null))
   const tasks = levelOptions ? taskOptionsOf(levelOptions) : []
-  const blanks = Object.values(BLANKS).map((blank) => blank(vocabulary)).filter(Boolean)
+  const blanks = Object.fromEntries(Object.entries(BLANKS).flatMap(([editor, blank]) => {
+    const data = blank(vocabulary)
+    return data ? [[editor, data]] : []
+  }))
+  const choices = [
+    ...Object.keys(blanks).map((editor) => ({ value: editor, label: editor === 'strip' ? tr('词序条块', 'Strip piece') : tr('电路件', 'Circuit piece') })),
+    ...(tasks.length ? [{ value: 'task', label: tr('用任务作品搭件', 'Build from a task') }] : []),
+    { value: 'preset', label: tr('设置预设', 'Setting preset') },
+  ]
   const add = (data) => {
     const type = freeName(parts.map(([t]) => t), 'part')
     onEdit({ op: 'piece.add', piece: type, data })
     onSelect({ part: type })
   }
   const build = (task) => {
-    setPicking(false)
+    setAdding(null)
     const picked = tasks.find((o) => o.value === task)
     const type = freeName(parts.map(([t]) => t), 'piece')
     onEdit({ op: 'piece.add', piece: type, data: builtPart(task, picked?.title && L(picked.title)) })
@@ -51,6 +55,15 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
     const name = freeName(presets.map(([n]) => n), 'setting')
     onEdit({ op: 'pieces.set', path: ['presets', name], value: { control: 'select', options: [{ value: 'a' }, { value: 'b' }] } })
     onSelect({ preset: name })
+  }
+  const pickType = (type) => {
+    if (type === 'task') {
+      setAdding('task')
+      return
+    }
+    setAdding(null)
+    if (type === 'preset') addPreset()
+    else add(blanks[type])
   }
   const groups = pieceGroups(parts.map(([t]) => t), { trays: content.trays, at: (type) => earned.get(type) ?? null, order, primitives: content.primitives ?? [] })
   const row = (type) => {
@@ -74,19 +87,22 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
           {g.types.map(row)}
         </section>
       ))}
+      {presets.length > 0 && (
+        <div className="parts-presets">
+          {presets.map(([name, s]) => (
+            <button key={name} type="button" className={`parts-row is-preset ${at?.preset === name ? 'is-on' : ''}`} onClick={() => onSelect({ preset: name })}>
+              <span>{s.label ? L(s.label) : name}</span>
+              <code>{name}</code>
+            </button>
+          ))}
+        </div>
+      )}
       <div className="parts-adds" ref={box}>
-        {blanks.map((data) => <button key={editorOf(data)} type="button" className="parts-add" onClick={() => add(data)} title={tr('加一个基础件', 'Add a primitive piece')}><Plus size={12} aria-hidden="true" /><Box size={13} aria-hidden="true" /></button>)}
-        <button type="button" className="parts-add" onClick={() => setPicking(!picking)} aria-expanded={picking} title={tr('用一个任务的作品搭一个件', 'Build a piece from a task’s work')}><Plus size={12} aria-hidden="true" /><CircuitBoard size={13} aria-hidden="true" /></button>
-        {picking && <div className="parts-pick"><OptionList options={tasks} value={null} onPick={build} onClose={() => setPicking(false)} /></div>}
-      </div>
-      <div className="parts-presets">
-        {presets.map(([name, s]) => (
-          <button key={name} type="button" className={`parts-row is-preset ${at?.preset === name ? 'is-on' : ''}`} onClick={() => onSelect({ preset: name })}>
-            <span>{s.label ? L(s.label) : name}</span>
-            <code>{name}</code>
-          </button>
-        ))}
-        <button type="button" className="parts-add" onClick={addPreset} title={tr('加一份设置预设')}><Plus size={13} aria-hidden="true" /></button>
+        <button type="button" className="parts-add" onClick={() => setAdding(adding ? null : 'type')} aria-expanded={adding !== null} aria-haspopup="dialog">
+          <Plus size={13} aria-hidden="true" />{tr('新增', 'Add')}
+        </button>
+        {adding && <OptionList key={adding} options={adding === 'task' ? tasks : choices} value={null}
+          onPick={adding === 'task' ? build : pickType} onClose={() => setAdding(null)} />}
       </div>
     </nav>
   )

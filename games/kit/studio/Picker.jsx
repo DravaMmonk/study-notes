@@ -16,7 +16,7 @@ const paramsOf = (o) => (o.params?.type === 'obj' ? Object.keys(o.params.fields)
 export function useDismiss(ref, open, close) {
   useEffect(() => {
     if (!open) return undefined
-    const down = (e) => { if (!ref.current?.contains(e.target)) close() }
+    const down = (e) => { if (!e.composedPath().includes(ref.current)) close() }
     window.addEventListener('pointerdown', down)
     return () => window.removeEventListener('pointerdown', down)
   }, [ref, open, close])
