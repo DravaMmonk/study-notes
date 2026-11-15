@@ -437,8 +437,8 @@ select.cell { width: auto; min-width: 46px; }
 .flow-marks .is-withholds, .flow-marks .is-replaced { color: var(--fail); }
 .flow-marks .is-step { color: var(--accent-ink); }
 .flow-level { max-width: 9em; overflow: hidden; color: var(--muted); font: 11px/1.2 var(--mono); text-overflow: ellipsis; white-space: nowrap; }
-body.is-resizing iframe { pointer-events: none; }
-body.is-resizing { user-select: none; }
+.studio.is-resizing iframe { pointer-events: none; }
+.studio.is-resizing { user-select: none; }
 
 /* ---- the audit: a worklist ---- */
 .audit { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); grid-template-columns: minmax(0, 1fr); }

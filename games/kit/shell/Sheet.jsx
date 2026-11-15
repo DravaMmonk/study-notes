@@ -1,41 +1,35 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { X } from 'lucide-react'
 import { tr } from './i18n.js'
 import { EntriesSize, SHEET } from './Entries.jsx'
 import { useOverlayKeys } from './useOverlayKeys.js'
+import { usePointerSession } from '../views/usePointerSession.js'
 import './sheet.css'
 
 // A centered dialog on desktop and a draggable bottom sheet on phones.
 // What it holds knows it is in a sheet (Entries.jsx: longer lists).
 export default function Sheet({ title, onClose, children, footer, actions }) {
   const [drag, setDrag] = useState(0)
-  const start = useRef(null)
+  const { track } = usePointerSession()
   const overlay = useOverlayKeys(onClose)
+  const swipe = (event) => {
+    if (event.button !== 0 || !event.isPrimary) return
+    const start = event.clientY
+    track(event, {
+      capture: true,
+      escape: true,
+      move: (next) => setDrag(Math.max(0, next.clientY - start)),
+      finish(commit, release) {
+        setDrag(0)
+        if (commit && release.clientY - start > 90) onClose()
+      },
+    })
+  }
 
   return (
     <div ref={overlay} className="ph-scrim" onClick={onClose}>
       <div className="ph-sheet" role="dialog" aria-modal="true" aria-label={title} style={{ transform: drag ? `translateY(${drag}px)` : undefined }} onClick={(event) => event.stopPropagation()}>
-        <div
-          className="ph-handle"
-          onPointerDown={(event) => {
-            start.current = event.clientY
-            try {
-              event.currentTarget.setPointerCapture(event.pointerId)
-            } catch {
-              // A pointer that is already gone cannot be captured; the gesture still works.
-            }
-          }}
-          onPointerMove={(event) => start.current !== null && setDrag(Math.max(0, event.clientY - start.current))}
-          onPointerUp={() => {
-            if (drag > 90) onClose()
-            start.current = null
-            setDrag(0)
-          }}
-          onPointerCancel={() => {
-            start.current = null
-            setDrag(0)
-          }}
-        >
+        <div className="ph-handle" onPointerDown={swipe}>
           <i />
         </div>
         <header className="ph-sheet-head">

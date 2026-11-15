@@ -37,3 +37,37 @@ test('Escape, pointer cancellation, blur and disposal end without committing', (
   assert.equal(emit(target, 'keydown', { key: 'Escape' }), true)
   assert.deepEqual(events, [false, false, false, false])
 })
+
+test('capture belongs to one pointer and a lost capture or mouse release cancels its session', (t) => {
+  const target = new EventTarget()
+  globalThis.window = target
+  t.after(() => { delete globalThis.window })
+  const capture = new EventTarget()
+  let held = null
+  capture.setPointerCapture = (id) => { held = id }
+  capture.hasPointerCapture = (id) => held === id
+  capture.releasePointerCapture = () => { held = null }
+  const events = []
+  const start = () => trackPointer(4, { capture, move: () => events.push('move'), finish: (commit) => events.push(commit) })
+
+  start()
+  assert.equal(held, 4)
+  emit(capture, 'lostpointercapture', { pointerId: 9 })
+  emit(target, 'pointermove', { pointerId: 4, pointerType: 'mouse', buttons: 1 })
+  capture.releasePointerCapture()
+  emit(capture, 'lostpointercapture', { pointerId: 4 })
+  emit(target, 'pointerup', { pointerId: 4 })
+
+  start()
+  emit(target, 'pointermove', { pointerId: 4, pointerType: 'mouse', buttons: 0 })
+  assert.equal(held, null)
+  start()
+  emit(target, 'pointerup', { pointerId: 4 })
+  assert.equal(held, null)
+  assert.deepEqual(events, ['move', false, false, true])
+
+  capture.setPointerCapture = () => { throw new DOMException('Pointer unavailable', 'NotFoundError') }
+  assert.equal(start(), undefined)
+  emit(target, 'pointermove', { pointerId: 4 })
+  assert.deepEqual(events, ['move', false, false, true, false])
+})

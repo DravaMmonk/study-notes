@@ -37,6 +37,7 @@ import { itemOf } from './worklist.js'
 import { paletteIndex } from './palette.js'
 import { bulkMove } from './bulk.js'
 import { usePref } from './prefs.js'
+import PanelResizer from './PanelResizer.jsx'
 import Tree from './Tree.jsx'
 import Search from './Search.jsx'
 import Editor from './Editor.jsx'
@@ -55,7 +56,6 @@ const QUERY = new URLSearchParams(window.location.search)
 const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
 const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
-const SIZE = { tree: [180, 640], audit: [90, 900], side: [260, 900] } // px: the tree's width, the audit drawer's height, the side panel's width
 
 const piecePath = (at) => at?.part !== undefined ? ['parts', at.part] : at?.setting !== undefined ? ['settings', at.setting] : null
 
@@ -74,53 +74,6 @@ const remember = (game, at, tab) => {
 }
 const editable = (el) => el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))
 const paletteKey = (event) => (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k'
-
-/**
- * The handle beside the tree (across, for its width) or above the audit drawer (along, for its height): drag to
- * resize, double-click (or Enter) to fold, arrows to nudge.
- */
-function Resizer({ side, size, open, setLayout }) {
-  const set = (patch) => setLayout((l) => ({ ...l, ...patch }))
-  const across = side !== 'audit'
-  const clamp = (n) => Math.max(SIZE[side][0], Math.min(SIZE[side][1], n))
-  // The side panel is on the right: dragging left widens it.
-  const sign = side === 'side' ? -1 : 1
-  // The handle captures the pointer, so the drag ends wherever it is let go — over the game's iframe too, which would
-  // otherwise take the pointerup for itself; while it lasts the iframe takes no pointer at all (studio.css). A drag
-  // whose letting go never arrived (the window lost focus, a browser that dropped it) ends at the next move made with
-  // no button down.
-  const drag = (e) => {
-    if (!open || e.button !== 0) return
-    e.preventDefault()
-    const handle = e.currentTarget
-    handle.setPointerCapture(e.pointerId)
-    document.body.classList.add('is-resizing')
-    const at0 = across ? e.clientX : e.clientY
-    const ENDS = ['pointerup', 'pointercancel', 'lostpointercapture']
-    const end = () => {
-      document.body.classList.remove('is-resizing')
-      for (const type of ['pointermove', ...ENDS]) window.removeEventListener(type, on, true)
-      window.removeEventListener('blur', end)
-    }
-    const on = (ev) => {
-      if (ENDS.includes(ev.type) || ev.buttons === 0) return end()
-      set({ [side]: clamp(across ? size + sign * (ev.clientX - at0) : size - (ev.clientY - at0)) })
-    }
-    for (const type of ['pointermove', ...ENDS]) window.addEventListener(type, on, true)
-    window.addEventListener('blur', end)
-  }
-  return (
-    <div
-      className={`studio-resize is-${side} ${open ? '' : 'is-shut'}`} role="separator" aria-orientation={across ? 'vertical' : 'horizontal'} tabIndex={0} aria-label={tr('拖动改大小，双击收起')}
-      onPointerDown={drag} onDoubleClick={() => set({ [`${side}Open`]: !open })} onClick={() => !open && set({ [`${side}Open`]: true })}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter') set({ [`${side}Open`]: !open })
-        const nudge = across ? sign * { ArrowRight: 16, ArrowLeft: -16 }[e.key] : { ArrowUp: 16, ArrowDown: -16 }[e.key]
-        if (nudge) set({ [side]: clamp(size + nudge) })
-      }}
-    />
-  )
-}
 
 export default function Studio() {
   const [game, setGame] = useState(() => GAMES.find(({ id }) => id === QUERY.get('game'))?.id ?? GAMES[0].id)
@@ -156,6 +109,7 @@ export default function Studio() {
   const [said, setSaid] = useState(null) // what the last apply or undo said
   const [runs, setRuns] = useState({}) // test runs: `${level}|${path}` → the run_tests answer
   const [layout, setLayout] = usePref('layout', { tree: 240, audit: 220, side: 380, treeOpen: true, auditOpen: true, sideOpen: true })
+  const [resize, setResize] = useState(null)
   const [side, setSide] = usePref('side', 'tree')
   const [copyScope, setCopyScope] = useState(null) // An era's index, or the game, glossary or pieces.
   const [overlay, setOverlay] = useState(null) // 'palette' | 'keys'
@@ -672,9 +626,11 @@ export default function Studio() {
   const pickedIds = playOrder.filter((id) => picked.has(id))
   const selectedScope = copyScope ?? (at?.era !== undefined ? at.era : at?.level ? (content?.eras ?? []).findIndex((era) => eraLevels(era).includes(at.level)) : 'all')
   const scope = selectedScope === -1 ? 'all' : selectedScope
-  const style = { '--tree-w': `${layout.treeOpen ? layout.tree : 0}px`, '--audit-h': `${layout.audit}px`, '--side-w': `${layout.sideOpen ? layout.side : 0}px` }
+  const shownLayout = resize ? { ...layout, [resize.side]: resize.size } : layout
+  const style = { '--tree-w': `${layout.treeOpen ? shownLayout.tree : 0}px`, '--audit-h': `${shownLayout.audit}px`, '--side-w': `${layout.sideOpen ? shownLayout.side : 0}px` }
+  const resizer = { setLayout, previewResize: setResize, dragging: resize !== null }
   return (
-    <div className={`studio ${moving ? 'is-moving' : ''}`}>
+    <div className={`studio ${moving ? 'is-moving' : ''} ${resize ? 'is-resizing' : ''}`}>
       <header className="kit-bar studio-bar">
         <span className="kit-brand"><i className="kit-chip" aria-hidden="true" /></span>
         <select className="studio-game" value={game} onChange={(e) => { setGame(e.target.value); select(null); setPlay(null) }} aria-label={tr('游戏', 'Game')}>
@@ -706,7 +662,7 @@ export default function Studio() {
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={jump} />
               : <Tree game={game} content={content} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask} />}
           </aside>
-          <Resizer side="tree" size={layout.tree} open={layout.treeOpen} setLayout={setLayout} />
+          <PanelResizer side="tree" size={layout.tree} open={layout.treeOpen} {...resizer} />
           <main className="studio-main">
             {tab !== 'page' && (
               <div className="studio-scroll">
@@ -732,11 +688,11 @@ export default function Studio() {
               footer={at?.part !== undefined && <Flow game={game} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />}
             />
           </main>
-          <Resizer side="side" size={layout.side} open={layout.sideOpen} setLayout={setLayout} />
+          <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
           <aside className="studio-side">
             {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} pendingFace={pendingFace} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onClose={() => setField(null)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} />}
           </aside>
-          {layout.auditOpen && <Resizer side="audit" size={layout.audit} open setLayout={setLayout} />}
+          {layout.auditOpen && <PanelResizer side="audit" size={layout.audit} open {...resizer} />}
           <aside className="studio-audit">
             <Audit items={items} fresh={fresh} last={last} at={at} busy={busy} ops={ops} migration={shown.migration} open={layout.auditOpen} onToggle={() => togglePanel('audit')} onJump={jumpTo} onReview={() => setTab('review')} />
           </aside>

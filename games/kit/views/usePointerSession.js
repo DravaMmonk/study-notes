@@ -6,15 +6,15 @@ export function usePointerSession() {
   const active = useRef(null)
   const cancel = () => active.current?.()
   useLayoutEffect(() => () => active.current?.(), [])
-  const track = (event, { move, finish, escape }) => {
+  const track = (event, { move, finish, escape, capture = false }) => {
     cancel()
     active.current = trackPointer(event.pointerId, {
-      move, escape,
+      move, escape, capture: capture ? event.currentTarget : undefined,
       finish(commit, release) {
         active.current = null
         finish?.(commit, release)
       },
-    })
+    }) ?? null
   }
   return { track, cancel }
 }
