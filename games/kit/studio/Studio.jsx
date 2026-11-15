@@ -16,7 +16,7 @@
 // audit in a drawer under the middle. Each folds away and resizes (remembered per viewer, prefs.js); the command
 // palette (Ctrl/⌘+K) reaches every place and action, ? lists the keys.
 import './studio.css'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Command, ListTree, Search as SearchIcon, Shapes } from 'lucide-react'
 import { GAMES } from '../../games.js'
 import { mountBarMenus } from '../menu.js'
@@ -182,6 +182,10 @@ export default function Studio() {
 
   const changeset = useMemo(() => ({ ...(why && { why }), ops }), [why, ops])
   const key = `${game}|${rev}|${JSON.stringify(changeset)}`
+  const playRequest = useRef(null)
+  useLayoutEffect(() => {
+    playRequest.current = null
+  }, [at, key, pageTask, go])
 
   // The quick preview of every change of the pending changeset.
   const seq = useRef(0)
@@ -353,7 +357,11 @@ export default function Studio() {
   }
   // Play a level, opened on one of its boards (path) when given; `take`: the board is being edited there.
   const playLevel = async (level, path = null, take = false) => {
+    const request = {}
+    playRequest.current = request
     const seed = path ? await call('seed', { game, level, path, changeset: { ops } }) : null
+    if (playRequest.current !== request) return
+    playRequest.current = null
     setPlay({ level, seed: seed?.data !== undefined ? seed : null, take: take ? { path, label: tr(`用作 ${path}`, `Use as ${path}`) } : null })
     if (seed?.task !== undefined) setPageTask(seed.task)
   }
@@ -521,9 +529,10 @@ export default function Studio() {
       const value = content.levels.find((l) => l.id === level)
       const board = referenceFor(vocab.vocabulary, value, path.slice(0, -1))
       if (!board) return setRuns((r) => ({ ...r, [k]: { covered: false, why: tr('这一关没有参考解') } }))
-      setRuns((r) => ({ ...r, [k]: { running: true } }))
+      const pending = { running: true }
+      setRuns((r) => ({ ...r, [k]: pending }))
       const answer = await call('run_tests', { game, level, path: showPath(board), changeset }).catch((error) => ({ covered: false, why: error.message }))
-      setRuns((r) => ({ ...r, [k]: answer }))
+      setRuns((r) => r[k] === pending ? { ...r, [k]: answer } : r)
     },
   }
   const togglePanel = (which) => setLayout((l) => ({ ...l, [`${which}Open`]: !l[`${which}Open`] }))
