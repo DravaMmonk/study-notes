@@ -12,8 +12,11 @@ import { fixedCardsFit } from '../../../engine/board-cards.js'
 import { printLines, readLines } from '../../../circuit/text.js'
 import { parsePi, piText } from './pi.js'
 
-/** A setting that takes π, as the blueprint spells it ('pi/2', '-3pi/4'), or null when the value is no multiple of π. */
-const piWord = (v) => piText(v)?.replace('−', '-').replace('π', 'pi') ?? null
+/** Use the symbolic spelling only if reading it recovers the original value. */
+const piWord = (v) => {
+  const word = piText(v)?.replace('−', '-').replace('π', 'pi')
+  return word && parsePi(word) === v ? word : v
+}
 
 /** A node's role on the shared circuit model: the level's inputs are the sources, its outputs the sinks. */
 const roleOf = (node) => (node.type === 'input' ? 'source' : node.type === 'output' ? 'sink' : 'part')
@@ -34,14 +37,14 @@ export function startBoard({ inputs = ['in'], outputs = ['out'] }) {
 }
 
 /** The port and setting rules used by image blueprints and the circuit editors. */
-export function blueprintOf({ types, inputsOf, defaultParams, snapSetting }) {
+export function blueprintOf({ types, inputsOf, defaultParams }) {
   const paramOf = (type, key) => types[type]?.params?.find((p) => p.key === key)
   const text = {
     settings: (node) => (types[node.type]?.params ?? []).map((p) => p.key),
-    value: (node, key, v) => (paramOf(node.type, key)?.pi && piWord(v) ? piWord(v) : v),
+    value: (node, key, v) => paramOf(node.type, key)?.pi ? piWord(v) : v,
     read: (node, key, v) => {
       const pi = paramOf(node.type, key)?.pi && typeof v === 'string' ? parsePi(v) : null
-      return snapSetting(node.type, key, pi ?? v)
+      return pi ?? v
     },
   }
   const channelOutputs = [{ key: null, label: 'Image' }, ...['r', 'g', 'b'].map((key) => ({ key, label: key.toUpperCase() }))]

@@ -1,7 +1,6 @@
 import { MISSING, PartError } from '../../../engine/circuit.js'
 import { correlate, downsample, fromFn, gaussianKernel, image, map, maxPool, shift, zip } from './image.js'
 import { boxBlur3, boxKernel, gradientMagnitude, harrisResponse, horizontalDifference, sobelX, sobelY } from './filters.js'
-import { piText } from './pi.js'
 import { FREQUENCY } from './parts/frequency.js'
 import { GENERATIVE } from './parts/generative.js'
 import { GLOBAL } from './parts/global.js'
@@ -259,38 +258,19 @@ export function disparityMap(left, right, window = 3, maxD = 4) {
   })
 }
 
-// Every number a player sets lands on its setting's step (typed, slid or nudged), so a level's answer is a value the
-// player can actually reach and never needs finer tuning than the step. Hand-set kernel weights go in hundredths.
-const decimalsOf = (step) => (String(step).split('.')[1] ?? '').length
-
 /**
  * What a course's part table says of each part (the course's table: NODE_TYPES and the parts its levels pack, own.js).
  *   inputsOf / outputsOf(type)       its ports
- *   snapSetting(type, key, value)    a setting on its step
  *   settingsOf(type, has)            the settings a level holds (has(type, key), has(type, key, value): ../../../course.js
  *                                    holds), each choice cut to the values it holds
  *   defaultParams(type)              its settings as it is placed
  */
 export function specsOf(types) {
   const paramsOf = (type) => types[type]?.params ?? []
-  const snapSetting = (type, key, value) => {
-    const param = paramsOf(type).find((p) => p.key === key)
-    if (!param || typeof value === 'object' && !Array.isArray(value)) return value
-    if (param.kind === 'number') {
-      // A setting that takes π (the Constant) keeps an exact multiple of π as it is.
-      if (param.pi && piText(value)) return value
-      const step = param.step ?? 0.1
-      const v = Math.min(param.max ?? Infinity, Math.max(param.min ?? -Infinity, Math.round(value / step) * step))
-      return Number(v.toFixed(decimalsOf(step)))
-    }
-    if (param.kind === 'kernel' && !param.learnable && Array.isArray(value)) return value.map((w) => Math.round(w * 100) / 100)
-    return value
-  }
   return {
     types,
     outputsOf: (type) => typeof types[type].outputs === 'function' ? types[type].outputs() : types[type].outputs ?? ['out'],
     inputsOf: (type) => types[type].inputs ?? [],
-    snapSetting,
     settingsOf: (type, has) => paramsOf(type)
       .filter((p) => has(type, p.key))
       .map((p) => (p.options ? { ...p, options: p.options.filter((o) => has(type, p.key, String(o[0]))) } : p)),
