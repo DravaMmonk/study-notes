@@ -238,11 +238,12 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
     setDraft(text)
     onSet(text)
   }, [onSet])
-  const options = useMemo(() => (names ? [
+  const pickerOpen = linking !== null
+  const options = useMemo(() => (names && pickerOpen ? [
     ...[...names.level].map(([id, l]) => ({ value: `level:${id}`, label: l.label, title: l.title, group: tr('关卡') })),
     ...[...names.part].map(([k, n]) => ({ value: `part:${k}`, label: k, title: n, group: tr('件', 'Pieces') })),
     ...[...names.wiki].map(([k, n]) => ({ value: `wiki:${k}`, label: k, title: n, group: tr('百科') })),
-  ] : []), [names])
+  ] : []), [names, pickerOpen])
   const close = () => { setLinking(null); box.current?.focus() }
   const all = [...new Set([...textFindings({ [lang]: draft }, field, names), ...findings])]
   return (

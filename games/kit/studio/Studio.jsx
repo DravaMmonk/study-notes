@@ -40,7 +40,6 @@ import Tree from './Tree.jsx'
 import Search from './Search.jsx'
 import Editor from './Editor.jsx'
 import CopyTable from './CopyTable.jsx'
-import LanguageComparison from './LanguageComparison.jsx'
 import Compare from './Compare.jsx'
 import Audit from './Audit.jsx'
 import Review from './Review.jsx'
@@ -52,7 +51,7 @@ import Palette from './Palette.jsx'
 import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
-const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['i18n', '语言对照', 'Languages'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
+const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
 const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
 const SIZE = { tree: [180, 640], audit: [90, 900], side: [260, 900] } // px: the tree's width, the audit drawer's height, the side panel's width
@@ -136,7 +135,11 @@ export default function Studio() {
   const [rev, setRev] = useState(0) // bumped when the files change (apply, undo)
   const [at, setAt] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level') } : QUERY.get('era') ? { era: Number(QUERY.get('era')) } : QUERY.get('part') ? { part: QUERY.get('part') } : QUERY.get('preset') ? { preset: QUERY.get('preset') } : QUERY.get('glossary') ? { glossary: true } : null))
   const [picked, setPicked] = useState(() => new Set(QUERY.get('level') ? [QUERY.get('level')] : []))
-  const [tab, setTab] = useState(() => (TABS.some(([id]) => id === QUERY.get('tab')) ? QUERY.get('tab') : 'page'))
+  const [tab, setTab] = useState(() => {
+    const requested = QUERY.get('tab')
+    if (requested === 'i18n') return 'copy'
+    return TABS.some(([id]) => id === requested) ? requested : 'page'
+  })
   const [play, setPlay] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level'), seed: null, take: null } : null)) // { level, seed, take }
   const [field, setField] = useState(null) // the field in the side panel: { path, focus? } | { missing } | null
   const [pageEdit, setPageEdit] = usePref('page-edit', true) // the page as the editor, or the game alone
@@ -147,7 +150,7 @@ export default function Studio() {
   const [runs, setRuns] = useState({}) // test runs: `${level}|${path}` → the run_tests answer
   const [layout, setLayout] = usePref('layout', { tree: 240, audit: 220, side: 380, treeOpen: true, auditOpen: true, sideOpen: true })
   const [side, setSide] = usePref('side', 'tree')
-  const [copyScope, setCopyScope] = useState(null) // the copy tab's scope: an era's index, 'all' or 'glossary'
+  const [copyScope, setCopyScope] = useState(null) // An era's index, or the game, glossary or pieces.
   const [overlay, setOverlay] = useState(null) // 'palette' | 'keys'
   const [lang, setLang] = useState(getLang)
 
@@ -314,6 +317,10 @@ export default function Studio() {
     if (file === 'glossary') {
       setCopyScope('glossary')
       setTab('copy')
+      if (keys.length) {
+        select({ glossary: true })
+        pickField(keys, true)
+      }
       return
     }
     if (level) select({ level })
@@ -628,7 +635,8 @@ export default function Studio() {
   const ready = content && vocab
   const result = { ok: fresh && checked.ok, problems: last && !last.content ? last.problems : fresh ? checked.problems : [], failed: last?.failed ?? null, says: last?.says ?? shown?.says, fresh }
   const pickedIds = playOrder.filter((id) => picked.has(id))
-  const scope = copyScope ?? (at?.era !== undefined ? at.era : at?.level ? (content?.eras ?? []).findIndex((era) => eraLevels(era).includes(at.level)) : 'all')
+  const selectedScope = copyScope ?? (at?.era !== undefined ? at.era : at?.level ? (content?.eras ?? []).findIndex((era) => eraLevels(era).includes(at.level)) : 'all')
+  const scope = selectedScope === -1 ? 'all' : selectedScope
   const style = { '--tree-w': `${layout.treeOpen ? layout.tree : 0}px`, '--audit-h': `${layout.audit}px`, '--side-w': `${layout.sideOpen ? layout.side : 0}px` }
   return (
     <div className={`studio ${moving ? 'is-moving' : ''}`}>
@@ -667,15 +675,10 @@ export default function Studio() {
           <main className="studio-main">
             {tab !== 'page' && (
               <div className="studio-scroll">
-                {tab === 'fields' && <Editor content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.level ? null : 'game')} />}
+                {tab === 'fields' && <Editor content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onCopy={(era) => { setCopyScope(era); setTab('copy') }} />}
                 {tab === 'copy' && (
                   <article className="editor is-wide">
-                    <CopyTable content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={playOrder} names={names} places={places} onEdit={edit} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.level ? null : 'game')} />
-                  </article>
-                )}
-                {tab === 'i18n' && (
-                  <article className="editor is-wide">
-                    <LanguageComparison content={content} vocabulary={vocab.vocabulary} order={playOrder} names={names} onEdit={edit} />
+                    <CopyTable content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={playOrder} names={names} places={places} onEdit={edit} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.parts ? 'pieces' : row.file.level ? null : 'game')} />
                   </article>
                 )}
                 {tab === 'compare' && <Compare game={game} content={content} base={base} at={at} levelOptions={levelOptions} onJump={(lvl, path) => jump(lvl, path)} />}

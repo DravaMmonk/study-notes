@@ -1,28 +1,47 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 import { isLanguageCode } from '../engine/i18n.js'
+import { tr } from '../shell/i18n.js'
 
-
-export default function LanguagePicker({ label, value, options, onChange }) {
-  const id = useId()
+export default function LanguagePicker({ label, value, options, onChange, onAdd }) {
   const [draft, setDraft] = useState(null)
-  const commit = () => {
-    const lang = draft?.trim()
-    if (lang && isLanguageCode(lang)) onChange(lang)
+  const [invalid, setInvalid] = useState(false)
+  const submit = (event) => {
+    event.preventDefault()
+    let lang
+    try {
+      lang = Intl.getCanonicalLocales(draft.trim())[0]
+    } catch (error) {
+      if (!(error instanceof RangeError)) throw error
+    }
+    if (!lang || !isLanguageCode(lang)) {
+      setInvalid(true)
+      return
+    }
+    onAdd(options.find((option) => option.value.toLowerCase() === lang.toLowerCase())?.value ?? lang)
     setDraft(null)
   }
   return (
-    <label className="i18n-language">
-      {label}
-      <input className="field-input i18n-lang" list={id} value={draft ?? value} onBlur={commit}
-        onChange={(event) => {
-          const lang = event.target.value
-          if (options.includes(lang)) {
-            onChange(lang)
-            setDraft(null)
-          } else setDraft(lang)
-        }}
-        onKeyDown={(event) => { if (event.key === 'Enter') commit() }} />
-      <datalist id={id}>{options.map((lang) => <option key={lang} value={lang} />)}</datalist>
-    </label>
+    <div className="copy-language" role="columnheader">
+      <label>
+        <span>{label}</span>
+        <select value={value} onChange={(event) => {
+          if (event.target.value === '+') { setDraft(''); setInvalid(false) }
+          else { onChange(event.target.value); setDraft(null) }
+        }}>
+          {options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          <option value="+">{tr('新增语言…', 'Add language…')}</option>
+        </select>
+      </label>
+      {draft !== null && (
+        <form className="copy-add-language" onSubmit={submit}>
+          <input autoFocus className="field-input" value={draft} placeholder="fr, ja, pt-BR" aria-label={tr('语言代码', 'Language code')}
+            aria-invalid={invalid} onChange={(event) => { setDraft(event.target.value); setInvalid(false) }}
+            onKeyDown={(event) => { if (event.key === 'Escape') setDraft(null) }} />
+          <button type="submit" className="kit-btn is-label">{tr('添加', 'Add')}</button>
+          <button type="button" className="kit-btn is-label" onClick={() => setDraft(null)}>{tr('取消', 'Cancel')}</button>
+          {invalid && <small role="alert">{tr('请输入有效的语言代码', 'Enter a valid language code')}</small>}
+        </form>
+      )}
+    </div>
   )
 }

@@ -366,34 +366,38 @@ select.cell { width: auto; min-width: 46px; }
 .board-svg.is-thumb:hover .board-edit, .board-svg.is-thumb:focus-visible .board-edit { opacity: 1; }
 .board-text { height: 22px; }
 
-/* Copy rows pair the field name with an editor; translation rows pair the source with an editor. */
+/* The field and language headers align with their cells. */
 .editor.is-wide { padding-top: 6px; }
-.copy-table { margin-top: 10px; display: grid; gap: 4px; }
+.copy-table { --copy-columns: minmax(6em, 9em) repeat(2, minmax(0, 1fr)); margin-top: 10px; display: grid; gap: 4px; }
 .editor.is-wide > .copy-table { margin-top: 0; }
-.copy-bar { position: sticky; top: 0; z-index: 3; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 4px 0; background: color-mix(in srgb, var(--canvas) 94%, transparent); backdrop-filter: blur(8px); }
-.copy-bar select, .compare-bar select, .bulk-step select, .audit-rule { height: var(--row); max-width: 18em; padding: 0 4px; border: 0; border-radius: 5px; color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--hairline); font: var(--fs)/1 var(--sans); }
+.copy-head { position: sticky; top: 0; z-index: 3; background: var(--canvas); }
+.copy-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 4px 0; }
+.copy-bar select, .copy-language select, .compare-bar select, .bulk-step select, .audit-rule { height: var(--row); max-width: 18em; padding: 0 4px; border: 0; border-radius: 5px; color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--hairline); font: var(--fs)/1 var(--sans); }
 .copy-bar .field-input { width: 14em; }
 .copy-bar small { color: var(--faint); font: var(--fs-mini)/1 var(--mono); }
 .copy-bar .kit-btn { height: var(--row); }
 .copy-rows { display: grid; }
-.copy-row { display: grid; grid-template-columns: 9em minmax(0, 1fr); gap: 6px; padding: 2px 0; content-visibility: auto; contain-intrinsic-size: auto 34px; }
+.copy-columns, .copy-row { display: grid; grid-template-columns: var(--copy-columns); gap: 6px; align-items: start; min-width: 0; }
+.copy-columns { padding: 5px 0; border-bottom: 1px solid var(--line); color: var(--muted); }
+.copy-row { padding: 2px 0; content-visibility: auto; contain-intrinsic-size: auto 34px; }
 .copy-row.is-first { margin-top: 4px; padding-top: 6px; border-top: 1px solid var(--line); }
 .copy-where { display: grid; align-content: start; gap: 1px; padding: 3px 2px; border: 0; border-radius: 4px; color: var(--muted); background: none; text-align: left; cursor: pointer; min-width: 0; }
 .copy-where:hover { background: var(--hover); }
 .copy-where b { color: var(--accent-ink); font: 600 11.5px/1.2 var(--mono); }
 .copy-where code { font: var(--fs-mini)/1.3 var(--mono); overflow-wrap: anywhere; }
-.copy-row .text-tools { right: auto; left: -22px; }
-.i18n-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-.i18n-row .text-tools { left: auto; right: 2px; }
-.i18n-toolbar { position: sticky; top: 0; z-index: 3; background: var(--canvas); }
-.i18n-toolbar .copy-bar { position: static; backdrop-filter: none; }
-.i18n-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 4px 0; }
-.i18n-language { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; color: var(--muted); }
-.i18n-lang { width: 6em; max-width: 100%; }
+.copy-row .text-tools { top: 2px; right: 2px; left: auto; }
+.copy-where { width: 100%; }
+.copy-shared { grid-column: span 2; }
+.copy-language { min-width: 0; }
+.copy-language label { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.copy-language select, .copy-add-language input { max-width: 100%; min-width: 0; }
+.copy-language select { text-overflow: ellipsis; }
+.copy-add-language { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.copy-add-language small { width: 100%; color: var(--fail); }
 
 @container (max-width: 440px) {
-  .copy-row { grid-template-columns: minmax(0, 1fr); }
-  .copy-row .text-tools { top: 2px; right: 2px; left: auto; }
+  .copy-table { --copy-columns: repeat(2, minmax(0, 1fr)); }
+  .copy-field-name { grid-column: 1 / -1; }
 }
 
 /* Comparing levels; a bulk edit. */
@@ -544,8 +548,8 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
   .studio-scroll { height: auto; overflow: visible; }
   .studio-body > .studio-main { overflow: visible; }
   .studio-play.is-sheet { position: fixed; margin: 0; border-radius: 0; }
-  .copy-row { grid-template-columns: minmax(0, 1fr); }
-  .copy-row .text-tools { top: 2px; right: 2px; left: auto; }
+  .copy-table { --copy-columns: repeat(2, minmax(0, 1fr)); }
+  .copy-field-name { grid-column: 1 / -1; }
 }
 
 /* A field's tools (remove it, switch its shape; an item's copy and remove) show where the pointer or focus is; always on a touch screen. */

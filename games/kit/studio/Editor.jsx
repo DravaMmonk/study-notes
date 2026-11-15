@@ -16,7 +16,6 @@ import { holdsLevels } from '../engine/schema.js'
 import { freeName } from './PartsList.jsx'
 import { Field, Shapes, TagChoice } from './Fields.jsx'
 import Rows from './Rows.jsx'
-import CopyTable from './CopyTable.jsx'
 import { textField } from './copy.js'
 import Bulk from './Bulk.jsx'
 import { usePref } from './prefs.js'
@@ -26,14 +25,14 @@ const ID = /^[A-Za-z0-9][A-Za-z0-9_-]*$/
 const SECTION = {
   read: ['文案', 'Copy'], puzzle: ['谜题', 'Puzzle'], tests: ['测试', 'Tests'], answers: ['答案', 'Answers'], course: ['课程', 'Course'], tasks: ['任务', 'Tasks'],
 }
-export default function Editor({ content, base, vocab, at, picked, field, places, names, levelOptions, playOrder, onEdit, onOps, onSelect, onPick, onPlay, onMove, onJump }) {
+export default function Editor({ content, base, vocab, at, picked, field, places, names, levelOptions, playOrder, onEdit, onOps, onSelect, onPick, onPlay, onMove, onCopy }) {
   const { vocabulary } = vocab
   const order = useMemo(() => content.levels.map((l) => l.id), [content])
   const common = { vocabulary, order, names, levelOptions, onEdit, onSelect, onPick, field: field?.path ? showPath(field.path) : null }
   if (at?.part !== undefined || at?.preset !== undefined) return <PartEditor {...common} content={content} base={base} at={at} places={places} onPlay={onPlay} />
   if (picked.length > 1) return <Bulk content={content} vocabulary={vocabulary} ids={picked} ctx={ctxOf(common)} onAdd={onOps} onMove={onMove} onSelect={onSelect} />
   if (at?.level && content.levels.some((l) => l.id === at.level)) return <LevelEditor key={at.level} {...common} {...{ content, base, id: at.level, places, onPlay, onMove }} />
-  if (at?.era !== undefined && content.eras?.[at.era]) return <EraEditor {...common} content={content} e={at.era} places={places} playOrder={playOrder} onJump={onJump} />
+  if (at?.era !== undefined && content.eras?.[at.era]) return <EraEditor {...common} content={content} e={at.era} onCopy={onCopy} />
   return <GameEditor {...common} content={content} base={base} />
 }
 
@@ -136,12 +135,12 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
   )
 }
 
-function EraEditor({ content, vocabulary, order, names, levelOptions, e, places, playOrder, field, onEdit, onPick, onJump }) {
+function EraEditor({ content, vocabulary, order, names, levelOptions, e, field, onEdit, onPick, onCopy }) {
   const era = content.eras[e]
   const ctx = ctxOf({ vocabulary, order, names, levelOptions })
   const eraSchema = vocabulary.game.fields.eras.of
-  // The era's own fields but its texts (in the copy table below); where its levels go (the tree edits that) folded away.
-  const part = (course) => formOf({ ...eraSchema, fields: Object.fromEntries(Object.entries(eraSchema.fields).filter(([, s]) => holdsLevels(s) === course && (course || s.type !== 'text'))) }, era, { vocabulary, levels: order }, ['eras', e])
+  // The era's own fields, with the course placement folded away.
+  const part = (course) => formOf({ ...eraSchema, fields: Object.fromEntries(Object.entries(eraSchema.fields).filter(([, s]) => holdsLevels(s) === course)) }, era, { vocabulary, levels: order }, ['eras', e])
   return (
     <article className="editor">
       <header className="editor-head">
@@ -153,7 +152,7 @@ function EraEditor({ content, vocabulary, order, names, levelOptions, e, places,
         <summary>{tr('关卡的位置')}</summary>
         <Rows form={part(true)} picked={field} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick, ctx)} />
       </details>
-      <CopyTable content={content} vocabulary={vocabulary} scope={e} order={playOrder} names={names} places={places} onEdit={onEdit} onJump={onJump} />
+      <button type="button" className="kit-btn is-label" onClick={() => onCopy(e)}>{tr('文案表')}</button>
     </article>
   )
 }
