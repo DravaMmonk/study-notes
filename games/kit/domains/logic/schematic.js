@@ -13,7 +13,7 @@
 //
 // Some things are fixed (a, b … that a for-any box or Take the one there is took): a metavariable left by a rule may
 // only become a thing that was fixed before it was left (`scopes`: { name: [fixed name] }, `fixed`: every fixed name).
-import { BOT, all, and, atom, bin, ex, fn, imp, meta, parse, same, sameTerm, show, showTerm, subst, tvar } from './formula.js'
+import { BOT, all, atom, bin, ex, fn, meta, parse, same, sameTerm, show, showTerm, subst, substMany, tvar, unfoldConnective } from './formula.js'
 import { T } from '../../shell/i18n.js'
 
 export const isMetaName = (name) => name.startsWith('?')
@@ -38,7 +38,6 @@ export const parseEquation = (text) => {
 
 /* ---------- shape ---------- */
 
-const unfold = (f) => (f.op === '¬' ? imp(f.a, BOT) : f.op === '↔' ? and(imp(f.a, f.b), imp(f.b, f.a)) : f)
 /** A bare metavariable's name (?A, ?t), or null. */
 export function flexName(x) {
   if (isTerm(x)) return x.t === 'var' && isMetaName(x.name) ? x.name : null
@@ -51,7 +50,7 @@ const flex = (x) => Boolean(flexName(x) || flexApp(x))
 // is its own kind, taken apart with its variable.
 function head(x0) {
   if (isTerm(x0)) return x0.t === 'var' ? (isMetaName(x0.name) ? null : { key: `v ${x0.name}`, args: [] }) : { key: `f ${x0.f}/${x0.args.length}`, args: x0.args }
-  const x = unfold(x0)
+  const x = unfoldConnective(x0)
   switch (x.op) {
     case 'meta': return null
     case 'atom': return { key: `p ${x.pred}/${x.args.length}`, args: x.args }
@@ -67,7 +66,6 @@ export function sameSide(a, b) {
   if (a.op === 'lam' || b.op === 'lam') return a.op === b.op && a.params.length === b.params.length && same(a.body, b.body, a.params.map((name, k) => [name, b.params[k]]))
   return same(a, b)
 }
-const renameLam = (l, params) => ({ ...l, params, body: l.params.reduce((f, p, k) => subst(f, p, tvar(params[k])), l.body) })
 
 /** The metavariables in a side. */
 export function metasIn(x, out = new Set()) {
@@ -102,12 +100,7 @@ function namesIn(x, out = new Set(), bound = new Set()) {
 
 /* ---------- substitution ---------- */
 
-const beta = (l, args) => {
-  // Simultaneously: the parameters first renamed out of the way of the arguments.
-  const tmp = l.params.map((_, k) => `#${k}`)
-  const body = l.params.reduce((f, p, k) => subst(f, p, tvar(tmp[k])), l.body)
-  return tmp.reduce((f, p, k) => subst(f, p, args[k]), body)
-}
+const beta = (lambda, args) => substMany(lambda.body, lambda.params.map((name, k) => [name, args[k]]))
 /** A side with every metavariable σ knows replaced, all the way down. */
 export function instantiate(x, σ) {
   if (isTerm(x)) {
@@ -147,7 +140,11 @@ const replaceAt = (eqs, i, ins) => [...eqs.slice(0, i), ...ins.map(tidy), ...eqs
 // The variable two quantifiers taken apart share: theirs when they agree and it is free, else the first free one.
 const freshBound = (e, [va, a], [vb, b]) => {
   const taken = new Set([...e.bound, ...[...namesIn(a)].filter((n) => n !== va), ...[...namesIn(b)].filter((n) => n !== vb)])
-  return [va, vb, ...VARS].find((v) => !taken.has(v)) ?? `v${e.bound.length}`
+  const preferred = [va, vb, ...VARS].find((v) => !taken.has(v))
+  if (preferred) return preferred
+  let index = e.bound.length
+  while (taken.has(`v${index}`)) index++
+  return `v${index}`
 }
 // Why a metavariable X may not become t: it is inside t, t has a bound variable that would leave its quantifier, or t
 // names a thing fixed after X was left (opts.scopes, opts.fixed). Null when it may.
@@ -179,10 +176,12 @@ export const UNIFY_RULES = {
     const e = eqs[i]
     const [a, b] = [head(e.s), head(e.t)]
     if (a.binder) {
-      const [s, t] = [unfold(e.s), unfold(e.t)]
+      const [s, t] = [unfoldConnective(e.s), unfoldConnective(e.t)]
       if (s.op === 'lam') {
-        const ps = s.params.map((p, k) => freshBound({ ...e, bound: [...e.bound, ...s.params.slice(0, k)] }, [p, s.body], [t.params[k], t.body]))
-        return { eqs: replaceAt(eqs, i, [{ s: renameLam(s, ps).body, t: renameLam(t, ps).body, bound: [...e.bound, ...ps] }]) }
+        const ps = []
+        s.params.forEach((p, k) => ps.push(freshBound({ bound: [...e.bound, ...ps] }, [p, s.body], [t.params[k], t.body])))
+        const args = ps.map(tvar)
+        return { eqs: replaceAt(eqs, i, [{ s: beta(s, args), t: beta(t, args), bound: [...e.bound, ...ps] }]) }
       }
       const w = freshBound(e, [s.v, s.body], [t.v, t.body])
       return { eqs: replaceAt(eqs, i, [{ s: subst(s.body, s.v, tvar(w)), t: subst(t.body, t.v, tvar(w)), bound: [...e.bound, w] }]) }

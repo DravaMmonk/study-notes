@@ -45,6 +45,10 @@ export const tvar = (name) => ({ t: 'var', name })
 export const fn = (f, args = []) => ({ t: 'fn', f, args })
 export const eq = (s, t) => atom('=', [s, t])
 
+export const asImp = (f) => f.op === '¬' ? imp(f.a, BOT) : f
+export const asAnd = (f) => f.op === '↔' ? and(imp(f.a, f.b), imp(f.b, f.a)) : f
+export const unfoldConnective = (f) => asAnd(asImp(f))
+
 /** Read a formula. Upper-case names are atoms (or, in `metas`, schematic letters); a lower-case name is a function
  *  when it takes arguments, a constant when it is in `consts`, and otherwise a variable. A name written with ? is a
  *  metavariable: ?A a sentence (?P(x) one about x), ?t a thing. */
@@ -53,6 +57,7 @@ export function parse(text, { metas = [], consts = [] } = {}) {
   for (const [a, b] of ASCII) src = src.split(a).join(b)
   const tokens = src.match(/\??[A-Za-z][A-Za-z0-9_']*|[()∀∃¬∧∨→↔⊥,.=]|\S/g) ?? []
   let i = 0
+  const boundTerms = []
   const peek = () => tokens[i]
   const eat = (t) => {
     if (tokens[i] !== t) throw new Error(`expected ${t} at ${tokens[i] ?? 'the end'} in ${text}`)
@@ -69,7 +74,7 @@ export function parse(text, { metas = [], consts = [] } = {}) {
       eat(')')
       return fn(name, args)
     }
-    return consts.includes(name) ? fn(name) : tvar(name)
+    return consts.includes(name) && !boundTerms.includes(name) ? fn(name) : tvar(name)
   }
   const unary = () => {
     const t = peek()
@@ -80,7 +85,11 @@ export function parse(text, { metas = [], consts = [] } = {}) {
       const v = tokens[i++]
       if (peek() === '.') i++
       // An upper-case name is a sentence: ∀R. … is for every sentence R.
-      return /^[A-Z]/.test(v) && t === '∀' ? { op: t, v, prop: true, body: formula(0) } : { op: t, v, body: formula(0) }
+      if (/^[A-Z]/.test(v) && t === '∀') return { op: t, v, prop: true, body: formula(0) }
+      boundTerms.push(v)
+      const body = formula(0)
+      boundTerms.pop()
+      return { op: t, v, body }
     }
     if (t === '(') { i++; const f = formula(0); eat(')'); return f }
     if (t && /^\??[A-Z]/.test(t)) {
@@ -235,17 +244,29 @@ export function subst(f, v, by) {
     case 'meta': return f.args?.length ? { ...f, args: f.args.map((t) => substTerm(t, v, by)) } : f
     case '¬': return not(subst(f.a, v, by))
     case '∀': case '∃': {
+      if (f.prop) return { ...f, body: subst(f.body, v, by) }
       if (f.v === v) return f
       const inBy = termVars(by, new Set())
       if (inBy.has(f.v) && freeVars(f.body).has(v)) {
-        const w = fresh(f.v, new Set([...inBy, ...freeVars(f.body)]))
-        return { op: f.op, v: w, body: subst(subst(f.body, f.v, tvar(w)), v, by) }
+        const w = fresh(f.v, new Set([...inBy, ...allVars(f.body)]))
+        return { ...f, v: w, body: subst(subst(f.body, f.v, tvar(w)), v, by) }
       }
       return { ...f, body: subst(f.body, v, by) }
     }
     case '∧': case '∨': case '→': case '↔': return bin(f.op, subst(f.a, v, by), subst(f.b, v, by))
     default: return f
   }
+}
+
+/** Simultaneous substitution: the inserted terms are not themselves substituted. */
+export function substMany(f, bindings) {
+  if (bindings.length === 1) {
+    const [[name, value]] = bindings
+    return subst(f, name, value)
+  }
+  const moves = bindings.map(([name, value]) => ({ name, value, temp: Symbol() }))
+  const renamed = moves.reduce((form, { name, temp }) => subst(form, name, tvar(temp)), f)
+  return moves.reduce((form, { temp, value }) => subst(form, temp, value), renamed)
 }
 
 /* ---------- equality up to renaming bound variables ---------- */
@@ -257,35 +278,54 @@ function sameName(a, b, binders) {
   return left === right && (left >= 0 || a === b)
 }
 
-export function sameTerm(s, t, binders = []) {
+function compareTerms(s, t, binders, bind) {
+  if (bind && s.t === 'var' && !binders.some(([name]) => name === s.name)) {
+    const assigned = bind(s.name, t, binders)
+    if (assigned !== undefined) return assigned
+  }
   if (s.t !== t.t) return false
   if (s.t === 'var') return sameName(s.name, t.name, binders)
-  return s.f === t.f && s.args.length === t.args.length && s.args.every((a, k) => sameTerm(a, t.args[k], binders))
+  return s.f === t.f && s.args.length === t.args.length && s.args.every((a, k) => compareTerms(a, t.args[k], binders, bind))
 }
 
-// ¬A means A → ⊥, and A ↔ B means (A → B) ∧ (B → A).
-const unneg = (f) => (f.op === '¬' ? bin('→', f.a, BOT) : f.op === '↔' ? bin('∧', bin('→', f.a, f.b), bin('→', f.b, f.a)) : f)
-function sameFormula(f0, g0, terms, props) {
-  const f = unneg(f0)
-  const g = unneg(g0)
+export const sameTerm = (s, t) => compareTerms(s, t, [])
+
+function sameFormula(f0, g0, terms, props, bind) {
+  const f = unfoldConnective(f0)
+  const g = unfoldConnective(g0)
   if (f.op !== g.op) return false
   switch (f.op) {
     case 'atom':
-      return sameName(f.pred, g.pred, props) && f.args.length === g.args.length && f.args.every((t, k) => sameTerm(t, g.args[k], terms))
+      return sameName(f.pred, g.pred, props) && f.args.length === g.args.length && f.args.every((t, k) => compareTerms(t, g.args[k], terms, bind))
     case 'meta':
-      return f.name === g.name && (f.args ?? []).length === (g.args ?? []).length && (f.args ?? []).every((t, k) => sameTerm(t, g.args[k], terms))
+      return f.name === g.name && (f.args ?? []).length === (g.args ?? []).length && (f.args ?? []).every((t, k) => compareTerms(t, g.args[k], terms, bind))
     case '⊥': return true
     case '∀': case '∃': {
       if (Boolean(f.prop) !== Boolean(g.prop)) return false
       const pair = [f.v, g.v]
-      return f.prop ? sameFormula(f.body, g.body, terms, [...props, pair]) : sameFormula(f.body, g.body, [...terms, pair], props)
+      return f.prop ? sameFormula(f.body, g.body, terms, [...props, pair], bind) : sameFormula(f.body, g.body, [...terms, pair], props, bind)
     }
-    default: return sameFormula(f.a, g.a, terms, props) && sameFormula(f.b, g.b, terms, props)
+    default: return sameFormula(f.a, g.a, terms, props, bind) && sameFormula(f.b, g.b, terms, props, bind)
   }
 }
 
 /** Compare formulas up to renaming bound variables. Enclosing function parameters pair the two bodies' outer binders. */
 export const same = (f, g, params = []) => sameFormula(f, g, params, [])
+
+/** Fit the named free variables of a formula to terms that remain in scope outside the formula. */
+export function matchThings(pattern, instance, names) {
+  const variables = new Set(names)
+  const bindings = new Map()
+  const bind = (name, term, binders) => {
+    if (!variables.has(name)) return undefined
+    const used = termVars(term, new Set())
+    if (binders.some(([, variable]) => used.has(variable))) return false
+    if (bindings.has(name)) return sameTerm(bindings.get(name), term)
+    bindings.set(name, term)
+    return true
+  }
+  return sameFormula(pattern, instance, [], [], bind) ? bindings : null
+}
 
 /** The proposition letters and predicates (with their arities) and the functions a set of formulas uses. */
 export function signature(formulas) {

@@ -9,7 +9,7 @@ import { checkDefine } from './define.js'
 import { failureText } from '../../engine/failure-text.js'
 import { checkDeclaration, linesOf, premiseChips, problemsOf, readRuleRows } from './ruleLines.js'
 import { runOutputTests } from '../../engine/test-run.js'
-import { parse, same, show, subst, tvar } from './formula.js'
+import { parse, same, show, subst, substMany, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
 import { MACHINE_BOARD, MACHINE_TESTS, RULE_PIECE, rulePartOf, runMachine } from './machine.js'
 import { defineParts } from '../../engine/parts/define.js'
@@ -346,6 +346,9 @@ test('formula and function equality compare the binders each occurrence refers t
   compares('∀P. ∀Q. P(x)', '∀A. ∀A. A(x)', false)
   compares('∀P. ∀P. P(x)', '∀Q. ∀R. R(x)', true)
   compares('∀R. ¬R', '∀S. S → ⊥', true)
+  assert.ok(same(parse('∀x. Human(x)', { consts: ['x'] }), parse('∀y. Human(y)')))
+  const swappedTerms = substMany(parse('Likes(x, y)'), [['x', tvar('y')], ['y', tvar('x')]])
+  assert.equal(show(swappedTerms), 'Likes(y, x)')
 
   const lambda = (params, text) => ({ op: 'lam', params, body: parse(text) })
   const left = lambda(['x', 'y'], 'Likes(x, y)')
@@ -645,6 +648,23 @@ test('a declaration checks the premises of each introduction rule in order', () 
   assert.deepEqual(checkDeclaration(choice)(readRuleRows(choice, four.slice(0, 3))).check, 0)
   const bot = level('⊥', ['A'], [{ given: ['A'], make: false }, { given: [], make: false }])
   assert.equal(checkIso(bot, words)(declaration()), null)
+})
+
+test('declaration instances preserve quantified premises and keep witnesses in scope', () => {
+  const given = '∀x. Human(x)'
+  const different = '∀x. Human(ann)'
+  const level = { target: 'C', things: ['ann'] }
+  const rules = [{ binds: ['x'], needs: [given] }]
+  const derived = (given) => derives(level, rules, { given: [given] }).derived
+  assert.equal(derived(given), true)
+  assert.equal(derived(different), false)
+  assert.equal(follows(level, rules, { given: ['C'], goal: given }), true)
+  assert.equal(follows(level, rules, { given: ['A', '¬A', 'A → ⊥'], goal: '⊥' }), true)
+
+  const family = { target: '∀y. Human(x)', things: ['ann'] }
+  const withWitness = [{ binds: ['x'], needs: ['Witness(x)'] }]
+  assert.equal(derives(family, withWitness, { given: ['Witness(ann)'], goal: '∀z. Human(ann)' }).derived, true)
+  assert.equal(derives(family, withWitness, { given: ['Witness(y)'], goal: '∀y. Human(y)' }).derived, false)
 })
 
 test('a rule can require a conditional premise and hand it back on elimination', () => {

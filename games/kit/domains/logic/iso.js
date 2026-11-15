@@ -4,8 +4,7 @@
 // A test gives some premises and asks whether its goal follows. An introduction rule may make the goal from these
 // premises. Otherwise Apply, Take one, Example and the declaration's elimination rule decide what follows.
 // A specification is tested on cases, not proved. Audit tasks (audit-cases.js) test given declarations instead.
-import { sameJson } from '../../engine/json-value.js'
-import { fn, meta, parse, show, subst as substF } from './formula.js'
+import { asImp, fn, matchThings, meta, parse, same, showTerm, subst, substMany, unfoldConnective } from './formula.js'
 import { say, sayTerm } from './notation.js'
 import { datatypeRules, typeText } from './datatype.js'
 import { ruleOf, ruleText } from './schematic.js'
@@ -14,42 +13,23 @@ import { cases, hidden, inOrder, sameAs } from '../../engine/judge.js'
 
 /** A sentence of the level, its things read as names (not variables). */
 export const sentenceOf = (level, text) => parse(text, { consts: level.things ?? [] })
-const keyOf = (f) => show(f)
-
-// A sentence with the things in σ put in for their names.
-function subst(x, σ) {
-  if (Array.isArray(x)) return x.map((y) => subst(y, σ))
-  if (!x || typeof x !== 'object') return x
-  if (x.t === 'var' && σ[x.name]) return σ[x.name]
-  return Object.fromEntries(Object.entries(x).map(([k, v]) => [k, subst(v, σ)]))
-}
-// σ extended so that `pattern`, with `vars` free, is `inst`; null when it cannot be.
-function match(pattern, inst, vars, σ) {
-  if (pattern && pattern.t === 'var' && vars.has(pattern.name)) {
-    if (σ[pattern.name]) return sameJson(σ[pattern.name], inst) ? σ : null
-    return { ...σ, [pattern.name]: inst }
-  }
-  if (Array.isArray(pattern)) {
-    if (!Array.isArray(inst) || inst.length !== pattern.length) return null
-    return pattern.reduce((s, p, k) => s && match(p, inst[k], vars, s), σ)
-  }
-  if (!pattern || typeof pattern !== 'object') return pattern === inst ? σ : null
-  if (!inst || typeof inst !== 'object') return null
-  const keys = new Set([...Object.keys(pattern), ...Object.keys(inst)])
-  return [...keys].reduce((s, k) => s && match(pattern[k], inst[k], vars, s), σ)
-}
+const knows = (facts, formula) => facts.some((fact) => same(fact, formula))
 
 // Satisfy a rule by instantiating its variables and looking up the premises it takes.
 function satisfy(rule, ctx) {
-  const vars = new Set(rule.binds)
-  const start = ctx.goal ? match(ctx.target, ctx.goal, vars, {}) : {}
+  const start = ctx.goal ? matchThings(ctx.target, ctx.goal, rule.binds) : new Map()
   if (!start) return null
-  const unassigned = rule.binds.filter((v) => !start[v])
-  const assignments = unassigned.reduce((all, v) => all.flatMap((σ) => ctx.things.map((t) => ({ ...σ, [v]: fn(t) }))), [start])
-  for (const σ of assignments) {
-    const premises = rule.needs.map((need) => ctx.have.get(keyOf(subst(ctx.read(need), σ))))
+  const unassigned = rule.binds.filter((name) => !start.has(name))
+  const assignments = unassigned.reduce((all, name) => all.flatMap((bindings) => ctx.things.map((thing) => new Map([...bindings, [name, thing]]))), [start])
+  for (const bindings of assignments) {
+    const pairs = [...bindings]
+    const premises = rule.needs.map((need) => {
+      const instance = substMany(ctx.read(need), pairs)
+      return ctx.have.findLast(({ formula }) => same(formula, instance))?.evidence
+    })
     if (premises.every(Boolean)) {
-      return [...rule.binds.map((name) => ({ kind: 'thing', name: σ[name].f })), ...premises]
+      const things = rule.binds.map((name) => ({ kind: 'thing', name: showTerm(bindings.get(name)) }))
+      return [...things, ...premises]
     }
   }
   return null
@@ -58,8 +38,8 @@ function satisfy(rule, ctx) {
 // Prefer the first rule that uses the most evidence.
 function introduce(level, rules, test, goal) {
   const read = (s) => sentenceOf(level, s)
-  const have = new Map(test.given.map((sentence, k) => [keyOf(read(sentence)), { kind: 'ev', sentence, n: k + 1 }]))
-  const ctx = { have, read, things: level.things ?? [], target: read(level.target), goal }
+  const have = test.given.map((sentence, k) => ({ formula: read(sentence), evidence: { kind: 'ev', sentence, n: k + 1 } }))
+  const ctx = { have, read, things: (level.things ?? []).map((name) => fn(name)), target: read(level.target), goal }
   let best = null
   rules.forEach((rule, k) => {
     const items = satisfy(rule, ctx)
@@ -78,31 +58,32 @@ export function follows(level, rules, test) {
   const things = (level.things ?? []).map((name) => fn(name))
   // Everything those rules reach from the facts, with these things to take.
   const reach = (facts, own) => {
-    const known = new Map(facts.map((f) => [keyOf(f), f]))
-    const add = (f) => !known.has(keyOf(f)) && known.set(keyOf(f), f)
+    const known = []
+    const add = (f) => { if (!knows(known, f)) known.push(f) }
+    facts.forEach(add)
     let grew = true
     while (grew) {
-      const size = known.size
-      for (const f of [...known.values()]) {
-        if (f.op === '→' && known.has(keyOf(f.a))) add(f.b)
-        if (f.op === '∀') for (const t of [...things, ...own]) add(substF(f.body, f.v, t))
+      const size = known.length
+      for (const f of known.slice()) {
+        const implication = asImp(f)
+        if (implication.op === '→' && knows(known, implication.a)) add(implication.b)
+        if (f.op === '∀' && !f.prop) for (const t of [...things, ...own]) add(subst(f.body, f.v, t))
       }
-      grew = known.size > size
+      grew = known.length > size
     }
     return known
   }
   const goal = read(test.goal)
-  const reached = (known, own) => known.has(keyOf(goal)) || (goal.op === '∃' && [...things, ...own].some((t) => known.has(keyOf(substF(goal.body, goal.v, t)))))
+  const reached = (known, own) => knows(known, goal) || (goal.op === '∃' && [...things, ...own].some((t) => knows(known, subst(goal.body, goal.v, t))))
   // The premises first, as far as Apply and Take one reach (A and A → ⊥ give ⊥); the elimination rule then applies
   // when the declared sentence is among what they reach, not only among the premises written.
   const known = reach(test.given.map(read), [])
   if (reached(known, [])) return true
-  if (!known.has(keyOf(read(level.target)))) return false
-  const start = [...known.values()]
+  if (!knows(known, read(level.target))) return false
   return rules.every((w, k) => {
     const own = w.binds.map((b) => fn(`${b}${k + 1}′`))
-    const σ = Object.fromEntries(w.binds.map((b, j) => [b, own[j]]))
-    return reached(reach([...start, ...w.needs.map((n) => subst(read(n), σ))], own), own)
+    const bindings = w.binds.map((name, j) => [name, own[j]])
+    return reached(reach([...known, ...w.needs.map((n) => substMany(read(n), bindings))], own), own)
   })
 }
 
@@ -127,16 +108,14 @@ export function derives(level, rules, test) {
   const read = (s) => sentenceOf(level, s)
   const target = read(level.target)
   const goal = test.goal ? read(test.goal) : target
-  const given = test.given.map((s) => keyOf(read(s)))
-  const shape = (f) => [f.op, f.pred, f.v !== undefined].join('|')
-  // A goal the premises reach without an intro rule (A and A → ⊥ give ⊥) needs none.
-  if (!test.uses && !given.includes(keyOf(target)) && shape(goal) === shape(target) && follows(level, rules, { given: test.given, goal: test.goal ?? level.target })) return { derived: true }
-  if (test.uses || (!given.includes(keyOf(target)) && shape(goal) === shape(target))) {
-    const made = introduce(level, rules, test, keyOf(goal) !== keyOf(target) ? goal : null)
-    return { derived: Boolean(made), made }
+  const given = test.given.map(read)
+  if (!test.uses) {
+    if (knows(given, goal) || follows(level, rules, { given: test.given, goal: test.goal ?? level.target })) return { derived: true }
+    const shape = (f) => [unfoldConnective(f).op, f.pred].join('|')
+    if (knows(given, target) || shape(goal) !== shape(target)) return { derived: false }
   }
-  if (given.includes(keyOf(goal))) return { derived: true }
-  return { derived: follows(level, rules, { given: test.given, goal: test.goal ?? level.target }) }
+  const made = introduce(level, rules, test, same(goal, target) ? null : goal)
+  return { derived: Boolean(made), made }
 }
 
 /** A test's premises, as a phrase: 前提为「下雨」、「刮风」 (or 没有前提). */

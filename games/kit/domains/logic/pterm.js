@@ -15,7 +15,7 @@
 // Written terms follow Lean: `fun h => …`, `f a`, `⟨a, b⟩`, `p.1`, `p.2`, `Or.inl a`, `Or.inr b`, `p.elim f g`,
 // `False.elim p`, `byContradiction p`, `rfl`, `h ▸ p`.
 import { PartError } from '../../engine/circuit.js'
-import { BOT, atom, bin, freeVars, occurrences, replaceTerm, same, showTerm, subst, tvar } from './formula.js'
+import { BOT, asAnd, asImp, atom, freeVars, occurrences, replaceTerm, same, showTerm, subst, tvar } from './formula.js'
 import { say } from './notation.js'
 import { T } from '../../shell/i18n.js'
 
@@ -235,8 +235,6 @@ export function alphaEq(a, b) {
 
 /* ---------- type checking ---------- */
 
-const asImp = (f) => (f.op === '¬' ? bin('→', f.a, BOT) : f)
-const asAnd = (f) => (f.op === '↔' ? bin('∧', bin('→', f.a, f.b), bin('→', f.b, f.a)) : f)
 
 // A formula fitted to another whose variables `vars` stand for any thing: σ filled, or false. Bound variables pair up.
 function fitThings(p, f, vars, σ, env = new Map()) {
@@ -249,8 +247,8 @@ function fitThings(p, f, vars, σ, env = new Map()) {
     if (s.t === 'var') return t.t === 'var' && (env.get(s.name) ?? s.name) === t.name
     return t.t === 'fn' && s.f === t.f && s.args.length === t.args.length && s.args.every((a, k) => term(a, t.args[k]))
   }
-  const a = p.op === '¬' ? bin('→', p.a, BOT) : p
-  const b = f.op === '¬' ? bin('→', f.a, BOT) : f
+  const a = asImp(p)
+  const b = asImp(f)
   if (a.op !== b.op) return false
   switch (a.op) {
     case 'atom': return a.pred === b.pred && a.args.length === b.args.length && a.args.every((x, k) => term(x, b.args[k]))

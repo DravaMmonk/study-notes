@@ -11,7 +11,7 @@
 //
 // Facts are named by place: the n-th have h<n>, the n-th assume a<n>, the n-th obtain o<n>; premises by their own
 // names. A block runs from the row proved by it to the show that ends it (rendered proof … qed).
-import { fn, parse, same, show, subst } from './formula.js'
+import { asImp, fn, parse, same, show, subst } from './formula.js'
 import { KERNEL, assumption, depthFirst, rule } from './tactics.js'
 import { ruleBookOf, runTactic } from './machine.js'
 import { cases } from '../../engine/judge.js'
@@ -138,8 +138,8 @@ export function checkScript(level, rows) {
         try { stmt = read(r.stmt) } catch { return fail(i, '这一句读不出来', 'This sentence cannot be read') }
       }
       if (r.k === 'assume') {
-        const imp = want.op === '¬' ? { a: want.a, b: { op: '⊥' } } : want.op === '→' ? want : null
-        if (!imp || !same(imp.a, stmt)) return fail(i, 'assume 只能假设要证的「若…则…」的前一半', 'assume can only assume the “if” part of what is to be proved')
+        const imp = asImp(want)
+        if (imp.op !== '→' || !same(imp.a, stmt)) return fail(i, 'assume 只能假设要证的「若…则…」的前一半', 'assume can only assume the “if” part of what is to be proved')
         scope = new Map([...scope, [names[i], stmt]])
         want = imp.b
         continue

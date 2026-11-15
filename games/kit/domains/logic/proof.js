@@ -15,7 +15,7 @@ import { MISSING, PartError } from '../../engine/circuit.js'
 import { formed } from '../../engine/forms.js'
 import { runBoard } from '../../engine/boards.js'
 import { circuitBoard } from '../../engine/board-cards.js'
-import { BOT, FORMULA_TEXT, all, allVars, and, bin, eq, fn, freeVars, imp, mentionsSentence, occurrences, or, parse, replaceAtoms, replaceTerm, same, signature, subst, substSentence, termsOf, tvar } from './formula.js'
+import { BOT, FORMULA_TEXT, all, allVars, and, asAnd, asImp, bin, eq, fn, freeVars, imp, mentionsSentence, occurrences, or, parse, replaceAtoms, replaceTerm, same, signature, subst, substSentence, termsOf, tvar } from './formula.js'
 import { say, sayTerm } from './notation.js'
 import { choicesOf } from './choices.js'
 import { cancelOne, disjunction, literalsIn } from './resolution.js'
@@ -67,8 +67,6 @@ function exampleIn(target, f) {
   return termsOf(f).find((t) => same(subst(target.body, target.v, t), f)) ?? null
 }
 // ¬A is A → ⊥ to the rules, and A ↔ B is (A → B) ∧ (B → A).
-const asImp = (f) => (f.op === '¬' ? imp(f.a, BOT) : f)
-const asAnd = (f) => (f.op === '↔' ? and(imp(f.a, f.b), imp(f.b, f.a)) : f)
 const without = (hyps, id) => new Map([...hyps].filter(([k]) => k !== id))
 
 /** The hypothesis id of the assumption a box's region opens. */
@@ -309,7 +307,7 @@ function match(schema, f0, bind) {
   // ¬A is A → ⊥ and A ↔ B is (A → B) ∧ (B → A) here too, whichever side writes it which way.
   if (schema.op === '↔') return match(asAnd(schema), f0, bind)
   const f = schema.op === '→' ? asImp(f0) : schema.op === '∧' ? asAnd(f0) : f0
-  const g = schema.op === '¬' && f.op === '→' && same(f.b, BOT) ? { op: '→', a: schema.a, b: BOT } : schema
+  const g = schema.op === '¬' && f.op === '→' && same(f.b, BOT) ? asImp(schema) : schema
   if (g.op !== f.op) return false
   if (g.op === 'atom') return same(g, f)
   if (g.op === '⊥') return true
