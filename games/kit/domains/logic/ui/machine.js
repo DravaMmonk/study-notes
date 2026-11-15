@@ -5,23 +5,20 @@
 // the results show the test's inputs, what it wants and what reaches the result. Values (equations, proof states,
 // clause sets, rules) read as lines of text.
 import { L, T, tr } from '../../../shell/i18n.js'
-import { fn, tvar } from '../formula.js'
-import { say } from '../notation.js'
+import { say, sayTerm } from '../notation.js'
 import { withPreset } from '../../../circuit/model.js'
 import { inputsOf, inputsOfLevel, parseGoal, ruleWritten, runMachine } from '../machine.js'
-import { constructorsOf } from '../datatype.js'
+import { typeText } from '../datatype.js'
 import { certificate, clauseFormula, refuted } from '../resolution.js'
-import { elimOf, genRuleText } from '../elimgen.js'
+import { elimOf } from '../elimgen.js'
+import { equationText, ruleText, sideText, withBinders } from '../schematic.js'
 import { presetFor } from '../course.js'
 
 const textOf = (task) => (f) => L(say(f, task.notation))
-// A side of an equation (a sentence, a thing, or what a pattern's letter stands for), an equation and a goal, written
-// in the level's words: ⋀ for the variables bound around an equation and the things a goal has fixed.
-const sideOf = (x, text) => ('t' in x ? text({ op: 'atom', pred: '=', args: [x, x] }).split(' = ')[0] : x.op === 'lam' ? `fun ${x.params.join(' ')} => ${text(x.body)}` : text(x))
-const eqText = (e, text) => `${e.bound.length ? `⋀${e.bound.join(' ')}. ` : ''}${sideOf(e.s, text)} ≐ ${sideOf(e.t, text)}`
-const goalText = (g, text) => `${g.fixes?.length ? `⋀${g.fixes.join(' ')}. ` : ''}${g.hyps.length ? `${g.hyps.map(text).join(tr('；'))} ⊢ ` : ''}${text(g.goal)}`
+const termOf = (task) => (t) => L(sayTerm(t, task.notation))
+const goalText = (g, text) => withBinders(g.fixes, g.hyps.length ? `${g.hyps.map(text).join(tr('；'))} ⊢ ${text(g.goal)}` : text(g.goal))
 // A generator value in one line: a value that takes things first reads as a rule does, ⋀x. in front.
-const genValueText = (v, text) => (v.kind === 'sentence' ? text(v.f) : v.kind === 'rule' ? genRuleText(v.rule, text) : v.kind === 'any' ? `⋀${v.vars.join(' ')}. ${genValueText(v.body, text)}` : v.items.map((x) => genValueText(x, text)).join(tr('；')))
+const genValueText = (v, text) => (v.kind === 'sentence' ? text(v.f) : v.kind === 'rule' ? ruleText(v.rule, text) : v.kind === 'any' ? withBinders(v.vars, genValueText(v.body, text)) : v.items.map((x) => genValueText(x, text)).join(tr('；')))
 const lines = (head, list) => [...head.filter(Boolean), ...list].join('\n')
 
 /**
@@ -32,9 +29,10 @@ function show(v, { task }) {
   if (v === undefined || v === null) return '—'
   if (typeof v === 'string') return v
   const text = textOf(task)
+  const term = termOf(task)
   if (v.kind === 'sentence' || v.kind === 'rule' || v.kind === 'any') return genValueText(v, text)
   if (v.kind === 'list') return lines([], v.items.map((x, k) => `${k + 1}. ${genValueText(x, text)}`))
-  if (v.kind === 'rules') return lines([], v.entries.map((e, k) => `${k + 1}. ${ruleWritten(e, text)}`))
+  if (v.kind === 'rules') return lines([], v.entries.map((e, k) => `${k + 1}. ${ruleWritten(e, text, term)}`))
   if (v.kind === 'state') {
     const others = v.more?.length ?? 0
     return lines([
@@ -43,7 +41,7 @@ function show(v, { task }) {
       others > 0 && tr(`第 1 种结果，共 ${others + 1} 种`, `result 1 of ${others + 1}`),
     ], v.goals.map((g) => goalText(g, text)))
   }
-  if (v.kind === 'eqs') return lines([v.fail && `${tr('合一失败')}：${L(v.fail)}`, !v.eqs.length && tr('没有等式了')], v.eqs.map((e) => eqText(e, text)))
+  if (v.kind === 'eqs') return lines([v.fail && `${tr('合一失败')}：${L(v.fail)}`, !v.eqs.length && tr('没有等式了')], v.eqs.map((e) => equationText(e, (side) => sideText(side, text, term))))
   const shown = certificate(v.set) ?? v.set.map((_, i) => i)
   return lines([refuted(v.set) && tr('推出了空子句 ⊥'), v.endless && tr('仍在增加', 'still growing')], shown.map((i) => `${i + 1}. ${text(clauseFormula(v.set[i]))}${v.set[i].from ? ` ← ${v.set[i].from.map((k) => k + 1).join(tr('、'))}` : ''}`))
 }
@@ -62,7 +60,7 @@ const WANT = {
 function wantOf(task, test) {
   const text = textOf(task)
   if (test.becomes) return test.becomes.length ? `${tr('变成 ')}${test.becomes.map((r) => (r.length ? r.map((g) => goalText(parseGoal(g), text)).join(' | ') : tr('证完'))).join(tr('，或者 '))}` : tr('这一步失败', 'the step to fail')
-  if (test.elim) return `${tr('消去规则 ')}${genRuleText(elimOf(test), text)}`
+  if (test.elim) return `${tr('消去规则 ')}${ruleText(elimOf(test), text)}`
   return L(WANT[test.want ?? task.want])
 }
 
@@ -71,11 +69,10 @@ const runLevel = (task, board, _parts, { traced = true } = {}) => runMachine(tas
 /** What the results show of a test: the types and definitions it reads, its inputs, what it wants, the result. */
 const entries = ({ task, test, run }) => {
   if (!test) return []
-  const text = textOf(task)
+  const term = termOf(task)
   const labels = new Map(inputsOfLevel(task).map((i) => [i.name, i.label]))
-  const thing = (c) => text({ op: 'atom', pred: '=', args: [fn(c.f, c.args.map(tvar)), fn(c.f, c.args.map(tvar))] }).split(' = ')[0]
   return [
-    ...(task.datatypes ? [{ of: 'types', label: T('类型'), shape: 'scalar', given: Object.entries(task.datatypes).map(([type, d]) => `${type} = ${constructorsOf(d).map(thing).join(' | ')}`).join(tr('；')) }] : []),
+    ...(task.datatypes ? [{ of: 'types', label: T('类型'), shape: 'scalar', given: Object.entries(task.datatypes).map(([type, d]) => typeText(type, d, term)).join(tr('；')) }] : []),
     ...Object.entries(inputsOf(test, task)).map(([name, v]) => ({ of: name, label: labels.get(name) ?? T('输入', 'Input'), shape: 'scalar', given: v })),
     { of: 'want', label: T('要', 'Want'), shape: 'scalar', given: wantOf(task, test) },
     { of: 'out', label: T('结果', 'Result'), shape: 'scalar', got: run?.outputs?.out },
@@ -85,7 +82,7 @@ const entries = ({ task, test, run }) => {
 export const machineScreen = {
   course: (game) => game.logic.machineBoards,
   play: { runLevel, show, entries },
-  context: (task, test) => ({ task, text: textOf(task, test) }),
+  context: (task) => ({ task, text: textOf(task), term: termOf(task) }),
   // A preset (a level's locked cards) stays on the board whatever is saved.
   ready: (board, _held, task) => withPreset(board, presetFor(task)),
   readouts: (task, _circuit, { score }) => [{ value: score.steps, label: T('元件', 'Parts') }, task.budget !== undefined && { value: task.budget, label: T('最多') }],

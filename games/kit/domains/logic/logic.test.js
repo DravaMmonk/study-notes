@@ -14,7 +14,6 @@ import { countermodel, countermodelSearch, holds } from './models.js'
 import { MACHINE_BOARD, MACHINE_TESTS, RULE_PIECE, rulePartOf, runMachine } from './machine.js'
 import { defineParts } from '../../engine/parts/define.js'
 import { OPS } from './ops.js'
-import { genRuleText } from './elimgen.js'
 import { LOGIC_TESTS, PROOF_BOARD, RULES, lemmaGives } from './proof.js'
 import { partsOf } from './ops.js'
 import { readContent } from '../../engine/content-node.js'
@@ -456,6 +455,21 @@ test('a rewrite changes the first place its left side fits, under quantifiers to
   assert.ok(simplify(startState(parseS('¬(Rain ∨ Wind)')), [book['dm.notOr'], book['dm.andNot']]).fail)
 })
 
+test('rule and equation displays keep complete term wording', async () => {
+  const { fn } = await import('./formula.js')
+  const { sayTerm } = await import('./notation.js')
+  const { typeText } = await import('./datatype.js')
+  const { equationText, sideText } = await import('./schematic.js')
+  const { rewriteText } = await import('./rewrite.js')
+  const wording = (value) => sayTerm(value, { words: { zero: T('零 = 0', 'zero = 0') } }).en
+  const zero = fn('zero')
+  const y = tvar('y')
+
+  assert.equal(equationText({ bound: ['y'], s: zero, t: y }, (side) => sideText(side, show, wording)), '⋀y. zero = 0 ≐ y')
+  assert.equal(rewriteText({ conditions: [], lhs: zero, rhs: y }, show, wording), 'zero = 0 ⟼ y')
+  assert.equal(typeText('nat', 'zero | s(nat)', wording), 'nat = zero = 0 | s(nat)')
+})
+
 test('a declaration gives its rules, and induction read off a goal proves an equation for every number', async () => {
   const { datatypeRules } = await import('./datatype.js')
 
@@ -620,6 +634,9 @@ test('a rule can require a conditional premise and hand it back on elimination',
   const { make, take } = declaredRules(level, rules)
   assert.equal(ruleText(make[0]), '⟦A → B⟧ ⟹ C')
   assert.equal(ruleText(take), '⟦C; ⟦A → B⟧ ⟹ ?R⟧ ⟹ ?R')
+  const { make: [intro], take: elim } = declaredRules({ ...level, target: '∃y. Human(y)' }, [{ binds: ['x'], needs: ['Human(x)'] }])
+  assert.equal(ruleText(intro), '⋀x. ⟦Human(x)⟧ ⟹ ∃y. Human(y)')
+  assert.equal(ruleText(elim), '⟦∃y. Human(y); (⋀x. ⟦Human(x)⟧ ⟹ ?R)⟧ ⟹ ?R')
 })
 
 test('using a declaration: what follows is what every way in gives, a sentence nothing mentions standing for any', () => {
@@ -661,7 +678,7 @@ test('the elimination rule generator: one case for each way in, its conclusion a
   assert.ok(runOutputTests(MACHINE_TESTS, onMachine({ ...level, single: true, tests: tests.slice(0, 1) }), one).pass)
   // The elimination rule comes out as a value of the board.
   const out = MACHINE_TESTS.runTest(onMachine({ ...level, tests }), board, tests[1]).outputs.out
-  assert.equal(genRuleText(out.rule), '⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?R; ⟦?B⟧ ⟹ ?R⟧ ⟹ ?R')
+  assert.equal(ruleText(out.rule), '⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?R; ⟦?B⟧ ⟹ ?R⟧ ⟹ ?R')
 })
 
 

@@ -10,7 +10,7 @@
 // variables standing for anything), and the goal's own hypotheses (the card's rule 'hyp': the first hypothesis that is
 // an equation or an equivalence and fits somewhere, its ∀ variables standing for anything).
 import { atom, bin, fn, same, show, showTerm, subst, tvar } from './formula.js'
-import { instantiate, isMetaName, lemmaRules, metasIn, parseS } from './schematic.js'
+import { instantiate, isMetaName, lemmaRules, metasIn, parseS, sideText } from './schematic.js'
 import { T } from '../../shell/i18n.js'
 
 const isTerm = (x) => 't' in x
@@ -262,8 +262,8 @@ export function rewriteBookOf(level) {
   return books.get(level)
 }
 /** A rewrite rule written out: left ⟼ right, after its conditions. */
-export const rewriteText = (r, say = show) => {
+export const rewriteText = (r, formula = show, term = showTerm) => {
   if (r.group === 'hyp') return ''
-  const side = (x) => (isTerm(x) ? say(atom('=', [x, x])).split(' = ')[0] : say(x))
-  return `${r.conditions.length ? `${r.conditions.map(say).join('; ')} ⟹ ` : ''}${side(r.lhs)} ⟼ ${side(r.rhs)}`
+  const conditions = r.conditions.length ? `${r.conditions.map(formula).join('; ')} ⟹ ` : ''
+  return `${conditions}${sideText(r.lhs, formula, term)} ⟼ ${sideText(r.rhs, formula, term)}`
 }

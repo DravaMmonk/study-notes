@@ -530,7 +530,7 @@ function rulePartName(level, type) {
   return r.group === 'def' ? inWords(level, (text) => defText(r.text, text)) : r.name
 }
 /** A rule of a rule part's, written out: an inference rule, or a rewrite rule (an equation given goes by its name). */
-export const ruleWritten = (e, text) => (e.book === 'rule' ? ruleText(e.rule, text) : rewriteText(e.rule, text) || L(e.rule.name))
+export const ruleWritten = (e, text, term) => (e.book === 'rule' ? ruleText(e.rule, text) : rewriteText(e.rule, text, term) || L(e.rule.name))
 const AFTER = T('接入其他规则元件时，本元件的规则排在它们之后。')
 const joined = (a, b) => T(`${a.zh}${b.zh}`, `${a.en} ${b.en}`)
 /** A rule part as every one is (machine.js RULE_PART): the rules wired in before it, then those added on it. */
@@ -562,12 +562,12 @@ export const RULE_CHOICES = {
   args: [],
   run: (_v, _n, ctx) => {
     const entries = rulePartsOf(ctx.task).get(ctx.node?.type) ?? []
-    return choicesOfPart(entries).map((key) => ({ value: key, label: ruleWritten(entries.find((e) => e.key === key), ctx.text) }))
+    return choicesOfPart(entries).map((key) => ({ value: key, label: ruleWritten(entries.find((e) => e.key === key), ctx.text, ctx.term) }))
   },
 }
 
 /** A question's answers in a list of results: what its ?-letters become in each that has no goal left. */
-export const answersIn = (out) => [...new Set(resultsOf(out).filter((s) => !s.error && !s.goals.length).map((s) => answerOf(s).map(sideText).join(', ')))].sort()
+export const answersIn = (out) => [...new Set(resultsOf(out).filter((s) => !s.error && !s.goals.length).map((s) => answerOf(s).map((side) => sideText(side)).join(', ')))].sort()
 
 /** A goal written as a test writes it: '⋀a b. h1; h2 ⊢ goal', each part but the goal left out when empty. */
 export function parseGoal(text) {

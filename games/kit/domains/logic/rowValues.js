@@ -1,10 +1,10 @@
 import { T } from '../../shell/i18n.js'
 import { showTerm } from './formula.js'
-import { parseS, parseSide } from './schematic.js'
+import { parseS, parseSide, ruleText } from './schematic.js'
 import { say, sayTerm } from './notation.js'
 import { complete, straysOf, termChips } from './formulaTree.js'
 import { checkDefine } from './define.js'
-import { declaredRules, sentenceOf, wayText } from './iso.js'
+import { declaredRules, sentenceOf } from './iso.js'
 import { blankRule, checkDeclaration, linesOf, premiseChips, problemsOf } from './ruleLines.js'
 import { sentenceLanguage } from './sentenceLanguage.js'
 
@@ -52,8 +52,8 @@ export function ruleLines(level, ways, read) {
   const text = (f) => read(say(f, level.notation))
   const { make, take } = declaredRules(level, ways, (f) => f)
   return [
-    ...make.map((rule, k) => ({ name: read(T('引入')), mark: k + 1, text: wayText(rule, text) })),
-    { name: read(T('消去')), text: wayText(take, text) },
+    ...make.map((rule, k) => ({ name: read(T('引入')), mark: k + 1, text: ruleText(rule, text) })),
+    { name: read(T('消去')), text: ruleText(take, text) },
   ]
 }
 

@@ -7,7 +7,8 @@
 //
 //   declarations  { type: 'c1 | c2(t1, t2) | …' }   a level's `datatypes`, each constructor a name and its arguments'
 //                                                    types (a type of the level, or any name for the things inside)
-import { ruleOf } from './schematic.js'
+import { fn, showTerm, tvar } from './formula.js'
+import { ruleOf, withBinders } from './schematic.js'
 import { T } from '../../shell/i18n.js'
 
 const VARS = ['x', 'y', 'z', 'u', 'v', 'w']
@@ -19,6 +20,12 @@ export function constructorsOf(text) {
     if (!m) throw new Error(`not a constructor: ${c}`)
     return { f: m[1], args: m[2] ? m[2].split(',').map((a) => a.trim()) : [] }
   })
+}
+
+/** A type's constructor signature, using the same term notation as the rules that use it. */
+export const typeText = (type, declaration, term = showTerm) => {
+  const list = constructorsOf(declaration).map(({ f, args }) => term(fn(f, args.map(tvar))))
+  return `${type} = ${list.join(' | ')}`
 }
 
 // A constructor applied to variables named from `from` on (or to ?-letters): s(x), cons(x, y).
@@ -36,12 +43,11 @@ export function datatypeRules(type, text) {
     const right = applied(b, namesFor(b, a.args.length, true))
     rules.push(ruleOf(`${type}.distinct${++n}`, T(`${type}：${a.f} 不等于 ${b.f}`, `${type}: ${a.f} is not ${b.f}`), [`${left} = ${right}`], '?C'))
   }
-  const fixes = (c) => (c.args.length ? `⋀${namesFor(c).join(' ')}. ` : '')
-  rules.push(ruleOf(`${type}.exhaust`, T(`${type} 按情况分`, `${type} by cases`), cs.map((c) => `${fixes(c)}⟦?t = ${applied(c, namesFor(c))}⟧ ⟹ ?C`), '?C'))
+  rules.push(ruleOf(`${type}.exhaust`, T(`${type} 按情况分`, `${type} by cases`), cs.map((c) => withBinders(namesFor(c), `⟦?t = ${applied(c, namesFor(c))}⟧ ⟹ ?C`)), '?C'))
   const step = (c) => {
     const own = namesFor(c).filter((_, k) => c.args[k] === type)
     const body = `?P(${applied(c, namesFor(c))})`
-    return `${fixes(c)}${own.length ? `⟦${own.map((x) => `?P(${x})`).join('; ')}⟧ ⟹ ` : ''}${body}`
+    return withBinders(namesFor(c), own.length ? `⟦${own.map((x) => `?P(${x})`).join('; ')}⟧ ⟹ ${body}` : body)
   }
   rules.push(ruleOf(`${type}.induct`, T(`${type} 的归纳`, `${type} induction`), cs.map(step), '∀x. ?P(x)'))
   return rules.map((r) => ({ ...r, datatype: type }))

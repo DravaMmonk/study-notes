@@ -138,8 +138,11 @@ const tidy = (e) => {
 
 /* ---------- the rules of unification ---------- */
 
-const eqText = (e) => `${e.bound.length ? `⋀${e.bound.join(' ')}. ` : ''}${sideText(e.s)} ≐ ${sideText(e.t)}`
-export const sideText = (x) => (isTerm(x) ? showTerm(x) : x.op === 'lam' ? `fun ${x.params.join(' ')} => ${show(x.body)}` : show(x))
+/** Show the things taken around a formula, premise or rule. */
+export const withBinders = (fixes, text) => fixes?.length ? `⋀${fixes.join(' ')}. ${text}` : text
+
+export const sideText = (x, formula = show, term = showTerm) => (isTerm(x) ? term(x) : x.op === 'lam' ? `fun ${x.params.join(' ')} => ${formula(x.body)}` : formula(x))
+export const equationText = ({ bound, s, t }, say = sideText) => withBinders(bound, `${say(s)} ≐ ${say(t)}`)
 const replaceAt = (eqs, i, ins) => [...eqs.slice(0, i), ...ins.map(tidy), ...eqs.slice(i + 1)]
 // The variable two quantifiers taken apart share: theirs when they agree and it is free, else the first free one.
 const freshBound = (e, [va, a], [vb, b]) => {
@@ -149,12 +152,12 @@ const freshBound = (e, [va, a], [vb, b]) => {
 // Why a metavariable X may not become t: it is inside t, t has a bound variable that would leave its quantifier, or t
 // names a thing fixed after X was left (opts.scopes, opts.fixed). Null when it may.
 function blocked(e, X, t, opts = {}) {
-  if (metasIn(t).has(X)) return T(`${eqText(e)}：${X} 出现在另一边里面，代进去永远代不完`, `${eqText(e)}: ${X} occurs inside the other side, and putting it in never ends`)
+  if (metasIn(t).has(X)) return T(`${equationText(e)}：${X} 出现在另一边里面，代进去永远代不完`, `${equationText(e)}: ${X} occurs inside the other side, and putting it in never ends`)
   const names = namesIn(t)
   const escapes = e.bound.filter((v) => names.has(v))
-  if (escapes.length) return T(`${eqText(e)}：${escapes.join('、')} 是量词管着的，${X} 不能带走它`, `${eqText(e)}: ${escapes.join(', ')} is bound by a quantifier, and ${X} cannot take it out`)
+  if (escapes.length) return T(`${equationText(e)}：${escapes.join('、')} 是量词管着的，${X} 不能带走它`, `${equationText(e)}: ${escapes.join(', ')} is bound by a quantifier, and ${X} cannot take it out`)
   const late = (opts.fixed ?? []).filter((n) => names.has(n) && !(opts.scopes?.[X] ?? []).includes(n))
-  if (late.length) return T(`${eqText(e)}：${X} 是在取出 ${late.join('、')} 之前留下的，不能变成后来才有的东西`, `${eqText(e)}: ${X} was left before ${late.join(', ')} was taken, and cannot become something that came later`)
+  if (late.length) return T(`${equationText(e)}：${X} 是在取出 ${late.join('、')} 之前留下的，不能变成后来才有的东西`, `${equationText(e)}: ${X} was left before ${late.join(', ')} was taken, and cannot become something that came later`)
   return null
 }
 
@@ -189,7 +192,7 @@ export const UNIFY_RULES = {
   // Different shapes, neither side a metavariable: no unifier.
   conflict: (eqs) => {
     const e = eqs.find((x) => { const [a, b] = [head(x.s), head(x.t)]; return a && b && a.key !== b.key })
-    return e ? { eqs, fail: T(`${eqText(e)}：两边的样子不同，怎样代都对不上`, `${eqText(e)}: the two sides have different shapes, and nothing put in makes them meet`) } : null
+    return e ? { eqs, fail: T(`${equationText(e)}：两边的样子不同，怎样代都对不上`, `${equationText(e)}: the two sides have different shapes, and nothing put in makes them meet`) } : null
   },
   // A metavariable on the right only: turn it round.
   swap: (eqs) => {
@@ -272,7 +275,7 @@ export function unify(pairs, σ = {}, opts = {}) {
   if (set.fail) return { fail: set.fail }
   if (!solved(set.eqs)) {
     const e = nonPattern(set.eqs)
-    return { fail: e ? T(`${eqText(e)}：${(flexApp(e.s) ?? flexApp(e.t)).name} 后面跟的不都是不同的约束变量，解不止一个，证明助手不猜`, `${eqText(e)}: ${(flexApp(e.s) ?? flexApp(e.t)).name} is not applied to distinct bound variables, so there is more than one solution, and the proof assistant does not guess`) : T('合一不了') }
+    return { fail: e ? T(`${equationText(e)}：${(flexApp(e.s) ?? flexApp(e.t)).name} 后面跟的不都是不同的约束变量，解不止一个，证明助手不猜`, `${equationText(e)}: ${(flexApp(e.s) ?? flexApp(e.t)).name} is not applied to distinct bound variables, so there is more than one solution, and the proof assistant does not guess`) : T('合一不了') }
   }
   // A solved set may still give a metavariable a thing fixed after it was left.
   const late = UNIFY_RULES.check(set.eqs, opts)
@@ -293,18 +296,20 @@ export const premiseOf = (text) => {
 /** A rule from its premises and conclusion as written: ruleOf('conjI', name, ['?A', '?B'], '?A ∧ ?B'). */
 export const ruleOf = (key, name, premises, conclusion) => ({ key, name, premises: premises.map(premiseOf), conclusion: parseS(conclusion) })
 
-/** A rule written the way Isabelle writes it: ⟦?A; ?B⟧ ⟹ ?A ∧ ?B (a premise with assumptions of its own in brackets). */
 // A premise written out: a sentence; under premises of its own, those in ⟦⟧ then ⟹ (each a sentence, or a premise in
 // turn): ⟦?A; ?B⟧ ⟹ ?C; one that takes things in brackets of its own, (⋀x. ⟦?P(x)⟧ ⟹ ?Q(x)).
 function premiseText(p, say) {
   const inner = p.hyps.length ? `${premisesText(p.hyps.map((h) => (h.show ? h : { fixes: [], hyps: [], show: h })), say)} ⟹ ${say(p.show)}` : say(p.show)
-  return p.fixes.length ? `(⋀${p.fixes.join(' ')}. ${inner})` : inner
+  return p.fixes.length ? `(${withBinders(p.fixes, inner)})` : inner
 }
 /** A rule's premises as written before its ⟹: every group of premises in ⟦⟧, ⟦?A; ⟦?B⟧ ⟹ ?C⟧. */
 export const premisesText = (premises, say = show) => `⟦${premises.map((p) => premiseText(p, say)).join('; ')}⟧`
 
+/** A rule written in Isabelle-style notation, with its binders and premises. */
 export function ruleText(rule, say = show) {
-  return rule.premises.length ? `${premisesText(rule.premises, say)} ⟹ ${say(rule.conclusion)}` : say(rule.conclusion)
+  const goal = say(rule.conclusion)
+  const text = rule.premises.length ? `${premisesText(rule.premises, say)} ⟹ ${goal}` : goal
+  return withBinders(rule.fixes, text)
 }
 
 const R = (zh, en) => T(zh, en)

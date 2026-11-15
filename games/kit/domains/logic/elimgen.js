@@ -17,7 +17,7 @@
 //           concludes ?R. A level with `single` hands its one way in as a rule, not a list.
 import { PartError } from '../../engine/circuit.js'
 import { meta } from './formula.js'
-import { parseS, premiseOf, ruleText } from './schematic.js'
+import { parseS, premiseOf } from './schematic.js'
 import { T } from '../../shell/i18n.js'
 
 const fail = (zh, en) => new PartError({ zh, en })
@@ -29,18 +29,11 @@ export const anyValue = (vars, body) => ({ kind: 'any', vars, body })
 /** Any sentence: the conclusion of an elimination rule. */
 export const ANY = '?R'
 
-/** A rule as written, ⋀x. ⟦A; B⟧ ⟹ C, as a value's rule. */
-export function readRule(text) {
-  const p = premiseOf(text)
-  return { fixes: p.fixes, premises: p.hyps.map((show) => ({ fixes: [], hyps: [], show })), conclusion: p.show }
-}
-/** A rule written out, with the things it takes in front. */
-export const genRuleText = (rule, say) => `${rule.fixes?.length ? `⋀${rule.fixes.join(' ')}. ` : ''}${ruleText(rule, say)}`
-
 /** A way in as a value: a rule, inside the things it takes first. */
 const wayValue = (text) => {
-  const { fixes, ...rule } = readRule(text)
-  return fixes.length ? anyValue(fixes, ruleValue({ ...rule, fixes: [] })) : ruleValue({ ...rule, fixes: [] })
+  const { fixes, hyps, show: conclusion } = premiseOf(text)
+  const value = ruleValue({ fixes: [], premises: hyps.map((show) => ({ fixes: [], hyps: [], show })), conclusion })
+  return fixes.length ? anyValue(fixes, value) : value
 }
 /** A test's inputs: the declared sentence, and its ways in (one rule, on a level with `single`). */
 export function elimInputs(test, level) {

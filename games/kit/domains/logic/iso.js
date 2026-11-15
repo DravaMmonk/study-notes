@@ -5,9 +5,9 @@
 // premises. Otherwise Apply, Take one, Example and the declaration's elimination rule decide what follows.
 // A specification is tested on cases, not proved. Audit tasks (audit-cases.js) test given declarations instead.
 import { sameJson } from '../../engine/json-value.js'
-import { atom, fn, meta, parse, show, subst as substF, tvar } from './formula.js'
-import { say } from './notation.js'
-import { constructorsOf, datatypeRules } from './datatype.js'
+import { fn, meta, parse, show, subst as substF } from './formula.js'
+import { say, sayTerm } from './notation.js'
+import { datatypeRules, typeText } from './datatype.js'
 import { ruleOf, ruleText } from './schematic.js'
 import { L, T, tr } from '../../shell/i18n.js'
 import { cases, hidden, inOrder, sameAs } from '../../engine/judge.js'
@@ -15,7 +15,6 @@ import { cases, hidden, inOrder, sameAs } from '../../engine/judge.js'
 /** A sentence of the level, its things read as names (not variables). */
 export const sentenceOf = (level, text) => parse(text, { consts: level.things ?? [] })
 const keyOf = (f) => show(f)
-const thing = (name) => ({ t: 'fn', f: name, args: [] })
 
 // A sentence with the things in σ put in for their names.
 function subst(x, σ) {
@@ -46,7 +45,7 @@ function satisfy(rule, ctx) {
   const start = ctx.goal ? match(ctx.target, ctx.goal, vars, {}) : {}
   if (!start) return null
   const unassigned = rule.binds.filter((v) => !start[v])
-  const assignments = unassigned.reduce((all, v) => all.flatMap((σ) => ctx.things.map((t) => ({ ...σ, [v]: thing(t) }))), [start])
+  const assignments = unassigned.reduce((all, v) => all.flatMap((σ) => ctx.things.map((t) => ({ ...σ, [v]: fn(t) }))), [start])
   for (const σ of assignments) {
     const premises = rule.needs.map((need) => ctx.have.get(keyOf(subst(ctx.read(need), σ))))
     if (premises.every(Boolean)) {
@@ -76,7 +75,7 @@ function introduce(level, rules, test, goal) {
  */
 export function follows(level, rules, test) {
   const read = (s) => sentenceOf(level, s)
-  const things = (level.things ?? []).map(thing)
+  const things = (level.things ?? []).map((name) => fn(name))
   // Everything those rules reach from the facts, with these things to take.
   const reach = (facts, own) => {
     const known = new Map(facts.map((f) => [keyOf(f), f]))
@@ -101,7 +100,7 @@ export function follows(level, rules, test) {
   if (!known.has(keyOf(read(level.target)))) return false
   const start = [...known.values()]
   return rules.every((w, k) => {
-    const own = w.binds.map((b) => thing(`${b}${k + 1}′`))
+    const own = w.binds.map((b) => fn(`${b}${k + 1}′`))
     const σ = Object.fromEntries(w.binds.map((b, j) => [b, own[j]]))
     return reached(reach([...start, ...w.needs.map((n) => subst(read(n), σ))], own), own)
   })
@@ -193,9 +192,6 @@ const premise = (show, hyps = [], fixes = []) => ({ fixes, hyps, show })
  */
 const wayRule = (way, level, g) => ({ fixes: way.binds, premises: way.needs.map((n) => premise(g(sentenceOf(level, n)))), conclusion: g(sentenceOf(level, level.target)) })
 
-/** A rule written out, with the things a way takes in front: ⋀x. ⟦x is human⟧ ⟹ ∃y. y is human. */
-export const wayText = (rule, say) => `${rule.fixes?.length ? `⋀${rule.fixes.join(' ')}. ` : ''}${ruleText(rule, say)}`
-
 // The declared sentence's own letters and predicates, each a metavariable in turn (?A, ?B … for a sentence, ?P, ?Q …
 // for one about things): the rules for any sentences, not just the level's. A new proposition (one whose sentence
 // shares nothing with what it assumes) keeps its sentences.
@@ -254,12 +250,11 @@ export function declaredLines(level) {
   const text = (f) => L(say(f, level.notation))
   if (level.datatype) {
     const type = typeOf(level)
-    const thing = (c) => text(atom('=', [fn(c.f, c.args.map(tvar)), fn(c.f, c.args.map(tvar))])).split(' = ')[0]
     return {
       label: T('声明给出的规则'),
-      lines: [`${level.datatype.type} = ${constructorsOf(type).map(thing).join(' | ')}`, ...datatypeRules(level.datatype.type, type).map((r) => `${L(r.name)}：${ruleText(r, text)}`)],
+      lines: [typeText(level.datatype.type, type, (t) => L(sayTerm(t, level.notation))), ...datatypeRules(level.datatype.type, type).map((r) => `${L(r.name)}：${ruleText(r, text)}`)],
     }
   }
   const rules = declaredRules(level, level.solution)
-  return { label: T('声明给出的规则'), lines: [...rules.make.map((r, k) => `${tr(`引入规则 ${k + 1}：`, `Intro rule ${k + 1}: `)}${wayText(r, text)}`), `${tr('消去规则：')}${wayText(rules.take, text)}`] }
+  return { label: T('声明给出的规则'), lines: [...rules.make.map((r, k) => `${tr(`引入规则 ${k + 1}：`, `Intro rule ${k + 1}: `)}${ruleText(r, text)}`), `${tr('消去规则：')}${ruleText(rules.take, text)}`] }
 }
