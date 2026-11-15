@@ -183,7 +183,7 @@ export const TOOLS = {
     },
   },
   names: {
-    about: 'What a game’s links show, as a changeset would leave it: each level’s label (its number on the map) and title, each part’s name in the components box, each encyclopedia entry’s title; and the names copy may quote rather than link.',
+    about: 'What a game’s links show, as a changeset would leave it: each level’s label (its number on the map) and title, each part’s name in the components box (with the piece it is and the level that first gives it), each encyclopedia entry’s title; and the names copy may quote rather than link.',
     params: { game: 'string', changeset: 'object?' },
     async run({ game, changeset = null }) {
       const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
@@ -191,7 +191,9 @@ export const TOOLS = {
       const domain = await domainOf(content)
       return {
         levels: shown.levels.map((l) => ({ id: l.id, label: String(shown.levelLabel(l)), title: l.title })),
-        parts: (shown.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name })),
+        // Each with the piece it is (its type in parts.json) and the level that first gives it: a primitive's first level
+        // bringing it in, a built one's level earning its flag.
+        parts: (shown.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, piece: p.piece ?? (p.key.startsWith('part:') ? p.key.slice(5) : p.key), at: p.at?.[0] ?? shown.levels.find((l) => (l.unlocks ?? []).includes(p.key))?.id ?? null })),
         entries: (shown.glossary?.entries ?? []).map((e) => ({ id: e.id, title: e.title })),
         quotes: domain.spec(content).quotes ?? [],
       }

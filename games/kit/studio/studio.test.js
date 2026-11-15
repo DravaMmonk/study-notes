@@ -21,6 +21,7 @@ import { courseTree, stays } from './tree.js'
 import { fieldDiff } from './diff.js'
 import { lacking } from '../engine/text.js'
 import { taskIdsOf } from '../engine/tasks.js'
+import { pieceGroups } from './pieces.js'
 
 const VOCAB = defineVocabulary({
   domain: 'toy',
@@ -413,4 +414,15 @@ test('a task is picked from the tasks of the game, grouped by level in course or
   assert.deepEqual(options.map((o) => [o.value, o.label, o.group]), [['b', '1-1', '1-1 乙'], ['a', '1-2 · 1', '1-2 甲'], ['a_2', '1-2 · 2', '1-2 甲']])
   assert.deepEqual(formOf(S.task(), 'a_2', { vocabulary: null }).kind, 'choice')
   assert.equal(formOf(S.task(), 'a_2', { vocabulary: null }).of, 'task')
+})
+
+test('the parts list groups pieces by tray, in the order the course gives them; the rest go last', () => {
+  const order = ['1', '2', '3']
+  const at = (type) => ({ a: '3', b: '1', c: '2', d: '2' })[type] ?? null
+  assert.deepEqual(pieceGroups(['a', 'b', 'c', 'd', 'e', 'p'], { trays: { main: ['a', 'b.k=1', 'p'], more: ['a', 'c'] }, at, order, primitives: ['p'] }), [
+    { tray: 'main', types: ['p', 'b', 'a'] },
+    { tray: 'more', types: ['c'] },
+    { tray: null, types: ['d', 'e'] },
+  ])
+  assert.deepEqual(pieceGroups(['a', 'b', 'c'], { at, order }), [{ tray: null, types: ['b', 'c', 'a'] }])
 })

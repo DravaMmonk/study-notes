@@ -1,6 +1,6 @@
 // The parts of a game in the studio (games/DESIGN.md 6.7, 6.8): every piece its parts.json defines, primitive or built
-// (inside) — icon, name, type —
-// and every setting preset, a row each, in the file's order; findings on a part mark its row. A click opens it (its
+// (inside) — icon, name, type — grouped by tray in the order the course gives them (pieces.js), then every setting
+// preset, a row each; findings on a part mark its row. A click opens it (its
 // faces on the page, its fields in the rows). The two + add a piece and open it: a primitive, blank and ready to be
 // filled in; a built piece, made from a task picked (grouped by level, in course order), the work of which runs
 // inside it — its ports are that task's board's. A part is copied, renamed and removed from the part's own page
@@ -11,6 +11,7 @@ import { L, tr } from '../shell/i18n.js'
 import { iconOf } from '../shell/parts/icons.js'
 import { OptionList, useDismiss } from './Picker.jsx'
 import { taskOptionsOf } from './form.js'
+import { pieceGroups } from './pieces.js'
 
 /** A new part to fill in: one input, one output computed as that input, its name its type. */
 export const blankPart = (vocabulary) => ({
@@ -32,7 +33,7 @@ export const freeName = (taken, stem) => {
   return `${stem}${k}`
 }
 
-export default function PartsList({ content, vocabulary, levelOptions, at, found, onSelect, onEdit }) {
+export default function PartsList({ content, vocabulary, levelOptions, order = [], earned = new Map(), at, found, onSelect, onEdit }) {
   const file = content.partDefs ?? { parts: {} }
   const parts = Object.entries(file.parts ?? {})
   const presets = Object.entries(file.presets ?? {})
@@ -57,20 +58,28 @@ export default function PartsList({ content, vocabulary, levelOptions, at, found
     onEdit({ op: 'parts.set', path: ['presets', name], value: { control: 'select', options: [{ value: 'a' }, { value: 'b' }] } })
     onSelect({ preset: name })
   }
+  const groups = pieceGroups(parts.map(([t]) => t), { trays: content.trays, at: (type) => earned.get(type) ?? null, order, primitives: content.primitives ?? [] })
+  const row = (type) => {
+    const def = file.parts[type]
+    const Icon = iconOf(def.icon ?? (def.inside ? 'CircuitBoard' : null))
+    const n = found(type)
+    return (
+      <button key={type} type="button" className={`parts-row ${at?.part === type ? 'is-on' : ''}`} onClick={() => onSelect({ part: type })} title={L(def.desc ?? '')}>
+        <i className="family-chip" data-family={def.family}>{Icon && <Icon size={12} aria-hidden="true" />}</i>
+        <span>{L(def.name)}</span>
+        <code>{type}</code>
+        {n > 0 && <b className="row-found">{n}</b>}
+      </button>
+    )
+  }
   return (
     <nav className="parts-list" aria-label={tr('元件', 'Parts')}>
-      {parts.map(([type, def]) => {
-        const Icon = iconOf(def.icon ?? (def.inside ? 'CircuitBoard' : null))
-        const n = found(type)
-        return (
-          <button key={type} type="button" className={`parts-row ${at?.part === type ? 'is-on' : ''}`} onClick={() => onSelect({ part: type })} title={L(def.desc ?? '')}>
-            <i className="family-chip" data-family={def.family}>{Icon && <Icon size={12} aria-hidden="true" />}</i>
-            <span>{L(def.name)}</span>
-            <code>{type}</code>
-            {n > 0 && <b className="row-found">{n}</b>}
-          </button>
-        )
-      })}
+      {groups.map((g) => (
+        <section key={g.tray ?? ''} className="parts-group">
+          {groups.length > 1 && (g.tray ? <span className="parts-tray">{g.tray}</span> : <hr className="parts-rule" />)}
+          {g.types.map(row)}
+        </section>
+      ))}
       <div className="parts-adds" ref={box}>
         <button type="button" className="parts-add" onClick={add} title={tr('加一个基础件', 'Add a primitive piece')}><Plus size={12} aria-hidden="true" /><Box size={13} aria-hidden="true" /></button>
         <button type="button" className="parts-add" onClick={() => setPicking(!picking)} aria-expanded={picking} title={tr('用一个任务的作品搭一个件', 'Build a piece from a task’s work')}><Plus size={12} aria-hidden="true" /><CircuitBoard size={13} aria-hidden="true" /></button>

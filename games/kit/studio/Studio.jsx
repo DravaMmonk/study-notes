@@ -269,6 +269,8 @@ export default function Studio() {
     onLevel: (id) => select({ level: id }),
   }, [rawNames]) // eslint-disable-line react-hooks/exhaustive-deps
   const playOrder = useMemo(() => (rawNames ? rawNames.levels.map((l) => l.id) : content?.levels.map((l) => l.id) ?? []), [rawNames, content])
+  // Where the course first gives each piece (the names tool reads it off the components box): its type → a level.
+  const earnedAt = useMemo(() => new Map((rawNames?.parts ?? []).filter((p) => p.at).map((p) => [p.piece, p.at])), [rawNames])
   const levelOptions = useMemo(() => {
     if (!content) return null
     const eraOf = new Map((content.eras ?? []).flatMap((era) => eraLevels(era).map((id) => [id, era])))
@@ -658,7 +660,7 @@ export default function Studio() {
               {content.partDefs && <button type="button" role="tab" aria-selected={side === 'parts'} className={side === 'parts' ? 'is-on' : ''} onClick={() => setSide('parts')} title={tr('元件', 'Parts')}><Shapes size={14} aria-hidden="true" /></button>}
             </div>
             {side === 'parts' && content.partDefs
-              ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={(next) => { select(next); if (!['page', 'fields'].includes(tab)) setTab('page') }} onEdit={edit} />
+              ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={(next) => { select(next); if (!['page', 'fields'].includes(tab)) setTab('page') }} onEdit={edit} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={jump} />
               : <Tree game={game} content={content} marks={marks} at={at} picked={picked} setPicked={setPicked} onSelect={select} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(lvl, k) => { select({ level: lvl }); pickField(['tasks', k]) }} onTaskMove={moveTask} />}

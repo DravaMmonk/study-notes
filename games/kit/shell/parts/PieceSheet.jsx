@@ -78,7 +78,7 @@ export const Settings = ({ def, edit }) => <Chips def={def} edit={edit} keys={['
 export function Chains({ def, edit, onTask }) {
   const { mark, add } = marker(edit)
   const forms = new Map()
-  def.inside.forEach((ref, k) => forms.set(ref.form ?? '', [...(forms.get(ref.form ?? '') ?? []), [ref, k]]))
+  for (const [k, ref] of (def.inside ?? []).entries()) forms.set(ref.form ?? '', [...(forms.get(ref.form ?? '') ?? []), [ref, k]])
   return (
     <div className="pp-chains">
       {[...forms].map(([form, steps]) => (
