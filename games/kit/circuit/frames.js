@@ -49,7 +49,7 @@ export function scopeOf(graph, id) {
   return out
 }
 
-const regionsOf = (parts, node) => (node && parts.frames?.(node)) ?? []
+export const regionsOf = (parts, node) => (node && parts.frames?.(node)) ?? []
 const opens = (parts, node, key) => regionsOf(parts, node).some((r) => r.name === key && r.opens)
 const isRegion = (parts, node, port) => regionsOf(parts, node).some((r) => r.name === port)
 

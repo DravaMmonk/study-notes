@@ -19,8 +19,9 @@ import { enableDrag } from '../drag.js'
 import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
-import { moveInto } from './frames.js'
-import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, outputsOf, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
+import { cardPorts } from './card-ports.js'
+import { moveInto, regionsOf } from './frames.js'
+import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
 import { useHistory } from './useHistory.js'
 import { alignTerminals, spaceNodes } from './spacing.js'
 
@@ -150,10 +151,9 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const available = size?.width || Infinity
   const widthOf = (node) => node.hiddenBlock ? node.w : cardWidth(parts, node, available)
   const placed = graph.nodes.filter((n) => parts.role(n) === 'part').length
-  const regionsOf = (node) => parts.frames?.(node) ?? []
   // Frames are drawn first, under the plain cards: a frame's backdrop sits below the wires (so those inside it show),
   // so a card drawn before a frame would have the frame's contents over it and its backdrop under it.
-  const layered = (nodes) => [...nodes.filter((n) => regionsOf(n).length), ...nodes.filter((n) => !regionsOf(n).length)]
+  const layered = (nodes) => [...nodes.filter((n) => regionsOf(parts, n).length), ...nodes.filter((n) => !regionsOf(parts, n).length)]
   const groups = blocks?.items ?? []
   const hiddenNodes=foldedPartsOf(graph,groups,'hidden')
   let visible = layered(graph.nodes.filter((n) => !n.in&&!hiddenNodes.has(n.id)))
@@ -487,7 +487,8 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const node = byId.get(id)
     const p = parsePort(picking)
     const port = p.side === 'out' ? inputFor(p.id, id) : null
-    const other = p.side === 'out' ? (port ? inPort(id, port) : null) : parts.role(node) !== 'sink' ? outPort(srcOf(node, outputsOf(parts, node)[0].key)) : null
+    const [firstOutput] = p.side === 'in' ? cardPorts(parts, node).outputs : []
+    const other = port ? inPort(id, port) : firstOutput ? outPort(srcOf(node, firstOutput.key)) : null
     if (other && wireOf(picking, other)) clickPort(other)
     else if (p.side === 'out') {
       const first = parts.inputs(node)[0]
@@ -499,7 +500,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   // Choosing a card makes its region where new cards go; choosing a frame, its first region.
   const choose = (node) => {
     setSelected({ node: node.id })
-    const first = regionsOf(node)[0]
+    const first = regionsOf(parts, node)[0]
     setTarget(first && !node.fold ? `${node.id}/${first.name}` : node.in ?? null)
   }
   // The region under a dragged card's pointer (not one of its own), or null for the board: anywhere inside its outline
@@ -570,12 +571,8 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   function card(node) {
     const role = parts.role(node)
     const folded = foldedNodes.has(node.id)
-    const regions = regionsOf(node)
-    const own = new Set(regions.map((r) => r.name))
-    const ports = parts.inputs(node).filter((p) => !own.has(p))
-    const listed = parts.outputs?.(node)?.filter((o) => !own.has(o.key)) ?? null
-    // A frame keeps its own result as a plain output; several outputs of other cards run down the right edge.
-    const outs = listed && !(listed.length === 1 && listed[0].key === null) ? listed : null
+    const { inputs: ports, outputs, regions } = cardPorts(parts, node)
+    const plainOutput = outputs.length === 1 && outputs[0].key === null
     const icon = parts.icon?.(node)
     const wired = (src) => graph.wires.some((w) => w.from === src)
     const outDot = (src, extra = '') => <i className={`port port-out ${wired(src) ? 'is-wired' : ''} ${portClass(outPort(src))} ${extra}`} data-p={outPort(src)} title={tr('点击后再点击另一个元件的输入口，也可以直接拖动连接')} onClick={() => clickPort(outPort(src))}><i /></i>
@@ -629,7 +626,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
             {!folded && body?.(node)}
           </div>
           <div className="node-outputs">
-            {role !== 'sink' && outs?.map((o) => (
+            {!plainOutput && outputs.map((o) => (
               <span key={o.key} className="node-port-out">
                 {o.glyph ? <span className="node-out-name is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <span className="node-out-name" title={L(o.label)}>{L(o.short ?? o.label)}</span>}
                 {!folded && outNote?.(node, o.key)}
@@ -637,7 +634,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
               </span>
             ))}
           </div>
-          {role !== 'sink' && !outs && outDot(node.id, parts.portClass?.(node, null) ?? '')}
+          {plainOutput && outDot(node.id, parts.portClass?.(node, null) ?? '')}
         </div>
         {regions.length > 0 && !node.fold && (
           <div className="frame-regions">

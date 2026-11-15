@@ -10,6 +10,7 @@ import ClearButton from './ClearButton.jsx'
 import SaveSlots from './SaveSlots.jsx'
 import { useElementSize } from '../views/useElementSize.js'
 import { cardView } from '../engine/views.js'
+import { cardPorts } from './card-ports.js'
 import { cardHeight } from './card-size.js'
 import { slotMetrics } from './slot-metrics.js'
 import { slotPortAt } from './slot-ports.js'
@@ -213,9 +214,6 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   },[partitioning,startRow,onPartitionHint])
   // Up to four sinks to a row, the rows as even as they can be: five go 3 + 2, eight 4 + 4.
   const cols = (n) => ({ '--cols': n <= 4 ? n : Math.ceil(n / Math.ceil(n / 4)) })
-  const regionsOf = (node) => parts.frames?.(node) ?? []
-  const own = (node) => new Set(regionsOf(node).map((r) => r.name))
-  const labelsPorts = (node) => !own(node).size && cardView(parts.valueView?.(node)).sentence && parts.inputs(node).length > 1
 
   // Wires are drawn after layout from where the dots really are, and again while a wire is dragged. A card's entry
   // animation moves its dots without resizing the board, so wires are drawn again once it ends.
@@ -243,21 +241,19 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   const used = (src) => graph.wires.some((w) => w.from === src)
   // A block's output dot, or (parts.outputs) a row of them, each under its short name and what it carries (outNote).
   // They wrap onto more rows inside the block; more than WIDE of them and the block takes a row of its own.
-  const outDots = (node, folded = false) => {
-    // A frame's regions give their values inside it; its own output is the one under the block.
-    const listed = parts.outputs?.(node)?.filter((o) => !own(node).has(o.key)) ?? null
-    const outs = listed && !(listed.length === 1 && listed[0].key === null) ? listed : null
-    if (!outs) {
+  const outDots = (node, outputs, folded = false) => {
+    if (!outputs.length) return null
+    if (outputs.length === 1 && outputs[0].key === null) {
       return <span className="pb-out">{dot(outPort(node.id), tr(`${nameOf(node)} 的输出`, `${nameOf(node)} output`), `is-out ${used(node.id) ? 'is-wired' : ''} ${parts.portClass?.(node, null) ?? ''}`)}</span>
     }
     return (
       <span className="pb-out is-many">
-        {outs.map((o) => {
+        {outputs.map((o) => {
           const src = srcOf(node, o.key)
           const note = !folded && outNote?.(node, o.key)
           return (
             <span key={o.key} className={`pb-o ${note ? 'has-note' : ''}`}>
-              {(outs.length > 1 || note) && (o.glyph ? <em className="is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <em>{L(o.short ?? o.label)}</em>)}
+              {(outputs.length > 1 || note) && (o.glyph ? <em className="is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <em>{L(o.short ?? o.label)}</em>)}
               {note}
               {dot(outPort(src), tr(`${nameOf(node)} 的输出 ${L(o.label)}`, `${nameOf(node)} output ${L(o.label)}`), `is-out ${used(src) ? 'is-wired' : ''} ${parts.portClass?.(node, null, o.key) ?? ''}`)}
             </span>
@@ -281,8 +277,8 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       <i />
     </button>
   )
-  const inputs = (node) => {
-    const ports = parts.inputs(node).filter((p) => !own(node).has(p))
+  const inputDots = (node, { inputs: ports, regions }) => {
+    const labels = !regions.length && cardView(parts.valueView?.(node)).sentence
     return ports.map((port) => {
       const from = graph.nodes.find((n) => n.id === srcNode(feeding(graph, node.id, port)))
       const tag = ports.length > 1 ? L(parts.portLabel?.(node, port) ?? port) : ''
@@ -292,7 +288,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       return (
         <span key={port} className="pb-in">
           {dot(inPort(node.id, port), tr(`${nameOf(node)} 的输入${tag ? ` ${tag}` : ''}${from ? `（读 ${nameOf(from)}，点一下拆掉）` : ''}`, `${nameOf(node)} input${tag ? ` ${tag}` : ''}${from ? ` (reads ${nameOf(from)}; tap to unplug)` : ''}`), `${from ? 'is-in is-wired' : 'is-in is-open'} ${parts.portClass?.(node, port) ?? ''}`)}
-          {tag && <em data-port-label={labelsPorts(node) ? true : undefined}>{tag}</em>}
+          {tag && <em data-port-label={labels || undefined}>{tag}</em>}
           {source && <b className="pb-src" data-family={parts.family(from)}>{source}</b>}
         </span>
       )
@@ -343,15 +339,16 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       const row=Math.floor(slot/cols)
       if(region===null&&hidden.has(row))continue
       const node=graph.nodes.find(n=>n.id===id),isFolded=foldedParts.has(id)
-      if((parts.frames?.(node)??[]).length){out.push(frameBlock(node,slot,region,at(slot,span.get(id)),span.get(id)[0],cols));continue}
+      const ports = cardPorts(parts, node)
+      if(ports.regions.length){out.push(frameBlock(node,slot,region,at(slot,span.get(id)),span.get(id)[0],cols,ports));continue}
       const extra=!isFolded&&tileExtra?.(node)
       const view = cardView(parts.valueView?.(node))
       const tileHeight = isFolded ? undefined : cardHeight(parts, node)
       out.push(<div key={id} className={`pb-cell ${isFolded?'is-body-folded':''} ${selected(row)?'is-block-selected':''}`} data-slot={slot} data-pick-row={row} data-region={region??''} style={at(slot, span.get(id))}>
         <div className={`pb-tile ${isFolded?'is-body-folded':''} ${parts.packed?.(node)?'is-packed':''} ${nodeClass?.(node)??''} ${moving===id?'is-moving':''}`} data-piece={id} data-picture={!isFolded && view.tileHeight ? '' : undefined} data-drag={fixed||partitioning||!canMove(id)?undefined:true} data-family={parts.family(node)} style={{ ...parts.cardStyle?.(node), minHeight: tileHeight }} role="button" tabIndex={0} onClick={()=>onNode(id)} aria-label={nameOf(node)}>
-          <span className={`pb-ins ${parts.inputs(node).length>1?'is-many':''}`}>{inputs(node)}</span>
+          <span className={`pb-ins ${ports.inputs.length>1?'is-many':''}`}>{inputDots(node, ports)}</span>
           <span className="pb-name">{icon(node)}{nameOf(node)}<Info size={12} aria-hidden="true" /></span>
-          {!isFolded&&<span className="pb-thumb">{thumb(node,84)}</span>}{extra&&<span className="pb-param">{extra}</span>}{outDots(node,isFolded)}
+          {!isFolded&&<span className="pb-thumb">{thumb(node,84)}</span>}{extra&&<span className="pb-param">{extra}</span>}{outDots(node, ports.outputs, isFolded)}
         </div>{tags(new Set([id]))}
       </div>)
     }
@@ -365,24 +362,25 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
 
   // A frame: rows of the grid it sits in, for each region a row for its head, the region's rows, and a row for its
   // foot, the dot its result goes into; its name (held to drag it) and inputs over them, its output under them.
-  function frameBlock(node, slot, region, style, width, columns) {
+  function frameBlock(node, slot, region, style, width, columns, card) {
     const isFolded = foldedParts.has(node.id)
     const resizable = !fixed && !isFolded && !partitioning && columns > 1 && onResizeFrame && canMove(node.id)
     const next = width === columns ? 1 : width + 1
     const WidthIcon = width === 1 ? Square : Columns2
     const widthLabel = next === columns ? tr('展开到整行', 'Expand to full row') : tr(`改为占 ${next} 格`, `Use ${next} ${next === 1 ? 'slot' : 'slots'}`)
     const localHeads = new Set([0])
-    const ports = inputs(node)
+    const { outputs, regions: ownRegions } = card
+    const ports = inputDots(node, card)
     let row = 3
-    const regions = regionsOf(node).map((r) => {
+    const regions = ownRegions.map((r) => {
       const { rows, frameHeads } = placement(graph, parts, `${node.id}/${r.name}`, { fixed })
       for (const head of frameHeads) localHeads.add((row + 1) / 2 + head)
       const section = (
         <section key={r.name} className="pb-region" style={{ gridRow: `${row} / span ${2 * rows + 3}` }}>
           {/* Its head row: its name, and the value it opens with the dot that gives it. */}
           <header className={`pb-region-head ${r.opens ? 'has-port' : ''}`}>
-            {regionsOf(node).length > 1 && <b>{L(r.label)}</b>}
-            {r.opens && <em>{L(parts.outputs?.(node)?.find((o) => o.key === r.name)?.label ?? '')}</em>}
+            {ownRegions.length > 1 && <b>{L(r.label)}</b>}
+            {r.opens && <em>{L(r.output?.label ?? '')}</em>}
             {!isFolded && <span className="pb-region-value">{regionNote?.(node, r.name)}</span>}
             {r.opens && <span className="pb-out">{dot(outPort(srcOf(node, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, r.name)) ? 'is-wired' : ''}`)}</span>}
           </header>
@@ -410,7 +408,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
           </div>
           {resizable && <button type="button" className="pb-frame-width" onClick={() => onResizeFrame(node.id, next === columns ? undefined : next)} aria-label={widthLabel} title={widthLabel}><WidthIcon size={14} aria-hidden="true" /></button>}
           {regions}
-          {outDots(node, isFolded)}
+          {outDots(node, outputs, isFolded)}
         </div>
       </div>
     )
@@ -442,30 +440,32 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
       </div>
       <svg className="pb-wires" data-port-mask={portMask} aria-hidden="true" />
       <div className="pb-terms is-sources">
-        {sources.map((node) => (
-          <div key={node.id} className={`pb-term ${(parts.outputs?.(node)?.length ?? 0) > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-view={parts.valueView?.(node)} data-picture={cardView(parts.valueView?.(node)).tileHeight ? '' : undefined} data-io={tr('输入', 'IN')} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
+        {sources.map((node) => {
+          const ports = cardPorts(parts, node)
+          return <div key={node.id} className={`pb-term ${ports.outputs.length > WIDE ? 'is-wide' : ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-view={parts.valueView?.(node)} data-picture={cardView(parts.valueView?.(node)).tileHeight ? '' : undefined} data-io={tr('输入', 'IN')} style={parts.cardStyle?.(node)} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
             {/* A source may take an input too (a reader told which layer to read). */}
-            {parts.inputs(node).length > 0 && <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>}
+            {ports.inputs.length > 0 && <span className={`pb-ins ${ports.inputs.length > 1 ? 'is-many' : ''}`}>{inputDots(node, ports)}</span>}
             <span className="pb-thumb">{thumb(node, 64)}</span>
             <span className="pb-name">{nameOf(node)}</span>
             {tileExtra?.(node) && <span className="pb-param">{tileExtra(node)}</span>}
-            {outDots(node)}
+            {outDots(node, ports.outputs)}
             {tags(new Set([node.id]))}
           </div>
-        ))}
+        })}
       </div>
 
       {grid(null)}
 
       <div className="pb-terms is-outputs" style={cols(sinks.length)}>
-        {sinks.map((node) => (
-          <div key={node.id} className={`pb-term is-output ${sinkClass?.(node) ?? ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-view={parts.valueView?.(node)} data-picture={cardView(parts.valueView?.(node)).tileHeight ? '' : undefined} data-io={tr('输出', 'OUT')} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
-            <span className={`pb-ins ${parts.inputs(node).length > 1 ? 'is-many' : ''}`}>{inputs(node)}</span>
+        {sinks.map((node) => {
+          const ports = cardPorts(parts, node)
+          return <div key={node.id} className={`pb-term is-output ${sinkClass?.(node) ?? ''} ${nodeClass?.(node) ?? ''}`} data-family={parts.family(node)} data-terminal={node.id} data-view={parts.valueView?.(node)} data-picture={cardView(parts.valueView?.(node)).tileHeight ? '' : undefined} data-io={tr('输出', 'OUT')} role="button" tabIndex={0} onClick={() => onNode(node.id)}>
+            <span className={`pb-ins ${ports.inputs.length > 1 ? 'is-many' : ''}`}>{inputDots(node, ports)}</span>
             {(sinkBody ? sinkBody(node) : <span className="pb-thumb">{thumb(node, 64)}</span>)}
             {tags(new Set([node.id]))}
             <span className="pb-name">{nameOf(node)}</span>
           </div>
-        ))}
+        })}
       </div>
     </div>
   )

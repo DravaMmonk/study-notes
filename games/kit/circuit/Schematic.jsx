@@ -1,8 +1,9 @@
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { L } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
+import { cardPorts } from './card-ports.js'
 import { schematic } from './schematic.js'
-import { inPort, outPort, outputsOf, srcNode, srcOf } from './model.js'
+import { inPort, outPort, srcNode, srcOf } from './model.js'
 
 // A board to read, the same on a desktop and a phone: small chips in rows from top to bottom (schematic.js), each a
 // part's name over what it holds, thin wires between their edges. Nothing on it is edited: no ports to press, no
@@ -80,25 +81,20 @@ export default function Schematic({ graph, parts, value, param, outNote, regionN
   })
 
   const byId = (id) => graph.nodes.find((n) => n.id === id)
-  const regionsOf = (node) => parts.frames?.(node) ?? []
   const anchor = (p) => <i className="sk-pin" data-p={p} />
   const icon = (node) => {
     const i = parts.icon?.(node)
     return i ? <i className={`pb-glyph ${parts.packed?.(node) ? 'family-chip' : ''}`}><Glyph icon={i} size={11} strokeWidth={2} /></i> : null
   }
   // Inputs along the top edge in the part's own order, named only where the game names them.
-  const ins = (node) => {
-    const own = new Set(regionsOf(node).map((r) => r.name))
-    const ports = parts.inputs(node).filter((p) => !own.has(p))
+  const ins = (node, ports) => {
     if (!ports.length) return null
     const named = ports.length > 1 && ports.some((p) => parts.portLabel?.(node, p))
     return <span className={`sk-ins ${named ? 'is-named' : ''}`}>{ports.map((p) => <span key={p}>{anchor(inPort(node.id, p))}{named && L(parts.portLabel?.(node, p) ?? '')}</span>)}</span>
   }
   // Outputs along the bottom edge: one in the middle, or each under its name and what it carries.
-  const outs = (node) => {
-    const own = new Set(regionsOf(node).map((r) => r.name))
-    const list = outputsOf(parts, node).filter((o) => !own.has(o.key))
-    if (parts.role(node) === 'sink' || !list.length) return null
+  const outs = (node, list) => {
+    if (!list.length) return null
     if (list.length === 1 && list[0].key === null) return <span className="sk-outs">{anchor(outPort(node.id))}</span>
     return (
       <span className="sk-outs is-named">
@@ -120,31 +116,31 @@ export default function Schematic({ graph, parts, value, param, outNote, regionN
   })
   const name = (node) => <span className="sk-name">{icon(node)}{L(parts.label(node))}</span>
 
-  function chip(node) {
+  function chip(node, ports) {
     const role = parts.role(node)
-    if (role !== 'part') return <div key={node.id} className={`sk-end ${role === 'sink' ? 'is-out' : ''}`} {...face(node)}>{ins(node)}{name(node)}{outs(node)}</div>
+    if (role !== 'part') return <div key={node.id} className={`sk-end ${role === 'sink' ? 'is-out' : ''}`} {...face(node)}>{ins(node, ports.inputs)}{name(node)}{outs(node, ports.outputs)}</div>
     const [held, setting] = [value?.(node), param ? param(node) : settingsOf(node)]
     return (
       <div key={node.id} className={`sk-chip ${parts.packed?.(node) ? 'is-packed' : ''} ${node.id === lit ? 'is-step' : ''}`} {...face(node)}>
-        {ins(node)}
+        {ins(node, ports.inputs)}
         {name(node)}
         {setting && <span className="pb-param">{setting}</span>}
         {held && <span className="pb-thumb sk-value">{held}</span>}
-        {outs(node)}
+        {outs(node, ports.outputs)}
       </div>
     )
   }
 
-  function frame(node) {
+  function frame(node, ports) {
     return (
       <div key={node.id} className={`sk-frame ${node.id === lit ? 'is-step' : ''}`} {...face(node)}>
-        {ins(node)}
+        {ins(node, ports.inputs)}
         {name(node)}
-        {regionsOf(node).map((r) => (
+        {ports.regions.map((r) => (
           <section key={r.name} className="sk-region">
             <header>
-              {regionsOf(node).length > 1 && <b>{L(r.label)}</b>}
-              {r.opens && <em>{L(outputsOf(parts, node).find((o) => o.key === r.name)?.label ?? '')}</em>}
+              {ports.regions.length > 1 && <b>{L(r.label)}</b>}
+              {r.opens && <em>{L(r.output?.label ?? '')}</em>}
               {regionNote?.(node, r.name)}
               {r.opens && anchor(outPort(srcOf(node, r.name)))}
             </header>
@@ -156,7 +152,7 @@ export default function Schematic({ graph, parts, value, param, outNote, regionN
             </footer>
           </section>
         ))}
-        {outs(node)}
+        {outs(node, ports.outputs)}
       </div>
     )
   }
@@ -169,7 +165,8 @@ export default function Schematic({ graph, parts, value, param, outNote, regionN
             {row.map((item) => {
               if (item.via) return <i key={item.via} className="sk-via" data-via={item.via} />
               const node = byId(item.id)
-              return regionsOf(node).length ? frame(node) : chip(node)
+              const ports = cardPorts(parts, node)
+              return ports.regions.length ? frame(node, ports) : chip(node, ports)
             })}
           </div>
         ))}

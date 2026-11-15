@@ -1,4 +1,5 @@
 import { useElementSize } from '../views/useElementSize.js'
+import { portNotes } from '../circuit/card-ports.js'
 import { traySize } from '../circuit/card-size.js'
 import { fixedTray } from '../course.js'
 import { useSetting } from './useSetting.js'
@@ -263,11 +264,9 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
               body={card.body && ((node) => card.body(node, ctx))}
               head={(node) => <>{card.head?.(node, ctx)}{(details || isDefined(node)) && !isPacked(node, top) && <button type="button" className="node-tool" aria-label={tr(`查看 ${L(parts.label(node))} 的详情`, `Inspect ${L(parts.label(node))}`)} title={tr('查看详情')} onPointerDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); setDetail(node.id) }}><Info size={13} /></button>}{inside && isPacked(node, top) && <PackedTools onDetail={() => setDetail(node.id)} />}</>}
               caption={card.caption && ((node) => card.caption(node, ctx))}
-              outNote={card.outNote && ((node, key) => card.outNote(node, key, ctx))}
               cardClass={card.cardClass && ((node) => card.cardClass(node, ctx))}
               wireState={(wire) => card.wireState(wire, ctx)}
-              regionNote={card.regionNote && ((node, region) => card.regionNote(node, region, ctx))}
-              resultNote={card.resultNote && ((node, region) => card.resultNote(node, region, ctx))}
+              {...portNotes(card, ctx)}
               onTarget={setTarget}
               onClear={onClear}
               types={types}
@@ -366,9 +365,7 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
         sinkBody={(n) => (card.sinkBody ?? card.body)?.(n, ctx)}
         sinkClass={card.sinkClass && ((n) => card.sinkClass(n, ctx))}
         nodeClass={card.nodeClass && ((n) => card.nodeClass(n, ctx))}
-        outNote={card.outNote && ((n, key) => card.outNote(n, key, ctx))}
-        regionNote={card.regionNote && ((n, region) => card.regionNote(n, region, ctx))}
-        resultNote={card.resultNote && ((n, region) => card.resultNote(n, region, ctx))}
+        {...portNotes(card, ctx)}
         picking={editing.picking}
         moving={editing.moving}
         canLand={editing.canLand}

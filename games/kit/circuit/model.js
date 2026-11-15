@@ -31,7 +31,7 @@
 import { cardColumns, slotColumns, slotWidth } from './card-size.js'
 import { SLOT_GUTTER } from './slot-metrics.js'
 import { wouldCycle } from '../graph.js'
-import { frameEdges, moveInto, scopeRefusal, within } from './frames.js'
+import { frameEdges, moveInto, regionsOf, scopeRefusal, within } from './frames.js'
 
 // Port ids, the same on the desktop board and the phone: an output is `o|<node>`, an input `i|<node>|<port>`.
 // `id` of an output is a wire's source: a node's id, or `<node>#<key>` for one of several outputs.
@@ -204,7 +204,7 @@ export function layout(graph, parts) {
 // `frameHeads` includes nested headings so the phone subgrid can put the first region directly after its title.
 export function placement(graph, parts, region = null, { fixed = false } = {}) {
   const { steps } = layout(graph, parts)
-  const regions = (n) => parts.frames?.(n) ?? []
+  const regions = (n) => regionsOf(parts, n)
   const byNode = new Map(steps.map((node) => [node.id, node]))
   const rootWidth = parts.availableWidth ?? Infinity
   const rootCols = slotColumns(rootWidth, parts.traySize)

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Info, Pencil } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import Sheet from '../shell/Sheet.jsx'
+import { portNotes } from './card-ports.js'
 import Schematic from './Schematic.jsx'
 import { insideAt } from '../engine/trace.js'
 
@@ -51,7 +52,7 @@ export function insideOf({ top, open, edit, trace, card, describe = () => null, 
     },
     is,
     edit,
-    card: { wireState: (wire, ctx) => (ctx.view.values.get(wire.from) !== undefined ? 'live' : 'dead'), ...card },
+    card,
     describe: (node, ctx) => describe(node, ctx) ?? null,
     sheet: (node, ctx) => sheet?.(node, ctx) ?? null,
   }
@@ -118,9 +119,7 @@ export function InsideBoard({ inside, path }) {
         parts={parts}
         value={card.thumb && ((n) => (reached(n) ? card.thumb(n, ctx) : null))}
         param={card.tileExtra && ((n) => card.tileExtra(n, ctx))}
-        outNote={card.outNote && ((n, key) => card.outNote(n, key, ctx))}
-        regionNote={card.regionNote && ((n, region) => card.regionNote(n, region, ctx))}
-        resultNote={card.resultNote && ((n, region) => card.resultNote(n, region, ctx))}
+        {...portNotes(card, ctx)}
         lit={lit}
         onOpen={(id) => inside.is(at.circuit.nodes.find((n) => n.id === id), at) && setDetail(id)}
       />

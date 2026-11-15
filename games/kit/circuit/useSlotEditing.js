@@ -2,7 +2,8 @@ import { slotPortAt } from './slot-ports.js'
 import { useEffect, useRef, useState } from 'react'
 import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
-import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, lockedRefusal, outPort, outputsOf, parsePort, placement, removeNode, srcNode, srcOf } from './model.js'
+import { cardPorts } from './card-ports.js'
+import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, lockedRefusal, outPort, parsePort, placement, removeNode, srcNode, srcOf } from './model.js'
 import { drawWires } from './SlotBoard.jsx'
 import { blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
 import { regionsFit } from './frames.js'
@@ -127,7 +128,10 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
   const wireToCard = (p, id) => {
     const node = byId(graph, id)
     // An input dropped on a block with several outputs takes its first.
-    if (parsePort(p).side === 'in') return parts.role(node) !== 'sink' && wire(p, outPort(srcOf(node, outputsOf(parts, node)[0].key)))
+    if (parsePort(p).side === 'in') {
+      const [output] = cardPorts(parts, node).outputs
+      return Boolean(output) && wire(p, outPort(srcOf(node, output.key)))
+    }
     const ports = parts.inputs(node)
     const open = ports.find((port) => !feeding(graph, id, port) && !refusal(p, inPort(id, port))) ?? ports.find((port) => !refusal(p, inPort(id, port)))
     if (!open) {

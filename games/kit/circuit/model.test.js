@@ -1,10 +1,34 @@
 // node --test games/kit/circuit — a level's preset on a board: locked parts and wires stay, the rest is the player's.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { cardPorts, portNotes } from './card-ports.js'
 import { baseRefusal, connect, keepLocked, presetOf, removeNode, spotIn, withPreset } from './model.js'
 
 const board = { nodes: [{ id: 'in', type: 'in', x: 0, y: 0 }, { id: 'out', type: 'out', x: 400, y: 0 }], wires: [] }
 const preset = { nodes: [{ id: 'p', type: 'oracle', x: 200, y: 0 }], wires: [{ from: 'p', to: 'out', port: 'in' }] }
+
+test('card ports keep frame openings inside and distinguish plain, named and missing outputs', () => {
+  const declared = [{ key: 'left', label: 'Left assumption' }, { key: null }, { key: 'named' }]
+  const parts = {
+    role: (node) => node.type === 'sink' ? 'sink' : 'part',
+    inputs: (node) => node.type === 'frame' ? ['main', 'left', 'closed'] : ['in'],
+    frames: (node) => node.type === 'frame' ? [{ name: 'left', opens: true }, { name: 'closed', opens: false }] : [],
+    outputs: (node) => node.type === 'frame' ? declared : node.type === 'quiet' ? [] : null,
+  }
+  assert.deepEqual(cardPorts(parts, { type: 'frame' }), {
+    inputs: ['main'], outputs: [{ key: null }, { key: 'named' }],
+    regions: [{ name: 'left', opens: true, output: declared[0] }, { name: 'closed', opens: false, output: undefined }],
+  })
+  assert.deepEqual(cardPorts(parts, { type: 'plain' }).outputs, [{ key: null, label: '' }])
+  assert.deepEqual(cardPorts(parts, { type: 'quiet' }).outputs, [])
+  assert.deepEqual(cardPorts(parts, { type: 'sink' }).outputs, [])
+
+  const render = (node, key, ctx) => [node.id, key, ctx.path]
+  const notes = portNotes({ outNote: render, resultNote: render }, { path: ['packed'] })
+  assert.deepEqual(notes.outNote({ id: 'frame' }, 'named'), ['frame', 'named', ['packed']])
+  assert.deepEqual(notes.resultNote({ id: 'frame' }, 'closed'), ['frame', 'closed', ['packed']])
+  assert.equal(notes.regionNote, undefined)
+})
 
 test('a preset goes onto a board locked, where the board already has its parts', () => {
   const started = withPreset(board, preset)
