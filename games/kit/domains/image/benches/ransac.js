@@ -13,7 +13,7 @@ const gauss = (next) => {
   return (s - 3) * Math.SQRT2
 }
 
-/** k ≥ log(1 − P) / log(1 − pⁿ), the lecture's formula: rounds for a chance P of drawing n inliers at least once. */
+/** k ≥ log(1 − P) / log(1 − pⁿ), the number of rounds for a chance P of drawing n inliers at least once. */
 export const ransacRounds = (p, n = 2, P = 0.99) => Math.ceil(Math.log(1 - P) / Math.log(1 - p ** n))
 
 /**

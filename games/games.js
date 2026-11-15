@@ -9,11 +9,11 @@ export const GAMES = [
   {
     id: 'vision-complete', href: 'vision-complete/index.html', title: '视觉完备', en: 'Vision Complete', topic: { zh: '计算机视觉', en: 'Computer Vision' },
     desc: {
-      zh: '没有讲解，只有元件、测试和一组输入输出。从“把图挪一格”开始，自己搭出模糊、边缘、角点和视差，最后让机器学会看。',
-      en: 'No lectures, just components, tests and a set of inputs and outputs. Start from “shift the image by one pixel”, build blur, edges, corners and disparity yourself, and end up teaching the machine to see.',
+      zh: '从把图像挪一格开始。亲手接线实现模糊、寻找边缘和角点，再从两张图像估计深度。',
+      en: 'Start by shifting an image one pixel. Wire together components to blur images, find edges and corners, and measure depth from two views.',
     },
     levels: 151, art: 'pipeline',
-    page: { icon: 'M14 20h10v10H14zM40 34h10v10H40zM24 25h16v14', description: '视觉完备 Vision Complete：把计算机视觉课程做成一套解谜关卡。A computer vision course turned into a set of puzzle levels.' },
+    page: { icon: 'M14 20h10v10H14zM40 34h10v10H40zM24 25h16v14', description: '视觉完备 Vision Complete：用图像处理元件接线解谜。A computer vision puzzle game built around wiring image-processing circuits.' },
   },
   {
     id: 'state-graph', href: 'state-graph/index.html', title: '状态之图', en: 'State Graph', topic: { zh: '动态规划', en: 'Dynamic Programming' },

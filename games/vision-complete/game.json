@@ -1,10 +1,10 @@
 {
   "domain": "image",
-  "vocabulary": 18,
+  "vocabulary": 19,
   "title": { "en": "Vision Complete" },
-  "kicker": { "en": "COMP90086 · Computer Vision" },
+  "kicker": { "en": "Computer Vision" },
   "lede": {
-    "en": "No lectures: just parts, tests and a set of inputs and outputs. Start from “move the picture one pixel”, build blur, edges, corners and disparity yourself, and finally teach the machine to see."
+    "en": "Start by shifting an image one pixel. Wire together components to blur images, find edges and corners, and measure depth from two views."
   },
   "power": {
     "title": { "en": "Power on" },
@@ -255,7 +255,7 @@
       "topics": [{ "id": "inspection", "levels": ["0-10", "0-11", "0-12"], "after": "0-7", "code": "I" }],
       "chapter": {
         "title": { "en": "Open your eyes" },
-        "lecture": { "en": "Image formation and basics · Lectures 1–2" },
+        "label": { "en": "Image formation" },
         "question": { "en": "What is an image?" }
       }
     },
@@ -283,7 +283,7 @@
       "topics": [{ "id": "scanner", "levels": ["1-13", "1-14", "1-15"], "code": "S" }],
       "chapter": {
         "title": { "en": "Neighbours" },
-        "lecture": { "en": "Filtering · Lecture 3" },
+        "label": { "en": "Spatial filtering" },
         "question": { "en": "How do neighbours make a new image?" }
       }
     },
@@ -307,7 +307,7 @@
       "topics": [{ "id": "thumbnails", "levels": ["2-13", "2-14", "2-15", "2-16"], "code": "T" }],
       "chapter": {
         "title": { "en": "Frequency" },
-        "lecture": { "en": "Filtering · Lecture 4" },
+        "label": { "en": "Frequency and sampling" },
         "question": { "en": "Which waves make up an image?" }
       }
     },
@@ -335,7 +335,7 @@
       "topics": [{ "id": "photometric", "levels": ["3-12", "3-13", "3-14"], "after": "3-9", "code": "P" }],
       "chapter": {
         "title": { "en": "Light and edges" },
-        "lecture": { "en": "Image formation and basics · Lecture 5" },
+        "label": { "en": "Light and colour" },
         "question": { "en": "Where do light and shade come from?" }
       }
     },
@@ -371,9 +371,7 @@
       ],
       "chapter": {
         "title": { "en": "Learning to See" },
-        "lecture": {
-          "en": "Recognition and representation learning · Lectures 6–8"
-        },
+        "label": { "en": "Convolutional networks" },
         "question": { "en": "How does a machine learn by itself?" }
       }
     },
@@ -392,9 +390,7 @@
       "topics": [{ "id": "dedup", "levels": ["5-7", "5-8", "5-9"], "after": "5-1", "code": "D" }],
       "chapter": {
         "title": { "en": "The Whole Picture" },
-        "lecture": {
-          "en": "Recognition and representation learning · Lectures 9–10"
-        },
+        "label": { "en": "Attention and embeddings" },
         "question": { "en": "Seeing the whole image in one step" }
       }
     },
@@ -416,9 +412,7 @@
       ],
       "chapter": {
         "title": { "en": "The Same Point Again" },
-        "lecture": {
-          "en": "3D perception · Geometry foundations · Lectures 11–12"
-        },
+        "label": { "en": "Feature matching" },
         "question": { "en": "Which points are easy to find again?" }
       }
     },
@@ -438,7 +432,7 @@
       "topics": [{ "id": "avoid", "levels": ["7-10", "7-11", "7-12"], "after": "7-3", "code": "A" }],
       "chapter": {
         "title": { "en": "The Third Dimension" },
-        "lecture": { "en": "3D perception · Lectures 13–14" },
+        "label": { "en": "Stereo vision" },
         "question": { "en": "How do two eyes judge distance?" }
       }
     },
@@ -465,7 +459,7 @@
       "topics": [{ "id": "restore", "levels": ["8-10", "8-11"], "after": "8-8", "code": "F" }],
       "chapter": {
         "title": { "en": "Drawing the Unseen" },
-        "lecture": { "en": "Generative models · Lectures 15–17" },
+        "label": { "en": "Generative models" },
         "question": { "en": "Making images from random numbers" }
       }
     },
@@ -491,7 +485,7 @@
       "topics": [{ "id": "cells", "levels": ["9-8", "9-9", "9-10"], "code": "M" }],
       "chapter": {
         "title": { "en": "What Every Pixel Is" },
-        "lecture": { "en": "Segmentation · Lectures 19–20" },
+        "label": { "en": "Segmentation" },
         "question": { "en": "An answer for every pixel" }
       }
     },
@@ -517,7 +511,7 @@
       "topics": [{ "id": "shelf", "levels": ["10-9", "10-10", "10-11"], "code": "G" }],
       "chapter": {
         "title": { "en": "Boxing Things In" },
-        "lecture": { "en": "Object detection · Lectures 21–22" },
+        "label": { "en": "Object detection" },
         "question": { "en": "Where things are, and how big" }
       }
     },
@@ -535,7 +529,7 @@
       "topics": [{ "id": "checkup", "levels": ["11-6", "11-7"], "after": ["11-3", "11-4"], "code": "R" }],
       "chapter": {
         "title": { "en": "Where Is It Looking?" },
-        "lecture": { "en": "Cross-topic review · Lecture 23" },
+        "label": { "en": "Model inspection" },
         "question": { "en": "Does it see the car or the road?" }
       }
     }

@@ -52,7 +52,7 @@ function playable({ intro: _, ...task }, kit, keep) {
 }
 
 /**
- * content: { eras (games/DESIGN.md 2: each with its chapter { title, lecture, question }), levels (in any order: the
+ * content: { eras (games/DESIGN.md 2: each with its chapter { title, label, question }), levels (in any order: the
  * eras give the order), views: { view: level id } the level each way of drawing a picture comes with (pixels is there
  * from the start), primitives (the parts no circuit builds), trays: { tray: [part] } (../../course.js trays),
  * concept: { part: idea } parts that are one new idea together, replaces: { part: [part] } the parts a part supersedes

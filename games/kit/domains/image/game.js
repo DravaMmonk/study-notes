@@ -81,7 +81,7 @@ export default function imageGame(content) {
     lede: content.lede,
     Hero: imageHero,
     power: content.power,
-    chapters: CHAPTERS.map((chapter) => ({ ...chapter, label: chapter.lecture })),
+    chapters: CHAPTERS,
     levels,
     intro: (level) => image.intros[level.id],
     IntroFigure: imageIntroduction,

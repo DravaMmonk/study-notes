@@ -17,7 +17,7 @@
       "title": { "en": "How the game works" },
       "body": [
         {
-          "en": "Vision Complete turns a computer vision course into a series of levels. There are no lectures: each level gives you some inputs and the outputs it expects, you build something from parts that turns one into the other, and when every test passes, the level is done."
+          "en": "In Vision Complete, you build image-processing circuits from components. Each puzzle gives you inputs and expected outputs. Pass every test to solve it."
         },
         {
           "en": "You start as Probe V-0, just powered on: your sensor turns the world into a grid of numbers that you cannot read yet. Your job is to learn, step by step, to read them."
@@ -34,7 +34,7 @@
       "title": { "en": "The level map and chapters" },
       "body": [
         {
-          "en": "On the map each chapter is a trace and its levels are pads along it; a small icon beside each says whether it is a circuit or a bench. Each chapter follows one or two lectures of the course, and under its title is the question the chapter sets out to answer."
+          "en": "On the map, each chapter follows a theme and its levels sit along a circuit trace. The chapter title is followed by the question you will explore. Level icons distinguish circuits from benches."
         },
         {
           "en": "A level opens once the levels before it are passed; passed levels are ticked and closed ones show a padlock. “Continue” takes you straight to the first level you have not passed yet. Turn on “Unlock all” to play any level in any order; progress is still recorded."

@@ -1,6 +1,6 @@
 {
   "domain": "image",
-  "vocabulary": 16,
+  "vocabulary": 19,
   "title": { "en": "Computer Vision Notes" },
   "kicker": { "en": "COMP90086 notes edition" },
   "lede": {
@@ -21,7 +21,7 @@
       "foundation": ["projection"],
       "chapter": {
         "title": { "en": "How images form and are represented" },
-        "lecture": { "en": "Lecture 2" },
+        "label": { "en": "Lecture 2" },
         "question": { "en": "Where do the numbers in an image come from?" }
       }
     },
@@ -30,7 +30,7 @@
       "foundation": ["separable", "sinusoid"],
       "chapter": {
         "title": { "en": "Processing images with fixed rules" },
-        "lecture": { "en": "Lectures 3–4" },
+        "label": { "en": "Lectures 3–4" },
         "question": { "en": "How do a kernel and a wave change an image?" }
       }
     }

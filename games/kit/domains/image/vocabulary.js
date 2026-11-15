@@ -134,7 +134,7 @@ const ERA = S.obj({
     after: S.opt(AFTER),
   }))),
   challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
-  chapter: S.obj({ title: TEXT, lecture: TEXT, question: TEXT }),
+  chapter: S.obj({ title: TEXT, label: S.opt(TEXT), question: TEXT }),
 })
 const GAME = S.obj({
   title: TEXT,
@@ -158,8 +158,8 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 18,
-  removes: [{ at: 'level.packs', why: 'a built piece is a parts.json entry whose inside refers to the task that builds it' }],
+  version: 19,
+  removes: [{ at: 'game.eras.of.chapter.lecture', why: 'chapter labels describe the game and can be omitted' }],
   kinds: {
     part: PARTS,
     op: Object.fromEntries(Object.entries(IMAGE_OPS).map(([name, { about, args }]) => [name, { about, args }])),

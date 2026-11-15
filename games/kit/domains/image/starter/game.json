@@ -20,7 +20,7 @@
       "foundation": ["0-1", "0-2", "0-3"],
       "chapter": {
         "title": { "en": "Opening eyes" },
-        "lecture": { "en": "Lecture 1" },
+        "label": { "en": "Image processing" },
         "question": { "en": "What is an image?" }
       }
     }
