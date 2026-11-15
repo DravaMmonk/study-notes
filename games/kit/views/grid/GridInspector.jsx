@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { tr } from '../../shell/i18n.js'
 import { cellNumber, pixel, pixelText } from '../../engine/grid.js'
+import { finiteExtent } from '../../engine/number.js'
 import { useElementSize } from '../useElementSize.js'
 import { usePointerSession } from '../usePointerSession.js'
 import GridView from './GridView.jsx'
@@ -93,7 +94,7 @@ export default function GridInspector({ value, label, note, view, showSize = tru
   const frameSize = fit && max ? fitFrame(value, info, max, cellOf) : null
   // A frame not laid out yet (measured inside something still hidden or opening) draws the thumbnail size meanwhile.
   const scale = size && size.width > 2 && size.height > 2 ? Math.min((size.width - 2) / value.w, (size.height - 2) / value.h) : thumbCell(value)
-  const range = value.data.reduce(([lo, hi], v) => [Math.min(lo, v), Math.max(hi, v)], [Infinity, -Infinity])
+  const range = finiteExtent([value.data])
   const select = (x, y, event, pinned) => {
     const anchor = event.currentTarget
     const box = anchor.getBoundingClientRect()
@@ -111,7 +112,7 @@ export default function GridInspector({ value, label, note, view, showSize = tru
   return <figure className="gv-inspector" ref={root} style={frameSize ? { width: `min(100%, ${frameSize.w}px)` } : undefined}>
     <figcaption>
       <strong>{label}</strong>
-      <span className="gv-inspect-meta" title={tr(`数值范围 ${cellNumber(range[0])} … ${cellNumber(range[1])}`, `Value range ${cellNumber(range[0])} … ${cellNumber(range[1])}`)}>{meta}</span>
+      <span className="gv-inspect-meta" title={range ? tr(`数值范围 ${cellNumber(range.lo)} … ${cellNumber(range.hi)}`, `Value range ${cellNumber(range.lo)} … ${cellNumber(range.hi)}`) : undefined}>{meta}</span>
     </figcaption>
     <div ref={frame} className={`gv-frame ${info ? 'is-info' : 'is-overview'}`} style={frameSize ? { height: frameSize.h } : undefined} {...pan}>
       <div className="gv-frame-canvas">
@@ -126,7 +127,7 @@ export default function GridInspector({ value, label, note, view, showSize = tru
       <strong>({active.x}, {active.y})</strong>
       {inspectPixel?inspectPixel(active.x,active.y):<><span>{pixelText(pixel(value, active.x, active.y))}</span>
       {explainPixel && <span className="gv-popover-calc">{explainPixel(active.x, active.y)}</span>}</>}
-      {(range[0] < 0 || range[1] > 1) && <small>{tr('显示亮度限制为 0–1，数值保持原样。')}</small>}
+      {range && (range.lo < 0 || range.hi > 1) && <small>{tr('显示亮度限制为 0–1，数值保持原样。')}</small>}
     </div>,document.body)}
   </figure>
 }

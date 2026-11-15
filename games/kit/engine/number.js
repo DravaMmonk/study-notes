@@ -6,3 +6,17 @@ export function numberText(v, digits = 4) {
   const r = Number(v.toFixed(digits))
   return String(Object.is(r, -0) ? 0 : r)
 }
+
+/** Bounds of the finite numbers across rows or series, or null when there are none. */
+export function finiteExtent(series) {
+  let lo = Infinity
+  let hi = -Infinity
+  for (const row of series) {
+    for (const value of row ?? []) {
+      if (!Number.isFinite(value)) continue
+      if (value < lo) lo = value
+      if (value > hi) hi = value
+    }
+  }
+  return lo <= hi ? { lo, hi } : null
+}

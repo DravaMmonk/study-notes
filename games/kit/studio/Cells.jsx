@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Brush, Minus, Plus, X } from 'lucide-react'
 import { tr } from '../shell/i18n.js'
+import { finiteExtent } from '../engine/number.js'
 import { usePointerSession } from '../views/usePointerSession.js'
 import { blank, cellText, cellValue, gridRows, gridValue, nullable, pastedCells, tableOf, tableValue, tickValue, tickValues, toggled } from './form.js'
 
@@ -64,7 +65,9 @@ function Cell({ value, schema, r, c, onSet, onPaste, style, label }) {
 }
 
 /** The shade of a number among the matrix's numbers. */
-const shade = (v, lo, hi) => (typeof v === 'number' && hi > lo ? { '--shade': `${Math.round((100 * (v - lo)) / (hi - lo)) * 0.42}%` } : undefined)
+const shade = (v, range) => (Number.isFinite(v) && range && range.hi > range.lo
+  ? { '--shade': `${Math.round((100 * (v - range.lo)) / (range.hi - range.lo)) * 0.42}%` }
+  : undefined)
 
 /** Paint a local draft while held, and replace the field once on release. */
 function useCellPaint(value, onSet, write) {
@@ -117,9 +120,8 @@ function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded
     return values.map((row, i) => (i === r ? Array.from({ length: Math.max(row.length, c + 1) }, (_, j) => (j === c ? v : row[j] ?? blank(colSchema(j), {}))) : row))
   }
   const { shown, begin } = useCellPaint(rows, onRows, write)
-  const width = Math.max(1, ...shown.map((r) => r.length), header?.length ?? 0)
-  const nums = shown.flat().filter((v) => typeof v === 'number')
-  const [lo, hi] = [Math.min(...nums), Math.max(...nums)]
+  const width = shown.reduce((max, row) => Math.max(max, row.length), Math.max(1, header?.length ?? 0))
+  const range = shaded ? finiteExtent(shown) : null
   const set = (r, c, v) => onRows(write(rows, [r, c], v))
   // A pasted block lands from (r, c), the table growing to hold it.
   const paste = (r, c, block) => {
@@ -161,7 +163,7 @@ function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded
               )}
               {Array.from({ length: width }, (_, c) => (
                 <td key={c} data-paint={`${r},${c}`}>
-                  <Cell value={row[c]} schema={colSchema(c)} r={r} c={c} onSet={(v) => set(r, c, v)} onPaste={(block) => paste(r, c, block)} style={shaded ? shade(row[c], lo, hi) : undefined} label={`${label} ${r},${c}`} />
+                  <Cell value={row[c]} schema={colSchema(c)} r={r} c={c} onSet={(v) => set(r, c, v)} onPaste={(block) => paste(r, c, block)} style={shade(row[c], range)} label={`${label} ${r},${c}`} />
                 </td>
               ))}
               {one && addCol && <td><button type="button" className="cell-add" onClick={addCol} aria-label={tr('加一个')}><Plus size={12} /></button></td>}
