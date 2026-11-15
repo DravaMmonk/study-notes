@@ -3,7 +3,7 @@ import { L, tr } from '../shell/i18n.js'
 import { iconOf } from '../shell/parts/icons.js'
 import { useState } from 'react'
 import SidebarListTools from './SidebarListTools.jsx'
-import { alphabetic, bySidebarName, sidebarSearch } from './sidebar-list.js'
+import { sidebarSearch, sidebarSortOptions, sortSidebarIds } from './sidebar-list.js'
 import { usePref } from './prefs.js'
 import { taskOptionsOf } from './form.js'
 import { pieceGroups } from './pieces.js'
@@ -41,9 +41,9 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
   }
   const matches = sidebarSearch(query)
   const shown = parts.filter(([id, def]) => matches(id, L(def.name))).map(([id]) => id)
-  const groups = sort === 'alphabetic'
-    ? [{ tray: null, types: bySidebarName(shown, (id) => L(file.parts[id].name)) }]
-    : pieceGroups(shown, { trays: content.trays, at: (type) => earned.get(type) ?? null, order, primitives: content.primitives ?? [] })
+  const groups = sort === 'tray'
+    ? pieceGroups(shown, { trays: content.trays, at: (type) => earned.get(type) ?? null, order, primitives: content.primitives ?? [] })
+    : [{ tray: null, types: sortSidebarIds(shown, sort, (id) => L(file.parts[id].name)) }]
 
   const row = (type) => {
     const def = file.parts[type]
@@ -61,7 +61,7 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
   return (
     <nav className="parts-list" aria-label={tr('件', 'Pieces')}>
       <SidebarListTools addOptions={choices} onAdd={create} query={query} onQuery={setQuery}
-        sortOptions={[{ value: 'tray', label: tr('按托盘', 'By tray') }, alphabetic()]} sort={sort} onSort={setSort} />
+        sortOptions={[{ value: 'tray', label: tr('按托盘', 'By tray') }, ...sidebarSortOptions()]} sort={sort} onSort={setSort} />
       {groups.map((g) => (
         <section key={g.tray ?? ''} className="parts-group">
           {g.tray ? <span className="parts-tray">{g.tray}</span> : groups.length > 1 && <hr className="parts-rule" />}

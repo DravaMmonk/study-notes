@@ -4,14 +4,16 @@ import { L, tr } from '../shell/i18n.js'
 import { freeName } from './PartsList.jsx'
 import { useState } from 'react'
 import SidebarListTools from './SidebarListTools.jsx'
-import { alphabetic, bySidebarName, sidebarSearch } from './sidebar-list.js'
+import { usePref } from './prefs.js'
+import { NAME_ASC, sidebarSearch, sidebarSortOptions, sortSidebarIds } from './sidebar-list.js'
 
 export default function SettingsList({ file, vocabulary, selected, onSelect, onEdit }) {
   const [query, setQuery] = useState('')
+  const [sort, setSort] = usePref('setting-list-sort', NAME_ASC)
   const settings = file?.settings ?? {}
   const ids = Object.keys(settings)
   const matches = sidebarSearch(query)
-  const shown = bySidebarName(ids.filter((id) => matches(id, L(settings[id].label))), (id) => L(settings[id].label))
+  const shown = sortSidebarIds(ids.filter((id) => matches(id, L(settings[id].label))), sort, (id) => L(settings[id].label))
   const controls = settingControlOptions(vocabulary)
   const add = (control) => {
     const setting = freeName(ids, 'setting')
@@ -21,7 +23,7 @@ export default function SettingsList({ file, vocabulary, selected, onSelect, onE
   return (
     <nav className="parts-list" aria-label={tr('设置', 'Settings')}>
       <SidebarListTools addOptions={controls} onAdd={add} query={query} onQuery={setQuery}
-        sortOptions={[alphabetic()]} sort="alphabetic" onSort={() => {}} />
+        sortOptions={sidebarSortOptions()} sort={sort} onSort={setSort} />
       {shown.map((id) => {
         const setting = settings[id]
         return (
