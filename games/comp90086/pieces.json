@@ -1,0 +1,44 @@
+{
+  "presets": {
+    "border": {
+      "label": { "zh": "边界" },
+      "control": "select",
+      "options": [
+        { "value": "zero", "label": { "zh": "补 0" } },
+        { "value": "edge", "label": { "zh": "复制边缘" } }
+      ],
+      "default": "zero"
+    }
+  },
+  "parts": {
+    "line3": {
+      "name": { "zh": "一维三点核" },
+      "desc": { "zh": "沿一行或一列取三个相邻像素，分别乘以权重后相加。" },
+      "icon": "Grid3x3",
+      "family": "neighbour",
+      "inputs": [{ "name": "in", "label": "" }],
+      "settings": [
+        {
+          "key": "axis",
+          "label": { "zh": "方向" },
+          "control": "select",
+          "options": [{ "value": "x", "label": { "zh": "横" } }, { "value": "y", "label": { "zh": "竖" } }],
+          "default": "x"
+        },
+        { "key": "a", "label": "a", "control": "number", "min": -4, "max": 4, "step": 1, "default": 0 },
+        { "key": "b", "label": "b", "control": "number", "min": -4, "max": 4, "step": 1, "default": 1 },
+        { "key": "c", "label": "c", "control": "number", "min": -4, "max": 4, "step": 1, "default": 0 },
+        { "key": "border", "use": "border" }
+      ],
+      "compute": "image_line3(in, $axis, $a, $b, $c, $border)"
+    },
+    "add": {
+      "name": { "zh": "相加" },
+      "desc": { "zh": "两张图逐像素相加：a + b" },
+      "icon": "Calculator",
+      "family": "pixel",
+      "inputs": [{ "name": "a", "label": "a" }, { "name": "b", "label": "b" }],
+      "compute": "image_add(a, b)"
+    }
+  }
+}

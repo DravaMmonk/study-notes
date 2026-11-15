@@ -41,5 +41,15 @@
   "目标的亮处正是你的暗处。": "The target is light where your wave is dark.",
   "目标": "target",
   "你的": "yours",
-  "你的波": "Your wave"
+  "你的波": "Your wave",
+  "一维三点核": "1D 3-point kernel",
+  "沿一行或一列取三个相邻像素，分别乘以权重后相加。": "Take three neighbouring pixels along a row or column, multiply each by its weight, and add them.",
+  "方向": "Direction",
+  "横": "Across",
+  "竖": "Down",
+  "相加": "Add",
+  "两张图逐像素相加：a + b": "Adds two pictures pixel by pixel: a + b",
+  "边界": "Border",
+  "补 0": "Pad with 0",
+  "复制边缘": "Replicate edge"
 }

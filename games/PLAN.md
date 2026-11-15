@@ -7,16 +7,11 @@
 - 《证明完毕》：全部玩法在内核的屏上，`logic` 自写组件 0 行；门、推理规则、证明助手的元件、引理、等式都是 `games/qed/pieces.json` 的件。
 - 《视觉完备》：件在 `pieces.json`；玩法已登记在 `domains/image/plays.js`（图像电路 `graph`、参数台 `board`、探针 `probe`），共用内核的关卡布局。领域还自写 2828 行组件：电路关（`ui/CircuitPlay.jsx`、`ui/TestPanel.jsx`、`ui/useImageCards.jsx`、`ui/phone/Editors.jsx`）、件的演示（`ui/PartDemo.jsx`）、图像视图（`ui/views/`）、参数台（`ui/benches/`）。
 - 《状态之图》：件和思路在 `pieces.json`；玩法已登记在 `domains/table/plays.js`，手动棋盘和机器人电路共用棋盘界面。领域还自写 2187 行组件：机器人电路（`ui/modes/Circuit.jsx`）、八种玩法屏（`ui/modes/`）、件的演示（`ui/PartDemo.jsx`）、`ui/BoardView.jsx`、`ui/RobotView.jsx`。
-- COMP90086：建在视觉领域上，还没有 `pieces.json`。
+- H.2 已完成。COMP90086 的 `pieces.json` 登记一维三点核和相加两个基础件。课内检验结果与基线一致，英译覆盖从 43/43 增至 53/53。
 - 编辑器的预览已接入 studio 和元件箱，接口是 `preview(piece, { game, scene })`，`scene` 取 `card`、`tile` 或 `detail`。
 - H.1：移除了旧演示专用的场景图、无头场景钩子、反应世界和电路重复量度。三个脚手架保留，电路预设和逐拍寄存器继续由脚手架使用。
 
 ## 阶段 H
-
-### H.2 COMP90086 的 `pieces.json`
-
-- 照《视觉完备》：基础件写 `compute`，搭出的件写 `inside`，经操作集写入。
-- 验收：件页能看、能预览、能改（改一处、应用、撤销）；检查输出只有译文计数可以变；浏览器里玩通一关。
 
 ### H.3 《视觉完备》的图像电路关上内核的电路屏
 
