@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 /** Navigate a filtered list while focus remains in its search field. */
-export function useListCursor(items, { initial = 0, reset = items, onConfirm, onEscape }) {
+export function useListCursor(items, { initial = 0, reset = items, onConfirm }) {
   const [cursor, setAt] = useState(initial)
   const list = useRef(null)
   const at = Math.min(cursor, items.length - 1)
@@ -13,7 +13,7 @@ export function useListCursor(items, { initial = 0, reset = items, onConfirm, on
   }, [active, at])
 
   const onKeyDown = (event) => {
-    if (event.nativeEvent.isComposing) return
+    if (event.nativeEvent.isComposing || event.altKey || event.ctrlKey || event.metaKey) return
     switch (event.key) {
       case 'ArrowDown':
       case 'ArrowUp':
@@ -26,10 +26,6 @@ export function useListCursor(items, { initial = 0, reset = items, onConfirm, on
       case 'Enter':
         event.preventDefault()
         onConfirm(active)
-        break
-      case 'Escape':
-        event.preventDefault()
-        onEscape()
         break
       default:
         break

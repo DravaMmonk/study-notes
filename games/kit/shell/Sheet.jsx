@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { tr } from './i18n.js'
 import { EntriesSize, SHEET } from './Entries.jsx'
-import { useOverlayKeys } from './overlay-keys.js'
+import { useOverlayKeys } from './useOverlayKeys.js'
 import './sheet.css'
 
 // A centered dialog on desktop and a draggable bottom sheet on phones.

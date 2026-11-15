@@ -1,7 +1,7 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { ArrowLeft, Lock, Search, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
-import { useOverlayKeys } from './overlay-keys.js'
+import { useOverlayKeys } from './useOverlayKeys.js'
 
 // A book of entries, after the encyclopedia in Turing Complete: entries by group on the left, the open entry on the
 // right; on a phone, the list and then one entry at a time. The encyclopedia and the components box are both one.

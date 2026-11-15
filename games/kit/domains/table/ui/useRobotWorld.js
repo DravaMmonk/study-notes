@@ -12,7 +12,8 @@ import { panelData } from '../items/panels.js'
 import { boardDrawing } from './scene.js'
 import { robotDrawing } from './robotDrawing.js'
 import { probeValues, tutorialFailure } from './circuitRun.js'
-import { buzz, typing, useKeys, useToast, useVerdict } from '../../../shell/useBoardInteraction.jsx'
+import { buzz, typing, useToast, useVerdict } from '../../../shell/useBoardInteraction.jsx'
+import { useWorkspaceKeys } from '../../../shell/useOverlayKeys.js'
 import { L, T } from '../../../shell/i18n.js'
 
 const empty = { typed: {}, robot: null, selected: null, input: '', focus: null, bench: false }
@@ -133,7 +134,7 @@ export function useRobotWorld({ screen, task, test, run, report, at, ended, circ
       buzz(8)
     } else if (input.length < 3) put({ input: (input === '0' ? '' : input) + k })
   }
-  useKeys((event) => {
+  useWorkspaceKeys((event) => {
     if (!state.selected) return
     if (event.key === 'Escape') put({ selected: null, input: '' })
     else typing(event, key)

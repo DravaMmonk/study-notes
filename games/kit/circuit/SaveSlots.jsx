@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { ArrowUpFromLine, Check, ChevronDown, ClipboardPaste, Copy, FileText, Layers, Pencil, Plus, X } from 'lucide-react'
 import { Dialog } from '../shell/Dialogs.jsx'
 import { tr } from '../shell/i18n.js'
-import { useOverlayKeys } from '../shell/overlay-keys.js'
+import { useOverlayKeys } from '../shell/useOverlayKeys.js'
 import BlueprintDialog from './BlueprintDialog.jsx'
 import { print } from './text.js'
 

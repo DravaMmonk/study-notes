@@ -1,7 +1,7 @@
 import { Text } from './Layout.jsx'
 import { fileMark } from './edit.js'
 import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useOverlayKeys } from './overlay-keys.js'
+import { useOverlayKeys } from './useOverlayKeys.js'
 import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'

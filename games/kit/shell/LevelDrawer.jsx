@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, PanelLeftClose } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { LevelTree, NeededNote, useNeeded } from './LevelMap.jsx'
-import { useOverlayKeys } from './overlay-keys.js'
+import { useOverlayKeys } from './useOverlayKeys.js'
 
 // The level drawer, pulled out from the left over a level: every chapter as its level tree (the map's, compact), the
 // current chapter open and the current level marked. Picking a level switches to it directly, without the map.

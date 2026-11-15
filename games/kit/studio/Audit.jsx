@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronUp } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
+import { useWorkspaceKeys } from '../shell/useOverlayKeys.js'
 import { SEVERITIES, filterItems, stepIn, tally } from './worklist.js'
 import { usePref } from './prefs.js'
 
@@ -23,17 +24,20 @@ export default function Audit({ items, fresh, last, at, busy, ops, migration, op
     setCursor(k)
     if (shown[k]) onJump(shown[k])
   }
+  const step = (delta) => {
+    if (!open) onToggle()
+    go(stepIn(shown.length, Math.min(cursor, shown.length - 1), delta))
+  }
   // F8 / Shift+F8, or the palette's next and previous finding.
+  useWorkspaceKeys((event) => {
+    if (event.key !== 'F8') return
+    event.preventDefault()
+    step(event.shiftKey ? -1 : 1)
+  })
   useEffect(() => {
-    const step = (s) => {
-      if (!open) onToggle()
-      go(stepIn(shown.length, Math.min(cursor, shown.length - 1), s))
-    }
-    const key = (e) => { if (e.key === 'F8') { e.preventDefault(); step(e.shiftKey ? -1 : 1) } }
     const asked = (e) => step(e.detail)
-    window.addEventListener('keydown', key)
     window.addEventListener('studio:finding', asked)
-    return () => { window.removeEventListener('keydown', key); window.removeEventListener('studio:finding', asked) }
+    return () => window.removeEventListener('studio:finding', asked)
   })
   useEffect(() => { document.querySelector('.audit-row.is-at')?.scrollIntoView({ block: 'nearest' }) }, [cursor])
   const set = (patch) => setFilter((f) => ({ ...f, ...patch }))

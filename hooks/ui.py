@@ -9,7 +9,7 @@ import shutil
 from pathlib import Path
 
 KIT = Path(__file__).resolve().parent.parent / "games" / "kit"
-ASSETS = ("tokens.css", "ui.css", "prose.css", "menu.js", "lang.js", "theme.js")
+ASSETS = ("tokens.css", "ui.css", "prose.css", "menu.js", "overlay-keys.js", "lang.js", "theme.js")
 
 
 def on_post_build(config, **kwargs):

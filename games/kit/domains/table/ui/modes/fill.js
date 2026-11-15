@@ -5,7 +5,8 @@ import { evalGraph } from '../../model/algo.js'
 import { E, W } from '../../model/scene.js'
 import { tr, lazy } from '../../lang.js'
 import { boardDrawing } from '../scene.js'
-import { buzz, typing, useKeys, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
+import { buzz, typing, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
+import { useWorkspaceKeys } from '../../../../shell/useOverlayKeys.js'
 import { L as text } from '../../../../shell/i18n.js'
 import { WORDS } from '../../../../shell/words.js'
 
@@ -54,7 +55,7 @@ export default function useFill({ level, saved, save, solve, fail, toast }) {
     } else if (input.length < 4) setInput((input === '0' ? '' : input) + k)
     buzz(5)
   }
-  useKeys((event) => sel && typing(event, key))
+  useWorkspaceKeys((event) => sel && typing(event, key))
 
   const check = () => {
     if (empties) {

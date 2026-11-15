@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Plus, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
+import { useOverlayKeys } from '../shell/useOverlayKeys.js'
 import { useListCursor } from './useListCursor.js'
 
 const words = (v) => (v && typeof v === 'object' ? `${v.zh ?? ''} ${v.en ?? ''}` : String(v ?? ''))
@@ -25,6 +26,7 @@ export function useDismiss(ref, open, close) {
 /** The popover's list: a search box (starting at `query`) over every word of each option, arrows and Enter to pick, Escape to leave. */
 export function OptionList({ options, value, onPick, onClose, autoFocus = true, query: first = '' }) {
   const [query, setQuery] = useState(first)
+  const overlay = useOverlayKeys(onClose)
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase()
     return q ? options.filter((o) => `${o.value} ${o.label ?? ''} ${words(o.title)} ${words(o.about)} ${words(o.group)}`.toLowerCase().includes(q)) : options
@@ -32,11 +34,10 @@ export function OptionList({ options, value, onPick, onClose, autoFocus = true, 
   const { at, setAt, list, onKeyDown } = useListCursor(shown, {
     initial: Math.max(0, shown.findIndex((o) => o.value === value)),
     onConfirm: (option) => { if (option) onPick(option.value) },
-    onEscape: onClose,
   })
   let group = null
   return (
-    <div className="pick-pop" role="dialog">
+    <div ref={overlay} className="pick-pop" role="dialog">
       <input className="pick-search" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={onKeyDown} autoFocus={autoFocus} placeholder={tr('搜索')} aria-label={tr('搜索')} />
       <ul className="pick-list" ref={list} role="listbox">
         {shown.map((o, k) => {

@@ -3,7 +3,7 @@ import { L, keyOf, tr } from './i18n.js'
 import { Markup } from './Markup.jsx'
 import { readShow } from '../engine/views.js'
 import Show from '../views/Show.jsx'
-import { useOverlayKeys } from './overlay-keys.js'
+import { useOverlayKeys } from './useOverlayKeys.js'
 
 // Content text: bilingual pairs or a list of them; blank lines separate explanation and formula paragraphs.
 function Paragraphs({ text }) {

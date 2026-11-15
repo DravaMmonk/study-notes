@@ -9,7 +9,7 @@ import { assignBlock, rectangleMembers } from './blocks.js'
 import { WORDS } from '../shell/words.js'
 import BlockHeader from './BlockHeader.jsx'
 import { useSetting } from '../shell/useSetting.js'
-import { topOverlay } from '../shell/overlay-keys.js'
+import { useWorkspaceKeys } from '../shell/useOverlayKeys.js'
 import { useEffect, useEffectEvent, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import { foldedPartsOf } from './folding.js'
 import ClearButton from './ClearButton.jsx'
@@ -345,27 +345,21 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   }
   // Delete or Backspace removes the selection; Escape drops it. ⌘/Ctrl-Z undoes, ⇧⌘/Ctrl-Z or Ctrl-Y redoes, unless
   // a dialog over another board has the keys.
-  useEffect(() => {
-    const onKey = (event) => {
-      if (event.defaultPrevented || /input|select|textarea/i.test(document.activeElement?.tagName)) return
-      const overlay = topOverlay()
-      if (overlay && !overlay.contains(surface.current)) return
-      const key = event.key.toLowerCase()
-      if(key==='escape'&&partitioning){cancelSelection();setPartitioning(false);setSelectionRect(null);return}
-      if ((event.metaKey || event.ctrlKey) && (key === 'z' || (key === 'y' && event.ctrlKey))) {
-        event.preventDefault()
-        return key === 'y' || event.shiftKey ? history.redo() : history.undo()
-      }
-      if (event.key === 'Escape' && picking) return pick(null)
-      if (!selected) return
-      if (event.key === 'Escape') return setSelected(null)
-      if (event.key !== 'Delete' && event.key !== 'Backspace') return
+  useWorkspaceKeys((event) => {
+    if (/input|select|textarea/i.test(document.activeElement?.tagName)) return
+    const key = event.key.toLowerCase()
+    if(key==='escape'&&partitioning){cancelSelection();setPartitioning(false);setSelectionRect(null);return}
+    if ((event.metaKey || event.ctrlKey) && (key === 'z' || (key === 'y' && event.ctrlKey))) {
       event.preventDefault()
-      removeSelected()
+      return key === 'y' || event.shiftKey ? history.redo() : history.undo()
     }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  })
+    if (event.key === 'Escape' && picking) return pick(null)
+    if (!selected) return
+    if (event.key === 'Escape') return setSelected(null)
+    if (event.key !== 'Delete' && event.key !== 'Backspace') return
+    event.preventDefault()
+    removeSelected()
+  }, { allowOverlay: (_, overlay) => overlay.contains(surface.current) })
 
   const zoomAt = (factor, cx, cy) =>
     setView((v) => {

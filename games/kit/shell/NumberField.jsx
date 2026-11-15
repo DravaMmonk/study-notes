@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { L, tr } from './i18n.js'
 import { numberKey, numberValue } from './number-entry.js'
 import { numberText } from '../engine/number.js'
-import { useOverlayKeys } from './overlay-keys.js'
+import { useOverlayKeys } from './useOverlayKeys.js'
 
 function NumberPad({ label, value, onCancel, onCommit, onNext }) {
   const [draft,setDraft] = useState({text:String(value),replace:true})

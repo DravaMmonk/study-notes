@@ -1,5 +1,6 @@
 // The studio's keys, in one sheet (?): the same keys the palette lists beside its actions.
 import { tr } from '../shell/i18n.js'
+import { useOverlayKeys } from '../shell/useOverlayKeys.js'
 
 export const MOD = typeof navigator !== 'undefined' && /Mac|iP(hone|ad)/.test(navigator.platform) ? '⌘' : 'Ctrl'
 export const KEYS = [
@@ -20,9 +21,10 @@ export const KEYS = [
 ]
 
 export default function Shortcuts({ onClose }) {
+  const overlay = useOverlayKeys(onClose)
   return (
-    <div className="palette-scrim" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose() }} onKeyDown={(e) => e.key === 'Escape' && onClose()}>
-      <div className="palette keys" role="dialog" aria-label={tr('快捷键')}>
+    <div ref={overlay} className="palette-scrim" onPointerDown={(e) => { if (e.target === e.currentTarget) onClose() }}>
+      <div className="palette keys" role="dialog" aria-modal="true" aria-label={tr('快捷键')}>
         <table>
           <tbody>
             {KEYS.map(([keys, zh, en]) => <tr key={keys}><th><kbd>{keys}</kbd></th><td>{tr(zh, en)}</td></tr>)}

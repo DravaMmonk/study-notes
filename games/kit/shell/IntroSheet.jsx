@@ -6,7 +6,7 @@ import { readShow } from '../engine/views.js'
 import Show from '../views/Show.jsx'
 import { useMark } from './edit.js'
 import { AddMark } from './EditMarks.jsx'
-import { useOverlayKeys } from './overlay-keys.js'
+import { useOverlayKeys } from './useOverlayKeys.js'
 
 // A level's introduction, or a task's (`step`: its name): a few pages to read before playing, each with an optional picture
 // the game draws (its IntroFigure). It opens by itself the first time and again from the bar. On a phone it is a

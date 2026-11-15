@@ -12,6 +12,7 @@
 
 import { currentLang, applyLang, tr } from './lang.js';
 import { THEMES, currentTheme, applyTheme } from './theme.js';
+import { registerOverlay } from './overlay-keys.js';
 
 const ICONS = {
   // lucide "languages" and "palette"
@@ -44,14 +45,14 @@ const MENUS = {
 let openMenu = null; // only one menu is open at a time, across the page
 const close = (focus = false) => {
   if (!openMenu) return;
-  const { button, pop } = openMenu;
+  const { button, pop, unregister } = openMenu;
+  unregister();
   pop.hidden = true;
   button.setAttribute('aria-expanded', 'false');
   if (focus) button.focus();
   openMenu = null;
 };
 addEventListener('pointerdown', e => { if (openMenu && !openMenu.root.contains(e.target)) close(); }, true);
-addEventListener('keydown', e => { if (e.key === 'Escape' && openMenu) { e.stopPropagation(); close(true); } }, true);
 
 function build(kind, pick, more) {
   const base = MENUS[kind];
@@ -84,7 +85,8 @@ function build(kind, pick, more) {
     paint();
     pop.hidden = false;
     button.setAttribute('aria-expanded', 'true');
-    openMenu = { root, button, pop };
+    const unregister = registerOverlay(pop, () => ({ onClose: () => close(true) }), root.closest('.kit-bar') ?? pop);
+    openMenu = { root, button, pop, unregister };
     // From the keyboard, focus goes into the menu, on the current choice; a click leaves it on the button.
     if (keyboard) (items().find(b => b.getAttribute('aria-checked') === 'true') || items()[0])?.focus();
   };

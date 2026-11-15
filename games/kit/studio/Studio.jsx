@@ -21,6 +21,7 @@ import { Command, ListTree, Search as SearchIcon, Shapes } from 'lucide-react'
 import { GAMES } from '../../games.js'
 import { mountBarMenus } from '../menu.js'
 import { L, getLang, tr } from '../shell/i18n.js'
+import { useWorkspaceKeys } from '../shell/useOverlayKeys.js'
 import { eraLevels } from '../course.js'
 import { find, shapeAt } from '../engine/schema.js'
 import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
@@ -72,6 +73,7 @@ const remember = (game, at, tab) => {
   window.history.replaceState({}, '', url)
 }
 const editable = (el) => el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))
+const paletteKey = (event) => (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k'
 
 /**
  * The handle beside the tree (across, for its width) or above the audit drawer (along, for its height): drag to
@@ -157,6 +159,16 @@ export default function Studio() {
   const [side, setSide] = usePref('side', 'tree')
   const [copyScope, setCopyScope] = useState(null) // An era's index, or the game, glossary or pieces.
   const [overlay, setOverlay] = useState(null) // 'palette' | 'keys'
+  const overlayOrigin = useRef(null)
+  const openOverlay = (name) => {
+    overlayOrigin.current ??= document.activeElement
+    setOverlay(name)
+  }
+  const closeOverlay = () => {
+    setOverlay(null)
+    overlayOrigin.current?.focus({ preventScroll: true })
+    overlayOrigin.current = null
+  }
   const [lang, setLang] = useState(getLang)
 
   useEffect(() => {
@@ -602,7 +614,7 @@ export default function Studio() {
     ['tree', tr('收起或打开左栏'), 'Alt+[', () => togglePanel('tree')],
     ['audit', tr('收起或打开检查栏'), 'Alt+]', () => togglePanel('audit')],
     ['side', tr('收起或打开侧栏'), 'Alt+\\', () => togglePanel('side')],
-    ['keys', tr('快捷键'), '?', () => setOverlay('keys')],
+    ['keys', tr('快捷键'), '?', () => openOverlay('keys')],
   ].map(([id, label, keys, run, ask]) => ({ id, label, keys, run, ...(ask && { ask }) }))
 
   const fields = useMemo(() => {
@@ -633,25 +645,27 @@ export default function Studio() {
   }
 
   // The keys (Shortcuts.jsx lists them).
-  const keyRef = useRef(null)
-  keyRef.current = (e) => {
+  useWorkspaceKeys((e) => {
     const mod = e.ctrlKey || e.metaKey
     const k = e.key.toLowerCase()
-    if (mod && k === 'k') { e.preventDefault(); setOverlay((o) => (o === 'palette' ? null : 'palette')) }
+    if (paletteKey(e)) {
+      e.preventDefault()
+      if (e.repeat) return
+      if (overlay === 'palette') closeOverlay()
+      else openOverlay('palette')
+    }
     else if (mod && e.shiftKey && k === 'f') { e.preventDefault(); openSearch() }
     else if (mod && k === 'z' && !editable(document.activeElement)) { e.preventDefault(); if (e.shiftKey) again(); else back(opsNow.current.length - 1) }
     else if (mod && e.key === 'Enter' && level) { e.preventDefault(); playFrom(level, true) }
     else if (e.altKey && e.code === 'BracketLeft') { e.preventDefault(); togglePanel('tree') }
     else if (e.altKey && e.code === 'BracketRight') { e.preventDefault(); togglePanel('audit') }
     else if (e.altKey && e.code === 'Backslash') { e.preventDefault(); togglePanel('side') }
-    else if (e.key === '?' && !mod && !editable(document.activeElement)) { e.preventDefault(); setOverlay('keys') }
-    else if (e.key === 'Escape' && picked.size > 1 && !overlay) setPicked(new Set(at?.level ? [at.level] : []))
-  }
-  useEffect(() => {
-    const key = (e) => keyRef.current(e)
-    window.addEventListener('keydown', key)
-    return () => window.removeEventListener('keydown', key)
-  }, [])
+    else if (e.key === '?' && !mod && !editable(document.activeElement)) { e.preventDefault(); openOverlay('keys') }
+    else if (e.key === 'Escape') {
+      if (moving) setMoving(null)
+      else if (picked.size > 1) setPicked(new Set(at?.level ? [at.level] : []))
+    }
+  }, { allowOverlay: paletteKey })
 
   const ready = content && vocab
   const result = { ok: fresh && checked.ok, problems: last && !last.content ? last.problems : fresh ? checked.problems : [], failed: last?.failed ?? null, says: last?.says ?? shown?.says, fresh }
@@ -674,7 +688,7 @@ export default function Studio() {
           ))}
         </nav>
         <span className="kit-spacer" />
-        <button type="button" className="studio-palette" onClick={() => setOverlay('palette')} title={tr('命令面板')}><Command size={13} aria-hidden="true" /><kbd>{MOD}K</kbd></button>
+        <button type="button" className="studio-palette" onClick={() => openOverlay('palette')} title={tr('命令面板')}><Command size={13} aria-hidden="true" /><kbd>{MOD}K</kbd></button>
         <i className={`studio-busy ${busy || !fresh ? 'is-on' : ''}`} aria-hidden="true" />
         <div className="kit-actions" ref={actions} />
       </header>
@@ -728,8 +742,8 @@ export default function Studio() {
           </aside>
         </div>
       )}
-      {overlay === 'palette' && ready && <Palette items={paletteItems} onRun={runItem} onClose={() => setOverlay(null)} />}
-      {overlay === 'keys' && <Shortcuts onClose={() => setOverlay(null)} />}
+      {overlay === 'palette' && ready && <Palette items={paletteItems} onRun={runItem} onClose={closeOverlay} />}
+      {overlay === 'keys' && <Shortcuts onClose={closeOverlay} />}
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, Copy, Download, FileUp } from 'lucide-react'
-import { useOverlayKeys } from '../shell/overlay-keys.js'
+import { useOverlayKeys } from '../shell/useOverlayKeys.js'
 import { tr } from '../shell/i18n.js'
 import { headOf, print, read } from './text.js'
 

@@ -10,6 +10,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRightLeft, ChevronRight, Copy, Play, CirclePlay, Trash2 } from 'lucide-react'
 import { L, getLang, tr } from '../shell/i18n.js'
+import { useWorkspaceKeys } from '../shell/useOverlayKeys.js'
 import { getAt, showPath } from '../engine/ops/edit.js'
 import { blank, fieldAt, fileForm, formOf, gameFields, opFor, placeFindings, sectionsOf } from './form.js'
 import { holdsLevels } from '../engine/schema.js'
@@ -73,27 +74,22 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
     onSelect({ level: `${id}-${k}` })
   }
   // Alt+1… jumps to a section.
-  useEffect(() => {
-    const key = (e) => {
-      if (!e.altKey || !/^Digit[1-6]$/.test(e.code) || !sections) return
-      const s = sections[Number(e.code.slice(5)) - 1]
-      if (!s) return
-      e.preventDefault()
-      setFolded((f) => f.filter((x) => x !== s.section))
-      window.setTimeout(() => {
-        const el = document.getElementById(`section-${s.section}`)
-        el?.scrollIntoView({ block: 'start' })
-        el?.querySelector('.field input, .field textarea, .field select, [contenteditable="true"], .field button')?.focus({ preventScroll: true })
-      })
-    }
-    window.addEventListener('keydown', key)
-    return () => window.removeEventListener('keydown', key)
-  }, [sections, setFolded])
+  useWorkspaceKeys((e) => {
+    if (!e.altKey || !/^Digit[1-6]$/.test(e.code) || !sections) return
+    const s = sections[Number(e.code.slice(5)) - 1]
+    if (!s) return
+    e.preventDefault()
+    jump(s.section, true)
+  })
   const edit = editIn({ level: id }, onEdit)
   const fold = (section) => setFolded((f) => (f.includes(section) ? f.filter((x) => x !== section) : [...f, section]))
-  const jump = (section) => {
+  const jump = (section, focus = false) => {
     if (folded.includes(section)) fold(section)
-    window.setTimeout(() => document.getElementById(`section-${section}`)?.scrollIntoView({ block: 'start' }))
+    window.setTimeout(() => {
+      const el = document.getElementById(`section-${section}`)
+      el?.scrollIntoView({ block: 'start' })
+      if (focus) el?.querySelector('.field input, .field textarea, .field select, [contenteditable="true"], .field button')?.focus({ preventScroll: true })
+    })
   }
   return (
     <article className="editor">

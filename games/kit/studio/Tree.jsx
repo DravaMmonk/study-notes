@@ -1,5 +1,5 @@
 // The studio's three-level course tree. Course placement still supplies drop targets for moving levels and tasks.
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useMemo, useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { courseTree, stays } from './tree.js'
@@ -32,12 +32,6 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
     return { ...f, [game]: [...mine] }
   })
   const [over, setOver] = useState(null)
-  useEffect(() => {
-    if (!moving) return undefined
-    const key = (event) => event.key === 'Escape' && setMoving(null)
-    window.addEventListener('keydown', key)
-    return () => window.removeEventListener('keydown', key)
-  }, [moving, setMoving])
 
   /** Pick by a click or a key: one level, one more (toggle), or the run from the level selected to it. */
   const pick = (id, how) => {

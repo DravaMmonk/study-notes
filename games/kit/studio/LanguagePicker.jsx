@@ -36,7 +36,11 @@ export default function LanguagePicker({ label, value, options, onChange, onAdd 
         <form className="copy-add-language" onSubmit={submit}>
           <input autoFocus className="field-input" value={draft} placeholder="fr, ja, pt-BR" aria-label={tr('语言代码', 'Language code')}
             aria-invalid={invalid} onChange={(event) => { setDraft(event.target.value); setInvalid(false) }}
-            onKeyDown={(event) => { if (event.key === 'Escape') setDraft(null) }} />
+            onKeyDown={(event) => {
+              if (event.key !== 'Escape' || event.nativeEvent.isComposing) return
+              event.preventDefault()
+              setDraft(null)
+            }} />
           <button type="submit" className="kit-btn is-label">{tr('添加', 'Add')}</button>
           <button type="button" className="kit-btn is-label" onClick={() => setDraft(null)}>{tr('取消', 'Cancel')}</button>
           {invalid && <small role="alert">{tr('请输入有效的语言代码', 'Enter a valid language code')}</small>}
