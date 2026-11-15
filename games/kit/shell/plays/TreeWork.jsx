@@ -1,11 +1,12 @@
-import { useRef, useState } from 'react'
-import { judgeFor } from '../../engine/plays.js'
+import { useRef } from 'react'
 import TreeEditor from '../../strip/TreeEditor.jsx'
-import { L, tr } from '../i18n.js'
-import { Brief, Level } from '../Layout.jsx'
+import { L } from '../i18n.js'
 import { Markup } from '../Markup.jsx'
 import RunDock from '../RunDock.jsx'
-import { checkAction, useCheckOnce } from '../useCheckOnce.js'
+import { checkAction } from '../useCheckOnce.js'
+import PlayLayout from './PlayLayout.jsx'
+import { inspectWork, useCheckedWork } from './useWork.js'
+import WorkGoal from './WorkGoal.jsx'
 
 function TextLines({ lines }) {
   return (
@@ -30,30 +31,13 @@ function Examples({ examples }) {
   )
 }
 
-export function WorkGoal({ premises, goal }) {
-  return (
-    <section className="tm-given">
-      {premises.length > 0 && <p>{tr('已知', 'Given')} {premises.map(({ name, text }) => <span key={name} className="tm-premise"><code>{name}</code>：{L(text)}</span>)}</p>}
-      <p className="fo-say fo-prompt">{tr('要证', 'Prove')} <b>{L(goal)}</b></p>
-    </section>
-  )
-}
-
 export default function TreeWork({ screen, resource, play }) {
-  const { game, level: entry, saved, save, solve, lastRun, keepRun, phone } = screen
-  const [tree, setTree] = useState(() => saved?.tree ?? resource.initial ?? null)
-  const judge = judgeFor(play, resource.judge)
-  const inspect = () => {
-    const failure = judge(tree)
-    return { pass: !failure, failure }
-  }
-  const { verdict, check, reset } = useCheckOnce({ lastRun, keepRun }, inspect, ({ pass }) => { if (pass) solve(null) })
+  const { level: entry } = screen
+  const { work: tree, verdict, check, change } = useCheckedWork(screen, {
+    read: (saved) => saved?.tree ?? resource.initial ?? null,
+    write: (tree) => ({ tree }),
+  }, inspectWork(play, resource.judge))
   const editor = useRef(null)
-  const change = (next) => {
-    setTree(next)
-    save({ tree: next })
-    reset()
-  }
   const stage = (
     <div className={play.stage}>
       {resource.prompt && <p className="fo-say fo-prompt"><Markup text={resource.prompt} /></p>}
@@ -70,6 +54,5 @@ export default function TreeWork({ screen, resource, play }) {
     editor.current?.clearSelection()
     check()
   }, Boolean(verdict?.pass))} />
-  const brief = <Brief game={game} level={entry} hint={entry.source.hint} phone={phone} />
-  return <Level phone={phone} className={play.layout} brief={brief} stage={stage} results={results} dock={dock} />
+  return <PlayLayout screen={screen} play={play} stage={stage} results={results} dock={dock} />
 }

@@ -1,24 +1,18 @@
-import { useState } from 'react'
-import { Brief, Level } from '../Layout.jsx'
 import RunDock from '../RunDock.jsx'
-import { checkAction, useCheckOnce } from '../useCheckOnce.js'
+import { checkAction } from '../useCheckOnce.js'
 import { L, tr } from '../i18n.js'
+import PlayLayout from './PlayLayout.jsx'
+import { useCheckedWork } from './useWork.js'
 
 /** Compare values row by row, classify an entire table, or try a row to reveal a value. */
 export default function ValueTables({ screen, resource, play }) {
-  const { game, level: entry, saved, save, solve, lastRun, keepRun, phone } = screen
   const { tables, labels, mode } = resource
   const tf = (value) => L(labels.values[Number(value)])
-  const [state, setState] = useState(() => ({ fill: {}, marks: {}, tried: {}, ...saved }))
-  const { verdict: checked, check, record, reset } = useCheckOnce(
-    { lastRun, keepRun }, () => resource.judge(state), ({ pass }) => { if (pass) solve(null) },
-  )
-  const update = (patch) => {
-    const next = { ...state, ...patch }
-    setState(next)
-    save(next)
-    reset()
-  }
+  const { work: state, verdict: checked, check, record, change } = useCheckedWork(screen, {
+    read: (saved) => ({ fill: {}, marks: {}, tried: {}, ...saved }),
+    write: (state) => state,
+  }, resource.judge)
+  const update = (patch) => change({ ...state, ...patch })
   const tryRow = (f, k) => {
     update({ tried: { ...state.tried, [`${f}:${k}`]: true } })
     if (resource.hit(f, k)) record({ pass: true, wrong: new Set() })
@@ -77,6 +71,5 @@ export default function ValueTables({ screen, resource, play }) {
   const tried = mode === 'try' && play.checks === 'shown'
   const results = checked ? <p className={`vt-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`} role="status">{L(checked.pass ? resource.accepted : resource.wrong(checked.wrong.size))}</p> : null
   const dock = !tried && <RunDock go={checkAction(check, Boolean(checked?.pass))} />
-  const brief = <Brief game={game} level={entry} hint={entry.source.hint} phone={phone} />
-  return <Level phone={phone} className={play.layout} brief={brief} stage={tried ? <>{stage}{results}</> : stage} results={tried ? undefined : results} dock={dock} />
+  return <PlayLayout screen={screen} play={play} stage={tried ? <>{stage}{results}</> : stage} results={tried ? undefined : results} dock={dock} />
 }

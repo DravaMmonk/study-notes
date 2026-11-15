@@ -1,15 +1,11 @@
 import { Fragment, useState } from 'react'
 import { Plus, X } from 'lucide-react'
-import { judgeFor } from '../../engine/plays.js'
-import { Brief, Level } from '../Layout.jsx'
 import { L, tr } from '../i18n.js'
 import RunDock from '../RunDock.jsx'
-import { checkAction, useCheckOnce } from '../useCheckOnce.js'
-import { WorkGoal } from './TreeWork.jsx'
-
-export function RowText({ lines }) {
-  return <pre className="fr-view">{lines.map(([depth, text]) => `${'  '.repeat(depth)}${text}`).join('\n')}</pre>
-}
+import { checkAction } from '../useCheckOnce.js'
+import PlayLayout from './PlayLayout.jsx'
+import { inspectWork, useCheckedWork } from './useWork.js'
+import WorkGoal from './WorkGoal.jsx'
 
 function Slot({ slot, write }) {
   const { value, locked, options, groups, label, prefix, blank } = slot
@@ -39,19 +35,11 @@ function Slot({ slot, write }) {
 }
 
 export default function FieldRows({ screen, resource, play }) {
-  const { game, level, saved, save, solve, lastRun, keepRun, phone } = screen
-  const [rows, setRows] = useState(() => saved?.rows ?? resource.initial)
   const [at, setAt] = useState(null)
-  const judge = judgeFor(play, resource.judge)
-  const { verdict, check, reset } = useCheckOnce({ lastRun, keepRun }, () => {
-    const fail = judge(rows)
-    return { pass: !fail, fail }
-  }, ({ pass }) => { if (pass) solve(null) })
-  const change = (next) => {
-    setRows(next)
-    save({ rows: next })
-    reset()
-  }
+  const { work: rows, verdict, check, change } = useCheckedWork(screen, {
+    read: (saved) => saved?.rows ?? resource.initial,
+    write: (rows) => ({ rows }),
+  }, inspectWork(play, resource.judge))
   const put = (i, key, value) => change(rows.map((row, k) => i === k ? { ...row, [key]: value } : row))
   const add = (make) => {
     const where = at === null ? rows.length : at + 1
@@ -68,7 +56,7 @@ export default function FieldRows({ screen, resource, play }) {
       <WorkGoal premises={resource.premises} goal={resource.goal} />
       <ol className="fr-rows">
         {resource.describe(rows).map(({ label, name, depth, opens, closes, slots }, i) => {
-          const why = verdict?.fail?.at?.row === i ? verdict.fail.why : null
+          const why = verdict?.failure?.at?.row === i ? verdict.failure.why : null
           return (
             <Fragment key={i}>
               <li className={`fr-row ${at === i ? 'is-on' : ''} ${why ? 'is-fail' : ''}`} style={{ '--depth': depth }} onClick={() => !locked && setAt(i)}>
@@ -90,8 +78,7 @@ export default function FieldRows({ screen, resource, play }) {
     </div>
   )
   const pass = Boolean(verdict?.pass)
-  const results = verdict && <p className={`lg-verdict ${pass ? 'is-pass' : 'is-fail'}`} role="status">{L(pass ? resource.passed : verdict.fail.why)}</p>
+  const results = verdict && <p className={`lg-verdict ${pass ? 'is-pass' : 'is-fail'}`} role="status">{L(pass ? resource.passed : verdict.failure.why)}</p>
   const dock = <RunDock go={checkAction(check, pass)} />
-  const brief = <Brief game={game} level={level} hint={level.source.hint} phone={phone} />
-  return <Level phone={phone} className={play.layout} brief={brief} stage={stage} results={results} dock={dock} />
+  return <PlayLayout screen={screen} play={play} stage={stage} results={results} dock={dock} />
 }

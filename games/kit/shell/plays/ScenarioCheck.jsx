@@ -1,20 +1,20 @@
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useMemo } from 'react'
 import { Strip } from '../../strip/index.js'
 import { CheckScenario } from '../Checks.jsx'
 import { L, T } from '../i18n.js'
-import { Brief, Level } from '../Layout.jsx'
 import { Markup } from '../Markup.jsx'
 import RunDock from '../RunDock.jsx'
 import { usePlayback } from '../usePlayback.jsx'
+import PlayLayout from './PlayLayout.jsx'
+import { useSavedWork } from './useWork.js'
 
 /** Write a scenario, then play it against the given works. */
 export default function ScenarioCheck({ screen, resource, play }) {
-  const { game, level, phone, saved, save, solve, lastRun, keepRun } = screen
-  const [work, setWork] = useState(() => saved?.work ?? resource.initial)
-  const change = (next) => {
-    setWork(next)
-    save({ work: next })
-  }
+  const { solve, lastRun, keepRun } = screen
+  const { work, change } = useSavedWork(screen, {
+    read: (saved) => saved?.work ?? resource.initial,
+    write: (work) => ({ work }),
+  })
   const { steps, lines } = useMemo(() => resource.run(work), [resource, work])
   const playback = usePlayback({
     count: 1,
@@ -48,6 +48,5 @@ export default function ScenarioCheck({ screen, resource, play }) {
   )
   const results = verdict ? <p className={`lg-verdict ${passed ? 'is-pass' : 'is-fail'}`} role="status">{verdict}</p> : null
   const dock = <RunDock {...playback.dock({ go: L(resource.go), done: L(resource.done) })} />
-  const brief = <Brief game={game} level={level} hint={level.source.hint} phone={phone} />
-  return <Level phone={phone} className={play.layout} brief={brief} stage={stage} results={results} dock={dock} />
+  return <PlayLayout screen={screen} play={play} stage={stage} results={results} dock={dock} />
 }
