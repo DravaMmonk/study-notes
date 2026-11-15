@@ -1,4 +1,5 @@
 import RunDock from '../RunDock.jsx'
+import Verdict from '../Verdict.jsx'
 import { checkAction } from '../useCheckOnce.js'
 import { L, tr } from '../i18n.js'
 import PlayLayout from './PlayLayout.jsx'
@@ -69,7 +70,7 @@ export default function ValueTables({ screen, resource, play }) {
   )
   // Trying rows needs no check: each row tried shows its value, and the one asked for passes the level.
   const tried = mode === 'try' && play.checks === 'shown'
-  const results = checked ? <p className={`vt-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`} role="status">{L(checked.pass ? resource.accepted : resource.wrong(checked.wrong.size))}</p> : null
+  const results = checked ? <Verdict pass={checked.pass}>{L(checked.pass ? resource.accepted : resource.wrong(checked.wrong.size))}</Verdict> : null
   const dock = !tried && <RunDock go={checkAction(check, Boolean(checked?.pass))} />
   return <PlayLayout screen={screen} play={play} stage={tried ? <>{stage}{results}</> : stage} results={tried ? undefined : results} dock={dock} />
 }

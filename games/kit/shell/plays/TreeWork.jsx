@@ -3,6 +3,7 @@ import TreeEditor from '../../strip/TreeEditor.jsx'
 import { L } from '../i18n.js'
 import { Markup } from '../Markup.jsx'
 import RunDock from '../RunDock.jsx'
+import Verdict from '../Verdict.jsx'
 import { checkAction } from '../useCheckOnce.js'
 import PlayLayout from './PlayLayout.jsx'
 import { inspectWork, useCheckedWork } from './useWork.js'
@@ -47,9 +48,11 @@ export default function TreeWork({ screen, resource, play }) {
     </div>
   )
   const { failure } = verdict ?? {}
-  const results = verdict?.pass ? <p className="lg-verdict is-pass" role="status">{L(resource.passed)}</p>
-    : failure?.lines ? <div className="tree-evidence"><p>{L(failure.why)}</p>{failure.lines.length > 0 && <TextLines lines={failure.lines} />}</div>
-      : failure && <p className={resource.goal ? "lg-verdict is-fail" : "lg-error"} role={resource.goal ? "status" : undefined}>{L(failure.why)}</p>
+  let results = null
+  if (verdict?.pass) results = <Verdict pass compact>{L(resource.passed)}</Verdict>
+  else if (failure?.lines) results = <div className="tree-evidence"><p>{L(failure.why)}</p>{failure.lines.length > 0 && <TextLines lines={failure.lines} />}</div>
+  else if (failure && resource.goal) results = <Verdict compact>{L(failure.why)}</Verdict>
+  else if (failure) results = <p className="lg-error">{L(failure.why)}</p>
   const dock = <RunDock go={checkAction(() => {
     editor.current?.clearSelection()
     check()

@@ -4,6 +4,7 @@ import { CheckScenario } from '../Checks.jsx'
 import { L, T } from '../i18n.js'
 import { Markup } from '../Markup.jsx'
 import RunDock from '../RunDock.jsx'
+import Verdict from '../Verdict.jsx'
 import { usePlayback } from '../usePlayback.jsx'
 import PlayLayout from './PlayLayout.jsx'
 import { useSavedWork } from './useWork.js'
@@ -46,7 +47,7 @@ export default function ScenarioCheck({ screen, resource, play }) {
       <CheckScenario fields={resource.fields(work, change)} />
     </div>
   )
-  const results = verdict ? <p className={`lg-verdict ${passed ? 'is-pass' : 'is-fail'}`} role="status">{verdict}</p> : null
+  const results = verdict ? <Verdict pass={passed} compact>{verdict}</Verdict> : null
   const dock = <RunDock {...playback.dock({ go: L(resource.go), done: L(resource.done) })} />
   return <PlayLayout screen={screen} play={play} stage={stage} results={results} dock={dock} />
 }

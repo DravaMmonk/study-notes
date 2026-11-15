@@ -12,9 +12,6 @@
 .lg-error { color: var(--fail); font-size: 11.5px; line-height: 1.45; }
 .lg-error.is-missing { color: var(--faint); }
 .node-verdict { margin-left: auto; font-style: normal; font-size: 11px; color: var(--muted); }
-.lg-verdict { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
-.lg-verdict.is-pass { color: var(--status); }
-.lg-verdict.is-fail { color: var(--fail); }
 .lg-scroll-x { overflow-x: auto; max-width: 100%; }
 
 /* First-order levels (ui/WorldScreens.jsx): sentences to write, the vocabulary as buttons, worlds in words, and a world

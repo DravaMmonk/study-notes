@@ -2,6 +2,7 @@ import { Fragment, useState } from 'react'
 import { Plus, X } from 'lucide-react'
 import { L, tr } from '../i18n.js'
 import RunDock from '../RunDock.jsx'
+import Verdict from '../Verdict.jsx'
 import { checkAction } from '../useCheckOnce.js'
 import PlayLayout from './PlayLayout.jsx'
 import { inspectWork, useCheckedWork } from './useWork.js'
@@ -78,7 +79,7 @@ export default function FieldRows({ screen, resource, play }) {
     </div>
   )
   const pass = Boolean(verdict?.pass)
-  const results = verdict && <p className={`lg-verdict ${pass ? 'is-pass' : 'is-fail'}`} role="status">{L(pass ? resource.passed : verdict.failure.why)}</p>
+  const results = verdict && <Verdict pass={pass} compact>{L(pass ? resource.passed : verdict.failure.why)}</Verdict>
   const dock = <RunDock go={checkAction(check, pass)} />
   return <PlayLayout screen={screen} play={play} stage={stage} results={results} dock={dock} />
 }
