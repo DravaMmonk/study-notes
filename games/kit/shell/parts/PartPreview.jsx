@@ -36,7 +36,7 @@ function Code({ path, label, text, picked, ok = null }) {
   )
 }
 
-export default function PartPreview({ game, type, edit, onTask = null }) {
+export default function PartPreview({ game, type, edit, onTask = null, taskLabel }) {
   const defined = game.defined
   const def = defined.of(type)
   const [params, setParams] = useState(() => defined.defaults(type))
@@ -92,7 +92,7 @@ export default function PartPreview({ game, type, edit, onTask = null }) {
       </div>
       <div className="pp-logic">
         <Revisions def={raw} edit={edit} />
-        {raw.inside ? <Chains def={raw} edit={edit} onTask={onTask} /> : <Ports def={raw} edit={edit} />}
+        {raw.inside ? <Chains def={raw} edit={edit} onTask={onTask} label={taskLabel} /> : <Ports def={raw} edit={edit} />}
         <Settings def={raw} edit={edit} />
         {compute.map(([o, text]) => <Code key={o || 'out'} path={['compute', ...(o ? [o] : [])]} label={o || null} text={text} picked={edit?.picked} />)}
         {def.keeps && <Code path={['keeps']} label="keeps" text={`${def.keeps.input} → $${def.keeps.register}`} picked={edit?.picked} />}

@@ -45,6 +45,7 @@ import Compare from './Compare.jsx'
 import Audit from './Audit.jsx'
 import Review from './Review.jsx'
 import GameFrame from './GameFrame.jsx'
+import Flow, { levelLabel } from './Flow.jsx'
 import Inspector from './Inspector.jsx'
 import { textField } from './copy.js'
 import Palette from './Palette.jsx'
@@ -423,6 +424,12 @@ export default function Studio() {
     setPageTask(found.at)
     return pickField(['tasks', found.at])
   }
+  // A tick of a piece's way through the course: its level, at the task and on the field that says it.
+  const onFlow = (e) => {
+    select({ level: e.level })
+    if (e.task !== undefined) setPageTask(e.task)
+    return pickField(e.path ?? (e.task !== undefined ? ['tasks', e.task] : []))
+  }
   const onPage = (m) => {
     if (m.type === 'take') return onTake(m)
     if (m.type === 'task-go') return onTaskGo(m)
@@ -693,6 +700,7 @@ export default function Studio() {
             <GameFrame
               visible={tab === 'page'} content={content} play={play} part={at?.part ?? (at?.preset !== undefined ? `presets/${at.preset}` : undefined)} task={pageTask} go={go} edit={pageEdit} picked={pageEdit ? pageMark : null} onEdit={setPageEdit} onMessage={onPage} onRoot={onRoot}
               reference={play && referenceOf(play.level)} onReference={(lvl) => playLevel(lvl, referenceOf(lvl))} onCancelTake={() => setPlay((p) => ({ ...p, seed: null, take: null }))}
+              footer={at?.part !== undefined && <Flow game={game} piece={at.part} changeset={changeset} label={levelLabel(names)} onOpen={onFlow} />}
             />
           </main>
           <Resizer side="side" size={layout.side} open={layout.sideOpen} setLayout={setLayout} />

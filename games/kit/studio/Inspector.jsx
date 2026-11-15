@@ -28,7 +28,13 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
     ? { ...content, partDefs: setAt(partDefs, pathToFace.slice(0, 3), { ...part.views, [face]: pendingFace }) }
     : content
   const shown = field?.path && fileForm(preview, vocabulary, at, order)
-  const hit = shown ? fieldAt(shown.form, field.path) : null
+  // An item of a list drawn as one control (chips, a table, a row of numbers) has no field of its own: the list's.
+  let held = field?.path ?? []
+  let hit = shown ? fieldAt(shown.form, held) : null
+  while (shown && !hit && typeof held.at(-1) === 'number') {
+    held = held.slice(0, -1)
+    hit = fieldAt(shown.form, held)
+  }
   const tasked = Boolean(at?.level)
   const edit = (path, change, type) => {
     // A task's id changes by task.rename, so what players kept of it follows.
@@ -62,7 +68,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
       </div>
     )
   }
-  const path = field.path
+  const path = held
   const last = path.at(-1)
   const parent = path.slice(0, -1)
   const isTask = tasked && path.length === 2 && path[0] === 'tasks'

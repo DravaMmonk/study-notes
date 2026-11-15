@@ -127,7 +127,14 @@ export default function Play() {
     const parts = edit.on ? { picked: edit.picked, pick: (path) => say({ type: 'pick', ...which, path }), add: (path) => say({ type: 'add', ...which, path }) } : null
     if (preset !== null) return <PresetSheet name={preset} setting={part.game.partDefs?.presets?.[preset]} game={part.game} edit={parts} />
     const toTask = (task) => say({ type: 'task-go', task })
-    if (part.game.defined?.of(part.type)) return <PartPreview game={part.game} type={part.type} edit={parts} onTask={toTask} />
+    // A task as the map numbers it: its level's label, and which task of the level when it has several.
+    const taskLabel = (task) => {
+      const level = part.game.levels.find((l) => l.id === task || l.tasks?.some((t) => (t.key ?? t.id) === task))
+      if (!level) return task
+      const k = level.tasks?.findIndex((t) => (t.key ?? t.id) === task) ?? -1
+      return `${part.game.levelLabel(level)}${level.tasks?.length > 1 && k >= 0 ? ` · ${k + 1}` : ''}`
+    }
+    if (part.game.defined?.of(part.type)) return <PartPreview game={part.game} type={part.type} edit={parts} onTask={toTask} taskLabel={taskLabel} />
     // A built piece shows the board it runs, as the parts box does, and beside it its own fields; a piece just added is
     // shown once the content holding it comes.
     const def = part.game.partDefs?.parts?.[part.type]
@@ -136,7 +143,7 @@ export default function Play() {
     return (
       <div className="pp-built">
         <div className="pp-built-board">{part.game.parts?.demo?.(piece, { progress: {} }) ?? null}</div>
-        {def && <PieceSheet def={def} edit={parts} onTask={toTask} />}
+        {def && <PieceSheet def={def} edit={parts} onTask={toTask} label={taskLabel} />}
       </div>
     )
   }

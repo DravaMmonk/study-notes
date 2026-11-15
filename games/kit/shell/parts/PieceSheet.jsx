@@ -73,9 +73,9 @@ export const Settings = ({ def, edit }) => <Chips def={def} edit={edit} keys={['
 /**
  * What runs inside a built piece: its references, one row a form (or one row when none is written), each an upgrade
  * chain — the work of each step's task replaces the one before. A step picks its reference; its arrow goes to the task;
- * a + adds a reference (its task picked in the side panel).
+ * a + adds a reference (its task picked in the side panel). `label(task)` is how the map numbers a task.
  */
-export function Chains({ def, edit, onTask }) {
+export function Chains({ def, edit, onTask, label = (task) => task }) {
   const { mark, add } = marker(edit)
   const forms = new Map()
   for (const [k, ref] of (def.inside ?? []).entries()) forms.set(ref.form ?? '', [...(forms.get(ref.form ?? '') ?? []), [ref, k]])
@@ -87,7 +87,7 @@ export function Chains({ def, edit, onTask }) {
           {steps.map(([ref, k], n) => [
             n > 0 && <li key={`${k}>`} className="pp-arrow" aria-hidden="true">→</li>,
             <li key={k} className="pp-step" {...mark(['inside', k])}>
-              <span>{ref.task}</span>
+              <span title={ref.task}>{label(ref.task)}</span>
               {ref.label && <small>{ref.label}</small>}
               {onTask && <button type="button" className="pp-go" title={tr('打开这个任务')} onClick={(e) => { e.stopPropagation(); onTask(ref.task) }}><ArrowUpRight size={12} /></button>}
             </li>,
@@ -99,7 +99,7 @@ export function Chains({ def, edit, onTask }) {
   )
 }
 
-export default function PieceSheet({ def, edit, onTask }) {
+export default function PieceSheet({ def, edit, onTask, label }) {
   const { mark } = marker(edit)
   const Icon = iconOf(def.icon ?? 'CircuitBoard')
   return (
@@ -110,7 +110,7 @@ export default function PieceSheet({ def, edit, onTask }) {
       </header>
       <p className="pf-desc" {...mark(['desc'])}>{L(def.desc)}</p>
       <Revisions def={def} edit={edit} />
-      <Chains def={def} edit={edit} onTask={onTask} />
+      <Chains def={def} edit={edit} onTask={onTask} label={label} />
       {def.card && <div className="pp-code" {...mark(['card'])}><span className="pp-code-label">card</span><code>{def.card}</code></div>}
       <Settings def={def} edit={edit} />
     </div>

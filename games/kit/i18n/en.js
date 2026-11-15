@@ -551,6 +551,7 @@ export default {
   "图块亮度按 0–1 显示，超过 1 显示为白色。": "Patch brightness is displayed on a 0–1 scale; values above 1 appear white.",
   "图案的一格画成几格（2：8 × 8 的图案）": "how many cells a pattern pixel takes (2: 8 × 8 patterns)",
   "圆：cx, cy, 半径的平方": "a disc: cx, cy, the radius squared",
+  "在课程里的流转": "Through the course",
   "在下面的世界中，你写的句子为真，原句却为假：": "In this world your sentence is true but the original is false:",
   "在下面的世界中，原句为真，你写的句子却为假：": "In this world the original is true but your sentence is false:",
   "在元件上为任意对象取名 a，在框内证明 P(a) 并接到「结论」，框外得到 ∀x. P(x)。a 不能出现在未解除的假设中。": "Name an arbitrary object a on the part. Prove P(a) inside the box and connect it to “Conclusion” to obtain ∀x. P(x) outside. a must not occur in any open assumption.",

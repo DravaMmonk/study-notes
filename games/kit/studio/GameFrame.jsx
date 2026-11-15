@@ -9,12 +9,12 @@
 //         piece, its board and its fields, ../shell/parts/PieceSheet.jsx; presets/<name>, a setting preset, the
 //         control it draws); picked is then the path picked in it
 //   onRoot(): the name of what is shown, clicked in edit mode: every field of it in the side panel, those the screen
-//         does not draw too
+//         does not draw too;  footer: what goes under the page (a piece's way through the course, Flow.jsx)
 import { useEffect, useRef, useState } from 'react'
 import { CirclePlay, MousePointerClick, Play, X } from 'lucide-react'
 import { getLang, tr } from '../shell/i18n.js'
 
-export default function GameFrame({ visible, content, play, part, task, go, edit, picked, onEdit, onMessage, onRoot, onReference, onCancelTake, reference }) {
+export default function GameFrame({ visible, content, play, part, task, go, edit, picked, onEdit, onMessage, onRoot, onReference, onCancelTake, reference, footer = null }) {
   const frame = useRef(null)
   const [ready, setReady] = useState(false)
   const said = useRef(onMessage)
@@ -92,6 +92,7 @@ export default function GameFrame({ visible, content, play, part, task, go, edit
         {play?.take && <button type="button" className="kit-btn is-label" onClick={onCancelTake}><X size={14} aria-hidden="true" />{tr('不用这块板')}</button>}
       </div>
       <iframe ref={frame} title={tr('游戏', 'Game')} src="/studio.html?play" />
+      {footer}
     </section>
   )
 }

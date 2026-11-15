@@ -12,6 +12,7 @@ import { checkGame } from '../checks.js'
 import { checkCache } from '../check-cache.js'
 import { GAMES_DIR, domainOf, readContent } from '../content-node.js'
 import { gameOf } from '../games.mjs'
+import { pieceFlow } from '../flow.js'
 import { flagsIn, fresh } from '../../shell/progress.js'
 import { drawDeps } from '../deps.js'
 import { boardSvg } from '../../circuit/svg.js'
@@ -180,6 +181,15 @@ export const TOOLS = {
         lines: r.lines.map((l) => ({ ...l, levels: levelsOfLine(l, ids) })),
         changes: r.changes, ...logOf(game),
       }
+    },
+  },
+  flow: {
+    about: 'A piece’s way through a game’s course (as a changeset would leave it), read off the course, in course order: where it is at hand from the start, where a level brings it in, where a level or one of its tasks gives it there only or withholds it, where a part superseding it arrives, and each step of its upgrade chains (the task whose work runs inside it, with its form). Each event names the level, the task (an index) and the path of the field in the level’s content that says it (null: none).',
+    params: { game: 'string', piece: 'string', changeset: 'object?' },
+    async run({ game, piece, changeset = null }) {
+      const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
+      const domain = await domainOf(content)
+      return { events: pieceFlow(domain.spec(content).course, content, piece) }
     },
   },
   names: {
