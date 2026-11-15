@@ -165,7 +165,7 @@
 .bench-legend span { display: inline-flex; align-items: center; gap: var(--gap-local); }
 .bench-strips { margin: var(--sp-4) var(--sp-1) 0; display: grid; gap: var(--sp-3); }
 .bench-strip { margin: 0; display: grid; grid-template-columns: 3.2em minmax(0, 1fr); align-items: center; gap: var(--sp-4); }
-.bench-strip svg { order: 2; width: 100%; height: 22px; border-radius: var(--r-sm); box-shadow: 0 0 0 1px var(--rule); }
+.bench-strip .gv-picture { order: 2; width: 100%; height: 22px; box-shadow: 0 0 0 1px var(--rule); }
 .bench-strip figcaption { order: 1; color: var(--muted); font-size: 12px; }
 .bench-chips { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
 .bench-chip { min-height: 30px; padding: 0 var(--sp-4); display: inline-flex; align-items: center; gap: var(--gap-local); border-radius: var(--r-md); background: var(--canvas); font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; transition: opacity 200ms ease, background 200ms ease; }

@@ -1,5 +1,6 @@
 import { ArrowRight, Check, Circle, RotateCcw, X } from 'lucide-react'
 import { formatValue, knobKind, needText, rowValue } from '../../engine/bench.js'
+import { GridPicture } from '../../views/grid/GridView.jsx'
 import { L, keyOf, tr } from '../i18n.js'
 import { useMark } from '../edit.js'
 import TestTabs from '../TestTabs.jsx'
@@ -227,12 +228,7 @@ function Strips({ params, ctx }) {
         const values = ctx.q[row.of]
         return (
           <figure key={row.of} className="bench-strip">
-            <svg viewBox={`0 0 ${values.length} 1`} preserveAspectRatio="none" aria-hidden="true">
-              {values.map((value, x) => {
-                const g = Math.round(255 * Math.min(1, Math.max(0, value)))
-                return <rect key={x} x={x} y={0} width={1.02} height={1} fill={`rgb(${g},${g},${g})`} />
-              })}
-            </svg>
+            <GridPicture value={{ w: values.length, h: 1, data: values }} scale={null} decorative />
             <figcaption><Rich text={row.label} /></figcaption>
           </figure>
         )

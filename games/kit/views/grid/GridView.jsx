@@ -47,8 +47,8 @@ export default function GridView({ value, numbers = false, axes = false, grid = 
   )
 }
 
-/** A grid's cells on a canvas, `scale` screen pixels to a cell. */
-export function GridPicture({ value, scale = 5, label, range }) {
+/** A grid's cells on a canvas, with `scale` screen pixels per cell or CSS sizing when `scale` is null. */
+export function GridPicture({ value, scale = 5, label, range, decorative = false }) {
   const canvas = useRef(null)
   const lo = range?.lo ?? 0
   const hi = range?.hi ?? 1
@@ -66,5 +66,7 @@ export function GridPicture({ value, scale = 5, label, range }) {
     }
     ctx.putImageData(out, 0, 0)
   }, [value, lo, hi])
-  return <canvas ref={canvas} className="gv-picture" width={value.w} height={value.h} style={{ width: value.w * scale, height: value.h * scale }} role="img" aria-label={label ?? `${value.w} × ${value.h}`} />
+  const style = scale === null ? undefined : { width: value.w * scale, height: value.h * scale }
+  return <canvas ref={canvas} className="gv-picture" width={value.w} height={value.h} style={style}
+    role={decorative ? undefined : 'img'} aria-hidden={decorative || undefined} aria-label={decorative ? undefined : label ?? `${value.w} × ${value.h}`} />
 }
