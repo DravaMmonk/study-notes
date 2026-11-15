@@ -1,9 +1,10 @@
+import { sourceOf, srcNode } from '../engine/wire-source.js'
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { L } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { cardPorts } from './card-ports.js'
 import { schematic } from './schematic.js'
-import { inPort, outPort, srcNode, srcOf } from './model.js'
+import { inPort, outPort } from './model.js'
 
 // A board to read, the same on a desktop and a phone: small chips in rows from top to bottom (schematic.js), each a
 // part's name over what it holds, thin wires between their edges. Nothing on it is edited: no ports to press, no
@@ -102,7 +103,7 @@ export default function Schematic({ graph, parts, value, param, outNote, regionN
           <span key={o.key}>
             {o.glyph ? <em dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <em>{L(o.short ?? o.label)}</em>}
             {outNote?.(node, o.key)}
-            {anchor(outPort(srcOf(node, o.key)))}
+            {anchor(outPort(sourceOf(node.id, o.key)))}
           </span>
         ))}
       </span>
@@ -142,7 +143,7 @@ export default function Schematic({ graph, parts, value, param, outNote, regionN
               {ports.regions.length > 1 && <b>{L(r.label)}</b>}
               {r.opens && <em>{L(r.output?.label ?? '')}</em>}
               {regionNote?.(node, r.name)}
-              {r.opens && anchor(outPort(srcOf(node, r.name)))}
+              {r.opens && anchor(outPort(sourceOf(node.id, r.name)))}
             </header>
             {rows(`${node.id}/${r.name}`)}
             <footer>

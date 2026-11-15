@@ -1,3 +1,4 @@
+import { splitSource, srcNode } from '../engine/wire-source.js'
 import { parse } from './text.js'
 import { flowLayout } from './layout.js'
 
@@ -14,8 +15,6 @@ const W = { char: 6.4, pad: 10, min: 76, line: 14, head: 18, gapX: 44, gapY: 14,
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 const clip = (s, n = 34) => (s.length > n ? `${s.slice(0, n - 1)}…` : s)
 const show = (v) => (typeof v === 'string' ? v : JSON.stringify(v))
-const nodeOf = (from) => from.split('#')[0]
-const keyOf = (from) => from.split('#')[1] ?? null
 
 const STYLE = `.bp-node{fill:var(--paper,#fbfaf6);stroke:var(--rule,#bfb9ac)}.bp-given{fill:var(--canvas,#f3f1eb);stroke:var(--rule,#bfb9ac);stroke-dasharray:3 3}
 .bp-frame{fill:none;stroke:var(--rule,#bfb9ac)}.bp-region{fill:var(--hover,rgba(45,43,38,.04));stroke:var(--line,#dedbd1)}
@@ -31,8 +30,8 @@ export function boardSvg(lines, { title = null } = {}) {
   const { statements, wires } = parse(Array.isArray(lines) ? lines.join('\n') : lines)
   const declared = new Map(statements.map((s) => [s.id, s]))
   // The level's own nodes: those read from go on the left, the others (only wired into) on the right.
-  const given = [...new Set(wires.flatMap((w) => [nodeOf(w.from), w.to]))].filter((id) => !declared.has(id))
-  const sources = given.filter((id) => wires.some((w) => nodeOf(w.from) === id))
+  const given = [...new Set(wires.flatMap((w) => [srcNode(w.from), w.to]))].filter((id) => !declared.has(id))
+  const sources = given.filter((id) => wires.some((w) => srcNode(w.from) === id))
   const sinks = given.filter((id) => !sources.includes(id))
 
   // Pins: a node's plain inputs by position, then its named ports in the order they are first written.
@@ -137,10 +136,10 @@ export function boardSvg(lines, { title = null } = {}) {
     }
   }
   for (const w of wires) {
-    const from = box.get(nodeOf(w.from))
+    const [id, key] = splitSource(w.from)
+    const from = box.get(id)
     const to = box.get(w.to)
-    const key = keyOf(w.from)
-    const region = key && regionBox.get(`${nodeOf(w.from)}/${key}`)
+    const region = key && regionBox.get(`${id}/${key}`)
     // A region's value comes from the region's own left edge; any other from the node's right.
     const [x1, y1] = region ? [region.x + 4, region.y + 6] : [from.x + from.w, from.y + W.head - 4]
     // What a region makes goes into the frame at the region's right edge.

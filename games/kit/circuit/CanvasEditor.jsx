@@ -1,3 +1,4 @@
+import { sourceOf, srcNode } from '../engine/wire-source.js'
 import { sameJson } from '../engine/json-value.js'
 import { cardWidth } from './card-size.js'
 import { useElementSize } from '../views/useElementSize.js'
@@ -21,7 +22,7 @@ import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
 import { cardPorts } from './card-ports.js'
 import { moveInto, regionsOf } from './frames.js'
-import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, parsePort, removeNode, removeWire, srcNode, srcOf } from './model.js'
+import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, parsePort, removeNode, removeWire } from './model.js'
 import { useHistory } from './useHistory.js'
 import { alignTerminals, spaceNodes } from './spacing.js'
 
@@ -166,7 +167,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     gapX: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-gap-x')),
     gapY: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-gap-y')),
     pad: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-pad')),
-    portY: (id, key, side) => geo.offsets?.[side === 'out' ? outPort(key ? `${id}#${key}` : id) : inPort(id, key)] ?? 46,
+    portY: (id, key, side) => geo.offsets?.[side === 'out' ? outPort(sourceOf(id, key)) : inPort(id, key)] ?? 46,
   })
   const gapOf=(name)=>Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name))||0
   const spacing={pad:Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-pad')),title:Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-head-height'))}
@@ -488,7 +489,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const p = parsePort(picking)
     const port = p.side === 'out' ? inputFor(p.id, id) : null
     const [firstOutput] = p.side === 'in' ? cardPorts(parts, node).outputs : []
-    const other = port ? inPort(id, port) : firstOutput ? outPort(srcOf(node, firstOutput.key)) : null
+    const other = port ? inPort(id, port) : firstOutput ? outPort(sourceOf(node.id, firstOutput.key)) : null
     if (other && wireOf(picking, other)) clickPort(other)
     else if (p.side === 'out') {
       const first = parts.inputs(node)[0]
@@ -630,7 +631,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
               <span key={o.key} className="node-port-out">
                 {o.glyph ? <span className="node-out-name is-glyph" title={L(o.label)} dangerouslySetInnerHTML={{ __html: o.glyph }} /> : <span className="node-out-name" title={L(o.label)}>{L(o.short ?? o.label)}</span>}
                 {!folded && outNote?.(node, o.key)}
-                {outDot(srcOf(node, o.key), parts.portClass?.(node, null, o.key) ?? '')}
+                {outDot(sourceOf(node.id, o.key), parts.portClass?.(node, null, o.key) ?? '')}
               </span>
             ))}
           </div>
@@ -646,7 +647,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
               return (
                 <section key={r.name} className={`frame-region ${target === key ? 'is-target' : ''} ${dropInto === key ? 'is-drop' : ''}`}>
                   <header className="frame-region-head">
-                    {r.opens && outDot(srcOf(node, r.name), 'frame-open')}
+                    {r.opens && outDot(sourceOf(node.id, r.name), 'frame-open')}
                     <span className="frame-region-name">{L(r.label)}</span>
                     {regionNote?.(node, r.name)}
                     <span className="frame-region-result">{L(parts.portLabel?.(node, r.name)) ?? ''}{resultNote?.(node, r.name)}{inDot(r.name, 'frame-close')}</span>

@@ -1,3 +1,4 @@
+import { printSource } from '../circuit/text.js'
 import { failureOf } from './test-run.js'
 // The circuit preset (games/DESIGN.md 6.3, games/DIRECTION.md decision 24): a way to play made of the kernel's
 // pieces — the board of fixed cards (./board-cards.js), the course read with its built parts (./board-course.js), the
@@ -102,7 +103,7 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
       // The pieces this task publishes, each placed alone and wired to its cards.
       const publishes = level.builds.filter((b) => b.at === k)
       const outs = board.portsOut(task).map((o) => o.name)
-      const box = ({ type, form }) => board.fromText([`p = ${type}${form ? `[form=${form}]` : ''}(${board.portsIn(task).map((i) => board.sourceOf(task, i.name).replace('#', '.')).join(', ')})`, ...outs.map((o) => `${o} <- ${outs.length > 1 ? `p.${o}` : 'p'}`)], task, here)
+      const box = ({ type, form }) => board.fromText([`p = ${type}${form ? `[form=${form}]` : ''}(${board.portsIn(task).map((i) => printSource(board.sourceFor(task, i.name))).join(', ')})`, ...outs.map((o) => `${o} <- ${outs.length > 1 ? `p.${o}` : 'p'}`)], task, here)
       const checked = checkWorks(inspect, {
         reference: task.solution, naive: task.naive,
         ...(task.starter ? { starter: opening } : { empty: opening }),
@@ -121,7 +122,7 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
       if (task.carries && tasks[k - 1]?.solution && !checkWorks(inspect, { starter: board.carriedOnto(task, tasks[k - 1].solution) }).starter.ok) problems.push('the task before’s board passes as it is')
       if (task.solution.nodes.some((n) => !board.isFixed(n.type))) {
         for (const name of board.portsIn(task).map((i) => i.name)) {
-          const from = board.sourceOf(task, name)
+          const from = board.sourceFor(task, name)
           if (inspect({ nodes: board.fixedOf(task), wires: outs.map((to) => ({ from, to, port: 'in' })) }).pass) problems.push(`the board that only wires ${name} straight through passes`)
         }
       }

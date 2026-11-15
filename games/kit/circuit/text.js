@@ -1,5 +1,6 @@
+import { sourceOf, splitSource, srcNode } from '../engine/wire-source.js'
 import { flowSpots } from './layout.js'
-import { baseRefusal, byId, outputsOf, spotIn, srcKey, srcNode, srcOf } from './model.js'
+import { baseRefusal, byId, outputsOf, spotIn } from './model.js'
 
 // A board as plain ASCII text: what the player copies out of a level, keeps in a notepad or sends on, and pastes back
 // (a blueprint). It says what the board computes and nothing about how it is laid out:
@@ -41,7 +42,10 @@ function value(v) {
   if (typeof v === 'string') return word(v)
   return JSON.stringify(v ?? null)
 }
-const source = (from) => (srcKey(from) === null ? name(srcNode(from)) : `${name(srcNode(from))}.${name(srcKey(from))}`)
+export function printSource(from) {
+  const [id, key] = splitSource(from)
+  return key === null ? name(id) : `${name(id)}.${name(key)}`
+}
 
 /** What a node is set to: its params. */
 const settingsOf = (node) => node.params ?? {}
@@ -83,7 +87,7 @@ export function print(graph, parts, head = {}) {
     const last = plain.map((p) => wired.has(p)).lastIndexOf(true)
     // A wire into a port the node does not list is written by name, so nothing is lost (reading it back says why).
     const named = [...regions.filter((r) => wired.has(r)), ...[...wired.keys()].filter((p) => !ports.includes(p))]
-    const args = [...plain.slice(0, last + 1).map((p) => (wired.has(p) ? source(wired.get(p)) : '_')), ...named.map((r) => `${name(r)}: ${source(wired.get(r))}`)]
+    const args = [...plain.slice(0, last + 1).map((p) => (wired.has(p) ? printSource(wired.get(p)) : '_')), ...named.map((r) => `${name(r)}: ${printSource(wired.get(r))}`)]
     const type = fields && !fields.includes('type') ? '' : ` = ${name(node.type)}`
     return `${pad}${name(node.id)}${type}${set.length ? `[${set.join(', ')}]` : ''}(${args.join(', ')})`
   }
@@ -117,7 +121,7 @@ export function print(graph, parts, head = {}) {
     const node = byId(graph, id)
     if (placed(parts, node) || (parts.text?.sets?.(node) ?? []).length) continue
     const ports = parts.inputs(node)
-    for (const w of into(id)) lines.push(`${ports.length === 1 ? name(id) : `${name(id)}.${name(w.port)}`} <- ${source(w.from)}`)
+    for (const w of into(id)) lines.push(`${ports.length === 1 ? name(id) : `${name(id)}.${name(w.port)}`} <- ${printSource(w.from)}`)
   }
   return `${lines.join('\n')}\n`
 }
@@ -221,7 +225,7 @@ export function parse(text) {
     const node = ident()
     if (peek() !== '.') return node
     next('.')
-    return `${node}#${ident()}`
+    return sourceOf(node, ident())
   }
   const statements = []
   const wires = []
@@ -370,7 +374,8 @@ export function read(text, graph, parts, types) {
   }
   const fresh = nodes.filter((n) => n.x === undefined && placed(parts, n))
   for (const w of parsed.wires) {
-    if (failed.has(w.by) || missing.has(w.to) || missing.has(srcNode(w.from))) continue
+    const [fromId, outKey] = splitSource(w.from)
+    if (failed.has(w.by) || missing.has(w.to) || missing.has(fromId)) continue
     const to = byId(out, w.to)
     if (!to) {
       errors.push(say(w.line, `没有叫「${w.to}」的元件。`, `There is no node called “${w.to}”.`))
@@ -383,27 +388,26 @@ export function read(text, graph, parts, types) {
       errors.push(say(w.line, typeof w.port === 'number' ? `「${w.to}」没有第 ${w.port + 1} 个输入口。` : `「${w.to}」没有叫「${w.port}」的输入口。`, typeof w.port === 'number' ? `“${w.to}” has no input number ${w.port + 1}.` : `“${w.to}” has no input called “${w.port}”.`))
       continue
     }
-    const from = byId(out, srcNode(w.from))
+    const from = byId(out, fromId)
     // A given node that can give what the wire takes but is not giving it yet (a sensor not switched on) is switched
     // on for it: the text says what the board reads.
-    const opened = from && !placed(parts, from) && !outputsOf(parts, from).some((o) => o.key === srcKey(w.from)) && parts.text?.opens?.(from, srcKey(w.from))
+    const opened = from && !placed(parts, from) && !outputsOf(parts, from).some((o) => o.key === outKey) && parts.text?.opens?.(from, outKey)
     if (opened) from.params = opened
     const keys = from ? outputsOf(parts, from).map((o) => o.key) : []
-    if (!from || !keys.includes(srcKey(w.from))) {
-      errors.push(say(w.line, from ? `「${srcNode(w.from)}」没有输出「${srcKey(w.from) ?? ''}」。` : `没有叫「${srcNode(w.from)}」的元件。`, from ? `“${srcNode(w.from)}” has no output “${srcKey(w.from) ?? ''}”.` : `There is no node called “${srcNode(w.from)}”.`))
+    if (!from || !keys.includes(outKey)) {
+      errors.push(say(w.line, from ? `「${fromId}」没有输出「${outKey ?? ''}」。` : `没有叫「${fromId}」的元件。`, from ? `“${fromId}” has no output “${outKey ?? ''}”.` : `There is no node called “${fromId}”.`))
       continue
     }
     if (out.wires.some((x) => x.to === to.id && x.port === port)) {
       errors.push(say(w.line, `「${w.to}」的「${port}」口接了两根线。`, `Input “${port}” of “${w.to}” takes two wires.`))
       continue
     }
-    const from_ = srcOf(from, srcKey(w.from))
-    const no = baseRefusal(out, from_, to.id, port, parts) ?? parts.refuse?.(out, from_, to.id, port) ?? null
+    const no = baseRefusal(out, w.from, to.id, port, parts) ?? parts.refuse?.(out, w.from, to.id, port) ?? null
     if (no) {
       errors.push(say(w.line, no.zh, no.en))
       continue
     }
-    out = { ...out, wires: [...out.wires, { from: from_, to: to.id, port }] }
+    out = { ...out, wires: [...out.wires, { from: w.from, to: to.id, port }] }
   }
   flowSpots(out, fresh)
   return errors.length ? { errors } : { graph: { ...graph, nodes: out.nodes, wires: out.wires } }

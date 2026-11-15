@@ -4,6 +4,7 @@
 // board), the parts its levels build (each running the board it was built from: a packed part, ../../engine/boards.js),
 // and the course audit's view of it. Everything it works out is a new object: the content it reads is never written.
 
+import { splitSource } from '../../engine/wire-source.js';
 import { packed } from '../../engine/boards.js';
 import { inheritedBoard } from '../../shell/progress.js';
 import { deepFreeze } from '../../engine/content.js';
@@ -13,7 +14,7 @@ import { defineCourse, eraLevels, layout, offer, pathLevels, reach, usable } fro
 import { T, hydrate, lazy, tr } from './lang.js';
 import { builtPieces, publications, settingsOf } from '../../engine/pieces.js';
 import { isGiven, modelsOf, partsOf } from './model/parts.js';
-import { blank, clone, fitted, fromText, portsProblem, splitSrc, toText } from './model/board.js';
+import { blank, clone, fitted, fromText, portsProblem, toText } from './model/board.js';
 import { ROBOTS } from './model/robots.js';
 import { WORLDS, sensorsOf, visibleSensors } from './model/worlds.js';
 import { modelOf } from './model/run.js';
@@ -58,7 +59,7 @@ export function usesOf(tasks) {
   for (const s of tasks) {
     const V = WORLDS[s.world];
     for (const w of s.solution?.wires ?? []) {
-      const [from, pick] = splitSrc(w.from);
+      const [from, pick] = splitSource(w.from);
       const m = pick && (from === 'view' || from === 'facts') ? V.sensors[pick] : null;
       if (!m) continue;
       if (m.family === 'view') out.add(Math.max(Math.abs(m.at[0]), Math.abs(m.at[1])) > 1 ? 'far' : 'view');

@@ -1,3 +1,4 @@
+import { srcKey, srcNode } from '../engine/wire-source.js'
 import { curve } from '../wires.js'
 // Data-flow columns shared by compact circuit placement and headless SVGs. Cycles keep a
 // finite depth; sources outside the supplied nodes do not add a column.
@@ -8,7 +9,7 @@ export function flowLayout(nodes, wires, { sizeOf, gapX = 44, gapY = 14 } = {}) 
     if (depth.has(id)) return depth.get(id)
     if (seen.has(id)) return 0
     seen.add(id)
-    const inputs = wires.filter((w) => w.to === id).map((w) => w.from.split('#')[0]).filter((src) => ids.has(src))
+    const inputs = wires.filter((w) => w.to === id).map((w) => srcNode(w.from)).filter((src) => ids.has(src))
     const d = inputs.length ? 1 + Math.max(...inputs.map((src) => depthOf(src, seen))) : 0
     depth.set(id, d)
     return d
@@ -32,7 +33,7 @@ export function flowLayout(nodes, wires, { sizeOf, gapX = 44, gapY = 14 } = {}) 
 }
 
 
-const sourceId = (wire) => wire.from.split('#')[0]
+const sourceId = (wire) => srcNode(wire.from)
 const mean = (values) => values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0
 
 /** Stable dependency order, including the cycles formed by grouping a larger acyclic circuit. */
@@ -55,7 +56,7 @@ export function alignedLayout(nodes, wires, { sizeOf, portY = () => 48, gapX = 2
   for (const n of ordered) { const d = depths.get(n.id); columns.set(d, [...(columns.get(d) ?? []), n]) }
   let x = 0
   for (const column of columns.values()) {
-    const desired = (n) => mean(wires.filter((w) => w.to === n.id && positions.has(sourceId(w))).map((w) => positions.get(sourceId(w)).y + portY(sourceId(w), w.from.split('#')[1] ?? null, 'out') - portY(n.id, w.port, 'in')))
+    const desired = (n) => mean(wires.filter((w) => w.to === n.id && positions.has(sourceId(w))).map((w) => positions.get(sourceId(w)).y + portY(sourceId(w), srcKey(w.from), 'out') - portY(n.id, w.port, 'in')))
     column.sort((a, b) => desired(a) - desired(b))
     let bottom = -Infinity
     for (const n of column) {
@@ -125,7 +126,7 @@ export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY = () => 48
   const rough = new Map()
   sources.reduce((y, n) => { rough.set(n.id, y); return y + sizeOf(n).h + gapY }, title)
   const inside = (u, id) => { const p = u.inner.positions.get(id); return { x: p.x + (u.block ? pad : 0), y: p.y + (u.block ? title + pad : 0) } }
-  const out = (w) => portY(sourceId(w), w.from.split('#')[1] ?? null, 'out')
+  const out = (w) => portY(sourceId(w), srcKey(w.from), 'out')
   const into = (w) => portY(w.to, w.port, 'in')
   // Where a wire runs between two columns it does not touch: the heights it passes at, from the plan before (its
   // ends as they stood), as the canvas draws it (wires.js curve, level out of a card and level into one).
@@ -268,7 +269,7 @@ export function layoutMetrics(graph, plan, { sizeOf, portY = () => 48 }) {
   const routes = graph.wires.flatMap((w)=>{
     const a=plan.nodes.get(sourceId(w)),b=plan.nodes.get(w.to)
     if(!a||!b)return []
-    return [sampleCurve([a.x+sizeOf(byId.get(sourceId(w))).w,a.y+portY(sourceId(w),w.from.split('#')[1]??null,'out')],[b.x,b.y+portY(w.to,w.port,'in')])]
+    return [sampleCurve([a.x+sizeOf(byId.get(sourceId(w))).w,a.y+portY(sourceId(w),srcKey(w.from),'out')],[b.x,b.y+portY(w.to,w.port,'in')])]
   })
   const lengths=routes.map((r)=>r.slice(1).reduce((sum,p,k)=>sum+Math.hypot(p[0]-r[k][0],p[1]-r[k][1]),0))
   let crossings=0

@@ -8,7 +8,7 @@
 // settings in params. A wire runs from a node into one of the ports of another.
 import { sameJson } from '../../../engine/json-value.js'
 import { parse, print } from '../../../circuit/text.js'
-import { srcNode } from '../../../circuit/model.js'
+import { srcNode } from '../../../engine/wire-source.js'
 import { parsePi, piText } from './pi.js'
 
 /** A setting that takes π, as the blueprint spells it ('pi/2', '-3pi/4'), or null when the value is no multiple of π. */

@@ -3,8 +3,9 @@
 // phone) and change() keeps what the board stores; the editor's description of the nodes (partsFor) refuses a wire the
 // engine would refuse, with the engine's own reason.
 
+import { sourceOf, srcNode } from '../../../engine/wire-source.js';
 import { CARDS, isCard, isGiven } from '../model/parts.js';
-import { picksOf, placement, splitSrc } from '../model/board.js';
+import { picksOf, placement } from '../model/board.js';
 import { wiring } from '../model/wiring.js';
 import { lookIcon } from './looks.js';
 import { ICONS } from './glyphs.js';
@@ -66,7 +67,7 @@ export function partsFor(model, b, u) {
   const look = (node, port, key = null) => {
     if (port === null) {
       if (node.type === 'out') return '';
-      const t = model.srcType(b, io, key === null ? node.id : `${node.id}#${key}`);
+      const t = model.srcType(b, io, sourceOf(node.id, key));
       return t.endsWith('s') ? 'list' : t;
     }
     const t = node.type === 'out' ? (u.outs.find(o => o[0] === node.id)?.[3] || 'num') : def(node.type).ins[+port];
@@ -85,7 +86,7 @@ export function partsFor(model, b, u) {
     cardStyle: node => ({ '--fam': colour(node) }),
     valueView: node => (isCard(node.type) ? 'sensor' : 'value'),
     hasSettings: node => model.hasValue(node.type),
-    wireStyle: (wire, graph) => ({ '--fam': colour(byId(graph, splitSrc(wire.from)[0])) }),
+    wireStyle: (wire, graph) => ({ '--fam': colour(byId(graph, srcNode(wire.from))) }),
     portClass: (node, port, key) => `look-${look(node, port, key ?? null)}`,
     packed: node => Boolean(def(node.type)?.built),
   };

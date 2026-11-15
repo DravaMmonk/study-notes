@@ -3,7 +3,7 @@ import { runBoard, sink, source } from '../../../engine/boards.js'
 import { runOutputTests } from '../../../engine/test-run.js'
 import { compare, image } from './image.js'
 import { channel, compose } from './colour.js'
-import { srcNode } from '../../../circuit/model.js'
+import { srcNode } from '../../../engine/wire-source.js'
 
 // A graph is { nodes: [{ id, type, x, y, params }], wires: [{ from, to, port }] } where `from` and
 // `to` are node ids and `port` is the input port name on `to`. Each node has a single output.

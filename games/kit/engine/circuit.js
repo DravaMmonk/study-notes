@@ -26,6 +26,8 @@
 // marks its node with that message, and the nodes downstream read it as missing; a Halt stops the whole evaluation
 // (a robot reading a cell not computed yet). Anything else a part throws marks its node as unable to compute.
 
+import { sourceOf, splitSource } from './wire-source.js'
+
 /** A node that cannot compute, with a message for the player ({ zh, en } or a string). */
 export class PartError extends Error {
   constructor(message) {
@@ -44,14 +46,6 @@ export class Halt extends Error {
 
 export const MISSING = { zh: '缺少输入', en: 'Missing input' }
 export const BROKEN = { zh: '无法计算', en: 'Cannot compute' }
-
-/** A wire's source as [node id, output key | null]. */
-export const splitSource = (src) => {
-  const s = String(src)
-  const k = s.indexOf('#')
-  return k < 0 ? [s, null] : [s.slice(0, k), s.slice(k + 1)]
-}
-export const sourceOf = (id, key) => (key === null || key === undefined ? id : `${id}#${key}`)
 
 /** A part's input ports for a node. */
 export const portsOf = (part, node) => (typeof part.inputs === 'function' ? part.inputs(node) : part.inputs ?? [])

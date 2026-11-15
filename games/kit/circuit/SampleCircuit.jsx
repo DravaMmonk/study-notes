@@ -1,3 +1,4 @@
+import { sourceOf } from '../engine/wire-source.js'
 import { useState } from 'react'
 import CanvasEditor from './CanvasEditor.jsx'
 import DemoBench, { useExampleRun } from './DemoBench.jsx'
@@ -5,7 +6,6 @@ import SlotBoard from './SlotBoard.jsx'
 import { L, T } from '../shell/i18n.js'
 import { definedFaces, definedParts } from '../shell/parts/faces.jsx'
 import Show from '../views/Show.jsx'
-import { srcOf } from './model.js'
 
 // A fixed example wired around a piece, run on the supplied cases. The editor supplies the same setting controls as a task.
 export default function SampleCircuit({ example, defined, phone }) {
@@ -20,7 +20,7 @@ export default function SampleCircuit({ example, defined, phone }) {
   })), errors: new Map() }
   const ctx = { view: visible, path: [], board: { circuit: board, parts }, readOnly: false }
   const value = (node, _ctx, key) => {
-    const given = visible.values.get(srcOf(node, key))
+    const given = visible.values.get(sourceOf(node.id, key))
     const error = visible.errors.get(node.id)
     return given !== undefined ? <Show value={given} scene="card" views={view?.(node, given)} /> : error ? <small>{L(error)}</small> : null
   }

@@ -1,3 +1,4 @@
+import { sourceOf, srcNode } from '../engine/wire-source.js'
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { Columns2, Group, Info, EyeOff, Plus, Redo2, Spline, Square, Undo2, Waypoints } from 'lucide-react'
 import { blockRows, rowMembers } from './blocks.js'
@@ -16,7 +17,7 @@ import { slotMetrics } from './slot-metrics.js'
 import { slotPortAt } from './slot-ports.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
-import { feeding, inPort, layout, outPort, parsePort, placement, srcNode, srcOf } from './model.js'
+import { feeding, inPort, layout, outPort, parsePort, placement } from './model.js'
 
 // The phone circuit board, the same in every game: the sources on top, parts in a grid of slots that
 // keep their place, the sinks at the bottom. A block's inputs are dots on its top edge and its output a dot on its
@@ -249,7 +250,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
     return (
       <span className="pb-out is-many">
         {outputs.map((o) => {
-          const src = srcOf(node, o.key)
+          const src = sourceOf(node.id, o.key)
           const note = !folded && outNote?.(node, o.key)
           return (
             <span key={o.key} className={`pb-o ${note ? 'has-note' : ''}`}>
@@ -382,7 +383,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
             {ownRegions.length > 1 && <b>{L(r.label)}</b>}
             {r.opens && <em>{L(r.output?.label ?? '')}</em>}
             {!isFolded && <span className="pb-region-value">{regionNote?.(node, r.name)}</span>}
-            {r.opens && <span className="pb-out">{dot(outPort(srcOf(node, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(srcOf(node, r.name)) ? 'is-wired' : ''}`)}</span>}
+            {r.opens && <span className="pb-out">{dot(outPort(sourceOf(node.id, r.name)), tr(`${nameOf(node)} 的${L(r.label)}假设`, `${nameOf(node)} ${L(r.label)}: assumption`), `is-out ${used(sourceOf(node.id, r.name)) ? 'is-wired' : ''}`)}</span>}
           </header>
           {grid(`${node.id}/${r.name}`, { gridRow: `3 / span ${2 * rows - 1}` })}
           {/* Its foot row: the dot its result goes into, and what the frame gives. */}

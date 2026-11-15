@@ -1,3 +1,4 @@
+import { sourceOf, splitSource, srcNode } from '../engine/wire-source.js'
 import { caught } from '../engine/caught.js'
 import Checks, { checksSay, useChecks } from './Checks.jsx'
 import { VIEWS, valueText } from '../engine/views.js'
@@ -9,7 +10,7 @@ import { stagesOf } from '../engine/stages.js'
 import { CircuitBoard } from 'lucide-react'
 import { MISSING } from '../engine/circuit.js'
 import { traceSteps, viewAt } from '../engine/trace.js'
-import { outputsOf, srcOf } from '../circuit/model.js'
+import { outputsOf } from '../circuit/model.js'
 import { countFailedTests, splitTests, TEST_WORDS } from '../engine/tests.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 import { rowsOf } from '../engine/views.js'
@@ -226,18 +227,18 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
     const outputs = parts.outputs(next)
     const wires = drawn.wires.filter(wire => {
       if (wire.to === node.id && !inputs.has(wire.port)) return false
-      const [from, port] = wire.from.split('#')
-      return from !== node.id || (outputs ? outputs.some(output => output.key === port) : !port)
+      const [from, port] = splitSource(wire.from)
+      return from !== node.id || (outputs ? outputs.some(output => output.key === port) : port === null)
     })
     change({ ...drawn, nodes, wires })
   }
   // A card shows its value; a card on the right, what reaches it (as its own value: the output's view).
-  const valueOf = (node, key, v) => v.values.get(key ? `${node.id}#${key}` : node.id)
+  const valueOf = (node, key, v) => v.values.get(sourceOf(node.id, key))
   const value = (node, ctx) => {
     const into = valueOf(node, null, ctx.view) === undefined && ctx.board.parts.role(node) === 'sink' && ctx.board.circuit.wires.find((w) => w.to === node.id)
     const of = valueKey(ctx, node.id)
     const drawn = into ? ctx.view.values.get(into.from) : valueOf(node, null, ctx.view)
-    return into ? <Value value={ctx.view.values.get(into.from)} error={ctx.view.errors.get(into.from.split('#')[0])} show={show} of={of} views={valueViews?.(ctx.board.level ?? level, node, drawn)} /> : <Value value={valueOf(node, null, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} of={of} views={valueViews?.(ctx.board.level ?? level, node, drawn)} />
+    return into ? <Value value={ctx.view.values.get(into.from)} error={ctx.view.errors.get(srcNode(into.from))} show={show} of={of} views={valueViews?.(ctx.board.level ?? level, node, drawn)} /> : <Value value={valueOf(node, null, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} of={of} views={valueViews?.(ctx.board.level ?? level, node, drawn)} />
   }
   const showsValue = (node, ctx) => !ctx.board.parts.outputs(node) || (ctx.board.parts.role(node) === 'source' && outputsOf(ctx.board.parts, node).some(({ key }) => key === null))
   const cardSettings = (node, ctx) => settings?.(node, { ...ctx, task: ctx.board.level ?? level }).map(({ key, label, value, options }) => (
@@ -260,7 +261,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   // lane each in the detail scene; the shape a port's results row gives it, else bits while every value is 0 or 1.
   // Inside a packed part, what its card shows.
   const lanesOf = (node, { board: b }) => {
-    if (b.parts.role(node) !== 'sink') return outputsOf(b.parts, node).map((o) => ({ key: srcOf(node, o.key), of: srcOf(node, o.key), label: o.key === null ? null : o.label }))
+    if (b.parts.role(node) !== 'sink') return outputsOf(b.parts, node).map((o) => ({ key: sourceOf(node.id, o.key), of: sourceOf(node.id, o.key), label: o.key === null ? null : o.label }))
     const into = b.circuit.wires.find((w) => w.to === node.id)
     return into ? [{ key: into.from, of: node.id, label: null }] : []
   }
@@ -297,7 +298,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
     allowed,
     language: language?.(level, onView),
     options: (def, setting, node, ctx) => optionsOf(setting, def, { params: node?.params, ins: node ? insOf(node, ctx) : {}, ctx: { ...context?.(level, onView), node } }, defined.ops),
-    value: (node, ctx, output, face) => (face === 'detail' && inspect ? inspect(node, ctx) : output ? <Value value={valueOf(node, output, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} of={valueKey(ctx, `${node.id}#${output}`)} views={valueViews?.(ctx.board.level ?? level, node, valueOf(node, output, ctx.view))} /> : ctx.board.parts.outputs(node) ? null : value(node, ctx)),
+    value: (node, ctx, output, face) => (face === 'detail' && inspect ? inspect(node, ctx) : output != null ? <Value value={valueOf(node, output, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} of={valueKey(ctx, sourceOf(node.id, output))} views={valueViews?.(ctx.board.level ?? level, node, valueOf(node, output, ctx.view))} /> : ctx.board.parts.outputs(node) ? null : value(node, ctx)),
   }, [defined, inspect, allowed, level, onView, drawn, valueViews])
 
   const itemOf = (type) => {

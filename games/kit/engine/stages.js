@@ -1,5 +1,7 @@
 // Stages describe a board's provenance, not its computation. Ownership follows the first appearance of a node id;
 // terminals stay outside stages so changing a task's interface never hides its inputs or outputs.
+import { srcNode } from './wire-source.js'
+
 export const OPEN_PART_LIMIT = 8
 
 export function stagesOf({ task, board, chain = [], isFixed = (node) => ['in', 'out'].includes(node.type) }) {
@@ -12,8 +14,8 @@ export function stagesOf({ task, board, chain = [], isFixed = (node) => ['in', '
     if (!nodes.length) return []
     const within = new Set(nodes)
     return [{ id, label, nodes,
-      ins: board.wires.filter((w) => within.has(w.to) && !within.has(w.from.split('#')[0])),
-      outs: board.wires.filter((w) => within.has(w.from.split('#')[0]) && !within.has(w.to)),
+      ins: board.wires.filter((w) => within.has(w.to) && !within.has(srcNode(w.from))),
+      outs: board.wires.filter((w) => within.has(srcNode(w.from)) && !within.has(w.to)),
     }]
   })
   return { stages, loose: parts.filter((n) => !owner.has(n.id)).map((n) => n.id) }

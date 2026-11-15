@@ -28,6 +28,7 @@
 //   text?: { sets?(node), read?(node, key, value), opens?(node, key) }   as text (text.js): the settings a given
 //                                          node's statement may write, a setting read back, and the settings of a given
 //                                          node switched on to give output `key` a wire reads (null when it cannot)
+import { srcNode } from '../engine/wire-source.js'
 import { cardColumns, slotColumns, slotWidth } from './card-size.js'
 import { SLOT_GUTTER } from './slot-metrics.js'
 import { wouldCycle } from '../graph.js'
@@ -42,11 +43,6 @@ export const parsePort = (p) => {
   return side === 'o' ? { side: 'out', id } : { side: 'in', id, port }
 }
 
-/** The node a wire's source belongs to, and which of its outputs it is (null for a node's only output). */
-export const srcNode = (src) => String(src).split('#')[0]
-export const srcKey = (src) => (String(src).includes('#') ? String(src).slice(String(src).indexOf('#') + 1) : null)
-/** The source of a node's output `key` (its only output when `key` is null). */
-export const srcOf = (node, key) => (key === null || key === undefined ? node.id : `${node.id}#${key}`)
 /** A node's outputs: [{ key, label, short? }], or one unnamed output. */
 export const outputsOf = (parts, node) => parts.outputs?.(node) ?? [{ key: null, label: '' }]
 

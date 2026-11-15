@@ -1,9 +1,9 @@
 // Finding one board inside another, for the course audit's `bypass` (../course.js): where a level's reference answer
 // wires up, from smaller parts, exactly the board a built part runs. Boards are the shared circuit model
 // (../circuit/model.js): { nodes: [{ id, type, params?, value? }], wires: [{ from: 'node' | 'node#key', to, port }] }.
+import { sourceOf, splitSource, srcKey, srcNode } from './wire-source.js'
 
-const nodeOf = (src) => String(src).split('#')[0]
-const keyOf = (src) => (String(src).includes('#') ? String(src).slice(String(src).indexOf('#') + 1) : '')
+
 const settings = (n) => JSON.stringify([Object.entries(n.params ?? {}).sort(), n.value ?? null])
 const intoOf = (board) => {
   const into = new Map(board.nodes.map((n) => [n.id, new Map()]))
@@ -26,7 +26,7 @@ export function rebuilt(pattern, board, isPart) {
   const byId = new Map(board.nodes.map((n) => [n.id, n]))
   // Match each node next to one matched already, so a wire pins most choices down.
   const order = []
-  const near = (id) => pattern.wires.flatMap((w) => (w.to === id && mine.has(nodeOf(w.from)) ? [nodeOf(w.from)] : nodeOf(w.from) === id && mine.has(w.to) ? [w.to] : []))
+  const near = (id) => pattern.wires.flatMap((w) => (w.to === id && mine.has(srcNode(w.from)) ? [srcNode(w.from)] : srcNode(w.from) === id && mine.has(w.to) ? [w.to] : []))
   for (const n of own) {
     const queue = [n.id]
     while (queue.length) {
@@ -45,13 +45,13 @@ export function rebuilt(pattern, board, isPart) {
       const ps = pin.get(port), bs = bin.get(port)
       if ((ps === undefined) !== (bs === undefined)) return false
       if (ps === undefined) continue
-      if (mine.has(nodeOf(ps))) { if (phi.has(nodeOf(ps)) && (phi.get(nodeOf(ps)) !== nodeOf(bs) || keyOf(ps) !== keyOf(bs))) return false }
+      if (mine.has(srcNode(ps))) { if (phi.has(srcNode(ps)) && (phi.get(srcNode(ps)) !== srcNode(bs) || srcKey(ps) !== srcKey(bs))) return false }
       else if (source.has(ps) && source.get(ps) !== bs) return false
     }
     for (const w of pattern.wires) {
-      if (nodeOf(w.from) !== p || !phi.has(w.to)) continue
+      if (srcNode(w.from) !== p || !phi.has(w.to)) continue
       const bs = bInto.get(phi.get(w.to)).get(w.port)
-      if (bs === undefined || nodeOf(bs) !== b || keyOf(bs) !== keyOf(w.from)) return false
+      if (bs === undefined || srcNode(bs) !== b || srcKey(bs) !== srcKey(w.from)) return false
     }
     return true
   }
@@ -62,7 +62,7 @@ export function rebuilt(pattern, board, isPart) {
       if (taken.has(b.id) || !fits(p, b.id)) continue
       phi.set(p, b.id)
       taken.add(b.id)
-      const bound = [...pInto.get(p)].filter(([, ps]) => !mine.has(nodeOf(ps)) && !source.has(ps))
+      const bound = [...pInto.get(p)].filter(([, ps]) => !mine.has(srcNode(ps)) && !source.has(ps))
       for (const [port, ps] of bound) source.set(ps, bInto.get(b.id).get(port))
       if (place(k + 1)) return true
       phi.delete(p)
@@ -73,14 +73,14 @@ export function rebuilt(pattern, board, isPart) {
   }
   if (!place(0)) return null
   // An input read from inside the matched parts is no input.
-  for (const bs of source.values()) if (taken.has(nodeOf(bs))) return null
+  for (const bs of source.values()) if (taken.has(srcNode(bs))) return null
   // What the rest of the board reads from them, `pattern` gives out.
-  const out = new Set(pattern.wires.filter((w) => mine.has(nodeOf(w.from)) && !mine.has(w.to)).map((w) => w.from))
+  const out = new Set(pattern.wires.filter((w) => mine.has(srcNode(w.from)) && !mine.has(w.to)).map((w) => w.from))
   const back = new Map([...phi].map(([p, b]) => [b, p]))
   for (const w of board.wires) {
-    if (!taken.has(nodeOf(w.from)) || taken.has(w.to)) continue
-    const p = back.get(nodeOf(w.from))
-    if (!out.has(keyOf(w.from) ? `${p}#${keyOf(w.from)}` : p)) return null
+    const [id, key] = splitSource(w.from)
+    if (!taken.has(id) || taken.has(w.to)) continue
+    if (!out.has(sourceOf(back.get(id), key))) return null
   }
   return phi
 }

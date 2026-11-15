@@ -1,5 +1,6 @@
 // One rule for desktop and phone: keep a block's internal wires, replace distant or branching connections with
 // paired source labels. The synthetic input/output/current units describe view placement, never circuit nodes.
+import { splitSource, srcNode } from '../engine/wire-source.js'
 import { L } from '../shell/i18n.js'
 export const CONNECTION_LIMITS = { length: 320, fanoutBlocks: 2 }
 export const wireKey = (w) => `${w.from}>${w.to}.${w.port}`
@@ -12,7 +13,7 @@ export function labelledConnections(graph, blocks, parts, pointOf = null) {
   const destinations = new Map()
   for (const w of graph.wires) if (owners.has(w.to)) destinations.set(w.from, new Set([...(destinations.get(w.from) ?? []), owners.get(w.to)]))
   return graph.wires.filter((w) => {
-    const src = w.from.split('#')[0], a = owners.get(src), b = owners.get(w.to)
+    const src = srcNode(w.from), a = owners.get(src), b = owners.get(w.to)
     if (a && a === b) return false
     if ((destinations.get(w.from)?.size ?? 0) >= CONNECTION_LIMITS.fanoutBlocks) return true
     if (a && b && a !== b) return true
@@ -25,11 +26,11 @@ export function labelledConnections(graph, blocks, parts, pointOf = null) {
   })
 }
 export function sourceLabel(wire, graph, parts) {
-  const id = wire.from.split('#')[0], key = wire.from.split('#')[1]
+  const [id, key] = splitSource(wire.from)
   const node = graph.nodes.find((n) => n.id === id)
   const name = L(parts.label(node))
   const same = graph.nodes.filter((n) => L(parts.label(n)) === name)
   const number = same.length > 1 ? ` ${same.findIndex((n) => n.id === id) + 1}` : ''
-  const port = key && parts.outputs?.(node)?.find((p) => p.key === key)
+  const port = key !== null && parts.outputs?.(node)?.find((p) => p.key === key)
   return `${name}${number}${port ? ` · ${L(port.label)}` : ''}`
 }

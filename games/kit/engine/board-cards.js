@@ -2,7 +2,7 @@
 // still fits the task, and the board as blueprint text. A domain says which cards its tasks give:
 //
 //   circuitBoard({ cards, ticks, right, gap, text }) → { ticks, FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, labelOf,
-//     sourceOf, fixedOf, startBoard, fits, carriedOnto, wiring, fromText, toText }
+//     sourceFor, fixedOf, startBoard, fits, carriedOnto, wiring, fromText, toText }
 //       cards  [{ type, side: 'left' | 'right', of(task) → [{ name, label }], params?(port), part?, group?(task) }]
 //              in board order: the cards a level gives (its inputs, outputs, wires…), each a source on the left or a sink
 //              on the right unless it gives its own part (a line heard, a line driven); group(task) → [{ name, label,
@@ -18,6 +18,7 @@
 //
 // A board is { nodes: [{ id, type, params, x?, y? }], wires: [{ from, to, port }] }; as text it is the kernel's
 // blueprint (../circuit/text.js), read and checked there.
+import { sourceOf, srcNode } from './wire-source.js'
 import { print, read } from '../circuit/text.js'
 import { sink, source } from './boards.js'
 import { portsOf } from './circuit.js'
@@ -38,7 +39,10 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140, tex
   /** What a task's port, or a group of its ports, is called. */
   const labelOf = (task, name) => [...portsIn(task), ...portsOut(task), ...groupsOf(task)].find((p) => p.name === name)?.label ?? name
   /** Where a wire from one of a task's ports on the left starts: its card, or its output on its group's card. */
-  const sourceOf = (task, name) => (groupOf(task, name) ? `${groupOf(task, name).name}#${name}` : name)
+  const sourceFor = (task, name) => {
+    const group = groupOf(task, name)
+    return group ? sourceOf(group.name, name) : name
+  }
   // A side's cards: a port's own, or its group's, where the group's first member stands.
   const placed = (task, s) => side(task, s).flatMap(({ card, port }) => {
     const group = card.group && groupOf(task, port.name)
@@ -63,7 +67,7 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140, tex
     const placed = board.nodes.filter((n) => !isFixed(n.type))
     const own = new Map(fixed.map((n) => [n.id, n]))
     const ids = new Set([...fixed, ...placed].map((n) => n.id))
-    const from = (w) => w.from.split('#')[0]
+    const from = (w) => srcNode(w.from)
     const keeps = (w) => ids.has(from(w)) && ids.has(w.to) && (!own.has(w.to) || w.port === 'in') && (!own.has(from(w)) || board.nodes.find((n) => n.id === from(w))?.type === own.get(from(w)).type)
     return { ...board, nodes: [...fixed, ...placed], wires: board.wires.filter(keeps) }
   }
@@ -103,7 +107,7 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140, tex
   /** A board as blueprint lines, as content writes it (no header): what fromText reads back on the task. */
   const toText = (board, task, circuit) => print(board, wiring(task, circuit)).split('\n').filter((line) => line && !line.startsWith('#'))
 
-  return { ticks, FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, labelOf, sourceOf, fixedOf, startBoard, fits, carriedOnto, wiring, fromText, toText }
+  return { ticks, FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, labelOf, sourceFor, fixedOf, startBoard, fits, carriedOnto, wiring, fromText, toText }
 }
 
 /** A task's inputs down the left of its board, and its outputs down the right. */

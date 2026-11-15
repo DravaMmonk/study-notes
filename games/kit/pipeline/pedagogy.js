@@ -15,6 +15,7 @@
 // lintPedagogy(content, spec) → [{ rule, at, says, report? }]; spec is the domain's (its `blueprints`: every board the
 // content writes, by level and task).
 
+import { splitSource, srcNode } from '../engine/wire-source.js'
 import { firstText, isText } from '../engine/i18n.js'
 
 export const PEDAGOGY_RULES = {
@@ -59,14 +60,14 @@ export function boardShape(board) {
     const params = Object.entries(node?.params ?? {}).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${k}=${JSON.stringify(v)}`).join(',')
     const next = new Set(trail).add(id)
     const ins = [...(into.get(id) ?? [])].sort((a, b) => String(a.port).localeCompare(String(b.port))).map((w) => {
-      const [from, key] = w.from.split('#')
-      return `${w.port}:${shape(from, next)}${key ? `.${key}` : ''}`
+      const [from, key] = splitSource(w.from)
+      return `${w.port}:${shape(from, next)}${key === null ? '' : `.${key}`}`
     })
     const out = `${node?.type ?? '?'}[${params}](${ins.join(' ')})`
     memo.set(id, out)
     return out
   }
-  const read = new Set(board.wires.map((w) => w.from.split('#')[0]))
+  const read = new Set(board.wires.map((w) => srcNode(w.from)))
   return board.nodes.filter((n) => !read.has(n.id)).map((n) => shape(n.id)).sort().join(' | ')
 }
 

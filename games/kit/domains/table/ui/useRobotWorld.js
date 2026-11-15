@@ -1,7 +1,8 @@
+import { splitSource } from '../../../engine/wire-source.js'
 import { useEffect, useState } from 'react'
 import { tr, lazy } from '../lang.js'
 import { ROBOTS } from '../model/robots.js'
-import { picksOf, splitSrc, withPicks } from '../model/board.js'
+import { picksOf, withPicks } from '../model/board.js'
 import { isCard, modelsOf } from '../model/parts.js'
 import { signal } from '../model/format.js'
 import { WORLDS, windowOf } from '../model/worlds.js'
@@ -146,7 +147,7 @@ export function useRobotWorld({ screen, task, test, run, report, at, ended, circ
     change({
       ...circuit,
       nodes: circuit.nodes.map((n) => n.id === node.id ? withPicks(n, next) : n),
-      wires: circuit.wires.filter(({ from }) => { const [id, pick] = splitSrc(from); return id !== node.id || next.includes(pick) }),
+      wires: circuit.wires.filter(({ from }) => { const [id, pick] = splitSource(from); return id !== node.id || next.includes(pick) }),
     })
     buzz(6)
   }

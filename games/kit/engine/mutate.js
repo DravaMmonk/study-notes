@@ -9,10 +9,10 @@
 //   retype    a part replaced by another the task holds with the same ports
 //
 // Parts fixed on the board (the level's inputs and outputs), frames and what sits in them are left alone.
+import { srcNode } from './wire-source.js'
 import { sameJson } from './json-value.js'
 
-const idOf = (from) => (from.includes('#') ? from.slice(0, from.indexOf('#')) : from)
-const reads = (wire, id) => idOf(wire.from) === id
+const reads = (wire, id) => srcNode(wire.from) === id
 // A part's ports are a list, or a function of the node (./circuit.js): only lists can be compared between two types.
 const portsOf = (part, node) => (typeof part.inputs === 'function' ? part.inputs(node) ?? [] : part.inputs ?? [])
 const symmetricOf = (part, node) => (typeof part.symmetric === 'function' ? part.symmetric(node) ?? [] : part.symmetric ?? [])

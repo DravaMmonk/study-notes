@@ -1,3 +1,4 @@
+import { sourceOf } from '../../../engine/wire-source.js'
 import { tidyImageBoard } from './board.js'
 
 // Select the images and reference wiring the course names for a piece on the shared sample circuit.
@@ -39,7 +40,7 @@ function around(type, spec, names, params) {
     nodes: [...inputs, { id: 'part', type, params, x: 280, y: 40 }, ...outputs],
     wires: [
       ...spec.inputs.flatMap((port, k) => feed(port, k) ? [{ from: feed(port, k).id, to: 'part', port }] : []),
-      ...outputs.map((sink, k) => ({ from: keys[k] === null ? 'part' : `part#${keys[k]}`, to: sink.id, port: 'in' })),
+      ...outputs.map((sink, k) => ({ from: sourceOf('part', keys[k]), to: sink.id, port: 'in' })),
     ],
   }
 }

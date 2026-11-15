@@ -1,8 +1,9 @@
 // A circuit's own inputs and outputs are nodes named by `params.name`: a source gives what is bound to its name, a
 // sink is what the circuit gives under its name. The same circuit then serves as a level's board (bound to a test's
 // inputs) and as a packed part (a solved circuit used again as one part).
+import { splitSource } from './wire-source.js'
 import { paramsOf } from './forms.js'
-import { BROKEN, PartError, evaluate, evaluation, portsOf, splitSource } from './circuit.js'
+import { BROKEN, PartError, evaluate, evaluation, portsOf } from './circuit.js'
 
 export const nameOf = (node) => node.params?.name
 

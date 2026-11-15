@@ -1,5 +1,5 @@
+import { splitSource } from '../engine/wire-source.js'
 import { dependencyOrder } from './layout.js'
-import { srcKey, srcNode } from './model.js'
 
 // A board set out to be read, not edited (Schematic.jsx): each scope (the board itself, or a frame's region:
 // frames.js) is rows from top to bottom, every part below everything it reads, the board's sources its first row and
@@ -23,7 +23,7 @@ export function schematic(graph, parts) {
   // Each wire as legs, one per scope it runs in, outermost first: from a node there (or the scope's top edge) to a
   // node there (or its bottom edge).
   const legsOf = (w) => {
-    const [src, key] = [srcNode(w.from), srcKey(w.from)]
+    const [src, key] = splitSource(w.from)
     const start = key !== null && isRegion(src, key) ? { scope: `${src}/${key}` } : { scope: scopeOf(src), id: src }
     const end = isRegion(w.to, w.port) ? { scope: `${w.to}/${w.port}` } : { scope: scopeOf(w.to), id: w.to }
     const scopes = []

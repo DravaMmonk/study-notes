@@ -1,15 +1,16 @@
 // The conditions content writes about a board (vocabulary.js condition): a task's step-by-step guide and its
 // diagnosis of a failure are lists of them with what to say.
 
+import { srcNode } from '../../../engine/wire-source.js';
 import { callOf } from '../../../engine/schema.js';
 import { isGiven } from '../model/parts.js';
-import { partsOfType, readsOf, splitSrc, usesSensor } from '../model/board.js';
+import { partsOfType, readsOf, usesSensor } from '../model/board.js';
 
 const CONDITIONS = {
   reads: (id, b) => readsOf(b).includes(id),
   uses: (id, b) => usesSensor(b, id),
   has: (p, b) => (typeof p === 'string' ? partsOfType(b, p).length > 0 : partsOfType(b, p.part, p.value).length > 0),
-  feeds: ({ from, to }, b) => b.wires.some(w => b.nodes.some(n => n.id === splitSrc(w.from)[0] && n.type === from) && b.nodes.some(n => n.id === w.to && n.type === to)),
+  feeds: ({ from, to }, b) => b.wires.some(w => b.nodes.some(n => n.id === srcNode(w.from) && n.type === from) && b.nodes.some(n => n.id === w.to && n.type === to)),
   placed: (_, b) => b.nodes.some(n => !isGiven(n.type)),
   wired: (_, b) => b.wires.length > 0,
   wiredOut: (_, b) => b.wires.some(w => b.nodes.some(n => n.id === w.to && n.type === 'out')),

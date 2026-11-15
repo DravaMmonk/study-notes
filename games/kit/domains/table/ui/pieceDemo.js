@@ -1,9 +1,10 @@
+import { splitSource } from '../../../engine/wire-source.js'
 import { T } from '../../../shell/i18n.js'
 import { signal } from '../model/format.js'
 import { WORLDS, windowOf } from '../model/worlds.js'
 import { ROBOTS } from '../model/robots.js'
 import { isCard, isGiven } from '../model/parts.js'
-import { picksOf, splitSrc } from '../model/board.js'
+import { picksOf } from '../model/board.js'
 import { fill } from '../items/labels.js'
 import { partsFor, toGraph } from './board.js'
 import { boardDrawing } from './scene.js'
@@ -16,7 +17,7 @@ function asTaps(b) {
   const reads = [...new Set(b.nodes.filter((n) => isCard(n.type)).flatMap(picksOf))]
   return {
     nodes: [...reads.map((p) => ({ id: p, type: 'tap', params: { sensor: p } })), ...b.nodes.filter((n) => !isCard(n.type))],
-    wires: b.wires.map((w) => { const [from, pick] = splitSrc(w.from); return isCard(b.nodes.find((n) => n.id === from)?.type) ? { ...w, from: pick } : w }),
+    wires: b.wires.map((w) => { const [from, pick] = splitSource(w.from); return isCard(b.nodes.find((n) => n.id === from)?.type) ? { ...w, from: pick } : w }),
   }
 }
 

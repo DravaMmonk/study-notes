@@ -7,6 +7,7 @@
 // A region that `opens` gives a value of its own, read inside it from the frame's output `<frame>#<region>` (the
 // assumption it makes), and what is made inside a region comes back out through the frame's input named after it.
 // So a value is seen where it is made and in every region inside that: a wire may run inward, never outward.
+import { sourceOf, splitSource, srcNode } from '../engine/wire-source.js'
 import { T } from '../shell/i18n.js'
 import { PartError, evaluate } from '../engine/circuit.js'
 
@@ -38,9 +39,6 @@ export function regionsFit(graph, parts) {
   })
 }
 
-const nodeOf = (src) => String(src).split('#')[0]
-const keyOf = (src) => (String(src).includes('#') ? String(src).slice(String(src).indexOf('#') + 1) : null)
-
 /** The regions a node is inside, outermost first ('<frame>/<region>' each). */
 export function scopeOf(graph, id) {
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
@@ -55,9 +53,9 @@ const isRegion = (parts, node, port) => regionsOf(parts, node).some((r) => r.nam
 
 /** Where a wire's source is seen from: the regions around its node, and the region it opens, if it is one. */
 const sourceScope = (graph, parts, src) => {
-  const id = nodeOf(src)
+  const [id, key] = splitSource(src)
   const node = graph.nodes.find((n) => n.id === id)
-  return opens(parts, node, keyOf(src)) ? [...scopeOf(graph, id), `${id}/${keyOf(src)}`] : scopeOf(graph, id)
+  return opens(parts, node, key) ? [...scopeOf(graph, id), `${id}/${key}`] : scopeOf(graph, id)
 }
 /** Where an input reads from: the regions around its node, and the region it closes, for a region's input. */
 const portScope = (graph, parts, to, port) => {
@@ -71,11 +69,14 @@ const portScope = (graph, parts, to, port) => {
  */
 export function frameEdges(graph, parts) {
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  const from = (src) => (opens(parts, byId.get(nodeOf(src)), keyOf(src)) ? String(src) : nodeOf(src))
+  const from = (src) => {
+    const [id, key] = splitSource(src)
+    return opens(parts, byId.get(id), key) ? src : id
+  }
   const edges = graph.wires.map((w) => [from(w.from), w.to])
   for (const node of graph.nodes) {
     for (const r of regionsOf(parts, node).filter((x) => x.opens)) {
-      for (const w of graph.wires.filter((x) => x.to === node.id && !isRegion(parts, node, x.port))) edges.push([from(w.from), `${node.id}#${r.name}`])
+      for (const w of graph.wires.filter((x) => x.to === node.id && !isRegion(parts, node, x.port))) edges.push([from(w.from), sourceOf(node.id, r.name)])
     }
   }
   return { edges, from }
@@ -100,12 +101,6 @@ export function within(graph, id) {
     }
   }
   return out
-}
-
-/** The board without node `id`, and without everything inside it when it is a frame, with their wires. */
-export function removeFramed(graph, id) {
-  const gone = new Set([id, ...within(graph, id)])
-  return { ...graph, nodes: graph.nodes.filter((n) => !gone.has(n.id)), wires: graph.wires.filter((w) => !gone.has(nodeOf(w.from)) && !gone.has(w.to)) }
 }
 
 /**
@@ -148,19 +143,19 @@ export function runRegion(node, ctx, region) {
   if (!back) throw fail('框里还没有接到「结果」上', 'Nothing inside is wired to the result yet')
   const parts = ctx.engine.parts
   const partOf = (type) => (typeof parts === 'function' ? parts(type) : parts[type])
-  const opened = `${node.id}#${region}`
+  const opened = sourceOf(node.id, region)
   const constants = new Set()
   const constant = (id) => {
     if (constants.has(id)) return true
     const n = byId.get(id)
     const part = n && partOf(n.type)
     if (!part || part.frames) return false
-    const fixed = part.source ? Boolean(ctx.constants?.includes(n.params?.name)) : graph.wires.filter((w) => w.to === id).every((w) => constant(nodeOf(w.from)))
+    const fixed = part.source ? Boolean(ctx.constants?.includes(n.params?.name)) : graph.wires.filter((w) => w.to === id).every((w) => constant(srcNode(w.from)))
     if (fixed) constants.add(id)
     return fixed
   }
   for (const w of graph.wires.filter((x) => ids.has(x.to))) {
-    if (!ids.has(nodeOf(w.from)) && w.from !== opened && !constant(nodeOf(w.from))) throw fail('框里只能用框开出来的东西和框外的常量', 'Inside the frame, only what the frame opens and constants from outside can be used')
+    if (!ids.has(srcNode(w.from)) && w.from !== opened && !constant(srcNode(w.from))) throw fail('框里只能用框开出来的东西和框外的常量', 'Inside the frame, only what the frame opens and constants from outside can be used')
   }
   const OPEN = '__open'
   const strip = ({ in: _, ...n }) => n

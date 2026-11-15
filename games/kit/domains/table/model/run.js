@@ -2,13 +2,14 @@
 // whole test (the shared machine walk, ../../../engine/machine.js), and the signal types that say which wire fits.
 // All of it is over a course's parts (parts.js partsOf): modelOf(parts) is the course's board model.
 
+import { splitSource, srcNode } from '../../../engine/wire-source.js';
 import { Halt, evaluate as engineEvaluate } from '../../../engine/circuit.js';
 import { sink } from '../../../engine/boards.js';
 import { MAX_ROUNDS, walk } from '../../../engine/machine.js';
 import { wouldCycle } from '../../../graph.js';
 import { tr } from '../lang.js';
 import { isCard } from './parts.js';
-import { picksOf, splitSrc } from './board.js';
+import { picksOf } from './board.js';
 
 /** What an unconnected input of this port type reads. */
 const idle = type => (type.startsWith('bool') ? false : null);
@@ -122,7 +123,7 @@ export function modelOf(parts) {
   function srcType(board, io, src, seen = new Set()) {
     if (seen.has(src)) return 'any';
     seen.add(src);
-    const [id, pick] = splitSrc(src), n = board.nodes.find(x => x.id === id);
+    const [id, pick] = splitSource(src), n = board.nodes.find(x => x.id === id);
     if (!n) return 'any';
     if (isCard(n.type)) return io.sensors[pick]?.type ?? 'any';
     if (n.type === 'tap') return io.sensors[n.params.sensor]?.type ?? 'any';
@@ -152,8 +153,8 @@ export function modelOf(parts) {
   /** Why a wire from `from` into port `port` of `to` may not go on the board, or null when it may (it then replaces
    *  whatever that port had). */
   function refusal(board, io, from, to, port) {
-    const edges = board.wires.filter(w => board.nodes.find(n => n.id === w.to)?.type !== 'out').map(w => [splitSrc(w.from)[0], w.to]);
-    if (board.nodes.find(n => n.id === to)?.type !== 'out' && wouldCycle(edges, splitSrc(from)[0], to)) return tr('这样会绕成一个圈：元件要等自己算完，才能算自己。', 'That would make a loop: a component would have to wait for its own result before it could compute it.');
+    const edges = board.wires.filter(w => board.nodes.find(n => n.id === w.to)?.type !== 'out').map(w => [srcNode(w.from), w.to]);
+    if (board.nodes.find(n => n.id === to)?.type !== 'out' && wouldCycle(edges, srcNode(from), to)) return tr('这样会绕成一个圈：元件要等自己算完，才能算自己。', 'That would make a loop: a component would have to wait for its own result before it could compute it.');
     return typeError({ ...board, wires: [...board.wires.filter(w => !(w.to === to && w.port === port)), { from, to, port }] }, io);
   }
 

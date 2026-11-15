@@ -1,5 +1,6 @@
+import { srcNode } from '../engine/wire-source.js'
 import { cardWidth } from './card-size.js'
-import { moveToSlot, placement, srcNode } from './model.js'
+import { moveToSlot, placement } from './model.js'
 import { scopeOf } from './frames.js'
 import { dependencyOrder, pipelineLayout } from './layout.js'
 

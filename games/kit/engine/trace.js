@@ -1,7 +1,8 @@
 // Replaying a run step by step, the same in every game. A traced evaluation (circuit.js, `ctx.trace`) lists every
 // node computed, in the order it ran: { id, key, value } or { id, key, error }, a frame going round adding its own
 // entries. A board replays it by showing, after each step, only what had been computed by then.
-import { MISSING, sourceOf } from './circuit.js'
+import { sourceOf } from './wire-source.js'
+import { MISSING } from './circuit.js'
 import { T } from '../shell/i18n.js'
 
 /** The values and errors a board shows once the first `upTo + 1` entries of a trace have run. */

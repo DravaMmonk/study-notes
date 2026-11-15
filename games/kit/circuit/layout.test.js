@@ -10,6 +10,13 @@ test('a chain aligns actual input and output offsets, including non-first inputs
  const p=alignedLayout(graph.nodes.filter(n=>['k','c'].includes(n.id)),graph.wires,options)
  assert.equal(p.positions.get('k').y+46,p.positions.get('c').y+66)
 })
+test('layout aligns the full name of a named output', () => {
+  const nodes = [{ id: 'source' }, { id: 'sink' }]
+  const wires = [{ from: 'source#out#mode', to: 'sink', port: 'in' }]
+  const portY = (_id, key) => key === 'out#mode' ? 60 : 30
+  const { positions } = alignedLayout(nodes, wires, { sizeOf, portY })
+  assert.equal(positions.get('source').y + 60, positions.get('sink').y + 30)
+})
 test('blocks wrap, private constants follow consumers, and layout is deterministic',()=>{
  const p=pipelineLayout(graph,blocks,options)
  assert.deepEqual(p,pipelineLayout(graph,blocks,options))

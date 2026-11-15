@@ -10,15 +10,14 @@
 // wire runs from a source ('view#up', 'facts#start', a part's id) into a port: '0', '1', … of a part, 'in' of an output.
 // x, y (the desktop board) and slot (the phone's grid) are layout only and never reach the engine.
 
-import { parse } from '../../../circuit/text.js';
+import { sourceOf, splitSource, srcNode } from '../../../engine/wire-source.js';
+import { parse, printSource } from '../../../circuit/text.js';
 import { isCard, isGiven } from './parts.js';
 import { tr } from '../lang.js';
 
 export const blank = () => ({ nodes: [], wires: [] });
 export const clone = b => JSON.parse(JSON.stringify(b));
 
-/** A wire's source as [node id, sensor]: 'view#up' → ['view', 'up']; a part's output → ['m', null]. */
-export const splitSrc = src => { const k = src.indexOf('#'); return k < 0 ? [src, null] : [src.slice(0, k), src.slice(k + 1)]; };
 /** The sensors a card reads. */
 export const picksOf = n => n?.params?.picks ?? [];
 export const withPicks = (n, picks) => ({ ...n, params: { ...n.params, picks } });
@@ -26,7 +25,10 @@ export const withPicks = (n, picks) => ({ ...n, params: { ...n.params, picks } }
 /** The sensors the board's cards read. */
 export const readsOf = b => b.nodes.filter(n => isCard(n.type)).flatMap(picksOf);
 /** Whether the board reads sensor `id` and wires it on. */
-export const usesSensor = (b, id) => b.wires.some(w => splitSrc(w.from)[1] === id && isCard(b.nodes.find(n => n.id === splitSrc(w.from)[0])?.type));
+export const usesSensor = (b, id) => b.wires.some(w => {
+  const [from, pick] = splitSource(w.from);
+  return pick === id && isCard(b.nodes.find(n => n.id === from)?.type);
+});
 /** The parts of a type on the board (with this value, when one is given). */
 export const partsOfType = (b, type, value) => b.nodes.filter(n => n.type === type && (value === undefined || n.params?.value === value));
 /** The parts the player placed. */
@@ -64,10 +66,10 @@ export function fitted(b, given) {
   ];
   const byId = new Map(nodes.map(n => [n.id, n]));
   const wires = b.wires.map(w => {
-    const [from, pick] = splitSrc(w.from);
-    return isCard(old.get(from)?.type) && cardFor(pick) ? { ...w, from: `${cardFor(pick)}#${pick}` } : w;
+    const [from, pick] = splitSource(w.from);
+    return isCard(old.get(from)?.type) && cardFor(pick) ? { ...w, from: sourceOf(cardFor(pick), pick) } : w;
   }).filter(w => {
-    const [from, pick] = splitSrc(w.from), src = byId.get(from);
+    const [from, pick] = splitSource(w.from), src = byId.get(from);
     return src && byId.has(w.to) && (!isCard(src.type) || picksOf(src).includes(pick));
   });
   return { ...b, nodes, wires };
@@ -79,7 +81,7 @@ export function fitted(b, given) {
  */
 export function portsProblem(board, ports) {
   const want = new Set(ports.map(p => p.sensor ?? p.input));
-  const read = new Set(board.wires.map(w => splitSrc(w.from)).filter(([id]) => isCard(board.nodes.find(n => n.id === id)?.type)).map(([, pick]) => pick));
+  const read = new Set(board.wires.map(w => splitSource(w.from)).filter(([id]) => isCard(board.nodes.find(n => n.id === id)?.type)).map(([, pick]) => pick));
   for (const w of board.wires) if (board.nodes.find(n => n.id === w.from)?.type === 'port') read.add(w.from);
   const extra = [...read].filter(x => !want.has(x)), missing = [...want].filter(x => !read.has(x));
   const name = id => String(ports.find(p => (p.sensor ?? p.input) === id)?.label ?? id);
@@ -87,9 +89,6 @@ export function portsProblem(board, ports) {
   if (missing.length) return tr(`这块电路板要做成元件，元件的每个口都要接进电路；还没接的：${missing.map(name).join('、')}。`, `This board becomes a part, so every port of the part must be wired in; not yet: ${missing.map(name).join(', ')}.`);
   return null;
 }
-
-/** The board without a node and its wires. */
-export const removeNode = (b, id) => ({ ...b, nodes: b.nodes.filter(n => n.id !== id), wires: b.wires.filter(w => splitSrc(w.from)[0] !== id && w.to !== id) });
 
 /**
  * Phone slots on a two-column board: every placed part keeps its slot while that slot is free; the rest take the first
@@ -107,7 +106,6 @@ export function placement(b) {
 
 const WORD = /^[A-Za-z_][A-Za-z0-9_-]*$/;
 const name = s => (WORD.test(s) && !['true', 'false', 'null', '_'].includes(s) ? s : JSON.stringify(s));
-const source = from => { const [id, pick] = splitSrc(from); return pick === null ? name(id) : `${name(id)}.${name(pick)}`; };
 const setting = v => (typeof v === 'string' ? name(v) : Array.isArray(v) ? `[${v.map(setting).join(', ')}]` : JSON.stringify(v));
 
 /**
@@ -118,17 +116,17 @@ const setting = v => (typeof v === 'string' ? name(v) : Array.isArray(v) ? `[${v
 export function toText(b) {
   const parts = placed(b), into = id => b.wires.filter(w => w.to === id), done = new Set(b.nodes.filter(n => isGiven(n.type)).map(n => n.id)), lines = [];
   while (lines.length < parts.length) {
-    const ready = parts.filter(n => !done.has(n.id) && into(n.id).every(w => done.has(splitSrc(w.from)[0])));
+    const ready = parts.filter(n => !done.has(n.id) && into(n.id).every(w => done.has(srcNode(w.from))));
     for (const n of ready.length ? ready : parts.filter(x => !done.has(x.id)).slice(0, 1)) {
       const ins = new Map(into(n.id).map(w => [Number(w.port), w.from])), last = Math.max(-1, ...ins.keys());
-      const args = Array.from({ length: last + 1 }, (_, k) => (ins.has(k) ? source(ins.get(k)) : '_'));
+      const args = Array.from({ length: last + 1 }, (_, k) => (ins.has(k) ? printSource(ins.get(k)) : '_'));
       const set = Object.entries(n.params ?? {}).map(([k, v]) => `${name(k)}=${setting(v)}`);
       lines.push(`${name(n.id)} = ${name(n.type)}${set.length ? `[${set.join(', ')}]` : ''}(${args.join(', ')})`);
       done.add(n.id);
     }
   }
   const ids = new Set(parts.map(n => n.id));
-  for (const w of b.wires.filter(x => !ids.has(x.to))) lines.push(`${name(w.to)} <- ${source(w.from)}`);
+  for (const w of b.wires.filter(x => !ids.has(x.to))) lines.push(`${name(w.to)} <- ${printSource(w.from)}`);
   return lines;
 }
 
@@ -157,7 +155,7 @@ export function fromText(lines, given) {
   }
   const out = [];
   for (const w of wires) {
-    const [from, pick] = splitSrc(w.from), src = byId.get(from), to = byId.get(w.to);
+    const [from, pick] = splitSource(w.from), src = byId.get(from), to = byId.get(w.to);
     if (!src) fail(w.line, `没有叫「${from}」的元件。`, `There is no node called “${from}”.`);
     if (!to) fail(w.line, `没有叫「${w.to}」的元件。`, `There is no node called “${w.to}”.`);
     if (isCard(src.type)) {
