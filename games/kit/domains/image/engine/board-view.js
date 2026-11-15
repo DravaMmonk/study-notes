@@ -26,7 +26,7 @@ export function imageBoards(image) {
   const board = {
     ...fixed,
     startBoard,
-    fits: kit.fits,
+    fits: (graph, task, circuit, parts) => kit.fits(graph, task, { parts, knows: circuit.partOf }),
     wiring(task, circuit) {
       const parts = kit.boardParts(task.tests?.[0])
       return {

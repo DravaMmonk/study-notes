@@ -89,15 +89,14 @@ export function blueprintOf({ types, inputsOf, defaultParams }) {
     return readLines(lines, startBoard(task), boardParts(task.tests?.[0]), typesHere)
   }
 
-  const fits = (board, task) => boardFits(board, boardParts(task.tests?.[0]), (type) => Object.hasOwn(types, type))
+  const fits = (board, task, { parts = boardParts(task.tests?.[0]), knows = (type) => Object.hasOwn(types, type) } = {}) => boardFits(board, parts, knows)
     && fixedCardsFit(board, startBoard(task).nodes, (type) => type === 'input' || type === 'output')
 
   return { boardParts, fits, toText, fromText }
 }
 
 // The available ports follow the currently selected operation and settings.
-export function tidyImageBoard(kit, board) {
+export function tidyImageBoard(board, parts) {
   const nodes = new Map(board.nodes.map((node) => [node.id, node]))
-  const parts = kit.boardParts()
   return { ...board, wires: board.wires.filter((wire) => !wirePortRefusal(parts, wire, (id) => nodes.get(id))) }
 }

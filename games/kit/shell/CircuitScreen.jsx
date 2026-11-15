@@ -65,7 +65,7 @@ import './training.css'
 //                         is one to show (on a board run tick by tick, from its first tick), `at` the tick shown
 //   judged                a board run once is checked in one go, with nothing to step through
 //   sample?(task, board) → the board's run on the task's `sample`, a tab after the tests, never judged (judged boards)
-//   ready?(board, held, task)   the board as the task holds it (held: the parts its tray holds), on opening and every
+//   ready?(board, task, parts)   prepare the entire board with its active wiring, on opening and every
 //                         change (a preset locked back in…)
 //   settings?(node, ctx)  a card's pickers: [{ key, label, value, options: [[value, label], …] }]
 //   defaults?(type)       a new card's settings

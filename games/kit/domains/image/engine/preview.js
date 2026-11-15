@@ -26,7 +26,8 @@ export function imagePreview(image, box, entry) {
     const cases = tests.map((test, index) => ({ ...test, expected: index === 0 ? first.outputs : run(board, test).outputs }))
     const sample = { ...task, inputs: names, outputs, tests: cases }
     const view = (_node, value) => value?.h === 1 && value.w > 1 && (value.c ?? 1) === 1 ? ['plot', 'pixels'] : ['pixels', 'numbers']
-    return { task: sample, board, tests, run, prepare: (graph) => tidyImageBoard(kit, graph), view }
+    const parts = kit.boardParts()
+    return { task: sample, board, tests, run, prepare: (graph) => tidyImageBoard(graph, parts), view }
   }
   return (preferred?.kind === 'graph' && make(preferred)) || make(defaultTask)
 }

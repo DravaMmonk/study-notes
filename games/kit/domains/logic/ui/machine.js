@@ -84,7 +84,7 @@ export const machineScreen = {
   play: { runLevel, show, entries },
   context: (task) => ({ task, text: textOf(task), term: termOf(task) }),
   // A preset (a level's locked cards) stays on the board whatever is saved.
-  ready: (board, _held, task) => withPreset(board, presetFor(task)),
+  ready: (board, task) => withPreset(board, presetFor(task)),
   readouts: (task, _circuit, { score }) => [{ value: score.steps, label: T('元件', 'Parts') }, task.budget !== undefined && { value: task.budget, label: T('最多') }],
   says: { go: T('运行全部测试'), done: T('全部通过', 'All passed') },
   log: true,

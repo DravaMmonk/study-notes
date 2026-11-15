@@ -18,7 +18,7 @@ export const robotScreenFor = ({ model }) => ({
   cards,
   fresh: freshBoard,
   clearable: hasSensors,
-  ready: (board, _held, task) => withDesktopAnchors(fitted(board, task.given)),
+  ready: (board, task) => withDesktopAnchors(fitted(board, task.given)),
   defaults: (type) => model.hasValue(type) ? { value: model.valueDefault(type) } : {},
   settings: (node, { task }) => {
     const values = model.valueOptions(node.type, task)

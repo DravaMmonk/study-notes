@@ -46,16 +46,16 @@ test('arithmetic reports missing input when a needed operand has no wire or cons
 
 test('switching constant sides removes only the occupied wire and restores ports when disabled', () => {
   const original = kit.fromText(['n = arith[op=sub](in, in)', 'out <- n'])
-  const constantSide = (board, side) => tidyImageBoard(kit, {
+  const constantSide = (board, side) => tidyImageBoard({
     ...board, nodes: board.nodes.map((node) => node.id === 'n'
       ? { ...node, params: { ...node.params, constantSide: side } }
       : node),
-  })
+  }, kit.boardParts())
   const right = constantSide(original, 'b')
   const node = right.nodes.find((n) => n.id === 'n')
   assert.deepEqual(kit.boardParts().inputs(node), ['a'])
   assert.deepEqual(right.wires.filter((w) => w.to === 'n').map((w) => w.port), ['a'])
-  assert.deepEqual(tidyImageBoard(kit, { ...right, wires: original.wires }).wires, right.wires)
+  assert.deepEqual(tidyImageBoard({ ...right, wires: original.wires }, kit.boardParts()).wires, right.wires)
   const left = constantSide(right, 'a')
   assert.deepEqual(kit.boardParts().inputs(left.nodes.find((n) => n.id === 'n')), ['b'])
   assert.equal(left.wires.filter((w) => w.to === 'n').length, 0)

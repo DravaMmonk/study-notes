@@ -50,11 +50,11 @@ export function wiring(model, u) {
 }
 
 /** Assign the task's sensor cards before validating the circuit that will actually run. */
-export function restoreRobotBoard(model, task, saved) {
+export function restoreRobotBoard(model, task, saved, { parts, knows = model.partOf } = {}) {
   if (!isCircuitBoard(saved)) return null;
   const world = WORLDS[task.world];
   const board = fitted(saved, task.given);
-  return boardFits(board, wiring(model, { sensors: world.sensors, outs: world.outs, offers: task.given.offers }), model.partOf)
+  return boardFits(board, parts ?? wiring(model, { sensors: world.sensors, outs: world.outs, offers: task.given.offers }), knows)
     ? board : null;
 }
 

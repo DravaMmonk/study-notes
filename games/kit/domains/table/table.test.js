@@ -5,12 +5,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { plainBoard } from '../../engine/contract.js';
 import { readStarter } from '../../engine/content-node.js';
-import { readLines } from '../../circuit/text.js';
+import { print, read, readLines } from '../../circuit/text.js';
+import { workshopView } from '../../circuit/workshop-view.js';
 import { tableCourse } from './course.js';
 import { fitted, portsProblem } from './model/board.js';
 import { modelOf } from './model/run.js';
 import { partsOf } from './model/parts.js';
-import { robotBlueprint, wiring } from './model/wiring.js';
+import { restoreRobotBoard, robotBlueprint, wiring } from './model/wiring.js';
 import { WORLDS } from './model/worlds.js';
 import { inspectRobotCase, robotConstraint } from './model/verdict.js';
 import { validate } from './validate.js';
@@ -133,6 +134,32 @@ test('a robot runs a packaged circuit without a local publishing task', () => {
   const result = table.run(WORLDS[task.world], task.tests[0], task.solution, task);
   assert.deepEqual(table.wrong, []);
   assert.equal(result.value, task.expected[0]);
+});
+
+test('robot workshop blueprints round-trip and restore with the same ports and signal checks', () => {
+  const table = tableCourse(twoLevels());
+  const task = table.played.get('reuse')[0];
+  const V = WORLDS[task.world];
+  const base = { partOf: table.model.partOf, board: {
+    ticks: true,
+    wiring: (_, view) => wiring(table.model, { sensors: V.sensors, outs: V.outs, offers: task.given.offers, workshop: view.workshop }),
+  } };
+  const piece = {
+    id: 'user_value', graph: { nodes: [], wires: [] }, inputs: [], outputs: ['cell'],
+    outputSignals: { cell: 'num' }, name: 'Saved value',
+  };
+  const viewFor = (definition) => workshopView(base, { pieces: { [piece.id]: definition } }, () => true, table.model.partOf).view;
+  const view = viewFor(piece);
+  const parts = view.board.wiring(task);
+  const opening = fitted({ nodes: [], wires: [] }, task.given);
+  const source = `p = ${piece.id}()\ncell <- p`;
+  const { graph, errors } = read(source, opening, parts, [piece.id]);
+  assert.equal(errors, undefined);
+  assert.deepEqual(plainBoard(read(print(graph, parts), opening, parts, [piece.id]).graph), plainBoard(graph));
+  assert.deepEqual(plainBoard(restoreRobotBoard(table.model, task, graph, { knows: view.partOf, parts })), plainBoard(graph));
+  assert.match(read(`p = ${piece.id}[value=2]()`, opening, parts, [piece.id]).errors[0].en, /has no setting/);
+  const other = viewFor({ ...piece, outputSignals: { cell: 'bool' } });
+  assert.equal(restoreRobotBoard(table.model, task, graph, { knows: other.partOf, parts: other.board.wiring(task) }), null);
 });
 
 test('the parts box lists only choices open on its selected robot', () => {

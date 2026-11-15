@@ -1,11 +1,9 @@
 import { useMemo, useState } from 'react'
 import { CircuitBoard } from 'lucide-react'
-import { boardFits } from '../circuit/model.js'
 import { partsFor, packedView } from '../circuit/board-parts.js'
 import { openedWorkshop, workshopView } from '../circuit/workshop-view.js'
 import { trayMembers } from '../engine/trays.js'
 import { captureWorkshop, publishWorkshop, trayKey, workshopAvailable, workshopEntries, workshopIdentity } from '../engine/workshop.js'
-import { srcNode } from '../engine/wire-source.js'
 import { L, tr } from './i18n.js'
 import { useWorkshop } from './useWorkshop.js'
 
@@ -49,28 +47,11 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
   const main = new Set((pickedTrays.length ? pickedTrays : ['']).flatMap((tray) => library.featured[trayKey(game.id, tray)] ?? []))
   const palette = [...offers.shown, ...personal.filter(({ id }) => main.has(id)).map(({ id }) => id)]
   const folded = [...offers.folded, ...personal.filter(({ id }) => !main.has(id)).map(({ id }) => id)]
-  const types = [...palette, ...folded]
+  const types = [...offers.types, ...personal.map(({ id }) => id)]
   const held = new Set(types)
-  const isPersonal = (node) => Object.hasOwn(library.pieces, node.type)
-  const hasPersonal = (graph) => Boolean(graph?.nodes?.some(isPersonal))
-  const baseOnly = (graph) => {
-    const ids = new Set(graph.nodes.filter(isPersonal).map(({ id }) => id))
-    return { ...graph, nodes: graph.nodes.filter((node) => !ids.has(node.id)), wires: graph.wires.filter((wire) => !ids.has(srcNode(wire.from)) && !ids.has(wire.to)) }
-  }
-  const fits = (graph) => !hasPersonal(graph) ? kind.fits(graph, level, base)
-    : kind.fits(baseOnly(graph), level, base) && boardFits(graph, parts, (type) => Boolean(circuit.partOf(type)))
-  const hold = (graph) => {
-    if (!ready) return graph
-    if (!hasPersonal(graph)) return ready(graph, held, level)
-    // The domain's own corrections still run on its primitives. The workshop ports follow the shared wiring rules.
-    const cleaned = ready(baseOnly(graph), held, level)
-    const ids = new Set([...cleaned.nodes, ...graph.nodes.filter(isPersonal)].map(({ id }) => id))
-    const custom = new Set(graph.nodes.filter(isPersonal).map(({ id }) => id))
-    return { ...cleaned, nodes: [...cleaned.nodes, ...graph.nodes.filter(isPersonal)], wires: [
-      ...cleaned.wires,
-      ...graph.wires.filter(({ from, to }) => (custom.has(srcNode(from)) || custom.has(to)) && ids.has(srcNode(from)) && ids.has(to)),
-    ] }
-  }
+  const hasPersonal = (graph) => graph.nodes.some((node) => Object.hasOwn(library.pieces, node.type))
+  const fits = (graph) => kind.fits(graph, level, circuit, parts)
+  const hold = (graph) => ready ? ready(graph, level, parts) : graph
   function openForCapture(node, at) {
     const opened = packed.open(node, at)
     return opened && { ...opened, open: (part) => openForCapture(part, opened) }

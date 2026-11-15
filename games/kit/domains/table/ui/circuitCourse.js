@@ -34,7 +34,7 @@ export function robotCircuits(table) {
   const board = {
     ticks: true,
     isFixed: isGiven,
-    fits: (saved, task) => Boolean(restoreRobotBoard(model, task, saved)),
+    fits: (saved, task, circuit, parts) => Boolean(restoreRobotBoard(model, task, saved, { parts, knows: circuit.partOf })),
     portsIn: (task) => task.ports.filter((port) => port.input).map((port) => ({ name: port.input, label: port.label })),
     portsOut: (task) => WORLDS[task.world].outs.map(([name, label]) => ({ name, label })),
     wiring: (task, circuit) => {

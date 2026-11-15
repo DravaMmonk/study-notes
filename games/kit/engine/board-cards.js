@@ -65,7 +65,7 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140, tex
   const sinks = new Set(cards.filter((c) => c.side === 'right').map((c) => c.type))
 
   /** Whether a saved board still fits its task's cards, regions and wires. */
-  const fits = (board, task, circuit) => boardFits(board, wiring(task, circuit), circuit.partOf)
+  const fits = (board, task, circuit, parts = wiring(task, circuit)) => boardFits(board, parts, circuit.partOf)
     && fixedCardsFit(board, fixedOf(task), isFixed)
 
   /** A board from another level brought onto `task`: its placed parts and their wires, and its wires to the fixed cards this task has too. */
