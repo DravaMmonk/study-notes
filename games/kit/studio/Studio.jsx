@@ -744,7 +744,7 @@ export default function Studio() {
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
           <aside className="studio-side">
-            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} pendingFace={pendingFace} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onClose={() => setField(null)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} />}
+            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} pendingFace={pendingFace} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} />}
           </aside>
           {layout.auditOpen && <PanelResizer side="audit" size={layout.audit} open {...resizer} />}
           <aside className="studio-audit">
