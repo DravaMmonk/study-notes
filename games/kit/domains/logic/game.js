@@ -58,7 +58,7 @@ export default function logicGame(content) {
     if (proof) return { ...logic.proofBoards, BUILT: { [type]: { opens: () => ({ circuit: proof.board(), level: proof.level }) } } }
     // A proved equation, in the studio: the reference answer of the task that proves it.
     const task = logic.facts[type] && tasks.get(logic.publishers[type]?.[0])
-    const boards = task && { proof: logic.proofBoards, machine: logic.machineBoards }[task.kind]
+    const boards = logic.circuitFor(task)
     return boards ? { ...boards, BUILT: { [type]: { opens: () => ({ circuit: task.solution, level: task }) } } } : null
   }
   // A part that stays where it is brought (`local`) is in no components box and unlocks nothing to show.
@@ -152,6 +152,7 @@ export default function logicGame(content) {
     bestLabel: (best) => (best.unit === 'cases' ? tr(`${best.steps} 条`, `${best.steps} cases`) : tr(`${best.steps} 步`, `${best.steps} steps`)),
   })
   game.logic = logic
+  game.circuit = { forTask: (task) => logic.circuitFor(task)?.forTask(task) }
   game.stampOptions = { courseField: symbolStamp(logic.strips) }
   game.defined = { of: (type) => logic.defs[type] ?? logic.strips[type] ?? null, defaults: logic.defaultsOf, ops: OPS }
   game.workReferences = (entry, built) => {

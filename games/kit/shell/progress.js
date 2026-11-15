@@ -59,7 +59,7 @@ export function current(stored, tasks) {
 }
 
 /** A game's progress in this browser, kept under `id`. `tasks`: its tasks' stamps today (../engine/stamp.js taskStamps). */
-export function createProgress({ id, tasks = {} }) {
+export function createProgress({ id, tasks = {}, restoreBuilt = (built) => built }) {
   const key = saveKey(id)
   const stamps = Object.fromEntries(Object.entries(tasks).map(([task, { stamp }]) => [task, stamp]))
   return {
@@ -67,7 +67,9 @@ export function createProgress({ id, tasks = {} }) {
     load() {
       try {
         const stored = JSON.parse(window.localStorage.getItem(key))
-        return stored?.stamps ? { ...blank(), ...current({ ...blank(), ...stored }, tasks), stamps } : { ...blank(), stamps }
+        if (!stored?.stamps) return { ...blank(), stamps }
+        const progress = { ...blank(), ...current({ ...blank(), ...stored }, tasks), stamps }
+        return { ...progress, built: restoreBuilt(progress.built) }
       } catch {
         return { ...blank(), stamps }
       }
@@ -157,7 +159,7 @@ function kept(game, p, level, taskAt) {
   const key = taskKey(level, taskAt)
   const board = p.data[key]
   if ((!((level.keeps ?? level.unlocks?.length)) && !isCarried(game, level, taskAt)) || !board) return p.built
-  return { ...p.built, [key]: board }
+  return { ...p.built, [key]: game.bindPassingBoard?.(key, board) ?? board }
 }
 
 /** Level rewards from an optional task require that task to have actually been passed. */

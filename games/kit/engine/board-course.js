@@ -33,6 +33,7 @@ import { formed } from './forms.js'
 import { taskLevels } from './tasks.js'
 import { fitsCircuit, previousCircuitTask } from './board-view.js'
 import { keptBoards } from './kept-boards.js'
+import { workView } from '../circuit/workshop-view.js'
 import { trayIn } from './trays.js'
 import { defineCourse, eraLevels, holds as holding, offer, readItem } from '../course.js'
 import { courseLayout } from './course-dependencies.js'
@@ -49,7 +50,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
   const eraOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era])))
   // The boards the player passed the building levels with (the shell's progress.built), by task id: this content's.
   const tasksByWork = new Map()
-  const own = keptBoards((key, board) => fits(board, tasksByWork.get(key)))
+  const own = keptBoards((key, board) => fits(board, tasksByWork.get(key), (task) => workView(board, forTask(task))))
   const BUILT = {}
   const revisions = []
   const readBuilders = new Map()

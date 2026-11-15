@@ -28,6 +28,7 @@ import { PROOF_BOARD, startProof } from './proof.js'
 import { OPS, partsOf } from './ops.js'
 import { boardView, fitsCircuit } from '../../engine/board-view.js'
 import { keptBoards } from '../../engine/kept-boards.js'
+import { workView } from '../../circuit/workshop-view.js'
 import { builtGates, gateCourse, gateTests, startGates } from './gates.js'
 import { lettersOf } from './truth.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
@@ -238,13 +239,14 @@ function readTasks(level, wordSets) {
 }
 
 export function logicCourse(content) {
+  const circuitFor = (task) => ({ proof: proofBoards, machine: machineBoards, gates: truthCircuits })[task?.kind]
   // The boards the player passed the building levels with, in this course.
   const kept = keptBoards((key, board) => {
     const task = taskById.get(key)
-    const boards = { proof: proofBoards, machine: machineBoards, gates: truthCircuits }[task?.kind]
+    const boards = circuitFor(task)
     if (!boards) return false
     const circuit = boards.forTask(task)
-    return fitsCircuit(board, task, circuit)
+    return fitsCircuit(board, task, workView(board, circuit))
   })
   const { eras, trays, wordSets = {}, primitives, concept = {}, local = [] } = content
   const wrong = []
@@ -604,5 +606,5 @@ export function logicCourse(content) {
     })
     return [...named, ...boards]
   }
-  return { machineBoards, strips, LEVELS, CHAPTERS, LABELS, course, workReferences, offerIn, holdsIn, machines, revisions, lemmas, facts, pieces: built.pieces, publishers: built.publishers, texts: { lemmas, facts, gates, revisions }, proofs: lemmaPieces, gates: gatePieces, defs, defaultsOf, truthCircuits, proofBoards, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
+  return { machineBoards, strips, LEVELS, CHAPTERS, LABELS, course, circuitFor, workReferences, offerIn, holdsIn, machines, revisions, lemmas, facts, pieces: built.pieces, publishers: built.publishers, texts: { lemmas, facts, gates, revisions }, proofs: lemmaPieces, gates: gatePieces, defs, defaultsOf, truthCircuits, proofBoards, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
 }

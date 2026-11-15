@@ -1,4 +1,65 @@
-import { workshopDefinitions, workshopInput, workshopParts } from '../engine/workshop.js'
+import { withBoardRuntime } from '../engine/boards.js'
+import { isWorkshopType, usesWorkshop, workshopCompatible, workshopDefinitions, workshopIdentity, workshopInput, workshopParts } from '../engine/workshop.js'
+
+const captured = Symbol('captured workshop parts')
+
+export const workshopOf = (board) => board?.[captured]
+export const workView = (board, view) => workshopOf(board)?.project(view) ?? view
+
+/** The runner and the editor can supply different representations of the task's native parts. */
+export function runtimeOf(task, view) {
+  if (view.runtime) return view.runtime
+  if (typeof task.parts === 'function') return task.parts
+  return task.parts ? (type) => task.parts[type] : view.partOf
+}
+
+/** Bind only the versioned dependencies the passing board actually uses. */
+function bindWorkshopWork(graph, task, circuit, library, { domain, partDefs }) {
+  const runtime = runtimeOf(task, circuit)
+  const context = { domain, resolve: runtime, identity: (type) => workshopIdentity(domain, partDefs, type) }
+  const versions = new Map()
+  const embedded = new Set()
+  const visiting = new Set()
+  const include = (board) => Array.isArray(board?.nodes) && board.nodes.every(({ type }) => {
+    if (versions.has(type) || embedded.has(type) || !isWorkshopType(type)) return true
+    if (visiting.has(type)) return false
+    const piece = library.pieces[type]
+    if (!workshopCompatible(piece, context)) return false
+    visiting.add(type)
+    const valid = includePiece(piece)
+    visiting.delete(type)
+    if (valid) versions.set(type, piece)
+    return valid
+  })
+  const includePiece = (piece) => {
+    const children = Object.entries(piece.children ?? {})
+    for (const [key] of children) embedded.add(key)
+    return include(piece.graph) && children.every(([, child]) => includePiece(child))
+  }
+  if (!include(graph) || !versions.size) return graph
+  const view = workshopView(circuit, { pieces: Object.fromEntries(versions) }, () => true, runtime)
+  return withBoardRuntime({ ...graph, [captured]: view }, (partOf) => (type) => view.known(type) ? view.resolve(type) : partOf(type))
+}
+
+/** Reattach browser-held versions to passed work, both on pass and after a reload. */
+export function courseWorkshop(game, load) {
+  const tasks = new Map(game.levels.flatMap((level) => level.tasks.map(({ key, source }) => [key, source])))
+  const bind = (key, board, library) => {
+    if (!usesWorkshop(board)) return board
+    const task = tasks.get(key)
+    const view = task && game.circuit?.forTask(task)
+    return view
+      ? bindWorkshopWork(board, task, view, library(), { domain: game.workshop.domain, partDefs: game.partDefs })
+      : board
+  }
+  return {
+    bind: (key, board) => bind(key, board, load),
+    restore(built) {
+      let library
+      return Object.fromEntries(Object.entries(built).map(([key, board]) => [key, bind(key, board, () => (library ??= load()))]))
+    },
+  }
+}
 
 /** Add player-owned runtime parts without mutating the course's shared definitions. */
 export function workshopView(circuit, library, available, runtime) {
@@ -15,6 +76,7 @@ export function workshopView(circuit, library, available, runtime) {
     const view = {
       ...scope,
       workshop: pieces,
+      workshopPart: (type) => indexes.get(type),
       opening: (task, progress) => scope.opening(task, progress, project),
       stageChain: (task, built) => scope.stageChain(task, built, project),
       partOf: (type) => known(type) ? partOf(type) : scope.partOf(type),
@@ -39,7 +101,7 @@ export function workshopView(circuit, library, available, runtime) {
     views.set(scope, view)
     return view
   }
-  return { known, view: project(circuit), resolve: partOf }
+  return { known, view: project(circuit), project, resolve: partOf }
 }
 
 const outputsOf = ({ outputs }) => outputs.length > 1 ? outputs.map((name) => ({ key: name, label: name })) : null

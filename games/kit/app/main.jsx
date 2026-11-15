@@ -16,6 +16,8 @@ import EmbedShell from '../shell/EmbedShell.jsx'
 import { createProgress } from '../shell/progress.js'
 import { taskStamps } from '../engine/stamp.js'
 import { checkContent } from '../engine/vocabulary.js'
+import { loadWorkshop } from '../engine/workshop.js'
+import { courseWorkshop } from '../circuit/workshop-view.js'
 import { deepFreeze } from '../engine/content.js'
 import { loadDomain } from 'virtual:game'
 import { assetSignature, cleanRefreshURL } from './release.js'
@@ -40,7 +42,9 @@ async function open() {
     replaces: content.replaces ?? {},
     publications: Object.fromEntries(content.levels.flatMap((level) => level.tasks.map((task) => [task.id, task.publishes ?? []]))),
   }
-  const store = createProgress({ id: content.id, tasks: taskStamps(vocabulary, content, game.stampOptions) })
+  const workshop = courseWorkshop(game, () => loadWorkshop(window.localStorage))
+  game.bindPassingBoard = workshop.bind
+  const store = createProgress({ id: content.id, tasks: taskStamps(vocabulary, content, game.stampOptions), restoreBuilt: workshop.restore })
   // A level embedded in a note (`?embed&level=…&lang=…`, games/DESIGN.md 12.1): the note sets its language.
   const asked = new URL(window.location.href).searchParams
   if (asked.has('embed')) {

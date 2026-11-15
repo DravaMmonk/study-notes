@@ -5,6 +5,9 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { deepFreeze } from '../../engine/content.js'
 import { readStarter } from '../../engine/content-node.js'
+import { captureWorkshop, publishWorkshop, workshopIdentity } from '../../engine/workshop.js'
+import { packedBoards } from '../../circuit/packed-boards.js'
+import { courseWorkshop, workView } from '../../circuit/workshop-view.js'
 import { fresh } from '../../shell/progress.js'
 import { boxBlur3, gradientMagnitude, horizontalDifference, sobelGradient, squaredGradient } from './engine/filters.js'
 import { at, fromFn } from './engine/image.js'
@@ -107,6 +110,50 @@ test('a packed part runs the circuit the player passed its level with, in its ow
   assert.deepEqual(run(), reference)
   image.syncOwn({ wide: image.levelById.wide.tasks[0].solution })
   assert.deepEqual(run(), reference)
+})
+
+test('a course reward runs and displays the exact workshop version used by its passing board', () => {
+  const made = imageCourse(content)
+  const circuit = imageBoards(made)
+  const source = made.levelById.wide.tasks[0]
+  const game = { circuit, partDefs: content.partDefs, workshop: { domain: 'image' }, levels: [{ tasks: [{ key: 'wide', source }] }] }
+  const passthrough = made.kit.fromText(['out <- in'])
+  const take = (graph, id, name, pieces = {}) => captureWorkshop(graph, {
+    scope: id, name, description: '', domain: 'image', parts: made.kit.boardParts(), resolve: made.kit.partOf,
+    identity: (type) => workshopIdentity('image', content.partDefs, type), defaults: made.kit.defaultParams,
+    book: { pieces },
+  })
+  const inner = take(passthrough, 'user_inner', 'Inner component')
+  const wrap = (piece) => ({
+    nodes: [...passthrough.nodes, { id: 'wrapped', type: piece.id }],
+    wires: [{ from: 'in', to: 'wrapped', port: 'in' }, { from: 'wrapped', to: 'out', port: 'in' }],
+  })
+  const original = take(wrap(inner), 'user_first', 'Original version', { [inner.id]: inner })
+  const upgrade = take(source.solution, 'user_second', 'New version')
+  let library = publishWorkshop({ pieces: { [inner.id]: inner }, published: {}, featured: {} }, original, { id: original.id, lineage: 'demo' })
+  library = publishWorkshop(library, upgrade, { id: upgrade.id, lineage: 'demo', rank: 1 })
+  const saved = { wide: wrap(original) }
+  const bindings = courseWorkshop(game, () => library)
+  const use = made.levelById.use.tasks[0]
+  const run = () => made.kit.runLevel(use, use.solution, { traced: true }).runs[0]
+  const reference = run().outputs.out
+  const active = bindings.bind('wide', saved.wide)
+  assert.equal(JSON.stringify(active), JSON.stringify(saved.wide))
+  for (const built of [{ wide: active }, bindings.restore(JSON.parse(JSON.stringify(saved)))]) {
+    made.syncOwn(built)
+    const result = run()
+    assert.notDeepEqual(result.outputs.out, reference)
+    assert.ok(result.trace.some(({ path }) => path?.join('/') === 'p/wrapped'))
+    const views = packedBoards(circuit, (opened, view) => ({ ...opened, view: workView(opened.circuit, view) }))
+    const reward = views.root('widen')
+    const placed = reward.circuit.nodes.find(({ id }) => id === 'wrapped')
+    assert.equal(reward.view.workshopPart(placed.type).name, 'Original version')
+    assert.deepEqual(reward.view.workshopPart(placed.type).graph, original.graph)
+    assert.deepEqual(reward.view.workshopPart(inner.id).graph, inner.graph)
+  }
+  delete library.pieces[inner.id]
+  made.syncOwn(bindings.restore(saved))
+  assert.deepEqual(run().outputs.out, reference)
 })
 
 test('image text play opens on the same valid inherited board as the editor', () => {

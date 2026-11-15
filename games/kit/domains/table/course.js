@@ -8,6 +8,7 @@ import { splitSource } from '../../engine/wire-source.js';
 import { packed } from '../../engine/boards.js';
 import { previousCircuitTask } from '../../engine/board-view.js';
 import { keptBoards } from '../../engine/kept-boards.js';
+import { workshopOf } from '../../circuit/workshop-view.js';
 import { inheritedBoard } from '../../shell/progress.js';
 import { deepFreeze } from '../../engine/content.js';
 import { taskLevels } from '../../engine/tasks.js';
@@ -135,7 +136,9 @@ export function tableCourse(content) {
     const b = own.board(task);
     if (!b) return artifact.solution();
     if (!fits.has(b)) {
-      const fitted = restoreRobotBoard(model, artifact, b);
+      const view = workshopOf(b)?.view;
+      const active = view && { parts: view.board.wiring(artifact, view), knows: view.partOf };
+      const fitted = restoreRobotBoard(model, artifact, b, active);
       fits.set(b, fitted && !portsProblem(fitted, artifact.ports) ? fitted : null);
     }
     return fits.get(b) ?? artifact.solution();

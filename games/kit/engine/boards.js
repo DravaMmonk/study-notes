@@ -13,6 +13,11 @@ export const source = (extra = {}) => ({ inputs: [], source: true, eval: (_, nod
 export const sink = (extra = {}) => ({ inputs: ['in'], sink: true, eval: () => undefined, ...extra })
 
 const partFn = (parts) => (typeof parts === 'function' ? parts : (type) => parts[type])
+const runtime = Symbol('board runtime')
+
+/** Give a saved board access to its own runtime parts without changing its serialized work. */
+export const withBoardRuntime = (board, extend) => ({ ...board, [runtime]: extend })
+const partsInBoard = (board, parts) => board[runtime]?.(partFn(parts)) ?? parts
 
 /** The circuit's sinks by name, from evaluated values. */
 export function outputsOf(circuit, parts, values) {
@@ -26,6 +31,7 @@ export function outputsOf(circuit, parts, values) {
  * Every part's ctx carries `engine` ({ parts, prepare }) so a packed part can run its circuit, and `graph` the board.
  */
 export function runBoard(circuit, { parts, ctx = {}, bind = {}, prepare = null, targets = null, traceTargets = null }) {
+  parts = partsInBoard(circuit, parts)
   const engine = { parts, prepare }
   const context = { graph: circuit, ...ctx, bind, engine }
   let tracing = Boolean(ctx.trace && traceTargets)
@@ -101,13 +107,14 @@ export function packed({ circuit, inputs, outputs, parts, holds = false, inside:
     const circuit = circuitOf()
     let own = evaluations.get(ctx).get(node)
     if (!own || own.circuit !== circuit || Object.keys(ins).some((port) => port in own.bind && own.bind[port] !== ins[port])) {
-      const inner = settledOf(circuit, node, ctx.engine.parts)
+      const innerParts = partsInBoard(circuit, ctx.engine.parts)
+      const inner = settledOf(circuit, node, innerParts)
       const trace = ctx.trace && { push: (step) => ctx.trace.push({ ...step, path: [node.id, ...(step.path ?? [])] }) }
-      const engine = { parts: ctx.engine.parts, prepare: ctx.engine.prepare }
+      const engine = { parts: innerParts, prepare: ctx.engine.prepare }
       // On a run that trains, the inputs' numbers on the tape go in with them (tape.js).
       const [bind, bindIds] = [{}, ctx.tape ? {} : undefined]
       const { run } = evaluation(inner, { ...engine, ctx: { ...around(ctx), graph: inner, trace, scope: `${ctx.scope ?? ''}${node.id}/`, bindIds, bind, engine } })
-      own = { circuit, inner, bind, bindIds, run }
+      own = { circuit, inner, bind, bindIds, run, partOf: partFn(innerParts) }
       evaluations.get(ctx).set(node, own)
     }
     Object.assign(own.bind, ins)
@@ -129,18 +136,18 @@ export function packed({ circuit, inputs, outputs, parts, holds = false, inside:
         if (key === STATE) return inputs
         const inner = circuitOf()
         const cache = ctx?.dependencyCache
-        if (!cache) return inputsReaching(inner, inputs, inner.nodes.filter((n) => nameOf(n) === (key ?? outputs[0])).map((n) => n.id), parts, ctx)
+        const innerParts = partsInBoard(inner, parts ?? ctx?.engine?.parts)
+        if (!cache) return inputsReaching(inner, inputs, inner.nodes.filter((n) => nameOf(n) === (key ?? outputs[0])).map((n) => n.id), innerParts, ctx)
         if (!cache.has(dependencyKey)) cache.set(dependencyKey, new WeakMap())
         const circuits = cache.get(dependencyKey)
         if (!circuits.has(inner)) circuits.set(inner, new Map())
         const keys = circuits.get(inner)
-        if (!keys.has(key)) keys.set(key, inputsReaching(inner, inputs, inner.nodes.filter((n) => nameOf(n) === (key ?? outputs[0])).map((n) => n.id), parts, ctx))
+        if (!keys.has(key)) keys.set(key, inputsReaching(inner, inputs, inner.nodes.filter((n) => nameOf(n) === (key ?? outputs[0])).map((n) => n.id), innerParts, ctx))
         return keys.get(key)
       },
     } : {}),
     eval: (ins, node, ctx, key) => {
-      const partOf = partFn(ctx.engine.parts)
-      const { inner, run } = inside(ins, node, ctx)
+      const { inner, run, partOf } = inside(ins, node, ctx)
       const scope = `${ctx.scope ?? ''}${node.id}/`
       if (key === STATE) {
         const { values } = run(keepers(inner, partOf))

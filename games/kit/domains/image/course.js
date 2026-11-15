@@ -7,6 +7,8 @@ import { defineCourse, eraLevels, holds, itemOf, offer, reach, readItem } from '
 import { courseLayout } from '../../engine/course-dependencies.js'
 import { taskLevels } from '../../engine/tasks.js'
 import { keptBoards } from '../../engine/kept-boards.js'
+import { fitsCircuit } from '../../engine/board-view.js'
+import { workshopOf } from '../../circuit/workshop-view.js'
 import { builtPieces, publications } from '../../engine/pieces.js'
 import { trayIn } from '../../engine/trays.js'
 import { gridProbe } from '../../engine/grid-probe.js'
@@ -97,7 +99,8 @@ export function imageCourse(config) {
   const publishingTasks = new Map()
   const own = keptBoards((key, board) => {
     const task = publishingTasks.get(key)
-    return task && kit.fits(board, task)
+    const workshop = workshopOf(board)
+    return task && (workshop ? fitsCircuit(board, task, workshop.view) : kit.fits(board, task))
   })
   // The task that publishes each built piece, as played.
   const builders = new Map()

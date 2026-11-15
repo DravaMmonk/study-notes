@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
-import { CircuitBoard } from 'lucide-react'
 import { partsFor, packedView } from '../circuit/board-parts.js'
-import { openedWorkshop, workshopView } from '../circuit/workshop-view.js'
+import { runtimeOf, workshopView } from '../circuit/workshop-view.js'
 import { fitsCircuit } from '../engine/board-view.js'
 import { trayMembers } from '../engine/trays.js'
 import { captureWorkshop, publishWorkshop, trayKey, workshopAvailable, workshopEntries, workshopIdentity } from '../engine/workshop.js'
@@ -17,7 +16,7 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
   const offers = useMemo(() => base.offerIn(level, flags), [base, level, flags])
   const has = useMemo(() => base.holdsIn(level, flags), [base, level, flags])
   const identity = (type) => workshopIdentity(profile?.domain, game.partDefs, type)
-  const runtime = base.runtime ?? (typeof level.parts === 'function' ? level.parts : level.parts ? (type) => level.parts[type] : base.partOf)
+  const runtime = runtimeOf(level, base)
   const taskConstraints = (type, params) => {
     const controls = settings?.({ type, params }, { task: level }) ?? []
     return controls.every(({ key, options }) => !Object.hasOwn(params, key) || options.some(([value]) => Object.is(value, params[key])))
@@ -26,21 +25,10 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
   const available = (piece) => Boolean(profile && workshopAvailable(piece, {
     domain: profile.domain, identity, types: offeredTypes, has, allows: taskConstraints, resolve: runtime,
   }))
-  const { known, view: circuit, resolve } = workshopView(base, library, available, runtime)
-  const normalParts = partsFor(level, circuit, { cards, portLabels })
-  const parts = {
-    ...normalParts,
-    label: (node) => known(node.type) ? resolve.definition(node.type).name : normalParts.label(node),
-    family: (node) => known(node.type) ? 'built' : normalParts.family(node),
-    icon: (node) => known(node.type) ? CircuitBoard : normalParts.icon(node),
-    portLabel: (node, port) => known(node.type) ? port : normalParts.portLabel(node, port),
-  }
-  const originalPacked = useMemo(() => packedView(course, { cards, portLabels }), [course, cards, portLabels])
-  const packed = {
-    ...originalPacked,
-    open: (node, at) => known(node.type) ? openedWorkshop(resolve.definition(node.type), parts, level) : originalPacked.open(node, at),
-    edit: (node, at) => { if (!known(node.type)) originalPacked.edit(node, at) },
-  }
+  const workshop = workshopView(base, library, available, runtime)
+  const { known, view: circuit, resolve } = workshop
+  const parts = partsFor(level, circuit, { cards, portLabels })
+  const packed = packedView(course, { cards, portLabels }, workshop)
   const personal = workshopEntries(library).filter((piece) => available(piece)
     && !(piece.tray && JSON.parse(piece.tray)[0] === game.id && offers.types.includes(piece.rewardType)))
   const pickedTrays = game.course?.tray(level) ?? []

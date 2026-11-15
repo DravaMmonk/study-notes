@@ -22,7 +22,7 @@ const nothing = { values: new Map(), errors: new Map(), lit: null }
  * What the boards inside packed parts show, from the board they sit on (`top`: { circuit, parts, … }):
  *
  *   open(node, board) → { circuit, parts, … } the board a packed part on `board` runs (null: not a packed part)
- *   edit(node, board)  go to the level that builds it
+ *   edit(node, board)  return an action that opens the level that builds it, when there is one
  *   trace?() → { trace, upTo?, step? } the traced evaluation the top board shows now (engine/circuit.js ctx.trace),
  *              asked for once a part is open; without it the boards inside show how they are wired, without values
  *   card       a card's faces, each (node, ctx), ctx = { view, board, path, readOnly } (shell/CircuitLevel.jsx)
@@ -69,8 +69,9 @@ const EditAction = ({ onEdit }) => <button type="button" className="ph-head-acti
 /** On a desktop: a packed part's detail window, its description and body and the board it runs; edit beside close. */
 export function PackedDetail({ inside, node, at, path, onClose, children }) {
   const ctx = ctxOf(at, path.slice(0, -1))
+  const edit = inside.edit(node, at)
   return (
-    <Sheet title={L(at.parts.label(node))} onClose={onClose} actions={<EditAction onEdit={() => { onClose(); inside.edit(node, at) }} />}>
+    <Sheet title={L(at.parts.label(node))} onClose={onClose} actions={edit && <EditAction onEdit={() => { onClose(); edit() }} />}>
       <div className="cl-sheet">
         {children ?? <>{inside.describe(node, ctx)}{inside.sheet(node, ctx)}</>}
         <InsideBoard inside={inside} path={path} />
@@ -104,6 +105,7 @@ export function InsideBoard({ inside, path }) {
   // A chip holds something only once the run has reached it: an untouched board is its wiring alone.
   const reached = (n) => at.view.values.has(n.id) || at.view.errors.has(n.id)
   const node = detail && at.circuit.nodes.find((n) => n.id === detail)
+  const edit = node && inside.edit(node, at)
   return (
     <div className="cl-inside" ref={box}>
       <Schematic
@@ -116,7 +118,7 @@ export function InsideBoard({ inside, path }) {
         onOpen={(id) => inside.is(at.circuit.nodes.find((n) => n.id === id), at) && setDetail(id)}
       />
       {node && createPortal(
-        <Sheet title={L(parts.label(node))} onClose={() => setDetail(null)} actions={<EditAction onEdit={() => { setDetail(null); inside.edit(node, at) }} />}>
+        <Sheet title={L(parts.label(node))} onClose={() => setDetail(null)} actions={edit && <EditAction onEdit={() => { setDetail(null); edit() }} />}>
           <div className="cl-sheet cl-readonly">
             {inside.describe(node, ctx)}
             {inside.sheet(node, ctx)}

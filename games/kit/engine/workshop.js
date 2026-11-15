@@ -1,5 +1,5 @@
 // Player-owned circuit artifacts. Versions are immutable; the visible library points at the latest publication.
-import { packed, source } from './boards.js'
+import { packed, source, withBoardRuntime } from './boards.js'
 import { canonicalJson } from './json-value.js'
 import { defaultOf } from './parts/define.js'
 import { resolveSettings } from './pieces.js'
@@ -8,7 +8,8 @@ import { trayMembers } from './trays.js'
 
 export const WORKSHOP_KEY = 'games.workshop.v1'
 const INPUT = '$workshopInput'
-const isPersonal = (type) => type.startsWith('user_')
+export const isWorkshopType = (type) => typeof type === 'string' && type.startsWith('user_')
+export const usesWorkshop = (board) => Array.isArray(board?.nodes) && board.nodes.some(({ type }) => isWorkshopType(type))
 const empty = () => ({ pieces: {}, published: {}, featured: {}, drafts: {} })
 
 export function loadWorkshop(storage) {
@@ -191,7 +192,7 @@ export function captureWorkshop(graph, options) {
         requirements.push(...child.requirements)
         nodes.push({ ...node, type: id, params: {} })
       } else {
-        if (isPersonal(node.type) || !options.resolve(node.type)) return null
+        if (isWorkshopType(node.type) || !options.resolve(node.type)) return null
         requirements.push({
           type: node.type,
           identity: options.identity(node.type),
@@ -221,11 +222,18 @@ export function captureWorkshop(graph, options) {
   return JSON.parse(JSON.stringify({ ...captured, id: options.scope, domain: options.domain, name: options.name, description: options.description, tray: options.tray, rewardType: options.rewardType }))
 }
 
-export function workshopAvailable(piece, { domain, identity, types, has, allows, resolve }) {
-  return piece.domain === domain && piece.requirements.every(({ type, identity: signature, settings }) =>
-    types.has(type) && identity(type) === signature && allows(type, settings)
-    && Object.entries(settings).every(([key, value]) => has(type, key) && has(type, key, String(value))))
+export function workshopCompatible(piece, { domain, identity, resolve }) {
+  return piece?.domain === domain && Array.isArray(piece?.requirements) && Array.isArray(piece.terminals)
+    && piece.requirements.every(({ type, identity: signature }) =>
+    Boolean(resolve(type)) && identity(type) === signature)
     && piece.terminals.every((type) => Boolean(resolve(type)))
+}
+
+export function workshopAvailable(piece, context) {
+  const { types, has, allows } = context
+  return workshopCompatible(piece, context) && piece.requirements.every(({ type, settings }) =>
+    types.has(type) && allows(type, settings)
+    && Object.entries(settings).every(([key, value]) => has(type, key) && has(type, key, String(value))))
 }
 
 export function workshopDefinitions(library) {
@@ -250,7 +258,7 @@ export function workshopParts(library, resolve, { ticks = false } = {}) {
     if (!definitions.has(type)) {
       const { graph, inputs, outputs, name, description } = entries.get(type)
       definitions.set(type, packed({
-        circuit: graph, inputs, outputs, parts: partOf, holds: ticks,
+        circuit: withBoardRuntime(graph, () => partOf), inputs, outputs, holds: ticks,
         name, desc: description, anySize: true,
       }))
     }

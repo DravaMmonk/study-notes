@@ -100,6 +100,14 @@ test('an already packed course part is captured as a snapshot with its primitive
   assert.equal(runBoard(from(piece.id), { parts: workshopParts(library, resolve), bind: { in: 4 } }).outputs.out, 8)
 })
 
+test('a packed snapshot reads its captured primitives even when the outer board does not offer them', () => {
+  const piece = take(base())
+  const library = publishWorkshop(empty(), piece, { id: piece.id })
+  const captured = workshopParts(library, resolve)
+  const parts = { in: types.in, out: types.out, [piece.id]: captured(piece.id) }
+  assert.equal(runBoard(from(piece.id), { parts, bind: { in: 6 } }).outputs.out, 12)
+})
+
 test('an incomplete board and a recursive packed dependency cannot be published', () => {
   assert.equal(take({ ...base(), wires: [] }), null)
   const parts = { ...drawing, packed: ({ type }) => type === 'coursePart' }

@@ -371,6 +371,7 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
   const role = node && parts.role(node)
   const removable = editing.canRemove(node)
   const packedHere = node && inside?.is(node, ctx.board)
+  const edit = packedHere && inside.edit(node, ctx.board)
   const desc = node && describeOf(node, ctx)
   const body = node && sheetBody(node, ctx)
   const place = (type) => { editing.place(type, sheet.slot, sheet.region); close() }
@@ -405,7 +406,7 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
       {below}
       <Notice editing={editing} prompt={partitionHint} />
       {node && (desc || body || packedHere || removable) && (
-        <Sheet title={editing.nameOf(node)} onClose={close} footer={(packedHere || role === 'part' || removable) && <PartActions onEdit={packedHere ? () => { close(); inside.edit(node, ctx.board) } : null} onMove={role === 'part' && canMove(node.id) ? () => { editing.startMove(node.id); close() } : null} onRemove={removable ? () => { editing.remove(node.id); close() } : null} />}>
+        <Sheet title={editing.nameOf(node)} onClose={close} footer={(packedHere || role === 'part' || removable) && <PartActions onEdit={edit ? () => { close(); edit() } : null} onMove={role === 'part' && canMove(node.id) ? () => { editing.startMove(node.id); close() } : null} onRemove={removable ? () => { editing.remove(node.id); close() } : null} />}>
           <div className="cl-sheet">
             {desc}
             {body}
