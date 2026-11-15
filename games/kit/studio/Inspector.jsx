@@ -9,7 +9,7 @@
 //   <Inspector content vocab at field ctx onEdit onOps onPick onLevel onRemoveLevel onRemoveSelection />
 //   at: the file shown ({ level } | { game: true } | { parts: true }: pieces.json, with root: [collection, id] | { glossary: true }); field: { path } | { missing: text } | null
 import { useEffect, useRef } from 'react'
-import { ArrowDown, ArrowUp, ArrowRightLeft, Braces, ChevronRight, Copy, MousePointerClick, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowRightLeft, Braces, ChevronRight, Copy, MousePointerClick, Pin, Trash2 } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { getAt, setAt, showPath } from '../engine/ops/edit.js'
 import { settingReferences } from '../engine/pieces.js'
@@ -21,8 +21,10 @@ import { usePref } from './prefs.js'
 import SourceEditor from './SourceEditor.jsx'
 import { sourceOps } from './source.js'
 import { confirmDelete, removesContent } from './delete.js'
+import InspectorTabs, { inspectorTabKey } from './InspectorTabs.jsx'
 
-export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, onEdit, onOps, onPick, onLevel, onRemoveLevel, onRemoveSelection }) {
+export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, tabs, selection,
+  onEdit, onOps, onPick, onNavigate, onLevel, onRemoveLevel, onRemoveSelection, onToggleTab, onOpenTab, onCloseTab }) {
   const [json, setJson] = usePref('inspector-json', false)
   const { vocabulary } = vocab
   const order = ctx.levels
@@ -43,12 +45,18 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
     held = held.slice(0, -1)
     hit = fieldAt(shown.form, held)
   }
+  const path = hit ? held : field?.path ?? root
+  const trail = field?.trail ?? path
+  const currentKey = inspectorTabKey(selection, path)
+  const pinned = Boolean(field?.path) && tabs.some((tab) => inspectorTabKey(tab.at, tab.path) === currentKey)
+  const active = field?.path ? pinned ? currentKey : inspectorTabKey(selection, trail) : null
+  const tabsRow = <InspectorTabs tabs={tabs} active={active} content={content} onOpen={onOpenTab} onClose={onCloseTab} />
   const openCrumb = (path) => {
     const target = getAt(shown?.value, path)
     if (!longConfig(target) || window.confirm(tr(
       '这段配置较长，打开可能需要一些时间。是否继续？',
       'This configuration is large and may take a while to open. Continue?',
-    ))) onPick(path)
+    ))) onNavigate(path, trail)
   }
   const tasked = Boolean(at?.level)
   const edit = (path, change, type) => {
@@ -72,11 +80,11 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   if (!field) {
     return (
       <div className="insp is-empty">
-        <p><MousePointerClick size={16} aria-hidden="true" />{tr('点画面上的字、测试、任务，或「字段」里的一行，在这里改它。')}</p>
+        {tabs.length > 0 && <div className="insp-bar">{tabsRow}</div>}
+        <div className="insp-empty-note"><p><MousePointerClick size={16} aria-hidden="true" />{tr('点画面上的字、测试、任务，或「字段」里的一行，在这里改它。')}</p></div>
       </div>
     )
   }
-  const path = hit ? held : field.path ?? root
   const definition = hit?.field && root.length === 2 && path.length === 2 && root.every((key, i) => key === path[i])
   const inUse = definition && root[0] === 'settings' && settingReferences(partDefs, root[1]).length > 0
   const removeDefinition = () => {
@@ -85,8 +93,14 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
     onRemoveSelection()
   }
   const remove = tasked && !path.length && shown ? () => onRemoveLevel(at.level) : definition ? removeDefinition : null
-  const header = <Head path={path} file={file} onPick={openCrumb} json={json} onToggleJson={() => setJson(!json)}
-    about={L(hit?.entry?.about ?? hit?.field?.about ?? hit?.absent?.about)} onRemove={remove} inUse={inUse} />
+  const header = (
+    <div className="insp-bar">
+      {tabsRow}
+      <Head path={path} trail={trail} file={file} onPick={openCrumb} json={json} onToggleJson={() => setJson(!json)}
+        pinned={pinned} onPin={hit ? () => onToggleTab(path) : null}
+        about={L(hit?.entry?.about ?? hit?.field?.about ?? hit?.absent?.about)} onRemove={remove} inUse={inUse} />
+    </div>
+  )
   if (json) {
     return (
       <div className="insp">
@@ -206,19 +220,25 @@ function longConfig(value) {
 }
 
 /** Breadcrumbs always start at the original JSON file. */
-function Head({ path, file, onPick, json, onToggleJson, about, onRemove, inUse }) {
+function Head({ path, trail, file, onPick, json, onToggleJson, about, pinned, onPin, onRemove, inUse }) {
   const name = file.level ? `levels/${file.level}.json` : file.parts ? 'pieces.json' : file.glossary ? 'glossary.json' : 'game.json'
   const jsonLabel = tr('JSON 源码', 'JSON source')
+  const pinLabel = tr('固定配置标签页', 'Pin configuration tab')
   return (
     <header className="insp-head">
+      <button type="button" className="insp-pin" onClick={onPin} disabled={!onPin} aria-pressed={pinned}
+        aria-label={pinLabel} title={pinned ? tr('取消固定', 'Unpin tab') : pinLabel}><Pin size={13} aria-hidden="true" /></button>
       <nav className="insp-path" aria-label={tr('字段的位置')}>
-        <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={!path.length} title={!path.length ? about : undefined}>{name}</button>
-        {path.map((k, i) => {
-          const at = path.slice(0, i + 1)
+        <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={!path.length}
+          aria-current={!path.length ? 'location' : undefined} title={!path.length ? about : undefined}>{name}</button>
+        {trail.map((k, i) => {
+          const at = trail.slice(0, i + 1)
+          const current = at.length === path.length
           return (
-            <span key={showPath(at)} className="insp-step" title={at.length === path.length ? about : undefined}>
+            <span key={showPath(at)} className="insp-step" title={current ? about : undefined}>
               <ChevronRight size={11} aria-hidden="true" />
-              <button type="button" className="insp-crumb" onClick={() => onPick(at)} disabled={at.length === path.length}>{typeof k === 'number' ? k + 1 : k}</button>
+              <button type="button" className="insp-crumb" onClick={() => onPick(at)} disabled={current}
+                aria-current={current ? 'location' : undefined}>{typeof k === 'number' ? k + 1 : k}</button>
             </span>
           )
         })}

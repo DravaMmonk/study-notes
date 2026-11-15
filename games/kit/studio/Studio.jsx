@@ -52,6 +52,7 @@ import Flow, { levelLabel } from './Flow.jsx'
 import Arrangement from './Arrangement.jsx'
 import CourseGroups, { useCourseGroups } from './CourseGroups.jsx'
 import Inspector from './Inspector.jsx'
+import { inspectorTabKey } from './InspectorTabs.jsx'
 import { textField } from './copy.js'
 import Palette from './Palette.jsx'
 import Shortcuts, { MOD } from './Shortcuts.jsx'
@@ -76,7 +77,7 @@ const remember = (game, at, tab, field, playLevel, task) => {
   if (at?.setting !== undefined) url.searchParams.set('setting', at.setting)
   if (at?.glossary) url.searchParams.set('glossary', '1')
   url.searchParams.set('tab', tab)
-  const inspector = field?.path ? { path: field.path } : field?.missing ? { missing: field.missing } : null
+  const inspector = field?.path ? { path: field.path, ...(field.trail && { trail: field.trail }) } : field?.missing ? { missing: field.missing } : null
   window.history.replaceState({ studio: { inspector, playLevel, task, gameRoot: Boolean(at?.game) } }, '', url)
 }
 const editable = (el) => el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName))
@@ -122,6 +123,8 @@ export default function Studio() {
   const [layout, setLayout] = usePref('layout', { tree: 240, audit: 220, side: 380, treeOpen: true, auditOpen: true, sideOpen: true })
   const [resize, setResize] = useState(null)
   const [side, setSide] = usePref('side', 'tree')
+  const [savedInspectorTabs, setInspectorTabs] = usePref('inspector-tabs', {})
+  const inspectorTabs = savedInspectorTabs[game] ?? []
   const [copyScope, setCopyScope] = useState(null) // An era's index, or the game, glossary or pieces.
   const [overlay, setOverlay] = useState(null) // 'palette' | 'keys'
   const overlayOrigin = useRef(null)
@@ -339,10 +342,30 @@ export default function Studio() {
     else setField(null)
   }
   /** A field into the side panel (opened if folded); a field of another task has the page play that task. */
-  const pickField = (path, focus = false, pendingFace = null) => {
+  const pickField = (path, focus = false, pendingFace = null, trail = null) => {
     setLayout((l) => (l.sideOpen ? l : { ...l, sideOpen: true }))
-    setField({ path, ...(focus && { focus }), ...(pendingFace && { pendingFace }) })
+    setField({ path, ...(focus && { focus }), ...(pendingFace && { pendingFace }), ...(trail && { trail }) })
     if (path[0] === 'tasks' && Number.isInteger(path[1])) setGo({ task: path[1] })
+  }
+  const inspectorSelection = at ?? { game: true }
+  const openInspectorTab = (tab) => {
+    select(tab.at)
+    pickField(tab.path)
+  }
+  const toggleInspectorTab = (path) => {
+    const key = inspectorTabKey(inspectorSelection, path)
+    setInspectorTabs((saved) => {
+      const tabs = saved[game] ?? []
+      const remaining = tabs.filter((tab) => inspectorTabKey(tab.at, tab.path) !== key)
+      return { ...saved, [game]: remaining.length === tabs.length ? [...tabs, { at: inspectorSelection, path }] : remaining }
+    })
+  }
+  const closeInspectorTab = (tab, current) => {
+    const key = inspectorTabKey(tab.at, tab.path)
+    const index = inspectorTabs.findIndex((item) => inspectorTabKey(item.at, item.path) === key)
+    setInspectorTabs((saved) => ({ ...saved, [game]: (saved[game] ?? []).filter((item) => inspectorTabKey(item.at, item.path) !== key) }))
+    const next = inspectorTabs[index + 1] ?? inspectorTabs[index - 1]
+    if (current && next) openInspectorTab(next)
   }
   /** Go to what a finding of the check is about: the field it names, else its level. */
   const jumpTo = (item) => {
@@ -764,7 +787,9 @@ export default function Studio() {
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
           <aside className="studio-side">
-            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} pendingFace={pendingFace} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} onRemoveLevel={removeLevel} onRemoveSelection={() => select(null)} />}
+            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} pendingFace={pendingFace} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} onRemoveLevel={removeLevel} onRemoveSelection={() => select(null)}
+              tabs={inspectorTabs} selection={inspectorSelection} onToggleTab={toggleInspectorTab} onOpenTab={openInspectorTab} onCloseTab={closeInspectorTab}
+              onNavigate={(path, trail) => pickField(path, false, null, trail)} />}
           </aside>
           {layout.auditOpen && <PanelResizer side="audit" size={layout.audit} open {...resizer} />}
           <aside className="studio-audit">
