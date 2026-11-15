@@ -4,9 +4,9 @@
 //
 //   { at: index of the one played, list: [{ no, name, data? }] }
 //
-// `no` is a slot's own number, never reused within a level: it names an unnamed slot ("电路 2") and tells the shell
-// when the board on screen must start over. A slot waiting holds its data; the one played holds none (its data is the
-// task's). A task with no record has one slot, its data.
+// `no` is unique among a task's current slots: it names an unnamed slot ("电路 2") and tells the shell when the board
+// on screen must start over. Adding a slot may reuse a deleted slot's number. A slot waiting holds its data; the one
+// played holds none (its data is the task's). A task with no record has one slot, its data.
 
 const clone = (value) => (value === undefined ? undefined : JSON.parse(JSON.stringify(value)))
 
@@ -52,9 +52,6 @@ export function renameSlot(progress, id, k, name) {
   const slots = slotsOf(progress, id)
   return { ...progress, slots: { ...progress.slots, [id]: { ...slots, list: replaced(slots.list, k, { ...slots.list[k], name: name.trim() }) } } }
 }
-
-/** The key a board's last run is kept under while its level is open (GameShell): its task's key and its slot's number. */
-export const runKey = (task, no) => `${task}#${no}`
 
 /** Slot k gone (never the last one); if it was played, the one before it (or after, for the first) is played instead. */
 export function dropSlot(progress, id, k) {

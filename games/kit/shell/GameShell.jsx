@@ -13,11 +13,12 @@ import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
 import { earnedUnlocks, firstTask as openTask, flagsIn, inheritedBoard, nextRequiredTask, passed, saved as savedAt, taskKey, taskOpen, taskPassed } from './progress.js'
-import { addSlot, dropSlot, openSlot, renameSlot, runKey, slotsOf } from './slots.js'
+import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { playFrame } from './viewport.js'
 import { EditContext, same } from './edit.js'
 import { SettingsContext } from './useSetting.js'
+import { useLevelRuns } from './useLevelRuns.js'
 import TopBar from './TopBar.jsx'
 import { settings } from './settings.js'
 
@@ -132,12 +133,9 @@ export default function GameShell({ game, store, author = null }) {
   }, [drawer])
 
   const [left, setLeft] = useState(null) // the level last left for the map, which the map opens at
-  // How each board of the level played last ran ('<task>#<slot no>' → its screen's mark): kept while the level is
-  // open, from task to task and slot to slot, and gone once it is left.
-  const [runs, setRuns] = useState({})
   const open = (id, task) => {
     if (!id) setLeft(levelId)
-    setRuns({})
+    clearRuns()
     setLevelId(id)
     setTaskAt(id && game.byId[id] ? task ?? firstTask(id) : 0)
     setTaskWon(null)
@@ -228,24 +226,15 @@ export default function GameShell({ game, store, author = null }) {
     open(target.id, goTo.task)
   }
 
-  // The task's saved boards. Choosing another starts the screen over on it, with nothing left of the last run.
+  // The task's saved boards. Choosing one reopens the screen on its own board and last run.
   const slots = level ? slotsOf(progress, key) : null
+  const { runAt, run, dropRun, clearRuns } = useLevelRuns(key, slots?.list[slots.at].no)
   const slotted = (f) => (...args) => {
     setProgress((p) => f(p, key, ...args))
     setWon(null)
     setFailure(null)
     setFails(0)
   }
-  // The last run of the board played (see above).
-  const runAt = slots && runKey(key, slots.list[slots.at].no)
-  const lastRun = level ? runs[runAt] : undefined
-  const keepRun = (mark) => setRuns((kept) => {
-    if (JSON.stringify(kept[runAt] ?? null) === JSON.stringify(mark ?? null)) return kept
-    const next = { ...kept }
-    if (mark == null) delete next[runAt]
-    else next[runAt] = mark
-    return next
-  })
   const slotsCtl = slots && {
     ...slots,
     game: game.id,
@@ -256,8 +245,7 @@ export default function GameShell({ game, store, author = null }) {
     take: author?.level === level.id ? author.take : null,
     // A slot dropped takes its runs with it: a slot added later may take its number.
     drop: (k) => {
-      const no = slots.list[k].no
-      setRuns((kept) => Object.fromEntries(Object.entries(kept).filter(([key]) => !key.endsWith(`#${no}`))))
+      dropRun(slots.list[k].no)
       slotted(dropSlot)(k)
     },
   }
@@ -359,7 +347,7 @@ export default function GameShell({ game, store, author = null }) {
             )}
             <EditContext.Provider value={edit}>
               {kind
-                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: kept(), save, solved: solved.has(level.id) || isPassed(taskAt), solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
+                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: kept(), save, solved: solved.has(level.id) || isPassed(taskAt), solve, fail, ...run, flags, progress, theme, phone })}</SlotsContext.Provider>
                 : <div className="board-loading">{tr('这类关卡尚在制作中。')}</div>}
             </EditContext.Provider>
           </div>
