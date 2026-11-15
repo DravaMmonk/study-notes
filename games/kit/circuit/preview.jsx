@@ -49,7 +49,7 @@ function Face({ piece, game, scene, edit, state }) {
   const parts = useMemo(() => definedParts(base, defined.of, defined.ops), [defined])
   const node = { id: 'p', type, params, x: 40, y: 30 }
   const graph = { nodes: [node], wires: [] }
-  const set = (patch, changed) => setParams((p) => nextParams(def, p ?? defined.defaults(type), patch, changed, defined.ops))
+  const set = (patch, changed) => setParams((p) => nextParams(def, { params: p ?? defined.defaults(type) }, patch, changed, defined.ops))
   const ctx = { view: NONE, board: { circuit: graph, parts }, path: [], readOnly: false }
   const value = () => <span className="pp-value">{tr('值', 'value')}</span>
   const shown = { ...defined, value }

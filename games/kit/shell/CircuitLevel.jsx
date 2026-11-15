@@ -193,7 +193,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const setNode = (node, params) => {
     const next = editNodeSettings(circuit, parts, node.id, params)
     setSettingError(next.reason ? { id: node.id, reason: next.reason, stored } : null)
-    if (!next.reason) change(next.graph)
+    if (next.graph && next.graph !== circuit) change(next.graph)
   }
   const settingNote = (node) => settingError?.stored === stored && settingError.id === node.id
     ? <p className="pf-check" role="status">{L(settingError.reason)}</p>

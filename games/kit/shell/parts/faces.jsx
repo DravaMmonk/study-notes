@@ -1,5 +1,6 @@
 import { holesOf, outletsOf } from '../../engine/pieces.js'
 import { activeRegions, applyRules, partDesc } from '../../engine/parts/define.js'
+import { isFixed, keepFixedSettings } from '../../circuit/model.js'
 import { T } from '../i18n.js'
 import PartFace, { blocksOf } from './PartFace.jsx'
 import { iconOf } from './icons.js'
@@ -65,7 +66,10 @@ export function definedParts(base, of, ops = {}) {
 export const definedItem = (type, def, extra = {}, allowed = () => null) => ({ type, label: def.name, desc: partDesc(def, (key) => allowed(type, key)), icon: iconOf(def.icon), family: def.family, ...extra })
 
 /** The settings a node is left with once the player set `patch` (changed: the key set, null for an action). */
-export const nextParams = (def, params, patch, changed, ops) => applyRules(def, { ...params, ...patch }, changed, ops)
+export const nextParams = (def, node, patch, changed, ops) => {
+  const params = keepFixedSettings(node, { ...node.params, ...patch })
+  return applyRules(def, params, changed, ops, (key) => isFixed(node, key))
+}
 
 /**
  * The faces of defined parts over a domain's own (shell/CircuitLevel.jsx card): body (the card view), thumb and
@@ -75,7 +79,7 @@ export function definedFaces(faces, { defined, change, phone }) {
   const draw = (face, other, blocks) => (node, ctx) => {
     const def = defined.of(node.type, face)
     if (!def) return other?.(node, ctx) ?? null
-    const set = ctx?.readOnly ? null : (patch, changed) => change(node, nextParams(def, node.params ?? {}, patch, changed, defined.ops))
+    const set = ctx?.readOnly ? null : (patch, changed) => change(node, nextParams(def, node, patch, changed, defined.ops))
     return <PartFace def={def} face={face} node={node} ctx={ctx} set={set} defined={defined} phone={phone} roomy={face === 'detail'} blocks={blocks?.(def)} />
   }
   const tile = (pick) => (def) => blocksOf(def, 'tile').filter(([b]) => pick(b.show === 'value'))

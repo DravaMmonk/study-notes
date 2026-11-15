@@ -83,6 +83,7 @@ test('an optional input left unwired reads 「—」 and does not make the part 
 test('interaction: rules follow a change, checks say what fails, settings-only expressions', () => {
   const { defs } = defineParts(file, OPS)
   assert.deepEqual(applyRules(defs.scaled, { k: 2, how: 'down' }, 'how', OPS), { k: 3, how: 'down' })
+  assert.deepEqual(applyRules(defs.scaled, { k: 2, how: 'down' }, 'how', OPS, key => key === 'k'), { k: 2, how: 'down' })
   assert.deepEqual(applyRules(defs.scaled, { k: 2, how: 'up' }, 'how', OPS), { k: 2, how: 'up' })
   assert.deepEqual(failedCheck(defs.scaled, { k: 4 }, OPS), { en: 'k is too large' })
   assert.equal(evalSettings('times($k, $k)', defs.scaled, { k: 3 }, OPS), 9)

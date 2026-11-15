@@ -1,6 +1,7 @@
 import { sourceOf, splitSource, srcNode } from '../engine/wire-source.js'
 import { flowSpots } from './layout.js'
-import { baseRefusal, byId, outputsOf, spotIn } from './model.js'
+import { baseRefusal, byId, cardPosition, inPort, isFixed, keepFixedSettings, keepLocked, outputsOf, PRESET_PORT_REFUSAL, spotIn, wireHasPorts } from './model.js'
+import { sameJson } from '../engine/json-value.js'
 import { regionAddress, regionProblems, regionsOf } from './regions.js'
 
 // A board as plain ASCII text: what the player copies out of a level, keeps in a notepad or sends on, and pastes back
@@ -303,9 +304,10 @@ export function parse(text) {
 
 /**
  * The board a text describes, built on `graph` (the board on screen): the level's own nodes stay where they are, the
- * parts are the text's (each keeps its place when the board had a part of that name and type), and the wires are
- * exactly the text's. `types`: the parts this level offers. Returns { graph } or { errors: [{ line, zh, en }] }; a
- * wire is checked as the editors check one (model.js baseRefusal, the game's parts.refuse).
+ * parts are the text's (each keeps its place when the board had a part of that name and type). A locked card or
+ * wire stays on the board even if omitted, and the text cannot override it. `types`: the parts this level offers.
+ * Returns { graph } or { errors: [{ line, zh, en }] }; a wire is checked as in the editors (model.js baseRefusal and
+ * the game's parts.refuse).
  */
 export function read(text, graph, parts, types) {
   let parsed
@@ -318,8 +320,8 @@ export function read(text, graph, parts, types) {
   const errors = []
   const offered = new Set(types)
   const unread = (node, key, v) => (parts.text?.read ? parts.text.read(node, key, v) : v)
-  const givens = graph.nodes.filter((n) => !placed(parts, n))
-  const nodes = givens.map((n) => ({ ...n }))
+  const beforeById = new Map(graph.nodes.map((node) => [node.id, node]))
+  const nodes = graph.nodes.filter((n) => !placed(parts, n)).map((n) => ({ ...n }))
   // Statements refused (by index) and the nodes they leave out: their wires say nothing more.
   const failed = new Set()
   const missing = new Set()
@@ -328,17 +330,31 @@ export function read(text, graph, parts, types) {
     failed.add(parsed.statements.indexOf(st))
     missing.add(st.id)
   }
-  const validSettings = (st, node) => {
+  const readSettings = (st, node, locked) => {
+    const settings = {}
     for (const [key, value] of Object.entries(st.settings)) {
       const error = parts.text?.check?.(node, key, value)
-      if (!error) continue
-      refuse(st, error.zh, error.en)
-      return false
+      if (error) {
+        refuse(st, error.zh, error.en)
+        return null
+      }
+      const read = unread(node, key, value)
+      if (locked && isFixed(locked, key) && !sameJson(locked.params?.[key], read)) {
+        refuse(st, `「${st.id}」的设置「${key}」由关卡固定。`, `The level fixes the “${key}” setting on “${st.id}”.`)
+        return null
+      }
+      settings[key] = read
     }
-    return true
+    return settings
   }
   for (const st of parsed.statements) {
-    const given = nodes.find((n) => n.id === st.id && givens.some((g) => g.id === n.id))
+    const before = beforeById.get(st.id)
+    const locked = before?.locked ? before : null
+    if (locked && ((st.type !== undefined && st.type !== locked.type) || (st.in ?? null) !== (locked.in ?? null))) {
+      refuse(st, `「${st.id}」是关卡摆好的，不能改它的类型或所在区域。`, `“${st.id}” is placed by the level; its type and region are fixed.`)
+      continue
+    }
+    const given = before && !placed(parts, before) ? nodes.find((n) => n.id === st.id) : null
     if (given) {
       const fields = parts.text?.sets?.(given) ?? []
       const wants = [...(st.type !== undefined && st.type !== given.type ? ['type'] : []), ...Object.keys(st.settings)]
@@ -348,39 +364,42 @@ export function read(text, graph, parts, types) {
         continue
       }
       if (st.type !== undefined) given.type = st.type
-      if (!validSettings(st, given)) continue
-      for (const [key, v] of Object.entries(st.settings)) given.params = { ...given.params, [key]: unread(given, key, v) }
+      const settings = readSettings(st, given, locked)
+      if (settings && Object.keys(settings).length) given.params = { ...given.params, ...settings }
       continue
     }
-    if (st.type === undefined) {
+    const type = st.type ?? locked?.type
+    if (type === undefined) {
       refuse(st, `「${st.id}」不是这一关给的输入或输出，要写出它是什么元件：${st.id} = 类型(…)。`, `“${st.id}” is not given by the level; say which part it is: ${st.id} = type(…).`)
       continue
     }
-    if (!offered.has(st.type)) {
-      refuse(st, `这一关不能用「${st.type}」。`, `“${st.type}” is not available on this level.`)
+    if (!locked && !offered.has(type)) {
+      refuse(st, `这一关不能用「${type}」。`, `“${type}” is not available on this level.`)
       continue
     }
-    const node = { id: st.id, type: st.type }
+    const node = { id: st.id, type }
     const keys = parts.text?.settings?.(node)
     const stray = Object.keys(st.settings).find((key) => keys && !keys.includes(key))
     if (stray !== undefined) {
-      refuse(st, `「${st.type}」没有设置「${stray}」。`, `“${st.type}” has no setting “${stray}”.`)
+      refuse(st, `「${type}」没有设置「${stray}」。`, `“${type}” has no setting “${stray}”.`)
       continue
     }
-    if (!validSettings(st, node)) continue
-    node.params = { ...parts.defaults?.(node.type), ...Object.fromEntries(Object.entries(st.settings).map(([key, x]) => [key, unread(node, key, x)])) }
+    const settings = readSettings(st, node, locked)
+    if (!settings) continue
+    node.params = { ...(locked?.params ?? parts.defaults?.(type)), ...settings }
     if (st.in) node.in = st.in
-    const before = graph.nodes.find((n) => n.id === st.id && n.type === st.type && placed(parts, n) && (n.in ?? null) === (st.in ?? null))
-    if (before) Object.assign(node, Object.fromEntries(['x', 'y', 'slot', 'fold', 'span'].filter((f) => f in before).map((f) => [f, before[f]])))
+    if (before?.type === type && (before.in ?? null) === (st.in ?? null)) {
+      Object.assign(node, cardPosition(before))
+    }
     nodes.push(node)
   }
-  const invalid = regionProblems({ nodes }, parts)
+  let out = keepLocked(graph, { nodes, wires: [] })
+  const invalid = regionProblems(out, parts)
   if (invalid.length) {
     const lines = new Map(parsed.statements.map(({ id, line }) => [id, line]))
     return { errors: [...errors, ...invalid.map(({ id, zh, en }) => say(lines.get(id), zh, en))] }
   }
-  let out = { nodes, wires: [] }
-  for (const node of nodes) {
+  for (const node of out.nodes) {
     // A new card in a frame's region takes the next free cell of it; one on the board itself is placed once the
     // wires are read, where they lead (layout.js flowSpots).
     if (node.x === undefined && placed(parts, node) && node.in) {
@@ -388,7 +407,9 @@ export function read(text, graph, parts, types) {
       Object.assign(node, { x, y })
     }
   }
-  const fresh = nodes.filter((n) => n.x === undefined && placed(parts, n))
+  const fresh = out.nodes.filter((n) => n.x === undefined && placed(parts, n))
+  const preset = new Map(out.wires.map((wire) => [inPort(wire.to, wire.port), wire]))
+  const written = new Set()
   for (const w of parsed.wires) {
     const [fromId, outKey] = splitSource(w.from)
     if (failed.has(w.by) || missing.has(w.to) || missing.has(fromId)) continue
@@ -408,16 +429,19 @@ export function read(text, graph, parts, types) {
     // A given node that can give what the wire takes but is not giving it yet (a sensor not switched on) is switched
     // on for it: the text says what the board reads.
     const opened = from && !placed(parts, from) && !outputsOf(parts, from).some((o) => o.key === outKey) && parts.text?.opens?.(from, outKey)
-    if (opened) from.params = opened
+    if (opened) from.params = keepFixedSettings(from, opened)
     const keys = from ? outputsOf(parts, from).map((o) => o.key) : []
     if (!from || !keys.includes(outKey)) {
       errors.push(say(w.line, from ? `「${fromId}」没有输出「${outKey ?? ''}」。` : `没有叫「${fromId}」的元件。`, from ? `“${fromId}” has no output “${outKey ?? ''}”.` : `There is no node called “${fromId}”.`))
       continue
     }
-    if (out.wires.some((x) => x.to === to.id && x.port === port)) {
+    const address = inPort(to.id, port)
+    if (written.has(address)) {
       errors.push(say(w.line, `「${w.to}」的「${port}」口接了两根线。`, `Input “${port}” of “${w.to}” takes two wires.`))
       continue
     }
+    written.add(address)
+    if (preset.get(address)?.from === w.from) continue
     const no = baseRefusal(out, w.from, to.id, port, parts) ?? parts.refuse?.(out, w.from, to.id, port) ?? null
     if (no) {
       errors.push(say(w.line, no.zh, no.en))
@@ -425,8 +449,14 @@ export function read(text, graph, parts, types) {
     }
     out = { ...out, wires: [...out.wires, { from: w.from, to: to.id, port }] }
   }
+  for (const wire of preset.values()) {
+    if (wireHasPorts(parts, wire, (id) => byId(out, id))) continue
+    const line = parsed.statements.find((st) => st.id === srcNode(wire.from) || st.id === wire.to)?.line
+    errors.push(say(line, PRESET_PORT_REFUSAL.zh, PRESET_PORT_REFUSAL.en))
+  }
+  if (errors.length) return { errors }
   flowSpots(out, fresh)
-  return errors.length ? { errors } : { graph: { ...graph, nodes: out.nodes, wires: out.wires } }
+  return { graph: { ...graph, nodes: out.nodes, wires: out.wires } }
 }
 
 /** Write a blueprint as content lines, without the editor's header. */

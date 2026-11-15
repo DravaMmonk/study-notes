@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { framePart } from './frames.js'
 import { headOf, parse, print, read } from './text.js'
 import { boardSvg } from './svg.js'
+import { withPreset } from './model.js'
 
 // A small game: two inputs and an output given by the level, gates with ports a and b, a constant with a value, a
 // part with two outputs, and a box (a frame with one region that opens a value).
@@ -133,4 +134,32 @@ test('a malformed quoted escape is reported on its blueprint line', () => {
   const { errors } = read(String.raw`a = and[setting="\q"](Rain, Wind)`, { nodes: [], wires: [] }, {}, [])
   assert.equal(errors[0].line, 1)
   assert.match(errors[0].en, /Invalid escape/)
+})
+
+test('a blueprint reads against preset parts and wires and cannot override them', () => {
+  const opening = withPreset({ nodes: given, wires: [] }, {
+    nodes: [{ id: 'n', type: 'not', params: { mode: 'sharp', note: 'old' }, fixed: ['mode'], x: 100, y: 100 }],
+    wires: [{ from: 'Rain', to: 'n', port: 'a' }],
+  })
+  const imported = read('out <- n', opening, parts, TYPES)
+  assert.equal(imported.errors, undefined)
+  assert.deepEqual(imported.graph.nodes.at(-1), opening.nodes.at(-1))
+  assert.deepEqual(imported.graph.wires, [...opening.wires, { from: 'n', to: 'out', port: 'in' }])
+  const roundTrip = read(print(imported.graph, parts), opening, parts, TYPES)
+  assert.deepEqual(roundTrip, imported)
+  const edited = read('n[note=new](Rain)\nout <- n', opening, parts, TYPES)
+  assert.deepEqual(edited.graph.nodes.at(-1).params, { mode: 'sharp', note: 'new' })
+  for (const [text, reason] of [
+    ['n = not[mode=soft]()', /Line 1: The level fixes/],
+    ['n = and()', /Line 1: .*type and region are fixed/],
+    ['n = not(Wind)', /Line 1: This wire came with the level/],
+  ]) assert.match(read(text, opening, parts, TYPES).errors[0].en, reason)
+})
+
+test('blueprint cycle checks include connections omitted because they are preset', () => {
+  const opening = withPreset({ nodes: given, wires: [] }, {
+    nodes: [{ id: 'a', type: 'not' }, { id: 'b', type: 'not' }],
+    wires: [{ from: 'a', to: 'b', port: 'a' }],
+  })
+  assert.match(read('a = not(b)', opening, parts, TYPES).errors[0].en, /make a loop/)
 })

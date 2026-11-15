@@ -10,7 +10,7 @@ import { stagesOf } from '../engine/stages.js'
 import { CircuitBoard } from 'lucide-react'
 import { MISSING } from '../engine/circuit.js'
 import { traceSteps, viewAt } from '../engine/trace.js'
-import { outputsOf } from '../circuit/model.js'
+import { isFixed, outputsOf } from '../circuit/model.js'
 import { countFailedTests, splitTests, TEST_WORDS } from '../engine/tests.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 import { rowsOf } from '../engine/views.js'
@@ -232,7 +232,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   }
   const showsValue = (node, ctx) => !ctx.board.parts.outputs(node) || (ctx.board.parts.role(node) === 'source' && outputsOf(ctx.board.parts, node).some(({ key }) => key === null))
   const cardSettings = (node, ctx) => settings?.(node, { ...ctx, task: ctx.board.level ?? level }).map(({ key, label, value, options }) => (
-    <CardField key={key} label={label} value={value} options={options} disabled={ctx.readOnly}
+    <CardField key={key} label={label} value={value} options={options} disabled={ctx.readOnly || isFixed(node, key)}
       onChange={(picked) => setParam(node, ctx, key, options.find(([option]) => String(option) === picked)[0])} />
   ))
   const body = (node, ctx) => {

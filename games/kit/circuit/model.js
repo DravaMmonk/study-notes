@@ -29,6 +29,7 @@
 //                                          node's statement may write, a setting read back, and the settings of a given
 //                                          node switched on to give output `key` a wire reads (null when it cannot)
 import { splitSource, srcNode } from '../engine/wire-source.js'
+import { sameJson } from '../engine/json-value.js'
 import { cardColumns, slotColumns, slotWidth } from './card-size.js'
 import { SLOT_GUTTER } from './slot-metrics.js'
 import { wouldCycle } from '../graph.js'
@@ -72,6 +73,9 @@ export function removeNode(graph, id) {
 export const removeWire = (graph, wire) => ({ ...graph, wires: graph.wires.filter((w) => !(w.to === wire.to && w.port === wire.port)) })
 export const moveNode = (graph, id, x, y) => ({ ...graph, nodes: graph.nodes.map((n) => (n.id === id ? { ...n, x, y } : n)) })
 
+/** The fields that position or fold a card without changing what it computes. */
+export const cardPosition = (node) => Object.fromEntries(['x', 'y', 'slot', 'span', 'fold'].filter((key) => node?.[key] !== undefined).map((key) => [key, node[key]]))
+
 /** The preset a level takes from its reference `answer`: the cards `items` (an id, or { id, fixed } to fix its
  *  settings: true, or a list of keys), and the answer's wires between them and the nodes `own` (the board's own inputs
  *  and outputs). */
@@ -92,8 +96,8 @@ export function withPreset(graph, preset) {
   const had = new Map(graph.nodes.map((n) => [n.id, n]))
   const nodes = preset.nodes.map((n) => {
     const at = had.get(n.id)
-    const params = settingsOf(n, at)
-    return { ...n, ...(at && { x: at.x, y: at.y, slot: at.slot, span: at.span }), ...(params && { params }), locked: true }
+    const params = keepFixedSettings(n, at?.type === n.type ? at.params ?? n.params : n.params)
+    return { ...n, ...cardPosition(at), ...(params && { params }), locked: true }
   })
   const ids = new Set(nodes.map((n) => n.id))
   const wires = preset.wires.map((w) => ({ ...w, locked: true }))
@@ -119,34 +123,48 @@ const LOCKED = { zh: '这根线是关卡接好的，不能改。', en: 'This wir
 export const lockedRefusal = (graph, to, port) => (graph.wires.some((w) => w.locked && w.to === to && w.port === port) ? LOCKED : null)
 /** Whether a setting of a node is one the level fixed. */
 export const isFixed = (node, key) => node.fixed === true || (Array.isArray(node.fixed) && node.fixed.includes(key))
-// A locked part's settings: the board's, but for the fixed ones, which are the preset's.
-const settingsOf = (preset, at) => {
-  if (!at?.params) return preset.params
-  if (!preset.fixed) return at.params
-  if (preset.fixed === true) return preset.params
-  return { ...at.params, ...Object.fromEntries(preset.fixed.filter((k) => preset.params && k in preset.params).map((k) => [k, preset.params[k]])) }
+/** Copy proposed settings while preserving the preset's values, including unset fields. */
+export function keepFixedSettings(node, params) {
+  if (node.fixed === true) return node.params
+  if (!node.fixed?.length) return params
+  const next = { ...params }
+  for (const key of node.fixed) {
+    if (node.params && Object.prototype.hasOwnProperty.call(node.params, key)) next[key] = node.params[key]
+    else delete next[key]
+  }
+  return next
+}
+
+export const PRESET_PORT_REFUSAL = {
+  zh: '这个设置会断开关卡接好的线。',
+  en: 'This setting would disconnect a wire placed by the level.',
+}
+
+/** Whether both ends of a wire are still available on their cards. */
+export function wireHasPorts(parts, wire, nodeAt) {
+  const [id, key] = splitSource(wire.from)
+  const from = nodeAt(id)
+  const to = nodeAt(wire.to)
+  return Boolean(from && to && outputsOf(parts, from).some((port) => port.key === key) && parts.inputs(to).includes(wire.port))
 }
 
 /** Change one card's settings without stranding cards or disconnecting preset wires. */
 export function editNodeSettings(graph, parts, id, params) {
   const before = byId(graph, id)
   if (!before) return { graph }
-  const next = { ...before, params }
+  const next = { ...before, params: keepFixedSettings(before, params) }
+  if (sameJson(next.params, before.params)) return { graph }
   const nodes = graph.nodes.map((node) => node.id === id ? next : node)
   if (!regionsFit({ nodes }, parts)) {
     return { reason: { zh: '请先移出要关闭的区域里的元件。', en: 'Move the parts out of the regions you want to close first.' } }
   }
 
-  const inputs = new Set(parts.inputs(next))
-  const outputs = new Set(outputsOf(parts, next).map(({ key }) => key))
+  const nodeAt = (key) => key === id ? next : byId(graph, key)
   const wires = []
   for (const wire of graph.wires) {
-    const [from, key] = splitSource(wire.from)
-    if ((wire.to !== id || inputs.has(wire.port)) && (from !== id || outputs.has(key))) {
-      wires.push(wire)
-    } else if (wire.locked) {
-      return { reason: { zh: '这个设置会断开关卡接好的线。', en: 'This setting would disconnect a wire placed by the level.' } }
-    }
+    const affected = wire.to === id || srcNode(wire.from) === id
+    if (!affected || wireHasPorts(parts, wire, nodeAt)) wires.push(wire)
+    else if (wire.locked) return { reason: PRESET_PORT_REFUSAL }
   }
   return { graph: { ...graph, nodes, wires } }
 }

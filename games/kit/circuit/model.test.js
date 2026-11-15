@@ -86,7 +86,6 @@ test('a new card on the board goes left of the outputs, clear of what is there',
   assert(Math.abs(x - 370) >= 170)
 })
 
-
 test('changing a card shape preserves occupied regions and preset wires, and drops unused ports atomically', () => {
   const regions = (node) => node.type === 'frame' && node.params.extra ? [{ name: 'body', opens: true }] : []
   const parts = {
@@ -113,4 +112,9 @@ test('changing a card shape preserves occupied regions and preset wires, and dro
   assert.deepEqual(closed.wires, [empty.wires[0], empty.wires[2]])
   assert.deepEqual(empty.nodes.at(-1).params, { extra: true })
   assert.equal(empty.wires.length, 3)
+
+  const fixed = { ...empty, nodes: [...empty.nodes.slice(0, -1), { ...empty.nodes.at(-1), fixed: ['extra', 'unset'] }] }
+  assert.deepEqual(editNodeSettings(fixed, parts, 'f', { extra: false, unset: true }), { graph: fixed })
+  const saved = { ...fixed, nodes: [...fixed.nodes.slice(0, -1), { ...fixed.nodes.at(-1), type: 'other', params: { note: 9 } }] }
+  assert.deepEqual(keepLocked({ ...fixed, nodes: fixed.nodes.map(n => n.id === 'f' ? { ...n, locked: true } : n) }, saved).nodes.at(-1).params, { extra: true })
 })

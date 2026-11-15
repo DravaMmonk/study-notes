@@ -2,6 +2,7 @@ import './parts.css'
 import { L } from '../i18n.js'
 import { facesOf, holesOf, outletsOf, settingsOf } from '../../engine/pieces.js'
 import { numberText } from '../../engine/number.js'
+import { isFixed } from '../../circuit/model.js'
 import { evalSettings, failedCheck, partDesc, shows } from '../../engine/parts/define.js'
 import SettingField, { valueWords } from './SettingField.jsx'
 
@@ -50,7 +51,7 @@ export default function PartFace({ def, face, node, ctx, set, defined, phone = f
   const words = (s) => valueWords(s, params[s.key] ?? s.default ?? s.options?.[0]?.value)
   const setting = (s, k) => (
     <div key={s.key} className="pf-slot" {...mark(['settings', k])}>
-      <SettingField setting={s} value={params[s.key] ?? s.default} allowed={defined.allowed?.(def.type, s.key) ?? null} readOnly={readOnly} roomy={roomy} phone={phone} widgets={defined.widgets} language={defined.language} onChange={(v) => set({ [s.key]: v }, s.key)} />
+      <SettingField setting={s} value={params[s.key] ?? s.default} allowed={defined.allowed?.(def.type, s.key) ?? null} readOnly={readOnly || isFixed(node, s.key)} roomy={roomy} phone={phone} widgets={defined.widgets} language={defined.language} onChange={(v) => set({ [s.key]: v }, s.key)} />
     </div>
   )
   const block = (b, path, key) => {
@@ -79,8 +80,9 @@ export default function PartFace({ def, face, node, ctx, set, defined, phone = f
         return <span key={key} className="pf-readout" {...at}><span>{L(b.label)}</span><output>{fmt(v, b.digits)}{b.unit ? ` ${L(b.unit)}` : ''}</output></span>
       }
       case 'action': {
-        const next = Object.fromEntries(Object.entries(b.set).map(([k, text]) => [k, evalSettings(text, def, params, defined.ops)]))
-        const ready = !readOnly && Object.values(next).every((v) => v !== undefined && !(typeof v === 'number' && !Number.isFinite(v))) && (!b.when || Boolean(evalSettings(b.when, def, params, defined.ops)))
+        const writes = Object.entries(b.set).filter(([key]) => !isFixed(node, key))
+        const next = Object.fromEntries(writes.map(([k, text]) => [k, evalSettings(text, def, params, defined.ops)]))
+        const ready = !readOnly && writes.length > 0 && Object.values(next).every((v) => v !== undefined && !(typeof v === 'number' && !Number.isFinite(v))) && (!b.when || Boolean(evalSettings(b.when, def, params, defined.ops)))
         return <button key={key} type="button" className="pf-action" disabled={!ready} onPointerDown={(e) => e.stopPropagation()} onClick={() => set(next, null)} {...at}>{L(b.label)}</button>
       }
       case 'text':

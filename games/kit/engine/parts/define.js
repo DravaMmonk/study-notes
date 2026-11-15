@@ -130,15 +130,16 @@ export const activeRegions = (def, node, ops) => regionsOf(def).filter((region) 
  * A node's settings once the player set `changed` (null: an action set several): every rule on that setting (or on
  * any) whose `when` holds sets its settings, in order, each reading the settings as the rules before left them.
  */
-export function applyRules(def, params, changed, ops) {
+export function applyRules(def, params, changed, ops, fixed = () => false) {
   let now = { ...params }
   for (const rule of def.rules ?? []) {
     if (rule.on && rule.on !== changed) continue
     if (rule.when && !evalSettings(rule.when, def, now, ops)) continue
     const next = { ...now }
     for (const [key, text] of Object.entries(rule.set)) {
+      if (key === changed || fixed(key)) continue
       const v = evalSettings(text, def, now, ops)
-      if (v !== undefined && key !== changed) next[key] = v
+      if (v !== undefined) next[key] = v
     }
     now = next
   }
