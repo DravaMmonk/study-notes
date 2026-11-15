@@ -13,13 +13,13 @@ import { useOverlay } from './useOverlay.js'
 const GAP = 10
 const EDGE = 12
 
-export default function Popover({ anchor, title, onClose, children, className = '' }) {
+export default function Popover({ anchor, title, onClose, children, className = '', placement }) {
   const phone = useMedia(PHONE)
   if (phone) return <Sheet title={title} onClose={onClose}>{children}</Sheet>
-  return <Box className={className} anchor={anchor} label={title} onClose={onClose}>{children}</Box>
+  return <Box className={className} anchor={anchor} label={title} onClose={onClose} placement={placement}>{children}</Box>
 }
 
-function Box({ anchor, label, onClose, children, className }) {
+function Box({ anchor, label, onClose, children, className, placement }) {
   const box = useOverlay(onClose, { onOutside: onClose, anchor: () => anchor })
   const [at, setAt] = useState(null) // { left, top, below, arrow, room }
   // Under the button when it fits there, else over it; never past the window's edges. It follows the button as the
@@ -32,8 +32,8 @@ function Box({ anchor, label, onClose, children, className }) {
       const h = el.scrollHeight
       const under = window.innerHeight - a.bottom - GAP - EDGE
       const over = a.top - GAP - EDGE
-      const below = h <= under || under >= over
-      const room = Math.max(160, below ? under : over)
+      const below = placement === 'below' || h <= under || under >= over
+      const room = Math.max(placement === 'below' ? 0 : 160, below ? under : over)
       const shown = Math.min(h, room)
       const left = Math.min(Math.max(EDGE, a.left + a.width / 2 - w / 2), window.innerWidth - w - EDGE)
       setAt({ left, top: below ? a.bottom + GAP : a.top - GAP - shown, below, arrow: Math.min(Math.max(16, a.left + a.width / 2 - left), w - 16), room })
@@ -49,7 +49,7 @@ function Box({ anchor, label, onClose, children, className }) {
       window.removeEventListener('resize', place)
       window.removeEventListener('scroll', place, true)
     }
-  }, [anchor])
+  }, [anchor, placement])
   // Inside the level, so its colours and words carry over; fixed to the window, so no board's zoom or scroll moves it.
   return createPortal(
     <div

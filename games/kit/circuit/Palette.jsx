@@ -19,19 +19,19 @@ export default function Palette({ items, folded = [], onAdd, compact = false }) 
     const edge = (item.closest('.kit-board') ?? document.documentElement).getBoundingClientRect().right
     item.dataset.tip = item.getBoundingClientRect().right + 12 + tip.offsetWidth > edge ? 'left' : 'right'
   }
-  const piece = (item) => (
-    <button key={item.type} className={`palette-item ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-family={item.family} style={item.style} onClick={() => onAdd(item.type)} title={compact ? undefined : L(item.desc)} onPointerEnter={compact ? aim : undefined} onFocus={compact ? aim : undefined} aria-description={compact ? L(item.desc) : undefined}>
+  const piece = (item, tooltip = compact) => (
+    <button key={item.type} className={`palette-item ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-family={item.family} style={item.style} onClick={() => onAdd(item.type)} title={tooltip ? undefined : L(item.desc)} onPointerEnter={tooltip ? aim : undefined} onFocus={tooltip ? aim : undefined} aria-description={tooltip ? L(item.desc) : undefined}>
       <i className="family-chip"><Glyph icon={item.icon} size={14} /></i>
       <span className="palette-text">
         <span>{L(item.label)}{item.fresh && <em className="pb-new">{tr('新')}</em>}</span>
         {compact ? item.tag && <small>{L(item.tag)}</small> : <small>{L(item.desc)}</small>}
       </span>
       <Plus size={14} className="palette-add" />
-      {compact && item.desc && <span className="palette-tip" role="tooltip">{L(item.desc)}</span>}
+      {tooltip && item.desc && <span className="palette-tip" role="tooltip">{L(item.desc)}</span>}
     </button>
   )
   const entry = (item, hidden = false) => item.children
-    ? <TrayMenu key={item.menu} entry={item} className="palette-more" renderPiece={(child) => piece({ ...child, folded: hidden })} />
+    ? <TrayMenu key={item.menu} entry={item} className="palette-more" compact={compact} renderPiece={(child) => piece({ ...child, folded: hidden }, false)} />
     : piece({ ...item, folded: hidden })
   const count = trayItemCount(folded)
   if (!items.length && !folded.length) return <p className="panel-note">{tr('这一关不需要元件。')}</p>

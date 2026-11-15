@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import Glyph from './Glyph.jsx'
 import { L, tr } from '../shell/i18n.js'
@@ -9,6 +9,7 @@ import TrayMenu, { trayItemCount } from './TrayMenu.jsx'
 // 「更多」 chip at the end, as in the desktop Palette.
 export default function Tray({ items, folded = [], onPick }) {
   const [more, setMore] = useState(false)
+  const host = useRef(null)
   const piece = (item) => (
     <button key={item.type} type="button" className={`pb-part ${item.folded ? 'is-folded' : ''} ${item.packed ? 'is-packed' : ''}`} data-tray={item.type} data-family={item.family} onClick={() => onPick(item.type)} title={L(item.desc)}>
       {item.icon && <i className="family-chip"><Glyph icon={item.icon} size={13} /></i>}
@@ -17,20 +18,22 @@ export default function Tray({ items, folded = [], onPick }) {
     </button>
   )
   const entry = (item, hidden = false) => item.children
-    ? <TrayMenu key={item.menu} entry={item} className="pb-part" renderPiece={(child) => piece({ ...child, folded: hidden })} />
+    ? <TrayMenu key={item.menu} entry={item} className="pb-part" phoneHost={host} renderPiece={(child) => piece({ ...child, folded: hidden })} />
     : piece({ ...item, folded: hidden })
   const count = trayItemCount(folded)
   if (!items.length && !folded.length) return null
   return (
-    <section className="pb-tray" data-trash aria-label={tr('元件托盘：点击放入空格，或按住拖到指定格子')}>
-      {items.map((item) => entry(item))}
-      {more && folded.map((item) => entry(item, true))}
-      {folded.length > 0 && (
-        <button type="button" className={`pb-part pb-more ${more ? 'is-open' : ''}`} onClick={() => setMore(!more)} aria-expanded={more}>
-          <b>{more ? tr('收起', 'Show fewer') : tr(`更多 ${count}`, `${count} more`)}</b>
-          <ChevronRight size={14} />
-        </button>
-      )}
-    </section>
+    <div ref={host} className="pb-tray-wrap">
+      <section className="pb-tray" data-trash aria-label={tr('元件托盘：点击放入空格，或按住拖到指定格子')}>
+        {items.map((item) => entry(item))}
+        {more && folded.map((item) => entry(item, true))}
+        {folded.length > 0 && (
+          <button type="button" className={`pb-part pb-more ${more ? 'is-open' : ''}`} onClick={() => setMore(!more)} aria-expanded={more}>
+            <b>{more ? tr('收起', 'Show fewer') : tr(`更多 ${count}`, `${count} more`)}</b>
+            <ChevronRight size={14} />
+          </button>
+        )}
+      </section>
+    </div>
   )
 }
