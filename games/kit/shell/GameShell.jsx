@@ -187,6 +187,7 @@ export default function GameShell({ game, store, author = null }) {
   // Keep each passed board; out-of-order play can finish a level on any task.
   const solve = (score, work) => {
     const done = task.solve(score, work)
+    if (!done) return
     setFailure(null)
     if (done.solved.includes(level.id)) setWon(level.id)
     else setTaskWon({ index: taskAt, next: nextRequiredTask(game, done, level.id, taskAt) })
@@ -234,26 +235,29 @@ export default function GameShell({ game, store, author = null }) {
   }
 
   // The task's saved boards. Choosing one reopens the screen on its own board and last run.
-  const slots = level ? slotsOf(progress, key) : null
-  const { runAt, run, dropRun, clearRuns } = useLevelRuns(key, slots?.list[slots.at].no)
-  const slotted = (f) => (...args) => {
-    update((p) => f(p, key, ...args))
+  const slots = task?.slots
+  const { runAt, run, dropRun, clearRuns } = useLevelRuns(key, task?.slot)
+  const changeSlot = (change) => {
+    update(change)
     setWon(null)
     setFailure(null)
     setFails(0)
+  }
+  const atSlot = (no, change, ...args) => (p) => {
+    const index = slotsOf(p, key).list.findIndex((slot) => slot.no === no)
+    return index < 0 ? p : change(p, key, index, ...args)
   }
   const slotsCtl = slots && {
     ...slots,
     game: game.id,
     level: level.id,
-    open: slotted(openSlot),
-    add: slotted(addSlot),
-    rename: (k, name) => update((p) => renameSlot(p, key, k, name)),
+    open: (no) => changeSlot(atSlot(no, openSlot)),
+    add: (options) => changeSlot((p) => addSlot(p, key, { ...options, from: task.slot })),
+    rename: (no, name) => update(atSlot(no, renameSlot, name)),
     take: author?.level === level.id ? author.take : null,
-    // A slot dropped takes its runs with it: a slot added later may take its number.
-    drop: (k) => {
-      dropRun(slots.list[k].no)
-      slotted(dropSlot)(k)
+    drop: (no) => {
+      dropRun(no)
+      changeSlot(atSlot(no, dropSlot))
     },
   }
 

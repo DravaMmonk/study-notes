@@ -3,6 +3,8 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, saved, skipOptionalTask, taskOpen, taskPassed } from './progress.js'
 import { passedLevelIn, recordSolution } from './progress.js'
+import { playedTask } from './played-task.js'
+import { addSlot, dropSlot } from './slots.js'
 
 const storage = new Map()
 globalThis.window = { localStorage: { getItem: (k) => storage.get(k) ?? null, setItem: (k, v) => storage.set(k, v) } }
@@ -39,6 +41,29 @@ test('an open reader applies its next change to the latest saved progress', () =
   assert.deepEqual(both.passed, ['work'])
   assert.deepEqual(page.load(), both)
   assert.equal(embed.load(), both)
+})
+
+test('a mounted task saves and passes its own slot after another reader opens a new one', () => {
+  const id = 'shared-slot'
+  const page = createProgress({ id })
+  const other = createProgress({ id })
+  const level = { id: 'level', keeps: true, tasks: [{ key: 'work' }] }
+  const game = { byId: { level } }
+  const task = playedTask(game, page.load(), level, 0, { update: page.update })
+  other.update((p) => addSlot(p, 'work'))
+  other.update((p) => saved(p, level, 0, 'second draft'))
+
+  task.save('first draft')
+  const implicit = task.solve(null)
+  assert.equal(implicit.built.work, 'first draft')
+  const explicit = task.solve(null, 'judged work')
+  assert.equal(explicit.built.work, 'judged work')
+  assert.equal(explicit.slots.work.list[0].data, 'judged work')
+  assert.equal(explicit.data.work, 'second draft')
+
+  other.update((p) => dropSlot(p, 'work', 0))
+  assert.equal(task.solve(null, 'removed work'), null)
+  assert.equal(other.load().built.work, 'judged work')
 })
 
 test('a cross-game gate requires a recorded pass for the exact level', () => {

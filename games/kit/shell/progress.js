@@ -192,9 +192,8 @@ export function skipOptionalTask(progress, level, at) {
 
 /** The boards kept for the parts that run them, once `level` passes at `taskAt` (`keeps`, by default a level that
  *  unlocks something). */
-function kept(game, p, level, taskAt) {
+function kept(game, p, level, taskAt, board) {
   const key = taskKey(level, taskAt)
-  const board = p.data[key]
   if ((!((level.keeps ?? level.unlocks?.length)) && !isCarried(game, level, taskAt)) || !board) return p.built
   return { ...p.built, [key]: game.bindPassingBoard?.(key, board) ?? board }
 }
@@ -216,17 +215,21 @@ export function recordSolution(game, p, level, taskAt, work) {
     (game.workReferences?.(entry, p.built) ?? []).map(stamped))
 }
 
-/** Record the exact work judged on this pass and finish the level when its required tasks have passed. */
+/** Save the judged draft and record its pass. */
 export function passed(game, progress, level, taskAt, score = null, passingWork) {
   const p = passingWork === undefined ? progress : saved(progress, level, taskAt, passingWork)
-  const built = kept(game, p, level, taskAt)
+  return recordPass(game, p, level, taskAt, score, p.data[taskKey(level, taskAt)])
+}
+
+/** Record the exact work judged on this pass and finish the level when its required tasks have passed. */
+export function recordPass(game, p, level, taskAt, score, work) {
+  const key = taskKey(level, taskAt)
+  const built = kept(game, p, level, taskAt, work)
   const best = taskAt === level.tasks.length - 1 && score && game.better(score, p.best[level.id])
     ? { ...p.best, [level.id]: score } : p.best
-  const key = taskKey(level, taskAt)
-  const work = p.data[key]
   const solutions = work == null ? p.solutions : { ...p.solutions, [key]: recordSolution(game, p, level, taskAt, work) }
   const taskRewards = level.tasks[taskAt].optional ? level.tasks[taskAt].opens ?? [] : []
-  const now = { ...p, built, best, solutions, flags: [...new Set([...p.flags, ...taskRewards])], passed: [...new Set([...p.passed, taskKey(level, taskAt)])], skippedTasks: (p.skippedTasks ?? []).filter((key) => key !== taskKey(level, taskAt)) }
+  const now = { ...p, built, best, solutions, flags: [...new Set([...p.flags, ...taskRewards])], passed: [...new Set([...p.passed, key])], skippedTasks: (p.skippedTasks ?? []).filter((skipped) => skipped !== key) }
   const required = level.tasks.map((task, k) => task.optional ? null : k).filter((k) => k !== null)
   const allRequiredPassed = (required.length ? required : level.tasks.map((_, k) => k)).every((k) => taskPassed(game, now, level.id, k))
   const mayFinish = p.all && !level.tasks[taskAt].optional ? nextRequiredTask(game, now, level.id, taskAt) === -1 : allRequiredPassed

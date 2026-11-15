@@ -5,7 +5,6 @@ import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
 import { firstTask, flagsIn } from './progress.js'
 import { playedTask } from './played-task.js'
-import { slotsOf } from './slots.js'
 import { setRefs } from './refs.js'
 import { SettingsContext } from './useSetting.js'
 import { EmbedContext } from './embed.js'
@@ -30,8 +29,7 @@ export default function EmbedShell({ game, store, levelId }) {
   const level = game.byId[levelId] ?? null
   const [taskAt, setTaskAt] = useState(() => (level ? firstTask(game, progress, level.id) : 0))
   const task = level && playedTask(game, progress, level, taskAt, { go: setTaskAt, update: store.update })
-  const slots = task ? slotsOf(progress, task.key) : null
-  const { runAt, run } = useLevelRuns(task?.key, slots?.list[slots.at].no)
+  const { runAt, run } = useLevelRuns(task?.key, task?.slot)
   const phone = useMedia(PHONE)
   const theme = useStoredTheme()
 

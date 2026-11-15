@@ -12,7 +12,7 @@ test('a level starts with one slot, its own data', () => {
 test('a fresh slot starts the board over and keeps the old one waiting', () => {
   const p = addSlot(start, 'a')
   assert.equal(p.data.a, undefined)
-  assert.deepEqual(slotsOf(p, 'a'), { at: 1, list: [{ no: 1, name: '', data: { nodes: [1] } }, { no: 2, name: '' }] })
+  assert.deepEqual(slotsOf(p, 'a'), { at: 1, lastNo: 2, list: [{ no: 1, name: '', data: { nodes: [1] } }, { no: 2, name: '' }] })
   const back = openSlot({ ...p, data: { a: { nodes: [2] } } }, 'a', 0)
   assert.deepEqual(back.data.a, { nodes: [1] })
   assert.deepEqual(slotsOf(back, 'a').list[1].data, { nodes: [2] })
@@ -41,5 +41,14 @@ test('names, and dropping the slot played or another', () => {
   assert.equal(dropSlot(start, 'a', 0), start)
   // A new slot never takes a number in use, even after one is dropped.
   assert.equal(slotsOf(addSlot(other, 'a'), 'a').list.at(-1).no, 4)
+})
+
+test('a late duplicate uses the requested slot and a deleted identifier stays retired', () => {
+  const second = addSlot(start, 'a')
+  const third = addSlot(second, 'a', { copy: true, from: 1 })
+  assert.deepEqual(third.data.a, start.data.a)
+  const gone = dropSlot(third, 'a', 2)
+  assert.equal(addSlot(gone, 'a', { copy: true, from: 3 }), gone)
+  assert.deepEqual(slotsOf(addSlot(gone, 'a'), 'a').list.map(({ no }) => no), [1, 2, 4])
 })
 
