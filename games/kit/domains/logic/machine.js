@@ -689,12 +689,14 @@ export const runTactic = (level, type, state, keys = null) => level.parts(type).
 /** How a machine level runs and is judged, for the shared engine (../../engine/test-run.js). */
 export const MACHINE_TESTS = {
   runTest: (level, circuit, test, { traced = false } = {}) => {
-    const parts = level.parts
-    // Trace only the steps that reach the output. The displayed final board still includes the whole run.
     const trace = []
-    if (traced) runBoard(circuit, { parts, bind: inputsOf(test, level), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
-    const run = runBoard(circuit, { parts, bind: inputsOf(test, level), ctx: ctxOf(level, circuit) })
-    return { ...run, trace, outputs: { out: run.outputs.out } }
+    const run = runBoard(circuit, {
+      parts: level.parts,
+      bind: inputsOf(test, level),
+      ctx: ctxOf(level, circuit, { trace: traced ? trace : null }),
+      traceTargets: ['out'],
+    })
+    return { ...run, trace }
   },
   check: (level, test, outputs) => {
     const problem = judge(test.want ?? level.want, test, outputs.out, level)

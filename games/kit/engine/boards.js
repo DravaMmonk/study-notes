@@ -3,7 +3,7 @@
 // inputs) and as a packed part (a solved circuit used again as one part).
 import { splitSource } from './wire-source.js'
 import { paramsOf } from './forms.js'
-import { BROKEN, PartError, evaluate, evaluation, portsOf } from './circuit.js'
+import { BROKEN, PartError, evaluation, portsOf } from './circuit.js'
 
 export const nameOf = (node) => node.params?.name
 
@@ -22,11 +22,20 @@ export function outputsOf(circuit, parts, values) {
 
 /**
  * Evaluate a circuit with its sources bound. Returns { values, errors, outputs }, outputs by sink name.
+ * With `traceTargets`, trace only the work reaching those nodes, then complete the board in the same evaluation.
  * Every part's ctx carries `engine` ({ parts, prepare }) so a packed part can run its circuit, and `graph` the board.
  */
-export function runBoard(circuit, { parts, ctx = {}, bind = {}, prepare = null, targets = null }) {
+export function runBoard(circuit, { parts, ctx = {}, bind = {}, prepare = null, targets = null, traceTargets = null }) {
   const engine = { parts, prepare }
-  const { values, errors, ids } = evaluate(circuit, { parts, prepare, targets, ctx: { graph: circuit, ...ctx, bind, engine } })
+  const context = { graph: circuit, ...ctx, bind, engine }
+  let tracing = Boolean(ctx.trace && traceTargets)
+  if (tracing) context.trace = { push: (step) => { if (tracing) ctx.trace.push(step) } }
+  const { run } = evaluation(circuit, { parts, prepare, ctx: context })
+  if (tracing) {
+    run(traceTargets)
+    tracing = false
+  }
+  const { values, errors, ids } = run(targets)
   return { values, errors, outputs: outputsOf(circuit, parts, values), ...(ids ? { ids } : {}) }
 }
 

@@ -431,6 +431,30 @@ test('a machine backtracks once its level says so, and a search finds every answ
   assert.equal(runOutputTests(MACHINE_TESTS, onMachine(ask), either).pass, true)
 })
 
+test('a machine uses the same evaluation for its playback and the final board', () => {
+  const evaluated = []
+  const task = onMachine({
+    kind: 'machine', want: 'proved', tests: [{ goal: 'Rain', hyps: ['Rain'] }],
+    parts(type) {
+      const part = machineParts(type)
+      if (type !== 'assumption') return part
+      return {
+        ...part,
+        eval(ins, node, ctx, key) {
+          evaluated.push(node.id)
+          return part.eval(ins, node, ctx, key)
+        },
+      }
+    },
+  })
+  const board = machine({ spare: ['assumption'], end: ['assumption'] }, ['in>spare.in', 'in>end.in', 'end>out'])
+  const report = runMachine(task, board, { traced: true })
+  assert.equal(report.pass, true)
+  assert.deepEqual(evaluated, ['end', 'spare'])
+  assert.equal(report.runs[0].values.get('spare').kind, 'state')
+  assert.deepEqual(report.runs[0].trace.map(({ id }) => id), ['in', 'end'])
+})
+
 test('a proof machine must meet its card budget after its cases pass', () => {
   const task = { kind: 'machine', want: 'proved', tests: [{ goal: 'Rain', hyps: ['Rain'] }] }
   const board = machine({ a: ['assumption'] }, ['in>a.in', 'a>out'])
