@@ -1,3 +1,4 @@
+import { playOf } from '../engine/plays.js'
 import { Text } from './Layout.jsx'
 import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useEscape } from './Dialogs.jsx'
@@ -251,7 +252,7 @@ function LevelButton({ game, level, style, optional = false, solved, all, best, 
   const open = game.isOpen(level, solved, all)
   const won = solved.has(level.id)
   const state = won ? 'is-solved' : open ? 'is-open' : 'is-locked'
-  const kind = game.kinds[level.kind]
+  const kind = playOf(game.plays, level)
   const score = won && best(level.id) && game.bestLabel?.(best(level.id))
   const here = level.id === current
   return (

@@ -2,13 +2,12 @@
 // the course read becomes the shell's game description, every level played by the domain's screen (CircuitScreen.jsx)
 // and the parts box holding the game's primitives and the parts its levels build. The course read is `game.circuit`.
 //
-//   circuitGame(content, circuit, { kind: { id, icon, label }, screen, cards, Hero?, kinds?, IntroFigure? })
+//   circuitGame(content, circuit, { kind: { id, icon, label }, screen, cards, Hero?, plays?, IntroFigure? })
 //     screen       what the domain declares of its screen (its ui/screen.js; CircuitScreen.jsx circuitScreen): the
 //                  kit draws it, the domain writes no component
 //     cards        { type: { name, desc, icon, revisions? } } the domain's cards, as the parts box shows a primitive
 //     Hero         the map's illustration, when the game draws one
-//     kinds        { kind: { Screen, icon, label } } the screens of the tasks that are no board (the course read's
-//                  kinds); a level's kind is its last task's
+//     plays        { kind: { Screen, icon, label } } the additional task plays; a level takes its last task’s play
 //     IntroFigure  what draws an introduction page's figure (index.js)
 //   definedGame(content, circuit, { ops, …circuitGame's but cards })   the game of a domain whose games define their
 //     own parts: its screen says what a failed run gives as its reason and the room a card's picture takes, so the
@@ -24,7 +23,7 @@ import { iconOf } from './parts/icons.js'
 /** The fields of an object that hold something. */
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
 
-export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds = {}, IntroFigure }) {
+export function circuitGame(content, circuit, { kind, screen, cards, Hero, plays = {}, IntroFigure }) {
   const Screen = circuitScreen({ ...screen, cards })
   const { LEVELS, CHAPTERS, course } = circuit
   const primitives = [...introductions(course)].map(([type, at]) => {
@@ -33,7 +32,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
   })
   const built = [...new Map(LEVELS.filter((L) => L.builds).map((L) => [L.builds.type, { key: L.builds.type, name: L.builds.name, desc: L.builds.desc, icon: CircuitBoard }])).values()]
   const labels = levelLabels(content.eras, { notes: course.notes })
-  const kindOf = (T) => (kinds[T.kind] ? T.kind : kind.id)
+  const kindOf = (T) => (Object.hasOwn(plays, T.kind) ? T.kind : kind.id)
   const game = defineGame({
     id: content.id,
     title: content.title,
@@ -72,7 +71,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
     }),
     intro: (level) => level.intro,
     IntroFigure,
-    kinds: { [kind.id]: { Screen, icon: kind.icon, label: kind.label }, ...kinds },
+    plays: { [kind.id]: { Screen, icon: kind.icon, label: kind.label }, ...plays },
     parts: { all: [...primitives, ...built] },
     unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ label: b.name, icon: b.icon })),
   })

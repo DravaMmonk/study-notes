@@ -1,7 +1,7 @@
 // An image game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the image domain's level screens (circuits, benches, the probe), its
 // parts box and its intro figures.
-import { createElement } from 'react'
+import { createElement, lazy } from 'react'
 import '../../../../trace-viewer/src/index.css'
 import './image.css'
 import '../../shell/bench/bench.css'
@@ -9,13 +9,23 @@ import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore, levelLabels } from '../../course.js'
 import { imageCourse } from './course.js'
-import LevelScreen from './ui/LevelScreen.jsx'
+import { bindPlays } from '../../shell/plays.js'
+import { plays } from './plays.js'
+import { workshopScreen } from '../../shell/WorkshopPlay.jsx'
+import { ImageCircuit } from './ui/CircuitPlay.jsx'
+import ProbeLevel from './ui/ProbeLevel.jsx'
 import PartDemo from './ui/PartDemo.jsx'
 import Hero from './ui/Hero.jsx'
 import IntroFigure from './ui/IntroFigure.jsx'
 import { IMAGE_WIDGETS } from './ui/PartWidgets.jsx'
 import { familyOf, iconOf } from './ui/catalog.js'
 import { descriptionOf } from './words.js'
+
+const BenchLevel = lazy(() => import('./ui/benches/BenchLevel.jsx'))
+const workshop = workshopScreen({ parameters: BenchLevel, probe: ProbeLevel })
+const playScreens = bindPlays(plays, { circuit: ImageCircuit, workshop }, {
+  circuit: Workflow, bench: FlaskConical,
+})
 
 // Unlock flags → the part (or option) they give in a course's part table, for the passed dialog and the parts box.
 const partOfFlag = (types) => {
@@ -74,11 +84,7 @@ export default function imageGame(content) {
     levels: LEVELS,
     intro: (level) => image.intros[level.id],
     IntroFigure,
-    kinds: {
-      graph: { Screen: LevelScreen, icon: Workflow, label: { zh: '搭电路', en: 'Build a circuit' } },
-      board: { Screen: LevelScreen, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
-      probe: { Screen: LevelScreen, icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
-    },
+    plays: playScreens,
     unlocked: (level) => shownUnlocks(level).map(unlockOf),
     core: (level) => isCore(course, level),
     levelLabel: (level) => labels.get(level.id) ?? level.id,

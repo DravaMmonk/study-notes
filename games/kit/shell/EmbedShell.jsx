@@ -1,3 +1,4 @@
+import { playOf } from '../engine/plays.js'
 import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Maximize2 } from 'lucide-react'
 import { L, tr } from './i18n.js'
@@ -65,7 +66,7 @@ export default function EmbedShell({ game, store, levelId }) {
     else next[runAt] = mark
     return next
   })
-  const kind = game.kinds[played.kind]
+  const play = playOf(game.plays, played)
   const page = new URL(window.location.href)
   page.search = new URLSearchParams({ level: level.id }).toString()
 
@@ -74,24 +75,22 @@ export default function EmbedShell({ game, store, levelId }) {
       <EmbedContext.Provider value>
         <div ref={root} className="game is-embed" data-game={game.id}>
           <a className="embed-open" href={page.href} target="_blank" rel="noopener" title={tr('在游戏里打开')} aria-label={tr('在游戏里打开')}><Maximize2 size={14} /></a>
-          {kind
-            ? createElement(kind.Screen, {
-              key: `${level.id}#${runAt}#${game.stamp ?? ''}`,
-              game,
-              level: played,
-              saved: kept,
-              save: (data) => setProgress((p) => savedAt(p, level, taskAt, data)),
-              solved: progress.solved.includes(level.id) || isPassed(taskAt),
-              solve: (score) => setProgress((p) => passed(game, p, level, taskAt, score)),
-              fail: () => {},
-              lastRun: runs[runAt],
-              keepRun,
-              flags,
-              progress,
-              theme,
-              phone,
-            })
-            : <div className="board-loading">{tr('这类关卡尚在制作中。')}</div>}
+          {createElement(play.Screen, {
+            key: `${level.id}#${runAt}#${game.stamp ?? ''}`, play,
+            game,
+            level: played,
+            saved: kept,
+            save: (data) => setProgress((p) => savedAt(p, level, taskAt, data)),
+            solved: progress.solved.includes(level.id) || isPassed(taskAt),
+            solve: (score) => setProgress((p) => passed(game, p, level, taskAt, score)),
+            fail: () => {},
+            lastRun: runs[runAt],
+            keepRun,
+            flags,
+            progress,
+            theme,
+            phone,
+          })}
         </div>
       </EmbedContext.Provider>
     </SettingsContext.Provider>

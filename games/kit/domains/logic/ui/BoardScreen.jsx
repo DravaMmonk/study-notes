@@ -16,6 +16,8 @@ import { machineSteps, machineViewAt } from './stepping.js'
 import { openRef } from '../../../shell/refs.js'
 import { X } from 'lucide-react'
 import { MACHINE_PARTS } from '../machine.js'
+import { circuitTestsOf } from '../playJudges.js'
+import { MACHINE, PROOF } from './boards.jsx'
 
 // A level of the logic domain played on the kit's circuit level (../../../shell/CircuitLevel.jsx, 《证明完毕》): a
 // proof, whose wires carry proved judgments, or a machine, whose wires carry formulas and clause sets (boards.jsx says
@@ -30,12 +32,13 @@ import { MACHINE_PARTS } from '../machine.js'
 // far, with the card computing lit. Either way the board's last run is kept: the level, or a task of it, opens on it.
 
 
-/** The screen for one board (boards.jsx), as a level kind's Screen. */
-export const boardScreen = (board) => function LogicBoard(props) { return <BoardScreen board={board} screen={props} /> }
+const BOARDS = { machine: MACHINE, proof: PROOF }
 
-function BoardScreen({ board, screen }) {
-  const { game, level: entry, flags, progress, phone } = screen
+export default function BoardScreen(screen) {
+  const { game, level: entry, flags, progress, phone, play } = screen
   const level = entry.source
+  const board = BOARDS[play.judge]
+  const suite = circuitTestsOf(level)
   // The parts the player built run the boards that last passed their levels.
   game.logic.syncOwn(progress.built)
   const parts = useMemo(() => board.parts(level), [board, level])
@@ -54,7 +57,7 @@ function BoardScreen({ board, screen }) {
   const { shown: palette, folded } = useMemo(() => game.logic.offerIn(level, flags), [game, level, flags])
 
   // Step by step, on a board that can trace its run: each test traced once per board.
-  const stepped = Boolean(board.tests.trace)
+  const stepped = play.run === 'trace'
   // A card's name on its own board: the level's, or the board a built part runs (drawn with its level's parts).
   const partsOf = useMemo(() => {
     const made = new Map([[level, parts]])
@@ -65,7 +68,7 @@ function BoardScreen({ board, screen }) {
   const traces = useMemo(() => new Map(), [board, level, lb.version])
   const tracedOf = (k) => {
     if (!traces.has(k)) {
-      const traced = board.tests.trace(level, circuit, tests[k])
+      const traced = suite.trace(level, circuit, tests[k])
       traces.set(k, { ...traced, steps: machineSteps(traced, circuit, level, { name, partName: (type) => board.nameOf(level, type), opens, isRulePart: (type) => !MACHINE_PARTS[type], failing: (tests[k].want ?? level.want) === 'fails' || tests[k].becomes?.length === 0 }) })
     }
     return traces.get(k)
@@ -73,15 +76,15 @@ function BoardScreen({ board, screen }) {
   const run = useLevelRun(screen, lb, {
     tests,
     ...(stepped
-      ? { steps: { of: (k) => tracedOf(k).steps, check: (k) => board.tests.check(level, tests[k], tracedOf(k).run.outputs)[0].reason } }
+      ? { steps: { of: (k) => tracedOf(k).steps, check: (k) => suite.check(level, tests[k], tracedOf(k).run.outputs)[0].reason } }
       : { judge: () => {
-        const r = runOutputTests(board.tests, level, circuit)
+        const r = runOutputTests(suite, level, circuit)
         return { pass: r.pass, score: r.score, results: r.results.map((x) => ({ pass: x.pass, reason: x.checks[0].reason })) }
       } }),
-    score: () => board.tests.score(level, circuit),
+    score: () => suite.score(level, circuit),
   })
   const test = tests[run.at]
-  const live = useMemo(() => board.tests.runTest(level, circuit, test), [board, level, circuit, test])
+  const live = useMemo(() => suite.runTest(level, circuit, test), [suite, level, circuit, test])
   const onThis = run.run && run.run.test === run.at
   const view = onThis ? machineViewAt(tracedOf(run.at), tracedOf(run.at).steps, run.run.step) : live
   const stepNow = onThis && run.run.step >= 0 ? tracedOf(run.at).steps[run.run.step] ?? null : null
@@ -183,7 +186,7 @@ function BoardScreen({ board, screen }) {
             {level.script && <ScriptView rows={level.script} text={(t) => text(parse(t, { consts: [...(level.consts ?? []), ...(level.things ?? [])] }))} />}
             <section className="lg-score">
               <Readouts items={[
-                { value: board.tests.score(level, circuit).steps, label: board.words.steps },
+                { value: suite.score(level, circuit).steps, label: board.words.steps },
                 level.budget !== undefined && { value: level.budget, label: T('最多') },
                 best && { value: best.steps, label: T('最少') },
               ]} />

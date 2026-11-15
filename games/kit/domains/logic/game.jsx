@@ -3,17 +3,20 @@
 // a machine board …), its parts box of proved lemmas and built parts, and its map art.
 import { Braces, CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
 import './logic.css'
+import { bindPlays } from '../../shell/plays.js'
+import { plays, playIdOf } from './plays.js'
 import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
 import { tr } from '../../shell/i18n.js'
 import GatesScreen, { GateInside } from './ui/GatesScreen.jsx'
-import Declare from './templates/declare.jsx'
-import Audit from './templates/audit.jsx'
+import RowsPlay from '../../shell/RowsPlay.jsx'
+import { casesScreen } from '../../shell/CasesPlay.jsx'
+import { rowJudgeOf } from './playJudges.js'
+import { rows } from './ui/rows.jsx'
+import { declarationAudit } from './ui/declarationAudit.jsx'
 import DeclaredRules from './ui/DeclaredRules.jsx'
-import Define from './templates/define.jsx'
 import Hero from './ui/Hero.jsx'
-import { boardScreen } from './ui/BoardScreen.jsx'
-import { MACHINE, PROOF } from './ui/boards.jsx'
+import BoardScreen from './ui/BoardScreen.jsx'
 import TruthScreen from './ui/TruthScreen.jsx'
 import { ModelScreen } from './ui/WorldScreens.jsx'
 import FormulaScreen from './ui/FormulaScreen.jsx'
@@ -33,13 +36,23 @@ const isoOf = (level) => level.tasks.find((t) => t.kind === 'iso') ?? null
 // board.
 const givesRules = (level) => !level.source.tasks.some((t) => t.kind === 'proof')
 
+function LogicRows(props) {
+  return <RowsPlay {...props} adapter={rows[props.play.editor]} judge={rowJudgeOf} />
+}
+
+const playScreens = bindPlays(plays, {
+  circuit: BoardScreen, truthTable: TruthScreen, truthCircuit: GatesScreen,
+  rows: LogicRows, boardCases: casesScreen(declarationAudit), formula: FormulaScreen, world: ModelScreen,
+  term: TermScreen, script: ScriptScreen,
+}, {
+  proof: Workflow, machine: Cog, truth: Grid2x2Check, gates: Cpu, rules: FileSignature, function: SquareFunction,
+  translate: Languages, query: Search, term: Braces, script: ScrollText,
+})
+
 /**
  * content (../../engine/content.js; vocabulary.js GAME): { id, title, kicker, lede, …the course (course.js), levels,
  * glossary }.
  */
-// A rule board is played one of two ways, each its own template: a declaration to write, or someone's to find the fault in.
-const Iso = (props) => (props.level.source.play === 'audit' ? <Audit {...props} /> : <Declare {...props} />)
-
 export default function logicGame(content) {
   const logic = logicCourse(content)
   const { LEVELS, CHAPTERS, LABELS } = logic
@@ -74,6 +87,7 @@ export default function logicGame(content) {
     requires: L.requires,
     title: L.title,
     kind: L.kind,
+    playId: playIdOf(L),
     unlocks: L.unlocks,
     // A level whose boards a part runs: one that builds it, and one that proves a lemma's shape (course.js lemmaReferences).
     keeps: L.unlocks.length > 0 || logic.provers.has(L.id),
@@ -81,7 +95,7 @@ export default function logicGame(content) {
     after: L.after,
     // A level is its tasks (../../engine/tasks.js): the shell plays each as the level with the task's fields over it,
     // its screen reading the task as the course read it (`source`).
-    tasks: L.tasks.map((t) => ({ key: t.taskId, kind: t.kind, step: t.step, source: t, brief: t.brief, after: t.after, carries: t.carries, intro: t.intro })),
+    tasks: L.tasks.map((t) => ({ key: t.taskId, kind: t.kind, playId: playIdOf(t), step: t.step, source: t, brief: t.brief, after: t.after, carries: t.carries, intro: t.intro })),
   }))
   const game = defineGame({
     id: content.id,
@@ -94,19 +108,7 @@ export default function logicGame(content) {
     levels,
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.source.intro,
-    kinds: {
-      proof: { Screen: boardScreen(PROOF), icon: Workflow, label: { zh: '证明', en: 'Proof' } },
-      machine: { Screen: boardScreen(MACHINE), icon: Cog, label: { zh: '证明助手', en: 'Proof assistant' } },
-      truth: { Screen: TruthScreen, icon: Grid2x2Check, label: { zh: '真值表', en: 'Truth table' } },
-      gates: { Screen: GatesScreen, icon: Cpu, label: { zh: '真值电路', en: 'Truth circuit' } },
-      iso: { Screen: Iso, icon: FileSignature, label: { zh: '规则板', en: 'Rule board' } },
-      define: { Screen: Define, icon: SquareFunction, label: { zh: '定义', en: 'Definition' } },
-      translate: { Screen: FormulaScreen, icon: Languages, label: { zh: '翻译', en: 'Translate' } },
-      query: { Screen: FormulaScreen, icon: Search, label: { zh: '查询', en: 'Query' } },
-      model: { Screen: ModelScreen, icon: FileSignature, label: { zh: '造世界', en: 'Build a world' } },
-      term: { Screen: TermScreen, icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
-      script: { Screen: ScriptScreen, icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
-    },
+    plays: playScreens,
     // What passing a level gives: the parts it builds, and the proof-board parts a declaration or a generator gives (its
     // rules, from here on).
     unlocked: (level) => [

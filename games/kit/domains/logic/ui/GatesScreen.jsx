@@ -9,7 +9,8 @@ import { MISSING } from '../../../engine/circuit.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { openRef } from '../../../shell/refs.js'
-import { PRIMITIVE_GATES, checkGates, countGates, gatesOf, rowsFor, runRow, startGates } from '../gates.js'
+import { PRIMITIVE_GATES, countGates, gatesOf, rowsFor, runRow, startGates } from '../gates.js'
+import { checkCircuitOf } from '../playJudges.js'
 import { gateShape } from '../blueprint.js'
 
 // A truth-circuit level (《证明完毕》, gates.js) on the kit's circuit level (../../../shell/CircuitLevel.jsx): a card for
@@ -76,7 +77,7 @@ export default function GatesScreen(screen) {
   const { circuit } = board
   const { letters, rows } = useMemo(() => rowsFor(level), [level])
   // A run down the table: every row checked at once, shown one at a time; over budget fails it once every row is right.
-  const checked = useMemo(() => checkGates(level, circuit), [level, board.version])
+  const checked = useMemo(() => checkCircuitOf(level, circuit), [level, board.version])
   const run = useLevelRun(screen, board, {
     tests: rows.map((_, k) => ({ label: String(k + 1) })),
     steps: {

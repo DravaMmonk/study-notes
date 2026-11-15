@@ -14,8 +14,7 @@ import { fn, occurrences, parse, replaceAtoms, replaceTerm, show, tvar } from '.
 import { choicesOf } from '../choices.js'
 import { chipsFrom } from '../formulaTree.js'
 import { vocabulary } from '../fol.js'
-import { LOGIC_TESTS } from '../proof.js'
-import { MACHINE_PARTS, MACHINE_TESTS, RULE_PART, MATH, choicesOfPart, inputsOf, inputsOfLevel, parseGoal, rulePartsOf, startMachine } from '../machine.js'
+import { MACHINE_PARTS, RULE_PART, MATH, choicesOfPart, inputsOf, inputsOfLevel, parseGoal, rulePartsOf, startMachine } from '../machine.js'
 import { machineShape } from '../blueprint.js'
 import { parseS, ruleText } from '../schematic.js'
 import { rewriteText } from '../rewrite.js'
@@ -78,7 +77,6 @@ function sentenceBuild(level, test, offer, text) {
 }
 
 export const PROOF = {
-  tests: LOGIC_TESTS,
   parts: (level) => partsFor(level.lemmas, Object.keys(level.schema.premises ?? {})),
   ...withLevel(startProof),
   fits: (saved, level, parts) => names(saved) === premiseNames(level) && fitsBoard(saved, parts),
@@ -313,7 +311,6 @@ function machinePartsFor(level) {
 const inputNames = (circuit) => circuit.nodes.filter((n) => n.type === 'in').map((n) => n.params.name).sort().join()
 
 export const MACHINE = {
-  tests: MACHINE_TESTS,
   // Inputs and results hold equations, goals or clauses: shown in full, in a box sized as a step's result in the run.
   ioBox: true,
   parts: (level) => machinePartsFor(level),

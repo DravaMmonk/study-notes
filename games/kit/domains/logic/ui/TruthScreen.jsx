@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
+import { useCheckedWork } from '../../../shell/CheckOnce.jsx'
+import { PlayLayout } from '../../../shell/PlayLayout.jsx'
 import { L, tr } from '../../../shell/i18n.js'
-import { WORDS } from '../../../shell/words.js'
 import { atom, parse } from '../formula.js'
 import { say } from '../notation.js'
 import { lettersOf, rowsOf, tautology, valueOn } from '../truth.js'
@@ -13,7 +13,7 @@ import { lettersOf, rowsOf, tautology, valueOn } from '../truth.js'
 //   sat      find a row that makes the formula true, the same way
 const TF = (v) => (v ? tr('真', 'T') : tr('假', 'F'))
 
-export default function TruthScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
+export default function TruthScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone, play }) {
   const level = entry.source
   const formulas = level.formulas.map((t) => parse(t))
   const text = (f) => L(say(f, level.notation))
@@ -30,7 +30,7 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, la
     if (level.ask === 'valid') formulas.forEach((f, k) => state.marks[k] !== tautology(f) && wrong.add(k))
     return { pass: wrong.size === 0, wrong }
   }
-  const [checked, setChecked] = useKeptVerdict({ lastRun, keepRun }, judge) // { pass, wrong: Set } after a check
+  const { verdict: checked, setVerdict: setChecked, dock } = useCheckedWork({ judge, onPass: () => solve(null), lastRun, keepRun }) // { pass, wrong: Set } after a check
   const update = (patch) => {
     const next = { ...state, ...patch }
     setState(next)
@@ -45,11 +45,6 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, la
     }
   }
 
-  const check = () => {
-    const v = judge()
-    setChecked(v)
-    if (v.pass) solve(null)
-  }
 
   const table = (fi, { fill = false } = {}) => {
     const f = formulas[fi]
@@ -104,8 +99,6 @@ export default function TruthScreen({ game, level: entry, saved, save, solve, la
   // Trying rows needs no check: each row tried shows its value, and the one asked for passes the level.
   const tried = level.ask === 'counter' || level.ask === 'sat'
   const results = checked ? <p className={`lg-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`} role="status">{checked.pass ? (level.ask === 'counter' ? tr('已找到反例：命题在这一行为假。') : level.ask === 'sat' ? tr('已找到满足赋值：命题在这一行为真。') : tr('全部正确。')) : tr(`还有 ${checked.wrong.size} 处错误，已用红色标出。`, `${checked.wrong.size} still wrong, marked in red.`)}</p> : null
-  const dock = !tried && <RunDock go={{ label: checked?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(checked?.pass), onClick: check }} />
-  const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  return <Level phone={phone} className="lg-truth-level" brief={brief} stage={tried ? <>{stage}{results}</> : stage} results={tried ? undefined : results} dock={dock} />
+  return <PlayLayout level={entry} task={level} {...{ game, phone, play }} stage={tried ? <>{stage}{results}</> : stage} results={tried ? undefined : results} dock={!tried && dock} />
 }
 

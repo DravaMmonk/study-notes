@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
+import { useCheckedWork } from '../../../shell/CheckOnce.jsx'
+import { PlayLayout } from '../../../shell/PlayLayout.jsx'
 import { L, T, tr } from '../../../shell/i18n.js'
-import { WORDS } from '../../../shell/words.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
 import { parseTerm } from '../pterm.js'
@@ -20,7 +20,7 @@ import TermEditor from './TermEditor.jsx'
 //            are one when these work them out alike) }
 
 
-export default function TermScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
+export default function TermScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone, play }) {
   const level = entry.source
   const consts = level.consts ?? []
   const text = (f) => L(say(parse(f, { consts }), level.notation))
@@ -31,16 +31,11 @@ export default function TermScreen({ game, level: entry, saved, save, solve, las
     const reason = termTaskOf(level).check(tree)
     return { pass: !reason, reason }
   }
-  const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, judge)
+  const { verdict, setVerdict, dock } = useCheckedWork({ judge, onPass: () => solve(null), lastRun, keepRun })
   const change = (next) => {
     setTree(next)
     save({ tree: next })
     setVerdict(null)
-  }
-  const check = () => {
-    const v = judge()
-    setVerdict(v)
-    if (v.pass) solve(null)
   }
   const premises = Object.entries(level.premises ?? {})
   const stage = (
@@ -53,7 +48,5 @@ export default function TermScreen({ game, level: entry, saved, save, solve, las
     </div>
   )
   const results = verdict ? <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('类型相符：这个证明项证明的正是这句话。') : L(verdict.reason)}</p> : null
-  const dock = <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />
-  const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  return <Level phone={phone} className="fo-level tm-level" brief={brief} stage={stage} results={results} dock={dock} />
+  return <PlayLayout level={entry} task={level} {...{ game, phone, play, stage, results, dock }} />
 }

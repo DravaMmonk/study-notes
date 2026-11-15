@@ -9,25 +9,24 @@ import { parseS } from './schematic.js'
 import { countermodel } from './models.js'
 import { counters, extent, structureOf } from './fol.js'
 import { premiseChips } from './ruleLines.js'
-import { LOGIC_TESTS, RULES, lemmaGives, rulesOf, startProof } from './proof.js'
+import { RULES, lemmaGives, rulesOf, startProof } from './proof.js'
 import { paramsOf } from '../../engine/forms.js'
 import { checkScript, methodsOf, sentencesOf } from './script.js'
 import { lettersOf, tautology } from './truth.js'
-import { MACHINE_PARTS, MACHINE_TESTS, inputsOfLevel, rulePartsOf } from './machine.js'
+import { MACHINE_PARTS, inputsOfLevel, rulePartsOf } from './machine.js'
 import { SETTING_KINDS, choiceKey, choicesOf } from './choices.js'
 import { chipsFrom, chipsOf, missingChips } from './formulaTree.js'
 import { freeIn, parseTerm } from './pterm.js'
 import { termTaskOf } from './termTask.js'
 import { missingForms } from './termTree.js'
-import { checkGates, rowsFor, startGates } from './gates.js'
-import { checkIso, judgeCases, sentenceOf, waysIn } from './iso.js'
-import { checkDefine } from './define.js'
-import { say } from './notation.js'
+import { rowsFor, startGates } from './gates.js'
+import { sentenceOf, waysIn } from './iso.js'
+import { checkCasesOf, checkCircuitOf, circuitTestsOf, referenceJudgeOf } from './playJudges.js'
 import { presetIds } from './course.js'
 
 const compare = (inspect, level) => checkWorks(inspect, { reference: level.solution, naive: level.naive })
 const gateReport = (level, work) => {
-  const run = checkGates(level, work)
+  const run = checkCircuitOf(level, work)
   return { ...run, fail: run.pass ? null : { why: 'gate checks failed' } }
 }
 const reportNaive = (out, { id: level }, naive) => {
@@ -99,14 +98,13 @@ export function validate({ levels: given, course, logic }) {
     }
   }
   for (const level of levels.filter((l) => l.kind === 'define')) {
-    const { reference: { fail }, naive } = judgeWorks(checkDefine(level), { reference: level.solution, naive: level.naive })
+    const { reference: { fail }, naive } = judgeWorks(referenceJudgeOf(level), { reference: level.solution, naive: level.naive })
     out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: definition of ${level.fn} ${fail ? `FAIL on row ${(fail.check ?? level.tests.length) + 1}` : 'PASS'}` })
     if (naive?.ok === false) out.push({ level: level.id, fail: true, text: `  naive definition of ${level.fn} PASSES (bad)` })
     level.rows.forEach((row, k) => { if (!row.choices.includes(level.solution[k])) out.push({ level: level.id, fail: true, text: `${level.id}: row ${k + 1}'s answer is not among its choices` }) })
   }
   for (const level of levels.filter((l) => l.kind === 'iso')) {
-    const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
-    const judge = checkIso(level, words)
+    const judge = referenceJudgeOf(level)
     const { reference: { fail }, naive } = judgeWorks(judge, { reference: level.solution, naive: level.play === 'audit' ? null : level.naive })
     out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: declaration ${fail ? `FAIL ${keyOf(failureText(fail))}` : 'PASS'} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
     // A declaration to write: its reference can be filled in on the rule table (one layer of ⟹, each premise built
@@ -121,10 +119,10 @@ export function validate({ levels: given, course, logic }) {
     }
     // Checking by the diagram: the reference cases catch every board, the naive ones do not; each board fails.
     if (level.play === 'audit') {
-      const cases = judgeCases(level, level.answer, words)
+      const cases = checkCasesOf(level, level.answer)
       const loose = level.boards.findIndex((_, k) => cases.judge(k))
       out.push({ level: level.id, fail: loose >= 0, text: `  cases ${loose < 0 ? 'PASS' : `FAIL on board ${loose + 1}: ${keyOf(cases.judge(loose))}`} [${level.answer.length} cases]` })
-      if (level.naive && level.boards.every((_, k) => !judgeCases(level, level.naive, words).judge(k))) out.push({ level: level.id, fail: true, text: '  naive cases PASS (bad)' })
+      if (level.naive && level.boards.every((_, k) => !checkCasesOf(level, level.naive).judge(k))) out.push({ level: level.id, fail: true, text: '  naive cases PASS (bad)' })
       // The reference cases fill the cases set out, and keep the goal and expectation the level fixes.
       const set = level.slots.length ?? level.slots
       if (level.answer.length !== set) out.push({ level: level.id, fail: true, text: `  the reference answer has ${level.answer.length} cases for ${set} set out` })
@@ -142,7 +140,7 @@ export function validate({ levels: given, course, logic }) {
     const holds = new Set([...reach(course, { id: level.id, task: level.task }), ...rulePartsOf(level).keys(), 'in', 'out'])
     const missing = [...new Set(level.solution.nodes.filter((n) => !presetIds(level).includes(n.id)).map((n) => n.type).filter((t) => !holds.has(t) && !(level.task > 0 && t === builder.get(level.id))))]
     if (missing.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
-    const { reference: good, naive } = compare((work) => runOutputTests(MACHINE_TESTS, level, work), level)
+    const { reference: good, naive } = compare((work) => runOutputTests(circuitTestsOf(level), level, work), level)
     out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: machine ${good.pass ? 'PASS' : `FAIL ${good.results.filter((r) => !r.pass).map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} cards]` })
     reportNaive(out, level, naive)
     if (level.budget !== undefined && good.score.steps > level.budget) out.push({ level: level.id, fail: true, text: `${level.id}: the solution breaks its budget` })
@@ -191,7 +189,7 @@ export function validate({ levels: given, course, logic }) {
   for (const level of levels.filter((l) => l.builds && MACHINE_PARTS[l.builds] && l.kind === 'machine')) {
     const names = inputsOfLevel(level).map((i) => i.name)
     const alone = { nodes: [...names.map((name) => ({ id: name, type: 'in', params: { name } })), { id: 'x', type: level.builds, params: {} }, { id: 'out', type: 'out', params: { name: 'out' } }], wires: [...names.map((name) => ({ from: name, to: 'x', port: name })), { from: 'x', to: 'out', port: 'in' }] }
-    const { built: run } = checkWorks((work) => runOutputTests(MACHINE_TESTS, level, work), { built: alone })
+    const { built: run } = checkWorks((work) => runOutputTests(circuitTestsOf(level), level, work), { built: alone })
     if (!run.ok) out.push({ level: level.id, fail: true, text: `${level.id}: the part ${level.builds}, alone, does not pass the level that builds it` })
   }
   // A lemma runs the proof of each of its shapes (course.js lemmaProofs): its card alone, in that shape, fed the
@@ -203,7 +201,7 @@ export function validate({ levels: given, course, logic }) {
       const card = { id: 'x', type, params: { ...form, ...Object.fromEntries(paramsOf(part, { params: form }).map((m) => [m, m])) } }
       const names = Object.keys(level.schema.premises ?? {})
       const alone = { nodes: [...startProof(level).nodes, card], wires: [...names.map((name, k) => ({ from: name, to: 'x', port: `p${k}` })), { from: 'x', to: 'goal', port: 'in' }] }
-      const { built: run } = checkWorks((work) => runOutputTests(LOGIC_TESTS, level, work), { built: alone })
+      const { built: run } = checkWorks((work) => runOutputTests(circuitTestsOf(level), level, work), { built: alone })
       const failed = run.results[run.fail?.check]
       if (failed) out.push({ level: level.id, fail: true, text: `${level.id}: the lemma ${type}${key ? ` (${key})` : ''}, alone, does not give its statement: ${keyOf(failed.errors.get('x') ?? failed.checks[0].reason)}` })
     }
@@ -258,7 +256,7 @@ export function validate({ levels: given, course, logic }) {
     }
     const banned = level.solution.nodes.filter((n) => level.without?.includes(n.type)).map((n) => n.type)
     if (banned.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${banned.join(', ')}, which the level holds back` })
-    const { reference: good, naive } = compare((work) => runOutputTests(LOGIC_TESTS, level, work), level)
+    const { reference: good, naive } = compare((work) => runOutputTests(circuitTestsOf(level), level, work), level)
     out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: solution ${good.pass ? 'PASS' : `FAIL ${good.results.map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} steps]` })
     reportNaive(out, level, naive)
   }

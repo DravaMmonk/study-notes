@@ -4,20 +4,21 @@ import { useMemo, useState } from 'react'
 import { evalGraph } from '../../model/algo.js'
 import { E, W } from '../../model/scene.js'
 import { tr, lazy } from '../../lang.js'
-import HandLevel from '../HandLevel.jsx'
+import BoardPlay from '../../../../shell/BoardPlay.jsx'
 import Scene from '../Scene.jsx'
-import { CheckIcon, buzz, typing, useKeys, useToast, useVerdict } from '../play.jsx'
+import { CheckIcon } from '../../../../shell/BoardControls.jsx'
+import { buzz, typing, useKeys, useToast, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 import { L as text } from '../../../../shell/i18n.js'
 import { WORDS } from '../../../../shell/words.js'
 
-export default function Fill({ game, level, phone, saved, save, solve, fail }) {
+export default function Fill({ game, level, play, phone, saved, save, solve, fail }) {
   const L = level.source
   const [vals, setVals] = useState(() => saved?.vals ?? {})
   const [sel, setSel] = useState(null)
   const [input, setInput] = useState('')
   const [marks, setMarks] = useState({})
   const [toast, toastEl] = useToast()
-  const verdict = useVerdict({ level, solve, fail })
+  const verdict = useVerdict({ hints: L.hints, solve, fail })
   const { by, truth } = useMemo(() => ({
     by: Object.fromEntries(L.cells.map((c) => [c.id, c])),
     truth: evalGraph(L.cells.map((c) => (c.id === L.start ? { ...c, fixed: 1 } : c)), L.edges),
@@ -92,7 +93,10 @@ export default function Fill({ game, level, phone, saved, save, solve, fail }) {
   }
   const filled = total - empties
   return (
-    <HandLevel
+    <BoardPlay
+      play={play}
+      text={[L.mission.goal, L.mission.how]}
+      hint={L.hints ?? null}
       game={game}
       level={level}
       phone={phone}
@@ -110,6 +114,6 @@ export default function Fill({ game, level, phone, saved, save, solve, fail }) {
         : { meta: tr(<>已填 <b>{filled}</b>{` / ${total}`}</>, <>Filled <b>{filled}</b>{` / ${total}`}</>), go: { label: text(WORDS.check), icon: <CheckIcon />, onClick: check } }}
     >
       {toastEl}
-    </HandLevel>
+    </BoardPlay>
   )
 }

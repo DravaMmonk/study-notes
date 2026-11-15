@@ -3,12 +3,12 @@ import { useState } from 'react'
 import { knapBest } from '../../model/algo.js'
 import { L as text } from '../../../../shell/i18n.js'
 import { T, tr } from '../../lang.js'
-import HandLevel from '../HandLevel.jsx'
-import { buzz, reduced, useLater, useToast, useVerdict } from '../play.jsx'
+import BoardPlay from '../../../../shell/BoardPlay.jsx'
+import { buzz, reduced, useLater, useToast, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
 const GREEDY = { val: T('最贵的先放', 'Priciest first'), ratio: T('最划算的先放', 'Best value first') }
 
-export default function Pack({ game, level, phone, saved, save, solve, fail }) {
+export default function Pack({ game, level, play, phone, saved, save, solve, fail }) {
   const L = level.source
   const [ti, setTi] = useState(0)
   const [bags, setBags] = useState(() => L.tests.map((_, k) => saved?.bags?.[k] || []))
@@ -16,7 +16,7 @@ export default function Pack({ game, level, phone, saved, save, solve, fail }) {
   const [tried, setTried] = useState(() => bags.map((b) => new Set([b.join(',')])))
   const [msg, setMsg] = useState(null) // { cls, body() } what a shortcut did
   const [toast, toastEl] = useToast()
-  const verdict = useVerdict({ level, solve, fail })
+  const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
   const t = L.tests[ti], bag = bags[ti]
   const target = (k) => knapBest(L.tests[k])
@@ -103,7 +103,10 @@ export default function Pack({ game, level, phone, saved, save, solve, fail }) {
     </div>
   )
   return (
-    <HandLevel
+    <BoardPlay
+      play={play}
+      text={[L.mission.goal, L.mission.how]}
+      hint={L.hints ?? null}
       game={game}
       level={level}
       phone={phone}
@@ -132,6 +135,6 @@ export default function Pack({ game, level, phone, saved, save, solve, fail }) {
       }}
     >
       {toastEl}
-    </HandLevel>
+    </BoardPlay>
   )
 }

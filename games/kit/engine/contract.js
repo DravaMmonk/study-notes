@@ -14,6 +14,7 @@
 //   gameProblems(content, spec, game)       game.jsx's game (the shell's description) plays the same levels
 //
 // Each returns what is wrong as [string], empty when the contract holds (validateProblems: { problems, … }).
+import { playKey } from './plays.js'
 import { RULE_TEXT, audit } from '../course.js'
 import { HINTS, S, validate as fits } from './schema.js'
 import { describe } from './vocabulary.js'
@@ -318,7 +319,12 @@ export function gameProblems(content, spec, game) {
   if (!same(game.levels.map((l) => l.id), spec.levels.map((l) => l.id))) say('its levels are not the spec’s, in play order')
   const chapters = new Set(game.chapters.map((c) => c.id))
   for (const l of game.levels) {
-    if (!game.kinds?.[l.kind] || !isFn(game.kinds[l.kind].Screen)) say(`${l.id}: the kind ${l.kind} has no Screen`)
+    const tasks = Array.isArray(l.tasks) ? l.tasks : []
+    if (!tasks.length) say(`${l.id}: has no playable tasks`)
+    for (const task of [l, ...tasks.map((task) => ({ ...l, ...task }))]) {
+      const key = playKey(task)
+      if (!isFn(game.plays?.[key]?.Screen)) say(`${task.key ?? l.id}: the play ${key} has no Screen`)
+    }
     if (!chapters.has(l.chapter)) say(`${l.id}: in no chapter`)
   }
   const keys = (game.parts?.all ?? []).map((p) => p.key)

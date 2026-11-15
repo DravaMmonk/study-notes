@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
 import { Plus, X } from 'lucide-react'
-import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
+import { useCheckedWork } from '../../../shell/CheckOnce.jsx'
+import { PlayLayout } from '../../../shell/PlayLayout.jsx'
 import { L, T, tr } from '../../../shell/i18n.js'
-import { WORDS } from '../../../shell/words.js'
 import { parse, show } from '../formula.js'
 import { say } from '../notation.js'
 import { checkScript, depthsOf, methodText, methodsOf, namesOf, sentencesOf } from '../script.js'
@@ -46,7 +46,7 @@ function scriptLines(rows, text) {
   return out
 }
 
-export default function ScriptScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, progress, phone }) {
+export default function ScriptScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, progress, phone, play }) {
   const level = entry.source
   // A tactic after by that the player built runs the board that last passed its level.
   game.logic.syncOwn(progress.built)
@@ -57,7 +57,7 @@ export default function ScriptScreen({ game, level: entry, saved, save, solve, l
   const keyOf = (t) => { try { return show(read(t)) } catch { return t } }
   const [rows, setRows] = useState(() => saved?.rows ?? level.given ?? [])
   const [at, setAt] = useState(null)
-  const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, () => checkScript(level, rows))
+  const { verdict, setVerdict, dock } = useCheckedWork({ judge: () => checkScript(level, rows), onPass: () => solve(null), lastRun, keepRun })
   const change = (next) => {
     setRows(next)
     save({ rows: next })
@@ -71,11 +71,6 @@ export default function ScriptScreen({ game, level: entry, saved, save, solve, l
     setAt(where)
   }
   const remove = (i) => { change(rows.filter((_, k) => k !== i)); setAt(null) }
-  const check = () => {
-    const v = checkScript(level, rows)
-    setVerdict(v)
-    if (v.pass) solve(null)
-  }
 
   const sentences = useMemo(() => sentencesOf(level), [level])
   const methods = useMemo(() => methodsOf(level), [level])
@@ -153,7 +148,5 @@ export default function ScriptScreen({ game, level: entry, saved, save, solve, l
     </div>
   )
   const results = verdict ? <p className={`lg-verdict ${verdict.pass ? 'is-pass' : 'is-fail'}`} role="status">{verdict.pass ? tr('核已检查每一行。证明完毕。') : L(verdict.reason)}</p> : null
-  const dock = <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />
-  const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  return <Level phone={phone} className="fo-level sc-level" brief={brief} stage={stage} results={results} dock={dock} />
+  return <PlayLayout level={entry} task={level} {...{ game, phone, play, stage, results, dock }} />
 }

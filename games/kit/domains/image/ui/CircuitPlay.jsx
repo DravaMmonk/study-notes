@@ -1,14 +1,11 @@
-import { Suspense, lazy, useMemo, useState } from 'react'
-import { Brief, Level, PinnedPlay } from '../../../shell/index.js'
-import CircuitLevel, { useLevelBoard, useLevelRun } from '../../../shell/CircuitLevel.jsx'
+import { useMemo, useState } from 'react'
+import { useLevelBoard } from '../../../shell/CircuitLevel.jsx'
+import { OutputCircuitLevel, useOutputChecks } from '../../../shell/OutputCircuitPlay.jsx'
 import { L, tr, T } from '../../../shell/i18n.js'
 import Readouts from '../../../shell/Readouts.jsx'
-import { WORDS } from '../../../shell/words.js'
 import { checkingTests } from '../engine/graph.js'
-import { withHidden } from '../../../engine/tests.js'
 import { startBoard } from '../engine/board.js'
 import { useImageCards } from './useImageCards.jsx'
-import ProbeLevel from './ProbeLevel.jsx'
 import TestPanel from './TestPanel.jsx'
 import { familyOf, iconOf } from './catalog.js'
 import { describe } from '../words.js'
@@ -20,24 +17,9 @@ import { partsFor } from './parts.js'
 import { AddSheet } from './phone/parts.jsx'
 import { inheritedBoard } from '../../../shell/progress.js'
 
-const BenchLevel = lazy(() => import('./benches/BenchLevel.jsx'))
-
-export default function LevelScreen(screen) {
-  const { game, level, phone, solve, theme } = screen
-  if (level.kind === 'graph') return <ImageCircuit screen={screen} />
-
-  const brief = <Brief game={game} level={level} hint={level.hint} phone={phone} />
-  const play = level.kind === 'board' ? (
-    <Suspense fallback={<div className="board-loading">{tr('载入中…')}</div>}>
-      <BenchLevel level={level} onSolve={() => solve(null)} theme={theme} />
-    </Suspense>
-  ) : <ProbeLevel level={level} onSolve={() => solve(null)} theme={theme} />
-  return <Level phone={phone} className={`level-${level.kind}`} brief={brief} stage={phone ? <PinnedPlay>{play}</PinnedPlay> : play} />
-}
-
-/** Keep legacy task data and evaluation on the image domain. CircuitLevel owns editing, slots and checking. */
-function ImageCircuit({ screen }) {
-  const { game, level, flags, progress, solved, phone, theme } = screen
+/** Keep image task data and evaluation in the domain. CircuitLevel owns editing, slots and checking. */
+export function ImageCircuit(screen) {
+  const { game, level, flags, progress, phone, theme } = screen
   game.image.syncOwn(progress)
   const { kit } = game.image
   const { types, runLevel, trainStep, lossOn, hasLearnable, resetTraining } = kit
@@ -54,32 +36,10 @@ function ImageCircuit({ screen }) {
     },
   })
   const { circuit } = board
-  const playLevel = solved ? withHidden(level) : level
-  // View changes and drags keep the same board version. Only evaluate again when wiring, settings or tests change.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const evaluated = useMemo(() => runLevel(playLevel, circuit), [runLevel, board.version, level.tests, level.hidden, solved])
-  const hiddenCount = solved ? 0 : level.hidden?.length ?? 0
-  const run = useLevelRun(screen, board, {
-    tests: playLevel.tests,
-    judge: () => ({ ...evaluated, results: evaluated.results.map((test) => ({ pass: test.pass, reason: test.checks.find((check) => !check.pass)?.reason })) }),
-    hidden: {
-      count: hiddenCount,
-      fails: () => runLevel({ ...level, tests: level.hidden }, circuit).results.filter((test) => !test.pass).length,
-      words: {
-        note: T(`另有 ${hiddenCount} 组隐藏测试，通关后公开。`, `${hiddenCount} more tests are hidden until you pass.`),
-        failed: (count) => tr(`${hiddenCount} 组隐藏测试中有 ${count} 组未通过。`, `${count} of ${hiddenCount} hidden tests failed.`),
-      },
-    },
-    onSolve(score) {
-      if (level.packs) screen.save({ ...circuit, passed: { nodes: circuit.nodes, wires: circuit.wires } })
-      screen.solve(score)
-    },
+  const { task: playLevel, run, evaluated, shown, hiddenCount } = useOutputChecks(screen, board, runLevel, (score) => {
+    if (level.packs) screen.save({ ...circuit, passed: { nodes: circuit.nodes, wires: circuit.wires } })
+    screen.solve(score)
   })
-  // The domain has always previewed its outputs live. Only show correctness after the shared check.
-  const shown = run.over ? evaluated : {
-    ...evaluated, pass: false, untested: true,
-    results: evaluated.results.map((test) => ({ ...test, pass: null, checks: test.checks.map((check) => ({ ...check, pass: null, reason: '' })) })),
-  }
   const [losses, setLosses] = useState([])
   const [rate, setRate] = useState(level.trainRates?.[1] ?? level.trainRate ?? 1)
   const [scan, setScan] = useState(0.5)
@@ -170,7 +130,7 @@ function ImageCircuit({ screen }) {
     },
   }
   const extras = <>{training}{score}</>
-  return <CircuitLevel
+  return <OutputCircuitLevel
     screen={screen}
     board={{ ...board, clear: () => { board.clear(); setLosses([]) } }}
     run={run}
@@ -184,15 +144,11 @@ function ImageCircuit({ screen }) {
     addSheet={({ place, close }) => <AddSheet kit={kit} level={{ ...level, palette: [...offered, ...folded] }} graph={circuit} previewFrom={circuit.nodes.find((node) => node.type === 'input')?.id} test={test} title={tr('放在这一格')} theme={theme} onAdd={place} onClose={close} />}
     describe={(node) => describe(types, node.type)}
     view={{ values: selected.values, errors: selected.errors }}
-    canvas={{ width: 140, corner }}
-    dense={false}
-    className="level-graph"
-    brief={{ hint: level.hint, children: !phone && extras }}
-    below={phone && extras}
-    results={<TestPanel {...panel} part={phone ? undefined : 'row'} />}
-    resultsTitle={!phone && <TestPanel {...panel} part="readout" />}
-    resultsAside={!phone && <div className="strip-aside"><TestPanel {...panel} part="verdict" /><TestPanel {...panel} part="views" /></div>}
-    words={{ go: L(WORDS.check), done: L(WORDS.passed) }}
+    canvas={{ corner }}
+    brief={{ hint: level.hint }}
+    extras={extras}
+    panel={TestPanel}
+    panelProps={panel}
   />
 }
 

@@ -4,11 +4,11 @@ import { useState } from 'react'
 import { lcsLen } from '../../model/algo.js'
 import { E } from '../../model/scene.js'
 import { tr } from '../../lang.js'
-import HandLevel from '../HandLevel.jsx'
+import BoardPlay from '../../../../shell/BoardPlay.jsx'
 import Scene from '../Scene.jsx'
-import { Html, buzz, reduced, useLater, useToast, useVerdict } from '../play.jsx'
+import { Html, buzz, reduced, useLater, useToast, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
-export default function Link({ game, level, phone, saved, save, solve, fail }) {
+export default function Link({ game, level, play, phone, saved, save, solve, fail }) {
   const L = level.source
   const [ti, setTi] = useState(0)
   const [links, setLinks] = useState(() => L.tests.map((_, k) => saved?.links?.[k] || []))
@@ -16,7 +16,7 @@ export default function Link({ game, level, phone, saved, save, solve, fail }) {
   const [flash, setFlash] = useState(null)
   const [hint, setHint] = useState(false)
   const [toast, toastEl] = useToast()
-  const verdict = useVerdict({ level, solve, fail })
+  const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
   const target = (k) => lcsLen(L.tests[k].a, L.tests[k].b)
   const solvedIn = (all, k) => all[k].length >= target(k)
@@ -101,7 +101,10 @@ export default function Link({ game, level, phone, saved, save, solve, fail }) {
     edges,
   }
   return (
-    <HandLevel
+    <BoardPlay
+      play={play}
+      text={[L.mission.goal, L.mission.how]}
+      hint={L.hints ?? null}
       game={game}
       level={level}
       phone={phone}
@@ -126,6 +129,6 @@ export default function Link({ game, level, phone, saved, save, solve, fail }) {
       }}
     >
       {toastEl}
-    </HandLevel>
+    </BoardPlay>
   )
 }

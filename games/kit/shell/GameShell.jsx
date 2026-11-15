@@ -1,3 +1,4 @@
+import { playOf } from '../engine/plays.js'
 import { createElement, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, BookMarked, BookOpen, PanelLeft } from 'lucide-react'
 import { applyTheme } from '../theme.js'
@@ -268,7 +269,7 @@ export default function GameShell({ game, store, author = null }) {
   const pageMarks = pages.map((_, k) => (k < own.length ? { at: `intro[${k}]`, scope: 'level' } : { at: `intro[${k - own.length}]`, scope: 'task' }))
   const introKey = level && (taskAt === 0 ? level.id : key)
   const intro = pages.length > 0
-  const kind = level && game.kinds[played.kind]
+  const play = level && playOf(game.plays, played)
 
   // The studio's editor: what is picked, and every pick or + said with the level and the task played.
   const authoring = author?.edit ?? null
@@ -356,9 +357,7 @@ export default function GameShell({ game, store, author = null }) {
               />
             )}
             <EditContext.Provider value={edit}>
-              {kind
-                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: kept(), save, solved: solved.has(level.id) || isPassed(taskAt), solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
-                : <div className="board-loading">{tr('这类关卡尚在制作中。')}</div>}
+              <SlotsContext.Provider value={slotsCtl}>{createElement(play.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, play, game, level: played, saved: kept(), save, solved: solved.has(level.id) || isPassed(taskAt), solve, fail, lastRun, keepRun, flags, progress, theme, phone })}</SlotsContext.Provider>
             </EditContext.Provider>
           </div>
         )}

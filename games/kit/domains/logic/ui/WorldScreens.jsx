@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Brief, Level, RunDock, usePlayback } from '../../../shell/index.js'
+import { RunDock, usePlayback } from '../../../shell/index.js'
+import { PlayLayout } from '../../../shell/PlayLayout.jsx'
 import { L, tr, T } from '../../../shell/i18n.js'
 import { Strip } from '../../../strip/index.js'
 import { parse } from '../formula.js'
@@ -46,7 +47,7 @@ export function WorldText({ model, notation, preds, world = null, spell = false 
   )
 }
 
-export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone }) {
+export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, keepRun, phone, play }) {
   const level = entry.source
   const { notation } = level
   const read = (f) => parse(f, { consts: level.vocab.names })
@@ -178,6 +179,5 @@ export function ModelScreen({ game, level: entry, saved, save, solve, lastRun, k
   )
   const results = verdict ? <p className={`lg-verdict ${playback.passed ? 'is-pass' : 'is-fail'}`} role="status">{verdict}</p> : null
   const dock = <RunDock {...playback.dock({ go: tr('运行'), done: tr('找到反例') })} />
-  const brief = <Brief game={game} level={entry} hint={level.hint} phone={phone} />
-  return <Level phone={phone} className="fo-level" brief={brief} stage={stage} results={results} dock={dock} />
+  return <PlayLayout level={entry} task={level} {...{ game, phone, play, stage, results, dock }} />
 }

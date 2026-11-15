@@ -1,7 +1,6 @@
-import { forwardRef, useImperativeHandle, useMemo } from 'react'
-import { L, tr, T } from '../../../shell/i18n.js'
-import { Chips, Strip, StripTools, useStrip } from '../../../strip/index.js'
-import { useHistory } from '../../../circuit/useHistory.js'
+import { forwardRef } from 'react'
+import { L, T } from '../../../shell/i18n.js'
+import TreeEditor from '../../../strip/TreeEditor.jsx'
 import { complete, holesOf, joinsOnto, kindAt, kidsOf, nodeAt, setAt, straysOf } from '../formulaTree.js'
 
 // A sentence built from chips on the shared strip (games/kit/strip, as 《句法之图》 builds a clause), which writes it
@@ -18,7 +17,6 @@ export const STRAY = T('还不是完整的句子')
 const TERM = T('式子', 'Expression')
 const GROUPS = [['pred', T('谓词')], ['name', T('名字', 'Names')], ['var', T('变量')], ['quant', T('量词')], ['conn', T('连接词')]]
 const keyOf = (path) => ['r', ...path].join('.')
-const pathOf = (key) => key.split('.').slice(1).map(Number)
 
 /** A predicate's words with its places numbered: ①是②的父母 (on its chip). */
 const placesOf = (notation, pred, places = 0) => (notation.words?.[pred] ? L(notation.words[pred]) : pred === '=' ? '{0} = {1}' : places ? `${pred}(${Array.from({ length: places }, (_, k) => `{${k}}`).join(', ')})` : pred).replace(/\{(\d)\}/g, (_, k) => PLACES[Number(k)])
@@ -60,51 +58,25 @@ export function fixedLine(f, notation, key) {
 }
 
 const SentenceEditor = forwardRef(function SentenceEditor({ tree, onChange, chips, notation, scope, root = 'formula' }, ref) {
-  const byKey = useMemo(() => new Map(chips.map((c) => [c.key, c])), [chips])
-  const change = onChange
-  const history = useHistory(tree, change, scope, 0)
-  const strip = useStrip({
-    put: (slot, key) => {
-      const path = pathOf(slot)
-      const chip = byKey.get(key)
-      // A thing may stand where a sentence goes (marked until a predicate takes it); a sentence never where a thing goes.
-      if (chip.kind === 'formula' && kindAt(tree, path) === 'term') return T('这里须填入一样东西：名字或变量。')
-      // Onto what the line ends with (see target): it becomes the piece's first part.
-      const last = nodeAt(tree, path)
-      change(setAt(tree, path, last ? setAt(chip.make(), [0], last) : chip.make()))
-      return null
-    },
-    take: (slot) => change(setAt(tree, pathOf(slot), null)),
-    // The first box that takes it (a thing goes in any box); with no box left, a connective joins on after the last
-    // sentence, and a predicate takes a thing the line ends with as its first place.
-    target: (key) => {
-      const hole = holesOf(tree).find((h) => byKey.get(key).kind === 'term' || h.kind === 'formula')
-      if (hole) return keyOf(hole.path)
-      const last = byKey.get(key).leads && joinsOnto(tree, key)
-      return last ? keyOf(last) : null
-    },
-    filled: (slot) => nodeAt(tree, pathOf(slot)) !== null,
-    fixed: () => false,
-  })
-  useImperativeHandle(ref, () => ({ clearSelection: strip.clearSelection }), [strip])
-  const strays = root === 'term' ? [] : straysOf(tree)
-  // Where the next piece goes, always marked: the box picked, else the first box, else after the whole sentence.
-  const first = holesOf(tree)[0]
-  const next = strip.selected ?? (first ? keyOf(first.path) : complete(tree) ? 'end' : null)
+  const model = {
+    complete, holesOf, joinsOnto, nodeAt, setAt,
+    segment: (value) => segmentOf(value, [], root, notation),
+    accepts: (hole, chip) => chip.kind === 'term' || hole.kind === 'formula',
+    refuse: (value, path, chip) => (chip.kind === 'formula' && kindAt(value, path) === 'term' ? T('这里须填入一样东西：名字或变量。') : null),
+  }
   const groups = GROUPS
     .map(([group, label]) => ({ key: group, label, chips: chips.filter((c) => c.group === group).map((c) => ({ key: c.key, family: group, text: c.group === 'pred' ? placesOf(notation, c.pred, c.places) : c.places ? placesOf(notation, c.name, c.places) : c.group === 'name' ? L(notation.words?.[c.name] ?? T(c.name, c.name)) : c.text })) }))
     .filter((g) => g.chips.length)
-  const note = strip.note
-    ? <p className={`ks-note ${strip.note.bad ? 'is-bad' : ''}`} role="status">{L(strip.note.text)}</p>
-    : strays.length ? <p className="ks-note is-bad" role="status">{L(STRAY)}</p>
-    : <p className="ks-note">{tr('点击文字可以删除。')}</p>
-  return (
-    <>
-      <StripTools history={history} onClear={() => change(null)} empty={!tree} />
-      <Strip line={[segmentOf(tree, [], root, notation)]} label={root === 'term' ? TERM : T('公式')} next={next} selected={strip.selected} flash={strip.flash} onSlot={strip.onSlot} />
-      {note}
-      <Chips groups={groups} onChip={strip.onChip} />
-    </>
-  )
+  return <TreeEditor
+    ref={ref}
+    tree={tree}
+    onChange={onChange}
+    chips={chips}
+    groups={groups}
+    scope={scope}
+    label={root === 'term' ? TERM : T('公式')}
+    model={model}
+    warning={root === 'formula' && straysOf(tree).length ? STRAY : null}
+  />
 })
 export default SentenceEditor

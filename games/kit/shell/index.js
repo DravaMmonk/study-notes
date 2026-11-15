@@ -10,7 +10,6 @@ export { default as RunDock } from './RunDock.jsx'
 export { default as StepLog } from './StepLog.jsx'
 export { default as Timeline } from './Timeline.jsx'
 export { usePlayback } from './usePlayback.jsx'
-export { caseLabel, useBoardCases } from './useBoardCases.js'
 export { useKeptVerdict } from './useKeptVerdict.js'
 export { default as TestTabs } from './TestTabs.jsx'
 export { default as Sheet } from './Sheet.jsx'
@@ -32,7 +31,7 @@ export { PHONE, useMedia } from './useMedia.js'
  * layout), levels ([{ id, chapter, title, kind, tasks: [{ key, kind?, step?, brief?, hint?, intro?, after?, carries?,
  * opens? … }], requires?, unlocks?, keeps?, after?, note? … }], in play order, every level one task or more;
  * `keeps`: whether passing a task keeps the board it passed with in progress.built, for a part that runs it, by default
- * when the level unlocks something) and kinds ({ [kind]: { Screen, icon?, label? } }).
+ * when the level unlocks something) and plays ({ [play ID]: { Screen, icon?, label? } }).
  * Optional:
  *
  *   Hero          the map's illustration ({ theme })

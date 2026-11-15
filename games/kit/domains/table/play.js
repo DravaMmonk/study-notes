@@ -13,10 +13,11 @@
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
 import { portsProblem } from './model/board.js'
 import { WORLDS } from './model/worlds.js'
-import { judge, testLabel, whyFailed } from './model/verdict.js'
+import { judges, testLabel, whyFailed } from './model/verdict.js'
 import { fromGraph, wiring } from './model/wiring.js'
 import { diagnosisOf, guideAt } from './items/conditions.js'
 import { tr } from './lang.js'
+import { plays } from './plays.js'
 
 const CONSTS = [0, 1, 2, 3, 4, 5]
 const str = (v) => (v === null || v === undefined ? '' : String(v))
@@ -27,7 +28,7 @@ const opening = (ctx) => ctx.game.table.opening(ctx.level.source, ctx.progress)
 export const play = {
   open(ctx) {
     const s = ctx.level.source
-    if (s.mode !== 'circuit') return { covered: false, why: { zh: '手动玩法（在表上点格子），harness 只支持电路关', en: 'a hand play (tapping cells on the table); the harness covers circuit levels' } }
+    if (!plays[s.mode].judge) return { covered: false, why: { zh: '手动玩法（在表上点格子），harness 只支持电路关', en: 'a hand play (tapping cells on the table); the harness covers circuit levels' } }
     const tip = guideAt(s.guide, opening(ctx)) ?? [s.ask, s.tip].filter(Boolean).map(str).join(' ')
     return { ...circuit.open(ctx), brief: { text: [s.mission.goal, s.mission.how].map(str).join('\n'), tip: tip || null, hint: s.hints ?? null } }
   },
@@ -79,10 +80,11 @@ const circuit = circuitPlay({
     const label = (t) => testLabel(s, V, t)
     const miss = V.outs.find(([id]) => !b.wires.some((w) => w.to === id))
     if (miss) return { tests: [], says: [tr(`输出口「${str(miss[1])}」还没接线`, `The output “${str(miss[1])}” is not wired yet`)], pass: false }
+    const { inspect } = judges[plays[s.mode].judge]
     const results = []
     let failed = null
     for (let k = 0; k < s.tests.length && !failed; k++) {
-      const j = judge(ctx.game.table.model, s, b, k, s)
+      const j = inspect(ctx.game.table.model, s, b, k, s)
       results.push({ label: `${tr('测试', 'Test')} ${k + 1} · ${str(label(j.t))}`, pass: j.ok })
       if (!j.ok) failed = { k, ...j }
     }

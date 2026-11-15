@@ -3,17 +3,17 @@ import { useMemo, useState } from 'react'
 import { allRoutes } from '../../model/algo.js'
 import { E } from '../../model/scene.js'
 import { tr } from '../../lang.js'
-import HandLevel from '../HandLevel.jsx'
+import BoardPlay from '../../../../shell/BoardPlay.jsx'
 import Scene from '../Scene.jsx'
-import { buzz, reduced, useLater, useToast, useVerdict } from '../play.jsx'
+import { buzz, reduced, useLater, useToast, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
-export default function Trace({ game, level, phone, saved, save, solve, fail }) {
+export default function Trace({ game, level, play, phone, saved, save, solve, fail }) {
   const L = level.source
   const [route, setRoute] = useState([])
   const [found, setFound] = useState(() => saved?.found ?? [])
   const [flash, setFlash] = useState(null)
   const [toast, toastEl] = useToast()
-  const verdict = useVerdict({ level, solve, fail })
+  const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
   const { by, total } = useMemo(() => ({ by: Object.fromEntries(L.cells.map((c) => [c.id, c])), total: allRoutes(L.start, L.end, L.edges).length }), [L])
   const has = (a, b) => L.edges.some((e) => e[0] === a && e[1] === b)
@@ -77,7 +77,10 @@ export default function Trace({ game, level, phone, saved, save, solve, fail }) 
   }
   const walk = (r) => r.map(name).join(' → ')
   return (
-    <HandLevel
+    <BoardPlay
+      play={play}
+      text={[L.mission.goal, L.mission.how]}
+      hint={L.hints ?? null}
       game={game}
       level={level}
       phone={phone}
@@ -101,6 +104,6 @@ export default function Trace({ game, level, phone, saved, save, solve, fail }) 
       }}
     >
       {toastEl}
-    </HandLevel>
+    </BoardPlay>
   )
 }

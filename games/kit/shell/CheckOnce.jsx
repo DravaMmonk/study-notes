@@ -20,15 +20,26 @@ export function useCheckOnce({ judge, work, passed, onPass, lastRun, keepRun }) 
     const fail = judge(work)
     return { pass: !fail, fail }
   }
-  const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, inspect)
+  const { verdict, dock, setVerdict } = useCheckedWork({ judge: inspect, onPass, lastRun, keepRun })
+  return {
+    results: verdict ? <Verdict pass={verdict.pass} failure={verdict.fail}>{passed}</Verdict> : null,
+    dock,
+    reset: () => setVerdict(null),
+  }
+}
+
+// A check can also return domain feedback, such as the cells to highlight.
+export function useCheckedWork({ judge, before, onPass, lastRun, keepRun }) {
+  const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, judge)
   const check = () => {
-    const next = inspect()
+    before?.()
+    const next = judge()
     setVerdict(next)
     if (next.pass) onPass(next)
   }
   return {
-    results: verdict ? <Verdict pass={verdict.pass} failure={verdict.fail}>{passed}</Verdict> : null,
+    verdict,
+    setVerdict,
     dock: <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />,
-    reset: () => setVerdict(null),
   }
 }
