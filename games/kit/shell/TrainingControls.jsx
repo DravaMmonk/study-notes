@@ -27,13 +27,13 @@ function LossCurve({ losses }) {
   )
 }
 
-export function useTraining(task, board, change, training) {
+export function useTraining(task, board, change, training, workshopParts) {
   const [losses, setLosses] = useState([])
   const [rate, setRate] = useState(() => training?.rate(task))
   const clear = () => setLosses([])
   if (!training?.has(board)) return { clear, panel: null }
   const train = (steps) => {
-    const { circuit, history } = training.train(task, board, rate, steps)
+    const { circuit, history } = training.train(task, board, rate, steps, workshopParts)
     setLosses((old) => [...old, ...history].slice(-80))
     change(circuit)
   }

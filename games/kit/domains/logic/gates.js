@@ -9,6 +9,7 @@
 import { packed, runBoard, sink, source } from '../../engine/boards.js'
 import { OUTPUTS, circuitBoard } from '../../engine/board-cards.js'
 import { boardView } from '../../engine/board-view.js'
+import { workshopNodes } from '../../engine/workshop.js'
 import { runOutputTests } from '../../engine/test-run.js'
 import { parse } from './formula.js'
 import { say } from './notation.js'
@@ -67,8 +68,8 @@ export function rowsFor(level) {
 
 /** What the board gives on one row: the engine's values, and the output (undefined when nothing reaches it). With
  *  `trace` (an array), every card computed goes onto it, the cards inside the gates the player built too. */
-export function runRow(level, circuit, row, trace) {
-  const run = runBoard(circuit, { parts: gateParts(level.gates), bind: row, ctx: trace ? { trace } : {} })
+export function runRow(level, circuit, row, trace, parts = gateParts(level.gates)) {
+  const run = runBoard(circuit, { parts, bind: row, ctx: trace ? { trace } : {} })
   return { ...run, value: run.outputs.out }
 }
 
@@ -83,15 +84,19 @@ export const gateTests = (level) => rowsFor(level).rows.map(({ row, want }) => (
 const WRONG_ROW = T('这一行的结果错误')
 
 const GATE_TESTS = {
-  runTest(level, board, test, { traced = true } = {}) {
+  runTest(level, board, test, { traced = true, workshopParts } = {}) {
     const trace = []
-    const run = runRow(level, board, test.inputs, traced ? trace : undefined)
+    const run = runRow(level, board, test.inputs, traced ? trace : undefined, workshopParts)
     return { ...run, trace, row: test.inputs, want: test.expect.out, got: run.value }
   },
   check(_level, test, outputs) {
     return [{ name: 'out', pass: outputs.out === test.expect.out, reason: WRONG_ROW }]
   },
-  score: (level, board) => ({ steps: countGates(level, board) }),
+  score: (level, board, _runs, options) => ({
+    steps: options?.workshopParts
+      ? workshopNodes(board, options.workshopParts).filter(({ node }) => level.gates[node.type]).length
+      : countGates(level, board),
+  }),
 }
 
 const budgetFailure = ({ budget }, gates) => budget !== undefined && gates > budget

@@ -33,7 +33,7 @@ function show(v, { task, test }) {
   return hyps.length ? both(`${f.zh}（依赖 ${hyps.map((h) => h.zh).join('；')}）`, `${f.en} (from ${hyps.map((h) => h.en).join('; ')})`) : f
 }
 
-const runLevel = (task, board) => runOutputTests(LOGIC_TESTS, task, board)
+const runLevel = (task, board, _parts, options) => runOutputTests(LOGIC_TESTS, task, board, options)
 
 /** What the results show of a test: its premises, and the goal against what reaches it. */
 const entries = ({ task, test, run }) => {

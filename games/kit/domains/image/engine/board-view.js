@@ -46,6 +46,7 @@ export function imageBoards(image) {
     parts: () => kit.types,
     built: () => built,
     builder: image.builtBy,
+    runtime: kit.partOf,
     offerIn: image.offerIn,
     holdsIn: image.holdsIn,
     syncOwn: (_built, progress) => image.syncOwn(progress),

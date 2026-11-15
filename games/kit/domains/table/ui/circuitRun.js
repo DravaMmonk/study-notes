@@ -9,10 +9,11 @@ export function probeValues(probe) {
   return new Map(Object.entries(probe).map(([key, value]) => [key.startsWith('out:') ? key.slice(4) : key, value]))
 }
 
-export function robotRun(model, task, board) {
+export function robotRun(model, task, board, workshopParts) {
+  const run = (world, test, graph, options) => model.runCircuit(world, test, graph, { ...options, workshopParts })
   const world = WORLDS[task.world]
   const runs = task.tests.map((test, k) => {
-    const report = inspectRobotCase(model.runCircuit, task, board, k, { traced: true })
+    const report = inspectRobotCase(run, task, board, k, { traced: true })
     const ticks = report.res.steps.slice(0, report.stop).map((step, at) => ({
       values: probeValues(step.probe),
       errors: new Map(),

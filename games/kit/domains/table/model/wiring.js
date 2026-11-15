@@ -18,10 +18,11 @@ export const fromGraph = graph => ({
 });
 
 export function wiring(model, u) {
-  const io = { sensors: u.sensors, outs: u.outs };
+  const io = { sensors: u.sensors, outs: u.outs, workshop: u.workshop };
   return {
     // What the level gives is a source (on top on a phone) or a sink; the rest are parts.
     role: roleOf,
+    signalOf: (board, src) => model.srcType(board, io, src),
     // What the level gives stays on the board: only a card's outputs change.
     inputs: node => (node.type === 'out' ? ['in'] : !node.type || isGiven(node.type) ? [] : model.def(node.type).ins.map((_, k) => String(k))),
     // Each sensor a card reads is an output of its own.

@@ -4,7 +4,7 @@ import { dependencyLayers } from '../course.js'
 import { fileMark } from './edit.js'
 import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useOverlay } from './useOverlay.js'
-import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw, X } from 'lucide-react'
+import { ArrowRight, BookMarked, Check, CircuitBoard, Lock, LockOpen, Package, RotateCcw, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
 
@@ -245,7 +245,7 @@ export function NeededNote({ game, needed, onOpen }) {
   )
 }
 
-export default function LevelMap({ game, progress, solved, onAll, onOpen, focus, onReset, onParts, partsNew = 0, onWiki, unread = 0, theme, edit = null }) {
+export default function LevelMap({ game, progress, solved, onAll, onOpen, focus, onReset, onParts, onWorkshop, partsNew = 0, onWiki, unread = 0, theme, edit = null }) {
   const levels = game.levels
   const done = levels.filter((level) => solved.has(level.id)).length
   const next = levels.find((level) => !level.optional && !solved.has(level.id) && game.isOpen(level, solved, progress.all)) ?? levels.find((level) => !solved.has(level.id) && game.isOpen(level, solved, progress.all))
@@ -292,6 +292,7 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
             </button>
           )}
           <div className="map-tools">
+            {onWorkshop && <button className="kit-btn is-label" onClick={onWorkshop}><CircuitBoard size={15} /><span>{tr('元件工坊', 'Component workshop')}</span></button>}
             {onParts && <button className="kit-btn is-label wiki-button" onClick={onParts}><Package size={15} /><span>{tr('元件箱')}</span><b>{partsNew > 0 ? tr(`新增 ${partsNew} 个`, `${partsNew} new`) : `${game.parts.earned(progress).length}/${game.parts.all.length}`}</b></button>}
             {onWiki && <button className="kit-btn is-label wiki-button" onClick={onWiki}><BookMarked size={15} /><span>{tr('百科')}</span>{unread > 0 && <b>{tr(`新增 ${unread} 条`, `${unread} new`)}</b>}</button>}
             <button className={`kit-btn is-label map-reset ${progress.all ? 'is-all' : ''}`} onClick={() => setProgressOpen(true)} aria-haspopup="dialog">

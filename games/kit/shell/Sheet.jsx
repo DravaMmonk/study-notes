@@ -8,7 +8,7 @@ import './sheet.css'
 
 // A centered dialog on desktop and a draggable bottom sheet on phones.
 // What it holds knows it is in a sheet (Entries.jsx: longer lists).
-export default function Sheet({ title, onClose, children, footer, actions }) {
+export default function Sheet({ title, onClose, children, footer, actions, className = '' }) {
   const [drag, setDrag] = useState(0)
   const { track } = usePointerSession()
   const overlay = useOverlay(onClose)
@@ -28,7 +28,7 @@ export default function Sheet({ title, onClose, children, footer, actions }) {
 
   return (
     <div ref={overlay} className="ph-scrim" onClick={onClose}>
-      <div className="ph-sheet" role="dialog" aria-modal="true" aria-label={title} style={{ transform: drag ? `translateY(${drag}px)` : undefined }} onClick={(event) => event.stopPropagation()}>
+      <div className={`ph-sheet ${className}`} role="dialog" aria-modal="true" aria-label={title} style={{ transform: drag ? `translateY(${drag}px)` : undefined }} onClick={(event) => event.stopPropagation()}>
         <div className="ph-handle" onPointerDown={swipe}>
           <i />
         </div>

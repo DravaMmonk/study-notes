@@ -21,7 +21,7 @@ export function previousCircuitTask(task, tasksAt) {
   return task.carry ? tasksAt(task.carry)?.at(-1) : undefined
 }
 
-export function boardView({ board, parts, built = () => ({}), builder = () => null, defined = null, offerIn, holdsIn, syncOwn, tasksAt, opening }) {
+export function boardView({ board, parts, built = () => ({}), builder = () => null, defined = null, offerIn, holdsIn, syncOwn, runtime, tasksAt, opening }) {
   const builtBy = (task) => (type) => (built(task)[type] ? builder(type, task) : null)
   const views = new WeakMap()
   const open = (task, progress) => {
@@ -45,6 +45,7 @@ export function boardView({ board, parts, built = () => ({}), builder = () => nu
       return Object.hasOwn(available, type) ? available[type] : undefined
     },
     syncOwn,
+    ...(runtime && { runtime }),
     offerIn: (task, flags) => {
       const { shown, folded, types } = offerIn(task, flags)
       const available = parts(task)

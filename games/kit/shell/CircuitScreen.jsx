@@ -22,9 +22,10 @@ import { valueKey } from '../views/picks.js'
 import Show from '../views/Show.jsx'
 import { PlaneExtent } from '../views/plots/Plane.jsx'
 import { extentOf } from '../views/plots/plane.js'
-import { L, T } from './i18n.js'
+import { L, T, tr } from './i18n.js'
 import { WORDS } from './words.js'
-import { partsFor, packedView } from '../circuit/board-parts.js'
+import Workshop from './Workshop.jsx'
+import { useCircuitWorkshop } from './useCircuitWorkshop.js'
 import { lookupBoard } from '../circuit/packed-boards.js'
 import { definedItem } from './parts/faces.jsx'
 import { optionsOf } from '../engine/parts/define.js'
@@ -112,38 +113,38 @@ function Value({ value, error, show, of, views }) {
 const noWorld = () => null
 
 export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, sample, ready, fresh, keep, clearable, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, readouts, valueViews, viewControls, language, context, training, testLabel, useWorld = noWorld, log = false, revealOnPass = false, className = '' }) {
-  const { game, level: entry, solved, flags, progress } = screen
+  const { game, level: entry, solved, progress } = screen
   const level = entry.source
-  const circuit = course.forTask(level)
-  // The parts defined as data a task holds: its view's, where its course registers some per task, else the game's.
-  const defined = circuit.defined ?? gameDefined
-  const { board: kind, BUILT, pieces } = circuit
+  const base = course.forTask(level)
+  const profile = screen.workshop
+  const [workshopOpen, setWorkshopOpen] = useState(false)
+  const defined = base.defined ?? gameDefined
+  const { board: kind, BUILT, pieces } = base
   const onPhone = useMedia(PHONE)
   const timed = Boolean(kind.ticks) && !once?.(level)
-  circuit.syncOwn(progress.built, progress)
-  const parts = useMemo(() => partsFor(level, circuit, { cards, portLabels }), [level, circuit, cards, portLabels])
-  const packed = useMemo(() => packedView(course, { cards, portLabels }), [course, cards, portLabels])
-  const { shown: palette, folded, types } = useMemo(() => circuit.offerIn(level, flags), [circuit, level, flags])
-  const held = useMemo(() => new Set(types), [types])
-  const hold = (b) => (ready ? ready(b, held, level) : b)
+  base.syncOwn(progress.built, progress)
+  const workshopState = useCircuitWorkshop({ screen, course, base, cards, portLabels, defined, defaults, settings, ready })
+  const { offers, has, known, circuit, resolve, parts, packed, palette, folded, types, held, hasPersonal,
+    fits, hold, capture, put, publish, library, update, available, pickedTrays, notice: workshopNotice } = workshopState
+  const pass = (score, graph) => { publish(graph); screen.solve(score) }
   const opening = () => circuit.opening(level, progress)
   const fitted = (saved) => {
-    if (kind.fits(saved, level, circuit)) {
+    if (fits(saved)) {
       const prepared = hold(saved)
-      if (prepared === saved || kind.fits(prepared, level, circuit)) return prepared
+      if (prepared === saved || fits(prepared)) return prepared
     }
     return hold(opening())
   }
   const state = useLevelBoard(screen, { open: fitted, fresh: () => hold(fresh ? fresh(level) : opening()), clearable })
   const board = ready ? { ...state, change: (next, options) => state.change(hold(next), options) } : state
   const { circuit: drawn, change } = board
-  const practice = useTraining(level, drawn, change, training)
+  const practice = useTraining(level, drawn, change, training, hasPersonal(drawn) ? resolve : undefined)
   const stages = useMemo(() => stagesOf({ task: level, board: board.circuit, chain: circuit.stageChain(level, progress.built), isFixed: (n) => kind.isFixed(n.type) }), [level, board.circuit, circuit, progress.built, kind])
   const [alreadySolved] = useState(solved)
   const revealed = alreadySolved || (revealOnPass && solved)
   const { shown: tests, checked, hidden } = useMemo(() => runTestGroups(level, revealed,
-    (task, traceCount) => runOn(task, drawn, circuit.partOf, { traced: true, traceCount })),
-  [level, revealed, board.version, circuit, progress.built])
+    (task, traceCount) => runOn(task, drawn, base.partOf, { traced: true, traceCount, ...(hasPersonal(drawn) && { workshopParts: resolve }) })),
+  [level, revealed, board.version, base, progress.built, library])
   const stepsOf = (r) => (timed ? r.ticks.map((tick) => tick.failed ? { ...tick, failed: failureText(tick.failed) } : tick) : r.trace)
   const run = useLevelRun(screen, board, {
     tests: [...tests.map((t, k) => ({ label: L(t.label ?? testLabel?.(level, t, k) ?? words.label(k)), hidden: t.hidden })), ...(judged && level.sample ? [{ label: L(WORDS.sample), sample: true }] : [])],
@@ -158,12 +159,13 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
       },
     },
     score: () => checked.score,
+    onSolve: (score) => pass(score, drawn),
     ...(useWorld !== noWorld && {
       guard: () => surface.guard?.(),
       onFail: (last) => surface.fail?.(last, checked.runs),
-      onSolve: (score) => surface.solve ? surface.solve(score) : screen.solve(score),
+      onSolve: (score) => surface.solve ? surface.solve(score) : pass(score, drawn),
     }),
-    ...(keep && { onSolve: (s) => { const work = keep(level, drawn); if (work) screen.save(work); screen.solve(s) } }),
+    ...(keep && { onSolve: (s) => { const work = keep(level, drawn); if (work) screen.save(work); pass(s, drawn) } }),
   })
 
   // The sample (judged boards): the board's run on it, and the reference's, never judged.
@@ -183,7 +185,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const ended = whole ? run.over : Boolean(run.run && (run.run.test > run.at || run.run.over))
 
   const failWorld = ({ panel, ...info }) => screen.fail(panel ? { ...info, extra: <TracePanel panel={panel} /> } : info)
-  const surface = useWorld({ screen: { ...screen, fail: failWorld }, task: level, test: onView, run, report: runOf, held, at, ended, circuit: drawn, change, version: board.version })
+  const surface = useWorld({ screen: { ...screen, fail: failWorld, solve: (score) => pass(score, drawn) }, workshopParts: hasPersonal(drawn) ? resolve : undefined, task: level, test: onView, run, report: runOf, held, at, ended, circuit: drawn, change, version: board.version })
   const view = surface?.value ?? computed
 
   const setParam = (node, ctx, key, value) => {
@@ -240,7 +242,6 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   // A defined part shows each output's value; with several, none of its own (its detail, `inspect`'s).
   // What the task holds of a defined part's setting (../course.js holds): null when every value, [] when not the
   // setting itself, else the values it holds.
-  const has = useMemo(() => circuit.holdsIn(level, flags), [circuit, level, flags])
   const allowed = useMemo(() => (type, key) => {
     const setting = defined?.of(type)?.setting[key]
     if (!setting) return null
@@ -259,6 +260,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   }, [defined, inspect, allowed, level, onView, drawn, valueViews])
 
   const itemOf = (type) => {
+    if (known(type)) return { type, label: resolve.definition(type).name, desc: resolve.definition(type).description, icon: CircuitBoard, family: 'built', packed: true }
     const fresh = entry.fresh?.includes(type)
     if (BUILT[type]) {
       const b = pieces[type]
@@ -339,6 +341,12 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   // The scene comes first: beside the results on a desktop, above them on a phone.
   const strip = cases || (surface?.drawing && !rows.length ? <div className="cs-scene">{scene}{results}</div> : scene ? <div className="cs-told"><div className="cs-scene">{scene}</div><div className="cs-rows">{results}</div></div> : results)
 
+  const workshop = (workshopOpen || screen.workshopOnly) && (
+    <Workshop screen={screen} board={drawn} parts={parts} packed={packed} cards={itemOf}
+      defined={definedFaces} defaults={defaults} types={offers.types} library={library} initial={screen.workshopTray ?? pickedTrays[0] ?? ''}
+      available={available} capture={capture} put={put} update={update} onClose={screen.onWorkshopClose ?? (() => setWorkshopOpen(false))} />
+  )
+  if (screen.workshopOnly) return <SettingsContext.Provider value={views}>{workshop}</SettingsContext.Provider>
   return (
     <SettingsContext.Provider value={views}>
       <ViewScope.Provider value={viewControls ? { ...scope, profileScan } : scope}>
@@ -379,9 +387,9 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
             ...faces,
           }}
           canvas={canvas}
-          brief={{ hint: surface?.hint ?? level.hint, text: surface?.text, tip: surface?.tip, children: <>{(told?.(level, onView) ?? []).map((line, k) => <p key={k} className="cs-said">{line.label && <>{L(line.label)} </>}<b>{L(line.text)}</b></p>)}{readouts && <Readouts items={readouts(level, drawn, checked)} />}{!onPhone && practice.panel}</> }}
+          brief={{ hint: surface?.hint ?? level.hint, text: surface?.text, tip: surface?.tip, children: <>{(told?.(level, onView) ?? []).map((line, k) => <p key={k} className="cs-said">{line.label && <>{L(line.label)} </>}<b>{L(line.text)}</b></p>)}{readouts && <Readouts items={readouts(level, drawn, checked)} />}{!onPhone && practice.panel}{profile && <button type="button" className="kit-btn" onClick={() => setWorkshopOpen(true)}>{tr('元件工坊', 'Component workshop')}</button>}{workshopNotice && <p role="status">{workshopNotice}</p>}</> }}
           below={onPhone && practice.panel}
-          describe={(n) => (BUILT[n.type] ? pieces[n.type].desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
+          describe={(n) => (known(n.type) ? resolve.definition(n.type).description : BUILT[n.type] ? pieces[n.type].desc : kind.isFixed(n.type) || !cards[n.type] ? null : game.textAt(cards[n.type], level.id)?.desc)}
           results={strip}
           pad={surface?.pad ? <Dock pad={surface.pad} /> : undefined}
           tabs={!table}
@@ -401,6 +409,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
           }}
         />
         {surface?.notice}
+        {workshop}
         </PlaneExtent.Provider>
       </ViewScope.Provider>
     </SettingsContext.Provider>

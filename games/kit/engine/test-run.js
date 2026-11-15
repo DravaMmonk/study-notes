@@ -21,7 +21,7 @@ export function runOutputTests(domain, task, work, options) {
     const fail = firstFailure(checks, ({ name, pass, reason }) => pass ? null : { at: name, why: reason }) ?? failureOf(run)
     return { ...run, checks, fail, pass: !fail }
   })
-  const score = domain.score?.(task, work, runs) ?? {}
+  const score = domain.score?.(task, work, runs, options) ?? {}
   const constraint = task.constraint?.(score, work) ?? ''
   return reportRuns(runs, { score, constraint })
 }

@@ -1,3 +1,4 @@
+import { workshopNodes } from '../../../engine/workshop.js'
 import { PartError } from '../../../engine/circuit.js'
 import { runBoard, sink, source } from '../../../engine/boards.js'
 import { runOutputTests } from '../../../engine/test-run.js'
@@ -60,16 +61,16 @@ export function runnerOf(types) {
 
   // Run the graph on one test's inputs. Returns every node's output image (or an error). `variant` picks one of the
   // copies a training-only part (an augmentation) makes of its input; without it those parts pass it through.
-  function evaluate(graph, inputs, variant = null, trace = null) {
-    return runBoard(graph, { parts: partOf, prepare, bind: inputs, ctx: { variant, trace } })
+  function evaluate(graph, inputs, variant = null, trace = null, parts = partOf) {
+    return runBoard(graph, { parts, prepare, bind: inputs, ctx: { variant, trace } })
   }
 
-  const placedNodes = (graph) => graph.nodes.filter((node) => !types[node.type].fixed)
+  const placedNodes = (graph) => graph.nodes.filter((node) => !types[node.type]?.fixed)
 
   // A part's cost is its arithmetic per output pixel (some parts' cost depends on their settings). A part working on a
   // smaller picture than the level's input costs proportionally less, so shrinking first and then filtering is cheaper.
   const costOf = (node) => {
-    const cost = types[node.type].cost ?? 0
+    const cost = types[node.type]?.cost ?? 0
     return typeof cost === 'function' ? cost(node.params ?? {}) : cost
   }
   function score(graph, values) {
@@ -81,36 +82,44 @@ export function runnerOf(types) {
     const full = Math.max(1, ...graph.nodes.filter((node) => node.type === 'input').map((node) => pixels(node.id)))
     const share = (node) => (pixels(node.id) > 1 ? Math.min(1, pixels(node.id) / full) : 1)
     const cost = placed.reduce((sum, node) => sum + costOf(node) * share(node), 0)
-    const learned = placed.reduce((sum, node) => sum + (types[node.type].params ?? []).filter((param) => param.learnable).reduce((n, param) => n + (node.params?.[param.key]?.length ?? 0), 0), 0)
+    const learned = placed.reduce((sum, node) => sum + (types[node.type]?.params ?? []).filter((param) => param.learnable).reduce((n, param) => n + (node.params?.[param.key]?.length ?? 0), 0), 0)
     return { nodes: placed.length, cost: Math.round(cost * 10) / 10, learned }
   }
 
   // How a test runs and is judged, for the shared engine's level runs (../../../engine/test-run.js).
   const IMAGE_TESTS = {
-    runTest: (_level, graph, test, { traced }) => {
-      if (!traced) return evaluate(graph, test.inputs)
+    runTest: (_level, graph, test, { traced, workshopParts }) => {
+      if (!traced) return evaluate(graph, test.inputs, null, null, workshopParts)
       const trace = []
-      return { ...evaluate(graph, test.inputs, null, trace), trace }
+      return { ...evaluate(graph, test.inputs, null, trace, workshopParts), trace }
     },
     check: (level, test, outputs) => Object.entries(test.expected).map(([name, expected]) => ({ name, ...compare(outputs[name], expected, test.check ?? level.check) })),
-    score: (level, graph, results) => score(graph, results[0]?.values),
+    score: (_level, graph, results, options) => {
+      if (!options?.workshopParts) return score(graph, results[0]?.values)
+      const values = new Map(results[0]?.values)
+      const key = (path, id) => JSON.stringify([...path, id])
+      for (const step of results[0]?.trace ?? []) if (step.path?.length && step.key == null) values.set(key(step.path, step.id), step.value)
+      const nodes = workshopNodes(graph, options.workshopParts)
+        .map(({ node, path }) => path.length ? { ...node, id: key(path, node.id) } : node)
+      return score({ nodes }, values)
+    },
   }
 
   // Only a board with packed parts needs a trace to display their internal values.
-  const runLevel = (level, graph, { traced = false, traceCount } = {}) => runOutputTests(IMAGE_TESTS, level, graph, {
-    traceCount,
-    traced: traced && graph.nodes.some(({ type }) => types[type]?.circuitOf),
+  const runLevel = (level, graph, { traced = false, traceCount, workshopParts } = {}) => runOutputTests(IMAGE_TESTS, level, graph, {
+    traceCount, workshopParts,
+    traced: traced && graph.nodes.some(({ type }) => types[type]?.circuitOf || !types[type]),
   })
 
   // The mean squared error of a graph over some tests. A training-only part (one with `variants`) makes that many
   // copies of every test, and the error counts them all.
-  function lossOn(tests, graph) {
-    const copies = Math.max(1, ...graph.nodes.map((node) => types[node.type].variants ?? 1))
+  function lossOn(tests, graph, workshopParts) {
+    const copies = Math.max(1, ...graph.nodes.map((node) => types[node.type]?.variants ?? 1))
     let sum = 0
     let count = 0
     for (const test of tests) {
       for (let v = 0; v < copies; v++) {
-        const { outputs } = evaluate(graph, test.inputs, copies > 1 ? v : null)
+        const { outputs } = evaluate(graph, test.inputs, copies > 1 ? v : null, null, workshopParts)
         for (const [name, expected] of Object.entries(test.expected)) {
           const actual = outputs[name]
           if (!actual || actual.w !== expected.w || actual.h !== expected.h || (actual.c ?? 1) !== (expected.c ?? 1)) return Infinity
@@ -124,13 +133,13 @@ export function runnerOf(types) {
   // Finite-difference gradient descent on every learnable parameter, scored by mean squared error over the training
   // tests. Normally a step that makes the loss worse is halved and retried; with `backtrack: false` the step is taken
   // as it is, so a learning rate that is too large overshoots.
-  function trainStep(level, graph, rate = 4, { backtrack = true } = {}) {
+  function trainStep(level, graph, rate = 4, { backtrack = true, workshopParts } = {}) {
     const tests = trainingTests(level)
-    const loss = (g) => lossOn(tests, g)
+    const loss = (g) => lossOn(tests, g, workshopParts)
     const base = loss(graph)
     const gradients = []
     for (const node of graph.nodes) {
-      for (const param of types[node.type].params ?? []) {
+      for (const param of types[node.type]?.params ?? []) {
         if (!param.learnable) continue
         node.params[param.key].forEach((_, i) => {
           const probe = structuredClone(graph)
@@ -157,13 +166,13 @@ export function runnerOf(types) {
     return { graph, loss: base, rate: step }
   }
 
-  const hasLearnable = (graph) => graph.nodes.some((node) => (types[node.type].params ?? []).some((param) => param.learnable))
+  const hasLearnable = (graph) => graph.nodes.some((node) => (types[node.type]?.params ?? []).some((param) => param.learnable))
 
   // Restore only trainable settings to the values used when each part is placed.
   const resetTraining = (graph) => ({
     ...graph,
     nodes: graph.nodes.map((node) => {
-      const learnable = (types[node.type].params ?? []).filter((param) => param.learnable && node.fixed !== true && !node.fixed?.includes?.(param.key))
+      const learnable = (types[node.type]?.params ?? []).filter((param) => param.learnable && node.fixed !== true && !node.fixed?.includes?.(param.key))
       if (!learnable.length) return node
       const params = { ...node.params }
       for (const param of learnable) params[param.key] = Array.isArray(param.default) ? [...param.default] : param.default

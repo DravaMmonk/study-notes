@@ -41,7 +41,7 @@ export function playKinds(plays, resources, presentation = {}) {
         <Bound {...screen} />
       </Suspense>
     )
-    return [name, { label: play.label, ...presentation[name], Screen }]
+    return [name, { label: play.label, ...presentation[name], Screen, editor: play.editor }]
   }))
 }
 

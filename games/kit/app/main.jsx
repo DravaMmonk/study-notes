@@ -35,6 +35,11 @@ async function open() {
   if (problems.length) return { page: <Unreadable problems={problems} />, content: contentText }
   const game = define(content)
   game.partDefs = content.partDefs
+  game.workshop = {
+    domain: content.domain,
+    replaces: content.replaces ?? {},
+    publications: Object.fromEntries(content.levels.flatMap((level) => level.tasks.map((task) => [task.id, task.publishes ?? []]))),
+  }
   const store = createProgress({ id: content.id, tasks: taskStamps(vocabulary, content, game.stampOptions) })
   // A level embedded in a note (`?embed&level=…&lang=…`, games/DESIGN.md 12.1): the note sets its language.
   const asked = new URL(window.location.href).searchParams

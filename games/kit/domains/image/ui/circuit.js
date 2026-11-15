@@ -71,13 +71,13 @@ export function imageCircuit(image, cards) {
       rates: (task) => task.trainRates,
       has: kit.hasLearnable,
       reset: kit.resetTraining,
-      train(task, circuit, rate, steps) {
+      train(task, circuit, rate, steps, workshopParts) {
         const checks = checkingTests(task)
         const history = []
         for (let i = 0; i < steps; i++) {
-          const result = kit.trainStep(task, circuit, rate, { backtrack: !task.trainRates })
+          const result = kit.trainStep(task, circuit, rate, { backtrack: !task.trainRates, workshopParts })
           circuit = result.graph
-          history.push({ train: result.loss, check: checks.length ? kit.lossOn(checks, circuit) : null })
+          history.push({ train: result.loss, check: checks.length ? kit.lossOn(checks, circuit, workshopParts) : null })
         }
         return { circuit, history }
       },

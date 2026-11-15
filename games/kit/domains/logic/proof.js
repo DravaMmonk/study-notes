@@ -1,3 +1,4 @@
+import { workshopNodes } from '../../engine/workshop.js'
 // Proofs as circuits (《证明完毕》). A wire carries a proved judgment:
 //
 //   { formula, hyps: Map(hypothesis id → formula) }   the formula, proved from the hypotheses still open
@@ -544,9 +545,9 @@ export function premisesOf(test, consts = []) {
  * { premises: { name: formula text }, goal: formula text }; the level may name its constants (consts) and its lemmas.
  */
 export const LOGIC_TESTS = {
-  runTest: (level, circuit, test) => {
+  runTest: (level, circuit, test, { workshopParts } = {}) => {
     const consts = level.consts ?? []
-    const run = runBoard(circuit, { parts: level.parts, bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, exists: choicesOf(level).exists, lemmas: level.lemmas, proofs: level.proofs } })
+    const run = runBoard(circuit, { parts: workshopParts ?? level.parts, bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, exists: choicesOf(level).exists, lemmas: level.lemmas, proofs: level.proofs } })
     return { ...run, trace: [], outputs: { goal: run.outputs.goal } }
   },
   // A test may ask for the proof's term too (chapter 7): the same up to the names it binds.
@@ -557,6 +558,8 @@ export const LOGIC_TESTS = {
     return [{ name: 'goal', pass: !problem, reason: problem }]
   },
   // A shorter proof is a better one.
-  score: (level, circuit) => ({ steps: countSteps(circuit) }),
+  score: (_level, circuit, _runs, options) => ({
+    steps: countSteps(options?.workshopParts ? { nodes: workshopNodes(circuit, options.workshopParts).map(({ node }) => node) } : circuit),
+  }),
 }
 const countSteps = (circuit) => circuit.nodes.filter((node) => node.type !== 'premise' && node.type !== 'goal').length

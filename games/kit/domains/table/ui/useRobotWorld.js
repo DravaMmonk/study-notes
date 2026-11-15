@@ -18,7 +18,7 @@ import { L, T } from '../../../shell/i18n.js'
 
 const empty = { typed: {}, robot: null, selected: null, input: '', focus: null, bench: false }
 
-function sandbox(model, world, task, test, circuit, state) {
+function sandbox(model, world, task, test, circuit, state, workshopParts) {
   const cell = state.robot || world.sample(test, task)
   const keys = world.keys(test, cell)
   const shown = new Map(world.base?.(test, task) ?? [])
@@ -31,7 +31,7 @@ function sandbox(model, world, task, test, circuit, state) {
     return null
   }
   try {
-    const { out } = model.evaluate(circuit, (id, layer) => world.read(test, cell, id, get, task, layer), world.outs.map(([key]) => key), probe)
+    const { out } = model.evaluate(circuit, (id, layer) => world.read(test, cell, id, get, task, layer), world.outs.map(([key]) => key), probe, undefined, workshopParts)
     for (const [id, key] of Object.entries(keys)) shown.set(key, out[id])
   } catch {
     // A partial circuit still shows what it reached on the selected cell.
@@ -88,7 +88,7 @@ function noteOf(task, world, view, k) {
 }
 
 /** The robot's world, drawing and card controls. Editing, tests and playback belong to the circuit screen. */
-export function useRobotWorld({ screen, task, test, run, report, at, ended, circuit, change, version, held }) {
+export function useRobotWorld({ screen, task, test, run, report, at, ended, circuit, change, version, held, workshopParts }) {
   const { game, level, solve, fail, progress } = screen
   const { model } = game.table
   const world = WORLDS[task.world]
@@ -104,7 +104,7 @@ export function useRobotWorld({ screen, task, test, run, report, at, ended, circ
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const view = !run.run ? null : visible(report, at, ended, state)
   const live = Boolean(run.run && !run.run.over)
-  const box = view ? null : sandbox(model, world, task, test, circuit, state)
+  const box = view ? null : sandbox(model, world, task, test, circuit, state, workshopParts)
   const read = (id, cell, values, layer) => world.read(test, cell, id, (key) => values.get(key) ?? null, task, layer)
   const ui = sensorWindow(world, test, task, view, box, circuit, read, robot)
   const onCell = (id) => {

@@ -30,7 +30,7 @@ const engineParts = new Map();
 
 const ACCEPTS = { num: ['num'], bool: ['bool'], cat: ['cat'], any: ['num', 'bool', 'cat'], 'num*': ['num', 'nums'], 'bool*': ['bool', 'bools'] };
 
-const fits = (sink, src) => src === 'any' || ACCEPTS[sink].includes(src);
+const fits = (sink, src) => src === 'any' || sink === 'workshop-any' || ACCEPTS[sink].includes(src);
 
 /** Why a wire from a source of type `src` cannot go into a sink of type `sink`. */
 function misfit(sink, src) {
@@ -71,11 +71,11 @@ export function modelOf(parts) {
   /** Evaluate every output once. `sense(id, layer)` reads a sensor, lazily: only what is wired. `probe` collects every
    *  signal computed, by source, and each output as 'out:<id>'. A Halt from a sensor (a robot reading a cell not
    *  computed yet) stops it; a part that cannot compute is an error. */
-  function evaluate(board, sense, outs, probe = {}, trace) {
+  function evaluate(board, sense, outs, probe = {}, trace, resolved = partOf) {
     const record = values => { for (const [src, v] of values) probe[src] = v; };
     let run;
     try {
-      run = engineEvaluate(board, { parts: partOf, ctx: { sense, trace }, targets: outs });
+      run = engineEvaluate(board, { parts: resolved, ctx: { sense, trace }, targets: outs });
     } catch (e) {
       if (e instanceof Halt) record(e.values);
       throw e;
@@ -108,7 +108,7 @@ export function modelOf(parts) {
         const trace = traces && [];
         if (trace) traces.push(trace);
         try {
-          return evaluate(board, (id, layer) => V.read(t, c, id, get, o, layer), outs, probe, trace);
+          return evaluate(board, (id, layer) => V.read(t, c, id, get, o, layer), outs, probe, trace, o.workshopParts);
         } catch (e) {
           if (e instanceof Halt) e.probe = probe;
           throw e;
@@ -127,6 +127,8 @@ export function modelOf(parts) {
     if (isCard(n.type)) return io.sensors[pick]?.type ?? 'any';
     if (n.type === 'tap') return io.sensors[n.params.sensor]?.type ?? 'any';
     if (n.type === 'port') return 'num';
+    const custom = io.workshop?.[n.type];
+    if (custom) return custom.outputSignals[pick ?? custom.outputs[0]] ?? 'any';
     const d = parts.def(n.type), from = k => board.wires.find(w => w.to === id && w.port === String(k));
     if (typeof d.out === 'string' && d.out !== 'lift') return d.out;
     if (d.out && d.out.copy !== undefined) { const w = from(d.out.copy); return w ? srcType(board, io, w.from, seen) : 'any'; }
@@ -137,7 +139,8 @@ export function modelOf(parts) {
   function sinkType(board, io, to, port) {
     const n = board.nodes.find(x => x.id === to);
     if (n.type === 'out') return io.outs.find(o => o[0] === to)?.[3] || 'num';
-    return parts.def(n.type).ins[+port];
+    const custom = io.workshop?.[n.type];
+    return custom ? custom.inputSignals[port] ?? 'workshop-any' : parts.def(n.type).ins[+port];
   }
 
   /** The first wire whose source does not fit its port, as a message; null when every wire fits. */

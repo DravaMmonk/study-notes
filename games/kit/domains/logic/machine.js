@@ -1,3 +1,4 @@
+import { workshopNodes } from '../../engine/workshop.js'
 // The machine board (《证明完毕》 chapter 8 on): a circuit whose wires carry equations, proof states, formulas or
 // clause sets instead of proved judgments. Its sources (`in` cards, one per input the level names) give the test's
 // inputs, its sink `out` is checked against what the level wants. A part is a rule of unification, a tactic, a frame
@@ -688,10 +689,10 @@ export const runTactic = (level, type, state, keys = null) => level.parts(type).
 
 /** How a machine level runs and is judged, for the shared engine (../../engine/test-run.js). */
 export const MACHINE_TESTS = {
-  runTest: (level, circuit, test, { traced = false } = {}) => {
+  runTest: (level, circuit, test, { traced = false, workshopParts } = {}) => {
     const trace = []
     const run = runBoard(circuit, {
-      parts: level.parts,
+      parts: workshopParts ?? level.parts,
       bind: inputsOf(test, level),
       ctx: ctxOf(level, circuit, { trace: traced ? trace : null }),
       traceTargets: ['out'],
@@ -703,7 +704,11 @@ export const MACHINE_TESTS = {
     return [{ name: 'out', pass: !problem, reason: problem }]
   },
   // Rule parts are what the cards read, not steps of the machine.
-  score: (level, circuit) => ({ steps: circuit.nodes.filter((n) => n.type !== 'in' && n.type !== 'out' && !rulePartsOf(level).has(n.type)).length }),
+  score: (level, circuit, _runs, options) => {
+    const rules = rulePartsOf(level)
+    const nodes = options?.workshopParts ? workshopNodes(circuit, options.workshopParts).map(({ node }) => node) : circuit.nodes
+    return { steps: nodes.filter((n) => n.type !== 'in' && n.type !== 'out' && !rules.has(n.type)).length }
+  },
 }
 
 /** Use the same case checks and card budget in play and authoring. */

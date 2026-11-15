@@ -37,9 +37,9 @@ export function robotCircuits(table) {
     fits: (saved, task) => Boolean(restoreRobotBoard(model, task, saved)),
     portsIn: (task) => task.ports.filter((port) => port.input).map((port) => ({ name: port.input, label: port.label })),
     portsOut: (task) => WORLDS[task.world].outs.map(([name, label]) => ({ name, label })),
-    wiring: (task) => {
+    wiring: (task, circuit) => {
       const terms = termsOf(task)
-      return { ...wiring(model, terms), outputs: (node) => outputsOf(node, terms.sensors) }
+      return { ...wiring(model, { ...terms, workshop: circuit?.workshop }), outputs: (node) => outputsOf(node, terms.sensors) }
     },
     labelOf: (task, id) => CARDS[id]?.name ?? termsOf(task).ports[id]?.label ?? WORLDS[task.world].outs.find(([key]) => key === id)?.[1] ?? id,
   }

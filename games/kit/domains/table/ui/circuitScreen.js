@@ -29,7 +29,7 @@ export const robotScreenFor = ({ model }) => ({
       value: node.params?.value ?? model.valueDefault(node.type),
     }] : []
   },
-  play: { runLevel: (task, board) => robotRun(model, task, board), entries: () => [], show: signal },
+  play: { runLevel: (task, board, _parts, options) => robotRun(model, task, board, options?.workshopParts), entries: () => [], show: signal },
   testLabel: testName,
   useWorld: useRobotWorld,
   canvas: { height: 170, minFit: 0.62 },

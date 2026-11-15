@@ -251,12 +251,12 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const protectedIds = lockedCards(circuit)
   const onClear = circuit.nodes.some((n) => canRemoveCard(parts, n, protectedIds)) || board.clearable?.(circuit) ? board.clear : null
 
-  const briefEl = <Brief game={game} level={level} text={brief.text} tip={brief.tip} hint={brief.hint}>{brief.children}</Brief>
+  const briefEl = brief && <Brief game={game} level={level} text={brief.text} tip={brief.tip} hint={brief.hint}>{brief.children}</Brief>
   const dock = pad ?? <RunDock meta={meta} {...run.dock(words ?? { go: L(WORDS.run), done: L(WORDS.passed) })} />
   const testTabs = tabs && <TestTabs tests={run.tests} states={run.states} index={run.at} onSelect={run.select} phone={phone} />
 
   if (phone) {
-    const cards = fixedTray(game.course, level.source ?? level)
+    const cards = (game.course ? fixedTray(game.course, level.source ?? level) : types ?? [])
       .filter((type) => editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')
     const size = traySize(cards, trayParts ?? parts, partDefaults)
     return (
@@ -298,7 +298,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
         </div>
       }
       tests={testTabs}
-      status={<TestStatus states={run.states.filter((_, k) => !run.tests[k].sample)} hidden={run.hidden} />}
+      status={run.tests.length > 0 && <TestStatus states={run.states.filter((_, k) => !run.tests[k].sample)} hidden={run.hidden} />}
       results={results}
       resultsTitle={resultsTitle}
       resultsAside={resultsAside}

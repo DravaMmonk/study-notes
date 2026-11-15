@@ -12,7 +12,7 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { earnedUnlocks, firstTask as openTask, flagsIn, nextRequiredTask, passed, saved as savedAt, skipOptionalTask } from './progress.js'
+import { earnedUnlocks, firstTask as openTask, flagsIn, nextRequiredTask, passed, saved as savedAt, skipOptionalTask, taskOpen } from './progress.js'
 import { playedTask } from './played-task.js'
 import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
@@ -119,7 +119,8 @@ export default function GameShell({ game, store, author = null }) {
   const [won, setWon] = useState(null) // the level just passed
   const [failure, setFailure] = useState(null) // { info, fails } of the last run that missed
   const [fails, setFails] = useState(0) // misses on the current level this visit
-  const [sheet, setSheet] = useState(null) // 'parts' | 'wiki'
+  const [sheet, setSheet] = useState(null) // 'parts' | 'wiki' | 'workshop'
+  const [benchTray, setBenchTray] = useState(null)
 
   // The level drawer, pulled out from the left over a level.
   const [drawer, setDrawer] = useState(false)
@@ -282,6 +283,18 @@ export default function GameShell({ game, store, author = null }) {
     window.addEventListener('storage', refresh)
     return () => window.removeEventListener('storage', refresh)
   }, [store.key])
+  const workshopSources = useMemo(() => {
+    if (level || author || !game.workshop) return []
+    return game.levels.slice().reverse().flatMap((candidate) => {
+      if (!game.isOpen(candidate, solved, progress.all)) return []
+      return candidate.tasks.map((task, at) => ({ candidate, at, task, kind: game.kinds[playId(task)] }))
+        .reverse().filter(({ at, kind }) => kind?.editor === 'circuit' && taskOpen(game, progress, candidate.id, at))
+    })
+  }, [game, level, author, progress, solved])
+  const workshop = workshopSources.find(({ task }) => benchTray && game.course?.tray(task.source)?.includes(benchTray))
+    ?? workshopSources[0]
+  const bench = sheet === 'workshop' && workshop
+    ? playedTask(game, progress, workshop.candidate, workshop.at, {}) : null
   const titleMark = edit ? { 'data-edit': 'title', ...(same(edit, 'title', 'level') && { 'data-picked': '' }), onClickCapture: (e) => { e.stopPropagation(); edit.pick({ at: 'title', scope: 'level' }) } } : {}
 
   return (
@@ -324,6 +337,7 @@ export default function GameShell({ game, store, author = null }) {
             focus={left}
             onReset={() => setProgress((p) => ({ ...store.blank(), all: p.all }))}
             onParts={game.parts && (() => setSheet('parts'))}
+            onWorkshop={workshop && (() => { setBenchTray(null); setSheet('workshop') })}
             partsNew={box.unread.length}
             onWiki={game.glossary && (() => setSheet('wiki'))}
             unread={wiki.unread.length}
@@ -349,7 +363,7 @@ export default function GameShell({ game, store, author = null }) {
             )}
             <EditContext.Provider value={edit}>
               {kind
-                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: task.saved, save, solved: task.solved, solve, fail, ...run, flags, progress, theme, phone })}</SlotsContext.Provider>
+                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: task.saved, save, solved: task.solved, solve, fail, ...run, flags, progress, theme, phone, workshop: !author && game.workshop })}</SlotsContext.Provider>
                 : <div className="board-loading">{tr('这类关卡尚在制作中。')}</div>}
             </EditContext.Provider>
           </div>
@@ -378,6 +392,11 @@ export default function GameShell({ game, store, author = null }) {
           <SolvedDialog game={game} level={{ ...level, unlocks: earnedUnlocks(level, progress) }} onStay={() => setWon(null)} onExit={() => open(null)} />
         )}
         {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
+        {bench && createElement(workshop.kind.Screen, {
+          key: bench.key, game, level: bench.played, phone, progress, theme, workshop: game.workshop,
+          flags: flagsIn(game, progress, workshop.candidate, workshop.at),
+          workshopOnly: true, workshopTray: benchTray, onWorkshopTray: setBenchTray, onWorkshopClose: () => setSheet(null),
+        })}
         {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
         {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} start={sheetAt} edit={authoring} onClose={() => { setSheet(null); setSheetAt(null) }} />}
         {locked && <Dialog top title={tr(`「${locked.title}」尚未解锁`, `“${locked.title}” is still locked`)} lines={[locked.at && locked.at.id === level?.id ? tr('通过这一关后解锁。') : locked.at ? tr(`进行到 ${game.levelLabel(locked.at)}「${L(locked.at.title)}」时解锁。`, `Unlocks at ${game.levelLabel(locked.at)} “${L(locked.at.title)}”.`) : tr('继续推进后解锁。')]} actions={[[tr('确定'), () => setLocked(null)]]} onClose={() => setLocked(null)} />}
