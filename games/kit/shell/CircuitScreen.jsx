@@ -29,7 +29,6 @@ import { lookupBoard } from '../circuit/packed-boards.js'
 import { definedItem } from './parts/faces.jsx'
 import { optionsOf } from '../engine/parts/define.js'
 import { useEdit } from './edit.js'
-import NumberField from './NumberField.jsx'
 import { PHONE, useMedia } from './useMedia.js'
 import Readouts from './Readouts.jsx'
 import CircuitCheckTable from './plays/CircuitCheckTable.jsx'
@@ -90,17 +89,6 @@ import './training.css'
 
 const reportedFailure = (run) => run.error ?? (run.final ? null : failureText(run.fail))
 const finalFailure = (run) => run.fail?.at?.tick === undefined ? reportedFailure(run) : run.error
-
-/** A number typed on a card: a keypad on a phone (NumberField). */
-function CardNumber({ label, value, onChange }) {
-  const phone = useMedia(PHONE)
-  return (
-    <label className="cs-field">
-      <span>{L(label)}</span>
-      <NumberField label={label} value={value} phone={phone} onChange={onChange} />
-    </label>
-  )
-}
 
 /** A setting picked from a list, on a card. */
 function CardField({ label, value, options, onChange, disabled }) {

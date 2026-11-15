@@ -19,7 +19,6 @@ import { numberText } from '../../engine/number.js'
 
 const stop = (e) => e.stopPropagation()
 const optionsOf = (setting, allowed) => setting.options.filter((o) => !allowed || allowed.includes(o.value))
-const numberOf = (raw) => (raw === '' || raw === '-' || Number.isNaN(Number(raw)) ? raw : Number(raw))
 
 /** The values picked, in order: × takes one off, the menu after them adds one. */
 function ListControl({ options, value, onChange, readOnly, label }) {
@@ -56,19 +55,8 @@ function Control({ setting: s, value, onChange, allowed, readOnly, roomy, phone,
       )
     case 'buttons':
       return <Choice label={label} value={String(value)} onChange={onChange} layout={s.layout ?? 'row'} roomy={roomy} disabled={readOnly} options={optionsOf(s, allowed).map((o) => [o.value, o.label ?? o.value, iconOf(o.icon), o.about])} />
-    case 'number': {
-      const step = s.step ?? (s.integer ? 1 : 'any')
-      const nudge = (d) => onChange(Math.min(s.max ?? Infinity, Math.max(s.min ?? -Infinity, Number(value) + d * (typeof step === 'number' ? step : 1))))
-      const field = <NumberField label={label} value={value ?? ''} phone={phone} readOnly={readOnly} min={s.min} max={s.max} step={step} onChange={(v) => onChange(numberOf(v))} />
-      if (!s.stepper) return field
-      return (
-        <span className="pf-stepper" onPointerDown={stop}>
-          <button type="button" disabled={readOnly || (s.min !== undefined && Number(value) <= s.min)} onClick={() => nudge(-1)} aria-label={`${label} −`}>−</button>
-          {field}
-          <button type="button" disabled={readOnly || (s.max !== undefined && Number(value) >= s.max)} onClick={() => nudge(1)} aria-label={`${label} +`}>+</button>
-        </span>
-      )
-    }
+    case 'number':
+      return <NumberField id={id} label={label} value={value ?? ''} phone={phone} readOnly={readOnly} min={s.min} max={s.max} step={s.step} stepper={s.stepper} onChange={onChange} />
     case 'slider':
       return (
         <span className="pf-slider" onPointerDown={stop}>

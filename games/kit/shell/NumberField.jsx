@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { L, tr } from './i18n.js'
-import { numberKey, numberValue } from './number-entry.js'
+import { numberKey, numberValue, stepNumber } from './number-entry.js'
 import { numberText } from '../engine/number.js'
 import { useOverlay } from './useOverlay.js'
 
@@ -37,21 +37,61 @@ const shownText = (value) => (value === '' || value === null || value === undefi
  * `step` (1 when any); on a phone, a keypad, which walks on to the next number of the same part (下一项), so a row of
  * weights or a kernel is filled in one go. Neither path changes read-only inspection.
  */
-export default function NumberField({ label, value, onChange, phone, readOnly, min, max, step = 'any' }) {
-  const [open,setOpen] = useState(false)
-  const [draft,setDraft] = useState(null)
+export default function NumberField({ id, label, value, onChange, phone, readOnly, min, max, step, stepper }) {
+  const [open, setOpen] = useState(false)
+  const [draft, setDraft] = useState(null)
   const trigger = useRef(null)
-  const close=()=>{setOpen(false);trigger.current?.focus()}
-  if(!phone){
-    const nudge=(d)=>{const n=Number(value);if(Number.isFinite(n))onChange(String(Math.min(max??Infinity,Math.max(min??-Infinity,n+d*(typeof step==='number'?step:1)))))}
-    return <input aria-label={L(label)} type="text" inputMode="decimal" autoComplete="off" spellCheck={false} value={draft??shownText(value)} readOnly={readOnly}
-      onPointerDown={(e)=>e.stopPropagation()} onFocus={(e)=>e.target.select()} onBlur={()=>setDraft(null)}
-      onKeyDown={(e)=>{if(readOnly)return;if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();setDraft(null);nudge(e.key==='ArrowUp'?1:-1)}else if(e.key==='Enter')e.target.blur()}}
-      onChange={(e)=>{setDraft(e.target.value);const v=numberValue(e.target.value);if(v!==null)onChange(String(v))}}/>
+  const name = L(label)
+  const before = stepNumber(Number(value), -1, { min, max, step })
+  const after = stepNumber(Number(value), 1, { min, max, step })
+  const stop = (e) => e.stopPropagation()
+  const nudge = (next) => {
+    setDraft(null)
+    if (next !== null) onChange(next)
+  }
+  const close = () => {
+    setOpen(false)
+    trigger.current?.focus()
   }
   // The part's number fields in order, so the keypad can walk on to the next one.
-  const next=()=>{const all=[...(trigger.current?.closest('.pf-face')?.querySelectorAll('button.number-field:not(:disabled)')??[])];return all[all.indexOf(trigger.current)+1]??null}
-  return <><button type="button" ref={trigger} className="number-field" aria-label={tr(`编辑${L(label)}`,`Edit ${L(label)}`)} disabled={readOnly} onPointerDown={(e)=>e.stopPropagation()} onClick={()=>setOpen(true)}>{value===''?'—':shownText(value)}</button>
-    {open&&<NumberPad label={label} value={value} onCancel={close} onCommit={(v)=>{onChange(String(v));close()}}
-      onNext={next()?(v)=>{const to=next();onChange(String(v));setOpen(false);requestAnimationFrame(()=>to?.click())}:null}/>}</>
+  const nextField = () => {
+    const face = trigger.current?.closest('.pf-face')
+    const fields = Array.from(face?.querySelectorAll('button.number-field:not(:disabled)') ?? [])
+    return fields[fields.indexOf(trigger.current) + 1]
+  }
+  const field = phone ? (
+    <>
+      <button id={id} type="button" ref={trigger} className="number-field" aria-label={tr(`编辑${name}`, `Edit ${name}`)} disabled={readOnly} onPointerDown={stop} onClick={() => setOpen(true)}>{value === '' ? '—' : shownText(value)}</button>
+      {open && <NumberPad label={label} value={value} onCancel={close} onCommit={(v) => { onChange(v); close() }}
+        onNext={nextField() ? (v) => {
+          const to = nextField()
+          onChange(v)
+          setOpen(false)
+          requestAnimationFrame(() => to?.click())
+        } : null} />}
+    </>
+  ) : (
+    <input id={id} aria-label={name} type="text" inputMode="decimal" autoComplete="off" spellCheck={false} value={draft ?? shownText(value)} readOnly={readOnly}
+      onPointerDown={stop} onFocus={(e) => e.target.select()} onBlur={() => setDraft(null)}
+      onKeyDown={(e) => {
+        if (readOnly) return
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+          e.preventDefault()
+          nudge(e.key === 'ArrowUp' ? after : before)
+        } else if (e.key === 'Enter') e.target.blur()
+      }}
+      onChange={(e) => {
+        setDraft(e.target.value)
+        const next = numberValue(e.target.value)
+        if (next !== null) onChange(next)
+      }} />
+  )
+  if (!stepper) return field
+  return (
+    <span className="pf-stepper" onPointerDown={stop}>
+      <button type="button" disabled={readOnly || before === null} onClick={() => nudge(before)} aria-label={`${name} −`}>−</button>
+      {field}
+      <button type="button" disabled={readOnly || after === null} onClick={() => nudge(after)} aria-label={`${name} +`}>+</button>
+    </span>
+  )
 }

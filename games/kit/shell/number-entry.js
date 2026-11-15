@@ -1,4 +1,4 @@
-// Numeric drafts are text until the user explicitly commits a finite value.
+// Numeric drafts stay as text while their controls emit only finite values.
 const DECIMAL = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i
 export function numberValue(text) {
   const parts = String(text).trim().split('/').map((p) => p.trim())
@@ -7,6 +7,15 @@ export function numberValue(text) {
   const value = parts.length === 2 ? b === 0 ? NaN : a / b : a
   return Number.isFinite(value) ? value : null
 }
+
+/** The next value in the chosen direction, or null if the control cannot step. */
+export function stepNumber(value, direction, { min = -Infinity, max = Infinity, step = 'any' } = {}) {
+  if (!Number.isFinite(value) || (direction < 0 ? value <= min : value >= max)) return null
+  const amount = typeof step === 'number' ? step : 1
+  const next = Math.min(max, Math.max(min, value + direction * amount))
+  return Number.isFinite(next) && next !== value ? next : null
+}
+
 export function numberKey(state, key) {
   const text = state.text
   if (key === 'clear') return { text: '', replace: false }

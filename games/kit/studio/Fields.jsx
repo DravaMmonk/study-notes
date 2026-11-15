@@ -13,6 +13,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChevronRight, Copy, GripVertical, Minus, Pencil, Plus, RotateCcw, X } from 'lucide-react'
 import { getLang, L, tr } from '../shell/i18n.js'
+import { stepNumber } from '../shell/number-entry.js'
 import { boardSvg } from '../circuit/svg.js'
 import { showPath } from '../engine/ops/edit.js'
 import { blank, moved, recast, revertOf, shapeName, summaryOf, taskOptionsOf } from './form.js'
@@ -38,16 +39,18 @@ function Area({ value, onChange, bind, className = '', ...rest }) {
 function NumberField({ field, onSet, label }) {
   const [draft, setDraft, bind] = useDraft(field.value)
   const range = field.min !== undefined && field.max !== undefined && field.max - field.min <= 1000
-  const put = (v) => {
-    const n = Math.min(field.max ?? Infinity, Math.max(field.min ?? -Infinity, v))
-    const round = field.int ? Math.round(n) : Number(n.toFixed(6))
+  const put = (value) => {
+    const round = field.int ? Math.round(value) : Number(value.toFixed(6))
     setDraft(round)
     onSet(round)
   }
   const now = Number(draft)
+  const current = Number.isFinite(now) ? now : 0
+  const before = stepNumber(current, -1, field)
+  const after = stepNumber(current, 1, field)
   return (
     <div className="num">
-      <button type="button" className="num-step" onClick={() => put((Number.isFinite(now) ? now : 0) - field.step)} aria-label={tr('减')} disabled={field.min !== undefined && now <= field.min}><Minus size={12} /></button>
+      <button type="button" className="num-step" onClick={() => put(before)} aria-label={tr('减')} disabled={before === null}><Minus size={12} /></button>
       <input
         className="field-input is-num" type="number" value={draft ?? ''} min={field.min} max={field.max} step={field.int ? 1 : 'any'} aria-label={label} {...bind}
         onChange={(e) => {
@@ -55,7 +58,7 @@ function NumberField({ field, onSet, label }) {
           if (e.target.value !== '' && Number.isFinite(Number(e.target.value))) onSet(Number(e.target.value))
         }}
       />
-      <button type="button" className="num-step" onClick={() => put((Number.isFinite(now) ? now : 0) + field.step)} aria-label={tr('加', 'More')} disabled={field.max !== undefined && now >= field.max}><Plus size={12} /></button>
+      <button type="button" className="num-step" onClick={() => put(after)} aria-label={tr('加', 'More')} disabled={after === null}><Plus size={12} /></button>
       {range && <input className="num-slide" type="range" min={field.min} max={field.max} step={field.int ? 1 : field.step === 1 ? (field.max - field.min) / 100 : field.step} value={Number.isFinite(now) ? now : field.min} onChange={(e) => put(Number(e.target.value))} aria-label={label} />}
     </div>
   )
