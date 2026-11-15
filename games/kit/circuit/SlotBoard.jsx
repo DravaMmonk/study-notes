@@ -8,7 +8,7 @@ import { useSetting } from '../shell/useSetting.js'
 import { labelledConnections, sourceLabel, blockOwners, wireKey } from './connections.js'
 import ClearButton from './ClearButton.jsx'
 import SaveSlots from './SaveSlots.jsx'
-import { useBoardWidth } from './useBoardWidth.js'
+import { useElementSize } from '../views/useElementSize.js'
 import { cardView } from '../engine/views.js'
 import { cardHeight } from './card-size.js'
 import { slotMetrics } from './slot-metrics.js'
@@ -146,7 +146,7 @@ export default function SlotBoard({ blocks = null, onPartitionHint, canMove = ()
   const portMask = useId()
   const ownRef = useRef(null)
   const board = boardRef ?? ownRef
-  const availableWidth = useBoardWidth(ownRef)
+  const availableWidth = useElementSize(ownRef)?.width || Infinity
   const parts = boardRef ? givenParts : { ...givenParts, availableWidth }
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)

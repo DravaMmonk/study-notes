@@ -1,4 +1,4 @@
-import { useBoardWidth } from '../circuit/useBoardWidth.js'
+import { useElementSize } from '../views/useElementSize.js'
 import { traySize } from '../circuit/card-size.js'
 import { fixedTray } from '../course.js'
 import { useSetting } from './useSetting.js'
@@ -301,7 +301,7 @@ function blockActions(circuit, parts, change) {
 function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, items, folded, types, make, describeOf, sheet: sheetBody, addSheet, size, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
   const { circuit: sourceCircuit, change } = board
   const boardRef = useRef(null)
-  const availableWidth = useBoardWidth(boardRef)
+  const availableWidth = useElementSize(boardRef)?.width || Infinity
   const parts = { ...givenParts, availableWidth, traySize: size }
   const circuit = useMemo(()=>phoneBlockBoard(sourceCircuit,parts),[sourceCircuit,parts])
   const [manualBlocks] = useSetting('manualBlocks')

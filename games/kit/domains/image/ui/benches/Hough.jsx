@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { tokenColour, useWidth } from './matchDraw.js'
+import { tokenColour } from './matchDraw.js'
 import { tr } from '../../../../shell/i18n.js'
+import { useElementSize } from '../../../../views/useElementSize.js'
 import './match.css'
 
 // The voting bench's two pictures (bench model `hough`), for the case on show: the edge points with the two lines to
@@ -41,7 +42,7 @@ export function HoughPlanes({ ctx }) {
   const { rhoMax } = ctx.model
   const canvas = useRef(null)
   const box = useRef(null)
-  const width = useWidth(box)
+  const width = useElementSize(box, 'content')?.width
 
   // The accumulator view: all of (θ, ρ), or a window around the two target lines where the bins themselves are
   // visible. Both keep the full view's aspect, so a degree is as wide in either.

@@ -1,6 +1,7 @@
-import { useLayoutEffect, useMemo, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import { L, tr } from '../../../../shell/i18n.js'
 import { useTween } from '../../../../views/useTween.js'
+import { useElementSize } from '../../../../views/useElementSize.js'
 import './gan.css'
 
 // The GAN duel's chart (bench model `gan`): one x axis (the data value, −4…4) for the histograms of real and generated
@@ -9,24 +10,13 @@ import './gan.css'
 
 const BINS = 32
 const TRACE = 60
-// The rendered width of an element, so the chart's viewBox is drawn 1:1 and its text stays legible.
-function useWidth(fallback) {
-  const [node, setNode] = useState(null)
-  const [width, setWidth] = useState(fallback)
-  useLayoutEffect(() => {
-    if (!node) return undefined
-    const observer = new ResizeObserver(([entry]) => setWidth(Math.max(260, Math.round(entry.contentRect.width))))
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [node])
-  return [setNode, width]
-}
-
 export function GanChart({ ctx }) {
   const m = ctx.model
   const { state } = ctx.view
   const { phone } = ctx
-  const [frame, width] = useWidth(600)
+  const frame = useRef(null)
+  const size = useElementSize(frame, 'content')
+  const width = Math.max(260, Math.round(size?.width ?? 600))
 
   // The drawing eases between turns; the readouts always show the true state.
   const target = useMemo(() => [...state.pens, ...state.w], [state])

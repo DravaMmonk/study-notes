@@ -1,7 +1,8 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'lucide-react'
-import { pixelUrl, svgPoint, useWidth } from './matchDraw.js'
+import { pixelUrl, svgPoint } from './matchDraw.js'
 import { L, tr } from '../../../../shell/i18n.js'
+import { useElementSize } from '../../../../views/useElementSize.js'
 import './match.css'
 
 // The book-cover bench's pictures (bench model `cover`): pair a point on the cover with the same point in the photo
@@ -38,7 +39,7 @@ export function CoverPairs({ ctx, children }) {
   const stage = useRef(null)
   const links = useRef(null)
   const draft = useRef(null)
-  const stageWidth = useWidth(stage)
+  const stageSize = useElementSize(stage, 'content')
 
   const { fit } = ctx.view
 
@@ -67,7 +68,7 @@ export function CoverPairs({ ctx, children }) {
       line.setAttribute('x2', x2 - box.left)
       line.setAttribute('y2', y2 - box.top)
     })
-  }, [pairs, stageWidth, phone, m])
+  }, [pairs, stageSize, phone, m])
 
   const addPair = (cover, photo) => {
     const rest = pairs.filter((p) => p.cover !== cover && p.photo !== photo)

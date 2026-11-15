@@ -1,12 +1,12 @@
 import { cardWidth } from './card-size.js'
-import { useBoardWidth } from './useBoardWidth.js'
+import { useElementSize } from '../views/useElementSize.js'
 import useBlockDrag from './useBlockDrag.js'
 import { containerUnderPointer } from './dropTarget.js'
 import { assignBlock, rectangleMembers } from './blocks.js'
 import { WORDS } from '../shell/words.js'
 import BlockHeader from './BlockHeader.jsx'
 import { useSetting } from '../shell/useSetting.js'
-import { useEffect, useLayoutEffect, useReducer, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useLayoutEffect, useReducer, useRef, useState } from 'react'
 import { foldedPartsOf } from './folding.js'
 import ClearButton from './ClearButton.jsx'
 import { labelledConnections, sourceLabel, blockOwners, wireKey } from './connections.js'
@@ -138,7 +138,8 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const layer = useRef(null)
   const pointers = useRef(new Map())
   const byId = new Map(graph.nodes.map((n) => [n.id, n]))
-  const available = useBoardWidth(surface)
+  const size = useElementSize(surface)
+  const available = size?.width || Infinity
   const widthOf = (node) => node.hiddenBlock ? node.w : cardWidth(parts, node, available)
   const placed = graph.nodes.filter((n) => parts.role(n) === 'part').length
   const regionsOf = (node) => parts.frames?.(node) ?? []
@@ -294,11 +295,10 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
 
   // Fit once the board first has a real size.
   const fitted = useRef(false)
-  const fitRef = useRef(fit)
-  const refitRef = useRef(refit)
-  useLayoutEffect(() => {
-    fitRef.current = fit
-    refitRef.current = refit
+  const fitOnResize = useEffectEvent(() => {
+    if (!size?.width || (fitted.current && !refit)) return
+    fitted.current = true
+    fit()
   })
   // A board that already has its size (one opened in place of another: a level's next task) is fitted before it is
   // first painted, once its cards are measured, so the circuit never shows unfitted for a frame.
@@ -309,14 +309,8 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     fit()
   })
   useEffect(() => {
-    const observer = new ResizeObserver(([entry]) => {
-      if ((fitted.current && !refitRef.current) || !entry.contentRect.width) return
-      fitted.current = true
-      fitRef.current()
-    })
-    observer.observe(surface.current)
-    return () => observer.disconnect()
-  }, [])
+    fitOnResize()
+  }, [size])
 
   // A card that appears outside the visible board (a new part, an input just lit) brings the whole circuit back into
   // view, so nothing the player adds is ever off-screen.
@@ -339,7 +333,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
       const [cx, cy] = [box.left + x + (width * view.zoom) / 2, box.top + y + (30 * view.zoom)]
       return x < 0 || y < 0 || x + width * view.zoom > box.width || y + 60 * view.zoom > box.height || wins.some((b) => cx > b.left && cx < b.right && cy > b.top && cy < b.bottom)
     })
-    if (outside) fitRef.current()
+    if (outside) fit()
   })
 
   const removeSelected = () => {

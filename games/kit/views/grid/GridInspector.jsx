@@ -2,24 +2,9 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { tr } from '../../shell/i18n.js'
 import { cellNumber, pixel, pixelText } from '../../engine/grid.js'
+import { useElementSize } from '../useElementSize.js'
 import GridView from './GridView.jsx'
 import { denseCell, fitFrame, inspectorCell, thumbCell } from './layout.js'
-
-/** The frame's inner size, kept current as the screen changes it. */
-function useFrameSize(frame) {
-  const [size, setSize] = useState(null)
-  useLayoutEffect(() => {
-    const el = frame.current
-    const measure = () => setSize((s) => s?.w === el.clientWidth && s?.h === el.clientHeight ? s : { w: el.clientWidth, h: el.clientHeight })
-    measure()
-    // A frame inside a dialog that is still opening can measure 0 at first; measure again once it is laid out.
-    const later = requestAnimationFrame(measure)
-    const observer = new ResizeObserver(measure)
-    observer.observe(el)
-    return () => { cancelAnimationFrame(later); observer.disconnect() }
-  }, [frame])
-  return size
-}
 
 /** The largest frame the screen allows (--gv-frame-w, --gv-frame-h on the figure), kept current as it changes. */
 function useFrameMax(root, on) {
@@ -74,7 +59,7 @@ function usePan(frame) {
 export default function GridInspector({ value, label, note, view, showSize = true, explainPixel, mark, onPick, cellClass, inspectPixel, fit = false, dense = false }) {
   const root = useRef(null)
   const frame = useRef(null)
-  const size = useFrameSize(frame)
+  const size = useElementSize(frame)
   const pan = usePan(frame)
   const [point, setPoint] = useState(null)
   useEffect(()=>{
@@ -92,7 +77,7 @@ export default function GridInspector({ value, label, note, view, showSize = tru
   const max = useFrameMax(root, fit)
   const frameSize = fit && max ? fitFrame(value, info, max, cellOf) : null
   // A frame not laid out yet (measured inside something still hidden or opening) draws the thumbnail size meanwhile.
-  const scale = size && size.w > 2 && size.h > 2 ? Math.min((size.w - 2) / value.w, (size.h - 2) / value.h) : thumbCell(value)
+  const scale = size && size.width > 2 && size.height > 2 ? Math.min((size.width - 2) / value.w, (size.height - 2) / value.h) : thumbCell(value)
   const range = value.data.reduce(([lo, hi], v) => [Math.min(lo, v), Math.max(hi, v)], [Infinity, -Infinity])
   const select = (x, y, event, pinned) => {
     const cell = event.currentTarget.getBoundingClientRect()
