@@ -19,13 +19,13 @@ export function termRegistry(glossary) {
     for (const side of ['zh', 'en']) {
       // Content is written in the base language: a name and an explanation are required there, and read in another
       // language only where the texts carry it.
-      if (side === 'zh' && !plain(sides(entry.title)[side])) failures.push(problem('term-name', `${at}.title.${side}`, 'the canonical name is empty'))
-      if (side === 'zh' && !(entry.body ?? []).some((p) => plain(sides(p)[side]))) failures.push(problem('term-definition', `${at}.body.${side}`, 'the entry body has no explanatory text'))
+      if (side === 'en' && !plain(sides(entry.title)[side])) failures.push(problem('term-name', `${at}.title.${side}`, 'the canonical name is empty'))
+      if (side === 'en' && !(entry.body ?? []).some((p) => plain(sides(p)[side]))) failures.push(problem('term-definition', `${at}.body.${side}`, 'the entry body has no explanatory text'))
       for (const [k, text] of [entry.title, ...(entry.aliases ?? [])].entries()) {
         const name = normal(sides(text)[side])
         const where = `${at}.${k ? `aliases[${k - 1}]` : 'title'}.${side}`
         if (!name) {
-          if (k && side === 'zh') failures.push(problem('term-name', where, 'an alias is empty'))
+          if (k && side === 'en') failures.push(problem('term-name', where, 'an alias is empty'))
           continue
         }
         const previous = names[side].get(name)

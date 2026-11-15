@@ -17,7 +17,8 @@ import { boardSvg } from '../circuit/svg.js'
 import { showPath } from '../engine/ops/edit.js'
 import { blank, moved, recast, revertOf, shapeName, summaryOf } from './form.js'
 import { Chips, Choice, Picker } from './Picker.jsx'
-import { TextField } from './TextField.jsx'
+import { CopyTextField, TextField } from './TextField.jsx'
+import { copySide } from './translations.js'
 import { GridField, NumbersField, TableField, TicksField, WaveField } from './Cells.jsx'
 import { ExprField, IconField } from './PartFields.jsx'
 import { useDraft } from './draft.js'
@@ -127,7 +128,7 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
   const name = label ?? ''
   const body = (() => {
     switch (field.kind) {
-      case 'text': return <TextField value={field.value} onSet={set} label={name} field={ctx.textField?.(field.path) ?? ''} names={ctx.names} findings={found} />
+      case 'text': return <CopyTextField side={copySide(field.value, ctx.lang ?? 'en', ctx.i18n)} onSet={set} onTranslate={ctx.onTranslate} label={name} field={ctx.textField?.(field.path) ?? ''} names={ctx.names} findings={found} />
       case 'num': return <NumberField field={field} onSet={set} label={name} />
       case 'bool': return <input type="checkbox" className="field-check" checked={Boolean(field.value)} onChange={(e) => set(e.target.checked)} aria-label={name} />
       case 'str': return <StringField field={field} onSet={set} label={name} />

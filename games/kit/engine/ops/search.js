@@ -53,8 +53,8 @@ export function searchable(content, vocabulary, kinds = KINDS) {
   const texts = (value, schema, at) => {
     for (const { path, value: v } of find(schema, value, 'text', { vocabulary })) {
       // Content is written in one language (../i18n.js): a text is searched and replaced there.
-      const text = typeof v === 'string' ? v : v?.zh
-      if (typeof text === 'string') out.push({ ...at, path, kind: 'text', side: 'zh', text })
+      const text = typeof v === 'string' ? v : v?.en
+      if (typeof text === 'string') out.push({ ...at, path, kind: 'text', side: 'en', text })
     }
   }
   const { id: _g, levels, glossary, domain: _d, vocabulary: _v, open: _o, blueprint: _b, eras: _e, ...game } = content

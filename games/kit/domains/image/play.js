@@ -14,7 +14,7 @@ import { INPUT_LABELS, descriptionOf } from './words.js'
 import { T } from '../../shell/i18n.js'
 import { inheritedBoard } from '../../shell/progress.js'
 
-const pick = (v, lang) => (v && typeof v === 'object' ? v[lang] ?? v.zh : v)
+const pick = (v, lang) => (v && typeof v === 'object' ? v[lang] ?? v.en ?? v.zh : v)
 
 /** A number as short as it reads: 0, 1, .5, -.25. */
 const short = (v) => {

@@ -1,4 +1,4 @@
-// A text pair as an author writes it: Chinese and English side by side, each growing with what it holds. A link
+// A text as an author writes it, growing with what it holds. A link
 // (<level-ref>, <part-ref>, <wiki-ref>, ../shell/refs.js) shows as a chip with the name it will show in the game, and
 // is put in from a picker that searches the game's levels, parts and entries, never typed as a tag: opened by 🔗, by
 // Ctrl/⌘+L (a selection becomes the search and is replaced by the link) or by typing [[ (【【 from a Chinese keyboard);
@@ -15,15 +15,17 @@ import { REF, refProblems } from '../engine/text.js'
 import { lintText } from '../pipeline/lint.js'
 import { OptionList } from './Picker.jsx'
 import { MOD } from './Shortcuts.jsx'
+import { BASE } from '../engine/i18n.js'
+import { translationOp } from './translations.js'
 
 const HAS_REF = /<(level|part|wiki)-ref to="[^"]+"><\/\1-ref>/
 const tag = (kind, to) => `<${kind}-ref to="${to}"></${kind}-ref>`
 const TRIGGERS = ['[[', '【【']
-const pairOf = (value) => (typeof value === 'string' ? { zh: value } : value ?? { zh: '' })
+const sideText = (value, lang) => (typeof value === 'string' ? value : value?.[lang] ?? '')
 
 /** What a chip says: a level's number and title, a part's name, an entry's title (in the side's language). */
 function chipText(names, kind, id, lang) {
-  const pick = (v) => (v && typeof v === 'object' ? v[lang] ?? v.zh : v)
+  const pick = (v) => (v && typeof v === 'object' ? v[lang] ?? v.en ?? v.zh : v)
   if (kind === 'level') {
     const l = names?.level.get(id)
     return l ? `${l.label} ${pick(l.title) ?? ''}`.trim() : null
@@ -117,7 +119,7 @@ const select = (range) => {
  * One side: editable text with chips. `api` gets insert(kind, id), to put a link over the selection it last had, and
  * focus(), to go back to it; onLink(query) asks for the link picker.
  */
-function Side({ value, onChange, names, lang, label, api, onFocus, onLink }) {
+function Side({ value, onChange, names, lang, label, placeholder, api, onFocus, onLink }) {
   const el = useRef(null)
   const composing = useRef(false)
   const saved = useRef(null) // the selection when the side last lost focus
@@ -174,7 +176,7 @@ function Side({ value, onChange, names, lang, label, api, onFocus, onLink }) {
   }
   return (
     <div
-      ref={el} className="rich" lang={lang} role="textbox" aria-multiline="true" aria-label={label} contentEditable suppressContentEditableWarning spellCheck
+      ref={el} className="rich" lang={lang} role="textbox" aria-multiline="true" aria-label={label} aria-placeholder={placeholder} data-placeholder={placeholder} contentEditable suppressContentEditableWarning spellCheck
       onInput={changed}
       onCompositionStart={() => { composing.current = true }}
       onCompositionEnd={() => { composing.current = false; changed() }}
@@ -208,45 +210,44 @@ function Side({ value, onChange, names, lang, label, api, onFocus, onLink }) {
 /** The findings on a text: links that resolve, the copy rules for its field. */
 export function textFindings(pair, field, names) {
   if (!names) return []
-  const zhNames = {
-    level: new Map([...names.level].map(([id, l]) => [id, String(l.title?.zh ?? l.title ?? '')])),
-    part: new Map([...names.part].map(([k, n]) => [k, String(n?.zh ?? n ?? '')])),
-    wiki: new Map([...names.wiki].map(([k, n]) => [k, String(n?.zh ?? n ?? '')])),
+  const namesById = {
+    level: new Map([...names.level].map(([id, l]) => [id, String(l.title?.en ?? l.title ?? '')])),
+    part: new Map([...names.part].map(([k, n]) => [k, String(n?.en ?? n ?? '')])),
+    wiki: new Map([...names.wiki].map(([k, n]) => [k, String(n?.en ?? n ?? '')])),
   }
   const found = [
-    ...refProblems(pair, '', zhNames, names.quotes ?? []).map((s) => s.trim()),
+    ...refProblems(pair, '', namesById, names.quotes ?? []).map((s) => s.trim()),
     ...lintText(field, pair).map((f) => `${f.rule}: ${f.says}`),
   ]
   return [...new Set(found)]
 }
 
-export function TextField({ value, onSet, label, field = '', names, findings = [], compact = false }) {
-  const pair = pairOf(value)
+export function TextField({ value, onSet, label, field = '', names, findings = [], compact = false, lang = BASE, placeholder, onFocus, onBlur }) {
+  const text = sideText(value, lang)
   // Typed text kept here while the operation it makes is on its way back.
-  const [draft, setDraft] = useState(pair)
+  const [draft, setDraft] = useState(text)
   const typing = useRef(0)
-  const key = JSON.stringify(pair)
   useEffect(() => {
-    if (Date.now() - typing.current > 1500) setDraft(JSON.parse(key))
-  }, [key])
+    if (Date.now() - typing.current > 1500) setDraft(text)
+  }, [text, lang])
   const box = useRef(null)
   const [linking, setLinking] = useState(null) // the picker's first search while it is open
   const set = useCallback((text) => {
     typing.current = Date.now()
-    setDraft({ zh: text })
-    onSet({ zh: text })
-  }, [onSet])
+    setDraft(text)
+    onSet({ [lang]: text })
+  }, [lang, onSet])
   const options = useMemo(() => (names ? [
     ...[...names.level].map(([id, l]) => ({ value: `level:${id}`, label: l.label, title: l.title, group: tr('关卡') })),
     ...[...names.part].map(([k, n]) => ({ value: `part:${k}`, label: k, title: n, group: tr('元件', 'Parts') })),
     ...[...names.wiki].map(([k, n]) => ({ value: `wiki:${k}`, label: k, title: n, group: tr('百科') })),
   ] : []), [names])
   const close = () => { setLinking(null); box.current?.focus() }
-  const all = [...new Set([...textFindings(draft, field, names), ...findings])]
+  const all = [...new Set([...textFindings({ [lang]: draft }, field, names), ...findings])]
   return (
-    <div className={`field-text ${all.length ? 'has-findings' : ''} ${compact ? 'is-compact' : ''}`}>
+    <div onFocus={onFocus} onBlur={onBlur} className={`field-text ${all.length ? 'has-findings' : ''} ${compact ? 'is-compact' : ''}`}>
       <div className="text-sides">
-        <Side value={draft.zh ?? ''} onChange={set} names={names} lang="zh" label={label} api={box} onLink={setLinking} />
+        <Side value={draft} onChange={set} names={names} lang={lang} label={label} placeholder={placeholder} api={box} onLink={setLinking} />
       </div>
       {names && (
         <div className="text-tools">
@@ -267,4 +268,23 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
       {all.length > 0 && <ul className="field-findings">{all.map((f) => <li key={f}>{f}</li>)}</ul>}
     </div>
   )
+}
+
+/** Edit the requested side, routing translations through the same operation as the translation table. */
+export function CopyTextField({ side, onSet, onTranslate, ...props }) {
+  // A new English source may arrive in the preview while the author is still typing it.
+  const [editingSource, setEditingSource] = useState(false)
+  const { from, to } = side
+  const lang = editingSource ? BASE : side.lang
+  const change = (value) => {
+    if (lang === BASE) return onSet(value)
+    const op = translationOp(lang, side, value[lang])
+    if (op) onTranslate(op)
+  }
+  return <TextField
+    key={lang} {...props} lang={lang} value={lang === BASE ? from ?? side.text : side.text}
+    onSet={change} placeholder={lang !== BASE && to === undefined ? from : undefined}
+    onFocus={() => setEditingSource(lang === BASE)}
+    onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setEditingSource(false) }}
+  />
 }

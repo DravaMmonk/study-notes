@@ -20,9 +20,8 @@ import '../shell/shell.css'
 import '../views/views.css'
 import '../circuit/circuit.css'
 import { useEffect, useMemo, useState } from 'react'
-import { GameShell } from '../shell/index.js'
+import { GameShell, getLang } from '../shell/index.js'
 import { createProgress, openAt, saved } from '../shell/progress.js'
-import { applyLang } from '../lang.js'
 import { localized } from '../engine/i18n.js'
 import { DOMAINS } from 'virtual:studio-domains'
 import PartPreview from '../shell/parts/PartPreview.jsx'
@@ -32,7 +31,9 @@ const say = (message) => window.parent.postMessage(message, window.location.orig
 /** The studio's theme and language. */
 function look({ theme, lang }) {
   if (theme) document.documentElement.dataset.theme = theme
-  if (lang && lang !== (document.documentElement.lang === 'en' ? 'en' : 'zh')) applyLang(lang)
+  if (!lang) return
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en'
+  if (lang !== getLang()) window.dispatchEvent(new CustomEvent('langchange', { detail: lang }))
 }
 
 /** The game the shell plays, made of `content`, with saves of its own, kept across the author's edits (a board an

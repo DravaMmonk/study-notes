@@ -1,10 +1,10 @@
 {
-  "title": { "zh": "自相矛盾的已知" },
+  "title": { "en": "Givens that contradict" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "zh": "目标和已知毫不相干，已知里却有一对互相矛盾的句子。"
+        "en": "The goal has nothing to do with the givens, yet among the givens is a pair that contradict each other."
       }
     }
   ],
@@ -13,12 +13,12 @@
       "id": "r-false",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": { "en": "Goal" } }],
       "tests": [{ "goal": "Pigs", "hyps": ["Rain", "¬Rain"] }, { "goal": "Moon", "hyps": ["¬Wet", "Wet"] }],
-      "brief": { "zh": "设计一个证明助手，证完每一个目标。" },
+      "brief": { "en": "Design a proof assistant that proves every goal." },
       "hint": [
-        { "zh": "倒着走，第一步该把目标换成什么？" },
-        { "zh": "套用当消去规则用，对得上哪一条已知？" }
+        { "en": "Going backwards, what should the goal become first?" },
+        { "en": "Apply as an elimination rule: which given does it fit?" }
       ],
       "solution": [
         "c0r0 = botE()",

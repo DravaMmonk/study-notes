@@ -6,7 +6,7 @@ import { auditBlueprint, conformance, erasOf, renameSlot } from './blueprint.js'
 import { lintCopy } from './lint.js'
 import { boardShape, lintPedagogy } from './pedagogy.js'
 
-const t = (s) => ({ zh: s })
+const t = (s) => ({ en: s })
 const slot = (id, extra = {}) => ({ id, title: t(id), task: t(id), question: t(`why ${id}?`), chain: [t('try'), t('see')], role: 'foundation', uses: [], ...(extra.role === 'practice' ? { facet: t('a new case') } : {}), ...extra })
 const series = (id, slots, extra = {}) => ({ id, title: t(id), kind: 'foundation', slots, ...extra })
 const point = (id, basis = 'lecture', more = {}) => ({ id, term: t(`the ${id} term`), about: t('x'), source: 'notes/lecture-1.md §2', wall: t('x'), basis, difficulty: 'learnable', ...more })
@@ -138,7 +138,7 @@ test('the copy lint names the rule each text breaks', () => {
   assert.deepEqual(found({ intro: [{ t: { zh: '新元件「加一」：输入加 1。' } }] }), ['copy-intro-part'])
   assert.deepEqual(found({ brief: { zh: '放一块卡片。' } }), ['copy-banned'])
   assert.deepEqual(found({ brief: { zh: '搭一块网卡。' } }), [])
-  assert.deepEqual(found({ after: { zh: '<part-ref to="part:reg"></part-ref>记住了它。' } }), ['copy-after-part'])
+  assert.deepEqual(found({ after: { en: '<part-ref to="part:reg"></part-ref>记住了它。' } }), ['copy-after-part'])
   assert.deepEqual(found({ after: { zh: '下一关会用到它。' } }), ['copy-ahead'])
   assert.deepEqual(found({ brief: { zh: '交出和，因为后面要用。' } }), ['copy-brief-why'])
 })
@@ -150,7 +150,7 @@ test('the pedagogy lint: the same board twice whatever its ids, the same prose t
   })
   assert.equal(boardShape(board('one', '1')), boardShape(board('k', '1')))
   assert.notEqual(boardShape(board('one', '1')), boardShape(board('one', '2')))
-  const text = (s) => ({ zh: s, en: s })
+  const text = (s) => ({ en: s })
   const level = (id, more) => ({ id, title: text(id), tasks: [{ id, brief: text(`brief of ${id}, long enough`), ...more }], intro: [{ t: text('The pipeline needs new numbers now.') }] })
   const bench = { knobs: { Z: { min: 1, max: 8, step: 1 }, f: { min: 1, max: 4, step: 1, fixed: true } }, layout: { main: ['goals'] } }
   const content = { levels: [level('1'), level('2'), level('3', { bench }), { id: '4', tasks: [{ id: '4', bench: { ...bench, check: 'submit' } }, { id: '4_2', kind: 'choice' }] }] }
@@ -197,15 +197,15 @@ test('terminology review inspects both task overrides and glossary bodies throug
     id: 'toy', domain: 'toy', vocabulary: 1, title: t('Toy'), eras: [],
     levels: [{ id: 'a', title: t('A'), tasks: [{ id: 'a', brief: t('Find the point.') }, { id: 'a_2', brief: t('<wiki-ref to="late"></wiki-ref>') }] }],
     glossary: { groups: [], entries: [
-      { id: 'late', group: 'g', at: 'b', title: { zh: '光轴' }, aliases: ['OA'], body: [t('A geometric line.')] },
+      { id: 'late', group: 'g', at: 'b', title: { en: '光轴' }, aliases: ['OA'], body: [t('A geometric line.')] },
       { id: 'global', group: 'g', title: t('Camera'), body: [t('Refer to <wiki-ref to="late"></wiki-ref>.')] },
     ] },
   }
   const spec = { course: { before: () => false } }
   const result = reviewTerminology(content, spec, vocabulary)
   assert.equal(result.failures.filter((f) => f.rule === 'term-unavailable').length, 2)
-  assert.ok(result.failures.some((f) => f.at === 'levels/a.json:tasks.1.brief.zh'))
-  assert.ok(result.failures.some((f) => f.at === 'glossary.json:entries.1.body.0.zh'))
+  assert.ok(result.failures.some((f) => f.at === 'levels/a.json:tasks.1.brief.en'))
+  assert.ok(result.failures.some((f) => f.at === 'glossary.json:entries.1.body.0.en'))
   assert.equal(result.terms[0].body, content.glossary.entries[0].body)
   assert.equal(result.reports.length, 0, 'aliases and titles are registry metadata, not bare prose')
 })

@@ -145,7 +145,7 @@ export default function Studio() {
   const [side, setSide] = usePref('side', 'tree')
   const [copyScope, setCopyScope] = useState(null) // the copy tab's scope: an era's index, 'all' or 'glossary'
   const [overlay, setOverlay] = useState(null) // 'palette' | 'keys'
-  const [, setLang] = useState(getLang)
+  const [lang, setLang] = useState(getLang)
 
   useEffect(() => {
     const onLang = () => setLang(getLang())
@@ -428,13 +428,13 @@ export default function Studio() {
         if (!existing) write(list)
         return pickField([...base, ...m.path], true, list)
       }
-      const next = [...list, { show: 'text', text: { zh: '' } }]
+      const next = [...list, { show: 'text', text: { en: '' } }]
       write(next)
       return pickField([...path, list.length], true, next)
     }
     if (m.type === 'pick') return pickField([...base, ...m.path], true)
     const list = def[key] ?? []
-    const blankOf = { rules: { set: {} }, checks: { holds: 'eq(1, 1)', say: { zh: '' } } }
+    const blankOf = { rules: { set: {} }, checks: { holds: 'eq(1, 1)', say: { en: '' } } }
     edit({ op: 'parts.set', path: [...base, key], value: [...list, blankOf[key]] })
     return pickField([...base, key, list.length], true)
   }
@@ -494,6 +494,7 @@ export default function Studio() {
     names,
     levelOptions,
     textField,
+    lang,
     ...(sideFile?.level && {
       onBoard: (path) => onBoard(sideFile.level, showPath(path)),
       tests: { of: (path) => tests.of(sideFile.level, path), run: (path) => tests.run(sideFile.level, path) },

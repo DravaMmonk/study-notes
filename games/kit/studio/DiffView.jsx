@@ -13,7 +13,7 @@ export function DiffFields({ rows, onPath = null }) {
           {onPath ? <button type="button" className="field-key" onClick={() => onPath(r.path)}>{showPath(r.path) || tr('整个文件')}</button> : <span className="field-key">{showPath(r.path) || tr('整个文件')}</span>}
           {r.as === 'text' ? (
             <div className="diff-text">
-              <Side before={pick(r.before, 'zh')} after={pick(r.after, 'zh')} />
+              <Side before={pick(r.before, 'en')} after={pick(r.after, 'en')} />
             </div>
           ) : r.as === 'lines' ? <Lines before={(r.before ?? []).join('\n')} after={(r.after ?? []).join('\n')} /> : (
             <div className="diff-value">

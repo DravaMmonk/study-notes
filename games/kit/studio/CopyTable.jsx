@@ -1,13 +1,15 @@
 // The copy table: every text of a chapter, of the whole game or of the encyclopedia in one dense grid — a row a text
-// (its level and field), its Chinese and English side by side, edited in place (text.set), the copy rules a machine
+// (its level and field), its copy in the Studio language, edited in place, the copy rules a machine
 // can see marked on the row (TextField's findings, and the check's) — to proofread a chapter in one pass. Filtered by
 // field, by rows with findings, by words. Rows off screen are left to the browser to skip (content-visibility).
 import { memo, useCallback, useMemo, useState } from 'react'
 import { L, tr } from '../shell/i18n.js'
+import { useLang } from '../shell/useLang.js'
 import { showPath } from '../engine/ops/edit.js'
 import { opFor } from './form.js'
 import { copyRows } from './copy.js'
-import { TextField, textFindings } from './TextField.jsx'
+import { CopyTextField, textFindings } from './TextField.jsx'
+import { copySide } from './translations.js'
 
 const opOf = (row, sides) => (row.file.glossary ? { op: 'text.set', in: 'glossary', path: row.path, ...sides } : opFor(row.file.level !== undefined ? { level: row.file.level } : { game: true }, row.path, { set: sides }, 'text'))
 
@@ -19,16 +21,17 @@ const CopyRow = memo(function CopyRow({ row, first, found, names, onEdit, onJump
         {first && <b>{row.name}</b>}
         <code>{showPath(row.file.game && row.path[0] === 'eras' ? row.path.slice(2) : row.path)}</code>
       </button>
-      <TextField value={row.value} onSet={onSet} label={`${row.name} ${showPath(row.path)}`} field={row.field} names={names} findings={found} compact />
+      <CopyTextField side={row.side} onSet={onSet} onTranslate={onEdit} label={`${row.name} ${showPath(row.path)}`} field={row.field} names={names} findings={found} compact />
     </div>
   )
 }, (a, b) => a.first === b.first && a.names === b.names && a.onEdit === b.onEdit && JSON.stringify(a.row) === JSON.stringify(b.row) && a.found.join('\n') === b.found.join('\n'))
 
 export default function CopyTable({ content, vocabulary, scope, setScope = null, order, names, places, onEdit, onJump }) {
+  const lang = useLang()
   const [field, setField] = useState('')
   const [only, setOnly] = useState(false)
   const [query, setQuery] = useState('')
-  const all = useMemo(() => copyRows(content, vocabulary, scope, order), [content, vocabulary, scope, order])
+  const all = useMemo(() => copyRows(content, vocabulary, scope, order).map((row) => ({ ...row, side: copySide(row.value, lang, content.i18n) })), [content, vocabulary, scope, order, lang])
   const foundOf = useMemo(() => {
     const map = new Map()
     for (const p of places) if (p.path) map.set(`${p.level}|${showPath(p.path)}`, [...(map.get(`${p.level}|${showPath(p.path)}`) ?? []), p.says])
@@ -38,8 +41,8 @@ export default function CopyTable({ content, vocabulary, scope, setScope = null,
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase()
     return all.filter((r) => (!field || r.field === field)
-      && (!q || String(r.value.zh).toLowerCase().includes(q))
-      && (!only || foundOf(r).length > 0 || textFindings(r.value, r.field, names).length > 0))
+      && (!q || (r.side.text || r.side.from || '').toLowerCase().includes(q))
+      && (!only || foundOf(r).length > 0 || textFindings({ [r.side.lang]: r.side.text }, r.field, names).length > 0))
   }, [all, field, query, only, foundOf, names])
   return (
     <section className="copy-table">

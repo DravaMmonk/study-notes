@@ -38,7 +38,7 @@ const playScreens = bindPlays(plays, {
 }, { circuit: Cable, board: Grid3x3 })
 
 /** A task's `done` as the shell's pass text of a task: its head in bold, then its paragraphs. */
-const doneText = ({ head, body = [] }) => [...(head ? [T(`<b>${head.zh}</b>`, `<b>${head.en}</b>`)] : []), ...body]
+const doneText = ({ head, body = [] }) => [...(head ? [T(`<b>${head.zh ?? head.en}</b>`, `<b>${head.en ?? head.zh}</b>`)] : []), ...body]
 
 function IntroFigure({ fig }) {
   return <div className="fig" dangerouslySetInnerHTML={{ __html: sceneSVG(fig, { pad: 12, maxScale: 1.3 }) }} />

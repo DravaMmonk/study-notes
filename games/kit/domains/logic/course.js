@@ -7,6 +7,7 @@
 import { pieceReferences } from '../../engine/pieces.js'
 import { defineCourse, eraLevels, holds, itemOf, layout, met, numbered, offer } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
+import { keyOf } from '../../shell/i18n.js'
 import { trayIn } from '../../engine/trays.js'
 import { parse, replaceAtoms, show } from './formula.js'
 import { claimSentences, vocabulary } from './fol.js'
@@ -271,7 +272,7 @@ export function logicCourse(content) {
   const TASKS = LEVELS.flatMap((l) => l.tasks)
   // The rules each connective's declaration brings in, by the connective's name.
   const rules = LEVELS.filter((level) => level.declare && level.adds?.length).map((level) => ({
-    kind: 'declaration', type: level.declare.zh, form: null, task: level.tasks.at(-1), value: level.adds,
+    kind: 'declaration', type: keyOf(level.declare), form: null, task: level.tasks.at(-1), value: level.adds,
   }))
   for (const [type, list] of Object.entries(revisions)) for (const r of list) if (!byId.has(r.at ?? r.by)) throw new Error(`the revision of ${type} names a level that does not exist: ${r.at ?? r.by}`)
   // A level's number: on an era's main path the era and its place, a parallel set row by row ('1-4', numbered), in a topic its
@@ -332,7 +333,7 @@ export function logicCourse(content) {
     },
     // A declaration's answer is the rules it declares: writing them puts them to work, and so does a level working on
     // a declared connective (checking a declaration, too strong or too weak), named by `declare` as where it is declared.
-    declares: (l) => (byId.get(l.id).declare ? references.resolve(byId.get(l.id).declare.zh, null, null, { kind: 'declaration', reference: true })?.value ?? [] : []),
+    declares: (l) => (byId.get(l.id).declare ? references.resolve(keyOf(byId.get(l.id).declare), null, null, { kind: 'declaration', reference: true })?.value ?? [] : []),
     references,
     boards: answersOf,
     showcase: (l) => byId.get(l.id).showcase ?? null,

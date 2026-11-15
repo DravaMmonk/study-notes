@@ -66,7 +66,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   const isTask = tasked && path.length === 2 && path[0] === 'tasks'
   const list = typeof last === 'number' && !isTask ? getAt(shown.value, parent) : null
   const optional = !list && hit.entry?.optional
-  const ctxHere = { ...ctx, findings, partDefs: content.partDefs }
+  const ctxHere = { ...ctx, findings, partDefs: content.partDefs, i18n: content.i18n, onTranslate: onEdit }
   return (
     <div className="insp">
       <Head path={path} file={file} onPick={onPick} onClose={onClose} />
