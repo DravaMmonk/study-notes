@@ -45,7 +45,7 @@ function misfit(sink, src) {
  *   partOf(type)                         the engine's part for a node type
  *   evaluate(board, sense, outs, probe?) every output once, on one cell
  *   runCircuit(V, t, board, o?)          a whole test
- *   srcType / sinkType / wireTypeError   the signal types that say which wire fits
+ *   srcType / sinkType / typeError       the signal types that say which wires fit
  */
 export function modelOf(parts) {
   /** The engine's part for a node type. */
@@ -152,12 +152,7 @@ export function modelOf(parts) {
     return null;
   }
 
-  /** Whether replacing an input's wire would leave any of the board's signal types incompatible. */
-  function wireTypeError(board, io, from, to, port) {
-    return typeError({ ...board, wires: [...board.wires.filter(w => !(w.to === to && w.port === port)), { from, to, port }] }, io);
-  }
-
-  return { ...parts, partOf, evaluate, runCircuit, srcType, sinkType, wireTypeError };
+  return { ...parts, partOf, evaluate, runCircuit, srcType, sinkType, typeError };
 }
 
 export { MAX_ROUNDS };

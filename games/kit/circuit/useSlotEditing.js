@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
 import { NO_CARD_PORT, portOnCard } from './card-ports.js'
-import { byId, canRemoveCard, connect, ends, feeding, fitsSlotEdit, isPart, layout, parsePort, placement, removeNode, wireRefusal } from './model.js'
-import { keepLocked, leavesLockedRegion, lockedCards, lockedRefusal, PRESET_CARD_REFUSAL } from './presets.js'
+import { byId, canRemoveCard, connectWire, ends, fitsSlotEdit, isPart, layout, parsePort, placement, removeNode, unplugWire, wireRefusal } from './model.js'
+import { keepLocked, leavesLockedRegion, lockedCards, PRESET_CARD_REFUSAL } from './presets.js'
 import { drawWires } from './SlotBoard.jsx'
 import { blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
 import { regionAddress, regionsFit, regionsOf } from './regions.js'
@@ -92,32 +92,32 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     return Boolean(wire && !wireRefusal(graph, parts, wire))
   }
   const wire = (a, b) => {
-    const connection = ends(a, b)
-    const why = connection ? wireRefusal(graph, parts, connection) : { zh: '两头都是输出口（或都是输入口）：一头接输出，一头接输入。', en: 'Both ends are outputs (or both inputs): connect an output to an input.' }
-    if (why) {
+    const next = connectWire(graph, parts, ends(a, b))
+    if (next.reason) {
       buzz(20)
-      setToast(why)
+      setToast(next.reason)
       return false
     }
-    const { from, to, port } = connection
     buzz()
-    edit(connect(graph, to, port, from))
+    edit(next.graph)
     return true
   }
   const onPort = (p) => {
     const side = parsePort(p)
     setMoving(null)
     if (!picking) {
-      const locked = side.side === 'in' && lockedRefusal(graph, side.id, side.port)
-      if (locked) {
-        buzz(20)
-        setToast(locked)
-        return
-      }
-      if (side.side === 'in' && feeding(graph, side.id, side.port)) {
-        buzz([6, 30, 6])
-        edit(connect(graph, side.id, side.port, null), { zh: '拆掉了一根线', en: 'Unplugged a wire' })
-        return
+      if (side.side === 'in') {
+        const next = unplugWire(graph, side.id, side.port)
+        if (next.reason) {
+          buzz(20)
+          setToast(next.reason)
+          return
+        }
+        if (next.from !== null) {
+          buzz([6, 30, 6])
+          edit(next.graph, { zh: '拆掉了一根线', en: 'Unplugged a wire' })
+          return
+        }
       }
       buzz(4)
       setPicking(p)

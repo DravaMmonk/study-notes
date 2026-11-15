@@ -42,8 +42,8 @@ export function wiring(model, u) {
       read: (node, key, value) => key === 'picks' ? u.offers[node.type].filter(pick => value.includes(pick)) : value,
       opens: (node, key) => (isCard(node.type) && u.offers?.[node.type]?.includes(key) ? { ...node.params, picks: u.offers[node.type].filter(p => p === key || picksOf(node).includes(p)) } : null),
     },
-    refuse: (graph, from, to, port) => {
-      const why = model.wireTypeError(graph, io, from, to, port);
+    refuse: (graph) => {
+      const why = model.typeError(graph, io);
       return why ? { zh: why, en: why } : null;
     },
   };

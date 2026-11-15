@@ -24,7 +24,7 @@ import Glyph from './Glyph.jsx'
 import { cardPorts, NO_CARD_PORT, portOnCard } from './card-ports.js'
 import { moveInto } from './frames.js'
 import { isOpenRegion, regionAddress, regionsOf } from './regions.js'
-import { canRemoveCard, clearSpot, connect, ends, feeding, inPort, isPart, outPort, parsePort, removeNode, removeWire, wireRefusal } from './model.js'
+import { canRemoveCard, clearSpot, connectWire, ends, inPort, isPart, outPort, parsePort, removeNode, unplugWire, wireRefusal } from './model.js'
 import { keepLocked, leavesLockedRegion, lockedCards, lockedRefusal, PRESET_CARD_REFUSAL } from './presets.js'
 import { useHistory } from './useHistory.js'
 import { usePickedPort } from './usePickedPort.js'
@@ -338,7 +338,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const removeSelected = () => {
     if (!selected) return
     if (selectionRefusal) setRefused(selectionRefusal)
-    else if (selectedWire) onChange(removeWire(graph, selectedWire))
+    else if (selectedWire) onChange(unplugWire(graph, selectedWire.to, selectedWire.port).graph)
     else if (selected.node && removable(byId.get(selected.node))) onChange(removeNode(graph, parts, selected.node))
     setSelected(null)
   }
@@ -439,10 +439,10 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   }, [])
 
   const addWire = (wire) => {
-    const why = wireRefusal(graph, parts, wire)
-    setRefused(why)
-    if (why) return false
-    onChange(connect(graph, wire.to, wire.port, wire.from))
+    const next = connectWire(graph, parts, wire)
+    setRefused(next.reason ?? null)
+    if (next.reason) return false
+    onChange(next.graph)
     return true
   }
   const wireToCard = (from, id) => {
@@ -461,13 +461,14 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   // output: click another input (or a card) to plug it in there, or anywhere else to drop it. Any other dot is picked.
   const clickPort = (p) => {
     const at = parsePort(p)
-    const from = !picking && at.side === 'in' ? feeding(graph, at.id, at.port) : null
-    if (from) {
-      const locked = lockedRefusal(graph, at.id, at.port)
-      if (locked) return setRefused(locked)
-      setRefused(null)
-      onChange(connect(graph, at.id, at.port, null))
-      return pick(outPort(from))
+    if (!picking && at.side === 'in') {
+      const next = unplugWire(graph, at.id, at.port)
+      if (next.reason) return setRefused(next.reason)
+      if (next.from !== null) {
+        setRefused(null)
+        onChange(next.graph)
+        return pick(outPort(next.from))
+      }
     }
     if (!picking || picking === p) return pick(picking === p ? null : p)
     const wire = ends(picking, p)

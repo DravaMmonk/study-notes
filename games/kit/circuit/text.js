@@ -1,7 +1,7 @@
 import { dependencyOrder, indexEdges } from '../graph.js'
 import { sourceOf, splitSource, srcNode, wireEdges } from '../engine/wire-source.js'
 import { cardPosition, flowSpots } from './layout.js'
-import { byId, hasOutput, inPort, isPart, spotIn, wirePortRefusal, wireRefusal } from './model.js'
+import { byId, connectWire, hasOutput, inPort, isPart, spotIn, wirePortRefusal } from './model.js'
 import { isFixed, keepFixedSettings, keepLocked, lockedCards, PRESET_PORT_REFUSAL } from './presets.js'
 import { sameJson } from '../engine/json-value.js'
 import { regionAddress, regionProblems, regionsOf, terminalRegionProblem } from './regions.js'
@@ -298,7 +298,7 @@ export function parse(text) {
  * The board a text describes, built on `graph` (the board on screen): the level's own nodes stay where they are, the
  * parts are the text's (each keeps its place when the board had a part of that name and type). A locked card or
  * wire stays on the board even if omitted, and the text cannot override it. `types`: the parts this level offers.
- * Returns { graph } or { errors: [{ line, zh, en }] }; a wire is checked as in the editors (model.js wireRefusal).
+ * Returns { graph } or { errors: [{ line, zh, en }] }; wires use the same edit as the editors (model.js connectWire).
  */
 export function read(text, graph, parts, types) {
   let parsed
@@ -435,12 +435,12 @@ export function read(text, graph, parts, types) {
     }
     written.add(address)
     if (preset.get(address)?.from === w.from) continue
-    const no = wireRefusal(out, parts, connection)
-    if (no) {
-      errors.push(say(w.line, no.zh, no.en))
+    const next = connectWire(out, parts, connection)
+    if (next.reason) {
+      errors.push(say(w.line, next.reason.zh, next.reason.en))
       continue
     }
-    out = { ...out, wires: [...out.wires, connection] }
+    out = next.graph
   }
   for (const wire of preset.values()) {
     if (!wirePortRefusal(parts, wire, (id) => byId(out, id))) continue

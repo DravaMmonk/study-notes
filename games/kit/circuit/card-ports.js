@@ -16,12 +16,12 @@ export function cardPorts(parts, node) {
 
 export const NO_CARD_PORT = { zh: '这个元件没有能接这根线的口', en: 'This part has no port this wire can go to' }
 
-/** Choose a card's first free compatible input, or its first public output if an input was picked. */
+/** Choose the first compatible public output or prefer a free compatible input. */
 export function portOnCard(graph, parts, picked, node) {
   if (!node) return null
   if (parsePort(picked).side === 'in') {
-    const [output] = cardPorts(parts, node).outputs
-    return output ? outPort(sourceOf(node.id, output.key)) : null
+    const outputs = cardPorts(parts, node).outputs.map(({ key }) => outPort(sourceOf(node.id, key)))
+    return outputs.find((port) => !wireRefusal(graph, parts, ends(picked, port))) ?? outputs[0] ?? null
   }
   const targets = parts.inputs(node)
   let occupied = null

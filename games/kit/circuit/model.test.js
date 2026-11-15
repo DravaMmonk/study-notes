@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { cardPorts, portNotes, portOnCard } from './card-ports.js'
-import { boardFits, connect, editNodeSettings, hasPort, inPort, outPort, removeNode, spotIn, wireRefusal } from './model.js'
+import { boardFits, connectWire, editNodeSettings, hasPort, inPort, outPort, removeNode, spotIn, unplugWire, wireRefusal } from './model.js'
 import { keepLocked, presetOf, withPreset } from './presets.js'
 
 const board = { nodes: [{ id: 'in', type: 'in', x: 0, y: 0 }, { id: 'out', type: 'out', x: 400, y: 0 }], wires: [] }
@@ -42,17 +42,20 @@ test('a preset goes onto a board locked, where the board already has its parts',
 })
 
 test('a change keeps the locked parts and wires, and nothing else of the old board', () => {
-  const parts = { role: (n) => n.type === 'in' ? 'source' : n.type === 'out' ? 'sink' : 'part' }
+  const parts = { role: (n) => n.type === 'in' ? 'source' : n.type === 'out' ? 'sink' : 'part', inputs: () => ['in'] }
   const started = withPreset(board, preset)
-  const free = connect({ ...started, nodes: [...started.nodes, { id: 'q', type: 'x' }] }, 'p', 'in', 'in')
+  const { graph: free } = connectWire({ ...started, nodes: [...started.nodes, { id: 'q', type: 'x' }] }, parts, { from: 'in', to: 'p', port: 'in' })
   for (const id of ['in', 'out', 'p', 'missing']) assert.equal(removeNode(free, parts, id), free)
   const gone = keepLocked(free, { ...free, nodes: free.nodes.filter((node) => node.id !== 'p'), wires: [] })
   assert.ok(gone.nodes.some((n) => n.id === 'p' && n.locked))
   assert.ok(gone.wires.some((w) => w.from === 'p' && w.locked))
   assert.ok(!gone.wires.some((w) => w.to === 'p' && w.port === 'in'))
   assert.ok(keepLocked(free, removeNode(free, parts, 'q')).nodes.every((n) => n.id !== 'q'))
-  const rewired = keepLocked(free, connect(free, 'out', 'in', 'in'))
-  assert.deepEqual(rewired.wires.filter((w) => w.to === 'out'), [{ from: 'p', to: 'out', port: 'in', locked: true }])
+  assert.match(connectWire(free, parts, { from: 'in', to: 'out', port: 'in' }).reason.en, /came with the level/)
+  assert.match(unplugWire(free, 'out', 'in').reason.en, /came with the level/)
+  const unplugged = unplugWire(free, 'p', 'in')
+  assert.equal(unplugged.from, 'in')
+  assert.deepEqual(unplugged.graph.wires, started.wires)
 })
 
 test('a locked wire refuses another wire into its port; a free port takes one', () => {
@@ -133,7 +136,7 @@ test('stale ports are refused and card picks prefer a free compatible input', ()
     role: () => 'part',
     inputs: (node) => node.id === 'n' ? ['wrong', 'used', 'free'] : [],
     outputs: (node) => node.params?.extra ? [{ key: null }, { key: 'tap' }] : null,
-    refuse: (_board, _from, _to, port) => port === 'wrong' ? { en: 'incompatible input' } : null,
+    refuse: (_board, { port }) => port === 'wrong' ? { en: 'incompatible input' } : null,
   }
   const tap = outPort('p#tap')
   const connection = { from: 'p#tap', to: 'n', port: 'free' }
@@ -145,6 +148,24 @@ test('stale ports are refused and card picks prefer a free compatible input', ()
   assert.equal(hasPort(closed, parts, tap), false)
   assert.match(wireRefusal(closed, parts, connection).en, /has no output “tap”/)
   assert.match(wireRefusal(graph, parts, { ...connection, port: 'gone' }).en, /has no input called “gone”/)
+})
+
+test('card picks try compatible public outputs and validate the replacement once', () => {
+  const graph = { nodes: [{ id: 'old' }, { id: 'card' }, { id: 'sink' }], wires: [{ from: 'old', to: 'sink', port: 'in' }] }
+  const parts = {
+    role: (node) => node.id === 'sink' ? 'sink' : 'part',
+    inputs: (node) => node.id === 'sink' ? ['in'] : [],
+    outputs: (node) => node.id === 'card' ? [{ key: 'inside' }, { key: 'wrong' }, { key: 'right' }] : null,
+    frames: (node) => node.id === 'card' ? [{ name: 'inside', opens: true }] : [],
+    refuse: (candidate, wire) => {
+      assert.deepEqual(candidate.wires, [wire])
+      return wire.from === 'card#wrong' ? { en: 'incompatible output' } : null
+    },
+  }
+  assert.equal(portOnCard(graph, parts, inPort('sink', 'in'), graph.nodes[1]), outPort('card#right'))
+  const next = connectWire(graph, parts, { from: 'card#right', to: 'sink', port: 'in' })
+  assert.deepEqual(next.graph.wires, [{ from: 'card#right', to: 'sink', port: 'in' }])
+  assert.equal(graph.wires[0].from, 'old')
 })
 
 test('saved circuits reject unavailable, duplicate and cyclic wires while accepting held feedback', () => {

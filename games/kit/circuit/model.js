@@ -17,7 +17,7 @@
 // A game describes its nodes with a `parts` object (see CanvasEditor / useSlotEditing):
 //   inputs(node) → [port]       role(node) → 'source' | 'sink' | 'part'      label(node) → text
 //   portLabel(node, port) → text   family(node) → string   icon(node) → Component
-//   refuse(graph, from, to, port) → null, or a { zh, en } reason the wire is not allowed
+//   refuse(proposedGraph, wire) → null, or a { zh, en } reason the proposed board cannot accept the wire
 //   valueView?(node) → the view a card uses for its value; hasSettings?(node) → it draws setting controls
 //   packed?(node)    → whether it is a packed part: one that runs a circuit the player built (its family chip drawn solid)
 //   defaults?(type) → initial settings for a part imported from a blueprint
@@ -57,13 +57,22 @@ export function ends(a, b) {
   return { from: from.id, to: to.id, port: to.port }
 }
 
-export const feeding = (graph, id, port) => graph.wires.find((w) => w.to === id && w.port === port)?.from ?? null
+const into = (graph, to, port) => graph.wires.find((wire) => wire.to === to && wire.port === port)
+export const feeding = (graph, id, port) => into(graph, id, port)?.from ?? null
 export const byId = (graph, id) => graph.nodes.find((n) => n.id === id)
 
-/** Set (or with `from` null, clear) the wire into input `port` of node `id`; an input takes one wire. */
-export function connect(graph, id, port, from) {
-  const wires = graph.wires.filter((w) => !(w.to === id && w.port === port))
-  return { ...graph, wires: from ? [...wires, { from, to: id, port }] : wires }
+function replaceInput(graph, to, port, wire) {
+  const wires = graph.wires.filter((existing) => existing.to !== to || existing.port !== port)
+  if (wire) wires.push(wire)
+  return { ...graph, wires }
+}
+
+/** Disconnect an input and return the source that was there, if any. */
+export function unplugWire(graph, to, port) {
+  const old = into(graph, to, port)
+  if (!old) return { graph, from: null }
+  const reason = lockedRefusal(graph, to, port)
+  return reason ? { reason } : { graph: replaceInput(graph, to, port), from: old.from }
 }
 
 /** A circuit part, including one the level preset, as opposed to a fixed input or output. */
@@ -78,7 +87,6 @@ export function removeNode(graph, parts, id) {
   const gone = frameTree(graph.nodes).included([id])
   return { ...graph, nodes: graph.nodes.filter((n) => !gone.has(n.id)), wires: graph.wires.filter((w) => !gone.has(srcNode(w.from)) && !gone.has(w.to)) }
 }
-export const removeWire = (graph, wire) => lockedRefusal(graph, wire.to, wire.port) ? graph : { ...graph, wires: graph.wires.filter((w) => !(w.to === wire.to && w.port === wire.port)) }
 export const moveNode = (graph, id, x, y) => ({ ...graph, nodes: graph.nodes.map((n) => (n.id === id ? { ...n, x, y } : n)) })
 
 const hasInput = (parts, node, port) => Boolean(node && parts.inputs(node).includes(port))
@@ -136,7 +144,8 @@ export function editNodeSettings(graph, parts, id, params) {
  * board with frames (`parts.frames`, frames.js) a wire also has to run inward, and a region's own output stands
  * apart from its frame, so a frame may read back what was made from it.
  */
-export function wireRefusal(graph, parts, wire) {
+function wireProblem(graph, parts, wire) {
+  if (!wire) return { zh: '两头都是输出口（或都是输入口）：一头接输出，一头接输入。', en: 'Both ends are outputs (or both inputs): connect an output to an input.' }
   const { from, to, port } = wire
   const unavailable = wirePortRefusal(parts, wire, (id) => byId(graph, id))
   if (unavailable) return unavailable
@@ -149,8 +158,19 @@ export function wireRefusal(graph, parts, wire) {
   const holds = parts.loops ? (id) => parts.holds?.(byId(graph, id) ?? {}) : undefined
   if (wouldCycle(edges, start(from), to, holds)) return { zh: '这样会绕成一个圈：这个元件要等自己算完，才能算自己。', en: 'That would make a loop: this part would have to wait for itself to finish.' }
   const scope = parts.frames ? scopeRefusal(graph, parts, from, to, port) : null
-  return scope ?? parts.refuse?.(graph, from, to, port) ?? null
+  return scope
 }
+
+/** Connect or replace one input, validating the same proposed board that would be saved. */
+export function connectWire(graph, parts, wire) {
+  const problem = wireProblem(graph, parts, wire)
+  if (problem) return { reason: problem }
+  const next = replaceInput(graph, wire.to, wire.port, wire)
+  const reason = parts.refuse?.(next, wire)
+  return reason ? { reason } : { graph: next }
+}
+
+export const wireRefusal = (graph, parts, wire) => connectWire(graph, parts, wire).reason ?? null
 
 /** The stored shape of a board, before using game-specific card and port descriptions. */
 export function isCircuitBoard(board) {
@@ -167,12 +187,14 @@ export function isCircuitBoard(board) {
 export function boardFits(board, parts, knows) {
   if (!isCircuitBoard(board) || !board.nodes.every((node) => knows(node.type)) || !regionsFit(board, parts)) return false
   const wired = new Set()
-  const soFar = { ...board, wires: [] }
+  let soFar = { ...board, wires: [] }
   for (const wire of board.wires) {
     const input = inPort(wire.to, wire.port)
-    if (wired.has(input) || wireRefusal(soFar, parts, wire)) return false
+    if (wired.has(input)) return false
+    const result = connectWire(soFar, parts, wire)
+    if (result.reason) return false
     wired.add(input)
-    soFar.wires.push(wire)
+    soFar = result.graph
   }
   return true
 }
