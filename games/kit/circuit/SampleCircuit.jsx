@@ -42,7 +42,7 @@ export default function SampleCircuit({ example, defined, phone }) {
         thumb={(node) => faces.thumb(node, ctx)} tileExtra={(node) => faces.tileExtra(node, ctx)}
         sinkBody={(node) => value(node, ctx)} onPort={() => {}} onSlot={() => {}} onNode={(id) => setSelected(id)}
         nodeClass={(node) => node.id === selected ? 'is-selected' : ''} />
-      : <CanvasEditor graph={board} parts={parts} readOnly refit height={310} body={(node) => faces.body(node, ctx)}
+      : <CanvasEditor graph={board} parts={parts} refit height={310} body={(node) => faces.body(node, ctx)}
         wireState={(wire) => visible.values.has(wire.from) ? 'live' : 'dead'} />}
     </DemoBench>
 }

@@ -1,5 +1,5 @@
 import { lazy, Suspense, useMemo } from 'react'
-import CanvasEditor from './CanvasEditor.jsx'
+import { EditableCanvas } from './CanvasEditor.jsx'
 import SlotBoard from './SlotBoard.jsx'
 import { L, tr } from '../shell/i18n.js'
 import { circuitBoard, primitivesOnly } from '../engine/board-cards.js'
@@ -64,7 +64,7 @@ function Face({ piece, game, scene, edit, state }) {
   if (scene === 'card') {
     return (
       <div className="pp-canvas">
-        <CanvasEditor graph={graph} parts={parts} height={260} onChange={(g) => { const n = g.nodes.find((x) => x.id === 'p'); if (n) setParams(n.params ?? {}) }} body={() => face('card')} />
+        <EditableCanvas graph={graph} parts={parts} height={260} onChange={(g) => { const n = g.nodes.find((x) => x.id === 'p'); if (n) setParams(n.params ?? {}) }} body={() => face('card')} />
       </div>
     )
   }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ArrowLeft, Maximize2 } from 'lucide-react'
-import CanvasEditor from './CanvasEditor.jsx'
+import CanvasEditor, { EditableCanvas } from './CanvasEditor.jsx'
 import SlotBoard from './SlotBoard.jsx'
 import DemoBench, { useExampleRun } from './DemoBench.jsx'
 import Choice from './Choice.jsx'
@@ -50,8 +50,9 @@ function Board({ view, layout, phone, selected, onPick = idle, onMove, open }) {
     }}
     tileExtra={(node) => L(readout(node).tag)} outNote={outNote} picking={null} canLand={cannotLand} onPort={idle} onSlot={idle} onNode={onPick} nodeClass={nodeClass}
   />
+  const Canvas = onMove ? EditableCanvas : CanvasEditor
   return <div className={layout.canvas} style={{ height }}>
-    <CanvasEditor readOnly={!onMove} graph={graph} parts={parts} onChange={onMove} body={(node) => {
+    <Canvas graph={graph} parts={parts} onChange={onMove} body={(node) => {
       const shown = readout(node)
       if (shown.hide) return null
       return <div className={layout.body} title={L(shown.description) || undefined}>

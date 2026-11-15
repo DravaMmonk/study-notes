@@ -18,6 +18,7 @@ import { canRemoveCard, editNodeSettings, isPart, spotIn } from '../circuit/mode
 import { isOpenRegion } from '../circuit/regions.js'
 import { lockedCards } from '../circuit/presets.js'
 import { useSlotEditing } from '../circuit/useSlotEditing.js'
+import { useCircuitEdits } from '../circuit/useCircuitEdits.js'
 import Glyph from '../circuit/Glyph.jsx'
 import { InsideBoard, PackedDetail, PackedTools, insideOf } from '../circuit/Inside.jsx'
 import { WORDS } from './words.js'
@@ -196,7 +197,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
     const opening = blockPreset(stored, stages?.stages ?? [], parts)
     return phone ? opening : withNewSlots(opening, parts)
   }, [stored, stages, parts, phone])
-  const change = (next, options = {}) => board.change(next, options)
+  const { change, history } = useCircuitEdits(stored, board.change, `${scope ?? level.id}:${board.key ?? ''}`)
   const displayedBoard = { ...board, circuit, change }
   const setNode = (node, params) => {
     const next = editNodeSettings(circuit, parts, node.id, params)
@@ -259,7 +260,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
       .filter((type) => editorOf(game.partDefs?.parts?.[type] ?? {}) === 'circuit')
     const size = traySize(cards, trayParts ?? parts, partDefaults)
     return (
-      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, trayItems: display.items, trayFolded: display.folded, types, make, describeOf, sheet: detailOf, addSheet, size, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, scope: scope ?? level.id, className }} brief={briefEl} tests={testTabs} dock={dock} />
+      <PhoneLevel {...{ blocks: blockView, screen, board: displayedBoard, parts, ctx, card, inside, all, trayItems: display.items, trayFolded: display.folded, types, make, describeOf, sheet: detailOf, addSheet, size, below, follow, results: (resultsTitle || resultsAside) && results ? <><header className="wb-pane-head"><span>{resultsTitle}</span>{resultsAside}</header>{results}</> : results, onClear, root, history, className }} brief={briefEl} tests={testTabs} dock={dock} />
     )
   }
   const detailNode = circuit.nodes.find((node) => node.id === detail)
@@ -275,7 +276,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts,
             <CanvasEditor
               blocks={blockView}
               key={`${level.id}:${board.key ?? ''}`}
-              scope={scope ?? level.id}
+              history={history}
               graph={circuit}
               onChange={change}
               parts={parts}
@@ -324,7 +325,7 @@ function blockActions(circuit, parts, change) {
 // The level on a phone: the shared slot board, the tests pinned at the top, the results below the board, the tray and the run
 // bar; a sheet for a card (what it is, its settings and value, the board inside a packed part, move and delete) and
 // for an empty slot.
-function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, trayItems, trayFolded, types, make, describeOf, sheet: sheetBody, addSheet, size, below, follow, results, onClear, root, scope, className, brief, tests, dock }) {
+function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, inside, all, trayItems, trayFolded, types, make, describeOf, sheet: sheetBody, addSheet, size, below, follow, results, onClear, root, history, className, brief, tests, dock }) {
   const { circuit: sourceCircuit, change } = board
   const boardRef = useRef(null)
   const availableWidth = useElementSize(boardRef)?.width || Infinity
@@ -346,7 +347,7 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
     openSlot: (at, region) => all.length > 0 && setSheet({ slot: at, region }),
     root,
     scroller,
-    scope,
+    history,
   })
   // While a run shows under the board, the page sits at its bottom (no scrolling to watch), until the player scrolls away.
   const pinned = useRef(false)

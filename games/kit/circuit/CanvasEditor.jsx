@@ -25,8 +25,9 @@ import { cardPorts, NO_CARD_PORT, portOnCard } from './card-ports.js'
 import { moveInto } from './frames.js'
 import { isOpenRegion, regionAddress, regionsOf } from './regions.js'
 import { canRemoveCard, clearSpot, connectWire, ends, inPort, isPart, outPort, parsePort, removeNode, unplugWire, wireRefusal } from './model.js'
-import { keepLocked, leavesLockedRegion, lockedCards, lockedRefusal, PRESET_CARD_REFUSAL } from './presets.js'
-import { useHistory } from './useHistory.js'
+import { leavesLockedRegion, lockedCards, lockedRefusal, PRESET_CARD_REFUSAL } from './presets.js'
+import { useCircuitEdits } from './useCircuitEdits.js'
+import { historyKey } from '../shell/useHistory.js'
 import { usePickedPort } from './usePickedPort.js'
 import { alignTerminals, spaceNodes } from './spacing.js'
 
@@ -83,30 +84,28 @@ function pointerPose(pointers) {
  * should go; `onClear` puts a clear button (it asks first) at the start of the corner's tools. In a level, the board's bottom
  * left corner switches between the level's saved boards and shows the board as text (SaveSlots); `types`, the parts
  * this level offers, lets text be imported onto it; `corner` is whatever the game puts beside it. `minFit` is the smallest zoom a fit may
- * choose: a circuit too big for the board at it starts at its top left, and the rest is a pan away. `scope` names the
- * board for undo (a level's stage): a new one starts the history over. A `readOnly` board (a part's demonstration)
- * only shows: it pans, zooms and fits, and nothing on it moves.
+ * choose: a circuit too big for the board at it starts at its top left, and the rest is a pan away. An editable board
+ * receives both its change callback and its history. A display without them only pans, zooms and fits.
  */
-export default function CanvasEditor({ blocks = null, graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, height = 230, emptyNote, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
+export default function CanvasEditor({ blocks = null, graph, onChange, history, parts, body, head, caption, outNote, cardClass, wireState, height = 230, emptyNote, corner, types, refit = false, minFit = 0, regionNote, resultNote, onTarget, onClear }) {
   const [connectionLabels] = useSetting('connectionLabels')
-  // A change never takes off what the level locked on the board (presets.js keepLocked).
-  const onChange = readOnly ? () => {} : (proposed, opt) => {
-    const next = keepLocked(graph, proposed)
-    if (next.nodes !== graph.nodes) setPresentation((current) => {
-      if (!current) return current
-      return new Map(next.nodes.filter((node) => !node.in).map((node) => {
-        const before = byId.get(node.id)
-        const kept = before && !before.in && node.x === before.x && node.y === before.y ? current.get(node.id) : null
-        return [node.id, kept ?? { x: node.x ?? 0, y: node.y ?? 0 }]
-      }))
-    })
-    given(next, opt)
-  }
-  const history = useHistory(graph, onChange, scope)
+  const readOnly = !onChange
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   const protectedIds = lockedCards(graph)
   const removable = (node) => canRemoveCard(parts, node, protectedIds)
   const [presentation, setPresentation] = useState(null)
+  const paintedGraph = useRef(graph.nodes)
+  useLayoutEffect(() => {
+    const previous = paintedGraph.current
+    paintedGraph.current = graph.nodes
+    if (previous === graph.nodes) return
+    const previousById = new Map(previous.map((node) => [node.id, node]))
+    setPresentation((current) => current && new Map(graph.nodes.filter((node) => !node.in).map((node) => {
+      const before = previousById.get(node.id)
+      const kept = before && !before.in && node.x === before.x && node.y === before.y ? current.get(node.id) : null
+      return [node.id, kept ?? { x: node.x ?? 0, y: node.y ?? 0 }]
+    })))
+  }, [graph.nodes])
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)
   const [focus, setFocus] = useState(null)
@@ -207,14 +206,14 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
       setPresentation(placed)
       if (edited) {
         const nodes = graph.nodes.map((node) => atPosition(node, placed))
-        if (nodes.some((node, index) => node !== graph.nodes[index])) given({ ...graph, nodes }, { keep: true })
+        if (nodes.some((node, index) => node !== graph.nodes[index])) onChange({ ...graph, nodes }, { keep: true, automatic: true })
       }
       return
     }
     if (!presentation && measuredTop) setPresentation(positions)
     if ((needsLayout || blocks.unplaced?.length) && !committed.current && measuredTop) {
       committed.current = true
-      given({ ...graph, nodes: graph.nodes.map((node) => atPosition(node, positions)) }, { keep: true })
+      onChange({ ...graph, nodes: graph.nodes.map((node) => atPosition(node, positions)) }, { keep: true, automatic: true })
     }
   })
   const at = (p) => geo.ports[p] ?? null
@@ -234,14 +233,14 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     for (const el of ownIn(root, '[data-node]')) sizes[el.dataset.node] = [el.offsetWidth, el.offsetHeight]
     // Resolve preset collisions on first measurement and when live previews change size, never on a drag alone.
     const resized = Object.entries(sizes).some(([id, size]) => size.some((value, k) => value !== geoRef.current.sizes[id]?.[k]))
-    if (resized && !groups.length && !drag && !readOnly && given) {
+    if (resized && !groups.length && !drag && !readOnly) {
       const drawn = painting ? { ...graph, nodes: graph.nodes.map((node) => atPosition(node, positions)) } : graph
       const opening = !Object.keys(geoRef.current.sizes).length
       const aligned = opening && !blocks ? alignTerminals(drawn, sizes, parts.role) : drawn
       const spaced = spaceNodes(aligned, sizes)
       if (spaced !== drawn) {
         if (painting) setPresentation(null)
-        onChange(spaced, { keep: true })
+        onChange(spaced, { keep: true, automatic: true })
         return
       }
     }
@@ -354,13 +353,11 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   // Delete or Backspace removes the selection; Escape drops it. ⌘/Ctrl-Z undoes, ⇧⌘/Ctrl-Z or Ctrl-Y redoes, unless
   // a dialog over another board has the keys.
   useWorkspaceKeys((event) => {
+    if (readOnly) return
     if (/input|select|textarea/i.test(document.activeElement?.tagName)) return
     const key = event.key.toLowerCase()
     if(key==='escape'&&partitioning){cancelSelection();setPartitioning(false);setSelectionRect(null);return}
-    if ((event.metaKey || event.ctrlKey) && (key === 'z' || (key === 'y' && event.ctrlKey))) {
-      event.preventDefault()
-      return key === 'y' || event.shiftKey ? history.redo() : history.undo()
-    }
+    if (historyKey(event, history)) return
     if (event.key === 'Escape' && picking) return pick(null)
     if (!selected) return
     if (event.key === 'Escape') return setSelected(null)
@@ -789,4 +786,10 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
       </div>
     </div>
   )
+}
+
+/** An independently edited canvas, such as a component preview. */
+export function EditableCanvas({ graph, onChange, scope, ...props }) {
+  const { change, history } = useCircuitEdits(graph, onChange, scope)
+  return <CanvasEditor {...props} graph={graph} onChange={change} history={history} />
 }

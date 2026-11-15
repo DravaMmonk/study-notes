@@ -1,26 +1,18 @@
-import { useEffect } from 'react'
+import { useRef } from 'react'
 import { Redo2, Undo2 } from 'lucide-react'
 import ClearButton from '../circuit/ClearButton.jsx'
 import { tr } from '../shell/i18n.js'
+import { historyKey } from '../shell/useHistory.js'
+import { useWorkspaceKeys } from '../shell/useOverlay.js'
 
 // The strip's row of tools, laid out as the circuit boards' (games/kit/circuit): clear on the left (it asks first),
-// undo and redo on the right; ⌘/Ctrl+Z and ⇧⌘/Ctrl+Z (or Ctrl+Y) work too. `history` is the circuit's useHistory over
+// undo and redo on the right; ⌘/Ctrl+Z and ⇧⌘/Ctrl+Z (or Ctrl+Y) work too. `history` is the shared useHistory over
 // whatever the strip builds.
 export function StripTools({ history, onClear, empty }) {
-  useEffect(() => {
-    const key = (event) => {
-      if (!(event.metaKey || event.ctrlKey) || /^(INPUT|TEXTAREA)$/.test(event.target.tagName)) return
-      const k = event.key.toLowerCase()
-      if (k !== 'z' && k !== 'y') return
-      event.preventDefault()
-      if (k === 'y' || event.shiftKey) history.redo()
-      else history.undo()
-    }
-    window.addEventListener('keydown', key)
-    return () => window.removeEventListener('keydown', key)
-  })
+  const root = useRef(null)
+  useWorkspaceKeys((event) => historyKey(event, history), { allowOverlay: (_, overlay) => overlay.contains(root.current) })
   return (
-    <div className="ks-tools">
+    <div className="ks-tools" ref={root}>
       <span className="ks-pill ks-clear">
         <ClearButton onClear={empty ? null : onClear} size={16} title={tr('清空整句？')} lines={[tr('已填入的内容将全部移除，清空后仍可撤销。')]} />
       </span>

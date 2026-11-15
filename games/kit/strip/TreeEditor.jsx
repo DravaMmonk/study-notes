@@ -1,6 +1,6 @@
 import { forwardRef, useImperativeHandle, useMemo } from 'react'
 import { L, tr } from '../shell/i18n.js'
-import { useHistory } from '../circuit/useHistory.js'
+import { useHistory } from '../shell/useHistory.js'
 import { Chips, Strip } from './Strip.jsx'
 import { StripTools } from './StripTools.jsx'
 import { useStrip } from './useStrip.js'

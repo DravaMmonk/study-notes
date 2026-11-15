@@ -5,11 +5,10 @@ import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
 import { NO_CARD_PORT, portOnCard } from './card-ports.js'
 import { byId, canRemoveCard, connectWire, ends, fitsSlotEdit, isPart, layout, parsePort, placement, removeNode, unplugWire, wireRefusal } from './model.js'
-import { keepLocked, leavesLockedRegion, lockedCards, PRESET_CARD_REFUSAL } from './presets.js'
+import { leavesLockedRegion, lockedCards, PRESET_CARD_REFUSAL } from './presets.js'
 import { drawWires } from './SlotBoard.jsx'
 import { blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
 import { regionAddress, regionsFit, regionsOf } from './regions.js'
-import { useHistory } from './useHistory.js'
 import { usePickedPort } from './usePickedPort.js'
 import { visibleSlot } from './visibleSlot.js'
 
@@ -31,18 +30,15 @@ export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
  * @param openNode(id), openSlot(at, region)       the game's sheets for a block and an empty slot
  * @param root, scroller                           refs to the element that holds the board and tray, and to the board's
  *                                                 scrolling pane (drags start inside `root` and scroll `scroller`)
- * @param scope                                    names the board for undo (a level's stage)
+ * @param history                                  the editing session's undo and redo
  * @returns state and handlers for SlotBoard (`history`: its undo and redo), Tray and Notice
  */
 const NO_VISIBLE_SLOT = { zh: '眼前没有能放这个元件的空格位。', en: 'There is no visible slot for this part.' }
 const DOES_NOT_FIT = { zh: '这个元件放不进这一格。', en: 'This part does not fit in this slot.' }
 
-export function useSlotEditing({ graph, onChange: given, parts, create, label, openNode, openSlot, root, scroller, scope, canMove = () => true }) {
+export function useSlotEditing({ graph, onChange, parts, create, label, openNode, openSlot, root, scroller, history, canMove = () => true }) {
   const [picking, setPicking] = usePickedPort(graph, parts)
   const [moving, setMoving] = useState(null) // a part's id, while choosing the slot it moves to
-  // A change never takes off what the level locked on the board (presets.js keepLocked).
-  const onChange = (next, options) => given(keepLocked(graph, next), options)
-  const history = useHistory(graph, onChange, scope)
   const [toast, setToast] = useState(null) // a { zh, en } pair, read in the current language when shown
   const { sources, steps, sinks } = layout(graph, parts)
   const protectedIds = lockedCards(graph)
