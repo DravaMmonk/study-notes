@@ -1,7 +1,5 @@
 import { SeparableKernels } from './Separable.jsx'
 import { AppleChannels, AppleDecision } from './AppleChannels.jsx'
-import { PickMark } from '../../../../shell/EditMarks.jsx'
-import Bench from '../../../../shell/bench/Bench.jsx'
 import { ObscuraScreen, ObscuraSide } from './Obscura.jsx'
 import { HoughPlanes } from './Hough.jsx'
 import { RansacCases, RansacTrial } from './Ransac.jsx'
@@ -11,9 +9,8 @@ import { ChoiceMatrix, Embedding } from './Contrast.jsx'
 import { KernelChoices, KernelRound } from './Kernels.jsx'
 import { AttentionRoles } from './AttentionRoles.jsx'
 
-// A bench level (kind: 'board') on the kernel's parameter bench, with the image domain's own display items (their
-// schemas and what each is for: ../../items/displays.js). Loaded lazily, with every bench's pictures.
-const DISPLAYS = {
+// The image domain's display items for the kernel bench. Their schemas live in ../../items/displays.js.
+export const displays = {
   attentionRoles: AttentionRoles,
   separableKernels: SeparableKernels,
   appleChannels: AppleChannels,
@@ -30,12 +27,4 @@ const DISPLAYS = {
   choiceMatrix: ChoiceMatrix,
   kernelRound: KernelRound,
   kernelChoices: KernelChoices,
-}
-
-export default function BenchLevel({ level, onSolve, theme }) {
-  return <>
-    {level.bench.setup && <PickMark at="bench.setup" label={{ zh: '实验设置', en: 'Experiment setup' }} />}
-    <PickMark at="bench.layout" label={{ zh: '实验布局', en: 'Experiment layout' }} />
-    <Bench bench={level.bench} model={level.model} displays={DISPLAYS} onSolve={onSolve} theme={theme} />
-  </>
 }

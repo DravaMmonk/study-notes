@@ -1,16 +1,15 @@
-import { createElement, useEffect, useMemo, useRef, useState } from 'react'
+import { createElement, use, useEffect, useMemo, useRef, useState } from 'react'
 import { callOf } from '../../engine/schema.js'
 import { benchRun, openKnobs, startValues } from '../../engine/bench.js'
 import { PHONE, useMedia } from '../useMedia.js'
+import { PickMark } from '../EditMarks.jsx'
 import { KERNEL_ITEMS } from './items.jsx'
 import './bench.css'
 
 // The parameter bench (games/DESIGN.md 6.4, the data in ../../engine/bench.js): one screen for every bench. It keeps
 // the knob values (one set per stage, one value per case for a per-case knob), the model's process and a running
 // repeat, judges the goal on what the model computes, steps through the stages, and lays out the display items the
-// bench's layout names: the kernel's (./items.jsx) and the domain's (`displays`: { name: Component }).
-//
-//   <Bench bench={…} model={…} displays={…} onSolve={…} theme={…} />
+// bench's layout names: the kernel's (./items.jsx) and the domain's, loaded through an optional registry promise.
 //
 // A display component gets { params, ctx: the bench's state below, children: its `with` items }. On a bench judged on
 // submit, `ctx.revealed` says whether the setting on the knobs has been checked: a display draws its result only then.
@@ -18,7 +17,8 @@ import './bench.css'
 const BLOCK_KEYS = ['panel', 'stack', 'row']
 const isBlock = (b) => b && typeof b === 'object' && BLOCK_KEYS.some((k) => k in b)
 
-export default function Bench({ bench, model, displays = {}, onSolve, theme }) {
+export default function Bench({ resource: { bench, model, displays }, onSolve, theme }) {
+  const items = displays ? use(displays) : {}
   const phone = useMedia(PHONE)
   const stages = bench.stages ?? null
   const cases = bench.cases ?? null
@@ -105,22 +105,26 @@ export default function Bench({ bench, model, displays = {}, onSolve, theme }) {
     const [, params] = callOf(b)
     return (!params.when || Boolean(c.q[params.when])) && (!params.unless || !c.q[params.unless])
   }
-  const render = (list = []) => list.filter(shown).map((b, i) => <Block key={i} b={b} c={c} displays={displays} render={render} />)
+  const render = (list = []) => list.filter(shown).map((b, i) => <Block key={i} b={b} c={c} displays={items} render={render} />)
 
   const { head, main, side, foot, split } = bench.layout
   const hasSide = (side ?? []).some(shown)
   const card = <section className="bk-stage bk-stack bench-main">{render(main)}</section>
   return (
-    <div className="bk bench">
-      {head?.some(shown) && <div className="bench-head">{render(head)}</div>}
-      {hasSide ? (
-        <div className={`bk-split ${split ? `is-${split}` : ''}`}>
-          {card}
-          <div className="bk-stack">{render(side)}</div>
-        </div>
-      ) : card}
-      {foot?.some(shown) && <div className="bk-stack">{render(foot)}</div>}
-    </div>
+    <>
+      {bench.setup && <PickMark at="bench.setup" label={{ zh: '实验设置', en: 'Experiment setup' }} />}
+      <PickMark at="bench.layout" label={{ zh: '实验布局', en: 'Experiment layout' }} />
+      <div className="bk bench">
+        {head?.some(shown) && <div className="bench-head">{render(head)}</div>}
+        {hasSide ? (
+          <div className={`bk-split ${split ? `is-${split}` : ''}`}>
+            {card}
+            <div className="bk-stack">{render(side)}</div>
+          </div>
+        ) : card}
+        {foot?.some(shown) && <div className="bk-stack">{render(foot)}</div>}
+      </div>
+    </>
   )
 }
 

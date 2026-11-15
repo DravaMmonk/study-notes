@@ -7,7 +7,7 @@ import { resolve } from 'node:path'
 import { components } from './components.js'
 
 const CEILING = {
-  'domains/image': 996,
+  'domains/image': 957,
 }
 
 test('no domain writes more components of its own than it did, and a domain on the circuit base writes none', () => {

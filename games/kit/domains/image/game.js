@@ -1,10 +1,8 @@
 // An image game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
-// becomes the shell's game description, with the image domain's level screens (circuits, benches, the probe), its
+// becomes the shell's game description, with the image domain's play resources, its
 // parts box and its intro figures.
-import { lazy } from 'react'
 import '../../../../trace-viewer/src/index.css'
 import './image.css'
-import '../../shell/bench/bench.css'
 import { FlaskConical, Workflow } from 'lucide-react'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore, levelLabels } from '../../course.js'
@@ -15,15 +13,20 @@ import { partsFor } from '../../circuit/board-parts.js'
 import { imageCircuit } from './ui/circuit.js'
 import { imageBoards } from './engine/board-view.js'
 import { imagePreview } from './engine/preview.js'
-import { gridProbeScreen } from '../../shell/GridProbe.jsx'
 import { rangeOf } from './ui/display.js'
 import { imageHero, imageIntroduction } from './ui/intro.js'
 import WeightGrid from '../../shell/parts/WeightGrid.jsx'
 import { familyOf, iconOf } from './ui/catalog.js'
 import { descriptionOf } from './words.js'
 
-const BenchLevel = lazy(() => import('./ui/benches/BenchLevel.jsx'))
-const Probe = gridProbeScreen(rangeOf)
+let displayItems
+const parameters = ({ bench, model }) => ({
+  bench,
+  model,
+  displays: displayItems ??= import('./ui/benches/displays.js').then((module) => module.displays),
+})
+const blackBox = ({ probe }) => ({ ...probe, rangeFor: rangeOf })
+
 // Unlock flags → the part (or option) they give in a course's part table, for the passed dialog and the parts box.
 const partOfFlag = (types) => {
   const map = Object.fromEntries(Object.entries(types).filter(([, spec]) => spec.unlock).map(([type, spec]) => [spec.unlock, type]))
@@ -79,7 +82,7 @@ export default function imageGame(content) {
     levels,
     intro: (level) => image.intros[level.id],
     IntroFigure: imageIntroduction,
-    kinds: playKinds(plays, { imageCircuit: imageCircuit(image, boards, cards), parameters: BenchLevel, probe: Probe }, {
+    kinds: playKinds(plays, { imageCircuit: imageCircuit(image, boards, cards), parameters, probe: blackBox }, {
       graph: { icon: Workflow, label: { zh: '搭电路', en: 'Build a circuit' } },
       board: { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
       probe: { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },

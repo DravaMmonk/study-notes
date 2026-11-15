@@ -2,7 +2,7 @@ import { lazy, Suspense, useMemo } from 'react'
 import { defineGame } from '../index.js'
 import { tr } from '../i18n.js'
 import { circuitScreen } from '../CircuitScreen.jsx'
-import { workshopScreen } from './WorkshopPlay.jsx'
+import WorkshopPlay from './WorkshopPlay.jsx'
 
 const ManualBoardPlay = lazy(() => import('./ManualBoardPlay.jsx'))
 const BoardChecks = lazy(() => import('./BoardChecks.jsx'))
@@ -15,7 +15,7 @@ const ValueTables = lazy(() => import('./ValueTables.jsx'))
 const bind = {
   circuit: circuitScreen,
   board: (play, resource) => (screen) => <ManualBoardPlay screen={screen} play={play} resource={resource} />,
-  workshop: workshopScreen,
+  workshop: (play, prepare) => resourceScreen(WorkshopPlay, play, prepare),
   tree: (play, prepare) => resourceScreen(play.judge === 'once' ? Rows : TreeWork, play, prepare),
   values: (play, prepare) => resourceScreen(ValueTables, play, prepare),
   fields: (play, prepare) => resourceScreen(FieldRows, play, prepare),
