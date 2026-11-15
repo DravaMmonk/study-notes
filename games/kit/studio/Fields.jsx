@@ -16,7 +16,7 @@ import { getLang, L, tr } from '../shell/i18n.js'
 import { stepNumber } from '../shell/number-entry.js'
 import { boardSvg } from '../circuit/svg.js'
 import { showPath } from '../engine/ops/edit.js'
-import { blank, moved, recast, revertOf, shapeName, summaryOf, taskOptionsOf } from './form.js'
+import { creationChoices, moved, revertOf, summaryOf, taskOptionsOf } from './form.js'
 import { AddKey, AddMenu, Chips, Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { GridField, NumbersField, TableField, TicksField, WaveField } from './Cells.jsx'
@@ -125,7 +125,7 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
   const key = showPath(field.path)
   const found = ctx.findings?.get(key) ?? []
   const [had, before] = ctx.before?.(field.path) ?? [false, undefined]
-  const changed = ctx.before && !CONTAINERS.includes(field.kind) && JSON.stringify(had ? before : undefined) !== JSON.stringify(field.value)
+  const changed = ctx.before && field.kind !== 'fixed' && !CONTAINERS.includes(field.kind) && JSON.stringify(had ? before : undefined) !== JSON.stringify(field.value)
   const revert = () => onEdit(field.path, revertOf(had ? before : undefined), field.kind)
   const name = label ?? ''
   const lang = ctx.lang ?? getLang()
@@ -152,18 +152,21 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
       case 'table': return <TableField field={field} onSet={set} label={name} />
       case 'ticks': return <TicksField field={field} onSet={set} label={name} />
       case 'wave': return <WaveField field={field} onEdit={onEdit} label={name} />
-      case 'call': return <CallField field={field} onEdit={onEdit} ctx={ctx} label={name} />
+      case 'fixed': return <code className="field-key">{String(field.value)}</code>
+      case 'call': return <>
+        <code className="field-key">{field.item}</code>
+        {field.params && <Field field={field.params} label={null} onEdit={onEdit} ctx={ctx} />}
+      </>
       case 'list': return <ListField field={field} onEdit={onEdit} ctx={ctx} />
       case 'map': return <MapField field={field} onEdit={onEdit} ctx={ctx} />
       case 'obj': return <ObjField field={field} onEdit={onEdit} ctx={ctx} />
       default: return <AnyField field={field} onSet={set} label={name} />
     }
   })()
-  const head = (label !== null || onRemove || field.tags || field.shapes?.length > 1 || changed) && (
+  const head = (label !== null || onRemove || field.tags || changed) && (
     <div className="field-head">
       {label !== null && <span className="field-key" title={field.about ? L(field.about) : undefined}>{label}</span>}
-      {field.tags && <TagChoice field={field} onEdit={onEdit} ctx={ctx} />}
-      {field.shapes?.length > 1 && <Shapes field={field} onEdit={onEdit} ctx={ctx} />}
+      {field.tags && <FieldTags tags={field.tags} />}
       {changed && <button type="button" className="field-undo" onClick={revert} title={tr('改回去')} aria-label={tr(`把 ${name} 改回去`, `Put ${name} back`)}><RotateCcw size={12} /></button>}
       {onRemove && <button type="button" className="field-x" onClick={onRemove} aria-label={tr('去掉')}><X size={13} /></button>}
       {label !== null && field.about && <span className="field-help">{L(field.about)}</span>}
@@ -180,32 +183,12 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
   )
 }
 
-/** A by's shape (a level's kind, say; nested bys one after another): picking another keeps the fields the shapes share. */
-export function TagChoice({ field, onEdit, ctx }) {
+/** The discriminators of an existing configuration are read-only. */
+export function FieldTags({ tags }) {
   return (
     <span className="field-tag">
-      {field.tags.map((tag) => <Picker key={tag.key} options={tag.options} value={tag.value} label={tag.key} onPick={(to) => onEdit(field.path, { set: recast(tag, field.value, to, ctx) }, 'obj')} />)}
+      {tags.map(({ key, value }) => <code className="field-key" key={key} title={key}>{String(value ?? '—')}</code>)}
     </span>
-  )
-}
-
-/** Select a schema variant through the standard search picker. */
-export function Shapes({ field, onEdit, ctx }) {
-  const options = field.shapes.map((shape, value) => ({ value, label: shapeName(shape, field.shapes) }))
-  return <Picker options={options} value={field.shape} label={tr('类型', 'Type')}
-    onPick={(index) => { if (index !== field.shape) onEdit(field.path, { set: blank(field.shapes[index], ctx) }, null) }} />
-}
-
-function CallField({ field, onEdit, ctx, label }) {
-  const choose = (item) => {
-    const it = ctx.vocabulary.kinds[field.of][item]
-    onEdit(field.path, { set: it.params ? { [item]: blank(it.params, ctx) } : item }, 'call')
-  }
-  return (
-    <>
-      <Picker options={field.options} value={field.item ?? undefined} onPick={choose} label={label} />
-      {field.params && <Field field={field.params} label={null} onEdit={onEdit} ctx={ctx} />}
-    </>
   )
 }
 
@@ -219,10 +202,17 @@ function ListField({ field, onEdit, ctx }) {
   const items = field.items
   const values = items.map((i) => i.value)
   const inline = field.bindings || items.length > 0 && SCALARS.includes(items[0].kind)
+  const choices = field.bindings ? [] : creationChoices(field.of, ctx)
+  const tasks = field.path.length === 1 && field.path[0] === 'tasks'
   const [open, setOpen] = useState(() => new Set(items.length <= 2 ? items.map((_, k) => k) : []))
   const [drag, setDrag] = useState(null)
   const [over, setOver] = useState(null)
   const put = (next) => onEdit(field.path, { set: next }, 'list')
+  const duplicate = (item) => {
+    const draft = structuredCopy(item)
+    if (tasks) delete draft.id
+    return draft
+  }
   const fold = (k) => setOpen((s) => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n })
   const drop = (k) => {
     if (drag !== null && drag !== k) put(moved(values, drag, k))
@@ -262,8 +252,10 @@ function ListField({ field, onEdit, ctx }) {
               )}
               {inline && <div className="li-body"><Field field={item} label={null} onEdit={onEdit} ctx={ctx} /></div>}
               <span className="li-tools">
-                {!field.bindings && <button type="button" onClick={() => put([...values.slice(0, k + 1), structuredCopy(values[k]), ...values.slice(k + 1)])} aria-label={tr('复制这一项')}><Copy size={12} /></button>}
-                <button type="button" onClick={() => onEdit(item.path, { unset: true }, null)} aria-label={tr('去掉这一项')}><X size={13} /></button>
+                {!field.bindings && <button type="button" onClick={() => put([...values.slice(0, k + 1), duplicate(values[k]), ...values.slice(k + 1)])} aria-label={tr('复制这一项')}><Copy size={12} /></button>}
+                <button type="button" disabled={tasks && values.length === 1}
+                  onClick={() => tasks ? put(values.filter((_, index) => index !== k)) : onEdit(item.path, { unset: true }, null)}
+                  aria-label={tr('去掉这一项')}><X size={13} /></button>
               </span>
             </div>
             {!inline && isOpen && (
@@ -275,11 +267,11 @@ function ListField({ field, onEdit, ctx }) {
         )
       })}
       {field.bindings ? <AttachSetting field={field} ctx={ctx} onAttach={(binding) => put([...values, binding])} /> : <AddMenu
-        options={[{ value: 'blank', label: tr('空白项', 'Blank item') }, ...(items.length ? [{ value: 'copy', label: tr('复制最后一项', 'Duplicate last item') }] : [])]}
+        options={[...choices, ...(items.length ? [{ value: 'copy', label: tr('复制最后一项', 'Duplicate last item') }] : [])]}
         onPick={(action) => {
           setOpen((current) => new Set([...current, items.length]))
-          const item = action === 'copy' ? structuredCopy(values.at(-1)) : blank(field.of, ctx)
-          if (field.path.length === 1 && field.path[0] === 'tasks') {
+          const item = action === 'copy' ? duplicate(values.at(-1)) : choices[action].make()
+          if (tasks) {
             const { id: _, ...draft } = item
             put([...values, draft])
           } else {
@@ -293,11 +285,12 @@ function ListField({ field, onEdit, ctx }) {
 const structuredCopy = (v) => (v === undefined ? v : JSON.parse(JSON.stringify(v)))
 
 function MapField({ field, onEdit, ctx }) {
+  const choices = creationChoices(field.of, ctx)
   return (
     <div className="field-list">
       {field.entries.map(({ key: k, field: f }) => <Field key={k} field={f} label={k} onEdit={onEdit} ctx={ctx} onRemove={() => onEdit(f.path, { unset: true }, null)} />)}
-      <AddKey taken={field.entries.map((entry) => entry.key)}
-        onAdd={(key) => onEdit([...field.path, key], { set: blank(field.of, ctx) }, field.of.type)} />
+      <AddKey taken={field.entries.map((entry) => entry.key)} options={choices.length === 1 ? undefined : choices}
+        onAdd={(key, type = 0) => onEdit([...field.path, key], { set: choices[type].make() }, field.of.type)} />
     </div>
   )
 }
@@ -321,7 +314,7 @@ export function ObjField({ field, onEdit, ctx, keys = null }) {
   return (
     <div className="field-obj">
       {runs.map((run) => (run.short && run.fields.length > 1 ? <div key={run.fields[0].key} className="field-grid">{run.fields.map(one)}</div> : run.fields.map(one)))}
-      {absent.length > 0 && <AddFields fields={absent} onAdd={(f) => onEdit([...field.path, f.key], { set: blank(f.schema, ctx) }, f.schema.type)} />}
+      {absent.length > 0 && <AddFields fields={absent} ctx={ctx} onAdd={(f, value) => onEdit([...field.path, f.key], { set: value }, f.schema.type)} />}
     </div>
   )
 }

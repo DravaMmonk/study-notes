@@ -308,6 +308,15 @@ export const OPERATIONS = {
       return { says: 'glossary: set chapter grouping', inverse: [{ op: 'glossary.presentation', groupByChapter: old }] }
     },
   },
+  'glossary.replace': {
+    about: t('替换百科的 JSON 内容', 'Replace the glossary JSON'),
+    params: S.obj({ data: GLOSSARY }),
+    apply(ws, { data }) {
+      const old = ws.glossary
+      ws.glossary = data
+      return { says: 'glossary: replaced', inverse: [{ op: 'glossary.replace', data: old }] }
+    },
+  },
   'glossary.put': {
     about: t('写一条百科（没有就加上，at 是在列表里的位置）'),
     params: S.obj({ entry: S.str(), data: S.map(S.any()), at: S.opt(S.int({ min: 0 })) }),

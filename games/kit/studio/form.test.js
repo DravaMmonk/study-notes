@@ -1,8 +1,10 @@
 // node --test games/kit/studio — a task list edited as a whole becomes task operations, each task known by its id.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { recast, taskListOps } from './form.js'
+import { creationChoices, taskListOps } from './form.js'
+import { sourceOps } from './source.js'
 import { S } from '../engine/schema.js'
+import { taskLevel } from '../engine/tasks.js'
 
 const levels = [{ id: 'l', tasks: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] }, { id: 'l_2' }]
 const before = levels[0].tasks.map((x) => ({ ...x, n: 1 }))
@@ -26,11 +28,30 @@ test('a list of only new tasks adds them before the old ones go', () => {
   assert.deepEqual(ops.map((o) => o.op), ['task.add', 'task.remove'])
 })
 
-test('a task recast as another kind keeps what the two share, whatever the kind nests (a by, an either)', () => {
+test('creation offers every nested task type and writes its discriminators into the new draft', () => {
   const circuit = S.by('world', { a: S.obj({ world: S.oneOf(['a']), brief: S.str(), x: S.int() }), b: S.obj({ world: S.oneOf(['b']), brief: S.str() }) })
   const fill = S.either(S.obj({ mode: S.oneOf(['fill']), brief: S.str(), cells: S.int() }), S.obj({ mode: S.oneOf(['fill']), brief: S.str(), grid: S.int() }))
-  const tag = { key: 'mode', cases: { circuit, fill } }
+  const schema = S.by('mode', { circuit, fill })
   const ctx = { vocabulary: { kinds: {} } }
-  assert.deepEqual(recast(tag, { mode: 'fill', brief: 'b', cells: 2 }, 'circuit', ctx), { world: 'a', brief: 'b', x: 0, mode: 'circuit' })
-  assert.deepEqual(recast(tag, { mode: 'circuit', world: 'a', brief: 'c', x: 1 }, 'fill', ctx), { mode: 'fill', brief: 'c', cells: 0 })
+  assert.deepEqual(creationChoices(schema, ctx).map(({ label, make }) => [label, make()]), [
+    ['circuit · a', { world: 'a', brief: '', x: 0, mode: 'circuit' }],
+    ['circuit · b', { world: 'b', brief: '', mode: 'circuit' }],
+    ['fill · cells', { mode: 'fill', brief: '', cells: 0 }],
+    ['fill · grid', { mode: 'fill', brief: '', grid: 0 }],
+  ])
+})
+
+test('JSON editing preserves existing types and uses task operations for identity changes', () => {
+  const config = (kind) => S.obj({ kind: S.oneOf([kind]), value: S.int() })
+  const vocabulary = { kinds: {}, level: taskLevel({ title: S.str() }, S.by('kind', { a: config('a'), b: config('b') })) }
+  const value = { title: 'Level', tasks: [{ id: 'first', kind: 'a', value: 1 }] }
+  const file = { level: 'l' }
+  const edit = (path, next) => sourceOps(file, value, path, next, vocabulary, [{ id: 'l', ...value }])
+  assert.deepEqual(edit([], { ...value, title: 'New title', tasks: [{ ...value.tasks[0], value: 2 }] }), [
+    { op: 'level.set', level: 'l', path: ['title'], value: 'New title' },
+    { op: 'level.set', level: 'l', path: ['tasks', 0], value: { id: 'first', kind: 'a', value: 2 } },
+  ])
+  assert.deepEqual(edit(['tasks', 0, 'id'], 'renamed'), [{ op: 'task.rename', task: 'first', to: 'renamed' }])
+  assert.throws(() => edit(['tasks', 0, 'kind'], 'b'), /change its type|类型/)
+  assert.throws(() => edit(['tasks', 0, 'value'], 'text'), /whole number/)
 })

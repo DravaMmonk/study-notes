@@ -125,16 +125,16 @@ export function AddMenu({ label = tr('新增', 'Add'), options, onPick, icon, se
 }
 
 /** Add a key with a name entered by the author. */
-export function AddKey({ taken, onAdd, label = tr('新键', 'New key') }) {
-  const [editing, setEditing] = useState(false)
-  const cancel = () => setEditing(false)
-  if (!editing) return <AddMenu options={[{ value: 'key', label }]} onPick={() => setEditing(true)} />
+export function AddKey({ taken, onAdd, label = tr('新键', 'New key'), options = [{ value: 0, label }] }) {
+  const [type, setType] = useState(null)
+  const cancel = () => setType(null)
+  if (type === null) return <AddMenu options={options} onPick={setType} />
   return (
     <form className="field-row new-key" onSubmit={(event) => {
       event.preventDefault()
       const key = event.currentTarget.elements.key.value.trim()
       if (!key || taken.includes(key)) return
-      onAdd(key)
+      onAdd(key, type)
       cancel()
     }}>
       <input className="field-input is-key" name="key" autoFocus required aria-label={label} placeholder={label} onKeyDown={(event) => {

@@ -24,14 +24,33 @@ import '../wires.css'
 import '../shell/shell.css'
 import '../views/views.css'
 import '../circuit/circuit.css'
-import { useEffect, useMemo, useState } from 'react'
-import { GameShell, getLang } from '../shell/index.js'
+import { Component, useEffect, useMemo, useState } from 'react'
+import { GameShell, getLang, tr } from '../shell/index.js'
 import { createProgress, openAt, saved } from '../shell/progress.js'
 import { DOMAINS } from 'virtual:studio-domains'
 import { SettingSheet } from '../shell/parts/PieceSheet.jsx'
 import PieceView from './PieceView.jsx'
 
 const say = (message) => window.parent.postMessage(message, window.location.origin)
+
+/** Keep unfinished drafts editable when a play cannot render them yet. */
+class DraftPreview extends Component {
+  state = { failed: false, stamp: null }
+
+  static getDerivedStateFromProps({ stamp }, state) {
+    return stamp !== state.stamp ? { failed: false, stamp } : null
+  }
+
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+
+  render() {
+    return this.state.failed
+      ? <p className="board-loading">{tr('当前配置无法预览。请在配置区检查任务字段。', 'This configuration cannot be previewed. Check the task fields in the inspector.')}</p>
+      : this.props.children
+  }
+}
 
 /** The studio's theme and language. */
 function look({ theme, lang }) {
@@ -135,5 +154,7 @@ export default function Play() {
     return <PieceView game={part.game} type={part.type} edit={parts} onTask={toTask} label={taskLabel} />
   }
   if (!shown) return null
-  return <GameShell key={shown.no} game={shown.game} store={shown.game.store} author={author} />
+  return <DraftPreview key={shown.no} stamp={shown.game.stamp}>
+    <GameShell game={shown.game} store={shown.game.store} author={author} />
+  </DraftPreview>
 }

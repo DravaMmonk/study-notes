@@ -11,7 +11,7 @@ import { BUILTIN_ITEMS } from '../engine/parts/builtins.js'
 import { ICON_NAMES } from '../engine/parts/icons.js'
 import { validate } from '../engine/schema.js'
 import { ICONS } from '../shell/parts/icons.js'
-import { formOf } from './form.js'
+import { creationChoices, formOf } from './form.js'
 import { AddMenu } from './Picker.jsx'
 import { useDraft } from './draft.js'
 
@@ -117,8 +117,26 @@ export function SettingUsers({ file, id, onPiece }) {
 }
 
 /** Add an optional field offered by the current engine schema. */
-export function AddFields({ fields, onAdd }) {
+export function AddFields({ fields, ctx, onAdd }) {
   const label = tr('添加字段', 'Add field')
-  return <AddMenu options={fields.map(({ key, about }) => ({ value: key, about }))}
-    onPick={(key) => onAdd(fields.find((field) => field.key === key))} label={label} />
+  const entries = new Map()
+  const options = fields.flatMap((field) => {
+    const choices = creationChoices(field.schema, ctx)
+    if (!choices.length) return []
+    const { key, about } = field
+    if (choices.length === 1) {
+      entries.set(key, { field, make: choices[0].make })
+      return [{ value: key, about }]
+    }
+    const children = choices.map((choice) => {
+      const value = `${key}:${choice.value}`
+      entries.set(value, { field, make: choice.make })
+      return { ...choice, value }
+    })
+    return [{ value: key, about, children }]
+  })
+  return <AddMenu options={options} onPick={(key) => {
+    const { field, make } = entries.get(key)
+    onAdd(field, make())
+  }} label={label} />
 }
