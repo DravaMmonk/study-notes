@@ -27,7 +27,7 @@ import { equations } from './define.js'
 import { lemmaReference, PROOF_BOARD } from './proof.js'
 import { OPS, partsOf } from './ops.js'
 import { primitivesOnly } from '../../engine/board-cards.js'
-import { boardView, fitsCircuit, packedWorkReferences } from '../../engine/board-view.js'
+import { boardView, fitsCircuit } from '../../engine/board-view.js'
 import { keptBoards } from '../../engine/kept-boards.js'
 import { workView } from '../../circuit/workshop-view.js'
 import { GATE_BOARD, builtGates, gateCourse, gateTests } from './gates.js'
@@ -607,8 +607,7 @@ export function logicCourse(content) {
       const work = entry.value?.() ?? facts[entry.type]?.statement ?? builder?.pieceSolution
       return { key: source.taskId, task: builder, work }
     })
-    const view = circuitFor(task)?.forTask(task)
-    return [...named, ...packedWorkReferences(view, work), ...proofWorkReferences(task, work)]
+    return [...named, ...proofWorkReferences(task, work)]
   }
   return { machineBoards, strips, LEVELS, CHAPTERS, LABELS, course, circuitFor, workReferences, offerIn, holdsIn, machines, revisions, lemmas, facts, pieces: built.pieces, publishers: built.publishers, texts: { lemmas, facts, gates, revisions }, proofs: lemmaPieces, gates: gatePieces, defs, defaultsOf, truthCircuits, proofBoards, provers: new Set(lemmaWorks.map(({ task }) => task.id)), blueprints, wrong, syncOwn: kept.sync }
 }

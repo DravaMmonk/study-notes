@@ -155,9 +155,6 @@ export default function logicGame(content) {
   game.circuit = { forTask: (task) => logic.circuitFor(task)?.forTask(task) }
   game.stampOptions = { courseField: symbolStamp(logic.strips) }
   game.defined = { of: (type) => logic.defs[type] ?? logic.strips[type] ?? null, defaults: logic.defaultsOf, ops: OPS }
-  game.workReferences = (entry, built) => {
-    logic.syncOwn(built)
-    return logic.workReferences(entry.task, entry.work)
-  }
+  game.workReferences = ({ task, work }) => logic.workReferences(task, work)
   return game
 }

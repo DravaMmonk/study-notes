@@ -35,17 +35,6 @@ export function openCircuit(view, task, progress, saved, prepare = (board) => bo
   return prepare(view.opening(task, progress))
 }
 
-/** Open the packed implementation selected by a node in its task's view. */
-export const openPackedPart = (view, node) => view?.BUILT[node.type]?.opens?.(node.params)
-
-/** The selected packed work, in the task that published it. */
-export function packedWorkReferences(view, work) {
-  return (work?.nodes ?? []).flatMap((node) => {
-    const opened = openPackedPart(view, node)
-    return opened ? [{ key: opened.level.taskId, task: opened.level, work: opened.circuit }] : []
-  })
-}
-
 export function boardView({ board, parts, built = () => ({}), builder = () => null, defined = null, offerIn, holdsIn, syncOwn, runtime, tasksAt, opening }) {
   const builtBy = (task) => (type) => (built(task)[type] ? builder(type, task) : null)
   const views = new WeakMap()

@@ -4,7 +4,7 @@ import { T } from '../shell/i18n.js'
 import { iconOf } from '../shell/parts/icons.js'
 import { openRef } from '../shell/refs.js'
 import { packedBoards } from './packed-boards.js'
-import { openedWorkshop, workshopOf } from './workshop-view.js'
+import { openWorkshopPart, workshopWiring } from './workshop-view.js'
 
 const GIVES = T('得出', 'Result')
 const OPENS = T('收到')
@@ -72,16 +72,14 @@ export function partsFor(level, circuit, { cards, portLabels, defined }) {
 /** Shared descriptions and edit destinations for the step log and the two packed board entry points. */
 export function packedView(course, options, activeWorkshop) {
   const views = packedBoards(course, (board, view) => ({ ...board, parts: partsFor(board.level, view, options) }))
-  const workshopAt = (at) => at.workshop ?? workshopOf(at.circuit) ?? activeWorkshop
   return {
     root: views.root,
     open: (node, at) => {
-      const workshop = workshopAt(at)
-      if (workshop?.known(node.type)) return { ...openedWorkshop(workshop.resolve.definition(node.type), at.parts, at.level), workshop }
-      return views.open(node, at)
+      const opened = openWorkshopPart(node, at, activeWorkshop)
+      return opened ? { ...opened, parts: workshopWiring(at.parts) } : views.open(node, at)
     },
     edit: (node, at) => {
-      if (workshopAt(at)?.known(node.type)) return null
+      if (openWorkshopPart(node, at, activeWorkshop)) return null
       const task = views.builder(node, at)
       return task ? () => openRef('level', task.id, task.task) : null
     },

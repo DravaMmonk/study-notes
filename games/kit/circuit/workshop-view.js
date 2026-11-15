@@ -105,17 +105,20 @@ export function workshopView(circuit, library, available, runtime) {
 
 const outputsOf = ({ outputs }) => outputs.length > 1 ? outputs.map((name) => ({ key: name, label: name })) : null
 
-/** Draw a personal part using the active domain and its own captured boundary. */
-export function openedWorkshop(piece, parts, task) {
+/** Open a workshop version in the library captured on the parent, or in the active library for a draft. */
+export function openWorkshopPart(node, parent, activeWorkshop) {
+  const workshop = parent.workshop ?? workshopOf(parent.circuit) ?? activeWorkshop
+  if (!workshop?.known(node.type)) return null
+  return { key: node.type, circuit: workshop.resolve.definition(node.type).graph, level: parent.level, workshop }
+}
+
+/** Draw the ports of a personal part on its own board. */
+export function workshopWiring(parts) {
   return {
-    circuit: piece.graph,
-    level: task,
-    parts: {
-      ...parts,
-      role: (node) => workshopInput(node) ? 'source' : parts.role(node),
-      label: (node) => workshopInput(node) ? node.params.name : parts.label(node),
-      inputs: (node) => workshopInput(node) ? [] : parts.inputs(node),
-      outputs: (node) => workshopInput(node) ? null : parts.outputs(node),
-    },
+    ...parts,
+    role: (node) => workshopInput(node) ? 'source' : parts.role(node),
+    label: (node) => workshopInput(node) ? node.params.name : parts.label(node),
+    inputs: (node) => workshopInput(node) ? [] : parts.inputs(node),
+    outputs: (node) => workshopInput(node) ? null : parts.outputs(node),
   }
 }

@@ -12,6 +12,8 @@
 // level is no longer solved; every other task keeps its save. A board that reads a part whose own level changed is
 // its screen's to judge when it opens (a domain's `open`), as any board that no longer fits.
 
+import { openPackedPart, packedWorkReferences } from '../circuit/packed-boards.js'
+import { openWorkshopPart } from '../circuit/workshop-view.js'
 import { solutionStamp } from '../engine/stamp.js'
 
 /** The key a game's progress is saved under in this browser. */
@@ -206,7 +208,7 @@ export function skipOptionalTask(progress, level, at) {
 function kept(game, p, level, taskAt, board) {
   const key = taskKey(level, taskAt)
   if ((!((level.keeps ?? level.unlocks?.length)) && !isCarried(game, level, taskAt)) || !board) return p.built
-  return { ...p.built, [key]: game.bindPassingBoard?.(key, board) ?? board }
+  return { ...p.built, [key]: board }
 }
 
 /** Level rewards from an optional task require that task to have actually been passed. */
@@ -222,8 +224,17 @@ export function earnedUnlocks(level, progress) {
 export function recordSolution(game, p, level, taskAt, work) {
   const task = level.tasks[taskAt]
   const stamped = (entry) => ({ ...entry, puzzle: p.stamps?.[entry.key] })
-  return solutionStamp(stamped({ key: task.key, task: task.source, work }), (entry) =>
-    (game.workReferences?.(entry, p.built) ?? []).map(stamped))
+  const synced = new Set()
+  return solutionStamp(stamped({ key: task.key, task: task.source, work }), (entry) => {
+    const at = entry.at ?? { level: entry.task, circuit: entry.work }
+    const view = at.level && Array.isArray(at.circuit?.nodes) && game.circuit?.forTask(at.level)
+    if (view && !synced.has(view.syncOwn)) {
+      view.syncOwn(p.built)
+      synced.add(view.syncOwn)
+    }
+    const packed = view ? packedWorkReferences(at, (node, parent) => openWorkshopPart(node, parent) ?? openPackedPart(view, node)) : []
+    return [...packed, ...(game.workReferences?.(entry) ?? [])].map(stamped)
+  })
 }
 
 /** Save the judged draft and record its pass. */
@@ -235,10 +246,11 @@ export function passed(game, progress, level, taskAt, score = null, passingWork)
 /** Record the exact work judged on this pass and finish the level when its required tasks have passed. */
 export function recordPass(game, p, level, taskAt, score, work) {
   const key = taskKey(level, taskAt)
-  const built = kept(game, p, level, taskAt, work)
+  const board = work == null ? work : game.bindPassingBoard?.(key, work) ?? work
+  const built = kept(game, p, level, taskAt, board)
   const best = taskAt === level.tasks.length - 1 && score && game.better(score, p.best[level.id])
     ? { ...p.best, [level.id]: score } : p.best
-  const solutions = work == null ? p.solutions : { ...p.solutions, [key]: recordSolution(game, p, level, taskAt, work) }
+  const solutions = board == null ? p.solutions : { ...p.solutions, [key]: recordSolution(game, p, level, taskAt, board) }
   const taskRewards = level.tasks[taskAt].optional ? level.tasks[taskAt].opens ?? [] : []
   const now = { ...p, built, best, solutions, flags: [...new Set([...p.flags, ...taskRewards])], passed: [...new Set([...p.passed, key])], skippedTasks: (p.skippedTasks ?? []).filter((skipped) => skipped !== key) }
   const required = level.tasks.map((task, k) => task.optional ? null : k).filter((k) => k !== null)

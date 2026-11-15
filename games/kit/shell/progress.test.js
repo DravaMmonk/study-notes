@@ -190,13 +190,35 @@ test('passing only an optional task does not complete the required tasks in all-
   assert.deepEqual(p.passed, ['extra'])
 })
 
-test('recorded solutions preserve the referenced work when a later pass changes it', () => {
-  const level = { id: 'two', tasks: [{ key: 'outer', source: { id: 'two' } }] }
-  const game = {
-    workReferences: ({ key }, built) => key === 'outer' ? [{ key: 'inner', work: built.inner }] : [],
-  }
-  const before = recordSolution(game, { stamps: { outer: 'o', inner: 'i' }, built: { inner: ['first'] } }, level, 0, ['outer'])
-  const after = recordSolution(game, { stamps: { outer: 'o', inner: 'i' }, built: { inner: ['second'] } }, level, 0, ['outer'])
+test('recorded solutions preserve the selected packed works when a later pass changes them', () => {
+  const task = (taskId) => ({ taskId })
+  const board = (type, params) => ({ nodes: [{ id: 'n', type, params }], wires: [] })
+  const outer = task('outer')
+  const middle = task('middle')
+  const inner = task('inner')
+  const level = { id: 'two', tasks: [{ key: 'outer', source: outer }] }
+  const graph = board('stage')
+  const packed = board('part', { form: 'second' })
+  const first = board('number', { value: 1 })
+  const second = board('number', { value: 2 })
+  let kept
+  const syncOwn = (built) => { kept = built }
+  const view = (BUILT) => ({ BUILT, syncOwn })
+  const views = new Map([
+    [outer, view({ stage: { opens: () => ({ level: middle, circuit: packed }) } })],
+    [middle, view({ part: { opens: ({ form }) => {
+      assert.equal(form, 'second')
+      return { level: inner, circuit: kept.inner }
+    } } })],
+    [inner, view({})],
+  ])
+  const game = { circuit: { forTask: (source) => views.get(source) } }
+  const progress = { stamps: { outer: 'o', middle: 'm', inner: 'i' }, built: { inner: first } }
+  const before = recordSolution(game, progress, level, 0, graph)
+  const after = recordSolution(game, { ...progress, built: { inner: second } }, level, 0, graph)
+  const earlier = before.works.find(({ key }) => key === 'inner')
   assert.notEqual(before.stamp, after.stamp)
-  assert.deepEqual(before.works.find(({ key }) => key === 'inner').work, ['first'])
+  assert.deepEqual(earlier.work.nodes[0].params, { value: 1 })
+  assert.equal(earlier.puzzle, 'i')
+  assert.deepEqual(before.works.find(({ key }) => key === 'middle').uses, [earlier.id])
 })
