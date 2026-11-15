@@ -448,8 +448,8 @@ export default function Studio() {
       setRev((n) => n + 1)
     }
   }
-  const undo = async () => {
-    const r = await call('undo', { game })
+  const undo = async (seq) => {
+    const r = await call('undo', { game, seq })
     setSaid(r.ok ? { ok: true, text: r.says.join('; ') } : { ok: false, text: r.problems.join('\n') })
     if (r.ok) setRev((n) => n + 1)
   }

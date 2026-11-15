@@ -255,7 +255,9 @@ test('a changeset is checked as a whole, writes only when it passes, logs, and u
   assert.match(readFileSync(join(root, 'games.js'), 'utf8'), /levels: 7/)
   assert.deepEqual(readLog(ws).map((e) => [e.seq, e.why, e.files.length]), [[1, why, 6]])
 
-  const back = await undo(ws, { write: true, check: false, domain: DOMAIN })
+  // An undo meant for a change that is no longer the last is refused: the log moved on since the caller looked.
+  assert.match((await undo(ws, { write: true, check: false, domain: DOMAIN, seq: 0 })).problems[0], /#0 is not the change undo would undo now \(#1 is\)/)
+  const back = await undo(ws, { write: true, check: false, domain: DOMAIN, seq: 1 })
   assert.equal(back.ok, true, back.problems.join('\n'))
   assert.deepEqual(ws.game.eras, toy().ws.game.eras)
   assert.deepEqual(readLog(ws).map((e) => e.undoes), [undefined, 1])

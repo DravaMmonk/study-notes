@@ -107,10 +107,11 @@ export function lastUndoable(ws) {
  * Undo the last change of the log (write: put it on disk): only from the files as that change left them, so a file
  * changed since (by hand, or by a later change) is never written back over.
  */
-export async function undo(ws, options = {}) {
+export async function undo(ws, { seq = null, ...options } = {}) {
   const entry = lastUndoable(ws)
   const refused = (problem) => ({ ok: false, says: [], problems: [problem], failed: null, lines: [], diff: '', files: [], changes: [], content: null, inverse: null })
   if (!entry) return refused('nothing to undo')
+  if (seq !== null && seq !== entry.seq) return refused(`#${seq} is not the change undo would undo now (#${entry.seq} is): the log has changed since`)
   const disk = ws.onDisk()
   const moved = entry.files.filter((f) => disk.has(f.file) && hashOf(disk.get(f.file)) !== f.after).map((f) => f.file)
   if (moved.length) return refused(`#${entry.seq} cannot be undone: changed since it was made: ${moved.join(', ')}`)

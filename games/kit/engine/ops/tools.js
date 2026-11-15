@@ -299,10 +299,10 @@ export const TOOLS = {
     },
   },
   undo: {
-    about: 'Undo the last change of a game’s log not undone yet: its inverse run as a changeset, checked, and logged as an undo (dryRun: preview only).',
-    params: { game: 'string', dryRun: 'boolean?' },
-    async run({ game, dryRun = false }) {
-      const r = await undo(openGame(known(game), ROOT), { write: !dryRun })
+    about: 'Undo the last change of a game’s log not undone yet: its inverse run as a changeset, checked, and logged as an undo (dryRun: preview only). seq: the change the caller means (log gives it as undoable): refused when that is no longer the one undo would undo.',
+    params: { game: 'string', dryRun: 'boolean?', seq: 'number?' },
+    async run({ game, dryRun = false, seq = null }) {
+      const r = await undo(openGame(known(game), ROOT), { write: !dryRun, seq })
       return { ok: r.ok, written: r.ok && !dryRun, says: r.says, problems: r.problems, files: r.files, diff: r.diff }
     },
   },

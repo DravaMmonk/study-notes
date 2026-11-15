@@ -110,7 +110,7 @@ function Log({ log, undoable, onUndo }) {
             <b>#{e.seq}</b>
             <span>{e.why ? L(e.why) : e.ops.map((o) => o.op).join(', ')}</span>
             <small>{e.at.slice(0, 16).replace('T', ' ')}</small>
-            {e.seq === undoable && <button type="button" className="kit-btn is-label" onClick={onUndo}><Undo2 size={14} aria-hidden="true" />{tr('撤销')}</button>}
+            {e.seq === undoable && <button type="button" className="kit-btn is-label" onClick={() => onUndo(e.seq)}><Undo2 size={14} aria-hidden="true" />{tr('撤销')}</button>}
           </li>
         ))}
       </ol>
