@@ -311,5 +311,13 @@
   "取位": "Bit of",
   "给出 8 位数「数」从最高位数起的第「位」位（第 0 位是最高位）；「位」不在 0 到 7 之间，或有一个输入为「—」时，给出「—」。": "Gives bit “Index” of the 8-bit number “Number”, counting from the top (bit 0 is the highest); gives 「—」 when the index is not 0 to 7 or either input is 「—」.",
   "数": "Number",
-  "位": "Index"
+  "位": "Index",
+  "认旗标搭好了，别人搭的却未必对。说一块板错了，得拿出一串让它说错的位来。": "Your flag spotter is built, but boards built by others may not be right. To say a board is wrong, you have to show a run of bits on which it says the wrong thing.",
+  "三块别人搭的板，各错一处。在两行里各排出进线上到达的位：三块板，每块至少在一行上说得和对的不一样。": "Three boards built by others, each wrong in one place. In each of two rows, lay out the bits arriving on the wire in: every one of the three boards must, on at least one row, say something different from the right answer.",
+  "先看每块板和自己搭的那块差在哪个元件上。": "First see which part each board has different from the one you built.",
+  "两行要挡住三块：有一行得让两块都说错。": "Two rows must catch three boards: one row has to make two of them say the wrong thing.",
+  "一个旗标前后还能接什么，线一开头又是什么样，都可以排进去。": "What can come just before or after a flag, and how the wire looks at the very start, can all go into a row.",
+  "甲": "X",
+  "乙": "Y",
+  "丙": "Z"
 }
