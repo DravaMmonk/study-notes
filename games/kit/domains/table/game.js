@@ -6,34 +6,33 @@ import { Cable, Grid3x3 } from 'lucide-react'
 import './ui/table.css'
 import { defineGame } from '../../shell/index.js'
 import { eraLevels, introductions, isCore, pathLevels } from '../../course.js'
-import { playOf, plays } from './plays.js'
-import Circuit from './ui/modes/Circuit.jsx'
-import Fill from './ui/modes/Fill.jsx'
-import Trace from './ui/modes/Trace.jsx'
-import Link from './ui/modes/Link.jsx'
-import Pack from './ui/modes/Pack.jsx'
-import Breach from './ui/modes/Breach.jsx'
-import Policy from './ui/modes/Policy.jsx'
-import Seam from './ui/modes/Seam.jsx'
+import { plays } from './plays.js'
+import { circuitScreen } from '../../shell/CircuitScreen.jsx'
+import { robotCircuits } from './ui/circuitCourse.js'
+import { robotScreenFor } from './ui/circuitScreen.js'
+import { manualBoardScreen } from '../../shell/ManualBoardPlay.jsx'
+import { handResources } from './ui/modes/index.js'
 import Hero from './ui/hero.jsx'
 import { sceneSVG } from './ui/svg.js'
-import PartDemo from './ui/PartDemo.jsx'
+import PieceBench from '../../shell/PieceBench.jsx'
+import { pieceDemo } from './ui/pieceDemo.js'
 import { lookIcon } from './ui/looks.js'
 import { PRIMITIVES, modelsOf } from './model/parts.js'
 import { ROBOTS } from './model/robots.js'
 import { T, lazy, tr } from './lang.js'
 import { tableCourse } from './course.js'
 
-const resources = { circuit: Circuit, fill: Fill, trace: Trace, link: Link, pack: Pack, breach: Breach, policy: Policy, seam: Seam }
+const handScreens = Object.fromEntries(Object.entries(handResources).map(([name, useBoard]) => [name, manualBoardScreen(useBoard)]))
 
-function TablePlay(screen) {
-  const play = playOf(screen.level.source)
-  if (play.judge === 'robot') screen.game.table.syncOwn(screen.progress.built)
-  return createElement(resources[play.resources], { ...screen, play })
+const handScreen = (play) => (screen) => {
+  const { mission, hints } = screen.level.source
+  return createElement(handScreens[play.resources], { ...screen, play, brief: { text: [mission.goal, mission.how], hint: hints } })
 }
 
-const kinds = Object.fromEntries(Object.entries(plays).map(([key, play]) => [key, {
-  Screen: TablePlay, icon: play.judge === 'robot' ? Cable : Grid3x3, label: play.label,
+const kindsFor = (table) => Object.fromEntries(Object.entries(plays).map(([key, play]) => [key, {
+  Screen: play.editor === 'circuit' ? circuitScreen(robotScreenFor(table, play)) : handScreen(play),
+  icon: play.editor === 'circuit' ? Cable : Grid3x3,
+  label: play.label,
 }]))
 
 /** A task's `done` as the shell's pass text of a task: its head in bold, then its paragraphs. */
@@ -98,6 +97,7 @@ export default function tableGame(content) {
 
   const game = defineGame({
     id: content.id,
+    course,
     glossary: content.glossary,
     title: content.title,
     kicker: content.kicker,
@@ -109,7 +109,7 @@ export default function tableGame(content) {
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.intro,
     IntroFigure,
-    kinds,
+    kinds: kindsFor(table),
     unlocked: (level) => level.unlocks.map((k) => ({ label: PARTS[k].name })),
     core: (level) => isCore(course, level),
     parts: {
@@ -120,11 +120,13 @@ export default function tableGame(content) {
       demo: (part, { phone, progress }) => {
         table.syncOwn(progress.built)
         const key = part.key.replace(/^part:/, '')
-        return createElement(PartDemo, { key: part.key, model: table.model, partKey: key, phone, tasks: lastTasks, borrow: part.at ? { [key]: part.at[0] } : borrow })
+        const spec = pieceDemo(table.model, lastTasks, part.at ? { [key]: part.at[0] } : borrow, key)
+        return spec && createElement(PieceBench, { key: part.key, spec, phone })
       },
       filters: robotFilters,
     },
   })
   game.table = table
+  game.robotCircuits = robotCircuits(table)
   return game
 }

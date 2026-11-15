@@ -6,16 +6,16 @@ const hand = {
   editor: 'board',
   judge: 'hand',
   label: boardLabel,
-  layout: { ...frame, board: 'stage', phoneClass: 'sg-level', desktopClass: 'sg-level', panelClass: 'panel' },
+  layout: { ...frame, phoneClass: 'sg-level', desktopClass: 'sg-level', panelClass: 'panel' },
 }
 
 export const plays = definePlays({
   circuit: {
-    editor: 'board',
-    judge: 'robot',
-    resources: 'circuit',
+    editor: 'circuit',
+    judge: 'simulation',
+    resources: 'robot',
     label: { zh: '电路板', en: 'Circuit board' },
-    layout: { ...frame, board: 'results', phoneClass: 'sg-level is-circuit', desktopClass: 'sg-level panel-stage' },
+    layout: 'sg-level is-circuit sg-shared-circuit',
   },
   fill: { ...hand, resources: 'fill' },
   trace: { ...hand, resources: 'trace' },

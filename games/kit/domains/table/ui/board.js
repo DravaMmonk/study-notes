@@ -41,17 +41,6 @@ export function toGraph(b) {
   };
 }
 
-/** A new part of `type` in phone slot `at` (and the first free spot on the desktop board); model: the course's board
- *  model (../model/run.js modelOf). */
-export function create(model, graph, type, at) {
-  const used = graph.nodes.map(n => /^n(\d+)$/.exec(n.id)).filter(Boolean).map(m => +m[1]);
-  const id = `n${Math.max(0, ...used) + 1}`;
-  const taken = (x, y) => graph.nodes.some(n => Math.abs(n.x - x) < 170 && Math.abs(n.y - y) < 140);
-  let [x, y] = home('part', 0, at);
-  for (let tries = 0; tries < 30 && taken(x, y); tries++) y += 150;
-  return { graph: { ...graph, nodes: [...graph.nodes, { id, type, x, y, slot: at, ...(model.hasValue(type) ? { params: { value: model.valueDefault(type) } } : {}) }] }, id };
-}
-
 /** A card's outputs, one per sensor it reads, by the sensor's name; a fact goes by its symbol (glyphs.js). */
 export function outputsOf(node, sensors) {
   if (!isCard(node.type)) return null;

@@ -3,22 +3,20 @@
 import { useState } from 'react'
 import { rcName } from '../../model/algo.js'
 import { E, W } from '../../model/scene.js'
+import { L as text } from '../../../../shell/i18n.js'
 import { tr } from '../../lang.js'
-import BoardPlay from '../../../../shell/BoardPlay.jsx'
-import Scene from '../Scene.jsx'
-import { CheckIcon } from '../../../../shell/BoardControls.jsx'
-import { Html, buzz, reduced, useLater, useToast, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
+import { boardDrawing } from '../scene.js'
+import { buzz, reduced, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
 const rc = (id) => id.split(',').map(Number)
 
-export default function Breach({ game, level, play, phone, solve, fail }) {
+export default function useBreach({ level, solve, fail, toast }) {
   const L = level.source
   const w = L.maze, kid = w.key.join(','), doors = new Set(w.doors.map((d) => d.join(',')))
   const [routes, setRoutes] = useState({ A: [], B: [] })
   const [active, setActive] = useState('A')
   const [msg, setMsg] = useState(null) // { cls, body() } what the check found
   const [tries, setTries] = useState(0)
-  const [toast, toastEl] = useToast()
   const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
   const route = routes[active]
@@ -66,7 +64,7 @@ export default function Breach({ game, level, play, phone, solve, fail }) {
     const bad = (zh, en) => {
       const n = tries + 1
       setTries(n)
-      setMsg({ cls: 'bad', body: () => <>{tr(zh(), en())}{n >= 2 && <><br /><br /><b>{tr('提示', 'Hint')}</b>{tr('：', ': ')}<Html html={L.hintText} /></>}</> })
+      setMsg({ cls: 'bad', body: () => n >= 2 ? [tr(zh(), en()), '', tr(`<b>提示</b>：${text(L.hintText)}`, `<b>Hint</b>: ${text(L.hintText)}`)] : tr(zh(), en()) })
       buzz([20, 40, 20])
     }
     if (!A.length || !B.length) return bad(() => '先画好两条路线。在规则面板里切换 A 和 B。', () => 'Draw both routes first. Switch between A and B in the side panel.')
@@ -93,37 +91,28 @@ export default function Breach({ game, level, play, phone, solve, fail }) {
   routes.A.slice(1).forEach((id, q) => edges.push(E(routes.A[q], id, 'ra', 0, -4)))
   routes.B.slice(1).forEach((id, q) => edges.push(E(routes.B[q], id, 'rb', 0, 4)))
 
-  return (
-    <BoardPlay
-      play={play}
-      text={[L.mission.goal, L.mission.how]}
-      hint={L.hints ?? null}
-      game={game}
-      level={level}
-      phone={phone}
-      board={<Scene scene={{ cells, edges }} opt={{ label: tr('棋盘', 'Board'), maxScale: 1.2 }} onCell={onCell} />}
-      note={tr(`正在画路线 ${active}。点路线的最后一格可以撤销一步。`, `Drawing route ${active}. Click the route’s last cell to undo a step.`)}
-      panel={
-        <>
-          <div className="pcard">
-            <h3>{tr('两条路线', 'Two routes')}</h3>
-            <div className="chips two" role="radiogroup" aria-label={tr('正在画的路线', 'Route being drawn')}>
-              {['A', 'B'].map((r) => <button key={r} className={`chip route-${r}`} type="button" role="radio" aria-checked={active === r} onClick={() => setActive(r)}>{`${tr('路线', 'Route')} ${r}`}</button>)}
-            </div>
-            <div className="routes"><div className="route ra-line">{`A${tr('：', ': ')}${info('A')}`}</div><div className="route rb-line">{`B${tr('：', ': ')}${info('B')}`}</div></div>
-            <button className="sec-btn" type="button" disabled={!route.length} onClick={() => { setRoute([]); setMsg(null) }}>{tr(`清空路线 ${active}`, `Clear route ${active}`)}</button>
-          </div>
-          {msg && <div className="pcard"><h3>{tr('检验结果', 'Check result')}</h3><div className={`msg ${msg.cls}`}>{msg.body()}</div></div>}
-          <div className="pcard"><h3>{tr('合格的反例', 'A valid counterexample')}</h3><p>{tr(<>1. 两条路线停在<b>同一格</b>：在计数器眼里，它们是同一个状态。<br />2. 一条<b>拿了钥匙</b>，一条<b>没拿</b>。<br />3. 从这一格往右或往下一步，<b>就是门</b>：它们的未来不同。</>, <>1. Both routes stop on <b>the same cell</b>: to the counter, they are the same state.<br />2. One <b>has picked up the key</b>, the other <b>has not</b>.<br />3. One step right or down from that cell <b>is a door</b>: their futures differ.</>)}</p></div>
-        </>
-      }
-      dock={{
-        meta: tr(<>正在画 <b>{`路线 ${active}`}</b></>, <>Drawing <b>{`route ${active}`}</b></>),
-        secondary: route.length ? { label: tr('撤销一步', 'Undo a step'), onClick: () => { setRoute(route.slice(0, -1)); setMsg(null) } } : null,
-        go: { label: tr('检验', 'Check'), icon: <CheckIcon />, onClick: check },
-      }}
-    >
-      {toastEl}
-    </BoardPlay>
-  )
+  return {
+    drawing: boardDrawing({ cells, edges }, { label: tr('棋盘', 'Board'), maxScale: 1.2 }, onCell),
+    note: tr(`正在画路线 ${active}。点路线的最后一格可以撤销一步。`, `Drawing route ${active}. Click the route’s last cell to undo a step.`),
+    cards: [{
+      title: tr('两条路线', 'Two routes'),
+      choices: {
+        label: tr('正在画的路线', 'Route being drawn'),
+        items: ['A', 'B'].map((r) => ({ label: `${tr('路线', 'Route')} ${r}`, className: `route-${r}`, current: active === r, select: () => setActive(r) })),
+      },
+      list: ['A', 'B'].map((r) => ({ text: `${r}${tr('：', ': ')}${info(r)}`, tone: `r${r.toLowerCase()}-line` })),
+      action: { label: tr(`清空路线 ${active}`, `Clear route ${active}`), disabled: !route.length, run: () => { setRoute([]); setMsg(null) } },
+    }, ...(msg ? [{ title: tr('检验结果', 'Check result'), feedback: msg }] : []), {
+      title: tr('合格的反例', 'A valid counterexample'),
+      body: tr(
+        ['1. 两条路线停在<b>同一格</b>：在计数器眼里，它们是同一个状态。', '2. 一条<b>拿了钥匙</b>，一条<b>没拿</b>。', '3. 从这一格往右或往下一步，<b>就是门</b>：它们的未来不同。'],
+        ['1. Both routes stop on <b>the same cell</b>: to the counter, they are the same state.', '2. One <b>has picked up the key</b>, the other <b>has not</b>.', '3. One step right or down from that cell <b>is a door</b>: their futures differ.'],
+      ),
+    }],
+    dock: {
+      meta: tr(`正在画 <b>路线 ${active}</b>`, `Drawing <b>route ${active}</b>`),
+      secondary: route.length ? { label: tr('撤销一步', 'Undo a step'), onClick: () => { setRoute(route.slice(0, -1)); setMsg(null) } } : null,
+      go: { label: tr('检验', 'Check'), icon: 'check', onClick: check },
+    },
+  }
 }

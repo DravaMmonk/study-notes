@@ -71,11 +71,11 @@ export function modelOf(parts) {
   /** Evaluate every output once. `sense(id, layer)` reads a sensor, lazily: only what is wired. `probe` collects every
    *  signal computed, by source, and each output as 'out:<id>'. A Halt from a sensor (a robot reading a cell not
    *  computed yet) stops it; a part that cannot compute is an error. */
-  function evaluate(board, sense, outs, probe = {}) {
+  function evaluate(board, sense, outs, probe = {}, trace) {
     const record = values => { for (const [src, v] of values) probe[src] = v; };
     let run;
     try {
-      run = engineEvaluate(board, { parts: partOf, ctx: { sense }, targets: outs });
+      run = engineEvaluate(board, { parts: partOf, ctx: { sense, trace }, targets: outs });
     } catch (e) {
       if (e instanceof Halt) record(e.values);
       throw e;
@@ -96,7 +96,8 @@ export function modelOf(parts) {
    */
   function runCircuit(V, t, board, o = {}) {
     const outs = V.outs.map(x => x[0]);
-    return walk({
+    const traces = o.traced ? [] : null;
+    const result = walk({
       order: V.order(t, o),
       keys: c => V.keys(t, c),
       base: V.base ? V.base(t, o) : [],
@@ -104,14 +105,17 @@ export function modelOf(parts) {
       answer: (table, steps) => V.answer(t, table, o, steps),
       step: (c, get) => {
         const probe = {};
+        const trace = traces && [];
+        if (trace) traces.push(trace);
         try {
-          return evaluate(board, (id, layer) => V.read(t, c, id, get, o, layer), outs, probe);
+          return evaluate(board, (id, layer) => V.read(t, c, id, get, o, layer), outs, probe, trace);
         } catch (e) {
           if (e instanceof Halt) e.probe = probe;
           throw e;
         }
       },
     });
+    return traces ? { ...result, traces } : result;
   }
 
   /** The signal a source carries. io = { sensors, outs } of the world the board runs in. */

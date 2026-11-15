@@ -1,6 +1,6 @@
 // node --test (npm test) — how much of its own interface each domain still writes as components (components.js). A
-// domain on the circuit base writes none: it declares its screen (ui/screen.js) and the kit draws it. The domains
-// that still supply screens (image and table) lower their ceilings as those screens move to the kit.
+// domain on the circuit base writes none: it declares its screen (ui/screen.js) and the kit draws it. The image
+// domain retains custom parameter benches and probes.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
@@ -8,7 +8,6 @@ import { components } from './components.js'
 
 const CEILING = {
   'domains/image': 1196,
-  'domains/table': 2187,
 }
 
 test('no domain writes more components of its own than it did, and a domain on the circuit base writes none', () => {

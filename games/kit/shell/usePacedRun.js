@@ -45,27 +45,3 @@ export function usePacedRun() {
   }, [p])
   return p
 }
-
-// Report each case and its displayed steps in order. A failure or an unmounted screen ends the run.
-export async function playCases(player, { count, held, steps, advance, finish }) {
-  player.begin(held)
-  for (let k = 0; k < count; k++) {
-    const end = steps(k)
-    const { per, stride } = player.pace(k, end)
-    const by = () => (player.paused ? 1 : stride)
-    for (let step = Math.min(by(), end); ; step = Math.min(step + by(), end)) {
-      advance(step)
-      await player.wait(per)
-      if (!player.alive) return false
-      if (step === end) break
-    }
-    if (!finish(k)) {
-      player.end()
-      return false
-    }
-    await player.wait(per)
-    if (!player.alive) return false
-  }
-  player.end()
-  return true
-}

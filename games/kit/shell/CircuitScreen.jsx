@@ -66,7 +66,7 @@ import './training.css'
 //   sample?(task, board) → the board's run on the task's `sample`, a tab after the tests, never judged (judged boards)
 //   ready?(board, held, task)   the board as the task holds it (held: the parts its tray holds), on opening and every
 //                         change (a preset locked back in…)
-//   settings?(node, set, ctx)  a card's own settings (CardField)
+//   settings?(node, ctx)  a card's pickers: [{ key, label, value, options: [[value, label], …] }]
 //   defaults?(type)       a new card's settings
 //   portLabels?           { type: { port: label } }               defined?  the game's pieces.json parts (CircuitLevel)
 //   inspect?(node, ctx)   what a defined part's detail shows of its values (by default, as its card)
@@ -106,11 +106,11 @@ function CardNumber({ label, value, onChange }) {
 }
 
 /** A setting picked from a list, on a card. */
-export function CardField({ label, value, options, onChange }) {
+function CardField({ label, value, options, onChange, disabled }) {
   return (
     <label className="cs-field">
       <span>{L(label)}</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)} onPointerDown={(e) => e.stopPropagation()}>
+      <select value={value} disabled={disabled} onChange={(e) => onChange(e.target.value)} onPointerDown={(e) => e.stopPropagation()}>
         {options.map(([v, text]) => <option key={v} value={v}>{L(text)}</option>)}
       </select>
     </label>
@@ -234,7 +234,8 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const computed = timed ? tick ?? undefined : caughtAt >= 0 ? runOf.ticks[caughtAt] : works && ticked ? undefined : whole || !run.run ? runOf : viewAt(runOf.trace, at)
   const ended = whole ? run.over : Boolean(run.run && (run.run.test > run.at || run.run.over))
 
-  const surface = useWorld({ screen, task: level, test: onView, run, report: runOf, at, ended, circuit: drawn, change, version: board.version })
+  const failWorld = ({ panel, ...info }) => screen.fail(panel ? { ...info, extra: <TracePanel panel={panel} /> } : info)
+  const surface = useWorld({ screen: { ...screen, fail: failWorld }, task: level, test: onView, run, report: runOf, at, ended, circuit: drawn, change, version: board.version })
   const view = surface?.value ?? computed
 
   const setParam = (node, key, value) => {
@@ -259,6 +260,10 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
     return into ? <Value value={ctx.view.values.get(into.from)} error={ctx.view.errors.get(into.from.split('#')[0])} show={show} of={of} views={valueViews?.(ctx.board.level ?? level, node, drawn)} /> : <Value value={valueOf(node, null, ctx.view)} error={ctx.view.errors.get(node.id)} show={show} of={of} views={valueViews?.(ctx.board.level ?? level, node, drawn)} />
   }
   const showsValue = (node, ctx) => !ctx.board.parts.outputs(node) || (ctx.board.parts.role(node) === 'source' && outputsOf(ctx.board.parts, node).some(({ key }) => key === null))
+  const cardSettings = (node, ctx) => settings?.(node, { ...ctx, task: ctx.board.level ?? level }).map(({ key, label, value, options }) => (
+    <CardField key={key} label={label} value={value} options={options} disabled={ctx.readOnly}
+      onChange={(picked) => setParam(node, key, options.find(([option]) => String(option) === picked)[0])} />
+  ))
   const body = (node, ctx) => {
     const drawing = ctx.path.length ? null : surface?.cardDrawing?.(node, ctx.readOnly)
     const choices = ctx.readOnly || ctx.path.length ? [] : surface?.choices?.(node) ?? []
@@ -266,7 +271,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
       <div className="cs-card">
         {drawing && <InteractiveDrawing {...drawing} />}
         {choices.length > 1 && <CardField label={T('操作')} value={node.type} options={choices} onChange={(type) => surface.swap(node, type)} />}
-        {settings?.(node, (key) => (v) => !ctx.readOnly && setParam(node, key, v), { ...ctx, task: ctx.board.level ?? level })}
+        {cardSettings(node, ctx)}
         {showsValue(node, ctx) && value(node, ctx)}
       </div>
     )
@@ -286,7 +291,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
     const seen = runOf.ticks.slice(0, at + 1)
     return (
       <div className="cs-card">
-        {settings?.(node, (key) => (v) => !ctx.readOnly && setParam(node, key, v), { ...ctx, task: ctx.board.level ?? level })}
+        {cardSettings(node, ctx)}
         {lanes.map(({ key, of, label }) => {
           const values = seen.map((t) => t.values.get(key) ?? null)
           return <Show key={of} value={values} shape={shapeOf(of, values)} scene="detail" of={valueKey(ctx, of)} label={label} text={show} />

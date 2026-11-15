@@ -1,13 +1,11 @@
 // Cut the seam: walk the cheapest seam back up the seam table by hand, cut it, then let the machine carve more, and
 // compare the carved picture with one squeezed to the same width.
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { E } from '../../model/scene.js'
 import { seamTable, seamPath, shade } from '../../model/worlds/picture.js'
 import { tr } from '../../lang.js'
-import BoardPlay from '../../../../shell/BoardPlay.jsx'
-import Scene from '../Scene.jsx'
+import { boardDrawing } from '../scene.js'
 import { sceneSVG } from '../svg.js'
-import { SkipIcon } from '../../../../shell/BoardControls.jsx'
 import { usePacedRun } from '../../../../shell/usePacedRun.js'
 import { buzz, reduced, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
@@ -19,18 +17,13 @@ const cutOut = (img, path) => {
 }
 
 /** A small picture with its caption. */
-function Thumb({ img, label }) {
+function pictureFigure(img, label) {
   const px = 10
   const cells = img.flatMap((row, r) => row.map((v, c) => ({ id: `${r},${c}`, x: c * px, y: r * px, w: px, h: px, rx: 0, value: '', fill: shade(v), cls: 'px' })))
-  return (
-    <figure>
-      <span className="sg-figure" dangerouslySetInnerHTML={{ __html: sceneSVG({ cells, edges: [] }, { pad: 2, maxScale: 1.6, label }) }} />
-      <figcaption>{label}</figcaption>
-    </figure>
-  )
+  return { label, drawing: { markup: sceneSVG({ cells, edges: [] }, { pad: 2, maxScale: 1.6, label }), className: 'sg-figure' } }
 }
 
-export default function Seam({ game, level, play, phone, solve, fail }) {
+export default function useSeam({ level, solve, fail, revealBoard }) {
   const L = level.source
   const [img, setImg] = useState(() => L.img.map((r) => r.slice()))
   const [cuts, setCuts] = useState(0)
@@ -40,8 +33,6 @@ export default function Seam({ game, level, play, phone, solve, fail }) {
   const player = usePacedRun()
   const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
-  const root = useRef(null)
-  const card = useRef(null)
   const W = img[0].length, H = img.length
   const { e, f } = seamTable(img)
   const top = path.length === H
@@ -54,9 +45,7 @@ export default function Seam({ game, level, play, phone, solve, fail }) {
   /** The machine finds and cuts `n` seams, one at a time, each shown before it goes. */
   const carve = async (n) => {
     player.begin()
-    // On a phone the carving is watched on the board, wherever the page was.
-    const page = phone && root.current?.querySelector('.pl-scroll')
-    if (page && card.current) page.scrollTop += card.current.getBoundingClientRect().top - page.getBoundingClientRect().top - 8
+    revealBoard()
     let now = img, count = cuts
     for (let k = 0; k < n && now[0].length > 2; k++) {
       const seam = seamPath(now)
@@ -81,7 +70,7 @@ export default function Seam({ game, level, play, phone, solve, fail }) {
       const min = Math.min(...f[H - 1])
       if (f[r][c] !== min) {
         const v = f[r][c]
-        setMsg({ cls: 'bad', body: () => tr(<>这一格是 <b>{v}</b>，最底一行最小的是 <b>{min}</b>。缝要花的能量越少越好。</>, <>This cell is <b>{v}</b>, but the smallest in the bottom row is <b>{min}</b>. The less energy a seam costs, the better.</>) })
+        setMsg({ cls: 'bad', body: () => tr(`这一格是 <b>${v}</b>，最底一行最小的是 <b>${min}</b>。缝要花的能量越少越好。`, `This cell is <b>${v}</b>, but the smallest in the bottom row is <b>${min}</b>. The less energy a seam costs, the better.`) })
         buzz(20)
         return
       }
@@ -93,7 +82,7 @@ export default function Seam({ game, level, play, phone, solve, fail }) {
     const [r0, c0] = path.at(-1), need = f[r0][c0] - e[r0][c0]
     if (f[r][c] !== need) {
       const a = f[r][c], b = e[r0][c0], cur = f[r0][c0]
-      setMsg({ cls: 'bad', body: () => tr(<>{a} + {b} = <b>{a + b}</b>，不等于当前格子的 <b>{cur}</b>。缝不是从这里来的。</>, <>{a} + {b} = <b>{a + b}</b>, which isn’t the current cell’s <b>{cur}</b>. The seam didn’t come from here.</>) })
+      setMsg({ cls: 'bad', body: () => tr(`${a} + ${b} = <b>${a + b}</b>，不等于当前格子的 <b>${cur}</b>。缝不是从这里来的。`, `${a} + ${b} = <b>${a + b}</b>, which isn’t the current cell’s <b>${cur}</b>. The seam didn’t come from here.`) })
       buzz(20)
       return
     }
@@ -129,41 +118,32 @@ export default function Seam({ game, level, play, phone, solve, fail }) {
       : !top ? tr('再往上一行：三个虚线框里，哪一格的数 + 当前格子的能量，正好等于当前格子的数？', 'Up another row: of the three dashed frames, which cell’s number + the current pixel’s energy exactly equals the current cell’s number?')
         : tr('这条缝找到了，图片上标红的就是它。点「剪掉」。', 'Seam found: it is the one marked in red on the picture. Click “Cut it”.')
   const dock = running
-    ? { meta: tr(<>剪了 <b>{cuts}</b> 条</>, <><b>{cuts}</b> cut</>), go: { label: tr('跳过动画', 'Skip animation'), busy: true, onClick: player.skip } }
+    ? { meta: tr(`剪了 <b>${cuts}</b> 条`, `<b>${cuts}</b> cut`), go: { label: tr('跳过动画', 'Skip animation'), busy: true, onClick: player.skip } }
     : auto
       ? cuts >= L.cuts
         ? { meta: tr('剪完了', 'All cut') }
-        : { meta: tr(<>剪了 <b>{cuts}</b> / {L.cuts} 条</>, <><b>{cuts}</b> / {L.cuts} cut</>), secondary: { label: tr('再剪一条', 'Cut one more'), onClick: () => carve(1) }, go: { label: tr('剪到够', 'Cut the rest'), icon: <SkipIcon />, onClick: () => carve(L.cuts - cuts) } }
+        : { meta: tr(`剪了 <b>${cuts}</b> / ${L.cuts} 条`, `<b>${cuts}</b> / ${L.cuts} cut`), secondary: { label: tr('再剪一条', 'Cut one more'), onClick: () => carve(1) }, go: { label: tr('剪到够', 'Cut the rest'), icon: 'skip', onClick: () => carve(L.cuts - cuts) } }
       : top
         ? { meta: tr('找到了一条缝', 'Seam found'), go: { label: tr('剪掉', 'Cut it'), onClick: cutIt } }
-        : { meta: tr(<>已经倒推了 <b>{Math.max(0, path.length - 1)}</b> 行</>, <><b>{Math.max(0, path.length - 1)}</b> rows traced back</>), secondary: path.length ? { label: tr('重新找', 'Start over'), onClick: () => { setPath([]); setMsg(null) } } : null }
-  return (
-    <BoardPlay
-      play={play}
-      text={[L.mission.goal, L.mission.how]}
-      hint={L.hints ?? null}
-      game={game}
-      level={level}
-      phone={phone}
-      rootRef={root}
-      bcardRef={card}
-      board={<Scene scene={{ cells, edges }} opt={{ label: tr('棋盘', 'Board'), minScale: 0.5, maxScale: 1 }} onCell={onCell} />}
-      note={note}
-      after={cuts >= L.cuts && (
-        <div className="afterbox">
-          <span className="eyebrow">{tr(`同样窄 ${cuts} 列`, `${cuts} columns narrower, two ways`)}</span>
-          <div className="orders thumbs"><Thumb img={L.img} label={tr('原图', 'Original')} /><Thumb img={img} label={tr('剪缝', 'Seams cut')} /><Thumb img={squeeze(W)} label={tr('直接压扁', 'Squashed')} /></div>
-          <p className="cap">{tr('剪缝只拿掉不起眼的背景，字母原样留着；直接压扁时，每个字母都被挤变形了。', 'Seam carving removes only unremarkable background and leaves the letters as they were; squashing distorts every letter.')}</p>
-        </div>
-      )}
-      panel={
-        <div className="pcard">
-          <h3>{tr('剪缝', 'Seam carving')}<small>{tr(`${cuts} / ${L.cuts} 条`, `${cuts} / ${L.cuts} seams`)}</small></h3>
-          <p>{auto ? tr('规则你已经会了：后面的缝交给机器去找、去剪。', 'You know the rule now: leave the machine to find and cut the remaining seams.') : tr('第一条缝你来找：从最底一行最小的格子出发，每次看它是从上面哪一格走来的，一行一行往上倒推。', 'You find the first seam: start from the smallest cell in the bottom row, see each time which cell above it came from, and trace back up row by row.')}</p>
-          {msg && <div className={`msg ${msg.cls}`}>{msg.body()}</div>}
-        </div>
-      }
-      dock={dock}
-    />
-  )
+        : { meta: tr(`已经倒推了 <b>${Math.max(0, path.length - 1)}</b> 行`, `<b>${Math.max(0, path.length - 1)}</b> rows traced back`), secondary: path.length ? { label: tr('重新找', 'Start over'), onClick: () => { setPath([]); setMsg(null) } } : null }
+  return {
+    drawing: boardDrawing({ cells, edges }, { label: tr('棋盘', 'Board'), minScale: 0.5, maxScale: 1 }, onCell),
+    note,
+    comparison: cuts >= L.cuts ? {
+      title: tr(`同样窄 ${cuts} 列`, `${cuts} columns narrower, two ways`),
+      figures: [
+        pictureFigure(L.img, tr('原图', 'Original')),
+        pictureFigure(img, tr('剪缝', 'Seams cut')),
+        pictureFigure(squeeze(W), tr('直接压扁', 'Squashed')),
+      ],
+      caption: tr('剪缝只拿掉不起眼的背景，字母原样留着；直接压扁时，每个字母都被挤变形了。', 'Seam carving removes only unremarkable background and leaves the letters as they were; squashing distorts every letter.'),
+    } : null,
+    cards: [{
+      title: tr('剪缝', 'Seam carving'),
+      badge: tr(`${cuts} / ${L.cuts} 条`, `${cuts} / ${L.cuts} seams`),
+      body: auto ? tr('规则你已经会了：后面的缝交给机器去找、去剪。', 'You know the rule now: leave the machine to find and cut the remaining seams.') : tr('第一条缝你来找：从最底一行最小的格子出发，每次看它是从上面哪一格走来的，一行一行往上倒推。', 'You find the first seam: start from the smallest cell in the bottom row, see each time which cell above it came from, and trace back up row by row.'),
+      feedback: msg,
+    }],
+    dock,
+  }
 }

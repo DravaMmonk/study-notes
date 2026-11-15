@@ -15,7 +15,7 @@ export const testLabel = (L, V, t) => (L.testLabel ? fill(L.testLabel, t) : V.la
 /** First step whose outputs differ from the reference board's; scanning in rounds, the first cell that settled wrong. */
 function firstMismatch(model, s, t, res, o) {
   if (!s.solution || s.noTrace) return null
-  const ref = model.runCircuit(WORLDS[s.world], t, s.solution, o)
+  const ref = model.runCircuit(WORLDS[s.world], t, s.solution, { ...o, traced: false })
   if (s.rounds) {
     const key = [...ref.table.keys()].find((x) => res.table.get(x) !== ref.table.get(x))
     if (key === undefined) return null

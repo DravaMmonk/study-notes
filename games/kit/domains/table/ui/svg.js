@@ -1,10 +1,11 @@
 // SVG board drawing: scenes (../model/scene.js) are { cells, edges, texts?, paths?, robot? } in board units, scaled to
 // fit. `robot` is the id (or ids) of the cell the robot stands on, drawn perched on its top edge; `look` picks the
-// robot's picture. A cell the player can tap (`tap`) carries its id as data-cell (Scene.jsx hands the tap on).
+// robot's picture. A cell the player can tap (`tap`) carries its id as data-cell (the shared InteractiveDrawing hands the tap on).
 
 import { fmt } from '../model/format.js';
 import { W } from '../model/scene.js';
 import { ROBOTS } from '../model/robots.js';
+import { ICONS } from './glyphs.js';
 import { tr } from '../lang.js';
 
 // Text set into the markup: content's words and numbers, never markup of their own.
@@ -12,6 +13,9 @@ const esc = (v) => String(v).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&
 
 let svgSeq = 0;
 const f1 = v => Math.round(v * 10) / 10;
+const trustedIcons = new Set(Object.values(ICONS));
+const trustedRobots = new Set(Object.values(ROBOTS).map((robot) => robot.look));
+export const robotGlyph = look => trustedRobots.has(look) ? look : ROBOTS.scout.look;
 const MARKED = new Set(['idle', 'dim', 'hot', 'sel', 'bad', 'good', 'ra', 'rb']);
 const textW = s => [...String(s)].reduce((w, ch) => w + (ch.charCodeAt(0) > 255 ? 13 : 7.5), 0);
 
@@ -33,7 +37,7 @@ function edgeSVG(A, B, e, twin, uid) {
     const [sx, sy] = clipPt(a, b.x, b.y, 2), [tx, ty] = clipPt(b, a.x, a.y, 5);
     d = `M${f1(sx)} ${f1(sy)}L${f1(tx)} ${f1(ty)}`;
   }
-  return `<path class="edge ${e.cls}" d="${d}"${MARKED.has(e.cls) ? ` marker-end="url(#${uid}-${e.cls})"` : ''}/>`;
+  return `<path class="edge ${esc(e.cls)}" d="${d}"${MARKED.has(e.cls) ? ` marker-end="url(#${uid}-${esc(e.cls)})"` : ''}/>`;
 }
 
 /**
@@ -51,18 +55,18 @@ export const MARKS = {
 };
 /** Older figures still say 起 / 终 in a cell's corner: those become the start and end marks. */
 export const markOf = c => c.mark || (c.corner !== undefined && c.corner !== null && c.corner !== '' ? (String(c.corner) === String(W.start) ? 'start' : String(c.corner) === String(W.end) ? 'end' : null) : null);
-const markSVG = (kind, x, y, size = 11) => (MARKS[kind] ? `<g class="mk mk-${kind}" transform="translate(${f1(x)} ${f1(y)}) scale(${f1(size / 12)})" aria-hidden="true">${MARKS[kind]}</g>` : '');
+const markSVG = (kind, x, y, size = 11) => (Object.hasOwn(MARKS, kind) ? `<g class="mk mk-${esc(kind)}" transform="translate(${f1(x)} ${f1(y)}) scale(${f1(size / 12)})" aria-hidden="true">${MARKS[kind]}</g>` : '');
 
 function cellSVG(c, uid) {
   const hw = c.w / 2, hh = c.h / 2, cls = c.cls || '', rock = cls.includes('rock');
-  const tap = c.tap ? ` data-cell="${c.id}" role="button" tabindex="0" aria-label="${esc(c.aria || c.label || c.id)}"` : '';
+  const tap = c.tap ? ` data-cell="${esc(c.id)}" role="button" tabindex="0" aria-label="${esc(c.aria || c.label || c.id)}"` : '';
   const mark = markOf(c), corner = mark && !c.mark ? '' : c.corner;
   const valY = c.icon ? hh - 13 : c.label ? (c.sub ? 3 : 8) : 0, txt = fmt(c.value), len = [...txt].length;
   // Long numbers (7.29, 1,024) shrink to fit their cell instead of spilling over its edge.
   const fit = len > 3 && /^[-−\d.,%]+$/.test(txt) ? ` style="font-size:${f1(Math.min(21, (c.w - 8) / (len * 0.62)))}px"` : '';
-  return `<g class="cell ${cls}${c.tap ? ' tap' : ''}"${tap} transform="translate(${c.x} ${c.y})">
-    <rect x="${-hw}" y="${-hh}" width="${c.w}" height="${c.h}" rx="${c.rx ?? 12}"${rock ? ` style="fill:url(#${uid}-hatch)"` : c.fill ? ` style="fill:${c.fill}"` : ''}/>
-    ${c.icon ? `<svg class="glyph" x="-25" y="${-hh + 5}" width="50" height="33" viewBox="0 0 48 32">${c.icon}</svg>` : ''}
+  return `<g class="cell ${esc(cls)}${c.tap ? ' tap' : ''}"${tap} transform="translate(${esc(c.x)} ${esc(c.y)})">
+    <rect x="${-hw}" y="${-hh}" width="${esc(c.w)}" height="${esc(c.h)}" rx="${esc(c.rx ?? 12)}"${rock ? ` style="fill:url(#${uid}-hatch)"` : c.fill ? ` style="fill:${esc(c.fill)}"` : ''}/>
+    ${trustedIcons.has(c.icon) ? `<svg class="glyph" x="-25" y="${-hh + 5}" width="50" height="33" viewBox="0 0 48 32">${c.icon}</svg>` : ''}
     ${c.label ? `<text class="lb" y="${-hh + 17}">${esc(c.label)}</text>` : ''}
     ${corner !== undefined && corner !== null && corner !== '' ? `<text class="cn" x="${-hw + (mark ? 18 : 6)}" y="${-hh + 14}">${esc(corner)}</text>` : ''}
     ${mark ? markSVG(mark, -hw + 4, -hh + 4, Math.min(14, c.w * 0.3)) : ''}
@@ -84,13 +88,13 @@ export function sceneSVG(scene, opt = {}) {
     x0 = Math.min(x0, lx); x1 = Math.max(x1, lx + w); y0 = Math.min(y0, t.y - 14); y1 = Math.max(y1, t.y + 5);
   }
   for (const p of scene.paths || []) if (p.box) { x0 = Math.min(x0, p.box[0]); y0 = Math.min(y0, p.box[1]); x1 = Math.max(x1, p.box[2]); y1 = Math.max(y1, p.box[3]); }
-  const bots = [].concat(scene.robot || []).filter(id => by[id]).map(id => ({ x: by[id].x + by[id].w / 2 - 22, y: by[id].y - by[id].h / 2 - 20 }));
+  const bots = [].concat(scene.robot || []).filter(id => Object.hasOwn(by, id)).map(id => ({ x: by[id].x + by[id].w / 2 - 22, y: by[id].y - by[id].h / 2 - 20 }));
   bots.forEach(b => { y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + 30); });
   // A scene that can show the robot keeps room for it over every cell it could stand on (not the table's axis
   // labels), so the board does not rescale, and seem to flash, when the robot reaches the top row or right column.
   if ('robot' in scene) for (const c of cells) if (!/\baxis\b/.test(c.cls || '')) { y0 = Math.min(y0, c.y - c.h / 2 - 20); x1 = Math.max(x1, c.x + c.w / 2 + 8); }
-  const pathSVG = (scene.paths || []).map(p => `<path class="edge ${p.cls}" d="${p.d}"${MARKED.has(p.cls) ? ` marker-end="url(#${uid}-${p.cls})"` : ''}/>`).join('');
-  const textSVG = (scene.texts || []).map(t => `<text class="tx ${t.cls || ''}" x="${t.x}" y="${t.y}" text-anchor="${t.anchor || 'middle'}">${esc(t.t)}</text>`).join('');
+  const pathSVG = (scene.paths || []).map(p => `<path class="edge ${esc(p.cls)}" d="${esc(p.d)}"${MARKED.has(p.cls) ? ` marker-end="url(#${uid}-${esc(p.cls)})"` : ''}/>`).join('');
+  const textSVG = (scene.texts || []).map(t => `<text class="tx ${esc(t.cls || '')}" x="${esc(t.x)}" y="${esc(t.y)}" text-anchor="${esc(t.anchor || 'middle')}">${esc(t.t)}</text>`).join('');
   const pairs = new Set(edges.map(e => `${e.a}>${e.b}`));
   const vw = x1 - x0 + 2 * pad, vh = y1 - y0 + 2 * pad;
   const mk = (n, col) => `<marker id="${uid}-${n}" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto-start-reverse"><path d="M0 0.5L10 5L0 9.5z" style="fill:${col}"/></marker>`;
@@ -98,5 +102,5 @@ export function sceneSVG(scene, opt = {}) {
     <pattern id="${uid}-hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" style="fill:var(--chip)"/><rect width="3" height="8" style="fill:var(--wire)"/></pattern></defs>`;
   const minW = opt.minScale ? `min-width:${Math.round(vw * opt.minScale)}px;` : '';
   const maxW = opt.maxScale ? `max-width:${Math.round(vw * opt.maxScale)}px;margin:0 auto;` : '';
-  return `<svg class="board-svg" viewBox="${f1(x0 - pad)} ${f1(y0 - pad)} ${f1(vw)} ${f1(vh)}" width="100%" style="${minW}${maxW}" role="img" aria-label="${esc(opt.label || tr('示意图', 'Diagram'))}">${defs}<g>${edges.map(e => edgeSVG(by[e.a], by[e.b], e, pairs.has(`${e.b}>${e.a}`), uid)).join('')}</g><g>${cells.map(c => cellSVG(c, uid)).join('')}</g>${pathSVG}${textSVG}${bots.map(b => `<svg class="robot" x="${f1(b.x)}" y="${f1(b.y)}" width="30" height="30" viewBox="0 0 32 32">${scene.look || ROBOTS.scout.look}</svg>`).join('')}</svg>`;
+  return `<svg class="board-svg" viewBox="${f1(x0 - pad)} ${f1(y0 - pad)} ${f1(vw)} ${f1(vh)}" width="100%" style="${minW}${maxW}" role="img" aria-label="${esc(opt.label || tr('示意图', 'Diagram'))}">${defs}<g>${edges.map(e => edgeSVG(by[e.a], by[e.b], e, pairs.has(`${e.b}>${e.a}`), uid)).join('')}</g><g>${cells.map(c => cellSVG(c, uid)).join('')}</g>${pathSVG}${textSVG}${bots.map(b => `<svg class="robot" x="${f1(b.x)}" y="${f1(b.y)}" width="30" height="30" viewBox="0 0 32 32">${robotGlyph(scene.look)}</svg>`).join('')}</svg>`;
 }

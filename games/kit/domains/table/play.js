@@ -28,7 +28,7 @@ const opening = (ctx) => ctx.game.table.opening(ctx.level.source, ctx.progress)
 export const play = {
   open(ctx) {
     const s = ctx.level.source
-    if (playOf(s).judge !== 'robot') return { covered: false, why: { zh: '手动玩法（在表上点格子），harness 只支持电路关', en: 'a hand play (tapping cells on the table); the harness covers circuit levels' } }
+    if (playOf(s).editor !== 'circuit') return { covered: false, why: { zh: '手动玩法（在表上点格子），harness 只支持电路关', en: 'a hand play (tapping cells on the table); the harness covers circuit levels' } }
     const tip = guideAt(s.guide, opening(ctx)) ?? [s.ask, s.tip].filter(Boolean).map(str).join(' ')
     return { ...circuit.open(ctx), brief: { text: [s.mission.goal, s.mission.how].map(str).join('\n'), tip: tip || null, hint: s.hints ?? null } }
   },
@@ -80,7 +80,7 @@ const circuit = circuitPlay({
     const label = (t) => testLabel(s, V, t)
     const miss = V.outs.find(([id]) => !b.wires.some((w) => w.to === id))
     if (miss) return { tests: [], says: [tr(`输出口「${str(miss[1])}」还没接线`, `The output “${str(miss[1])}” is not wired yet`)], pass: false }
-    const { inspect } = judges[playOf(s).judge]
+    const { inspect } = judges[playOf(s).resources]
     const results = []
     let failed = null
     for (let k = 0; k < s.tests.length && !failed; k++) {

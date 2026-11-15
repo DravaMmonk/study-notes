@@ -16,9 +16,9 @@ export function validate({ levels, table }) {
 
   for (const L of levels) {
     const tasks = table.played.get(L.id);
-    for (const s of tasks.filter(x => playOf(x).judge === 'robot')) {
+    for (const s of tasks.filter(x => playOf(x).editor === 'circuit')) {
       const where = tasks.length > 1 ? `${L.id} task ${s.taskId}` : L.id;
-      const { runCase } = judges[playOf(s).judge];
+      const { runCase } = judges[playOf(s).resources];
       if (s.solution) {
         s.tests.forEach((_, i) => {
           runs++;
@@ -33,13 +33,13 @@ export function validate({ levels, table }) {
       }
     }
     const builder = L.builds && tasks.find(s => s.taskId === L.builds.task);
-    if (builder && playOf(builder).judge === 'robot') checkBuilt(L, builder);
+    if (builder && playOf(builder).editor === 'circuit') checkBuilt(L, builder);
   }
 
   /** The part a level builds against the board it stands for, its task's. */
   function checkBuilt(L, s) {
     const b = table.model.built[L.unlock];
-    const { runCase } = judges[playOf(s).judge];
+    const { runCase } = judges[playOf(s).resources];
     const why = portsProblem(s.solution, s.ports);
     if (why) bad(L.id, `${L.id}: ${String(why)}`);
     const consts = s.solution.nodes.filter(n => n.type === 'const');

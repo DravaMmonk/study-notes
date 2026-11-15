@@ -4,20 +4,17 @@ import { useMemo, useState } from 'react'
 import { evalGraph } from '../../model/algo.js'
 import { E, W } from '../../model/scene.js'
 import { tr, lazy } from '../../lang.js'
-import BoardPlay from '../../../../shell/BoardPlay.jsx'
-import Scene from '../Scene.jsx'
-import { CheckIcon } from '../../../../shell/BoardControls.jsx'
-import { buzz, typing, useKeys, useToast, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
+import { boardDrawing } from '../scene.js'
+import { buzz, typing, useKeys, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 import { L as text } from '../../../../shell/i18n.js'
 import { WORDS } from '../../../../shell/words.js'
 
-export default function Fill({ game, level, play, phone, saved, save, solve, fail }) {
+export default function useFill({ level, saved, save, solve, fail, toast }) {
   const L = level.source
   const [vals, setVals] = useState(() => saved?.vals ?? {})
   const [sel, setSel] = useState(null)
   const [input, setInput] = useState('')
   const [marks, setMarks] = useState({})
-  const [toast, toastEl] = useToast()
   const verdict = useVerdict({ hints: L.hints, solve, fail })
   const { by, truth } = useMemo(() => ({
     by: Object.fromEntries(L.cells.map((c) => [c.id, c])),
@@ -92,28 +89,16 @@ export default function Fill({ game, level, play, phone, saved, save, solve, fai
     edges: L.edges.map(([a, b]) => E(a, b, b === sel ? 'hot' : by[a].grid ? 'dim' : 'idle')),
   }
   const filled = total - empties
-  return (
-    <BoardPlay
-      play={play}
-      text={[L.mission.goal, L.mission.how]}
-      hint={L.hints ?? null}
-      game={game}
-      level={level}
-      phone={phone}
-      board={<Scene scene={scene} opt={{ label: tr('棋盘', 'Board'), maxScale: 1.25 }} onCell={onCell} />}
-      note={sel ? tr(`指向${name(sel)}的箭头来自：${pr.map(name).join('、')}`, `The arrows into ${name(sel)} come from: ${pr.map(name).join(', ')}`) : tr(`已填 ${filled} / ${total}`, `Filled ${filled} / ${total}`)}
-      panel={
-        <div className="pcard">
-          <h3>{tr('规则', 'Rule')}</h3>
-          <div className="rule">{tr(<>到一个地点的路线数<br />= 所有指向它的地点的路线数之和</>, <>Routes to a place<br />= the sum of the routes to every place that points to it</>)}</div>
-          <p>{tr(<>起点算 <b>1</b>。选中一个{L.grid ? '路口' : '地点'}后，它的「上一站」会亮起黄色虚框，指向它的箭头会变成黄色。</>, <>The start counts as <b>1</b>. When you select a {L.grid ? 'crossing' : 'place'}, its “previous stops” get a dashed yellow frame and the arrows into it turn yellow.</>)}</p>
-        </div>
-      }
-      dock={sel
-        ? { pad: { title: tr(`到${name(sel)}的路线数`, `Routes to ${name(sel)}`), value: input, onKey: key } }
-        : { meta: tr(<>已填 <b>{filled}</b>{` / ${total}`}</>, <>Filled <b>{filled}</b>{` / ${total}`}</>), go: { label: text(WORDS.check), icon: <CheckIcon />, onClick: check } }}
-    >
-      {toastEl}
-    </BoardPlay>
-  )
+  return {
+    drawing: boardDrawing(scene, { label: tr('棋盘', 'Board'), maxScale: 1.25 }, onCell),
+    note: sel ? tr(`指向${name(sel)}的箭头来自：${pr.map(name).join('、')}`, `The arrows into ${name(sel)} come from: ${pr.map(name).join(', ')}`) : tr(`已填 ${filled} / ${total}`, `Filled ${filled} / ${total}`),
+    cards: [{
+      title: tr('规则', 'Rule'),
+      rule: tr(['到一个地点的路线数', '= 所有指向它的地点的路线数之和'], ['Routes to a place', '= the sum of the routes to every place that points to it']),
+      body: tr(`起点算 <b>1</b>。选中一个${L.grid ? '路口' : '地点'}后，它的「上一站」会亮起黄色虚框，指向它的箭头会变成黄色。`, `The start counts as <b>1</b>. When you select a ${L.grid ? 'crossing' : 'place'}, its “previous stops” get a dashed yellow frame and the arrows into it turn yellow.`),
+    }],
+    dock: sel
+      ? { pad: { title: tr(`到${name(sel)}的路线数`, `Routes to ${name(sel)}`), value: input, onKey: key } }
+      : { meta: tr(`已填 <b>${filled}</b> / ${total}`, `Filled <b>${filled}</b> / ${total}`), go: { label: text(WORDS.check), icon: 'check', onClick: check } },
+  }
 }

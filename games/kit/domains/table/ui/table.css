@@ -150,7 +150,6 @@ button:disabled{cursor:not-allowed}
 .key.ok{background:var(--cyan);border-color:var(--cyan);color:var(--cyan-ink);font:800 15px var(--f-body)}
 
 /* ---------- inside a sheet a level opens (modes/Circuit.jsx, in the shell's sheet) ---------- */
-.sg-sheet{display:flex;flex-direction:column;gap:var(--sp-6);padding-bottom:var(--sp-3)}
 .kicker{font:700 12px var(--f-mono);letter-spacing:.08em;color:var(--ink-3)}
 .kicker.good{color:var(--good)} .kicker.bad{color:var(--bad)} .kicker.sig{color:var(--signal)}
 .sh{margin:var(--sp-2) 0 0;font:600 25px/1.3 var(--f-display);text-wrap:balance}
@@ -350,17 +349,17 @@ img{max-width:100%}
 
 
   /* the stage: plain; only the circuit board of a circuit level (the kit's editor) is dotted */
-  .sg-level:not(.panel-stage) .stage-pane .bcard{border:0;border-radius:0;padding:var(--sp-7) var(--sp-7) var(--sp-7);gap:var(--sp-5);align-content:start;background:none}
-  .sg-level:not(.panel-stage) .tests{margin:0;padding:0;flex-wrap:wrap}
-  .sg-level:not(.panel-stage) .board{margin:0;padding:0;overflow:visible}
-  .sg-level:not(.panel-stage) .board-svg{max-height:calc(100dvh - 220px)}
+  .sg-level:not(.sg-shared-circuit) .stage-pane .bcard{border:0;border-radius:0;padding:var(--sp-7) var(--sp-7) var(--sp-7);gap:var(--sp-5);align-content:start;background:none}
+  .sg-level:not(.sg-shared-circuit) .tests{margin:0;padding:0;flex-wrap:wrap}
+  .sg-level:not(.sg-shared-circuit) .board{margin:0;padding:0;overflow:visible}
+  .sg-level:not(.sg-shared-circuit) .board-svg{max-height:calc(100dvh - 220px)}
   /* the canvas is the circuit board: parts, terminals and wires sit straight on the dotted stage */
   .cview{--vc:42px;max-width:none;padding:var(--sp-5) var(--sp-4)}
   .vwin.n5{--vc:32px}
 
   /* the brief's cards: the rules, the tests */
-  .sg-level:not(.panel-stage) .brief .panel{padding:0;gap:var(--sp-5)}
-  .sg-level:not(.panel-stage) .panel .pcard{background:var(--board)}
+  .sg-level:not(.sg-shared-circuit) .brief .panel{padding:0;gap:var(--sp-5)}
+  .sg-level:not(.sg-shared-circuit) .panel .pcard{background:var(--board)}
 }
 
 /* ---------- phone: the shell's one-page level (PhonePage); board, panel, then the parts tray and the dock pinned at the bottom ---------- */
@@ -370,7 +369,6 @@ img{max-width:100%}
   .sg-level .bcard{padding:var(--sp-5) 0 0;border:0;border-radius:0;background:none}
   .sg-level .pcard{padding:0;border:0;border-radius:0;background:none}
   .sg-level .pl-scroll>.panel:has(.pcard){padding-top:var(--sp-6);border-top:1px solid var(--hairline)}
-  .sg-level.is-circuit .pl-scroll>.sg-slots{padding-inline:0}
   .sg-level .pl-results .bcard{padding:0}
 }
 
@@ -416,12 +414,10 @@ img{max-width:100%}
 .thumbs .board-svg{max-width:100%}
 .sg-figure{display:contents}
 
-/* ---------- circuit levels on the shared circuit editor (../../../circuit, BoardView.jsx) ---------- */
+/* ---------- circuit levels on the shared circuit editor (../../../circuit, CircuitScreen.jsx) ---------- */
 [data-family='sg'] { --fam: var(--accent); }
-.sg-canvas { position: relative; flex: 1; min-height: 420px; overflow: hidden; }
 /* The editor's root is also a `.board`: keep this game's test-board rules (a sideways scroll, a bleed) off it. Clipped, not
    hidden, so focusing a part in a floating window can never scroll the board under it. */
-.sg-canvas .kit-board { position: absolute; inset: 0; height: auto; margin: 0; padding: 0; overflow: clip; }
 /* The whole middle column is the board: no frame around it. */
 .sg-body { margin: var(--sp-3) var(--sp-4) 0; display: grid; gap: var(--sp-2); }
 .sg-body .param { margin: 0; }
@@ -442,27 +438,26 @@ img{max-width:100%}
 .sg-level.is-circuit .cview { --vc: 52px; }
 .sg-level.is-circuit .cview .vwin.n5 { --vc: clamp(34px, calc((100vw - 90px) / 5.6), 52px); gap: var(--sp-2); }
 .sg-level.is-circuit .cview .n5 .vcell { font-size: 12px; }
-.sg-slots { min-width: 0; padding: var(--sp-4) var(--sp-5) var(--sp-6); overflow-x: clip; }
-/* An input card on a phone holds what it reads (BoardView.jsx): the robot's window or the cell's facts, each
+/* An input card on a phone holds what it reads (CircuitScreen.jsx): the robot's window or the cell's facts, each
    tapped to add or remove its output. The two cards share a row, each as wide as half of it. */
-.sg-slots .pb-terms.is-sources > .pb-term { max-width: none; }
+.sg-shared-circuit .pb-terms.is-sources > .pb-term { max-width: none; }
 .sg-cardview { --vc: 34px; width: 100%; display: grid; justify-items: center; gap: var(--sp-3); line-height: 1.25; }
 .sg-cardview .varm-row { gap: var(--sp-7); }
-.sg-slots .pb-terms.is-sources > .pb-term:has(.sg-cardview) { display: flex; flex-direction: column; align-items: center; }
+.sg-shared-circuit .pb-terms.is-sources > .pb-term:has(.sg-cardview) { display: flex; flex-direction: column; align-items: center; }
 /* What a card reads takes the card's spare height, so its name sits at the bottom, level with its neighbour's. */
-.sg-slots .pb-term:has(.sg-cardview) > .pb-thumb { width: 100%; flex: 1 0 auto; }
+.sg-shared-circuit .pb-term:has(.sg-cardview) > .pb-thumb { width: 100%; flex: 1 0 auto; }
 /* The card's dots stay on its bottom edge when its neighbour is taller. */
-.sg-slots .pb-term:has(.sg-cardview) > .pb-out.is-many { margin-top: auto; }
+.sg-shared-circuit .pb-term:has(.sg-cardview) > .pb-out.is-many { margin-top: auto; }
 .sg-cardview .vpart { width: 100%; }
 .sg-cardview .vwins { display: flex; justify-content: center; }
 /* The window fills its card's width (the card is a size container): 3×3 up to 56px a cell, 5×5 edge to edge. */
-.sg-cardview[data-cardview=view] { container-type: inline-size; }
+.sg-cardview[data-drawing=view] { container-type: inline-size; }
 .sg-cardview .vwin { --vc: min(56px, calc((100cqi - 6px) / 3)); }
 .sg-cardview .vwin.n5 { --vc: calc((100cqi - 8px) / 5); }
 /* The facts fill the height the row gives their card (its neighbour's, or room for three) and scroll past it: they
    never make the row taller. */
-.sg-slots .pb-term:has([data-cardview=facts]) > .pb-thumb { flex: 1 1 0; min-height: 118px; contain: size; }
-.sg-cardview[data-cardview=facts] { height: 100%; }
+.sg-shared-circuit .pb-term:has([data-drawing=facts]) > .pb-thumb { flex: 1 1 0; min-height: 118px; contain: size; }
+.sg-cardview[data-drawing=facts] { height: 100%; }
 .sg-cardview .vfacts { display: grid; gap: var(--sp-2); justify-items: stretch; align-content: start; height: 100%; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 1px; }
 .sg-cardview .vfact { min-height: 34px; padding: var(--sp-3) var(--sp-4); gap: var(--sp-2); font-size: 12px; border-width: 1.2px; border-radius: var(--r-md); }
 .sg-cardview .vfact .vv { font-size: 12px; }
@@ -486,7 +481,6 @@ img{max-width:100%}
   .wb-tests .tchip .sd.pass { background: var(--status); box-shadow: none; }
   .wb-tests .tchip .sd.fail { background: var(--fail); box-shadow: none; }
   .wb-tests .tchip .sd.run { background: var(--signal); box-shadow: none; }
-  .wb-stage .sg-canvas { position: absolute; inset: 0; min-height: 0; }
   .sg-level .stage-pane.is-board { overflow: hidden; }
 }
 /* A part's bench in the parts box (PartDemo.jsx): the test board and the robot's view side by side, the
@@ -526,8 +520,7 @@ img{max-width:100%}
 .rcell.self{border-color:var(--bad)}
 .rcell:disabled{cursor:default;border-style:dashed;background:transparent;opacity:.55}
 .rcell.self:disabled{border-style:solid;opacity:.8}
-.sg-sheet .rgrid{--rs:34px;justify-content:start}
-/* An input card on the desktop board holds what it reads, as on a phone (BoardView.jsx): the robot's window
+/* An input card on the desktop board holds what it reads, as on a phone (CircuitScreen.jsx): the robot's window
    and arm, or the cell's facts, each clicked to add or remove its output; the outputs run down the card's right edge. */
 .sg-body.is-reader{align-items:stretch}
 .sg-body.is-reader .sg-cardview{--reader-room:74px;width:auto;margin-right:var(--reader-room);justify-items:start;container-type:normal}
@@ -535,7 +528,7 @@ img{max-width:100%}
 .sg-body.is-reader .sg-cardview .vwin.n5{--vc:24px}
 .sg-body.is-reader .sg-cardview .vcell{font-size:11px}
 .sg-body.is-reader .sg-cardview .vwins{justify-content:flex-start}
-.sg-body.is-reader [data-cardview=facts]{height:auto}
+.sg-body.is-reader [data-drawing=facts]{height:auto}
 .sg-body.is-reader .sg-cardview .vfacts{height:auto;overflow:visible}
 .sg-body.is-reader .sg-cardview .vfact{min-height:26px;padding:var(--sp-1) var(--sp-4)}
 /* What each of a reader's outputs carries, beside its dot. */
@@ -549,3 +542,6 @@ button.vfact { background: none; text-align: left; }
 /* Only a real pointer hovers: on a touch screen a tapped cell would keep the hover frame after it is let go. */
 @media (hover: hover) { button.vcell.can:hover, button.vfact:hover, button.vsweep:hover { border-color: var(--cyan); } }
 button.vcell:focus-visible, button.vfact:focus-visible, button.vsweep:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+.sg-shared-circuit .circuit-world-note { margin: 0; color: var(--ink-2); }
+.sg-shared-circuit .circuit-world-return { margin-block: var(--sp-4); }

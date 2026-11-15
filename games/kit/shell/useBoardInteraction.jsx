@@ -10,11 +10,6 @@ export const buzz = (pattern) => {
   }
 }
 
-/** A level's own text (its content, or a message assembled from it), with its markup (../../../shell/Markup.jsx). */
-export function Html({ as: Tag = 'span', className, html }) {
-  return <Tag className={className}><Markup text={String(html ?? '')} /></Tag>
-}
-
 /** A message that shows at the top of the page for a moment: [show(msg), the element to put on the page]. */
 export function useToast() {
   const [msg, setMsg] = useState(null)
@@ -48,7 +43,7 @@ export function useVerdict({ hints, solve, fail }) {
     fail(x) {
       fails.current++
       buzz([30, 60, 30])
-      shell.current.fail({ head: x.head, body: x.body, extra: x.extra, hint: x.hint !== undefined ? x.hint : shell.current.hints?.[0] ?? null, cta: x.cta })
+      shell.current.fail({ ...x, hint: x.hint !== undefined ? x.hint : shell.current.hints?.[0] ?? null })
     },
   }), [])
 }

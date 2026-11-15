@@ -6,17 +6,10 @@
 
 - 《证明完毕》：全部玩法在内核的屏上，`logic` 自写组件 0 行；门、推理规则、证明助手的元件、引理、等式都是 `games/qed/pieces.json` 的件。
 - H.3 已完成。《视觉完备》和 COMP90086 的图像电路（`graph`）使用内核的 `CircuitScreen`；元件箱和 Studio 使用图像编辑器的预览。图像领域剩 1196 行组件，服务于本轮保留的参数台和探针。
-- 《状态之图》：件和思路在 `pieces.json`；玩法已登记在 `domains/table/plays.js`，手动棋盘和机器人电路共用棋盘界面。领域还自写 2187 行组件：机器人电路（`ui/modes/Circuit.jsx`）、八种玩法屏（`ui/modes/`）、件的演示（`ui/PartDemo.jsx`）、`ui/BoardView.jsx`、`ui/RobotView.jsx`。
+- H.4 已完成。《状态之图》的机器人电路使用 `CircuitScreen`，七种手动玩法使用 `ManualBoardPlay`。领域提供规则、状态转移、棋盘图和试件数据。玩法组件从 2187 行降为 0，地图上的 Boxy 插画按原有计数规则排除。
 - H.2 已完成。COMP90086 的 `pieces.json` 登记一维三点核和相加两个基础件。课内检验结果与基线一致，英译覆盖从 43/43 增至 53/53。
 - 编辑器的预览已接入 studio 和元件箱，接口是 `preview(piece, { game, scene })`，`scene` 取 `card`、`tile` 或 `detail`。
 - H.1：移除了旧演示专用的场景图、无头场景钩子、反应世界和电路重复量度。三个脚手架保留，电路预设和逐拍寄存器继续由脚手架使用。
-
-## 阶段 H
-
-### H.4 《状态之图》的玩法上内核的基础件
-
-- 机器人电路（`ui/modes/Circuit.jsx`）换成内核的 `CircuitScreen`；八种玩法屏逐个落到规则行、值表（`RowTable`）、玩家检验（`Checks`）、逐步回放这些基础件上，缺的基础件先在内核补；`PartDemo` 走表格编辑器的 `preview`；`BoardView`、`RobotView` 这类棋盘的画法只留领域给的无头数据。
-- 验收：`domains/table` 的自写组件降到 0，或几处写明理由；检查输出只在译文计数和措辞上可以不同，按类别列出；八种玩法在桌面和手机上各走通一关。
 
 ---
 
@@ -91,7 +84,3 @@
 - `engine/caught.js` 由 `shell/CircuitScreen.jsx` 和 `shell/Checks.jsx` 使用。
 - 带参数的函数项曾因变量在定义前被用到导致页面崩溃。D.1 的浏览器验收覆盖了在定义右边放入带参数的函数项。
 - 内核里一次外层求值中，打包的件的各个输出共用一次内部求值（`engine/boards.js` 的 `packed`）。逐步回放里，被几个输出共用的卡只出现一次。
-
-## 没把握的地方
-
-- 《状态之图》八种玩法的屏里，`Seam`（剪缝）、`Breach`（找破绽）、`Policy` 的交互是不是都落得进规则行、值表、玩家检验这几样基础件，是按数据形状判断的，H.4 动手时可能要调整，缺的基础件先在内核补。

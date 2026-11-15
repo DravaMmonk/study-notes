@@ -3,16 +3,14 @@ import { useMemo, useState } from 'react'
 import { allRoutes } from '../../model/algo.js'
 import { E } from '../../model/scene.js'
 import { tr } from '../../lang.js'
-import BoardPlay from '../../../../shell/BoardPlay.jsx'
-import Scene from '../Scene.jsx'
-import { buzz, reduced, useLater, useToast, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
+import { boardDrawing } from '../scene.js'
+import { buzz, reduced, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
-export default function Trace({ game, level, play, phone, saved, save, solve, fail }) {
+export default function useTrace({ level, saved, save, solve, fail, toast }) {
   const L = level.source
   const [route, setRoute] = useState([])
   const [found, setFound] = useState(() => saved?.found ?? [])
   const [flash, setFlash] = useState(null)
-  const [toast, toastEl] = useToast()
   const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
   const { by, total } = useMemo(() => ({ by: Object.fromEntries(L.cells.map((c) => [c.id, c])), total: allRoutes(L.start, L.end, L.edges).length }), [L])
@@ -76,34 +74,23 @@ export default function Trace({ game, level, play, phone, saved, save, solve, fa
     edges: L.edges.map(([a, b]) => E(a, b, onRoute(a, b) ? (route.length ? 'sel' : 'good') : 'idle')),
   }
   const walk = (r) => r.map(name).join(' → ')
-  return (
-    <BoardPlay
-      play={play}
-      text={[L.mission.goal, L.mission.how]}
-      hint={L.hints ?? null}
-      game={game}
-      level={level}
-      phone={phone}
-      board={<Scene scene={scene} opt={{ label: tr('棋盘', 'Board'), maxScale: 1.25 }} onCell={onCell} />}
-      note={route.length ? `${tr('当前路线：', 'Current route: ')}${walk(route)}` : tr(`从「${name(L.start)}」开始点。`, `Start by clicking “${name(L.start)}”.`)}
-      panel={
-        <>
-          <div className="pcard">
-            <h3>{tr('已找到的路线', 'Routes found')}<small>{`${found.length} / ${total}`}</small></h3>
-            <div className="routes">
-              {found.length ? found.map((r, k) => <div key={k} className="route">{`${k + 1}. ${walk(r)}`}</div>) : <div className="route empty">{tr('还没有', 'None yet')}</div>}
-              {route.length > 0 && <div className="route now">{`${tr('正在走：', 'Walking: ')}${walk(route)}`}</div>}
-            </div>
-          </div>
-          <div className="pcard"><h3>{tr('规则', 'Rule')}</h3><p>{tr(`只能顺着箭头走。点到「${name(L.end)}」就记下一条路线；同一条路线只算一次。`, `You can only follow the arrows. Reaching “${name(L.end)}” records a route; each route counts only once.`)}</p></div>
-        </>
-      }
-      dock={{
-        meta: tr(<>已找到 <b>{found.length}</b>{` / ${total} 条`}</>, <>Found <b>{found.length}</b>{` / ${total}`}</>),
-        secondary: route.length ? { label: tr('撤销一步', 'Undo a step'), onClick: () => setRoute(route.slice(0, -1)) } : null,
-      }}
-    >
-      {toastEl}
-    </BoardPlay>
-  )
+  return {
+    drawing: boardDrawing(scene, { label: tr('棋盘', 'Board'), maxScale: 1.25 }, onCell),
+    note: route.length ? `${tr('当前路线：', 'Current route: ')}${walk(route)}` : tr(`从「${name(L.start)}」开始点。`, `Start by clicking “${name(L.start)}”.`),
+    cards: [{
+      title: tr('已找到的路线', 'Routes found'),
+      badge: `${found.length} / ${total}`,
+      list: [
+        ...(found.length ? found.map((r, k) => ({ text: `${k + 1}. ${walk(r)}` })) : [{ text: tr('还没有', 'None yet'), tone: 'empty' }]),
+        ...(route.length ? [{ text: `${tr('正在走：', 'Walking: ')}${walk(route)}`, tone: 'now' }] : []),
+      ],
+    }, {
+      title: tr('规则', 'Rule'),
+      body: tr(`只能顺着箭头走。点到「${name(L.end)}」就记下一条路线；同一条路线只算一次。`, `You can only follow the arrows. Reaching “${name(L.end)}” records a route; each route counts only once.`),
+    }],
+    dock: {
+      meta: tr(`已找到 <b>${found.length}</b> / ${total} 条`, `Found <b>${found.length}</b> / ${total}`),
+      secondary: route.length ? { label: tr('撤销一步', 'Undo a step'), onClick: () => setRoute(route.slice(0, -1)) } : null,
+    },
+  }
 }

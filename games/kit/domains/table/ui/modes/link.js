@@ -1,21 +1,18 @@
 // Link equal letters of two strings without crossing lines: the most lines is their longest common subsequence.
-import { Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { lcsLen } from '../../model/algo.js'
 import { E } from '../../model/scene.js'
 import { tr } from '../../lang.js'
-import BoardPlay from '../../../../shell/BoardPlay.jsx'
-import Scene from '../Scene.jsx'
-import { Html, buzz, reduced, useLater, useToast, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
+import { boardDrawing } from '../scene.js'
+import { buzz, reduced, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
-export default function Link({ game, level, play, phone, saved, save, solve, fail }) {
+export default function useLink({ level, saved, save, solve, fail, toast }) {
   const L = level.source
   const [ti, setTi] = useState(0)
   const [links, setLinks] = useState(() => L.tests.map((_, k) => saved?.links?.[k] || []))
   const [sel, setSel] = useState(null)
   const [flash, setFlash] = useState(null)
   const [hint, setHint] = useState(false)
-  const [toast, toastEl] = useToast()
   const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
   const target = (k) => lcsLen(L.tests[k].a, L.tests[k].b)
@@ -100,35 +97,30 @@ export default function Link({ game, level, play, phone, saved, save, solve, fai
     ],
     edges,
   }
-  return (
-    <BoardPlay
-      play={play}
-      text={[L.mission.goal, L.mission.how]}
-      hint={L.hints ?? null}
-      game={game}
-      level={level}
-      phone={phone}
-      tests={L.tests.map((x, k) => ({ label: `${tr(`第 ${k + 1} 题`, `Puzzle ${k + 1}`)} · ${x.a} / ${x.b}`, status: solvedIn(links, k) ? 'pass' : null }))}
-      ti={ti}
-      onTest={selectTest}
-      board={<Scene scene={scene} opt={{ label: tr('棋盘', 'Board'), maxScale: 1.3 }} onCell={onCell} />}
-      note={sel ? tr(`已选中${sel.side === 'a' ? '上面' : '下面'}的「${t[sel.side][sel.idx]}」，再点另一行里相同的字。`, `Selected “${t[sel.side][sel.idx]}” in the ${sel.side === 'a' ? 'top' : 'bottom'} row. Now click the same letter in the other row.`) : tr('连上的字从左往右读，就是两串字共有的一串。', 'Read left to right, the linked letters are a sequence the two strings share.')}
-      panel={
-        <>
-          <div className="pcard"><h3>{tr('三条规则', 'Three rules')}</h3><p>{tr(<>1. 只能连<b>相同</b>的字<br />2. 每个字最多连<b>一根</b>线<br />3. 线<b>不能交叉</b></>, <>1. Only link <b>equal</b> letters<br />2. Each letter takes at most <b>one</b> line<br />3. Lines <b>can’t cross</b></>)}</p></div>
-          <div className="pcard">
-            <h3>{tr('连出的公共子序列', 'Common subsequence so far')}<small>{`${mine.length} / ${target(ti)}${tr(' 个字', ' letters')}`}</small></h3>
-            <div className="diff">{mine.length ? mine.map((l, k) => <span key={k} className="dt ins">{a[l[0]]}</span>) : <span className="opthint">{tr('还没有连线', 'No lines yet')}</span>}</div>
-          </div>
-          <div className="pcard"><h3>{tr('卡住了？', 'Stuck?')}</h3>{hint ? <Html as="p" html={L.hints[ti]} /> : <button className="sec-btn" type="button" onClick={() => setHint(true)}>{tr('看提示', 'Show a hint')}</button>}</div>
-        </>
-      }
-      dock={{
-        meta: tr(<>已连 <b>{mine.length}</b> 根 · 目标 <b>{target(ti)}</b> 根</>, <><b>{mine.length}</b> lines · target <b>{target(ti)}</b></>),
-        secondary: mine.length ? { label: tr('清空这题', 'Clear this puzzle'), icon: <Trash2 size={16} />, onClick: () => { keep(withLinks([])); setSel(null) } } : null,
-      }}
-    >
-      {toastEl}
-    </BoardPlay>
-  )
+  return {
+    tests: L.tests.map((x, k) => ({ label: `${tr(`第 ${k + 1} 题`, `Puzzle ${k + 1}`)} · ${x.a} / ${x.b}`, status: solvedIn(links, k) ? 'pass' : null })),
+    ti,
+    onTest: selectTest,
+    drawing: boardDrawing(scene, { label: tr('棋盘', 'Board'), maxScale: 1.3 }, onCell),
+    note: sel ? tr(`已选中${sel.side === 'a' ? '上面' : '下面'}的「${t[sel.side][sel.idx]}」，再点另一行里相同的字。`, `Selected “${t[sel.side][sel.idx]}” in the ${sel.side === 'a' ? 'top' : 'bottom'} row. Now click the same letter in the other row.`) : tr('连上的字从左往右读，就是两串字共有的一串。', 'Read left to right, the linked letters are a sequence the two strings share.'),
+    cards: [{
+      title: tr('三条规则', 'Three rules'),
+      body: tr(
+        ['1. 只能连<b>相同</b>的字', '2. 每个字最多连<b>一根</b>线', '3. 线<b>不能交叉</b>'],
+        ['1. Only link <b>equal</b> letters', '2. Each letter takes at most <b>one</b> line', '3. Lines <b>can’t cross</b>'],
+      ),
+    }, {
+      title: tr('连出的公共子序列', 'Common subsequence so far'),
+      badge: `${mine.length} / ${target(ti)}${tr(' 个字', ' letters')}`,
+      tokens: { items: mine.map(([i]) => a[i]), empty: tr('还没有连线', 'No lines yet') },
+    }, {
+      title: tr('卡住了？', 'Stuck?'),
+      body: hint ? L.hints[ti] : null,
+      action: hint ? null : { label: tr('看提示', 'Show a hint'), run: () => setHint(true) },
+    }],
+    dock: {
+      meta: tr(`已连 <b>${mine.length}</b> 根 · 目标 <b>${target(ti)}</b> 根`, `<b>${mine.length}</b> lines · target <b>${target(ti)}</b>`),
+      secondary: mine.length ? { label: tr('清空这题', 'Clear this puzzle'), icon: 'trash', onClick: () => { keep(withLinks([])); setSel(null) } } : null,
+    },
+  }
 }
