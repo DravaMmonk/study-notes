@@ -7,7 +7,7 @@
 // Not covered yet: the truth tables of era 0 (each row ticked by hand), the proof board and the machine board (a
 // board of rules whose settings are sentences: their text spells sentences in ASCII, parts.text, and a blind player
 // needs the notation and the frame regions written out), and the rule board, definitions, translations, worlds, proof
-// terms and scripts (each a screen of its own).
+// scripts (a screen of its own).
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
 import { gateShape } from './blueprint.js'
 import { parse } from './formula.js'

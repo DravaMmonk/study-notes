@@ -5,10 +5,10 @@
 // The items are implemented next to them: proof rules in proof.js, the machine board's parts in machine.js, the
 // parts and the built pieces in a game's pieces.json (`op` the resources its parts call, `family` how they are coloured
 // and what a built piece is: course.js readBuilt), the level kinds in course.js and ui/, a machine's wants in machine.js judge,
-// and the proof-term forms in termTree.js. Sentences are text in the
+// Sentences are text in the
 // notation formula.js and schematic.js read; a board is blueprint text (blueprint.js).
 
-import { formFor, symbolFor } from './stripPieces.js'
+import { symbolFor } from './stripPieces.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
@@ -25,13 +25,11 @@ const LANGUAGES = {
   formula: { about: t('一句话（formula.js）') },
   side: { about: t('等式的一边：一样东西或一句话（schematic.js）') },
   condition: { about: t('一行定义的条件：一个等式（schematic.js）') },
-  term: { about: t('一个证明项（pterm.js）') },
 }
 const SENTENCE = S.syntax('formula', { about: t('一句话，按 formula.js 的写法：Rain → Wet、∀x. Human(x)、?A ∧ ?B') })
 const SENTENCES = S.list(SENTENCE)
 const SIDE = S.syntax('side')
 const SIDES = S.list(SIDE)
-const TERM = S.syntax('term')
 /** Blueprint text (../../circuit/text.js), one line a string: a reference board, a naive one. */
 const BOARD = S.board({ about: t('一块电路板的蓝图文本，每行一个字符串') })
 const PART = S.name('part', { about: t('一个元件：词汇表里的元件，或 game.json 里的引理、门、等式') })
@@ -124,7 +122,6 @@ const KINDS = {
   query: item(t('查询：拼一句带 x 的话，在每个世界里选中答案')),
   model: item(t('造世界：让句子真假如所要')),
   machine: item(t('证明助手：机器板上的一块电路，处理每组测试的输入')),
-  term: item(t('写证明项：用块拼出一个证明项')),
   script: item(t('写脚本：一行一句，by 后面是证法')),
 }
 const WANTS = {
@@ -138,22 +135,6 @@ const WANTS = {
   refuted: item(t('推出空子句 ⊥（测试有预算时，子句不超过预算）')),
   decide: item(t('能推出 ⊥ 时推出 ⊥；否则饱和')),
 }
-const FORMS = {
-  fun: item(t('fun x => …：证「若…则…」')),
-  app: item(t('f a：套用')),
-  pair: item(t('⟨a, b⟩：证「并且」')),
-  fst: item(t('a.1：「并且」的左边')),
-  snd: item(t('a.2：「并且」的右边')),
-  inl: item(t('inl a：「或者」的左边')),
-  inr: item(t('inr a：「或者」的右边')),
-  elim: item(t('分情况：用「或者」')),
-  absurd: item(t('absurd：由矛盾得出任何一句')),
-  open: item(t('取出存在的那一样')),
-  rfl: item(t('rfl：t = t')),
-  subst: item(t('▸：等量代换')),
-}
-
-
 /* ---------- a level ---------- */
 
 const TEXTS = S.list(S.text())
@@ -229,10 +210,6 @@ const BY_KIND = {
     preset: S.opt(S.list(S.str(), { about: t('参考解里预先放在板上的元件（锁住）') })),
     defs: S.opt(ids), types: S.opt(ids), stated: S.opt(S.list(S.str())),
   },
-  term: {
-    premises: S.opt(PREMISES), goal: SENTENCE, answer: TERM, naive: S.opt(TERM), given: S.opt(TERM), forms: S.opt(S.list(S.ref('part'), { about: t('块里有哪些写法（不写：除 rfl、subst 外的全部）') })),
-    uses: S.opt(ids), stated: S.opt(S.list(S.str())), defs: S.opt(ids),
-  },
   script: {
     premises: S.opt(PREMISES), goal: SENTENCE, answer: S.list(ROW), naive: S.opt(S.list(ROW)), given: S.opt(S.list(ROW)), locked: S.opt(S.bool()),
     simp: S.opt(ids), things: S.opt(ids), sentences: S.opt(SENTENCES), types: S.opt(ids), defs: S.opt(ids),
@@ -277,11 +254,10 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 6,
+  version: 7,
   removes: [
-    { at: 'level.symbols', why: 'register syntax pieces in pieces.json and introduce them through adds' },
-    { at: 'level.tasks.of.cases.term.forms', why: 'proof-term forms refer to registered strip pieces' },
-    { at: 'kinds.form', why: 'proof-term forms are marks on registered strip pieces' },
+    ...['level.tasks.of.cases.term', 'kinds.kind.term', 'languages.term'].map((at) => ({ at, why: 'retire the proof-term writing play' })),
+    ...['termFun', 'termApp', 'termPair', 'termFst', 'termSnd', 'termInl', 'termInr', 'termCases', 'termAbsurd', 'termOpen', 'termRefl', 'termSubst'].map((mark) => ({ at: `kinds.mark.${mark}`, why: 'retire the proof-term writing keys' })),
   ],
   kinds: {
     part: PART_ITEMS,
@@ -290,8 +266,7 @@ export const vocabulary = defineVocabulary({
     family: FAMILIES,
     kind: KINDS,
     want: WANTS,
-    mark: { ...Object.fromEntries(Object.entries(symbolFor).map(([mark, symbol]) => [mark, item(symbol)])),
-      ...Object.fromEntries(Object.entries(formFor).map(([mark, form]) => [mark, FORMS[form]])) },
+    mark: Object.fromEntries(Object.entries(symbolFor).map(([mark, symbol]) => [mark, item(symbol)])),
   },
   game: GAME,
   level: LEVEL,

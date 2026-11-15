@@ -5,7 +5,7 @@
 // builtGates), a machine part (machine.js builtMachine), an equation proved; every one runs the player's work (a lemma,
 // the proof of each of its shapes).
 import { stripPieces } from '../../strip/pieces.js'
-import { formFor, symbolFor } from './stripPieces.js'
+import { symbolFor } from './stripPieces.js'
 import { playFor } from '../../engine/plays.js'
 import { plays } from './plays.js'
 import { builtPieces, cardOf, pieceReferences, revisionsOf, settingsOf } from '../../engine/pieces.js'
@@ -252,8 +252,6 @@ export function logicCourse(content) {
   }
   const formulaPieces = Object.fromEntries(Object.values(strips).filter((piece) => Object.hasOwn(symbolFor, piece.mark))
     .map((piece) => [symbolFor[piece.mark], piece]))
-  const termPieces = Object.fromEntries(Object.values(strips).filter((piece) => Object.hasOwn(formFor, piece.mark))
-    .map((piece) => [formFor[piece.mark], piece]))
   const introduced = (ids = []) => ids.flatMap((id) => Object.hasOwn(symbolFor, strips[id]?.mark) ? [symbolFor[strips[id].mark]] : [])
   const built = readBuilt(content)
   const { lemmas, facts, gates, machines, revisions } = built
@@ -355,14 +353,9 @@ export function logicCourse(content) {
         : pieces
       const allowedFormula = allowed(formulaPieces)
       const notation = { words: l.words ?? words, symbols, formulaPieces: allowedFormula, propertyWords: l.propertyWords ?? l.kind === 'proof' }
-      const forms = l.kind === 'term' && l.forms ? l.forms.map((type) => {
-        const form = formFor[strips[type]?.mark]
-        if (!form) wrong.push(`${l.taskId}: ${type} is not a proof-term piece`)
-        return form
-      }).filter(Boolean) : l.forms
       const expanded = l.cases ? expand(l, notation) : {}
       // A machine board's axioms are parts the level brings with it (machine.js axiomPartsOf).
-      return answers({ ...l, ...(l.kind === 'term' ? { forms, termPieces: allowed(termPieces) } : {}), ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: expanded.tests.at(-1).caseBrief } : {}), adds: [...(l.adds ?? []).filter((type) => !strips[type]), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter, requires, unlocks, lemmas, proofs: lemmaPieces, facts, gates: boardGates, partDefs: defs, revisions, notation })
+      return answers({ ...l, ...declarations(l, id), ...(!l.brief && expanded.schema ? { brief: expanded.tests.at(-1).caseBrief } : {}), adds: [...(l.adds ?? []).filter((type) => !strips[type]), ...(l.kind === 'machine' ? axiomPartsOf(l) : [])], ...(WORLD_KINDS.includes(l.kind) ? { vocab: vocabOf(l) } : {}), ...expanded, ...(l.kind === 'machine' ? { tests: l.tests.map((t) => ({ label: machineLabel(t, notation), ...t })) } : {}), chapter, requires, unlocks, lemmas, proofs: lemmaPieces, facts, gates: boardGates, partDefs: defs, revisions, notation })
     }
     const all = tasksOf.get(id).map(read)
     const last = all.at(-1)

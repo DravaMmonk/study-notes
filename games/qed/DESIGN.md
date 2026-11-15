@@ -1,6 +1,6 @@
 # 《证明完毕》设计框架：造一台证明器，学会写规格
 
-公式连接词、量词和固定证明项写法在 `pieces.json` 中登记为词序条的件。关卡通过 `adds` 引入公式键，翻译、查询和证明项使用共享的 `tree + check`。题目与作用域提供可选的变量、常量和谓词，`wordSets` 提供它们的显示文字。
+公式连接词和量词在 `pieces.json` 中登记为词序条的件。关卡通过 `adds` 引入公式键，翻译和查询使用共享的 `tree + check`。题目与作用域提供可选的变量、常量和谓词，`wordSets` 提供它们的显示文字。
 
 《证明完毕》（Q.E.D.，id `qed`）有两个互相支撑的目标。一是**证明器本身的机制**：Isabelle 和 Lean 这样的交互式证明器，里面到底是怎么运转的。学习者从真值和语法树起步，一层层亲手造出一台小小的通用证明器：可信的证明核、自然演绎、带元变量的规则消解、能回溯的策略、经典推理、化简器、自动化与证书，最后用数与列表练习定义与归纳。二是**人在形式化验证里不可替代的那部分工作**：把要求写成规格，检验规格和原意一致，分清哪些是检查过的、哪些是被相信的（第 0 节）。前者是后者的地基：不知道证明器怎样运转，就说不清它保证了什么、没保证什么。所有类图灵完备游戏共同遵守的结构、规则和自动检查见 [`games/DESIGN.md`](../DESIGN.md)；本文档只记录这个专题自己的内容。改课程之前先改这份文档，过时的内容随改随删。
 
@@ -537,7 +537,7 @@
 | 一轮归结、饱和器 | 归结和饱和（教科书算法；真实证明器用 given-clause 循环） | ≈ 一圈全试是为了能看清每一步 |
 | 外部证明器 | sledgehammer 调用的外部证明器（E、Vampire）不受信任；Isabelle 的 oracle 机制 | ≈ 它的错（一次消掉几对）是为了「证明器错了」那一关故意做的 |
 | 重放、证明重建器 | `metis` 在核里重新证一遍外部证明器找到的证明 | ✓ |
-| 写证明项板、相等、反射 | Lean 的项、`Eq.rec`、`rfl`、`decide` | ✓ |
+| 相等、反射 | Lean 的项、`Eq.rec`、`rfl`、`decide` | ✓ |
 | 写脚本板 | Isar；Lean 策略块里的 `have`、`show` | ✓ |
 | 真值表、真值电路、造世界 | 语义一侧（模型），不是证明器的部件；对应 `nitpick`、`quickcheck`、`decide` | ✓ |
 
@@ -545,7 +545,7 @@
 
 ## 6. 引擎：复用什么，补什么
 
-**已有（`games/kit/domains/logic/`）：** 公式（`formula.js`）、证明板与规则（`proof.js`，含证出的引理当规则）、证明项与写证明项板（`pterm.js`、`termTree.js`、`ui/TermScreen.jsx`）、拼公式板（`formulaTree.js`、`ui/FormulaScreen.jsx`，界面是共用的 `kit/strip`）和造世界板（`fol.js`、`ui/WorldScreens.jsx`）、机器板（`machine.js`：等式组、证明状态、证明项、子句；重复框、依次尝试、逐个目标、回溯搜索）、带元变量的规则与合一（`schematic.js`）、证明状态与策略（`tactics.js`）、子句与归结（`resolution.js`：子句集、归结、饱和、证书、重放；一阶的先合一）、改写与化简（`rewrite.js`）、结构化脚本与写脚本板（`script.js`、`ui/ScriptScreen.jsx`）、类型声明给的规则（`datatype.js`）、卡片选项（`choices.js`）；kit 的步进回放（`engine/trace.js`、`shell/usePlayback.jsx`）。内容层的契约：词汇表（`vocabulary.js`：元件、关卡种类、机器板要的结果、证明项的写法、存档迁移项，各带参数 schema）、电路板的蓝图文本（`blueprint.js`，证明板、机器板、真值电路共用）、存档迁移项（`items/migrations.js`），两个入口 `domain.js`（检查用）和 `game.jsx`（页面用）。
+**已有（`games/kit/domains/logic/`）：** 公式（`formula.js`）、证明板与规则（`proof.js`，含证出的引理当规则）、证明板的证明项表示（`pterm.js`）、拼公式板（`formulaTree.js`、`ui/FormulaScreen.jsx`，界面是共用的 `kit/strip`）和造世界板（`fol.js`、`ui/WorldScreens.jsx`）、机器板（`machine.js`：等式组、证明状态、证明项、子句；重复框、依次尝试、逐个目标、回溯搜索）、带元变量的规则与合一（`schematic.js`）、证明状态与策略（`tactics.js`）、子句与归结（`resolution.js`：子句集、归结、饱和、证书、重放；一阶的先合一）、改写与化简（`rewrite.js`）、结构化脚本与写脚本板（`script.js`、`ui/ScriptScreen.jsx`）、类型声明给的规则（`datatype.js`）、卡片选项（`choices.js`）；kit 的步进回放（`engine/trace.js`、`shell/usePlayback.jsx`）。内容层的契约：词汇表（`vocabulary.js`：元件、关卡种类、机器板要的结果、存档迁移项，各带参数 schema）、电路板的蓝图文本（`blueprint.js`，证明板、机器板、真值电路共用）、存档迁移项（`items/migrations.js`），两个入口 `domain.js`（检查用）和 `game.jsx`（页面用）。
 
 **诚实的限制：**
 

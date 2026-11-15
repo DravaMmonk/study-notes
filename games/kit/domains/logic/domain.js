@@ -8,7 +8,6 @@ import { validate } from './validate.js'
 import { play } from './play.js'
 import { parse } from './formula.js'
 import { parseS, parseSide } from './schematic.js'
-import { parseTerm } from './pterm.js'
 
 // The readers of the vocabulary's languages: why a text cannot be read, or null.
 const reads = (parser) => (text) => {
@@ -19,7 +18,7 @@ const reads = (parser) => (text) => {
     return error.message
   }
 }
-const languages = { formula: reads(parse), side: reads(parseSide), condition: reads(parseS), term: reads(parseTerm) }
+const languages = { formula: reads(parse), side: reads(parseSide), condition: reads(parseS) }
 
 // What a part's name may be (vocabulary.js PART): the vocabulary's parts and the pieces registered by the game.
 const names = (content) => ({ part: new Set([...Object.keys(vocabulary.kinds.part), ...Object.keys(content.partDefs?.parts ?? {})]) })

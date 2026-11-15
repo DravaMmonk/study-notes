@@ -3,7 +3,7 @@
 // a machine board …), its parts box of proved lemmas and built parts, and its map art.
 import { symbolStamp } from './stripPieces.js'
 import { declaredLines } from './iso.js'
-import { Braces, CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
+import { CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
 import './logic.css'
 import { defineGame } from '../../shell/index.js'
 import { fresh, introductions, isCore } from '../../course.js'
@@ -11,7 +11,6 @@ import { tr } from '../../shell/i18n.js'
 import Hero from './ui/Hero.jsx'
 import { worldCheck } from './worldValues.js'
 import { query, translation } from './formulaWork.js'
-import { proofTerm } from './termTask.js'
 import { script } from './scriptValues.js'
 import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
 import { RULES } from './proof.js'
@@ -106,7 +105,7 @@ export default function logicGame(content) {
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.source.intro,
     kinds: playKinds(plays, {
-      declaration, definition, audit, truth, translation, query, proofTerm, script, worldCheck,
+      declaration, definition, audit, truth, translation, query, script, worldCheck,
       proof: { ...proofScreen, cards }, machine: { ...machineScreen, cards }, gates: { ...gatesScreen, cards },
     }, {
       proof: { icon: Workflow, label: { zh: '证明', en: 'Proof' } },
@@ -118,7 +117,6 @@ export default function logicGame(content) {
       translate: { icon: Languages, label: { zh: '翻译', en: 'Translate' } },
       query: { icon: Search, label: { zh: '查询', en: 'Query' } },
       model: { icon: FileSignature, label: { zh: '造世界', en: 'Build a world' } },
-      term: { icon: Braces, label: { zh: '写证明项', en: 'Write a proof term' } },
       script: { icon: ScrollText, label: { zh: '写脚本', en: 'Write a script' } },
     }),
     // What passing a level gives: the parts it builds, and the proof-board parts a declaration or a generator gives (its

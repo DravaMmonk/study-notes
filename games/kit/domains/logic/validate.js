@@ -19,9 +19,6 @@ import { lettersOf, tautology } from './truth.js'
 import { MACHINE_PARTS, inputsOfLevel, rulePartsOf, runMachine } from './machine.js'
 import { SETTING_KINDS, choiceKey, choicesOf } from './choices.js'
 import { chipsFrom, chipsOf, missingChips } from './formulaTree.js'
-import { freeIn, parseTerm } from './pterm.js'
-import { termJudge } from './termTask.js'
-import { BASIC, missingForms } from './termTree.js'
 import { checkGates, rowsFor, startGates } from './gates.js'
 import { checkIso, sentenceOf } from './iso.js'
 import { auditCaseProblems, runAudit } from './audit-cases.js'
@@ -49,7 +46,7 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
   }
   // A level in everyday words has a sentence for every letter it uses.
   for (const level of levels.filter((l) => l.notation?.words && !l.vocab)) {
-    const texts = level.kind === 'define' ? [] : level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'iso' ? [...level.sentences, ...level.tests.flatMap((t) => [...t.given, ...(t.goal ? [t.goal] : [])])] : level.kind === 'term' ? [...Object.values(level.premises ?? {}), level.goal] : level.kind === 'script' ? [...Object.values(level.premises ?? {}), level.goal, ...(level.sentences ?? [])] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs || t.term || t.ways ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses)) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
+    const texts = level.kind === 'define' ? [] : level.kind === 'truth' ? level.formulas : level.kind === 'gates' ? [level.target] : level.kind === 'iso' ? [...level.sentences, ...level.tests.flatMap((t) => [...t.given, ...(t.goal ? [t.goal] : [])])] : level.kind === 'script' ? [...Object.values(level.premises ?? {}), level.goal, ...(level.sentences ?? [])] : level.kind === 'machine' ? level.tests.flatMap((t) => (t.eqs || t.term || t.ways ? [] : t.goal ? [t.goal, ...(t.hyps ?? [])] : t.clauses)) : level.tests.flatMap((t) => [...Object.values(t.premises ?? {}), t.goal])
     // The pattern's own letters stand bare in its last test; a machine's tests may end on bare letters too.
     const bare = new Set(level.kind === 'machine' ? 'ABCDEFGHPQRS'.split('') : Object.keys(level.cases?.[0] ?? {}))
     const missing = lettersOf(texts.map((t) => parse(t))).filter((l) => !level.notation.words[l] && !bare.has(l))
@@ -154,30 +151,6 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
       const verdict = good.pass ? 'PASS' : `FAIL ${failures.length ? failures.join('; ') : keyOf(good.constraint)}`
       out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: machine ${verdict} [${good.score.steps} cards]` })
       reportNaive(out, level, naive)
-      return out
-    }))
-  }
-  for (const level of levels.filter((l) => l.kind === 'term')) {
-    out.push(...memo(level.id, `term ${level.task ?? 0}`, () => {
-      const out = []
-      const consts = level.consts ?? []
-      const check = judgeFor(playFor(plays, level), termJudge(level))
-      const answer = parseTerm(level.answer)
-      const judge = (work) => check(parseTerm(work))
-      const { reference, naive, starter } = judgeWorks(judge, { reference: level.answer, naive: level.naive, starter: level.given })
-      const reason = reference.fail?.why
-      out.push({ level: level.id, fail: Boolean(reason), text: `${level.id} ${keyOf(level.title)}: term ${level.answer} ${reason ? `FAILS ${keyOf(reason)}` : 'PASS'}` })
-      // Every name the term uses is a chip of the task: a premise, a thing, a lemma it offers (`uses`).
-      const offered = new Set([...Object.keys(level.premises ?? {}), ...consts, ...(level.uses ?? [])])
-      const unoffered = [...freeIn(answer)].filter((n) => !offered.has(n))
-      if (unoffered.length) out.push({ level: level.id, fail: true, text: `${level.id}: ${level.answer} names ${unoffered.join(', ')}, which no chip gives` })
-      const forms = (level.forms ?? BASIC).filter((key) => level.termPieces[key])
-      const unbuilt = missingForms(answer, forms)
-      if (unbuilt.length) out.push({ level: level.id, fail: true, text: `${level.id}: ${level.answer} uses forms no chip makes: ${unbuilt.join(', ')}` })
-      if (naive?.ok === false) out.push({ level: level.id, fail: true, text: `${level.id}: the naive term ${level.naive} checks` })
-      // A term handed over to mend is wrong to begin with, and can be built on with the chips.
-      if (starter?.ok === false) out.push({ level: level.id, fail: true, text: `${level.id}: the given term ${level.given} already checks` })
-      if (level.given && missingForms(parseTerm(level.given), forms).length) out.push({ level: level.id, fail: true, text: `${level.id}: the given term ${level.given} uses forms no chip makes` })
       return out
     }))
   }

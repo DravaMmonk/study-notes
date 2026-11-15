@@ -15,7 +15,7 @@ const ID = 'proofs'
 
 const GAME = {
   domain: 'logic',
-  vocabulary: 6,
+  vocabulary: 7,
   title: T('Proofs · Test'),
   kicker: T('Test'),
   lede: T('Proofs built from Apply and the assumption box.'),

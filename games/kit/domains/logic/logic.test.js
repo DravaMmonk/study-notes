@@ -237,14 +237,10 @@ test('a lemma gives a goal in one step only when the givens fit its premises', (
   assert.equal(lemmaGives(chain, [parse('P → (Q → R)'), parse('Q')], parse('P → R')), false)
 })
 
-test('proof terms: written, printed, checked', async () => {
-  const { parseTerm, printTerm, checkTerm, alphaEq } = await import('./pterm.js')
+test('proof terms: parsed, printed and compared', async () => {
+  const { parseTerm, printTerm, alphaEq } = await import('./pterm.js')
   const t = parseTerm('fun p => p.elim (fun a => Or.inr a) (fun b => Or.inl b)')
   assert.equal(printTerm(t), 'fun p => p.elim (fun a => Or.inr a) (fun b => Or.inl b)')
-  assert.equal(checkTerm(t, parse('A ∨ B → B ∨ A')), '')
-  assert.ok(checkTerm(parseTerm('fun a k => a k'), parse('A → ¬¬A')))
-  assert.equal(checkTerm(parseTerm('fun a k => k a'), parse('A → ¬¬A')), '')
-  assert.equal(checkTerm(parseTerm('h.elim (fun y hy => ⟨y, hy.1⟩)'), parse('∃x. P(x)'), { hyps: { h: parse('∃x. P(x) ∧ Q(x)') } }), '')
   assert.ok(alphaEq(parseTerm('fun x y => x'), parseTerm('fun a b => a')))
   assert.ok(!alphaEq(parseTerm('fun x y => x'), parseTerm('fun a b => b')))
 })
@@ -446,16 +442,6 @@ test('a proof machine must meet its card budget after its cases pass', () => {
   assert.equal(report.fail.why, report.constraint)
 })
 
-test('a written term may use a lemma as a function of its premises, and take out what there is', async () => {
-  const { checkTerm, parseTerm } = await import('./pterm.js')
-  const { lemmaUse } = await import('./proof.js')
-  const lemma = lemmaUse({ chain: { statement: 'A → C', premises: ['A → B', 'B → C'], metas: ['A', 'B', 'C'] } })
-  const hyps = { p: parse('Rain → Wet'), q: parse('Wet → Slip') }
-  assert.equal(checkTerm(parseTerm('chain p q'), parse('Rain → Slip'), { hyps, lemma }), '')
-  assert.ok(checkTerm(parseTerm('chain q p'), parse('Rain → Slip'), { hyps, lemma }))
-  assert.equal(checkTerm(parseTerm('p.elim (fun a b => ⟨a, b.2⟩)'), parse('∃x. Q(x)'), { hyps: { p: parse('∃x. P(x) ∧ Q(x)') } }), '')
-})
-
 test('a rewrite changes the first place its left side fits, under quantifiers too, and leaves its conditions as goals', async () => {
   const { rewrite, simplify, rewriteBookOf } = await import('./rewrite.js')
   const { startState } = await import('./tactics.js')
@@ -544,15 +530,6 @@ test('rewriting the hypotheses, under a binder without catching what is put in',
   const hyps = (r) => r.results[0].goals[0].hyps.map((h) => show(h))
   assert.deepEqual(hyps(simplify(s, [book['dm.notAll'], book['dm.notEx']], 'hyps')), ['Human(soc)', '∃x. ∀y. ¬Likes(y, x)'])
   assert.ok(rewrite(s, book['dm.notAll']).fail)
-})
-
-test('a ∀ used on a proof reads its thing off what is to be proved, so the kernel computes rfl', async () => {
-  const { termTaskOf } = await import('./termTask.js')
-  const { parseTerm } = await import('./pterm.js')
-  const defs = ['ev(p, x) = x', 'ev(neg(z), x) = bnot(ev(z, x))', 'ev(or(z, w), x) = bor(ev(z, x), ev(w, x))', 'bnot(tt) = ff', 'bnot(ff) = tt', 'bor(tt, y) = tt', 'bor(ff, y) = y', 'both(z) = band(ev(z, tt), ev(z, ff))', 'band(tt, y) = y', 'band(ff, y) = ff']
-  const task = (goal) => termTaskOf({ premises: { sound: '∀x. both(x) = tt → Holds(x)' }, consts: ['p', 'tt', 'ff'], defs, goal })
-  assert.equal(task('Holds(or(p, neg(p)))').check(parseTerm('sound rfl')), '')
-  assert.match(task('Holds(neg(p))').check(parseTerm('sound rfl')).en, /works out to/)
 })
 
 test('a script: each row by a rule or a block, checked row by row', async () => {
