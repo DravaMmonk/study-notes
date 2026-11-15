@@ -9,10 +9,8 @@
 import { circuitPlay } from '../../engine/play/circuit.js'
 import { runTestGroups, splitTests, TEST_WORDS } from '../../engine/tests.js'
 import { plays } from './plays.js'
-import { startBoard } from './engine/board.js'
 import { INPUT_LABELS, descriptionOf } from './words.js'
 import { T } from '../../shell/i18n.js'
-import { inheritedBoard } from '../../shell/progress.js'
 
 const pick = (v, lang) => (v && typeof v === 'object' ? v[lang] ?? v.en ?? v.zh : v)
 
@@ -31,26 +29,15 @@ const picture = (img) => {
   return `${img.w}×${img.h}\n${rows.join('\n')}`
 }
 
-/** The board a level opens on: the player's circuit from the level before it in a series, else its inputs and outputs. */
-function opening({ game, level, progress }) {
-  const L = level
-  const names = (board, type) => board.nodes.filter((n) => n.type === type).map((n) => n.params.name).sort().join()
-  const fits = (board) => board?.nodes && names(board, 'input') === [...L.inputs].sort().join() && names(board, 'output') === [...L.outputs].sort().join() && board.nodes.every((n) => game.image.kit.types[n.type])
-  const priorLevel = L.carries ? L.id : L.carry
-  const prior = L.carries ? game.image.levelById[L.id]?.tasks[L.task - 1] : game.image.levelById[L.carry]?.tasks.at(-1)
-  const carried = inheritedBoard(progress, prior && { ...prior, id: priorLevel })
-  const offers = (board) => board.nodes.every((n) => n.type === 'input' || n.type === 'output' || L.palette.includes(n.type))
-  return fits(carried) && offers(carried) ? carried : startBoard(L)
-}
-
 const revealed = ({ solved }) => solved && plays.graph.checks === 'afterPass'
-const testsOf = (ctx) => splitTests(ctx.level, revealed(ctx))
+const testsOf = (ctx) => splitTests(ctx.level.source, revealed(ctx))
 
 const circuit = circuitPlay({
-  board: (ctx) => {
-    ctx.game.image.syncOwn(ctx.progress)
-    const { shown, folded } = ctx.game.image.offerIn(ctx.level, ctx.flags)
-    return { start: opening(ctx), parts: ctx.game.image.kit.boardParts(ctx.level.tests[0]), types: [...shown, ...folded] }
+  board: ({ game, level: { source: task }, progress, flags }) => {
+    const view = game.circuit.forTask(task)
+    view.syncOwn(progress.built, progress)
+    const { shown, folded } = view.offerIn(task, flags)
+    return { start: view.opening(task, progress.built, undefined, progress), parts: view.board.wiring(task, view), types: [...shown, ...folded] }
   },
   // The score under the board reads a circuit's cost live as parts go on it, so a part's own cost is something the
   // player sees: it is written beside what the part does.
@@ -60,12 +47,12 @@ const circuit = circuitPlay({
     const desc = descriptionOf(types, type) ?? ''
     return { name: types[type].label, desc: typeof cost === 'number' ? T(`${pick(desc, 'zh')}（计算量 ${cost}）`, `${pick(desc, 'en')} (cost ${cost})`) : desc }
   },
-  settings: ({ game, level, flags }, type) => game.image.kit.settingsOf(type, game.image.holdsIn(level, flags)).filter((p) => !p.hidden).map((p) => ({
+  settings: ({ game, level, flags }, type) => game.image.kit.settingsOf(type, game.circuit.forTask(level.source).holdsIn(level.source, flags)).filter((p) => !p.hidden).map((p) => ({
     key: p.key,
     values: p.options ? p.options.map((o) => String(o[0])) : p.kind === 'number' ? [`${p.min}…${p.max}${p.step ? ` (${p.step})` : ''}`] : p.kind === 'kernel' ? ['[9 numbers]'] : null,
     about: p.label,
   })),
-  given: ({ level: L }) => {
+  given: ({ level: { source: L } }) => {
     const many = L.inputs.length > 1
     const labels = L.inputLabels ?? (many ? INPUT_LABELS : {})
     const side = (lang) => [
@@ -84,11 +71,8 @@ const circuit = circuitPlay({
     return hiddenCount ? [TEST_WORDS.note(hiddenCount)] : []
   },
   run: (ctx, graph) => {
-    const L = ctx.level
-    const { shown, folded } = ctx.game.image.offerIn(L, ctx.flags)
     const { runLevel } = ctx.game.image.kit
-    const { shown: visible, checked, hidden, pass } = runTestGroups(L, revealed(ctx),
-      (task) => runLevel({ ...task, palette: [...shown, ...folded], folded }, graph))
+    const { shown: visible, checked, hidden, pass } = runTestGroups(ctx.level.source, revealed(ctx), (task) => runLevel(task, graph))
     // A failed test says, output by output, how far its picture is from the target.
     const why = (r, lang) => r.checks.filter((c) => !c.pass).map((c) => `${c.name}: ${pick(c.reason, lang)}`).join(lang === 'en' ? '; ' : '；')
     const tests = checked.runs.map((r, k) => ({ label: visible[k].label, pass: r.pass, says: r.pass ? null : T(why(r, 'zh'), why(r, 'en')) }))

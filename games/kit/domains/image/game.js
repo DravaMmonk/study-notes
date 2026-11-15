@@ -82,7 +82,7 @@ export default function imageGame(content) {
     levels,
     intro: (level) => image.intros[level.id],
     IntroFigure: imageIntroduction,
-    kinds: playKinds(plays, { imageCircuit: imageCircuit(image, boards, cards), parameters, probe: blackBox }, {
+    kinds: playKinds(plays, { imageCircuit: imageCircuit(image, cards), parameters, probe: blackBox }, {
       graph: { icon: Workflow, label: { zh: '搭电路', en: 'Build a circuit' } },
       board: { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
       probe: { icon: FlaskConical, label: { zh: '机关台', en: 'Bench' } },
@@ -105,6 +105,7 @@ export default function imageGame(content) {
     better: (score, best) => !best || score.cost < best.cost || (score.cost === best.cost && score.nodes < best.nodes),
     bestLabel: (best) => `${best.nodes} · ${best.cost}`,
   })
+  game.circuit = boards
   game.image = image
   game.defined = { of: (type) => kit.defs[type] ?? null, defaults: kit.defaultParams, ops: kit.ops, widgets: { imageKernel: WeightGrid } }
   return game

@@ -5,6 +5,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { deepFreeze } from '../../engine/content.js'
 import { readContent } from '../../engine/content-node.js'
+import { fresh } from '../../shell/progress.js'
 import { boxBlur3, gradientMagnitude, horizontalDifference, sobelGradient, squaredGradient } from './engine/filters.js'
 import { at, fromFn } from './engine/image.js'
 import { ransacLine, robustHomography } from './engine/match.js'
@@ -12,6 +13,8 @@ import { MATCHING } from './engine/parts/matching.js'
 import { picture } from './items/pictures.js'
 import { constraintOf, depthOf } from './items/constraints.js'
 import { imageCourse } from './course.js'
+import { imageBoards } from './engine/board-view.js'
+import { play } from './play.js'
 import domain from './domain.js'
 
 // A course of three levels: one a built piece runs, one holds that piece, one is two tasks.
@@ -25,7 +28,7 @@ const content = deepFreeze({
   levels: [
     level('wide', [filter('wide', { solution: ['l = shift[dir=left](in)', 'r = shift[dir=right](in)', 'h = max(l, r)', 'out <- h'] })]),
     level('use', [filter('use', { solution: ['k = const[c="pi/8"]()', 'm = arith[op=mul](in, k)', 'p = widen(m)', 'out <- p'], naive: ['out <- in'] })]),
-    level('two', [filter('two_1', { solution: ['s = shift[dir=up, n=2](in)', 'out <- s'] }), filter('two_2', { solution: ['t = threshold[t=0.3](in)', 'out <- t'] })]),
+    level('two', [filter('two_1', { solution: ['s = shift[dir=up, n=2](in)', 'out <- s'] }), filter('two_2', { carries: true, solution: ['t = threshold[t=0.3](in)', 'out <- t'] })], { adds: ['shift'] }),
   ],
   partDefs: { parts: { widen: { name: L('p'), desc: L('d'), inside: [{ task: 'wide' }] } } },
 })
@@ -104,6 +107,18 @@ test('a packed part runs the circuit the player passed its level with, in its ow
   assert.deepEqual(run(), reference)
   image.syncOwn(passed(image.levelById.wide.tasks[0].solution))
   assert.deepEqual(run(), reference)
+})
+
+test('image text play opens on the same valid inherited board as the editor', () => {
+  const [previous, task] = image.levelById.two.tasks
+  const circuit = imageBoards(image)
+  const context = (board) => ({
+    game: { image, circuit }, level: { ...task, source: task }, flags: new Set(['shift']),
+    progress: { ...fresh(), passed: [previous.key], built: { [previous.key]: board } },
+  })
+  assert.match(play.open(context(previous.solution)).start, /shift/)
+  const corrupt = { ...previous.solution, wires: previous.solution.wires.map((wire) => wire.from === 'in' ? { ...wire, from: 'in#r' } : wire) }
+  assert.equal(play.open(context(corrupt)).start, null)
 })
 
 test('a packed image trace and its test verdict share the evaluated output', () => {
