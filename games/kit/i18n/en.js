@@ -1740,4 +1740,5 @@ export default {
   "判断和挑选的元件": "parts that compare and choose",
   "不写时为「—」": "「—」 when not set",
   "去掉这一条": "Remove this entry",
+  "没写时读到「—」（新元件仍从 default 起）": "reads 「—」 when not written (a new part still starts from default)",
 }

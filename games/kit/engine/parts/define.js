@@ -53,7 +53,10 @@ export function defaultOf(s) {
 
 /** A setting's value as computing reads it: numbers for a number or a slider, true or false for a toggle. */
 export function coerce(s, raw) {
-  const v = raw === undefined || raw === null || raw === '' ? defaultOf(s) : raw
+  const unset = raw === undefined || raw === null || raw === ''
+  // An optional number left unset reads 「—」; a new card still starts from its default (defaultOf).
+  if (unset && s.optional && NUMERIC.has(s.control)) return null
+  const v = unset ? defaultOf(s) : raw
   if (NUMERIC.has(s.control)) return v === null ? null : Number(v)
   if (s.control === 'toggle') return v === true || v === 'true'
   if (LISTED.has(s.control)) return Array.isArray(v) ? v.map(String) : []

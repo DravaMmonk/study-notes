@@ -35,7 +35,7 @@ const CONTROL = {
   list: { options: S.opt(OPTIONS), from: FROM },
   tree: { optional: S.opt(S.bool({ about: t('可以不填', 'may be left empty') })) },
   buttons: { options: S.opt(OPTIONS), from: FROM, layout: S.opt(S.oneOf(LAYOUTS, { about: t('row 一行，column 一列，grid 两两一行，pad 上下左右四向（选项 up、left、right、down）') })) },
-  number: { ...RANGE, integer: S.opt(S.bool()), stepper: S.opt(S.bool({ about: t('两边加 − / + 按钮') })) },
+  number: { ...RANGE, integer: S.opt(S.bool()), stepper: S.opt(S.bool({ about: t('两边加 − / + 按钮') })), optional: S.opt(S.bool({ about: t('没写时读到「—」（新元件仍从 default 起）') })) },
   slider: { ...RANGE, min: S.num(), max: S.num(), marks: S.opt(S.list(S.num(), { about: t('刻度') })) },
   toggle: { on: S.opt(S.text()), off: S.opt(S.text()) },
   custom: { widget: S.ref('widget'), params: S.opt(S.any()) },

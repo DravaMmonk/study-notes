@@ -55,7 +55,7 @@
           "options": [{ "value": "A" }, { "value": "B" }, { "value": "C" }, { "value": "D" }],
           "default": "A"
         },
-        { "key": "start", "control": "number", "label": { "zh": "初值" }, "default": null }
+        { "key": "start", "control": "number", "label": { "zh": "初值" }, "default": 0, "optional": true }
       ],
       "compute": "held($reg, $start)"
     },

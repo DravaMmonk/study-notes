@@ -194,3 +194,11 @@ test('a part keeps an input in the register a setting names, or computes, never 
   assert.equal(PARTS.keep.sink && PARTS.keep.store, true)
   assert.equal(PARTS.keep.register({ params: {} }), 'A')
 })
+
+test('an optional number left unset reads 「—」, and a new card starts from its default', () => {
+  const start = { key: 'start', control: 'number', default: 0, optional: true }
+  const { PARTS, defaultsOf } = defineParts({ parts: { r: { name: { zh: 'r' }, desc: { zh: 'd' }, icon: 'Box', family: 'value', inputs: [], settings: [start], compute: '$start' } } }, OPS)
+  assert.deepEqual(defaultsOf('r'), { start: 0 })
+  assert.equal(PARTS.r.eval({}, { params: {} }, {}), null)
+  assert.equal(PARTS.r.eval({}, { params: { start: '3' } }, {}), 3)
+})
