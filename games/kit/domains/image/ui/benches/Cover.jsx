@@ -4,6 +4,7 @@ import { pixelUrl } from './matchDraw.js'
 import { L, tr } from '../../../../shell/i18n.js'
 import { clientToSvg, svgToClient } from '../../../../views/svg-point.js'
 import { useElementSize } from '../../../../views/useElementSize.js'
+import { usePointerSession } from '../../../../views/usePointerSession.js'
 import './match.css'
 
 // The book-cover bench's pictures (bench model `cover`): pair a point on the cover with the same point in the photo
@@ -33,7 +34,7 @@ export function CoverPairs({ ctx, children }) {
   const stage = useRef(null)
   const links = useRef(null)
   const draft = useRef(null)
-  const gesture = useRef(null)
+  const { track } = usePointerSession()
   const stageSize = useElementSize(stage, 'content')
 
   const { fit } = ctx.view
@@ -88,6 +89,8 @@ export function CoverPairs({ ctx, children }) {
   }
   const coverAt = (event) => nearest(m.coverPoints, imageXY, clientToSvg(coverSvg.current, event), Z.snapCover)
   const photoAt = (event) => nearest(m.photoPoints, (p) => imageXY(p.at), clientToSvg(photoSvg.current, event), Z.snapPhoto)
+  const latest = useRef(null)
+  latest.current = { addPair, photoAt }
 
   // The dashed line that follows a drag, drawn straight into the overlay (no re-render per move).
   const drawDraft = (from, event) => {
@@ -109,7 +112,7 @@ export function CoverPairs({ ctx, children }) {
   // point pairs them (a drag); releasing anywhere else keeps the point armed for a tap on the photo.
   const pressCover = (event) => {
     event.stopPropagation()
-    if (event.button !== 0 || gesture.current) return
+    if (event.button !== 0 || !event.isPrimary) return
     const cover = coverAt(event)
     if (cover < 0) {
       setArmed(null)
@@ -121,31 +124,24 @@ export function CoverPairs({ ctx, children }) {
       return
     }
     event.preventDefault()
-    gesture.current = {
-      id: event.pointerId, cover,
-      wasArmed: armed?.side === 'cover' && armed.index === cover,
-      start: [event.clientX, event.clientY],
-      from: svgToClient(coverSvg.current, imageXY(m.coverPoints[cover])),
-    }
-    event.currentTarget.setPointerCapture(event.pointerId)
+    const from = svgToClient(coverSvg.current, imageXY(m.coverPoints[cover]))
+    const { clientX, clientY } = event
+    track(event, {
+      move: (next) => drawDraft(from, next),
+      finish(commit, release) {
+        drawDraft(from, null)
+        if (!commit) {
+          setArmed(armed)
+          return
+        }
+        const target = latest.current.photoAt(release)
+        const tap = Math.hypot(release.clientX - clientX, release.clientY - clientY) <= 6
+        if (target >= 0) latest.current.addPair(cover, target)
+        if (target >= 0 || tap && armed?.side === 'cover' && armed.index === cover) setArmed(null)
+      },
+      escape: true,
+    })
     setArmed({ side: 'cover', index: cover })
-  }
-  const moveCover = (event) => {
-    if (gesture.current?.id === event.pointerId) drawDraft(gesture.current.from, event)
-  }
-  const dropCover = (event) => {
-    const active = gesture.current
-    if (active?.id !== event.pointerId) return
-    gesture.current = null
-    drawDraft(active.from, null)
-    const moved = Math.hypot(event.clientX - active.start[0], event.clientY - active.start[1]) > 6
-    const target = event.type === 'pointerup' ? photoAt(event) : -1
-    if (target >= 0) {
-      addPair(active.cover, target)
-      setArmed(null)
-    } else if (!moved && active.wasArmed) {
-      setArmed(null)
-    }
   }
 
   // Tap on the photo: pair with the armed cover point, or arm the photo point and wait for the cover.
@@ -198,7 +194,7 @@ export function CoverPairs({ ctx, children }) {
           <figure className="mb-cover-fig">
             <span className="bk-label">{tr('封面')}</span>
             <svg ref={coverSvg} className="mb-svg mb-drag" viewBox={`${-PAD} ${-PAD} ${cw + 2 * PAD} ${ch + 2 * PAD}`} role="img" aria-label={tr('封面')}
-              onPointerDown={pressCover} onPointerMove={moveCover} onPointerUp={dropCover} onPointerCancel={dropCover} onLostPointerCapture={dropCover}>
+              onPointerDown={pressCover}>
               <rect className="mb-hit" x={-PAD} y={-PAD} width={cw + 2 * PAD} height={ch + 2 * PAD} />
               <image className="mb-pixels" href={coverUrl} x={0} y={0} width={cw} height={ch} preserveAspectRatio="none" />
               <rect className="mb-frame" x={0} y={0} width={cw} height={ch} />

@@ -9,15 +9,15 @@ test('a pointer session ignores other pointers and finishes once', (t) => {
   globalThis.window = target
   t.after(() => { delete globalThis.window })
   const events = []
-  const cancel = trackPointer(4, { move: ({ x }) => events.push(x), finish: (commit) => events.push(commit) })
+  const cancel = trackPointer(4, { move: ({ x }) => events.push(x), finish: (commit, release) => events.push(commit, release.x) })
   emit(target, 'pointermove', { pointerId: 9, x: 100 })
   emit(target, 'pointercancel', { pointerId: 9 })
   emit(target, 'pointerup', { pointerId: 9 })
   emit(target, 'pointermove', { pointerId: 4, x: 12 })
-  emit(target, 'pointerup', { pointerId: 4 })
+  emit(target, 'pointerup', { pointerId: 4, x: 15 })
   emit(target, 'pointermove', { pointerId: 4, x: 13 })
   cancel()
-  assert.deepEqual(events, [12, true])
+  assert.deepEqual(events, [12, true, 15])
 })
 
 test('Escape, pointer cancellation, blur and disposal end without committing', (t) => {

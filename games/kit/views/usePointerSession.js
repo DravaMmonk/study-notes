@@ -10,9 +10,9 @@ export function usePointerSession() {
     cancel()
     active.current = trackPointer(event.pointerId, {
       move, escape,
-      finish(commit) {
+      finish(commit, release) {
         active.current = null
-        finish(commit)
+        finish?.(commit, release)
       },
     })
   }

@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { GridPicture } from '../grid/GridView.jsx'
+import { usePointerSession } from '../usePointerSession.js'
 import Plot from './Plot.jsx'
 import { rowOf } from './range.js'
 
@@ -13,27 +14,23 @@ export default function Profile({ value, want, tolerance = 0, card = false }) {
   const shown = value ?? want
   const [row, setRow] = useState(Math.floor((shown.h - 1) / 2))
   const y = Math.min(shown.h - 1, row)
-  const dragging = useRef(false)
+  const { track } = usePointerSession()
   const scale = Math.max(2, Math.floor((card ? 96 : 220) / Math.max(shown.w, shown.h)))
-  const pick = (event) => {
-    const box = event.currentTarget.getBoundingClientRect()
-    const at = Math.floor(((event.clientY - box.top) / box.height) * shown.h)
-    if (at >= 0 && at < shown.h) setRow(at)
-  }
-  const drag = card ? {} : {
-    onPointerDown: (event) => {
-      event.stopPropagation()
-      dragging.current = true
-      try { event.currentTarget.setPointerCapture(event.pointerId) } catch { /* a synthetic pointer: picking still works */ }
-      pick(event)
-    },
-    onPointerMove: (event) => dragging.current && pick(event),
-    onPointerUp: () => { dragging.current = false },
-    onPointerCancel: () => { dragging.current = false },
+  const drag = (event) => {
+    if (event.button !== 0 || !event.isPrimary) return
+    event.stopPropagation()
+    const picture = event.currentTarget
+    const pick = ({ clientY }) => {
+      const box = picture.getBoundingClientRect()
+      const at = Math.floor(((clientY - box.top) / box.height) * shown.h)
+      if (at >= 0 && at < shown.h) setRow(at)
+    }
+    pick(event)
+    track(event, { move: pick, escape: true })
   }
   return (
     <div className={`pf ${card ? 'is-card' : ''}`}>
-      <div className={`pf-picture ${card ? '' : 'is-draggable'}`} {...drag}>
+      <div className={`pf-picture ${card ? '' : 'is-draggable'}`} onPointerDown={card ? undefined : drag}>
         <GridPicture value={shown} scale={scale} />
         <span className="pf-line" style={{ top: `${((y + 0.5) / shown.h) * 100}%` }} aria-hidden="true" />
         {!card && <span className="pf-tag" style={{ top: `${((y + 0.5) / shown.h) * 100}%` }}>y = {y}</span>}

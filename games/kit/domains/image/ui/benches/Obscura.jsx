@@ -2,6 +2,7 @@ import { useId, useMemo, useRef, useState } from 'react'
 import { goalOf, limitOf } from '../../../../engine/bench.js'
 import { tr } from '../../../../shell/i18n.js'
 import { clientToSvg } from '../../../../views/svg-point.js'
+import { usePointerSession } from '../../../../views/usePointerSession.js'
 import { useTween } from '../../../../views/useTween.js'
 import './optics.css'
 
@@ -40,23 +41,23 @@ export function ObscuraSide({ ctx }) {
   const L = ctx.phone ? PHONE_LAYOUT : DESK
   const [dragging, setDragging] = useState(null) // 'plate' | 'screen' while a pointer holds one
   const svg = useRef(null)
-  const drag = useRef(null)
+  const { track } = usePointerSession()
   const v = useShown(ctx, Boolean(dragging))
 
   const move = (part, x) => ctx.set(m.clamp(part === 'plate' ? { ...state, Z: x, s: Math.max(state.s, x + m.GAP) } : { ...state, s: x }))
+  const latestMove = useRef(move)
+  latestMove.current = move
   const worldX = (event) => clientToSvg(svg.current, event)[0]
   const grab = (part) => (event) => {
+    if (event.button !== 0 || !event.isPrimary) return
     event.preventDefault()
-    event.currentTarget.setPointerCapture(event.pointerId)
-    drag.current = { part, offset: worldX(event) - (part === 'plate' ? state.Z : state.s) }
+    const offset = worldX(event) - (part === 'plate' ? state.Z : state.s)
+    track(event, {
+      move: (next) => latestMove.current(part, worldX(next) - offset),
+      finish: () => setDragging(null),
+      escape: true,
+    })
     setDragging(part)
-  }
-  const slide = (event) => {
-    if (drag.current) move(drag.current.part, worldX(event) - drag.current.offset)
-  }
-  const drop = () => {
-    drag.current = null
-    setDragging(null)
   }
   const nudge = (part) => (event) => {
     const step = { ArrowLeft: -1, ArrowRight: 1, ArrowDown: -1, ArrowUp: 1 }[event.key]
@@ -89,7 +90,7 @@ export function ObscuraSide({ ctx }) {
 
   return (
     <figure className="optics-figure">
-      <svg ref={svg} className="optics-drag" viewBox={viewBox} style={{ '--fs': `${fs}px` }} role="img" aria-label={tr('暗箱侧视图')} onPointerMove={slide} onPointerUp={drop} onPointerCancel={drop}>
+      <svg ref={svg} className="optics-drag" viewBox={viewBox} style={{ '--fs': `${fs}px` }} role="img" aria-label={tr('暗箱侧视图')}>
         <line className="optics-axis" x1={L.x0 + 20} y1={0} x2={m.TABLE + 40} y2={0} />
         <rect className="optics-table" x={-40} y={tableTop} width={m.TABLE + 70} height={9 * k} rx={2} />
         {/* the object */}
