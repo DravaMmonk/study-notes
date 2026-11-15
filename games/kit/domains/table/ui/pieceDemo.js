@@ -103,7 +103,7 @@ export function pieceDemo(model, tasks, borrow, key) {
   const bench = benchFor(model, tasks, borrow, key)
   if (!bench) return null
   const { L, s, V, robot, runs, circuit, lit, avail, ports, focus, built, height } = bench
-  const { def, hasValue, valueDefault } = model
+  const { def, hasValue, valueDefault, valueOptions } = model
   const terms = { sensors: V.sensors, outs: V.outs, ports }
   const tagsOf = (node) => hasValue(node.type) ? `= ${node.params?.value ?? valueDefault(node.type)}` : def(node.type).tag
 
@@ -159,7 +159,8 @@ export function pieceDemo(model, tasks, borrow, key) {
       const given = isGiven(type)
       const value = tap ? inputs[id] ?? null : valueOf(report, id)
       if (tap) controls.push({ key: `${id}-${test}-${cell}`, kind: V.sensors[id].type, value, shown: signal(value), change: (next) => setInput(id, next) })
-      if (hasValue(type)) controls.push(choice('value', T('数值', 'Value'), (L.consts ?? [0, 1, 2, 3, 4, 5]).map((n) => [n, String(n)]), params?.value ?? valueDefault(type), (value) => change(id, { params: { ...params, value } })))
+      const values = valueOptions(type, L)
+      if (values) controls.push(choice('value', T('数值', 'Value'), values.map((n) => [n, String(n)]), params?.value ?? valueDefault(type), (value) => change(id, { params: { ...params, value } })))
       if (MERGES.includes(type)) controls.push(choice('model', T('操作'), MERGES.map((other) => [other, def(other).tag]), type, (next) => change(id, { type: next })))
       return {
         value: tap ? signal(value) : value,

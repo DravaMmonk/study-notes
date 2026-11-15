@@ -24,6 +24,7 @@ const zip = op => ([a, b]) => {
 };
 const SKIP = ['「—」不参与；全是「—」时，输出「—」。', '“—” is left out; if every input is “—”, the output is “—”.'];
 const MERGER = T('汇合器', 'Merger');
+const CONSTANT_VALUES = [0, 1, 2, 3, 4, 5];
 
 /** The primitives: what a course may start from (game.json primitives) and a level bring in (adds). */
 export const PRIMITIVES = {
@@ -69,6 +70,7 @@ export const isGiven = type => isCard(type) || type === 'port' || type === 'tap'
  *   def(type)          what a part is (null: no such part)
  *   hasValue(type)     whether it carries a number set on its card: a constant, or a built part with a setting
  *   valueDefault(type) the number it starts with when it is placed
+ *   valueOptions(type, task) the ordered choices for that number on this task, or null when the part has no setting
  */
 export function partsOf(built) {
   const def = type => {
@@ -78,5 +80,6 @@ export function partsOf(built) {
   };
   const hasValue = type => type === 'const' || built[type]?.setting !== undefined;
   const valueDefault = type => (type === 'const' ? 1 : built[type]?.setting);
-  return { built, def, hasValue, valueDefault };
+  const valueOptions = (type, task) => hasValue(type) ? (task.consts ?? CONSTANT_VALUES) : null;
+  return { built, def, hasValue, valueDefault, valueOptions };
 }

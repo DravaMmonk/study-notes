@@ -18,7 +18,6 @@ import { diagnosisOf, guideAt } from './items/conditions.js'
 import { tr } from './lang.js'
 import { playOf } from './plays.js'
 
-const CONSTS = [0, 1, 2, 3, 4, 5]
 const str = (v) => (v === null || v === undefined ? '' : String(v))
 
 export const play = {
@@ -41,7 +40,10 @@ const circuit = circuitPlay({
     return { name: d.tag && type !== 'const' && !d.built ? `${str(d.name)} · ${str(d.tag)}` : str(d.name), desc: str(d.desc) }
   },
   portLabel: (ctx, type, port) => str(ctx.game.table.model.def(type).labels?.[+port]) || null,
-  settings: (ctx, type) => (ctx.game.table.model.def(type).params?.includes('value') ? [{ key: 'value', values: (ctx.level.source.consts ?? CONSTS).map(String) }] : []),
+  settings: ({ game, level }, type) => {
+    const values = game.table.model.valueOptions(type, level.source)
+    return values ? [{ key: 'value', values: values.map(String) }] : []
+  },
   given: (ctx) => {
     const s = ctx.level.source
     const V = WORLDS[s.world]
