@@ -1,28 +1,11 @@
-import TreeEditor from '../../strip/TreeEditor.jsx'
 import { checkAction } from '../useCheckOnce.js'
 import RunDock from '../RunDock.jsx'
 import Verdict from '../Verdict.jsx'
 import { L } from '../i18n.js'
 import NamedLines from '../NamedLines.jsx'
-import RuleRows from '../RuleRows.jsx'
 import PlayLayout from './PlayLayout.jsx'
+import TreeRows from './TreeRows.jsx'
 import { inspectWork, useCheckedWork } from './useWork.js'
-
-/** Rule rows whose editable slots are tree works. The resource reads and writes their values. */
-export function TreeRows({ editor, ...rows }) {
-  const adapt = editor && {
-    close: editor.close,
-    title: (k, j) => {
-      const { title, equation } = editor.slot(k, j)
-      return equation ? `${L(title)} =` : L(title)
-    },
-    render: (k, j) => {
-      const { title: _, equation: _equation, ...slot } = editor.slot(k, j)
-      return <div className="ks-tree-box"><TreeEditor key={slot.scope} {...slot} /></div>
-    },
-  }
-  return <RuleRows {...rows} editor={adapt} />
-}
 
 export default function Rows({ screen, resource, play }) {
   const { level: entry } = screen

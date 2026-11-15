@@ -21,7 +21,7 @@
 // show the declared sentence gives just what its ways in give: no more, no less. A specification is tested on cases,
 // not proved.
 //
-// Checking by the diagram (`play`, ../../shell/useBoardCases.js): the level's test cases are boards
+// Checking by the diagram (`play`, ../../shell/plays/BoardChecks.jsx): the level's test cases are boards
 // (`boards: [{ board }]`), each someone's declaration that is wrong. In 'audit' they are locked and the player writes
 // the test cases instead (judgeCases), in the same form as the level's. Each expectation is judged by the level's
 // reference answer, so a case that says what the requirement does not mean is wrong; a board passes when every
@@ -299,7 +299,7 @@ export function propositionsOf(level) {
 }
 
 /**
- * The player's cases (tests, as the level's) against the level's boards (the play 'audit', ../../shell/useBoardCases.js):
+ * The player's cases (tests, as the level's) against the level's boards (the play 'audit', ../../shell/plays/BoardChecks.jsx):
  * { rows: [{ right, wants, derived: [per board] }], caught: [k of the case that catches each board, or -1], wrong: why the cases
  * themselves do not do (none yet, one not filled in, or an expectation the requirement does not mean), or null; judge(b): why
  * board b passes, or null }. A row is right when its expectation is what the reference answer gives. What a board must do
