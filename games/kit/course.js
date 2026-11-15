@@ -404,7 +404,8 @@ const OPTIONAL = ['intro', 'step', 'finale', 'challenge']
 /**
  * What a level shows of the parts it holds, so that a level with many parts does not leave the player lost: only the
  * ideas its reference answer uses (`needed`, by concept). Everything else is folded away, still usable. With no
- * reference to go by, or one built from parts the player cannot hold yet, every part shows. Returns { shown, folded }.
+ * reference to go by, or one built from parts the player cannot hold yet, every part shows. Returns { shown, folded, types }, with `types` listing the shown
+ * types followed by the folded ones.
  */
 export function offer(course, level, flags) {
   const all = usable(course, level, flags)
@@ -417,7 +418,9 @@ export function offer(course, level, flags) {
   const parts = course.needed(level)?.filter(isPart)
   const ideas = parts && parts.every((p) => held.has(idea(p))) ? new Set(parts.map(idea)) : null
   const shows = (p) => !ideas || ideas.has(idea(p))
-  return { shown: all.filter(shows), folded: all.filter((p) => !shows(p)) }
+  const shown = all.filter(shows)
+  const folded = all.filter((p) => !shows(p))
+  return { shown, folded, types: [...shown, ...folded] }
 }
 
 /**

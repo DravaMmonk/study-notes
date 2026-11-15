@@ -4,10 +4,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { plainBoard } from '../../engine/contract.js';
+import { readContent } from '../../engine/content-node.js';
+import { readLines } from '../../circuit/text.js';
+import { tableCourse } from './course.js';
 import { fitted, portsProblem } from './model/board.js';
 import { modelOf } from './model/run.js';
 import { partsOf } from './model/parts.js';
-import { robotBlueprint } from './model/wiring.js';
+import { robotBlueprint, wiring } from './model/wiring.js';
+import { WORLDS } from './model/worlds.js';
 import { inspectRobotCase, robotConstraint } from './model/verdict.js';
 import { validate } from './validate.js';
 
@@ -60,6 +64,23 @@ test('robot blueprints refuse a second wire, sink sources and unavailable sensor
   const withUnused = blueprint.read(['view[picks=[left, up]]()', 'cell <- view.up']);
   assert.deepEqual(withUnused.nodes[0].params.picks, ['up', 'left']);
   assert.deepEqual(blueprint.read(blueprint.write(withUnused)), withUnused);
+});
+
+test('a grouped merger stays available to blueprints under each unlocked model', () => {
+  const content = readContent('starter', import.meta.dirname);
+  content.primitives = [...content.primitives, 'mmin'];
+  const merge = content.levels.find((level) => level.id === 'merge');
+  merge.adds = [...merge.adds, 'mmin'];
+  const course = tableCourse(content);
+  const task = course.played.get('merge')[0];
+  const { shown, folded, types } = course.offerIn(task, new Set());
+  assert.deepEqual([...shown, ...folded].filter((type) => type === 'msum' || type === 'mmin'), ['msum']);
+  assert.deepEqual(types.filter((type) => type === 'msum' || type === 'mmin'), ['msum', 'mmin']);
+  const start = fitted({ nodes: [], wires: [] }, task.given);
+  const parts = wiring(course.model, { ...WORLDS[task.world], offers: task.given.offers });
+  const board = readLines(['m = mmin(view.up, view.left)', 'cell <- m'], start, parts, types);
+  assert.equal(board.nodes.find((node) => node.id === 'm')?.type, 'mmin');
+  assert.throws(() => readLines(['m = mmax(view.up)'], start, parts, types), (error) => error.line === 1 && /not available/.test(error.en));
 });
 
 test('a fitted board reads each sensor on the card that offers it, and drops what its task lacks', () => {
@@ -158,7 +179,6 @@ test('a built part runs the board its level’s last task was passed with, when 
 
 /** Every game on the table domain, and the starter a new one is copied from: [id, dir]. */
 test('reading a course never writes into its content', async () => {
-  const { readContent } = await import('../../engine/content-node.js');
   const { deepFreeze } = await import('../../engine/content.js');
   const { default: domain } = await import('./domain.js');
   const spec = domain.spec(deepFreeze(readContent('starter', import.meta.dirname)));

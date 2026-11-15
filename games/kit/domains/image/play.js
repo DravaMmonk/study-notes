@@ -3,10 +3,9 @@
 // and every test's pictures (each input and the output it should become) — and an attempt run as the Run button runs
 // it: every test, then the level's budget (its constraint), the hidden tests with it.
 //
-// A picture is drawn as numbers, a row a line (16×16 values from 0 to 1 for most; a waveform is one row, a reading
-// one number): what the test strip draws as pixels. The probe levels (reading pixels with the pointer) and the
-// parameter benches are not covered: neither takes a board.
-import { circuitPlay } from '../../engine/play/circuit.js'
+// Pictures are written as rows of grey numbers or RGB triples. Probes and parameter benches do not take boards.
+import { circuitPlay, playBoard } from '../../engine/play/circuit.js'
+import { gridText } from '../../engine/grid.js'
 import { runTestGroups, splitTests, TEST_WORDS } from '../../engine/tests.js'
 import { plays } from './plays.js'
 import { INPUT_LABELS, descriptionOf } from './words.js'
@@ -14,31 +13,11 @@ import { T } from '../../shell/i18n.js'
 
 const pick = (v, lang) => (v && typeof v === 'object' ? v[lang] ?? v.en ?? v.zh : v)
 
-/** A number as short as it reads: 0, 1, .5, -.25. */
-const short = (v) => {
-  if (!Number.isFinite(v)) return String(v)
-  const s = String(Math.round(v * 100) / 100)
-  return s.replace(/^(-?)0\./, '$1.')
-}
-/** A picture as rows of numbers. */
-const picture = (img) => {
-  if (!img?.data) return '—'
-  if (img.w * img.h === 1) return short(img.data[0])
-  const rows = []
-  for (let y = 0; y < img.h; y++) rows.push(Array.from({ length: img.w }, (_, x) => short(img.data[y * img.w + x])).join(' '))
-  return `${img.w}×${img.h}\n${rows.join('\n')}`
-}
-
 const revealed = ({ solved }) => solved && plays.graph.checks === 'afterPass'
 const testsOf = (ctx) => splitTests(ctx.level.source, revealed(ctx))
 
 const circuit = circuitPlay({
-  board: ({ game, level: { source: task }, progress, flags }) => {
-    const view = game.circuit.forTask(task)
-    view.syncOwn(progress.built, progress)
-    const { shown, folded } = view.offerIn(task, flags)
-    return { start: view.opening(task, progress.built, undefined, progress), parts: view.board.wiring(task, view), types: [...shown, ...folded] }
-  },
+  board: playBoard,
   // The score under the board reads a circuit's cost live as parts go on it, so a part's own cost is something the
   // player sees: it is written beside what the part does.
   part: ({ game }, type) => {
@@ -64,7 +43,7 @@ const circuit = circuitPlay({
   },
   tests: (ctx) => testsOf(ctx).shown.map((t) => ({
     label: t.label,
-    text: [...Object.entries(t.inputs).map(([name, img]) => `${name}:\n${picture(img)}`), ...Object.entries(t.expected).map(([name, img]) => `${name} (target):\n${picture(img)}`)].join('\n'),
+    text: [...Object.entries(t.inputs).map(([name, img]) => `${name}:\n${gridText(img)}`), ...Object.entries(t.expected).map(([name, img]) => `${name} (target):\n${gridText(img)}`)].join('\n'),
   })),
   notes: (ctx) => {
     const { hiddenCount } = testsOf(ctx)

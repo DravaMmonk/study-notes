@@ -1,5 +1,5 @@
 // The table domain's play hook for a blind session (../../engine/play/): a circuit task of 《状态之图》 as its screen
-// (ui/modes/Circuit.jsx) shows it, in words — what the robot can read on the task's two input cards, the parts the
+// (../../shell/CircuitScreen.jsx) shows it, in words — what the robot can read on the task's two input cards, the parts the
 // task holds, each test's table — and an attempt judged as a run judges it (model/verdict.js): test by test, stopping
 // at the first that fails, with the fail dialog's words and its hint (the level's diagnosis of the board, else the
 // task's hints by how many runs have failed). A task whose failure is its lesson (`onFail`) passes when it fails, and
@@ -10,10 +10,10 @@
 // link, pack, policy, breach) are not covered: each is a screen of its own the player works by tapping cells.
 //
 // Text here is in the shell's language (lang.js tr), which a blind session chooses before the game loads.
-import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
+import { circuitPlay, playBoard, untilFail } from '../../engine/play/circuit.js'
 import { WORLDS } from './model/worlds.js'
 import { inspectRobotCase, robotConstraint, testLabel, whyFailed } from './model/verdict.js'
-import { fromGraph, wiring } from './model/wiring.js'
+import { fromGraph } from './model/wiring.js'
 import { diagnosisOf, guideAt } from './items/conditions.js'
 import { tr } from './lang.js'
 import { playOf } from './plays.js'
@@ -21,26 +21,20 @@ import { playOf } from './plays.js'
 const CONSTS = [0, 1, 2, 3, 4, 5]
 const str = (v) => (v === null || v === undefined ? '' : String(v))
 
-/** The board the task opens on (course.js opening): carried from an earlier level or from the task before, else empty. */
-const opening = (ctx) => ctx.game.table.opening(ctx.level.source, ctx.progress)
-
 export const play = {
   open(ctx) {
     const s = ctx.level.source
     if (playOf(s).editor !== 'circuit') return { covered: false, why: { zh: '手动玩法（在表上点格子），harness 只支持电路关', en: 'a hand play (tapping cells on the table); the harness covers circuit levels' } }
-    const tip = guideAt(s.guide, opening(ctx)) ?? [s.ask, s.tip].filter(Boolean).map(str).join(' ')
-    return { ...circuit.open(ctx), brief: { text: [s.mission.goal, s.mission.how].map(str).join('\n'), tip: tip || null, hint: s.hints ?? null } }
+    return circuit.open(ctx)
   },
   attempt: (ctx, text) => circuit.attempt(ctx, text),
 }
 
 const circuit = circuitPlay({
-  board: (ctx) => {
-    ctx.game.table.syncOwn(ctx.progress.built)
-    const s = ctx.level.source
-    const V = WORLDS[s.world]
-    const allowed = ctx.game.table.usableIn(s, ctx.flags)
-    return { start: opening(ctx), parts: wiring(ctx.game.table.model, { sensors: V.sensors, outs: V.outs, offers: s.given.offers }), types: s.palette.filter((k) => allowed.has(k)) }
+  board: playBoard,
+  brief: ({ level: { source: task } }, start) => {
+    const tip = guideAt(task.guide, start) ?? [task.ask, task.tip].filter(Boolean).map(str).join(' ')
+    return { text: [task.mission.goal, task.mission.how].map(str).join('\n'), tip: tip || null, hint: task.hints ?? null }
   },
   part: (ctx, type) => {
     const d = ctx.game.table.model.def(type)

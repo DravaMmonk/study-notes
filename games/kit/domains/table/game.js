@@ -116,6 +116,6 @@ export default function tableGame(content) {
     },
   })
   game.table = table
-  game.robotCircuits = robotCircuits(table)
+  game.circuit = robotCircuits(table)
   return game
 }

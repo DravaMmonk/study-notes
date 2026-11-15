@@ -28,7 +28,8 @@ export function pixel(grid, x, y) {
 export const display = (v) => v > 0 ? Math.min(1, v) : 0
 
 /** A cell's number as a grid writes it in the cell: up to two decimals (./number.js). */
-export const cellNumber = (v) => numberText(v, 2)
+const CELL_DIGITS = 2
+export const cellNumber = (v) => numberText(v, CELL_DIGITS)
 
 /** Read the cell that contains the selected cell's centre in relative grid coordinates. */
 export function readCell({ x, y }, source, target) {
@@ -37,7 +38,23 @@ export function readCell({ x, y }, source, target) {
   return { x: col, y: row, value: pixel(target, col, row) }
 }
 
-/** A full reading of a grey or RGB cell. */
-export function pixelText(value, digits = 4) {
-  return Array.isArray(value) ? value.map((v, k) => `${'RGB'[k]} ${numberText(v, digits)}`).join(' · ') : numberText(value, digits)
+/** Channel labels for a numbered cell or a full reading of it. */
+export function pixelLabels(value, digits = CELL_DIGITS) {
+  return Array.isArray(value) ? value.map((v, k) => `${'RGB'[k]} ${numberText(v, digits)}`) : [numberText(value, digits)]
+}
+
+export const pixelText = (value, digits = 4) => pixelLabels(value, digits).join(' · ')
+
+/** A grid as rows of numbers, with each colour pixel an ordered RGB triple. */
+export function gridText(grid) {
+  if (!isGrid(grid)) return '—'
+  const { w, h } = grid
+  const colour = grid.c === 3
+  if (!colour && w === 1 && h === 1) return cellNumber(pixel(grid, 0, 0))
+  const cell = (x, y) => {
+    const value = pixel(grid, x, y)
+    return Array.isArray(value) ? `(${value.map(cellNumber).join(',')})` : cellNumber(value)
+  }
+  const rows = Array.from({ length: h }, (_, y) => Array.from({ length: w }, (_, x) => cell(x, y)).join(' '))
+  return [`${w}×${h}${colour ? ' · RGB' : ''}`, ...rows].join('\n')
 }

@@ -171,7 +171,7 @@ test('a level holds, of the parts met before it, those its tray lists, in the tr
   assert.deepEqual(reach(course, { id: '5' }), ['c', 'x', 'd'])
   // The gates come back on the next truth circuit, though proof levels came in between.
   assert.deepEqual(reach(course, { id: '6' }), ['b', 'a'])
-  assert.deepEqual(offer(course, { id: '6' }, new Set(['x'])), { shown: ['a'], folded: ['b'] })
+  assert.deepEqual(offer(course, { id: '6' }, new Set(['x'])), { shown: ['a'], folded: ['b'], types: ['a', 'b'] })
   assert.deepEqual(audit(course).filter((f) => f.rule.includes('tray')), [])
 })
 

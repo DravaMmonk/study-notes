@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { cellNumber, display, pixel } from '../../engine/grid.js'
+import { display, pixel, pixelLabels } from '../../engine/grid.js'
 import { paintPixels } from '../canvas.js'
 import { AXIS, numberSize } from './layout.js'
 
@@ -27,10 +27,14 @@ export default function GridView({ value, numbers = false, axes = false, grid = 
     for (let x = 0; x < w; x++) {
       const p = pixel(value, x, y)
       const { fill, light } = rgb(p, range?.lo ?? 0, range?.hi ?? 1)
+      const labels = numbers ? pixelLabels(p) : null
+      const longest = labels?.reduce((a, b) => b.length > a.length ? b : a, '')
       cells.push(
         <g key={`${x},${y}`} transform={`translate(${off + x * cell} ${off + y * cell})`} onClick={onPick ? (e) => onPick(x, y, e) : undefined} onPointerEnter={onHover ? (e) => { if (e.pointerType === 'mouse') onHover(x, y, e) } : undefined} role={onPick ? 'button' : undefined} tabIndex={onPick ? 0 : undefined} aria-label={onPick ? cellLabel?.(x, y, p) ?? `(${x}, ${y})` : undefined} onKeyDown={onPick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(x, y, e) } } : undefined} className={[onPick ? 'gv-pick' : '',cellClass?.(x,y) ?? ''].filter(Boolean).join(' ') || undefined}>
           <rect width={cell} height={cell} fill={fill} />
-          {numbers && <text x={cell / 2} y={cell / 2} className={`gv-num ${light ? 'is-dark' : 'is-light'}`} style={{ fontSize: numberSize(Array.isArray(p) ? `R ${p.map(cellNumber).reduce((a, b) => (b.length > a.length ? b : a))}` : cellNumber(p), cell) }}>{Array.isArray(p) ? p.map((v, k) => <tspan key={k} x={cell / 2} y={cell / 2 + (k - 1) * 14}>{'RGB'[k]} {cellNumber(v)}</tspan>) : cellNumber(p)}</text>}
+          {labels && <text x={cell / 2} y={cell / 2} className={`gv-num ${light ? 'is-dark' : 'is-light'}`} style={{ fontSize: numberSize(longest, cell) }}>
+            {labels.length > 1 ? labels.map((label, k) => <tspan key={k} x={cell / 2} y={cell / 2 + (k - 1) * 14}>{label}</tspan>) : labels[0]}
+          </text>}
         </g>,
       )
     }

@@ -1,6 +1,6 @@
 import { holds } from '../../../course.js'
 import { blank, fitted, picksOf } from '../model/board.js'
-import { CARDS, isGiven, modelsOf } from '../model/parts.js'
+import { CARDS, isGiven } from '../model/parts.js'
 import { WORLDS } from '../model/worlds.js'
 import { outputsOf, withDesktopAnchors } from './board.js'
 import { restoreRobotBoard, wiring } from '../model/wiring.js'
@@ -12,8 +12,6 @@ export function termsOf(task) {
     ports: Object.fromEntries(task.ports.filter((port) => port.input).map((port) => [port.input, port])),
   }
 }
-
-const shelf = (types) => types.filter((type) => !modelsOf(type) || type === types.find((name) => modelsOf(type).includes(name)))
 
 /** The robot's circuits expose the same board and work operations as the other circuit plays. */
 export function robotCircuits(table) {
@@ -58,11 +56,7 @@ export function robotCircuits(table) {
         partOf: model.partOf,
         syncOwn: table.syncOwn,
         holdsIn: (_, flags) => holds(course, { id: task.id, task: task.task }, flags),
-        offerIn: (_, flags) => {
-          const { shown, folded } = table.offerIn(task, flags)
-          const usable = table.usableIn(task, flags)
-          return { shown: shelf(shown.filter((type) => usable.has(type))), folded: shelf(folded.filter((type) => usable.has(type))) }
-        },
+        offerIn: table.offerIn,
         opening: (_, _built, kept, progress) => withDesktopAnchors(restoreRobotBoard(model, task, kept) ?? table.opening(task, progress)),
         stageChain: () => [],
       })

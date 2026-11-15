@@ -121,6 +121,17 @@ test('image text play opens on the same valid inherited board as the editor', ()
   assert.equal(play.open(context(corrupt)).start, null)
 })
 
+test('image text play preserves the three channels of each pixel', () => {
+  const task = image.levelById.wide.tasks[0]
+  const rgb = { w: 2, h: 1, c: 3, data: new Float32Array([0.125, 0.25, 0.5, 1, 0, 0.75]) }
+  const output = { w: 1, h: 1, c: 3, data: [0, 0.5, 1] }
+  const source = { ...task, tests: [{ label: 'colour', inputs: { in: rgb }, expected: { out: output } }] }
+  const opened = play.open({
+    game: { image, circuit: imageBoards(image) }, level: { ...source, source }, flags: new Set(), progress: fresh(),
+  })
+  assert.equal(opened.tests[0].text, 'in:\n2×1 · RGB\n(0.13,0.25,0.5) (1,0,0.75)\nout (target):\n1×1 · RGB\n(0,0.5,1)')
+})
+
 test('a packed image trace and its test verdict share the evaluated output', () => {
   const task = image.levelById.use.tasks[0]
   const [run] = image.kit.runLevel(task, task.solution, { traced: true }).runs

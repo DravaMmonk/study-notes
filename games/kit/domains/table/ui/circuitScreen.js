@@ -14,7 +14,7 @@ const cards = Object.fromEntries(Object.entries({ ...PRIMITIVES, ...fixedCards }
 ]))
 
 export const robotScreenFor = ({ model }) => ({
-  course: (game) => game.robotCircuits,
+  course: (game) => game.circuit,
   cards,
   fresh: freshBoard,
   clearable: hasSensors,

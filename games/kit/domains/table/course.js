@@ -10,7 +10,7 @@ import { inheritedBoard } from '../../shell/progress.js';
 import { deepFreeze } from '../../engine/content.js';
 import { taskLevels } from '../../engine/tasks.js';
 import { trayIn } from '../../engine/trays.js';
-import { defineCourse, eraLevels, layout, offer, pathLevels, reach, usable } from '../../course.js';
+import { defineCourse, eraLevels, layout, offer, pathLevels, reach } from '../../course.js';
 import { T, hydrate, lazy, tr } from './lang.js';
 import { builtPieces, publications, settingsOf } from '../../engine/pieces.js';
 import { isGiven, modelsOf, partsOf } from './model/parts.js';
@@ -86,7 +86,7 @@ const isCircuit = T => T.mode === 'circuit';
 
 /**
  * The course of a table game's content (content.js assemble). Returns { LEVELS, played, REQUIRES, PLACE, TRACKS,
- * CHAPTERS, LABELS, PARTS, PRIMITIVES, course, model, run, syncOwn, opening, usableIn(L, flags), offerIn(L, flags),
+ * CHAPTERS, LABELS, PARTS, PRIMITIVES, course, model, run, syncOwn, opening, offerIn(L, flags),
  * blueprints, wrong }: LEVELS each level in play order with its chapter (`ch`) and its introduction; played its tasks
  * by level id, each the level with the task's fields over it (../../engine/tasks.js taskLevels) and, for a circuit
  * task, what its board is given, its palette, its reference (and naive) board read; model the board model of its parts
@@ -317,10 +317,15 @@ export function tableCourse(content) {
     return restoreRobotBoard(model, s, from) ?? fitted(blank(), s.given);
   };
 
-  /** The parts level L can really offer a player holding `flags` (the shell's: the unlocks of solved levels). */
-  const usableIn = (L, flags) => new Set(usable(course, { id: L.id }, flags));
-  /** Everything the player has for level L: what it shows, and what it folds away ({ shown, folded }). */
-  const offerIn = (L, flags) => offer(course, { id: L.id }, flags);
+  /** All usable types, with each switchable family shown as one tray item. */
+  const offerIn = (level, flags) => {
+    const { shown, folded, types } = offer(course, { id: level.id }, flags);
+    const first = (type) => {
+      const models = modelsOf(type);
+      return !models || type === types.find((name) => models.includes(name));
+    };
+    return { shown: shown.filter(first), folded: folded.filter(first), types };
+  };
 
-  return { LEVELS, played, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, model, run, syncOwn, opening, usableIn, offerIn, blueprints, wrong };
+  return { LEVELS, played, REQUIRES: plan.requires, PLACE: plan.place, TRACKS: plan.tracks, CHAPTERS, LABELS, PARTS, PRIMITIVES, course, model, run, syncOwn, opening, offerIn, blueprints, wrong };
 }

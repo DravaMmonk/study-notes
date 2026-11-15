@@ -14,6 +14,7 @@ import { failureText } from '../failure-text.js'
 //   part(ctx, type)     → { name, desc } when the tray words a part its own way (a family of models as one entry, say)
 //   settings?(ctx, type)→ [{ key, values?: [v], about? }] what can be set on a part, as its card offers it
 //   portLabel?(ctx, type, port) → what a part's card calls an input port, when its name is not its label
+//   brief?(ctx, start)  → the level brief, with guidance for the prepared opening board
 //   given?(ctx)         → text: what the board's given nodes stand for (inputs, outputs)
 //   tests(ctx)          → [{ label, text }] the visible tests, as the test strip shows them
 //   notes?(ctx)         → [text] what the test strip says beside the tests (how many hidden tests there are, say)
@@ -101,6 +102,14 @@ function givens(board) {
   return start.nodes.filter((n) => !placed(n)).map((n) => ({ id: n.id, role: parts.role(n), inputs: parts.inputs(n), outputs: outputsOf(parts, n).map((o) => o.key).filter((k) => k !== null), sets: parts.text?.sets?.(n) ?? [] }))
 }
 
+/** The same circuit view, opening work and usable types as the level screen. */
+export function playBoard({ game, level: { source: task }, progress, flags }) {
+  const view = game.circuit.forTask(task)
+  view.syncOwn(progress.built, progress)
+  const { types } = view.offerIn(task, flags)
+  return { start: view.opening(task, progress.built, undefined, progress), parts: view.board.wiring(task, view), types }
+}
+
 /** A play hook for a circuit domain (see the top of this file). */
 export function circuitPlay(hook) {
   return {
@@ -109,6 +118,7 @@ export function circuitPlay(hook) {
       const start = print(board.start, board.parts).split('\n').slice(1).join('\n')
       return {
         kind: 'circuit',
+        ...(hook.brief && { brief: hook.brief(ctx, board.start) }),
         given: hook.given?.(ctx) ?? null,
         nodes: givens(board),
         palette: palette(ctx, hook, board.parts, board.types),
@@ -162,12 +172,7 @@ export function tickPlay({ run, given, lanes, more = () => [], settings = {}, sh
     return [...rows.map(([name, cells]) => `${name.padEnd(head)}  ${cells.map((c) => c.padStart(width)).join(' ')}`), ...more(task, test, lang)].join('\n')
   }
   return circuitPlay({
-    board: ({ game, level, flags, progress }) => {
-      const own = game.circuit
-      own.syncOwn(progress.built)
-      const { shown, folded } = own.offerIn(level.source, flags)
-      return { start: own.opening(level.source, progress.built), parts: own.board.wiring(level.source, own), types: [...shown, ...folded] }
-    },
+    board: playBoard,
     key: ({ game }, type) => (game.circuit.BUILT[type] ? type : `part:${type}`),
     settings: ({ game }, type) => (game.circuit.BUILT[type] ? [] : game.defined?.of(type) ? definedSettings(game.defined.of(type)) : settings[type] ?? []),
     given: ({ level }) => given(level.source),
@@ -177,7 +182,7 @@ export function tickPlay({ run, given, lanes, more = () => [], settings = {}, sh
       return hiddenCount ? [words.note(hiddenCount)] : []
     },
     run: ({ game, level: { source: task }, solved }, board) => {
-      const { partOf } = game.circuit
+      const { partOf } = game.circuit.forTask(task)
       const { checked, hidden, pass } = runTestGroups(task, solved, (all) => run(all, board, partOf, { traced: false }))
       const tests = untilFail(checked.runs.map((r, k) => ({ label: label(k), pass: !failureOf(r), says: r.error ?? r.final ?? failureText(r.fail) })))
       return {
