@@ -1,5 +1,5 @@
 {
-  "title": { "en": "Assumption", "zh": "由假设得证" },
+  "title": { "en": "Among the givens", "zh": "由假设得证" },
   "adds": ["assumption"],
   "tray": "machine",
   "intro": [

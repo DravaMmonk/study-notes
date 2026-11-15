@@ -1,5 +1,5 @@
 {
-  "title": { "en": "Backtracking search", "zh": "回溯搜索" },
+  "title": { "en": "Search until done", "zh": "回溯搜索" },
   "adds": ["search"],
   "tray": "machine",
   "intro": [

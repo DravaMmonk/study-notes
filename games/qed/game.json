@@ -658,7 +658,7 @@
           "parallel": [
             {
               "id": "backward",
-              "title": { "en": "Apply a rule backwards", "zh": "逆用规则" },
+              "title": { "en": "Rules backwards", "zh": "逆用规则" },
               "levels": ["r-rule", "r-assumption", "r-subgoals", "r-meta", "r-lemma", "r-elim", "r-cases", "r-false"]
             },
             {

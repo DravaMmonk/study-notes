@@ -26,7 +26,7 @@
       "want": "becomes",
       "inputs": [
         { "name": "in", "label": { "en": "Goal", "zh": "目标" } },
-        { "name": "rules", "label": { "en": "Rule", "zh": "规则" } }
+        { "name": "rules", "label": { "en": "Rules", "zh": "规则" } }
       ],
       "tests": [
         {

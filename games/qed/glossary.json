@@ -409,7 +409,7 @@
     {
       "id": "assumption",
       "group": "proof",
-      "title": { "en": "Assume", "zh": "假设" },
+      "title": { "en": "assumption", "zh": "假设" },
       "at": "assume",
       "body": [
         {
