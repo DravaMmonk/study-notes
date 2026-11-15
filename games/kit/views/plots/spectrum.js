@@ -2,6 +2,19 @@
 // in the middle — along a row (or each of two), each frequency's amplitude |F| / n; across a picture, log(1 + |F|)
 // scaled by the largest but the mean's, so faint waves still show.
 
+import { relativeIndex } from '../../engine/grid.js'
+
+export const frequency = (index, size) => index - Math.floor(size / 2)
+
+/** Read the same signed frequency bin, or the matching row for row-wise spectra. */
+export function readFrequency(point, grid) {
+  const rows = point.mode === 'spectrum-rows'
+  const x = frequency(point.x, point.source.w) + Math.floor(grid.w / 2)
+  const y = rows ? relativeIndex(point.y, point.source.h, grid.h)
+    : frequency(point.y, point.source.h) + Math.floor(grid.h / 2)
+  return x >= 0 && x < grid.w && y >= 0 && y < grid.h ? grid.data[y * grid.w + x] : undefined
+}
+
 const CACHE = new WeakMap()
 
 /** A grid's discrete Fourier transform, along its rows, then (a picture) its columns: { re, im }. */

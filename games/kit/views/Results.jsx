@@ -1,5 +1,5 @@
 import { useContext, useState } from 'react'
-import { cellError, isGrid, pixelText, readCell, sameGridShape } from '../engine/grid.js'
+import { cellError, isGrid, pixel, pixelText, readCell, relativeIndex, sameGridShape } from '../engine/grid.js'
 import { numberError, withinTolerance } from '../engine/number.js'
 import { VIEWS } from '../engine/views.js'
 import { L, T } from '../shell/i18n.js'
@@ -8,6 +8,7 @@ import { WORDS } from '../shell/words.js'
 import { ViewScope, useViewPicks } from './choice.js'
 import GridInspector from './grid/GridInspector.jsx'
 import { DRAWN, SIZE, overlays, sized } from './plots/drawn.js'
+import { frequency, readFrequency, spectrumOf } from './plots/spectrum.js'
 import ViewSwitch from './ViewSwitch.jsx'
 
 // A results area (games/DESIGN.md 6.9): the verdict first, then the rows content laid out (../../engine/views.js
@@ -50,12 +51,34 @@ function Chip({ entry, text }) {
   return <span className="rv-chip"><b>{L(label)}</b>{shown}</span>
 }
 
-function linkedReading(readings, source, x, y) {
-  return readings.map(({ key, label, grid }) => {
-    const { x: col, y: row, value } = readCell({ x, y }, source, grid)
-    const at = grid.w === source.w && grid.h === source.h ? '' : ` (${col}, ${row})`
-    return <span key={key}>{label}{at} <b>{pixelText(value)}</b></span>
+function readingsOf(rows) {
+  return rows.flatMap(({ entry, view }, k) => {
+    const label = L(entry.label)
+    const series = isOutput(entry)
+      ? [[`${label} · ${L(WORDS.wanted)}`, entry.want], [`${label} · ${L(WORDS.result)}`, entry.got]]
+      : [[label, entry.given]]
+    return series.flatMap(([label, grid], i) => isGrid(grid) ? [{ key: `${k}:${i}`, label, grid, view }] : [])
   })
+}
+
+function LinkedReading({ point, readings }) {
+  if (!point) return null
+  const { source, x, y, mode, scan } = point
+  const spectrum = mode === 'spectrum' || mode === 'spectrum-rows'
+  const header = spectrum ? `(${frequency(x, source.w)}, ${mode === 'spectrum' ? frequency(y, source.h) : y})` : `(${x}, ${y})`
+  const visible = spectrum ? readings.filter(({ view, grid }) => view === 'spectrum' && (grid.h <= 2) === (mode === 'spectrum-rows')) : readings
+  return <><span>{header}</span>{visible.map(({ key, label, grid }) => {
+    if (spectrum) {
+      const value = readFrequency(point, spectrumOf(grid))
+      return <span key={key}>{label} <b>{value === undefined ? '—' : pixelText(value)}</b></span>
+    }
+    const reading = mode === 'profile'
+      ? { x: relativeIndex(x, source.w, grid.w), y: Math.floor(scan * grid.h) }
+      : readCell(point, source, grid)
+    const at = grid.w === source.w && grid.h === source.h ? '' : ` (${reading.x}, ${reading.y})`
+    const value = mode === 'profile' ? pixel(grid, reading.x, reading.y) : reading.value
+    return <span key={key}>{label}{at} <b>{pixelText(value)}</b></span>
+  })}</>
 }
 
 /** A grid: the value given, or the result beside the value wanted, the cells that differ marked on the result. */
@@ -79,10 +102,11 @@ function GridRow({ entry, view, text, tool, inspection, imageView }) {
   // A plot draws the result and the value wanted on one set of axes; other drawn views and the cells side by side.
   const Drawn = DRAWN[view]
   const drawSize = imageView ? SIZE.image : SIZE.results
+  const drawnInspection = view === 'profile' || view === 'spectrum' ? inspection : undefined
   const body = Drawn && overlays(view, grids[0])
-    ? <Drawn value={!isOutput(entry) ? given : isGrid(got) && (paired || !isGrid(want)) ? got : undefined} want={isOutput(entry) && isGrid(want) ? want : undefined} tolerance={tolerance} size={imageView ? drawSize : undefined} />
+    ? <Drawn value={!isOutput(entry) ? given : isGrid(got) && (paired || !isGrid(want)) ? got : undefined} want={isOutput(entry) && isGrid(want) ? want : undefined} tolerance={tolerance} size={imageView ? drawSize : undefined} inspection={drawnInspection} />
     : shown.map(([word, v], k) => (!isGrid(v) ? plain(word, v, k)
-      : Drawn ? <figure key={k} className="rv-drawn"><Drawn value={v} size={drawSize} />{word && <figcaption>{L(word)}</figcaption>}</figure>
+      : Drawn ? <figure key={k} className="rv-drawn"><Drawn value={v} size={drawSize} inspection={drawnInspection} />{word && <figcaption>{L(word)}</figcaption>}</figure>
       : <GridInspector key={k} value={v} label={word && L(word)} view={view} dense showSize={!size} cellClass={word === WORDS.result ? differs : undefined} inspection={inspection} />))
   return (
     <section className={`rv-row${(view === 'pixels' || imageView) && isGrid(given) ? ' is-picture-input' : ''}`} data-fail={wrong(entry) || undefined}>
@@ -147,13 +171,6 @@ export default function Results({ rows, text, verdict = [], at = -1, count = 0, 
   const { controls, authoring } = useContext(ViewScope)
   const inspection = useState(null)
   const [point, setPoint] = inspection
-  const linked = rows.some(({ entry }) => entry.difference) ? rows.flatMap(({ entry }, k) => {
-    const label = L(entry.label)
-    const series = isOutput(entry)
-      ? [[`${label} · ${L(WORDS.wanted)}`, entry.want], [`${label} · ${L(WORDS.result)}`, entry.got]]
-      : [[label, entry.given]]
-    return series.flatMap(([label, grid], i) => isGrid(grid) ? [{ key: `${k}:${i}`, label, grid }] : [])
-  }) : []
   const selectable = rows.map((r) => ({
     ...r,
     view: picks.of(r.entry.of, r.views),
@@ -171,6 +188,7 @@ export default function Results({ rows, text, verdict = [], at = -1, count = 0, 
     ...r,
     tool: !together && r.pick && <ViewSwitch views={r.views} value={r.view} onChange={(next) => change([r], next)} compact />,
   }))
+  const linked = controls || rows.some(({ entry }) => entry.difference) ? readingsOf(drawn) : []
   return (
     <div className="rv">
       {verdict.filter(Boolean).map((line, k) => <p key={k} className="rv-verdict is-fail">{L(line)}</p>)}
@@ -182,7 +200,7 @@ export default function Results({ rows, text, verdict = [], at = -1, count = 0, 
         return <div key={k} className="rv-rows">{g.rows.map((r, index) => (r.entry.shape === 'grid' ? <GridRow key={`${r.entry.of}:${index}`} entry={r.entry} view={r.view} text={text} tool={r.tool} inspection={linked.length ? inspection : undefined} imageView={controls && r.view in controls.options} /> : <ListRow key={r.entry.of} entry={r.entry} text={text} tool={r.tool} />))}</div>
       })}
       {linked.length > 0 && <p className="gv-reading" role="status">
-        {point && <><span>({point.x}, {point.y})</span>{linkedReading(linked, point.source, point.x, point.y)}</>}
+        <LinkedReading point={point} readings={linked} />
       </p>}
     </div>
   )

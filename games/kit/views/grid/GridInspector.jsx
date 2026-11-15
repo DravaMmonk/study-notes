@@ -1,7 +1,8 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { tr } from '../../shell/i18n.js'
 import { cellNumber, pixel, pixelText } from '../../engine/grid.js'
 import { finiteExtent } from '../../engine/number.js'
+import { useInspection } from '../useInspection.js'
 import { usePointerSession } from '../usePointerSession.js'
 import GridView from './GridView.jsx'
 import { denseCell, fitFrame, inspectorCell } from './layout.js'
@@ -57,21 +58,10 @@ function usePan(frame) {
 
 /** Draw pixels at their own aspect ratio, or keep numbered cells readable in a scrollable frame. */
 export default function GridInspector({ value, label, view, showSize = true, explainPixel, mark, onPick, cellClass, inspection, dense = false }) {
-  const id = useId()
   const root = useRef(null)
   const frame = useRef(null)
   const pan = usePan(frame)
-  const local = useState(null)
-  const [point, setPoint] = inspection ?? local
-  const active = point?.id === id && point.x < value.w && point.y < value.h ? point : null
-  useEffect(() => {
-    if (!active) return
-    const dismiss = (event) => {
-      if (!root.current?.contains(event.target)) setPoint((p) => p?.id === id ? null : p)
-    }
-    document.addEventListener('pointerdown', dismiss, true)
-    return () => document.removeEventListener('pointerdown', dismiss, true)
-  }, [active, id, setPoint])
+  const { active, select, leave } = useInspection(root, value, inspection)
 
   const numbers = view === 'numbers'
   const cellOf = dense ? denseCell : inspectorCell
@@ -80,18 +70,13 @@ export default function GridInspector({ value, label, view, showSize = true, exp
   const max = useFrameMax(root, numbers)
   const frameSize = max && numbers ? fitFrame(value, max, cellOf) : null
   const range = finiteExtent([value.data])
-  const select = (x, y, pinned) => setPoint((p) => {
-    if (!pinned && p?.pinned) return p
-    if (pinned && p?.pinned && p.id === id && p.x === x && p.y === y) return null
-    return { id, x, y, pinned, source: value }
-  })
   const meta = showSize && `${value.w} × ${value.h}${value.c === 3 ? ' · RGB' : ''}`
   const width = frameSize?.w ?? (numbers ? undefined : cell * value.w)
   const grid = <GridView value={value} numbers={numbers} axes={numbers} grid={numbers || cell >= 6} cell={cell} mark={mark ?? active} label={label}
     cellLabel={(x, y, p) => `(${x}, ${y}): ${pixelText(p)}`} cellClass={cellClass}
     onPick={(x, y) => { select(x, y, true); onPick?.(x, y) }}
     onHover={(x, y) => select(x, y, false)}
-    onLeave={() => setPoint((p) => p?.id === id && !p.pinned ? null : p)} />
+    onLeave={leave} />
   return <figure className={`gv-inspector${numbers ? '' : ' is-picture'}`} ref={root} style={width ? { width: `min(100%, ${width}px)` } : undefined}>
     {numbers
       ? <div ref={frame} className="gv-frame" style={frameSize ? { height: frameSize.h } : undefined} {...pan}><div className="gv-frame-canvas">{grid}</div></div>

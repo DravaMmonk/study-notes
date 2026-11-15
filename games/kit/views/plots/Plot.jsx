@@ -53,8 +53,9 @@ function Row({ got, want, samples, tolerance, y, at, x, along, width, height, r 
   )
 }
 
-export default function Plot({ value, want, curve, tolerance = 0, card = false, fit, xOf = (j) => j }) {
-  const [at, setAt] = useState(null)
+export default function Plot({ value, want, curve, tolerance = 0, card = false, fit, probe, xOf = (j) => j }) {
+  const [local, setAt] = useState(null)
+  const at = probe ? probe.active : local
   const shown = value ?? want
   const { w: n, h: rows } = shown
   const size = { ...(card ? CARD : FULL), ...fit }
@@ -68,15 +69,18 @@ export default function Plot({ value, want, curve, tolerance = 0, card = false, 
   const samples = curve ? Array.from({ length: rows }, (_, k) => along.map((t) => curve(t, k))) : []
   const { lo, hi } = rangeOf(value, want, ...samples.map((data) => ({ data })))
   const y = plotY(lo, hi, PAD_Y, height - PAD_Y)
-  const pick = (event) => {
+  const pick = (event, pinned) => {
     const [u, v] = clientToSvg(event.currentTarget, event)
     const k = Math.min(rows - 1, Math.max(0, Math.floor(v / height)))
-    setAt({ x: Math.min(n - 1, Math.max(0, Math.floor((u - size.pad) / step))), y: k })
+    const j = Math.min(n - 1, Math.max(0, Math.floor((u - size.pad) / step)))
+    if (probe) probe.select(j, k, pinned)
+    else setAt({ x: j, y: k })
   }
-  const read = at && !card ? { got: value && rowOf(value, at.y)[at.x], want: want && rowOf(want, at.y)[at.x] } : null
+  const read = at && !card && !probe ? { got: value && rowOf(value, at.y)[at.x], want: want && rowOf(want, at.y)[at.x] } : null
   return (
     <div className={`pl ${card ? 'is-card' : ''}`}>
-      <svg viewBox={`0 0 ${width} ${height * rows}`} width={width} height={height * rows} role="img" onPointerMove={card ? undefined : pick} onPointerDown={card ? undefined : pick} onPointerLeave={() => setAt(null)}>
+      <svg viewBox={`0 0 ${width} ${height * rows}`} width={width} height={height * rows} role="img" onPointerMove={card ? undefined : (event) => { if (!probe || event.pointerType === 'mouse') pick(event, false) }}
+        onPointerDown={card ? undefined : (event) => pick(event, true)} onPointerLeave={probe ? probe.leave : () => setAt(null)}>
         {Array.from({ length: rows }, (_, k) => (
           <g key={k} transform={`translate(0 ${k * height})`}>
             <Row got={value && rowOf(value, k)} want={want && rowOf(want, k)} samples={samples[k]} along={along} tolerance={tolerance} y={y} at={at && !card && at.y === k ? at.x : null} x={x} width={width} height={height} r={r} />

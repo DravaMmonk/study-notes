@@ -31,10 +31,13 @@ export const display = (v) => v > 0 ? Math.min(1, v) : 0
 const CELL_DIGITS = 2
 export const cellNumber = (v) => numberText(v, CELL_DIGITS)
 
+/** Match a cell centre between axes of different sizes. */
+export const relativeIndex = (index, sourceSize, targetSize) => Math.floor((index + 0.5) * targetSize / sourceSize)
+
 /** Read the cell that contains the selected cell's centre in relative grid coordinates. */
 export function readCell({ x, y }, source, target) {
-  const col = Math.floor((x + 0.5) * target.w / source.w)
-  const row = Math.floor((y + 0.5) * target.h / source.h)
+  const col = relativeIndex(x, source.w, target.w)
+  const row = relativeIndex(y, source.h, target.h)
   return { x: col, y: row, value: pixel(target, col, row) }
 }
 
