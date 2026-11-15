@@ -6,7 +6,7 @@ import { sourceOf, srcNode } from '../../../engine/wire-source.js';
 import { CARDS, isCard, isGiven } from '../model/parts.js';
 import { roleOf } from '../model/board.js';
 import { placement } from '../../../circuit/model.js';
-import { wiring } from '../model/wiring.js';
+import { robotTerms, wiring } from '../model/wiring.js';
 import { lookIcon } from './looks.js';
 import { ICONS } from './glyphs.js';
 
@@ -57,15 +57,19 @@ export function robotWiring(model, terms) {
   };
 }
 
-/**
- * The editor's description of this board's nodes (../../../circuit/model.js). `model` is the course's board model,
- * `b` the board and `u` = { sensors, outs, ports? } of the world the board runs in (ports: the built part's port
- * inputs, by id: { label, short }).
- */
-export function partsFor(model, b, u) {
-  const { def } = model;
-  const io = { sensors: u.sensors, outs: u.outs };
-  const label = node => (isCard(node.type) ? CARDS[node.type].name : node.type === 'tap' ? u.sensors[node.params.sensor].label : node.type === 'port' ? u.ports?.[node.id]?.label ?? node.id : node.type === 'out' ? u.outs.find(o => o[0] === node.id)?.[1] : def(node.type).name);
+/** Add the experiment's colours and card faces to the task view's wiring. */
+export function experimentParts(model, b, task, view) {
+  const u = robotTerms(task);
+  const rules = view.board.wiring(task, view);
+  const custom = node => view.workshopPart?.(node.type);
+  const io = { sensors: u.sensors, outs: u.outs, workshop: view.workshop };
+  const label = node => {
+    if (isCard(node.type)) return CARDS[node.type].name;
+    if (node.type === 'tap') return u.sensors[node.params.sensor].label;
+    if (node.type === 'port') return u.ports[node.id]?.label ?? node.id;
+    if (node.type === 'out') return u.outs.find(([id]) => id === node.id)?.[1];
+    return custom(node)?.name ?? model.def(node.type).name;
+  };
   const colour = node => {
     if (!node || node.type === 'out') return 'var(--ink)';
     const given = b.nodes.filter(n => isGiven(n.type) && n.type !== 'out');
@@ -78,22 +82,21 @@ export function partsFor(model, b, u) {
       const t = model.srcType(b, io, sourceOf(node.id, key));
       return t.endsWith('s') ? 'list' : t;
     }
-    const t = node.type === 'out' ? (u.outs.find(o => o[0] === node.id)?.[3] || 'num') : def(node.type).ins[+port];
-    return t.startsWith('bool') ? 'bool' : t === 'any' ? 'any' : 'num';
+    const t = model.sinkType(b, io, node.id, port);
+    return t.startsWith('bool') ? 'bool' : t.endsWith('any') ? 'any' : 'num';
   };
   const byId = (graph, id) => graph.nodes.find(n => n.id === id);
   return {
-    ...robotWiring(model, u),
+    ...rules,
     label,
-    portLabel: (node, port) => (isGiven(node.type) ? '' : def(node.type).labels?.[+port] ?? ''),
+    portLabel: (node, port) => custom(node) ? rules.portLabel(node, port) : isGiven(node.type) ? '' : model.def(node.type).labels?.[+port] ?? '',
     family: () => 'sg',
     // A port input and a sensor go by their short name; an output by an arrow; a part shows its look (looks.js).
     icon: node => (node.type === 'tap' ? String(u.sensors[node.params.sensor].short) : node.type === 'port' ? String(u.ports?.[node.id]?.short ?? '') : node.type === 'out' ? '→' : lookIcon(node.type)),
     cardStyle: node => ({ '--fam': colour(node) }),
     valueView: node => (isCard(node.type) ? 'sensor' : 'value'),
-    hasSettings: node => model.hasValue(node.type),
     wireStyle: (wire, graph) => ({ '--fam': colour(byId(graph, srcNode(wire.from))) }),
     portClass: (node, port, key) => `look-${look(node, port, key ?? null)}`,
-    packed: node => Boolean(def(node.type)?.built),
+    packed: node => Boolean(rules.packed?.(node) || model.def(node.type)?.built),
   };
 }

@@ -3,15 +3,7 @@ import { blank, fitted, picksOf } from '../model/board.js'
 import { CARDS, isGiven } from '../model/parts.js'
 import { WORLDS } from '../model/worlds.js'
 import { robotWiring, withDesktopAnchors } from './board.js'
-import { restoreRobotBoard } from '../model/wiring.js'
-
-export function termsOf(task) {
-  const world = WORLDS[task.world]
-  return {
-    sensors: world.sensors, outs: world.outs, offers: task.given.offers,
-    ports: Object.fromEntries(task.ports.filter((port) => port.input).map((port) => [port.input, port])),
-  }
-}
+import { restoreRobotBoard, robotTerms } from '../model/wiring.js'
 
 /** The robot's circuits expose the same board and work operations as the other circuit plays. */
 export function robotCircuits(table) {
@@ -33,8 +25,8 @@ export function robotCircuits(table) {
     fits: (saved, task, circuit, parts) => Boolean(restoreRobotBoard(model, task, saved, { parts, knows: circuit.partOf })),
     portsIn: (task) => task.ports.filter((port) => port.input).map((port) => ({ name: port.input, label: port.label })),
     portsOut: (task) => WORLDS[task.world].outs.map(([name, label]) => ({ name, label })),
-    wiring: (task, circuit) => robotWiring(model, { ...termsOf(task), workshop: circuit?.workshop }),
-    labelOf: (task, id) => CARDS[id]?.name ?? termsOf(task).ports[id]?.label ?? WORLDS[task.world].outs.find(([key]) => key === id)?.[1] ?? id,
+    wiring: (task, circuit) => robotWiring(model, { ...robotTerms(task), workshop: circuit?.workshop }),
+    labelOf: (task, id) => CARDS[id]?.name ?? robotTerms(task).ports[id]?.label ?? WORLDS[task.world].outs.find(([key]) => key === id)?.[1] ?? id,
   }
   const views = new WeakMap()
   return {

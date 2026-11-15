@@ -1,3 +1,6 @@
+import { feeding } from '../../../circuit/model.js'
+import { packedBoards } from '../../../circuit/packed-boards.js'
+import { insideAt } from '../../../engine/trace.js'
 import { columnDepths } from '../../../circuit/layout.js'
 import { indexEdges } from '../../../graph.js'
 import { splitSource, wireEdges } from '../../../engine/wire-source.js'
@@ -8,8 +11,8 @@ import { ROBOTS } from '../model/robots.js'
 import { isCard, isGiven, modelsOf } from '../model/parts.js'
 import { picksOf } from '../model/board.js'
 import { testLabel } from '../model/verdict.js'
-import { termsOf } from './circuitCourse.js'
-import { partsFor, withDesktopAnchors } from './board.js'
+import { experimentParts } from './board.js'
+import { probeValues, wireStateOf } from './circuitRun.js'
 import { boardDrawing } from './scene.js'
 import { robotDrawing } from './robotDrawing.js'
 
@@ -82,26 +85,26 @@ function columns(circ) {
   return xy
 }
 
-const wireStateOf = (probe) => (wire) => {
-  if (!probe || !(wire.from in probe)) return null
-  const value = probe[wire.from]
-  return value === null || value === false ? 'dead' : 'live'
-}
-const valueOf = (report, id) => (report && id in report ? signal(report[id]) : '')
+const valueOf = (values, id) => values.has(id) ? signal(values.get(id)) : ''
 const choice = (key, label, options, value, change) => ({ key, kind: 'choice', label, options, value, change })
 
 /** Describe the world and controls for the editor's shared circuit preview. */
-export function pieceDemo(model, tasks, borrow, key) {
+export function pieceDemo(model, course, tasks, borrow, key) {
   const bench = benchFor(model, tasks, borrow, key)
   if (!bench) return null
   const { L, s, V, robot, runs, circuit, lit, avail, focus, built, height } = bench
   const { def, hasValue, valueDefault, valueOptions } = model
-  const terms = termsOf(s)
+  const taskView = course.forTask(s)
+  const packed = packedBoards(course, (opened, view) => ({
+    ...opened,
+    parts: experimentParts(model, opened.circuit, opened.level, view),
+  }))
   const tagsOf = (node) => hasValue(node.type) ? `= ${node.params?.value ?? valueDefault(node.type)}` : def(node.type).tag
 
   const view = ({ test, state, report, graph, change, update }) => {
     const { cell, table, typed, overrides } = state
     const { t } = runs[test]
+    const values = probeValues(report?.probe ?? {})
     const keys = V.keys(t, cell)
     const answerKeys = Object.values(keys)
     const shown = new Map(table)
@@ -139,7 +142,7 @@ export function pieceDemo(model, tasks, borrow, key) {
     if (win.arm?.sweeps) win.arm.sweeps = win.arm.sweeps.map((item) => ({ ...item, cells: item.cells.map(mark) }))
     if (win.arm && (s.noArm || !robot.arm)) win.arm = null
     if (win.arm) win.arm.filter = s.filter
-    Object.assign(win, { facts: (s.facts ?? []).map((id) => ({ id, value: signal(input(id)) })), robot, probe: report ?? {} })
+    Object.assign(win, { facts: (s.facts ?? []).map((id) => ({ id, value: signal(input(id)) })), robot, probe: report?.probe ?? {} })
     const drawings = [
       { editable: true, drawing: boardDrawing({ ...V.scene(t, null, { ...s, bench: { cell, at: answerKeys, shown, reads, empty, typed, sel: null } }), look: robot.look }, { label: T('测试棋盘'), ...(L.boardOpt || { minScale: 0.5, maxScale: 1.1 }) }, null, 'sg-bench-board') },
       { frame: 'sg-bench-view', drawing: robotDrawing({ sensors: V.sensors, avail, lit, win }) },
@@ -149,10 +152,10 @@ export function pieceDemo(model, tasks, borrow, key) {
       const { id, type, params } = node
       const tap = type === 'tap'
       const given = isGiven(type)
-      const value = tap ? inputs[id] ?? null : valueOf(report, id)
+      const value = tap ? inputs[id] ?? null : valueOf(values, id)
       if (tap) controls.push({ key: `${id}-${test}-${cell}`, kind: V.sensors[id].type, value, shown: signal(value), change: (next) => setInput(id, next) })
-      const values = valueOptions(type, L)
-      if (values) controls.push(choice('value', T('数值', 'Value'), values.map((n) => [n, String(n)]), params?.value ?? valueDefault(type), (value) => change(id, { params: { ...params, value } })))
+      const options = valueOptions(type, L)
+      if (options) controls.push(choice('value', T('数值', 'Value'), options.map((n) => [n, String(n)]), params?.value ?? valueDefault(type), (value) => change(id, { params: { ...params, value } })))
       const models = modelsOf(type)
       if (models) controls.push(choice('model', T('操作'), models.map((other) => [other, def(other).tag]), type, (next) => change(id, { type: next })))
       return {
@@ -164,35 +167,32 @@ export function pieceDemo(model, tasks, borrow, key) {
     }
 
     return {
-      graph, parts: partsFor(model, graph, terms), height, readout, drawings, wireState: wireStateOf(report),
+      graph, parts: experimentParts(model, graph, s, taskView), height, readout, drawings, wireState: wireStateOf(values),
       pick: (id) => {
         const next = V.cellOf(t, id, s)
         return next == null ? null : { ...state, cell: next, overrides: {} }
       },
       run: () => {
-        const probe = {}
-        const { out } = model.evaluate(graph, (id) => inputs[id] ?? null, V.outs.map(([id]) => id), probe)
+        const probe = {}, trace = []
+        const { out } = model.evaluate(graph, (id) => inputs[id] ?? null, V.outs.map(([id]) => id), probe, trace)
         const tableNext = new Map(table)
         Object.entries(keys).forEach(([id, key]) => tableNext.set(key, out[id]))
-        return { state: { ...state, table: tableNext }, report: probe }
+        return { state: { ...state, table: tableNext }, report: { probe, trace } }
       },
       inside: (id) => {
         const node = graph.nodes.find((item) => item.id === id)
         if (!node || !built || node.type !== built) return null
-        const builtPiece = model.built[built]
-        const inner = builtPiece.part.board(node.params)
-        const probe = {}
-        try {
-          model.evaluate(inner, (port) => inputs[port] ?? null, V.outs.map(([id]) => id), probe)
-        } catch {
-          // Keep any observations reached before an invalid input stopped the board.
-        }
-        const parts = partsFor(model, inner, terms)
+        const { circuit, parts } = packed.open(node, { level: s })
+        const { values } = insideAt(report?.trace ?? [], [id])
         return {
-          graph: withDesktopAnchors(inner), name: builtPiece.name, parts, height,
-          readout: (item) => ({ value: valueOf(report && probe, item.id), controls: [], hide: isCard(item.type), tag: parts.role(item) === 'part' ? tagsOf(item) : '' }),
+          graph: circuit, name: def(built).name, parts, height,
+          readout: (item) => ({
+            value: valueOf(values, parts.role(item) === 'sink' ? feeding(circuit, item.id, 'in') : item.id),
+            controls: [], hide: isCard(item.type),
+            tag: parts.role(item) === 'part' && def(item.type) ? tagsOf(item) : '',
+          }),
           outNote: (item, port) => (isCard(item.type) ? signal(inputs[port] ?? null) : null),
-          wireState: wireStateOf(report && probe),
+          wireState: wireStateOf(values),
         }
       },
     }

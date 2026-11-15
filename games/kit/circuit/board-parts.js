@@ -4,7 +4,7 @@ import { T } from '../shell/i18n.js'
 import { iconOf } from '../shell/parts/icons.js'
 import { openRef } from '../shell/refs.js'
 import { packedBoards } from './packed-boards.js'
-import { openedWorkshop, workshopOf, workView } from './workshop-view.js'
+import { openedWorkshop, workshopOf } from './workshop-view.js'
 
 const GIVES = T('得出', 'Result')
 const OPENS = T('收到')
@@ -71,7 +71,7 @@ export function partsFor(level, circuit, { cards, portLabels, defined }) {
 
 /** Shared descriptions and edit destinations for the step log and the two packed board entry points. */
 export function packedView(course, options, activeWorkshop) {
-  const views = packedBoards(course, (board, view) => ({ ...board, parts: partsFor(board.level, workView(board.circuit, view), options) }))
+  const views = packedBoards(course, (board, view) => ({ ...board, parts: partsFor(board.level, view, options) }))
   const workshopAt = (at) => at.workshop ?? workshopOf(at.circuit) ?? activeWorkshop
   return {
     root: views.root,

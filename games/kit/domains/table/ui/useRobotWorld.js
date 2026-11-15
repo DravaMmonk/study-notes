@@ -12,7 +12,7 @@ import { panelData } from '../items/panels.js'
 import { boardDrawing } from './scene.js'
 import { robotDrawing } from './robotDrawing.js'
 import { missingRobotOutput, robotHint, tutorialFailure } from '../model/verdict.js'
-import { probeValues } from './circuitRun.js'
+import { probeValues, wireStateOf } from './circuitRun.js'
 import { buzz, typing, useToast, useVerdict } from '../../../shell/useBoardInteraction.jsx'
 import { useWorkspaceKeys } from '../../../shell/useOverlay.js'
 import { T } from '../../../shell/i18n.js'
@@ -165,6 +165,7 @@ export function useRobotWorld({ screen, task, test, run, report, at, ended, circ
   } : null
   const scene = { ...world.scene(test, view, { ...task, ...(view?.end && view.pass && task.trace ? trace(task.trace, test) : {}), bench: box }), look: robot.look }
   const after = task.after ? panelData(task.after, test, view, run.states) : null
+  const values = probeValues(ui.probe)
   return {
     notice,
     pad,
@@ -173,17 +174,14 @@ export function useRobotWorld({ screen, task, test, run, report, at, ended, circ
     text: [task.mission.goal, task.mission.how],
     hint: task.hints ?? null,
     tip: guideAt(task.guide, circuit) ?? ([task.ask, task.tip].filter(Boolean).join(' ') || null),
-    value: { values: probeValues(ui.probe), errors: new Map() },
+    value: { values, errors: new Map() },
     drawing: boardDrawing(scene, { label: tr('棋盘', 'Board'), ...(task.boardOpt || { minScale: 0.7, maxScale: 1.25 }) }, onCell),
     note: noteOf(task, world, view, run.at),
     after,
     returnAction: view?.end && !live ? { label: T('回到棋盘测试', 'Back to the test board'), onClick: () => put({ bench: true, focus: null }) } : null,
     cardDrawing: (node, readOnly) => isCard(node.type) ? robotDrawing(ui, node.type, readOnly ? null : toggle) : null,
     portValue: (node, port) => isCard(node.type) ? signal(read(port, ui.cell, ui.shown, 'self')) : undefined,
-    wireState: (wire) => {
-      const v = ui.probe[wire.from]
-      return v === undefined ? null : v === null || v === false ? 'dead' : 'live'
-    },
+    wireState: wireStateOf(values),
     choices: (node) => choices(node.type),
     swap: (node, type) => {
       if (live) return

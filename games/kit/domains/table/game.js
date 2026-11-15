@@ -110,7 +110,7 @@ export default function tableGame(content) {
       preview: (part, { progress }) => {
         table.syncOwn(progress.built)
         const key = part.key.replace(/^part:/, '')
-        const spec = pieceDemo(table.model, lastTasks, part.at ? { [key]: part.at[0] } : borrow, key)
+        const spec = pieceDemo(table.model, game.circuit, lastTasks, part.at ? { [key]: part.at[0] } : borrow, key)
         return { experiment: spec }
       },
       filters: robotFilters,

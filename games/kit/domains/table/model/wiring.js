@@ -13,6 +13,15 @@ import { WORLDS } from './worlds.js';
 import { isCard, PRIMITIVES } from './parts.js';
 import { blank, fitted, picksOf, roleOf } from './board.js';
 
+/** The world and ports used by a robot task's circuit views. */
+export function robotTerms(task) {
+  const { sensors, outs } = WORLDS[task.world];
+  return {
+    sensors, outs, offers: task.given.offers,
+    ports: Object.fromEntries(task.ports.filter((port) => port.input).map((port) => [port.input, port])),
+  };
+}
+
 export function wiring(model, u) {
   const io = { sensors: u.sensors, outs: u.outs, workshop: u.workshop };
   return {

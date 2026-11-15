@@ -1,7 +1,9 @@
-/** Resolve a packed part with the definitions in scope on the board that holds it. */
+import { workView } from './workshop-view.js'
+
+/** Resolve packed parts and open their boards with the workshop versions captured on the work. */
 export function packedBoards(course, draw) {
   const inTask = (at) => course.forTask(at.level)
-  const drawOpened = (opened) => opened ? draw(opened, inTask(opened)) : null
+  const drawOpened = (opened) => opened ? draw(opened, workView(opened.circuit, inTask(opened))) : null
   return {
     root: (type) => drawOpened(course.BUILT[type]?.opens?.()),
     open: (node, at) => drawOpened(inTask(at).BUILT[node.type]?.opens?.(node.params)),

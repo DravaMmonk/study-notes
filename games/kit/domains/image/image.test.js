@@ -7,7 +7,7 @@ import { deepFreeze } from '../../engine/content.js'
 import { readStarter } from '../../engine/content-node.js'
 import { captureWorkshop, publishWorkshop, workshopIdentity } from '../../engine/workshop.js'
 import { packedBoards } from '../../circuit/packed-boards.js'
-import { courseWorkshop, workView } from '../../circuit/workshop-view.js'
+import { courseWorkshop } from '../../circuit/workshop-view.js'
 import { fresh } from '../../shell/progress.js'
 import { boxBlur3, gradientMagnitude, horizontalDifference, sobelGradient, squaredGradient } from './engine/filters.js'
 import { at, fromFn } from './engine/image.js'
@@ -144,7 +144,7 @@ test('a course reward runs and displays the exact workshop version used by its p
     const result = run()
     assert.notDeepEqual(result.outputs.out, reference)
     assert.ok(result.trace.some(({ path }) => path?.join('/') === 'p/wrapped'))
-    const views = packedBoards(circuit, (opened, view) => ({ ...opened, view: workView(opened.circuit, view) }))
+    const views = packedBoards(circuit, (opened, view) => ({ ...opened, view }))
     const reward = views.root('widen')
     const placed = reward.circuit.nodes.find(({ id }) => id === 'wrapped')
     assert.equal(reward.view.workshopPart(placed.type).name, 'Original version')
