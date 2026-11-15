@@ -36,16 +36,17 @@ const LEVELS = [
 ]
 
 test('bulk edits are one operation a level, and the levels an edit does not fit are skipped with the reason', () => {
-  assert.deepEqual(commonFields(VOCAB, LEVELS.slice(0, 2)).map((f) => f.key), ['kind', 'title', 'note', 'n', 'adds', 'tests', 'hidden', 'solution'])
-  assert.deepEqual(commonFields(VOCAB, LEVELS).map((f) => f.key), ['kind', 'title'], 'a level of another shape: only what both shapes hold')
+  assert.deepEqual(commonFields(VOCAB, LEVELS.slice(0, 2)).map((f) => f.key), ['title', 'note', 'n', 'adds', 'tests', 'hidden', 'solution'])
+  assert.deepEqual(commonFields(VOCAB, LEVELS).map((f) => f.key), ['title'], 'a level of another shape: only what both shapes hold')
   assert.deepEqual(bulkSet(VOCAB, LEVELS, ['n'], 2), {
     ops: [{ op: 'level.set', level: 'a', path: ['n'], value: 2 }],
     skipped: [{ level: 'b', why: 'holds that already' }, { level: 'c', why: 'has no such field' }],
   })
   assert.deepEqual(bulkSet(VOCAB, LEVELS.slice(0, 1), ['note'], { en: '注' }).ops, [{ op: 'text.set', level: 'a', path: ['note'], lang: 'en', value: '注' }])
   assert.deepEqual(bulkSet(VOCAB, LEVELS.slice(0, 1), ['solution'], ['x = add()']).ops, [{ op: 'level.blueprint', level: 'a', path: ['solution'], text: 'x = add()' }])
-  assert.deepEqual(bulkUnset(LEVELS, ['n']), { ops: [{ op: 'level.unset', level: 'b', path: ['n'] }], skipped: [{ level: 'a', why: 'has none' }, { level: 'c', why: 'has none' }] })
-  assert.deepEqual(bulkPatch(LEVELS.slice(0, 2), { n: 2, note: null }).ops, [{ op: 'level.patch', level: 'a', fields: { n: 2, note: null } }])
+  assert.deepEqual(bulkUnset(VOCAB, LEVELS, ['n']), { ops: [{ op: 'level.unset', level: 'b', path: ['n'] }], skipped: [{ level: 'a', why: 'has none' }, { level: 'c', why: 'has none' }] })
+  assert.deepEqual(bulkPatch(VOCAB, LEVELS.slice(0, 2), { n: 2, note: null }).ops, [{ op: 'level.patch', level: 'a', fields: { n: 2, note: null } }])
+  assert.deepEqual(bulkPatch(VOCAB, LEVELS.slice(0, 1), { kind: 'hand' }).ops, [])
   assert.deepEqual(bulkAdds(VOCAB, LEVELS, { add: ['sub'], remove: ['add'] }), {
     ops: [{ op: 'level.adds', level: 'a', add: ['sub'], remove: ['add'] }, { op: 'level.adds', level: 'b', add: ['sub'] }],
     skipped: [{ level: 'c', why: 'brings in no parts' }],

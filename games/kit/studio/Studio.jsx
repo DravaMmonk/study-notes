@@ -26,9 +26,9 @@ import { eraLevels } from '../course.js'
 import { find, shapeAt } from '../engine/schema.js'
 import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
 import { call } from './api.js'
-import { blank, placesOf, pushOp, referenceFor } from './form.js'
+import { blank, creationChoices, placesOf, pushOp, referenceFor } from './form.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
-import { findTask } from '../engine/tasks.js'
+import { findTask, tasksSchema } from '../engine/tasks.js'
 import { addFor, markOf, markPath } from './marks.js'
 import { withParts } from '../engine/parts/define.js'
 import { DEFAULT_VIEWS } from '../shell/parts/PartFace.jsx'
@@ -441,6 +441,9 @@ export default function Studio() {
       return setField(path ? { path, focus: true } : { missing: m.at })
     }
     if (m.type === 'add') {
+      const path = markPath(value, vocab.vocabulary, m)
+      const schema = path && shapeAt(vocab.vocabulary.level, value, path, { vocabulary: vocab.vocabulary })
+      if (schema?.type === 'list' && creationChoices(schema.of, { vocabulary: vocab.vocabulary }).length > 1) return pickField(path)
       const added = addFor(m.level, value, vocab.vocabulary, m)
       if (!added) return setField({ missing: m.at })
       edit(added.op)
@@ -462,13 +465,8 @@ export default function Studio() {
       const existing = pending?.value ?? def.views?.[face]
       const list = existing ?? DEFAULT_VIEWS[face]
       const write = (value) => edit({ op: 'pieces.set', path, value })
-      if (m.type === 'pick') {
-        if (!existing) write(list)
-        return pickField([...base, ...m.path], true, list)
-      }
-      const next = [...list, { show: 'text', text: { en: '' } }]
-      write(next)
-      return pickField([...path, list.length], true, next)
+      if (!existing) write(list)
+      return pickField(m.type === 'pick' ? [...base, ...m.path] : path, m.type === 'pick', list)
     }
     if (m.type === 'pick' || (m.part !== undefined && key === 'settings' && m.path.length === 1)) {
       return pickField([...base, ...m.path], true)
@@ -477,6 +475,7 @@ export default function Studio() {
     const path = [...base, ...m.path]
     const schema = shapeAt(PARTS_FILE, content.partDefs, path, { vocabulary: vocab.vocabulary })
     if (schema?.type !== 'list') return undefined
+    if (creationChoices(schema.of, { vocabulary: vocab.vocabulary }).length > 1) return pickField(path)
     const list = getAt(content.partDefs, path) ?? []
     const blankOf = { rules: { set: {} }, checks: { holds: 'eq(1, 1)', say: { en: '' } } }
     edit({ op: 'pieces.set', path, value: [...list, (m.path.length === 1 && blankOf[key]) || blank(schema.of, { vocabulary: vocab.vocabulary, levels: playOrder })] })
@@ -519,15 +518,20 @@ export default function Studio() {
     select({ level: to.level })
     pickField(['tasks', to.after ? rest.findIndex((x) => x.id === to.after) + 1 : rest.length])
   }
+  const newLevelContext = { vocabulary: vocab?.vocabulary, levels: playOrder, lang }
+  const firstTaskSchema = vocab && tasksSchema(vocab.vocabulary)
+  const levelChoices = vocab ? creationChoices(firstTaskSchema ?? vocab.vocabulary.level, newLevelContext) : []
   const addLevel = (action) => {
     const source = content.levels.find((entry) => entry.id === at?.level)
     const era = content.eras[at?.era ?? 0]
     if (!source && !era) return
     const taken = new Set(content.levels.flatMap((level) => [level.id, ...(level.tasks ?? []).map((task) => task.id)]))
     const level = freeName([...taken], 'level')
-    const draft = action === 'copy' && source
-      ? structuredClone(source)
-      : { ...blank(vocab.vocabulary.level, { vocabulary: vocab.vocabulary, levels: playOrder, lang }), title: T('新关卡', 'New level') }
+    const make = levelChoices[action]?.make
+    const draft = action === 'copy' ? structuredClone(source) : {
+      ...(firstTaskSchema ? { ...blank(vocab.vocabulary.level, newLevelContext), tasks: [make()] } : make()),
+      title: T('新关卡', 'New level'),
+    }
     delete draft.id
     if (draft.tasks) draft.tasks = draft.tasks.map((task) => {
       if (draft.tasks.length === 1) return { ...task, id: level }
@@ -546,7 +550,7 @@ export default function Studio() {
   }
   const togglePanel = (which) => setLayout((l) => ({ ...l, [`${which}Open`]: !l[`${which}Open`] }))
   // The side panel's field: its control's context (as the forms had it), and the mark the page draws it with.
-  const sideFile = at?.level && content?.levels.some((l) => l.id === at.level) ? { level: at.level } : pieceRoot ? { parts: true, root: pieceRoot } : at?.glossary ? { glossary: true } : at ? { game: true } : null
+  const sideFile = at?.level ? { level: at.level } : pieceRoot ? { parts: true, root: pieceRoot } : at?.glossary ? { glossary: true } : at ? { game: true } : null
   const pendingFace = field?.pendingFace && ops.some((op) => op.op === 'pieces.set' && op.value === field.pendingFace && !shown?.ops.includes(op)) ? field.pendingFace : null
   const pageMark = field?.path && sideFile?.level && sideFile.level === play?.level ? { ...markOf(levelValue(sideFile.level), field.path), level: sideFile.level }
     : field?.path && at?.part !== undefined && field.path[0] === 'parts' && field.path[1] === at.part ? JSON.stringify(field.path.slice(2))
@@ -705,7 +709,11 @@ export default function Studio() {
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file, { stayOnTab: true })} />
               : <Tree game={game} content={content} entries={groupModel.groups} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask}
                   addOptions={[
-                    ...(content.eras.length ? [{ value: 'blank', label: tr('空白关卡', 'Blank level') }] : []),
+                    ...(content.eras.length && levelChoices.length ? [{
+                      value: levelChoices.length === 1 ? levelChoices[0].value : 'blank',
+                      label: tr('空白关卡', 'Blank level'),
+                      ...(levelChoices.length > 1 && { children: levelChoices }),
+                    }] : []),
                     ...(at?.level && content.levels.some((level) => level.id === at.level) ? [{ value: 'copy', label: tr('复制所选关卡', 'Duplicate selected level') }] : []),
                   ]} onAdd={addLevel} /> }
           </aside>
@@ -744,7 +752,7 @@ export default function Studio() {
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
           <aside className="studio-side">
-            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} pendingFace={pendingFace} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} />}
+            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} pendingFace={pendingFace} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} onRemoveSelection={() => select(null)} />}
           </aside>
           {layout.auditOpen && <PanelResizer side="audit" size={layout.audit} open {...resizer} />}
           <aside className="studio-audit">

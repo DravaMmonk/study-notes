@@ -12,12 +12,12 @@ import { ArrowRightLeft, ChevronRight, Copy, Play, CirclePlay, Trash2 } from 'lu
 import { L, getLang, tr } from '../shell/i18n.js'
 import { useWorkspaceKeys } from '../shell/useOverlay.js'
 import { getAt, showPath } from '../engine/ops/edit.js'
-import { blank, fieldAt, fileForm, formOf, gameFields, opFor, placeFindings, sectionsOf } from './form.js'
+import { fieldAt, fileForm, formOf, gameFields, opFor, placeFindings, sectionsOf } from './form.js'
 import { holdsLevels } from '../engine/schema.js'
 import { settingReferences } from '../engine/pieces.js'
 import { NAME as PART_NAME } from '../engine/parts/schema.js'
 import { freeName } from './PartsList.jsx'
-import { Field, Shapes, TagChoice } from './Fields.jsx'
+import { Field, FieldTags } from './Fields.jsx'
 import Rows from './Rows.jsx'
 import { textField } from './copy.js'
 import Bulk from './Bulk.jsx'
@@ -44,8 +44,8 @@ const ctxOf = ({ vocabulary, order, names, levelOptions }, extra = {}) => ({ voc
 /** The edit of a field in `file` as its operation. */
 const editIn = (file, onEdit) => (path, edit, type) => onEdit(opFor(file, path, edit, type))
 /** An optional field added blank in `file`, and opened in the side panel. */
-const addIn = (file, onEdit, onPick, ctx) => (path, schema) => {
-  onEdit(opFor(file, path, { set: blank(schema, ctx) }, schema.type))
+const addIn = (file, onEdit, onPick) => (path, schema, value) => {
+  onEdit(opFor(file, path, { set: value }, schema.type))
   onPick(path)
 }
 /** A field's value before the pending changes, in `value` (undefined: nothing before, a new file): [had, value]. */
@@ -99,8 +99,7 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
       <header className="editor-head">
         <input className="editor-id" value={name} onChange={(e) => setName(e.target.value)} onBlur={rename} onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()} aria-label={tr('关卡 id')} size={Math.max(3, name.length)} />
         <h1>{L(value.title)}</h1>
-        {form.tags && <TagChoice field={form} onEdit={edit} ctx={ctx} />}
-        {form.shapes?.length > 1 && <Shapes field={form} onEdit={edit} ctx={ctx} />}
+        {form.tags && <FieldTags tags={form.tags} />}
         {sections && (
           <nav className="editor-sections" aria-label={tr('分区', 'Sections')}>
             {sections.map((s, k) => (
@@ -126,7 +125,7 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
               <ChevronRight size={11} aria-hidden="true" />{tr(...SECTION[s.section])}
               {shut && <small>{s.fields.filter((f) => f.field).map((f) => f.key).join(' · ')}</small>}
             </button>
-            {!shut && <Rows form={form} keys={s.fields.map((f) => f.key)} picked={field} findings={findings} before={before} onPick={onPick} onAdd={addIn({ level: id }, onEdit, onPick, ctx)} />}
+            {!shut && <Rows form={form} ctx={ctx} keys={s.fields.map((f) => f.key)} picked={field} findings={findings} before={before} onPick={onPick} onAdd={addIn({ level: id }, onEdit, onPick)} />}
           </section>
         )
       }) : <Field field={form} label={null} onEdit={edit} ctx={{ ...ctx, findings, before }} />}
@@ -146,10 +145,10 @@ function EraEditor({ content, vocabulary, order, names, levelOptions, e, field, 
         <span className="editor-id is-static">{era.id}</span>
         <h1>{L(era.title ?? era.chapter?.title) ?? ''}</h1>
       </header>
-      <Rows form={part(false)} picked={field} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick, ctx)} />
+      <Rows form={part(false)} ctx={ctx} picked={field} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick)} />
       <details className="editor-course">
         <summary>{tr('关卡的位置')}</summary>
-        <Rows form={part(true)} picked={field} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick, ctx)} />
+        <Rows form={part(true)} ctx={ctx} picked={field} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick)} />
       </details>
       <button type="button" className="kit-btn is-label" onClick={() => onCopy(e)}>{tr('文案表')}</button>
     </article>
@@ -167,7 +166,7 @@ function GameEditor({ content, base, vocabulary, order, names, levelOptions, fie
         <span className="editor-id is-static">{domain} · v{version}</span>
         <h1>{L(content.title)}</h1>
       </header>
-      <Rows form={formOf(schema, strip(content), { vocabulary, levels: order })} picked={field} before={beforeIn(base && strip(base))} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick, ctx)} />
+      <Rows form={formOf(schema, strip(content), { vocabulary, levels: order })} ctx={ctx} picked={field} before={beforeIn(base && strip(base))} onPick={onPick} onAdd={addIn({ game: true }, onEdit, onPick)} />
       {open && <pre className="editor-open">{JSON.stringify(open, null, 1)}</pre>}
     </article>
   )
@@ -219,7 +218,7 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
             : inUse ? tr('仍有件引用这项设置', 'This setting is still used by pieces') : tr('删除设置', 'Delete setting')}><Trash2 size={14} /></button>
         </span>
       </header>
-      <Rows form={hit.field} picked={field} findings={findings} before={beforeIn(base?.partDefs)} onPick={onPick} onAdd={addIn(file, onEdit, onPick, ctx)} />
+      <Rows form={hit.field} ctx={ctx} picked={field} findings={findings} before={beforeIn(base?.partDefs)} onPick={onPick} onAdd={addIn(file, onEdit, onPick)} />
     </article>
   )
 }

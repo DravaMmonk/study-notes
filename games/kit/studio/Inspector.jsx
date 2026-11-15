@@ -6,19 +6,22 @@
 // copied, taken out, moved into another level and renamed by the task operations, so what players kept of it follows
 // it. Picking another field, or another level, changes what it shows.
 //
-//   <Inspector content vocab at field ctx onEdit onOps onPick onLevel />
+//   <Inspector content vocab at field ctx onEdit onOps onPick onLevel onRemoveSelection />
 //   at: the file shown ({ level } | { game: true } | { parts: true }: pieces.json, with root: [collection, id] | { glossary: true }); field: { path } | { missing: text } | null
 import { useEffect, useRef } from 'react'
 import { ArrowDown, ArrowUp, ArrowRightLeft, Braces, ChevronRight, Copy, MousePointerClick, Trash2 } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { getAt, setAt, showPath } from '../engine/ops/edit.js'
-import { blank, fieldAt, fileForm, moved, opFor, placeFindings, taskListOps } from './form.js'
+import { settingReferences } from '../engine/pieces.js'
+import { fieldAt, fileForm, moved, opFor, placeFindings, taskListOps } from './form.js'
 import { Field } from './Fields.jsx'
-import { SettingUsers } from './PartFields.jsx'
-import { AddMenu, Picker } from './Picker.jsx'
+import { AddFields, SettingUsers } from './PartFields.jsx'
+import { Picker } from './Picker.jsx'
 import { usePref } from './prefs.js'
+import SourceEditor from './SourceEditor.jsx'
+import { sourceOps } from './source.js'
 
-export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, onEdit, onOps, onPick, onLevel }) {
+export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, onEdit, onOps, onPick, onLevel, onRemoveSelection }) {
   const [json, setJson] = usePref('inspector-json', false)
   const { vocabulary } = vocab
   const order = ctx.levels
@@ -73,16 +76,20 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
     )
   }
   const path = hit ? held : field.path ?? root
-  const header = <Head path={path} file={file} onPick={openCrumb} json={json} onToggleJson={() => setJson(!json)} />
+  const definition = hit?.field && root.length === 2 && path.length === 2 && root.every((key, i) => key === path[i])
+  const inUse = definition && root[0] === 'settings' && settingReferences(partDefs, root[1]).length > 0
+  const remove = definition ? () => { edit(path, { unset: true }); onRemoveSelection() } : null
+  const header = <Head path={path} file={file} onPick={openCrumb} json={json} onToggleJson={() => setJson(!json)}
+    onRemove={remove} inUse={inUse} />
   if (json) {
-    const source = JSON.stringify(getAt(shown?.value, path), null, 2)
     return (
       <div className="insp">
         {header}
         <div className="insp-body" ref={body}>
-          {source === undefined
+          {!shown
             ? <p className="insp-about">{tr('这个字段没有 JSON 值。', 'This field has no JSON value.')}</p>
-            : <pre className="insp-json"><code>{source}</code></pre>}
+            : <SourceEditor key={JSON.stringify([content.id, at, path])} source={JSON.stringify(getAt(shown.value, path), null, 2) ?? ''}
+              onApply={(value) => onOps(sourceOps(file, shown.value, path, value, vocabulary, content.levels))} />}
         </div>
       </div>
     )
@@ -128,8 +135,8 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
         {hit.absent ? (
           <div className="insp-absent">
             {hit.absent.about && <p className="insp-about">{L(hit.absent.about)}</p>}
-            <AddMenu options={[{ value: hit.absent.key }]}
-              onPick={() => edit(hit.absent.path, { set: blank(hit.absent.schema, { vocabulary, levels: order }) }, hit.absent.schema.type)} />
+            <AddFields fields={[hit.absent]} ctx={ctxHere}
+              onAdd={(f, value) => edit(f.path, { set: value }, f.schema.type)} />
           </div>
         ) : (
           <>
@@ -191,7 +198,7 @@ function longConfig(value) {
 }
 
 /** Breadcrumbs always start at the original JSON file. */
-function Head({ path, file, onPick, json, onToggleJson }) {
+function Head({ path, file, onPick, json, onToggleJson, onRemove, inUse }) {
   const name = file.level ? `levels/${file.level}.json` : file.parts ? 'pieces.json' : file.glossary ? 'glossary.json' : 'game.json'
   const jsonLabel = tr('JSON 源码', 'JSON source')
   return (
@@ -209,6 +216,10 @@ function Head({ path, file, onPick, json, onToggleJson }) {
         })}
       </nav>
       <button type="button" className="insp-source" onClick={onToggleJson} aria-pressed={json} aria-label={jsonLabel} title={jsonLabel}><Braces size={13} aria-hidden="true" /></button>
+      {onRemove && <button type="button" className="insp-delete" onClick={onRemove} disabled={inUse}
+        title={inUse ? tr('仍有件引用这项设置', 'This setting is still used by pieces') : tr('删除', 'Delete')} aria-label={tr('删除', 'Delete')}>
+        <Trash2 size={13} aria-hidden="true" />
+      </button>}
     </header>
   )
 }

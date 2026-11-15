@@ -4,15 +4,25 @@
 // guessed at. Pure: the levels are content's ({ id, …fields }), the schemas the vocabulary's.
 import { sameJson } from '../engine/json-value.js'
 import { shapeAt } from '../engine/schema.js'
-import { getAt, parsePath } from '../engine/ops/edit.js'
+import { getAt, mergePatch, parsePath, setAt, unsetAt } from '../engine/ops/edit.js'
+import { changesType, shapeOf } from './form.js'
 
 const bare = ({ id: _, ...level }) => level
 
 /** The fields every one of `levels` can hold (by its schema): [{ key, schema }] in the first level's schema order. */
 export function commonFields(vocabulary, levels) {
   const fieldsOf = (l) => {
-    const s = shapeAt(vocabulary.level, bare(l), [], { vocabulary })
-    return s?.type === 'obj' ? s.fields : {}
+    const tags = new Set()
+    let schema = vocabulary.level
+    while (schema?.type === 'by' || schema?.type === 'either') {
+      if (schema.type === 'by') {
+        tags.add(schema.field)
+        schema = schema.cases[l[schema.field]]
+      } else {
+        schema = shapeOf(schema, bare(l), vocabulary).schema
+      }
+    }
+    return schema?.type === 'obj' ? Object.fromEntries(Object.entries(schema.fields).filter(([key]) => !tags.has(key))) : {}
   }
   if (!levels.length) return []
   const all = levels.map(fieldsOf)
@@ -33,6 +43,10 @@ export function bulkSet(vocabulary, levels, path, value) {
     const old = getAt(level, keys)
     if (sameJson(old, value)) { skipped.push({ level: level.id, why: 'holds that already' }); continue }
     if (keys.length > 1 && getAt(level, keys.slice(0, -1)) === undefined) { skipped.push({ level: level.id, why: 'has nothing to hold it' }); continue }
+    if (changesType(vocabulary.level, level, setAt(level, keys, value), vocabulary)) {
+      skipped.push({ level: level.id, why: 'would change an existing configuration type' })
+      continue
+    }
     if (s.type === 'text') {
       if (typeof value === 'string' || typeof old === 'string') ops.push({ op: 'text.set', level: level.id, path: keys, value })
       else for (const [lang, text] of Object.entries(value)) ops.push({ op: 'text.set', level: level.id, path: keys, lang, value: text })
@@ -44,25 +58,28 @@ export function bulkSet(vocabulary, levels, path, value) {
 }
 
 /** Remove `path` from each level that has it. */
-export function bulkUnset(levels, path) {
+export function bulkUnset(vocabulary, levels, path) {
   const keys = parsePath(path)
   const ops = []
   const skipped = []
   for (const level of levels) {
     if (getAt(level, keys) === undefined) skipped.push({ level: level.id, why: 'has none' })
+    else if (changesType(vocabulary.level, level, unsetAt(level, keys), vocabulary)) skipped.push({ level: level.id, why: 'would change an existing configuration type' })
     else ops.push({ op: 'level.unset', level: level.id, path: keys })
   }
   return { ops, skipped }
 }
 
 /** A JSON merge patch on each level (null removes a field). */
-export function bulkPatch(levels, fields) {
+export function bulkPatch(vocabulary, levels, fields) {
   const ops = []
   const skipped = []
   for (const level of levels) {
-    const changes = Object.entries(fields).some(([k, v]) => (v === null ? level[k] !== undefined : !sameJson(level[k], v)))
-    if (changes) ops.push({ op: 'level.patch', level: level.id, fields })
-    else skipped.push({ level: level.id, why: 'holds that already' })
+    const value = bare(level)
+    const next = mergePatch(value, fields)
+    if (sameJson(value, next)) skipped.push({ level: level.id, why: 'holds that already' })
+    else if (changesType(vocabulary.level, value, next, vocabulary)) skipped.push({ level: level.id, why: 'would change an existing configuration type' })
+    else ops.push({ op: 'level.patch', level: level.id, fields })
   }
   return { ops, skipped }
 }

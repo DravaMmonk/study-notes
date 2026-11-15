@@ -5,7 +5,7 @@
 // objects that is a level's tasks shows each task as a group of its own rows. An optional field not written yet is a
 // + chip that adds it, blank, and opens it.
 //
-//   <Rows form keys? picked findings before onPick(path) onAdd(path, schema) />
+//   <Rows form ctx keys? picked findings before onPick(path) onAdd(path, schema, value) />
 //   findings: Map(showPath → [says]); before(path) → [had, value]
 import { L, tr } from '../shell/i18n.js'
 import { showPath } from '../engine/ops/edit.js'
@@ -45,7 +45,7 @@ function Row({ name, field, about, picked, findings, before, onPick }) {
 /** A list of objects that holds a level's tasks: a group of rows each. */
 const isTasks = (f) => f.field?.kind === 'list' && f.schema?.section === 'tasks' && f.field.items.every((i) => i.kind === 'obj')
 
-export default function Rows({ form, keys = null, picked = null, findings, before, onPick, onAdd }) {
+export default function Rows({ form, ctx, keys = null, picked = null, findings, before, onPick, onAdd }) {
   const tags = new Set((form.tags ?? []).map((t) => t.key))
   const mine = form.fields.filter((f) => !tags.has(f.key) && (!keys || keys.includes(f.key)))
   const absent = mine.filter((f) => !f.field && f.optional)
@@ -60,12 +60,12 @@ export default function Rows({ form, keys = null, picked = null, findings, befor
                 <span className="row-sum">{[task.value.id, task.value.step && L(task.value.step)].filter(Boolean).join(' · ')}</span>
                 {foundUnder(findings, task.path) > 0 && <b className="row-found">{foundUnder(findings, task.path)}</b>}
               </button>
-              <Rows form={task} picked={picked} findings={findings} before={before} onPick={onPick} onAdd={onAdd} />
+              <Rows form={task} ctx={ctx} picked={picked} findings={findings} before={before} onPick={onPick} onAdd={onAdd} />
             </section>
           ))}
         </div>
       ) : <Row key={f.key} name={f.key} field={f.field} about={f.about ?? f.field.about} picked={picked} findings={findings} before={before} onPick={onPick} />))}
-      {absent.length > 0 && <AddFields fields={absent} onAdd={(f) => onAdd([...form.path, f.key], f.schema)} />}
+      {absent.length > 0 && <AddFields fields={absent} ctx={ctx} onAdd={(f, value) => onAdd([...form.path, f.key], f.schema, value)} />}
     </div>
   )
 }

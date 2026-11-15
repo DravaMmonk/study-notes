@@ -52,7 +52,7 @@ export default function Bulk({ content, vocabulary, ids, ctx, onAdd, onMove, onS
         {field && (
           <div className="bulk-go">
             <button type="button" className="kit-btn is-label is-solid" onClick={() => setPlan(bulkSet(vocabulary, levels, [key], value))}>{tr('全部设成这样')}</button>
-            <button type="button" className="kit-btn is-label" onClick={() => setPlan(bulkUnset(levels, [key]))}>{tr('全部去掉')}</button>
+            <button type="button" className="kit-btn is-label" onClick={() => setPlan(bulkUnset(vocabulary, levels, [key]))}>{tr('全部去掉')}</button>
           </div>
         )}
       </section>
@@ -65,7 +65,7 @@ export default function Bulk({ content, vocabulary, ids, ctx, onAdd, onMove, onS
       )}
       <section className="bulk-step">
         <textarea className={`field-area is-code ${patchValue === undefined ? 'is-bad' : ''}`} rows={2} value={patch} onChange={(e) => setPatch(e.target.value)} placeholder='{ "field": value, "gone": null }' aria-label="JSON merge patch" spellCheck={false} />
-        <div className="bulk-go"><button type="button" className="kit-btn is-label is-solid" disabled={!patchValue || typeof patchValue !== 'object' || Array.isArray(patchValue)} onClick={() => setPlan(bulkPatch(levels, patchValue))}>patch</button></div>
+        <div className="bulk-go"><button type="button" className="kit-btn is-label is-solid" disabled={!patchValue || typeof patchValue !== 'object' || Array.isArray(patchValue)} onClick={() => setPlan(bulkPatch(vocabulary, levels, patchValue))}>patch</button></div>
       </section>
       {plan && (
         <section className="bulk-plan">

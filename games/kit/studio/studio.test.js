@@ -13,7 +13,7 @@ import { existsSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { domainOf, readStarter } from '../engine/content-node.js'
 import {
-  blank, boardPaths, cellText, cellValue, formOf, gridRows, gridValue, moved, opFor, pastedCells, placeFindings, placesOf, pushOp, recast,
+  blank, boardPaths, cellText, cellValue, creationChoices, formOf, gridRows, gridValue, moved, opFor, pastedCells, placeFindings, placesOf, pushOp,
   referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, taskOptionsOf, tickValue, tickValues, toggled,
 } from './form.js'
 import { lintText } from '../pipeline/lint.js'
@@ -56,9 +56,10 @@ const LEVEL = { kind: 'board', title: { en: '甲' }, adds: ['add'], tests: [{ in
 test('a level reads as fields by its schema: its shape (by), texts, choices from the vocabulary, calls, boards', () => {
   const form = formOf(VOCAB.level, LEVEL, ctx)
   assert.equal(form.kind, 'obj')
-  assert.deepEqual(form.tags[0].options.map((o) => o.value), ['board', 'hand'])
+  assert.deepEqual(creationChoices(VOCAB.level, ctx).map((option) => option.label), ['board', 'hand'])
   assert.equal(form.tags[0].value, 'board')
   const field = (key) => form.fields.find((f) => f.key === key)
+  assert.equal(field('kind').field.kind, 'fixed')
   assert.equal(field('title').field.kind, 'text')
   assert.equal(field('title').about, 'what the map shows')
   assert.equal(field('hint').field, null, 'an optional field not there has no field, only its schema to add it')
@@ -83,14 +84,13 @@ test('a level reads as fields by its schema: its shape (by), texts, choices from
   assert.deepEqual(hand.fields.map((f) => f.key), ['kind', 'title', 'moves'])
 })
 
-test('blank values fit their schemas, and a shape recast keeps the fields both shapes share', () => {
+test('blank values fit their schemas, and alternatives have their own creation drafts', () => {
   const value = blank(VOCAB.level, ctx)
   assert.equal(value.kind, 'board')
   assert.deepEqual(value.gen, { rows: { n: 1 } })
   assert.deepEqual(blank(S.call('gen'), ctx), { rows: { n: 1 } })
   assert.equal(blank(S.level(), ctx), 'a')
-  const tag = formOf(VOCAB.level, LEVEL, ctx).tags[0]
-  assert.deepEqual(recast(tag, LEVEL, 'hand', ctx), { kind: 'hand', title: { en: '甲' }, moves: [] })
+  assert.deepEqual(creationChoices(VOCAB.level, { ...ctx, lang: 'en' })[1].make(), { kind: 'hand', title: { en: '' }, moves: [] })
   assert.equal(shapeOf(S.either(S.str(), S.list(S.str())), ['x'], VOCAB).at, 1)
   assert.equal(shapeOf(S.either(S.str(), S.obj({ a: S.int() })), { a: 'not a number' }, VOCAB).at, 1, 'a value fitting no shape reads as the shape of its kind')
 })

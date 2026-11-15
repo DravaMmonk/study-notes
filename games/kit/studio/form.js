@@ -10,7 +10,7 @@
 //   bool, str (pattern?), any (JSON), board (blueprint lines)
 //   expr      a part's expression (view: 'expr', ../engine/parts/expr.js)     icon   a name of the kernel's icon table
 //   choice    options: [{ value, about? }], of?       oneOf; ref (the items of a vocabulary kind); level (the game's levels)
-//   call      item, options (the kind's items), params: field | null       { item: params } or 'item'
+//   call      item and its params (field | null)                          { item: params } or 'item'
 //   list      items: [field], of (the items' schema)
 //   map       entries: [{ key, field }], of
 //   obj       fields: [{ key, field | null (an optional field not there), optional, about?, schema }]
@@ -21,11 +21,10 @@
 //   chips     options, of: a list of choices (several items of a kind, several levels)
 //   table     columns: [{ key, schema, optional }] | null (a map's keys, from the rows), keyed (a map of scalars: a key
 //             column and a value column)
-// A field of a by (one shape a field names: a level by its kind) has `tags`: [{ key, value, options, cases }], the outer
-// by first when bys nest (a level by its mode, then by its world); a field of an either (several shapes) has `shapes`
-// (their schemas) and `shape` (the one it has now).
+// A field of a by (one shape a field names: a level by its kind) has `tags`: [{ key, value }], the outer
+// by first when bys nest (a level by its mode, then by its world); an either records which `shape` it has now.
 import { isText } from '../engine/i18n.js'
-import { getLang, L } from '../shell/i18n.js'
+import { getLang, L, tr } from '../shell/i18n.js'
 import { SECTIONS, callOf, find, sectionOf, validate } from '../engine/schema.js'
 import { parsePath, setAt, showPath, unsetAt } from '../engine/ops/edit.js'
 import { GLOSSARY } from '../engine/vocabulary.js'
@@ -118,6 +117,8 @@ export function formOf(schema, value, ctx, path = []) {
       if (schema.view === 'expr' || schema.view === 'icon') return { ...base, kind: schema.view }
       return listControl(schema, ctx) ? { ...base, ...listControl(schema, ctx) } : { ...base, kind: 'str', ...(schema.pattern && { pattern: schema.pattern }) }
     case 'oneOf':
+      if (schema.values.length === 1) return { ...base, kind: 'fixed' }
+      return { ...base, kind: 'choice', ...choicesOf(schema, ctx) }
     case 'ref':
     case 'level':
     case 'task':
@@ -125,7 +126,7 @@ export function formOf(schema, value, ctx, path = []) {
     case 'call': {
       const [item, params] = value === undefined ? [null, {}] : callOf(value)
       const spec = vocabulary?.kinds[schema.kind]?.[item]?.params
-      return { ...base, kind: 'call', of: schema.kind, item, options: itemsOf(vocabulary, schema.kind), params: spec ? formOf(spec, params, ctx, [...path, item]) : null }
+      return { ...base, kind: 'call', item, params: spec ? formOf(spec, params, ctx, [...path, item]) : null }
     }
     case 'list': {
       const bindings = schema.view === 'setting-bindings'
@@ -153,11 +154,13 @@ export function formOf(schema, value, ctx, path = []) {
       const tag = isObj(value) ? value[schema.field] : undefined
       const shape = schema.cases[tag]
       const field = shape ? formOf(shape, value, ctx, path) : { ...base, kind: 'obj', fields: [] }
-      return { ...field, ...base, tags: [{ key: schema.field, value: tag, options: Object.keys(schema.cases).map((v) => ({ value: v })), cases: schema.cases }, ...(field.tags ?? [])] }
+      const fields = field.fields?.map((f) => f.key === schema.field && f.field
+        ? { ...f, optional: false, field: { ...f.field, kind: 'fixed' } } : f)
+      return { ...field, ...base, fields, tags: [{ key: schema.field, value: tag }, ...(field.tags ?? [])] }
     }
     case 'either': {
       const { schema: shape, at } = shapeOf(schema, value, vocabulary)
-      return { ...formOf({ ...shape, ...(schema.about && { about: schema.about }), ...(schema.optional && { optional: true }) }, value, ctx, path), shapes: schema.of, shape: at }
+      return { ...formOf({ ...shape, ...(schema.about && { about: schema.about }), ...(schema.optional && { optional: true }) }, value, ctx, path), shape: at }
     }
     default:
       return { ...base, kind: 'any' }
@@ -208,15 +211,63 @@ export function shapeName(shape, shapes) {
   return shape.type
 }
 
-/** A by's value (`tag` of its field) recast as its shape `to`: the fields the two shapes share kept, the rest blank. */
-export function recast(tag, value, to, ctx) {
-  const fresh = blank(tag.cases[to], ctx)
-  // A shape that is a by of its own (a task's kind, then its scene) is read as the case its blank value takes; an either
-  // as its first shape, the one blank makes.
-  let shape = tag.cases[to]
-  while (shape.type === 'by' || shape.type === 'either') shape = shape.type === 'by' ? shape.cases[fresh[shape.field]] : shape.of[0]
-  const kept = Object.fromEntries(Object.entries(value ?? {}).filter(([k]) => k in shape.fields && validate(shape.fields[k], value[k], { vocabulary: ctx.vocabulary, levels: null }).length === 0))
-  return { ...fresh, ...kept, [tag.key]: to }
+/** The types available when creating a value. Build the draft only after a type is picked. */
+export function creationChoices(schema, ctx) {
+  const walk = (shape, labels = []) => {
+    switch (shape.type) {
+      case 'by':
+        return Object.entries(shape.cases).flatMap(([tag, spec]) =>
+          walk(spec, [...labels, tag]).map((choice) => ({
+            ...choice, make: () => ({ ...choice.make(), [shape.field]: tag }),
+          })))
+      case 'either':
+        return shape.of.flatMap((spec) => walk(spec, spec.type === 'by' ? labels : [...labels, shapeName(spec, shape.of)]))
+      case 'call':
+        return Object.entries(ctx.vocabulary?.kinds[shape.kind] ?? {}).map(([item, spec]) => ({
+          label: [...labels, item].join(' · '), about: spec.about,
+          make: () => spec.params ? { [item]: blank(spec.params, ctx) } : item,
+        }))
+      default:
+        return [{ label: labels.join(' · ') || tr('空白项', 'Blank item'), make: () => blank(shape, ctx) }]
+    }
+  }
+  return walk(schema).map((choice, index) => ({ ...choice, value: index }))
+}
+
+/** Detect replacements of an existing schema variant in a bulk edit. */
+export function changesType(schema, before, after, vocabulary) {
+  if (before === undefined || after === undefined) return false
+  const changed = (spec, old, next) => changesType(spec, old, next, vocabulary)
+  switch (schema.type) {
+    case 'by': {
+      const tag = before?.[schema.field]
+      return tag !== after?.[schema.field] || Boolean(schema.cases[tag] && changed(schema.cases[tag], before, after))
+    }
+    case 'either': {
+      const old = shapeOf(schema, before, vocabulary)
+      const next = shapeOf(schema, after, vocabulary)
+      return old.at !== next.at || changed(old.schema, before, after)
+    }
+    case 'call': {
+      const hasItem = (value) => typeof value === 'string' || (isObj(value) && Object.keys(value).length > 0)
+      if (!hasItem(before) || !hasItem(after)) return hasItem(before) !== hasItem(after)
+      const [item, params] = callOf(before)
+      const [nextItem, nextParams] = callOf(after)
+      const spec = vocabulary.kinds[schema.kind]?.[item]?.params
+      return item !== nextItem || Boolean(spec && changed(spec, params, nextParams))
+    }
+    case 'obj': return Object.entries(schema.fields).some(([key, spec]) => changed(spec, before?.[key], after?.[key]))
+    case 'map': return Object.keys(before ?? {}).some((key) => changed(schema.of, before[key], after?.[key]))
+    case 'list': {
+      if (!Array.isArray(before) || !Array.isArray(after)) return false
+      if (schema.section === 'tasks') {
+        const byId = new Map(after.map((item) => [item?.id, item]))
+        return before.some((item) => changed(schema.of, item, byId.get(item?.id)))
+      }
+      return before.some((item, index) => changed(schema.of, item, after[index]))
+    }
+    default: return false
+  }
 }
 
 /* ---------- cells: what a grid, a table or a tick strip holds, typed and read back ---------- */
@@ -433,6 +484,10 @@ export function opFor(file, path, edit, type = null) {
   }
   // pieces.json: a field of it (a whole part is added, removed and renamed by the part operations).
   if (file.parts) {
+    if (edit.unset && keys.length === 2) {
+      if (keys[0] === 'parts') return { op: 'piece.remove', piece: keys[1] }
+      if (keys[0] === 'settings') return { op: 'setting.remove', setting: keys[1] }
+    }
     if (edit.unset) return { op: 'pieces.unset', path: keys }
     return { op: 'pieces.set', path: keys, value: edit.set }
   }

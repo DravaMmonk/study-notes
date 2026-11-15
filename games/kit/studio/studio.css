@@ -571,16 +571,20 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .insp-crumb { padding: 2px 4px; border: 0; border-radius: 4px; color: var(--accent-ink); background: none; font: 600 11.5px/1.2 var(--mono); cursor: pointer; }
 .insp-crumb:hover:not(:disabled) { background: var(--hover); }
 .insp-crumb:disabled { color: var(--ink); cursor: default; }
-.insp-source { width: 22px; height: 22px; flex: none; display: grid; place-items: center; border: 0; border-radius: 4px; color: var(--muted); background: none; cursor: pointer; }
+.insp-source, .insp-delete { width: 22px; height: 22px; flex: none; display: grid; place-items: center; border: 0; border-radius: 4px; color: var(--muted); background: none; cursor: pointer; }
 .insp-source:hover { color: var(--ink); background: var(--hover); }
 .insp-source[aria-pressed="true"] { color: var(--accent-ink); background: var(--hover); }
+.insp-delete { color: var(--fail); }
+.insp-delete:hover:not(:disabled) { background: var(--hover); }
+.insp-delete:disabled { opacity: .35; cursor: default; }
 .insp-tools { display: flex; align-items: center; gap: 2px; padding: 4px 8px; border-bottom: 1px solid var(--line); color: var(--muted); font: var(--fs-mini)/1 var(--mono); }
 .insp-tools button { width: 24px; height: 22px; display: grid; place-items: center; border: 0; border-radius: 4px; color: var(--muted); background: none; cursor: pointer; }
 .insp-tools button:hover:not(:disabled) { color: var(--ink); background: var(--hover); }
 .insp-tools button:disabled { opacity: .35; cursor: default; }
 .insp-body { padding: 8px 10px 40px; min-width: 0; }
-.insp-json { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: var(--fs)/1.5 var(--mono); }
-.insp-json code { font: inherit; }
+.insp-source-editor { display: grid; gap: 6px; min-width: 0; }
+.insp-source-editor textarea { width: 100%; resize: vertical; }
+.insp-source-actions { display: flex; justify-content: flex-end; gap: 6px; }
 .insp-about { margin: 0 0 6px; color: var(--muted); font: 12px/1.45 var(--sans); }
 .insp-note { margin: 0; padding: 10px; color: var(--muted); line-height: 1.5; }
 .insp-absent { display: grid; justify-items: start; gap: 6px; }
