@@ -1,9 +1,9 @@
 import { playId } from '../engine/plays.js'
-import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { Maximize2 } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
-import { firstTask, flagsIn, passed, saved as savedAt, skipOptionalTask } from './progress.js'
+import { firstTask, flagsIn } from './progress.js'
 import { playedTask } from './played-task.js'
 import { slotsOf } from './slots.js'
 import { setRefs } from './refs.js'
@@ -26,20 +26,15 @@ const HEIGHT = 'kit-embed-height'
  */
 export default function EmbedShell({ game, store, levelId }) {
   const root = useRef(null)
-  const [progress, setProgress] = useState(() => store.load())
+  const progress = useSyncExternalStore(store.subscribe, store.load)
   const level = game.byId[levelId] ?? null
   const [taskAt, setTaskAt] = useState(() => (level ? firstTask(game, progress, level.id) : 0))
-  const skip = (k) => {
-    setProgress((p) => skipOptionalTask(p, level, k))
-    setTaskAt(k + 1)
-  }
-  const task = level && playedTask(game, progress, level, taskAt, { go: setTaskAt, skip })
+  const task = level && playedTask(game, progress, level, taskAt, { go: setTaskAt, update: store.update })
   const slots = task ? slotsOf(progress, task.key) : null
   const { runAt, run } = useLevelRuns(task?.key, slots?.list[slots.at].no)
   const phone = useMedia(PHONE)
   const theme = useStoredTheme()
 
-  useEffect(() => store.save(progress), [store, progress])
   useEffect(() => { window.addEventListener('storage', settings.notify); return () => window.removeEventListener('storage', settings.notify) }, [])
   useLayoutEffect(() => {
     const el = root.current
@@ -59,7 +54,7 @@ export default function EmbedShell({ game, store, levelId }) {
 
   if (!level) return <div ref={root} className="game is-embed"><div className="board-loading">{tr(`没有「${levelId}」这一关。`, `There is no level “${levelId}”.`)}</div></div>
 
-  const { played, saved, solved } = task
+  const { played, saved, save, solved, solve } = task
   const kind = game.kinds[playId(played)]
   const page = new URL(window.location.href)
   page.search = new URLSearchParams({ level: level.id }).toString()
@@ -75,9 +70,9 @@ export default function EmbedShell({ game, store, levelId }) {
               game,
               level: played,
               saved,
-              save: (data) => setProgress((p) => savedAt(p, level, taskAt, data)),
+              save,
               solved,
-              solve: (score, work) => setProgress((p) => passed(game, p, level, taskAt, score, work)),
+              solve,
               fail: () => {},
               ...run,
               flags,

@@ -10,7 +10,7 @@ globalThis.window = { localStorage: { getItem: (k) => storage.get(k) ?? null, se
 test('a task whose puzzle changed loses its save, its level is unsolved, and every other task keeps its own', () => {
   const tasks = { a: { level: 'one', stamp: 'aaaa' }, b: { level: 'one', stamp: 'bbbb' }, c: { level: 'two', stamp: 'cccc' } }
   const made = createProgress({ id: 'g', tasks })
-  made.save({ ...made.load(), solved: ['one', 'two'], passed: ['a', 'b', 'c'], data: { a: 1, b: 2, c: 3 }, built: { b: 2, c: 3 }, best: { one: 5, two: 6 } })
+  made.update((p) => ({ ...p, solved: ['one', 'two'], passed: ['a', 'b', 'c'], data: { a: 1, b: 2, c: 3 }, built: { b: 2, c: 3 }, best: { one: 5, two: 6 } }))
   assert.deepEqual(createProgress({ id: 'g', tasks }).load().solved, ['one', 'two'])
   // b's puzzle changes; a task that is gone from the content (and a new one) changes nothing else.
   const now = createProgress({ id: 'g', tasks: { a: tasks.a, b: { level: 'one', stamp: 'other' }, d: { level: 'two', stamp: 'dddd' } } }).load()
@@ -26,9 +26,24 @@ test('a save of another shape, or one that does not parse, reads as a fresh star
   assert.deepEqual(made.load().solved, [])
 })
 
+test('an open reader applies its next change to the latest saved progress', () => {
+  const id = 'shared-progress'
+  const page = createProgress({ id })
+  const embed = createProgress({ id })
+  const initial = embed.load()
+  assert.equal(embed.load(), initial)
+
+  page.update((p) => ({ ...p, passed: ['work'], built: { work: { nodes: [], wires: [] } } }))
+  const both = embed.update((p) => ({ ...p, skippedTasks: ['extra'] }))
+  assert.deepEqual(both.skippedTasks, ['extra'])
+  assert.deepEqual(both.passed, ['work'])
+  assert.deepEqual(page.load(), both)
+  assert.equal(embed.load(), both)
+})
+
 test('a cross-game gate requires a recorded pass for the exact level', () => {
   const source = createProgress({ id: 'source' })
-  source.save({ ...source.load(), solved: ['0-10'], all: true })
+  source.update((p) => ({ ...p, solved: ['0-10'], all: true }))
   assert.equal(passedLevelIn('source', '0-10'), true)
   assert.equal(passedLevelIn('source', '0-1'), false)
   assert.equal(passedLevelIn('anotherGame', '0-10'), false)

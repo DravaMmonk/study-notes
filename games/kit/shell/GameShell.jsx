@@ -1,5 +1,5 @@
 import { playId } from '../engine/plays.js'
-import { createElement, useEffect, useMemo, useRef, useState } from 'react'
+import { createElement, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { ArrowLeft, BookMarked, BookOpen, PanelLeft } from 'lucide-react'
 import { applyTheme } from '../theme.js'
 import { currentLang } from '../lang.js'
@@ -12,7 +12,7 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { earnedUnlocks, firstTask as openTask, flagsIn, nextRequiredTask, passed, saved as savedAt, skipOptionalTask, taskOpen } from './progress.js'
+import { earnedUnlocks, firstTask as openTask, flagsIn, nextRequiredTask, taskOpen } from './progress.js'
 import { playedTask } from './played-task.js'
 import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
@@ -63,7 +63,8 @@ const SITE = { games: '../index.html' }
  */
 export default function GameShell({ game, store, author = null }) {
   const viewportRoot = useRef(null)
-  const [progress, setProgress] = useState(() => store.load())
+  const progress = useSyncExternalStore(store.subscribe, store.load)
+  const update = store.update
   const [, refreshExternalPasses] = useState(0)
   const [levelId, setLevelId] = useState(() => {
     const id = new URLSearchParams(window.location.search).get('level')
@@ -131,7 +132,6 @@ export default function GameShell({ game, store, author = null }) {
   // The level drawer, pulled out from the left over a level.
   const [drawer, setDrawer] = useState(false)
 
-  useEffect(() => store.save(progress), [store, progress])
   useEffect(() => applyTheme(theme), [theme])
   useEffect(() => {
     document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN'
@@ -179,24 +179,17 @@ export default function GameShell({ game, store, author = null }) {
     setFailure(null)
     setFails(0)
   }
-  const skipTask = (k) => {
-    setProgress((p) => skipOptionalTask(p, level, k))
-    goTask(k + 1)
-  }
-  const task = level && playedTask(game, progress, level, taskAt, { go: goTask, skip: skipTask })
+  const task = level && playedTask(game, progress, level, taskAt, { go: goTask, update })
   const key = task?.key ?? null
   const played = task && { ...task.played, optionalLevel: Boolean(level.optional), skipLevel: () => open(null) }
 
   // What a level screen can do to the shell.
-  const save = (data) => setProgress((p) => savedAt(p, level, taskAt, data))
   // Keep each passed board; out-of-order play can finish a level on any task.
   const solve = (score, work) => {
-    const done = passed(game, progress, level, taskAt, score, work)
-    setProgress((p) => passed(game, p, level, taskAt, score, work))
+    const done = task.solve(score, work)
     setFailure(null)
-    const next = nextRequiredTask(game, progress, level.id, taskAt)
     if (done.solved.includes(level.id)) setWon(level.id)
-    else setTaskWon({ index: taskAt, next })
+    else setTaskWon({ index: taskAt, next: nextRequiredTask(game, done, level.id, taskAt) })
   }
   const fail = (info) => {
     const count = fails + 1
@@ -244,7 +237,7 @@ export default function GameShell({ game, store, author = null }) {
   const slots = level ? slotsOf(progress, key) : null
   const { runAt, run, dropRun, clearRuns } = useLevelRuns(key, slots?.list[slots.at].no)
   const slotted = (f) => (...args) => {
-    setProgress((p) => f(p, key, ...args))
+    update((p) => f(p, key, ...args))
     setWon(null)
     setFailure(null)
     setFails(0)
@@ -255,7 +248,7 @@ export default function GameShell({ game, store, author = null }) {
     level: level.id,
     open: slotted(openSlot),
     add: slotted(addSlot),
-    rename: (k, name) => setProgress((p) => renameSlot(p, key, k, name)),
+    rename: (k, name) => update((p) => renameSlot(p, key, k, name)),
     take: author?.level === level.id ? author.take : null,
     // A slot dropped takes its runs with it: a slot added later may take its number.
     drop: (k) => {
@@ -316,7 +309,7 @@ export default function GameShell({ game, store, author = null }) {
   const workshop = workshopSources.find((source) => bench?.back && source.candidate.id === bench.back.id && source.at === bench.back.task && onTray(source))
     ?? workshopSources.find((source) => bench?.tray && onTray(source))
     ?? workshopSources[0]
-  const benchTask = bench && workshop ? playedTask(game, progress, workshop.candidate, workshop.at, {}) : null
+  const benchTask = bench && workshop ? playedTask(game, progress, workshop.candidate, workshop.at) : null
   const benchTray = benchTask && (bench.tray ?? traysOf(workshop.task)[0] ?? '')
   const benchTrays = Object.keys(game.course?.trays ?? {}).filter((name) => workshopSources.some(({ task }) => traysOf(task).includes(name)))
   const titleMark = edit ? { 'data-edit': 'title', ...(same(edit, 'title', 'level') && { 'data-picked': '' }), onClickCapture: (e) => { e.stopPropagation(); edit.pick({ at: 'title', scope: 'level' }) } } : {}
@@ -366,10 +359,10 @@ export default function GameShell({ game, store, author = null }) {
             game={game}
             progress={progress}
             solved={solved}
-            onAll={() => setProgress((p) => ({ ...p, all: true }))}
+            onAll={() => update((p) => ({ ...p, all: true }))}
             onOpen={open}
             focus={left}
-            onReset={() => setProgress((p) => ({ ...store.blank(), all: p.all }))}
+            onReset={() => update((p) => ({ ...store.blank(), all: p.all }))}
             onParts={game.parts && (() => setSheet('parts'))}
             onWorkshop={workshop && (() => openBench())}
             partsNew={box.unread.length}
@@ -397,7 +390,7 @@ export default function GameShell({ game, store, author = null }) {
             )}
             <EditContext.Provider value={edit}>
               {kind
-                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: task.saved, save, solved: task.solved, solve, fail, ...run, flags, progress, theme, phone, workshop: !author && game.workshop, onWorkshop: (tray) => openBench(tray, { id: level.id, task: taskAt }) })}</SlotsContext.Provider>
+                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: task.saved, save: task.save, solved: task.solved, solve, fail, ...run, flags, progress, theme, phone, workshop: !author && game.workshop, onWorkshop: (tray) => openBench(tray, { id: level.id, task: taskAt }) })}</SlotsContext.Provider>
                 : <div className="board-loading">{tr('这类关卡尚在制作中。')}</div>}
             </EditContext.Provider>
           </div>
@@ -423,7 +416,7 @@ export default function GameShell({ game, store, author = null }) {
             theme={theme}
             onClose={() => {
               setIntroFor(null)
-              setProgress((p) => ({ ...p, introSeen: { ...p.introSeen, [introKey]: true } }))
+              update((p) => ({ ...p, introSeen: { ...p.introSeen, [introKey]: true } }))
             }}
           />
           </EditContext.Provider>
@@ -442,7 +435,7 @@ export default function GameShell({ game, store, author = null }) {
           ? <Dialog top title={tr(`前往 ${game.levelLabel(target)}「${L(target.title)}」？`, `Go to ${game.levelLabel(target)} “${L(target.title)}”?`)} lines={[atTarget ? tr('你正在这里。') : tr('这一关的电路和进度都会保存，可以随时返回。')]} actions={atTarget ? [[tr('确定'), () => setGoTo(null)]] : [[tr('取消'), () => setGoTo(null)], [tr('前往'), go]]} onClose={() => setGoTo(null)} />
           : <Dialog top title={tr(`${game.levelLabel(target)}「${L(target.title)}」尚未解锁`, `${game.levelLabel(target)} “${L(target.title)}” is still locked`)} lines={[tr('请先通过它的前置关卡。')]} actions={[[tr('确定'), () => setGoTo(null)]]} onClose={() => setGoTo(null)} />)}
         {game.power && !progress.seenPower && (
-          <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始'), () => setProgress((p) => ({ ...p, seenPower: true }))]]} intro />
+          <Dialog title={L(game.power.title)} lines={game.power.lines.map(L)} actions={[[tr('开始'), () => update((p) => ({ ...p, seenPower: true }))]]} intro />
         )}
       </div>
     </SettingsContext.Provider>

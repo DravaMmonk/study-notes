@@ -74,10 +74,11 @@ async function gameOf(content, stamp) {
 
 /** A save with every level open and `level` opened on a board (a level of tasks: at its task). */
 function seeded(game, level, seed) {
-  const p = { ...game.store.load(), all: true, seenPower: true }
   const at = game.byId[level]
-  if (!seed || !at) return game.store.save(p)
-  return game.store.save(saved(openAt(game, p, level, seed.task), at, seed.task, seed.data))
+  game.store.update((progress) => {
+    const p = { ...progress, all: true, seenPower: true }
+    return seed && at ? saved(openAt(game, p, level, seed.task), at, seed.task, seed.data) : p
+  })
 }
 
 export default function Play() {

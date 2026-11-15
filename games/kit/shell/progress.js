@@ -62,26 +62,63 @@ export function current(stored, tasks) {
 export function createProgress({ id, tasks = {}, restoreBuilt = (built) => built }) {
   const key = saveKey(id)
   const stamps = Object.fromEntries(Object.entries(tasks).map(([task, { stamp }]) => [task, stamp]))
+  const empty = () => ({ ...blank(), stamps })
+  const listeners = new Set()
+  let raw
+  let snapshot = empty()
+
+  function load() {
+    let latest
+    try {
+      latest = window.localStorage.getItem(key)
+    } catch {
+      return snapshot
+    }
+    if (latest === raw) return snapshot
+    raw = latest
+    try {
+      const stored = JSON.parse(raw)
+      if (!stored?.stamps) return (snapshot = empty())
+      const progress = { ...current({ ...blank(), ...stored }, tasks), stamps }
+      snapshot = { ...progress, built: restoreBuilt(progress.built) }
+    } catch {
+      snapshot = empty()
+    }
+    return snapshot
+  }
+
+  function save(progress) {
+    snapshot = progress
+    try {
+      const serialized = JSON.stringify({ ...progress, stamps })
+      window.localStorage.setItem(key, serialized)
+      raw = serialized
+    } catch {
+      // Storage may be full or blocked; the game still works for this session.
+    }
+    listeners.forEach((notify) => notify())
+  }
+
   return {
     key,
-    load() {
-      try {
-        const stored = JSON.parse(window.localStorage.getItem(key))
-        if (!stored?.stamps) return { ...blank(), stamps }
-        const progress = { ...blank(), ...current({ ...blank(), ...stored }, tasks), stamps }
-        return { ...progress, built: restoreBuilt(progress.built) }
-      } catch {
-        return { ...blank(), stamps }
+    load,
+    blank: () => ({ ...empty(), seenPower: true }),
+    update(change) {
+      // A tab or another notes embed may have written since this screen rendered.
+      const before = load()
+      const after = change(before)
+      if (after !== before) save(after)
+      return after
+    },
+    subscribe(notify) {
+      const onStorage = (event) => { if (event.key === key || event.key === null) notify() }
+      window.addEventListener('storage', onStorage)
+      listeners.add(notify)
+      return () => {
+        window.removeEventListener('storage', onStorage)
+        listeners.delete(notify)
       }
     },
-    save(progress) {
-      try {
-        window.localStorage.setItem(key, JSON.stringify({ ...progress, stamps }))
-      } catch {
-        // Storage may be full or blocked; the game still works for this session.
-      }
-    },
-    blank: () => ({ ...blank(), stamps, seenPower: true }),
   }
 }
 
