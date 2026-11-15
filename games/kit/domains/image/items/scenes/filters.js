@@ -1,12 +1,8 @@
 // Scenes of filters (scenes/index.js): a noisy step whose true edge is wanted, and the document scanner's scans.
 import { S } from '../../../../engine/schema.js'
-import { addNoise, correlate, fromFn, gaussianKernel, map, patterns, shift, zip } from '../../engine/image.js'
+import { addNoise, correlate, fromFn, gaussianKernel, map, patterns } from '../../engine/image.js'
+import { boxBlur3, horizontalDifference, squaredGradient } from '../../engine/filters.js'
 import { T as t } from '../../../../shell/i18n.js'
-
-const BOX3 = Array(9).fill(1 / 9)
-const SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1].map((v) => v / 8)
-const SOBEL_Y = [-1, -2, -1, 0, 0, 0, 1, 2, 1].map((v) => v / 8)
-const diffx = (img) => zip(shift(img, -1, 0), img, (a, b) => a - b)
 
 // A 24×24 scan: a sheet of paper on a dark desk, a few lines of text on it, sometimes sensor noise.
 const S24 = 24
@@ -20,12 +16,11 @@ const sheet = ({ x0, y0, x1, y1, lines = [], noise = 0, seed = 1 }) => {
   })
   return { clean, scan: noise ? addNoise(clean, seed, noise) : clean }
 }
-const sobel2 = (img, border) => zip(correlate(img, SOBEL_X, border), correlate(img, SOBEL_Y, border), (gx, gy) => gx * gx + gy * gy)
 // What the scanner is asked for: the scan without its grain, the edges Sobel sees, or the paper's own edges.
 const SCAN_EXPECTS = {
   clean: ({ clean }) => correlate(clean, gaussianKernel(1), 'edge'),
-  edges: ({ scan }) => map(sobel2(scan, 'edge'), (v) => (v > 0.04 ? 1 : 0)),
-  paper: ({ scan }) => map(sobel2(correlate(scan, gaussianKernel(1.5), 'edge'), 'edge'), (v) => (v > 0.01 ? 1 : 0)),
+  edges: ({ scan }) => map(squaredGradient(scan, 'edge'), (v) => (v > 0.04 ? 1 : 0)),
+  paper: ({ scan }) => map(squaredGradient(correlate(scan, gaussianKernel(1.5), 'edge'), 'edge'), (v) => (v > 0.01 ? 1 : 0)),
 }
 
 export const FILTERS = {
@@ -34,7 +29,7 @@ export const FILTERS = {
     test: S.obj({ edge: S.int(), seed: S.int() }),
     make: ({ edge, seed }) => {
       const step = patterns.stepX(edge, 0.15, 0.85)
-      return { inputs: { in: addNoise(step, seed, 0.22) }, expected: { out: map(diffx(correlate(step, BOX3)), (v) => (v > 0.15 ? 1 : 0)) } }
+      return { inputs: { in: addNoise(step, seed, 0.22) }, expected: { out: map(horizontalDifference(boxBlur3(step)), (v) => (v > 0.15 ? 1 : 0)) } }
     },
   },
   scan: {

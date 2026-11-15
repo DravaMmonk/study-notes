@@ -2,7 +2,8 @@
 // cloths that match under one lamp only, paint and light split apart, coloured scenes under uneven light, and a
 // painted metal sheet photographed under three lamps (photometric stereo).
 import { S } from '../../../../engine/schema.js'
-import { correlate, fromFn, image, map, random, zip } from '../../engine/image.js'
+import { fromFn, image, map, random, zip } from '../../engine/image.js'
+import { gradientMagnitude } from '../../engine/filters.js'
 import { NODE_TYPES } from '../../engine/nodes.js'
 import { CURVES } from '../../engine/parts/light.js'
 import { compose } from '../../engine/colour.js'
@@ -243,9 +244,7 @@ export const LIGHT = {
     test: S.obj({ subject: S.call('picture'), gain: num, offset: num }),
     make: ({ subject, gain, offset }) => {
       const img = picture(subject)
-      const SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1].map((v) => v / 8)
-      const SOBEL_Y = [-1, -2, -1, 0, 0, 0, 1, 2, 1].map((v) => v / 8)
-      const g = zip(correlate(img, SOBEL_X, 'edge'), correlate(img, SOBEL_Y, 'edge'), Math.hypot)
+      const g = gradientMagnitude(img, 'edge')
       const peak = Math.max(...g.data)
       return { inputs: { in: map(img, (v) => v * gain + offset) }, expected: { out: map(g, (v) => (v / peak > 0.5 ? 1 : 0)) } }
     },

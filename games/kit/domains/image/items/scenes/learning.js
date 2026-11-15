@@ -4,6 +4,7 @@
 import { S } from '../../../../engine/schema.js'
 import { GLYPHS, addNoise, correlate, fromFn, image, map, maxPool, patterns, random, zip } from '../../engine/image.js'
 import { T as t } from '../../../../shell/i18n.js'
+import { boxBlur3 } from '../../engine/filters.js'
 import { compose } from '../../engine/colour.js'
 
 const num = (v) => image(1, 1, v)
@@ -89,7 +90,6 @@ const MIX_PAINTS = {
   texture: (x, y) => [((x * 7 + y * 3) % 10) / 10, ((x * 3 + y * 5) % 10) / 10, ((x + y * 7) % 10) / 10],
   yellowDisc: (x, y) => ((x - 8) ** 2 + (y - 8) ** 2 < 20 ? [0.9, 0.85, 0.1] : [0.2, 0.3, 0.6]),
 }
-const blur3 = (img) => correlate(img, Array(9).fill(1 / 9))
 
 // The sorting belt's parts: X, O and +.
 const SORT_ROWS = { X: GLYPHS.X, O: GLYPHS.O, P: ['..#..', '..#..', '#####', '..#..', '..#..'] }
@@ -143,7 +143,7 @@ export const LEARNING = {
     test: S.obj({ paint: S.oneOf(Object.keys(MIX_PAINTS)) }),
     make: ({ paint }) => {
       const [r, g, b] = [0, 1, 2].map((c) => fromFn(16, 16, (x, y) => MIX_PAINTS[paint](x, y)[c]))
-      const [R, G, B] = [blur3(r), blur3(g), blur3(b)]
+      const [R, G, B] = [boxBlur3(r), boxBlur3(g), boxBlur3(b)]
       return { inputs: { r, g, b }, expected: { o1: zip(R, G, (p, q) => p - q), o2: fromFn(r.w, r.h, (x, y) => { const i = y * r.w + x; return R.data[i] + G.data[i] - 2 * B.data[i] }) } }
     },
   },

@@ -1,5 +1,6 @@
 import { MISSING, PartError } from '../../../engine/circuit.js'
 import { correlate, downsample, fromFn, gaussianKernel, image, map, maxPool, shift, zip } from './image.js'
+import { boxBlur3, boxKernel, gradientMagnitude, harrisResponse, horizontalDifference, sobelX, sobelY } from './filters.js'
 import { piText } from './pi.js'
 import { FREQUENCY } from './parts/frequency.js'
 import { GENERATIVE } from './parts/generative.js'
@@ -35,10 +36,6 @@ const ARITH = {
   mul: ['×', (x, y) => x * y],
   div: ['÷', (x, y) => x / (Math.abs(y) < 1e-6 ? 1e-6 : y)],
 }
-
-const BOX3 = Array(9).fill(1 / 9)
-const SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1].map((v) => v / 8)
-const SOBEL_Y = [-1, -2, -1, 0, 0, 0, 1, 2, 1].map((v) => v / 8)
 
 export const NODE_TYPES = {
   input: { label: { zh: '输入', en: 'Input' }, inputs: [], fixed: true, eval: () => null, cost: 0 },
@@ -174,7 +171,7 @@ export const NODE_TYPES = {
     cost: 3,
     unlock: 'line3',
   },
-  box3: { label: { zh: '3×3 平均', en: '3×3 average' }, inputs: ['in'], params: [borderParam], eval: ({ in: a }, p) => correlate(a, BOX3, borderOf(p)), cost: 6, unlock: 'box3' },
+  box3: { label: { zh: '3×3 平均', en: '3×3 average' }, inputs: ['in'], params: [borderParam], eval: ({ in: a }, p) => boxBlur3(a, borderOf(p)), cost: 6, unlock: 'box3' },
   gauss: {
     label: { zh: '高斯模糊', en: 'Gaussian blur' },
     inputs: ['in'],
@@ -184,9 +181,9 @@ export const NODE_TYPES = {
     cost: (p) => 2 * (2 * Math.ceil(2.5 * (p.sigma ?? 1)) + 1),
     unlock: 'gauss',
   },
-  diffx: { label: { zh: '横向差分', en: 'Horizontal difference' }, inputs: ['in'], eval: ({ in: a }) => zip(shift(a, -1, 0), a, (x, y) => x - y), cost: 1, unlock: 'diffx' },
-  sobelx: { label: 'Sobel x', inputs: ['in'], params: [borderParam], eval: ({ in: a }, p) => correlate(a, SOBEL_X, borderOf(p)), cost: 6, unlock: 'sobel' },
-  sobely: { label: 'Sobel y', inputs: ['in'], params: [borderParam], eval: ({ in: a }, p) => correlate(a, SOBEL_Y, borderOf(p)), cost: 6, unlock: 'sobel' },
+  diffx: { label: { zh: '横向差分', en: 'Horizontal difference' }, inputs: ['in'], eval: ({ in: a }) => horizontalDifference(a), cost: 1, unlock: 'diffx' },
+  sobelx: { label: 'Sobel x', inputs: ['in'], params: [borderParam], eval: ({ in: a }, p) => sobelX(a, borderOf(p)), cost: 6, unlock: 'sobel' },
+  sobely: { label: 'Sobel y', inputs: ['in'], params: [borderParam], eval: ({ in: a }, p) => sobelY(a, borderOf(p)), cost: 6, unlock: 'sobel' },
   kernel3: {
     label: { zh: '3×3 核', en: '3×3 kernel' },
     inputs: ['in'],
@@ -209,7 +206,7 @@ export const NODE_TYPES = {
     label: { zh: '梯度幅值', en: 'Gradient magnitude' },
     inputs: ['in'],
     params: [borderParam],
-    eval: ({ in: a }, p) => zip(correlate(a, SOBEL_X, borderOf(p)), correlate(a, SOBEL_Y, borderOf(p)), (gx, gy) => Math.hypot(gx, gy)),
+    eval: ({ in: a }, p) => gradientMagnitude(a, borderOf(p)),
     cost: 15,
     unlock: 'gradmag',
   },
@@ -252,22 +249,8 @@ Object.assign(NODE_TYPES, FREQUENCY, LIGHT, LEARNING, GLOBAL, MATCHING, GENERATI
 // The parts every course starts from; a course's own table adds the parts its levels pack (../course.js).
 Object.freeze(NODE_TYPES)
 
-export function harrisResponse(a, k = 0.05) {
-  const gx = correlate(a, SOBEL_X)
-  const gy = correlate(a, SOBEL_Y)
-  const xx = correlate(zip(gx, gx, (p, q) => p * q), BOX3)
-  const yy = correlate(zip(gy, gy, (p, q) => p * q), BOX3)
-  const xy = correlate(zip(gx, gy, (p, q) => p * q), BOX3)
-  return fromFn(a.w, a.h, (x, y) => {
-    const i = y * a.w + x
-    const det = xx.data[i] * yy.data[i] - xy.data[i] * xy.data[i]
-    const trace = xx.data[i] + yy.data[i]
-    return (det - k * trace * trace) * 100
-  })
-}
-
 export function disparityMap(left, right, window = 3, maxD = 4) {
-  const box = Array(window * window).fill(1 / (window * window))
+  const box = boxKernel(window)
   const costs = Array.from({ length: maxD }, (_, d) => correlate(zip(left, shift(right, d, 0), (p, q) => (p - q) ** 2), box))
   return fromFn(left.w, left.h, (x, y) => {
     let best = 0

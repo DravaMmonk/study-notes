@@ -2,7 +2,8 @@
 // and its brightened partner, lanes on a road, a line among specks, one cell's gradient directions, and a book cover
 // pasted back onto a photo of it.
 import { S } from '../../../../engine/schema.js'
-import { correlate, fromFn, image, map, random, zip } from '../../engine/image.js'
+import { fromFn, image, map, random, zip } from '../../engine/image.js'
+import { peaksOf, sobelGradient } from '../../engine/filters.js'
 import { homographyDLT, project } from '../../engine/match.js'
 import { NODE_TYPES } from '../../engine/nodes.js'
 import { pairsOf, row, warp } from '../../engine/parts/matching.js'
@@ -12,24 +13,7 @@ import { T as t } from '../../../../shell/i18n.js'
 const num = S.num()
 const PT = S.list(S.num(), { min: 2 })
 const SEGMENT = S.list(S.num(), { min: 4, about: t('一条线经过的两点：x1, y1, x2, y2') })
-const SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1].map((v) => v / 8)
-const SOBEL_Y = [-1, -2, -1, 0, 0, 0, 1, 2, 1].map((v) => v / 8)
 
-/** The peaks of a response map: cells above `t` that no 3×3 neighbour beats by more than 0.025. */
-export const peaksOf = (img, t = 0.3) =>
-  fromFn(img.w, img.h, (x, y) => {
-    const v = img.data[y * img.w + x]
-    if (v <= t) return 0
-    for (let dy = -1; dy <= 1; dy++) {
-      for (let dx = -1; dx <= 1; dx++) {
-        const u = x + dx
-        const w = y + dy
-        // A neighbour within 0.025 counts as equal, so a flat top keeps all of its cells.
-        if (u >= 0 && w >= 0 && u < img.w && w < img.h && img.data[w * img.w + u] > v + 0.025) return 0
-      }
-    }
-    return 1
-  })
 const bumps = (list) => fromFn(16, 16, (x, y) => list.reduce((s, [cx, cy, h]) => s + h * Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / 2), 0))
 
 // Each cell a keypoint, three maps its distances to three candidates; at the cells listed as ambiguous the second
@@ -113,7 +97,10 @@ export const MATCHING = {
     about: t('一张有几个平滑鼓包的响应图；期望是它的峰：比 3×3 邻居都不小、又大于 above 的格子'),
     setup: S.obj({ above: num }),
     test: S.obj({ bumps: S.list(S.list(num, { min: 3 }), { about: t('鼓包：cx, cy, 高') }) }),
-    make: ({ bumps: list }, { above }) => ({ inputs: { in: bumps(list) }, expected: { out: peaksOf(bumps(list), above) } }),
+    make: ({ bumps: list }, { above }) => {
+      const img = bumps(list)
+      return { inputs: { in: img }, expected: { out: peaksOf(img, above) } }
+    },
   },
   distances: {
     about: t('每格一个关键点，三张图是它到三个候选的距离；期望是距离比检验配上的候选（1–3，没配上是 0）'),
@@ -156,8 +143,7 @@ export const MATCHING = {
     test: S.obj({ in: S.call('picture') }),
     make: (test) => {
       const img = picture(test.in)
-      const gx = correlate(img, SOBEL_X)
-      const gy = correlate(img, SOBEL_Y)
+      const [gx, gy] = sobelGradient(img)
       const sums = { e: 0, n: 0, w: 0, s: 0 }
       for (let i = 0; i < gx.data.length; i++) {
         const [x, y] = [gx.data[i], gy.data[i]]

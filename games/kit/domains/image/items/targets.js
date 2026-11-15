@@ -2,16 +2,13 @@
 // picture a rule makes of it out (scenes/index.js filter). Each item is make(params) → (picture) → the expected one.
 import { S, callOf } from '../../../engine/schema.js'
 import { correlate, downsample, flipKernel, fromFn, gaussianKernel, image, map, shift, zip } from '../engine/image.js'
+import { boxBlur3, boxKernel, gradientMagnitude, harrisResponse, horizontalDifference, peaksOf, squaredGradient } from '../engine/filters.js'
 import { applyGain, highpass, lowpass, magnitudeSpectrum } from '../engine/fourier.js'
 import { attentionWeights } from '../engine/attention.js'
-import { harrisResponse } from '../engine/nodes.js'
 import { zeroUp } from '../engine/parts/segment.js'
-import { peaksOf } from './scenes/matching.js'
 import { T as t } from '../../../shell/i18n.js'
 
 const SHAPE = S.oneOf(['disk', 'gauss'])
-const SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1].map((v) => v / 8)
-const SOBEL_Y = [-1, -2, -1, 0, 0, 0, 1, 2, 1].map((v) => v / 8)
 const vec = (...v) => ({ w: 3, h: 1, data: Float32Array.from(v) })
 const cross = (a, b) => vec(a.data[1] * b.data[2] - a.data[2] * b.data[1], a.data[2] * b.data[0] - a.data[0] * b.data[2], a.data[0] * b.data[1] - a.data[1] * b.data[0])
 // Every cell's distance from the centre of a spectrum the size of `img` (frequency (0, 0)).
@@ -46,7 +43,7 @@ export const TARGETS = {
   box: {
     about: t('size×size 的平均'),
     params: S.obj({ size: S.int({ min: 1 }), border: BORDER }),
-    make: ({ size, border }) => (img) => correlate(img, Array(size * size).fill(1 / (size * size)), border),
+    make: ({ size, border }) => (img) => correlate(img, boxKernel(size), border),
   },
   gauss: {
     about: t('高斯模糊：σ，核的半径'),
@@ -60,11 +57,11 @@ export const TARGETS = {
   },
   diffx: {
     about: t('横向差分：右边邻居 − 自己'),
-    make: () => (img) => zip(shift(img, -1, 0), img, (a, b) => a - b),
+    make: () => horizontalDifference,
   },
   absdiff: {
     about: t('两种边都要：|右边邻居 − 自己|'),
-    make: () => (img) => map(zip(shift(img, -1, 0), img, (a, b) => a - b), Math.abs),
+    make: () => (img) => map(horizontalDifference(img), Math.abs),
   },
   max: {
     about: t('两张图逐格取较大'),
@@ -78,7 +75,7 @@ export const TARGETS = {
   meanBlend: {
     about: t('向 3×3 平均靠：a + amount ×（平均 − a）；amount 为负是锐化'),
     params: S.obj({ amount: S.num() }),
-    make: ({ amount }) => (img) => zip(img, correlate(img, Array(9).fill(1 / 9)), (a, b) => a + amount * (b - a)),
+    make: ({ amount }) => (img) => zip(img, boxBlur3(img), (a, b) => a + amount * (b - a)),
   },
   ask: {
     about: t('图块 a 向 a、b 两块提问：两块按 softmax(4 × 平均(a × 这一块)) 加权平均'),
@@ -98,11 +95,7 @@ export const TARGETS = {
   },
   gradientEnergy: {
     about: t('3×3 邻域内两个方向的梯度平方平均之和'),
-    make: () => (img) => {
-      const gx = correlate(img, SOBEL_X), gy = correlate(img, SOBEL_Y)
-      const energy = zip(gx, gy, (x, y) => x * x + y * y)
-      return correlate(energy, Array(9).fill(1 / 9))
-    },
+    make: () => (img) => boxBlur3(squaredGradient(img)),
   },
   cornerResponse: {
     about: t('Harris 角点响应图'),
@@ -134,7 +127,7 @@ export const TARGETS = {
   gradmag: {
     about: t('梯度幅值：√(Sobel x² + Sobel y²)'),
     params: S.obj({ border: BORDER }),
-    make: ({ border = 'zero' }) => (img) => zip(correlate(img, SOBEL_X, border), correlate(img, SOBEL_Y, border), Math.hypot),
+    make: ({ border }) => (img) => gradientMagnitude(img, border),
   },
   lowpass: {
     about: t('频域低通：半径 R 以内的频率留下（disk 一刀切，gauss 平滑落下）'),

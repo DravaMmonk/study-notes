@@ -5,6 +5,8 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { deepFreeze } from '../../engine/content.js'
 import { readContent } from '../../engine/content-node.js'
+import { boxBlur3, gradientMagnitude, horizontalDifference, sobelGradient, squaredGradient } from './engine/filters.js'
+import { at, fromFn } from './engine/image.js'
 import { outputImages } from './engine/graph.js'
 import { picture } from './items/pictures.js'
 import { imageCourse } from './course.js'
@@ -27,6 +29,17 @@ const content = deepFreeze({
 })
 const image = imageCourse(content)
 const { fromText, toText } = image.kit
+
+test('shared neighbourhood filters preserve signs, scaling and edge padding', () => {
+  const ramp = fromFn(3, 3, (x, y) => 2 * x + 4 * y)
+  const [gx, gy] = sobelGradient(ramp, 'edge')
+  assert.deepEqual([at(gx, 1, 1), at(gy, 1, 1)], [2, 4])
+  assert.deepEqual([at(gx, 0, 0), at(gy, 0, 0)], [1, 2])
+  assert.equal(at(gradientMagnitude(ramp), 1, 1), Math.fround(Math.sqrt(20)))
+  assert.equal(at(squaredGradient(ramp), 1, 1), 20)
+  assert.ok(Math.abs(at(boxBlur3(ramp), 1, 1) - 6) < 1e-6)
+  assert.deepEqual(Array.from(horizontalDifference(ramp).data.slice(0, 3)), [2, 2, -4])
+})
 
 test('blueprint text reads into a board and writes back the same', () => {
   const lines = ['k = const[c="pi/8"]()', 's = shift[dir=left, n=2](in)', 'm = arith[op=mul](s, k)', 'out <- m']
