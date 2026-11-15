@@ -304,10 +304,10 @@ export function tableCourse(content) {
   /** The board circuit task `s` opens on before it has one of its own, from the boards the player keeps by task
    *  (`data`): the first task's of a level that starts from another (`carry`) is that level's last task's, a task that
    *  goes on from the task before (`carries`) has that one's, else it is empty; fitted to what the task gives. */
-  const opening = (s, progress) => {
+  const opening = (s, progress, active) => {
     const prior = s.task === 0 || s.carries ? previousCircuitTask(s, (id) => played.get(id)) : undefined;
     const from = inheritedBoard(progress, prior);
-    return restoreRobotBoard(model, s, from) ?? fitted(blank(), s.given);
+    return restoreRobotBoard(model, s, from, active) ?? fitted(blank(), s.given);
   };
 
   /** All usable types, with each switchable family shown as one tray item. */

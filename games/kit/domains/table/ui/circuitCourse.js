@@ -57,7 +57,11 @@ export function robotCircuits(table) {
         syncOwn: table.syncOwn,
         holdsIn: (_, flags) => holds(course, { id: task.id, task: task.task }, flags),
         offerIn: table.offerIn,
-        opening: (_, progress) => withDesktopAnchors(table.opening(task, progress)),
+        opening: (_, progress, project) => {
+          const base = views.get(task)
+          const active = project ? project(base) : base
+          return withDesktopAnchors(table.opening(task, progress, { parts: active.board.wiring(task, active), knows: active.partOf }))
+        },
         stageChain: () => [],
       })
       return views.get(task)

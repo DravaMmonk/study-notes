@@ -26,7 +26,7 @@ import { typeOf } from './iso.js'
 import { equations } from './define.js'
 import { PROOF_BOARD, startProof } from './proof.js'
 import { OPS, partsOf } from './ops.js'
-import { boardView } from '../../engine/board-view.js'
+import { boardView, fitsCircuit } from '../../engine/board-view.js'
 import { keptBoards } from './built.js'
 import { builtGates, gateCourse, gateTests, startGates } from './gates.js'
 import { lettersOf } from './truth.js'
@@ -244,7 +244,7 @@ export function logicCourse(content) {
     const boards = { proof: proofBoards, machine: machineBoards, gates: truthCircuits }[task?.kind]
     if (!boards) return false
     const circuit = boards.forTask(task)
-    return circuit.board.fits(board, task, circuit)
+    return fitsCircuit(board, task, circuit)
   })
   const { eras, trays, wordSets = {}, primitives, concept = {}, local = [] } = content
   const wrong = []
@@ -578,9 +578,9 @@ export function logicCourse(content) {
     holdsIn,
     syncOwn: kept.sync,
     // A machine level that upgrades a part opens on the board that part runs; a preset stays locked in.
-    opening: (task) => {
+    opening: (task, _progress, viewOf) => {
       const from = task.upgrades?.opens().circuit
-      return withPreset(from && MACHINE_BOARD.fits(from, task, machineBoards.forTask(task)) ? from : startMachine(task), presetFor(task))
+      return withPreset(from && fitsCircuit(from, task, viewOf(task)) ? from : startMachine(task), presetFor(task))
     },
   })
   function workReferences(task, work) {

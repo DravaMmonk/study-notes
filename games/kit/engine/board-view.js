@@ -10,7 +10,7 @@
 //                where they are the task's own (its rule parts…) and not the game's alone
 //       offerIn, holdsIn, syncOwn   the course's (../course.js offer, holds; the boards the player passed with)
 //       tasksAt(level)   the tasks to find a preceding task when the new board carries one forward
-//       opening(task, progress)   override how the board opens
+//       opening(task, progress, viewOf)   override how the board opens using the active views
 //     → { BUILT, builtBy, pieces, forTask(task) → the task's view }: BUILT, builtBy and pieces outside any task
 
 import { inheritedBoard } from '../shell/progress.js'
@@ -21,16 +21,21 @@ export function previousCircuitTask(task, tasksAt) {
   return task.carry ? tasksAt(task.carry)?.at(-1) : undefined
 }
 
+/** Check a board against the ports and parts in the view that will run it. */
+export function fitsCircuit(graph, task, view) {
+  return view.board.fits(graph, task, view, view.board.wiring(task, view))
+}
+
 export function boardView({ board, parts, built = () => ({}), builder = () => null, defined = null, offerIn, holdsIn, syncOwn, runtime, tasksAt, opening }) {
   const builtBy = (task) => (type) => (built(task)[type] ? builder(type, task) : null)
   const views = new WeakMap()
-  const open = (task, progress) => {
+  const open = (task, progress, viewOf) => {
     const previous = tasksAt && previousCircuitTask(task, tasksAt)
     const kept = previous && previous.kind === task.kind && progress && inheritedBoard(progress, previous)
-    if (kept && board.fits(kept, previous, forTask(previous))) {
-      const circuit = forTask(task)
-      const carried = board.carriedOnto(task, kept, circuit)
-      if (board.fits(carried, task, circuit)) return carried
+    if (kept && fitsCircuit(kept, previous, viewOf(previous))) {
+      const circuit = viewOf(task)
+      const carried = board.carriedOnto(task, kept, circuit.board.wiring(task, circuit))
+      if (fitsCircuit(carried, task, circuit)) return carried
     }
     return board.startBoard(task)
   }
@@ -53,7 +58,10 @@ export function boardView({ board, parts, built = () => ({}), builder = () => nu
       return { shown: shown.filter(supported), folded: folded.filter(supported), types: types.filter(supported) }
     },
     holdsIn,
-    opening: opening ?? open,
+    opening: (task, progress, project) => (opening ?? open)(task, progress, (t) => {
+      const scope = forTask(t)
+      return project ? project(scope) : scope
+    }),
     stageChain: () => [],
     ...(defined ? { defined: defined(task) } : {}),
   })

@@ -119,7 +119,7 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
       if (checked.starter?.ok === false) problems.push('the board it opens on passes')
       if (checked.empty?.ok === false) problems.push('the empty board passes')
       if (task.carry && !checkWorks(inspect, { starter: circuit.opening(task) }).starter.ok) problems.push(`the board it carries on from (${task.carry}) passes as it is`)
-      if (task.carries && tasks[k - 1]?.solution && !checkWorks(inspect, { starter: board.carriedOnto(task, tasks[k - 1].solution, here) }).starter.ok) problems.push('the task before’s board passes as it is')
+      if (task.carries && tasks[k - 1]?.solution && !checkWorks(inspect, { starter: board.carriedOnto(task, tasks[k - 1].solution, board.wiring(task, here)) }).starter.ok) problems.push('the task before’s board passes as it is')
       if (task.solution.nodes.some((n) => !board.isFixed(n.type))) {
         for (const name of board.portsIn(task).map((i) => i.name)) {
           const from = board.sourceFor(task, name)

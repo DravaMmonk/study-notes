@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { CircuitBoard } from 'lucide-react'
 import { partsFor, packedView } from '../circuit/board-parts.js'
 import { openedWorkshop, workshopView } from '../circuit/workshop-view.js'
+import { fitsCircuit } from '../engine/board-view.js'
 import { trayMembers } from '../engine/trays.js'
 import { captureWorkshop, publishWorkshop, trayKey, workshopAvailable, workshopEntries, workshopIdentity } from '../engine/workshop.js'
 import { L, tr } from './i18n.js'
@@ -11,7 +12,6 @@ import { useWorkshop } from './useWorkshop.js'
 export function useCircuitWorkshop({ screen, course, base, cards, portLabels, defined, defaults, settings, ready }) {
   const { game, level: entry, flags, workshop: profile } = screen
   const level = entry.source
-  const { board: kind } = base
   const { library, update } = useWorkshop()
   const [notice, setWorkshopNotice] = useState('')
   const offers = useMemo(() => base.offerIn(level, flags), [base, level, flags])
@@ -50,7 +50,7 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
   const types = [...offers.types, ...personal.map(({ id }) => id)]
   const held = new Set(types)
   const hasPersonal = (graph) => graph.nodes.some((node) => Object.hasOwn(library.pieces, node.type))
-  const fits = (graph) => kind.fits(graph, level, circuit, parts)
+  const fits = (graph) => fitsCircuit(graph, level, circuit)
   const hold = (graph) => ready ? ready(graph, level, parts) : graph
   function openForCapture(node, at) {
     const opened = packed.open(node, at)

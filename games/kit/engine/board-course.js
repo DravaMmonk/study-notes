@@ -31,7 +31,7 @@ import { packed, withSettings } from './boards.js'
 import { defineParts } from './parts/define.js'
 import { formed } from './forms.js'
 import { taskLevels } from './tasks.js'
-import { previousCircuitTask } from './board-view.js'
+import { fitsCircuit, previousCircuitTask } from './board-view.js'
 import { trayIn } from './trays.js'
 import { defineCourse, eraLevels, holds as holding, offer, readItem } from '../course.js'
 import { courseLayout } from './course-dependencies.js'
@@ -274,11 +274,12 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     }
     return scopes.get(task.taskId).view
   }
-  const fits = (saved, task) => Boolean(task && board.fits(saved, task, forTask(task)))
-  const passedBoard = (task, built) => {
+  const fits = (saved, task, viewOf = forTask) => Boolean(task && fitsCircuit(saved, task, viewOf(task)))
+  const passedBoard = (task, built, viewOf) => {
     const saved = built[task?.taskId]
-    return fits(saved, task) ? saved : task?.solution
+    return fits(saved, task, viewOf) ? saved : task?.solution
   }
+  const activeViews = (project) => project ? (task) => project(forTask(task)) : forTask
   const result = {
     LEVELS,
     played,
@@ -303,21 +304,24 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     carried: new Set(LEVELS.flatMap((L) => played.get(L.id).map((T) => T.carry)).filter(Boolean)),
     // The board a task opens on: the board of the level it carries on from (the player's, else its last task's
     // reference), or its fixed cards alone.
-    opening: (task, progress) => {
+    opening: (task, progress, project) => {
+      const viewOf = activeViews(project)
       const from = previousCircuitTask(task, (id) => played.get(id))
       const kept = progress && inheritedBoard(progress, from)
-      const b = fits(kept, from) ? kept : passedBoard(from, progress?.built ?? {})
+      const b = fits(kept, from, viewOf) ? kept : passedBoard(from, progress?.built ?? {}, viewOf)
       if (!b) return board.startBoard(task)
-      const carried = board.carriedOnto(task, b, forTask(task))
+      const view = viewOf(task)
+      const carried = board.carriedOnto(task, b, view.board.wiring(task, view))
       const ids = new Set(carried.nodes.map((n) => n.id))
       const added = task.starter?.nodes.filter((n) => !board.isFixed(n.type) && !ids.has(n.id)) ?? []
       const addedIds = new Set(added.map((n) => n.id))
       const wires = task.starter?.wires.filter((w) => addedIds.has(w.to)) ?? []
       const opening = { ...carried, nodes: [...carried.nodes, ...added], wires: [...carried.wires, ...wires] }
-      return fits(opening, task) ? opening : board.startBoard(task)
+      return fits(opening, task, viewOf) ? opening : board.startBoard(task)
     },
     // The passed boards that led to this task, oldest first. Missing boards contribute no ownership.
-    stageChain: (task, built = {}) => {
+    stageChain: (task, built = {}, project) => {
+      const viewOf = activeViews(project)
       const chain = []
       const seen = new Set([task.taskId])
       const visit = (current) => {
@@ -325,7 +329,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
         if (!previous || seen.has(previous.taskId)) return
         seen.add(previous.taskId)
         visit(previous)
-        const b = passedBoard(previous, built)
+        const b = passedBoard(previous, built, viewOf)
         if (b?.nodes) chain.push({ id: previous.taskId, label: previous.stage ?? byId.get(previous.id).title, board: b })
       }
       visit(task)

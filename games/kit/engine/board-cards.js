@@ -69,14 +69,13 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140, tex
     && fixedCardsFit(board, fixedOf(task), isFixed)
 
   /** A board from another level brought onto `task`: its placed parts and their wires, and its wires to the fixed cards this task has too. */
-  const carriedOnto = (task, board, circuit) => {
+  const carriedOnto = (task, board, parts) => {
     const fixed = fixedOf(task)
     const placed = board.nodes.filter((n) => !isFixed(n.type))
     const own = new Map(fixed.map((n) => [n.id, n]))
     const nodes = [...fixed, ...placed]
     const next = new Map(nodes.map((node) => [node.id, node]))
     const old = new Map(board.nodes.map((node) => [node.id, node]))
-    const parts = wiring(task, circuit)
     const wires = board.wires.filter((wire) => {
       const from = srcNode(wire.from)
       return (!own.has(from) || old.get(from)?.type === own.get(from).type)
