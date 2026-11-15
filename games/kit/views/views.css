@@ -156,6 +156,8 @@
 .ch-dots.is-given { fill: var(--faint); }
 .ch-dots.is-given path { fill: none; stroke: var(--hairline); stroke-width: 1; }
 .ch-dots.is-want circle { fill: none; stroke: var(--muted); stroke-width: 1.25; }
+.ch-dots.is-met { fill: var(--status); }
+.ch-dots.is-met path { fill: none; stroke: var(--status); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 .ch-level { stroke: var(--hairline); stroke-width: 1; }
 .ch-gap { stroke: var(--state); stroke-width: 5; opacity: 0.55; }
 .ch-now { fill: var(--state); stroke: var(--paper); stroke-width: 1.5; transition: cx 0.25s, cy 0.25s, fill 0.25s; }
