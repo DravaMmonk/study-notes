@@ -68,6 +68,16 @@ export const untilFail = (tests) => {
   return first < 0 ? tests : tests.map((t, k) => (k <= first ? t : { label: t.label, pass: null }))
 }
 
+/**
+ * What a part defined as data (../parts/define.js, its settings resolved) offers to set, in words: a choice's values, a
+ * number's range, a toggle's two; a setting that starts as 「—」 says so.
+ */
+export const definedSettings = (def) => def.settings.map((s) => {
+  const range = s.min !== undefined && s.max !== undefined ? [String(s.min), '…', String(s.max)] : null
+  const values = s.options ? s.options.map((o) => String(o.value)) : s.control === 'toggle' ? ['true', 'false'] : range
+  return { key: s.key, ...(values ? { values } : {}), ...(s.default === null ? { about: T('不写时为「—」') } : {}) }
+})
+
 /** A node of `type` as a new card is: no settings yet. */
 const blank = (type) => ({ id: '_', type, params: {} })
 
@@ -131,21 +141,11 @@ export function circuitPlay(hook) {
  *                        holds what an output should be, undefined where anything will do); `text` a value in words,
  *                        by default `show`'s
  *   more?(task, test, lang) → [line]   what the waveform says besides it (what is wanted in order, say)
- *   registers? { names, top }   the cards that keep registers and constants, in words: reg and keep name one of
- *                               `names` (the registers the game's parts.json offers), reg starts as 「—」, 0 or 1,
- *                               const is a number from 0 to `top`
- *   settings   { type: [{ key, values, about? }] } what can be set on the game's other primitives
+ *   settings   { type: [{ key, values, about? }] } what can be set on the game's primitives in code; a part defined as
+ *              data (game.defined) offers its settings as parts.json writes them (definedSettings)
  *   words      what the game calls its tests (../tests.js TEST_WORDS)
  */
-export function tickPlay({ run, given, lanes, more = () => [], registers = null, settings = {}, show = valueText, words = TEST_WORDS }) {
-  const offered = {
-    ...(registers ? {
-      reg: [{ key: 'reg', values: registers.names }, { key: 'start', values: ['0', '1'], about: T('不写时初值为「—」') }],
-      keep: [{ key: 'reg', values: registers.names }],
-      const: [{ key: 'value', values: ['0', '…', String(registers.top)] }],
-    } : {}),
-    ...settings,
-  }
+export function tickPlay({ run, given, lanes, more = () => [], settings = {}, show = valueText, words = TEST_WORDS }) {
   const word = (v, lang) => (typeof show(v) === 'object' ? show(v)[lang] : show(v))
   const testsOf = (task, solved) => (solved ? [...task.tests, ...task.hidden] : task.tests)
   const label = words.label
@@ -170,7 +170,7 @@ export function tickPlay({ run, given, lanes, more = () => [], registers = null,
       return { start: own.opening(level.source, progress.built), parts: own.board.wiring(level.source, own), types: [...shown, ...folded] }
     },
     key: ({ game }, type) => (game.circuit.BUILT[type] ? type : `part:${type}`),
-    settings: ({ game }, type) => (game.circuit.BUILT[type] ? [] : offered[type] ?? []),
+    settings: ({ game }, type) => (game.circuit.BUILT[type] ? [] : game.defined?.of(type) ? definedSettings(game.defined.of(type)) : settings[type] ?? []),
     given: ({ level }) => given(level.source),
     tests: ({ level: { source: task }, solved }) => testsOf(task, solved).map((test, k) => ({ label: label(k), text: T(text(task, test, 'zh'), text(task, test, 'en')) })),
     notes: ({ level: { source: task }, solved }) => {

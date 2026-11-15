@@ -183,7 +183,6 @@ export default {
   "下一项": "Next",
   "下移": "Move down",
   "不为真": "not true",
-  "不写时初值为「—」": "left out, it starts as 「—」",
   "不恒成立": "Not always true",
   "不懂它就答不上的那个问题：带来它的那一关就是这堵墙": "the question a learner cannot answer without it: the slot that brings it is that wall",
   "不成立：": "False: ",
@@ -1739,4 +1738,6 @@ export default {
   "a 和 b 是同一个数": "whether a and b are the same number",
   "8 位数 n 从最高位数起的第 i 位；i 不在 0 到 7 之间时没有值": "bit i of the 8-bit number n, counted from the top; no value when i is outside 0–7",
   "判断和挑选的元件": "parts that compare and choose",
+  "不写时为「—」": "「—」 when not set",
+  "去掉这一条": "Remove this entry",
 }

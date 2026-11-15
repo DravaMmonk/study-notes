@@ -12,8 +12,6 @@ const word = (v, lang) => (typeof show(v) === 'object' ? show(v)[lang] : show(v)
 export const play = tickPlay({
   run: runLevel,
   show,
-  // What the text play offers of a register card: the registers parts.json's reg and keep name.
-  registers: { names: ['A', 'B', 'C', 'D', 'E', 'F'], top: 255 },
   given: (L) => T(
     [
       ...(L.wires?.in ?? []).map((w) => `${w.name}：进线「${w.label.zh}」，这一拍到达的位`),
