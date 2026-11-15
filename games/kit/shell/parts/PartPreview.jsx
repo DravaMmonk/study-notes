@@ -6,14 +6,17 @@ import { L, tr } from '../i18n.js'
 import { evalSettings } from '../../engine/parts/define.js'
 import PartFace from './PartFace.jsx'
 import { definedParts, nextParams } from './faces.jsx'
+import { Ports, Revisions, Settings } from './PieceSheet.jsx'
 
 // A defined part as the studio designs it (games/DESIGN.md 6.7, 6.8): its three faces side by side — the desktop
 // card on the game's own canvas, the phone tile on its slot board, the detail both share — drawn by the game's page
 // (studio.html?play), so its icons, colours and controls are the player's; under them what it computes and its
-// interaction, as the expressions parts.json writes. Its settings move as a player would move them (rules followed,
-// readouts and actions live); nothing is wired to it, so its value shows as a placeholder.
+// interaction, as the expressions parts.json writes, and the fields no face draws: its revisions, its ports, every
+// setting. Its settings move as a player would move them (rules followed, readouts and actions live); nothing is wired
+// to it, so its value shows as a placeholder.
 //
-//   game      the game's description; game.defined = { of(type), defaults(type), ops, widgets? } (the domain's game.js)
+//   game      the game's description; game.defined = { of(type), defaults(type), ops, widgets? } (the domain's game.js),
+//             game.partDefs parts.json as the studio edits it
 //   type      the part shown          edit      { picked (a path in the part), pick(path), add(path) } or null
 // Every block, setting, expression and face carries the path of what it is in the part (data-pf); in edit mode a
 // click picks it, and a face's + adds a block to it.
@@ -62,6 +65,8 @@ export default function PartPreview({ game, type, edit }) {
       {children}
     </section>
   )
+  // The rows of fields go by the piece as parts.json writes it (a setting by its place there, a preset by its name).
+  const raw = game.partDefs?.parts?.[type] ?? def
   // What it computes, one expression an output; a part that keeps an input computes nothing.
   const compute = def.keeps ? [] : typeof def.compute === 'string' ? [['', def.compute]] : Object.entries(def.compute)
   return (
@@ -85,6 +90,9 @@ export default function PartPreview({ game, type, edit }) {
         ))}
       </div>
       <div className="pp-logic">
+        <Revisions def={raw} edit={edit} />
+        <Ports def={raw} edit={edit} />
+        <Settings def={raw} edit={edit} />
         {compute.map(([o, text]) => <Code key={o || 'out'} path={['compute', ...(o ? [o] : [])]} label={o || null} text={text} picked={edit?.picked} />)}
         {def.keeps && <Code path={['keeps']} label="keeps" text={`${def.keeps.input} → $${def.keeps.register}`} picked={edit?.picked} />}
         {(def.rules ?? []).map((r, k) => <Code key={`r${k}`} path={['rules', k]} label={r.on ? `on ${r.on}` : 'on *'} picked={edit?.picked} text={`${r.when ? `when ${r.when} → ` : ''}${Object.entries(r.set).map(([key, text]) => `${key} = ${text}`).join('; ')}`} />)}

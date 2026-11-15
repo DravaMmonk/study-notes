@@ -54,7 +54,8 @@ export default function PartFace({ def, face, node, ctx, set, defined, phone = f
     </div>
   )
   const block = (b, path, key) => {
-    const at = path ? mark(path) : {}
+    // A default block stands for no field of its own; the description's is the piece's.
+    const at = path ? mark(path) : b.show === 'desc' ? mark(['desc']) : {}
     switch (b.show) {
       case 'value': {
         const v = defined.value(node, ctx, b.output ?? null, face)

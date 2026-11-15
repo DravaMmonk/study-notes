@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { L, T, tr, isPair } from './i18n.js'
 import Library, { store, useSeen } from './Library.jsx'
 import { Markup } from './Markup.jsx'
+import { fileMark } from './edit.js'
 
 // The encyclopedia (百科), the same in every game, after the one in Turing Complete: not one level's walkthrough but
 // the game's big ideas, grouped: how the game is played, then the terms of the subject it teaches. A game brings
@@ -44,7 +45,7 @@ export function useWiki(game, progress, solved, level) {
   return { groups, entries, isOpen, unread, seen, markSeen }
 }
 
-export default function Encyclopedia({ game, wiki, level, phone, start, onClose }) {
+export default function Encyclopedia({ game, wiki, level, phone, start, edit = null, onClose }) {
   const { englishNamesInChinese = false } = game.glossary ?? {}
   const titleOf = ({ title }) => englishNamesInChinese && isPair(title) && title.en && title.zh !== title.en
     ? { ...title, zh: `${title.zh}（${title.en}）` } : title
@@ -86,10 +87,10 @@ export default function Encyclopedia({ game, wiki, level, phone, start, onClose 
       <article className="wiki-article" key={entry.id}>
         {back}
         {group && <span className="panel-label">{L(group.title)}</span>}
-        <h2>{L(titleOf(entry))}</h2>
-        {entry.body.map((paragraph, k) => <p key={k}><Markup text={paragraph} /></p>)}
+        <h2 {...fileMark(edit, 'glossary', ['entries', entry.id, 'title'])}>{L(titleOf(entry))}</h2>
+        {entry.body.map((paragraph, k) => <p key={k} {...fileMark(edit, 'glossary', ['entries', entry.id, 'body', k])}><Markup text={paragraph} /></p>)}
         {entry.see?.length > 0 && (
-          <footer className="wiki-see">
+          <footer className="wiki-see" {...fileMark(edit, 'glossary', ['entries', entry.id, 'see'])}>
             <span className="panel-label">{tr('相关词条')}</span>
             <div>
               {entry.see.map((other) => entries.find((e) => e.id === other)).filter(Boolean).map((e) =>

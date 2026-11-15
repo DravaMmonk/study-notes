@@ -42,3 +42,22 @@ export function useMark() {
     }
   }
 }
+
+/**
+ * The props that mark an element as a field of a file of the game other than a level — `file` 'game' (game.json) or
+ * 'glossary' — at `path` (the glossary's entries go by id: ['entries', id, …]): a click picks it, the one picked is
+ * drawn so. `authoring` is the studio's editor as the shell has it (null outside the studio: nothing).
+ */
+export function fileMark(authoring, file, path) {
+  if (!authoring?.pickFile) return {}
+  const key = JSON.stringify(path)
+  return {
+    'data-edit': `${file}:${path.join('.')}`,
+    ...(authoring.picked?.file === file && authoring.picked.path === key && { 'data-picked': '' }),
+    onClickCapture: (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      authoring.pickFile(file, path)
+    },
+  }
+}

@@ -11,11 +11,14 @@
 //                  { type: 'content', content } the content edited, the level staying open as it is;
 //                  { type: 'edit', on, picked } edit mode and the field picked;  { type: 'go', task } go to a task;
 //                  { type: 'part', content, part } a part of parts.json shown (../shell/parts/PartPreview.jsx; a built
-//                  piece, the board it runs: the game's parts.demo)
+//                  piece, the board it runs — the game's parts.demo — and its own fields, ../shell/parts/PieceSheet.jsx)
 //   page → studio  { type: 'ready' } once it listens; { type: 'take', level, path, text };
 //                  { type: 'pick' | 'add', level, task, at, scope, index? }; { type: 'task', level, task };
 //                  { type: 'start', level, task, port, view } the view a port's value starts in, switched on the page;
-//                  { type: 'pick' | 'add', part, path } a field of a part picked, an item added to one
+//                  { type: 'pick' | 'add', part | preset, path } a field of a part (or of a setting preset, shown
+//                  as the part presets/<name>) picked, an item added to one;
+//                  { type: 'pick', file, path } a field of game.json (file 'game', on the map) or of the glossary
+//                  (file 'glossary', in the encyclopedia; an entry by its id) picked
 import '../wires.css'
 import '../shell/shell.css'
 import '../views/views.css'
@@ -27,6 +30,7 @@ import { applyLang } from '../lang.js'
 import { localized } from '../engine/i18n.js'
 import { DOMAINS } from 'virtual:studio-domains'
 import PartPreview from '../shell/parts/PartPreview.jsx'
+import PieceSheet, { PresetSheet } from '../shell/parts/PieceSheet.jsx'
 
 const say = (message) => window.parent.postMessage(message, window.location.origin)
 
@@ -40,9 +44,11 @@ function look({ theme, lang }) {
  *  edit no longer fits opens as the level's start); `stamp` tells one content from the next. */
 async function gameOf(content, stamp) {
   const [{ default: defineGame }, { vocabulary }] = await DOMAINS[content.domain]()
-  const game = defineGame(localized(content, vocabulary))
+  const shown = localized(content, vocabulary)
+  const game = defineGame(shown)
   game.store = createProgress({ id: `studio.${content.id}` })
   game.stamp = stamp
+  game.partDefs = shown.partDefs
   return game
 }
 
@@ -102,6 +108,7 @@ export default function Play() {
   const editing = useMemo(() => (edit.on ? {
     picked: edit.picked,
     pick: (mark) => say({ type: 'pick', ...mark }),
+    pickFile: (file, path) => say({ type: 'pick', file, path }),
     add: (mark) => say({ type: 'add', ...mark }),
     start: (mark) => say({ type: 'start', ...mark }),
     onTask: (at, task) => say({ type: 'task', level: at, task }),
@@ -113,11 +120,21 @@ export default function Play() {
     go,
   }), [level, take, editing, go])
   if (part) {
-    const parts = edit.on ? { picked: edit.picked, pick: (path) => say({ type: 'pick', part: part.type, path }), add: (path) => say({ type: 'add', part: part.type, path }) } : null
+    // A setting preset goes as presets/<name>: its page is the control it draws and its fields.
+    const preset = part.type.startsWith('presets/') ? part.type.slice('presets/'.length) : null
+    const which = preset !== null ? { preset } : { part: part.type }
+    const parts = edit.on ? { picked: edit.picked, pick: (path) => say({ type: 'pick', ...which, path }), add: (path) => say({ type: 'add', ...which, path }) } : null
+    if (preset !== null) return <PresetSheet name={preset} setting={part.game.partDefs?.presets?.[preset]} game={part.game} edit={parts} />
     if (part.game.defined?.of(part.type)) return <PartPreview game={part.game} type={part.type} edit={parts} />
-    // A built piece shows the board it runs, as the parts box does.
+    // A built piece shows the board it runs, as the parts box does, and beside it its own fields.
     const piece = part.game.parts?.all.find((p) => p.piece === part.type) ?? { key: part.type, piece: part.type }
-    return part.game.parts?.demo?.(piece, { progress: {} }) ?? null
+    const def = part.game.partDefs?.parts?.[part.type]
+    return (
+      <div className="pp-built">
+        <div className="pp-built-board">{part.game.parts?.demo?.(piece, { progress: {} }) ?? null}</div>
+        {def && <PieceSheet def={def} edit={parts} />}
+      </div>
+    )
   }
   if (!shown) return null
   return <GameShell key={shown.no} game={shown.game} store={shown.game.store} author={author} />

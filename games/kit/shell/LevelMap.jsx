@@ -1,4 +1,5 @@
 import { Text } from './Layout.jsx'
+import { fileMark } from './edit.js'
 import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useEscape } from './Dialogs.jsx'
 import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw, X } from 'lucide-react'
@@ -382,7 +383,7 @@ export function NeededNote({ game, needed, onOpen }) {
   )
 }
 
-export default function LevelMap({ game, progress, solved, onAll, onOpen, focus, onReset, onParts, partsNew = 0, onWiki, unread = 0, theme }) {
+export default function LevelMap({ game, progress, solved, onAll, onOpen, focus, onReset, onParts, partsNew = 0, onWiki, unread = 0, theme, edit = null }) {
   const levels = game.levels
   const done = levels.filter((level) => solved.has(level.id)).length
   const next = levels.find((level) => !level.optional && !solved.has(level.id) && game.isOpen(level, solved, progress.all)) ?? levels.find((level) => !solved.has(level.id) && game.isOpen(level, solved, progress.all))
@@ -414,9 +415,9 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
     <main className="level-map" ref={root}>
       <header className="map-hero">
         <div className="map-hero-text">
-          <p className="map-kicker">{L(game.kicker)}</p>
-          <h1>{L(game.title)}</h1>
-          <Text className="map-lede" text={game.lede} />
+          <p className="map-kicker" {...fileMark(edit, 'game', ['kicker'])}>{L(game.kicker)}</p>
+          <h1 {...fileMark(edit, 'game', ['title'])}>{L(game.title)}</h1>
+          <Text className="map-lede" text={game.lede} mark={fileMark(edit, 'game', ['lede'])} />
           <div className="map-progress" aria-label={tr(`已通过 ${done} / ${levels.length} 关`, `${done} of ${levels.length} levels passed`)}>
             <span className="map-progress-bar"><i style={{ width: `${(done / levels.length) * 100}%` }} /></span>
             <span>{tr(`${done} / ${levels.length} 关`, `${done} / ${levels.length} levels`)}</span>
@@ -440,14 +441,14 @@ export default function LevelMap({ game, progress, solved, onAll, onOpen, focus,
       </header>
 
       <div className="map-chapters">
-        {game.chapters.map((chapter) => {
+        {game.chapters.map((chapter, k) => {
           const inChapter = levels.filter((level) => level.chapter === chapter.id)
           if (!inChapter.length) return null
           const byId = new Map(inChapter.map((level) => [level.id, level]))
           const finished = inChapter.filter((level) => solved.has(level.id)).length
           return (
             <section key={chapter.id} className={`map-chapter ${finished === inChapter.length ? 'is-complete' : ''}`}>
-              <header>
+              <header {...fileMark(edit, 'game', ['eras', k])}>
                 <span className="chapter-index">{chapter.kicker ? L(chapter.kicker) : tr(`第 ${chapter.number ?? chapter.id} 章`, `Chapter ${chapter.number ?? chapter.id}`)}{chapter.label ? <> · {L(chapter.label)}</> : null}</span>
                 <h2>{L(chapter.title)}</h2>
                 {chapter.question && <p>{L(chapter.question)}</p>}

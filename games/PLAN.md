@@ -34,14 +34,11 @@
 - D.5 已完成。《证明完毕》的门、推理规则和证明助手的元件是 `games/qed/parts.json` 的件，计算是领域的引擎资源（`gates.js` 不再有原始门，`proof.js` 的 `RULES`、`machine.js` 的 `MACHINE_PARTS` 只剩资源）；引理和规则元件由课程登记，搭出的元件是封装件。三种板都在内核的电路屏上玩：内核补了资源看得见卡片和区域、`parts.json` 的区域（框）和把区域当函数跑（`frames.js` 的 `runRegion`）、`tree` 和 `list` 两种设置控件、由资源算出的选项（`from`）、检验排成表、最后一条性质检验、成绩和读数、一张屏自己的课程视图（`board-view.js`）、过关单子上的几行字（`passed`）。`logic` 自写组件 0 行。检查输出只有 `i18n en` 的计数变了（2104 → 2236：搬进 `parts.json` 的文字都已译）。
 - F.1 已完成。每款游戏的件，基础的和搭出的，都是 `parts.json` 的一项：搭出的件写 `inside: [{ task, form?, label? }]`，口从被引用任务的板读出，哪一关搭出、打开它由引用反推（电路预设的 `board-course.js`、`image`、`logic` 的 `readBuilt`、`table`）。删掉的有关卡的 `builds`、`packs`、`unlock`、`fact`，game.json 的 `parts`、`lemmas`、`gates`、`machines`、`facts`、`revisions`，以及 `BUILT_TEXT`；词汇表删改由那一版的 `removes` 写明（决策七），`net`、`calculus`、`market`、`linear`、`signal`、`image`、`logic`、`table` 和两个电路模板各升一版，内容经操作集迁移。件有了 `card`、`revisions` 和引用的 `label`。元件箱和 studio 的元件页打开搭出的件时画出它跑的板。检查输出只有《证明完毕》的 `i18n en` 计数变了（2236 → 2253：证明助手元件的名字和说明从代码搬进内容）；搭出的门的口改按真值电路的字母命名。
 - F.2 已完成。按拍运行的基础元件也在各自游戏的 `parts.json`：内核的内建 `held(register, start)` 读寄存器，件的面 `keeps: { input, register }` 存寄存器（汇点，下一拍起生效，寄存器按封装路径分开），数字设置可以默认为「—」；`idle` 由可以不接的口覆盖。`net`、`calculus`、`market` 和逐拍总线模板的 `parts.js` 删掉，元件经操作集写进 `network`、`calculus`、`market` 和各 `starter/` 的 `parts.json`，领域只交引擎资源（`ops.js`；模板只用内建），词汇表各升一版并写明 `removes: kinds.part`；`ticks.js` 的 `register`、`store` 和外壳的 `registerCards` 删掉，`partsCourse` 是这类领域共用的课程读法。检查输出只有译文计数变了（`network` 291/299 → 313/321，`calculus` 238/238 → 253/253：元件的名字、说明和设置标签从代码搬进内容）。
+- G.0 已完成。studio 每个画面页都能改它展示的东西的字段（手册 §6.7）：搭出的件在板旁画出自己的字段，基础件画出修订、口和全部设置，设置预设有了画面；游戏首页的引语、标题、导语和每一章，百科词条的标题、正文、相关词条点开即改（侧栏多了 `glossary.json`）；画面上方的名字打开全部字段，画面上没有位置的也够得到。
 
 ## 阶段 G　studio 跟上件的登记表
 
 F.1、F.2 之后，件都登记在 `parts.json`，但 studio 还是按「元件」做的。依次做下面五条，每条一个或几个提交；验收都包括在游戏副本（`GAMES_ROOT`）上用浏览器走一遍：做出改动、应用、撤销。
-
-### G.0 画面页能改它展示的字段
-
-「字段」页只是集中审阅、修改的地方；每个画面页都能改它展示的东西的字段（点字段在侧栏打开它的控件，`+` 添一项），画面上没有位置的字段也从画面页够得到。先补件的画面页（搭出的件：名字、说明、修订、设置、`card`、形态名；基础件：口、设置、式子、画法、交互规则），再对照这条检查 studio 其余页面，规则写进手册 §6.7。
 
 ### G.1 能新建搭出的件
 

@@ -25,7 +25,8 @@
 // by first when bys nest (a level by its mode, then by its world); a field of an either (several shapes) has `shapes`
 // (their schemas) and `shape` (the one it has now).
 import { SECTIONS, callOf, find, sectionOf, validate } from '../engine/schema.js'
-import { parsePath, showPath } from '../engine/ops/edit.js'
+import { parsePath, setAt, showPath, unsetAt } from '../engine/ops/edit.js'
+import { GLOSSARY } from '../engine/vocabulary.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
 import { newTaskId } from '../engine/tasks.js'
 
@@ -384,11 +385,30 @@ export function placeFindings(form, findings) {
 /* ---------- edits as operations ---------- */
 
 /**
- * The operation that makes an edit, on a file of the game: `file` { level } | { game: true }. edit: { set: value } |
- * { unset: true } at `path`; `type` is the schema type there ('text' and 'board' have operations of their own).
+ * The operation that makes an edit, on a file of the game: `file` { level } | { game: true } | { parts: true } |
+ * { glossary } (the glossary as it is). edit: { set: value } | { unset: true } at `path`; `type` is the schema type
+ * there ('text' and 'board' have operations of their own). Null for an edit no operation makes (the glossary's own
+ * list of groups or of entries, edited as a whole).
  */
 export function opFor(file, path, edit, type = null) {
   const keys = parsePath(path)
+  // The glossary: a text by text.set; any other field of an entry by a merge patch of the entry's top field.
+  if (file.glossary) {
+    if (type === 'text' && !edit.unset && edit.set !== null && typeof edit.set === 'object') return { op: 'text.set', in: 'glossary', path: keys, zh: edit.set.zh }
+    if (keys[0] === 'entries' && keys.length >= 3) {
+      const entry = file.glossary.entries[keys[1]]
+      const [top, ...rest] = keys.slice(2)
+      const value = !rest.length ? (edit.unset ? null : edit.set) : edit.unset ? unsetAt(entry[top], rest) : setAt(entry[top], rest, edit.set)
+      return { op: 'glossary.set', entry: entry.id, fields: { [top]: value } }
+    }
+    if (keys[0] === 'entries' && keys.length === 2 && !edit.unset) {
+      const { id, ...data } = edit.set
+      return { op: 'glossary.put', entry: id, data, at: keys[1] }
+    }
+    if (keys[0] === 'entries' && keys.length === 2) return { op: 'glossary.remove', entry: file.glossary.entries[keys[1]].id }
+    if (keys[0] === 'groupByChapter' && keys.length === 1) return { op: 'glossary.presentation', groupByChapter: edit.unset ? null : edit.set }
+    return null
+  }
   // parts.json: a field of it (a whole part is added, removed and renamed by the part operations).
   if (file.parts) {
     if (edit.unset) return { op: 'parts.unset', path: keys }
@@ -521,6 +541,7 @@ export const gameFields = (content) => Object.fromEntries(Object.entries(content
 
 /** The form of the file `at` holds, as the content has it now. */
 export function fileForm(content, vocabulary, at, order) {
+  if (at?.glossary) return { value: content.glossary, form: formOf(GLOSSARY, content.glossary, { vocabulary, levels: order }) }
   if (at?.parts) {
     const value = content.partDefs ?? { parts: {} }
     return { value, form: formOf(PARTS_FILE, value, { vocabulary, levels: order }) }

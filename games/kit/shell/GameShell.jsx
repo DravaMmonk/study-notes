@@ -337,6 +337,7 @@ export default function GameShell({ game, store, author = null }) {
             onWiki={game.glossary && (() => setSheet('wiki'))}
             unread={wiki.unread.length}
             theme={theme}
+            edit={authoring}
           />
         )}
         {level && (
@@ -387,7 +388,7 @@ export default function GameShell({ game, store, author = null }) {
         )}
         {failure && level && <FailDialog fail={failure.info} fails={failure.fails} onClose={() => setFailure(null)} />}
         {sheet === 'parts' && <PartsBook game={game} box={box} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
-        {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} start={sheetAt} onClose={() => { setSheet(null); setSheetAt(null) }} />}
+        {sheet === 'wiki' && <Encyclopedia game={game} wiki={wiki} level={level} phone={phone} start={sheetAt} edit={authoring} onClose={() => { setSheet(null); setSheetAt(null) }} />}
         {locked && <Dialog top title={tr(`「${locked.title}」尚未解锁`, `“${locked.title}” is still locked`)} lines={[locked.at && locked.at.id === level?.id ? tr('通过这一关后解锁。') : locked.at ? tr(`进行到 ${game.levelLabel(locked.at)}「${L(locked.at.title)}」时解锁。`, `Unlocks at ${game.levelLabel(locked.at)} “${L(locked.at.title)}”.`) : tr('继续推进后解锁。')]} actions={[[tr('确定'), () => setLocked(null)]]} onClose={() => setLocked(null)} />}
         {target && (game.isOpen(target, solved, progress.all)
           ? <Dialog top title={tr(`前往 ${game.levelLabel(target)}「${L(target.title)}」？`, `Go to ${game.levelLabel(target)} “${L(target.title)}”?`)} lines={[atTarget ? tr('你正在这里。') : tr('这一关的电路和进度都会保存，可以随时返回。')]} actions={atTarget ? [[tr('确定'), () => setGoTo(null)]] : [[tr('取消'), () => setGoTo(null)], [tr('前往'), go]]} onClose={() => setGoTo(null)} />

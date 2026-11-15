@@ -5,13 +5,16 @@
 // the game alone. While a board of the level is edited there (`take`), the game's 「用作 …」 sends the board back.
 //
 //   play: { level, seed, take }  a level opened afresh (on a board, or taking one), at `task`;  go: { task } a task to go to
-//   part: a part of parts.json shown instead (its three faces and its logic, ../shell/parts/PartPreview.jsx); picked is
-//         then the path picked in it
+//   part: a part of parts.json shown instead (its three faces and its logic, ../shell/parts/PartPreview.jsx; a built
+//         piece, its board and its fields, ../shell/parts/PieceSheet.jsx; presets/<name>, a setting preset, the
+//         control it draws); picked is then the path picked in it
+//   onRoot(): the name of what is shown, clicked in edit mode: every field of it in the side panel, those the screen
+//         does not draw too
 import { useEffect, useRef, useState } from 'react'
 import { CirclePlay, MousePointerClick, Play, X } from 'lucide-react'
 import { getLang, tr } from '../shell/i18n.js'
 
-export default function GameFrame({ visible, content, play, part, task, go, edit, picked, onEdit, onMessage, onReference, onCancelTake, reference }) {
+export default function GameFrame({ visible, content, play, part, task, go, edit, picked, onEdit, onMessage, onRoot, onReference, onCancelTake, reference }) {
   const frame = useRef(null)
   const [ready, setReady] = useState(false)
   const said = useRef(onMessage)
@@ -78,7 +81,7 @@ export default function GameFrame({ visible, content, play, part, task, go, edit
           <button type="button" role="radio" aria-checked={edit} className={edit ? 'is-on' : ''} onClick={() => onEdit(true)} title={tr('点画面上的字段在侧栏里改')}><MousePointerClick size={13} aria-hidden="true" />{tr('编辑', 'Edit')}</button>
           <button type="button" role="radio" aria-checked={!edit} className={!edit ? 'is-on' : ''} onClick={() => onEdit(false)}><Play size={13} aria-hidden="true" />{tr('试玩')}</button>
         </span>
-        {part !== undefined ? <b>{part}</b> : play?.level && <b>{play.level}</b>}
+        <button type="button" className="play-root" disabled={!edit} onClick={onRoot} title={tr('全部字段')}>{part !== undefined ? part : play?.level ?? content?.id}</button>
         {play?.take && <code>{play.take.label}</code>}
         <span className="kit-spacer" />
         {part === undefined && play?.level && reference && !play.take && (
