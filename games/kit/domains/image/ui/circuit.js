@@ -7,10 +7,19 @@ import { INPUT_LABELS } from '../words.js'
 
 const viewName = (name) => name === 'terrain' ? 'surface' : name
 
+const IMAGE_VIEWS = {
+  pixels: { label: T('像素', 'Pixels'), hint: T('亮度显示为灰度', 'Brightness as grey level') },
+  surface: { hint: T('亮度显示为高度', 'Brightness as height') },
+  slope: { hint: T('箭头指向变亮最快的方向', 'Arrows point where it brightens fastest') },
+  profile: { hint: T('一行像素的亮度曲线', 'Brightness along one row') },
+  spectrum: { hint: T('各频率分量的强度', 'Strength of each frequency') },
+}
+
 function viewsOf(task, value, role) {
-  const first = value?.h === 1 && value.w > 1 && (value.c ?? 1) === 1 ? 'plot'
-    : viewName(task.views?.[role] ?? (role === 'mid' ? task.views?.out : null) ?? 'pixels')
-  return [...new Set([first, ...(task.shows ?? []).map(viewName), 'plot', 'numbers'])]
+  if (value?.h === 1 && value.w > 1 && (value.c ?? 1) === 1) return ['plot']
+  const offered = Object.keys(IMAGE_VIEWS).filter((view) => (task.shows ?? ['pixels']).some((name) => viewName(name) === view))
+  const first = viewName(task.views?.[role] ?? (role === 'mid' ? task.views?.out : null) ?? 'pixels')
+  return offered.includes(first) ? [first, ...offered.filter((view) => view !== first)] : offered
 }
 
 const rowOf = (task, role, value, name, label, data) => {
@@ -50,6 +59,7 @@ export function imageCircuit(image, cards) {
     fresh: startBoard,
     ready: (board) => tidyImageBoard(kit, board),
     keep: (task, board) => image.publishedBy(task.key).length ? { ...board, passed: { nodes: board.nodes, wires: board.wires } } : null,
+    viewControls: (task) => ({ options: IMAGE_VIEWS, fresh: (task.freshViews ?? []).map(viewName) }),
     valueViews: (task, node, value) => viewsOf(task, value, node.type === 'input' ? 'in' : node.type === 'output' ? 'out' : 'mid'),
     readouts(_task, _board, report) {
       const { score } = report

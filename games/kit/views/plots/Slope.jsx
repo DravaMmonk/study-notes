@@ -85,5 +85,5 @@ export default function Slope({ value, size = 220 }) {
       ctx.fill()
     }
   }, size, height, [value])
-  return <canvas ref={canvas} className="sl" style={{ width: size, height }} aria-label={tr('坡度：箭头指向变大最快的方向，越长越陡')} />
+  return <canvas ref={canvas} className="sl" style={{ width: size }} aria-label={tr('坡度：箭头指向变大最快的方向，越长越陡')} />
 }

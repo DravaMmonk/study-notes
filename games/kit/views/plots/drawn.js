@@ -10,7 +10,7 @@ import Surface from './Surface.jsx'
 
 export const DRAWN = { plane: Plane, carried: CarriedPlane, chain: Chain, plot: Plot, profile: Profile, surface: Surface, slope: Slope, spectrum: Spectrum, centredBins: CentredBins }
 
-export const SIZE = { card: 96, results: 180, detail: 200, figure: 260 }
+export const SIZE = { card: 96, results: 180, image: 132, detail: 200, figure: 260 }
 
 /** The views that read a grid as arrows in the plane: what they draw says its size. */
 const PLANE = { plane: true, carried: true, chain: true }

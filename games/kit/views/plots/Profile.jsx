@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+import { ViewScope } from '../choice.js'
 import { GridPicture } from '../grid/GridView.jsx'
 import { usePointerSession } from '../usePointerSession.js'
 import Plot from './Plot.jsx'
@@ -10,12 +11,13 @@ import { rowOf } from './range.js'
 
 const pickRow = (grid, y) => ({ w: grid.w, h: 1, c: 1, data: rowOf(grid, y) })
 
-export default function Profile({ value, want, tolerance = 0, card = false }) {
+export default function Profile({ value, want, tolerance = 0, card = false, size = 220 }) {
   const shown = value ?? want
-  const [row, setRow] = useState(Math.floor((shown.h - 1) / 2))
-  const y = Math.min(shown.h - 1, row)
+  const local = useState(0.5)
+  const [scan, setScan] = useContext(ViewScope).profileScan ?? local
+  const y = Math.min(shown.h - 1, Math.floor(scan * shown.h))
   const { track } = usePointerSession()
-  const scale = Math.max(2, Math.floor((card ? 96 : 220) / Math.max(shown.w, shown.h)))
+  const scale = size / Math.max(shown.w, shown.h)
   const drag = (event) => {
     if (event.button !== 0 || !event.isPrimary) return
     event.stopPropagation()
@@ -23,7 +25,7 @@ export default function Profile({ value, want, tolerance = 0, card = false }) {
     const pick = ({ clientY }) => {
       const box = picture.getBoundingClientRect()
       const at = Math.floor(((clientY - box.top) / box.height) * shown.h)
-      if (at >= 0 && at < shown.h) setRow(at)
+      if (at >= 0 && at < shown.h) setScan((at + 0.5) / shown.h)
     }
     pick(event)
     track(event, { move: pick, escape: true })

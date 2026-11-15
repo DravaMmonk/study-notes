@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { cellError, isGrid, pixelText, readCell, sameGridShape } from '../engine/grid.js'
 import { numberError, withinTolerance } from '../engine/number.js'
 import { VIEWS } from '../engine/views.js'
 import { L, T } from '../shell/i18n.js'
 import Timeline from '../shell/Timeline.jsx'
 import { WORDS } from '../shell/words.js'
-import { useViewPicks } from './choice.js'
+import { ViewScope, useViewPicks } from './choice.js'
 import GridInspector from './grid/GridInspector.jsx'
 import { DRAWN, SIZE, overlays, sized } from './plots/drawn.js'
 import ViewSwitch from './ViewSwitch.jsx'
@@ -59,7 +59,7 @@ function linkedReading(readings, source, x, y) {
 }
 
 /** A grid: the value given, or the result beside the value wanted, the cells that differ marked on the result. */
-function GridRow({ entry, view, text, tool, inspection }) {
+function GridRow({ entry, view, text, tool, inspection, imageView }) {
   const { label, given, got, want, tolerance = 0 } = entry
   const shown = isOutput(entry) ? [[WORDS.wanted, want]] : [[null, given]]
   if (isOutput(entry) && got !== undefined) shown.push([WORDS.result, got])
@@ -78,13 +78,14 @@ function GridRow({ entry, view, text, tool, inspection }) {
   const plain = (word, v, k) => <figure key={k} className="rv-plain"><figcaption>{word && L(word)}</figcaption><b>{v === undefined ? '—' : L(text(v))}</b></figure>
   // A plot draws the result and the value wanted on one set of axes; other drawn views and the cells side by side.
   const Drawn = DRAWN[view]
+  const drawSize = imageView ? SIZE.image : SIZE.results
   const body = Drawn && overlays(view, grids[0])
-    ? <Drawn value={!isOutput(entry) ? given : isGrid(got) && (paired || !isGrid(want)) ? got : undefined} want={isOutput(entry) && isGrid(want) ? want : undefined} tolerance={tolerance} />
+    ? <Drawn value={!isOutput(entry) ? given : isGrid(got) && (paired || !isGrid(want)) ? got : undefined} want={isOutput(entry) && isGrid(want) ? want : undefined} tolerance={tolerance} size={imageView ? drawSize : undefined} />
     : shown.map(([word, v], k) => (!isGrid(v) ? plain(word, v, k)
-      : Drawn ? <figure key={k} className="rv-drawn"><figcaption>{word && L(word)}</figcaption><Drawn value={v} size={SIZE.results} /></figure>
+      : Drawn ? <figure key={k} className="rv-drawn"><Drawn value={v} size={drawSize} />{word && <figcaption>{L(word)}</figcaption>}</figure>
       : <GridInspector key={k} value={v} label={word && L(word)} view={view} dense showSize={!size} cellClass={word === WORDS.result ? differs : undefined} inspection={inspection} />))
   return (
-    <section className={`rv-row${view === 'pixels' && isGrid(given) ? ' is-picture-input' : ''}`} data-fail={wrong(entry) || undefined}>
+    <section className={`rv-row${(view === 'pixels' || imageView) && isGrid(given) ? ' is-picture-input' : ''}`} data-fail={wrong(entry) || undefined}>
       <h4>{L(label)}{size && <small>{size}</small>}{tool}</h4>
       <div className="rv-pair">{body}{error && <GridInspector value={error} view="pixels" label={L(T('误差'))} dense showSize={!size} cellClass={differs} inspection={inspection} />}</div>
     </section>
@@ -143,6 +144,7 @@ function groups(rows) {
 
 export default function Results({ rows, text, verdict = [], at = -1, count = 0, marks = [] }) {
   const picks = useViewPicks()
+  const { controls, authoring } = useContext(ViewScope)
   const inspection = useState(null)
   const [point, setPoint] = inspection
   const linked = rows.some(({ entry }) => entry.difference) ? rows.flatMap(({ entry }, k) => {
@@ -152,18 +154,32 @@ export default function Results({ rows, text, verdict = [], at = -1, count = 0, 
       : [[label, entry.given]]
     return series.flatMap(([label, grid], i) => isGrid(grid) ? [{ key: `${k}:${i}`, label, grid }] : [])
   }) : []
-  const drawn = rows.map((r) => {
-    const view = picks.of(r.entry.of, r.views)
-    const pick = r.views.length > 1 && picks.pick(r.entry.of)
-    return { ...r, view, tool: pick && <ViewSwitch views={r.views} value={view} onChange={(next) => { setPoint(null); pick(next) }} compact /> }
-  })
+  const selectable = rows.map((r) => ({
+    ...r,
+    view: picks.of(r.entry.of, r.views),
+    pick: r.views.length > 1 ? picks.pick(r.entry.of) : null,
+  }))
+  const switchable = selectable.filter((r) => r.pick)
+  const choices = switchable[0]?.views ?? []
+  const together = controls && !authoring && switchable.length > 1 && choices.every((view) => view in controls.options) &&
+    switchable.every((r) => r.views.length === choices.length && choices.every((view) => r.views.includes(view)))
+  const change = (targets, view) => {
+    setPoint(null)
+    targets.forEach((r) => r.pick(view))
+  }
+  const drawn = selectable.map((r) => ({
+    ...r,
+    tool: !together && r.pick && <ViewSwitch views={r.views} value={r.view} onChange={(next) => change([r], next)} compact />,
+  }))
   return (
     <div className="rv">
       {verdict.filter(Boolean).map((line, k) => <p key={k} className="rv-verdict is-fail">{L(line)}</p>)}
+      {together && <div><ViewSwitch views={choices} value={choices.find((view) => switchable.every((r) => r.view === view))}
+        onChange={(view) => change(switchable, view)} compact /></div>}
       {groups(drawn).map((g, k) => {
         if (g.kind === 'track') return <Track key={k} rows={g.rows} text={text} at={at} count={count} marks={marks} />
         if (g.kind === 'line') return <p key={k} className="rv-line">{g.rows.map((r) => <Chip key={r.entry.of} entry={r.entry} text={text} />)}</p>
-        return <div key={k} className="rv-rows">{g.rows.map((r, index) => (r.entry.shape === 'grid' ? <GridRow key={`${r.entry.of}:${index}`} entry={r.entry} view={r.view} text={text} tool={r.tool} inspection={linked.length ? inspection : undefined} /> : <ListRow key={r.entry.of} entry={r.entry} text={text} tool={r.tool} />))}</div>
+        return <div key={k} className="rv-rows">{g.rows.map((r, index) => (r.entry.shape === 'grid' ? <GridRow key={`${r.entry.of}:${index}`} entry={r.entry} view={r.view} text={text} tool={r.tool} inspection={linked.length ? inspection : undefined} imageView={controls && r.view in controls.options} /> : <ListRow key={r.entry.of} entry={r.entry} text={text} tool={r.tool} />))}</div>
       })}
       {linked.length > 0 && <p className="gv-reading" role="status">
         {point && <><span>({point.x}, {point.y})</span>{linkedReading(linked, point.source, point.x, point.y)}</>}

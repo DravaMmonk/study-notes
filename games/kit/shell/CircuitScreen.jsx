@@ -111,7 +111,7 @@ function Value({ value, error, show, of, views }) {
 
 const noWorld = () => null
 
-export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, sample, ready, fresh, keep, clearable, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, readouts, valueViews, language, context, training, testLabel, useWorld = noWorld, log = false, revealOnPass = false, className = '' }) {
+export default function CircuitScreen({ screen, course, cards, run: runOn, show: showOf, entries, figure, judged = false, once, sample, ready, fresh, keep, clearable, settings, defaults, portLabels = {}, defined: gameDefined = null, inspect, sheet, details = false, card: faces = {}, canvas = { height: 120 }, words = TEST_WORDS, says = {}, table = null, told, readouts, valueViews, viewControls, language, context, training, testLabel, useWorld = noWorld, log = false, revealOnPass = false, className = '' }) {
   const { game, level: entry, solved, flags, progress } = screen
   const level = entry.source
   const circuit = course.forTask(level)
@@ -283,15 +283,18 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   // Each value's view is kept by task; a port may say the one it starts in, and in the studio's editor switching a
   // port's view writes it there.
   const authoring = useEdit()
+  const profileScan = useState(0.5)
   const scope = useMemo(() => {
     const ports = [...kind.portsIn(level), ...kind.portsOut(level)]
     const names = new Set(ports.map((p) => p.name))
     return {
       scope: entry.key,
+      controls: viewControls?.(level),
+      authoring: Boolean(authoring),
       starts: Object.fromEntries(ports.filter((p) => p.view).map((p) => [p.name, p.view])),
       author: (of) => (authoring && names.has(of) ? (view) => authoring.start({ port: of, view }) : null),
     }
-  }, [entry.key, level, kind, authoring])
+  }, [entry.key, level, kind, authoring, viewControls])
   const scene = surface?.drawing ? <><InteractiveDrawing {...surface.drawing} />
     {surface.note && <p className="circuit-world-note">{L(surface.note)}</p>}
     {surface.returnAction && <button className="kit-btn circuit-world-return" type="button" onClick={surface.returnAction.onClick}>{L(surface.returnAction.label)}</button>}
@@ -338,7 +341,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
 
   return (
     <SettingsContext.Provider value={views}>
-      <ViewScope.Provider value={scope}>
+      <ViewScope.Provider value={viewControls ? { ...scope, profileScan } : scope}>
         <PlaneExtent.Provider value={extent}>
         <CircuitLevel
           stages={stages}

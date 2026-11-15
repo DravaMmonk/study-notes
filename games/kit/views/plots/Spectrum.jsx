@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import { pixelText } from '../../engine/grid.js'
 import { tr } from '../../shell/i18n.js'
 import { mix, rgba, token, useCanvas } from '../canvas.js'
 import Plot from './Plot.jsx'
@@ -16,7 +18,7 @@ export function CentredBins({ value, want, card, tolerance, size = 220 }) {
     const shifted = centreBins(grid)
     const centre = Math.floor(grid.h / 2) * grid.w + Math.floor(grid.w / 2)
     const peak = shifted.data.reduce((max, amplitude, index) => index === centre ? max : Math.max(max, amplitude), 1e-9)
-    return <SpectrumMap value={{ ...shifted, data: shifted.data.map(amplitude => Math.max(0, Math.min(1, amplitude / peak))) }} size={size} />
+    return <SpectrumMap value={{ ...shifted, data: shifted.data.map(amplitude => Math.max(0, Math.min(1, amplitude / peak))) }} size={size} card={card} />
   }
   return <Plot value={value && centreBins(value)} want={want && centreBins(want)}
     tolerance={tolerance} card={card} xOf={frequency((value ?? want).w)} />
@@ -25,11 +27,12 @@ export function CentredBins({ value, want, card, tolerance, size = 220 }) {
 export default function Spectrum({ value, want, size = 220, card = false }) {
   const shown = value ?? want
   if (shown.h <= 2) return <Plot value={value && spectrumOf(value)} want={want && spectrumOf(want)} tolerance={Infinity} card={card} xOf={frequency(shown.w)} />
-  return <SpectrumMap value={spectrumOf(shown)} size={size} />
+  return <SpectrumMap value={spectrumOf(shown)} size={size} card={card} />
 }
 
-function SpectrumMap({ value, size }) {
+function SpectrumMap({ value, size, card }) {
   const { w, h } = value
+  const [cell, setCell] = useState(null)
   const height = Math.round(size * (h / w))
   const canvas = useCanvas((ctx) => {
     const cell = size / w
@@ -49,5 +52,22 @@ function SpectrumMap({ value, size }) {
     ctx.lineTo(size, zy)
     ctx.stroke()
   }, size, height, [value])
-  return <canvas ref={canvas} className="sp" style={{ width: size, height }} aria-label={tr('频谱：中心是零频，越往外频率越高')} />
+  const read = (event) => {
+    const box = event.currentTarget.getBoundingClientRect()
+    const x = Math.floor((event.clientX - box.left) * w / box.width)
+    const y = Math.floor((event.clientY - box.top) * h / box.height)
+    setCell(x >= 0 && y >= 0 && x < w && y < h ? { x, y } : null)
+  }
+  const drawing = <canvas ref={canvas} className="sp" style={{ width: size }} aria-label={tr('频谱：中心是零频，越往外频率越高')}
+    onPointerMove={card ? undefined : read} onPointerDown={card ? undefined : read}
+    onPointerLeave={card ? undefined : (event) => { if (event.pointerType === 'mouse') setCell(null) }} />
+  if (card) return drawing
+  return <div className="sp-view">
+    {drawing}
+    <p className="gv-reading" role="status">
+      {cell && cell.x < w && cell.y < h && <span>
+        ({frequency(w)(cell.x)}, {frequency(h)(cell.y)}) <b>{pixelText(value.data[cell.y * w + cell.x])}</b>
+      </span>}
+    </p>
+  </div>
 }

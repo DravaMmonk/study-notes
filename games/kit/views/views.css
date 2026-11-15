@@ -92,19 +92,24 @@
 .pn .is-miss { color: var(--fail); }
 .pn.is-card .pn-arrow line { stroke-width: 1.75; }
 .pf { display: grid; gap: var(--sp-3); width: fit-content; max-width: 100%; }
-.pf-picture { position: relative; justify-self: start; line-height: 0; }
+.pf-picture { position: relative; max-width: 100%; justify-self: start; line-height: 0; }
 .pf-picture.is-draggable { cursor: ns-resize; touch-action: none; }
 .pf-line { position: absolute; left: -3px; right: -3px; height: 2px; margin-top: -1px; border-radius: var(--r-full); background: var(--accent); pointer-events: none; }
-.pf-tag { position: absolute; left: 100%; margin-left: var(--sp-3); transform: translateY(-50%); color: var(--muted); font: var(--fs-label) var(--mono); white-space: nowrap; pointer-events: none; }
-.sf, .sl, .sp { display: block; max-width: 100%; }
+.pf-tag { position: absolute; inset-inline-start: var(--sp-2); transform: translateY(-100%); padding: 0 var(--sp-2); border-radius: var(--r-sm); background: var(--paper); color: var(--ink); font: var(--fs-label) var(--mono); white-space: nowrap; pointer-events: none; }
+.sf, .sl, .sp { display: block; max-width: 100%; height: auto; }
+.sp-view { max-width: 100%; }
 .sl, .sp { border-radius: var(--r-sm); box-shadow: inset 0 0 0 1px var(--line); }
-.rv-drawn { margin: 0; display: grid; gap: var(--sp-2); }
+.rv-drawn { min-width: 0; margin: 0; display: grid; gap: var(--sp-2); }
 .rv-drawn figcaption { min-height: 22px; display: flex; align-items: center; color: var(--muted); font-size: var(--fs-ui); }
 
 /* ---- the switch between views ---- */
 .view-pick { display: inline-flex; flex: none; gap: var(--sp-1); padding: var(--sp-1); border: 1px solid var(--line); border-radius: var(--r-full); background: var(--paper); }
 .view-pick button { height: 22px; display: inline-flex; align-items: center; gap: var(--sp-2); padding: 0 var(--sp-4); border: 0; border-radius: var(--r-full); color: var(--muted); background: none; font: var(--fs-label) var(--sans); cursor: pointer; }
 .view-pick button:hover { color: var(--ink); }
+.view-pick.is-direct { flex-wrap: wrap; max-width: 100%; border-radius: var(--r-sm); background: var(--canvas); }
+.view-pick.is-direct button { position: relative; padding-inline: var(--sp-3); border-radius: var(--r-sm); }
+.view-pick.is-direct button[aria-pressed='true'] { color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--rule); }
+.view-pick button.is-new::after { content: ''; position: absolute; inset-block-start: var(--sp-1); inset-inline-end: var(--sp-1); width: var(--sp-2); height: var(--sp-2); border-radius: var(--r-full); background: var(--accent); }
 
 /* In a waveform's label column, a lane is 26 px high. */
 .tl-labels span { gap: var(--sp-3); }
@@ -124,7 +129,7 @@
 .rv-rows { display: flex; flex-wrap: wrap; align-items: start; gap: var(--sp-4) var(--sp-6); min-width: 0; }
 .rv-row { display: grid; gap: var(--sp-2); min-width: 0; padding-inline-start: var(--sp-5); border-inline-start: 2px solid var(--line); }
 .rv-row[data-fail] { border-inline-start-color: var(--fail); }
-.rv-row > h4 { margin: 0; display: flex; align-items: baseline; gap: var(--sp-4); }
+.rv-row > h4 { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-4); }
 .rv-row > h4 small { color: var(--faint); font: var(--fs-label) var(--mono); }
 .rv-pair { display: flex; align-items: start; gap: var(--sp-4); }
 .rv-pair > .gv-inspector:not(.is-picture) { flex: none; }
@@ -141,7 +146,6 @@
   .vw-figure { --gv-frame-w: 360px; --gv-frame-h: 240px; }
   .rv-rows, .rv-row { width: 100%; }
   .rv-row.is-picture-input { flex: 0 1 calc((100% - var(--sp-6)) / 2); box-sizing: border-box; }
-  .rv-row.is-picture-input > h4 { flex-wrap: wrap; }
   .rv-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
   .rv-pair > .gv-inspector:not(.is-picture) { width: 100%; }
 }
