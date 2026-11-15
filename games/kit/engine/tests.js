@@ -11,13 +11,13 @@ export function splitTests(task, revealed) {
   return { all, shown, hiddenCount: all.tests.length - shown.length }
 }
 
-/** Judge all cases once, then keep the visible runs and only the failed count for concealed cases. */
+/** Judge all cases once. Keep visible runs separate from the full report while cases are concealed. */
 export function runTestGroups(task, revealed, run) {
   const { all, shown, hiddenCount } = splitTests(task, revealed)
   const report = run(all, shown.length)
   const hidden = hiddenCount ? { count: hiddenCount, failed: report.runs.slice(shown.length).filter(failureOf).length } : null
   const checked = hidden ? reportRuns(report.runs.slice(0, shown.length), report) : report
-  return { shown, checked, hidden, pass: report.pass }
+  return { shown, checked, hidden, report, pass: report.pass }
 }
 
 /**

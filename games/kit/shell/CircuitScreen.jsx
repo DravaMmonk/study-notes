@@ -138,14 +138,14 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const stages = useMemo(() => stagesOf({ task: level, board: board.circuit, chain: circuit.stageChain(level, progress.built), isFixed: (n) => kind.isFixed(n.type) }), [level, board.circuit, circuit, progress.built, kind])
   const [alreadySolved] = useState(solved)
   const revealed = alreadySolved || (revealOnPass && solved)
-  const { shown: tests, checked, hidden } = useMemo(() => runTestGroups(level, revealed,
+  const { shown: tests, checked, hidden, report } = useMemo(() => runTestGroups(level, revealed,
     (task, traceCount) => runOn(task, drawn, base.partOf, { traced: true, traceCount, ...(hasPersonal(drawn) && { workshopParts: resolve }) })),
   [level, revealed, board.version, base, progress.built, library])
   const stepsOf = (r) => (timed ? r.ticks.map((tick) => tick.failed ? { ...tick, failed: failureText(tick.failed) } : tick) : r.trace)
   const run = useLevelRun(screen, board, {
     tests: [...tests.map((t, k) => ({ label: L(t.label ?? testLabel?.(level, t, k) ?? words.label(k)), hidden: t.hidden })), ...(judged && level.sample ? [{ label: L(WORDS.sample), sample: true }] : [])],
     ...(judged
-      ? { judge: () => ({ pass: checked.pass, score: checked.score, results: checked.runs.map((r) => ({ pass: !failureOf(r), reason: L(finalFailure(r)) ?? '' })) }) }
+      ? { judge: () => ({ pass: checked.pass, score: checked.score, results: report.runs.map((r) => ({ pass: !failureOf(r), reason: L(finalFailure(r)) ?? '' })) }) }
       : { steps: { of: (k) => (table ? [] : stepsOf(checked.runs[k])), check: (k) => finalFailure(checked.runs[k]) ?? '', final: L(checked.constraint) } }),
     hidden: hidden && {
       ...hidden,

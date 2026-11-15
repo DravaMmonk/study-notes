@@ -82,7 +82,11 @@ export function useLevelBoard(screen, { open, fresh, clearable }) {
  *   at        the test a level opens on
  */
 export function useLevelRun(screen, board, { tests, steps = null, judge = null, hidden = null, score, onSolve, onFail, guard, at: first = 0 }) {
-  const [at, setAt] = useState(first)
+  const [at, setAt] = useState(null)
+  const failureAt = (verdict) => {
+    const found = verdict?.results.findIndex((result, k) => k < tests.length && !tests[k].sample && !result.pass) ?? -1
+    return found < 0 ? first : found
+  }
   const solve = (s) => (onSolve ? onSolve(s) : screen.solve(s))
   const hiddenFails = hidden?.failed ?? 0
   const missed = (n) => (n ? hidden.words.failed(n) : '')
@@ -104,7 +108,7 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
   }
   const { verdict, check, reset } = useCheckOnce(steps ? {} : screen, judged, (v) => {
     if (v.pass && !v.hiddenFailed) solve(v.score ?? score?.())
-    else if (!v.pass) setAt(Math.max(0, v.results.findIndex((r) => !r.pass)))
+    else if (!v.pass) setAt(failureAt(v))
   })
   // A change to what the board computes drops the verdict on it.
   const version = useRef(board.version)
@@ -113,10 +117,13 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
     version.current = board.version
     if (!steps) reset()
   }, [board.version])
-  const states = steps ? playback.states : tests.map((t, k) => (verdict && !t.sample ? (verdict.results[k]?.pass ? 'pass' : 'fail') : null))
+  const states = steps ? playback.states : tests.map((t, k) => {
+    const result = verdict?.results[k]
+    return !t.sample && result ? (result.pass ? 'pass' : 'fail') : null
+  })
   const passed = steps ? playback.passed : Boolean(verdict?.pass && !verdict.hiddenFailed)
   const live = Boolean(playback.run && !playback.run.over)
-  const shownAt = Math.min(at, tests.length - 1)
+  const shownAt = Math.min(at ?? failureAt(verdict), tests.length - 1)
   const failedHidden = steps
     ? (playback.run?.final && !steps.final ? hiddenFails : 0)
     : verdict?.hiddenFailed ?? 0

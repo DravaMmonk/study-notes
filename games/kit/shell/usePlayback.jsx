@@ -4,6 +4,7 @@ import { paceOf } from '../engine/trace.js'
 import { tr } from './i18n.js'
 import { useSetting } from './useSetting.js'
 import { reduced } from './useMedia.js'
+import { playbackMark } from './run-marks.js'
 
 // Playing a level's tests step by step, the same in every game: Run plays every test in turn (the first slowly, the
 // rest fast: ../engine/trace.js paceOf), Step goes one step at a time (pausing a run under way), Pause and Continue
@@ -18,7 +19,7 @@ import { reduced } from './useMedia.js'
 //   onFail?(run)     a run stopped short of passing (a step or a test failed, or `final` had something to say)
 //   onTest?(k)       the run moved on to test k
 //   board            anything that changes the board: a new one cancels the run
-//   kept?            how far the board's last run had gone (onKeep's mark): it opens there, held, without solving again
+//   kept?            the last run's paused position or completed verdict, restored without reporting an outcome again
 //   immediate        show the first step as soon as the player starts
 //   onKeep?(mark)    the run stands still (held or over) after `mark` moves, or there is none (null)
 //
@@ -69,12 +70,13 @@ export function usePlayback({ count, stepsOf, check, final, onSolve, onFail, onT
   const [held, setHeld] = useState(() => {
     if (!kept) return null
     let r = fresh(false)
-    for (let k = 0; k < kept && !r.over; k++) r = advance(r)
+    if (kept.finished) r = finish(r)
+    else for (let k = 0; k < kept.moves && !r.over; k++) r = advance(r)
     return { ...r, board }
   })
   const run = held?.board === board ? held : null
   const setRun = (r) => setHeld(r && { ...r, board })
-  useEffect(() => onKeep?.(run && !run.playing ? run.n : null), [run?.n, run?.playing, board])
+  useEffect(() => onKeep?.(playbackMark(run)), [run?.n, run?.playing, run?.over, board])
 
   useEffect(() => {
     if (!run?.playing) return undefined
@@ -84,18 +86,14 @@ export function usePlayback({ count, stepsOf, check, final, onSolve, onFail, onT
   }, [run])
   useEffect(() => { if (run) onTest?.(run.test) }, [run?.test])
   const passed = Boolean(run?.over && run.results.length === count && run.results.every((x) => x.pass) && !run.final)
-  // A run replayed as it was kept has been solved (or has failed) already.
-  const solved = useRef(passed)
+  // An explicit run reports its outcome once, even when it finishes before rendering an intermediate step.
+  const reported = useRef(run?.over ? run.id : null)
   useEffect(() => {
-    if (passed && !solved.current) { solved.current = true; onSolve() }
-    if (!passed) solved.current = false
-  }, [passed])
-  const told = useRef(run?.over ? run.id : null)
-  useEffect(() => {
-    if (!run?.over || passed || told.current === run.id) return
-    told.current = run.id
-    onFail?.(run)
-  }, [run?.over, run?.id])
+    if (!run?.over || reported.current === run.id) return
+    reported.current = run.id
+    if (passed) onSolve()
+    else onFail?.(run)
+  }, [run?.over, run?.id, passed])
 
   const live = run && !run.over
   const playing = Boolean(run?.playing)

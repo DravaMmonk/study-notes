@@ -42,6 +42,8 @@ test('one report scores both groups and keeps replay only for visible cases', ()
   assert.deepEqual(concealed.checked.score, { examples: 2 })
   assert.deepEqual(concealed.checked.runs.map(({ trace }) => trace), [['example']])
   assert.deepEqual(concealed.hidden, { count: 1, failed: 1 })
+  assert.deepEqual(concealed.report.runs.map(({ pass }) => pass), [true, false])
+  assert.equal(concealed.report.runs[1].trace, undefined)
 
   const revealed = run(true)
   assert.deepEqual(attempts.slice(2), [['example', true], ['held back', true]])
