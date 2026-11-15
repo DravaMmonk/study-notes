@@ -127,10 +127,6 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
         }
       }
       problems.push(...more(task, k, tasks, held))
-      const visible = (work) => run(task, work, partOf)
-      for (const [k, work] of (task.works ?? []).entries()) {
-        if (!checkWorks(visible, { naive: work.board }).naive.ok) problems.push(`work ${k + 1} passes every check the task holds`)
-      }
       let naive = ''
       if (checked.naive) {
         strays(task.naive, 'the naive answer')

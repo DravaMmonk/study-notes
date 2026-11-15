@@ -106,7 +106,6 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     }
     out.solution = boardOf(task.solution, 'the answer')
     if (task.starter) out.starter = boardOf(task.starter, 'the starter')
-    if (task.works) out.works = task.works.map((w, k) => ({ label: w.label, board: boardOf(w.board, `work ${k + 1}`, true) }))
     if (task.naive) out.naive = boardOf(task.naive, 'the naive answer', true)
     for (const field of ['withhold', 'grants', 'opens']) for (const item of task[field] ?? []) {
       const problem = itemProblem(item)

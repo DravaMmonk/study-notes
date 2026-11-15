@@ -1,6 +1,6 @@
 {
   "domain": "__name__",
-  "vocabulary": 1,
+  "vocabulary": 14,
   "title": { "en": "__title__", "zh": "__title__" },
   "kicker": { "en": "In development", "zh": "开发中" },
   "lede": {
