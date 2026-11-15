@@ -1,7 +1,8 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'lucide-react'
-import { pixelUrl, svgPoint } from './matchDraw.js'
+import { pixelUrl } from './matchDraw.js'
 import { L, tr } from '../../../../shell/i18n.js'
+import { clientToSvg, svgToClient } from '../../../../views/svg-point.js'
 import { useElementSize } from '../../../../views/useElementSize.js'
 import './match.css'
 
@@ -12,19 +13,12 @@ import './match.css'
 
 const S = 3 // svg units per image pixel
 const PAD = 14 // svg margin around each picture, room for armed rings and tags
+const imageXY = ([x, y]) => [x * S, y * S]
 // Marker radius, tag size and snap distance (svg units) so that each reads at about the same screen
 // size: the cover and photo are drawn at different scales, and smaller on a phone.
 const SIZES = {
   wide: { rCover: 6, rPhoto: 6, fsCover: 12, fsPhoto: 12, snapCover: 22, snapPhoto: 20 },
   phone: { rCover: 8, rPhoto: 10, fsCover: 15, fsPhoto: 21, snapCover: 34, snapPhoto: 40 },
-}
-
-function toClient(svg, [x, y]) {
-  const point = svg.createSVGPoint()
-  point.x = x
-  point.y = y
-  const at = point.matrixTransform(svg.getScreenCTM())
-  return [at.x, at.y]
 }
 
 export function CoverPairs({ ctx, children }) {
@@ -39,6 +33,7 @@ export function CoverPairs({ ctx, children }) {
   const stage = useRef(null)
   const links = useRef(null)
   const draft = useRef(null)
+  const gesture = useRef(null)
   const stageSize = useElementSize(stage, 'content')
 
   const { fit } = ctx.view
@@ -48,8 +43,6 @@ export function CoverPairs({ ctx, children }) {
   const warpUrl = useMemo(() => (fit.model ? pixelUrl(m.PHOTO.w, m.PHOTO.h, (t) => m.renderPhoto(t, fit.model, { desk: false })) : null), [m, fit.model])
 
   const Z = phone ? SIZES.phone : SIZES.wide
-  const coverXY = ([x, y]) => [x * S, y * S]
-  const photoXY = ([u, v]) => [u * S, v * S]
 
   // On a wide screen the pairs are joined by lines across the gap between the two pictures. The
   // overlay is measured after layout and written directly, so a resize only moves the lines.
@@ -61,8 +54,8 @@ export function CoverPairs({ ctx, children }) {
     svg.querySelectorAll('line[data-pair]').forEach((line) => {
       const p = pairs[Number(line.dataset.pair)]
       if (!p) return
-      const [x1, y1] = toClient(coverSvg.current, [m.coverPoints[p.cover][0] * S, m.coverPoints[p.cover][1] * S])
-      const [x2, y2] = toClient(photoSvg.current, [m.photoPoints[p.photo].at[0] * S, m.photoPoints[p.photo].at[1] * S])
+      const [x1, y1] = svgToClient(coverSvg.current, imageXY(m.coverPoints[p.cover]))
+      const [x2, y2] = svgToClient(photoSvg.current, imageXY(m.photoPoints[p.photo].at))
       line.setAttribute('x1', x1 - box.left)
       line.setAttribute('y1', y1 - box.top)
       line.setAttribute('x2', x2 - box.left)
@@ -93,8 +86,8 @@ export function CoverPairs({ ctx, children }) {
     })
     return best
   }
-  const coverAt = (event) => nearest(m.coverPoints, coverXY, svgPoint(coverSvg.current, event), Z.snapCover)
-  const photoAt = (event) => nearest(m.photoPoints, (p) => photoXY(p.at), svgPoint(photoSvg.current, event), Z.snapPhoto)
+  const coverAt = (event) => nearest(m.coverPoints, imageXY, clientToSvg(coverSvg.current, event), Z.snapCover)
+  const photoAt = (event) => nearest(m.photoPoints, (p) => imageXY(p.at), clientToSvg(photoSvg.current, event), Z.snapPhoto)
 
   // The dashed line that follows a drag, drawn straight into the overlay (no re-render per move).
   const drawDraft = (from, event) => {
@@ -116,6 +109,7 @@ export function CoverPairs({ ctx, children }) {
   // point pairs them (a drag); releasing anywhere else keeps the point armed for a tap on the photo.
   const pressCover = (event) => {
     event.stopPropagation()
+    if (event.button !== 0 || gesture.current) return
     const cover = coverAt(event)
     if (cover < 0) {
       setArmed(null)
@@ -127,28 +121,31 @@ export function CoverPairs({ ctx, children }) {
       return
     }
     event.preventDefault()
-    const wasArmed = armed?.side === 'cover' && armed.index === cover
-    const start = [event.clientX, event.clientY]
-    const from = toClient(coverSvg.current, coverXY(m.coverPoints[cover]))
-    setArmed({ side: 'cover', index: cover })
-    const move = (e) => drawDraft(from, e)
-    const up = (e) => {
-      window.removeEventListener('pointermove', move)
-      window.removeEventListener('pointerup', up)
-      window.removeEventListener('pointercancel', up)
-      drawDraft(from, null)
-      const moved = Math.hypot(e.clientX - start[0], e.clientY - start[1]) > 6
-      const target = e.type === 'pointerup' ? photoAt(e) : -1
-      if (target >= 0) {
-        addPair(cover, target)
-        setArmed(null)
-      } else if (!moved && wasArmed) {
-        setArmed(null)
-      }
+    gesture.current = {
+      id: event.pointerId, cover,
+      wasArmed: armed?.side === 'cover' && armed.index === cover,
+      start: [event.clientX, event.clientY],
+      from: svgToClient(coverSvg.current, imageXY(m.coverPoints[cover])),
     }
-    window.addEventListener('pointermove', move)
-    window.addEventListener('pointerup', up)
-    window.addEventListener('pointercancel', up)
+    event.currentTarget.setPointerCapture(event.pointerId)
+    setArmed({ side: 'cover', index: cover })
+  }
+  const moveCover = (event) => {
+    if (gesture.current?.id === event.pointerId) drawDraft(gesture.current.from, event)
+  }
+  const dropCover = (event) => {
+    const active = gesture.current
+    if (active?.id !== event.pointerId) return
+    gesture.current = null
+    drawDraft(active.from, null)
+    const moved = Math.hypot(event.clientX - active.start[0], event.clientY - active.start[1]) > 6
+    const target = event.type === 'pointerup' ? photoAt(event) : -1
+    if (target >= 0) {
+      addPair(active.cover, target)
+      setArmed(null)
+    } else if (!moved && active.wasArmed) {
+      setArmed(null)
+    }
   }
 
   // Tap on the photo: pair with the armed cover point, or arm the photo point and wait for the cover.
@@ -169,7 +166,7 @@ export function CoverPairs({ ctx, children }) {
 
   const usedCover = new Map(pairs.map((p, i) => [p.cover, i]))
   const usedPhoto = new Map(pairs.map((p, i) => [p.photo, i]))
-  const quad = fit.model ? [[0, 0], [m.COVER.w, 0], [m.COVER.w, m.COVER.h], [0, m.COVER.h]].map(([x, y]) => photoXY(m.project(fit.model, x, y))) : null
+  const quad = fit.model ? [[0, 0], [m.COVER.w, 0], [m.COVER.w, m.COVER.h], [0, m.COVER.h]].map(([x, y]) => imageXY(m.project(fit.model, x, y))) : null
   const errorOk = fit.error < m.tol
   const cw = m.COVER.w * S
   const ch = m.COVER.h * S
@@ -200,11 +197,12 @@ export function CoverPairs({ ctx, children }) {
         <div className="mb-cover-grid">
           <figure className="mb-cover-fig">
             <span className="bk-label">{tr('封面')}</span>
-            <svg ref={coverSvg} className="mb-svg mb-drag" viewBox={`${-PAD} ${-PAD} ${cw + 2 * PAD} ${ch + 2 * PAD}`} role="img" aria-label={tr('封面')} onPointerDown={pressCover}>
+            <svg ref={coverSvg} className="mb-svg mb-drag" viewBox={`${-PAD} ${-PAD} ${cw + 2 * PAD} ${ch + 2 * PAD}`} role="img" aria-label={tr('封面')}
+              onPointerDown={pressCover} onPointerMove={moveCover} onPointerUp={dropCover} onPointerCancel={dropCover} onLostPointerCapture={dropCover}>
               <rect className="mb-hit" x={-PAD} y={-PAD} width={cw + 2 * PAD} height={ch + 2 * PAD} />
               <image className="mb-pixels" href={coverUrl} x={0} y={0} width={cw} height={ch} preserveAspectRatio="none" />
               <rect className="mb-frame" x={0} y={0} width={cw} height={ch} />
-              <g pointerEvents="none">{m.coverPoints.map((p, i) => marker('cover', i, coverXY(p), usedCover, Z.rCover, Z.fsCover))}</g>
+              <g pointerEvents="none">{m.coverPoints.map((p, i) => marker('cover', i, imageXY(p), usedCover, Z.rCover, Z.fsCover))}</g>
             </svg>
           </figure>
           <div className="mb-cover-aside">
@@ -222,7 +220,7 @@ export function CoverPairs({ ctx, children }) {
               {warpUrl && <image className={`mb-pixels mb-warp ${overlay ? '' : 'is-hidden'}`} href={warpUrl} x={0} y={0} width={pw} height={ph} preserveAspectRatio="none" />}
               {quad && <polygon className={`mb-quad ${errorOk ? '' : 'is-bad'}`} clipPath="url(#mb-photo-clip)" points={quad.map((p) => p.join(',')).join(' ')} />}
               <rect className="mb-frame" x={0} y={0} width={pw} height={ph} />
-              <g pointerEvents="none">{m.photoPoints.map((p, i) => marker('photo', i, photoXY(p.at), usedPhoto, Z.rPhoto, Z.fsPhoto))}</g>
+              <g pointerEvents="none">{m.photoPoints.map((p, i) => marker('photo', i, imageXY(p.at), usedPhoto, Z.rPhoto, Z.fsPhoto))}</g>
             </svg>
           </figure>
         </div>

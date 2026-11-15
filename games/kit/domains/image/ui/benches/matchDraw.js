@@ -20,12 +20,3 @@ export function tokenColour(name, fallback) {
   const n = parseInt(match[1], 16)
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
 }
-
-// Client coordinates → the user units of an SVG element.
-export function svgPoint(svg, event) {
-  const point = svg.createSVGPoint()
-  point.x = event.clientX
-  point.y = event.clientY
-  const local = point.matrixTransform(svg.getScreenCTM().inverse())
-  return [local.x, local.y]
-}

@@ -1,6 +1,7 @@
 import { useId, useMemo, useRef, useState } from 'react'
 import { goalOf, limitOf } from '../../../../engine/bench.js'
 import { tr } from '../../../../shell/i18n.js'
+import { clientToSvg } from '../../../../views/svg-point.js'
 import { useTween } from '../../../../views/useTween.js'
 import './optics.css'
 
@@ -43,12 +44,7 @@ export function ObscuraSide({ ctx }) {
   const v = useShown(ctx, Boolean(dragging))
 
   const move = (part, x) => ctx.set(m.clamp(part === 'plate' ? { ...state, Z: x, s: Math.max(state.s, x + m.GAP) } : { ...state, s: x }))
-  const worldX = (event) => {
-    const point = svg.current.createSVGPoint()
-    point.x = event.clientX
-    point.y = event.clientY
-    return point.matrixTransform(svg.current.getScreenCTM().inverse()).x
-  }
+  const worldX = (event) => clientToSvg(svg.current, event)[0]
   const grab = (part) => (event) => {
     event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
