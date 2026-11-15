@@ -14,7 +14,7 @@ import { useEffect, useEffectEvent, useLayoutEffect, useReducer, useRef, useStat
 import { foldedPartsOf } from './folding.js'
 import ClearButton from './ClearButton.jsx'
 import { labelledConnections, sourceLabel, blockOwners, wireKey } from './connections.js'
-import { pipelineLayout, reflowLayout } from './layout.js'
+import { layoutAt, pipelineLayout, reflowLayout } from './layout.js'
 import SaveSlots from './SaveSlots.jsx'
 import { ChevronDown, ChevronRight, Maximize, Group, Minus, Plus, Redo2, Trash2, Undo2, X } from 'lucide-react'
 import { enableDrag } from '../drag.js'
@@ -54,6 +54,10 @@ const ownIn = (layer, selector) => [...(layer?.querySelectorAll(selector) ?? [])
 const REGION = { w: 240, h: 120, pad: 24 }
 const clampZoom = (z) => Math.min(1.5, Math.max(0.35, Math.round(z * 100) / 100))
 const curve = (a, b) => kitCurve(a, b, 'x', 48)
+const atPosition = (node, positions) => {
+  const at = positions?.get(node.id)
+  return at && (at.x !== node.x || at.y !== node.y) ? { ...node, ...at } : node
+}
 
 function pointerPose(pointers) {
   const points = [...pointers.values()]
@@ -86,27 +90,17 @@ function pointerPose(pointers) {
 export default function CanvasEditor({ blocks = null, graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, height = 230, emptyNote, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
   const [connectionLabels] = useSetting('connectionLabels')
   // A change never takes off what the level locked on the board (presets.js keepLocked).
-  const onChange = readOnly ? () => {} : (next, opt) => {
-    const moved = next.nodes.filter((n) => { const before = graph.nodes.find((x) => x.id === n.id); return before && (n.x !== before.x || n.y !== before.y) })
-    if (moved.length) setPresentation((current) => {
+  const onChange = readOnly ? () => {} : (proposed, opt) => {
+    const next = keepLocked(graph, proposed)
+    if (next.nodes !== graph.nodes) setPresentation((current) => {
       if (!current) return current
-      const nodes = new Map(current.nodes)
-      for (const n of moved) nodes.set(n.id, { x: n.x, y: n.y })
-      const units=current.units.map(u=>{
-        if(!u.nodes.some(id=>moved.some(n=>n.id===id)))return u
-        if(u.view==='hidden'){
-          const after=moved.find(n=>u.nodes.includes(n.id)),before=graph.nodes.find(n=>n.id===after.id)
-          return {...u,x:u.x+after.x-before.x,y:u.y+after.y-before.y}
-        }
-        const ids=u.block?groups.find(b=>b.id===u.block)?.nodes??u.nodes:u.nodes
-        const ps=ids.map(id=>({id,p:nodes.get(id)})).filter(({p})=>p)
-        if(!ps.length)return u
-        const x=Math.min(...ps.map(({p})=>p.x))-(u.block?spacing.pad:0),y=Math.min(...ps.map(({p})=>p.y))-(u.block?spacing.pad+spacing.title:0)
-        return {...u,x,y,w:Math.max(...ps.map(({id,p})=>p.x+(geo.sizes[id]?.[0]??widthOf(byId.get(id)))))-x+spacing.pad,h:Math.max(...ps.map(({id,p})=>p.y+(geo.sizes[id]?.[1]??height)))-y+spacing.pad}
-      })
-      return { ...current, nodes, units }
+      return new Map(next.nodes.filter((node) => !node.in).map((node) => {
+        const before = byId.get(node.id)
+        const kept = before && !before.in && node.x === before.x && node.y === before.y ? current.get(node.id) : null
+        return [node.id, kept ?? { x: node.x ?? 0, y: node.y ?? 0 }]
+      }))
     })
-    given(keepLocked(graph, next), opt)
+    given(next, opt)
   }
   const history = useHistory(graph, onChange, scope)
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
@@ -166,52 +160,63 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const groups = blocks?.items ?? []
   const hiddenNodes=foldedPartsOf(graph,groups,'hidden')
   let visible = layered(graph.nodes.filter((n) => !n.in&&!hiddenNodes.has(n.id)))
-  const stageNodes = (stage) => stage.nodes.map((id) => byId.get(id)).filter(Boolean)
-  const arrange = (fresh=false) => pipelineLayout(graph, groups, {
-    sizeOf: (n) => { const el=fresh?layer.current?.querySelector(`[data-piece="${CSS.escape(n.id)}"]`):null; const size = el ? [el.offsetWidth,el.offsetHeight] : geo.sizes[n.id] ?? [widthOf(n), height]; return { w: size[0], h: size[1] } },
+  const sizeOf = (node) => node.hiddenBlock ? [node.w, node.h] : geo.sizes[node.id] ?? [widthOf(node), height]
+  const dimensions = (id) => {
+    const [w, h] = sizeOf(byId.get(id))
+    return { w, h }
+  }
+  const gapOf = (name) => Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) || 0
+  const gaps = { gapX: gapOf('--board-gap-x'), gapY: gapOf('--board-gap-y') }
+  const spacing = { pad: gapOf('--block-pad'), head: gapOf('--block-head-height') }
+  const arrange = () => pipelineLayout(graph, groups, {
+    sizeOf: (node) => dimensions(node.id),
     roleOf: parts.role,
     width: surface.current?.clientWidth ?? 1100,
     height: surface.current?.clientHeight ?? Infinity,
-    gapX: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-gap-x')),
-    gapY: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--board-gap-y')),
-    pad: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-pad')),
+    ...gaps,
+    ...spacing,
     portY: (id, key, side) => geo.offsets?.[side === 'out' ? outPort(sourceOf(id, key)) : inPort(id, key)] ?? 46,
   })
-  const gapOf=(name)=>Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name))||0
-  const spacing={pad:Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-pad')),title:Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--block-head-height'))}
-  const freshPlan=blocks?arrange():null
-  const coordinatePlan=(plan,positions)=>({...plan,nodes:positions,units:plan.units.map(u=>{
-    const ids=u.block?groups.find(b=>b.id===u.block)?.nodes??u.nodes:u.nodes
-    const ns=ids.map(id=>({n:byId.get(id),p:positions.get(id)})).filter(({p})=>p)
-    if(!ns.length)return u
-    const x=Math.min(...ns.map(({p})=>p.x))-(u.block?spacing.pad:0),y=Math.min(...ns.map(({p})=>p.y))-(u.block?spacing.pad+spacing.title:0)
-    const w=Math.max(...ns.map(({n,p})=>p.x+(geo.sizes[n.id]?.[0]??widthOf(n))))-x+spacing.pad
-    const h=Math.max(...ns.map(({n,p})=>p.y+(geo.sizes[n.id]?.[1]??height)))-y+spacing.pad
-    return {...u,x,y,w:u.view==='hidden'?320:w,h:u.view==='hidden'?spacing.title:h}
-  })})
-  const needsLayout=blocks?.initial||graph.nodes.some(n=>!n.in&&(!Number.isFinite(n.x)||!Number.isFinite(n.y)))
-  const storedPositions=new Map(graph.nodes.filter(n=>!n.in).map(n=>[n.id,blocks?.unplaced?.includes(n.id)?freshPlan.nodes.get(n.id)??{x:n.x??0,y:n.y??0}:{x:n.x??0,y:n.y??0}]))
-  const painting=blocks?(presentation??(needsLayout?freshPlan:coordinatePlan(freshPlan,storedPositions))):null
-  visible=visible.map(n=>painting?.nodes.has(n.id)?{...n,...painting.nodes.get(n.id)}:n)
-  const hiddenUnits=groups.filter(b=>b.view==='hidden').map(b=>{const u=painting?.units.find(u=>u.block===b.id);return {id:`hidden:${b.id}`,hiddenBlock:b,x:u?.x??0,y:u?.y??0,w:320,h:spacing.title}})
+  const freshPlan = blocks ? arrange() : null
+  const needsLayout = blocks?.initial || graph.nodes.some((node) => !node.in && (!Number.isFinite(node.x) || !Number.isFinite(node.y)))
+  const storedPositions = new Map(graph.nodes.filter((node) => !node.in).map((node) => {
+    const proposed = blocks?.unplaced?.includes(node.id) ? freshPlan.nodes.get(node.id) : null
+    return [node.id, proposed ?? { x: node.x ?? 0, y: node.y ?? 0 }]
+  }))
+  const positions = presentation ?? (needsLayout ? freshPlan?.nodes : storedPositions)
+  const painting = blocks ? layoutAt(freshPlan, positions, dimensions, spacing) : null
+  visible = visible.map((node) => atPosition(node, positions))
+  const units = new Map(painting?.units.filter((unit) => unit.block).map((unit) => [unit.block, unit]))
+  const hiddenUnits = groups.filter((block) => block.view === 'hidden').map((block) => ({
+    ...units.get(block.id), id: `hidden:${block.id}`, hiddenBlock: block,
+  }))
   const top=[...visible,...hiddenUnits]
-  useLayoutEffect(()=>{
-    if(!blocks)return
-    const changed=groups.find(b=>lastModes.current.has(b.id)&&lastModes.current.get(b.id)!==b.view)
-    lastModes.current=new Map(groups.map(b=>[b.id,b.view]))
-    if(changed){setPresentation(reflowLayout(painting,arrange(true),changed.id));return}
-    if(presentation&&(JSON.stringify(presentation.units.filter(u=>u.block).map(u=>u.block).sort())!==JSON.stringify(groups.map(g=>g.id).sort())||graph.nodes.some(n=>!n.in&&!presentation.nodes.has(n.id)))){
-      const positions=new Map(graph.nodes.filter(n=>!n.in).map(n=>[n.id,presentation.nodes.get(n.id)??{x:n.x??0,y:n.y??0}]))
-      setPresentation(coordinatePlan(freshPlan,positions));return
+  useLayoutEffect(() => {
+    if (!blocks) return
+    const savedViews = new Map((graph.blocks ?? []).map(({ id, view }) => [id, view]))
+    const changed = groups.filter((block) => lastModes.current.has(block.id) && lastModes.current.get(block.id).shown !== block.view)
+    const edited = groups.find((block) => lastModes.current.has(block.id) && lastModes.current.get(block.id).saved !== savedViews.get(block.id))
+    const anchor = edited ?? changed.find((block) => block.nodes.includes(blocks.active)) ?? changed[0]
+    lastModes.current = new Map(groups.map(({ id, view }) => [id, { shown: view, saved: savedViews.get(id) }]))
+    const measuredTop = top.every((node) => geo.sizes[node.id])
+    if (anchor || (!presentation && groups.length && measuredTop)) {
+      const cards = new Map(ownIn(layer.current, '.node[data-node]').map((el) => [el.dataset.node, { w: el.offsetWidth, h: el.offsetHeight }]))
+      const anchors = anchor && !edited ? storedPositions : positions
+      const measured = layoutAt(freshPlan, anchors, (id) => cards.get(id) ?? dimensions(id), spacing)
+      const placed = reflowLayout(measured, anchor?.id, gaps).nodes
+      setPresentation(placed)
+      if (edited) {
+        const nodes = graph.nodes.map((node) => atPosition(node, placed))
+        if (nodes.some((node, index) => node !== graph.nodes[index])) given({ ...graph, nodes }, { keep: true })
+      }
+      return
     }
-    if(!presentation&&top.every(n=>geo.sizes[n.id]))setPresentation(painting)
-    if((blocks.initial||blocks.unplaced?.length||needsLayout)&&!committed.current&&top.every(n=>geo.sizes[n.id])){
-      committed.current=true
-      given({...graph,nodes:graph.nodes.map(n=>painting.nodes.has(n.id)?{...n,...painting.nodes.get(n.id)}:n)},{keep:true})
+    if (!presentation && measuredTop) setPresentation(positions)
+    if ((needsLayout || blocks.unplaced?.length) && !committed.current && measuredTop) {
+      committed.current = true
+      given({ ...graph, nodes: graph.nodes.map((node) => atPosition(node, positions)) }, { keep: true })
     }
   })
-  // A card's size as drawn, or as it will be before it is.
-  const sizeOf = (node) => node.hiddenBlock ? [node.w,node.h] : geo.sizes[node.id] ?? [widthOf(node), height]
   const at = (p) => geo.ports[p] ?? null
 
   // Measure every dot and card once the board is drawn; a change draws again (a card moved, a frame grown).
@@ -230,9 +235,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     // Resolve preset collisions on first measurement and when live previews change size, never on a drag alone.
     const resized = Object.entries(sizes).some(([id, size]) => size.some((value, k) => value !== geoRef.current.sizes[id]?.[k]))
     if (resized && !groups.length && !drag && !readOnly && given) {
-      const drawn = painting ? { ...graph, nodes: graph.nodes.map((node) => (
-        painting.nodes.has(node.id) ? { ...node, ...painting.nodes.get(node.id) } : node
-      )) } : graph
+      const drawn = painting ? { ...graph, nodes: graph.nodes.map((node) => atPosition(node, positions)) } : graph
       const opening = !Object.keys(geoRef.current.sizes).length
       const aligned = opening && !blocks ? alignTerminals(drawn, sizes, parts.role) : drawn
       const spaced = spaceNodes(aligned, sizes)
@@ -668,15 +671,12 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
 
   const dragBlock=useBlockDrag({graph,parts,layer,zoom:view.zoom,onChange,redraw,positions:painting?.nodes})
   const stageFrame = (block) => {
-    const nodes=stageNodes(block).map(n=>({...n,...painting?.nodes.get(n.id)}))
-    const unit=hiddenUnits.find(u=>u.hiddenBlock.id===block.id)
-    const x=unit?.x??Math.min(...nodes.map(n=>n.x??0))-spacing.pad,y=unit?.y??Math.min(...nodes.map(n=>n.y??0))-spacing.pad-spacing.title
-    const w=unit?.w??Math.max(...nodes.map(n=>(n.x??0)+sizeOf(n)[0]))-x+spacing.pad
-    const h=unit?.h??Math.max(...nodes.map(n=>(n.y??0)+sizeOf(n)[1]))-y+spacing.pad
+    const { x, y, w, h } = units.get(block.id)
+    const hidden = block.view === 'hidden'
     const reveal=(id)=>{blocks.open(block.id);setFocus(id);choose(byId.get(id))}
-    return <section key={block.id} data-block={block.id} data-node={unit?.id} className={`circuit-block ${unit?'is-hidden':''} ${dropBlock===block.id?'is-drop':''}`} style={{left:x,top:y,width:w,...(!unit?{height:h}:{minHeight:h})}}>
+    return <section key={block.id} data-block={block.id} data-node={hidden ? `hidden:${block.id}` : undefined} className={`circuit-block ${hidden?'is-hidden':''} ${dropBlock===block.id?'is-drop':''}`} style={{ left: x, top: y, width: w, ...(hidden ? { minHeight: h } : { height: h }) }}>
       <BlockHeader block={block} editable={!readOnly} onEdit={(patch)=>blocks.edit(block.id,patch)} onDragStart={readOnly?undefined:e=>dragBlock(e,block)} />
-      {unit&&<><span className="block-stubs is-input" onPointerDown={e=>e.stopPropagation()}>{block.ins.map(w=><button type="button" key={`${w.to}.${w.port}`} className="port port-in is-wired" data-p={inPort(w.to,w.port)} title={L(parts.label(byId.get(w.to)))} aria-label={L(parts.label(byId.get(w.to)))} onClick={()=>reveal(w.to)}><i /></button>)}</span><span className="block-stubs is-output" onPointerDown={e=>e.stopPropagation()}>{[...new Set(block.outs.map(w=>w.from))].map(src=><button type="button" key={src} className="port port-out is-wired" data-p={outPort(src)} title={L(parts.label(byId.get(srcNode(src))))} aria-label={L(parts.label(byId.get(srcNode(src))))} onClick={()=>reveal(srcNode(src))}><i /></button>)}</span></>}
+      {hidden&&<><span className="block-stubs is-input" onPointerDown={e=>e.stopPropagation()}>{block.ins.map(w=><button type="button" key={`${w.to}.${w.port}`} className="port port-in is-wired" data-p={inPort(w.to,w.port)} title={L(parts.label(byId.get(w.to)))} aria-label={L(parts.label(byId.get(w.to)))} onClick={()=>reveal(w.to)}><i /></button>)}</span><span className="block-stubs is-output" onPointerDown={e=>e.stopPropagation()}>{[...new Set(block.outs.map(w=>w.from))].map(src=><button type="button" key={src} className="port port-out is-wired" data-p={outPort(src)} title={L(parts.label(byId.get(srcNode(src))))} aria-label={L(parts.label(byId.get(srcNode(src))))} onClick={()=>reveal(srcNode(src))}><i /></button>)}</span></>}
     </section>
   }
 

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { alignedLayout, flowSpots, pipelineLayout, reflowLayout, layoutMetrics } from './layout.js'
+import { alignedLayout, flowSpots, layoutAt, pipelineLayout, reflowLayout, layoutMetrics } from './layout.js'
 const roleOf = (n) => n.type === 'in' ? 'source' : n.type === 'out' ? 'sink' : 'part'
 const sizeOf = () => ({w:100,h:64})
 const options = {roleOf,sizeOf,width:700,portY:(_id,key,side)=>side==='in'&&key==='b'?66:46}
@@ -45,9 +45,29 @@ test('independent branches stack rather than consume separate columns',()=>{
 test('mode reflow retains the changed block anchor and never mutates stored coordinates',()=>{
  const before=pipelineLayout(graph,blocks,options), saved=structuredClone(graph)
  const hidden=pipelineLayout(graph,blocks.map(b=>b.id==='first'?{...b,view:'hidden'}:b),options)
- const after=reflowLayout(before,hidden,'first')
+ const after=reflowLayout(layoutAt(hidden,before.nodes,sizeOf),'first')
  assert.equal(after.units[0].x,before.units[0].x);assert.equal(after.units[0].y,before.units[0].y)
  assert.deepEqual(graph,saved)
+})
+
+test('opening a moved block clears a group earlier in layout order using their measured bounds', () => {
+  const positions = new Map([
+    ['neighbour', { x: 402, y: 270 }], ['top', { x: 400, y: 110 }], ['bottom', { x: 400, y: 440 }], ['far', { x: 920, y: 110 }],
+  ])
+  const model = { units: [
+    { id: 'block:first', block: 'first', view: 'full', nodes: ['neighbour'] },
+    { id: 'block:second', block: 'second', view: 'full', nodes: ['top', 'bottom'] },
+    { id: 'far', nodes: ['far'] },
+  ] }
+  const measured = (id) => ({ w: 150, h: id === 'bottom' ? 92 : 64 })
+  const plan = layoutAt(model, positions, measured)
+  const after = reflowLayout(plan, 'second')
+  const [neighbour, expanded] = after.units
+  assert.equal(expanded, plan.units[1])
+  assert.equal(neighbour.y, expanded.y + expanded.h + 16)
+  assert.equal(after.nodes.get('neighbour').y - positions.get('neighbour').y, neighbour.y - plan.units[0].y)
+  assert.deepEqual(after.nodes.get('far'), positions.get('far'))
+  assert.deepEqual(positions.get('neighbour'), { x: 402, y: 270 })
 })
 test('columns run on or start a band below, whichever the board shows larger, and never wider than the most',()=>{
  const g={nodes:[{id:'in',type:'in'},{id:'a'},{id:'b'},{id:'c'},{id:'out',type:'out'}],wires:[{from:'in',to:'a',port:'a'},{from:'a',to:'b',port:'a'},{from:'b',to:'c',port:'a'},{from:'c',to:'out',port:'in'}]}

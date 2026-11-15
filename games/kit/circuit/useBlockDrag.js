@@ -15,7 +15,6 @@ export default function useBlockDrag({ graph, parts, layer, zoom, onChange, redr
     const section = [...root.querySelectorAll('[data-block]')].find(el => el.closest('.board-layer') === root && el.dataset.block === block.id)
     const elements = [...nodes, section].filter(Boolean)
     const transforms = elements.map(el => el.style.transform)
-    const origin = block.view === 'hidden' ? new Map() : positions
     let dx = 0, dy = 0
     const move = e => {
       dx = Math.round((e.clientX - start[0]) / zoom)
@@ -25,7 +24,7 @@ export default function useBlockDrag({ graph, parts, layer, zoom, onChange, redr
     }
     const finish = commit => {
       elements.forEach((el, i) => { el.style.transform = transforms[i] })
-      if (commit && (dx || dy)) onChange(translateBlock(graph, parts, block.id, dx, dy, origin), { keep: true })
+      if (commit && (dx || dy)) onChange(translateBlock(graph, parts, block.id, dx, dy, positions), { keep: true })
       redraw()
     }
     track(event, { move, finish, escape: true })

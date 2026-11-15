@@ -47,6 +47,7 @@ export function flowLayout(nodes, wires, { sizeOf, gapX = 44, gapY = 14 } = {}) 
 
 const sourceId = (wire) => srcNode(wire.from)
 const mean = (values) => values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0
+const HIDDEN_BLOCK_WIDTH = 320
 
 /** Stable layout order, including the cycles formed by grouping a larger acyclic circuit. */
 export function layoutOrder(nodes, wires) {
@@ -97,7 +98,7 @@ export function alignedLayout(nodes, wires, { sizeOf, portY = () => 48, gapX = 2
  * The lane between the two columns of the level's cards is as wide as its content, and at least `lane` where the
  * board has the room.
  */
-export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY = () => 48, width = 1100, height = Infinity, most = 1920, lane = 320, gapX = 24, gapY = 16, pad = 12, title = 28 }) {
+export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY = () => 48, width = 1100, height = Infinity, most = 1920, lane = 320, gapX = 24, gapY = 16, pad = 12, title = 28, head = 40 }) {
   const roots = graph.nodes.filter((n) => !n.in), byId = new Map(roots.map((n) => [n.id, n]))
   const owner = new Map(), units = []
   for (const block of blocks) {
@@ -109,8 +110,8 @@ export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY = () => 48
   for (const n of roots.filter((n) => roleOf(n) === 'part' && !owner.has(n.id))) { units.push({ id: n.id, members: [n] }); owner.set(n.id, n.id) }
   for (const u of units) {
     u.inner = alignedLayout(u.members, graph.wires, { sizeOf, portY, gapX, gapY })
-    u.w = u.view === 'hidden' ? 320 : u.inner.w + (u.block ? pad * 2 : 0)
-    u.h = u.view === 'hidden' ? 40 : u.inner.h + (u.block ? title + pad * 2 : 0)
+    u.w = u.view === 'hidden' ? HIDDEN_BLOCK_WIDTH : u.inner.w + (u.block ? pad * 2 : 0)
+    u.h = u.view === 'hidden' ? head + pad : u.inner.h + (u.block ? head + pad * 2 : 0)
   }
   const links = graph.wires.flatMap((w) => {
     const from = owner.get(sourceId(w)), to = owner.get(w.to)
@@ -133,7 +134,7 @@ export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY = () => 48
   const widest = Math.max(...units.map((u) => u.w), 1)
   const rough = new Map()
   sources.reduce((y, n) => { rough.set(n.id, y); return y + sizeOf(n).h + gapY }, title)
-  const inside = (u, id) => { const p = u.inner.positions.get(id); return { x: p.x + (u.block ? pad : 0), y: p.y + (u.block ? title + pad : 0) } }
+  const inside = (u, id) => { const p = u.inner.positions.get(id); return { x: p.x + (u.block ? pad : 0), y: p.y + (u.block ? head + pad : 0) } }
   const out = (w) => portY(sourceId(w), srcKey(w.from), 'out')
   const into = (w) => portY(w.to, w.port, 'in')
   // Where a wire runs between two columns it does not touch: the heights it passes at, from the plan before (its
@@ -245,21 +246,36 @@ export function pipelineLayout(graph, blocks, { sizeOf, roleOf, portY = () => 48
   return { nodes, units: placed.map(({ unit: { id, block, view, members }, x, y, w, h }) => ({ id, block, view, nodes: members.map((n) => n.id), x, y, w, h })), width: left + span + right }
 }
 
-export function reflowLayout(before, after, changed, { gapX = 24, gapY = 16 } = {}) {
-  const nodes = new Map(before.nodes), units = before.units.map((u) => ({...u}))
-  const at = units.findIndex((u) => u.block === changed)
-  if (at < 0) return after
-  const old = units[at], next = after.units.find((u) => u.id === old.id)
-  if (!next) return after
-  units[at] = {...old,w:next.w,h:next.h,view:next.view}
-  for (let k = at + 1; k < units.length; k++) {
-    const u = units[k], prior = {...u}
-    if (u.x >= old.x + old.w - 1 && Math.abs(u.y-old.y)<old.h) u.x += next.w-old.w
-    if (u.y >= old.y + old.h - 1) u.y += next.h-old.h
-    for (const p of units.slice(0,k)) if (u.x<p.x+p.w+gapX && u.x+u.w+gapX>p.x && u.y<p.y+p.h+gapY && u.y+u.h+gapY>p.y) u.y=p.y+p.h+gapY
-    for (const id of u.nodes) if (nodes.has(id)) { const p=nodes.get(id);nodes.set(id,{x:p.x+u.x-prior.x,y:p.y+u.y-prior.y}) }
+/** Bound each layout unit at its actual card positions, with the chrome of its displayed mode. */
+export function layoutAt(plan, positions, sizeOf, { pad = 12, head = 40 } = {}) {
+  const units = plan.units.map((unit) => {
+    const cards = unit.nodes.filter((id) => positions.has(id)).map((id) => ({ ...positions.get(id), ...sizeOf(id) }))
+    if (!cards.length) return unit
+    const inset = unit.block ? pad : 0
+    const x = Math.min(...cards.map((card) => card.x)) - inset
+    const y = Math.min(...cards.map((card) => card.y)) - (unit.block ? head + inset : 0)
+    if (unit.view === 'hidden') return { ...unit, x, y, w: HIDDEN_BLOCK_WIDTH, h: head + pad }
+    const w = Math.max(...cards.map((card) => card.x + card.w)) - x + inset
+    const h = Math.max(...cards.map((card) => card.y + card.h)) - y + inset
+    return { ...unit, x, y, w, h }
+  })
+  return { ...plan, nodes: positions, units }
+}
+
+/** Keep the resized block at its anchor and clear overlaps using the units' on-screen positions. */
+export function reflowLayout(plan, changed, gaps = { gapX: 24, gapY: 16 }) {
+  const sizes = Object.fromEntries(plan.units.map((unit) => [unit.id, [unit.w, unit.h]]))
+  const spaced = spaceNodes({ nodes: plan.units }, sizes, { ...gaps, moves: (unit) => !changed || unit.block !== changed })
+  const nodes = new Map(plan.nodes)
+  for (const [k, unit] of spaced.nodes.entries()) {
+    const delta = unit.y - plan.units[k].y
+    if (!delta) continue
+    for (const id of unit.nodes) {
+      const at = nodes.get(id)
+      if (at) nodes.set(id, { x: at.x, y: at.y + delta })
+    }
   }
-  return {...before,nodes,units}
+  return { ...plan, nodes, units: spaced.nodes }
 }
 
 function sampleCurve(a,b) {

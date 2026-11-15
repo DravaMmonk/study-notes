@@ -576,6 +576,7 @@
 .block-header { min-height: calc(var(--block-head-height) - var(--block-pad)); display: flex; align-items: center; gap: calc(var(--board-gap-x) / 4); color: var(--muted); font: var(--fs-label)/var(--lh-ui) var(--sans); pointer-events: auto; }
 .block-header button { border: 0; padding: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
 .block-header .block-note { flex: 1; min-width: 0; text-align: left; overflow-wrap: anywhere; }
+.circuit-block .block-note { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .block-header small { flex: none; white-space: nowrap; font-size: var(--fs-label); }
 .block-header input { min-width: 0; flex: 1; width: 0; padding: 0; border: 0; border-bottom: var(--block-rule-width) solid var(--accent); background: var(--paper); color: var(--ink); font: var(--fs-ui) var(--sans); }
 .block-views { display: inline-flex; flex: none; border: var(--block-rule-width) solid var(--line); border-radius: var(--r-sm); }
@@ -597,11 +598,13 @@
 .pb-block-head.is-rule, .pb-block-end { width: 100vw; margin-inline-start: calc((100% - 100vw) / 2); border-top: var(--block-rule-width) solid var(--block-rule); }
 .pb-block-head.is-rule > .block-header { padding-inline: var(--gutter); }
 .pb-block-end { align-self: end; pointer-events: none; }
-.pb-block-head .block-stubs { left: var(--block-pad); right: var(--block-pad); }
+.pb-block-head.is-hidden:has(> .block-stubs.is-input:not(:empty)) { padding-block-start: calc(var(--pb-target) / 2); }
+.pb-block-head.is-hidden:has(> .block-stubs.is-output:not(:empty)) { padding-block-end: calc(var(--pb-target) / 2); }
+.pb-block-head .block-stubs { left: var(--block-pad); right: var(--block-pad); pointer-events: none; }
 .pb-block-head .block-stubs.is-input { top: 0; transform: translateY(-50%); }
 .pb-block-head .block-stubs.is-output { bottom: 0; transform: translateY(50%); }
 .pb-block-head.is-hidden .phone-wire-tags { flex-wrap: nowrap; max-height: var(--block-head-height); overflow-x: auto; }
-.pb-block-head .block-stubs .pb-dot { position: relative; inset: auto; flex: none; }
+.pb-block-head .block-stubs .pb-dot { position: relative; inset: auto; flex: none; pointer-events: auto; }
 
 .pb-block-head.is-hidden { background: var(--group); }
 .block-rename { display: grid; gap: var(--gap-group); }
