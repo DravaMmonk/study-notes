@@ -2,7 +2,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { cardPorts, portNotes } from './card-ports.js'
-import { baseRefusal, connect, editNodeSettings, keepLocked, presetOf, removeNode, spotIn, withPreset } from './model.js'
+import { baseRefusal, connect, editNodeSettings, removeNode, spotIn } from './model.js'
+import { keepLocked, presetOf, withPreset } from './presets.js'
 
 const board = { nodes: [{ id: 'in', type: 'in', x: 0, y: 0 }, { id: 'out', type: 'out', x: 400, y: 0 }], wires: [] }
 const preset = { nodes: [{ id: 'p', type: 'oracle', x: 200, y: 0 }], wires: [{ from: 'p', to: 'out', port: 'in' }] }
@@ -43,7 +44,8 @@ test('a preset goes onto a board locked, where the board already has its parts',
 test('a change keeps the locked parts and wires, and nothing else of the old board', () => {
   const started = withPreset(board, preset)
   const free = connect({ ...started, nodes: [...started.nodes, { id: 'q', type: 'x' }] }, 'p', 'in', 'in')
-  const gone = keepLocked(free, removeNode(free, 'p'))
+  assert.equal(removeNode(free, 'p'), free)
+  const gone = keepLocked(free, { ...free, nodes: free.nodes.filter((node) => node.id !== 'p'), wires: [] })
   assert.ok(gone.nodes.some((n) => n.id === 'p' && n.locked))
   assert.ok(gone.wires.some((w) => w.from === 'p' && w.locked))
   assert.ok(!gone.wires.some((w) => w.to === 'p' && w.port === 'in'))

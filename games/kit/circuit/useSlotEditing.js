@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
 import { cardPorts } from './card-ports.js'
-import { baseRefusal, byId, connect, ends, feeding, inPort, keepLocked, layout, lockedRefusal, outPort, parsePort, placement, removeNode } from './model.js'
+import { baseRefusal, byId, canRemoveCard, connect, ends, feeding, inPort, layout, outPort, parsePort, placement, removeNode } from './model.js'
+import { keepLocked, leavesLockedRegion, lockedCards, lockedRefusal, PRESET_CARD_REFUSAL } from './presets.js'
 import { drawWires } from './SlotBoard.jsx'
 import { blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
 import { regionAddress, regionsFit, regionsOf } from './regions.js'
@@ -32,18 +33,20 @@ export const NUMBERS = '①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱�
  * @param scope                                    names the board for undo (a level's stage)
  * @returns state and handlers for SlotBoard (`history`: its undo and redo), Tray and Notice
  */
-const LOCKED_MOVE = { zh: '关卡放好的元件不能删，只能在原来的区域里挪动。', en: 'A part the level placed cannot be deleted; it moves only within its own region.' }
 const NO_VISIBLE_SLOT = { zh: '眼前没有能放这个元件的空格位。', en: 'There is no visible slot for this part.' }
 const DOES_NOT_FIT = { zh: '这个元件放不进这一格。', en: 'This part does not fit in this slot.' }
 
 export function useSlotEditing({ graph, onChange: given, parts, create, label, openNode, openSlot, root, scroller, scope, canMove = () => true }) {
   const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
   const [moving, setMoving] = useState(null) // a part's id, while choosing the slot it moves to
-  // A change never takes off what the level locked on the board (model.js keepLocked).
+  // A change never takes off what the level locked on the board (presets.js keepLocked).
   const onChange = (next, options) => given(keepLocked(graph, next), options)
   const history = useHistory(graph, onChange, scope)
   const [toast, setToast] = useState(null) // a { zh, en } pair, read in the current language when shown
   const { sources, steps, sinks } = layout(graph, parts)
+  const protectedIds = lockedCards(graph)
+  const canRemove = (node) => canRemoveCard(parts, node, protectedIds)
+  const wouldLeave = (node, region) => leavesLockedRegion(protectedIds, node, region)
   // Parts are numbered in reading order: the board's slots, and a frame's regions right after the frame.
   const orderOf = (g) => {
     const ordered = []
@@ -148,7 +151,8 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     const node = byId(graph, moving)
     setMoving(null)
     // A locked part moves only within the region it sits in.
-    if (node?.locked && region !== (node.in ?? null)) return setToast(LOCKED_MOVE)
+    if (!node) return
+    if (wouldLeave(node, region)) return setToast(PRESET_CARD_REFUSAL)
     const next = movePhonePart(graph, parts, node.id, at, region, canMove)
     if (next === graph) return
     buzz()
@@ -246,17 +250,19 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     else setToast(NO_VISIBLE_SLOT)
   }
   const remove = (id) => {
-    if (byId(graph, id)?.locked) return
+    if (protectedIds.has(id)) return setToast(PRESET_CARD_REFUSAL)
+    const node = byId(graph, id)
+    if (!canRemove(node)) return
     buzz([6, 40, 6])
     setMoving(null)
-    edit(removeNode(graph, id), { zh: `删除了「${nameOf(byId(graph, id))}」`, en: `Deleted "${nameOf(byId(graph, id))}"` })
+    edit(removeNode(graph, id), { zh: `删除了「${nameOf(node)}」`, en: `Deleted "${nameOf(node)}"` })
   }
 
   // Drag and drop on the board, the tray and the dots, through the kit's drag.js. Handlers read the latest state
   // through a ref.
   const latest = useRef(null)
   useEffect(() => {
-    latest.current = { graph, parts, wire, place, edit, remove, canMove, say: setToast, unpick: () => setPicking(null), wireToCard }
+    latest.current = { graph, parts, wire, place, edit, remove, canMove, wouldLeave, say: setToast, unpick: () => setPicking(null), wireToCard }
   })
   useEffect(() => {
     const el = root.current
@@ -287,9 +293,9 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
         if (g.kind === 'piece' && over) {
           const piece = byId(now.graph, g.id)
           if (!now.canMove(g.id)) return
-          if (piece?.locked && (slot === null || region !== (piece.in ?? null))) now.say(LOCKED_MOVE)
-          else if (slot !== null) now.edit(movePhonePart(now.graph, now.parts, g.id, slot, region, now.canMove))
-          else now.remove(g.id)
+          if (slot === null) now.remove(g.id)
+          else if (now.wouldLeave(piece, region)) now.say(PRESET_CARD_REFUSAL)
+          else now.edit(movePhonePart(now.graph, now.parts, g.id, slot, region, now.canMove))
         }
         if (board()) drawWires(board(), now.graph, now.parts)
       },
@@ -310,7 +316,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
 
   return {
     picking, moving, startMove, unpick: () => { setPicking(null); setMoving(null) }, canLand, onPort, onNode, onSlot, nameOf,
-    place, placeFirstFree, resizeFrame, remove, edit, toast, say: setToast, pickNote,
+    place, placeFirstFree, resizeFrame, remove, canRemove, edit, toast, say: setToast, pickNote,
     history: { ...history, undo: step(history.undo), redo: step(history.redo) },
     sources, steps, sinks,
   }

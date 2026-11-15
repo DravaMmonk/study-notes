@@ -50,7 +50,15 @@ export function frameTree(nodes) {
     for (const id of nodes) for (const child of children.get(id) ?? []) nodes.add(child)
     return nodes
   }
-  return { node: (id) => byId.get(id), ancestors, included }
+  const withParents = (roots) => {
+    const ids = new Set(roots)
+    for (const id of ids) {
+      const parent = frameId(byId.get(id)?.in)
+      if (parent !== null) ids.add(parent)
+    }
+    return ids
+  }
+  return { node: (id) => byId.get(id), ancestors, included, withParents }
 }
 
 /** Why a card's region cannot be used, by card id, with one diagnostic per affected card. */

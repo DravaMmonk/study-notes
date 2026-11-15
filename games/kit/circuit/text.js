@@ -1,6 +1,7 @@
 import { sourceOf, splitSource, srcNode } from '../engine/wire-source.js'
-import { flowSpots } from './layout.js'
-import { baseRefusal, byId, cardPosition, inPort, isFixed, keepFixedSettings, keepLocked, outputsOf, PRESET_PORT_REFUSAL, spotIn, wireHasPorts } from './model.js'
+import { cardPosition, flowSpots } from './layout.js'
+import { baseRefusal, byId, inPort, outputsOf, spotIn, wireHasPorts } from './model.js'
+import { isFixed, keepFixedSettings, keepLocked, lockedCards, PRESET_PORT_REFUSAL } from './presets.js'
 import { sameJson } from '../engine/json-value.js'
 import { regionAddress, regionProblems, regionsOf } from './regions.js'
 
@@ -321,6 +322,7 @@ export function read(text, graph, parts, types) {
   const offered = new Set(types)
   const unread = (node, key, v) => (parts.text?.read ? parts.text.read(node, key, v) : v)
   const beforeById = new Map(graph.nodes.map((node) => [node.id, node]))
+  const protectedIds = lockedCards(graph)
   const nodes = graph.nodes.filter((n) => !placed(parts, n)).map((n) => ({ ...n }))
   // Statements refused (by index) and the nodes they leave out: their wires say nothing more.
   const failed = new Set()
@@ -349,7 +351,7 @@ export function read(text, graph, parts, types) {
   }
   for (const st of parsed.statements) {
     const before = beforeById.get(st.id)
-    const locked = before?.locked ? before : null
+    const locked = protectedIds.has(st.id) ? before : null
     if (locked && ((st.type !== undefined && st.type !== locked.type) || (st.in ?? null) !== (locked.in ?? null))) {
       refuse(st, `「${st.id}」是关卡摆好的，不能改它的类型或所在区域。`, `“${st.id}” is placed by the level; its type and region are fixed.`)
       continue

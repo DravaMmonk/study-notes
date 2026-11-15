@@ -1,6 +1,6 @@
 import { holesOf, outletsOf } from '../../engine/pieces.js'
 import { activeRegions, applyRules, partDesc } from '../../engine/parts/define.js'
-import { isFixed, keepFixedSettings } from '../../circuit/model.js'
+import { isFixed, keepFixedSettings } from '../../circuit/presets.js'
 import { T } from '../i18n.js'
 import PartFace, { blocksOf } from './PartFace.jsx'
 import { iconOf } from './icons.js'

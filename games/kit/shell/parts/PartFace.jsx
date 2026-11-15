@@ -2,7 +2,7 @@ import './parts.css'
 import { L } from '../i18n.js'
 import { facesOf, holesOf, outletsOf, settingsOf } from '../../engine/pieces.js'
 import { numberText } from '../../engine/number.js'
-import { isFixed } from '../../circuit/model.js'
+import { isFixed } from '../../circuit/presets.js'
 import { evalSettings, failedCheck, partDesc, shows } from '../../engine/parts/define.js'
 import SettingField, { valueWords } from './SettingField.jsx'
 

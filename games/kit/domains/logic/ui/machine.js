@@ -6,7 +6,7 @@
 // clause sets, rules) read as lines of text.
 import { L, T, tr } from '../../../shell/i18n.js'
 import { say, sayTerm } from '../notation.js'
-import { withPreset } from '../../../circuit/model.js'
+import { withPreset } from '../../../circuit/presets.js'
 import { inputsOf, inputsOfLevel, parseGoal, ruleWritten, runMachine } from '../machine.js'
 import { typeText } from '../datatype.js'
 import { certificate, clauseFormula, refuted } from '../resolution.js'

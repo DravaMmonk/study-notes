@@ -1,5 +1,9 @@
 import { srcKey, srcNode } from '../engine/wire-source.js'
 import { curve } from '../wires.js'
+
+/** The fields that position or fold a card without changing what it computes. */
+export const cardPosition = (node) => Object.fromEntries(['x', 'y', 'slot', 'span', 'fold'].filter((key) => node?.[key] !== undefined).map((key) => [key, node[key]]))
+
 // Data-flow columns shared by compact circuit placement and headless SVGs. Cycles keep a
 // finite depth; sources outside the supplied nodes do not add a column.
 export function flowLayout(nodes, wires, { sizeOf, gapX = 44, gapY = 14 } = {}) {

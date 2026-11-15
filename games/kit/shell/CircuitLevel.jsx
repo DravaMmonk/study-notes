@@ -14,6 +14,7 @@ import SlotBoard from '../circuit/SlotBoard.jsx'
 import Tray from '../circuit/Tray.jsx'
 import { editNodeSettings, spotIn } from '../circuit/model.js'
 import { isOpenRegion } from '../circuit/regions.js'
+import { lockedCards } from '../circuit/presets.js'
 import { useSlotEditing } from '../circuit/useSlotEditing.js'
 import Glyph from '../circuit/Glyph.jsx'
 import { InsideBoard, PackedDetail, PackedTools, insideOf } from '../circuit/Inside.jsx'
@@ -241,7 +242,8 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   // A new card goes into the region chosen last, while its frame is there and open.
   const into = isOpenRegion(circuit, parts, target) ? target : null
   const add = (type) => change(make(circuit, type, { region: into, ...(!into ? { slot: newPartSlot(circuit, parts) } : {}) }).graph)
-  const onClear = circuit.nodes.some((n) => parts.role(n) === 'part' && !n.locked) || board.clearable?.(circuit) ? board.clear : null
+  const protectedIds = lockedCards(circuit)
+  const onClear = circuit.nodes.some((n) => parts.role(n) === 'part' && !protectedIds.has(n.id)) || board.clearable?.(circuit) ? board.clear : null
 
   const briefEl = <Brief game={game} level={level} text={brief.text} tip={brief.tip} hint={brief.hint}>{brief.children}</Brief>
   const dock = pad ?? <RunDock meta={meta} {...run.dock(words ?? { go: L(WORDS.run), done: L(WORDS.passed) })} />
@@ -357,7 +359,7 @@ function PhoneLevel({ blocks, screen, board, parts: givenParts, ctx, card, insid
   const close = () => setSheet(null)
   const node = sheet?.node && circuit.nodes.find((n) => n.id === sheet.node)
   const role = node && parts.role(node)
-  const removable = node && !node.locked && (parts.removable ? parts.removable(node) : role === 'part')
+  const removable = editing.canRemove(node)
   const packedHere = node && inside?.is(node, ctx.board)
   const desc = node && describeOf(node, ctx)
   const body = node && sheetBody(node, ctx)

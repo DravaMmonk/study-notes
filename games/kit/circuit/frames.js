@@ -11,6 +11,7 @@ import { sourceOf, splitSource, srcNode } from '../engine/wire-source.js'
 import { T } from '../shell/i18n.js'
 import { PartError, evaluate } from '../engine/circuit.js'
 import { frameTree, regionAddress, regionsFit, regionsOf } from './regions.js'
+import { leavesLockedRegion, lockedCards } from './presets.js'
 
 // Any game can use frames: a domain makes a frame part with framePart (its eval gets the region's name as `key` for
 // what that region opens, and null for the frame's own result), the editors (CanvasEditor, SlotBoard) draw and edit
@@ -65,7 +66,8 @@ export function scopeRefusal(graph, parts, from, to, port, tree = frameTree(grap
 
 /** Move a card into a region or onto the board, keeping only the wires still in scope. */
 export function moveInto(graph, parts, id, region, x, y) {
-  if (!graph.nodes.some((node) => node.id === id)) return graph
+  const before = graph.nodes.find((node) => node.id === id)
+  if (!before || leavesLockedRegion(lockedCards(graph), before, region)) return graph
   const nodes = graph.nodes.map((node) => {
     if (node.id !== id) return node
     const { in: _, ...rest } = node

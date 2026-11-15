@@ -33,6 +33,7 @@ import { sameJson } from '../engine/json-value.js'
 import { cardColumns, slotColumns, slotWidth } from './card-size.js'
 import { SLOT_GUTTER } from './slot-metrics.js'
 import { wouldCycle } from '../graph.js'
+import { keepFixedSettings, lockedCards, lockedRefusal, PRESET_PORT_REFUSAL } from './presets.js'
 import { frameEdges, moveInto, scopeRefusal } from './frames.js'
 import { frameId, frameTree, regionAddress, regionsFit, regionsOf } from './regions.js'
 
@@ -65,80 +66,17 @@ export function connect(graph, id, port, from) {
   return { ...graph, wires: from ? [...wires, { from, to: id, port }] : wires }
 }
 
-/** The board without node `id`, and without whatever sits inside it (a frame's cards, frames.js), with their wires. */
+/** A card the editor offers to remove (ordinary parts, and movable inputs in some games). */
+export const canRemoveCard = (parts, node, locked) => Boolean(node && !locked.has(node.id) && (parts.removable ? parts.removable(node) : parts.role(node) === 'part'))
+
+/** Remove a card, any cards inside it and their wires, unless the level presets any of them. */
 export function removeNode(graph, id) {
+  if (lockedCards(graph).has(id)) return graph
   const gone = frameTree(graph.nodes).included([id])
   return { ...graph, nodes: graph.nodes.filter((n) => !gone.has(n.id)), wires: graph.wires.filter((w) => !gone.has(srcNode(w.from)) && !gone.has(w.to)) }
 }
-export const removeWire = (graph, wire) => ({ ...graph, wires: graph.wires.filter((w) => !(w.to === wire.to && w.port === wire.port)) })
+export const removeWire = (graph, wire) => lockedRefusal(graph, wire.to, wire.port) ? graph : { ...graph, wires: graph.wires.filter((w) => !(w.to === wire.to && w.port === wire.port)) }
 export const moveNode = (graph, id, x, y) => ({ ...graph, nodes: graph.nodes.map((n) => (n.id === id ? { ...n, x, y } : n)) })
-
-/** The fields that position or fold a card without changing what it computes. */
-export const cardPosition = (node) => Object.fromEntries(['x', 'y', 'slot', 'span', 'fold'].filter((key) => node?.[key] !== undefined).map((key) => [key, node[key]]))
-
-/** The preset a level takes from its reference `answer`: the cards `items` (an id, or { id, fixed } to fix its
- *  settings: true, or a list of keys), and the answer's wires between them and the nodes `own` (the board's own inputs
- *  and outputs). */
-export function presetOf(answer, items, own = new Set()) {
-  const fixed = new Map(items.map((item) => (typeof item === 'string' ? [item, undefined] : [item.id, item.fixed])))
-  const picked = new Set(fixed.keys())
-  const on = (id) => picked.has(id) || own.has(id)
-  return {
-    nodes: answer.nodes.filter((n) => picked.has(n.id)).map((n) => (fixed.get(n.id) ? { ...n, fixed: fixed.get(n.id) } : n)),
-    wires: answer.wires.filter((w) => on(srcNode(w.from)) && on(w.to) && (picked.has(srcNode(w.from)) || picked.has(w.to))),
-  }
-}
-
-/** A level's preset on a board (a fresh one or a saved one): its parts and wires, locked, each where the board
- *  already has it (with the settings it has there, but for those the preset fixes), else where the preset puts it; a wire into a port the preset fills replaces the board's. */
-export function withPreset(graph, preset) {
-  if (!preset) return graph
-  const had = new Map(graph.nodes.map((n) => [n.id, n]))
-  const nodes = preset.nodes.map((n) => {
-    const at = had.get(n.id)
-    const params = keepFixedSettings(n, at?.type === n.type ? at.params ?? n.params : n.params)
-    return { ...n, ...cardPosition(at), ...(params && { params }), locked: true }
-  })
-  const ids = new Set(nodes.map((n) => n.id))
-  const wires = preset.wires.map((w) => ({ ...w, locked: true }))
-  const filled = new Set(wires.map((w) => `${w.to}|${w.port}`))
-  return {
-    ...graph,
-    nodes: [...graph.nodes.filter((n) => !ids.has(n.id)), ...nodes],
-    wires: [...graph.wires.filter((w) => !w.locked && !filled.has(`${w.to}|${w.port}`)), ...wires],
-  }
-}
-
-/** `next` with every locked part and wire of `prev` back in it: a change never takes them off (a part keeps the place
- *  `next` gives it). */
-export function keepLocked(prev, next) {
-  const nodes = prev.nodes.filter((n) => n.locked)
-  const wires = prev.wires.filter((w) => w.locked)
-  if (!nodes.length && !wires.length) return next
-  return withPreset(next, { nodes, wires })
-}
-
-const LOCKED = { zh: '这根线是关卡接好的，不能改。', en: 'This wire came with the level; it cannot be changed.' }
-/** Why the wire into input `port` of `to` cannot be changed: a locked wire is there. */
-export const lockedRefusal = (graph, to, port) => (graph.wires.some((w) => w.locked && w.to === to && w.port === port) ? LOCKED : null)
-/** Whether a setting of a node is one the level fixed. */
-export const isFixed = (node, key) => node.fixed === true || (Array.isArray(node.fixed) && node.fixed.includes(key))
-/** Copy proposed settings while preserving the preset's values, including unset fields. */
-export function keepFixedSettings(node, params) {
-  if (node.fixed === true) return node.params
-  if (!node.fixed?.length) return params
-  const next = { ...params }
-  for (const key of node.fixed) {
-    if (node.params && Object.prototype.hasOwnProperty.call(node.params, key)) next[key] = node.params[key]
-    else delete next[key]
-  }
-  return next
-}
-
-export const PRESET_PORT_REFUSAL = {
-  zh: '这个设置会断开关卡接好的线。',
-  en: 'This setting would disconnect a wire placed by the level.',
-}
 
 /** Whether both ends of a wire are still available on their cards. */
 export function wireHasPorts(parts, wire, nodeAt) {
@@ -168,9 +106,6 @@ export function editNodeSettings(graph, parts, id, params) {
   }
   return { graph: { ...graph, nodes, wires } }
 }
-
-/** Whether a wire is one a level put in. */
-export const isLocked = (graph, wire) => graph.wires.some((w) => w.locked && w.to === wire.to && w.port === wire.port)
 
 // Whether a wire from → to closes a loop that runs through no part holding its value (holds(id)).
 function openLoop(edges, from, to, holds) {

@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { framePart, moveInto } from './frames.js'
 import { flowBoard } from '../engine/board-cards.js'
 import { frameTree, regionsFit } from './regions.js'
+import { keepLocked, lockedCards, presetOf, withPreset } from './presets.js'
 import { baseRefusal, clearSpot, moveToSlot, placement, removeNode } from './model.js'
 import { traySize } from './card-size.js'
 
@@ -140,4 +141,37 @@ test('a card added over another moves to the nearest clear spot beside it', () =
   const [lx, ly] = clearSpot([frame], [140, 120], [200, 40], 16, -1)
   assert.ok(lx + 140 + 16 <= 0 || ly >= 516)
   assert.ok(lx < 200)
+})
+
+test('presets retain both enclosing frames of a locked card or wire end', () => {
+  const answer = {
+    nodes: [
+      { id: 'outer', type: 'box' },
+      { id: 'inner', type: 'box', in: 'outer/body' },
+      { id: 'x', in: 'inner/body' },
+      { id: 'free', type: 'box' },
+    ],
+    wires: [{ from: 'inner#body', to: 'x', port: 'a' }],
+  }
+  const preset = presetOf(answer, ['x'])
+  assert.deepEqual(preset.nodes.map(({ id }) => id), ['outer', 'inner', 'x'])
+  const opening = withPreset({ nodes: [], wires: [] }, preset)
+  assert.ok(regionsFit(opening, parts))
+
+  for (const graph of [opening, {
+    ...answer,
+    wires: answer.wires.map((w) => ({ ...w, locked: true })),
+  }]) {
+    assert.deepEqual([...lockedCards(graph)].sort(), ['inner', 'outer', 'x'])
+    assert.equal(removeNode(graph, 'outer'), graph)
+    assert.equal(removeNode(graph, 'inner'), graph)
+    assert.equal(removeNode(graph, 'x'), graph)
+    assert.equal(moveInto(graph, parts, 'inner', null, 10, 10), graph)
+    const repositioned = moveInto(graph, parts, 'inner', 'outer/body', 25, 10)
+    assert.equal(repositioned.nodes.find((node) => node.id === 'inner').x, 25)
+    const replaced = keepLocked(graph, { nodes: [], wires: [] })
+    assert.ok(regionsFit(replaced, parts))
+    assert.equal(replaced.wires.length, 1)
+  }
+  assert.deepEqual(removeNode(answer, 'outer').nodes.map(({ id }) => id), ['free'])
 })

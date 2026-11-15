@@ -23,7 +23,8 @@ import Glyph from './Glyph.jsx'
 import { cardPorts } from './card-ports.js'
 import { moveInto } from './frames.js'
 import { isOpenRegion, regionAddress, regionsOf } from './regions.js'
-import { baseRefusal, clearSpot, connect, ends, feeding, inPort, isLocked, keepLocked, lockedRefusal, outPort, parsePort, removeNode, removeWire } from './model.js'
+import { baseRefusal, canRemoveCard, clearSpot, connect, ends, feeding, inPort, outPort, parsePort, removeNode, removeWire } from './model.js'
+import { keepLocked, leavesLockedRegion, lockedCards, lockedRefusal, PRESET_CARD_REFUSAL } from './presets.js'
 import { useHistory } from './useHistory.js'
 import { alignTerminals, spaceNodes } from './spacing.js'
 
@@ -82,7 +83,7 @@ function pointerPose(pointers) {
  */
 export default function CanvasEditor({ blocks = null, graph, onChange: given, readOnly = false, parts, body, head, caption, outNote, cardClass, wireState, height = 230, emptyNote, corner, types, refit = false, minFit = 0, scope, regionNote, resultNote, onTarget, onClear }) {
   const [connectionLabels] = useSetting('connectionLabels')
-  // A change never takes off what the level locked on the board (model.js keepLocked).
+  // A change never takes off what the level locked on the board (presets.js keepLocked).
   const onChange = readOnly ? () => {} : (next, opt) => {
     const moved = next.nodes.filter((n) => { const before = graph.nodes.find((x) => x.id === n.id); return before && (n.x !== before.x || n.y !== before.y) })
     if (moved.length) setPresentation((current) => {
@@ -108,7 +109,8 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const history = useHistory(graph, onChange, scope)
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
   // A part can be taken off the board; so can a source the game lets the player place (parts.removable).
-  const removable = (node) => !node.locked && (parts.removable ? parts.removable(node) : parts.role(node) === 'part')
+  const protectedIds = lockedCards(graph)
+  const removable = (node) => canRemoveCard(parts, node, protectedIds)
   const [presentation, setPresentation] = useState(null)
   const [linkCursor, setLinkCursor] = useState({ from: null, at: -1 })
   const [linkedSource, setLinkedSource] = useState(null)
@@ -328,11 +330,15 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     if (outside) fit()
   })
 
+  const selectedWire = selected?.wire
+  const selectionRefusal = selectedWire
+    ? lockedRefusal(graph, selectedWire.to, selectedWire.port)
+    : protectedIds.has(selected?.node) ? PRESET_CARD_REFUSAL : null
   const removeSelected = () => {
     if (!selected) return
-    if (selected.wire && isLocked(graph, selected.wire)) setRefused(lockedRefusal(graph, selected.wire.to, selected.wire.port))
-    else if (selected.wire) onChange(removeWire(graph, selected.wire))
-    else if (selected.node && removable(byId.get(selected.node) ?? {})) onChange(removeNode(graph, selected.node))
+    if (selectionRefusal) setRefused(selectionRefusal)
+    else if (selectedWire) onChange(removeWire(graph, selectedWire))
+    else if (selected.node && removable(byId.get(selected.node))) onChange(removeNode(graph, selected.node))
     setSelected(null)
   }
   // Delete or Backspace removes the selection; Escape drops it. ⌘/Ctrl-Z undoes, ⇧⌘/Ctrl-Z or Ctrl-Y redoes, unless
@@ -527,7 +533,11 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     const [x, y] = [floor(Math.round(x0 + g.dx - ox)), floor(Math.round(y0 + g.dy - oy))]
     const region = field?.dataset.region ?? null
     // A locked part moves only within the region it sits in: let go elsewhere, it goes back.
-    if (node.locked && region !== (node.in ?? null)) return setTarget(node.in ?? null)
+    if (leavesLockedRegion(protectedIds, node, region)) {
+      setRefused(PRESET_CARD_REFUSAL)
+      setTarget(node.in ?? null)
+      return
+    }
     const positioned = region === (node.in ?? null)
       ? { ...graph, nodes: graph.nodes.map(n=>n.id===g.id?{...n,x,y}:n) }
       : moveInto(graph,parts,g.id,region,x,y)
@@ -552,7 +562,8 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
         if (g.kind === 'piece') {
           redraw()
           // The region under the pointer lights up, the one the card is already in too: dropped now, it stays there.
-          setDropInto(fieldAt(g)?.dataset.region ?? null)
+          const region = fieldAt(g)?.dataset.region ?? null
+          setDropInto(leavesLockedRegion(protectedIds, byId.get(g.id), region) ? null : region)
           setDropBlock(blockAt(g))
         }
         if (g.kind === 'port' && parsePort(g.id).side === 'out') {
@@ -720,7 +731,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     return [box.width / 2, box.height / 2]
   }
   const selectedNode = selected?.node ? byId.get(selected.node) : null
-  const canDelete = Boolean(selected?.wire && !isLocked(graph, selected.wire)) || Boolean(selectedNode && removable(selectedNode))
+  const canDelete = !selectionRefusal && (Boolean(selectedWire) || removable(selectedNode))
 
   return (
     <div className={`board kit-board ${picking ? 'is-picking' : ''} ${readOnly ? 'is-readonly' : ''}`} ref={surface} onPointerDownCapture={partitioning ? beginPartition : undefined}

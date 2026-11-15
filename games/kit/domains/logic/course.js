@@ -18,7 +18,7 @@ import { claimSentences, vocabulary } from './fol.js'
 import { parseEquation, parseS } from './schematic.js'
 import { MACHINE_BOARD, RULE_PIECE, axiomPartsOf, builtMachine, inputsOfLevel, rulePartsOf, rulePieces, startMachine } from './machine.js'
 import { defineParts } from '../../engine/parts/define.js'
-import { presetOf, withPreset } from '../../circuit/model.js'
+import { presetCardIds, presetOf, withPreset } from '../../circuit/presets.js'
 import { T } from '../../shell/i18n.js'
 import { render, say, sayTerm } from './notation.js'
 import { typeOf } from './iso.js'
@@ -32,10 +32,10 @@ import { builtGates, gateCourse, gateTests, startGates } from './gates.js'
 import { lettersOf } from './truth.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
 
-/** A machine level's preset (`preset`: ids of its reference answer), locked on its board (../../circuit/model.js). */
+/** A machine level's preset (`preset`: ids of its reference answer), locked on its board (../../circuit/presets.js). */
 export const presetFor = (task) => (task.preset ? presetOf(task.solution, task.preset, new Set(startMachine(task).nodes.map((n) => n.id))) : null)
 /** The ids of the cards a level presets on its board. */
-export const presetIds = (level) => level.preset ?? []
+export const presetIds = (level) => level.preset && level.solution ? [...presetCardIds(level.solution, level.preset)] : level.preset ?? []
 const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
 
 // A lemma's schema written as its proof task writes it: a letter of the lemma applied to the variable a quantifier binds
@@ -135,8 +135,8 @@ function readBuilt(content) {
  * declaration's is its rules as the rule table writes them (ruleLines.js lines), and its someone-else's declarations
  * (`boards`) too.
  * A level may start its board with part of its reference answer in place (`preset: [id]`, the answer's ids): those
- * cards, and the answer's wires between them and the board's own inputs and outputs, are locked
- * (../../circuit/model.js): moved, never deleted or rewired. presetIds(level) lists the ids.
+ * cards and their enclosing frames are locked, as are the reference wires joining them and the board's own ports
+ * (../../circuit/presets.js). presetIds(level) lists all preset cards.
  * A level may also hold back parts it would carry (`without: [part]`): a proof that must do without the box; and a
  * level that shows a new part's use by itself says why its use is abstract (`showcase: 'reason'`, ../../course.js).
  * A level names only the parts it brings in (`adds`): every part met or built before it carries into it, as far as

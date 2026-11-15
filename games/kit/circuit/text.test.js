@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { framePart } from './frames.js'
 import { headOf, parse, print, read } from './text.js'
 import { boardSvg } from './svg.js'
-import { withPreset } from './model.js'
+import { withPreset } from './presets.js'
 
 // A small game: two inputs and an output given by the level, gates with ports a and b, a constant with a value, a
 // part with two outputs, and a box (a frame with one region that opens a value).
@@ -162,4 +162,13 @@ test('blueprint cycle checks include connections omitted because they are preset
     wires: [{ from: 'a', to: 'b', port: 'a' }],
   })
   assert.match(read('a = not(b)', opening, parts, TYPES).errors[0].en, /make a loop/)
+})
+
+test('an imported replacement keeps the frame required by a locked card inside', () => {
+  const saved = { ...board, nodes: board.nodes.map((node) => node.id === 'm' ? { ...node, locked: true } : node) }
+  const { graph, errors } = read('out <- f', saved, parts, TYPES)
+  assert.equal(errors, undefined)
+  assert.deepEqual(graph.nodes.filter((node) => parts.role(node) === 'part').map(({ id }) => id), ['f', 'm'])
+  assert.equal(graph.nodes.find((node) => node.id === 'm').in, 'f/body')
+  assert.match(read('f = not(Rain)', saved, parts, TYPES).errors[0].en, /type and region are fixed/)
 })
