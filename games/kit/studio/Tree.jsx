@@ -59,13 +59,15 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
   }
   const dragging = (id) => (picked.size > 1 && picked.has(id) ? rows.filter((r) => picked.has(r)) : [id])
 
+  const showsTasks = (id) => (byId.get(id)?.tasks?.length ?? 0) > 1
+
   const level = (id, optional) => (
     <button
       key={id}
       type="button"
       draggable
       data-level={id}
-      className={`tree-level ${at?.level === id && selectedTask === null ? 'is-on' : ''} ${picked.size > 1 && picked.has(id) ? 'is-picked' : ''} ${moving?.includes(id) ? 'is-moving' : ''}`}
+      className={`tree-level ${at?.level === id && (selectedTask === null || !showsTasks(id)) ? 'is-on' : ''} ${picked.size > 1 && picked.has(id) ? 'is-picked' : ''} ${moving?.includes(id) ? 'is-moving' : ''}`}
       title={labelOf.get(id) ?? id}
       onClick={(e) => pick(id, e.metaKey || e.ctrlKey ? 'toggle' : e.shiftKey ? 'range' : 'one')}
       onKeyDown={(event) => {
@@ -105,10 +107,9 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
       setTaskDrag(null)
     },
   })
-  // Every task has a row, including the only task of a level.
   const tasksOf = (id) => {
-    const tasks = byId.get(id)?.tasks
-    if (!tasks?.length) return null
+    if (!showsTasks(id)) return null
+    const tasks = byId.get(id).tasks
     return (
       <div className="tree-tasks">
         {tasks.map((task, k) => (
