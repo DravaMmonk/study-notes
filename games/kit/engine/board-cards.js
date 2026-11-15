@@ -126,5 +126,5 @@ export const OUTPUTS = { type: 'out', side: 'right', of: (task) => task.outputs 
 /** The board of a domain whose levels give it only inputs and outputs, and that runs once. */
 export const flowBoard = () => circuitBoard({ cards: [INPUTS, OUTPUTS], right: 900, gap: 120 })
 
-/** A circuit of the game's primitives alone, no part built: what a board reads on outside a course (a test, a tool). */
-export const primitivesOnly = (board, parts) => ({ BUILT: {}, partOf: (t) => board.isFixed(t) ? board.FIXED_PARTS[t] : Object.hasOwn(parts, t) ? parts[t] : undefined, types: () => Object.keys(parts).filter((t) => !board.isFixed(t)), builtBy: () => null })
+/** A circuit with declared parts, used before a course's packed implementations are assembled and in tools. */
+export const primitivesOnly = (board, parts) => ({ board, BUILT: {}, partOf: (t) => board.isFixed(t) ? board.FIXED_PARTS[t] : Object.hasOwn(parts, t) ? parts[t] : undefined, types: () => Object.keys(parts).filter((t) => !board.isFixed(t)), builtBy: () => null })

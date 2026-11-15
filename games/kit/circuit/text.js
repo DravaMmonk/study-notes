@@ -457,10 +457,10 @@ export function printLines(graph, parts) {
   return print(graph, parts).trimEnd().split('\n').slice(1)
 }
 
-/** Read content blueprint lines with the same board rules, throwing the first diagnostic. */
+/** Read content blueprint lines with the same board rules, attaching every diagnostic to the first. */
 export function readLines(lines, graph, parts, types) {
   const result = read(lines.join('\n'), graph, parts, types)
-  if (result.errors) throw result.errors[0]
+  if (result.errors) throw { ...result.errors[0], errors: result.errors }
   return result.graph
 }
 

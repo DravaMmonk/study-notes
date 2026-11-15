@@ -6,18 +6,19 @@
 // gates }. Its `gates` are every gate its board may hold, by type: the game's primitive gates (pieces.json, run as the
 // kernel's defined parts) and the ones its levels build (game.json gates, each { name, desc, ports }), which run the
 // board of the level that builds them (builtGates).
-import { packed, runBoard, sink, source } from '../../engine/boards.js'
+import { packed, runBoard } from '../../engine/boards.js'
 import { OUTPUTS, circuitBoard } from '../../engine/board-cards.js'
 import { boardView } from '../../engine/board-view.js'
 import { workshopNodes } from '../../engine/workshop.js'
 import { runOutputTests } from '../../engine/test-run.js'
-import { parse } from './formula.js'
+import { FORMULA_TEXT, parse } from './formula.js'
 import { say } from './notation.js'
 import { lettersOf, rowsOf, valueOn } from './truth.js'
 import { T } from '../../shell/i18n.js'
 
 /** A truth circuit's board: a card for each letter of the target on the left, the sentence's output on the right. */
 export const GATE_BOARD = circuitBoard({
+  text: FORMULA_TEXT,
   cards: [
     { type: 'letter', side: 'left', of: (task) => rowsFor(task).letters.map((name) => ({ name, label: say(parse(name), task.notation) })) },
     { ...OUTPUTS, of: () => [{ name: 'out', label: T('这句话') }] },
@@ -27,7 +28,7 @@ export const GATE_BOARD = circuitBoard({
 })
 
 /** The engine's parts for a board of gates: a letter is a source, the output a sink, every gate its own part. */
-export const gateParts = (gates = {}) => ({ letter: source(), out: sink(), ...gates })
+export const gateParts = (gates = {}) => ({ ...GATE_BOARD.FIXED_PARTS, ...gates })
 
 /**
  * The gates a course's levels build (game.json gates: { type: { name, desc, ports } }), each a packed part

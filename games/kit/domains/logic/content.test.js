@@ -8,10 +8,11 @@ import { fixedTray } from '../../course.js'
 import { chipsOf } from './formulaTree.js'
 import { parse } from './formula.js'
 import { render } from './notation.js'
-import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
-import { LOGIC_TESTS, startProof } from './proof.js'
+import { printLines } from '../../circuit/text.js'
+import { primitivesOnly } from '../../engine/board-cards.js'
+import { LOGIC_TESTS, PROOF_BOARD, startProof } from './proof.js'
 import { runOutputTests } from '../../engine/test-run.js'
-import { checkGates, gateParts, rowsFor, startGates } from './gates.js'
+import { GATE_BOARD, checkGates, gateParts, rowsFor, startGates } from './gates.js'
 import { deepFreeze } from '../../engine/content.js'
 import { readContent, readStarter } from '../../engine/content-node.js'
 import { trayDisplay } from '../../engine/trays.js'
@@ -99,19 +100,24 @@ test('the course written here reads without fault', () => {
 test('a proof reads from blueprint text and prints back the same', () => {
   const lines = ['f = impI[A=B](body: g) {', '  body {', '    g = impI[A=C](body: p)', '  }', '}', 'goal <- f']
   const one = { tests: [{ premises: { p: 'A' }, goal: 'B → (C → A)' }] }
-  const shape = proofShape(only('chain').parts)
-  const board = fromLines(lines, startProof(one), shape, Object.keys(only('chain').parts))
+  const circuit = primitivesOnly(PROOF_BOARD, only('chain').parts)
+  const board = PROOF_BOARD.fromText(lines, one, circuit)
   assert.deepEqual(board.nodes.find((n) => n.id === 'g'), { ...board.nodes.find((n) => n.id === 'g'), type: 'impI', params: { A: 'C' }, in: 'f/body' })
-  assert.deepEqual(toLines(board, shape), lines)
+  assert.deepEqual(PROOF_BOARD.toText(board, one, circuit), lines)
   // A sentence on a card is written in ASCII and read back in the game's symbols.
-  const and = fromLines(['f = impI[A="A & B"](body: p)', 'goal <- f'], startProof(one), shape, Object.keys(only('chain').parts))
+  const and = PROOF_BOARD.fromText(['f = impI[A="A & B"](body: p)', 'goal <- f'], one, circuit)
   assert.equal(and.nodes.find((n) => n.id === 'f').params.A, 'A ∧ B')
 })
 
 test('blueprint text that does not fit the board says which line', () => {
   const one = { tests: [{ premises: { p: 'A' }, goal: 'A' }] }
-  const shape = proofShape(only('chain').parts)
-  assert.throws(() => fromLines(['m = mp(p, nope)', 'goal <- m'], startProof(one), shape, Object.keys(only('chain').parts)), /Line 1/)
+  const circuit = primitivesOnly(PROOF_BOARD, only('chain').parts)
+  assert.throws(() => PROOF_BOARD.fromText(['m = mp(p, nope)', 'goal <- unknown'], one, circuit), (error) => {
+    assert.equal(error.line, 1)
+    assert.match(error.en, /nope/)
+    assert.deepEqual(error.errors.map(({ line }) => line), [1, 2])
+    return true
+  })
 })
 
 test('every reference answer prints back as the text it was read from: proofs, a lemma used, a gate, a machine', () => {
@@ -120,8 +126,11 @@ test('every reference answer prints back as the text it was read from: proofs, a
     for (const t of l.tasks) {
       const raw = CONTENT.levels.find((x) => x.id === l.id).tasks[t.task].solution
       kinds.add(t.kind)
-      const shape = t.kind === 'proof' ? proofShape(t.parts) : t.kind === 'machine' ? machineShape(t.parts) : t.kind === 'gates' ? gateShape(t.gates) : null
-      if (shape) assert.deepEqual(toLines(t.solution, shape), raw, `${l.id} ${t.task}`)
+      const circuit = course.circuitFor(t).forTask(t)
+      const parts = circuit.board.wiring(t, circuit)
+      const authored = course.blueprints.find((entry) => entry.key === t.taskId && !entry.naive)
+      assert.deepEqual(authored.write(authored.read(raw)), raw, `${l.id} ${t.task}`)
+      assert.deepEqual(printLines(t.solution, parts), raw, `${l.id} ${t.task} in play`)
     }
   }
   assert.deepEqual([...kinds].sort(), ['gates', 'machine', 'proof'])
@@ -174,6 +183,7 @@ test('a level reads its letters in the word sets it names, merged in order', () 
 test('a gate the player built runs the board it passed with; one that no longer passes leaves the reference', () => {
   const builder = only('or')
   const gates = builder.gates
+  const primitives = primitivesOnly(GATE_BOARD, { gNot: gates.gNot, gAnd: gates.gAnd })
   const or = (board) => {
     syncOwn(board ? { or: board } : {})
     const alone = { nodes: [...startGates(builder).nodes, { id: 'x', type: 'gOr', params: {} }], wires: [{ from: 'Rain', to: 'x', port: 'a' }, { from: 'Wind', to: 'x', port: 'b' }, { from: 'x', to: 'out', port: 'in' }] }
@@ -182,12 +192,12 @@ test('a gate the player built runs the board it passed with; one that no longer 
   const truth = rowsFor(builder).rows.map((r) => r.want)
   assert.deepEqual(or(null), truth)
   // The player's own board (another way to wire or) is what the gate runs: its inside is that board.
-  const own = fromLines(['a = gNot(Wind)', 'b = gNot(Rain)', 'c = gAnd(b, a)', 'd = gNot(c)', 'out <- d'], startGates(builder), gateShape(gates), ['gNot', 'gAnd'])
+  const own = GATE_BOARD.fromText(['a = gNot(Wind)', 'b = gNot(Rain)', 'c = gAnd(b, a)', 'd = gNot(c)', 'out <- d'], builder, primitives)
   assert.equal(checkGates(builder, own).pass, true)
   assert.deepEqual(or(own), truth)
   assert.ok(gates.gOr.opens().circuit.nodes.some((n) => n.id === 'c'))
   // A board changed after passing (it now gives "and") is not the gate.
-  const broken = fromLines(['c = gAnd(Rain, Wind)', 'out <- c'], startGates(builder), gateShape(gates), ['gNot', 'gAnd'])
+  const broken = GATE_BOARD.fromText(['c = gAnd(Rain, Wind)', 'out <- c'], builder, primitives)
   assert.deepEqual(or(broken), truth)
   assert.ok(gates.gOr.opens().circuit.nodes.some((n) => n.id === 'n3'))
   syncOwn({})
@@ -199,8 +209,8 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
     return runOutputTests(LOGIC_TESTS, t, t.solution)
   }
   const chain = only('chain')
-  const shape = proofShape(chain.parts)
-  const read = (lines, one) => fromLines(lines, startProof(one), shape, Object.keys(chain.parts))
+  const circuit = primitivesOnly(PROOF_BOARD, chain.parts)
+  const read = (lines, one) => PROOF_BOARD.fromText(lines, one, circuit)
   // The player's own proof of chain, a detour through ∧: the lemma runs it, and the level built on chain still passes.
   const own = read(['f = impI[A=A](body: m2) {', '  body {', '    m1 = mp(p, f.body)', '    b = andI(m1, m1)', '    e = andE(b)', '    m2 = mp(q, e.left)', '  }', '}', 'goal <- f'], chain)
   assert.equal(runOutputTests(LOGIC_TESTS, chain, own).pass, true)

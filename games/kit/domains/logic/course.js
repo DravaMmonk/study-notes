@@ -1,6 +1,6 @@
 // A logic game's course, from its course configuration and content package ( vocabulary.js says what
 // may be in it): the play order and the tree from its eras (../../course.js layout), each level's number and the parts it
-// can really offer, its reference and naive answers as the boards they write (blueprint.js), and its built pieces
+// can really offer, its reference and naive answers as the boards they write (../../engine/board-cards.js), and its built pieces
 // (pieces.json `inside`, readBuilt): a lemma proved on the proof board, a gate built on a truth circuit (gates.js
 // builtGates), a machine part (machine.js builtMachine), an equation proved; every one runs the player's work (a lemma,
 // the proof of each of its shapes).
@@ -24,14 +24,14 @@ import { T } from '../../shell/i18n.js'
 import { render, say, sayTerm } from './notation.js'
 import { typeOf } from './iso.js'
 import { equations } from './define.js'
-import { PROOF_BOARD, startProof } from './proof.js'
+import { PROOF_BOARD } from './proof.js'
 import { OPS, partsOf } from './ops.js'
+import { primitivesOnly } from '../../engine/board-cards.js'
 import { boardView, fitsCircuit } from '../../engine/board-view.js'
 import { keptBoards } from '../../engine/kept-boards.js'
 import { workView } from '../../circuit/workshop-view.js'
-import { builtGates, gateCourse, gateTests, startGates } from './gates.js'
+import { GATE_BOARD, builtGates, gateCourse, gateTests } from './gates.js'
 import { lettersOf } from './truth.js'
-import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
 
 /** A machine level's preset (`preset`: ids of its reference answer), locked on its board (../../circuit/presets.js). */
 export const presetFor = (task) => (task.preset ? presetOf(task.solution, task.preset, new Set(startMachine(task).nodes.map((n) => n.id))) : null)
@@ -298,7 +298,6 @@ export function logicCourse(content) {
   const primitiveGates = onBoard('gate')
   const boardGates = Object.fromEntries(Object.entries(primitiveGates).map(([type, part]) => [type, { ...part, name: defs[type].name, desc: defs[type].desc }]))
   // A proof's parts: the proof rules and the lemmas, and the board's premises and goal.
-  const proofTypes = Object.keys(onBoard('rule', 'box', 'lemma'))
   const proofParts = { ...PROOF_BOARD.FIXED_PARTS, ...onBoard('rule', 'box', 'lemma') }
   // A machine's parts: the machine board's pieces.json parts, the parts the player builds and the rule parts of its
   // rule books (every rule part the same engine part, RULE_PIECE).
@@ -309,43 +308,42 @@ export function logicCourse(content) {
   // The proofs the lemmas run, filled in the same way (lemmaWorks).
   const lemmaPieces = {}
   const gatePorts = Object.fromEntries(Object.entries(gates).map(([type, g]) => [type, { inputs: g.ports }]))
-  /** A board some blueprint lines write, on what the level gives (an empty one, its fault said, when they cannot be read). */
-  // Every board the content writes as blueprint text, with how it reads back on its level (domain.js blueprints).
+  const proofBlueprint = primitivesOnly(PROOF_BOARD, proofParts)
+  const gateBlueprint = primitivesOnly(GATE_BOARD, { ...primitiveGates, ...gatePorts })
+  // Authoring uses declared ports even before a part has a packed implementation. The same circuit board supplies
+  // the fixed cards, wire and region rules, and settings text for the authoring and play views.
   const blueprints = []
-  const board = (one, field, start, shape, types) => {
+  const blueprintProblem = (error) => error.errors?.map(({ en }) => en).join(' ') ?? error.en ?? error.message
+  const answer = (one, field, circuit) => {
+    const { board } = circuit
+    const read = (lines) => board.fromText(lines, one, circuit)
     try {
-      const read = (lines) => fromLines(lines, start, shape, types)
-      const b = read(one[field])
-      // Its place in the saved passing work is its task id.
-      blueprints.push({ level: one.id, task: one.task, key: one.taskId, board: b, write: (x) => toLines(x, shape), read, ...(field === 'naive' ? { naive: true } : {}) })
-      return b
-    } catch (e) {
-      wrong.push(`${one.id}: its ${field}: ${e.message}`)
-      return start
+      const graph = read(one[field])
+      blueprints.push({ level: one.id, task: one.task, key: one.taskId, board: graph, write: (work) => board.toText(work, one, circuit), read, ...(field === 'naive' ? { naive: true } : {}) })
+      return graph
+    } catch (error) {
+      wrong.push(`${one.id}: its ${field}: ${blueprintProblem(error)}`)
+      return board.startBoard(one)
     }
   }
-  const artifact = (task, start, shape, types) => {
+  const artifact = (task, circuit) => {
     const reference = built.references.get(task.taskId)
     if (!reference?.solution) return undefined
     try {
-      return fromLines(reference.solution, start({ ...task, ...reference }), shape, types)
+      return circuit.board.fromText(reference.solution, { ...task, ...reference }, circuit)
     } catch (error) {
-      wrong.push(`${task.id}: its piece implementation: ${error.en ?? error.message}`)
+      wrong.push(`${task.id}: its piece implementation: ${blueprintProblem(error)}`)
       return undefined
     }
   }
-  // A task's answers as boards: a proof's and a truth circuit's here, a machine's once its rule book is known (below).
+  const readAnswers = (one, circuit) => ({
+    pieceSolution: artifact(one, circuit),
+    ...Object.fromEntries(['solution', 'naive'].filter((field) => one[field]).map((field) => [field, answer(one, field, circuit)])),
+  })
+  // Read a proof or gate now, and a machine once its rule book is known.
   const answers = (one) => {
-    const read = (field, start, shape, types) => (one[field] ? { [field]: board(one, field, start, shape, types) } : {})
-    if (one.kind === 'proof') {
-      const shape = proofShape(proofParts)
-      return { ...one, parts: proofParts, pieceSolution: artifact(one, startProof, shape, proofTypes), ...read('solution', startProof(one), shape, proofTypes), ...read('naive', startProof(one), shape, proofTypes) }
-    }
-    if (one.kind === 'gates') {
-      const shape = gateShape({ ...primitiveGates, ...gatePorts })
-      const types = [...Object.keys(primitiveGates), ...Object.keys(gates)]
-      return { ...one, tests: gateTests(one), pieceSolution: artifact(one, startGates, shape, types), ...read('solution', startGates(one), shape, types), ...read('naive', startGates(one), shape, types) }
-    }
+    if (one.kind === 'proof') return { ...one, parts: proofParts, ...readAnswers(one, proofBlueprint) }
+    if (one.kind === 'gates') return { ...one, tests: gateTests(one), ...readAnswers(one, gateBlueprint) }
     return one
   }
   // Register task metadata before resolving notation or reading any answers.
@@ -384,13 +382,18 @@ export function logicCourse(content) {
   const taskOf = (l) => byId.get(l.id).tasks[l.task ?? byId.get(l.id).tasks.length - 1]
   // The proofs each lemma's shapes run: the proof tasks its references name.
   const taskById = new Map(TASKS.map((task) => [task.taskId, task]))
-  const standalone = (id, reference, start, shape, types) => ({
-    ...reference, id, task: 0, taskId: id,
-    pieceSolution: fromLines(reference.solution, start(reference), shape, types),
-  })
+  const standalone = (id, reference, circuit) => {
+    const task = { ...reference, id, task: 0, taskId: id }
+    try {
+      return { ...task, pieceSolution: circuit.board.fromText(reference.solution, task, circuit) }
+    } catch (error) {
+      if (!error.en) throw error
+      throw new Error(`${id}: ${blueprintProblem(error)}`, { cause: error })
+    }
+  }
   const lemmaWorks = built.lemmaRefs.map(({ type, form, task, reference }) => ({
     kind: 'lemma', type, form,
-    task: taskById.get(task) ?? standalone(task ?? `${type}:${form}`, reference, startProof, proofShape(proofParts), proofTypes),
+    task: taskById.get(task) ?? standalone(task ?? `${type}:${form}`, reference, proofBlueprint),
   }))
   references.register([
     ...rules, ...lemmaWorks,
@@ -498,27 +501,23 @@ export function logicCourse(content) {
   }
   // A built machine part's ports are the inputs of the board of the first task it refers to.
   const builtPorts = Object.fromEntries(machines.map((type) => [type, inputsOfLevel(taskById.get(built.publishers[type][0]) ?? built.pieces[type].inside[0].reference).map((i) => i.name)]))
+  const declaredMachines = Object.fromEntries(Object.entries(builtPorts).map(([type, inputs]) => [type, { inputs }]))
+  const machineBlueprint = (task) => primitivesOnly(MACHINE_BOARD, {
+    ...Object.fromEntries([...ruleTypes(task).keys()].map((type) => [type, RULE_ENGINE])),
+    ...declaredMachines,
+    ...machineParts,
+  })
   // A machine's answers are read now that its rule book, and so its rule parts, are known.
-  for (const one of TASKS.filter((t) => t.kind === 'machine')) {
-    const rules = ruleTypes(one)
-    const shape = machineShape((type) => machineParts[type] ?? (builtPorts[type] ? { inputs: builtPorts[type] } : rules.has(type) ? RULE_ENGINE : undefined))
-    const types = [...Object.keys(machineParts), ...Object.keys(builtPorts), ...rules.keys()]
-    one.pieceSolution = artifact(one, startMachine, shape, types)
-    for (const field of ['solution', 'naive']) if (one[field]) one[field] = board(one, field, startMachine(one), shape, types)
-  }
+  for (const one of TASKS.filter((t) => t.kind === 'machine')) Object.assign(one, readAnswers(one, machineBlueprint(one)))
   for (const { type, variant, task, reference } of built.machineRefs) if (!taskById.has(task)) {
     const one = { ...reference, ...declarations(reference, type), lemmas, facts }
-    const rules = ruleTypes(one)
-    const shape = machineShape((name) => machineParts[name] ?? (builtPorts[name] ? { inputs: builtPorts[name] } : rules.has(name) ? RULE_ENGINE : undefined))
-    const types = [...Object.keys(machineParts), ...Object.keys(builtPorts), ...rules.keys()]
-    references.register([{ kind: 'machine', type, form: null, task: standalone(`${type}:${variant}`, one, startMachine, shape, types) }])
+    references.register([{ kind: 'machine', type, form: null, task: standalone(`${type}:${variant}`, one, machineBlueprint(one)) }])
   }
   // The gates the levels build run their boards (gates.js builtGates).
   const gateBuilders = Object.fromEntries(references.entriesOf('gate').map(({ type, task }) => [type, task]))
   for (const type of Object.keys(gates)) if (!gateBuilders[type]) {
     const reference = built.pieces[type].inside[0].reference
-    const task = standalone(type, reference, startGates, gateShape({ ...primitiveGates, ...gatePorts }),
-      [...Object.keys(primitiveGates), ...Object.keys(gates)])
+    const task = standalone(type, reference, gateBlueprint)
     gateBuilders[type] = { ...task, tests: gateTests(task), gates: boardGates }
   }
   Object.assign(gatePieces, builtGates(gates, gateBuilders, kept.board))
