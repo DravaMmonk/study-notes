@@ -288,12 +288,12 @@ export default function Studio() {
     select(next, keep)
     pickField(next.era === undefined ? [] : ['eras', next.era])
   }
-  /** Go to a field: of a level, of game.json (an era's, or the game's) — in the side panel — or of the encyclopedia (the copy table). */
-  const jump = (level, path, file = null) => {
+  /** Find a field in the inspector. Search results keep the current workspace tab. */
+  const jump = (level, path, file = null, { stayOnTab = false } = {}) => {
     const keys = path ? parsePath(path) : []
     if (file === 'glossary') {
       setCopyScope('glossary')
-      setTab('copy')
+      if (!stayOnTab) setTab('copy')
       if (keys.length) {
         select({ glossary: true })
         pickField(keys, true)
@@ -304,7 +304,7 @@ export default function Studio() {
     else if (file === 'pieces') select(keys[0] === 'settings' ? { setting: keys[1] } : { part: keys[1] })
     else if (keys[0] === 'eras') select({ era: keys[1] })
     else select({ game: true })
-    if (!level && tab === 'page') setTab('fields')
+    if (!stayOnTab && !level && tab === 'page') setTab('fields')
     if (keys.length) pickField(keys, true)
     else setField(null)
   }
@@ -508,7 +508,6 @@ export default function Studio() {
     : null
   const openSetting = (setting) => {
     setSide('settings')
-    setTab('fields')
     select({ setting })
   }
   const sideCtx = vocab && content && {
@@ -653,9 +652,9 @@ export default function Studio() {
             {side === 'settings'
               ? <SettingsList key={game} file={content.partDefs} vocabulary={vocab.vocabulary} selected={at?.setting} onSelect={openSetting} onEdit={edit} />
               : side === 'parts' && content.partDefs
-              ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={(next) => { select(next); if (!['page', 'fields'].includes(tab)) setTab('page') }} onEdit={edit} />
+              ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={select} onEdit={edit} />
               : side === 'search'
-              ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={jump} />
+              ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file, { stayOnTab: true })} />
               : <Tree game={game} content={content} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask} />}
           </aside>
           <PanelResizer side="tree" size={layout.tree} open={layout.treeOpen} {...resizer} />
