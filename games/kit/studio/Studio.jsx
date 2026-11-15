@@ -47,13 +47,14 @@ import Audit from './Audit.jsx'
 import Review from './Review.jsx'
 import GameFrame from './GameFrame.jsx'
 import Flow, { levelLabel } from './Flow.jsx'
+import Arrangement from './Arrangement.jsx'
 import Inspector from './Inspector.jsx'
 import { textField } from './copy.js'
 import Palette from './Palette.jsx'
 import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
-const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
+const TABS = [['page', '画面', 'Page'], ['arrange', '编排', 'Arrangement'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
 const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
 
@@ -536,6 +537,7 @@ export default function Studio() {
     ['copy', tr('文案表'), '', () => setTab('copy')],
     ['compare', tr('比较', 'Compare'), '', () => setTab('compare')],
     ['page', tr('画面：在游戏的页面上改'), '', () => { setTab('page'); setPageEdit(true) }],
+    ['arrange', tr('编排关卡', 'Arrange levels'), '', () => setTab('arrange')],
     ['fields', tr('字段：这一关的全部字段'), '', () => setTab('fields')],
     ...(level ? [
       ['play-ref', tr('载入参考解试玩这一关'), `${level} · ${MOD}+Enter`, () => playFrom(level, true)],
@@ -574,8 +576,8 @@ export default function Studio() {
     : []
   const runItem = (item, word) => {
     if (item.kind === 'action') return ACTIONS.find((a) => a.id === item.action)?.run(word)
-    if (item.kind === 'level') { select({ level: item.level }); if (!['page', 'fields'].includes(tab)) setTab('page'); return undefined }
-    if (item.kind === 'era') { select({ era: item.era }); setTab('fields'); return undefined }
+    if (item.kind === 'level') { select({ level: item.level }); if (!['page', 'arrange', 'fields'].includes(tab)) setTab('page'); return undefined }
+    if (item.kind === 'era') { select({ era: item.era }); if (tab !== 'arrange') setTab('fields'); return undefined }
     if (item.kind === 'field' || item.kind === 'recent') return jump(item.level, item.path, item.level ? null : 'game')
     if (item.kind === 'entry') { setCopyScope('glossary'); setTab('copy'); return undefined }
     if (item.kind === 'finding') return jumpTo(item.finding)
@@ -650,6 +652,11 @@ export default function Studio() {
           <main className="studio-main">
             {tab !== 'page' && (
               <div className="studio-scroll">
+                {tab === 'arrange' && (
+                  <Arrangement key={game} content={content} vocabulary={vocab.vocabulary} at={at} options={levelOptions} pending={shown.ops !== ops}
+                    onSelect={select} onConfigure={(era, path) => { select({ era }); pickField(path) }}
+                    onEdit={edit} onMove={(id, to) => move([id], to)} />
+                )}
                 {tab === 'fields' && <Editor content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onCopy={(era) => { setCopyScope(era); setTab('copy') }} />}
                 {tab === 'copy' && (
                   <article className="editor is-wide">

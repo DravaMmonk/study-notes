@@ -30,6 +30,27 @@ const VOCAB = defineVocabulary({
 
 const says = (schema, value) => validate(schema, value, { vocabulary: VOCAB }).map((p) => `${p.at}: ${p.says}`)
 
+test('course edits report circular prerequisites and missing topics before play is built', () => {
+  const topic = S.obj({ id: S.str(), levels: S.list(S.level()), after: S.opt(S.level()), requires: S.opt(S.list(S.str())) })
+  const era = S.obj({ id: S.str(), foundation: S.list(S.level()), topics: S.list(topic) })
+  const vocabulary = { ...VOCAB, game: S.obj({ title: S.text(), eras: S.list(era) }) }
+  const content = {
+    id: 'toy', domain: 'toy', vocabulary: 1, title: 'Toy',
+    glossary: { groups: [], entries: [] },
+    levels: ['start', 'a', 'b'].map((id) => ({ id, mode: 'read', text: id })),
+    eras: [{ id: 'one', foundation: ['start'], topics: [
+      { id: 'alpha', levels: ['a'], requires: ['beta'] },
+      { id: 'beta', levels: ['b'], after: 'a', requires: ['missing'] },
+    ] }],
+  }
+  assert.deepEqual(checkContent({ vocabulary }, content), [
+    { at: 'game.json.eras[0].topics[1].requires', says: 'no topic "missing" in this chapter' },
+    { at: 'game.json.eras', says: 'circular prerequisites: a → b → a' },
+  ])
+  content.eras[0].topics[1] = { id: 'beta', levels: ['b'] }
+  assert.deepEqual(checkContent({ vocabulary }, content), [])
+})
+
 test('plain values and objects', () => {
   assert.deepEqual(says(S.int({ min: 1 }), 3), [])
   assert.match(says(S.int(), 1.5)[0], /whole number/)

@@ -238,6 +238,32 @@ export function layout(eras, { notes = false } = {}) {
   return { order, place, requires, tracks }
 }
 
+/** The first loop in the prerequisite graph, with its starting level repeated at the end. */
+export function dependencyCycle(requires) {
+  const done = new Set()
+  const active = new Set()
+  const visit = (id) => {
+    if (active.has(id)) {
+      const path = [...active]
+      return [...path.slice(path.indexOf(id)), id]
+    }
+    if (done.has(id)) return null
+    active.add(id)
+    for (const before of requires.get(id) ?? []) {
+      const cycle = visit(before)
+      if (cycle) return cycle
+    }
+    active.delete(id)
+    done.add(id)
+    return null
+  }
+  for (const id of requires.keys()) {
+    const cycle = visit(id)
+    if (cycle) return cycle
+  }
+  return null
+}
+
 // A showcase's reason, written plainly or as a text.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 

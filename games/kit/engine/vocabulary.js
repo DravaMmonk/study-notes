@@ -23,6 +23,7 @@
 // a vocabulary also gives the families parts are coloured by (`family`), and may give widgets (`widget`): settings or
 // displays the kernel's controls cannot draw.
 import { S, validate } from './schema.js'
+import { dependencyCycle, layout } from '../course.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { taskIdProblems, taskIdsOf } from './tasks.js'
 import { partProblems, withParts } from './parts/define.js'
@@ -136,7 +137,22 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   const names = { entry: new Set((glossary?.entries ?? []).map((e) => e.id)), group: new Set((glossary?.groups ?? []).map((g) => g.id)), ...domainNames(content) }
   if (domain !== vocabulary.domain) out.push({ at: 'game.json.domain', says: `the vocabulary is ${vocabulary.domain}'s, not ${domain}'s` })
   if (!Number.isInteger(version) || version < 1 || version > vocabulary.version) out.push({ at: 'game.json.vocabulary', says: `written for version ${version}; the domain's vocabulary has versions 1 to ${vocabulary.version}` })
-  add(validate(vocabulary.game, game, { vocabulary, levels: ids, languages, names }), 'game.json')
+  const gameProblems = validate(vocabulary.game, game, { vocabulary, levels: ids, languages, names })
+  add(gameProblems, 'game.json')
+  if (!gameProblems.length && game.eras) {
+    for (const [e, era] of game.eras.entries()) {
+      const topics = era.topics ?? []
+      for (const [k, topic] of topics.entries()) {
+        for (const id of topic.requires ?? []) {
+          if (!topics.some((other) => other.id === id)) {
+            out.push({ at: `game.json.eras[${e}].topics[${k}].requires`, says: `no topic "${id}" in this chapter` })
+          }
+        }
+      }
+    }
+    const cycle = dependencyCycle(layout(game.eras, { notes: game.mode === 'notes' }).requires)
+    if (cycle) out.push({ at: 'game.json.eras', says: `circular prerequisites: ${cycle.join(' → ')}` })
+  }
   if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')
   for (const { id: levelId, ...level } of levels) add(validate(vocabulary.level, level, { vocabulary, levels: ids, languages, names }), `levels/${levelId}.json`)
   out.push(...taskIdProblems(levels))
