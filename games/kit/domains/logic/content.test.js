@@ -10,8 +10,7 @@ import { parse } from './formula.js'
 import { render } from './notation.js'
 import { printLines } from '../../circuit/text.js'
 import { primitivesOnly } from '../../engine/board-cards.js'
-import { LOGIC_TESTS, PROOF_BOARD, startProof } from './proof.js'
-import { runOutputTests } from '../../engine/test-run.js'
+import { PROOF_BOARD, runProof, startProof } from './proof.js'
 import { GATE_BOARD, checkGates, gateParts, rowsFor, startGates } from './gates.js'
 import { deepFreeze } from '../../engine/content.js'
 import { readContent, readStarter } from '../../engine/content-node.js'
@@ -95,6 +94,27 @@ const only = (id) => level(id).tasks[0]
 
 test('the course written here reads without fault', () => {
   assert.deepEqual(course.wrong, [])
+})
+
+test('machine text play and author checks run hidden cases without showing their inputs to the player', async () => {
+  const content = structuredClone(CONTENT)
+  content.glossary = { entries: [] }
+  const source = content.levels.find(({ id }) => id === 'negate').tasks[0]
+  source.hidden = [{ ...source.tests[0], goal: 'Slip' }]
+  const spec = domain.spec(content)
+  const { logic } = spec
+  const task = spec.levels.find(({ id }) => id === 'negate').tasks[0]
+  const game = { logic, circuit: { forTask: (task) => logic.circuitFor(task).forTask(task) }, defined: { of: (type) => logic.defs[type] } }
+  const ctx = { game, level: { kind: 'machine', source: task }, flags: new Set(), progress: { built: {}, all: true, passed: [], solved: [] } }
+  const opened = domain.play.open(ctx)
+  assert.equal(opened.tests.length, 1)
+  assert.equal(opened.notes.length, 1)
+  const verdict = domain.play.attempt(ctx, source.solution.join('\n'))
+  assert.equal(verdict.pass, false)
+  assert.deepEqual(verdict.tests.map(({ pass }) => pass), [true])
+  assert.deepEqual([verdict.hidden.count, verdict.hidden.failed], [1, 1])
+  const lines = await domain.validate(spec)
+  assert.ok(lines.some(({ level, fail, text }) => level === 'negate' && fail && text.includes('machine FAIL')))
 })
 
 test('a proof reads from blueprint text and prints back the same', () => {
@@ -206,14 +226,14 @@ test('a gate the player built runs the board it passed with; one that no longer 
 test('a lemma runs the proof the player passed its level with, a level of tasks one shape a task', () => {
   const run = (id, task) => {
     const t = level(id).tasks[task]
-    return runOutputTests(LOGIC_TESTS, t, t.solution)
+    return runProof(t, t.solution)
   }
   const chain = only('chain')
   const circuit = primitivesOnly(PROOF_BOARD, chain.parts)
   const read = (lines, one) => PROOF_BOARD.fromText(lines, one, circuit)
   // The player's own proof of chain, a detour through ∧: the lemma runs it, and the level built on chain still passes.
   const own = read(['f = impI[A=A](body: m2) {', '  body {', '    m1 = mp(p, f.body)', '    b = andI(m1, m1)', '    e = andE(b)', '    m2 = mp(q, e.left)', '  }', '}', 'goal <- f'], chain)
-  assert.equal(runOutputTests(LOGIC_TESTS, chain, own).pass, true)
+  assert.equal(runProof(chain, own).pass, true)
   syncOwn({ chain: own })
   assert.equal(course.proofs.chain[''].board(), own)
   // Another read of the same content (another game of the domain in this process) keeps its own boards.

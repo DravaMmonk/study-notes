@@ -14,7 +14,7 @@ import { countermodel, countermodelSearch, holds } from './models.js'
 import { MACHINE_BOARD, MACHINE_TESTS, RULE_PIECE, rulePartOf, runMachine } from './machine.js'
 import { compileParts } from '../../engine/parts/define.js'
 import { OPS } from './ops.js'
-import { LOGIC_TESTS, PROOF_BOARD, RULES, lemmaGives } from './proof.js'
+import { PROOF_BOARD, RULES, lemmaGives, runProof } from './proof.js'
 import { partsOf } from './ops.js'
 import { readStarter } from '../../engine/content-node.js'
 import { printTerm } from './pterm.js'
@@ -24,7 +24,7 @@ import { T } from '../../shell/i18n.js'
 // A proof runs on the parts the starter defines (its pieces.json) and the level's lemmas.
 const STARTER = readStarter(import.meta.dirname).partDefs
 const proofParts = (lemmas) => ({ ...PROOF_BOARD.FIXED_PARTS, ...partsOf(STARTER, lemmas).PARTS })
-const run = (level, circuit) => runOutputTests(LOGIC_TESTS, { parts: proofParts(level.lemmas), ...level }, circuit)
+const run = (level, circuit) => runProof({ parts: proofParts(level.lemmas), ...level }, circuit)
 // A machine runs on the starter's machine parts, and a rule part for every rule part type.
 const STARTER_DEFINED = partsOf(STARTER)
 const MACHINE_ONLY = Object.fromEntries(Object.entries(STARTER_DEFINED.PARTS).filter(([type]) => ['tactic', 'loop'].includes(STARTER_DEFINED.defs[type].family)))

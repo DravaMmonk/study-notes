@@ -15,6 +15,7 @@ import { workshopNodes } from '../../engine/workshop.js'
 import { MISSING, PartError } from '../../engine/circuit.js'
 import { formed } from '../../engine/forms.js'
 import { runBoard } from '../../engine/boards.js'
+import { runOutputTests } from '../../engine/test-run.js'
 import { circuitBoard } from '../../engine/board-cards.js'
 import { frameTree, regionAddress } from '../../circuit/regions.js'
 import { BOT, FORMULA_TEXT, all, allVars, and, asAnd, asImp, bin, eq, fn, freeVars, imp, mentionsSentence, occurrences, or, parse, replaceAtoms, replaceTerm, same, signature, subst, substSentence, termsOf, tvar } from './formula.js'
@@ -544,7 +545,7 @@ export function premisesOf(test, consts = []) {
  * How a proof level runs and is judged, for the shared engine (../../engine/test-run.js). A test is
  * { premises: { name: formula text }, goal: formula text }; the level may name its constants (consts) and its lemmas.
  */
-export const LOGIC_TESTS = {
+const LOGIC_TESTS = {
   runTest: (level, circuit, test, { workshopParts } = {}) => {
     const consts = level.consts ?? []
     const run = runBoard(circuit, { parts: workshopParts ?? level.parts, bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, exists: choicesOf(level).exists, lemmas: level.lemmas, proofs: level.proofs } })
@@ -563,3 +564,6 @@ export const LOGIC_TESTS = {
   }),
 }
 const countSteps = (circuit) => circuit.nodes.filter((node) => node.type !== 'premise' && node.type !== 'goal').length
+
+/** Judge a proof with the same premise, goal and term checks everywhere it runs. */
+export const runProof = (task, circuit, options) => runOutputTests(LOGIC_TESTS, task, circuit, options)

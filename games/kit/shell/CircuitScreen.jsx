@@ -16,7 +16,7 @@ import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
 import { rowsOf } from '../engine/views.js'
 import { SettingsContext } from './useSetting.js'
 import Results from '../views/Results.jsx'
-import { failureText } from '../engine/failure-text.js'
+import { failureText, reportedFailure } from '../engine/failure-text.js'
 import { failureOf } from '../engine/test-run.js'
 import { ViewScope } from '../views/choice.js'
 import { valueKey } from '../views/picks.js'
@@ -89,7 +89,6 @@ import './training.css'
 //                         card named after the built parts it is in, what it gave or why it failed, the current one marked
 //   className             the domain's class on the level
 
-const reportedFailure = (run) => run.error ?? (run.final ? null : failureText(run.fail))
 const finalFailure = (run) => run.fail?.at?.tick === undefined ? reportedFailure(run) : run.error
 
 /** A setting picked from a list, on a card. */

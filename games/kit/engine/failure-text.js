@@ -1,5 +1,8 @@
 import { T, sideOf } from '../shell/i18n.js'
 
+/** What a case reports before a final note is shown. */
+export const reportedFailure = (run) => run.error ?? (run.final ? null : failureText(run.fail))
+
 /** Format the first failure, with its values when the relation gives them meaning. */
 export function failureText(failure) {
   if (!failure) return null

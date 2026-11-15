@@ -60,6 +60,11 @@ test('reading tools: vocabulary, audit, run_reference, blueprint, render, deps',
   const reference = (await call('run_reference', { game: GAME, level: 'apply' })).data
   assert.deepEqual(reference, { ok: true, lines: ['apply Apply: solution PASS [2 steps]'] })
 
+  const proof = (await call('run_tests', { game: GAME, level: 'suppose' })).data
+  assert.equal(proof.covered && proof.pass, true)
+  assert.deepEqual(proof.tests.map(({ pass }) => pass), [true, true])
+  assert.match(proof.tests[1].shows, /A → C/)
+
   const { boards } = (await call('blueprint', { game: GAME, level: 'suppose' })).data
   assert.deepEqual(boards.map((b) => b.path), ['tasks[0].solution'])
   assert.match(boards[0].text, /^f = impI\[A=A\]\(body: m2\) \{/)

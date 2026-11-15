@@ -1,19 +1,17 @@
-// The logic domain's play hook for a blind session (../../engine/play/): a truth-circuit level of 《证明完毕》 as its
-// screen (ui/gates.js) shows it, in words — a card for each letter, the sentence's output, the gates the level
-// holds, the sentence's truth table (without the target column on a level that hides it, without the sentence on a
-// blind one) — and an attempt run down the table row by row as the screen runs it, stopping on the first wrong row,
-// then held to the level's gate budget.
-//
-// Not covered yet: the truth tables of era 0 (each row ticked by hand), the proof board and the machine board (a
-// board of rules whose settings are sentences: their text spells sentences in ASCII, parts.text, and a blind player
-// needs the notation and the frame regions written out), and the rule board, definitions, translations, worlds, proof
-// scripts (a screen of its own).
-import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
+// Circuit tasks as editable blueprints with the cases and verdicts the screen shows.
+import { circuitPlay, definedSettings, untilFail } from '../../engine/play/circuit.js'
+import { runTestGroups, splitTests, TEST_WORDS } from '../../engine/tests.js'
+import { reportedFailure } from '../../engine/failure-text.js'
+import { failureOf } from '../../engine/test-run.js'
+import { playFor } from '../../engine/plays.js'
 import { parse } from './formula.js'
 import { checkGates, rowsFor } from './gates.js'
-import { gatesPlayFor } from './plays.js'
+import { gatesPlayFor, plays } from './plays.js'
 import { say } from './notation.js'
-import { T } from '../../shell/i18n.js'
+import { runProof } from './proof.js'
+import { runMachine } from './machine.js'
+import { machineReadout, proofReadout } from './circuit-readouts.js'
+import { L, T } from '../../shell/i18n.js'
 
 const TF = (v, lang) => (v === undefined ? '—' : v ? (lang === 'en' ? 'T' : '真') : (lang === 'en' ? 'F' : '假'))
 const pick = (v, lang) => (v && typeof v === 'object' ? v[lang] : v)
@@ -64,14 +62,46 @@ const gates = circuitPlay({
   },
 })
 
-const NOT_COVERED = {
-  truth: T('真值表（逐行手填或勾选），harness 还不支持'),
-  proof: T('证明板（元件的设置是句子），harness 还不支持'),
-  machine: T('证明助手板，harness 还不支持'),
+const testLabel = (test, at) => test.label ?? TEST_WORDS.label(at)
+const partDefinition = ({ game, level }, type) => game.circuit.forTask(level.source).defined?.of(type) ?? game.defined.of(type)
+
+function derivationPlay(readout, run) {
+  return circuitPlay({
+    part: (ctx, type) => partDefinition(ctx, type) ?? ctx.game.logic.pieces[type],
+    settings: (ctx, type) => {
+      const def = partDefinition(ctx, type)
+      return def ? definedSettings(def) : []
+    },
+    tests: ({ level: { source: task }, solved }) => splitTests(task, solved).shown.map((test, at) => {
+      const entries = readout.entries({ task, test }).filter((entry) => 'given' in entry || 'want' in entry)
+      const text = entries.map(({ label, of, given, want }) => `${L(label ?? of)}: ${L(readout.show(given ?? want, { task, test }))}`).join('\n')
+      return { label: testLabel(test, at), text }
+    }),
+    notes: ({ level: { source: task }, solved }) => {
+      const { hiddenCount } = splitTests(task, solved)
+      return hiddenCount ? [TEST_WORDS.note(hiddenCount)] : []
+    },
+    run: ({ level: { source: task }, solved }, board) => {
+      const { shown, checked, hidden, pass } = runTestGroups(task, solved, (all) => run(all, board))
+      const cases = checked.runs.map((row, at) => ({ label: testLabel(shown[at], at), pass: !failureOf(row), says: reportedFailure(row) }))
+      const tests = playFor(plays, task).judge === 'steps' ? untilFail(cases) : cases
+      const constraint = checked.constraint
+      return {
+        tests, pass, score: checked.score, constraint,
+        says: constraint && cases.every((row) => row.pass) ? [constraint] : [],
+        hidden: hidden && { ...hidden, says: TEST_WORDS.failed(hidden.failed, hidden.count) },
+      }
+    },
+  })
 }
-const why = (kind) => NOT_COVERED[kind] ?? T(`「${kind}」玩法，harness 还不支持`, `a “${kind}” play; the harness does not cover it yet`)
+
+const circuits = { gates, proof: derivationPlay(proofReadout, runProof), machine: derivationPlay(machineReadout, runMachine) }
+const notCovered = (kind) => ({
+  covered: false,
+  why: kind === 'truth' ? T('真值表（逐行手填或勾选），harness 还不支持') : T(`「${kind}」玩法，harness 还不支持`, `a “${kind}” play; the harness does not cover it yet`),
+})
 
 export const play = {
-  open: (ctx) => (ctx.level.kind === 'gates' ? gates.open(ctx) : { covered: false, why: why(ctx.level.kind) }),
-  attempt: (ctx, text) => gates.attempt(ctx, text),
+  open: (ctx) => circuits[ctx.level.kind]?.open(ctx) ?? notCovered(ctx.level.kind),
+  attempt: (ctx, text) => circuits[ctx.level.kind]?.attempt(ctx, text) ?? notCovered(ctx.level.kind),
 }
