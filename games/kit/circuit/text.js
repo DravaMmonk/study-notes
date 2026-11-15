@@ -1,6 +1,6 @@
 import { sourceOf, splitSource, srcNode } from '../engine/wire-source.js'
 import { cardPosition, flowSpots } from './layout.js'
-import { baseRefusal, byId, inPort, outputsOf, spotIn, wireHasPorts } from './model.js'
+import { byId, hasOutput, inPort, spotIn, wirePortRefusal, wireRefusal } from './model.js'
 import { isFixed, keepFixedSettings, keepLocked, lockedCards, PRESET_PORT_REFUSAL } from './presets.js'
 import { sameJson } from '../engine/json-value.js'
 import { regionAddress, regionProblems, regionsOf } from './regions.js'
@@ -307,8 +307,7 @@ export function parse(text) {
  * The board a text describes, built on `graph` (the board on screen): the level's own nodes stay where they are, the
  * parts are the text's (each keeps its place when the board had a part of that name and type). A locked card or
  * wire stays on the board even if omitted, and the text cannot override it. `types`: the parts this level offers.
- * Returns { graph } or { errors: [{ line, zh, en }] }; a wire is checked as in the editors (model.js baseRefusal and
- * the game's parts.refuse).
+ * Returns { graph } or { errors: [{ line, zh, en }] }; a wire is checked as in the editors (model.js wireRefusal).
  */
 export function read(text, graph, parts, types) {
   let parsed
@@ -416,43 +415,37 @@ export function read(text, graph, parts, types) {
     const [fromId, outKey] = splitSource(w.from)
     if (failed.has(w.by) || missing.has(w.to) || missing.has(fromId)) continue
     const to = byId(out, w.to)
-    if (!to) {
-      errors.push(say(w.line, `没有叫「${w.to}」的元件。`, `There is no node called “${w.to}”.`))
-      continue
-    }
-    const regions = regionNames(parts, to)
-    const plain = parts.inputs(to).filter((p) => !regions.includes(p))
-    const port = typeof w.port === 'number' ? plain[w.port] : w.port
-    if (port === undefined || !parts.inputs(to).includes(port)) {
-      errors.push(say(w.line, typeof w.port === 'number' ? `「${w.to}」没有第 ${w.port + 1} 个输入口。` : `「${w.to}」没有叫「${w.port}」的输入口。`, typeof w.port === 'number' ? `“${w.to}” has no input number ${w.port + 1}.` : `“${w.to}” has no input called “${w.port}”.`))
-      continue
+    let port = w.port
+    if (to && typeof port === 'number') {
+      const regions = regionNames(parts, to)
+      port = parts.inputs(to).filter((p) => !regions.includes(p))[port]
+      if (port === undefined) {
+        errors.push(say(w.line, `「${w.to}」没有第 ${w.port + 1} 个输入口。`, `“${w.to}” has no input number ${w.port + 1}.`))
+        continue
+      }
     }
     const from = byId(out, fromId)
     // A given node that can give what the wire takes but is not giving it yet (a sensor not switched on) is switched
     // on for it: the text says what the board reads.
-    const opened = from && !placed(parts, from) && !outputsOf(parts, from).some((o) => o.key === outKey) && parts.text?.opens?.(from, outKey)
+    const opened = from && !placed(parts, from) && !hasOutput(parts, from, outKey) && parts.text?.opens?.(from, outKey)
     if (opened) from.params = keepFixedSettings(from, opened)
-    const keys = from ? outputsOf(parts, from).map((o) => o.key) : []
-    if (!from || !keys.includes(outKey)) {
-      errors.push(say(w.line, from ? `「${fromId}」没有输出「${outKey ?? ''}」。` : `没有叫「${fromId}」的元件。`, from ? `“${fromId}” has no output “${outKey ?? ''}”.` : `There is no node called “${fromId}”.`))
-      continue
-    }
-    const address = inPort(to.id, port)
+    const connection = { from: w.from, to: w.to, port }
+    const address = inPort(w.to, port)
     if (written.has(address)) {
       errors.push(say(w.line, `「${w.to}」的「${port}」口接了两根线。`, `Input “${port}” of “${w.to}” takes two wires.`))
       continue
     }
     written.add(address)
     if (preset.get(address)?.from === w.from) continue
-    const no = baseRefusal(out, w.from, to.id, port, parts) ?? parts.refuse?.(out, w.from, to.id, port) ?? null
+    const no = wireRefusal(out, parts, connection)
     if (no) {
       errors.push(say(w.line, no.zh, no.en))
       continue
     }
-    out = { ...out, wires: [...out.wires, { from: w.from, to: to.id, port }] }
+    out = { ...out, wires: [...out.wires, connection] }
   }
   for (const wire of preset.values()) {
-    if (wireHasPorts(parts, wire, (id) => byId(out, id))) continue
+    if (!wirePortRefusal(parts, wire, (id) => byId(out, id))) continue
     const line = parsed.statements.find((st) => st.id === srcNode(wire.from) || st.id === wire.to)?.line
     errors.push(say(line, PRESET_PORT_REFUSAL.zh, PRESET_PORT_REFUSAL.en))
   }

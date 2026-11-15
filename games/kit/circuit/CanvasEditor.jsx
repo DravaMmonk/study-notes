@@ -20,12 +20,13 @@ import { enableDrag } from '../drag.js'
 import { curve as kitCurve, pointIn } from '../wires.js'
 import { L, tr } from '../shell/i18n.js'
 import Glyph from './Glyph.jsx'
-import { cardPorts } from './card-ports.js'
+import { cardPorts, NO_CARD_PORT, portOnCard } from './card-ports.js'
 import { moveInto } from './frames.js'
 import { isOpenRegion, regionAddress, regionsOf } from './regions.js'
-import { baseRefusal, canRemoveCard, clearSpot, connect, ends, feeding, inPort, outPort, parsePort, removeNode, removeWire } from './model.js'
+import { canRemoveCard, clearSpot, connect, ends, feeding, inPort, outPort, parsePort, removeNode, removeWire, wireRefusal } from './model.js'
 import { keepLocked, leavesLockedRegion, lockedCards, lockedRefusal, PRESET_CARD_REFUSAL } from './presets.js'
 import { useHistory } from './useHistory.js'
+import { usePickedPort } from './usePickedPort.js'
 import { alignTerminals, spaceNodes } from './spacing.js'
 
 // The desktop circuit board, the same in every game: parts are cards, wires run from a card's output (a dot on its
@@ -125,7 +126,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const [drag, setDrag] = useState(null)
   const [dropBlock, setDropBlock] = useState(null)
   const [dropInto, setDropInto] = useState(null) // the region a dragged card would go into, lit while it hovers
-  const [picking, setPicking] = useState(null) // a dot clicked, waiting for the dot (or card) its wire goes to
+  const [picking, setPicking] = usePickedPort(graph, parts)
   const [pointer, setPointer] = useState(null) // where the pointer is on the board while a dot is picked
   // A new pick (or none) starts without a pointer, so the draft wire waits for the pointer to move instead of reaching
   // for where the last pick's pointer was.
@@ -443,71 +444,51 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     return () => node.removeEventListener('wheel', onWheel)
   }, [])
 
-  const refusal = (from, to, port) => baseRefusal(graph, from, to, port, parts) ?? parts.refuse?.(graph, from, to, port) ?? null
-  // A card's first free input that takes a wire from `from` (or any that takes it).
-  const inputFor = (from, to) => {
-    const ports = parts.inputs(byId.get(to) ?? {})
-    return ports.find((p) => !graph.wires.some((w) => w.to === to && w.port === p) && !refusal(from, to, p)) ?? ports.find((p) => !refusal(from, to, p))
+  const addWire = (wire) => {
+    const why = wireRefusal(graph, parts, wire)
+    setRefused(why)
+    if (why) return false
+    onChange(connect(graph, wire.to, wire.port, wire.from))
+    return true
   }
-  // Dropping a wire on an input uses that input; dropping it on a card uses the card's first free input that takes it.
-  const connectTo = (from, over) => {
-    let to = null
-    let port = null
-    const target = over?.dataset.p && parsePort(over.dataset.p)
-    if (target?.side === 'in') [to, port] = [target.id, target.port]
-    else if (over?.dataset.piece) [to, port] = [over.dataset.piece, inputFor(from, over.dataset.piece) ?? parts.inputs(byId.get(over.dataset.piece) ?? {})[0]]
-    if (!to || !port || !byId.has(to)) return
-    const why = refusal(from, to, port)
-    if (why) return setRefused(why)
-    setRefused(null)
-    onChange(connect(graph, to, port, from))
+  const wireToCard = (from, id) => {
+    const to = portOnCard(graph, parts, from, byId.get(id))
+    if (to) return addWire(ends(from, to))
+    setRefused(NO_CARD_PORT)
+    return false
   }
-  // Click to wire: the wire two dots make, if it is allowed; then clicking the first dot again drops it, and a dot on
-  // the same side picks that one instead.
-  const wireOf = (a, b) => {
-    const e = ends(a, b)
-    return e && byId.has(e.to) && byId.has(srcNode(e.from)) && !refusal(e.from, e.to, e.port) ? e : null
-  }
-  // A wire refused between two dots on opposite sides says why.
-  const refusalOf = (a, b) => {
-    const e = ends(a, b)
-    return e && byId.has(e.to) && byId.has(srcNode(e.from)) ? refusal(e.from, e.to, e.port) : null
+  const connectTo = (source, over) => {
+    const from = outPort(source)
+    const target = over?.dataset.p
+    if (target && parsePort(target).side === 'in') addWire(ends(from, target))
+    else if (over?.dataset.piece) wireToCard(from, over.dataset.piece)
   }
   // With nothing picked, clicking a wired input takes its wire off that input and leaves it in hand, still on its
   // output: click another input (or a card) to plug it in there, or anywhere else to drop it. Any other dot is picked.
   const clickPort = (p) => {
     const at = parsePort(p)
     const from = !picking && at.side === 'in' ? feeding(graph, at.id, at.port) : null
-    if (from && lockedRefusal(graph, at.id, at.port)) return setRefused(lockedRefusal(graph, at.id, at.port))
     if (from) {
+      const locked = lockedRefusal(graph, at.id, at.port)
+      if (locked) return setRefused(locked)
       setRefused(null)
       onChange(connect(graph, at.id, at.port, null))
       return pick(outPort(from))
     }
     if (!picking || picking === p) return pick(picking === p ? null : p)
-    const e = wireOf(picking, p)
-    if (e) {
-      setRefused(null)
-      onChange(connect(graph, e.to, e.port, e.from))
-      pick(null)
-    } else if (parsePort(picking).side === parsePort(p).side) pick(p)
-    else setRefused(refusalOf(picking, p))
+    const wire = ends(picking, p)
+    if (!wire) pick(p)
+    else if (addWire(wire)) pick(null)
   }
-  // With a dot picked, clicking a card wires it there: an output to the card's first free input, an input from the
-  // card's (first) output.
   const clickCard = (id) => {
-    const node = byId.get(id)
-    const p = parsePort(picking)
-    const port = p.side === 'out' ? inputFor(p.id, id) : null
-    const [firstOutput] = p.side === 'in' ? cardPorts(parts, node).outputs : []
-    const other = port ? inPort(id, port) : firstOutput ? outPort(sourceOf(node.id, firstOutput.key)) : null
-    if (other && wireOf(picking, other)) clickPort(other)
-    else if (p.side === 'out') {
-      const first = parts.inputs(node)[0]
-      if (first) setRefused(refusalOf(picking, inPort(id, first)))
-    }
+    if (wireToCard(picking, id)) pick(null)
   }
-  const portClass = (p) => (!picking ? '' : p === picking ? 'is-picked' : wireOf(picking, p) ? 'is-target' : '')
+  const portClass = (p) => {
+    if (!picking) return ''
+    if (p === picking) return 'is-picked'
+    const wire = ends(picking, p)
+    return wire && !wireRefusal(graph, parts, wire) ? 'is-target' : ''
+  }
 
   // Choosing a card makes its region where new cards go; choosing a frame, its first region.
   const choose = (node) => {

@@ -5,11 +5,14 @@ import { framePart, moveInto } from './frames.js'
 import { flowBoard } from '../engine/board-cards.js'
 import { frameTree, regionsFit } from './regions.js'
 import { keepLocked, lockedCards, presetOf, withPreset } from './presets.js'
-import { baseRefusal, clearSpot, moveToSlot, placement, removeNode } from './model.js'
+import { clearSpot, moveToSlot, placement, removeNode, wireRefusal } from './model.js'
 import { traySize } from './card-size.js'
 
 // A box `f` with one region that opens a value, and a card `m` inside it; `p` and `g` on the board.
-const parts = { role: (n) => (n.id === 'p' ? 'source' : 'part'), frames: (node) => (node.type === 'box' ? [{ name: 'body', opens: true }] : []) }
+const parts = {
+  role: (n) => n.id === 'p' ? 'source' : 'part',
+  frames: (node) => node.type === 'box' ? [{ name: 'body', opens: true }] : [],
+}
 const board = {
   nodes: [{ id: 'p' }, { id: 'f', type: 'box' }, { id: 'm', in: 'f/body' }, { id: 'g' }],
   wires: [{ from: 'f#body', to: 'm', port: 'a' }, { from: 'm', to: 'f', port: 'body' }, { from: 'f', to: 'g', port: 'in' }],
@@ -22,12 +25,18 @@ test('a card knows the regions it sits in', () => {
 })
 
 test('wires run inward, and a box reads back what was made from it', () => {
-  assert.equal(baseRefusal(board, 'p', 'm', 'b', parts), null)
-  assert.equal(baseRefusal(board, 'f#body', 'f', 'body', parts), null)
-  assert.ok(baseRefusal(board, 'm', 'g', 'b', parts))
-  assert.ok(baseRefusal(board, 'f#body', 'g', 'b', parts))
+  const wiring = {
+    ...parts,
+    inputs: (node) => node.type === 'box' ? ['body'] : ['a', 'b', 'in'],
+    outputs: (node) => node.type === 'box' ? [{ key: null }, { key: 'body' }] : null,
+  }
+  const refused = (from, to, port) => wireRefusal(board, wiring, { from, to, port })
+  assert.equal(refused('p', 'm', 'b'), null)
+  assert.equal(refused('f#body', 'f', 'body'), null)
+  assert.ok(refused('m', 'g', 'b'))
+  assert.ok(refused('f#body', 'g', 'b'))
   // What the board holds may go straight to a region's result.
-  assert.equal(baseRefusal(board, 'p', 'f', 'body', parts), null)
+  assert.equal(refused('p', 'f', 'body'), null)
 })
 
 test('moving a card out of its box drops the wires it can no longer keep', () => {

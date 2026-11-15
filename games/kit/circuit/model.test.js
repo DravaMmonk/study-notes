@@ -1,8 +1,8 @@
 // node --test games/kit/circuit — a level's preset on a board: locked parts and wires stay, the rest is the player's.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { cardPorts, portNotes } from './card-ports.js'
-import { baseRefusal, connect, editNodeSettings, removeNode, spotIn } from './model.js'
+import { cardPorts, portNotes, portOnCard } from './card-ports.js'
+import { connect, editNodeSettings, hasPort, inPort, outPort, removeNode, spotIn, wireRefusal } from './model.js'
 import { keepLocked, presetOf, withPreset } from './presets.js'
 
 const board = { nodes: [{ id: 'in', type: 'in', x: 0, y: 0 }, { id: 'out', type: 'out', x: 400, y: 0 }], wires: [] }
@@ -56,8 +56,9 @@ test('a change keeps the locked parts and wires, and nothing else of the old boa
 
 test('a locked wire refuses another wire into its port; a free port takes one', () => {
   const started = withPreset(board, preset)
-  assert.ok(baseRefusal(started, 'in', 'out', 'in'))
-  assert.equal(baseRefusal(started, 'in', 'p', 'in'), null)
+  const parts = { role: (n) => n.type === 'out' ? 'sink' : 'part', inputs: () => ['in'] }
+  assert.match(wireRefusal(started, parts, { from: 'in', to: 'out', port: 'in' }).en, /came with the level/)
+  assert.equal(wireRefusal(started, parts, { from: 'in', to: 'p', port: 'in' }), null)
 })
 
 test('a preset may fix a part\'s settings, all of them or some', () => {
@@ -75,10 +76,11 @@ test('a preset may fix a part\'s settings, all of them or some', () => {
 
 test('a board run by ticks may loop only through a part that holds its value', () => {
   const board = { nodes: [{ id: 'a', type: 'not' }, { id: 'b', type: 'not' }, { id: 'h', type: 'held' }], wires: [{ from: 'a', to: 'b', port: 'in' }, { from: 'h', to: 'a', port: 'in' }] }
-  const parts = { loops: true, holds: (n) => n.type === 'held' }
-  assert.ok(baseRefusal(board, 'b', 'a', 'in', parts), 'a loop of parts that answer at once')
-  assert.equal(baseRefusal(board, 'b', 'h', 'in', parts), null, 'a loop through a held part')
-  assert.ok(baseRefusal(board, 'b', 'h', 'in', {}), 'no loops on a board without ticks')
+  const parts = { role: () => 'part', inputs: () => ['in'], loops: true, holds: (n) => n.type === 'held' }
+  const backTo = (to) => ({ from: 'b', to, port: 'in' })
+  assert.match(wireRefusal(board, parts, backTo('a')).en, /loop/, 'a loop of parts that answer at once')
+  assert.equal(wireRefusal(board, parts, backTo('h')), null, 'a loop through a held part')
+  assert.match(wireRefusal(board, { ...parts, loops: false }, backTo('h')).en, /loop/, 'no loops on a board without ticks')
 })
 
 test('a new card on the board goes left of the outputs, clear of what is there', () => {
@@ -119,4 +121,27 @@ test('changing a card shape preserves occupied regions and preset wires, and dro
   assert.deepEqual(editNodeSettings(fixed, parts, 'f', { extra: false, unset: true }), { graph: fixed })
   const saved = { ...fixed, nodes: [...fixed.nodes.slice(0, -1), { ...fixed.nodes.at(-1), type: 'other', params: { note: 9 } }] }
   assert.deepEqual(keepLocked({ ...fixed, nodes: fixed.nodes.map(n => n.id === 'f' ? { ...n, locked: true } : n) }, saved).nodes.at(-1).params, { extra: true })
+})
+
+test('stale ports are refused and card picks prefer a free compatible input', () => {
+  const graph = {
+    nodes: [{ id: 'p', params: { extra: true } }, { id: 'n' }, { id: 'other' }],
+    wires: [{ from: 'other', to: 'n', port: 'used' }],
+  }
+  const parts = {
+    role: () => 'part',
+    inputs: (node) => node.id === 'n' ? ['wrong', 'used', 'free'] : [],
+    outputs: (node) => node.params?.extra ? [{ key: null }, { key: 'tap' }] : null,
+    refuse: (_board, _from, _to, port) => port === 'wrong' ? { en: 'incompatible input' } : null,
+  }
+  const tap = outPort('p#tap')
+  const connection = { from: 'p#tap', to: 'n', port: 'free' }
+  assert.equal(portOnCard(graph, parts, tap, graph.nodes[1]), inPort('n', 'free'))
+  assert.equal(wireRefusal(graph, parts, connection), null)
+  assert.match(wireRefusal(graph, parts, { ...connection, port: 'wrong' }).en, /incompatible/)
+  const { graph: closed } = editNodeSettings(graph, parts, 'p', { extra: false })
+  assert.equal(hasPort(graph, parts, tap), true)
+  assert.equal(hasPort(closed, parts, tap), false)
+  assert.match(wireRefusal(closed, parts, connection).en, /has no output “tap”/)
+  assert.match(wireRefusal(graph, parts, { ...connection, port: 'gone' }).en, /has no input called “gone”/)
 })

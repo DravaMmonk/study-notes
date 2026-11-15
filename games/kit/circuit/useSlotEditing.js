@@ -1,15 +1,16 @@
-import { sourceOf, srcNode } from '../engine/wire-source.js'
+import { srcNode } from '../engine/wire-source.js'
 import { slotPortAt } from './slot-ports.js'
 import { useEffect, useRef, useState } from 'react'
 import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
-import { cardPorts } from './card-ports.js'
-import { baseRefusal, byId, canRemoveCard, connect, ends, feeding, inPort, layout, outPort, parsePort, placement, removeNode } from './model.js'
+import { NO_CARD_PORT, portOnCard } from './card-ports.js'
+import { byId, canRemoveCard, connect, ends, feeding, layout, parsePort, placement, removeNode, wireRefusal } from './model.js'
 import { keepLocked, leavesLockedRegion, lockedCards, lockedRefusal, PRESET_CARD_REFUSAL } from './presets.js'
 import { drawWires } from './SlotBoard.jsx'
 import { blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
 import { regionAddress, regionsFit, regionsOf } from './regions.js'
 import { useHistory } from './useHistory.js'
+import { usePickedPort } from './usePickedPort.js'
 import { visibleSlot } from './visibleSlot.js'
 
 const buzz = (pattern = 8) => navigator.vibrate?.(pattern)
@@ -37,7 +38,7 @@ const NO_VISIBLE_SLOT = { zh: '眼前没有能放这个元件的空格位。', e
 const DOES_NOT_FIT = { zh: '这个元件放不进这一格。', en: 'This part does not fit in this slot.' }
 
 export function useSlotEditing({ graph, onChange: given, parts, create, label, openNode, openSlot, root, scroller, scope, canMove = () => true }) {
-  const [picking, setPicking] = useState(null) // a port id, while choosing where its wire goes
+  const [picking, setPicking] = usePickedPort(graph, parts)
   const [moving, setMoving] = useState(null) // a part's id, while choosing the slot it moves to
   // A change never takes off what the level locked on the board (presets.js keepLocked).
   const onChange = (next, options) => given(keepLocked(graph, next), options)
@@ -86,20 +87,19 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
   }, [toast])
 
   // Wiring: a source (an output dot) to a sink (an input dot), in either order.
-  const refusal = (a, b) => {
-    const e = ends(a, b)
-    if (!e) return { zh: '两头都是输出口（或都是输入口）：一头接输出，一头接输入。', en: 'Both ends are outputs (or both inputs): connect an output to an input.' }
-    return baseRefusal(graph, e.from, e.to, e.port, parts) ?? parts.refuse?.(graph, e.from, e.to, e.port) ?? null
+  const canLand = (p) => {
+    const wire = picking && ends(picking, p)
+    return Boolean(wire && !wireRefusal(graph, parts, wire))
   }
-  const canLand = (p) => Boolean(picking) && !refusal(picking, p)
   const wire = (a, b) => {
-    const why = refusal(a, b)
+    const connection = ends(a, b)
+    const why = connection ? wireRefusal(graph, parts, connection) : { zh: '两头都是输出口（或都是输入口）：一头接输出，一头接输入。', en: 'Both ends are outputs (or both inputs): connect an output to an input.' }
     if (why) {
       buzz(20)
       setToast(why)
       return false
     }
-    const { from, to, port } = ends(a, b)
+    const { from, to, port } = connection
     buzz()
     edit(connect(graph, to, port, from))
     return true
@@ -127,22 +127,11 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     if (parsePort(picking).side === side.side) return setPicking(p)
     if (wire(picking, p)) setPicking(null)
   }
-  // A wire from port `p` dropped on (or, with `p` picked, tapped onto) a block lands on its output, or on its first
-  // free input that takes it.
   const wireToCard = (p, id) => {
-    const node = byId(graph, id)
-    // An input dropped on a block with several outputs takes its first.
-    if (parsePort(p).side === 'in') {
-      const [output] = cardPorts(parts, node).outputs
-      return Boolean(output) && wire(p, outPort(sourceOf(node.id, output.key)))
-    }
-    const ports = parts.inputs(node)
-    const open = ports.find((port) => !feeding(graph, id, port) && !refusal(p, inPort(id, port))) ?? ports.find((port) => !refusal(p, inPort(id, port)))
-    if (!open) {
-      setToast({ zh: '这个元件没有能接这根线的口', en: 'This part has no port this wire can go to' })
-      return false
-    }
-    return wire(p, inPort(id, open))
+    const to = portOnCard(graph, parts, p, byId(graph, id))
+    if (to) return wire(p, to)
+    setToast(NO_CARD_PORT)
+    return false
   }
   // Moving a part (from its sheet): the next slot tapped takes it; a slot with a part in it swaps the two.
   const moveTo = (at, region = null) => {

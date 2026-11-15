@@ -78,13 +78,34 @@ export function removeNode(graph, id) {
 export const removeWire = (graph, wire) => lockedRefusal(graph, wire.to, wire.port) ? graph : { ...graph, wires: graph.wires.filter((w) => !(w.to === wire.to && w.port === wire.port)) }
 export const moveNode = (graph, id, x, y) => ({ ...graph, nodes: graph.nodes.map((n) => (n.id === id ? { ...n, x, y } : n)) })
 
-/** Whether both ends of a wire are still available on their cards. */
-export function wireHasPorts(parts, wire, nodeAt) {
+const hasInput = (parts, node, port) => Boolean(node && parts.inputs(node).includes(port))
+export const hasOutput = (parts, node, key) => Boolean(node && outputsOf(parts, node).some((port) => port.key === key))
+
+/** Whether a picked or dragged port still belongs to a card on this board. */
+export function hasPort(graph, parts, port) {
+  const at = parsePort(port)
+  if (at.side === 'in') return hasInput(parts, byId(graph, at.id), at.port)
+  const [id, key] = splitSource(at.id)
+  return hasOutput(parts, byId(graph, id), key)
+}
+
+/** Why a wire no longer has both of its terminals. */
+export function wirePortRefusal(parts, wire, nodeAt) {
+  const to = nodeAt(wire.to)
+  if (!to) return missingCard(wire.to)
+  if (!hasInput(parts, to, wire.port)) {
+    return { zh: `「${to.id}」没有叫「${wire.port}」的输入口。`, en: `“${to.id}” has no input called “${wire.port}”.` }
+  }
   const [id, key] = splitSource(wire.from)
   const from = nodeAt(id)
-  const to = nodeAt(wire.to)
-  return Boolean(from && to && outputsOf(parts, from).some((port) => port.key === key) && parts.inputs(to).includes(wire.port))
+  if (!from) return missingCard(id)
+  if (!hasOutput(parts, from, key)) {
+    return { zh: `「${id}」没有输出「${key ?? ''}」。`, en: `“${id}” has no output “${key ?? ''}”.` }
+  }
+  return null
 }
+
+const missingCard = (id) => ({ zh: `没有叫「${id}」的元件。`, en: `There is no node called “${id}”.` })
 
 /** Change one card's settings without stranding cards or disconnecting preset wires. */
 export function editNodeSettings(graph, parts, id, params) {
@@ -101,7 +122,7 @@ export function editNodeSettings(graph, parts, id, params) {
   const wires = []
   for (const wire of graph.wires) {
     const affected = wire.to === id || srcNode(wire.from) === id
-    if (!affected || wireHasPorts(parts, wire, nodeAt)) wires.push(wire)
+    if (!affected || !wirePortRefusal(parts, wire, nodeAt)) wires.push(wire)
     else if (wire.locked) return { reason: PRESET_PORT_REFUSAL }
   }
   return { graph: { ...graph, nodes, wires } }
@@ -121,11 +142,14 @@ function openLoop(edges, from, to, holds) {
 }
 
 /**
- * The reasons every game shares for refusing a wire; a game's `refuse` adds its own (types, say) after these. On a
+ * Why a proposed wire is refused. A game's `refuse` adds its own rules after the shared rules. On a
  * board with frames (`parts.frames`, frames.js) a wire also has to run inward, and a region's own output stands
  * apart from its frame, so a frame may read back what was made from it.
  */
-export function baseRefusal(graph, from, to, port, parts = {}) {
+export function wireRefusal(graph, parts, wire) {
+  const { from, to, port } = wire
+  const unavailable = wirePortRefusal(parts, wire, (id) => byId(graph, id))
+  if (unavailable) return unavailable
   const locked = lockedRefusal(graph, to, port)
   if (locked) return locked
   const { edges, from: start } = parts.frames ? frameEdges(graph, parts) : { edges: graph.wires.map((w) => [srcNode(w.from), w.to]), from: srcNode }
@@ -133,7 +157,8 @@ export function baseRefusal(graph, from, to, port, parts = {}) {
   // A board run tick by tick may feed back (parts.loops), but only through a part that keeps what it is given for the
   // next tick (parts.holds): a loop of parts that each answer at once has no tick to wait on.
   if (parts.loops ? openLoop(edges, start(from), to, (id) => parts.holds?.(byId(graph, id) ?? {})) : wouldCycle(edges, start(from), to)) return { zh: '这样会绕成一个圈：这个元件要等自己算完，才能算自己。', en: 'That would make a loop: this part would have to wait for itself to finish.' }
-  return parts.frames ? scopeRefusal(graph, parts, from, to, port) : null
+  const scope = parts.frames ? scopeRefusal(graph, parts, from, to, port) : null
+  return scope ?? parts.refuse?.(graph, from, to, port) ?? null
 }
 
 /** Nodes in data-flow order (each after everything it reads); nodes caught in a loop come last. */
