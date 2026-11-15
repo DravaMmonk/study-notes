@@ -1,11 +1,6 @@
-import { Fragment, useMemo } from 'react'
+import { lazy, Suspense, useMemo } from 'react'
 import CanvasEditor from './CanvasEditor.jsx'
 import SlotBoard from './SlotBoard.jsx'
-import SampleCircuit from './SampleCircuit.jsx'
-import PieceExperiment from './PieceExperiment.jsx'
-import { PackedBoard } from './Inside.jsx'
-import { partsFor } from '../shell/CircuitScreen.jsx'
-import { openRef } from '../shell/refs.js'
 import { L, tr } from '../shell/i18n.js'
 import { evalSettings } from '../engine/parts/define.js'
 import PartFace from '../shell/parts/PartFace.jsx'
@@ -23,6 +18,10 @@ import PieceSheet, { Chains, Ports, Revisions, Settings, marker } from '../shell
 //
 //   preview(piece, { game, scene, edit?, state?, entry?, phone?, progress? })   piece: pieces.json's entry with its `type`;
 //     state [params, set] the settings the scenes share; entry the parts box's entry it is shown in
+
+const SampleCircuit = lazy(() => import('./SampleCircuit.jsx'))
+const PieceExperiment = lazy(() => import('./PieceExperiment.jsx'))
+const BuiltBoard = lazy(() => import('./BuiltBoard.jsx'))
 
 const NONE = { values: new Map(), errors: new Map() }
 const at = (path) => JSON.stringify(path)
@@ -90,29 +89,12 @@ export function preview(piece, { game, scene, edit = null, state = [undefined, (
   if (scene !== 'detail' || (!entry && !piece.inside)) return null
   const shown = entry ?? game.parts?.all.find((p) => p.piece === piece.type) ?? { key: piece.type, piece: piece.type }
   const { sample, experiment, inside } = game.parts?.preview?.(shown, { progress }) ?? {}
-  if (sample || experiment || inside) return <Fragment key={shown.key}>
+  if (sample || experiment || inside) return <Suspense key={shown.key} fallback={<div className="board-loading">{tr('载入中…')}</div>}>
     {sample && <SampleCircuit example={sample} defined={game.defined} phone={phone} />}
     {experiment && <PieceExperiment spec={experiment} phone={phone} />}
     {inside && <BuiltBoard type={shown.piece} {...inside} />}
-  </Fragment>
+  </Suspense>
   return faced(piece, game) ? <Face piece={piece} game={game} scene={scene} edit={edit} state={state} /> : null
-}
-
-/**
- * A part the player built, in the components box: the board it runs, read only (Inside.jsx PackedBoard), the
- * parts it holds opening in turn. `course` is the course read, `cards` and `portLabels` as CircuitScreen takes them.
- */
-function BuiltBoard({ course, type, cards, portLabels = {} }) {
-  const drawn = (inside) => inside && { ...inside, parts: partsFor(inside.level, course.forTask(inside.level), { cards, portLabels }) }
-  const open = (node, at) => drawn(course.forTask(at.level).BUILT[node.type]?.opens?.(node.params))
-  const edit = (node, at) => {
-    const builder = course.forTask(at.level).builtBy(node.type, node.params)
-    openRef('level', builder.id, builder.task)
-  }
-  const describe = (node, ctx) => (ctx.board.parts.role(node) === 'part' && !course.BUILT[node.type] ? L(cards[node.type]?.desc) : null)
-  // A piece whose inside runs no board (its task is none) has none to show.
-  if (!course.BUILT[type]) return null
-  return <PackedBoard top={drawn(course.BUILT[type].opens())} open={open} edit={edit} card={{}} describe={describe} />
 }
 
 /** The fields no scene draws: a faced piece's rows of fields and what it computes, or a built piece's sheet. */
