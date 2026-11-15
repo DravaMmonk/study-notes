@@ -54,6 +54,14 @@ test('an RGB image can be corrected directly with a single-channel illumination 
   assert.equal(compare(runner.evaluate(graph, { photo, light }).values.get('out'), original).pass, true)
 })
 
+test('an RGB mismatch is counted once per pixel and includes non-finite readings', () => {
+  const got = { w: 3, h: 1, c: 3, data: [0.625, 0.375, 0.5, 0.75, 0.75, 0.5, 0.5, NaN, Infinity] }
+  const want = { ...got, data: Array(9).fill(0.5) }
+  const check = compare(got, want, { tolerance: 0.125, mismatches: 2 })
+  assert.deepEqual({ pass: check.pass, wrong: check.wrong, worst: check.worst }, { pass: true, wrong: 2, worst: Infinity })
+  assert.equal(compare(got, want, { tolerance: Infinity }).wrong, 1)
+})
+
 test('colour input exposes the full image and independent RGB outputs', async () => {
   const { imageKit } = await import('./engine/kit.js')
   const kit = imageKit(NODE_TYPES)

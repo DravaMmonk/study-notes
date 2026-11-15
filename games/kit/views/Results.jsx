@@ -1,4 +1,5 @@
-import { isGrid, pixel, pixelText, readCell } from '../engine/grid.js'
+import { cellError, isGrid, pixel, pixelText, readCell, sameGridShape } from '../engine/grid.js'
+import { numberError, withinTolerance } from '../engine/number.js'
 import { VIEWS } from '../engine/views.js'
 import { L, T } from '../shell/i18n.js'
 import Timeline from '../shell/Timeline.jsx'
@@ -22,8 +23,8 @@ import ViewSwitch from './ViewSwitch.jsx'
 const TRACK = new Set(['bits', 'ticks'])
 
 /** Whether two values are the same, numbers within `tolerance`. */
-export function same(a, b, tolerance = 0) {
-  if (typeof a === 'number' && typeof b === 'number') return Math.abs(a - b) <= tolerance
+function same(a, b, tolerance = 0) {
+  if (typeof a === 'number' && typeof b === 'number') return withinTolerance(numberError(a, b), tolerance)
   if (Array.isArray(a) || Array.isArray(b)) return Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, k) => same(v, b[k], tolerance))
   if (a && b && typeof a === 'object' && typeof b === 'object') {
     const keys = Object.keys(a)
@@ -60,11 +61,18 @@ function linkedReading(readings, source, x, y) {
 function GridRow({ entry, view, text, tool, linked }) {
   const { label, given, got, want, tolerance = 0 } = entry
   const shown = !isOutput(entry) ? [[null, given]] : got === undefined ? [[WORDS.wanted, want]] : [[WORDS.result, got], [WORDS.wanted, want]]
-  const paired = isGrid(got) && isGrid(want) && got.w === want.w && got.h === want.h && (got.c ?? 1) === (want.c ?? 1)
+  const paired = sameGridShape(got, want)
   // One size for the row when its grids share it, written once beside its label; arrows in the plane show it as they are.
   const grids = shown.map(([, v]) => v).filter(isGrid)
-  const size = sized(view) && grids.length && grids.every((g) => g.w === grids[0].w && g.h === grids[0].h && (g.c ?? 1) === (grids[0].c ?? 1)) ? `${grids[0].w} × ${grids[0].h}${(grids[0].c ?? 1) === 3 ? ' · RGB' : ''}` : null
-  const differs = paired && entry.pass !== null ? (x, y) => (same(pixel(got, x, y), pixel(want, x, y), tolerance) ? '' : 'is-different') : undefined
+  const size = sized(view) && grids.length && grids.every((g) => sameGridShape(g, grids[0])) ? `${grids[0].w} × ${grids[0].h}${(grids[0].c ?? 1) === 3 ? ' · RGB' : ''}` : null
+  const error = paired && entry.difference && !overlays(view, got) && {
+    w: got.w, h: got.h,
+    data: Array.from({ length: got.w * got.h }, (_, i) => cellError(got, want, i)),
+  }
+  const differenceAt = (i) => error ? error.data[i] : cellError(got, want, i)
+  const differs = paired && entry.pass !== null
+    ? (x, y) => withinTolerance(differenceAt(y * got.w + x), tolerance) ? '' : 'is-different'
+    : undefined
   const read = (grid) => linked.length ? (x, y) => linkedReading(linked, grid, x, y)
     : paired ? (x, y) => <><span>{L(WORDS.result)} {pixelText(pixel(got, x, y))}</span><span>{L(WORDS.wanted)} {pixelText(pixel(want, x, y))}</span></> : undefined
   const plain = (word, v, k) => <figure key={k} className="rv-plain"><figcaption>{word && L(word)}</figcaption><b>{v === undefined ? '—' : L(text(v))}</b></figure>
@@ -75,14 +83,6 @@ function GridRow({ entry, view, text, tool, linked }) {
     : shown.map(([word, v], k) => (!isGrid(v) ? plain(word, v, k)
       : Drawn ? <figure key={k} className="rv-drawn"><figcaption>{word && L(word)}</figcaption><Drawn value={v} size={SIZE.results} /></figure>
       : <GridInspector key={k} value={v} label={word && L(word)} view={view} fit dense showSize={!size} cellClass={word === WORDS.result ? differs : undefined} inspectPixel={read(v)} />))
-  const error = paired && entry.difference && !overlays(view, got) && {
-    w: got.w, h: got.h,
-    data: Array.from({ length: got.w * got.h }, (_, k) => {
-      const c = got.c ?? 1
-      const at = k * c
-      return Math.max(...Array.from({ length: c }, (_, i) => Math.abs(got.data[at + i] - want.data[at + i])))
-    }),
-  }
   return (
     <section className="rv-row" data-fail={wrong(entry) || undefined}>
       <h4>{L(label)}{size && <small>{size}</small>}{tool}</h4>

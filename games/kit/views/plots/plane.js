@@ -18,12 +18,16 @@ export const tips = (cols) => {
   return cols.map(([dx, dy]) => [(x += dx), (y += dy)])
 }
 
+export const finitePoint = (point) => point.every(Number.isFinite)
+
 /** How far from the origin the values reach, in any reading. */
 export function extentOf(grids) {
   let far = 0
   for (const g of grids) {
     const cols = columns(g)
-    for (const [x, y] of [...cols, ...tips(cols)]) far = Math.max(far, Math.abs(x), Math.abs(y))
+    for (const point of [...cols, ...tips(cols)]) {
+      if (finitePoint(point)) far = Math.max(far, ...point.map(Math.abs))
+    }
   }
   return far
 }

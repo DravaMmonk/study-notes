@@ -20,3 +20,9 @@ export function finiteExtent(series) {
   }
   return lo <= hi ? { lo, hi } : null
 }
+
+/** A numeric reading differs by an unbounded amount if either value is invalid. */
+export const numberError = (a, b) => Number.isFinite(a) && Number.isFinite(b) ? Math.abs(a - b) : Infinity
+
+/** Tests include the tolerance boundary; invalid readings never match. */
+export const withinTolerance = (error, tolerance = 0) => Number.isFinite(error) && error <= tolerance

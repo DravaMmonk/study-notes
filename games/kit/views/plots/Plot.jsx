@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { numberText } from '../../engine/number.js'
+import { numberError, numberText, withinTolerance } from '../../engine/number.js'
 import { L } from '../../shell/i18n.js'
 import { WORDS } from '../../shell/words.js'
 import { clientToSvg } from '../svg-point.js'
@@ -23,7 +23,7 @@ const PAD_Y = 6
 function Row({ got, want, samples, tolerance, y, at, x, along, width, height, r }) {
   const zero = y(0)
   const path = (list) => linePath(list, x, y)
-  const band = want && tolerance > 0 && Number.isFinite(tolerance)
+  const band = want?.every(Number.isFinite) && tolerance > 0 && Number.isFinite(tolerance)
     ? path(want.map((v) => v + tolerance)) + want.map((_, j) => {
       const i = want.length - 1 - j
       return `L${x(i).toFixed(1)},${y(want[i] - tolerance).toFixed(1)}`
@@ -36,9 +36,18 @@ function Row({ got, want, samples, tolerance, y, at, x, along, width, height, r 
       {want && <path className="pl-want-line" d={path(want)} />}
       {samples && <path className="pl-curve" d={linePath(samples, (i) => x(along[i]), y)} />}
       {got && <path className="pl-line" d={path(got)} />}
-      {got && got.map((v, j) => <line key={`s${j}`} className="pl-stem" x1={x(j)} x2={x(j)} y1={zero} y2={y(v)} />)}
-      {want && want.map((v, j) => <circle key={`w${j}`} className="pl-want" cx={x(j)} cy={y(v)} r={r + 1.2} />)}
-      {got && got.map((v, j) => <circle key={`g${j}`} className={`pl-dot ${want && Math.abs(v - want[j]) > tolerance ? 'is-miss' : ''}`} cx={x(j)} cy={y(v)} r={r} />)}
+      {got?.map((v, j) => Number.isFinite(v) && <line key={j} className="pl-stem" x1={x(j)} x2={x(j)} y1={zero} y2={y(v)} />)}
+      {want?.map((v, j) => Number.isFinite(v) && <circle key={j} className="pl-want" cx={x(j)} cy={y(v)} r={r + 1.2} />)}
+      {got?.map((v, j) => {
+        const col = x(j)
+        const miss = want && !withinTolerance(numberError(v, want[j]), tolerance)
+        if (!Number.isFinite(v)) {
+          if (!miss) return null
+          const row = Number.isFinite(want[j]) ? y(want[j]) : zero
+          return <path key={j} className="pl-dot is-miss" d={`M${col},${row - r}l${r},${r}l${-r},${r}l${-r},${-r}Z`} />
+        }
+        return <circle key={j} className={`pl-dot ${miss ? 'is-miss' : ''}`} cx={col} cy={y(v)} r={r} />
+      })}
       {at !== null && <line className="pl-at" x1={x(at)} x2={x(at)} y1={PAD_Y} y2={height - PAD_Y} />}
     </g>
   )

@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react'
-import { numberText } from '../../engine/number.js'
-import { columns, extentOf, frameOf, tips } from './plane.js'
+import { numberError, numberText, withinTolerance } from '../../engine/number.js'
+import { columns, extentOf, finitePoint, frameOf, tips } from './plane.js'
 
 // A grid of two rows as arrows in the plane (games/DESIGN.md 6.9, ./plane.js), over the faint integer grid, in the
 // reading its view names:
@@ -19,10 +19,11 @@ import { columns, extentOf, frameOf, tips } from './plane.js'
 
 export const PlaneExtent = createContext(0)
 
-const missed = (got, want, tolerance) => !want || Math.abs(got[0] - want[0]) > tolerance || Math.abs(got[1] - want[1]) > tolerance
+const missed = (got, want, tolerance) => got.some((v, i) => !withinTolerance(numberError(v, want?.[i]), tolerance))
 
 /** An arrow from `from` to `to`, in screen units; its head scaled to the drawing. */
 function Arrow({ from = [0, 0], to, className, head }) {
+  if (!finitePoint(from) || !finitePoint(to)) return null
   const [x, y] = to
   const len = Math.hypot(x - from[0], y - from[1])
   if (len < 1e-9) return <circle className={`pn-dot ${className}`} cx={x} cy={y} r={head * 0.45} />
@@ -63,9 +64,9 @@ const READINGS = {
   carried: {
     tone: (j) => ['is-i', 'is-j'][j],
     under: ({ got, wanted, reach, step }) => <>
-      {got && <Carried a={got[0]} b={got[1]} reach={reach} step={step} />}
-      {wanted && <path className="pn-want-square" d={square(wanted)} />}
-      {got && <path className={`pn-square ${turned(got) ? 'is-turned' : ''}`} d={square(got)} />}
+      {got?.every(finitePoint) && <Carried a={got[0]} b={got[1]} reach={reach} step={step} />}
+      {wanted?.every(finitePoint) && <path className="pn-want-square" d={square(wanted)} />}
+      {got?.every(finitePoint) && <path className={`pn-square ${turned(got) ? 'is-turned' : ''}`} d={square(got)} />}
     </>,
   },
   chain: { tone: (j) => `is-c${j % 6}`, walked: true },

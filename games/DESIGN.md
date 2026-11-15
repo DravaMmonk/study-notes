@@ -794,6 +794,8 @@ never the puzzle, judging or amount of hints. Content and domains cannot registe
 
 参数台的像素条把一行样本交给 `GridPicture`。它和探针示例共用像素着色，参数台按版面把单行拉满。
 
+图像判分和结果区用每格最大的通道误差来计数、着色和标记。曲线和箭头也共用包含边界的容差判定。非有限值计入误差，曲线在该采样点断开，用失败标记显示位置。
+
 黑箱探针和电路结果区通过 `engine/grid.js` 的 `readCell` 联动读数。选中格的中心按图像相对位置换算到另一张图，返回对应格的坐标和原始值。探针用同一结果画标记和写读数。
 
 - **形状**：`scalar`（一个值，写成字：数、是或否、向量）、`grid`（`{ w, h, c, data }`：矩阵、图像、一行数）、`bits`（每拍一个 0 或 1）、`ticks`（每拍一个值）、`list`（按顺序的几个值）。

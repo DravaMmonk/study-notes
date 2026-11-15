@@ -1,6 +1,9 @@
 // Small floating-point grayscale and RGB images and the test-image library every level draws from.
 // Values are nominally 0 (black) … 1 (white); edge and difference images may go negative.
 
+import { cellError, sameGridShape } from '../../../engine/grid.js'
+import { withinTolerance } from '../../../engine/number.js'
+
 export const SIZE = 16
 
 export function image(w = SIZE, h = SIZE, fill = 0, c = 1) {
@@ -107,7 +110,7 @@ export function maxPool(img, size = 2) {
 // ---------- comparison ----------
 
 export function compare(actual, expected, { tolerance = 0.02, mismatches = 0 } = {}) {
-  if (!actual || actual.w !== expected.w || actual.h !== expected.h || (actual.c ?? 1) !== (expected.c ?? 1)) {
+  if (!sameGridShape(actual, expected)) {
     const reason = actual
       ? { zh: `图像尺寸或通道数不符：应为 ${expected.w}×${expected.h}、${expected.c ?? 1} 通道，实际 ${actual.w}×${actual.h}、${actual.c ?? 1} 通道`, en: `Image size or channel count differs: expected ${expected.w}×${expected.h}, ${expected.c ?? 1} channels; got ${actual.w}×${actual.h}, ${actual.c ?? 1} channels` }
       : { zh: '输出未连接', en: 'Output not connected' }
@@ -115,15 +118,10 @@ export function compare(actual, expected, { tolerance = 0.02, mismatches = 0 } =
   }
   let wrong = 0
   let worst = 0
-  const channels = expected.c ?? 1
   for (let i = 0; i < actual.w * actual.h; i++) {
-    let pixelWrong = false
-    for (let c = 0; c < channels; c++) {
-      const error = Math.abs(actual.data[i * channels + c] - expected.data[i * channels + c])
-      worst = Math.max(worst, Number.isFinite(error) ? error : Infinity)
-      if (!(error <= tolerance)) pixelWrong = true
-    }
-    if (pixelWrong) wrong += 1
+    const error = cellError(actual, expected, i)
+    worst = Math.max(worst, error)
+    if (!withinTolerance(error, tolerance)) wrong += 1
   }
   // The reason is a { zh, en } pair, read in the player's language when shown.
   const unit = expected.w * expected.h === 1 ? null : expected.h === 1 ? ['个采样点', wrong === 1 ? 'sample' : 'samples'] : ['个像素', wrong === 1 ? 'pixel' : 'pixels']

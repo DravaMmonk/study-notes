@@ -1,7 +1,7 @@
 // node --test (npm test) — a number as a player reads it (number.js).
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { finiteExtent, numberText } from './number.js'
+import { finiteExtent, numberError, numberText, withinTolerance } from './number.js'
 
 test('a number is rounded to a few decimals, its float noise and trailing zeros gone, −0 read as 0', () => {
   assert.equal(numberText(0.1 + 0.1 + 0.1), '0.3')
@@ -20,4 +20,13 @@ test('finite bounds handle large typed rows, missing values and invalid numbers'
   values[120] = Infinity
   assert.deepEqual(finiteExtent([values, undefined, [-Infinity, '500', null, 3]]), { lo: -2, hi: 3 })
   assert.equal(finiteExtent([[], [NaN, Infinity, null]]), null)
+})
+
+test('numeric errors include the tolerance boundary and reject non-finite readings', () => {
+  assert.equal(withinTolerance(numberError(0.625, 0.5), 0.125), true)
+  assert.equal(withinTolerance(numberError(0.75, 0.5), 0.125), false)
+  for (const value of [NaN, Infinity, -Infinity, undefined]) {
+    assert.equal(numberError(value, 1), Infinity)
+    assert.equal(withinTolerance(numberError(value, 1), Infinity), false)
+  }
 })
