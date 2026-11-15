@@ -17,7 +17,7 @@ import TestTabs from './TestTabs.jsx'
 import { useEdit } from './edit.js'
 import { PickMark } from './EditMarks.jsx'
 import { usePlayback } from './usePlayback.jsx'
-import { useKeptVerdict } from './useKeptVerdict.js'
+import { checkAction, useCheckOnce } from './useCheckOnce.js'
 import Workbench, { TestStatus } from './Workbench.jsx'
 import { definedFaces, definedParts } from './parts/faces.jsx'
 
@@ -55,7 +55,7 @@ export function useLevelBoard(screen, { open, fresh, clearable }) {
 
 /**
  * How a circuit level runs and is judged: either step by step (`steps`, usePlayback.jsx) or in one go (`judge`,
- * useKeptVerdict.js); either way the last run stands on the board until it changes, and the level opens on it again.
+ * useCheckOnce.js); either way the last run stands on the board until it changes, and the level opens on it again.
  *
  *   tests     [{ label, hidden?, sample? }] the tests shown (a hidden test is listed once the level is solved; a sample,
  *             after the tests, is a larger picture the board also runs on, never judged; judge levels only)
@@ -89,21 +89,17 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
     const v = judge()
     return { ...v, hiddenFailed: v.pass ? hiddenFails() : 0 }
   }
-  const [verdict, setVerdict] = useKeptVerdict({ lastRun: !steps && screen.lastRun, keepRun: steps ? () => {} : screen.keepRun }, () => judged())
+  const { verdict, check, reset } = useCheckOnce(steps ? {} : screen, judged, (v) => {
+    if (v.pass && !v.hiddenFailed) solve(v.score ?? score?.())
+    else if (!v.pass) setAt(Math.max(0, v.results.findIndex((r) => !r.pass)))
+  })
   // A change to what the board computes drops the verdict on it.
   const version = useRef(board.version)
   useEffect(() => {
     if (version.current === board.version) return
     version.current = board.version
-    if (!steps) setVerdict(null)
+    if (!steps) reset()
   }, [board.version])
-  const check = () => {
-    if (guard?.()) return
-    const v = judged()
-    setVerdict(v)
-    if (v.pass && !v.hiddenFailed) solve(v.score ?? score?.())
-    else if (!v.pass) setAt(Math.max(0, v.results.findIndex((r) => !r.pass)))
-  }
   const states = steps ? playback.states : tests.map((t, k) => (verdict && !t.sample ? (verdict.results[k]?.pass ? 'pass' : 'fail') : null))
   const passed = steps ? playback.passed : Boolean(verdict?.pass && !verdict.hiddenFailed)
   const live = Boolean(playback.run && !playback.run.over)
@@ -129,7 +125,7 @@ export function useLevelRun(screen, board, { tests, steps = null, judge = null, 
     hidden: hidden?.count ? { count: hidden.count, failed: failedHidden, note: failedHidden ? missed(failedHidden) : hidden.words.note } : null,
     /** The run bar's buttons, given the big button's labels (RunDock). */
     dock: ({ go, done }) => {
-      if (!steps) return { go: { label: passed ? done : go, pass: passed, onClick: check } }
+      if (!steps) return { go: checkAction(() => { if (!guard?.()) check() }, passed, go, done) }
       const d = playback.dock({ go, done })
       if (!guard) return d
       const guarded = (f) => () => (live || !guard() ? f() : null)

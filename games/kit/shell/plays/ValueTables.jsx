@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Brief, Level } from '../Layout.jsx'
 import RunDock from '../RunDock.jsx'
-import { useKeptVerdict } from '../useKeptVerdict.js'
+import { checkAction, useCheckOnce } from '../useCheckOnce.js'
 import { L, tr } from '../i18n.js'
-import { WORDS } from '../words.js'
 
 /** Compare values row by row, classify an entire table, or try a row to reveal a value. */
 export default function ValueTables({ screen, resource, play }) {
@@ -11,26 +10,18 @@ export default function ValueTables({ screen, resource, play }) {
   const { tables, labels, mode } = resource
   const tf = (value) => L(labels.values[Number(value)])
   const [state, setState] = useState(() => ({ fill: {}, marks: {}, tried: {}, ...saved }))
-  const judge = () => resource.judge(state)
-  const [checked, setChecked] = useKeptVerdict({ lastRun, keepRun }, judge) // { pass, wrong: Set } after a check
+  const { verdict: checked, check, record, reset } = useCheckOnce(
+    { lastRun, keepRun }, () => resource.judge(state), ({ pass }) => { if (pass) solve(null) },
+  )
   const update = (patch) => {
     const next = { ...state, ...patch }
     setState(next)
     save(next)
-    setChecked(null)
+    reset()
   }
   const tryRow = (f, k) => {
     update({ tried: { ...state.tried, [`${f}:${k}`]: true } })
-    if (resource.hit(f, k)) {
-      setChecked({ pass: true, wrong: new Set() })
-      solve(null)
-    }
-  }
-
-  const check = () => {
-    const v = judge()
-    setChecked(v)
-    if (v.pass) solve(null)
+    if (resource.hit(f, k)) record({ pass: true, wrong: new Set() })
   }
 
   const table = (fi, { fill = false } = {}) => {
@@ -85,7 +76,7 @@ export default function ValueTables({ screen, resource, play }) {
   // Trying rows needs no check: each row tried shows its value, and the one asked for passes the level.
   const tried = mode === 'try' && play.checks === 'shown'
   const results = checked ? <p className={`vt-verdict ${checked.pass ? 'is-pass' : 'is-fail'}`} role="status">{L(checked.pass ? resource.accepted : resource.wrong(checked.wrong.size))}</p> : null
-  const dock = !tried && <RunDock go={{ label: checked?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(checked?.pass), onClick: check }} />
+  const dock = !tried && <RunDock go={checkAction(check, Boolean(checked?.pass))} />
   const brief = <Brief game={game} level={entry} hint={entry.source.hint} phone={phone} />
   return <Level phone={phone} className={play.layout} brief={brief} stage={tried ? <>{stage}{results}</> : stage} results={tried ? undefined : results} dock={dock} />
 }

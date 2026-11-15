@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { judgeFor } from '../../engine/plays.js'
 import TreeEditor from '../../strip/TreeEditor.jsx'
-import { useCheckOnce } from '../CheckOnce.jsx'
+import { checkAction, useCheckOnce } from '../useCheckOnce.js'
+import RunDock from '../RunDock.jsx'
+import Verdict from '../Verdict.jsx'
 import { L } from '../i18n.js'
 import { Brief, Level } from '../Layout.jsx'
 import NamedLines from '../NamedLines.jsx'
@@ -27,9 +29,13 @@ export default function Rows({ screen, resource, play }) {
   const { game, level: entry, saved, save, solve, lastRun, keepRun, phone } = screen
   const level = entry.source
   const [work, setWork] = useState(() => resource.initial(saved))
-  const { results, dock, reset } = useCheckOnce({
-    judge: judgeFor(play, resource.judge), work, passed: L(resource.passed), onPass: () => solve(resource.score(work)), lastRun, keepRun,
-  })
+  const judge = judgeFor(play, resource.judge)
+  const { verdict, check, reset } = useCheckOnce({ lastRun, keepRun }, () => {
+    const failure = judge(work)
+    return { pass: !failure, failure }
+  }, ({ pass }) => { if (pass) solve(resource.score(work)) })
+  const results = verdict && <Verdict pass={verdict.pass} failure={verdict.failure}>{L(resource.passed)}</Verdict>
+  const dock = <RunDock go={checkAction(check, Boolean(verdict?.pass))} />
   const change = (next) => {
     setWork(next)
     save(resource.keep(next))

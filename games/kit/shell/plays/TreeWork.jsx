@@ -5,8 +5,7 @@ import { L, tr } from '../i18n.js'
 import { Brief, Level } from '../Layout.jsx'
 import { Markup } from '../Markup.jsx'
 import RunDock from '../RunDock.jsx'
-import { useKeptVerdict } from '../useKeptVerdict.js'
-import { WORDS } from '../words.js'
+import { checkAction, useCheckOnce } from '../useCheckOnce.js'
 
 function TextLines({ lines }) {
   return (
@@ -48,18 +47,12 @@ export default function TreeWork({ screen, resource, play }) {
     const failure = judge(tree)
     return { pass: !failure, failure }
   }
-  const [verdict, setVerdict] = useKeptVerdict({ lastRun, keepRun }, inspect)
+  const { verdict, check, reset } = useCheckOnce({ lastRun, keepRun }, inspect, ({ pass }) => { if (pass) solve(null) })
   const editor = useRef(null)
   const change = (next) => {
     setTree(next)
     save({ tree: next })
-    setVerdict(null)
-  }
-  const check = () => {
-    editor.current?.clearSelection()
-    const result = inspect()
-    setVerdict(result)
-    if (result.pass) solve(null)
+    reset()
   }
   const stage = (
     <div className={play.stage}>
@@ -73,7 +66,10 @@ export default function TreeWork({ screen, resource, play }) {
   const results = verdict?.pass ? <p className="lg-verdict is-pass" role="status">{L(resource.passed)}</p>
     : failure?.lines ? <div className="tree-evidence"><p>{L(failure.why)}</p>{failure.lines.length > 0 && <TextLines lines={failure.lines} />}</div>
       : failure && <p className={resource.goal ? "lg-verdict is-fail" : "lg-error"} role={resource.goal ? "status" : undefined}>{L(failure.why)}</p>
-  const dock = <RunDock go={{ label: verdict?.pass ? L(WORDS.passed) : L(WORDS.check), pass: Boolean(verdict?.pass), onClick: check }} />
+  const dock = <RunDock go={checkAction(() => {
+    editor.current?.clearSelection()
+    check()
+  }, Boolean(verdict?.pass))} />
   const brief = <Brief game={game} level={entry} hint={entry.source.hint} phone={phone} />
   return <Level phone={phone} className={play.layout} brief={brief} stage={stage} results={results} dock={dock} />
 }
