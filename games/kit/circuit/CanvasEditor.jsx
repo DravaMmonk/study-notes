@@ -24,7 +24,7 @@ import Glyph from './Glyph.jsx'
 import { cardPorts, NO_CARD_PORT, portOnCard } from './card-ports.js'
 import { moveInto } from './frames.js'
 import { isOpenRegion, regionAddress, regionsOf } from './regions.js'
-import { canRemoveCard, clearSpot, connect, ends, feeding, inPort, outPort, parsePort, removeNode, removeWire, wireRefusal } from './model.js'
+import { canRemoveCard, clearSpot, connect, ends, feeding, inPort, isPart, outPort, parsePort, removeNode, removeWire, wireRefusal } from './model.js'
 import { keepLocked, leavesLockedRegion, lockedCards, lockedRefusal, PRESET_CARD_REFUSAL } from './presets.js'
 import { useHistory } from './useHistory.js'
 import { usePickedPort } from './usePickedPort.js'
@@ -110,7 +110,6 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   }
   const history = useHistory(graph, onChange, scope)
   const [view, setView] = useState({ x: 0, y: 0, zoom: 1 })
-  // A part can be taken off the board; so can a source the game lets the player place (parts.removable).
   const protectedIds = lockedCards(graph)
   const removable = (node) => canRemoveCard(parts, node, protectedIds)
   const [presentation, setPresentation] = useState(null)
@@ -160,7 +159,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const size = useElementSize(surface)
   const available = size?.width || Infinity
   const widthOf = (node) => node.hiddenBlock ? node.w : cardWidth(parts, node, available)
-  const placed = graph.nodes.filter((n) => parts.role(n) === 'part').length
+  const placed = graph.nodes.filter((n) => isPart(parts, n)).length
   // Frames are drawn first, under the plain cards: a frame's backdrop sits below the wires (so those inside it show),
   // so a card drawn before a frame would have the frame's contents over it and its backdrop under it.
   const layered = (nodes) => [...nodes.filter((n) => regionsOf(parts, n).length), ...nodes.filter((n) => !regionsOf(parts, n).length)]
@@ -340,7 +339,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
     if (!selected) return
     if (selectionRefusal) setRefused(selectionRefusal)
     else if (selectedWire) onChange(removeWire(graph, selectedWire))
-    else if (selected.node && removable(byId.get(selected.node))) onChange(removeNode(graph, selected.node))
+    else if (selected.node && removable(byId.get(selected.node))) onChange(removeNode(graph, parts, selected.node))
     setSelected(null)
   }
   // Delete or Backspace removes the selection; Escape drops it. ⌘/Ctrl-Z undoes, ⇧⌘/Ctrl-Z or Ctrl-Y redoes, unless
@@ -494,7 +493,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   // The region under a dragged card's pointer (not one of its own), or null for the board: anywhere inside its outline
   // counts, its head too, not just the field its cards sit on. Its field is returned, where the card's place counts from.
   const fieldAt = g => containerUnderPointer(layer.current,g,'.frame-region')?.querySelector(':scope > .frame-field') ?? null
-  const blockAt = g => parts.role(byId.get(g.id)??{})==='part'&&!fieldAt(g)
+  const blockAt = g => isPart(parts, byId.get(g.id))&&!fieldAt(g)
     ? containerUnderPointer(layer.current,g,'.circuit-block')?.dataset.block??null : null
   // A card dropped lands where it was let go: in the region under the pointer, or on the board. The board has no edge,
   // so a card goes as far up or left as it is taken; a region's cards stay inside its field, which starts at 0.
@@ -602,7 +601,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
           <div className="node-actions">
             {head?.(node)}
             {removable(node) && (
-              <button className="node-delete" aria-label={tr('删除元件')} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange(removeNode(graph, node.id))}>
+              <button className="node-delete" aria-label={tr('删除元件')} onPointerDown={(e) => e.stopPropagation()} onClick={() => onChange(removeNode(graph, parts, node.id))}>
                 <X size={12} />
               </button>
             )}

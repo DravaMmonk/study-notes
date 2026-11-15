@@ -6,7 +6,7 @@ import { movePhonePart } from './blocks.js'
 import { flowBoard, primitivesOnly } from '../engine/board-cards.js'
 import { frameTree, regionsFit } from './regions.js'
 import { keepLocked, lockedCards, presetOf, withPreset } from './presets.js'
-import { clearSpot, placement, removeNode, wireRefusal } from './model.js'
+import { boardFits, clearSpot, placement, removeNode, wireRefusal } from './model.js'
 import { traySize } from './card-size.js'
 
 // A box `f` with one region that opens a value, and a card `m` inside it; `p` and `g` on the board.
@@ -48,9 +48,20 @@ test('moving a card out of its box drops the wires it can no longer keep', () =>
 })
 
 test('taking a box off takes what is inside it too', () => {
-  const left = removeNode(board, 'f')
+  const left = removeNode(board, parts, 'f')
   assert.deepEqual(left.nodes.map((n) => n.id), ['p', 'g'])
   assert.deepEqual(left.wires, [])
+})
+
+test('inputs and outputs cannot move into a frame or reopen inside one', () => {
+  const graph = { nodes: [{ id: 'p', type: 'in' }, { id: 'g', type: 'out' }, { id: 'f', type: 'box' }], wires: [] }
+  const wiring = { ...parts, role: (n) => n.type === 'out' ? 'sink' : parts.role(n) }
+  for (const id of ['p', 'g']) {
+    assert.equal(moveInto(graph, wiring, id, 'f/body', 10, 10), graph)
+    const invalid = { ...graph, nodes: graph.nodes.map((n) => n.id === id ? { ...n, in: 'f/body' } : n) }
+    assert.equal(boardFits(invalid, wiring, () => true), false)
+  }
+  assert.equal(boardFits(graph, wiring, () => true), true)
 })
 
 test('on a phone a box takes the rows of its regions, each a grid of its own between a head row and a foot row', () => {
@@ -194,9 +205,9 @@ test('presets retain both enclosing frames of a locked card or wire end', () => 
     wires: answer.wires.map((w) => ({ ...w, locked: true })),
   }]) {
     assert.deepEqual([...lockedCards(graph)].sort(), ['inner', 'outer', 'x'])
-    assert.equal(removeNode(graph, 'outer'), graph)
-    assert.equal(removeNode(graph, 'inner'), graph)
-    assert.equal(removeNode(graph, 'x'), graph)
+    assert.equal(removeNode(graph, parts, 'outer'), graph)
+    assert.equal(removeNode(graph, parts, 'inner'), graph)
+    assert.equal(removeNode(graph, parts, 'x'), graph)
     assert.equal(moveInto(graph, parts, 'inner', null, 10, 10), graph)
     const repositioned = moveInto(graph, parts, 'inner', 'outer/body', 25, 10)
     assert.equal(repositioned.nodes.find((node) => node.id === 'inner').x, 25)
@@ -204,5 +215,5 @@ test('presets retain both enclosing frames of a locked card or wire end', () => 
     assert.ok(regionsFit(replaced, parts))
     assert.equal(replaced.wires.length, 1)
   }
-  assert.deepEqual(removeNode(answer, 'outer').nodes.map(({ id }) => id), ['free'])
+  assert.deepEqual(removeNode(answer, parts, 'outer').nodes.map(({ id }) => id), ['free'])
 })

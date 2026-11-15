@@ -61,12 +61,20 @@ export function frameTree(nodes) {
   return { node: (id) => byId.get(id), ancestors, included, withParents }
 }
 
+/** The level's inputs and outputs stay on the main board. */
+export function terminalRegionProblem(parts, node, region) {
+  if (region == null || parts.role(node) === 'part') return null
+  return { id: node.id, zh: `「${node.id}」是关卡的输入或输出，必须留在主板上。`, en: `“${node.id}” is an input or output of the level and must stay on the main board.` }
+}
+
 /** Why a card's region cannot be used, by card id, with one diagnostic per affected card. */
 export function regionProblems(graph, parts) {
   if (graph.nodes.every((node) => node.in == null)) return []
   const tree = frameTree(graph.nodes)
   return graph.nodes.flatMap((node) => {
     if (node.in == null) return []
+    const terminal = terminalRegionProblem(parts, node, node.in)
+    if (terminal) return [terminal]
     const [id, name] = splitRegion(node.in)
     if (id === null) return [{ id: node.id, zh: '区域地址无效。', en: 'Invalid frame region address.' }]
     if (!regionsOf(parts, tree.node(id)).some((region) => region.name === name)) {

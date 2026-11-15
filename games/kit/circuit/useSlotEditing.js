@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
 import { NO_CARD_PORT, portOnCard } from './card-ports.js'
-import { byId, canRemoveCard, connect, ends, feeding, fitsSlotEdit, layout, parsePort, placement, removeNode, wireRefusal } from './model.js'
+import { byId, canRemoveCard, connect, ends, feeding, fitsSlotEdit, isPart, layout, parsePort, placement, removeNode, wireRefusal } from './model.js'
 import { keepLocked, leavesLockedRegion, lockedCards, lockedRefusal, PRESET_CARD_REFUSAL } from './presets.js'
 import { drawWires } from './SlotBoard.jsx'
 import { blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
@@ -65,7 +65,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
   // A part's name with its number on board `g` (the board as it is, or as it is about to be).
   const nameIn = (g, node, order = g === graph ? ordered : orderOf(g)) => {
     if (!node) return ''
-    if (parts.role(node) !== 'part') return L(label(node))
+    if (!isPart(parts, node)) return L(label(node))
     const index = order.indexOf(node.id)
     return `${NUMBERS[index] ?? `#${index + 1}`} ${L(label(node))}`
   }
@@ -159,7 +159,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     if (moving) {
       const node = byId(graph, id)
       const slot = placement(graph, parts, node.in ?? null).cell.get(id)
-      if (id === moving || parts.role(node) !== 'part' || slot === undefined) return setMoving(null)
+      if (id === moving || !isPart(parts, node) || slot === undefined) return setMoving(null)
       return movePart(moving, slot, node.in ?? null)
     }
     if (picking) {
@@ -191,21 +191,16 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
   const placeMade = (made, at, region) => {
     const { id } = made
     const next = graph.blocks === undefined ? made.graph : transferBlockMembers(made.graph,parts,[{id,block:blockAtSlot(graph,parts,at,region)}])
-    // An input part goes up with the inputs, not into a slot.
     const name = nameIn(next, byId(next, id))
-    const note = parts.role(byId(next, id) ?? {}) === 'source'
-      ? { zh: `放下了「${name}」，在最上面的输入区 · 从圆点拉线接上`, en: `Placed "${name}" with the inputs at the top · wire it up from the dots` }
-      : { zh: `放下了「${name}」 · 从圆点拉线接上`, en: `Placed "${name}" · wire it up from the dots` }
     buzz()
-    edit(next, note)
+    edit(next, { zh: `放下了「${name}」 · 从圆点拉线接上`, en: `Placed "${name}" · wire it up from the dots` })
   }
   const partAt = (type, slot, region) => {
     const before = placement(graph, parts, region)
     if (!before.free.includes(slot)) return null
     const candidate = create(graph, type, slot, region)
     const node = byId(candidate.graph, candidate.id)
-    if (!node || (node.in ?? null) !== region || !regionsFit(candidate.graph, parts)) return null
-    if (parts.role(node) !== 'part') return region === null ? candidate : null
+    if (!isPart(parts, node) || (node.in ?? null) !== region || !regionsFit(candidate.graph, parts)) return null
     const slots = new Map(before.cell).set(node.id, slot)
     return fitsSlotEdit(placement(candidate.graph, parts, region), slots) ? candidate : null
   }
@@ -243,7 +238,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     if (!canRemove(node)) return
     buzz([6, 40, 6])
     setMoving(null)
-    edit(removeNode(graph, id), { zh: `删除了「${nameOf(node)}」`, en: `Deleted "${nameOf(node)}"` })
+    edit(removeNode(graph, parts, id), { zh: `删除了「${nameOf(node)}」`, en: `Deleted "${nameOf(node)}"` })
   }
 
   // Drag and drop on the board, the tray and the dots, through the kit's drag.js. Handlers read the latest state

@@ -13,7 +13,7 @@ import Palette from '../circuit/Palette.jsx'
 import PartActions from '../circuit/PartActions.jsx'
 import SlotBoard from '../circuit/SlotBoard.jsx'
 import Tray from '../circuit/Tray.jsx'
-import { editNodeSettings, spotIn } from '../circuit/model.js'
+import { canRemoveCard, editNodeSettings, isPart, spotIn } from '../circuit/model.js'
 import { isOpenRegion } from '../circuit/regions.js'
 import { lockedCards } from '../circuit/presets.js'
 import { useSlotEditing } from '../circuit/useSlotEditing.js'
@@ -229,7 +229,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const active = step?.path?.[0] ?? step?.id
   const blockView = { items: blockItems.map((b) => b.view === 'hidden' && b.nodes.includes(active) ? { ...b, view: b.lastView ?? 'ports' } : b), active,
     initial: stored.blocks === undefined,
-    unplaced: stored.nodes.filter(n=>!n.in&&parts.role(n)==='part'&&!Number.isInteger(n.slot)).map(n=>n.id),
+    unplaced: stored.nodes.filter(n=>!n.in&&isPart(parts,n)&&!Number.isInteger(n.slot)).map(n=>n.id),
     ...blockActions(circuit, parts, change),
   }
 
@@ -247,7 +247,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   const into = isOpenRegion(circuit, parts, target) ? target : null
   const add = (type) => change(withNewSlots(make(circuit, type, { region: into }).graph, parts))
   const protectedIds = lockedCards(circuit)
-  const onClear = circuit.nodes.some((n) => parts.role(n) === 'part' && !protectedIds.has(n.id)) || board.clearable?.(circuit) ? board.clear : null
+  const onClear = circuit.nodes.some((n) => canRemoveCard(parts, n, protectedIds)) || board.clearable?.(circuit) ? board.clear : null
 
   const briefEl = <Brief game={game} level={level} text={brief.text} tip={brief.tip} hint={brief.hint}>{brief.children}</Brief>
   const dock = pad ?? <RunDock meta={meta} {...run.dock(words ?? { go: L(WORDS.run), done: L(WORDS.passed) })} />
