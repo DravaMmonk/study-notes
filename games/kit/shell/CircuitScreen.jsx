@@ -6,7 +6,7 @@ import { Dock } from './BoardControls.jsx'
 import InteractiveDrawing from './InteractiveDrawing.jsx'
 import TracePanel from './TracePanel.jsx'
 import { stagesOf } from '../engine/stages.js'
-import { ArrowRightFromLine, CircuitBoard } from 'lucide-react'
+import { CircuitBoard } from 'lucide-react'
 import { MISSING } from '../engine/circuit.js'
 import { traceSteps, viewAt } from '../engine/trace.js'
 import { outputsOf, srcOf } from '../circuit/model.js'
@@ -24,7 +24,8 @@ import { PlaneExtent } from '../views/plots/Plane.jsx'
 import { extentOf } from '../views/plots/plane.js'
 import { L, T, tr } from './i18n.js'
 import { WORDS } from './words.js'
-import { openRef } from './refs.js'
+import { partsFor, packedView } from '../circuit/board-parts.js'
+import { lookupBoard } from '../circuit/packed-boards.js'
 import { definedItem } from './parts/faces.jsx'
 import { optionsOf } from '../engine/parts/define.js'
 import { useEdit } from './edit.js'
@@ -90,8 +91,6 @@ import './training.css'
 const reportedFailure = (run) => run.error ?? (run.final ? null : failureText(run.fail))
 const finalFailure = (run) => run.fail?.at?.tick === undefined ? reportedFailure(run) : run.error
 
-const labelOf = (list, name) => list?.find((x) => x.name === name)?.label ?? name
-
 /** A number typed on a card: a keypad on a phone (NumberField). */
 function CardNumber({ label, value, onChange }) {
   const phone = useMedia(PHONE)
@@ -122,22 +121,6 @@ function Value({ value, error, show, of, views }) {
   return <Show value={value} scene="card" text={show} of={of} views={views} />
 }
 
-/** The editor's description of a task's cards (../circuit/model.js): the board's wiring, drawn. */
-export function partsFor(level, circuit, { cards, portLabels }) {
-  const { board, BUILT, builtBy, pieces } = circuit
-  const wiring = board.wiring(level, circuit)
-  // A fixed card the domain does not draw its own way: a source on the left, a sink on the right.
-  const given = (node) => board.isFixed(node.type) && !cards[node.type]
-  return {
-    ...wiring,
-    label: (node) => (board.isFixed(node.type) ? board.labelOf(level, node.id) : BUILT[node.type] ? pieces[node.type].name : cards[node.type]?.name ?? node.type),
-    portLabel: (node, port) => (BUILT[node.type] ? labelOf(board.portsIn(builtBy(node.type, node.params)), port) : portLabels[node.type]?.[port] ?? wiring.portLabel?.(node, port) ?? ''),
-    family: (node) => (BUILT[node.type] ? 'built' : given(node) ? (wiring.role(node) === 'sink' ? 'end' : 'given') : cards[node.type]?.family),
-    icon: (node) => (BUILT[node.type] ? CircuitBoard : given(node) ? ArrowRightFromLine : cards[node.type]?.icon),
-    valueView: wiring.valueView ?? (() => level.views?.grid?.[0] ?? 'value'),
-  }
-}
-
 /** The run of a board that has not run: nothing on any card. */
 const noWorld = () => null
 const NOTHING = { values: new Map(), errors: new Map(), outputs: {}, trace: [] }
@@ -148,7 +131,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const circuit = course.forTask(level)
   // The parts defined as data a task holds: its view's, where its course registers some per task, else the game's.
   const defined = circuit.defined ?? gameDefined
-  const { board: kind, BUILT, builtBy, pieces } = circuit
+  const { board: kind, BUILT, pieces } = circuit
   // A task that gives works (things made, each wrong in its own way) is played from the other side: the board shows
   // the work a tab picks and is not the player's, and the player writes the checks in the results (Checks.jsx).
   const works = level.works ?? null
@@ -158,6 +141,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const timed = ticked && !works
   circuit.syncOwn(progress.built, progress)
   const parts = useMemo(() => partsFor(level, circuit, { cards, portLabels }), [level, circuit, cards, portLabels])
+  const packed = useMemo(() => packedView(course, { cards, portLabels }), [course, cards, portLabels])
   const { shown: palette, folded } = useMemo(() => circuit.offerIn(level, flags), [circuit, level, flags])
   const held = useMemo(() => new Set([...palette, ...folded]), [palette, folded])
   const hold = (b) => (ready ? ready(b, held, level) : b)
@@ -382,20 +366,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const logged = log && !timed && !whole && run.run && runOf?.trace
   const named = useMemo(() => {
     if (!logged) return []
-    const boards = new Map()
-    const boardAt = (path) => {
-      const key = path.join('/')
-      if (!boards.has(key)) {
-        let at = { circuit: drawn, level, parts }
-        for (const id of path) {
-          const node = at?.circuit.nodes.find((n) => n.id === id)
-          const inside = node && course.forTask(at.level).BUILT[node.type]?.opens?.(node.params)
-          at = inside ? { ...inside, parts: partsFor(inside.level, course.forTask(inside.level), { cards, portLabels }) } : null
-        }
-        boards.set(key, at)
-      }
-      return boards.get(key)
-    }
+    const boardAt = lookupBoard({ circuit: drawn, level, parts }, packed.open)
     return traceSteps(runOf.trace, {
       nameAt: (path, id) => {
         const at = boardAt(path)
@@ -404,7 +375,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
       },
       partName: (type) => cards[type]?.name ?? type,
     })
-  }, [logged, runOf, drawn, level, parts, course, cards, portLabels])
+  }, [logged, runOf, drawn, level, parts, packed, cards])
   const stepLog = logged && <StepLog steps={named.slice(0, shown.list.length).map((s) => ({ label: s.label, value: s.value === undefined ? null : <Show value={s.value} scene="card" text={show} />, failed: s.failed }))} at={shown.at} />
   const results = works
     ? caughtAt < 0 ? written : <>{written}<Results rows={rows} text={show} verdict={[]} at={-1} count={test.ticks} marks={runOf.fail?.at?.tick !== undefined ? [runOf.fail.at.tick] : []} /></>
@@ -478,14 +449,8 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
           sheet={sheet ? (node, ctx) => sheet(node, ctx, (key) => (v) => !ctx.readOnly && setParam(node, key, v)) : timed ? tickDetail : undefined}
           details={details || (!sheet && Boolean(timed))}
           packed={{
-            open: (node) => {
-              const inside = BUILT[node.type]?.opens?.(node.params)
-              return inside && { ...inside, parts: partsFor(inside.level, course.forTask(inside.level), { cards, portLabels }) }
-            },
-            edit: (node) => {
-              const builder = builtBy(node.type, node.params)
-              openRef('level', builder.id, builder.task)
-            },
+            open: packed.open,
+            edit: packed.edit,
             trace: () => (timed ? (surface?.trace || tick?.trace ? { trace: surface?.trace ?? tick.trace } : null) : whole ? { trace: givenTrace ?? runOf.trace } : { trace: runOf.trace, ...(run.run && shown.at >= 0 ? { upTo: shown.at, step: runOf.trace[shown.at] } : {}) }),
           }}
         />

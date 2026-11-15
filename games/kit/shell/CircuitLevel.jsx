@@ -200,7 +200,7 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
     return text ? <p className="cl-desc">{String(L(text))}</p> : null
   }
   // Packed parts: what each one runs, and what every card inside it gives at the step shown.
-  const top = { circuit, parts, top: true }
+  const top = { circuit, parts, level: level.source, top: true }
   // The boards inside packed parts hold defined parts too.
   const opened = packed && defined ? { ...packed, open: (node, at) => { const r = packed.open(node, at); return r && { ...r, parts: definedParts(r.parts, defined.of, defined.ops) } } } : packed
   const inside = packed ? insideOf({ top, ...opened, card, describe: describeOf, sheet: detailOf }) : null

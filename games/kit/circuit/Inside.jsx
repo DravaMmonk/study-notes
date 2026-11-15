@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Info, Pencil } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import Sheet from '../shell/Sheet.jsx'
+import { lookupBoard } from './packed-boards.js'
 import { portNotes } from './card-ports.js'
 import Schematic from './Schematic.jsx'
 import { insideAt } from '../engine/trace.js'
@@ -31,19 +32,10 @@ const nothing = { values: new Map(), errors: new Map(), lit: null }
  * `view` ({ values, errors, lit }) or null, is(node, board), edit, … }.
  */
 export function insideOf({ top, open, edit, trace, card, describe = () => null, sheet = () => null }) {
-  const boards = new Map([['', top]])
-  const boardAt = (path) => {
-    const key = path.join('/')
-    if (!boards.has(key)) {
-      const outer = boardAt(path.slice(0, -1))
-      const node = outer?.circuit.nodes.find((n) => n.id === path.at(-1))
-      boards.set(key, node ? open(node, outer) : null)
-    }
-    return boards.get(key)
-  }
+  const boardAt = lookupBoard(top, open)
   let traced
   const traceOf = () => (traced === undefined ? (traced = trace?.() ?? null) : traced)
-  const is = (node, at) => Boolean(open(node, at))
+  const is = (node, at) => Boolean(node && open(node, at))
   return {
     at: (path) => {
       const at = boardAt(path)
