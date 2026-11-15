@@ -561,17 +561,26 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 
 /* ---- the side panel (Inspector.jsx): the field picked, its control ---- */
 .insp { min-height: 100%; display: grid; grid-template-rows: auto auto minmax(0, 1fr); align-content: start; }
-.insp.is-empty { place-items: center; padding: 24px 18px; color: var(--muted); text-align: center; }
+.insp-empty-note { display: grid; place-items: center; padding: 24px 18px; color: var(--muted); text-align: center; }
 .insp.is-empty p { display: grid; justify-items: center; gap: 8px; margin: 0; max-width: 24em; line-height: 1.5; }
-.insp-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-bottom: 1px solid var(--hairline); background: var(--paper); }
+.insp-bar { position: sticky; top: 0; z-index: 2; min-width: 0; background: var(--paper); }
+.insp-tabs { position: relative; display: flex; align-items: center; gap: 4px; padding: 5px 8px; overflow-x: auto; border-bottom: 1px solid var(--hairline); }
+.insp-tab { flex: none; display: flex; align-items: center; max-width: min(220px, 100%); border: 1px solid var(--hairline); border-radius: 5px; color: var(--muted); }
+.insp-tab.is-on { color: var(--ink); background: var(--hover); border-color: var(--accent); }
+.insp-tab-label, .insp-tab-close { border: 0; color: inherit; background: none; cursor: pointer; }
+.insp-tab-label { min-width: 0; padding: 3px 5px 3px 7px; overflow: hidden; font: 600 var(--fs-mini)/1.25 var(--mono); white-space: nowrap; text-overflow: ellipsis; }
+.insp-tab-close { flex: none; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 4px; }
+.insp-tab-label:hover, .insp-tab-close:hover { color: var(--ink); background: var(--hover); }
+.insp-head { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-bottom: 1px solid var(--hairline); }
 .insp-path { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0 2px; }
 .insp-step { display: inline-flex; align-items: center; color: var(--faint); }
 .insp-crumb { padding: 2px 4px; border: 0; border-radius: 4px; color: var(--accent-ink); background: none; font: 600 11.5px/1.2 var(--mono); cursor: pointer; }
 .insp-crumb:hover:not(:disabled) { background: var(--hover); }
 .insp-crumb:disabled { color: var(--ink); cursor: default; }
-.insp-source, .insp-delete { width: 22px; height: 22px; flex: none; display: grid; place-items: center; border: 0; border-radius: 4px; color: var(--muted); background: none; cursor: pointer; }
-.insp-source:hover { color: var(--ink); background: var(--hover); }
-.insp-source[aria-pressed="true"] { color: var(--accent-ink); background: var(--hover); }
+.insp-pin, .insp-source, .insp-delete { width: 22px; height: 22px; flex: none; display: grid; place-items: center; border: 0; border-radius: 4px; color: var(--muted); background: none; cursor: pointer; }
+.insp-pin:hover:not(:disabled), .insp-source:hover { color: var(--ink); background: var(--hover); }
+.insp-pin[aria-pressed="true"], .insp-source[aria-pressed="true"] { color: var(--accent-ink); background: var(--hover); }
+.insp-pin:disabled { opacity: .35; cursor: default; }
 .insp-delete { color: var(--fail); }
 .insp-delete:hover:not(:disabled) { background: var(--hover); }
 .insp-delete:disabled { opacity: .35; cursor: default; }
