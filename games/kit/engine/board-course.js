@@ -34,7 +34,6 @@ import { taskLevels } from './tasks.js'
 import { trayIn } from './trays.js'
 import { defineCourse, eraLevels, holds as holding, layout, offer, readItem } from '../course.js'
 import { T as t } from '../shell/i18n.js'
-import { partRegions, regionsFit } from '../circuit/regions.js'
 
 export function circuitCourse(content, { board, parts, read: readOwn = (task) => task, test: readTest = (t) => t, kinds = {}, holds = false, unwanted = () => [] }) {
   const { eras, trays, primitives, levels, concept = {}, replaces = {} } = content
@@ -70,7 +69,8 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     const variants = readForms.get(type)
     return (variants?.get(params?.form) ?? variants?.values().next().value)?.task ?? readBuilders.get(type) ?? null
   }
-  const partOf = (type) => board.FIXED_PARTS[type] ?? parts[type] ?? BUILT[type]
+  const primitive = (type) => board.isFixed(type) ? board.FIXED_PARTS[type] : Object.hasOwn(parts, type) ? parts[type] : undefined
+  const partOf = (type) => primitive(type) ?? (Object.hasOwn(BUILT, type) ? BUILT[type] : undefined)
   const blueprints = []
   const played = new Map()
   // The built pieces, and what each task publishes: the pieces whose inside refers to it.
@@ -143,13 +143,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       if (publishes.length && !isBoard(last)) say(where, `pieces.json's ${publishes.map((p) => p.type).join(', ')} runs it, and it is no board`)
       if (!publishes.length || !isBoard(last)) return last
       // A later task in this level can call the board published by this task.
-      const fitting = new WeakMap()
-      const running = () => {
-        const b = own.get(task.taskId)
-        if (!b) return last.solution
-        if (!fitting.has(b)) fitting.set(b, board.fits(b, last, partOf))
-        return fitting.get(b) ? b : last.solution
-      }
+      const running = () => own.get(task.taskId) ?? last.solution
       for (const { type, form } of publishes) {
         const part = packed({
           circuit: running,
@@ -246,15 +240,18 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       refresh(built, task)
       // A part the task withholds is no part on its boards: written in their text, it is refused like an unknown one.
       const withheld = new Set(course.withholds({ id: task.id, task: task.task }))
-      const partOf = (type) => board.FIXED_PARTS[type] ?? (withheld.has(type) ? undefined : parts[type] ?? built[type])
+      const partOf = (type) => {
+        if (!board.isFixed(type) && withheld.has(type)) return undefined
+        return primitive(type) ?? (Object.hasOwn(built, type) ? built[type] : undefined)
+      }
       scopes.set(task.taskId, { task, view: { ...result, BUILT: built, partOf, builtBy: (type, params) => builderFor(type, params, task) } })
     }
     return scopes.get(task.taskId).view
   }
-  const regionParts = { frames: partRegions(partOf) }
+  const fits = (saved, task) => Boolean(task && board.fits(saved, task, forTask(task)))
   const passedBoard = (task, built) => {
     const saved = built[task?.taskId]
-    return saved?.nodes && regionsFit(saved, regionParts) ? saved : task?.solution
+    return fits(saved, task) ? saved : task?.solution
   }
   const result = {
     LEVELS,
@@ -282,15 +279,15 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     // reference), or its fixed cards alone.
     opening: (task, built = {}, previous = null) => {
       const from = task.carry ? played.get(task.carry)?.at(-1) : task.carries ? played.get(task.id)?.[task.task - 1] : null
-      const b = previous?.nodes && regionsFit(previous, regionParts) ? previous : passedBoard(from, built)
+      const b = fits(previous, from) ? previous : passedBoard(from, built)
       if (!b) return board.startBoard(task)
-      const carried = board.carriedOnto(task, b)
+      const carried = board.carriedOnto(task, b, forTask(task))
       const ids = new Set(carried.nodes.map((n) => n.id))
       const added = task.starter?.nodes.filter((n) => !board.isFixed(n.type) && !ids.has(n.id)) ?? []
       const addedIds = new Set(added.map((n) => n.id))
       const wires = task.starter?.wires.filter((w) => addedIds.has(w.to)) ?? []
       const opening = { ...carried, nodes: [...carried.nodes, ...added], wires: [...carried.wires, ...wires] }
-      return regionsFit(opening, regionParts) ? opening : board.startBoard(task)
+      return fits(opening, task) ? opening : board.startBoard(task)
     },
     // The passed boards that led to this task, oldest first. Missing boards contribute no ownership.
     stageChain: (task, built = {}) => {
@@ -321,7 +318,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       own.clear()
       for (const { task } of revisions) {
         const b = built[task.taskId]
-        if (b?.nodes && board.fits(b, task, partOf)) own.set(task.taskId, b)
+        if (fits(b, task)) own.set(task.taskId, b)
       }
       refresh(BUILT)
       for (const { task, view } of scopes.values()) refresh(view.BUILT, task)

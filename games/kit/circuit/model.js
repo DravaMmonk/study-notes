@@ -161,6 +161,31 @@ export function wireRefusal(graph, parts, wire) {
   return scope ?? parts.refuse?.(graph, from, to, port) ?? null
 }
 
+/** The stored shape of a board, before using game-specific card and port descriptions. */
+export function isCircuitBoard(board) {
+  if (!Array.isArray(board?.nodes) || !Array.isArray(board.wires)) return false
+  const ids = new Set()
+  for (const node of board.nodes) {
+    if (typeof node?.id !== 'string' || !node.id || typeof node.type !== 'string' || !node.type || ids.has(node.id)) return false
+    ids.add(node.id)
+  }
+  return board.wires.every((wire) => typeof wire?.from === 'string' && typeof wire.to === 'string' && typeof wire.port === 'string')
+}
+
+/** A saved editable board, checked against the same rules as a series of new wires. */
+export function boardFits(board, parts, knows) {
+  if (!isCircuitBoard(board) || !board.nodes.every((node) => knows(node.type)) || !regionsFit(board, parts)) return false
+  const wired = new Set()
+  const soFar = { ...board, wires: [] }
+  for (const wire of board.wires) {
+    const input = inPort(wire.to, wire.port)
+    if (wired.has(input) || wireRefusal(soFar, parts, wire)) return false
+    wired.add(input)
+    soFar.wires.push(wire)
+  }
+  return true
+}
+
 /** Nodes in data-flow order (each after everything it reads); nodes caught in a loop come last. */
 export function order(graph) {
   const ins = new Map(graph.nodes.map((n) => [n.id, 0]))

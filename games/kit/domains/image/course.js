@@ -147,11 +147,12 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
   // A built piece runs the player's own passing circuit once solved, from the board played on the task it refers to
   // or, when that one has not passed, from one of the task's other saved boards (shell/slots.js).
   const syncOwn = (progress) => {
-    for (const { id, taskId: key } of builders.values()) {
+    for (const task of builders.values()) {
+      const { id, taskId: key } = task
       const data = progress.solved.includes(id) ? progress.data[key] : null
       const waiting = progress.slots?.[key]?.list.find((slot) => slot.data?.passed)?.data
       const circuit = progress.built?.[key] ?? data?.passed ?? waiting?.passed ?? data
-      if (circuit?.nodes) own.set(key, circuit)
+      if (kit.fits(circuit, task)) own.set(key, circuit)
       else own.delete(key)
     }
   }

@@ -72,8 +72,8 @@ export const isGiven = type => isCard(type) || type === 'port' || type === 'tap'
  */
 export function partsOf(built) {
   const def = type => {
-    if (PRIMITIVES[type]) return PRIMITIVES[type];
-    const b = built[type];
+    if (Object.hasOwn(PRIMITIVES, type)) return PRIMITIVES[type];
+    const b = Object.hasOwn(built, type) ? built[type] : null;
     return b ? { name: b.name, tag: T('零件', 'part'), ins: b.ins, labels: b.labels, desc: b.desc, built: true, out: b.outType, params: b.setting !== undefined ? ['value'] : [] } : null;
   };
   const hasValue = type => type === 'const' || built[type]?.setting !== undefined;

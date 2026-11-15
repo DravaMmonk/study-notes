@@ -20,7 +20,11 @@ export function boardView({ board, parts, built = () => ({}), builder = () => nu
     BUILT: built(task),
     pieces: built(task),
     builtBy: builtBy(task),
-    partOf: (type) => board.FIXED_PARTS[type] ?? parts(task)[type],
+    partOf: (type) => {
+      if (Object.hasOwn(board.FIXED_PARTS, type)) return board.FIXED_PARTS[type]
+      const available = parts(task)
+      return Object.hasOwn(available, type) ? available[type] : undefined
+    },
     syncOwn,
     offerIn,
     holdsIn,

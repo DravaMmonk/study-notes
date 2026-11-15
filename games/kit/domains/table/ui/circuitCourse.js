@@ -3,7 +3,7 @@ import { blank, fitted, picksOf } from '../model/board.js'
 import { CARDS, isGiven, modelsOf } from '../model/parts.js'
 import { WORLDS } from '../model/worlds.js'
 import { outputsOf, toGraph } from './board.js'
-import { wiring } from '../model/wiring.js'
+import { restoreRobotBoard, wiring } from '../model/wiring.js'
 
 export function termsOf(task) {
   const world = WORLDS[task.world]
@@ -36,7 +36,7 @@ export function robotCircuits(table) {
   const board = {
     ticks: true,
     isFixed: isGiven,
-    fits: (saved) => Array.isArray(saved.nodes) && Array.isArray(saved.wires),
+    fits: (saved, task) => Boolean(restoreRobotBoard(model, task, saved)),
     portsIn: (task) => task.ports.filter((port) => port.input).map((port) => ({ name: port.input, label: port.label })),
     portsOut: (task) => WORLDS[task.world].outs.map(([name, label]) => ({ name, label })),
     wiring: (task) => {
@@ -63,7 +63,7 @@ export function robotCircuits(table) {
           const usable = table.usableIn(task, flags)
           return { shown: shelf(shown.filter((type) => usable.has(type))), folded: shelf(folded.filter((type) => usable.has(type))) }
         },
-        opening: (_, _built, kept, progress) => toGraph(fitted(kept ?? table.opening(task, progress), task.given)),
+        opening: (_, _built, kept, progress) => toGraph(restoreRobotBoard(model, task, kept) ?? table.opening(task, progress)),
         stageChain: () => [],
       })
       return views.get(task)

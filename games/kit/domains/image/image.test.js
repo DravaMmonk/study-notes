@@ -86,6 +86,9 @@ test('a packed part runs the circuit the player passed its level with, in its ow
   // Another read of the same content keeps circuits of its own: the first read's is not its part.
   assert.deepEqual(runOf(imageCourse(content))(), reference)
   assert.notDeepEqual(run(), reference)
+  const dangling = fromText(['out <- in'])
+  image.syncOwn(passed({ ...dangling, wires: [{ from: 'missing', to: 'out', port: 'in' }] }))
+  assert.deepEqual(run(), reference)
   image.syncOwn(passed(image.levelById.wide.tasks[0].solution))
   assert.deepEqual(run(), reference)
 })

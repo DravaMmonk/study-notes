@@ -6,6 +6,8 @@
 // (offers: what each card may read on this task, { view: [sensor], facts: [sensor] }).
 
 import { printLines, readLines } from '../../../circuit/text.js';
+import { boardFits, isCircuitBoard } from '../../../circuit/model.js';
+import { WORLDS } from './worlds.js';
 import { isCard, isGiven, PRIMITIVES } from './parts.js';
 import { blank, fitted, picksOf } from './board.js';
 
@@ -44,6 +46,15 @@ export function wiring(model, u) {
       return why ? { zh: why, en: why } : null;
     },
   };
+}
+
+/** Assign the task's sensor cards before validating the circuit that will actually run. */
+export function restoreRobotBoard(model, task, saved) {
+  if (!isCircuitBoard(saved)) return null;
+  const world = WORLDS[task.world];
+  const board = fitted(saved, task.given);
+  return boardFits(board, wiring(model, { sensors: world.sensors, outs: world.outs, offers: task.given.offers }), model.partOf)
+    ? board : null;
 }
 
 /** Configure the shared blueprint reader and writer for a robot task's world and its given cards. */

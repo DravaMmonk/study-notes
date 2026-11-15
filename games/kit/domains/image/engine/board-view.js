@@ -26,6 +26,7 @@ export function imageBoards(image) {
   const board = {
     ...fixed,
     startBoard,
+    fits: kit.fits,
     wiring(task, circuit) {
       const parts = kit.boardParts(task.tests[0])
       return {
@@ -52,7 +53,7 @@ export function imageBoards(image) {
       const source = task.carry && image.levelById[task.carry]?.tasks.at(-1)
       const previous = inherited ?? inheritedBoard(progress, source && { ...source, id: task.carry })
       const offers = (circuit) => circuit.nodes.every((node) => fixed.isFixed(node.type) || task.palette.includes(node.type))
-      return previous?.nodes && fixed.fits(previous, task, kit.partOf) && offers(previous) ? previous : startBoard(task)
+      return kit.fits(previous, task) && offers(previous) ? previous : startBoard(task)
     },
   })
 }

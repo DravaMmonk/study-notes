@@ -27,7 +27,6 @@ import { PROOF_BOARD, startProof } from './proof.js'
 import { OPS, partsOf } from './ops.js'
 import { boardView } from '../../engine/board-view.js'
 import { keptBoards } from './built.js'
-import { partRegions, regionsFit } from '../../circuit/regions.js'
 import { builtGates, gateCourse, gateTests, startGates } from './gates.js'
 import { lettersOf } from './truth.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
@@ -237,10 +236,11 @@ function readTasks(level, wordSets) {
 export function logicCourse(content) {
   // The boards the player passed the building levels with: this content's (built.js).
   const kept = keptBoards((key, board) => {
-    if (!board.nodes.some((node) => node.in != null)) return true
     const task = taskById.get(key)
     const boards = { proof: proofBoards, machine: machineBoards, gates: truthCircuits }[task?.kind]
-    return Boolean(boards && regionsFit(board, { frames: partRegions(boards.forTask(task).partOf) }))
+    if (!boards) return false
+    const circuit = boards.forTask(task)
+    return circuit.board.fits(board, task, circuit)
   })
   const { eras, trays, wordSets = {}, primitives, concept = {}, local = [] } = content
   const wrong = []
@@ -545,7 +545,7 @@ export function logicCourse(content) {
     // A machine level that upgrades a part opens on the board that part runs; a preset stays locked in.
     opening: (task) => {
       const from = task.upgrades?.opens().circuit
-      return withPreset(from && MACHINE_BOARD.fits(from, task, machineBoards.forTask(task).partOf) ? from : startMachine(task), presetFor(task))
+      return withPreset(from && MACHINE_BOARD.fits(from, task, machineBoards.forTask(task)) ? from : startMachine(task), presetFor(task))
     },
   })
   function workReferences(task, work) {

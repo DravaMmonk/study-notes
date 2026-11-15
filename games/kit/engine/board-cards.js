@@ -22,10 +22,18 @@ import { sourceOf, srcNode } from './wire-source.js'
 import { printLines, readLines } from '../circuit/text.js'
 import { sink, source } from './boards.js'
 import { portsOf } from './circuit.js'
-import { partRegions, regionsFit } from '../circuit/regions.js'
+import { partRegions } from '../circuit/regions.js'
+import { boardFits, wirePortRefusal } from '../circuit/model.js'
 
 // A setting kept as the words it is written in ({ reg: 'A', start: '1' }); the parts read them.
 const WORDS = { read: (_node, _key, v) => String(v) }
+
+/** The fixed cards have the task's ids, types and settings, in any order. */
+export function fixedCardsFit(board, given, isFixed) {
+  const signature = (nodes) => nodes.filter((node) => isFixed(node.type))
+    .map((node) => JSON.stringify([node.id, node.type, Object.entries(node.params ?? {}).sort()])).sort().join()
+  return signature(board.nodes) === signature(given)
+}
 
 export function circuitBoard({ cards, ticks = false, right = 980, gap = 140, text = WORDS }) {
   const FIXED = cards.map((c) => c.type)
@@ -56,23 +64,25 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140, tex
   const isFixed = (type) => FIXED.includes(type)
   const sinks = new Set(cards.filter((c) => c.side === 'right').map((c) => c.type))
 
-  /** Whether a saved board still fits its task's fixed cards, available parts and regions. */
-  const fits = (board, task, partOf) => {
-    const given = (nodes) => nodes.filter((n) => isFixed(n.type)).map((n) => JSON.stringify([n.id, n.type, Object.entries(n.params ?? {}).sort()])).sort().join()
-    return given(board.nodes) === given(fixedOf(task))
-      && board.nodes.every((n) => partOf(n.type))
-      && regionsFit(board, { frames: partRegions(partOf) })
-  }
+  /** Whether a saved board still fits its task's cards, regions and wires. */
+  const fits = (board, task, circuit) => boardFits(board, wiring(task, circuit), circuit.partOf)
+    && fixedCardsFit(board, fixedOf(task), isFixed)
 
   /** A board from another level brought onto `task`: its placed parts and their wires, and its wires to the fixed cards this task has too. */
-  const carriedOnto = (task, board) => {
+  const carriedOnto = (task, board, circuit) => {
     const fixed = fixedOf(task)
     const placed = board.nodes.filter((n) => !isFixed(n.type))
     const own = new Map(fixed.map((n) => [n.id, n]))
-    const ids = new Set([...fixed, ...placed].map((n) => n.id))
-    const from = (w) => srcNode(w.from)
-    const keeps = (w) => ids.has(from(w)) && ids.has(w.to) && (!own.has(w.to) || w.port === 'in') && (!own.has(from(w)) || board.nodes.find((n) => n.id === from(w))?.type === own.get(from(w)).type)
-    return { ...board, nodes: [...fixed, ...placed], wires: board.wires.filter(keeps) }
+    const nodes = [...fixed, ...placed]
+    const next = new Map(nodes.map((node) => [node.id, node]))
+    const old = new Map(board.nodes.map((node) => [node.id, node]))
+    const parts = wiring(task, circuit)
+    const wires = board.wires.filter((wire) => {
+      const from = srcNode(wire.from)
+      return (!own.has(from) || old.get(from)?.type === own.get(from).type)
+        && !wirePortRefusal(parts, wire, (id) => next.get(id))
+    })
+    return { ...board, nodes, wires }
   }
 
   /** How the editor and the blueprint reader wire a task's cards (../circuit/model.js parts): `circuit` is the course read. */
@@ -118,4 +128,4 @@ export const OUTPUTS = { type: 'out', side: 'right', of: (task) => task.outputs 
 export const flowBoard = () => circuitBoard({ cards: [INPUTS, OUTPUTS], right: 900, gap: 120 })
 
 /** A circuit of the game's primitives alone, no part built: what a board reads on outside a course (a test, a tool). */
-export const primitivesOnly = (board, parts) => ({ BUILT: {}, partOf: (t) => board.FIXED_PARTS[t] ?? parts[t], types: () => Object.keys(parts).filter((t) => !board.isFixed(t)), builtBy: () => null })
+export const primitivesOnly = (board, parts) => ({ BUILT: {}, partOf: (t) => board.isFixed(t) ? board.FIXED_PARTS[t] : Object.hasOwn(parts, t) ? parts[t] : undefined, types: () => Object.keys(parts).filter((t) => !board.isFixed(t)), builtBy: () => null })

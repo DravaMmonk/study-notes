@@ -10,7 +10,7 @@ import { stagesOf } from '../engine/stages.js'
 import { CircuitBoard } from 'lucide-react'
 import { MISSING } from '../engine/circuit.js'
 import { traceSteps, viewAt } from '../engine/trace.js'
-import { outputsOf } from '../circuit/model.js'
+import { isCircuitBoard, outputsOf } from '../circuit/model.js'
 import { isFixed } from '../circuit/presets.js'
 import { countFailedTests, splitTests, TEST_WORDS } from '../engine/tests.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
@@ -151,10 +151,15 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   // its new starter parts are added without replacing the inherited work.
   const opening = () => circuit.opening(level, progress.built, undefined, progress)
   const fitted = (saved) => {
-    if (saved?.nodes && level.carries && !progress.data[entry.key]) return circuit.opening(level, progress.built, saved, progress)
-    return saved?.nodes && kind.fits(saved, level, circuit.partOf) ? saved : opening()
+    const inherited = isCircuitBoard(saved) && level.carries && !progress.data[entry.key]
+    const candidate = inherited ? circuit.opening(level, progress.built, saved, progress) : saved
+    if (kind.fits(candidate, level, circuit)) {
+      const prepared = hold(candidate)
+      if (prepared === candidate || kind.fits(prepared, level, circuit)) return prepared
+    }
+    return hold(opening())
   }
-  const state = useLevelBoard(screen, { open: (saved) => hold(fitted(saved)), fresh: () => hold(fresh ? fresh(level) : opening()), clearable })
+  const state = useLevelBoard(screen, { open: fitted, fresh: () => hold(fresh ? fresh(level) : opening()), clearable })
   const checks = useChecks(screen, level, cells)
   // A work is shown as it is: every card on it locked. Where its cards sit is the canvas's to settle and the player's
   // to move (a change that keeps what the board computes), kept while the level is open.

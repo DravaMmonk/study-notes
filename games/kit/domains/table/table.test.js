@@ -150,6 +150,10 @@ test('a built part runs the board its level’s last task was passed with, when 
   assert.deepEqual(answers(), user.expected);
   syncOwn({ build: noStart });
   assert.deepEqual(answers(), user.expected);
+  const stalePort = { ...offByOne, wires: [...offByOne.wires, { from: 'facts#start', to: 'cell', port: 'gone' }] };
+  syncOwn({ build: stalePort });
+  assert.deepEqual(answers(), user.expected);
+
 });
 
 /** Every game on the table domain, and the starter a new one is copied from: [id, dir]. */

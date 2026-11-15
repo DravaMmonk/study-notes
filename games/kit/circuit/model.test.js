@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { cardPorts, portNotes, portOnCard } from './card-ports.js'
-import { connect, editNodeSettings, hasPort, inPort, outPort, removeNode, spotIn, wireRefusal } from './model.js'
+import { boardFits, connect, editNodeSettings, hasPort, inPort, outPort, removeNode, spotIn, wireRefusal } from './model.js'
 import { keepLocked, presetOf, withPreset } from './presets.js'
 
 const board = { nodes: [{ id: 'in', type: 'in', x: 0, y: 0 }, { id: 'out', type: 'out', x: 400, y: 0 }], wires: [] }
@@ -144,4 +144,28 @@ test('stale ports are refused and card picks prefer a free compatible input', ()
   assert.equal(hasPort(closed, parts, tap), false)
   assert.match(wireRefusal(closed, parts, connection).en, /has no output “tap”/)
   assert.match(wireRefusal(graph, parts, { ...connection, port: 'gone' }).en, /has no input called “gone”/)
+})
+
+test('saved circuits reject unavailable, duplicate and cyclic wires while accepting held feedback', () => {
+  const parts = {
+    role: () => 'part',
+    inputs: () => ['in'],
+    loops: true,
+    holds: (node) => node.type === 'hold',
+  }
+  const graph = {
+    nodes: [{ id: 'a', type: 'hold' }, { id: 'b', type: 'plain' }, { id: 'c', type: 'plain' }],
+    wires: [{ from: 'a', to: 'b', port: 'in', locked: true }, { from: 'b', to: 'a', port: 'in' }],
+  }
+  const fits = (candidate) => boardFits(candidate, parts, (type) => ['hold', 'plain'].includes(type))
+  assert.ok(fits(graph))
+  assert.equal(fits({ ...graph, nodes: [...graph.nodes, graph.nodes[0]] }), false)
+  assert.equal(fits({ ...graph, nodes: [...graph.nodes, { id: 'd', type: 'unknown' }] }), false)
+  assert.equal(fits({ ...graph, nodes: graph.nodes.map((node) => ({ ...node, type: 'plain' })) }), false)
+  for (const wire of [
+    { from: 'missing', to: 'c', port: 'in' },
+    { from: 'a#closed', to: 'c', port: 'in' },
+    { from: 'a', to: 'c', port: 'closed' },
+    { from: 'c', to: 'b', port: 'in' },
+  ]) assert.equal(fits({ ...graph, wires: [...graph.wires, wire] }), false)
 })

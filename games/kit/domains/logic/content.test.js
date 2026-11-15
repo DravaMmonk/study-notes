@@ -202,6 +202,8 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   const other = logicCourse(CONTENT)
   assert.notEqual(other.proofs.chain[''].board(), own)
   assert.equal(run('useChain', 0).pass, true)
+  syncOwn({ chain: { ...own, wires: [...own.wires, { from: 'missing', to: 'goal', port: 'in' }] } })
+  assert.equal(course.proofs.chain[''].board(), chain.solution)
   // A kept proof that does not prove chain's statement: the level built on it cannot pass, and says why.
   syncOwn({ chain: read(['f = impI[A=A](body: m1) {', '  body {', '    m1 = mp(p, f.body)', '  }', '}', 'goal <- f'], chain) })
   const broken = run('useChain', 0)

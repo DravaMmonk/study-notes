@@ -7,6 +7,8 @@
 // each with its id and params.name the level's name for it ('in', 'out', 'scene'); every other node is a part, its
 // settings in params. A wire runs from a node into one of the ports of another.
 import { sameJson } from '../../../engine/json-value.js'
+import { boardFits, wirePortRefusal } from '../../../circuit/model.js'
+import { fixedCardsFit } from '../../../engine/board-cards.js'
 import { printLines, readLines } from '../../../circuit/text.js'
 import { parsePi, piText } from './pi.js'
 
@@ -84,12 +86,15 @@ export function blueprintOf({ types, inputsOf, defaultParams, snapSetting }) {
     return readLines(lines, startBoard(task), boardParts(task.tests?.[0]), typesHere)
   }
 
-  return { boardParts, toText, fromText }
+  const fits = (board, task) => boardFits(board, boardParts(task.tests?.[0]), (type) => Object.hasOwn(types, type))
+    && fixedCardsFit(board, startBoard(task).nodes, (type) => type === 'input' || type === 'output')
+
+  return { boardParts, fits, toText, fromText }
 }
 
 // The available ports follow the currently selected operation and settings.
 export function tidyImageBoard(kit, board) {
   const nodes = new Map(board.nodes.map((node) => [node.id, node]))
-  const { inputs } = kit.boardParts()
-  return { ...board, wires: board.wires.filter((wire) => nodes.has(wire.to) && inputs(nodes.get(wire.to)).includes(wire.port)) }
+  const parts = kit.boardParts()
+  return { ...board, wires: board.wires.filter((wire) => !wirePortRefusal(parts, wire, (id) => nodes.get(id))) }
 }

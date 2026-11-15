@@ -14,8 +14,8 @@ import { defineCourse, eraLevels, layout, offer, pathLevels, reach, usable } fro
 import { T, hydrate, lazy, tr } from './lang.js';
 import { builtPieces, publications, settingsOf } from '../../engine/pieces.js';
 import { isGiven, modelsOf, partsOf } from './model/parts.js';
-import { blank, clone, fitted, portsProblem } from './model/board.js';
-import { robotBlueprint } from './model/wiring.js';
+import { blank, fitted, portsProblem } from './model/board.js';
+import { restoreRobotBoard, robotBlueprint } from './model/wiring.js';
 import { ROBOTS } from './model/robots.js';
 import { WORLDS, sensorsOf, visibleSensors } from './model/worlds.js';
 import { modelOf } from './model/run.js';
@@ -138,7 +138,7 @@ export function tableCourse(content) {
   const ownBoard = (id, s) => {
     const b = own.get(id);
     if (!b) return s.solution;
-    if (!fits.has(b)) { const f = fitted(b, s.given); fits.set(b, portsProblem(f, s.ports) ? null : f); }
+    if (!fits.has(b)) { const f = restoreRobotBoard(model, s, b); fits.set(b, f && !portsProblem(f, s.ports) ? f : null); }
     return fits.get(b) ?? s.solution;
   };
 
@@ -314,7 +314,7 @@ export function tableCourse(content) {
   const opening = (s, progress) => {
     const prior = s.task === 0 ? s.carry && played.get(s.carry)?.at(-1) : s.carries && played.get(s.id)[s.task - 1];
     const from = inheritedBoard(progress, prior);
-    return fitted(from?.nodes ? clone(from) : blank(), s.given);
+    return restoreRobotBoard(model, s, from) ?? fitted(blank(), s.given);
   };
 
   /** The parts level L can really offer a player holding `flags` (the shell's: the unlocks of solved levels). */

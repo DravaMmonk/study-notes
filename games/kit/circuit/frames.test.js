@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { framePart, moveInto } from './frames.js'
-import { flowBoard } from '../engine/board-cards.js'
+import { flowBoard, primitivesOnly } from '../engine/board-cards.js'
 import { frameTree, regionsFit } from './regions.js'
 import { keepLocked, lockedCards, presetOf, withPreset } from './presets.js'
 import { clearSpot, moveToSlot, placement, removeNode, wireRefusal } from './model.js'
@@ -130,11 +130,12 @@ test('a frame cannot be stored or moved inside itself, even through another fram
   const nested = { ...board, nodes: board.nodes.map((node) => node.id === 'm' ? { ...node, type: 'box' } : node) }
   const put = (region) => ({ ...nested, nodes: nested.nodes.map((node) => node.id === 'f' ? { ...node, in: region } : node) })
   const kind = flowBoard()
-  const part = { frames: (node) => parts.frames(node) }
-  const partOf = (type) => type === 'box' ? part : {}
-  assert.ok(kind.fits(nested, {}, partOf))
+  const part = framePart(['a', 'b', 'in'], [{ name: 'body', opens: true }])
+  const circuit = primitivesOnly(kind, { box: part, plain: { inputs: ['a', 'b', 'in'] } })
+  nested.nodes = nested.nodes.map((node) => ({ ...node, type: node.type ?? 'plain' }))
+  assert.ok(kind.fits(nested, {}, circuit))
   for (const region of ['f/body', 'm/body', 'g/body', 'm/body/extra', '']) {
-    assert.equal(kind.fits(put(region), {}, partOf), false)
+    assert.equal(kind.fits(put(region), {}, circuit), false)
     assert.equal(moveInto(nested, parts, 'f', region, 0, 0), nested)
   }
   assert.deepEqual([...frameTree(put('m/body').nodes).included(['f'])], ['f', 'm'])

@@ -15,10 +15,9 @@ import { isCard, isGiven } from './parts.js';
 import { tr } from '../lang.js';
 
 export const blank = () => ({ nodes: [], wires: [] });
-export const clone = b => JSON.parse(JSON.stringify(b));
 
 /** The sensors a card reads. */
-export const picksOf = n => n?.params?.picks ?? [];
+export const picksOf = n => Array.isArray(n?.params?.picks) ? n.params.picks : [];
 export const withPicks = (n, picks) => ({ ...n, params: { ...n.params, picks } });
 
 /** The sensors the board's cards read. */
