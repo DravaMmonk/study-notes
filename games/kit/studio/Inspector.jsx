@@ -80,7 +80,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   const inUse = definition && root[0] === 'settings' && settingReferences(partDefs, root[1]).length > 0
   const remove = definition ? () => { edit(path, { unset: true }); onRemoveSelection() } : null
   const header = <Head path={path} file={file} onPick={openCrumb} json={json} onToggleJson={() => setJson(!json)}
-    onRemove={remove} inUse={inUse} />
+    about={L(hit?.entry?.about ?? hit?.field?.about ?? hit?.absent?.about)} onRemove={remove} inUse={inUse} />
   if (json) {
     return (
       <div className="insp">
@@ -134,15 +134,11 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
       <div className="insp-body" ref={body}>
         {hit.absent ? (
           <div className="insp-absent">
-            {hit.absent.about && <p className="insp-about">{L(hit.absent.about)}</p>}
             <AddFields fields={[hit.absent]} ctx={ctxHere}
               onAdd={(f, value) => edit(f.path, { set: value }, f.schema.type)} />
           </div>
         ) : (
-          <>
-            {(hit.entry?.about ?? hit.field.about) && <p className="insp-about">{L(hit.entry?.about ?? hit.field.about)}</p>}
-            <Field key={JSON.stringify([at, path])} field={hit.field} label={null} onEdit={edit} ctx={ctxHere} />
-          </>
+          <Field key={JSON.stringify([at, path])} field={hit.field} label={null} onEdit={edit} ctx={ctxHere} />
         )}
       </div>
     </div>
@@ -198,17 +194,17 @@ function longConfig(value) {
 }
 
 /** Breadcrumbs always start at the original JSON file. */
-function Head({ path, file, onPick, json, onToggleJson, onRemove, inUse }) {
+function Head({ path, file, onPick, json, onToggleJson, about, onRemove, inUse }) {
   const name = file.level ? `levels/${file.level}.json` : file.parts ? 'pieces.json' : file.glossary ? 'glossary.json' : 'game.json'
   const jsonLabel = tr('JSON 源码', 'JSON source')
   return (
     <header className="insp-head">
       <nav className="insp-path" aria-label={tr('字段的位置')}>
-        <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={!path.length}>{name}</button>
+        <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={!path.length} title={!path.length ? about : undefined}>{name}</button>
         {path.map((k, i) => {
           const at = path.slice(0, i + 1)
           return (
-            <span key={showPath(at)} className="insp-step">
+            <span key={showPath(at)} className="insp-step" title={at.length === path.length ? about : undefined}>
               <ChevronRight size={11} aria-hidden="true" />
               <button type="button" className="insp-crumb" onClick={() => onPick(at)} disabled={at.length === path.length}>{typeof k === 'number' ? k + 1 : k}</button>
             </span>

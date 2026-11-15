@@ -1,11 +1,10 @@
 // The studio's generic controls: one per kind of field (form.js), for any domain's content. A field's label is its
-// key; the vocabulary's `about` shows while the field is in use. What a field may hold comes from its schema alone: a
+// key; the vocabulary's `about` is the title's native tooltip. What a field may hold comes from its schema alone: a
 // choice offers the vocabulary's items or the game's levels (searchable, each with what it is), a call picks an item
 // and gives its parameters' fields, a number steps (and slides where its range is known), a list folds its items into
 // one-line summaries and reorders them by dragging, cells and ticks are edited as cells (Cells.jsx), text as text with
 // its links as chips (TextField.jsx), and a board is drawn (../circuit/svg.js) and edited as blueprint text or in the
-// game's own circuit editor. On a wide form a field's label sits beside it (what it means under the label while it is
-// in use), and runs of short fields sit several to a row.
+// game's own circuit editor. On a wide form a field's label sits beside it, and runs of short fields sit several to a row.
 //
 //   <Field field label onEdit ctx />   onEdit(path, { set } | { unset: true }, type)
 //   ctx: { vocabulary, levels, levelOptions, names, onBoard(path), findings: Map(showPath → [says]),
@@ -119,7 +118,7 @@ function BoardField({ field, onSet, ctx, label }) {
 
 const CONTAINERS = ['list', 'map', 'obj', 'call']
 
-/** A field's control, its label, what it means (while it is in use), what the check finds on it, and its undo. */
+/** A field's control, title tooltip, findings, and undo. */
 export function Field({ field, label, onEdit, ctx, onRemove = null }) {
   const set = (value) => onEdit(field.path, { set: value }, field.kind)
   const key = showPath(field.path)
@@ -169,7 +168,6 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
       {field.tags && <FieldTags tags={field.tags} />}
       {changed && <button type="button" className="field-undo" onClick={revert} title={tr('改回去')} aria-label={tr(`把 ${name} 改回去`, `Put ${name} back`)}><RotateCcw size={12} /></button>}
       {onRemove && <button type="button" className="field-x" onClick={onRemove} aria-label={tr('去掉')}><X size={13} /></button>}
-      {label !== null && field.about && <span className="field-help">{L(field.about)}</span>}
     </div>
   )
   return (

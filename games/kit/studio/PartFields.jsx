@@ -4,6 +4,7 @@
 // and settings it may name), and a list beside it offers every resource of the domain (and the kernel's builtins), the
 // part's inputs and its settings, each put in at the caret with a click.
 import { useMemo, useRef, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { ExprError, parse, problemsOf } from '../engine/parts/expr.js'
 import { resolveSettings, settingReferences } from '../engine/pieces.js'
@@ -12,7 +13,7 @@ import { ICON_NAMES } from '../engine/parts/icons.js'
 import { validate } from '../engine/schema.js'
 import { ICONS } from '../shell/parts/icons.js'
 import { creationChoices, formOf } from './form.js'
-import { AddMenu } from './Picker.jsx'
+import { AddMenu, usePickerPopup } from './Picker.jsx'
 import { useDraft } from './draft.js'
 
 /** The part an expression at `path` belongs to in pieces.json, and whether it may read the part's inputs. */
@@ -76,15 +77,42 @@ export function ExprField({ field, onSet, ctx, label }) {
 }
 
 export function IconField({ field, onSet, label }) {
+  const [open, setOpen] = useState(false)
+  const anchor = useRef(null)
+  const icon = field.value
+  const Selected = ICONS[icon]
+  const name = label || tr('图标', 'Icon')
+  const close = () => {
+    setOpen(false)
+    anchor.current?.querySelector('button')?.focus()
+  }
+  return (
+    <div className="pick" ref={anchor}>
+      <button type="button" className="pick-button" aria-haspopup="dialog" aria-expanded={open} aria-label={name}
+        onClick={() => setOpen(!open)} onKeyDown={(event) => {
+          if (event.key === 'ArrowDown') { event.preventDefault(); setOpen(true) }
+        }}>
+        {Selected && <Selected size={15} aria-hidden="true" />}
+        <span className="pick-name"><b>{icon || '—'}</b></span>
+        <ChevronDown size={14} aria-hidden="true" />
+      </button>
+      {open && <IconOptions anchor={anchor} icon={icon} label={name} onClose={close} onOutside={() => setOpen(false)}
+        onPick={(value) => { onSet(value); close() }} />}
+    </div>
+  )
+}
+
+function IconOptions({ anchor, icon, label, onClose, onOutside, onPick }) {
   const [query, setQuery] = useState('')
+  const overlay = usePickerPopup(anchor, onClose, { onOutside })
   const shown = ICON_NAMES.filter((name) => name.toLowerCase().includes(query.toLowerCase()))
   return (
-    <div className="field-icon">
-      <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={field.value ?? ''} aria-label={label} spellCheck={false} />
+    <div className="pick-pop is-floating field-icon" ref={overlay} role="dialog" aria-label={label}>
+      <input autoFocus value={query} onChange={(e) => setQuery(e.target.value)} placeholder={icon ?? ''} aria-label={tr('搜索', 'Search')} spellCheck={false} />
       <div className="icon-grid" role="radiogroup" aria-label={label}>
         {shown.map((name) => {
           const Icon = ICONS[name]
-          return <button key={name} type="button" role="radio" aria-checked={field.value === name} className={field.value === name ? 'is-on' : ''} title={name} onClick={() => onSet(name)}><Icon size={15} aria-hidden="true" /></button>
+          return <button key={name} type="button" role="radio" aria-checked={icon === name} className={icon === name ? 'is-on' : ''} title={name} onClick={() => onPick(name)}><Icon size={15} aria-hidden="true" /></button>
         })}
       </div>
     </div>
