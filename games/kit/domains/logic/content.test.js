@@ -270,5 +270,7 @@ test('formula and circuit groups share a task, combining in order and respecting
   assert.deepEqual(chips('g-not'), ['P:Rain', '¬'])
   assert.deepEqual(chips('g-use'), ['P:Rain', '∨', '∧'])
   assert.deepEqual(fixedTray(logic.course, read('g-use')), ['gNot', 'gAnd', 'formulaOr', 'formulaNot', 'formulaAnd'])
-  assert.ok(Object.values(logic.offerIn(read('g-use'), new Set())).flat().every((type) => ['gNot', 'gAnd'].includes(type)))
+  const { shown, folded, types } = logic.offerIn(read('g-use'), new Set())
+  assert.deepEqual(types, [...shown, ...folded])
+  assert.ok(types.every((type) => ['gNot', 'gAnd'].includes(type)))
 })

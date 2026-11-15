@@ -135,8 +135,8 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   circuit.syncOwn(progress.built, progress)
   const parts = useMemo(() => partsFor(level, circuit, { cards, portLabels }), [level, circuit, cards, portLabels])
   const packed = useMemo(() => packedView(course, { cards, portLabels }), [course, cards, portLabels])
-  const { shown: palette, folded } = useMemo(() => circuit.offerIn(level, flags), [circuit, level, flags])
-  const held = useMemo(() => new Set([...palette, ...folded]), [palette, folded])
+  const { shown: palette, folded, types } = useMemo(() => circuit.offerIn(level, flags), [circuit, level, flags])
+  const held = useMemo(() => new Set(types), [types])
   const hold = (b) => (ready ? ready(b, held, level) : b)
   // A task that goes on from the task before (`carries`) opens on that board, its ports swapped for its own, unless
   // its new starter parts are added without replacing the inherited work.
@@ -199,7 +199,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const ended = whole ? run.over : Boolean(run.run && (run.run.test > run.at || run.run.over))
 
   const failWorld = ({ panel, ...info }) => screen.fail(panel ? { ...info, extra: <TracePanel panel={panel} /> } : info)
-  const surface = useWorld({ screen: { ...screen, fail: failWorld }, task: level, test: onView, run, report: runOf, at, ended, circuit: drawn, change, version: board.version })
+  const surface = useWorld({ screen: { ...screen, fail: failWorld }, task: level, test: onView, run, report: runOf, held, at, ended, circuit: drawn, change, version: board.version })
   const view = surface?.value ?? computed
 
   const setParam = (node, ctx, key, value) => {
@@ -367,6 +367,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
           defined={definedFaces}
           items={palette.map(itemOf)}
           folded={folded.map(itemOf)}
+          types={types}
           defaults={defaults}
           view={view}
           card={{

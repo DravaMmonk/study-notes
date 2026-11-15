@@ -539,8 +539,9 @@ export function logicCourse(content) {
   }))
   /** What a task's tray holds for a player with `flags`, as what it shows and what it folds away. */
   const offerIn = (task, flags) => {
-    const { shown, folded } = offer(course, at(task), flags)
-    return { shown: shown.filter((type) => !strips[type]), folded: folded.filter((type) => !strips[type]) }
+    const { shown, folded, types } = offer(course, at(task), flags)
+    const circuit = (type) => !strips[type]
+    return { shown: shown.filter(circuit), folded: folded.filter(circuit), types: types.filter(circuit) }
   }
   /** Whether a task holds a part, or a shape of one: has(part), has(part, 'form', shape) (../../course.js holds). */
   const holdsIn = (task, flags) => holds(course, at(task), flags)

@@ -158,6 +158,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *                   their cards, tiles, details, settings and new nodes are the kernel's, `parts` and `card` only the
  *                   domain's other nodes'
  *   items, folded   the parts to place [{ type, label, desc, icon, family, packed?, fresh?, tag? }] and those folded away
+ *   types           all types that blueprints may place, including models grouped in the tray
  *   trayParts       the fixed tray's faces when the task or player can change the faces of its playable parts
  *   create?(graph, type, { slot, region }) → { graph, id }   a new card (default: `defaults(type)` its settings, in a free spot)
  *   view            what the board shows now: { values, errors } (the default wire state reads it)
@@ -179,7 +180,7 @@ const nothing = { values: new Map(), errors: new Map() }
  *   tabs            false: the tests are picked in the results, not in tabs
  *   scope           names the board for undo (a level's stage; default the level)
  */
-export default function CircuitLevel({ screen, board, run, stages = null, parts: given, trayParts, defined = null, items = [], folded = [], create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
+export default function CircuitLevel({ screen, board, run, stages = null, parts: given, trayParts, defined = null, items = [], folded = [], types, create, defaults = () => ({}), view = nothing, card: faces = {}, canvas = {}, brief = {}, results, resultsTitle, resultsAside, below, follow, describe, sheet, details = false, addSheet, packed, words, meta, pad, tabs = true, scope, className = '', rootRef }) {
   const { game, level, phone } = screen
   const stored = board.circuit
   const ownRoot = useRef(null)
@@ -233,7 +234,6 @@ export default function CircuitLevel({ screen, board, run, stages = null, parts:
   }
 
   const all = [...items, ...folded]
-  const types = all.map((item) => item.type)
   const partDefaults = (type) => defined?.of(type) ? defined.defaults(type) : defaults(type)
   const make = create ?? ((graph, type, { slot, region } = {}) => {
     const taken = new Set(graph.nodes.map((n) => n.id))

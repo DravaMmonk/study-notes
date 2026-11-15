@@ -6,7 +6,7 @@
 // A picture is drawn as numbers, a row a line (16×16 values from 0 to 1 for most; a waveform is one row, a reading
 // one number): what the test strip draws as pixels. The probe levels (reading pixels with the pointer) and the
 // parameter benches are not covered: neither takes a board.
-import { circuitPlay } from '../../engine/play/circuit.js'
+import { circuitPlay, playBoard } from '../../engine/play/circuit.js'
 import { runTestGroups, splitTests, TEST_WORDS } from '../../engine/tests.js'
 import { plays } from './plays.js'
 import { INPUT_LABELS, descriptionOf } from './words.js'
@@ -33,12 +33,7 @@ const revealed = ({ solved }) => solved && plays.graph.checks === 'afterPass'
 const testsOf = (ctx) => splitTests(ctx.level.source, revealed(ctx))
 
 const circuit = circuitPlay({
-  board: ({ game, level: { source: task }, progress, flags }) => {
-    const view = game.circuit.forTask(task)
-    view.syncOwn(progress.built, progress)
-    const { shown, folded } = view.offerIn(task, flags)
-    return { start: view.opening(task, progress.built, undefined, progress), parts: view.board.wiring(task, view), types: [...shown, ...folded] }
-  },
+  board: playBoard,
   // The score under the board reads a circuit's cost live as parts go on it, so a part's own cost is something the
   // player sees: it is written beside what the part does.
   part: ({ game }, type) => {

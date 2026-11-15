@@ -18,7 +18,7 @@ test('the circuit template requires an explicit target column policy', () => {
 })
 
 test('text play follows the circuit target policy in the table and on failure', () => {
-  const game = { logic: { syncOwn: () => {}, offerIn: () => ({ shown: ['gNot'], folded: [] }) } }
+  const game = { logic: { syncOwn: () => {}, offerIn: () => ({ shown: ['gNot'], folded: [], types: ['gNot'] }) } }
   for (const [fields, showTarget, showSentence] of [
     [{}, true, true],
     [{ hideTarget: false }, true, true],

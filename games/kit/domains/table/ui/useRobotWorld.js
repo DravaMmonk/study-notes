@@ -88,8 +88,8 @@ function noteOf(task, world, view, k) {
 }
 
 /** The robot's world, drawing and card controls. Editing, tests and playback belong to the circuit screen. */
-export function useRobotWorld({ screen, task, test, run, report, at, ended, circuit, change, version }) {
-  const { game, level, solve, fail, progress, flags } = screen
+export function useRobotWorld({ screen, task, test, run, report, at, ended, circuit, change, version, held }) {
+  const { game, level, solve, fail, progress } = screen
   const { model } = game.table
   const world = WORLDS[task.world]
   const robot = ROBOTS[task.robot]
@@ -152,10 +152,9 @@ export function useRobotWorld({ screen, task, test, run, report, at, ended, circ
     })
     buzz(6)
   }
-  const available = game.table.usableIn(task, flags)
   const choices = (type) => {
     const family = modelsOf(type) ?? []
-    return family.filter((name) => name === type || (task.palette.includes(name) && available.has(name))).map((name) => [name, model.def(name).tag])
+    return family.filter((name) => name === type || held.has(name)).map((name) => [name, model.def(name).tag])
   }
   const pad = !live && state.selected ? {
     title: tr(`${world.name(state.selected)}：填一个数（不填 = 清空这一格）`, `${world.name(state.selected)}: type a number (leave blank to clear the cell)`),
