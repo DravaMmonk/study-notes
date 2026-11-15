@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { S, callOf, validate } from './schema.js'
+import { S, callOf, find, validate } from './schema.js'
 import { markupOf } from './markup.js'
 import { checkContent, defineVocabulary, describe } from './vocabulary.js'
 import { assemble } from './content.js'
@@ -56,6 +56,10 @@ test('references and calls go by the vocabulary', () => {
   assert.deepEqual(says(S.call('condition'), 'uses'), ['(root): the condition "uses" needs parameters: { "uses": … }'])
   assert.deepEqual(says(S.call('condition'), { all: [{ uses: 3 }] }), ['.all[0].uses: expected a string, found 3'])
   assert.deepEqual(says(S.call('condition'), { uses: 'a', placed: true }), ['(root): expected a condition: { name: parameters } or a name, found {"uses":"a","placed":true}'])
+  // A map's keys may name items too, and find reports each such key as one.
+  const byWorld = S.map(S.int(), { key: S.ref('world') })
+  assert.deepEqual(says(byWorld, { line: 2, grid: 3 }), ['.grid: "grid" is no world of the vocabulary'])
+  assert.deepEqual(find(S.obj({ n: byWorld }), { n: { line: 2 } }, 'ref').map((hit) => [hit.path, hit.value, hit.key]), [[['n', 'line'], 'line', true]])
   assert.deepEqual(callOf('placed'), ['placed', {}])
   assert.deepEqual(callOf({ placed: true }), ['placed', {}])
   assert.deepEqual(callOf({ uses: 'up' }), ['uses', 'up'])

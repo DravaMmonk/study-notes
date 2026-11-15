@@ -1,8 +1,12 @@
-// The schema of a game's pieces.json (games/DESIGN.md 6.8): the parts a game's course starts from, as data — their
-// ports, their settings (one of the kernel controls), what they compute (an expression over the domain's engine
-// resources, expr.js) and their three views — and setting presets several parts share. The schema is the kernel's, the
-// same in every domain whose vocabulary has engine resources (the `op` kind); what it names (resources, families,
-// widgets) the domain's vocabulary gives.
+// The schema of a game's pieces.json (games/DESIGN.md 6.8): every piece the course gives, as data. A piece has the
+// faces every piece has (its name, what it does, its description along the course, its icon and family) and the
+// faces of the editor it is made with (`editor`; the circuit's when it names none), each editor declaring its own:
+//   circuit  a primitive's ports, its settings (one of the kernel controls), what it computes (an expression over the
+//            domain's engine resources, expr.js) and its three views; or a built piece's inside, the work of a task.
+//            Its rule: a piece computes (or keeps an input), or runs an inside, never both
+//   strip    the block on a strip that marks what it stands for (`mark`, an item of the domain's `mark` kind)
+// and setting presets several parts share. The schema is the kernel's, the same in every domain; what it names
+// (resources, families, widgets, marks) the domain's vocabulary gives.
 import { S } from '../schema.js'
 import { T as t } from '../../shell/i18n.js'
 
@@ -89,6 +93,7 @@ const PAINT = {
 
 /** A description as it grows along the course: from level `at` on, or once level `by` is passed (shell/index.js). */
 export const REVISION = S.obj({ at: S.opt(S.level()), by: S.opt(S.level()), desc: S.text() }, { about: t('说明随课程长：从 at 那一关起，或通过 by 那一关以后，换成这一句') })
+/** The faces every piece has, whatever its editor. */
 const NAMED = {
   name: S.textKind('partName'),
   desc: S.textKind('partDescription', { about: t('只写功能：读哪些口、给出什么、碰到「—」怎么办') }),
@@ -122,8 +127,26 @@ export const BUILT = S.obj({
   family: S.opt(S.ref('family')),
   views: PAINT.views,
 })
-/** A piece: a primitive (compute) or a built one (inside), never both. */
-export const PART = S.either(PRIMITIVE, BUILT)
+/** A block on a strip: what it marks, an item of the domain's closed `mark` kind. */
+export const STRIP = S.obj({
+  editor: S.oneOf(['strip']),
+  ...NAMED,
+  icon: ICON,
+  family: S.opt(S.ref('family')),
+  mark: S.ref('mark', { about: t('这一块标出的是什么：领域给的一项') }),
+})
+/** The faces each editor reads: the circuit's a primitive (compute) or a built piece (inside), never both. */
+export const EDITORS = { circuit: S.either(PRIMITIVE, BUILT), strip: STRIP }
+/** A piece, by the editor it is made with: one of the editors' shapes. */
+export const PART = S.either(...Object.values(EDITORS).flatMap((shape) => (shape.type === 'either' ? shape.of : [shape])))
+
+/** A new piece of each editor, ready to fill in, where the domain's vocabulary gives what it is made of (null: not). */
+export const BLANKS = {
+  circuit: (vocabulary) => (vocabulary?.kinds.op ? { name: { zh: '新元件' }, desc: { zh: '' }, icon: 'Box', family: Object.keys(vocabulary.kinds.family ?? {})[0] ?? 'value', inputs: [{ name: 'a' }], compute: 'a' } : null),
+  strip: (vocabulary) => (vocabulary?.kinds.mark ? { editor: 'strip', name: { zh: '新块' }, desc: { zh: '' }, icon: 'Box', mark: Object.keys(vocabulary.kinds.mark)[0] } : null),
+}
+/** Whether a domain's games make pieces of some editor out of what its vocabulary gives: their content names them as parts. */
+export const makesPieces = (vocabulary) => Object.values(BLANKS).some((blank) => blank(vocabulary))
 
 /** pieces.json. */
 export const PARTS_FILE = S.obj({

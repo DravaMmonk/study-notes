@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react'
 import { Brief, Level, RunDock, useKeptVerdict } from '../../../shell/index.js'
-import { L, tr } from '../../../shell/i18n.js'
+import { L, sideOf, tr } from '../../../shell/i18n.js'
 import { StripTools } from '../../../strip/index.js'
 import { useHistory } from '../../../circuit/useHistory.js'
 import { check, fold, foldRefusal, mark, say, targetRefusal, unfold, units } from '../model/sentence.js'
-import { ROLES, TYPES, roleKey } from '../model/parts.js'
 import { Markup } from '../../../shell/Markup.jsx'
+import Mark from '../../../strip/Mark.jsx'
 
 // A sentence-analysis level (model/sentence.js), the same on every screen: the sentence as it stands, each folded
-// modifier one piece hung on its word; a tray to mark what is selected as a role of the skeleton or to fold it; the
-// check against the answer. Tap a word (or a folded piece) to start a stretch, another to end it; a third tap starts
+// modifier one piece hung on its word; a tray of the game's blocks (game.chips, the strip editor's Mark) to mark what
+// is selected as a role of the skeleton or to fold it; the check against the answer. Tap a word (or a folded piece) to start a stretch, another to end it; a third tap starts
 // again. Folding asks for the word the piece hangs on: the next tap. The last check stays while the level is open
 // (the shell's lastRun), until the analysis changes.
 
@@ -35,8 +35,9 @@ export default function Analyze({ game, level, saved, save, solve, lastRun, keep
     setNote(null)
   }
   const history = useHistory(analysis, change, `${level.id}:${spec.step ?? ''}`, 0)
-  const roles = Object.keys(ROLES).filter((r) => level.palette.includes(roleKey(r)))
-  const types = Object.keys(TYPES).filter((t) => level.palette.includes(t))
+  const { chips } = game
+  const roles = Object.keys(chips).filter((t) => chips[t].role && level.palette.includes(t))
+  const types = Object.keys(chips).filter((t) => chips[t].fold && level.palette.includes(t))
   const list = units(tokens, all.folds)
   const isGiven = (f) => given.some((g) => g.a === f.a && g.b === f.b)
   const single = selection && list.find((u) => u.a === selection.a && u.b === selection.b)
@@ -61,7 +62,7 @@ export default function Analyze({ game, level, saved, save, solve, lastRun, keep
     const why = foldRefusal(all, selection.a, selection.b)
     if (why) return setNote({ text: why, bad: true })
     setPending({ ...selection, type })
-    setNote({ text: { zh: `点击${TYPES[type].name.zh}修饰的词。`, en: `Tap the word the ${TYPES[type].name.en} modifies.` } })
+    setNote({ text: { zh: `点击${sideOf(chips[type].name, 'zh')}修饰的词。`, en: `Tap the word the ${sideOf(chips[type].name, 'en')} modifies.` } })
     return null
   }
   const pickRole = (role) => {
@@ -94,6 +95,7 @@ export default function Analyze({ game, level, saved, save, solve, lastRun, keep
     const gap = k > 0 && u.kind !== 'punct' ? ' ' : ''
     if (u.kind === 'punct') return <span key={k} className="sx-punct">{tokens[u.a].text}</span>
     const r = roleOf(u)
+    const m = r && chips[r].mark
     const cls = [
       span && span.a <= u.a && u.b <= span.b ? 'is-on' : '',
       pending && span.a <= u.a && u.b <= span.b ? 'is-pending' : '',
@@ -102,17 +104,17 @@ export default function Analyze({ game, level, saved, save, solve, lastRun, keep
     ].join(' ')
     const body = u.kind === 'fold'
       ? (
-        <button type="button" className={`sx-fold ${isGiven(u.fold) ? 'is-given' : ''} ${cls}`} data-type={u.fold.type} title={say(tokens, u.a, u.b)} onClick={() => tap(u)}>
-          {L(TYPES[u.fold.type].name)}<span className="sx-arrow">→</span><i>{tokens[u.fold.to].text}</i>
+        <button type="button" className={`sx-fold ${isGiven(u.fold) ? 'is-given' : ''} ${cls}`} data-mark={chips[u.fold.type].mark} title={say(tokens, u.a, u.b)} onClick={() => tap(u)}>
+          {L(chips[u.fold.type].name)}<span className="sx-arrow">→</span><i>{tokens[u.fold.to].text}</i>
         </button>
       )
       : <button type="button" className={`sx-word ${cls}`} onClick={() => tap(u)}>{tokens[u.a].text}</button>
     return (
-      <span key={k} className="sx-unit" data-role={r ?? undefined}>
+      <span key={k} className="sx-unit" data-mark={m ?? undefined}>
         {gap}
         <span className="sx-stack">
           {body}
-          {roleStart(u, r) && <small className="sx-role-label">{L(ROLES[r].name)}</small>}
+          {roleStart(u, r) && <small className="sx-role-label">{L(chips[r].name)}</small>}
         </span>
       </span>
     )
@@ -126,15 +128,11 @@ export default function Analyze({ game, level, saved, save, solve, lastRun, keep
   ) : selection ? (
     <div className="sx-tray">
       <div className="sx-group">
-        {roles.map((role) => (
-          <button key={role} type="button" className={`sx-act ${markedAs(role) ? 'is-active' : ''}`} data-role={role} onClick={() => pickRole(role)}>{L(ROLES[role].name)}</button>
-        ))}
+        {roles.map((role) => <Mark key={role} piece={chips[role]} pressed={Boolean(markedAs(role))} onClick={() => pickRole(role)} />)}
       </div>
       {types.length > 0 && (
         <div className="sx-group">
-          {types.map((type) => (
-            <button key={type} type="button" className="sx-act" data-type={type} onClick={() => pickType(type)}>{tr('折成')} {L(TYPES[type].name)}</button>
-          ))}
+          {types.map((type) => <Mark key={type} piece={chips[type]} onClick={() => pickType(type)}>{tr('折成')} {L(chips[type].name)}</Mark>)}
         </div>
       )}
       <div className="sx-group">

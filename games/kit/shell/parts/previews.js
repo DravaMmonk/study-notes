@@ -4,8 +4,9 @@
 // lay out what the piece's editor gives, by the editor the piece names.
 import { editorOf } from '../../engine/pieces.js'
 import circuit from '../../circuit/preview.jsx'
+import strip from '../../strip/preview.jsx'
 
-export const EDITORS = { circuit }
+export const EDITORS = { circuit, strip }
 export const SCENES = ['card', 'tile', 'detail']
 
 /** The editor drawing `piece` (pieces.json's entry with its `type`). */

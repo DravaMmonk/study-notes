@@ -26,7 +26,8 @@ import { OVERLAY } from './i18n.js'
 import { S, validate } from './schema.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { taskIdProblems, taskIdsOf } from './tasks.js'
-import { definesParts, partProblems, withParts } from './parts/define.js'
+import { partProblems, withParts } from './parts/define.js'
+import { makesPieces } from './parts/schema.js'
 
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
 export const GLOSSARY = S.obj({
@@ -113,7 +114,7 @@ function changes(before, after, at = 'vocabulary') {
     // A schema object's new field is one old content lacks: it must be optional.
     if (before.type === 'obj' && after.type === 'obj') for (const [k, f] of Object.entries(after.fields ?? {})) if (!(k in (before.fields ?? {})) && !f.optional) out.push(`${at}.fields.${k} is new and not optional`)
     // A bound a schema gains narrows what old content may be.
-    if ('type' in before) for (const k of ['min', 'max', 'pattern', 'keys']) if (k in after && !(k in before)) out.push(`${at}.${k} is a new bound`)
+    if ('type' in before) for (const k of ['min', 'max', 'pattern', 'keys', 'key']) if (k in after && !(k in before)) out.push(`${at}.${k} is a new bound`)
     return out
   }
   return before === after ? [] : [`${at}: ${JSON.stringify(before)} became ${JSON.stringify(after)}`]
@@ -144,6 +145,6 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
   for (const [lang, memory] of Object.entries(i18n ?? {})) add(validate(OVERLAY, memory, { vocabulary }), `i18n/${lang}.json`)
   if (parts !== undefined) out.push(...partProblems(parts, domainVocabulary, { tasks: taskIdsOf(levels) }))
-  else if (definesParts(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'pieces.json', says: `the ${domainVocabulary.domain} domain defines its parts as data: the game needs a pieces.json` })
+  else if (makesPieces(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'pieces.json', says: `the ${domainVocabulary.domain} domain's pieces are data: the game needs a pieces.json` })
   return out
 }

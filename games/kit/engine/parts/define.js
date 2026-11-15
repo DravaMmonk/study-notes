@@ -2,10 +2,10 @@
 // part starts with, and every place the file does not hold together. The part definitions are content; the engine
 // resources they call (the domain's `op` items, run by its ops.js) are the domain's code.
 //
-//   defineParts(file, ops)       → { PARTS, defs, defaultsOf(type) }   of its primitives; a built piece (an inside, no
-//                                compute) is the course's to make (../board-course.js, ../pieces.js builtPieces)
+//   defineParts(file, ops)       → { PARTS, defs, defaultsOf(type) }   of its circuit primitives; a built piece (an
+//                                inside, no compute) is the course's to make (../board-course.js, ../pieces.js builtPieces)
 //   partProblems(file, vocabulary, { tasks? }) → [{ at, says }]   tasks: the game's task ids (a reference to none fails)
-//   withParts(vocabulary, file)  the vocabulary with both code and file parts in its `part` kind (content's S.ref('part'))
+//   withParts(vocabulary, file)  the vocabulary with both code and file pieces in its `part` kind (content's S.ref('part'))
 //   evalSettings(text, def, params, ops)   a settings-only expression (a readout, a rule, a check) on a node's settings
 //   applyRules(def, params, changed, ops)  a node's settings once the player changed one: the part's rules followed
 //   failedCheck(def, params, ops)          what the first check its settings fail says, or null
@@ -15,7 +15,7 @@
 // (ctx.region(name), ../../circuit/frames.js runRegion).
 import { PartError } from '../circuit.js'
 import { runRegion } from '../../circuit/frames.js'
-import { builtPieces, facesOf, holesOf, insideOf, keepsOf, outletsOf, regionsOf, registerPieces, settingsOf } from '../pieces.js'
+import { editorOf, facesOf, holesOf, insideOf, keepsOf, outletsOf, regionsOf, registerPieces, settingsOf } from '../pieces.js'
 import { validate } from '../schema.js'
 import { ExprError, evaluate, evaluateTaped, parse, problemsOf } from './expr.js'
 import { ICON_NAMES } from './icons.js'
@@ -27,6 +27,8 @@ const OPTIONED = new Set(['select', 'buttons'])
 // The settings whose value is a list of options, and those holding a tree as text (a sentence the domain's language reads).
 const LISTED = new Set(['list'])
 const NUMERIC = new Set(['number', 'slider'])
+// A primitive of the circuit editor: it computes, or keeps an input.
+const circuitPrimitive = (piece) => editorOf(piece) === 'circuit' && !insideOf(piece)
 
 /** Whether a vocabulary's domain defines its parts as data: it gives engine resources. */
 export const definesParts = (vocabulary) => Boolean(vocabulary?.kinds?.op)
@@ -166,7 +168,7 @@ function symmetricIn(tree, settings, ops) {
  */
 export function defineParts(file, ops, code = {}) {
   const presets = file?.presets ?? {}
-  const defs = Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, def]) => !insideOf(def)).map(([type, def]) => [type, resolvePart(def, presets, type)]))
+  const defs = Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, def]) => circuitPrimitive(def)).map(([type, def]) => [type, resolvePart(def, presets, type)]))
   const defined = Object.fromEntries(Object.entries(defs).map(([type, def]) => {
     const trees = treesOf(def)
     const names = holesOf(def).map((p) => p.name)
@@ -246,10 +248,10 @@ export function partDesc(def, allowed = () => null) {
   return side('en') ? { zh: side('zh'), en: side('en') } : { zh: side('zh') }
 }
 
-/** The vocabulary with a pieces.json's parts as its `part` kind: what content's S.ref('part') names. */
+/** The vocabulary with a pieces.json's pieces as its `part` kind: what content's S.ref('part') names. */
 export function withParts(vocabulary, file) {
-  // A domain with its primitives in code has its built pieces alone in pieces.json.
-  const pieces = definesParts(vocabulary) ? file?.parts ?? {} : builtPieces(file)
+  // A domain with its circuit primitives in code has only its other pieces in pieces.json.
+  const pieces = Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, piece]) => definesParts(vocabulary) || !circuitPrimitive(piece)))
   if (!definesParts(vocabulary) && !Object.keys(pieces).length) return vocabulary
   const part = Object.fromEntries(Object.entries(pieces).map(([type, def]) => [type, { about: def.desc ?? def.name ?? type }]))
   return { ...vocabulary, kinds: { ...vocabulary.kinds, part: registerPieces(vocabulary.kinds.part, part) } }
@@ -260,8 +262,8 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
   const out = []
   const say = (at, says) => out.push({ at: `pieces.json${at}`, says })
   const vocab = withParts(vocabulary, file)
-  // A domain with its primitives in code keeps its built pieces alone here.
-  if (!definesParts(vocabulary)) for (const [type, raw] of Object.entries(file?.parts ?? {})) if (!insideOf(raw)) say(`.parts.${type}`, `the ${vocabulary.domain} domain defines its primitives in code: pieces.json holds its built pieces alone (inside)`)
+  // A domain with its circuit primitives in code keeps none here.
+  if (!definesParts(vocabulary)) for (const [type, raw] of Object.entries(file?.parts ?? {})) if (circuitPrimitive(raw)) say(`.parts.${type}`, `the ${vocabulary.domain} domain defines its circuit primitives in code: pieces.json holds none (a piece computing)`)
   for (const p of validate(PARTS_FILE, file, { vocabulary: vocab, tasks })) say(p.at === '(root)' ? '' : p.at, p.says)
   if (out.length) return out
   const ops = { ...BUILTIN_ITEMS, ...vocabulary.kinds.op }
@@ -293,6 +295,8 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
     const at = `.parts.${type}`
     const built = Boolean(insideOf(raw))
     if ((!built || raw.icon) && !ICONS.has(raw.icon)) say(`${at}.icon`, `${raw.icon} is no icon of the kernel’s table`)
+    // The rest is the circuit editor's: a strip's block has no faces beyond what it marks, which the schema checks.
+    if (editorOf(raw) !== 'circuit') continue
     const keys = settingsOf(raw).map((s) => s.key)
     if (new Set(keys).size !== keys.length) say(`${at}.settings`, 'a setting key is written twice')
     if (new Set(holesOf(raw).map((p) => p.name)).size !== holesOf(raw).length) say(`${at}.inputs`, 'an input is named twice')

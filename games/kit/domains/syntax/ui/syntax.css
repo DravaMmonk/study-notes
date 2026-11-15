@@ -1,5 +1,6 @@
 /* The syntax domain on the shared tokens (games/kit/tokens.css): a sentence set in the serif, the roles of its skeleton
-   underlined in their colours, folded modifiers as pieces, the tray under it, the check's findings. */
+   underlined in their colours, folded modifiers as pieces, the tray under it, the check's findings. What a block marks
+   has its colour (--mark), for the strip's blocks (games/kit/strip Mark.jsx) as for the sentence. */
 :root {
   --role-subj: #3f7fb5;
   --role-verb: #b4579a;
@@ -18,12 +19,12 @@
   --type-rel: #b9a2e0;
   --sx-ok: #95c08a;
 }
-[data-role='subj'] { --role: var(--role-subj); }
-[data-role='verb'] { --role: var(--role-verb); }
-[data-role='obj'] { --role: var(--role-obj); }
-[data-role='comp'] { --role: var(--role-comp); }
-[data-type='pp'] { --type: var(--type-pp); }
-[data-type='rel'] { --type: var(--type-rel); }
+[data-mark='subj'] { --mark: var(--role-subj); }
+[data-mark='verb'] { --mark: var(--role-verb); }
+[data-mark='obj'] { --mark: var(--role-obj); }
+[data-mark='comp'] { --mark: var(--role-comp); }
+[data-mark='pp'] { --mark: var(--type-pp); }
+[data-mark='rel'] { --mark: var(--type-rel); }
 
 .sx-stage { box-sizing: border-box; width: min(100%, 880px); margin: 0 auto; padding: var(--sp-7) var(--sp-7) var(--sp-7); display: grid; gap: var(--sp-5); align-content: start; }
 
@@ -33,15 +34,15 @@
 /* A word over its role's name: the name sits under the word in the flow, so a short word ("We") is at least as wide as
    its name and the next word's name never runs into it. */
 .sx-stack { display: inline-grid; justify-items: start; line-height: 1.4; }
-.sx-unit[data-role] .sx-stack > :first-child { box-shadow: inset 0 -2.5px 0 var(--role); }
-.sx-role-label { margin-top: var(--sp-1); font-family: var(--mono); font-size: 10.5px; letter-spacing: var(--track-label); line-height: 1; white-space: nowrap; color: var(--role); }
+.sx-unit[data-mark] .sx-stack > :first-child { box-shadow: inset 0 -2.5px 0 var(--mark); }
+.sx-role-label { margin-top: var(--sp-1); font-family: var(--mono); font-size: 10.5px; letter-spacing: var(--track-label); line-height: 1; white-space: nowrap; color: var(--mark); }
 .sx-word, .sx-fold { margin: 0; border: 0; font: inherit; color: inherit; cursor: pointer; }
 .sx-word { padding: 0 1px; border-radius: var(--r-sm); background: transparent; }
 .sx-word:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
-.sx-fold { display: inline-flex; align-items: baseline; gap: var(--sp-2); padding: 0 var(--sp-4); border-radius: var(--r-sm); background: color-mix(in srgb, var(--type) 14%, var(--canvas)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--type) 55%, transparent); font-family: var(--sans); font-size: 13.5px; color: var(--type); vertical-align: 0.12em; }
+.sx-fold { display: inline-flex; align-items: baseline; gap: var(--sp-2); padding: 0 var(--sp-4); border-radius: var(--r-sm); background: color-mix(in srgb, var(--mark) 14%, var(--canvas)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mark) 55%, transparent); font-family: var(--sans); font-size: 13.5px; color: var(--mark); vertical-align: 0.12em; }
 .sx-fold i { font-family: var(--serif); font-style: normal; font-size: 15px; color: var(--heading); }
 .sx-fold .sx-arrow { color: var(--muted); }
-.sx-fold.is-given { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--type) 30%, transparent); opacity: 0.8; cursor: default; }
+.sx-fold.is-given { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mark) 30%, transparent); opacity: 0.8; cursor: default; }
 .sx-punct { font-family: var(--serif); }
 .is-on.sx-word, .is-on.sx-fold { background: color-mix(in srgb, var(--accent) 20%, transparent); box-shadow: inset 0 0 0 1.5px var(--accent); }
 .is-pending.sx-word, .is-pending.sx-fold { background: color-mix(in srgb, var(--accent) 12%, transparent); box-shadow: none; outline: 1.5px dashed var(--accent); outline-offset: 0; }
@@ -56,10 +57,7 @@
 .sx-tray { display: flex; flex-wrap: wrap; gap: var(--sp-4) var(--sp-6); }
 .sx-group { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
 .sx-act { min-height: 38px; padding: var(--sp-3) var(--sp-5); border: 1px solid var(--rule); border-radius: var(--r-full); background: var(--canvas); color: var(--ink); font: inherit; font-size: var(--fs-small); cursor: pointer; }
-.sx-act[data-role] { border-color: color-mix(in srgb, var(--role) 60%, var(--rule)); color: var(--role); }
-.sx-act[data-type] { border-color: color-mix(in srgb, var(--type) 60%, var(--rule)); color: var(--type); }
 .sx-act:hover { background: var(--paper); }
-.sx-act.is-active { background: color-mix(in srgb, var(--role) 16%, transparent); box-shadow: inset 0 0 0 1px var(--role); }
 .sx-act.is-quiet { color: var(--muted); }
 
 /* ---- the check ---- */

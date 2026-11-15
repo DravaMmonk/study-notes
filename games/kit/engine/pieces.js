@@ -1,6 +1,9 @@
-// A piece's faces are independent. The persisted circuit definitions use the established inputs and views keys.
+// A piece's faces are independent: its own (name, desc, icon, family, revisions) and those of the editor it is made
+// with (parts/schema.js EDITORS). The persisted circuit definitions use the established inputs and views keys.
 /** The editor a piece is made with: the one it names, the circuit's when it names none. */
 export const editorOf = (piece) => piece.editor ?? 'circuit'
+/** What a block on a strip marks: an item of the domain's `mark` kind. */
+export const markOf = (piece) => piece.mark ?? null
 export const holesOf = (piece) => piece.inputs ?? []
 export const outletsOf = (piece) => piece.outputs ?? []
 export const settingsOf = (piece) => piece.settings ?? []

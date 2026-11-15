@@ -1,6 +1,6 @@
 {
   "title": { "zh": "主干" },
-  "adds": ["role:subj", "role:verb", "role:obj"],
+  "adds": ["subj", "verb", "obj"],
   "intro": [{ "t": { "zh": "标出这句话的主干。" } }],
   "debrief": {
     "title": { "zh": "The model learns a policy." },

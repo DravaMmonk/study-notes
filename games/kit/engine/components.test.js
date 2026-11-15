@@ -9,7 +9,7 @@ import { components } from './components.js'
 
 const CEILING = {
   'domains/image': 2868,
-  'domains/syntax': 159,
+  'domains/syntax': 157,
   'domains/table': 2411,
 }
 

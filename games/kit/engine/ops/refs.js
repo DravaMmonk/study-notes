@@ -3,7 +3,7 @@
 // ('part@level').
 import { find } from '../schema.js'
 import { GLOSSARY } from '../vocabulary.js'
-import { setAt } from './edit.js'
+import { getAt, setAt } from './edit.js'
 
 // game.json's own fields, outside its domain's schema (vocabulary.js checkContent).
 const META = ['domain', 'vocabulary', 'open']
@@ -73,10 +73,13 @@ const partLink = (type) => new RegExp(`(<part-ref to=")${escape(type)}("></part-
 // A board line placing the part: `x = type(…)` or `x = type[settings](…)`.
 const placing = (type) => new RegExp(`(=\\s*)${escape(type)}(?=\\s*[[(])`, 'g')
 
+// The value with the key at the end of `path` renamed `to`, in its place among the others.
+const renameKey = (v, path, to) => setAt(v, path.slice(0, -1), Object.fromEntries(Object.entries(getAt(v, path.slice(0, -1))).map(([k, x]) => [k === path.at(-1) ? to : k, x])))
+
 /**
  * Every place naming part `type` (pieces.json, ../parts/): [{ file, path, how: 'field' | 'link' | 'board' | 'open' }] —
- * a field its domain's schema types as a part (S.ref('part')), a <part-ref> link in a text, a board placing it, an
- * audit finding game.json leaves open ('part@level').
+ * a field (or a map's key) its domain's schema types as a part (S.ref('part')), a <part-ref> link in a text, a board
+ * placing it, an audit finding game.json leaves open ('part@level').
  */
 export function partRefs(ws, vocabulary, type) {
   const out = []
@@ -94,7 +97,10 @@ export function renamePartRefs(ws, vocabulary, from, to) {
   let n = 0
   for (const [, value, schema, set] of files(ws, vocabulary)) {
     let v = value
-    for (const hit of [...find(schema, value, 'ref', { vocabulary }), ...find(schema, value, 'name', { vocabulary })]) if (hit.schema.kind === 'part' && hit.value === from) { v = setAt(v, hit.path, to); n++ }
+    const hits = [...find(schema, value, 'ref', { vocabulary }), ...find(schema, value, 'name', { vocabulary })].filter((hit) => hit.schema.kind === 'part' && hit.value === from)
+    for (const hit of hits.filter((h) => !h.key)) { v = setAt(v, hit.path, to); n++ }
+    // Keys last, the deepest first, so no path found goes through a key already renamed.
+    for (const hit of hits.filter((h) => h.key).sort((a, b) => b.path.length - a.path.length)) { v = renameKey(v, hit.path, to); n++ }
     for (const t of find(schema, v, 'text', { vocabulary })) for (const s of texts(t.value)) {
       const renamed = s.value.replace(partLink(from), `$1${to}$2`)
       if (renamed !== s.value) { v = setAt(v, [...t.path, ...s.path], renamed); n++ }

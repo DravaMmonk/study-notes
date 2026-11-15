@@ -4,9 +4,12 @@
 //
 // A sentence is a row of tokens (words and punctuation). An analysis is plain data, indices into that row:
 //
-//   { folds: [{ a, b, type, to }], roles: { subj?: [a, b], verb?: [a, b], obj?: [a, b], comp?: [a, b] } }
+//   { folds: [{ a, b, type, to }], roles: { [type]: [a, b] } }
 //
-// A fold covers the tokens a..b (inclusive), is a construction of `type` (parts.js), and hangs on the word at `to`,
+// where a type is a game's block (marks.js chipsOf): a fold's a construction's, a role's a role's of the skeleton.
+//
+// A fold covers the tokens a..b (inclusive), is the construction a block of `type` marks (marks.js), and hangs on the
+// word at `to`,
 // outside it. Folds nest (a fold may hold folds made before it) and never cross, and a fold goes with the word it hangs
 // on: when that word is folded into a bigger piece, the fold is inside that piece too (a phrase's modifiers belong to
 // the phrase). A role is a stretch of the sentence;
@@ -14,7 +17,7 @@
 //
 // A level writes its sentence and its answer in words, not indices (`resolve` turns them into this):
 //
-//   { sentence, folds: [{ span, type, to, misread?: { word: { zh, en } } }], roles: { subj, verb, obj?, comp? },
+//   { sentence, folds: [{ span, type, to, misread?: { word: { zh, en } } }], roles: { [type]: span },
 //     misrole?: { role: { 'words as marked' | '*': { zh, en } } }, given?: [span] }
 //
 // A span or a word that occurs more than once in the sentence is told apart with #n ('change#2'). `misread` says what
@@ -22,8 +25,7 @@
 // (keyed by its standing words, lower case; '*' when the sentence has no such role at all); `given` lists folds already
 // made and fixed in place.
 
-import { ROLES, TYPES } from './parts.js'
-import { T as pair } from '../../../shell/i18n.js'
+import { T as pair, sideOf } from '../../../shell/i18n.js'
 
 const WORD = /[A-Za-z0-9]/
 
@@ -52,10 +54,11 @@ function locate(tokens, phrase) {
 }
 
 /**
- * A level's sentence and answer, from words to indices: { tokens, folds, given, roles, misread, misrole, problems }.
- * `misread` is a Map from a fold's key (`a-b`) to a Map from a word's index to its text.
+ * A level's sentence and answer, from words to indices: { tokens, folds, given, roles, misread, misrole, chips,
+ * problems }. `misread` is a Map from a fold's key (`a-b`) to a Map from a word's index to its text; `chips` the game's
+ * blocks (marks.js chipsOf) the answer is written in.
  */
-export function resolve(spec) {
+export function resolve(spec, chips) {
   const tokens = tokenize(spec.sentence)
   const problems = []
   const at = (phrase) => {
@@ -73,7 +76,7 @@ export function resolve(spec) {
   for (const f of spec.folds ?? []) {
     const span = at(f.span)
     const to = word(f.to)
-    if (!TYPES[f.type]) problems.push(`“${f.span}”: unknown type ${f.type}`)
+    if (!chips[f.type]?.fold) problems.push(`“${f.span}”: ${f.type} marks no construction`)
     if (!span || to === null) continue
     const fold = { a: span[0], b: span[1], type: f.type, to }
     folds.push(fold)
@@ -81,7 +84,7 @@ export function resolve(spec) {
   }
   const roles = {}
   for (const [role, phrase] of Object.entries(spec.roles ?? {})) {
-    if (!ROLES[role]) problems.push(`unknown role ${role}`)
+    if (!chips[role]?.role) problems.push(`${role} marks no role`)
     const span = at(phrase)
     if (span) roles[role] = span
   }
@@ -89,7 +92,7 @@ export function resolve(spec) {
     const span = at(g)
     return span && folds.find((f) => f.a === span[0] && f.b === span[1])
   }).filter(Boolean)
-  return { tokens, folds, given, roles, misread, misrole: spec.misrole ?? {}, problems }
+  return { tokens, folds, given, roles, misread, misrole: spec.misrole ?? {}, chips, problems }
 }
 
 export const keyOf = (f) => `${f.a}-${f.b}`
@@ -162,7 +165,8 @@ const lower = (tokens, list) => list.map((i) => tokens[i].text.toLowerCase()).jo
  * sentence to mark. Missing folds are counted, not shown: the player looks for them.
  */
 export function check(gold, analysis) {
-  const { tokens } = gold
+  const { tokens, chips } = gold
+  const named = (type, side) => sideOf(chips[type].name, side)
   const findings = []
   const find = (text, at) => findings.push({ ...text, at })
   const golden = new Map(gold.folds.map((f) => [keyOf(f), f]))
@@ -171,7 +175,7 @@ export function check(gold, analysis) {
     const g = golden.get(keyOf(p))
     const q = quote(tokens, p.a, p.b)
     if (g) {
-      if (p.type !== g.type) find(pair(`${q}不是${TYPES[p.type].name.zh}。`, `${q} is not a ${TYPES[p.type].name.en}.`), [p.a, p.b])
+      if (p.type !== g.type) find(pair(`${q}不是${named(p.type, 'zh')}。`, `${q} is not a ${named(p.type, 'en')}.`), [p.a, p.b])
       else if (p.to !== g.to) {
         const w = `“${tokens[p.to].text}”`
         find(gold.misread.get(keyOf(g))?.get(p.to) ?? pair(`这样挂，${q}说明的就是${w}。读一读，意思通吗？`, `Hung there, ${q} tells about ${w}. Read it: does that make sense?`), [p.a, p.b])
@@ -187,10 +191,10 @@ export function check(gold, analysis) {
     find(pair('还没有标出主干。'))
     return { pass: false, findings }
   }
-  for (const role of Object.keys(ROLES)) {
+  for (const role of Object.keys(chips).filter((type) => chips[type].role)) {
     const want = gold.roles[role]
     const got = analysis.roles[role]
-    const name = ROLES[role].name
+    const name = { zh: named(role, 'zh'), en: named(role, 'en') }
     if (!want && !got) continue
     if (!got) {
       find(pair(`还没有标出${name.zh}。`, `The ${name.en} is not marked yet.`))
@@ -204,7 +208,7 @@ export function check(gold, analysis) {
     }
     const meant = standing(tokens, gold.folds, want)
     const head = meant[meant.length - 1]
-    const ok = role === 'verb'
+    const ok = chips[role].role === 'whole'
       ? words.length === meant.length && words.every((i) => meant.includes(i))
       : words.includes(head) && words.every((i) => meant.includes(i))
     if (ok) continue

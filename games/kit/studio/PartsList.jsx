@@ -1,9 +1,10 @@
 // The parts of a game in the studio (games/DESIGN.md 6.7, 6.8): every piece its pieces.json defines, primitive or built
 // (inside) — icon, name, type — grouped by tray in the order the course gives them (pieces.js), then every setting
 // preset, a row each; findings on a part mark its row. A click opens it (its
-// faces on the page, its fields in the rows). The two + add a piece and open it: a primitive, blank and ready to be
-// filled in; a built piece, made from a task picked (grouped by level, in course order), the work of which runs
-// inside it — its ports are that task's board's. A part is copied, renamed and removed from the part's own page
+// faces on the page, its fields in the rows). The + add a piece and open it: one of each editor the domain's vocabulary
+// gives what it is made of (../engine/parts/schema.js BLANKS), blank and ready to be filled in; a built piece, made
+// from a task picked (grouped by level, in course order), the work of which runs inside it — its ports are that task's
+// board's. A part is copied, renamed and removed from the part's own page
 // (PartEditor in Editor.jsx).
 import { useRef, useState } from 'react'
 import { Box, CircuitBoard, Plus } from 'lucide-react'
@@ -12,16 +13,8 @@ import { iconOf } from '../shell/parts/icons.js'
 import { OptionList, useDismiss } from './Picker.jsx'
 import { taskOptionsOf } from './form.js'
 import { pieceGroups } from './pieces.js'
-
-/** A new part to fill in: one input, one output computed as that input, its name its type. */
-export const blankPart = (vocabulary) => ({
-  name: { zh: '新元件' },
-  desc: { zh: '' },
-  icon: 'Box',
-  family: Object.keys(vocabulary?.kinds.family ?? {})[0] ?? 'value',
-  inputs: [{ name: 'a' }],
-  compute: 'a',
-})
+import { BLANKS } from '../engine/parts/schema.js'
+import { editorOf } from '../engine/pieces.js'
 
 /** A new built piece: the work of task `task` runs inside it; named after what the task is called. */
 export const builtPart = (task, name) => ({ name: { zh: name || task }, desc: { zh: '' }, inside: [{ task }] })
@@ -41,9 +34,10 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
   const box = useRef(null)
   useDismiss(box, picking, () => setPicking(false))
   const tasks = levelOptions ? taskOptionsOf(levelOptions) : []
-  const add = () => {
+  const blanks = Object.values(BLANKS).map((blank) => blank(vocabulary)).filter(Boolean)
+  const add = (data) => {
     const type = freeName(parts.map(([t]) => t), 'part')
-    onEdit({ op: 'piece.add', piece: type, data: blankPart(vocabulary) })
+    onEdit({ op: 'piece.add', piece: type, data })
     onSelect({ part: type })
   }
   const build = (task) => {
@@ -81,7 +75,7 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
         </section>
       ))}
       <div className="parts-adds" ref={box}>
-        <button type="button" className="parts-add" onClick={add} title={tr('加一个基础件', 'Add a primitive piece')}><Plus size={12} aria-hidden="true" /><Box size={13} aria-hidden="true" /></button>
+        {blanks.map((data) => <button key={editorOf(data)} type="button" className="parts-add" onClick={() => add(data)} title={tr('加一个基础件', 'Add a primitive piece')}><Plus size={12} aria-hidden="true" /><Box size={13} aria-hidden="true" /></button>)}
         <button type="button" className="parts-add" onClick={() => setPicking(!picking)} aria-expanded={picking} title={tr('用一个任务的作品搭一个件', 'Build a piece from a task’s work')}><Plus size={12} aria-hidden="true" /><CircuitBoard size={13} aria-hidden="true" /></button>
         {picking && <div className="parts-pick"><OptionList options={tasks} value={null} onPick={build} onClose={() => setPicking(false)} /></div>}
       </div>

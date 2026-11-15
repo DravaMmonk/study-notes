@@ -2,27 +2,25 @@
 // is and the schema of its parameters, and the schemas of game.json and of one level. Content is these items and
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
-// The items are implemented next to them: the parts (the skeleton's roles and the constructions a modifier is folded
-// as) in model/parts.js, a sentence and its answer in model/sentence.js.
+// The items are implemented next to them: the marks (the skeleton's roles and the constructions a modifier is folded
+// as, what a game's blocks stand for) in model/marks.js, a sentence and its answer in model/sentence.js. A game's
+// blocks are pieces of its pieces.json (the strip editor's, games/DESIGN.md 6.8); content names them as parts
+// (S.ref('part'), ../../engine/parts/define.js withParts).
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
 import { TRAY, TRAYS } from '../../engine/trays.js'
-import { PARTS, ROLES, TYPES } from './model/parts.js'
+import { MARKS } from './model/marks.js'
 import { T as t } from '../../shell/i18n.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 const TEXTS = S.list(S.text())
 
-/* ---------- the parts, the machine ---------- */
+/* ---------- the marks, the machine ---------- */
 
-/** A part is what a level brings in (`adds`): a role of the skeleton ('role:subj') or a construction ('pp'). */
-const partText = (key) => (key.startsWith('role:') ? ROLES[key.slice(5)] : TYPES[key])
-const PART_ITEMS = Object.fromEntries(PARTS.map((key) => {
-  const { name, desc } = partText(key)
-  return [key, item(t(`${name.zh}：${desc.zh}`, `${name.en}: ${desc.en}`))]
-}))
+/** What a block on the strip marks: a role of the skeleton or a construction (model/marks.js). */
+const MARK_ITEMS = Object.fromEntries(Object.entries(MARKS).map(([mark, { about }]) => [mark, item(about)]))
 const MACHINES = {
   reader: item(t('读者：标出主干，把修饰成分折到它修饰的词上')),
 }
@@ -31,21 +29,23 @@ const MACHINES = {
 
 /** A phrase as it stands in the sentence; one that occurs more than once is told apart with #n ('change#2'). */
 const PHRASE = S.str({ about: t('句子里的一段词，出现不止一次时写 #n（change#2）') })
+// A block of the game's pieces.json: what a fold is folded as, what a role is marked as.
+const BLOCK = S.ref('part')
 const FOLD = S.obj({
   span: PHRASE,
-  type: S.oneOf(Object.keys(TYPES), { about: t('折成的结构') }),
+  type: S.ref('part', { about: t('折成的结构：标出一种结构的块') }),
   to: PHRASE,
   misread: S.opt(S.map(S.text(), { about: t('挂在别的词（键）上时，那样挂是什么意思') })),
 })
-const ROLE_SPANS = Object.fromEntries(Object.keys(ROLES).map((role) => [role, ['subj', 'verb'].includes(role) ? PHRASE : S.opt(PHRASE)]))
-const MISROLE = S.obj(Object.fromEntries(Object.keys(ROLES).map((role) => [role, S.opt(S.map(S.text(), {
+const ROLES = S.map(PHRASE, { key: BLOCK, about: t('主干的每个成分（标出它的块）是句子里的哪段词') })
+const MISROLE = S.map(S.map(S.text(), {
   about: t('标成这个成分、还立着的那几个词（小写）标错时说什么；* 是这句话根本没有这个成分'),
-}))])))
+}), { key: BLOCK })
 /** One sentence and its answer, in words (model/sentence.js resolve reads them into indices). */
 const SENTENCE = {
   sentence: S.str(),
   folds: S.opt(S.list(FOLD)),
-  roles: S.obj(ROLE_SPANS),
+  roles: ROLES,
   misrole: S.opt(MISROLE),
   given: S.opt(S.list(PHRASE, { about: t('已经折好、拆不开的块（答案里的折）') })),
 }
@@ -53,7 +53,7 @@ const INTRO = S.list(S.obj({ t: S.text() }))
 /** What a level says once: its title, its place in the course, its introduction, its pass text. */
 const ONCE = {
   title: S.text(),
-  adds: S.opt(S.list(S.ref('part'), { section: 'course', about: t('这一关带来的成分或结构') })),
+  adds: S.opt(S.list(BLOCK, { section: 'course', about: t('这一关带来的成分或结构') })),
   tray: TRAY,
   showcase: S.opt(S.text({ section: 'course', about: t('新东西第一次出现时只用它一个也算一关：它的用法抽象在哪里') })),
   intro: S.opt(INTRO),
@@ -85,8 +85,14 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'syntax',
-  version: 1,
-  kinds: { part: PART_ITEMS, machine: MACHINES },
+  version: 2,
+  removes: [
+    { at: 'kinds.part', why: 'a block is a piece of pieces.json (the strip editor’s), standing for a mark' },
+    { at: 'level.tasks.of.folds.of.type', why: 'a fold is folded as a block of pieces.json marking a construction' },
+    { at: 'level.tasks.of.roles', why: 'the roles are the blocks of pieces.json marking a role, each to its words' },
+    { at: 'level.tasks.of.misrole', why: 'a misreading is said of a block of pieces.json marking a role' },
+  ],
+  kinds: { mark: MARK_ITEMS, machine: MACHINES },
   game: GAME,
   level: LEVEL,
 })

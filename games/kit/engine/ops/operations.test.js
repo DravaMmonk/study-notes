@@ -299,7 +299,7 @@ const PVOCAB = defineVocabulary({
   version: 1,
   kinds: { op: { add: { about: 'a + b', args: [{ name: 'a' }, { name: 'b' }] } }, family: { value: { about: 'numbers' } } },
   game: S.obj({ title: S.text(), primitives: S.list(S.ref('part')), eras: S.list(ERA) }),
-  level: S.obj({ title: S.text(), brief: S.opt(S.text()), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()) }),
+  level: S.obj({ title: S.text(), brief: S.opt(S.text()), adds: S.opt(S.list(S.ref('part'))), solution: S.opt(S.board()), uses: S.opt(S.map(S.str(), { key: S.ref('part') })) }),
 })
 const sum = { name: { zh: '和' }, desc: { zh: 'a + b' }, icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'add(a, b)' }
 function partsToy() {
@@ -364,4 +364,9 @@ test('the part operations edit pieces.json, refuse to remove a part still used, 
   assert.match(ws.levels.get('a1').brief.zh, /<part-ref to="plus">/)
   for (const { op, ...args } of renamed.inverse) prun(ws, op, args)
   assert.equal(JSON.stringify(ws.content()), before)
+  // A map's key naming the part is a reference too: renamed in its place, and holding a removal back.
+  prun(ws, 'level.set', { level: 'a1', path: 'uses', value: { sum: 'twice', other: 'once' } })
+  prun(ws, 'piece.rename', { piece: 'sum', to: 'plus' })
+  assert.deepEqual(Object.keys(ws.levels.get('a1').uses), ['plus', 'other'])
+  assert.throws(() => prun(ws, 'piece.remove', { piece: 'plus' }), /levels\/a1.json uses.plus/)
 })

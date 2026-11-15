@@ -18,6 +18,7 @@ import { RULE_TEXT, audit } from '../course.js'
 import { HINTS, S, validate as fits } from './schema.js'
 import { describe } from './vocabulary.js'
 import { taskShapes, tasksSchema } from './tasks.js'
+import { makesPieces } from './parts/schema.js'
 
 /** What domain.js exports: the three entries, and the extension points tools add (each optional). */
 export const ENTRIES = ['vocabulary', 'spec', 'validate']
@@ -99,7 +100,7 @@ export function vocabularyProblems(name, v) {
       if (!TYPES.includes(s.type)) say(`${at}: ${JSON.stringify(s.type)} is no schema type`)
       // Parts come from the domain and the game’s content.
       if (s.type === 'syntax' && !v.languages?.[s.lang]) say(`${at}: names the language ${s.lang}, which the vocabulary has not`)
-      if ((s.type === 'ref' || s.type === 'call') && !v.kinds?.[s.kind] && !(s.kind === 'part' && v.kinds?.op)) say(`${at}: names the kind ${s.kind}, which the vocabulary has not`)
+      if ((s.type === 'ref' || s.type === 'call') && !v.kinds?.[s.kind] && !(s.kind === 'part' && makesPieces(v))) say(`${at}: names the kind ${s.kind}, which the vocabulary has not`)
       for (const [hint, values] of Object.entries(HINTS)) if (s[hint] !== undefined && !values.includes(s[hint])) say(`${at}: ${hint} ${JSON.stringify(s[hint])} is none of ${values.join(', ')}`)
     }
   }

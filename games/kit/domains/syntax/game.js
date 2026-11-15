@@ -1,35 +1,34 @@
 // A syntax game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the syntax domain's level screen (a long sentence taken apart: modifiers
-// folded onto their words, the skeleton marked), its components box (the roles and constructions), its map art (the
-// composing stick, games/stick).
+// folded onto their words, the skeleton marked), its components box (the game's blocks: pieces.json, the strip
+// editor's), its map art (the composing stick, games/stick).
 //
 //   vocabulary.js       what a syntax game's content may name
 //   course.js           content read into levels, play order and the course the audit checks
 //   model/sentence.js   tokens, folds and roles; an analysis checked against the answer
-//   model/parts.js      the roles of the skeleton and the constructions a modifier is folded as
+//   model/marks.js      what a block marks: the roles of the skeleton and the constructions a modifier is folded as
 //   ui/                 the level screen (desktop and phone) and the map's picture
 //   domain.js           the vocabulary, spec and checks for npm run check (validate.js)
 //   syntax.test.js      folding, refusals, the check, the content contract (npm test)
-import { BookOpenText, CornerDownRight, Quote, Rows3, SquareStack } from 'lucide-react'
+import { BookOpenText } from 'lucide-react'
 import './ui/syntax.css'
 import { defineGame } from '../../shell/index.js'
 import { introductions, isCore } from '../../course.js'
 import { T, tr } from '../../shell/i18n.js'
 import Analyze from './ui/Analyze.jsx'
 import Hero from './ui/Hero.jsx'
+import { iconOf } from '../../shell/parts/icons.js'
 import { skeleton } from './model/sentence.js'
-import { ROLES, TYPES } from './model/parts.js'
 import { syntaxCourse } from './course.js'
 
-const ICON = { 'role:subj': Rows3, 'role:verb': Rows3, 'role:obj': Rows3, 'role:comp': Rows3, pp: CornerDownRight, rel: Quote }
 /** The fields of an object that hold something. */
 const defined = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined))
-const textOf = (key) => (key.startsWith('role:') ? ROLES[key.slice(5)] : TYPES[key])
 
-/** content (../../engine/content.js): { id, title, kicker, lede, eras, levels, glossary }. */
+/** content (../../engine/content.js): { id, title, kicker, lede, eras, levels, glossary, partDefs }. */
 export default function syntaxGame(content) {
-  const { LEVELS, CHAPTERS, course } = syntaxCourse(content)
-  const parts = [...introductions(course)].map(([key, at]) => ({ key, name: textOf(key).name, desc: textOf(key).desc, icon: ICON[key] ?? SquareStack, at }))
+  const { LEVELS, CHAPTERS, course, chips } = syntaxCourse(content)
+  const pieces = content.partDefs.parts
+  const parts = [...introductions(course)].map(([key, at]) => ({ key, piece: key, name: pieces[key].name, desc: pieces[key].desc, ...defined({ revisions: pieces[key].revisions }), icon: iconOf(pieces[key].icon), at }))
   const named = new Map(parts.map((p) => [p.key, p]))
   return defineGame({
     id: content.id,
@@ -63,6 +62,8 @@ export default function syntaxGame(content) {
     passed: (level) => ({ label: T('主干'), lines: [skeleton(level.source.tasks.at(-1).gold)] }),
     parts: { all: parts },
     kinds: { analyze: { Screen: Analyze, icon: BookOpenText, label: { zh: '拆句', en: 'Take apart' } } },
+    // The blocks the screen marks with (model/marks.js chipsOf).
+    chips,
     // Fewer checks is better; right the first time earns the ★.
     better: (score, best) => Boolean(score) && (!best || score.tries < best.tries),
     bestLabel: (best) => tr(`对照 ${best.tries} 次`, `${best.tries} check${best.tries === 1 ? '' : 's'}`),

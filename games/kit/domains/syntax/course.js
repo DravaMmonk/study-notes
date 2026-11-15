@@ -1,26 +1,30 @@
-// A syntax game's course, from its content (games/<id>/: game.json, levels, glossary; vocabulary.js says what may be
-// in it): the play order and level tree from its eras (../../course.js layout), each level with its tasks' sentences
-// and answers read into indices (model/sentence.js resolve), its era and what it requires, what it can mark (the roles
-// and constructions it has reached), and the course the shared audit checks (npm run check).
+// A syntax game's course, from its content (games/<id>/: game.json, levels, glossary, pieces.json; vocabulary.js says
+// what may be in it): the play order and level tree from its eras (../../course.js layout), each level with its tasks'
+// sentences and answers read into indices (model/sentence.js resolve), its era and what it requires, what it can mark
+// (the blocks it has reached), and the course the shared audit checks (npm run check).
 //
-// syntaxCourse({ eras, trays, levels, concept })
+// syntaxCourse({ eras, trays, levels, concept, partDefs })
 //   eras     game.json's eras: [{ id, machine, title, kicker, question, foundation }]
 //   trays    game.json's trays (../../course.js trays)
 //   levels   [{ id, title, adds?, showcase?, intro?, debrief, tasks }] in any order, its tasks
 //            [{ id, step?, brief, hint?, intro?, after?, …sentence }] done in turn (../../engine/tasks.js), where
 //            …sentence is one sentence and its answer (model/sentence.js says how they are written)
-//   adds     the parts the level brings in: roles ('role:subj') and constructions ('pp'); every part, once brought in,
-//            stays for every level after it that plays with a tray listing it
-//   concept  { part: idea } parts that are one new idea together (the roles of the skeleton, met as they are needed)
-// Returns { LEVELS, CHAPTERS, course }: each of LEVELS a new object, the level's fields with its tasks read (each
-// with its answer in indices, `gold`); nothing of the content is written to.
+//   adds     the blocks the level brings in (pieces of pieces.json, each marking a role or a construction,
+//            model/marks.js); every block, once brought in, stays for every level after it that plays with a tray
+//            listing it
+//   concept  { block: idea } blocks that are one new idea together (the roles of the skeleton, met as they are needed)
+//   partDefs pieces.json: the game's blocks
+// Returns { LEVELS, CHAPTERS, course, chips }: each of LEVELS a new object, the level's fields with its tasks read
+// (each with its answer in indices, `gold`), `chips` the blocks (model/marks.js chipsOf); nothing of the content is
+// written to.
 
 import { defineCourse, eraLevels, layout, reach } from '../../course.js'
 import { trayIn } from '../../engine/trays.js'
 import { resolve } from './model/sentence.js'
-import { PARTS, roleKey } from './model/parts.js'
+import { chipsOf } from './model/marks.js'
 
-export function syntaxCourse({ eras, trays, levels, concept = {} }) {
+export function syntaxCourse({ eras, trays, levels, concept = {}, partDefs }) {
+  const chips = chipsOf(partDefs)
   const plan = layout(eras)
   const given = new Map(levels.map((l) => [l.id, l]))
   const eraOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era])))
@@ -35,14 +39,14 @@ export function syntaxCourse({ eras, trays, levels, concept = {} }) {
     eras,
     trays,
     tray: (level) => trayIn(trays, given.get(level.id)?.tray),
-    primitives: PARTS,
+    primitives: Object.keys(chips),
     adds: (level) => given.get(level.id)?.adds ?? [],
     needs: () => null,
     builds: () => [],
     concept: (part) => concept[part] ?? part,
     machine: (level) => eraOf.get(level.id)?.machine ?? null,
     // What a level's answer uses: the roles it marks and the constructions it folds, every sentence.
-    needed: (level) => given.get(level.id).tasks.flatMap((s) => [...Object.keys(s.roles).map(roleKey), ...(s.folds ?? []).map((f) => f.type)]),
+    needed: (level) => given.get(level.id).tasks.flatMap((s) => [...Object.keys(s.roles), ...(s.folds ?? []).map((f) => f.type)]),
     showcase: (level) => given.get(level.id)?.showcase ?? null,
     abstraction: true,
   })
@@ -53,9 +57,9 @@ export function syntaxCourse({ eras, trays, levels, concept = {} }) {
       era: eraOf.get(level.id).id,
       requires: plan.requires.get(level.id) ?? [],
       palette: reach(course, at),
-      tasks: level.tasks.map((task) => ({ ...task, gold: resolve(task) })),
+      tasks: level.tasks.map((task) => ({ ...task, gold: resolve(task, chips) })),
     }
   })
   const CHAPTERS = eras.map((era) => ({ id: era.id, kicker: era.kicker, title: era.title, question: era.question, track: plan.tracks.get(era.id) }))
-  return { LEVELS, CHAPTERS, course }
+  return { LEVELS, CHAPTERS, course, chips }
 }

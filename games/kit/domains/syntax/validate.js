@@ -3,13 +3,12 @@
 //   · every span and word the answer names is in the sentence, once (or picked out with #n)
 //   · the folds never cross, none hangs on a word inside itself, a fold lies inside any fold that holds its word, and
 //     they can all be made in some order (each fold's word still standing when it is made)
-//   · the answer marks a subject and a verb, each role keeps some words standing, and it uses only the roles and
-//     constructions the level has reached
+//   · the answer marks every role a sentence always has (marks.js `needed`), each role keeps some words standing, and
+//     it uses only the roles and constructions the level has reached
 //   · every misreading names a word the fold could really be hung on
 //   · the answer passes its own check
 
 import { keyOf, check, order, standing } from './model/sentence.js'
-import { roleKey } from './model/parts.js'
 import { keyOf as textKey } from '../../shell/i18n.js'
 
 const crossing = (f, g) => (f.a < g.a && g.a <= f.b && f.b < g.b) || (g.a < f.a && f.a <= g.b && g.b < f.b)
@@ -33,9 +32,9 @@ export function sentenceProblems(gold, palette) {
     }
   }
   if (!problems.length && !order(folds)) problems.push('the folds cannot all be made: some fold hides the word another hangs on')
-  if (!roles.subj || !roles.verb) problems.push('the answer marks no subject or no verb')
+  for (const [type, chip] of Object.entries(gold.chips)) if (chip.needed && !roles[type]) problems.push(`the answer marks no ${type}`)
   for (const [role, span] of Object.entries(roles)) {
-    if (!palette.includes(roleKey(role))) problems.push(`the role ${role} is not reached here`)
+    if (!palette.includes(role)) problems.push(`the role ${role} is not reached here`)
     if (!standing(tokens, folds, span).length) problems.push(`the ${role} has no word left standing`)
   }
   if (!problems.length) {

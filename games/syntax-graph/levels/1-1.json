@@ -3,9 +3,9 @@
     "zh": "主干"
   },
   "adds": [
-    "role:subj",
-    "role:verb",
-    "role:obj"
+    "subj",
+    "verb",
+    "obj"
   ],
   "showcase": "marking: a stretch is chosen with two taps and then marked as a role",
   "intro": [

@@ -62,3 +62,10 @@
 .ks-pick-add { min-height: 26px; padding: 0 var(--sp-4); display: inline-flex; align-items: center; gap: var(--sp-1); border: 1px dashed var(--rule); border-radius: var(--r-md); color: var(--muted); background: transparent; font: inherit; font-size: 12px; cursor: pointer; }
 .level-phone .ks-pick-sentence { min-height: 38px; padding: var(--sp-2) var(--sp-4); }
 .level-phone .ks-pick-add { min-height: 38px; }
+
+/* A block that marks what it stands for (Mark.jsx): a pill in the colour the domain gives its mark, --mark. */
+.ks-mark { min-height: 38px; padding: var(--sp-3) var(--sp-5); border: 1px solid color-mix(in srgb, var(--mark, var(--ink)) 60%, var(--rule)); border-radius: var(--r-full); color: var(--mark, var(--ink)); background: var(--canvas); font: inherit; font-size: var(--fs-small); cursor: pointer; }
+.ks-mark:hover:not(:disabled) { background: var(--paper); }
+.ks-mark[aria-pressed='true'] { background: color-mix(in srgb, var(--mark, var(--accent)) 16%, transparent); box-shadow: inset 0 0 0 1px var(--mark, var(--accent)); }
+.ks-mark:disabled { cursor: default; }
+.ks-mark:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

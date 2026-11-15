@@ -99,16 +99,26 @@ export function Chains({ def, edit, onTask, label = (task) => task }) {
   )
 }
 
-export default function PieceSheet({ def, edit, onTask, label }) {
+/** A piece's icon and name over what it does: the faces every piece has. */
+export function Named({ def, edit }) {
   const { mark } = marker(edit)
   const Icon = iconOf(def.icon ?? 'CircuitBoard')
   return (
-    <div className={`pp-sheet ${edit ? 'is-editing' : ''}`}>
+    <>
       <header className="pp-sheet-head">
         {Icon && <i className="family-chip" data-family={def.family} {...mark([def.icon ? 'icon' : 'family'])}><Icon size={13} aria-hidden="true" /></i>}
         <h3 {...mark(['name'])}>{L(def.name)}</h3>
       </header>
       <p className="pf-desc" {...mark(['desc'])}>{L(def.desc)}</p>
+    </>
+  )
+}
+
+export default function PieceSheet({ def, edit, onTask, label }) {
+  const { mark } = marker(edit)
+  return (
+    <div className={`pp-sheet ${edit ? 'is-editing' : ''}`}>
+      <Named def={def} edit={edit} />
       <Revisions def={def} edit={edit} />
       <Chains def={def} edit={edit} onTask={onTask} label={label} />
       {def.card && <div className="pp-code" {...mark(['card'])}><span className="pp-code-label">card</span><code>{def.card}</code></div>}

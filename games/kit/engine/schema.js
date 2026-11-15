@@ -6,7 +6,8 @@
 //   text                            words a player reads: { zh, en }, or one string for both (a symbol, 'a + b'),
 //                                   carrying only the kernel's markup (markup.js)
 //   oneOf(values)                   one of these values
-//   list(of), map(of)               a list, or an object with keys of the author's choosing, every value of `of`
+//   list(of), map(of)               a list, or an object with keys of the author's choosing, every value of `of`;
+//                                   a map's `key` (a ref) makes every key the name of an item of that kind
 //   obj(fields)                     an object with these fields and no others; opt(schema) marks a field optional
 //   either(...schemas)              any one of them
 //   by(field, cases)                an object whose `field` names its shape: cases[value] (a level by its mode)
@@ -120,6 +121,7 @@ export function validate(schema, value, { vocabulary = null, levels = null, task
         if (!isObj(v)) return say(where, `expected an object, found ${show(v)}`)
         for (const [k, x] of Object.entries(v)) {
           if (s.keys && !new RegExp(s.keys).test(k)) say(`${where}.${k}`, `the key ${show(k)} does not match ${s.keys}`)
+          if (s.key) walk(s.key, k, `${where}.${k}`)
           walk(s.of, x, `${where}.${k}`)
         }
         return
@@ -205,7 +207,8 @@ const kin = (s, v) => s.of.find((x) => (isObj(v) ? (x.type === 'obj' && Object.k
 
 /**
  * Every place in `value` that `schema` gives the type `type` (a 'level', a 'board', a 'text'…), as [{ path, value,
- * schema }]: `path` the keys from `value` down to it, `schema` the one there (its hints too). Where the schema allows several shapes (either), the value is read as the
+ * schema, key? }]: `path` the keys from `value` down to it, `schema` the one there (its hints too); `key` when it is a
+ * map's key (a ref) rather than a value. Where the schema allows several shapes (either), the value is read as the
  * one it fits, or as shapeAt reads one fitting none (the first shape of its kind that has all its fields).
  */
 export function find(schema, value, type, { vocabulary = null } = {}) {
@@ -219,7 +222,10 @@ export function find(schema, value, type, { vocabulary = null } = {}) {
         if (Array.isArray(v)) v.forEach((x, k) => walk(s.of, x, [...path, k]))
         return
       case 'map':
-        if (isObj(v)) for (const [k, x] of Object.entries(v)) walk(s.of, x, [...path, k])
+        if (isObj(v)) for (const [k, x] of Object.entries(v)) {
+          if (s.key?.type === type) out.push({ path: [...path, k], value: k, schema: s.key, key: true })
+          walk(s.of, x, [...path, k])
+        }
         return
       case 'obj':
         if (isObj(v)) for (const [k, f] of Object.entries(s.fields)) walk(f, v[k], [...path, k])

@@ -1,17 +1,25 @@
 // node --test games/kit/domains/syntax — sentence analysis: tokens and spans, folding and its refusals, the check of an
 // analysis against the answer, the order folds can be made in, the level checks, the content contract (the
-// vocabulary's schemas), and a course read that leaves the content as it was.
+// vocabulary's schemas, with a game's blocks as pieces), and a course read that leaves the content as it was.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { check, fold, foldRefusal, mark, order, resolve, say, skeleton, standing, targetRefusal, tokenize, units, unfold } from './model/sentence.js'
 import { sentenceProblems } from './validate.js'
+import { chipsOf } from './model/marks.js'
 import { validate as fits } from '../../engine/schema.js'
+import { partProblems, withParts } from '../../engine/parts/define.js'
 import { vocabulary } from './vocabulary.js'
 import { T } from '../../shell/i18n.js'
 import { deepFreeze } from '../../engine/content.js'
 import { readContent } from '../../engine/content-node.js'
 import domain from './domain.js'
 
+// A game's blocks: pieces of the strip editor, each marking what the domain gives (model/marks.js).
+const block = (mark, name) => ({ editor: 'strip', name, desc: T('块'), icon: 'Rows3', mark })
+const PIECES = { parts: { subj: block('subj', T('主语', 'subject')), verb: block('verb', T('谓语', 'verb')), obj: block('obj', T('宾语', 'object')), comp: block('comp', T('表语', 'complement')), pp: block('pp', T('介词短语', 'prepositional phrase')), rel: block('rel', T('定语从句', 'relative clause')) } }
+const chips = chipsOf(PIECES)
+// Content is written in one language: the texts made here for the model, with their English taken off.
+const base = (v) => JSON.parse(JSON.stringify(v, (key, x) => (key === 'en' ? undefined : x)))
 const spec = {
   sentence: 'A small change in the weights of the first layer causes a large change in the output.',
   folds: [
@@ -22,7 +30,7 @@ const spec = {
   roles: { subj: 'A small change', verb: 'causes', obj: 'a large change' },
   misrole: { subj: { 'the first layer': T('层', 'the layer') } },
 }
-const gold = resolve(spec)
+const gold = resolve(spec, chips)
 const at = (phrase) => {
   const words = tokenize(phrase).map((t) => t.text)
   const i = gold.tokens.findIndex((_, k) => words.every((w, n) => gold.tokens[k + n]?.text === w))
@@ -37,8 +45,8 @@ test('a sentence is tokens, and an answer written in words becomes indices', () 
   assert.equal(gold.folds.length, 3)
   assert.equal(gold.tokens[gold.folds[1].to].text, 'change')
   assert.equal(gold.folds[2].to, at('large change')[1])
-  assert.match(resolve({ ...spec, folds: [{ span: 'change', type: 'pp', to: 'causes' }] }).problems[0], /occurs 2 times/)
-  assert.match(resolve({ ...spec, roles: { subj: 'no such words' } }).problems[0], /not in the sentence/)
+  assert.match(resolve({ ...spec, folds: [{ span: 'change', type: 'pp', to: 'causes' }] }, chips).problems[0], /occurs 2 times/)
+  assert.match(resolve({ ...spec, roles: { subj: 'no such words' } }, chips).problems[0], /not in the sentence/)
 })
 
 test('folds stand for their words, nest, and never cross', () => {
@@ -97,8 +105,8 @@ test('folds are made inner first, and before a fold that would hide their word',
   const made = order(gold.folds)
   assert.ok(made.indexOf(gold.folds[0]) < made.indexOf(gold.folds[1]))
   // A modifier goes with its word: folded apart from the piece that holds that word, it is refused and reported.
-  const ok = ['pp', 'role:subj', 'role:verb']
-  const zoo = (outer) => resolve({ sentence: 'The size of models in the zoo grows.', folds: [{ span: outer, type: 'pp', to: 'size' }, { span: 'in the zoo', type: 'pp', to: 'models' }], roles: { subj: 'The size', verb: 'grows' } })
+  const ok = ['pp', 'subj', 'verb']
+  const zoo = (outer) => resolve({ sentence: 'The size of models in the zoo grows.', folds: [{ span: outer, type: 'pp', to: 'size' }, { span: 'in the zoo', type: 'pp', to: 'models' }], roles: { subj: 'The size', verb: 'grows' } }, chips)
   assert.deepEqual(sentenceProblems(zoo('of models in the zoo'), ok), [])
   assert.ok(sentenceProblems(zoo('of models'), ok).some((p) => /lies outside it/.test(p)))
   const inner = zoo('of models in the zoo').folds[1]
@@ -106,27 +114,37 @@ test('folds are made inner first, and before a fold that would hide their word',
 })
 
 test('the level checks catch a bad answer', () => {
-  const ok = ['pp', 'role:subj', 'role:verb', 'role:obj']
+  const ok = ['pp', 'subj', 'verb', 'obj']
   assert.deepEqual(sentenceProblems(gold, ok), [])
-  assert.ok(sentenceProblems(gold, ['pp', 'role:subj', 'role:verb']).some((p) => /obj is not reached/.test(p)))
-  const self = resolve({ ...spec, folds: [{ span: 'in the output', type: 'pp', to: 'output' }] })
+  assert.ok(sentenceProblems(gold, ['pp', 'subj', 'verb']).some((p) => /obj is not reached/.test(p)))
+  // Every sentence marks the roles a sentence always has; a fold is folded as a block marking a construction.
+  assert.ok(sentenceProblems(resolve({ ...spec, roles: { subj: 'A small change' } }, chips), ok).some((p) => /marks no verb/.test(p)))
+  assert.ok(resolve({ ...spec, folds: [{ span: 'in the output', type: 'obj', to: 'change#2' }] }, chips).problems.some((p) => /obj marks no construction/.test(p)))
+  const self = resolve({ ...spec, folds: [{ span: 'in the output', type: 'pp', to: 'output' }] }, chips)
   assert.ok(sentenceProblems(self, ok).some((p) => /inside itself/.test(p)))
-  const crossed = resolve({ ...spec, folds: [{ span: 'the weights of', type: 'pp', to: 'causes' }, { span: 'of the first layer', type: 'pp', to: 'weights' }] })
+  const crossed = resolve({ ...spec, folds: [{ span: 'the weights of', type: 'pp', to: 'causes' }, { span: 'of the first layer', type: 'pp', to: 'weights' }] }, chips)
   assert.ok(sentenceProblems(crossed, ok).some((p) => /cross/.test(p)))
+})
+
+test('a game’s blocks are strip pieces of its pieces.json, each marking one of the domain’s marks', () => {
+  assert.deepEqual(partProblems(base(PIECES), vocabulary), [])
+  assert.ok(partProblems(base({ parts: { who: block('who', T('谁')) } }), vocabulary).some((p) => /who/.test(p.says)))
+  assert.deepEqual(Object.keys(chips).filter((type) => chips[type].role), ['subj', 'verb', 'obj', 'comp'])
+  assert.equal(chips.verb.role, 'whole')
+  assert.ok(chips.rel.fold)
 })
 
 test('a level as content: the vocabulary’s schema takes a list of tasks, and names what does not fit', () => {
   const { sentence, folds, roles, misrole } = spec
+  const vocab = withParts(vocabulary, PIECES)
   const task = { id: 'one', brief: T('做', 'Do'), sentence, folds, roles, misrole }
   const level = { title: T('题', 'Title'), adds: ['pp'], debrief: { title: T('句', 'Sentence'), body: [T('体', 'Body')] }, tasks: [task] }
-  // Content is written in one language: the texts made above for the model, with their English taken off.
-  const base = (v) => JSON.parse(JSON.stringify(v, (key, x) => (key === 'en' ? undefined : x)))
-  const says = (v) => fits(vocabulary.level, base(v), { vocabulary }).map((p) => `${p.at}: ${p.says}`)
+  const says = (v) => fits(vocab.level, base(v), { vocabulary: vocab }).map((p) => `${p.at}: ${p.says}`)
   assert.deepEqual(says(level), [])
   assert.deepEqual(says({ ...level, tasks: [{ ...task, step: T('一', 'One') }, { id: 'two', step: T('二', 'Two'), brief: T('做', 'Do'), sentence, roles }] }), [])
-  assert.ok(says({ ...level, adds: ['role:who'] }).some((p) => /role:who.*no part/.test(p)))
+  assert.ok(says({ ...level, adds: ['who'] }).some((p) => /who.*no part/.test(p)))
   assert.ok(says({ ...level, tasks: [{ ...task, folds: [{ ...folds[0], type: 'np' }] }] }).some((p) => /tasks\[0\]\.folds\[0\]\.type/.test(p)))
-  assert.ok(says({ ...level, tasks: [{ ...task, roles: { subj: 'A small change' } }] }).some((p) => /roles\.verb: is missing/.test(p)))
+  assert.ok(says({ ...level, tasks: [{ ...task, roles: { who: 'A small change' } }] }).some((p) => /roles\.who: .*no part/.test(p)))
   assert.ok(says({ ...level, tasks: undefined, ...task }).length > 0)
 })
 

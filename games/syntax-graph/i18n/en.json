@@ -8,7 +8,7 @@
   "挂在哪": "Where it hangs",
   "第二章": "Era 2",
   "一个修饰成分说明的是名词，还是动作？": "Does a modifier tell about a noun, or about the action?",
-  "定语从句": "Relative clauses",
+  "定语从句": { "default": "Relative clauses", "partName": "relative clause" },
   "第三章": "Era 3",
   "名词后面跟着一整句话时，怎么把它折成一块？": "When a whole clause follows a noun, how is it folded into one piece?",
   "玩法": "How to play",
@@ -222,5 +222,10 @@
   "主干只有 <i>The dataset contains images</i>。我们随本文发布的数据集，收录了 2023 年从公开来源收集的图像。": "The skeleton is just <i>The dataset contains images</i>. The dataset we release with this paper holds images gathered from public sources in 2023.",
   "每个从句都有自己的小主干；折起来，大句的主干就清楚了。": "Every clause has a little skeleton of its own; fold them, and the sentence’s shows.",
   "<i>from public sources</i> 和 <i>in 2023</i> 说明的都是从句里的哪个动作？": "Which action inside a clause do <i>from public sources</i> and <i>in 2023</i> tell about?",
-  "“2023 年里的公开来源”说不通：2023 年说的是收集的时间。": "“Public sources in 2023” is not the point: 2023 is when the images were collected."
+  "“2023 年里的公开来源”说不通：2023 年说的是收集的时间。": "“Public sources in 2023” is not the point: 2023 is when the images were collected.",
+  "句子说的是谁、是什么。标出它的名词短语：修饰成分都折起来以后，剩下的那几个词。": "Who or what the sentence is about. Mark its noun phrase: the words left once its modifiers are folded.",
+  "主语做什么、怎么样：整个动词词组，连同助动词（has been shown）。": "What the subject does or is: the whole verb group, auxiliaries included (has been shown).",
+  "跟在 be 这类系动词后面、说明主语是什么或怎么样的成分。": "What follows a linking verb such as be, saying what the subject is or what it is like.",
+  "介词开头的一串词（of the model、on a single GPU），整块修饰一个词。折起来，挂到它修饰的词上。": "A preposition and what follows it (of the model, on a single GPU), modifying one word as a whole. Fold it and hang it on that word.",
+  "跟在名词后面、自带主语和谓语的小句（that we propose、which has seven billion parameters）。折起来，挂到它修饰的词上。": "A clause of its own, with its own subject and verb, after a noun (that we propose, which has seven billion parameters). Fold it and hang it on the word it modifies."
 }
