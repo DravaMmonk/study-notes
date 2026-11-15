@@ -14,20 +14,20 @@
 .gv-pick.is-different rect { stroke: var(--fail); stroke-width: 2; }
 .gv-picture { display: block; image-rendering: pixelated; border-radius: var(--r-sm); }
 
-/* A grid in a frame sized by the screen (GridInspector). */
+/* Pictures flow with their captions. Numbered grids retain a scroll frame. */
 :root { --gv-frame-w: 240px; --gv-frame-h: 180px; }
 .gv-inspector { width: min(100%, var(--gv-frame-w)); grid-template-columns: minmax(0, 1fr); position: relative; min-width: 0; margin: 0; display: grid; align-content: start; justify-items: start; gap: var(--sp-2); }
-.gv-inspector figcaption { width: 100%; min-height: 22px; display: flex; align-items: center; gap: var(--sp-4); color: var(--muted); font-size: var(--fs-ui); }
+.gv-inspector figcaption { width: 100%; display: flex; align-items: baseline; gap: var(--sp-2); color: var(--muted); font-size: var(--fs-ui); }
 .gv-inspector figcaption strong { color: var(--muted); font-weight: 500; }
 .gv-inspect-meta { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: end; font: var(--fs-label) var(--mono); }
 .gv-frame { box-sizing: border-box; width: 100%; height: var(--gv-frame-h); display: flex; overflow: auto; overscroll-behavior: contain; touch-action: pan-x pan-y; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--canvas); scrollbar-width: thin; }
-.gv-frame.is-overview { overflow: hidden; }
-.gv-frame.is-info:has(.gv-frame-canvas:hover) { cursor: grab; }
+.gv-frame:has(.gv-frame-canvas:hover) { cursor: grab; }
 .gv-frame-canvas { flex: none; margin: auto; line-height: 0; }
 .gv-frame-canvas .gv-image { max-width: none; height: auto; border-radius: 0; }
-.gv-popover { position: fixed; z-index: 100; box-sizing: border-box; display: grid; gap: var(--sp-2); padding: var(--sp-4) var(--sp-4); margin-top: var(--sp-4); border: 1px solid var(--accent); border-radius: var(--r-sm); color: var(--ink); background: var(--paper); box-shadow: var(--lift); font: var(--fs-ui)/1.5 var(--mono); pointer-events: none; overflow-wrap: anywhere; }
-.gv-popover.is-above { margin-top: calc(var(--sp-4) * -1); transform: translateY(-100%); }
-.gv-popover-calc { border-top: 1px solid var(--line); padding-top: var(--sp-2); white-space: pre-line; }
+.gv-inspector.is-picture .gv-image { border-radius: var(--r-sm); box-shadow: 0 0 0 1px var(--line); }
+.gv-reading { display: flex; flex-wrap: wrap; gap: var(--sp-1) var(--sp-4); margin: 0; min-height: 1.5em; color: var(--muted); font: var(--fs-label)/1.5 var(--mono); }
+.gv-reading b { color: var(--ink); font-weight: 600; }
+.gv-reading-calc { white-space: pre-line; }
 
 /* ---- a value in a scene (Show.jsx) ---- */
 .vw-value { font: 600 var(--fs-ui) var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
@@ -127,7 +127,7 @@
 .rv-row > h4 { margin: 0; display: flex; align-items: baseline; gap: var(--sp-4); }
 .rv-row > h4 small { color: var(--faint); font: var(--fs-label) var(--mono); }
 .rv-pair { display: flex; align-items: start; gap: var(--sp-4); }
-.rv-pair > .gv-inspector { flex: none; }
+.rv-pair > .gv-inspector:not(.is-picture) { flex: none; }
 .rv-plain { margin: 0; min-width: 88px; display: grid; gap: var(--sp-2); }
 .rv-plain figcaption { min-height: 22px; display: flex; align-items: center; color: var(--muted); font-size: var(--fs-ui); }
 .rv-plain b { font: 600 var(--fs-ui) var(--mono); }
@@ -140,6 +140,8 @@
   .vw-detail { --gv-frame-w: 360px; --gv-frame-h: 168px; }
   .vw-figure { --gv-frame-w: 360px; --gv-frame-h: 240px; }
   .rv-rows, .rv-row { width: 100%; }
+  .rv-row.is-picture-input { flex: 0 1 calc((100% - var(--sp-6)) / 2); box-sizing: border-box; }
+  .rv-row.is-picture-input > h4 { flex-wrap: wrap; }
   .rv-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
-  .rv-pair > .gv-inspector { width: 100%; }
+  .rv-pair > .gv-inspector:not(.is-picture) { width: 100%; }
 }

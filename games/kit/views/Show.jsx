@@ -58,7 +58,7 @@ export default function Show({ value, shape = shapeOf(value), scene, views, of, 
       <div className={`vw-${scene}`}>
         {headed && head}
         {Drawn ? <Drawn value={value} size={SIZE[scene]} curve={curve} />
-          : <GridInspector value={value} view={view} label={!headed && label ? L(label) : undefined} fit dense={scene === 'detail'} mark={mark} onPick={onPick} explainPixel={explain} />}
+          : <GridInspector key={view} value={value} view={view} label={!headed && label ? L(label) : undefined} dense={scene === 'detail'} mark={mark} onPick={onPick} explainPixel={explain} />}
       </div>
     )
   }

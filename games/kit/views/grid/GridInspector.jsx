@@ -1,12 +1,10 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import { tr } from '../../shell/i18n.js'
 import { cellNumber, pixel, pixelText } from '../../engine/grid.js'
 import { finiteExtent } from '../../engine/number.js'
-import { useElementSize } from '../useElementSize.js'
 import { usePointerSession } from '../usePointerSession.js'
 import GridView from './GridView.jsx'
-import { denseCell, fitFrame, inspectorCell, thumbCell } from './layout.js'
+import { denseCell, fitFrame, inspectorCell } from './layout.js'
 
 /** The largest frame the screen allows (--gv-frame-w, --gv-frame-h on the figure), kept current as it changes. */
 function useFrameMax(root, on) {
@@ -57,77 +55,54 @@ function usePan(frame) {
   return { onPointerDown, onClickCapture }
 }
 
-/**
- * A grid in a frame sized by the screen, whatever its dimensions, as the view `numbers` or `pixels` (../Show.jsx and
- * ../Results.jsx pick it): pixels scales the whole grid to fit; numbers draws numbered cells at their readable size,
- * unscaled, every cell selectable. Pointing at a cell reads it (`inspectPixel` says what, by
- * default its value; `explainPixel` adds how it came about). The frame pans by dragging. With `fit` the frame shrinks
- * to what the grid needs (fitFrame), the screen's frame its largest; `dense` (with `fit`) draws narrower numbered cells.
- */
-export default function GridInspector({ value, label, note, view, showSize = true, explainPixel, mark, onPick, cellClass, inspectPixel, fit = false, dense = false }) {
+/** Draw pixels at their own aspect ratio, or keep numbered cells readable in a scrollable frame. */
+export default function GridInspector({ value, label, view, showSize = true, explainPixel, mark, onPick, cellClass, inspection, dense = false }) {
+  const id = useId()
   const root = useRef(null)
   const frame = useRef(null)
-  const size = useElementSize(frame)
   const pan = usePan(frame)
-  const [point, setPoint] = useState(null)
+  const local = useState(null)
+  const [point, setPoint] = inspection ?? local
+  const active = point?.id === id && point.x < value.w && point.y < value.h ? point : null
   useEffect(() => {
-    if (!point) return undefined
-    const dismiss = () => setPoint(null)
-    const moved = () => {
-      const box = point.anchor.getBoundingClientRect()
-      if (!point.anchor.isConnected || box.left !== point.box.left || box.top !== point.box.top) dismiss()
+    if (!active) return
+    const dismiss = (event) => {
+      if (!root.current?.contains(event.target)) setPoint((p) => p?.id === id ? null : p)
     }
-    const outside = (event) => { if (!root.current?.contains(event.target)) dismiss() }
-    window.addEventListener('scroll', moved, true)
-    window.addEventListener('resize', dismiss)
-    document.addEventListener('pointerdown', outside, true)
-    return () => {
-      window.removeEventListener('scroll', moved, true)
-      window.removeEventListener('resize', dismiss)
-      document.removeEventListener('pointerdown', outside, true)
-    }
-  }, [point])
-  const cellOf = fit && dense ? denseCell : inspectorCell
-  const cell = cellOf(value)
-  const info = view === 'numbers'
-  const max = useFrameMax(root, fit)
-  const frameSize = fit && max ? fitFrame(value, info, max, cellOf) : null
-  // A frame not laid out yet (measured inside something still hidden or opening) draws the thumbnail size meanwhile.
-  const scale = size && size.width > 2 && size.height > 2 ? Math.min((size.width - 2) / value.w, (size.height - 2) / value.h) : thumbCell(value)
+    document.addEventListener('pointerdown', dismiss, true)
+    return () => document.removeEventListener('pointerdown', dismiss, true)
+  }, [active, id, setPoint])
+
+  const numbers = view === 'numbers'
+  const cellOf = dense ? denseCell : inspectorCell
+  const pictureSize = dense ? 132 : 320
+  const cell = numbers ? cellOf(value) : pictureSize / Math.max(value.w, value.h)
+  const max = useFrameMax(root, numbers)
+  const frameSize = max && numbers ? fitFrame(value, max, cellOf) : null
   const range = finiteExtent([value.data])
-  const select = (x, y, event, pinned) => {
-    const anchor = event.currentTarget
-    const box = anchor.getBoundingClientRect()
-    const width = Math.min(220, window.innerWidth - 24)
-    const left = Math.max(12, Math.min(window.innerWidth - width - 12, box.left + (box.width - width) / 2))
-    const above = box.bottom + 190 > window.innerHeight - 12 && box.top > 190
-    setPoint((p) => {
-      if (p?.pinned && !pinned) return p
-      if (p?.pinned && p.anchor === anchor) return null
-      return { x, y, anchor, box, pinned, width, left, top: above ? box.top : box.bottom, above }
-    })
-  }
-  const active = point && point.x < value.w && point.y < value.h ? point : null
-  const meta = [showSize && `${value.w} × ${value.h}${value.c === 3 ? ' · RGB' : ''}`, note].filter(Boolean).join(' · ')
-  return <figure className="gv-inspector" ref={root} style={frameSize ? { width: `min(100%, ${frameSize.w}px)` } : undefined}>
-    <figcaption>
-      <strong>{label}</strong>
-      <span className="gv-inspect-meta" title={range ? tr(`数值范围 ${cellNumber(range.lo)} … ${cellNumber(range.hi)}`, `Value range ${cellNumber(range.lo)} … ${cellNumber(range.hi)}`) : undefined}>{meta}</span>
-    </figcaption>
-    <div ref={frame} className={`gv-frame ${info ? 'is-info' : 'is-overview'}`} style={frameSize ? { height: frameSize.h } : undefined} {...pan}>
-      <div className="gv-frame-canvas">
-        <GridView value={value} numbers={info} axes={info} grid={info || frameSize !== null && scale >= 6} cell={info ? cell : scale} mark={mark ?? active} label={label}
-          cellLabel={(x, y, p) => `(${x}, ${y}): ${pixelText(p)}`} cellClass={cellClass}
-          onPick={(x, y, e) => { select(x, y, e, true); onPick?.(x, y) }}
-          onHover={(x, y, e) => select(x, y, e, false)}
-          onLeave={() => setPoint((p) => p?.pinned ? p : null)} />
-      </div>
-    </div>
-    {active && createPortal(<div className={`gv-popover ${active.above ? 'is-above' : ''}`} role="status" style={{ left: active.left, top: active.top, width: active.width }}>
-      <strong>({active.x}, {active.y})</strong>
-      {inspectPixel?inspectPixel(active.x,active.y):<><span>{pixelText(pixel(value, active.x, active.y))}</span>
-      {explainPixel && <span className="gv-popover-calc">{explainPixel(active.x, active.y)}</span>}</>}
-      {range && (range.lo < 0 || range.hi > 1) && <small>{tr('显示亮度限制为 0–1，数值保持原样。')}</small>}
-    </div>,document.body)}
+  const select = (x, y, pinned) => setPoint((p) => {
+    if (!pinned && p?.pinned) return p
+    if (pinned && p?.pinned && p.id === id && p.x === x && p.y === y) return null
+    return { id, x, y, pinned, source: value }
+  })
+  const meta = showSize && `${value.w} × ${value.h}${value.c === 3 ? ' · RGB' : ''}`
+  const width = frameSize?.w ?? (numbers ? undefined : cell * value.w)
+  const grid = <GridView value={value} numbers={numbers} axes={numbers} grid={numbers || cell >= 6} cell={cell} mark={mark ?? active} label={label}
+    cellLabel={(x, y, p) => `(${x}, ${y}): ${pixelText(p)}`} cellClass={cellClass}
+    onPick={(x, y) => { select(x, y, true); onPick?.(x, y) }}
+    onHover={(x, y) => select(x, y, false)}
+    onLeave={() => setPoint((p) => p?.id === id && !p.pinned ? null : p)} />
+  return <figure className={`gv-inspector${numbers ? '' : ' is-picture'}`} ref={root} style={width ? { width: `min(100%, ${width}px)` } : undefined}>
+    {numbers
+      ? <div ref={frame} className="gv-frame" style={frameSize ? { height: frameSize.h } : undefined} {...pan}><div className="gv-frame-canvas">{grid}</div></div>
+      : grid}
+    {(label || meta) && <figcaption>
+      {label && <strong>{label}</strong>}
+      {meta && <span className="gv-inspect-meta" title={range ? tr(`数值范围 ${cellNumber(range.lo)} … ${cellNumber(range.hi)}`, `Value range ${cellNumber(range.lo)} … ${cellNumber(range.hi)}`) : undefined}>{meta}</span>}
+    </figcaption>}
+    {!inspection && active && <div className="gv-reading" role="status">
+      <span>({active.x}, {active.y}) <b>{pixelText(pixel(value, active.x, active.y))}</b></span>
+      {explainPixel && <span className="gv-reading-calc">{explainPixel(active.x, active.y)}</span>}
+    </div>}
   </figure>
 }

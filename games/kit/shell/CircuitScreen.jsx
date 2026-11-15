@@ -315,7 +315,7 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const final = judged
     ? ended && (checked.constraint || (run.hidden?.failed && run.hidden.note))
     : run.run?.over && run.run.final
-  const results = <><Results rows={rows} text={show} verdict={[verdict, final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.at?.tick !== undefined ? [runOf.fail.at.tick] : []} />{stepLog}</>
+  const results = <><Results key={run.at} rows={rows} text={show} verdict={[verdict, final]} at={timed && run.run ? at : -1} count={test?.ticks ?? 0} marks={timed && ended && runOf.fail?.at?.tick !== undefined ? [runOf.fail.at.tick] : []} />{stepLog}</>
   // A table of cases: a row a test, what the board gives on each as the run reaches it (before a run, on the row picked).
   const ins = kind.portsIn(level)
   const out = kind.portsOut(level)[0]?.name
