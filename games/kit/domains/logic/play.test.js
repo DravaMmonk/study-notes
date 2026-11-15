@@ -36,9 +36,13 @@ test('text play follows the circuit target policy in the table and on failure', 
     const opened = play.open(ctx)
     assert.deepEqual(opened.palette.map(({ type }) => type), ['gNot'])
     assert.equal(opened.given.en.includes('the sentence'), showSentence)
-    assert.equal(opened.tests[0].text.en, showTarget ? 'A (A) | target\nrow 1: T | F\nrow 2: F | T' : 'A (A)\nrow 1: T\nrow 2: F')
+    assert.deepEqual(opened.tests.map(({ text }) => text.en), showTarget
+      ? ['A (A): T | Target: F', 'A (A): F | Target: T']
+      : ['A (A): T', 'A (A): F'])
     const wrong = play.attempt(ctx, 'out <- A')
     assert.equal(wrong.pass, false)
+    assert.deepEqual(wrong.tests.map(({ label }) => label.en), opened.tests.map(({ label }) => label.en))
+    assert.deepEqual(wrong.tests.map(({ pass }) => pass), [false, null])
     assert.equal(wrong.tests[0].says.en, showTarget
       ? 'This row is wrong: the circuit outputs T; it should be F.'
       : 'This row is wrong: the circuit outputs T.')

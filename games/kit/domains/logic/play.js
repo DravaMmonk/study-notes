@@ -18,13 +18,21 @@ import { T } from '../../shell/i18n.js'
 const TF = (v, lang) => (v === undefined ? '—' : v ? (lang === 'en' ? 'T' : '真') : (lang === 'en' ? 'F' : '假'))
 const pick = (v, lang) => (v && typeof v === 'object' ? v[lang] : v)
 
-/** The sentence's truth table, a row a line, as the strip shows it. */
-function table(level, lang) {
+/** A truth table's visible cases, in the same order as the gate runner. */
+function rowLabel(letters, row, k) {
+  const values = (lang) => letters.map((letter) => `${letter}=${TF(row[letter], lang)}`).join(', ')
+  return T(`第 ${k + 1} 行（${values('zh')}）`, `Row ${k + 1} (${values('en')})`)
+}
+
+function visibleRows(level) {
   const { letters, rows } = rowsFor(level)
-  const word = (l) => pick(say(parse(l), level.notation), lang)
   const showTarget = gatesPlayFor(level).target === 'shown'
-  const head = [...letters.map((l) => `${l} (${word(l)})`), ...(showTarget ? [lang === 'en' ? 'target' : '目标真值'] : [])]
-  return [head.join(' | '), ...rows.map((r, k) => `${lang === 'en' ? 'row' : '行'} ${k + 1}: ${[...letters.map((l) => TF(r.row[l], lang)), ...(showTarget ? [TF(r.want, lang)] : [])].join(' | ')}`)].join('\n')
+  const text = ({ row, want }, lang) => {
+    const inputs = letters.map((letter) => `${letter} (${pick(say(parse(letter), level.notation), lang)}): ${TF(row[letter], lang)}`)
+    if (showTarget) inputs.push(`${lang === 'en' ? 'Target' : '目标真值'}: ${TF(want, lang)}`)
+    return inputs.join(' | ')
+  }
+  return rows.map((row, k) => ({ label: rowLabel(letters, row.row, k), text: T(text(row, 'zh'), text(row, 'en')) }))
 }
 
 const gates = circuitPlay({
@@ -36,14 +44,13 @@ const gates = circuitPlay({
     const budget = (lang) => (L.budget !== undefined ? `\n${lang === 'en' ? `At most ${L.budget} gates.` : `最多 ${L.budget} 个门。`}` : '')
     return T(words('zh') + sentence('zh') + budget('zh'), words('en') + sentence('en') + budget('en'))
   },
-  tests: ({ level: { source: L } }) => [{ label: T('真值表'), text: T(table(L, 'zh'), table(L, 'en')) }],
+  tests: ({ level: { source: L } }) => visibleRows(L),
   run: ({ level: { source: L } }, graph) => {
     const checked = checkGates(L, graph)
     const showTarget = gatesPlayFor(L).target === 'shown'
     const { letters } = rowsFor(L)
-    const rowText = (r, lang) => letters.map((l) => `${l}=${TF(r.row[l], lang)}`).join(', ')
     const tests = untilFail(checked.runs.map((r, k) => ({
-      label: T(`第 ${k + 1} 行（${rowText(r, 'zh')}）`, `Row ${k + 1} (${rowText(r, 'en')})`),
+      label: rowLabel(letters, r.row, k),
       pass: r.pass,
       says: r.pass ? null : T(`这一行的结果错误：电路输出 ${TF(r.got, 'zh')}${showTarget ? `，应当是 ${TF(r.want, 'zh')}` : ''}。`, `This row is wrong: the circuit outputs ${TF(r.got, 'en')}${showTarget ? `; it should be ${TF(r.want, 'en')}` : ''}.`),
     })))
