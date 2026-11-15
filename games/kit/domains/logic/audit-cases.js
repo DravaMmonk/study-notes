@@ -1,3 +1,4 @@
+import { sameJson } from '../../engine/json-value.js'
 import { reportRuns } from '../../engine/test-run.js'
 import { T } from '../../shell/i18n.js'
 import { derives, givenText } from './iso.js'
@@ -52,14 +53,53 @@ export function runAudit(level, cases, words) {
   return { ...reportRuns(runs), rows, caught }
 }
 
+export const AUDIT_CASE_LIMIT = 8
+
+function openCase(level, slot) {
+  const fixed = slot?.fixed ?? []
+  const goal = level.caseGoal ?? (fixed.includes('goal') ? slot.goal : '')
+  return {
+    given: fixed.includes('given') ? slot.given ?? [] : slot?.keep ?? [],
+    goal,
+    make: fixed.includes('make') ? slot.make ?? null : null,
+    fixed: level.caseGoal !== undefined && !fixed.includes('goal') ? [...fixed, 'goal'] : fixed,
+    ...(slot?.keep ? { keep: slot.keep } : {}),
+  }
+}
+
 /** A blank audit case or the editable cases set out by a level. */
-export const blankCase = (level) => ({ given: [], goal: level.caseGoal ?? '', make: level.caseMake ?? null })
-export const setOut = (level) => Array.isArray(level.slots)
-  ? level.slots.map((c) => ({
-    given: c.fixed.includes('given') ? c.given : c.keep ?? [],
-    ...(c.keep ? { keep: c.keep } : {}),
-    goal: c.fixed.includes('goal') ? c.goal : '',
-    make: c.fixed.includes('make') ? c.make : null,
-    fixed: c.fixed,
-  }))
+export const blankCase = (level) => openCase(level)
+const setOut = (level) => Array.isArray(level.slots)
+  ? level.slots.map((slot) => openCase(level, slot))
   : Array.from({ length: level.slots }, () => blankCase(level))
+
+/** Keep only editable values from a save. The task supplies the locks and required premises. */
+export function restoreAuditCases(level, saved) {
+  const slots = setOut(level)
+  if (!Array.isArray(saved)) return slots
+  if (level.slots === undefined ? saved.length > AUDIT_CASE_LIMIT : saved.length !== slots.length) return slots
+  return saved.map((row, k) => {
+    const slot = slots[k] ?? blankCase(level)
+    if (!row || !Array.isArray(row.given)) return slot
+    return {
+      ...slot,
+      given: slot.fixed.includes('given') ? slot.given : [...new Set([...(slot.keep ?? []), ...row.given])],
+      goal: slot.fixed.includes('goal') ? slot.goal : row.goal,
+      make: !slot.fixed.includes('make') && typeof row.make === 'boolean' ? row.make : slot.make,
+    }
+  })
+}
+
+/** Author cases must be expressible in the same form as a player's cases. */
+export function auditCaseProblems(level, cases) {
+  const slots = setOut(level)
+  const problems = []
+  if (level.slots !== undefined && cases.length !== slots.length) problems.push(`the reference answer has ${cases.length} cases for ${slots.length} set out`)
+  if (level.slots === undefined && cases.length > AUDIT_CASE_LIMIT) problems.push(`the reference answer has more than ${AUDIT_CASE_LIMIT} cases`)
+  if (slots.some((slot, k) => (slot.keep ?? []).some((s) => !cases[k]?.given.includes(s)))) problems.push('a reference case drops a premise its case keeps')
+  const value = (row, cell) => cell === 'goal' ? row?.goal ?? level.target : row?.[cell]
+  if (slots.some((slot, k) => slot.fixed.some((cell) => (cell !== 'goal' || level.caseGoal === undefined)
+    && !sameJson(value(slot, cell), value(cases[k], cell))))) problems.push('a reference case changes a cell its case fixes')
+  if (level.caseGoal !== undefined && cases.some((row) => value(row, 'goal') !== level.caseGoal)) problems.push('a reference case breaks the goal the level fixes')
+  return problems
+}

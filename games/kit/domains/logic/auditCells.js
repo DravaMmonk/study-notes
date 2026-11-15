@@ -27,14 +27,13 @@ export function caseCells(level) {
       name: 'goal', shape: 'tree', label: T('目标', 'Goal'), build,
       placeholder: T('选择目标…'), scope: `${level.id}:goal`,
       title: (k) => T(`第 ${k + 1} 条条例的目标`, `The goal of test case ${k + 1}`),
-      fixed: (row) => Boolean(level.caseGoal) || fixed('goal')(row), fixedLabel: T('目标（固定）'),
-      read: (row) => level.caseGoal ?? row.goal ?? level.target,
+      fixed: fixed('goal'), fixedLabel: T('目标（固定）'),
+      read: (row) => row.goal ?? level.target,
       write: (row, goal) => ({ ...row, goal: goal === target ? undefined : goal }),
     },
     {
       name: 'make', shape: 'choice', label: WORDS.wanted, options: DERIVABLE, placeholder: T('选择预期…'),
-      fixed: (row) => level.caseMake !== undefined || fixed('make')(row), fixedLabel: T('应得（固定）'),
-      read: (row) => level.caseMake ?? row.make,
+      fixed: fixed('make'), fixedLabel: T('应得（固定）'),
     },
   ]
 }

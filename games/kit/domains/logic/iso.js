@@ -33,8 +33,7 @@
 // [sentence], goal?: sentence, make: bool (derivable or not), uses?: [sentence] what the way it is made by must take }],
 // play: 'audit' with boards:
 // [{ label?, board }] someone's declarations to find the fault in, answer: [test] the reference cases
-// for an audit, slots: how many cases are set out to fill in, caseGoal, caseMake: the
-// goal and the expectation every case of an audit has (the player cannot change them), thing: whether a rule the
+// for an audit, slots: the cases set out to fill in, caseGoal: the goal fixed for every case, thing: whether a rule the
 // player writes may take any thing, ways: the rules the declaration must have, when the
 // situations alone cannot tell (a way's assumptions in order, [[sentence]]), take: the rule that takes it apart, when
 // it is not the plain cases (a family indexed by things, as =): { premises: [text], conclusion: text } in metavariables

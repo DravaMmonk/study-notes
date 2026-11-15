@@ -24,7 +24,7 @@ import { termJudge } from './termTask.js'
 import { missingForms } from './termTree.js'
 import { checkGates, rowsFor, startGates } from './gates.js'
 import { checkIso, sentenceOf, waysIn } from './iso.js'
-import { runAudit } from './audit-cases.js'
+import { auditCaseProblems, runAudit } from './audit-cases.js'
 import { checkDefine } from './define.js'
 import { say } from './notation.js'
 import { presetIds } from './course.js'
@@ -140,11 +140,7 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
         out.push({ level: level.id, fail: !cases.ok, text: `  cases ${cases.ok ? 'PASS' : `FAIL on board ${miss.check + 1}: ${keyOf(miss.why)}`} [${level.answer.length} cases]` })
         if (naive?.ok === false) out.push({ level: level.id, fail: true, text: '  naive cases PASS (bad)' })
         // The reference cases fill the cases set out, and keep the goal and expectation the level fixes.
-        const set = level.slots.length ?? level.slots
-        if (level.answer.length !== set) out.push({ level: level.id, fail: true, text: `  the reference answer has ${level.answer.length} cases for ${set} set out` })
-        if (Array.isArray(level.slots) && level.slots.some((c, k) => (c.keep ?? []).some((s) => !level.answer[k]?.given.includes(s)))) out.push({ level: level.id, fail: true, text: '  a reference case drops a premise its case keeps' })
-        if (Array.isArray(level.slots) && level.slots.some((c, k) => (c.fixed ?? []).some((cell) => JSON.stringify(c[cell]) !== JSON.stringify(level.answer[k]?.[cell])))) out.push({ level: level.id, fail: true, text: '  a reference case changes a cell its case fixes' })
-        if (level.answer.some((c) => level.caseGoal && c.goal !== level.caseGoal)) out.push({ level: level.id, fail: true, text: '  a reference case breaks the goal the level fixes' })
+        for (const text of auditCaseProblems(level, level.answer)) out.push({ level: level.id, fail: true, text: `  ${text}` })
         // A board to check is right (want 'agree'); one to catch is wrong.
         level.boards.forEach(({ board }, k) => { if (!judge(board) !== (level.want === 'agree')) out.push({ level: level.id, fail: true, text: `  board ${k + 1} ${level.want === 'agree' ? 'fails' : 'passes'} every situation (bad)` }) })
         return out

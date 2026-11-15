@@ -1,5 +1,5 @@
 import { L, T } from '../../shell/i18n.js'
-import { blankCase, runAudit, setOut } from './audit-cases.js'
+import { AUDIT_CASE_LIMIT, blankCase, restoreAuditCases, runAudit } from './audit-cases.js'
 import { sentenceOf, waysIn } from './iso.js'
 import { say } from './notation.js'
 import { boardOf, linesOf, problemsOf } from './ruleLines.js'
@@ -19,10 +19,8 @@ export function audit(source, { progress, saved }) {
     }
     return lastReport
   }
-  const empty = setOut(level)
   return {
-    level, empty,
-    saved: saved?.work?.length === empty.length ? saved : null,
+    level, initial: restoreAuditCases(level, saved?.work),
     label: (k) => level.boards[k].label ?? T(`声明 ${k + 1}`, `Declaration ${k + 1}`),
     judge: (k, work) => report(work).runs[k].fail?.why,
     stepsOf: (k, work) => report(work).runs[k].steps.map((step) => step.failed ? { failed: L(step.failed) } : step),
@@ -50,7 +48,7 @@ export function audit(source, { progress, saved }) {
     go: T('运行检验条例'),
     done: level.want === 'agree' ? T('结果全部相符') : T('已找出错误'),
     checks: {
-      cells: caseCells(level), resultLabel: T('结果', 'Result'), blank: () => blankCase(level), max: 8, addLabel: T('添加条例'),
+      cells: caseCells(level), resultLabel: T('结果', 'Result'), blank: () => blankCase(level), max: AUDIT_CASE_LIMIT, addLabel: T('添加条例'),
       formTitle: (k) => T(`第 ${k + 1} 条检验条例`, `Test case ${k + 1}`),
       empty: T('还没有条例。'), fixed: Boolean(level.slots), tip: T('点按一条条例即可修改。'),
     },

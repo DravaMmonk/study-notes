@@ -3,7 +3,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { checkIso, declaredRules, derives, follows, settle, waysIn } from './iso.js'
-import { runAudit } from './audit-cases.js'
+import { auditCaseProblems, restoreAuditCases, runAudit } from './audit-cases.js'
 import { parseSide, ruleText } from './schematic.js'
 import { checkDefine } from './define.js'
 import { failureText } from '../../engine/failure-text.js'
@@ -570,6 +570,21 @@ test('an audit stops at an unfinished case before grading the supplied declarati
   const graded = runAudit(level, [complete], words)
   assert.deepEqual(graded.fail.at, { row: 0 })
   assert.deepEqual(graded.runs[0].steps, [{ failed: graded.fail.why }])
+})
+
+test('audit cases recover the task’s fixed cells and required premises from its form', () => {
+  const form = { target: 'B', caseGoal: 'B', slots: [{ fixed: ['make'], make: true, keep: ['A'] }] }
+  const authored = [{ given: ['A', 'C'], make: true }]
+  assert.deepEqual(auditCaseProblems(form, authored), [])
+  const saved = [{ given: ['C'], goal: 'A', make: false, fixed: ['given'] }]
+  assert.deepEqual(auditCaseProblems(form, saved), [
+    'a reference case drops a premise its case keeps',
+    'a reference case changes a cell its case fixes',
+    'a reference case breaks the goal the level fixes',
+  ])
+  assert.deepEqual(restoreAuditCases(form, saved), [{ given: ['A', 'C'], goal: 'B', make: true, fixed: ['make', 'goal'], keep: ['A'] }])
+  assert.deepEqual(auditCaseProblems({ target: 'B' }, authored), [])
+  assert.deepEqual(restoreAuditCases({ target: 'B' }, authored), [{ given: ['A', 'C'], goal: undefined, make: true, fixed: [] }])
 })
 
 test('a declaration by premise cards: joined they are one way needing both, apart two ways, none no way', () => {
