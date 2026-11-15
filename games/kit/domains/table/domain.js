@@ -9,7 +9,7 @@ import { play } from './play.js';
 import { builtPieces } from '../../engine/pieces.js';
 
 /** A table game's spec, as the checks read one (../../engine/checks.js). */
-// What a tray may list (vocabulary.js): the parts and ideas parts.json names.
+// What a tray may list (vocabulary.js): the parts and ideas pieces.json names.
 const names = content => ({ part: new Set(Object.keys(builtPieces(content.partDefs))) });
 
 function spec(content) {

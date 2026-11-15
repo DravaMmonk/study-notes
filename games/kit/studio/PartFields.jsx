@@ -13,7 +13,7 @@ import { validate } from '../engine/schema.js'
 import { ICONS } from '../shell/parts/icons.js'
 import { useDraft } from './draft.js'
 
-/** The part an expression at `path` belongs to in parts.json, and whether it may read the part's inputs. */
+/** The part an expression at `path` belongs to in pieces.json, and whether it may read the part's inputs. */
 function partAt(file, path) {
   if (path[0] !== 'parts' || !file?.parts?.[path[1]]) return null
   const raw = file.parts[path[1]]

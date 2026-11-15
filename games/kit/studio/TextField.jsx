@@ -238,7 +238,7 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
   }, [onSet])
   const options = useMemo(() => (names ? [
     ...[...names.level].map(([id, l]) => ({ value: `level:${id}`, label: l.label, title: l.title, group: tr('关卡') })),
-    ...[...names.part].map(([k, n]) => ({ value: `part:${k}`, label: k, title: n, group: tr('元件', 'Parts') })),
+    ...[...names.part].map(([k, n]) => ({ value: `part:${k}`, label: k, title: n, group: tr('件', 'Pieces') })),
     ...[...names.wiki].map(([k, n]) => ({ value: `wiki:${k}`, label: k, title: n, group: tr('百科') })),
   ] : []), [names])
   const close = () => { setLinking(null); box.current?.focus() }

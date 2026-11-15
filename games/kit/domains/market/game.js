@@ -3,7 +3,7 @@
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   world.js      a street of shops: who buys at a price, one tick of trade
-//   ops.js        the engine resources a game's parts.json computes with
+//   ops.js        the engine resources a game's pieces.json computes with
 //   board.js      a board, and a board read from and written as blueprint text
 //   run.js        a board run against a street that answers it (../../engine/ticks.js reacting), judged by what the
 //                 street earns

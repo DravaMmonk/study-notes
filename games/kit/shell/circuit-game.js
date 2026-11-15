@@ -1,6 +1,6 @@
 // A game on a circuit domain (../engine/circuit-preset.js) on the shared shell, from its content (games/DESIGN.md 6.3):
 // the course read becomes the shell's game description, every level played by the domain's screen (CircuitScreen.jsx)
-// and the parts box holding the game's primitives and its built pieces (`piece`: the parts.json entry; each opens on
+// and the parts box holding the game's primitives and its built pieces (`piece`: the pieces.json entry; each opens on
 // the board it runs). The course read is `game.circuit`.
 //
 //   circuitGame(content, circuit, { kind: { id, icon, label }, screen, cards, Hero?, kinds?, IntroFigure? })
@@ -14,7 +14,7 @@
 //   definedGame(content, circuit, { ops, cards?, …circuitGame's })   the game of a domain whose games define their
 //     own parts: its screen says what a failed run gives as its reason and the room a card's picture takes, so the
 //     domain declares only its run.js (`screen: { play }`) and what it adds;
-//     own parts (parts.json, the course read's `defs`): its cards are those parts (and `cards`, its fixed cards drawn its
+//     own parts (pieces.json, the course read's `defs`): its cards are those parts (and `cards`, its fixed cards drawn its
 //     own way), and `game.defined` is what draws
 //     them, on its screens (CircuitScreen `defined`) and in the studio (parts/PartPreview.jsx)
 import { createElement } from 'react'

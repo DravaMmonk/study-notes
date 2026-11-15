@@ -10,7 +10,7 @@
 // domain's own: every reference run), which takes seconds on the biggest games. Until it is back the audit shows the
 // last one as stale. Applying writes the changeset (modify); undo runs the change log's.
 //
-// The page: the tree (or search, or the game's parts: parts.json) on the left; in the middle the level as the game shows it, which is where it is
+// The page: the tree (or search, or the game's parts: pieces.json) on the left; in the middle the level as the game shows it, which is where it is
 // edited (GameFrame.jsx: a click on a field on screen picks it, a + adds an item), or its fields as rows, its copy, a
 // comparison, the changes; the field picked in the side panel on the right (Inspector.jsx), with its control; the
 // audit in a drawer under the middle. Each folds away and resizes (remembered per viewer, prefs.js); the command
@@ -247,7 +247,7 @@ export default function Studio() {
   }, [game, sceneOf, changeset])
 
   const content = shown?.content ?? null
-  // A domain that defines its parts as data names them by the game's parts.json as the changeset leaves it.
+  // A domain that defines its parts as data names them by the game's pieces.json as the changeset leaves it.
   const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
   const atPart = at?.part !== undefined || at?.preset !== undefined
   const fresh = checked?.key === key
@@ -463,10 +463,10 @@ export default function Studio() {
     const [key, face] = m.path
     if (key === 'views' && face) {
       const path = [...base, 'views', face]
-      const pending = [...ops].reverse().find((op) => op.op === 'parts.set' && !shown?.ops.includes(op) && showPath(op.path) === showPath(path))
+      const pending = [...ops].reverse().find((op) => op.op === 'pieces.set' && !shown?.ops.includes(op) && showPath(op.path) === showPath(path))
       const existing = pending?.value ?? def.views?.[face]
       const list = existing ?? DEFAULT_VIEWS[face]
-      const write = (value) => edit({ op: 'parts.set', path, value })
+      const write = (value) => edit({ op: 'pieces.set', path, value })
       if (m.type === 'pick') {
         if (!existing) write(list)
         return pickField([...base, ...m.path], true, list)
@@ -482,7 +482,7 @@ export default function Studio() {
     if (schema?.type !== 'list') return undefined
     const list = getAt(content.partDefs, path) ?? []
     const blankOf = { rules: { set: {} }, checks: { holds: 'eq(1, 1)', say: { zh: '' } } }
-    edit({ op: 'parts.set', path, value: [...list, (m.path.length === 1 && blankOf[key]) || blank(schema.of, { vocabulary: vocab.vocabulary, levels: playOrder })] })
+    edit({ op: 'pieces.set', path, value: [...list, (m.path.length === 1 && blankOf[key]) || blank(schema.of, { vocabulary: vocab.vocabulary, levels: playOrder })] })
     return pickField([...path, list.length], true)
   }
   const apply = async () => {
@@ -532,7 +532,7 @@ export default function Studio() {
   const togglePanel = (which) => setLayout((l) => ({ ...l, [`${which}Open`]: !l[`${which}Open`] }))
   // The side panel's field: its control's context (as the forms had it), and the mark the page draws it with.
   const sideFile = at?.level && content?.levels.some((l) => l.id === at.level) ? { level: at.level } : atPart ? { parts: true } : at?.glossary ? { glossary: true } : at ? { game: true } : null
-  const pendingFace = field?.pendingFace && ops.some((op) => op.op === 'parts.set' && op.value === field.pendingFace && !shown?.ops.includes(op)) ? field.pendingFace : null
+  const pendingFace = field?.pendingFace && ops.some((op) => op.op === 'pieces.set' && op.value === field.pendingFace && !shown?.ops.includes(op)) ? field.pendingFace : null
   const pageMark = field?.path && sideFile?.level && sideFile.level === play?.level ? { ...markOf(levelValue(sideFile.level), field.path), level: sideFile.level }
     : field?.path && at?.part !== undefined && field.path[0] === 'parts' && field.path[1] === at.part ? JSON.stringify(field.path.slice(2))
     : field?.path && at?.preset !== undefined && field.path[0] === 'presets' && field.path[1] === at.preset ? JSON.stringify(field.path.slice(2))
@@ -664,7 +664,7 @@ export default function Studio() {
             <div className="side-tabs" role="tablist">
               <button type="button" role="tab" aria-selected={side === 'tree'} className={side === 'tree' ? 'is-on' : ''} onClick={() => setSide('tree')} title={tr('课程')}><ListTree size={14} aria-hidden="true" /></button>
               <button type="button" role="tab" aria-selected={side === 'search'} className={side === 'search' ? 'is-on' : ''} onClick={openSearch} title={`${tr('搜索')} (${MOD}+Shift+F)`}><SearchIcon size={14} aria-hidden="true" /></button>
-              {content.partDefs && <button type="button" role="tab" aria-selected={side === 'parts'} className={side === 'parts' ? 'is-on' : ''} onClick={() => setSide('parts')} title={tr('元件', 'Parts')}><Shapes size={14} aria-hidden="true" /></button>}
+              {content.partDefs && <button type="button" role="tab" aria-selected={side === 'parts'} className={side === 'parts' ? 'is-on' : ''} onClick={() => setSide('parts')} title={tr('件', 'Pieces')}><Shapes size={14} aria-hidden="true" /></button>}
             </div>
             {side === 'parts' && content.partDefs
               ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={(next) => { select(next); if (!['page', 'fields'].includes(tab)) setTab('page') }} onEdit={edit} />

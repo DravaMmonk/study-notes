@@ -64,7 +64,7 @@ import StepLog from './StepLog.jsx'
 //                         change (a preset locked back in…)
 //   settings?(node, set, ctx)  a card's own settings (CardField)
 //   defaults?(type)       a new card's settings
-//   portLabels?           { type: { port: label } }               defined?  the game's parts.json parts (CircuitLevel)
+//   portLabels?           { type: { port: label } }               defined?  the game's pieces.json parts (CircuitLevel)
 //   inspect?(node, ctx)   what a defined part's detail shows of its values (by default, as its card)
 //   language?(task, test) the language a defined part's tree setting is built in (../strip/TreePick.jsx)
 //   context?(task, test)  what a resource sees on the screen when it works out a setting's options (`from`)

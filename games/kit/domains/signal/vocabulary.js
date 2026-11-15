@@ -2,12 +2,12 @@
 // it is and the schema of its parameters, and the schemas of game.json and of one level. Content is these items and
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
-// A game's parts are its own, defined as data in its parts.json (games/DESIGN.md 6.8) over the engine resources here
+// A game's parts are its own, defined as data in its pieces.json (games/DESIGN.md 6.8) over the engine resources here
 // (`op`, implemented in ops.js) and coloured by family (`family`, ui/signal.css).
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { GAME, PORT, REMOVES, levelSchema } from '../../engine/level-schema.js'
+import { GAME, PORT, levelSchema } from '../../engine/level-schema.js'
 import { OP_ITEMS } from './ops.js'
 import { T as t } from '../../shell/i18n.js'
 
@@ -36,8 +36,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'signal',
-  version: 6,
-  removes: REMOVES,
+  version: 7,
   kinds: { op: OP_ITEMS, family: FAMILIES },
   game: GAME,
   level: LEVEL,

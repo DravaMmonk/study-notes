@@ -44,12 +44,12 @@ export default function logicGame(content) {
   const logic = logicCourse(content)
   const { LEVELS, CHAPTERS, LABELS } = logic
   const { gates, lemmas, pieces } = logic
-  // The parts the game defines (parts.json's and its lemmas'), as the circuit screen draws them.
+  // The parts the game defines (pieces.json's and its lemmas'), as the circuit screen draws them.
   const cards = Object.fromEntries(Object.entries(logic.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, icon: partIcon(d.icon), family: d.family }]))
   // How parts' descriptions grow along the course (the components box reads them as far as the player has got).
   const revisions = logic.revisions ?? {}
   // A built part is a proved lemma, a gate built on a truth circuit or a machine part (simp, auto…): a piece of
-  // parts.json.
+  // pieces.json.
   const machines = Object.fromEntries(logic.machines.map((type) => [type, pieces[type]]))
   // The course read a built piece opens on, for the components box: a gate's truth circuit; a machine part's machine
   // board, as the last task it refers to holds it; a lemma's proof of its first shape; a proved equation's task.

@@ -423,11 +423,11 @@ export function opFor(file, path, edit, type = null) {
     if (keys[0] === 'groupByChapter' && keys.length === 1) return { op: 'glossary.presentation', groupByChapter: edit.unset ? null : edit.set }
     return null
   }
-  // parts.json: a field of it (a whole part is added, removed and renamed by the part operations).
+  // pieces.json: a field of it (a whole part is added, removed and renamed by the part operations).
   if (file.parts) {
-    if (edit.unset) return { op: 'parts.unset', path: keys }
-    if (type === 'text' && edit.set !== null && typeof edit.set === 'object') return { op: 'text.set', in: 'parts', path: keys, zh: edit.set.zh }
-    return { op: 'parts.set', path: keys, value: edit.set }
+    if (edit.unset) return { op: 'pieces.unset', path: keys }
+    if (type === 'text' && edit.set !== null && typeof edit.set === 'object') return { op: 'text.set', in: 'pieces', path: keys, zh: edit.set.zh }
+    return { op: 'pieces.set', path: keys, value: edit.set }
   }
   const where = file.level !== undefined ? { level: file.level } : {}
   const op = (name) => (file.level !== undefined ? `level.${name}` : `game.${name}`)

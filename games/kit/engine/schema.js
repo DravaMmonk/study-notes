@@ -28,6 +28,7 @@
 //                   (without cols, a square: a 3 × 3 kernel as nine numbers)
 //   view: 'ticks'   a list of values one a tick, or a string of 0s and 1s, is a waveform; a map of them, one row each
 //   view: 'expr'    a part's expression (parts/expr.js); view: 'icon' a name in the kernel's icon table
+//   view: 'board'   a list of blueprint lines that is a board (a naive answer, a work): operations find it as one
 //   step            how far a number goes up or down at a time
 //   section         where a field of a level goes in its form (SECTIONS); without it the studio reads it off the shape
 import { markupOf } from './markup.js'
@@ -36,7 +37,7 @@ import { markupOf } from './markup.js'
 export const TEXT_KINDS = ['gameTitle', 'levelTitle', 'partName', 'partDescription', 'settingLabel', 'regionLabel', 'portLabel']
 
 export const SECTIONS = ['read', 'puzzle', 'tests', 'answers', 'course', 'tasks']
-export const HINTS = { view: ['grid', 'ticks', 'expr', 'icon'], section: SECTIONS }
+export const HINTS = { view: ['grid', 'ticks', 'expr', 'icon', 'board'], section: SECTIONS }
 
 const make = (type) => (extra = {}) => ({ type, ...extra })
 

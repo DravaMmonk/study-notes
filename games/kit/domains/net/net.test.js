@@ -17,7 +17,7 @@ import { netCourse } from './course.js'
 import { assemble } from '../../engine/content.js'
 import domain from './domain.js'
 
-// The starter's parts (its parts.json), over the domain's resources.
+// The starter's parts (its pieces.json), over the domain's resources.
 const STARTER = readContent('starter', import.meta.dirname).partDefs
 const { PARTS } = defineParts(STARTER, OPS)
 const plain = primitivesOnly(board, PARTS)
@@ -156,7 +156,7 @@ test('the starter game passes its checks', async () => {
     game: json('game.json'),
     levels: readdirSync(new URL('levels/', dir)).map((f) => [f.slice(0, -5), json(`levels/${f}`)]),
     glossary: json('glossary.json'),
-    partDefs: json('parts.json'),
+    partDefs: json('pieces.json'),
   })
   const lines = await domain.validate(domain.spec(content))
   assert.deepEqual(lines.filter((l) => l.fail), [])

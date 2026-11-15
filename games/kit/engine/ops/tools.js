@@ -201,7 +201,7 @@ export const TOOLS = {
       const domain = await domainOf(content)
       return {
         levels: shown.levels.map((l) => ({ id: l.id, label: String(shown.levelLabel(l)), title: l.title })),
-        // Each with the piece it is (its type in parts.json) and the level that first gives it: a primitive's first level
+        // Each with the piece it is (its type in pieces.json) and the level that first gives it: a primitive's first level
         // bringing it in, a built one's level earning its flag.
         parts: (shown.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, piece: p.piece ?? (p.key.startsWith('part:') ? p.key.slice(5) : p.key), at: p.at?.[0] ?? shown.levels.find((l) => (l.unlocks ?? []).includes(p.key))?.id ?? null })),
         entries: (shown.glossary?.entries ?? []).map((e) => ({ id: e.id, title: e.title })),

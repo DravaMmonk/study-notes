@@ -2,7 +2,7 @@
 // it is and the schema of its parameters, and the schemas of game.json and of one level. Content is these items and
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
-// A game's parts are its parts.json over the resources of ops.js. A test is data: a street of shops (world.js), how
+// A game's parts are its pieces.json over the resources of ops.js. A test is data: a street of shops (world.js), how
 // many ticks it trades and what it has to earn by the last (course.js reads it, run.js runs it).
 
 import { S } from '../../engine/schema.js'
@@ -15,7 +15,7 @@ const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 
 /* ---------- the parts ---------- */
 
-// A game's parts are its parts.json, computing with the domain's resources (ops.js), coloured by family (ui/market.css).
+// A game's parts are its pieces.json, computing with the domain's resources (ops.js), coloured by family (ui/market.css).
 const FAMILIES = {
   value: item(t('算数的元件')),
 }
@@ -45,8 +45,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'market',
-  version: 7,
-  removes: [{ at: 'kinds.part', why: 'a game\'s parts are its parts.json over the domain\'s engine resources (op)' }],
+  version: 8,
   kinds: { op: OP_ITEMS, family: FAMILIES },
   game: GAME,
   level: LEVEL,

@@ -44,10 +44,10 @@ changes and general lessons where they help future work; use the user's scope an
   pass every check and each wrong work fails at least one.
 - Content (`games/<game>/`) is data. It picks vocabulary items `{ item: params }` and supplies tests, copy and
   reference / naive boards as blueprint text.
-- Where the domain gives engine resources (`op` kind), a game's primitive parts are content: `games/<game>/parts.json`
+- Where the domain gives engine resources (`op` kind), a game's primitive parts are content: `games/<game>/pieces.json`
   (`games/DESIGN.md` §6.8) — ports, settings in the six kernel controls, an ASCII expression calling only resources
   and kernel builtins, interaction rules and checks, and the card / tile / detail views. Change a part there (studio's
-  parts tab, or `part.*`, `parts.set`), never in domain code; a computation no resource can express is a new resource.
+  parts tab, or `part.*`, `pieces.set`), never in domain code; a computation no resource can express is a new resource.
 - Content is written in one language (`{ zh: … }`); a translation is never written into it. Other languages are overlays,
   `games/<game>/i18n/<lang>.json`, keyed by the base text and written with `i18n.set` (`games/DESIGN.md` §6.10); making,
   checking and reviewing a game read the base alone, and translation is its own pipeline step (`translate`).

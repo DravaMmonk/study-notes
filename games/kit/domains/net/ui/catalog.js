@@ -1,5 +1,5 @@
 // What the net domain's fixed cards are called and what they do: its wires in and out (a task's inputs and outputs are
-// the base's own cards, its parts a game's parts.json). A description says only what a card does (games/DESIGN.md 4).
+// the base's own cards, its parts a game's pieces.json). A description says only what a card does (games/DESIGN.md 4).
 import { ArrowRightFromLine } from 'lucide-react'
 import { T } from '../../../shell/i18n.js'
 

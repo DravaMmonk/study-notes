@@ -7,7 +7,7 @@
 // it. Picking another field, or another level, changes what it shows.
 //
 //   <Inspector content base vocab at field ctx onEdit onOps onPick onClose onLevel />
-//   at: the file shown ({ level } | { game: true } | { parts: true }: parts.json | { glossary: true }); field: { path } | { missing: text } | null
+//   at: the file shown ({ level } | { game: true } | { parts: true }: pieces.json | { glossary: true }); field: { path } | { missing: text } | null
 import { useEffect, useRef } from 'react'
 import { ArrowDown, ArrowUp, ArrowRightLeft, ChevronRight, Copy, MousePointerClick, Plus, Trash2, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
@@ -151,7 +151,7 @@ function Head({ path, file, onPick, onClose }) {
   return (
     <header className="insp-head">
       <nav className="insp-path" aria-label={tr('字段的位置')}>
-        <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={!path.length}>{file.level ?? (file.parts ? 'parts.json' : file.glossary ? 'glossary.json' : 'game.json')}</button>
+        <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={!path.length}>{file.level ?? (file.parts ? 'pieces.json' : file.glossary ? 'glossary.json' : 'game.json')}</button>
         {steps.map(({ k, at }) => (
           <span key={showPath(at)} className="insp-step">
             <ChevronRight size={11} aria-hidden="true" />

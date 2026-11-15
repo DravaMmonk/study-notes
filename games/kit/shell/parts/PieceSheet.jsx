@@ -11,7 +11,7 @@ import SettingField from './SettingField.jsx'
 // settings; the rows it is
 // made of (revisions, ports, settings) are a primitive's too (PartPreview.jsx). PresetSheet is a setting preset's.
 //
-//   def   the piece as parts.json writes it      edit   { picked (a path in the piece), pick(path), add(path) } or null
+//   def   the piece as pieces.json writes it      edit   { picked (a path in the piece), pick(path), add(path) } or null
 
 const at = (path) => JSON.stringify(path)
 
@@ -117,7 +117,7 @@ export default function PieceSheet({ def, edit, onTask, label }) {
   )
 }
 
-/** A setting preset of parts.json: the control it draws (moved as a player would), its label and its options. */
+/** A setting preset of pieces.json: the control it draws (moved as a player would), its label and its options. */
 export function PresetSheet({ name, setting, game, edit }) {
   const { mark } = marker(edit)
   const [value, setValue] = useState(undefined)

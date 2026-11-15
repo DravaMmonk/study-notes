@@ -5,7 +5,7 @@
 import { readItem } from '../course.js'
 
 /**
- * [{ tray (null: none), types: [type] }]. `types` the pieces of parts.json; `trays` game.json's; `at(type)` the level
+ * [{ tray (null: none), types: [type] }]. `types` the pieces of pieces.json; `trays` game.json's; `at(type)` the level
  * that first gives a piece (null: the course does not); `order` the levels in play order; `primitives` game.json's,
  * at hand from the start.
  */

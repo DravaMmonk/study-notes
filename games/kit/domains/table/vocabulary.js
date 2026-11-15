@@ -201,6 +201,7 @@ const CIRCUIT = {
   tip: S.opt(S.text()),
   carries: S.opt(S.bool({ about: t('从上一个任务的电路板开始') })),
   unlockToast: S.opt(S.text({ about: t('第一次打开这个任务时说的一句') })),
+  // (a vocabulary keeps its words: the file it names is pieces.json now)
   ports: S.opt(S.list(S.call('port'), { section: 'course', about: t('这块板给出的口：parts.json 里引用这个任务的件是一个元件，口就是这些') })),
   noArm: S.opt(S.bool()),
   naive: S.opt(BOARD),
@@ -257,7 +258,7 @@ const GAME = S.obj({
 export const vocabulary = defineVocabulary({
   domain: 'table',
   version: 2,
-  // A part or an idea a level unlocks is a parts.json entry whose inside refers to the task that builds or teaches it.
+  // A part or an idea a level unlocks is a pieces.json entry whose inside refers to the task that builds or teaches it.
   removes: ['level.unlock', 'level.builds', 'game.parts'].map((at) => ({ at, why: 'a piece a level unlocks is a parts.json entry whose inside refers to the task that builds or teaches it' })),
   kinds: {
     part: PARTS,

@@ -10,7 +10,7 @@
 //                    a level opened afresh, at that task;  { type: 'look', theme, lang } the studio's theme and language;
 //                  { type: 'content', content } the content edited, the level staying open as it is;
 //                  { type: 'edit', on, picked } edit mode and the field picked;  { type: 'go', task } go to a task;
-//                  { type: 'part', content, part } a part of parts.json shown (../shell/parts/PartPreview.jsx; a built
+//                  { type: 'part', content, part } a part of pieces.json shown (../shell/parts/PartPreview.jsx; a built
 //                  piece, the board it runs — the game's parts.demo — and its own fields, ../shell/parts/PieceSheet.jsx)
 //   page → studio  { type: 'ready' } once it listens; { type: 'take', level, path, text };
 //                  { type: 'pick' | 'add', level, task, at, scope, index? }; { type: 'task', level, task };

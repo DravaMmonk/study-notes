@@ -19,7 +19,7 @@
 // })
 //
 // A domain whose kinds hold engine resources (`op`, run by its ops.js) defines its parts as data: each of its games
-// has a parts.json (parts/schema.js), and content's S.ref('part') names a part of it (parts/define.js withParts). Such
+// has a pieces.json (parts/schema.js), and content's S.ref('part') names a part of it (parts/define.js withParts). Such
 // a vocabulary also gives the families parts are coloured by (`family`), and may give widgets (`widget`): settings or
 // displays the kernel's controls cannot draw.
 import { OVERLAY } from './i18n.js'
@@ -144,6 +144,6 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   if (blueprint !== undefined) add(validate(BLUEPRINT, blueprint, { vocabulary }), 'blueprint.json')
   for (const [lang, memory] of Object.entries(i18n ?? {})) add(validate(OVERLAY, memory, { vocabulary }), `i18n/${lang}.json`)
   if (parts !== undefined) out.push(...partProblems(parts, domainVocabulary, { tasks: taskIdsOf(levels) }))
-  else if (definesParts(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'parts.json', says: `the ${domainVocabulary.domain} domain defines its parts as data: the game needs a parts.json` })
+  else if (definesParts(domainVocabulary) && !domainVocabulary.kinds.part) out.push({ at: 'pieces.json', says: `the ${domainVocabulary.domain} domain defines its parts as data: the game needs a pieces.json` })
   return out
 }

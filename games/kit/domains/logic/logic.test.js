@@ -21,7 +21,7 @@ import { printTerm } from './pterm.js'
 import { validate } from './validate.js'
 import { T } from '../../shell/i18n.js'
 
-// A proof runs on the parts the starter defines (its parts.json) and the level's lemmas.
+// A proof runs on the parts the starter defines (its pieces.json) and the level's lemmas.
 const STARTER = readContent('starter', import.meta.dirname).partDefs
 const proofParts = (lemmas) => ({ ...PROOF_BOARD.FIXED_PARTS, ...partsOf(STARTER, lemmas).PARTS })
 const run = (level, circuit) => runOutputTests(LOGIC_TESTS, { parts: proofParts(level.lemmas), ...level }, circuit)

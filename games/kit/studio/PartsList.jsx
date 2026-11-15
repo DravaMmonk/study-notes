@@ -1,4 +1,4 @@
-// The parts of a game in the studio (games/DESIGN.md 6.7, 6.8): every piece its parts.json defines, primitive or built
+// The parts of a game in the studio (games/DESIGN.md 6.7, 6.8): every piece its pieces.json defines, primitive or built
 // (inside) — icon, name, type — grouped by tray in the order the course gives them (pieces.js), then every setting
 // preset, a row each; findings on a part mark its row. A click opens it (its
 // faces on the page, its fields in the rows). The two + add a piece and open it: a primitive, blank and ready to be
@@ -43,19 +43,19 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
   const tasks = levelOptions ? taskOptionsOf(levelOptions) : []
   const add = () => {
     const type = freeName(parts.map(([t]) => t), 'part')
-    onEdit({ op: 'part.add', part: type, data: blankPart(vocabulary) })
+    onEdit({ op: 'piece.add', piece: type, data: blankPart(vocabulary) })
     onSelect({ part: type })
   }
   const build = (task) => {
     setPicking(false)
     const picked = tasks.find((o) => o.value === task)
     const type = freeName(parts.map(([t]) => t), 'piece')
-    onEdit({ op: 'part.add', part: type, data: builtPart(task, picked?.title && L(picked.title)) })
+    onEdit({ op: 'piece.add', piece: type, data: builtPart(task, picked?.title && L(picked.title)) })
     onSelect({ part: type })
   }
   const addPreset = () => {
     const name = freeName(presets.map(([n]) => n), 'setting')
-    onEdit({ op: 'parts.set', path: ['presets', name], value: { control: 'select', options: [{ value: 'a' }, { value: 'b' }] } })
+    onEdit({ op: 'pieces.set', path: ['presets', name], value: { control: 'select', options: [{ value: 'a' }, { value: 'b' }] } })
     onSelect({ preset: name })
   }
   const groups = pieceGroups(parts.map(([t]) => t), { trays: content.trays, at: (type) => earned.get(type) ?? null, order, primitives: content.primitives ?? [] })
@@ -73,7 +73,7 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
     )
   }
   return (
-    <nav className="parts-list" aria-label={tr('元件', 'Parts')}>
+    <nav className="parts-list" aria-label={tr('件', 'Pieces')}>
       {groups.map((g) => (
         <section key={g.tray ?? ''} className="parts-group">
           {groups.length > 1 && (g.tray ? <span className="parts-tray">{g.tray}</span> : <hr className="parts-rule" />)}

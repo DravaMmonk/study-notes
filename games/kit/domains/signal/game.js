@@ -3,7 +3,7 @@
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   values.js     the values on the wires: a number, and a wave (a grid of one row)
-//   ops.js        the engine resources a game's parts.json calls
+//   ops.js        the engine resources a game's pieces.json calls
 //   board.js      a board, and a board read from and written as blueprint text
 //   run.js        a board on a test, traced card by card
 //   course.js     content read into levels, play order, the parts the levels build and the course the audit checks

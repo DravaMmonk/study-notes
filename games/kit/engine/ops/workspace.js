@@ -1,4 +1,4 @@
-// A data game's files opened for operations (./operations.js): game.json, glossary.json, levels/<id>.json, parts.json
+// A data game's files opened for operations (./operations.js): game.json, glossary.json, levels/<id>.json, pieces.json
 // (when the game has one; a domain that defines parts as data always gives one) and the
 // course blueprint (blueprint.json, when the game has one or an operation writes one) as values an operation replaces
 // (never mutates), the text each file had, and the hub's level count for the game
@@ -41,7 +41,7 @@ export function openGame(id, root = GAMES_DIR) {
     game: load('game.json'),
     glossary: load('glossary.json'),
     blueprint: existsSync(resolve(dir, 'blueprint.json')) ? load('blueprint.json') : undefined,
-    partDefs: existsSync(resolve(dir, 'parts.json')) ? load('parts.json') : undefined,
+    partDefs: existsSync(resolve(dir, 'pieces.json')) ? load('pieces.json') : undefined,
     levels: new Map(levelFiles(id, root).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)).map(([levelId]) => [levelId, load(`levels/${levelId}.json`)])),
     // The overlays, { lang: i18n/<lang>.json } (../i18n.js): translation is written through the same door.
     i18n: Object.fromEntries(langsOf(dir).map((lang) => [lang, load(`i18n/${lang}.json`)])),
@@ -62,18 +62,18 @@ export function openGame(id, root = GAMES_DIR) {
     diff: () => ws.changes().map((c) => unified(c.file, c.before, c.after)).join('\n'),
     write: () => write(ws),
     /** Every file of the game as it is on disk now, by its path under the games folder (`<id>/levels/x.json`). */
-    onDisk: () => new Map(['game.json', 'glossary.json', 'parts.json', 'blueprint.json', ...langsOf(dir).map((lang) => `i18n/${lang}.json`), ...levelFiles(id, root).map(([levelId]) => `levels/${levelId}.json`)].map((file) => [`${id}/${file}`, read(resolve(dir, file))]).filter(([file, text]) => text !== null || ws.original.has(file.slice(id.length + 1)))),
+    onDisk: () => new Map(['game.json', 'glossary.json', 'pieces.json', 'blueprint.json', ...langsOf(dir).map((lang) => `i18n/${lang}.json`), ...levelFiles(id, root).map(([levelId]) => `levels/${levelId}.json`)].map((file) => [`${id}/${file}`, read(resolve(dir, file))]).filter(([file, text]) => text !== null || ws.original.has(file.slice(id.length + 1)))),
   })
 }
 
 /** The languages a game folder has overlays for (its i18n/<lang>.json files). */
 const langsOf = (dir) => (existsSync(resolve(dir, 'i18n')) ? readdirSync(resolve(dir, 'i18n')).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -'.json'.length)).sort() : [])
 
-const fileNames = (ws) => ['game.json', 'glossary.json', 'parts.json', 'blueprint.json', ...Object.keys(ws.i18n).map((lang) => `i18n/${lang}.json`), ...[...ws.levels.keys()].map((id) => `levels/${id}.json`)]
+const fileNames = (ws) => ['game.json', 'glossary.json', 'pieces.json', 'blueprint.json', ...Object.keys(ws.i18n).map((lang) => `i18n/${lang}.json`), ...[...ws.levels.keys()].map((id) => `levels/${id}.json`)]
 
 function changes(ws) {
   const out = []
-  const now = new Map([['game.json', ws.game], ['glossary.json', ws.glossary], ...(ws.partDefs === undefined ? [] : [['parts.json', ws.partDefs]]), ...(ws.blueprint === undefined ? [] : [['blueprint.json', ws.blueprint]]), ...Object.entries(ws.i18n).map(([lang, memory]) => [`i18n/${lang}.json`, memory]), ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level])])
+  const now = new Map([['game.json', ws.game], ['glossary.json', ws.glossary], ...(ws.partDefs === undefined ? [] : [['pieces.json', ws.partDefs]]), ...(ws.blueprint === undefined ? [] : [['blueprint.json', ws.blueprint]]), ...Object.entries(ws.i18n).map(([lang, memory]) => [`i18n/${lang}.json`, memory]), ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level])])
   for (const [file, value] of now) {
     const before = ws.original.get(file) ?? null
     const after = writeJson(value, before ?? ws.basis.get(file) ?? null)

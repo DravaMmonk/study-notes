@@ -12,7 +12,7 @@
 - A.3 已完成。一次判定、结论行和电路结果区读取统一失败。定义关的值算错时显示应得和实得，超出步数的提示照旧。写检验玩法用共享判定检查每样作品。12 款游戏的检查输出逐字节一致。
 - B.1 已完成。电路和《证明完毕》共用 `engine/authoring.js` 检查参考解、错解、开局作品和搭出的件，变异评分仍按需执行。
 - B.2 已完成。领域对一关的检查经 `engine/check-cache.js` 缓存，键含内核代码、关卡以外的内容、这一关和它之前各关去掉文字的内容；改一关的文字只重跑这一关。`npm run check` 和操作集读缓存，`--fresh`、`npm test`、副本不读。
-- C.1 已完成。`engine/pieces.js` 登记和读取件的面，电路元件定义与画面共用它。代码与 `parts.json` 可共同登记在同一款游戏。
+- C.1 已完成。`engine/pieces.js` 登记和读取件的面，电路元件定义与画面共用它。代码与 `pieces.json` 可共同登记在同一款游戏。
 - C.2 已完成。电路封装件和证明助手的升级通过课程的 `holds().inside()` 解析作品引用，引理的各形状登记各自的证明任务。对照 12,853 条任务与内部作品映射，没有差异。
 - C.3 已完成。《证明完毕》的引理、门、机器元件、等式、类型、函数与符号共同登记发布任务。定义出的函数从同一登记取参考作品。
 - C.4 已完成。通过时的解记录所执行的作品与引用闭包并盖戳，引用换成另一份作品时戳随之改变。
@@ -31,26 +31,23 @@
 - 《证明完毕》的玩法都在内核的屏上，`logic` 只自写地图插画。
 - 真值电路的检验表已提到内核，目标列由玩法配置控制，文字试玩共用这份配置。
 - 手机格位已按固定托盘确定尺寸。宽、高各自取最常见档位，空位与卡片顶边对齐。
-- D.5 已完成。《证明完毕》的门、推理规则和证明助手的元件是 `games/qed/parts.json` 的件，计算是领域的引擎资源（`gates.js` 不再有原始门，`proof.js` 的 `RULES`、`machine.js` 的 `MACHINE_PARTS` 只剩资源）；引理和规则元件由课程登记，搭出的元件是封装件。三种板都在内核的电路屏上玩：内核补了资源看得见卡片和区域、`parts.json` 的区域（框）和把区域当函数跑（`frames.js` 的 `runRegion`）、`tree` 和 `list` 两种设置控件、由资源算出的选项（`from`）、检验排成表、最后一条性质检验、成绩和读数、一张屏自己的课程视图（`board-view.js`）、过关单子上的几行字（`passed`）。`logic` 自写组件 0 行。检查输出只有 `i18n en` 的计数变了（2104 → 2236：搬进 `parts.json` 的文字都已译）。
-- F.1 已完成。每款游戏的件，基础的和搭出的，都是 `parts.json` 的一项：搭出的件写 `inside: [{ task, form?, label? }]`，口从被引用任务的板读出，哪一关搭出、打开它由引用反推（电路预设的 `board-course.js`、`image`、`logic` 的 `readBuilt`、`table`）。删掉的有关卡的 `builds`、`packs`、`unlock`、`fact`，game.json 的 `parts`、`lemmas`、`gates`、`machines`、`facts`、`revisions`，以及 `BUILT_TEXT`；词汇表删改由那一版的 `removes` 写明（决策七），`net`、`calculus`、`market`、`linear`、`signal`、`image`、`logic`、`table` 和两个电路模板各升一版，内容经操作集迁移。件有了 `card`、`revisions` 和引用的 `label`。元件箱和 studio 的元件页打开搭出的件时画出它跑的板。检查输出只有《证明完毕》的 `i18n en` 计数变了（2236 → 2253：证明助手元件的名字和说明从代码搬进内容）；搭出的门的口改按真值电路的字母命名。
-- F.2 已完成。按拍运行的基础元件也在各自游戏的 `parts.json`：内核的内建 `held(register, start)` 读寄存器，件的面 `keeps: { input, register }` 存寄存器（汇点，下一拍起生效，寄存器按封装路径分开），数字设置可以默认为「—」；`idle` 由可以不接的口覆盖。`net`、`calculus`、`market` 和逐拍总线模板的 `parts.js` 删掉，元件经操作集写进 `network`、`calculus`、`market` 和各 `starter/` 的 `parts.json`，领域只交引擎资源（`ops.js`；模板只用内建），词汇表各升一版并写明 `removes: kinds.part`；`ticks.js` 的 `register`、`store` 和外壳的 `registerCards` 删掉，`partsCourse` 是这类领域共用的课程读法。检查输出只有译文计数变了（`network` 291/299 → 313/321，`calculus` 238/238 → 253/253：元件的名字、说明和设置标签从代码搬进内容）。
+- D.5 已完成。《证明完毕》的门、推理规则和证明助手的元件是 `games/qed/pieces.json` 的件，计算是领域的引擎资源（`gates.js` 不再有原始门，`proof.js` 的 `RULES`、`machine.js` 的 `MACHINE_PARTS` 只剩资源）；引理和规则元件由课程登记，搭出的元件是封装件。三种板都在内核的电路屏上玩：内核补了资源看得见卡片和区域、`pieces.json` 的区域（框）和把区域当函数跑（`frames.js` 的 `runRegion`）、`tree` 和 `list` 两种设置控件、由资源算出的选项（`from`）、检验排成表、最后一条性质检验、成绩和读数、一张屏自己的课程视图（`board-view.js`）、过关单子上的几行字（`passed`）。`logic` 自写组件 0 行。检查输出只有 `i18n en` 的计数变了（2104 → 2236：搬进 `pieces.json` 的文字都已译）。
+- F.1 已完成。每款游戏的件，基础的和搭出的，都是 `pieces.json` 的一项：搭出的件写 `inside: [{ task, form?, label? }]`，口从被引用任务的板读出，哪一关搭出、打开它由引用反推（电路预设的 `board-course.js`、`image`、`logic` 的 `readBuilt`、`table`）。删掉的有关卡的 `builds`、`packs`、`unlock`、`fact`，game.json 的 `parts`、`lemmas`、`gates`、`machines`、`facts`、`revisions`，以及 `BUILT_TEXT`；词汇表删改由那一版的 `removes` 写明（决策七），`net`、`calculus`、`market`、`linear`、`signal`、`image`、`logic`、`table` 和两个电路模板各升一版，内容经操作集迁移。件有了 `card`、`revisions` 和引用的 `label`。元件箱和 studio 的元件页打开搭出的件时画出它跑的板。检查输出只有《证明完毕》的 `i18n en` 计数变了（2236 → 2253：证明助手元件的名字和说明从代码搬进内容）；搭出的门的口改按真值电路的字母命名。
+- F.2 已完成。按拍运行的基础元件也在各自游戏的 `pieces.json`：内核的内建 `held(register, start)` 读寄存器，件的面 `keeps: { input, register }` 存寄存器（汇点，下一拍起生效，寄存器按封装路径分开），数字设置可以默认为「—」；`idle` 由可以不接的口覆盖。`net`、`calculus`、`market` 和逐拍总线模板的 `parts.js` 删掉，元件经操作集写进 `network`、`calculus`、`market` 和各 `starter/` 的 `pieces.json`，领域只交引擎资源（`ops.js`；模板只用内建），词汇表各升一版并写明 `removes: kinds.part`；`ticks.js` 的 `register`、`store` 和外壳的 `registerCards` 删掉，`partsCourse` 是这类领域共用的课程读法。检查输出只有译文计数变了（`network` 291/299 → 313/321，`calculus` 238/238 → 253/253：元件的名字、说明和设置标签从代码搬进内容）。
 - G.0 已完成。studio 每个画面页都能改它展示的东西的字段（手册 §6.7）：搭出的件在板旁画出自己的字段，基础件画出修订、口和全部设置，设置预设有了画面；游戏首页的引语、标题、导语和每一章，百科词条的标题、正文、相关词条点开即改（侧栏多了 `glossary.json`）；画面上方的名字打开全部字段，画面上没有位置的也够得到。
 - G.1 已完成。内核有了 `S.task()`（任务的 id：检查拒绝不存在的任务，`task.rename` 按它找出每一处），`inside[].task` 用它，studio 按关分组、按课程顺序选任务。件列表的「+」分成基础件和搭出的件（先选任务，生成 `inside: [{ task }]`）；件的画面把内部引用按 `form` 画成升级链，点一步在侧栏打开那条引用，↗ 跳到那个任务。
 - G.2 已完成。studio 的件列表按 `trays` 分组，组内按课程里第一次拿到的先后排（`primitives` 最先），不在托盘里的件放在最后一组，没有托盘的游戏只有一组（`kit/studio/pieces.js`）；工具 `names` 给出每个件是哪个件、在哪一关拿到。
 - G.3 已完成。件的画面底下有一条只读的时间线（`engine/flow.js` 的 `pieceFlow`，MCP 工具 `flow`）：一开始就在手上、哪一关带来、哪里只给或扣下、哪里被取代、升级链每一步在哪个任务，按课程顺序，点刻度打开那一关的那个字段。
+- G.4 已完成。件的内容文件是 `pieces.json`（各款游戏和 `starter/` 用 git 改名，修改日志里记一条 `adopt`）；操作是 `piece.add`、`piece.remove`、`piece.rename`（参数 `piece`）、`pieces.set`、`pieces.unset`，`text.set` 的 `in: 'pieces'`；studio 的页签是「件 / Pieces」，MCP 工具说明、手册、DIRECTION 跟着改。硬切换：改名之前的修改日志照原样是历史；词汇表的版本和它说过的话（`removes` 的理由、一条 `about`）照旧写着 `parts.json`。文件里件的表、代码里的名字（`partDefs`、`PARTS_FILE`）没有改。
 
 ## 阶段 G　studio 跟上件的登记表
 
-F.1、F.2 之后，件都登记在 `parts.json`，但 studio 还是按「元件」做的。依次做下面五条，每条一个或几个提交；验收都包括在游戏副本（`GAMES_ROOT`）上用浏览器走一遍：做出改动、应用、撤销。
-
-### G.4 改名为「件」
-
-studio 的页签从「元件 / Parts」改成「件 / Pieces」；操作 `part.*`、`parts.set` 改成 `piece.*`、`pieces.set`，内容文件 `parts.json` 改名 `pieces.json`，MCP 工具说明、手册、DIRECTION、PLAN 跟着改。硬切换，不留旧名的别名；已有的修改日志是历史，照原样留着。内核里只在电路意义上说「元件」的地方（电路板上的卡片）可以保留原名，凡是指「件」这个概念的都改。
+F.1、F.2 之后，件都登记在 `pieces.json`，但 studio 还是按「元件」做的。依次做下面五条，每条一个或几个提交；验收都包括在游戏副本（`GAMES_ROOT`）上用浏览器走一遍：做出改动、应用、撤销。
 
 ### G.5 不是电路的件：句法之图和 comp90086
 
 - 每种编辑器（基础件）自带「把件画成预览」的方法（电路卡片、词条块……），studio 只排版，不再只认电路的卡片、格位、详情三面。
-- 《句法之图》的词序条块（`role:subj` 这类）从领域代码搬进 `games/syntax-graph/parts.json`，成为第一种不是电路的件；《视觉完备》的隐藏试做 comp90086 也补上 `parts.json`。
+- 《句法之图》的词序条块（`role:subj` 这类）从领域代码搬进 `games/syntax-graph/pieces.json`，成为第一种不是电路的件；《视觉完备》的隐藏试做 comp90086 也补上 `pieces.json`。
 - 验收：两款游戏的件在件页列出、能预览能改；检查输出只在译文计数和措辞上可以不同；浏览器里各玩通一关。
 
 ---
@@ -90,9 +87,9 @@ A 和 C 互不依赖，可以交替做。D.3 要 A 和 B 做完；D.5 要 C.1、
 ## 已定（执行时不用再问）
 
 **名字**
-- 件在代码里叫 `piece`，登记和读面的函数在 `engine/pieces.js`。`part` 只指件在电路上的画法，现有带 `part` 的名字（`parts.json`、`partOf`、`S.ref('part')`）这份计划里不改名。
+- 件在代码里叫 `piece`，登记和读面的函数在 `engine/pieces.js`。`part` 只指件在电路上的画法，现有带 `part` 的名字（`pieces.json`、`partOf`、`S.ref('part')`）这份计划里不改名。
 - 面在代码里的名字：空位 `holes`、设置 `settings`、区域 `regions`、内部 `inside`、画法 `faces`、保存 `keeps`。
-- `parts.json` 已有的字段不改名（词汇表只许加不许改）：`inputs` 就是空位，`settings` 就是设置，`views` 就是画法；读面的函数做这层对应。只新加 `regions`、`inside`、`keeps`。
+- `pieces.json` 已有的字段不改名（词汇表只许加不许改）：`inputs` 就是空位，`settings` 就是设置，`views` 就是画法；读面的函数做这层对应。只新加 `regions`、`inside`、`keeps`。
 - 一种玩法的配置叫 `play`，按内容里的 `kind` 取：领域在 `domains/<领域>/plays.js` 里写成纯数据，node 和页面都读它；它的 schema 在 `engine/plays.js`。
 
 **失败**

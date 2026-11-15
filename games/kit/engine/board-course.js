@@ -1,5 +1,5 @@
 // A circuit game's course read from its content (games/DESIGN.md 6.3): its tasks with their tests and boards, the play
-// order and level tree from its eras, and its built pieces (parts.json, ./pieces.js builtPieces), each running inside
+// order and level tree from its eras, and its built pieces (pieces.json, ./pieces.js builtPieces), each running inside
 // the board a task it refers to was passed with: the tasks they refer to are where they are built and unlocked, and
 // game.json's `replaces` says which built pieces supersede which. A domain says how its own fields and tests read:
 //
@@ -13,13 +13,13 @@
 //              right must give (`want`) names each port there once, but those unwanted(task) names
 //       kinds  { kind: read(task, say) → the task read } the tasks that are no board (a grid to fill in, a choice), by
 //              their `kind`: the domain reads them and plays them on screens of its own; every other task is a board
-//       pieces { type: piece } the built pieces, as parts.json names and describes them
+//       pieces { type: piece } the built pieces, as pieces.json names and describes them
 //     A task holds the parts its level adds and those its own tasks up to it add (`adds`), and brings in (`fresh`)
 //     those it adds itself, the first task its level's too; its tray offers by them and by its own answer.
 //   partsCourse(content, ops, options) → circuitCourse's, with { defs, defaultsOf }: the course of a domain whose games
-//     define their parts as data (parts.json) over its engine resources `ops`, circuitCourse's options beside
+//     define their parts as data (pieces.json) over its engine resources `ops`, circuitCourse's options beside
 //   definedCourse(content, { board, ops, read? }) → partsCourse's: the course of a domain
-//     whose games define their own parts (parts.json, ./parts/define.js) over its engine resources `ops`, and whose
+//     whose games define their own parts (pieces.json, ./parts/define.js) over its engine resources `ops`, and whose
 //     tests give a value on every input and expect one of every output (`inputs`, `expect`); read(value, name, say) →
 //     a value as content writes it made a value on the wires
 //
@@ -139,7 +139,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       const where = tasks.length > 1 ? `${id} task ${task.taskId}` : id
       const last = readTask(id, task, where)
       const publishes = published.get(task.taskId) ?? []
-      if (publishes.length && !isBoard(last)) say(where, `parts.json's ${publishes.map((p) => p.type).join(', ')} runs it, and it is no board`)
+      if (publishes.length && !isBoard(last)) say(where, `pieces.json's ${publishes.map((p) => p.type).join(', ')} runs it, and it is no board`)
       if (!publishes.length || !isBoard(last)) return last
       // A later task in this level can call the board published by this task.
       const fitting = new WeakMap()
@@ -177,7 +177,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     return { ...level, id, era: eraOf.get(id).id, requires: plan.requires.get(id) ?? [], adds: tasks.at(-1).adds, opened: tasks.at(-1).opened, builds, unlocks: [...new Set(builds.map((b) => b.type))] }
   })
   const taskIds = new Set([...played.values()].flat().map((T) => T.taskId))
-  for (const p of publications(pieces)) if (!taskIds.has(p.task)) say('parts.json', `${p.type} runs the work of task ${p.task}, which no level has`)
+  for (const p of publications(pieces)) if (!taskIds.has(p.task)) say('pieces.json', `${p.type} runs the work of task ${p.task}, which no level has`)
   const CHAPTERS = eras.map((era) => ({ id: era.id, title: era.title, question: era.question, track: plan.tracks.get(era.id) }))
   const byId = new Map(LEVELS.map((L) => [L.id, L]))
   // A course level is a level, or one of its tasks (`task`, its index): what that task holds and its answer.
@@ -326,7 +326,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
 }
 
 /**
- * The course of a domain whose games define their own parts (content.partDefs: parts.json) over its engine resources,
+ * The course of a domain whose games define their own parts (content.partDefs: pieces.json) over its engine resources,
  * its tests giving a value on every input and expecting one of every output.
  */
 export function definedCourse(content, { board, ops, parts, read: readValue = (v) => v }) {
@@ -340,7 +340,7 @@ export function definedCourse(content, { board, ops, parts, read: readValue = (v
 }
 
 /**
- * The course of a domain whose games define their parts (content.partDefs: parts.json) over its engine resources `ops`
+ * The course of a domain whose games define their parts (content.partDefs: pieces.json) over its engine resources `ops`
  * (code parts `parts` beside them): circuitCourse's, its parts those, with { defs, defaultsOf }.
  */
 export function partsCourse(content, ops, { parts, ...options }) {

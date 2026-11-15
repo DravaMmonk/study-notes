@@ -4,7 +4,7 @@
 //   { nodes: [{ id, type, params, x?, y? }], wires: [{ from, to, port }] }
 //
 // The level gives the board its fixed cards: each shop's price the tick before and what it showed then down the left,
-// each shop's price down the right. Every other node is a part the player placed (parts.json, or a part a level
+// each shop's price down the right. Every other node is a part the player placed (pieces.json, or a part a level
 // builds), its settings in params as strings ({ value: '0.25' }). As text:
 //
 //   g = sub(short, left)

@@ -3,7 +3,7 @@
 // and their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this
 // domain.
 //
-// A game's parts are its parts.json over the resources of ops.js. A test is data: each input's terms and each output's wanted terms, tick by
+// A game's parts are its pieces.json over the resources of ops.js. A test is data: each input's terms and each output's wanted terms, tick by
 // tick (course.js reads it, run.js checks it).
 
 import { S } from '../../engine/schema.js'
@@ -16,7 +16,7 @@ const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 
 /* ---------- the parts ---------- */
 
-// A game's parts are its parts.json, computing with the domain's resources (ops.js) and the kernel's registers,
+// A game's parts are its pieces.json, computing with the domain's resources (ops.js) and the kernel's registers,
 // coloured by family (ui/calculus.css).
 const FAMILIES = {
   value: item(t('算数的元件')),
@@ -40,8 +40,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'calculus',
-  version: 11,
-  removes: [{ at: 'kinds.part', why: 'a game\'s parts are its parts.json over the domain\'s engine resources (op)' }],
+  version: 12,
   kinds: { op: OP_ITEMS, family: FAMILIES },
   game: GAME,
   level: LEVEL,

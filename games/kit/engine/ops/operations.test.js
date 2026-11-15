@@ -293,7 +293,7 @@ test('tasks by id: task.add, task.move in a level and across levels, task.rename
   assert.equal(JSON.stringify([...ws.levels]), before)
 })
 
-// A toy whose parts are data (games/DESIGN.md 6.8): engine resources in its vocabulary, its parts in parts.json.
+// A toy whose parts are data (games/DESIGN.md 6.8): engine resources in its vocabulary, its parts in pieces.json.
 const PVOCAB = defineVocabulary({
   domain: 'ptoy',
   version: 1,
@@ -308,26 +308,26 @@ function partsToy() {
   const put = (file, value) => writeFileSync(join(root, 'ptoy', file), `${JSON.stringify(value, null, 2)}\n`)
   put('game.json', { domain: 'ptoy', vocabulary: 1, title: 'Toy', primitives: ['sum'], eras: [{ id: 'one', foundation: ['a1'] }] })
   put('glossary.json', { groups: [], entries: [] })
-  put('parts.json', { parts: { sum } })
+  put('pieces.json', { parts: { sum } })
   put('levels/a1.json', { title: 'A', brief: { zh: '用 <part-ref to="sum"></part-ref>' }, adds: ['sum'], solution: ['s = sum(a, b)', 'out <- s'] })
   return openGame('ptoy', root)
 }
 const prun = (ws, op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: withParts(PVOCAB, ws.partDefs), domain: { vocabulary: PVOCAB } })
 
-test('the first part of a game makes its parts.json', () => {
+test('the first part of a game makes its pieces.json', () => {
   const ws = partsToy()
   ws.partDefs = undefined
-  prun(ws, 'part.add', { part: 'sum', data: sum })
+  prun(ws, 'piece.add', { piece: 'sum', data: sum })
   assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum'])
 })
 
-test('part.rename renames a part only the content names; renaming a task carries the inside references to it', () => {
+test('piece.rename renames a part only the content names; renaming a task carries the inside references to it', () => {
   const { ws } = toy()
   ws.levels.set('a1', { ...level(ws, 'a1'), solution: ['m = own-a1()', 'out <- m'] })
-  const renamed = run(ws, 'part.rename', { part: 'own-a1', to: 'made' })
+  const renamed = run(ws, 'piece.rename', { piece: 'own-a1', to: 'made' })
   assert.deepEqual(level(ws, 'a1').solution, ['m = made()', 'out <- m'])
-  assert.throws(() => run(ws, 'part.rename', { part: 'none', to: 'x' }), /no part none/)
-  run(ws, 'part.add', { part: 'made', data: { name: 'M', desc: 'm', inside: [{ task: 'a1' }] } })
+  assert.throws(() => run(ws, 'piece.rename', { piece: 'none', to: 'x' }), /no part none/)
+  run(ws, 'piece.add', { piece: 'made', data: { name: 'M', desc: 'm', inside: [{ task: 'a1' }] } })
   run(ws, 'task.rename', { task: 'a1', to: 'a1x' })
   assert.deepEqual(ws.partDefs.parts.made.inside, [{ task: 'a1x' }])
   run(ws, 'level.rename', { level: 'a1', to: 'a0' })
@@ -340,24 +340,24 @@ test('part.rename renames a part only the content names; renaming a task carries
   assert.deepEqual(level(ws, 'a1').solution, ['m = own-a1()', 'out <- m'])
 })
 
-test('the part operations edit parts.json, refuse to remove a part still used, and rename it everywhere', () => {
+test('the part operations edit pieces.json, refuse to remove a part still used, and rename it everywhere', () => {
   const ws = partsToy()
   const before = JSON.stringify(ws.content())
-  const added = prun(ws, 'part.add', { part: 'twice', data: { ...sum, inputs: [{ name: 'a' }], compute: 'add(a, a)' }, after: 'sum' })
+  const added = prun(ws, 'piece.add', { piece: 'twice', data: { ...sum, inputs: [{ name: 'a' }], compute: 'add(a, a)' }, after: 'sum' })
   assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum', 'twice'])
-  const set = prun(ws, 'parts.set', { path: 'parts.twice.settings', value: [{ key: 'k', control: 'slider', min: 0, max: 4 }] })
+  const set = prun(ws, 'pieces.set', { path: 'parts.twice.settings', value: [{ key: 'k', control: 'slider', min: 0, max: 4 }] })
   assert.deepEqual(ws.partDefs.parts.twice.settings.map((x) => x.key), ['k'])
-  const said = prun(ws, 'text.set', { in: 'parts', path: 'parts.twice.name', zh: '两倍' })
+  const said = prun(ws, 'text.set', { in: 'pieces', path: 'parts.twice.name', zh: '两倍' })
   assert.deepEqual(ws.partDefs.parts.twice.name, { zh: '两倍' })
-  const removed = prun(ws, 'part.remove', { part: 'twice' })
+  const removed = prun(ws, 'piece.remove', { piece: 'twice' })
   assert.deepEqual(Object.keys(ws.partDefs.parts), ['sum'])
   for (const { op, ...args } of removed.inverse) prun(ws, op, args)
   for (const done of [said, set, added]) for (const { op, ...args } of done.inverse) prun(ws, op, args)
-  assert.equal(JSON.stringify(ws.content()), before, 'the inverses put parts.json back')
-  assert.throws(() => prun(ws, 'part.remove', { part: 'sum' }), /still named at game.json primitives\[0\], levels\/a1.json adds\[0\], levels\/a1.json brief.zh, levels\/a1.json solution\[0\]/)
-  assert.throws(() => prun(ws, 'parts.set', { path: 'parts.sum', value: {} }), /part.add/)
-  assert.throws(() => prun(ws, 'part.add', { part: 'twice', data: sum, after: 'none' }), /no part none/)
-  const renamed = prun(ws, 'part.rename', { part: 'sum', to: 'plus' })
+  assert.equal(JSON.stringify(ws.content()), before, 'the inverses put pieces.json back')
+  assert.throws(() => prun(ws, 'piece.remove', { piece: 'sum' }), /still named at game.json primitives\[0\], levels\/a1.json adds\[0\], levels\/a1.json brief.zh, levels\/a1.json solution\[0\]/)
+  assert.throws(() => prun(ws, 'pieces.set', { path: 'parts.sum', value: {} }), /piece.add/)
+  assert.throws(() => prun(ws, 'piece.add', { piece: 'twice', data: sum, after: 'none' }), /no part none/)
+  const renamed = prun(ws, 'piece.rename', { piece: 'sum', to: 'plus' })
   assert.deepEqual(ws.game.primitives, ['plus'])
   assert.deepEqual(ws.levels.get('a1').adds, ['plus'])
   assert.deepEqual(ws.levels.get('a1').solution, ['s = plus(a, b)', 'out <- s'])

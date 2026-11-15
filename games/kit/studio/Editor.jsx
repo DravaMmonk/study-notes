@@ -5,8 +5,8 @@
 // levels: every text in play order, to read a chapter's copy through and fix it in place); or the rest of game.json.
 // The level's own actions are operations: level.rename, level.add (a copy after it), level.remove, and moving it in
 // the tree. A row says how many findings of the check are on its field and whether the pending changes touched it. A
-// part of parts.json (and a setting preset) is a file of its own here: its fields as rows, and its own actions —
-// part.rename, part.add (a copy after it), part.remove.
+// part of pieces.json (and a setting preset) is a file of its own here: its fields as rows, and its own actions —
+// piece.rename, piece.add (a copy after it), piece.remove.
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRightLeft, ChevronRight, Copy, Play, CirclePlay, Trash2 } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
@@ -176,7 +176,7 @@ function GameEditor({ content, base, vocabulary, order, names, levelOptions, fie
   )
 }
 
-/** A part of parts.json, or one of its setting presets: its fields as rows, and the part's own actions. */
+/** A part of pieces.json, or one of its setting presets: its fields as rows, and the part's own actions. */
 function PartEditor({ content, base, vocabulary, order, names, levelOptions, at, places, field, onEdit, onSelect, onPick }) {
   const file = { parts: true }
   const ctx = ctxOf({ vocabulary, order, names, levelOptions }, { partDefs: content.partDefs })
@@ -190,12 +190,12 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
   const { at: findings } = placeFindings(shown.form, places.filter((p) => p.file === 'parts'))
   const rename = () => {
     if (id === at.part || !ID.test(id) || types.includes(id)) return
-    onEdit({ op: 'part.rename', part: at.part, to: id })
+    onEdit({ op: 'piece.rename', piece: at.part, to: id })
     onSelect({ part: id })
   }
   const copy = () => {
     const to = freeName(types, `${at.part}_`)
-    onEdit({ op: 'part.add', part: to, data: JSON.parse(JSON.stringify(hit.field.value)), after: at.part })
+    onEdit({ op: 'piece.add', piece: to, data: JSON.parse(JSON.stringify(hit.field.value)), after: at.part })
     onSelect({ part: to })
   }
   return (
@@ -203,12 +203,12 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
       <header className="editor-head">
         {at.part !== undefined ? (
           <>
-            <input className="editor-id" value={id} onChange={(e) => setId(e.target.value)} onBlur={rename} onKeyDown={(e) => e.key === 'Enter' && rename()} aria-label={tr('元件的类型名')} spellCheck={false} />
+            <input className="editor-id" value={id} onChange={(e) => setId(e.target.value)} onBlur={rename} onKeyDown={(e) => e.key === 'Enter' && rename()} aria-label={tr('件的类型名')} spellCheck={false} />
             <h1>{L(hit.field.value.name)}</h1>
             <span className="kit-spacer" />
             <span className="editor-tools">
-            <button type="button" className="kit-btn editor-tool" onClick={copy} title={tr('复制成新的元件')}><Copy size={14} /></button>
-            <button type="button" className="kit-btn editor-tool" onClick={() => { onEdit({ op: 'part.remove', part: at.part }); onSelect(null) }} title={tr('删掉这个元件（还有地方用到它时拒绝）')}><Trash2 size={14} /></button>
+            <button type="button" className="kit-btn editor-tool" onClick={copy} title={tr('复制成新的件')}><Copy size={14} /></button>
+            <button type="button" className="kit-btn editor-tool" onClick={() => { onEdit({ op: 'piece.remove', piece: at.part }); onSelect(null) }} title={tr('删掉这个件（还有地方用到它时拒绝）')}><Trash2 size={14} /></button>
             </span>
           </>
         ) : (
@@ -216,7 +216,7 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
             <span className="editor-id is-static">{at.preset}</span>
             <h1>{hit.field.value.label ? L(hit.field.value.label) : at.preset}</h1>
             <span className="kit-spacer" />
-            <span className="editor-tools"><button type="button" className="kit-btn editor-tool" onClick={() => { onEdit({ op: 'parts.unset', path }); onSelect(null) }} title={tr('删掉这份预设')}><Trash2 size={14} /></button></span>
+            <span className="editor-tools"><button type="button" className="kit-btn editor-tool" onClick={() => { onEdit({ op: 'pieces.unset', path }); onSelect(null) }} title={tr('删掉这份预设')}><Trash2 size={14} /></button></span>
           </>
         )}
       </header>

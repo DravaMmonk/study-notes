@@ -2,7 +2,7 @@
 // schema of its parameters, and the schemas of game.json and of one level. Content is these items and their
 // parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
-// The items are implemented next to them: the resources a game's parts.json computes with in ops.js, what a level wants in wants.js, the wires and the formats
+// The items are implemented next to them: the resources a game's pieces.json computes with in ops.js, what a level wants in wants.js, the wires and the formats
 // their far ends speak in wire.js.
 
 import { S } from '../../engine/schema.js'
@@ -24,7 +24,7 @@ const INPUT = S.str({ about: t('这一关的一个输入的名字') })
 
 /* ---------- the parts ---------- */
 
-// A game's parts are its parts.json, computing with the domain's resources (ops.js) and the kernel's registers,
+// A game's parts are its pieces.json, computing with the domain's resources (ops.js) and the kernel's registers,
 // coloured by family (ui/net.css).
 const FAMILIES = {
   value: item(t('算数的元件')),
@@ -92,8 +92,7 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'net',
-  version: 12,
-  removes: [{ at: 'kinds.part', why: 'a game\'s parts are its parts.json over the domain\'s engine resources (op)' }],
+  version: 13,
   kinds: { op: OP_ITEMS, family: FAMILIES, want: WANTS },
   game: GAME,
   level: LEVEL,

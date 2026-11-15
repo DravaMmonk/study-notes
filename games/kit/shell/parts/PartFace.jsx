@@ -6,7 +6,7 @@ import { evalSettings, failedCheck, partDesc, shows } from '../../engine/parts/d
 import SettingField, { valueWords } from './SettingField.jsx'
 
 // One face of a defined part (games/DESIGN.md 6.8): the desktop card's body, the phone tile, or the detail both
-// share, as parts.json's `views` lays it out in blocks (the default where it says nothing). The kernel draws every
+// share, as pieces.json's `views` lays it out in blocks (the default where it says nothing). The kernel draws every
 // block but the part's value and the domain's widgets, which the domain gives (`defined.value`, `defined.widgets`).
 //
 //   def       the part, resolved (../../engine/parts/define.js)      face   'card' | 'tile' | 'detail'
@@ -22,7 +22,7 @@ export const DEFAULT_VIEWS = {
   detail: [{ show: 'desc' }, { show: 'settings' }, { show: 'value' }],
 }
 
-/** A face's blocks: parts.json's, or the default; the path each has in parts.json (null for a default one). */
+/** A face's blocks: pieces.json's, or the default; the path each has in pieces.json (null for a default one). */
 export function blocksOf(def, face) {
   const blocks = facesOf(def)[face]
   return blocks ? blocks.map((b, k) => [b, ['views', face, k]]) : DEFAULT_VIEWS[face].map((b) => [b, null])

@@ -41,7 +41,7 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
   }
   for (const [k, { op: name, ...args }] of (changeset.ops ?? []).entries()) {
     const op = OPERATIONS[name]
-    // A domain that defines its parts as data names them by the game's parts.json as each operation finds it.
+    // A domain that defines its parts as data names them by the game's pieces.json as each operation finds it.
     const vocabulary = withParts(domain.vocabulary, ws.partDefs)
     const where = `op ${k + 1} (${name})`
     if (!op) return fail([`${where}: no such operation; the operations are ${Object.keys(OPERATIONS).join(', ')}`], k)

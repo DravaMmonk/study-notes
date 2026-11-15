@@ -1,4 +1,4 @@
-// The net domain's engine resources (games/DESIGN.md 6.8): what a game's parts.json computes with, over bits, whole
+// The net domain's engine resources (games/DESIGN.md 6.8): what a game's pieces.json computes with, over bits, whole
 // numbers and yes or no (a bit is the number 0 or 1, yes is 1 and no 0). A part handed 「—」 gives 「—」 before any of
 // these runs (../../engine/parts/define.js `nulls`), but for select, which reads only the input it picks; a register is
 // the kernel's (held, keeps).

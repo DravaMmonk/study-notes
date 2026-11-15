@@ -38,7 +38,7 @@ export function overlays(id, dir = GAMES_DIR) {
 /** games/<id>/ assembled into one content. */
 export function readContent(id, dir = GAMES_DIR) {
   const blueprint = resolve(dir, id, 'blueprint.json')
-  const parts = resolve(dir, id, 'parts.json')
+  const parts = resolve(dir, id, 'pieces.json')
   return assemble({
     id,
     game: json(resolve(dir, id, 'game.json')),

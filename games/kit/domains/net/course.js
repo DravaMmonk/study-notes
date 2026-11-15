@@ -47,6 +47,6 @@ export function netCourse(content) {
     return testOf(task, t)
   }
   // A built part keeps its own registers. The output that asks for the next byte of the queue is wanted of nothing.
-  // The parts are the game's parts.json over the domain's resources.
+  // The parts are the game's pieces.json over the domain's resources.
   return partsCourse(content, OPS, { board, read, test, holds: true, unwanted: (task) => (task.pulls ? [task.pulls.next] : []) })
 }

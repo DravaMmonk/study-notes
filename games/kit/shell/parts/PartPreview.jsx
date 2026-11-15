@@ -11,12 +11,12 @@ import { Chains, Ports, Revisions, Settings } from './PieceSheet.jsx'
 // A defined part as the studio designs it (games/DESIGN.md 6.7, 6.8): its three faces side by side — the desktop
 // card on the game's own canvas, the phone tile on its slot board, the detail both share — drawn by the game's page
 // (studio.html?play), so its icons, colours and controls are the player's; under them what it computes and its
-// interaction, as the expressions parts.json writes, and the fields no face draws: its revisions, its ports, every
+// interaction, as the expressions pieces.json writes, and the fields no face draws: its revisions, its ports, every
 // setting. Its settings move as a player would move them (rules followed, readouts and actions live); nothing is wired
 // to it, so its value shows as a placeholder.
 //
 //   game      the game's description; game.defined = { of(type), defaults(type), ops, widgets? } (the domain's game.js),
-//             game.partDefs parts.json as the studio edits it
+//             game.partDefs pieces.json as the studio edits it
 //   type      the part shown          edit      { picked (a path in the part), pick(path), add(path) } or null
 //   onTask(task)  a step of a built piece's chain followed to its task (a built piece's ports are its task's board's)
 // Every block, setting, expression and face carries the path of what it is in the part (data-pf); in edit mode a
@@ -42,7 +42,7 @@ export default function PartPreview({ game, type, edit, onTask = null, taskLabel
   const [params, setParams] = useState(() => defined.defaults(type))
   useEffect(() => setParams(defined.defaults(type)), [type, def]) // eslint-disable-line react-hooks/exhaustive-deps
   const parts = useMemo(() => definedParts(base, defined.of, defined.ops), [defined])
-  if (!def) return <p className="pp-none">{tr(`parts.json 里没有元件 ${type}`, `parts.json has no part ${type}`)}</p>
+  if (!def) return <p className="pp-none">{tr(`pieces.json 里没有元件 ${type}`, `pieces.json has no part ${type}`)}</p>
   const node = { id: 'p', type, params, x: 40, y: 30 }
   const graph = { nodes: [node], wires: [] }
   const set = (patch, changed) => setParams((p) => nextParams(def, p, patch, changed, defined.ops))
@@ -66,7 +66,7 @@ export default function PartPreview({ game, type, edit, onTask = null, taskLabel
       {children}
     </section>
   )
-  // The rows of fields go by the piece as parts.json writes it (a setting by its place there, a preset by its name).
+  // The rows of fields go by the piece as pieces.json writes it (a setting by its place there, a preset by its name).
   const raw = game.partDefs?.parts?.[type] ?? def
   // What it computes, one expression an output; a part that keeps an input computes nothing.
   const compute = def.keeps ? [] : typeof def.compute === 'string' ? [['', def.compute]] : Object.entries(def.compute)

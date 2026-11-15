@@ -53,12 +53,12 @@ const indexIn = (tasks, level, { after, first }) => {
 }
 /** The place a task is at in its level, said as task.move and task.add take it. */
 const placeOf = (tasks, k) => (k === 0 ? { first: true } : { after: tasks[k - 1].id })
-/** The game's parts.json (one is written the first time it is edited): its pieces, or its built ones alone where its domain defines primitives in code. */
+/** The game's pieces.json (one is written the first time it is edited): its pieces, or its built ones alone where its domain defines primitives in code. */
 const partsOf = (ws) => {
   if (ws.partDefs === undefined) ws.partDefs = { parts: {} }
   return ws.partDefs
 }
-/** Every reference to task `from` in parts.json (each `S.task()` field: a built piece's inside) made to name `to` (a
+/** Every reference to task `from` in pieces.json (each `S.task()` field: a built piece's inside) made to name `to` (a
  *  task renamed, or a level with its task). */
 const renameInside = (ws, from, to) => {
   if (!ws.partDefs) return
@@ -274,24 +274,24 @@ export const OPERATIONS = {
     },
   },
   'text.set': {
-    about: t('改一段文字（一关、game.json、百科或 parts.json 里的）；译文在覆盖层里，用 i18n.set'),
-    params: S.obj({ level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary', 'parts'])), path: PATH, zh: S.str() }),
+    about: t('改一段文字（一关、game.json、百科或 pieces.json 里的）；译文在覆盖层里，用 i18n.set'),
+    params: S.obj({ level: S.opt(S.level()), in: S.opt(S.oneOf(['game', 'glossary', 'pieces'])), path: PATH, zh: S.str() }),
     apply(ws, { level, in: where, path, zh }, { vocabulary }) {
       if ((level === undefined) === (where === undefined)) fail('name the text’s file: a level, or in: game, glossary or parts')
-      if (where === 'parts' && ws.partDefs === undefined) fail('the game has no parts.json')
-      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : where === 'game' ? [ws.game, vocabulary.game] : where === 'parts' ? [ws.partDefs, PARTS_FILE] : [ws.glossary, null]
+      if (where === 'pieces' && ws.partDefs === undefined) fail('the game has no pieces.json')
+      const [value, schema] = level !== undefined ? [levelOf(ws, level), vocabulary.level] : where === 'game' ? [ws.game, vocabulary.game] : where === 'pieces' ? [ws.partDefs, PARTS_FILE] : [ws.glossary, null]
       const keys = parsePath(path)
       const shape = schema && shapeAt(schema, value, keys, { vocabulary })
       if (schema && shape?.type !== 'text') fail(`${showPath(keys)} is not a text`)
       const old = getAt(value, keys)
-      if (old === undefined && (where === 'glossary' || where === 'parts')) fail(`${where}.json has no text at ${showPath(keys)}`)
+      if (old === undefined && (where === 'glossary' || where === 'pieces')) fail(`${where}.json has no text at ${showPath(keys)}`)
       const next = { zh }
       const file = level ?? where
-      // The glossary and parts.json have no field operations: their text goes back as a text.
-      const inverse = [where === 'glossary' || where === 'parts' ? { op: 'text.set', in: where, path: keys, zh: typeof old === 'string' ? old : old.zh } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
+      // The glossary and pieces.json have no field operations: their text goes back as a text.
+      const inverse = [where === 'glossary' || where === 'pieces' ? { op: 'text.set', in: where, path: keys, zh: typeof old === 'string' ? old : old.zh } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
       if (level !== undefined) setLevel(ws, level, keys, next, vocabulary)
       else if (where === 'game') ws.game = setAt(ws.game, keys, next)
-      else if (where === 'parts') ws.partDefs = setAt(ws.partDefs, keys, next, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
+      else if (where === 'pieces') ws.partDefs = setAt(ws.partDefs, keys, next, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
       else ws.glossary = setAt(ws.glossary, keys, next)
       return { says: `${file}: ${showPath(keys)} reads anew`, inverse }
     },
@@ -363,23 +363,23 @@ export const OPERATIONS = {
       return { says: `glossary: removed ${entry}`, inverse: [{ op: 'glossary.put', entry, data: old, at: k }] }
     },
   },
-  'part.add': {
-    about: t('加一个元件（parts.json）：它的定义，after 那个元件后面'),
-    params: S.obj({ part: PART_NAME, data: S.map(S.any()), after: S.opt(PART_NAME) }),
-    apply(ws, { part, data, after }, { vocabulary }) {
+  'piece.add': {
+    about: t('加一个件（pieces.json）：它的定义，after 那个件后面'),
+    params: S.obj({ piece: PART_NAME, data: S.map(S.any()), after: S.opt(PART_NAME) }),
+    apply(ws, { piece: part, data, after }, { vocabulary }) {
       partsOf(ws)
       if (ws.partDefs.parts[part]) fail(`there is a part ${part} already`)
       const entries = Object.entries(ws.partDefs.parts)
       const k = after === undefined ? entries.length : entries.findIndex(([type]) => type === after) + 1
       if (after !== undefined && k === 0) fail(`no part ${after}`)
       ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries([...entries.slice(0, k), [part, data], ...entries.slice(k)]) }
-      return { says: `parts: added ${part}`, inverse: [{ op: 'part.remove', part }] }
+      return { says: `pieces: added ${part}`, inverse: [{ op: 'piece.remove', piece: part }] }
     },
   },
-  'part.remove': {
-    about: t('删掉一个元件（parts.json）；课程、关卡、板或文字还提到它时拒绝；玩家存下的放着它的板去掉'),
-    params: S.obj({ part: PART_NAME }),
-    apply(ws, { part }, { vocabulary }) {
+  'piece.remove': {
+    about: t('删掉一个件（pieces.json）；课程、关卡、板或文字还提到它时拒绝；玩家存下的放着它的板去掉'),
+    params: S.obj({ piece: PART_NAME }),
+    apply(ws, { piece: part }, { vocabulary }) {
       partsOf(ws)
       const entries = Object.entries(ws.partDefs.parts)
       const k = entries.findIndex(([type]) => type === part)
@@ -387,13 +387,13 @@ export const OPERATIONS = {
       const named = partRefs(ws, vocabulary, part)
       if (named.length) fail(`${part} is still named at ${named.slice(0, 8).map((r) => `${r.file} ${showPath(r.path)}`).join(', ')}${named.length > 8 ? ` and ${named.length - 8} more` : ''}`)
       ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries(entries.filter(([type]) => type !== part)) }
-      return { says: `parts: removed ${part}`, inverse: [{ op: 'part.add', part, data: entries[k][1], ...(k > 0 ? { after: entries[k - 1][0] } : {}) }] }
+      return { says: `pieces: removed ${part}`, inverse: [{ op: 'piece.add', piece: part, data: entries[k][1], ...(k > 0 ? { after: entries[k - 1][0] } : {}) }] }
     },
   },
-  'part.rename': {
-    about: t('给一个元件换类型名：课程、关卡、板、链接里的每一处一起改，存下的板也跟着改；parts.json 还没有、只在内容里提到的件也可以'),
-    params: S.obj({ part: S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_-]*$' }), to: PART_NAME }),
-    apply(ws, { part, to }, { vocabulary, domain }) {
+  'piece.rename': {
+    about: t('给一个件换类型名：课程、关卡、板、链接里的每一处一起改，存下的板也跟着改；pieces.json 还没有、只在内容里提到的件也可以'),
+    params: S.obj({ piece: S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_-]*$' }), to: PART_NAME }),
+    apply(ws, { piece: part, to }, { vocabulary, domain }) {
       partsOf(ws)
       if (!ws.partDefs.parts[part] && !partRefs(ws, vocabulary, part).length) fail(`no part ${part}`)
       if (Object.hasOwn(domain?.vocabulary.kinds.part ?? {}, part)) {
@@ -402,38 +402,38 @@ export const OPERATIONS = {
       if (ws.partDefs.parts[to]) fail(`there is a part ${to} already`)
       ws.partDefs = { ...ws.partDefs, parts: Object.fromEntries(Object.entries(ws.partDefs.parts).map(([type, def]) => [type === part ? to : type, def])) }
       const n = renamePartRefs(ws, vocabulary, part, to)
-      return { says: `parts: ${part} → ${to} (${n} reference(s))`, inverse: [{ op: 'part.rename', part: to, to: part }] }
+      return { says: `pieces: ${part} → ${to} (${n} reference(s))`, inverse: [{ op: 'piece.rename', piece: to, to: part }] }
     },
   },
-  'parts.set': {
-    about: t('设 parts.json 的一个字段：parts.<元件>.settings[0].default、presets.<预设>.options……'),
+  'pieces.set': {
+    about: t('设 pieces.json 的一个字段：parts.<件>.settings[0].default、presets.<预设>.options……'),
     params: S.obj({ path: PATH, value: S.any() }),
     apply(ws, { path, value }, { vocabulary }) {
       partsOf(ws)
       const keys = parsePath(path)
-      if (keys.length < 3 && keys[0] === 'parts') fail('a whole part is added with part.add, renamed with part.rename')
+      if (keys.length < 3 && keys[0] === 'parts') fail('a whole piece is added with piece.add, renamed with piece.rename')
       // A first face can be written independently even before the part has a views object.
       const parent = keys.slice(0, -1)
       if (keys.length === 4 && keys[0] === 'parts' && keys[2] === 'views' && getAt(ws.partDefs, parent) === undefined) {
-        const inverse = [restore('parts', ws.partDefs, parent, {})]
+        const inverse = [restore('pieces', ws.partDefs, parent, {})]
         ws.partDefs = setAt(ws.partDefs, parent, { [keys[3]]: value }, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
-        return { says: `parts.json: set ${showPath(keys)}`, inverse }
+        return { says: `pieces.json: set ${showPath(keys)}`, inverse }
       }
-      const inverse = [restore('parts', ws.partDefs, keys, {})]
+      const inverse = [restore('pieces', ws.partDefs, keys, {})]
       ws.partDefs = setAt(ws.partDefs, keys, value, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
-      return { says: `parts.json: set ${showPath(keys)}`, inverse }
+      return { says: `pieces.json: set ${showPath(keys)}`, inverse }
     },
   },
-  'parts.unset': {
-    about: t('去掉 parts.json 的一个字段，或列表里的一项'),
+  'pieces.unset': {
+    about: t('去掉 pieces.json 的一个字段，或列表里的一项'),
     params: S.obj({ path: PATH }),
     apply(ws, { path }, { vocabulary }) {
       partsOf(ws)
       const keys = parsePath(path)
-      if (keys.length < 3 && keys[0] === 'parts') fail('a whole part is removed with part.remove')
-      const back = typeof keys.at(-1) === 'number' ? { op: 'parts.set', path: keys.slice(0, -1), value: getAt(ws.partDefs, keys.slice(0, -1)) } : { op: 'parts.set', path: keys, value: getAt(ws.partDefs, keys) }
+      if (keys.length < 3 && keys[0] === 'parts') fail('a whole piece is removed with piece.remove')
+      const back = typeof keys.at(-1) === 'number' ? { op: 'pieces.set', path: keys.slice(0, -1), value: getAt(ws.partDefs, keys.slice(0, -1)) } : { op: 'pieces.set', path: keys, value: getAt(ws.partDefs, keys) }
       ws.partDefs = unsetAt(ws.partDefs, keys)
-      return { says: `parts.json: removed ${showPath(keys)}`, inverse: [back] }
+      return { says: `pieces.json: removed ${showPath(keys)}`, inverse: [back] }
     },
   },
   'blueprint.put': {

@@ -73,7 +73,7 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
   // A notes edition (games/DESIGN.md 12.1) opens every level.
   const notes = mode === 'notes'
   const plan = layout(eras, { notes })
-  // Levels are read in play order: a task a built piece of parts.json refers to makes that piece a part
+  // Levels are read in play order: a task a built piece of pieces.json refers to makes that piece a part
   // (engine/own.js) before the levels after it, whose boards may hold it, are read.
   const content = Object.fromEntries(levels.map((level) => [level.id, level]))
   const definitions = imageDefinitions(partDefs)
@@ -95,12 +95,12 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
     played.set(id, tasks)
     // A built piece runs the board of the task it refers to.
     for (const task of tasks) for (const type of published.get(task.taskId) ?? []) {
-      if (task.kind !== 'graph') throw new Error(`parts.json's ${type} runs task ${task.taskId}, a ${task.kind}, no circuit`)
+      if (task.kind !== 'graph') throw new Error(`pieces.json's ${type} runs task ${task.taskId}, a ${task.kind}, no circuit`)
       types[type] = ownPart(task, type, pieces[type], () => own.get(task.taskId) ?? task.solution, types)
       builders.set(type, task)
     }
   }
-  for (const p of publications(pieces)) if (!builders.has(p.type)) throw new Error(`parts.json's ${p.type} runs task ${p.task}, which no level has`)
+  for (const p of publications(pieces)) if (!builders.has(p.type)) throw new Error(`pieces.json's ${p.type} runs task ${p.task}, which no level has`)
   const intros = Object.fromEntries(levels.map((level) => [level.id, level.intro]))
   const chapterOf = new Map(eras.flatMap((era) => eraLevels(era).map((id) => [id, era.id])))
   const { requires } = plan

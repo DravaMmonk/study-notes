@@ -50,7 +50,7 @@ const GLOSSARY = {
   }],
 }
 
-// Its parts (parts.json): Apply and the assumption box over the domain's resources.
+// Its parts (pieces.json): Apply and the assumption box over the domain's resources.
 const PARTS = {
   parts: {
     mp: { name: T('套用', 'Apply'), desc: T('由 A → B 和 A 得到 B。', 'From A → B and A, B.'), icon: 'GitFork', family: 'rule', inputs: [{ name: 'imp', label: T('A → B') }, { name: 'a', label: T('A') }], compute: 'mp(imp, a)' },
@@ -109,7 +109,7 @@ export function proofsRoot() {
   const put = (file, value) => writeFileSync(join(root, ID, file), `${JSON.stringify(value, null, 2)}\n`)
   put('game.json', GAME)
   put('glossary.json', GLOSSARY)
-  put('parts.json', PARTS)
+  put('pieces.json', PARTS)
   for (const [id, level] of Object.entries(LEVELS)) put(`levels/${id}.json`, level)
   writeFileSync(join(root, 'games.js'), `export const GAMES = [\n  {\n    id: '${ID}', levels: ${Object.keys(LEVELS).length},\n  },\n]\n`)
   return { root, id: ID }

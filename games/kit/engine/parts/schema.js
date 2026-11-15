@@ -1,4 +1,4 @@
-// The schema of a game's parts.json (games/DESIGN.md 6.8): the parts a game's course starts from, as data — their
+// The schema of a game's pieces.json (games/DESIGN.md 6.8): the parts a game's course starts from, as data — their
 // ports, their settings (one of the kernel controls), what they compute (an expression over the domain's engine
 // resources, expr.js) and their three views — and setting presets several parts share. The schema is the kernel's, the
 // same in every domain whose vocabulary has engine resources (the `op` kind); what it names (resources, families,
@@ -125,7 +125,7 @@ export const BUILT = S.obj({
 /** A piece: a primitive (compute) or a built one (inside), never both. */
 export const PART = S.either(PRIMITIVE, BUILT)
 
-/** parts.json. */
+/** pieces.json. */
 export const PARTS_FILE = S.obj({
   presets: S.opt(S.map(PRESET, { keys: '^[A-Za-z_][A-Za-z0-9_]*$', about: t('几个元件共用的设置') })),
   parts: S.map(PART, { keys: '^[A-Za-z_][A-Za-z0-9_]*$' }),

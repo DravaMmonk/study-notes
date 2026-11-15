@@ -1,7 +1,7 @@
-// A logic game's course, from its content (games/<id>/: game.json, levels, glossary, parts.json; vocabulary.js says what
+// A logic game's course, from its content (games/<id>/: game.json, levels, glossary, pieces.json; vocabulary.js says what
 // may be in it): the play order and the tree from its eras (../../course.js layout), each level's number and the parts it
 // can really offer, its reference and naive answers as the boards they write (blueprint.js), and its built pieces
-// (parts.json `inside`, readBuilt): a lemma proved on the proof board, a gate built on a truth circuit (gates.js
+// (pieces.json `inside`, readBuilt): a lemma proved on the proof board, a gate built on a truth circuit (gates.js
 // builtGates), a machine part (machine.js builtMachine), an equation proved; every one runs the player's work (a lemma,
 // the proof of each of its shapes).
 import { playFor } from '../../engine/plays.js'
@@ -40,7 +40,7 @@ const rulesIn = (circuit) => circuit.nodes.map((n) => n.type)
 const asSchema = (text, metas) => metas.reduce((t, m) => t.replace(new RegExp(`\\b${m}\\(([a-z]\\w*)\\)`, 'g'), m), text)
 
 /**
- * A game's built pieces (parts.json, ../../engine/pieces.js builtPieces) read as the course's tables. Its family says
+ * A game's built pieces (pieces.json, ../../engine/pieces.js builtPieces) read as the course's tables. Its family says
  * what a piece is: a lemma (`lemma`: each shape the premises and goal of the proof task it refers to, its letters its
  * tree settings, the first reference its first shape and the rest, by `form`, shapes an upgrade adds), a gate (`gate`:
  * a port for each letter of its truth circuit, in order, named a, b, c…), a machine part (`built`) or an equation
@@ -54,7 +54,7 @@ function readBuilt(content) {
   for (const [type, def] of Object.entries(content.partDefs?.parts ?? {})) if (revisionsOf(def).length) out.revisions[type] = [...revisionsOf(def)]
   for (const [type, piece] of Object.entries(builtPieces(content.partDefs))) {
     const refs = piece.inside.map((ref) => {
-      if (!raw.has(ref.task)) throw new Error(`parts.json's ${type} refers to task ${ref.task}, which no level has`)
+      if (!raw.has(ref.task)) throw new Error(`pieces.json's ${type} refers to task ${ref.task}, which no level has`)
       return { ...ref, ...raw.get(ref.task) }
     })
     out.pieces[type] = piece
@@ -93,7 +93,7 @@ function readBuilt(content) {
       const { task } = refs[0]
       out.facts[type] = { name, desc, statement: task.tests[0].goal, ...(task.rule ? { rule: task.rule } : {}) }
       out.proves.set(task.id, type)
-    } else throw new Error(`parts.json's ${type} is a built piece of family ${piece.family}: a lemma, a gate, a built machine part or a rule (an equation)`)
+    } else throw new Error(`pieces.json's ${type} is a built piece of family ${piece.family}: a lemma, a gate, a built machine part or a rule (an equation)`)
   }
   return out
 }
@@ -111,7 +111,7 @@ function readBuilt(content) {
  * compound sentence too: { A: 'Rain ∧ Wind' }). Every case becomes a test of its own, with the case as `subst` and its
  * sentences as its label, so one proof is checked on all of them; a last test keeps the bare letters, the pattern
  * itself. A level opens on its first case, the one its task is written in.
- *   partDefs    parts.json: the primitive gates, the proof rules and the machine board's parts
+ *   partDefs    pieces.json: the primitive gates, the proof rules and the machine board's parts
  *               (../../engine/parts/define.js) over the domain's engine resources (ops.js), and the built pieces
  *               (readBuilt): the lemmas the player proves, the gates built on a truth circuit (gates.js), the machine
  *               parts built on the machine board, and the equations proved (chapter 12 on), each from then on a rule
@@ -143,7 +143,7 @@ function readBuilt(content) {
  * shapes after its first are values of its `form` that the upgrade proving them opens (`revisions`: by, forms).
  * Returns { LEVELS, CHAPTERS, LABELS, course, offerIn(task, flags), holdsIn(task, flags), machines, revisions, lemmas,
  * facts, pieces: the built pieces, texts: what a player reads of them, proofs,
- * gates: the gates built, defs and defaultsOf: the parts parts.json defines and a new node's settings, truthCircuits and proofBoards: the truth circuits and
+ * gates: the gates built, defs and defaultsOf: the parts pieces.json defines and a new node's settings, truthCircuits and proofBoards: the truth circuits and
  * the proofs as the kernel's circuit screen reads a course, wrong: what reading the content found wrong, … }: each of LEVELS { id, title, …, tasks }, its
  * tasks as read (`task` the index, `taskId` the id). Reading builds all of it anew: the content is never written to.
  */
@@ -280,9 +280,9 @@ export function logicCourse(content) {
   })
   const eraOf = new Map(eras.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
   // The gates the levels build, filled in once the levels that build them are read (builtGates); a board of gates is
-  // read by their ports alone. A truth circuit holds those and the primitive gates (parts.json), each with its name.
+  // read by their ports alone. A truth circuit holds those and the primitive gates (pieces.json), each with its name.
   const gatePieces = {}
-  // The parts: parts.json's and the lemmas', each on the board of its family.
+  // The parts: pieces.json's and the lemmas', each on the board of its family.
   const { PARTS, defs, defaultsOf } = partsOf(content.partDefs, lemmas)
   const onBoard = (...families) => Object.fromEntries(Object.entries(PARTS).filter(([type]) => families.includes(defs[type].family)))
   const primitiveGates = onBoard('gate')
@@ -290,7 +290,7 @@ export function logicCourse(content) {
   // A proof's parts: the proof rules and the lemmas, and the board's premises and goal.
   const proofTypes = Object.keys(onBoard('rule', 'box', 'lemma'))
   const proofParts = { ...PROOF_BOARD.FIXED_PARTS, ...onBoard('rule', 'box', 'lemma') }
-  // A machine's parts: the machine board's parts.json parts, the parts the player builds and the rule parts of its
+  // A machine's parts: the machine board's pieces.json parts, the parts the player builds and the rule parts of its
   // rule books (every rule part the same engine part, RULE_PIECE).
   const machineParts = onBoard('tactic', 'loop')
   const RULE_ENGINE = defineParts({ parts: { rules: RULE_PIECE } }, OPS).PARTS.rules
@@ -386,7 +386,7 @@ export function logicCourse(content) {
   const lemmaWorks = built.lemmaRefs.flatMap(({ type, form, task }) => {
     const one = taskById.get(task)
     if (one?.kind === 'proof') return [{ kind: 'lemma', type, form, task: one }]
-    wrong.push(`parts.json's lemma ${type}${form ? ` (${form})` : ''} refers to task ${task}, which is no proof`)
+    wrong.push(`pieces.json's lemma ${type}${form ? ` (${form})` : ''} refers to task ${task}, which is no proof`)
     return []
   })
   references.register([

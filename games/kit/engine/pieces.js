@@ -11,7 +11,7 @@ export const keepsOf = (piece) => piece.keeps ?? null
 export const cardOf = (piece) => piece.card ?? null
 export const revisionsOf = (piece) => piece.revisions ?? []
 
-/** A parts.json's built pieces (those with an inside), by type. */
+/** A pieces.json's built pieces (those with an inside), by type. */
 export const builtPieces = (file) => Object.fromEntries(Object.entries(file?.parts ?? {}).filter(([, piece]) => insideOf(piece)))
 
 /** What built pieces publish: one entry a reference, { type, form (null when none), task (its id) }, in the order written. */

@@ -53,7 +53,7 @@ test('if works out only the branch it takes; a builtin’s numbers are plain num
   assert.deepEqual(said('times(plus($k, 1), 2)'), [])
 })
 
-test('parts.json becomes engine parts: settings with their presets, one or several outputs, 「—」 given on', () => {
+test('pieces.json becomes engine parts: settings with their presets, one or several outputs, 「—」 given on', () => {
   const { PARTS, defaultsOf } = defineParts(file, OPS)
   assert.deepEqual(defaultsOf('scaled'), { k: 2, how: 'up', lock: false })
   assert.deepEqual(PARTS.scaled.settings, { how: ['up', 'down'] })
@@ -87,7 +87,7 @@ test('interaction: rules follow a change, checks say what fails, settings-only e
   assert.equal(evalSettings('times($k, $k)', defs.scaled, { k: 3 }, OPS), 9)
 })
 
-test('a parts.json that holds together has no problems; one that does not says where', () => {
+test('a pieces.json that holds together has no problems; one that does not says where', () => {
   assert.deepEqual(partProblems(file, vocabulary), [])
   const bad = structuredClone(file)
   bad.parts.sum.compute = 'add(a, c)'
@@ -98,13 +98,13 @@ test('a parts.json that holds together has no problems; one that does not says w
   bad.parts.scaled.views.tile[0].text = '{nope}'
   bad.parts.scaled.rules[0].set = { z: '1' }
   assert.deepEqual(partProblems(bad, vocabulary).map((p) => `${p.at}: ${p.says}`), [
-    'parts.json.parts.sum.icon: Nope is no icon of the kernel’s table',
-    'parts.json.parts.sum.compute: c is no input of the part (its inputs: a, b)',
-    'parts.json.parts.scaled.settings[0].default: 9 is not a number in its range',
-    'parts.json.parts.scaled.rules[0].set.z: z is no setting of the part',
-    'parts.json.parts.scaled.compute: match $how has no case for down',
-    'parts.json.parts.scaled.views.tile[0].text: {nope} is no setting of the part',
-    'parts.json.parts.split.compute: nothing computes the output lo',
+    'pieces.json.parts.sum.icon: Nope is no icon of the kernel’s table',
+    'pieces.json.parts.sum.compute: c is no input of the part (its inputs: a, b)',
+    'pieces.json.parts.scaled.settings[0].default: 9 is not a number in its range',
+    'pieces.json.parts.scaled.rules[0].set.z: z is no setting of the part',
+    'pieces.json.parts.scaled.compute: match $how has no case for down',
+    'pieces.json.parts.scaled.views.tile[0].text: {nope} is no setting of the part',
+    'pieces.json.parts.split.compute: nothing computes the output lo',
   ])
   assert.deepEqual(Object.keys(withParts(vocabulary, file).kinds.part), ['sum', 'scaled', 'split'])
 })
@@ -136,9 +136,9 @@ test('the piece readers expose the optional faces without renaming stored fields
   assert.notDeepEqual(partProblems({ ...file, parts: { made: { ...built, inputs: [] } } }, vocabulary), [])
   // What runs inside is a task of the game: one it does not have is refused, given the game's tasks.
   assert.deepEqual(partProblems({ ...file, parts: { made: built } }, vocabulary, { tasks: new Set(['work', 'better']) }), [])
-  assert.deepEqual(partProblems({ ...file, parts: { made: built } }, vocabulary, { tasks: new Set(['work']) }).map((p) => [p.at, p.says]), [['parts.json.parts.made.inside[1].task', '"better" is no task of this game']])
+  assert.deepEqual(partProblems({ ...file, parts: { made: built } }, vocabulary, { tasks: new Set(['work']) }).map((p) => [p.at, p.says]), [['pieces.json.parts.made.inside[1].task', '"better" is no task of this game']])
   assert.deepEqual(Object.keys(defineParts({ ...file, parts: { ...file.parts, made: built } }, OPS).defs), Object.keys(file.parts))
-  // A domain with its primitives in code keeps its built pieces alone in parts.json.
+  // A domain with its primitives in code keeps its built pieces alone in pieces.json.
   const coded = { ...vocabulary, kinds: { part: { wire: { about: 'a wire' } } } }
   assert.deepEqual(partProblems({ parts: { made: built } }, coded), [])
   assert.ok(partProblems({ parts: { scaled: file.parts.scaled } }, coded).some((p) => /holds its built pieces alone/.test(p.says)))

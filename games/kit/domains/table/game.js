@@ -24,7 +24,7 @@ function IntroFigure({ fig }) {
 }
 
 /**
- * content (../../engine/content.js): { id, title, kicker, lede, eras, primitives, partDefs (parts.json: the parts and
+ * content (../../engine/content.js): { id, title, kicker, lede, eras, primitives, partDefs (pieces.json: the parts and
  * ideas its levels unlock), borrow?: { part: level id }
  * the level whose board a part that is an idea is tried on, levels, glossary }.
  */

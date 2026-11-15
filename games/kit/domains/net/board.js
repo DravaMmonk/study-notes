@@ -1,6 +1,6 @@
 // A board of 《从一根线开始》 (../../engine/board-cards.js circuitBoard): the cards a level gives it are its wires
 // in and inputs down the left, its wires out and outputs down the right. Every other node is a part the player placed
-// (parts.json, or a part a level builds), its settings in params as strings ({ reg: 'A', start: '1' }). As text:
+// (pieces.json, or a part a level builds), its settings in params as strings ({ reg: 'A', start: '1' }). As text:
 //
 //   r = reg[reg=A, start=0]()
 //   k = keep[reg=A](left)

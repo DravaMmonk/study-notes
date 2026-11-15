@@ -74,7 +74,7 @@ const partLink = (type) => new RegExp(`(<part-ref to=")${escape(type)}("></part-
 const placing = (type) => new RegExp(`(=\\s*)${escape(type)}(?=\\s*[[(])`, 'g')
 
 /**
- * Every place naming part `type` (parts.json, ../parts/): [{ file, path, how: 'field' | 'link' | 'board' | 'open' }] —
+ * Every place naming part `type` (pieces.json, ../parts/): [{ file, path, how: 'field' | 'link' | 'board' | 'open' }] —
  * a field its domain's schema types as a part (S.ref('part')), a <part-ref> link in a text, a board placing it, an
  * audit finding game.json leaves open ('part@level').
  */
@@ -99,7 +99,9 @@ export function renamePartRefs(ws, vocabulary, from, to) {
       const renamed = s.value.replace(partLink(from), `$1${to}$2`)
       if (renamed !== s.value) { v = setAt(v, [...t.path, ...s.path], renamed); n++ }
     }
-    for (const b of find(schema, v, 'board', { vocabulary })) {
+    // A board: S.board(), or a list of blueprint lines the schema calls one (view: 'board': a naive answer, a work).
+    const boards = [...find(schema, v, 'board', { vocabulary }), ...find(schema, v, 'list', { vocabulary }).filter((hit) => hit.schema.view === 'board')]
+    for (const b of boards) {
       const lines = b.value.map((line) => line.replace(placing(from), `$1${to}`))
       if (lines.some((line, k) => line !== b.value[k])) { v = setAt(v, b.path, lines); n += lines.filter((line, k) => line !== b.value[k]).length }
     }

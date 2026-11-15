@@ -287,7 +287,7 @@ const ABOUT = {
   rewrite: T('等量代换：由 s = t 和 φ(s) 得到 φ(t)', 'Rewrite: from s = t and φ(s), φ(t)'),
 }
 /**
- * The proof rules as engine resources (a game's parts.json makes each a part, games/DESIGN.md 6.8): a resource's
+ * The proof rules as engine resources (a game's pieces.json makes each a part, games/DESIGN.md 6.8): a resource's
  * arguments are its part's inputs, a box's regions included, in order; the card it runs on and the region whose value
  * it gives come with ctx (../../engine/parts/define.js).
  */
@@ -525,7 +525,7 @@ export const OPTIONS = {
 }
 
 /**
- * The parts a game's lemmas make (game.json lemmas), registered by the course beside parts.json's: a lemma's card has an
+ * The parts a game's lemmas make (game.json lemmas), registered by the course beside pieces.json's: a lemma's card has an
  * input for each premise, a sentence to set for each letter its premises leave open and, with forms, its shape; it
  * runs the proof that proved it (LEMMA), or the kit's card it names (`card`).
  */

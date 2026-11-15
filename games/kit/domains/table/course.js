@@ -1,4 +1,4 @@
-// A table game's course, from its content (games/<id>/: game.json, levels, glossary, parts.json; vocabulary.js says what may be
+// A table game's course, from its content (games/<id>/: game.json, levels, glossary, pieces.json; vocabulary.js says what may be
 // in it): the play order and the tree from its eras (../../course.js layout), each level's number, chapter and
 // introduction, its tasks as they are played (a circuit task with what its board is given, its palette and its reference
 // board), the parts its levels build (each running the board it was built from: a packed part, ../../engine/boards.js),
@@ -99,7 +99,7 @@ export function tableCourse(content) {
   // What building the course finds wrong with its content beyond its schema (validate.js reports it).
   const wrong = [];
   const say = (level, text) => wrong.push(`${level}: ${text}`);
-  // The pieces the levels unlock (parts.json, ../../engine/pieces.js builtPieces): a part or an idea, each unlocked by
+  // The pieces the levels unlock (pieces.json, ../../engine/pieces.js builtPieces): a part or an idea, each unlocked by
   // the level of the task it refers to. A task whose board is given ports (`ports`) builds a part, its board run as one
   // part with the piece's number (its `value` setting); any other task teaches an idea.
   const pieces = builtPieces(hydrated.partDefs);
@@ -108,7 +108,7 @@ export function tableCourse(content) {
   const unlocking = new Map();
   for (const { type, task } of publications(pieces)) {
     const L = levelOf.get(task);
-    if (!L) say('parts.json', `${type} refers to task ${task}, which no level has`);
+    if (!L) say('pieces.json', `${type} refers to task ${task}, which no level has`);
     else if (unlocking.has(L.id)) say(L.id, `it unlocks both ${unlocking.get(L.id).type} and ${type}`);
     else unlocking.set(L.id, { type, task, ports: L.tasks.find(t => t.id === task).ports });
   }

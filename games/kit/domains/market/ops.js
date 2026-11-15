@@ -1,4 +1,4 @@
-// The market domain's engine resources (games/DESIGN.md 6.8): what a game's parts.json computes with, over numbers.
+// The market domain's engine resources (games/DESIGN.md 6.8): what a game's pieces.json computes with, over numbers.
 // A part handed 「—」 gives 「—」 before any of these runs (../../engine/parts/define.js `nulls`).
 import { T as t } from '../../shell/i18n.js'
 

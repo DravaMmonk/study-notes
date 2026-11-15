@@ -1,7 +1,7 @@
 import { packed } from '../../../engine/boards.js'
 
 // A circuit the player has solved, used again as a part of its own, as in Turing Complete: the task's inputs are
-// its ports and the task's output is what it gives (the shared engine's packed part). A built piece of parts.json
+// its ports and the task's output is what it gives (the shared engine's packed part). A built piece of pieces.json
 // (`inside`) makes one, in its course's part table (`types`, ../course.js), named by the piece. `circuitOf()` is the
 // circuit it runs: the player's passing circuit once the course has it (syncOwn), until then, and when the levels are
 // checked, the task's reference circuit.

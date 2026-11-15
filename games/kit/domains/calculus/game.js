@@ -2,7 +2,7 @@
 // domain's screen (ui/screen.js), its map drawn with a difference engine (ui/Hero.jsx).
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
-//   ops.js        the engine resources a game's parts.json computes with
+//   ops.js        the engine resources a game's pieces.json computes with
 //   board.js      a board, and a board read from and written as blueprint text
 //   run.js        a board run a term a tick (../../engine/ticks.js), checked term by term
 //   course.js     content read into levels, play order, the parts the levels build and the course the audit checks

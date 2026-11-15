@@ -1,4 +1,4 @@
-// A game's parts.json made into parts (games/DESIGN.md 6.8): what the shared engine runs (../circuit.js), what a new
+// A game's pieces.json made into parts (games/DESIGN.md 6.8): what the shared engine runs (../circuit.js), what a new
 // part starts with, and every place the file does not hold together. The part definitions are content; the engine
 // resources they call (the domain's `op` items, run by its ops.js) are the domain's code.
 //
@@ -246,22 +246,22 @@ export function partDesc(def, allowed = () => null) {
   return side('en') ? { zh: side('zh'), en: side('en') } : { zh: side('zh') }
 }
 
-/** The vocabulary with a parts.json's parts as its `part` kind: what content's S.ref('part') names. */
+/** The vocabulary with a pieces.json's parts as its `part` kind: what content's S.ref('part') names. */
 export function withParts(vocabulary, file) {
-  // A domain with its primitives in code has its built pieces alone in parts.json.
+  // A domain with its primitives in code has its built pieces alone in pieces.json.
   const pieces = definesParts(vocabulary) ? file?.parts ?? {} : builtPieces(file)
   if (!definesParts(vocabulary) && !Object.keys(pieces).length) return vocabulary
   const part = Object.fromEntries(Object.entries(pieces).map(([type, def]) => [type, { about: def.desc ?? def.name ?? type }]))
   return { ...vocabulary, kinds: { ...vocabulary.kinds, part: registerPieces(vocabulary.kinds.part, part) } }
 }
 
-/** Every place a parts.json does not hold together, as [{ at, says }] (at: parts.json and the path in it). */
+/** Every place a pieces.json does not hold together, as [{ at, says }] (at: pieces.json and the path in it). */
 export function partProblems(file, vocabulary, { tasks = null } = {}) {
   const out = []
-  const say = (at, says) => out.push({ at: `parts.json${at}`, says })
+  const say = (at, says) => out.push({ at: `pieces.json${at}`, says })
   const vocab = withParts(vocabulary, file)
   // A domain with its primitives in code keeps its built pieces alone here.
-  if (!definesParts(vocabulary)) for (const [type, raw] of Object.entries(file?.parts ?? {})) if (!insideOf(raw)) say(`.parts.${type}`, `the ${vocabulary.domain} domain defines its primitives in code: parts.json holds its built pieces alone (inside)`)
+  if (!definesParts(vocabulary)) for (const [type, raw] of Object.entries(file?.parts ?? {})) if (!insideOf(raw)) say(`.parts.${type}`, `the ${vocabulary.domain} domain defines its primitives in code: pieces.json holds its built pieces alone (inside)`)
   for (const p of validate(PARTS_FILE, file, { vocabulary: vocab, tasks })) say(p.at === '(root)' ? '' : p.at, p.says)
   if (out.length) return out
   const ops = { ...BUILTIN_ITEMS, ...vocabulary.kinds.op }
@@ -298,7 +298,7 @@ export function partProblems(file, vocabulary, { tasks = null } = {}) {
     if (new Set(holesOf(raw).map((p) => p.name)).size !== holesOf(raw).length) say(`${at}.inputs`, 'an input is named twice')
     if (new Set(outletsOf(raw).map((p) => p.name)).size !== outletsOf(raw).length) say(`${at}.outputs`, 'an output is named twice')
     for (const [k, s] of settingsOf(raw).entries()) {
-      if (s.use && !presets[s.use]) { say(`${at}.settings[${k}].use`, `${s.use} is no preset of parts.json`); continue }
+      if (s.use && !presets[s.use]) { say(`${at}.settings[${k}].use`, `${s.use} is no preset of pieces.json`); continue }
       settingProblems(resolveSetting(s, presets), `${at}.settings[${k}]`)
     }
     const def = resolvePart(raw, presets, type)

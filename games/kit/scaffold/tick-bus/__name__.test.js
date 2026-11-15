@@ -12,7 +12,7 @@ import { runLevel } from './run.js'
 import { wantOf } from './wants.js'
 import domain from './domain.js'
 
-// The starter's parts (its parts.json), over the kernel's builtins.
+// The starter's parts (its pieces.json), over the kernel's builtins.
 const { PARTS } = defineParts(readContent('starter', import.meta.dirname).partDefs, {})
 const plain = primitivesOnly(board, PARTS)
 const { fromText, toText } = board
@@ -53,7 +53,7 @@ test('the starter game passes its checks', async () => {
     game: json('game.json'),
     levels: readdirSync(new URL('levels/', dir)).map((f) => [f.slice(0, -5), json(`levels/${f}`)]),
     glossary: json('glossary.json'),
-    partDefs: json('parts.json'),
+    partDefs: json('pieces.json'),
   })
   const lines = await domain.validate(domain.spec(content))
   assert.deepEqual(lines.filter((l) => l.fail), [])

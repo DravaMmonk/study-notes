@@ -4,7 +4,6 @@
 //   levelSchema({ page?, ports, test, checks?, more?, shared?, kinds? })   a level
 //   GAME                                                                  game.json
 //   NAME, PORT                                                            a card's name, a port
-//   REMOVES                                                               what the version without `builds` removed
 import { taskLevel } from './tasks.js'
 import { TRAY, TRAYS } from './trays.js'
 import { S } from './schema.js'
@@ -18,8 +17,6 @@ const HELD = S.str({ pattern: '^[A-Za-z_][A-Za-z0-9_-]*(\\.[A-Za-z_][A-Za-z0-9_]
 /** A port of a task's board: one of its fixed cards, named and labelled. */
 export const PORT = S.obj({ name: NAME, label: S.text(), view: START_VIEW })
 
-/** What a domain's vocabulary removed when its built parts went into parts.json (games/DIRECTION.md decision 7). */
-export const REMOVES = [{ at: 'level.builds', why: 'a built piece is a parts.json entry whose inside refers to the task that builds it' }]
 
 /**
  * The schema of a level (./tasks.js taskLevel): what it says once, then its tasks, each a puzzle on its own board. The
@@ -47,9 +44,9 @@ export const levelSchema = ({ page = S.obj({ t: S.text(), show: S.opt(SHOW) }), 
     hidden: S.opt(S.list(test, { section: 'tests', about: t('隐藏测试：每次运行一并检查，通关后公开；只合上可见测试的板过不了它') })),
     ...checks,
     solution: S.board({ about: t('一块板的蓝图文本，每行一个字符串') }),
-    naive: S.opt(S.list(S.str(), { about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败') })),
-    starter: S.opt(S.list(S.str(), { about: t('这个任务一打开就摆在板上的蓝图：一样要修的作品。它不能直接过关') })),
-    works: S.opt(S.list(S.obj({ label: S.opt(S.text()), board: S.list(S.str()) }), { min: 1, section: 'tests', about: t('给定的错作品，每样错一处：有了它，这个任务由玩家来写检验（行数同 tests），tests 是参考的那几行；参考解通过每一行，每样错作品至少被一行挡住') })),
+    naive: S.opt(S.list(S.str(), { view: 'board', about: t('直觉上的错解：看起来能做、其实过不了这个任务的板，必须失败') })),
+    starter: S.opt(S.list(S.str(), { view: 'board', about: t('这个任务一打开就摆在板上的蓝图：一样要修的作品。它不能直接过关') })),
+    works: S.opt(S.list(S.obj({ label: S.opt(S.text()), board: S.list(S.str(), { view: 'board' }) }), { min: 1, section: 'tests', about: t('给定的错作品，每样错一处：有了它，这个任务由玩家来写检验（行数同 tests），tests 是参考的那几行；参考解通过每一行，每样错作品至少被一行挡住') })),
     withhold: S.opt(S.list(S.str(), { section: 'course', about: t('这个任务不给的元件：玩家已经有了也从托盘收起，参考解不能用它') })),
     grants: S.opt(S.list(HELD, { section: 'course', about: t('只在这个任务里多给的：一个元件，元件的一项设置（shift.border），或设置的一个取值（shift.border=wrap）；别的任务不因此得到它。withhold 也可以按同样的写法收起一项设置或一个取值') })),
     opens: S.opt(S.list(HELD, { section: 'course', about: t('这个任务带来的设置或取值（shift.border、shift.border=wrap）：从这里起一直可用。没有哪一关带来的设置和取值，从一开始就可用') })),

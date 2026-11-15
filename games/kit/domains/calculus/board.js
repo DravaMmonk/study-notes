@@ -4,7 +4,7 @@
 //   { nodes: [{ id, type, params, x?, y? }], wires: [{ from, to, port }] }
 //
 // The level gives the board its fixed cards: each of its input sequences by name down the left, each of its output
-// sequences by name down the right. Every other node is a part the player placed (parts.json, or a part a level
+// sequences by name down the right. Every other node is a part the player placed (pieces.json, or a part a level
 // builds), its settings in params as strings ({ reg: 'A', start: '3' }).
 //
 // As text, a part is `id = type[settings](its inputs in order)` and a wire into an output `seq <- r`:

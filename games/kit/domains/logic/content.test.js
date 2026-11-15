@@ -35,7 +35,7 @@ const CONTENT = {
     properties: { P: L('{0}具有该性质', '{0} has that property'), Q: L('{0}具有该性质', '{0} has that property') },
   },
   primitives: ['gNot', 'gAnd', 'mp', 'impI', 'andI', 'andE', 'allE', 'allI', 'rewrite'],
-  // The parts the starter defines (its parts.json: the gates and the proof rules), and the pieces built here: a gate,
+  // The parts the starter defines (its pieces.json: the gates and the proof rules), and the pieces built here: a gate,
   // a lemma, and a lemma of two shapes, each shape the proof of a task.
   partDefs: { parts: {
     ...Object.fromEntries(Object.entries(readContent('starter', import.meta.dirname).partDefs.parts).filter(([, p]) => !p.inside)),

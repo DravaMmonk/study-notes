@@ -1,6 +1,6 @@
 // node --test (npm test) — the signal domain: its engine resources compute on numbers and waves and say why when
 // handed the wrong kind, a wave's amount of each tone is read off whatever else it holds, the starter's parts
-// (parts.json) hold together over the resources, boards read from and write back to blueprint text, and its starter
+// (pieces.json) hold together over the resources, boards read from and write back to blueprint text, and its starter
 // game (starter/, what npm run new-game copies) passes its own checks.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'

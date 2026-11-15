@@ -3,7 +3,7 @@
 //
 //   vocabulary.js what content may name; domain.js the checks' side of the domain (npm run check)
 //   wire.js       the world: point-to-point wires, their delay and flips, the formats the far ends speak
-//   ops.js        the engine resources a game's parts.json computes with
+//   ops.js        the engine resources a game's pieces.json computes with
 //   board.js      a board, and a board read from and written as blueprint text
 //   wants.js      what a level's outputs and wires out must be, tick by tick or in order
 //   run.js        a board on its wires tick by tick (../../engine/ticks.js registers), checked as it goes and at the end

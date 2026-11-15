@@ -3,7 +3,7 @@
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
 // The items are implemented next to them: proof rules in proof.js, the machine board's parts in machine.js, the
-// parts and the built pieces in a game's parts.json (`op` the resources its parts call, `family` how they are coloured
+// parts and the built pieces in a game's pieces.json (`op` the resources its parts call, `family` how they are coloured
 // and what a built piece is: course.js readBuilt), the level kinds in course.js and ui/, a machine's wants in machine.js judge,
 // and the proof-term forms in termTree.js. Sentences are text in the
 // notation formula.js and schematic.js read; a board is blueprint text (blueprint.js).
@@ -40,7 +40,7 @@ const WORDS = S.list(S.either(S.str(), S.map(S.text())), { about: t('用哪几�
 /* ---------- the parts ---------- */
 
 const PART_ITEMS = {
-  // The proof rules and the primitive gates: a game's parts.json defines them.
+  // The proof rules and the primitive gates: a game's pieces.json defines them.
   mp: item(t('套用', 'Apply')),
   impI: item(t('假设框', 'Assumption box')),
   andI: item(t('拼接', 'Join')),
@@ -58,7 +58,7 @@ const PART_ITEMS = {
   rewrite: item(t('等量代换', 'Rewrite')),
   gNot: item(t('非 ¬')),
   gAnd: item(t('与 ∧')),
-  // The machine board's parts: a game's parts.json defines them, but those the player builds (a level's board).
+  // The machine board's parts: a game's pieces.json defines them, but those the player builds (a level's board).
   anyR: item(t('任意结论', 'Any conclusion')),
   swapConcl: item(t('替换结论', 'Swap conclusion')),
   consFront: item(t('添加首项', 'Put first')),
@@ -100,7 +100,7 @@ const PART_ITEMS = {
   hyp: item(t('已知里的等式')),
 }
 
-// How a game's parts.json colours its parts.
+// How a game's pieces.json colours its parts.
 const FAMILIES = {
   gate: item(t('逻辑门')),
   rule: item(t('推理规则', 'Inference rule')),
@@ -278,14 +278,14 @@ const GAME = S.obj({
 export const vocabulary = defineVocabulary({
   domain: 'logic',
   version: 5,
-  // Built pieces are parts.json entries whose inside refers to the tasks that build them (games/DIRECTION.md 24).
+  // Built pieces are pieces.json entries whose inside refers to the tasks that build them (games/DIRECTION.md 24).
   removes: [
     ...['game.lemmas', 'game.facts', 'game.gates', 'game.machines', 'game.revisions', 'level.builds', 'level.fact'].map((at) => ({ at, why: 'a built piece and its revisions are a parts.json entry whose inside refers to the tasks that build it' })),
     ...Object.keys(BY_KIND).map((kind) => ({ at: `level.tasks.of.cases.${kind}.fact`, why: 'a proved equation is a parts.json entry whose inside refers to the task that proves it' })),
   ],
   kinds: {
     part: PART_ITEMS,
-    // The engine resources parts.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).
+    // The engine resources pieces.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).
     op: OP_ITEMS,
     family: FAMILIES,
     kind: KINDS,

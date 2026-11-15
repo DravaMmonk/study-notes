@@ -1,5 +1,5 @@
 // node --test (npm test) — the linear domain: its engine resources compute on numbers, vectors and matrices and say why
-// when handed the wrong kind, the starter's parts (parts.json) hold together over them, boards read from and write back
+// when handed the wrong kind, the starter's parts (pieces.json) hold together over them, boards read from and write back
 // to blueprint text, and its starter game (starter/, what npm run new-game copies) passes its own checks.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
