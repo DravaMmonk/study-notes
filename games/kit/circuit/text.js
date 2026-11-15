@@ -384,8 +384,8 @@ export function read(text, graph, parts, types) {
       continue
     }
     const from = byId(out, srcNode(w.from))
-    // A given node that can read what the wire takes but is not reading it yet (a sensor not switched on) is
-    // switched on for it, as when the wire is drawn.
+    // A given node that can give what the wire takes but is not giving it yet (a sensor not switched on) is switched
+    // on for it: the text says what the board reads.
     const opened = from && !placed(parts, from) && !outputsOf(parts, from).some((o) => o.key === srcKey(w.from)) && parts.text?.opens?.(from, srcKey(w.from))
     if (opened) from.params = opened
     const keys = from ? outputsOf(parts, from).map((o) => o.key) : []
