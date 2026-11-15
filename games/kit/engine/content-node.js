@@ -2,6 +2,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { assemble } from './content.js'
+import { catalogReader } from './catalogs.js'
 
 export const PROJECT_DIR = resolve(import.meta.dirname, '../../..')
 export const GAMES_DIR = resolve(PROJECT_DIR, 'games')
@@ -37,34 +38,47 @@ export function levelFiles(packageDir) {
   return readdirSync(folder).filter((f) => f.endsWith('.json')).map((f) => [f.slice(0, -'.json'.length), resolve(folder, f)])
 }
 
+/** The locale files of a course or package, [[locale, path]]. */
+export function catalogFiles(dir) {
+  return existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith('.json')).sort()
+    .map((f) => [f.slice(0, -'.json'.length), resolve(dir, f)]) : []
+}
+
+export const readCatalogs = (dir) => Object.fromEntries(catalogFiles(dir).map(([lang, path]) => [lang, json(path)]))
+
 /** The blind sessions played on a course. */
 export function readPlaytests(id, dir = GAMES_DIR) {
   const folder = resolve(dir, id, 'playtests')
   return existsSync(folder) ? readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => json(resolve(folder, f))) : []
 }
 
-function readFiles(id, game, packageDir, gameDir) {
+function readFiles(id, game, packageDir, gameDir, courseLocales, packageLocales) {
   const blueprint = resolve(gameDir, 'blueprint.json')
   const parts = resolve(packageDir, 'pieces.json')
+  const courseText = catalogReader(readCatalogs(courseLocales), courseLocales)
+  const packageText = catalogReader(readCatalogs(packageLocales), packageLocales)
+  const read = (reader, path) => reader(json(path), path)
   return assemble({
     id,
-    game,
-    levels: levelFiles(packageDir).map(([levelId, file]) => [levelId, json(file)]),
-    glossary: json(resolve(packageDir, 'glossary.json')),
-    partDefs: existsSync(parts) ? json(parts) : undefined,
-    blueprint: existsSync(blueprint) ? json(blueprint) : undefined,
+    game: courseText(game, resolve(gameDir, 'game.json')),
+    levels: levelFiles(packageDir).map(([levelId, file]) => [levelId, read(packageText, file)]),
+    glossary: read(packageText, resolve(packageDir, 'glossary.json')),
+    partDefs: existsSync(parts) ? read(packageText, parts) : undefined,
+    blueprint: existsSync(blueprint) ? read(courseText, blueprint) : undefined,
+    fromDisk: true,
   })
 }
 
 export function readContent(id, root = PROJECT_DIR) {
   const { game, packageDir } = readGameConfig(id, root)
-  return readFiles(id, game, packageDir, gameDirectory(id, root))
+  const gameDir = gameDirectory(id, root)
+  return readFiles(id, game, packageDir, gameDir, resolve(gameDir, 'i18n'), resolve(packageDir, 'i18n'))
 }
 
 /** A domain's uninstalled starter keeps the course and package files together. */
 export function readStarter(domainDir) {
   const dir = resolve(domainDir, 'starter')
-  return readFiles('starter', json(resolve(dir, 'game.json')), dir, dir)
+  return readFiles('starter', json(resolve(dir, 'game.json')), dir, dir, resolve(dir, 'i18n/course'), resolve(dir, 'i18n/package'))
 }
 
 /** The domain module (../domains/<domain>/domain.js) of a content. */

@@ -1,12 +1,9 @@
 {
-  "title": { "en": "Summing with an accumulator", "zh": "累加器求和" },
+  "title": "@level.in-itsum.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "Two sums: one adding from the back, one walking along with an accumulator. Are they the same?",
-        "zh": "两种求和：一种从后往前加，一种带着累加器往后走。两者是否相同？"
-      }
+      "t": "@level.in-itsum.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,7 +11,7 @@
       "id": "in-itsum_1",
       "kind": "define",
       "words": ["everyday", "terms"],
-      "step": { "en": "Sum", "zh": "求和" },
+      "step": "@level.in-itsum.tasks.in-itsum_1.step",
       "fn": "sum",
       "on": 0,
       "defs": ["plus"],
@@ -28,18 +25,15 @@
       ],
       "solution": ["zero", "plus(x, sum(xs))"],
       "naive": ["zero", "sum(xs)"],
-      "brief": {
-        "en": "Write a right side for every row.",
-        "zh": "给每一行写出右边。"
-      },
-      "hint": [{ "en": "The sum of x :: xs includes x.", "zh": "x :: xs 的和里有 x。" }],
-      "intro": [{ "t": { "en": "sum adds from the back.", "zh": "sum 从后往前加。" } }]
+      "brief": "@level.in-itsum.tasks.in-itsum_1.brief",
+      "hint": ["@level.in-itsum.tasks.in-itsum_1.hint.0"],
+      "intro": [{ "t": "@level.in-itsum.tasks.in-itsum_1.intro.0.t" }]
     },
     {
       "id": "in-itsum_2",
       "kind": "define",
       "words": ["everyday", "terms"],
-      "step": { "en": "The accumulator", "zh": "累加器" },
+      "step": "@level.in-itsum.tasks.in-itsum_2.step",
       "fn": "itsum",
       "on": 0,
       "defs": ["plus"],
@@ -56,17 +50,11 @@
       ],
       "solution": ["y", "itsum(xs, plus(y, x))"],
       "naive": ["zero", "itsum(xs, plus(y, x))"],
-      "brief": {
-        "en": "Write a right side for every row.",
-        "zh": "给每一行写出右边。"
-      },
-      "hint": [{ "en": "At the end, y already holds the sum.", "zh": "走到头时，y 里已经是加好的和。" }],
+      "brief": "@level.in-itsum.tasks.in-itsum_2.brief",
+      "hint": ["@level.in-itsum.tasks.in-itsum_2.hint.0"],
       "intro": [
         {
-          "t": {
-            "en": "itsum walks along adding each element onto y, and at the end y is the sum. Programmers call this tail recursion.",
-            "zh": "itsum 一边往后走，一边把元素加到 y 上，走到头 y 就是和。程序员把这种写法叫作尾递归。"
-          }
+          "t": "@level.in-itsum.tasks.in-itsum_2.intro.0.t"
         }
       ]
     },
@@ -74,20 +62,17 @@
       "id": "in-itsum_3",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.in-itsum.tasks.in-itsum_3.inputs.0.label" }],
       "backtrack": true,
       "words": ["everyday", "terms"],
-      "step": { "en": "The same?", "zh": "一样吗" },
+      "step": "@level.in-itsum.tasks.in-itsum_3.step",
       "types": ["list"],
       "defs": ["plus", "sum", "itsum"],
       "tests": [{ "goal": "∀xs. ∀y. itsum(xs, y) = plus(y, sum(xs))" }],
-      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
+      "brief": "@level.in-itsum.tasks.in-itsum_3.brief",
       "hint": [
-        { "en": "y changes at each step along.", "zh": "每往后走一步，y 都在变。" },
-        {
-          "en": "The [] case needs y + 0 = y; the other needs two + grouped the other way.",
-          "zh": "[] 的情况要 y + 0 = y；另一种情况，两个 + 要换一种结合方式。"
-        }
+        "@level.in-itsum.tasks.in-itsum_3.hint.0",
+        "@level.in-itsum.tasks.in-itsum_3.hint.1"
       ],
       "solution": [
         "c0r0 = math[use=[\"list.induct\"]]()",

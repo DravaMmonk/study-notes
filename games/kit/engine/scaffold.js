@@ -12,7 +12,8 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { PROJECT_DIR, gameDirectory } from './content-node.js'
+import { PROJECT_DIR, gameDirectory, readCatalogs } from './content-node.js'
+import { catalogReader } from './catalogs.js'
 import { firstText } from './i18n.js'
 
 const TEMPLATES = (root) => resolve(root, 'games/kit/scaffold')
@@ -86,10 +87,15 @@ export function newGame({ root = PROJECT_DIR, id, domain, title = id }) {
   mkdirSync(dir, { recursive: true })
   mkdirSync(packageDir, { recursive: true })
   for (const name of readdirSync(starter)) {
-    if (name !== 'game.json') fill(resolve(starter, name), resolve(packageDir, name), words)
+    if (name !== 'game.json' && name !== 'i18n') fill(resolve(starter, name), resolve(packageDir, name), words)
+  }
+  for (const [scope, target] of [['course', dir], ['package', packageDir]]) {
+    const source = resolve(starter, 'i18n', scope)
+    if (existsSync(source)) fill(source, resolve(target, 'i18n'), words)
   }
   writeFileSync(resolve(dir, 'game.json'), `${JSON.stringify({ package: id, ...game }, null, 2)}\n`)
-  register(root, id, { title: game.title, lede: game.lede, levels: readdirSync(resolve(packageDir, 'levels')).filter((f) => f.endsWith('.json')).length })
+  const course = catalogReader(readCatalogs(resolve(dir, 'i18n')))(game)
+  register(root, id, { title: course.title, lede: course.lede, levels: readdirSync(resolve(packageDir, 'levels')).filter((f) => f.endsWith('.json')).length })
   return dir
 }
 

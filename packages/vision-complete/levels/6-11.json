@@ -1,34 +1,19 @@
 {
-  "title": { "en": "Four corners", "zh": "四个角" },
+  "title": "@level.6-11.title",
   "tray": "geometry",
-  "after": {
-    "en": "The homography H has 8 degrees of freedom and each pair of points gives 2 equations, so it needs at least 4 pairs; the game solved H from your pairs with DLT. Three pairs only fix an affine map (6 degrees of freedom), which keeps lines parallel and cannot fit a book seen in perspective. In a real pipeline the pairs come from candidates that passed the ratio test, and RANSAC picks them by repeatedly drawing 4 pairs and counting inliers.",
-    "zh": "单应矩阵 H 有 8 个自由度，每对点给 2 个方程，所以至少要 4 对点，游戏用 DLT 从你的点对解出了 H。3 对点只能定出仿射（6 个自由度），它保持平行，贴不上透视下的书。实际流水线里，这些点对来自距离比检验后的候选，再由 RANSAC 反复抽 4 对、数内点选出来。"
-  },
+  "after": "@level.6-11.after",
   "intro": [
     {
-      "t": {
-        "en": "Point your phone at a book and an app can tell which book it is and even paste the cover image back into the photo; augmented reality (AR) often works like this. The hard part is that the book is shot at an angle, so in the photo it is no longer a neat rectangle.",
-        "zh": "用手机对着一本书拍，App 能认出是哪本书，还能把封面图贴回照片里，增强现实（AR）常这样做。难处在于书是斜着拍的，在照片里不再方方正正。"
-      }
+      "t": "@level.6-11.intro.0.t"
     },
     {
-      "t": {
-        "en": "Pasting the cover back into the photo needs a transformation: it tells each point on the cover where it lands in the photo. The transformation is computed from a few pairs of corresponding points; choose the pairs well and the cover lands accurately.",
-        "zh": "把封面贴回照片，需要一个变换：它告诉封面上的每个点，落到照片的哪里。变换由几对对应点算出来，点对给得合适，就贴得准。"
-      }
+      "t": "@level.6-11.intro.1.t"
     },
     {
-      "t": {
-        "en": "On the bench the cover is on the left and the photo on the right. Connect a point on the cover to the same point in the photo; the game computes the transformation from your point pairs, pastes the cover on and shows the average error.",
-        "zh": "台上左边是封面，右边是照片。从封面上的一个点连到照片里同一个点，游戏会用你给的点对算出变换，把封面贴上去，并显示平均误差。"
-      }
+      "t": "@level.6-11.intro.2.t"
     },
     {
-      "t": {
-        "en": "In this level you must paste the cover accurately, with an average error under 1.5 pixels. Before you start, look at the shape of the book in the photo: compared with the cover's original rectangle, what has changed?",
-        "zh": "这一关要把封面贴准，平均误差小于 1.5 像素。动手前先看看照片里书的形状：和封面原来的长方形比，变了哪些？"
-      }
+      "t": "@level.6-11.intro.3.t"
     }
   ],
   "unlocks": ["homography"],
@@ -36,14 +21,8 @@
     {
       "id": "6-11",
       "kind": "board",
-      "brief": {
-        "en": "Drag from a point on the cover to the same point in the photo to make a pair of corresponding points. The cover is pasted back onto the photo; you pass when the mean error is under 1.5 pixels.",
-        "zh": "从封面上的点拖到照片里同一个点，连出对应点对。把封面贴回照片，平均误差小于 1.5 像素即通过。"
-      },
-      "hint": {
-        "en": "Where does the pasted cover fail to line up? In a book photographed at an angle, the far edge is shorter.",
-        "zh": "贴回去的封面哪里对不上？斜着拍的书，远的一边更短。"
-      },
+      "brief": "@level.6-11.tasks.6-11.brief",
+      "hint": "@level.6-11.tasks.6-11.hint",
       "bench": {
         "model": "cover",
         "setup": {
@@ -60,14 +39,25 @@
         },
         "knobs": {
           "pairs": { "list": true, "drawn": true },
-          "overlay": { "toggle": true, "start": true, "label": { "en": "Show the pasted cover", "zh": "显示贴图" } }
+          "overlay": {
+            "toggle": true,
+            "start": true,
+            "label": "@level.6-11.tasks.6-11.bench.knobs.overlay.label"
+          }
         },
-        "actions": [{ "reset": ["pairs"], "label": { "en": "Clear", "zh": "清空" }, "icon": "reset" }],
+        "actions": [
+          { "reset": ["pairs"], "label": "@level.6-11.tasks.6-11.bench.actions.0.label", "icon": "reset" }
+        ],
         "goal": [
-          { "of": "pairs", "label": { "en": "Pairs", "zh": "点对" }, "atLeast": 4, "format": "outOf" },
+          {
+            "of": "pairs",
+            "label": "@level.6-11.tasks.6-11.bench.goal.0.label",
+            "atLeast": 4,
+            "format": "outOf"
+          },
           {
             "of": "error",
-            "label": { "en": "Error", "zh": "误差" },
+            "label": "@level.6-11.tasks.6-11.bench.goal.1.label",
             "below": 1.5,
             "format": "fixed2",
             "unit": " px"
@@ -82,7 +72,12 @@
                   "row": [
                     {
                       "stack": [
-                        { "text": { "text": { "en": "Transform", "zh": "变换" }, "look": "label" } },
+                        {
+                          "text": {
+                            "text": "@level.6-11.tasks.6-11.bench.layout.foot.0.panel.0.row.0.stack.0.text.text",
+                            "look": "label"
+                          }
+                        },
                         { "text": { "of": "transform", "look": "note" } },
                         { "row": ["knobs", "actions"], "tight": true }
                       ]
@@ -91,7 +86,7 @@
                       "stack": [
                         {
                           "text": {
-                            "text": { "en": "Pairs · cover → photo", "zh": "点对 · 封面 → 照片" },
+                            "text": "@level.6-11.tasks.6-11.bench.layout.foot.0.panel.0.row.1.stack.0.text.text",
                             "look": "label"
                           }
                         },

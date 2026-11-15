@@ -1,5 +1,5 @@
 {
-  "title": { "en": "Two that do not meet", "zh": "对不上的两句" },
+  "title": "@level.mergeBoth.title",
   "tray": ["proof", "formula"],
   "tasks": [
     {
@@ -8,8 +8,8 @@
       "tests": [{ "premises": { "p": "A → (A → B)", "q": "A → (B → C)" }, "goal": "A → C" }],
       "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Hungry", "B": "Eat", "C": "Full" }],
       "hint": [
-        { "en": "Both start with “it rains”, so they do not meet end to end.", "zh": "两句都以「下雨」开头，所以首尾接不上。" },
-        { "en": "Can the second be made to start with “the ground is wet”?", "zh": "能不能让第二句以「地湿」开头？" }
+        "@level.mergeBoth.tasks.mergeBoth.hint.0",
+        "@level.mergeBoth.tasks.mergeBoth.hint.1"
       ],
       "solution": ["g1 = merge(p)", "w = swap(q)", "c = chain(g1, w)", "g2 = merge(c)", "goal <- g2"]
     }

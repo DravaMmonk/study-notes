@@ -1,37 +1,31 @@
 {
-  "title": { "en": "Double negation", "zh": "双重否定律" },
+  "title": "@level.c-dneg.title",
   "tray": ["proof", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "Two sentences that each give the other say the same thing: they are in <wiki-ref to=\"equivalence\"></wiki-ref>. “¬¬it rains” and “it rains” are such a pair.",
-        "zh": "两句话能互相推出，说的就是同一件事，这叫<wiki-ref to=\"equivalence\"></wiki-ref>。「¬¬下雨」和「下雨」就是一对。"
-      }
+      "t": "@level.c-dneg.intro.0.t"
     },
     {
-      "t": {
-        "en": "Once both directions are proved, they make one part that switches between the two.",
-        "zh": "两个方向都证出后，合成一个元件，元件上切换方向。"
-      }
+      "t": "@level.c-dneg.intro.1.t"
     }
   ],
   "tasks": [
     {
       "id": "c-dneg_1",
       "kind": "proof",
-      "step": { "en": "Two ¬s off", "zh": "去掉两个 ¬" },
+      "step": "@level.c-dneg.tasks.c-dneg_1.step",
       "tests": [{ "premises": { "p": "¬¬A" }, "goal": "A" }],
       "cases": [{ "A": "Rain" }, { "A": "Locked" }],
-      "hint": [{ "en": "One rule you hold takes exactly two ¬s off.", "zh": "手里有一条规则正好去掉两个 ¬。" }],
+      "hint": ["@level.c-dneg.tasks.c-dneg_1.hint.0"],
       "solution": ["r = raa(p)", "goal <- r"]
     },
     {
       "id": "c-dneg_2",
       "kind": "proof",
-      "step": { "en": "Two ¬s on", "zh": "加上两个 ¬" },
+      "step": "@level.c-dneg.tasks.c-dneg_2.step",
       "tests": [{ "premises": { "p": "A" }, "goal": "¬¬A" }],
       "cases": [{ "A": "Rain" }, { "A": "Locked" }],
-      "hint": [{ "en": "“¬¬it rains” is “¬it rains → ⊥”.", "zh": "「¬¬下雨」就是「¬下雨 → ⊥」。" }],
+      "hint": ["@level.c-dneg.tasks.c-dneg_2.hint.0"],
       "solution": ["f = impI[A=\"~A\"](body: m) {", "  body {", "    m = mp(f.body, p)", "  }", "}", "goal <- f"]
     }
   ]

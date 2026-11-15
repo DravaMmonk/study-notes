@@ -3,6 +3,7 @@
 // show their differences this way.
 import { lineDiff } from '../engine/ops/diff.js'
 import { showPath } from '../engine/ops/edit.js'
+import { isText, textEntries, textIn } from '../engine/i18n.js'
 import { tr } from '../shell/i18n.js'
 
 export function DiffFields({ rows, onPath = null }) {
@@ -11,11 +12,7 @@ export function DiffFields({ rows, onPath = null }) {
       {rows.map((r) => (
         <div key={showPath(r.path)} className={`diff-row is-${r.as}`}>
           {onPath ? <button type="button" className="field-key" onClick={() => onPath(r.path)}>{showPath(r.path) || tr('整个文件')}</button> : <span className="field-key">{showPath(r.path) || tr('整个文件')}</span>}
-          {r.as === 'text' ? (
-            <div className="diff-text">
-              <Side before={pick(r.before, 'en')} after={pick(r.after, 'en')} />
-            </div>
-          ) : r.as === 'lines' ? <Lines before={(r.before ?? []).join('\n')} after={(r.after ?? []).join('\n')} /> : (
+          {r.as === 'text' ? <TextDiff before={r.before} after={r.after} /> : r.as === 'lines' ? <Lines before={(r.before ?? []).join('\n')} after={(r.after ?? []).join('\n')} /> : (
             <div className="diff-value">
               {r.before !== undefined && <del>{show(r.before)}</del>}
               {r.after !== undefined && <ins>{show(r.after)}</ins>}
@@ -27,7 +24,19 @@ export function DiffFields({ rows, onPath = null }) {
   )
 }
 
-const pick = (v, side) => (v === undefined ? undefined : typeof v === 'string' ? v : v[side])
+function TextDiff({ before, after }) {
+  const languages = [...new Set([before, after].flatMap((text) => isText(text) ? textEntries(text).map(([lang]) => lang) : []))]
+  return (
+    <div className="diff-text">
+      {languages.filter((lang) => textIn(before, lang) !== textIn(after, lang)).map((lang) => (
+        <div key={lang}>
+          <code>{lang}</code>
+          <Side before={textIn(before, lang)} after={textIn(after, lang)} />
+        </div>
+      ))}
+    </div>
+  )
+}
 /** A value as JSON: on one line when it is short, indented when it is a long object or list. */
 const show = (v) => {
   const line = JSON.stringify(v)

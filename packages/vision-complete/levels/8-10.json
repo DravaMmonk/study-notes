@@ -1,47 +1,35 @@
 {
-  "title": { "en": "Getting x₀ back", "zh": "还原 x₀" },
+  "title": "@level.8-10.title",
   "tray": "generative",
-  "after": {
-    "en": "Know the noise and the original comes back in one step. This is exactly what a diffusion model learns: looking at x_t, guess ε. The better the guess, the better the restoration.",
-    "zh": "只要知道噪声，原图一步就能还原。扩散模型要学的正是这件事：看着 x_t 猜出 ε。猜得越准，还原得越好。"
-  },
+  "after": "@level.8-10.after",
   "intro": [
     {
-      "t": {
-        "en": "Adding noise goes forwards. Generating a picture goes backwards: finding the picture again in the noise.",
-        "zh": "加噪是往前走。生成一张图要往回走：从噪声里把图找回来。"
-      }
+      "t": "@level.8-10.intro.0.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: knowing which noise was added, get the original picture back.",
-        "zh": "这一关你要做的：知道当初加的是哪份噪声，把原图还原出来。"
-      },
-      "fig": { "test": 1, "caption": { "en": "Set 2: half and half", "zh": "第二组：一半" } }
+      "t": "@level.8-10.intro.1.t",
+      "fig": { "test": 1, "caption": "@level.8-10.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "8-10",
       "kind": "graph",
-      "brief": {
-        "en": "Knowing which noise ε was added, get the original picture x₀ back.",
-        "zh": "知道当初加的是哪份噪声 ε，把原图 x₀ 还原出来。"
-      },
-      "hint": { "en": "Solve the noise formula backwards for x₀.", "zh": "把加噪的公式倒过来解 x₀。" },
+      "brief": "@level.8-10.tasks.8-10.brief",
+      "hint": "@level.8-10.tasks.8-10.hint",
       "inputs": ["xt", "eps", "ab"],
       "inputLabels": {
-        "xt": { "en": "Noisy x_t", "zh": "加了噪的 x_t" },
-        "eps": { "en": "The noise ε that was added", "zh": "当初加的噪声 ε" },
-        "ab": { "en": "How much is left, ᾱ", "zh": "剩下多少 ᾱ" }
+        "xt": "@level.8-10.tasks.8-10.inputLabels.xt",
+        "eps": "@level.8-10.tasks.8-10.inputLabels.eps",
+        "ab": "@level.8-10.tasks.8-10.inputLabels.ab"
       },
       "scene": "restoring",
       "tests": [
-        { "label": { "en": "A little noise", "zh": "一点点噪声" }, "letter": "T", "seed": 101, "ab": 0.9 },
-        { "label": { "en": "Half and half", "zh": "一半" }, "letter": "X", "seed": 102, "ab": 0.5 },
-        { "label": { "en": "Almost all noise", "zh": "几乎全是噪声" }, "letter": "L", "seed": 103, "ab": 0.1 }
+        { "label": "@level.8-10.tasks.8-10.tests.0.label", "letter": "T", "seed": 101, "ab": 0.9 },
+        { "label": "@level.8-10.tasks.8-10.tests.1.label", "letter": "X", "seed": 102, "ab": 0.5 },
+        { "label": "@level.8-10.tasks.8-10.tests.2.label", "letter": "L", "seed": 103, "ab": 0.1 }
       ],
-      "hidden": [{ "label": { "en": "Letter F", "zh": "字母 F" }, "letter": "F", "seed": 104, "ab": 0.6 }],
+      "hidden": [{ "label": "@level.8-10.tasks.8-10.hidden.0.label", "letter": "F", "seed": 104, "ab": 0.6 }],
       "solution": [
         "one = const()",
         "s1 = sqrt(ab)",

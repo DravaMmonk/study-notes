@@ -5,10 +5,15 @@
 //
 //   { id, domain, vocabulary, …game.json, levels: [{ id, …levels/<id>.json }], glossary, partDefs? (pieces.json), blueprint? }
 
+const sourceContents = new WeakSet()
+export const hasCatalogSource = (content) => sourceContents.has(content)
+
 /** One content from a game's files. `levels`: [[id, level]] in any order (they are kept sorted by id). */
-export function assemble({ id, game, levels, glossary, partDefs, blueprint }) {
+export function assemble({ id, game, levels, glossary, partDefs, blueprint, fromDisk = false }) {
   const sorted = [...levels].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-  return { id, ...game, levels: sorted.map(([levelId, level]) => ({ id: levelId, ...level })), glossary, ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}) }
+  const content = { id, ...game, levels: sorted.map(([levelId, level]) => ({ id: levelId, ...level })), glossary, ...(partDefs ? { partDefs } : {}), ...(blueprint ? { blueprint } : {}) }
+  if (fromDisk) sourceContents.add(content)
+  return content
 }
 
 /** The content frozen all the way down, so nothing that reads it can write into it (the checks and the dev page read

@@ -25,6 +25,7 @@ import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
 import { closeGames } from '../engine/games.mjs'
 import { domainOf, readContent } from '../engine/content-node.js'
+import { copyWithoutTextKeys } from '../engine/catalogs.js'
 import { describe } from '../engine/vocabulary.js'
 import { OPERATIONS } from '../engine/ops/operations.js'
 import { knownGames } from '../engine/cli-args.js'
@@ -32,7 +33,7 @@ import { erasOf } from './blueprint.js'
 import { lintCopy } from './lint.js'
 import { GAMES_DIR, STEPS, briefOf, pedagogyOf, stepOf, terminologyOf } from './steps.js'
 
-const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> [--from <step>] | gate <step> | eras | lint | pedagogy | terminology [--json] | vocab | resolve <k> --why … | queue | comment <at> --owner <step> --why …)'
+const USAGE = 'npm run pipeline -- <game> (status | brief <step> | run <step> [--from <step>] [--scope <scope>] | gate <step> [--scope <scope>] | eras | lint | pedagogy | terminology [--json] | vocab | resolve <k> --why … | queue | comment <at> --owner <step> --why …)'
 const argv = process.argv.slice(2)
 const option = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined)
 const words = argv.filter((a, k) => !a.startsWith('--') && !argv[k - 1]?.startsWith('--'))
@@ -50,7 +51,7 @@ const stepNamed = (name) => stepOf(name) ?? (console.error(`no step ${name}; the
 
 /** Run a step's gate and record it. */
 async function gate(step, state) {
-  const { failures, reports } = await step.gate(game, state)
+  const { failures, reports } = await step.gate(game, state, option('--scope'))
   const at = state.steps[step.id] ?? (state.steps[step.id] = { runs: [], gates: [] })
   at.gates.push({ at: now(), ok: failures.length === 0, failures, reports })
   writeState(state)
@@ -67,7 +68,7 @@ const show = ({ failures, reports }, clean = 'gate clean') => {
 const COMMANDS = {
   op: { run: () => `if [ "$1" = list ]; then node ../games/kit/engine/ops/cli.js list; else node ../games/kit/engine/ops/cli.js ${game} "$@"; fi`, about: './op --file <changeset.json> [--dry-run]   run a changeset through the operation set (./op list: the operations; ./op log: the change log)' },
   check: { run: () => `node ../games/kit/engine/check.js ${game}`, about: './check   npm run check for this game: vocabulary, course audit, copy and links, every reference / naive answer' },
-  gate: { run: (step) => `node ../games/kit/pipeline/pipeline.mjs ${game} gate ${step}`, about: './gate   this step\'s gate: every failure names a rule' },
+  gate: { run: (step) => `node ../games/kit/pipeline/pipeline.mjs ${game} gate ${step} "$@"`, about: './gate [--scope <scope>]   this step\'s gate: every failure names a rule' },
   deps: { run: () => `node ../games/kit/engine/deps.js ${game} --levels`, about: './deps   the part dependency graph (Mermaid), levels included' },
   eras: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} eras`, about: './eras   game.json\'s eras as the blueprint lays them out' },
   lint: { run: () => `node ../games/kit/pipeline/pipeline.mjs ${game} lint`, about: './lint   the copy lint' },
@@ -190,7 +191,7 @@ if (command === 'status') {
   if (!blueprint) {
     console.error(`${game} has no blueprint.json`)
     code = 1
-  } else console.log(JSON.stringify(erasOf(blueprint), null, 1))
+  } else console.log(JSON.stringify(copyWithoutTextKeys(erasOf(blueprint)), null, 1))
 } else if (command === 'terminology') {
   const result = await terminologyOf(game)
   if (argv.includes('--json')) console.log(JSON.stringify(result, null, 2))

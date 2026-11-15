@@ -1,57 +1,42 @@
 {
-  "title": { "en": "Draw a new blob", "zh": "画一个新斑点" },
+  "title": "@level.8-5.title",
   "tray": "generative",
-  "after": {
-    "en": "Once trained, generating is just: draw a random z and hand it to the decoder. Each draw is a new picture never seen before; μ and σ decide roughly where the new pictures fall.",
-    "zh": "训练好以后，生成就是：抽一个随机的 z，交给解码器。每抽一次就是一张没见过的新图；μ、σ 决定新图大概长在哪一带。"
-  },
+  "after": "@level.8-5.after",
   "intro": [
     {
-      "t": {
-        "en": "The Reparameterization in the tray: μ, σ and ε go in, μ + σ·ε comes out.",
-        "zh": "托盘里的「重参数化」：μ、σ、ε 进去，出来 μ + σ·ε。"
-      }
+      "t": "@level.8-5.intro.0.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: draw a z from the μ, σ and noise ε in the input, and draw its blob.",
-        "zh": "这一关你要做的：用输入的 μ、σ 和噪声 ε 抽一个 z，画出它的斑点。"
-      },
-      "fig": { "test": 0, "caption": { "en": "The first draw", "zh": "第一次抽" } }
+      "t": "@level.8-5.intro.1.t",
+      "fig": { "test": 0, "caption": "@level.8-5.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "8-5",
       "kind": "graph",
-      "brief": {
-        "en": "Draw a z from N(μ, σ²) and hand it to the decoder. Use the noise ε from the input to draw it.",
-        "zh": "从 N(μ, σ²) 里抽一个 z，交给解码器画出来。抽样用输入里的噪声 ε。"
-      },
-      "hint": {
-        "en": "The part you got at the end of <level-ref to=\"8-4\"></level-ref> is exactly \"draw a sample using ε\".",
-        "zh": "<level-ref to=\"8-4\"></level-ref>最后得到的元件，正好是「用 ε 抽样」。"
-      },
+      "brief": "@level.8-5.tasks.8-5.brief",
+      "hint": "@level.8-5.tasks.8-5.hint",
       "inputs": ["eps", "mu", "sigma"],
       "inputLabels": {
-        "eps": { "en": "Noise ε", "zh": "噪声 ε" },
-        "mu": { "en": "Centre μ", "zh": "中心 μ" },
-        "sigma": { "en": "Spread σ", "zh": "散开 σ" }
+        "eps": "@level.8-5.tasks.8-5.inputLabels.eps",
+        "mu": "@level.8-5.tasks.8-5.inputLabels.mu",
+        "sigma": "@level.8-5.tasks.8-5.inputLabels.sigma"
       },
       "check": { "tolerance": 0.05, "mismatches": 2 },
       "scene": "latent",
       "setup": { "mu": [-0.5, 0.5], "sigma": [0.3, 0.2], "given": true },
       "tests": [
-        { "label": { "en": "Draw 1", "zh": "第 1 次抽" }, "eps": [0.28973564283829173, 0.820593686981651] },
-        { "label": { "en": "Draw 2", "zh": "第 2 次抽" }, "eps": [0.26643152109291685, -0.8063291663537127] },
-        { "label": { "en": "Draw 3", "zh": "第 3 次抽" }, "eps": [0.344640573865604, -1.1584939815703774] }
+        { "label": "@level.8-5.tasks.8-5.tests.0.label", "eps": [0.28973564283829173, 0.820593686981651] },
+        { "label": "@level.8-5.tasks.8-5.tests.1.label", "eps": [0.26643152109291685, -0.8063291663537127] },
+        { "label": "@level.8-5.tasks.8-5.tests.2.label", "eps": [0.344640573865604, -1.1584939815703774] }
       ],
       "hidden": [
         {
-          "label": { "en": "Another draw 1", "zh": "又抽一次 1" },
+          "label": "@level.8-5.tasks.8-5.hidden.0.label",
           "eps": [-0.8284021851297076, 0.1198486162980997]
         },
-        { "label": { "en": "Another draw 2", "zh": "又抽一次 2" }, "eps": [-0.7811526515231816, 0.318111758472477] }
+        { "label": "@level.8-5.tasks.8-5.hidden.1.label", "eps": [-0.7811526515231816, 0.318111758472477] }
       ],
       "solution": ["r = dg_reparam(mu, sigma, eps)", "d = dg_decoder(r)", "out <- d"],
       "naive": ["d = dg_decoder(mu)", "out <- d"]

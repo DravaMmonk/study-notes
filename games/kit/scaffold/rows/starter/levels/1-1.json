@@ -1,13 +1,10 @@
 {
-  "title": { "en": "One equation", "zh": "一条等式" },
+  "title": "@level.1-1.title",
   "tasks": [
     {
       "id": "1-1",
       "kind": "equation",
-      "brief": {
-        "en": "Build the right side with the numbers and plus sign so both sides have the same value.",
-        "zh": "用手头的数字和加号写出右边，使两边的值相等。"
-      },
+      "brief": "@level.1-1.tasks.1-1.brief",
       "rows": [{ "total": 5, "chips": [0, 2, 3], "reference": "2 + 3", "naive": "0 + 3" }]
     }
   ]

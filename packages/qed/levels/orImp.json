@@ -1,12 +1,9 @@
 {
-  "title": { "en": "Whichever it is", "zh": "不管哪一种" },
+  "title": "@level.orImp.title",
   "tray": ["proof", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "In <level-ref to=\"cases\"></level-ref>, “I take the bus ∨ I cycle” was given; now it sits inside the “if … then …” to be proved.",
-        "zh": "在<level-ref to=\"cases\"></level-ref>里，「我坐公交 ∨ 我骑车」是已知；这回它在要证的「若…则…」里。"
-      }
+      "t": "@level.orImp.intro.0.t"
     }
   ],
   "tasks": [
@@ -16,10 +13,7 @@
       "tests": [{ "premises": { "p": "A → C", "q": "B → C" }, "goal": "A ∨ B → C" }],
       "cases": [{ "A": "Bus", "B": "Bike", "C": "OnTime" }, { "A": "Sat", "B": "Sun", "C": "Rest" }],
       "hint": [
-        {
-          "en": "The goal is an “if … then …”: open an assumption box first; with an ∨ inside it, split into cases.",
-          "zh": "目标是「若…则…」，先开一个假设框；框里有了一句 ∨，再分情况。"
-        }
+        "@level.orImp.tasks.orImp.hint.0"
       ],
       "solution": [
         "f = impI[A=\"A | B\"](body: e) {",

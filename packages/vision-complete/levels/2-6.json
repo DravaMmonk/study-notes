@@ -1,61 +1,40 @@
 {
-  "title": { "en": "In focus?", "zh": "对焦了吗" },
+  "title": "@level.2-6.title",
   "tray": "pipeline",
-  "after": {
-    "en": "Out of focus means blurred, and blurring turns the high frequencies down. So the brighter the outer part of the spectrum, the sharper the photo. A phone camera computes a score like this while it moves the lens, and stops where the score is highest.",
-    "zh": "离焦就是模糊，模糊压低了高频。所以频谱外圈越亮，照片越清楚。手机相机对焦时，一边挪镜头一边算这样的分数，停在分数最高的位置。"
-  },
+  "after": "@level.2-6.after",
   "intro": [
     {
-      "t": {
-        "en": "<level-ref to=\"2-5\"></level-ref>'s probe measured one frequency in a row. Images are 2-D, so waves run across, down or at a slant. Run the probe for every direction and density and lay the readings out as a picture, and you have the <part-ref to=\"spectrum\"></part-ref>: the centre is the average brightness, and cells further out stand for faster-changing waves.",
-        "zh": "<level-ref to=\"2-5\"></level-ref>的探针量一行里的一个频率。图像是二维的，波可以横着、竖着、斜着走。对每一种方向和疏密都做一次探针，读数排成一张图，就是<part-ref to=\"spectrum\"></part-ref>：正中心是平均亮度，越往外的格子代表变化越快的波。"
-      },
+      "t": "@level.2-6.intro.0.t",
       "fig": {
         "part": "fqSpectrum",
-        "caption": { "en": "The spectrum of the first test photo", "zh": "第一组测试照片的频谱" },
+        "caption": "@level.2-6.intro.0.fig.caption",
         "input": "test"
       }
     },
     {
-      "t": {
-        "en": "When a camera focuses itself, it moves the lens and keeps asking: is this shot sharp now?",
-        "zh": "相机自动对焦时，要一边挪镜头一边判断：现在这张清楚吗？"
-      }
+      "t": "@level.2-6.intro.1.t"
     },
     {
-      "t": {
-        "en": "A new way of drawing, <part-ref to=\"spectrum\"></part-ref>: how strong the wave at each frequency is, with frequency (0, 0) at the centre and higher frequencies further out.",
-        "zh": "新画法<part-ref to=\"spectrum\"></part-ref>：画出每个频率的波有多强，中心是频率 (0, 0)，越往外频率越高。"
-      }
+      "t": "@level.2-6.intro.2.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: score each photo for sharpness by the rule in the brief. \"Frequency radius\" is a picture the size of the spectrum, each cell holding its distance from the centre. Something to think about: where does the spectrum of a blurred photo get darker?",
-        "zh": "这一关你要做的：按说明里的规则，给每张照片算一个清晰度分。「频率半径」是一张和频谱一样大的图，每格写着它离中心多远。要想的问题：糊掉的照片，频谱哪里变暗了？"
-      }
+      "t": "@level.2-6.intro.3.t"
     }
   ],
   "tasks": [
     {
       "id": "2-6",
       "kind": "graph",
-      "brief": {
-        "en": "When a camera focuses itself, it scores every trial shot for sharpness. Output that score: the sum of the spectrum cells more than 6 from the centre, divided by the total number of spectrum cells. \"Frequency radius\" tells you how far each spectrum cell is from the centre.",
-        "zh": "相机自动对焦时，要给每一张试拍打一个清晰度分。输出这个分：照片的频谱里，离中心超过 6 的那些格子加起来，再除以频谱的格子总数。「频率半径」告诉你频谱每一格离中心多远。"
-      },
-      "hint": {
-        "en": "First make a picture that is 1 only beyond radius 6, and use it to mask out the inner part of the spectrum.",
-        "zh": "先做一张只在半径 6 以外为 1 的图，用它把频谱的内圈遮住。"
-      },
+      "brief": "@level.2-6.tasks.2-6.brief",
+      "hint": "@level.2-6.tasks.2-6.hint",
       "inputs": ["in", "r"],
-      "inputLabels": { "in": { "en": "Photo", "zh": "照片" }, "r": { "en": "Frequency radius", "zh": "频率半径" } },
+      "inputLabels": { "in": "@level.2-6.tasks.2-6.inputLabels.in", "r": "@level.2-6.tasks.2-6.inputLabels.r" },
       "check": { "tolerance": 0.005 },
       "scene": "filter",
       "setup": { "target": { "sharpness": { "beyond": 6 } }, "given": { "r": "radius" } },
       "tests": [
         {
-          "label": { "en": "Letter T · sharp", "zh": "字母 T · 清楚" },
+          "label": "@level.2-6.tasks.2-6.tests.0.label",
           "in": {
             "blurred": {
               "of": { "glyph": { "letter": "T", "lo": 0.2, "hi": 0.8, "ox": 6, "oy": 6, "scale": 4, "size": 32 } },
@@ -64,7 +43,7 @@
           }
         },
         {
-          "label": { "en": "Letter T · a little blurred", "zh": "字母 T · 有点糊" },
+          "label": "@level.2-6.tasks.2-6.tests.1.label",
           "in": {
             "blurred": {
               "of": { "glyph": { "letter": "T", "lo": 0.2, "hi": 0.8, "ox": 6, "oy": 6, "scale": 4, "size": 32 } },
@@ -73,11 +52,11 @@
           }
         },
         {
-          "label": { "en": "Checkerboard · very blurred", "zh": "棋盘 · 很糊" },
+          "label": "@level.2-6.tasks.2-6.tests.2.label",
           "in": { "blurred": { "of": { "checker": { "cell": 4, "lo": 0.2, "hi": 0.8, "size": 32 } }, "sigma": 2 } }
         },
         {
-          "label": { "en": "Disc · sharp", "zh": "圆盘 · 清楚" },
+          "label": "@level.2-6.tasks.2-6.tests.3.label",
           "in": {
             "blurred": { "of": { "disk": { "cx": 15.5, "cy": 15.5, "r": 9, "lo": 0.2, "hi": 0.8, "size": 32 } }, "sigma": 0 }
           }
@@ -85,13 +64,13 @@
       ],
       "hidden": [
         {
-          "label": { "en": "Square · a little blurred", "zh": "方块 · 有点糊" },
+          "label": "@level.2-6.tasks.2-6.hidden.0.label",
           "in": {
             "blurred": { "of": { "rect": { "x0": 8, "y0": 8, "w": 16, "h": 16, "lo": 0.2, "hi": 0.8, "size": 32 } }, "sigma": 1.5 }
           }
         },
         {
-          "label": { "en": "Letter L · sharp", "zh": "字母 L · 清楚" },
+          "label": "@level.2-6.tasks.2-6.hidden.1.label",
           "in": {
             "blurred": {
               "of": { "glyph": { "letter": "L", "lo": 0.2, "hi": 0.8, "ox": 8, "oy": 5, "scale": 4, "size": 32 } },

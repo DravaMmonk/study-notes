@@ -3,9 +3,9 @@
 // whole; objects are looked into key by key, lists item by item: the items a list keeps are left out, so an item added
 // (a save step appended), removed or moved shows alone, and items changed in place are looked into.
 import { sameJson } from '../engine/json-value.js'
+import { isText, textEntries } from '../engine/i18n.js'
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
-const isText = (v) => isObj(v) && typeof v.en === 'string' && Object.keys(v).length === 1
 const isLines = (v) => Array.isArray(v) && v.length > 0 && v.every((x) => typeof x === 'string')
 
 /**
@@ -14,6 +14,7 @@ const isLines = (v) => Array.isArray(v) && v.length > 0 && v.every((x) => typeof
  */
 export function fieldDiff(before, after, path = []) {
   if (sameJson(before, after)) return []
+  if (isText(before) && isText(after) && sameJson(Object.fromEntries(textEntries(before)), Object.fromEntries(textEntries(after)))) return []
   const as = isText(before) || isText(after) ? 'text' : isLines(before) || isLines(after) ? 'lines' : 'value'
   if (as === 'value' && isObj(before) && isObj(after)) {
     const keys = [...new Set([...Object.keys(after), ...Object.keys(before)])]

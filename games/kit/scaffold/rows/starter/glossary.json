@@ -1,12 +1,12 @@
 {
-  "groups": [{ "id": "sum", "title": { "en": "Addition", "zh": "加法" } }],
+  "groups": [{ "id": "sum", "title": "@glossary.groups.sum.title" }],
   "entries": [
     {
       "id": "equals",
       "group": "sum",
-      "title": { "en": "Equation", "zh": "等式" },
+      "title": "@glossary.entries.equals.title",
       "body": [
-        { "en": "The expressions on both sides of the equals sign have the same value.", "zh": "等号两边的式子有相同的值。" }
+        "@glossary.entries.equals.body.0"
       ],
       "at": "1-1"
     }

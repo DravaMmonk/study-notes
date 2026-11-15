@@ -1,31 +1,19 @@
 {
-  "title": { "en": "Multiple channels", "zh": "多通道" },
+  "title": "@level.4-12.title",
   "tray": "pipeline",
-  "after": {
-    "en": "Multichannel convolution uses each channel and its neighbourhood together. A colour boundary can disappear when channels are combined into one greyscale image; keeping their relationships makes such boundaries detectable.",
-    "zh": "多通道卷积同时利用各通道及其邻域的信息。颜色发生变化而整体明暗不变时，合并成一张灰度图可能丢掉区别；保留通道之间的关系，就能识别这样的颜色边界。"
-  },
+  "after": "@level.4-12.after",
   "intro": [
     {
-      "t": {
-        "en": "In chapter 3, each pixel of a colour photo had R, G and B values. Here you will process them as three channels: the photo’s R, G and B outputs provide the individual value maps.",
-        "zh": "第三章里，彩色照片的每个像素都有 R、G、B 三个数。这一关要把它们作为三个通道一起处理：照片的 R、G、B 出口分别给出各自的数值图。"
-      }
+      "t": "@level.4-12.intro.0.t"
     },
     {
-      "t": {
-        "en": "Some edges change only in colour, not in brightness, such as equally bright red and green side by side. Colour-blindness test plates are drawn this way: an eye that only sees light and dark cannot make out the number inside.",
-        "zh": "有些边只有颜色在变，亮度不变，比如一样亮的红和绿挨在一起。色盲检测图就是这样画的：只看明暗的眼睛，看不出里面的数字。"
-      }
+      "t": "@level.4-12.intro.1.t"
     },
     {
-      "t": {
-        "en": "Your task: trace only the boundary between red and green. Places that just get brighter or darker, or where only blue changes, must be 0. Something to think about: what can each of the three images see, and what can it not?",
-        "zh": "这一关你要做的：只描出红和绿的交界，单纯变亮变暗、或只有蓝色在变的地方都要是 0。要想的问题：三张图各自看得到什么，看不到什么？"
-      },
+      "t": "@level.4-12.intro.2.t",
       "fig": {
         "test": 0,
-        "caption": { "en": "Set 1: half red, half green, equally bright", "zh": "第一组：红绿对半，一样亮" }
+        "caption": "@level.4-12.intro.2.fig.caption"
       }
     }
   ],
@@ -34,37 +22,31 @@
     {
       "id": "4-12",
       "kind": "graph",
-      "brief": {
-        "en": "The input is a colour photo; its R, G and B outputs provide the three channels. Trace only the edges where red meets green; output 0 where things only get brighter or darker, or where only blue changes.",
-        "zh": "输入是一张彩色照片，可以从 R、G、B 出口分别取出三个通道。只描出红与绿交界处的边，只是变亮变暗、或只有蓝色在变的地方输出 0。"
-      },
-      "hint": {
-        "en": "Try adding them into a greyscale image: when red and green are equally bright, the border disappears. So how should the three channels be handled so this edge is not lost? For training, you can first subtract 0.5 from each channel to centre the data around zero.",
-        "zh": "加成灰度图试试：红和绿一样亮时，交界就消失了。那三个通道该怎样处理，才不会丢掉这条边？ 训练时可以先给每个通道减去 0.5，让数据围绕 0 分布。"
-      },
+      "brief": "@level.4-12.tasks.4-12.brief",
+      "hint": "@level.4-12.tasks.4-12.hint",
       "inputs": ["photo"],
-      "inputLabels": { "photo": { "en": "Colour photo", "zh": "彩色照片" } },
+      "inputLabels": { "photo": "@level.4-12.tasks.4-12.inputLabels.photo" },
       "trainRate": 8,
       "scene": "rgbContrast",
       "setup": { "mix": "redGreen" },
       "tests": [
-        { "label": { "en": "Half red, half green, equally bright", "zh": "红绿对半，一样亮" }, "paint": "halves" },
-        { "label": { "en": "Only light and dark", "zh": "只有明暗" }, "paint": "greyBlock" },
+        { "label": "@level.4-12.tasks.4-12.tests.0.label", "paint": "halves" },
+        { "label": "@level.4-12.tasks.4-12.tests.1.label", "paint": "greyBlock" },
         {
-          "label": { "en": "Red spot on green, with a blue patch beside it", "zh": "绿底红点，旁边一块蓝" },
+          "label": "@level.4-12.tasks.4-12.tests.2.label",
           "paint": "redSpot"
         },
-        { "label": { "en": "Colour noise A", "zh": "彩色噪点 A" }, "noise": 9 },
-        { "label": { "en": "Colour noise B", "zh": "彩色噪点 B" }, "noise": 11 }
+        { "label": "@level.4-12.tasks.4-12.tests.3.label", "noise": 9 },
+        { "label": "@level.4-12.tasks.4-12.tests.4.label", "noise": 11 }
       ],
       "hidden": [
         {
-          "label": { "en": "Red and green split diagonally, darker at the top", "zh": "红绿斜分，上暗下亮" },
+          "label": "@level.4-12.tasks.4-12.hidden.0.label",
           "paint": "slanted"
         },
-        { "label": { "en": "Colour noise C", "zh": "彩色噪点 C" }, "noise": 13 },
+        { "label": "@level.4-12.tasks.4-12.hidden.1.label", "noise": 13 },
         {
-          "label": { "en": "Blue bar on a grey gradient", "zh": "灰色渐变上的蓝条" },
+          "label": "@level.4-12.tasks.4-12.hidden.2.label",
           "paint": "blueBar"
         }
       ],

@@ -11,8 +11,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { ArrowRightLeft, ChevronRight, Copy, Play, CirclePlay, Trash2 } from 'lucide-react'
 import { L, getLang, tr } from '../shell/i18n.js'
 import { useWorkspaceKeys } from '../shell/useOverlay.js'
+import { copyWithoutTextKeys } from '../engine/catalogs.js'
 import { getAt, showPath } from '../engine/ops/edit.js'
-import { fieldAt, fileForm, formOf, gameFields, opFor, placeFindings, sectionsOf } from './form.js'
+import { copyLevelData, fieldAt, fileForm, formOf, gameFields, opFor, placeFindings, sectionsOf } from './form.js'
 import { holdsLevels } from '../engine/schema.js'
 import { settingReferences } from '../engine/pieces.js'
 import { NAME as PART_NAME } from '../engine/parts/schema.js'
@@ -74,7 +75,8 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
   const copy = () => {
     let k = 2
     while (order.includes(`${id}-${k}`)) k += 1
-    onEdit({ op: 'level.add', level: `${id}-${k}`, data: value, to: { after: id } })
+    const level = `${id}-${k}`
+    onEdit({ op: 'level.add', level, data: copyLevelData(value, level, content.levels), to: { after: id } })
     onSelect({ level: `${id}-${k}` })
   }
   // Alt+1… jumps to a section.
@@ -195,7 +197,7 @@ function PartEditor({ content, base, vocabulary, order, names, levelOptions, at,
   }
   const copy = () => {
     const to = freeName(taken, `${selected}_`)
-    const data = hit.field.value
+    const data = copyWithoutTextKeys(hit.field.value)
     onEdit(isPiece ? { op: 'piece.add', piece: to, data, after: selected } : { op: 'setting.add', setting: to, data })
     onSelect({ [kind]: to })
   }

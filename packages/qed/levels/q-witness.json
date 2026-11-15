@@ -1,20 +1,17 @@
 {
-  "title": { "en": "A borrowed name stays", "zh": "借来的名字不能带走" },
+  "title": "@level.q-witness.title",
   "tray": "formula",
   "tasks": [
     {
       "id": "q-witness",
       "kind": "model",
       "consts": ["h"],
-      "say": { "en": "There is a bird, so Socrates is a bird.", "zh": "有一只鸟，所以苏格拉底是鸟。" },
+      "say": "@level.q-witness.tasks.q-witness.say",
       "given": ["∃x. Bird(x)"],
       "goal": "Bird(h)",
       "answer": { "size": 2, "preds": { "Bird": ["1"] }, "consts": { "h": 0 } },
-      "brief": {
-        "en": "Here is a lemma someone wrote for the reasoning above. Build a counterexample: every premise holds and the goal fails.",
-        "zh": "这是别人照上面这段推理写的引理。造一个反例：前提都成立，结论不成立。"
-      },
-      "hint": [{ "en": "Two things: one is Socrates, the other a bird.", "zh": "两样东西：一样是苏格拉底，另一样是鸟。" }]
+      "brief": "@level.q-witness.tasks.q-witness.brief",
+      "hint": ["@level.q-witness.tasks.q-witness.hint.0"]
     }
   ]
 }

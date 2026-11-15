@@ -1,12 +1,9 @@
 {
-  "title": { "en": "0 is not 1", "zh": "0 不等于 1" },
+  "title": "@level.in-distinct.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "Simp works out 1 + 1, yet cannot prove 0 ≠ 1: no definition says they differ. The declaration does: nat = 0 | S nat of <level-ref to=\"decl-nat\"></level-ref> is an <wiki-ref to=\"inductive\"></wiki-ref>, and the rules it gives are in the “Rule book of numbers”.",
-        "zh": "化简算得出 1 + 1，却证不出 0 ≠ 1：没有哪条定义说两者不同。说它们不同的是声明：<level-ref to=\"decl-nat\"></level-ref>的 nat = 0 | S nat 是<wiki-ref to=\"inductive\"></wiki-ref>，它给出的规则都在「数理规则书」里。"
-      }
+      "t": "@level.in-distinct.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,18 +11,15 @@
       "id": "in-distinct",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.in-distinct.tasks.in-distinct.inputs.0.label" }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["nat"],
       "tests": [{ "goal": "¬(zero = s(zero))" }, { "goal": "¬(s(s(zero)) = zero)" }, { "goal": "¬(zero = s(a))" }],
-      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
+      "brief": "@level.in-distinct.tasks.in-distinct.brief",
       "hint": [
-        { "en": "¬A is A → ⊥.", "zh": "¬A 就是 A → ⊥。" },
-        {
-          "en": "The “Rule book of numbers” has rules for 0 = S …; one test has its equation the other way round.",
-          "zh": "「数理规则书」里有 0 = S … 的规则；有一组测试的等式方向相反。"
-        }
+        "@level.in-distinct.tasks.in-distinct.hint.0",
+        "@level.in-distinct.tasks.in-distinct.hint.1"
       ],
       "solution": [
         "c0r0 = impI()",

@@ -1,18 +1,9 @@
 {
   "domain": "table",
   "vocabulary": 6,
-  "title": {
-    "en": "__title__",
-    "zh": "__title__"
-  },
-  "kicker": {
-    "en": "In development",
-    "zh": "开发中"
-  },
-  "lede": {
-    "en": "No programming or algorithms background needed. A robot works across a table cell by cell; you wire the board it runs on every cell, then use a finished board as a part.",
-    "zh": "不需要任何编程或算法基础。机器人在表上一格一格地算，你接出它每一格跑的电路板，再把拼好的板当元件用。"
-  },
+  "title": "@course.title",
+  "kicker": "@course.kicker",
+  "lede": "@course.lede",
   "primitives": [
     "msum",
     "const",
@@ -24,14 +15,8 @@
       "id": "scout",
       "machine": "scout",
       "chapter": {
-        "title": {
-          "en": "Build a machine",
-          "zh": "造一台机器"
-        },
-        "desc": {
-          "en": "On every cell the robot runs the same circuit board, and a finished board becomes a component.",
-          "zh": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。"
-        }
+        "title": "@course.eras.scout.chapter.title",
+        "desc": "@course.eras.scout.chapter.desc"
       },
       "levels": [
         {"id": "copy"},

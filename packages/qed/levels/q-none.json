@@ -1,5 +1,5 @@
 {
-  "title": { "en": "Who has no children", "zh": "谁没有孩子" },
+  "title": "@level.q-none.title",
   "tray": "formula",
   "tasks": [
     {
@@ -8,12 +8,12 @@
       "consts": ["h", "i", "j", "k", "l", "m", "n"],
       "worlds": [
         {
-          "title": { "en": "The first family", "zh": "第一家" },
+          "title": "@level.q-none.tasks.q-none.worlds.0.title",
           "things": ["i", "j", "k", "l", "m"],
           "preds": { "Parent": [["i", "j"], ["i", "k"], ["j", "l"], ["k", "m"]], "School": ["l"] }
         },
         {
-          "title": { "en": "The second family", "zh": "第二家" },
+          "title": "@level.q-none.tasks.q-none.worlds.1.title",
           "things": ["i", "j", "k", "l", "m", "n"],
           "preds": {
             "Parent": [["j", "i"], ["i", "k"], ["i", "l"], ["k", "m"], ["l", "n"]],
@@ -21,14 +21,11 @@
           }
         }
       ],
-      "say": { "en": "x has no children.", "zh": "x 没有孩子。" },
+      "say": "@level.q-none.tasks.q-none.say",
       "target": "¬∃y. Parent(x, y)",
       "decoys": ["School(x)"],
-      "brief": {
-        "en": "Build a sentence with x in it that picks out exactly those with no children in each family.",
-        "zh": "拼一句带着 x 的话，在每一家里，让它正好选中没有孩子的人。"
-      },
-      "hint": [{ "en": "What is “x has a child”? Put a ¬ in front.", "zh": "「x 有孩子」是什么？在它前面加个 ¬。" }]
+      "brief": "@level.q-none.tasks.q-none.brief",
+      "hint": ["@level.q-none.tasks.q-none.hint.0"]
     }
   ]
 }

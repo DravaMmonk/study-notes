@@ -1,19 +1,46 @@
+import { referenceKey, resolveReferences, sourceValue } from '../engine/catalogs.js'
+import { isText, textKey } from '../engine/i18n.js'
 import { sameJson } from '../engine/json-value.js'
-import { getAt, setAt } from '../engine/ops/edit.js'
+import { getAt, setAt, showPath } from '../engine/ops/edit.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
-import { validate } from '../engine/schema.js'
+import { find, validate } from '../engine/schema.js'
 import { GLOSSARY } from '../engine/vocabulary.js'
 import { tr } from '../shell/i18n.js'
-import { changesType, opFor, taskListOps } from './form.js'
+import { changesType, gameFields, opFor, taskListOps } from './form.js'
 
 const changedKeys = (before, after) => [...new Set([...Object.keys(before), ...Object.keys(after)])]
   .filter((key) => !sameJson(before[key], after[key]))
 
-/** Plan an edit against the current preview while keeping definition and task identity operations intact. */
-export function sourceOps(file, before, path, value, vocabulary, levels) {
-  const after = setAt(before, path, value)
-  if (sameJson(before, after)) return []
+/** Read raw configuration references against the pending preview's owning scope. */
+function sourceTexts(file, content) {
+  const texts = new Map()
+  const visit = (value) => {
+    const key = textKey(value)
+    if (key) texts.set(key, value)
+    else if (value && typeof value === 'object') Object.values(value).forEach(visit)
+  }
+  visit(file.game ? gameFields(content) : [content.levels, content.glossary, content.partDefs])
+  return (key) => {
+    if (!texts.has(key)) throw new Error(tr(`当前配置的语言文件里没有文案键 @${key}。`, `No text for @${key} in this configuration's language files.`))
+    return texts.get(key)
+  }
+}
+
+/** Plan a raw configuration edit while keeping catalog, definition, and task identities intact. */
+export function sourceOps(file, before, path, value, vocabulary, content) {
+  const source = sourceValue(before)
+  const edited = setAt(source, path, value)
+  if (sameJson(source, edited)) return []
   const schema = file.level ? vocabulary.level : file.parts ? PARTS_FILE : file.glossary ? GLOSSARY : vocabulary.game
+  const existingLiterals = new Set(find(schema, before, 'text', { vocabulary })
+    .map(({ value }) => value).filter((value) => typeof value === 'string'))
+  const inline = find(schema, edited, 'text', { vocabulary }).find(({ path, value }) =>
+    isText(value) || (typeof value === 'string' && !referenceKey(value) && !existingLiterals.has(value) && typeof getAt(before, path) !== 'string'))
+  if (inline) {
+    const at = showPath(inline.path)
+    throw new Error(tr(`${at}：请在文案页编辑各语言的文字。`, `${at}: edit language text in the Copy tab.`))
+  }
+  const after = resolveReferences(edited, sourceTexts(file, content))
   if (changesType(schema, before, after, vocabulary)) {
     throw new Error(tr('已有配置的类型不能直接更改。请删除旧项后新增。', 'Delete the existing configuration and add a new one to change its type.'))
   }
@@ -43,12 +70,12 @@ export function sourceOps(file, before, path, value, vocabulary, levels) {
     const newId = getAt(after, idPath)
     if (oldId !== newId) {
       const rename = { op: 'task.rename', task: oldId, to: newId }
-      return path.length === 2 ? [rename, op(path, value)] : [rename]
+      return path.length === 2 ? [rename, op(path, getAt(after, path))] : [rename]
     }
   }
-  if (file.level && path.length === 1 && path[0] === 'tasks') return taskListOps(file.level, before.tasks ?? [], after.tasks, levels)
-  if (path.length) return [op(path, value)]
+  if (file.level && path.length === 1 && path[0] === 'tasks') return taskListOps(file.level, before.tasks ?? [], after.tasks, content.levels)
+  if (path.length) return [op(path, getAt(after, path))]
   return changedKeys(before, after).flatMap((key) => file.level && key === 'tasks'
-    ? taskListOps(file.level, before.tasks ?? [], after.tasks, levels)
+    ? taskListOps(file.level, before.tasks ?? [], after.tasks, content.levels)
     : [op([key], after[key])])
 }

@@ -48,7 +48,9 @@ export async function runChangeset(ws, changeset, { write = false, check = true,
     const wrong = validate(op.params, args, { vocabulary, levels: new Set(ws.levels.keys()) })
     if (wrong.length) return fail(wrong.map((p) => `${where}: ${p.at === '(root)' ? '' : `${p.at.slice(1)}: `}${p.says}`), k)
     try {
+      const previous = ws.snapshot()
       const done = op.apply(ws, args, { vocabulary, domain })
+      ws.normalize(withParts(domain.vocabulary, ws.partDefs), previous)
       says.push(done.says)
       inverse.unshift(...done.inverse)
     } catch (error) {
@@ -113,7 +115,7 @@ export async function undo(ws, { seq = null, ...options } = {}) {
   if (!entry) return refused('nothing to undo')
   if (seq !== null && seq !== entry.seq) return refused(`#${seq} is not the change undo would undo now (#${entry.seq} is): the log has changed since`)
   const disk = ws.onDisk()
-  const moved = entry.files.filter((f) => disk.has(f.file) && hashOf(disk.get(f.file)) !== f.after).map((f) => f.file)
+  const moved = entry.files.filter((f) => (disk.has(f.file) || f.file.includes('/i18n/')) && hashOf(disk.get(f.file)) !== f.after).map((f) => f.file)
   if (moved.length) return refused(`#${entry.seq} cannot be undone: changed since it was made: ${moved.join(', ')}`)
   return runChangeset(ws, { why: `undo #${entry.seq}${entry.why ? `: ${entry.why}` : ''}`, ops: entry.inverse }, { ...options, undoes: entry.seq })
 }

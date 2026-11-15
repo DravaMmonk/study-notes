@@ -1,36 +1,24 @@
 {
-  "title": { "en": "Word segmentation", "zh": "分词" },
-  "short": { "en": "Even unknown words get cut", "zh": "不认识的词也得切开" },
+  "title": "@level.segment.title",
+  "short": "@level.segment.short",
   "intro": [
     {
-      "t": {
-        "en": "A real sentence: not every word is in the dictionary, and names and new words often aren’t. Whatever can’t be found is cut <b>one letter to a piece</b>, at a high price per letter.",
-        "zh": "一句真实的话：词典里不是每个词都有，人名、新词常常查不到。查不到的部分，就<b>一个字母一块</b>地切，只是每个字母都很贵。"
-      }
+      "t": "@level.segment.intro.0.t"
     },
     {
-      "t": {
-        "en": "That way every sentence can be cut, and known words are always cheaper.",
-        "zh": "这样每一句都切得开，而认识的词总是更省。"
-      }
+      "t": "@level.segment.intro.1.t"
     }
   ],
   "mission": {
-    "goal": { "en": "Work out what the cheapest cut of each sentence costs.", "zh": "算出每句话最省的切法要花多少代价。" },
-    "how": { "en": "What a single letter costs is shown at the end of the dictionary.", "zh": "单个字母的代价写在词典最后。" }
+    "goal": "@level.segment.mission.goal",
+    "how": "@level.segment.mission.how"
   },
   "robot": "broom",
   "debrief": {
-    "title": { "en": "Word segmentation", "zh": "分词" },
+    "title": "@level.segment.debrief.title",
     "body": [
-      {
-        "en": "Chinese has no spaces, so input methods and search engines segment words first, with this very board: try every cut, add the piece’s cost, keep the cheapest.",
-        "zh": "中文没有空格，输入法和搜索引擎都要先分词，用的就是这块电路板：每个切点试一遍，加上这一块的代价，取最省的。"
-      },
-      {
-        "en": "“The fewest pieces” and <level-ref to=\"wordcost\"></level-ref> are its special cases: every cost 1, or no single letters to fall back on.",
-        "zh": "「最少几块」<level-ref to=\"wordcost\"></level-ref>都是它的特例：代价全是 1，或者没有单字母兜底。"
-      }
+      "@level.segment.debrief.body.0",
+      "@level.segment.debrief.body.1"
     ]
   },
   "tasks": [
@@ -40,10 +28,7 @@
       "testLabel": "{s}",
       "after": "dictionary",
       "hints": [
-        {
-          "en": "A single letter is just another piece, with its cost in the dictionary.",
-          "zh": "单个字母也是一块，代价在词典里写着。"
-        }
+        "@level.segment.tasks.segment.hints.0"
       ],
       "world": "pieces",
       "facts": ["ground"],

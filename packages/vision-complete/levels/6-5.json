@@ -1,60 +1,42 @@
 {
-  "title": { "en": "Matching through a change of light", "zh": "亮度变了也配得上" },
+  "title": "@level.6-5.title",
   "tray": "geometry",
-  "after": {
-    "en": "Subtract each window's own mean brightness first, and an overall brightening no longer affects the distance; divide by its own standard deviation as well, and even a contrast change does not matter. This is the idea behind normalised cross-correlation (NCC), and SIFT descriptors are normalised in a similar way.",
-    "zh": "先让每个窗口减去自己的平均亮度，整体变亮就不影响距离了；再除以自己的标准差，连对比度变了也不怕。这就是归一化互相关（NCC）的想法，SIFT 描述子也会做类似的归一化。"
-  },
+  "after": "@level.6-5.after",
   "intro": [
     {
-      "t": {
-        "en": "The <part-ref to=\"matcher\"></part-ref> in the tray takes three distances and returns the number of the matching candidate.",
-        "zh": "托盘里的<part-ref to=\"matcher\"></part-ref>接上三个距离，它给出配上的候选编号。"
-      }
+      "t": "@level.6-5.intro.0.t"
     },
     {
-      "t": {
-        "en": "Two photos are often not taken at the same moment: the light changes, and the same place is brighter all over in the right one.",
-        "zh": "两张照片常常不是同时拍的，光线变了，同一处在右图里整体亮一截。"
-      }
+      "t": "@level.6-5.intro.1.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: find which candidate window shows the same place as the keypoint window, and output its number.",
-        "zh": "这一关你要做的：找出哪个候选窗口和关键点的窗口是同一处，输出它的编号。"
-      },
-      "fig": { "test": 0, "caption": { "en": "First set", "zh": "第一组" } }
+      "t": "@level.6-5.intro.2.t",
+      "fig": { "test": 0, "caption": "@level.6-5.intro.2.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "6-5",
       "kind": "graph",
-      "brief": {
-        "en": "The right image is brighter all over. Use the matcher to find which candidate window shows the same place as the keypoint window, and output its number.",
-        "zh": "右图整体亮了一截。用匹配器找出哪个候选窗口和关键点的窗口是同一处，输出它的编号。"
-      },
-      "hint": {
-        "en": "Distance = average((window − candidate)²). When everything is brighter by some amount, every cell differs by the same number. Can you take that away first?",
-        "zh": "距离 = 平均((窗口 − 候选)²)。整体亮了一截时，每一格都差同一个数，这一点能先去掉吗？"
-      },
+      "brief": "@level.6-5.tasks.6-5.brief",
+      "hint": "@level.6-5.tasks.6-5.hint",
       "inputs": ["p", "c1", "c2", "c3"],
       "inputLabels": {
-        "p": { "en": "Keypoint window", "zh": "关键点的窗口" },
-        "c1": { "en": "Candidate 1", "zh": "候选 1" },
-        "c2": { "en": "Candidate 2", "zh": "候选 2" },
-        "c3": { "en": "Candidate 3", "zh": "候选 3" }
+        "p": "@level.6-5.tasks.6-5.inputLabels.p",
+        "c1": "@level.6-5.tasks.6-5.inputLabels.c1",
+        "c2": "@level.6-5.tasks.6-5.inputLabels.c2",
+        "c3": "@level.6-5.tasks.6-5.inputLabels.c3"
       },
       "outputs": ["idx"],
-      "outputLabels": { "idx": { "en": "Matched candidate", "zh": "配上的候选" } },
+      "outputLabels": { "idx": "@level.6-5.tasks.6-5.outputLabels.idx" },
       "check": { "tolerance": 0.1 },
       "scene": "brighter",
       "tests": [
-        { "label": { "en": "It is 1", "zh": "是 1" }, "seed": 31, "which": 0 },
-        { "label": { "en": "It is 3", "zh": "是 3" }, "seed": 32, "which": 2 },
-        { "label": { "en": "It is 2", "zh": "是 2" }, "seed": 33, "which": 1 }
+        { "label": "@level.6-5.tasks.6-5.tests.0.label", "seed": 31, "which": 0 },
+        { "label": "@level.6-5.tasks.6-5.tests.1.label", "seed": 32, "which": 2 },
+        { "label": "@level.6-5.tasks.6-5.tests.2.label", "seed": 33, "which": 1 }
       ],
-      "hidden": [{ "label": { "en": "Candidate 3 again", "zh": "又是 3" }, "seed": 34, "which": 2 }],
+      "hidden": [{ "label": "@level.6-5.tasks.6-5.hidden.0.label", "seed": 34, "which": 2 }],
       "solution": [
         "mp = fqMean(p)",
         "m1 = fqMean(c1)",

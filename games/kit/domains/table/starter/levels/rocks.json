@@ -1,36 +1,27 @@
 {
-  "title": { "en": "Rockfall", "zh": "落石" },
-  "short": { "en": "Add a gate outside the part", "zh": "在元件外面加一道闸" },
+  "title": "@level.rocks.title",
+  "short": "@level.rocks.short",
   "intro": [
     {
-      "t": {
-        "en": "Routes can’t pass through rocks: a rock cell has “—” routes.",
-        "zh": "路线不能经过石头：石头格的路线数是「—」。"
-      }
+      "t": "@level.rocks.intro.0.t"
     }
   ],
   "mission": {
-    "goal": { "en": "Count the routes to every crossing, rock cells left out.", "zh": "数出每个路口的路线数，石头格不算。" },
-    "how": {
-      "en": "Count with the Route Counter, and block the result on rock cells.",
-      "zh": "用路线计数器数，拦截闸在石头格拦下结果。"
-    }
+    "goal": "@level.rocks.mission.goal",
+    "how": "@level.rocks.mission.how"
   },
   "robot": "scout",
   "adds": ["block"],
   "debrief": {
-    "title": { "en": "The gate outside the part", "zh": "闸在元件外面" },
-    "body": [{ "en": "The part stays as it is; a gate outside it is enough.", "zh": "元件不用改，外面加一道闸就够了。" }]
+    "title": "@level.rocks.debrief.title",
+    "body": ["@level.rocks.debrief.body.0"]
   },
   "tasks": [
     {
       "id": "rocks",
       "mode": "circuit",
       "hints": [
-        {
-          "en": "Wire “is rock” to the Block gate’s condition and the Route Counter into its number.",
-          "zh": "「是石头」接拦截闸的条件口，路线计数器接数口。"
-        }
+        "@level.rocks.tasks.rocks.hints.0"
       ],
       "world": "grid",
       "facts": ["start", "rock"],

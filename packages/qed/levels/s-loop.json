@@ -1,12 +1,9 @@
 {
-  "title": { "en": "A search that never stops", "zh": "停不下来的搜索" },
+  "title": "@level.s-loop.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "Ann is older than Bo and Bo older than Cy, so Ann is older than Cy; that Cy is older than Ann follows from nothing. When there is no proof, the proof assistant must still stop and report failure.",
-        "zh": "安比博年长，博比茜年长，所以安比茜年长；茜比安年长，却无论如何推不出来。证不出时，证明助手也必须停下，报告失败。"
-      }
+      "t": "@level.s-loop.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,11 +11,11 @@
       "id": "s-loop",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.s-loop.tasks.s-loop.inputs.0.label" }],
       "backtrack": true,
       "rules": {
         "trans": {
-          "name": { "en": "Older passes on", "zh": "年纪大可以传下去" },
+          "name": "@level.s-loop.tasks.s-loop.rules.trans.name",
           "premises": ["Older(?x, ?y)", "Older(?y, ?z)"],
           "conclusion": "Older(?x, ?z)"
         }
@@ -28,19 +25,10 @@
         { "goal": "Older(j, l)", "hyps": ["Older(j, k)", "Older(k, l)"] },
         { "goal": "Older(k, i)", "hyps": ["Older(i, j)", "Older(j, k)"], "want": "fails" }
       ],
-      "brief": {
-        "en": "Design a proof assistant that proves the goals that can be proved, and reports failure on the one that cannot.",
-        "zh": "设计一个证明助手：证得出的目标证完，证不出的报告失败。"
-      },
+      "brief": "@level.s-loop.tasks.s-loop.brief",
       "hint": [
-        {
-          "en": "On the sentence that cannot be proved, where does the search fail to stop?",
-          "zh": "证不出的那一句，搜索在哪里停不下来？"
-        },
-        {
-          "en": "Each step brings a new ?-letter, so the search cannot tell it is going round.",
-          "zh": "每一步都出现新的 ?，搜索看不出自己在绕圈。"
-        }
+        "@level.s-loop.tasks.s-loop.hint.0",
+        "@level.s-loop.tasks.s-loop.hint.1"
       ],
       "solution": [
         "c0 = search[depth=\"3\"](in, body: c1) {",

@@ -1,12 +1,9 @@
 {
-  "title": { "en": "The goal by its shape", "zh": "按形状分解目标" },
+  "title": "@level.s-intro.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "Until now, the rule for each step was chosen by you after looking at the goals. Introduction rules look at the goal: a goal’s shape says which introduction rule made it. The proof assistant you design becomes a new part, “Goal apart”.",
-        "zh": "到这里，每一步用哪条规则，都是你看过目标后选定的。引入规则看的是目标：目标是什么结构，就是哪条引入规则造出来的。设计出的证明助手会成为新元件「分解目标」。"
-      }
+      "t": "@level.s-intro.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,7 +11,7 @@
       "id": "s-intro",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.s-intro.tasks.s-intro.inputs.0.label" }],
       "backtrack": true,
       "tests": [
         { "goal": "Rain ∧ Wind", "becomes": [["Rain", "Wind"]] },
@@ -24,19 +21,10 @@
         { "goal": "∃x. Human(x)", "becomes": [["Human(?t)"]] },
         { "goal": "Rain", "becomes": [] }
       ],
-      "brief": {
-        "en": "Design a proof assistant that takes the goal one step apart with every introduction rule that fits, keeping every way; when none fits, it fails.",
-        "zh": "设计一个证明助手：用每一条对得上的引入规则把目标倒着拆一步，每种拆法都留下；一条都对不上时失败。"
-      },
+      "brief": "@level.s-intro.tasks.s-intro.brief",
       "hint": [
-        {
-          "en": "There are six introduction rules: Join, the assumption box, Add alternative left and right, the for-any box, and Generalise.",
-          "zh": "引入规则有六条：拼接、假设框、补充左右两条、任取框、概括。"
-        },
-        {
-          "en": "<part-ref to=\"part:append\"></part-ref> can be set to six regions.",
-          "zh": "<part-ref to=\"part:append\"></part-ref>上可以选六个框。"
-        }
+        "@level.s-intro.tasks.s-intro.hint.0",
+        "@level.s-intro.tasks.s-intro.hint.1"
       ],
       "solution": [
         "c0 = append[ways=\"6\"](in, first: c1, second: c2, third: c3, fourth: c4, fifth: c5, sixth: c6) {",

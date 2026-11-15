@@ -1,18 +1,12 @@
 {
-  "title": { "en": "Into and, or, not", "zh": "翻译成与或非" },
+  "title": "@level.e-words.title",
   "tray": ["gates", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "Two people live on an island, a and b, and each is a knight or is not. Whether “a is a knight” and “b is a knight” are true makes the four rows of the truth table.",
-        "zh": "岛上有两个人，a 和 b，每人要么是骑士，要么不是。「a 是骑士」「b 是骑士」的真假组成真值表的四行。"
-      }
+      "t": "@level.e-words.intro.0.t"
     },
     {
-      "t": {
-        "en": "An everyday sentence must first be translated into and, or and not before it can be wired. This level does not show the target column.",
-        "zh": "日常的话先要译成与、或、非，才能接成电路。这一关不给出目标那一列。"
-      }
+      "t": "@level.e-words.intro.1.t"
     }
   ],
   "tasks": [
@@ -21,13 +15,10 @@
       "kind": "gates",
       "target": "¬(KA ∧ KB)",
       "blind": true,
-      "brief": {
-        "en": "“a and b are not both knights.” Translate the sentence into and, or and not, and wire a board that works out its value on every row.",
-        "zh": "「a 和 b 不都是骑士。」把这句话译成与、或、非，接成电路，算出它在每一行的真值。"
-      },
+      "brief": "@level.e-words.tasks.e-words.brief",
       "hint": [
-        { "en": "Do “not both” and “neither” mean the same?", "zh": "「不都是」和「都不是」意思一样吗？" },
-        { "en": "Which part does the negation cover?", "zh": "否定管的是哪一部分？" }
+        "@level.e-words.tasks.e-words.hint.0",
+        "@level.e-words.tasks.e-words.hint.1"
       ],
       "solution": ["a = gAnd(KA, KB)", "n = gNot(a)", "out <- n"],
       "naive": ["na = gNot(KA)", "nb = gNot(KB)", "a = gAnd(na, nb)", "out <- a"]

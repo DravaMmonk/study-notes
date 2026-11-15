@@ -2,12 +2,9 @@
   "package": "state-graph",
   "domain": "table",
   "vocabulary": 6,
-  "title": { "en": "State Graph", "zh": "状态之图" },
-  "kicker": { "en": "Dynamic programming puzzles, from scratch", "zh": "从零开始的动态规划解谜" },
-  "lede": {
-    "en": "No programming or algorithms background needed. Starting from counting routes by hand, you learn to break a big problem into a table and fill it in cell by cell; in the end you wire up the circuit boards that count routes, compare words and pack a backpack, and see why they are so fast.",
-    "zh": "不需要任何编程或算法基础。从手数路线开始，学会把一个大问题拆成一张表，一格一格地填出来；最后能亲手拼出数路线、比文字、装背包的电路板，并且明白它们为什么这么快。"
-  },
+  "title": "@course.title",
+  "kicker": "@course.kicker",
+  "lede": "@course.lede",
   "primitives": ["msum", "mmin", "mmax", "many", "const", "pass", "block", "add", "not", "mul"],
   "trays": {
     "main": [
@@ -35,11 +32,8 @@
       "id": "paper",
       "machine": null,
       "chapter": {
-        "title": { "en": "Pen and paper", "zh": "纸笔" },
-        "desc": {
-          "en": "Build the answer to a big problem out of the answers to small ones.",
-          "zh": "用小问题的答案，拼出大问题的答案。"
-        }
+        "title": "@course.eras.paper.chapter.title",
+        "desc": "@course.eras.paper.chapter.desc"
       },
       "levels": [{ "id": "trace" }, { "id": "lastStep" }, { "id": "city" }],
       "links": [{ "from": "trace", "to": "lastStep" }, { "from": "lastStep", "to": "city" }]
@@ -48,11 +42,8 @@
       "id": "scout",
       "machine": "scout",
       "chapter": {
-        "title": { "en": "Build a machine", "zh": "造一台机器" },
-        "desc": {
-          "en": "On every cell the robot runs the same circuit board, and a finished board becomes a component.",
-          "zh": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。"
-        }
+        "title": "@course.eras.scout.chapter.title",
+        "desc": "@course.eras.scout.chapter.desc"
       },
       "levels": [
         { "id": "copy" },
@@ -98,11 +89,8 @@
       "id": "ranger",
       "machine": "ranger",
       "chapter": {
-        "title": { "en": "Seeing further", "zh": "看得更远" },
-        "desc": {
-          "en": "It sees further, two cells away; it sees more, the two words a table compares; and it can scan the other way round.",
-          "zh": "看得更远：两步之外的格子；看得更全：表头上的两个词；还能换个方向扫。"
-        }
+        "title": "@course.eras.ranger.chapter.title",
+        "desc": "@course.eras.ranger.chapter.desc"
       },
       "levels": [
         { "id": "stairs" },
@@ -142,8 +130,8 @@
       "id": "reach",
       "machine": "reach",
       "chapter": {
-        "title": { "en": "A longer arm", "zh": "伸长手臂" },
-        "desc": { "en": "A telescopic arm reaches a cell however far away.", "zh": "伸缩臂能够到任意远的一格。" }
+        "title": "@course.eras.reach.chapter.title",
+        "desc": "@course.eras.reach.chapter.desc"
       },
       "levels": [
         { "id": "frog" },
@@ -177,11 +165,8 @@
       "id": "broom",
       "machine": "broom",
       "chapter": {
-        "title": { "en": "Many ways in", "zh": "一格多来路" },
-        "desc": {
-          "en": "The sweep arm passes over a whole run of cells, so the number of ways in is no longer fixed.",
-          "zh": "扫描臂扫过一整段格子，来路的数量不再固定。"
-        }
+        "title": "@course.eras.broom.chapter.title",
+        "desc": "@course.eras.broom.chapter.desc"
       },
       "levels": [
         { "id": "prefix" },
@@ -213,11 +198,8 @@
       "id": "stack",
       "machine": "stack",
       "chapter": {
-        "title": { "en": "When the state falls short", "zh": "状态不够用" },
-        "desc": {
-          "en": "When one number can’t remember enough, remember one more thing.",
-          "zh": "一个数记不住的时候，就多记一件事。"
-        }
+        "title": "@course.eras.stack.chapter.title",
+        "desc": "@course.eras.stack.chapter.desc"
       },
       "levels": [
         { "id": "robber" },
@@ -247,8 +229,8 @@
       "id": "settle",
       "machine": "loop",
       "chapter": {
-        "title": { "en": "Scan until it settles", "zh": "扫到不再变" },
-        "desc": { "en": "When the arrows loop round, scan again and again.", "zh": "箭头绕成了圈，就一遍一遍地扫。" }
+        "title": "@course.eras.settle.chapter.title",
+        "desc": "@course.eras.settle.chapter.desc"
       },
       "levels": [
         { "id": "loop" },

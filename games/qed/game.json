@@ -2,190 +2,184 @@
   "package": "qed",
   "domain": "logic",
   "vocabulary": 11,
-  "title": { "en": "Q.E.D.", "zh": "证明完毕" },
-  "kicker": {
-    "en": "In development · Build proofs and proof assistants as circuits",
-    "zh": "开发中 · 用电路构建证明与证明助手"
-  },
-  "lede": {
-    "en": "No logic background is required. Start with truth tables, connect inference rules into proofs, and learn assumptions, case analysis, quantifiers and induction as you build a proof assistant.",
-    "zh": "无需逻辑学基础。从真值表出发，将推理规则连接成证明，逐步学习假设、分类讨论、量词与归纳，并搭建能够处理证明目标的证明助手。"
-  },
+  "title": "@course.title",
+  "kicker": "@course.kicker",
+  "lede": "@course.lede",
   "words": ["everyday"],
   "wordSets": {
     "everyday": {
-      "Rain": { "en": "it rains", "zh": "下雨" },
-      "Wet": { "en": "the ground is wet", "zh": "地湿" },
-      "Wind": { "en": "it is windy", "zh": "刮风" },
-      "Slip": { "en": "the road is slippery", "zh": "路滑" },
-      "Fall": { "en": "someone falls", "zh": "有人摔跤" },
-      "Sat": { "en": "today is Saturday", "zh": "今天是周六" },
-      "Sun": { "en": "today is Sunday", "zh": "今天是周日" },
-      "Holiday": { "en": "today is a holiday", "zh": "今天放假" },
-      "AnnYes": { "en": "Ann agrees", "zh": "安同意" },
-      "BoYes": { "en": "Bo agrees", "zh": "博同意" },
-      "CyYes": { "en": "Cy agrees", "zh": "赛同意" },
-      "Motion": { "en": "the motion passes", "zh": "提案通过" },
-      "Truth": { "en": "True", "zh": "真" },
-      "Nat": { "en": "a number", "zh": "自然数" },
-      "List": { "en": "a list", "zh": "列表" },
-      "Bool": { "en": "a truth value", "zh": "真假值" },
-      "Rest": { "en": "I rest", "zh": "我休息" },
-      "Bus": { "en": "I take the bus", "zh": "我坐公交" },
-      "Bike": { "en": "I cycle", "zh": "我骑车" },
-      "OnTime": { "en": "I arrive on time", "zh": "我准时到" },
-      "Alarm": { "en": "the alarm rings", "zh": "闹钟响了" },
-      "Up": { "en": "I get up", "zh": "我起床了" },
-      "Coffee": { "en": "I drink coffee", "zh": "我喝了咖啡" },
-      "Tea": { "en": "I drink tea", "zh": "我喝了茶" },
-      "Awake": { "en": "I am wide awake", "zh": "我很清醒" },
-      "Late": { "en": "I am late", "zh": "我迟到了" },
-      "Exam": { "en": "there is an exam tomorrow", "zh": "明天考试" },
-      "Study": { "en": "I am revising", "zh": "我在复习" },
-      "Pass": { "en": "I pass", "zh": "我考过了" },
-      "Happy": { "en": "I am happy", "zh": "我很开心" },
-      "Hungry": { "en": "I am hungry", "zh": "我饿了" },
-      "Eat": { "en": "I go and eat", "zh": "我去吃饭" },
-      "Full": { "en": "I am full", "zh": "我吃饱了" },
-      "Locked": { "en": "the door is locked", "zh": "门锁着" },
-      "Moon": { "en": "the moon is made of cheese", "zh": "月亮是奶酪做的" },
-      "Pigs": { "en": "pigs fly", "zh": "猪会飞" },
-      "KA": { "en": "a is a knight", "zh": "a 是骑士" },
-      "KB": { "en": "b is a knight", "zh": "b 是骑士" },
-      "KC": { "en": "c is a knight", "zh": "c 是骑士" },
-      "KD": { "en": "d is a knight", "zh": "d 是骑士" },
-      "KE": { "en": "e is a knight", "zh": "e 是骑士" },
-      "KF": { "en": "f is a knight", "zh": "f 是骑士" },
-      "KG": { "en": "g is a knight", "zh": "g 是骑士" },
-      "KH": { "en": "h is a knight", "zh": "h 是骑士" },
-      "KI": { "en": "i is a knight", "zh": "i 是骑士" },
-      "KJ": { "en": "j is a knight", "zh": "j 是骑士" },
-      "HA": { "en": "a is human", "zh": "a 是人" },
-      "HB": { "en": "b is human", "zh": "b 是人" },
-      "MA": { "en": "a is mortal", "zh": "a 会死" },
-      "MB": { "en": "b is mortal", "zh": "b 会死" },
-      "InA": { "en": "input a is 1", "zh": "输入 a 是 1" },
-      "InB": { "en": "input b is 1", "zh": "输入 b 是 1" },
-      "Sum": { "en": "the sum bit is 1", "zh": "和位是 1" },
-      "Carry": { "en": "the carry bit is 1", "zh": "进位是 1" },
-      "Human": { "en": "{0} is human", "zh": "{0}是人" },
-      "Mortal": { "en": "{0} is mortal", "zh": "{0}会死" },
-      "Bird": { "en": "{0} is a bird", "zh": "{0}是鸟" },
-      "Flies": { "en": "{0} flies", "zh": "{0}会飞" },
-      "Parent": { "en": "{0} is a parent of {1}", "zh": "{0}是{1}的父母" },
-      "Likes": { "en": "{0} likes {1}", "zh": "{0}喜欢{1}" },
-      "Knows": { "en": "{0} knows {1}", "zh": "{0}认识{1}" },
-      "School": { "en": "{0} goes to school", "zh": "{0}在上学" },
-      "Student": { "en": "{0} is a student", "zh": "{0}是学生" },
-      "Anc": { "en": "{0} is an ancestor of {1}", "zh": "{0}是{1}的祖先" },
-      "Grand": { "en": "{0} is a grandparent of {1}", "zh": "{0}是{1}的祖父母" },
-      "Older": { "en": "{0} is older than {1}", "zh": "{0}比{1}年纪大" },
-      "Less": { "en": "{0} is less than {1}", "zh": "{0}比{1}小" },
-      "Bigger": { "en": "{0} is bigger than {1}", "zh": "{0}比{1}大" },
-      "IsLate": { "en": "{0} is late", "zh": "{0}迟到了" },
-      "Cries": { "en": "{0} cries", "zh": "{0}哭了" },
-      "Drinks": { "en": "{0} is drinking", "zh": "{0}在喝酒" },
-      "Sings": { "en": "{0} is singing", "zh": "{0}在唱歌" },
-      "Bright": { "en": "{0} is bright", "zh": "{0}很亮" },
-      "Seen": { "en": "{0} can be seen", "zh": "{0}看得见" },
-      "Baby": { "en": "{0} is a baby", "zh": "{0}是婴儿" },
-      "Logical": { "en": "{0} is logical", "zh": "{0}讲道理" },
-      "Tamer": { "en": "{0} can tame a crocodile", "zh": "{0}驯得了鳄鱼" },
-      "Respected": { "en": "{0} is respected", "zh": "{0}受人尊重" },
-      "Cat": { "en": "{0} is a cat", "zh": "{0}是猫" },
-      "Pet": { "en": "{0} is a pet", "zh": "{0}是宠物" },
-      "Fluffy": { "en": "{0} is fluffy", "zh": "{0}毛茸茸" },
-      "s": { "en": "{0}+1", "zh": "{0}+1" },
-      "zero": { "en": "0", "zh": "0" },
-      "Even": { "en": "{0} is even", "zh": "{0}是偶数" },
-      "Odd": { "en": "{0} is odd", "zh": "{0}是奇数" },
-      "Shaves": { "en": "{0} shaves {1}", "zh": "{0}给{1}刮胡子" },
-      "Teaches": { "en": "{0} teaches {1}", "zh": "{0}教{1}" },
-      "In": { "en": "{0} is in {1}", "zh": "{0}属于{1}" },
-      "Accepts": { "en": "{0} accepts {1}", "zh": "{0}接受{1}" },
-      "Ls": { "en": "{0} is in L_s", "zh": "{0}在 L_s 里" },
-      "Halts": { "en": "{0} halts on {1}", "zh": "{0}在{1}上停机" },
-      "DecH": { "en": "{0} decides halting", "zh": "{0}判定停机问题" },
-      "DecA": { "en": "{0} decides A_TM", "zh": "{0}判定 A_TM" },
-      "c": { "en": "⟨{0}⟩", "zh": "⟨{0}⟩" },
-      "Angry": { "en": "the teacher is cross", "zh": "老师生气了" },
-      "Woken": { "en": "I am woken up", "zh": "我被吵醒了" },
-      "h": { "en": "Socrates", "zh": "苏格拉底" },
-      "i": { "en": "Ann", "zh": "安" },
-      "j": { "en": "Bo", "zh": "博" },
-      "k": { "en": "Cy", "zh": "茜" },
-      "l": { "en": "Dee", "zh": "迪" },
-      "m": { "en": "En", "zh": "恩" },
-      "n": { "en": "Fay", "zh": "菲" }
+      "Rain": "@course.wordSets.everyday.Rain",
+      "Wet": "@course.wordSets.everyday.Wet",
+      "Wind": "@course.wordSets.everyday.Wind",
+      "Slip": "@course.wordSets.everyday.Slip",
+      "Fall": "@course.wordSets.everyday.Fall",
+      "Sat": "@course.wordSets.everyday.Sat",
+      "Sun": "@course.wordSets.everyday.Sun",
+      "Holiday": "@course.wordSets.everyday.Holiday",
+      "AnnYes": "@course.wordSets.everyday.AnnYes",
+      "BoYes": "@course.wordSets.everyday.BoYes",
+      "CyYes": "@course.wordSets.everyday.CyYes",
+      "Motion": "@course.wordSets.everyday.Motion",
+      "Truth": "@course.wordSets.everyday.Truth",
+      "Nat": "@course.wordSets.everyday.Nat",
+      "List": "@course.wordSets.everyday.List",
+      "Bool": "@course.wordSets.everyday.Bool",
+      "Rest": "@course.wordSets.everyday.Rest",
+      "Bus": "@course.wordSets.everyday.Bus",
+      "Bike": "@course.wordSets.everyday.Bike",
+      "OnTime": "@course.wordSets.everyday.OnTime",
+      "Alarm": "@course.wordSets.everyday.Alarm",
+      "Up": "@course.wordSets.everyday.Up",
+      "Coffee": "@course.wordSets.everyday.Coffee",
+      "Tea": "@course.wordSets.everyday.Tea",
+      "Awake": "@course.wordSets.everyday.Awake",
+      "Late": "@course.wordSets.everyday.Late",
+      "Exam": "@course.wordSets.everyday.Exam",
+      "Study": "@course.wordSets.everyday.Study",
+      "Pass": "@course.wordSets.everyday.Pass",
+      "Happy": "@course.wordSets.everyday.Happy",
+      "Hungry": "@course.wordSets.everyday.Hungry",
+      "Eat": "@course.wordSets.everyday.Eat",
+      "Full": "@course.wordSets.everyday.Full",
+      "Locked": "@course.wordSets.everyday.Locked",
+      "Moon": "@course.wordSets.everyday.Moon",
+      "Pigs": "@course.wordSets.everyday.Pigs",
+      "KA": "@course.wordSets.everyday.KA",
+      "KB": "@course.wordSets.everyday.KB",
+      "KC": "@course.wordSets.everyday.KC",
+      "KD": "@course.wordSets.everyday.KD",
+      "KE": "@course.wordSets.everyday.KE",
+      "KF": "@course.wordSets.everyday.KF",
+      "KG": "@course.wordSets.everyday.KG",
+      "KH": "@course.wordSets.everyday.KH",
+      "KI": "@course.wordSets.everyday.KI",
+      "KJ": "@course.wordSets.everyday.KJ",
+      "HA": "@course.wordSets.everyday.HA",
+      "HB": "@course.wordSets.everyday.HB",
+      "MA": "@course.wordSets.everyday.MA",
+      "MB": "@course.wordSets.everyday.MB",
+      "InA": "@course.wordSets.everyday.InA",
+      "InB": "@course.wordSets.everyday.InB",
+      "Sum": "@course.wordSets.everyday.Sum",
+      "Carry": "@course.wordSets.everyday.Carry",
+      "Human": "@course.wordSets.everyday.Human",
+      "Mortal": "@course.wordSets.everyday.Mortal",
+      "Bird": "@course.wordSets.everyday.Bird",
+      "Flies": "@course.wordSets.everyday.Flies",
+      "Parent": "@course.wordSets.everyday.Parent",
+      "Likes": "@course.wordSets.everyday.Likes",
+      "Knows": "@course.wordSets.everyday.Knows",
+      "School": "@course.wordSets.everyday.School",
+      "Student": "@course.wordSets.everyday.Student",
+      "Anc": "@course.wordSets.everyday.Anc",
+      "Grand": "@course.wordSets.everyday.Grand",
+      "Older": "@course.wordSets.everyday.Older",
+      "Less": "@course.wordSets.everyday.Less",
+      "Bigger": "@course.wordSets.everyday.Bigger",
+      "IsLate": "@course.wordSets.everyday.IsLate",
+      "Cries": "@course.wordSets.everyday.Cries",
+      "Drinks": "@course.wordSets.everyday.Drinks",
+      "Sings": "@course.wordSets.everyday.Sings",
+      "Bright": "@course.wordSets.everyday.Bright",
+      "Seen": "@course.wordSets.everyday.Seen",
+      "Baby": "@course.wordSets.everyday.Baby",
+      "Logical": "@course.wordSets.everyday.Logical",
+      "Tamer": "@course.wordSets.everyday.Tamer",
+      "Respected": "@course.wordSets.everyday.Respected",
+      "Cat": "@course.wordSets.everyday.Cat",
+      "Pet": "@course.wordSets.everyday.Pet",
+      "Fluffy": "@course.wordSets.everyday.Fluffy",
+      "s": "@course.wordSets.everyday.s",
+      "zero": "@course.wordSets.everyday.zero",
+      "Even": "@course.wordSets.everyday.Even",
+      "Odd": "@course.wordSets.everyday.Odd",
+      "Shaves": "@course.wordSets.everyday.Shaves",
+      "Teaches": "@course.wordSets.everyday.Teaches",
+      "In": "@course.wordSets.everyday.In",
+      "Accepts": "@course.wordSets.everyday.Accepts",
+      "Ls": "@course.wordSets.everyday.Ls",
+      "Halts": "@course.wordSets.everyday.Halts",
+      "DecH": "@course.wordSets.everyday.DecH",
+      "DecA": "@course.wordSets.everyday.DecA",
+      "c": "@course.wordSets.everyday.c",
+      "Angry": "@course.wordSets.everyday.Angry",
+      "Woken": "@course.wordSets.everyday.Woken",
+      "h": "@course.wordSets.everyday.h",
+      "i": "@course.wordSets.everyday.i",
+      "j": "@course.wordSets.everyday.j",
+      "k": "@course.wordSets.everyday.k",
+      "l": "@course.wordSets.everyday.l",
+      "m": "@course.wordSets.everyday.m",
+      "n": "@course.wordSets.everyday.n"
     },
     "terms": {
-      "s": { "en": "S {0}", "zh": "S {0}" },
-      "plus": { "en": "{0} + {1}", "zh": "{0} + {1}" },
-      "nil": { "en": "[]", "zh": "[]" },
-      "cons": { "en": "{0} :: {1}", "zh": "{0} :: {1}" },
-      "app": { "en": "{0} ++ {1}", "zh": "{0} ++ {1}" },
-      "len": { "en": "len {0}", "zh": "len {0}" },
-      "pred": { "en": "pred {0}", "zh": "pred {0}" },
-      "le": { "en": "{0} ≤ {1}", "zh": "{0} ≤ {1}" },
-      "max": { "en": "max {0} {1}", "zh": "max {0} {1}" },
-      "tt": { "en": "True", "zh": "真" },
-      "ff": { "en": "false", "zh": "假" },
-      "if": { "en": "if {0} then {1} else {2}", "zh": "若 {0} 则 {1} 否则 {2}" },
-      "rev": { "en": "rev {0}", "zh": "rev {0}" },
-      "sum": { "en": "sum {0}", "zh": "sum {0}" },
-      "itsum": { "en": "itsum {0} {1}", "zh": "itsum {0} {1}" },
-      "ins": { "en": "ins {0} {1}", "zh": "ins {0} {1}" },
-      "sort": { "en": "sort {0}", "zh": "sort {0}" },
-      "f": { "en": "f {0}", "zh": "f {0}" }
+      "s": "@course.wordSets.terms.s",
+      "plus": "@course.wordSets.terms.plus",
+      "nil": "@course.wordSets.terms.nil",
+      "cons": "@course.wordSets.terms.cons",
+      "app": "@course.wordSets.terms.app",
+      "len": "@course.wordSets.terms.len",
+      "pred": "@course.wordSets.terms.pred",
+      "le": "@course.wordSets.terms.le",
+      "max": "@course.wordSets.terms.max",
+      "tt": "@course.wordSets.terms.tt",
+      "ff": "@course.wordSets.terms.ff",
+      "if": "@course.wordSets.terms.if",
+      "rev": "@course.wordSets.terms.rev",
+      "sum": "@course.wordSets.terms.sum",
+      "itsum": "@course.wordSets.terms.itsum",
+      "ins": "@course.wordSets.terms.ins",
+      "sort": "@course.wordSets.terms.sort",
+      "f": "@course.wordSets.terms.f"
     },
     "stars": {
-      "a": { "en": "the Morning Star", "zh": "晨星" },
-      "b": { "en": "the Evening Star", "zh": "昏星" },
-      "i": { "en": "the Morning Star", "zh": "晨星" },
-      "j": { "en": "the Evening Star", "zh": "昏星" },
-      "k": { "en": "Venus", "zh": "金星" }
+      "a": "@course.wordSets.stars.a",
+      "b": "@course.wordSets.stars.b",
+      "i": "@course.wordSets.stars.i",
+      "j": "@course.wordSets.stars.j",
+      "k": "@course.wordSets.stars.k"
     },
     "properties": {
-      "P": { "en": "{0} has that property", "zh": "{0}具有该性质" },
-      "Q": { "en": "{0} has that property", "zh": "{0}具有该性质" }
+      "P": "@course.wordSets.properties.P",
+      "Q": "@course.wordSets.properties.Q"
     },
     "codes": {
-      "rain": { "en": "it rains", "zh": "下雨" },
-      "wet": { "en": "the ground is wet", "zh": "地湿" },
-      "slip": { "en": "the road is slippery", "zh": "路滑" },
-      "neg": { "en": "¬{0}", "zh": "¬{0}" },
-      "imp": { "en": "({0} → {1})", "zh": "({0} → {1})" },
-      "code": { "en": "⌜{0}⌝", "zh": "⌜{0}⌝" },
-      "one": { "en": "1", "zh": "1" },
-      "two": { "en": "2", "zh": "2" },
-      "three": { "en": "3", "zh": "3" },
-      "four": { "en": "4", "zh": "4" },
-      "ax": { "en": "axiom {0}", "zh": "公理 {0}" },
-      "use": { "en": "apply [{0}] [{1}]", "zh": "套用 [{0}] [{1}]" },
-      "concl": { "en": "conclusion {0}", "zh": "结论 {0}" },
-      "then": { "en": "{0} meets {1}", "zh": "{0} 接上 {1}" },
-      "ok": { "en": "check {0}", "zh": "查 {0}" },
-      "isax": { "en": "{0} is an axiom", "zh": "{0} 是公理" },
-      "fits": { "en": "{0} fits {1}", "zh": "{0} 对得上 {1}" },
-      "both": { "en": "{0} and {1}", "zh": "{0} 且 {1}" },
-      "nprov": { "en": "“{0} cannot be proved”", "zh": "「{0} 证不出」" },
-      "dg": { "en": "the diagonal of {0}", "zh": "对角 {0}" },
-      "vx": { "en": "□", "zh": "□" },
-      "qt": { "en": "⌜{0}⌝", "zh": "⌜{0}⌝" },
-      "diag": { "en": "the diagonal of {0}", "zh": "对角 {0}" },
-      "sub": { "en": "{0}[□ := {1}]", "zh": "{0}[□ := {1}]" },
-      "subt": { "en": "{0}[□ := {1}]", "zh": "{0}[□ := {1}]" },
-      "val": { "en": "value {0}", "zh": "值 {0}" }
+      "rain": "@course.wordSets.codes.rain",
+      "wet": "@course.wordSets.codes.wet",
+      "slip": "@course.wordSets.codes.slip",
+      "neg": "@course.wordSets.codes.neg",
+      "imp": "@course.wordSets.codes.imp",
+      "code": "@course.wordSets.codes.code",
+      "one": "@course.wordSets.codes.one",
+      "two": "@course.wordSets.codes.two",
+      "three": "@course.wordSets.codes.three",
+      "four": "@course.wordSets.codes.four",
+      "ax": "@course.wordSets.codes.ax",
+      "use": "@course.wordSets.codes.use",
+      "concl": "@course.wordSets.codes.concl",
+      "then": "@course.wordSets.codes.then",
+      "ok": "@course.wordSets.codes.ok",
+      "isax": "@course.wordSets.codes.isax",
+      "fits": "@course.wordSets.codes.fits",
+      "both": "@course.wordSets.codes.both",
+      "nprov": "@course.wordSets.codes.nprov",
+      "dg": "@course.wordSets.codes.dg",
+      "vx": "@course.wordSets.codes.vx",
+      "qt": "@course.wordSets.codes.qt",
+      "diag": "@course.wordSets.codes.diag",
+      "sub": "@course.wordSets.codes.sub",
+      "subt": "@course.wordSets.codes.subt",
+      "val": "@course.wordSets.codes.val"
     },
     "goedel": {
-      "G": { "en": "G", "zh": "G" },
-      "Prov": { "en": "{0} is provable", "zh": "{0} 证得出" },
-      "diag": { "en": "the diagonal of {0}", "zh": "对角 {0}" },
-      "d": { "en": "⌜D⌝", "zh": "⌜D⌝" },
-      "g": { "en": "⌜G⌝", "zh": "⌜G⌝" },
-      "gn": { "en": "⌜G is not provable⌝", "zh": "⌜G 证不出⌝" },
-      "gp": { "en": "⌜⌜G⌝ is provable⌝", "zh": "⌜⌜G⌝ 证得出⌝" },
-      "cs": { "en": "⌜consistent⌝", "zh": "⌜不矛盾⌝" }
+      "G": "@course.wordSets.goedel.G",
+      "Prov": "@course.wordSets.goedel.Prov",
+      "diag": "@course.wordSets.goedel.diag",
+      "d": "@course.wordSets.goedel.d",
+      "g": "@course.wordSets.goedel.g",
+      "gn": "@course.wordSets.goedel.gn",
+      "gp": "@course.wordSets.goedel.gp",
+      "cs": "@course.wordSets.goedel.cs"
     }
   },
   "primitives": [
@@ -365,8 +359,8 @@
       "id": "paper",
       "machine": null,
       "chapter": {
-        "title": { "en": "Pen and paper", "zh": "纸笔" },
-        "question": { "en": "When does a statement always hold?", "zh": "一句话什么时候永远成立？" }
+        "title": "@course.eras.paper.chapter.title",
+        "question": "@course.eras.paper.chapter.question"
       },
       "levels": [{ "id": "table" }, { "id": "always" }, { "id": "onerow" }],
       "links": [{ "from": "table", "to": "always" }, { "from": "always", "to": "onerow" }]
@@ -375,11 +369,8 @@
       "id": "circuits",
       "machine": "prover",
       "chapter": {
-        "title": { "en": "Truth circuits", "zh": "真值电路" },
-        "question": {
-          "en": "Can a circuit work out whether a sentence is true in every case?",
-          "zh": "一句话在每一种情况下是真是假，能交给电路去算吗？"
-        }
+        "title": "@course.eras.circuits.chapter.title",
+        "question": "@course.eras.circuits.chapter.question"
       },
       "levels": [
         { "id": "g-not" },
@@ -418,8 +409,8 @@
       "id": "kernel",
       "machine": "prover",
       "chapter": {
-        "title": { "en": "The kernel", "zh": "证明核" },
-        "question": { "en": "What can Apply and the assumption box prove?", "zh": "只靠套用和假设框，能证出什么？" }
+        "title": "@course.eras.kernel.chapter.title",
+        "question": "@course.eras.kernel.chapter.question"
       },
       "levels": [
         { "id": "copy" },
@@ -469,8 +460,8 @@
       "id": "packing",
       "machine": "prover",
       "chapter": {
-        "title": { "en": "Declarations", "zh": "声明" },
-        "question": { "en": "How do “and”, “or” and “not” come into the kernel?", "zh": "怎样把「与」「或」「非」引入证明核？" }
+        "title": "@course.eras.packing.chapter.title",
+        "question": "@course.eras.packing.chapter.question"
       },
       "levels": [
         { "id": "decl-and" },
@@ -505,11 +496,8 @@
       "id": "boxes",
       "machine": "prover",
       "chapter": {
-        "title": { "en": "Using the connectives", "zh": "连接词的运用" },
-        "question": {
-          "en": "With “and”, “or” and “not” declared, what can be proved?",
-          "zh": "有了声明出来的「与」「或」「非」，能证出些什么？"
-        }
+        "title": "@course.eras.boxes.chapter.title",
+        "question": "@course.eras.boxes.chapter.question"
       },
       "levels": [
         { "id": "and" },
@@ -549,11 +537,8 @@
       "id": "quantifiers",
       "machine": "prover",
       "chapter": {
-        "title": { "en": "Quantifiers and counterexamples", "zh": "量词的语言与反例" },
-        "question": {
-          "en": "How do you say “every” and “some”, and find a counterexample when no proof comes?",
-          "zh": "「每一个」「有一个」怎么说，证不出时怎样找反例？"
-        }
+        "title": "@course.eras.quantifiers.chapter.title",
+        "question": "@course.eras.quantifiers.chapter.question"
       },
       "levels": [
         { "id": "fo-atoms" },
@@ -590,8 +575,8 @@
       "id": "qrules",
       "machine": "prover",
       "chapter": {
-        "title": { "en": "Quantifier rules", "zh": "量词规则" },
-        "question": { "en": "How do you prove a sentence holds in every world?", "zh": "怎样证明一句话在所有世界里都成立？" }
+        "title": "@course.eras.qrules.chapter.title",
+        "question": "@course.eras.qrules.chapter.question"
       },
       "levels": [
         { "id": "q-allI" },
@@ -659,8 +644,8 @@
       "id": "metavars",
       "machine": "prover",
       "chapter": {
-        "title": { "en": "Rules and metavariables", "zh": "规则与元变量" },
-        "question": { "en": "Can a part read off the goal what to fill in?", "zh": "元件能不能自己从目标里读出该填的句子？" }
+        "title": "@course.eras.metavars.chapter.title",
+        "question": "@course.eras.metavars.chapter.question"
       },
       "levels": [
         { "id": "r-match" },
@@ -723,11 +708,8 @@
       "id": "tactics",
       "machine": "prover",
       "chapter": {
-        "title": { "en": "Tactics", "zh": "策略" },
-        "question": {
-          "en": "Can the proof assistant try for itself which rule to use?",
-          "zh": "能不能让证明助手自己去试该用哪条规则？"
-        }
+        "title": "@course.eras.tactics.chapter.title",
+        "question": "@course.eras.tactics.chapter.question"
       },
       "levels": [
         { "id": "s-repeat" },
@@ -772,11 +754,8 @@
       "id": "classical",
       "machine": "prover",
       "chapter": {
-        "title": { "en": "Classical logic", "zh": "经典逻辑" },
-        "question": {
-          "en": "Does the prover prove everything true on every row?",
-          "zh": "真值表上每一行都真的话，证明器都证得出吗？"
-        }
+        "title": "@course.eras.classical.chapter.title",
+        "question": "@course.eras.classical.chapter.question"
       },
       "levels": [
         { "id": "c-wall" },
@@ -827,11 +806,8 @@
       "id": "simplifier",
       "machine": "prover",
       "chapter": {
-        "title": { "en": "The simplifier", "zh": "化简器" },
-        "question": {
-          "en": "Can a goal like “push the negation in” be left to a proof assistant that rewrites all the way?",
-          "zh": "「把否定推进去」这样的目标，能交给证明助手一路改下去吗？"
-        }
+        "title": "@course.eras.simplifier.chapter.title",
+        "question": "@course.eras.simplifier.chapter.question"
       },
       "levels": [
         { "id": "sp-rw" },
@@ -865,11 +841,8 @@
       "id": "automation",
       "machine": "prover",
       "chapter": {
-        "title": { "en": "Automation and certificates", "zh": "自动化与证书" },
-        "question": {
-          "en": "Can a proof assistant be left to find proofs, and why believe what it finds?",
-          "zh": "证明能交给证明助手去找吗？证明助手找到的，凭什么信？"
-        }
+        "title": "@course.eras.automation.chapter.title",
+        "question": "@course.eras.automation.chapter.question"
       },
       "levels": [
         { "id": "au-negate" },
@@ -928,11 +901,8 @@
       "id": "inductive",
       "machine": "prover",
       "chapter": {
-        "title": { "en": "Numbers and lists", "zh": "数与列表" },
-        "question": {
-          "en": "How are numbers and lists worked out, and where do they come from? How is something proved for every number?",
-          "zh": "数和列表怎么算、从哪里来？对每一个数都成立的事，怎么证？"
-        }
+        "title": "@course.eras.inductive.chapter.title",
+        "question": "@course.eras.inductive.chapter.question"
       },
       "levels": [
         { "id": "decl-nat" },

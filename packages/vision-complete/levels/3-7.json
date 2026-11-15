@@ -1,72 +1,57 @@
 {
-  "title": { "en": "Shadow or colour", "zh": "阴影还是颜色" },
+  "title": "@level.3-7.title",
   "tray": "pipeline",
-  "after": {
-    "en": "Brightness in a photograph depends on both surface colour and illumination. In this model, known illumination lets us recover RGB reflectance; where no light reaches the surface, the photo contains no colour information.",
-    "zh": "照片中的明暗由表面颜色和光照共同决定。在本关的模型里，已知各处光照，就能恢复表面的 RGB 反射率；光完全照不到时，照片不能提供那里的颜色信息。"
-  },
+  "after": "@level.3-7.after",
   "intro": [
     {
-      "t": {
-        "en": "So far you have looked at a single surface. In a real photo, a surface's own colour and the light falling on it are mixed together: a white wall in shadow looks grey, and dark floor tiles in sunlight can look very bright.",
-        "zh": "到这里为止，看的都是一块表面。真实照片里，表面本来的颜色和照到的光混在一起：白墙在阴影里是灰的，深色地砖在太阳底下也可能很亮。"
-      }
+      "t": "@level.3-7.intro.0.t"
     },
     {
-      "t": {
-        "en": "Finding objects often relies on places where brightness jumps. Shadows make brightness jumps too. Something to think about: is a line between light and dark in a photo always the edge of an object? A phone app removing the shadow from a scanned page runs into exactly this.",
-        "zh": "找物体，常靠照片里明暗突变的地方。阴影也会造出明暗突变。要想的问题：照片里一条明暗分界线，一定是物体的边吗？手机扫描文件时去掉纸上的阴影，碰到的就是这件事。"
-      }
+      "t": "@level.3-7.intro.1.t"
     },
     {
-      "t": {
-        "en": "Your task: use a colour photo and a lighting map (how much light reaches each point; 1 is full light). The photo’s Image output gives the full colour image; its R, G and B outputs give individual channels. Output the surface’s own colour without shadows or shading.",
-        "zh": "这一关你要做的：两个输入，一张彩色照片和一张光照图（每一点照到多少光，1 是满光）。照片的「图」出口给出整张彩色图，R、G、B 出口分别给出三个通道。输出表面本来的颜色，去掉阴影和明暗。"
-      },
-      "fig": { "test": 0, "caption": { "en": "Set 1: photo, lighting → expected", "zh": "第一组测试：照片、光照 → 期望" } }
+      "t": "@level.3-7.intro.2.t",
+      "fig": { "test": 0, "caption": "@level.3-7.intro.2.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "3-7",
       "kind": "graph",
-      "brief": {
-        "en": "The brightness of each point in a photo = the surface's own colour (its reflectance) × the light reaching that point. The second input tells you how much light each point gets (1 is full light; in shadow it is much less). Remove the shadows and shading and output only the surface's own colour.",
-        "zh": "照片里每一点的亮度 = 表面本来的颜色（反射率）× 照到那一点的光。第二个输入告诉你每一点照到多少光（1 是满光，阴影里少得多）。去掉阴影和明暗，只输出表面本来的颜色。"
-      },
-      "hint": {
-        "en": "Photo = colour × lighting. If you know two of them, how do you find the third? To see whether subtracting works, look at the squares in the shadow.",
-        "zh": "照片 = 颜色 × 光照。已知其中两个，怎样求第三个？减法行不行，看看阴影里的格子。"
-      },
+      "brief": "@level.3-7.tasks.3-7.brief",
+      "hint": "@level.3-7.tasks.3-7.hint",
       "inputs": ["photo", "light"],
-      "inputLabels": { "photo": { "en": "Photo", "zh": "照片" }, "light": { "en": "Lighting", "zh": "光照" } },
+      "inputLabels": {
+        "photo": "@level.3-7.tasks.3-7.inputLabels.photo",
+        "light": "@level.3-7.tasks.3-7.inputLabels.light"
+      },
       "scene": "shadowColour",
       "tests": [
-        { "label": { "en": "Desk + slanted shadow", "zh": "书桌 + 斜影" }, "layout": "desk", "light": "diagonal" },
+        { "label": "@level.3-7.tasks.3-7.tests.0.label", "layout": "desk", "light": "diagonal" },
         {
-          "label": { "en": "Flowers + side light", "zh": "花丛 + 侧光" },
+          "label": "@level.3-7.tasks.3-7.tests.1.label",
           "layout": "flowers",
           "light": "fromLeft"
         },
-        { "label": { "en": "Poster + pole shadow", "zh": "海报 + 杆影" }, "layout": "poster", "light": "pole" },
+        { "label": "@level.3-7.tasks.3-7.tests.2.label", "layout": "poster", "light": "pole" },
         {
-          "label": { "en": "Street + corner shadow", "zh": "街景 + 墙角阴影" },
+          "label": "@level.3-7.tasks.3-7.tests.3.label",
           "layout": "street",
           "light": "corner"
         }
       ],
       "hidden": [
         {
-          "label": { "en": "Market + overhead light", "zh": "集市 + 顶光" },
+          "label": "@level.3-7.tasks.3-7.hidden.0.label",
           "layout": "market",
           "light": "overhead"
         },
         {
-          "label": { "en": "Garden + tree shadow", "zh": "花园 + 树影" },
+          "label": "@level.3-7.tasks.3-7.hidden.1.label",
           "layout": "garden",
           "light": "leaves"
         },
-        { "label": { "en": "Kitchen + two shadows", "zh": "厨房 + 两道影" }, "layout": "kitchen", "light": "bars" }
+        { "label": "@level.3-7.tasks.3-7.hidden.2.label", "layout": "kitchen", "light": "bars" }
       ],
       "solution": [
         "d = arith[op=div](photo, light)",

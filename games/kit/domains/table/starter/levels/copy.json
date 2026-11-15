@@ -1,36 +1,27 @@
 {
-  "title": { "en": "Robot relay", "zh": "机器人传话" },
-  "short": { "en": "Click a cell, wire it in", "zh": "点一格，接一根线" },
+  "title": "@level.copy.title",
+  "short": "@level.copy.short",
   "intro": [
     {
-      "t": {
-        "en": "The robot walks through the whole table cell by cell and runs the same <wiki-ref to=\"board\"></wiki-ref> on every cell.",
-        "zh": "机器人一格一格地走过整张表，在每一格上运行同一块<wiki-ref to=\"board\"></wiki-ref>。"
-      }
+      "t": "@level.copy.intro.0.t"
     }
   ],
   "mission": {
-    "goal": {
-      "en": "Have the robot copy the number in the leftmost cell, cell by cell, all the way to the right.",
-      "zh": "让机器人把最左边格子里的数一格一格抄到最右边。"
-    },
-    "how": { "en": "Click “left” in the view and wire it to “this cell”.", "zh": "在视野里点「左边」，把它连到「本格」。" }
+    "goal": "@level.copy.mission.goal",
+    "how": "@level.copy.mission.how"
   },
   "robot": "scout",
   "debrief": {
-    "title": { "en": "The robot learned to copy", "zh": "机器人学会了抄" },
+    "title": "@level.copy.debrief.title",
     "body": [
-      {
-        "en": "The circuit board is the rule: you write it once, and the robot uses it on every cell.",
-        "zh": "电路板就是规则：只写一次，机器人在每一格上都用它。"
-      }
+      "@level.copy.debrief.body.0"
     ]
   },
   "tasks": [
     {
       "id": "copy",
       "mode": "circuit",
-      "hints": [{ "en": "Click “left” in the view, then wire it to “this cell”.", "zh": "在视野里点「左边」，再连到「本格」。" }],
+      "hints": ["@level.copy.tasks.copy.hints.0"],
       "world": "grid",
       "tests": [{ "R": 1, "C": 5, "given": { "0,0": 7 } }, { "R": 1, "C": 7, "given": { "0,0": 3 } }],
       "expected": [7, 3],

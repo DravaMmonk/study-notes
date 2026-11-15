@@ -1,17 +1,14 @@
 {
-  "title": { "en": "Simp going round in circles", "zh": "会绕圈的化简" },
+  "title": "@level.in-circle.title",
   "tray": ["machine", "formula"],
-  "intro": [{ "t": { "en": "Each of these needs commutativity.", "zh": "这几句都要用到交换律。" } }],
-  "after": {
-    "en": "Isabelle fixes an order on expressions and rewrites only towards the smaller, which is called <wiki-ref to=\"ordered\"></wiki-ref>.",
-    "zh": "Isabelle 给式子定一个固定的次序，只往「更小」的方向改写，这叫<wiki-ref to=\"ordered\"></wiki-ref>。"
-  },
+  "intro": [{ "t": "@level.in-circle.intro.0.t" }],
+  "after": "@level.in-circle.after",
   "tasks": [
     {
       "id": "in-circle",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.in-circle.tasks.in-circle.inputs.0.label" }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["nat"],
@@ -21,16 +18,10 @@
         { "goal": "∀x. ∀y. plus(s(x), y) = plus(y, s(x))" },
         { "goal": "∀x. plus(x, s(zero)) = s(x)" }
       ],
-      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
+      "brief": "@level.in-circle.tasks.in-circle.brief",
       "hint": [
-        {
-          "en": "Commutativity in Simp turns x + y into y + x and back again …",
-          "zh": "交换律交给化简，会把 x + y 改成 y + x，再改回来……"
-        },
-        {
-          "en": "After Simp, some goals have both sides the same already, others differ by one swap.",
-          "zh": "化简以后，有的目标两边已经一样，有的只差一处交换。"
-        }
+        "@level.in-circle.tasks.in-circle.hint.0",
+        "@level.in-circle.tasks.in-circle.hint.1"
       ],
       "solution": [
         "c2r0 = math[use=[\"def.0\", \"def.1\", addZero, addSucc]]()",

@@ -1,62 +1,44 @@
 {
-  "title": { "en": "Remove the screen", "zh": "去网纹" },
+  "title": "@level.2-9.title",
   "tray": "pipeline",
-  "after": {
-    "en": "A regular stripe pattern takes up just one pair of dots in the spectrum, while the photo's own content is spread all over. Dig out that pair and the stripes are gone, with the photo hardly touched. \"Descreen\" in photo editors, and removing moiré from scans, work this way.",
-    "zh": "一组规则的条纹，在频谱里只占一对点；照片本身的内容散在各处。把那对点挖掉，条纹就没了，照片几乎不受影响。修图软件的「去网纹」、去掉扫描件上的摩尔纹，都是这个办法。"
-  },
+  "after": "@level.2-9.after",
   "intro": [
     {
-      "t": {
-        "en": "Photographing a printed photo, or scanning a picture from a newspaper, often adds a regular screen of stripes: the printing dots and the camera's pixel grid overlap and stripes appear that were never there.",
-        "zh": "翻拍印刷的照片，或者扫描报纸上的图，常常带上一层规则的网纹：印刷时的网点和相机的像素格子叠在一起，浮出原来没有的条纹。"
-      }
+      "t": "@level.2-9.intro.0.t"
     },
     {
-      "t": {
-        "en": "What does a regular set of stripes look like in a spectrum? And where in the spectrum is the photo's own content?",
-        "zh": "一组规则的条纹，在频谱里是什么样子？照片本身的内容又在频谱的哪里？"
-      },
+      "t": "@level.2-9.intro.1.t",
       "fig": {
         "part": "fqSpectrum",
-        "caption": { "en": "The spectrum of the first test photo", "zh": "第一组测试照片的频谱" },
+        "caption": "@level.2-9.intro.1.fig.caption",
         "input": "test"
       }
     },
     {
-      "t": {
-        "en": "Your task in this level: remove the screen by the rule in the brief. Each photo's screen has a different direction and spacing.",
-        "zh": "这一关你要做的：按说明里的规则去掉网纹。每张照片的网纹方向和疏密都不一样。"
-      },
-      "fig": { "test": 0, "caption": { "en": "Set 1: a vertical screen", "zh": "第一组：竖网纹" } }
+      "t": "@level.2-9.intro.2.t",
+      "fig": { "test": 0, "caption": "@level.2-9.intro.2.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "2-9",
       "kind": "graph",
-      "brief": {
-        "en": "A photo of a printed picture often picks up a regular screen pattern. In the spectrum the screen is a pair of very bright dots. Remove the spectrum cells beyond radius 3 that are brighter than 0.6, keep everything else, and output the photo without its screen. Each photo's screen has a different direction and spacing.",
-        "zh": "翻拍印刷的照片，常常带上一层规则的网纹。在频谱里，网纹是一对很亮的点。去掉频谱里半径 3 以外、比 0.6 还亮的格子，其余保持不变，输出去掉网纹的照片。每张照片的网纹方向和疏密都不一样。"
-      },
-      "hint": {
-        "en": "Where the screen is has to be found from this photo's own spectrum. Make the gain 0 where you find it and 1 everywhere else.",
-        "zh": "网纹在哪，得从这张照片自己的频谱里找。找到的地方增益为 0，其余为 1。"
-      },
+      "brief": "@level.2-9.tasks.2-9.brief",
+      "hint": "@level.2-9.tasks.2-9.hint",
       "inputs": ["in", "r"],
-      "inputLabels": { "in": { "en": "Photo", "zh": "照片" }, "r": { "en": "Frequency radius", "zh": "频率半径" } },
+      "inputLabels": { "in": "@level.2-9.tasks.2-9.inputLabels.in", "r": "@level.2-9.tasks.2-9.inputLabels.r" },
       "check": { "tolerance": 0.02, "mismatches": 4 },
       "scene": "filter",
       "setup": { "target": { "descreen": { "threshold": 0.6, "radius": 3 } }, "given": { "r": "radius" } },
       "tests": [
         {
-          "label": { "en": "Vertical screen", "zh": "竖网纹" },
+          "label": "@level.2-9.tasks.2-9.tests.0.label",
           "in": {
             "screened": { "of": { "disk": { "cx": 15.5, "cy": 15.5, "r": 9, "lo": 0.25, "hi": 0.75, "size": 32 } }, "fx": 6, "fy": 0 }
           }
         },
         {
-          "label": { "en": "Horizontal screen", "zh": "横网纹" },
+          "label": "@level.2-9.tasks.2-9.tests.1.label",
           "in": {
             "screened": {
               "of": { "glyph": { "letter": "T", "lo": 0.25, "hi": 0.75, "ox": 6, "oy": 6, "scale": 4, "size": 32 } },
@@ -66,7 +48,7 @@
           }
         },
         {
-          "label": { "en": "Slanted screen", "zh": "斜网纹" },
+          "label": "@level.2-9.tasks.2-9.tests.2.label",
           "in": {
             "screened": {
               "of": { "rect": { "x0": 8, "y0": 8, "w": 16, "h": 16, "lo": 0.25, "hi": 0.75, "size": 32 } },
@@ -78,7 +60,7 @@
       ],
       "hidden": [
         {
-          "label": { "en": "Another slanted screen", "zh": "另一种斜网纹" },
+          "label": "@level.2-9.tasks.2-9.hidden.0.label",
           "in": {
             "screened": {
               "of": { "glyph": { "letter": "L", "lo": 0.25, "hi": 0.75, "ox": 8, "oy": 5, "scale": 4, "size": 32 } },
@@ -88,7 +70,7 @@
           }
         },
         {
-          "label": { "en": "Fine screen", "zh": "细网纹" },
+          "label": "@level.2-9.tasks.2-9.hidden.1.label",
           "in": {
             "screened": { "of": { "disk": { "cx": 12, "cy": 18, "r": 7, "lo": 0.75, "hi": 0.25, "size": 32 } }, "fx": 9, "fy": 0 }
           }

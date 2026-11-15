@@ -1,11 +1,8 @@
 {
-  "title": { "en": "Cold and wet", "zh": "又冷又湿" },
+  "title": "@level.g-use.title",
   "intro": [
     {
-      "t": {
-        "en": "The <part-ref to=\"lemma:gOr\"></part-ref> gate you built is a part now.",
-        "zh": "搭出的<part-ref to=\"lemma:gOr\"></part-ref>门现在是一个元件。"
-      }
+      "t": "@level.g-use.intro.0.t"
     }
   ],
   "tasks": [
@@ -13,11 +10,8 @@
       "id": "g-use",
       "kind": "gates",
       "target": "(Rain ∨ Wind) ∧ Cold",
-      "brief": {
-        "en": "Work out the value of “it rains or it is windy, and it is cold” on every row.",
-        "zh": "算出「下雨或者刮风，并且很冷」在每一行的真值。"
-      },
-      "hint": [{ "en": "Work out the brackets first.", "zh": "括号里的先算。" }],
+      "brief": "@level.g-use.tasks.g-use.brief",
+      "hint": ["@level.g-use.tasks.g-use.hint.0"],
       "solution": ["o = gOr(Rain, Wind)", "a = gAnd(o, Cold)", "out <- a"],
       "naive": ["o = gOr(Rain, Wind)", "out <- o"]
     }

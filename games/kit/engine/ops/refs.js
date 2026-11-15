@@ -4,6 +4,7 @@
 import { PARTS_FILE } from '../parts/schema.js'
 import { find } from '../schema.js'
 import { GLOSSARY } from '../vocabulary.js'
+import { textEntries } from '../i18n.js'
 import { getAt, setAt } from './edit.js'
 
 // game.json's own fields, outside its domain's schema (vocabulary.js checkContent).
@@ -19,15 +20,9 @@ const files = (ws, vocabulary) => [
   ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level, vocabulary.level, (v) => { ws.levels.set(id, v) }]),
 ]
 
-const texts = (value) => {
-  const out = []
-  const walk = (v, path) => {
-    if (typeof v === 'string') out.push({ path, value: v })
-    else if (v && typeof v === 'object') for (const [k, x] of Object.entries(v)) walk(x, [...path, Array.isArray(v) ? Number(k) : k])
-  }
-  walk(value, [])
-  return out
-}
+const texts = (value) => typeof value === 'string'
+  ? [{ path: [], value }]
+  : textEntries(value).map(([lang, text]) => ({ path: [lang], value: text }))
 
 /** Every place naming level `id`: [{ file, path, how: 'field' | 'link' | 'open' }]. */
 export function levelRefs(ws, vocabulary, id) {

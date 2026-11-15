@@ -3,6 +3,7 @@
 // what they bring in (adds), move them together. A level the edit does not fit is skipped with the reason, never
 // guessed at. Pure: the levels are content's ({ id, …fields }), the schemas the vocabulary's.
 import { sameJson } from '../engine/json-value.js'
+import { textEntries } from '../engine/i18n.js'
 import { shapeAt } from '../engine/schema.js'
 import { getAt, mergePatch, parsePath, setAt, unsetAt } from '../engine/ops/edit.js'
 import { changesType, shapeOf } from './form.js'
@@ -49,7 +50,7 @@ export function bulkSet(vocabulary, levels, path, value) {
     }
     if (s.type === 'text') {
       if (typeof value === 'string' || typeof old === 'string') ops.push({ op: 'text.set', level: level.id, path: keys, value })
-      else for (const [lang, text] of Object.entries(value)) ops.push({ op: 'text.set', level: level.id, path: keys, lang, value: text })
+      else for (const [lang, text] of textEntries(value)) ops.push({ op: 'text.set', level: level.id, path: keys, lang, value: text })
     }
     else if (s.type === 'board' && Array.isArray(value)) ops.push({ op: 'level.blueprint', level: level.id, path: keys, text: value.join('\n') })
     else ops.push({ op: 'level.set', level: level.id, path: keys, value })

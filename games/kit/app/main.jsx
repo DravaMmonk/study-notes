@@ -20,6 +20,7 @@ import { deepFreeze } from '../engine/content.js'
 import { loadDomain } from 'virtual:game'
 import { assetSignature, cleanRefreshURL } from './release.js'
 import { ReleaseWatch, Unreadable } from './ReleaseWatch.jsx'
+import { pageContent } from './page-content.js'
 
 const loadedAssets = assetSignature(document, window.location.href)
 
@@ -28,7 +29,7 @@ async function open() {
   if (!response.ok) return { page: <Unreadable problems={[`content.json: ${response.status} ${response.statusText}`]} />, content: null }
   // On the dev server the content is frozen, so a domain that writes into it fails at once (its checks read it so too).
   const contentText = await response.text()
-  const parsed = JSON.parse(contentText)
+  const parsed = await pageContent(JSON.parse(contentText), window.location.href)
   const content = import.meta.env.DEV ? deepFreeze(parsed) : parsed
   const problems = checkContent({ vocabulary }, content).map((p) => `${p.at}: ${p.says}`)
   if (problems.length) return { page: <Unreadable problems={problems} />, content: contentText }

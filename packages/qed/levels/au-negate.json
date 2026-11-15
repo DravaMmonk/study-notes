@@ -1,12 +1,9 @@
 {
-  "title": { "en": "Proving it backwards", "zh": "反过来证" },
+  "title": "@level.au-negate.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "Auto applies rules one at a time and bogs down as goals grow. An <wiki-ref to=\"automation\"></wiki-ref> takes another road: to prove C, assume ¬C and look for a contradiction among the hypotheses. Isabelle’s Sledgehammer hands goals to provers of this kind.",
-        "zh": "auto 逐条套用规则，目标一大就搜不动了。<wiki-ref to=\"automation\"></wiki-ref>走另一条路：要证 C，先假设 ¬C，再在已知里找矛盾。Isabelle 的 Sledgehammer 就把目标交给这样的证明器。"
-      }
+      "t": "@level.au-negate.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,7 +11,7 @@
       "id": "au-negate",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.au-negate.tasks.au-negate.inputs.0.label" }],
       "backtrack": true,
       "tests": [
         { "goal": "Wet", "hyps": ["Rain → Wet", "Rain"], "becomes": [["Rain → Wet; Rain; ¬Wet ⊢ ⊥"]] },
@@ -25,15 +22,9 @@
           "becomes": [["Bus → Up; Up → OnTime; ¬(Bus → OnTime) ⊢ ⊥"]]
         }
       ],
-      "brief": {
-        "en": "Design a proof assistant that turns each goal into ⊥, with the negation of what was to be proved among the hypotheses.",
-        "zh": "设计一个证明助手：每个目标都变成 ⊥，要证的那句的否定放进已知。"
-      },
+      "brief": "@level.au-negate.tasks.au-negate.brief",
       "hint": [
-        {
-          "en": "<part-ref to=\"part:raa\"></part-ref> turns C into ¬¬C, that is, ¬C → ⊥.",
-          "zh": "<part-ref to=\"part:raa\"></part-ref>把要证的 C 变成 ¬¬C，也就是 ¬C → ⊥。"
-        }
+        "@level.au-negate.tasks.au-negate.hint.0"
       ],
       "solution": ["c0r0 = raa()", "c1r0 = impI()", "c0 = rule(in, c0r0)", "c1 = rule(c0, c1r0)", "out <- c1"],
       "naive": ["c0r0 = raa()", "c0 = rule(in, c0r0)", "out <- c0"]

@@ -9,6 +9,13 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { catalogsOf, normalizeText } from '../content-text.js'
+import { sourceValue } from '../catalogs.js'
+import { GLOSSARY as GLOSSARY_SCHEMA } from '../vocabulary.js'
+import { PARTS_FILE } from '../parts/schema.js'
+import { withParts } from '../parts/define.js'
+import { domainOf } from '../content-node.js'
+
 const T = (en) => ({ en })
 
 const ID = 'proofs'
@@ -38,6 +45,7 @@ const GAME = {
     chapter: { title: T('The foundation'), question: T('What can be built from Apply and the assumption box alone?') },
   }],
 }
+const { vocabulary: proofVocabulary } = await domainOf(GAME)
 
 const GLOSSARY = {
   groups: [{ id: 'logic', title: T('Logic') }],
@@ -104,15 +112,34 @@ const LEVELS = {
   },
 }
 
+/** Write a temporary course and package in the same format as checked-in content. */
+export function writeContentFixture(root, id, { game, glossary, partDefs, levels }, domainVocabulary) {
+  const course = join(root, 'games', id)
+  const pkg = join(root, 'packages', id)
+  mkdirSync(course, { recursive: true })
+  mkdirSync(join(pkg, 'levels'), { recursive: true })
+  const put = (file, value) => writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`)
+  const putCatalogs = (dir, ...values) => {
+    mkdirSync(join(dir, 'i18n'), { recursive: true })
+    for (const [lang, entries] of Object.entries(catalogsOf(dir, ...values))) put(join(dir, 'i18n', `${lang}.json`), entries)
+  }
+  const vocabulary = withParts(domainVocabulary, partDefs)
+  const normalize = (value, schema, prefix) => normalizeText(value, schema, prefix, { vocabulary })
+  const gameText = normalize(game, vocabulary.game, 'course')
+  const glossaryText = normalize(glossary, GLOSSARY_SCHEMA, 'glossary')
+  const piecesText = partDefs === undefined ? undefined : normalize(partDefs, PARTS_FILE, 'pieces')
+  const levelText = Object.entries(levels).map(([level, value]) => [level, normalize(value, vocabulary.level, `level.${level}`)])
+  put(join(course, 'game.json'), { package: id, ...sourceValue(gameText) })
+  put(join(pkg, 'glossary.json'), sourceValue(glossaryText))
+  if (piecesText !== undefined) put(join(pkg, 'pieces.json'), sourceValue(piecesText))
+  for (const [level, value] of levelText) put(join(pkg, 'levels', `${level}.json`), sourceValue(value))
+  putCatalogs(course, gameText)
+  putCatalogs(pkg, glossaryText, piecesText, ...levelText.map(([, value]) => value))
+}
+
 export function proofsRoot() {
   const root = mkdtempSync(join(tmpdir(), 'games-'))
-  mkdirSync(join(root, 'games', ID), { recursive: true })
-  mkdirSync(join(root, 'packages', ID, 'levels'), { recursive: true })
-  const put = (file, value) => writeFileSync(join(root, 'packages', ID, file), `${JSON.stringify(value, null, 2)}\n`)
-  writeFileSync(join(root, 'games', ID, 'game.json'), `${JSON.stringify({ package: ID, ...GAME }, null, 2)}\n`)
-  put('glossary.json', GLOSSARY)
-  put('pieces.json', PARTS)
-  for (const [id, level] of Object.entries(LEVELS)) put(`levels/${id}.json`, level)
+  writeContentFixture(root, ID, { game: GAME, glossary: GLOSSARY, partDefs: PARTS, levels: LEVELS }, proofVocabulary)
   writeFileSync(join(root, 'games', 'games.js'), `export const GAMES = [\n  {\n    id: '${ID}', levels: ${Object.keys(LEVELS).length},\n  },\n]\n`)
   return { root, id: ID }
 }

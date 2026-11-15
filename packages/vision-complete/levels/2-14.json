@@ -1,55 +1,40 @@
 {
-  "title": { "en": "A quarter of the size", "zh": "缩小四倍" },
+  "title": "@level.2-14.title",
   "carry": "2-13",
   "tray": "pipeline",
-  "after": {
-    "en": "The more you shrink, the lower the frequencies that can survive, so the harder you must blur before sampling: shrinking 4 times needs about twice the σ.",
-    "zh": "缩得越狠，能留下的频率越低，采样前就要糊得越厉害：缩小 4 倍，σ 大约要翻一倍。"
-  },
+  "after": "@level.2-14.after",
   "intro": [
     {
-      "t": {
-        "en": "Icons need to be smaller. This level shrinks 32×32 to 8×8, keeping a quarter in each direction.",
-        "zh": "图标要更小。这一关从 32×32 缩成 8×8，每个方向只留四分之一。"
-      }
+      "t": "@level.2-14.intro.0.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: shrink four times so it looks like the original, only smaller. Something to think about: shrinking harder, are the frequencies that can survive higher or lower?",
-        "zh": "这一关你要做的：缩小四倍，看起来要和原图一样，只是小了。要想的问题：缩得更狠，能留下的频率是更高还是更低？"
-      },
-      "fig": { "test": 0, "caption": { "en": "Set 1: a zone plate", "zh": "第一组：斑马板" } }
+      "t": "@level.2-14.intro.1.t",
+      "fig": { "test": 0, "caption": "@level.2-14.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "2-14",
       "kind": "graph",
-      "brief": {
-        "en": "Shrink 32×32 to 8×8. It should look like the original, only smaller.",
-        "zh": "把 32×32 缩成 8×8，看起来要和原图一样，只是小了。"
-      },
-      "hint": {
-        "en": "Halving the size needed a blur first. How much blur for a quarter?",
-        "zh": "缩小一半时先模糊了一下。缩小四倍，要糊多少？"
-      },
+      "brief": "@level.2-14.tasks.2-14.brief",
+      "hint": "@level.2-14.tasks.2-14.hint",
       "check": { "tolerance": 0.1, "mismatches": 3 },
       "scene": "filter",
       "setup": { "target": { "shrink": { "sigma": 2, "halvings": 2 } } },
       "tests": [
-        { "label": { "en": "Zone plate", "zh": "斑马板" }, "in": { "zonePlate": { "k": 0.06, "A": 0.4 } } },
-        { "label": { "en": "Fabric", "zh": "布纹" }, "in": { "fabric": { "period": 3, "angle": 30 } } },
+        { "label": "@level.2-14.tasks.2-14.tests.0.label", "in": { "zonePlate": { "k": 0.06, "A": 0.4 } } },
+        { "label": "@level.2-14.tasks.2-14.tests.1.label", "in": { "fabric": { "period": 3, "angle": 30 } } },
         {
-          "label": { "en": "Letter F", "zh": "字母 F" },
+          "label": "@level.2-14.tasks.2-14.tests.2.label",
           "in": { "glyph": { "letter": "F", "lo": 0.15, "hi": 0.85, "ox": 4, "oy": 4, "scale": 5, "size": 32 } }
         }
       ],
       "hidden": [
         {
-          "label": { "en": "Off-centre zone plate", "zh": "偏心斑马板" },
+          "label": "@level.2-14.tasks.2-14.hidden.0.label",
           "in": { "zonePlate": { "k": 0.05, "cx": 10, "cy": 20, "A": 0.4 } }
         },
-        { "label": { "en": "Fine fabric", "zh": "细布纹" }, "in": { "fabric": { "period": 2.5, "angle": 75 } } }
+        { "label": "@level.2-14.tasks.2-14.hidden.1.label", "in": { "fabric": { "period": 2.5, "angle": 75 } } }
       ],
       "solution": ["n0 = gauss[sigma=2, border=edge](in)", "n1 = downsample(n0)", "n2 = downsample(n1)", "out <- n2"],
       "naive": ["n0 = gauss[border=edge](in)", "n1 = downsample(n0)", "n2 = downsample(n1)", "out <- n2"],

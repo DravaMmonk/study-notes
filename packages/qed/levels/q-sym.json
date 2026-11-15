@@ -1,5 +1,5 @@
 {
-  "title": { "en": "Equal both ways", "zh": "倒过来也相等" },
+  "title": "@level.q-sym.title",
   "tray": ["proof", "formula"],
   "tasks": [
     {
@@ -9,13 +9,10 @@
       "consts": ["i", "j"],
       "tests": [{ "premises": { "p": "i = j" }, "goal": "j = i" }],
       "cases": [],
-      "brief": {
-        "en": "Given “the Morning Star = the Evening Star”, prove “the Evening Star = the Morning Star”.",
-        "zh": "已知「晨星 = 昏星」，证明「昏星 = 晨星」。"
-      },
+      "brief": "@level.q-sym.tasks.q-sym.brief",
       "hint": [
-        { "en": "Reflexivity gives “the Morning Star = the Morning Star”.", "zh": "自反律给出「晨星 = 晨星」。" },
-        { "en": "Replace only its left Morning Star.", "zh": "只换掉它左边那个晨星。" }
+        "@level.q-sym.tasks.q-sym.hint.0",
+        "@level.q-sym.tasks.q-sym.hint.1"
       ],
       "solution": ["r = refl[t=i]()", "w = rewrite[at=[0]](p, r)", "goal <- w"]
     }

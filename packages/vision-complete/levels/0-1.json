@@ -1,55 +1,40 @@
 {
-  "title": { "en": "Open your eyes", "zh": "睁眼" },
+  "title": "@level.0-1.title",
   "tray": "pipeline",
-  "after": {
-    "en": "Every image you see is just a grid of numbers, cell by cell. Hover over any cell to see its value.",
-    "zh": "你看到的每一张图，都只是一格一格的数字。把鼠标停在任意一格上，看看它是多少。"
-  },
+  "after": "@level.0-1.after",
   "intro": [
     {
-      "t": {
-        "en": "Inside a computer, a photo is not a picture but a table of numbers: the image is cut into many small squares called <b>pixels</b>, and each one records a brightness. In this game 0 is black, 1 is white, and in between are shades of grey.",
-        "zh": "相机拍下的照片，在电脑里不是一幅画，而是一张数字表：画面切成许多小方格，叫<b>像素</b>，每格记一个亮度。这个游戏里 0 是黑，1 是白，中间是深浅不同的灰。"
-      }
+      "t": "@level.0-1.intro.0.t"
     },
     {
-      "t": {
-        "en": "Computer vision works out useful information from this table of numbers: where the edges are, whether there is a person in the picture, how far away things are. Every method in this course comes down to arithmetic on these numbers.",
-        "zh": "计算机视觉做的事，就是从这张数字表里算出有用的信息：哪里有边、画面里有没有人、东西离多远。这门课里的每个方法，说到底都是对这些数字做运算。"
-      }
+      "t": "@level.0-1.intro.1.t"
     },
     {
-      "t": {
-        "en": "This level gets you used to the workbench: \"Input\" is the image from the camera, \"Output\" is the image you hand in, and the parts you wire up in between form a circuit. Each test compares your output with the expected one, cell by cell.",
-        "zh": "这一关先熟悉工作台：「输入」是相机给的图，「输出」是你交出去的图，中间用线连起元件，就是电路。每组测试都拿你的输出和期望逐格比对。"
-      },
-      "fig": { "test": 0, "caption": { "en": "Set 1: input and expected", "zh": "第一组测试：输入和期望" } }
+      "t": "@level.0-1.intro.2.t",
+      "fig": { "test": 0, "caption": "@level.0-1.intro.2.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "0-1",
       "kind": "graph",
-      "brief": { "en": "Connect the input to the output.", "zh": "把输入接到输出。" },
-      "hint": {
-        "en": "Press on the dot on the right of the \"Input\" part and drag it to the dot on the left of the \"Output\" part.",
-        "zh": "从「输入」元件右边的圆点按住，拖到「输出」元件左边的圆点。"
-      },
+      "brief": "@level.0-1.tasks.0-1.brief",
+      "hint": "@level.0-1.tasks.0-1.hint",
       "scene": "filter",
       "setup": { "target": "same" },
       "tests": [
-        { "label": { "en": "Square", "zh": "方块" }, "in": "square" },
-        { "label": { "en": "Disc", "zh": "圆盘" }, "in": "disk" },
-        { "label": { "en": "Letter T", "zh": "字母 T" }, "in": { "glyph": { "letter": "T" } } },
-        { "label": { "en": "Checkerboard", "zh": "棋盘" }, "in": "checker" },
-        { "label": { "en": "Bright dot", "zh": "亮点" }, "in": { "impulse": { "x": 7, "y": 7 } } }
+        { "label": "@level.0-1.tasks.0-1.tests.0.label", "in": "square" },
+        { "label": "@level.0-1.tasks.0-1.tests.1.label", "in": "disk" },
+        { "label": "@level.0-1.tasks.0-1.tests.2.label", "in": { "glyph": { "letter": "T" } } },
+        { "label": "@level.0-1.tasks.0-1.tests.3.label", "in": "checker" },
+        { "label": "@level.0-1.tasks.0-1.tests.4.label", "in": { "impulse": { "x": 7, "y": 7 } } }
       ],
       "hidden": [
         {
-          "label": { "en": "Shifted letter X", "zh": "挪开的字母 X" },
+          "label": "@level.0-1.tasks.0-1.hidden.0.label",
           "in": { "glyph": { "letter": "X", "lo": 0.1, "hi": 0.9, "ox": 6, "oy": 5 } }
         },
-        { "label": { "en": "Random texture", "zh": "随机纹理" }, "in": { "noise": { "seed": 7 } } }
+        { "label": "@level.0-1.tasks.0-1.hidden.1.label", "in": { "noise": { "seed": 7 } } }
       ],
       "solution": ["out <- in"]
     }

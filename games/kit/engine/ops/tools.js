@@ -4,12 +4,13 @@
 // own: a change is always a changeset (changeset.js). params: each argument's JSON type, '?' when it may be left out.
 import { readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
-import { relative, resolve } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { find, shapeAt } from '../schema.js'
 import { describe } from '../vocabulary.js'
 import { checkGame } from '../checks.js'
 import { checkCache } from '../check-cache.js'
+import { catalogReader } from '../catalogs.js'
 import { PROJECT_DIR, domainOf, readContent } from '../content-node.js'
 import { gameOf } from '../games.mjs'
 import { pieceFlow } from '../flow.js'
@@ -32,6 +33,7 @@ const { GAMES } = await import(pathToFileURL(resolve(ROOT, 'games', 'games.js'))
 const listed = (id) => hubCount(readFileSync(resolve(ROOT, 'games', 'games.js'), 'utf8'), id)
 // The repository's games keep their checks between calls (../check-cache.js); a copy of them (GAMES_ROOT) is checked afresh.
 const kept = (id) => (process.env.GAMES_ROOT ? null : checkCache(id))
+const git = (...args) => execFileSync('git', ['-C', ROOT, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 export const known = (game) => {
   if (!GAMES.some((g) => g.id === game)) throw new Error(`no game ${game}; the games are ${GAMES.map((g) => g.id).join(', ')}`)
   return game
@@ -266,7 +268,7 @@ export const TOOLS = {
     },
   },
   search: {
-    about: 'Find text across a game (as a changeset would leave it): the English source text (never inside a link tag), every board line, the ids of levels and entries. query: { find, regex?, caseSensitive?, word?, kinds?: [text, board, id] }. The hits in play order, each with its file, level, path and the spans matched.',
+    about: 'Find text across a game (as a changeset would leave it): every language’s text outside link tags, every board line, and the ids of levels and entries. query: { find, regex?, caseSensitive?, word?, kinds?: [text, board, id] }. The hits in play order, each with its file, level, path and the spans matched.',
     params: { game: 'string', query: 'object', changeset: 'object?' },
     async run({ game, query, changeset = null }) {
       const content = changeset ? await contentAfter(game, changeset) : readContent(known(game), ROOT)
@@ -292,13 +294,22 @@ export const TOOLS = {
       const fileName = relative(ws.dir, resolve(ws.dir, name))
       if (fileName.startsWith('..')) throw new Error(`${name} is outside ${game}`)
       const path = ws.pathFor(fileName)
-      let text
       try {
-        text = execFileSync('git', ['-C', ROOT, 'show', `${rev}:./${path}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+        const tree = git('rev-parse', '--verify', '--end-of-options', `${rev}^{tree}`).trim()
+        const text = git('show', `${tree}:${path}`)
+        if (!name.endsWith('.json')) return { found: true, rev, file: name, text }
+        let value = JSON.parse(text)
+        const isLevel = fileName.startsWith('levels/')
+        if (isLevel || ['game.json', 'glossary.json', 'pieces.json', 'blueprint.json'].includes(fileName)) {
+          const scope = join(isLevel ? dirname(dirname(path)) : dirname(path), 'i18n')
+          const files = git('ls-tree', '-r', '--name-only', '-z', tree, '--', `${scope}/`).split('\0').filter((file) => file.endsWith('.json'))
+          const catalogs = Object.fromEntries(files.map((file) => [file.slice(scope.length + 1, -'.json'.length), JSON.parse(git('show', `${tree}:${file}`))]))
+          value = catalogReader(catalogs, scope)(value, path)
+        }
+        return { found: true, rev, file: name, text, value }
       } catch (error) {
         return { found: false, rev, file: name, why: String(error.stderr ?? error.message).trim().split('\n')[0] }
       }
-      return { found: true, rev, file: name, text, ...(name.endsWith('.json') && { value: JSON.parse(text) }) }
     },
   },
   log: {

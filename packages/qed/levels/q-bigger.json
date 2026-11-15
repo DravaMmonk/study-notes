@@ -1,5 +1,5 @@
 {
-  "title": { "en": "Always a bigger one", "zh": "总有更大的" },
+  "title": "@level.q-bigger.title",
   "tray": ["proof", "formula"],
   "tasks": [
     {
@@ -7,7 +7,7 @@
       "kind": "proof",
       "tests": [{ "premises": { "p": "∀x. R(x, s(x))" }, "goal": "∀x. ∃y. R(x, y)" }],
       "cases": [{ "R": "Less" }, { "R": "Older" }],
-      "hint": [{ "en": "Take any a; the example of something bigger is a+1.", "zh": "任取一个 a，比它大的例子就是 a+1。" }],
+      "hint": ["@level.q-bigger.tasks.q-bigger.hint.0"],
       "solution": [
         "g = allI[x=a](body: i) {",
         "  body {",

@@ -7,16 +7,17 @@
 //   and components use it, so switching language only needs a re-render.
 // - lazy(() => tr(...)) is text assembled from other localized pieces (a cell name, a part name); it is assembled
 //   again each time it is shown. Messages that stay on screen (fail sheets, a mode's message box) use it.
-// - hydrate(content) turns every { zh, en } pair of a game's content (plain data) into a T.
+// - hydrate(content) turns resolved display text into a value that renders in the current language.
 
-import { getLang, tr } from '../../shell/i18n.js';
+import { getLang, sideOf, tr } from '../../shell/i18n.js';
+import { isText } from '../../engine/i18n.js';
 
 export { tr };
 export const isEn = () => getLang() === 'en';
 
 class Txt {
-  constructor(zh, en) { this.zh = zh; this.en = en; }
-  toString() { return String(getLang() === 'en' ? this.en : this.zh); }
+  constructor(text) { Object.assign(this, text); }
+  toString() { return isText(this) ? sideOf(this, getLang()) : String(this[getLang()]); }
   toJSON() { return this.toString(); }
 }
 class Lazy {
@@ -24,9 +25,8 @@ class Lazy {
   toString() { return String(this.fn()); }
   toJSON() { return this.toString(); }
 }
-export const T = (zh, en) => new Txt(zh, en);
+export const T = (zh, en) => new Txt({ zh, en });
 export const lazy = fn => new Lazy(fn);
 
-const isPairObject = v => v && typeof v === 'object' && !Array.isArray(v) && typeof v.zh === 'string' && typeof v.en === 'string' && Object.keys(v).length === 2;
-/** A copy of plain data with every { zh, en } pair a T. */
-export const hydrate = v => (isPairObject(v) ? T(v.zh, v.en) : Array.isArray(v) ? v.map(hydrate) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, hydrate(x)])) : v);
+/** A copy of plain data with display text wrapped for interpolation. */
+export const hydrate = v => (isText(v) && (v.$key || typeof v.zh === 'string' && typeof v.en === 'string') ? new Txt(v) : Array.isArray(v) ? v.map(hydrate) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, hydrate(x)])) : v);

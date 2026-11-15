@@ -1,48 +1,39 @@
 {
-  "title": { "en": "One point per corner", "zh": "一个角一个点" },
+  "title": "@level.6-3.title",
   "tray": "geometry",
-  "after": {
-    "en": "Above a threshold the response is a patch, and only its top is the real corner. Response first, then peaks: every detector follows this routine, for corners, lines and object boxes alike.",
-    "zh": "响应图一过门槛就是一片，片里只有峰顶是真正的角。先算响应、再找峰，是所有检测器的固定套路：角点、直线、物体框都这样。"
-  },
+  "after": "@level.6-3.after",
   "intro": [
     {
-      "t": {
-        "en": "The <part-ref to=\"peaks\"></part-ref> in the tray outputs 1 where a cell is no smaller than its 3×3 neighbours and above 0.3, and 0 elsewhere.",
-        "zh": "托盘里的<part-ref to=\"peaks\"></part-ref>在比 3×3 邻居都不小、又大于 0.3 的格子输出 1，其余输出 0。"
-      }
+      "t": "@level.6-3.intro.0.t"
     },
     {
-      "t": { "en": "Your task in this level: output a single point per corner.", "zh": "这一关你要做的：每个角只输出一个点。" },
-      "fig": { "test": 1, "caption": { "en": "Letter L", "zh": "字母 L" } }
+      "t": "@level.6-3.intro.1.t",
+      "fig": { "test": 1, "caption": "@level.6-3.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "6-3",
       "kind": "graph",
-      "brief": {
-        "en": "Output a single point per corner: after multiplying the Harris response by 2, output 1 at its tops.",
-        "zh": "每个角只输出一个点：Harris 响应乘 2 以后，峰顶输出 1。"
-      },
-      "hint": { "en": "A threshold leaves blobs: several cells per corner.", "zh": "门槛只能留下一块一块，每个角留下好几格。" },
+      "brief": "@level.6-3.tasks.6-3.brief",
+      "hint": "@level.6-3.tasks.6-3.hint",
       "views": { "in": "pixels", "out": "pixels", "mid": "terrain" },
       "scene": "filter",
       "setup": { "target": { "cornerPeaks": { "gain": 2, "above": 0.3 } } },
       "tests": [
-        { "label": { "en": "Square", "zh": "方块" }, "in": { "square": { "x0": 4, "y0": 4, "s": 8 } } },
-        { "label": { "en": "Letter L", "zh": "字母 L" }, "in": { "glyph": { "letter": "L" } } },
+        { "label": "@level.6-3.tasks.6-3.tests.0.label", "in": { "square": { "x0": 4, "y0": 4, "s": 8 } } },
+        { "label": "@level.6-3.tasks.6-3.tests.1.label", "in": { "glyph": { "letter": "L" } } },
         {
-          "label": { "en": "Two squares", "zh": "两个方块" },
+          "label": "@level.6-3.tasks.6-3.tests.2.label",
           "in": { "rects": { "rects": [[2, 2, 5, 5], [9, 8, 5, 6]] } }
         }
       ],
       "hidden": [
         {
-          "label": { "en": "Letter T", "zh": "字母 T" },
+          "label": "@level.6-3.tasks.6-3.hidden.0.label",
           "in": { "glyph": { "letter": "T", "lo": 0.1, "hi": 0.9, "ox": 4, "oy": 3 } }
         },
-        { "label": { "en": "One corner", "zh": "一个角" }, "in": { "corner": { "x0": 5, "y0": 7 } } }
+        { "label": "@level.6-3.tasks.6-3.hidden.1.label", "in": { "corner": { "x0": 5, "y0": 7 } } }
       ],
       "solution": [
         "gk = const[c=2]()",

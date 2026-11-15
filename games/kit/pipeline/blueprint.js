@@ -25,7 +25,7 @@
 // it and soon used again, nothing used before it is there, built parts used later, practice that shows a new facet,
 // series that do not depend on each other branched, abstraction rising. conformance(bp, content, spec) checks
 // a game's levels against its blueprint once they exist. erasOf(bp) is game.json's eras as the blueprint lays them out.
-import { firstText } from '../engine/i18n.js'
+import { firstText, isText, textEntries } from '../engine/i18n.js'
 import { S, validate } from '../engine/schema.js'
 import { layout } from '../course.js'
 import { T as t } from '../shell/i18n.js'
@@ -456,7 +456,12 @@ export const CONFORMANCE_RULES = {
 }
 
 /** Every text of a level, its tasks' included, as plain strings. */
-const textsOf = (v) => (typeof v === 'string' ? [v] : Array.isArray(v) ? v.flatMap(textsOf) : v && typeof v === 'object' ? Object.values(v).flatMap(textsOf) : [])
+function textsOf(value) {
+  if (typeof value === 'string') return [value]
+  if (isText(value)) return textEntries(value).map(([, text]) => text)
+  if (value && typeof value === 'object') return Object.values(value).flatMap(textsOf)
+  return []
+}
 
 /**
  * A game's levels against its blueprint: [{ rule, at, says }]. content: the game (../engine/content.js); spec: its
@@ -469,7 +474,7 @@ export function conformance(bp, content, spec) {
   const levels = new Map(content.levels.map((l) => [l.id, l]))
   for (const s of slots) if (!levels.has(s.id)) say('bp-levels', s.id, 'the slot has no level')
   for (const id of levels.keys()) if (!slots.some((s) => s.id === id)) say('bp-levels', id, 'the level is in no slot')
-  const plain = (v) => JSON.stringify(v)
+  const plain = (v) => JSON.stringify(v, (_key, value) => isText(value) ? Object.fromEntries(textEntries(value)) : value)
   if (plain(erasOf(bp)) !== plain(content.eras)) say('bp-eras', 'game.json', 'its eras differ from the blueprint’s')
   const prims = bp.primitives.map((p) => p.part).sort()
   if (plain(prims) !== plain([...(content.primitives ?? [])].sort())) say('bp-primitives', 'game.json', `the blueprint has ${prims.join(', ')}`)

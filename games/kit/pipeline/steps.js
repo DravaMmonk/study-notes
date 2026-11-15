@@ -24,6 +24,7 @@ import { reviewTerminology } from './terminology.js'
 import { searchable } from '../engine/ops/search.js'
 import { checkContent } from '../engine/vocabulary.js'
 import { withParts } from '../engine/parts/define.js'
+import { isLanguageCode } from '../engine/i18n.js'
 
 export const GAMES_DIR = resolve(import.meta.dirname, '../..')
 const finding = (rule, at, says) => ({ rule, at, says })
@@ -143,17 +144,21 @@ export const STEPS = [
     role: 'translator',
     aside: true,
     commands: ['op', 'check', 'gate'],
-    gate: async (id) => {
+    gate: async (id, _state, scope) => {
       const content = readContent(id)
       const domain = await domainOf(content)
       const vocabulary = withParts(domain.vocabulary, content.partDefs)
       const places = searchable(content, vocabulary, ['text']).filter((p) => p.side)
-      const fields = new Set(places.map((p) => JSON.stringify([p.file, p.path]))).size
-      const languages = new Set(places.map((p) => p.side))
+      const field = (place) => JSON.stringify([place.file, place.path])
+      const fields = new Set(places.map(field)).size
+      const languages = scope ? [scope] : [...new Set(places.map((p) => p.side))]
       return {
-        failures: checkContent(domain, content).map((p) => finding('content', p.at, p.says)),
-        reports: [...languages].flatMap((lang) => {
-          const filled = places.filter((p) => p.side === lang && p.text.trim()).length
+        failures: [
+          ...checkContent(domain, content).map((p) => finding('content', p.at, p.says)),
+          ...(scope && !isLanguageCode(scope) ? [finding('i18n-locale', scope, 'expected a language code')] : []),
+        ],
+        reports: languages.filter(isLanguageCode).flatMap((lang) => {
+          const filled = new Set(places.filter((p) => p.side === lang && p.text.trim()).map(field)).size
           return filled < fields ? [finding('i18n-missing', lang, `${fields - filled} of ${fields} fields have no text in this language`)] : []
         }),
       }

@@ -1,24 +1,18 @@
 {
-  "title": { "en": "A half adder", "zh": "半加器" },
+  "title": "@level.au-adder.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "A circuit can be written as equivalences, one per output wire against its inputs: the sum bit is “exactly one input is 1”, the carry bit “both inputs are 1”. A property of the circuit is whatever follows from them.",
-        "zh": "一块电路可以写成几句等价，每根输出线对应它的输入：和位是「两个输入恰好一个是 1」，进位是「两个输入都是 1」。电路的性质，就是由这几句推得出的话。"
-      }
+      "t": "@level.au-adder.intro.0.t"
     }
   ],
-  "after": {
-    "en": "<b>Formal verification</b> in chip design checks circuits in this spirit.",
-    "zh": "芯片设计里的<b>形式验证</b>，检查电路也是这个思路。"
-  },
+  "after": "@level.au-adder.after",
   "tasks": [
     {
       "id": "au-adder",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.au-adder.tasks.au-adder.inputs.0.label" }],
       "backtrack": true,
       "tests": [
         { "goal": "¬(Sum ∧ Carry)", "hyps": ["Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "Carry ↔ InA ∧ InB"] },
@@ -26,12 +20,9 @@
         { "goal": "Sum → InA", "hyps": ["Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "Carry ↔ InA ∧ InB"], "want": "fails" },
         { "goal": "InA ∧ InB → Carry ∧ ¬Sum", "hyps": ["Sum ↔ (InA ∨ InB) ∧ ¬(InA ∧ InB)", "Carry ↔ InA ∧ InB"] }
       ],
-      "brief": {
-        "en": "Design a proof assistant that proves the goals that follow and reports failure on those that do not.",
-        "zh": "设计一个证明助手：推得出的目标证出来，推不出的报告失败。"
-      },
+      "brief": "@level.au-adder.tasks.au-adder.brief",
       "hint": [
-        { "en": "<part-ref to=\"lemma:metis\"></part-ref>.", "zh": "<part-ref to=\"lemma:metis\"></part-ref>。" }
+        "@level.au-adder.tasks.au-adder.hint.0"
       ],
       "solution": ["c0 = metis(in)", "out <- c0"]
     }

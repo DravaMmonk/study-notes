@@ -1,38 +1,23 @@
 {
-  "title": { "en": "Change a letter", "zh": "改一个字母" },
-  "short": { "en": "Replacements only", "zh": "只许替换" },
+  "title": "@level.replace.title",
+  "short": "@level.replace.short",
   "intro": [
     {
-      "t": {
-        "en": "Spelling correction: when a word is mistyped, see how far it is from the right one. In this level only one kind of change is allowed: <b>swap one letter for another</b>, 1 step each. The two words are the same length.",
-        "zh": "拼写纠错：输错一个词时，看它离正确的词有多远。这一关只许一种改法：<b>把一个字母换成另一个</b>，每换一个算 1 步。两个词一样长。"
-      }
+      "t": "@level.replace.intro.0.t"
     },
     {
-      "t": {
-        "en": "The table is still the alignment table: one word along the top, one down the left. With swaps only, letter i on the left only ever lines up with letter i on top, so the answer comes down the diagonal.",
-        "zh": "表还是对齐表：上面一个词，左边一个词。只换字母时，左边第 i 个字母只会对上上面第 i 个，所以答案沿着对角线走过来。"
-      }
+      "t": "@level.replace.intro.1.t"
     }
   ],
   "mission": {
-    "goal": {
-      "en": "Work out the fewest letters to swap to turn the word on the left into the word on top.",
-      "zh": "算出把左边的词改成上面的词，最少要换几个字母。"
-    },
-    "how": {
-      "en": "The cell up-left means “all the letters before are already fixed”.",
-      "zh": "左上那一格是「前面的字母都改好了」。"
-    }
+    "goal": "@level.replace.mission.goal",
+    "how": "@level.replace.mission.how"
   },
   "robot": "ranger",
   "debrief": {
-    "title": { "en": "Down the diagonal", "zh": "沿着对角线" },
+    "title": "@level.replace.debrief.title",
     "body": [
-      {
-        "en": "Up-left only: everything before is fixed, and this letter either stays or is swapped.",
-        "zh": "只看左上：前面都改好了，这一个字母要么不动，要么换掉。"
-      }
+      "@level.replace.debrief.body.0"
     ]
   },
   "tasks": [
@@ -42,18 +27,12 @@
       "diagnose": [
         {
           "when": { "any": [{ "uses": "up" }, { "uses": "left" }] },
-          "say": {
-            "en": "This level only allows swaps, so up and left are no use: look only at up-left.",
-            "zh": "这一关只许换字母，用不上上面和左边：只看左上。"
-          }
+          "say": "@level.replace.tasks.replace.diagnose.0.say"
         }
       ],
       "hints": [
-        {
-          "en": "If the letters match, nothing to swap: keep up-left as it is. If they differ, swap one: up-left + 1. Take the smaller.",
-          "zh": "字母相同就不用换：左上原样留下。不同就换一个：左上 + 1。取较小。"
-        },
-        { "en": "The start is two empty words: 0 steps.", "zh": "起点是两个空词，0 步。" }
+        "@level.replace.tasks.replace.hints.0",
+        "@level.replace.tasks.replace.hints.1"
       ],
       "world": "align",
       "facts": ["same", "start"],

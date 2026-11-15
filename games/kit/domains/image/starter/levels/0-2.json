@@ -1,12 +1,9 @@
 {
-  "title": { "en": "Unknown operator", "zh": "未知算子" },
-  "after": { "en": "Correct. It moves the image one pixel to the right.", "zh": "正确。它把图往右挪一格。" },
+  "title": "@level.0-2.title",
+  "after": "@level.0-2.after",
   "intro": [
     {
-      "t": {
-        "en": "This is a black box: you can only feed it pictures and look at what comes out.",
-        "zh": "这是一个黑箱：只能喂图、看结果。"
-      }
+      "t": "@level.0-2.intro.0.t"
     }
   ],
   "unlocks": ["shift"],
@@ -14,18 +11,15 @@
     {
       "id": "0-2",
       "kind": "probe",
-      "brief": {
-        "en": "What does it do to an image? Feed it test images, then answer.",
-        "zh": "它对图像做了什么？用测试图喂它，然后回答。"
-      },
+      "brief": "@level.0-2.tasks.0-2.brief",
       "part": "mystery",
-      "question": { "en": "Which way does it move the image by one pixel?", "zh": "它把图像往哪个方向挪了一格？" },
+      "question": "@level.0-2.tasks.0-2.question",
       "answers": ["→", "←", "↓", "↑"],
       "answer": "→",
-      "wrong": { "en": "Follow one bright spot and see where it goes.", "zh": "盯住一个亮点，看它去了哪里。" },
+      "wrong": "@level.0-2.tasks.0-2.wrong",
       "probes": [
-        { "label": { "en": "Bright dot", "zh": "亮点" }, "picture": { "impulse": { "x": 7, "y": 7 } } },
-        { "label": { "en": "Vertical bar", "zh": "竖条" }, "picture": { "bar": { "x": 4 } } }
+        { "label": "@level.0-2.tasks.0-2.probes.0.label", "picture": { "impulse": { "x": 7, "y": 7 } } },
+        { "label": "@level.0-2.tasks.0-2.probes.1.label", "picture": { "bar": { "x": 4 } } }
       ]
     }
   ]

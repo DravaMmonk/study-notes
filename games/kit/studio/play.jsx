@@ -26,6 +26,7 @@ import '../views/views.css'
 import '../circuit/circuit.css'
 import { Component, useEffect, useMemo, useState } from 'react'
 import { GameShell, getLang, tr } from '../shell/index.js'
+import { useLang } from '../shell/useLang.js'
 import { createProgress, openAt, saved } from '../shell/progress.js'
 import { DOMAINS } from 'virtual:studio-domains'
 import { SettingSheet } from '../shell/parts/PieceSheet.jsx'
@@ -80,6 +81,7 @@ function seeded(game, level, seed) {
 }
 
 export default function Play() {
+  useLang()
   const [shown, setShown] = useState(null) // { game, level, take, no }
   const [edit, setEdit] = useState({ on: false, picked: null })
   const [go, setGo] = useState(null) // { task, n }
@@ -99,14 +101,14 @@ export default function Play() {
         return setShown((s) => (s ? { ...s, game } : s))
       }
       if (m?.type === 'part') {
-        const game = await gameOf(m.content, ++stamp)
         look(m)
+        const game = await gameOf(m.content, ++stamp)
         return setPart({ game, type: m.part })
       }
       if (m?.type !== 'load') return
       const { content, level, task = 0, seed = null, take = null } = m
-      const game = await gameOf(content, ++stamp)
       look(m)
+      const game = await gameOf(content, ++stamp)
       setPart(null)
       if (level) seeded(game, level, seed)
       const url = new URL(window.location.href)

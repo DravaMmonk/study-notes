@@ -1,31 +1,19 @@
 {
-  "title": {
-    "en": "Listen",
-    "zh": "听线"
-  },
+  "title": "@level.1-1.title",
   "intro": [
     {
-      "t": {
-        "en": "The line carries one bit each tick: 0 or 1.",
-        "zh": "线上每一拍有一位：0 或 1。"
-      }
+      "t": "@level.1-1.intro.0.t"
     }
   ],
   "tasks": [
     {
       "id": "1-1",
-      "brief": {
-        "en": "Give the bit on the line, every tick.",
-        "zh": "每一拍交出线上的位。"
-      },
+      "brief": "@level.1-1.tasks.1-1.brief",
       "listens": true,
       "outputs": [
         {
           "name": "bit",
-          "label": {
-            "en": "Bit",
-            "zh": "位"
-          }
+          "label": "@level.1-1.tasks.1-1.outputs.0.label"
         }
       ],
       "tests": [

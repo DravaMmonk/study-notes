@@ -1,23 +1,17 @@
 {
-  "title": { "en": "Declaring True", "zh": "声明「真」" },
+  "title": "@level.decl-true.title",
   "intro": [
     {
-      "t": {
-        "en": "The opposite of ⊥: True always holds. The table holds its declaration: one intro rule with no premises, needing nothing.",
-        "zh": "与 ⊥ 相反，「真」永远成立。表上是它的声明：一条引入规则，没有前提，什么都不要。"
-      }
+      "t": "@level.decl-true.intro.0.t"
     }
   ],
-  "after": {
-    "en": "True is often written ⊤, the very opposite of ⊥: knowing it holds tells you nothing more.",
-    "zh": "「真」常写作 ⊤，和 ⊥ 正好相对：知道它成立，并没有多知道什么。"
-  },
+  "after": "@level.decl-true.after",
   "tray": "formula",
   "tasks": [
     {
       "id": "decl-true",
       "kind": "iso",
-      "declare": { "en": "True", "zh": "真" },
+      "declare": "@level.decl-true.tasks.decl-true.declare",
       "target": "Truth",
       "sentences": ["Rain"],
       "tests": [
@@ -52,15 +46,9 @@
         { "given": ["Truth"], "goal": "Rain", "make": true },
         { "given": ["Truth", "Rain", "Rain → Wet"], "goal": "Wet", "make": true }
       ],
-      "brief": {
-        "en": "Requirement: True needs nothing: it may be introduced whatever is at hand, even with nothing at all. Following this declaration, fill in whether each case’s goal is derivable.",
-        "zh": "需求：「真」什么都不要：不管手里有什么，甚至什么都没有，都能引入。按照这份声明，在表中填出每条条例的目标是否可推导。"
-      },
+      "brief": "@level.decl-true.tasks.decl-true.brief",
       "hint": [
-        {
-          "en": "This declaration’s elimination rule has one case, which hands back nothing.",
-          "zh": "这份声明的消去规则只有一种情况，它什么都不交还。"
-        }
+        "@level.decl-true.tasks.decl-true.hint.0"
       ]
     }
   ]

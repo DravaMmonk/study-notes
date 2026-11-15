@@ -1,9 +1,11 @@
 // node --test games/kit/studio — a task list edited as a whole becomes task operations, each task known by its id.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { creationChoices, taskListOps } from './form.js'
+import { copyLevelData, creationChoices, taskListOps } from './form.js'
 import { sourceOps } from './source.js'
 import { removesContent } from './delete.js'
+import { sourceValue } from '../engine/catalogs.js'
+import { withTextKey } from '../engine/i18n.js'
 import { S } from '../engine/schema.js'
 import { taskLevel } from '../engine/tasks.js'
 
@@ -47,7 +49,7 @@ test('JSON editing preserves existing types and uses task operations for identit
   const vocabulary = { kinds: {}, level: taskLevel({ title: S.str() }, S.by('kind', { a: config('a'), b: config('b') })) }
   const value = { title: 'Level', tasks: [{ id: 'first', kind: 'a', value: 1 }] }
   const file = { level: 'l' }
-  const edit = (path, next) => sourceOps(file, value, path, next, vocabulary, [{ id: 'l', ...value }])
+  const edit = (path, next) => sourceOps(file, value, path, next, vocabulary, { levels: [{ id: 'l', ...value }] })
   assert.deepEqual(edit([], { ...value, title: 'New title', tasks: [{ ...value.tasks[0], value: 2 }] }), [
     { op: 'level.set', level: 'l', path: ['title'], value: 'New title' },
     { op: 'level.set', level: 'l', path: ['tasks', 0], value: { id: 'first', kind: 'a', value: 2 } },
@@ -55,6 +57,33 @@ test('JSON editing preserves existing types and uses task operations for identit
   assert.deepEqual(edit(['tasks', 0, 'id'], 'renamed'), [{ op: 'task.rename', task: 'first', to: 'renamed' }])
   assert.throws(() => edit(['tasks', 0, 'kind'], 'b'), /change its type|类型/)
   assert.throws(() => edit(['tasks', 0, 'value'], 'text'), /whole number/)
+})
+
+test('JSON editing uses catalog references and leaves locale edits on the Copy tab', () => {
+  const vocabulary = { kinds: {}, level: S.obj({ title: S.text(), note: S.text(), amount: S.int() }) }
+  const title = withTextKey({ en: 'Count', zh: '计数' }, 'level.a.title')
+  const note = withTextKey({ en: 'Read', zh: '读' }, 'level.a.note')
+  const value = { title, note, amount: 1 }
+  const content = { title: withTextKey({ en: 'Course' }, 'course.title'), levels: [{ id: 'a', ...value }] }
+  const edit = (next) => sourceOps({ level: 'a' }, value, [], next, vocabulary, content)
+  const source = sourceValue(value)
+  assert.deepEqual(source, { title: '@level.a.title', note: '@level.a.note', amount: 1 })
+  assert.deepEqual(edit({ ...source, amount: 2 }), [{ op: 'level.set', level: 'a', path: ['amount'], value: 2 }])
+  assert.deepEqual(edit({ ...source, title: source.note, note: source.title }), [
+    { op: 'level.set', level: 'a', path: ['title'], value: note },
+    { op: 'level.set', level: 'a', path: ['note'], value: title },
+  ])
+  assert.throws(() => edit({ ...source, title: '@course.title' }), /@course.title/)
+  assert.throws(() => edit({ ...source, title: 'New prose' }), /Copy tab|文案页/)
+})
+
+test('copying a level retains locale values while assigning independent text and task identities', () => {
+  const step = withTextKey({ en: 'Run', zh: '运行' }, 'level.a.tasks.0.step')
+  const source = { id: 'a', tasks: [{ id: 'a', step }, { id: 'a_2' }] }
+  const levels = [source, { id: 'b_2' }]
+  assert.deepEqual(copyLevelData(source, 'b', levels), {
+    tasks: [{ id: 'b_3', step: { en: 'Run', zh: '运行' } }, { id: 'b_4' }],
+  })
 })
 
 test('source deletion detection distinguishes removed fields and items from edits and moves', () => {

@@ -1,45 +1,33 @@
 {
-  "title": { "en": "Stock-take", "zh": "货架盘点" },
+  "title": "@level.10-11.title",
   "carry": "10-10",
   "tray": "recognition",
-  "after": {
-    "en": "Template scores, several scales, non-maximum suppression, each X marked exactly once: the simplest detector. Replace the template with learnt convolutions and add box regression, and you have a real object-detection network, its results measured with the IoU and AP you built.",
-    "zh": "模板打分、多尺度、非极大值抑制，每个 X 恰好标一次：一台最简单的检测器。把模板换成学出来的卷积、加上框回归，就是真实的目标检测网络；它的成绩用你搭的 IoU 和 AP 来量。"
-  },
+  "after": "@level.10-11.after",
   "intro": [
     {
-      "t": {
-        "en": "A real photo is grainy and a little blurred, with large and small boxes mixed.",
-        "zh": "真实的照片有噪点，也有点糊，大小箱子混在一起。"
-      }
+      "t": "@level.10-11.intro.0.t"
     },
     {
-      "t": { "en": "Your task in this level: mark each X exactly once.", "zh": "这一关你要做的：每个 X 恰好标一处。" },
-      "fig": { "test": 0, "caption": { "en": "One big, one small", "zh": "一大一小" } }
+      "t": "@level.10-11.intro.1.t",
+      "fig": { "test": 0, "caption": "@level.10-11.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "10-11",
       "kind": "graph",
-      "brief": {
-        "en": "A grainy, slightly blurred photo of a shelf, with large and small boxes. Mark each X once: a point for a small X, a 2×2 block for a large one.",
-        "zh": "一张有噪点、有点糊的货架照片，大小箱子都有。每个 X 只标一处：小 X 一个点，大 X 一个 2×2 的小块。"
-      },
-      "hint": {
-        "en": "Each of the last few levels dealt with one of the troubles here.",
-        "zh": "前面每一关都解决了这里的一个麻烦。"
-      },
+      "brief": "@level.10-11.tasks.10-11.brief",
+      "hint": "@level.10-11.tasks.10-11.hint",
       "scene": "shelf",
       "setup": { "expect": "both", "grain": 0.1, "blur": 0.5 },
       "tests": [
         {
-          "label": { "en": "One big, one small", "zh": "一大一小" },
+          "label": "@level.10-11.tasks.10-11.tests.0.label",
           "marks": [{ "mark": "X", "at": [5, 5] }, { "mark": "X", "at": [15, 15], "scale": 2 }, { "mark": "O", "at": [20, 4] }],
           "seed": 111
         },
         {
-          "label": { "en": "A large O", "zh": "大的 O" },
+          "label": "@level.10-11.tasks.10-11.tests.1.label",
           "marks": [
             { "mark": "O", "at": [7, 17], "scale": 2 },
             { "mark": "X", "at": [18, 6] },
@@ -48,7 +36,7 @@
           "seed": 112
         },
         {
-          "label": { "en": "A row of small ones", "zh": "一排小的" },
+          "label": "@level.10-11.tasks.10-11.tests.2.label",
           "marks": [
             { "mark": "X", "at": [4, 12] },
             { "mark": "O", "at": [10, 12] },
@@ -60,7 +48,7 @@
       ],
       "hidden": [
         {
-          "label": { "en": "Two large", "zh": "两个大的" },
+          "label": "@level.10-11.tasks.10-11.hidden.0.label",
           "marks": [
             { "mark": "X", "at": [5, 19], "scale": 2 },
             { "mark": "X", "at": [19, 19], "scale": 2 },

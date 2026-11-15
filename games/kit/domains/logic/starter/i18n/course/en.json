@@ -1,0 +1,10 @@
+{
+  "course.eras.circuits.chapter.question": "Can a circuit work out whether a sentence is true in every case?",
+  "course.eras.circuits.chapter.title": "Truth circuits",
+  "course.kicker": "In development",
+  "course.lede": "Start from truth tables: wire a sentence as a circuit, then build bigger sentences from the gates you made.",
+  "course.title": "__title__",
+  "course.wordSets.everyday.Cold": "it is cold",
+  "course.wordSets.everyday.Rain": "it rains",
+  "course.wordSets.everyday.Wind": "it is windy"
+}

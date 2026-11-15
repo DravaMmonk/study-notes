@@ -1,5 +1,5 @@
 {
-  "title": { "en": "Some pets are fluffy", "zh": "有的宠物毛茸茸" },
+  "title": "@level.s-darii.title",
   "tray": ["proof", "formula"],
   "tasks": [
     {
@@ -7,7 +7,7 @@
       "kind": "proof",
       "tests": [{ "premises": { "p": "∀x. B(x) → C(x)", "q": "∃x. A(x) ∧ B(x)" }, "goal": "∃x. A(x) ∧ C(x)" }],
       "cases": [{ "A": "Pet", "B": "Cat", "C": "Fluffy" }, { "A": "Student", "B": "Baby", "C": "Mortal" }],
-      "hint": [{ "en": "Take out the pet that is a cat; it is the example.", "zh": "拿出那只是猫的宠物，它就是例子。" }],
+      "hint": ["@level.s-darii.tasks.s-darii.hint.0"],
       "solution": [
         "f = exE[x=a](q, body: i) {",
         "  body {",

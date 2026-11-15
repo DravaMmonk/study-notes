@@ -1,50 +1,35 @@
 {
-  "title": { "en": "Always true, always false", "zh": "怎样都对，怎样都错" },
+  "title": "@level.g-always.title",
   "tray": ["gates", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "What does a <wiki-ref to=\"tautology\"></wiki-ref> look like as a circuit? Wire this sentence and watch the output column.",
-        "zh": "<wiki-ref to=\"tautology\"></wiki-ref>在电路上是什么样子？接出这句话，看输出那一列。"
-      }
+      "t": "@level.g-always.intro.0.t"
     }
   ],
   "tasks": [
     {
       "id": "g-always_1",
       "kind": "gates",
-      "step": { "en": "True in every case", "zh": "怎样都对" },
+      "step": "@level.g-always.tasks.g-always_1.step",
       "target": "(Rain → Wet) ∨ (Wet → Rain)",
       "hideTarget": true,
-      "brief": {
-        "en": "Wire a board that works out the value of “(if it rains, the ground is wet) or (if the ground is wet, it rains)” on every row.",
-        "zh": "接一块电路，算出「（若下雨，则地湿）或者（若地湿，则下雨）」在每一行的真值。"
-      },
-      "hint": [{ "en": "What parts is the sentence made of?", "zh": "这句话由哪几部分组成？" }],
+      "brief": "@level.g-always.tasks.g-always_1.brief",
+      "hint": ["@level.g-always.tasks.g-always_1.hint.0"],
       "solution": ["i1 = gImp(Rain, Wet)", "i2 = gImp(Wet, Rain)", "o = gOr(i1, i2)", "out <- o"]
     },
     {
       "id": "g-always_2",
       "kind": "gates",
-      "step": { "en": "Always false", "zh": "怎样都错" },
+      "step": "@level.g-always.tasks.g-always_2.step",
       "target": "(Rain → Wet) ∧ (Rain ∧ ¬Wet)",
       "hideTarget": true,
-      "brief": {
-        "en": "Wire a board that works out the value of “(if it rains, the ground is wet) and (it rains and the ground is not wet)” on every row.",
-        "zh": "接一块电路，算出「（若下雨，则地湿）并且（下雨，并且地不湿）」在每一行的真值。"
-      },
+      "brief": "@level.g-always.tasks.g-always_2.brief",
       "hint": [
-        {
-          "en": "It is two halves joined by an And gate, and the right half is itself an “and”.",
-          "zh": "它由两半用与门接成，右边一半本身也是一个「并且」。"
-        }
+        "@level.g-always.tasks.g-always_2.hint.0"
       ],
       "intro": [
         {
-          "t": {
-            "en": "A sentence false on every row is a <wiki-ref to=\"contradiction\"></wiki-ref>.",
-            "zh": "每一行都为假的话叫<wiki-ref to=\"contradiction\"></wiki-ref>。"
-          }
+          "t": "@level.g-always.tasks.g-always_2.intro.0.t"
         }
       ],
       "solution": ["i = gImp(Rain, Wet)", "n = gNot(Wet)", "a1 = gAnd(Rain, n)", "a2 = gAnd(i, a1)", "out <- a2"]

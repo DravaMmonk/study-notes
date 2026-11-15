@@ -1,34 +1,19 @@
 {
-  "title": { "en": "Two numbers to remember an image", "zh": "两个数记住一张图" },
-  "after": {
-    "en": "The encoder squeezes the image into z, and the decoder draws it back from z; the target is the input itself, so no labels are needed. The narrowest layer is called the bottleneck: this family of blobs varies only left–right and up–down, so the bottleneck needs at least two numbers; one number can only move the blob along a straight line.",
-    "zh": "编码器把图压成 z，解码器再从 z 画回来，目标就是输入自己，不需要标签。最窄的那层叫瓶颈：这一族斑点只在左右、上下两个方向变，所以瓶颈至少要两个数；一个数只能让斑点沿一条直线走。"
-  },
+  "title": "@level.8-1.title",
+  "after": "@level.8-1.after",
   "intro": [
     {
-      "t": {
-        "en": "This chapter teaches a machine to draw images it has never seen. The first step is learning to describe an image with very few numbers. A 16×16 image has 256 numbers; if all the images are just the same blob in different places, do you really need 256?",
-        "zh": "这一章要让机器画出没见过的图。第一步是学会用很少的数描述一张图。一张 16×16 的图有 256 个数；如果这些图都只是同一个斑点换了位置，真的要 256 个数吗？"
-      }
+      "t": "@level.8-1.intro.0.t"
     },
     {
-      "t": {
-        "en": "The new <part-ref to=\"part:dg_encode\"></part-ref> part squeezes the whole image into a short row of numbers, and the <part-ref to=\"part:dg_decode\"></part-ref> draws an image back from those numbers. The few numbers in the middle are like writing just the address on a letter, with no need to enclose a photo of the whole house.",
-        "zh": "新元件<part-ref to=\"part:dg_encode\"></part-ref>把整张图压成一行几个数，<part-ref to=\"part:dg_decode\"></part-ref>再由这几个数画回一张图。中间这几个数就像寄信只写地址，不用附上整栋房子的照片。"
-      }
+      "t": "@level.8-1.intro.1.t"
     },
     {
-      "t": {
-        "en": "Both parts get their weights from training: press Train and the machine adjusts them bit by bit on its own. You can choose whether the encoder squeezes to 1, 2 or 3 numbers. Compression and denoising both start from this step.",
-        "zh": "两个元件的权重都靠训练：按下训练，机器自己一点点调。编码器可以选压成 1、2 或 3 个数。压缩、去噪都从这一步开始。"
-      }
+      "t": "@level.8-1.intro.2.t"
     },
     {
-      "t": {
-        "en": "The tests are sixteen blobs in different positions, and the expected output is identical to the input. The fewer numbers you use the better, so what you are looking for is: what is the smallest number that still works?",
-        "zh": "测试是十六个位置不同的斑点，期望输出和输入一模一样。用的数越少越好，所以要找的是：最少几个数还够用？"
-      },
-      "fig": { "test": 0, "caption": { "en": "A blob goes in, the same blob comes out", "zh": "斑点进去，同一个斑点出来" } }
+      "t": "@level.8-1.intro.3.t",
+      "fig": { "test": 0, "caption": "@level.8-1.intro.3.fig.caption" }
     }
   ],
   "adds": ["dg_encode", "dg_decode"],
@@ -38,41 +23,35 @@
     {
       "id": "8-1",
       "kind": "graph",
-      "brief": {
-        "en": "Squeeze the image into a few numbers, then draw the original back from those numbers. Do it with as few numbers as you can.",
-        "zh": "先把图压成几个数，再由这几个数画回原图。用最少的数做到。"
-      },
-      "hint": {
-        "en": "One number can only move the blob along a line. In how many directions do these blobs vary?",
-        "zh": "一个数只能让斑点沿一条线走。这些斑点在往几个方向变？"
-      },
+      "brief": "@level.8-1.tasks.8-1.brief",
+      "hint": "@level.8-1.tasks.8-1.hint",
       "check": { "tolerance": 0.2, "mismatches": 3 },
       "constraint": { "bottleneck": { "max": 2 } },
       "trainRate": 30,
       "scene": "filter",
       "setup": { "target": "same" },
       "tests": [
-        { "label": { "en": "Blob 1", "zh": "斑点 1" }, "in": { "blob": { "x": 3.5, "y": 3.5 } } },
-        { "label": { "en": "Blob 2", "zh": "斑点 2" }, "in": { "blob": { "x": 3.8, "y": 6.33 } } },
-        { "label": { "en": "Blob 3", "zh": "斑点 3" }, "in": { "blob": { "x": 3.5, "y": 9.17 } } },
-        { "label": { "en": "Blob 4", "zh": "斑点 4" }, "in": { "blob": { "x": 3.8, "y": 12 } } },
-        { "label": { "en": "Blob 5", "zh": "斑点 5" }, "in": { "blob": { "x": 6.33, "y": 3.7 } } },
-        { "label": { "en": "Blob 6", "zh": "斑点 6" }, "in": { "blob": { "x": 6.63, "y": 6.53 } } },
-        { "label": { "en": "Blob 7", "zh": "斑点 7" }, "in": { "blob": { "x": 6.33, "y": 9.37 } } },
-        { "label": { "en": "Blob 8", "zh": "斑点 8" }, "in": { "blob": { "x": 6.63, "y": 12.2 } } },
-        { "label": { "en": "Blob 9", "zh": "斑点 9" }, "in": { "blob": { "x": 9.17, "y": 3.5 } } },
-        { "label": { "en": "Blob 10", "zh": "斑点 10" }, "in": { "blob": { "x": 9.47, "y": 6.33 } } },
-        { "label": { "en": "Blob 11", "zh": "斑点 11" }, "in": { "blob": { "x": 9.17, "y": 9.17 } } },
-        { "label": { "en": "Blob 12", "zh": "斑点 12" }, "in": { "blob": { "x": 9.47, "y": 12 } } },
-        { "label": { "en": "Blob 13", "zh": "斑点 13" }, "in": { "blob": { "x": 12, "y": 3.7 } } },
-        { "label": { "en": "Blob 14", "zh": "斑点 14" }, "in": { "blob": { "x": 12.3, "y": 6.53 } } },
-        { "label": { "en": "Blob 15", "zh": "斑点 15" }, "in": { "blob": { "x": 12, "y": 9.37 } } },
-        { "label": { "en": "Blob 16", "zh": "斑点 16" }, "in": { "blob": { "x": 12.3, "y": 12.2 } } }
+        { "label": "@level.8-1.tasks.8-1.tests.0.label", "in": { "blob": { "x": 3.5, "y": 3.5 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.1.label", "in": { "blob": { "x": 3.8, "y": 6.33 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.2.label", "in": { "blob": { "x": 3.5, "y": 9.17 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.3.label", "in": { "blob": { "x": 3.8, "y": 12 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.4.label", "in": { "blob": { "x": 6.33, "y": 3.7 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.5.label", "in": { "blob": { "x": 6.63, "y": 6.53 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.6.label", "in": { "blob": { "x": 6.33, "y": 9.37 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.7.label", "in": { "blob": { "x": 6.63, "y": 12.2 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.8.label", "in": { "blob": { "x": 9.17, "y": 3.5 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.9.label", "in": { "blob": { "x": 9.47, "y": 6.33 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.10.label", "in": { "blob": { "x": 9.17, "y": 9.17 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.11.label", "in": { "blob": { "x": 9.47, "y": 12 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.12.label", "in": { "blob": { "x": 12, "y": 3.7 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.13.label", "in": { "blob": { "x": 12.3, "y": 6.53 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.14.label", "in": { "blob": { "x": 12, "y": 9.37 } } },
+        { "label": "@level.8-1.tasks.8-1.tests.15.label", "in": { "blob": { "x": 12.3, "y": 12.2 } } }
       ],
       "hidden": [
-        { "label": { "en": "New place 1", "zh": "新位置 1" }, "in": { "blob": { "x": 4.17, "y": 10.45 } } },
-        { "label": { "en": "New place 2", "zh": "新位置 2" }, "in": { "blob": { "x": 7.97, "y": 11.46 } } },
-        { "label": { "en": "New place 3", "zh": "新位置 3" }, "in": { "blob": { "x": 7.92, "y": 5.1 } } }
+        { "label": "@level.8-1.tasks.8-1.hidden.0.label", "in": { "blob": { "x": 4.17, "y": 10.45 } } },
+        { "label": "@level.8-1.tasks.8-1.hidden.1.label", "in": { "blob": { "x": 7.97, "y": 11.46 } } },
+        { "label": "@level.8-1.tasks.8-1.hidden.2.label", "in": { "blob": { "x": 7.92, "y": 5.1 } } }
       ],
       "solution": [
         "e = dg_encode[k=2, w=[0.147, -0.326, -0.312, 0.003, -0.008, 0.077, 0.312, 0.226, -0.314, -0.812, -0.779, -0.045, -0.077, 0.498, 0.899, 0.39, -0.377, -0.847, -0.985, -0.191, -0.146, 0.321, 0.652, 0.562, 0.197, 0.189, 0.232, 0.08, -0.148, 0.011, -0.446, 0.004, -0.108, -0.117, 0.066, -0.024, 0.024, 0.064, 0.205, 0.055, -0.22, 0.298, 0.058, 0.172, -0.239, 0.264, -0.054, 0.097]](in)",

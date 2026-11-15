@@ -3,7 +3,7 @@
 // place a value does not fit, by its path.
 //
 //   any, bool, num, int, str        a value of that kind (num and int may carry min / max)
-//   text                            words a player reads: { zh, en }, or one string for both (a symbol, 'a + b'),
+//   text                            resolved catalog text, or a language-neutral literal (a symbol, 'a + b'),
 //                                   carrying only the kernel's markup (markup.js)
 //   oneOf(values)                   one of these values
 //   list(of), map(of)               a list, or an object with keys of the author's choosing, every value of `of`;
@@ -32,7 +32,7 @@
 //   view: 'board'   a list of blueprint lines that is a board (a naive answer, a work): operations find it as one
 //   step            how far a number goes up or down at a time
 //   section         where a field of a level goes in its form (SECTIONS); without it the studio reads it off the shape
-import { isText } from './i18n.js'
+import { isText, textEntries } from './i18n.js'
 import { markupOf } from './markup.js'
 
 export const SECTIONS = ['read', 'puzzle', 'tests', 'answers', 'course', 'tasks']
@@ -103,7 +103,7 @@ export function validate(schema, value, { vocabulary = null, levels = null, task
           return
         }
         if (!isText(v)) return say(where, `expected text by language or a string, found ${show(v)}`)
-        for (const [lang, text] of Object.entries(v)) for (const p of markupOf(text).problems) say(`${where}.${lang}`, p)
+        for (const [lang, text] of textEntries(v)) for (const p of markupOf(text).problems) say(`${where}.${lang}`, p)
         return
       case 'oneOf':
         if (!s.values.includes(v)) say(where, `expected one of ${s.values.map(show).join(', ')}, found ${show(v)}`)

@@ -2,28 +2,16 @@
   "package": "vision-complete",
   "domain": "image",
   "vocabulary": 23,
-  "title": { "en": "Vision Complete", "zh": "视觉完备" },
-  "kicker": { "en": "Computer Vision", "zh": "计算机视觉" },
-  "lede": {
-    "en": "Start by shifting an image one pixel. Wire together components to blur images, find edges and corners, and measure depth from two views.",
-    "zh": "从把图像挪一格开始。亲手接线实现模糊、寻找边缘和角点，再从两张图像估计深度。"
-  },
+  "title": "@course.title",
+  "kicker": "@course.kicker",
+  "lede": "@course.lede",
   "power": {
-    "title": { "en": "Power on", "zh": "上电" },
+    "title": "@course.power.title",
     "lines": [
-      { "en": "Probe V-0, vision chip powered on.", "zh": "探测器 V-0，视觉芯片已上电。" },
-      {
-        "en": "Your sensor turns the world into a grid of numbers, but you cannot read them yet.",
-        "zh": "传感器把世界变成一格格数字，可你还看不懂它们。"
-      },
-      {
-        "en": "The mothership will send you a series of tests. Each one you pass gives you a new part to use.",
-        "zh": "母舰会给你一系列测试。每通过一个，你就多一个可以用的元件。"
-      },
-      {
-        "en": "There is no manual. Try things, look at the test pictures, read the numbers.",
-        "zh": "没有说明书。动手试，看测试图，读数字。"
-      }
+      "@course.power.lines.0",
+      "@course.power.lines.1",
+      "@course.power.lines.2",
+      "@course.power.lines.3"
     ]
   },
   "primitives": [
@@ -246,9 +234,9 @@
     {
       "id": 0,
       "chapter": {
-        "title": { "en": "Open your eyes", "zh": "睁眼" },
-        "label": { "en": "Image formation", "zh": "图像形成" },
-        "question": { "en": "What is an image?", "zh": "图像是什么" }
+        "title": "@course.eras.0.chapter.title",
+        "label": "@course.eras.0.chapter.label",
+        "question": "@course.eras.0.chapter.question"
       },
       "levels": [
         { "id": "0-1" },
@@ -282,9 +270,9 @@
     {
       "id": 1,
       "chapter": {
-        "title": { "en": "Neighbours", "zh": "邻居" },
-        "label": { "en": "Spatial filtering", "zh": "空间滤波" },
-        "question": { "en": "How do neighbours make a new image?", "zh": "怎样用邻居算出新图" }
+        "title": "@course.eras.1.chapter.title",
+        "label": "@course.eras.1.chapter.label",
+        "question": "@course.eras.1.chapter.question"
       },
       "levels": [
         { "id": "1-1" },
@@ -327,9 +315,9 @@
     {
       "id": 2,
       "chapter": {
-        "title": { "en": "Frequency", "zh": "频率" },
-        "label": { "en": "Frequency and sampling", "zh": "频率与采样" },
-        "question": { "en": "Which waves make up an image?", "zh": "图像由哪些波组成" }
+        "title": "@course.eras.2.chapter.title",
+        "label": "@course.eras.2.chapter.label",
+        "question": "@course.eras.2.chapter.question"
       },
       "levels": [
         { "id": "2-1" },
@@ -373,9 +361,9 @@
     {
       "id": 3,
       "chapter": {
-        "title": { "en": "Light and edges", "zh": "光与边" },
-        "label": { "en": "Light and colour", "zh": "光照与颜色" },
-        "question": { "en": "Where do light and shade come from?", "zh": "照片的明暗从哪来" }
+        "title": "@course.eras.3.chapter.title",
+        "label": "@course.eras.3.chapter.label",
+        "question": "@course.eras.3.chapter.question"
       },
       "levels": [
         { "id": "3-1" },
@@ -418,9 +406,9 @@
     {
       "id": 4,
       "chapter": {
-        "title": { "en": "Learning to See", "zh": "学会看" },
-        "label": { "en": "Convolutional networks", "zh": "卷积网络" },
-        "question": { "en": "How does a machine learn by itself?", "zh": "机器怎样自己学会" }
+        "title": "@course.eras.4.chapter.title",
+        "label": "@course.eras.4.chapter.label",
+        "question": "@course.eras.4.chapter.question"
       },
       "levels": [
         { "id": "4-1" },
@@ -475,9 +463,9 @@
     {
       "id": 5,
       "chapter": {
-        "title": { "en": "The Whole Picture", "zh": "全局视野" },
-        "label": { "en": "Attention and embeddings", "zh": "注意力与嵌入" },
-        "question": { "en": "Seeing the whole image in one step", "zh": "一步看到全图" }
+        "title": "@course.eras.5.chapter.title",
+        "label": "@course.eras.5.chapter.label",
+        "question": "@course.eras.5.chapter.question"
       },
       "levels": [
         { "id": "5-1" },
@@ -506,9 +494,9 @@
     {
       "id": 6,
       "chapter": {
-        "title": { "en": "The Same Point Again", "zh": "认出同一个点" },
-        "label": { "en": "Feature matching", "zh": "特征匹配" },
-        "question": { "en": "Which points are easy to find again?", "zh": "哪些点容易再找到" }
+        "title": "@course.eras.6.chapter.title",
+        "label": "@course.eras.6.chapter.label",
+        "question": "@course.eras.6.chapter.question"
       },
       "levels": [
         { "id": "6-1" },
@@ -545,9 +533,9 @@
     {
       "id": 7,
       "chapter": {
-        "title": { "en": "The Third Dimension", "zh": "第三个维度" },
-        "label": { "en": "Stereo vision", "zh": "双目视觉" },
-        "question": { "en": "How do two eyes judge distance?", "zh": "两只眼睛怎样看出远近" }
+        "title": "@course.eras.7.chapter.title",
+        "label": "@course.eras.7.chapter.label",
+        "question": "@course.eras.7.chapter.question"
       },
       "levels": [
         { "id": "7-1" },
@@ -582,9 +570,9 @@
     {
       "id": 8,
       "chapter": {
-        "title": { "en": "Drawing the Unseen", "zh": "画出没见过的图" },
-        "label": { "en": "Generative models", "zh": "生成模型" },
-        "question": { "en": "Making images from random numbers", "zh": "从随机数生成图像" }
+        "title": "@course.eras.8.chapter.title",
+        "label": "@course.eras.8.chapter.label",
+        "question": "@course.eras.8.chapter.question"
       },
       "levels": [
         { "id": "8-1" },
@@ -616,9 +604,9 @@
     {
       "id": 9,
       "chapter": {
-        "title": { "en": "What Every Pixel Is", "zh": "每个像素是什么" },
-        "label": { "en": "Segmentation", "zh": "分割" },
-        "question": { "en": "An answer for every pixel", "zh": "给每个像素一个答案" }
+        "title": "@course.eras.9.chapter.title",
+        "label": "@course.eras.9.chapter.label",
+        "question": "@course.eras.9.chapter.question"
       },
       "levels": [
         { "id": "9-1" },
@@ -650,9 +638,9 @@
     {
       "id": 10,
       "chapter": {
-        "title": { "en": "Boxing Things In", "zh": "框出来" },
-        "label": { "en": "Object detection", "zh": "目标检测" },
-        "question": { "en": "Where things are, and how big", "zh": "东西在哪、有多大" }
+        "title": "@course.eras.10.chapter.title",
+        "label": "@course.eras.10.chapter.label",
+        "question": "@course.eras.10.chapter.question"
       },
       "levels": [
         { "id": "10-1" },
@@ -686,9 +674,9 @@
     {
       "id": 11,
       "chapter": {
-        "title": { "en": "Where Is It Looking?", "zh": "看它在看哪" },
-        "label": { "en": "Model inspection", "zh": "模型诊断" },
-        "question": { "en": "Does it see the car or the road?", "zh": "它认的是车还是路" }
+        "title": "@course.eras.11.chapter.title",
+        "label": "@course.eras.11.chapter.label",
+        "question": "@course.eras.11.chapter.question"
       },
       "levels": [
         { "id": "11-1" },

@@ -1,12 +1,9 @@
 {
-  "title": { "en": "Take both sides", "zh": "两边都讨论" },
+  "title": "@level.lemCases.title",
   "tray": ["proof", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "If it rains I drink coffee; if it does not, I drink coffee too. So I drank coffee.",
-        "zh": "下雨我喝咖啡，不下雨我也喝咖啡，所以我喝了咖啡。"
-      }
+      "t": "@level.lemCases.intro.0.t"
     }
   ],
   "tasks": [
@@ -16,8 +13,8 @@
       "tests": [{ "premises": { "p": "A → B", "q": "¬A → B" }, "goal": "B" }],
       "cases": [{ "A": "Rain", "B": "Coffee" }, { "A": "Bus", "B": "OnTime" }],
       "hint": [
-        { "en": "Rain and no rain: take both cases.", "zh": "下雨和不下雨，两种情况都讨论。" },
-        { "en": "Taking cases needs an “or”, and none is given.", "zh": "分情况要一句「或者」，已知里没有。" }
+        "@level.lemCases.tasks.lemCases.hint.0",
+        "@level.lemCases.tasks.lemCases.hint.1"
       ],
       "solution": [
         "l = lem[A=A]()",

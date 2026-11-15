@@ -10,7 +10,7 @@
 // string, so it still follows.
 import { currentLang } from '../lang.js'
 import EN from '../i18n/en.js'
-import { firstText, isText } from '../engine/i18n.js'
+import { firstText, isText, textIn, textKey } from '../engine/i18n.js'
 
 let lang = 'en'
 try {
@@ -41,8 +41,13 @@ const selfRendering = (v) => v !== null && typeof v === 'object' && !Array.isArr
 /** Resolve a text pair (or pass a plain string, number or nothing through). */
 export const L = (v) => (isPair(v) ? sideOf(v, lang) : selfRendering(v) ? String(v) : v)
 
-/** One language's side of a text (another available text when it has none): for a sentence written in each language at once. */
-export const sideOf = (v, side) => (!isPair(v) ? v : v[side]?.trim() ? v[side] : firstText(v))
+/** Resolve the requested language and expose missing catalog copy in the game preview. */
+export function sideOf(value, side) {
+  if (!isPair(value)) return value
+  const text = textIn(value, side)
+  const key = textKey(value)
+  return text.trim() ? text : key ? `⟦${key} · ${side}⟧` : firstText(value)
+}
 
 /** A reading-language-independent key for React and comparisons. */
 export const keyOf = firstText

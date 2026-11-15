@@ -1,27 +1,21 @@
 {
-  "title": { "en": "De Morgan", "zh": "德摩根律" },
+  "title": "@level.demorgan.title",
   "tray": ["proof", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "“Neither Saturday nor Sunday” and “not (Saturday or Sunday)” say the same; so do “not (Saturday and Sunday)” and “not Saturday, or not Sunday”. These are <wiki-ref to=\"demorgan\"></wiki-ref>.",
-        "zh": "「既不是周六也不是周日」和「并非（周六或者周日）」是一回事；「并非（周六并且周日）」和「不是周六，或者不是周日」也是。这是<wiki-ref to=\"demorgan\"></wiki-ref>。"
-      }
+      "t": "@level.demorgan.intro.0.t"
     }
   ],
   "tasks": [
     {
       "id": "demorgan_1",
       "kind": "proof",
-      "step": { "en": "Not either", "zh": "并非或者" },
+      "step": "@level.demorgan.tasks.demorgan_1.step",
       "tests": [{ "premises": { "p": "¬(A ∨ B)" }, "goal": "¬A ∧ ¬B" }],
       "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
       "hint": [
-        { "en": "Each half of the goal is a negation.", "zh": "要证的两半各是一个否定。" },
-        {
-          "en": "Assume “today is Saturday” and see how it contradicts the given.",
-          "zh": "假设「今天是周六」，看它怎样和已知矛盾。"
-        }
+        "@level.demorgan.tasks.demorgan_1.hint.0",
+        "@level.demorgan.tasks.demorgan_1.hint.1"
       ],
       "solution": [
         "na = impI[A=A](body: m) {",
@@ -43,15 +37,12 @@
     {
       "id": "demorgan_2",
       "kind": "proof",
-      "step": { "en": "Neither", "zh": "两个都不" },
+      "step": "@level.demorgan.tasks.demorgan_2.step",
       "tests": [{ "premises": { "p": "¬A ∧ ¬B" }, "goal": "¬(A ∨ B)" }],
       "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
       "hint": [
-        { "en": "The goal is a negation.", "zh": "要证的是一个否定。" },
-        {
-          "en": "Assume “today is Saturday ∨ today is Sunday” and get a contradiction in each case.",
-          "zh": "假设「今天是周六 ∨ 今天是周日」，两种情况各推出矛盾。"
-        }
+        "@level.demorgan.tasks.demorgan_2.hint.0",
+        "@level.demorgan.tasks.demorgan_2.hint.1"
       ],
       "solution": [
         "f = impI[A=\"A | B\"](body: o) {",
@@ -73,15 +64,12 @@
     {
       "id": "demorgan_3",
       "kind": "proof",
-      "step": { "en": "One fails", "zh": "有一个不" },
+      "step": "@level.demorgan.tasks.demorgan_3.step",
       "tests": [{ "premises": { "p": "¬A ∨ ¬B" }, "goal": "¬(A ∧ B)" }],
       "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
       "hint": [
-        { "en": "The goal is again a negation.", "zh": "要证的又是一个否定。" },
-        {
-          "en": "Assume “today is Saturday ∧ today is Sunday”, then take cases on the given.",
-          "zh": "假设「今天是周六 ∧ 今天是周日」，再对已知分情况。"
-        }
+        "@level.demorgan.tasks.demorgan_3.hint.0",
+        "@level.demorgan.tasks.demorgan_3.hint.1"
       ],
       "solution": [
         "f = impI[A=\"A & B\"](body: o) {",
@@ -103,12 +91,12 @@
     {
       "id": "demorgan_4",
       "kind": "proof",
-      "step": { "en": "Not both", "zh": "并非两个都" },
+      "step": "@level.demorgan.tasks.demorgan_4.step",
       "tests": [{ "premises": { "p": "¬(A ∧ B)" }, "goal": "¬A ∨ ¬B" }],
       "cases": [{ "A": "Sat", "B": "Sun" }, { "A": "Rain", "B": "Wind" }],
       "hint": [
-        { "en": "The given does not say which one fails.", "zh": "已知没说哪一个不成立。" },
-        { "en": "Today is Saturday, or it is not: take both sides.", "zh": "今天是周六，或者不是：两边都讨论。" }
+        "@level.demorgan.tasks.demorgan_4.hint.0",
+        "@level.demorgan.tasks.demorgan_4.hint.1"
       ],
       "solution": [
         "l = lem[A=A]()",

@@ -1,34 +1,22 @@
 {
-  "title": { "en": "It holds or it does not", "zh": "要么成立，要么不成立" },
+  "title": "@level.raa.title",
   "tray": ["proof", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "In <level-ref to=\"c-wall\"></level-ref>, auto could not prove “it rains ∨ ¬it rains”, an instance of <wiki-ref to=\"lem\"></wiki-ref>. First a weaker sentence: “¬¬(it rains ∨ ¬it rains)”, that denying it is a contradiction.",
-        "zh": "<level-ref to=\"c-wall\"></level-ref>里，auto 证不出「下雨 ∨ ¬下雨」，<wiki-ref to=\"lem\"></wiki-ref>的一例。先证一句弱一些的：「¬¬(下雨 ∨ ¬下雨)」，否认它就会矛盾。"
-      }
+      "t": "@level.raa.intro.0.t"
     }
   ],
-  "after": {
-    "en": "The rules without double-negation elimination are <wiki-ref to=\"intuitionistic\"></wiki-ref>; with it, <wiki-ref to=\"classical\"></wiki-ref>. In classical propositional logic, every sentence true on every row has a proof.",
-    "zh": "没有双重否定消去的规则，是<wiki-ref to=\"intuitionistic\"></wiki-ref>；加上它，就是<wiki-ref to=\"classical\"></wiki-ref>。经典命题逻辑里，真值表上每一行都真的句子都证得出。"
-  },
+  "after": "@level.raa.after",
   "tasks": [
     {
       "id": "raa_1",
       "kind": "proof",
-      "step": { "en": "Undeniable", "zh": "不可否定" },
+      "step": "@level.raa.tasks.raa_1.step",
       "tests": [{ "goal": "¬¬(A ∨ ¬A)" }],
       "cases": [{ "A": "Rain" }, { "A": "Exam" }],
       "hint": [
-        {
-          "en": "The goal is a negation; neither side of the “or” has to be proved.",
-          "zh": "要证的是一个否定，不必证出「或者」的哪一边。"
-        },
-        {
-          "en": "Assume “¬(it rains ∨ ¬it rains)”; that assumption is used twice.",
-          "zh": "假设「¬(下雨 ∨ ¬下雨)」，这个假设要用两次。"
-        }
+        "@level.raa.tasks.raa_1.hint.0",
+        "@level.raa.tasks.raa_1.hint.1"
       ],
       "solution": [
         "f = impI[A=\"~(A | ~A)\"](body: m2) {",
@@ -57,7 +45,7 @@
     {
       "id": "raa_2",
       "kind": "proof",
-      "step": { "en": "Double-negation elimination", "zh": "双重否定消去" },
+      "step": "@level.raa.tasks.raa_2.step",
       "carries": true,
       "adds": ["raa"],
       "tests": [{ "goal": "A ∨ ¬A" }],
@@ -65,21 +53,12 @@
       "cases": [{ "A": "Rain" }, { "A": "Exam" }],
       "intro": [
         {
-          "t": {
-            "en": "From ¬¬A, infer A: this is <b>double-negation elimination</b>. The rules so far cannot derive it; it can only come into the kernel as an <wiki-ref to=\"axiom\"></wiki-ref>, <part-ref to=\"part:raa\"></part-ref>.",
-            "zh": "由 ¬¬A 推出 A，叫<b>双重否定消去</b>。现有的规则推不出它，只能作为一条<wiki-ref to=\"axiom\"></wiki-ref>加进证明核：<part-ref to=\"part:raa\"></part-ref>。"
-          }
+          "t": "@level.raa.tasks.raa_2.intro.0.t"
         }
       ],
       "hint": [
-        {
-          "en": "The proof you just made already gives “¬¬(it rains ∨ ¬it rains)”.",
-          "zh": "刚才的证明已经给出「¬¬(下雨 ∨ ¬下雨)」。"
-        },
-        {
-          "en": "Wire <part-ref to=\"part:raa\"></part-ref> after the outermost assumption box.",
-          "zh": "把<part-ref to=\"part:raa\"></part-ref>接在最外层假设框的输出后面。"
-        }
+        "@level.raa.tasks.raa_2.hint.0",
+        "@level.raa.tasks.raa_2.hint.1"
       ],
       "solution": [
         "f = impI[A=\"~(A | ~A)\"](body: m2) {",

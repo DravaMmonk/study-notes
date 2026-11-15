@@ -1,12 +1,9 @@
 {
   "adds": ["gAnd", "formulaAnd"],
-  "title": { "en": "Rain, but no wind", "zh": "下雨，但没刮风" },
+  "title": "@level.g-and.title",
   "intro": [
     {
-      "t": {
-        "en": "<part-ref to=\"part:gAnd\"></part-ref> outputs true only when both inputs are true.",
-        "zh": "<part-ref to=\"part:gAnd\"></part-ref>：两个输入都为真，才输出真。"
-      }
+      "t": "@level.g-and.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,11 +11,8 @@
       "id": "g-and",
       "kind": "gates",
       "target": "Rain ∧ ¬Wind",
-      "brief": {
-        "en": "Wire a board that works out the value of “it rains and it is not windy” on every row.",
-        "zh": "接一块电路，算出「下雨，并且不刮风」在每一行的真值。"
-      },
-      "hint": [{ "en": "Two things must hold at once.", "zh": "两件事要同时成立。" }],
+      "brief": "@level.g-and.tasks.g-and.brief",
+      "hint": ["@level.g-and.tasks.g-and.hint.0"],
       "solution": ["n = gNot(Wind)", "a = gAnd(Rain, n)", "out <- a"]
     }
   ]

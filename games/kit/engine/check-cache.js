@@ -14,6 +14,7 @@
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
+import { isText, textKey } from './i18n.js'
 
 const KIT = resolve(import.meta.dirname, '..')
 const FOLDER = resolve(KIT, '../../trace-viewer/node_modules/.cache/games-check')
@@ -39,8 +40,9 @@ export function kitVersion() {
 }
 
 // A text of the content (schema.js S.text): words, which no check of an earlier level's work reads.
-const isText = (v) => v !== null && typeof v === 'object' && !Array.isArray(v) && Object.keys(v).length > 0 && Object.entries(v).every(([k, x]) => (k === 'zh' || k === 'en') && typeof x === 'string')
-const wordless = (value) => JSON.stringify(value, (_k, v) => (isText(v) ? undefined : v))
+const wordless = (value) => JSON.stringify(value, (_k, v) => (
+  textKey(v) || (isText(v) && Object.keys(v).every((key) => key === 'en' || key === 'zh')) ? undefined : v
+))
 
 /** Each level's key, by level id, and the level each task id is in. */
 export function levelKeys(content, course) {

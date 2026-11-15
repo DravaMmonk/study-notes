@@ -1,53 +1,29 @@
 {
-  "title": { "en": "More than one order", "zh": "顺序不止一种" },
-  "short": { "en": "Same board, another order", "zh": "同一块电路板，换个顺序" },
+  "title": "@level.twoorders.title",
+  "short": "@level.twoorders.short",
   "intro": [
     {
-      "t": {
-        "en": "In <level-ref to=\"stones\"></level-ref> the robot scanned by length. Would another order work too?",
-        "zh": "在<level-ref to=\"stones\"></level-ref>里，机器人按长度扫。换一个顺序，还能算对吗？"
-      }
+      "t": "@level.twoorders.intro.0.t"
     },
     {
-      "t": {
-        "en": "This level has two tasks on the same circuit board: in task 1 the robot scans by length; in task 2 it switches to <b>row by row, from the bottom up</b>. Both orders have to come out right.",
-        "zh": "这一关有两个任务，用的是同一块电路板：任务 1 机器人按长度扫；任务 2 换成<b>逐行，从下往上</b>。两种顺序下都要算对。"
-      }
+      "t": "@level.twoorders.intro.1.t"
     },
     {
-      "t": {
-        "en": "The <part-ref to=\"interval\"></part-ref> is already in your Parts, ready to go on the board. Each cell reads the whole row to its left and the whole column below it: do both orders get those computed first?",
-        "zh": "<part-ref to=\"interval\"></part-ref>已经在元件箱里，可以直接放上电路板。每一格要读它左边一整排、下面一整列：两种顺序都能让它们先算好吗？"
-      }
+      "t": "@level.twoorders.intro.2.t"
     }
   ],
   "mission": {
-    "goal": {
-      "en": "Merge the stones as cheaply as possible. Pass once under each of two scan orders, with the same circuit board.",
-      "zh": "合并石子，花费最少。同一块电路板，在两种扫描顺序下各通过一次。"
-    },
-    "how": {
-      "en": "In task 1 the robot scans by length; in task 2 the board stays and the robot switches to row by row from the bottom up.",
-      "zh": "任务 1 机器人按长度扫；任务 2 电路板留着，机器人换成逐行从下往上扫。"
-    }
+    "goal": "@level.twoorders.mission.goal",
+    "how": "@level.twoorders.mission.how"
   },
   "robot": "broom",
   "debrief": {
-    "title": { "en": "More than one valid order", "zh": "合法的顺序不止一种" },
+    "title": "@level.twoorders.debrief.title",
     "body": [
-      {
-        "en": "By length, row by row from the bottom up, column by column from the bottom up: they all work. They have just one thing in common: <b>every cell comes after the cells it reads</b>.",
-        "zh": "按长度、逐行从下往上、逐列每列从下往上，都行。它们只有一个共同点：<b>每一格都排在它要读的格子之后</b>。"
-      },
-      {
-        "en": "The order is not part of the answer, just an arrangement of “who goes first”.",
-        "zh": "顺序不是答案的一部分，只是「先算谁」的安排。"
-      }
+      "@level.twoorders.debrief.body.0",
+      "@level.twoorders.debrief.body.1"
     ],
-    "note": {
-      "en": "Any order works, as long as the cells being read are computed first.",
-      "zh": "只要被读的格子先算好，什么顺序都行。"
-    }
+    "note": "@level.twoorders.debrief.note"
   },
   "tasks": [
     {
@@ -61,26 +37,14 @@
       "scan": "len",
       "diag": 0,
       "hints": [
-        {
-          "en": "Put down an <part-ref to=\"interval\"></part-ref>, and wire the sweep arm’s left parts and right parts and This cell’s run weight to its three ports.",
-          "zh": "放一块<part-ref to=\"interval\"></part-ref>，把扫描臂的左段们、右段们和本格信息的这段总重，接到它的三个口上。"
-        },
-        {
-          "en": "Each cell reads the cells to its left on the same row and the cells below it in the same column: scanning by length, or row by row from the bottom up, those cells have always been computed first.",
-          "zh": "每一格读的是同一行左边的格子，和同一列下面的格子：按长度扫，或者逐行从下往上扫，这些格子都已经先算好了。"
-        }
+        "@level.twoorders.tasks.twoorders.hints.0",
+        "@level.twoorders.tasks.twoorders.hints.1"
       ],
-      "ask": {
-        "en": "Build the circuit board and pass the tests, scanning by length.",
-        "zh": "拼好电路板，按长度扫，让测试通过。"
-      },
+      "ask": "@level.twoorders.tasks.twoorders.ask",
       "done": {
-        "head": { "en": "One order passed", "zh": "一种顺序通过了" },
+        "head": "@level.twoorders.tasks.twoorders.done.head",
         "body": [
-          {
-            "en": "The board stays. The robot switches to row by row from the bottom up; run it again.",
-            "zh": "电路板会留着。机器人换成逐行从下往上扫，再跑一次。"
-          }
+          "@level.twoorders.tasks.twoorders.done.body.0"
         ]
       }
     },
@@ -95,19 +59,10 @@
       "scan": "rowBR",
       "diag": 0,
       "hints": [
-        {
-          "en": "Put down an <part-ref to=\"interval\"></part-ref>, and wire the sweep arm’s left parts and right parts and This cell’s run weight to its three ports.",
-          "zh": "放一块<part-ref to=\"interval\"></part-ref>，把扫描臂的左段们、右段们和本格信息的这段总重，接到它的三个口上。"
-        },
-        {
-          "en": "Each cell reads the cells to its left on the same row and the cells below it in the same column: scanning by length, or row by row from the bottom up, those cells have always been computed first.",
-          "zh": "每一格读的是同一行左边的格子，和同一列下面的格子：按长度扫，或者逐行从下往上扫，这些格子都已经先算好了。"
-        }
+        "@level.twoorders.tasks.twoorders_2.hints.0",
+        "@level.twoorders.tasks.twoorders_2.hints.1"
       ],
-      "ask": {
-        "en": "Same board; the robot now scans row by row from the bottom up. Pass again.",
-        "zh": "电路板不变，机器人换成逐行从下往上扫。再通过一次。"
-      },
+      "ask": "@level.twoorders.tasks.twoorders_2.ask",
       "carries": true
     }
   ]

@@ -2,10 +2,7 @@
   "settings": {
     "reg_reg": {
       "control": "select",
-      "label": {
-        "en": "Name",
-        "zh": "名字"
-      },
+      "label": "@setting.reg_reg.label",
       "options": [
         {
           "value": "A"
@@ -22,13 +19,10 @@
       ],
       "default": "A"
     },
-    "reg_start": {"control": "number", "label": {"en": "Start", "zh": "初值"}, "default": null},
+    "reg_start": { "control": "number", "label": "@setting.reg_start.label", "default": null },
     "keep_reg": {
       "control": "select",
-      "label": {
-        "en": "Name",
-        "zh": "名字"
-      },
+      "label": "@setting.keep_reg.label",
       "options": [
         {
           "value": "A"
@@ -45,15 +39,19 @@
       ],
       "default": "A"
     },
-    "const_value": {"control": "number", "label": {"en": "Value", "zh": "数值"}, "min": 0, "max": 32, "integer": true, "default": 0}
+    "const_value": {
+      "control": "number",
+      "label": "@setting.const_value.label",
+      "min": 0,
+      "max": 32,
+      "integer": true,
+      "default": 0
+    }
   },
   "parts": {
     "reg": {
-      "name": { "en": "Register", "zh": "读寄存卡" },
-      "desc": {
-        "en": "Gives the value held in the register of the same name; before anything is stored, gives its start value (「—」 or the number set).",
-        "zh": "给出同名寄存卡中存的值；尚未存入时，给出初值（「—」或设定的数）。"
-      },
+      "name": "@piece.reg.name",
+      "desc": "@piece.reg.desc",
       "icon": "ArrowUpFromLine",
       "family": "memory",
       "inputs": [],
@@ -61,11 +59,8 @@
       "compute": "held($reg, $start)"
     },
     "keep": {
-      "name": { "en": "Keep", "zh": "存寄存卡" },
-      "desc": {
-        "en": "Stores its input in the register of the same name; it can be read from the next tick on.",
-        "zh": "把接入的值存进同名寄存卡，从下一拍起可以读出。"
-      },
+      "name": "@piece.keep.name",
+      "desc": "@piece.keep.desc",
       "icon": "ArrowDownToLine",
       "family": "memory",
       "inputs": [{ "name": "in" }],
@@ -73,8 +68,8 @@
       "keeps": { "input": "in", "register": "reg" }
     },
     "const": {
-      "name": { "en": "Constant", "zh": "常数" },
-      "desc": { "en": "Always gives the number it is set to.", "zh": "始终给出设定的数。" },
+      "name": "@piece.const.name",
+      "desc": "@piece.const.desc",
       "icon": "Hash",
       "family": "value",
       "inputs": [],

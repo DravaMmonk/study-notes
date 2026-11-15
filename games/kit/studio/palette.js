@@ -6,10 +6,10 @@
 //
 //   an item: { kind, key (unique), label, detail?, words (what else it is found by), …what it points at }
 
-import { isText } from '../engine/i18n.js'
+import { isText, textEntries } from '../engine/i18n.js'
 import { getLang, sideOf } from '../shell/i18n.js'
 
-const plain = (value) => isText(value) ? Object.values(value).join(' ') : String(value ?? '')
+const plain = (value) => isText(value) ? textEntries(value).map(([, text]) => text).join(' ') : String(value ?? '')
 const one = (value, lang) => String(sideOf(value, lang) ?? '')
 
 /**

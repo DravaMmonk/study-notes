@@ -1,202 +1,127 @@
 {
   "settings": {
-    "impI_A": {"control": "tree", "label": {"en": "Assume", "zh": "假设"}},
-    "orI_other": {"control": "tree", "label": {"en": "Other side", "zh": "另一边"}},
+    "impI_A": { "control": "tree", "label": "@setting.impI_A.label" },
+    "orI_other": { "control": "tree", "label": "@setting.orI_other.label" },
     "orI_side": {
       "control": "buttons",
-      "label": {
-        "en": "Other side goes",
-        "zh": "另一边放"
-      },
+      "label": "@setting.orI_side.label",
       "options": [
         {
           "value": "left",
-          "label": {
-            "en": "Left",
-            "zh": "左"
-          }
+          "label": "@setting.orI_side.options.0.label"
         },
         {
           "value": "right",
-          "label": {
-            "en": "Right",
-            "zh": "右"
-          }
+          "label": "@setting.orI_side.options.1.label"
         }
       ],
       "default": "right"
     },
-    "botE_C": {"control": "tree", "label": {"en": "Conclude", "zh": "得出"}},
-    "allI_x": {"control": "select", "label": {"en": "Name", "zh": "名字"}, "from": "names()"},
-    "allE_t": {"control": "select", "label": {"en": "Which thing", "zh": "哪一样"}, "from": "instances()"},
-    "exI_target": {"control": "tree", "label": {"en": "Conclusion to derive", "zh": "要得出"}, "optional": true},
-    "exE_x": {"control": "select", "label": {"en": "Witness", "zh": "见证"}, "from": "names()"},
-    "natInd_P": {"control": "tree", "label": {"en": "Prove", "zh": "要证"}},
-    "natInd_x": {"control": "select", "label": {"en": "Name", "zh": "名字"}, "from": "names()"},
-    "refl_t": {"control": "select", "label": {"en": "Which thing", "zh": "哪一样"}, "from": "things()"},
-    "rewrite_at": {"control": "list", "label": {"en": "Replace at", "zh": "换哪几处"}, "from": "occurrences(eq, p)"},
+    "botE_C": { "control": "tree", "label": "@setting.botE_C.label" },
+    "allI_x": { "control": "select", "label": "@setting.allI_x.label", "from": "names()" },
+    "allE_t": { "control": "select", "label": "@setting.allE_t.label", "from": "instances()" },
+    "exI_target": { "control": "tree", "label": "@setting.exI_target.label", "optional": true },
+    "exE_x": { "control": "select", "label": "@setting.exE_x.label", "from": "names()" },
+    "natInd_P": { "control": "tree", "label": "@setting.natInd_P.label" },
+    "natInd_x": { "control": "select", "label": "@setting.natInd_x.label", "from": "names()" },
+    "refl_t": { "control": "select", "label": "@setting.refl_t.label", "from": "things()" },
+    "rewrite_at": { "control": "list", "label": "@setting.rewrite_at.label", "from": "occurrences(eq, p)" },
     "append_ways": {
       "control": "select",
-      "label": {
-        "en": "Regions",
-        "zh": "框"
-      },
+      "label": "@setting.append_ways.label",
       "options": [
         {
           "value": "2",
-          "label": {
-            "en": "2 clauses",
-            "zh": "2 条"
-          }
+          "label": "@setting.append_ways.options.0.label"
         },
         {
           "value": "3",
-          "label": {
-            "en": "3 clauses",
-            "zh": "3 条"
-          }
+          "label": "@setting.append_ways.options.1.label"
         },
         {
           "value": "4",
-          "label": {
-            "en": "4 clauses",
-            "zh": "4 条"
-          }
+          "label": "@setting.append_ways.options.2.label"
         },
         {
           "value": "5",
-          "label": {
-            "en": "5",
-            "zh": "5 条"
-          }
+          "label": "@setting.append_ways.options.3.label"
         },
         {
           "value": "6",
-          "label": {
-            "en": "6",
-            "zh": "6 条"
-          }
+          "label": "@setting.append_ways.options.4.label"
         }
       ],
       "default": "2"
     },
     "search_depth": {
       "control": "select",
-      "label": {
-        "en": "At most",
-        "zh": "最多"
-      },
+      "label": "@setting.search_depth.label",
       "options": [
         {
           "value": "any",
-          "label": {
-            "en": "Any",
-            "zh": "不限"
-          }
+          "label": "@setting.search_depth.options.0.label"
         },
         {
           "value": "2",
-          "label": {
-            "en": "2 levels",
-            "zh": "2 层"
-          }
+          "label": "@setting.search_depth.options.1.label"
         },
         {
           "value": "3",
-          "label": {
-            "en": "3 levels",
-            "zh": "3 层"
-          }
+          "label": "@setting.search_depth.options.2.label"
         },
         {
           "value": "4",
-          "label": {
-            "en": "4 levels",
-            "zh": "4 层"
-          }
+          "label": "@setting.search_depth.options.3.label"
         },
         {
           "value": "5",
-          "label": {
-            "en": "5 levels",
-            "zh": "5 层"
-          }
+          "label": "@setting.search_depth.options.4.label"
         },
         {
           "value": "6",
-          "label": {
-            "en": "6 levels",
-            "zh": "6 层"
-          }
+          "label": "@setting.search_depth.options.5.label"
         },
         {
           "value": "8",
-          "label": {
-            "en": "8 levels",
-            "zh": "8 层"
-          }
+          "label": "@setting.search_depth.options.6.label"
         },
         {
           "value": "10",
-          "label": {
-            "en": "10 levels",
-            "zh": "10 层"
-          }
+          "label": "@setting.search_depth.options.7.label"
         },
         {
           "value": "12",
-          "label": {
-            "en": "12 levels",
-            "zh": "12 层"
-          }
+          "label": "@setting.search_depth.options.8.label"
         }
       ],
       "default": "any"
     },
     "rw_at": {
       "control": "select",
-      "label": {
-        "en": "Where",
-        "zh": "改哪里"
-      },
+      "label": "@setting.rw_at.label",
       "options": [
         {
           "value": "goal",
-          "label": {
-            "en": "Goal",
-            "zh": "目标"
-          }
+          "label": "@setting.rw_at.options.0.label"
         },
         {
           "value": "hyps",
-          "label": {
-            "en": "Hypotheses",
-            "zh": "已知"
-          }
+          "label": "@setting.rw_at.options.1.label"
         }
       ],
       "default": "goal"
     },
     "resolve_unit": {
       "control": "select",
-      "label": {
-        "en": "Cancel with",
-        "zh": "和谁消"
-      },
+      "label": "@setting.resolve_unit.label",
       "options": [
         {
           "value": "any",
-          "label": {
-            "en": "Any two",
-            "zh": "任意两条"
-          }
+          "label": "@setting.resolve_unit.options.0.label"
         },
         {
           "value": "unit",
-          "label": {
-            "en": "Only with unit clauses",
-            "zh": "只和单项子句"
-          }
+          "label": "@setting.resolve_unit.options.1.label"
         }
       ],
       "default": "any"
@@ -204,187 +129,157 @@
   },
   "parts": {
     "gNot": {
-      "name": { "en": "Not ¬", "zh": "非 ¬" },
-      "desc": { "en": "¬a: true in gives false out; false in gives true out.", "zh": "¬a：输入是真，输出假；输入是假，输出真。" },
+      "name": "@piece.gNot.name",
+      "desc": "@piece.gNot.desc",
       "icon": "ToggleLeft",
       "family": "gate",
       "inputs": [{ "name": "a" }],
       "compute": "not(a)"
     },
     "gAnd": {
-      "name": { "en": "And ∧", "zh": "与 ∧" },
-      "desc": {
-        "en": "a ∧ b: outputs true only when both inputs are true; otherwise false.",
-        "zh": "a ∧ b：两个输入都是真，才输出真；否则输出假。"
-      },
+      "name": "@piece.gAnd.name",
+      "desc": "@piece.gAnd.desc",
       "icon": "ToggleLeft",
       "family": "gate",
       "inputs": [{ "name": "a" }, { "name": "b" }],
       "compute": "and(a, b)"
     },
     "mp": {
-      "name": { "en": "Apply", "zh": "套用" },
-      "desc": { "en": "From A → B and A, gives B.", "zh": "由 A → B 和 A 得到 B。" },
+      "name": "@piece.mp.name",
+      "desc": "@piece.mp.desc",
       "icon": "GitFork",
       "family": "rule",
       "inputs": [
-        { "name": "imp", "label": { "en": "A → B", "zh": "A → B" } },
-        { "name": "a", "label": { "en": "A", "zh": "A" } }
+        { "name": "imp", "label": "@piece.mp.inputs.0.label" },
+        { "name": "a", "label": "@piece.mp.inputs.1.label" }
       ],
       "compute": "mp(imp, a)"
     },
     "impI": {
-      "name": { "en": "Assumption box", "zh": "假设框" },
-      "desc": {
-        "en": "A box, with A set on the part. Inside, A may be used as an assumption; prove B there and wire it to “Conclusion”, and the part gives A → B.",
-        "zh": "带一个框，A 在元件上设定。框内可以使用假设 A；框内证出 B 并接到「结论」，元件输出 A → B。"
-      },
+      "name": "@piece.impI.name",
+      "desc": "@piece.impI.desc",
       "icon": "Box",
       "family": "box",
       "inputs": [],
       "settings": [{"key": "A", "setting": "impI_A"}],
-      "regions": [{ "name": "body", "label": { "en": "Inside", "zh": "框内" }, "opens": true, "closes": true }],
+      "regions": [{ "name": "body", "label": "@piece.impI.regions.0.label", "opens": true, "closes": true }],
       "compute": "impI(body)"
     },
     "andI": {
-      "name": { "en": "Join", "zh": "拼接" },
-      "desc": { "en": "Connect A and B to get A ∧ B.", "zh": "接入 A 和 B，得到 A ∧ B。" },
+      "name": "@piece.andI.name",
+      "desc": "@piece.andI.desc",
       "icon": "GitFork",
       "family": "rule",
       "inputs": [
-        { "name": "a", "label": { "en": "A", "zh": "A" } },
-        { "name": "b", "label": { "en": "B", "zh": "B" } }
+        { "name": "a", "label": "@piece.andI.inputs.0.label" },
+        { "name": "b", "label": "@piece.andI.inputs.1.label" }
       ],
       "compute": "andI(a, b)"
     },
     "andE": {
-      "name": { "en": "Split", "zh": "拆解" },
-      "desc": { "en": "Connect A ∧ B to get A and B at separate outputs.", "zh": "接入 A ∧ B，两个输出口分别得到 A 和 B。" },
+      "name": "@piece.andE.name",
+      "desc": "@piece.andE.desc",
       "icon": "GitFork",
       "family": "rule",
-      "inputs": [{ "name": "ab", "label": { "en": "A ∧ B", "zh": "A ∧ B" } }],
+      "inputs": [{ "name": "ab", "label": "@piece.andE.inputs.0.label" }],
       "outputs": [
-        { "name": "left", "label": { "en": "A", "zh": "A" } },
-        { "name": "right", "label": { "en": "B", "zh": "B" } }
+        { "name": "left", "label": "@piece.andE.outputs.0.label" },
+        { "name": "right", "label": "@piece.andE.outputs.1.label" }
       ],
       "compute": { "left": "andE(ab)", "right": "andE(ab)" }
     },
     "orI": {
-      "name": { "en": "Add alternative", "zh": "补充" },
-      "desc": {
-        "en": "Connect A and choose another statement B and its position to get A ∨ B or B ∨ A. B need not be proved.",
-        "zh": "接入 A，选定另一句 B 和它的位置，得到 A ∨ B 或 B ∨ A；不需要证明 B。"
-      },
+      "name": "@piece.orI.name",
+      "desc": "@piece.orI.desc",
       "icon": "GitFork",
       "family": "rule",
-      "inputs": [{ "name": "a", "label": { "en": "A", "zh": "A" } }],
+      "inputs": [{ "name": "a", "label": "@piece.orI.inputs.0.label" }],
       "settings": [{"key": "other", "setting": "orI_other"}, {"key": "side", "setting": "orI_side"}],
       "compute": "orI(a)"
     },
     "orE": {
-      "name": { "en": "Case analysis", "zh": "分类讨论" },
-      "desc": {
-        "en": "Connect A ∨ B and assume A and B in separate boxes. When both prove the same C and connect it to their respective “Conclusion” ports, the part outputs C.",
-        "zh": "接入 A ∨ B，在两个框中分别假设 A、B。两个框都证出同一句 C 并接到各自的「结论」时，元件输出 C。"
-      },
+      "name": "@piece.orE.name",
+      "desc": "@piece.orE.desc",
       "icon": "Box",
       "family": "box",
-      "inputs": [{ "name": "ab", "label": { "en": "A ∨ B", "zh": "A ∨ B" } }],
+      "inputs": [{ "name": "ab", "label": "@piece.orE.inputs.0.label" }],
       "regions": [
-        { "name": "left", "label": { "en": "Case one", "zh": "情况一" }, "opens": true, "closes": true },
-        { "name": "right", "label": { "en": "Case two", "zh": "情况二" }, "opens": true, "closes": true }
+        { "name": "left", "label": "@piece.orE.regions.0.label", "opens": true, "closes": true },
+        { "name": "right", "label": "@piece.orE.regions.1.label", "opens": true, "closes": true }
       ],
       "compute": "orE(ab, left, right)"
     },
     "botE": {
-      "name": { "en": "Explosion", "zh": "爆炸" },
-      "desc": {
-        "en": "From the contradiction ⊥, gives whatever sentence is chosen on the part.",
-        "zh": "由矛盾 ⊥ 得到元件上选定的任意一句。"
-      },
+      "name": "@piece.botE.name",
+      "desc": "@piece.botE.desc",
       "icon": "GitFork",
       "family": "rule",
-      "inputs": [{ "name": "bot", "label": { "en": "⊥", "zh": "⊥" } }],
+      "inputs": [{ "name": "bot", "label": "@piece.botE.inputs.0.label" }],
       "settings": [{"key": "C", "setting": "botE_C"}],
       "compute": "botE(bot)"
     },
     "raa": {
-      "name": { "en": "By contradiction", "zh": "反证法" },
-      "desc": { "en": "From ¬¬A, gives A (double-negation elimination).", "zh": "由 ¬¬A 得到 A（双重否定消去）。" },
+      "name": "@piece.raa.name",
+      "desc": "@piece.raa.desc",
       "icon": "GitFork",
       "family": "rule",
-      "inputs": [{ "name": "nna", "label": { "en": "¬¬A", "zh": "¬¬A" } }],
+      "inputs": [{ "name": "nna", "label": "@piece.raa.inputs.0.label" }],
       "compute": "raa(nna)"
     },
     "allI": {
-      "name": { "en": "For-any box", "zh": "任取框" },
-      "desc": {
-        "en": "Name an arbitrary object a on the part. Prove P(a) inside the box and connect it to “Conclusion” to obtain ∀x. P(x) outside. a must not occur in any open assumption.",
-        "zh": "在元件上为任意对象取名 a，在框内证明 P(a) 并接到「结论」，框外得到 ∀x. P(x)。a 不能出现在未解除的假设中。"
-      },
+      "name": "@piece.allI.name",
+      "desc": "@piece.allI.desc",
       "icon": "Box",
       "family": "box",
       "inputs": [],
       "settings": [{"key": "x", "setting": "allI_x"}],
-      "regions": [{ "name": "body", "label": { "en": "Inside", "zh": "框内" }, "closes": true }],
+      "regions": [{ "name": "body", "label": "@piece.allI.regions.0.label", "closes": true }],
       "compute": "allI(body)"
     },
     "allE": {
-      "name": { "en": "Choose an instance", "zh": "选定一例" },
-      "desc": {
-        "en": "Connect ∀x. P(x) and choose an object t to obtain P(t).",
-        "zh": "接入 ∀x. P(x)，选定对象 t，得到 P(t)。"
-      },
+      "name": "@piece.allE.name",
+      "desc": "@piece.allE.desc",
       "icon": "GitFork",
       "family": "rule",
-      "inputs": [{ "name": "all", "label": { "en": "∀x. P(x)", "zh": "∀x. P(x)" } }],
+      "inputs": [{ "name": "all", "label": "@piece.allE.inputs.0.label" }],
       "settings": [{"key": "t", "setting": "allE_t"}],
       "compute": "allE(all)"
     },
     "exI": {
-      "name": { "en": "Generalise", "zh": "概括" },
-      "desc": {
-        "en": "Connect P(t) to obtain ∃x. P(x), with t as a witness. If exactly one existential statement fits, it is selected automatically; if several fit, choose the conclusion on the part.",
-        "zh": "接入 P(t)，以 t 为例得到 ∃x. P(x)。只有一个相符的存在命题时自动输出；有多个时，在元件上选择要得出的命题。"
-      },
+      "name": "@piece.exI.name",
+      "desc": "@piece.exI.desc",
       "icon": "GitFork",
       "family": "rule",
-      "inputs": [{ "name": "a", "label": { "en": "P(t)", "zh": "P(t)" } }],
+      "inputs": [{ "name": "a", "label": "@piece.exI.inputs.0.label" }],
       "settings": [{"key": "target", "setting": "exI_target"}],
       "compute": "exI(a)"
     },
     "exE": {
-      "name": { "en": "Instance box", "zh": "实例框" },
-      "desc": {
-        "en": "Connect ∃x. P(x) and name the existing object a on the part. Inside the box, P(a) may be assumed. Prove C and connect it to “Conclusion” to obtain C outside. a must not appear in C or in any open assumption.",
-        "zh": "接入 ∃x. P(x)，在元件上为存在的对象取名 a。框内可以假设 P(a)；证出 C 并接到「结论」后，框外得到 C。C 中不能出现 a，a 也不能出现在未解除的假设中。"
-      },
+      "name": "@piece.exE.name",
+      "desc": "@piece.exE.desc",
       "icon": "Box",
       "family": "box",
-      "inputs": [{ "name": "ex", "label": { "en": "∃x. P(x)", "zh": "∃x. P(x)" } }],
+      "inputs": [{ "name": "ex", "label": "@piece.exE.inputs.0.label" }],
       "settings": [{"key": "x", "setting": "exE_x"}],
-      "regions": [{ "name": "body", "label": { "en": "Inside", "zh": "框内" }, "opens": true, "closes": true }],
+      "regions": [{ "name": "body", "label": "@piece.exE.regions.0.label", "opens": true, "closes": true }],
       "compute": "exE(ex, body)"
     },
     "natInd": {
-      "name": { "en": "Mathematical induction", "zh": "数学归纳法" },
-      "desc": {
-        "en": "Two boxes, proving the ∀x. P(x) chosen on the part. The first proves P(0); in the second the number is called a (named on the part; it must not occur in any open assumption), P(a) may be used as an assumption, and P(S a) is to be proved. Once both are proved, the part gives ∀x. P(x).",
-        "zh": "带两个框，证元件上选定的 ∀x. P(x)。第一个框证 P(0)；第二个框内的数记作 a（在元件上命名，不能出现在未解除的假设中），可以使用假设 P(a)，要证 P(S a)。两个框都证完，元件输出 ∀x. P(x)。"
-      },
+      "name": "@piece.natInd.name",
+      "desc": "@piece.natInd.desc",
       "icon": "Box",
       "family": "box",
       "inputs": [],
       "settings": [{"key": "P", "setting": "natInd_P"}, {"key": "x", "setting": "natInd_x"}],
       "regions": [
-        { "name": "zero", "label": { "en": "The case 0", "zh": "0 的情况" }, "closes": true },
-        { "name": "step", "label": { "en": "From a to S a", "zh": "从 a 到 S a" }, "opens": true, "closes": true }
+        { "name": "zero", "label": "@piece.natInd.regions.0.label", "closes": true },
+        { "name": "step", "label": "@piece.natInd.regions.1.label", "opens": true, "closes": true }
       ],
       "compute": "natInd(zero, step)"
     },
     "refl": {
-      "name": { "en": "Reflexivity", "zh": "自反律" },
-      "desc": { "en": "Choose a thing t on the part; gives t = t.", "zh": "在元件上选定一样东西 t，得到 t = t。" },
+      "name": "@piece.refl.name",
+      "desc": "@piece.refl.desc",
       "icon": "GitFork",
       "family": "rule",
       "inputs": [],
@@ -392,309 +287,237 @@
       "compute": "refl()"
     },
     "rewrite": {
-      "name": { "en": "Substitute equals", "zh": "等量代换" },
-      "desc": {
-        "en": "Wire in s = t and a sentence containing s; the part marks each s in it, and the ticked ones become t.",
-        "zh": "接入 s = t 和一句含 s 的话；元件标出这句话里的每一处 s，勾选的几处换成 t。"
-      },
+      "name": "@piece.rewrite.name",
+      "desc": "@piece.rewrite.desc",
       "icon": "GitFork",
       "family": "rule",
       "inputs": [
-        { "name": "eq", "label": { "en": "s = t", "zh": "s = t" } },
-        { "name": "p", "label": { "en": "φ(s)", "zh": "φ(s)" } }
+        { "name": "eq", "label": "@piece.rewrite.inputs.0.label" },
+        { "name": "p", "label": "@piece.rewrite.inputs.1.label" }
       ],
       "settings": [{"key": "at", "setting": "rewrite_at"}],
       "compute": "rewrite(eq, p)"
     },
     "anyR": {
-      "name": { "en": "Any conclusion", "zh": "任意结论" },
-      "desc": { "en": "Gives ?R: any sentence at all.", "zh": "输出 ?R：任意一句话。" },
+      "name": "@piece.anyR.name",
+      "desc": "@piece.anyR.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [],
       "compute": "anyR()"
     },
     "swapConcl": {
-      "name": { "en": "Swap conclusion", "zh": "替换结论" },
-      "desc": {
-        "en": "Wire in a rule and a sentence: keeps the rule’s premises and makes the sentence its conclusion.",
-        "zh": "接入一条规则和一句话：保留规则的前提，结论换成这句话。"
-      },
+      "name": "@piece.swapConcl.name",
+      "desc": "@piece.swapConcl.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [
-        { "name": "rule", "label": { "en": "Rule", "zh": "规则" } },
-        { "name": "to", "label": { "en": "Becomes", "zh": "换成" } }
+        { "name": "rule", "label": "@piece.swapConcl.inputs.0.label" },
+        { "name": "to", "label": "@piece.swapConcl.inputs.1.label" }
       ],
       "compute": "swapConcl(rule, to)"
     },
     "consFront": {
-      "name": { "en": "Put first", "zh": "添加首项" },
-      "desc": {
-        "en": "Puts “This” at the front of “A list”; when what comes into “A list” is not a list, makes a list of the two.",
-        "zh": "把「这一样」放在「一串」的最前面；「一串」接入的不是列表时，把两者组成一个列表。"
-      },
+      "name": "@piece.consFront.name",
+      "desc": "@piece.consFront.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [
-        { "name": "first", "label": { "en": "This", "zh": "这一样" } },
-        { "name": "rest", "label": { "en": "A list", "zh": "一串" } }
+        { "name": "first", "label": "@piece.consFront.inputs.0.label" },
+        { "name": "rest", "label": "@piece.consFront.inputs.1.label" }
       ],
       "compute": "consFront(first, rest)"
     },
     "mkRule": {
-      "name": { "en": "Make a rule", "zh": "构造规则" },
-      "desc": {
-        "en": "Builds the rule ⟦premises⟧ ⟹ conclusion from premises (a list or a single item) and a conclusion. A sentence is a premise as it is; a rule becomes a premise with its own assumptions.",
-        "zh": "由前提（列表或单项）和结论构造规则 ⟦前提⟧ ⟹ 结论。句子直接作为前提；规则成为带自身假设的前提。"
-      },
+      "name": "@piece.mkRule.name",
+      "desc": "@piece.mkRule.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [
-        { "name": "premises", "label": { "en": "Premises", "zh": "前提" } },
-        { "name": "conclusion", "label": { "en": "Conclusion", "zh": "结论" } }
+        { "name": "premises", "label": "@piece.mkRule.inputs.0.label" },
+        { "name": "conclusion", "label": "@piece.mkRule.inputs.1.label" }
       ],
       "compute": "mkRule(premises, conclusion)"
     },
     "eachOf": {
-      "name": { "en": "For each", "zh": "逐项处理" },
-      "desc": {
-        "en": "Wire in a list: the frame receives one item at a time, and its inner output goes to “Result”; each item is processed once, and the results form a list in the original order.",
-        "zh": "接入列表：框每次收到其中一项，框内的输出接到「结果」；每一项处理一次，结果按原顺序组成列表。"
-      },
+      "name": "@piece.eachOf.name",
+      "desc": "@piece.eachOf.desc",
       "icon": "Box",
       "family": "loop",
       "inputs": [{ "name": "in" }],
-      "regions": [{ "name": "body", "label": { "en": "Each item", "zh": "每一样" }, "opens": true }],
+      "regions": [{ "name": "body", "label": "@piece.eachOf.regions.0.label", "opens": true }],
       "compute": "eachOf(in)"
     },
     "keepBound": {
-      "name": { "en": "Keep ⋀", "zh": "保留⋀" },
-      "desc": {
-        "en": "Wire in a rule. If it begins with bound variables (⋀x. …), the frame works on the rule after them, and the output keeps the same bound variables in front; if it has none, the frame works on the input itself.",
-        "zh": "接入一条规则。规则以约束变量开头（⋀x. …）时，框内处理其后的规则，输出时在结果前保留这些约束变量；没有约束变量时，框内直接处理输入。"
-      },
+      "name": "@piece.keepBound.name",
+      "desc": "@piece.keepBound.desc",
       "icon": "Box",
       "family": "loop",
       "inputs": [{ "name": "in" }],
       "regions": [
         {
           "name": "body",
-          "label": { "en": "The rule after the bound variables", "zh": "约束变量之后的规则" },
+          "label": "@piece.keepBound.regions.0.label",
           "opens": true
         }
       ],
       "compute": "keepBound(in)"
     },
     "uDelete": {
-      "name": { "en": "Delete", "zh": "删除" },
-      "desc": {
-        "en": "Finds an equation with identical sides, t ≐ t, and deletes it.",
-        "zh": "找到两边相同的等式 t ≐ t，删去它。"
-      },
+      "name": "@piece.uDelete.name",
+      "desc": "@piece.uDelete.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "uDelete(in)"
     },
     "uDecompose": {
-      "name": { "en": "Decompose", "zh": "分解" },
-      "desc": {
-        "en": "Finds an equation whose sides have the same structure (both “and”, the same predicate …) and splits it into equations between corresponding parts: ?A ∧ ?B ≐ it rains ∧ it is windy becomes ?A ≐ it rains and ?B ≐ it is windy. ¬A splits as A → ⊥.",
-        "zh": "找到两边结构相同的等式（都是「并且」、都是同一个谓词……），分解为对应部分之间的等式：?A ∧ ?B ≐ 下雨 ∧ 刮风 分解为 ?A ≐ 下雨 和 ?B ≐ 刮风。¬A 按 A → ⊥ 分解。"
-      },
+      "name": "@piece.uDecompose.name",
+      "desc": "@piece.uDecompose.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "uDecompose(in)"
     },
     "uConflict": {
-      "name": { "en": "Conflict", "zh": "冲突" },
-      "desc": {
-        "en": "Finds an equation with no ?-letter on either side and different structures (an “and” against an “or”, two different sentences …) and reports failure.",
-        "zh": "找到两边都不是 ?-字母、结构却不同的等式（一边是「并且」一边是「或者」，或是两个不同的句子……），报告失败。"
-      },
+      "name": "@piece.uConflict.name",
+      "desc": "@piece.uConflict.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "uConflict(in)"
     },
     "uSwap": {
-      "name": { "en": "Orient", "zh": "定向" },
-      "desc": {
-        "en": "Finds an equation with a ?-letter on the right only, t ≐ ?A, and turns it into ?A ≐ t.",
-        "zh": "找到只有右边是 ?-字母的等式 t ≐ ?A，改写为 ?A ≐ t。"
-      },
+      "name": "@piece.uSwap.name",
+      "desc": "@piece.uSwap.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "uSwap(in)"
     },
     "uCheck": {
-      "name": { "en": "Occurs check", "zh": "出现检查" },
-      "desc": {
-        "en": "Finds ?A ≐ t where t contains ?A and is not ?A itself, and reports failure.",
-        "zh": "找到等式 ?A ≐ t，t 含有 ?A 而不是 ?A 本身时，报告失败。"
-      },
+      "name": "@piece.uCheck.name",
+      "desc": "@piece.uCheck.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "uCheck(in)"
     },
     "uEliminate": {
-      "name": { "en": "Eliminate", "zh": "消元" },
-      "desc": {
-        "en": "Finds ?A ≐ t (t free of ?A) where ?A still occurs in other equations, and replaces ?A with t there.",
-        "zh": "找到等式 ?A ≐ t（t 不含 ?A），而 ?A 还出现在其他等式中：把那些等式中的 ?A 全部换成 t。"
-      },
+      "name": "@piece.uEliminate.name",
+      "desc": "@piece.uEliminate.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "uEliminate(in)"
     },
     "uPattern": {
-      "name": { "en": "Pattern unification", "zh": "模式合一" },
-      "desc": {
-        "en": "Finds ⋀x. ?P(x) ≐ t where ?P is applied to distinct variables bound by the ⋀ and t contains no other ⋀ variable, and solves ?P ≐ fun x => t. When ?P is applied to anything else (?P(ann), ?P(?t)), the equation is left unchanged.",
-        "zh": "找到等式 ⋀x. ?P(x) ≐ t：?P 的参数是受 ⋀ 约束、互不相同的变量，t 中没有其他 ⋀ 变量。解出 ?P ≐ fun x => t。?P 的参数不是这样的变量时（?P(安)、?P(?t)），保留原等式不变。"
-      },
+      "name": "@piece.uPattern.name",
+      "desc": "@piece.uPattern.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "uPattern(in)"
     },
     "repeat": {
-      "name": { "en": "Repeat frame", "zh": "重复框" },
-      "desc": {
-        "en": "The frame receives the input; its inner output goes to “Result” and back into the frame, round after round, until it stops changing, and the last round’s result is given. If a round fails, it stops at the round before.",
-        "zh": "框收到输入，框内的输出接到「结果」后再送回框内，逐轮重复，直到结果不再变化，输出最后一轮的结果；某一轮失败时，停在失败前的一轮。"
-      },
+      "name": "@piece.repeat.name",
+      "desc": "@piece.repeat.desc",
       "icon": "Repeat",
       "family": "loop",
       "inputs": [{ "name": "in" }],
       "regions": [
-        { "name": "body", "label": { "en": "Each round", "zh": "每一轮" }, "opens": true, "closes": true }
+        { "name": "body", "label": "@piece.repeat.regions.0.label", "opens": true, "closes": true }
       ],
       "compute": "repeat(in, body)"
     },
     "rule": {
-      "name": { "en": "Apply a rule backwards", "zh": "逆用规则" },
-      "desc": {
-        "en": "Takes rules at its “Rules” port and uses the first that applies: the first goal is unified with the rule’s conclusion and replaced by its premises (one goal per premise, each premise’s own assumptions added to the hypotheses). Any ?-letter not yet fixed stays in the goals.",
-        "zh": "从「规则」口接入规则，用第一条适用的：第一个目标与规则的结论合一，换成规则的前提（每条前提一个目标，前提自带的假设加入已知）。尚未确定的 ?-字母留在目标中。"
-      },
+      "name": "@piece.rule.name",
+      "desc": "@piece.rule.desc",
       "icon": "Sigma",
       "family": "tactic",
-      "inputs": [{ "name": "in" }, { "name": "rules", "label": { "en": "Rule", "zh": "规则" } }],
+      "inputs": [{ "name": "in" }, { "name": "rules", "label": "@piece.rule.inputs.1.label" }],
       "compute": "rule(in, rules)"
     },
     "assumption": {
-      "name": { "en": "Assumption", "zh": "由假设得证" },
-      "desc": {
-        "en": "Unifies the first goal with one of its hypotheses: on success the goal is closed and its ?-letters are fixed. It searches from the top and uses the first that fits.",
-        "zh": "第一个目标与它的一条已知合一：成功时这个目标证完，相应的 ?-字母随之确定。从上往下查找，用第一条合得上的已知。"
-      },
+      "name": "@piece.assumption.name",
+      "desc": "@piece.assumption.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "assumption(in)"
     },
     "defer": {
-      "name": { "en": "Defer", "zh": "目标后移" },
-      "desc": {
-        "en": "Moves the first goal to the end; the second becomes the first.",
-        "zh": "把第一个目标移到最后，原来的第二个目标成为第一个。"
-      },
+      "name": "@piece.defer.name",
+      "desc": "@piece.defer.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "defer(in)"
     },
     "append": {
-      "name": { "en": "Alternatives", "zh": "依次尝试" },
-      "desc": {
-        "en": "Every region receives the same state; gives the result of the first region that does not fail. The number of regions is chosen on the part.",
-        "zh": "每个框收到相同的状态；输出第一个没有失败的框的结果。在元件上选定框的数目。"
-      },
+      "name": "@piece.append.name",
+      "desc": "@piece.append.desc",
       "icon": "Box",
       "family": "loop",
       "inputs": [{ "name": "in" }],
       "settings": [{"key": "ways", "setting": "append_ways"}],
       "regions": [
-        { "name": "first", "label": { "en": "Try first", "zh": "先试" }, "opens": true },
-        { "name": "second", "label": { "en": "Then", "zh": "再试" }, "opens": true },
-        { "name": "third", "label": { "en": "Then", "zh": "再试" }, "opens": true, "when": "ge($ways, 3)" },
-        { "name": "fourth", "label": { "en": "Then", "zh": "再试" }, "opens": true, "when": "ge($ways, 4)" },
-        { "name": "fifth", "label": { "en": "Then", "zh": "再试" }, "opens": true, "when": "ge($ways, 5)" },
-        { "name": "sixth", "label": { "en": "Then", "zh": "再试" }, "opens": true, "when": "ge($ways, 6)" }
+        { "name": "first", "label": "@piece.append.regions.0.label", "opens": true },
+        { "name": "second", "label": "@piece.append.regions.1.label", "opens": true },
+        { "name": "third", "label": "@piece.append.regions.2.label", "opens": true, "when": "ge($ways, 3)" },
+        { "name": "fourth", "label": "@piece.append.regions.3.label", "opens": true, "when": "ge($ways, 4)" },
+        { "name": "fifth", "label": "@piece.append.regions.4.label", "opens": true, "when": "ge($ways, 5)" },
+        { "name": "sixth", "label": "@piece.append.regions.5.label", "opens": true, "when": "ge($ways, 6)" }
       ],
       "compute": "append(in)"
     },
     "search": {
-      "name": { "en": "Backtracking search", "zh": "回溯搜索" },
-      "desc": {
-        "en": "Depth-first search: the parts inside take one step on the state received, then go on from each result; each path is followed to its end before backtracking to the next, until no goal remains. Gives every finished state it finds. A step back to where it was (no fewer goals, no more hypotheses) is not followed. A depth limit can be set on the part.",
-        "zh": "深度优先搜索：框内的元件对收到的状态走一步，再从得到的每种结果继续；一条路走到底再回溯走下一条，直到没有目标。输出找到的每一个证完的状态。回到原状态的一步（目标没有减少，已知也没有增加）不再继续。可以在元件上设定最大深度。"
-      },
+      "name": "@piece.search.name",
+      "desc": "@piece.search.desc",
       "icon": "Search",
       "family": "loop",
       "inputs": [{ "name": "in" }],
       "settings": [{"key": "depth", "setting": "search_depth"}],
-      "regions": [{ "name": "body", "label": { "en": "Each step", "zh": "每一步" }, "opens": true }],
+      "regions": [{ "name": "body", "label": "@piece.search.regions.0.label", "opens": true }],
       "compute": "search(in)"
     },
     "each": {
-      "name": { "en": "Each goal in turn", "zh": "逐个目标" },
-      "desc": {
-        "en": "The parts inside run once on each goal, seeing only that goal each time; if any goal fails, the whole part fails.",
-        "zh": "框内的元件对每个目标各执行一次，每次只看到这一个目标；任一目标失败，整个元件失败。"
-      },
+      "name": "@piece.each.name",
+      "desc": "@piece.each.desc",
       "icon": "Rows3",
       "family": "loop",
       "inputs": [{ "name": "in" }],
-      "regions": [{ "name": "body", "label": { "en": "Each goal in turn", "zh": "逐个目标" }, "opens": true }],
+      "regions": [{ "name": "body", "label": "@piece.each.regions.0.label", "opens": true }],
       "compute": "each(in)"
     },
     "rw": {
-      "name": { "en": "Rewrite", "zh": "改写" },
-      "desc": {
-        "en": "Takes rewrite rules: in the first goal, outside in and left to right, the first place that fits the rule’s left side becomes its right side, that place alone. A rule with conditions adds each as a new goal after this one. Given several, it uses the first that fits; if nothing fits, it fails.",
-        "zh": "接入改写规则：在第一个目标中，由外向内、从左到右找到第一处与规则左边相合的位置，换成规则右边，只换这一处。规则带条件时，每个条件成为新目标，排在这个目标之后。接入多条时用第一条相合的；没有一处相合，元件失败。"
-      },
+      "name": "@piece.rw.name",
+      "desc": "@piece.rw.desc",
       "icon": "Sigma",
       "family": "tactic",
-      "inputs": [{ "name": "in" }, { "name": "rules", "label": { "en": "Rule", "zh": "规则" } }],
+      "inputs": [{ "name": "in" }, { "name": "rules", "label": "@piece.rw.inputs.1.label" }],
       "settings": [{"key": "at", "setting": "rw_at"}],
       "compute": "rw(in, rules)"
     },
     "skolem": {
-      "name": { "en": "Skolemise", "zh": "Skolem 化" },
-      "desc": {
-        "en": "Removes every ∃ from the first goal’s hypotheses: one with no ∀ outside is taken out as the instance box does; one under a ∀ becomes a new function of all the enclosing ∀ variables (sk1(x) …). The hypotheses must be in negation normal form first.",
-        "zh": "消去第一个目标的已知中所有的 ∃：外层没有 ∀ 的，像实例框一样取出那一样东西；在 ∀ 之内的，换成一个新函数，参数是外层所有 ∀ 的变量（sk1(x)……）。已知须先化为否定范式。"
-      },
+      "name": "@piece.skolem.name",
+      "desc": "@piece.skolem.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "skolem(in)"
     },
     "toClauses": {
-      "name": { "en": "Extract clauses", "zh": "析出子句" },
-      "desc": {
-        "en": "The first goal must be ⊥: its hypotheses are split into clauses. Each must be in CNF; conjunctions are split, each disjunction becomes a clause, ∀s are dropped and variables read as universally quantified.",
-        "zh": "第一个目标须为 ⊥：把它的已知拆成子句。每条已知须为合取范式；拆开「并且」，每串「或者」成为一条子句，去掉 ∀，变量按「对所有」理解。"
-      },
+      "name": "@piece.toClauses.name",
+      "desc": "@piece.toClauses.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "toClauses(in)"
     },
     "resolve": {
-      "name": { "en": "A round of resolution", "zh": "一轮归结" },
-      "desc": {
-        "en": "Tries every pair of clauses in the set once: when a literal of one unifies with the complement of a literal of the other, that pair is cancelled and the remaining literals form a new clause, added with a record of its two parents. Tautologies and duplicates are dropped. It can be set to resolve only against one-literal clauses.",
-        "zh": "子句集中的每一对子句各试一次：一条中的某个文字与另一条中的相反文字能合一时，消去这一对，其余文字合成新子句加入子句集，并记下它的两条父子句。舍弃永真子句和重复子句。可以在元件上设定只与单文字子句归结。"
-      },
+      "name": "@piece.resolve.name",
+      "desc": "@piece.resolve.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
@@ -702,30 +525,24 @@
       "compute": "resolve(in)"
     },
     "oracle": {
-      "name": { "en": "Someone else’s prover", "zh": "外部证明器" },
-      "desc": {
-        "en": "A fast prover: it cancels all complementary literals between two clauses at once, round after round until ⊥ appears or no new clause does. It too records the two parents of each new clause.",
-        "zh": "快速证明器：两条子句间的相反文字一次全部消去，逐轮进行，直到推出 ⊥ 或不再产生新子句。每条新子句也记下两条父子句。"
-      },
+      "name": "@piece.oracle.name",
+      "desc": "@piece.oracle.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "oracle(in)"
     },
     "replay": {
-      "name": { "en": "Replay", "zh": "重放" },
-      "desc": {
-        "en": "When the clause set contains ⊥, the steps to ⊥ go to the kernel: each input clause used must come from a hypothesis, and each step must be proved from its two parents (variables instantiated by unification) by Own auto. If all pass, the goal the clauses came from is proved; otherwise it names the failing step.",
-        "zh": "子句集中有 ⊥ 时，把推出 ⊥ 的步骤交给核检查：用到的每条输入子句须由某条已知拆出；每一步须由它的两条父子句（变量按合一结果代入）经自建 auto 证出。全部通过，拆出这些子句的目标即证完；某一步不通过，指出是哪一步。"
-      },
+      "name": "@piece.replay.name",
+      "desc": "@piece.replay.desc",
       "icon": "Sigma",
       "family": "tactic",
       "inputs": [{ "name": "in" }],
       "compute": "replay(in)"
     },
     "gOr": {
-      "name": { "en": "Or ∨", "zh": "或 ∨" },
-      "desc": { "en": "a ∨ b: outputs true when at least one input is true.", "zh": "a ∨ b：至少一个输入是真，就输出真。" },
+      "name": "@piece.gOr.name",
+      "desc": "@piece.gOr.desc",
       "family": "gate",
       "inside": [{ "task": "g-or" }]
     },
@@ -734,56 +551,56 @@
       "mark": "formulaNot",
       "icon": "Rows3",
       "name": "¬",
-      "desc": { "en": "Negation", "zh": "否定" }
+      "desc": "@piece.formulaNot.desc"
     },
     "formulaAnd": {
       "editor": "strip",
       "mark": "formulaAnd",
       "icon": "Rows3",
       "name": "∧",
-      "desc": { "en": "Conjunction", "zh": "合取" }
+      "desc": "@piece.formulaAnd.desc"
     },
     "formulaOr": {
       "editor": "strip",
       "mark": "formulaOr",
       "icon": "Rows3",
       "name": "∨",
-      "desc": { "en": "Disjunction", "zh": "析取" }
+      "desc": "@piece.formulaOr.desc"
     },
     "formulaImplies": {
       "editor": "strip",
       "mark": "formulaImplies",
       "icon": "Rows3",
       "name": "→",
-      "desc": { "en": "Implication", "zh": "蕴含" }
+      "desc": "@piece.formulaImplies.desc"
     },
     "formulaIff": {
       "editor": "strip",
       "mark": "formulaIff",
       "icon": "Rows3",
       "name": "↔",
-      "desc": { "en": "Biconditional", "zh": "当且仅当" }
+      "desc": "@piece.formulaIff.desc"
     },
     "formulaFalse": {
       "editor": "strip",
       "mark": "formulaFalse",
       "icon": "Rows3",
       "name": "⊥",
-      "desc": { "en": "Contradiction", "zh": "矛盾" }
+      "desc": "@piece.formulaFalse.desc"
     },
     "formulaForall": {
       "editor": "strip",
       "mark": "formulaForall",
       "icon": "Rows3",
       "name": "∀",
-      "desc": { "en": "Universal quantifier", "zh": "全称量词" }
+      "desc": "@piece.formulaForall.desc"
     },
     "formulaExists": {
       "editor": "strip",
       "mark": "formulaExists",
       "icon": "Rows3",
       "name": "∃",
-      "desc": { "en": "Existential quantifier", "zh": "存在量词" }
+      "desc": "@piece.formulaExists.desc"
     }
   }
 }

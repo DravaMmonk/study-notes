@@ -1,12 +1,9 @@
 {
-  "title": { "en": "Negation pushed in", "zh": "推进否定" },
+  "title": "@level.sp-dm.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "<part-ref to=\"lemma:dm\"></part-ref> has eight shapes, and each can serve as a rewrite rule.",
-        "zh": "<part-ref to=\"lemma:dm\"></part-ref>有八个形状，每一个都可以当改写规则。"
-      }
+      "t": "@level.sp-dm.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,23 +11,17 @@
       "id": "sp-dm_1",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.sp-dm.tasks.sp-dm_1.inputs.0.label" }],
       "backtrack": true,
-      "step": { "en": "Inside the brackets", "zh": "推进括号" },
+      "step": "@level.sp-dm.tasks.sp-dm_1.step",
       "tests": [
         { "goal": "¬(Rain ∨ Wind) → Wet", "becomes": [["¬Rain ∧ ¬Wind → Wet"]] },
         { "goal": "Wet ∧ ¬(Sat ∧ Sun)", "becomes": [["Wet ∧ (¬Sat ∨ ¬Sun)"]] }
       ],
-      "brief": {
-        "en": "Design a proof assistant that pushes the negation in each goal inside the brackets.",
-        "zh": "设计一个证明助手，把每个目标里的否定推进括号里。"
-      },
+      "brief": "@level.sp-dm.tasks.sp-dm_1.brief",
       "hint": [
-        { "en": "One goal holds ¬(… ∨ …), the other ¬(… ∧ …).", "zh": "一个目标里是 ¬(… ∨ …)，另一个里是 ¬(… ∧ …)。" },
-        {
-          "en": "One rewrite rule fits only one shape; to try both, see <part-ref to=\"part:append\"></part-ref>.",
-          "zh": "一条改写规则只对得上一种样子；两种都要试，见<part-ref to=\"part:append\"></part-ref>。"
-        }
+        "@level.sp-dm.tasks.sp-dm_1.hint.0",
+        "@level.sp-dm.tasks.sp-dm_1.hint.1"
       ],
       "solution": [
         "c0 = append(in, first: c1, second: c2) {",
@@ -50,18 +41,15 @@
       "id": "sp-dm_2",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.sp-dm.tasks.sp-dm_2.inputs.0.label" }],
       "backtrack": true,
-      "step": { "en": "Past the quantifier", "zh": "推过量词" },
+      "step": "@level.sp-dm.tasks.sp-dm_2.step",
       "tests": [
         { "goal": "¬∀x. Drinks(x)", "becomes": [["∃x. ¬Drinks(x)"]] },
         { "goal": "Wet ∧ ¬∃x. Sings(x)", "becomes": [["Wet ∧ (∀x. ¬Sings(x))"]] }
       ],
-      "brief": {
-        "en": "Design a proof assistant that pushes the negation in each goal past the quantifier.",
-        "zh": "设计一个证明助手，把每个目标里的否定推过量词。"
-      },
-      "hint": [{ "en": "One goal holds ¬∀, the other ¬∃.", "zh": "一个目标里是 ¬∀，另一个里是 ¬∃。" }],
+      "brief": "@level.sp-dm.tasks.sp-dm_2.brief",
+      "hint": ["@level.sp-dm.tasks.sp-dm_2.hint.0"],
       "solution": [
         "c0 = append(in, first: c1, second: c2) {",
         "  first {",

@@ -11,6 +11,7 @@
 import { useEffect, useRef } from 'react'
 import { ArrowDown, ArrowUp, ArrowRightLeft, Braces, ChevronRight, Copy, MousePointerClick, Pin, Trash2 } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
+import { copyWithoutTextKeys, sourceValue } from '../engine/catalogs.js'
 import { getAt, setAt, showPath } from '../engine/ops/edit.js'
 import { settingReferences } from '../engine/pieces.js'
 import { fieldAt, fileForm, moved, opFor, placeFindings, taskListOps } from './form.js'
@@ -102,16 +103,17 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
     </div>
   )
   if (json) {
+    const currentSource = sourceValue(getAt(shown?.value, path))
     return (
       <div className="insp">
         {header}
         <div className="insp-body" ref={body}>
           {!shown
             ? <p className="insp-about">{tr('这个字段没有 JSON 值。', 'This field has no JSON value.')}</p>
-            : <SourceEditor key={JSON.stringify([content.id, at, path])} source={JSON.stringify(getAt(shown.value, path), null, 2) ?? ''}
+            : <SourceEditor key={JSON.stringify([content.id, at, path])} source={JSON.stringify(currentSource, null, 2) ?? ''}
               onApply={(value) => {
-                const ops = sourceOps(file, shown.value, path, value, vocabulary, content.levels)
-                if (ops.length && removesContent(getAt(shown.value, path), value) && !confirmDelete()) return false
+                const ops = sourceOps(file, shown.value, path, value, vocabulary, content)
+                if (ops.length && removesContent(currentSource, value) && !confirmDelete()) return false
                 onOps(ops)
                 return true
               }} />}
@@ -152,7 +154,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
           <span className="kit-spacer" />
           <button type="button" disabled={last === 0} onClick={() => { edit(parent, { set: moved(list, last, last - 1) }, 'list'); onPick([...parent, last - 1]) }} title={tr('上移')}><ArrowUp size={13} /></button>
           <button type="button" disabled={last === list.length - 1} onClick={() => { edit(parent, { set: moved(list, last, last + 1) }, 'list'); onPick([...parent, last + 1]) }} title={tr('下移')}><ArrowDown size={13} /></button>
-          {!(root[0] === 'parts' && path[2] === 'settings' && path.length === 4) && <button type="button" onClick={() => { edit(parent, { set: [...list.slice(0, last + 1), JSON.parse(JSON.stringify(list[last])), ...list.slice(last + 1)] }, 'list'); onPick([...parent, last + 1]) }} title={tr('复制一份')}><Copy size={13} /></button>}
+          {!(root[0] === 'parts' && path[2] === 'settings' && path.length === 4) && <button type="button" onClick={() => { edit(parent, { set: [...list.slice(0, last + 1), copyWithoutTextKeys(list[last]), ...list.slice(last + 1)] }, 'list'); onPick([...parent, last + 1]) }} title={tr('复制一份')}><Copy size={13} /></button>}
           <button type="button" onClick={() => { if (confirmDelete(showPath(path))) { edit(path, { unset: true }, null); onPick(list.length > 1 ? [...parent, Math.max(0, last - 1)] : parent) } }} title={tr('去掉')}><Trash2 size={13} /></button>
         </div>
       )}
@@ -192,7 +194,7 @@ function TaskTools({ content, level, tasks, k, ctx, onEdit, onOps, onPick, onLev
       <span className="kit-spacer" />
       <button type="button" disabled={k === 0} onClick={() => { onEdit({ op: 'task.move', task: task.id, to: { level, ...place(k - 1) } }); onPick(['tasks', k - 1]) }} title={tr('上移')}><ArrowUp size={13} /></button>
       <button type="button" disabled={k === tasks.length - 1} onClick={() => { onEdit({ op: 'task.move', task: task.id, to: { level, after: tasks[k + 1].id } }); onPick(['tasks', k + 1]) }} title={tr('下移')}><ArrowDown size={13} /></button>
-      <button type="button" onClick={() => { const { id: _id, ...data } = task; onEdit({ op: 'task.add', level, data, after: task.id }); onPick(['tasks', k + 1]) }} title={tr('复制成新的任务')}><Copy size={13} /></button>
+      <button type="button" onClick={() => { const { id: _id, ...data } = copyWithoutTextKeys(task); onEdit({ op: 'task.add', level, data, after: task.id }); onPick(['tasks', k + 1]) }} title={tr('复制成新的任务')}><Copy size={13} /></button>
       <button type="button" disabled={only} onClick={() => { if (confirmDelete(task.id)) { onEdit({ op: 'task.remove', task: task.id }); onPick(['tasks', Math.max(0, k - 1)]) } }} title={only ? tr('一关至少留一个任务') : tr('去掉这个任务')}><Trash2 size={13} /></button>
       <span className="insp-move" title={only ? tr('并进另一关：这一关只有这个任务，挪过去后删掉这一关') : tr('挪进另一关（排在它的任务最后）')}>
         <ArrowRightLeft size={13} aria-hidden="true" />

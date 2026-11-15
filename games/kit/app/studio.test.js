@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { join } from 'node:path'
 import { proofsRoot } from '../engine/ops/fixture.js'
+import { readContent } from '../engine/content-node.js'
 import { studioGroups } from './studio-groups.js'
 
 const { root, id: GAME } = proofsRoot()
@@ -68,7 +69,7 @@ test('a pending changeset previewed: its content, lines by level and files, noth
   const before = onDisk('levels/suppose.json')
   const ops = [
     { op: 'text.set', level: 'suppose', path: 'tasks[0].brief', lang: 'en', value: 'Prove it with one box.' },
-    { op: 'game.set', path: ['title'], value: { en: 'Proofs with assumptions' } },
+    { op: 'text.set', in: 'game', path: ['title'], lang: 'en', value: 'Proofs with assumptions' },
   ]
   const { status, body } = await post('preview', { game: GAME, changeset: { ops } })
   assert.equal(status, 200)
@@ -76,8 +77,10 @@ test('a pending changeset previewed: its content, lines by level and files, noth
   assert.equal(body.content.levels.find((l) => l.id === 'suppose').tasks[0].brief.en, 'Prove it with one box.')
   assert.ok(body.order.includes('suppose') && body.lines.every((l) => Array.isArray(l.levels)))
   assert.ok(body.lines.some((l) => l.levels.includes('suppose') && /^suppose /.test(l.text)), 'a domain line is about its level')
-  assert.deepEqual(body.changes.map((c) => c.file).sort(), [`games/${GAME}/game.json`, `packages/${GAME}/levels/suppose.json`])
-  assert.equal(JSON.parse(body.changes.find((c) => c.file.endsWith('suppose.json')).after).tasks[0].brief.en, 'Prove it with one box.')
+  const catalog = `packages/${GAME}/i18n/en.json`
+  assert.deepEqual(body.changes.map((c) => c.file).sort(), [`games/${GAME}/i18n/en.json`, catalog])
+  const brief = JSON.parse(before).tasks[0].brief.slice(1)
+  assert.equal(JSON.parse(body.changes.find((c) => c.file === catalog).after)[brief], 'Prove it with one box.')
   assert.equal(onDisk('levels/suppose.json'), before, 'a preview writes nothing')
 
   const bad = (await post('preview', { game: GAME, changeset: { ops: [ops[0], { op: 'level.set', level: 'nope', path: 'x', value: 1 }] } })).body
@@ -99,9 +102,9 @@ test('a board seeded for the game, drawn as SVG', async () => {
 
 test('blueprint preview, seed, and tests use the requested task', async () => {
   const level = 'given'
-  const data = JSON.parse(onDisk('levels/given.json'))
+  const { id, ...data } = readContent(GAME, root).levels.find((item) => item.id === level)
   const first = data.tasks[0]
-  const second = { ...first, id: 'given_2', tests: [{ premises: { p: 'A', spare: 'A' }, goal: 'A' }] }
+  const second = { ...first, id: `${id}_2`, brief: { en: first.brief.en }, hint: [], tests: [{ premises: { p: 'A', spare: 'A' }, goal: 'A' }] }
   const changeset = { ops: [{ op: 'level.replace', level, data: { ...data, tasks: [first, second] } }] }
   const request = { game: GAME, level, path: 'tasks[1].solution', changeset }
 
@@ -123,18 +126,20 @@ test('blueprint preview, seed, and tests use the requested task', async () => {
 })
 
 test('apply, read the log, undo: the content comes back as it was', async () => {
-  const before = onDisk('levels/given.json')
+  const before = onDisk('i18n/en.json')
+  const source = onDisk('levels/given.json')
   const ops = [{ op: 'text.set', level: 'given', path: 'tasks[0].brief', lang: 'en', value: 'Assume “Today is Saturday” and prove the claim.' }]
   const done = (await post('modify', { game: GAME, changeset: { why: 'a shorter brief', ops } })).body
   assert.equal(done.written, true, done.problems.join('\n'))
-  assert.notEqual(onDisk('levels/given.json'), before)
+  assert.notEqual(onDisk('i18n/en.json'), before)
+  assert.equal(onDisk('levels/given.json'), source)
   const { log, undoable } = (await post('log', { game: GAME })).body
   assert.equal(log.at(-1).why, 'a shorter brief')
   assert.equal(undoable, log.at(-1).seq)
   const undone = (await post('undo', { game: GAME })).body
   assert.equal(undone.written, true, undone.problems.join('\n'))
   // The same content; a line the change rewrote keeps the file format (../engine/ops/json.js), as every write does.
-  assert.deepEqual(JSON.parse(onDisk('levels/given.json')), JSON.parse(before))
+  assert.deepEqual(JSON.parse(onDisk('i18n/en.json')), JSON.parse(before))
   assert.equal((await post('log', { game: GAME })).body.undoable, null, 'an undo is not itself undone')
 })
 

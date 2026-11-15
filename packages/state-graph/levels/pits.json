@@ -1,33 +1,21 @@
 {
-  "title": { "en": "Pits and prices", "zh": "有坑也有价" },
-  "short": { "en": "Energy costs and pits", "zh": "又要体力，又有坑" },
+  "title": "@level.pits.title",
+  "short": "@level.pits.short",
   "intro": [
     {
-      "t": {
-        "en": "In this city every crossing costs energy, and some have caved in and can’t be passed at all.",
-        "zh": "这座城市的路口既要花体力，有的还塌成了坑，根本过不去。"
-      }
+      "t": "@level.pits.intro.0.t"
     }
   ],
   "mission": {
-    "goal": {
-      "en": "Only right or down, avoiding every pit. Going from the top left to the bottom right, what is the least energy you can spend?",
-      "zh": "只能往右或往下走，绕开所有的坑。从左上走到右下，最少要花多少体力？"
-    },
-    "how": { "en": "Pits are drawn like rocks.", "zh": "坑画成石头的样子。" }
+    "goal": "@level.pits.mission.goal",
+    "how": "@level.pits.mission.how"
   },
   "robot": "scout",
   "debrief": {
-    "title": { "en": "Parts on parts", "zh": "零件叠零件" },
+    "title": "@level.pits.debrief.title",
     "body": [
-      {
-        "en": "The Cheapest cell takes care of energy, the Block gate takes care of pits. Both are things you built or learned earlier; here you only wired them together.",
-        "zh": "最省力格管体力，拦截闸管坑。两个都是你前面造出来、学会的东西，这里只是把它们接在一起。"
-      },
-      {
-        "en": "A pit holds “—”, and “min” skips it, so routes through a pit drop out by themselves.",
-        "zh": "坑上是「—」：取较小会跳过它，所以经过坑的路线自然被排除了。"
-      }
+      "@level.pits.debrief.body.0",
+      "@level.pits.debrief.body.1"
     ]
   },
   "tasks": [
@@ -37,18 +25,12 @@
       "diagnose": [
         {
           "when": { "not": { "uses": "rock" } },
-          "say": {
-            "en": "Some crossings are pits and can’t be passed. Read “is rock”.",
-            "zh": "有的路口是坑，过不去。读一读「是石头」。"
-          }
+          "say": "@level.pits.tasks.pits.diagnose.0.say"
         }
       ],
       "hints": [
-        { "en": "Energy and pits: have you handled each of them before?", "zh": "体力和坑，这两件事你以前分别处理过吗？" },
-        {
-          "en": "Cut off the pits: a Block gate outputs “—” when its condition is “yes”.",
-          "zh": "坑上要掐断：拦截闸在条件是「是」时输出「—」。"
-        }
+        "@level.pits.tasks.pits.hints.0",
+        "@level.pits.tasks.pits.hints.1"
       ],
       "world": "grid",
       "facts": ["start", "cost", "rock"],

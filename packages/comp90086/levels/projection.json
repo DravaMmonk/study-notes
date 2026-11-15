@@ -1,18 +1,12 @@
 {
-  "title": { "en": "Pinhole projection and depth ambiguity", "zh": "针孔投影与深度歧义" },
+  "title": "@level.projection.title",
   "intro": [],
-  "after": {
-    "en": "The image is f·H/Z tall: only the ratio of f to Z counts, and the brightness only the hole and f. Moving the plate changes Z and f together.",
-    "zh": "像高是 f·H/Z：只看 f 和 Z 的比；亮度只看孔径和 f。孔板一动，Z 和 f 一起变。"
-  },
+  "after": "@level.projection.after",
   "tasks": [
     {
       "id": "projection",
       "kind": "board",
-      "brief": {
-        "en": "The image in the camera obscura is 20 mm tall. Each step makes it 40 mm using only the knobs the step opens. Work out where first, then check.",
-        "zh": "暗箱里的像高 20 毫米。每一步把它变成 40 毫米，但只能动这一步开着的旋钮。先算好位置，再检查。"
-      },
+      "brief": "@level.projection.tasks.projection.brief",
       "bench": {
         "model": "obscura",
         "setup": { "arrow": 40, "shaft": 3, "table": 640, "gap": 20 },
@@ -20,7 +14,7 @@
           "Z": { "min": 150, "max": 520, "step": 1, "start": 300, "drawn": true },
           "s": { "min": 170, "max": 640, "step": 1, "start": 450, "drawn": true },
           "D": {
-            "label": { "en": "Aperture D", "zh": "孔径 D" },
+            "label": "@level.projection.tasks.projection.bench.knobs.D.label",
             "min": 1,
             "max": 1,
             "step": 1,
@@ -32,17 +26,14 @@
         "check": "submit",
         "stages": [
           {
-            "title": { "en": "The screen only", "zh": "只挪屏幕" },
-            "note": {
-              "en": "With the plate where it is, where must the screen go for a 40 mm image?",
-              "zh": "孔板不动，屏幕挪到哪里，像高正好 40 毫米？"
-            },
+            "title": "@level.projection.tasks.projection.bench.stages.0.title",
+            "note": "@level.projection.tasks.projection.bench.stages.0.note",
             "opens": ["s"],
             "start": { "Z": 300, "s": 450, "D": 1 },
             "goal": [
               {
                 "of": "height",
-                "label": { "en": "Image height", "zh": "像高" },
+                "label": "@level.projection.tasks.projection.bench.stages.0.goal.0.label",
                 "near": 40,
                 "atMost": 0.5,
                 "format": "fixed1",
@@ -51,17 +42,14 @@
             ]
           },
           {
-            "title": { "en": "The plate only", "zh": "只挪孔板" },
-            "note": {
-              "en": "The screen back where it was; this time move only the plate, for a 40 mm image again.",
-              "zh": "屏幕回到原处，这次只挪孔板，像高还是要 40 毫米。"
-            },
+            "title": "@level.projection.tasks.projection.bench.stages.1.title",
+            "note": "@level.projection.tasks.projection.bench.stages.1.note",
             "opens": ["Z"],
             "start": { "Z": 300, "s": 450, "D": 1 },
             "goal": [
               {
                 "of": "height",
-                "label": { "en": "Image height", "zh": "像高" },
+                "label": "@level.projection.tasks.projection.bench.stages.1.goal.0.label",
                 "near": 40,
                 "atMost": 0.5,
                 "format": "fixed1",
@@ -70,17 +58,14 @@
             ]
           },
           {
-            "title": { "en": "No darker", "zh": "不许变暗" },
-            "note": {
-              "en": "Both move now: a 40 mm image, and the screen no darker than at the start.",
-              "zh": "两样都能挪：像高 40 毫米，而且屏上不比开始时暗。"
-            },
+            "title": "@level.projection.tasks.projection.bench.stages.2.title",
+            "note": "@level.projection.tasks.projection.bench.stages.2.note",
             "opens": ["Z", "s"],
             "start": { "Z": 300, "s": 450, "D": 1 },
             "goal": [
               {
                 "of": "height",
-                "label": { "en": "Image height", "zh": "像高" },
+                "label": "@level.projection.tasks.projection.bench.stages.2.goal.0.label",
                 "near": 40,
                 "atMost": 0.5,
                 "format": "fixed1",
@@ -88,7 +73,7 @@
               },
               {
                 "of": "light",
-                "label": { "en": "Brightness", "zh": "亮度" },
+                "label": "@level.projection.tasks.projection.bench.stages.2.goal.1.label",
                 "atLeast": 0.16,
                 "format": "fixed2"
               }

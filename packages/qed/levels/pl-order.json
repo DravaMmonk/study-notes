@@ -1,31 +1,28 @@
 {
   "adds": ["defer"],
   "tray": ["machine", "formula"],
-  "title": { "en": "Ask which first", "zh": "先问谁" },
+  "title": "@level.pl-order.title",
   "intro": [
     {
-      "t": {
-        "en": "This time the rule for more generations is written the other way round: first an ancestor ?y of ?x, then whether ?y is a parent of ?z. The meaning is the same.",
-        "zh": "这一回，「多代」那条规则倒过来写：先找 ?x 的祖先 ?y，再看 ?y 是不是 ?z 的父母。意思不变。"
-      }
+      "t": "@level.pl-order.intro.0.t"
     }
   ],
-  "after": { "en": "This is known as left recursion.", "zh": "这类问题叫左递归。" },
+  "after": "@level.pl-order.after",
   "tasks": [
     {
       "id": "pl-order",
       "kind": "machine",
       "want": "answers",
-      "inputs": [{ "name": "in", "label": { "en": "Question", "zh": "问题" } }],
+      "inputs": [{ "name": "in", "label": "@level.pl-order.tasks.pl-order.inputs.0.label" }],
       "backtrack": true,
       "rules": {
         "anc1": {
-          "name": { "en": "Ancestor: one generation", "zh": "祖先·一代" },
+          "name": "@level.pl-order.tasks.pl-order.rules.anc1.name",
           "premises": ["Parent(?x, ?y)"],
           "conclusion": "Anc(?x, ?y)"
         },
         "anc3": {
-          "name": { "en": "Ancestor: counting up", "zh": "祖先·往上数" },
+          "name": "@level.pl-order.tasks.pl-order.rules.anc3.name",
           "premises": ["Anc(?x, ?y)", "Parent(?y, ?z)"],
           "conclusion": "Anc(?x, ?z)"
         }
@@ -42,16 +39,10 @@
           "answers": ["k", "l", "m"]
         }
       ],
-      "brief": {
-        "en": "Design a proof assistant that finds every answer to each question.",
-        "zh": "设计一个证明助手，找出每个问题的所有答案。"
-      },
+      "brief": "@level.pl-order.tasks.pl-order.brief",
       "hint": [
-        {
-          "en": "After “counting up” backwards, the first goal is an “ancestor” again.",
-          "zh": "倒着用「往上数」以后，第一个目标又是一个「祖先」。"
-        },
-        { "en": "Which subgoal, proved first, settles ?y?", "zh": "先证哪个子目标，?y 就能先定下来？" }
+        "@level.pl-order.tasks.pl-order.hint.0",
+        "@level.pl-order.tasks.pl-order.hint.1"
       ],
       "solution": [
         "c0 = search(in, body: c1) {",

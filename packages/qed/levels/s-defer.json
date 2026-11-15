@@ -1,28 +1,25 @@
 {
-  "title": { "en": "Which goal first", "zh": "先证哪一个" },
+  "title": "@level.s-defer.title",
   "adds": ["defer"],
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "When a ?-letter sits in two goals, whichever is proved first settles it. After <part-ref to=\"part:exI\"></part-ref> and Join backwards the goals are ?t is human, ?t likes Ann. <part-ref to=\"part:assumption\"></part-ref> takes the first given that fits: prove “?t is human” first, and ?t becomes Cy, who does not like Ann, so the second goal cannot be proved.",
-        "zh": "一个 ? 留在两个目标里时，先证哪一个，就由哪一个来定它。逆用<part-ref to=\"part:exI\"></part-ref>、再拼成以后，两个目标是 ?t是人、?t喜欢安。<part-ref to=\"part:assumption\"></part-ref>取第一条对得上的已知：先证「?t是人」，?t 就成了茜，可茜不喜欢安，第二个目标便证不下去。"
-      }
+      "t": "@level.s-defer.intro.0.t"
     },
-    { "t": { "en": "A new part, “Defer”: it moves the first goal to the end.", "zh": "新元件「目标后移」：把第一个目标移到最后。" } }
+    { "t": "@level.s-defer.intro.1.t" }
   ],
   "tasks": [
     {
       "id": "s-defer",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.s-defer.tasks.s-defer.inputs.0.label" }],
       "tests": [
         { "goal": "∃x. Human(x) ∧ Likes(x, i)", "hyps": ["Human(k)", "Human(j)", "Likes(j, i)"] },
         { "goal": "∃x. Bird(x) ∧ Flies(x)", "hyps": ["Bird(i)", "Bird(l)", "Flies(l)"] }
       ],
-      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
-      "hint": [{ "en": "Which goal fits fewer givens?", "zh": "哪个目标对得上的已知少？" }],
+      "brief": "@level.s-defer.tasks.s-defer.brief",
+      "hint": ["@level.s-defer.tasks.s-defer.hint.0"],
       "solution": [
         "c0r0 = exI()",
         "c1r0 = andI()",

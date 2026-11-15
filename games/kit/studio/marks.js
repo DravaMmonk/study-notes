@@ -4,10 +4,9 @@
 // (../engine/tasks.js) a task's field is under `tasks[task]` and a field all its tasks share is on the level; a level
 // that is no list of tasks has them all on itself. Domain-free: only the content and its schema are read.
 import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
+import { copyWithoutTextKeys } from '../engine/catalogs.js'
 import { sectionOf, shapeAt } from '../engine/schema.js'
 import { blank, opFor } from './form.js'
-
-const copy = (v) => JSON.parse(JSON.stringify(v))
 
 /** The places a mark may be, the likelier first: in its scope, then the other; a paragraph of a text the screen
  *  splits (brief[1]) may be the whole text. */
@@ -49,10 +48,10 @@ export function addFor(level, value, vocabulary, mark) {
   const at = mark.index === null || mark.index === undefined ? list.length : Math.min(list.length, mark.index + 1)
   const near = list[Math.min(at, list.length) - 1] ?? list[0]
   if (path.length === 1 && path[0] === 'tasks') {
-    const { id, step: _step, intro: _intro, ...task } = copy(list[mark.task] ?? near)
+    const { id, step: _step, intro: _intro, ...task } = copyWithoutTextKeys(list[mark.task] ?? near)
     return { op: { op: 'task.add', level, data: task, after: id }, at: ['tasks', mark.task + 1] }
   }
-  const item = near !== undefined && sectionOf(schema.of) !== 'read' ? copy(near) : blank(schema.of, ctx)
+  const item = near !== undefined && sectionOf(schema.of) !== 'read' ? copyWithoutTextKeys(near) : blank(schema.of, ctx)
   return { op: opFor({ level }, path, { set: [...list.slice(0, at), item, ...list.slice(at)] }, 'list'), at: [...path, at] }
 }
 

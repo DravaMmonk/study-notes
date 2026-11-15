@@ -1,20 +1,11 @@
 {
-  "title": {
-    "en": "A tick late",
-    "zh": "晚一拍"
-  },
+  "title": "@level.1-2.title",
   "intro": [
     {
-      "t": {
-        "en": "The board computes afresh every tick and keeps nothing once done. To keep a value for the next tick there is a new pair of parts: <part-ref to=\"part:keep\"></part-ref> stores a value in a register, and <part-ref to=\"part:reg\"></part-ref> reads it out the next tick.",
-        "zh": "板上的电路每一拍从头算一遍，算完什么也不留下。要留下一个值到下一拍，用一对新元件：<part-ref to=\"part:keep\"></part-ref>把值存进寄存卡，<part-ref to=\"part:reg\"></part-ref>下一拍读出它。"
-      }
+      "t": "@level.1-2.intro.0.t"
     }
   ],
-  "after": {
-    "en": "A register lets a circuit remember the tick before.",
-    "zh": "寄存卡让电路记得上一拍。"
-  },
+  "after": "@level.1-2.after",
   "adds": [
     "reg",
     "keep"
@@ -22,18 +13,12 @@
   "tasks": [
     {
       "id": "1-2",
-      "brief": {
-        "en": "Every tick, say on the line what the input was the tick before; say 0 on the first tick.",
-        "zh": "每一拍把输入上一拍的值说到线上；第一拍说 0。"
-      },
+      "brief": "@level.1-2.tasks.1-2.brief",
       "talks": true,
       "inputs": [
         {
           "name": "b",
-          "label": {
-            "en": "Bit",
-            "zh": "位"
-          }
+          "label": "@level.1-2.tasks.1-2.inputs.0.label"
         }
       ],
       "tests": [

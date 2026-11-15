@@ -26,7 +26,7 @@ import { eraLevels } from '../course.js'
 import { find, shapeAt } from '../engine/schema.js'
 import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
 import { call } from './api.js'
-import { blank, creationChoices, placesOf, pushOp, referenceFor } from './form.js'
+import { blank, copyLevelData, creationChoices, placesOf, pushOp, referenceFor } from './form.js'
 import { PARTS_FILE } from '../engine/parts/schema.js'
 import { findTask, tasksSchema } from '../engine/tasks.js'
 import { addFor, markOf, markPath } from './marks.js'
@@ -563,24 +563,17 @@ export default function Studio() {
     const taken = new Set(content.levels.flatMap((level) => [level.id, ...(level.tasks ?? []).map((task) => task.id)]))
     const level = freeName([...taken], 'level')
     const make = levelChoices[action]?.make
-    const draft = action === 'copy' ? structuredClone(source) : {
+    const draft = action === 'copy' ? source : {
       ...(firstTaskSchema ? { ...blank(vocab.vocabulary.level, newLevelContext), tasks: [make()] } : make()),
       title: T('新关卡', 'New level'),
     }
-    delete draft.id
-    if (draft.tasks) draft.tasks = draft.tasks.map((task) => {
-      if (draft.tasks.length === 1) return { ...task, id: level }
-      const id = freeName([...taken], `${level}_`)
-      taken.add(id)
-      return { ...task, id }
-    })
     const to = source ? { after: source.id } : { era: era.id }
-    edit({ op: 'level.add', level, data: draft, to })
+    edit({ op: 'level.add', level, data: copyLevelData(draft, level, content.levels), to })
     openTreeItem({ level })
   }
   const duplicate = (level, id) => {
-    const { id: _, ...value } = content.levels.find((l) => l.id === level)
-    edit({ op: 'level.add', level: id, data: value, to: { after: level } })
+    const source = content.levels.find((l) => l.id === level)
+    edit({ op: 'level.add', level: id, data: copyLevelData(source, id, content.levels), to: { after: level } })
     select({ level: id })
   }
   const togglePanel = (which) => setLayout((l) => ({ ...l, [`${which}Open`]: !l[`${which}Open`] }))

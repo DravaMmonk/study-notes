@@ -1,5 +1,5 @@
 {
-  "title": { "en": "Two islanders speak", "zh": "两个人说话" },
+  "title": "@level.e-two.title",
   "tray": ["gates", "formula"],
   "tasks": [
     {
@@ -7,13 +7,10 @@
       "kind": "gates",
       "target": "(KA ↔ ¬KB) ∧ (KB ↔ KA ∧ KB)",
       "blind": true,
-      "brief": {
-        "en": "a says: “b is a knave.” b says: “We are both knights.” Translate what both say into logic and wire it: the board outputs true on exactly the rows where what each says fits what they are.",
-        "zh": "a 说：「b 是无赖。」b 说：「我们俩都是骑士。」把两人的话译成逻辑，接成电路：两人的话都和身份相符的行，输出真。"
-      },
+      "brief": "@level.e-two.tasks.e-two.brief",
       "hint": [
-        { "en": "Translate what each person says on its own.", "zh": "每个人的话各译一句。" },
-        { "en": "Both must hold at once.", "zh": "两句要同时成立。" }
+        "@level.e-two.tasks.e-two.hint.0",
+        "@level.e-two.tasks.e-two.hint.1"
       ],
       "solution": [
         "nb = gNot(KB)",

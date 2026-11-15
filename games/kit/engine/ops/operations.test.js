@@ -2,7 +2,7 @@
 // refuses, and that its inverse puts the content back exactly.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
+import { mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { COURSE_FIELDS } from '../course-schema.js'
@@ -15,6 +15,8 @@ import { adopt, runChangeset, readLog, undo } from './changeset.js'
 import { driftOf } from './log.js'
 import { withParts } from '../parts/define.js'
 import { taskLevel } from '../tasks.js'
+import { textKey } from '../i18n.js'
+import { writeContentFixture } from './fixture.js'
 
 const ERA = S.obj({ id: S.str(), ...COURSE_FIELDS })
 const VOCAB = defineVocabulary({
@@ -37,17 +39,16 @@ const DOMAIN = {
 
 function toy() {
   const root = mkdtempSync(join(tmpdir(), 'ops-toy-'))
-  mkdirSync(join(root, 'packages', 'toy', 'levels'), { recursive: true })
-  const put = (file, value) => writeFileSync(join(root, file === 'game.json' ? 'games' : 'packages', 'toy', file), `${JSON.stringify(value, null, 2)}\n`)
-  mkdirSync(join(root, 'games', 'toy'), { recursive: true })
-  put('game.json', {
-    package: 'toy',
+  const game = {
     domain: 'toy', vocabulary: 1, title: { en: 'Toy' },
     eras: [{ id: 'one', levels: [{ id: 'a1' }, { id: 'a2' }, { id: 'a3', optional: true }], links: [{ from: 'a1', to: 'a2' }, { from: 'a1', to: 'a3' }] }, { id: 'two', levels: [{ id: 'b1' }, { id: 'b2' }, { id: 'c1' }], links: [{ from: 'b1', to: 'c1' }, { from: 'a3', to: 'b1' }] }],
     carry: { x: 'a2' },
-  })
-  put('glossary.json', { groups: [{ id: 'g', title: 'G' }], entries: [{ id: 'e', group: 'g', title: { en: 'E' }, body: ['see <level-ref to="a2"></level-ref>'], at: 'a2' }] })
-  for (const id of ['a1', 'a2', 'a3', 'b1', 'b2', 'c1']) put(`levels/${id}.json`, { title: { en: id }, tests: [1], ...(id === 'b1' && { from: 'a2', brief: { en: 'after <level-ref to="a2"></level-ref>', zh: '接着 <level-ref to="a2"></level-ref>' } }), tasks: [{ id }] })
+  }
+  const glossary = { groups: [{ id: 'g', title: 'G' }], entries: [{ id: 'e', group: 'g', title: { en: 'E' }, body: ['see <level-ref to="a2"></level-ref>'], at: 'a2' }] }
+  const levels = Object.fromEntries(['a1', 'a2', 'a3', 'b1', 'b2', 'c1'].map((id) => [id, {
+    title: { en: id }, tests: [1], ...(id === 'b1' && { from: 'a2', brief: { en: 'after <level-ref to="a2"></level-ref>', zh: '接着 <level-ref to="a2"></level-ref>' } }), tasks: [{ id }],
+  }]))
+  writeContentFixture(root, 'toy', { game, glossary, levels }, VOCAB)
   writeFileSync(join(root, 'games', 'games.js'), "export const GAMES = [{ id: 'toy', levels: 6 }]\n")
   return { root, ws: openGame('toy', root) }
 }
@@ -67,6 +68,7 @@ const level = (ws, id) => ws.levels.get(id)
 
 test('level.set, level.unset, level.patch and level.replace edit one level', () => {
   const { ws } = toy()
+  const title = level(ws, 'a1').title
   roundTrip(ws, 'level.set', { level: 'a1', path: 'tests[1]', value: 2 })
   assert.deepEqual(level(ws, 'a1').tests, [1, 2])
   roundTrip(ws, 'level.set', { level: 'a1', path: 'brief', value: { en: '甲' } })
@@ -75,7 +77,7 @@ test('level.set, level.unset, level.patch and level.replace edit one level', () 
   roundTrip(ws, 'level.unset', { level: 'a1', path: 'tests[0]' })
   assert.deepEqual(level(ws, 'a1').tests, [2])
   roundTrip(ws, 'level.patch', { level: 'a1', fields: { brief: null, adds: ['a'] } })
-  assert.deepEqual(level(ws, 'a1'), { title: { en: 'a1' }, tests: [2], adds: ['a'], tasks: [{ id: 'a1' }] })
+  assert.deepEqual(level(ws, 'a1'), { title, tests: [2], adds: ['a'], tasks: [{ id: 'a1' }] })
   roundTrip(ws, 'level.replace', { level: 'a1', data: { title: 'A', tasks: [{ id: 'a1' }] } })
   assert.deepEqual(level(ws, 'a1'), { title: 'A', tasks: [{ id: 'a1' }] })
   assert.throws(() => run(ws, 'level.set', { level: 'a1', path: 'x.y', value: 1 }), /no such field/)
@@ -116,8 +118,12 @@ test('level.move takes a level out of a branch and puts it anywhere', () => {
 
 test('level.rename renames the file and every reference', () => {
   const { ws } = toy()
+  const titleKey = textKey(level(ws, 'a2').title)
+  const briefKey = textKey(level(ws, 'b1').brief)
   roundTrip(ws, 'level.rename', { level: 'a2', to: 'two' })
   assert.ok(ws.levels.has('two') && !ws.levels.has('a2'))
+  assert.equal(textKey(level(ws, 'two').title), titleKey)
+  assert.equal(textKey(level(ws, 'b1').brief), briefKey)
   assert.deepEqual(eraLevels(ws.game.eras[0]), ['a1', 'two', 'a3'])
   assert.deepEqual(ws.game.eras[0].links[0], { from: 'a1', to: 'two' })
   assert.deepEqual(ws.game.carry, { x: 'two' })
@@ -148,16 +154,51 @@ test('game.set and game.unset edit game.json', () => {
 
 test('text.set edits one language at a field path and round trips', () => {
   const { ws } = toy()
-  const chinese = level(ws, 'b1').brief.zh
+  const before = level(ws, 'b1').brief
+  const gameTitle = ws.game.title
+  const entryTitle = ws.glossary.entries[0].title
   roundTrip(ws, 'text.set', { level: 'b1', path: 'brief', lang: 'en', value: 'then' })
-  assert.deepEqual(level(ws, 'b1').brief, { en: 'then', zh: chinese })
+  assert.deepEqual(level(ws, 'b1').brief, { ...before, en: 'then' })
   roundTrip(ws, 'text.set', { level: 'b1', path: 'brief', lang: 'fr', value: 'ensuite' })
-  assert.deepEqual(level(ws, 'b1').brief, { en: 'then', zh: chinese, fr: 'ensuite' })
+  assert.deepEqual(level(ws, 'b1').brief, { ...before, en: 'then', fr: 'ensuite' })
   roundTrip(ws, 'text.set', { in: 'game', path: 'title', lang: 'zh', value: '玩具' })
-  assert.deepEqual(ws.game.title, { en: 'Toy', zh: '玩具' })
+  assert.deepEqual(ws.game.title, { ...gameTitle, zh: '玩具' })
   roundTrip(ws, 'text.set', { in: 'glossary', path: 'entries[0].title', lang: 'ja', value: '項目' })
-  assert.deepEqual(ws.glossary.entries[0].title, { en: 'E', ja: '項目' })
+  assert.deepEqual(ws.glossary.entries[0].title, { ...entryTitle, ja: '項目' })
   assert.throws(() => run(ws, 'text.set', { level: 'b1', path: 'from', lang: 'en', value: 'x' }), /not a text/)
+})
+
+test('preview, apply and undo a locale edit across a workspace reopen', async () => {
+  const { root, ws } = toy()
+  const source = join(root, 'packages', 'toy', 'levels', 'b1.json')
+  const catalog = 'packages/toy/i18n/fr.json'
+  const before = readFileSync(source, 'utf8')
+  const key = textKey(level(ws, 'b1').brief)
+  const ops = [{ op: 'text.set', level: 'b1', path: 'brief', lang: 'fr', value: 'Ensuite' }]
+  const options = { check: false, domain: DOMAIN }
+  const preview = await runChangeset(ws, { ops }, options)
+  assert.equal(preview.ok, true, preview.problems.join('\n'))
+  assert.equal(preview.content.levels.find((level) => level.id === 'b1').brief.fr, 'Ensuite')
+  assert.deepEqual(preview.files, [catalog])
+  assert.equal(existsSync(join(root, catalog)), false)
+
+  const applied = await runChangeset(ws, { ops }, { ...options, write: true })
+  assert.equal(applied.ok, true, applied.problems.join('\n'))
+  assert.equal(readFileSync(source, 'utf8'), before)
+  assert.deepEqual(JSON.parse(readFileSync(join(root, catalog), 'utf8')), { [key]: 'Ensuite' })
+  const reopened = openGame('toy', root)
+  assert.equal(level(reopened, 'b1').brief.fr, 'Ensuite')
+  const undone = await undo(reopened, { ...options, write: true })
+  assert.equal(undone.ok, true, undone.problems.join('\n'))
+  assert.equal(existsSync(join(root, catalog)), false)
+  assert.equal(readFileSync(source, 'utf8'), before)
+
+  const stale = openGame('toy', root)
+  const remove = { ops: [{ op: 'level.unset', level: 'b1', path: 'brief' }] }
+  assert.equal((await runChangeset(reopened, remove, { ...options, write: true })).ok, true)
+  const late = await runChangeset(stale, { ops }, { ...options, write: true })
+  assert.match(late.problems[0], /changed on disk since the game was opened/)
+  assert.equal(existsSync(join(root, catalog)), false)
 })
 
 test('glossary.put, glossary.set and glossary.remove edit the encyclopedia', () => {
@@ -189,7 +230,8 @@ test('the log keeps each file’s hashes; a write lands only on the files and th
   assert.match(stale.problems[0], /changed since you saw it \(its log is at #2, not #1\)/)
   assert.deepEqual(readLog(ws).map((e) => e.seq), [1, 2])
   // A file changed by hand: drift, and the change before it cannot be undone over it; adopting takes it.
-  writeFileSync(join(root, 'packages', 'toy', 'levels', 'a2.json'), `${JSON.stringify({ title: { en: 'a2' }, tests: [1], brief: 'hand' }, null, 2)}\n`)
+  const source = join(root, 'packages', 'toy', 'levels', 'a2.json')
+  writeFileSync(source, `${JSON.stringify({ ...JSON.parse(readFileSync(source, 'utf8')), brief: 'hand' }, null, 2)}\n`)
   const now = openGame('toy', root)
   assert.deepEqual(driftOf(now, now.onDisk()), ['packages/toy/levels/a2.json'])
   assert.match((await undo(now, { write: true, check: false, domain: DOMAIN })).problems[0], /#2 cannot be undone: changed since it was made: packages\/toy\/levels\/a2.json/)
@@ -284,13 +326,11 @@ const PVOCAB = defineVocabulary({
 const sum = { name: { en: '和' }, desc: { en: 'a + b' }, icon: 'Plus', family: 'value', inputs: [{ name: 'a' }, { name: 'b' }], compute: 'add(a, b)' }
 function partsToy() {
   const root = mkdtempSync(join(tmpdir(), 'ops-ptoy-'))
-  mkdirSync(join(root, 'packages', 'ptoy', 'levels'), { recursive: true })
-  const put = (file, value) => writeFileSync(join(root, file === 'game.json' ? 'games' : 'packages', 'ptoy', file), `${JSON.stringify(value, null, 2)}\n`)
-  mkdirSync(join(root, 'games', 'ptoy'), { recursive: true })
-  put('game.json', { package: 'ptoy', domain: 'ptoy', vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], eras: [{ id: 'one', levels: [{ id: 'a1' }] }] })
-  put('glossary.json', { groups: [], entries: [] })
-  put('pieces.json', { parts: { sum } })
-  put('levels/a1.json', { title: 'A', brief: { en: '用 <part-ref to="sum"></part-ref>' }, adds: ['sum'], solution: ['s = sum(a, b)', 'out <- s'] })
+  const game = { domain: 'ptoy', vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], eras: [{ id: 'one', levels: [{ id: 'a1' }] }] }
+  const glossary = { groups: [], entries: [] }
+  const partDefs = { parts: { sum } }
+  const levels = { a1: { title: 'A', brief: { en: '用 <part-ref to="sum"></part-ref>' }, adds: ['sum'], solution: ['s = sum(a, b)', 'out <- s'] } }
+  writeContentFixture(root, 'ptoy', { game, glossary, partDefs, levels }, PVOCAB)
   return openGame('ptoy', root)
 }
 const prun = (ws, op, args) => OPERATIONS[op].apply(ws, args, { vocabulary: withParts(PVOCAB, ws.partDefs), domain: { vocabulary: PVOCAB } })

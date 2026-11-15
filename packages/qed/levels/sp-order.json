@@ -1,12 +1,9 @@
 {
-  "title": { "en": "Which first", "zh": "先后" },
+  "title": "@level.sp-order.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "Each time, Simp uses the first rule in the list that fits. The same rules in a different order can give a different sentence.",
-        "zh": "化简每次用的是排在最前、对得上的那条规则。同一组规则排的先后不同，化出来的句子也可能不同。"
-      }
+      "t": "@level.sp-order.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,18 +11,15 @@
       "id": "sp-order",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.sp-order.tasks.sp-order.inputs.0.label" }],
       "backtrack": true,
       "tests": [
         { "goal": "¬(Rain ∨ (Wind ∧ Wet))", "becomes": [["¬Rain ∧ (¬Wind ∨ ¬Wet)"]] },
         { "goal": "¬(Rain → (Wind ∧ Wet))", "becomes": [["Rain ∧ (¬Wind ∨ ¬Wet)"]] }
       ],
-      "brief": {
-        "en": "Design a proof assistant that brings each goal to its shortest conjunctive normal form.",
-        "zh": "设计一个证明助手，把每个目标化成最短的合取范式。"
-      },
+      "brief": "@level.sp-order.tasks.sp-order.brief",
       "hint": [
-        { "en": "What happens if you distribute while a negation is still outside?", "zh": "否定还在外面时就分配，会发生什么？" }
+        "@level.sp-order.tasks.sp-order.hint.0"
       ],
       "solution": [
         "c0r0 = arrow[use=[\"arrow.elim\"]]()",

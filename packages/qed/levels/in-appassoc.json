@@ -1,19 +1,19 @@
 {
-  "title": { "en": "Append associates too", "zh": "拼接也结合" },
+  "title": "@level.in-appassoc.title",
   "tray": ["machine", "formula"],
   "tasks": [
     {
       "id": "in-appassoc",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.in-appassoc.tasks.in-appassoc.inputs.0.label" }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["list"],
       "defs": ["app", "len"],
       "tests": [{ "goal": "∀xs. ∀ys. ∀zs. app(app(xs, ys), zs) = app(xs, app(ys, zs))" }],
-      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
-      "hint": [{ "en": "Which list does append’s definition take apart?", "zh": "拼接的定义拆的是哪个列表？" }],
+      "brief": "@level.in-appassoc.tasks.in-appassoc.brief",
+      "hint": ["@level.in-appassoc.tasks.in-appassoc.hint.0"],
       "solution": [
         "c0r0 = math[use=[\"list.induct\"]]()",
         "c0 = rule(in, c0r0)",

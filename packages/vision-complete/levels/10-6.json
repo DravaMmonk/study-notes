@@ -1,69 +1,54 @@
 {
-  "title": { "en": "A box that counts", "zh": "合格的框" },
+  "title": "@level.10-6.title",
   "tray": "recognition",
-  "after": {
-    "en": "0.5 is the PASCAL VOC standard; COCO computes ten thresholds from 0.5 to 0.95 and averages them, so boxes have to be drawn more precisely to score.",
-    "zh": "0.5 是 PASCAL VOC 的标准；COCO 把 0.5 到 0.95 的十个门槛都算一遍再平均，框要画得更准才拿得到分。"
-  },
+  "after": "@level.10-6.after",
   "intro": [
     {
-      "t": {
-        "en": "The <part-ref to=\"iou\"></part-ref> in the tray outputs the intersection over union of two box masks: the overlap divided by the area they cover together.",
-        "zh": "托盘里的<part-ref to=\"iou\"></part-ref>输出两个框掩膜的交并比：重叠面积除以合起来的面积。"
-      }
+      "t": "@level.10-6.intro.0.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: if the IoU is large enough the detection counts as right; output 1.",
-        "zh": "这一关你要做的：IoU 够大就算找对了，输出 1。"
-      },
-      "fig": { "test": 3, "caption": { "en": "About the same", "zh": "差不多" } }
+      "t": "@level.10-6.intro.1.t",
+      "fig": { "test": 3, "caption": "@level.10-6.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "10-6",
       "kind": "graph",
-      "brief": {
-        "en": "Output 1 when the IoU of the detected box and the labelled box is above 0.5, otherwise 0.",
-        "zh": "检测出的框和标注的框 IoU 大于 0.5 时输出 1，否则 0。"
-      },
-      "hint": {
-        "en": "<level-ref to=\"10-1\"></level-ref>'s <part-ref to=\"iou\"></part-ref>, then a threshold.",
-        "zh": "<level-ref to=\"10-1\"></level-ref>的<part-ref to=\"iou\"></part-ref>接一个门槛。"
-      },
+      "brief": "@level.10-6.tasks.10-6.brief",
+      "hint": "@level.10-6.tasks.10-6.hint",
       "inputs": ["a", "b"],
       "inputLabels": {
-        "a": { "en": "Detected box", "zh": "检测出的框" },
-        "b": { "en": "Labelled box", "zh": "标注的框" }
+        "a": "@level.10-6.tasks.10-6.inputLabels.a",
+        "b": "@level.10-6.tasks.10-6.inputLabels.b"
       },
       "outputs": ["ok"],
       "outputLabels": {
-        "ok": { "en": "Counts as right", "zh": "算找对" }
+        "ok": "@level.10-6.tasks.10-6.outputLabels.ok"
       },
       "scene": "boxPair",
       "setup": { "expect": "good" },
       "tests": [
         {
-          "label": { "en": "Slightly off", "zh": "错开一点" },
+          "label": "@level.10-6.tasks.10-6.tests.0.label",
           "a": [2, 2, 10, 10],
           "b": [4, 3, 12, 11]
         },
         {
-          "label": { "en": "A big box round a small one", "zh": "大框套小框" },
+          "label": "@level.10-6.tasks.10-6.tests.1.label",
           "a": [1, 1, 15, 15],
           "b": [5, 5, 10, 10]
         },
-        { "label": { "en": "Barely touching", "zh": "只碰到边" }, "a": [0, 0, 8, 8], "b": [6, 6, 14, 14] },
-        { "label": { "en": "About the same", "zh": "差不多" }, "a": [2, 2, 12, 12], "b": [3, 3, 13, 13] }
+        { "label": "@level.10-6.tasks.10-6.tests.2.label", "a": [0, 0, 8, 8], "b": [6, 6, 14, 14] },
+        { "label": "@level.10-6.tasks.10-6.tests.3.label", "a": [2, 2, 12, 12], "b": [3, 3, 13, 13] }
       ],
       "hidden": [
         {
-          "label": { "en": "Identical", "zh": "一模一样" },
+          "label": "@level.10-6.tasks.10-6.hidden.0.label",
           "a": [3, 4, 9, 12],
           "b": [3, 4, 9, 12]
         },
-        { "label": { "en": "Not overlapping", "zh": "不重叠" }, "a": [0, 0, 5, 5], "b": [8, 8, 14, 14] }
+        { "label": "@level.10-6.tasks.10-6.hidden.1.label", "a": [0, 0, 5, 5], "b": [8, 8, 14, 14] }
       ],
       "solution": [
         "i = iou(a, b)",

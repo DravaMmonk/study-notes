@@ -1,5 +1,5 @@
 {
-  "title": { "en": "Equal all along", "zh": "一路相等" },
+  "title": "@level.q-trans.title",
   "tray": ["proof", "formula"],
   "tasks": [
     {
@@ -9,11 +9,8 @@
       "consts": ["i", "k", "j"],
       "tests": [{ "premises": { "p": "i = k", "q": "k = j" }, "goal": "i = j" }],
       "cases": [],
-      "brief": {
-        "en": "Given “the Morning Star = Venus” and “Venus = the Evening Star”, prove “the Morning Star = the Evening Star”.",
-        "zh": "已知「晨星 = 金星」和「金星 = 昏星」，证明「晨星 = 昏星」。"
-      },
-      "hint": [{ "en": "Replace Venus in the first.", "zh": "把第一句里的金星换掉。" }],
+      "brief": "@level.q-trans.tasks.q-trans.brief",
+      "hint": ["@level.q-trans.tasks.q-trans.hint.0"],
       "solution": ["w = rewrite[at=[0]](q, p)", "goal <- w"]
     }
   ]

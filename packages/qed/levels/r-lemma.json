@@ -1,12 +1,9 @@
 {
-  "title": { "en": "Lemmas are rules too", "zh": "证出的引理也是规则" },
+  "title": "@level.r-lemma.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "A lemma you proved is itself a rule: <part-ref to=\"lemma:chain\"></part-ref> is ⟦?A → ?B; ?B → ?C⟧ ⟹ ?A → ?C. It can be used backwards just like the kernel’s rules, and the part offers it too.",
-        "zh": "证出的引理本身就是一条规则：<part-ref to=\"lemma:chain\"></part-ref>是 ⟦?A → ?B; ?B → ?C⟧ ⟹ ?A → ?C。它和证明核的规则一样能倒着用，元件上都能选到。"
-      }
+      "t": "@level.r-lemma.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,21 +11,15 @@
       "id": "r-lemma_1",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
-      "step": { "en": "Chain", "zh": "串联" },
+      "inputs": [{ "name": "in", "label": "@level.r-lemma.tasks.r-lemma_1.inputs.0.label" }],
+      "step": "@level.r-lemma.tasks.r-lemma_1.step",
       "tests": [
         { "goal": "Rain → Slip", "hyps": ["Rain → Wet", "Wet → Slip"] },
         { "goal": "Alarm → Awake", "hyps": ["Alarm → Coffee", "Coffee → Awake"] }
       ],
-      "brief": {
-        "en": "Design a proof assistant that proves every goal with <part-ref to=\"lemma:chain\"></part-ref>.",
-        "zh": "设计一个证明助手，用<part-ref to=\"lemma:chain\"></part-ref>证完每一个目标。"
-      },
+      "brief": "@level.r-lemma.tasks.r-lemma_1.brief",
       "hint": [
-        {
-          "en": "The middle sentence of <part-ref to=\"lemma:chain\"></part-ref> cannot be read off the goal.",
-          "zh": "目标里读不出<part-ref to=\"lemma:chain\"></part-ref>的中间那一句。"
-        }
+        "@level.r-lemma.tasks.r-lemma_1.hint.0"
       ],
       "solution": ["c0r0 = chain()", "c0 = rule(in, c0r0)", "c1 = assumption(c0)", "c2 = assumption(c1)", "out <- c2"]
     },
@@ -36,21 +27,15 @@
       "id": "r-lemma_2",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
-      "step": { "en": "Swap", "zh": "交换" },
+      "inputs": [{ "name": "in", "label": "@level.r-lemma.tasks.r-lemma_2.inputs.0.label" }],
+      "step": "@level.r-lemma.tasks.r-lemma_2.step",
       "tests": [
         { "goal": "Wind → (Rain → Wet)", "hyps": ["Rain → (Wind → Wet)"] },
         { "goal": "Coffee → (Alarm → Awake)", "hyps": ["Alarm → (Coffee → Awake)"] }
       ],
-      "brief": {
-        "en": "Now prove every goal with <part-ref to=\"lemma:swap\"></part-ref>.",
-        "zh": "再用<part-ref to=\"lemma:swap\"></part-ref>证完每一个目标。"
-      },
+      "brief": "@level.r-lemma.tasks.r-lemma_2.brief",
       "hint": [
-        {
-          "en": "<part-ref to=\"lemma:swap\"></part-ref> has one premise.",
-          "zh": "<part-ref to=\"lemma:swap\"></part-ref>只有一条前提。"
-        }
+        "@level.r-lemma.tasks.r-lemma_2.hint.0"
       ],
       "solution": ["c0r0 = swap()", "c0 = rule(in, c0r0)", "c1 = assumption(c0)", "out <- c1"]
     },
@@ -58,21 +43,15 @@
       "id": "r-lemma_3",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
-      "step": { "en": "Merge", "zh": "合并" },
+      "inputs": [{ "name": "in", "label": "@level.r-lemma.tasks.r-lemma_3.inputs.0.label" }],
+      "step": "@level.r-lemma.tasks.r-lemma_3.step",
       "tests": [
         { "goal": "Rain → Wet", "hyps": ["Rain → (Rain → Wet)"] },
         { "goal": "Hungry → Eat", "hyps": ["Hungry → (Hungry → Eat)"] }
       ],
-      "brief": {
-        "en": "Now prove every goal with <part-ref to=\"lemma:merge\"></part-ref>.",
-        "zh": "再用<part-ref to=\"lemma:merge\"></part-ref>证完每一个目标。"
-      },
+      "brief": "@level.r-lemma.tasks.r-lemma_3.brief",
       "hint": [
-        {
-          "en": "Once <part-ref to=\"lemma:merge\"></part-ref>’s conclusion fits the goal, what is left to prove?",
-          "zh": "<part-ref to=\"lemma:merge\"></part-ref>的结论对上目标以后，还剩什么要证？"
-        }
+        "@level.r-lemma.tasks.r-lemma_3.hint.0"
       ],
       "solution": ["c0r0 = merge()", "c0 = rule(in, c0r0)", "c1 = assumption(c0)", "out <- c1"]
     }

@@ -1,29 +1,17 @@
 {
-  "title": { "en": "Cross product of three numbers", "zh": "三个数的叉积" },
+  "title": "@level.7-5.title",
   "tray": "geometry",
-  "after": {
-    "en": "The cross product is perpendicular to both vectors. In homogeneous coordinates a point (x, y, 1) and a line (a, b, c) are both three numbers: the cross product of two points is the line through them, and of two lines it is the point where they meet.",
-    "zh": "叉积和两个向量都垂直。在齐次坐标里，一个点 (x, y, 1) 和一条线 (a, b, c) 都是三个数：两点的叉积是过它们的线，两线的叉积是它们的交点。"
-  },
+  "after": "@level.7-5.after",
   "intro": [
     {
-      "t": {
-        "en": "In the next few levels a point and a line are both written as three numbers in a row: the point (x, y) as (x, y, 1), and the line ax + by + c = 0 as (a, b, c). These are called homogeneous coordinates.",
-        "zh": "接下来几关，一个点、一条线都写成三个数，放在一行里：点 (x, y) 写成 (x, y, 1)，线 ax + by + c = 0 写成 (a, b, c)。这叫齐次坐标。"
-      }
+      "t": "@level.7-5.intro.0.t"
     },
     {
-      "t": {
-        "en": "The cross product turns two sets of three numbers into a new three, perpendicular to both.",
-        "zh": "叉积把两组三个数变成新的三个数，和原来两个都垂直。"
-      }
+      "t": "@level.7-5.intro.1.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: work out a × b by the formula in the brief.",
-        "zh": "这一关你要做的：按说明里的公式算出 a × b。"
-      },
-      "fig": { "test": 1, "caption": { "en": "Set 2: two points", "zh": "第二组：两个点" } }
+      "t": "@level.7-5.intro.2.t",
+      "fig": { "test": 1, "caption": "@level.7-5.intro.2.fig.caption" }
     }
   ],
   "unlocks": ["wrap"],
@@ -32,38 +20,32 @@
     {
       "id": "7-5",
       "kind": "graph",
-      "brief": {
-        "en": "Output a × b: number i = a's number i+1 × b's number i+2 − a's number i+2 × b's number i+1, with the count going round to the first again past the end.",
-        "zh": "输出 a × b：第 i 个数 = a 的第 i+1 个 × b 的第 i+2 个 − a 的第 i+2 个 × b 的第 i+1 个，下标数到头就从第一个接着数。"
-      },
-      "hint": {
-        "en": "Shift's \"Border\" setting now has \"Wrap round\": what moves out comes back in at the other end.",
-        "zh": "平移的「边界」设置多了「循环」：挪出去的从另一头回来。"
-      },
+      "brief": "@level.7-5.tasks.7-5.brief",
+      "hint": "@level.7-5.tasks.7-5.hint",
       "inputs": ["a", "b"],
       "inputLabels": {
-        "a": { "en": "a (three numbers)", "zh": "a（三个数）" },
-        "b": { "en": "b (three numbers)", "zh": "b（三个数）" }
+        "a": "@level.7-5.tasks.7-5.inputLabels.a",
+        "b": "@level.7-5.tasks.7-5.inputLabels.b"
       },
       "scene": "filter",
       "setup": { "target": "cross" },
       "tests": [
         {
-          "label": { "en": "x cross y", "zh": "x 叉 y" },
+          "label": "@level.7-5.tasks.7-5.tests.0.label",
           "inputs": { "a": { "row": { "values": [1, 0, 0] } }, "b": { "row": { "values": [0, 1, 0] } } }
         },
         {
-          "label": { "en": "Two points", "zh": "两个点" },
+          "label": "@level.7-5.tasks.7-5.tests.1.label",
           "inputs": { "a": { "row": { "values": [2, 1, 1] } }, "b": { "row": { "values": [5, 3, 1] } } }
         },
         {
-          "label": { "en": "General", "zh": "一般的" },
+          "label": "@level.7-5.tasks.7-5.tests.2.label",
           "inputs": { "a": { "row": { "values": [0.5, -1, 2] } }, "b": { "row": { "values": [1.5, 2, -0.5] } } }
         }
       ],
       "hidden": [
         {
-          "label": { "en": "The other way round", "zh": "反过来" },
+          "label": "@level.7-5.tasks.7-5.hidden.0.label",
           "inputs": { "a": { "row": { "values": [1.5, 2, -0.5] } }, "b": { "row": { "values": [0.5, -1, 2] } } }
         }
       ],

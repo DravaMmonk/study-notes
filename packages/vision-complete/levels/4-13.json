@@ -1,59 +1,41 @@
 {
-  "title": { "en": "Blue sky, yellow sand", "zh": "蓝天与黄沙" },
+  "title": "@level.4-13.title",
   "tray": "pipeline",
-  "after": {
-    "en": "Colours can be distinguished by the relationships among channels: blue and yellow have different channel combinations even at similar overall brightness. Different filters can focus on different colour contrasts.",
-    "zh": "颜色可以通过各通道之间的关系区分：即使整体明暗接近，蓝和黄也能呈现不同的通道组合。不同的滤波器可以关注不同的颜色对比。"
-  },
+  "after": "@level.4-13.after",
   "intro": [
     {
-      "t": {
-        "en": "The kernel in <level-ref to=\"4-12\"></level-ref> told red from green. Colour has another opposition: blue and yellow. On a desert skyline or a beach, the two sides of the border are often equally bright and differ only in colour.",
-        "zh": "<level-ref to=\"4-12\"></level-ref>的核分辨的是红和绿。颜色还有另一组对立：蓝和黄。沙漠的天际线、海边的沙滩，交界两边常常一样亮，只是颜色不同。"
-      }
+      "t": "@level.4-13.intro.0.t"
     },
     {
-      "t": {
-        "en": "The <part-ref to=\"lrn-rgb\"></part-ref> in the tray spans the R, G and B images with one kernel, its 27 weights trained together.",
-        "zh": "托盘里的<part-ref to=\"lrn-rgb\"></part-ref>一个核横跨 R、G、B 三张图，27 个权重一起训练。"
-      }
+      "t": "@level.4-13.intro.1.t"
     },
     {
-      "t": {
-        "en": "Your task: trace only the border between blue and yellow; places that just get brighter or darker must be 0. Something to think about: what do yellow and blue each look like in the three images?",
-        "zh": "这一关你要做的：只描出蓝与黄的交界，只是变亮变暗的地方要是 0。要想的问题：黄色和蓝色，在三张图里各是什么样？"
-      },
-      "fig": { "test": 0, "caption": { "en": "Set 1: sky and sand, a level line", "zh": "第一组：天和沙，一条平线" } }
+      "t": "@level.4-13.intro.2.t",
+      "fig": { "test": 0, "caption": "@level.4-13.intro.2.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "4-13",
       "kind": "graph",
-      "brief": {
-        "en": "The input is a colour landscape; its R, G and B outputs provide the separate channels. Trace only the edges where blue meets yellow; output 0 where things only get brighter or darker.",
-        "zh": "输入是一张彩色风景，从 R、G、B 出口可以分别读取三个通道。只描出蓝与黄交界处的边，只是变亮变暗的地方输出 0。"
-      },
-      "hint": {
-        "en": "Yellow light is made of which two colours of light added together? For training, you can first subtract 0.5 from each channel to centre the data around zero.",
-        "zh": "黄色的光，是哪两种颜色的光加起来的？ 训练时可以先给每个通道减去 0.5，让数据围绕 0 分布。"
-      },
+      "brief": "@level.4-13.tasks.4-13.brief",
+      "hint": "@level.4-13.tasks.4-13.hint",
       "inputs": ["photo"],
-      "inputLabels": { "photo": { "en": "Colour photo", "zh": "彩色照片" } },
+      "inputLabels": { "photo": "@level.4-13.tasks.4-13.inputLabels.photo" },
       "trainRate": 8,
       "scene": "rgbContrast",
       "setup": { "mix": "blueYellow" },
       "tests": [
-        { "label": { "en": "Sky and sand, a level line", "zh": "天和沙，一条平线" }, "paint": "skyline" },
-        { "label": { "en": "Only light and dark", "zh": "只有明暗" }, "paint": "greySquare" },
-        { "label": { "en": "Rolling dunes", "zh": "起伏的沙丘" }, "paint": "dunes" },
-        { "label": { "en": "Colour noise A", "zh": "彩色噪点 A" }, "noise": 41 },
-        { "label": { "en": "Colour noise B", "zh": "彩色噪点 B" }, "noise": 43 }
+        { "label": "@level.4-13.tasks.4-13.tests.0.label", "paint": "skyline" },
+        { "label": "@level.4-13.tasks.4-13.tests.1.label", "paint": "greySquare" },
+        { "label": "@level.4-13.tasks.4-13.tests.2.label", "paint": "dunes" },
+        { "label": "@level.4-13.tasks.4-13.tests.3.label", "noise": 41 },
+        { "label": "@level.4-13.tasks.4-13.tests.4.label", "noise": 43 }
       ],
       "hidden": [
-        { "label": { "en": "A slanting slope of sand", "zh": "斜着的沙坡" }, "paint": "slope" },
-        { "label": { "en": "Colour noise C", "zh": "彩色噪点 C" }, "noise": 47 },
-        { "label": { "en": "A grey gradient", "zh": "灰色渐变" }, "paint": "greyRamp" }
+        { "label": "@level.4-13.tasks.4-13.hidden.0.label", "paint": "slope" },
+        { "label": "@level.4-13.tasks.4-13.hidden.1.label", "noise": 47 },
+        { "label": "@level.4-13.tasks.4-13.hidden.2.label", "paint": "greyRamp" }
       ],
       "solution": [
         "half = const[c=0.5]()",

@@ -8,11 +8,11 @@ import { resolve } from 'node:path'
 import { GAMES } from '../../games.js'
 import { isDataGame, readContent, readGameConfig } from '../engine/content-node.js'
 import { gameModule as domainEntry } from '../engine/game-module.js'
+import { CONTENT_FILE, contentAssets } from './content-assets.js'
 
 const KIT = resolve(import.meta.dirname, '..')
 const idOfUrl = (url = '') => url.match(/\/game\/([^/?#]+)\//)?.[1]
 const PREFIX = 'virtual:game/'
-const CONTENT = 'content.json'
 const q = JSON.stringify
 
 /** The module that is game `id`'s domain as the page takes it: { define (its game.js), vocabulary }. */
@@ -25,8 +25,8 @@ function gameModule(id) {
   ].join('\n')
 }
 
-/** Game `id`'s content as the page reads it. */
-const contentText = (id) => JSON.stringify(readContent(id))
+/** Game `id`'s content and locale assets as the page reads them. */
+const assetsOf = (id) => contentAssets(readContent(id))
 
 export function gameApp({ game = null } = {}) {
   return {
@@ -43,16 +43,18 @@ export const loadDomain = async () => (await GAMES[location.pathname.match(/\\/g
     // The dev server: a game's content read off its files on every request.
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        const id = req.url?.match(/\/game\/([^/?#]+)\/content\.json(?:\?|$)/)?.[1]
+        const [, id, asset] = req.url?.match(/\/game\/([^/?#]+)\/(content\.json|i18n\/(?:course|package)\/[a-zA-Z0-9.-]+\.json)(?:\?|$)/) ?? []
         if (!id || !isDataGame(id)) return next()
+        const text = assetsOf(id).get(asset)
+        if (text === undefined) return next()
         res.setHeader('Content-Type', 'application/json')
-        res.setHeader('Cache-Control', 'no-store')
-        res.end(contentText(id))
+        res.setHeader('Cache-Control', asset === CONTENT_FILE ? 'no-store' : 'public, max-age=31536000, immutable')
+        res.end(text)
       })
     },
     // A build: the game's content beside its page.
     generateBundle() {
-      if (game) this.emitFile({ type: 'asset', fileName: CONTENT, source: contentText(game) })
+      if (game) for (const [fileName, source] of assetsOf(game)) this.emitFile({ type: 'asset', fileName, source })
     },
     transformIndexHtml(html, ctx) {
       const id = game ?? idOfUrl(ctx.originalUrl) ?? GAMES[0].id

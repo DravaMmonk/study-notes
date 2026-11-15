@@ -1,8 +1,9 @@
 // A game's glossary is its term registry. Definitions stay in body; aliases name the same entry, never a
 // second explanation. This module checks data and literal references, not whether arbitrary prose is technical.
 import { REF } from './text.js'
+import { textEntries } from './i18n.js'
 
-const texts = (value) => typeof value === 'string' ? { '': value } : value ?? {}
+const texts = (value) => typeof value === 'string' ? [['', value]] : textEntries(value ?? {})
 const normal = (s) => String(s ?? '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('en')
 const plain = (s) => String(s ?? '').replace(REF, '').replace(/<[^>]*>/g, '').trim()
 const problem = (rule, at, says) => ({ rule, at, says })
@@ -16,12 +17,13 @@ export function termRegistry(glossary) {
     const at = `glossary:${entry.id}`
     if (entries.has(entry.id)) failures.push(problem('term-id', at, 'duplicate entry id'))
     entries.set(entry.id, entry)
-    if (!Object.values(texts(entry.title)).some(plain)) failures.push(problem('term-name', `${at}.title`, 'the canonical name is empty'))
-    if (!(entry.body ?? []).some((p) => Object.values(texts(p)).some(plain))) failures.push(problem('term-definition', `${at}.body`, 'the entry body has no explanatory text'))
+    if (!texts(entry.title).some(([, text]) => plain(text))) failures.push(problem('term-name', `${at}.title`, 'the canonical name is empty'))
+    if (!(entry.body ?? []).some((p) => texts(p).some(([, text]) => plain(text)))) failures.push(problem('term-definition', `${at}.body`, 'the entry body has no explanatory text'))
     for (const [k, text] of [entry.title, ...(entry.aliases ?? [])].entries()) {
       const where = k ? `${at}.aliases[${k - 1}]` : `${at}.title`
-      if (k && !Object.values(texts(text)).some(normal)) failures.push(problem('term-name', where, 'an alias is empty'))
-      for (const [lang, value] of Object.entries(texts(text))) {
+      const entries = texts(text)
+      if (k && !entries.some(([, value]) => normal(value))) failures.push(problem('term-name', where, 'an alias is empty'))
+      for (const [lang, value] of entries) {
         const name = normal(value)
         if (!name) continue
         const byName = names[lang] ??= new Map()

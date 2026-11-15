@@ -1,41 +1,29 @@
 {
-  "title": { "en": "Two roads meet", "zh": "两路汇合" },
-  "short": { "en": "Merge two numbers in one component", "zh": "把两个数汇进一个元件" },
+  "title": "@level.merge.title",
+  "short": "@level.merge.short",
   "intro": [
     {
-      "t": {
-        "en": "A Merger adds up the numbers its wires bring; “—” is left out.",
-        "zh": "汇合器把几根线送来的数加起来，「—」不参与。"
-      }
+      "t": "@level.merge.intro.0.t"
     }
   ],
   "mission": {
-    "goal": {
-      "en": "The start already holds 1. Have the robot work out the routes to every crossing: up + left.",
-      "zh": "起点已经写好 1。让机器人算出每个路口的路线数：上面 + 左边。"
-    },
-    "how": {
-      "en": "Wire “up” and “left” into one Merger, then the Merger to “this cell”.",
-      "zh": "把「上面」和「左边」都接进一个汇合器，再接到「本格」。"
-    }
+    "goal": "@level.merge.mission.goal",
+    "how": "@level.merge.mission.how"
   },
   "robot": "scout",
-  "showcase": {
-    "en": "the first part placed on a board: it sits between the inputs and the output and gathers several ways in into one number",
-    "zh": "第一次往板上放元件：元件放在输入和输出之间，几条来路收成一个数"
-  },
+  "showcase": "@level.merge.showcase",
   "adds": ["msum"],
   "debrief": {
-    "title": { "en": "The robot runs the city", "zh": "城市交给了机器人" },
+    "title": "@level.merge.debrief.title",
     "body": [
-      { "en": "You drew three wires and the robot filled in the whole city.", "zh": "你只接了三根线，机器人就把整座城市填满了。" }
+      "@level.merge.debrief.body.0"
     ]
   },
   "tasks": [
     {
       "id": "merge",
       "mode": "circuit",
-      "hints": [{ "en": "Wire both inputs into the same Merger.", "zh": "两个输入都接进同一个汇合器。" }],
+      "hints": ["@level.merge.tasks.merge.hints.0"],
       "world": "grid",
       "tests": [{ "R": 3, "C": 4, "given": { "0,0": 1 } }, { "R": 4, "C": 5, "given": { "0,0": 1 } }],
       "expected": [10, 35],

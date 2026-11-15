@@ -1,63 +1,48 @@
 {
-  "title": { "en": "Is the point on the line?", "zh": "点在线上吗" },
+  "title": "@level.7-8.title",
   "tray": "geometry",
-  "after": {
-    "en": "A point lies on the line exactly when q·l′ = qᵀF p = 0: this is the epipolar constraint. It does not say which point is the match, only rules out impossible ones, so it is often used to throw out wrong matches.",
-    "zh": "一个点在线上，当且仅当 q·l′ = qᵀF p = 0：这就是对极约束。它不告诉你配的是哪个点，只排除不可能的点，所以常用来筛掉错配。"
-  },
+  "after": "@level.7-8.after",
   "intro": [
     {
-      "t": {
-        "en": "The <part-ref to=\"epiline\"></part-ref> in the tray reads the three columns of F and a point (x, y), and outputs the epipolar line F·p.",
-        "zh": "托盘里的<part-ref to=\"epiline\"></part-ref>读 F 的三列和点 (x, y)，输出极线 F·p。"
-      }
+      "t": "@level.7-8.intro.0.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: decide whether the right point q can correspond to the left point p.",
-        "zh": "这一关你要做的：判断右图的点 q 能不能和左图的点 p 对应。"
-      },
-      "fig": { "test": 0, "caption": { "en": "Set 1: on the line", "zh": "第一组：在线上" } }
+      "t": "@level.7-8.intro.1.t",
+      "fig": { "test": 0, "caption": "@level.7-8.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "7-8",
       "kind": "graph",
-      "brief": {
-        "en": "Can the right point q correspond to the left point p? Output 1 if q lies on p's epipolar line (|q·l′| < 0.05), otherwise 0.",
-        "zh": "右图的点 q 能和左图的点 p 对应吗？q 落在 p 的极线上（|q·l′| < 0.05）输出 1，否则输出 0。"
-      },
-      "hint": {
-        "en": "A dot product multiplies number by number and adds up; the average of three numbers times 3 is their sum.",
-        "zh": "点乘就是逐个相乘再加起来；三个数的平均乘 3 就是它们的和。"
-      },
+      "brief": "@level.7-8.tasks.7-8.brief",
+      "hint": "@level.7-8.tasks.7-8.hint",
       "inputs": ["c1", "c2", "c3", "px", "py", "q"],
       "inputLabels": {
-        "c1": { "en": "Column 1 of F", "zh": "F 的第一列" },
-        "c2": { "en": "Column 2 of F", "zh": "F 的第二列" },
-        "c3": { "en": "Column 3 of F", "zh": "F 的第三列" },
-        "px": { "en": "x of the left point", "zh": "左图点的 x" },
-        "py": { "en": "y of the left point", "zh": "左图点的 y" },
-        "q": { "en": "Right point q = (x′, y′, 1)", "zh": "右图的点 q = (x′, y′, 1)" }
+        "c1": "@level.7-8.tasks.7-8.inputLabels.c1",
+        "c2": "@level.7-8.tasks.7-8.inputLabels.c2",
+        "c3": "@level.7-8.tasks.7-8.inputLabels.c3",
+        "px": "@level.7-8.tasks.7-8.inputLabels.px",
+        "py": "@level.7-8.tasks.7-8.inputLabels.py",
+        "q": "@level.7-8.tasks.7-8.inputLabels.q"
       },
       "outputs": ["on"],
-      "outputLabels": { "on": { "en": "Can match", "zh": "配得上" } },
+      "outputLabels": { "on": "@level.7-8.tasks.7-8.outputLabels.on" },
       "scene": "onEpiline",
       "tests": [
-        { "label": { "en": "On the line", "zh": "在线上" }, "x": 2, "y": 3, "q": [5, 1.8181819228593974] },
-        { "label": { "en": "Far off", "zh": "差得远" }, "x": 10, "y": 4, "q": [3, 9] },
-        { "label": { "en": "Another on the line", "zh": "另一个在线上" }, "x": 6, "y": 12, "q": [9, 3] },
-        { "label": { "en": "Just off", "zh": "差一点" }, "x": 6, "y": 12, "q": [9, 6] }
+        { "label": "@level.7-8.tasks.7-8.tests.0.label", "x": 2, "y": 3, "q": [5, 1.8181819228593974] },
+        { "label": "@level.7-8.tasks.7-8.tests.1.label", "x": 10, "y": 4, "q": [3, 9] },
+        { "label": "@level.7-8.tasks.7-8.tests.2.label", "x": 6, "y": 12, "q": [9, 3] },
+        { "label": "@level.7-8.tasks.7-8.tests.3.label", "x": 6, "y": 12, "q": [9, 6] }
       ],
       "hidden": [
         {
-          "label": { "en": "On the line again", "zh": "又在线上" },
+          "label": "@level.7-8.tasks.7-8.hidden.0.label",
           "x": 14,
           "y": 1,
           "q": [2, -0.5000002793967786]
         },
-        { "label": { "en": "Far off again", "zh": "又差得远" }, "x": 14, "y": 1, "q": [8, 1] }
+        { "label": "@level.7-8.tasks.7-8.hidden.1.label", "x": 14, "y": 1, "q": [8, 1] }
       ],
       "solution": [
         "k = const[c=3]()",

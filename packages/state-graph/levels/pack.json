@@ -1,52 +1,28 @@
 {
-  "title": { "en": "Pack the backpack", "zh": "装背包" },
-  "short": { "en": "Clever shortcuts aren’t always right", "zh": "聪明的捷径不总是对的" },
+  "title": "@level.pack.title",
+  "short": "@level.pack.short",
   "intro": [
     {
-      "t": {
-        "en": "A new chapter: packing a backpack. You are off on a trip, and the backpack has a weight limit. Each thing has a weight and a value, and <b>you can take at most one of each</b>. How do you pack to carry the most value?",
-        "zh": "新的一章：装背包。出门旅行，背包有重量上限。每件东西有重量和价值，<b>每件最多带一个</b>。怎么装，带上的价值最大？"
-      }
+      "t": "@level.pack.intro.0.t"
     },
     {
-      "t": {
-        "en": "People often use one of two “shortcuts”: <b>priciest first</b>, or <b>best value first</b> (the highest value per kilogram). Go through the items in that order and pack each one that fits. Always grabbing what looks best right now is called being <wiki-ref to=\"greedy\"></wiki-ref>.",
-        "zh": "人们常用两种「捷径」：<b>最贵的先放</b>，或者<b>最划算的先放</b>（每千克的价值最高）。按顺序挨个看，装得下就装。这种每一步都挑眼前最好的做法，叫作<wiki-ref to=\"greedy\"></wiki-ref>。"
-      }
+      "t": "@level.pack.intro.1.t"
     },
     {
-      "t": {
-        "en": "This level has two puzzles. The side panel has two “Auto-pack” buttons, one for each shortcut. Try them first, then pack by hand to reach the target value.",
-        "zh": "这一关有两道题。规则面板里有两个「自动装包」按钮，分别按这两种捷径装包。先试试它们，再自己动手，装出目标价值。"
-      }
+      "t": "@level.pack.intro.2.t"
     }
   ],
   "mission": {
-    "goal": {
-      "en": "The total weight can’t exceed the backpack’s limit, and you can take at most one of each item. Reach the target value in both puzzles.",
-      "zh": "物品总重量不能超过背包上限，每件最多带一个。两道题里，都装出目标价值。"
-    },
-    "how": {
-      "en": "Click items to put them in or take them out. The two buttons in the side panel auto-pack using the shortcuts; give them a try.",
-      "zh": "点物品放进或拿出背包。规则面板里的两个按钮会按捷径自动装包，可以试试它们。"
-    }
+    "goal": "@level.pack.mission.goal",
+    "how": "@level.pack.mission.how"
   },
   "debrief": {
-    "title": { "en": "No easy shortcut", "zh": "没有简单的捷径" },
+    "title": "@level.pack.debrief.title",
     "body": [
-      {
-        "en": "In puzzle 1, “priciest first” fell just short; in puzzle 2, “best value first” fell just short too. <b>Greedy rules that look clever always have exceptions.</b>",
-        "zh": "第 1 题里，「最贵的先放」差了一点；第 2 题里，「最划算的先放」也差了一点。<b>看起来很聪明的贪心规则，总有例外。</b>"
-      },
-      {
-        "en": "The safe way is to try every possible packing. 5 items give 32 packings, which is still manageable; 30 items give over a billion.",
-        "zh": "最保险的办法是把所有装法都试一遍。5 件物品有 32 种装法，还试得过来；30 件物品就有 10 亿多种。"
-      }
+      "@level.pack.debrief.body.0",
+      "@level.pack.debrief.body.1"
     ],
-    "note": {
-      "en": "Greedy (always picking what looks best right now) doesn’t necessarily give the best result.",
-      "zh": "贪心（每一步挑眼前最好的）不一定得到最好的结果。"
-    }
+    "note": "@level.pack.debrief.note"
   },
   "tasks": [
     {
@@ -56,20 +32,20 @@
         {
           "W": 5,
           "items": [
-            { "n": { "en": "tent", "zh": "帐篷" }, "w": 4, "v": 5 },
-            { "n": { "en": "camera", "zh": "相机" }, "w": 2, "v": 3 },
-            { "n": { "en": "bottle", "zh": "水壶" }, "w": 3, "v": 4 },
-            { "n": { "en": "snacks", "zh": "零食" }, "w": 1, "v": 1 }
+            { "n": "@level.pack.tasks.pack.tests.0.items.0.n", "w": 4, "v": 5 },
+            { "n": "@level.pack.tasks.pack.tests.0.items.1.n", "w": 2, "v": 3 },
+            { "n": "@level.pack.tasks.pack.tests.0.items.2.n", "w": 3, "v": 4 },
+            { "n": "@level.pack.tasks.pack.tests.0.items.3.n", "w": 1, "v": 1 }
           ]
         },
         {
           "W": 10,
           "items": [
-            { "n": { "en": "sleeping bag", "zh": "睡袋" }, "w": 6, "v": 30 },
-            { "n": { "en": "stove", "zh": "炉具" }, "w": 3, "v": 14 },
-            { "n": { "en": "tent", "zh": "帐篷" }, "w": 4, "v": 16 },
-            { "n": { "en": "first aid kit", "zh": "急救包" }, "w": 2, "v": 9 },
-            { "n": { "en": "book", "zh": "书" }, "w": 1, "v": 1 }
+            { "n": "@level.pack.tasks.pack.tests.1.items.0.n", "w": 6, "v": 30 },
+            { "n": "@level.pack.tasks.pack.tests.1.items.1.n", "w": 3, "v": 14 },
+            { "n": "@level.pack.tasks.pack.tests.1.items.2.n", "w": 4, "v": 16 },
+            { "n": "@level.pack.tasks.pack.tests.1.items.3.n", "w": 2, "v": 9 },
+            { "n": "@level.pack.tasks.pack.tests.1.items.4.n", "w": 1, "v": 1 }
           ]
         }
       ]

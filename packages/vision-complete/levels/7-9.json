@@ -1,46 +1,31 @@
 {
-  "title": { "en": "Where is the epipole?", "zh": "极点在哪" },
+  "title": "@level.7-9.title",
   "tray": "geometry",
-  "after": {
-    "en": "The epipole is where the other camera's centre appears in this image: every epipolar line comes out of it. It is perpendicular to every column of F, so it is the cross product of two columns: the solution of Fᵀe′ = 0.",
-    "zh": "极点是另一台相机的光心在这张图里的位置：所有极线都从它发出。它垂直于 F 的每一列，所以是两列的叉积，也就是 Fᵀe′ = 0 的解。"
-  },
+  "after": "@level.7-9.after",
   "intro": [
     {
-      "t": {
-        "en": "Different points in the left image have different epipolar lines in the right image. Draw them all and you notice something: they all pass through one point.",
-        "zh": "左图里不同的点，在右图里有不同的极线。把它们都画出来，会发现一件事：它们都交于同一点。"
-      }
+      "t": "@level.7-9.intro.0.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: work this point out from F alone, written as (x, y, 1).",
-        "zh": "这一关你要做的：只用 F 算出这一点，写成 (x, y, 1)。"
-      }
+      "t": "@level.7-9.intro.1.t"
     }
   ],
   "tasks": [
     {
       "id": "7-9",
       "kind": "graph",
-      "brief": {
-        "en": "In the right image every epipolar line passes through one point, the epipole. Work it out from F alone, written as (x, y, 1).",
-        "zh": "右图里所有的极线都交于同一点，叫极点。只用 F 算出它，写成 (x, y, 1)。"
-      },
-      "hint": {
-        "en": "Every epipolar line is a mix of the columns of F. You know how to find where two lines meet.",
-        "zh": "每条极线都是 F 的列的组合。两条极线交在哪里，你会算。"
-      },
+      "brief": "@level.7-9.tasks.7-9.brief",
+      "hint": "@level.7-9.tasks.7-9.hint",
       "inputs": ["c1", "c2", "c3", "z"],
       "inputLabels": {
-        "c1": { "en": "Column 1 of F", "zh": "F 的第一列" },
-        "c2": { "en": "Column 2 of F", "zh": "F 的第二列" },
-        "c3": { "en": "Column 3 of F", "zh": "F 的第三列" },
-        "z": { "en": "(0, 0, 1)", "zh": "(0, 0, 1)" }
+        "c1": "@level.7-9.tasks.7-9.inputLabels.c1",
+        "c2": "@level.7-9.tasks.7-9.inputLabels.c2",
+        "c3": "@level.7-9.tasks.7-9.inputLabels.c3",
+        "z": "@level.7-9.tasks.7-9.inputLabels.z"
       },
       "scene": "epipole",
-      "tests": [{ "label": { "en": "This camera", "zh": "这台相机" }, "columns": [0, 1, 2] }],
-      "hidden": [{ "label": { "en": "Columns reordered", "zh": "列换了顺序" }, "columns": [1, 0, 2] }],
+      "tests": [{ "label": "@level.7-9.tasks.7-9.tests.0.label", "columns": [0, 1, 2] }],
+      "hidden": [{ "label": "@level.7-9.tasks.7-9.hidden.0.label", "columns": [1, 0, 2] }],
       "solution": [
         "k = const[c=3]()",
         "e = cross(c1, c2)",

@@ -1,23 +1,20 @@
 {
-  "title": { "en": "What does not follow", "zh": "推不出的" },
+  "title": "@level.is-silent.title",
   "tray": ["machine", "formula"],
   "tasks": [
     {
       "id": "is-silent",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.is-silent.tasks.is-silent.inputs.0.label" }],
       "backtrack": true,
       "tests": [
         { "goal": "¬KC", "hyps": ["KA ↔ ¬KB", "KC ↔ (KA ↔ KB)"] },
         { "goal": "KA", "hyps": ["KA ↔ ¬KB", "KC ↔ (KA ↔ KB)"], "want": "fails" },
         { "goal": "KB", "hyps": ["KA ↔ ¬KB", "KC ↔ (KA ↔ KB)"], "want": "fails" }
       ],
-      "brief": {
-        "en": "a says: “b is a knave.” b says nothing. c says: “a and b are the same kind.” Design a proof assistant that proves what follows about them and reports failure on what does not.",
-        "zh": "a 说：「b 是无赖。」b 什么也没说。c 说：「a 和 b 是同一种人。」设计一个证明助手：推得出的身份证出来，推不出的报告失败。"
-      },
-      "hint": [{ "en": "Not everyone’s kind can be settled.", "zh": "不是每个人的身份都定得下来。" }],
+      "brief": "@level.is-silent.tasks.is-silent.brief",
+      "hint": ["@level.is-silent.tasks.is-silent.hint.0"],
       "solution": ["c0 = metis(in)", "out <- c0"]
     }
   ]

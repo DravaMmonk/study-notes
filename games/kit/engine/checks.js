@@ -16,7 +16,7 @@ import { RULE_TEXT, againstOpen, audit } from '../course.js'
 import { REF, refProblems } from './text.js'
 import { gameOf } from './games.mjs'
 import { GLOSSARY, checkContent } from './vocabulary.js'
-import { firstText } from './i18n.js'
+import { firstText, textEntries } from './i18n.js'
 import { find } from './schema.js'
 import { withParts } from './parts/define.js'
 import { termRegistry } from './terminology.js'
@@ -72,7 +72,7 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   const entries = new Map((game.glossary?.entries ?? []).map((e) => [e.id, e]))
   const opensBy = (at, where) => !at || at === where || (where && spec.course.before(at, where))
   const linked = (schema, value, kind) => find(schema, value, 'text', { vocabulary })
-    .flatMap(({ value }) => typeof value === 'string' ? [value] : Object.values(value))
+    .flatMap(({ value }) => typeof value === 'string' ? [value] : textEntries(value).map(([, text]) => text))
     .flatMap((s) => [...s.matchAll(REF)].filter((m) => m[1] === kind).map((m) => m[2]))
   const levelLinks = (kind) => content.levels.map(({ id, ...level }) => [id, [...new Set(linked(vocabulary.level, level, kind))]])
   for (const [id, links] of levelLinks('wiki')) for (const entry of links) if (entries.has(entry) && !opensBy(entries.get(entry).at, id)) fail(`${id} links the entry ${entry}, which opens later (at ${entries.get(entry).at})`)

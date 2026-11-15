@@ -24,6 +24,7 @@
 // A field of a by (one shape a field names: a level by its kind) has `tags`: [{ key, value }], the outer
 // by first when bys nest (a level by its mode, then by its world); an either records which `shape` it has now.
 import { isText } from '../engine/i18n.js'
+import { copyWithoutTextKeys } from '../engine/catalogs.js'
 import { getLang, L, tr } from '../shell/i18n.js'
 import { SECTIONS, callOf, find, sectionOf, validate } from '../engine/schema.js'
 import { parsePath, setAt, showPath, unsetAt } from '../engine/ops/edit.js'
@@ -454,6 +455,20 @@ export function placeFindings(form, findings) {
 
 /* ---------- edits as operations ---------- */
 
+/** A copied level has its own task IDs and independent text fields. */
+export function copyLevelData(source, level, levels) {
+  const { id: _, ...data } = copyWithoutTextKeys(source)
+  if (data.tasks) {
+    const used = [...levels]
+    data.tasks = data.tasks.map((task) => {
+      const id = data.tasks.length === 1 ? level : newTaskId(used, level)
+      used.push({ id })
+      return { ...task, id }
+    })
+  }
+  return data
+}
+
 /**
  * The operation that makes an edit, on a file of the game: `file` { level } | { game: true } | { parts: true } |
  * { glossary } (the glossary as it is). edit: { set: value } | { unset: true } at `path`; `type` is the schema type
@@ -522,7 +537,7 @@ export function taskListOps(level, before, after, levels) {
     const place = k === 0 ? { first: true } : { after: ids[k - 1] }
     const at = now.indexOf(id)
     if (at < 0) {
-      ops.push({ op: 'task.add', level, data: { ...after[k], id }, ...place })
+      ops.push({ op: 'task.add', level, data: { ...copyWithoutTextKeys(after[k]), id }, ...place })
       put(id, k)
     } else if (k === 0 ? at !== 0 : now[at - 1] !== ids[k - 1]) {
       ops.push({ op: 'task.move', task: id, to: { level, ...place } })

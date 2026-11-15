@@ -1,27 +1,21 @@
 {
-  "title": { "en": "Some words cost more", "zh": "有的词更贵" },
-  "short": { "en": "Every piece has its own cost", "zh": "每一块的代价不同" },
+  "title": "@level.wordcost.title",
+  "short": "@level.wordcost.short",
   "intro": [
     {
-      "t": {
-        "en": "Common words are cheap and rare ones dear: every word in the dictionary has a <b>cost</b>. A way of cutting costs the sum of its pieces; find the cheapest.",
-        "zh": "常见的词便宜，生僻的词贵：词典里每个词标着一个<b>代价</b>。切法的代价是每一块加起来，挑最省的切法。"
-      }
+      "t": "@level.wordcost.intro.0.t"
     },
-    { "t": { "en": "The way with the fewest pieces is not always the cheapest.", "zh": "块数最少的切法，不一定最省。" } }
+    { "t": "@level.wordcost.intro.1.t" }
   ],
   "mission": {
-    "goal": { "en": "Work out what the cheapest way to cut each string costs.", "zh": "算出每串字母最省的切法要花多少代价。" },
-    "how": { "en": "The dictionary and its costs are shown next to the tests.", "zh": "词典和代价写在测试旁边。" }
+    "goal": "@level.wordcost.mission.goal",
+    "how": "@level.wordcost.mission.how"
   },
   "robot": "broom",
   "debrief": {
-    "title": { "en": "New costs, the same circuit", "zh": "代价换了，电路没换" },
+    "title": "@level.wordcost.debrief.title",
     "body": [
-      {
-        "en": "In <level-ref to=\"wordbreak\"></level-ref> every piece cost 1, so it counted pieces. Change the costs, and the same board finds the cheapest cut.",
-        "zh": "在<level-ref to=\"wordbreak\"></level-ref>里，每一块都算 1，所以数的是块数。代价一换，同一块电路板就去找最省的切法。"
-      }
+      "@level.wordcost.debrief.body.0"
     ]
   },
   "tasks": [
@@ -31,10 +25,7 @@
       "testLabel": "{s}",
       "after": "dictionary",
       "hints": [
-        {
-          "en": "Compared with <level-ref to=\"wordbreak\"></level-ref>, only each piece’s cost has changed.",
-          "zh": "和<level-ref to=\"wordbreak\"></level-ref>比，变的只有每一块的代价。"
-        }
+        "@level.wordcost.tasks.wordcost.hints.0"
       ],
       "world": "pieces",
       "facts": ["ground"],

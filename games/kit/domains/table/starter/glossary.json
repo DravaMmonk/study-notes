@@ -1,16 +1,13 @@
 {
-  "groups": [{ "id": "robot", "title": { "en": "The robot", "zh": "机器人" } }],
+  "groups": [{ "id": "robot", "title": "@glossary.groups.robot.title" }],
   "entries": [
     {
       "id": "board",
       "group": "robot",
-      "title": { "en": "circuit board", "zh": "电路板" },
+      "title": "@glossary.entries.board.title",
       "at": "copy",
       "body": [
-        {
-          "en": "The rule for one cell: wired once, the robot runs it on every cell.",
-          "zh": "一格的规则：只接一次，机器人在每一格上都运行它。"
-        }
+        "@glossary.entries.board.body.0"
       ]
     }
   ]

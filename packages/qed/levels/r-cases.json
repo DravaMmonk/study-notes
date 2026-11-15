@@ -1,12 +1,9 @@
 {
-  "title": { "en": "Case by case", "zh": "分情况" },
+  "title": "@level.r-cases.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "<part-ref to=\"lemma:erule\"></part-ref> takes apart more than “and”: any elimination rule can be chosen on it. Case analysis as a rule is ⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?C; ⟦?B⟧ ⟹ ?C⟧ ⟹ ?C.",
-        "zh": "<part-ref to=\"lemma:erule\"></part-ref>不只拆「并且」，元件上能选任何一条消去规则。分类讨论写成规则是 ⟦?A ∨ ?B; ⟦?A⟧ ⟹ ?C; ⟦?B⟧ ⟹ ?C⟧ ⟹ ?C。"
-      }
+      "t": "@level.r-cases.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,16 +11,16 @@
       "id": "r-cases",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.r-cases.tasks.r-cases.inputs.0.label" }],
       "tests": [
         { "goal": "Wind ∨ Rain", "hyps": ["Rain ∨ Wind"] },
         { "goal": "Slip ∨ Wet", "hyps": ["Wet ∨ Slip"] },
         { "goal": "Bike ∨ Bus", "hyps": ["Bus ∨ Bike"] }
       ],
-      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
+      "brief": "@level.r-cases.tasks.r-cases.brief",
       "hint": [
-        { "en": "Take the “or” given apart first.", "zh": "先拆「或者」那条已知。" },
-        { "en": "In each case, which side of the goal is among the givens?", "zh": "每种情况里，目标的哪一边在已知里？" }
+        "@level.r-cases.tasks.r-cases.hint.0",
+        "@level.r-cases.tasks.r-cases.hint.1"
       ],
       "solution": [
         "c0r0 = orE()",

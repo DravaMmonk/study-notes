@@ -1,59 +1,32 @@
 {
-  "title": { "en": "The skeleton of a sentence", "zh": "句子的骨架" },
-  "short": { "en": "How many ways can a sentence be read?", "zh": "一句话有几种读法" },
+  "title": "@level.parse.title",
+  "short": "@level.parse.short",
   "intro": [
     {
-      "t": {
-        "en": "“Old men and women”: are the women old too, or only the men? The same words, <b>merged into phrases two at a time</b> in different ways, mean different things: (old men) and women, or old (men and women). Draw the merging out and you get a <b>parse tree</b>.",
-        "zh": "「咬死了猎人的狗」：是狗咬死了猎人，还是猎人的狗被咬死了？同一串词，<b>两两合并成短语</b>的方式不同，意思就不同。合并的过程画出来，就是一棵<b>句法树</b>。"
-      }
+      "t": "@level.parse.intro.0.t"
     },
     {
-      "t": {
-        "en": "Suppose any two neighbouring stretches of words can be merged. How many different ways are there to merge a run of words? An interval table again: cell (i, j) records “how many ways words i to j can be merged”. A single word has just 1, so the diagonal is already filled in.",
-        "zh": "假设任何两段相邻的词都能合并。一串词一共有几种不同的合并方式？还是区间表：格子 (i, j) 记「第 i 到第 j 个词有几种合并方式」。单个词只有 1 种，对角线已经填好。"
-      }
+      "t": "@level.parse.intro.1.t"
     },
     {
-      "t": {
-        "en": "The last merge joins a left stretch and a right stretch. At a given split point, the left side has some number of ways and the right side some number, and any left way can go with any right way: how many ways does this split point give? And how should the different split points be combined?",
-        "zh": "最后一次合并，把左边一段和右边一段合起来。在某个切分点，左边有几种方式、右边有几种方式，两边可以随便搭配：这个切分点一共有几种？不同的切分点之间，又该怎么合起来？"
-      }
+      "t": "@level.parse.intro.2.t"
     },
     {
-      "t": {
-        "en": "When merging stones, each split point was “left + right”, and you picked the cheapest. What about here? Broom’s sweep arm sends the left parts and right parts by split point as before, and a Multiplier can multiply them pair by pair too.",
-        "zh": "合并石子时，每个切分点是「左 + 右」，再挑最省的。这里呢？扫帚的扫描臂照样按切分点送来左段们和右段们，乘法器也能一对一对地乘。"
-      }
+      "t": "@level.parse.intro.3.t"
     }
   ],
   "mission": {
-    "goal": {
-      "en": "A run of words is merged two at a time into phrases until it becomes one whole sentence. Work out how many different ways of merging there are (how many parse trees).",
-      "zh": "一串词两两合并成短语，直到合成一整句。算出一共有几种不同的合并方式（几棵句法树）。"
-    },
-    "how": {
-      "en": "The sweep arm sends the left part and right part for every split point.",
-      "zh": "扫描臂送来每个切分点的左段和右段。"
-    }
+    "goal": "@level.parse.mission.goal",
+    "how": "@level.parse.mission.how"
   },
   "robot": "broom",
   "debrief": {
-    "title": { "en": "Parsing", "zh": "句法分析" },
+    "title": "@level.parse.debrief.title",
     "body": [
-      {
-        "en": "3 words, 2 ways; 4 words, 5; 5 words, 14: these are the <b>Catalan numbers</b>, and they grow very fast as words are added. That is why a computer analysing a sentence doesn’t list every tree, but works through this interval table cell by cell.",
-        "zh": "3 个词 2 种，4 个词 5 种，5 个词 14 种：这串数叫<b>卡特兰数</b>，词一多就飞快地变大。所以电脑分析句子时，不会把每一棵树都列出来，而是用这张区间表一格一格地算。"
-      },
-      {
-        "en": "Real parsing (the <b>CKY algorithm</b>) also checks grammar rules: which two stretches can merge, and into what. The table has exactly the same shape.",
-        "zh": "真正的句法分析（叫 <b>CKY 算法</b>）还会查语法规则：哪两段能合并、合成什么。表的形状一模一样。"
-      }
+      "@level.parse.debrief.body.0",
+      "@level.parse.debrief.body.1"
     ],
-    "note": {
-      "en": "Parse trees: “left × right” at each split point, then add them up.",
-      "zh": "句法树：每个切分点「左 × 右」，再加起来。"
-    }
+    "note": "@level.parse.debrief.note"
   },
   "tasks": [
     {
@@ -61,36 +34,33 @@
       "mode": "circuit",
       "boardOpt": { "minScale": 0.6, "maxScale": 1.15 },
       "hints": [
-        {
-          "en": "Look at a single split point first: every way on the left can go with every way on the right. How many is that in all?",
-          "zh": "先只看一个切分点：左边的每一种方式，都能和右边的每一种搭配。这样一共有几种？"
-        },
-        { "en": "Every split point’s result counts: wire them into “sum”.", "zh": "所有切分点的结果都算数：接进「加起来」。" }
+        "@level.parse.tasks.parse.hints.0",
+        "@level.parse.tasks.parse.hints.1"
       ],
       "world": "interval",
       "tests": [
         {
           "words": [
-            { "en": "old", "zh": "咬死了" },
-            { "en": "men and", "zh": "猎人的" },
-            { "en": "women", "zh": "狗" }
+            "@level.parse.tasks.parse.tests.0.words.0",
+            "@level.parse.tasks.parse.tests.0.words.1",
+            "@level.parse.tasks.parse.tests.0.words.2"
           ]
         },
         {
           "words": [
-            { "en": "I", "zh": "我" },
-            { "en": "saw", "zh": "看见" },
-            { "en": "he", "zh": "他" },
-            { "en": "laugh", "zh": "笑" }
+            "@level.parse.tasks.parse.tests.1.words.0",
+            "@level.parse.tasks.parse.tests.1.words.1",
+            "@level.parse.tasks.parse.tests.1.words.2",
+            "@level.parse.tasks.parse.tests.1.words.3"
           ]
         },
         {
           "words": [
-            { "en": "big", "zh": "白" },
-            { "en": "white", "zh": "天" },
-            { "en": "swans", "zh": "鹅" },
-            { "en": "flew", "zh": "飞" },
-            { "en": "by", "zh": "过" }
+            "@level.parse.tasks.parse.tests.2.words.0",
+            "@level.parse.tasks.parse.tests.2.words.1",
+            "@level.parse.tasks.parse.tests.2.words.2",
+            "@level.parse.tasks.parse.tests.2.words.3",
+            "@level.parse.tasks.parse.tests.2.words.4"
           ]
         }
       ],

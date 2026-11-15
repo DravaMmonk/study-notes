@@ -1,33 +1,27 @@
 {
-  "title": { "en": "Same on both sides", "zh": "两边一样就删掉" },
+  "title": "@level.r-delete.title",
   "adds": ["uDelete", "uDecompose"],
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "A rule’s conclusion is not all ?-letters: some places hold fixed sentences, and there the goal must be exactly the same. Split, such a place becomes “it is windy ≐ it is windy”, which says nothing. A new part, “Delete”, removes such equations.",
-        "zh": "规则的结论不全是 ?：有些地方是确定的句子，目标在那里必须完全相同。拆开后，这样的地方成了「刮风 ≐ 刮风」，不含任何信息。新元件「删除」去掉这样的等式。"
-      }
+      "t": "@level.r-delete.intro.0.t"
     },
-    { "t": { "en": "¬A in the prover is A → ⊥, and splits as such.", "zh": "¬A 在证明器里是 A → ⊥，也按这个结构拆。" } }
+    { "t": "@level.r-delete.intro.1.t" }
   ],
   "tasks": [
     {
       "id": "r-delete",
       "kind": "machine",
       "want": "unify",
-      "inputs": [{ "name": "in", "label": { "en": "Equations", "zh": "等式" } }],
+      "inputs": [{ "name": "in", "label": "@level.r-delete.tasks.r-delete.inputs.0.label" }],
       "tests": [
         { "eqs": ["?A ∧ Wind ≐ Rain ∧ Wind"] },
         { "eqs": ["Rain → ?B ≐ Rain → Wet"] },
         { "eqs": ["¬?A ≐ ¬Rain"] },
         { "eqs": ["(?A ∧ Wind) → ?B ≐ (Rain ∧ Wind) → Wet"] }
       ],
-      "brief": {
-        "en": "Design a proof assistant that solves each set of equations to the end, leaving only equations for ?-letters.",
-        "zh": "设计一个证明助手：把每组等式解到底，只留下 ?-字母的等式。"
-      },
-      "hint": [{ "en": "Split first, then look at what is left.", "zh": "先拆开，再看剩下的等式。" }],
+      "brief": "@level.r-delete.tasks.r-delete.brief",
+      "hint": ["@level.r-delete.tasks.r-delete.hint.0"],
       "solution": [
         "r = repeat(in, body: c1) {",
         "  body {",

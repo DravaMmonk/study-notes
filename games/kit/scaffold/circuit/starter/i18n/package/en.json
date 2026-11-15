@@ -1,0 +1,20 @@
+{
+  "glossary.entries.difference.body.0": "What taking one number from another gives.",
+  "glossary.entries.difference.title": "difference",
+  "glossary.groups.adding.title": "Adding up",
+  "level.1-1.intro.0.t": "The three numbers this level gives are on the left of the board, the result to give on the right. The two parts at hand each work on two numbers: one gives their sum, the other their <wiki-ref to=\"difference\"></wiki-ref>.",
+  "level.1-1.tasks.1-1.brief": "Give a plus b, less c.",
+  "level.1-1.tasks.1-1.hint.0": "One part’s output can go into another part’s input.",
+  "level.1-1.tasks.1-1.outputs.0.label": "Result",
+  "level.1-1.title": "Add, then take away",
+  "level.1-2.intro.0.t": "This level gives two more numbers.",
+  "level.1-2.tasks.1-2.brief": "Give a + b − c + d − e.",
+  "level.1-2.tasks.1-2.outputs.0.label": "Result",
+  "level.1-2.title": "Two numbers more",
+  "piece.add.desc": "Gives the sum of its two inputs; gives 「—」 if either input is 「—」.",
+  "piece.add.name": "Add",
+  "piece.addSub.desc": "Gives a plus b, less c.",
+  "piece.addSub.name": "Add, then take away",
+  "piece.sub.desc": "Gives its first input less its second; gives 「—」 if either input is 「—」.",
+  "piece.sub.name": "Subtract"
+}

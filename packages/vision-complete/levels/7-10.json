@@ -1,39 +1,27 @@
 {
-  "title": { "en": "How far ahead", "zh": "前方多远" },
+  "title": "@level.7-10.title",
   "tray": "geometry",
-  "after": {
-    "en": "Search the disparity, convert to distance, keep only what is above the floor: each step was practised on its own earlier, and joined up they make a rangefinder.",
-    "zh": "搜视差、换成距离、只留地面以上：每一步都是前面单独练过的，接起来就是一台测距仪。"
-  },
+  "after": "@level.7-10.after",
   "intro": [
     {
-      "t": {
-        "en": "A robot vacuum has a pair of stereo cameras and must stop before it bumps into things. First it needs to know how far away everything in front is.",
-        "zh": "扫地机器人装了一对双目相机，要在撞上之前停下来。先要知道前面每个地方有多远。"
-      }
+      "t": "@level.7-10.intro.0.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: output the distance of every pixel above the floor.",
-        "zh": "这一关你要做的：输出地面以上每个像素的距离。"
-      },
-      "fig": { "test": 0, "view": "terrain", "caption": { "en": "Set 1: a box", "zh": "第一组：一个箱子" } }
+      "t": "@level.7-10.intro.1.t",
+      "fig": { "test": 0, "view": "terrain", "caption": "@level.7-10.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "7-10",
       "kind": "graph",
-      "brief": {
-        "en": "A robot vacuum's stereo camera (f·b = 3). Output the distance in metres of every pixel above the floor, and 0 on the floor rows.",
-        "zh": "扫地机器人的双目相机（f·b = 3）。输出地面以上每个像素的距离（米），地面那几行输出 0。"
-      },
-      "hint": { "en": "The steps you have practised, joined up.", "zh": "前面练过的几步，接起来。" },
+      "brief": "@level.7-10.tasks.7-10.brief",
+      "hint": "@level.7-10.tasks.7-10.hint",
       "inputs": ["left", "right", "region"],
       "inputLabels": {
-        "left": { "en": "Left camera", "zh": "左相机" },
-        "right": { "en": "Right camera", "zh": "右相机" },
-        "region": { "en": "Above the floor", "zh": "地面以上" }
+        "left": "@level.7-10.tasks.7-10.inputLabels.left",
+        "right": "@level.7-10.tasks.7-10.inputLabels.right",
+        "region": "@level.7-10.tasks.7-10.inputLabels.region"
       },
       "views": { "out": "terrain" },
       "check": { "tolerance": 0.05, "mismatches": 40 },
@@ -41,24 +29,24 @@
       "setup": { "expect": "distance" },
       "tests": [
         {
-          "label": { "en": "A box", "zh": "一个箱子" },
+          "label": "@level.7-10.tasks.7-10.tests.0.label",
           "seed": 61,
           "obstacles": [{ "box": [4, 3, 10, 12], "d": 3 }]
         },
         {
-          "label": { "en": "A far box", "zh": "远的箱子" },
+          "label": "@level.7-10.tasks.7-10.tests.1.label",
           "seed": 62,
           "obstacles": [{ "box": [6, 2, 12, 12], "d": 2 }]
         },
         {
-          "label": { "en": "One far, one near", "zh": "一远一近" },
+          "label": "@level.7-10.tasks.7-10.tests.2.label",
           "seed": 63,
           "obstacles": [{ "box": [1, 4, 7, 12], "d": 2 }, { "box": [9, 5, 14, 12], "d": 3 }]
         }
       ],
       "hidden": [
         {
-          "label": { "en": "A thin chair leg", "zh": "细的椅腿" },
+          "label": "@level.7-10.tasks.7-10.hidden.0.label",
           "seed": 64,
           "obstacles": [{ "box": [7, 1, 10, 12], "d": 3 }]
         }

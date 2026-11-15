@@ -1,5 +1,5 @@
 {
-  "title": { "en": "An ancestor’s ancestor", "zh": "祖先的祖先" },
+  "title": "@level.q-ancestor.title",
   "tray": ["proof", "formula"],
   "tasks": [
     {
@@ -14,10 +14,7 @@
       ],
       "cases": [{ "R": "Anc" }, { "R": "Older" }],
       "hint": [
-        {
-          "en": "Three ∀s, taken one at a time: x is Ann, y is Bo, z is Cy.",
-          "zh": "三个 ∀，一个一个取：x 是安，y 是博，z 是茜。"
-        }
+        "@level.q-ancestor.tasks.q-ancestor.hint.0"
       ],
       "solution": [
         "e1 = allE[t=i](t)",

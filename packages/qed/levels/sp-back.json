@@ -1,12 +1,9 @@
 {
-  "title": { "en": "Left to right only", "zh": "只从左往右" },
+  "title": "@level.sp-back.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "A rewrite rule works only left to right: ¬(A ∨ B) ⟼ ¬A ∧ ¬B pushes a negation in, but cannot bring it out.",
-        "zh": "改写规则只从左往右换：¬(A ∨ B) ⟼ ¬A ∧ ¬B 能把否定推进去，却提不出来。"
-      }
+      "t": "@level.sp-back.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,22 +11,16 @@
       "id": "sp-back",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.sp-back.tasks.sp-back.inputs.0.label" }],
       "backtrack": true,
       "tests": [
         { "goal": "¬Rain ∧ ¬Wind → Wet", "becomes": [["¬(Rain ∨ Wind) → Wet"]] },
         { "goal": "¬Wet ∨ ¬Slip", "becomes": [["¬(Wet ∧ Slip)"]] },
         { "goal": "Happy ∧ (¬Sat ∧ ¬Sun)", "becomes": [["Happy ∧ ¬(Sat ∨ Sun)"]] }
       ],
-      "brief": {
-        "en": "Design a proof assistant that makes the two negations in each goal one, outside the brackets.",
-        "zh": "设计一个证明助手，把每个目标里的两个否定合成一个，提到括号外面。"
-      },
+      "brief": "@level.sp-back.tasks.sp-back.brief",
       "hint": [
-        {
-          "en": "<part-ref to=\"lemma:dm\"></part-ref> still has shapes you have not used.",
-          "zh": "<part-ref to=\"lemma:dm\"></part-ref>里还有没用过的形状。"
-        }
+        "@level.sp-back.tasks.sp-back.hint.0"
       ],
       "solution": [
         "c0 = append(in, first: c1, second: c2) {",

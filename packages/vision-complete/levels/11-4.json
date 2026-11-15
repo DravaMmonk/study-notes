@@ -1,25 +1,16 @@
 {
-  "title": { "en": "The car or the road", "zh": "看车还是看路" },
+  "title": "@level.11-4.title",
   "tray": "recognition",
-  "after": {
-    "en": "Near 1, the classifier recognises the car; near 0, the road. Every car in the training set stood on a road, so looking at the road alone sorts the training set correctly; a shortcut like that is found this way. A negative fraction means the car's cells are pulling the score down.",
-    "zh": "比例接近 1，分类器认的是车；接近 0，它认的是路。训练集里每辆车都停在路上，只看路也能把训练集分对，这种捷径要这样查出来。比例是负数时，车上的格子在给分数扣分。"
-  },
+  "after": "@level.11-4.after",
   "intro": [
     {
-      "t": {
-        "en": "A heat map needs a person to look at it. With a thousand models and ten thousand photos, one number has to answer \"does it see the car or the road?\"",
-        "zh": "一张热图要人去看。要是有一千个模型、一万张照片，就得有一个数来回答「它认的是车还是路」。"
-      }
+      "t": "@level.11-4.intro.0.t"
     },
     {
-      "t": {
-        "en": "This level adds a mask of the car: 1 on the body and wheels, 0 elsewhere. Your task: output what fraction of the score comes from the car.",
-        "zh": "这一关多给一张车的掩膜：车身和车轮上是 1，别处是 0。你要做的：输出分数里有多大比例来自车上。"
-      },
+      "t": "@level.11-4.intro.1.t",
       "fig": {
         "test": 1,
-        "caption": { "en": "Set 2: a classifier that looks at the road", "zh": "第二组：只看路的分类器" }
+        "caption": "@level.11-4.intro.1.fig.caption"
       }
     }
   ],
@@ -27,49 +18,43 @@
     {
       "id": "11-4",
       "kind": "graph",
-      "brief": {
-        "en": "The third input is the car's mask (1 on the car). Output one number: what fraction of the classifier's score comes from the cells on the car.",
-        "zh": "第三个输入是车的掩膜（车上是 1）。输出一个数：分类器的分数里，有多大比例来自车上的格子。"
-      },
-      "hint": {
-        "en": "Averages from <part-ref to=\"mean\"></part-ref> are all off by the same factor; divide one by another and the factor cancels.",
-        "zh": "<part-ref to=\"mean\"></part-ref>算出的平均都差同一个倍数，两个相除，倍数就消掉了。"
-      },
+      "brief": "@level.11-4.tasks.11-4.brief",
+      "hint": "@level.11-4.tasks.11-4.hint",
       "inputs": ["in", "w", "m"],
       "inputLabels": {
-        "in": { "en": "Photo", "zh": "照片" },
-        "w": { "en": "Weights", "zh": "权重" },
-        "m": { "en": "Car mask", "zh": "车的掩膜" }
+        "in": "@level.11-4.tasks.11-4.inputLabels.in",
+        "w": "@level.11-4.tasks.11-4.inputLabels.w",
+        "m": "@level.11-4.tasks.11-4.inputLabels.m"
       },
       "check": { "tolerance": 0.01 },
       "scene": "classifier",
       "setup": { "check": "share" },
       "tests": [
-        { "label": { "en": "An honest classifier", "zh": "老实的分类器" }, "street": { "cx": 5 }, "weights": "car" },
+        { "label": "@level.11-4.tasks.11-4.tests.0.label", "street": { "cx": 5 }, "weights": "car" },
         {
-          "label": { "en": "A classifier that looks at the road", "zh": "只看路的分类器" },
+          "label": "@level.11-4.tasks.11-4.tests.1.label",
           "street": { "cx": 5 },
           "weights": "road"
         },
         {
-          "label": { "en": "Looking at the car and the road", "zh": "车和路都看" },
+          "label": "@level.11-4.tasks.11-4.tests.2.label",
           "street": { "cx": 4, "house": 12 },
           "weights": "both"
         },
         {
-          "label": { "en": "A classifier that looks under the car", "zh": "看车底下的分类器" },
+          "label": "@level.11-4.tasks.11-4.tests.3.label",
           "street": { "cx": 5 },
           "weights": "shadow"
         }
       ],
       "hidden": [
         {
-          "label": { "en": "The car has moved left", "zh": "车开到了左边" },
+          "label": "@level.11-4.tasks.11-4.hidden.0.label",
           "street": { "cx": 1 },
           "weights": "car"
         },
         {
-          "label": { "en": "A wider look", "zh": "看得宽一点" },
+          "label": "@level.11-4.tasks.11-4.hidden.1.label",
           "street": { "cx": 6, "house": 0 },
           "weights": "wide"
         }

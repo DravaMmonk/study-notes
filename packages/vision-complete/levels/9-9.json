@@ -1,57 +1,42 @@
 {
-  "title": { "en": "The thin line is gone", "zh": "细线不见了" },
+  "title": "@level.9-9.title",
   "carry": "9-8",
   "tray": "recognition",
-  "after": {
-    "en": "Combine the coarse result enlarged back with the fine result at full size: the coarse path keeps out the grain, the fine path keeps the detail. This line straight from encoder to decoder is called a skip connection, and U-Net has one at every level.",
-    "zh": "把放大回来的粗结果和原尺寸的细结果合起来：粗的一路挡住噪点，细的一路留下细节。这条从编码器直接连到解码器的线叫跳连，U-Net 每一层都有。"
-  },
+  "after": "@level.9-9.after",
   "intro": [
     {
-      "t": {
-        "en": "Cells often crowd together with only a very thin gap between them. When counting, lose the gap and two count as one.",
-        "zh": "细胞常常挤在一起，中间只隔一条极细的缝。数细胞时，缝丢了，两个就算成一个。"
-      }
+      "t": "@level.9-9.intro.0.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: mark the cells, keeping the gaps between them.",
-        "zh": "这一关你要做的：标出细胞，细胞之间的缝要留着。"
-      },
-      "fig": { "test": 0, "caption": { "en": "Set 1: two touching", "zh": "第一组：两个挨着" } }
+      "t": "@level.9-9.intro.1.t",
+      "fig": { "test": 0, "caption": "@level.9-9.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "9-9",
       "kind": "graph",
-      "brief": {
-        "en": "Touching cells are separated only by a dark gap one pixel wide. Mark the cells, and keep the gaps (0).",
-        "zh": "挨在一起的细胞之间只隔一条一像素的暗缝。标出细胞，缝要留着（0）。"
-      },
-      "hint": {
-        "en": "The shrink-then-enlarge path cannot see a one-pixel gap. The original picture still can.",
-        "zh": "缩小再放大的那条路看不见一像素的缝。原图里还看得见。"
-      },
+      "brief": "@level.9-9.tasks.9-9.brief",
+      "hint": "@level.9-9.tasks.9-9.hint",
       "check": { "tolerance": 0.1, "mismatches": 3 },
       "scene": "cells",
       "tests": [
         {
-          "label": { "en": "Two touching", "zh": "两个挨着" },
+          "label": "@level.9-9.tasks.9-9.tests.0.label",
           "rects": [[2, 3, 14, 11]],
           "gapX": [7],
           "seed": 71,
           "grain": 0.2
         },
         {
-          "label": { "en": "One above the other", "zh": "上下挨着" },
+          "label": "@level.9-9.tasks.9-9.tests.1.label",
           "rects": [[3, 1, 11, 15]],
           "gapY": [7],
           "seed": 72,
           "grain": 0.2
         },
         {
-          "label": { "en": "Three in a row", "zh": "一排三个" },
+          "label": "@level.9-9.tasks.9-9.tests.2.label",
           "rects": [[1, 4, 15, 10]],
           "gapX": [5, 11],
           "seed": 73,
@@ -60,7 +45,7 @@
       ],
       "hidden": [
         {
-          "label": { "en": "Two in a row, gap elsewhere", "zh": "一排两个，缝在别处" },
+          "label": "@level.9-9.tasks.9-9.hidden.0.label",
           "rects": [[0, 2, 14, 8]],
           "gapX": [9],
           "seed": 74,

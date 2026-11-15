@@ -84,10 +84,13 @@ test('changing tools: modify refuses a failing changeset and writes a passing on
   const hint = { op: 'text.set', level: 'suppose', path: 'tasks[0].hint[0]', lang: 'en', value: 'Set the box’s assumption to “Today is Saturday”, the first half of the sentence.' }
   const preview = (await call('modify', { game: GAME, changeset: { ops: [hint] }, dryRun: true })).data
   assert.equal(preview.ok && !preview.written, true)
-  assert.match(preview.diff, new RegExp(`^--- a/packages/${GAME}/levels/suppose.json`))
+  assert.match(preview.diff, new RegExp(`^--- a/packages/${GAME}/i18n/en.json`))
   const done = (await call('modify', { game: GAME, changeset: { why: 'a clearer hint', ops: [hint] } })).data
   assert.equal(done.written, true, done.problems.join('\n'))
-  assert.equal(JSON.parse(readFileSync(join(root, 'packages', GAME, 'levels', 'suppose.json'), 'utf8')).tasks[0].hint[0].en, hint.value)
+  const pkg = join(root, 'packages', GAME)
+  const ref = JSON.parse(readFileSync(join(pkg, 'levels', 'suppose.json'), 'utf8')).tasks[0].hint[0]
+  assert.match(ref, /^@/)
+  assert.equal(JSON.parse(readFileSync(join(pkg, 'i18n', 'en.json'), 'utf8'))[ref.slice(1)], hint.value)
   assert.equal(JSON.parse(readFileSync(join(root, 'games', GAME, 'changes.jsonl'), 'utf8')).why, 'a clearer hint')
 })
 

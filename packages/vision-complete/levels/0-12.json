@@ -1,64 +1,52 @@
 {
-  "title": { "en": "Inspection station", "zh": "质检台" },
+  "title": "@level.0-12.title",
   "carry": "0-11",
   "tray": "pipeline",
-  "after": {
-    "en": "The station does three things: restore the lighting, subtract the reference cell by cell, then threshold each side and combine. Machine-vision inspection in factories often starts out exactly like this: a reference, alignment, a comparison.",
-    "zh": "质检台做的三件事：先把灯光补回来，再和标准件逐格相减，最后两边各取一次阈值、合在一起。工厂里的视觉检测，第一版常常就是这样：参照、对齐、比较。"
-  },
+  "after": "@level.0-12.after",
   "intro": [
     {
-      "t": {
-        "en": "The inspection station is about to go live. Besides dents, parts may have scratches, which catch the light and look brighter than the reference.",
-        "zh": "质检台要正式上线了。除了凹坑，零件表面还会有划痕：划痕反光，比标准件更亮。"
-      }
+      "t": "@level.0-12.intro.0.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: the lamp is still at 80%. Mark both dents and scratches with 1 and everything else with 0. For a good part the output should be all 0.",
-        "zh": "这一关你要做的：灯还是只有 80%，凹坑和划痕都标 1，其余标 0。合格的零件，输出应该全是 0。"
-      },
-      "fig": { "test": 0, "caption": { "en": "Set 1: one dent and one scratch", "zh": "第一组：一个凹坑和一道划痕" } }
+      "t": "@level.0-12.intro.1.t",
+      "fig": { "test": 0, "caption": "@level.0-12.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "0-12",
       "kind": "graph",
-      "brief": {
-        "en": "Going live: the lamp is at 80%, and parts have both dents (darker) and shiny scratches (brighter). Mark both kinds of defect with 1 and everything else with 0.",
-        "zh": "正式上线：灯只剩 80%，零件上既有凹坑（偏暗），也有反光的划痕（偏亮）。两种缺陷都标 1，其余标 0。"
-      },
-      "hint": {
-        "en": "A threshold only looks one way. The two kinds of defect differ in opposite directions.",
-        "zh": "一个阈值只能看一边。两种缺陷的差值，一正一负。"
-      },
+      "brief": "@level.0-12.tasks.0-12.brief",
+      "hint": "@level.0-12.tasks.0-12.hint",
       "inputs": ["ref", "part"],
-      "inputLabels": { "ref": { "en": "Reference", "zh": "标准件" }, "part": { "en": "Part", "zh": "实物" } },
+      "inputLabels": {
+        "ref": "@level.0-12.tasks.0-12.inputLabels.ref",
+        "part": "@level.0-12.tasks.0-12.inputLabels.part"
+      },
       "scene": "station",
       "tests": [
         {
-          "label": { "en": "A flat sheet", "zh": "平板" },
+          "label": "@level.0-12.tasks.0-12.tests.0.label",
           "part": "plate",
           "dents": [[4, 4, 2, 2]],
           "scratches": [[9, 10, 4, 1]],
           "lamp": 0.8
         },
         {
-          "label": { "en": "Ring", "zh": "圆环" },
+          "label": "@level.0-12.tasks.0-12.tests.1.label",
           "part": "ring",
           "scratches": [[2, 7, 1, 3]],
           "dents": [[11, 11, 2, 2]],
           "lamp": 0.8
         },
         {
-          "label": { "en": "Bracket", "zh": "支架" },
+          "label": "@level.0-12.tasks.0-12.tests.2.label",
           "part": "bracket",
           "scratches": [[3, 5, 1, 4], [8, 12, 4, 1]],
           "lamp": 0.8
         },
         {
-          "label": { "en": "Gear", "zh": "齿轮" },
+          "label": "@level.0-12.tasks.0-12.tests.3.label",
           "part": "gear",
           "dents": [[5, 5, 2, 2]],
           "scratches": [[0, 6, 2, 1]],
@@ -67,19 +55,19 @@
       ],
       "hidden": [
         {
-          "label": { "en": "Tiles", "zh": "格板" },
+          "label": "@level.0-12.tasks.0-12.hidden.0.label",
           "part": "tile",
           "dents": [[2, 2, 2, 2]],
           "scratches": [[12, 5, 1, 3], [6, 13, 3, 1]],
           "lamp": 0.8
         },
         {
-          "label": { "en": "Scratches only", "zh": "只有划痕" },
+          "label": "@level.0-12.tasks.0-12.hidden.1.label",
           "part": "plate",
           "scratches": [[6, 1, 1, 4], [0, 9, 3, 1]],
           "lamp": 0.8
         },
-        { "label": { "en": "A good ring", "zh": "合格的圆环" }, "part": "ring", "lamp": 0.8 }
+        { "label": "@level.0-12.tasks.0-12.hidden.2.label", "part": "ring", "lamp": 0.8 }
       ],
       "solution": [
         "kN = const[c=1.25]()",

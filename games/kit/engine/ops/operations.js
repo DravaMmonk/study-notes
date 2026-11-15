@@ -17,7 +17,7 @@ import { NAME as PART_NAME, PARTS_FILE, SETTING } from '../parts/schema.js'
 import { renameSlot } from '../../pipeline/blueprint.js'
 import { TASK_ID, findTask, newTaskId } from '../tasks.js'
 import { T as t } from '../../shell/i18n.js'
-import { isLanguageCode, LANGUAGE_CODE } from '../i18n.js'
+import { isLanguageCode, LANGUAGE_CODE, textKey, withTextKey } from '../i18n.js'
 
 const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal') })
 const NEW_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('新的关卡 id（也是文件名）') })
@@ -289,13 +289,16 @@ export const OPERATIONS = {
       if (lang && typeof text !== 'string') fail('editing one language needs one string')
       if (lang && typeof old === 'string') fail('use a text field without a language to edit a shared string')
       const next = lang ? { ...old, [lang]: text } : text
+      // Keep the message identity when a whole field is edited or restored by its inverse.
+      const key = textKey(next) ?? textKey(old)
+      const updated = key && typeof next === 'object' ? withTextKey(next, key) : next
       const file = level ?? where
-      // The glossary and pieces.json have no field operations: their text goes back as a text.
+      // Restoring the complete message also removes a locale that this edit added.
       const inverse = [where === 'glossary' || where === 'pieces' ? { op: 'text.set', in: where, path: keys, value: old } : restore(level !== undefined ? 'level' : 'game', value, keys, level !== undefined ? { level } : {})]
-      if (level !== undefined) setLevel(ws, level, keys, next, vocabulary)
-      else if (where === 'game') ws.game = setAt(ws.game, keys, next)
-      else if (where === 'pieces') ws.partDefs = setAt(ws.partDefs, keys, next, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
-      else ws.glossary = setAt(ws.glossary, keys, next)
+      if (level !== undefined) setLevel(ws, level, keys, updated, vocabulary)
+      else if (where === 'game') ws.game = setAt(ws.game, keys, updated)
+      else if (where === 'pieces') ws.partDefs = setAt(ws.partDefs, keys, updated, orderOf(PARTS_FILE, ws.partDefs, vocabulary))
+      else ws.glossary = setAt(ws.glossary, keys, updated)
       return { says: `${file}: ${showPath(keys)} reads anew`, inverse }
     },
   },

@@ -1,40 +1,31 @@
 {
-  "title": { "en": "Two directions", "zh": "两个方向" },
+  "title": "@level.iffUse.title",
   "tray": ["proof", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "In the truth circuits, the ↔ of <level-ref to=\"g-iff\"></level-ref> meant true together and false together. In the kernel, A ↔ B is “(A → B) ∧ (B → A)”: the → holds both ways.",
-        "zh": "在真值电路里，<level-ref to=\"g-iff\"></level-ref>的 ↔ 表示同真同假。在证明核里，A ↔ B 就是「(A → B) ∧ (B → A)」：两个方向的 → 都成立。"
-      }
+      "t": "@level.iffUse.intro.0.t"
     }
   ],
   "tasks": [
     {
       "id": "iffUse_1",
       "kind": "proof",
-      "step": { "en": "One direction", "zh": "一个方向" },
+      "step": "@level.iffUse.tasks.iffUse_1.step",
       "tests": [{ "premises": { "p": "A ↔ B", "q": "A" }, "goal": "B" }],
       "cases": [{ "A": "Sat", "B": "Rest" }, { "A": "Coffee", "B": "Awake" }],
       "hint": [
-        {
-          "en": "<part-ref to=\"part:andE\"></part-ref> splits ↔ too: into the two “if … then …”s; use the right one.",
-          "zh": "<part-ref to=\"part:andE\"></part-ref>也能拆 ↔：拆出两个方向的「若…则…」，用对的那一个。"
-        }
+        "@level.iffUse.tasks.iffUse_1.hint.0"
       ],
       "solution": ["e = andE(p)", "m = mp(e.left, q)", "goal <- m"]
     },
     {
       "id": "iffUse_2",
       "kind": "proof",
-      "step": { "en": "The other direction", "zh": "另一个方向" },
+      "step": "@level.iffUse.tasks.iffUse_2.step",
       "tests": [{ "premises": { "p": "A ↔ B", "q": "¬A" }, "goal": "¬B" }],
       "cases": [{ "A": "Sat", "B": "Rest" }, { "A": "Coffee", "B": "Awake" }],
       "hint": [
-        {
-          "en": "This time it takes the other direction: assume “I rest” and see whether it runs into a contradiction.",
-          "zh": "这回要用另一个方向：假设「我休息」，看能不能撞出矛盾。"
-        }
+        "@level.iffUse.tasks.iffUse_2.hint.0"
       ],
       "solution": [
         "f = impI[A=B](body: m2) {",

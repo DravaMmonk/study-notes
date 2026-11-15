@@ -1,12 +1,9 @@
 {
-  "title": { "en": "Take it out first", "zh": "先拿出来" },
+  "title": "@level.r-order.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "Someone is human and likes Ann, so someone likes Ann and is human.",
-        "zh": "有一个又是人、又喜欢安的人，所以有一个喜欢安、又是人的人。"
-      }
+      "t": "@level.r-order.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,13 +11,13 @@
       "id": "r-order",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.r-order.tasks.r-order.inputs.0.label" }],
       "tests": [
         { "goal": "∃x. Likes(x, i) ∧ Human(x)", "hyps": ["∃x. Human(x) ∧ Likes(x, i)"] },
         { "goal": "∃y. Flies(y) ∧ Bird(y)", "hyps": ["∃x. Bird(x) ∧ Flies(x)"] }
       ],
-      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
-      "hint": [{ "en": "What ?t may become depends on when it was left.", "zh": "?t 能变成什么，取决于它是什么时候留下的。" }],
+      "brief": "@level.r-order.tasks.r-order.brief",
+      "hint": ["@level.r-order.tasks.r-order.hint.0"],
       "solution": [
         "c0r0 = exE()",
         "c1r0 = andE[use=[conjE]]()",

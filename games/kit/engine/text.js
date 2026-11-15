@@ -1,6 +1,6 @@
 // References inside the text a player reads (../shell/refs.js). Circuits (solution, naive, alsoFails…) hold no text
 // and are skipped.
-import { isText } from './i18n.js'
+import { isText, textEntries } from './i18n.js'
 
 const SKIP = new Set(['solution', 'naive', 'alsoFails'])
 
@@ -52,7 +52,7 @@ export function refProblems(value, path, names, quotes = [], out = [], visited =
     if (!v || typeof v !== 'object' || visited.has(v) || ArrayBuffer.isView(v)) return
     visited.add(v)
     if (isText(v)) {
-      for (const [lang, text] of Object.entries(v)) check(text, lang, at, mine)
+      for (const [lang, text] of textEntries(v)) check(text, lang, at, mine)
       return
     }
     const self = own.has(v.id) && (v.title || v.name) ? v.id : own.has(v.key) && v.name ? v.key : mine

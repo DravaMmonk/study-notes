@@ -1,36 +1,30 @@
 {
   "tray": "formula",
   "consts": ["h", "i", "j", "k", "l", "m", "n"],
-  "title": { "en": "Splitting ∃", "zh": "∃ 也不能随便拆" },
+  "title": "@level.p-exAnd.title",
   "tasks": [
     {
       "id": "p-exAnd_1",
       "kind": "translate",
-      "step": { "en": "Translate", "zh": "翻译" },
-      "brief": { "en": "Build this sentence as a formula from the parts below.", "zh": "用下面的元件，把这句话拼成公式。" },
-      "say": { "en": "There is a bird, and something flies, so some bird flies.", "zh": "有鸟，也有会飞的东西，所以有会飞的鸟。" },
+      "step": "@level.p-exAnd.tasks.p-exAnd_1.step",
+      "brief": "@level.p-exAnd.tasks.p-exAnd_1.brief",
+      "say": "@level.p-exAnd.tasks.p-exAnd_1.say",
       "target": "(∃x. Bird(x)) ∧ (∃x. Flies(x)) → (∃x. Bird(x) ∧ Flies(x))",
       "hint": [
-        {
-          "en": "The condition is two sentences, each with its own ∃, joined by “and”.",
-          "zh": "条件是两句各带自己的 ∃，用「并且」连起来。"
-        }
+        "@level.p-exAnd.tasks.p-exAnd_1.hint.0"
       ],
       "decoys": []
     },
     {
       "id": "p-exAnd_2",
       "kind": "model",
-      "step": { "en": "Counterexample", "zh": "造反例" },
-      "say": { "en": "There is a bird, and something flies, so some bird flies.", "zh": "有鸟，也有会飞的东西，所以有会飞的鸟。" },
-      "brief": {
-        "en": "The reasoning is written as a lemma. Build a counterexample: every premise holds and the goal fails.",
-        "zh": "这段推理写成了引理。造一个反例：前提都成立，结论不成立。"
-      },
+      "step": "@level.p-exAnd.tasks.p-exAnd_2.step",
+      "say": "@level.p-exAnd.tasks.p-exAnd_2.say",
+      "brief": "@level.p-exAnd.tasks.p-exAnd_2.brief",
       "given": ["∃x. Bird(x)", "∃x. Flies(x)"],
       "goal": "∃x. Bird(x) ∧ Flies(x)",
       "answer": { "size": 2, "preds": { "Bird": ["0"], "Flies": ["1"] } },
-      "hint": [{ "en": "The two ∃s may point at two different things.", "zh": "两个 ∃ 可以指两样不同的东西。" }]
+      "hint": ["@level.p-exAnd.tasks.p-exAnd_2.hint.0"]
     }
   ]
 }

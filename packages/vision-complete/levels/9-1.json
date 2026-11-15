@@ -1,31 +1,22 @@
 {
-  "title": { "en": "One label per pixel", "zh": "一格一个标签" },
+  "title": "@level.9-1.title",
   "tray": "recognition",
   "intro": [
     {
-      "t": {
-        "en": "Segmentation assigns a label to every pixel. Here we do binary segmentation: bright cells are foreground and the dark field is background. Before wiring, find the column between the two bright regions that should be background.",
-        "zh": "分割给图上每个像素一个标签。这里做二值分割：亮细胞是前景，暗底是背景。接线之前，先找出两块亮区域之间哪一列应该是背景。"
-      }
+      "t": "@level.9-1.intro.0.t"
     }
   ],
-  "after": {
-    "en": "A binary mask has the same size as the image, and each 0 or 1 records a class. It retains the foreground shape and location. If foreground and background intensities overlap, one threshold will mislabel pixels.",
-    "zh": "二值掩膜和原图同样大，每格的 0 或 1 记录类别。它保留前景的形状和位置；亮度分布重叠时，单个阈值就会误分。"
-  },
+  "after": "@level.9-1.after",
   "tasks": [
     {
       "id": "binary-foreground-mask",
       "kind": "graph",
       "scene": "cells",
-      "brief": {
-        "en": "Label pixels strictly brighter than 0.5 as 1 and the rest as 0. Compare the examples with and without a narrow gap.",
-        "zh": "把亮度严格高于 0.5 的像素标成 1，其余标成 0。对照有窄缝和没有窄缝的两组图。"
-      },
-      "outputLabels": { "out": { "en": "Foreground mask", "zh": "前景掩膜" } },
+      "brief": "@level.9-1.tasks.binary-foreground-mask.brief",
+      "outputLabels": { "out": "@level.9-1.tasks.binary-foreground-mask.outputLabels.out" },
       "tests": [
         {
-          "label": { "en": "One dark column", "zh": "一列暗缝" },
+          "label": "@level.9-1.tasks.binary-foreground-mask.tests.0.label",
           "rects": [[2, 3, 13, 12]],
           "seed": 61,
           "cell": 0.9,
@@ -34,7 +25,7 @@
           "gapX": [7]
         },
         {
-          "label": { "en": "Connected foreground", "zh": "相连的前景" },
+          "label": "@level.9-1.tasks.binary-foreground-mask.tests.1.label",
           "rects": [[2, 3, 13, 12]],
           "seed": 62,
           "cell": 0.66,
@@ -44,7 +35,7 @@
       ],
       "hidden": [
         {
-          "label": { "en": "Dimmer cells", "zh": "暗一些的细胞" },
+          "label": "@level.9-1.tasks.binary-foreground-mask.hidden.0.label",
           "rects": [[3, 4, 12, 14]],
           "seed": 63,
           "cell": 0.52,

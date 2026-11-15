@@ -10,6 +10,7 @@
 //   a hit: { file, level?, in?, path, kind, side?, line?, text (the string searched), at: [[start, end]…] }
 import { PARTS_FILE } from '../parts/schema.js'
 import { find } from '../schema.js'
+import { textEntries } from '../i18n.js'
 import { GLOSSARY } from '../vocabulary.js'
 
 const REF_TAG = /<(level|part|wiki)-ref to="[^"]+"><\/\1-ref>/g
@@ -54,7 +55,7 @@ export function searchable(content, vocabulary, kinds = KINDS) {
   const texts = (value, schema, at) => {
     for (const { path, value: v } of find(schema, value, 'text', { vocabulary })) {
       if (typeof v === 'string') out.push({ ...at, path, kind: 'text', text: v })
-      else for (const [side, text] of Object.entries(v)) out.push({ ...at, path, kind: 'text', side, text })
+      else for (const [side, text] of textEntries(v)) out.push({ ...at, path, kind: 'text', side, text })
     }
   }
   const { id: _g, levels, glossary, domain: _d, vocabulary: _v, open: _o, blueprint: _b, partDefs, ...game } = content

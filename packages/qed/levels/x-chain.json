@@ -1,24 +1,18 @@
 {
-  "title": { "en": "Joining without a box", "zh": "不用框接起来" },
+  "title": "@level.x-chain.title",
   "tray": ["proof", "formula"],
   "without": ["impI", "chain", "swap", "merge"],
-  "after": {
-    "en": "Any box can be traded for K, S and Apply: the <wiki-ref to=\"deduction\"></wiki-ref>.",
-    "zh": "任何一个框都能换成 K、S 和套用，这叫<wiki-ref to=\"deduction\"></wiki-ref>。"
-  },
+  "after": "@level.x-chain.after",
   "tasks": [
     {
       "id": "x-chain",
       "kind": "proof",
       "tests": [{ "premises": { "p": "A → B", "q": "B → C" }, "goal": "A → C" }],
       "cases": [{ "A": "Rain", "B": "Wet", "C": "Slip" }, { "A": "Alarm", "B": "Up", "C": "OnTime" }],
-      "briefNote": { "en": "Without the assumption box.", "zh": "不用假设框。" },
+      "briefNote": "@level.x-chain.tasks.x-chain.briefNote",
       "hint": [
-        {
-          "en": "What does the proof look like with a box? Without one, what does each step inside it?",
-          "zh": "有框时，证明是什么样子？框里的每一步，没有框时由谁来做？"
-        },
-        { "en": "The Apply inside the box happens under the condition “it rains”.", "zh": "框里的套用是在条件「下雨」下做的。" }
+        "@level.x-chain.tasks.x-chain.hint.0",
+        "@level.x-chain.tasks.x-chain.hint.1"
       ],
       "solution": [
         "k = axK[A=\"B -> C\", B=A]()",

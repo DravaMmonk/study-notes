@@ -1,8 +1,8 @@
 {
-  "title": { "en": "Assume, then apply", "zh": "先假设，再套用" },
+  "title": "@level.box.title",
   "tray": ["proof", "formula"],
   "intro": [
-    { "t": { "en": "On a Saturday, if it rains I rest at home. It is raining.", "zh": "周六的话，下雨我就在家休息。今天下雨了。" } }
+    { "t": "@level.box.intro.0.t" }
   ],
   "tasks": [
     {
@@ -10,13 +10,10 @@
       "kind": "proof",
       "tests": [{ "premises": { "p": "A → (B → C)", "q": "B" }, "goal": "A → C" }],
       "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Alarm", "B": "Coffee", "C": "Awake" }],
-      "briefNote": { "en": "With the assumption box.", "zh": "用假设框。" },
+      "briefNote": "@level.box.tasks.box.briefNote",
       "hint": [
-        { "en": "What follows the “if” in the goal?", "zh": "目标「若」后面的是什么？" },
-        {
-          "en": "Click the empty space inside the box first, and the parts you place next land in it.",
-          "zh": "先点一下框里的空白，再放元件，元件就落在框里。"
-        }
+        "@level.box.tasks.box.hint.0",
+        "@level.box.tasks.box.hint.1"
       ],
       "solution": [
         "f = impI[A=A](body: m2) {",

@@ -1,17 +1,11 @@
 {
-  "title": { "en": "Who are Ann’s children", "zh": "谁是安的孩子" },
+  "title": "@level.q-children.title",
   "intro": [
     {
-      "t": {
-        "en": "A sentence with one x left free is a <wiki-ref to=\"query\"></wiki-ref>: the things of a world that make it true when put in for x are the answer. At its core, SQL, the language of databases, is first-order logic like this.",
-        "zh": "一句话里留一个自由的 x，就成了<wiki-ref to=\"query\"></wiki-ref>：世界里哪些东西代入 x 能让这句话成立，哪些就是答案。数据库的查询语言 SQL，核心就是这样的一阶逻辑。"
-      }
+      "t": "@level.q-children.intro.0.t"
     },
     {
-      "t": {
-        "en": "There are two families here. One query must be right in both, so remembering names will not do.",
-        "zh": "这里有两家人。同一句查询要在两家里都选对，靠记名字不行。"
-      }
+      "t": "@level.q-children.intro.1.t"
     }
   ],
   "tray": "formula",
@@ -22,12 +16,12 @@
       "consts": ["h", "i", "j", "k", "l", "m", "n"],
       "worlds": [
         {
-          "title": { "en": "The first family", "zh": "第一家" },
+          "title": "@level.q-children.tasks.q-children.worlds.0.title",
           "things": ["i", "j", "k", "l", "m"],
           "preds": { "Parent": [["i", "j"], ["i", "k"], ["j", "l"], ["k", "m"]], "School": ["l"] }
         },
         {
-          "title": { "en": "The second family", "zh": "第二家" },
+          "title": "@level.q-children.tasks.q-children.worlds.1.title",
           "things": ["i", "j", "k", "l", "m", "n"],
           "preds": {
             "Parent": [["j", "i"], ["i", "k"], ["i", "l"], ["k", "m"], ["l", "n"]],
@@ -35,14 +29,11 @@
           }
         }
       ],
-      "say": { "en": "x is a child of Ann.", "zh": "x 是安的孩子。" },
+      "say": "@level.q-children.tasks.q-children.say",
       "target": "Parent(i, x)",
       "decoys": ["School(x)"],
-      "brief": {
-        "en": "Build a sentence with x in it that picks out exactly Ann’s children in each family.",
-        "zh": "拼一句带着 x 的话，在每一家里，让它正好选中安的孩子。"
-      },
-      "hint": [{ "en": "“Ann is a parent of x”.", "zh": "「安是 x 的父母」。" }]
+      "brief": "@level.q-children.tasks.q-children.brief",
+      "hint": ["@level.q-children.tasks.q-children.hint.0"]
     }
   ]
 }

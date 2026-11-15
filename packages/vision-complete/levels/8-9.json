@@ -1,60 +1,53 @@
 {
-  "title": { "en": "Draw it on the side asked for", "zh": "指定画哪边" },
+  "title": "@level.8-9.title",
   "tray": "generative",
-  "after": {
-    "en": "Give the generator one more input, a condition, and it draws what is asked for: this is called conditional generation. Text prompts like \"draw a cat\" or \"in watercolour\" are just more elaborate conditions.",
-    "zh": "多给生成器一个条件输入，它就按要求画：这叫条件生成。「画一只猫」「画成水彩风格」这些文字提示，就是更复杂的条件。"
-  },
+  "after": "@level.8-9.after",
   "intro": [
     {
-      "t": {
-        "en": "What a generator draws is random. To make it draw what is asked for, it has to be told something more.",
-        "zh": "生成器画出来的东西是随机的。要让它按要求画，得多告诉它一点什么。"
-      }
+      "t": "@level.8-9.intro.0.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: when c = 0, draw the blob in the region on the left; when c = 1, on the right.",
-        "zh": "这一关你要做的：c = 0 时在左边那一带画斑点，c = 1 时在右边。"
-      },
-      "fig": { "test": 0, "caption": { "en": "Set 1: left", "zh": "第一组：左边" } }
+      "t": "@level.8-9.intro.1.t",
+      "fig": { "test": 0, "caption": "@level.8-9.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "8-9",
       "kind": "graph",
-      "brief": {
-        "en": "When c = 0, draw a blob from the region on the left; when c = 1, from the region on the right.",
-        "zh": "c = 0 时，从左边那一带抽一个斑点；c = 1 时，从右边那一带抽。"
-      },
-      "hint": {
-        "en": "The same sampling, only with a different centre. Can the centre be worked out from c?",
-        "zh": "同样的抽样，只是中心换了。中心能不能由 c 算出来？"
-      },
+      "brief": "@level.8-9.tasks.8-9.brief",
+      "hint": "@level.8-9.tasks.8-9.hint",
       "inputs": ["eps", "c", "left", "right", "sigma"],
       "inputLabels": {
-        "eps": { "en": "Noise ε", "zh": "噪声 ε" },
-        "c": { "en": "Which side c (0 left, 1 right)", "zh": "画哪边 c（0 左，1 右）" },
-        "left": { "en": "Centre on the left", "zh": "左边的中心" },
-        "right": { "en": "Centre on the right", "zh": "右边的中心" },
-        "sigma": { "en": "Spread σ", "zh": "散开 σ" }
+        "eps": "@level.8-9.tasks.8-9.inputLabels.eps",
+        "c": "@level.8-9.tasks.8-9.inputLabels.c",
+        "left": "@level.8-9.tasks.8-9.inputLabels.left",
+        "right": "@level.8-9.tasks.8-9.inputLabels.right",
+        "sigma": "@level.8-9.tasks.8-9.inputLabels.sigma"
       },
       "check": { "tolerance": 0.05, "mismatches": 2 },
       "scene": "sides",
       "setup": { "left": [-1, 0], "right": [1, 0], "sigma": [0.3, 0.3] },
       "tests": [
-        { "label": { "en": "Left", "zh": "左边" }, "eps": [0.014608022670355346, 1.023152153693789], "c": 0 },
-        { "label": { "en": "Right", "zh": "右边" }, "eps": [2.6198792344586073, -0.3578478790713314], "c": 1 },
         {
-          "label": { "en": "Right again", "zh": "又是右边" },
+          "label": "@level.8-9.tasks.8-9.tests.0.label",
+          "eps": [0.014608022670355346, 1.023152153693789],
+          "c": 0
+        },
+        {
+          "label": "@level.8-9.tasks.8-9.tests.1.label",
+          "eps": [2.6198792344586073, -0.3578478790713314],
+          "c": 1
+        },
+        {
+          "label": "@level.8-9.tasks.8-9.tests.2.label",
           "eps": [0.9199123669572353, -1.7435470447785244],
           "c": 1
         }
       ],
       "hidden": [
         {
-          "label": { "en": "Left again", "zh": "又是左边" },
+          "label": "@level.8-9.tasks.8-9.hidden.0.label",
           "eps": [0.0390086011845821, 0.9110642857758415],
           "c": 0
         }

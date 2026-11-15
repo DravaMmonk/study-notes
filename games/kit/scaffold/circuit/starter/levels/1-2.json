@@ -1,23 +1,14 @@
 {
-  "title": {
-    "en": "Two numbers more",
-    "zh": "再来两个数"
-  },
+  "title": "@level.1-2.title",
   "intro": [
     {
-      "t": {
-        "en": "This level gives two more numbers.",
-        "zh": "这一关给的数多了两个。"
-      }
+      "t": "@level.1-2.intro.0.t"
     }
   ],
   "tasks": [
     {
       "id": "1-2",
-      "brief": {
-        "en": "Give a + b − c + d − e.",
-        "zh": "交出 a + b − c + d − e。"
-      },
+      "brief": "@level.1-2.tasks.1-2.brief",
       "inputs": [
         {
           "name": "a",
@@ -43,10 +34,7 @@
       "outputs": [
         {
           "name": "out",
-          "label": {
-            "en": "Result",
-            "zh": "结果"
-          }
+          "label": "@level.1-2.tasks.1-2.outputs.0.label"
         }
       ],
       "tests": [

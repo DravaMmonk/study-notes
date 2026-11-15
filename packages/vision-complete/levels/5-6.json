@@ -1,41 +1,26 @@
 {
-  "title": { "en": "The same question", "zh": "同一个问题" },
+  "title": "@level.5-6.title",
   "tray": "pipeline",
-  "after": {
-    "en": "When every patch asks with the same query (all ones), the score depends only on each patch's total, and they all look at the same patch. ViT puts an extra learnable [CLS] patch in front of the others; its query is trained to ask on behalf of the whole picture, and only its output is read to classify.",
-    "zh": "所有图块用同一个查询（全 1）去问，分数就只看每块的总和，大家都看向同一块。ViT 在图块前面多放一个可学习的 [CLS] 图块，它的查询经过训练，专门替整张图提问，分类时只读它的输出。"
-  },
+  "after": "@level.5-6.after",
   "intro": [
     {
-      "t": {
-        "en": "In self-attention every patch asks with itself, so each asks its own question.",
-        "zh": "自注意力里，每个图块都用自己去提问，所以各问各的。"
-      }
+      "t": "@level.5-6.intro.0.t"
     },
     {
-      "t": {
-        "en": "Your task in this level: replace every patch with the brightest patch in the picture, the one whose cells add up to the most.",
-        "zh": "这一关你要做的：每个图块都换成全图最亮的那个图块，也就是各格加起来最大的那一块。"
-      },
-      "fig": { "test": 0, "caption": { "en": "First set", "zh": "第一组" } }
+      "t": "@level.5-6.intro.1.t",
+      "fig": { "test": 0, "caption": "@level.5-6.intro.1.fig.caption" }
     }
   ],
   "tasks": [
     {
       "id": "5-6",
       "kind": "graph",
-      "brief": {
-        "en": "Replace every patch with the brightest patch in the picture (the one whose cells add up to the most).",
-        "zh": "每个图块都换成全图最亮（各格加起来最大）的那个图块。"
-      },
-      "hint": {
-        "en": "In self-attention, each patch asks with itself. What if every patch asked the same question?",
-        "zh": "自注意力里，每块用自己去提问。要是每块问的是同一个问题呢？"
-      },
+      "brief": "@level.5-6.tasks.5-6.brief",
+      "hint": "@level.5-6.tasks.5-6.hint",
       "scene": "brightest",
       "tests": [
         {
-          "label": { "en": "First set", "zh": "第一组" },
+          "label": "@level.5-6.tasks.5-6.tests.0.label",
           "items": [
             { "tile": "X", "at": [0, 0], "hi": 0.9 },
             { "tile": "C", "at": [1, 2], "hi": 0.6 },
@@ -43,7 +28,7 @@
           ]
         },
         {
-          "label": { "en": "Second set", "zh": "第二组" },
+          "label": "@level.5-6.tasks.5-6.tests.1.label",
           "items": [
             { "tile": "K", "at": [2, 3], "hi": 0.4 },
             { "tile": "S", "at": [0, 1], "hi": 0.8 },
@@ -51,7 +36,7 @@
           ]
         },
         {
-          "label": { "en": "Third set", "zh": "第三组" },
+          "label": "@level.5-6.tasks.5-6.tests.2.label",
           "items": [
             { "tile": "C", "at": [1, 1], "hi": 0.9 },
             { "tile": "X", "at": [2, 2], "hi": 0.3 },
@@ -62,7 +47,7 @@
       ],
       "hidden": [
         {
-          "label": { "en": "Fourth set", "zh": "第四组" },
+          "label": "@level.5-6.tasks.5-6.hidden.0.label",
           "items": [
             { "tile": "R", "at": [0, 0], "hi": 0.5 },
             { "tile": "S", "at": [3, 2], "hi": 0.6 },

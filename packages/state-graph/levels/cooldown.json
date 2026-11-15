@@ -1,39 +1,24 @@
 {
-  "title": { "en": "A day’s rest", "zh": "冷冻期" },
-  "short": { "en": "Rest a day after selling", "zh": "卖掉后要歇一天" },
+  "title": "@level.cooldown.title",
+  "short": "@level.cooldown.short",
   "intro": [
     {
-      "t": {
-        "en": "Now you may trade as often as you like, but <b>not buy on the day after you sell</b>: you have to rest a day.",
-        "zh": "现在可以买卖很多次，但<b>卖掉的第二天不能买</b>：要歇一天。"
-      }
+      "t": "@level.cooldown.intro.0.t"
     },
     {
-      "t": {
-        "en": "There are still three states: empty-handed, holding, just sold. “Just sold” turns back into “empty-handed” a day later, and that step brings in 0.",
-        "zh": "状态还是三种：空手、手里有股、刚卖掉。「刚卖掉」过一天就回到「空手」，这一步的进账是 0。"
-      }
+      "t": "@level.cooldown.intro.1.t"
     }
   ],
   "mission": {
-    "goal": { "en": "Work out the most money you can make.", "zh": "算出最多能赚多少钱。" },
-    "how": {
-      "en": "How the layers connect is set by the world. Does your board need to change?",
-      "zh": "层和层怎么接，世界已经接好了。你的电路板要改吗？"
-    }
+    "goal": "@level.cooldown.mission.goal",
+    "how": "@level.cooldown.mission.how"
   },
   "robot": "stack",
   "debrief": {
-    "title": { "en": "The same board", "zh": "同一块电路板" },
+    "title": "@level.cooldown.debrief.title",
     "body": [
-      {
-        "en": "The board didn’t change at all; only how the layers connect did. Stepping from “just sold” back to “empty-handed” is the day of rest.",
-        "zh": "电路板一点没变，变的只是层和层怎么接：「刚卖掉」走回「空手」，那一步就是歇着的那一天。"
-      },
-      {
-        "en": "<level-ref to=\"stock1\"></level-ref> is this one with an arrow cut: once sold, there is no going back.",
-        "zh": "<level-ref to=\"stock1\"></level-ref>是这一关剪掉一根箭头：卖掉了，就回不去了。"
-      }
+      "@level.cooldown.debrief.body.0",
+      "@level.cooldown.debrief.body.1"
     ]
   },
   "tasks": [
@@ -41,10 +26,7 @@
       "id": "cooldown",
       "mode": "circuit",
       "hints": [
-        {
-          "en": "Try <level-ref to=\"stock1\"></level-ref>’s board first.",
-          "zh": "先试试<level-ref to=\"stock1\"></level-ref>的电路板。"
-        }
+        "@level.cooldown.tasks.cooldown.hints.0"
       ],
       "world": "stock",
       "facts": ["gain"],

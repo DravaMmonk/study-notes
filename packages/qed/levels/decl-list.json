@@ -1,11 +1,8 @@
 {
-  "title": { "en": "Declaring lists", "zh": "声明列表" },
+  "title": "@level.decl-list.title",
   "intro": [
     {
-      "t": {
-        "en": "A list is a row of things: the empty one [], or a thing put in front of a list, written x :: xs.",
-        "zh": "列表是一串东西：空的 []，或者在一个列表前面再放一样东西，写作 x :: xs。"
-      }
+      "t": "@level.decl-list.intro.0.t"
     }
   ],
   "tray": "formula",
@@ -14,7 +11,7 @@
       "id": "decl-list",
       "kind": "iso",
       "words": ["everyday", "terms"],
-      "declare": { "en": "a list", "zh": "列表" },
+      "declare": "@level.decl-list.tasks.decl-list.declare",
       "target": "List",
       "sentences": ["List"],
       "things": ["i", "j"],
@@ -22,11 +19,8 @@
       "datatype": { "type": "list", "ctors": ["nil", "cons"], "args": { "List": "list" } },
       "ways": [[], ["⋀x", "List"]],
       "tests": [{ "given": [], "make": true }, { "given": ["List"], "make": true, "uses": ["List"] }],
-      "brief": {
-        "en": "Requirement: a list can be made from nothing (the empty list); taking any thing and a list, the list with that thing in front can be made. Write the declaration of lists.",
-        "zh": "需求：什么都没有，也造得出一个列表（空列表）；任取一样东西，再有一个列表，就造得出把它放在前面的列表。写出列表的声明。"
-      },
-      "hint": [{ "en": "The second way needs two things: a thing, and a list.", "zh": "第二种造法要两样：一样东西，和一个列表。" }],
+      "brief": "@level.decl-list.tasks.decl-list.brief",
+      "hint": ["@level.decl-list.tasks.decl-list.hint.0"],
       "solution": [{ "binds": [], "needs": [] }, { "binds": ["x"], "needs": ["List"] }],
       "naive": [{ "binds": [], "needs": [] }, { "binds": [], "needs": ["List"] }]
     }

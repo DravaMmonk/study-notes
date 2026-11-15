@@ -1,12 +1,9 @@
 {
-  "title": { "en": "One goal becomes several", "zh": "一个目标变几个" },
+  "title": "@level.r-subgoals.title",
   "tray": ["machine", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "Join has two premises: used backwards, it turns one goal into two, in a row. A part always works on the first goal; when it is proved, the next moves up.",
-        "zh": "拼接有两条前提，倒着用它，一个目标变成两个，排成一列。元件总是处理第一个目标；证完一个，下一个顶上来。"
-      }
+      "t": "@level.r-subgoals.intro.0.t"
     }
   ],
   "tasks": [
@@ -14,14 +11,14 @@
       "id": "r-subgoals",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.r-subgoals.tasks.r-subgoals.inputs.0.label" }],
       "tests": [
         { "goal": "Rain → (Wind → Rain ∧ Wind)" },
         { "goal": "Wet → (Slip → Wet ∧ Slip)" },
         { "goal": "¬Rain → (Wind → ¬Rain ∧ Wind)" }
       ],
-      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
-      "hint": [{ "en": "Are the two halves of the “and” each among the givens?", "zh": "「并且」的两半，各自在已知里吗？" }],
+      "brief": "@level.r-subgoals.tasks.r-subgoals.brief",
+      "hint": ["@level.r-subgoals.tasks.r-subgoals.hint.0"],
       "solution": [
         "c0r0 = impI()",
         "c1r0 = impI()",

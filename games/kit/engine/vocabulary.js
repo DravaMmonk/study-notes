@@ -27,7 +27,9 @@ import { dependencyCycle, eraLevels, layout } from '../course.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { taskIdProblems, taskIdsOf } from './tasks.js'
 import { partProblems, withParts } from './parts/define.js'
-import { makesPieces } from './parts/schema.js'
+import { makesPieces, PARTS_FILE } from './parts/schema.js'
+import { hasCatalogSource } from './content.js'
+import { catalogTextProblems } from './content-text.js'
 
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
 export const GLOSSARY = S.obj({
@@ -132,6 +134,14 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   // The fields every game.json has: which domain plays it and the version of its vocabulary it was written for; and
   // the one it may have: the audit findings it leaves open.
   const { id: ID, levels, glossary, domain, vocabulary: version, open, blueprint, partDefs: parts, ...game } = content
+  if (hasCatalogSource(content)) {
+    const courseKeys = new Map(), packageKeys = new Map()
+    out.push(...catalogTextProblems(game, vocabulary.game, 'game.json', vocabulary, courseKeys))
+    out.push(...catalogTextProblems(blueprint, BLUEPRINT, 'blueprint.json', vocabulary, courseKeys))
+    out.push(...catalogTextProblems(glossary, GLOSSARY, 'glossary.json', vocabulary, packageKeys))
+    out.push(...catalogTextProblems(parts, PARTS_FILE, 'pieces.json', vocabulary, packageKeys))
+    for (const level of levels) out.push(...catalogTextProblems(level, vocabulary.level, `levels/${level.id}.json`, vocabulary, packageKeys))
+  }
   const ids = new Set(levels.map((l) => l.id))
   // What the content itself names (S.name): the encyclopedia's entries and groups, and what the domain says.
   const names = { entry: new Set((glossary?.entries ?? []).map((e) => e.id)), group: new Set((glossary?.groups ?? []).map((g) => g.id)), ...domainNames(content) }

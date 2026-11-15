@@ -1,27 +1,21 @@
 {
-  "title": { "en": "Two conditions, one condition", "zh": "两个条件，一个条件" },
+  "title": "@level.curry.title",
   "tray": ["proof", "formula"],
   "intro": [
     {
-      "t": {
-        "en": "“If it rains and it is windy, the ground is wet” and “if it rains, then if it is also windy, the ground is wet” say the same.",
-        "zh": "「下雨并且刮风，地就湿」和「下雨的话，只要再刮风，地就湿」说的是一回事。"
-      }
+      "t": "@level.curry.intro.0.t"
     }
   ],
   "tasks": [
     {
       "id": "curry_1",
       "kind": "proof",
-      "step": { "en": "Two conditions from one", "zh": "拆成两个条件" },
+      "step": "@level.curry.tasks.curry_1.step",
       "tests": [{ "premises": { "p": "A ∧ B → C" }, "goal": "A → (B → C)" }],
       "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
       "hint": [
-        { "en": "The goal has two “if … then …”s, one inside the other.", "zh": "目标里有两层「若…则…」。" },
-        {
-          "en": "Two boxes assume “it rains” and “it is windy” in turn; inside, join the two assumptions into one ∧ and hand it to the given.",
-          "zh": "两个框依次假设「下雨」和「刮风」；在里面把两句假设拼成一句 ∧，交给已知。"
-        }
+        "@level.curry.tasks.curry_1.hint.0",
+        "@level.curry.tasks.curry_1.hint.1"
       ],
       "solution": [
         "f = impI[A=A](body: g) {",
@@ -40,14 +34,11 @@
     {
       "id": "curry_2",
       "kind": "proof",
-      "step": { "en": "One condition from two", "zh": "合成一个条件" },
+      "step": "@level.curry.tasks.curry_2.step",
       "tests": [{ "premises": { "p": "A → (B → C)" }, "goal": "A ∧ B → C" }],
       "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Alarm", "B": "Coffee", "C": "Awake" }],
       "hint": [
-        {
-          "en": "One box will do: assume “today is Saturday ∧ it rains”, split it, then Apply twice.",
-          "zh": "一个框就够：假设「今天是周六 ∧ 下雨」，拆开以后套用两次。"
-        }
+        "@level.curry.tasks.curry_2.hint.0"
       ],
       "solution": [
         "f = impI[A=\"A & B\"](body: m2) {",

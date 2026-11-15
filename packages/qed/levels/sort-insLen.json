@@ -1,32 +1,23 @@
 {
-  "title": { "en": "One in, one longer", "zh": "插一个，长一格" },
+  "title": "@level.sort-insLen.title",
   "tray": ["machine", "formula"],
-  "intro": [{ "t": { "en": "Insert an element and the list is one longer.", "zh": "插进一个元素，列表就长一格。" } }],
+  "intro": [{ "t": "@level.sort-insLen.intro.0.t" }],
   "tasks": [
     {
       "id": "sort-insLen",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
+      "inputs": [{ "name": "in", "label": "@level.sort-insLen.tasks.sort-insLen.inputs.0.label" }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["list", "bool"],
       "defs": ["le", "if", "ins", "sort", "len"],
       "tests": [{ "goal": "∀xs. ∀x. len(ins(x, xs)) = s(len(xs))" }],
-      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
+      "brief": "@level.sort-insLen.tasks.sort-insLen.brief",
       "hint": [
-        {
-          "en": "After Simp, the second goal is stuck on an “if c ≤ a then … else …”: Simp does not know which is bigger.",
-          "zh": "化简以后，第二个目标卡在「若 c ≤ a 则…否则…」上：化简不知道谁大。"
-        },
-        {
-          "en": "The bool declared in <level-ref to=\"decl-bool\"></level-ref> has a cases rule; the rules proved in <level-ref to=\"sort-if\"></level-ref> each cover one case.",
-          "zh": "<level-ref to=\"decl-bool\"></level-ref>声明的 bool 有按情况分的规则；<level-ref to=\"sort-if\"></level-ref>证出的规则各管一种情况。"
-        },
-        {
-          "en": "After a rewrite with a condition, the condition waits behind, with ?t not yet settled.",
-          "zh": "带条件的规则改写以后，条件排在后面，?t 还没定。"
-        }
+        "@level.sort-insLen.tasks.sort-insLen.hint.0",
+        "@level.sort-insLen.tasks.sort-insLen.hint.1",
+        "@level.sort-insLen.tasks.sort-insLen.hint.2"
       ],
       "solution": [
         "c0r0 = math[use=[\"list.induct\"]]()",

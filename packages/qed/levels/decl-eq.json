@@ -1,25 +1,19 @@
 {
   "adds": ["rewrite", "refl"],
-  "title": { "en": "Declaring equality", "zh": "声明相等" },
+  "title": "@level.decl-eq.title",
   "intro": [
     {
-      "t": {
-        "en": "Are the Morning Star and the Evening Star one star? To say two things are equal, equality has to be declared first.",
-        "zh": "晨星和昏星是不是同一颗星？要说两样东西相等，先要声明相等。"
-      }
+      "t": "@level.decl-eq.intro.0.t"
     }
   ],
-  "after": {
-    "en": "This introduction rule is <b>reflexivity</b>; the elimination rule of equality is <b>substitution</b>.",
-    "zh": "这条引入规则就是<b>自反律</b>；相等的消去规则是<b>等量代换</b>。"
-  },
+  "after": "@level.decl-eq.after",
   "tray": "formula",
   "tasks": [
     {
       "id": "decl-eq",
       "kind": "iso",
       "words": ["everyday", "terms", "stars"],
-      "declare": { "en": "Equality", "zh": "相等" },
+      "declare": "@level.decl-eq.tasks.decl-eq.declare",
       "target": "a = a",
       "binder": "a",
       "sentences": [],
@@ -31,15 +25,9 @@
         { "given": [], "goal": "i = j", "make": false }
       ],
       "take": { "premises": ["?a = ?b", "?P(?a)"], "conclusion": "?P(?b)" },
-      "brief": {
-        "en": "Requirement: everything equals itself; two different names cannot be proved equal from nothing. Write the declaration of equality.",
-        "zh": "需求：任何东西都等于它自己；凭空证不出两个不同名字相等。写出「相等」的声明。"
-      },
+      "brief": "@level.decl-eq.tasks.decl-eq.brief",
       "hint": [
-        {
-          "en": "What do the two sides of an “s = t” proved from nothing have in common?",
-          "zh": "凭空证得出的「s = t」，两边有什么共同之处？"
-        }
+        "@level.decl-eq.tasks.decl-eq.hint.0"
       ],
       "solution": [{ "binds": ["a"], "needs": [] }],
       "naive": [{ "binds": [], "needs": [] }]

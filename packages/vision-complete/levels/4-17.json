@@ -1,25 +1,16 @@
 {
-  "title": { "en": "Twice as deep", "zh": "再深一倍" },
+  "title": "@level.4-17.title",
   "tray": "pipeline",
-  "after": {
-    "en": "Twelve layers train as easily as six: every block starts out passing its input straight through, training only has to teach a few of them the small change, and the gradient reaches every layer along the shortcuts. This is how ResNet stacks networks to more than a hundred layers.",
-    "zh": "十二层和六层一样好训：每一块一开始都原样通过，训练只需让少数几块学出那一点改动，梯度沿着捷径直达每一层。ResNet 就这样把网络堆到了一百多层。"
-  },
+  "after": "@level.4-17.after",
   "intro": [
     {
-      "t": {
-        "en": "In <level-ref to=\"4-16\"></level-ref>, a 6-layer network trained once it had shortcuts. Today's image-recognition networks run to a hundred layers or more: does it still work deeper down?",
-        "zh": "<level-ref to=\"4-16\"></level-ref>里，6 层的网络加上捷径就训得动了。今天认图的网络动辄上百层，再深下去还行吗？"
-      }
+      "t": "@level.4-17.intro.0.t"
     },
     {
-      "t": {
-        "en": "Your task: chain at least 12 conv layers into one path and train it to learn the light blur in the tests. Every conv layer starts from very small random numbers.",
-        "zh": "这一关你要做的：把至少 12 个卷积层串成一条路，训练它学会测试里那种轻微的模糊。每个卷积层都从很小的随机数开始。"
-      },
+      "t": "@level.4-17.intro.1.t",
       "fig": {
         "test": 0,
-        "caption": { "en": "Set 1: the letter X → lightly blurred", "zh": "第一组测试：字母 X → 轻微模糊" }
+        "caption": "@level.4-17.intro.1.fig.caption"
       }
     }
   ],
@@ -27,35 +18,29 @@
     {
       "id": "4-17",
       "kind": "graph",
-      "brief": {
-        "en": "Chain at least 12 conv layers into one path and train it to do the light blur in the tests.",
-        "zh": "把至少 12 个卷积层串成一条路，训练它做测试里那种轻微的模糊。"
-      },
-      "hint": {
-        "en": "How was each layer wired in <level-ref to=\"4-16\"></level-ref>? A <part-ref to=\"lrn-res\"></part-ref> part in the tray is one such block.",
-        "zh": "<level-ref to=\"4-16\"></level-ref>里每一层是怎样接的？托盘里的<part-ref to=\"lrn-res\"></part-ref>一个元件就是那样一块。"
-      },
+      "brief": "@level.4-17.tasks.4-17.brief",
+      "hint": "@level.4-17.tasks.4-17.hint",
       "check": { "tolerance": 0.04 },
       "constraint": { "depth": { "min": 12 } },
       "trainRate": 1,
       "scene": "filter",
       "setup": { "target": { "meanBlend": { "amount": 0.5 } } },
       "tests": [
-        { "label": { "en": "Letter X", "zh": "字母 X" }, "in": { "glyph": { "letter": "X" } } },
-        { "label": { "en": "Disc", "zh": "圆盘" }, "in": "disk" },
+        { "label": "@level.4-17.tasks.4-17.tests.0.label", "in": { "glyph": { "letter": "X" } } },
+        { "label": "@level.4-17.tasks.4-17.tests.1.label", "in": "disk" },
         {
-          "label": { "en": "Noisy square", "zh": "带噪方块" },
+          "label": "@level.4-17.tasks.4-17.tests.2.label",
           "in": { "noisy": { "of": { "square": { "x0": 3, "y0": 5, "s": 7 } }, "seed": 3, "amp": 0.2 } }
         },
-        { "label": { "en": "Checkerboard", "zh": "棋盘" }, "in": { "checker": { "cell": 3 } } }
+        { "label": "@level.4-17.tasks.4-17.tests.3.label", "in": { "checker": { "cell": 3 } } }
       ],
       "hidden": [
         {
-          "label": { "en": "Letter L", "zh": "字母 L" },
+          "label": "@level.4-17.tasks.4-17.hidden.0.label",
           "in": { "glyph": { "letter": "L", "lo": 0.2, "hi": 0.8, "ox": 4, "oy": 3 } }
         },
         {
-          "label": { "en": "Vertical stripes", "zh": "竖条纹" },
+          "label": "@level.4-17.tasks.4-17.hidden.1.label",
           "in": { "stripes": { "period": 6, "lo": 0.2, "hi": 0.8 } }
         }
       ],

@@ -14,6 +14,8 @@ import { ChevronRight, Copy, GripVertical, Minus, Pencil, Plus, RotateCcw, X } f
 import { getLang, L, tr } from '../shell/i18n.js'
 import { stepNumber } from '../shell/number-entry.js'
 import { boardSvg } from '../circuit/svg.js'
+import { copyWithoutTextKeys } from '../engine/catalogs.js'
+import { textIn, textKey } from '../engine/i18n.js'
 import { showPath } from '../engine/ops/edit.js'
 import { creationChoices, moved, revertOf, summaryOf, taskOptionsOf } from './form.js'
 import { AddKey, AddMenu, Chips, Picker } from './Picker.jsx'
@@ -125,10 +127,12 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
   const key = showPath(field.path)
   const found = ctx.findings?.get(key) ?? []
   const [had, before] = ctx.before?.(field.path) ?? [false, undefined]
-  const changed = ctx.before && field.kind !== 'fixed' && !CONTAINERS.includes(field.kind) && JSON.stringify(had ? before : undefined) !== JSON.stringify(field.value)
-  const revert = () => onEdit(field.path, revertOf(had ? before : undefined), field.kind)
-  const name = label ?? ''
   const lang = ctx.lang ?? getLang()
+  const localeEdit = field.kind === 'text' && textKey(field.value) && textKey(before) === textKey(field.value)
+  const changed = ctx.before && field.kind !== 'fixed' && !CONTAINERS.includes(field.kind)
+    && (localeEdit ? textIn(before, lang) !== textIn(field.value, lang) : JSON.stringify(had ? before : undefined) !== JSON.stringify(field.value))
+  const revert = () => onEdit(field.path, localeEdit ? { set: textIn(before, lang), lang } : revertOf(had ? before : undefined), field.kind)
+  const name = label ?? ''
   const body = (() => {
     switch (field.kind) {
       case 'text': return <TextField key={lang} lang={lang} value={field.value}
@@ -213,7 +217,7 @@ function ListField({ field, onEdit, ctx }) {
     else onEdit(item.path, { unset: true }, null)
   }
   const duplicate = (item) => {
-    const draft = structuredCopy(item)
+    const draft = copyWithoutTextKeys(item)
     if (tasks) delete draft.id
     return draft
   }
@@ -285,8 +289,6 @@ function ListField({ field, onEdit, ctx }) {
     </div>
   )
 }
-
-const structuredCopy = (v) => (v === undefined ? v : JSON.parse(JSON.stringify(v)))
 
 function MapField({ field, onEdit, ctx }) {
   const choices = creationChoices(field.of, ctx)

@@ -1,58 +1,46 @@
 {
-  "title": { "en": "Two scores", "zh": "两个分数" },
+  "title": "@level.4-18.title",
   "tray": "pipeline",
   "unlocks": ["softmax"],
-  "after": {
-    "en": "Softmax turns scores into weights that sum to 1. Differences between scores determine the ratios of the weights; equal scores receive equal weights. The same method works for three or more scores.",
-    "zh": "Softmax 将多个分数转换成总和为 1 的权重。分数之间的差决定权重的比例；相同的分数得到相同的权重。同一方法也适用于三个或更多分数。"
-  },
+  "after": "@level.4-18.after",
   "intro": [
     {
-      "t": {
-        "en": "A classifier usually gives each possible class a score. Scores can be negative and do not necessarily sum to 1.",
-        "zh": "分类器判断图像属于哪一类时，通常先为每个类别输出一个分数。分数可以是负数，也不一定加起来等于 1。"
-      }
+      "t": "@level.4-18.intro.0.t"
     },
     {
-      "t": {
-        "en": "Start with two classes: turn their scores into two nonnegative weights that sum to 1, so their relative support can be compared. Here we use the Softmax rule.",
-        "zh": "先看只有两个类别的情况：把两个分数转换成两个非负、总和为 1 的权重，以便比较各类别。这里使用 Softmax 的规则。"
-      }
+      "t": "@level.4-18.intro.1.t"
     },
     {
-      "t": {
-        "en": "Take the exponential of each score, then divide each result by their sum. Build this calculation first; afterwards the Softmax part becomes available.",
-        "zh": "分别对两个分数取指数，再将每个结果除以两者之和。先亲手搭出这个计算，之后就可以使用 Softmax 元件。"
-      }
+      "t": "@level.4-18.intro.2.t"
     }
   ],
   "tasks": [
     {
       "id": "4-18",
       "kind": "graph",
-      "brief": {
-        "en": "Given scores A and B, output their Softmax weights: P(A) = e^A ÷ (e^A + e^B), P(B) = e^B ÷ (e^A + e^B).",
-        "zh": "给定两个分数 A、B，输出各自的 Softmax 权重：P(A) = e^A ÷ (e^A + e^B)，P(B) = e^B ÷ (e^A + e^B)。"
-      },
-      "hint": {
-        "en": "Apply exp to each score, then add the results. The two weights share the same denominator.",
-        "zh": "先分别用 exp 处理两个分数，再求和。两个权重使用同一个分母。"
-      },
+      "brief": "@level.4-18.tasks.4-18.brief",
+      "hint": "@level.4-18.tasks.4-18.hint",
       "inputs": ["a", "b"],
-      "inputLabels": { "a": { "en": "Score A", "zh": "分数 A" }, "b": { "en": "Score B", "zh": "分数 B" } },
+      "inputLabels": {
+        "a": "@level.4-18.tasks.4-18.inputLabels.a",
+        "b": "@level.4-18.tasks.4-18.inputLabels.b"
+      },
       "outputs": ["pa", "pb"],
-      "outputLabels": { "pa": { "en": "Weight A", "zh": "权重 A" }, "pb": { "en": "Weight B", "zh": "权重 B" } },
+      "outputLabels": {
+        "pa": "@level.4-18.tasks.4-18.outputLabels.pa",
+        "pb": "@level.4-18.tasks.4-18.outputLabels.pb"
+      },
       "check": { "tolerance": 0.01 },
       "scene": "binaryScores",
       "tests": [
-        { "label": { "en": "(1, 0)", "zh": "(1, 0)" }, "s": [1, 0] },
-        { "label": { "en": "(0, 0)", "zh": "(0, 0)" }, "s": [0, 0] },
-        { "label": { "en": "(-1, 1)", "zh": "(-1, 1)" }, "s": [-1, 1] },
-        { "label": { "en": "(2, 3)", "zh": "(2, 3)" }, "s": [2, 3] }
+        { "label": "@level.4-18.tasks.4-18.tests.0.label", "s": [1, 0] },
+        { "label": "@level.4-18.tasks.4-18.tests.1.label", "s": [0, 0] },
+        { "label": "@level.4-18.tasks.4-18.tests.2.label", "s": [-1, 1] },
+        { "label": "@level.4-18.tasks.4-18.tests.3.label", "s": [2, 3] }
       ],
       "hidden": [
-        { "label": { "en": "(-2, -3)", "zh": "(-2, -3)" }, "s": [-2, -3] },
-        { "label": { "en": "(4, 1)", "zh": "(4, 1)" }, "s": [4, 1] }
+        { "label": "@level.4-18.tasks.4-18.hidden.0.label", "s": [-2, -3] },
+        { "label": "@level.4-18.tasks.4-18.hidden.1.label", "s": [4, 1] }
       ],
       "solution": [
         "ea = exp(a)",

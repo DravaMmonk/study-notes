@@ -1,16 +1,13 @@
 {
-  "groups": [{ "id": "logic", "title": { "en": "Logic", "zh": "逻辑" } }],
+  "groups": [{ "id": "logic", "title": "@glossary.groups.logic.title" }],
   "entries": [
     {
       "id": "circuit",
       "group": "logic",
-      "title": { "en": "Truth circuits", "zh": "真值电路" },
+      "title": "@glossary.entries.circuit.title",
       "at": "g-not",
       "body": [
-        {
-          "en": "A circuit wired once and run on every row of a truth table: it outputs the sentence’s value on that row.",
-          "zh": "接一次、在真值表的每一行上运行的电路：输出这句话在那一行的真值。"
-        }
+        "@glossary.entries.circuit.body.0"
       ]
     }
   ]
