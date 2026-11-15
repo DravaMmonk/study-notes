@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { linePath, plotY } from '../../views/plots/coordinates.js'
+import { clientToSvg } from '../../views/svg-point.js'
 import { tr } from '../i18n.js'
 import { Rich } from './Rich.jsx'
 
@@ -9,6 +11,7 @@ import { Rich } from './Rich.jsx'
 // nearest sample, with step lines to the pixel. `span` is how many pixels the width is. Sizes are viewBox units.
 
 const FINE = 160
+const POSITIONS = Array.from({ length: FINE + 1 }, (_, i) => i / FINE)
 const valueAt = (curve, u) => (typeof curve === 'function' ? curve(u) : curve[Math.min(curve.length - 1, Math.floor(u * curve.length))])
 const fmt = (v) => (Number.isFinite(v) ? (Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(3)) : '—')
 
@@ -18,32 +21,20 @@ export default function Plot({ lines = [], dots = [], width = 600, height = 200,
   const top = 10
   const bottom = 12
   const x = (u) => left + u * (width - left - right)
-  // Values beyond the range are drawn along its edge rather than outside the plot.
-  const y = (v) => top + (1 - (Math.min(hi, Math.max(lo, v)) - lo) / (hi - lo)) * (height - top - bottom)
+  const y = plotY(lo, hi, top, height - bottom)
   const path = ({ curve, steps }) => {
     if (steps) {
       const n = curve.length
       return curve.map((v, j) => `${j ? 'L' : 'M'}${x(j / n).toFixed(1)},${y(v).toFixed(1)}H${x((j + 1) / n).toFixed(1)}`).join('')
     }
-    // Gaps (NaN) lift the pen, so a curve can be drawn only up to a point.
-    let pen = false
-    return Array.from({ length: FINE + 1 }, (_, i) => {
-      const v = valueAt(curve, i / FINE)
-      if (!Number.isFinite(v)) {
-        pen = false
-        return ''
-      }
-      const move = pen ? 'L' : 'M'
-      pen = true
-      return `${move}${x(i / FINE).toFixed(1)},${y(v).toFixed(1)}`
-    }).join('')
+    return linePath(POSITIONS.map((u) => valueAt(curve, u)), (i) => x(POSITIONS[i]), y)
   }
 
   const samples = dots.filter((d) => d.kind !== 'ring')
   const stepped = lines.find((line) => line.steps)
   const pick = (event) => {
-    const box = event.currentTarget.getBoundingClientRect()
-    const u = Math.min(1, Math.max(0, (((event.clientX - box.left) / box.width) * width - left) / (width - left - right)))
+    const [svgX] = clientToSvg(event.currentTarget, event)
+    const u = Math.min(1, Math.max(0, (svgX - left) / (width - left - right)))
     if (samples.length) {
       const nearest = samples.reduce((best, d) => (Math.abs(d.u - u) < Math.abs(best.u - u) ? d : best))
       setAt({ u: nearest.u, sample: samples.indexOf(nearest), of: samples.length })

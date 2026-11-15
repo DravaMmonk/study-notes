@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { numberText } from '../../engine/number.js'
 import { L } from '../../shell/i18n.js'
 import { WORDS } from '../../shell/words.js'
+import { clientToSvg } from '../svg-point.js'
+import { linePath, plotY } from './coordinates.js'
 import { rangeOf, rowOf } from './range.js'
 
 // A grey grid of one or two rows as functions (the view `plot`, games/DESIGN.md 6.9): each row a function of its column, a
@@ -18,10 +20,9 @@ const FULL = { pitch: 22, pad: 8, min: 96, max: 640, row: () => 56, r: 3 }
 const CARD = { pitch: 12, pad: 5, min: 48, max: 120, row: (rows) => (rows > 1 ? 26 : 40), r: 2.2 }
 const PAD_Y = 6
 
-function Row({ got, want, curve, tolerance, lo, hi, at, x, along, width, height, r }) {
-  const y = (v) => PAD_Y + (1 - (Math.min(hi, Math.max(lo, v)) - lo) / (hi - lo || 1)) * (height - 2 * PAD_Y)
+function Row({ got, want, samples, tolerance, y, at, x, along, width, height, r }) {
   const zero = y(0)
-  const path = (list) => list.map((v, j) => `${j ? 'L' : 'M'}${x(j).toFixed(1)},${y(v).toFixed(1)}`).join('')
+  const path = (list) => linePath(list, x, y)
   const band = want && tolerance > 0 && Number.isFinite(tolerance)
     ? path(want.map((v) => v + tolerance)) + want.map((_, j) => {
       const i = want.length - 1 - j
@@ -33,7 +34,7 @@ function Row({ got, want, curve, tolerance, lo, hi, at, x, along, width, height,
       <line className="pl-zero" x1={0} x2={width} y1={zero} y2={zero} />
       {band && <path className="pl-band" d={band} />}
       {want && <path className="pl-want-line" d={path(want)} />}
-      {curve && <path className="pl-curve" d={along.map((t, i) => `${i ? 'L' : 'M'}${x(t).toFixed(1)},${y(curve(t)).toFixed(1)}`).join('')} />}
+      {samples && <path className="pl-curve" d={linePath(samples, (i) => x(along[i]), y)} />}
       {got && <path className="pl-line" d={path(got)} />}
       {got && got.map((v, j) => <line key={`s${j}`} className="pl-stem" x1={x(j)} x2={x(j)} y1={zero} y2={y(v)} />)}
       {want && want.map((v, j) => <circle key={`w${j}`} className="pl-want" cx={x(j)} cy={y(v)} r={r + 1.2} />)}
@@ -55,11 +56,12 @@ export default function Plot({ value, want, curve, tolerance = 0, card = false, 
   const height = size.row(rows)
   // Where the curve is drawn: every 2 px across the plot, in columns.
   const along = curve ? Array.from({ length: Math.floor(width / 2) + 1 }, (_, i) => (i * 2 - size.pad) / step - 0.5) : []
-  const { lo, hi } = rangeOf(value, want, curve && { data: Array.from({ length: rows }, (_, k) => along.map((t) => curve(t, k))).flat() })
+  const samples = curve ? Array.from({ length: rows }, (_, k) => along.map((t) => curve(t, k))) : []
+  const { lo, hi } = rangeOf(value, want, ...samples.map((data) => ({ data })))
+  const y = plotY(lo, hi, PAD_Y, height - PAD_Y)
   const pick = (event) => {
-    const box = event.currentTarget.getBoundingClientRect()
-    const u = ((event.clientX - box.left) / box.width) * width
-    const k = Math.min(rows - 1, Math.max(0, Math.floor(((event.clientY - box.top) / box.height) * rows)))
+    const [u, v] = clientToSvg(event.currentTarget, event)
+    const k = Math.min(rows - 1, Math.max(0, Math.floor(v / height)))
     setAt({ x: Math.min(n - 1, Math.max(0, Math.floor((u - size.pad) / step))), y: k })
   }
   const read = at && !card ? { got: value && rowOf(value, at.y)[at.x], want: want && rowOf(want, at.y)[at.x] } : null
@@ -68,7 +70,7 @@ export default function Plot({ value, want, curve, tolerance = 0, card = false, 
       <svg viewBox={`0 0 ${width} ${height * rows}`} width={width} height={height * rows} role="img" onPointerMove={card ? undefined : pick} onPointerDown={card ? undefined : pick} onPointerLeave={() => setAt(null)}>
         {Array.from({ length: rows }, (_, k) => (
           <g key={k} transform={`translate(0 ${k * height})`}>
-            <Row got={value && rowOf(value, k)} want={want && rowOf(want, k)} curve={curve && ((t) => curve(t, k))} along={along} tolerance={tolerance} lo={lo} hi={hi} at={at && !card && at.y === k ? at.x : null} x={x} width={width} height={height} r={r} />
+            <Row got={value && rowOf(value, k)} want={want && rowOf(want, k)} samples={samples[k]} along={along} tolerance={tolerance} y={y} at={at && !card && at.y === k ? at.x : null} x={x} width={width} height={height} r={r} />
           </g>
         ))}
       </svg>
