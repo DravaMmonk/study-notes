@@ -54,11 +54,11 @@ test('search: every text, never inside a link tag; board lines; ids', () => {
 test('replace: one text.set a text, one level.blueprint a board; ids left alone', () => {
   const { ops, changes, skipped } = replaceOps(CONTENT, VOCAB, { find: 'flag' }, 'marker')
   assert.deepEqual(ops, [
-    { op: 'text.set', level: 'flag', path: ['title'], en: 'A marker' },
-    { op: 'text.set', level: 'flag', path: ['hint', 0], en: 'See <level-ref to="flag"></level-ref>: markers and a markerpole' },
-    { op: 'text.set', in: 'game', path: ['title'], en: 'The marker game' },
-    { op: 'text.set', in: 'glossary', path: ['entries', 0, 'title'], en: 'marker' },
-    { op: 'text.set', in: 'glossary', path: ['entries', 0, 'body', 0], en: 'A marker is 01111110.' },
+    { op: 'text.set', level: 'flag', path: ['title'], lang: 'en', value: 'A marker' },
+    { op: 'text.set', level: 'flag', path: ['hint', 0], lang: 'en', value: 'See <level-ref to="flag"></level-ref>: markers and a markerpole' },
+    { op: 'text.set', in: 'game', path: ['title'], lang: 'en', value: 'The marker game' },
+    { op: 'text.set', in: 'glossary', path: ['entries', 0, 'title'], lang: 'en', value: 'marker' },
+    { op: 'text.set', in: 'glossary', path: ['entries', 0, 'body', 0], lang: 'en', value: 'A marker is 01111110.' },
     { op: 'level.blueprint', level: 'flag', path: ['solution'], text: 'f = marker()\nout <- f' },
   ])
   assert.equal(changes.length, 6)
@@ -67,7 +67,7 @@ test('replace: one text.set a text, one level.blueprint a board; ids left alone'
   assert.equal(replaced('a1 b22', { find: '([a-z])(\\d+)', regex: true }, '$2$1'), '1a 22b')
   assert.equal(replaced('$5', { find: '$5' }, '$&!'), '$&!', 'a plain replacement is taken as it is')
   const hit = searchContent(CONTENT, VOCAB, { find: 'flag' }).find((h) => h.in === 'game')
-  assert.deepEqual(replaceOps(CONTENT, VOCAB, { find: 'flag' }, 'marker', [hitKey(hit)]).ops, [{ op: 'text.set', in: 'game', path: ['title'], en: 'The marker game' }])
+  assert.deepEqual(replaceOps(CONTENT, VOCAB, { find: 'flag' }, 'marker', [hitKey(hit)]).ops, [{ op: 'text.set', in: 'game', path: ['title'], lang: 'en', value: 'The marker game' }])
   assert.deepEqual(replaceOps(CONTENT, VOCAB, { find: 'nothing here' }, 'x'), { ops: [], changes: [], skipped: [] })
 })
 

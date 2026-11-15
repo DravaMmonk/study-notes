@@ -1,12 +1,14 @@
 // The copy table's rows (CopyTable.jsx): every text of a scope — an era (its own texts, then its levels'), the whole game
 // (game.json's, then every level's) or the encyclopedia — in play order, each with the file it is in, its path and
 // the copy rule it is held to (the field it is).
+import { languagesOf } from '../engine/i18n.js'
+import { PARTS_FILE } from '../engine/parts/schema.js'
 import { find } from '../engine/schema.js'
 import { GLOSSARY } from '../engine/vocabulary.js'
 import { showPath } from '../engine/ops/edit.js'
 import { eraLevels } from '../course.js'
 
-const NOT_GAME = ['id', 'levels', 'glossary', 'domain', 'vocabulary', 'open', 'blueprint', 'i18n']
+const NOT_GAME = ['id', 'levels', 'glossary', 'domain', 'vocabulary', 'open', 'blueprint', 'partDefs']
 /** The copy rule a text is held to: the field it is (a task's own field for a task's text). */
 export const textField = (path) => String(path[0] === 'tasks' ? path[2] ?? '' : path[0] === 'eras' ? path[2] ?? '' : path[0] ?? '')
 
@@ -16,7 +18,11 @@ export const textField = (path) => String(path[0] === 'tasks' ? path[2] ?? '' : 
  */
 export function copyRows(content, vocabulary, scope, order) {
   const rows = []
-  const add = (file, name, at) => ({ path, value, schema }) => rows.push({ key: `${name}|${showPath(path)}`, file, name, path, value, kind: schema?.textKind ?? (path.length === 1 && path[0] === 'title' ? file.game ? 'gameTitle' : file.level ? 'levelTitle' : undefined : undefined), field: at === 'glossary' ? String(path.at(-2) === 'body' ? 'body' : path.at(-1)) : textField(path) })
+  const add = (file, name, at) => ({ path, value }) => rows.push({ key: `${name}|${showPath(path)}`, file, name, path, value, field: at === 'glossary' ? String(path.at(-2) === 'body' ? 'body' : path.at(-1)) : textField(path) })
+  if (scope === 'pieces') {
+    find(PARTS_FILE, content.partDefs, 'text', { vocabulary }).forEach(add({ parts: true }, 'pieces.json', 'pieces'))
+    return rows
+  }
   if (scope === 'glossary') {
     for (const t of find(GLOSSARY, content.glossary, 'text')) {
       const entry = content.glossary[t.path[0]]?.[t.path[1]]
@@ -40,3 +46,13 @@ export function copyRows(content, vocabulary, scope, order) {
   return rows
 }
 
+
+export const allCopyRows = (content, vocabulary, order) => ['all', 'glossary', 'pieces']
+  .flatMap((scope) => copyRows(content, vocabulary, scope, order))
+
+export const copyLanguages = (rows) => [...new Set(['en', 'zh', ...languagesOf(rows.map((row) => row.value))])].sort()
+
+export function copyEdit(row, lang, value) {
+  const file = row.file.level !== undefined ? { level: row.file.level } : { in: row.file.glossary ? 'glossary' : row.file.parts ? 'pieces' : 'game' }
+  return { op: 'text.set', ...file, path: row.path, ...(typeof row.value === 'string' ? {} : { lang }), value }
+}

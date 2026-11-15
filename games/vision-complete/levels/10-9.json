@@ -1,18 +1,23 @@
 {
-  "title": { "en": "Where are the X" },
+  "title": { "en": "Where are the X", "zh": "X 在哪" },
   "tray": "recognition",
   "after": {
-    "en": "Grain makes every position's score wobble a little, so the threshold needs a margin: too low and the grain makes false X; too high and a fainter X slips through."
+    "en": "Grain makes every position's score wobble a little, so the threshold needs a margin: too low and the grain makes false X; too high and a fainter X slips through.",
+    "zh": "噪点让每个位置的分数都抖一点，门槛要留出余量：太低，噪点凑成假的 X；太高，暗一点的 X 就漏了。"
   },
   "intro": [
     {
       "t": {
-        "en": "A warehouse robot has to take stock of a shelf: find every box marked X. The photo is grainy."
+        "en": "A warehouse robot has to take stock of a shelf: find every box marked X. The photo is grainy.",
+        "zh": "仓库的机器人要盘点货架：找出所有贴了 X 的箱子。照片有噪点。"
       }
     },
     {
-      "t": { "en": "Your task in this level: output 1 only at the centre of each X." },
-      "fig": { "test": 0, "caption": { "en": "One shelf" } }
+      "t": {
+        "en": "Your task in this level: output 1 only at the centre of each X.",
+        "zh": "这一关你要做的：只在每个 X 的正中间输出 1。"
+      },
+      "fig": { "test": 0, "caption": { "en": "One shelf", "zh": "一层货架" } }
     }
   ],
   "tasks": [
@@ -20,16 +25,18 @@
       "id": "10-9",
       "kind": "graph",
       "brief": {
-        "en": "A 24×24 photo of a shelf, with grain. Output 1 only at the very centre of each X mark."
+        "en": "A 24×24 photo of a shelf, with grain. Output 1 only at the very centre of each X mark.",
+        "zh": "一张 24×24 的货架照片，有噪点。只在每个 X 记号的正中间输出 1。"
       },
       "hint": {
-        "en": "A sliding window and a threshold, high enough that grain cannot add up to it."
+        "en": "A sliding window and a threshold, high enough that grain cannot add up to it.",
+        "zh": "滑窗加门槛。门槛要高过噪点能凑出来的分数。"
       },
       "scene": "shelf",
       "setup": { "expect": "small", "grain": 0.15 },
       "tests": [
         {
-          "label": { "en": "One shelf" },
+          "label": { "en": "One shelf", "zh": "一层货架" },
           "marks": [
             { "mark": "X", "at": [4, 4] },
             { "mark": "O", "at": [10, 4] },
@@ -39,7 +46,7 @@
           "seed": 101
         },
         {
-          "label": { "en": "Two shelves" },
+          "label": { "en": "Two shelves", "zh": "两层货架" },
           "marks": [
             { "mark": "X", "at": [3, 6] },
             { "mark": "X", "at": [9, 6] },
@@ -49,14 +56,14 @@
           "seed": 102
         },
         {
-          "label": { "en": "All O" },
+          "label": { "en": "All O", "zh": "都是 O" },
           "marks": [{ "mark": "O", "at": [5, 5] }, { "mark": "O", "at": [12, 12] }, { "mark": "O", "at": [19, 6] }],
           "seed": 103
         }
       ],
       "hidden": [
         {
-          "label": { "en": "Crowded" },
+          "label": { "en": "Crowded", "zh": "挤在一起" },
           "marks": [
             { "mark": "X", "at": [4, 12] },
             { "mark": "O", "at": [8, 12] },

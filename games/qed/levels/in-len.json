@@ -1,19 +1,19 @@
 {
-  "title": { "en": "Lengths add up" },
+  "title": { "en": "Lengths add up", "zh": "长度相加" },
   "tray": "machine",
   "tasks": [
     {
       "id": "in-len",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["list"],
       "defs": ["app", "len", "plus"],
       "tests": [{ "goal": "∀xs. ∀ys. len(app(xs, ys)) = plus(len(xs), len(ys))" }],
-      "brief": { "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "en": "Both the list definitions and addition’s are needed." }],
+      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "en": "Both the list definitions and addition’s are needed.", "zh": "列表的定义和加法的定义都要用。" }],
       "solution": [
         "c0r0 = math[use=[\"list.induct\"]]()",
         "c0 = rule(in, c0r0)",

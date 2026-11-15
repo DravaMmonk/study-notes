@@ -1,9 +1,10 @@
 {
   "parts": {
     "add": {
-      "name": { "en": "Add" },
+      "name": { "en": "Add", "zh": "相加" },
       "desc": {
-        "en": "Gives the sum of its two inputs; gives 「—」 if either input is 「—」."
+        "en": "Gives the sum of its two inputs; gives 「—」 if either input is 「—」.",
+        "zh": "给出两个输入之和；只要有一个输入为「—」，就给出「—」。"
       },
       "icon": "Plus",
       "family": "value",
@@ -11,9 +12,10 @@
       "compute": "add(a, b)"
     },
     "sub": {
-      "name": { "en": "Subtract" },
+      "name": { "en": "Subtract", "zh": "相减" },
       "desc": {
-        "en": "Gives its first input less its second; gives 「—」 if either input is 「—」."
+        "en": "Gives its first input less its second; gives 「—」 if either input is 「—」.",
+        "zh": "给出第一个输入减去第二个输入的差；只要有一个输入为「—」，就给出「—」。"
       },
       "icon": "Minus",
       "family": "value",
@@ -21,8 +23,8 @@
       "compute": "sub(a, b)"
     },
     "addSub": {
-      "name": { "en": "Add, then take away" },
-      "desc": { "en": "Gives a plus b, less c." },
+      "name": { "en": "Add, then take away", "zh": "加了再减" },
+      "desc": { "en": "Gives a plus b, less c.", "zh": "给出 a 加 b、再减去 c 的结果。" },
       "inside": [{ "task": "1-1" }]
     }
   }

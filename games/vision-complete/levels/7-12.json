@@ -1,18 +1,20 @@
 {
-  "title": { "en": "Obstacle alarm" },
+  "title": { "en": "Obstacle alarm", "zh": "避障警报" },
   "tray": "geometry",
   "after": {
-    "en": "Window, distance conversion, region of interest: none can be left out. This is the simplest stereo obstacle-avoidance system; real robot vacuums also use a laser or structured light to fill in where there is no texture."
+    "en": "Window, distance conversion, region of interest: none can be left out. This is the simplest stereo obstacle-avoidance system; real robot vacuums also use a laser or structured light to fill in where there is no texture.",
+    "zh": "窗口、距离换算、感兴趣区域，一个都不能少：这是一台最简单的双目避障系统。真实的扫地机器人还会结合激光或结构光，补上没有纹理的地方。"
   },
   "intro": [
     {
       "t": {
-        "en": "Join the last few levels up: from the two cameras' pictures all the way to the region to stop for."
+        "en": "Join the last few levels up: from the two cameras' pictures all the way to the region to stop for.",
+        "zh": "把前面几关接起来：从两台相机的画面，一路算到要停下的区域。"
       }
     },
     {
-      "t": { "en": "Your task in this level: mark the region to stop for." },
-      "fig": { "test": 0, "caption": { "en": "Set 1: a box" } }
+      "t": { "en": "Your task in this level: mark the region to stop for.", "zh": "这一关你要做的：标出要停下的区域。" },
+      "fig": { "test": 0, "caption": { "en": "Set 1: a box", "zh": "第一组：一个箱子" } }
     }
   ],
   "tasks": [
@@ -20,32 +22,44 @@
       "id": "7-12",
       "kind": "graph",
       "brief": {
-        "en": "A robot vacuum's stereo camera (f·b = 3, a floor with no texture, a noisy picture). Mark the region above the floor, closer than 1.2 m, where it must stop."
+        "en": "A robot vacuum's stereo camera (f·b = 3, a floor with no texture, a noisy picture). Mark the region above the floor, closer than 1.2 m, where it must stop.",
+        "zh": "扫地机器人的双目相机（f·b = 3，地板没有纹理，画面有噪声）。标出地面以上、近于 1.2 米、要停下来的区域。"
       },
-      "hint": { "en": "Where there is no texture, disparity search cannot match anything." },
+      "hint": {
+        "en": "Where there is no texture, disparity search cannot match anything.",
+        "zh": "没有纹理的地方，视差搜索什么也配不上。"
+      },
       "inputs": ["left", "right", "region"],
       "inputLabels": {
-        "left": { "en": "Left camera" },
-        "right": { "en": "Right camera" },
-        "region": { "en": "Above the floor" }
+        "left": { "en": "Left camera", "zh": "左相机" },
+        "right": { "en": "Right camera", "zh": "右相机" },
+        "region": { "en": "Above the floor", "zh": "地面以上" }
       },
       "outputs": ["stop"],
-      "outputLabels": { "stop": { "en": "Stop" } },
+      "outputLabels": { "stop": { "en": "Stop", "zh": "要停" } },
       "check": { "tolerance": 0.1, "mismatches": 18 },
       "scene": "room",
       "setup": { "expect": "stop" },
       "tests": [
-        { "label": { "en": "A box" }, "seed": 61, "obstacles": [{ "box": [4, 3, 10, 12], "d": 3 }] },
-        { "label": { "en": "A far box" }, "seed": 62, "obstacles": [{ "box": [6, 2, 12, 12], "d": 2 }] },
         {
-          "label": { "en": "One far, one near" },
+          "label": { "en": "A box", "zh": "一个箱子" },
+          "seed": 61,
+          "obstacles": [{ "box": [4, 3, 10, 12], "d": 3 }]
+        },
+        {
+          "label": { "en": "A far box", "zh": "远的箱子" },
+          "seed": 62,
+          "obstacles": [{ "box": [6, 2, 12, 12], "d": 2 }]
+        },
+        {
+          "label": { "en": "One far, one near", "zh": "一远一近" },
           "seed": 63,
           "obstacles": [{ "box": [1, 4, 7, 12], "d": 2 }, { "box": [9, 5, 14, 12], "d": 3 }]
         }
       ],
       "hidden": [
         {
-          "label": { "en": "A thin chair leg" },
+          "label": { "en": "A thin chair leg", "zh": "细的椅腿" },
           "seed": 64,
           "obstacles": [{ "box": [7, 1, 10, 12], "d": 3 }]
         }

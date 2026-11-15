@@ -27,7 +27,6 @@ import '../circuit/circuit.css'
 import { useEffect, useMemo, useState } from 'react'
 import { GameShell, getLang } from '../shell/index.js'
 import { createProgress, openAt, saved } from '../shell/progress.js'
-import { localized } from '../engine/i18n.js'
 import { DOMAINS } from 'virtual:studio-domains'
 import { PresetSheet } from '../shell/parts/PieceSheet.jsx'
 import PieceView from './PieceView.jsx'
@@ -45,12 +44,11 @@ function look({ theme, lang }) {
 /** The game the shell plays, made of `content`, with saves of its own, kept across the author's edits (a board an
  *  edit no longer fits opens as the level's start); `stamp` tells one content from the next. */
 async function gameOf(content, stamp) {
-  const [{ default: defineGame }, { vocabulary }] = await DOMAINS[content.domain]()
-  const shown = localized(content, vocabulary)
-  const game = defineGame(shown)
+  const [{ default: defineGame }] = await DOMAINS[content.domain]()
+  const game = defineGame(content)
   game.store = createProgress({ id: `studio.${content.id}` })
   game.stamp = stamp
-  game.partDefs = shown.partDefs
+  game.partDefs = content.partDefs
   return game
 }
 

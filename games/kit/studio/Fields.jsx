@@ -12,13 +12,12 @@
 //          before(path) → [had, value] (the field before the pending changes), tests: { of(path), run(path) } }
 import { useEffect, useRef, useState } from 'react'
 import { ChevronRight, Copy, GripVertical, Minus, Pencil, Play, Plus, RotateCcw, X } from 'lucide-react'
-import { L, tr } from '../shell/i18n.js'
+import { getLang, L, tr } from '../shell/i18n.js'
 import { boardSvg } from '../circuit/svg.js'
 import { showPath } from '../engine/ops/edit.js'
 import { blank, moved, recast, revertOf, shapeName, summaryOf, taskOptionsOf } from './form.js'
 import { Chips, Choice, Picker } from './Picker.jsx'
-import { CopyTextField, TextField } from './TextField.jsx'
-import { copySide } from './translations.js'
+import { TextField } from './TextField.jsx'
 import { GridField, NumbersField, TableField, TicksField, WaveField } from './Cells.jsx'
 import { ExprField, IconField } from './PartFields.jsx'
 import { useDraft } from './draft.js'
@@ -126,9 +125,12 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
   const changed = ctx.before && !CONTAINERS.includes(field.kind) && JSON.stringify(had ? before : undefined) !== JSON.stringify(field.value)
   const revert = () => onEdit(field.path, revertOf(had ? before : undefined), field.kind)
   const name = label ?? ''
+  const lang = ctx.lang ?? getLang()
   const body = (() => {
     switch (field.kind) {
-      case 'text': return <CopyTextField side={copySide(field.value, ctx.lang ?? 'en', ctx.i18n, field.textKind ?? (field.path.length === 1 && field.path[0] === 'title' ? ctx.titleKind : undefined))} onSet={set} onTranslate={ctx.onTranslate} label={name} field={ctx.textField?.(field.path) ?? ''} names={ctx.names} findings={found} />
+      case 'text': return <TextField key={lang} lang={lang} value={field.value}
+        onSet={(value) => onEdit(field.path, { set: value, lang: typeof field.value === 'string' ? undefined : lang }, 'text')}
+        label={name} field={ctx.textField?.(field.path) ?? ''} names={ctx.names} findings={found} />
       case 'num': return <NumberField field={field} onSet={set} label={name} />
       case 'bool': return <input type="checkbox" className="field-check" checked={Boolean(field.value)} onChange={(e) => set(e.target.checked)} aria-label={name} />
       case 'str': return <StringField field={field} onSet={set} label={name} />

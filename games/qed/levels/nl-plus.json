@@ -1,10 +1,11 @@
 {
-  "title": { "en": "One plus one by hand" },
+  "title": { "en": "One plus one by hand", "zh": "手算 1 + 1" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "en": "On the proof board, the two equations of <level-ref to=\"def-plus\"></level-ref>, 0 + y = y and S x + y = S (x + y), are two “for all” givens."
+        "en": "On the proof board, the two equations of <level-ref to=\"def-plus\"></level-ref>, 0 + y = y and S x + y = S (x + y), are two “for all” givens.",
+        "zh": "<level-ref to=\"def-plus\"></level-ref>的两条等式 0 + y = y、S x + y = S (x + y)，在证明板上是两句「对所有」的已知。"
       }
     }
   ],
@@ -21,13 +22,18 @@
           "goal": "plus(s(zero), s(zero)) = s(s(zero))"
         }
       ],
-      "brief": { "en": "From the two definitions of addition, prove 1 + 1 = 2." },
+      "brief": {
+        "en": "From the two definitions of addition, prove 1 + 1 = 2.",
+        "zh": "从加法的两条定义证出 1 + 1 = 2。"
+      },
       "hint": [
         {
-          "en": "Start with <part-ref to=\"part:allE\"></part-ref>, putting particular numbers for the x and y of a definition."
+          "en": "Start with <part-ref to=\"part:allE\"></part-ref>, putting particular numbers for the x and y of a definition.",
+          "zh": "先用<part-ref to=\"part:allE\"></part-ref>，把定义里的 x、y 换成具体的数。"
         },
         {
-          "en": "The second definition gives S (0 + S 0); the first works out 0 + S 0, which Rewrite then puts in."
+          "en": "The second definition gives S (0 + S 0); the first works out 0 + S 0, which Rewrite then puts in.",
+          "zh": "第二条定义给出 S (0 + S 0)；第一条算出 0 + S 0，再用等量代换换进去。"
         }
       ],
       "solution": [

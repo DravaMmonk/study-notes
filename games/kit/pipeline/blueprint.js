@@ -25,6 +25,7 @@
 // it and soon used again, nothing used before it is there, built parts used later, practice that shows a new facet,
 // series that do not depend on each other branched, abstraction rising. conformance(bp, content, spec) checks
 // a game's levels against its blueprint once they exist. erasOf(bp) is game.json's eras as the blueprint lays them out.
+import { firstText } from '../engine/i18n.js'
 import { S, validate } from '../engine/schema.js'
 import { layout } from '../course.js'
 import { T as t } from '../shell/i18n.js'
@@ -253,14 +254,14 @@ export function auditBlueprint(bp) {
   // Knowledge comes from the sources, and is knowledge: a primitive is a tool, not a point. (A built part may embody a
   // point the player builds: cropping is built as crop.)
   const low = (x) => String(x ?? '').trim().toLowerCase()
-  const toolNames = new Set(bp.primitives.flatMap((p) => [p.part, p.about?.en ?? p.about].map(low)).filter(Boolean))
+  const toolNames = new Set(bp.primitives.flatMap((p) => [p.part, firstText(p.about)].map(low)).filter(Boolean))
   for (const k of bp.knowledge) {
     if (!k.term || !k.source || !k.basis || !k.difficulty) {
       say('bp-point', k.id, `it has no ${[!k.term && 'term', !k.source && 'source', !k.basis && 'basis', !k.difficulty && 'difficulty'].filter(Boolean).join(' and no ')}`)
       continue
     }
     if (!bp.sources.some((src) => k.source.startsWith(src))) say('bp-source', k.id, `cites ${k.source}, no file of the sources`)
-    if ([k.id, k.term.en ?? k.term].map(low).some((n) => toolNames.has(n))) say('bp-part-point', k.id, 'it is named as a primitive')
+    if ([k.id, firstText(k.term)].map(low).some((n) => toolNames.has(n))) say('bp-part-point', k.id, 'it is named as a primitive')
   }
   if (Object.keys(bp.trays ?? {}).length > 1) for (const era of bp.eras) if (!bp.trays[era.tray]) say('bp-tray', `era ${era.id}`, era.tray ? `it plays with ${era.tray}, which is no tray` : 'it does not say which tray it plays with')
   if (out.some((f) => f.rule === 'bp-refs' || f.rule === 'bp-unique')) return out
@@ -419,7 +420,7 @@ export function auditBlueprint(bp) {
     if (madeHere.size && last && !last.slots.some((s) => s.uses.some((u) => madeHere.has(u)))) say('bp-abstraction', last.id, `stands on none of ${[...madeHere].join(', ')}`)
   }
 
-  for (const r of bp.requests ?? []) if (r.status === 'open') say('bp-open', r.id, `${r.kind} request open: ${r.about.en ?? r.about}`)
+  for (const r of bp.requests ?? []) if (r.status === 'open') say('bp-open', r.id, `${r.kind} request open: ${firstText(r.about)}`)
   return out
 }
 

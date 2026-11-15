@@ -1,23 +1,26 @@
 {
-  "title": { "en": "A grey patch" },
+  "title": { "en": "A grey patch", "zh": "灰色挡板" },
   "tray": "recognition",
   "after": {
-    "en": "A black patch is a strong signal in itself: on a bright road, a dark blotch changes the score too. A grey one (often the average colour of the whole dataset) is closer to \"nothing there\", and it shows negative values where things are darker: covering them raises the score, so the model takes them as evidence against."
+    "en": "A black patch is a strong signal in itself: on a bright road, a dark blotch changes the score too. A grey one (often the average colour of the whole dataset) is closer to \"nothing there\", and it shows negative values where things are darker: covering them raises the score, so the model takes them as evidence against.",
+    "zh": "黑挡板本身就是一种很强的信号：在亮的路上，一块黑斑也会改变分数。灰挡板（常用整个数据集的平均色）离「什么也没有」更近，比暗的地方能看出负数：挡住它反而让分数变高，说明模型把那里当作反面证据。"
   },
   "intro": [
     {
       "t": {
-        "en": "The patch in <level-ref to=\"11-1\"></level-ref> was black. But black is a colour in its own right: a dark blotch on a bright road might look to the model like a wheel or a shadow."
+        "en": "The patch in <level-ref to=\"11-1\"></level-ref> was black. But black is a colour in its own right: a dark blotch on a bright road might look to the model like a wheel or a shadow.",
+        "zh": "<level-ref to=\"11-1\"></level-ref>的挡板是黑的。可黑本身也是一种颜色：亮路上的一块黑斑，模型也许会当成车轮或者影子。"
       }
     },
     {
       "t": {
-        "en": "Your task in this level: the patch becomes grey (0.5); output how far the score drops with the 3×3 at each place covered. Something to think about: what happens to the score when a cell darker than grey is covered?"
+        "en": "Your task in this level: the patch becomes grey (0.5); output how far the score drops with the 3×3 at each place covered. Something to think about: what happens to the score when a cell darker than grey is covered?",
+        "zh": "这一关你要做的：挡板换成灰的（0.5），输出每个位置挡住 3×3 以后分数掉多少。要想的问题：比灰还暗的格子被挡住，分数会怎样？"
       },
       "fig": {
         "test": 3,
         "view": "terrain",
-        "caption": { "en": "Set 4: a classifier that looks at the wheels" }
+        "caption": { "en": "Set 4: a classifier that looks at the wheels", "zh": "第四组：看车轮的分类器" }
       }
     }
   ],
@@ -26,40 +29,48 @@
       "id": "11-2",
       "kind": "graph",
       "brief": {
-        "en": "This time the patch is grey: the cells it covers become 0.5. At every cell, output how much the score drops when a grey block covers the 3×3 centred on it."
+        "en": "This time the patch is grey: the cells it covers become 0.5. At every cell, output how much the score drops when a grey block covers the 3×3 centred on it.",
+        "zh": "这次挡板是灰的：被挡住的格子亮度变成 0.5。在每一格输出：用灰块挡住以它为中心的 3×3，分数掉多少。"
       },
-      "hint": { "en": "Once a cell is replaced by 0.5, how much does what it adds change?" },
+      "hint": {
+        "en": "Once a cell is replaced by 0.5, how much does what it adds change?",
+        "zh": "一格被换成 0.5 以后，它出的分变了多少？"
+      },
       "inputs": ["in", "w"],
       "inputLabels": {
-        "in": { "en": "Photo" },
-        "w": { "en": "Weights" },
-        "m": { "en": "Car mask" }
+        "in": { "en": "Photo", "zh": "照片" },
+        "w": { "en": "Weights", "zh": "权重" },
+        "m": { "en": "Car mask", "zh": "车的掩膜" }
       },
       "views": { "in": "pixels", "out": "terrain", "mid": "terrain" },
       "scene": "classifier",
       "setup": { "check": "occlusion", "cover": { "v": 0.5 } },
       "tests": [
-        { "label": { "en": "An honest classifier" }, "street": { "cx": 5 }, "weights": "car" },
+        { "label": { "en": "An honest classifier", "zh": "老实的分类器" }, "street": { "cx": 5 }, "weights": "car" },
         {
-          "label": { "en": "A classifier that looks at the road" },
+          "label": { "en": "A classifier that looks at the road", "zh": "只看路的分类器" },
           "street": { "cx": 5 },
           "weights": "road"
         },
         {
-          "label": { "en": "A car parked by a roadside house" },
+          "label": { "en": "A car parked by a roadside house", "zh": "车停在路边的房子旁" },
           "street": { "cx": 3, "house": 11 },
           "weights": "both"
         },
         {
-          "label": { "en": "A classifier that looks at the wheels" },
+          "label": { "en": "A classifier that looks at the wheels", "zh": "看车轮的分类器" },
           "street": { "cx": 6 },
           "weights": "wheels"
         }
       ],
       "hidden": [
-        { "label": { "en": "The car has moved left" }, "street": { "cx": 1 }, "weights": "car" },
         {
-          "label": { "en": "A classifier that marks down a dark sky" },
+          "label": { "en": "The car has moved left", "zh": "车开到了左边" },
+          "street": { "cx": 1 },
+          "weights": "car"
+        },
+        {
+          "label": { "en": "A classifier that marks down a dark sky", "zh": "黑天也扣分的分类器" },
           "street": { "cx": 5, "house": 0 },
           "weights": "sky"
         }

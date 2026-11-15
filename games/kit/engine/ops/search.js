@@ -1,13 +1,14 @@
-// Search across a game's content, and replace as operations (games/DESIGN.md 7.1). What is searched: every text pair
+// Search across a game's content, and replace as operations (games/DESIGN.md 7.1). What is searched: every localized text
 // of the levels, game.json and the encyclopedia (each side on its own; a link tag is never matched inside, so a
 // replace cannot break one), every line of every board, and the ids of levels and entries. A replace is never an edit
-// of its own: it is the operations that make it — text.set with the sides it changes, level.blueprint with the board's
+// of its own: it is the operations that make it — text.set for each language it changes, level.blueprint with the board's
 // new text — for a changeset to preview, check and apply like any other. Ids are found, never replaced (level.rename
 // changes an id and every place naming it). Node-safe and browser-safe: the studio searches as one types with this
 // module, and the MCP's search and replace tools (tools.js) are this module too.
 //
 //   query: { find, regex?, caseSensitive?, word?, kinds?: ['text', 'board', 'id'] }
 //   a hit: { file, level?, in?, path, kind, side?, line?, text (the string searched), at: [[start, end]…] }
+import { PARTS_FILE } from '../parts/schema.js'
 import { find } from '../schema.js'
 import { GLOSSARY } from '../vocabulary.js'
 
@@ -52,12 +53,11 @@ export function searchable(content, vocabulary, kinds = KINDS) {
   const out = []
   const texts = (value, schema, at) => {
     for (const { path, value: v } of find(schema, value, 'text', { vocabulary })) {
-      // Content is written in one language (../i18n.js): a text is searched and replaced there.
-      const text = typeof v === 'string' ? v : v?.en
-      if (typeof text === 'string') out.push({ ...at, path, kind: 'text', side: 'en', text })
+      if (typeof v === 'string') out.push({ ...at, path, kind: 'text', text: v })
+      else for (const [side, text] of Object.entries(v)) out.push({ ...at, path, kind: 'text', side, text })
     }
   }
-  const { id: _g, levels, glossary, domain: _d, vocabulary: _v, open: _o, blueprint: _b, eras: _e, ...game } = content
+  const { id: _g, levels, glossary, domain: _d, vocabulary: _v, open: _o, blueprint: _b, partDefs, ...game } = content
   for (const { id, ...level } of levels) {
     const at = { file: `levels/${id}.json`, level: id }
     if (kinds.includes('id')) out.push({ ...at, path: [], kind: 'id', text: id })
@@ -68,8 +68,11 @@ export function searchable(content, vocabulary, kinds = KINDS) {
       }
     }
   }
-  if (kinds.includes('text')) texts(game, vocabulary.game, { file: 'game.json', in: 'game' })
-  if (kinds.includes('text')) texts(glossary, GLOSSARY, { file: 'glossary.json', in: 'glossary' })
+  if (kinds.includes('text')) {
+    texts(game, vocabulary.game, { file: 'game.json', in: 'game' })
+    texts(glossary, GLOSSARY, { file: 'glossary.json', in: 'glossary' })
+    texts(partDefs, PARTS_FILE, { file: 'pieces.json', in: 'pieces' })
+  }
   if (kinds.includes('id')) glossary.entries.forEach((e, k) => out.push({ file: 'glossary.json', in: 'glossary', path: ['entries', k, 'id'], kind: 'id', text: e.id }))
   return out
 }
@@ -112,7 +115,7 @@ const key = (hit) => JSON.stringify([hit.file, hit.path])
 
 /**
  * The operations that replace the query's matches with `replacement` (`pick`: the hits to replace, as `${file}|${path}|
- * ${side or line}` keys; all by default). One text.set a text (both sides when both change), one level.blueprint a
+ * ${side or line}` keys; all by default). One text.set per language field, one level.blueprint per
  * board. Returns { ops, changes: [{ file, level?, path, kind, side?, line?, before, after }], skipped: [hit] } — the
  * ids found, which a replace leaves alone.
  */
@@ -120,7 +123,7 @@ export function replaceOps(content, vocabulary, query, replacement, pick = null)
   const hits = searchContent(content, vocabulary, query)
   const chosen = (h) => !pick || pick.includes(hitKey(h))
   const changes = []
-  const texts = new Map()
+  const texts = []
   const boards = new Map()
   const skipped = []
   for (const hit of hits) {
@@ -130,15 +133,15 @@ export function replaceOps(content, vocabulary, query, replacement, pick = null)
     if (after === hit.text) continue
     changes.push({ file: hit.file, ...(hit.level !== undefined && { level: hit.level }), path: hit.path, kind: hit.kind, ...(hit.side && { side: hit.side }), ...(hit.line !== undefined && { line: hit.line }), before: hit.text, after })
     if (hit.kind === 'text') {
-      const op = texts.get(key(hit)) ?? { op: 'text.set', ...(hit.level !== undefined ? { level: hit.level } : { in: hit.in }), path: hit.path }
-      texts.set(key(hit), { ...op, [hit.side]: after })
+      texts.push({ op: 'text.set', ...(hit.level !== undefined ? { level: hit.level } : { in: hit.in }), path: hit.path,
+        ...(hit.side ? { lang: hit.side } : {}), value: after })
     } else {
       const lines = boards.get(key(hit)) ?? { level: hit.level, path: hit.path, lines: [...levelAt(content, hit.level, hit.path)] }
       lines.lines[hit.line] = after
       boards.set(key(hit), lines)
     }
   }
-  const ops = [...texts.values(), ...[...boards.values()].map((b) => ({ op: 'level.blueprint', level: b.level, path: b.path, text: b.lines.join('\n') }))]
+  const ops = [...texts, ...[...boards.values()].map((b) => ({ op: 'level.blueprint', level: b.level, path: b.path, text: b.lines.join('\n') }))]
   return { ops, changes, skipped }
 }
 

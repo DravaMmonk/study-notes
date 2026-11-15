@@ -1,12 +1,17 @@
 {
-  "groups": [{ "id": "image", "title": { "en": "Images" } }],
+  "groups": [{ "id": "image", "title": { "en": "Images", "zh": "图" } }],
   "entries": [
     {
       "id": "pixel",
       "group": "image",
-      "title": { "en": "pixel" },
+      "title": { "en": "pixel", "zh": "像素" },
       "at": "0-1",
-      "body": [{ "en": "One cell of an image, holding a brightness: 0 is black, 1 is white." }]
+      "body": [
+        {
+          "en": "One cell of an image, holding a brightness: 0 is black, 1 is white.",
+          "zh": "图上的一格，记一个亮度：0 是黑，1 是白。"
+        }
+      ]
     }
   ]
 }

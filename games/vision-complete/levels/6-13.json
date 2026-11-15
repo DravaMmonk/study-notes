@@ -1,20 +1,23 @@
 {
-  "title": { "en": "Book cover" },
+  "title": { "en": "Book cover", "zh": "书封面" },
   "tray": "geometry",
   "after": {
-    "en": "Match, choose inliers with RANSAC, solve the homography, warp and paste: this pipeline is the core of AR book covers, panorama stitching and document-scanning apps, and you have built every step of it yourself."
+    "en": "Match, choose inliers with RANSAC, solve the homography, warp and paste: this pipeline is the core of AR book covers, panorama stitching and document-scanning apps, and you have built every step of it yourself.",
+    "zh": "匹配、RANSAC 选内点、解单应、变形贴图：这条流水线就是 AR 书封面、全景拼接和文档扫描 App 的核心。每一步你都亲手做过一遍。"
   },
   "intro": [
     {
       "t": {
-        "en": "Real pairs come from the matcher, and with a desk pattern that repeats tile after tile, a few are bound to be wrong."
+        "en": "Real pairs come from the matcher, and with a desk pattern that repeats tile after tile, a few are bound to be wrong.",
+        "zh": "真实的点对来自匹配器，桌面的花纹一格格重复，难免配错几对。"
       }
     },
     {
       "t": {
-        "en": "Your task in this level: paste the cover back onto the photo using these pairs."
+        "en": "Your task in this level: paste the cover back onto the photo using these pairs.",
+        "zh": "这一关你要做的：用这些点对把封面贴回照片。"
       },
-      "fig": { "test": 0, "caption": { "en": "Set 1: two wrong matches" } }
+      "fig": { "test": 0, "caption": { "en": "Set 1: two wrong matches", "zh": "第一组：两对错配" } }
     }
   ],
   "tasks": [
@@ -22,33 +25,35 @@
       "id": "6-13",
       "kind": "graph",
       "brief": {
-        "en": "A phone photographed the book on the desk at an angle. The matcher has given pairs of points between the cover and the photo, and a few are wrong matches caused by the desk pattern. Paste the crisp cover back over the book in the photo."
+        "en": "A phone photographed the book on the desk at an angle. The matcher has given pairs of points between the cover and the photo, and a few are wrong matches caused by the desk pattern. Paste the crisp cover back over the book in the photo.",
+        "zh": "手机斜着拍了桌上的书。匹配器给出了封面和照片之间的点对，其中有几对是桌面花纹造成的错配。把清楚的封面贴回照片里书的位置。"
       },
       "hint": {
-        "en": "Let a single wrong match in, and an H solved from all the pairs comes out crooked."
+        "en": "Let a single wrong match in, and an H solved from all the pairs comes out crooked.",
+        "zh": "错配只要混进一对，用全部点对解出的 H 就会歪。"
       },
       "inputs": ["photo", "cover", "pairs"],
       "inputLabels": {
-        "photo": { "en": "Photo" },
-        "cover": { "en": "Cover" },
-        "pairs": { "en": "Matched pairs (4 numbers each)" }
+        "photo": { "en": "Photo", "zh": "照片" },
+        "cover": { "en": "Cover", "zh": "封面" },
+        "pairs": { "en": "Matched pairs (4 numbers each)", "zh": "匹配的点对（每 4 个数一对）" }
       },
       "scene": "coverPairs",
       "tests": [
         {
-          "label": { "en": "Two wrong matches" },
+          "label": { "en": "Two wrong matches", "zh": "两对错配" },
           "quad": [[9, 5], [21, 7], [23, 27], [7, 25]],
           "seed": 51,
           "wrong": 2
         },
         {
-          "label": { "en": "Four wrong matches" },
+          "label": { "en": "Four wrong matches", "zh": "四对错配" },
           "quad": [[11, 6], [20, 6], [25, 26], [5, 26]],
           "seed": 52,
           "wrong": 4
         },
         {
-          "label": { "en": "Turned a little" },
+          "label": { "en": "Turned a little", "zh": "转了一下" },
           "quad": [[6, 9], [18, 4], [25, 21], [12, 27]],
           "seed": 53,
           "wrong": 3
@@ -56,7 +61,7 @@
       ],
       "hidden": [
         {
-          "label": { "en": "Smaller, many wrong" },
+          "label": { "en": "Smaller, many wrong", "zh": "小一点、错配多" },
           "quad": [[13, 10], [21, 11], [21, 22], [12, 21]],
           "seed": 54,
           "wrong": 5

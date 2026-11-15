@@ -1,10 +1,11 @@
 {
-  "title": { "en": "Givens that contradict" },
+  "title": { "en": "Givens that contradict", "zh": "自相矛盾的已知" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "en": "The goal has nothing to do with the givens, yet among the givens is a pair that contradict each other."
+        "en": "The goal has nothing to do with the givens, yet among the givens is a pair that contradict each other.",
+        "zh": "目标和已知毫不相干，已知里却有一对互相矛盾的句子。"
       }
     }
   ],
@@ -13,12 +14,12 @@
       "id": "r-false",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
       "tests": [{ "goal": "Pigs", "hyps": ["Rain", "¬Rain"] }, { "goal": "Moon", "hyps": ["¬Wet", "Wet"] }],
-      "brief": { "en": "Design a proof assistant that proves every goal." },
+      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
       "hint": [
-        { "en": "Going backwards, what should the goal become first?" },
-        { "en": "Apply as an elimination rule: which given does it fit?" }
+        { "en": "Going backwards, what should the goal become first?", "zh": "倒着走，第一步该把目标换成什么？" },
+        { "en": "Apply as an elimination rule: which given does it fit?", "zh": "套用当消去规则用，对得上哪一条已知？" }
       ],
       "solution": [
         "c0r0 = botE()",

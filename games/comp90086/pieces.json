@@ -1,28 +1,34 @@
 {
   "presets": {
     "border": {
-      "label": { "en": "Border" },
+      "label": { "en": "Border", "zh": "边界" },
       "control": "select",
       "options": [
-        { "value": "zero", "label": { "en": "Pad with 0" } },
-        { "value": "edge", "label": { "en": "Replicate edge" } }
+        { "value": "zero", "label": { "en": "Pad with 0", "zh": "补 0" } },
+        { "value": "edge", "label": { "en": "Replicate edge", "zh": "复制边缘" } }
       ],
       "default": "zero"
     }
   },
   "parts": {
     "line3": {
-      "name": { "en": "1D 3-point kernel" },
-      "desc": { "en": "Take three neighbouring pixels along a row or column, multiply each by its weight, and add them." },
+      "name": { "en": "1D 3-point kernel", "zh": "一维三点核" },
+      "desc": {
+        "en": "Take three neighbouring pixels along a row or column, multiply each by its weight, and add them.",
+        "zh": "沿一行或一列取三个相邻像素，分别乘以权重后相加。"
+      },
       "icon": "Grid3x3",
       "family": "neighbour",
       "inputs": [{ "name": "in", "label": "" }],
       "settings": [
         {
           "key": "axis",
-          "label": { "en": "Direction" },
+          "label": { "en": "Direction", "zh": "方向" },
           "control": "select",
-          "options": [{ "value": "x", "label": { "en": "Across" } }, { "value": "y", "label": { "en": "Down" } }],
+          "options": [
+            { "value": "x", "label": { "en": "Across", "zh": "横" } },
+            { "value": "y", "label": { "en": "Down", "zh": "竖" } }
+          ],
           "default": "x"
         },
         { "key": "a", "label": "a", "control": "number", "min": -4, "max": 4, "step": 1, "default": 0 },
@@ -33,8 +39,8 @@
       "compute": "image_line3(in, $axis, $a, $b, $c, $border)"
     },
     "add": {
-      "name": { "en": "Add" },
-      "desc": { "en": "Adds two pictures pixel by pixel: a + b" },
+      "name": { "en": "Add", "zh": "相加" },
+      "desc": { "en": "Adds two pictures pixel by pixel: a + b", "zh": "两张图逐像素相加：a + b" },
       "icon": "Calculator",
       "family": "pixel",
       "inputs": [{ "name": "a", "label": "a" }, { "name": "b", "label": "b" }],

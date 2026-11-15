@@ -32,10 +32,8 @@
 //   view: 'board'   a list of blueprint lines that is a board (a naive answer, a work): operations find it as one
 //   step            how far a number goes up or down at a time
 //   section         where a field of a level goes in its form (SECTIONS); without it the studio reads it off the shape
+import { isText } from './i18n.js'
 import { markupOf } from './markup.js'
-
-// The kinds of text for which an overlay can supply a separate translation.
-export const TEXT_KINDS = ['gameTitle', 'levelTitle', 'partName', 'partDescription', 'settingLabel', 'regionLabel', 'portLabel']
 
 export const SECTIONS = ['read', 'puzzle', 'tests', 'answers', 'course', 'tasks']
 export const HINTS = { view: ['grid', 'ticks', 'expr', 'icon', 'board'], section: SECTIONS }
@@ -49,7 +47,6 @@ export const S = {
   int: make('int'),
   str: make('str'),
   text: make('text'),
-  textKind: (kind, extra = {}) => ({ type: 'text', textKind: kind, ...extra }),
   oneOf: (values, extra = {}) => ({ type: 'oneOf', values, ...extra }),
   list: (of, extra = {}) => ({ type: 'list', of, ...extra }),
   map: (of, extra = {}) => ({ type: 'map', of, ...extra }),
@@ -105,9 +102,8 @@ export function validate(schema, value, { vocabulary = null, levels = null, task
           for (const p of markupOf(v).problems) say(where, p)
           return
         }
-        // Content is written in one language; a translation belongs in the game's overlay (./i18n.js).
-        if (!isObj(v) || typeof v.en !== 'string' || Object.keys(v).length !== 1) return say(where, `expected text, { en } or a string, found ${show(v)}`)
-        for (const p of markupOf(v.en).problems) say(`${where}.en`, p)
+        if (!isText(v)) return say(where, `expected text by language or a string, found ${show(v)}`)
+        for (const [lang, text] of Object.entries(v)) for (const p of markupOf(text).problems) say(`${where}.${lang}`, p)
         return
       case 'oneOf':
         if (!s.values.includes(v)) say(where, `expected one of ${s.values.map(show).join(', ')}, found ${show(v)}`)

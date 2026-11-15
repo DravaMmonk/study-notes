@@ -1,10 +1,11 @@
 {
-  "title": { "en": "Two conditions, one condition" },
+  "title": { "en": "Two conditions, one condition", "zh": "两个条件，一个条件" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "en": "“If it rains and it is windy, the ground is wet” and “if it rains, then if it is also windy, the ground is wet” say the same."
+        "en": "“If it rains and it is windy, the ground is wet” and “if it rains, then if it is also windy, the ground is wet” say the same.",
+        "zh": "「下雨并且刮风，地就湿」和「下雨的话，只要再刮风，地就湿」说的是一回事。"
       }
     }
   ],
@@ -12,13 +13,14 @@
     {
       "id": "curry_1",
       "kind": "proof",
-      "step": { "en": "Two conditions from one" },
+      "step": { "en": "Two conditions from one", "zh": "拆成两个条件" },
       "tests": [{ "premises": { "p": "A ∧ B → C" }, "goal": "A → (B → C)" }],
       "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
       "hint": [
-        { "en": "The goal has two “if … then …”s, one inside the other." },
+        { "en": "The goal has two “if … then …”s, one inside the other.", "zh": "目标里有两层「若…则…」。" },
         {
-          "en": "Two boxes assume “it rains” and “it is windy” in turn; inside, join the two assumptions into one ∧ and hand it to the given."
+          "en": "Two boxes assume “it rains” and “it is windy” in turn; inside, join the two assumptions into one ∧ and hand it to the given.",
+          "zh": "两个框依次假设「下雨」和「刮风」；在里面把两句假设拼成一句 ∧，交给已知。"
         }
       ],
       "solution": [
@@ -38,12 +40,13 @@
     {
       "id": "curry_2",
       "kind": "proof",
-      "step": { "en": "One condition from two" },
+      "step": { "en": "One condition from two", "zh": "合成一个条件" },
       "tests": [{ "premises": { "p": "A → (B → C)" }, "goal": "A ∧ B → C" }],
       "cases": [{ "A": "Sat", "B": "Rain", "C": "Rest" }, { "A": "Alarm", "B": "Coffee", "C": "Awake" }],
       "hint": [
         {
-          "en": "One box will do: assume “today is Saturday ∧ it rains”, split it, then Apply twice."
+          "en": "One box will do: assume “today is Saturday ∧ it rains”, split it, then Apply twice.",
+          "zh": "一个框就够：假设「今天是周六 ∧ 下雨」，拆开以后套用两次。"
         }
       ],
       "solution": [

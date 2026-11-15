@@ -42,7 +42,7 @@ test('bulk edits are one operation a level, and the levels an edit does not fit 
     ops: [{ op: 'level.set', level: 'a', path: ['n'], value: 2 }],
     skipped: [{ level: 'b', why: 'holds that already' }, { level: 'c', why: 'has no such field' }],
   })
-  assert.deepEqual(bulkSet(VOCAB, LEVELS.slice(0, 1), ['note'], { en: '注' }).ops, [{ op: 'text.set', level: 'a', path: ['note'], en: '注' }])
+  assert.deepEqual(bulkSet(VOCAB, LEVELS.slice(0, 1), ['note'], { en: '注' }).ops, [{ op: 'text.set', level: 'a', path: ['note'], lang: 'en', value: '注' }])
   assert.deepEqual(bulkSet(VOCAB, LEVELS.slice(0, 1), ['solution'], ['x = add()']).ops, [{ op: 'level.blueprint', level: 'a', path: ['solution'], text: 'x = add()' }])
   assert.deepEqual(bulkUnset(LEVELS, ['n']), { ops: [{ op: 'level.unset', level: 'b', path: ['n'] }], skipped: [{ level: 'a', why: 'has none' }, { level: 'c', why: 'has none' }] })
   assert.deepEqual(bulkPatch(LEVELS.slice(0, 2), { n: 2, note: null }).ops, [{ op: 'level.patch', level: 'a', fields: { n: 2, note: null } }])

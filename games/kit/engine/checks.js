@@ -14,9 +14,9 @@
 // work list in its design doc): they are listed, not failed, and one met since fails until it is dropped.
 import { RULE_TEXT, againstOpen, audit } from '../course.js'
 import { REF, refProblems } from './text.js'
-import { translationState } from './i18n.js'
 import { gameOf } from './games.mjs'
 import { GLOSSARY, checkContent } from './vocabulary.js'
+import { firstText } from './i18n.js'
 import { find } from './schema.js'
 import { withParts } from './parts/define.js'
 import { termRegistry } from './terminology.js'
@@ -59,9 +59,9 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   // References to levels, parts and entries: the names come from the game as the shell gets it.
   const game = await gameOf(content)
   const names = {
-    level: new Map(game.levels.map((l) => [l.id, String(l.title?.en ?? l.title)])),
-    part: new Map((game.parts?.all ?? []).map((p) => [p.key, String(p.name?.en ?? p.name)])),
-    wiki: new Map((game.glossary?.entries ?? []).map((e) => [e.id, String(e.title?.en ?? e.title)])),
+    level: new Map(game.levels.map((l) => [l.id, String(firstText(l.title))])),
+    part: new Map((game.parts?.all ?? []).map((p) => [p.key, String(firstText(p.name))])),
+    wiki: new Map((game.glossary?.entries ?? []).map((e) => [e.id, String(firstText(e.title))])),
   }
   const parts = (game.parts?.all ?? []).map((p) => ({ key: p.key, name: p.name, desc: p.desc, revisions: p.revisions }))
   for (const [name, value] of Object.entries({ levels: spec.levels, ...(spec.texts ?? {}), parts })) for (const problem of refProblems(value, name, names, spec.quotes)) fail(`text ${problem}`)
@@ -72,7 +72,7 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   const entries = new Map((game.glossary?.entries ?? []).map((e) => [e.id, e]))
   const opensBy = (at, where) => !at || at === where || (where && spec.course.before(at, where))
   const linked = (schema, value, kind) => find(schema, value, 'text', { vocabulary })
-    .map(({ value: v }) => (typeof v === 'string' ? v : v.en))
+    .flatMap(({ value }) => typeof value === 'string' ? [value] : Object.values(value))
     .flatMap((s) => [...s.matchAll(REF)].filter((m) => m[1] === kind).map((m) => m[2]))
   const levelLinks = (kind) => content.levels.map(({ id, ...level }) => [id, [...new Set(linked(vocabulary.level, level, kind))]])
   for (const [id, links] of levelLinks('wiki')) for (const entry of links) if (entries.has(entry) && !opensBy(entries.get(entry).at, id)) fail(`${id} links the entry ${entry}, which opens later (at ${entries.get(entry).at})`)
@@ -82,10 +82,6 @@ export async function checkGame(content, { domain, listed, mutants = false, cach
   for (const [id, links] of levelLinks('part')) for (const key of links) if (partsByKey.has(key) && !opensBy(earnedAt(partsByKey.get(key)), id)) fail(`${id} links the part ${key}, earned later (at ${earnedAt(partsByKey.get(key))})`)
   for (const entry of content.glossary.entries) for (const id of new Set(linked(GLOSSARY.fields.entries.of, entry, 'wiki'))) if (entries.has(id) && !opensBy(entries.get(id).at, entry.at)) fail(`entry ${entry.id} links the entry ${id}, which opens later (at ${entries.get(id).at})`)
 
-  // Translation is its own work (./i18n.js): how each overlay stands is said, and fails nothing.
-  for (const { lang, texts, translated, wrong, unused } of translationState(content, vocabulary)) {
-    lines.push({ text: `i18n ${lang}: ${translated}/${texts} texts${unused ? `, ${unused} entries no text reads` : ''}${wrong.length ? `, ${wrong.length} that cannot stand (${wrong.slice(0, 3).map((w) => `${w.from.slice(0, 24)}${w.kind ? `/${w.kind}` : ''}: ${w.why}`).join('; ')}${wrong.length > 3 ? '; …' : ''})` : ''}` })
-  }
   // Asked for, the circuit base also reports what each task's tests make of the answer's mutants (mutate.js): slow,
   // so it is no part of the check every change runs.
   // A domain's check of one level goes through `memo` (check-cache.js), which runs it or hands back what it said last.

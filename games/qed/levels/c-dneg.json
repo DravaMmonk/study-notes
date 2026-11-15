@@ -1,15 +1,17 @@
 {
-  "title": { "en": "Double negation" },
+  "title": { "en": "Double negation", "zh": "双重否定律" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "en": "Two sentences that each give the other say the same thing: they are in <wiki-ref to=\"equivalence\"></wiki-ref>. “¬¬it rains” and “it rains” are such a pair."
+        "en": "Two sentences that each give the other say the same thing: they are in <wiki-ref to=\"equivalence\"></wiki-ref>. “¬¬it rains” and “it rains” are such a pair.",
+        "zh": "两句话能互相推出，说的就是同一件事，这叫<wiki-ref to=\"equivalence\"></wiki-ref>。「¬¬下雨」和「下雨」就是一对。"
       }
     },
     {
       "t": {
-        "en": "Once both directions are proved, they make one part that switches between the two."
+        "en": "Once both directions are proved, they make one part that switches between the two.",
+        "zh": "两个方向都证出后，合成一个元件，元件上切换方向。"
       }
     }
   ],
@@ -17,19 +19,19 @@
     {
       "id": "c-dneg_1",
       "kind": "proof",
-      "step": { "en": "Two ¬s off" },
+      "step": { "en": "Two ¬s off", "zh": "去掉两个 ¬" },
       "tests": [{ "premises": { "p": "¬¬A" }, "goal": "A" }],
       "cases": [{ "A": "Rain" }, { "A": "Locked" }],
-      "hint": [{ "en": "One rule you hold takes exactly two ¬s off." }],
+      "hint": [{ "en": "One rule you hold takes exactly two ¬s off.", "zh": "手里有一条规则正好去掉两个 ¬。" }],
       "solution": ["r = raa(p)", "goal <- r"]
     },
     {
       "id": "c-dneg_2",
       "kind": "proof",
-      "step": { "en": "Two ¬s on" },
+      "step": { "en": "Two ¬s on", "zh": "加上两个 ¬" },
       "tests": [{ "premises": { "p": "A" }, "goal": "¬¬A" }],
       "cases": [{ "A": "Rain" }, { "A": "Locked" }],
-      "hint": [{ "en": "“¬¬it rains” is “¬it rains → ⊥”." }],
+      "hint": [{ "en": "“¬¬it rains” is “¬it rains → ⊥”.", "zh": "「¬¬下雨」就是「¬下雨 → ⊥」。" }],
       "solution": ["f = impI[A=\"~A\"](body: m) {", "  body {", "    m = mp(f.body, p)", "  }", "}", "goal <- f"]
     }
   ]

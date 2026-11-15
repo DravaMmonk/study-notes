@@ -1,17 +1,18 @@
 {
   "domain": "logic",
   "vocabulary": 1,
-  "title": { "en": "__title__" },
-  "kicker": { "en": "In development" },
+  "title": { "en": "__title__", "zh": "__title__" },
+  "kicker": { "en": "In development", "zh": "开发中" },
   "lede": {
-    "en": "Start from truth tables: wire a sentence as a circuit, then build bigger sentences from the gates you made."
+    "en": "Start from truth tables: wire a sentence as a circuit, then build bigger sentences from the gates you made.",
+    "zh": "从真值表出发，把一句话接成一块电路，再用搭出的门搭更大的句子。"
   },
   "words": ["everyday"],
   "wordSets": {
     "everyday": {
-      "Rain": { "en": "it rains" },
-      "Wind": { "en": "it is windy" },
-      "Cold": { "en": "it is cold" }
+      "Rain": { "en": "it rains", "zh": "下雨" },
+      "Wind": { "en": "it is windy", "zh": "刮风" },
+      "Cold": { "en": "it is cold", "zh": "很冷" }
     }
   },
   "primitives": ["gNot", "gAnd"],
@@ -21,8 +22,11 @@
       "machine": null,
       "foundation": ["g-not", "g-and", "g-or", "g-use"],
       "chapter": {
-        "title": { "en": "Truth circuits" },
-        "question": { "en": "Can a circuit work out whether a sentence is true in every case?" }
+        "title": { "en": "Truth circuits", "zh": "真值电路" },
+        "question": {
+          "en": "Can a circuit work out whether a sentence is true in every case?",
+          "zh": "一句话在每一种情况下是真是假，能交给电路去算吗？"
+        }
       }
     }
   ]

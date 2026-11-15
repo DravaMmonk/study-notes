@@ -95,16 +95,18 @@ test('blank values fit their schemas, and a shape recast keeps the fields both s
 })
 
 test('an edit is the operation that makes it, and edits of one field coalesce', () => {
-  assert.deepEqual(opFor({ level: 'a' }, ['title'], { set: { en: '乙' } }, 'text'), { op: 'text.set', level: 'a', path: ['title'], en: '乙' })
-  assert.deepEqual(opFor({ game: true }, ['title'], { set: { en: '乙' } }, 'text'), { op: 'text.set', in: 'game', path: ['title'], en: '乙' })
+  assert.deepEqual(opFor({ level: 'a' }, ['title'], { set: '乙', lang: 'zh' }, 'text'), { op: 'text.set', level: 'a', path: ['title'], lang: 'zh', value: '乙' })
+  assert.deepEqual(opFor({ game: true }, ['title'], { set: { zh: '乙' } }, 'text'), { op: 'text.set', in: 'game', path: ['title'], value: { zh: '乙' } })
   assert.deepEqual(opFor({ level: 'a' }, ['solution'], { set: ['x = add()', 'out <- x'] }, 'board'), { op: 'level.blueprint', level: 'a', path: ['solution'], text: 'x = add()\nout <- x' })
   assert.deepEqual(opFor({ level: 'a' }, ['tests', 0, 'input'], { set: 4 }, 'num'), { op: 'level.set', level: 'a', path: ['tests', 0, 'input'], value: 4 })
   assert.deepEqual(opFor({ level: 'a' }, ['hint'], { unset: true }), { op: 'level.unset', level: 'a', path: ['hint'] })
   assert.deepEqual(opFor({ game: true }, ['eras', 0, 'title'], { unset: true }), { op: 'game.unset', path: ['eras', 0, 'title'] })
   assert.deepEqual(opFor({ level: 'a' }, [], { set: { kind: 'hand' } }, 'obj'), { op: 'level.replace', level: 'a', data: { kind: 'hand' } })
   let ops = []
-  for (const en of ['乙', '乙丙', '乙丙丁']) ops = pushOp(ops, opFor({ level: 'a' }, ['title'], { set: { en } }, 'text'))
-  assert.deepEqual(ops, [{ op: 'text.set', level: 'a', path: ['title'], en: '乙丙丁' }], 'typing into one text is one operation')
+  for (const set of ['乙', '乙丙', '乙丙丁']) ops = pushOp(ops, opFor({ level: 'a' }, ['title'], { set, lang: 'zh' }, 'text'))
+  assert.deepEqual(ops, [{ op: 'text.set', level: 'a', path: ['title'], lang: 'zh', value: '乙丙丁' }], 'typing into one text is one operation')
+  const french = opFor({ level: 'a' }, ['title'], { set: 'Titre', lang: 'fr' }, 'text')
+  assert.deepEqual(pushOp(ops, french), [...ops, french], 'different languages are separate pending edits')
   ops = pushOp(ops, { op: 'level.move', level: 'a', to: { before: 'b' } })
   ops = pushOp(ops, { op: 'level.move', level: 'a', to: { after: 'b' } })
   assert.equal(ops.length, 2, 'moving the same level again replaces the move')

@@ -1,20 +1,23 @@
 {
-  "title": { "en": "Where is the red light?" },
+  "title": { "en": "Where is the red light?", "zh": "红灯在哪" },
   "tray": "pipeline",
   "after": {
-    "en": "A red light must be both bright enough and red. A single channel can confuse it with white street lamps or dark red cars; combining channel information distinguishes them in these scenes."
+    "en": "A red light must be both bright enough and red. A single channel can confuse it with white street lamps or dark red cars; combining channel information distinguishes them in these scenes.",
+    "zh": "红灯既要足够亮，也要呈现红色；只看一个通道容易把白色路灯或暗处的红车混进来。结合通道信息，才能在本关的场景里区分这些情况。"
   },
   "intro": [
     {
       "t": {
-        "en": "In <level-ref to=\"4-12\"></level-ref> one kernel spanned three channels and learned to see colour contrast. This level looks for red lights in street scenes: a red light is bright and red, but the street also has red cars in the shade, white street lamps and green lights."
+        "en": "In <level-ref to=\"4-12\"></level-ref> one kernel spanned three channels and learned to see colour contrast. This level looks for red lights in street scenes: a red light is bright and red, but the street also has red cars in the shade, white street lamps and green lights.",
+        "zh": "在<level-ref to=\"4-12\"></level-ref>里，一个核横跨三个通道，学会了看颜色的对比。这一关在街景里找红灯：红灯又亮又红，可街上还有暗处的红车、白色的路灯和绿灯。"
       }
     },
     {
       "t": {
-        "en": "Your task in this level: mark only the red lights. Something to think about: which channels does \"bright\" need, and which does \"red\"?"
+        "en": "Your task in this level: mark only the red lights. Something to think about: which channels does \"bright\" need, and which does \"red\"?",
+        "zh": "这一关你要做的：只标出红灯。要想的问题：「亮」和「红」，各要看哪几个通道？"
       },
-      "fig": { "test": 0, "caption": { "en": "Set 1: a crossing" } }
+      "fig": { "test": 0, "caption": { "en": "Set 1: a crossing", "zh": "第一组：路口" } }
     }
   ],
   "tasks": [
@@ -22,22 +25,24 @@
       "id": "4-14",
       "kind": "graph",
       "brief": {
-        "en": "The input is a colour street scene; its R, G and B outputs provide the channels. Mark only the red lights: places both bright and red. Red cars in the shade, white street lamps and green lights do not count."
+        "en": "The input is a colour street scene; its R, G and B outputs provide the channels. Mark only the red lights: places both bright and red. Red cars in the shade, white street lamps and green lights do not count.",
+        "zh": "输入是一张彩色街景，可以从 R、G、B 出口分别读取通道。只标出红灯：又亮又红的地方。暗处的红车、白色的路灯、绿灯都不算。"
       },
       "hint": {
-        "en": "One channel can only answer one question. Which channels does \"red\" need, and which does \"bright\"?"
+        "en": "One channel can only answer one question. Which channels does \"red\" need, and which does \"bright\"?",
+        "zh": "一个通道只能回答一个问题。「红」和「亮」各要看哪些通道？"
       },
       "inputs": ["photo"],
-      "inputLabels": { "photo": { "en": "Colour photo" } },
+      "inputLabels": { "photo": { "en": "Colour photo", "zh": "彩色照片" } },
       "scene": "rgbStreet",
       "tests": [
-        { "label": { "en": "A crossing" }, "layout": "crossing" },
-        { "label": { "en": "Street lamps at night" }, "layout": "lamps" },
-        { "label": { "en": "Two red lights" }, "layout": "twoLights" }
+        { "label": { "en": "A crossing", "zh": "路口" }, "layout": "crossing" },
+        { "label": { "en": "Street lamps at night", "zh": "夜里的路灯" }, "layout": "lamps" },
+        { "label": { "en": "Two red lights", "zh": "两盏红灯" }, "layout": "twoLights" }
       ],
       "hidden": [
-        { "label": { "en": "Traffic" }, "layout": "traffic" },
-        { "label": { "en": "Green light" }, "layout": "greenLight" }
+        { "label": { "en": "Traffic", "zh": "车流" }, "layout": "traffic" },
+        { "label": { "en": "Green light", "zh": "绿灯" }, "layout": "greenLight" }
       ],
       "solution": [
         "hN = const[c=0.5]()",

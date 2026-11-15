@@ -1,35 +1,39 @@
 {
-  "title": { "en": "Swapping quantifiers" },
+  "title": { "en": "Swapping quantifiers", "zh": "量词换序" },
   "tray": "proof",
   "after": {
-    "en": "When a proof will not come, trying for a countermodel is often faster than pushing on."
+    "en": "When a proof will not come, trying for a countermodel is often faster than pushing on.",
+    "zh": "证不出来时，先试着造一个反模型，往往比硬证更快。"
   },
   "tasks": [
     {
       "id": "q-swap_1",
       "kind": "model",
-      "step": { "en": "Find a counterexample" },
+      "step": { "en": "Find a counterexample", "zh": "找反例" },
       "say": {
-        "en": "Everything is liked by something, so something likes everything."
+        "en": "Everything is liked by something, so something likes everything.",
+        "zh": "每样东西都有喜欢它的，所以有一样东西喜欢所有东西。"
       },
       "given": ["∀y. ∃x. Likes(x, y)"],
       "goal": "∃x. ∀y. Likes(x, y)",
       "answer": { "size": 2, "preds": { "Likes": ["0,0", "1,1"] } },
       "brief": {
-        "en": "Here is a lemma someone wrote for the reasoning above. Build a counterexample: every premise holds and the goal fails."
+        "en": "Here is a lemma someone wrote for the reasoning above. Build a counterexample: every premise holds and the goal fails.",
+        "zh": "这是别人照上面这段推理写的引理。造一个反例：前提都成立，结论不成立。"
       },
-      "hint": [{ "en": "Each thing likes only itself." }]
+      "hint": [{ "en": "Each thing likes only itself.", "zh": "每样东西只喜欢自己。" }]
     },
     {
       "id": "q-swap_2",
       "kind": "proof",
-      "step": { "en": "Proof" },
+      "step": { "en": "Proof", "zh": "证明" },
       "tests": [{ "premises": { "p": "∃x. ∀y. R(x, y)" }, "goal": "∀y. ∃x. R(x, y)" }],
       "cases": [{ "R": "Likes" }, { "R": "Older" }],
       "hint": [
-        { "en": "From the outside in: the goal is a ∀ outermost." },
+        { "en": "From the outside in: the goal is a ∀ outermost.", "zh": "从外往里：目标最外面是 ∀。" },
         {
-          "en": "Take any b; take out the one who likes everything and call them a; take b from what holds of a, then use a as the example."
+          "en": "Take any b; take out the one who likes everything and call them a; take b from what holds of a, then use a as the example.",
+          "zh": "任取一个 b；再拿出那个喜欢一切的人，叫他 a；从关于 a 的那句里取 b，再拿 a 举例。"
         }
       ],
       "solution": [

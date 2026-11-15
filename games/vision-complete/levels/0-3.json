@@ -1,49 +1,57 @@
 {
-  "title": { "en": "Two steps diagonally" },
+  "title": { "en": "Two steps diagonally", "zh": "斜着挪两格" },
   "tray": "pipeline",
   "after": {
-    "en": "Parts can be chained one after another: the output of one is the input of the next. A few simple parts in a row can do what no single part can. That is a circuit."
+    "en": "Parts can be chained one after another: the output of one is the input of the next. A few simple parts in a row can do what no single part can. That is a circuit.",
+    "zh": "元件可以一个接一个地串起来：前一个的输出就是后一个的输入。几个简单的元件串在一起，能做到单个元件做不到的事，这就是电路。"
   },
   "intro": [
     {
       "t": {
-        "en": "The shift part only ever moves the picture by one pixel. But things often need to move further than that."
+        "en": "The shift part only ever moves the picture by one pixel. But things often need to move further than that.",
+        "zh": "平移元件每次只把图挪一格。可要挪的，常常不止一格。"
       }
     },
     {
       "t": {
-        "en": "The output of one part can be wired into the input of another: when the first is done, the next carries on."
+        "en": "The output of one part can be wired into the input of another: when the first is done, the next carries on.",
+        "zh": "一个元件的输出，可以接到另一个元件的输入上：前一个算完，后一个接着算。"
       }
     },
     {
       "t": {
-        "en": "Your task in this level: move the whole picture two pixels right and two pixels down."
+        "en": "Your task in this level: move the whole picture two pixels right and two pixels down.",
+        "zh": "这一关你要做的：把整张图往右挪两格、往下挪两格。"
       },
-      "fig": { "test": 0, "caption": { "en": "Set 1: a square and the square moved" } }
+      "fig": { "test": 0, "caption": { "en": "Set 1: a square and the square moved", "zh": "第一组测试：方块和挪过的方块" } }
     }
   ],
   "tasks": [
     {
       "id": "0-3",
       "kind": "graph",
-      "brief": { "en": "Move the whole image two pixels right and two pixels down." },
+      "brief": {
+        "en": "Move the whole image two pixels right and two pixels down.",
+        "zh": "把整张图往右挪两格，再往下挪两格。"
+      },
       "hint": {
-        "en": "One shift part moves the image by one pixel. Its output can feed another part's input."
+        "en": "One shift part moves the image by one pixel. Its output can feed another part's input.",
+        "zh": "一个平移元件只挪一格。它的输出可以接到另一个元件的输入。"
       },
       "scene": "filter",
       "setup": { "target": { "shift": { "dx": 2, "dy": 2 } } },
       "tests": [
-        { "label": { "en": "Square" }, "in": "square" },
-        { "label": { "en": "Disc" }, "in": "disk" },
-        { "label": { "en": "Letter T" }, "in": { "glyph": { "letter": "T" } } },
-        { "label": { "en": "Checkerboard" }, "in": "checker" }
+        { "label": { "en": "Square", "zh": "方块" }, "in": "square" },
+        { "label": { "en": "Disc", "zh": "圆盘" }, "in": "disk" },
+        { "label": { "en": "Letter T", "zh": "字母 T" }, "in": { "glyph": { "letter": "T" } } },
+        { "label": { "en": "Checkerboard", "zh": "棋盘" }, "in": "checker" }
       ],
       "hidden": [
         {
-          "label": { "en": "Shifted letter L" },
+          "label": { "en": "Shifted letter L", "zh": "挪开的字母 L" },
           "in": { "glyph": { "letter": "L", "lo": 0.1, "hi": 0.9, "ox": 5, "oy": 2 } }
         },
-        { "label": { "en": "Random texture" }, "in": { "noise": { "seed": 5 } } }
+        { "label": { "en": "Random texture", "zh": "随机纹理" }, "in": { "noise": { "seed": 5 } } }
       ],
       "solution": [
         "a = shift[dir=right](in)",

@@ -15,7 +15,6 @@ import { GameShell } from '../shell/index.js'
 import EmbedShell from '../shell/EmbedShell.jsx'
 import { createProgress } from '../shell/progress.js'
 import { taskStamps } from '../engine/stamp.js'
-import { localized } from '../engine/i18n.js'
 import { checkContent } from '../engine/vocabulary.js'
 import { deepFreeze } from '../engine/content.js'
 import { loadDomain } from 'virtual:game'
@@ -33,11 +32,8 @@ async function open() {
   const content = import.meta.env.DEV ? deepFreeze(parsed) : parsed
   const problems = checkContent({ vocabulary }, content).map((p) => `${p.at}: ${p.says}`)
   if (problems.length) return { page: <Unreadable problems={problems} />, content: contentText }
-  // The page plays the content with its translations laid over it (../engine/i18n.js); it was checked as written. Its
-  // pieces are drawn by their editors (../shell/parts/previews.js), as pieces.json writes them.
-  const shown = localized(content, vocabulary)
-  const game = define(shown)
-  game.partDefs = shown.partDefs
+  const game = define(content)
+  game.partDefs = content.partDefs
   const store = createProgress({ id: content.id, tasks: taskStamps(vocabulary, content) })
   // A level embedded in a note (`?embed&level=…&lang=…`, games/DESIGN.md 12.1): the note sets its language.
   const asked = new URL(window.location.href).searchParams

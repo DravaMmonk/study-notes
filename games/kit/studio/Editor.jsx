@@ -58,7 +58,7 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
   const was = base?.levels.find((l) => l.id === id)
   const form = formOf(vocabulary.level, value, { vocabulary, levels: order })
   const { at: findings, rest } = placeFindings(form, places.filter((p) => p.level === id))
-  const ctx = ctxOf({ vocabulary, order, names, levelOptions }, { lang: getLang(), i18n: content.i18n, onTranslate: onEdit, titleKind: 'levelTitle' })
+  const ctx = ctxOf({ vocabulary, order, names, levelOptions }, { lang: getLang() })
   const before = beforeIn(was && (({ id: __, ...v }) => v)(was))
   const sections = form.kind === 'obj' ? sectionsOf(form) : null
   const [name, setName] = useState(id)

@@ -1,10 +1,11 @@
 {
-  "title": { "en": "Apply under a condition" },
+  "title": { "en": "Apply under a condition", "zh": "在条件下套用" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "en": "When it rains, if it is windy the ground is wet; when it rains, it is windy. So when it rains, the ground is wet: Apply under the condition “it rains”. This sentence is called <part-ref to=\"lemma:axS\"></part-ref>."
+        "en": "When it rains, if it is windy the ground is wet; when it rains, it is windy. So when it rains, the ground is wet: Apply under the condition “it rains”. This sentence is called <part-ref to=\"lemma:axS\"></part-ref>.",
+        "zh": "下雨的时候，只要刮风，就地湿；下雨的时候，一定刮风。那么下雨的时候，就地湿：这是在「下雨」这个条件下套用。这句话叫 <part-ref to=\"lemma:axS\"></part-ref>。"
       }
     }
   ],
@@ -15,8 +16,8 @@
       "tests": [{ "goal": "(A → (B → C)) → ((A → B) → (A → C))" }],
       "cases": [{ "A": "Rain", "B": "Wind", "C": "Wet" }, { "A": "Exam", "B": "Study", "C": "Pass" }],
       "hint": [
-        { "en": "Count the outermost →s." },
-        { "en": "Inside the innermost box, all three assumptions are visible." }
+        { "en": "Count the outermost →s.", "zh": "数一数最外层有几个 →。" },
+        { "en": "Inside the innermost box, all three assumptions are visible.", "zh": "最里面的框里，三个假设都看得见。" }
       ],
       "solution": [
         "f = impI[A=\"A -> (B -> C)\"](body: g) {",

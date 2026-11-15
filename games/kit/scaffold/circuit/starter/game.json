@@ -1,18 +1,22 @@
 {
   "domain": "__name__",
   "vocabulary": 1,
-  "title": { "en": "__title__" },
-  "kicker": { "en": "In development" },
+  "title": { "en": "__title__", "zh": "__title__" },
+  "kicker": { "en": "In development", "zh": "开发中" },
   "lede": {
-    "en": "Starting from Add and Subtract, build parts that work out more yourself."
+    "en": "Starting from Add and Subtract, build parts that work out more yourself.",
+    "zh": "从相加和相减两块元件起步，亲手搭出算得更多的元件。"
   },
   "primitives": ["add", "sub"],
   "concept": { "sub": "add" },
   "eras": [
     {
       "id": 1,
-      "title": { "en": "Adding up" },
-      "question": { "en": "Each part works on two numbers: how do you work on more?" },
+      "title": { "en": "Adding up", "zh": "加减" },
+      "question": {
+        "en": "Each part works on two numbers: how do you work on more?",
+        "zh": "每块元件只算两个数，怎样算更多的数？"
+      },
       "foundation": ["1-1", "1-2"]
     }
   ]

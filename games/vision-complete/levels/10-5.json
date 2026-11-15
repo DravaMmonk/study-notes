@@ -1,23 +1,26 @@
 {
-  "title": { "en": "One dog, three boxes" },
+  "title": { "en": "One dog, three boxes", "zh": "一只狗三个框" },
   "tray": "recognition",
   "after": {
-    "en": "When several positions round one object pass the threshold, you get several overlapping boxes. Non-maximum suppression keeps only the strongest round about: it is almost always a detector's last step."
+    "en": "When several positions round one object pass the threshold, you get several overlapping boxes. Non-maximum suppression keeps only the strongest round about: it is almost always a detector's last step.",
+    "zh": "一个物体附近好几个位置都过了门槛，就会框出好几个重叠的框。非极大值抑制只留下周围最强的那一个：检测器的最后一步几乎都是它。"
   },
   "intro": [
     {
       "t": {
-        "en": "A detector proposes boxes at many locations. Several candidates can report the same object. Keep the high-scoring candidate first, then decide which overlapping lower-scoring candidates should survive."
+        "en": "A detector proposes boxes at many locations. Several candidates can report the same object. Keep the high-scoring candidate first, then decide which overlapping lower-scoring candidates should survive.",
+        "zh": "检测器会从多个位置报出候选框。同一物体可能被报多次：先保留高分候选，再看与它重叠的低分候选该不该留下。"
       }
     },
     {
       "t": {
-        "en": "A dog covers several pixels, and several nearby positions all look like a dog. A detector often draws several boxes for one dog."
+        "en": "A dog covers several pixels, and several nearby positions all look like a dog. A detector often draws several boxes for one dog.",
+        "zh": "一只狗占好几个像素，附近好几个位置都像狗。检测器常常给同一只狗画出好几个框。"
       }
     },
     {
-      "t": { "en": "Your task in this level: output a single point for each dog." },
-      "fig": { "test": 0, "view": "terrain", "caption": { "en": "Set 1: two dogs" } }
+      "t": { "en": "Your task in this level: output a single point for each dog.", "zh": "这一关你要做的：每只狗只输出一个点。" },
+      "fig": { "test": 0, "view": "terrain", "caption": { "en": "Set 1: two dogs", "zh": "第一组：两只狗" } }
     }
   ],
   "tasks": [
@@ -25,27 +28,28 @@
       "id": "10-5",
       "kind": "graph",
       "brief": {
-        "en": "The dogs in the photo are bright patches, a little blurred at the edges. Output a single point for each dog, at its very centre."
+        "en": "The dogs in the photo are bright patches, a little blurred at the edges. Output a single point for each dog, at its very centre.",
+        "zh": "照片里的狗是一团团亮斑，边有点糊。每只狗只输出一个点，在它正中间。"
       },
-      "hint": { "en": "A 3×3 average is large on every cell of a patch." },
+      "hint": { "en": "A 3×3 average is large on every cell of a patch.", "zh": "3×3 平均在亮斑上的每一格都很大。" },
       "scene": "dogs",
       "tests": [
         {
-          "label": { "en": "Two dogs" },
+          "label": { "en": "Two dogs", "zh": "两只狗" },
           "dogs": [[4, 4], [11, 9]]
         },
         {
-          "label": { "en": "Three dogs" },
+          "label": { "en": "Three dogs", "zh": "三只狗" },
           "dogs": [[3, 12], [8, 3], [13, 13]]
         },
         {
-          "label": { "en": "One dog" },
+          "label": { "en": "One dog", "zh": "一只狗" },
           "dogs": [[7, 7]]
         }
       ],
       "hidden": [
         {
-          "label": { "en": "Two side by side" },
+          "label": { "en": "Two side by side", "zh": "挨着的两只" },
           "dogs": [[5, 8], [10, 8]]
         }
       ],

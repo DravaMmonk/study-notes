@@ -12,7 +12,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { translationAt } from './i18n.js'
+import { firstText } from './i18n.js'
 
 export const GAMES_ROOT = resolve(import.meta.dirname, '../..')
 const TEMPLATES = (root) => resolve(root, 'kit/scaffold')
@@ -37,20 +37,20 @@ function fill(from, to, words) {
 }
 
 /** The hub entry of a game (../../games.js): hidden and in development until it is ready to show. */
+const gameText = (value, lang) => value?.[lang] ?? firstText(value)
+
 function register(root, id, content) {
   const file = resolve(root, 'games.js')
   const text = readFileSync(file, 'utf8')
   const end = text.lastIndexOf('];')
   if (end < 0) fail(`${file} has no list of games to add to`)
   const q = (s) => JSON.stringify(s).replaceAll('"', "'")
-  const source = (text) => text.en ?? text
-  const chinese = (text, kind) => translationAt(content.zh[source(text)], kind) ?? source(text)
-  const en = source(content.title)
-  const title = chinese(content.title, 'gameTitle')
+  const en = gameText(content.title, 'en')
+  const title = gameText(content.title, 'zh')
   const entry = [
     '  {',
     `    id: ${q(id)}, href: ${q(`${id}/index.html`)}, title: ${q(title)}, en: ${q(en)}, topic: { zh: ${q(title)}, en: ${q(en)} },`,
-    `    desc: { zh: ${q(chinese(content.lede))}, en: ${q(source(content.lede))} },`,
+    `    desc: { zh: ${q(gameText(content.lede, 'zh'))}, en: ${q(gameText(content.lede, 'en'))} },`,
     `    levels: ${content.levels}, dev: true, hidden: true,`,
     `    page: { icon: 'M16 32h32M32 16v32', description: ${q(`${title} ${en}`)} },`,
     '  },',
@@ -82,8 +82,7 @@ export function newGame({ root = GAMES_ROOT, id, domain, title = id }) {
   const dir = resolve(root, id)
   fill(starter, dir, { __title__: title })
   const game = JSON.parse(readFileSync(resolve(dir, 'game.json'), 'utf8'))
-  const overlay = resolve(dir, 'i18n/zh.json')
-  register(root, id, { title: game.title, lede: game.lede, zh: existsSync(overlay) ? JSON.parse(readFileSync(overlay, 'utf8')) : {}, levels: readdirSync(resolve(dir, 'levels')).filter((f) => f.endsWith('.json')).length })
+  register(root, id, { title: game.title, lede: game.lede, levels: readdirSync(resolve(dir, 'levels')).filter((f) => f.endsWith('.json')).length })
   return dir
 }
 

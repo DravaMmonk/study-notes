@@ -1,22 +1,24 @@
 {
-  "title": { "en": "conjunctive normal form" },
+  "title": { "en": "conjunctive normal form", "zh": "合取范式" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "en": "<wiki-ref to=\"cnf\"></wiki-ref>: negation normal form, with every “or” under the “and”s, a few strings of “or” joined by “and”. Each string of “or” is a <wiki-ref to=\"clause\"></wiki-ref>."
+        "en": "<wiki-ref to=\"cnf\"></wiki-ref>: negation normal form, with every “or” under the “and”s, a few strings of “or” joined by “and”. Each string of “or” is a <wiki-ref to=\"clause\"></wiki-ref>.",
+        "zh": "<wiki-ref to=\"cnf\"></wiki-ref>：否定范式，并且「或者」都在「并且」底下，几串「或者」用「并且」连起来。每一串「或者」叫一个<wiki-ref to=\"clause\"></wiki-ref>。"
       }
     }
   ],
   "after": {
-    "en": "Automatic provers usually bring a sentence to conjunctive normal form before anything else."
+    "en": "Automatic provers usually bring a sentence to conjunctive normal form before anything else.",
+    "zh": "自动证明器动手之前，通常先把句子化成合取范式。"
   },
   "tasks": [
     {
       "id": "sp-cnf",
       "kind": "machine",
       "want": "becomes",
-      "inputs": [{ "name": "in", "label": { "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
       "backtrack": true,
       "tests": [
         { "goal": "Rain ∨ (Wind ∧ Wet)", "becomes": [["(Rain ∨ Wind) ∧ (Rain ∨ Wet)"]] },
@@ -26,10 +28,13 @@
           "becomes": [["(¬Rain ∨ Wet) ∧ ((Wind ∨ Rain) ∧ (Wind ∨ Slip))"]]
         }
       ],
-      "brief": { "en": "Design a proof assistant that transforms each goal into the required form." },
+      "brief": {
+        "en": "Design a proof assistant that transforms each goal into the required form.",
+        "zh": "设计一个证明助手，把每个目标变成要的样子。"
+      },
       "hint": [
-        { "en": "Start from negation normal form." },
-        { "en": "What is left is to bring every “or” under the “and”s." }
+        { "en": "Start from negation normal form.", "zh": "从否定范式出发。" },
+        { "en": "What is left is to bring every “or” under the “and”s.", "zh": "还差的是让「或者」到「并且」底下去。" }
       ],
       "solution": [
         "c0r0 = arrow[use=[\"arrow.elim\"]]()",

@@ -1,18 +1,22 @@
 {
   "domain": "__name__",
   "vocabulary": 1,
-  "title": { "en": "__title__" },
-  "kicker": { "en": "In development" },
+  "title": { "en": "__title__", "zh": "__title__" },
+  "kicker": { "en": "In development", "zh": "开发中" },
   "lede": {
-    "en": "One line, one bit on it each tick. Listen to it first, then talk on it yourself."
+    "en": "One line, one bit on it each tick. Listen to it first, then talk on it yourself.",
+    "zh": "一根线，每一拍上面有一位。先听它，再自己往上说。"
   },
   "primitives": ["reg", "keep"],
   "concept": { "keep": "reg" },
   "eras": [
     {
       "id": 1,
-      "title": { "en": "One line" },
-      "question": { "en": "A bit on the line each tick: how to hear it, how to speak?" },
+      "title": { "en": "One line", "zh": "一根线" },
+      "question": {
+        "en": "A bit on the line each tick: how to hear it, how to speak?",
+        "zh": "线上每一拍有一位：怎样听它，怎样说？"
+      },
       "foundation": ["1-1", "1-2"]
     }
   ]

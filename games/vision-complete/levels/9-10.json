@@ -1,20 +1,23 @@
 {
-  "title": { "en": "Segmenting cells" },
+  "title": { "en": "Segmenting cells", "zh": "细胞分割" },
   "tray": "recognition",
   "after": {
-    "en": "An adaptive boundary, a coarse path that removes grain, a skip connection that keeps detail: a small U-Net-style pipeline. Real cell-segmentation networks replace every step with learnt convolutions, but the structure stays the same."
+    "en": "An adaptive boundary, a coarse path that removes grain, a skip connection that keeps detail: a small U-Net-style pipeline. Real cell-segmentation networks replace every step with learnt convolutions, but the structure stays the same.",
+    "zh": "自适应的分界、去噪的粗路径、保细节的跳连：一个小小的 U-Net 式流水线。真实的细胞分割网络把每一步都换成学出来的卷积，结构还是这个样子。"
   },
   "intro": [
     {
       "t": {
-        "en": "A batch of slides comes from different microscopes and stains: some dark overall, some bright."
+        "en": "A batch of slides comes from different microscopes and stains: some dark overall, some bright.",
+        "zh": "一批切片来自不同的显微镜、不同的染色，有的整体暗，有的整体亮。"
       }
     },
     {
       "t": {
-        "en": "Your task in this level: mark the cells on every slide, keeping the gaps."
+        "en": "Your task in this level: mark the cells on every slide, keeping the gaps.",
+        "zh": "这一关你要做的：每张切片都标出细胞，缝要留着。"
       },
-      "fig": { "test": 1, "caption": { "en": "Set 2: a bright slide" } }
+      "fig": { "test": 1, "caption": { "en": "Set 2: a bright slide", "zh": "第二组：亮的切片" } }
     }
   ],
   "tasks": [
@@ -22,14 +25,18 @@
       "id": "9-10",
       "kind": "graph",
       "brief": {
-        "en": "A batch of microscope slides, each with its own brightness and contrast, with cells touching. Mark the cells, and keep the gaps between them."
+        "en": "A batch of microscope slides, each with its own brightness and contrast, with cells touching. Mark the cells, and keep the gaps between them.",
+        "zh": "一批显微镜切片，每张的亮度和对比度都不一样，细胞挨在一起。标出细胞，细胞之间的缝要留着。"
       },
-      "hint": { "en": "A fixed threshold cannot be right on both dark slides and bright ones." },
+      "hint": {
+        "en": "A fixed threshold cannot be right on both dark slides and bright ones.",
+        "zh": "固定的门槛，在暗的切片上和亮的切片上不会都对。"
+      },
       "check": { "tolerance": 0.1, "mismatches": 4 },
       "scene": "cells",
       "tests": [
         {
-          "label": { "en": "A dark slide" },
+          "label": { "en": "A dark slide", "zh": "暗的切片" },
           "rects": [[2, 2, 14, 9]],
           "gapX": [7],
           "seed": 81,
@@ -38,7 +45,7 @@
           "grain": 0.1
         },
         {
-          "label": { "en": "A bright slide" },
+          "label": { "en": "A bright slide", "zh": "亮的切片" },
           "rects": [[1, 3, 9, 15], [11, 1, 15, 7]],
           "gapY": [9],
           "seed": 82,
@@ -47,7 +54,7 @@
           "grain": 0.1
         },
         {
-          "label": { "en": "A row of cells" },
+          "label": { "en": "A row of cells", "zh": "一排细胞" },
           "rects": [[1, 5, 15, 12]],
           "gapX": [5, 9],
           "seed": 83,
@@ -58,7 +65,7 @@
       ],
       "hidden": [
         {
-          "label": { "en": "Low contrast" },
+          "label": { "en": "Low contrast", "zh": "对比度低" },
           "rects": [[2, 2, 14, 14]],
           "gapX": [7],
           "gapY": [7],

@@ -1,12 +1,12 @@
 {
-  "groups": [{ "id": "adding", "title": { "en": "Adding up" } }],
+  "groups": [{ "id": "adding", "title": { "en": "Adding up", "zh": "加减" } }],
   "entries": [
     {
       "id": "difference",
       "group": "adding",
-      "title": { "en": "difference" },
+      "title": { "en": "difference", "zh": "差" },
       "at": "1-1",
-      "body": [{ "en": "What taking one number from another gives." }]
+      "body": [{ "en": "What taking one number from another gives.", "zh": "一个数减去另一个数的结果。" }]
     }
   ]
 }

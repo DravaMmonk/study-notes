@@ -23,7 +23,6 @@ import { mountBarMenus } from '../menu.js'
 import { L, getLang, tr } from '../shell/i18n.js'
 import { eraLevels } from '../course.js'
 import { find, shapeAt } from '../engine/schema.js'
-import { localized } from '../engine/i18n.js'
 import { getAt, parsePath, showPath } from '../engine/ops/edit.js'
 import { call } from './api.js'
 import { blank, boardsOf, placesOf, pushOp, referenceFor } from './form.js'
@@ -41,7 +40,7 @@ import Tree from './Tree.jsx'
 import Search from './Search.jsx'
 import Editor from './Editor.jsx'
 import CopyTable from './CopyTable.jsx'
-import Translations from './Translations.jsx'
+import LanguageComparison from './LanguageComparison.jsx'
 import Compare from './Compare.jsx'
 import Audit from './Audit.jsx'
 import Review from './Review.jsx'
@@ -53,7 +52,7 @@ import Palette from './Palette.jsx'
 import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
-const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['i18n', '译文', 'Translation'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
+const TABS = [['page', '画面', 'Page'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['i18n', '语言对照', 'Languages'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
 const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
 const SIZE = { tree: [180, 640], audit: [90, 900], side: [260, 900] } // px: the tree's width, the audit drawer's height, the side panel's width
@@ -236,7 +235,6 @@ export default function Studio() {
   const content = shown?.content ?? null
   // A domain that defines its parts as data names them by the game's pieces.json as the changeset leaves it.
   const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
-  const sidebarContent = useMemo(() => content && vocab ? localized(content, vocab.vocabulary) : null, [content, vocab])
   const atPart = at?.part !== undefined || at?.preset !== undefined
   const fresh = checked?.key === key
   // The check's lines: the whole check's when it is of these changes, else the quick one's (the content against its
@@ -319,6 +317,7 @@ export default function Studio() {
       return
     }
     if (level) select({ level })
+    else if (file === 'pieces') select(keys[0] === 'presets' ? { preset: keys[1] } : { part: keys[1] })
     else if (keys[0] === 'eras') select({ era: keys[1] })
     else select({ game: true })
     if (!level && tab === 'page') setTab('fields')
@@ -659,10 +658,10 @@ export default function Studio() {
               {content.partDefs && <button type="button" role="tab" aria-selected={side === 'parts'} className={side === 'parts' ? 'is-on' : ''} onClick={() => setSide('parts')} title={tr('件', 'Pieces')}><Shapes size={14} aria-hidden="true" /></button>}
             </div>
             {side === 'parts' && content.partDefs
-              ? <PartsList content={sidebarContent} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={(next) => { select(next); if (!['page', 'fields'].includes(tab)) setTab('page') }} onEdit={edit} />
+              ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={(next) => { select(next); if (!['page', 'fields'].includes(tab)) setTab('page') }} onEdit={edit} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={jump} />
-              : <Tree game={game} content={sidebarContent} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask} />}
+              : <Tree game={game} content={content} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask} />}
           </aside>
           <Resizer side="tree" size={layout.tree} open={layout.treeOpen} setLayout={setLayout} />
           <main className="studio-main">
@@ -676,7 +675,7 @@ export default function Studio() {
                 )}
                 {tab === 'i18n' && (
                   <article className="editor is-wide">
-                    <Translations content={content} vocabulary={vocab.vocabulary} order={playOrder} names={names} onEdit={edit} />
+                    <LanguageComparison content={content} vocabulary={vocab.vocabulary} order={playOrder} names={names} onEdit={edit} />
                   </article>
                 )}
                 {tab === 'compare' && <Compare game={game} content={content} base={base} at={at} levelOptions={levelOptions} onJump={(lvl, path) => jump(lvl, path)} />}

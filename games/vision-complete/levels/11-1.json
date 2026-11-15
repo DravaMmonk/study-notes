@@ -1,34 +1,41 @@
 {
-  "title": { "en": "Cover a block" },
+  "title": { "en": "Cover a block", "zh": "遮住一块" },
   "tray": "recognition",
   "after": {
-    "en": "This is the occlusion experiment: slide a patch over the picture cell by cell and watch how far the score drops; where it drops most is where the model is looking. It needs nothing from inside the model and works on a CNN or a ViT alike, at the price of running the model again for every position."
+    "en": "This is the occlusion experiment: slide a patch over the picture cell by cell and watch how far the score drops; where it drops most is where the model is looking. It needs nothing from inside the model and works on a CNN or a ViT alike, at the price of running the model again for every position.",
+    "zh": "这就是遮挡实验：拿一块挡板在图上逐格移动，看分数掉多少，掉得多的地方就是模型在看的地方。它不用知道模型里面是什么，对 CNN、ViT 都能做，只是每个位置都要把模型重跑一遍。"
   },
   "intro": [
     {
       "t": {
-        "en": "Ten chapters on, your circuits find edges, read letters, measure distance and box things in. But when a classifier says \"this is a car\", how do you know it said so looking at the car? Every car in the training photos stood on a road, and recognising the road alone would sort them all correctly."
+        "en": "Ten chapters on, your circuits find edges, read letters, measure distance and box things in. But when a classifier says \"this is a car\", how do you know it said so looking at the car? Every car in the training photos stood on a road, and recognising the road alone would sort them all correctly.",
+        "zh": "十章下来，你的电路能找边、认字母、量距离、框出东西。可一个分类器说「这是车」的时候，你怎么知道它是看着车说的？训练照片里的车都停在路上，只认路也能把它们全分对。"
       }
     },
     {
       "t": {
-        "en": "This chapter examines the simplest classifier: one weight for every cell, its score the sum of every cell's brightness times its weight. Besides the photo, each test sends its weights in, drawn as a picture."
+        "en": "This chapter examines the simplest classifier: one weight for every cell, its score the sum of every cell's brightness times its weight. Besides the photo, each test sends its weights in, drawn as a picture.",
+        "zh": "这一章检查一个最简单的分类器：每一格一个权重，分数是每格亮度乘权重的总和。每组测试除了照片，还把它的权重画成一张图送进来。"
       },
       "fig": {
         "task": 0,
         "test": 1,
-        "caption": { "en": "A classifier that looks at the road: all its weight is on the road" }
+        "caption": {
+          "en": "A classifier that looks at the road: all its weight is on the road",
+          "zh": "一个只看路的分类器：权重全在路上"
+        }
       }
     },
     {
       "t": {
-        "en": "This level has two tasks. First output how much each cell adds to the score; then output how far the score drops when the 3×3 round a cell is blacked out. Something to think about: blacking out a block loses which cells' contributions?"
+        "en": "This level has two tasks. First output how much each cell adds to the score; then output how far the score drops when the 3×3 round a cell is blacked out. Something to think about: blacking out a block loses which cells' contributions?",
+        "zh": "这一关分两个任务。先输出每一格给分数加了多少；再输出：把一格周围 3×3 涂黑，分数掉多少。要想的问题：涂黑一块，丢掉的是哪些格子的分？"
       },
       "fig": {
         "task": 1,
         "test": 0,
         "view": "terrain",
-        "caption": { "en": "Task 2, set 1: an honest classifier" }
+        "caption": { "en": "Task 2, set 1: an honest classifier", "zh": "第二个任务的第一组：老实的分类器" }
       }
     }
   ],
@@ -38,43 +45,49 @@
       "id": "11-1_1",
       "kind": "graph",
       "brief": {
-        "en": "The classifier's score is every cell's brightness times its weight, all added up. Output how much each cell adds to the score."
+        "en": "The classifier's score is every cell's brightness times its weight, all added up. Output how much each cell adds to the score.",
+        "zh": "分类器的分数，是每一格的亮度乘它的权重，全部加起来。输出每一格给分数加了多少。"
       },
       "after": {
-        "en": "This is a contribution map: the bright cells are where the score comes from. For a classifier with one weight a cell like this one, it is also the gradient of the score with respect to each cell's brightness, times that brightness (gradient × input)."
+        "en": "This is a contribution map: the bright cells are where the score comes from. For a classifier with one weight a cell like this one, it is also the gradient of the score with respect to each cell's brightness, times that brightness (gradient × input).",
+        "zh": "这张图叫贡献图：亮的格子是分数的来源。对这种一格一个权重的分类器，它也是分数对每格亮度的梯度乘上亮度（梯度 × 输入）。"
       },
-      "step": { "en": "What each cell adds" },
+      "step": { "en": "What each cell adds", "zh": "每格出了多少分" },
       "inputs": ["in", "w"],
       "inputLabels": {
-        "in": { "en": "Photo" },
-        "w": { "en": "Weights" },
-        "m": { "en": "Car mask" }
+        "in": { "en": "Photo", "zh": "照片" },
+        "w": { "en": "Weights", "zh": "权重" },
+        "m": { "en": "Car mask", "zh": "车的掩膜" }
       },
       "views": { "in": "pixels", "out": "terrain", "mid": "terrain" },
       "scene": "classifier",
       "setup": { "check": "contribution" },
       "tests": [
-        { "label": { "en": "An honest classifier" }, "street": { "cx": 5 }, "weights": "car" },
+        { "label": { "en": "An honest classifier", "zh": "老实的分类器" }, "street": { "cx": 5 }, "weights": "car" },
         {
-          "label": { "en": "A classifier that looks at the road" },
+          "label": { "en": "A classifier that looks at the road", "zh": "只看路的分类器" },
           "street": { "cx": 5 },
           "weights": "road"
         },
         {
-          "label": { "en": "A car parked by a roadside house" },
+          "label": { "en": "A car parked by a roadside house", "zh": "车停在路边的房子旁" },
           "street": { "cx": 3, "house": 11 },
           "weights": "both"
         },
         {
-          "label": { "en": "A classifier that looks at the wheels" },
+          "label": { "en": "A classifier that looks at the wheels", "zh": "看车轮的分类器" },
           "street": { "cx": 6 },
           "weights": "wheels"
         }
       ],
       "hidden": [
-        { "label": { "en": "The car has moved left" }, "street": { "cx": 1 }, "weights": "car" },
         {
-          "label": { "en": "A classifier that marks down a dark sky" },
+          "label": { "en": "The car has moved left", "zh": "车开到了左边" },
+          "street": { "cx": 1 },
+          "weights": "car"
+        },
+        {
+          "label": { "en": "A classifier that marks down a dark sky", "zh": "黑天也扣分的分类器" },
           "street": { "cx": 5, "house": 0 },
           "weights": "sky"
         }
@@ -87,44 +100,50 @@
       "id": "11-1_2",
       "kind": "graph",
       "brief": {
-        "en": "Black out the 3×3 block round a cell (brightness 0) and the score drops a little. At every cell, output how much the score drops when the block centred on it is blacked out."
+        "en": "Black out the 3×3 block round a cell (brightness 0) and the score drops a little. At every cell, output how much the score drops when the block centred on it is blacked out.",
+        "zh": "把一格周围 3×3 的一块涂黑（亮度变 0），分数会掉一些。在每一格输出：涂黑以它为中心的那一块，分数掉多少。"
       },
       "hint": {
-        "en": "Blacking out a block loses exactly what each cell in the block used to add."
+        "en": "Blacking out a block loses exactly what each cell in the block used to add.",
+        "zh": "涂黑一块，分数丢掉的正是那一块里每一格原来出的分。"
       },
-      "step": { "en": "Cover a block" },
+      "step": { "en": "Cover a block", "zh": "遮住一块" },
       "carries": true,
       "inputs": ["in", "w"],
       "inputLabels": {
-        "in": { "en": "Photo" },
-        "w": { "en": "Weights" },
-        "m": { "en": "Car mask" }
+        "in": { "en": "Photo", "zh": "照片" },
+        "w": { "en": "Weights", "zh": "权重" },
+        "m": { "en": "Car mask", "zh": "车的掩膜" }
       },
       "views": { "in": "pixels", "out": "terrain", "mid": "terrain" },
       "scene": "classifier",
       "setup": { "check": "occlusion" },
       "tests": [
-        { "label": { "en": "An honest classifier" }, "street": { "cx": 5 }, "weights": "car" },
+        { "label": { "en": "An honest classifier", "zh": "老实的分类器" }, "street": { "cx": 5 }, "weights": "car" },
         {
-          "label": { "en": "A classifier that looks at the road" },
+          "label": { "en": "A classifier that looks at the road", "zh": "只看路的分类器" },
           "street": { "cx": 5 },
           "weights": "road"
         },
         {
-          "label": { "en": "A car parked by a roadside house" },
+          "label": { "en": "A car parked by a roadside house", "zh": "车停在路边的房子旁" },
           "street": { "cx": 3, "house": 11 },
           "weights": "both"
         },
         {
-          "label": { "en": "A classifier that looks at the wheels" },
+          "label": { "en": "A classifier that looks at the wheels", "zh": "看车轮的分类器" },
           "street": { "cx": 6 },
           "weights": "wheels"
         }
       ],
       "hidden": [
-        { "label": { "en": "The car has moved left" }, "street": { "cx": 1 }, "weights": "car" },
         {
-          "label": { "en": "A classifier that marks down a dark sky" },
+          "label": { "en": "The car has moved left", "zh": "车开到了左边" },
+          "street": { "cx": 1 },
+          "weights": "car"
+        },
+        {
+          "label": { "en": "A classifier that marks down a dark sky", "zh": "黑天也扣分的分类器" },
           "street": { "cx": 5, "house": 0 },
           "weights": "sky"
         }

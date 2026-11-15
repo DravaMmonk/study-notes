@@ -1,15 +1,17 @@
 {
-  "title": { "en": "Peirce’s law" },
+  "title": { "en": "Peirce’s law", "zh": "皮尔士律" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "en": "This sentence has nothing but →. It looks strange, yet it is true on every row."
+        "en": "This sentence has nothing but →. It looks strange, yet it is true on every row.",
+        "zh": "这句话只有 →，看着古怪，真值表上每一行却都真。"
       }
     }
   ],
   "after": {
-    "en": "This is Peirce’s law. Added to a language of → alone, it gives classical logic."
+    "en": "This is Peirce’s law. Added to a language of → alone, it gives classical logic.",
+    "zh": "这是皮尔士律。在只有 → 的语言里，加上它就得到经典逻辑。"
   },
   "tasks": [
     {
@@ -18,9 +20,10 @@
       "tests": [{ "goal": "((A → B) → A) → A" }],
       "cases": [{ "A": "Rain", "B": "Wet" }, { "A": "Exam", "B": "Pass" }],
       "hint": [
-        { "en": "Rain or no rain: take both sides." },
+        { "en": "Rain or no rain: take both sides.", "zh": "下不下雨，两边都讨论。" },
         {
-          "en": "On the side where it does not rain, find a way to get “it rains → the ground is wet”."
+          "en": "On the side where it does not rain, find a way to get “it rains → the ground is wet”.",
+          "zh": "不下雨的那一边，要设法得到「下雨 → 地湿」。"
         }
       ],
       "solution": [

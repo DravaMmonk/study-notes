@@ -1,7 +1,7 @@
 /* global process */
 // npm run words [-- --check] — the words the kit's own code says (games/DESIGN.md 6.10). Code writes a word in the base
 // language alone, tr('清空') or T('清空') (../shell/i18n.js); how it reads in another language is the catalog's,
-// ../i18n/<lang>.js, keyed by the base text like a game's overlay. This command keeps the two together:
+// ../i18n/<lang>.js, keyed by the wording used in code. This command keeps the two together:
 //
 //   npm run words            moves the English of every tr('中', 'en') / T('中', 'en') written with two plain strings
 //                            into the catalog and leaves the call with its base text (a text that would need two

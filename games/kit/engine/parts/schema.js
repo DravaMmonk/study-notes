@@ -24,7 +24,7 @@ export const LAYOUTS = ['row', 'column', 'grid', 'pad']
 const OPTION = S.obj({ value: WORD, label: S.opt(S.text()), icon: S.opt(ICON), about: S.opt(S.text({ about: t('这个选项做什么，一句完整的话：选项开放后接在元件说明后面') })) })
 const OPTIONS = S.list(OPTION, { min: 1 })
 const COMMON = {
-  label: S.opt(S.textKind('settingLabel')),
+  label: S.opt(S.text()),
   about: S.opt(S.text({ about: t('悬停和详情里的一行说明') })),
   default: S.opt(S.any({ about: t('新元件的值') })),
   when: S.opt(S.str({ view: 'expr', about: t('式子：为真时才出现（只读设置）') })),
@@ -77,8 +77,8 @@ export const FACES = ['card', 'tile', 'detail']
 const RULE = S.obj({ on: S.opt(NAME), when: S.opt(EXPR), set: S.map(EXPR, { about: t('设置 → 新值的式子') }) })
 /** A check: the settings must make `holds` true; else the card says `say`. */
 const CHECK = S.obj({ holds: EXPR, say: S.text() })
-const PORT = S.obj({ name: NAME, label: S.opt(S.textKind('portLabel')), about: S.opt(S.text()), optional: S.opt(S.bool({ about: t('可以不接：不接时运算在这里读到「—」') })) })
-const REGION = S.obj({ name: NAME, label: S.opt(S.textKind('regionLabel')), opens: S.opt(S.bool()), closes: S.opt(S.bool()), gives: S.opt(S.list(NAME)), when: S.opt(EXPR) })
+const PORT = S.obj({ name: NAME, label: S.opt(S.text()), about: S.opt(S.text()), optional: S.opt(S.bool({ about: t('可以不接：不接时运算在这里读到「—」') })) })
+const REGION = S.obj({ name: NAME, label: S.opt(S.text()), opens: S.opt(S.bool()), closes: S.opt(S.bool()), gives: S.opt(S.list(NAME)), when: S.opt(EXPR) })
 const HOLES = { inputs: S.list(PORT), outputs: S.opt(S.list(PORT, { min: 2, about: t('几个输出时才写') })) }
 const SETTINGS = {
   settings: S.opt(S.list(SETTING)),
@@ -95,8 +95,8 @@ const PAINT = {
 export const REVISION = S.obj({ at: S.opt(S.level()), by: S.opt(S.level()), desc: S.text() }, { about: t('说明随课程长：从 at 那一关起，或通过 by 那一关以后，换成这一句') })
 /** The faces every piece has, whatever its editor. */
 const NAMED = {
-  name: S.textKind('partName'),
-  desc: S.textKind('partDescription', { about: t('只写功能：读哪些口、给出什么、碰到「—」怎么办') }),
+  name: S.text(),
+  desc: S.text({ about: t('只写功能：读哪些口、给出什么、碰到「—」怎么办') }),
   revisions: S.opt(S.list(REVISION, { min: 1 })),
 }
 /**

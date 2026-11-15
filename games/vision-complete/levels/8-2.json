@@ -1,20 +1,23 @@
 {
-  "title": { "en": "A walk in latent space" },
+  "title": { "en": "A walk in latent space", "zh": "潜空间走一走" },
   "tray": "generative",
   "after": {
-    "en": "Halfway in pixel space is two pictures laid over each other; halfway in latent space is \"one blob in between\". A trained encoder puts pictures into a smooth space, and walking a straight line there decodes into a natural transition: making a face older or changing a hairstyle works like this."
+    "en": "Halfway in pixel space is two pictures laid over each other; halfway in latent space is \"one blob in between\". A trained encoder puts pictures into a smooth space, and walking a straight line there decodes into a natural transition: making a face older or changing a hairstyle works like this.",
+    "zh": "像素空间里的中间是两张图叠在一起；潜空间里的中间才是「一个斑点在中间」。训练好的编码器把图放进一个平滑的空间，在里面走直线，解码出来就是一串自然的过渡：人脸变老、换发型都是这么做的。"
   },
   "intro": [
     {
       "t": {
-        "en": "The tray holds the trained encoder and decoder: the encoder turns a blob into two numbers, and the decoder draws two numbers as a blob."
+        "en": "The tray holds the trained encoder and decoder: the encoder turns a blob into two numbers, and the decoder draws two numbers as a blob.",
+        "zh": "托盘里有训练好的编码器和解码器：编码器把一个斑点变成两个数，解码器把两个数画成斑点。"
       }
     },
     {
       "t": {
-        "en": "Your task in this level: draw the blob that is t of the way from blob a to blob b."
+        "en": "Your task in this level: draw the blob that is t of the way from blob a to blob b.",
+        "zh": "这一关你要做的：画出从斑点 a 往斑点 b 走了 t 的那个斑点。"
       },
-      "fig": { "test": 0, "caption": { "en": "Set 1: halfway" } }
+      "fig": { "test": 0, "caption": { "en": "Set 1: halfway", "zh": "第一组：一半" } }
     }
   ],
   "tasks": [
@@ -22,25 +25,27 @@
       "id": "8-2",
       "kind": "graph",
       "brief": {
-        "en": "Draw the blob \"between\" a and b: t of the way from a to b (0 is a, 1 is b)."
+        "en": "Draw the blob \"between\" a and b: t of the way from a to b (0 is a, 1 is b).",
+        "zh": "画出 a 和 b 「中间」的那个斑点：从 a 往 b 走了 t（0 是 a，1 是 b）。"
       },
       "hint": {
-        "en": "Mixing the two pictures cell by cell gives two faint blobs. What about <level-ref to=\"8-1\"></level-ref>'s two numbers?"
+        "en": "Mixing the two pictures cell by cell gives two faint blobs. What about <level-ref to=\"8-1\"></level-ref>'s two numbers?",
+        "zh": "两张图逐格按比例混合，得到的是两个淡斑点。<level-ref to=\"8-1\"></level-ref>的两个数呢？"
       },
       "inputs": ["a", "b", "t"],
       "inputLabels": {
-        "a": { "en": "Blob a" },
-        "b": { "en": "Blob b" },
-        "t": { "en": "How far t" }
+        "a": { "en": "Blob a", "zh": "斑点 a" },
+        "b": { "en": "Blob b", "zh": "斑点 b" },
+        "t": { "en": "How far t", "zh": "走到哪 t" }
       },
       "check": { "tolerance": 0.05, "mismatches": 2 },
       "scene": "walk",
       "tests": [
-        { "label": { "en": "Half and half" }, "a": [4, 4], "b": [12, 10], "t": 0.5 },
-        { "label": { "en": "A quarter of the way" }, "a": [11, 4], "b": [4, 11], "t": 0.25 },
-        { "label": { "en": "Nearly there" }, "a": [3, 9], "b": [12, 6], "t": 0.8 }
+        { "label": { "en": "Half and half", "zh": "一半" }, "a": [4, 4], "b": [12, 10], "t": 0.5 },
+        { "label": { "en": "A quarter of the way", "zh": "走了四分之一" }, "a": [11, 4], "b": [4, 11], "t": 0.25 },
+        { "label": { "en": "Nearly there", "zh": "快到了" }, "a": [3, 9], "b": [12, 6], "t": 0.8 }
       ],
-      "hidden": [{ "label": { "en": "Halfway again" }, "a": [12, 12], "b": [4, 6], "t": 0.5 }],
+      "hidden": [{ "label": { "en": "Halfway again", "zh": "又一半" }, "a": [12, 12], "b": [4, 6], "t": 0.5 }],
       "solution": [
         "one = const()",
         "ea = dg_encoder(a)",

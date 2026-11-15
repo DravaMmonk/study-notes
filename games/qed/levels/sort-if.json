@@ -1,30 +1,31 @@
 {
-  "title": { "en": "An if is a case split" },
+  "title": { "en": "An if is a case split", "zh": "如果就分情况" },
   "tray": "machine",
   "intro": [
     {
       "t": {
-        "en": "if’s definition knows only a true or false written out. When the condition is something like c ≤ a, Simp cannot tell which it is, and gets stuck. From the definition, prove two rules with a condition: when the condition equals true, take the “then” side; when false, the “else” side."
+        "en": "if’s definition knows only a true or false written out. When the condition is something like c ≤ a, Simp cannot tell which it is, and gets stuck. From the definition, prove two rules with a condition: when the condition equals true, take the “then” side; when false, the “else” side.",
+        "zh": "if 的定义只认写明的真、假。条件是 c ≤ a 这样的式子时，化简不知道它的真假，就会卡住。从定义证出两条带条件的规则：条件等于真，取「则」那一边；等于假，取「否则」那一边。"
       }
     }
   ],
-  "after": { "en": "The two rules go into the “Rule book of numbers”." },
+  "after": { "en": "The two rules go into the “Rule book of numbers”.", "zh": "两条规则进了「数理规则书」。" },
   "tasks": [
     {
       "id": "sort-if_1",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
-      "step": { "en": "A true condition" },
+      "step": { "en": "A true condition", "zh": "条件为真" },
       "types": ["bool"],
       "defs": ["if"],
       "tests": [{ "goal": "∀u. ∀v. ∀w. u = tt → if(u, v, w) = v" }],
-      "brief": { "en": "Design a proof assistant that proves every goal." },
+      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
       "hint": [
-        { "en": "u = true has to be among the givens first." },
-        { "en": "The equation given can replace u." }
+        { "en": "u = true has to be among the givens first.", "zh": "u = 真 要先进已知。" },
+        { "en": "The equation given can replace u.", "zh": "已知里的等式能把 u 换掉。" }
       ],
       "solution": [
         "c2r0 = impI()",
@@ -62,15 +63,15 @@
       "id": "sort-if_2",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
-      "step": { "en": "A false condition" },
+      "step": { "en": "A false condition", "zh": "条件为假" },
       "types": ["bool"],
       "defs": ["if"],
       "tests": [{ "goal": "∀u. ∀v. ∀w. u = ff → if(u, v, w) = w" }],
-      "brief": { "en": "Design a proof assistant that proves every goal." },
-      "hint": [{ "en": "As with a true condition." }],
+      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
+      "hint": [{ "en": "As with a true condition.", "zh": "与条件为真时相同。" }],
       "solution": [
         "c2r0 = impI()",
         "c3r0 = math[use=[\"def.0\", \"def.1\"]]()",

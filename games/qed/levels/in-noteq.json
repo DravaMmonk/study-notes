@@ -1,21 +1,24 @@
 {
-  "title": { "en": "Never the one after itself" },
+  "title": { "en": "Never the one after itself", "zh": "不等于自己的后一个" },
   "tray": "machine",
-  "intro": [{ "t": { "en": "No number is the one after itself: x ≠ S x." } }],
+  "intro": [{ "t": { "en": "No number is the one after itself: x ≠ S x.", "zh": "没有哪个数等于它自己的后一个：x ≠ S x。" } }],
   "tasks": [
     {
       "id": "in-noteq",
       "kind": "machine",
       "want": "proved",
-      "inputs": [{ "name": "in", "label": { "en": "Goal" } }],
+      "inputs": [{ "name": "in", "label": { "en": "Goal", "zh": "目标" } }],
       "backtrack": true,
       "words": ["everyday", "terms"],
       "types": ["nat"],
       "tests": [{ "goal": "∀x. ¬(x = s(x))" }],
-      "brief": { "en": "Design a proof assistant that proves every goal." },
+      "brief": { "en": "Design a proof assistant that proves every goal.", "zh": "设计一个证明助手，证完每一个目标。" },
       "hint": [
-        { "en": "Induction." },
-        { "en": "The two cases need the declaration’s rules and the one-to-one proved." }
+        { "en": "Induction.", "zh": "归纳。" },
+        {
+          "en": "The two cases need the declaration’s rules and the one-to-one proved.",
+          "zh": "两种情况要用到声明给的规则和证出的一对一。"
+        }
       ],
       "solution": [
         "c0r0 = math[use=[\"nat.induct\"]]()",

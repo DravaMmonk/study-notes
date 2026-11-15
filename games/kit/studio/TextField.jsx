@@ -5,27 +5,25 @@
 // the links the other language has and this one lacks come first. The copy rules a machine can see
 // (../engine/text.js, ../pipeline/lint.js) are checked as it is typed, beside it.
 //
-//   <TextField value field onSet names compact? />   onSet({ zh } | { en }): the side typed into; compact: the findings
+//   <TextField value field onSet names compact? />   onSet(text): the text typed into the selected language; compact: the findings
 //                                                    a count on the text, listed while it is being edited
 //   names: { level: Map(id → { label, title }), part: Map(key → name), wiki: Map(id → title), quotes, onLevel(id) }
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link2 } from 'lucide-react'
-import { tr } from '../shell/i18n.js'
+import { getLang, sideOf, tr } from '../shell/i18n.js'
 import { REF, refProblems } from '../engine/text.js'
 import { lintText } from '../pipeline/lint.js'
 import { OptionList } from './Picker.jsx'
 import { MOD } from './Shortcuts.jsx'
-import { BASE } from '../engine/i18n.js'
-import { translationOp } from './translations.js'
+import { firstText, textIn } from '../engine/i18n.js'
 
 const HAS_REF = /<(level|part|wiki)-ref to="[^"]+"><\/\1-ref>/
 const tag = (kind, to) => `<${kind}-ref to="${to}"></${kind}-ref>`
 const TRIGGERS = ['[[', '【【']
-const sideText = (value, lang) => (typeof value === 'string' ? value : value?.[lang] ?? '')
 
 /** What a chip says: a level's number and title, a part's name, an entry's title (in the side's language). */
 function chipText(names, kind, id, lang) {
-  const pick = (v) => (v && typeof v === 'object' ? v[lang] ?? v.en ?? v.zh : v)
+  const pick = (v) => sideOf(v, lang)
   if (kind === 'level') {
     const l = names?.level.get(id)
     return l ? `${l.label} ${pick(l.title) ?? ''}`.trim() : null
@@ -211,9 +209,9 @@ function Side({ value, onChange, names, lang, label, placeholder, api, onFocus, 
 export function textFindings(pair, field, names) {
   if (!names) return []
   const namesById = {
-    level: new Map([...names.level].map(([id, l]) => [id, String(l.title?.en ?? l.title ?? '')])),
-    part: new Map([...names.part].map(([k, n]) => [k, String(n?.en ?? n ?? '')])),
-    wiki: new Map([...names.wiki].map(([k, n]) => [k, String(n?.en ?? n ?? '')])),
+    level: new Map([...names.level].map(([id, l]) => [id, String(firstText(l.title) ?? '')])),
+    part: new Map([...names.part].map(([k, n]) => [k, String(firstText(n) ?? '')])),
+    wiki: new Map([...names.wiki].map(([k, n]) => [k, String(firstText(n) ?? '')])),
   }
   const found = [
     ...refProblems(pair, '', namesById, names.quotes ?? []).map((s) => s.trim()),
@@ -222,21 +220,24 @@ export function textFindings(pair, field, names) {
   return [...new Set(found)]
 }
 
-export function TextField({ value, onSet, label, field = '', names, findings = [], compact = false, lang = BASE, placeholder, onFocus, onBlur }) {
-  const text = sideText(value, lang)
+export function TextField({ value, onSet, label, field = '', names, findings = [], compact = false, lang = getLang(), placeholder, onFocus, onBlur }) {
+  const text = textIn(value, lang)
   // Typed text kept here while the operation it makes is on its way back.
   const [draft, setDraft] = useState(text)
-  const typing = useRef(0)
+  const pending = useRef(null)
   useEffect(() => {
-    if (Date.now() - typing.current > 1500) setDraft(text)
-  }, [text, lang])
+    if (pending.current === null || pending.current === text) {
+      pending.current = null
+      setDraft(text)
+    }
+  }, [text])
   const box = useRef(null)
   const [linking, setLinking] = useState(null) // the picker's first search while it is open
   const set = useCallback((text) => {
-    typing.current = Date.now()
+    pending.current = text
     setDraft(text)
-    onSet({ [lang]: text })
-  }, [lang, onSet])
+    onSet(text)
+  }, [onSet])
   const options = useMemo(() => (names ? [
     ...[...names.level].map(([id, l]) => ({ value: `level:${id}`, label: l.label, title: l.title, group: tr('关卡') })),
     ...[...names.part].map(([k, n]) => ({ value: `part:${k}`, label: k, title: n, group: tr('件', 'Pieces') })),
@@ -245,7 +246,10 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
   const close = () => { setLinking(null); box.current?.focus() }
   const all = [...new Set([...textFindings({ [lang]: draft }, field, names), ...findings])]
   return (
-    <div onFocus={onFocus} onBlur={onBlur} className={`field-text ${all.length ? 'has-findings' : ''} ${compact ? 'is-compact' : ''}`}>
+    <div onFocus={onFocus} onBlur={(event) => {
+      if (!event.currentTarget.contains(event.relatedTarget)) pending.current = null
+      onBlur?.(event)
+    }} className={`field-text ${all.length ? 'has-findings' : ''} ${compact ? 'is-compact' : ''}`}>
       <Side value={draft} onChange={set} names={names} lang={lang} label={label} placeholder={placeholder} api={box} onLink={setLinking} />
       {names && (
         <div className="text-tools">
@@ -266,23 +270,4 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
       {all.length > 0 && <ul className="field-findings">{all.map((f) => <li key={f}>{f}</li>)}</ul>}
     </div>
   )
-}
-
-/** Edit the requested side, routing translations through the same operation as the translation table. */
-export function CopyTextField({ side, onSet, onTranslate, ...props }) {
-  // A new English source may arrive in the preview while the author is still typing it.
-  const [editingSource, setEditingSource] = useState(false)
-  const { from, to } = side
-  const lang = editingSource ? BASE : side.lang
-  const change = (value) => {
-    if (lang === BASE) return onSet(value)
-    const op = translationOp(lang, side, value[lang])
-    if (op) onTranslate(op)
-  }
-  return <TextField
-    key={lang} {...props} lang={lang} value={lang === BASE ? from ?? side.text : side.text}
-    onSet={change} placeholder={lang !== BASE && to === undefined ? from : undefined}
-    onFocus={() => setEditingSource(lang === BASE)}
-    onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setEditingSource(false) }}
-  />
 }

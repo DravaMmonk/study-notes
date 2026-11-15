@@ -1,20 +1,23 @@
 {
-  "title": { "en": "Two heads" },
+  "title": { "en": "Two heads", "zh": "两个头" },
   "tray": "pipeline",
   "after": {
-    "en": "Each attention can only look for one kind of likeness. Multi-head attention puts several side by side, each finding one kind of relation with its own Q and K, and then puts their results together. Every layer of a Transformer has several heads."
+    "en": "Each attention can only look for one kind of likeness. Multi-head attention puts several side by side, each finding one kind of relation with its own Q and K, and then puts their results together. Every layer of a Transformer has several heads.",
+    "zh": "每个注意力只能按一种相似去找。多头注意力并排放几个注意力，各自用自己的 Q、K 找一种关系，再把结果拼在一起。Transformer 的每一层都有好几个头。"
   },
   "intro": [
     {
       "t": {
-        "en": "One attention looks for one kind of likeness: whichever picture Q and K come from, that is the picture it compares by."
+        "en": "One attention looks for one kind of likeness: whichever picture Q and K come from, that is the picture it compares by.",
+        "zh": "一个注意力按一种「像」去找：Q 和 K 从哪张图来，它就按那张图比。"
       }
     },
     {
       "t": {
-        "en": "Your task in this level: each of two pictures has a pattern with a few pixels erased, and its twin is elsewhere in the same picture. The two outputs are the two pictures mended."
+        "en": "Your task in this level: each of two pictures has a pattern with a few pixels erased, and its twin is elsewhere in the same picture. The two outputs are the two pictures mended.",
+        "zh": "这一关你要做的：两张图各有一个图案被擦掉几格，孪生图案在各自图里的别处。两个输出分别补好两张图。"
       },
-      "fig": { "test": 0, "caption": { "en": "First set" } }
+      "fig": { "test": 0, "caption": { "en": "First set", "zh": "第一组" } }
     }
   ],
   "tasks": [
@@ -22,19 +25,24 @@
       "id": "5-4",
       "kind": "graph",
       "brief": {
-        "en": "Each of two pictures has one pattern with a few pixels erased; its twin is elsewhere in the same picture. The two outputs are the two pictures mended."
+        "en": "Each of two pictures has one pattern with a few pixels erased; its twin is elsewhere in the same picture. The two outputs are the two pictures mended.",
+        "zh": "两张图各有一个图案被擦掉几格，它的孪生图案在同一张图的别处。两个输出分别是补好的两张图。"
       },
       "hint": {
-        "en": "One attention looks for one kind of likeness. Do the twins pair up the same way in both pictures?"
+        "en": "One attention looks for one kind of likeness. Do the twins pair up the same way in both pictures?",
+        "zh": "一个注意力只按一种「像」去找。两张图里的孪生关系一样吗？"
       },
       "inputs": ["shape", "mark"],
-      "inputLabels": { "shape": { "en": "Picture 1" }, "mark": { "en": "Picture 2" } },
+      "inputLabels": { "shape": { "en": "Picture 1", "zh": "图一" }, "mark": { "en": "Picture 2", "zh": "图二" } },
       "outputs": ["so", "mo"],
-      "outputLabels": { "so": { "en": "Picture 1 mended" }, "mo": { "en": "Picture 2 mended" } },
+      "outputLabels": {
+        "so": { "en": "Picture 1 mended", "zh": "补好的图一" },
+        "mo": { "en": "Picture 2 mended", "zh": "补好的图二" }
+      },
       "scene": "mendTwo",
       "tests": [
         {
-          "label": { "en": "First set" },
+          "label": { "en": "First set", "zh": "第一组" },
           "shape": [
             { "tile": "X", "at": [0, 0], "erased": [[0, 0], [1, 1], [3, 3]] },
             { "tile": "X", "at": [3, 3] },
@@ -49,7 +57,7 @@
           ]
         },
         {
-          "label": { "en": "Second set" },
+          "label": { "en": "Second set", "zh": "第二组" },
           "shape": [
             { "tile": "S", "at": [0, 3], "erased": [[0, 3], [1, 3], [2, 2]] },
             { "tile": "S", "at": [3, 0] },
@@ -64,7 +72,7 @@
           ]
         },
         {
-          "label": { "en": "Third set" },
+          "label": { "en": "Third set", "zh": "第三组" },
           "shape": [
             { "tile": "K", "at": [1, 0] },
             { "tile": "K", "at": [2, 3], "erased": [[0, 1], [3, 3], [2, 2]] },
@@ -81,7 +89,7 @@
       ],
       "hidden": [
         {
-          "label": { "en": "Fourth set" },
+          "label": { "en": "Fourth set", "zh": "第四组" },
           "shape": [
             { "tile": "R", "at": [0, 2], "erased": [[1, 0], [0, 1]] },
             { "tile": "R", "at": [3, 1] },

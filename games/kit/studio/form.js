@@ -24,6 +24,8 @@
 // A field of a by (one shape a field names: a level by its kind) has `tags`: [{ key, value, options, cases }], the outer
 // by first when bys nest (a level by its mode, then by its world); a field of an either (several shapes) has `shapes`
 // (their schemas) and `shape` (the one it has now).
+import { isText } from '../engine/i18n.js'
+import { getLang, L } from '../shell/i18n.js'
 import { SECTIONS, callOf, find, sectionOf, validate } from '../engine/schema.js'
 import { parsePath, setAt, showPath, unsetAt } from '../engine/ops/edit.js'
 import { GLOSSARY } from '../engine/vocabulary.js'
@@ -58,7 +60,7 @@ function choicesOf(schema, ctx) {
  * has them, each with its `tasks` — [{ id, step }] — or none for a level of one task, whose id is the level's).
  */
 export const taskOptionsOf = (levelOptions) => levelOptions.flatMap((l) => {
-  const group = [l.label, l.title && (typeof l.title === 'string' ? l.title : l.title.en)].filter(Boolean).join(' ')
+  const group = [l.label, L(l.title)].filter(Boolean).join(' ')
   if (!l.tasks) return [{ value: l.value, label: l.label, title: l.title, group }]
   return l.tasks.map((task, k) => ({ value: task.id, label: `${l.label} · ${k + 1}`, title: task.step ?? l.title, group, ...(task.id !== l.value && { about: task.id }) }))
 })
@@ -101,7 +103,7 @@ export function formOf(schema, value, ctx, path = []) {
   const base = { path, value, ...(schema.about && { about: schema.about }), ...(schema.optional && { optional: true }) }
   switch (schema.type) {
     case 'text':
-      return { ...base, kind: 'text', ...(schema.textKind && { textKind: schema.textKind }) }
+      return { ...base, kind: 'text' }
     case 'num':
     case 'int':
       return { ...base, kind: 'num', int: schema.type === 'int', step: schema.step ?? 1, ...(schema.min !== undefined && { min: schema.min }), ...(schema.max !== undefined && { max: schema.max }) }
@@ -163,7 +165,7 @@ export function formOf(schema, value, ctx, path = []) {
 export function blank(schema, ctx) {
   const { vocabulary, levels = [] } = ctx
   switch (schema.type) {
-    case 'text': return { en: '' }
+    case 'text': return { [ctx.lang ?? getLang()]: '' }
     case 'num':
     case 'int': return schema.min ?? 0
     case 'bool': return false
@@ -317,7 +319,7 @@ export function summaryOf(value, width = 90) {
   const walk = (v, key) => {
     if (words.join(' ').length > width) return
     if (v === null || v === undefined) return
-    if (isObj(v) && typeof v.en === 'string') return words.push(plain(v.en))
+    if (isText(v)) return words.push(plain(L(v)))
     if (typeof v !== 'object') return words.push(key ? `${key} ${plain(v)}` : plain(v))
     if (Array.isArray(v)) {
       if (v.every((x) => typeof x !== 'object' || x === null)) return words.push(`${key ? `${key} ` : ''}[${v.slice(0, 12).map((x) => (x === null ? '—' : x)).join(' ')}${v.length > 12 ? ' …' : ''}]`)
@@ -406,9 +408,12 @@ export function placeFindings(form, findings) {
  */
 export function opFor(file, path, edit, type = null) {
   const keys = parsePath(path)
+  if (type === 'text' && !edit.unset) {
+    const where = file.level !== undefined ? { level: file.level } : { in: file.glossary ? 'glossary' : file.parts ? 'pieces' : 'game' }
+    return { op: 'text.set', ...where, path: keys, ...(edit.lang ? { lang: edit.lang } : {}), value: edit.set }
+  }
   // The glossary: a text by text.set; any other field of an entry by a merge patch of the entry's top field.
   if (file.glossary) {
-    if (type === 'text' && !edit.unset && edit.set !== null && typeof edit.set === 'object') return { op: 'text.set', in: 'glossary', path: keys, en: edit.set.en }
     if (keys[0] === 'entries' && keys.length >= 3) {
       const entry = file.glossary.entries[keys[1]]
       const [top, ...rest] = keys.slice(2)
@@ -426,16 +431,12 @@ export function opFor(file, path, edit, type = null) {
   // pieces.json: a field of it (a whole part is added, removed and renamed by the part operations).
   if (file.parts) {
     if (edit.unset) return { op: 'pieces.unset', path: keys }
-    if (type === 'text' && edit.set !== null && typeof edit.set === 'object') return { op: 'text.set', in: 'pieces', path: keys, en: edit.set.en }
     return { op: 'pieces.set', path: keys, value: edit.set }
   }
   const where = file.level !== undefined ? { level: file.level } : {}
   const op = (name) => (file.level !== undefined ? `level.${name}` : `game.${name}`)
   if (edit.unset) return { op: op('unset'), ...where, path: keys }
   if (!keys.length && file.level !== undefined) return { op: 'level.replace', level: file.level, data: edit.set }
-  if (type === 'text' && edit.set !== null && typeof edit.set === 'object') {
-    return { op: 'text.set', ...(file.level !== undefined ? where : { in: 'game' }), path: keys, en: edit.set.en }
-  }
   if (type === 'board' && file.level !== undefined) return { op: 'level.blueprint', level: file.level, path: keys, text: edit.set.join('\n') }
   return { op: op('set'), ...where, path: keys, value: edit.set }
 }
@@ -481,7 +482,7 @@ export function taskListOps(level, before, after, levels) {
 
 // Two operations edit the same thing when they are the same operation on the same file and path; the later then
 // stands for both.
-const target = (op) => JSON.stringify([op.op, op.level ?? op.in ?? null, op.path ? parsePath(op.path) : null, op.op === 'level.move' || op.op === 'level.rename' ? op.level : null, op.op === 'i18n.set' ? [op.lang, op.from] : null])
+const target = (op) => JSON.stringify([op.op, op.level ?? op.in ?? null, op.path ? parsePath(op.path) : null, op.op === 'level.move' || op.op === 'level.rename' ? op.level : null, op.op === 'text.set' ? op.lang : null])
 
 /**
  * A pending changeset's operations with `op` added: standing for the last one when that edits the same thing (a text
@@ -493,7 +494,7 @@ export function pushOp(ops, op) {
   if (op.op === 'task.rename' && last?.op === 'task.rename' && last.to === op.task) return [...ops.slice(0, -1), { ...op, task: last.task }]
   // Adding, removing and renaming never stand for one another; nor do task operations, each placed against the one before.
   if (!last || target(last) !== target(op) || ['level.add', 'level.remove', 'level.rename'].includes(op.op) || op.op.startsWith('task.')) return [...ops, op]
-  return [...ops.slice(0, -1), op.op === 'text.set' ? { ...last, ...op } : op]
+  return [...ops.slice(0, -1), op]
 }
 
 /**
@@ -550,7 +551,7 @@ export function fieldAt(form, path) {
 /* ---------- a file as a form ---------- */
 
 // What game.json's form leaves out: what is not its own schema.
-const NOT_FORM = ['id', 'levels', 'glossary', 'partDefs', 'blueprint', 'i18n', 'domain', 'vocabulary', 'open']
+const NOT_FORM = ['id', 'levels', 'glossary', 'partDefs', 'blueprint', 'domain', 'vocabulary', 'open']
 export const gameFields = (content) => Object.fromEntries(Object.entries(content).filter(([k]) => !NOT_FORM.includes(k)))
 
 /** The form of the file `at` holds, as the content has it now. */

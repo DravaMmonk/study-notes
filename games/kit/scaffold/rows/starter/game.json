@@ -1,8 +1,8 @@
 {
   "domain": "__name__",
   "vocabulary": 1,
-  "title": { "en": "__title__" },
-  "kicker": { "en": "Addition" },
-  "lede": { "en": "Complete equations with numbers and plus signs." },
+  "title": { "en": "__title__", "zh": "__title__" },
+  "kicker": { "en": "Addition", "zh": "加法" },
+  "lede": { "en": "Complete equations with numbers and plus signs.", "zh": "用数字和加号补齐等式。" },
   "order": ["1-1", "1-2"]
 }

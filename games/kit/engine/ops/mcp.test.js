@@ -81,13 +81,13 @@ test('changing tools: modify refuses a failing changeset and writes a passing on
   assert.ok(refused.problems.some((p) => p.startsWith('suppose')), refused.problems.join('\n'))
   assert.equal(existsSync(join(root, GAME, 'changes.jsonl')), false)
 
-  const hint = { op: 'text.set', level: 'suppose', path: 'tasks[0].hint[0]', en: 'Set the box’s assumption to “Today is Saturday”, the first half of the sentence.' }
+  const hint = { op: 'text.set', level: 'suppose', path: 'tasks[0].hint[0]', lang: 'en', value: 'Set the box’s assumption to “Today is Saturday”, the first half of the sentence.' }
   const preview = (await call('modify', { game: GAME, changeset: { ops: [hint] }, dryRun: true })).data
   assert.equal(preview.ok && !preview.written, true)
   assert.match(preview.diff, new RegExp(`^--- a/${GAME}/levels/suppose.json`))
   const done = (await call('modify', { game: GAME, changeset: { why: 'a clearer hint', ops: [hint] } })).data
   assert.equal(done.written, true, done.problems.join('\n'))
-  assert.equal(JSON.parse(readFileSync(join(root, GAME, 'levels', 'suppose.json'), 'utf8')).tasks[0].hint[0].en, hint.en)
+  assert.equal(JSON.parse(readFileSync(join(root, GAME, 'levels', 'suppose.json'), 'utf8')).tasks[0].hint[0].en, hint.value)
   assert.equal(JSON.parse(readFileSync(join(root, GAME, 'changes.jsonl'), 'utf8')).why, 'a clearer hint')
 })
 
@@ -95,7 +95,7 @@ test('search and replace: hits across the game, a replace as a changeset that mo
   const found = (await call('search', { game: GAME, query: { find: 'assume', kinds: ['text'] } })).data
   assert.ok(found.count > 0 && found.hits.every((h) => h.kind === 'text' && h.at.length), JSON.stringify(found).slice(0, 300))
   const { changeset, changes } = (await call('replace', { game: GAME, query: { find: 'Saturday', caseSensitive: true }, with: 'Sunday' })).data
-  assert.ok(changeset.ops.length >= 1 && changeset.ops.every((op) => op.op === 'text.set' && op.en))
+  assert.ok(changeset.ops.length >= 1 && changeset.ops.every((op) => op.op === 'text.set' && op.lang === 'en' && op.value))
   assert.ok(changes.every((c) => c.after.includes('Sunday') && !c.after.includes('Saturday')))
   const done = (await call('modify', { game: GAME, changeset })).data
   assert.equal(done.written, true, done.problems.join('\n'))

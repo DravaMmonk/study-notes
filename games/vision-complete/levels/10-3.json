@@ -1,20 +1,23 @@
 {
-  "title": { "en": "A row of anchors" },
+  "title": { "en": "A row of anchors", "zh": "一排锚框" },
   "tray": "recognition",
   "after": {
-    "en": "The same corrections move a small anchor a little and a large one a lot: the corrections are relative. A detector places anchors of several sizes and aspect ratios at every position, regressing and scoring them all together."
+    "en": "The same corrections move a small anchor a little and a large one a lot: the corrections are relative. A detector places anchors of several sizes and aspect ratios at every position, regressing and scoring them all together.",
+    "zh": "同一套修正，在小锚框上挪得少，在大锚框上挪得多：修正量是相对的。检测器在每个位置都放几种大小、几种宽高比的锚框，一起回归、一起打分。"
   },
   "intro": [
     {
       "t": {
-        "en": "Several anchors of different sizes often sit at the same position."
+        "en": "Several anchors of different sizes often sit at the same position.",
+        "zh": "同一个位置常放好几个锚框，大小不同。"
       }
     },
     {
       "t": {
-        "en": "Your task in this level: apply the same corrections to a row of anchors and output a row of boxes."
+        "en": "Your task in this level: apply the same corrections to a row of anchors and output a row of boxes.",
+        "zh": "这一关你要做的：同一组修正作用到一排锚框上，输出一排框。"
       },
-      "fig": { "test": 0, "caption": { "en": "Nudged right" } }
+      "fig": { "test": 0, "caption": { "en": "Nudged right", "zh": "往右挪" } }
     }
   ],
   "tasks": [
@@ -22,34 +25,36 @@
       "id": "10-3",
       "kind": "graph",
       "brief": {
-        "en": "Three anchors, small, medium and large, sit at the same place in a row. The same corrections apply to each; output the three boxes."
+        "en": "Three anchors, small, medium and large, sit at the same place in a row. The same corrections apply to each; output the three boxes.",
+        "zh": "同一处放了大中小三个锚框，排成一行。同一组修正作用到每一个上，输出三个框。"
       },
       "hint": {
-        "en": "When a single number meets a whole row, it applies to every cell."
+        "en": "When a single number meets a whole row, it applies to every cell.",
+        "zh": "一个数和一整行运算时，这个数用在每一格上。"
       },
       "inputs": ["cx", "cy", "w", "h", "tx", "ty", "tw", "th"],
       "inputLabels": {
-        "cx": { "en": "Anchor centres x (a row)" },
-        "cy": { "en": "Anchor centres y (a row)" },
-        "w": { "en": "Anchor widths (a row)" },
-        "h": { "en": "Anchor heights (a row)" },
-        "tx": { "en": "Correction tx" },
-        "ty": { "en": "Correction ty" },
-        "tw": { "en": "Correction tw" },
-        "th": { "en": "Correction th" }
+        "cx": { "en": "Anchor centres x (a row)", "zh": "锚框中心 x（一排）" },
+        "cy": { "en": "Anchor centres y (a row)", "zh": "锚框中心 y（一排）" },
+        "w": { "en": "Anchor widths (a row)", "zh": "锚框宽（一排）" },
+        "h": { "en": "Anchor heights (a row)", "zh": "锚框高（一排）" },
+        "tx": { "en": "Correction tx", "zh": "修正 tx" },
+        "ty": { "en": "Correction ty", "zh": "修正 ty" },
+        "tw": { "en": "Correction tw", "zh": "修正 tw" },
+        "th": { "en": "Correction th", "zh": "修正 th" }
       },
       "outputs": ["bx", "by", "bw", "bh"],
       "outputLabels": {
-        "bx": { "en": "Box centre x" },
-        "by": { "en": "Box centre y" },
-        "bw": { "en": "Box width" },
-        "bh": { "en": "Box height" }
+        "bx": { "en": "Box centre x", "zh": "框中心 x" },
+        "by": { "en": "Box centre y", "zh": "框中心 y" },
+        "bw": { "en": "Box width", "zh": "框宽" },
+        "bh": { "en": "Box height", "zh": "框高" }
       },
       "check": { "tolerance": 0.005 },
       "scene": "nudge",
       "tests": [
         {
-          "label": { "en": "Nudged right" },
+          "label": { "en": "Nudged right", "zh": "往右挪" },
           "anchors": [
             { "cx": 8, "cy": 8, "w": 2, "h": 2 },
             { "cx": 8, "cy": 8, "w": 4, "h": 4 },
@@ -58,7 +63,7 @@
           "t": { "tx": 0.5, "ty": 0, "tw": 0, "th": 0 }
         },
         {
-          "label": { "en": "All bigger" },
+          "label": { "en": "All bigger", "zh": "都变大" },
           "anchors": [
             { "cx": 8, "cy": 8, "w": 2, "h": 2 },
             { "cx": 8, "cy": 8, "w": 4, "h": 4 },
@@ -69,7 +74,7 @@
       ],
       "hidden": [
         {
-          "label": { "en": "Flattened" },
+          "label": { "en": "Flattened", "zh": "变扁" },
           "anchors": [
             { "cx": 8, "cy": 8, "w": 2, "h": 2 },
             { "cx": 8, "cy": 8, "w": 4, "h": 4 },

@@ -1,11 +1,13 @@
 {
   "title": {
-    "en": "Listen"
+    "en": "Listen",
+    "zh": "听线"
   },
   "intro": [
     {
       "t": {
-        "en": "The line carries one bit each tick: 0 or 1."
+        "en": "The line carries one bit each tick: 0 or 1.",
+        "zh": "线上每一拍有一位：0 或 1。"
       }
     }
   ],
@@ -13,14 +15,16 @@
     {
       "id": "1-1",
       "brief": {
-        "en": "Give the bit on the line, every tick."
+        "en": "Give the bit on the line, every tick.",
+        "zh": "每一拍交出线上的位。"
       },
       "listens": true,
       "outputs": [
         {
           "name": "bit",
           "label": {
-            "en": "Bit"
+            "en": "Bit",
+            "zh": "位"
           }
         }
       ],

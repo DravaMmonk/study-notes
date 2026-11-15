@@ -15,6 +15,8 @@
 // lintPedagogy(content, spec) → [{ rule, at, says, report? }]; spec is the domain's (its `blueprints`: every board the
 // content writes, by level and task).
 
+import { firstText, isText } from '../engine/i18n.js'
+
 export const PEDAGOGY_RULES = {
   'pd-serial-chapter': 'a chapter has a wholly serial main path: review whether each serial dependency is necessary (report)',
   'pd-repeat-board': 'two levels have the same reference board: one of them repeats the other',
@@ -25,14 +27,13 @@ export const PEDAGOGY_RULES = {
 
 /** The keys under which a level holds what the player reads as prose. */
 const PROSE = new Set(['t', 'brief', 'hint', 'after', 'note', 'why', 'given'])
-const isText = (v) => v && typeof v === 'object' && typeof v.en === 'string'
 
 /** Every prose text in a level, with where it is: [{ where, text }]. */
 function proseOf(level) {
   const out = []
   const walk = (v, path, key) => {
     if (isText(v) || typeof v === 'string') {
-      if (PROSE.has(key)) out.push({ where: path, text: (isText(v) ? v.en : v).trim() })
+      if (PROSE.has(key)) out.push({ where: path, text: firstText(v).trim() })
       return
     }
     if (Array.isArray(v)) v.forEach((x, k) => walk(x, `${path}[${k}]`, key))

@@ -52,7 +52,7 @@ test('the bridge lists the tools, and says what is wrong with a call', async () 
 test('a pending changeset previewed: its content, lines by level and files, nothing written', async () => {
   const before = onDisk('levels/suppose.json')
   const ops = [
-    { op: 'text.set', level: 'suppose', path: 'tasks[0].brief', en: 'Prove it with one box.' },
+    { op: 'text.set', level: 'suppose', path: 'tasks[0].brief', lang: 'en', value: 'Prove it with one box.' },
     { op: 'level.move', level: 'suppose', to: { before: 'apply', on: 'path' } },
   ]
   const { status, body } = await post('preview', { game: GAME, changeset: { ops } })
@@ -84,7 +84,7 @@ test('a board seeded for the game, drawn as SVG', async () => {
 
 test('apply, read the log, undo: the content comes back as it was', async () => {
   const before = onDisk('levels/given.json')
-  const ops = [{ op: 'text.set', level: 'given', path: 'tasks[0].brief', en: 'Assume “Today is Saturday” and prove the claim.' }]
+  const ops = [{ op: 'text.set', level: 'given', path: 'tasks[0].brief', lang: 'en', value: 'Assume “Today is Saturday” and prove the claim.' }]
   const done = (await post('modify', { game: GAME, changeset: { why: 'a shorter brief', ops } })).body
   assert.equal(done.written, true, done.problems.join('\n'))
   assert.notEqual(onDisk('levels/given.json'), before)

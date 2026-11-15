@@ -2,7 +2,8 @@
   "presets": {
     "dir": {
       "label": {
-        "en": "Direction"
+        "en": "Direction",
+        "zh": "方向"
       },
       "control": "buttons",
       "layout": "pad",
@@ -28,20 +29,23 @@
     },
     "border": {
       "label": {
-        "en": "Border"
+        "en": "Border",
+        "zh": "边界"
       },
       "control": "select",
       "options": [
         {
           "value": "zero",
           "label": {
-            "en": "Pad with 0"
+            "en": "Pad with 0",
+            "zh": "补 0"
           }
         },
         {
           "value": "edge",
           "label": {
-            "en": "Replicate edge"
+            "en": "Replicate edge",
+            "zh": "复制边缘"
           }
         }
       ],
@@ -51,10 +55,12 @@
   "parts": {
     "const": {
       "name": {
-        "en": "Constant"
+        "en": "Constant",
+        "zh": "常数"
       },
       "desc": {
-        "en": "Always outputs the same number. Added to or multiplied with a picture, it applies to every cell"
+        "en": "Always outputs the same number. Added to or multiplied with a picture, it applies to every cell",
+        "zh": "始终输出同一个数。与图相加或相乘时，这个数作用于每一格"
       },
       "icon": "Hash",
       "family": "pixel",
@@ -74,10 +80,12 @@
     },
     "add": {
       "name": {
-        "en": "Add"
+        "en": "Add",
+        "zh": "相加"
       },
       "desc": {
-        "en": "Adds two pictures pixel by pixel: a + b"
+        "en": "Adds two pictures pixel by pixel: a + b",
+        "zh": "两张图逐像素相加：a + b"
       },
       "icon": "Calculator",
       "family": "pixel",
@@ -95,10 +103,12 @@
     },
     "sub": {
       "name": {
-        "en": "Subtract"
+        "en": "Subtract",
+        "zh": "相减"
       },
       "desc": {
-        "en": "Subtracts two pictures pixel by pixel: a − b"
+        "en": "Subtracts two pictures pixel by pixel: a − b",
+        "zh": "两张图逐像素相减：a − b"
       },
       "icon": "Calculator",
       "family": "pixel",
@@ -116,10 +126,12 @@
     },
     "mul": {
       "name": {
-        "en": "Multiply"
+        "en": "Multiply",
+        "zh": "相乘"
       },
       "desc": {
-        "en": "Multiplies two pictures pixel by pixel: a × b"
+        "en": "Multiplies two pictures pixel by pixel: a × b",
+        "zh": "两张图逐像素相乘：a × b"
       },
       "icon": "Calculator",
       "family": "pixel",
@@ -137,10 +149,12 @@
     },
     "arith": {
       "name": {
-        "en": "Arithmetic"
+        "en": "Arithmetic",
+        "zh": "四则运算"
       },
       "desc": {
-        "en": "Adds, subtracts, multiplies or divides two pictures pixel by pixel. Either side can be set to a constant; the other receives a wire"
+        "en": "Adds, subtracts, multiplies or divides two pictures pixel by pixel. Either side can be set to a constant; the other receives a wire",
+        "zh": "两张图逐像素相加、相减、相乘或相除。可将左侧或右侧设为常数，另一侧接线输入"
       },
       "icon": "Plus",
       "family": "pixel",
@@ -158,7 +172,8 @@
         {
           "key": "op",
           "label": {
-            "en": "Operation"
+            "en": "Operation",
+            "zh": "运算"
           },
           "control": "buttons",
           "layout": "grid",
@@ -185,26 +200,30 @@
         {
           "key": "constantSide",
           "label": {
-            "en": "Constant side"
+            "en": "Constant side",
+            "zh": "常数位置"
           },
           "control": "select",
           "options": [
             {
               "value": "none",
               "label": {
-                "en": "Off"
+                "en": "Off",
+                "zh": "关闭"
               }
             },
             {
               "value": "a",
               "label": {
-                "en": "Left a"
+                "en": "Left a",
+                "zh": "左 a"
               }
             },
             {
               "value": "b",
               "label": {
-                "en": "Right b"
+                "en": "Right b",
+                "zh": "右 b"
               }
             }
           ],
@@ -213,7 +232,8 @@
         {
           "key": "constant",
           "label": {
-            "en": "Constant"
+            "en": "Constant",
+            "zh": "常数"
           },
           "control": "number",
           "min": -100,
@@ -228,10 +248,12 @@
     },
     "merge": {
       "name": {
-        "en": "Merger"
+        "en": "Merger",
+        "zh": "汇合器"
       },
       "desc": {
-        "en": "Has three inputs and adds the pictures wired into them pixel by pixel; an empty input is skipped"
+        "en": "Has three inputs and adds the pictures wired into them pixel by pixel; an empty input is skipped",
+        "zh": "有三个输入口，将接入的图逐像素相加；空置的输入口不计入"
       },
       "icon": "Calculator",
       "family": "pixel",
@@ -253,10 +275,12 @@
     },
     "sqrt": {
       "name": {
-        "en": "Square root"
+        "en": "Square root",
+        "zh": "开方"
       },
       "desc": {
-        "en": "Square root of every pixel"
+        "en": "Square root of every pixel",
+        "zh": "每个像素开方"
       },
       "icon": "Calculator",
       "family": "pixel",
@@ -283,10 +307,12 @@
     },
     "globalMax": {
       "name": {
-        "en": "Global max"
+        "en": "Global max",
+        "zh": "全图最大值"
       },
       "desc": {
-        "en": "Fills every cell with the maximum of the picture"
+        "en": "Fills every cell with the maximum of the picture",
+        "zh": "用整张图的最大值填满每一格"
       },
       "icon": "Network",
       "family": "global",
@@ -300,10 +326,12 @@
     },
     "fqApply": {
       "name": {
-        "en": "Multiply in frequency"
+        "en": "Multiply in frequency",
+        "zh": "频域相乘"
       },
       "desc": {
-        "en": "Takes the picture into the frequency domain, multiplies each frequency by the number in the matching cell of the gain picture, and comes back. The gain picture is laid out like a spectrum: its centre is frequency (0, 0)"
+        "en": "Takes the picture into the frequency domain, multiplies each frequency by the number in the matching cell of the gain picture, and comes back. The gain picture is laid out like a spectrum: its centre is frequency (0, 0)",
+        "zh": "把图变到频域，每个频率乘上增益图里对应格子的数，再变回来。增益图和频谱画法一样：中心是频率 (0, 0)"
       },
       "icon": "Box",
       "family": "other",
@@ -320,10 +348,12 @@
     },
     "lrnConst": {
       "name": {
-        "en": "Learnable constant"
+        "en": "Learnable constant",
+        "zh": "可学习常数"
       },
       "desc": {
-        "en": "A number that training sets. Added to or multiplied with a picture, it applies to every cell"
+        "en": "A number that training sets. Added to or multiplied with a picture, it applies to every cell",
+        "zh": "一个由训练决定的数。和一张图相加、相乘时，它用在每一格上"
       },
       "icon": "Activity",
       "family": "learned",
@@ -332,7 +362,8 @@
         {
           "key": "p",
           "label": {
-            "en": "Value"
+            "en": "Value",
+            "zh": "值"
           },
           "control": "custom",
           "widget": "imageKernel",
@@ -346,10 +377,12 @@
     },
     "learn3": {
       "name": {
-        "en": "Learnable 3×3 kernel"
+        "en": "Learnable 3×3 kernel",
+        "zh": "可学习 3×3 核"
       },
       "desc": {
-        "en": "3×3 kernel whose weights are set by training"
+        "en": "3×3 kernel whose weights are set by training",
+        "zh": "3×3 核，权重由训练决定"
       },
       "icon": "Activity",
       "family": "learned",
@@ -363,7 +396,8 @@
         {
           "key": "w",
           "label": {
-            "en": "Weights"
+            "en": "Weights",
+            "zh": "权重"
           },
           "control": "custom",
           "widget": "imageKernel",
@@ -385,10 +419,12 @@
     },
     "lrnConv": {
       "name": {
-        "en": "Conv layer"
+        "en": "Conv layer",
+        "zh": "卷积层"
       },
       "desc": {
-        "en": "Learnable 3×3 kernel, starting from a set of very small random numbers"
+        "en": "Learnable 3×3 kernel, starting from a set of very small random numbers",
+        "zh": "可学习 3×3 核，从一组很小的随机数开始"
       },
       "icon": "Activity",
       "family": "learned",
@@ -402,7 +438,8 @@
         {
           "key": "w",
           "label": {
-            "en": "Weights"
+            "en": "Weights",
+            "zh": "权重"
           },
           "control": "custom",
           "widget": "imageKernel",
@@ -424,10 +461,12 @@
     },
     "warp": {
       "name": {
-        "en": "Homography warp"
+        "en": "Homography warp",
+        "zh": "单应变形"
       },
       "desc": {
-        "en": "Carries the picture by H onto a picture the size of the \"canvas\": each cell of the canvas takes the cell of the picture that H⁻¹ points to (the nearest one), and 0 where that falls outside"
+        "en": "Carries the picture by H onto a picture the size of the \"canvas\": each cell of the canvas takes the cell of the picture that H⁻¹ points to (the nearest one), and 0 where that falls outside",
+        "zh": "按 H 把图搬到「画布」那么大的一张图上：画布上每一格取原图里 H⁻¹ 指向的那一格（最近的一格），落在原图外是 0"
       },
       "icon": "Box",
       "family": "other",
@@ -447,10 +486,12 @@
     },
     "zeroUp": {
       "name": {
-        "en": "Zero upsample"
+        "en": "Zero upsample",
+        "zh": "补零放大"
       },
       "desc": {
-        "en": "Doubles the size: each pixel goes in the top left of a 2×2 block, the other three are 0"
+        "en": "Doubles the size: each pixel goes in the top left of a 2×2 block, the other three are 0",
+        "zh": "尺寸翻倍：每个像素放在 2×2 的左上角，其余三格补 0"
       },
       "icon": "Minimize2",
       "family": "size",
@@ -464,10 +505,12 @@
     },
     "argmin4": {
       "name": {
-        "en": "Index of minimum"
+        "en": "Index of minimum",
+        "zh": "取最小者编号"
       },
       "desc": {
-        "en": "Compares cost maps pixel by pixel and outputs the index of the smallest"
+        "en": "Compares cost maps pixel by pixel and outputs the index of the smallest",
+        "zh": "逐像素比较几张代价图，输出最小者的编号"
       },
       "icon": "Search",
       "family": "search",
@@ -494,10 +537,12 @@
     },
     "dg_encode": {
       "name": {
-        "en": "Encoder"
+        "en": "Encoder",
+        "zh": "编码器"
       },
       "desc": {
-        "en": "Squeezes the whole image into a row of k numbers (weights come from training)"
+        "en": "Squeezes the whole image into a row of k numbers (weights come from training)",
+        "zh": "把整张图压成一行 k 个数（权重靠训练）"
       },
       "icon": "Activity",
       "family": "learned",
@@ -511,26 +556,30 @@
         {
           "key": "k",
           "label": {
-            "en": "How many numbers"
+            "en": "How many numbers",
+            "zh": "几个数"
           },
           "control": "select",
           "options": [
             {
               "value": "1",
               "label": {
-                "en": "1"
+                "en": "1",
+                "zh": "1 个"
               }
             },
             {
               "value": "2",
               "label": {
-                "en": "2"
+                "en": "2",
+                "zh": "2 个"
               }
             },
             {
               "value": "3",
               "label": {
-                "en": "3"
+                "en": "3",
+                "zh": "3 个"
               }
             }
           ],
@@ -539,7 +588,8 @@
         {
           "key": "w",
           "label": {
-            "en": "Weights"
+            "en": "Weights",
+            "zh": "权重"
           },
           "control": "custom",
           "widget": "imageKernel",
@@ -600,10 +650,12 @@
     },
     "dg_decode": {
       "name": {
-        "en": "Decoder"
+        "en": "Decoder",
+        "zh": "解码器"
       },
       "desc": {
-        "en": "Draws an image back from those numbers (weights come from training)"
+        "en": "Draws an image back from those numbers (weights come from training)",
+        "zh": "由那几个数画回一张图（权重靠训练）"
       },
       "icon": "Activity",
       "family": "learned",
@@ -617,7 +669,8 @@
         {
           "key": "w",
           "label": {
-            "en": "Weights"
+            "en": "Weights",
+            "zh": "权重"
           },
           "control": "custom",
           "widget": "imageKernel",
@@ -639,7 +692,8 @@
     "dg_mu": {
       "name": "μ",
       "desc": {
-        "en": "Two trainable numbers: the centre of the distribution"
+        "en": "Two trainable numbers: the centre of the distribution",
+        "zh": "两个可训练的数：分布的中心"
       },
       "icon": "Activity",
       "family": "learned",
@@ -662,7 +716,8 @@
     "dg_sigma": {
       "name": "σ",
       "desc": {
-        "en": "Two trainable numbers: how spread out the distribution is"
+        "en": "Two trainable numbers: how spread out the distribution is",
+        "zh": "两个可训练的数：分布有多散"
       },
       "icon": "Activity",
       "family": "learned",
@@ -684,10 +739,12 @@
     },
     "dg_sample": {
       "name": {
-        "en": "Sample z ~ N(μ, σ²)"
+        "en": "Sample z ~ N(μ, σ²)",
+        "zh": "采样 z ~ N(μ, σ²)"
       },
       "desc": {
-        "en": "Draws a fresh random number every time it runs"
+        "en": "Draws a fresh random number every time it runs",
+        "zh": "每算一次都重新抽一个随机数"
       },
       "icon": "Activity",
       "family": "learned",
@@ -705,10 +762,12 @@
     },
     "shift": {
       "name": {
-        "en": "Shift"
+        "en": "Shift",
+        "zh": "平移"
       },
       "desc": {
-        "en": "Shifts the whole picture by one pixel; cells shifted in from the border are 0"
+        "en": "Shifts the whole picture by one pixel; cells shifted in from the border are 0",
+        "zh": "整张图平移一格；从边界移入的格子补 0"
       },
       "icon": "Move",
       "family": "neighbour",
@@ -726,7 +785,8 @@
         {
           "key": "n",
           "label": {
-            "en": "Steps"
+            "en": "Steps",
+            "zh": "格数"
           },
           "control": "number",
           "min": 1,
@@ -737,26 +797,30 @@
         {
           "key": "border",
           "label": {
-            "en": "Border"
+            "en": "Border",
+            "zh": "边界"
           },
           "control": "select",
           "options": [
             {
               "value": "zero",
               "label": {
-                "en": "Pad with 0"
+                "en": "Pad with 0",
+                "zh": "补 0"
               }
             },
             {
               "value": "edge",
               "label": {
-                "en": "Replicate edge"
+                "en": "Replicate edge",
+                "zh": "复制边缘"
               }
             },
             {
               "value": "wrap",
               "label": {
-                "en": "Wrap round"
+                "en": "Wrap round",
+                "zh": "循环"
               }
             }
           ],
@@ -767,10 +831,12 @@
     },
     "invert": {
       "name": {
-        "en": "Invert"
+        "en": "Invert",
+        "zh": "反相"
       },
       "desc": {
-        "en": "Every pixel becomes 1 − itself: light turns dark and dark turns light"
+        "en": "Every pixel becomes 1 − itself: light turns dark and dark turns light",
+        "zh": "每个像素变成 1 − 自己：亮的变暗，暗的变亮"
       },
       "icon": "Calculator",
       "family": "pixel",
@@ -784,10 +850,12 @@
     },
     "threshold": {
       "name": {
-        "en": "Threshold"
+        "en": "Threshold",
+        "zh": "阈值"
       },
       "desc": {
-        "en": "1 above the threshold, 0 otherwise"
+        "en": "1 above the threshold, 0 otherwise",
+        "zh": "大于阈值输出 1，否则输出 0"
       },
       "icon": "Calculator",
       "family": "pixel",
@@ -812,10 +880,12 @@
     },
     "blur3h": {
       "name": {
-        "en": "3-point horizontal average"
+        "en": "3-point horizontal average",
+        "zh": "横向三点平均"
       },
       "desc": {
-        "en": "Each cell becomes the average of itself and its left and right neighbours"
+        "en": "Each cell becomes the average of itself and its left and right neighbours",
+        "zh": "每格换成它和左右两个邻居的平均"
       },
       "icon": "Grid3x3",
       "family": "neighbour",
@@ -835,10 +905,12 @@
     },
     "box3": {
       "name": {
-        "en": "3×3 average"
+        "en": "3×3 average",
+        "zh": "3×3 平均"
       },
       "desc": {
-        "en": "Each cell becomes the average of the nine cells in the 3×3 block around it"
+        "en": "Each cell becomes the average of the nine cells in the 3×3 block around it",
+        "zh": "每格换成它周围 3×3 九个格子的平均"
       },
       "icon": "Grid3x3",
       "family": "neighbour",
@@ -858,10 +930,12 @@
     },
     "gauss": {
       "name": {
-        "en": "Gaussian blur"
+        "en": "Gaussian blur",
+        "zh": "高斯模糊"
       },
       "desc": {
-        "en": "Gaussian blur, adjustable σ"
+        "en": "Gaussian blur, adjustable σ",
+        "zh": "高斯模糊，σ 可调"
       },
       "icon": "Grid3x3",
       "family": "neighbour",
@@ -890,10 +964,12 @@
     },
     "diffx": {
       "name": {
-        "en": "Horizontal difference"
+        "en": "Horizontal difference",
+        "zh": "横向差分"
       },
       "desc": {
-        "en": "Right neighbour − itself"
+        "en": "Right neighbour − itself",
+        "zh": "右边邻居 − 自己"
       },
       "icon": "Grid3x3",
       "family": "neighbour",
@@ -908,7 +984,8 @@
     "sobelx": {
       "name": "Sobel x",
       "desc": {
-        "en": "Differentiates across, smooths down"
+        "en": "Differentiates across, smooths down",
+        "zh": "横向求导、纵向平滑"
       },
       "icon": "Grid3x3",
       "family": "neighbour",
@@ -929,7 +1006,8 @@
     "sobely": {
       "name": "Sobel y",
       "desc": {
-        "en": "Differentiates down, smooths across"
+        "en": "Differentiates down, smooths across",
+        "zh": "纵向求导、横向平滑"
       },
       "icon": "Grid3x3",
       "family": "neighbour",
@@ -949,10 +1027,12 @@
     },
     "kernel3": {
       "name": {
-        "en": "3×3 kernel"
+        "en": "3×3 kernel",
+        "zh": "3×3 核"
       },
       "desc": {
-        "en": "Any 3×3 kernel (weights read as cross-correlation)"
+        "en": "Any 3×3 kernel (weights read as cross-correlation)",
+        "zh": "任意 3×3 核（按“互相关”读权重）"
       },
       "icon": "Grid3x3",
       "family": "neighbour",
@@ -966,7 +1046,8 @@
         {
           "key": "w",
           "label": {
-            "en": "Weights"
+            "en": "Weights",
+            "zh": "权重"
           },
           "control": "custom",
           "widget": "imageKernel",
@@ -1004,10 +1085,12 @@
     },
     "fqWave": {
       "name": {
-        "en": "Wave"
+        "en": "Wave",
+        "zh": "波"
       },
       "desc": {
-        "en": "A wave of 32 points: cos or sin(2π·k·x/32), swinging between −1 and 1"
+        "en": "A wave of 32 points: cos or sin(2π·k·x/32), swinging between −1 and 1",
+        "zh": "一道 32 个点的波：cos 或 sin(2π·k·x/32)，在 −1 和 1 之间摆动"
       },
       "icon": "Waves",
       "family": "frequency",
@@ -1016,7 +1099,8 @@
         {
           "key": "k",
           "label": {
-            "en": "Frequency k"
+            "en": "Frequency k",
+            "zh": "频率 k"
           },
           "control": "number",
           "min": 0,
@@ -1027,7 +1111,8 @@
         {
           "key": "form",
           "label": {
-            "en": "Shape"
+            "en": "Shape",
+            "zh": "形状"
           },
           "control": "select",
           "options": [
@@ -1047,10 +1132,12 @@
     },
     "fqMean": {
       "name": {
-        "en": "Compute the average"
+        "en": "Compute the average",
+        "zh": "求平均"
       },
       "desc": {
-        "en": "Averages a row of numbers into a single number"
+        "en": "Averages a row of numbers into a single number",
+        "zh": "把一列数平均成一个数"
       },
       "icon": "Network",
       "family": "global",
@@ -1064,10 +1151,12 @@
     },
     "fqSpectrum": {
       "name": {
-        "en": "Frequency spectrum"
+        "en": "Frequency spectrum",
+        "zh": "频谱"
       },
       "desc": {
-        "en": "The centred, log-scaled magnitude spectrum: the centre is the average brightness, and further out means faster change"
+        "en": "The centred, log-scaled magnitude spectrum: the centre is the average brightness, and further out means faster change",
+        "zh": "中心化、取对数的幅度谱：中心是平均亮度，越往外变化越快"
       },
       "icon": "Waves",
       "family": "frequency",
@@ -1081,10 +1170,12 @@
     },
     "fqLowpass": {
       "name": {
-        "en": "Frequency low-pass"
+        "en": "Frequency low-pass",
+        "zh": "频域低通"
       },
       "desc": {
-        "en": "Transforms to the frequency domain, multiplies by a mask centred on the middle, and transforms back"
+        "en": "Transforms to the frequency domain, multiplies by a mask centred on the middle, and transforms back",
+        "zh": "变换到频域，乘一个以中心为圆心的掩膜，再变换回来"
       },
       "icon": "Waves",
       "family": "frequency",
@@ -1098,20 +1189,23 @@
         {
           "key": "shape",
           "label": {
-            "en": "Mask"
+            "en": "Mask",
+            "zh": "掩膜"
           },
           "control": "select",
           "options": [
             {
               "value": "disk",
               "label": {
-                "en": "Hard disk"
+                "en": "Hard disk",
+                "zh": "硬圆盘"
               }
             },
             {
               "value": "gauss",
               "label": {
-                "en": "Gaussian"
+                "en": "Gaussian",
+                "zh": "高斯"
               }
             }
           ],
@@ -1120,7 +1214,8 @@
         {
           "key": "R",
           "label": {
-            "en": "Radius R"
+            "en": "Radius R",
+            "zh": "半径 R"
           },
           "control": "number",
           "min": 0.5,
@@ -1133,10 +1228,12 @@
     },
     "downsample": {
       "name": {
-        "en": "Downsample"
+        "en": "Downsample",
+        "zh": "隔点取样"
       },
       "desc": {
-        "en": "Keeps every other pixel, halving the size"
+        "en": "Keeps every other pixel, halving the size",
+        "zh": "每隔一个像素取一个，尺寸减半"
       },
       "icon": "Minimize2",
       "family": "size",
@@ -1150,10 +1247,12 @@
     },
     "shade": {
       "name": {
-        "en": "Lambert shading"
+        "en": "Lambert shading",
+        "zh": "朗伯着色"
       },
       "desc": {
-        "en": "Reflectance × (normal · lamp direction), 0 where the surface faces away"
+        "en": "Reflectance × (normal · lamp direction), 0 where the surface faces away",
+        "zh": "反射率 × (法线 · 灯的方向)，背光的地方是 0"
       },
       "icon": "Box",
       "family": "other",
@@ -1175,7 +1274,8 @@
         {
           "key": "lx",
           "label": {
-            "en": "Lamp x"
+            "en": "Lamp x",
+            "zh": "灯 x"
           },
           "control": "number",
           "min": -1,
@@ -1186,7 +1286,8 @@
         {
           "key": "ly",
           "label": {
-            "en": "Lamp y"
+            "en": "Lamp y",
+            "zh": "灯 y"
           },
           "control": "number",
           "min": -1,
@@ -1197,7 +1298,8 @@
         {
           "key": "lz",
           "label": {
-            "en": "Lamp z"
+            "en": "Lamp z",
+            "zh": "灯 z"
           },
           "control": "number",
           "min": -1,
@@ -1210,10 +1312,12 @@
     },
     "sense": {
       "name": {
-        "en": "Sensor"
+        "en": "Sensor",
+        "zh": "感光"
       },
       "desc": {
-        "en": "What one kind of sensor reads from a spectrum: the spectrum times its sensitivity curve, averaged"
+        "en": "What one kind of sensor reads from a spectrum: the spectrum times its sensitivity curve, averaged",
+        "zh": "一种感光元件对一条光谱的读数：光谱乘上它的灵敏度曲线，再求平均"
       },
       "icon": "Box",
       "family": "other",
@@ -1227,7 +1331,8 @@
         {
           "key": "channel",
           "label": {
-            "en": "Sensor"
+            "en": "Sensor",
+            "zh": "感光"
           },
           "control": "select",
           "options": [
@@ -1251,7 +1356,8 @@
     },
     "gradmag": {
       "name": {
-        "en": "Magnitude of the gradient"
+        "en": "Magnitude of the gradient",
+        "zh": "梯度幅值"
       },
       "desc": "√(Gx² + Gy²)",
       "icon": "Grid3x3",
@@ -1272,10 +1378,12 @@
     },
     "lrnDense": {
       "name": {
-        "en": "Dense w·x + b"
+        "en": "Dense w·x + b",
+        "zh": "全连接 w·x + b"
       },
       "desc": {
-        "en": "Learnable weight w and bias b"
+        "en": "Learnable weight w and bias b",
+        "zh": "可学习的权重 w 和偏置 b"
       },
       "icon": "Activity",
       "family": "learned",
@@ -1303,7 +1411,8 @@
     "softmax": {
       "name": "Softmax",
       "desc": {
-        "en": "Turns two or three scores into weights that sum to 1. Leave the third input empty for two scores; its output is then 0."
+        "en": "Turns two or three scores into weights that sum to 1. Leave the third input empty for two scores; its output is then 0.",
+        "zh": "把两个或三个分数转成总和为 1 的权重。第三输入可留空，此时第三输出为 0。"
       },
       "icon": "Calculator",
       "family": "pixel",
@@ -1345,7 +1454,8 @@
     "lrnSigmoid": {
       "name": "Sigmoid",
       "desc": {
-        "en": "1 / (1 + e⁻ˣ): squashes any number into 0…1"
+        "en": "1 / (1 + e⁻ˣ): squashes any number into 0…1",
+        "zh": "1 / (1 + e⁻ˣ)，把任意数压到 0…1"
       },
       "icon": "Calculator",
       "family": "pixel",
@@ -1360,7 +1470,8 @@
     "relu": {
       "name": "ReLU",
       "desc": {
-        "en": "Negatives become 0, positives stay"
+        "en": "Negatives become 0, positives stay",
+        "zh": "负数变 0，正数不变"
       },
       "icon": "Calculator",
       "family": "pixel",
@@ -1374,10 +1485,12 @@
     },
     "max": {
       "name": {
-        "en": "The larger one"
+        "en": "The larger one",
+        "zh": "取较大"
       },
       "desc": {
-        "en": "Takes the larger of two pictures, cell by cell"
+        "en": "Takes the larger of two pictures, cell by cell",
+        "zh": "两张图逐格取较大的那个"
       },
       "icon": "Calculator",
       "family": "pixel",
@@ -1395,10 +1508,12 @@
     },
     "lrnRgb": {
       "name": {
-        "en": "Multichannel 3×3 kernel"
+        "en": "Multichannel 3×3 kernel",
+        "zh": "多通道 3×3 核"
       },
       "desc": {
-        "en": "One kernel spans R, G and B: 3×3×3 learnable weights"
+        "en": "One kernel spans R, G and B: 3×3×3 learnable weights",
+        "zh": "一个核横跨 R、G、B：3×3×3 个可学习权重"
       },
       "icon": "Activity",
       "family": "learned",
@@ -1418,7 +1533,8 @@
         {
           "key": "w",
           "label": {
-            "en": "Weights"
+            "en": "Weights",
+            "zh": "权重"
           },
           "control": "custom",
           "widget": "imageKernel",
@@ -1458,10 +1574,12 @@
     },
     "maxpool": {
       "name": {
-        "en": "2×2 max pool"
+        "en": "2×2 max pool",
+        "zh": "2×2 最大池化"
       },
       "desc": {
-        "en": "Takes the maximum of each 2×2 block, halving the size"
+        "en": "Takes the maximum of each 2×2 block, halving the size",
+        "zh": "每个 2×2 块取最大值，尺寸减半"
       },
       "icon": "Minimize2",
       "family": "size",
@@ -1475,10 +1593,12 @@
     },
     "lrnRes": {
       "name": {
-        "en": "Residual block"
+        "en": "Residual block",
+        "zh": "残差块"
       },
       "desc": {
-        "en": "output = input + conv layer(input)"
+        "en": "output = input + conv layer(input)",
+        "zh": "输出 = 输入 + 卷积层(输入)"
       },
       "icon": "Activity",
       "family": "learned",
@@ -1492,7 +1612,8 @@
         {
           "key": "w",
           "label": {
-            "en": "Weights"
+            "en": "Weights",
+            "zh": "权重"
           },
           "control": "custom",
           "widget": "imageKernel",
@@ -1514,10 +1635,12 @@
     },
     "attention": {
       "name": {
-        "en": "Attention"
+        "en": "Attention",
+        "zh": "注意力"
       },
       "desc": {
-        "en": "Cuts the image into P×P patches; each patch takes the average of every patch's v, weighted by softmax(q·k/√d). With only Q wired, K and V use it too"
+        "en": "Cuts the image into P×P patches; each patch takes the average of every patch's v, weighted by softmax(q·k/√d). With only Q wired, K and V use it too",
+        "zh": "切成 P×P 图块；每块按 softmax(q·k/√d) 对所有块的 v 加权平均。只接 Q 时，K、V 也用它"
       },
       "icon": "Network",
       "family": "global",
@@ -1536,7 +1659,8 @@
         {
           "key": "s",
           "label": {
-            "en": "q scale"
+            "en": "q scale",
+            "zh": "q 放大"
           },
           "control": "number",
           "min": 0,
@@ -1547,7 +1671,8 @@
         {
           "key": "P",
           "label": {
-            "en": "Patch size"
+            "en": "Patch size",
+            "zh": "图块边长"
           },
           "control": "select",
           "options": [
@@ -1572,10 +1697,12 @@
     },
     "embed": {
       "name": {
-        "en": "Contrastive encoder"
+        "en": "Contrastive encoder",
+        "zh": "对比编码器"
       },
       "desc": {
-        "en": "Turns a picture into 4×4 = 16 features of length 1: brightening, a contrast change, a shift of a pixel or two or a little noise hardly move it"
+        "en": "Turns a picture into 4×4 = 16 features of length 1: brightening, a contrast change, a shift of a pixel or two or a little noise hardly move it",
+        "zh": "把图变成 4×4 = 16 个特征，长度为 1：整体变亮、对比度变、挪一两格、加点噪声，它都变得不多"
       },
       "icon": "Box",
       "family": "other",
@@ -1589,10 +1716,12 @@
     },
     "harris": {
       "name": {
-        "en": "Harris response"
+        "en": "Harris response",
+        "zh": "Harris 响应"
       },
       "desc": {
-        "en": "Harris corner response: large and positive where the picture changes in both directions, negative along straight edges"
+        "en": "Harris corner response: large and positive where the picture changes in both directions, negative along straight edges",
+        "zh": "Harris 角点响应：两个方向都在变的地方是正的大数，直边上是负的"
       },
       "icon": "Grid3x3",
       "family": "neighbour",
@@ -1617,10 +1746,12 @@
     },
     "hough": {
       "name": {
-        "en": "Hough accumulator"
+        "en": "Hough accumulator",
+        "zh": "Hough 累加器"
       },
       "desc": {
-        "en": "Every point brighter than 0.5 votes for each line x·cosθ + y·sinθ = ρ through it: across is θ (16 cells, 0° … 180°), down is ρ (2 pixels a cell)"
+        "en": "Every point brighter than 0.5 votes for each line x·cosθ + y·sinθ = ρ through it: across is θ (16 cells, 0° … 180°), down is ρ (2 pixels a cell)",
+        "zh": "亮于 0.5 的每个点给经过它的所有直线 x·cosθ + y·sinθ = ρ 投一票：横着是 θ（16 格，0° … 180°），竖着是 ρ（每格 2 像素）"
       },
       "icon": "Box",
       "family": "other",
@@ -1634,10 +1765,12 @@
     },
     "ransac": {
       "name": {
-        "en": "RANSAC line"
+        "en": "RANSAC line",
+        "zh": "RANSAC 找直线"
       },
       "desc": {
-        "en": "Among the points brighter than 0.5, k rounds each join two random points and count the points closer than δ; the best line is refitted on its inliers and drawn (cells closer than 0.7 are 1)"
+        "en": "Among the points brighter than 0.5, k rounds each join two random points and count the points closer than δ; the best line is refitted on its inliers and drawn (cells closer than 0.7 are 1)",
+        "zh": "在亮于 0.5 的点里，k 轮各抽两点连线、数离线不到 δ 的点，留下支持最多的线并用它的内点重新拟合，画出来（离线不到 0.7 的格子为 1）"
       },
       "icon": "Box",
       "family": "other",
@@ -1651,7 +1784,8 @@
         {
           "key": "k",
           "label": {
-            "en": "Rounds k"
+            "en": "Rounds k",
+            "zh": "轮数 k"
           },
           "control": "number",
           "min": 1,
@@ -1673,10 +1807,12 @@
     },
     "homography": {
       "name": {
-        "en": "Solve homography"
+        "en": "Solve homography",
+        "zh": "求单应"
       },
       "desc": {
-        "en": "Pairs come four numbers at a time: (x, y) → (x′, y′). With k = 0 it solves from all the pairs (DLT); with k > 0 it runs RANSAC: k rounds each solve H from 4 random pairs and count the pairs it maps within 1.5 pixels, and the largest group is solved again. Outputs the 9 numbers of H"
+        "en": "Pairs come four numbers at a time: (x, y) → (x′, y′). With k = 0 it solves from all the pairs (DLT); with k > 0 it runs RANSAC: k rounds each solve H from 4 random pairs and count the pairs it maps within 1.5 pixels, and the largest group is solved again. Outputs the 9 numbers of H",
+        "zh": "点对每 4 个数一对：(x, y) → (x′, y′)。k = 0 时用全部点对直接解（DLT）；k > 0 时做 RANSAC：k 轮各抽 4 对解 H，数误差小于 1.5 像素的点对，留下最多的一组再解一次。输出 H 的 9 个数"
       },
       "icon": "Box",
       "family": "other",
@@ -1689,7 +1825,8 @@
         {
           "key": "k",
           "label": {
-            "en": "Rounds k"
+            "en": "Rounds k",
+            "zh": "轮数 k"
           },
           "control": "number",
           "min": 0,
@@ -1702,10 +1839,12 @@
     },
     "disparity": {
       "name": {
-        "en": "Disparity search"
+        "en": "Disparity search",
+        "zh": "视差搜索"
       },
       "desc": {
-        "en": "Matches the left and right images row by row and outputs disparity; window size selectable"
+        "en": "Matches the left and right images row by row and outputs disparity; window size selectable",
+        "zh": "左右图逐行匹配，输出视差，窗口可选"
       },
       "icon": "Search",
       "family": "search",
@@ -1713,13 +1852,15 @@
         {
           "name": "left",
           "label": {
-            "en": "left"
+            "en": "left",
+            "zh": "左"
           }
         },
         {
           "name": "right",
           "label": {
-            "en": "right"
+            "en": "right",
+            "zh": "右"
           }
         }
       ],
@@ -1727,7 +1868,8 @@
         {
           "key": "window",
           "label": {
-            "en": "Window"
+            "en": "Window",
+            "zh": "窗口"
           },
           "control": "select",
           "options": [
@@ -1755,10 +1897,12 @@
     },
     "dg_encoder": {
       "name": {
-        "en": "Encoder (trained)"
+        "en": "Encoder (trained)",
+        "zh": "编码器（已训练）"
       },
       "desc": {
-        "en": "One blob → two numbers: where it is left–right and up–down"
+        "en": "One blob → two numbers: where it is left–right and up–down",
+        "zh": "一个斑点 → 两个数：它在左右、上下的位置"
       },
       "icon": "Box",
       "family": "other",
@@ -1772,10 +1916,12 @@
     },
     "dg_decoder": {
       "name": {
-        "en": "Decoder (trained)"
+        "en": "Decoder (trained)",
+        "zh": "解码器（已训练）"
       },
       "desc": {
-        "en": "Two numbers → one blob: z₁ moves it left–right, z₂ up–down"
+        "en": "Two numbers → one blob: z₁ moves it left–right, z₂ up–down",
+        "zh": "两个数 → 一个斑点：z₁ 管左右，z₂ 管上下"
       },
       "icon": "Activity",
       "family": "learned",
@@ -1789,10 +1935,12 @@
     },
     "dg_reparam": {
       "name": {
-        "en": "Reparameterization μ + σ·ε"
+        "en": "Reparameterization μ + σ·ε",
+        "zh": "重参数化 μ + σ·ε"
       },
       "desc": {
-        "en": "Randomness enters only through ε; μ and σ differentiate as usual"
+        "en": "Randomness enters only through ε; μ and σ differentiate as usual",
+        "zh": "随机只从 ε 进来，μ、σ 照常求导"
       },
       "icon": "Activity",
       "family": "learned",
@@ -1814,10 +1962,12 @@
     },
     "tconv": {
       "name": {
-        "en": "Transposed convolution (stride 2)"
+        "en": "Transposed convolution (stride 2)",
+        "zh": "转置卷积（步幅 2）"
       },
       "desc": {
-        "en": "Zero-upsamples to twice the size, then runs a 3×3 kernel over it"
+        "en": "Zero-upsamples to twice the size, then runs a 3×3 kernel over it",
+        "zh": "补零放大一倍，再用 3×3 的核走一遍"
       },
       "icon": "Box",
       "family": "other",
@@ -1831,7 +1981,8 @@
         {
           "key": "w",
           "label": {
-            "en": "Weights"
+            "en": "Weights",
+            "zh": "权重"
           },
           "control": "custom",
           "widget": "imageKernel",
@@ -1851,54 +2002,88 @@
       "compute": "image_tconv(in, $w)"
     },
     "peaks": {
-      "name": { "en": "Peak finder" },
-      "desc": { "en": "Outputs 1 where a cell is no smaller than its 3×3 neighbours and above 0.3, and 0 elsewhere." },
+      "name": { "en": "Peak finder", "zh": "找峰" },
+      "desc": {
+        "en": "Outputs 1 where a cell is no smaller than its 3×3 neighbours and above 0.3, and 0 elsewhere.",
+        "zh": "比 3×3 邻居都不小、又大于 0.3 的格子输出 1，其余输出 0。"
+      },
       "inside": [{ "task": "6-2" }]
     },
     "matcher": {
-      "name": { "en": "Matcher" },
-      "desc": { "en": "Outputs the number 1–3 of the nearest when its distance is under 0.8 times the second nearest; otherwise 0." },
+      "name": { "en": "Matcher", "zh": "匹配器" },
+      "desc": {
+        "en": "Outputs the number 1–3 of the nearest when its distance is under 0.8 times the second nearest; otherwise 0.",
+        "zh": "最近的距离小于第二近的 0.8 倍时，输出最近那个的编号 1–3；否则输出 0。"
+      },
       "inside": [{ "task": "6-4" }]
     },
-    "cross": { "name": { "en": "Cross product" }, "desc": { "en": "Outputs the cross product a × b of two 3-vectors." }, "inside": [{ "task": "7-5" }] },
+    "cross": {
+      "name": { "en": "Cross product", "zh": "叉积" },
+      "desc": { "en": "Outputs the cross product a × b of two 3-vectors.", "zh": "输出两个三维向量的叉积 a × b。" },
+      "inside": [{ "task": "7-5" }]
+    },
     "epiline": {
-      "name": { "en": "Epipolar line" },
-      "desc": { "en": "Reads the three columns of F and a point (x, y), and outputs the epipolar line F·p." },
+      "name": { "en": "Epipolar line", "zh": "极线" },
+      "desc": {
+        "en": "Reads the three columns of F and a point (x, y), and outputs the epipolar line F·p.",
+        "zh": "读 F 的三列和点 (x, y)，输出极线 F·p。"
+      },
       "inside": [{ "task": "7-7" }]
     },
     "addNoise": {
-      "name": { "en": "Add noise" },
-      "desc": { "en": "Outputs √ᾱ·x₀ + √(1 − ᾱ)·ε: x₀ noised straight to step t." },
+      "name": { "en": "Add noise", "zh": "加噪" },
+      "desc": {
+        "en": "Outputs √ᾱ·x₀ + √(1 − ᾱ)·ε: x₀ noised straight to step t.",
+        "zh": "输出 √ᾱ·x₀ + √(1 − ᾱ)·ε：把 x₀ 一步加噪到第 t 步。"
+      },
       "inside": [{ "task": "8-7" }]
     },
     "restore": {
-      "name": { "en": "Restore" },
-      "desc": { "en": "Outputs (x_t − √(1 − ᾱ)·ε) / √ᾱ: x₀ recovered from x_t and the noise ε." },
+      "name": { "en": "Restore", "zh": "还原" },
+      "desc": {
+        "en": "Outputs (x_t − √(1 − ᾱ)·ε) / √ᾱ: x₀ recovered from x_t and the noise ε.",
+        "zh": "输出 (x_t − √(1 − ᾱ)·ε) / √ᾱ：由 x_t 和噪声 ε 还原 x₀。"
+      },
       "inside": [{ "task": "8-10" }]
     },
     "kmeansStep": {
-      "name": { "en": "One k-means step" },
-      "desc": { "en": "Splits the values into two classes at the boundary m and outputs halfway between the two class averages." },
+      "name": { "en": "One k-means step", "zh": "k 均值一步" },
+      "desc": {
+        "en": "Splits the values into two classes at the boundary m and outputs halfway between the two class averages.",
+        "zh": "按分界 m 把值分成两类，输出两类平均值的正中间。"
+      },
       "inside": [{ "task": "9-2" }]
     },
     "unpool": {
-      "name": { "en": "Unpool" },
-      "desc": { "en": "Puts each pooled value back in the cell it came from before pooling; every other cell is 0." },
+      "name": { "en": "Unpool", "zh": "反池化" },
+      "desc": {
+        "en": "Puts each pooled value back in the cell it came from before pooling; every other cell is 0.",
+        "zh": "把池化后的每个值放回池化前它所在的那一格，其余格子为 0。"
+      },
       "inside": [{ "task": "9-6" }]
     },
     "iou": {
-      "name": { "en": "IoU" },
-      "desc": { "en": "Outputs the intersection over union of two box masks: the overlap divided by the area they cover together." },
+      "name": { "en": "IoU", "zh": "IoU" },
+      "desc": {
+        "en": "Outputs the intersection over union of two box masks: the overlap divided by the area they cover together.",
+        "zh": "输出两个框掩膜的交并比：重叠面积除以合起来的面积。"
+      },
       "inside": [{ "task": "10-1" }]
     },
     "apMeter": {
-      "name": { "en": "AP meter" },
-      "desc": { "en": "Reads right or wrong in score order, the ranks and the number labelled G, and outputs the AP." },
+      "name": { "en": "AP meter", "zh": "AP 计" },
+      "desc": {
+        "en": "Reads right or wrong in score order, the ranks and the number labelled G, and outputs the AP.",
+        "zh": "读按分数排好的对错、名次和标注数 G，输出 AP。"
+      },
       "inside": [{ "task": "10-7" }]
     },
     "occlusion": {
-      "name": { "en": "Occlusion map" },
-      "desc": { "en": "Covers the 3×3 round every cell with a grey (0.5) block and outputs how far the classifier's score drops. The photo goes into in, the weights into w." },
+      "name": { "en": "Occlusion map", "zh": "遮挡图" },
+      "desc": {
+        "en": "Covers the 3×3 round every cell with a grey (0.5) block and outputs how far the classifier's score drops. The photo goes into in, the weights into w.",
+        "zh": "用灰块（0.5）挡住每一格周围的 3×3，输出分类器的分数掉了多少。照片接 in，权重接 w。"
+      },
       "inside": [{ "task": "11-2" }]
     }
   }

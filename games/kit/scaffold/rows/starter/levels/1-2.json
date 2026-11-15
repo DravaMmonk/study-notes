@@ -1,12 +1,14 @@
 {
-  "title": { "en": "Two equations" },
-  "tasks": [{
-    "id": "1-2",
-    "kind": "equation",
-    "brief": { "en": "Complete the right side of both equations." },
-    "rows": [
+  "title": { "en": "Two equations", "zh": "两条等式" },
+  "tasks": [
+    {
+      "id": "1-2",
+      "kind": "equation",
+      "brief": { "en": "Complete the right side of both equations.", "zh": "分别补齐两条等式的右边。" },
+      "rows": [
       { "total": 4, "chips": [0, 2, 3], "reference": "2 + 2", "naive": "0 + 3" },
       { "total": 7, "chips": [3, 4], "reference": "3 + 4", "naive": "4 + 4" }
     ]
-  }]
+    }
+  ]
 }

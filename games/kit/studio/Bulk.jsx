@@ -48,7 +48,7 @@ export default function Bulk({ content, vocabulary, ids, ctx, onAdd, onMove, onS
           <option value="">{tr('字段……')}</option>
           {fields.map((f) => <option key={f.key} value={f.key}>{f.key}</option>)}
         </select>
-        {form && <Field field={form} label={null} onEdit={(path, edit, type) => setValue((v) => setDeep(v, path.slice(1), type === 'text' && edit.set ? { set: { ...getAt(v, path.slice(1)), ...edit.set } } : edit))} ctx={ctx} />}
+        {form && <Field field={form} label={null} onEdit={(path, edit, type) => setValue((v) => setDeep(v, path.slice(1), type === 'text' && edit.lang ? { set: { ...getAt(v, path.slice(1)), [edit.lang]: edit.set } } : edit))} ctx={ctx} />}
         {field && (
           <div className="bulk-go">
             <button type="button" className="kit-btn is-label is-solid" onClick={() => setPlan(bulkSet(vocabulary, levels, [key], value))}>{tr('全部设成这样')}</button>

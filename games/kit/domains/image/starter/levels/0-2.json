@@ -1,21 +1,31 @@
 {
-  "title": { "en": "Unknown operator" },
-  "after": { "en": "Correct. It moves the image one pixel to the right." },
-  "intro": [{ "t": { "en": "This is a black box: you can only feed it pictures and look at what comes out." } }],
+  "title": { "en": "Unknown operator", "zh": "未知算子" },
+  "after": { "en": "Correct. It moves the image one pixel to the right.", "zh": "正确。它把图往右挪一格。" },
+  "intro": [
+    {
+      "t": {
+        "en": "This is a black box: you can only feed it pictures and look at what comes out.",
+        "zh": "这是一个黑箱：只能喂图、看结果。"
+      }
+    }
+  ],
   "unlocks": ["shift"],
   "tasks": [
     {
       "id": "0-2",
       "kind": "probe",
-      "brief": { "en": "What does it do to an image? Feed it test images, then answer." },
+      "brief": {
+        "en": "What does it do to an image? Feed it test images, then answer.",
+        "zh": "它对图像做了什么？用测试图喂它，然后回答。"
+      },
       "part": "mystery",
-      "question": { "en": "Which way does it move the image by one pixel?" },
+      "question": { "en": "Which way does it move the image by one pixel?", "zh": "它把图像往哪个方向挪了一格？" },
       "answers": ["→", "←", "↓", "↑"],
       "answer": "→",
-      "wrong": { "en": "Follow one bright spot and see where it goes." },
+      "wrong": { "en": "Follow one bright spot and see where it goes.", "zh": "盯住一个亮点，看它去了哪里。" },
       "probes": [
-        { "label": { "en": "Bright dot" }, "picture": { "impulse": { "x": 7, "y": 7 } } },
-        { "label": { "en": "Vertical bar" }, "picture": { "bar": { "x": 4 } } }
+        { "label": { "en": "Bright dot", "zh": "亮点" }, "picture": { "impulse": { "x": 7, "y": 7 } } },
+        { "label": { "en": "Vertical bar", "zh": "竖条" }, "picture": { "bar": { "x": 4 } } }
       ]
     }
   ]

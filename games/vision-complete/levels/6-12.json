@@ -1,24 +1,28 @@
 {
-  "title": { "en": "Paste it back" },
+  "title": { "en": "Paste it back", "zh": "贴回照片" },
   "after": {
-    "en": "A warp plus a mask warped the same way composites one picture into another: AR overlays, panorama stitching and sky replacement all take this step."
+    "en": "A warp plus a mask warped the same way composites one picture into another: AR overlays, panorama stitching and sky replacement all take this step.",
+    "zh": "变形加上一张同样变形的掩膜，就能把一张图合成进另一张：AR 贴图、全景拼接、换天空都是这一步。"
   },
   "intro": [
     {
       "t": {
-        "en": "The <part-ref to=\"homography\"></part-ref> in the tray: pairs go in and the 9 numbers of H come out. This level does not need it yet: H is given."
+        "en": "The <part-ref to=\"homography\"></part-ref> in the tray: pairs go in and the 9 numbers of H come out. This level does not need it yet: H is given.",
+        "zh": "托盘里的<part-ref to=\"homography\"></part-ref>：点对进去，出来 H 的 9 个数。这一关先不用它，H 直接给你。"
       }
     },
     {
       "t": {
-        "en": "The new part <part-ref to=\"part:warp\"></part-ref> carries a picture onto another by H."
+        "en": "The new part <part-ref to=\"part:warp\"></part-ref> carries a picture onto another by H.",
+        "zh": "新元件<part-ref to=\"part:warp\"></part-ref>按 H 把一张图搬到另一张图上。"
       }
     },
     {
       "t": {
-        "en": "Your task in this level: paste the crisp cover over the book in the photo."
+        "en": "Your task in this level: paste the crisp cover over the book in the photo.",
+        "zh": "这一关你要做的：把清楚的封面贴到照片里书的位置上。"
       },
-      "fig": { "test": 0, "caption": { "en": "First set" } }
+      "fig": { "test": 0, "caption": { "en": "First set", "zh": "第一组" } }
     }
   ],
   "adds": ["warp"],
@@ -28,24 +32,28 @@
       "id": "6-12",
       "kind": "graph",
       "brief": {
-        "en": "The homography H that carries the cover into the photo is given. Paste the crisp cover over the book in the photo: where the cover lands it is the cover, everywhere else still the photo."
+        "en": "The homography H that carries the cover into the photo is given. Paste the crisp cover over the book in the photo: where the cover lands it is the cover, everywhere else still the photo.",
+        "zh": "已知把封面搬到照片里的单应 H。把清楚的封面贴到照片里书的位置上：封面落到的地方是封面，其余还是照片。"
       },
       "hint": {
-        "en": "<part-ref to=\"part:warp\"></part-ref> can carry any picture. To know where the cover lands, carry a picture the size of the cover that is all 1."
+        "en": "<part-ref to=\"part:warp\"></part-ref> can carry any picture. To know where the cover lands, carry a picture the size of the cover that is all 1.",
+        "zh": "<part-ref to=\"part:warp\"></part-ref>能搬任何一张图。要知道封面落在哪，可以搬一张和封面一样大、全是 1 的图。"
       },
       "inputs": ["photo", "cover", "H"],
       "inputLabels": {
-        "photo": { "en": "Photo" },
-        "cover": { "en": "Cover" },
-        "H": { "en": "Homography H (9 numbers)" }
+        "photo": { "en": "Photo", "zh": "照片" },
+        "cover": { "en": "Cover", "zh": "封面" },
+        "H": { "en": "Homography H (9 numbers)", "zh": "单应 H（9 个数）" }
       },
       "scene": "paste",
       "tests": [
-        { "label": { "en": "Leaning right" }, "quad": [[9, 5], [21, 7], [23, 27], [7, 25]] },
-        { "label": { "en": "Far edge shorter" }, "quad": [[11, 6], [20, 6], [25, 26], [5, 26]] },
-        { "label": { "en": "Turned a little" }, "quad": [[6, 9], [18, 4], [25, 21], [12, 27]] }
+        { "label": { "en": "Leaning right", "zh": "往右斜" }, "quad": [[9, 5], [21, 7], [23, 27], [7, 25]] },
+        { "label": { "en": "Far edge shorter", "zh": "远的一边短" }, "quad": [[11, 6], [20, 6], [25, 26], [5, 26]] },
+        { "label": { "en": "Turned a little", "zh": "转了一下" }, "quad": [[6, 9], [18, 4], [25, 21], [12, 27]] }
       ],
-      "hidden": [{ "label": { "en": "Smaller" }, "quad": [[13, 10], [21, 11], [21, 22], [12, 21]] }],
+      "hidden": [
+        { "label": { "en": "Smaller", "zh": "小一点" }, "quad": [[13, 10], [21, 11], [21, 22], [12, 21]] }
+      ],
       "solution": [
         "zk = const[c=0]()",
         "ok = const()",

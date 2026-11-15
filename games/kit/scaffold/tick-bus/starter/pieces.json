@@ -1,8 +1,11 @@
 {
   "parts": {
     "reg": {
-      "name": { "en": "Register" },
-      "desc": { "en": "Gives the value held in the register of the same name; before anything is stored, gives its start value (「—」 or the number set)." },
+      "name": { "en": "Register", "zh": "读寄存卡" },
+      "desc": {
+        "en": "Gives the value held in the register of the same name; before anything is stored, gives its start value (「—」 or the number set).",
+        "zh": "给出同名寄存卡中存的值；尚未存入时，给出初值（「—」或设定的数）。"
+      },
       "icon": "ArrowUpFromLine",
       "family": "memory",
       "inputs": [],
@@ -10,17 +13,20 @@
         {
           "key": "reg",
           "control": "select",
-          "label": { "en": "Name" },
+          "label": { "en": "Name", "zh": "名字" },
           "options": [{ "value": "A" }, { "value": "B" }, { "value": "C" }, { "value": "D" }],
           "default": "A"
         },
-        { "key": "start", "control": "number", "label": { "en": "Start" }, "default": null }
+        { "key": "start", "control": "number", "label": { "en": "Start", "zh": "初值" }, "default": null }
       ],
       "compute": "held($reg, $start)"
     },
     "keep": {
-      "name": { "en": "Keep" },
-      "desc": { "en": "Stores its input in the register of the same name; it can be read from the next tick on." },
+      "name": { "en": "Keep", "zh": "存寄存卡" },
+      "desc": {
+        "en": "Stores its input in the register of the same name; it can be read from the next tick on.",
+        "zh": "把接入的值存进同名寄存卡，从下一拍起可以读出。"
+      },
       "icon": "ArrowDownToLine",
       "family": "memory",
       "inputs": [{ "name": "in" }],
@@ -28,7 +34,7 @@
         {
           "key": "reg",
           "control": "select",
-          "label": { "en": "Name" },
+          "label": { "en": "Name", "zh": "名字" },
           "options": [{ "value": "A" }, { "value": "B" }, { "value": "C" }, { "value": "D" }],
           "default": "A"
         }
@@ -36,8 +42,8 @@
       "keeps": { "input": "in", "register": "reg" }
     },
     "const": {
-      "name": { "en": "Constant" },
-      "desc": { "en": "Always gives the number it is set to." },
+      "name": { "en": "Constant", "zh": "常数" },
+      "desc": { "en": "Always gives the number it is set to.", "zh": "始终给出设定的数。" },
       "icon": "Hash",
       "family": "value",
       "inputs": [],
@@ -45,7 +51,7 @@
         {
           "key": "value",
           "control": "number",
-          "label": { "en": "Value" },
+          "label": { "en": "Value", "zh": "数值" },
           "min": 0,
           "max": 32,
           "integer": true,

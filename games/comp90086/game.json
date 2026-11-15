@@ -1,15 +1,16 @@
 {
   "domain": "image",
   "vocabulary": 19,
-  "title": { "en": "Computer Vision Notes" },
-  "kicker": { "en": "COMP90086 notes edition" },
+  "title": { "en": "Computer Vision Notes", "zh": "计算机视觉笔记" },
+  "kicker": { "en": "COMP90086 notes edition", "zh": "COMP90086 笔记版" },
   "lede": {
-    "en": "The interactions inside the COMP90086 notes: try each idea once, predicting first and then seeing what happens."
+    "en": "The interactions inside the COMP90086 notes: try each idea once, predicting first and then seeing what happens.",
+    "zh": "嵌在 COMP90086 笔记里的交互：每个知识点动手一次，先预测，再看结果。"
   },
   "mode": "notes",
   "power": {
-    "title": { "en": "Computer Vision Notes" },
-    "lines": [{ "en": "Each level goes with one idea of the notes." }]
+    "title": { "en": "Computer Vision Notes", "zh": "计算机视觉笔记" },
+    "lines": [{ "en": "Each level goes with one idea of the notes.", "zh": "每一关对应笔记里的一个知识点。" }]
   },
   "primitives": ["line3", "add"],
   "concept": {},
@@ -20,18 +21,18 @@
       "id": 1,
       "foundation": ["projection"],
       "chapter": {
-        "title": { "en": "How images form and are represented" },
-        "label": { "en": "Lecture 2" },
-        "question": { "en": "Where do the numbers in an image come from?" }
+        "title": { "en": "How images form and are represented", "zh": "图像怎样形成和表示" },
+        "label": { "en": "Lecture 2", "zh": "第 2 讲" },
+        "question": { "en": "Where do the numbers in an image come from?", "zh": "一张图里的数从哪里来？" }
       }
     },
     {
       "id": 2,
       "foundation": ["separable", "sinusoid"],
       "chapter": {
-        "title": { "en": "Processing images with fixed rules" },
-        "label": { "en": "Lectures 3–4" },
-        "question": { "en": "How do a kernel and a wave change an image?" }
+        "title": { "en": "Processing images with fixed rules", "zh": "怎样用固定规则处理图像" },
+        "label": { "en": "Lectures 3–4", "zh": "第 3–4 讲" },
+        "question": { "en": "How do a kernel and a wave change an image?", "zh": "一个核、一道波怎样改变一张图？" }
       }
     }
   ],

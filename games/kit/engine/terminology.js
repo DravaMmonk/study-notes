@@ -2,7 +2,7 @@
 // second explanation. This module checks data and literal references, not whether arbitrary prose is technical.
 import { REF } from './text.js'
 
-const sides = (v) => typeof v === 'string' ? { zh: v, en: v } : v ?? {}
+const texts = (value) => typeof value === 'string' ? { '': value } : value ?? {}
 const normal = (s) => String(s ?? '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('en')
 const plain = (s) => String(s ?? '').replace(REF, '').replace(/<[^>]*>/g, '').trim()
 const problem = (rule, at, says) => ({ rule, at, says })
@@ -10,27 +10,24 @@ const problem = (rule, at, says) => ({ rule, at, says })
 /** Compile canonical names and aliases. The existing body is the only explanation. */
 export function termRegistry(glossary) {
   const entries = new Map()
-  const names = { zh: new Map(), en: new Map() }
+  const names = Object.create(null)
   const failures = []
   for (const entry of glossary.entries) {
     const at = `glossary:${entry.id}`
     if (entries.has(entry.id)) failures.push(problem('term-id', at, 'duplicate entry id'))
     entries.set(entry.id, entry)
-    for (const side of ['zh', 'en']) {
-      // Content is written in the base language: a name and an explanation are required there, and read in another
-      // language only where the texts carry it.
-      if (side === 'en' && !plain(sides(entry.title)[side])) failures.push(problem('term-name', `${at}.title.${side}`, 'the canonical name is empty'))
-      if (side === 'en' && !(entry.body ?? []).some((p) => plain(sides(p)[side]))) failures.push(problem('term-definition', `${at}.body.${side}`, 'the entry body has no explanatory text'))
-      for (const [k, text] of [entry.title, ...(entry.aliases ?? [])].entries()) {
-        const name = normal(sides(text)[side])
-        const where = `${at}.${k ? `aliases[${k - 1}]` : 'title'}.${side}`
-        if (!name) {
-          if (k && side === 'en') failures.push(problem('term-name', where, 'an alias is empty'))
-          continue
-        }
-        const previous = names[side].get(name)
-        if (previous && previous !== entry.id) failures.push(problem('term-name-conflict', where, `“${name}” also names entry ${previous}`))
-        else names[side].set(name, entry.id)
+    if (!Object.values(texts(entry.title)).some(plain)) failures.push(problem('term-name', `${at}.title`, 'the canonical name is empty'))
+    if (!(entry.body ?? []).some((p) => Object.values(texts(p)).some(plain))) failures.push(problem('term-definition', `${at}.body`, 'the entry body has no explanatory text'))
+    for (const [k, text] of [entry.title, ...(entry.aliases ?? [])].entries()) {
+      const where = k ? `${at}.aliases[${k - 1}]` : `${at}.title`
+      if (k && !Object.values(texts(text)).some(normal)) failures.push(problem('term-name', where, 'an alias is empty'))
+      for (const [lang, value] of Object.entries(texts(text))) {
+        const name = normal(value)
+        if (!name) continue
+        const byName = names[lang] ??= new Map()
+        const previous = byName.get(name)
+        if (previous && previous !== entry.id) failures.push(problem('term-name-conflict', lang ? `${where}.${lang}` : where, `“${name}” also names entry ${previous}`))
+        else byName.set(name, entry.id)
       }
     }
   }
@@ -80,7 +77,7 @@ export function termUsage(registry, places, before) {
       else if (!available(entry, place.level)) failures.push(problem('term-unavailable', place.at, `the explanation for ${id} opens at ${entry.at}, which is not available here`))
     }
     if (place.label) continue
-    for (const id of bareNames(place.text, registry.names[place.side])) {
+    for (const id of bareNames(place.text, new Map([...(registry.names[''] ?? []), ...(registry.names[place.side] ?? [])]))) {
       if (id === place.entry || linked.has(id)) continue // Self-definitions and repeated mentions share the available entry or tag.
       const entry = registry.entries.get(id)
       reports.push({ ...problem('term-unlinked', place.at, `literal name/alias of ${id} without a term reference; check whether this is technical usage${available(entry, place.level) ? '' : ` (its explanation opens at ${entry.at})`}`), report: true })

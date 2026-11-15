@@ -1,20 +1,23 @@
 {
-  "title": { "en": "How far ahead" },
+  "title": { "en": "How far ahead", "zh": "前方多远" },
   "tray": "geometry",
   "after": {
-    "en": "Search the disparity, convert to distance, keep only what is above the floor: each step was practised on its own earlier, and joined up they make a rangefinder."
+    "en": "Search the disparity, convert to distance, keep only what is above the floor: each step was practised on its own earlier, and joined up they make a rangefinder.",
+    "zh": "搜视差、换成距离、只留地面以上：每一步都是前面单独练过的，接起来就是一台测距仪。"
   },
   "intro": [
     {
       "t": {
-        "en": "A robot vacuum has a pair of stereo cameras and must stop before it bumps into things. First it needs to know how far away everything in front is."
+        "en": "A robot vacuum has a pair of stereo cameras and must stop before it bumps into things. First it needs to know how far away everything in front is.",
+        "zh": "扫地机器人装了一对双目相机，要在撞上之前停下来。先要知道前面每个地方有多远。"
       }
     },
     {
       "t": {
-        "en": "Your task in this level: output the distance of every pixel above the floor."
+        "en": "Your task in this level: output the distance of every pixel above the floor.",
+        "zh": "这一关你要做的：输出地面以上每个像素的距离。"
       },
-      "fig": { "test": 0, "view": "terrain", "caption": { "en": "Set 1: a box" } }
+      "fig": { "test": 0, "view": "terrain", "caption": { "en": "Set 1: a box", "zh": "第一组：一个箱子" } }
     }
   ],
   "tasks": [
@@ -22,31 +25,40 @@
       "id": "7-10",
       "kind": "graph",
       "brief": {
-        "en": "A robot vacuum's stereo camera (f·b = 3). Output the distance in metres of every pixel above the floor, and 0 on the floor rows."
+        "en": "A robot vacuum's stereo camera (f·b = 3). Output the distance in metres of every pixel above the floor, and 0 on the floor rows.",
+        "zh": "扫地机器人的双目相机（f·b = 3）。输出地面以上每个像素的距离（米），地面那几行输出 0。"
       },
-      "hint": { "en": "The steps you have practised, joined up." },
+      "hint": { "en": "The steps you have practised, joined up.", "zh": "前面练过的几步，接起来。" },
       "inputs": ["left", "right", "region"],
       "inputLabels": {
-        "left": { "en": "Left camera" },
-        "right": { "en": "Right camera" },
-        "region": { "en": "Above the floor" }
+        "left": { "en": "Left camera", "zh": "左相机" },
+        "right": { "en": "Right camera", "zh": "右相机" },
+        "region": { "en": "Above the floor", "zh": "地面以上" }
       },
       "views": { "out": "terrain" },
       "check": { "tolerance": 0.05, "mismatches": 40 },
       "scene": "room",
       "setup": { "expect": "distance" },
       "tests": [
-        { "label": { "en": "A box" }, "seed": 61, "obstacles": [{ "box": [4, 3, 10, 12], "d": 3 }] },
-        { "label": { "en": "A far box" }, "seed": 62, "obstacles": [{ "box": [6, 2, 12, 12], "d": 2 }] },
         {
-          "label": { "en": "One far, one near" },
+          "label": { "en": "A box", "zh": "一个箱子" },
+          "seed": 61,
+          "obstacles": [{ "box": [4, 3, 10, 12], "d": 3 }]
+        },
+        {
+          "label": { "en": "A far box", "zh": "远的箱子" },
+          "seed": 62,
+          "obstacles": [{ "box": [6, 2, 12, 12], "d": 2 }]
+        },
+        {
+          "label": { "en": "One far, one near", "zh": "一远一近" },
           "seed": 63,
           "obstacles": [{ "box": [1, 4, 7, 12], "d": 2 }, { "box": [9, 5, 14, 12], "d": 3 }]
         }
       ],
       "hidden": [
         {
-          "label": { "en": "A thin chair leg" },
+          "label": { "en": "A thin chair leg", "zh": "细的椅腿" },
           "seed": 64,
           "obstacles": [{ "box": [7, 1, 10, 12], "d": 3 }]
         }

@@ -6,8 +6,11 @@
 //
 //   an item: { kind, key (unique), label, detail?, words (what else it is found by), …what it points at }
 
-const plain = (v) => (v && typeof v === 'object' ? `${v.zh ?? ''} ${v.en ?? ''}` : String(v ?? ''))
-const one = (v, lang) => (v && typeof v === 'object' ? v[lang] ?? v.zh ?? v.en ?? '' : String(v ?? ''))
+import { isText } from '../engine/i18n.js'
+import { getLang, sideOf } from '../shell/i18n.js'
+
+const plain = (value) => isText(value) ? Object.values(value).join(' ') : String(value ?? '')
+const one = (value, lang) => String(sideOf(value, lang) ?? '')
 
 /**
  * Every item, in the order shown before anything is typed: recent fields, actions, levels in play order, eras,
@@ -15,7 +18,7 @@ const one = (v, lang) => (v && typeof v === 'object' ? v[lang] ?? v.zh ?? v.en ?
  * in play order), level (the id being edited) and fields ([path text]: its fields), items (the worklist), recent
  * ([{ level, path }] newest first), actions ([{ id, label, keys? }]), lang (the side titles show in).
  */
-export function paletteIndex({ content, labels = [], level = null, fields = [], items = [], recent = [], actions = [], lang = 'zh' }) {
+export function paletteIndex({ content, labels = [], level = null, fields = [], items = [], recent = [], actions = [], lang = getLang() }) {
   const out = []
   const byId = new Map(content.levels.map((l) => [l.id, l]))
   const label = new Map(labels.map((l) => [l.id, l.label]))

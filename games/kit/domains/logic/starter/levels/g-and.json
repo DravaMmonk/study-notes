@@ -1,15 +1,25 @@
 {
   "symbols": ["∧"],
-  "title": { "en": "Rain, but no wind" },
+  "title": { "en": "Rain, but no wind", "zh": "下雨，但没刮风" },
   "adds": ["gAnd"],
-  "intro": [{ "t": { "en": "<part-ref to=\"part:gAnd\"></part-ref> outputs true only when both inputs are true." } }],
+  "intro": [
+    {
+      "t": {
+        "en": "<part-ref to=\"part:gAnd\"></part-ref> outputs true only when both inputs are true.",
+        "zh": "<part-ref to=\"part:gAnd\"></part-ref>：两个输入都为真，才输出真。"
+      }
+    }
+  ],
   "tasks": [
     {
       "id": "g-and",
       "kind": "gates",
       "target": "Rain ∧ ¬Wind",
-      "brief": { "en": "Wire a board that works out the value of “it rains and it is not windy” on every row." },
-      "hint": [{ "en": "Two things must hold at once." }],
+      "brief": {
+        "en": "Wire a board that works out the value of “it rains and it is not windy” on every row.",
+        "zh": "接一块电路，算出「下雨，并且不刮风」在每一行的真值。"
+      },
+      "hint": [{ "en": "Two things must hold at once.", "zh": "两件事要同时成立。" }],
       "solution": ["n = gNot(Wind)", "a = gAnd(Rain, n)", "out <- a"]
     }
   ]

@@ -30,9 +30,13 @@ export function bulkSet(vocabulary, levels, path, value) {
   for (const level of levels) {
     const s = schemaAt(vocabulary, level, keys)
     if (!s) { skipped.push({ level: level.id, why: 'has no such field' }); continue }
-    if (same(getAt(level, keys), value)) { skipped.push({ level: level.id, why: 'holds that already' }); continue }
+    const old = getAt(level, keys)
+    if (same(old, value)) { skipped.push({ level: level.id, why: 'holds that already' }); continue }
     if (keys.length > 1 && getAt(level, keys.slice(0, -1)) === undefined) { skipped.push({ level: level.id, why: 'has nothing to hold it' }); continue }
-    if (s.type === 'text' && value && typeof value === 'object') ops.push({ op: 'text.set', level: level.id, path: keys, en: value.en })
+    if (s.type === 'text') {
+      if (typeof value === 'string' || typeof old === 'string') ops.push({ op: 'text.set', level: level.id, path: keys, value })
+      else for (const [lang, text] of Object.entries(value)) ops.push({ op: 'text.set', level: level.id, path: keys, lang, value: text })
+    }
     else if (s.type === 'board' && Array.isArray(value)) ops.push({ op: 'level.blueprint', level: level.id, path: keys, text: value.join('\n') })
     else ops.push({ op: 'level.set', level: level.id, path: keys, value })
   }

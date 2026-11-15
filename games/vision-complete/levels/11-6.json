@@ -1,20 +1,23 @@
 {
-  "title": { "en": "The car in the heat map" },
+  "title": { "en": "The car in the heat map", "zh": "热图里的车" },
   "tray": "recognition",
   "after": {
-    "en": "The occlusion map is a ring wider than the contribution map: a patch on the edge of the car covers some of the car too, so the cells round it warm up as well. Negative cells are evidence against, and mixed in they make the fraction meaningless, so they are cut off first. Grad-CAM ends in a ReLU for the same reason: the heat map only shows what supports the class."
+    "en": "The occlusion map is a ring wider than the contribution map: a patch on the edge of the car covers some of the car too, so the cells round it warm up as well. Negative cells are evidence against, and mixed in they make the fraction meaningless, so they are cut off first. Grad-CAM ends in a ReLU for the same reason: the heat map only shows what supports the class.",
+    "zh": "遮挡图比贡献图宽一圈：挡板压在车边上时也盖住了一部分车，所以车周围也热起来。负数是反面证据，混进来会让比例变得没有意义，所以先截掉。Grad-CAM 最后也有一个 ReLU，道理相同：热图只画支持这个类别的地方。"
   },
   "intro": [
     {
       "t": {
-        "en": "The fraction in <level-ref to=\"11-4\"></level-ref> was measured straight from the score, which only a model with one weight per cell can be taken apart into. The occlusion experiment works on any model, so the check-up measures on the occlusion map."
+        "en": "The fraction in <level-ref to=\"11-4\"></level-ref> was measured straight from the score, which only a model with one weight per cell can be taken apart into. The occlusion experiment works on any model, so the check-up measures on the occlusion map.",
+        "zh": "<level-ref to=\"11-4\"></level-ref>的比例是从分数里直接量的，只有每格一个权重的模型才能这样拆。遮挡实验对哪种模型都能做，所以体检用遮挡图来量。"
       }
     },
     {
       "t": {
-        "en": "Your task in this level: output what fraction of the grey 3×3 occlusion map lies on the car."
+        "en": "Your task in this level: output what fraction of the grey 3×3 occlusion map lies on the car.",
+        "zh": "这一关你要做的：输出灰块遮挡图（3×3）有多大比例落在车上。"
       },
-      "fig": { "test": 2, "caption": { "en": "Set 3: a car by a house" } }
+      "fig": { "test": 2, "caption": { "en": "Set 3: a car by a house", "zh": "第三组：房子旁的车" } }
     }
   ],
   "tasks": [
@@ -22,37 +25,47 @@
       "id": "11-6",
       "kind": "graph",
       "brief": {
-        "en": "Count only where covering lowers the score: of the part of the grey 3×3 occlusion map above 0, what fraction lies on the car? Output that fraction."
+        "en": "Count only where covering lowers the score: of the part of the grey 3×3 occlusion map above 0, what fraction lies on the car? Output that fraction.",
+        "zh": "只算挡住以后分数变低的地方：灰块遮挡图（3×3）里大于 0 的部分，有多大比例落在车上。输出这个比例。"
       },
       "hint": {
-        "en": "<level-ref to=\"11-4\"></level-ref> measured the score; this time measure the heat map, its negative cells taken out first."
+        "en": "<level-ref to=\"11-4\"></level-ref> measured the score; this time measure the heat map, its negative cells taken out first.",
+        "zh": "<level-ref to=\"11-4\"></level-ref>量的是分数，这次量的是热图。热图里的负数要先去掉。"
       },
       "inputs": ["in", "w", "m"],
       "inputLabels": {
-        "in": { "en": "Photo" },
-        "w": { "en": "Weights" },
-        "m": { "en": "Car mask" }
+        "in": { "en": "Photo", "zh": "照片" },
+        "w": { "en": "Weights", "zh": "权重" },
+        "m": { "en": "Car mask", "zh": "车的掩膜" }
       },
       "check": { "tolerance": 0.01 },
       "scene": "classifier",
       "setup": { "check": "heatShare" },
       "tests": [
-        { "label": { "en": "An honest classifier" }, "street": { "cx": 5 }, "weights": "car" },
+        { "label": { "en": "An honest classifier", "zh": "老实的分类器" }, "street": { "cx": 5 }, "weights": "car" },
         {
-          "label": { "en": "A classifier that looks at the road" },
+          "label": { "en": "A classifier that looks at the road", "zh": "只看路的分类器" },
           "street": { "cx": 5 },
           "weights": "road"
         },
         {
-          "label": { "en": "Looking at the car and the road" },
+          "label": { "en": "Looking at the car and the road", "zh": "车和路都看" },
           "street": { "cx": 4, "house": 12 },
           "weights": "both"
         },
-        { "label": { "en": "A car further right" }, "street": { "cx": 6 }, "weights": "car" }
+        { "label": { "en": "A car further right", "zh": "车停得靠右" }, "street": { "cx": 6 }, "weights": "car" }
       ],
       "hidden": [
-        { "label": { "en": "The car has moved left" }, "street": { "cx": 1 }, "weights": "car" },
-        { "label": { "en": "A wider look" }, "street": { "cx": 6, "house": 0 }, "weights": "wide" }
+        {
+          "label": { "en": "The car has moved left", "zh": "车开到了左边" },
+          "street": { "cx": 1 },
+          "weights": "car"
+        },
+        {
+          "label": { "en": "A wider look", "zh": "看得宽一点" },
+          "street": { "cx": 6, "house": 0 },
+          "weights": "wide"
+        }
       ],
       "solution": [
         "c = arith[op=mul]()",

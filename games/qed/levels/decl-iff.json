@@ -1,6 +1,6 @@
 {
-  "title": { "en": "Declaring “if and only if”" },
-  "declare": { "en": "if and only if" },
+  "title": { "en": "Declaring “if and only if”", "zh": "声明「当且仅当」" },
+  "declare": { "en": "if and only if", "zh": "当且仅当" },
   "target": "Rain ↔ Wet",
   "sentences": ["Rain → Wet", "Wet → Rain"],
   "tests": [
@@ -15,7 +15,8 @@
   "intro": [
     {
       "t": {
-        "en": "“If and only if” makes one sentence of the “if … then” both ways."
+        "en": "“If and only if” makes one sentence of the “if … then” both ways.",
+        "zh": "「当且仅当」把两个方向的「若…则…」合成一句。"
       }
     }
   ],
@@ -25,7 +26,7 @@
     {
       "id": "decl-iff_1",
       "kind": "iso",
-      "step": { "en": "Find the fault" },
+      "step": { "en": "Find the fault", "zh": "找出错误" },
       "play": "audit",
       "want": "expose",
       "boards": [{ "rules": [{ "binds": [], "needs": ["Rain → Wet"] }, { "binds": [], "needs": ["Wet → Rain"] }] }],
@@ -44,37 +45,45 @@
       "intro": [
         {
           "t": {
-            "en": "The declaration of “if and only if” on the board does not meet the requirement. Write a test case for each direction, introduction and use, to find its fault."
+            "en": "The declaration of “if and only if” on the board does not meet the requirement. Write a test case for each direction, introduction and use, to find its fault.",
+            "zh": "板上这份「当且仅当」的声明不符合需求。请从引入和使用两个方向各写一条检验条例，找出它的错误。"
           }
         }
       ],
       "brief": {
-        "en": "Requirement: “it rains if and only if the ground is wet” may be introduced only when the “if … then” both ways are proved. Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree."
+        "en": "Requirement: “it rains if and only if the ground is wet” may be introduced only when the “if … then” both ways are proved. Write two test cases whose expectations meet the requirement and with which this declaration’s results both disagree.",
+        "zh": "需求：「下雨当且仅当地湿」：两个方向的「若…则…」都已证出，才能引入。编写两条检验条例，使预期符合需求，这份声明的结果都和预期不符。"
       },
       "hint": [
         {
-          "en": "Does each of this declaration’s two introduction rules need one thing or two?"
+          "en": "Does each of this declaration’s two introduction rules need one thing or two?",
+          "zh": "这份声明的两条引入规则，各要一样还是两样？"
         },
         {
-          "en": "With “it rains ↔ the ground is wet”, what follows from “the ground is wet” by the requirement? What does each case of this declaration’s elimination rule hand back?"
+          "en": "With “it rains ↔ the ground is wet”, what follows from “the ground is wet” by the requirement? What does each case of this declaration’s elimination rule hand back?",
+          "zh": "有了「下雨 ↔ 地湿」，按需求可以从「地湿」推出什么？这份声明的消去规则每种情况交还什么？"
         }
       ]
     },
     {
       "id": "decl-iff_2",
       "kind": "iso",
-      "step": { "en": "Write the declaration" },
+      "step": { "en": "Write the declaration", "zh": "编写声明" },
       "intro": [
         {
           "t": {
-            "en": "A premise need not be a single letter; it can be a sentence with → in it, built with the connective in the premise window. A rule is written with one layer of ⟹; whatever a premise needs in turn goes inside its sentence."
+            "en": "A premise need not be a single letter; it can be a sentence with → in it, built with the connective in the premise window. A rule is written with one layer of ⟹; whatever a premise needs in turn goes inside its sentence.",
+            "zh": "前提不必是一个字母，也可以是含 → 的句子：在前提的窗口里用连接词拼出来。规则只写一层 ⟹，前提里再要什么，就写进句子里。"
           }
         }
       ],
       "brief": {
-        "en": "Requirement: “it rains if and only if the ground is wet” may be introduced only when the “if … then” both ways are proved. Write the declaration of “if and only if”."
+        "en": "Requirement: “it rains if and only if the ground is wet” may be introduced only when the “if … then” both ways are proved. Write the declaration of “if and only if”.",
+        "zh": "需求：「下雨当且仅当地湿」：两个方向的「若…则…」都已证出，才能引入。写出「当且仅当」的声明。"
       },
-      "hint": [{ "en": "Does the requirement need both at once, or is either enough?" }]
+      "hint": [
+        { "en": "Does the requirement need both at once, or is either enough?", "zh": "需求要的两样，是同时都要，还是有一样就够？" }
+      ]
     }
   ]
 }

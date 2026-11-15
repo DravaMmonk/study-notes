@@ -17,14 +17,15 @@ test('the existing entry body is the definition; bilingual and neutral aliases s
   assert.deepEqual(r.failures, [])
   assert.equal(r.entries.get('axis').body, e.body)
   assert.equal(r.names.zh.get('相机轴'), 'axis')
-  assert.equal(r.names.en.get('oa'), 'axis')
+  assert.equal(r.names[''].get('oa'), 'axis')
   assert.deepEqual(validate(GLOSSARY, { groups: [{ id: 'g', title: 'G' }], entries: [{ ...e, title: { en: e.title.en }, body: [{ en: e.body[0].en }], aliases: [{ en: 'Camera axis' }, 'OA'] }] }), [])
   assert.ok(validate(GLOSSARY, { groups: [], entries: [entry('axis', { aliases: ['OA'], summary: 'a second definition' })] }).some((p) => p.at.endsWith('summary')))
 })
 
 test('empty names, empty/reference-only definitions and conflicting term names fail', () => {
   assert.ok(rules(registry(entry('axis', { title: t('光轴', ''), aliases: [t('别名', '')], body: [t(ref('other'), '<b> </b>')] })).failures).includes('term-definition'))
-  assert.ok(rules(registry(entry('axis', { title: t('光轴', '') })).failures).includes('term-name'))
+  assert.ok(rules(registry(entry('axis', { title: t('', '') })).failures).includes('term-name'))
+  assert.deepEqual(registry(entry('axis', { title: { ja: '光軸' }, body: [{ ja: '光の中心軸。' }] })).failures, [])
   assert.ok(rules(registry(entry('axis'), entry('axis')).failures).includes('term-id'))
   const r = registry(entry('a', { aliases: [t('相机轴', '  Camera   AXIS ')] }), entry('b', { title: t('另一条轴', 'camera axis') }))
   assert.deepEqual(rules(r.failures), ['term-name-conflict'])

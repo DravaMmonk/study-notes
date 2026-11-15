@@ -1,6 +1,7 @@
 // Where a game's content names a level: every field its domain's schema types as a level (schema.js S.level, the
 // eras' items included), every <level-ref> link inside a text, and the audit findings game.json leaves open
 // ('part@level').
+import { PARTS_FILE } from '../parts/schema.js'
 import { find } from '../schema.js'
 import { GLOSSARY } from '../vocabulary.js'
 import { getAt, setAt } from './edit.js'
@@ -14,6 +15,7 @@ const link = (id) => new RegExp(`(<level-ref to=")${id.replace(/[.*+?^${}()|[\]\
 const files = (ws, vocabulary) => [
   ['game.json', own(ws.game), vocabulary.game, (v) => { ws.game = { ...ws.game, ...v } }],
   ['glossary.json', ws.glossary, GLOSSARY, (v) => { ws.glossary = v }],
+  ...(ws.partDefs === undefined ? [] : [['pieces.json', ws.partDefs, PARTS_FILE, (v) => { ws.partDefs = v }]]),
   ...[...ws.levels].map(([id, level]) => [`levels/${id}.json`, level, vocabulary.level, (v) => { ws.levels.set(id, v) }]),
 ]
 
@@ -25,16 +27,6 @@ const texts = (value) => {
   }
   walk(value, [])
   return out
-}
-
-// A link renamed in a text is renamed in the overlays too (../i18n.js), in the text an entry is keyed by and in its
-// translation: the entry follows its text.
-const renameInOverlays = (ws, pattern, to) => {
-  const rename = (text) => text.replace(pattern, `$1${to}$2`)
-  const rewrite = (entry) => typeof entry === 'string' ? rename(entry)
-    : Object.fromEntries(Object.entries(entry).map(([kind, text]) => [kind, rename(text)]))
-  ws.i18n = Object.fromEntries(Object.entries(ws.i18n ?? {}).map(([lang, memory]) =>
-    [lang, Object.fromEntries(Object.entries(memory).map(([from, entry]) => [rename(from), rewrite(entry)]))]))
 }
 
 /** Every place naming level `id`: [{ file, path, how: 'field' | 'link' | 'open' }]. */
@@ -60,7 +52,6 @@ export function renameRefs(ws, vocabulary, from, to) {
     }
     if (v !== value) set(v)
   }
-  renameInOverlays(ws, link(from), to)
   if (ws.game.open) {
     const open = Object.fromEntries(Object.entries(ws.game.open).map(([rule, list]) => [rule, list.map((f) => (f.endsWith(`@${from}`) ? (n++, `${f.slice(0, -from.length)}${to}`) : f))]))
     ws.game = { ...ws.game, open }
@@ -113,7 +104,6 @@ export function renamePartRefs(ws, vocabulary, from, to) {
     }
     if (v !== value) set(v)
   }
-  renameInOverlays(ws, partLink(from), to)
   if (ws.game.open) {
     const open = Object.fromEntries(Object.entries(ws.game.open).map(([rule, list]) => [rule, list.map((f) => (f.startsWith(`${from}@`) ? (n++, `${to}${f.slice(from.length)}`) : f))]))
     ws.game = { ...ws.game, open }

@@ -31,6 +31,9 @@ test('a task’s puzzle changes its stamp alone; its level’s, every task of th
 
 test('words are no part of a stamp, and a task moved to another level like it keeps its own', () => {
   assert.deepEqual(changed(content({ title: 'another' })), [])
+  const before = content({ parts: { parts: { add: { name: { en: 'Add' } } } } })
+  const after = content({ parts: { parts: { add: { name: { fr: 'Ajouter' } } } } })
+  assert.deepEqual(stamps(before), stamps(after), 'a locale change in pieces does not invalidate saves')
   const moved = content()
   moved.levels[1].tasks.push(moved.levels[0].tasks.pop())
   assert.deepEqual([stamps(moved).b, taskStamps(vocabulary, moved).b.level], [stamps(content()).b, 'two'])

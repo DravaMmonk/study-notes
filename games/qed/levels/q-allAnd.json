@@ -1,5 +1,5 @@
 {
-  "title": { "en": "∀ over both sides" },
+  "title": { "en": "∀ over both sides", "zh": "∀ 拆到两边" },
   "tray": "proof",
   "tasks": [
     {
@@ -7,7 +7,9 @@
       "kind": "proof",
       "tests": [{ "premises": { "p": "∀x. P(x) ∧ Q(x)" }, "goal": "(∀x. P(x)) ∧ ∀x. Q(x)" }],
       "cases": [{ "P": "Human", "Q": "Mortal" }, { "P": "Student", "Q": "School" }],
-      "hint": [{ "en": "Two for-any boxes, each proving one half, then join them." }],
+      "hint": [
+        { "en": "Two for-any boxes, each proving one half, then join them.", "zh": "用两个任取框，各证一半，再拼起来。" }
+      ],
       "solution": [
         "g1 = allI[x=a](body: s1.left) {",
         "  body {",

@@ -21,7 +21,9 @@ import { auditBlueprint, conformance } from './blueprint.js'
 import { lintCopy } from './lint.js'
 import { lintPedagogy } from './pedagogy.js'
 import { reviewTerminology } from './terminology.js'
-import { translationState } from '../engine/i18n.js'
+import { searchable } from '../engine/ops/search.js'
+import { checkContent } from '../engine/vocabulary.js'
+import { withParts } from '../engine/parts/define.js'
 
 export const GAMES_DIR = resolve(import.meta.dirname, '../..')
 const finding = (rule, at, says) => ({ rule, at, says })
@@ -143,14 +145,17 @@ export const STEPS = [
     commands: ['op', 'check', 'gate'],
     gate: async (id) => {
       const content = readContent(id)
-      const { vocabulary } = await domainOf(content)
-      const state = translationState(content, vocabulary)
+      const domain = await domainOf(content)
+      const vocabulary = withParts(domain.vocabulary, content.partDefs)
+      const places = searchable(content, vocabulary, ['text']).filter((p) => p.side)
+      const fields = new Set(places.map((p) => JSON.stringify([p.file, p.path]))).size
+      const languages = new Set(places.map((p) => p.side))
       return {
-        failures: state.flatMap(({ lang, wrong }) => wrong.map((w) => finding('i18n-wrong', `${lang}${w.kind ? `/${w.kind}` : ''}: ${w.from.slice(0, 40)}`, w.why))),
-        reports: state.flatMap(({ lang, texts, translated, unused }) => [
-          ...(translated < texts ? [finding('i18n-missing', lang, `${texts - translated} of ${texts} texts read in the base language`)] : []),
-          ...(unused ? [finding('i18n-unused', lang, `${unused} entries no text reads any more`)] : []),
-        ]),
+        failures: checkContent(domain, content).map((p) => finding('content', p.at, p.says)),
+        reports: [...languages].flatMap((lang) => {
+          const filled = places.filter((p) => p.side === lang && p.text.trim()).length
+          return filled < fields ? [finding('i18n-missing', lang, `${fields - filled} of ${fields} fields have no text in this language`)] : []
+        }),
       }
     },
   },

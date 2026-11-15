@@ -1,10 +1,11 @@
 {
-  "title": { "en": "Moving a quantifier out" },
+  "title": { "en": "Moving a quantifier out", "zh": "量词挪出来" },
   "tray": "proof",
   "intro": [
     {
       "t": {
-        "en": "Is “whoever is late, the teacher is cross” the same as “if anyone is late, the teacher is cross”?"
+        "en": "Is “whoever is late, the teacher is cross” the same as “if anyone is late, the teacher is cross”?",
+        "zh": "「谁迟到，老师都会生气」和「只要有人迟到，老师就生气」是一回事吗？"
       }
     }
   ],
@@ -12,11 +13,14 @@
     {
       "id": "q-move_1",
       "kind": "proof",
-      "step": { "en": "One direction" },
+      "step": { "en": "One direction", "zh": "一个方向" },
       "tests": [{ "premises": { "p": "∀x. P(x) → Q" }, "goal": "(∃x. P(x)) → Q" }],
       "cases": [{ "P": "IsLate", "Q": "Angry" }, { "P": "Cries", "Q": "Woken" }],
       "hint": [
-        { "en": "Assume someone is late, take them out, and take them from the given." }
+        {
+          "en": "Assume someone is late, take them out, and take them from the given.",
+          "zh": "假设有人迟到了，把他拿出来，从已知里取他。"
+        }
       ],
       "solution": [
         "g = impI[A=\"exists x. P(x)\"](body: f) {",
@@ -35,11 +39,14 @@
     {
       "id": "q-move_2",
       "kind": "proof",
-      "step": { "en": "The other direction" },
+      "step": { "en": "The other direction", "zh": "另一个方向" },
       "tests": [{ "premises": { "p": "(∃x. P(x)) → Q" }, "goal": "∀x. P(x) → Q" }],
       "cases": [{ "P": "IsLate", "Q": "Angry" }, { "P": "Cries", "Q": "Woken" }],
       "hint": [
-        { "en": "Take any a and assume they are late: they are the “someone”." }
+        {
+          "en": "Take any a and assume they are late: they are the “someone”.",
+          "zh": "任取一个 a，假设他迟到了：他就是那个「有人」。"
+        }
       ],
       "solution": [
         "g = allI[x=a](body: h) {",
