@@ -72,7 +72,7 @@ export default function useLink({ level, saved, save, solve, fail, toast }) {
     buzz(8)
     if (!solvedIn(all, ti)) return
     if (L.tests.every((_, k) => solvedIn(all, k))) {
-      later(verdict.pass, reduced() ? 0 : 500)
+      later(() => verdict.pass({ links: all }), reduced() ? 0 : 500)
       return
     }
     toast(tr(`第 ${ti + 1} 题完成`, `Puzzle ${ti + 1} done`))

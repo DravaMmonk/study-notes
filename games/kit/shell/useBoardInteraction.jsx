@@ -26,7 +26,7 @@ export function useToast() {
 }
 
 /**
- * Passing and failing, through the shell: pass() solves the level, fail(info) opens the shell's fail dialog
+ * Passing and failing, through the shell: pass(work) solves the level with the work that met its goal, fail(info) opens the shell's fail dialog
  * ({ head, body, extra?, hint?, cta? }; without a hint of its own, the level's first). `fails` counts this visit's.
  */
 export function useVerdict({ hints, solve, fail }) {
@@ -35,9 +35,9 @@ export function useVerdict({ hints, solve, fail }) {
   const fails = useRef(0)
   return useMemo(() => ({
     fails,
-    pass() {
+    pass(work) {
       buzz([15, 40, 15, 40, 60])
-      shell.current.solve(null)
+      shell.current.solve(null, work)
     },
     fail(x) {
       fails.current++

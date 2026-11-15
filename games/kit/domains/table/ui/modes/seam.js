@@ -25,7 +25,7 @@ function pictureFigure(img, label) {
 }
 
 /** Trace frames hold the next seam on the image before it is removed. */
-function cutting({ img, cuts }, count) {
+function cutting({ img, cuts, firstSeam }, count) {
   const steps = []
   for (let k = 0; k < count && img[0].length > 2; k++) {
     const path = seamPath(img)
@@ -33,7 +33,7 @@ function cutting({ img, cuts }, count) {
     img = cutOut(img, path)
     cuts++
   }
-  return { steps, end: { img, cuts } }
+  return { steps, end: { img, cuts, firstSeam } }
 }
 
 export default function useSeam({ level, solve, fail, revealBoard }) {
@@ -44,6 +44,10 @@ export default function useSeam({ level, solve, fail, revealBoard }) {
   const [batch, setBatch] = useState(null)
   const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
+  const applyCuts = (next) => {
+    setWork(next)
+    if (next.cuts >= L.cuts) later(() => verdict.pass(next), reduced() ? 0 : 900)
+  }
   const playback = usePlayback({
     count: 1,
     board: batch,
@@ -51,9 +55,8 @@ export default function useSeam({ level, solve, fail, revealBoard }) {
     check: () => '',
     immediate: true,
     onSolve: () => {
-      setWork(batch.end)
+      applyCuts(batch.end)
       setBatch(null)
-      if (batch.end.cuts >= L.cuts) later(verdict.pass, reduced() ? 0 : 900)
     },
   })
   useEffect(() => {
@@ -109,7 +112,7 @@ export default function useSeam({ level, solve, fail, revealBoard }) {
     buzz(8)
   }
   const cutIt = () => {
-    setWork({ img: cutOut(img, path), cuts: cuts + 1 })
+    applyCuts({ img: cutOut(img, path), cuts: cuts + 1, firstSeam: path })
     setPath([])
     setMsg({ cls: 'good', body: () => tr('剪掉了！图片窄了一列。', 'Cut! The picture is one column narrower.') })
     buzz(15)

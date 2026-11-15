@@ -57,8 +57,9 @@ export default function useTrace({ level, saved, save, solve, fail, toast }) {
     }
     setFlash(next)
     setRoute([])
-    save({ found: all })
-    if (all.length === total) later(verdict.pass, reduced() ? 0 : 500)
+    const work = { found: all }
+    save(work)
+    if (all.length === total) later(() => verdict.pass(work), reduced() ? 0 : 500)
   }
 
   const showRoute = route.length ? route : flash || []

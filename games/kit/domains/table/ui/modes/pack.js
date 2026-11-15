@@ -32,10 +32,11 @@ export default function usePack({ level, saved, save, solve, fail, toast }) {
     const all = bags.map((b, k) => (k === ti ? next : b))
     setBags(all)
     setTried(tried.map((s, k) => (k === ti ? new Set([...s, next.join(',')]) : s)))
-    save({ bags: all })
+    const work = { bags: all }
+    save(work)
     if (!solvedIn(all, ti)) return
     if (L.tests.every((_, k) => solvedIn(all, k))) {
-      later(verdict.pass, reduced() ? 0 : 600)
+      later(() => verdict.pass(work), reduced() ? 0 : 600)
       return
     }
     toast(tr(`第 ${ti + 1} 题完成，达到了目标价值`, `Puzzle ${ti + 1} done: you reached the target value`))

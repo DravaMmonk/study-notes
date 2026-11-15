@@ -66,7 +66,7 @@ export default function useFill({ level, saved, save, solve, fail, toast }) {
     const wrong = order.filter((id) => valOf(id) !== truth.val[id])
     setMarks(Object.fromEntries(order.filter((id) => id !== L.start).map((id) => [id, wrong.includes(id) ? 'bad' : 'ok'])))
     if (!wrong.length) {
-      verdict.pass()
+      verdict.pass({ vals })
       return
     }
     const w = wrong[0], ps = preds(w), pv = ps.map(valOf), right = truth.val[w], mine = valOf(w), n = wrong.length

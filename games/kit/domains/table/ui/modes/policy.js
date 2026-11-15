@@ -17,10 +17,11 @@ export default function usePolicy({ level, solve, fail }) {
   const L = level.source
   const t = L.map
   const table = useMemo(() => settle(t), [t])
-  const [k, setK] = useState(0)
+  const [walks, setWalks] = useState([])
+  const k = walks.length
   const [path, setPath] = useState(() => [L.starts[0].join()])
   const [msg, setMsg] = useState(null) // { cls, body() }
-  const [done, setDone] = useState(false)
+  const done = k === L.starts.length
   const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
   const val = (id) => table.get(id)
@@ -45,18 +46,19 @@ export default function usePolicy({ level, solve, fail }) {
       setMsg(null)
       return
     }
-    const next = k + 1
-    setK(next)
+    const reached = [...path, id]
+    const completed = [...walks, reached]
+    const next = completed.length
+    setWalks(completed)
     if (next < L.starts.length) {
       const n = path.length
       setMsg({ cls: 'good', body: () => tr(`到了，走了 ${n} 步。换一个起点。`, `Made it in ${n} steps. On to another start.`) })
       setPath([L.starts[next].join()])
       return
     }
-    setPath([...path, id])
-    setDone(true)
+    setPath(reached)
     setMsg({ cls: 'good', body: () => tr('三个起点都走到了宝藏。', 'All three starts reached the treasure.') })
-    later(verdict.pass, reduced() ? 0 : 1600)
+    later(() => verdict.pass({ walks: completed }), reduced() ? 0 : 1600)
   }
 
   const on = new Set(path), opts = done ? [] : near(here), cells = []

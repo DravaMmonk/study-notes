@@ -78,7 +78,7 @@ export default function useBreach({ level, solve, fail, toast }) {
     const keyed = gotKey(A) ? 'A' : 'B', other = keyed === 'A' ? 'B' : 'A'
     setMsg({ cls: 'good', body: () => tr(`找到了！两条路线都停在${rcName(ea)}。路线 ${keyed} 带着钥匙，下一步能穿过${rcName(next[0])}的门；路线 ${other} 空着手，过不去。可在只记位置的计数器眼里，它们是同一个状态。`, `Found it! Both routes stop at ${rcName(ea)}. Route ${keyed} carries the key and can go through the door at ${rcName(next[0])} next; route ${other} is empty-handed and can’t. Yet to a counter that only remembers position, they are the same state.`) })
     buzz(15)
-    later(verdict.pass, reduced() ? 0 : 900)
+    later(() => verdict.pass({ routes }), reduced() ? 0 : 900)
   }
 
   const sp = 66, sz = 58, cells = [], edges = [], end = `${w.R - 1},${w.C - 1}`, tail = route.at(-1)
