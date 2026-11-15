@@ -35,7 +35,7 @@ import { SLOT_GUTTER } from './slot-metrics.js'
 import { slotGrid } from './slot-grid.js'
 import { dependencyOrder, indexEdges, wouldCycle } from '../graph.js'
 import { keepFixedSettings, lockedCards, lockedRefusal, PRESET_PORT_REFUSAL } from './presets.js'
-import { frameEdges, moveInto, scopeRefusal } from './frames.js'
+import { frameEdges, scopeRefusal } from './frames.js'
 import { frameId, frameTree, regionAddress, regionsFit, regionsOf } from './regions.js'
 
 // Port ids, the same on the desktop board and the phone: an output is `o|<node>`, an input `i|<node>|<port>`.
@@ -264,27 +264,9 @@ export function placement(graph, parts, region = null, { fixed = false } = {}) {
   return place(region)
 }
 
-/**
- * Move a part to slot `at` of `region` (null: the board itself); a part already there swaps into the moved part's
- * old slot. Into another region it goes as frames.js moveInto has it, at a free spot there on the desktop board.
- */
-export function moveToSlot(graph, parts, id, at, region = null) {
-  const node = byId(graph, id)
-  if ((node?.in ?? null) !== region) {
-    const moved = moveInto(graph, parts, id, region, ...spotIn(graph, region))
-    return moved === graph ? graph : { ...moved, nodes: moved.nodes.map((n) => (n.id === id ? { ...n, slot: at } : n)) }
-  }
-  const { cell } = placement(graph, parts, region)
-  const from = cell.get(id)
-  const other = [...cell].find(([, slot]) => slot === at)?.[0]
-  return {
-    ...graph,
-    nodes: graph.nodes.map((n) => {
-      if (n.id === id) return { ...n, slot: at }
-      if (n.id === other) return { ...n, slot: from }
-      return cell.has(n.id) ? { ...n, slot: cell.get(n.id) } : n
-    }),
-  }
+/** Every requested slot must fit without displacing another card in the destination grid. */
+export function fitsSlotEdit(placed, slots) {
+  return [...slots].every(([id, slot]) => placed.cell.get(id) === slot)
 }
 
 /** The first free cell of a loose grid between the sources and the sinks, for a part added on the desktop. */

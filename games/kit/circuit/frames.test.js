@@ -2,10 +2,11 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { framePart, moveInto } from './frames.js'
+import { movePhonePart } from './blocks.js'
 import { flowBoard, primitivesOnly } from '../engine/board-cards.js'
 import { frameTree, regionsFit } from './regions.js'
 import { keepLocked, lockedCards, presetOf, withPreset } from './presets.js'
-import { clearSpot, moveToSlot, placement, removeNode, wireRefusal } from './model.js'
+import { clearSpot, placement, removeNode, wireRefusal } from './model.js'
 import { traySize } from './card-size.js'
 
 // A box `f` with one region that opens a value, and a card `m` inside it; `p` and `g` on the board.
@@ -71,10 +72,30 @@ test('on a phone a box takes the rows of its regions, each a grid of its own bet
 })
 
 test('a block dragged into a region slot moves into the box', () => {
-  const moved = moveToSlot(board, parts, 'g', 1, 'f/body')
+  assert.equal(movePhonePart(board, parts, 'g', 0, 'f/body'), null)
+  const { graph: moved } = movePhonePart(board, parts, 'g', 1, 'f/body')
   const g = moved.nodes.find((n) => n.id === 'g')
   assert.deepEqual([g.in, g.slot], ['f/body', 1])
   assert.deepEqual(moved.wires, board.wires)
+})
+
+test('a frame swap requires room for both footprints and preserves other slots', () => {
+  const saved = {
+    nodes: [{ id: 'f', type: 'box', slot: 2 }, { id: 'g', slot: 1 }, { id: 'bystander', slot: 12 }],
+    wires: [],
+  }
+  assert.equal(movePhonePart(saved, parts, 'f', 1), null)
+  assert.equal(movePhonePart(saved, parts, 'f', 3), null)
+  assert.equal(movePhonePart(saved, parts, 'f', 0), null)
+  assert.equal(movePhonePart(saved, parts, 'f', 2).graph, saved)
+
+  const open = { ...saved, nodes: saved.nodes.map((node) => node.id === 'g' ? { ...node, slot: 14 } : node) }
+  const legal = { ...open, nodes: open.nodes.map((node) => node.id === 'bystander' ? { ...node, slot: 24 } : node) }
+  assert.equal(movePhonePart(open, parts, 'f', 12), null)
+  const { graph: swapped, other } = movePhonePart(legal, parts, 'f', 14)
+  assert.equal(other, 'g')
+  assert.deepEqual(placement(swapped, parts).cell, new Map([['f', 14], ['g', 2], ['bystander', 24]]))
+  assert.equal(swapped.wires, saved.wires)
 })
 
 test('the fixed tray sets the columns even when its most common card width is not on the board', () => {

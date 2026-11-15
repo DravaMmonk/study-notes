@@ -1,6 +1,7 @@
 import { srcNode } from '../engine/wire-source.js'
 import { cardWidth } from './card-size.js'
-import { moveToSlot, placement } from './model.js'
+import { byId, fitsSlotEdit, placement, spotIn } from './model.js'
+import { moveInto } from './frames.js'
 import { frameId, frameTree } from './regions.js'
 import { slotGrid } from './slot-grid.js'
 import { layoutOrder, pipelineLayout } from './layout.js'
@@ -129,10 +130,10 @@ export function phoneBlockBoard(board,parts) {
   return {...board,blocks:blocks.map(({ins:_ins,outs:_outs,...b})=>({...b,...bounds.get(b.id)})),nodes:board.nodes.map(n=>slots.has(n.id)?{...n,slot:slots.get(n.id)}:n)}
 }
 
-export function blockAtSlot(board,parts,slot,region=null) {
+export function blockAtSlot(board,parts,slot,region=null,placed) {
   if(region!==null)return null
-  const placed=placement(board,parts),row=Math.floor(slot/placed.cols)
-  return blockRows(board,parts,placed).find(b=>row>=b.start&&row<b.end)?.id??null
+  const layout=placed??placement(board,parts),row=Math.floor(slot/layout.cols)
+  return blockRows(board,parts,layout).find(b=>row>=b.start&&row<b.end)?.id??null
 }
 
 export function blockOfPart(board,id) {
@@ -168,13 +169,27 @@ export function withNewSlots(board, parts) {
   return { ...board, nodes: board.nodes.map((node) => slots.has(node.id) ? { ...node, slot: slots.get(node.id) } : node) }
 }
 
-export function movePhonePart(board,parts,id,slot,region=null,canMove=()=>true) {
-  const other=[...placement(board,parts,region).cell].find(([,at])=>at===slot)?.[0]
-  if(!canMove(id)||(other&&other!==id&&!canMove(other)))return board
-  const origin=blockOfPart(board,id),destination=blockAtSlot(board,parts,slot,region)
-  const next=moveToSlot(board,parts,id,slot,region)
-  if(next===board||board.blocks===undefined)return next
-  return transferBlockMembers(next,parts,[{id,block:destination},...(other&&other!==id?[{id:other,block:origin}]:[])])
+/** Move into an empty slot or swap within one grid, committing membership only after the new slots fit. */
+export function movePhonePart(board, parts, id, slot, region = null, canMove = () => true) {
+  const node = byId(board, id)
+  if (!node || parts.role(node) !== 'part' || !canMove(id)) return null
+  const sameRegion = (node.in ?? null) === region
+  const placed = placement(board, parts, region)
+  const other = [...placed.cell].find(([, at]) => at === slot)?.[0]
+  if (other === id) return { graph: board }
+  if (other ? !sameRegion || !canMove(other) : !placed.free.includes(slot)) return null
+
+  const moved = sameRegion ? board : moveInto(board, parts, id, region, ...spotIn(board, region))
+  if (!sameRegion && moved === board) return null
+  const slots = new Map(placed.cell).set(id, slot)
+  if (other) slots.set(other, placed.cell.get(id))
+  const next = { ...moved, nodes: moved.nodes.map((n) => slots.has(n.id) ? { ...n, slot: slots.get(n.id) } : n) }
+  if (!fitsSlotEdit(placement(next, parts, region), slots)) return null
+
+  if (board.blocks === undefined) return { graph: next, other }
+  const membership = [{ id, block: blockAtSlot(board, parts, slot, region, placed) }]
+  if (other) membership.push({ id: other, block: blockOfPart(board, id) })
+  return { graph: transferBlockMembers(next, parts, membership), other }
 }
 
 /** Translate root members only; frame children already move with their parent in local coordinates. */

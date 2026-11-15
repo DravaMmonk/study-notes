@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { enableDrag } from '../drag.js'
 import { L, tr } from '../shell/i18n.js'
 import { NO_CARD_PORT, portOnCard } from './card-ports.js'
-import { byId, canRemoveCard, connect, ends, feeding, layout, parsePort, placement, removeNode, wireRefusal } from './model.js'
+import { byId, canRemoveCard, connect, ends, feeding, fitsSlotEdit, layout, parsePort, placement, removeNode, wireRefusal } from './model.js'
 import { keepLocked, leavesLockedRegion, lockedCards, lockedRefusal, PRESET_CARD_REFUSAL } from './presets.js'
 import { drawWires } from './SlotBoard.jsx'
 import { blockAtSlot, movePhonePart, transferBlockMembers } from './blocks.js'
@@ -133,20 +133,19 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     setToast(NO_CARD_PORT)
     return false
   }
-  // Moving a part (from its sheet): the next slot tapped takes it; a slot with a part in it swaps the two.
-  const moveTo = (at, region = null) => {
-    const name = nameOf(byId(graph, moving))
-    const other = [...placement(graph, parts, region).cell].find(([, slot]) => slot === at)?.[0]
-    const node = byId(graph, moving)
+  const movePart = (id, at, region) => {
+    const node = byId(graph, id)
     setMoving(null)
-    // A locked part moves only within the region it sits in.
     if (!node) return
     if (wouldLeave(node, region)) return setToast(PRESET_CARD_REFUSAL)
-    const next = movePhonePart(graph, parts, node.id, at, region, canMove)
-    if (next === graph) return
+    const moved = movePhonePart(graph, parts, id, at, region, canMove)
+    if (!moved) return setToast(DOES_NOT_FIT)
+    if (moved.graph === graph) return
+    const name = nameOf(node)
+    const other = moved.other && nameOf(byId(graph, moved.other))
     buzz()
-    edit(next, other && other !== moving
-      ? { zh: `「${name}」和「${nameOf(byId(graph, other))}」换了位置`, en: `Swapped "${name}" and "${nameOf(byId(graph, other))}"` }
+    edit(moved.graph, other
+      ? { zh: `「${name}」和「${other}」换了位置`, en: `Swapped "${name}" and "${other}"` }
       : { zh: `把「${name}」移到了这一格`, en: `Moved "${name}" here` })
   }
   const startMove = (id) => {
@@ -161,7 +160,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
       const node = byId(graph, id)
       const slot = placement(graph, parts, node.in ?? null).cell.get(id)
       if (id === moving || parts.role(node) !== 'part' || slot === undefined) return setMoving(null)
-      return moveTo(slot, node.in ?? null)
+      return movePart(moving, slot, node.in ?? null)
     }
     if (picking) {
       if (wireToCard(picking, id)) setPicking(null)
@@ -172,7 +171,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
   }
   const onSlot = (at, region = null) => {
     setPicking(null)
-    if (moving) return moveTo(at, region)
+    if (moving) return movePart(moving, at, region)
     openSlot?.(at, region)
   }
 
@@ -201,14 +200,14 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
     edit(next, note)
   }
   const partAt = (type, slot, region) => {
+    const before = placement(graph, parts, region)
+    if (!before.free.includes(slot)) return null
     const candidate = create(graph, type, slot, region)
     const node = byId(candidate.graph, candidate.id)
     if (!node || (node.in ?? null) !== region || !regionsFit(candidate.graph, parts)) return null
     if (parts.role(node) !== 'part') return region === null ? candidate : null
-    const before = placement(graph, parts, region)
-    const after = placement(candidate.graph, parts, region)
-    const fits = after.cell.get(node.id) === slot && [...before.cell].every(([id, at]) => after.cell.get(id) === at)
-    return fits ? candidate : null
+    const slots = new Map(before.cell).set(node.id, slot)
+    return fitsSlotEdit(placement(candidate.graph, parts, region), slots) ? candidate : null
   }
   const place = (type, at, region = null) => {
     const made = partAt(type, at, region)
@@ -251,7 +250,7 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
   // through a ref.
   const latest = useRef(null)
   useEffect(() => {
-    latest.current = { graph, parts, wire, place, edit, remove, canMove, wouldLeave, say: setToast, unpick: () => setPicking(null), wireToCard }
+    latest.current = { graph, parts, wire, place, movePart, remove, canMove, unpick: () => setPicking(null), wireToCard }
   })
   useEffect(() => {
     const el = root.current
@@ -275,16 +274,10 @@ export function useSlotEditing({ graph, onChange: given, parts, create, label, o
           if (over.dataset.p && over.dataset.p !== g.id) now.wire(g.id, over.dataset.p)
           else if (over.dataset.piece) now.wireToCard(g.id, over.dataset.piece)
         }
-        if (g.kind === 'tray' && slot !== null) {
-          if (placement(now.graph, now.parts, region).free.includes(slot)) now.place(g.id, slot, region)
-          else now.say({ zh: '这一格已经有元件了', en: 'That slot already has a part' })
-        }
+        if (g.kind === 'tray' && slot !== null) now.place(g.id, slot, region)
         if (g.kind === 'piece' && over) {
-          const piece = byId(now.graph, g.id)
-          if (!now.canMove(g.id)) return
-          if (slot === null) now.remove(g.id)
-          else if (now.wouldLeave(piece, region)) now.say(PRESET_CARD_REFUSAL)
-          else now.edit(movePhonePart(now.graph, now.parts, g.id, slot, region, now.canMove))
+          if (slot !== null) now.movePart(g.id, slot, region)
+          else if (now.canMove(g.id)) now.remove(g.id)
         }
         if (board()) drawWires(board(), now.graph, now.parts)
       },

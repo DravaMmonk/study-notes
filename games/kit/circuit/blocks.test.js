@@ -116,7 +116,7 @@ test('adding into an insertion row joins the container and leaves another comple
 })
 test('dragging out removes membership without enlarging the old container',()=>{
  const phone=phoneBlockBoard(containerBoard(),parts),end=blockRows(phone,parts)[0].end
- const moved=phoneBlockBoard(movePhonePart(phone,parts,'a',7),parts)
+ const moved=phoneBlockBoard(movePhonePart(phone,parts,'a',7).graph,parts)
  assert.equal(blockOfPart(moved,'a'),null)
  assert.deepEqual(moved.blocks[0].nodes,['b'])
  assert.equal(blockRows(moved,parts)[0].end,end)
@@ -125,7 +125,8 @@ test('dragging out removes membership without enlarging the old container',()=>{
 })
 test('swapping between containers transfers both memberships with their positions',()=>{
  const board={...graph,nodes:graph.nodes.map(n=>({...n,slot:{a:0,b:1,c:4}[n.id]})),blocks:[{id:'left',view:'ports',slot:0,nodes:['a','b']},{id:'right',view:'ports',slot:4,nodes:['c']}]}
- const phone=phoneBlockBoard(board,parts),moved=movePhonePart(phone,parts,'a',4)
+ const phone=phoneBlockBoard(board,parts),{graph:moved,other}=movePhonePart(phone,parts,'a',4)
+ assert.equal(other,'c')
  assert.equal(blockOfPart(moved,'a'),'right');assert.equal(blockOfPart(moved,'c'),'left')
  assert.equal(moved.nodes.find(n=>n.id==='a').slot,4);assert.equal(moved.nodes.find(n=>n.id==='c').slot,0)
  assert.equal(moved.wires,phone.wires)
@@ -133,14 +134,14 @@ test('swapping between containers transfers both memberships with their position
 test('protected preset members cannot move directly or indirectly through a swap',()=>{
  const phone=phoneBlockBoard(containerBoard(),parts)
  const canMove=id=>!blockOfPart(phone,id)?.startsWith('course:')
- assert.equal(movePhonePart(phone,parts,'a',7,null,canMove),phone)
- assert.equal(movePhonePart(phone,parts,'c',0,null,canMove),phone)
- const detached=movePhonePart(phone,parts,'a',7,null,()=>true)
+ assert.equal(movePhonePart(phone,parts,'a',7,null,canMove),null)
+ assert.equal(movePhonePart(phone,parts,'c',0,null,canMove),null)
+ const {graph:detached}=movePhonePart(phone,parts,'a',7)
  assert.equal(blockOfPart(detached,'a'),null)
 })
 test('moving the last member outside deletes only its empty container',()=>{
  const board={...graph,nodes:graph.nodes.map(n=>({...n,slot:{a:0,b:4,c:5}[n.id]})),blocks:[{id:'only',view:'ports',slot:0,nodes:['a']}]}
- const phone=phoneBlockBoard(board,parts),moved=movePhonePart(phone,parts,'a',7)
+ const phone=phoneBlockBoard(board,parts),{graph:moved}=movePhonePart(phone,parts,'a',7)
  assert.deepEqual(moved.blocks,[]);assert.equal(moved.nodes.length,phone.nodes.length)
  assert.equal(moved.wires,phone.wires)
 })
