@@ -19,7 +19,7 @@
 // A board is { nodes: [{ id, type, params, x?, y? }], wires: [{ from, to, port }] }; as text it is the kernel's
 // blueprint (../circuit/text.js), read and checked there.
 import { sourceOf, srcNode } from './wire-source.js'
-import { print, read } from '../circuit/text.js'
+import { printLines, readLines } from '../circuit/text.js'
 import { sink, source } from './boards.js'
 import { portsOf } from './circuit.js'
 
@@ -99,13 +99,9 @@ export function circuitBoard({ cards, ticks = false, right = 980, gap = 140, tex
   })
 
   /** The board blueprint lines describe on `task` (the kernel's reader); throws the first { line, zh, en } it cannot read. */
-  const fromText = (lines, task, circuit) => {
-    const got = read(lines.join('\n'), { nodes: fixedOf(task), wires: [] }, wiring(task, circuit), circuit.types())
-    if (got.errors) throw got.errors[0]
-    return got.graph
-  }
+  const fromText = (lines, task, circuit) => readLines(lines, { nodes: fixedOf(task), wires: [] }, wiring(task, circuit), circuit.types())
   /** A board as blueprint lines, as content writes it (no header): what fromText reads back on the task. */
-  const toText = (board, task, circuit) => print(board, wiring(task, circuit)).split('\n').filter((line) => line && !line.startsWith('#'))
+  const toText = (board, task, circuit) => printLines(board, wiring(task, circuit))
 
   return { ticks, FIXED, FIXED_PARTS, isFixed, portsIn, portsOut, labelOf, sourceFor, fixedOf, startBoard, fits, carriedOnto, wiring, fromText, toText }
 }

@@ -21,20 +21,17 @@ export function imageBoards(image) {
   const fixed = circuitBoard({ cards: [
     { type: 'input', side: 'left', of: (task) => ports(task, 'input') },
     { type: 'output', side: 'right', of: (task) => ports(task, 'output') },
-  ], text: kit.BOARD_TEXT })
+  ] })
   const labels = { in: T('图', 'Image'), left: T('左', 'left'), right: T('右', 'right'), mu: 'μ', sigma: 'σ', eps: 'ε' }
   const board = {
     ...fixed,
     startBoard,
     wiring(task, circuit) {
-      const wiring = fixed.wiring(task, circuit)
-      const example = task.tests[0]
-      const colour = (node) => example?.[node.type === 'input' ? 'inputs' : 'expected']?.[node.params.name]?.c === 3
+      const parts = kit.boardParts(task.tests[0])
       return {
-        ...wiring,
-        availableInputs: (node, ports) => ports.filter((port) => kit.BOARD_PARTS.inputs(node).includes(port)),
-        inputs: (node) => node.type === 'output' && !colour(node) ? ['in'] : kit.BOARD_PARTS.inputs(node),
-        outputs: (node) => node.type === 'input' && !colour(node) ? null : kit.BOARD_PARTS.outputs(node),
+        ...fixed.wiring(task, circuit),
+        ...parts,
+        availableInputs: (node, ports) => ports.filter((port) => parts.inputs(node).includes(port)),
         portLabel: (node, port) => fixed.isFixed(node.type) ? labels[port] ?? String(port).toUpperCase() : kit.types[node.type]?.inputLabels?.[port] ?? labels[port] ?? port,
         valueView: (node) => (node.type === 'input' ? task.views?.in : node.type === 'output' ? task.views?.out : task.views?.mid ?? task.views?.out) ?? 'pixels',
       }

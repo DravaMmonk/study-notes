@@ -49,7 +49,7 @@ const circuit = circuitPlay({
   board: (ctx) => {
     ctx.game.image.syncOwn(ctx.progress)
     const { shown, folded } = ctx.game.image.offerIn(ctx.level, ctx.flags)
-    return { start: opening(ctx), parts: ctx.game.image.kit.BOARD_PARTS, types: [...shown, ...folded] }
+    return { start: opening(ctx), parts: ctx.game.image.kit.boardParts(ctx.level.tests[0]), types: [...shown, ...folded] }
   },
   // The score under the board reads a circuit's cost live as parts go on it, so a part's own cost is something the
   // player sees: it is written beside what the part does.

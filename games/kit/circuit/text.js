@@ -22,6 +22,7 @@ import { baseRefusal, byId, outputsOf, spotIn } from './model.js'
 //
 // A game says through its parts description (model.js) how its nodes read as text, all optional:
 //   parts.text.value(node, key, v) → v spelled in ASCII        parts.text.read(node, key, v) → v as the game keeps it
+//   parts.text.settings(node) → [field] the fields a placed part accepts
 //   parts.text.sets(node) → [field]   what the player sets on a node the level gives (an input card's picks: 'value',
 //                                     and 'type' when its kind can change); such a node is written out with them
 // A node the player may not remove (parts.removable, else every part may go) is given by the level: never declared,
@@ -121,7 +122,7 @@ export function print(graph, parts, head = {}) {
     const node = byId(graph, id)
     if (placed(parts, node) || (parts.text?.sets?.(node) ?? []).length) continue
     const ports = parts.inputs(node)
-    for (const w of into(id)) lines.push(`${ports.length === 1 ? name(id) : `${name(id)}.${name(w.port)}`} <- ${printSource(w.from)}`)
+    for (const w of into(id)) lines.push(`${w.port === ports[0] ? name(id) : `${name(id)}.${name(w.port)}`} <- ${printSource(w.from)}`)
   }
   return `${lines.join('\n')}\n`
 }
@@ -145,7 +146,9 @@ function tokens(text) {
         if (j >= raw.length) throw say(line, '引号没有合上。', 'A quote is not closed.')
         const t = raw.slice(i, j + 1)
         if (/[^\x20-\x7e]/.test(t)) throw say(line, '只能用 ASCII 字符（引号里也一样，别的字符写成 \\u 转义）。', 'Only ASCII characters, inside quotes too (write others as \\u escapes).')
-        out.push({ t, line, str: true })
+        let decoded
+        try { decoded = JSON.parse(t) } catch { throw say(line, '引号内的转义无效。', 'Invalid escape in quoted text.') }
+        out.push({ t, line, str: true, decoded })
         i = j + 1
       } else if (raw.startsWith('<-', i)) {
         out.push({ t: '<-', line, p: true })
@@ -186,7 +189,7 @@ export function parse(text) {
   const sep = (close) => peek() !== close && next(k < ts.length ? ',' : close)
   const ident = () => {
     const tok = next()
-    if (tok.str) return JSON.parse(tok.t)
+    if (tok.str) return tok.decoded
     if (tok.p) throw say(tok.line, `这里应当是一个名字，写的是「${tok.t}」。`, `Expected a name, found “${tok.t}”.`)
     return tok.t
   }
@@ -215,7 +218,7 @@ export function parse(text) {
       return map
     }
     const t = next()
-    if (t.str) return JSON.parse(t.t)
+    if (t.str) return t.decoded
     if (NUMBER.test(t.t)) return Number(t.t)
     if (t.t === 'true' || t.t === 'false' || t.t === 'null') return JSON.parse(t.t)
     if (WORD.test(t.t)) return t.t
@@ -348,6 +351,12 @@ export function read(text, graph, parts, types) {
       continue
     }
     const node = { id: st.id, type: st.type }
+    const keys = parts.text?.settings?.(node)
+    const stray = Object.keys(st.settings).find((key) => keys && !keys.includes(key))
+    if (stray !== undefined) {
+      refuse(st, `「${st.type}」没有设置「${stray}」。`, `“${st.type}” has no setting “${stray}”.`)
+      continue
+    }
     node.params = { ...parts.defaults?.(node.type), ...Object.fromEntries(Object.entries(st.settings).map(([key, x]) => [key, unread(node, key, x)])) }
     if (st.in) node.in = st.in
     const before = graph.nodes.find((n) => n.id === st.id && n.type === st.type && placed(parts, n) && (n.in ?? null) === (st.in ?? null))
@@ -411,6 +420,18 @@ export function read(text, graph, parts, types) {
   }
   flowSpots(out, fresh)
   return errors.length ? { errors } : { graph: { ...graph, nodes: out.nodes, wires: out.wires } }
+}
+
+/** Write a blueprint as content lines, without the editor's header. */
+export function printLines(graph, parts) {
+  return print(graph, parts).trimEnd().split('\n').slice(1)
+}
+
+/** Read content blueprint lines with the same board rules, throwing the first diagnostic. */
+export function readLines(lines, graph, parts, types) {
+  const result = read(lines.join('\n'), graph, parts, types)
+  if (result.errors) throw result.errors[0]
+  return result.graph
 }
 
 /** What a text says it is: { game, level } from its first line, or null when it does not say. */

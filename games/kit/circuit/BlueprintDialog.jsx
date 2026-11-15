@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, Copy, Download, FileUp } from 'lucide-react'
 import { useEscape } from '../shell/Dialogs.jsx'
-import { L, tr } from '../shell/i18n.js'
+import { tr } from '../shell/i18n.js'
 import { headOf, print, read } from './text.js'
 
 /**
@@ -94,7 +94,7 @@ export default function BlueprintDialog({ board, head, mode, onClose }) {
         />
         {errors.length > 0 && (
           <ul className="blueprint-errors" role="alert">
-            {errors.slice(0, 6).map((e, k) => <li key={k}>{L(e)}</li>)}
+            {errors.slice(0, 6).map((e, k) => <li key={k}>{tr(e.zh, e.en)}</li>)}
             {errors.length > 6 && <li>{tr(`另有 ${errors.length - 6} 处`, `${errors.length - 6} more`)}</li>}
           </ul>
         )}

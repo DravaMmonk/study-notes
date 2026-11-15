@@ -120,3 +120,9 @@ test('a given node a wire reads is switched on to give it, when the game says it
   assert.deepEqual(card.params, { on: [] }, 'the board on screen is left as it was')
   assert.deepEqual(read('a = and(sky.snow, Rain)', fresh, sky, TYPES).errors.map((e) => e.en), ['Line 1: “sky” has no output “snow”.'])
 })
+
+test('a malformed quoted escape is reported on its blueprint line', () => {
+  const { errors } = read(String.raw`a = and[setting="\q"](Rain, Wind)`, { nodes: [], wires: [] }, {}, [])
+  assert.equal(errors[0].line, 1)
+  assert.match(errors[0].en, /Invalid escape/)
+})

@@ -28,7 +28,8 @@ import { benchOf } from './items/benches.js'
 function circuit({ scene, setup, tests, hidden, solution, naive, alsoFails, constraint, ...rest }, kit, keep) {
   const io = { inputs: rest.inputs ?? ['in'], outputs: rest.outputs ?? ['out'] }
   const spec = { ...io, scene, setup }
-  const read = (lines) => kit.fromText(lines, io)
+  const examples = testsOf(spec, tests)
+  const read = (lines) => kit.fromText(lines, { ...io, tests: examples })
   const board = (lines, wrong = false) => {
     const b = read(lines)
     keep({ board: b, write: kit.toText, read, ...(wrong ? { naive: true } : {}) })
@@ -36,7 +37,7 @@ function circuit({ scene, setup, tests, hidden, solution, naive, alsoFails, cons
   }
   return {
     ...rest,
-    tests: testsOf(spec, tests),
+    tests: examples,
     ...(hidden && { hidden: testsOf(spec, hidden) }),
     ...(solution && { solution: board(solution) }),
     ...(naive && { naive: board(naive, true) }),

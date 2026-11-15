@@ -24,7 +24,7 @@ test('reset restores learnable parameters without changing wiring or other setti
 
 test('blueprint import initializes learnable parameters when settings are omitted', () => {
   const kit = imageKit(NODE_TYPES)
-  const { graph, errors } = read('w = lrnConst()\nout <- w', startBoard({}), kit.BOARD_PARTS, ['lrnConst'])
+  const { graph, errors } = read('w = lrnConst()\nout <- w', startBoard({}), kit.boardParts(), ['lrnConst'])
   assert.equal(errors, undefined)
   assert.deepEqual(graph.nodes.find(n => n.id === 'w').params.p, [1])
 })

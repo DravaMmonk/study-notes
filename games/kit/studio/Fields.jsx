@@ -97,7 +97,7 @@ function BoardField({ field, onSet, ctx, label }) {
   try {
     svg = boardSvg(lines)
   } catch (error) {
-    wrong = `${tr('第')}${error.line}${tr(' 行：')}${L(error) ?? error.message}`
+    wrong = tr(error.zh, error.en) ?? error.message
   }
   return (
     <div className="field-board">
