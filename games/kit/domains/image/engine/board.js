@@ -55,6 +55,7 @@ export function blueprintOf({ types, inputsOf, defaultParams, snapSetting }) {
       },
       outputs: (node) => {
         if (node.type === 'input') return colour(node, 'inputs') ? channelOutputs : null
+        if (node.type === 'output') return null
         const spec = types[node.type]
         const keys = typeof spec?.outputs === 'function' ? spec.outputs(node) : spec?.outputs
         return keys?.map((key) => ({ key, label: spec.outputLabels?.[key] ?? key })) ?? null

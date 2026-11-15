@@ -2,11 +2,10 @@
 // whole test (the shared machine walk, ../../../engine/machine.js), and the signal types that say which wire fits.
 // All of it is over a course's parts (parts.js partsOf): modelOf(parts) is the course's board model.
 
-import { splitSource, srcNode } from '../../../engine/wire-source.js';
+import { splitSource } from '../../../engine/wire-source.js';
 import { Halt, evaluate as engineEvaluate } from '../../../engine/circuit.js';
 import { sink } from '../../../engine/boards.js';
 import { MAX_ROUNDS, walk } from '../../../engine/machine.js';
-import { wouldCycle } from '../../../graph.js';
 import { tr } from '../lang.js';
 import { isCard } from './parts.js';
 import { picksOf } from './board.js';
@@ -46,7 +45,7 @@ function misfit(sink, src) {
  *   partOf(type)                         the engine's part for a node type
  *   evaluate(board, sense, outs, probe?) every output once, on one cell
  *   runCircuit(V, t, board, o?)          a whole test
- *   srcType / sinkType / typeError / refusal   the signal types that say which wire fits
+ *   srcType / sinkType / wireTypeError   the signal types that say which wire fits
  */
 export function modelOf(parts) {
   /** The engine's part for a node type. */
@@ -150,15 +149,12 @@ export function modelOf(parts) {
     return null;
   }
 
-  /** Why a wire from `from` into port `port` of `to` may not go on the board, or null when it may (it then replaces
-   *  whatever that port had). */
-  function refusal(board, io, from, to, port) {
-    const edges = board.wires.filter(w => board.nodes.find(n => n.id === w.to)?.type !== 'out').map(w => [srcNode(w.from), w.to]);
-    if (board.nodes.find(n => n.id === to)?.type !== 'out' && wouldCycle(edges, srcNode(from), to)) return tr('这样会绕成一个圈：元件要等自己算完，才能算自己。', 'That would make a loop: a component would have to wait for its own result before it could compute it.');
+  /** Whether replacing an input's wire would leave any of the board's signal types incompatible. */
+  function wireTypeError(board, io, from, to, port) {
     return typeError({ ...board, wires: [...board.wires.filter(w => !(w.to === to && w.port === port)), { from, to, port }] }, io);
   }
 
-  return { ...parts, partOf, evaluate, runCircuit, srcType, sinkType, typeError, refusal };
+  return { ...parts, partOf, evaluate, runCircuit, srcType, sinkType, wireTypeError };
 }
 
 export { MAX_ROUNDS };

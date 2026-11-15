@@ -43,8 +43,8 @@ export const parsePort = (p) => {
   return side === 'o' ? { side: 'out', id } : { side: 'in', id, port }
 }
 
-/** A node's outputs: [{ key, label, short? }], or one unnamed output. */
-export const outputsOf = (parts, node) => parts.outputs?.(node) ?? [{ key: null, label: '' }]
+/** A node's outputs: the declared ports, one unnamed output, or none for a sink. */
+export const outputsOf = (parts, node) => parts.role(node) === 'sink' ? [] : parts.outputs?.(node) ?? [{ key: null, label: '' }]
 
 /** The wire two ports make, in either order, or null when both are outputs or both inputs. */
 export function ends(a, b) {

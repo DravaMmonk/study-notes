@@ -3,11 +3,22 @@
 // stages moves to its tasks.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { fitted, fromText, portsProblem, toText } from './model/board.js';
+import { plainBoard } from '../../engine/contract.js';
+import { fitted, portsProblem } from './model/board.js';
+import { modelOf } from './model/run.js';
+import { partsOf } from './model/parts.js';
+import { robotBlueprint } from './model/wiring.js';
 import { inspectRobotCase, robotConstraint } from './model/verdict.js';
 import { validate } from './validate.js';
 
 const given = { offers: { view: ['up', 'left'], facts: ['start', 'rock'] }, inputs: [], outs: ['cell'] };
+
+const model = modelOf(partsOf({}));
+const world = {
+  sensors: { up: { type: 'num' }, left: { type: 'num' }, start: { type: 'bool' }, rock: { type: 'bool' } },
+  outs: [['cell', 'Cell', '', 'num']],
+};
+const blueprint = robotBlueprint(model, given, world);
 
 test('author checks use intermediate cells when the task grades the entire table', () => {
   const solution = { cell: 4 };
@@ -24,17 +35,31 @@ test('author checks use intermediate cells when the task grades the entire table
 
 test('blueprint text reads into a board and writes back the same', () => {
   const lines = ['m = msum(view.up, view.left)', 'k = const[value=1]()', 'g = pass(facts.start, k)', 's = msum(m, g)', 'cell <- s'];
-  const b = fromText(lines, given);
+  const b = blueprint.read(lines);
   assert.deepEqual(b.nodes.find(n => n.id === 'view').params.picks, ['up', 'left']);
   assert.deepEqual(b.nodes.find(n => n.id === 'facts').params.picks, ['start']);
   assert.deepEqual(b.nodes.find(n => n.id === 'k').params, { value: 1 });
   assert.deepEqual(b.wires.find(w => w.to === 'cell'), { from: 's', to: 'cell', port: 'in' });
-  assert.deepEqual(toText(b), lines);
+  const written = blueprint.write(b);
+  assert.deepEqual(written.slice(0, 2), ['view[picks=[up, left]]()', 'facts[picks=[start]]()']);
+  assert.deepEqual(plainBoard(blueprint.read(written)), plainBoard(b));
+  assert.deepEqual(blueprint.write(blueprint.read(written)), written);
 });
 
 test('blueprint text names the line it cannot read', () => {
-  assert.throws(() => fromText(['m = msum(view.down)', 'cell <- m'], given), e => e.line === 1 && /down/.test(e.en));
-  assert.throws(() => fromText(['cell <- nope'], given), e => e.line === 1);
+  assert.throws(() => blueprint.read(['m = msum(view.down)', 'cell <- m']), e => e.line === 1 && /down/.test(e.en));
+  assert.throws(() => blueprint.read(['cell <- nope']), e => e.line === 1);
+});
+
+test('robot blueprints refuse a second wire, sink sources and unavailable sensor settings', () => {
+  assert.throws(() => blueprint.read(['cell <- view.up', 'cell <- view.left']), e => e.line === 2 && /takes two wires/.test(e.en));
+  assert.throws(() => blueprint.read(['m = mmin(cell)']), e => e.line === 1 && /has no output/.test(e.en));
+  assert.throws(() => blueprint.read(['view[picks=up]()']), e => e.line === 1 && /must be a list/.test(e.en));
+  assert.throws(() => blueprint.read(['view[picks=[down]]()']), e => e.line === 1 && /down/.test(e.en));
+  assert.throws(() => blueprint.read(['cell <- facts.start']), e => e.line === 1 && /bool|yes/i.test(e.en));
+  const withUnused = blueprint.read(['view[picks=[left, up]]()', 'cell <- view.up']);
+  assert.deepEqual(withUnused.nodes[0].params.picks, ['up', 'left']);
+  assert.deepEqual(blueprint.read(blueprint.write(withUnused)), withUnused);
 });
 
 test('a fitted board reads each sensor on the card that offers it, and drops what its task lacks', () => {
@@ -51,13 +76,13 @@ test('a fitted board reads each sensor on the card that offers it, and drops wha
 
 test('a board that becomes a part reads exactly its ports', () => {
   const ports = [{ sensor: 'up', label: 'up' }, { sensor: 'left', label: 'left' }, { input: 'way3', label: 'way in 3' }];
-  const g = { ...given, inputs: ['way3'] };
-  assert.equal(portsProblem(fromText(['m = mmin(view.up, view.left, way3)', 'cell <- m'], g), ports), null);
-  const readsSensor = fromText(['cell <- view.up'], given);
+  const read = robotBlueprint(model, { ...given, inputs: ['way3'] }, world).read;
+  assert.equal(portsProblem(read(['m = mmin(view.up, view.left, way3)', 'cell <- m']), ports), null);
+  const readsSensor = blueprint.read(['cell <- view.up']);
   assert.equal(robotConstraint({ ports: [], taskId: 'example' }, readsSensor), null);
   assert.ok(robotConstraint({ ports: [], taskId: 'example', builds: { task: 'example' } }, readsSensor));
-  assert.match(String(portsProblem(fromText(['m = mmin(view.up, view.left)', 'cell <- m'], g), ports)), /way in 3|来路|way3/);
-  assert.match(String(portsProblem(fromText(['m = mmin(view.up, view.left, way3, facts.rock)', 'cell <- m'], g), ports)), /rock/);
+  assert.match(String(portsProblem(read(['m = mmin(view.up, view.left)', 'cell <- m']), ports)), /way in 3|来路|way3/);
+  assert.match(String(portsProblem(read(['m = mmin(view.up, view.left, way3)', 'gate = pass(facts.rock, m)', 'cell <- gate']), ports)), /rock/);
 });
 
 // A course of two levels written here: the first builds a route counter, the second runs it behind a block gate.

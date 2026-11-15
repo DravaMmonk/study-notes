@@ -10,8 +10,7 @@
 // wire runs from a source ('view#up', 'facts#start', a part's id) into a port: '0', '1', … of a part, 'in' of an output.
 // x, y (the desktop board) and slot (the phone's grid) are layout only and never reach the engine.
 
-import { sourceOf, splitSource, srcNode } from '../../../engine/wire-source.js';
-import { parse, printSource } from '../../../circuit/text.js';
+import { sourceOf, splitSource } from '../../../engine/wire-source.js';
 import { isCard, isGiven } from './parts.js';
 import { tr } from '../lang.js';
 
@@ -100,70 +99,4 @@ export function placement(b) {
   parts.forEach(n => { if (cell[n.id] === undefined) { let a = 0; while (used.has(a)) a++; cell[n.id] = a; used.add(a); } });
   const even = v => v + (v % 2), size = even(Math.max(-1, ...used) + 1) + 2;
   return { cell, size, free: Array.from({ length: size }, (_, a) => a).filter(a => !used.has(a)) };
-}
-
-/* ---------- as blueprint text (../../../circuit/text.js) ---------- */
-
-const WORD = /^[A-Za-z_][A-Za-z0-9_-]*$/;
-const name = s => (WORD.test(s) && !['true', 'false', 'null', '_'].includes(s) ? s : JSON.stringify(s));
-const setting = v => (typeof v === 'string' ? name(v) : Array.isArray(v) ? `[${v.map(setting).join(', ')}]` : JSON.stringify(v));
-
-/**
- * A board as blueprint lines (content writes reference boards this way): each placed part in an order where it comes
- * after what it reads, `id = type[settings](its inputs in order, _ for an open one)`; then the wires into the outputs,
- * `cell <- m`. A card's picks are not written: they are what is wired from it.
- */
-export function toText(b) {
-  const parts = placed(b), into = id => b.wires.filter(w => w.to === id), done = new Set(b.nodes.filter(n => isGiven(n.type)).map(n => n.id)), lines = [];
-  while (lines.length < parts.length) {
-    const ready = parts.filter(n => !done.has(n.id) && into(n.id).every(w => done.has(srcNode(w.from))));
-    for (const n of ready.length ? ready : parts.filter(x => !done.has(x.id)).slice(0, 1)) {
-      const ins = new Map(into(n.id).map(w => [Number(w.port), w.from])), last = Math.max(-1, ...ins.keys());
-      const args = Array.from({ length: last + 1 }, (_, k) => (ins.has(k) ? printSource(ins.get(k)) : '_'));
-      const set = Object.entries(n.params ?? {}).map(([k, v]) => `${name(k)}=${setting(v)}`);
-      lines.push(`${name(n.id)} = ${name(n.type)}${set.length ? `[${set.join(', ')}]` : ''}(${args.join(', ')})`);
-      done.add(n.id);
-    }
-  }
-  const ids = new Set(parts.map(n => n.id));
-  for (const w of b.wires.filter(x => !ids.has(x.to))) lines.push(`${name(w.to)} <- ${printSource(w.from)}`);
-  return lines;
-}
-
-/**
- * The board blueprint lines describe, on what its task gives (`given`, as for fitted): a statement with a type is a
- * part (its settings its params, its inputs by position); a wire into a given node is written `cell <- m`. Each card
- * reads the sensors wired from it (and any it names: `view[picks=[up]]()`). Throws a { line, zh, en } on text it cannot
- * read or a source it does not know.
- */
-export function fromText(lines, given) {
-  const { statements, wires } = parse(lines.join('\n'));
-  const nodes = givenOf(given).map(n => (isCard(n.type) ? withPicks(n, []) : n));
-  const byId = new Map(nodes.map(n => [n.id, n]));
-  const fail = (line, zh, en) => { throw { line, zh: `第 ${line} 行：${zh}`, en: `Line ${line}: ${en}` }; };
-  for (const st of statements) {
-    if (st.type === undefined) {
-      const card = byId.get(st.id);
-      if (!card || !isCard(card.type)) fail(st.line, `「${st.id}」不是这一关给的输入元件。`, `“${st.id}” is no input card of this level.`);
-      if (st.settings.picks) card.params.picks = [...st.settings.picks];
-      continue;
-    }
-    if (byId.has(st.id)) fail(st.line, `「${st.id}」写了两次。`, `“${st.id}” is written twice.`);
-    const node = { id: st.id, type: st.type, ...(Object.keys(st.settings).length ? { params: { ...st.settings } } : {}) };
-    nodes.push(node);
-    byId.set(st.id, node);
-  }
-  const out = [];
-  for (const w of wires) {
-    const [from, pick] = splitSource(w.from), src = byId.get(from), to = byId.get(w.to);
-    if (!src) fail(w.line, `没有叫「${from}」的元件。`, `There is no node called “${from}”.`);
-    if (!to) fail(w.line, `没有叫「${w.to}」的元件。`, `There is no node called “${w.to}”.`);
-    if (isCard(src.type)) {
-      if (!given.offers[src.type].includes(pick)) fail(w.line, `「${from}」读不到「${pick}」。`, `“${from}” cannot read “${pick}”.`);
-      if (!picksOf(src).includes(pick)) src.params.picks = [...picksOf(src), pick];
-    }
-    out.push({ from: w.from, to: w.to, port: to.type === 'out' ? 'in' : String(w.port) });
-  }
-  for (const n of nodes) if (isCard(n.type)) n.params.picks = given.offers[n.type].filter(p => picksOf(n).includes(p));
-  return { nodes, wires: out };
 }

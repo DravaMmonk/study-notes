@@ -14,7 +14,8 @@ import { defineCourse, eraLevels, layout, offer, pathLevels, reach, usable } fro
 import { T, hydrate, lazy, tr } from './lang.js';
 import { builtPieces, publications, settingsOf } from '../../engine/pieces.js';
 import { isGiven, modelsOf, partsOf } from './model/parts.js';
-import { blank, clone, fitted, fromText, portsProblem, toText } from './model/board.js';
+import { blank, clone, fitted, portsProblem } from './model/board.js';
+import { robotBlueprint } from './model/wiring.js';
 import { ROBOTS } from './model/robots.js';
 import { WORLDS, sensorsOf, visibleSensors } from './model/worlds.js';
 import { modelOf } from './model/run.js';
@@ -169,11 +170,11 @@ export function tableCourse(content) {
     const task = { ...s, facts: s.facts ?? [], dirs: s.dirs ?? {}, filter: s.filter ?? 'all', remember: s.remember ?? [] };
     const ports = (s.ports ?? []).map(c => portOf(portCall(c), W));
     const inputs = { offers: offersOf(task, robot), inputs: ports.filter(p => p.input).map(p => p.input), outs: W.outs.map(o => o[0]) };
-    const read = text => fitted(fromText(text, inputs), inputs);
+    const { read, write } = robotBlueprint(model, inputs, W);
     const board = (text, naive) => {
       try {
         const b = read(text);
-        blueprints.push({ level: L.id, task: s.task, key: s.taskId, board: b, write: toText, read, ...(naive ? { naive } : {}) });
+        blueprints.push({ level: L.id, task: s.task, key: s.taskId, board: b, write, read, ...(naive ? { naive } : {}) });
         return b;
       } catch (e) {
         say(where, e.en ?? String(e));

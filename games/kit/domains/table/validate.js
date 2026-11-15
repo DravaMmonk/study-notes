@@ -6,7 +6,8 @@
 import { sameJson } from '../../engine/json-value.js';
 import { inspectRobotCase, robotConstraint, runRobotCase } from './model/verdict.js';
 import { playOf } from './plays.js';
-import { fitted, fromText } from './model/board.js';
+import { robotBlueprint } from './model/wiring.js';
+import { WORLDS } from './model/worlds.js';
 
 /** spec: domain.js spec(content). Returns [{ text, fail?, level? }]: a line about one level names it. */
 export function validate({ levels, table }) {
@@ -46,7 +47,8 @@ export function validate({ levels, table }) {
     // The part alone, fed what its ports stand for.
     const card = id => (s.given.offers.view.includes(id) ? 'view' : 'facts');
     const args = s.ports.map(p => (p.sensor ? `${card(p.sensor)}.${p.sensor}` : p.input));
-    const box = fitted(fromText([`p = ${L.unlock}${b.setting !== undefined ? `[value=${b.setting}]` : ''}(${args.join(', ')})`, `${b.out} <- p`], s.given), s.given);
+    const { read } = robotBlueprint(table.model, s.given, WORLDS[s.world]);
+    const box = read([`p = ${L.unlock}${b.setting !== undefined ? `[value=${b.setting}]` : ''}(${args.join(', ')})`, `${b.out} <- p`]);
     s.tests.forEach((_, i) => {
       runs++;
       const { res: a, pass } = runRobotCase(run, s, box, i), { res: ref } = runRobotCase(run, s, s.solution, i);

@@ -8,7 +8,7 @@ export function cardPorts(parts, node) {
   const outputs = outputsOf(parts, node)
   return {
     inputs: parts.inputs(node).filter((port) => !own.has(port)),
-    outputs: parts.role(node) === 'sink' ? [] : outputs.filter(({ key }) => !own.has(key)),
+    outputs: outputs.filter(({ key }) => !own.has(key)),
     regions: regions.map((region) => ({ ...region, output: outputs.find(({ key }) => key === region.name) })),
   }
 }

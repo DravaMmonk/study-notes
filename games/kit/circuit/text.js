@@ -22,6 +22,7 @@ import { baseRefusal, byId, outputsOf, spotIn } from './model.js'
 //
 // A game says through its parts description (model.js) how its nodes read as text, all optional:
 //   parts.text.value(node, key, v) → v spelled in ASCII        parts.text.read(node, key, v) → v as the game keeps it
+//   parts.text.check(node, key, v) → { zh, en } | null for an invalid value
 //   parts.text.settings(node) → [field] the fields a placed part accepts
 //   parts.text.sets(node) → [field]   what the player sets on a node the level gives (an input card's picks: 'value',
 //                                     and 'type' when its kind can change); such a node is written out with them
@@ -322,6 +323,15 @@ export function read(text, graph, parts, types) {
     failed.add(parsed.statements.indexOf(st))
     missing.add(st.id)
   }
+  const validSettings = (st, node) => {
+    for (const [key, value] of Object.entries(st.settings)) {
+      const error = parts.text?.check?.(node, key, value)
+      if (!error) continue
+      refuse(st, error.zh, error.en)
+      return false
+    }
+    return true
+  }
   for (const st of parsed.statements) {
     if (seen.has(st.id)) {
       errors.push(say(st.line, `「${st.id}」写了两次。`, `“${st.id}” is written twice.`))
@@ -339,6 +349,7 @@ export function read(text, graph, parts, types) {
         continue
       }
       if (st.type !== undefined) given.type = st.type
+      if (!validSettings(st, given)) continue
       for (const [key, v] of Object.entries(st.settings)) given.params = { ...given.params, [key]: unread(given, key, v) }
       continue
     }
@@ -357,6 +368,7 @@ export function read(text, graph, parts, types) {
       refuse(st, `「${st.type}」没有设置「${stray}」。`, `“${st.type}” has no setting “${stray}”.`)
       continue
     }
+    if (!validSettings(st, node)) continue
     node.params = { ...parts.defaults?.(node.type), ...Object.fromEntries(Object.entries(st.settings).map(([key, x]) => [key, unread(node, key, x)])) }
     if (st.in) node.in = st.in
     const before = graph.nodes.find((n) => n.id === st.id && n.type === st.type && placed(parts, n) && (n.in ?? null) === (st.in ?? null))
