@@ -6,18 +6,20 @@
 // copied, taken out, moved into another level and renamed by the task operations, so what players kept of it follows
 // it. Picking another field, or another level, changes what it shows.
 //
-//   <Inspector content base vocab at field ctx onEdit onOps onPick onClose onLevel />
+//   <Inspector content vocab at field ctx onEdit onOps onPick onLevel />
 //   at: the file shown ({ level } | { game: true } | { parts: true }: pieces.json, with root: [collection, id] | { glossary: true }); field: { path } | { missing: text } | null
 import { useEffect, useRef } from 'react'
-import { ArrowDown, ArrowUp, ArrowRightLeft, ChevronRight, Copy, MousePointerClick, Trash2, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowRightLeft, Braces, ChevronRight, Copy, MousePointerClick, Trash2 } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { getAt, setAt, showPath } from '../engine/ops/edit.js'
 import { blank, fieldAt, fileForm, moved, opFor, placeFindings, taskListOps } from './form.js'
 import { Field } from './Fields.jsx'
 import { SettingUsers } from './PartFields.jsx'
 import { AddMenu, Picker } from './Picker.jsx'
+import { usePref } from './prefs.js'
 
-export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, onEdit, onOps, onPick, onClose, onLevel }) {
+export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, onEdit, onOps, onPick, onLevel }) {
+  const [json, setJson] = usePref('inspector-json', false)
   const { vocabulary } = vocab
   const order = ctx.levels
   const root = at?.root ?? []
@@ -54,7 +56,6 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
     if (op) onEdit(op)
     return undefined
   }
-  const { at: findings } = shown ? placeFindings(shown.form, places.filter((p) => (at?.level ? p.level === at.level : at?.parts ? p.file === 'parts' : at?.glossary ? p.file === 'glossary' : !p.level && !p.file))) : { at: new Map() }
   const body = useRef(null)
   // A field picked by a finding, the palette or a search takes the caret.
   useEffect(() => {
@@ -71,24 +72,39 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
       </div>
     )
   }
+  const path = hit ? held : field.path ?? root
+  const header = <Head path={path} file={file} onPick={openCrumb} json={json} onToggleJson={() => setJson(!json)} />
+  if (json) {
+    const source = JSON.stringify(getAt(shown?.value, path), null, 2)
+    return (
+      <div className="insp">
+        {header}
+        <div className="insp-body" ref={body}>
+          {source === undefined
+            ? <p className="insp-about">{tr('这个字段没有 JSON 值。', 'This field has no JSON value.')}</p>
+            : <pre className="insp-json"><code>{source}</code></pre>}
+        </div>
+      </div>
+    )
+  }
   if (field.missing || !hit) {
     return (
       <div className="insp">
-        <Head path={root} file={file} onPick={openCrumb} onClose={onClose} />
+        {header}
         <p className="insp-note">{field.missing ? tr(`「${field.missing}」不是这一关内容里的字段：它由领域生成，在「字段」里找它的来源。`, `“${field.missing}” is no field of the level’s content: the domain makes it; find where it comes from in the fields.`) : tr('这个字段已经不在了。')}</p>
       </div>
     )
   }
-  const path = held
   const last = path.at(-1)
   const parent = path.slice(0, -1)
   const isTask = tasked && path.length === 2 && path[0] === 'tasks'
   const list = typeof last === 'number' && !isTask ? getAt(shown.value, parent) : null
   const optional = !list && hit.entry?.optional
+  const { at: findings } = placeFindings(shown.form, places.filter((p) => (at?.level ? p.level === at.level : at?.parts ? p.file === 'parts' : at?.glossary ? p.file === 'glossary' : !p.level && !p.file)))
   const ctxHere = { ...ctx, findings, partDefs }
   return (
     <div className="insp">
-      <Head path={path} file={file} onPick={openCrumb} onClose={onClose} />
+      {header}
       {path[0] === 'settings' && typeof path[1] === 'string' && <SettingUsers file={partDefs} id={path[1]} onPiece={ctx.onPiece} />}
       {optional && (
         <div className="insp-tools">
@@ -175,8 +191,9 @@ function longConfig(value) {
 }
 
 /** Breadcrumbs always start at the original JSON file. */
-function Head({ path, file, onPick, onClose }) {
+function Head({ path, file, onPick, json, onToggleJson }) {
   const name = file.level ? `levels/${file.level}.json` : file.parts ? 'pieces.json' : file.glossary ? 'glossary.json' : 'game.json'
+  const jsonLabel = tr('JSON 源码', 'JSON source')
   return (
     <header className="insp-head">
       <nav className="insp-path" aria-label={tr('字段的位置')}>
@@ -191,7 +208,7 @@ function Head({ path, file, onPick, onClose }) {
           )
         })}
       </nav>
-      <button type="button" className="insp-close" onClick={onClose} aria-label={tr('关上')}><X size={13} /></button>
+      <button type="button" className="insp-source" onClick={onToggleJson} aria-pressed={json} aria-label={jsonLabel} title={jsonLabel}><Braces size={13} aria-hidden="true" /></button>
     </header>
   )
 }
