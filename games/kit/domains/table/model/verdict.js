@@ -29,16 +29,25 @@ function firstMismatch(model, s, t, res, o) {
   return null
 }
 
+function runCase(run, task, board, index, options = task) {
+  const t = task.tests[index]
+  const res = run(WORLDS[task.world], t, board, options)
+  return { t, res, pass: !res.error && res.value === task.expected[index] }
+}
+
 /** Test k of circuit task `s` (course.js played) run on board `b` (by the course's board model, run.js modelOf): its
  *  result, the first step gone wrong (or cell settled wrong), the view of its end. */
-export function judge(model, s, b, k, o) {
-  const t = s.tests[k], res = model.runCircuit(WORLDS[s.world], t, b, o), want = s.expected[k]
+function inspect(model, s, b, k, o) {
+  const { t, res, pass } = runCase(model.runCircuit, s, b, k, o)
   // A level that grades every cell (checkAll) compares the whole table, not just the answer.
-  const mm = res.error || s.onFail || (!s.checkAll && res.value === want) ? null : firstMismatch(model, s, t, res, o)
-  const ok = !res.error && res.value === want && !mm
+  const mm = res.error || s.onFail || (!s.checkAll && pass) ? null : firstMismatch(model, s, t, res, o)
+  const ok = pass && !mm
   const stop = mm && mm.key === undefined ? mm.q + 1 : res.steps.length
   return { t, res, mm, ok, stop, view: { res, k: 0, pass: ok, end: false, halt: Boolean(res.error && !res.error.diverge) || (Boolean(mm) && mm.key === undefined), focus: null, badKey: mm ? mm.key : undefined } }
 }
+
+// The basic test result is shared; live play also identifies the first mismatch for replay and feedback.
+export const judges = { robot: { runCase, inspect } }
 
 /**
  * Why test k of a task failed, as the fail dialog says it: { head, body }, each worded again in the current language

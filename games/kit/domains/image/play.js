@@ -1,5 +1,5 @@
 // The image domain's play hook for a blind session (../../engine/play/): a circuit level of 《视觉完备》 as its screen
-// (ui/LevelScreen.jsx) shows it, in words — the level's inputs and outputs, the parts it holds with their settings,
+// (ui/CircuitPlay.jsx) shows it, in words — the level's inputs and outputs, the parts it holds with their settings,
 // and every test's pictures (each input and the output it should become) — and an attempt run as the Run button runs
 // it: every test, then the level's budget (its constraint), the hidden tests with it.
 //
@@ -7,7 +7,8 @@
 // one number): what the test strip draws as pixels. The probe levels (reading pixels with the pointer) and the
 // parameter benches are not covered: neither takes a board.
 import { circuitPlay } from '../../engine/play/circuit.js'
-import { withHidden } from '../../engine/tests.js'
+import { failedOutputTests, hiddenOutputTests, visibleOutputTask } from '../../engine/output-play.js'
+import { plays } from './plays.js'
 import { startBoard } from './engine/board.js'
 import { INPUT_LABELS, descriptionOf } from './words.js'
 import { T } from '../../shell/i18n.js'
@@ -42,7 +43,7 @@ function opening({ game, level, progress }) {
   return fits(carried) && offers(carried) ? carried : startBoard(L)
 }
 
-const testsShown = ({ level, solved }) => (solved ? withHidden(level) : level).tests
+const testsShown = ({ level, solved }) => visibleOutputTask(level, solved, plays.graph).tests
 
 const circuit = circuitPlay({
   board: (ctx) => {
@@ -81,14 +82,15 @@ const circuit = circuitPlay({
   run: (ctx, graph) => {
     const L = ctx.level
     const { shown, folded } = ctx.game.image.offerIn(L, ctx.flags)
-    const play = { ...(ctx.solved ? withHidden(L) : L), palette: [...shown, ...folded], folded }
+    const play = { ...visibleOutputTask(L, ctx.solved, plays.graph), palette: [...shown, ...folded], folded }
     const { runLevel } = ctx.game.image.kit
     const run = runLevel(play, graph)
     // A failed test says, output by output, how far its picture is from the target.
     const why = (r, lang) => r.checks.filter((c) => !c.pass).map((c) => `${c.name}: ${pick(c.reason, lang)}`).join(lang === 'en' ? '; ' : '；')
     const tests = run.results.map((r, k) => ({ label: play.tests[k].label, pass: r.pass, says: r.pass ? null : T(why(r, 'zh'), why(r, 'en')) }))
-    const hiddenCount = ctx.solved ? 0 : L.hidden?.length ?? 0
-    const hiddenFailed = hiddenCount ? runLevel({ ...L, tests: L.hidden }, graph).results.filter((r) => !r.pass).length : 0
+    const hidden = hiddenOutputTests(L, ctx.solved, plays.graph)
+    const hiddenCount = hidden.length
+    const hiddenFailed = failedOutputTests(runLevel, L, graph, hidden)
     return {
       tests,
       says: [...(run.constraint ? [run.constraint] : []), T(`元件 ${run.score.nodes} · 计算量 ${run.score.cost}`, `Parts ${run.score.nodes} · cost ${run.score.cost}`)],

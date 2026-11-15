@@ -12,7 +12,7 @@
 // { test } (the shell's lastRun): the task opens on it again, replayed on the board.
 import { createElement, useEffect, useLayoutEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { Pause, Play, StepForward } from 'lucide-react'
-import { Sheet, TestStatus, Workbench } from '../../../../shell/index.js'
+import { Sheet, TestStatus } from '../../../../shell/index.js'
 import { L as text } from '../../../../shell/i18n.js'
 import { WORDS } from '../../../../shell/words.js'
 import { fixedTray } from '../../../../course.js'
@@ -20,7 +20,7 @@ import { WORLDS, windowOf } from '../../model/worlds.js'
 import { ROBOTS } from '../../model/robots.js'
 import { CARDS, isCard, isGiven, modelsOf } from '../../model/parts.js'
 import { blank, fitted, picksOf, placed, portsProblem, readsOf, removeNode, splitSrc, withPicks } from '../../model/board.js'
-import { judge, testLabel, whyFailed } from '../../model/verdict.js'
+import { judges, testLabel, whyFailed } from '../../model/verdict.js'
 import { signal } from '../../model/format.js'
 import { diagnosisOf, guideAt } from '../../items/conditions.js'
 import { trace } from '../../items/traces.js'
@@ -29,10 +29,12 @@ import { toGraph, create, partsFor } from '../board.js'
 import { fromGraph } from '../../model/wiring.js'
 import { lookIcon } from '../looks.js'
 import { tr, lazy } from '../../lang.js'
-import { SgCanvas, SgParts, SgPhone } from '../BoardView.jsx'
+import { SgCanvas, SgParts, SgPhoneEditor } from '../BoardView.jsx'
 import RobotView from '../RobotView.jsx'
 import Scene from '../Scene.jsx'
-import { Dock, Html, LevelBrief, TestChips, buzz, typing, useKeys, usePlayer, useToast, useVerdict } from '../play.jsx'
+import BoardPlay from '../../../../shell/BoardPlay.jsx'
+import { playCases, usePacedRun } from '../../../../shell/usePacedRun.js'
+import { Html, buzz, typing, useKeys, useToast, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
 const MERGES = ['msum', 'mmin', 'mmax']
 const CONSTS = [0, 1, 2, 3, 4, 5]
@@ -63,12 +65,12 @@ const itemsOf = (def, all) => {
 
 /** The task as it opens: its board as saved (else as course.js opening starts it), and the run kept from the last
  *  visit, replayed as it ended. */
-function opening(table, L, saved, progress, lastRun) {
+function opening(table, L, saved, progress, lastRun, inspect) {
   const board = saved?.nodes ? fitted(saved, L.given) : table.opening(L, progress)
   const st = { board, ti: 0, status: L.tests.map(() => null), view: null, typed: {}, robot: null, sel: null, input: '' }
   if (lastRun && lastRun.test < L.tests.length) {
     for (let k = 0; k <= lastRun.test; k++) {
-      const { ok, stop, view } = judge(table.model, L, board, k, { ...L, boardWidth: 0 })
+      const { ok, stop, view } = inspect(table.model, L, board, k, { ...L, boardWidth: 0 })
       st.status[k] = ok ? 'pass' : 'fail'
       if (k === lastRun.test) Object.assign(st, { ti: k, view: { ...view, k: stop, end: true } })
     }
@@ -76,18 +78,19 @@ function opening(table, L, saved, progress, lastRun) {
   return st
 }
 
-export default function Circuit({ game, level, saved, save, solve, fail, lastRun, keepRun, flags, progress, phone }) {
+export default function Circuit({ game, level, play, saved, save, solve, fail, lastRun, keepRun, flags, progress, phone }) {
   const L = level.source
+  const { inspect } = judges[play.judge]
   const robot = ROBOTS[L.robot]
   const model = game.table.model
-  const player = usePlayer()
-  const verdict = useVerdict({ level, solve, fail })
+  const player = usePacedRun()
+  const verdict = useVerdict({ hints: L.hints, solve, fail })
   const [toast, toastEl] = useToast()
   const shell = useRef(null)
   shell.current = { save, keepRun }
   // The task's state: { board, ti, status, view, typed, robot, sel, input }. `put` applies a change at once to
   // the latest state, so a run under way and the handlers it outlives never work on an old one.
-  const [st, setSt] = useState(() => opening(game.table, L, saved, progress, lastRun))
+  const [st, setSt] = useState(() => opening(game.table, L, saved, progress, lastRun, inspect))
   const latest = useRef(st)
   latest.current = st
   const put = (change) => {
@@ -221,32 +224,32 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
       return
     }
     put({ sel: null, typed: {}, robot: null, status: tests.map(() => null) })
-    player.begin(held)
     const mark = (k, state) => (x) => ({ status: x.status.map((y, j) => (j === k ? state : y)) })
-    for (let k = 0; k < tests.length; k++) {
-      const { t: test, res, mm, ok, stop, view } = judge(model, s, b, k, opt)
-      put((x) => ({ ti: k, view, ...mark(k, 'run')(x) }))
-      // The kit's pace (several steps a frame on a long run); a paused run goes one step at a time.
-      const { per, stride } = player.pace(k, stop)
-      const by = () => (player.paused ? 1 : stride)
-      for (let j = Math.min(by(), stop); ; j = Math.min(j + by(), stop)) {
-        put((x) => ({ view: { ...x.view, k: j } }))
-        await player.wait(per)
-        if (!player.alive) return
-        if (j === stop) break
-      }
-      put((x) => ({ view: { ...x.view, end: true }, ...mark(k, ok ? 'pass' : 'fail')(x) }))
-      if (!ok) {
-        shell.current.keepRun({ test: k })
-        player.end()
-        verdict.fail(s.onFail ? lesson(k, res) : { ...explain(k, test, res, mm), hint: hintFor() })
-        return
-      }
-      await player.wait(per)
-      if (!player.alive) return
+    let report
+    const complete = await playCases(player, {
+      count: tests.length,
+      held,
+      steps(k) {
+        report = inspect(model, s, b, k, opt)
+        put((x) => ({ ti: k, view: report.view, ...mark(k, 'run')(x) }))
+        return report.stop
+      },
+      advance(k) {
+        put((x) => ({ view: { ...x.view, k } }))
+      },
+      finish(k) {
+        const { ok } = report
+        put((x) => ({ view: { ...x.view, end: true }, ...mark(k, ok ? 'pass' : 'fail')(x) }))
+        return ok
+      },
+    })
+    if (!player.alive) return
+    shell.current.keepRun({ test: latest.current.ti })
+    if (!complete) {
+      const { t: test, res, mm } = report
+      verdict.fail(s.onFail ? lesson(latest.current.ti, res) : { ...explain(latest.current.ti, test, res, mm), hint: hintFor() })
+      return
     }
-    shell.current.keepRun({ test: tests.length - 1 })
-    player.end()
     // A board that becomes a part must read exactly the part's ports, or the part would not do what the board did.
     const why = s.ports.length ? portsProblem(b, s.ports) : null
     if (why) {
@@ -382,24 +385,21 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
   })()
   // Under the test board: back to the sandbox once a run is over, and what the level shows there.
   const after = (
-    <div className="sg-after">
+    <>
       {v && v.end && !running && <button className="sec-btn backbench" type="button" onClick={() => put({ view: null })}>{tr('回到棋盘测试', 'Back to the test board')}</button>}
       {L.after && <Panel call={L.after} t={t} view={v} st={st} />}
-    </div>
+    </>
   )
   const tip = guideAt(L.guide, board) ?? ([s.ask, s.tip].filter(Boolean).join(' ') || null)
-  const brief = <LevelBrief game={game} level={level} tip={tip} hint={s.hints || null} />
-  const testTabs = <TestChips tests={tests.map((x, k) => ({ label: `${tr('测试', 'Test')} ${k + 1} · ${label(x)}`, status: st.status[k] }))} ti={st.ti} onTest={selectTest} />
+  const testTabs = tests.map((x, k) => ({ label: `${tr('测试', 'Test')} ${k + 1} · ${label(x)}`, status: st.status[k] }))
   // The run bar: 单步, then Run, or during a run pause / go on and skip; while a number is typed, the keypad.
   const padExtra = st.sel && V.cellOf(t, st.sel, opt) && !box?.at.includes(st.sel) ? { key: 'bot', label: tr('让机器人站到这一格', 'Put the robot on this cell') } : null
   const stepCtl = { key: 'step', label: tr('单步', 'Step'), icon: <StepForward size={16} />, onClick: stepAct }
-  const dock = (
-    <Dock
-      pad={st.sel && { title: tr(`${V.name(st.sel)}：填一个数（不填 = 清空这一格）`, `${V.name(st.sel)}: type a number (leave blank to clear the cell)`), value: st.input, extra: padExtra, onKey: key }}
-      controls={running ? [stepCtl, player.paused ? { key: 'resume', label: tr('继续', 'Continue'), icon: <Play size={16} />, onClick: player.resume } : { key: 'pause', label: tr('暂停', 'Pause'), icon: <Pause size={16} />, onClick: player.pause }] : [stepCtl]}
-      go={running ? { label: tr('跳过动画', 'Skip animation'), busy: true, onClick: player.skip } : { label: text(WORDS.run), onClick: () => run() }}
-    />
-  )
+  const dock = {
+    pad: st.sel && { title: tr(`${V.name(st.sel)}：填一个数（不填 = 清空这一格）`, `${V.name(st.sel)}: type a number (leave blank to clear the cell)`), value: st.input, extra: padExtra, onKey: key },
+    controls: running ? [stepCtl, player.paused ? { key: 'resume', label: tr('继续', 'Continue'), icon: <Play size={16} />, onClick: player.resume } : { key: 'pause', label: tr('暂停', 'Pause'), icon: <Pause size={16} />, onClick: player.pause }] : [stepCtl],
+    go: running ? { label: tr('跳过动画', 'Skip animation'), busy: true, onClick: player.skip } : { label: text(WORDS.run), onClick: () => run() },
+  }
   const close = () => setSheet(null)
   const sheets = sheet && (
     <Sheet onClose={close}>
@@ -411,41 +411,25 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
     </Sheet>
   )
 
-  // A phone: the page holds the board (slots), the test board in the results below it, the tests pinned at the top.
-  if (phone) {
-    return (
-      <SgPhone board={bridge} rootRef={root} brief={brief} tests={testTabs} dock={dock} results={
-        <section className="bcard" aria-label={tr('棋盘', 'Board')}>
-          {testBoard}
-          <p className="bnote">{note}</p>
-          {after}
-        </section>
-      }>
-        {toastEl}
-        {sheets}
-      </SgPhone>
-    )
+  const frame = {
+    play, game, level, phone, tip, note, after, dock,
+    text: [s.mission.goal, s.mission.how],
+    hint: s.hints || null,
+    board: testBoard,
+    tests: testTabs,
+    ti: st.ti,
+    onTest: selectTest,
+    rootRef: root,
+    children: <>{toastEl}{sheets}</>,
   }
-  // A desktop: what the robot reads is on its input cards on the board (a click adds or removes that output); the
-  // strip under it holds the tests and the test board.
-  return (
-    <>
-      <Workbench
-        rootRef={root}
-        className="sg-level panel-stage"
-        brief={brief}
-        parts={<SgParts board={bridge} />}
-        stage={<SgCanvas board={bridge} />}
-        tests={testTabs}
-        status={<TestStatus states={st.status.map((x) => (['pass', 'fail', 'run'].includes(x) ? x : null))} />}
-        results={<section className="bcard" aria-label={tr('棋盘', 'Board')}>{testBoard}{after}</section>}
-        resultsAside={<p className="bnote">{note}</p>}
-        dock={dock}
-      />
-      {toastEl}
-      {sheets}
-    </>
-  )
+  if (phone) {
+    return <SgPhoneEditor board={bridge} rootRef={root}>{(editor) => <BoardPlay {...frame} {...editor} />}</SgPhoneEditor>
+  }
+  return <BoardPlay {...frame}
+    parts={<SgParts board={bridge} />}
+    editor={<SgCanvas board={bridge} />}
+    status={<TestStatus states={st.status} />}
+  />
 }
 
 /** A part's sheet on a phone: what it does, what it reads (视野's box and arm, 本格信息's facts), its number or model,

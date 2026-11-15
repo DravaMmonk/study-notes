@@ -4,13 +4,14 @@ import { useState } from 'react'
 import { rcName } from '../../model/algo.js'
 import { E, W } from '../../model/scene.js'
 import { tr } from '../../lang.js'
-import HandLevel from '../HandLevel.jsx'
+import BoardPlay from '../../../../shell/BoardPlay.jsx'
 import Scene from '../Scene.jsx'
-import { CheckIcon, Html, buzz, reduced, useLater, useToast, useVerdict } from '../play.jsx'
+import { CheckIcon } from '../../../../shell/BoardControls.jsx'
+import { Html, buzz, reduced, useLater, useToast, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
 const rc = (id) => id.split(',').map(Number)
 
-export default function Breach({ game, level, phone, solve, fail }) {
+export default function Breach({ game, level, play, phone, solve, fail }) {
   const L = level.source
   const w = L.maze, kid = w.key.join(','), doors = new Set(w.doors.map((d) => d.join(',')))
   const [routes, setRoutes] = useState({ A: [], B: [] })
@@ -18,7 +19,7 @@ export default function Breach({ game, level, phone, solve, fail }) {
   const [msg, setMsg] = useState(null) // { cls, body() } what the check found
   const [tries, setTries] = useState(0)
   const [toast, toastEl] = useToast()
-  const verdict = useVerdict({ level, solve, fail })
+  const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
   const route = routes[active]
   const gotKey = (r) => r.includes(kid)
@@ -93,7 +94,10 @@ export default function Breach({ game, level, phone, solve, fail }) {
   routes.B.slice(1).forEach((id, q) => edges.push(E(routes.B[q], id, 'rb', 0, 4)))
 
   return (
-    <HandLevel
+    <BoardPlay
+      play={play}
+      text={[L.mission.goal, L.mission.how]}
+      hint={L.hints ?? null}
       game={game}
       level={level}
       phone={phone}
@@ -120,6 +124,6 @@ export default function Breach({ game, level, phone, solve, fail }) {
       }}
     >
       {toastEl}
-    </HandLevel>
+    </BoardPlay>
   )
 }

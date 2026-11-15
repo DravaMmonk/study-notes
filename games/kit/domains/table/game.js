@@ -6,7 +6,15 @@ import { Cable, Grid3x3 } from 'lucide-react'
 import './ui/table.css'
 import { defineGame } from '../../shell/index.js'
 import { eraLevels, introductions, isCore, pathLevels } from '../../course.js'
-import LevelScreen from './ui/LevelScreen.jsx'
+import { playOf, plays } from './plays.js'
+import Circuit from './ui/modes/Circuit.jsx'
+import Fill from './ui/modes/Fill.jsx'
+import Trace from './ui/modes/Trace.jsx'
+import Link from './ui/modes/Link.jsx'
+import Pack from './ui/modes/Pack.jsx'
+import Breach from './ui/modes/Breach.jsx'
+import Policy from './ui/modes/Policy.jsx'
+import Seam from './ui/modes/Seam.jsx'
 import Hero from './ui/hero.jsx'
 import { sceneSVG } from './ui/svg.js'
 import PartDemo from './ui/PartDemo.jsx'
@@ -15,6 +23,18 @@ import { PRIMITIVES, modelsOf } from './model/parts.js'
 import { ROBOTS } from './model/robots.js'
 import { T, lazy, tr } from './lang.js'
 import { tableCourse } from './course.js'
+
+const resources = { circuit: Circuit, fill: Fill, trace: Trace, link: Link, pack: Pack, breach: Breach, policy: Policy, seam: Seam }
+
+function TablePlay(screen) {
+  const play = playOf(screen.level.source)
+  if (play.judge === 'robot') screen.game.table.syncOwn(screen.progress.built)
+  return createElement(resources[play.resources], { ...screen, play })
+}
+
+const kinds = Object.fromEntries(Object.entries(plays).map(([key, play]) => [key, {
+  Screen: TablePlay, icon: play.judge === 'robot' ? Cable : Grid3x3, label: play.label,
+}]))
 
 /** A task's `done` as the shell's pass text of a task: its head in bold, then its paragraphs. */
 const doneText = ({ head, body = [] }) => [...(head ? [T(`<b>${head.zh}</b>`, `<b>${head.en}</b>`)] : []), ...body]
@@ -33,7 +53,6 @@ export default function tableGame(content) {
   const { LEVELS, REQUIRES, TRACKS, CHAPTERS, LABELS, PARTS, course, played } = table
   const ERAS = content.eras
   const borrow = content.borrow ?? {}
-  const kindOf = (task) => (task.mode === 'circuit' ? 'circuit' : 'board')
   // Every level's last task: the one whose board a part it builds runs, shown on the part's bench.
   const lastTasks = LEVELS.map((L) => played.get(L.id).at(-1))
   const levels = LEVELS.map((L, index) => ({
@@ -43,7 +62,7 @@ export default function tableGame(content) {
     // Opens once these are solved: the era's foundation in order, then its topics side by side (levels/eras.js).
     requires: REQUIRES.get(L.id) ?? [],
     title: L.title,
-    kind: kindOf(played.get(L.id)[0]),
+    kind: played.get(L.id)[0].mode,
     unlocks: L.unlock ? [L.unlock] : [],
     intro: L.intro,
     afterTitle: L.debrief.title,
@@ -51,7 +70,7 @@ export default function tableGame(content) {
     note: L.debrief.note,
     // A level is its tasks (../../engine/tasks.js), each played by its mode's screen on the task as the course read it
     // (`source`); what passing a task says before the next (`done`) is its `after`.
-    tasks: played.get(L.id).map((s) => ({ key: s.taskId, kind: kindOf(s), ...(s.done ? { after: doneText(s.done) } : {}), ...(s.carries ? { carries: true } : {}), source: s })),
+    tasks: played.get(L.id).map((s) => ({ key: s.taskId, kind: s.mode, ...(s.done ? { after: doneText(s.done) } : {}), ...(s.carries ? { carries: true } : {}), source: s })),
   }))
 
   // The primitives in the components box, one card each (a merger's models are one card), from the level that brings
@@ -90,10 +109,7 @@ export default function tableGame(content) {
     levelLabel: (level) => LABELS.get(level.id) ?? String(level.index + 1),
     intro: (level) => level.intro,
     IntroFigure,
-    kinds: {
-      circuit: { Screen: LevelScreen, icon: Cable, label: { zh: '电路板', en: 'Circuit board' } },
-      board: { Screen: LevelScreen, icon: Grid3x3, label: { zh: '棋盘', en: 'Board' } },
-    },
+    kinds,
     unlocked: (level) => level.unlocks.map((k) => ({ label: PARTS[k].name })),
     core: (level) => isCore(course, level),
     parts: {

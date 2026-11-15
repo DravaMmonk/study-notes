@@ -4,10 +4,12 @@ import { useRef, useState } from 'react'
 import { E } from '../../model/scene.js'
 import { seamTable, seamPath, shade } from '../../model/worlds/picture.js'
 import { tr } from '../../lang.js'
-import HandLevel from '../HandLevel.jsx'
+import BoardPlay from '../../../../shell/BoardPlay.jsx'
 import Scene from '../Scene.jsx'
 import { sceneSVG } from '../svg.js'
-import { SkipIcon, buzz, reduced, useLater, usePlayer, useVerdict } from '../play.jsx'
+import { SkipIcon } from '../../../../shell/BoardControls.jsx'
+import { usePacedRun } from '../../../../shell/usePacedRun.js'
+import { buzz, reduced, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
 const rc = (id) => id.split(',').map(Number)
 /** The picture with one pixel of each row taken out, along `path` ([r, c] a row). */
@@ -28,15 +30,15 @@ function Thumb({ img, label }) {
   )
 }
 
-export default function Seam({ game, level, phone, solve, fail }) {
+export default function Seam({ game, level, play, phone, solve, fail }) {
   const L = level.source
   const [img, setImg] = useState(() => L.img.map((r) => r.slice()))
   const [cuts, setCuts] = useState(0)
   const [path, setPath] = useState([])
   const [msg, setMsg] = useState(null) // { cls, body() }
   const [auto, setAuto] = useState(false)
-  const player = usePlayer()
-  const verdict = useVerdict({ level, solve, fail })
+  const player = usePacedRun()
+  const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
   const root = useRef(null)
   const card = useRef(null)
@@ -136,7 +138,10 @@ export default function Seam({ game, level, phone, solve, fail }) {
         ? { meta: tr('找到了一条缝', 'Seam found'), go: { label: tr('剪掉', 'Cut it'), onClick: cutIt } }
         : { meta: tr(<>已经倒推了 <b>{Math.max(0, path.length - 1)}</b> 行</>, <><b>{Math.max(0, path.length - 1)}</b> rows traced back</>), secondary: path.length ? { label: tr('重新找', 'Start over'), onClick: () => { setPath([]); setMsg(null) } } : null }
   return (
-    <HandLevel
+    <BoardPlay
+      play={play}
+      text={[L.mission.goal, L.mission.how]}
+      hint={L.hints ?? null}
       game={game}
       level={level}
       phone={phone}

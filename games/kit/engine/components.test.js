@@ -8,8 +8,8 @@ import { resolve } from 'node:path'
 import { components } from './components.js'
 
 const CEILING = {
-  'domains/image': 2868,
-  'domains/table': 2411,
+  'domains/image': 2828,
+  'domains/table': 2187,
 }
 
 test('no domain writes more components of its own than it did, and a domain on the circuit base writes none', () => {

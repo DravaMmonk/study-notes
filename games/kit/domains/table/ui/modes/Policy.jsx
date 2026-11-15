@@ -7,13 +7,13 @@ import { rcName } from '../../model/algo.js'
 import { settle, policy, tileAt } from '../../model/worlds/value.js'
 import { ROBOTS } from '../../model/robots.js'
 import { T, tr } from '../../lang.js'
-import HandLevel from '../HandLevel.jsx'
+import BoardPlay from '../../../../shell/BoardPlay.jsx'
 import Scene from '../Scene.jsx'
-import { buzz, reduced, useLater, useVerdict } from '../play.jsx'
+import { buzz, reduced, useLater, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
 
 const LABEL = { gold: T('宝藏', 'treasure'), trap: T('陷阱', 'trap') }
 
-export default function Policy({ game, level, phone, solve, fail }) {
+export default function Policy({ game, level, play, phone, solve, fail }) {
   const L = level.source
   const t = L.map
   const table = useMemo(() => settle(t), [t])
@@ -21,7 +21,7 @@ export default function Policy({ game, level, phone, solve, fail }) {
   const [path, setPath] = useState(() => [L.starts[0].join()])
   const [msg, setMsg] = useState(null) // { cls, body() }
   const [done, setDone] = useState(false)
-  const verdict = useVerdict({ level, solve, fail })
+  const verdict = useVerdict({ hints: L.hints, solve, fail })
   const later = useLater()
   const val = (id) => table.get(id)
   const near = (id) => {
@@ -70,7 +70,10 @@ export default function Policy({ game, level, phone, solve, fail }) {
   const scene = { cells, edges, robot: done ? null : here, look: ROBOTS.scout.look }
   const at = Math.min(k + 1, L.starts.length)
   return (
-    <HandLevel
+    <BoardPlay
+      play={play}
+      text={[L.mission.goal, L.mission.how]}
+      hint={L.hints ?? null}
       game={game}
       level={level}
       phone={phone}

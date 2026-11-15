@@ -5,7 +5,8 @@
 // own text has English too.
 import { existsSync, readdirSync } from 'node:fs'
 import { keyOf } from '../../shell/i18n.js'
-import { withHidden } from '../../engine/tests.js'
+import { hiddenOutputTests, visibleOutputTask } from '../../engine/output-play.js'
+import { plays } from './plays.js'
 import { startBoard } from './engine/board.js'
 import { introProblems } from './intros.js'
 
@@ -55,11 +56,12 @@ export function validate({ levels, intros, kit, course, publishedBy, memo = (_id
       if (level.tests.every((t) => t.expected[name]?.data?.every((v) => Math.abs(v - first) < 1e-9))) fail(`${level.id}: every test expects the same flat ${name}, so a constant passes`)
     }
     // Every circuit level keeps tests back: a run must pass them too, and they are shown only once it is solved.
-    if (!level.hidden?.length) fail(`${level.id}: 没有隐藏测试`)
-    for (const t of level.hidden ?? []) if (level.tests.some((v) => keyOf(v.label) === keyOf(t.label))) fail(`${level.id}: 隐藏测试「${keyOf(t.label)}」和可见测试重名`)
-    if (level.hidden?.length) {
-      const hiddenRun = runLevel({ ...level, tests: level.hidden }, level.solution)
-      const detail = hiddenRun.results.map((r, i) => `${keyOf(level.hidden[i].label)}:${r.checks.map((c) => `${c.pass ? '✓' : '✗'}${c.wrong}`).join(',')}`).join('  ')
+    const hidden = hiddenOutputTests(level, false, plays.graph)
+    if (!hidden.length) fail(`${level.id}: 没有隐藏测试`)
+    for (const t of hidden) if (level.tests.some((v) => keyOf(v.label) === keyOf(t.label))) fail(`${level.id}: 隐藏测试「${keyOf(t.label)}」和可见测试重名`)
+    if (hidden.length) {
+      const hiddenRun = runLevel({ ...level, tests: hidden }, level.solution)
+      const detail = hiddenRun.results.map((r, i) => `${keyOf(hidden[i].label)}:${r.checks.map((c) => `${c.pass ? '✓' : '✗'}${c.wrong}`).join(',')}`).join('  ')
       const line = `${level.id} hidden: solution ${hiddenRun.results.every((r) => r.pass) ? 'PASS' : 'FAIL'}  ${detail}`
       if (hiddenRun.results.every((r) => r.pass)) say(line)
       else fail(line)
@@ -80,7 +82,7 @@ export function validate({ levels, intros, kit, course, publishedBy, memo = (_id
       const board = startBoard(level)
       board.nodes.push({ id: 'part', type, x: 300, y: 60, params: {} })
       board.wires.push(...level.inputs.map((name) => ({ from: name, to: 'part', port: name })), { from: 'part', to: level.outputs[0], port: 'in' })
-      const run = runLevel({ ...withHidden(level), constraint: undefined }, board)
+      const run = runLevel({ ...visibleOutputTask(level, true, plays.graph), constraint: undefined }, board)
       if (run.pass) say(`  its part alone passes`)
       else fail(`${level.id}: its packed part, wired to the level's inputs, fails ${run.results.filter((r) => !r.pass).length} test(s)`)
     }
