@@ -1,6 +1,4 @@
-import { REGISTERS } from '../parts.js'
 import * as play from '../run.js'
-import { PORT_LABELS } from './catalog.js'
 import { terms } from './terms.js'
 
 // What the calculus domain declares of its screen (../../../shell/CircuitScreen.jsx circuitScreen), run a term a tick:
@@ -9,7 +7,5 @@ import { terms } from './terms.js'
 // axes (terms.js).
 export const screen = {
   play,
-  portLabels: PORT_LABELS,
-  registers: { registers: REGISTERS, top: 9, numbers: true },
   scene: terms,
 }

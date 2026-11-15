@@ -236,5 +236,20 @@
   "怎样把输入的 0 和 1 对调，让它决定 n + 1 是否通过？": "How can you swap the input’s 0 and 1 so it controls whether n + 1 passes through?",
   "沿用上一拍": "Keep the previous output",
   "输入为 0 时，输出 n + 1；输入为 1 时，沿用上一拍的输出。第一拍没有上一拍，初值为 0。": "When the input is 0, output n + 1. When it is 1, repeat the previous output. Before the first tick, the initial value is 0.",
-  "用寄存卡记住上一拍的输出，再让它只在输入为 1 时通过。": "Use a register to remember the previous output, and let it through only when the input is 1."
+  "用寄存卡记住上一拍的输出，再让它只在输入为 1 时通过。": "Use a register to remember the previous output, and let it through only when the input is 1.",
+  "加": "Add",
+  "给出 a + b。": "Gives a + b.",
+  "乘": "Multiply",
+  "给出 a × b。": "Gives a × b.",
+  "给出 1/a；a 为 0 时没有值。": "Gives 1/a; no value when a is 0.",
+  "a 小于 b 时给出 1，否则给出 0。": "Gives 1 when a is less than b, else 0.",
+  "常数": "Constant",
+  "每一拍都给出设定的数。": "Gives the number it is set to, every tick.",
+  "数值": "Value",
+  "读寄存卡": "Register",
+  "给出同名寄存卡中存的值；尚未存入时，给出初值。": "Gives the value held in the register of the same name; before anything is stored, its start value.",
+  "初值": "Start",
+  "存寄存卡": "Keep",
+  "把接入的值存进同名寄存卡，从下一拍起可以读出。": "Stores its input in the register of the same name; it can be read from the next tick on.",
+  "名字": "Name"
 }

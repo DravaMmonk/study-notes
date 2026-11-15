@@ -277,7 +277,7 @@ export function partProblems(file, vocabulary) {
     if (NUMERIC.has(s.control)) {
       if (s.min !== undefined && s.max !== undefined && s.min > s.max) say(at, `min ${s.min} is above max ${s.max}`)
       const d = s.default
-      if (d !== undefined && (typeof d !== 'number' || (s.min !== undefined && d < s.min) || (s.max !== undefined && d > s.max) || (s.integer && !Number.isInteger(d)))) say(`${at}.default`, `${JSON.stringify(d)} is not a number in its range`)
+      if (d !== undefined && d !== null && (typeof d !== 'number' || (s.min !== undefined && d < s.min) || (s.max !== undefined && d > s.max) || (s.integer && !Number.isInteger(d)))) say(`${at}.default`, `${JSON.stringify(d)} is not a number in its range`)
     }
     if (s.control === 'toggle' && s.default !== undefined && typeof s.default !== 'boolean') say(`${at}.default`, 'a toggle starts true or false')
     if (s.control === 'custom') {

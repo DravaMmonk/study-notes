@@ -1732,4 +1732,7 @@ export default {
   "a ÷ b；b 为 0 时没有值": "a \u00f7 b; no value when b is 0",
   "a 和 b 里小的那个": "the smaller of a and b",
   "a × b": "a \u00d7 b",
+  "1/a；a 为 0 时没有值": "1/a; no value when a is 0",
+  "a < b 时为 1，否则为 0": "1 when a < b, else 0",
+  "读写寄存器的元件": "parts that read and keep registers",
 }

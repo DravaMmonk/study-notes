@@ -3,12 +3,16 @@
 // npm run new-game copies) passing its own checks.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { PARTS } from './parts.js'
+import { defineParts } from '../../engine/parts/define.js'
+import { readContent } from '../../engine/content-node.js'
+import { OPS } from './ops.js'
 import { board } from './board.js'
 import { primitivesOnly } from '../../engine/board-cards.js'
 import { runLevel } from './run.js'
 import domain from './domain.js'
 
+// The starter's parts (its parts.json), over the domain's resources.
+const { PARTS } = defineParts(readContent('starter', import.meta.dirname).partDefs, OPS)
 const plain = primitivesOnly(board, PARTS)
 const { fromText, toText } = board
 const { partOf } = plain
@@ -49,6 +53,7 @@ test('the starter game passes its checks', async () => {
     game: json('game.json'),
     levels: readdirSync(new URL('levels/', dir)).map((f) => [f.slice(0, -5), json(`levels/${f}`)]),
     glossary: json('glossary.json'),
+    partDefs: json('parts.json'),
   })
   const lines = await domain.validate(domain.spec(content))
   assert.deepEqual(lines.filter((l) => l.fail), [])
@@ -67,7 +72,7 @@ test('a task that withholds a part keeps it from the tray and from its answer', 
       ['b', level('b', { withhold: withhold, solution })],
     ],
     glossary: { groups: [], entries: [] },
-    partDefs: { parts: { count: { name: { zh: 'n', en: 'n' }, desc: { zh: 'n', en: 'n' }, inside: [{ task: 'a' }] } } },
+    partDefs: { parts: { ...readContent('starter', import.meta.dirname).partDefs.parts, count: { name: { zh: 'n', en: 'n' }, desc: { zh: 'n', en: 'n' }, inside: [{ task: 'a' }] } } },
   })
   const fair = calculusCourse(content(['count'], counter))
   const task = fair.played.get('b')[0]

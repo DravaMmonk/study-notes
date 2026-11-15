@@ -3,26 +3,24 @@
 // and their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this
 // domain.
 //
-// The parts are implemented in parts.js. A test is data: each input's terms and each output's wanted terms, tick by
+// A game's parts are its parts.json over the resources of ops.js. A test is data: each input's terms and each output's wanted terms, tick by
 // tick (course.js reads it, run.js checks it).
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { GAME, PORT, REMOVES, levelSchema } from '../../engine/level-schema.js'
+import { GAME, PORT, levelSchema } from '../../engine/level-schema.js'
 import { T as t } from '../../shell/i18n.js'
+import { OP_ITEMS } from './ops.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 
 /* ---------- the parts ---------- */
 
-const PARTS = {
-  add: item(t('加：a + b')),
-  mul: item(t('乘：a × b')),
-  recip: item(t('倒数：1/a，a 为 0 时给「—」')),
-  less: item(t('比较：a < b 时给 1，否则给 0')),
-  const: item(t('常数：设定的数')),
-  reg: item(t('读寄存卡：同名寄存卡里存的值，存入之前给初值')),
-  keep: item(t('存寄存卡：接入的值存进同名寄存卡，下一拍读得出')),
+// A game's parts are its parts.json, computing with the domain's resources (ops.js) and the kernel's registers,
+// coloured by family (ui/calculus.css).
+const FAMILIES = {
+  value: item(t('算数的元件')),
+  memory: item(t('读写寄存器的元件')),
 }
 
 /* ---------- a level ---------- */
@@ -42,9 +40,9 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'calculus',
-  version: 10,
-  removes: REMOVES,
-  kinds: { part: PARTS },
+  version: 11,
+  removes: [{ at: 'kinds.part', why: 'a game\'s parts are its parts.json over the domain\'s engine resources (op)' }],
+  kinds: { op: OP_ITEMS, family: FAMILIES },
   game: GAME,
   level: LEVEL,
 })

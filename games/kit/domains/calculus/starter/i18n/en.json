@@ -18,5 +18,22 @@
   "板上的电路每一拍从头算一遍，算完什么也不留下。要留下一个值到下一拍，用一对新元件：<part-ref to=\"part:keep\"></part-ref>把值存进寄存卡，<part-ref to=\"part:reg\"></part-ref>下一拍读出它。": "The board computes afresh every tick and keeps nothing once done. To keep a value for the next tick there is a new pair of parts: <part-ref to=\"part:keep\"></part-ref> stores a value in a register, and <part-ref to=\"part:reg\"></part-ref> reads it out the next tick.",
   "寄存卡让电路记得上一项。": "A register lets a circuit remember the term before.",
   "每一拍交出输入这一项与上一项的和；第一拍的上一项算 0。": "Each tick give the input’s term plus the one before; before the first term, take 0.",
-  "相邻和": "Pair sum"
+  "相邻和": "Pair sum",
+  "加": "Add",
+  "给出 a + b。": "Gives a + b.",
+  "乘": "Multiply",
+  "给出 a × b。": "Gives a × b.",
+  "倒数": "Reciprocal",
+  "给出 1/a；a 为 0 时没有值。": "Gives 1/a; no value when a is 0.",
+  "比较": "Less",
+  "a 小于 b 时给出 1，否则给出 0。": "Gives 1 when a is less than b, else 0.",
+  "常数": "Constant",
+  "每一拍都给出设定的数。": "Gives the number it is set to, every tick.",
+  "数值": "Value",
+  "读寄存卡": "Register",
+  "给出同名寄存卡中存的值；尚未存入时，给出初值。": "Gives the value held in the register of the same name; before anything is stored, its start value.",
+  "初值": "Start",
+  "存寄存卡": "Keep",
+  "把接入的值存进同名寄存卡，从下一拍起可以读出。": "Stores its input in the register of the same name; it can be read from the next tick on.",
+  "名字": "Name"
 }
