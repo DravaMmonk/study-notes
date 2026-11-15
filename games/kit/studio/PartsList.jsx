@@ -1,7 +1,10 @@
 // The game's pieces, grouped by tray and sorted by when the course gives them. The kernel supplies creation options.
 import { L, tr } from '../shell/i18n.js'
 import { iconOf } from '../shell/parts/icons.js'
-import { AddMenu } from './Picker.jsx'
+import { useState } from 'react'
+import SidebarListTools from './SidebarListTools.jsx'
+import { alphabetic, bySidebarName, sidebarSearch } from './sidebar-list.js'
+import { usePref } from './prefs.js'
 import { taskOptionsOf } from './form.js'
 import { pieceGroups } from './pieces.js'
 import { builtPart, pieceCreationOptions } from '../engine/parts/schema.js'
@@ -14,6 +17,8 @@ export const freeName = (taken, stem) => {
 }
 
 export default function PartsList({ content, vocabulary, levelOptions, order = [], earned = new Map(), at, found, onSelect, onEdit }) {
+  const [query, setQuery] = useState('')
+  const [sort, setSort] = usePref('piece-list-sort', 'tray')
   const file = content.partDefs ?? { parts: {} }
   const parts = Object.entries(file.parts ?? {})
   const tasks = levelOptions ? taskOptionsOf(levelOptions) : []
@@ -34,7 +39,12 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
       add(choices.find((option) => option.value === value).data)
     }
   }
-  const groups = pieceGroups(parts.map(([t]) => t), { trays: content.trays, at: (type) => earned.get(type) ?? null, order, primitives: content.primitives ?? [] })
+  const matches = sidebarSearch(query)
+  const shown = parts.filter(([id, def]) => matches(id, L(def.name))).map(([id]) => id)
+  const groups = sort === 'alphabetic'
+    ? [{ tray: null, types: bySidebarName(shown, (id) => L(file.parts[id].name)) }]
+    : pieceGroups(shown, { trays: content.trays, at: (type) => earned.get(type) ?? null, order, primitives: content.primitives ?? [] })
+
   const row = (type) => {
     const def = file.parts[type]
     const Icon = iconOf(def.icon ?? (def.inside ? 'CircuitBoard' : null))
@@ -50,10 +60,11 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
   }
   return (
     <nav className="parts-list" aria-label={tr('件', 'Pieces')}>
-      <div className="sidebar-add"><AddMenu options={choices} onPick={create} /></div>
+      <SidebarListTools addOptions={choices} onAdd={create} query={query} onQuery={setQuery}
+        sortOptions={[{ value: 'tray', label: tr('按托盘', 'By tray') }, alphabetic()]} sort={sort} onSort={setSort} />
       {groups.map((g) => (
         <section key={g.tray ?? ''} className="parts-group">
-          {groups.length > 1 && (g.tray ? <span className="parts-tray">{g.tray}</span> : <hr className="parts-rule" />)}
+          {g.tray ? <span className="parts-tray">{g.tray}</span> : groups.length > 1 && <hr className="parts-rule" />}
           {g.types.map(row)}
         </section>
       ))}

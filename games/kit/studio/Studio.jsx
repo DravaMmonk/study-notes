@@ -33,7 +33,6 @@ import { addFor, markOf, markPath } from './marks.js'
 import { withParts } from '../engine/parts/define.js'
 import { DEFAULT_VIEWS } from '../shell/parts/PartFace.jsx'
 import PartsList, { freeName } from './PartsList.jsx'
-import { AddMenu } from './Picker.jsx'
 import SettingsList from './SettingsList.jsx'
 import { itemOf } from './worklist.js'
 import { paletteIndex } from './palette.js'
@@ -696,13 +695,11 @@ export default function Studio() {
               ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={select} onEdit={edit} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file, { stayOnTab: true })} />
-              : <>
-                  <div className="sidebar-add"><AddMenu options={[
+              : <Tree game={game} content={content} entries={groupModel.groups} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask}
+                  addOptions={[
                     ...(content.eras.length ? [{ value: 'blank', label: tr('空白关卡', 'Blank level') }] : []),
                     ...(at?.level && content.levels.some((level) => level.id === at.level) ? [{ value: 'copy', label: tr('复制所选关卡', 'Duplicate selected level') }] : []),
-                  ]} onPick={addLevel} /></div>
-                  <Tree game={game} content={content} entries={groupModel.groups} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask} />
-                </>}
+                  ]} onAdd={addLevel} /> }
           </aside>
           <PanelResizer side="tree" size={layout.tree} open={layout.treeOpen} {...resizer} />
           <main className="studio-main">

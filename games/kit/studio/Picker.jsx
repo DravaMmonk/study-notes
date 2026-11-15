@@ -78,7 +78,7 @@ export function OptionList({ options, value, onPick, onClose, anchor, onOutside 
 }
 
 /** One value among many: a button showing the choice, a popover to search and pick. */
-export function Picker({ options, value, onPick, label = '', placeholder = '—', add = false }) {
+export function Picker({ options, value, onPick, label = '', placeholder = '—', add = false, icon: Icon }) {
   const [open, setOpen] = useState(false)
   const [submenu, setSubmenu] = useState(null)
   const box = useRef(null)
@@ -92,13 +92,15 @@ export function Picker({ options, value, onPick, label = '', placeholder = '—'
   return (
     <div className="pick" ref={box}>
       <button
-        type="button" className={`pick-button ${value !== undefined && !picked ? 'is-unknown' : ''}`} aria-haspopup="listbox" aria-expanded={open} aria-label={label}
+        type="button" className={`pick-button ${Icon ? 'is-icon' : ''} ${value !== undefined && !picked ? 'is-unknown' : ''}`} aria-haspopup="listbox" aria-expanded={open} aria-label={label} title={Icon ? picked?.label ?? label : undefined}
         onClick={() => open ? close() : setOpen(true)} onKeyDown={(e) => { if (e.key === 'ArrowDown' || (e.key.length === 1 && /\w/.test(e.key))) setOpen(true) }}
       >
-        {add && <Plus size={13} aria-hidden="true" />}
-        <span className="pick-name"><b>{picked ? picked.label ?? String(picked.value) : value === undefined ? placeholder : String(value)}</b>{picked?.title && <span>{L(picked.title)}</span>}</span>
-        {picked?.about && <span className="pick-about">{L(picked.about)}</span>}
-        <ChevronDown size={14} aria-hidden="true" />
+        {Icon ? <Icon size={15} aria-hidden="true" /> : <>
+          {add && <Plus size={13} aria-hidden="true" />}
+          <span className="pick-name"><b>{picked ? picked.label ?? String(picked.value) : value === undefined ? placeholder : String(value)}</b>{picked?.title && <span>{L(picked.title)}</span>}</span>
+          {picked?.about && <span className="pick-about">{L(picked.about)}</span>}
+          <ChevronDown size={14} aria-hidden="true" />
+        </>}
       </button>
       {open && <OptionList key={submenu ? 'submenu' : 'menu'} floating anchor={box} options={submenu ?? options} value={submenu ? undefined : value}
         onPick={choose} onClose={close} />}
@@ -107,9 +109,9 @@ export function Picker({ options, value, onPick, label = '', placeholder = '—'
 }
 
 /** The shared creation button, with the same overlay for its available actions. */
-export function AddMenu({ label = tr('新增', 'Add'), options, onPick }) {
+export function AddMenu({ label = tr('新增', 'Add'), options, onPick, icon }) {
   if (!options.length) return null
-  return <Picker add options={options} onPick={onPick} label={label} placeholder={label} />
+  return <Picker add icon={icon} options={options} onPick={onPick} label={label} placeholder={label} />
 }
 
 /** Add a key with a name entered by the author. */
