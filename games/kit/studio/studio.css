@@ -524,7 +524,7 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 
 /* ---- the palette and the keys ---- */
 .palette-scrim { position: fixed; inset: 0; z-index: 50; display: grid; justify-items: center; align-items: start; padding-top: 12vh; background: var(--scrim); }
-.palette { width: min(620px, calc(100vw - 32px)); max-height: 70vh; display: grid; grid-template-rows: auto auto minmax(0, 1fr); border-radius: 10px; background: var(--paper); box-shadow: var(--lift), 0 0 0 1px var(--hairline); overflow: hidden; }
+.palette { width: min(620px, calc(100vw - 32px)); max-height: 70vh; display: grid; grid-template-rows: auto minmax(0, 1fr); border-radius: 10px; background: var(--paper); box-shadow: var(--lift), 0 0 0 1px var(--hairline); overflow: hidden; }
 .palette-input { height: 40px; padding: 0 14px; border: 0; border-bottom: 1px solid var(--hairline); color: var(--ink); background: none; font: 14px/1 var(--sans); }
 .palette-input:focus { outline: none; }
 .palette-ask { margin: 0; padding: 4px 14px; color: var(--muted); font: 12px/1.4 var(--sans); }

@@ -16,7 +16,7 @@ const one = (value, lang) => String(sideOf(value, lang) ?? '')
  * Every item, in the order shown before anything is typed: recent fields, actions, levels in play order, eras,
  * fields, entries, findings. Arguments: content (the game), labels ([{ id, label }]: the levels' numbers on the map,
  * in play order), level (the id being edited) and fields ([path text]: its fields), items (the worklist), recent
- * ([{ level, path }] newest first), actions ([{ id, label, keys? }]), lang (the side titles show in).
+ * ([{ level, path }] newest first), actions ([{ id, label, keys?, ask? }]), lang (the side titles show in).
  */
 export function paletteIndex({ content, labels = [], level = null, fields = [], items = [], recent = [], actions = [], lang = getLang() }) {
   const out = []
@@ -24,7 +24,7 @@ export function paletteIndex({ content, labels = [], level = null, fields = [], 
   const label = new Map(labels.map((l) => [l.id, l.label]))
   const order = labels.length ? labels.map((l) => l.id).filter((id) => byId.has(id)) : content.levels.map((l) => l.id)
   for (const r of recent) out.push({ kind: 'recent', key: `recent ${r.level ?? ''} ${r.path}`, label: r.path || r.level, detail: r.level ?? 'game.json', words: `${r.level ?? ''} ${r.path}`, level: r.level, path: r.path })
-  for (const a of actions) out.push({ kind: 'action', key: `action ${a.id}`, label: a.label, detail: a.keys ?? '', words: `${a.id} ${a.words ?? ''}`, action: a.id })
+  for (const a of actions) out.push({ kind: 'action', key: `action ${a.id}`, label: a.label, detail: a.keys ?? '', words: `${a.id} ${a.words ?? ''}`, action: a.id, ...(a.ask && { ask: a.ask }) })
   for (const id of order) {
     const l = byId.get(id)
     out.push({ kind: 'level', key: `level ${id}`, label: `${label.get(id) ?? id} ${one(l.title, lang)}`.trim(), detail: id, words: `${id} ${plain(l.title)}`, level: id })

@@ -600,7 +600,9 @@ export default function Studio() {
       return true
     }).slice(0, 8)
   }, [ops])
-  const paletteItems = useMemo(() => (overlay === 'palette' && content ? paletteIndex({ content, labels: rawNames?.levels, level, fields, items, recent, actions: ACTIONS.map((a) => ({ id: a.id, label: a.label, keys: a.keys })), lang: getLang() }).map((it) => (it.kind === 'action' ? { ...it, ask: ACTIONS.find((a) => a.id === it.action)?.ask } : it)) : []), [overlay]) // eslint-disable-line react-hooks/exhaustive-deps
+  const paletteItems = overlay === 'palette' && content
+    ? paletteIndex({ content, labels: rawNames?.levels, level, fields, items, recent, actions: ACTIONS, lang })
+    : []
   const runItem = (item, word) => {
     if (item.kind === 'action') return ACTIONS.find((a) => a.id === item.action)?.run(word)
     if (item.kind === 'level') { select({ level: item.level }); if (!['page', 'fields'].includes(tab)) setTab('page'); return undefined }

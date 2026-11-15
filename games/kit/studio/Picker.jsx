@@ -5,13 +5,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ChevronDown, Plus, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
+import { useListCursor } from './useListCursor.js'
 
 const words = (v) => (v && typeof v === 'object' ? `${v.zh ?? ''} ${v.en ?? ''}` : String(v ?? ''))
 /** What an option shows: its label (or value) and its title. */
 const head = (o) => (o ? `${o.label ?? String(o.value)}${o.title ? ` ${L(o.title)}` : ''}` : '')
 const paramsOf = (o) => (o.params?.type === 'obj' ? Object.keys(o.params.fields) : o.params ? [o.params.type] : [])
 
-/** Closes when a pointer goes down outside `ref`, or on Escape. */
+/** Closes when a pointer goes down outside `ref`. */
 export function useDismiss(ref, open, close) {
   useEffect(() => {
     if (!open) return undefined
@@ -24,24 +25,19 @@ export function useDismiss(ref, open, close) {
 /** The popover's list: a search box (starting at `query`) over every word of each option, arrows and Enter to pick, Escape to leave. */
 export function OptionList({ options, value, onPick, onClose, autoFocus = true, query: first = '' }) {
   const [query, setQuery] = useState(first)
-  const [at, setAt] = useState(0)
-  const list = useRef(null)
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase()
     return q ? options.filter((o) => `${o.value} ${o.label ?? ''} ${words(o.title)} ${words(o.about)} ${words(o.group)}`.toLowerCase().includes(q)) : options
   }, [options, query])
-  useEffect(() => { setAt(Math.max(0, shown.findIndex((o) => o.value === value))) }, [shown, value])
-  useEffect(() => { list.current?.querySelector('.is-at')?.scrollIntoView({ block: 'nearest' }) }, [at])
-  const key = (e) => {
-    if (e.key === 'ArrowDown') { e.preventDefault(); setAt((k) => Math.min(shown.length - 1, k + 1)) }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); setAt((k) => Math.max(0, k - 1)) }
-    else if (e.key === 'Enter') { e.preventDefault(); if (shown[at]) onPick(shown[at].value) }
-    else if (e.key === 'Escape') { e.preventDefault(); onClose() }
-  }
+  const { at, setAt, list, onKeyDown } = useListCursor(shown, {
+    initial: Math.max(0, shown.findIndex((o) => o.value === value)),
+    onConfirm: (option) => { if (option) onPick(option.value) },
+    onEscape: onClose,
+  })
   let group = null
   return (
     <div className="pick-pop" role="dialog">
-      <input className="pick-search" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={key} autoFocus={autoFocus} placeholder={tr('搜索')} aria-label={tr('搜索')} />
+      <input className="pick-search" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={onKeyDown} autoFocus={autoFocus} placeholder={tr('搜索')} aria-label={tr('搜索')} />
       <ul className="pick-list" ref={list} role="listbox">
         {shown.map((o, k) => {
           const g = o.group ? L(o.group) : null
