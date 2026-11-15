@@ -1,16 +1,13 @@
 // Scenes of frequency (scenes/index.js): a waveform made of a few waves, read for one of them; a photo under fine
 // grain, the photo gently blurred expected.
 import { S } from '../../../../engine/schema.js'
-import { correlate, fromFn, gaussianKernel, image, map, random, zip } from '../../engine/image.js'
+import { correlate, fromFn, gaussianKernel, image, map, random, row, zip } from '../../engine/image.js'
 import { highpass } from '../../engine/fourier.js'
+import { cosine, sampleAt } from '../../engine/waves.js'
 import { picture } from '../pictures.js'
 import { T as t } from '../../../../shell/i18n.js'
 
 const N = 32
-const TAU = 2 * Math.PI
-
-// A row of N points: A·cos(2π·k·x/N + phase°).
-const wave = (k, A, phase = 0) => fromFn(N, 1, (x) => A * Math.cos((TAU * k * x) / N + (phase * Math.PI) / 180))
 // Fine-grained noise: random values with everything below 10 cycles per image removed, std 0.07.
 const fineNoise = (seed, std = 0.07) => {
   const next = random(seed)
@@ -25,7 +22,7 @@ export const FREQUENCY = {
     setup: S.obj({ k: S.int({ min: 0 }) }),
     test: S.obj({ c: S.num(), waves: S.list(S.obj({ k: S.int({ min: 0 }), A: S.num(), phase: S.opt(S.num({ about: t('错开多少度') })) })) }),
     make: ({ c, waves }, { k }) => ({
-      inputs: { in: [image(N, 1, c), ...waves.map((w) => wave(w.k, w.A, w.phase))].reduce((a, b) => zip(a, b, (p, q) => p + q)) },
+      inputs: { in: waves.reduce((sum, w) => zip(sum, row(sampleAt(cosine(w), N)), (p, q) => p + q), image(N, 1, c)) },
       expected: { out: image(1, 1, waves.find((w) => w.k === k)?.A ?? 0) },
     }),
   },

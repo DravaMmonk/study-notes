@@ -12,7 +12,8 @@ const twiddles = (n) => {
   return TWIDDLES.get(n)
 }
 
-function dft1(re, im, inverse) {
+/** One transform axis, shared by image spectra and the sampling bench. */
+export function dft1(re, im = new Float64Array(re.length), inverse = false) {
   const n = re.length
   const outRe = new Float64Array(n)
   const outIm = new Float64Array(n)

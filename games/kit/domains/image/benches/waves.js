@@ -4,17 +4,10 @@
 import { S } from '../../../engine/schema.js'
 import { benchRun, limitOf, openKnobs, passingSettings, startValues } from '../../../engine/bench.js'
 import { piText } from '../engine/pi.js'
-import { aliasOf, cosine, maxDiff, sampleAt, throughSamples } from '../engine/waves.js'
+import { aliasOf, cosine, maxDiff, sampleAt, sinusoid, throughSamples } from '../engine/waves.js'
 import { T as t } from '../../../shell/i18n.js'
 
-const TAU = 2 * Math.PI
 const num = S.num()
-const rowOf = (N, f) => Array.from({ length: N }, (_, x) => f(x))
-const largestGap = (a, b) => Math.max(...a.map((v, x) => Math.abs(v - b[x])))
-
-/** A cos wave of frequency k and amplitude A, `shift` degrees late, as a function of u ∈ [0, 1). */
-export const cosAt = (k, A = 1, shift = 0) => (u) => A * Math.cos(TAU * k * u - (shift * Math.PI) / 180)
-const sinAt = (k) => (u) => Math.sin(TAU * k * u)
 
 /* ---------- 一道波: c + A·cos(2π·k·x/N + φ·π/4) ---------- */
 
@@ -26,18 +19,18 @@ export const wave = {
   setup: S.obj({ N: S.int({ min: 2 }) }),
   stage: S.obj({ target: S.map(num) }),
   make({ N }) {
-    const at = (p, x) => p.c + p.A * Math.cos((TAU * p.k * x) / N + (p.phi * Math.PI) / 4)
-    const row = (p) => rowOf(N, (x) => at(p, x))
+    const curve = (p) => cosine({ ...p, phase: p.phi * 45 })
     return {
       view(v, { stage, open }) {
         const mark = (knob, text) => (open.includes(knob) ? { b: text } : text)
         const phase = phaseText(v.phi)
+        const yours = curve(v)
+        const target = curve(stage.target)
+        const row = sampleAt(yours, N)
+        const targetRow = sampleAt(target, N)
         return {
-          gap: largestGap(row(v), row(stage.target)),
-          yours: (u) => at(v, u * N),
-          target: (u) => at(stage.target, u * N),
-          row: row(v),
-          targetRow: row(stage.target),
+          gap: maxDiff(row, targetRow),
+          yours, target, row, targetRow,
           formula: [mark('c', fmt(v.c)), ' + ', mark('A', fmt(v.A)), '·cos(2π·', mark('k', String(v.k)), `·x/${N}${v.phi < 0 ? ' − ' : ' + '}`, mark('phi', v.phi < 0 ? phase.replace('−', '') : phase), ')'],
         }
       },
@@ -65,22 +58,23 @@ export const sum = {
   setup: S.obj({ N: S.int({ min: 2 }), ks: S.list(S.int()) }),
   stage: S.obj({ target: S.list(num, { about: t('每个频率的振幅') }) }),
   make({ N, ks }, bench) {
-    const at = (amps, x) => 0.5 + amps.reduce((s, a, i) => s + a * Math.sin((TAU * ks[i] * x) / N), 0)
-    const row = (amps) => rowOf(N, (x) => at(amps, x))
+    const components = ks.map((k) => sinusoid(k, 'sin'))
+    const curve = (amps) => (u) => 0.5 + amps.reduce((s, a, i) => s + a * components[i](u), 0)
     const amplitudes = (v) => ks.map((k) => v[`k${k}`])
     const tolerance = limitOf(bench.goal, 'gap').atMost
     return {
       view(v, { stage }) {
         const amps = amplitudes(v)
-        const gap = largestGap(row(amps), row(stage.target))
-        const mean = row(amps).reduce((s, x) => s + x, 0) / N
+        const yours = curve(amps)
+        const target = curve(stage.target)
+        const row = sampleAt(yours, N)
+        const targetRow = sampleAt(target, N)
+        const gap = maxDiff(row, targetRow)
+        const mean = row.reduce((s, x) => s + x, 0) / N
         const used = amps.map((a, i) => [a, ks[i]]).filter(([a]) => a)
         return {
           gap,
-          yours: (u) => at(amps, u * N),
-          target: (u) => at(stage.target, u * N),
-          row: row(amps),
-          targetRow: row(stage.target),
+          yours, target, row, targetRow,
           formula: ['0.5', ...used.flatMap(([a, k]) => [' + ', { b: a.toFixed(2) }, `·sin(k=${k})`]), { muted: [' · ', t(`这一行的平均 ${mean.toFixed(3)}`, `row average ${mean.toFixed(3)}`), ' · ', t(`最大误差 ${gap.toFixed(3)}，须不超过 ${tolerance}`, `largest error ${gap.toFixed(3)}, at most ${tolerance}`)] }],
         }
       },
@@ -114,7 +108,11 @@ export const sum = {
 
 // A wave on a middle line of c: the sum of cos waves of frequency k, amplitude A, `shift` degrees late (u ∈ [0, 1)).
 const WAVES = S.obj({ c: num, waves: S.list(S.obj({ k: S.int(), A: num, shift: S.opt(num) })) })
-const wavesAt = ({ c, waves }) => (u) => waves.reduce((s, w) => s + cosAt(w.k, w.A, w.shift)(u), c)
+const wavesAt = ({ c, waves }) => {
+  const components = waves.map(({ k, A, shift = 0 }) => cosine({ k, A, phase: -shift }))
+  return (u) => components.reduce((s, wave) => s + wave(u), c)
+}
+const multiplyCurves = (a, b) => (u) => a(u) * b(u)
 // The ways of putting the cos reading a and the sin reading b together (the `pick` knob's values).
 const COMBINE = { cos: (a) => a, sin: (a, b) => b, sum: (a, b) => a + b, mag: (a, b) => Math.hypot(a, b) }
 const readingText = (v) => (Math.abs(v) < 0.0005 ? '0.000' : v.toFixed(3))
@@ -128,16 +126,17 @@ export const probe = {
     answers: S.str({ about: t('这一步接受的全部答案，用逗号连起') }),
   }),
   make({ N, wave: w }) {
-    const reading = (input, f) => rowOf(N, (x) => input(x / N) * f(x / N)).reduce((s, v) => s + v, 0) / N
-    const shifted = (shift) => (u) => 0.5 + cosAt(w.k, w.A, shift)(u)
-    const readingsAt = (shift) => [2 * reading(shifted(shift), cosAt(w.k)), 2 * reading(shifted(shift), sinAt(w.k))]
+    const reading = (product) => sampleAt(product, N).reduce((s, v) => s + v, 0) / N
+    const shifted = (shift) => cosine({ ...w, c: 0.5, phase: -shift })
+    const readingsAt = (shift) => ['cos', 'sin'].map((form) => 2 * reading(multiplyCurves(shifted(shift), sinusoid(w.k, form))))
     return {
       view(v, { stage: s }) {
         const input = s.input ? wavesAt(s.input) : shifted(v.shift)
-        const probes = s.kind === 'combine'
-          ? [{ name: t(`cos 探针 · 频率 ${w.k}`, `cos probe · frequency ${w.k}`), f: cosAt(w.k) }, { name: t(`sin 探针 · 频率 ${w.k}`, `sin probe · frequency ${w.k}`), f: sinAt(w.k) }]
-          : [{ name: t(`cos 探针 · 频率 ${s.kind === 'find' || s.kind === 'read' ? v.j : w.k}`, `cos probe · frequency ${s.kind === 'find' || s.kind === 'read' ? v.j : w.k}`), f: cosAt(s.kind === 'find' || s.kind === 'read' ? v.j : w.k) }]
-        const averages = probes.map((p) => reading(input, p.f))
+        const k = s.kind === 'find' || s.kind === 'read' ? v.j : w.k
+        const forms = s.kind === 'combine' ? ['cos', 'sin'] : ['cos']
+        const probes = forms.map((form) => ({ name: t(`${form} 探针 · 频率 ${k}`, `${form} probe · frequency ${k}`), f: sinusoid(k, form) }))
+        const products = probes.map(({ f }) => multiplyCurves(input, f))
+        const averages = products.map(reading)
         const times = s.kind === 'read' ? v.m : 2
         const readings = averages.map((a) => a * times)
         const combined = v.pick && COMBINE[v.pick](readings[0], readings[1])
@@ -149,7 +148,7 @@ export const probe = {
             legend: [{ kind: 'faint', label: t('输入', 'Input') }, { kind: 'seen', label: probes.flatMap((p, i) => (i ? [' · ', p.name] : [p.name])) }],
           },
           product: {
-            lines: probes.flatMap((p, i) => [{ curve: (u) => input(u) * p.f(u), kind: 'yours', label: t('乘积') }, { curve: () => averages[i], kind: 'target', label: t('平均') }]),
+            lines: products.flatMap((product, i) => [{ curve: product, kind: 'yours', label: t('乘积') }, { curve: () => averages[i], kind: 'target', label: t('平均') }]),
             legend: [{ kind: 'yours', label: t('逐点相乘') }, { kind: 'target', label: t('乘积的平均') }],
           },
           formula: [
