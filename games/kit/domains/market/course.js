@@ -4,11 +4,13 @@
 // passed its level's last task with), and the course the shared audit
 // checks.
 //
-// Returns the circuit base's course (../../engine/board-course.js circuitCourse); `wrong` is what reading the
+// Returns the circuit base's course (../../engine/board-course.js circuitCourse) with the parts parts.json defines (`defs`,
+// `defaultsOf`); `wrong` is what reading the
 // content found that its schema cannot say (a street whose shops are not the task's cards).
 import { circuitCourse } from '../../engine/board-course.js'
 import { board } from './board.js'
-import { PARTS } from './parts.js'
+import { defineParts } from '../../engine/parts/define.js'
+import { OPS } from './ops.js'
 import { portsOf } from './world.js'
 
 export function marketCourse(content) {
@@ -26,5 +28,7 @@ export function marketCourse(content) {
     for (const name of ins) if (!shown.includes(name)) say(`the task has a card ${name}, which a test’s street does not show`)
     return t
   }
-  return circuitCourse(content, { board, parts: PARTS, test })
+  // The parts are the game's parts.json over the domain's resources.
+  const { PARTS, defs, defaultsOf } = defineParts(content.partDefs, OPS)
+  return { ...circuitCourse(content, { board, parts: PARTS, test }), defs, defaultsOf }
 }

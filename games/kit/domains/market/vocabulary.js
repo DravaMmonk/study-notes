@@ -2,25 +2,22 @@
 // it is and the schema of its parameters, and the schemas of game.json and of one level. Content is these items and
 // their parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
-// The parts are implemented in parts.js. A test is data: a street of shops (world.js), how many ticks it trades and
-// what it has to earn by the last (course.js reads it, run.js runs it).
+// A game's parts are its parts.json over the resources of ops.js. A test is data: a street of shops (world.js), how
+// many ticks it trades and what it has to earn by the last (course.js reads it, run.js runs it).
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { GAME, PORT, REMOVES, levelSchema } from '../../engine/level-schema.js'
+import { GAME, PORT, levelSchema } from '../../engine/level-schema.js'
 import { T as t } from '../../shell/i18n.js'
+import { OP_ITEMS } from './ops.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 
 /* ---------- the parts ---------- */
 
-const PARTS = {
-  const: item(t('常数：设定的数')),
-  add: item(t('加：a + b')),
-  sub: item(t('减：a − b')),
-  mul: item(t('乘：a × b')),
-  div: item(t('除：a ÷ b')),
-  min: item(t('取小：a 和 b 里小的那个')),
+// A game's parts are its parts.json, computing with the domain's resources (ops.js), coloured by family (ui/market.css).
+const FAMILIES = {
+  value: item(t('算数的元件')),
 }
 
 /* ---------- a level ---------- */
@@ -48,9 +45,9 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'market',
-  version: 6,
-  removes: REMOVES,
-  kinds: { part: PARTS },
+  version: 7,
+  removes: [{ at: 'kinds.part', why: 'a game\'s parts are its parts.json over the domain\'s engine resources (op)' }],
+  kinds: { op: OP_ITEMS, family: FAMILIES },
   game: GAME,
   level: LEVEL,
 })

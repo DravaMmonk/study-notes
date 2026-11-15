@@ -1729,4 +1729,7 @@ export default {
   "这块板给出的口：parts.json 里引用这个任务的件是一个元件，口就是这些": "the ports this board gives: the parts.json piece referring to this task is a part, and these are its ports",
   "把这个输入存进设置 register 说的寄存器，下一拍起读得到（held）；存的件不写 compute": "keeps this input in the register its setting `register` names, readable from the next tick on (held); a keeping part writes no compute",
   "寄存器 register 此刻存的值；还没存过时给 start": "what register `register` holds now; `start` until something is kept in it",
+  "a ÷ b；b 为 0 时没有值": "a \u00f7 b; no value when b is 0",
+  "a 和 b 里小的那个": "the smaller of a and b",
+  "a × b": "a \u00d7 b",
 }

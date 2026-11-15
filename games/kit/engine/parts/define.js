@@ -185,7 +185,7 @@ export function defineParts(file, ops, code = {}) {
     if (kept) {
       const setting = def.setting[kept.register]
       return [type, {
-        inputs: [kept.input], sink: true, store: true, eval: () => undefined, register: (node) => coerce(setting, node?.params?.[kept.register]),
+        inputs: [kept.input], sink: true, store: true, collect: (ins) => ins[kept.input], eval: () => undefined, register: (node) => coerce(setting, node?.params?.[kept.register]),
         params: settingsOf(def).map((s) => s.key), defaults: Object.fromEntries(settingsOf(def).map((s) => [s.key, defaultOf(s)])),
         settings: Object.fromEntries(settingsOf(def).filter((s) => OPTIONED.has(s.control) && s.options).map((s) => [s.key, s.options.map((o) => o.value)])),
       }]

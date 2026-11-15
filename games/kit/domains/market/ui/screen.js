@@ -6,6 +6,5 @@ import { street } from './street.js'
 // chart a shop (street.js).
 export const screen = {
   play,
-  registers: { registers: [], top: 9, numbers: true },
   scene: street,
 }

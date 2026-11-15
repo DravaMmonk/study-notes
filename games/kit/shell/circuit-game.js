@@ -11,10 +11,11 @@
 //     kinds        { kind: { Screen, icon, label } } the screens of the tasks that are no board (the course read's
 //                  kinds); a level's kind is its last task's
 //     IntroFigure  what draws an introduction page's figure (index.js)
-//   definedGame(content, circuit, { ops, …circuitGame's but cards })   the game of a domain whose games define their
+//   definedGame(content, circuit, { ops, cards?, …circuitGame's })   the game of a domain whose games define their
 //     own parts: its screen says what a failed run gives as its reason and the room a card's picture takes, so the
 //     domain declares only its run.js (`screen: { play }`) and what it adds;
-//     own parts (parts.json, the course read's `defs`): its cards are those parts, and `game.defined` is what draws
+//     own parts (parts.json, the course read's `defs`): its cards are those parts (and `cards`, its fixed cards drawn its
+//     own way), and `game.defined` is what draws
 //     them, on its screens (CircuitScreen `defined`) and in the studio (parts/PartPreview.jsx)
 import { createElement } from 'react'
 import { CircuitBoard } from 'lucide-react'
@@ -97,7 +98,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
 }
 
 export function definedGame(content, circuit, { ops, ...own }) {
-  const cards = Object.fromEntries(Object.entries(circuit.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, ...defined({ revisions: d.revisions }), icon: iconOf(d.icon) }]))
+  const cards = { ...own.cards, ...Object.fromEntries(Object.entries(circuit.defs).map(([type, d]) => [type, { name: d.name, desc: d.desc, ...defined({ revisions: d.revisions }), icon: iconOf(d.icon) }])) }
   const screen = { canvas: { height: 96 }, ...own.screen }
   return Object.assign(circuitGame(content, circuit, { ...own, screen, cards }), { defined: { of: (type) => circuit.defs[type] ?? null, defaults: circuit.defaultsOf, ops } })
 }
