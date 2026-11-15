@@ -167,7 +167,7 @@ test('a gate the player built runs the board it passed with; one that no longer 
   const gates = builder.gates
   const or = (board) => {
     syncOwn(board ? { or: board } : {})
-    const alone = { nodes: [...startGates(builder).nodes, { id: 'x', type: 'gOr', params: {} }], wires: [{ from: 'Rain', to: 'x', port: 'Rain' }, { from: 'Wind', to: 'x', port: 'Wind' }, { from: 'x', to: 'out', port: 'in' }] }
+    const alone = { nodes: [...startGates(builder).nodes, { id: 'x', type: 'gOr', params: {} }], wires: [{ from: 'Rain', to: 'x', port: 'a' }, { from: 'Wind', to: 'x', port: 'b' }, { from: 'x', to: 'out', port: 'in' }] }
     return rowsFor(builder).rows.map(({ row }) => runBoard(alone, { parts: gateParts(gates), bind: row }).outputs.out)
   }
   const truth = rowsFor(builder).rows.map((r) => r.want)

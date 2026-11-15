@@ -43,8 +43,8 @@ const asSchema = (text, metas) => metas.reduce((t, m) => t.replace(new RegExp(`\
  * A game's built pieces (parts.json, ../../engine/pieces.js builtPieces) read as the course's tables. Its family says
  * what a piece is: a lemma (`lemma`: each shape the premises and goal of the proof task it refers to, its letters its
  * tree settings, the first reference its first shape and the rest, by `form`, shapes an upgrade adds), a gate (`gate`:
- * its ports the letters of its truth circuit), a machine part (`built`) or an equation proved (`rule`: its statement
- * its task's goal; the task may say how it enters the rule book, `rule`). The level of a piece's first reference (of
+ * a port for each letter of its truth circuit, in order, named a, b, c…), a machine part (`built`) or an equation
+ * proved (`rule`: its statement its task's goal; the task may say how it enters the rule book, `rule`). The level of a piece's first reference (of
  * every one, for a chain of upgrades) builds it; a task an equation refers to proves it. Returns { lemmas, facts,
  * gates, machines, pieces, revisions, builds: level → type, proves: task → type, lemmaRefs: [{ type, form, task }] }.
  */
@@ -83,7 +83,11 @@ function readBuilt(content) {
         ...(cardOf(piece) ? { card: cardOf(piece) } : {}),
       }
       out.lemmaRefs.push(...refs.map((ref) => ({ type, form: ref.form ?? '', task: ref.task.id })))
-    } else if (piece.family === 'gate') out.gates[type] = { name, desc, ports: lettersOf([parse(refs[0].task.target)]) }
+    } else if (piece.family === 'gate') {
+      // A gate's ports stand for its truth circuit's letters in order, named a, b, c…: the level's sentences are its
+      // own, not the gate's.
+      out.gates[type] = { name, desc, ports: lettersOf([parse(refs[0].task.target)]).map((_, k) => String.fromCharCode(97 + k)) }
+    }
     else if (piece.family === 'built') out.machines.push(type)
     else if (piece.family === 'rule') {
       const { task } = refs[0]
