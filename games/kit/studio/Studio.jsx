@@ -56,6 +56,8 @@ const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
 const SIZE = { tree: [180, 640], audit: [90, 900], side: [260, 900] } // px: the tree's width, the audit drawer's height, the side panel's width
 
+const piecePath = (at) => at?.part !== undefined ? ['parts', at.part] : at?.preset !== undefined ? ['presets', at.preset] : null
+
 /** Keep the studio's place in the address: the game, what is selected, the tab. */
 const remember = (game, at, tab) => {
   const url = new URL(window.location.href)
@@ -141,7 +143,10 @@ export default function Studio() {
     return TABS.some(([id]) => id === requested) ? requested : 'page'
   })
   const [play, setPlay] = useState(() => (QUERY.get('level') ? { level: QUERY.get('level'), seed: null, take: null } : null)) // { level, seed, take }
-  const [field, setField] = useState(null) // the field in the side panel: { path, focus? } | { missing } | null
+  const [field, setField] = useState(() => {
+    const path = piecePath(at)
+    return path ? { path } : null
+  }) // the field in the side panel: { path, focus? } | { missing } | null
   const [pageEdit, setPageEdit] = usePref('page-edit', true) // the page as the editor, or the game alone
   const [pageTask, setPageTask] = useState(0) // the task the page plays
   const [go, setGo] = useState(null) // a task for the page to go to: { task }
@@ -242,7 +247,7 @@ export default function Studio() {
   const content = shown?.content ?? null
   // A domain that defines its parts as data names them by the game's pieces.json as the changeset leaves it.
   const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
-  const atPart = at?.part !== undefined || at?.preset !== undefined
+  const pieceRoot = piecePath(at)
   const fresh = checked?.key === key
   // The check's lines: the whole check's when it is of these changes, else the quick one's (the content against its
   // vocabulary) over the last whole check's other lines.
@@ -304,7 +309,9 @@ export default function Studio() {
     const other = next?.level !== at?.level || next?.era !== at?.era || Boolean(next?.game) !== Boolean(at?.game) || Boolean(next?.glossary) !== Boolean(at?.glossary) || next?.part !== at?.part || next?.preset !== at?.preset
     setAt(next)
     setMoving(null)
-    if (other) setField(null)
+    const root = piecePath(next)
+    if (root) pickField(root)
+    else if (other) setField(null)
     if (!keep) setPicked(new Set(next?.level ? [next.level] : []))
     if (next?.level && next.level !== play?.level) {
       setPlay({ level: next.level, seed: null, take: null })
@@ -412,8 +419,7 @@ export default function Studio() {
   }
   // The name of what the page shows, clicked: all its fields in the side panel, those the screen does not draw too.
   const onRoot = () => {
-    if (at?.part !== undefined) return pickField(['parts', at.part])
-    if (at?.preset !== undefined) return pickField(['presets', at.preset])
+    if (pieceRoot) return pickField(pieceRoot)
     if (play?.level) {
       if (at?.level !== play.level) select({ level: play.level })
       return pickField([])
@@ -537,7 +543,7 @@ export default function Studio() {
   }
   const togglePanel = (which) => setLayout((l) => ({ ...l, [`${which}Open`]: !l[`${which}Open`] }))
   // The side panel's field: its control's context (as the forms had it), and the mark the page draws it with.
-  const sideFile = at?.level && content?.levels.some((l) => l.id === at.level) ? { level: at.level } : atPart ? { parts: true } : at?.glossary ? { glossary: true } : at ? { game: true } : null
+  const sideFile = at?.level && content?.levels.some((l) => l.id === at.level) ? { level: at.level } : pieceRoot ? { parts: true, root: pieceRoot } : at?.glossary ? { glossary: true } : at ? { game: true } : null
   const pendingFace = field?.pendingFace && ops.some((op) => op.op === 'pieces.set' && op.value === field.pendingFace && !shown?.ops.includes(op)) ? field.pendingFace : null
   const pageMark = field?.path && sideFile?.level && sideFile.level === play?.level ? { ...markOf(levelValue(sideFile.level), field.path), level: sideFile.level }
     : field?.path && at?.part !== undefined && field.path[0] === 'parts' && field.path[1] === at.part ? JSON.stringify(field.path.slice(2))

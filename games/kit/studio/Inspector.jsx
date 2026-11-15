@@ -7,7 +7,7 @@
 // it. Picking another field, or another level, changes what it shows.
 //
 //   <Inspector content base vocab at field ctx onEdit onOps onPick onClose onLevel />
-//   at: the file shown ({ level } | { game: true } | { parts: true }: pieces.json | { glossary: true }); field: { path } | { missing: text } | null
+//   at: the file shown ({ level } | { game: true } | { parts: true }: pieces.json, with root: [collection, id] | { glossary: true }); field: { path } | { missing: text } | null
 import { useEffect, useRef } from 'react'
 import { ArrowDown, ArrowUp, ArrowRightLeft, ChevronRight, Copy, MousePointerClick, Plus, Trash2, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
@@ -19,6 +19,7 @@ import { Picker } from './Picker.jsx'
 export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, onEdit, onOps, onPick, onClose, onLevel }) {
   const { vocabulary } = vocab
   const order = ctx.levels
+  const root = at?.root ?? []
   const file = at?.level ? { level: at.level } : at?.parts ? { parts: true } : at?.glossary ? { glossary: content.glossary } : { game: true }
   const pathToFace = pendingFace && field.path.slice(0, 4)
   const partDefs = content.partDefs
@@ -65,7 +66,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   if (field.missing || !hit) {
     return (
       <div className="insp">
-        <Head path={[]} file={file} onPick={onPick} onClose={onClose} />
+        <Head path={root} file={file} root={root} onPick={onPick} onClose={onClose} />
         <p className="insp-note">{field.missing ? tr(`「${field.missing}」不是这一关内容里的字段：它由领域生成，在「字段」里找它的来源。`, `“${field.missing}” is no field of the level’s content: the domain makes it; find where it comes from in the fields.`) : tr('这个字段已经不在了。')}</p>
       </div>
     )
@@ -79,7 +80,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   const ctxHere = { ...ctx, findings, partDefs: content.partDefs }
   return (
     <div className="insp">
-      <Head path={path} file={file} onPick={onPick} onClose={onClose} />
+      <Head path={path} file={file} root={root} onPick={onPick} onClose={onClose} />
       {optional && (
         <div className="insp-tools">
           <span>{tr('可选的字段')}</span>
@@ -147,13 +148,13 @@ function TaskTools({ content, level, tasks, k, ctx, onEdit, onOps, onPick, onLev
   )
 }
 
-/** The way to the field: the file, then each step, a link to the field there. */
-function Head({ path, file, onPick, onClose }) {
-  const steps = path.map((k, i) => ({ k, at: path.slice(0, i + 1) }))
+/** Each breadcrumb opens a field, starting at the selected record or the file root. */
+function Head({ path, file, root, onPick, onClose }) {
+  const steps = path.slice(root.length).map((k, i) => ({ k, at: path.slice(0, root.length + i + 1) }))
   return (
     <header className="insp-head">
       <nav className="insp-path" aria-label={tr('字段的位置')}>
-        <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={!path.length}>{file.level ?? (file.parts ? 'pieces.json' : file.glossary ? 'glossary.json' : 'game.json')}</button>
+        <button type="button" className="insp-crumb" onClick={() => onPick(root)} disabled={!steps.length}>{root.at(-1) ?? file.level ?? (file.parts ? 'pieces.json' : file.glossary ? 'glossary.json' : 'game.json')}</button>
         {steps.map(({ k, at }) => (
           <span key={showPath(at)} className="insp-step">
             <ChevronRight size={11} aria-hidden="true" />
