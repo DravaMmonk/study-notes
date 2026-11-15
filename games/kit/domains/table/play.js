@@ -10,11 +10,10 @@
 // link, pack, policy, breach) are not covered: each is a screen of its own the player works by tapping cells.
 //
 // Text here is in the shell's language (lang.js tr), which a blind session chooses before the game loads.
-import { circuitPlay, playBoard, untilFail } from '../../engine/play/circuit.js'
+import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
 import { WORLDS } from './model/worlds.js'
-import { inspectRobotCase, robotConstraint, testLabel, whyFailed } from './model/verdict.js'
-import { fromGraph } from './model/wiring.js'
-import { diagnosisOf, guideAt } from './items/conditions.js'
+import { missingRobotOutput, robotHint, robotReport, robotTestName, tutorialFailure } from './model/verdict.js'
+import { guideAt } from './items/conditions.js'
 import { tr } from './lang.js'
 import { playOf } from './plays.js'
 
@@ -30,7 +29,6 @@ export const play = {
 }
 
 const circuit = circuitPlay({
-  board: playBoard,
   brief: ({ level: { source: task } }, start) => {
     const tip = guideAt(task.guide, start) ?? [task.ask, task.tip].filter(Boolean).map(str).join(' ')
     return { text: [task.mission.goal, task.mission.how].map(str).join('\n'), tip: tip || null, hint: task.hints ?? null }
@@ -65,40 +63,25 @@ const circuit = circuitPlay({
     const V = WORLDS[s.world]
     return s.tests.map((t, k) => {
       const key = V.answerKey?.(t, s) ?? null
-      return { label: `${tr('测试', 'Test')} ${k + 1} · ${str(testLabel(s, V, t))}`, text: `${JSON.stringify(t)}${key !== null ? `\n${tr('答案读自', 'The answer is read at')} ${str(V.name(key))}` : ''}` }
+      return { label: str(robotTestName(s, t, k)), text: `${JSON.stringify(t)}${key !== null ? `\n${tr('答案读自', 'The answer is read at')} ${str(V.name(key))}` : ''}` }
     })
   },
-  run: (ctx, graph) => {
-    const s = ctx.level.source
-    const V = WORLDS[s.world]
-    const b = fromGraph(graph)
-    const label = (t) => testLabel(s, V, t)
-    const miss = V.outs.find(([id]) => !b.wires.some((w) => w.to === id))
-    if (miss) return { tests: [], says: [tr(`输出口「${str(miss[1])}」还没接线`, `The output “${str(miss[1])}” is not wired yet`)], pass: false }
-    const { runCircuit } = ctx.game.table.model
-    const results = []
-    let failed = null
-    for (let k = 0; k < s.tests.length && !failed; k++) {
-      const j = inspectRobotCase(runCircuit, s, b, k, { diagnose: true })
-      results.push({ label: `${tr('测试', 'Test')} ${k + 1} · ${str(label(j.t))}`, pass: j.ok })
-      if (!j.ok) failed = { k, ...j }
-    }
-    const tests = untilFail([...results, ...s.tests.slice(results.length).map((t, k) => ({ label: `${tr('测试', 'Test')} ${results.length + k + 1} · ${str(label(t))}`, pass: null }))])
-    if (failed && s.onFail) {
-      // A task whose failure is its lesson: what went wrong, why no board could do better, and on to the next task.
-      const at = { test: failed.k + 1, want: str(s.expected[failed.k]), got: str(failed.res.value) }
-      return { tests, says: [`${str(s.onFail.head)}: ${String(s.onFail.body).replace(/\{(test|want|got)\}/g, (_, f) => at[f])}`], pass: true }
-    }
-    if (failed) {
-      const why = whyFailed({ L: s, V, opt: s, label, expected: s.expected }, failed.k, failed.t, failed.res, failed.mm)
-      const hint = diagnosisOf(s.diagnose, b) || (s.hints ? s.hints[Math.min(Math.max(ctx.fails, 0), s.hints.length - 1)] : null)
-      tests[failed.k] = { ...tests[failed.k], says: `${str(why.head)}: ${str(why.body)}` }
+  run: ({ game, level: { source: task }, fails }, graph) => {
+    const missing = missingRobotOutput(task, graph)
+    if (missing) return { tests: [], says: [missing], pass: false }
+    const { runs, pass, constraint } = robotReport(game.table.model.runCircuit, task, graph)
+    const tests = untilFail(runs.map(({ report }, k) => ({ label: str(robotTestName(task, report.t, k)), pass: report.ok })))
+    const k = runs.findIndex(({ fail }) => fail)
+    if (k !== -1) {
+      const { report, failure } = runs[k]
+      if (task.onFail) {
+        const tutorial = tutorialFailure(task, k, report.res)
+        return { tests, says: [`${str(tutorial.head)}: ${str(tutorial.body)}`], pass: true }
+      }
+      const hint = robotHint(task, graph, fails)
+      tests[k] = { ...tests[k], says: `${str(failure.head)}: ${str(failure.body)}` }
       return { tests, says: hint ? [`${tr('提示', 'Hint')}: ${str(hint)}`] : [], pass: false }
     }
-    // A board that becomes a part must read exactly the part's ports, or the part would not do what the board did.
-    const notPart = robotConstraint(s, b)
-    if (notPart) return { tests, says: [`${tr('还不能做成元件', 'Not a part yet')}: ${str(notPart)}`], pass: false }
-    return { tests, pass: true }
+    return { tests, says: constraint ? [`${tr('还不能做成元件', 'Not a part yet')}: ${str(constraint)}`] : [], pass }
   },
-  keep: (ctx, graph) => fromGraph(graph),
 })

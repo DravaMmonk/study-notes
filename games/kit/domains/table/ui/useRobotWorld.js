@@ -6,15 +6,16 @@ import { picksOf, withPicks } from '../model/board.js'
 import { isCard, modelsOf } from '../model/parts.js'
 import { signal } from '../model/format.js'
 import { WORLDS, windowOf } from '../model/worlds.js'
-import { diagnosisOf, guideAt } from '../items/conditions.js'
+import { guideAt } from '../items/conditions.js'
 import { trace } from '../items/traces.js'
 import { panelData } from '../items/panels.js'
 import { boardDrawing } from './scene.js'
 import { robotDrawing } from './robotDrawing.js'
-import { probeValues, tutorialFailure } from './circuitRun.js'
+import { missingRobotOutput, robotHint, tutorialFailure } from '../model/verdict.js'
+import { probeValues } from './circuitRun.js'
 import { buzz, typing, useToast, useVerdict } from '../../../shell/useBoardInteraction.jsx'
 import { useWorkspaceKeys } from '../../../shell/useOverlay.js'
-import { L, T } from '../../../shell/i18n.js'
+import { T } from '../../../shell/i18n.js'
 
 const empty = { typed: {}, robot: null, selected: null, input: '', focus: null, bench: false }
 
@@ -190,9 +191,9 @@ export function useRobotWorld({ screen, task, test, run, report, at, ended, circ
       buzz(8)
     },
     guard: () => {
-      const missing = world.outs.find(([id]) => !circuit.wires.some((wire) => wire.to === id))
+      const missing = missingRobotOutput(task, circuit)
       if (!missing) return false
-      toast(tr(`输出口「${L(missing[1])}」还没接线`, `The output “${L(missing[1])}” is not wired yet`))
+      toast(missing)
       buzz(20)
       return true
     },
@@ -203,12 +204,16 @@ export function useRobotWorld({ screen, task, test, run, report, at, ended, circ
       }
       const bad = runs[last.test]
       if (task.onFail) {
-        const tutorial = tutorialFailure(task, last.test, bad.report.res, solve, level.steps.go)
-        verdict.fail({ ...tutorial, panel: panelData(task.onFail.show, task.tests[0]) })
+        verdict.fail({
+          ...tutorialFailure(task, last.test, bad.report.res),
+          cta: { label: task.onFail.next, fn: () => { solve(null); level.steps.go(task.task + 1) } },
+          hint: null,
+          panel: panelData(task.onFail.show, task.tests[0]),
+        })
         return
       }
       const before = verdict.fails.current
-      const hintFor = () => diagnosisOf(task.diagnose, circuit) || task.hints?.[Math.min(Math.max(before - 1, 0), task.hints.length - 1)]
+      const hintFor = () => robotHint(task, circuit, before - 1)
       verdict.fail({ ...bad.failure, hint: hintFor() ? lazy(hintFor) : null })
     },
     solve: () => verdict.pass(),

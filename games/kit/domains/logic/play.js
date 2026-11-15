@@ -9,9 +9,8 @@
 // needs the notation and the frame regions written out), and the rule board, definitions, translations, worlds, proof
 // scripts (a screen of its own).
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
-import { gateShape } from './blueprint.js'
 import { parse } from './formula.js'
-import { checkGates, rowsFor, startGates } from './gates.js'
+import { checkGates, rowsFor } from './gates.js'
 import { gatesPlayFor } from './plays.js'
 import { say } from './notation.js'
 import { T } from '../../shell/i18n.js'
@@ -29,12 +28,6 @@ function table(level, lang) {
 }
 
 const gates = circuitPlay({
-  board: ({ game, level, flags, progress }) => {
-    game.logic.syncOwn(progress.built)
-    const L = level.source
-    const { types } = game.logic.offerIn(L, flags)
-    return { start: startGates(L), parts: gateShape(L.gates), types }
-  },
   part: ({ level }, type) => level.source.gates[type],
   given: ({ level: { source: L } }) => {
     const { letters } = rowsFor(L)

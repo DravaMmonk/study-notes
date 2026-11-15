@@ -4,7 +4,7 @@
 // it: every test, then the level's budget (its constraint), the hidden tests with it.
 //
 // Pictures are written as rows of grey numbers or RGB triples. Probes and parameter benches do not take boards.
-import { circuitPlay, playBoard } from '../../engine/play/circuit.js'
+import { circuitPlay } from '../../engine/play/circuit.js'
 import { gridText } from '../../engine/grid.js'
 import { runTestGroups, splitTests, TEST_WORDS } from '../../engine/tests.js'
 import { plays } from './plays.js'
@@ -17,7 +17,6 @@ const revealed = ({ solved }) => solved && plays.graph.checks === 'afterPass'
 const testsOf = (ctx) => splitTests(ctx.level.source, revealed(ctx))
 
 const circuit = circuitPlay({
-  board: playBoard,
   // The score under the board reads a circuit's cost live as parts go on it, so a part's own cost is something the
   // player sees: it is written beside what the part does.
   part: ({ game }, type) => {

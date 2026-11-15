@@ -26,6 +26,15 @@ export function fitsCircuit(graph, task, view) {
   return view.board.fits(graph, task, view, view.board.wiring(task, view))
 }
 
+/** Open saved work that still fits the task, or prepare the course's opening board. */
+export function openCircuit(view, task, progress, saved, prepare = (board) => board) {
+  if (fitsCircuit(saved, task, view)) {
+    const board = prepare(saved)
+    if (board === saved || fitsCircuit(board, task, view)) return board
+  }
+  return prepare(view.opening(task, progress))
+}
+
 export function boardView({ board, parts, built = () => ({}), builder = () => null, defined = null, offerIn, holdsIn, syncOwn, runtime, tasksAt, opening }) {
   const builtBy = (task) => (type) => (built(task)[type] ? builder(type, task) : null)
   const views = new WeakMap()

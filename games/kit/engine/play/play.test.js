@@ -79,6 +79,9 @@ for (const name of withPlay.filter((d) => existsSync(resolve(DOMAINS, d, 'starte
       }
       const r = play.attempt(refText)
       assert.ok(r.pass, `${view.level}: the reference fails: ${r.text}`)
+      if (view.text.includes('## Parts in the tray') && view.task === shell.byId[view.level].tasks.length - 1) {
+        assert.match(play.view(view.level).text, /## The board as it opens \(blueprint\)\n/)
+      }
       // A pass asks what the player worked out; the answer is kept on the level's outcome.
       assert.match(r.text, /--explain/)
       play.explain(`worked out ${view.level}`)

@@ -11,12 +11,6 @@ import { WORLDS } from './worlds.js';
 import { isCard, isGiven, PRIMITIVES } from './parts.js';
 import { blank, fitted, picksOf, roleOf } from './board.js';
 
-/** The board a graph of the editor stands for: what a board keeps of each node. */
-export const fromGraph = graph => ({
-  nodes: graph.nodes.map(n => ({ id: n.id, type: n.type, ...(n.params ? { params: n.params } : {}), ...(n.x !== undefined ? { x: Math.round(n.x), y: Math.round(n.y) } : {}), ...(Number.isInteger(n.slot) && !isGiven(n.type) ? { slot: n.slot } : {}) })),
-  wires: graph.wires.map(w => ({ from: w.from, to: w.to, port: w.port })),
-});
-
 export function wiring(model, u) {
   const io = { sensors: u.sensors, outs: u.outs, workshop: u.workshop };
   return {

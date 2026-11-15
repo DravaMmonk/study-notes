@@ -1,4 +1,5 @@
 import { sourceOf, srcNode } from '../engine/wire-source.js'
+import { openCircuit } from '../engine/board-view.js'
 import { VIEWS, valueText } from '../engine/views.js'
 import { useMemo, useState } from 'react'
 import { Dock } from './BoardControls.jsx'
@@ -124,17 +125,14 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   base.syncOwn(progress.built)
   const workshopState = useCircuitWorkshop({ screen, course, base, cards, portLabels, defined, defaults, settings, ready })
   const { offers, has, known, circuit, resolve, parts, packed, palette, folded, types, held, hasPersonal,
-    fits, hold, capture, put, publish, library, update, available, pickedTrays, notice: workshopNotice } = workshopState
+    hold, capture, put, publish, library, update, available, pickedTrays, notice: workshopNotice } = workshopState
   const pass = (score, graph) => { publish(graph); screen.solve(score, graph) }
   const opening = () => circuit.opening(level, progress)
-  const fitted = (saved) => {
-    if (fits(saved)) {
-      const prepared = hold(saved)
-      if (prepared === saved || fits(prepared)) return prepared
-    }
-    return hold(opening())
-  }
-  const state = useLevelBoard(screen, { open: fitted, fresh: () => hold(fresh ? fresh(level) : opening()), clearable })
+  const state = useLevelBoard(screen, {
+    open: (saved) => openCircuit(circuit, level, progress, saved, hold),
+    fresh: () => hold(fresh ? fresh(level) : opening()),
+    clearable,
+  })
   const board = ready ? { ...state, change: (next, options) => state.change(hold(next), options) } : state
   const { circuit: drawn, change } = board
   const practice = useTraining(level, drawn, change, training, hasPersonal(drawn) ? resolve : undefined)

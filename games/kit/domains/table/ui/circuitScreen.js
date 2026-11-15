@@ -3,7 +3,8 @@ import { fitted } from '../model/board.js'
 import { CARDS, PRIMITIVES } from '../model/parts.js'
 import { signal } from '../model/format.js'
 import { lookIcon } from './looks.js'
-import { robotRun, testName } from './circuitRun.js'
+import { robotTestName } from '../model/verdict.js'
+import { robotRun } from './circuitRun.js'
 import { withDesktopAnchors } from './board.js'
 import { freshBoard, hasSensors } from './circuitCourse.js'
 import { useRobotWorld } from './useRobotWorld.js'
@@ -29,8 +30,8 @@ export const robotScreenFor = ({ model }) => ({
       value: node.params?.value ?? model.valueDefault(node.type),
     }] : []
   },
-  play: { runLevel: (task, board, _parts, options) => robotRun(model, task, board, options?.workshopParts), entries: () => [], show: signal },
-  testLabel: testName,
+  play: { runLevel: (task, board, _parts, options) => robotRun(model, task, board, options), entries: () => [], show: signal },
+  testLabel: robotTestName,
   useWorld: useRobotWorld,
   canvas: { height: 170, minFit: 0.62 },
 })

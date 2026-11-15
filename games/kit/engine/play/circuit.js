@@ -1,3 +1,4 @@
+import { openCircuit } from '../board-view.js'
 import { failureOf } from '../test-run.js'
 import { failureText } from '../failure-text.js'
 // A circuit level as a blind player meets it (./play.js): the board as it opens, the parts in the tray with what the
@@ -7,9 +8,6 @@ import { failureText } from '../failure-text.js'
 //
 // A circuit domain's play hook is circuitPlay({ … }) over what its level screen already has, node-safe:
 //
-//   board(ctx)          → { start, parts, types }   the board the level opens on (preset, carried or upgraded board
-//                         included), the editor's description of its nodes (../../circuit/model.js parts: inputs, role,
-//                         outputs, frames, text, refuse; no drawing), and the part types the tray offers
 //   key(ctx, type)      → the components box key of a part type (game.parts.all), for its name and description; or
 //   part(ctx, type)     → { name, desc } when the tray words a part its own way (a family of models as one entry, say)
 //   settings?(ctx, type)→ [{ key, values?: [v], about? }] what can be set on a part, as its card offers it
@@ -21,11 +19,9 @@ import { failureText } from '../failure-text.js'
 //   run(ctx, board)     → { tests: [{ label, pass, says }], hidden?: { count, failed, says }, says?: [text], pass,
 //                         keep? } the level's visible tests and its hidden ones, as a run judges them, with the screen's
 //                         words; `keep`: what the screen saves without the level passing (a stage of it passed, say)
-//   keep?(ctx, board)   → what the screen saves of a board (progress.data, and progress.built once it passes), when that
-//                         is not the editor's graph itself
 //
 // ctx is what the shell hands a level screen: { game, level (the level as played: a task's fields merged in), flags,
-// progress, solved, task, fails (the attempts on it that failed so far) }. Text is { zh, en } pairs or strings;
+// progress, saved, solved, task, fails (the attempts on it that failed so far) }. Text is { zh, en } pairs or strings;
 // ./play.js renders it.
 
 import { print, read } from '../../circuit/text.js'
@@ -102,18 +98,18 @@ function givens(board) {
 }
 
 /** The same circuit view, opening work and usable types as the level screen. */
-export function playBoard({ game, level: { source: task }, progress, flags }) {
+function playBoard({ game, level: { source: task }, progress, saved, flags }) {
   const view = game.circuit.forTask(task)
   view.syncOwn(progress.built)
   const { types } = view.offerIn(task, flags)
-  return { start: view.opening(task, progress), parts: view.board.wiring(task, view), types }
+  return { start: openCircuit(view, task, progress, saved), parts: view.board.wiring(task, view), types }
 }
 
 /** A play hook for a circuit domain (see the top of this file). */
 export function circuitPlay(hook) {
   return {
     open(ctx) {
-      const board = hook.board(ctx)
+      const board = playBoard(ctx)
       const start = print(board.start, board.parts).split('\n').slice(1).join('\n')
       return {
         kind: 'circuit',
@@ -128,12 +124,12 @@ export function circuitPlay(hook) {
       }
     },
     attempt(ctx, text) {
-      const board = hook.board(ctx)
+      const board = playBoard(ctx)
       const result = read(text, board.start, board.parts, board.types)
       if (result.errors) return { pass: false, refused: result.errors.map((e) => T(e.zh, e.en)), parts: [] }
       const graph = result.graph
       const types = [...new Set(graph.nodes.filter((n) => isPart(board.parts, n)).map((n) => n.type))].sort()
-      return { ...hook.run(ctx, graph), board: hook.keep ? hook.keep(ctx, graph) : graph, parts: types }
+      return { ...hook.run(ctx, graph), board: graph, parts: types }
     },
   }
 }
@@ -171,7 +167,6 @@ export function tickPlay({ run, given, lanes, more = () => [], settings = {}, sh
     return [...rows.map(([name, cells]) => `${name.padEnd(head)}  ${cells.map((c) => c.padStart(width)).join(' ')}`), ...more(task, test, lang)].join('\n')
   }
   return circuitPlay({
-    board: playBoard,
     key: ({ game }, type) => (game.circuit.BUILT[type] ? type : `part:${type}`),
     settings: ({ game }, type) => (game.circuit.BUILT[type] ? [] : game.defined?.of(type) ? definedSettings(game.defined.of(type)) : settings[type] ?? []),
     given: ({ level }) => given(level.source),

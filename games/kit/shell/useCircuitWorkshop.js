@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { partsFor, packedView } from '../circuit/board-parts.js'
 import { runtimeOf, workshopView } from '../circuit/workshop-view.js'
-import { fitsCircuit } from '../engine/board-view.js'
 import { trayMembers } from '../engine/trays.js'
 import { captureWorkshop, publishWorkshop, trayKey, workshopAvailable, workshopEntries, workshopIdentity } from '../engine/workshop.js'
 import { L, tr } from './i18n.js'
@@ -38,7 +37,6 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
   const types = [...offers.types, ...personal.map(({ id }) => id)]
   const held = new Set(types)
   const hasPersonal = (graph) => graph.nodes.some((node) => Object.hasOwn(library.pieces, node.type))
-  const fits = (graph) => fitsCircuit(graph, level, circuit)
   const hold = (graph) => ready ? ready(graph, level, parts) : graph
   function openForCapture(node, at) {
     const opened = packed.open(node, at)
@@ -71,5 +69,5 @@ export function useCircuitWorkshop({ screen, course, base, cards, portLabels, de
     }
   }
   return { offers, has, known, circuit, resolve, parts, packed, palette, folded, types, held, hasPersonal,
-    fits, hold, capture, put, publish, library, update, available, pickedTrays, notice }
+    hold, capture, put, publish, library, update, available, pickedTrays, notice }
 }
