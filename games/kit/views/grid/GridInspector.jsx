@@ -1,13 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { tr } from '../../shell/i18n.js'
-import { cellNumber, pixel } from '../../engine/grid.js'
-import { numberText } from '../../engine/number.js'
+import { cellNumber, pixel, pixelText } from '../../engine/grid.js'
 import GridView from './GridView.jsx'
 import { denseCell, fitFrame, inspectorCell, thumbCell } from './layout.js'
-
-// A cell's value as its reading writes it: the number in full, up to four decimals.
-const raw = (value) => (Array.isArray(value) ? value.map((v, k) => `${'RGB'[k]} ${numberText(v)}`).join(' · ') : numberText(value))
 
 /** The frame's inner size, kept current as the screen changes it. */
 function useFrameSize(frame) {
@@ -115,7 +111,7 @@ export default function GridInspector({ value, label, note, view, showSize = tru
     <div ref={frame} className={`gv-frame ${info ? 'is-info' : 'is-overview'}`} style={frameSize ? { height: frameSize.h } : undefined} {...pan}>
       <div className="gv-frame-canvas">
         <GridView value={value} numbers={info} axes={info} grid={info || frameSize !== null && scale >= 6} cell={info ? cell : scale} mark={mark ?? active} label={label}
-          cellLabel={(x, y, p) => `(${x}, ${y}): ${raw(p)}`} cellClass={cellClass}
+          cellLabel={(x, y, p) => `(${x}, ${y}): ${pixelText(p)}`} cellClass={cellClass}
           onPick={(x, y, e) => { select(x, y, e, true); onPick?.(x, y) }}
           onHover={(x, y, e) => select(x, y, e, false)}
           onLeave={() => setPoint((p) => p?.pinned ? p : null)} />
@@ -123,7 +119,7 @@ export default function GridInspector({ value, label, note, view, showSize = tru
     </div>
     {active && createPortal(<div className={`gv-popover ${active.above ? 'is-above' : ''}`} role="status" style={{ left: active.left, top: active.top, width: active.width }}>
       <strong>({active.x}, {active.y})</strong>
-      {inspectPixel?inspectPixel(active.x,active.y):<><span>{raw(pixel(value, active.x, active.y))}</span>
+      {inspectPixel?inspectPixel(active.x,active.y):<><span>{pixelText(pixel(value, active.x, active.y))}</span>
       {explainPixel && <span className="gv-popover-calc">{explainPixel(active.x, active.y)}</span>}</>}
       {(range[0] < 0 || range[1] > 1) && <small>{tr('显示亮度限制为 0–1，数值保持原样。')}</small>}
     </div>,document.body)}

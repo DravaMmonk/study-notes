@@ -403,7 +403,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
   const beginPan = (event) => {
     const card = event.target.closest('.node')
     const field = event.target.closest('.frame-field')
-    if (event.button > 0 || (card && !card.contains(field)) || event.target.closest('.kw, button, input, select, label, .float-window, .board-zoom, .board-views')) return
+    if (event.button > 0 || (card && !card.contains(field)) || event.target.closest('.kw, button, input, select, label, .float-window, .board-zoom')) return
     setSelected(null)
     pick(null)
     setTarget(field?.dataset.region ?? null)

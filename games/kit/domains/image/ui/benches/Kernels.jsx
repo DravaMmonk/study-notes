@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { ArrowRight, Check, Timer, X } from 'lucide-react'
 import { tr } from '../../../../shell/i18n.js'
-import ImageView from '../ImageView.jsx'
+import { GridPicture } from '../../../../views/grid/GridView.jsx'
 import { rangeOf } from '../display.js'
 import './kernels.css'
 
@@ -40,12 +40,12 @@ export function KernelRound({ ctx }) {
       </div>
       <div className="racer-pair">
         <figure>
-          <ImageView img={round.input} range={{ lo: 0, hi: 1 }} size={184} theme={ctx.theme} />
+          <GridPicture value={round.input} scale={184 / round.input.w} />
           <figcaption className="bk-caption">{tr('输入', 'Input')}</figcaption>
         </figure>
         <ArrowRight className="racer-arrow" size={20} strokeWidth={1.5} />
         <figure>
-          <ImageView img={round.output} range={range} size={184} theme={ctx.theme} />
+          <GridPicture value={round.output} range={range} scale={184 / round.output.w} />
           <figcaption className="bk-caption">{tr('输出', 'Output')}{range.lo < 0 ? tr('（灰 = 0）') : ''}</figcaption>
         </figure>
       </div>

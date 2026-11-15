@@ -1,5 +1,4 @@
-import { isGrid, pixel } from '../engine/grid.js'
-import { numberText } from '../engine/number.js'
+import { isGrid, pixel, pixelText, relativeCell } from '../engine/grid.js'
 import { VIEWS } from '../engine/views.js'
 import { L, T } from '../shell/i18n.js'
 import Timeline from '../shell/Timeline.jsx'
@@ -49,14 +48,11 @@ function Chip({ entry, text }) {
   return <span className="rv-chip"><b>{L(label)}</b>{shown}</span>
 }
 
-const cellText = (p) => (Array.isArray(p) ? p.map((v, k) => `${'RGB'[k]} ${numberText(v)}`).join(' · ') : numberText(p))
-
 function linkedReading(readings, source, x, y) {
   return readings.map(({ key, label, grid }) => {
-    const col = Math.floor(((x + 0.5) * grid.w) / source.w)
-    const row = Math.floor(((y + 0.5) * grid.h) / source.h)
+    const { x: col, y: row } = relativeCell({ x, y }, source, grid)
     const at = grid.w === source.w && grid.h === source.h ? '' : ` (${col}, ${row})`
-    return <span key={key}>{label}{at} {cellText(pixel(grid, col, row))}</span>
+    return <span key={key}>{label}{at} {pixelText(pixel(grid, col, row))}</span>
   })
 }
 
@@ -70,7 +66,7 @@ function GridRow({ entry, view, text, tool, linked }) {
   const size = sized(view) && grids.length && grids.every((g) => g.w === grids[0].w && g.h === grids[0].h && (g.c ?? 1) === (grids[0].c ?? 1)) ? `${grids[0].w} × ${grids[0].h}${(grids[0].c ?? 1) === 3 ? ' · RGB' : ''}` : null
   const differs = paired && entry.pass !== null ? (x, y) => (same(pixel(got, x, y), pixel(want, x, y), tolerance) ? '' : 'is-different') : undefined
   const read = (grid) => linked.length ? (x, y) => linkedReading(linked, grid, x, y)
-    : paired ? (x, y) => <><span>{L(WORDS.result)} {cellText(pixel(got, x, y))}</span><span>{L(WORDS.wanted)} {cellText(pixel(want, x, y))}</span></> : undefined
+    : paired ? (x, y) => <><span>{L(WORDS.result)} {pixelText(pixel(got, x, y))}</span><span>{L(WORDS.wanted)} {pixelText(pixel(want, x, y))}</span></> : undefined
   const plain = (word, v, k) => <figure key={k} className="rv-plain"><figcaption>{word && L(word)}</figcaption><b>{v === undefined ? '—' : L(text(v))}</b></figure>
   // A plot draws the result and the value wanted on one set of axes; other drawn views and the cells side by side.
   const Drawn = DRAWN[view]

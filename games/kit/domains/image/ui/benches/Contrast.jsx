@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import ImageView from '../ImageView.jsx'
+import { GridPicture } from '../../../../views/grid/GridView.jsx'
 import { useMedia } from '../../../../shell/useMedia.js'
 import { L, tr } from '../../../../shell/i18n.js'
 import './contrast.css'
@@ -93,7 +93,7 @@ export function ChoiceMatrix({ ctx }) {
           {rows.map((row, a) => (
             <tr key={a}>
               <th scope="row">
-                <ImageView img={m.quiz[a].img} size={20} range={{ lo: 0, hi: 1 }} theme={ctx.theme} />
+                <GridPicture value={m.quiz[a].img} scale={20 / m.quiz[a].img.w} />
                 {tagOf(m, a)}
               </th>
               {row.map((p, k) => (

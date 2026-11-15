@@ -14,7 +14,7 @@ const CEILING = {
   circuit: { sizes: 68, colours: 20 },
   views: { sizes: 1, colours: 2 },
   strip: { sizes: 6, colours: 0 },
-  image: { sizes: 41, colours: 22 },
+  image: { sizes: 22, colours: 16 },
   logic: { sizes: 38, colours: 22 },
   table: { sizes: 95, colours: 5 },
 }

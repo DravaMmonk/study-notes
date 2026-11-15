@@ -7,7 +7,7 @@
 @keyframes racer-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 .racer-pair { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--sp-4); }
 .racer-pair figure { margin: 0; }
-.racer-pair .image-view { width: 100% !important; height: auto !important; aspect-ratio: 1; border-radius: var(--r-md); }
+.racer-pair .gv-picture { width: 100% !important; height: auto !important; aspect-ratio: 1; border-radius: var(--r-md); }
 .racer-pair .bk-caption { margin-top: var(--sp-3); }
 .racer-arrow { color: var(--faint); }
 .racer-time { margin: 0; display: flex; align-items: center; gap: var(--sp-2); font-variant-numeric: tabular-nums; }

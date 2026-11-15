@@ -16,14 +16,19 @@ import { BuiltBoard, partsFor } from '../../shell/CircuitScreen.jsx'
 import { imageCircuitScreen } from './ui/circuit.js'
 import { imageBoards } from './engine/board-view.js'
 import { imagePreview } from './engine/preview.js'
-import ProbeLevel from './ui/ProbeLevel.jsx'
+import { gridProbeScreen } from '../../shell/GridProbe.jsx'
+import { NODE_TYPES } from './engine/nodes.js'
+import { rangeOf } from './ui/display.js'
 import { imageHero, imageIntroduction } from './ui/intro.js'
 import WeightGrid from '../../shell/parts/WeightGrid.jsx'
 import { familyOf, iconOf } from './ui/catalog.js'
 import { descriptionOf } from './words.js'
 
 const BenchLevel = lazy(() => import('./ui/benches/BenchLevel.jsx'))
-const Workshop = workshopScreen({ parameters: BenchLevel, probe: ProbeLevel })
+const Probe = gridProbeScreen(({ probes, part, question, answers, answer, wrong }) => ({
+  examples: probes, run: (input) => NODE_TYPES[part].eval({ in: input }), rangeFor: rangeOf, question, answers, answer, wrong,
+}))
+const Workshop = workshopScreen({ parameters: BenchLevel, probe: Probe })
 
 function ImageExercise(screen) {
   return createElement(Workshop, { ...screen, play: playFor(plays, screen.level) })

@@ -10,12 +10,14 @@ import { AXIS, numberSize } from './layout.js'
 //
 // A large grid (a rendered scene) is a GridPicture: its cells on a canvas, scaled up without smoothing.
 
-const rgb = (p) => {
-  const [r, g, b] = (Array.isArray(p) ? p : [p, p, p]).map((v) => Math.round(display(v) * 255))
+const byte = (number, lo, hi) => Math.round(display((number - lo) / (hi - lo || 1)) * 255)
+
+const rgb = (p, lo, hi) => {
+  const [r, g, b] = Array.isArray(p) ? p.map((v) => byte(v, 0, 1)) : Array(3).fill(byte(p, lo, hi))
   return { fill: `rgb(${r}, ${g}, ${b})`, light: 0.299 * r + 0.587 * g + 0.114 * b > 140 }
 }
 
-export default function GridView({ value, numbers = false, axes = false, grid = false, mark = null, onPick = null, onHover, onLeave, cell: given, className = '', label, cellLabel, cellClass }) {
+export default function GridView({ value, numbers = false, axes = false, grid = false, mark = null, onPick = null, onHover, onLeave, cell: given, className = '', label, cellLabel, cellClass, range }) {
   const { w, h } = value
   const cell = given ?? (numbers ? ((value.c ?? 1) === 3 ? 58 : 36) : Math.max(4, Math.floor(220 / Math.max(w, h))))
   const off = axes ? AXIS : 0
@@ -23,7 +25,7 @@ export default function GridView({ value, numbers = false, axes = false, grid = 
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const p = pixel(value, x, y)
-      const { fill, light } = rgb(p)
+      const { fill, light } = rgb(p, range?.lo ?? 0, range?.hi ?? 1)
       cells.push(
         <g key={`${x},${y}`} transform={`translate(${off + x * cell} ${off + y * cell})`} onClick={onPick ? (e) => onPick(x, y, e) : undefined} onPointerEnter={onHover ? (e) => { if (e.pointerType === 'mouse') onHover(x, y, e) } : undefined} role={onPick ? 'button' : undefined} tabIndex={onPick ? 0 : undefined} aria-label={onPick ? cellLabel?.(x, y, p) ?? `(${x}, ${y})` : undefined} onKeyDown={onPick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(x, y, e) } } : undefined} className={[onPick ? 'gv-pick' : '',cellClass?.(x,y) ?? ''].filter(Boolean).join(' ') || undefined}>
           <rect width={cell} height={cell} fill={fill} />
@@ -46,17 +48,23 @@ export default function GridView({ value, numbers = false, axes = false, grid = 
 }
 
 /** A grid's cells on a canvas, `scale` screen pixels to a cell. */
-export function GridPicture({ value, scale = 5, label }) {
+export function GridPicture({ value, scale = 5, label, range }) {
   const canvas = useRef(null)
+  const lo = range?.lo ?? 0
+  const hi = range?.hi ?? 1
   useEffect(() => {
     const ctx = canvas.current.getContext('2d')
     const out = ctx.createImageData(value.w, value.h)
+    const colour = value.c === 3
     for (let k = 0; k < value.w * value.h; k++) {
-      const p = (value.c ?? 1) === 3 ? value.data.slice(k * 3, k * 3 + 3) : [value.data[k], value.data[k], value.data[k]]
-      p.forEach((v, ch) => { out.data[k * 4 + ch] = Math.round(display(v) * 255) })
-      out.data[k * 4 + 3] = 255
+      const i = k * 4
+      const v = colour ? byte(value.data[k * 3], 0, 1) : byte(value.data[k], lo, hi)
+      out.data[i] = v
+      out.data[i + 1] = colour ? byte(value.data[k * 3 + 1], 0, 1) : v
+      out.data[i + 2] = colour ? byte(value.data[k * 3 + 2], 0, 1) : v
+      out.data[i + 3] = 255
     }
     ctx.putImageData(out, 0, 0)
-  }, [value])
+  }, [value, lo, hi])
   return <canvas ref={canvas} className="gv-picture" width={value.w} height={value.h} style={{ width: value.w * scale, height: value.h * scale }} role="img" aria-label={label ?? `${value.w} × ${value.h}`} />
 }

@@ -17,3 +17,13 @@ export const display = (v) => Math.min(1, Math.max(0, v))
 
 /** A cell's number as a grid writes it in the cell: up to two decimals (./number.js). */
 export const cellNumber = (v) => numberText(v, 2)
+
+/** Read a cell at the same relative position in another grid, even when their sizes differ. */
+export function relativeCell({ x, y }, source, target) {
+  return { x: Math.floor((x + 0.5) * target.w / source.w), y: Math.floor((y + 0.5) * target.h / source.h) }
+}
+
+/** A full reading of a grey or RGB cell. */
+export function pixelText(value, digits = 4) {
+  return Array.isArray(value) ? value.map((v, k) => `${'RGB'[k]} ${numberText(v, digits)}`).join(' · ') : numberText(value, digits)
+}
