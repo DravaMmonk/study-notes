@@ -1,15 +1,16 @@
 import { L, T } from '../../shell/i18n.js'
 import { AUDIT_CASE_LIMIT, blankCase, restoreAuditCases, runAudit } from './audit-cases.js'
-import { sentenceOf, waysIn } from './iso.js'
+import { sentenceOf } from './iso.js'
 import { say } from './notation.js'
-import { boardOf, linesOf, problemsOf } from './ruleLines.js'
+import { checkDeclaration, linesOf, readRuleRows } from './ruleLines.js'
 import { caseCells, DERIVABLE } from './auditCells.js'
 import { declarationValues, ruleLines } from './rowValues.js'
 
-export function audit(source, { progress, saved }) {
-  const kept = source.carry && progress.solved.includes(source.carry) ? progress.data[source.carry]?.rules : null
-  const carried = kept && !problemsOf(source, kept).length ? boardOf(linesOf(kept)) : null
-  const level = carried ? { ...source, boards: [{ board: carried }] } : source
+export function audit(source, { game, progress, saved }) {
+  const parent = game.byId[source.carry]?.source.tasks.findLast((task) => task.kind === 'iso' && task.play !== 'audit')
+  const kept = parent && progress.solved.includes(source.carry) && progress.data[parent.taskId]?.rules
+  const carried = kept && !checkDeclaration(parent)(kept) ? linesOf(kept) : null
+  const level = carried ? { ...source, boards: [{ rules: carried }] } : source
   const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
   let lastWork, lastReport
   const report = (work) => {
@@ -20,12 +21,12 @@ export function audit(source, { progress, saved }) {
     return lastReport
   }
   return {
-    level, initial: restoreAuditCases(level, saved?.work),
-    label: (k) => level.boards[k].label ?? T(`声明 ${k + 1}`, `Declaration ${k + 1}`),
+    initial: restoreAuditCases(level, saved?.work),
+    tabs: level.boards.map(({ label }, k) => ({ label: label ?? T(`声明 ${k + 1}`, `Declaration ${k + 1}`) })),
     judge: (k, work) => report(work).runs[k].fail?.why,
     stepsOf: (k, work) => report(work).runs[k].steps.map((step) => step.failed ? { failed: L(step.failed) } : step),
-    rows: (board) => declarationValues(level, waysIn(board).map((way) => ({ binds: way.binds, needs: way.needs.map((need) => sentenceOf(level, need)) }))),
-    lines: (board, read) => ruleLines(level, waysIn(board), read),
+    rows: (k) => declarationValues(level, readRuleRows(level, level.boards[k].rules)),
+    lines: (k, read) => ruleLines(level, level.boards[k].rules, read),
     score: (work) => ({ steps: work.length, unit: 'cases' }),
     result: (work, board, reached) => {
       const { rows } = report(work)

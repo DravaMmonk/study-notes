@@ -2,12 +2,12 @@
 // by the helpers below.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { checkIso, declaredRules, derives, follows, settle, waysIn } from './iso.js'
+import { checkIso, declaredRules, derives, follows } from './iso.js'
 import { auditCaseProblems, restoreAuditCases, runAudit } from './audit-cases.js'
 import { parseSide, ruleText } from './schematic.js'
 import { checkDefine } from './define.js'
 import { failureText } from '../../engine/failure-text.js'
-import { boardOf, checkDeclaration, linesOf, premiseChips, problemsOf } from './ruleLines.js'
+import { checkDeclaration, linesOf, premiseChips, problemsOf, readRuleRows } from './ruleLines.js'
 import { runOutputTests } from '../../engine/test-run.js'
 import { parse, same, show, subst, tvar } from './formula.js'
 import { countermodel, countermodelSearch, holds } from './models.js'
@@ -83,7 +83,7 @@ function wireRules(circuit, level) {
   return { ...circuit, nodes, wires }
 }
 /** A declaration of ways each needing these sentences (a sentence needed under others: [sentence, …those]). */
-const declaration = (...ways) => boardOf(ways.map((needs) => ({ binds: [], needs: needs.map((n) => (Array.isArray(n) ? { need: n[0], under: n.slice(1) } : n)) })))
+const declaration = (...ways) => ways.map((needs) => ({ binds: [], needs }))
 /** A lemma's shape as a course proves it (course.js lemmaProofs): the proof task (`schema` in letters, its title, its
  *  words) and the board it was passed with. */
 const provenBy = (schema, board, extra = {}) => ({ level: { id: 'builder', title: { zh: '证明', en: 'Proof' }, schema, tests: [schema], ...extra }, board: () => board })
@@ -546,7 +546,7 @@ test('definitions check completion, then hidden examples, then decreasing recurs
 
 test('declarations check incomplete premises before hidden derivability cases', () => {
   const judge = checkDeclaration({
-    target: 'A ∧ B', declare: T('并且', 'and'),
+    target: 'A ∧ B', sentences: ['A', 'B'], declare: T('并且', 'and'),
     tests: [{ given: [], make: false }, { given: ['A', 'B'], make: true }],
   })
   assert.deepEqual(judge.checks, [])
@@ -560,7 +560,7 @@ test('an audit stops at an unfinished case before grading the supplied declarati
   const unfinished = { given: [], goal: '', make: null }
   const level = {
     target: 'A ∧ B', sentences: ['A', 'B'], declare: T('并且', 'and'), want: 'agree',
-    solution: declaration(['A', 'B']), boards: [{ board: declaration() }],
+    solution: declaration(['A', 'B']), boards: [{ rules: declaration() }],
   }
   const words = (text) => T(text, text)
   const blocked = runAudit(level, [complete, unfinished], words)
@@ -587,40 +587,39 @@ test('audit cases recover the task’s fixed cells and required premises from it
   assert.deepEqual(restoreAuditCases({ target: 'B' }, authored), [{ given: ['A', 'C'], goal: undefined, make: true, fixed: [] }])
 })
 
-test('a declaration by premise cards: joined they are one way needing both, apart two ways, none no way', () => {
+test('a declaration checks the premises of each introduction rule in order', () => {
   const level = (target, sentences, tests) => ({ target, sentences, tests, declare: { zh: 'x', en: 'x' } })
   const words = (l) => ({ zh: l, en: l })
   const and = level('A ∧ B', ['A', 'B'], [{ given: ['A', 'B'], make: true }, { given: ['A'], make: false }, { given: ['B'], make: false }])
-  const nested = declaration(['A', 'B'])
-  assert.equal(checkIso(and, words)(nested), null)
-  assert.deepEqual(derives(and, nested, and.tests[0]).made.items.map((x) => x.n), [1, 2])
+  const both = declaration(['A', 'B'])
+  assert.equal(checkIso(and, words)(both), null)
+  assert.deepEqual(derives(and, both, and.tests[0]).made.items.map((x) => x.n), [1, 2])
   assert.ok(checkIso(and, words)(declaration(['A'], ['B'])))
   const or = level('A ∨ B', ['A', 'B'], [{ given: ['A'], make: true }, { given: ['B'], make: true }, { given: [], make: false }])
   const apart = declaration(['A'], ['B'])
   assert.equal(checkIso(or, words)(apart), null)
   assert.equal(derives(or, apart, or.tests[1]).made.way, 2)
-  // The ways close up when one is taken off: the second becomes the first.
-  const settled = settle({ ...apart, wires: apart.wires.filter((w) => !(w.to === 'decl' && w.port === 'c1')) })
-  const b = apart.nodes.find((n) => n.params?.name === 'B').id
-  assert.deepEqual(settled.wires.filter((w) => w.to === 'decl').map((w) => [w.from, w.port]), [[b, 'c1']])
-  assert.equal(settled.nodes.find((n) => n.id === 'decl').params.ways, 1)
+  const choice = level('A ∨ B', ['A', 'B', 'C', 'D'], [{ given: ['D'], make: true }])
+  const four = declaration(['A'], ['B'], ['C'], ['D'])
+  assert.equal(derives(choice, four, choice.tests[0]).made.way, 4)
+  assert.equal(checkDeclaration(choice)(readRuleRows(choice, four)), null)
+  assert.deepEqual(checkDeclaration(choice)(readRuleRows(choice, four.slice(0, 3))).check, 0)
   const bot = level('⊥', ['A'], [{ given: ['A'], make: false }, { given: [], make: false }])
   assert.equal(checkIso(bot, words)(declaration()), null)
 })
 
-test('a premise needed under another (a card wired into a card): → declared, its way the box, its use Apply', () => {
-  const level = { target: 'A → B', sentences: ['A', 'B'], declare: { zh: 'x', en: 'x' }, tests: [
-    { given: ['B'], make: true }, { given: ['A'], make: false }, { given: [], make: false },
-    { given: ['A → B'], goal: 'B', make: false }, { given: ['A → B'], goal: 'A', make: false }, { given: ['A → B', 'A'], goal: 'B', make: true },
+test('a rule can require a conditional premise and hand it back on elimination', () => {
+  const level = { target: 'C', sentences: ['A → B', 'A', 'B'], declare: { zh: 'x', en: 'x' }, tests: [
+    { given: ['A → B'], make: true }, { given: ['B'], make: false },
+    { given: ['C', 'A'], goal: 'B', make: true }, { given: ['C'], goal: 'B', make: false },
   ] }
   const words = (l) => ({ zh: l, en: l })
-  const box = declaration([['B', 'A']])
-  assert.equal(checkIso(level, words)(box), null)
-  // Needing B alone gives B back to whoever has A → B: too weak.
+  const rules = declaration(['A → B'])
+  assert.equal(checkIso(level, words)(rules), null)
   assert.ok(checkIso(level, words)(declaration(['B'])))
-  const rules = declaredRules(level, waysIn(box))
-  assert.equal(ruleText(rules.make[0]), '⟦⟦?A⟧ ⟹ ?B⟧ ⟹ ?A → ?B')
-  assert.equal(ruleText(rules.take), '⟦?A → ?B; ⟦⟦?A⟧ ⟹ ?B⟧ ⟹ ?R⟧ ⟹ ?R')
+  const { make, take } = declaredRules(level, rules)
+  assert.equal(ruleText(make[0]), '⟦A → B⟧ ⟹ C')
+  assert.equal(ruleText(take), '⟦C; ⟦A → B⟧ ⟹ ?R⟧ ⟹ ?R')
 })
 
 test('using a declaration: what follows is what every way in gives, a sentence nothing mentions standing for any', () => {
@@ -698,15 +697,22 @@ test('a ∀ over properties: P(t) takes a sentence about x with t in its place, 
   assert.ok(choicesOf(level).instance.includes('Q(x) → Q(phos)'))
 })
 
-test('a declaration filled in on the rule table: whole premises, things taken, the board the checks read', () => {
-  const level = { sentences: ['Human(x)', 'Rain → Wet'], target: '∃y. Human(y)', notation: { words: {} } }
+test('written and authored rule rows use the same premises and binder', () => {
+  const level = { sentences: ['Human(x)', 'Rain → Wet'], target: '∃y. Human(y)', thing: true, notation: { words: {} }, tests: [] }
   assert.deepEqual(premiseChips(level).map((c) => c.key).sort(), ['P:Human', 'P:Rain', 'P:Wet', 'v:x', '→'].sort())
   const human = parse('Human(x)')
-  assert.deepEqual(problemsOf(level, [{ binds: [], needs: [null] }]), [{ rule: 0, need: 0, why: 'empty' }])
+  assert.deepEqual(problemsOf(level, [{ binds: [], needs: [null] }]), [{ row: 0, slot: 0, why: 'empty' }])
   // A thing alone where a sentence goes is not a sentence yet.
-  assert.deepEqual(problemsOf(level, [{ binds: ['x'], needs: [tvar('x')] }]), [{ rule: 0, need: 0, why: 'empty' }])
-  assert.deepEqual(problemsOf(level, [{ binds: [], needs: [human] }]), [{ rule: 0, need: 0, why: 'stray' }])
+  assert.deepEqual(problemsOf(level, [{ binds: ['x'], needs: [tvar('x')] }]), [{ row: 0, slot: 0, why: 'empty' }])
+  assert.deepEqual(problemsOf(level, [{ binds: [], needs: [human] }]), [{ row: 0, slot: 0, why: 'stray' }])
   const rules = [{ binds: ['x'], needs: [human] }]
   assert.deepEqual(problemsOf(level, rules), [])
-  assert.deepEqual(waysIn(boardOf(linesOf(rules))), [{ binds: ['x'], needs: ['Human(x)'] }])
+  assert.deepEqual(linesOf(rules), [{ binds: ['x'], needs: ['Human(x)'] }])
+  assert.deepEqual(readRuleRows(level, linesOf(rules)), rules)
+  const judge = checkDeclaration(level)
+  assert.deepEqual(judge(readRuleRows(level, [{ binds: ['y'], needs: [] }])).at, { row: 0 })
+  assert.deepEqual(judge(readRuleRows(level, [{ binds: ['x', 'x'], needs: [] }])).at, { row: 0 })
+  const unavailable = judge(readRuleRows(level, declaration(['Snow'])))
+  assert.deepEqual(unavailable.at, { row: 0, slot: 0 })
+  assert.match(unavailable.why.en, /unavailable chips: P:Snow/)
 })

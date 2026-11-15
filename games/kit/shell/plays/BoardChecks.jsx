@@ -10,18 +10,18 @@ import PlayLayout from './PlayLayout.jsx'
 import TreeRows from './TreeRows.jsx'
 import { useSavedWork } from './useWork.js'
 
-/** Inspect given boards and write cases that check how they behave. */
+/** Inspect given works and write cases that check how they behave. */
 export default function BoardChecks({ screen, resource, play }) {
   const { phone, solve, lastRun, keepRun } = screen
   const [row, setRow] = useState(0)
   const [at, select] = useState(0)
-  const { level, initial, judge, stepsOf, checks: { resultLabel, ...fields } } = resource
+  const { tabs, initial, judge, stepsOf, checks: { resultLabel, ...fields } } = resource
   const { work, change } = useSavedWork(screen, {
     read: () => initial,
     write: (work) => ({ work }),
   })
   const playback = usePlayback({
-    count: level.boards.length,
+    count: tabs.length,
     stepsOf: (k) => stepsOf(k, work),
     check: (k) => L(judge(k, work) ?? ''),
     onSolve: () => solve(resource.score(work)),
@@ -30,15 +30,13 @@ export default function BoardChecks({ screen, resource, play }) {
     kept: lastRun,
     onKeep: keepRun,
   })
-  const { board } = level.boards[at]
   const { run, passed, states } = playback
   const result = resource.result(work, at, playback.shown(at).list.length)
   const text = run?.over ? passed ? L(resource.passed(work)) : run.results.at(-1)?.reason : null
-  const tabs = level.boards.map((_, k) => ({ label: resource.label(k) }))
   const stage = (
     <div className={play.stage}>
-      <TreeRows {...resource.rows(board)} />
-      <NamedLines lines={resource.lines(board, L)} />
+      <TreeRows {...resource.rows(at)} />
+      <NamedLines lines={resource.lines(at, L)} />
       <Checks
         {...fields} phone={phone} rows={work} onChange={change} onPick={setRow}
         rowClass={(k) => k === row ? 'is-on' : ''}

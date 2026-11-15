@@ -6,7 +6,7 @@ import { derives, givenText } from './iso.js'
 /** Judge the written cases once and record where each declaration's replay stops. */
 export function runAudit(level, cases, words) {
   const name = level.declare
-  const boards = level.boards.map((b) => b.board)
+  const boards = level.boards.map((b) => b.rules)
   const open = (c) => c.goal === '' || c.make === null
   const rows = cases.map((c) => {
     if (open(c)) return { right: false, wants: null, derived: boards.map(() => null) }

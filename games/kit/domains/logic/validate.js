@@ -11,7 +11,7 @@ import { freeVars, parse, same, show } from './formula.js'
 import { parseS } from './schematic.js'
 import { countermodel } from './models.js'
 import { extent, structureOf } from './fol.js'
-import { premiseChips } from './ruleLines.js'
+import { checkDeclaration, readRuleRows } from './ruleLines.js'
 import { LOGIC_TESTS, lemmaGives, startProof } from './proof.js'
 import { paramsOf } from '../../engine/forms.js'
 import { scriptJudge, methodsOf, sentencesOf } from './script.js'
@@ -23,7 +23,7 @@ import { freeIn, parseTerm } from './pterm.js'
 import { termJudge } from './termTask.js'
 import { missingForms } from './termTree.js'
 import { checkGates, rowsFor, startGates } from './gates.js'
-import { checkIso, sentenceOf, waysIn } from './iso.js'
+import { checkIso, sentenceOf } from './iso.js'
 import { auditCaseProblems, runAudit } from './audit-cases.js'
 import { checkDefine } from './define.js'
 import { say } from './notation.js'
@@ -120,21 +120,14 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
     out.push(...memo(level.id, `iso ${level.task ?? 0}`, () => {
       const out = []
       const words = (sentence) => say(sentenceOf(level, sentence), level.notation)
-      const judge = checkIso(level, words)
-      const { reference: { fail }, naive } = judgeWorks(judge, { reference: level.solution, naive: level.play === 'audit' ? null : level.naive })
-      out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: declaration ${fail ? `FAIL ${keyOf(failureText(fail))}` : 'PASS'} [${level.solution.nodes.find((n) => n.id === 'decl').params.ways} ways]` })
-      // A declaration to write: its reference can be filled in on the rule table (one layer of ⟹, each premise built
-      // from the pieces of the level's sentences, things taken only where the level allows it).
-      if (level.play !== 'audit') {
-        const chips = premiseChips(level)
-        const missing = waysIn(level.solution).flatMap((way) => [
-          ...(way.binds.length && !level.thing ? ['any thing'] : []),
-          ...way.needs.flatMap((need) => (typeof need !== 'string' ? ['a premise with premises'] : missingChips(sentenceOf(level, need), chips))),
-        ])
-        if (missing.length) out.push({ level: level.id, fail: true, text: `  the reference declaration cannot be filled in: ${[...new Set(missing)].join(', ')}` })
-      }
-      // Checking by the diagram: the reference cases catch every board, the naive ones do not; each board fails.
-      if (level.play === 'audit') {
+      const audit = level.play === 'audit'
+      const check = audit ? checkIso(level, words) : checkDeclaration(level)
+      const inspect = audit ? check : (rules) => check(readRuleRows(level, rules))
+      const example = !audit && level.naive?.every((rule) => rule.needs) ? level.naive : null
+      if (!audit && level.naive && !example) out.push({ level: level.id, fail: true, text: '  the naive declaration must list introduction rules' })
+      const { reference: { fail }, naive } = judgeWorks(inspect, { reference: level.solution, naive: example })
+      out.push({ level: level.id, fail: Boolean(fail), text: `${level.id} ${keyOf(level.title)}: declaration ${fail ? `FAIL ${keyOf(failureText(fail))}` : 'PASS'} [${level.solution.length} ways]` })
+      if (audit) {
         const { reference: cases, naive } = checkWorks((work) => runAudit(level, work, words), { reference: level.answer, naive: level.naive })
         const miss = cases.fail
         out.push({ level: level.id, fail: !cases.ok, text: `  cases ${cases.ok ? 'PASS' : `FAIL on board ${miss.check + 1}: ${keyOf(miss.why)}`} [${level.answer.length} cases]` })
@@ -142,7 +135,7 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
         // The reference cases fill the cases set out, and keep the goal and expectation the level fixes.
         for (const text of auditCaseProblems(level, level.answer)) out.push({ level: level.id, fail: true, text: `  ${text}` })
         // A board to check is right (want 'agree'); one to catch is wrong.
-        level.boards.forEach(({ board }, k) => { if (!judge(board) !== (level.want === 'agree')) out.push({ level: level.id, fail: true, text: `  board ${k + 1} ${level.want === 'agree' ? 'fails' : 'passes'} every situation (bad)` }) })
+        level.boards.forEach(({ rules }, k) => { if (!check(rules) !== (level.want === 'agree')) out.push({ level: level.id, fail: true, text: `  board ${k + 1} ${level.want === 'agree' ? 'fails' : 'passes'} every situation (bad)` }) })
         return out
       }
       reportNaive(out, level, naive)

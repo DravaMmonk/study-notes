@@ -27,7 +27,6 @@ import { boardView } from '../../engine/board-view.js'
 import { keptBoards } from './built.js'
 import { builtGates, gateCourse, gateTests, startGates } from './gates.js'
 import { lettersOf } from './truth.js'
-import { boardOf } from './ruleLines.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
 
 /** A machine level's preset (`preset`: ids of its reference answer), locked on its board (../../circuit/model.js). */
@@ -218,24 +217,17 @@ function proofBrief(schema, level, notation) {
 /** Words: the word sets named (by name, or written out), merged in order. */
 const wordsOf = (list, sets) => Object.assign({}, ...list.map((w) => (typeof w === 'string' ? sets[w] : w)))
 
-/** A declaration's answers as boards (ruleLines.js boardOf): its reference and naive rules (an audit's naive answer
- *  is cases instead), and the declarations someone else wrote (`boards`). */
-function declaredBoards(one) {
-  const declared = (field) => (one[field]?.every((r) => r.needs) ? { [field]: boardOf(one[field]) } : {})
-  return { ...one, ...declared('solution'), ...declared('naive'), ...(one.boards ? { boards: one.boards.map(({ rules, ...rest }) => ({ ...rest, board: boardOf(rules) })) } : {}) }
-}
-
 /**
  * A level's tasks as the course reads each (../../engine/tasks.js taskLevels): the level under the task, but for its
  * introduction and pass text, which are the level's own; what the level builds or proves comes of its last task. Each
- * keeps its name (`step`), reads in its words, and a declaration's answers are boards.
+ * keeps its name (`step`) and reads in its words.
  */
 function readTasks(level, wordSets) {
   const { builds, fact, intro: _intro, after: _after, ...base } = level
   return taskLevels(base).map((t, k, all) => {
     const last = k === all.length - 1
     const one = { ...(last && builds ? { builds } : {}), ...(last && fact ? { fact } : {}), ...t, ...(level.tasks[k].step ? { step: level.tasks[k].step } : {}) }
-    return { ...(one.kind === 'iso' ? declaredBoards(one) : one), ...(one.words ? { words: wordsOf(one.words, wordSets) } : {}) }
+    return { ...one, ...(one.words ? { words: wordsOf(one.words, wordSets) } : {}) }
   })
 }
 

@@ -4,8 +4,8 @@ import { parseS, parseSide } from './schematic.js'
 import { say, sayTerm } from './notation.js'
 import { complete, straysOf, termChips } from './formulaTree.js'
 import { checkDefine } from './define.js'
-import { declaredRules, sentenceOf, wayRule, wayText, waysIn } from './iso.js'
-import { blankRule, boardOf, checkDeclaration, linesOf, premiseChips, problemsOf } from './ruleLines.js'
+import { declaredRules, sentenceOf, wayText } from './iso.js'
+import { blankRule, checkDeclaration, linesOf, premiseChips, problemsOf } from './ruleLines.js'
 import { sentenceLanguage } from './sentenceLanguage.js'
 
 const blank = T('未写完')
@@ -17,7 +17,7 @@ export function declarationValues(level, rules, change, scope) {
   const binder = level.binder ?? 'x'
   const words = (value) => say(value, level.notation)
   const chips = premiseChips(level)
-  const problems = problemsOf(level, rules)
+  const problems = change ? problemsOf(level, rules, chips) : []
   const withRule = (k, fn) => change(changeAt(rules, k, fn))
   return {
     className: 'lg-rule-table',
@@ -25,7 +25,7 @@ export function declarationValues(level, rules, change, scope) {
     rows: rules.map((rule, k) => ({
       name: T('成立条件'), mark: k + 1,
       toggle: level.thing && { on: rule.binds.length > 0, label: T(`任取 ${binder}`, `For any ${binder}`), run: () => withRule(k, (r) => ({ ...r, binds: r.binds.length ? [] : [binder] })) },
-      slots: rule.needs.map((need, j) => ({ text: whole(need) ? words(need) : null, bad: problems.some((p) => p.rule === k && p.need === j) })),
+      slots: rule.needs.map((need, j) => ({ text: whole(need) ? words(need) : null, bad: problems.some((p) => p.row === k && p.slot === j) })),
       end: rule.needs.length > 1 ? T('均为真。') : T('为真。'),
       empty: T('无前提'),
       add: { label: T(`给成立条件 ${k + 1} 添加前提`, `Add a premise to condition ${k + 1}`), text: rule.needs.length ? null : T('添加前提'), run: () => withRule(k, (r) => ({ ...r, needs: [...r.needs, null] })) },
@@ -50,9 +50,10 @@ export function declarationValues(level, rules, change, scope) {
 export function ruleLines(level, ways, read) {
   if (!ways.length) return []
   const text = (f) => read(say(f, level.notation))
+  const { make, take } = declaredRules(level, ways, (f) => f)
   return [
-    ...ways.map((way, k) => ({ name: read(T('引入')), mark: k + 1, text: wayText(wayRule(way, level), text) })),
-    { name: read(T('消去')), text: wayText(declaredRules(level, ways, (f) => f).take, text) },
+    ...make.map((rule, k) => ({ name: read(T('引入')), mark: k + 1, text: wayText(rule, text) })),
+    { name: read(T('消去')), text: wayText(take, text) },
   ]
 }
 
@@ -63,7 +64,7 @@ export function declaration(level) {
     keep: (rules) => ({ rules }),
     judge,
     rows: (rules, change, scope) => declarationValues(level, rules, change, scope),
-    lines: (rules, read) => problemsOf(level, rules).length ? [] : ruleLines(level, waysIn(boardOf(linesOf(rules))), read),
+    lines: (rules, read) => problemsOf(level, rules).length ? [] : ruleLines(level, linesOf(rules), read),
     passed: T('这份声明符合需求。'),
     score: (rules) => ({ steps: rules.length }),
   }
