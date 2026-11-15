@@ -1,7 +1,11 @@
-import { useMemo } from 'react'
+import { Fragment, useMemo } from 'react'
 import CanvasEditor from './CanvasEditor.jsx'
 import SlotBoard from './SlotBoard.jsx'
 import SampleCircuit from './SampleCircuit.jsx'
+import PieceExperiment from './PieceExperiment.jsx'
+import { PackedBoard } from './Inside.jsx'
+import { partsFor } from '../shell/CircuitScreen.jsx'
+import { openRef } from '../shell/refs.js'
 import { L, tr } from '../shell/i18n.js'
 import { evalSettings } from '../engine/parts/define.js'
 import PartFace from '../shell/parts/PartFace.jsx'
@@ -12,8 +16,8 @@ import PieceSheet, { Chains, Ports, Revisions, Settings, marker } from '../shell
 // card on the game's own canvas, the phone tile on its slot board, the detail both share — drawn by the game's page
 // (game.defined), so its icons, colours and controls are the player's; its settings move as a player would move them
 // (rules followed, readouts and actions live) and the three scenes share them (`state`); nothing is wired to it, so
-// its value shows as a placeholder. A built piece's detail is the board it runs, as the game draws it (game.parts.demo);
-// so is any piece's in the parts box, where the game may draw a bench to try it on.
+// its value shows as a placeholder. The parts box and Studio previews take the same example circuits, simulations
+// and inside boards from game.parts.preview; the editor decides how to present them.
 // The Sheet is the fields no scene draws: a primitive's revisions, ports, every setting, what it computes and its
 // interaction as pieces.json writes them; a built piece's own fields (../shell/parts/PieceSheet.jsx).
 //
@@ -85,10 +89,30 @@ export function preview(piece, { game, scene, edit = null, state = [undefined, (
   // piece on: a built piece's board, a bench.
   if (scene !== 'detail' || (!entry && !piece.inside)) return null
   const shown = entry ?? game.parts?.all.find((p) => p.piece === piece.type) ?? { key: piece.type, piece: piece.type }
-  const board = game.parts?.demo?.(shown, { phone, progress })
-  const example = game.parts?.example?.(shown, { progress })
-  if (example || board) return <>{example && <SampleCircuit example={example} defined={game.defined} phone={phone} />}{board}</>
+  const { sample, experiment, inside } = game.parts?.preview?.(shown, { progress }) ?? {}
+  if (sample || experiment || inside) return <Fragment key={shown.key}>
+    {sample && <SampleCircuit example={sample} defined={game.defined} phone={phone} />}
+    {experiment && <PieceExperiment spec={experiment} phone={phone} />}
+    {inside && <BuiltBoard type={shown.piece} {...inside} />}
+  </Fragment>
   return faced(piece, game) ? <Face piece={piece} game={game} scene={scene} edit={edit} state={state} /> : null
+}
+
+/**
+ * A part the player built, in the components box: the board it runs, read only (Inside.jsx PackedBoard), the
+ * parts it holds opening in turn. `course` is the course read, `cards` and `portLabels` as CircuitScreen takes them.
+ */
+function BuiltBoard({ course, type, cards, portLabels = {} }) {
+  const drawn = (inside) => inside && { ...inside, parts: partsFor(inside.level, course.forTask(inside.level), { cards, portLabels }) }
+  const open = (node, at) => drawn(course.forTask(at.level).BUILT[node.type]?.opens?.(node.params))
+  const edit = (node, at) => {
+    const builder = course.forTask(at.level).builtBy(node.type, node.params)
+    openRef('level', builder.id, builder.task)
+  }
+  const describe = (node, ctx) => (ctx.board.parts.role(node) === 'part' && !course.BUILT[node.type] ? L(cards[node.type]?.desc) : null)
+  // A piece whose inside runs no board (its task is none) has none to show.
+  if (!course.BUILT[type]) return null
+  return <PackedBoard top={drawn(course.BUILT[type].opens())} open={open} edit={edit} card={{}} describe={describe} />
 }
 
 /** The fields no scene draws: a faced piece's rows of fields and what it computes, or a built piece's sheet. */

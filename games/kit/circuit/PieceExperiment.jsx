@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { ArrowLeft, Maximize2 } from 'lucide-react'
-import CanvasEditor from '../circuit/CanvasEditor.jsx'
-import SlotBoard from '../circuit/SlotBoard.jsx'
-import DemoBench from '../circuit/DemoBench.jsx'
-import Choice from '../circuit/Choice.jsx'
-import InteractiveDrawing from './InteractiveDrawing.jsx'
-import { L, tr } from './i18n.js'
+import CanvasEditor from './CanvasEditor.jsx'
+import SlotBoard from './SlotBoard.jsx'
+import DemoBench, { useExampleRun } from './DemoBench.jsx'
+import Choice from './Choice.jsx'
+import InteractiveDrawing from '../shell/InteractiveDrawing.jsx'
+import { L, tr } from '../shell/i18n.js'
 
 const stop = (event) => event.stopPropagation()
 const idle = () => {}
@@ -66,34 +66,30 @@ function Board({ view, layout, phone, selected, onPick = idle, onMove, open }) {
 }
 
 /** The editor runs one supplied circuit in an interactive preview. The model supplies drawings, observations and actions. */
-export default function PieceBench({ spec, phone }) {
-  const [test, setTest] = useState(0)
+export default function PieceExperiment({ spec, phone }) {
+  const { test, select, report, status, complete, invalidate, clear } = useExampleRun()
   const [state, setState] = useState(() => spec.start(0))
   const [graph, setGraph] = useState(spec.graph)
-  const [report, setReport] = useState(null)
-  const [stale, setStale] = useState(false)
   const [selected, setSelected] = useState(null)
   const [inside, setInside] = useState(null)
-  const update = (next) => { setState(next); if (report) setStale(true) }
+  const update = (next) => { setState(next); invalidate() }
   const change = (id, patch) => {
     setGraph((board) => ({ ...board, nodes: board.nodes.map((node) => (node.id === id ? { ...node, ...patch } : node)) }))
-    if (report) setStale(true)
+    invalidate()
   }
   const view = spec.view({ test, state, report, graph, change, update })
   const open = (node) => { setSelected(null); setInside(node.id) }
   const opened = inside && view.inside?.(inside)
   const selectTest = (k) => {
-    setTest(k)
+    select(k)
     setState(spec.start(k))
     setSelected(null)
-    setReport(null)
-    setStale(false)
+    clear()
   }
   const run = () => {
     const next = view.run()
     setState(next.state)
-    setReport(next.report)
-    setStale(false)
+    complete(next.report)
   }
   const move = (next) => {
     if (next.nodes.length !== graph.nodes.length || JSON.stringify(next.wires) !== JSON.stringify(graph.wires)) return
@@ -113,11 +109,10 @@ export default function PieceBench({ spec, phone }) {
     const next = view.pick(token)
     if (!next) return
     setState(next)
-    setReport(null)
-    setStale(false)
+    clear()
   }
   return <DemoBench tests={spec.tests} test={test} onTest={selectTest} onRun={run}
-    onReset={() => { selectTest(test); setGraph(spec.graph) }} state={stale ? 'stale' : report ? 'ran' : 'idle'}
+    onReset={() => { selectTest(test); setGraph(spec.graph) }} state={status}
     height="auto" panel={panel} note={spec.note}>
     <div className={spec.layout.scene}>{view.drawings.map(({ drawing, frame, editable }, k) => (
       <div className={frame} key={k}><InteractiveDrawing {...drawing} onPick={editable ? pickDrawing : undefined} /></div>

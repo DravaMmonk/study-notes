@@ -14,7 +14,6 @@ import { manualBoardScreen } from '../../shell/ManualBoardPlay.jsx'
 import { handResources } from './ui/modes/index.js'
 import Hero from './ui/hero.jsx'
 import { sceneSVG } from './ui/svg.js'
-import PieceBench from '../../shell/PieceBench.jsx'
 import { pieceDemo } from './ui/pieceDemo.js'
 import { lookIcon } from './ui/looks.js'
 import { PRIMITIVES, modelsOf } from './model/parts.js'
@@ -117,11 +116,11 @@ export default function tableGame(content) {
       all: [...primitives, ...Object.entries(PARTS).filter(([key]) => LEVELS.some((L) => L.unlock === key)).map(([key, part]) => ({ key, piece: key, name: part.name, desc: part.desc, icon: lookIcon(key) }))],
       // The part on a bench: its level's board (a primitive's, the level that brings it in), with inputs, constants and
       // models to change and a Run button. A built part runs, and opens to show, the board the player passed its level with.
-      demo: (part, { phone, progress }) => {
+      preview: (part, { progress }) => {
         table.syncOwn(progress.built)
         const key = part.key.replace(/^part:/, '')
         const spec = pieceDemo(table.model, lastTasks, part.at ? { [key]: part.at[0] } : borrow, key)
-        return spec && createElement(PieceBench, { key: part.key, spec, phone })
+        return { experiment: spec }
       },
       filters: robotFilters,
     },

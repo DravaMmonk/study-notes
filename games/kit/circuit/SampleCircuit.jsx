@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import CanvasEditor from './CanvasEditor.jsx'
-import DemoBench from './DemoBench.jsx'
+import DemoBench, { useExampleRun } from './DemoBench.jsx'
 import SlotBoard from './SlotBoard.jsx'
 import { L, T } from '../shell/i18n.js'
 import { definedFaces, definedParts } from '../shell/parts/faces.jsx'
@@ -11,9 +11,7 @@ import { srcOf } from './model.js'
 export default function SampleCircuit({ example, defined, phone }) {
   const { board: start, tests, run, view, prepare } = example
   const [board, setBoard] = useState(start)
-  const [test, setTest] = useState(0)
-  const [report, setReport] = useState(null)
-  const [stale, setStale] = useState(false)
+  const { test, select, report, status, complete, invalidate, clear } = useExampleRun()
   const [selected, setSelected] = useState(null)
   const parts = definedParts(example.parts, defined.of, defined.ops)
   const visible = report?.[test] ?? { values: new Map(board.nodes.flatMap((node) => {
@@ -28,17 +26,17 @@ export default function SampleCircuit({ example, defined, phone }) {
   }
   const edit = (node, params) => {
     setBoard((cur) => prepare({ ...cur, nodes: cur.nodes.map((n) => n.id === node.id ? { ...n, params } : n) }))
-    setStale(Boolean(report))
+    invalidate()
   }
   const faces = definedFaces({ body: value, thumb: value }, { defined: { ...defined, value }, change: edit, phone })
   const item = board.nodes.find((node) => node.id === selected)
   const panel = phone && item && faces.detail(item, ctx)
-  const go = () => { setReport(tests.map((sample) => run(board, sample))); setStale(false) }
-  const reset = () => { setBoard(start); setReport(null); setStale(false); setSelected(null) }
+  const go = () => complete(tests.map((sample) => run(board, sample)))
+  const reset = () => { setBoard(start); clear(); setSelected(null) }
   return <DemoBench
     tests={tests.map((sample, k) => ({ label: sample.label ?? T(`测试 ${k + 1}`, `Test ${k + 1}`) }))}
-    test={test} onTest={setTest} onRun={go} onReset={reset}
-    state={stale ? 'stale' : report ? 'ran' : 'idle'} height={phone ? 'auto' : 340} panel={panel}
+    test={test} onTest={select} onRun={go} onReset={reset}
+    state={status} height={phone ? 'auto' : 340} panel={panel}
   >
     {phone
       ? <SlotBoard graph={board} parts={parts} fixed nameOf={(node) => L(parts.label(node))}

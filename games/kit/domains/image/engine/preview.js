@@ -1,12 +1,11 @@
 import { tidyImageBoard } from './board.js'
 
 // Select the images and reference wiring the course names for a piece on the shared sample circuit.
-export function imagePreview(image, box, entry, progress) {
+export function imagePreview(image, box, entry) {
   const { kit, levelById } = image
   const type = entry.key === 'edge-filter' ? 'box3' : entry.piece
   const spec = kit.types[type]
   if (!spec) return null
-  if (progress?.solved) image.syncOwn(progress)
   const home = entry.at?.[0]
   const earned = image.builtBy(type) ?? Object.values(levelById).find((level) => level.unlocks.includes(entry.key) || level.id === home)?.tasks.at(-1)
   const preferred = box.inLevel[entry.key] ? levelById[box.inLevel[entry.key]].tasks.at(-1) : earned

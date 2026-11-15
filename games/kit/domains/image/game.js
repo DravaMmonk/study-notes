@@ -12,7 +12,7 @@ import { imageCourse } from './course.js'
 import { playFor } from '../../engine/plays.js'
 import { workshopScreen } from '../../shell/WorkshopPlay.jsx'
 import { plays } from './plays.js'
-import { BuiltBoard, partsFor } from '../../shell/CircuitScreen.jsx'
+import { partsFor } from '../../shell/CircuitScreen.jsx'
 import { imageCircuitScreen } from './ui/circuit.js'
 import { imageBoards } from './engine/board-view.js'
 import { imagePreview } from './engine/preview.js'
@@ -100,14 +100,13 @@ export default function imageGame(content) {
     levelLabel: (level) => labels.get(level.id) ?? level.id,
     parts: {
       all: [...primitives, ...allFlags.map(unlockOf)],
-      example: (part, { progress }) => {
-        const made = imagePreview(image, content.box, part, progress)
-        return made && { ...made, parts: partsFor(made.task, boards.forTask(made.task), { cards, portLabels: {} }) }
-      },
-      demo: (part, { progress }) => {
-        if (!boards.BUILT[part.piece]) return null
+      preview: (part, { progress }) => {
         if (progress?.solved) image.syncOwn(progress)
-        return createElement(BuiltBoard, { course: boards, type: part.piece, cards })
+        const made = imagePreview(image, content.box, part)
+        return {
+          sample: made && { ...made, parts: partsFor(made.task, boards.forTask(made.task), { cards, portLabels: {} }) },
+          inside: boards.BUILT[part.piece] && { course: boards, cards },
+        }
       },
     },
     // A better circuit costs less, or as much with fewer parts.

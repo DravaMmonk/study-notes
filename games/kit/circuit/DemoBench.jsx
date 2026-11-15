@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Play, RotateCcw } from 'lucide-react'
 import TestTabs from '../shell/TestTabs.jsx'
 import { L, tr } from '../shell/i18n.js'
@@ -9,6 +10,21 @@ import { L, tr } from '../shell/i18n.js'
 // tests: [{ label }]   test / onTest(k): the one fed in   onRun(): run it   state: 'idle' | 'ran' | 'stale'
 // onReset(): back to the part's own settings   note: one line on what to try
 // panel: under the board, the controls of the block tapped on a phone   height: 'auto' lets a phone board run long
+
+/** Retain the last result when inputs change, and mark it stale until the next run. */
+export function useExampleRun() {
+  const [test, select] = useState(0)
+  const [last, setLast] = useState(null)
+  return {
+    test,
+    select,
+    report: last?.report ?? null,
+    status: last ? last.stale ? 'stale' : 'ran' : 'idle',
+    complete: (report) => setLast({ report, stale: false }),
+    invalidate: () => setLast((run) => run && !run.stale ? { ...run, stale: true } : run),
+    clear: () => setLast(null),
+  }
+}
 
 export default function DemoBench({ tests = [], test = 0, onTest, onRun, onReset, state = 'idle', note, height = 340, panel, children }) {
   return (

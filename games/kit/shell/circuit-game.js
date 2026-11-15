@@ -17,10 +17,9 @@
 //     own parts (pieces.json, the course read's `defs`): its cards are those parts (and `cards`, its fixed cards drawn its
 //     own way), and `game.defined` is what draws
 //     them, on its screens (CircuitScreen `defined`) and as the circuit editor previews them (../circuit/preview.jsx)
-import { createElement } from 'react'
 import { CircuitBoard } from 'lucide-react'
 import { introductions, isCore, levelLabels } from '../course.js'
-import { BuiltBoard, circuitScreen } from './CircuitScreen.jsx'
+import { circuitScreen } from './CircuitScreen.jsx'
 import { defineGame } from './index.js'
 import { iconOf } from './parts/icons.js'
 
@@ -81,10 +80,10 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, kinds
     parts: {
       all: [...primitives, ...built],
       // A built piece shows the board it runs: the one the player passed its task with, else the reference.
-      demo: (part, { progress }) => {
-        if (!part.piece) return null
+      preview: (part, { progress }) => {
+        if (!circuit.BUILT[part.piece]) return null
         circuit.syncOwn(progress?.built)
-        return createElement(BuiltBoard, { key: part.key, course: circuit, type: part.piece, cards })
+        return { inside: { course: circuit, cards } }
       },
     },
     unlocked: (level) => built.filter((b) => level.unlocks.includes(b.key)).map((b) => ({ label: b.name, icon: b.icon })),

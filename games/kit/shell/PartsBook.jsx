@@ -6,11 +6,10 @@ import { editorFor } from './parts/previews.js'
 
 // The components box (元件箱), laid out like the encyclopedia: every part the game has, in the order it is earned,
 // each with what it does and a bench to try it on. A game's `parts` brings
-// { all: [{ key, piece?, name, desc?, icon?, family?, rules? }], demo?(part, { phone, progress }) → React node,
+// { all: [{ key, piece?, name, desc?, icon?, family?, rules? }], preview?(part, { progress }) → { sample?, experiment?, inside? },
 //   filters?(progress) → [{ key, name, icon?, lock?, keys }] }: a part's article shows the detail its editor draws
-// (parts/previews.js, by its piece of pieces.json); the circuit editor's is the game's demo, a small circuit with the
-// part at its centre that the player can change and run (games/kit/circuit DemoBench) or the board a built piece
-// runs, on the desktop board or, on a phone, the phone one. A filter narrows the box to `keys` (a Set), such as the parts one robot can use; `icon` is SVG markup
+// (parts/previews.js, by its piece of pieces.json); the circuit editor draws the supplied example,
+// simulation or built board on desktop and phone. A filter narrows the box to `keys` (a Set), such as the parts one robot can use; `icon` is SVG markup
 // for a 32 × 32 box, and `lock` the label of the level that opens it (null once open). The level that earns a part is the
 // one whose `unlocks` lists its key, or for a primitive the first level that brings it in (`at`). `rules` lists what a
 // part gives as rules ([{ text, form? }], a game whose parts are rules), in a table of their own; a row with a `form`

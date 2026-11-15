@@ -1,7 +1,6 @@
 // A logic game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the logic domain's screens (a proof on the circuit editor, a truth table,
 // a machine board …), its parts box of proved lemmas and built parts, and its map art.
-import { createElement } from 'react'
 import { declaredLines } from './iso.js'
 import { Braces, CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
 import './logic.css'
@@ -17,7 +16,7 @@ import { KERNEL_RULES, lemmaRules, ruleText } from './schematic.js'
 import { RULES } from './proof.js'
 import { logicCourse } from './course.js'
 import { playScreen } from '../../shell/plays/Play.jsx'
-import { BuiltBoard, circuitScreen } from '../../shell/CircuitScreen.jsx'
+import { circuitScreen } from '../../shell/CircuitScreen.jsx'
 import { iconOf as partIcon } from '../../shell/parts/icons.js'
 import { gatesScreen } from './ui/gates.js'
 import { proofScreen } from './ui/proof.js'
@@ -140,11 +139,11 @@ export default function logicGame(content) {
         ...Object.entries(machines).filter(kept).map(([type, m]) => ({ key: `lemma:${type}`, piece: type, name: m.name, desc: m.desc, revisions: revisions[type], icon: CircuitBoard })),
       ],
       // A built piece shows the board it runs: the one the player passed its task with, else the reference.
-      demo: (part, { progress }) => {
+      preview: (part, { progress }) => {
         const shown = part.piece && boardOf(part.piece)
         if (!shown) return null
         logic.syncOwn(progress?.built)
-        return createElement(BuiltBoard, { key: part.key, course: shown, type: part.piece, cards })
+        return { inside: { course: shown, cards } }
       },
     },
     // Fewer steps (proof steps, or gates) is better; fewer cases, where the player writes them (iso.js judgeCases).
