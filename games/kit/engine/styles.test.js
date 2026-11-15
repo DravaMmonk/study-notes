@@ -16,8 +16,6 @@ const CEILING = {
   strip: { sizes: 6, colours: 0 },
   image: { sizes: 67, colours: 24 },
   logic: { sizes: 38, colours: 22 },
-  net: { sizes: 0, colours: 3 },
-  syntax: { sizes: 6, colours: 14 },
   table: { sizes: 97, colours: 5 },
 }
 

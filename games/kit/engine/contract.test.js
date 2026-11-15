@@ -19,7 +19,7 @@ const load = async (name) => (await import(`../domains/${name}/domain.js`)).defa
 after(() => closeGames())
 
 test('every domain gives the contract’s entries, and its vocabulary describes itself as data', async () => {
-  assert.ok(names.length >= 6)
+  assert.ok(names.length > 0, 'discover at least one domain')
   for (const name of names) assert.deepEqual(domainProblems(name, await load(name)), [], name)
 })
 

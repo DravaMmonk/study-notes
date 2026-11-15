@@ -34,60 +34,9 @@ export const GAMES = [
     page: { icon: 'M14 16h14v10H14zM36 38h14v10H36zM28 21h15v17', description: '证明完毕 Q.E.D.：把形式化证明做成一套解谜关卡。Formal proof as a set of puzzle levels.' },
   },
   {
-    id: 'syntax-graph', href: 'syntax-graph/index.html', title: '句法之图', en: 'Syntax Graph', topic: { zh: '计算机论文长难句', en: 'Long Sentences in Computer Science Papers' },
-    desc: {
-      zh: '把计算机论文里的长难句拆开：每个修饰成分折成一块，挂到它修饰的词上，直到主干露出来。从三个词的主干起步，一路拆到母语读者也要读两遍的句子。',
-      en: 'Take apart the long sentences of computer science papers: fold each modifier into one piece and hang it on the word it modifies, until the skeleton shows. Start from a three-word skeleton and work up to sentences native readers have to read twice.',
-    },
-    levels: 21, art: 'stick', dev: true,
-    page: { icon: 'M32 14v14M32 28 17 48M32 28l15 20', description: '句法之图 Syntax Graph：拆开计算机论文里的长难句。Taking apart the long sentences of computer science papers.' },
-  },
-  {
-    id: 'network', href: 'network/index.html', title: '从一根线开始', en: 'From One Wire', topic: { zh: '计算机网络', en: 'Computer Networks' },
-    desc: { zh: '一根线，一拍一位，还会出错。从传一位话开始，一层层搭出自己的网卡。', en: 'One wire, one bit a tick, and some bits go wrong. Start by passing a bit on, and build a network adapter of your own, layer by layer.' },
-    levels: 34, art: 'wire', dev: true,
-    page: { icon: 'M10 32h14l4-10 8 20 4-10h14', description: '从一根线开始 From One Wire：从一根会出错的线搭起计算机网络。Computer networking built up from one wire that gets bits wrong.' },
-  },
-  {
     id: 'comp90086', href: 'comp90086/index.html', title: '计算机视觉笔记', en: 'Computer Vision Notes', topic: { zh: 'COMP90086 笔记版', en: 'COMP90086 notes edition' },
     desc: { zh: '嵌在 COMP90086 笔记里的交互：每个知识点动手一次，先预测，再看结果。', en: 'The interactions inside the COMP90086 notes: try each idea once, predicting first and then seeing what happens.' },
     levels: 3, art: 'pipeline', hidden: true,
     page: { icon: 'M16 32h32M32 16v32', description: '计算机视觉笔记 Computer Vision Notes：COMP90086 笔记里的交互。The interactions inside the COMP90086 notes.' },
-  },
-  {
-    id: 'calculus', href: 'calculus/index.html', title: '差分机', en: 'The Difference Engine', topic: { zh: '高等数学', en: 'Calculus' },
-    desc: {
-      zh: '只会加和乘的机器，一拍算出数列的一项。亲手接出计数、求和与差分，看它们互相撤销；再一步步取极限，走到导数和积分。',
-      en: 'A machine that can only add and multiply computes a term of a sequence each tick. Wire up counting, summing and differencing yourself and watch them undo each other; then take limits, step by step, up to derivatives and integrals.',
-    },
-    levels: 33, art: 'engine', dev: true,
-    page: { icon: 'M12 46h40M18 46V34M28 46V26M38 46V20M48 46V16', description: '差分机 The Difference Engine：从一拍一项的数列机器搭起微积分。Calculus built up from a machine that computes a term a tick.' },
-  },
-  {
-    id: 'linear', href: 'linear/index.html', title: '线性之格', en: 'The Linear Grid', topic: { zh: '线性代数', en: 'Linear Algebra' },
-    desc: {
-      zh: '不需要线性代数基础。从相加和伸缩两个动作开始，亲手搭出矩阵、矩阵乘法、行列式和解方程的元件，看每个矩阵怎样推动整张格子。',
-      en: 'No linear algebra needed. Starting from adding and stretching arrows, build the parts for matrices, the matrix product, determinants and solving equations yourself, and watch how every matrix carries the whole grid along.',
-    },
-    levels: 18, art: 'shear', dev: true,
-    page: { icon: 'M14 44l10-24h26l-10 24zM19 32h26M37 20l-10 24', description: '线性之格 The Linear Grid：从箭头搭起线性代数的解谜关卡。Linear algebra built up from arrows, as puzzle levels.' },
-  },
-  {
-    id: 'market', href: 'market/index.html', title: '看不见的手', en: 'The Invisible Hand', topic: { zh: '经济学', en: 'Economics' },
-    desc: {
-      zh: '一家小店，每天进货，定一个价。先亲手试出合适的价格，再搭一台替你调价的机器，看它在行情变化的街上自己找到价格。',
-      en: 'A small shop takes in stock every day and sets a price. Find the right price by hand, then build the machine that finds it for you, and watch it follow a street whose trade keeps changing.',
-    },
-    levels: 5, dev: true,
-    page: { icon: 'M16 44V24l16-8 16 8v20M26 44V32h12v12', description: '看不见的手 The Invisible Hand：先手做，再搭出替你做的机器。Price a shop by hand, then build the machine that does it.' },
-  },
-  {
-    id: 'signal', href: 'signal/index.html', title: '拆音', en: 'Unmixed', topic: { zh: '傅里叶变换', en: 'The Fourier Transform' },
-    desc: {
-      zh: '一段声音是几个纯音按各自的份量叠成的。先照配方把它合成出来，再从混好的波形里把配方读回去，最后在配方上动手，改掉声音本身。',
-      en: 'A sound is a few pure tones laid over each other, each in its own amount. Make one from its recipe, read the recipe back out of the mixed wave, then change the sound by changing the recipe.',
-    },
-    levels: 7, dev: true, hidden: true,
-    page: { icon: 'M8 32c6-16 10-16 16 0s10 16 16 0 10-16 16 0', description: '拆音 Unmixed：傅里叶变换的一个切片。A slice of the Fourier transform.' },
   },
 ];

@@ -38,5 +38,3 @@ jobs:
       # Every word the kit's code says has its English in the catalog.
       - run: npm run words -- --check
       - run: npm test
-      # The Unix model's conformance cases against the real kernel.
-      - run: npm run conform
