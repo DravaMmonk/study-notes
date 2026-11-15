@@ -9,16 +9,9 @@
 - 《状态之图》：件和思路在 `pieces.json`；玩法已登记在 `domains/table/plays.js`，手动棋盘和机器人电路共用棋盘界面。领域还自写 2187 行组件：机器人电路（`ui/modes/Circuit.jsx`）、八种玩法屏（`ui/modes/`）、件的演示（`ui/PartDemo.jsx`）、`ui/BoardView.jsx`、`ui/RobotView.jsx`。
 - COMP90086：建在视觉领域上，还没有 `pieces.json`。
 - 编辑器的预览已接入 studio 和元件箱，接口是 `preview(piece, { game, scene })`，`scene` 取 `card`、`tile` 或 `detail`。
-- 已删的游戏留下的：电路预设（`engine/circuit-preset.js`、`engine/board-course.js` 的 `definedCourse`、`partsCourse`）、寄存器（`held`、`keeps`）和 `npm run duplication` 现在只有电路的两个模板（`kit/scaffold/circuit`、`kit/scaffold/tick-bus`）用到或量到。
+- H.1：移除了旧演示专用的场景图、无头场景钩子、反应世界和电路重复量度。三个脚手架保留，电路预设和逐拍寄存器继续由脚手架使用。
 
 ## 阶段 H
-
-### H.1 清掉只为已删游戏留着的东西
-
-- 内核、外壳、studio、流水线里没有任何一款游戏、也没有任何一个模板用到的代码删掉；三个模板（`circuit`、`rows`、`tick-bus`）是建新游戏的入口，留着，它们用到的照旧。
-- `npm run duplication` 和 `engine/duplication.test.js` 量的是电路预设上的领域之间逐字重复的行；现在只剩模板，模板之间的重复不说明底座漏了什么，删掉这项量度和它的命令。
-- 各道上限（`engine/components.test.js`、`engine/styles.test.js`）只留现存的领域和模板；手册、DIRECTION、skill 里写已删游戏的地方删掉或改写成不点名的说法。
-- 验收：四款的检查输出不变；`npm test`、`lint:kit`、`words -- --check` 通过；全部游戏能构建。
 
 ### H.2 COMP90086 的 `pieces.json`
 

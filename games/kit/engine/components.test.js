@@ -1,7 +1,6 @@
 // node --test (npm test) — how much of its own interface each domain still writes as components (components.js). A
 // domain on the circuit base writes none: it declares its screen (ui/screen.js) and the kit draws it. The domains
-// written before the base (image, logic, table, syntax) hold their own screens; their numbers go down as
-// screens move onto the kit.
+// that still supply screens (image and table) lower their ceilings as those screens move to the kit.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'

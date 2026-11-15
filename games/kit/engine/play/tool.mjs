@@ -2,12 +2,12 @@
 // The play interface as a small stdio JSON tool (games/DESIGN.md 6.6), for an agent or an MCP server to wrap: one
 // request a line on stdin, one response a line on stdout. Run from trace-viewer: node ../games/kit/engine/play/tool.mjs.
 //
-//   { "id": 1, "tool": "play_view",    "args": { "game": "network", "session": "s1", "level"?: "1-1" } }
-//   { "id": 2, "tool": "play_attempt", "args": { "game": "network", "session": "s1", "text": "right <- left" } }
-//   { "id": 3, "tool": "play_hint",    "args": { "game": "network", "session": "s1" } }
-//   { "id": 4, "tool": "play_explain", "args": { "game": "network", "session": "s1", "text": "a register keeps…" } }
-//   { "id": 4, "tool": "play_give_up", "args": { "game": "network", "session": "s1" } }
-//   { "id": 5, "tool": "play_status",  "args": { "game": "network", "session": "s1" } }
+//   { "id": 1, "tool": "play_view",    "args": { "game": "qed", "session": "s1", "level"?: "g-and" } }
+//   { "id": 2, "tool": "play_attempt", "args": { "game": "qed", "session": "s1", "text": "n = gNot(Wind)\na = gAnd(Rain, n)\nout <- a" } }
+//   { "id": 3, "tool": "play_hint",    "args": { "game": "qed", "session": "s1" } }
+//   { "id": 4, "tool": "play_explain", "args": { "game": "qed", "session": "s1", "text": "a truth gate gives…" } }
+//   { "id": 4, "tool": "play_give_up", "args": { "game": "qed", "session": "s1" } }
+//   { "id": 5, "tool": "play_status",  "args": { "game": "qed", "session": "s1" } }
 //   → { "id": 1, "result": { "text": "…", "level"?, "task"?, "pass"? } }   or   { "id": 1, "error": "…" }
 //
 // A new session also takes "lang" (en | zh), "attempts", "levels" and "player" ({ kind, model? }) in its first

@@ -8,7 +8,7 @@
 
 ## 已有实证的部分
 
-- **新领域的成本已经降下来了。** 建在电路底座上的领域（不含测试）：`calculus` 269 行、`linear` 387 行、`net` 798 行，其中 JSX 各 38–56 行。原型领域是 `image` 9739 行、`logic` 8499 行、`table` 6136 行。差一个数量级，说明 `circuit-domain.js` 和 `CircuitScreen` 这层抽象是成立的。
+- **新领域的成本已经降下来了。** 当时三个使用电路预设的原型领域约 269 到 798 行（不含测试），其中 JSX 各 38–56 行。原型领域是 `image` 9739 行、`logic` 8499 行、`table` 6136 行。差一个数量级，说明 `circuit-domain.js` 和 `CircuitScreen` 这层抽象是成立的。
 - **同一领域上的第二款游戏已经存在。** `comp90086` 和 `vision-complete` 都写 `domain: image`。
 - **分层边界在代码里是干净的。** 领域之间没有互相导入；内核对领域只有 `content-node.js` 里按名字的动态加载。
 - **检查很快。** `npm test` 414 条 34 秒；`npm run check` 全部十款游戏 35 秒。单款 5–15 秒，其中约 4 秒是经 vite 载入 `game.jsx` 的固定开销。
@@ -40,7 +40,7 @@
 |---|---|
 | 十三 确定性 | `domains/image/engine/parts/generative.js` 的 `dg_sample` 用 `Math.random()` 取种子 |
 | 十四 存档按任务 | `engine/stamp.js` 是整款游戏一个哈希，任何元件或谜题改动清空全部进度；内核格式没有版本号 |
-| 十五 解空间信号 | 「空板不过」「一根线直通不过」是 `net` 上事后加的单条检查；盲玩暂停 |
+| 十五 解空间信号 | 「空板不过」「一根线直通不过」是原型阶段事后加入的检查；盲玩暂停 |
 | 十六 存储、级别 | `ops/workspace.js` 直接用 `node:fs` 和 `changes.lock`，用正则改 `games/games.js`（`hubEntry`）；`ops/` 里没有级别或角色；`pipeline.mjs` 直接 `spawnSync('claude', …)` |
 | 十七 包与兼容语料 | 命令和依赖在 `trace-viewer/`，`engine/games.mjs`、`pipeline.mjs` 写死它的路径；ESLint 覆盖不到 `games/kit`，CI 无 lint；`@ts-check` 零处；`expr.js` 只区分纯数与非纯数；`test-kit.yml` 不读游戏、`deploy-games.yml` 只构建 |
 | 检查的耗时 | 单款 5–15 秒，约 4 秒是 vite 启动；按任务缓存见阶段 6.8 第 4 步 |

@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { packed, sink, source } from './boards.js'
-import { boardNode, drive, hearing, reacting, runTicks } from './ticks.js'
+import { boardNode, drive, hearing, runTicks } from './ticks.js'
 import { defineParts } from './parts/define.js'
 
 // The registers as parts defined as data: reg reads one (0 until kept), bit too (1), set keeps one.
@@ -99,14 +99,6 @@ test('nested packed outputs follow the inner output dependencies', () => {
   chosen = { ...inner, wires: w('in>s in>say in>got') }
   const changed = boardNode({ id: 'b', circuit: board, parts: { ...PARTS, relay, box } })
   assert.ok(runTicks({ nodes: [changed, script('w', [1])], ticks: 1, line: bus }).error)
-})
-
-test('a world answers a board: what the board gives this tick is what the world shows it the next', () => {
-  // The board doubles what it reads; the world shows it back one more than it was given.
-  const circuit = { nodes: [{ id: 'seen', type: 'input', params: { name: 'seen' } }, { id: 'a', type: 'add' }, { id: 'out', type: 'output', params: { name: 'out' } }], wires: w('seen>a.a seen>a.b a>out') }
-  const world = reacting({ board: 'you', start: 1, reads: (state) => ({ seen: state }), step: (state, { out }) => ({ state: out + 1, shown: { was: state, given: out } }) })
-  const run = runTicks({ nodes: [boardNode({ id: 'you', circuit, parts: PARTS, bind: world.bind }), world.node], ticks: 3, line: () => null })
-  assert.deepEqual(run.steps.map((s) => s.heard.world), [{ was: 1, given: 2 }, { was: 3, given: 6 }, { was: 7, given: 14 }])
 })
 
 test('parts defined as data read and keep registers, and two packed counters count apart', async () => {

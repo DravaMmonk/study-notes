@@ -8,7 +8,7 @@ description: Design, extend or review the Turing-Complete-style learning games i
 ## Scope
 
 Use this skill in the study-notes repository for any work on the learning games under `games/`
-(《视觉完备》《状态之图》《证明完毕》《句法之图》《一切皆文件》 and new ones): designing a curriculum,
+(《视觉完备》《状态之图》《证明完毕》, the COMP90086 note interactions, and new games): designing a curriculum,
 adding or reordering levels, adding parts or machine abilities, or changing the shared kit's editors.
 
 ## Source of truth

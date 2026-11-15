@@ -123,7 +123,7 @@ export const TOOLS = {
     },
   },
   render: {
-    about: 'A level (or one board of it) as text: what the player is given and asked, and its boards as blueprint text; format svg: its boards drawn (../../circuit/svg.js), and its scene where its domain draws one headlessly (draws: whether it does); changeset: as a changeset would leave it. PNG is not drawn.',
+    about: 'A level (or one board of it) as text: what the player is given and asked, and its boards as blueprint text; format svg: its boards drawn (../../circuit/svg.js), changeset: as a changeset would leave it. PNG is not drawn.',
     params: { game: 'string', level: 'string', path: 'string?', format: 'string?', changeset: 'object?' },
     async run({ game, level, path, format = 'text', changeset = null }) {
       if (format !== 'text' && format !== 'svg') return { rendered: false, note: `${format}: only text and svg are drawn headlessly; for a picture of the level as played, build the game (npm run build:games) and open it.` }
@@ -135,9 +135,7 @@ export const TOOLS = {
           const board = boards.find((b) => b.path === showPath(parsePath(path)))
           return board ? { svg: boardSvg(board.text, { title: `${level} ${board.path}` }) } : { note: `${level} has no board at ${path}`, boards: boards.map((b) => b.path) }
         }
-        const domain = await domainOf(content)
-        if (!domain.scene) return { scene: null, draws: false, boards: boards.map((b) => ({ path: b.path, svg: boardSvg(b.text, { title: `${level} ${b.path}` }) })) }
-        return { scene: domain.scene(domain.spec(content), level) ?? null, draws: true, boards: boards.map((b) => ({ path: b.path, svg: boardSvg(b.text, { title: `${level} ${b.path}` }) })) }
+        return { boards: boards.map((b) => ({ path: b.path, svg: boardSvg(b.text, { title: `${level} ${b.path}` }) })) }
       }
       if (path !== undefined) {
         const board = boards.find((b) => b.path === showPath(parsePath(path)))

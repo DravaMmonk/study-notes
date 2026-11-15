@@ -59,7 +59,7 @@ function register(root, id, content) {
   writeFileSync(file, `${text.slice(0, end)}${entry}${text.slice(end)}`)
 }
 
-// A game's folder may hold its design docs before it holds a game (a topic sketched first, games/network): anything
+// A game's folder may hold its design docs before it holds a game: anything
 // else in it is a game there already.
 const isDocs = (name) => name.endsWith('.md')
 

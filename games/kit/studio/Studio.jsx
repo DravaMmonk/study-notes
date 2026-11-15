@@ -232,20 +232,6 @@ export default function Studio() {
     return () => window.clearTimeout(timer)
   }, [game, naming, rev, loaded])
 
-  // The selected level drawn by its domain, where the domain draws one (render's scene), as the changeset leaves it,
-  // once edits settle; a domain that draws no scene is not asked again.
-  const [scene, setScene] = useState(null)
-  const drawless = useRef(new Set())
-  const sceneOf = at?.level && shown?.content.levels.some((l) => l.id === at.level) ? at.level : null
-  useEffect(() => {
-    if (!sceneOf || drawless.current.has(game)) return setScene(null)
-    const timer = window.setTimeout(() => call('render', { game, level: sceneOf, format: 'svg', changeset }).then((r) => {
-      if (r.draws === false) drawless.current.add(game)
-      setScene(r.scene)
-    }).catch(() => setScene(null)), changeset.ops.length ? SETTLE : 0)
-    return () => window.clearTimeout(timer)
-  }, [game, sceneOf, changeset])
-
   const content = shown?.content ?? null
   // A domain that defines its parts as data names them by the game's pieces.json as the changeset leaves it.
   const vocab = useMemo(() => domainVocab && { ...domainVocab, vocabulary: withParts(domainVocab.vocabulary, content?.partDefs) }, [domainVocab, content])
@@ -676,7 +662,7 @@ export default function Studio() {
           <main className="studio-main">
             {tab !== 'page' && (
               <div className="studio-scroll">
-                {tab === 'fields' && <Editor content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} scene={scene} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.level ? null : 'game')} />}
+                {tab === 'fields' && <Editor content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.level ? null : 'game')} />}
                 {tab === 'copy' && (
                   <article className="editor is-wide">
                     <CopyTable content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={playOrder} names={names} places={places} onEdit={edit} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.level ? null : 'game')} />

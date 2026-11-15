@@ -1,9 +1,8 @@
 // A world run tick by tick. At every tick each node says what it puts on the line, the domain's rule combines
 // those values, and each node hears the result. A node keeps values from one tick to the next in its registers.
 //
-// A node is { id, say(tick) → value | undefined (says nothing), hear(tick, line, heard) → what it shows of the tick
-// (heard: what the nodes before it showed of it) }. The
-// world's own nodes are scripts written that way; a player's board becomes one with boardNode. A board runs twice a
+// A node is { id, say(tick) → value | undefined (says nothing), hear(tick, line) → what it shows of the tick }.
+// The world's own nodes are scripts written that way; a player's board becomes one with boardNode. A board runs twice a
 // tick, in two halves, as a real controller does within one bit:
 //
 //   say   only the cards that reach a sink that drives the line (`drive`) run, reading registers but not the line: a
@@ -82,35 +81,9 @@ export function runTicks({ nodes, ticks, line, stop = () => false }) {
       }
     }
     const value = line(nodes.map((n) => said[n.id]), tick)
-    // Each node hears the line, and what the nodes before it showed of this tick: a world placed after a board answers
-    // what the board just gave (reacting, below).
-    const heard = {}
-    for (const n of nodes) heard[n.id] = n.hear(tick, value, heard)
+    const heard = Object.fromEntries(nodes.map((node) => [node.id, node.hear(tick, value)]))
     steps.push({ tick, said, line: value, heard })
     if (stop(steps)) break
   }
   return { steps }
-}
-
-/**
- * A world that answers a board (a market answering a price, a patient a dose): every tick the board reads what the
- * world shows it, `reads(state, tick)`, and the world then takes what the board gave and moves on,
- * `step(state, outputs, tick)` → { state, shown } (shown: what the tick looked like, for the results). The board never
- * reads the answer to what it gives this very tick, only next tick's. Returns { bind, node }: `bind` for the board's
- * node (boardNode), `node` the world's, to stand after the board `board` in runTicks; its hear() gives `shown`.
- */
-export function reacting({ id = 'world', board, start, reads, step }) {
-  let state = start
-  return {
-    bind: (tick) => reads(state, tick),
-    node: {
-      id,
-      say: () => undefined,
-      hear(tick, _line, heard) {
-        const next = step(state, heard[board]?.outputs ?? {}, tick)
-        state = next.state
-        return next.shown
-      },
-    },
-  }
 }

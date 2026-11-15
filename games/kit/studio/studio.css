@@ -176,7 +176,6 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 .editor-section > .field-obj > .field:only-child > .field-head > .field-key, .li-body > .field > .field-body > .field-obj > .field:only-child > .field-head > .field-key { display: none; }
 .editor-section > .field-obj > .field.field:only-child > .field-head, .li-body > .field > .field-body > .field-obj > .field.field:only-child > .field-head { min-height: 0; }
 .editor-open { padding: 8px; border-radius: 6px; background: var(--code-bg); color: var(--code-ink); font: 11px/1.5 var(--mono); }
-.editor-scene { margin: 4px 0 6px; max-height: 200px; }
 .editor-course { margin-top: 10px; }
 .editor-course > summary { cursor: pointer; color: var(--muted); font: 600 var(--fs-mini)/1.3 var(--mono); }
 .editor-course > .field { margin-top: 6px; }

@@ -1,4 +1,3 @@
-import { SCENES } from '../views/plots/scenes.js'
 import { caught } from '../engine/caught.js'
 import Checks, { checksSay, useChecks } from './Checks.jsx'
 import { VIEWS, valueText } from '../engine/views.js'
@@ -467,21 +466,13 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
  *                wrote as one of its tests, for a task that gives works: engine/caught.js) and cells (what such
  *                a row is made of, where it is not a number a card: Checks.jsx)
  *   course(game) → the course read the screen plays (circuit-game.js: game.circuit)
- *   says, portLabels?, words?, judged?, canvas?, sample?, table?, told?, final?, score?, readouts?   as CircuitScreen
+ *   says, portLabels?, words?, judged?, canvas?, sample?, table?, figure?, told?, final?, score?, readouts?   as CircuitScreen
  *                takes them
- *   scene?({ task, test, run, at }) → [{ part, ...props }]   the test's scene, each a kit part by name (SCENES:
- *                'chart' …) with the props it draws from
- *   parts?       { name: Component }, scene parts of the domain's own, for what the kit has no part for yet
  */
-export function circuitScreen({ play, scene, parts = {}, course, ...declared }) {
+export function circuitScreen({ play, course, ...declared }) {
   const played = { run: play.runLevel, entries: play.entries, show: play.show ?? valueText, once: play.once, check: play.check, cells: play.cells }
-  const drawn = { ...SCENES, ...parts }
-  const figure = scene && ((told) => (scene(told) ?? []).map(({ part, ...props }, k) => {
-    const Part = drawn[part]
-    return <Part key={k} {...props} />
-  }))
   return function Screen(screen) {
-    return <CircuitScreen screen={screen} course={course(screen.game)} defined={screen.game.defined} {...played} {...declared} figure={figure} />
+    return <CircuitScreen screen={screen} course={course(screen.game)} defined={screen.game.defined} {...played} {...declared} />
   }
 }
 

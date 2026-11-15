@@ -26,13 +26,13 @@ const ID = /^[A-Za-z0-9][A-Za-z0-9_-]*$/
 const SECTION = {
   read: ['文案', 'Copy'], puzzle: ['谜题', 'Puzzle'], tests: ['测试', 'Tests'], answers: ['答案', 'Answers'], course: ['课程', 'Course'], tasks: ['任务', 'Tasks'],
 }
-export default function Editor({ content, base, vocab, at, picked, field, scene, places, names, levelOptions, playOrder, onEdit, onOps, onSelect, onPick, onPlay, onMove, onJump }) {
+export default function Editor({ content, base, vocab, at, picked, field, places, names, levelOptions, playOrder, onEdit, onOps, onSelect, onPick, onPlay, onMove, onJump }) {
   const { vocabulary } = vocab
   const order = useMemo(() => content.levels.map((l) => l.id), [content])
   const common = { vocabulary, order, names, levelOptions, onEdit, onSelect, onPick, field: field?.path ? showPath(field.path) : null }
   if (at?.part !== undefined || at?.preset !== undefined) return <PartEditor {...common} content={content} base={base} at={at} places={places} onPlay={onPlay} />
   if (picked.length > 1) return <Bulk content={content} vocabulary={vocabulary} ids={picked} ctx={ctxOf(common)} onAdd={onOps} onMove={onMove} onSelect={onSelect} />
-  if (at?.level && content.levels.some((l) => l.id === at.level)) return <LevelEditor key={at.level} {...common} {...{ content, base, id: at.level, scene, places, onPlay, onMove }} />
+  if (at?.level && content.levels.some((l) => l.id === at.level)) return <LevelEditor key={at.level} {...common} {...{ content, base, id: at.level, places, onPlay, onMove }} />
   if (at?.era !== undefined && content.eras?.[at.era]) return <EraEditor {...common} content={content} e={at.era} places={places} playOrder={playOrder} onJump={onJump} />
   return <GameEditor {...common} content={content} base={base} />
 }
@@ -52,7 +52,7 @@ const beforeIn = (value) => (path) => {
   return [v !== undefined, v]
 }
 
-function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id, scene, places, field, onEdit, onSelect, onPick, onPlay, onMove }) {
+function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id, places, field, onEdit, onSelect, onPick, onPlay, onMove }) {
   const [folded, setFolded] = usePref('folded-sections', [])
   const { id: _, ...value } = content.levels.find((l) => l.id === id)
   const was = base?.levels.find((l) => l.id === id)
@@ -120,7 +120,6 @@ function LevelEditor({ content, base, vocabulary, order, names, levelOptions, id
         </span>
       </header>
       {rest.length > 0 && <ul className="field-findings is-level">{rest.map((f) => <li key={f}>{f}</li>)}</ul>}
-      {scene && <div className="board-svg editor-scene" dangerouslySetInnerHTML={{ __html: scene }} />}
       {sections ? sections.map((s) => {
         const shut = folded.includes(s.section)
         return (
