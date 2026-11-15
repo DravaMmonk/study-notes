@@ -10,8 +10,8 @@ import { domainOf, readContent } from './content-node.js'
 import { knownGames } from './cli-args.js'
 
 /**
- * The graph of a course (../course.js defineCourse): { eras: [{ id, title }], parts: [{ key, built, at, era, group,
- * optional, uses }], made: [{ from, to }], levels: [{ id, era, optional, group, uses, brings }] }. A part is every
+ * The graph of a course (../course.js defineCourse): { eras: [{ id, title }], parts: [{ key, built, at, era,
+ * optional, uses }], made: [{ from, to }], levels: [{ id, era, optional, uses, brings }] }. A part is every
  * primitive brought in and every built part, but none that stays where it is brought (local) or is a level's own given
  * (concept null); `at` the levels bringing it in or building it, in play order; `made` a built part's pieces.
  */
@@ -26,12 +26,12 @@ export function dependencies(course) {
     const built = Boolean(course.builder(key))
     const at = built ? placed.filter((l) => course.builds(l).includes(key)).map((l) => l.id) : intro.get(key) ?? []
     const first = place(at[0])
-    return { key, built, at, era: first.era ?? null, group: first.group?.code ?? null, optional: first.optional ?? false, uses: placed.filter((l) => used(l).includes(key)).map((l) => l.id) }
+    return { key, built, at, era: first.era ?? null, optional: first.optional ?? false, uses: placed.filter((l) => used(l).includes(key)).map((l) => l.id) }
   })
   const made = parts.filter((p) => p.built).flatMap((p) => [...new Set(p.at.flatMap((id) => used(course.levels[course.index.get(id)])))].filter((q) => q !== p.key).map((from) => ({ from, to: p.key })))
   const levels = placed.map((l) => {
     const at = place(l.id)
-    return { id: l.id, era: at.era ?? null, optional: at.optional ?? false, group: at.group?.code ?? null, uses: used(l), brings: parts.filter((p) => p.at.includes(l.id)).map((p) => p.key) }
+    return { id: l.id, era: at.era ?? null, optional: at.optional ?? false, uses: used(l), brings: parts.filter((p) => p.at.includes(l.id)).map((p) => p.key) }
   })
   const eras = (course.eras ?? [{ id: null }]).map((e) => ({ id: e.id ?? null, title: textOf(e.title ?? e.chapter?.title) }))
   return { eras, parts, made, levels }
@@ -46,8 +46,8 @@ function ids(graph) {
   graph.levels.forEach((l, k) => out.set(`level:${l.id}`, `l${k}_${safe(l.id)}`))
   return out
 }
-const partLabel = (p) => `${p.key} · ${p.at.join(' ') || '—'}${p.group ? ` (${p.group})` : ''} · used ${p.uses.length}`
-const levelLabel = (l) => `${l.id}${l.optional ? ' · optional' : ''}${l.group ? ` (${l.group})` : ''}`
+const partLabel = (p) => `${p.key} · ${p.at.join(' ') || '—'} · used ${p.uses.length}`
+const levelLabel = (l) => `${l.id}${l.optional ? ' · optional' : ''}`
 
 /** The graph as a Mermaid flowchart, an era a subgraph; a built part drawn as a subroutine, one built on an optional level dashed. */
 export function mermaid(graph, { levels = false } = {}) {

@@ -51,12 +51,12 @@ test('bulk edits are one operation a level, and the levels an edit does not fit 
     skipped: [{ level: 'c', why: 'brings in no parts' }],
   })
   // Moved together: the first to the place, each next right after the one before, on the main path when the place is.
-  assert.deepEqual(bulkMove(['x', 'y', 'z'], { era: 1, on: 'path', at: 0 }).map((op) => op.to), [{ era: 1, on: 'path', at: 0 }, { after: 'x', on: 'path' }, { after: 'y', on: 'path' }])
+  assert.deepEqual(bulkMove(['x', 'y', 'z'], { era: 1, at: 0 }).map((op) => op.to), [{ era: 1, at: 0 }, { after: 'x' }, { after: 'y' }])
   assert.deepEqual(bulkMove(['x', 'y'], { branch: 'p', era: 1, at: 0 }).map((op) => op.to), [{ branch: 'p', era: 1, at: 0 }, { after: 'x' }])
   // Each move lands where it says: the levels end up together, in order.
-  let eras = [{ id: 1, path: ['a', 'b', 'x', 'c', 'y'] }]
-  for (const op of bulkMove(['y', 'x'], { after: 'a', on: 'path' })) eras = putIn(takeOut(eras, op.level).eras, op.level, op.to)
-  assert.deepEqual(eras[0].path, ['a', 'y', 'x', 'b', 'c'])
+  let eras = [{ id: 1, levels: ['a', 'b', 'x', 'c', 'y'] }]
+  for (const op of bulkMove(['y', 'x'], { after: 'a' })) eras = putIn(takeOut(eras, op.level).eras, op.level, op.to)
+  assert.deepEqual(eras[0].levels, ['a', 'y', 'x', 'b', 'c'])
 })
 
 // Every domain's starter game, as content.js assembles it; and one opened for operations in a temp games folder.
@@ -86,7 +86,7 @@ test('on every starter: a bulk edit of its first era’s levels runs as a change
     const { ops, skipped } = bulkSet(vocabulary, levels, ['title'], { en: '同一个标题' })
     assert.deepEqual([ops.length, skipped], [ids.length, []], d)
     // The era's levels backwards, from the top of its main path: they end up together, in that order.
-    const moved = bulkMove([...ids].reverse(), { era: content.eras[0].id, on: 'path', at: 0 })
+    const moved = bulkMove([...ids].reverse(), { era: content.eras[0].id, at: 0 })
     const r = await runChangeset(ws, { ops: [...ops, ...moved] }, { write: false, check: false })
     assert.equal(r.failed, null, `${d}: ${r.problems.join('\n')}`)
     assert.deepEqual(eraLevels(r.content.eras[0]), [...ids].reverse(), d)
@@ -95,7 +95,7 @@ test('on every starter: a bulk edit of its first era’s levels runs as a change
 })
 
 const CONTENT = {
-  id: 'toy', title: { en: '玩具' }, eras: [{ id: 1, title: { en: '第一章' }, path: ['a', 'b'] }],
+  id: 'toy', title: { en: '玩具' }, eras: [{ id: 1, title: { en: '第一章' }, levels: ['a', 'b'] }],
   levels: LEVELS, glossary: { groups: [], entries: [{ id: 'adder', title: { en: '加法器' }, body: [] }] },
 }
 

@@ -77,12 +77,12 @@ export function lintPedagogy(content, spec) {
   const out = []
   const say = (rule, at, says, report = false) => out.push({ rule, at, says, ...(report ? { report: true } : {}) })
 
-  // Optional topics do not make the required route parallel. This reports shape, never independence.
+  // A chapter whose required levels each wait for the prior required level has no choice of order.
   for (const era of content.eras ?? []) {
-    const main = era.path
-    const parallel = main.some((item) => typeof item !== 'string' && item.parallel.length > 1)
-    const count = main.reduce((n, item) => n + (typeof item === 'string' ? 1 : item.parallel.reduce((sum, b) => sum + b.length, 0)), 0)
-    if (count > 1 && !parallel) say('pd-serial-chapter', `era ${era.id}`, 'the main path is wholly serial; justify its concept/part dependencies or identify independent required routes', true)
+    const optional = new Set(era.optional)
+    const main = era.levels.filter((id) => !optional.has(id))
+    const ordered = main.length > 1 && main.slice(1).every((id, i) => spec.course.before(main[i], id))
+    if (ordered) say('pd-serial-chapter', `era ${era.id}`, 'the main path is wholly serial; justify its concept/part dependencies or identify independent required routes', true)
   }
 
   // The same reference board in two levels.

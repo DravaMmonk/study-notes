@@ -1,112 +1,68 @@
-// A destination is before or after a level in its lane (on: 'path' targets the whole fork),
-// or a position on a chapter's path. An explicit 'branch' destination creates a new side route.
+// Placement is display order. Moving a level preserves its wires and optional status.
 const same = (a, b) => String(a) === String(b)
+const without = (levels, id) => levels.filter((level) => level !== id)
 
 export function locate(eras, id) {
-  for (const [era, value] of eras.entries()) {
-    for (const [item, entry] of value.path.entries()) {
-      if (entry === id) return { era, kind: 'path', item, path: ['path', item] }
-      if (typeof entry === 'string') continue
-      for (const [lane, levels] of entry.parallel.entries()) {
-        const k = levels.indexOf(id)
-        if (k >= 0) return { era, kind: 'parallel', item, lane, k, path: ['path', item, 'parallel', lane, k] }
-      }
-    }
-    for (const [branch, route] of (value.branches ?? []).entries()) {
-      const k = route.levels.indexOf(id)
-      if (k >= 0) return { era, kind: 'branch', branch, k, path: ['branches', branch, 'levels', k] }
-    }
+  for (const [era, chapter] of eras.entries()) {
+    const index = chapter.levels.indexOf(id)
+    if (index >= 0) return { era, index }
   }
   return null
 }
 
 export function describe(eras, at) {
-  if (!at) return 'nowhere'
-  const era = eras[at.era]
-  if (at.kind === 'path') return `era ${era.id}, path #${at.item + 1}`
-  if (at.kind === 'parallel') return `era ${era.id}, fork #${at.item + 1}, lane ${at.lane + 1}, level ${at.k + 1}`
-  return `era ${era.id}, side route ${at.branch + 1}, level ${at.k + 1}`
+  return at ? `era ${eras[at.era].id}, level #${at.index + 1}` : 'nowhere'
 }
 
-const without = (levels, id) => levels.filter((level) => level !== id)
+const setLinks = (chapter, links) => {
+  if (links.length) chapter.links = links
+  else delete chapter.links
+}
 
-/** Remove a placement and its chapter-local labels. Keep the labels for a move. */
 export function takeOut(eras, id) {
   const was = locate(eras, id)
-  if (!was) return { eras, was: null, pruned: [] }
-  const out = structuredClone(eras)
-  const era = out[was.era]
-  const optional = era.optional?.includes(id) ?? false
-  const group = era.groups?.findIndex(({ levels }) => levels.includes(id)) ?? -1
-  if (optional) {
-    era.optional = without(era.optional, id)
-    if (!era.optional.length) delete era.optional
+  if (!was) return { eras, was: null }
+  const next = structuredClone(eras)
+  const chapter = next[was.era]
+  chapter.levels.splice(was.index, 1)
+  if (chapter.optional) {
+    chapter.optional = without(chapter.optional, id)
+    if (!chapter.optional.length) delete chapter.optional
   }
-  if (group >= 0) era.groups[group].levels = without(era.groups[group].levels, id)
-
-  const pruned = []
-  if (was.kind === 'path') era.path.splice(was.item, 1)
-  else if (was.kind === 'parallel') {
-    const lanes = era.path[was.item].parallel
-    lanes[was.lane].splice(was.k, 1)
-    if (!lanes[was.lane].length) {
-      lanes.splice(was.lane, 1)
-      pruned.push('parallel lane')
-      if (lanes.length === 1) era.path.splice(was.item, 1, ...lanes[0])
-    }
-  } else {
-    const route = era.branches[was.branch]
-    route.levels.splice(was.k, 1)
-    if (!route.levels.length) {
-      era.branches.splice(was.branch, 1)
-      pruned.push('side route')
-      if (!era.branches.length) delete era.branches
-    }
-  }
-  return { eras: out, was, pruned, optional, group }
+  for (const era of next) if (era.links) setLinks(era, era.links.filter(({ from, to }) => from !== id && to !== id))
+  return { eras: next, was }
 }
 
-const insert = (list, at, value) => {
-  if (at !== undefined && (at < 0 || at > list.length)) throw new Error(`index ${at} is outside 0–${list.length}`)
-  list.splice(at ?? list.length, 0, value)
-}
-
+/** Put an unplaced level before/after a neighbour, or at a position in a chapter. */
 export function putIn(eras, id, to) {
   if (locate(eras, id)) throw new Error(`${id} is placed already`)
-  const out = structuredClone(eras)
-  const next = to.before ?? to.after
-  if (next !== undefined) {
-    const at = locate(out, next)
-    if (!at) throw new Error(`${next} is in no era`)
-    const era = out[at.era]
-    const shift = to.after !== undefined ? 1 : 0
-    if (at.kind === 'branch') {
-      if (to.on === 'path') throw new Error(`${next} is not on a main path`)
-      era.branches[at.branch].levels.splice(at.k + shift, 0, id)
-    } else if (at.kind === 'path' || to.on === 'path') era.path.splice(at.item + shift, 0, id)
-    else era.path[at.item].parallel[at.lane].splice(at.k + shift, 0, id)
-    return out
-  }
-
-  const era = out.find((chapter) => same(chapter.id, to.era))
+  const next = structuredClone(eras)
+  const neighbour = to.before ?? to.after
+  const at = neighbour === undefined ? null : locate(next, neighbour)
+  if (neighbour !== undefined && !at) throw new Error(`${neighbour} is in no era`)
+  const era = at ? next[at.era] : next.find((chapter) => same(chapter.id, to.era))
   if (!era) throw new Error(`no era ${to.era}`)
-  if (to.on === 'branch') {
-    era.branches ??= []
-    insert(era.branches, to.at, { levels: [id], ...(to.hang && { after: to.hang }) })
-  } else insert(era.path, to.at, id)
-  return out
+  const index = at ? at.index + Number(to.after !== undefined) : to.at ?? era.levels.length
+  if (index < 0 || index > era.levels.length) throw new Error(`index ${index} is outside 0–${era.levels.length}`)
+  era.levels.splice(index, 0, id)
+  return next
 }
 
 export function moveLevel(eras, id, to) {
   const removed = takeOut(eras, id)
   if (!removed.was) throw new Error(`${id} is in no era`)
   const next = putIn(removed.eras, id, to)
-  const destination = locate(next, id)
-  const era = next[destination.era]
-  if (removed.optional) (era.optional ??= []).push(id)
-  if (removed.group >= 0 && destination.era === removed.was.era) {
-    const original = eras[destination.era].groups[removed.group]
-    era.groups[removed.group].levels = original.levels
+  const { era: from } = removed.was
+  const { era: into } = locate(next, id)
+  const source = eras[from]
+  if (from === into) {
+    if (source.optional) next[into].optional = source.optional
+  } else if (source.optional?.includes(id)) (next[into].optional ??= []).push(id)
+  for (const [i, chapter] of eras.entries()) {
+    const links = chapter.links ?? []
+    if (from === into || (i !== from && i !== into)) setLinks(next[i], links)
+    else if (i === from) setLinks(next[i], links.filter((link) => link.to !== id))
+    else setLinks(next[i], [...links, ...(source.links ?? []).filter((link) => link.to === id)])
   }
-  return { ...removed, eras: next }
+  return { eras: next, was: removed.was }
 }

@@ -1,7 +1,7 @@
 {
   "package": "comp90086",
   "domain": "image",
-  "vocabulary": 21,
+  "vocabulary": 22,
   "title": { "en": "Computer Vision Notes", "zh": "计算机视觉笔记" },
   "kicker": { "en": "COMP90086 notes edition", "zh": "COMP90086 笔记版" },
   "lede": {
@@ -25,7 +25,7 @@
         "label": { "en": "Lecture 2", "zh": "第 2 讲" },
         "question": { "en": "Where do the numbers in an image come from?", "zh": "一张图里的数从哪里来？" }
       },
-      "path": ["projection"]
+      "levels": ["projection"]
     },
     {
       "id": 2,
@@ -34,7 +34,8 @@
         "label": { "en": "Lectures 3–4", "zh": "第 3–4 讲" },
         "question": { "en": "How do a kernel and a wave change an image?", "zh": "一个核、一道波怎样改变一张图？" }
       },
-      "path": ["separable", "sinusoid"]
+      "levels": ["separable", "sinusoid"],
+      "links": [{ "from": "projection", "to": "separable" }, { "from": "separable", "to": "sinusoid" }]
     }
   ],
   "box": { "sample": "separable", "inLevel": {} }

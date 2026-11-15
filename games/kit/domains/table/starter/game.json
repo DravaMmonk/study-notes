@@ -1,6 +1,6 @@
 {
   "domain": "table",
-  "vocabulary": 4,
+  "vocabulary": 5,
   "title": {
     "en": "__title__",
     "zh": "__title__"
@@ -33,11 +33,25 @@
           "zh": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。"
         }
       },
-      "path": [
+      "levels": [
         "copy",
         "merge",
         "stamp",
         "rocks"
+      ],
+      "links": [
+        {
+          "from": "copy",
+          "to": "merge"
+        },
+        {
+          "from": "merge",
+          "to": "stamp"
+        },
+        {
+          "from": "stamp",
+          "to": "rocks"
+        }
       ]
     }
   ],

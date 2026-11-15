@@ -22,8 +22,8 @@ import { isLanguageCode, LANGUAGE_CODE } from '../i18n.js'
 const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal') })
 const NEW_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('新的关卡 id（也是文件名）') })
 const PLACE = S.obj({
-  before: S.opt(S.level()), after: S.opt(S.level()), on: S.opt(S.oneOf(['path', 'branch'])),
-  era: S.opt(S.either(S.str(), S.int())), hang: S.opt(S.list(S.level())), at: S.opt(S.int({ min: 0 })),
+  before: S.opt(S.level()), after: S.opt(S.level()),
+  era: S.opt(S.either(S.str(), S.int())), at: S.opt(S.int({ min: 0 })),
 }, { about: t('课程里的一个位置（place.js）') })
 
 const fail = (message) => { throw new Error(message) }
@@ -158,14 +158,14 @@ export const OPERATIONS = {
     params: S.obj({ level: S.level() }),
     apply(ws, { level }, { vocabulary }) {
       const data = levelOf(ws, level)
-      const others = levelRefs(ws, vocabulary, level).filter((r) => r.file !== `levels/${level}.json` && !(r.file === 'game.json' && isOwnPlace(ws.game.eras, r.path, level)))
+      const others = levelRefs(ws, vocabulary, level).filter((r) => r.file !== `levels/${level}.json` && !(r.file === 'game.json' && isOwnPlace(r.path)))
       if (others.length) fail(`${level} is still named at ${others.map((r) => `${r.file} ${showPath(r.path)}`).join(', ')}`)
       const eras = ws.game.eras
-      const { eras: left, was, pruned } = takeOut(eras, level)
+      const { eras: left, was } = takeOut(eras, level)
       ws.game = { ...ws.game, eras: left }
       ws.levels.delete(level)
       return {
-        says: `${level}: removed from ${describe(eras, was)}${pruned.length ? ` (with the ${pruned.join(', ')} it emptied)` : ''}`,
+        says: `${level}: removed from ${describe(eras, was)}`,
         inverse: [{ op: 'level.add', level, data }, { op: 'game.set', path: ['eras'], value: eras }],
       }
     },
@@ -187,14 +187,14 @@ export const OPERATIONS = {
     },
   },
   'level.move': {
-    about: t('把一关挪到课程里的另一个位置（同一章里、跨章、进出分支和专题）'),
+    about: t('调整关卡在同章或不同章节中的编号位置', 'Move a level in the course order within or between chapters'),
     params: S.obj({ level: S.level(), to: PLACE }),
     apply(ws, { level, to }) {
       const eras = ws.game.eras
-      const { eras: moved, was, pruned } = moveLevel(eras, level, to)
+      const { eras: moved, was } = moveLevel(eras, level, to)
       ws.game = { ...ws.game, eras: moved }
       return {
-        says: `${level}: ${describe(eras, was)} → ${describe(ws.game.eras, locate(ws.game.eras, level))}${pruned.length ? ` (the ${pruned.join(', ')} it emptied went with it)` : ''}`,
+        says: `${level}: ${describe(eras, was)} → ${describe(ws.game.eras, locate(ws.game.eras, level))}`,
         inverse: [{ op: 'game.set', path: ['eras'], value: eras }],
       }
     },
@@ -502,11 +502,5 @@ export const OPERATIONS = {
   },
 }
 
-/** Whether the course reference is a placement or metadata that follows the level. */
-function isOwnPlace(eras, path, level) {
-  if (path[0] !== 'eras') return false
-  const at = locate(eras, level)
-  if (!at || at.era !== path[1]) return false
-  const tail = path.slice(2)
-  return tail[0] === 'optional' || tail[0] === 'groups' || tail.join('.') === at.path.join('.')
-}
+// Chapter placement, optional flags and incident wires are removed with the level.
+const isOwnPlace = (path) => path[0] === 'eras' && ['levels', 'optional', 'links'].includes(path[2])

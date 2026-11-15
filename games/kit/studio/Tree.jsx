@@ -1,16 +1,27 @@
 // The studio's three-level course tree. Course placement still supplies drop targets for moving levels and tasks.
 import { Fragment, useMemo, useState } from 'react'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Group, ListOrdered } from 'lucide-react'
 import { eraLevels } from '../course.js'
 import { L, tr } from '../shell/i18n.js'
-import { courseTree, stays } from './tree.js'
+import { courseGroups, courseTree, stays } from './tree.js'
 import { usePref } from './prefs.js'
 
-export default function Tree({ game, content, at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, onTask, onTaskMove }) {
+export default function Tree({ game, content, entries, at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, onTask, onTaskMove }) {
   const [taskDrag, setTaskDrag] = useState(null) // the id of the task being dragged
   const [taskOver, setTaskOver] = useState(null)
   const tree = useMemo(() => courseTree(content.eras ?? []), [content])
-  const rows = useMemo(() => tree.eras.flatMap(({ era }) => eraLevels(era)), [tree])
+  const [grouped, setGrouped] = usePref('course-by-group', false)
+  const groupView = grouped && !moving
+  const order = useMemo(() => tree.eras.flatMap(({ era }) => eraLevels(era)), [tree])
+  const groups = useMemo(() => courseGroups(order, entries), [order, entries])
+  const [groupFolds, setGroupFolds] = usePref('folded-course-groups', {})
+  const foldedGroups = new Set(groupFolds[game] ?? [])
+  const toggleGroup = (id) => {
+    if (foldedGroups.has(id)) foldedGroups.delete(id)
+    else foldedGroups.add(id)
+    setGroupFolds((old) => ({ ...old, [game]: [...foldedGroups] }))
+  }
+  const rows = groupView ? groups.flatMap(({ id, levels }) => foldedGroups.has(id ?? '') ? [] : levels) : order
   const optional = useMemo(() => new Set(tree.eras.flatMap(({ era }) => era.optional ?? [])), [tree])
   const byId = useMemo(() => new Map(content.levels.map((l) => [l.id, l])), [content])
   const labelOf = useMemo(() => new Map((labels ?? []).map((l) => [l.id, l.label])), [labels])
@@ -150,7 +161,24 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
 
   return (
     <nav className="tree" aria-label={tr('课程')}>
-      {tree.eras.map(({ era: value, at: e, items, slots, branches }) => {
+      <button type="button" className="kit-btn is-label tree-sort" aria-pressed={grouped}
+        title={grouped ? tr('切换到课程顺序', 'Switch to course order') : tr('切换到按组排列', 'Switch to groups')}
+        onClick={() => setGrouped(!grouped)}>
+        {grouped ? <Group size={13} aria-hidden="true" /> : <ListOrdered size={13} aria-hidden="true" />}
+        {grouped ? tr('按分组', 'By group') : tr('课程顺序', 'Course order')}
+      </button>
+      {groupView ? groups.map(({ id = '', title, code, levels }) => {
+        const shut = foldedGroups.has(id)
+        return (
+          <section className={`tree-group tree-era ${shut ? 'is-folded' : ''}`} key={id}>
+            <button type="button" className="tree-group-head" aria-expanded={!shut} onClick={() => toggleGroup(id)}>
+              <span className="tree-fold"><ChevronRight size={12} aria-hidden="true" /></span>
+              {code && <code>{code}</code>}{L(title) ?? tr('未分组', 'Ungrouped')}
+            </button>
+            {!shut && <div className="tree-levels">{levels.map(row)}</div>}
+          </section>
+        )
+      }) : tree.eras.map(({ era: value, at: e, slots }) => {
         const shut = folded.has(String(value.id)) && !moving
         const title = L(value.title ?? value.chapter?.title) ?? String(value.id)
         return (
@@ -163,19 +191,7 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
             </div>
             {!shut && (
               <div className="tree-levels">
-                {slot(slots[0], title)}
-                {items.map((item, k) => (
-                  <Fragment key={item.level ?? item.parallel[0]?.levels[0]}>
-                    {item.level ? row(item.level) : item.parallel.map(({ levels, slots: laneSlots }, j) => (
-                      <Fragment key={levels[0]}>{list(levels, laneSlots, tr(`并行路线 ${j + 1}`, `Parallel lane ${j + 1}`))}</Fragment>
-                    ))}
-                    {slot(slots[k + 1], title)}
-                  </Fragment>
-                ))}
-                {branches.map(({ levels, slots: branchSlots }, i) => (
-                  <Fragment key={levels[0]}>{list(levels, branchSlots, tr(`支线 ${i + 1}`, `Side route ${i + 1}`))}</Fragment>
-                ))}
-                {slot({ era: value.id, on: 'branch' }, tr('新支线', 'New side route'))}
+                {list(value.levels, slots, title)}
               </div>
             )}
           </section>

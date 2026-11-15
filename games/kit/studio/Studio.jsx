@@ -49,13 +49,14 @@ import Review from './Review.jsx'
 import GameFrame from './GameFrame.jsx'
 import Flow, { levelLabel } from './Flow.jsx'
 import Arrangement from './Arrangement.jsx'
+import CourseGroups, { useCourseGroups } from './CourseGroups.jsx'
 import Inspector from './Inspector.jsx'
 import { textField } from './copy.js'
 import Palette from './Palette.jsx'
 import Shortcuts, { MOD } from './Shortcuts.jsx'
 
 const QUERY = new URLSearchParams(window.location.search)
-const TABS = [['page', '画面', 'Page'], ['arrange', '编排', 'Arrangement'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
+const TABS = [['page', '画面', 'Page'], ['arrange', '编排', 'Arrangement'], ['groups', '分组', 'Groups'], ['fields', '字段', 'Fields'], ['copy', '文案', 'Copy'], ['compare', '比较', 'Compare'], ['review', '变更', 'Changes']]
 const QUICK = 120 // ms after an edit before its content is previewed
 const SETTLE = 700 // ms after the last edit before the whole check starts
 
@@ -79,6 +80,7 @@ const paletteKey = (event) => (event.ctrlKey || event.metaKey) && event.key.toLo
 
 export default function Studio() {
   const [game, setGame] = useState(() => GAMES.find(({ id }) => id === QUERY.get('game'))?.id ?? GAMES[0].id)
+  const groupModel = useCourseGroups(game)
   const [domainVocab, setVocab] = useState(null) // the domain's vocabulary; `vocab` below adds the game's parts
   const [ops, setOps] = useState([])
   const [redo, setRedo] = useState([]) // operations taken back, the last first to come back
@@ -248,12 +250,20 @@ export default function Studio() {
 
   // The pending changeset: an edit (standing for the last when it edits the same thing), several operations at once,
   // the last taken back and put again.
+  const groupOptions = useMemo(() => {
+    const placed = new Set((base?.eras ?? []).flatMap(eraLevels))
+    return (levelOptions ?? []).filter(({ value }) => placed.has(value))
+  }, [base, levelOptions])
+
+  const [saving, setSaving] = useState(false)
+  const savingRef = useRef(false)
   const opsNow = useRef(ops)
   opsNow.current = ops
   const redoNow = useRef(redo)
   redoNow.current = redo
-  const edit = useCallback((op) => { setOps((list) => pushOp(list, op)); setRedo([]) }, [])
+  const edit = useCallback((op) => { if (!savingRef.current) { setOps((list) => pushOp(list, op)); setRedo([]) } }, [])
   const addOps = useCallback((list, reason = null) => {
+    if (savingRef.current) return
     setOps((now) => [...now, ...list])
     setRedo([])
     if (reason) setWhy((w) => w || reason)
@@ -465,13 +475,23 @@ export default function Studio() {
     return pickField([...path, list.length], true)
   }
   const apply = async () => {
-    const r = await call('modify', { game, changeset: { ...changeset, by: 'studio' }, base: head })
-    setSaid(r.ok ? { ok: true, text: r.says.join('; ') } : { ok: false, text: r.problems.join('\n') })
-    if (r.ok) {
-      setOps([])
-      setRedo([])
-      setWhy('')
-      setRev((n) => n + 1)
+    if (savingRef.current) return
+    savingRef.current = true
+    setSaving(true)
+    try {
+      const r = await call('modify', { game, changeset: { ...changeset, by: 'studio' }, base: head })
+      setSaid(r.ok ? { ok: true, text: r.says.join('; ') } : { ok: false, text: r.problems.join('\n') })
+      if (r.ok) {
+        setOps([])
+        setRedo([])
+        setWhy('')
+        setRev((n) => n + 1)
+      }
+    } catch (error) {
+      setSaid({ ok: false, text: error.message })
+    } finally {
+      savingRef.current = false
+      setSaving(false)
     }
   }
   const undo = async (seq) => {
@@ -625,7 +645,7 @@ export default function Studio() {
     <div className={`studio ${moving ? 'is-moving' : ''} ${resize ? 'is-resizing' : ''}`}>
       <header className="kit-bar studio-bar">
         <span className="kit-brand"><i className="kit-chip" aria-hidden="true" /></span>
-        <select className="studio-game" value={game} onChange={(e) => { setGame(e.target.value); select(null); setPlay(null) }} aria-label={tr('游戏', 'Game')}>
+        <select className="studio-game" value={game} disabled={saving} onChange={(e) => { setGame(e.target.value); select(null); setPlay(null) }} aria-label={tr('游戏', 'Game')}>
           {GAMES.map((g) => <option key={g.id} value={g.id}>{tr(g.title, g.en)}</option>)}
         </select>
         <nav className="studio-tabs" role="tablist">
@@ -655,17 +675,19 @@ export default function Studio() {
               ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={select} onEdit={edit} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file, { stayOnTab: true })} />
-              : <Tree game={game} content={content} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask} />}
+              : <Tree game={game} content={content} entries={groupModel.groups} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask} />}
           </aside>
           <PanelResizer side="tree" size={layout.tree} open={layout.treeOpen} {...resizer} />
           <main className="studio-main">
             {tab !== 'page' && (
               <div className="studio-scroll">
                 {tab === 'arrange' && (
-                  <Arrangement key={game} content={content} at={at} options={levelOptions} pending={shown.ops !== ops}
-                    onSelect={select} onConfigure={(era, path) => { select({ era }); pickField(path) }}
-                    onEdit={edit} onMove={(id, to) => move([id], to)} />
+                  <Arrangement key={game} content={content} groups={groupModel.groups} at={at} options={levelOptions} pending={saving || shown.ops !== ops}
+                    save={{ dirty: ops.length > 0, problems: result.problems, ready: result.ok && ops.length > 0 && !saving, saving, said: ops.length && said?.ok ? null : said, apply }}
+                    onSelect={select}
+                    onEdit={edit} onMove={(id) => { setSide('tree'); setLayout((value) => ({ ...value, treeOpen: true })); setMoving([id]) }} />
                 )}
+                {tab === 'groups' && <CourseGroups key={game} model={groupModel} options={groupOptions} />}
                 {tab === 'fields' && <Editor content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onCopy={(era) => { setCopyScope(era); setTab('copy') }} />}
                 {tab === 'copy' && (
                   <article className="editor is-wide">

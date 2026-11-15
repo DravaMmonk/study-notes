@@ -1,7 +1,7 @@
 {
   "package": "qed",
   "domain": "logic",
-  "vocabulary": 9,
+  "vocabulary": 10,
   "title": { "en": "Q.E.D.", "zh": "证明完毕" },
   "kicker": {
     "en": "In development · Build proofs and proof assistants as circuits",
@@ -368,7 +368,8 @@
         "title": { "en": "Pen and paper", "zh": "纸笔" },
         "question": { "en": "When does a statement always hold?", "zh": "一句话什么时候永远成立？" }
       },
-      "path": ["table", "always", "onerow"]
+      "levels": ["table", "always", "onerow"],
+      "links": [{ "from": "table", "to": "always" }, { "from": "always", "to": "onerow" }]
     },
     {
       "id": "circuits",
@@ -380,21 +381,38 @@
           "zh": "一句话在每一种情况下是真是假，能交给电路去算吗？"
         }
       },
-      "path": ["g-not", "g-and", "g-tree", "g-or", "g-imp", "g-always", "g-iff"],
-      "branches": [
-        { "levels": ["e-words", "e-says", "e-one", "e-two", "e-three", "e-count"], "after": ["g-iff"] },
-        { "levels": ["g-xor"], "after": ["g-or"] }
-      ],
       "optional": ["e-words", "e-says", "e-one", "e-two", "e-three", "e-count", "g-xor"],
-      "groups": [
-        { "title": { "en": "Gates", "zh": "门" }, "levels": ["g-not", "g-and", "g-tree"] },
-        { "title": { "en": "Building gates", "zh": "造门" }, "levels": ["g-or", "g-imp"] },
-        { "title": { "en": "Three kinds of sentence", "zh": "三种句子" }, "levels": ["g-always", "g-iff"] },
-        {
-          "title": { "en": "A puzzle as a circuit", "zh": "把谜题接成电路" },
-          "levels": ["e-words", "e-says", "e-one", "e-two", "e-three", "e-count"],
-          "code": "R"
-        }
+      "levels": [
+        "g-not",
+        "g-and",
+        "g-tree",
+        "g-or",
+        "g-imp",
+        "g-always",
+        "g-iff",
+        "e-words",
+        "e-says",
+        "e-one",
+        "e-two",
+        "e-three",
+        "e-count",
+        "g-xor"
+      ],
+      "links": [
+        { "from": "onerow", "to": "g-not" },
+        { "from": "g-not", "to": "g-and" },
+        { "from": "g-and", "to": "g-tree" },
+        { "from": "g-tree", "to": "g-or" },
+        { "from": "g-or", "to": "g-imp" },
+        { "from": "g-imp", "to": "g-always" },
+        { "from": "g-always", "to": "g-iff" },
+        { "from": "g-iff", "to": "e-words" },
+        { "from": "e-words", "to": "e-says", "required": true },
+        { "from": "e-says", "to": "e-one", "required": true },
+        { "from": "e-one", "to": "e-two", "required": true },
+        { "from": "e-two", "to": "e-three", "required": true },
+        { "from": "e-three", "to": "e-count", "required": true },
+        { "from": "g-or", "to": "g-xor" }
       ]
     },
     {
@@ -404,41 +422,49 @@
         "title": { "en": "The kernel", "zh": "证明核" },
         "question": { "en": "What can Apply and the assumption box prove?", "zh": "只靠套用和假设框，能证出什么？" }
       },
-      "path": [
-        "copy",
-        { "parallel": [["mp", "nested"], ["assume"]] },
-        "box",
-        { "parallel": [["chain", "swap"], ["twice"]] },
-        "mergeUse"
-      ],
-      "branches": [
-        { "levels": ["k"], "after": ["mergeUse"] },
-        { "levels": ["s"], "after": ["mergeUse"] },
-        { "levels": ["x-k"], "after": ["k", "s"] },
-        { "levels": ["x-chain", "x-swap"], "after": ["x-k"] },
-        { "levels": ["x-self", "x-merge"], "after": ["x-k"] },
-        { "levels": ["mergeLong", "mergeBoth"], "after": ["mergeUse"] }
-      ],
       "optional": ["k", "s", "x-k", "x-chain", "x-swap", "x-self", "x-merge", "mergeLong", "mergeBoth"],
-      "groups": [
-        { "title": { "en": "Apply", "zh": "套用" }, "levels": ["mp", "nested"] },
-        { "title": { "en": "Assumption box", "zh": "假设框" }, "levels": ["assume"] },
-        { "title": { "en": "Chain", "zh": "串联" }, "levels": ["chain", "swap"] },
-        { "title": { "en": "Merge", "zh": "合并" }, "levels": ["twice"] },
-        { "title": { "en": "K", "zh": "K" }, "levels": ["k"], "code": "X" },
-        { "title": { "en": "S", "zh": "S" }, "levels": ["s"], "code": "X" },
-        { "title": { "en": "Without the box", "zh": "拆掉框" }, "levels": ["x-k"], "code": "X" },
-        {
-          "title": { "en": "Without the box: joining and reordering", "zh": "拆掉框：接起来与换顺序" },
-          "levels": ["x-chain", "x-swap"],
-          "code": "X"
-        },
-        {
-          "title": { "en": "Without the box: identity and merging", "zh": "拆掉框：恒等与合并" },
-          "levels": ["x-self", "x-merge"],
-          "code": "X"
-        },
-        { "title": { "en": "Proof puzzles", "zh": "证明谜题" }, "levels": ["mergeLong", "mergeBoth"], "code": "P" }
+      "levels": [
+        "copy",
+        "mp",
+        "assume",
+        "nested",
+        "box",
+        "chain",
+        "twice",
+        "swap",
+        "mergeUse",
+        "k",
+        "s",
+        "x-k",
+        "x-chain",
+        "x-swap",
+        "x-self",
+        "x-merge",
+        "mergeLong",
+        "mergeBoth"
+      ],
+      "links": [
+        { "from": "g-iff", "to": "copy" },
+        { "from": "copy", "to": "mp" },
+        { "from": "mp", "to": "nested" },
+        { "from": "copy", "to": "assume" },
+        { "from": "nested", "to": "box" },
+        { "from": "assume", "to": "box" },
+        { "from": "box", "to": "chain" },
+        { "from": "chain", "to": "swap" },
+        { "from": "box", "to": "twice" },
+        { "from": "swap", "to": "mergeUse" },
+        { "from": "twice", "to": "mergeUse" },
+        { "from": "mergeUse", "to": "k" },
+        { "from": "mergeUse", "to": "s" },
+        { "from": "k", "to": "x-k", "required": true },
+        { "from": "s", "to": "x-k", "required": true },
+        { "from": "x-k", "to": "x-chain", "required": true },
+        { "from": "x-chain", "to": "x-swap", "required": true },
+        { "from": "x-k", "to": "x-self", "required": true },
+        { "from": "x-self", "to": "x-merge", "required": true },
+        { "from": "mergeUse", "to": "mergeLong" },
+        { "from": "mergeLong", "to": "mergeBoth", "required": true }
       ]
     },
     {
@@ -448,23 +474,34 @@
         "title": { "en": "Declarations", "zh": "声明" },
         "question": { "en": "How do “and”, “or” and “not” come into the kernel?", "zh": "怎样把「与」「或」「非」引入证明核？" }
       },
-      "path": ["decl-and", "decl-check", "decl-strength", "decl-or", "decl-bot"],
-      "branches": [
-        { "levels": ["decl-true", "decl-iff", "decl-three", "decl-order", "decl-two"], "after": ["decl-bot"] },
-        { "levels": ["gen-one", "gen-each"], "after": ["decl-bot"] }
-      ],
       "optional": ["decl-true", "decl-iff", "decl-three", "decl-order", "decl-two", "gen-one", "gen-each"],
-      "groups": [
-        {
-          "title": { "en": "More declarations", "zh": "更多声明" },
-          "levels": ["decl-true", "decl-iff", "decl-three", "decl-order", "decl-two"],
-          "code": "D"
-        },
-        {
-          "title": { "en": "The elimination rule generator", "zh": "消去规则生成器" },
-          "levels": ["gen-one", "gen-each"],
-          "code": "E"
-        }
+      "levels": [
+        "decl-and",
+        "decl-check",
+        "decl-strength",
+        "decl-or",
+        "decl-bot",
+        "decl-true",
+        "decl-iff",
+        "decl-three",
+        "decl-order",
+        "decl-two",
+        "gen-one",
+        "gen-each"
+      ],
+      "links": [
+        { "from": "mergeUse", "to": "decl-and" },
+        { "from": "decl-and", "to": "decl-check" },
+        { "from": "decl-check", "to": "decl-strength" },
+        { "from": "decl-strength", "to": "decl-or" },
+        { "from": "decl-or", "to": "decl-bot" },
+        { "from": "decl-bot", "to": "decl-true" },
+        { "from": "decl-true", "to": "decl-iff", "required": true },
+        { "from": "decl-iff", "to": "decl-three", "required": true },
+        { "from": "decl-three", "to": "decl-order", "required": true },
+        { "from": "decl-order", "to": "decl-two", "required": true },
+        { "from": "decl-bot", "to": "gen-one" },
+        { "from": "gen-one", "to": "gen-each", "required": true }
       ]
     },
     {
@@ -477,19 +514,39 @@
           "zh": "有了声明出来的「与」「或」「非」，能证出些什么？"
         }
       },
-      "path": [{ "parallel": [["and", "curry"], ["or", "cases", "orSwap"], ["bot", "notI", "mt"]] }, "iffUse"],
-      "branches": [{ "levels": ["orImp", "contra", "dist", "dsyll"], "after": ["mergeBoth", "iffUse"] }],
       "optional": ["orImp", "contra", "dist", "dsyll"],
-      "groups": [
-        { "title": { "en": "And", "zh": "并且" }, "levels": ["and", "curry"] },
-        { "title": { "en": "Or", "zh": "或者" }, "levels": ["or", "cases", "orSwap"] },
-        { "title": { "en": "Contradiction and not", "zh": "矛盾与否定" }, "levels": ["bot", "notI", "mt"] },
-        { "title": { "en": "Together", "zh": "组合" }, "levels": ["iffUse"] },
-        {
-          "title": { "en": "Proof puzzles: connectives", "zh": "证明谜题：连接词" },
-          "levels": ["orImp", "contra", "dist", "dsyll"],
-          "code": "P"
-        }
+      "levels": [
+        "and",
+        "or",
+        "bot",
+        "curry",
+        "cases",
+        "notI",
+        "orSwap",
+        "mt",
+        "iffUse",
+        "orImp",
+        "contra",
+        "dist",
+        "dsyll"
+      ],
+      "links": [
+        { "from": "decl-bot", "to": "and" },
+        { "from": "and", "to": "curry" },
+        { "from": "decl-bot", "to": "or" },
+        { "from": "or", "to": "cases" },
+        { "from": "cases", "to": "orSwap" },
+        { "from": "decl-bot", "to": "bot" },
+        { "from": "bot", "to": "notI" },
+        { "from": "notI", "to": "mt" },
+        { "from": "curry", "to": "iffUse" },
+        { "from": "orSwap", "to": "iffUse" },
+        { "from": "mt", "to": "iffUse" },
+        { "from": "mergeBoth", "to": "orImp", "required": true },
+        { "from": "iffUse", "to": "orImp" },
+        { "from": "orImp", "to": "contra", "required": true },
+        { "from": "contra", "to": "dist", "required": true },
+        { "from": "dist", "to": "dsyll", "required": true }
       ]
     },
     {
@@ -502,28 +559,36 @@
           "zh": "「每一个」「有一个」怎么说，证不出时怎样找反例？"
         }
       },
-      "path": ["fo-atoms", { "parallel": [["fo-all", "m-counter"], ["fo-some"]] }, "fo-nested", "p-only"],
-      "branches": [
-        { "levels": ["p-split", "p-exAnd"], "after": ["m-counter", "fo-some"] },
-        { "levels": ["q-children"], "after": ["fo-nested"] },
-        { "levels": ["q-grand", "q-none", "q-school"], "after": ["q-children"] }
-      ],
       "optional": ["p-split", "p-exAnd", "q-children", "q-grand", "q-none", "q-school"],
-      "groups": [
-        { "title": { "en": "Every", "zh": "对所有" }, "levels": ["fo-all", "m-counter"] },
-        { "title": { "en": "Some", "zh": "存在" }, "levels": ["fo-some"] },
-        { "title": { "en": "Only and none", "zh": "只有与没有" }, "levels": ["p-only"] },
-        {
-          "title": { "en": "Taking quantifiers apart", "zh": "量词怎么拆" },
-          "levels": ["p-split", "p-exAnd"],
-          "code": "C"
-        },
-        { "title": { "en": "Asking a family tree", "zh": "查族谱" }, "levels": ["q-children"], "code": "F" },
-        {
-          "title": { "en": "Asking a family tree: queries with quantifiers", "zh": "查族谱：带量词的查询" },
-          "levels": ["q-grand", "q-none", "q-school"],
-          "code": "F"
-        }
+      "levels": [
+        "fo-atoms",
+        "fo-all",
+        "fo-some",
+        "m-counter",
+        "fo-nested",
+        "p-only",
+        "p-split",
+        "p-exAnd",
+        "q-children",
+        "q-grand",
+        "q-none",
+        "q-school"
+      ],
+      "links": [
+        { "from": "iffUse", "to": "fo-atoms" },
+        { "from": "fo-atoms", "to": "fo-all" },
+        { "from": "fo-all", "to": "m-counter" },
+        { "from": "fo-atoms", "to": "fo-some" },
+        { "from": "m-counter", "to": "fo-nested" },
+        { "from": "fo-some", "to": "fo-nested" },
+        { "from": "fo-nested", "to": "p-only" },
+        { "from": "m-counter", "to": "p-split" },
+        { "from": "fo-some", "to": "p-split" },
+        { "from": "p-split", "to": "p-exAnd", "required": true },
+        { "from": "fo-nested", "to": "q-children" },
+        { "from": "q-children", "to": "q-grand", "required": true },
+        { "from": "q-grand", "to": "q-none", "required": true },
+        { "from": "q-none", "to": "q-school", "required": true }
       ]
     },
     {
@@ -533,26 +598,6 @@
         "title": { "en": "Quantifier rules", "zh": "量词规则" },
         "question": { "en": "How do you prove a sentence holds in every world?", "zh": "怎样证明一句话在所有世界里都成立？" }
       },
-      "path": [
-        "q-allI",
-        {
-          "parallel": [
-            ["q-allE", "q-rename", "q-allAnd", "q-capture"],
-            ["decl-ex", "q-exI", "q-exE", "q-witness"]
-          ]
-        },
-        "decl-eq",
-        "q-eq",
-        "q-sym",
-        "q-trans"
-      ],
-      "branches": [
-        { "levels": ["gen-ex"], "after": ["decl-ex", "gen-each"] },
-        { "levels": ["h-and-make", "h-or-make"], "after": ["k", "q-allE"] },
-        { "levels": ["h-eq-refl", "h-eq-subst", "h-eq-sym"], "after": ["decl-eq", "h-or-make"] },
-        { "levels": ["s-barbara", "s-darii", "s-carroll"], "after": ["q-trans"] },
-        { "levels": ["q-swap", "q-move", "q-ancestor", "q-bigger"], "after": ["dsyll", "q-trans"] }
-      ],
       "optional": [
         "gen-ex",
         "h-and-make",
@@ -568,35 +613,66 @@
         "q-ancestor",
         "q-bigger"
       ],
-      "groups": [
-        { "title": { "en": "For any", "zh": "任取" }, "levels": ["q-allI"] },
-        {
-          "title": { "en": "Take one", "zh": "取一个" },
-          "levels": ["q-allE", "q-rename", "q-allAnd", "q-capture"]
-        },
-        { "title": { "en": "Some", "zh": "存在" }, "levels": ["decl-ex", "q-exI", "q-exE", "q-witness"] },
-        { "title": { "en": "Equality", "zh": "相等" }, "levels": ["decl-eq", "q-eq", "q-sym", "q-trans"] },
-        { "title": { "en": "The generator meets “any”", "zh": "生成器遇上任取" }, "levels": ["gen-ex"], "code": "E" },
-        {
-          "title": { "en": "Connectives without declaring", "zh": "不声明的连接词" },
-          "levels": ["h-and-make", "h-or-make"],
-          "code": "X"
-        },
-        {
-          "title": { "en": "Equality without declaring", "zh": "不声明的相等" },
-          "levels": ["h-eq-refl", "h-eq-subst", "h-eq-sym"],
-          "code": "X"
-        },
-        {
-          "title": { "en": "Carroll’s puzzles", "zh": "卡罗尔的推理题" },
-          "levels": ["s-barbara", "s-darii", "s-carroll"],
-          "code": "S"
-        },
-        {
-          "title": { "en": "Proof puzzles: quantifiers", "zh": "证明谜题：量词" },
-          "levels": ["q-swap", "q-move", "q-ancestor", "q-bigger"],
-          "code": "P"
-        }
+      "levels": [
+        "q-allI",
+        "q-allE",
+        "decl-ex",
+        "q-rename",
+        "q-exI",
+        "q-allAnd",
+        "q-exE",
+        "q-capture",
+        "q-witness",
+        "decl-eq",
+        "q-eq",
+        "q-sym",
+        "q-trans",
+        "gen-ex",
+        "h-and-make",
+        "h-or-make",
+        "h-eq-refl",
+        "h-eq-subst",
+        "h-eq-sym",
+        "s-barbara",
+        "s-darii",
+        "s-carroll",
+        "q-swap",
+        "q-move",
+        "q-ancestor",
+        "q-bigger"
+      ],
+      "links": [
+        { "from": "p-only", "to": "q-allI" },
+        { "from": "q-allI", "to": "q-allE" },
+        { "from": "q-allE", "to": "q-rename" },
+        { "from": "q-rename", "to": "q-allAnd" },
+        { "from": "q-allAnd", "to": "q-capture" },
+        { "from": "q-allI", "to": "decl-ex" },
+        { "from": "decl-ex", "to": "q-exI" },
+        { "from": "q-exI", "to": "q-exE" },
+        { "from": "q-exE", "to": "q-witness" },
+        { "from": "q-capture", "to": "decl-eq" },
+        { "from": "q-witness", "to": "decl-eq" },
+        { "from": "decl-eq", "to": "q-eq" },
+        { "from": "q-eq", "to": "q-sym" },
+        { "from": "q-sym", "to": "q-trans" },
+        { "from": "decl-ex", "to": "gen-ex" },
+        { "from": "gen-each", "to": "gen-ex", "required": true },
+        { "from": "k", "to": "h-and-make", "required": true },
+        { "from": "q-allE", "to": "h-and-make" },
+        { "from": "h-and-make", "to": "h-or-make", "required": true },
+        { "from": "decl-eq", "to": "h-eq-refl" },
+        { "from": "h-or-make", "to": "h-eq-refl", "required": true },
+        { "from": "h-eq-refl", "to": "h-eq-subst", "required": true },
+        { "from": "h-eq-subst", "to": "h-eq-sym", "required": true },
+        { "from": "q-trans", "to": "s-barbara" },
+        { "from": "s-barbara", "to": "s-darii", "required": true },
+        { "from": "s-darii", "to": "s-carroll", "required": true },
+        { "from": "dsyll", "to": "q-swap", "required": true },
+        { "from": "q-trans", "to": "q-swap" },
+        { "from": "q-swap", "to": "q-move", "required": true },
+        { "from": "q-move", "to": "q-ancestor", "required": true },
+        { "from": "q-ancestor", "to": "q-bigger", "required": true }
       ]
     },
     {
@@ -606,7 +682,8 @@
         "title": { "en": "Rules and metavariables", "zh": "规则与元变量" },
         "question": { "en": "Can a part read off the goal what to fill in?", "zh": "元件能不能自己从目标里读出该填的句子？" }
       },
-      "path": [
+      "optional": ["r-dist", "r-order"],
+      "levels": [
         "r-match",
         "r-deep",
         "r-delete",
@@ -615,51 +692,52 @@
         "r-both",
         "r-occurs",
         "r-unifier",
-        {
-          "parallel": [
-            ["r-rule", "r-assumption", "r-subgoals", "r-meta", "r-lemma", "r-elim", "r-cases", "r-false"],
-            ["r-pattern", "r-patterns"]
-          ]
-        },
+        "r-rule",
+        "r-pattern",
+        "r-assumption",
+        "r-patterns",
+        "r-subgoals",
+        "r-meta",
+        "r-lemma",
+        "r-elim",
+        "r-cases",
+        "r-false",
         "r-allI",
         "r-exI",
         "r-drule",
         "r-frule",
-        "r-exE"
+        "r-exE",
+        "r-dist",
+        "r-order"
       ],
-      "branches": [
-        { "levels": ["r-dist"], "after": ["q-bigger", "r-exE"] },
-        { "levels": ["r-order"], "after": ["r-exE"] }
-      ],
-      "optional": ["r-dist", "r-order"],
-      "groups": [
-        {
-          "title": { "en": "Unification", "zh": "合一" },
-          "levels": ["r-match", "r-deep", "r-delete", "r-clash", "r-twice", "r-both", "r-occurs", "r-unifier"]
-        },
-        {
-          "title": { "en": "Rules backwards", "zh": "逆用规则" },
-          "levels": [
-            "r-rule",
-            "r-assumption",
-            "r-subgoals",
-            "r-meta",
-            "r-lemma",
-            "r-elim",
-            "r-cases",
-            "r-false"
-          ]
-        },
-        { "title": { "en": "Patterns", "zh": "模式" }, "levels": ["r-pattern", "r-patterns"] },
-        {
-          "title": { "en": "Rules for quantifiers", "zh": "量词的规则" },
-          "levels": ["r-allI", "r-exI", "r-drule", "r-frule", "r-exE"]
-        },
-        {
-          "title": { "en": "Proof puzzles: a long run of rules", "zh": "证明谜题：一长串规则" },
-          "levels": ["r-dist"],
-          "code": "P"
-        }
+      "links": [
+        { "from": "q-trans", "to": "r-match" },
+        { "from": "r-match", "to": "r-deep" },
+        { "from": "r-deep", "to": "r-delete" },
+        { "from": "r-delete", "to": "r-clash" },
+        { "from": "r-clash", "to": "r-twice" },
+        { "from": "r-twice", "to": "r-both" },
+        { "from": "r-both", "to": "r-occurs" },
+        { "from": "r-occurs", "to": "r-unifier" },
+        { "from": "r-unifier", "to": "r-rule" },
+        { "from": "r-rule", "to": "r-assumption" },
+        { "from": "r-assumption", "to": "r-subgoals" },
+        { "from": "r-subgoals", "to": "r-meta" },
+        { "from": "r-meta", "to": "r-lemma" },
+        { "from": "r-lemma", "to": "r-elim" },
+        { "from": "r-elim", "to": "r-cases" },
+        { "from": "r-cases", "to": "r-false" },
+        { "from": "r-unifier", "to": "r-pattern" },
+        { "from": "r-pattern", "to": "r-patterns" },
+        { "from": "r-false", "to": "r-allI" },
+        { "from": "r-patterns", "to": "r-allI" },
+        { "from": "r-allI", "to": "r-exI" },
+        { "from": "r-exI", "to": "r-drule" },
+        { "from": "r-drule", "to": "r-frule" },
+        { "from": "r-frule", "to": "r-exE" },
+        { "from": "q-bigger", "to": "r-dist", "required": true },
+        { "from": "r-exE", "to": "r-dist" },
+        { "from": "r-exE", "to": "r-order" }
       ]
     },
     {
@@ -672,26 +750,44 @@
           "zh": "能不能让证明助手自己去试该用哪条规则？"
         }
       },
-      "path": [
-        { "parallel": [["s-repeat", "s-orelse", "s-mix", "s-try"], ["s-defer", "s-results"]] },
-        { "parallel": [["s-append", "s-search"], ["s-intro", "s-elim"]] },
-        "s-auto"
-      ],
-      "branches": [
-        { "levels": ["pl-grand", "pl-anc", "pl-order"], "after": ["s-search", "q-grand"] },
-        { "levels": ["s-loop"], "after": ["s-search"] }
-      ],
       "optional": ["pl-grand", "pl-anc", "pl-order", "s-loop"],
-      "groups": [
-        { "title": { "en": "Together", "zh": "组合" }, "levels": ["s-repeat", "s-orelse", "s-mix", "s-try"] },
-        { "title": { "en": "Backtracking", "zh": "回溯" }, "levels": ["s-defer", "s-results"] },
-        { "title": { "en": "Search", "zh": "搜索" }, "levels": ["s-append", "s-search"] },
-        { "title": { "en": "By shape", "zh": "按形状" }, "levels": ["s-intro", "s-elim"] },
-        {
-          "title": { "en": "A family tree by rules", "zh": "用规则推族谱" },
-          "levels": ["pl-grand", "pl-anc", "pl-order"],
-          "code": "F"
-        }
+      "levels": [
+        "s-repeat",
+        "s-defer",
+        "s-orelse",
+        "s-results",
+        "s-mix",
+        "s-try",
+        "s-append",
+        "s-intro",
+        "s-search",
+        "s-elim",
+        "s-auto",
+        "pl-grand",
+        "pl-anc",
+        "pl-order",
+        "s-loop"
+      ],
+      "links": [
+        { "from": "r-exE", "to": "s-repeat" },
+        { "from": "s-repeat", "to": "s-orelse" },
+        { "from": "s-orelse", "to": "s-mix" },
+        { "from": "s-mix", "to": "s-try" },
+        { "from": "r-exE", "to": "s-defer" },
+        { "from": "s-defer", "to": "s-results" },
+        { "from": "s-try", "to": "s-append" },
+        { "from": "s-results", "to": "s-append" },
+        { "from": "s-append", "to": "s-search" },
+        { "from": "s-try", "to": "s-intro" },
+        { "from": "s-results", "to": "s-intro" },
+        { "from": "s-intro", "to": "s-elim" },
+        { "from": "s-search", "to": "s-auto" },
+        { "from": "s-elim", "to": "s-auto" },
+        { "from": "s-search", "to": "pl-grand" },
+        { "from": "q-grand", "to": "pl-grand", "required": true },
+        { "from": "pl-grand", "to": "pl-anc", "required": true },
+        { "from": "pl-anc", "to": "pl-order", "required": true },
+        { "from": "s-search", "to": "s-loop" }
       ]
     },
     {
@@ -704,38 +800,50 @@
           "zh": "真值表上每一行都真的话，证明器都证得出吗？"
         }
       },
-      "path": [
+      "optional": ["kk-one", "kk-two", "kk-three", "c-contra", "c-either", "peirce", "drinker"],
+      "levels": [
         "c-wall",
         "raa",
-        { "parallel": [["byContra"], ["lemCases"], ["s-lem"]] },
-        { "parallel": [["c-dneg", "c-arrow", "c-dist"], ["demorgan", "q-dm"]] }
+        "byContra",
+        "lemCases",
+        "s-lem",
+        "c-dneg",
+        "demorgan",
+        "c-arrow",
+        "q-dm",
+        "c-dist",
+        "kk-one",
+        "kk-two",
+        "kk-three",
+        "c-contra",
+        "c-either",
+        "peirce",
+        "drinker"
       ],
-      "branches": [
-        { "levels": ["kk-one", "kk-two", "kk-three"], "after": ["e-three", "lemCases"] },
-        { "levels": ["c-contra", "c-either"], "after": ["r-dist", "q-dm"] },
-        { "levels": ["peirce"], "after": ["lemCases"] },
-        { "levels": ["drinker"], "after": ["q-dm"] }
-      ],
-      "optional": ["kk-one", "kk-two", "kk-three", "c-contra", "c-either", "peirce", "drinker"],
-      "groups": [
-        { "title": { "en": "By contradiction", "zh": "反证法" }, "levels": ["byContra"] },
-        { "title": { "en": "Excluded middle", "zh": "排中律" }, "levels": ["lemCases"] },
-        {
-          "title": { "en": "By contradiction on the proof assistant", "zh": "证明助手上的反证法" },
-          "levels": ["s-lem"]
-        },
-        { "title": { "en": "Equivalences", "zh": "等价律" }, "levels": ["c-dneg", "c-arrow", "c-dist"] },
-        { "title": { "en": "De Morgan", "zh": "德摩根律" }, "levels": ["demorgan", "q-dm"] },
-        {
-          "title": { "en": "Knights and knaves", "zh": "骑士与无赖" },
-          "levels": ["kk-one", "kk-two", "kk-three"],
-          "code": "R"
-        },
-        {
-          "title": { "en": "Proof puzzles: classical logic", "zh": "证明谜题：经典逻辑" },
-          "levels": ["c-contra", "c-either"],
-          "code": "P"
-        }
+      "links": [
+        { "from": "s-auto", "to": "c-wall" },
+        { "from": "c-wall", "to": "raa" },
+        { "from": "raa", "to": "byContra" },
+        { "from": "raa", "to": "lemCases" },
+        { "from": "raa", "to": "s-lem" },
+        { "from": "byContra", "to": "c-dneg" },
+        { "from": "lemCases", "to": "c-dneg" },
+        { "from": "s-lem", "to": "c-dneg" },
+        { "from": "c-dneg", "to": "c-arrow" },
+        { "from": "c-arrow", "to": "c-dist" },
+        { "from": "byContra", "to": "demorgan" },
+        { "from": "lemCases", "to": "demorgan" },
+        { "from": "s-lem", "to": "demorgan" },
+        { "from": "demorgan", "to": "q-dm" },
+        { "from": "e-three", "to": "kk-one", "required": true },
+        { "from": "lemCases", "to": "kk-one" },
+        { "from": "kk-one", "to": "kk-two", "required": true },
+        { "from": "kk-two", "to": "kk-three", "required": true },
+        { "from": "r-dist", "to": "c-contra", "required": true },
+        { "from": "q-dm", "to": "c-contra" },
+        { "from": "c-contra", "to": "c-either", "required": true },
+        { "from": "lemCases", "to": "peirce" },
+        { "from": "q-dm", "to": "drinker" }
       ]
     },
     {
@@ -748,19 +856,32 @@
           "zh": "「把否定推进去」这样的目标，能交给证明助手一路改下去吗？"
         }
       },
-      "path": [
+      "levels": [
         "sp-rw",
-        { "parallel": [["sp-laws"], ["sp-dm", "sp-back"], ["sp-where", "sp-repeat"]] },
+        "sp-laws",
+        "sp-dm",
+        "sp-where",
+        "sp-back",
+        "sp-repeat",
         "sp-simp",
         "sp-nnf",
         "sp-cnf",
         "sp-order"
       ],
-      "groups": [
-        { "title": { "en": "More rewrite rules", "zh": "更多改写规则" }, "levels": ["sp-laws"] },
-        { "title": { "en": "Negation pushed in", "zh": "推进否定" }, "levels": ["sp-dm", "sp-back"] },
-        { "title": { "en": "One place", "zh": "改写一处" }, "levels": ["sp-where", "sp-repeat"] },
-        { "title": { "en": "Normal forms", "zh": "范式" }, "levels": ["sp-nnf", "sp-cnf", "sp-order"] }
+      "links": [
+        { "from": "c-dist", "to": "sp-rw" },
+        { "from": "q-dm", "to": "sp-rw" },
+        { "from": "sp-rw", "to": "sp-laws" },
+        { "from": "sp-rw", "to": "sp-dm" },
+        { "from": "sp-dm", "to": "sp-back" },
+        { "from": "sp-rw", "to": "sp-where" },
+        { "from": "sp-where", "to": "sp-repeat" },
+        { "from": "sp-laws", "to": "sp-simp" },
+        { "from": "sp-back", "to": "sp-simp" },
+        { "from": "sp-repeat", "to": "sp-simp" },
+        { "from": "sp-simp", "to": "sp-nnf" },
+        { "from": "sp-nnf", "to": "sp-cnf" },
+        { "from": "sp-cnf", "to": "sp-order" }
       ]
     },
     {
@@ -773,7 +894,8 @@
           "zh": "证明能交给证明助手去找吗？证明助手找到的，凭什么信？"
         }
       },
-      "path": [
+      "optional": ["is-three", "is-silent", "is-ten", "u-barber", "u-cantor", "u-ls", "u-halt", "au-horn"],
+      "levels": [
         "au-negate",
         "au-iff",
         "au-hyps",
@@ -788,38 +910,42 @@
         "au-replay",
         "au-wrong",
         "au-adder",
-        "au-machine"
+        "au-machine",
+        "is-three",
+        "is-silent",
+        "is-ten",
+        "u-barber",
+        "u-cantor",
+        "u-ls",
+        "u-halt",
+        "au-horn"
       ],
-      "branches": [
-        { "levels": ["is-three", "is-silent", "is-ten"], "after": ["au-replay", "kk-three"] },
-        { "levels": ["u-barber", "u-cantor", "u-ls", "u-halt"], "after": ["au-machine", "kk-one"] },
-        { "levels": ["au-horn"], "after": ["au-saturate"] }
-      ],
-      "optional": ["is-three", "is-silent", "is-ten", "u-barber", "u-cantor", "u-ls", "u-halt", "au-horn"],
-      "groups": [
-        {
-          "title": { "en": "Clause form", "zh": "子句形式" },
-          "levels": ["au-negate", "au-iff", "au-hyps", "au-skolem", "au-clauses"]
-        },
-        {
-          "title": { "en": "Resolve", "zh": "归结" },
-          "levels": ["au-resolve", "au-refute", "au-onepair", "au-saturate"]
-        },
-        { "title": { "en": "Certificates", "zh": "证书" }, "levels": ["au-cert", "au-replay", "au-wrong"] },
-        {
-          "title": { "en": "Handed to the proof assistant", "zh": "交给证明助手" },
-          "levels": ["au-adder", "au-machine"]
-        },
-        {
-          "title": { "en": "More islanders", "zh": "岛民变多" },
-          "levels": ["is-three", "is-silent", "is-ten"],
-          "code": "R"
-        },
-        {
-          "title": { "en": "What no machine can do", "zh": "机器做不到的事" },
-          "levels": ["u-barber", "u-cantor", "u-ls", "u-halt"],
-          "code": "R"
-        }
+      "links": [
+        { "from": "sp-order", "to": "au-negate" },
+        { "from": "au-negate", "to": "au-iff" },
+        { "from": "au-iff", "to": "au-hyps" },
+        { "from": "au-hyps", "to": "au-skolem" },
+        { "from": "au-skolem", "to": "au-clauses" },
+        { "from": "au-clauses", "to": "au-resolve" },
+        { "from": "au-resolve", "to": "au-refute" },
+        { "from": "au-refute", "to": "au-onepair" },
+        { "from": "au-onepair", "to": "au-saturate" },
+        { "from": "au-saturate", "to": "au-sledge" },
+        { "from": "au-sledge", "to": "au-cert" },
+        { "from": "au-cert", "to": "au-replay" },
+        { "from": "au-replay", "to": "au-wrong" },
+        { "from": "au-wrong", "to": "au-adder" },
+        { "from": "au-adder", "to": "au-machine" },
+        { "from": "au-replay", "to": "is-three" },
+        { "from": "kk-three", "to": "is-three", "required": true },
+        { "from": "is-three", "to": "is-silent", "required": true },
+        { "from": "is-silent", "to": "is-ten", "required": true },
+        { "from": "au-machine", "to": "u-barber" },
+        { "from": "kk-one", "to": "u-barber", "required": true },
+        { "from": "u-barber", "to": "u-cantor", "required": true },
+        { "from": "u-cantor", "to": "u-ls", "required": true },
+        { "from": "u-ls", "to": "u-halt", "required": true },
+        { "from": "au-saturate", "to": "au-horn" }
       ]
     },
     {
@@ -832,37 +958,6 @@
           "zh": "数和列表怎么算、从哪里来？对每一个数都成立的事，怎么证？"
         }
       },
-      "path": [
-        "decl-nat",
-        "def-plus",
-        "nl-plus",
-        "sp-compute",
-        "sp-under",
-        "s-each",
-        "in-distinct",
-        "in-inject",
-        "in-cases",
-        "in-zero",
-        { "parallel": [["decl-list", "def-list", "sp-lists", "sp-hyp"], ["decl-bool", "def-max", "sp-cond"]] },
-        { "parallel": [["in-succ", "in-comm", "in-assoc"], ["in-appnil"], ["in-noteq", "in-loop"]] }
-      ],
-      "branches": [
-        { "levels": ["gen-nat"], "after": ["decl-nat", "gen-ex"] },
-        { "levels": ["in-induct"], "after": ["decl-nat", "h-eq-subst"] },
-        {
-          "levels": ["sort-ins", "sort-run", "sort-if", "sort-insLen", "sort-len"],
-          "after": ["in-appnil", "sp-cond"]
-        },
-        {
-          "levels": ["in-appassoc", "in-revapp", "in-revrev", "in-len", "in-itsum"],
-          "after": ["c-either", "in-assoc", "in-appnil", "in-loop"]
-        },
-        {
-          "levels": ["gd-code", "gd-check", "gd-diag", "gd-true", "gd-con", "gd-second"],
-          "after": ["in-assoc", "in-appnil", "in-loop", "u-halt"]
-        },
-        { "levels": ["in-circle"], "after": ["in-comm"] }
-      ],
       "optional": [
         "gen-nat",
         "in-induct",
@@ -884,48 +979,105 @@
         "gd-second",
         "in-circle"
       ],
-      "groups": [
-        {
-          "title": { "en": "Where numbers come from", "zh": "数从哪里来" },
-          "levels": ["decl-nat", "def-plus", "nl-plus", "sp-compute", "sp-under"]
-        },
-        {
-          "title": { "en": "What a declaration gives", "zh": "声明给出的规则" },
-          "levels": ["in-distinct", "in-inject", "in-cases", "in-zero"]
-        },
-        { "title": { "en": "a list", "zh": "列表" }, "levels": ["decl-list", "def-list", "sp-lists", "sp-hyp"] },
-        {
-          "title": { "en": "Definitions with a condition", "zh": "带条件的定义" },
-          "levels": ["decl-bool", "def-max", "sp-cond"]
-        },
-        { "title": { "en": "Numbers", "zh": "数" }, "levels": ["in-succ", "in-comm", "in-assoc"] },
-        { "title": { "en": "Equations of lists", "zh": "列表的等式" }, "levels": ["in-appnil"] },
-        { "title": { "en": "Why it must stop", "zh": "为什么要停" }, "levels": ["in-noteq", "in-loop"] },
-        {
-          "title": { "en": "The generator meets the numbers", "zh": "生成器遇上自然数" },
-          "levels": ["gen-nat"],
-          "code": "E"
-        },
-        {
-          "title": { "en": "Induction is one sentence", "zh": "归纳法是一句话" },
-          "levels": ["in-induct"],
-          "code": "X"
-        },
-        {
-          "title": { "en": "Insertion sort", "zh": "插入排序" },
-          "levels": ["sort-ins", "sort-run", "sort-if", "sort-insLen", "sort-len"],
-          "code": "I"
-        },
-        {
-          "title": { "en": "Proof puzzles: numbers and lists", "zh": "证明谜题：数与列表" },
-          "levels": ["in-appassoc", "in-revapp", "in-revrev", "in-len", "in-itsum"],
-          "code": "P"
-        },
-        {
-          "title": { "en": "True, yet unprovable", "zh": "真的，却证不出" },
-          "levels": ["gd-code", "gd-check", "gd-diag", "gd-true", "gd-con", "gd-second"],
-          "code": "R"
-        }
+      "levels": [
+        "decl-nat",
+        "def-plus",
+        "nl-plus",
+        "sp-compute",
+        "sp-under",
+        "s-each",
+        "in-distinct",
+        "in-inject",
+        "in-cases",
+        "in-zero",
+        "decl-list",
+        "decl-bool",
+        "def-list",
+        "def-max",
+        "sp-lists",
+        "sp-cond",
+        "sp-hyp",
+        "in-succ",
+        "in-appnil",
+        "in-noteq",
+        "in-comm",
+        "in-loop",
+        "in-assoc",
+        "gen-nat",
+        "in-induct",
+        "sort-ins",
+        "sort-run",
+        "sort-if",
+        "sort-insLen",
+        "sort-len",
+        "in-appassoc",
+        "in-revapp",
+        "in-revrev",
+        "in-len",
+        "in-itsum",
+        "gd-code",
+        "gd-check",
+        "gd-diag",
+        "gd-true",
+        "gd-con",
+        "gd-second",
+        "in-circle"
+      ],
+      "links": [
+        { "from": "au-machine", "to": "decl-nat" },
+        { "from": "decl-nat", "to": "def-plus" },
+        { "from": "def-plus", "to": "nl-plus" },
+        { "from": "nl-plus", "to": "sp-compute" },
+        { "from": "sp-compute", "to": "sp-under" },
+        { "from": "sp-under", "to": "s-each" },
+        { "from": "s-each", "to": "in-distinct" },
+        { "from": "in-distinct", "to": "in-inject" },
+        { "from": "in-inject", "to": "in-cases" },
+        { "from": "in-cases", "to": "in-zero" },
+        { "from": "in-zero", "to": "decl-list" },
+        { "from": "decl-list", "to": "def-list" },
+        { "from": "def-list", "to": "sp-lists" },
+        { "from": "sp-lists", "to": "sp-hyp" },
+        { "from": "in-zero", "to": "decl-bool" },
+        { "from": "decl-bool", "to": "def-max" },
+        { "from": "def-max", "to": "sp-cond" },
+        { "from": "sp-hyp", "to": "in-succ" },
+        { "from": "sp-cond", "to": "in-succ" },
+        { "from": "in-succ", "to": "in-comm" },
+        { "from": "in-comm", "to": "in-assoc" },
+        { "from": "sp-hyp", "to": "in-appnil" },
+        { "from": "sp-cond", "to": "in-appnil" },
+        { "from": "sp-hyp", "to": "in-noteq" },
+        { "from": "sp-cond", "to": "in-noteq" },
+        { "from": "in-noteq", "to": "in-loop" },
+        { "from": "decl-nat", "to": "gen-nat" },
+        { "from": "gen-ex", "to": "gen-nat", "required": true },
+        { "from": "decl-nat", "to": "in-induct" },
+        { "from": "h-eq-subst", "to": "in-induct", "required": true },
+        { "from": "in-appnil", "to": "sort-ins" },
+        { "from": "sp-cond", "to": "sort-ins" },
+        { "from": "sort-ins", "to": "sort-run", "required": true },
+        { "from": "sort-run", "to": "sort-if", "required": true },
+        { "from": "sort-if", "to": "sort-insLen", "required": true },
+        { "from": "sort-insLen", "to": "sort-len", "required": true },
+        { "from": "c-either", "to": "in-appassoc", "required": true },
+        { "from": "in-assoc", "to": "in-appassoc" },
+        { "from": "in-appnil", "to": "in-appassoc" },
+        { "from": "in-loop", "to": "in-appassoc" },
+        { "from": "in-appassoc", "to": "in-revapp", "required": true },
+        { "from": "in-revapp", "to": "in-revrev", "required": true },
+        { "from": "in-revrev", "to": "in-len", "required": true },
+        { "from": "in-len", "to": "in-itsum", "required": true },
+        { "from": "in-assoc", "to": "gd-code" },
+        { "from": "in-appnil", "to": "gd-code" },
+        { "from": "in-loop", "to": "gd-code" },
+        { "from": "u-halt", "to": "gd-code", "required": true },
+        { "from": "gd-code", "to": "gd-check", "required": true },
+        { "from": "gd-check", "to": "gd-diag", "required": true },
+        { "from": "gd-diag", "to": "gd-true", "required": true },
+        { "from": "gd-true", "to": "gd-con", "required": true },
+        { "from": "gd-con", "to": "gd-second", "required": true },
+        { "from": "in-comm", "to": "in-circle" }
       ]
     }
   ],

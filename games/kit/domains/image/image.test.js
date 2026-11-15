@@ -24,7 +24,7 @@ const filter = (id, rest) => ({ id, kind: 'graph', brief: L('b'), scene: 'filter
 const level = (id, tasks, once = {}) => ({ id, title: L(id), after: L('a'), intro: [{ t: L('i') }], ...once, tasks })
 const content = deepFreeze({
   primitives: ['const', 'add', 'sub', 'mul', 'arith', 'merge'],
-  eras: [{ id: 0, path: ['wide', 'use', 'two'], chapter: { title: L('c'), label: L('l'), question: L('q') } }],
+  eras: [{ id: 0, levels: ['wide', 'use', 'two'], links: [{ from: 'wide', to: 'use' }, { from: 'use', to: 'two' }], chapter: { title: L('c'), label: L('l'), question: L('q') } }],
   levels: [
     level('wide', [filter('wide', { solution: ['l = shift[dir=left](in)', 'r = shift[dir=right](in)', 'h = max(l, r)', 'out <- h'] })]),
     level('use', [filter('use', { solution: ['k = const[c="pi/8"]()', 'm = arith[op=mul](in, k)', 'p = widen(m)', 'out <- p'], naive: ['out <- in'] })]),

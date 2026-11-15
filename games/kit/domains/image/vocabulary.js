@@ -149,8 +149,8 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 21,
-  removes: [COURSE_SCHEMA_REMOVAL, { at: 'level.optional', why: 'Mark optional levels in the chapter.' }],
+  version: 22,
+  removes: [COURSE_SCHEMA_REMOVAL],
   kinds: {
     part: PARTS,
     op: Object.fromEntries(Object.entries(IMAGE_OPS).map(([name, { about, args }]) => [name, { about, args }])),

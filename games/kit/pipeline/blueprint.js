@@ -157,29 +157,31 @@ export const slotsOf = (bp) => bp.eras.flatMap((era) => era.series.flatMap((seri
 
 /** game.json's eras as the blueprint lays them out (games/kit/course.js layout). */
 export function erasOf(bp) {
+  let ends = []
   return bp.eras.map((era) => {
-    const path = []
-    const branches = []
-    const groups = []
+    const path = [], side = [], links = []
+    const append = (levels, before) => {
+      for (const [i, to] of levels.entries()) {
+        for (const from of i ? [levels[i - 1]] : before) links.push({ from, to })
+      }
+      return levels.at(-1)
+    }
     for (const series of era.series) {
       const levels = series.slots.map((s) => s.id)
-      groups.push({ title: series.title, levels })
-      const after = series.after === undefined ? {} : { after: [series.after].flat() }
-      if (series.kind === 'topic') branches.push({ levels, ...after })
-      else if (series.kind === 'challenge') branches.push(...levels.map((id) => ({ levels: [id], ...after })))
-      else if (series.parallel) {
-        const last = path.at(-1)
-        if (last?.set === series.parallel) last.parallel.push(levels)
-        else path.push({ set: series.parallel, parallel: [levels] })
-      } else path.push(...levels)
+      if (series.kind === 'topic') side.push({ levels, after: series.after })
+      else if (series.kind === 'challenge') side.push(...levels.map((id) => ({ levels: [id], after: series.after })))
+      else if (series.parallel && path.at(-1)?.set === series.parallel) path.at(-1).lanes.push(levels)
+      else path.push({ set: series.parallel, lanes: [levels] })
     }
+    for (const { lanes } of path) ends = lanes.map((lane) => append(lane, ends))
+    for (const { levels, after } of side) append(levels, after === undefined ? ends : [after].flat())
+    const optional = side.flatMap(({ levels }) => levels)
+    const optionalSet = new Set(optional)
+    for (const link of links) if (optionalSet.has(link.from)) link.required = true
     return {
-      id: era.id,
-      title: era.title,
-      question: era.question,
-      path: path.flatMap((item) => typeof item === 'string' ? [item] : item.parallel.length === 1 ? item.parallel[0] : [{ parallel: item.parallel }]),
-      groups,
-      ...(branches.length && { branches, optional: branches.flatMap(({ levels }) => levels) }),
+      id: era.id, title: era.title, question: era.question,
+      levels: [...path.flatMap(({ lanes }) => lanes.flat()), ...optional], links,
+      ...(optional.length && { optional }),
     }
   })
 }

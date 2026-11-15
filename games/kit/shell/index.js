@@ -61,7 +61,7 @@ export function defineGame(def) {
   const plan = def.course?.plan
   const levels = plan ? def.levels.map((level) => {
     const place = plan.place.get(level.id)
-    return { ...level, optional: place?.optional ?? false, group: place?.group }
+    return { ...level, optional: place?.optional ?? false }
   }) : def.levels
   const byId = Object.fromEntries(levels.map((level) => [level.id, level]))
   const index = new Map(levels.map((level, i) => [level.id, i]))

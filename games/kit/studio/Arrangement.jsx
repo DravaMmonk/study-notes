@@ -1,160 +1,143 @@
-// Route topology and group membership are edited independently on the pending course.
-import { Fragment, useMemo, useRef, useState } from 'react'
-import { ArrowRight, ArrowRightLeft, GitBranch, Pencil, Plus } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { ArrowLeft, ListOrdered, Save, Trash2 } from 'lucide-react'
 import { layout, levelLabels } from '../course.js'
-import { locate } from '../engine/ops/place.js'
 import { L, tr } from '../shell/i18n.js'
-import { Chips } from './Picker.jsx'
-import { courseTree, stays } from './tree.js'
+import { Picker } from './Picker.jsx'
+import ArrangementBoard from './ArrangementBoard.jsx'
+import { linkKey, wiringBoard, wiringRefusal } from './arrangement.js'
 
-const chapterName = (era) => L(era.title ?? era.chapter?.title) ?? String(era.id)
-const branchName = (i) => tr(`支线 ${i + 1}`, `Side route ${i + 1}`)
+const nameOf = (era) => L(era.title ?? era.chapter?.title) ?? String(era.id)
+const message = (reason) => ({
+  self: tr('关卡不能接到自己。', 'A level cannot depend on itself.'),
+  duplicate: tr('这条连线已存在。', 'This wire already exists.'),
+  cycle: tr('这条连线会形成循环依赖。', 'This wire would create a cycle.'),
+})[reason]
 
-export default function Arrangement({ content, at, options, pending, onSelect, onConfigure, onEdit, onMove }) {
+export default function Arrangement({ content, groups, at, options, pending, save, onSelect, onEdit, onMove }) {
   const { eras } = content
   const notes = content.mode === 'notes'
-  const tree = useMemo(() => courseTree(eras), [eras])
-  const { place, requires, required } = useMemo(() => layout(eras, { notes }), [eras, notes])
+  const { place, requires } = useMemo(() => layout(eras), [eras])
   const labels = useMemo(() => levelLabels(eras), [eras])
   const levels = useMemo(() => new Map(options.map((option) => [option.value, option])), [options])
-  const selected = at?.level
-  const position = selected ? locate(eras, selected) : null
-  const panel = useRef(null)
-  const [move, setMove] = useState(null)
-  const moving = move?.level === selected && move
-  const chapter = tree.eras[moving?.era ?? position?.era ?? at?.era] ?? tree.eras[0]
-  if (!chapter) return <p className="studio-loading">{tr('没有章节', 'No chapters')}</p>
-  const { era, at: index, items, slots, branches } = chapter
-  const before = required.get(selected) ?? []
-  const after = [...required].filter(([, ids]) => ids.includes(selected)).map(([id]) => id)
-  const config = ['eras', index]
-  const side = position?.kind === 'branch' ? eras[position.era].branches[position.branch] : null
-  const isOptional = place.get(selected)?.optional
-  const selectLevel = (level) => {
-    setMove(null)
-    onSelect({ level })
-    panel.current?.scrollIntoView({ block: 'start', inline: 'nearest' })
+  const links = useMemo(() => eras.flatMap((era) => era.links ?? []), [eras])
+  const indices = useMemo(() => new Map(eras.map((era, index) => [era.id, index])), [eras])
+  const index = indices.get(place.get(at?.level)?.era) ?? at?.era ?? 0
+  const era = eras[index] ?? eras[0]
+  const selected = place.has(at?.level) ? at.level : null
+  const [scope, setScope] = useState(null)
+  const [armed, setArmed] = useState(null)
+  const [highlight, setHighlight] = useState(null)
+  const [notice, setNotice] = useState('')
+  const group = groups.find(({ id }) => id === scope?.group)
+  const pins = group || scope?.era === era?.id ? scope?.pins : null
+  const board = useMemo(() => era && wiringBoard(group ? group.levels.filter((id) => place.has(id)) : era.levels, pins ?? [], requires, links), [era, group, place, pins, requires, links])
+  if (!era) return <p className="studio-loading">{tr('没有章节', 'No chapters')}</p>
+  const picked = board.hosted.has(armed) ? armed : null
+  const wire = board.edges.find((edge) => linkKey(edge) === highlight)
+  const describe = (id) => {
+    const title = L(levels.get(id)?.title)
+    return [labels.get(id) ?? id, title].filter(Boolean).join(' ')
   }
-  const selectChapter = (e) => {
-    const next = Number(e.target.value)
-    if (moving) setMove({ ...moving, era: next })
-    else onSelect({ era: next })
+  const label = (id) => <><code>{labels.get(id) ?? id}</code><span>{L(levels.get(id)?.title)}</span>{place.get(id)?.optional && <small>{tr('可选', 'Optional')}</small>}</>
+  const resetWire = () => { setArmed(null); setHighlight(null); setNotice('') }
+  const open = (group = null) => {
+    resetWire()
+    setScope({ era: era.id, group, pins: [] })
   }
-  const slot = (to, label) => {
-    if (!moving || stays(tree, selected, to)) return null
-    return (
-      <button type="button" className="arrange-slot" disabled={pending} aria-label={`${tr('移到', 'Move to')} ${label}`}
-        onClick={() => { onMove(selected, to); setMove(null) }}>
-        <Plus size={13} aria-hidden="true" />
-      </button>
-    )
+  const setField = (path, values) => onEdit(values.length ? { op: 'game.set', path, value: values } : { op: 'game.unset', path })
+  const updateLink = (link, value) => {
+    const destination = indices.get(place.get(link.to).era)
+    const old = eras[destination].links ?? []
+    const key = linkKey(link)
+    const next = old.some((item) => linkKey(item) === key)
+      ? old.flatMap((item) => linkKey(item) === key ? value ? [value] : [] : [item])
+      : [...old, value]
+    setField(['eras', destination, 'links'], next)
   }
-  const node = (id) => (
-    <button type="button" className="arrange-node" aria-current={id === selected ? 'true' : undefined} onClick={() => selectLevel(id)} title={id}>
-      <code>{labels.get(id) ?? id}</code><span>{L(levels.get(id)?.title)}</span>
-      {place.get(id)?.optional && <small>{tr('可选', 'Optional')}</small>}
-    </button>
-  )
-  const chain = (entries, targets, label, render) => (
-    <div className="arrange-chain">
-      {slot(targets[0], `${label} · ${tr('开头', 'Start')}`)}
-      {entries.map((item, i) => {
-        const ids = typeof item === 'string' ? [item] : item.level ? [item.level] : item.parallel.flatMap((lane) => lane.levels)
-        return (
-          <Fragment key={ids[0]}>
-            <div className="arrange-step">
-              {i > 0 && !notes && !moving && <ArrowRight className="arrange-arrow" size={13} aria-hidden="true" />}
-              {render(item, i)}
-            </div>
-            {slot(targets[i + 1], `${label} · ${tr('之后', 'After')} ${ids.join(' / ')}`)}
-          </Fragment>
-        )
-      })}
-    </div>
-  )
-  const configure = (path, label) => (
-    <button type="button" className="kit-btn" title={label} aria-label={label} onClick={() => { setMove(null); onConfigure(index, path) }}>
-      <Pencil size={13} aria-hidden="true" />
-    </button>
-  )
-  const setList = (path, values) => onEdit(values.length ? { op: 'game.set', path, value: values } : { op: 'game.unset', path })
-  const main = tr('主路线', 'Main route')
-  const hang = side?.after
+  const connect = (from, to) => {
+    if (pending) return
+    const problem = wiringRefusal(requires, from, to)
+    if (problem) { setNotice(message(problem)); return }
+    const edge = { from, to }
+    updateLink(edge, edge)
+    setArmed(null)
+    setNotice('')
+    setHighlight(linkKey(edge))
+  }
+  const chooseWire = (edge) => { resetWire(); setHighlight(linkKey(edge)) }
+  const removeWire = () => {
+    if (!wire || pending) return
+    updateLink(wire, null)
+    resetWire()
+  }
+  const groupOptions = groups.map(({ id, title, code }) => ({ value: id, label: code ?? L(title), ...(code && { title }) }))
+  const outside = options.filter(({ value }) => place.has(value) && !board.hosted.has(value))
+
   return (
-    <article className="arrange" ref={panel}>
+    <article className="arrange" onKeyDown={(event) => {
+      if (event.key === 'Delete' && wire && !event.target.matches('input, textarea, select, [contenteditable]')) {
+        event.preventDefault()
+        removeWire()
+      }
+    }}>
       <header className="arrange-bar">
-        <select className="studio-game" value={index} onChange={selectChapter} aria-label={tr('章节', 'Chapter')}>
-          {eras.map((value, i) => <option key={value.id} value={i}>{chapterName(value)}</option>)}
+        <select className="studio-game" value={index} aria-label={tr('章节', 'Chapter')}
+          onChange={(e) => { resetWire(); setScope(null); onSelect({ era: Number(e.target.value) }) }}>
+          {eras.map((chapter, i) => <option key={chapter.id} value={i}>{nameOf(chapter)}</option>)}
         </select>
-        {configure(config, tr('配置章节', 'Configure chapter'))}
-        {moving && <>
-          <span role="status">{tr(`选择 ${selected} 的新位置`, `Choose a new position for ${selected}`)}</span>
-          <button type="button" className="kit-btn is-label" onClick={() => setMove(null)}>{tr('取消', 'Cancel')}</button>
-        </>}
+        {group && (
+          <button type="button" className="kit-btn is-label" onClick={() => open()}>
+            <ArrowLeft size={13} aria-hidden="true" />{tr('返回章节', 'Back to chapter')}
+          </button>
+        )}
+        {groups.length > 0 && <Picker options={groupOptions} value={group?.id} label={tr('按分组筛选', 'Filter by group')} placeholder={tr('按分组筛选', 'Filter by group')} onPick={open} />}
+        {outside.length > 0 && <Picker options={outside} label={tr('添加外部端口', 'Add external ports')} placeholder={tr('外部端口', 'External ports')}
+          onPick={(id) => setScope({ era: era.id, group: group?.id, pins: [...(pins ?? []), id] })} />}
+        <span className="kit-spacer" />
+        <button type="button" className="kit-btn is-label arrange-save" disabled={!save.ready} onClick={save.apply}>
+          <Save size={14} aria-hidden="true" />{save.saving ? tr('正在保存', 'Saving') : tr('保存变更', 'Save changes')}
+        </button>
       </header>
-      {notes && <p className="arrange-note">{tr('笔记模式下，所有关卡直接开放。', 'In notes mode, every level opens immediately.')}</p>}
-      {position && !moving && (
-        <section className="arrange-focus" aria-label={tr('关卡依赖', 'Level dependencies')}>
-          <div className="arrange-focus-head">
-            <h2><code>{labels.get(selected) ?? selected}</code> {L(levels.get(selected)?.title)}</h2>
-            <label>
-              <input type="checkbox" checked={isOptional} disabled={pending}
-                onChange={(e) => setList([...config, 'optional'], e.target.checked ? [...(era.optional ?? []), selected] : era.optional.filter((id) => id !== selected))} />
-              {tr('可选', 'Optional')}
-            </label>
-            <button type="button" className="kit-btn is-label" disabled={pending} onClick={() => setMove({ level: selected, era: index })}>
-              <ArrowRightLeft size={13} aria-hidden="true" />{tr('移动关卡', 'Move level')}
-            </button>
-          </div>
-          {!notes && <div className="arrange-links">
-            <div><h3>{tr('直接前置', 'Direct prerequisites')}</h3>{before.length ? before.map((id) => <Fragment key={id}>{node(id)}</Fragment>) : '—'}</div>
-            <div><h3>{tr('直接后续', 'Direct successors')}</h3>{after.length ? after.map((id) => <Fragment key={id}>{node(id)}</Fragment>) : '—'}</div>
-          </div>}
-          {!notes && side && (
-            <fieldset className="arrange-config" disabled={pending}>
-              <legend>{tr('支线前置关卡', 'Side route prerequisites')}</legend>
-              <div>
-                <Chips label={tr('支线前置关卡', 'Side route prerequisites')} options={options.filter(({ value }) => requires.has(value) && !side.levels.includes(value))}
-                  values={hang ?? []} onSet={(values) => setList([...config, 'branches', position.branch, 'after'], values)} />
-                {hang === undefined && <small>{tr('默认接在本章主路线末尾', 'Defaults to the end of this chapter’s main route')}</small>}
-              </div>
-            </fieldset>
-          )}
-        </section>
-      )}
-      <section className="arrange-section">
-        <header><h2>{main}</h2>{configure([...config, 'path'], tr('配置主路线', 'Configure main route'))}</header>
-        {chain(items, slots, main, (item) => item.level ? node(item.level) : (
-          <div className="arrange-parallel" aria-label={tr('并行路线', 'Parallel routes')}>
-            <GitBranch size={14} aria-hidden="true" />
-            <div>{item.parallel.map(({ levels: ids, slots: laneSlots }, i) => (
-              <div className="arrange-branch" key={ids[0]}>
-                {chain(ids, laneSlots, tr(`并行路线 ${i + 1}`, `Parallel lane ${i + 1}`), node)}
-              </div>
-            ))}</div>
-          </div>
-        ))}
-      </section>
-      <section className="arrange-section">
-        <header><h2>{tr('支线', 'Side routes')}</h2>{configure([...config, 'branches'], tr('配置支线', 'Configure side routes'))}</header>
-        {branches.map(({ levels: ids, slots: branchSlots }, i) => (
-          <div className="arrange-branch" key={ids[0]}>
-            {chain(ids, branchSlots, branchName(i), node)}
-          </div>
-        ))}
-        {slot({ era: era.id, on: 'branch', ...(hang !== undefined && { hang }) }, tr('新支线', 'New side route'))}
-      </section>
-      {!moving && <section className="arrange-section">
-        <header><h2>{tr('分组', 'Groups')}</h2>{configure([...config, 'groups'], tr('配置分组', 'Configure groups'))}</header>
-        {(era.groups ?? []).map((group, i) => (
-          <div className="arrange-branch" key={i}>
-            <button type="button" className="arrange-branch-name" onClick={() => onConfigure(index, [...config, 'groups', i])}>
-              {group.code && <code>{group.code} · </code>}{L(group.title)}
-            </button>
-            <div className="arrange-chain">{group.levels.map((id) => <Fragment key={id}>{node(id)}</Fragment>)}</div>
-          </div>
-        ))}
-      </section>}
+      <div className="arrange-actions">
+        {wire ? <>
+          <strong>{describe(wire.from)} → {describe(wire.to)}</strong>
+          {place.get(wire.from)?.optional && <label>
+            <input type="checkbox" checked={wire.required ?? false} disabled={pending} onChange={(e) => {
+              updateLink(wire, { from: wire.from, to: wire.to, ...(e.target.checked && { required: true }) })
+            }} />
+            {tr('须完成可选前置', 'Require this optional level')}
+          </label>}
+          <button type="button" className="kit-btn is-label" disabled={pending} onClick={removeWire}>
+            <Trash2 size={13} aria-hidden="true" />{tr('断开连线', 'Disconnect')}
+          </button>
+        </> : selected ? <>
+          <strong>{describe(selected)}</strong>
+          <label>
+            <input type="checkbox" checked={place.get(selected).optional} disabled={pending} onChange={(e) => {
+              const chapter = indices.get(place.get(selected).era)
+              const optional = eras[chapter].optional ?? []
+              setField(['eras', chapter, 'optional'], e.target.checked ? [...optional, selected] : optional.filter((id) => id !== selected))
+            }} />
+            {tr('可选', 'Optional')}
+          </label>
+          <button type="button" className="kit-btn is-label" disabled={pending} onClick={() => onMove(selected)}>
+            <ListOrdered size={13} aria-hidden="true" />{tr('调整编号位置', 'Reorder level')}
+          </button>
+        </> : null}
+        <p className={notice ? 'is-error' : ''} role="status">{notice || (picked
+          ? tr(`从 ${describe(picked)} 接出，选择目标输入。`, `Choose the target input for ${describe(picked)}.`)
+          : notes ? tr('笔记模式试玩时直接开放所有关。', 'Notes mode opens every level during play.')
+          : !wire && !selected ? tr('拖动关卡调整视图，从输出接到输入添加依赖。', 'Drag levels to arrange the view. Connect an output to an input to add a prerequisite.') : '')}</p>
+      </div>
+      {save.dirty && <p className={`arrange-saved ${save.problems.length ? 'is-error' : ''}`} role="status">
+        {save.problems[0] ?? tr('保存后依赖变更才会生效。', 'Save to apply prerequisite changes.')}
+      </p>}
+      {save.said && <p className={`arrange-saved ${save.said.ok ? '' : 'is-error'}`} role="status">
+        {save.said.ok ? tr('已保存到 game.json。', 'Saved to game.json.') : save.said.text}
+      </p>}
+      <ArrangementBoard key={group?.id ?? era.id} board={board} label={label} describe={describe} active={selected} picked={picked} wire={highlight} pending={pending}
+        onLevel={(level) => { resetWire(); onSelect({ level }) }} onWire={chooseWire}
+        onPick={(id) => { resetWire(); setArmed(picked === id ? null : id) }} onConnect={connect} onCancel={resetWire} />
     </article>
   )
 }

@@ -1,6 +1,6 @@
 {
   "domain": "image",
-  "vocabulary": 21,
+  "vocabulary": 22,
   "title": { "en": "__title__", "zh": "__title__" },
   "kicker": { "en": "In development", "zh": "开发中" },
   "lede": {
@@ -32,10 +32,20 @@
           "zh": "图像是什么"
         }
       },
-      "path": [
+      "levels": [
         "0-1",
         "0-2",
         "0-3"
+      ],
+      "links": [
+        {
+          "from": "0-1",
+          "to": "0-2"
+        },
+        {
+          "from": "0-2",
+          "to": "0-3"
+        }
       ]
     }
   ],

@@ -3,12 +3,9 @@
 // player passed that level with, so a run can step inside it, and the validator checks that level's reference board
 // as that part against the level's tests. The design behind these rules is games/DESIGN.md.
 //
-// A course has a main path and side routes in each chapter. A main path item is a level id or
-// a fork { parallel: [[level id, ...], ...] }; every lane starts at the same prerequisites and joins at its end.
-// A side route is { levels, after? }, with prerequisites defaulting to the end of the chapter's main path.
-// Chapters also list optional level ids and presentation groups { title, code?, levels }. Groups are independent
-// of routes: they never add a prerequisite, affect a number, or make a level optional.
-//
+// A chapter lists its level ids in display order. Links go from prerequisite to successor; the chapter holding the
+// successor owns the link. Optional levels are bypassed on ordinary links. A required link explicitly waits for an
+// optional predecessor. Groups are independent of both numbering and links.
 // defineCourse({
 //   levels      [{ id, unlocks: [flag] }]  in play order (layout(eras).order when the course has eras)
 //   eras?                                  the course's eras, for the era rules of the audit
@@ -96,81 +93,65 @@ export const RULE_TEXT = {
   'difficulty-spike': 'a required level whose blind-play attempts stand out against its neighbours on the tree (engine/play/stats.js)',
 }
 
-/** The level ids of a main path, one parallel lane at a time. */
-export const pathLevels = (path) => path.flatMap((item) => typeof item === 'string' ? [item] : item.parallel.flat())
+export const eraLevels = (era) => era.levels
 
-/** The level ids of a chapter, independent of group membership. */
-export const eraLevels = (era) => [...pathLevels(era.path), ...(era.branches ?? []).flatMap((branch) => branch.levels)]
-
-/** Numeric positions within chapters. At a fork, number one row at a time; number side routes after the main path. */
+/** Numeric positions follow the chapter's ordered list. */
 export function levelLabels(eras) {
   return new Map(eras.flatMap((era, e) => {
-    const main = era.path.flatMap((item) => {
-      if (typeof item === 'string') return [item]
-      const depth = Math.max(...item.parallel.map((lane) => lane.length))
-      return Array.from({ length: depth }, (_, row) => item.parallel.flatMap((lane) => lane[row] === undefined ? [] : [lane[row]])).flat()
-    })
-    const ids = [...main, ...(era.branches ?? []).flatMap((branch) => branch.levels)]
     const chapter = typeof era.id === 'number' ? era.id : e
-    return ids.map((id, i) => [id, `${chapter}-${i + 1}`])
+    return era.levels.map((id, i) => [id, `${chapter}-${i + 1}`])
   }))
 }
 
-/** Route structure, author prerequisites, unlock prerequisites, and map tracks from the same chapter data. */
+/** Put prerequisites before their consumers, keeping input order where possible. */
+export function dependencyOrder(ids, requires) {
+  const local = new Set(ids)
+  const seen = new Set(), order = []
+  const visit = (id) => {
+    if (seen.has(id)) return
+    seen.add(id)
+    for (const before of requires.get(id) ?? []) if (local.has(before)) visit(before)
+    order.push(id)
+  }
+  ids.forEach(visit)
+  return order
+}
+
+/** Layer the supplied ids by the longest local prerequisite chain. */
+export function dependencyLayers(ids, requires) {
+  const rank = new Map()
+  const layers = []
+  for (const id of dependencyOrder(ids, requires)) {
+    const row = Math.max(0, ...(requires.get(id) ?? []).map((before) => (rank.get(before) ?? -1) + 1))
+    rank.set(id, row)
+    ;(layers[row] ??= []).push(id)
+  }
+  return layers
+}
+
+/** Direct author prerequisites, effective unlock gates, and chapter information. */
 export function layout(eras, { notes = false } = {}) {
   const place = new Map(), requires = new Map(), tracks = new Map()
-  let before = []
+  const incoming = new Map()
   for (const era of eras) {
-    const track = []
-    const at = new Map()
     const optional = new Set(era.optional)
-    const groups = new Map((era.groups ?? []).flatMap(({ levels, ...group }) => levels.map((id) => [id, group])))
-    let ends = before
-    const put = (ids, after, side = false) => ids.forEach((id, k) => {
-      place.set(id, { era: era.id, side, optional: optional.has(id), group: groups.get(id) })
-      requires.set(id, notes ? [] : k ? [ids[k - 1]] : [...after])
-    })
-    for (const item of era.path) {
-      const main = typeof item === 'string'
-      const entry = { ...(main ? { level: item } : item), branches: [] }
-      const lanes = main ? [[item]] : item.parallel
-      for (const lane of lanes) {
-        put(lane, ends)
-        for (const id of lane) at.set(id, entry)
-      }
-      track.push(entry)
-      ends = lanes.map((lane) => lane.at(-1))
+    for (const id of era.levels) {
+      place.set(id, { era: era.id, optional: optional.has(id) })
+      incoming.set(id, [])
     }
-    if (!track.length && era.branches?.length) track.push({ branches: [] })
-    for (const branch of era.branches ?? []) {
-      const after = branch.after ?? ends
-      put(branch.levels, after, true)
-      const parent = at.get(after.at(-1)) ?? track.at(-1)
-      parent?.branches.push({ levels: branch.levels, after })
-      for (const id of branch.levels) at.set(id, parent)
-    }
-    tracks.set(era.id, track)
-    before = ends
+    tracks.set(era.id, era.levels)
   }
-  // Optional levels on the main path can be bypassed. A side route still follows its authored prerequisites.
+  if (!notes) for (const era of eras) for (const link of era.links ?? []) incoming.get(link.to)?.push(link)
+  for (const [id, links] of incoming) requires.set(id, links.map(({ from }) => from))
+
+  const order = dependencyOrder([...place.keys()], requires)
   const required = new Map()
-  const resolving = new Set()
-  const gates = (id) => {
-    if (required.has(id)) return required.get(id)
-    if (resolving.has(id)) return [id]
-    resolving.add(id)
-    const direct = (requires.get(id) ?? []).flatMap((before) => {
-      const source = place.get(before)
-      return source?.optional && !source.side ? gates(before) : [before]
-    })
-    resolving.delete(id)
+  for (const id of order) {
+    const direct = incoming.get(id).flatMap(({ from, required: strict }) => place.get(from)?.optional && !strict
+      ? required.get(from) ?? [from]
+      : [from])
     required.set(id, [...new Set(direct)])
-    return required.get(id)
   }
-  for (const id of requires.keys()) gates(id)
-  const order = [...tracks.values()].flatMap((track) => track.flatMap((entry) => [
-    ...(entry.level ? [entry.level] : entry.parallel?.flat() ?? []), ...entry.branches.flatMap((branch) => branch.levels),
-  ]))
   return { order, place, requires, required, tracks }
 }
 
@@ -393,7 +374,7 @@ export function isCore(course, level) {
   if (!at) return true
   const own = course.levels[course.index.get(level.id)]
   const era = course.eras.find((e) => e.id === at.era)
-  return pathLevels(era.path)[0] === level.id || (own.unlocks ?? []).length > 0 || fresh(course, own).size > 0
+  return era.levels[0] === level.id || (own.unlocks ?? []).length > 0 || fresh(course, own).size > 0
 }
 
 /** Every broken rule, as { rule, level, part, text }, in play order. */

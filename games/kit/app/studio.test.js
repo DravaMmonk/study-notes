@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { join } from 'node:path'
 import { proofsRoot } from '../engine/ops/fixture.js'
+import { studioGroups } from './studio-groups.js'
 
 const { root, id: GAME } = proofsRoot()
 let server
@@ -17,10 +18,10 @@ let closeGames
 
 before(async () => {
   process.env.GAMES_ROOT = root
-  const { TOOLS, lacking } = await import('../engine/ops/tools.js')
+  const { TOOLS, known, lacking } = await import('../engine/ops/tools.js')
   ;({ closeGames } = await import('../engine/games.mjs'))
   const { bridge } = await import('./studio.js')
-  const middleware = bridge(TOOLS, lacking)
+  const middleware = bridge({ ...TOOLS, studio_groups: studioGroups(root, known) }, lacking)
   server = createServer((req, res) => middleware(req, res, () => { res.statusCode = 404; res.end('not the bridge') }))
   await new Promise((done) => server.listen(0, '127.0.0.1', done))
   base = `http://127.0.0.1:${server.address().port}`
@@ -47,6 +48,20 @@ test('the bridge lists the tools, and says what is wrong with a call', async () 
   const unknown = await post('preview', { game: 'nope' })
   assert.equal(unknown.status, 422)
   assert.match(unknown.body.error, /no game nope/)
+})
+
+test('Studio groups save separately and reject a stale edit', async () => {
+  const gameFile = join(root, 'games', GAME, 'game.json')
+  const before = readFileSync(gameFile, 'utf8')
+  const { body: base } = await post('studio_groups', { game: GAME })
+  assert.deepEqual(base, [])
+  const groups = [{ id: 'logic', title: 'Logic', code: 'L', levels: ['given', 'suppose'] }]
+  assert.deepEqual(await post('studio_groups', { game: GAME, groups, base }), { status: 200, body: groups })
+  assert.equal(readFileSync(gameFile, 'utf8'), before)
+  assert.deepEqual((await post('studio_groups', { game: GAME })).body, groups)
+  assert.equal((await post('studio_groups', { game: GAME, groups: [], base })).status, 422)
+  const duplicate = [...groups, { id: 'duplicate', title: 'Duplicate', levels: ['given'] }]
+  assert.equal((await post('studio_groups', { game: GAME, groups: duplicate, base: groups })).status, 422)
 })
 
 test('a pending changeset previewed: its content, lines by level and files, nothing written', async () => {

@@ -6,6 +6,9 @@ import { eraLevels, layout, levelLabels, againstOpen, audit, defineCourse, holds
 import { dependencies, dot, mermaid } from './deps.js'
 import { rebuilt } from './match.js'
 
+const wires = (...pairs) => pairs.map(([from, to, required]) => ({ from, to, ...(required && { required: true }) }))
+const serial = (...levels) => ({ levels, links: levels.slice(1).map((to, i) => ({ from: levels[i], to })) })
+
 /**
  * A course from a sketch: eras of level ids; per level what it adds, builds and its reference uses (`uses`), its
  * machine abilities (`can`), its boards.
@@ -36,18 +39,18 @@ test('a new idea is put to work before two more new ideas come in; no number of 
     1: { adds: ['a'], uses: ['a'] }, 2: { adds: ['b'], uses: ['a', 'b'] }, 3: { adds: ['c'], uses: ['c'] }, 4: { uses: ['b', 'c'] },
     5: { adds: ['d'], uses: ['d'] }, 6: { adds: ['e'], uses: ['e'] }, 6.5: { adds: ['f'], uses: ['f', 'e'] }, 7: { uses: ['d', 'f'] },
   }
-  const course = sketch([{ path: ['1', '2', '3', '4', '5', '6', '6.5', '7'] }], spec)
+  const course = sketch([serial('1', '2', '3', '4', '5', '6', '6.5', '7')], spec)
   assert.deepEqual(idle(course), ['d@5'])
   assert.match(audit(course).find((f) => f.rule === 'idle-idea').text, /first put to work at 7, after 2 other new ideas \(e, f\)/)
 })
 
 test('an idea its own level does not use, or that no later level uses, is idle; a declaration uses what it declares', () => {
   const spec = { 1: { adds: ['a', 'b'], uses: ['a'] }, 2: { adds: ['c'], uses: ['a', 'c'] }, 3: { uses: ['a', 'b'] } }
-  assert.deepEqual(idle(sketch([{ path: ['1', '2', '3'] }], spec)), ['b@1', 'c@2'])
-  const declaring = sketch([{ path: ['1', '2', '3'] }], spec, { declares: (l) => (l.id === '1' ? ['b'] : []) })
+  assert.deepEqual(idle(sketch([serial('1', '2', '3')], spec)), ['b@1', 'c@2'])
+  const declaring = sketch([serial('1', '2', '3')], spec, { declares: (l) => (l.id === '1' ? ['b'] : []) })
   assert.deepEqual(idle(declaring), ['c@2'])
   // The last level's idea has nothing after it to wait for.
-  assert.deepEqual(idle(sketch([{ path: ['1'] }], { 1: { adds: ['a'], uses: ['a'] } })), [])
+  assert.deepEqual(idle(sketch([serial('1')], { 1: { adds: ['a'], uses: ['a'] } })), [])
 })
 
 test('an idea keeps working inside a built part, and other branches bring nothing in between', () => {
@@ -56,7 +59,7 @@ test('an idea keeps working inside a built part, and other branches bring nothin
     1: { adds: ['a'], uses: ['a'] }, 2: { adds: ['b'], builds: 'P', uses: ['a', 'b'] }, x: { adds: ['c'], uses: ['c'] }, y: { adds: ['d'], uses: ['d'] },
     z: { uses: ['P', 'c'] }, w: { uses: ['d'] },
   }
-  const eras = [{ path: ['1', '2', { parallel: [['x', 'z'], ['y', 'w']] }] }]
+  const eras = [{ levels: ['1','2','x','z','y','w'], links: wires(['1','2'], ['2','x'], ['x','z'], ['2','y'], ['y','w']) }]
   assert.deepEqual(idle(sketch(eras, spec)), [])
   // Without P, a waits for z behind b and c.
   assert.deepEqual(idle(sketch(eras, { ...spec, 2: { adds: ['b'], uses: ['b'] }, z: { uses: ['a', 'b', 'c'] } })), ['a@1'])
@@ -68,7 +71,7 @@ test('an ability of the machine is an idea too, and an idea is a concept', () =>
     4: { adds: ['e'], uses: ['e'], can: ['view'] }, 5: { uses: ['a', 'c', 'e'], can: ['far'] },
   }
   // b is a's concept, so 2 brings only far; far waits at 5 behind c and e.
-  assert.deepEqual(idle(sketch([{ path: ['1', '2', '3', '4', '5'] }], spec, { concept: (p) => (p === 'b' ? 'a' : p) })), ['far@2'])
+  assert.deepEqual(idle(sketch([serial('1', '2', '3', '4', '5')], spec, { concept: (p) => (p === 'b' ? 'a' : p) })), ['far@2'])
 })
 
 // Boards in the shared circuit model: in → parts → out.
@@ -79,7 +82,7 @@ const TRIPLE = board([{ id: 'x', type: 'a' }, { id: 'y', type: 'b', params: { k:
 
 test('a level starts only from a board it has seen', () => {
   const rules = (course, rule) => audit(course).filter((f) => f.rule === rule).map((f) => `${f.part}@${f.level}`)
-  const eras = [{ path: ['a1', 'a2', 'a3'], branches: [{ after: ['a1'], levels: ['t1', 't2', 't3'] }], optional: ['t1', 't2', 't3'] }]
+  const eras = [{ levels: ['a1','a2','a3','t1','t2','t3'], links: wires(['a1','a2'], ['a2','a3'], ['a1','t1'], ['t1','t2',true], ['t2','t3',true]), optional: ['t1','t2','t3'] }]
   const carries = (l) => ({ a3: ['a1'], t2: ['a3'] })[l.id] ?? []
   assert.deepEqual(rules(sketch(eras, {}, { carries }), 'carry-unseen'), ['a3@t2'])
 
@@ -109,7 +112,7 @@ test('bypass: a board of primitives rebuilding a held part of three pieces, not 
     3: { uses: ['a', 'b', 'c', 'd'], boards: [host] },
     4: { uses: ['P', 'd'], boards: [] },
   }
-  assert.deepEqual(bypass(sketch([{ path: ['1', '2', '3', '4'] }], spec)), ['P@3'])
+  assert.deepEqual(bypass(sketch([serial('1', '2', '3', '4')], spec)), ['P@3'])
 })
 
 test('the part dependency graph: where each part comes in, what a built part is made of, who uses it', () => {
@@ -117,12 +120,12 @@ test('the part dependency graph: where each part comes in, what a built part is 
     1: { adds: ['a'], uses: ['a'] }, 2: { adds: ['b'], builds: 'P', uses: ['a', 'b', 'a'] },
     t1: { builds: 'Q', uses: ['P', 'b'] }, 3: { uses: ['P'] },
   }
-  const graph = dependencies(sketch([{ path: ['1', '2'], branches: [{ levels: ['t1'] }], optional: ['t1'], groups: [{ title: 'T', code: 'T', levels: ['t1'] }] }, { title: { zh: '二', en: 'Two' }, path: ['3'] }], spec))
-  assert.deepEqual(graph.parts.map((p) => [p.key, p.built, p.at, p.era, p.group, p.optional, p.uses]), [
-    ['a', false, ['1'], 1, null, false, ['1', '2']],
-    ['b', false, ['2'], 1, null, false, ['2', 't1']],
-    ['P', true, ['2'], 1, null, false, ['t1', '3']],
-    ['Q', true, ['t1'], 1, 'T', true, []],
+  const graph = dependencies(sketch([{ ...serial('1', '2', 't1'), optional: ['t1'] }, { title: { zh: '二', en: 'Two' }, levels: ['3'], links: wires(['2', '3']) }], spec))
+  assert.deepEqual(graph.parts.map((p) => [p.key, p.built, p.at, p.era, p.optional, p.uses]), [
+    ['a', false, ['1'], 1, false, ['1', '2']],
+    ['b', false, ['2'], 1, false, ['2', 't1']],
+    ['P', true, ['2'], 1, false, ['t1', '3']],
+    ['Q', true, ['t1'], 1, true, []],
   ])
   assert.deepEqual(graph.made, [{ from: 'a', to: 'P' }, { from: 'b', to: 'P' }, { from: 'P', to: 'Q' }, { from: 'b', to: 'Q' }])
   const text = mermaid(graph)
@@ -145,9 +148,9 @@ test('findings a game leaves open are listed, new ones and ones met since are no
 
 test('carrying a published board into its next revision is reuse, not an abstraction bypass', () => {
   const spec = { first: { builds: 'P', uses: ['a', 'b', 'c'] }, next: { builds: 'P', uses: ['a', 'b', 'c'] }, use: { uses: ['P'] } }
-  const c = sketch([{ path: ['first', 'next', 'use'] }], spec, { abstraction: true, carries: (l) => l.id === 'next' ? ['first'] : [] })
+  const c = sketch([serial('first', 'next', 'use')], spec, { abstraction: true, carries: (l) => l.id === 'next' ? ['first'] : [] })
   assert.deepEqual(audit(c).filter((f) => ['unused', 'bypass'].includes(f.rule)), [])
-  const end = sketch([{ path: ['first'] }], { first: spec.first }, { abstraction: true })
+  const end = sketch([serial('first')], { first: spec.first }, { abstraction: true })
   assert.ok(audit(end).some((f) => f.rule === 'unused'))
   const instrument = { ...end, showcase: () => 'A terminal instrument callable from the parts book.' }
   assert.ok(!audit(instrument).some((f) => f.rule === 'unused'))
@@ -155,7 +158,7 @@ test('carrying a published board into its next revision is reuse, not an abstrac
 
 
 test('only staged tasks exceeding the open-part limit are crowded', () => {
-  const course = sketch([{ path: ['base', 'upgrade'] }], {}, { openParts: (l) => l.id === 'upgrade' ? [{ task: 'within', staged: true, count: 8 }, { task: 'crowded', staged: true, count: 9 }, { task: 'plain', staged: false, count: 20 }] : [] })
+  const course = sketch([serial('base', 'upgrade')], {}, { openParts: (l) => l.id === 'upgrade' ? [{ task: 'within', staged: true, count: 8 }, { task: 'crowded', staged: true, count: 9 }, { task: 'plain', staged: false, count: 20 }] : [] })
   const findings = audit(course).filter((f) => f.rule === 'open-crowded')
   assert.equal(findings.length, 1)
   assert.equal(findings[0].part, 'crowded')
@@ -165,7 +168,7 @@ test('only staged tasks exceeding the open-part limit are crowded', () => {
 test('a level holds, of the parts met before it, those its tray lists, in the tray’s order; another tray keeps its own', () => {
   const trays = { gates: ['b', 'a'], proof: ['c', 'x', 'd'] }
   const spec = { 1: { adds: ['a'], tray: 'gates' }, 2: { adds: ['b'], tray: 'gates' }, 3: { adds: ['c'], tray: 'proof' }, 4: { builds: 'x', uses: ['c'], tray: 'proof' }, 5: { adds: ['d'], tray: 'proof', uses: ['d'] }, 6: { tray: 'gates', uses: ['a'] } }
-  const course = sketch([{ path: ['1', '2', '3', '4'] }, { path: ['5', '6'] }], spec, { trays, tray: (l) => spec[l.id]?.tray ?? null })
+  const course = sketch([serial('1', '2', '3', '4'), { levels: ['5', '6'], links: wires(['4', '5'], ['5', '6']) }], spec, { trays, tray: (l) => spec[l.id]?.tray ?? null })
   assert.deepEqual(reach(course, { id: '5' }), ['c', 'x', 'd'])
   // The gates come back on the next truth circuit, though proof levels came in between.
   assert.deepEqual(reach(course, { id: '6' }), ['b', 'a'])
@@ -175,7 +178,7 @@ test('a level holds, of the parts met before it, those its tray lists, in the tr
 
 test('a part on no tray, and a tray part nothing brings in, are reported', () => {
   const spec = { 1: { adds: ['a', 'b'] } }
-  const course = sketch([{ path: ['1'] }], spec, { trays: { only: ['a', 'c'] }, tray: () => 'only' })
+  const course = sketch([serial('1')], spec, { trays: { only: ['a', 'c'] }, tray: () => 'only' })
   assert.deepEqual(audit(course).filter((f) => f.rule.includes('tray')).map((f) => `${f.rule} ${f.part}`), ['off-tray b', 'tray-unmet c'])
 })
 
@@ -190,7 +193,7 @@ test('an item is a part, one of its settings, or one value of a setting', () => 
 
 test('a task gives and withholds parts for itself alone, over what the course has it hold by default', () => {
   const spec = { 1: { adds: ['a'] }, 2: { adds: ['b'], builds: 'P', uses: ['a', 'b'] }, 3: { withholds: ['a'], gives: ['Q', 'c'] }, 4: { builds: 'Q' }, 5: {} }
-  const course = sketch([{ path: ['1', '2', '3', '4', '5'] }], spec, { gives: (l) => spec[l.id]?.gives ?? [], withholds: (l) => spec[l.id]?.withholds ?? [] })
+  const course = sketch([serial('1', '2', '3', '4', '5')], spec, { gives: (l) => spec[l.id]?.gives ?? [], withholds: (l) => spec[l.id]?.withholds ?? [] })
   // By default: what the levels before brought, and a built part once its level is solved.
   assert.deepEqual(usable(course, { id: '3' }, new Set()), ['b', 'Q', 'c'])
   assert.deepEqual(usable(course, { id: '3' }, new Set(['P'])), ['b', 'P', 'Q', 'c'])
@@ -202,7 +205,7 @@ test('a task gives and withholds parts for itself alone, over what the course ha
 
 test('a setting and a value are held from the start, unless a level opens them or a flag earns them; a task gives and withholds them too', () => {
   const spec = { 1: { adds: ['a'] }, 2: { opens: ['a.mode=fast'] }, 3: { withholds: ['a.mode=slow', 'a.gain'], gives: ['a.edge=wrap'] }, 4: { builds: 'W' }, 5: {} }
-  const course = sketch([{ path: ['1', '2', '3', '4', '5'] }], spec, {
+  const course = sketch([serial('1', '2', '3', '4', '5')], spec, {
     opens: (l) => spec[l.id]?.opens ?? [],
     gives: (l) => spec[l.id]?.gives ?? [],
     withholds: (l) => spec[l.id]?.withholds ?? [],
@@ -222,18 +225,17 @@ test('a task holds its level’s part once a task before it has built it; the ta
   const spec = { 1: { adds: ['a'], builds: 'P' }, 2: { builds: 'P' }, 3: {} }
   // Level 2 upgrades P at its second task of three.
   const builds = (l) => (!spec[l.id]?.builds || (l.id === '2' && l.task !== undefined && l.task < 1) ? [] : [spec[l.id].builds])
-  const course = sketch([{ path: ['1', '2', '3'] }], spec, { builds })
+  const course = sketch([serial('1', '2', '3')], spec, { builds })
   const flags = new Set(['P'])
   assert.deepEqual([0, 1, 2].map((task) => usable(course, { id: '2', task }, flags)), [['a'], ['a'], ['P', 'a']])
   assert.deepEqual(usable(course, { id: '3', task: 0 }, flags), ['a', 'P'])
 })
 
-test('parallel routes, optional unlocks, numeric labels and groups are independent', () => {
+test('parallel routes, optional unlocks, numeric labels are independent', () => {
   const era = {
-    id: 0, path: ['start', { parallel: [['a', 'b'], ['c', 'd']] }, 'join'],
-    branches: [{ levels: ['extra', 'last'], after: ['a', 'c'] }],
+    id: 0, levels: ['start', 'a', 'c', 'b', 'd', 'join', 'extra', 'last'],
+    links: wires(['start','a'], ['start','c'], ['a','b'], ['c','d'], ['b','join'], ['d','join'], ['a','extra'], ['c','extra'], ['extra','last',true]),
     optional: ['b', 'extra', 'last'],
-    groups: [{ title: 'Crossing lanes', code: 'X', levels: ['a', 'd', 'extra'] }],
   }
   const { place, requires, required } = layout([era])
   assert.deepEqual(requires.get('join'), ['b', 'd'])
@@ -241,8 +243,6 @@ test('parallel routes, optional unlocks, numeric labels and groups are independe
   assert.deepEqual(required.get('extra'), ['a', 'c'])
   assert.deepEqual(required.get('last'), ['extra'])
   assert.equal(place.get('extra').optional, true)
-  assert.equal(place.get('d').group.code, 'X')
   const labels = levelLabels([era])
   assert.deepEqual([...labels], [['start', '0-1'], ['a', '0-2'], ['c', '0-3'], ['b', '0-4'], ['d', '0-5'], ['join', '0-6'], ['extra', '0-7'], ['last', '0-8']])
-  assert.deepEqual(levelLabels([{ ...era, groups: [] }]), labels)
 })

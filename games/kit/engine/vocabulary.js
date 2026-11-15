@@ -151,17 +151,18 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
       for (const id of era.optional ?? []) {
         if (!local.has(id)) out.push({ at: `${prefix}.optional`, says: `level "${id}" is outside this chapter` })
       }
-      const grouped = new Set()
-      for (const [k, group] of (era.groups ?? []).entries()) {
-        for (const id of group.levels) {
-          const at = `${prefix}.groups[${k}].levels`
-          if (!local.has(id)) out.push({ at, says: `level "${id}" is outside this chapter` })
-          if (grouped.has(id)) out.push({ at, says: `level "${id}" is already grouped in this chapter` })
-          grouped.add(id)
-        }
+    }
+    for (const [e, era] of game.eras.entries()) {
+      const local = new Set(era.levels), pairs = new Set()
+      for (const [k, { from, to }] of (era.links ?? []).entries()) {
+        const at = `game.json.eras[${e}].links[${k}]`
+        const key = JSON.stringify([from, to])
+        if (!placed.has(from) || !local.has(to)) out.push({ at, says: 'the source must be placed and the destination must be in this chapter' })
+        if (pairs.has(key)) out.push({ at, says: 'this prerequisite link is already present' })
+        pairs.add(key)
       }
     }
-    const cycle = dependencyCycle(layout(game.eras, { notes: game.mode === 'notes' }).requires)
+    const cycle = dependencyCycle(layout(game.eras).requires)
     if (cycle) out.push({ at: 'game.json.eras', says: `circular prerequisites: ${cycle.join(' → ')}` })
   }
   if (open !== undefined) add(validate(OPEN, open, { vocabulary }), 'game.json.open')

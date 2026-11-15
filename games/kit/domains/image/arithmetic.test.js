@@ -7,7 +7,7 @@ import { tidyImageBoard } from './engine/board.js'
 const text = (s) => ({ zh: s, en: s })
 const course = imageCourse({
   primitives: ['arith'],
-  eras: [{ id: 0, path: ['sample'], chapter: { title: text('c'), label: text('l'), question: text('q') } }],
+  eras: [{ id: 0, levels: ['sample'], chapter: { title: text('c'), label: text('l'), question: text('q') } }],
   levels: [{ id: 'sample', title: text('sample'), after: text('a'), intro: [{ t: text('i') }], tasks: [{ id: 'sample', kind: 'graph', brief: text('b'), scene: 'filter', setup: { target: 'same' }, tests: [{ label: text('t'), in: 'disk' }] }] }],
 })
 const kit = course.kit

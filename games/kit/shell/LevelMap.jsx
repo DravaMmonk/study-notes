@@ -1,4 +1,5 @@
 import { Text } from './Layout.jsx'
+import { dependencyLayers } from '../course.js'
 import { fileMark } from './edit.js'
 import { createElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useOverlay } from './useOverlay.js'
@@ -6,12 +7,7 @@ import { ArrowRight, BookMarked, Check, Lock, LockOpen, Package, RotateCcw, X } 
 import { L, tr } from './i18n.js'
 import { PHONE, useMedia } from './useMedia.js'
 
-// The level map: a hero (the game's kicker, title, lede and illustration), progress, the unlock-all action and a
-// "continue" button, then each chapter's level tree, as in Turing Complete: levels are buttons joined by wires. A
-// chapter's `track` (games/kit/course.js layout) gives the tree: the main path runs down the middle, a set of required
-// branches stands side by side and joins again, and side routes branch off to either side
-// of the level they follow.
-
+// The player's map draws chapter-local prerequisite wires. Cross-chapter gates appear in the prerequisite prompt.
 // Tree geometry in px: node size, the gap between columns, and the gap under a level: `gap` when a chip sits on its
 // wire (the parts it brings in and what passing it unlocks, UnlockChip), `plain` when none does. A level that is not a
 // milestone (game.core) is drawn smaller, `minor`, centred on its column.
@@ -19,161 +15,20 @@ const SIZE = { full: { w: 224, h: 52, col: 28, gap: 34, plain: 16, minor: { w: 1
 const R = 8
 const CLEAR = 6 // how far a wire's turn keeps from a level it passes
 
-// Places a track as columns ("tracks"), each a run of rows on one lane: a main-path level, a parallel branch (kept to
-// the set's full depth, so a shorter branch keeps its room until the join), or an optional branch. A branch stays in
-// one column. The tree is never more than three columns wide, so no row holds more than three levels: an optional
-// branch starts one row below its anchor, or lower, at the first rows where it fits beside what is there without
-// widening the tree past three; it need not stick out as a column of its own. It goes on the free lane nearest its
-// anchor (under the branch it goes on from, in that branch's column, when it starts right below it) on the side its number puts it (right of the levels of its series it stands beside when numbered after them),
-// else on the side with fewer levels in those rows (on a tie, the nearer side, then the anchor's side, then the side
-// with fewer optional branches so far), or the other side when that one is too wide. Optional branches that end up
-// side by side then read in their numbering order, left to right (two that stand the wrong way round swap lanes when
-// that fits); so do the branches of a parallel set. Lanes only order things left to right; center() sets the columns.
-const MAX_ROW = 3
-
-// Two levels' order by their numbers ('4-2' after '4-1', 'X10' after 'X9'): < 0, > 0, or 0 when the numbers are of
-// different series (letters) and say nothing about which goes first.
-const seriesOf = (label) => /^\D*/.exec(label)[0]
-const byNumber = (a, b) => (seriesOf(a) === seriesOf(b) ? a.localeCompare(b, undefined, { numeric: true }) : 0)
-
-function plot(track, label) {
-  const before = (a, b) => byNumber(label(a.levels[0]), label(b.levels[0]))
-  const at = new Map(), edges = [], tracks = []
-  const overlaps = (t, rows) => t.rows.some((r) => rows.includes(r))
-  const free = (lane, rows) => !tracks.some((t) => Math.abs(t.lane - lane) < 1 && overlaps(t, rows))
-  const room = (rows) => rows.every((r) => tracks.filter((t) => t.rows.includes(r)).length < MAX_ROW)
-  const lay = (levels, lane, row, from, kind, depth = levels.length) => {
-    const t = { lane, ids: levels, rows: Array.from({ length: depth }, (_, k) => row + k), band: kind === 'optional' || kind === 'parallel' }
-    tracks.push(t)
-    levels.forEach((id, k) => {
-      at.set(id, { t, row: row + k })
-      for (const f of k ? [levels[k - 1]] : from) edges.push({ from: f, to: id, kind: k ? null : kind })
-    })
-  }
+function plot(track, byId) {
+  const ids = track.filter((id) => byId.has(id))
+  const requires = new Map(ids.map((id) => [id, (byId.get(id).requires ?? []).filter((from) => byId.has(from))]))
+  const at = new Map()
   let row = 0
-  let prev = []
-  for (const entry of track) {
-    if (entry.level) {
-      lay([entry.level], 0, row, prev, prev.length > 1 ? 'join' : null)
-      prev = [entry.level]
+  for (const layer of dependencyLayers(ids, requires)) {
+    for (let i = 0; i < layer.length; i += 3) {
+      const band = layer.slice(i, i + 3)
+      band.forEach((id, col) => at.set(id, { row, col: col - (band.length - 1) / 2 }))
       row += 1
-      continue
-    }
-    const { parallel } = entry
-    if (!parallel) continue
-    const depth = Math.max(...parallel.map((lane) => lane.length))
-    parallel.forEach((lane, k) => lay(lane, k - (parallel.length - 1) / 2, row, prev, 'parallel', depth))
-    prev = parallel.map((lane) => lane.at(-1))
-    row += depth
-  }
-  let tilt = 0 // optional branches placed right minus left, to balance the tree
-  const optional = []
-  // Optional branches go down in their numbering order, each once what it hangs on is placed.
-  const waiting = track.flatMap((entry) => entry.branches)
-  const all = [...waiting]
-  const inTrack = new Set([...at.keys(), ...waiting.flatMap((b) => b.levels)])
-  while (waiting.length) {
-    const ready = waiting.filter((b) => b.after.every((id) => at.has(id) || !inTrack.has(id)))
-    const branch = (ready.length ? ready : waiting).reduce((a, b) => (before(b, a) < 0 ? b : a))
-    waiting.splice(waiting.indexOf(branch), 1)
-    const from = branch.after.filter((id) => at.has(id))
-    const anchor = from.map((id) => at.get(id)).reduce((a, b) => (!a || b.row > a.row ? b : a), null) ?? { row: -1, t: { lane: 0 } }
-    let start = anchor.row + 1
-    const rows = () => branch.levels.map((_, k) => start + k)
-    const nearest = (step) => {
-      let lane = anchor.t.lane + step
-      while (!free(lane, rows())) lane += step
-      return lane
-    }
-    // The lane it would take at `start`, preferred side first, then the other; null when neither keeps three columns.
-    const pick = () => {
-      if (!room(rows())) return null
-      // A branch going on from one right above it, the only one going on from there, stays in that branch's column.
-      const above = optional.find(({ t, levels }) => branch.after.includes(levels.at(-1)) && t.rows.at(-1) === start - 1 && all.filter((b) => b.after.includes(levels.at(-1))).length === 1)
-      if (above && free(above.t.lane, rows()) && columns([...tracks, { lane: above.t.lane, rows: rows(), band: true }]) <= MAX_ROW) {
-        under = above.t
-        return above.t.lane
-      }
-      under = null
-      const right = nearest(1), left = nearest(-1)
-      const beside = tracks.filter((t) => overlaps(t, rows()))
-      const weight = beside.filter((t) => t.lane > 0).length - beside.filter((t) => t.lane < 0).length
-      const dr = right - anchor.t.lane, dl = anchor.t.lane - left
-      // Numbered after (or before) every level beside it of the same series: right (or left) of them, whatever else.
-      const order = beside.flatMap((t) => t.ids.filter((_, k) => rows().includes(t.rows[k]))).map((id) => byNumber(label(branch.levels[0]), label(id))).filter(Boolean)
-      const numbered = order.length && (order.every((o) => o > 0) ? -1 : order.every((o) => o < 0) ? 1 : 0)
-      const lean = numbered || Math.sign(weight) || Math.sign(dr - dl) || -Math.sign(anchor.t.lane) || Math.sign(tilt)
-      return (lean > 0 ? [left, right] : [right, left]).find((lane) => columns([...tracks, { lane, rows: rows(), band: true }]) <= MAX_ROW) ?? null
-    }
-    let under = null
-    let lane = pick()
-    while (lane === null) {
-      start += 1
-      lane = pick()
-    }
-    tilt += Math.sign(lane)
-    // A dashed wire only from a level it stands right under; one it hangs on from further up gets none.
-    lay(branch.levels, lane, start, from.filter((id) => at.get(id).row === start - 1), 'optional')
-    tracks.at(-1).under = under
-    optional.push({ t: tracks.at(-1), levels: branch.levels })
-  }
-  // Side-by-side optional branches in numbering order.
-  const clash = () => tracks.some((a, i) => tracks.slice(i + 1).some((b) => Math.abs(a.lane - b.lane) < 1 && overlaps(a, b.rows)))
-  for (let swapped = true, pass = 0; swapped && pass < optional.length; pass++) {
-    swapped = false
-    optional.forEach((x, i) => optional.slice(i + 1).forEach((y) => {
-      const [a, b] = before(x, y) > 0 ? [y.t, x.t] : before(x, y) < 0 ? [x.t, y.t] : []
-      if (!a || a.lane < b.lane || !overlaps(a, b.rows)) return
-      ;[a.lane, b.lane] = [b.lane, a.lane]
-      if (clash() || columns(tracks) > MAX_ROW) [a.lane, b.lane] = [b.lane, a.lane]
-      else swapped = true
-    }))
-  }
-  return { at, edges, tracks }
-}
-
-// How many columns the tracks take once centered (on copies, the tracks untouched).
-const columns = (tracks) => {
-  const placed = center({ at: new Map(), edges: [], tracks: tracks.map((t) => ({ ...t, under: null })) }).tracks
-  return Math.max(...placed.map((t) => t.x)) - Math.min(...placed.map((t) => t.x)) + 1
-}
-
-// Sets the columns. Rows that a parallel set or an optional branch spans form one band. In a band the tracks keep their
-// lanes' left-to-right order, each one column right of every overlapping track to its left; then each moves as near the
-// middle as its overlapping neighbours allow, so side-by-side levels stand centered and a lone level sits in the middle.
-function center({ at, edges, tracks }) {
-  const spans = tracks.filter((t) => t.band).map((t) => [t.rows[0], t.rows.at(-1)]).sort((a, b) => a[0] - b[0])
-  const band = []
-  let open = null
-  for (const [from, to] of spans) {
-    if (open && from <= open.to) open.to = Math.max(open.to, to)
-    else open = { from, to }
-    for (let r = open.from; r <= open.to; r++) band[r] = open.from
-  }
-  const groups = new Map()
-  for (const t of tracks) {
-    const key = band[t.rows[0]] ?? `row ${t.rows[0]}`
-    if (!groups.has(key)) groups.set(key, [])
-    groups.get(key).push(t)
-  }
-  const meets = (a, b) => a.rows.some((r) => b.rows.includes(r))
-  for (const group of groups.values()) {
-    group.sort((a, b) => a.lane - b.lane)
-    group.forEach((t, i) => { t.x = Math.max(0, ...group.slice(0, i).filter((u) => meets(t, u)).map((u) => u.x + 1)) })
-    const middle = Math.max(...group.map((t) => t.x)) / 2
-    group.forEach((t) => { t.x -= middle })
-    for (let pass = 0; pass < 3; pass++) {
-      for (const t of group) {
-        const near = group.filter((u) => u !== t && meets(t, u))
-        const lo = Math.max(-Infinity, ...near.filter((u) => u.lane < t.lane).map((u) => u.x + 1))
-        const hi = Math.min(Infinity, ...near.filter((u) => u.lane > t.lane).map((u) => u.x - 1))
-        t.x = Math.min(Math.max(0, lo), hi)
-      }
     }
   }
-  // A branch going on from the one right above it keeps that one's column, where nothing beside it stands there.
-  for (const t of tracks) if (t.under && !tracks.some((u) => u !== t && u.x === t.under.x && meets(t, u))) t.x = t.under.x
-  return { at: new Map([...at].map(([id, p]) => [id, { col: p.t.x, row: p.row }])), edges, tracks }
+  const edges = [...requires].flatMap(([to, from]) => from.map((id) => ({ from: id, to, join: from.length > 1 })))
+  return { at, edges }
 }
 
 /**
@@ -194,7 +49,7 @@ function stack({ at, edges, box, below, x, w, join }) {
   }
   const turns = (e) => centre(e.from) !== centre(e.to)
   // A wire that joins branches, or skips rows, turns just above its target; any other just below its source.
-  const late = (e) => e.kind === 'join' || at.get(e.to).row - at.get(e.from).row > 1
+  const late = (e) => e.join || at.get(e.to).row - at.get(e.from).row > 1
   const into = (id) => edges.filter((e) => e.to === id)
   const rows = [...new Set([...at.values()].map((p) => p.row))].sort((a, b) => a - b)
   for (const row of rows) {
@@ -225,7 +80,7 @@ function stack({ at, edges, box, below, x, w, join }) {
     }
   }
   const ids = [...at.keys()]
-  const height = Math.max(...ids.map((id) => bottom(id) + (below.chip(id) ? below(id) : 0)))
+  const height = Math.max(0, ...ids.map((id) => bottom(id) + (below.chip(id) ? below(id) : 0)))
   return { top, turn, height }
 }
 
@@ -240,12 +95,9 @@ export function LevelTree(props) {
 
 function LevelList({ game, track, byId, solved, all, best = () => null, current, next, compact, onOpen }) {
   const { w, h } = compact ? SIZE.compact : SIZE.full
-  const ids = track.flatMap((entry) => [
-    ...(entry.level ? [entry.level] : entry.parallel?.flat() ?? []), ...entry.branches.flatMap((branch) => branch.levels),
-  ])
   return (
     <div className={`map-list ${compact ? 'is-compact' : ''}`} style={{ '--node-w': `${w}px` }}>
-      {ids.map((id) => byId.get(id) && <LevelButton key={id} game={game} level={byId.get(id)} style={{ height: h }} solved={solved} all={all} best={best} current={current} next={next} compact={compact} onOpen={onOpen} />)}
+      {track.map((id) => byId.get(id) && <LevelButton key={id} game={game} level={byId.get(id)} style={{ height: h }} solved={solved} all={all} best={best} current={current} next={next} compact={compact} onOpen={onOpen} />)}
     </div>
   )
 }
@@ -259,11 +111,10 @@ function LevelButton({ game, level, style, solved, all, best, current, next, nee
   const score = won && best(level.id) && game.bestLabel?.(best(level.id))
   const here = level.id === current
   return (
-    <button data-level={level.id} style={style} title={[L(level.title), L(level.group?.title)].filter(Boolean).join(' · ')} aria-current={here ? 'page' : undefined} className={`map-node ${state} ${game.core(level) ? '' : 'is-minor'} ${level.optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''} ${here ? 'is-here' : ''} ${needed?.ids.has(level.id) ? 'is-needed' : ''} ${needed?.asked === level.id ? 'is-asked' : ''}`} aria-disabled={!open} onClick={() => (open ? onOpen(level.id) : needed?.ask(level.id))}>
+    <button data-level={level.id} style={style} title={L(level.title)} aria-current={here ? 'page' : undefined} className={`map-node ${state} ${game.core(level) ? '' : 'is-minor'} ${level.optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''} ${here ? 'is-here' : ''} ${needed?.ids.has(level.id) ? 'is-needed' : ''} ${needed?.asked === level.id ? 'is-asked' : ''}`} aria-disabled={!open} onClick={() => (open ? onOpen(level.id) : needed?.ask(level.id))}>
       <span className="map-pad" aria-hidden="true">{won ? <Check size={11} strokeWidth={2.6} /> : open ? null : <Lock size={9} />}</span>
       <span className="map-node-number">
         <span className="map-node-id">{game.levelLabel(level)}</span>
-        {level.group?.code && <small className="map-group-code" title={L(level.group.title)}>{level.group.code}</small>}
       </span>
       <span className="map-node-title">{L(level.title)}</span>
       {score ? <span className="map-node-best">{score}</span> : kind?.icon && !compact && <span className="map-node-kind" aria-label={L(kind.label)}>{createElement(kind.icon, { size: game.core(level) ? 13 : 12 })}</span>}
@@ -273,10 +124,10 @@ function LevelButton({ game, level, style, solved, all, best, current, next, nee
 
 function Tree({ game, track, byId, solved, all, best = () => null, current, next, compact, onOpen, needed = null }) {
   const { w, h, col, gap, plain, minor } = compact ? SIZE.compact : SIZE.full
-  const { at, edges } = useMemo(() => center(plot(track, (id) => (byId.has(id) ? game.levelLabel(byId.get(id)) : id))), [track])
+  const { at, edges } = useMemo(() => plot(track, byId), [track, byId])
   const scroll = useRef(null)
   const spots = [...at.values()]
-  const half = Math.max(...spots.map((p) => Math.abs(p.col)))
+  const half = Math.max(0, ...spots.map((p) => Math.abs(p.col)))
   const x = (c) => (c + half) * (w + col)
   const width = x(half) + w
   // What sits on the wire under a level: the primitives it brings in (once it opens) and what passing it unlocks, less

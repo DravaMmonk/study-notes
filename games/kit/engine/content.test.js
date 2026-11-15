@@ -31,7 +31,7 @@ const VOCAB = defineVocabulary({
 
 const says = (schema, value) => validate(schema, value, { vocabulary: VOCAB }).map((p) => `${p.at}: ${p.says}`)
 
-test('course edits reject circular prerequisites and group members outside their chapter', () => {
+test('course edits reject circular prerequisites', () => {
   const era = S.obj({ id: S.str(), ...COURSE_FIELDS })
   const vocabulary = { ...VOCAB, game: S.obj({ title: S.text(), eras: S.list(era) }) }
   const content = {
@@ -39,16 +39,14 @@ test('course edits reject circular prerequisites and group members outside their
     glossary: { groups: [], entries: [] },
     levels: ['start', 'a', 'b', 'next'].map((id) => ({ id, mode: 'read', text: id })),
     eras: [
-      { id: 'one', path: ['start'], branches: [{ levels: ['a'], after: ['b'] }, { levels: ['b'], after: ['a'] }], groups: [{ title: 'A', levels: ['next'] }] },
-      { id: 'two', path: ['next'] },
+      { id: 'one', levels: ['start', 'a', 'b'], links: [{ from: 'b', to: 'a' }, { from: 'a', to: 'b' }] },
+      { id: 'two', levels: ['next'] },
     ],
   }
   assert.deepEqual(checkContent({ vocabulary }, content), [
-    { at: 'game.json.eras[0].groups[0].levels', says: 'level "next" is outside this chapter' },
     { at: 'game.json.eras', says: 'circular prerequisites: a → b → a' },
   ])
-  content.eras[0].branches[0].after = ['start']
-  content.eras[0].groups[0].levels = ['a', 'b']
+  content.eras[0].links[0].from = 'start'
   assert.deepEqual(checkContent({ vocabulary }, content), [])
 })
 

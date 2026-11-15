@@ -82,11 +82,7 @@ export function bulkAdds(vocabulary, levels, { add = [], remove = [] }) {
   return { ops, skipped }
 }
 
-/**
- * Move levels together to a place (`to`, ../engine/ops/place.js), in the order given: the first to it, each next
- * right after the one before (on the main path when the place is on it).
- */
+// Move levels together in display order, retaining their prerequisites.
 export function bulkMove(ids, to) {
-  const onPath = to.on === 'path'
-  return ids.map((id, k) => ({ op: 'level.move', level: id, to: k ? { after: ids[k - 1], ...(onPath && { on: 'path' }) } : to }))
+  return ids.map((id, k) => ({ op: 'level.move', level: id, to: k ? { after: ids[k - 1] } : to }))
 }

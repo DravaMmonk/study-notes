@@ -17,7 +17,7 @@ import {
   referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, taskOptionsOf, tickValue, tickValues, toggled,
 } from './form.js'
 import { lintText } from '../pipeline/lint.js'
-import { courseTree, stays } from './tree.js'
+import { courseGroups, courseTree, stays } from './tree.js'
 import { fieldDiff } from './diff.js'
 import { lacking } from '../engine/text.js'
 import { taskIdsOf } from '../engine/tasks.js'
@@ -124,34 +124,30 @@ test('a level’s boards, its reference, its texts; which schemas hold levels', 
 })
 
 const ERAS = [
-  { id: 1, path: ['a', { parallel: [['b', 'c'], ['d']] }, 'e', 'f'], branches: [{ levels: ['g'] }, { levels: ['h'], after: ['e'] }] },
-  { id: 2, path: ['i'] },
+  { id: 1, levels: ['a', 'b', 'c'] },
+  { id: 2, levels: ['i'] },
 ]
 
-test('the course tree uses the operation set’s placements for every route slot', () => {
+test('sidebar group order is independent of the course placement slots', () => {
   const tree = courseTree(ERAS)
-  const [one, two] = tree.eras
-  assert.deepEqual(two.items, [{ level: 'i' }])
-  assert.deepEqual(one.items.map((item) => item.level ?? item.parallel.map((lane) => lane.levels)), ['a', [['b', 'c'], ['d']], 'e', 'f'])
-  assert.deepEqual(one.slots, [{ era: 1, on: 'path', at: 0 }, { after: 'a', on: 'path' }, { after: 'd', on: 'path' }, { after: 'e', on: 'path' }, { after: 'f', on: 'path' }])
-  assert.deepEqual(one.items[1].parallel[0].slots, [{ before: 'b' }, { after: 'b' }, { after: 'c' }])
-  assert.deepEqual(one.branches[0].slots, [{ before: 'g' }, { after: 'g' }])
-  const slots = [...one.slots, ...one.items.flatMap((item) => (item.parallel ?? []).flatMap((lane) => lane.slots)), ...one.branches.flatMap((branch) => branch.slots)]
-  for (const to of slots) assert.doesNotThrow(() => putIn(takeOut(ERAS, 'i').eras, 'i', to), JSON.stringify(to))
+  const [one] = tree.eras
+  assert.deepEqual(one.slots, [{ era: 1, at: 0 }, { after: 'a' }, { after: 'b' }, { after: 'c' }])
+  assert.deepEqual(courseGroups(ERAS.flatMap(({ levels }) => levels), [{ title: 'G', code: 'G', levels: ['c', 'a', 'i'] }])
+    .map((group) => [group.code, group.levels]), [['G', ['a', 'c', 'i']], [undefined, ['b']]])
+  for (const to of one.slots) assert.doesNotThrow(() => putIn(takeOut(ERAS, 'i').eras, 'i', to))
+  assert.equal(stays(tree, 'a', { era: 1, at: 0 }), true)
   assert.equal(stays(tree, 'c', { after: 'b' }), true)
-  assert.equal(stays(tree, 'c', { after: 'c' }), true)
-  assert.equal(stays(tree, 'a', { era: 1, on: 'path', at: 0 }), true)
-  assert.equal(stays(tree, 'a', { after: 'e', on: 'path' }), false)
+  assert.equal(stays(tree, 'a', { after: 'c' }), false)
 })
 
 test('a changed file reads field by field: texts and boards whole, objects and lists looked into', () => {
-  const before = { title: { en: '甲' }, tests: [{ input: 1 }, { input: 2 }], solution: ['x', 'y'], eras: [{ path: ['a', 'b'] }] }
-  const after = { title: { en: '乙' }, tests: [{ input: 1 }, { input: 3 }], solution: ['x', 'z'], eras: [{ path: ['b', 'a', 'c'] }], note: 'n' }
+  const before = { title: { en: '甲' }, tests: [{ input: 1 }, { input: 2 }], solution: ['x', 'y'], eras: [{ levels: ['a', 'b'] }] }
+  const after = { title: { en: '乙' }, tests: [{ input: 1 }, { input: 3 }], solution: ['x', 'z'], eras: [{ levels: ['b', 'a', 'c'] }], note: 'n' }
   assert.deepEqual(fieldDiff(before, after), [
     { path: ['title'], before: { en: '甲' }, after: { en: '乙' }, as: 'text' },
     { path: ['tests', 1, 'input'], before: 2, after: 3, as: 'value' },
     { path: ['solution'], before: ['x', 'y'], after: ['x', 'z'], as: 'lines' },
-    { path: ['eras', 0, 'path'], before: ['a', 'b'], after: ['b', 'a', 'c'], as: 'lines' },
+    { path: ['eras', 0, 'levels'], before: ['a', 'b'], after: ['b', 'a', 'c'], as: 'lines' },
     { path: ['note'], before: undefined, after: 'n', as: 'value' },
   ])
   assert.deepEqual(fieldDiff(undefined, { a: 1 }), [{ path: [], before: undefined, after: { a: 1 }, as: 'value' }])

@@ -629,46 +629,59 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .icon-grid button:hover { color: var(--ink); background: var(--hover); }
 .icon-grid button.is-on { color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 18%, transparent); }
 
-/* ---- course arrangement ---- */
-.arrange { max-width: 1120px; margin: 0 auto; padding: 12px clamp(12px, 3cqi, 28px) 60px; }
-.arrange-bar, .arrange-focus-head, .arrange-section > header { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.arrange-bar { padding-bottom: 12px; border-bottom: 1px solid var(--hairline); }
-.arrange-bar .studio-game { max-width: min(100%, 28em); }
-.arrange-bar [role="status"], .arrange-note { color: var(--muted); }
-.arrange h2, .arrange h3 { margin: 0; color: var(--ink); font: 600 var(--fs)/1.4 var(--sans); }
-.arrange h3 { color: var(--muted); }
-.arrange-focus { display: grid; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--hairline); }
-.arrange-focus-head { justify-content: space-between; }
-.arrange-focus-head code { color: var(--accent-ink); }
-.arrange-links, .arrange-config { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 14px; }
-.arrange-links > div, .arrange-config > div { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
-.arrange-config { min-width: 0; margin: 0; padding: 6px 0 0; border: 0; border-top: 1px solid var(--hairline); }
-.arrange-config legend { padding-right: 6px; font-weight: 600; color: var(--ink); }
-.arrange-config small { color: var(--muted); }
-.arrange-section { padding: 10px 0 12px; border-bottom: 1px solid var(--hairline); }
-.arrange-section > header { margin-bottom: 6px; }
-.arrange-chain { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; min-width: 0; }
-.arrange-step { display: flex; align-items: center; gap: 5px; min-width: 0; max-width: 100%; }
-.arrange-node { display: inline-flex; align-items: baseline; gap: 6px; max-width: 100%; min-height: 28px; padding: 4px 7px; border: 1px solid var(--hairline); border-radius: var(--r-sm); color: var(--ink); background: var(--paper); font: inherit; text-align: left; cursor: pointer; }
-.arrange-node code { color: var(--accent-ink); }
-.arrange-node span { min-width: 0; overflow-wrap: anywhere; }
-.arrange-node small { color: var(--muted); }
-.arrange-node:hover, .arrange-branch-name:hover { background: var(--hover); }
-.arrange-node[aria-current="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--paper)); }
-.arrange-arrow { flex: none; color: var(--faint); }
-.arrange-parallel { display: flex; align-items: flex-start; max-width: 100%; gap: 8px; padding: 6px 8px; border-inline: 1px solid var(--line); }
-.arrange-parallel > svg { flex: none; margin-top: 3px; color: var(--muted); }
-.arrange-parallel > div { min-width: 0; }
-.arrange-branch + .arrange-branch { margin-top: 7px; }
-.arrange-branch-name { margin-bottom: 3px; padding: 2px 4px; border: 0; border-radius: var(--r-sm); color: var(--muted); background: none; cursor: pointer; font: inherit; text-align: left; }
-.arrange-slot { display: inline-grid; place-items: center; min-width: 28px; min-height: 28px; padding: 0; border: 1px dashed var(--accent); border-radius: var(--r-sm); color: var(--accent-ink); background: transparent; cursor: pointer; }
-.arrange-slot:hover { background: var(--hover); }
-.arrange-slot:disabled { opacity: .4; cursor: default; }
+/* ---- course wiring board ---- */
+.tree-sort { margin: 2px 0 6px 2px; }
+.tree-group { display: grid; gap: 1px; padding: 5px 0; }
+.tree-group + .tree-group { border-top: 1px solid var(--hairline); }
+.tree-group-head { display: flex; align-items: center; gap: 4px; width: 100%; padding: 0 4px; border: 0; border-radius: var(--r-sm); background: transparent; color: var(--muted); font: 600 var(--fs-mini)/1.3 var(--sans); text-align: left; cursor: pointer; }
+.tree-group-head:hover { background: var(--hover); color: var(--ink); }
+.tree-group-head code { color: var(--accent-ink); }
+.studio-groups .studio-group { margin: 0 var(--sp-4); padding: var(--sp-2) 0; border-bottom: 1px solid var(--hairline); }
+.studio-group-fields { display: grid; justify-items: start; gap: var(--sp-3); margin: var(--sp-2) 0 0; padding: 0 var(--sp-5); border: 0; }
+.studio-group-fields label { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-2); }
+.studio-group-fields input { max-width: 100%; padding: var(--sp-2); border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--paper); color: var(--ink); font: inherit; }
 
-@container (max-width: 520px) {
-  .arrange-links, .arrange-config { grid-template-columns: minmax(0, 1fr); }
-}
+.arrange { padding: 12px clamp(10px, 2cqi, 24px) 28px; min-width: 0; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; }
+.arrange-bar, .arrange-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.arrange-bar { padding-bottom: 8px; border-bottom: 1px solid var(--hairline); }
+.arrange-bar .studio-game { max-width: min(100%, 22em); }
+.arrange-save:not(:disabled) { color: var(--select-ink); background: var(--select); }
+.arrange-actions { min-height: 34px; padding: 5px 0; color: var(--muted); }
+.arrange-actions strong, .arrange-bar strong { color: var(--ink); }
+.arrange-actions label { display: inline-flex; align-items: center; gap: 2px; }
+.arrange-actions p, .arrange-saved { margin: 0; color: var(--muted); }
+.arrange-saved { margin-bottom: 6px; }
+.arrange .is-error { color: var(--fail); }
+
+.course-board { flex: 1; min-height: 130px; max-width: 100%; overflow: auto; border: 1px solid var(--hairline); border-radius: var(--r-md); background: radial-gradient(circle, var(--hairline) 1px, transparent 1px) 0 0 / 16px 16px, var(--canvas); }
+.course-board-canvas { position: relative; isolation: isolate; }
+.course-board-wires { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.course-wire-line { fill: none; stroke: var(--muted); stroke-width: 2; }
+.course-board-wires marker path { fill: var(--muted); }
+.course-board-wires .is-near .course-wire-line { stroke: var(--ink); }
+.course-board-wires .is-picked .course-wire-line, .course-wire-line.is-draft { stroke: var(--accent); }
+.course-wire-hit { fill: none; stroke: transparent; stroke-width: 16; pointer-events: stroke; cursor: pointer; }
+.course-wire-hit:focus-visible, .course-wire-hit:hover { stroke: color-mix(in srgb, var(--accent) 28%, transparent); outline: none; }
+.course-card { position: absolute; border-radius: var(--r-md); background: var(--paper); box-shadow: inset 0 0 0 1px var(--line); }
+.course-card.is-moving { z-index: 2; }
+.course-card.is-portal { box-shadow: none; outline: 1px dashed var(--line); }
+.course-card-head { width: 100%; height: 40px; display: flex; align-items: center; gap: 6px; padding: 0 9px; border: 0; border-bottom: 1px solid var(--hairline); background: transparent; color: var(--muted); font: 600 var(--fs)/1 var(--sans); text-align: left; }
+.course-card-label { width: 100%; height: 44px; display: flex; align-items: center; gap: 5px; min-width: 0; padding: 0 12px; border: 0; border-radius: var(--r-sm); background: transparent; color: var(--ink); font: var(--fs-mini)/1.25 var(--sans); text-align: left; cursor: grab; touch-action: none; user-select: none; }
+.course-card.is-moving .course-card-label { cursor: grabbing; }
+.course-card-label.is-current { background: color-mix(in srgb, var(--select) 17%, transparent); }
+.course-card-label span { min-width: 0; display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.course-card-label code { flex: none; color: var(--accent-ink); }
+.course-card-label small { color: var(--muted); }
+.course-port { position: absolute; left: 50%; z-index: 1; width: 32px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; transform: translate(-50%, -50%); cursor: crosshair; }
+.course-port.is-input { top: 0; }
+.course-port.is-output { top: 100%; }
+.course-port::before { content: ''; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--line); background: var(--paper); }
+.course-port:hover::before, .course-port.is-ready::before, .course-port.is-picked::before { border-color: var(--accent); }
+.course-port.is-picked::before { background: var(--accent); }
+.course-port:disabled { cursor: default; opacity: .6; }
+
 @media (max-width: 760px) {
-  .arrange { padding-inline: var(--gutter); }
-  .arrange-node, .arrange-slot { min-height: 36px; }
+  .arrange { height: auto; padding-inline: var(--gutter); }
+  .course-board { max-height: 66vh; }
+  .course-port { width: 44px; height: 44px; }
 }

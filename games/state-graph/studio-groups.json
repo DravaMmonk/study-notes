@@ -1,0 +1,209 @@
+[
+  {
+    "id": "group-1",
+    "title": {
+      "en": "Rocks",
+      "zh": "石头"
+    },
+    "levels": [
+      "rocks",
+      "reach"
+    ]
+  },
+  {
+    "id": "group-2",
+    "title": {
+      "en": "Costs",
+      "zh": "花费"
+    },
+    "levels": [
+      "cheapest",
+      "slantcost"
+    ]
+  },
+  {
+    "id": "group-3",
+    "title": {
+      "en": "New shapes",
+      "zh": "换形状"
+    },
+    "levels": [
+      "slant",
+      "pascal"
+    ]
+  },
+  {
+    "id": "group-4",
+    "title": {
+      "en": "Coins",
+      "zh": "金币"
+    },
+    "levels": [
+      "maxcoins"
+    ]
+  },
+  {
+    "id": "group-5",
+    "title": {
+      "en": "Seams in a picture",
+      "zh": "图里的缝"
+    },
+    "levels": [
+      "seamline",
+      "seamslant",
+      "seam",
+      "carve"
+    ],
+    "code": "S"
+  },
+  {
+    "id": "group-6",
+    "title": {
+      "en": "Scanning backwards",
+      "zh": "倒着扫"
+    },
+    "levels": [
+      "order"
+    ]
+  },
+  {
+    "id": "group-7",
+    "title": {
+      "en": "Winning",
+      "zh": "输赢"
+    },
+    "levels": [
+      "nim"
+    ]
+  },
+  {
+    "id": "group-8",
+    "title": {
+      "en": "Broken steps",
+      "zh": "坏台阶"
+    },
+    "levels": [
+      "brokenstairs"
+    ]
+  },
+  {
+    "id": "group-9",
+    "title": {
+      "en": "Palindromic subsequences",
+      "zh": "回文子序列"
+    },
+    "levels": [
+      "lps"
+    ]
+  },
+  {
+    "id": "group-10",
+    "title": {
+      "en": "Spelling correction",
+      "zh": "拼写纠错"
+    },
+    "levels": [
+      "replace",
+      "edit",
+      "spell"
+    ],
+    "code": "E"
+  },
+  {
+    "id": "group-11",
+    "title": {
+      "en": "Ways to jump",
+      "zh": "跳法"
+    },
+    "levels": [
+      "frogfar",
+      "safefrog"
+    ]
+  },
+  {
+    "id": "group-12",
+    "title": {
+      "en": "Sentences",
+      "zh": "句子"
+    },
+    "levels": [
+      "tagging",
+      "forward"
+    ]
+  },
+  {
+    "id": "group-13",
+    "title": {
+      "en": "The backpack",
+      "zh": "背包"
+    },
+    "levels": [
+      "pack",
+      "knaptable",
+      "knapmany",
+      "knapmix"
+    ],
+    "code": "K"
+  },
+  {
+    "id": "group-14",
+    "title": {
+      "en": "Intervals",
+      "zh": "区间"
+    },
+    "levels": [
+      "stones",
+      "twoorders",
+      "parse"
+    ]
+  },
+  {
+    "id": "group-15",
+    "title": {
+      "en": "Change",
+      "zh": "零钱"
+    },
+    "levels": [
+      "change"
+    ]
+  },
+  {
+    "id": "group-16",
+    "title": {
+      "en": "Cutting words",
+      "zh": "切单词"
+    },
+    "levels": [
+      "wordbreak",
+      "wordcost",
+      "segment"
+    ],
+    "code": "W"
+  },
+  {
+    "id": "group-17",
+    "title": {
+      "en": "Designing the state",
+      "zh": "设计状态"
+    },
+    "levels": [
+      "twokeys",
+      "threekeys",
+      "enough"
+    ],
+    "code": "D"
+  },
+  {
+    "id": "group-18",
+    "title": {
+      "en": "The grid world",
+      "zh": "格子世界"
+    },
+    "levels": [
+      "treasure",
+      "slip",
+      "ice"
+    ],
+    "code": "V"
+  }
+]

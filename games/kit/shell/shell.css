@@ -87,7 +87,6 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .map-node.is-locked .map-pad { color: var(--faint); background: var(--canvas); box-shadow: 0 0 0 1px var(--rule); }
 .map-node-id { flex: none; color: var(--muted); }
 .map-node-number { display: inline-flex; align-items: baseline; gap: var(--sp-2); min-width: 0; font-family: var(--mono); font-size: 10.5px; }
-.map-group-code { color: var(--accent-ink); font: inherit; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .map-node-title { flex: 1; min-width: 0; overflow: hidden; font-size: 13.5px; white-space: nowrap; text-overflow: ellipsis; }
 .map-node-kind { flex: none; color: var(--faint); display: grid; }
 .map-node-best { flex: none; color: var(--faint); font-family: var(--mono); font-size: 10px; }
