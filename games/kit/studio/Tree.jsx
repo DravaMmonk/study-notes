@@ -90,7 +90,8 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
       onDragEnd={() => setMoving(null)}
       {...(taskDrag && taskTarget(id, { level: id }))}
     >
-      <span>{L(byId.get(id)?.title) ?? id}</span>
+      <code className="tree-level-id" title={id}>{id}</code>
+      <span>{L(byId.get(id)?.title)}</span>
       {(optional || byId.get(id)?.optional) && <small className="tree-optional">{tr('可选')}</small>}
     </button>
   )

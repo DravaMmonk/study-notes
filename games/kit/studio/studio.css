@@ -81,6 +81,7 @@ kbd { font: 600 var(--fs-mini)/1 var(--mono); }
 .tree-era-name { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 6px; padding: 3px 4px 3px 0; border: 0; color: var(--ink); background: none; font: 600 12px/1.3 var(--sans); text-align: left; cursor: pointer; }
 .tree-era-name span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tree-level { min-width: 0; height: 22px; padding: 0 4px 0 6px; display: flex; align-items: center; gap: 6px; border: 0; border-radius: 4px; color: var(--ink); background: none; font: 12px/1 var(--sans); text-align: left; cursor: pointer; }
+.tree-level-id { flex: 0 1 auto; max-width: 44%; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .8; font: var(--fs-mini)/1 var(--mono); }
 .tree-level > span, .tree-task > span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tree-level:hover, .tree-task:hover { background: var(--hover); }
 .tree-level.is-picked { background: color-mix(in srgb, var(--select) 16%, transparent); box-shadow: inset 2px 0 0 var(--select); }
