@@ -7,7 +7,7 @@ import { judgeSums, readSum } from './sums.js'
 import { vocabulary } from './vocabulary.js'
 
 export function spec(content) {
-  const eras = [{ id: 1, title: content.title, foundation: content.order }]
+  const eras = [{ id: 1, title: content.title, path: content.order }]
   const track = layout(eras)
   const levels = track.order.map((id) => {
     const level = content.levels.find((entry) => entry.id === id)

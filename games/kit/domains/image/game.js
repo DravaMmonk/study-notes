@@ -67,7 +67,7 @@ export default function imageGame(content) {
     name: types[type].label, desc: descriptionOf(types, type), family: familyOf(type, types), icon: iconOf(type, types),
   }]))
   const levels = LEVELS.map((level) => ({ ...level, tasks: level.tasks.map((task) => ({ ...task, source: task })) }))
-  const labels = levelLabels(content.eras, { notes: course.notes })
+  const labels = levelLabels(content.eras)
   const game = defineGame({
     id: content.id,
     course,

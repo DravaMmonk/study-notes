@@ -158,27 +158,28 @@ export const slotsOf = (bp) => bp.eras.flatMap((era) => era.series.flatMap((seri
 /** game.json's eras as the blueprint lays them out (games/kit/course.js layout). */
 export function erasOf(bp) {
   return bp.eras.map((era) => {
-    const foundation = []
-    const topics = []
-    const challenges = []
+    const path = []
+    const branches = []
+    const groups = []
     for (const series of era.series) {
       const levels = series.slots.map((s) => s.id)
-      if (series.kind === 'topic') topics.push({ id: series.id, title: series.title, levels, ...(series.after ? { after: series.after } : {}) })
-      else if (series.kind === 'challenge') challenges.push(...levels.map((level) => ({ level, ...(series.after ? { after: series.after } : {}) })))
+      groups.push({ title: series.title, levels })
+      const after = series.after === undefined ? {} : { after: [series.after].flat() }
+      if (series.kind === 'topic') branches.push({ levels, ...after })
+      else if (series.kind === 'challenge') branches.push(...levels.map((id) => ({ levels: [id], ...after })))
       else if (series.parallel) {
-        const last = foundation.at(-1)
-        const branch = { id: series.id, title: series.title, levels }
-        if (last && typeof last === 'object' && last.set === series.parallel) last.parallel.push(branch)
-        else foundation.push({ set: series.parallel, parallel: [branch] })
-      } else foundation.push(...levels)
+        const last = path.at(-1)
+        if (last?.set === series.parallel) last.parallel.push(levels)
+        else path.push({ set: series.parallel, parallel: [levels] })
+      } else path.push(...levels)
     }
     return {
       id: era.id,
       title: era.title,
       question: era.question,
-      foundation: foundation.map((item) => (typeof item === 'string' ? item : { parallel: item.parallel })),
-      ...(topics.length ? { topics } : {}),
-      ...(challenges.length ? { challenges } : {}),
+      path: path.flatMap((item) => typeof item === 'string' ? [item] : item.parallel.length === 1 ? item.parallel[0] : [{ parallel: item.parallel }]),
+      groups,
+      ...(branches.length && { branches, optional: branches.flatMap(({ levels }) => levels) }),
     }
   })
 }
@@ -286,8 +287,7 @@ export function auditBlueprint(bp) {
     }
   }
 
-  const role = (id) => plan.place.get(id)?.role
-  const optional = (id) => ['intro', 'step', 'finale', 'challenge'].includes(role(id))
+  const optional = (id) => plan.place.get(id)?.optional
   const byId = new Map(slots.map((s) => [s.id, s]))
   // What a slot holds: whatever came in at it or on every path to it, and its machine's abilities.
   const holds = (s, x) => {

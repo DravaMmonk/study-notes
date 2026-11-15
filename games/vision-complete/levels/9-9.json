@@ -1,5 +1,6 @@
 {
   "title": { "en": "The thin line is gone", "zh": "细线不见了" },
+  "carry": "9-8",
   "tray": "recognition",
   "after": {
     "en": "Combine the coarse result enlarged back with the fine result at full size: the coarse path keeps out the grain, the fine path keeps the detail. This line straight from encoder to decoder is called a skip connection, and U-Net has one at every level.",

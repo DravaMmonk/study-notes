@@ -82,11 +82,6 @@ export const fresh = () => ({ ...blank(), seenPower: true })
 /** Task k's key: the task's id (the shell level's task `key`). */
 export const taskKey = (level, k = 0) => level.tasks[k].key
 
-/** Required prerequisites, passing through optional levels without counting them as completed. */
-export function requiredLevels(level, byId, requiresOf) {
-  return [...new Set(requiresOf(level).flatMap((id) => byId[id]?.optional ? requiredLevels(byId[id], byId, requiresOf) : [id]))]
-}
-
 /** Whether task k of level `id` is passed (all of them once it is solved). */
 export const taskPassed = (game, p, id, k) => p.passed.includes(taskKey(game.byId[id], k)) || (!p.all && !game.byId[id].tasks[k].optional && p.solved.includes(id))
 

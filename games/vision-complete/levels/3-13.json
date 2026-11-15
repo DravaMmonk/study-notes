@@ -1,5 +1,6 @@
 {
   "title": { "en": "Three lamps", "zh": "三盏灯" },
+  "carry": "3-12",
   "tray": "pipeline",
   "after": {
     "en": "Subtracting the three photos with fixed weights gives the reflectance times each component of the normal: ρ·(nx, ny, nz). A normal has length 1, so the length of this vector is the reflectance ρ and its direction is the normal. Three lamps, three equations, three unknowns (with ρ there are four numbers, and \"length 1\" supplies the last one).",

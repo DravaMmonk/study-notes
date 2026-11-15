@@ -4,6 +4,7 @@ import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { COURSE_FIELDS } from './course-schema.js'
 import { S, callOf, find, validate } from './schema.js'
 import { markupOf } from './markup.js'
 import { checkContent, defineVocabulary, describe } from './vocabulary.js'
@@ -30,24 +31,24 @@ const VOCAB = defineVocabulary({
 
 const says = (schema, value) => validate(schema, value, { vocabulary: VOCAB }).map((p) => `${p.at}: ${p.says}`)
 
-test('course edits report circular prerequisites and missing topics before play is built', () => {
-  const topic = S.obj({ id: S.str(), levels: S.list(S.level()), after: S.opt(S.level()), requires: S.opt(S.list(S.str())) })
-  const era = S.obj({ id: S.str(), foundation: S.list(S.level()), topics: S.list(topic) })
+test('course edits reject circular prerequisites and group members outside their chapter', () => {
+  const era = S.obj({ id: S.str(), ...COURSE_FIELDS })
   const vocabulary = { ...VOCAB, game: S.obj({ title: S.text(), eras: S.list(era) }) }
   const content = {
     id: 'toy', domain: 'toy', vocabulary: 1, title: 'Toy',
     glossary: { groups: [], entries: [] },
-    levels: ['start', 'a', 'b'].map((id) => ({ id, mode: 'read', text: id })),
-    eras: [{ id: 'one', foundation: ['start'], topics: [
-      { id: 'alpha', levels: ['a'], requires: ['beta'] },
-      { id: 'beta', levels: ['b'], after: 'a', requires: ['missing'] },
-    ] }],
+    levels: ['start', 'a', 'b', 'next'].map((id) => ({ id, mode: 'read', text: id })),
+    eras: [
+      { id: 'one', path: ['start'], branches: [{ levels: ['a'], after: ['b'] }, { levels: ['b'], after: ['a'] }], groups: [{ title: 'A', levels: ['next'] }] },
+      { id: 'two', path: ['next'] },
+    ],
   }
   assert.deepEqual(checkContent({ vocabulary }, content), [
-    { at: 'game.json.eras[0].topics[1].requires', says: 'no topic "missing" in this chapter' },
+    { at: 'game.json.eras[0].groups[0].levels', says: 'level "next" is outside this chapter' },
     { at: 'game.json.eras', says: 'circular prerequisites: a → b → a' },
   ])
-  content.eras[0].topics[1] = { id: 'beta', levels: ['b'] }
+  content.eras[0].branches[0].after = ['start']
+  content.eras[0].groups[0].levels = ['a', 'b']
   assert.deepEqual(checkContent({ vocabulary }, content), [])
 })
 

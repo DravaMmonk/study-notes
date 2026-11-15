@@ -4,6 +4,7 @@
 //
 // The items are implemented next to their schemas: parts in engine/nodes.js and engine/parts/, pictures, scenes,
 // targets, budgets, bench models and bench displays in items/.
+import { COURSE_FIELDS, COURSE_SCHEMA_REMOVAL } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
@@ -65,7 +66,7 @@ const INTRO = S.list(S.obj({ t: TEXT, fig: S.opt(FIGURE) }), { section: 'read', 
 // What a level says once: its title, its intro, its pass text and its place in the course.
 const ONCE = {
   title: TEXT,
-  optional: S.opt(S.bool({ section: 'course', about: t('可跳过的关卡') })),
+  carry: S.opt(S.level({ section: 'course', about: t('从这关通过时的电路开始', 'Start from the circuit that passed this level') })),
   after: S.text({ about: t('通过这一关时说的话（最后一个任务的点题）') }),
   intro: INTRO,
   unlocks: S.opt(S.list(S.ref('unlock'), { section: 'course' })),
@@ -121,19 +122,9 @@ const BENCH = S.obj({ kind: S.oneOf(['board']), ...TASK, bench: benchSchema(BENC
 
 /* ---------- game.json ---------- */
 
-const levels = S.list(S.level())
-const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: TEXT, levels })) }))
-const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.int({ min: 0 }),
-  foundation: S.list(ITEM),
-  topics: S.opt(S.list(S.obj({
-    id: S.str(),
-    code: S.opt(S.str({ pattern: '^[A-Z]$', about: t('地图上这个系列的字母，一个系列一个') })),
-    levels,
-    after: S.opt(AFTER),
-  }))),
-  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
+  ...COURSE_FIELDS,
   chapter: S.obj({ title: TEXT, label: S.opt(TEXT), question: TEXT }),
 })
 const GAME = S.obj({
@@ -158,7 +149,8 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'image',
-  version: 20,
+  version: 21,
+  removes: [COURSE_SCHEMA_REMOVAL, { at: 'level.optional', why: 'Mark optional levels in the chapter.' }],
   kinds: {
     part: PARTS,
     op: Object.fromEntries(Object.entries(IMAGE_OPS).map(([name, { about, args }]) => [name, { about, args }])),

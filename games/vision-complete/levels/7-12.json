@@ -1,5 +1,6 @@
 {
   "title": { "en": "Obstacle alarm", "zh": "避障警报" },
+  "carry": "7-11",
   "tray": "geometry",
   "after": {
     "en": "Window, distance conversion, region of interest: none can be left out. This is the simplest stereo obstacle-avoidance system; real robot vacuums also use a laser or structured light to fill in where there is no texture.",

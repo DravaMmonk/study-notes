@@ -1,5 +1,6 @@
 {
   "title": { "en": "Dent detector", "zh": "凹坑检测" },
+  "carry": "3-13",
   "tray": "pipeline",
   "after": {
     "en": "This dent detector is photometric stereo at work: a few lamps light the part in turn, the facing at every point is solved, and dents and scratches stand out in the map of facings, whatever the paint does. Document scanning on phones and steel-sheet inspection in factories use the same approach.",

@@ -1,5 +1,6 @@
 {
   "title": { "en": "Only the metre in front", "zh": "只看前方 1 米" },
+  "carry": "7-10",
   "tray": "geometry",
   "after": {
     "en": "The floor is always in front, so counting it would keep the robot stopped for ever; only the region where obstacles can be is checked. Real obstacle avoidance also uses the camera's height and angle to work out how high above the floor each point is.",

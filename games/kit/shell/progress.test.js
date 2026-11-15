@@ -1,7 +1,7 @@
 // node --test games/kit/shell — a game's progress in the browser: kept task by task for the puzzle each was made on.
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, requiredLevels, skipOptionalTask, taskOpen, taskPassed } from './progress.js'
+import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, skipOptionalTask, taskOpen, taskPassed } from './progress.js'
 import { recordSolution } from './progress.js'
 
 const storage = new Map()
@@ -115,15 +115,6 @@ test('passing only an optional task does not complete the required tasks in all-
   const p = passed(g, { ...fresh(), all: true }, l, 1)
   assert.deepEqual(p.solved, [])
   assert.deepEqual(p.passed, ['extra'])
-})
-
-test('optional levels do not block the route and never count as solved', () => {
-  const all = { start: { id: 'start', requires: [] }, one: { id: 'one', optional: true, requires: ['start'] }, two: { id: 'two', optional: true, requires: ['one'] }, next: { id: 'next', requires: ['two'] } }
-  const required = (id) => requiredLevels(all[id], all, (level) => level.requires)
-  assert.deepEqual(required('one'), ['start'])
-  assert.deepEqual(required('next'), ['start'])
-  assert.equal(required('next').every((id) => new Set(['start']).has(id)), true)
-  assert.equal(required('next').every((id) => new Set().has(id)), false)
 })
 
 test('recorded solutions preserve the referenced work when a later pass changes it', () => {

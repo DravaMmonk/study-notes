@@ -9,7 +9,7 @@
 import { S, find, shapeAt } from '../schema.js'
 import { parse } from '../../circuit/text.js'
 import { getAt, mergePatch, parsePath, setAt, showPath, unsetAt } from './edit.js'
-import { PATHS, describe, locate, putIn, takeOut } from './place.js'
+import { describe, locate, moveLevel, putIn, takeOut } from './place.js'
 import { levelRefs, partRefs, renamePartRefs, renameRefs } from './refs.js'
 import { settingReferences } from '../pieces.js'
 import { GLOSSARY } from '../vocabulary.js'
@@ -22,9 +22,8 @@ import { isLanguageCode, LANGUAGE_CODE } from '../i18n.js'
 const PATH = S.either(S.str(), S.list(S.either(S.str(), S.int({ min: 0 }))), { about: t('字段的路径：tests[0].goal') })
 const NEW_ID = S.str({ pattern: '^[A-Za-z0-9][A-Za-z0-9_-]*$', about: t('新的关卡 id（也是文件名）') })
 const PLACE = S.obj({
-  before: S.opt(S.level()), after: S.opt(S.level()), on: S.opt(S.oneOf(['path'])),
-  era: S.opt(S.either(S.str(), S.int())), path: S.opt(S.oneOf(PATHS)), branch: S.opt(S.str()), topic: S.opt(S.str()),
-  challenge: S.opt(S.bool()), hang: S.opt(S.either(S.level(), S.list(S.level()))), at: S.opt(S.int({ min: 0 })),
+  before: S.opt(S.level()), after: S.opt(S.level()), on: S.opt(S.oneOf(['path', 'branch'])),
+  era: S.opt(S.either(S.str(), S.int())), hang: S.opt(S.list(S.level())), at: S.opt(S.int({ min: 0 })),
 }, { about: t('课程里的一个位置（place.js）') })
 
 const fail = (message) => { throw new Error(message) }
@@ -192,9 +191,8 @@ export const OPERATIONS = {
     params: S.obj({ level: S.level(), to: PLACE }),
     apply(ws, { level, to }) {
       const eras = ws.game.eras
-      const { eras: left, was, pruned } = takeOut(eras, level)
-      if (!was) fail(`${level} is in no era`)
-      ws.game = { ...ws.game, eras: putIn(left, level, to) }
+      const { eras: moved, was, pruned } = moveLevel(eras, level, to)
+      ws.game = { ...ws.game, eras: moved }
       return {
         says: `${level}: ${describe(eras, was)} → ${describe(ws.game.eras, locate(ws.game.eras, level))}${pruned.length ? ` (the ${pruned.join(', ')} it emptied went with it)` : ''}`,
         inverse: [{ op: 'game.set', path: ['eras'], value: eras }],
@@ -504,14 +502,11 @@ export const OPERATIONS = {
   },
 }
 
-/** Whether `path` in game.json is the place in the eras that holds `level` (an item, a branch's or topic's entry, a challenge). */
+/** Whether the course reference is a placement or metadata that follows the level. */
 function isOwnPlace(eras, path, level) {
   if (path[0] !== 'eras') return false
-  const tail = path.slice(2)
   const at = locate(eras, level)
   if (!at || at.era !== path[1]) return false
-  if (at.kind === 'path') return tail.length === 2 && tail[0] === at.path && tail[1] === at.item
-  if (at.kind === 'branch') return tail.join('.') === [at.path, at.item, 'parallel', at.branch, 'levels', at.k].join('.')
-  if (at.kind === 'topic') return tail.join('.') === ['topics', at.topic, 'levels', at.k].join('.')
-  return tail.join('.') === ['challenges', at.k, 'level'].join('.')
+  const tail = path.slice(2)
+  return tail[0] === 'optional' || tail[0] === 'groups' || tail.join('.') === at.path.join('.')
 }

@@ -150,9 +150,6 @@ function hookProblems(course) {
       const can = course.can(machine)
       if (can !== null && !strings(can)) say(`can(${machine}) is neither a list of mechanisms nor null`)
     }
-    const world = course.world(level)
-    if (world !== null && typeof world !== 'string') say(`world(${at}) is neither a name nor null`)
-    if (typeof course.naive(level) !== 'boolean') say(`naive(${at}) is not true or false`)
     const showcase = course.showcase(level)
     if (showcase !== null && !isText(showcase)) say(`showcase(${at}) is neither a reason nor null`)
   }

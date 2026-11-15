@@ -10,7 +10,7 @@ import { inheritedBoard } from '../../shell/progress.js';
 import { deepFreeze } from '../../engine/content.js';
 import { taskLevels } from '../../engine/tasks.js';
 import { trayIn } from '../../engine/trays.js';
-import { defineCourse, eraLevels, layout, offer, pathLevels, reach } from '../../course.js';
+import { defineCourse, eraLevels, layout, levelLabels, offer, reach } from '../../course.js';
 import { T, hydrate, lazy, tr } from './lang.js';
 import { builtPieces, publications, settingsOf } from '../../engine/pieces.js';
 import { isGiven, modelsOf, partsOf } from './model/parts.js';
@@ -19,12 +19,10 @@ import { restoreRobotBoard, robotBlueprint } from './model/wiring.js';
 import { ROBOTS } from './model/robots.js';
 import { WORLDS, sensorsOf, visibleSensors } from './model/worlds.js';
 import { modelOf } from './model/run.js';
-import { runRobotCase } from './model/verdict.js';
 import { gridScene, visionFig } from './model/scene.js';
 import { figure } from './items/figures.js';
 
 /** Worlds that are one family: the same board, read or scanned another way. */
-const FAMILY = { grid: 'grid', gridYes: 'grid', vgrid: 'grid', pic: 'grid', align: 'align', local: 'align', strip: 'line', pile: 'line', coins: 'line', prefix: 'street', heights: 'street', rob1: 'street', rob2: 'street', knap: 'knap', roll: 'knap' };
 const ROW_WORLDS = new Set(['interval']);
 
 /** A port of a built part, from its vocabulary item (vocabulary.js port): its label, short name and type, and the sensor
@@ -142,13 +140,7 @@ export function tableCourse(content) {
     return fits.get(b) ?? s.solution;
   };
 
-  /** A level's number, as in CURRICULUM.md: on an era's main path the era and its place ('1-4'), in a topic its letter
-   *  and place ('S2'), and C1, C2… for an era's challenges. */
-  const LABELS = new Map(eras.flatMap((era, e) => [
-    ...pathLevels([...era.foundation, ...(era.practice ?? [])]).map((id, k) => [id, `${e}-${k + 1}`]),
-    ...(era.topics ?? []).flatMap(t => t.levels.map((id, k) => [id, `${t.code}${k + 1}`])),
-    ...(era.challenges ?? []).map((c, k) => [c.level, `C${k + 1}`]),
-  ]));
+  const LABELS = levelLabels(eras);
   /** The map's chapters, one per era: named after its robot (or the era's own title where there is none). */
   const CHAPTERS = eras.map((era, e) => ({
     era: era.id,
@@ -257,42 +249,16 @@ export function tableCourse(content) {
     builds: l => (byId.get(l.id).builds ? [byId.get(l.id).unlock] : []),
     // A merger's models are one part with a setting.
     concept: p => content.concept?.[p] ?? (modelsOf(p) || [p])[0],
-    // A circuit level is played by its robot, in the world of its last circuit task (a topic keeps to one family of
-    // worlds).
+    // A circuit level uses the abilities of its robot.
     machine: l => byId.get(l.id).robot ?? null,
     uses: l => usesOf(circuitOf(l.id)),
     can: m => ROBOTS[m]?.can ?? null,
-    world: l => { const s = circuitOf(l.id).at(-1); return s ? FAMILY[s.world] ?? s.world : null; },
-    naive: l => byId.get(l.id).tasks.some(s => s.naive),
     // What a level's reference boards use (the parts placed, not what the level gives).
     needed: l => { const sols = circuitOf(l.id).map(s => s.solution).filter(Boolean); return sols.length ? sols.flatMap(b => b.nodes.filter(n => !isGiven(n.type)).map(n => n.type)) : null; },
     boards: l => circuitOf(l.id).map(s => s.solution).filter(Boolean),
     showcase: l => byId.get(l.id).showcase ?? null,
     // A level that starts from an earlier level's board (`carry`) requires that level.
     carries: l => (byId.get(l.id).carry ? [byId.get(l.id).carry] : []),
-    // A topic's finale is its last circuit level (a board level may follow it, like cutting the seam out). An earlier
-    // circuit level of the topic, run in the same world (or one of its family, with the same outputs), is solved by the
-    // finale's board; one that instead builds a core mechanism alone is, when its part is on the finale's board.
-    finale: topic => {
-      const end = [...topic.levels].reverse().find(id => circuitOf(id).length), fs = end && circuitOf(end).at(-1);
-      if (!fs?.solution) return null;
-      return {
-        level: end,
-        solves: id => {
-          const L = byId.get(id), tasks = circuitOf(id);
-          if (!tasks.length || (L.builds && fs.solution.nodes.some(n => n.type === L.unlock))) return null;
-          for (const s of tasks) {
-            const V = WORLDS[s.world];
-            const same = s.world === fs.world || (V.outs.map(o => o[0]).join() === WORLDS[fs.world].outs.map(o => o[0]).join() && FAMILY[s.world] && FAMILY[s.world] === FAMILY[fs.world]);
-            if (!same) return `the finale ${end} plays in another world`;
-            // Cross-level reuse checks the answer: boards from different worlds can fill different intermediate tables.
-            const bad = s.tests.findIndex((_, i) => !runRobotCase(run, s, fs.solution, i).pass);
-            if (bad >= 0) return `the finale's board fails ${tasks.length > 1 ? `task ${s.taskId}, ` : ''}test ${bad + 1}`;
-          }
-          return null;
-        },
-      };
-    },
     abstraction: true,
   });
 

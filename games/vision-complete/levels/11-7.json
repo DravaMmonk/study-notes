@@ -1,5 +1,6 @@
 {
   "title": { "en": "The check-up", "zh": "体检报告" },
+  "carry": "11-6",
   "tray": "recognition",
   "after": {
     "en": "The heat map is for people to look at, the number for the pipeline: before release, every model runs over a batch of photos, and the ones with a low fraction are held back. In these photos cars and roads always go together, so a high score does not show the model learnt the right thing; what matters is why it is high.",

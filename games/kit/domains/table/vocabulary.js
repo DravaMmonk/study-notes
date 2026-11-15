@@ -6,6 +6,7 @@
 // modes in ui/modes/ (one screen each, ui/LevelScreen.jsx), and the items content calls (figures, conditions, traces,
 // panels, explains) in items/.
 
+import { COURSE_FIELDS, COURSE_SCHEMA_REMOVAL } from '../../engine/course-schema.js';
 import { S } from '../../engine/schema.js';
 import { defineVocabulary } from '../../engine/vocabulary.js';
 import { taskLevel } from '../../engine/tasks.js';
@@ -232,16 +233,10 @@ const CIRCUIT_TASK = S.by('world', Object.fromEntries(Object.entries(WORLDS).map
 
 /* ---------- game.json ---------- */
 
-const levels = S.list(S.level());
-const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.text(), levels })) }));
-const AFTER = S.either(S.level(), levels);
 const ERA = S.obj({
   id: S.str(),
   machine: S.either(S.ref('robot'), NONE),
-  foundation: S.list(ITEM),
-  practice: S.opt(S.list(ITEM)),
-  topics: S.opt(S.list(S.obj({ id: S.str(), code: S.str({ pattern: '^[A-Z]$' }), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.text(), desc: S.text() }))),
-  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
+  ...COURSE_FIELDS,
   chapter: S.obj({ title: S.text(), desc: S.text() }),
 });
 const GAME = S.obj({
@@ -257,7 +252,8 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'table',
-  version: 3,
+  version: 4,
+  removes: [COURSE_SCHEMA_REMOVAL],
   // A part or an idea a level unlocks is a pieces.json entry whose inside refers to the task that builds or teaches it.
   kinds: {
     part: PARTS,

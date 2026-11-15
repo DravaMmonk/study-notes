@@ -9,7 +9,7 @@ import { symbolFor } from './stripPieces.js'
 import { playFor } from '../../engine/plays.js'
 import { plays } from './plays.js'
 import { builtPieces, cardOf, pieceReferences, revisionsOf, settingsOf } from '../../engine/pieces.js'
-import { defineCourse, eraLevels, holds, itemOf, layout, met, numbered, offer, usable } from '../../course.js'
+import { defineCourse, eraLevels, holds, itemOf, layout, levelLabels, met, offer, usable } from '../../course.js'
 import { taskLevels } from '../../engine/tasks.js'
 import { keyOf } from '../../shell/i18n.js'
 import { trayIn } from '../../engine/trays.js'
@@ -359,19 +359,7 @@ export function logicCourse(content) {
     kind: 'declaration', type: keyOf(level.declare), form: null, task: level.tasks.at(-1), value: level.adds.filter((type) => !strips[type]),
   }))
   for (const [type, list] of Object.entries(revisions)) for (const r of list) if (!byId.has(r.at ?? r.by)) throw new Error(`the revision of ${type} names a level that does not exist: ${r.at ?? r.by}`)
-  // A level's number: on an era's main path the era and its place, a parallel set row by row ('1-4', numbered), in a topic its
-  // code and place ('D2'), C1 …
-  // for the era's challenges.
-  const LABELS = new Map(eras.flatMap((era, e) => [
-    ...numbered([...era.foundation, ...(era.practice ?? [])], plan.requires).map((id, k) => [id, `${e}-${k + 1}`]),
-    // Topics sharing a code number on from each other, across chapters too (a topic split into branches: X1, X2, then
-    // X3 … on both; the elimination rule generator's levels in whatever chapter: E1 … E4).
-    ...(era.topics ?? []).flatMap((t, i, all) => {
-      const before = [...eras.slice(0, e).flatMap((x) => x.topics ?? []), ...all.slice(0, i)].filter((u) => u.code === t.code)
-      return t.levels.map((id, k) => [id, `${t.code}${before.reduce((n, u) => n + u.levels.length, 0) + k + 1}`])
-    }),
-    ...(era.challenges ?? []).map((c, k) => [c.level, `C${e}.${k + 1}`]),
-  ]))
+  const LABELS = levelLabels(eras)
   const CHAPTERS = eras.map((era) => ({ ...era.chapter, track: plan.tracks.get(era.id) }))
   // Every axiom part stays in the levels that state it, and is no new idea: it is the level's own given.
   const axioms = [...new Set(TASKS.filter((t) => t.kind === 'machine').flatMap(axiomPartsOf))]
@@ -422,7 +410,6 @@ export function logicCourse(content) {
     },
     withholds: (l) => byId.get(l.id).tasks[l.task]?.without ?? [],
     machine: (l) => eras[eraOf.get(l.id)].machine ?? null,
-    naive: (l) => byId.get(l.id).tasks.some((task) => task.naive),
     // Every task's answer counts: a part the level's first task uses is used; what its board starts with does not.
     needed: (l) => {
       const answers = answersOf(l)

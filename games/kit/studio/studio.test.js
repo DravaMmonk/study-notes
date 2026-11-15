@@ -124,38 +124,34 @@ test('a level’s boards, its reference, its texts; which schemas hold levels', 
 })
 
 const ERAS = [
-  { id: 1, foundation: ['a', { parallel: [{ id: 'p', levels: ['b', 'c'] }, { id: 'q', levels: ['d'] }] }, 'e'], practice: ['f'], topics: [{ id: 't', levels: ['g'] }], challenges: [{ level: 'h', after: 'e' }] },
-  { id: 2, foundation: ['i'] },
+  { id: 1, path: ['a', { parallel: [['b', 'c'], ['d']] }, 'e', 'f'], branches: [{ levels: ['g'] }, { levels: ['h'], after: ['e'] }] },
+  { id: 2, path: ['i'] },
 ]
 
-test('the course tree lays out eras as the map does, with a slot between every two levels', () => {
+test('the course tree uses the operation set’s placements for every route slot', () => {
   const tree = courseTree(ERAS)
   const [one, two] = tree.eras
-  assert.deepEqual(one.paths.map((p) => p.path), ['foundation', 'practice'])
-  assert.deepEqual(two.paths.map((p) => p.path), ['foundation'])
-  const path = one.paths[0]
-  assert.deepEqual(path.items.map((i) => i.level ?? i.parallel.map((b) => b.branch.id)), ['a', ['p', 'q'], 'e'])
-  assert.deepEqual(path.slots, [{ era: 1, path: 'foundation', at: 0 }, { after: 'a', on: 'path' }, { after: 'd', on: 'path' }, { after: 'e', on: 'path' }])
-  assert.deepEqual(path.items[1].parallel[0].slots, [{ branch: 'p', era: 1, at: 0 }, { after: 'b' }, { after: 'c' }])
-  assert.deepEqual(one.topics[0].slots, [{ topic: 't', era: 1, at: 0 }, { after: 'g' }])
-  assert.deepEqual(one.challenges, ['h'])
-  // Every slot is a place the operation set can put a level: moving `i` into each lands where the slot is.
-  const slots = [...one.paths.flatMap((p) => [...p.slots, ...p.items.flatMap((i) => (i.parallel ?? []).flatMap((b) => b.slots))]), ...one.topics.flatMap((t) => t.slots), one.challengeSlot]
+  assert.deepEqual(two.items, [{ level: 'i' }])
+  assert.deepEqual(one.items.map((item) => item.level ?? item.parallel.map((lane) => lane.levels)), ['a', [['b', 'c'], ['d']], 'e', 'f'])
+  assert.deepEqual(one.slots, [{ era: 1, on: 'path', at: 0 }, { after: 'a', on: 'path' }, { after: 'd', on: 'path' }, { after: 'e', on: 'path' }, { after: 'f', on: 'path' }])
+  assert.deepEqual(one.items[1].parallel[0].slots, [{ before: 'b' }, { after: 'b' }, { after: 'c' }])
+  assert.deepEqual(one.branches[0].slots, [{ before: 'g' }, { after: 'g' }])
+  const slots = [...one.slots, ...one.items.flatMap((item) => (item.parallel ?? []).flatMap((lane) => lane.slots)), ...one.branches.flatMap((branch) => branch.slots)]
   for (const to of slots) assert.doesNotThrow(() => putIn(takeOut(ERAS, 'i').eras, 'i', to), JSON.stringify(to))
-  assert.equal(stays(tree, 'c', { after: 'b' }), true, 'right before itself')
-  assert.equal(stays(tree, 'c', { after: 'c' }), true, 'right after itself')
-  assert.equal(stays(tree, 'a', { era: 1, path: 'foundation', at: 0 }), true)
+  assert.equal(stays(tree, 'c', { after: 'b' }), true)
+  assert.equal(stays(tree, 'c', { after: 'c' }), true)
+  assert.equal(stays(tree, 'a', { era: 1, on: 'path', at: 0 }), true)
   assert.equal(stays(tree, 'a', { after: 'e', on: 'path' }), false)
 })
 
 test('a changed file reads field by field: texts and boards whole, objects and lists looked into', () => {
-  const before = { title: { en: '甲' }, tests: [{ input: 1 }, { input: 2 }], solution: ['x', 'y'], eras: [{ foundation: ['a', 'b'] }] }
-  const after = { title: { en: '乙' }, tests: [{ input: 1 }, { input: 3 }], solution: ['x', 'z'], eras: [{ foundation: ['b', 'a', 'c'] }], note: 'n' }
+  const before = { title: { en: '甲' }, tests: [{ input: 1 }, { input: 2 }], solution: ['x', 'y'], eras: [{ path: ['a', 'b'] }] }
+  const after = { title: { en: '乙' }, tests: [{ input: 1 }, { input: 3 }], solution: ['x', 'z'], eras: [{ path: ['b', 'a', 'c'] }], note: 'n' }
   assert.deepEqual(fieldDiff(before, after), [
     { path: ['title'], before: { en: '甲' }, after: { en: '乙' }, as: 'text' },
     { path: ['tests', 1, 'input'], before: 2, after: 3, as: 'value' },
     { path: ['solution'], before: ['x', 'y'], after: ['x', 'z'], as: 'lines' },
-    { path: ['eras', 0, 'foundation'], before: ['a', 'b'], after: ['b', 'a', 'c'], as: 'lines' },
+    { path: ['eras', 0, 'path'], before: ['a', 'b'], after: ['b', 'a', 'c'], as: 'lines' },
     { path: ['note'], before: undefined, after: 'n', as: 'value' },
   ])
   assert.deepEqual(fieldDiff(undefined, { a: 1 }), [{ path: [], before: undefined, after: { a: 1 }, as: 'value' }])

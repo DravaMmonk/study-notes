@@ -16,7 +16,6 @@ import { firstTask, flagsIn, passed, saved, taskPassed } from '../../shell/progr
 import { close, outcomeOf } from './session.js'
 import { plain, refsIn, side } from './words.js'
 
-const OPTIONAL = ['intro', 'step', 'finale', 'challenge']
 
 /**
  * game: defineGame's result; course: the course the audit checks (its plan says which levels are required); hook: the
@@ -32,7 +31,7 @@ const EXPLAIN = {
 export function createPlay({ game, course, hook, record, now = () => new Date() }) {
   const lang = record.lang
   const solved = () => new Set(record.progress.solved)
-  const required = (id) => !OPTIONAL.includes(course.plan?.place.get(id)?.role)
+  const required = (id) => !course.plan?.place.get(id)?.optional
   const names = (kind, id) => {
     if (kind === 'level') return game.byId[id] ? `${game.levelLabel(game.byId[id])} ${side(game.byId[id].title, lang)}` : null
     if (kind === 'part') return side(game.parts?.all.find((p) => p.key === id)?.name, lang) || null

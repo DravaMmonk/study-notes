@@ -1,6 +1,5 @@
 {
   "title": { "en": "Sorting machine", "zh": "分拣机" },
-  "optional": true,
   "tray": "pipeline",
   "after": {
     "en": "This sorting machine combines local features into a class decision: convolutions can find different strokes, nonlinearities and pooling help with changes in position, and the classifier scores each class from the features. Passing on these new parts shows it works beyond the training examples; assessing reliability in practice requires more representative tests.",

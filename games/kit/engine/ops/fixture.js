@@ -33,7 +33,7 @@ const GAME = {
   eras: [{
     id: 'ground',
     machine: 'prover',
-    foundation: ['given', 'apply', 'suppose'],
+    path: ['given', 'apply', 'suppose'],
     chapter: { title: T('The foundation'), question: T('What can be built from Apply and the assumption box alone?') },
   }],
 }

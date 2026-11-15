@@ -1,5 +1,6 @@
 {
   "title": { "en": "Scanner", "zh": "扫描仪" },
+  "carry": "1-14",
   "tray": "pipeline",
   "after": {
     "en": "A larger Gaussian blur turns the grain and the thin strokes into a faint grey with almost no slope, while a paper edge, where large areas of light and dark meet, is still a slope after blurring. To look for things of a certain size, blur to that size first: this idea of \"scale\" will keep coming back. A scanning app finding the four sides of a page starts with exactly this pipeline: blur away the noise and the text, take gradients without inventing edges at the border, then threshold. The edges found are later fitted with four straight lines, so a page photographed at an angle can be straightened.",

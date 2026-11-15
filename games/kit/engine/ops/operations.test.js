@@ -5,6 +5,8 @@ import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { COURSE_FIELDS } from '../course-schema.js'
+import { eraLevels } from '../../course.js'
 import { S } from '../schema.js'
 import { defineVocabulary } from '../vocabulary.js'
 import { OPERATIONS } from './operations.js'
@@ -14,14 +16,7 @@ import { driftOf } from './log.js'
 import { withParts } from '../parts/define.js'
 import { taskLevel } from '../tasks.js'
 
-const levels = S.list(S.level())
-const ERA = S.obj({
-  id: S.str(),
-  foundation: S.list(S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), levels })) }))),
-  practice: S.opt(S.list(S.level())),
-  topics: S.opt(S.list(S.obj({ id: S.str(), levels, after: S.opt(S.level()) }))),
-  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(S.level()) }))),
-})
+const ERA = S.obj({ id: S.str(), ...COURSE_FIELDS })
 const VOCAB = defineVocabulary({
   domain: 'toy',
   version: 1,
@@ -34,7 +29,7 @@ const VOCAB = defineVocabulary({
 const DOMAIN = {
   vocabulary: VOCAB,
   spec: (content) => {
-    const order = content.eras.flatMap((e) => e.foundation.flatMap((i) => (typeof i === 'string' ? [i] : i.parallel.flatMap((b) => b.levels))))
+    const order = content.eras.flatMap(eraLevels)
     const course = { index: new Map(order.map((id, k) => [id, k])), levels: order.map((id) => ({ id })), builds: () => [] }
     return { levels: order.map((id, k) => ({ id, requires: k ? [order[k - 1]] : [] })), course }
   },
@@ -46,7 +41,7 @@ function toy() {
   const put = (file, value) => writeFileSync(join(root, 'toy', file), `${JSON.stringify(value, null, 2)}\n`)
   put('game.json', {
     domain: 'toy', vocabulary: 1, title: { en: 'Toy' },
-    eras: [{ id: 'one', foundation: ['a1', { parallel: [{ id: 'side', levels: ['a2', 'a3'] }] }] }, { id: 'two', foundation: ['b1', 'b2'], challenges: [{ level: 'c1', after: 'b1' }] }],
+    eras: [{ id: 'one', path: ['a1', { parallel: [['a2'], ['a3']] }], optional: ['a3'], groups: [{ title: 'Grouped', levels: ['a2', 'a3'] }] }, { id: 'two', path: ['b1', 'b2'], branches: [{ levels: ['c1'], after: ['b1'] }] }],
     carry: { x: 'a2' },
   })
   put('glossary.json', { groups: [{ id: 'g', title: 'G' }], entries: [{ id: 'e', group: 'g', title: { en: 'E' }, body: ['see <level-ref to="a2"></level-ref>'], at: 'a2' }] })
@@ -106,22 +101,24 @@ test('level.blueprint writes a board as blueprint text, and only a board', () =>
 test('level.move takes a level out of a branch and puts it anywhere', () => {
   const { ws } = toy()
   const done = roundTrip(ws, 'level.move', { level: 'a3', to: { before: 'b2' } })
-  assert.deepEqual(ws.game.eras[1].foundation, ['b1', 'a3', 'b2'])
-  assert.match(done.says, /era one, branch side #2 → era two, foundation path #2/)
-  roundTrip(ws, 'level.move', { level: 'a2', to: { era: 'two', path: 'foundation', at: 0 } })
+  assert.deepEqual(ws.game.eras[1].path, ['b1', 'a3', 'b2'])
+  assert.deepEqual(ws.game.eras[1].optional, ['a3'])
+  assert.deepEqual(ws.game.eras[0].groups[0].levels, ['a2'])
+  assert.match(done.says, /era one, fork #2, lane 2, level 1 → era two, path #2/)
+  roundTrip(ws, 'level.move', { level: 'a2', to: { era: 'two', on: 'path', at: 0 } })
   // The branch it emptied goes with it.
-  assert.deepEqual(ws.game.eras[0].foundation, ['a1'])
+  assert.deepEqual(ws.game.eras[0].path, ['a1'])
   roundTrip(ws, 'level.move', { level: 'a1', to: { after: 'b2', on: 'path' } })
-  roundTrip(ws, 'level.move', { level: 'b2', to: { era: 'two', challenge: true, hang: 'b1' } })
-  assert.deepEqual(ws.game.eras[1].challenges.map((c) => c.level), ['c1', 'b2'])
-  assert.throws(() => run(ws, 'level.move', { level: 'b1', to: { branch: 'nowhere' } }), /no branch nowhere/)
+  roundTrip(ws, 'level.move', { level: 'b2', to: { era: 'two', on: 'branch', hang: ['b1'] } })
+  assert.deepEqual(ws.game.eras[1].branches.map((c) => c.levels[0]), ['c1', 'b2'])
+  assert.throws(() => run(ws, 'level.move', { level: 'b1', to: { era: 'nowhere' } }), /no era nowhere/)
 })
 
 test('level.rename renames the file and every reference', () => {
   const { ws } = toy()
   roundTrip(ws, 'level.rename', { level: 'a2', to: 'two' })
   assert.ok(ws.levels.has('two') && !ws.levels.has('a2'))
-  assert.deepEqual(ws.game.eras[0].foundation[1].parallel[0].levels, ['two', 'a3'])
+  assert.deepEqual(ws.game.eras[0].path[1].parallel[0], ['two'])
   assert.deepEqual(ws.game.carry, { x: 'two' })
   assert.equal(level(ws, 'b1').from, 'two')
   assert.equal(level(ws, 'b1').brief.en, 'after <level-ref to="two"></level-ref>')
@@ -134,11 +131,11 @@ test('level.rename renames the file and every reference', () => {
 test('level.add puts a new level in; level.remove refuses while anything names the level', () => {
   const { ws } = toy()
   roundTrip(ws, 'level.add', { level: 'n1', data: { title: 'N' }, to: { after: 'a1' } })
-  assert.deepEqual(ws.game.eras[0].foundation, ['a1', 'n1', { parallel: [{ id: 'side', levels: ['a2', 'a3'] }] }])
+  assert.deepEqual(ws.game.eras[0].path, ['a1', 'n1', { parallel: [['a2'], ['a3']] }])
   roundTrip(ws, 'level.remove', { level: 'n1' })
   assert.throws(() => run(ws, 'level.remove', { level: 'a2' }), /still named at game.json carry.x, glossary.json entries\[0\].at, glossary.json entries\[0\].body\[0\], levels\/b1.json from, levels\/b1.json brief.en/)
   roundTrip(ws, 'level.remove', { level: 'c1' })
-  assert.equal(ws.game.eras[1].challenges, undefined)
+  assert.equal(ws.game.eras[1].branches, undefined)
 })
 
 test('game.set and game.unset edit game.json', () => {
@@ -288,7 +285,7 @@ function partsToy() {
   const root = mkdtempSync(join(tmpdir(), 'ops-ptoy-'))
   mkdirSync(join(root, 'ptoy', 'levels'), { recursive: true })
   const put = (file, value) => writeFileSync(join(root, 'ptoy', file), `${JSON.stringify(value, null, 2)}\n`)
-  put('game.json', { domain: 'ptoy', vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], eras: [{ id: 'one', foundation: ['a1'] }] })
+  put('game.json', { domain: 'ptoy', vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], eras: [{ id: 'one', path: ['a1'] }] })
   put('glossary.json', { groups: [], entries: [] })
   put('pieces.json', { parts: { sum } })
   put('levels/a1.json', { title: 'A', brief: { en: '用 <part-ref to="sum"></part-ref>' }, adds: ['sum'], solution: ['s = sum(a, b)', 'out <- s'] })

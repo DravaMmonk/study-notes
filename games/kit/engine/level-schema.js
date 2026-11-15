@@ -6,6 +6,7 @@
 //   NAME, PORT                                                            a card's name, a port
 import { taskLevel } from './tasks.js'
 import { TRAY, TRAYS } from './trays.js'
+import { COURSE_FIELDS } from './course-schema.js'
 import { S } from './schema.js'
 import { GAME_VIEWS, RESULTS, SHOW, START_VIEW, TASK_VIEWS } from './views.js'
 import { T as t } from '../shell/i18n.js'
@@ -70,18 +71,11 @@ export const levelSchema = ({ page = S.obj({ t: S.text(), show: S.opt(SHOW) }), 
 
 // The schema of a game.json on the base (a domain's vocabulary game): its eras laid out as ../course.js layout reads
 // them and the primitives it starts from.
-const ids = S.list(S.str())
-const levels = S.list(S.level())
-const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.opt(S.text()), levels })) }))
-const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.int(),
   title: S.text(),
   question: S.text(),
-  foundation: S.list(ITEM),
-  practice: S.opt(S.list(ITEM)),
-  topics: S.opt(S.list(S.obj({ id: S.str(), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.opt(S.text()) }))),
-  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
+  ...COURSE_FIELDS,
 })
 export const GAME = S.obj({
   title: S.text(),

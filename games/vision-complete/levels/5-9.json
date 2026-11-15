@@ -1,5 +1,6 @@
 {
   "title": { "en": "Album clean-up", "zh": "相册去重" },
+  "carry": "5-8",
   "tray": "pipeline",
   "after": {
     "en": "Encode, take the cosine, apply a threshold: album clean-up, image search and face verification are all this pipeline, differing in what kind of \"same\" the encoder has learnt. Set the threshold too high and duplicates slip through; too low and different photos get merged.",

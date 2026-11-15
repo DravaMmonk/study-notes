@@ -1,26 +1,17 @@
 // The studio's three-level course tree. Course placement still supplies drop targets for moving levels and tasks.
 import { Fragment, useMemo, useState } from 'react'
 import { ChevronRight } from 'lucide-react'
+import { eraLevels } from '../course.js'
 import { L, tr } from '../shell/i18n.js'
 import { courseTree, stays } from './tree.js'
 import { usePref } from './prefs.js'
-
-/** The levels of a tree in the order its rows show them. */
-function rowsOf(tree) {
-  const out = []
-  for (const era of tree.eras) {
-    for (const p of era.paths) for (const item of p.items) out.push(...(item.level ? [item.level] : item.parallel.flatMap((b) => b.levels)))
-    for (const t of era.topics) out.push(...t.levels)
-    out.push(...era.challenges)
-  }
-  return out
-}
 
 export default function Tree({ game, content, at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, onTask, onTaskMove }) {
   const [taskDrag, setTaskDrag] = useState(null) // the id of the task being dragged
   const [taskOver, setTaskOver] = useState(null)
   const tree = useMemo(() => courseTree(content.eras ?? []), [content])
-  const rows = useMemo(() => rowsOf(tree), [tree])
+  const rows = useMemo(() => tree.eras.flatMap(({ era }) => eraLevels(era)), [tree])
+  const optional = useMemo(() => new Set(tree.eras.flatMap(({ era }) => era.optional ?? [])), [tree])
   const byId = useMemo(() => new Map(content.levels.map((l) => [l.id, l])), [content])
   const labelOf = useMemo(() => new Map((labels ?? []).map((l) => [l.id, l.label])), [labels])
   const [folds, setFolds] = usePref('folded-eras', {})
@@ -55,7 +46,7 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
 
   const showsTasks = (id) => (byId.get(id)?.tasks?.length ?? 0) > 1
 
-  const level = (id, optional) => (
+  const level = (id) => (
     <button
       key={id}
       type="button"
@@ -86,7 +77,7 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
     >
       <code className="tree-level-id" title={id}>{id}</code>
       <span>{L(byId.get(id)?.title)}</span>
-      {(optional || byId.get(id)?.optional) && <small className="tree-optional">{tr('可选')}</small>}
+      {optional.has(id) && <small className="tree-optional">{tr('可选')}</small>}
     </button>
   )
   /** What makes a row a place a dragged task goes. */
@@ -139,18 +130,18 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
       />
     )
   }
-  const row = (id, optional = false) => (
+  const row = (id) => (
     <div key={id} className="tree-run">
-      {level(id, optional)}
+      {level(id)}
       {tasksOf(id)}
     </div>
   )
-  const list = (levels, slots, destination, optional = false) => (
+  const list = (levels, slots, destination) => (
     <>
       {slot(slots[0], destination)}
       {levels.map((id, k) => (
         <Fragment key={id}>
-          {row(id, optional)}
+          {row(id)}
           {slot(slots[k + 1], destination)}
         </Fragment>
       ))}
@@ -159,7 +150,7 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
 
   return (
     <nav className="tree" aria-label={tr('课程')}>
-      {tree.eras.map(({ era: value, at: e, paths, topics, challenges, challengeSlot }) => {
+      {tree.eras.map(({ era: value, at: e, items, slots, branches }) => {
         const shut = folded.has(String(value.id)) && !moving
         const title = L(value.title ?? value.chapter?.title) ?? String(value.id)
         return (
@@ -172,27 +163,19 @@ export default function Tree({ game, content, at, selectedTask, picked, setPicke
             </div>
             {!shut && (
               <div className="tree-levels">
-                {paths.map(({ path, items, slots }) => {
-                  const destination = `${title} · ${path === 'practice' ? tr('练习', 'Practice') : tr('主线', 'Main path')}`
-                  return (
-                    <Fragment key={path}>
-                      {slot(slots[0], destination)}
-                      {items.map((item, k) => (
-                        <Fragment key={item.level ?? item.parallel.map((b) => b.branch.id).join('+')}>
-                          {item.level ? row(item.level) : item.parallel.map(({ branch, levels, slots: branchSlots }) => (
-                            <Fragment key={branch.id}>{list(levels, branchSlots, L(branch.title) ?? branch.id)}</Fragment>
-                          ))}
-                          {slot(slots[k + 1], destination)}
-                        </Fragment>
-                      ))}
-                    </Fragment>
-                  )
-                })}
-                {topics.map(({ topic, levels, slots }) => (
-                  <Fragment key={topic.id}>{list(levels, slots, L(topic.title) ?? topic.id, true)}</Fragment>
+                {slot(slots[0], title)}
+                {items.map((item, k) => (
+                  <Fragment key={item.level ?? item.parallel[0]?.levels[0]}>
+                    {item.level ? row(item.level) : item.parallel.map(({ levels, slots: laneSlots }, j) => (
+                      <Fragment key={levels[0]}>{list(levels, laneSlots, tr(`并行路线 ${j + 1}`, `Parallel lane ${j + 1}`))}</Fragment>
+                    ))}
+                    {slot(slots[k + 1], title)}
+                  </Fragment>
                 ))}
-                {challenges.map((id) => row(id, true))}
-                {slot(challengeSlot, `${title} · ${tr('挑战')}`)}
+                {branches.map(({ levels, slots: branchSlots }, i) => (
+                  <Fragment key={levels[0]}>{list(levels, branchSlots, tr(`支线 ${i + 1}`, `Side route ${i + 1}`))}</Fragment>
+                ))}
+                {slot({ era: value.id, on: 'branch' }, tr('新支线', 'New side route'))}
               </div>
             )}
           </section>

@@ -9,6 +9,7 @@
 // notation formula.js and schematic.js read; a board is blueprint text (blueprint.js).
 
 import { symbolFor } from './stripPieces.js'
+import { COURSE_FIELDS, COURSE_SCHEMA_REMOVAL } from '../../engine/course-schema.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
@@ -226,16 +227,10 @@ const LEVEL = taskLevel({ title: S.text(), intro: S.opt(INTRO), after: AFTER_TEX
 
 /* ---------- game.json ---------- */
 
-const levels = S.list(S.level())
-const ITEM = S.either(S.level(), S.obj({ parallel: S.list(S.obj({ id: S.str(), title: S.text(), levels })) }))
-const AFTER = S.either(S.level(), levels)
 const ERA = S.obj({
   id: S.str(),
   machine: S.either(S.oneOf(['prover'], { about: t('证明器：从这一代起，每一章给它加一个模块') }), NONE),
-  foundation: S.list(ITEM),
-  practice: S.opt(S.list(ITEM)),
-  topics: S.opt(S.list(S.obj({ id: S.str(), code: S.str({ pattern: '^[A-Z]$' }), after: S.opt(AFTER), requires: S.opt(ids), levels, title: S.text(), desc: S.opt(S.text()) }))),
-  challenges: S.opt(S.list(S.obj({ level: S.level(), after: S.opt(AFTER) }))),
+  ...COURSE_FIELDS,
   chapter: S.obj({ title: S.text(), question: S.text() }),
 })
 const GAME = S.obj({
@@ -254,7 +249,8 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 8,
+  version: 9,
+  removes: [COURSE_SCHEMA_REMOVAL],
   kinds: {
     part: PART_ITEMS,
     // The engine resources pieces.json calls beyond the kernel's builtins (../../engine/parts/builtins.js).

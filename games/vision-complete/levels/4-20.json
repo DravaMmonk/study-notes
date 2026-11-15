@@ -1,6 +1,5 @@
 {
   "title": { "en": "One of three", "zh": "三选一" },
-  "optional": true,
   "tray": "pipeline",
   "after": {
     "en": "Softmax turns scores into nonnegative weights that sum to 1 for any number of classes. The weights can be used as class probabilities, but their reliability still needs calibration and evaluation.",

@@ -1,5 +1,6 @@
 {
   "title": { "en": "Book cover", "zh": "书封面" },
+  "carry": "6-12",
   "tray": "geometry",
   "after": {
     "en": "Match, choose inliers with RANSAC, solve the homography, warp and paste: this pipeline is the core of AR book covers, panorama stitching and document-scanning apps, and you have built every step of it yourself.",

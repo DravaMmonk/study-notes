@@ -1,6 +1,6 @@
 {
   "domain": "logic",
-  "vocabulary": 8,
+  "vocabulary": 9,
   "title": { "en": "Q.E.D.", "zh": "证明完毕" },
   "kicker": {
     "en": "In development · Build proofs and proof assistants as circuits",
@@ -363,649 +363,569 @@
     {
       "id": "paper",
       "machine": null,
-      "foundation": ["table", "always", "onerow"],
       "chapter": {
         "title": { "en": "Pen and paper", "zh": "纸笔" },
         "question": { "en": "When does a statement always hold?", "zh": "一句话什么时候永远成立？" }
-      }
+      },
+      "path": ["table", "always", "onerow"]
     },
     {
       "id": "circuits",
       "machine": "prover",
-      "foundation": [
-        {
-          "parallel": [
-            { "id": "gates", "title": { "en": "Gates", "zh": "门" }, "levels": ["g-not", "g-and", "g-tree"] }
-          ]
-        },
-        {
-          "parallel": [
-            { "id": "build", "title": { "en": "Building gates", "zh": "造门" }, "levels": ["g-or", "g-imp"] }
-          ]
-        }
-      ],
-      "practice": [
-        {
-          "parallel": [
-            {
-              "id": "kinds",
-              "title": { "en": "Three kinds of sentence", "zh": "三种句子" },
-              "levels": ["g-always", "g-iff"]
-            }
-          ]
-        }
-      ],
-      "topics": [
-        {
-          "id": "islanders",
-          "code": "R",
-          "after": "g-iff",
-          "levels": ["e-words", "e-says", "e-one", "e-two", "e-three", "e-count"],
-          "title": { "en": "A puzzle as a circuit", "zh": "把谜题接成电路" }
-        }
-      ],
-      "challenges": [{ "level": "g-xor", "after": "g-or" }],
       "chapter": {
         "title": { "en": "Truth circuits", "zh": "真值电路" },
         "question": {
           "en": "Can a circuit work out whether a sentence is true in every case?",
           "zh": "一句话在每一种情况下是真是假，能交给电路去算吗？"
         }
-      }
+      },
+      "path": ["g-not", "g-and", "g-tree", "g-or", "g-imp", "g-always", "g-iff"],
+      "branches": [
+        { "levels": ["e-words", "e-says", "e-one", "e-two", "e-three", "e-count"], "after": ["g-iff"] },
+        { "levels": ["g-xor"], "after": ["g-or"] }
+      ],
+      "optional": ["e-words", "e-says", "e-one", "e-two", "e-three", "e-count", "g-xor"],
+      "groups": [
+        { "title": { "en": "Gates", "zh": "门" }, "levels": ["g-not", "g-and", "g-tree"] },
+        { "title": { "en": "Building gates", "zh": "造门" }, "levels": ["g-or", "g-imp"] },
+        { "title": { "en": "Three kinds of sentence", "zh": "三种句子" }, "levels": ["g-always", "g-iff"] },
+        {
+          "title": { "en": "A puzzle as a circuit", "zh": "把谜题接成电路" },
+          "levels": ["e-words", "e-says", "e-one", "e-two", "e-three", "e-count"],
+          "code": "R"
+        }
+      ]
     },
     {
       "id": "kernel",
       "machine": "prover",
-      "foundation": [
-        "copy",
-        {
-          "parallel": [
-            { "id": "apply", "title": { "en": "Apply", "zh": "套用" }, "levels": ["mp", "nested"] },
-            { "id": "assume", "title": { "en": "Assumption box", "zh": "假设框" }, "levels": ["assume"] }
-          ]
-        },
-        "box",
-        {
-          "parallel": [
-            { "id": "chain", "title": { "en": "Chain", "zh": "串联" }, "levels": ["chain", "swap"] },
-            { "id": "merge", "title": { "en": "Merge", "zh": "合并" }, "levels": ["twice"] }
-          ]
-        },
-        "mergeUse"
-      ],
-      "topics": [
-        { "id": "k", "code": "X", "after": "mergeUse", "levels": ["k"], "title": { "en": "K", "zh": "K" } },
-        { "id": "s", "code": "X", "after": "mergeUse", "levels": ["s"], "title": { "en": "S", "zh": "S" } },
-        {
-          "id": "nobox",
-          "code": "X",
-          "after": ["k", "s"],
-          "levels": ["x-k"],
-          "title": { "en": "Without the box", "zh": "拆掉框" }
-        },
-        {
-          "id": "nobox-chain",
-          "code": "X",
-          "after": "x-k",
-          "levels": ["x-chain", "x-swap"],
-          "title": { "en": "Without the box: joining and reordering", "zh": "拆掉框：接起来与换顺序" }
-        },
-        {
-          "id": "nobox-merge",
-          "code": "X",
-          "after": "x-k",
-          "levels": ["x-self", "x-merge"],
-          "title": { "en": "Without the box: identity and merging", "zh": "拆掉框：恒等与合并" }
-        },
-        {
-          "id": "puzzle-kernel",
-          "code": "P",
-          "after": "mergeUse",
-          "levels": ["mergeLong", "mergeBoth"],
-          "title": { "en": "Proof puzzles", "zh": "证明谜题" }
-        }
-      ],
       "chapter": {
         "title": { "en": "The kernel", "zh": "证明核" },
         "question": { "en": "What can Apply and the assumption box prove?", "zh": "只靠套用和假设框，能证出什么？" }
-      }
+      },
+      "path": [
+        "copy",
+        { "parallel": [["mp", "nested"], ["assume"]] },
+        "box",
+        { "parallel": [["chain", "swap"], ["twice"]] },
+        "mergeUse"
+      ],
+      "branches": [
+        { "levels": ["k"], "after": ["mergeUse"] },
+        { "levels": ["s"], "after": ["mergeUse"] },
+        { "levels": ["x-k"], "after": ["k", "s"] },
+        { "levels": ["x-chain", "x-swap"], "after": ["x-k"] },
+        { "levels": ["x-self", "x-merge"], "after": ["x-k"] },
+        { "levels": ["mergeLong", "mergeBoth"], "after": ["mergeUse"] }
+      ],
+      "optional": ["k", "s", "x-k", "x-chain", "x-swap", "x-self", "x-merge", "mergeLong", "mergeBoth"],
+      "groups": [
+        { "title": { "en": "Apply", "zh": "套用" }, "levels": ["mp", "nested"] },
+        { "title": { "en": "Assumption box", "zh": "假设框" }, "levels": ["assume"] },
+        { "title": { "en": "Chain", "zh": "串联" }, "levels": ["chain", "swap"] },
+        { "title": { "en": "Merge", "zh": "合并" }, "levels": ["twice"] },
+        { "title": { "en": "K", "zh": "K" }, "levels": ["k"], "code": "X" },
+        { "title": { "en": "S", "zh": "S" }, "levels": ["s"], "code": "X" },
+        { "title": { "en": "Without the box", "zh": "拆掉框" }, "levels": ["x-k"], "code": "X" },
+        {
+          "title": { "en": "Without the box: joining and reordering", "zh": "拆掉框：接起来与换顺序" },
+          "levels": ["x-chain", "x-swap"],
+          "code": "X"
+        },
+        {
+          "title": { "en": "Without the box: identity and merging", "zh": "拆掉框：恒等与合并" },
+          "levels": ["x-self", "x-merge"],
+          "code": "X"
+        },
+        { "title": { "en": "Proof puzzles", "zh": "证明谜题" }, "levels": ["mergeLong", "mergeBoth"], "code": "P" }
+      ]
     },
     {
       "id": "packing",
       "machine": "prover",
-      "foundation": ["decl-and", "decl-check", "decl-strength", "decl-or", "decl-bot"],
-      "topics": [
-        {
-          "id": "declare-more",
-          "code": "D",
-          "after": "decl-bot",
-          "levels": ["decl-true", "decl-iff", "decl-three", "decl-order", "decl-two"],
-          "title": { "en": "More declarations", "zh": "更多声明" }
-        },
-        {
-          "id": "generator",
-          "code": "E",
-          "after": "decl-bot",
-          "levels": ["gen-one", "gen-each"],
-          "title": { "en": "The elimination rule generator", "zh": "消去规则生成器" }
-        }
-      ],
       "chapter": {
         "title": { "en": "Declarations", "zh": "声明" },
         "question": { "en": "How do “and”, “or” and “not” come into the kernel?", "zh": "怎样把「与」「或」「非」引入证明核？" }
-      }
+      },
+      "path": ["decl-and", "decl-check", "decl-strength", "decl-or", "decl-bot"],
+      "branches": [
+        { "levels": ["decl-true", "decl-iff", "decl-three", "decl-order", "decl-two"], "after": ["decl-bot"] },
+        { "levels": ["gen-one", "gen-each"], "after": ["decl-bot"] }
+      ],
+      "optional": ["decl-true", "decl-iff", "decl-three", "decl-order", "decl-two", "gen-one", "gen-each"],
+      "groups": [
+        {
+          "title": { "en": "More declarations", "zh": "更多声明" },
+          "levels": ["decl-true", "decl-iff", "decl-three", "decl-order", "decl-two"],
+          "code": "D"
+        },
+        {
+          "title": { "en": "The elimination rule generator", "zh": "消去规则生成器" },
+          "levels": ["gen-one", "gen-each"],
+          "code": "E"
+        }
+      ]
     },
     {
       "id": "boxes",
       "machine": "prover",
-      "foundation": [
-        {
-          "parallel": [
-            { "id": "and", "title": { "en": "And", "zh": "并且" }, "levels": ["and", "curry"] },
-            { "id": "or", "title": { "en": "Or", "zh": "或者" }, "levels": ["or", "cases", "orSwap"] },
-            {
-              "id": "not",
-              "title": { "en": "Contradiction and not", "zh": "矛盾与否定" },
-              "levels": ["bot", "notI", "mt"]
-            }
-          ]
-        },
-        { "parallel": [{ "id": "mix", "title": { "en": "Together", "zh": "组合" }, "levels": ["iffUse"] }] }
-      ],
-      "topics": [
-        {
-          "id": "puzzle-connectives",
-          "code": "P",
-          "after": ["mergeBoth", "iffUse"],
-          "levels": ["orImp", "contra", "dist", "dsyll"],
-          "title": { "en": "Proof puzzles: connectives", "zh": "证明谜题：连接词" }
-        }
-      ],
       "chapter": {
         "title": { "en": "Using the connectives", "zh": "连接词的运用" },
         "question": {
           "en": "With “and”, “or” and “not” declared, what can be proved?",
           "zh": "有了声明出来的「与」「或」「非」，能证出些什么？"
         }
-      }
+      },
+      "path": [{ "parallel": [["and", "curry"], ["or", "cases", "orSwap"], ["bot", "notI", "mt"]] }, "iffUse"],
+      "branches": [{ "levels": ["orImp", "contra", "dist", "dsyll"], "after": ["mergeBoth", "iffUse"] }],
+      "optional": ["orImp", "contra", "dist", "dsyll"],
+      "groups": [
+        { "title": { "en": "And", "zh": "并且" }, "levels": ["and", "curry"] },
+        { "title": { "en": "Or", "zh": "或者" }, "levels": ["or", "cases", "orSwap"] },
+        { "title": { "en": "Contradiction and not", "zh": "矛盾与否定" }, "levels": ["bot", "notI", "mt"] },
+        { "title": { "en": "Together", "zh": "组合" }, "levels": ["iffUse"] },
+        {
+          "title": { "en": "Proof puzzles: connectives", "zh": "证明谜题：连接词" },
+          "levels": ["orImp", "contra", "dist", "dsyll"],
+          "code": "P"
+        }
+      ]
     },
     {
       "id": "quantifiers",
       "machine": "prover",
-      "foundation": [
-        "fo-atoms",
-        {
-          "parallel": [
-            { "id": "every", "title": { "en": "Every", "zh": "对所有" }, "levels": ["fo-all", "m-counter"] },
-            { "id": "some", "title": { "en": "Some", "zh": "存在" }, "levels": ["fo-some"] }
-          ]
-        },
-        "fo-nested"
-      ],
-      "practice": [
-        {
-          "parallel": [
-            { "id": "negation", "title": { "en": "Only and none", "zh": "只有与没有" }, "levels": ["p-only"] }
-          ]
-        }
-      ],
-      "topics": [
-        {
-          "id": "splitting",
-          "code": "C",
-          "after": ["m-counter", "fo-some"],
-          "levels": ["p-split", "p-exAnd"],
-          "title": { "en": "Taking quantifiers apart", "zh": "量词怎么拆" }
-        },
-        {
-          "id": "family",
-          "code": "F",
-          "after": "fo-nested",
-          "levels": ["q-children"],
-          "title": { "en": "Asking a family tree", "zh": "查族谱" }
-        },
-        {
-          "id": "family-more",
-          "code": "F",
-          "after": "q-children",
-          "levels": ["q-grand", "q-none", "q-school"],
-          "title": { "en": "Asking a family tree: queries with quantifiers", "zh": "查族谱：带量词的查询" }
-        }
-      ],
       "chapter": {
         "title": { "en": "Quantifiers and counterexamples", "zh": "量词的语言与反例" },
         "question": {
           "en": "How do you say “every” and “some”, and find a counterexample when no proof comes?",
           "zh": "「每一个」「有一个」怎么说，证不出时怎样找反例？"
         }
-      }
+      },
+      "path": ["fo-atoms", { "parallel": [["fo-all", "m-counter"], ["fo-some"]] }, "fo-nested", "p-only"],
+      "branches": [
+        { "levels": ["p-split", "p-exAnd"], "after": ["m-counter", "fo-some"] },
+        { "levels": ["q-children"], "after": ["fo-nested"] },
+        { "levels": ["q-grand", "q-none", "q-school"], "after": ["q-children"] }
+      ],
+      "optional": ["p-split", "p-exAnd", "q-children", "q-grand", "q-none", "q-school"],
+      "groups": [
+        { "title": { "en": "Every", "zh": "对所有" }, "levels": ["fo-all", "m-counter"] },
+        { "title": { "en": "Some", "zh": "存在" }, "levels": ["fo-some"] },
+        { "title": { "en": "Only and none", "zh": "只有与没有" }, "levels": ["p-only"] },
+        {
+          "title": { "en": "Taking quantifiers apart", "zh": "量词怎么拆" },
+          "levels": ["p-split", "p-exAnd"],
+          "code": "C"
+        },
+        { "title": { "en": "Asking a family tree", "zh": "查族谱" }, "levels": ["q-children"], "code": "F" },
+        {
+          "title": { "en": "Asking a family tree: queries with quantifiers", "zh": "查族谱：带量词的查询" },
+          "levels": ["q-grand", "q-none", "q-school"],
+          "code": "F"
+        }
+      ]
     },
     {
       "id": "qrules",
       "machine": "prover",
-      "foundation": [
-        { "parallel": [{ "id": "any", "title": { "en": "For any", "zh": "任取" }, "levels": ["q-allI"] }] },
-        {
-          "parallel": [
-            {
-              "id": "forall",
-              "title": { "en": "Take one", "zh": "取一个" },
-              "levels": ["q-allE", "q-rename", "q-allAnd", "q-capture"]
-            },
-            {
-              "id": "exists",
-              "title": { "en": "Some", "zh": "存在" },
-              "levels": ["decl-ex", "q-exI", "q-exE", "q-witness"]
-            }
-          ]
-        },
-        {
-          "parallel": [
-            {
-              "id": "equality",
-              "title": { "en": "Equality", "zh": "相等" },
-              "levels": ["decl-eq", "q-eq", "q-sym", "q-trans"]
-            }
-          ]
-        }
-      ],
-      "topics": [
-        {
-          "id": "gen-any",
-          "code": "E",
-          "after": ["decl-ex", "gen-each"],
-          "levels": ["gen-ex"],
-          "title": { "en": "The generator meets “any”", "zh": "生成器遇上任取" }
-        },
-        {
-          "id": "hol",
-          "code": "X",
-          "after": ["k", "q-allE"],
-          "levels": ["h-and-make", "h-or-make"],
-          "title": { "en": "Connectives without declaring", "zh": "不声明的连接词" }
-        },
-        {
-          "id": "leibniz",
-          "code": "X",
-          "after": ["decl-eq", "h-or-make"],
-          "levels": ["h-eq-refl", "h-eq-subst", "h-eq-sym"],
-          "title": { "en": "Equality without declaring", "zh": "不声明的相等" }
-        },
-        {
-          "id": "carroll",
-          "code": "S",
-          "after": "q-trans",
-          "levels": ["s-barbara", "s-darii", "s-carroll"],
-          "title": { "en": "Carroll’s puzzles", "zh": "卡罗尔的推理题" }
-        },
-        {
-          "id": "puzzle-quantifiers",
-          "code": "P",
-          "after": ["dsyll", "q-trans"],
-          "levels": ["q-swap", "q-move", "q-ancestor", "q-bigger"],
-          "title": { "en": "Proof puzzles: quantifiers", "zh": "证明谜题：量词" }
-        }
-      ],
       "chapter": {
         "title": { "en": "Quantifier rules", "zh": "量词规则" },
         "question": { "en": "How do you prove a sentence holds in every world?", "zh": "怎样证明一句话在所有世界里都成立？" }
-      }
+      },
+      "path": [
+        "q-allI",
+        {
+          "parallel": [
+            ["q-allE", "q-rename", "q-allAnd", "q-capture"],
+            ["decl-ex", "q-exI", "q-exE", "q-witness"]
+          ]
+        },
+        "decl-eq",
+        "q-eq",
+        "q-sym",
+        "q-trans"
+      ],
+      "branches": [
+        { "levels": ["gen-ex"], "after": ["decl-ex", "gen-each"] },
+        { "levels": ["h-and-make", "h-or-make"], "after": ["k", "q-allE"] },
+        { "levels": ["h-eq-refl", "h-eq-subst", "h-eq-sym"], "after": ["decl-eq", "h-or-make"] },
+        { "levels": ["s-barbara", "s-darii", "s-carroll"], "after": ["q-trans"] },
+        { "levels": ["q-swap", "q-move", "q-ancestor", "q-bigger"], "after": ["dsyll", "q-trans"] }
+      ],
+      "optional": [
+        "gen-ex",
+        "h-and-make",
+        "h-or-make",
+        "h-eq-refl",
+        "h-eq-subst",
+        "h-eq-sym",
+        "s-barbara",
+        "s-darii",
+        "s-carroll",
+        "q-swap",
+        "q-move",
+        "q-ancestor",
+        "q-bigger"
+      ],
+      "groups": [
+        { "title": { "en": "For any", "zh": "任取" }, "levels": ["q-allI"] },
+        {
+          "title": { "en": "Take one", "zh": "取一个" },
+          "levels": ["q-allE", "q-rename", "q-allAnd", "q-capture"]
+        },
+        { "title": { "en": "Some", "zh": "存在" }, "levels": ["decl-ex", "q-exI", "q-exE", "q-witness"] },
+        { "title": { "en": "Equality", "zh": "相等" }, "levels": ["decl-eq", "q-eq", "q-sym", "q-trans"] },
+        { "title": { "en": "The generator meets “any”", "zh": "生成器遇上任取" }, "levels": ["gen-ex"], "code": "E" },
+        {
+          "title": { "en": "Connectives without declaring", "zh": "不声明的连接词" },
+          "levels": ["h-and-make", "h-or-make"],
+          "code": "X"
+        },
+        {
+          "title": { "en": "Equality without declaring", "zh": "不声明的相等" },
+          "levels": ["h-eq-refl", "h-eq-subst", "h-eq-sym"],
+          "code": "X"
+        },
+        {
+          "title": { "en": "Carroll’s puzzles", "zh": "卡罗尔的推理题" },
+          "levels": ["s-barbara", "s-darii", "s-carroll"],
+          "code": "S"
+        },
+        {
+          "title": { "en": "Proof puzzles: quantifiers", "zh": "证明谜题：量词" },
+          "levels": ["q-swap", "q-move", "q-ancestor", "q-bigger"],
+          "code": "P"
+        }
+      ]
     },
     {
       "id": "metavars",
       "machine": "prover",
-      "foundation": [
-        {
-          "parallel": [
-            {
-              "id": "unify",
-              "title": { "en": "Unification", "zh": "合一" },
-              "levels": ["r-match", "r-deep", "r-delete", "r-clash", "r-twice", "r-both", "r-occurs", "r-unifier"]
-            }
-          ]
-        },
-        {
-          "parallel": [
-            {
-              "id": "backward",
-              "title": { "en": "Rules backwards", "zh": "逆用规则" },
-              "levels": ["r-rule", "r-assumption", "r-subgoals", "r-meta", "r-lemma", "r-elim", "r-cases", "r-false"]
-            },
-            {
-              "id": "pattern",
-              "title": { "en": "Patterns", "zh": "模式" },
-              "levels": ["r-pattern", "r-patterns"]
-            }
-          ]
-        },
-        {
-          "parallel": [
-            {
-              "id": "quant",
-              "title": { "en": "Rules for quantifiers", "zh": "量词的规则" },
-              "levels": ["r-allI", "r-exI", "r-drule", "r-frule", "r-exE"]
-            }
-          ]
-        }
-      ],
-      "topics": [
-        {
-          "id": "puzzle-rules",
-          "code": "P",
-          "after": ["q-bigger", "r-exE"],
-          "levels": ["r-dist"],
-          "title": { "en": "Proof puzzles: a long run of rules", "zh": "证明谜题：一长串规则" }
-        }
-      ],
-      "challenges": [{ "level": "r-order", "after": "r-exE" }],
       "chapter": {
         "title": { "en": "Rules and metavariables", "zh": "规则与元变量" },
         "question": { "en": "Can a part read off the goal what to fill in?", "zh": "元件能不能自己从目标里读出该填的句子？" }
-      }
+      },
+      "path": [
+        "r-match",
+        "r-deep",
+        "r-delete",
+        "r-clash",
+        "r-twice",
+        "r-both",
+        "r-occurs",
+        "r-unifier",
+        {
+          "parallel": [
+            ["r-rule", "r-assumption", "r-subgoals", "r-meta", "r-lemma", "r-elim", "r-cases", "r-false"],
+            ["r-pattern", "r-patterns"]
+          ]
+        },
+        "r-allI",
+        "r-exI",
+        "r-drule",
+        "r-frule",
+        "r-exE"
+      ],
+      "branches": [
+        { "levels": ["r-dist"], "after": ["q-bigger", "r-exE"] },
+        { "levels": ["r-order"], "after": ["r-exE"] }
+      ],
+      "optional": ["r-dist", "r-order"],
+      "groups": [
+        {
+          "title": { "en": "Unification", "zh": "合一" },
+          "levels": ["r-match", "r-deep", "r-delete", "r-clash", "r-twice", "r-both", "r-occurs", "r-unifier"]
+        },
+        {
+          "title": { "en": "Rules backwards", "zh": "逆用规则" },
+          "levels": [
+            "r-rule",
+            "r-assumption",
+            "r-subgoals",
+            "r-meta",
+            "r-lemma",
+            "r-elim",
+            "r-cases",
+            "r-false"
+          ]
+        },
+        { "title": { "en": "Patterns", "zh": "模式" }, "levels": ["r-pattern", "r-patterns"] },
+        {
+          "title": { "en": "Rules for quantifiers", "zh": "量词的规则" },
+          "levels": ["r-allI", "r-exI", "r-drule", "r-frule", "r-exE"]
+        },
+        {
+          "title": { "en": "Proof puzzles: a long run of rules", "zh": "证明谜题：一长串规则" },
+          "levels": ["r-dist"],
+          "code": "P"
+        }
+      ]
     },
     {
       "id": "tactics",
       "machine": "prover",
-      "foundation": [
-        {
-          "parallel": [
-            {
-              "id": "combine",
-              "title": { "en": "Together", "zh": "组合" },
-              "levels": ["s-repeat", "s-orelse", "s-mix", "s-try"]
-            },
-            {
-              "id": "backtrack",
-              "title": { "en": "Backtracking", "zh": "回溯" },
-              "levels": ["s-defer", "s-results"]
-            }
-          ]
-        },
-        {
-          "parallel": [
-            { "id": "search", "title": { "en": "Search", "zh": "搜索" }, "levels": ["s-append", "s-search"] },
-            { "id": "shapes", "title": { "en": "By shape", "zh": "按形状" }, "levels": ["s-intro", "s-elim"] }
-          ]
-        },
-        "s-auto"
-      ],
-      "topics": [
-        {
-          "id": "prolog",
-          "code": "F",
-          "after": ["s-search", "q-grand"],
-          "levels": ["pl-grand", "pl-anc", "pl-order"],
-          "title": { "en": "A family tree by rules", "zh": "用规则推族谱" }
-        }
-      ],
-      "challenges": [{ "level": "s-loop", "after": "s-search" }],
       "chapter": {
         "title": { "en": "Tactics", "zh": "策略" },
         "question": {
           "en": "Can the proof assistant try for itself which rule to use?",
           "zh": "能不能让证明助手自己去试该用哪条规则？"
         }
-      }
+      },
+      "path": [
+        { "parallel": [["s-repeat", "s-orelse", "s-mix", "s-try"], ["s-defer", "s-results"]] },
+        { "parallel": [["s-append", "s-search"], ["s-intro", "s-elim"]] },
+        "s-auto"
+      ],
+      "branches": [
+        { "levels": ["pl-grand", "pl-anc", "pl-order"], "after": ["s-search", "q-grand"] },
+        { "levels": ["s-loop"], "after": ["s-search"] }
+      ],
+      "optional": ["pl-grand", "pl-anc", "pl-order", "s-loop"],
+      "groups": [
+        { "title": { "en": "Together", "zh": "组合" }, "levels": ["s-repeat", "s-orelse", "s-mix", "s-try"] },
+        { "title": { "en": "Backtracking", "zh": "回溯" }, "levels": ["s-defer", "s-results"] },
+        { "title": { "en": "Search", "zh": "搜索" }, "levels": ["s-append", "s-search"] },
+        { "title": { "en": "By shape", "zh": "按形状" }, "levels": ["s-intro", "s-elim"] },
+        {
+          "title": { "en": "A family tree by rules", "zh": "用规则推族谱" },
+          "levels": ["pl-grand", "pl-anc", "pl-order"],
+          "code": "F"
+        }
+      ]
     },
     {
       "id": "classical",
       "machine": "prover",
-      "foundation": [
-        "c-wall",
-        "raa",
-        {
-          "parallel": [
-            { "id": "contra", "title": { "en": "By contradiction", "zh": "反证法" }, "levels": ["byContra"] },
-            { "id": "lem", "title": { "en": "Excluded middle", "zh": "排中律" }, "levels": ["lemCases"] },
-            {
-              "id": "machine",
-              "title": { "en": "By contradiction on the proof assistant", "zh": "证明助手上的反证法" },
-              "levels": ["s-lem"]
-            }
-          ]
-        },
-        {
-          "parallel": [
-            {
-              "id": "laws",
-              "title": { "en": "Equivalences", "zh": "等价律" },
-              "levels": ["c-dneg", "c-arrow", "c-dist"]
-            },
-            { "id": "demorgan", "title": { "en": "De Morgan", "zh": "德摩根律" }, "levels": ["demorgan", "q-dm"] }
-          ]
-        }
-      ],
-      "topics": [
-        {
-          "id": "knights",
-          "code": "R",
-          "after": ["e-three", "lemCases"],
-          "levels": ["kk-one", "kk-two", "kk-three"],
-          "title": { "en": "Knights and knaves", "zh": "骑士与无赖" }
-        },
-        {
-          "id": "puzzle-classical",
-          "code": "P",
-          "after": ["r-dist", "q-dm"],
-          "levels": ["c-contra", "c-either"],
-          "title": { "en": "Proof puzzles: classical logic", "zh": "证明谜题：经典逻辑" }
-        }
-      ],
-      "challenges": [{ "level": "peirce", "after": "lemCases" }, { "level": "drinker", "after": "q-dm" }],
       "chapter": {
         "title": { "en": "Classical logic", "zh": "经典逻辑" },
         "question": {
           "en": "Does the prover prove everything true on every row?",
           "zh": "真值表上每一行都真的话，证明器都证得出吗？"
         }
-      }
+      },
+      "path": [
+        "c-wall",
+        "raa",
+        { "parallel": [["byContra"], ["lemCases"], ["s-lem"]] },
+        { "parallel": [["c-dneg", "c-arrow", "c-dist"], ["demorgan", "q-dm"]] }
+      ],
+      "branches": [
+        { "levels": ["kk-one", "kk-two", "kk-three"], "after": ["e-three", "lemCases"] },
+        { "levels": ["c-contra", "c-either"], "after": ["r-dist", "q-dm"] },
+        { "levels": ["peirce"], "after": ["lemCases"] },
+        { "levels": ["drinker"], "after": ["q-dm"] }
+      ],
+      "optional": ["kk-one", "kk-two", "kk-three", "c-contra", "c-either", "peirce", "drinker"],
+      "groups": [
+        { "title": { "en": "By contradiction", "zh": "反证法" }, "levels": ["byContra"] },
+        { "title": { "en": "Excluded middle", "zh": "排中律" }, "levels": ["lemCases"] },
+        {
+          "title": { "en": "By contradiction on the proof assistant", "zh": "证明助手上的反证法" },
+          "levels": ["s-lem"]
+        },
+        { "title": { "en": "Equivalences", "zh": "等价律" }, "levels": ["c-dneg", "c-arrow", "c-dist"] },
+        { "title": { "en": "De Morgan", "zh": "德摩根律" }, "levels": ["demorgan", "q-dm"] },
+        {
+          "title": { "en": "Knights and knaves", "zh": "骑士与无赖" },
+          "levels": ["kk-one", "kk-two", "kk-three"],
+          "code": "R"
+        },
+        {
+          "title": { "en": "Proof puzzles: classical logic", "zh": "证明谜题：经典逻辑" },
+          "levels": ["c-contra", "c-either"],
+          "code": "P"
+        }
+      ]
     },
     {
       "id": "simplifier",
       "machine": "prover",
-      "foundation": [
-        "sp-rw",
-        {
-          "parallel": [
-            { "id": "laws", "title": { "en": "More rewrite rules", "zh": "更多改写规则" }, "levels": ["sp-laws"] },
-            {
-              "id": "demorgan",
-              "title": { "en": "Negation pushed in", "zh": "推进否定" },
-              "levels": ["sp-dm", "sp-back"]
-            },
-            {
-              "id": "rewrite",
-              "title": { "en": "One place", "zh": "改写一处" },
-              "levels": ["sp-where", "sp-repeat"]
-            }
-          ]
-        },
-        "sp-simp",
-        {
-          "parallel": [
-            {
-              "id": "forms",
-              "title": { "en": "Normal forms", "zh": "范式" },
-              "levels": ["sp-nnf", "sp-cnf", "sp-order"]
-            }
-          ]
-        }
-      ],
       "chapter": {
         "title": { "en": "The simplifier", "zh": "化简器" },
         "question": {
           "en": "Can a goal like “push the negation in” be left to a proof assistant that rewrites all the way?",
           "zh": "「把否定推进去」这样的目标，能交给证明助手一路改下去吗？"
         }
-      }
+      },
+      "path": [
+        "sp-rw",
+        { "parallel": [["sp-laws"], ["sp-dm", "sp-back"], ["sp-where", "sp-repeat"]] },
+        "sp-simp",
+        "sp-nnf",
+        "sp-cnf",
+        "sp-order"
+      ],
+      "groups": [
+        { "title": { "en": "More rewrite rules", "zh": "更多改写规则" }, "levels": ["sp-laws"] },
+        { "title": { "en": "Negation pushed in", "zh": "推进否定" }, "levels": ["sp-dm", "sp-back"] },
+        { "title": { "en": "One place", "zh": "改写一处" }, "levels": ["sp-where", "sp-repeat"] },
+        { "title": { "en": "Normal forms", "zh": "范式" }, "levels": ["sp-nnf", "sp-cnf", "sp-order"] }
+      ]
     },
     {
       "id": "automation",
       "machine": "prover",
-      "foundation": [
-        {
-          "parallel": [
-            {
-              "id": "clause",
-              "title": { "en": "Clause form", "zh": "子句形式" },
-              "levels": ["au-negate", "au-iff", "au-hyps", "au-skolem", "au-clauses"]
-            }
-          ]
-        },
-        {
-          "parallel": [
-            {
-              "id": "resolve",
-              "title": { "en": "Resolve", "zh": "归结" },
-              "levels": ["au-resolve", "au-refute", "au-onepair", "au-saturate"]
-            }
-          ]
-        },
-        "au-sledge",
-        {
-          "parallel": [
-            {
-              "id": "cert",
-              "title": { "en": "Certificates", "zh": "证书" },
-              "levels": ["au-cert", "au-replay", "au-wrong"]
-            }
-          ]
-        }
-      ],
-      "practice": [
-        {
-          "parallel": [
-            {
-              "id": "use",
-              "title": { "en": "Handed to the proof assistant", "zh": "交给证明助手" },
-              "levels": ["au-adder", "au-machine"]
-            }
-          ]
-        }
-      ],
-      "topics": [
-        {
-          "id": "islanders-more",
-          "code": "R",
-          "after": ["au-replay", "kk-three"],
-          "levels": ["is-three", "is-silent", "is-ten"],
-          "title": { "en": "More islanders", "zh": "岛民变多" }
-        },
-        {
-          "id": "bounds",
-          "code": "R",
-          "after": ["au-machine", "kk-one"],
-          "levels": ["u-barber", "u-cantor", "u-ls", "u-halt"],
-          "title": { "en": "What no machine can do", "zh": "机器做不到的事" }
-        }
-      ],
-      "challenges": [{ "level": "au-horn", "after": "au-saturate" }],
       "chapter": {
         "title": { "en": "Automation and certificates", "zh": "自动化与证书" },
         "question": {
           "en": "Can a proof assistant be left to find proofs, and why believe what it finds?",
           "zh": "证明能交给证明助手去找吗？证明助手找到的，凭什么信？"
         }
-      }
+      },
+      "path": [
+        "au-negate",
+        "au-iff",
+        "au-hyps",
+        "au-skolem",
+        "au-clauses",
+        "au-resolve",
+        "au-refute",
+        "au-onepair",
+        "au-saturate",
+        "au-sledge",
+        "au-cert",
+        "au-replay",
+        "au-wrong",
+        "au-adder",
+        "au-machine"
+      ],
+      "branches": [
+        { "levels": ["is-three", "is-silent", "is-ten"], "after": ["au-replay", "kk-three"] },
+        { "levels": ["u-barber", "u-cantor", "u-ls", "u-halt"], "after": ["au-machine", "kk-one"] },
+        { "levels": ["au-horn"], "after": ["au-saturate"] }
+      ],
+      "optional": ["is-three", "is-silent", "is-ten", "u-barber", "u-cantor", "u-ls", "u-halt", "au-horn"],
+      "groups": [
+        {
+          "title": { "en": "Clause form", "zh": "子句形式" },
+          "levels": ["au-negate", "au-iff", "au-hyps", "au-skolem", "au-clauses"]
+        },
+        {
+          "title": { "en": "Resolve", "zh": "归结" },
+          "levels": ["au-resolve", "au-refute", "au-onepair", "au-saturate"]
+        },
+        { "title": { "en": "Certificates", "zh": "证书" }, "levels": ["au-cert", "au-replay", "au-wrong"] },
+        {
+          "title": { "en": "Handed to the proof assistant", "zh": "交给证明助手" },
+          "levels": ["au-adder", "au-machine"]
+        },
+        {
+          "title": { "en": "More islanders", "zh": "岛民变多" },
+          "levels": ["is-three", "is-silent", "is-ten"],
+          "code": "R"
+        },
+        {
+          "title": { "en": "What no machine can do", "zh": "机器做不到的事" },
+          "levels": ["u-barber", "u-cantor", "u-ls", "u-halt"],
+          "code": "R"
+        }
+      ]
     },
     {
       "id": "inductive",
       "machine": "prover",
-      "foundation": [
-        {
-          "parallel": [
-            {
-              "id": "from",
-              "title": { "en": "Where numbers come from", "zh": "数从哪里来" },
-              "levels": ["decl-nat", "def-plus", "nl-plus", "sp-compute", "sp-under"]
-            }
-          ]
-        },
-        "s-each",
-        {
-          "parallel": [
-            {
-              "id": "decl",
-              "title": { "en": "What a declaration gives", "zh": "声明给出的规则" },
-              "levels": ["in-distinct", "in-inject", "in-cases", "in-zero"]
-            }
-          ]
-        },
-        {
-          "parallel": [
-            {
-              "id": "list",
-              "title": { "en": "a list", "zh": "列表" },
-              "levels": ["decl-list", "def-list", "sp-lists", "sp-hyp"]
-            },
-            {
-              "id": "cond",
-              "title": { "en": "Definitions with a condition", "zh": "带条件的定义" },
-              "levels": ["decl-bool", "def-max", "sp-cond"]
-            }
-          ]
-        },
-        {
-          "parallel": [
-            {
-              "id": "nat",
-              "title": { "en": "Numbers", "zh": "数" },
-              "levels": ["in-succ", "in-comm", "in-assoc"]
-            },
-            { "id": "lists", "title": { "en": "Equations of lists", "zh": "列表的等式" }, "levels": ["in-appnil"] },
-            {
-              "id": "stop",
-              "title": { "en": "Why it must stop", "zh": "为什么要停" },
-              "levels": ["in-noteq", "in-loop"]
-            }
-          ]
-        }
-      ],
-      "topics": [
-        {
-          "id": "gen-nat",
-          "code": "E",
-          "after": ["decl-nat", "gen-ex"],
-          "levels": ["gen-nat"],
-          "title": { "en": "The generator meets the numbers", "zh": "生成器遇上自然数" }
-        },
-        {
-          "id": "induct",
-          "code": "X",
-          "after": ["decl-nat", "h-eq-subst"],
-          "levels": ["in-induct"],
-          "title": { "en": "Induction is one sentence", "zh": "归纳法是一句话" }
-        },
-        {
-          "id": "sort",
-          "code": "I",
-          "after": ["in-appnil", "sp-cond"],
-          "levels": ["sort-ins", "sort-run", "sort-if", "sort-insLen", "sort-len"],
-          "title": { "en": "Insertion sort", "zh": "插入排序" }
-        },
-        {
-          "id": "puzzle-lists",
-          "code": "P",
-          "after": ["c-either", "in-assoc", "in-appnil", "in-loop"],
-          "levels": ["in-appassoc", "in-revapp", "in-revrev", "in-len", "in-itsum"],
-          "title": { "en": "Proof puzzles: numbers and lists", "zh": "证明谜题：数与列表" }
-        },
-        {
-          "id": "goedel",
-          "code": "R",
-          "after": ["in-assoc", "in-appnil", "in-loop", "u-halt"],
-          "levels": ["gd-code", "gd-check", "gd-diag", "gd-true", "gd-con", "gd-second"],
-          "title": { "en": "True, yet unprovable", "zh": "真的，却证不出" }
-        }
-      ],
-      "challenges": [{ "level": "in-circle", "after": "in-comm" }],
       "chapter": {
         "title": { "en": "Numbers and lists", "zh": "数与列表" },
         "question": {
           "en": "How are numbers and lists worked out, and where do they come from? How is something proved for every number?",
           "zh": "数和列表怎么算、从哪里来？对每一个数都成立的事，怎么证？"
         }
-      }
+      },
+      "path": [
+        "decl-nat",
+        "def-plus",
+        "nl-plus",
+        "sp-compute",
+        "sp-under",
+        "s-each",
+        "in-distinct",
+        "in-inject",
+        "in-cases",
+        "in-zero",
+        { "parallel": [["decl-list", "def-list", "sp-lists", "sp-hyp"], ["decl-bool", "def-max", "sp-cond"]] },
+        { "parallel": [["in-succ", "in-comm", "in-assoc"], ["in-appnil"], ["in-noteq", "in-loop"]] }
+      ],
+      "branches": [
+        { "levels": ["gen-nat"], "after": ["decl-nat", "gen-ex"] },
+        { "levels": ["in-induct"], "after": ["decl-nat", "h-eq-subst"] },
+        {
+          "levels": ["sort-ins", "sort-run", "sort-if", "sort-insLen", "sort-len"],
+          "after": ["in-appnil", "sp-cond"]
+        },
+        {
+          "levels": ["in-appassoc", "in-revapp", "in-revrev", "in-len", "in-itsum"],
+          "after": ["c-either", "in-assoc", "in-appnil", "in-loop"]
+        },
+        {
+          "levels": ["gd-code", "gd-check", "gd-diag", "gd-true", "gd-con", "gd-second"],
+          "after": ["in-assoc", "in-appnil", "in-loop", "u-halt"]
+        },
+        { "levels": ["in-circle"], "after": ["in-comm"] }
+      ],
+      "optional": [
+        "gen-nat",
+        "in-induct",
+        "sort-ins",
+        "sort-run",
+        "sort-if",
+        "sort-insLen",
+        "sort-len",
+        "in-appassoc",
+        "in-revapp",
+        "in-revrev",
+        "in-len",
+        "in-itsum",
+        "gd-code",
+        "gd-check",
+        "gd-diag",
+        "gd-true",
+        "gd-con",
+        "gd-second",
+        "in-circle"
+      ],
+      "groups": [
+        {
+          "title": { "en": "Where numbers come from", "zh": "数从哪里来" },
+          "levels": ["decl-nat", "def-plus", "nl-plus", "sp-compute", "sp-under"]
+        },
+        {
+          "title": { "en": "What a declaration gives", "zh": "声明给出的规则" },
+          "levels": ["in-distinct", "in-inject", "in-cases", "in-zero"]
+        },
+        { "title": { "en": "a list", "zh": "列表" }, "levels": ["decl-list", "def-list", "sp-lists", "sp-hyp"] },
+        {
+          "title": { "en": "Definitions with a condition", "zh": "带条件的定义" },
+          "levels": ["decl-bool", "def-max", "sp-cond"]
+        },
+        { "title": { "en": "Numbers", "zh": "数" }, "levels": ["in-succ", "in-comm", "in-assoc"] },
+        { "title": { "en": "Equations of lists", "zh": "列表的等式" }, "levels": ["in-appnil"] },
+        { "title": { "en": "Why it must stop", "zh": "为什么要停" }, "levels": ["in-noteq", "in-loop"] },
+        {
+          "title": { "en": "The generator meets the numbers", "zh": "生成器遇上自然数" },
+          "levels": ["gen-nat"],
+          "code": "E"
+        },
+        {
+          "title": { "en": "Induction is one sentence", "zh": "归纳法是一句话" },
+          "levels": ["in-induct"],
+          "code": "X"
+        },
+        {
+          "title": { "en": "Insertion sort", "zh": "插入排序" },
+          "levels": ["sort-ins", "sort-run", "sort-if", "sort-insLen", "sort-len"],
+          "code": "I"
+        },
+        {
+          "title": { "en": "Proof puzzles: numbers and lists", "zh": "证明谜题：数与列表" },
+          "levels": ["in-appassoc", "in-revapp", "in-revrev", "in-len", "in-itsum"],
+          "code": "P"
+        },
+        {
+          "title": { "en": "True, yet unprovable", "zh": "真的，却证不出" },
+          "levels": ["gd-code", "gd-check", "gd-diag", "gd-true", "gd-con", "gd-second"],
+          "code": "R"
+        }
+      ]
     }
   ],
   "quotes": ["任取", "等价", "相等", "假设", "我证不出", "交换", "归纳", "归结", "饱和器", "数理规则书", "定义"]

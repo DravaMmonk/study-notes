@@ -1,5 +1,6 @@
 {
   "title": { "en": "Inspection station", "zh": "质检台" },
+  "carry": "0-11",
   "tray": "pipeline",
   "after": {
     "en": "The station does three things: restore the lighting, subtract the reference cell by cell, then threshold each side and combine. Machine-vision inspection in factories often starts out exactly like this: a reference, alignment, a comparison.",

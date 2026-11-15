@@ -85,7 +85,9 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .map-node.is-next .map-pad { animation: pad-pulse 2.4s ease-in-out infinite; }
 .map-node.is-solved .map-pad { background: var(--status); box-shadow: 0 0 0 2px var(--status); }
 .map-node.is-locked .map-pad { color: var(--faint); background: var(--canvas); box-shadow: 0 0 0 1px var(--rule); }
-.map-node-id { flex: none; color: var(--muted); font-family: var(--mono); font-size: 10.5px; }
+.map-node-id { flex: none; color: var(--muted); }
+.map-node-number { display: inline-flex; align-items: baseline; gap: var(--sp-2); min-width: 0; font-family: var(--mono); font-size: 10.5px; }
+.map-group-code { color: var(--accent-ink); font: inherit; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .map-node-title { flex: 1; min-width: 0; overflow: hidden; font-size: 13.5px; white-space: nowrap; text-overflow: ellipsis; }
 .map-node-kind { flex: none; color: var(--faint); display: grid; }
 .map-node-best { flex: none; color: var(--faint); font-family: var(--mono); font-size: 10px; }
@@ -93,7 +95,7 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
    two lines. */
 .map-list.is-compact .map-node, .map-tree.is-compact .map-node { display: grid; grid-template-columns: 14px minmax(0, 1fr); column-gap: var(--sp-3); align-content: center; padding: 0 var(--sp-4); }
 .map-list.is-compact .map-pad, .map-tree.is-compact .map-pad { grid-row: span 2; width: 14px; height: 14px; }
-.map-list.is-compact .map-node-id, .map-tree.is-compact .map-node-id { font-size: 9.5px; line-height: 1.2; }
+.map-list.is-compact .map-node-number, .map-tree.is-compact .map-node-number { font-size: 9.5px; line-height: 1.2; }
 .map-list.is-compact .map-node-title, .map-tree.is-compact .map-node-title { display: -webkit-box; font-size: 12.5px; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .map-list.is-compact .map-node-best, .map-tree.is-compact .map-node-best { display: none; }
 .map-node.is-minor { gap: var(--sp-3); padding: 0 var(--sp-4) 0 var(--sp-4); border-radius: var(--r-md); }
@@ -101,7 +103,7 @@ html.is-game-playing, html.is-game-playing body { height: 100%; overflow: hidden
 .map-node.is-minor .map-node-title { font-size: 12px; }
 .map-list.is-compact .map-node.is-minor, .map-tree.is-compact .map-node.is-minor { grid-template-columns: 12px minmax(0, 1fr); column-gap: var(--sp-3); padding: 0 var(--sp-3); }
 .map-list.is-compact .map-node.is-minor .map-pad, .map-tree.is-compact .map-node.is-minor .map-pad { width: 12px; height: 12px; }
-.map-list.is-compact .map-node.is-minor .map-node-id, .map-tree.is-compact .map-node.is-minor .map-node-id { font-size: 9px; }
+.map-list.is-compact .map-node.is-minor .map-node-number, .map-tree.is-compact .map-node.is-minor .map-node-number { font-size: 9px; }
 .map-list.is-compact .map-node.is-minor .map-node-title, .map-tree.is-compact .map-node.is-minor .map-node-title { font-size: 11px; }
 .map-node.is-here { box-shadow: 0 0 0 2px var(--ink); }
 .map-unlock { position: absolute; z-index: 2; transform: translate(-50%, -50%); height: 20px; padding: 0 var(--sp-4); display: inline-flex; align-items: center; gap: var(--sp-2); overflow: hidden; border-radius: var(--r-full); font-size: 11px; line-height: 1; white-space: nowrap; pointer-events: auto; }

@@ -28,7 +28,7 @@ const task = (id, tests, how, more = {}) => ({ id, brief: text(id), ...ports, te
 const level = (id, tasks, more = {}) => [id, { title: text(id), tasks, ...more }]
 const course = (levels) => definedCourse(assemble({
   id: 't',
-  game: { domain: 't', vocabulary: 1, title: text('t'), kicker: text('t'), lede: text('t'), primitives: ['calc'], eras: [{ id: 1, title: text('一'), question: text('？'), foundation: levels.map(([id]) => id) }] },
+  game: { domain: 't', vocabulary: 1, title: text('t'), kicker: text('t'), lede: text('t'), primitives: ['calc'], eras: [{ id: 1, title: text('一'), question: text('？'), path: levels.map(([id]) => id) }] },
   levels,
   glossary: { groups: [], entries: [] },
   partDefs,

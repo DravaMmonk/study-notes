@@ -3,34 +3,17 @@
 // player passed that level with, so a run can step inside it, and the validator checks that level's reference board
 // as that part against the level's tests. The design behind these rules is games/DESIGN.md.
 //
-// A course is a run of eras, one per machine (a robot, a camera…). Its levels make a tree:
-//   main path   the foundation (the machine's outside abilities, each level unlocking one part), then the practice
-//               (problems in order of difficulty). Both run in order, and the next era opens at its end.
-//               An item of the main path is a level id, or a set of branches the player takes in any order, every
-//               one of them before the path goes on: { parallel: [{ id, title?, levels: [level id] }] }. A branch of
-//               one is a titled stretch of the path: a series the levels after it need.
-//   topics      optional series: each opens on a small version of its finale (or one of its core mechanisms alone)
-//               and adds one mechanism a level until the finale. It hangs after the level it needs (`after`, by
-//               default the end of the main path) and nothing on the main path waits for it.
-//   challenges  optional: the machine's limits, with nothing new; each hangs after a level (`after`, by default the
-//               end of the main path) and nothing needs them.
-// A branch hangs as early as what it needs allows: once the parts and ideas it uses are in hand.
-//
-// eras: [{ id, title?, machine?, foundation: [item], practice?: [item], topics?: [{ id, title?,
-//          levels: [level id], after?, requires? }], challenges?: [{ level, after? }] }]
-// A branch's `after` is a level, or several when it needs the ends of a parallel set's branches but not the rest; a
-// topic may also name levels of earlier eras there (a topic that goes on from one in an earlier chapter): it requires
-// them, and hangs on its own era's track at its last `after`.
-// A part, once met, is usable in every level after it on the tree that plays with a tray listing it (see trays).
-// layout(eras, { notes }) gives the play order, each level's place ({ era, role, topic | branch }), what it requires
-// and each era's track for the map; the shell opens a level once everything it requires is solved. A notes course
-// requires nothing anywhere.
+// A course has a main path and side routes in each chapter. A main path item is a level id or
+// a fork { parallel: [[level id, ...], ...] }; every lane starts at the same prerequisites and joins at its end.
+// A side route is { levels, after? }, with prerequisites defaulting to the end of the chapter's main path.
+// Chapters also list optional level ids and presentation groups { title, code?, levels }. Groups are independent
+// of routes: they never add a prerequisite, affect a number, or make a level optional.
 //
 // defineCourse({
 //   levels      [{ id, unlocks: [flag] }]  in play order (layout(eras).order when the course has eras)
 //   eras?                                  the course's eras, for the era rules of the audit
 //   trays       { [tray]: [part] }         the game's trays, each a list of parts in the order it shows them: a board
-//                                          of one kind (a truth circuit, a proof board), or a topic's own set of parts
+//                                          of one kind (a truth circuit, a proof board)
 //   tray(level) → tray | [tray] | null      which trays a level or task plays with, or null for every part met
 //   primitives  [part]                     available from the start
 //   adds(level) → [part]                   the parts a level brings in (everything else carries, see reach)
@@ -46,8 +29,6 @@
 //   machine(level) → machine | null        the machine a level is played on, checked against its era's
 //   uses(level) → [mechanism]              what a level's board relies on (its view, an arm, a scan order…)
 //   can(machine) → [mechanism] | null      what a machine can do: a level needs a machine that can do all it uses
-//   world(level) → key | null              what a level's world is, the same across a topic
-//   naive(level) → bool                    whether a challenge comes with a naive answer that fails
 //   replaces(part) → [part]                the parts it supersedes: an upgrade, or a merger of several into one
 //   local(part) → bool                     a part that stays in the levels that bring it (`adds`, or a board's preset):
 //                                          solving them never unlocks it, and no later level carries it (a go-between
@@ -68,9 +49,7 @@
 //                                          checking one): that puts them to work (idle-idea)
 //   carries(level) → [level]               the levels whose boards the level starts from: each must be one of its
 //                                          prerequisites (carry-unseen)
-//   finale(topic) → { level, solves(level) → null | why } | null   a topic's finale and whether its board solves
-//                                          an earlier level of the topic (topic-finale: the topic is one problem
-//                                          growing); without it, topics are not checked so
+
 //   abstraction                            also audit the abstraction chain (bare-intro, unused); a course turns it on
 //                                          once its curriculum keeps it
 //   notes                                  a notes course (games/DESIGN.md 12): every level open, nothing requiring
@@ -105,137 +84,94 @@ export const RULE_TEXT = {
   'off-tray': 'brought in or built, and on no tray, so no level can place it',
   'tray-unmet': 'on a tray, and no level brings it in or builds it',
   machine: 'played on a machine of a later era',
-  'machine-role': 'a foundation, practice, finale or challenge level played on an older machine',
   mechanism: 'played on a machine that cannot do what its board uses',
-  'topic-world': 'a topic that spans several worlds',
-  'topic-code': 'topics of one series (one hanging on another\'s level) under different letters, or unrelated series under one',
-  'challenge-new': 'a challenge that brings something new',
-  'challenge-required': 'a level that requires a challenge',
-  'challenge-naive': 'a challenge without a failing naive answer',
-  'topic-finale': 'a topic level its finale’s board does not solve (the topic is not one problem growing)',
   'open-crowded': 'more than eight newly exposed parts in a task with prior pipeline stages',
   'carry-unseen': 'starts from the board of a level that is not among its prerequisites',
   'bare-intro': 'a new primitive whose first level is just that part, wired to the goal',
   unused: 'a built part that no later reference answer (nor a later task of its own level) uses',
-  'optional-built': 'a part built on an optional level (a topic or a challenge) used by a level that does not require that level',
+  'optional-built': 'a part built on an optional level used by a level that does not require that level',
   'upgrade-order': 'a level upgrading a part that does not require the level that built it before',
   'idle-idea': 'a new idea no later level puts to work before two more new ideas come in (brought in before it is needed)',
   bypass: 'a reference answer of no built part that wires up, from three parts or more, the board of a part it holds',
   'difficulty-spike': 'a required level whose blind-play attempts stand out against its neighbours on the tree (engine/play/stats.js)',
 }
 
-/** Roles of a level within its era. A topic of one level is just its finale. */
-export const ROLES = ['foundation', 'practice', 'intro', 'step', 'finale', 'challenge']
+/** The level ids of a main path, one parallel lane at a time. */
+export const pathLevels = (path) => path.flatMap((item) => typeof item === 'string' ? [item] : item.parallel.flat())
 
-/** The level ids of a main path's items, branches flattened in order. */
-export const pathLevels = (items) => items.flatMap((item) => (typeof item === 'string' ? [item] : item.parallel.flatMap((b) => b.levels)))
-/**
- * A main path's levels in the order they are numbered: every level after the levels it requires (`requires`, from
- * layout), and among the levels open at each point the one highest in its parallel branch first, ties in the order
- * written. So a parallel set is numbered row by row, branch after branch, and the map (which lays its branches out by
- * their first numbers) reads left to right on every row; no level is numbered before one it needs.
- */
-export function numbered(items, requires) {
-  const ids = pathLevels(items)
-  const depth = new Map(items.flatMap((item) => (typeof item === 'string' ? [[item, 0]] : item.parallel.flatMap((b) => b.levels.map((id, k) => [id, k])))))
-  const on = new Set(ids)
-  const done = new Set()
-  const out = []
-  while (out.length < ids.length) {
-    const open = ids.filter((id) => !done.has(id) && (requires.get(id) ?? []).every((r) => !on.has(r) || done.has(r)))
-    const next = open.reduce((best, id) => (depth.get(id) < depth.get(best) ? id : best))
-    done.add(next)
-    out.push(next)
-  }
-  return out
+/** The level ids of a chapter, independent of group membership. */
+export const eraLevels = (era) => [...pathLevels(era.path), ...(era.branches ?? []).flatMap((branch) => branch.levels)]
+
+/** Numeric positions within chapters. At a fork, number one row at a time; number side routes after the main path. */
+export function levelLabels(eras) {
+  return new Map(eras.flatMap((era, e) => {
+    const main = era.path.flatMap((item) => {
+      if (typeof item === 'string') return [item]
+      const depth = Math.max(...item.parallel.map((lane) => lane.length))
+      return Array.from({ length: depth }, (_, row) => item.parallel.flatMap((lane) => lane[row] === undefined ? [] : [lane[row]])).flat()
+    })
+    const ids = [...main, ...(era.branches ?? []).flatMap((branch) => branch.levels)]
+    const chapter = typeof era.id === 'number' ? era.id : e
+    return ids.map((id, i) => [id, `${chapter}-${i + 1}`])
+  }))
 }
 
-/**
- * The number the map and the links show for each level, by its place rather than its id (ids stay put when levels
- * move): an era's main path numbered as `numbered` orders it ('1-4'), a topic's levels by its code (or its id's first
- * letter) and place ('N2'), an era's challenges 'C1.1' …. A domain with its own numbering (the logic domain's topic
- * codes running across chapters) gives its own.
- */
-export function levelLabels(eras, options) {
-  const { requires } = layout(eras, options)
-  return new Map(eras.flatMap((era) => [
-    ...numbered([...era.foundation, ...(era.practice ?? [])], requires).map((id, k) => [id, `${era.id}-${k + 1}`]),
-    ...(era.topics ?? []).flatMap((t) => t.levels.map((id, k) => [id, `${t.code ?? t.id[0].toUpperCase()}${k + 1}`])),
-    ...(era.challenges ?? []).map((c, k) => [c.level, `C${era.id}.${k + 1}`]),
-  ]))
-}
-
-/** Every level of an era: its main path, then its topics and challenges. */
-export const eraLevels = (era) => [...pathLevels([...era.foundation, ...(era.practice ?? [])]), ...(era.topics ?? []).flatMap((t) => t.levels), ...(era.challenges ?? []).map((c) => c.level)]
-
-/**
- * Play order, places, requirements and tracks from a course's eras. The main path runs in order from the end of the
- * previous era's; a parallel set's branches each start where the path stands and the path goes on once all of them
- * end. A topic opens after its `after` level (by default the end of the main path) and any topic it requires, and runs
- * in order to its finale; a challenge opens after its `after` level.
- * A track lists an era's main path for the map: { level, branches } or { parallel: [{ id, title, levels }], branches },
- * where `branches` are the optional topics and challenges hanging there ({ kind, id, title, levels, after }, after: the
- * levels they follow).
- */
+/** Route structure, author prerequisites, unlock prerequisites, and map tracks from the same chapter data. */
 export function layout(eras, { notes = false } = {}) {
   const place = new Map(), requires = new Map(), tracks = new Map()
-  let before = [] // where the previous era's main path ended
+  let before = []
   for (const era of eras) {
     const track = []
-    const at = new Map() // a main-path level → its track item
+    const at = new Map()
+    const optional = new Set(era.optional)
+    const groups = new Map((era.groups ?? []).flatMap(({ levels, ...group }) => levels.map((id) => [id, group])))
     let ends = before
-    for (const [items, role] of [[era.foundation, 'foundation'], [era.practice ?? [], 'practice']]) {
-      for (const item of items) {
-        if (typeof item === 'string') {
-          place.set(item, { era: era.id, role })
-          requires.set(item, [...ends])
-          const entry = { level: item, branches: [] }
-          track.push(entry)
-          at.set(item, entry)
-          ends = [item]
-          continue
-        }
-        const entry = { parallel: item.parallel.map((b) => ({ id: b.id, title: b.title, levels: b.levels })), branches: [] }
-        for (const b of item.parallel) {
-          b.levels.forEach((id, k) => {
-            place.set(id, { era: era.id, role, branch: b.id })
-            requires.set(id, k ? [b.levels[k - 1]] : [...ends])
-            at.set(id, entry)
-          })
-        }
-        track.push(entry)
-        ends = item.parallel.map((b) => b.levels.at(-1))
+    const put = (ids, after, side = false) => ids.forEach((id, k) => {
+      place.set(id, { era: era.id, side, optional: optional.has(id), group: groups.get(id) })
+      requires.set(id, notes ? [] : k ? [ids[k - 1]] : [...after])
+    })
+    for (const item of era.path) {
+      const main = typeof item === 'string'
+      const entry = { ...(main ? { level: item } : item), branches: [] }
+      const lanes = main ? [[item]] : item.parallel
+      for (const lane of lanes) {
+        put(lane, ends)
+        for (const id of lane) at.set(id, entry)
       }
+      track.push(entry)
+      ends = lanes.map((lane) => lane.at(-1))
     }
-    // An optional branch hangs on the track where its `after` level is (the end of the main path by default).
-    const hang = (after, branch) => (at.get(after) ?? track.at(-1) ?? track[0])?.branches.push(branch)
-    for (const topic of era.topics ?? []) {
-      const finales = (topic.requires ?? []).map((t) => era.topics.find((x) => x.id === t)?.levels.at(-1)).filter(Boolean)
-      const after = topic.after ? [topic.after].flat() : ends
-      topic.levels.forEach((id, k) => {
-        const last = k === topic.levels.length - 1
-        place.set(id, { era: era.id, role: last ? 'finale' : k ? 'step' : 'intro', topic: topic.id, after: after.at(-1) })
-        requires.set(id, k ? [topic.levels[k - 1]] : [...after, ...finales])
-      })
-      hang(after.at(-1), { kind: 'topic', id: topic.id, title: topic.title, levels: topic.levels, after })
-      // A topic may hang after another topic's level (`after: 'x-2'`): it goes on the track where that topic does,
-      // after it, so two topics can branch off from the end of a third.
-      for (const id of topic.levels) if (!at.has(id)) at.set(id, at.get(after.at(-1)) ?? track.at(-1) ?? track[0])
-    }
-    for (const c of era.challenges ?? []) {
-      const after = c.after ? [c.after].flat() : ends
-      place.set(c.level, { era: era.id, role: 'challenge', after: after.at(-1) })
-      requires.set(c.level, [...after])
-      hang(after.at(-1), { kind: 'challenge', id: c.level, levels: [c.level], after })
+    if (!track.length && era.branches?.length) track.push({ branches: [] })
+    for (const branch of era.branches ?? []) {
+      const after = branch.after ?? ends
+      put(branch.levels, after, true)
+      const parent = at.get(after.at(-1)) ?? track.at(-1)
+      parent?.branches.push({ levels: branch.levels, after })
+      for (const id of branch.levels) at.set(id, parent)
     }
     tracks.set(era.id, track)
     before = ends
   }
-  // A notes course (games/DESIGN.md 12.1) opens every level: none requires another.
-  if (notes) for (const id of requires.keys()) requires.set(id, [])
-  // Play order: each era's track, every branch right after the place it hangs from.
-  const order = [...tracks.values()].flatMap((track) => track.flatMap((entry) => [...(entry.level ? [entry.level] : entry.parallel.flatMap((b) => b.levels)), ...entry.branches.flatMap((b) => b.levels)]))
-  return { order, place, requires, tracks }
+  // Optional levels on the main path can be bypassed. A side route still follows its authored prerequisites.
+  const required = new Map()
+  const resolving = new Set()
+  const gates = (id) => {
+    if (required.has(id)) return required.get(id)
+    if (resolving.has(id)) return [id]
+    resolving.add(id)
+    const direct = (requires.get(id) ?? []).flatMap((before) => {
+      const source = place.get(before)
+      return source?.optional && !source.side ? gates(before) : [before]
+    })
+    resolving.delete(id)
+    required.set(id, [...new Set(direct)])
+    return required.get(id)
+  }
+  for (const id of requires.keys()) gates(id)
+  const order = [...tracks.values()].flatMap((track) => track.flatMap((entry) => [
+    ...(entry.level ? [entry.level] : entry.parallel?.flat() ?? []), ...entry.branches.flatMap((branch) => branch.levels),
+  ]))
+  return { order, place, requires, required, tracks }
 }
 
 /** The first loop in the prerequisite graph, with its starting level repeated at the end. */
@@ -267,7 +203,7 @@ export function dependencyCycle(requires) {
 // A showcase's reason, written plainly or as a text.
 const shown = (reason) => (typeof reason === 'string' ? reason.trim() : reason?.en?.trim() ?? '')
 
-export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, world = () => null, naive = () => true, replaces = () => [], local = () => false, needed = () => null, boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, finale = null, abstraction = false, notes = false }) {
+export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = () => null, primitives, adds, needs, builds, opens = () => [], gives = () => [], withholds = () => [], concept = (p) => p, machine = () => null, uses = () => [], can = () => null, replaces = () => [], local = () => false, needed = () => null, boards = () => [], showcase = () => null, declares = () => [], carries = () => [], openParts = () => [], references = null, abstraction = false, notes = false }) {
   const index = new Map(levels.map((l, i) => [l.id, i]))
   const setBy = new Map()
   for (const l of levels) for (const f of l.unlocks ?? []) if (!setBy.has(f)) setBy.set(f, l.id)
@@ -294,7 +230,7 @@ export function defineCourse({ levels, eras = null, trays = {}, tray: trayOf = (
   }
   // The settings and values some level opens: held from that level on, not from the start.
   const gated = new Set(levels.flatMap((l) => opens(l)))
-  return { levels, eras, plan, trays, tray, gated, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, world, naive, replaces, local, needed, boards, showcase, declares, carries, openParts, references, finale, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
+  return { levels, eras, plan, trays, tray, gated, primitives: new Set(primitives), adds, needs, builds, opens, gives, withholds, concept, machine, uses, can, replaces, local, needed, boards, showcase, declares, carries, openParts, references, abstraction, notes, index, builder, before: (a, b) => up(b).has(a) }
 }
 
 /**
@@ -350,12 +286,12 @@ const building = (course, level) => (level.task === undefined ? [] : course.buil
 
 // Whether a player with `flags` has earned a part a level reaches: a primitive, and a built part once its builder
 // level is solved (until the content is fixed, a part no level builds, or one the level builds itself: audit reports
-// both). A part built on an optional level (a topic or a challenge) is held only by the levels that require that level.
+// both). A part built on an optional level is held only by the levels that require that level.
 function earned(course, level, flags, p) {
   if (course.primitives.has(p)) return true
   const need = course.needs(p), by = course.builder(p)
   if (!need || !by || by === level.id) return true
-  if (OPTIONAL.includes(course.plan?.place.get(by)?.role) && !course.before(by, level.id)) return false
+  if (course.plan?.place.get(by)?.optional && !course.before(by, level.id)) return false
   return flags.has(need)
 }
 
@@ -399,7 +335,6 @@ export function holds(course, level, flags) {
   has.forms = (part) => course.references?.forms(part, level) ?? []
   return has
 }
-const OPTIONAL = ['intro', 'step', 'finale', 'challenge']
 
 /**
  * What a level shows of the parts it holds, so that a level with many parts does not leave the player lost: only the
@@ -452,19 +387,13 @@ export function introductions(course, keyOf = (p) => p) {
   return out
 }
 
-/**
- * Whether a level is a milestone of the tree, drawn full size on the map; the others are drawn smaller. A milestone
- * brings something in: the first level on a machine, a level that meets a new idea or unlocks a part, a challenge,
- * or a topic's finale. A topic's opening and middle levels, and the practice after a mechanism, are not.
- */
+/** Chapter starts and levels introducing parts or ideas are drawn as milestones. */
 export function isCore(course, level) {
   const at = course.plan?.place.get(level.id)
   if (!at) return true
-  if (at.role === 'finale' || at.role === 'challenge') return true
-  if (at.role === 'intro' || at.role === 'step') return false
   const own = course.levels[course.index.get(level.id)]
   const era = course.eras.find((e) => e.id === at.era)
-  return pathLevels(era.foundation)[0] === level.id || (own.unlocks ?? []).length > 0 || fresh(course, own).size > 0
+  return pathLevels(era.path)[0] === level.id || (own.unlocks ?? []).length > 0 || fresh(course, own).size > 0
 }
 
 /** Every broken rule, as { rule, level, part, text }, in play order. */
@@ -480,7 +409,6 @@ export function audit(course) {
     const earlier = levels.filter((l) => course.before(l.id, level.id)).flatMap((l) => course.adds(l))
     // The ideas new here; a part built by the player is never new where it is first used.
     const ideas = fresh(course, level)
-    const role = plan?.place.get(level.id)?.role
     for (const p of course.adds(level)) {
       const by = course.builder(p)
       if (course.primitives.has(p)) { if (earlier.includes(p) && !course.local(p)) say('carried', level.id, p, 'brought in again, though an earlier level already did'); continue }
@@ -490,7 +418,7 @@ export function audit(course) {
       // A part that stays where it is brought is brought again by name: that is no carry.
       else if (course.before(by, level.id)) { if (!course.local(p)) say('carried', level.id, p, `named, though it carries here from ${by} anyway`) }
       else {
-        const optional = ['intro', 'step', 'finale', 'challenge'].includes(plan?.place.get(by)?.role)
+        const optional = plan?.place.get(by)?.optional
         say(optional ? 'optional-needed' : 'built-later', level.id, p, optional ? `needs ${by}, which sits on an optional branch it does not require` : `offered where ${by}, the level that builds it, need not be solved yet`)
       }
     }
@@ -505,31 +433,20 @@ export function audit(course) {
     // A part built on an optional level is for the levels that require it alone: anyone else may not have it.
     for (const p of course.needed(level) ?? []) {
       const by = course.builder(p)
-      if (by && by !== level.id && OPTIONAL.includes(plan?.place.get(by)?.role) && !course.before(by, level.id)) say('optional-built', level.id, p, `built on the optional level ${by}, which this level does not require`)
+      if (by && by !== level.id && plan?.place.get(by)?.optional && !course.before(by, level.id)) say('optional-built', level.id, p, `built on the optional level ${by}, which this level does not require`)
     }
     // A level that builds a part built before (an upgrade) requires every level that built it before.
     for (const b of course.builds(level)) {
       const earlier = levels.filter((l) => l.id !== level.id && course.builds(l).includes(b) && !course.before(level.id, l.id))
       for (const l of earlier) if (!course.before(l.id, level.id)) say('upgrade-order', level.id, b, `builds ${b} as ${l.id} does, and does not require it`)
     }
-    if (role === 'challenge' && ideas.size) say('challenge-new', level.id, [...ideas].join(' '), 'a challenge brings nothing new')
-    else if (ideas.size > 1) say('many-new', level.id, [...ideas].join(' '), `${ideas.size} new parts in one level (one new idea per level)`)
+    if (ideas.size > 1) say('many-new', level.id, [...ideas].join(' '), `${ideas.size} new parts in one level (one new idea per level)`)
   }
   trayRules(course, say)
   idle(course, say)
   bypass(course, say)
   for (const level of levels) for (const from of course.carries(level)) if (!course.before(from, level.id)) say('carry-unseen', level.id, from)
   if (!plan) return out
-  // A topic is one problem growing: its finale's board solves every level of it before the finale.
-  for (const topic of (course.eras ?? []).flatMap((era) => era.topics ?? [])) {
-    const end = course.finale?.(topic)
-    if (!end) continue
-    for (const id of topic.levels.slice(0, topic.levels.indexOf(end.level))) {
-      const why = end.solves(id)
-      if (why) say('topic-finale', id, end.level, why)
-    }
-  }
-
   // The era rules.
   const placed = new Set(plan.order)
   for (const level of levels) if (!placed.has(level.id)) say('unplaced', level.id, '', 'in no era')
@@ -538,41 +455,11 @@ export function audit(course) {
   for (const level of levels) {
     const at = plan.place.get(level.id)
     if (!at) continue
-    // A level is played on its era's machine, or an older one: never on one from a later era. Only a topic's opening
-    // and middle levels may borrow an older one; the foundation, the practice, a topic's finale and the challenges
-    // show what this era's machine can do.
-    const m = course.machine(level), k = machines.indexOf(m), own = course.eras.find((e) => e.id === at.era).machine
+    const m = course.machine(level), k = machines.indexOf(m)
     if (m && (k < 0 || k > eraOf.get(at.era))) say('machine', level.id, m, `played on ${m}, not a machine of era ${at.era} or before`)
-    else if (m && own && m !== own && !['intro', 'step'].includes(at.role)) say('machine-role', level.id, m, `a ${at.role} level of era ${at.era} is played on ${own}, not ${m}`)
     // The machine can do everything the level's board relies on.
     const can = m ? course.can(m) : null
     if (can) { const missing = course.uses(level).filter((x) => !can.includes(x)); if (missing.length) say('mechanism', level.id, missing.join(' '), `${m} cannot do what the board uses`) }
-    // Nothing needs a challenge.
-    if (at.role === 'challenge') {
-      for (const other of levels) if ((plan.requires.get(other.id) ?? []).includes(level.id)) say('challenge-required', other.id, level.id, 'requires a challenge')
-      if (!course.naive(level)) say('challenge-naive', level.id, '', 'a challenge needs a naive answer that fails')
-    }
-  }
-  // A letter is a series: topics joined by one hanging on another's level share it, across eras too; unrelated series
-  // do not.
-  const topics = course.eras.flatMap((e) => e.topics ?? []).filter((t) => t.code)
-  const series = new Map(topics.map((t) => [t.id, t.id]))
-  const root = (id) => (series.get(id) === id ? id : root(series.get(id)))
-  for (const t of topics) for (const after of [].concat(t.after ?? [])) {
-    const u = topics.find((x) => x.levels.includes(after))
-    if (u) series.set(root(t.id), root(u.id))
-  }
-  for (const t of topics) {
-    const kin = topics.filter((u) => root(u.id) === root(t.id))
-    if (kin.some((u) => u.code !== t.code)) say('topic-code', t.levels[0], t.code, `topic ${t.id} is in one series with ${kin.filter((u) => u.code !== t.code).map((u) => `${u.id} (${u.code})`).join(', ')}`)
-    else if (topics.some((u) => u.code === t.code && root(u.id) !== root(t.id))) say('topic-code', t.levels[0], t.code, `topic ${t.id} shares its letter with a series it does not hang on`)
-  }
-  // A topic stays in one world.
-  for (const era of course.eras) {
-    for (const topic of era.topics ?? []) {
-      const worlds = [...new Set(topic.levels.map((id) => course.world(levels.find((l) => l.id === id) ?? { id })).filter(Boolean))]
-      if (worlds.length > 1) say('topic-world', topic.levels.at(-1), worlds.join(' '), `topic ${topic.id} spans several worlds`)
-    }
   }
   return out
 }
@@ -618,13 +505,13 @@ function trayRules(course, say) {
  * and so does one using a built part made with it (the idea keeps working inside the part);
  * the new ideas counted between the two are those of required levels on the way. The level that brings an idea in
  * uses it itself (a level with a reference answer). An idea met on an optional level is
- * not checked: a topic adds one idea a level and its finale uses them all (topic-finale).
+ * not checked by this rule.
  * The rule finds an idea brought in early, or several stacked before any is used. It asks for no number of levels:
  * the fix is to move an idea to where it is needed, never to pad the course.
  */
 function idle(course, say) {
   const placed = course.levels.filter((l) => !course.plan || course.plan.place.has(l.id))
-  const required = (l) => !OPTIONAL.includes(course.plan?.place.get(l.id)?.role)
+  const required = (l) => !course.plan?.place.get(l.id)?.optional
   const abilities = (l) => course.uses(l) ?? []
   // The concepts a level's reference answer puts to work: its parts', the parts it declares, and those inside each
   // built part it uses (the reference of the level that builds it, all the way down).

@@ -11,7 +11,6 @@
 // each neighbour, a finding only reports (one LLM session is a reading, not a verdict); from there on it fails the check
 // unless the game's work list leaves it open (game.json `open`, as for every rule).
 
-const OPTIONAL = ['intro', 'step', 'finale', 'challenge']
 
 export const SPIKE = { ratio: 2, gap: 2, sessions: 5 }
 
@@ -55,7 +54,7 @@ export function perLevel(records) {
  */
 export function spikes(course, records) {
   const stats = perLevel(records)
-  const required = (id) => !OPTIONAL.includes(course.plan?.place.get(id)?.role)
+  const required = (id) => !course.plan?.place.get(id)?.optional
   const requires = course.plan?.requires ?? new Map()
   const out = []
   for (const [id, s] of stats) {

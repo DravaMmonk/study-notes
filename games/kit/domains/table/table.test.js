@@ -111,7 +111,7 @@ const t = s => ({ zh: s, en: s });
 const twoLevels = () => ({
   id: 't', title: t('t'), primitives: ['msum', 'const', 'pass', 'block'],
   partDefs: { parts: { counter: { name: t('counter'), desc: t('d'), inside: [{ task: 'build' }] } } },
-  eras: [{ id: 'e', machine: 'scout', foundation: ['build', 'reuse'], chapter: { title: t('e'), desc: t('e') } }],
+  eras: [{ id: 'e', machine: 'scout', path: ['build', 'reuse'], chapter: { title: t('e'), desc: t('e') } }],
   levels: [
     { id: 'build', intro: [], robot: 'scout', adds: ['msum', 'const', 'pass'],
       tasks: [{ id: 'build', mode: 'circuit', world: 'grid', facts: ['start'], ports: [{ way: { n: 1, sensor: 'up' } }, { way: { n: 2, sensor: 'left' } }, { start: { sensor: 'start' } }], tests: [{ R: 3, C: 4 }], expected: [10], solution: ['k = const[value=1]()', 'g = pass(facts.start, k)', 'm = msum(view.up, view.left, g)', 'cell <- m'] }] },

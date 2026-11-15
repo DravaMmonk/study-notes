@@ -1,5 +1,6 @@
 {
   "title": { "en": "Stock-take", "zh": "货架盘点" },
+  "carry": "10-10",
   "tray": "recognition",
   "after": {
     "en": "Template scores, several scales, non-maximum suppression, each X marked exactly once: the simplest detector. Replace the template with learnt convolutions and add box regression, and you have a real object-detection network, its results measured with the IoU and AP you built.",

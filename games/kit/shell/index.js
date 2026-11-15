@@ -1,4 +1,4 @@
-import { earnedUnlocks, requiredLevels } from './progress.js'
+import { earnedUnlocks } from './progress.js'
 // The game shell shared by every game in the study notes (React). A game is content on top of it: see defineGame.
 
 export { default as GameShell } from './GameShell.jsx'
@@ -58,19 +58,28 @@ export { PHONE, useMedia } from './useMedia.js'
  * as well as words: `forms` (engine/forms.js) adds to the forms a part's card offers, each revision's to the last's.
  */
 export function defineGame(def) {
-  const levels = def.levels
+  const plan = def.course?.plan
+  const levels = plan ? def.levels.map((level) => {
+    const place = plan.place.get(level.id)
+    return { ...level, optional: place?.optional ?? false, group: place?.group }
+  }) : def.levels
   const byId = Object.fromEntries(levels.map((level) => [level.id, level]))
   const index = new Map(levels.map((level, i) => [level.id, i]))
   // Without `requires`, a level opens once the one before it is passed.
   const requiresOf = (level) => level.requires ?? (index.get(level.id) > 0 ? [levels[index.get(level.id) - 1].id] : [])
-  const required = (level) => requiredLevels(level, byId, requiresOf)
+  const required = (level) => plan?.required.get(level.id) ?? requiresOf(level)
   const isOpen = def.isOpen ?? ((level, solved, all = false) => all || required(level).every((id) => solved.has(id)))
   // Every level `level` comes after: what it requires, and what those require in turn.
-  const before = new Map()
-  const ancestors = (level) => {
-    if (!before.has(level.id)) before.set(level.id, new Set(requiresOf(level).filter((id) => byId[id]).flatMap((id) => [id, ...ancestors(byId[id])])))
-    return before.get(level.id)
+  const ancestorsOf = (direct) => {
+    const before = new Map()
+    const ancestors = (level) => {
+      if (!before.has(level.id)) before.set(level.id, new Set(direct(level).filter((id) => byId[id]).flatMap((id) => [id, ...ancestors(byId[id])])))
+      return before.get(level.id)
+    }
+    return ancestors
   }
+  const ancestors = ancestorsOf(requiresOf)
+  const gates = ancestorsOf(required)
   const game = {
     levelLabel: (level) => level.id,
     intro: () => null,
@@ -80,11 +89,12 @@ export function defineGame(def) {
     note: (level) => level.note ?? level.after,
     better: (score, best) => !best,
     ...def,
+    levels,
     byId,
     isOpen,
     missing: (level, solved) => required(level).filter((id) => !solved.has(id)).map((id) => byId[id]),
     // Every level still to pass before `level` opens: the unsolved ones among all it comes after.
-    needed: (level, solved) => [...ancestors(level)].filter((id) => !byId[id]?.optional && !solved.has(id)).map((id) => byId[id]),
+    needed: (level, solved) => [...gates(level)].filter((id) => !solved.has(id)).map((id) => byId[id]),
     // Everything a player has unlocked by the time `level` opens: the unlocks of every level it comes after.
     unlocksBefore: (level) => [...ancestors(level)].flatMap((id) => byId[id].unlocks ?? []),
     // What a player has unlocked: every solved level's unlocks (so a level that has since come to unlock something gives

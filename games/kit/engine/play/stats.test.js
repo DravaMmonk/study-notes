@@ -8,7 +8,7 @@ import { SPIKE, perLevel, spikes } from './stats.js'
 const course = {
   plan: {
     requires: new Map([['a', []], ['b', ['a']], ['c', ['b']], ['d', ['c']], ['x', ['b']]]),
-    place: new Map([['a', { role: 'foundation' }], ['b', { role: 'foundation' }], ['c', { role: 'foundation' }], ['d', { role: 'foundation' }], ['x', { role: 'challenge' }]]),
+    place: new Map([['a', {}], ['b', {}], ['c', {}], ['d', {}], ['x', { optional: true }]]),
   },
 }
 const session = (attempts, outcomes = {}) => ({

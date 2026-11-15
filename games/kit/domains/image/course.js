@@ -120,9 +120,6 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
     if (!ancestors.has(id)) ancestors.set(id, new Set((requires.get(id) ?? []).flatMap((r) => [r, ...before(r)])))
     return ancestors.get(id)
   }
-  // A topic level after the first starts from the player's own circuit for the level before it, when that level is a
-  // circuit too.
-  const carry = new Map(eras.flatMap((era) => (era.topics ?? []).flatMap((t) => t.levels.slice(1).map((id, i) => [id, t.levels[i]]))).filter(([, from]) => played.get(from)?.at(-1).kind !== 'board'))
   // Pictures start out drawn as pixels; every other way of drawing them comes in with a level, as parts do.
   const viewsAt = (id) => ({
     shows: ['pixels', ...Object.keys(views).filter((view) => views[view] === id || before(id).has(views[view]))],
@@ -134,7 +131,7 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
   // A task as the shell plays it (../../shell/GameShell.jsx): the domain's defaults under it, its level's place in the
   // course, its key and name (`step`, from the content's task `given`), and what it opens for the tasks after it. A level
   // unlocks what any of its tasks does, and is of its last task's kind.
-  const read = (id, task, given) => ({ inputs: ['in'], outputs: ['out'], adds: [], check: { tolerance: 0.02 }, ...task, chapter: chapterOf.get(id), ...viewsAt(id), unlocks: unlocksOf(task), requires: requires.get(id) ?? [], carry: carry.get(id), step: given.step, optional: given.optional ?? false, opens: given.unlocks ?? [], key: task.taskId })
+  const read = (id, task, given) => ({ inputs: ['in'], outputs: ['out'], adds: [], check: { tolerance: 0.02 }, ...task, chapter: chapterOf.get(id), ...viewsAt(id), unlocks: unlocksOf(task), requires: requires.get(id) ?? [], carry: content[id].carry, step: given.step, optional: given.optional ?? false, opens: given.unlocks ?? [], key: task.taskId })
   const placed = plan.order.map((id) => {
     const { tasks, intro: _, ...once } = content[id]
     const all = played.get(id).map((task, k) => read(id, task, tasks[k]))
@@ -183,7 +180,6 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
     trays,
     tray: (l) => trayIn(trays, placedById[l.id].tray),
     concept: (p) => concept[p] ?? p,
-    naive: (l) => placedById[l.id].tasks.some((t) => t.naive),
     primitives,
     adds: (l) => placedById[l.id].adds,
     needs: flagOf,
@@ -193,6 +189,7 @@ export function imageCourse({ eras, levels, views = {}, primitives, trays, conce
     replaces: (p) => replaces[p] ?? [],
     needed: (l) => (answers(l).length ? answers(l).flatMap((s) => s.nodes.map((n) => n.type)) : null),
     boards: answers,
+    carries: (l) => content[l.id].carry ? [content[l.id].carry] : [],
     showcase: (l) => placedById[l.id].showcase ?? null,
     abstraction: true,
     notes,

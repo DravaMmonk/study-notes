@@ -9,7 +9,7 @@ import { PHONE, useMedia } from './useMedia.js'
 // The level map: a hero (the game's kicker, title, lede and illustration), progress, the unlock-all action and a
 // "continue" button, then each chapter's level tree, as in Turing Complete: levels are buttons joined by wires. A
 // chapter's `track` (games/kit/course.js layout) gives the tree: the main path runs down the middle, a set of required
-// branches stands side by side and joins again, and optional topics and challenges (dashed) branch off to either side
+// branches stands side by side and joins again, and side routes branch off to either side
 // of the level they follow.
 
 // Tree geometry in px: node size, the gap between columns, and the gap under a level: `gap` when a chip sits on its
@@ -60,9 +60,10 @@ function plot(track, label) {
       continue
     }
     const { parallel } = entry
-    const depth = Math.max(...parallel.map((b) => b.levels.length))
-    ;[...parallel].sort(before).forEach((branch, k) => lay(branch.levels, k - (parallel.length - 1) / 2, row, prev, 'parallel', depth))
-    prev = parallel.map((b) => b.levels.at(-1))
+    if (!parallel) continue
+    const depth = Math.max(...parallel.map((lane) => lane.length))
+    parallel.forEach((lane, k) => lay(lane, k - (parallel.length - 1) / 2, row, prev, 'parallel', depth))
+    prev = parallel.map((lane) => lane.at(-1))
     row += depth
   }
   let tilt = 0 // optional branches placed right minus left, to balance the tree
@@ -76,7 +77,7 @@ function plot(track, label) {
     const branch = (ready.length ? ready : waiting).reduce((a, b) => (before(b, a) < 0 ? b : a))
     waiting.splice(waiting.indexOf(branch), 1)
     const from = branch.after.filter((id) => at.has(id))
-    const anchor = from.map((id) => at.get(id)).reduce((a, b) => (b.row > a.row ? b : a))
+    const anchor = from.map((id) => at.get(id)).reduce((a, b) => (!a || b.row > a.row ? b : a), null) ?? { row: -1, t: { lane: 0 } }
     let start = anchor.row + 1
     const rows = () => branch.levels.map((_, k) => start + k)
     const nearest = (step) => {
@@ -239,7 +240,9 @@ export function LevelTree(props) {
 
 function LevelList({ game, track, byId, solved, all, best = () => null, current, next, compact, onOpen }) {
   const { w, h } = compact ? SIZE.compact : SIZE.full
-  const ids = track.flatMap((entry) => (entry.level ? [entry.level] : entry.parallel.flatMap((b) => b.levels)))
+  const ids = track.flatMap((entry) => [
+    ...(entry.level ? [entry.level] : entry.parallel?.flat() ?? []), ...entry.branches.flatMap((branch) => branch.levels),
+  ])
   return (
     <div className={`map-list ${compact ? 'is-compact' : ''}`} style={{ '--node-w': `${w}px` }}>
       {ids.map((id) => byId.get(id) && <LevelButton key={id} game={game} level={byId.get(id)} style={{ height: h }} solved={solved} all={all} best={best} current={current} next={next} compact={compact} onOpen={onOpen} />)}
@@ -248,7 +251,7 @@ function LevelList({ game, track, byId, solved, all, best = () => null, current,
 }
 
 /** A level's button on the map: its number, title and kind (or best score), how it stands, and opening it. */
-function LevelButton({ game, level, style, optional = false, solved, all, best, current, next, needed = null, compact, onOpen }) {
+function LevelButton({ game, level, style, solved, all, best, current, next, needed = null, compact, onOpen }) {
   const open = game.isOpen(level, solved, all)
   const won = solved.has(level.id)
   const state = won ? 'is-solved' : open ? 'is-open' : 'is-locked'
@@ -256,9 +259,12 @@ function LevelButton({ game, level, style, optional = false, solved, all, best, 
   const score = won && best(level.id) && game.bestLabel?.(best(level.id))
   const here = level.id === current
   return (
-    <button data-level={level.id} style={style} title={L(level.title)} aria-current={here ? 'page' : undefined} className={`map-node ${state} ${game.core(level) ? '' : 'is-minor'} ${optional || level.optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''} ${here ? 'is-here' : ''} ${needed?.ids.has(level.id) ? 'is-needed' : ''} ${needed?.asked === level.id ? 'is-asked' : ''}`} aria-disabled={!open} onClick={() => (open ? onOpen(level.id) : needed?.ask(level.id))}>
+    <button data-level={level.id} style={style} title={[L(level.title), L(level.group?.title)].filter(Boolean).join(' · ')} aria-current={here ? 'page' : undefined} className={`map-node ${state} ${game.core(level) ? '' : 'is-minor'} ${level.optional ? 'is-optional' : ''} ${next?.id === level.id ? 'is-next' : ''} ${here ? 'is-here' : ''} ${needed?.ids.has(level.id) ? 'is-needed' : ''} ${needed?.asked === level.id ? 'is-asked' : ''}`} aria-disabled={!open} onClick={() => (open ? onOpen(level.id) : needed?.ask(level.id))}>
       <span className="map-pad" aria-hidden="true">{won ? <Check size={11} strokeWidth={2.6} /> : open ? null : <Lock size={9} />}</span>
-      <span className="map-node-id">{game.levelLabel(level)}</span>
+      <span className="map-node-number">
+        <span className="map-node-id">{game.levelLabel(level)}</span>
+        {level.group?.code && <small className="map-group-code" title={L(level.group.title)}>{level.group.code}</small>}
+      </span>
       <span className="map-node-title">{L(level.title)}</span>
       {score ? <span className="map-node-best">{score}</span> : kind?.icon && !compact && <span className="map-node-kind" aria-label={L(kind.label)}>{createElement(kind.icon, { size: game.core(level) ? 13 : 12 })}</span>}
     </button>
@@ -282,8 +288,6 @@ function Tree({ game, track, byId, solved, all, best = () => null, current, next
   const chip = (id) => Boolean(byId.get(id) && chipOf(byId.get(id)).length)
   const below = Object.assign((id) => (chip(id) ? gap : plain), { chip })
   const { top, turn, height } = stack({ at, edges, box, below, x, w, join: plain / 2 })
-  const optional = new Set()
-  for (const e of edges) if (e.kind === 'optional' || optional.has(e.from)) optional.add(e.to)
   // Start a tree wider than the screen on its main path.
   useLayoutEffect(() => {
     const el = scroll.current
@@ -310,19 +314,19 @@ function Tree({ game, track, byId, solved, all, best = () => null, current, next
     const s = Math.sign(x2 - x1), r = Math.max(0, Math.min(R, yb - y1, y2 - yb))
     return `M${x1} ${y1}V${yb - r}Q${x1} ${yb} ${x1 + s * r} ${yb}H${x2 - s * r}Q${x2} ${yb} ${x2} ${yb + r}V${y2}`
   }
-  const node = (level, p, optional) => {
+  const node = (level, p) => {
     if (!level) return null
     const size = box(level.id)
     const style = { left: x(p.col) + (w - size.w) / 2, top: top.get(level.id), width: size.w, height: size.h }
-    return <LevelButton key={level.id} game={game} level={level} style={style} optional={optional} solved={solved} all={all} best={best} current={current} next={next} needed={needed} compact={compact} onOpen={onOpen} />
+    return <LevelButton key={level.id} game={game} level={level} style={style} solved={solved} all={all} best={best} current={current} next={next} needed={needed} compact={compact} onOpen={onOpen} />
   }
   return (
     <div className="map-tree-scroll" ref={scroll}>
       <div className={`map-tree ${compact ? 'is-compact' : ''}`} style={{ width, height }}>
         <svg className="map-wires" width={width} height={height} aria-hidden="true">
-          {edges.map((e) => <path key={`${e.from}-${e.to}`} className={`${optional.has(e.to) ? 'is-optional' : ''} ${solved.has(e.from) ? 'is-lit' : ''}`} d={wire(e)} />)}
+          {edges.map((e) => <path key={`${e.from}-${e.to}`} className={`${byId.get(e.to)?.optional ? 'is-optional' : ''} ${solved.has(e.from) ? 'is-lit' : ''}`} d={wire(e)} />)}
         </svg>
-        {[...at].map(([id, p]) => node(byId.get(id), p, optional.has(id)))}
+        {[...at].map(([id, p]) => node(byId.get(id), p))}
         {[...at].map(([id, p]) => byId.get(id) && <UnlockChip key={`u-${id}`} items={chipOf(byId.get(id))} style={{ left: x(p.col) + w / 2, top: top.get(id) + box(id).h + gap / 2, maxWidth: w + col }} />)}
       </div>
     </div>

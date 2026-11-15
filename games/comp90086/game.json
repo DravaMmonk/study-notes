@@ -1,6 +1,6 @@
 {
   "domain": "image",
-  "vocabulary": 19,
+  "vocabulary": 21,
   "title": { "en": "Computer Vision Notes", "zh": "计算机视觉笔记" },
   "kicker": { "en": "COMP90086 notes edition", "zh": "COMP90086 笔记版" },
   "lede": {
@@ -19,21 +19,21 @@
   "eras": [
     {
       "id": 1,
-      "foundation": ["projection"],
       "chapter": {
         "title": { "en": "How images form and are represented", "zh": "图像怎样形成和表示" },
         "label": { "en": "Lecture 2", "zh": "第 2 讲" },
         "question": { "en": "Where do the numbers in an image come from?", "zh": "一张图里的数从哪里来？" }
-      }
+      },
+      "path": ["projection"]
     },
     {
       "id": 2,
-      "foundation": ["separable", "sinusoid"],
       "chapter": {
         "title": { "en": "Processing images with fixed rules", "zh": "怎样用固定规则处理图像" },
         "label": { "en": "Lectures 3–4", "zh": "第 3–4 讲" },
         "question": { "en": "How do a kernel and a wave change an image?", "zh": "一个核、一道波怎样改变一张图？" }
-      }
+      },
+      "path": ["separable", "sinusoid"]
     }
   ],
   "box": { "sample": "separable", "inLevel": {} }

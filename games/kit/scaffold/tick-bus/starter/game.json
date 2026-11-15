@@ -1,6 +1,6 @@
 {
   "domain": "__name__",
-  "vocabulary": 14,
+  "vocabulary": 16,
   "title": { "en": "__title__", "zh": "__title__" },
   "kicker": { "en": "In development", "zh": "开发中" },
   "lede": {
@@ -12,12 +12,18 @@
   "eras": [
     {
       "id": 1,
-      "title": { "en": "One line", "zh": "一根线" },
+      "title": {
+        "en": "One line",
+        "zh": "一根线"
+      },
       "question": {
         "en": "A bit on the line each tick: how to hear it, how to speak?",
         "zh": "线上每一拍有一位：怎样听它，怎样说？"
       },
-      "foundation": ["1-1", "1-2"]
+      "path": [
+        "1-1",
+        "1-2"
+      ]
     }
   ]
 }

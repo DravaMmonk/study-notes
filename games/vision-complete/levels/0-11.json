@@ -1,5 +1,6 @@
 {
   "title": { "en": "An ageing lamp", "zh": "灯老了" },
+  "carry": "0-10",
   "tray": "pipeline",
   "after": {
     "en": "Light multiplies: brightness = lamp × surface. Multiplying back by 1 ÷ 0.8 = 1.25 restores the lighting the reference was taken under, and only then is the comparison fair. Adjusting the threshold alone fails: bright areas lose more to the dim lamp than dark areas lose to a dent.",

@@ -87,6 +87,6 @@ export function bulkAdds(vocabulary, levels, { add = [], remove = [] }) {
  * right after the one before (on the main path when the place is on it).
  */
 export function bulkMove(ids, to) {
-  const onPath = to.on === 'path' || (to.path !== undefined && to.at !== undefined)
+  const onPath = to.on === 'path'
   return ids.map((id, k) => ({ op: 'level.move', level: id, to: k ? { after: ids[k - 1], ...(onPath && { on: 'path' }) } : to }))
 }

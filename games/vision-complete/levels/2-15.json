@@ -1,5 +1,6 @@
 {
   "title": { "en": "Shrink in two steps", "zh": "分两次缩" },
+  "carry": "2-14",
   "tray": "pipeline",
   "after": {
     "en": "A small blur and a halving, then a small blur and a halving again: each level does only cheap work, and each is cheaper than the last. A picture shrunk level by level like this is an image pyramid; thumbnails and multi-scale feature detection rely on it.",

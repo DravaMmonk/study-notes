@@ -1,6 +1,6 @@
 {
   "domain": "table",
-  "vocabulary": 1,
+  "vocabulary": 4,
   "title": {
     "en": "__title__",
     "zh": "__title__"
@@ -23,12 +23,6 @@
     {
       "id": "scout",
       "machine": "scout",
-      "foundation": [
-        "copy",
-        "merge",
-        "stamp",
-        "rocks"
-      ],
       "chapter": {
         "title": {
           "en": "Build a machine",
@@ -38,7 +32,13 @@
           "en": "On every cell the robot runs the same circuit board, and a finished board becomes a component.",
           "zh": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。"
         }
-      }
+      },
+      "path": [
+        "copy",
+        "merge",
+        "stamp",
+        "rocks"
+      ]
     }
   ],
   "concept": {

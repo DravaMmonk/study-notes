@@ -47,7 +47,7 @@ export default function tableGame(content) {
     id: L.id,
     index,
     chapter: L.ch,
-    // Opens once these are solved: the era's foundation in order, then its topics side by side (levels/eras.js).
+    // The chapter route supplies direct prerequisites.
     requires: REQUIRES.get(L.id) ?? [],
     title: L.title,
     kind: played.get(L.id)[0].mode,
@@ -78,7 +78,7 @@ export default function tableGame(content) {
   const eraOf = new Map(ERAS.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
   const robotFilters = (progress) => ERAS.flatMap((era, e) => {
     if (!era.machine) return []
-    const first = pathLevels(era.foundation)[0]
+    const first = pathLevels(era.path)[0]
     const keys = new Set([...LEVELS.filter((L) => L.unlock && eraOf.get(L.id) <= e).map((L) => L.unlock), ...primitives.filter((p) => p.at.some((id) => eraOf.get(id) <= e)).map((p) => p.key)])
     const robot = ROBOTS[era.machine]
     return [{ key: era.machine, name: robot.name, icon: robot.look, keys, lock: progress.all || progress.solved.includes(first) ? null : LABELS.get(first) }]

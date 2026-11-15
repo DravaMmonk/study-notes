@@ -23,7 +23,7 @@
 // a vocabulary also gives the families parts are coloured by (`family`), and may give widgets (`widget`): settings or
 // displays the kernel's controls cannot draw.
 import { S, validate } from './schema.js'
-import { dependencyCycle, layout } from '../course.js'
+import { dependencyCycle, eraLevels, layout } from '../course.js'
 import { BLUEPRINT } from '../pipeline/blueprint.js'
 import { taskIdProblems, taskIdsOf } from './tasks.js'
 import { partProblems, withParts } from './parts/define.js'
@@ -140,13 +140,24 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   const gameProblems = validate(vocabulary.game, game, { vocabulary, levels: ids, languages, names })
   add(gameProblems, 'game.json')
   if (!gameProblems.length && game.eras) {
+    const placed = new Set()
     for (const [e, era] of game.eras.entries()) {
-      const topics = era.topics ?? []
-      for (const [k, topic] of topics.entries()) {
-        for (const id of topic.requires ?? []) {
-          if (!topics.some((other) => other.id === id)) {
-            out.push({ at: `game.json.eras[${e}].topics[${k}].requires`, says: `no topic "${id}" in this chapter` })
-          }
+      const local = new Set(eraLevels(era))
+      const prefix = `game.json.eras[${e}]`
+      for (const id of eraLevels(era)) {
+        if (placed.has(id)) out.push({ at: prefix, says: `level "${id}" is placed twice` })
+        placed.add(id)
+      }
+      for (const id of era.optional ?? []) {
+        if (!local.has(id)) out.push({ at: `${prefix}.optional`, says: `level "${id}" is outside this chapter` })
+      }
+      const grouped = new Set()
+      for (const [k, group] of (era.groups ?? []).entries()) {
+        for (const id of group.levels) {
+          const at = `${prefix}.groups[${k}].levels`
+          if (!local.has(id)) out.push({ at, says: `level "${id}" is outside this chapter` })
+          if (grouped.has(id)) out.push({ at, says: `level "${id}" is already grouped in this chapter` })
+          grouped.add(id)
         }
       }
     }

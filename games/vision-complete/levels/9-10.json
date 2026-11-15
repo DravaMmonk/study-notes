@@ -1,5 +1,6 @@
 {
   "title": { "en": "Segmenting cells", "zh": "细胞分割" },
+  "carry": "9-9",
   "tray": "recognition",
   "after": {
     "en": "An adaptive boundary, a coarse path that removes grain, a skip connection that keeps detail: a small U-Net-style pipeline. Real cell-segmentation networks replace every step with learnt convolutions, but the structure stays the same.",

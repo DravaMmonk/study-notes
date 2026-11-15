@@ -1,6 +1,6 @@
 {
   "domain": "table",
-  "vocabulary": 2,
+  "vocabulary": 4,
   "title": { "en": "State Graph", "zh": "状态之图" },
   "kicker": { "en": "Dynamic programming puzzles, from scratch", "zh": "从零开始的动态规划解谜" },
   "lede": {
@@ -33,29 +33,18 @@
     {
       "id": "paper",
       "machine": null,
-      "foundation": ["trace", "lastStep", "city"],
       "chapter": {
         "title": { "en": "Pen and paper", "zh": "纸笔" },
         "desc": {
           "en": "Build the answer to a big problem out of the answers to small ones.",
           "zh": "用小问题的答案，拼出大问题的答案。"
         }
-      }
+      },
+      "path": ["trace", "lastStep", "city"]
     },
     {
       "id": "scout",
       "machine": "scout",
-      "foundation": [
-        "copy",
-        "confluence",
-        "stamp",
-        {
-          "parallel": [
-            { "id": "rocks", "title": { "en": "Rocks", "zh": "石头" }, "levels": ["rocks", "reach"] },
-            { "id": "cost", "title": { "en": "Costs", "zh": "花费" }, "levels": ["cheapest", "slantcost"] }
-          ]
-        }
-      ],
       "chapter": {
         "title": { "en": "Build a machine", "zh": "造一台机器" },
         "desc": {
@@ -63,42 +52,34 @@
           "zh": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。"
         }
       },
-      "practice": [
-        {
-          "parallel": [
-            { "id": "shape", "title": { "en": "New shapes", "zh": "换形状" }, "levels": ["slant", "pascal"] },
-            { "id": "coins", "title": { "en": "Coins", "zh": "金币" }, "levels": ["maxcoins"] }
-          ]
-        },
+      "path": [
+        "copy",
+        "confluence",
+        "stamp",
+        { "parallel": [["rocks", "reach"], ["cheapest", "slantcost"]] },
+        { "parallel": [["slant", "pascal"], ["maxcoins"]] },
         "pits"
       ],
-      "topics": [
-        {
-          "id": "seam",
-          "code": "S",
-          "after": "slantcost",
-          "levels": ["seamline", "seamslant", "seam", "carve"],
-          "title": { "en": "Seams in a picture", "zh": "图里的缝" },
-          "desc": { "en": "Find the least noticeable seam in a picture.", "zh": "在一张图里，找一条最不起眼的缝。" }
-        }
+      "branches": [
+        { "levels": ["seamline", "seamslant", "seam", "carve"], "after": ["slantcost"] },
+        { "levels": ["lawn"], "after": ["pascal"] }
       ],
-      "challenges": [{ "level": "lawn", "after": "pascal" }]
+      "optional": ["seamline", "seamslant", "seam", "carve", "lawn"],
+      "groups": [
+        { "title": { "en": "Rocks", "zh": "石头" }, "levels": ["rocks", "reach"] },
+        { "title": { "en": "Costs", "zh": "花费" }, "levels": ["cheapest", "slantcost"] },
+        { "title": { "en": "New shapes", "zh": "换形状" }, "levels": ["slant", "pascal"] },
+        { "title": { "en": "Coins", "zh": "金币" }, "levels": ["maxcoins"] },
+        {
+          "title": { "en": "Seams in a picture", "zh": "图里的缝" },
+          "levels": ["seamline", "seamslant", "seam", "carve"],
+          "code": "S"
+        }
+      ]
     },
     {
       "id": "ranger",
       "machine": "ranger",
-      "foundation": [
-        "stairs",
-        {
-          "parallel": [
-            { "id": "back", "title": { "en": "Scanning backwards", "zh": "倒着扫" }, "levels": ["order"] },
-            { "id": "win", "title": { "en": "Winning", "zh": "输赢" }, "levels": ["nim"] }
-          ]
-        },
-        "link",
-        "lcs",
-        "palin"
-      ],
       "chapter": {
         "title": { "en": "Seeing further", "zh": "看得更远" },
         "desc": {
@@ -106,65 +87,60 @@
           "zh": "看得更远：两步之外的格子；看得更全：表头上的两个词；还能换个方向扫。"
         }
       },
-      "practice": [
-        {
-          "parallel": [
-            { "id": "broken", "title": { "en": "Broken steps", "zh": "坏台阶" }, "levels": ["brokenstairs"] },
-            { "id": "lps", "title": { "en": "Palindromic subsequences", "zh": "回文子序列" }, "levels": ["lps"] }
-          ]
-        }
+      "path": [
+        "stairs",
+        { "parallel": [["order"], ["nim"]] },
+        "link",
+        "lcs",
+        "palin",
+        { "parallel": [["brokenstairs"], ["lps"]] }
       ],
-      "topics": [
+      "branches": [
+        { "levels": ["replace", "edit", "spell"], "after": ["lcs"] },
+        { "levels": ["parity"], "after": ["nim"] },
+        { "levels": ["localalign"], "after": ["lcs"] },
+        { "levels": ["piles"], "after": ["nim"] }
+      ],
+      "optional": ["replace", "edit", "spell", "parity", "localalign", "piles"],
+      "groups": [
+        { "title": { "en": "Scanning backwards", "zh": "倒着扫" }, "levels": ["order"] },
+        { "title": { "en": "Winning", "zh": "输赢" }, "levels": ["nim"] },
+        { "title": { "en": "Broken steps", "zh": "坏台阶" }, "levels": ["brokenstairs"] },
+        { "title": { "en": "Palindromic subsequences", "zh": "回文子序列" }, "levels": ["lps"] },
         {
-          "id": "edit",
-          "code": "E",
-          "after": "lcs",
-          "levels": ["replace", "edit", "spell"],
           "title": { "en": "Spelling correction", "zh": "拼写纠错" },
-          "desc": {
-            "en": "A word is mistyped: find the closest one in the dictionary.",
-            "zh": "输错一个词，找出词典里最接近的那个。"
-          }
+          "levels": ["replace", "edit", "spell"],
+          "code": "E"
         }
-      ],
-      "challenges": [
-        { "level": "parity", "after": "nim" },
-        { "level": "localalign", "after": "lcs" },
-        { "level": "piles", "after": "nim" }
       ]
     },
     {
       "id": "reach",
       "machine": "reach",
-      "foundation": [
-        "frog",
-        {
-          "parallel": [
-            { "id": "jump", "title": { "en": "Ways to jump", "zh": "跳法" }, "levels": ["frogfar", "safefrog"] },
-            { "id": "sentence", "title": { "en": "Sentences", "zh": "句子" }, "levels": ["tagging", "forward"] }
-          ]
-        }
-      ],
       "chapter": {
         "title": { "en": "A longer arm", "zh": "伸长手臂" },
         "desc": { "en": "A telescopic arm reaches a cell however far away.", "zh": "伸缩臂能够到任意远的一格。" }
       },
-      "topics": [
-        {
-          "id": "knapsack",
-          "code": "K",
-          "after": "frogfar",
-          "levels": ["pack", "knaptable", "knapmany", "knapmix"],
-          "title": { "en": "The backpack", "zh": "背包" },
-          "desc": { "en": "With limited room, what is most worth taking?", "zh": "容量有限，拿什么最值钱？" }
-        }
+      "path": ["frog", { "parallel": [["frogfar", "safefrog"], ["tagging", "forward"]] }],
+      "branches": [
+        { "levels": ["pack", "knaptable", "knapmany", "knapmix"], "after": ["frogfar"] },
+        { "levels": ["coinways"], "after": ["knapmany"] },
+        { "levels": ["roll"], "after": ["knapmix"] }
       ],
-      "challenges": [{ "level": "coinways", "after": "knapmany" }, { "level": "roll", "after": "knapmix" }]
+      "optional": ["pack", "knaptable", "knapmany", "knapmix", "coinways", "roll"],
+      "groups": [
+        { "title": { "en": "Ways to jump", "zh": "跳法" }, "levels": ["frogfar", "safefrog"] },
+        { "title": { "en": "Sentences", "zh": "句子" }, "levels": ["tagging", "forward"] },
+        {
+          "title": { "en": "The backpack", "zh": "背包" },
+          "levels": ["pack", "knaptable", "knapmany", "knapmix"],
+          "code": "K"
+        }
+      ]
     },
     {
       "id": "broom",
       "machine": "broom",
-      "foundation": ["prefix", "rising"],
       "chapter": {
         "title": { "en": "Many ways in", "zh": "一格多来路" },
         "desc": {
@@ -172,34 +148,25 @@
           "zh": "扫描臂扫过一整段格子，来路的数量不再固定。"
         }
       },
-      "practice": [
-        {
-          "parallel": [
-            {
-              "id": "interval",
-              "title": { "en": "Intervals", "zh": "区间" },
-              "levels": ["stones", "twoorders", "parse"]
-            },
-            { "id": "change", "title": { "en": "Change", "zh": "零钱" }, "levels": ["change"] }
-          ]
-        }
+      "path": ["prefix", "rising", { "parallel": [["stones", "twoorders", "parse"], ["change"]] }],
+      "branches": [
+        { "levels": ["wordbreak", "wordcost", "segment"], "after": ["rising"] },
+        { "levels": ["maxsub"], "after": ["prefix"] }
       ],
-      "topics": [
+      "optional": ["wordbreak", "wordcost", "segment", "maxsub"],
+      "groups": [
+        { "title": { "en": "Intervals", "zh": "区间" }, "levels": ["stones", "twoorders", "parse"] },
+        { "title": { "en": "Change", "zh": "零钱" }, "levels": ["change"] },
         {
-          "id": "words",
-          "code": "W",
-          "after": "rising",
-          "levels": ["wordbreak", "wordcost", "segment"],
           "title": { "en": "Cutting words", "zh": "切单词" },
-          "desc": { "en": "A string with no spaces, cut into dictionary words.", "zh": "一串没有空格的字母，切成词典里的词。" }
+          "levels": ["wordbreak", "wordcost", "segment"],
+          "code": "W"
         }
-      ],
-      "challenges": [{ "level": "maxsub", "after": "prefix" }]
+      ]
     },
     {
       "id": "stack",
       "machine": "stack",
-      "foundation": ["robber", "breach", "keydoor"],
       "chapter": {
         "title": { "en": "When the state falls short", "zh": "状态不够用" },
         "desc": {
@@ -207,39 +174,35 @@
           "zh": "一个数记不住的时候，就多记一件事。"
         }
       },
-      "practice": ["stock1", "cooldown"],
-      "challenges": [{ "level": "ring", "after": "robber" }],
-      "topics": [
+      "path": ["robber", "breach", "keydoor", "stock1", "cooldown"],
+      "branches": [
+        { "levels": ["twokeys", "threekeys", "enough"], "after": ["keydoor"] },
+        { "levels": ["ring"], "after": ["robber"] }
+      ],
+      "optional": ["twokeys", "threekeys", "enough", "ring"],
+      "groups": [
         {
-          "id": "state",
-          "code": "D",
-          "after": "keydoor",
-          "levels": ["twokeys", "threekeys", "enough"],
           "title": { "en": "Designing the state", "zh": "设计状态" },
-          "desc": { "en": "This time, you decide what to remember.", "zh": "该记住什么，这次由你决定。" }
+          "levels": ["twokeys", "threekeys", "enough"],
+          "code": "D"
         }
       ]
     },
     {
       "id": "settle",
       "machine": "loop",
-      "foundation": ["loop"],
       "chapter": {
         "title": { "en": "Scan until it settles", "zh": "扫到不再变" },
         "desc": { "en": "When the arrows loop round, scan again and again.", "zh": "箭头绕成了圈，就一遍一遍地扫。" }
       },
-      "practice": ["value", "arrows"],
-      "topics": [
+      "path": ["loop", "value", "arrows"],
+      "branches": [{ "levels": ["treasure", "slip", "ice"], "after": ["value"] }],
+      "optional": ["treasure", "slip", "ice"],
+      "groups": [
         {
-          "id": "value",
-          "code": "V",
-          "after": "value",
-          "levels": ["treasure", "slip", "ice"],
           "title": { "en": "The grid world", "zh": "格子世界" },
-          "desc": {
-            "en": "The robot hunts for treasure on a grid, and the further it is, the less it is worth.",
-            "zh": "机器人在格子里找宝藏，越远的宝藏越不值钱。"
-          }
+          "levels": ["treasure", "slip", "ice"],
+          "code": "V"
         }
       ]
     }

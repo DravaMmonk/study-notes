@@ -191,7 +191,6 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     gives: (level) => taskOf(level)?.grants ?? [],
     withholds: (level) => taskOf(level)?.withhold ?? [],
     concept: (part) => concept[part] ?? part,
-    naive: (level) => played.get(level.id)?.some((T) => T.naive) ?? false,
     needed: (level) => {
       const boards = solutions(level)
       if (!boards.length) return null

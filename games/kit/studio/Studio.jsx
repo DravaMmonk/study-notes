@@ -662,7 +662,7 @@ export default function Studio() {
             {tab !== 'page' && (
               <div className="studio-scroll">
                 {tab === 'arrange' && (
-                  <Arrangement key={game} content={content} vocabulary={vocab.vocabulary} at={at} options={levelOptions} pending={shown.ops !== ops}
+                  <Arrangement key={game} content={content} at={at} options={levelOptions} pending={shown.ops !== ops}
                     onSelect={select} onConfigure={(era, path) => { select({ era }); pickField(path) }}
                     onEdit={edit} onMove={(id, to) => move([id], to)} />
                 )}

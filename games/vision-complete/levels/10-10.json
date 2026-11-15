@@ -1,5 +1,6 @@
 {
   "title": { "en": "Large and small alike", "zh": "大的小的都要" },
+  "carry": "10-9",
   "tray": "recognition",
   "after": {
     "en": "The same detector finds small things on the original and large things on a shrunken copy, and the results are enlarged back and merged: this is multi-scale detection on an image pyramid. FPN does the same thing inside the network.",

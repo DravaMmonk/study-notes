@@ -1,5 +1,6 @@
 {
   "title": { "en": "Thumbnail service", "zh": "缩略图服务" },
+  "carry": "2-15",
   "tray": "pipeline",
   "after": {
     "en": "A thumbnail service handles thousands of photos a day: low-pass before sampling against aliasing, and shrinking level by level to save work. Assignment 1, comparing the speed of direct convolution, separable convolution and the FFT, does the same accounting.",

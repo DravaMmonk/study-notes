@@ -35,7 +35,7 @@ export function circuitGame(content, circuit, { kind, screen, cards, Hero, Intro
   })
   // The built pieces, in the order the course builds them.
   const built = [...new Set(LEVELS.flatMap((L) => L.unlocks))].map((type) => ({ key: type, piece: type, name: circuit.pieces[type].name, desc: circuit.pieces[type].desc, ...defined({ revisions: circuit.pieces[type].revisions }), icon: CircuitBoard }))
-  const labels = levelLabels(content.eras, { notes: course.notes })
+  const labels = levelLabels(content.eras)
   const game = defineGame({
     id: content.id,
     title: content.title,
