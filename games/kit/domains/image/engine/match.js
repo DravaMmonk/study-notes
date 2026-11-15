@@ -28,20 +28,31 @@ export function rankCandidates(a, point, b, candidates, r) {
 
 // ---------- Hough voting for lines: ρ = x cos θ + y sin θ ----------
 
+function normalAt(theta) {
+  const rad = (theta * Math.PI) / 180
+  return [Math.cos(rad), Math.sin(rad)]
+}
+
+/** Convert a polar line to a unit normal and an offset, retaining its polar coordinates. */
+export function polarLine(theta, rho) {
+  const [nx, ny] = normalAt(theta)
+  return { nx, ny, c: rho, theta, rho }
+}
+
+/** A point along a line's tangent with an optional offset from that line. */
+export function pointAlongLine({ nx, ny, c }, along, offset = 0) {
+  return [nx * (c + offset) - ny * along, ny * (c + offset) + nx * along]
+}
+
 export function houghAccumulate(points, dTheta, dRho, rhoMax) {
   const nT = Math.round(180 / dTheta)
   const nR = Math.ceil((2 * rhoMax) / dRho)
   const votes = new Float32Array(nT * nR)
-  const cos = []
-  const sin = []
-  for (let t = 0; t < nT; t++) {
-    const theta = (((t + 0.5) * dTheta) * Math.PI) / 180
-    cos.push(Math.cos(theta))
-    sin.push(Math.sin(theta))
-  }
+  const normals = Array.from({ length: nT }, (_, t) => normalAt((t + 0.5) * dTheta))
   for (const [x, y] of points) {
     for (let t = 0; t < nT; t++) {
-      const r = Math.floor((x * cos[t] + y * sin[t] + rhoMax) / dRho)
+      const [nx, ny] = normals[t]
+      const r = Math.floor((x * nx + y * ny + rhoMax) / dRho)
       if (r >= 0 && r < nR) votes[r * nT + t] += 1
     }
   }
@@ -104,7 +115,7 @@ function normalForm(nx, ny, c) {
     theta -= 180
     rho = -rho
   }
-  return { nx: Math.cos((theta * Math.PI) / 180), ny: Math.sin((theta * Math.PI) / 180), c: rho, theta, rho }
+  return polarLine(theta, rho)
 }
 
 export function lineThrough([x1, y1], [x2, y2]) {
@@ -147,6 +158,7 @@ export const distanceToLine = (line, [x, y]) => Math.abs(line.nx * x + line.ny *
 
 // k rounds: sample 2 points, count points within δ, keep the best, then refit on its inliers.
 export function ransacLine(points, k, delta, next) {
+  if (points.length < 2) return null
   let best = null
   let bestCount = -1
   let bestSample = null
@@ -268,6 +280,25 @@ export function homographyDLT(pairs) {
   const H = mul3(mul3(inverse, h), T1)
   const scale = Math.abs(H[8]) > 1e-12 ? H[8] : 1
   return H.map((v) => v / scale)
+}
+
+/** Refit the best four-pair consensus, or use every pair directly at zero rounds. */
+export function robustHomography(pairs, rounds, next) {
+  if (pairs.length < 4) return null
+  if (!rounds) return homographyDLT(pairs)
+  let best = []
+  for (let round = 0; round < rounds; round++) {
+    const pick = new Set()
+    while (pick.size < 4) pick.add(Math.floor(next() * pairs.length))
+    const H = homographyDLT([...pick].map((i) => pairs[i]))
+    if (!H) continue
+    const inliers = pairs.filter(({ from, to }) => {
+      const [x, y] = project(H, ...from)
+      return Math.hypot(x - to[0], y - to[1]) < 1.5
+    })
+    if (inliers.length > best.length) best = inliers
+  }
+  return homographyDLT(best)
 }
 
 // Affine: u = a x + b y + c, v = d x + e y + f. Three pairs fix it exactly (least squares for more).

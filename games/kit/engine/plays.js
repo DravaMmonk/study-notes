@@ -42,7 +42,8 @@ export const PLAY = S.by('editor', {
     outputs: circuit('outputs', { checks: S.oneOf(['afterPass']) }),
   }),
   workshop: S.obj({
-    editor: S.oneOf(['workshop']), judge: S.oneOf(['exercise']), resources: S.str(), layout: S.str(), pinOnPhone: S.bool(),
+    editor: S.oneOf(['workshop']), judge: S.oneOf(['parameters', 'gridProbe']),
+    resources: S.str(), layout: S.str(), pinOnPhone: S.bool(),
   }),
   tree: S.obj({ ...fields, editor: S.oneOf(['tree']), judge: S.oneOf(['once', 'check']) }),
   values: S.obj({ ...fields, editor: S.oneOf(['values']), judge: S.oneOf(['table']) }),

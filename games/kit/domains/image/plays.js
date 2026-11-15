@@ -8,6 +8,6 @@ export const plays = definePlays({
     checks: 'afterPass',
     layout: 'level-graph',
   },
-  board: { editor: 'workshop', judge: 'exercise', resources: 'parameters', layout: 'level-board', pinOnPhone: true },
-  probe: { editor: 'workshop', judge: 'exercise', resources: 'probe', layout: 'level-probe', pinOnPhone: true },
+  board: { editor: 'workshop', judge: 'parameters', resources: 'parameters', layout: 'level-board', pinOnPhone: true },
+  probe: { editor: 'workshop', judge: 'gridProbe', resources: 'probe', layout: 'level-probe', pinOnPhone: true },
 })

@@ -2,30 +2,20 @@
 // when, in every scene, the two strongest peaks are the scene's two lines.
 import { S } from '../../../engine/schema.js'
 import { benchRun } from '../../../engine/bench.js'
-import { random } from '../engine/image.js'
-import { houghAccumulate, houghPeaks, lineGap } from '../engine/match.js'
+import { approximateNormal, random } from '../engine/image.js'
+import { houghAccumulate, houghPeaks, lineGap, pointAlongLine, polarLine } from '../engine/match.js'
 import { T as t } from '../../../shell/i18n.js'
 
-
-const gauss = (next) => {
-  let s = 0
-  for (let i = 0; i < 6; i++) s += next()
-  return (s - 3) * Math.SQRT2
-}
 
 /** Points along `lines` ({ theta°, rho, n, from?, to? }) with noise `sigma`, plus `outliers` scattered points. */
 export function houghScene(seed, lines, outliers, sigma = 0.7) {
   const next = random(seed)
   const points = []
   for (const { theta, rho, n, from = -22, to = 22 } of lines) {
-    const t = (theta * Math.PI) / 180
-    const nx = Math.cos(t)
-    const ny = Math.sin(t)
+    const line = polarLine(theta, rho)
     for (let i = 0; i < n; i++) {
       const s = from + ((to - from) * (i + next())) / n
-      const e = gauss(next) * sigma
-      const x = nx * (rho + e) - ny * s
-      const y = ny * (rho + e) + nx * s
+      const [x, y] = pointAlongLine(line, s, approximateNormal(next) * sigma)
       if (Math.abs(x) <= 24 && Math.abs(y) <= 24) points.push([x, y])
     }
   }

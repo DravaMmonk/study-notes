@@ -1,6 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { X } from 'lucide-react'
-import { pixelUrl } from './matchDraw.js'
+import { pixelUrl } from '../../../../views/canvas.js'
 import { L, tr } from '../../../../shell/i18n.js'
 import { clientToSvg, svgToClient } from '../../../../views/svg-point.js'
 import { useElementSize } from '../../../../views/useElementSize.js'

@@ -1,5 +1,5 @@
 import { tr } from '../../shell/i18n.js'
-import { mix, rgba, token, useCanvas } from './paint.js'
+import { mix, rgba, token, useCanvas } from '../canvas.js'
 import { rangeOf } from './range.js'
 
 // A grey grid as a map (the view `slope`, games/DESIGN.md 6.9): the picture faded, contour lines of equal value, and

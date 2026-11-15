@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
-// What the canvas views share (Surface, Slope, Spectrum): the theme's colours as numbers, and a canvas drawn at the
-// screen's pixel density, drawn again when the theme changes.
+// Theme colours and canvas writes shared by plots, raster previews and interactive displays.
 
 /** A colour token as [r, g, b]. */
 export function token(name) {
@@ -12,6 +11,23 @@ export function token(name) {
 }
 export const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t)
 export const rgba = (c, alpha = 1) => `rgba(${c.map((v) => Math.round(Math.max(0, Math.min(255, v)))).join(',')},${alpha})`
+
+/** Fill an existing canvas in its native pixel coordinates with RGBA bytes. */
+export function paintPixels(canvas, paint) {
+  const ctx = canvas.getContext('2d')
+  const pixels = ctx.createImageData(canvas.width, canvas.height)
+  paint(pixels.data)
+  ctx.putImageData(pixels, 0, 0)
+}
+
+/** Encode freshly painted RGBA pixels for use in an SVG image. */
+export function pixelUrl(w, h, paint) {
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  paintPixels(canvas, paint)
+  return canvas.toDataURL()
+}
 
 /** A ref for a `width` × `height` canvas that `draw(ctx)` paints in CSS pixels whenever `deps` or the theme change. */
 export function useCanvas(draw, width, height, deps) {

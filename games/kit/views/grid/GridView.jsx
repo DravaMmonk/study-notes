@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { cellNumber, display, pixel } from '../../engine/grid.js'
+import { paintPixels } from '../canvas.js'
 import { AXIS, numberSize } from './layout.js'
 
 // A grid value (../../../engine/grid.js) drawn cell by cell: each cell its grey or colour (values clipped to [0, 1] for
@@ -52,20 +53,17 @@ export function GridPicture({ value, scale = 5, label, range, decorative = false
   const canvas = useRef(null)
   const lo = range?.lo ?? 0
   const hi = range?.hi ?? 1
-  useEffect(() => {
-    const ctx = canvas.current.getContext('2d')
-    const out = ctx.createImageData(value.w, value.h)
+  useEffect(() => paintPixels(canvas.current, (pixels) => {
     const colour = value.c === 3
     for (let k = 0; k < value.w * value.h; k++) {
       const i = k * 4
       const v = colour ? byte(value.data[k * 3], 0, 1) : byte(value.data[k], lo, hi)
-      out.data[i] = v
-      out.data[i + 1] = colour ? byte(value.data[k * 3 + 1], 0, 1) : v
-      out.data[i + 2] = colour ? byte(value.data[k * 3 + 2], 0, 1) : v
-      out.data[i + 3] = 255
+      pixels[i] = v
+      pixels[i + 1] = colour ? byte(value.data[k * 3 + 1], 0, 1) : v
+      pixels[i + 2] = colour ? byte(value.data[k * 3 + 2], 0, 1) : v
+      pixels[i + 3] = 255
     }
-    ctx.putImageData(out, 0, 0)
-  }, [value, lo, hi])
+  }), [value, lo, hi])
   const style = scale === null ? undefined : { width: value.w * scale, height: value.h * scale }
   return <canvas ref={canvas} className="gv-picture" width={value.w} height={value.h} style={style}
     role={decorative ? undefined : 'img'} aria-hidden={decorative || undefined} aria-label={decorative ? undefined : label ?? `${value.w} × ${value.h}`} />

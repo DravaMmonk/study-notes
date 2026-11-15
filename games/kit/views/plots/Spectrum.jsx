@@ -1,5 +1,5 @@
 import { tr } from '../../shell/i18n.js'
-import { mix, rgba, token, useCanvas } from './paint.js'
+import { mix, rgba, token, useCanvas } from '../canvas.js'
 import Plot from './Plot.jsx'
 import { centreBins, spectrumOf } from './spectrum.js'
 

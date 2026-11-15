@@ -1,21 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { tokenColour } from './matchDraw.js'
+import { finiteExtent } from '../../../../engine/number.js'
 import { tr } from '../../../../shell/i18n.js'
+import { mix, paintPixels, token } from '../../../../views/canvas.js'
 import { useElementSize } from '../../../../views/useElementSize.js'
+import { pointAlongLine, polarLine } from '../../engine/match.js'
+import { linePath } from './matchDraw.js'
 import './match.css'
 
 // The voting bench's two pictures (bench model `hough`), for the case on show: the edge points with the two lines to
 // find and the two strongest peaks drawn back as lines, and the (θ, ρ) accumulator, whole or zoomed to where the
 // bins show. The accumulator is a raster with an overlay no plot can draw.
-
-function linePath(theta, rho, reach = 40) {
-  const t = (theta * Math.PI) / 180
-  const c = Math.cos(t)
-  const s = Math.sin(t)
-  const x0 = rho * c
-  const y0 = rho * s
-  return `M${x0 + s * reach} ${y0 - c * reach} L${x0 - s * reach} ${y0 + c * reach}`
-}
 
 const NAMES = ['A', 'B']
 const ASPECT = 180 / 68 // degrees per ρ pixel of the full accumulator view, kept when zoomed
@@ -58,23 +52,26 @@ export function HoughPlanes({ ctx }) {
     const H = zoom ? 360 : nR
     node.width = W
     node.height = H
-    const context = node.getContext('2d')
-    const pixels = context.createImageData(W, H)
-    const lo = tokenColour('--paper', [251, 250, 246])
-    const hi = tokenColour('--ink', [40, 40, 36])
-    const max = Math.max(1, ...votes)
-    for (let y = 0; y < H; y++) {
-      const rho = view.r1 - ((y + 0.5) / H) * (view.r1 - view.r0)
-      const r = Math.floor((rho + rhoMax) / dRho)
-      for (let x = 0; x < W; x++) {
-        const theta = view.t0 + ((x + 0.5) / W) * (view.t1 - view.t0)
-        const t = Math.floor(theta / dTheta)
-        const v = t >= 0 && t < nT && r >= 0 && r < nR ? votes[r * nT + t] : 0
-        const f = Math.sqrt(v / max)
-        pixels.data.set([0, 1, 2].map((k) => Math.round(lo[k] + (hi[k] - lo[k]) * f)).concat(255), (y * W + x) * 4)
+    const lo = token('--paper')
+    const hi = token('--ink')
+    const max = Math.max(1, finiteExtent([votes])?.hi ?? 0)
+    paintPixels(node, (pixels) => {
+      for (let y = 0; y < H; y++) {
+        const rho = view.r1 - ((y + 0.5) / H) * (view.r1 - view.r0)
+        const r = Math.floor((rho + rhoMax) / dRho)
+        for (let x = 0; x < W; x++) {
+          const theta = view.t0 + ((x + 0.5) / W) * (view.t1 - view.t0)
+          const t = Math.floor(theta / dTheta)
+          const votesHere = t >= 0 && t < nT && r >= 0 && r < nR ? votes[r * nT + t] : 0
+          const [red, green, blue] = mix(lo, hi, Math.sqrt(votesHere / max))
+          const at = (y * W + x) * 4
+          pixels[at] = Math.round(red)
+          pixels[at + 1] = Math.round(green)
+          pixels[at + 2] = Math.round(blue)
+          pixels[at + 3] = 255
+        }
       }
-    }
-    context.putImageData(pixels, 0, 0)
+    })
   }, [run, ctx.theme, view, zoom, dTheta, dRho, rhoMax])
 
   // The accumulator overlay works in CSS px (its viewBox is the box's own size), so markers and labels keep one
@@ -84,6 +81,7 @@ export function HoughPlanes({ ctx }) {
   const ax = (theta) => ((theta - view.t0) / (view.t1 - view.t0)) * aw
   const ay = (rho) => ((view.r1 - rho) / (view.r1 - view.r0)) * ah
   const top = run.peaks.slice(0, 2)
+  const targets = scene.lines.map(({ theta, rho }) => polarLine(theta, rho))
   const fmt = (v) => String(Math.abs(v - Math.round(v)) < 0.05 ? Math.round(v) : v.toFixed(1)).replace('-', '−')
 
   return (
@@ -96,14 +94,13 @@ export function HoughPlanes({ ctx }) {
           </defs>
           <rect className="mb-frame" x={-25} y={-25} width={50} height={50} />
           <g clipPath="url(#mb-hough-clip)">
-            {scene.lines.map((line, i) => <path key={`t${i}`} className="mb-target" d={linePath(line.theta, line.rho)} />)}
+            {targets.map((line, i) => <path key={`t${i}`} className="mb-target" d={linePath(line)} />)}
             {scene.points.map(([x, y], i) => <circle key={i} className="mb-dot" cx={x} cy={y} r={0.55} />)}
-            {top.map((p, i) => <path key={`p${i}`} className={`mb-found ${run.found.includes(i) ? '' : 'is-wrong'}`} d={linePath(p.theta, p.rho)} />)}
+            {top.map((p, i) => <path key={`p${i}`} className={`mb-found ${run.found.includes(i) ? '' : 'is-wrong'}`} d={linePath(polarLine(p.theta, p.rho))} />)}
           </g>
-          {scene.lines.map((line, i) => {
-            const t = (line.theta * Math.PI) / 180
-            const s = i ? -19 : 19
-            return <text key={`n${i}`} className="mb-line-name" x={line.rho * Math.cos(t) - Math.sin(t) * s} y={line.rho * Math.sin(t) + Math.cos(t) * s}>{NAMES[i]}</text>
+          {targets.map((line, i) => {
+            const [x, y] = pointAlongLine(line, i ? -19 : 19)
+            return <text key={`n${i}`} className="mb-line-name" x={x} y={y}>{NAMES[i]}</text>
           })}
         </svg>
         <figcaption className="bk-caption">{tr('虚线 A、B 是要找的两条线；实线是票数最高的两个峰（红色：未匹配）')}</figcaption>
