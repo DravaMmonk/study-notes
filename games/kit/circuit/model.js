@@ -25,6 +25,9 @@
 //   frames?(node) → [{ name, label, opens }] the regions of a frame (frames.js)
 //   outputs?(node) → [{ key, label, short?, glyph? }] a node with several outputs, or null for one; an output
 //                                          goes by its glyph (SVG markup) when it has one, else by its short name
+//   text?: { sets?(node), read?(node, key, value), opens?(node, key) }   as text (text.js): the settings a given
+//                                          node's statement may write, a setting read back, and the settings of a given
+//                                          node switched on to give output `key` a wire reads (null when it cannot)
 import { cardColumns, slotColumns, slotWidth } from './card-size.js'
 import { SLOT_GUTTER } from './slot-metrics.js'
 import { wouldCycle } from '../graph.js'

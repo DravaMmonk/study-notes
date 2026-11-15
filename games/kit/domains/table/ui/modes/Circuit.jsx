@@ -120,7 +120,7 @@ export default function Circuit({ game, level, saved, save, solve, fail, lastRun
   const offered = (card) => s.given.offers[card]
   const avail = [...offered('view'), ...offered('facts')]
   /** The port inputs of the part this task builds, by id, for the editor's labels. */
-  const terms = { sensors: V.sensors, outs: V.outs, ports: Object.fromEntries(s.ports.filter((p) => p.input).map((p) => [p.input, { label: p.label, short: p.short }])) }
+  const terms = { sensors: V.sensors, outs: V.outs, offers: s.given.offers, ports: Object.fromEntries(s.ports.filter((p) => p.input).map((p) => [p.input, { label: p.label, short: p.short }])) }
 
   // What is on the test board now: the sandbox (typed numbers, the robot where the player put it, its answer computed
   // live), or the step of the run being shown.

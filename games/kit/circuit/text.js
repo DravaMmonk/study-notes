@@ -384,6 +384,10 @@ export function read(text, graph, parts, types) {
       continue
     }
     const from = byId(out, srcNode(w.from))
+    // A given node that can read what the wire takes but is not reading it yet (a sensor not switched on) is
+    // switched on for it, as when the wire is drawn.
+    const opened = from && !placed(parts, from) && !outputsOf(parts, from).some((o) => o.key === srcKey(w.from)) && parts.text?.opens?.(from, srcKey(w.from))
+    if (opened) from.params = opened
     const keys = from ? outputsOf(parts, from).map((o) => o.key) : []
     if (!from || !keys.includes(srcKey(w.from))) {
       errors.push(say(w.line, from ? `「${srcNode(w.from)}」没有输出「${srcKey(w.from) ?? ''}」。` : `没有叫「${srcNode(w.from)}」的元件。`, from ? `“${srcNode(w.from)}” has no output “${srcKey(w.from) ?? ''}”.` : `There is no node called “${srcNode(w.from)}”.`))

@@ -101,3 +101,22 @@ test('a setting called value is a setting like any other', () => {
 test('parse keeps what it reads apart from the board', () => {
   assert.deepEqual(parse('x = and(_, y.k)'), { statements: [{ id: 'x', type: 'and', settings: {}, in: null, line: 1 }], wires: [{ from: 'y#k', to: 'x', port: 1, line: 1, by: 0 }] })
 })
+
+test('a given node a wire reads is switched on to give it, when the game says it can', () => {
+  // A given card with outputs it reads only once switched on (params.on), offering sun and rain.
+  const card = { id: 'sky', type: 'sky', params: { on: [] }, x: 20, y: 280 }
+  const sky = {
+    ...parts,
+    role: (n) => (n.type === 'sky' ? 'source' : parts.role(n)),
+    inputs: (n) => (n.type === 'sky' ? [] : parts.inputs(n)),
+    outputs: (n) => (n.type === 'sky' ? n.params.on.map((key) => ({ key })) : parts.outputs(n)),
+    text: { ...parts.text, sets: (n) => (n.type === 'sky' ? ['on'] : []), opens: (n, key) => (['sun', 'rain'].includes(key) ? { on: ['sun', 'rain'].filter((k) => k === key || n.params.on.includes(k)) } : null) },
+  }
+  const fresh = { nodes: [...given, card], wires: [] }
+  const { graph, errors } = read('a = and(sky.rain, sky.sun)\nout <- a', fresh, sky, TYPES)
+  assert.equal(errors, undefined)
+  assert.deepEqual(graph.nodes.find((n) => n.id === 'sky').params, { on: ['sun', 'rain'] })
+  assert.deepEqual(shape(graph).wires, ['a>out.in', 'sky#rain>a.a', 'sky#sun>a.b'])
+  assert.deepEqual(card.params, { on: [] }, 'the board on screen is left as it was')
+  assert.deepEqual(read('a = and(sky.snow, Rain)', fresh, sky, TYPES).errors.map((e) => e.en), ['Line 1: “sky” has no output “snow”.'])
+})

@@ -40,7 +40,7 @@ const circuit = circuitPlay({
     const s = ctx.level.source
     const V = WORLDS[s.world]
     const allowed = ctx.game.table.usableIn(s, ctx.flags)
-    return { start: opening(ctx), parts: wiring(ctx.game.table.model, { sensors: V.sensors, outs: V.outs }), types: s.palette.filter((k) => allowed.has(k)) }
+    return { start: opening(ctx), parts: wiring(ctx.game.table.model, { sensors: V.sensors, outs: V.outs, offers: s.given.offers }), types: s.palette.filter((k) => allowed.has(k)) }
   },
   part: (ctx, type) => {
     const d = ctx.game.table.model.def(type)
