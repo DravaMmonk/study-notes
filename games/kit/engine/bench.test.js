@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { S, validate } from './schema.js'
 import { defineVocabulary } from './vocabulary.js'
-import { benchSchema, displayItems, formatValue, judge, knobStart, knobValues, needText, openKnobs, passingSettings, rowValue, startValues } from './bench.js'
+import { benchRun, benchSchema, displayItems, formatValue, judge, knobStart, knobValues, needText, openKnobs, passingSettings, rowValue, startValues } from './bench.js'
 
 const BENCH = {
   knobs: {
@@ -54,10 +54,32 @@ test('the judge: every limit must hold; near measures the distance, abs the size
 })
 
 test('passing settings run over a stage’s open knobs and write each as its values', () => {
-  const bench = { knobs: { a: { min: 0, max: 3, step: 1 }, b: { min: 0, max: 2, step: 1 } }, goal: [{ of: 'sum', atLeast: 4 }] }
-  const quantities = (v) => ({ sum: v.a + v.b })
-  assert.deepEqual(passingSettings(bench, { opens: ['a', 'b'] }, quantities), ['2×2', '3×1', '3×2'])
-  assert.deepEqual(passingSettings(bench, { opens: ['a'], start: { b: 1 } }, quantities), ['3'])
+  const bench = {
+    knobs: { a: { min: 0, max: 3, step: 1 }, b: { min: 0, max: 2, step: 1 } },
+    stages: [{ opens: ['a', 'b'] }, { opens: ['a'], start: { b: 1 } }],
+    goal: [{ of: 'sum', atLeast: 4 }],
+  }
+  const model = { view: (v) => ({ sum: v.a + v.b }) }
+  assert.deepEqual(passingSettings(bench, model, 0), ['2×2', '3×1', '3×2'])
+  assert.deepEqual(passingSettings(bench, model, 1), ['3'])
+})
+
+test('a bench applies its stage goal to each case with the same process and the case’s own budget', () => {
+  const bench = {
+    ...BENCH,
+    cases: [{ budget: 2 }, { budget: 3 }],
+    stages: [{}, { opens: ['k'], goal: [{ of: 'over', atMost: 0 }, { of: 'a', is: 0 }] }],
+  }
+  const model = {
+    start: () => 1,
+    view: (values, ctx) => ({ over: values.k[ctx.caseIndex] + ctx.process - ctx.case.budget, open: ctx.open, running: ctx.running }),
+  }
+  const values = startValues(bench)
+  const report = benchRun(bench, model, values, { stageIndex: 1, running: 2 })
+  assert.deepEqual(report.views, [{ over: 1, open: ['k'], running: 2 }, { over: 0, open: ['k'], running: 2 }])
+  assert.deepEqual(report.verdicts.map(({ pass }) => pass), [false, true])
+  assert.equal(report.pass, false)
+  assert.equal(benchRun(bench, model, values, { stageIndex: 1, process: 0 }).pass, true)
 })
 
 test('numbers and thresholds as a goal row writes them', () => {

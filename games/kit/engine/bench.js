@@ -201,15 +201,27 @@ export function judge(limits = [], quantities = {}) {
 /** The goal a stage is judged by: its own, or the bench's. */
 export const goalOf = (bench, stage = null) => stage?.goal ?? bench.goal ?? []
 
+/** Evaluate the same stage and cases for the player and for the author's check. */
+export function benchRun(bench, model, values, { stageIndex = 0, process = model.start?.() ?? null, running = 0 } = {}) {
+  const stage = bench.stages?.[stageIndex] ?? null
+  const ctx = { stage, stageIndex, open: openKnobs(bench, stage), process, running }
+  const views = bench.cases
+    ? bench.cases.map((c, caseIndex) => model.view(values, { ...ctx, case: c, caseIndex }))
+    : [model.view(values, ctx)]
+  const limits = goalOf(bench, stage)
+  const verdicts = views.map((view) => judge(limits, { ...values, ...view }))
+  return { views, verdicts, pass: verdicts.every((verdict) => verdict.pass) }
+}
+
 /**
  * Every setting of a stage's open knobs (or of `open`; the others at the stage's start) that meets its goal, each
- * written as its values joined by ×, so a check can compare them with the answers a stage means. quantities(values)
- * is the model's.
+ * written as its values joined by ×, so a check can compare them with the answers a stage means.
  */
-export function passingSettings(bench, stage, quantities, open = openKnobs(bench, stage)) {
+export function passingSettings(bench, model, stageIndex = 0, open = openKnobs(bench, bench.stages?.[stageIndex])) {
+  const stage = bench.stages?.[stageIndex]
   let settings = [startValues(bench, stage)]
   for (const name of open) settings = settings.flatMap((v) => knobValues(bench.knobs[name]).map((x) => ({ ...v, [name]: x })))
-  return settings.filter((v) => judge(goalOf(bench, stage), { ...v, ...quantities(v) }).pass).map((v) => open.map((name) => v[name]).join('×'))
+  return settings.filter((v) => benchRun(bench, model, v, { stageIndex }).pass).map((v) => open.map((name) => v[name]).join('×'))
 }
 
 /** The limit of a goal on one quantity (a model may read its own goal: the rounds a sprint needs, a collapse line). */

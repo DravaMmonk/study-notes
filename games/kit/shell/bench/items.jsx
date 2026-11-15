@@ -1,5 +1,5 @@
 import { ArrowRight, Check, Circle, RotateCcw, X } from 'lucide-react'
-import { formatValue, knobKind, knobStart, needText, rowValue } from '../../engine/bench.js'
+import { formatValue, knobKind, needText, rowValue } from '../../engine/bench.js'
 import { L, keyOf, tr } from '../i18n.js'
 import { useMark } from '../edit.js'
 import TestTabs from '../TestTabs.jsx'
@@ -75,7 +75,7 @@ function Knobs({ params, ctx }) {
 
 function Actions({ params, ctx }) {
   const actions = (ctx.bench.actions ?? []).map((a, i) => [a, i]).filter(([, i]) => !params.only || params.only.includes(i))
-  const atStart = (a) => a.reset.every((k) => JSON.stringify(ctx.values[k]) === JSON.stringify(knobStart(ctx.bench.knobs[k])))
+  const atStart = (a) => a.reset.every((k) => JSON.stringify(ctx.values[k]) === JSON.stringify(ctx.start[k]))
   return (
     <div className="bk-row bench-actions">
       {actions.map(([a, i]) => (
@@ -112,7 +112,7 @@ function Verdict({ params, ctx }) {
   return (
     <div className="bench-next">
       {verdict}
-      {!ctx.externalControls && ctx.passed[ctx.stageIndex] && ctx.stageIndex < ctx.stages.length - 1 && <button type="button" className="bk-btn is-primary" onClick={ctx.next}>{tr('下一步')} <ArrowRight size={15} /></button>}
+      {ctx.passed[ctx.stageIndex] && ctx.stageIndex < ctx.stages.length - 1 && <button type="button" className="bk-btn is-primary" onClick={ctx.next}>{tr('下一步')} <ArrowRight size={15} /></button>}
     </div>
   )
 }
@@ -133,7 +133,7 @@ function Goals({ params, ctx }) {
             </li>
           ))}
         </ul>
-        {!ctx.externalControls && <button type="button" className="bk-btn is-primary" onClick={ctx.check}>{tr('检查这个设置')}</button>}
+        <button type="button" className="bk-btn is-primary" onClick={ctx.check}>{tr('检查这个设置')}</button>
       </div>
     )
   }

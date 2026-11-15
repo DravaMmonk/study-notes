@@ -2,7 +2,7 @@
 // stacked up (sum), a probe that multiplies the row by a wave and averages (probe), and sampling (alias). Each is a
 // bench model (../../../engine/bench.js): what it computes from the knobs, for the bench's displays and its goal.
 import { S } from '../../../engine/schema.js'
-import { goalOf, judge, limitOf, openKnobs, passingSettings, startValues } from '../../../engine/bench.js'
+import { benchRun, limitOf, openKnobs, passingSettings, startValues } from '../../../engine/bench.js'
 import { piText } from '../engine/pi.js'
 import { aliasOf, cosine, maxDiff, sampleAt, throughSamples } from '../engine/waves.js'
 import { T as t } from '../../../shell/i18n.js'
@@ -46,7 +46,7 @@ export const wave = {
   verify(model, bench) {
     for (const [i, s] of bench.stages.entries()) {
       const start = startValues(bench, s)
-      if (judge(goalOf(bench, s), model.view(start, { stage: s, open: [] })).pass) return `第 ${i + 1} 步一开始就算完成`
+      if (benchRun(bench, model, start, { stageIndex: i }).pass) return `第 ${i + 1} 步一开始就算完成`
       for (const [knob, { min, max, step }] of Object.entries(bench.knobs)) {
         for (const v of [start[knob], s.target[knob]]) {
           if (v < min || v > max || Math.abs(min + Math.round((v - min) / step) * step - v) > 1e-9) return `第 ${i + 1} 步的 ${knob} = ${v} 不在刻度上`
@@ -70,7 +70,6 @@ export const sum = {
     const amplitudes = (v) => ks.map((k) => v[`k${k}`])
     const tolerance = limitOf(bench.goal, 'gap').atMost
     return {
-      gap: (amps, target) => largestGap(row(amps), row(target)),
       view(v, { stage }) {
         const amps = amplitudes(v)
         const gap = largestGap(row(amps), row(stage.target))
@@ -89,17 +88,24 @@ export const sum = {
   },
   verify(model, bench) {
     const { ks } = bench.setup
-    const { step, max } = bench.knobs[`k${ks[0]}`]
-    const tolerance = limitOf(bench.goal, 'gap').atMost
+    const names = ks.map((k) => `k${k}`)
+    const valuesOf = (amps) => Object.fromEntries(names.map((name, i) => [name, amps[i]]))
+    const passes = (stageIndex, v) => benchRun(bench, model, v, { stageIndex }).pass
     for (const [i, s] of bench.stages.entries()) {
-      if (model.gap(ks.map(() => 0), s.target) <= tolerance) return `第 ${i + 1} 步一开始就算完成`
-      const nearest = s.target.map((a) => Math.round(a / step) * step)
-      if (model.gap(nearest, s.target) > tolerance) return `第 ${i + 1} 步在刻度上调不到`
-      if (s.target.some((a) => a > max)) return `第 ${i + 1} 步的振幅超出旋钮范围`
+      const start = startValues(bench, s)
+      if (passes(i, start)) return `第 ${i + 1} 步一开始就算完成`
+      const open = openKnobs(bench, s)
+      const nearest = s.target.map((a, index) => {
+        const name = names[index]
+        const { min, step } = bench.knobs[name]
+        return open.includes(name) ? min + Math.round((a - min) / step) * step : start[name]
+      })
+      if (!passes(i, { ...start, ...valuesOf(nearest) })) return `第 ${i + 1} 步在刻度上调不到`
+      if (s.target.some((a, index) => a > bench.knobs[names[index]].max)) return `第 ${i + 1} 步的振幅超出旋钮范围`
     }
     // Leaving out the high odd waves must not pass: the steep edge is the point.
     const edge = bench.stages.at(-1).target
-    if (model.gap(edge.map((a, i) => (i < 3 ? a : 0)), edge) <= tolerance) return '只用频率 1 和 3 就叠出了方波'
+    if (passes(bench.stages.length - 1, valuesOf(edge.map((a, i) => (i < 3 ? a : 0))))) return '只用频率 1 和 3 就叠出了方波'
     return ''
   },
 }
@@ -163,10 +169,9 @@ export const probe = {
   // Every step must start unsolved and be solved by exactly the answers it means.
   verify(model, bench) {
     for (const [i, s] of bench.stages.entries()) {
-      const quantities = (v) => model.view(v, { stage: s })
       const start = startValues(bench, s)
-      if (judge(goalOf(bench, s), { ...start, ...quantities(start) }).pass) return `第 ${i + 1} 步一开始就算完成`
-      const answers = passingSettings(bench, s, quantities, s.kind === 'combine' ? ['pick'] : openKnobs(bench, s))
+      if (benchRun(bench, model, start, { stageIndex: i }).pass) return `第 ${i + 1} 步一开始就算完成`
+      const answers = passingSettings(bench, model, i, s.kind === 'combine' ? ['pick'] : undefined)
       if (answers.join() !== s.answers) return `第 ${i + 1} 步的答案是 ${answers.join('、')}，不是 ${s.answers}`
     }
     return ''
@@ -265,9 +270,8 @@ export const alias = {
   verify(model, bench) {
     for (const [i, s] of bench.stages.entries()) {
       const start = startValues(bench, s)
-      const quantities = (v) => model.view(v, { stage: s })
-      if (judge(goalOf(bench, s), { ...start, ...quantities(start) }).pass) return '有一步一开始就算完成'
-      const found = passingSettings(bench, s, quantities)
+      if (benchRun(bench, model, start, { stageIndex: i }).pass) return '有一步一开始就算完成'
+      const found = passingSettings(bench, model, i)
       if (found.join() !== s.answers) return `第 ${i + 1} 步的答案是 ${found.join('、')}`
     }
     for (const [k, M, as] of bench.setup.folds) if (model.aliasOf(k, M) !== as) return '折回的频率不对'

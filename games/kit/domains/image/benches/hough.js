@@ -1,7 +1,7 @@
 // The Hough voting bench: edge points vote for every line (θ, ρ) through them; the player picks a bin size and wins
 // when, in every scene, the two strongest peaks are the scene's two lines.
 import { S } from '../../../engine/schema.js'
-import { judge } from '../../../engine/bench.js'
+import { benchRun } from '../../../engine/bench.js'
 import { random } from '../engine/image.js'
 import { houghAccumulate, houghPeaks, lineGap } from '../engine/match.js'
 import { T as t } from '../../../shell/i18n.js'
@@ -91,7 +91,6 @@ export const hough = {
     const m = houghBench({ scenes, steps, rhoMax, tol })
     return {
       ...m,
-      passesAll: (step) => scenes.every((scene) => judge(bench.goal, m.run(scene, step)).pass),
       view(v, { caseIndex }) {
         const scene = scenes[caseIndex]
         const run = m.run(scene, v.bin)
@@ -117,9 +116,9 @@ export const hough = {
       },
     }
   },
-  verify(model) {
+  verify(model, bench) {
     const { steps, rhoMax } = model
-    const pattern = steps.map((_, step) => model.passesAll(step))
+    const pattern = steps.map((_, bin) => benchRun(bench, model, { bin }).pass)
     if (!pattern.some(Boolean)) return 'no bin size passes every scene'
     if (pattern[0] || pattern[1]) return 'the finest bins pass'
     if (pattern.at(-1) || pattern.at(-2)) return 'the coarsest bins pass'

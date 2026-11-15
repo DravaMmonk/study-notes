@@ -3,7 +3,7 @@
 // falling while the error on new samples (validation) turns and rises. A penalty λ·Σw² (all but the constant) is the
 // other way to stop it.
 import { S } from '../../../engine/schema.js'
-import { goalOf, judge } from '../../../engine/bench.js'
+import { benchRun, startValues } from '../../../engine/bench.js'
 import { T as t } from '../../../shell/i18n.js'
 
 
@@ -134,11 +134,10 @@ export const stop = {
     const bottom = valid.indexOf(Math.min(...valid))
     if (bottom === 0 || bottom === run.length - 1) return '验证误差没有先降后升'
     if (run.at(-1).train >= run[bottom].train) return '训练误差没有一直下降'
-    const [byStep, byLambda] = bench.stages
-    const passes = (stage, v) => judge(goalOf(bench, stage), model.view({ step: 0, lambda: 0, ...v }, { open: stage.opens })).pass
-    if (passes(byStep, { step: 0 }) || passes(byStep, { step: run.length - 1 })) return '一开始或训练到底也能过'
+    const passes = (stageIndex, values) => benchRun(bench, model, { ...startValues(bench, bench.stages[stageIndex]), ...values }, { stageIndex }).pass
+    if (passes(0, { step: 0 }) || passes(0, { step: run.length - 1 })) return '一开始或训练到底也能过'
     const lambdas = bench.knobs.lambda.values
-    const good = lambdas.map((_, i) => i).filter((i) => passes(byLambda, { lambda: i }))
+    const good = lambdas.map((_, i) => i).filter((i) => passes(1, { lambda: i }))
     if (!good.length || good.includes(0) || good.includes(lambdas.length - 1)) return 'λ 的两端也能过，或者都不能过'
     return ''
   },

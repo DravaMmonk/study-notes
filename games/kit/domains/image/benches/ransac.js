@@ -1,7 +1,7 @@
 // The RANSAC bench: fit a line to points with outliers by k rounds of drawing 2 points and counting those within δ;
 // the player picks δ, and k per outlier ratio, and is judged over many seeded trials.
 import { S } from '../../../engine/schema.js'
-import { judge } from '../../../engine/bench.js'
+import { benchRun } from '../../../engine/bench.js'
 import { keyOf, T as t } from '../../../shell/i18n.js'
 import { random } from '../engine/image.js'
 import { lineGap, lineThrough, ransacLine } from '../engine/match.js'
@@ -63,39 +63,39 @@ export const ransac = {
   case: S.obj({ outliers: S.num(), budget: S.int() }),
   make({ solution, ...p }, bench) {
     const m = ransacBench(p)
-    const cache = new Map()
-    const rate = (stage, k, delta) => {
-      const key = `${stage.outliers}:${k}:${delta}`
-      if (!cache.has(key)) {
-        const r = m.rate(stage, k, delta)
-        cache.set(key, { ...r, pass: judge(bench.goal, r).pass })
-      }
-      return cache.get(key)
-    }
+    const caches = bench.cases.map(() => new Map())
     return {
-      ...m,
-      rate,
-      cases: bench.cases,
+      trials: m.trials,
+      trial: m.trial,
       solution,
-      view: (v, { caseIndex }) => rate(bench.cases[caseIndex], v.k[caseIndex], v.delta),
+      view({ k, delta }, { case: example, caseIndex }) {
+        const rounds = k[caseIndex]
+        const cache = caches[caseIndex]
+        const key = `${rounds}:${delta}`
+        if (!cache.has(key)) cache.set(key, m.rate(example, rounds, delta))
+        return cache.get(key)
+      },
     }
   },
-  verify(model) {
-    const stages = model.cases
+  verify(model, bench) {
+    const { cases } = bench
     const { solution } = model
-    const passAll = (delta, ks) => stages.every((stage, i) => model.rate(stage, ks[i], delta).pass)
+    const run = (delta, k) => benchRun(bench, model, { delta, k })
+    const passAll = (delta, k) => run(delta, k).pass
+    const passesCase = (i, rounds) => run(solution.delta, solution.k.map((k, j) => i === j ? rounds : k)).verdicts[i].pass
     if (!passAll(solution.delta, solution.k)) return `reference δ=${solution.delta}, k=${solution.k} fails`
-    for (const [i, stage] of stages.entries()) {
+    for (const [i, stage] of cases.entries()) {
       const theory = ransacRounds(1 - stage.outliers)
       if (theory > stage.budget) return `${keyOf(stage.label)}: formula needs ${theory} rounds, budget ${stage.budget}`
       // Far fewer rounds than the formula asks for must fail.
-      if (model.rate(stage, Math.ceil(theory / 3), solution.delta).pass) return `${keyOf(stage.label)}: k = ${Math.ceil(theory / 3)} already passes`
-      if (i && model.rate(stage, stages[0].budget, solution.delta).pass) return `${keyOf(stage.label)}: the first stage's k passes, k needs no thought`
+      if (passesCase(i, Math.ceil(theory / 3))) return `${keyOf(stage.label)}: k = ${Math.ceil(theory / 3)} already passes`
+      if (i && passesCase(i, cases[0].budget)) return `${keyOf(stage.label)}: the first stage's k passes, k needs no thought`
     }
     // δ too large lets outliers in; δ too small loses inliers; neither is rescued by the budget.
-    if (passAll(6, stages.map((s) => s.budget))) return 'δ = 6 passes'
-    if (passAll(0.25, stages.map((s) => s.budget))) return 'δ = 0.25 passes'
-    if (passAll(2.5, stages.map((s) => s.budget))) return 'δ = 2.5 passes'
+    const budgets = cases.map((s) => s.budget)
+    if (passAll(6, budgets)) return 'δ = 6 passes'
+    if (passAll(0.25, budgets)) return 'δ = 0.25 passes'
+    if (passAll(2.5, budgets)) return 'δ = 2.5 passes'
     return ''
   },
 }

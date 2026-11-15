@@ -1,6 +1,6 @@
 import { createElement, useEffect, useMemo, useRef, useState } from 'react'
 import { callOf } from '../../engine/schema.js'
-import { goalOf, judge, openKnobs, startValues } from '../../engine/bench.js'
+import { benchRun, openKnobs, startValues } from '../../engine/bench.js'
 import { PHONE, useMedia } from '../useMedia.js'
 import { KERNEL_ITEMS } from './items.jsx'
 import './bench.css'
@@ -18,14 +18,15 @@ import './bench.css'
 const BLOCK_KEYS = ['panel', 'stack', 'row']
 const isBlock = (b) => b && typeof b === 'object' && BLOCK_KEYS.some((k) => k in b)
 
-export default function Bench({ bench, model, displays = {}, onSolve, theme, children }) {
+export default function Bench({ bench, model, displays = {}, onSolve, theme }) {
   const phone = useMedia(PHONE)
   const stages = bench.stages ?? null
   const cases = bench.cases ?? null
   const [stageIndex, setStageIndex] = useState(0)
   const [reached, setReached] = useState(0)
   const [passed, setPassed] = useState(() => (stages ?? []).map(() => false))
-  const [values, setValues] = useState(() => (stages ? stages.map((s) => startValues(bench, s)) : [startValues(bench)]))
+  const [starts] = useState(() => (stages ?? [null]).map((s) => startValues(bench, s)))
+  const [values, setValues] = useState(starts)
   const [process, setProcess] = useState(() => model.start?.() ?? null)
   const [running, setRunning] = useState(null) // { action, left } while an action repeats
   const [caseIndex, setCaseIndex] = useState(0)
@@ -40,16 +41,11 @@ export default function Bench({ bench, model, displays = {}, onSolve, theme, chi
   const v = values[at]
   const open = openKnobs(bench, stage)
   const left = running?.left ?? 0
-  const views = useMemo(() => {
-    const ctx = { stage, stageIndex, open, process, running: left }
-    return cases ? cases.map((c, i) => model.view(v, { ...ctx, case: c, caseIndex: i })) : [model.view(v, ctx)]
-    // `open` follows the stage.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [model, v, stage, stageIndex, process, left, cases])
-  const verdicts = views.map((view) => judge(goalOf(bench, stage), { ...v, ...view }))
-  const revealed = !submit || checkedAt[at] === JSON.stringify(v)
-  const pass = revealed && verdicts.every((j) => j.pass)
-  const check = () => setCheckedAt((all) => all.map((x, i) => (i === at ? JSON.stringify(v) : x)))
+  const run = useMemo(() => benchRun(bench, model, v, { stageIndex, process, running: left }), [bench, model, v, stageIndex, process, left])
+  const { views, verdicts } = run
+  const revealed = !submit || checkedAt[at] === v
+  const pass = revealed && run.pass
+  const check = () => setCheckedAt((all) => all.map((x, i) => (i === at ? v : x)))
 
   // A stage is passed the first time its goal holds; the bench is solved once every stage is, or its goal holds.
   useEffect(() => {
@@ -82,10 +78,14 @@ export default function Bench({ bench, model, displays = {}, onSolve, theme, chi
 
   const set = (name, value) => {
     const change = typeof name === 'object' ? name : { [name]: value }
-    setValues((all) => all.map((old, i) => (i === at ? { ...old, ...change } : old)))
+    setValues((all) => {
+      if (Object.entries(change).every(([key, next]) => Object.is(all[at][key], next))) return all
+      return all.map((old, i) => (i === at ? { ...old, ...change } : old))
+    })
   }
+  const start = starts[at]
   const act = (action, arg = action.arg) => {
-    if (action.reset) return set(Object.fromEntries(action.reset.map((k) => [k, startValues(bench, stage)[k]])))
+    if (action.reset) return set(Object.fromEntries(action.reset.map((k) => [k, start[k]])))
     if (action.repeat) return setRunning({ action, left: action.repeat })
     setProcess((p) => model.act(p, action.act, v, arg))
   }
@@ -97,9 +97,8 @@ export default function Bench({ bench, model, displays = {}, onSolve, theme, chi
   const view = views[caseIndex] ?? views[0]
   const c = {
     bench, model, phone, theme, stages, stage, stageIndex, setStageIndex, reached, passed, next, cases, caseIndex, setCase: setCaseIndex,
-    values: v, set, open, process, view, q: { ...v, ...view }, views, verdicts, pass, act, busy: Boolean(running), ui, submit, revealed, check,
+    values: v, start, set, open, process, view, q: { ...v, ...view }, views, verdicts, pass, act, busy: Boolean(running), ui, revealed, check,
     setUi: (change) => setUiState((old) => ({ ...old, ...change })),
-    externalControls: Boolean(children),
   }
   const shown = (b) => {
     if (isBlock(b)) return (b.panel ?? b.stack ?? b.row).some(shown)
@@ -111,7 +110,7 @@ export default function Bench({ bench, model, displays = {}, onSolve, theme, chi
   const { head, main, side, foot, split } = bench.layout
   const hasSide = (side ?? []).some(shown)
   const card = <section className="bk-stage bk-stack bench-main">{render(main)}</section>
-  const content = (
+  return (
     <div className="bk bench">
       {head?.some(shown) && <div className="bench-head">{render(head)}</div>}
       {hasSide ? (
@@ -123,8 +122,6 @@ export default function Bench({ bench, model, displays = {}, onSolve, theme, chi
       {foot?.some(shown) && <div className="bk-stack">{render(foot)}</div>}
     </div>
   )
-  // A screen can place the bench's stateful action in the shell's persistent run bar.
-  return children ? children({ content, ctx: c }) : content
 }
 
 // A layout block: a display item, or a card, a column or a row of blocks.
