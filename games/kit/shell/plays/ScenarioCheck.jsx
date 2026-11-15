@@ -11,8 +11,8 @@ import { useSavedWork } from './useWork.js'
 
 /** Write a scenario, then play it against the given works. */
 export default function ScenarioCheck({ screen, resource, play }) {
-  const { solve, lastRun, keepRun } = screen
-  const { work, change } = useSavedWork(screen, {
+  const { lastRun, keepRun } = screen
+  const { work, change, finish } = useSavedWork(screen, {
     read: (saved) => saved?.work ?? resource.initial,
     write: (work) => ({ work }),
   })
@@ -21,7 +21,7 @@ export default function ScenarioCheck({ screen, resource, play }) {
     count: 1,
     stepsOf: () => steps.map((step) => step.failed ? { ...step, failed: L(step.failed) } : step),
     check: () => '',
-    onSolve: () => solve(null),
+    onSolve: () => finish(null),
     board: work,
     kept: lastRun,
     onKeep: keepRun,

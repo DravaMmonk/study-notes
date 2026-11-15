@@ -15,8 +15,9 @@ export default function ValueTables({ screen, resource, play }) {
   }, resource.judge)
   const update = (patch) => change({ ...state, ...patch })
   const tryRow = (f, k) => {
-    update({ tried: { ...state.tried, [`${f}:${k}`]: true } })
-    if (resource.hit(f, k)) record({ pass: true, wrong: new Set() })
+    const next = { ...state, tried: { ...state.tried, [`${f}:${k}`]: true } }
+    change(next)
+    if (resource.hit(f, k)) record({ pass: true, wrong: new Set() }, next)
   }
 
   const table = (fi, { fill = false } = {}) => {

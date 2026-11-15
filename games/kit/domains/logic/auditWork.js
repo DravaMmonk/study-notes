@@ -1,4 +1,5 @@
 import { L, T } from '../../shell/i18n.js'
+import { passedWork } from '../../shell/progress.js'
 import { AUDIT_CASE_LIMIT, blankCase, restoreAuditCases, runAudit } from './audit-cases.js'
 import { sentenceOf } from './iso.js'
 import { say } from './notation.js'
@@ -8,7 +9,7 @@ import { declarationValues, ruleLines } from './rowValues.js'
 
 export function audit(source, { game, progress, saved }) {
   const parent = game.byId[source.carry]?.source.tasks.findLast((task) => task.kind === 'iso' && task.play !== 'audit')
-  const kept = parent && progress.solved.includes(source.carry) && progress.data[parent.taskId]?.rules
+  const kept = passedWork(progress, parent)?.rules
   const carried = kept && !checkDeclaration(parent)(kept) ? linesOf(kept) : null
   const level = carried ? { ...source, boards: [{ rules: carried }] } : source
   const words = (sentence) => say(sentenceOf(level, sentence), level.notation)

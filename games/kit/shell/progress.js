@@ -160,12 +160,18 @@ export function nextRequiredTask(game, p, id, current) {
   return -1
 }
 
-/** A prerequisite's last passed board, or its reference when all content is open. */
-export function inheritedBoard(progress, task) {
+/** The work kept from a prerequisite's pass. */
+export function passedWork(progress, task) {
   if (!task) return undefined
   const key = task.key ?? task.taskId
   const completed = completedTask(progress, task.source?.id ?? task.id, key, task.optional ?? task.source?.optional)
-  const saved = completed && progress.built?.[key]
+  return completed ? progress.built?.[key] : undefined
+}
+
+/** A prerequisite's last passed board, or its reference when all content is open. */
+export function inheritedBoard(progress, task) {
+  if (!task) return undefined
+  const saved = passedWork(progress, task)
   const board = saved?.nodes ? saved : progress.all ? (task.source?.solution ?? task.solution) : undefined
   return board?.nodes ? structuredClone(board) : undefined
 }

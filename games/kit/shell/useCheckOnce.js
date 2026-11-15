@@ -9,10 +9,10 @@ export function useCheckOnce({ lastRun, keepRun }, inspect, onChecked) {
     if (lastRun) setVerdict(inspect())
   }, [])
 
-  const record = (result) => {
+  const record = (result, work) => {
     setVerdict(result)
     keepRun?.(true)
-    onChecked(result)
+    onChecked(result, work)
   }
   const reset = () => {
     setVerdict(null)
