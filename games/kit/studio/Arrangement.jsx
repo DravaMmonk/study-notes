@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ArrowLeft, ListOrdered, Save, Trash2 } from 'lucide-react'
-import { layout, levelLabels } from '../course.js'
+import { layout } from '../course.js'
 import { L, tr } from '../shell/i18n.js'
 import { Picker } from './Picker.jsx'
 import ArrangementBoard from './ArrangementBoard.jsx'
@@ -17,7 +17,6 @@ export default function Arrangement({ content, groups, at, options, pending, sav
   const { eras } = content
   const notes = content.mode === 'notes'
   const { place, requires } = useMemo(() => layout(eras), [eras])
-  const labels = useMemo(() => levelLabels(eras), [eras])
   const levels = useMemo(() => new Map(options.map((option) => [option.value, option])), [options])
   const links = useMemo(() => eras.flatMap((era) => era.links ?? []), [eras])
   const indices = useMemo(() => new Map(eras.map((era, index) => [era.id, index])), [eras])
@@ -36,9 +35,9 @@ export default function Arrangement({ content, groups, at, options, pending, sav
   const wire = board.edges.find((edge) => linkKey(edge) === highlight)
   const describe = (id) => {
     const title = L(levels.get(id)?.title)
-    return [labels.get(id) ?? id, title].filter(Boolean).join(' ')
+    return title ? `${id} ${title}` : id
   }
-  const label = (id) => <><code>{labels.get(id) ?? id}</code><span>{L(levels.get(id)?.title)}</span>{place.get(id)?.optional && <small>{tr('可选', 'Optional')}</small>}</>
+  const label = (id) => <><code>{id}</code><span>{L(levels.get(id)?.title)}</span>{place.get(id)?.optional && <small>{tr('可选', 'Optional')}</small>}</>
   const resetWire = () => { setArmed(null); setHighlight(null); setNotice('') }
   const open = (group = null) => {
     resetWire()
@@ -72,6 +71,7 @@ export default function Arrangement({ content, groups, at, options, pending, sav
   }
   const groupOptions = groups.map(({ id, title, code }) => ({ value: id, label: code ?? L(title), ...(code && { title }) }))
   const outside = options.filter(({ value }) => place.has(value) && !board.hosted.has(value))
+    .map(({ value, title, group }) => ({ value, label: value, title, group }))
 
   return (
     <article className="arrange" onKeyDown={(event) => {
@@ -121,7 +121,7 @@ export default function Arrangement({ content, groups, at, options, pending, sav
             {tr('可选', 'Optional')}
           </label>
           <button type="button" className="kit-btn is-label" disabled={pending} onClick={() => onMove(selected)}>
-            <ListOrdered size={13} aria-hidden="true" />{tr('调整编号位置', 'Reorder level')}
+            <ListOrdered size={13} aria-hidden="true" />{tr('调整课程顺序', 'Reorder level')}
           </button>
         </> : null}
         <p className={notice ? 'is-error' : ''} role="status">{notice || (picked
