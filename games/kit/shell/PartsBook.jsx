@@ -2,13 +2,15 @@ import { createElement, useEffect, useState } from 'react'
 import { L, sideOf, tr } from './i18n.js'
 import { Lock } from 'lucide-react'
 import Library, { store, useSeen } from './Library.jsx'
+import { editorFor } from './parts/previews.js'
 
 // The components box (元件箱), laid out like the encyclopedia: every part the game has, in the order it is earned,
 // each with what it does and a bench to try it on. A game's `parts` brings
-// { all: [{ key, name, desc?, icon?, family?, rules? }], demo?(part, { phone, progress }) → React node,
-//   filters?(progress) → [{ key, name, icon?, lock?, keys }] }: the demo is a small circuit with the part at its
-// centre that the player can change and run (games/kit/circuit DemoBench), on the desktop board or, on a phone, the
-// phone one. A filter narrows the box to `keys` (a Set), such as the parts one robot can use; `icon` is SVG markup
+// { all: [{ key, piece?, name, desc?, icon?, family?, rules? }], demo?(part, { phone, progress }) → React node,
+//   filters?(progress) → [{ key, name, icon?, lock?, keys }] }: a part's article shows the detail its editor draws
+// (parts/previews.js, by its piece of pieces.json); the circuit editor's is the game's demo, a small circuit with the
+// part at its centre that the player can change and run (games/kit/circuit DemoBench) or the board a built piece
+// runs, on the desktop board or, on a phone, the phone one. A filter narrows the box to `keys` (a Set), such as the parts one robot can use; `icon` is SVG markup
 // for a 32 × 32 box, and `lock` the label of the level that opens it (null once open). The level that earns a part is the
 // one whose `unlocks` lists its key, or for a primitive the first level that brings it in (`at`). `rules` lists what a
 // part gives as rules ([{ text, form? }], a game whose parts are rules), in a table of their own; a row with a `form`
@@ -81,7 +83,9 @@ export default function PartsBook({ game, box, phone, start, onClose }) {
   const article = (key, back) => {
     const part = all.find((p) => p.key === key)
     const level = levelOf(game, part)
-    const demo = game.parts.demo?.(part, { phone, progress: box.progress })
+    // What the part's editor draws of it (parts/previews.js): a piece of pieces.json by its own editor.
+    const piece = { type: part.piece, ...game.partDefs?.parts?.[part.piece] }
+    const demo = editorFor(piece).preview(piece, { game, scene: 'detail', entry: part, phone, progress: box.progress })
     // A rule a shape gives shows once the part has that shape.
     const rules = (part.rules ?? []).filter((r) => !r.form || part.forms?.includes(r.form))
     return (

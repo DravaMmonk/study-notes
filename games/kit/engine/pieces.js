@@ -1,4 +1,6 @@
 // A piece's faces are independent. The persisted circuit definitions use the established inputs and views keys.
+/** The editor a piece is made with: the one it names, the circuit's when it names none. */
+export const editorOf = (piece) => piece.editor ?? 'circuit'
 export const holesOf = (piece) => piece.inputs ?? []
 export const outletsOf = (piece) => piece.outputs ?? []
 export const settingsOf = (piece) => piece.settings ?? []

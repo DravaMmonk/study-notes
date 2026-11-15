@@ -10,8 +10,8 @@
 //                    a level opened afresh, at that task;  { type: 'look', theme, lang } the studio's theme and language;
 //                  { type: 'content', content } the content edited, the level staying open as it is;
 //                  { type: 'edit', on, picked } edit mode and the field picked;  { type: 'go', task } go to a task;
-//                  { type: 'part', content, part } a part of pieces.json shown (../shell/parts/PartPreview.jsx; a built
-//                  piece, the board it runs — the game's parts.demo — and its own fields, ../shell/parts/PieceSheet.jsx)
+//                  { type: 'part', content, part } a piece of pieces.json shown: the scenes its editor draws and its
+//                  fields (PieceView.jsx)
 //   page → studio  { type: 'ready' } once it listens; { type: 'take', level, path, text };
 //                  { type: 'pick' | 'add', level, task, at, scope, index? }; { type: 'task', level, task };
 //                  { type: 'start', level, task, port, view } the view a port's value starts in, switched on the page;
@@ -30,8 +30,8 @@ import { createProgress, openAt, saved } from '../shell/progress.js'
 import { applyLang } from '../lang.js'
 import { localized } from '../engine/i18n.js'
 import { DOMAINS } from 'virtual:studio-domains'
-import PartPreview from '../shell/parts/PartPreview.jsx'
-import PieceSheet, { PresetSheet } from '../shell/parts/PieceSheet.jsx'
+import { PresetSheet } from '../shell/parts/PieceSheet.jsx'
+import PieceView from './PieceView.jsx'
 
 const say = (message) => window.parent.postMessage(message, window.location.origin)
 
@@ -134,18 +134,7 @@ export default function Play() {
       const k = level.tasks?.findIndex((t) => (t.key ?? t.id) === task) ?? -1
       return `${part.game.levelLabel(level)}${level.tasks?.length > 1 && k >= 0 ? ` · ${k + 1}` : ''}`
     }
-    if (part.game.defined?.of(part.type)) return <PartPreview game={part.game} type={part.type} edit={parts} onTask={toTask} taskLabel={taskLabel} />
-    // A built piece shows the board it runs, as the parts box does, and beside it its own fields; a piece just added is
-    // shown once the content holding it comes.
-    const def = part.game.partDefs?.parts?.[part.type]
-    if (!def) return null
-    const piece = part.game.parts?.all.find((p) => p.piece === part.type) ?? { key: part.type, piece: part.type }
-    return (
-      <div className="pp-built">
-        <div className="pp-built-board">{part.game.parts?.demo?.(piece, { progress: {} }) ?? null}</div>
-        {def && <PieceSheet def={def} edit={parts} onTask={toTask} label={taskLabel} />}
-      </div>
-    )
+    return <PieceView game={part.game} type={part.type} edit={parts} onTask={toTask} label={taskLabel} />
   }
   if (!shown) return null
   return <GameShell key={shown.no} game={shown.game} store={shown.game.store} author={author} />

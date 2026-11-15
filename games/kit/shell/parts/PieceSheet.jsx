@@ -4,12 +4,12 @@ import { L, tr } from '../i18n.js'
 import { iconOf } from './icons.js'
 import SettingField from './SettingField.jsx'
 
-// A piece's own fields as the studio's part page draws them (games/DESIGN.md 6.7): each carries its path in the piece
-// (data-pf); in edit mode a click picks it, and a + adds an item to a list. PieceSheet is a built piece's — beside the
-// board it runs, its name and description, the descriptions it grows along the course, the tasks whose work runs
-// inside (each form an upgrade chain of tasks, a step's label on it), the engine resource its card runs instead, its
-// settings; the rows it is
-// made of (revisions, ports, settings) are a primitive's too (PartPreview.jsx). PresetSheet is a setting preset's.
+// A piece's own fields as the studio's piece page draws them (games/DESIGN.md 6.7): each carries its path in the piece
+// (data-pf); in edit mode a click picks it (picker, on the page around them), and a + adds an item to a list.
+// PieceSheet is a built piece's — beside the board it runs, its name and description, the descriptions it grows along
+// the course, the tasks whose work runs inside (each form an upgrade chain of tasks, a step's label on it), the engine
+// resource its card runs instead, its settings; the rows it is made of (revisions, ports, settings) are a primitive's
+// too (../../circuit/preview.jsx). PresetSheet is a setting preset's.
 //
 //   def   the piece as pieces.json writes it      edit   { picked (a path in the piece), pick(path), add(path) } or null
 
@@ -103,7 +103,7 @@ export default function PieceSheet({ def, edit, onTask, label }) {
   const { mark } = marker(edit)
   const Icon = iconOf(def.icon ?? 'CircuitBoard')
   return (
-    <div className={`pp-sheet ${edit ? 'is-editing' : ''}`} onClickCapture={picker(edit)}>
+    <div className={`pp-sheet ${edit ? 'is-editing' : ''}`}>
       <header className="pp-sheet-head">
         {Icon && <i className="family-chip" data-family={def.family} {...mark([def.icon ? 'icon' : 'family'])}><Icon size={13} aria-hidden="true" /></i>}
         <h3 {...mark(['name'])}>{L(def.name)}</h3>

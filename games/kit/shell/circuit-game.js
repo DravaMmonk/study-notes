@@ -16,7 +16,7 @@
 //     domain declares only its run.js (`screen: { play }`) and what it adds;
 //     own parts (pieces.json, the course read's `defs`): its cards are those parts (and `cards`, its fixed cards drawn its
 //     own way), and `game.defined` is what draws
-//     them, on its screens (CircuitScreen `defined`) and in the studio (parts/PartPreview.jsx)
+//     them, on its screens (CircuitScreen `defined`) and as the circuit editor previews them (../circuit/preview.jsx)
 import { createElement } from 'react'
 import { CircuitBoard } from 'lucide-react'
 import { introductions, isCore, levelLabels } from '../course.js'

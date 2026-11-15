@@ -5,9 +5,8 @@
 // the game alone. While a board of the level is edited there (`take`), the game's 「用作 …」 sends the board back.
 //
 //   play: { level, seed, take }  a level opened afresh (on a board, or taking one), at `task`;  go: { task } a task to go to
-//   part: a part of pieces.json shown instead (its three faces and its logic, ../shell/parts/PartPreview.jsx; a built
-//         piece, its board and its fields, ../shell/parts/PieceSheet.jsx; presets/<name>, a setting preset, the
-//         control it draws); picked is then the path picked in it
+//   part: a piece of pieces.json shown instead (the scenes its editor draws and its fields, PieceView.jsx;
+//         presets/<name>, a setting preset, the control it draws); picked is then the path picked in it
 //   onRoot(): the name of what is shown, clicked in edit mode: every field of it in the side panel, those the screen
 //         does not draw too;  footer: what goes under the page (a piece's way through the course, Flow.jsx)
 import { useEffect, useRef, useState } from 'react'
