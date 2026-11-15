@@ -9,6 +9,7 @@
 import { packed, runBoard, sink, source } from '../../engine/boards.js'
 import { OUTPUTS, circuitBoard } from '../../engine/board-cards.js'
 import { boardView } from '../../engine/board-view.js'
+import { runOutputTests } from '../../engine/test-run.js'
 import { parse } from './formula.js'
 import { say } from './notation.js'
 import { lettersOf, rowsOf, valueOn } from './truth.js'
@@ -71,17 +72,6 @@ export function runRow(level, circuit, row, trace) {
   return { ...run, value: run.outputs.out }
 }
 
-/** Every row checked: { pass, results: [{ row, want, got, pass }], gates, overBudget }. */
-export function checkGates(level, circuit) {
-  const results = rowsFor(level).rows.map(({ row, want }) => {
-    const got = runRow(level, circuit, row).value
-    return { row, want, got, pass: got === want }
-  })
-  const gates = countGates(level, circuit)
-  const overBudget = level.budget !== undefined && gates > level.budget
-  return { pass: results.every((r) => r.pass) && !overBudget, results, gates, overBudget }
-}
-
 export const countGates = (level, circuit) => circuit.nodes.filter((n) => level.gates[n.type]).length
 
 /** The board a level starts from: a card for each letter of its target, and the output. */
@@ -91,20 +81,29 @@ export const startGates = (level) => GATE_BOARD.startBoard(level)
 export const gateTests = (level) => rowsFor(level).rows.map(({ row, want }) => ({ inputs: row, expect: { out: want } }))
 
 const WRONG_ROW = T('这一行的结果错误')
-/** Every test run (the kernel's circuit screen, ../../shell/CircuitScreen.jsx run): its values, trace and failure. */
-export const runGates = (level, circuit) => ({
-  runs: level.tests.map((test) => {
-    const trace = []
-    const run = runRow(level, circuit, test.inputs, trace)
-    return { ...run, trace, ...(run.value === test.expect.out ? {} : { fail: { why: WRONG_ROW } }) }
-  }),
-})
 
-/** Why a board that gives every row is still wrong: it uses more gates than the level allows. */
-export function overBudget(level, circuit) {
-  const gates = countGates(level, circuit)
-  return level.budget !== undefined && gates > level.budget ? T(`每一行都正确，但用了 ${gates} 个门，这一关最多允许 ${level.budget} 个。`, `Every row is correct, but it uses ${gates} gates; this level allows ${level.budget}.`) : ''
+const GATE_TESTS = {
+  runTest(level, board, test, { traced = true } = {}) {
+    const trace = []
+    const run = runRow(level, board, test.inputs, traced ? trace : undefined)
+    return { ...run, trace, row: test.inputs, want: test.expect.out, got: run.value }
+  },
+  check(_level, test, outputs) {
+    return [{ name: 'out', pass: outputs.out === test.expect.out, reason: WRONG_ROW }]
+  },
+  score: (level, board) => ({ steps: countGates(level, board) }),
 }
+
+const budgetFailure = ({ budget }, gates) => budget !== undefined && gates > budget
+  ? T(`每一行都正确，但用了 ${gates} 个门，这一关最多允许 ${budget} 个。`, `Every row is correct, but it uses ${gates} gates; this level allows ${budget}.`) : ''
+
+export function runGates(level, board, _parts, options) {
+  const task = { ...level, constraint: ({ steps }) => budgetFailure(level, steps) }
+  return runOutputTests(GATE_TESTS, task, board, options)
+}
+
+/** The truth table's checks for authoring, text play and saved boards, without animation traces. */
+export const checkGates = (level, board) => runGates({ ...level, tests: gateTests(level) }, board, null, { traced: false })
 
 /**
  * A course's truth circuits as the kernel's circuit screen reads a course read (../../engine/board-view.js): the board,

@@ -6,7 +6,7 @@
 import { T } from '../../../shell/i18n.js'
 import { parse } from '../formula.js'
 import { say } from '../notation.js'
-import { countGates, overBudget, runGates } from '../gates.js'
+import { runGates } from '../gates.js'
 import { gatesPlayFor } from '../plays.js'
 
 const TF = (v) => (v === undefined || v === null ? '—' : v ? T('真', 'T') : T('假', 'F'))
@@ -16,9 +16,7 @@ export const gatesScreen = {
   play: { runLevel: runGates, show: TF },
   table: gatesPlayFor,
   told: (level) => (level.blind ? [] : [{ label: T('这句话'), text: say(parse(level.target), level.notation) }]),
-  final: overBudget,
-  score: (level, circuit) => ({ steps: countGates(level, circuit) }),
-  readouts: (level, circuit) => [{ value: countGates(level, circuit), label: T('门') }, level.budget !== undefined && { value: level.budget, label: T('最多') }],
+  readouts: (level, _circuit, { score }) => [{ value: score.steps, label: T('门') }, level.budget !== undefined && { value: level.budget, label: T('最多') }],
   says: {
     go: T('逐行运行'),
     done: T('真值表全部正确'),

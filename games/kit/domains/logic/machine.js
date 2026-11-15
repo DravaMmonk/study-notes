@@ -687,17 +687,13 @@ export const runTactic = (level, type, state, keys = null) => level.parts(type).
 
 /** How a machine level runs and is judged, for the shared engine (../../engine/test-run.js). */
 export const MACHINE_TESTS = {
-  runTest: (level, circuit, test) => {
-    const run = runBoard(circuit, { parts: level.parts, bind: inputsOf(test, level), ctx: ctxOf(level, circuit) })
-    return { ...run, outputs: { out: run.outputs.out } }
-  },
-  // The run of one test with every step it took, in order (../../engine/circuit.js trace): only what reaches the
-  // result takes a step, so a card lying about unwired takes none. The board once the run is over is the whole board
-  // run, as before it: the inputs, and a card that reaches nothing with what it gives or lacks.
-  trace: (level, circuit, test) => {
+  runTest: (level, circuit, test, { traced = false } = {}) => {
+    const parts = level.parts
+    // Trace only the steps that reach the output. The displayed final board still includes the whole run.
     const trace = []
-    runBoard(circuit, { parts: level.parts, bind: inputsOf(test, level), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
-    return { trace, run: MACHINE_TESTS.runTest(level, circuit, test) }
+    if (traced) runBoard(circuit, { parts, bind: inputsOf(test, level), targets: ['out'], ctx: ctxOf(level, circuit, { trace }) })
+    const run = runBoard(circuit, { parts, bind: inputsOf(test, level), ctx: ctxOf(level, circuit) })
+    return { ...run, trace, outputs: { out: run.outputs.out } }
   },
   check: (level, test, outputs) => {
     const problem = judge(test.want ?? level.want, test, outputs.out, level)

@@ -1,3 +1,4 @@
+import { failureOf } from './test-run.js'
 // The circuit preset (games/DESIGN.md 6.3, games/DIRECTION.md decision 24): a way to play made of the kernel's
 // pieces — the board of fixed cards (./board-cards.js), the course read with its built parts (./board-course.js), the
 // level's schema (./level-schema.js) and the author checks below over the judge (./authoring.js, ./judge.js). A domain
@@ -136,7 +137,7 @@ export function checkCircuitTasks(circuit, { run, entries, failure = () => '', m
         else naive = `, naive fails ${where(checked.naive.fail.check)}`
       }
       for (const piece of publishes) checkWorks(inspect, { built: box(piece) }).built.runs.forEach((r, j) => {
-        if (r.fail || r.error) problems.push(`its part ${piece.type} alone fails ${where(j)}`)
+        if (failureOf(r)) problems.push(`its part ${piece.type} alone fails ${where(j)}`)
       })
       // Asked for (`circuit.mutants`, npm run check -- --mutants): what the tests make of the answer's mutants
       // (./mutate.js), a report and never a failure. A mutant that lives is a

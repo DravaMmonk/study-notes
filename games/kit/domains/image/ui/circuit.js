@@ -42,12 +42,8 @@ const show = (value) => isGrid(value)
 
 export function imageCircuit(image, boards, cards) {
   const { kit } = image
-  const runLevel = (task, board) => {
-    const { results, ...report } = kit.runLevel(task, board)
-    return { ...report, runs: results }
-  }
   return {
-    course: () => boards, cards, play: { runLevel, entries, show },
+    course: () => boards, cards, play: { runLevel: kit.runLevel, entries, show },
     canvas: { height: 220 },
     fresh: startBoard,
     ready: (board) => tidyImageBoard(kit, board),

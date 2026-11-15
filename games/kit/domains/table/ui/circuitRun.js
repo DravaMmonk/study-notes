@@ -1,4 +1,6 @@
+import { reportRuns } from '../../../engine/test-run.js'
 import { lazy, tr } from '../lang.js'
+import { portsProblem } from '../model/board.js'
 import { signal } from '../model/format.js'
 import { judges, testLabel, whyFailed } from '../model/verdict.js'
 import { WORLDS } from '../model/worlds.js'
@@ -12,18 +14,17 @@ export function probeValues(probe) {
 export function robotRun(model, task, board) {
   const { inspect } = judges[playOf(task).resources]
   const world = WORLDS[task.world]
-  return {
-    runs: task.tests.map((test, k) => {
-      const report = inspect(model, task, board, k, { ...task, traced: true })
-      const ticks = report.res.steps.slice(0, report.stop).map((step, at) => ({
-        values: probeValues(step.probe),
-        errors: new Map(),
-        trace: report.res.traces[at],
-      }))
-      const failure = report.ok ? null : whyFailed({ L: task, V: world, opt: task, label: (t) => testLabel(task, world, t), expected: task.expected }, k, test, report.res, report.mm)
-      return { ticks, outputs: {}, report, failure, fail: failure && { why: failure.head } }
-    }),
-  }
+  const runs = task.tests.map((test, k) => {
+    const report = inspect(model, task, board, k, { ...task, traced: true })
+    const ticks = report.res.steps.slice(0, report.stop).map((step, at) => ({
+      values: probeValues(step.probe),
+      errors: new Map(),
+      trace: report.res.traces[at],
+    }))
+    const failure = report.ok ? null : whyFailed({ L: task, V: world, opt: task, label: (t) => testLabel(task, world, t), expected: task.expected }, k, test, report.res, report.mm)
+    return { ticks, outputs: {}, report, failure, fail: failure && { why: failure.head } }
+  })
+  return reportRuns(runs, { constraint: task.ports.length ? portsProblem(board, task.ports) : null })
 }
 
 export const testName = (task, test, k) => lazy(() => `${tr('测试', 'Test')} ${k + 1} · ${testLabel(task, WORLDS[task.world], test)}`)

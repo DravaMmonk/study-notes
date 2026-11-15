@@ -5,7 +5,7 @@ import { Halt, MISSING, PartError, evaluate } from './circuit.js'
 import { packed, runBoard, sink, source } from './boards.js'
 import { walk } from './machine.js'
 import { insideAt, paceOf, viewAt } from './trace.js'
-import { runOutputTests } from './test-run.js'
+import { reportRuns, runOutputTests } from './test-run.js'
 import { withHidden } from './tests.js'
 
 const PARTS = {
@@ -162,9 +162,18 @@ test('a level runs its tests through the domain, hidden ones too', () => {
   assert.equal(runOutputTests(domain, withHidden(level), good).pass, true)
   const long = io([{ id: 'n', type: 'neg' }, { id: 'm', type: 'neg' }, { id: 'k', type: 'neg' }], w('in>n n>m m>k k>out'))
   const run = runOutputTests(domain, level, long)
-  assert.equal(run.results[0].pass, true)
+  assert.equal(run.runs[0].pass, true)
   assert.equal(run.constraint, 'too many')
   assert.equal(run.pass, false)
+})
+
+test('a task report keeps the complete run and gives the first case failure precedence over the final constraint', () => {
+  const caseError = { en: 'Cannot evaluate this case' }
+  const runs = [{}, { error: caseError }, { fail: { why: 'later' } }, {}]
+  const constraint = 'too many parts'
+  const score = { nodes: 5 }
+  assert.deepEqual(reportRuns(runs, { score, constraint }), { runs, fail: { check: 1, why: caseError }, pass: false, score, constraint })
+  assert.deepEqual(reportRuns([{}], { constraint }).fail, { why: constraint })
 })
 
 test('a traced run lists every node in the order it ran, and replays to any step', () => {

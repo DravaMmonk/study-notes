@@ -1,7 +1,17 @@
 import { T as t } from '../shell/i18n.js'
+import { failureOf } from './test-run.js'
 
 /** A level's tests followed by its hidden ones, each marked hidden. */
 export const withHidden = (level) => (level.hidden?.length ? { ...level, tests: [...level.tests, ...level.hidden.map((t) => ({ ...t, hidden: true }))] } : level)
+
+/** Split the cases shown to the player from those checked without showing them. */
+export function splitTests(task, revealed) {
+  return revealed ? { tests: withHidden(task).tests, hidden: [] } : { tests: task.tests, hidden: task.hidden ?? [] }
+}
+
+export function countFailedTests(tests, run) {
+  return tests.length ? run(tests).runs.filter(failureOf).length : 0
+}
 
 /**
  * What a game calls its tests, in each place the screen and a blind session say it: a test's tab (`label(k)`), the note

@@ -2,16 +2,16 @@
 // Case indexes are zero-based. For a board, at is a card id or { tick, id? }.
 const equal = (want, got) => want === got
 
-export function cases(checks, inspect) {
-  const judge = (work) => {
-    for (const [check, example] of checks.entries()) {
-      const fail = inspect(work, example, check)
-      if (fail) return { ...fail, check }
-    }
-    return null
+export function firstFailure(checks, inspect) {
+  for (const [check, example] of checks.entries()) {
+    const fail = inspect(example, check)
+    if (fail) return { ...fail, check }
   }
-  return Object.assign(judge, { checks })
+  return null
 }
+
+export const cases = (checks, inspect) =>
+  Object.assign((work) => firstFailure(checks, (example, check) => inspect(work, example, check)), { checks })
 
 export function ticks({ checked, want, got = (tick, id) => tick.outputs[id] ?? null, same = equal, why }) {
   return (steps) => {

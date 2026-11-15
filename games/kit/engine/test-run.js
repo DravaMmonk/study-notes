@@ -1,25 +1,25 @@
-// Running a task preserves every case's report for replay and diagnostics. The judge can still stop at the first
-// failure, since it reads the reports instead of running the work again.
-import { cases, property } from './judge.js'
+// A task report keeps every case for replay, together with the first failure and any whole-work constraint.
+import { firstFailure } from './judge.js'
 
-const failed = (report) => report.fail ?? (report.error ? { why: report.error } : null)
-const first = (reports, inspect) => cases(reports, (_, report) => inspect(report))(null)
+export const failureOf = (run) => run.fail ?? (run.error ? { why: run.error } : null)
+export const firstRunFailure = (runs) => firstFailure(runs, failureOf)
 
-export const runTests = (runTest) => (task, board, parts) => {
-  const runs = task.tests.map((test) => runTest(task, board, test, parts))
-  const fail = first(runs, failed)
-  return { runs, fail, pass: !fail }
+export function reportRuns(runs, { score, constraint } = {}) {
+  const fail = firstRunFailure(runs) ?? (constraint ? { why: constraint } : null)
+  return { runs, fail, pass: !fail, score, constraint }
 }
 
-export function runOutputTests(domain, level, circuit) {
-  const results = level.tests.map((test) => {
-    const run = domain.runTest(level, circuit, test)
-    const checks = domain.check(level, test, run.outputs)
-    const fail = first(checks, (check) => check.pass ? null : { at: check.name, why: check.reason })
+export const runTests = (runTest) => (task, work, parts) =>
+  reportRuns(task.tests.map((test) => runTest(task, work, test, parts)))
+
+export function runOutputTests(domain, task, work, options) {
+  const runs = task.tests.map((test) => {
+    const run = domain.runTest(task, work, test, options)
+    const checks = domain.check(task, test, run.outputs)
+    const fail = firstFailure(checks, ({ name, pass, reason }) => pass ? null : { at: name, why: reason }) ?? failureOf(run)
     return { ...run, checks, fail, pass: !fail }
   })
-  const score = domain.score?.(level, circuit, results) ?? {}
-  const constraint = level.constraint?.(score, circuit) ?? ''
-  const fail = first(results, (result) => result.fail) ?? property(() => !constraint, () => ({ why: constraint }))(circuit)
-  return { results, score, constraint, fail, pass: !fail }
+  const score = domain.score?.(task, work, runs) ?? {}
+  const constraint = task.constraint?.(score, work) ?? ''
+  return reportRuns(runs, { score, constraint })
 }

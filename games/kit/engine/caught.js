@@ -13,9 +13,7 @@
 //   → { tests, works: [[run]], catches: [row | -1] }   each work's runs on the rows, and the first row that catches
 //       it (-1: none does)
 
-import { cases } from './judge.js'
-
-const judge = (runs) => cases(runs, (_, run) => run.fail ?? (run.error ? { why: run.error } : null))(null)
+import { firstRunFailure } from './test-run.js'
 
 export function caught({ task, rows, check, run }) {
   const read = rows.map((row) => check(task, row))
@@ -24,8 +22,8 @@ export function caught({ task, rows, check, run }) {
   const never = read.findIndex((r) => r.why)
   if (never >= 0) return { row: never, why: 'never', said: read[never].why }
   const tests = read.map((r) => r.test)
-  const unsound = judge(run(task.solution, tests))
+  const unsound = firstRunFailure(run(task.solution, tests))
   if (unsound) return { row: unsound.check, why: 'unsound' }
   const works = task.works.map((work) => run(work.board, tests))
-  return { tests, works, catches: works.map((runs) => judge(runs)?.check ?? -1) }
+  return { tests, works, catches: works.map((runs) => firstRunFailure(runs)?.check ?? -1) }
 }

@@ -1,5 +1,5 @@
 import { T } from '../../../shell/i18n.js'
-import { fitted, portsProblem } from '../model/board.js'
+import { fitted } from '../model/board.js'
 import { CARDS, PRIMITIVES } from '../model/parts.js'
 import { signal } from '../model/format.js'
 import { lookIcon } from './looks.js'
@@ -28,7 +28,6 @@ export const robotScreenFor = ({ model }) => ({
   }] : [],
   play: { runLevel: (task, board) => robotRun(model, task, board), entries: () => [], show: signal },
   testLabel: testName,
-  final: (task, work) => task.ports.length ? portsProblem(work, task.ports) : null,
   useWorld: useRobotWorld,
   canvas: { height: 170, minFit: 0.62 },
 })

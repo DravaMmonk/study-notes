@@ -119,7 +119,7 @@ test('Hilbert: A → A from K and S in five steps', () => {
     m2: ['mp'],
   }, ['s>m1.imp', 'k1>m1.a', 'm1>m2.imp', 'k2>m2.a', 'm2>goal'])
   const r = run(level, c)
-  assert.equal(r.pass, true, JSON.stringify(r.results[0].checks))
+  assert.equal(r.pass, true, JSON.stringify(r.runs[0].checks))
   assert.equal(r.score.steps, 5)
 })
 
@@ -128,7 +128,7 @@ test('a wrong premise is named with what it needed', () => {
   const c = proof({ m: ['mp'] }, ['p>m.imp', 'q>m.a', 'm>goal'], { premises: ['p', 'q'] })
   const r = run(level, c)
   assert.equal(r.pass, false)
-  assert.deepEqual(r.results[0].errors.get('m'), { zh: '这里要 A，接进来的是 C', en: 'This needs A; it got C' })
+  assert.deepEqual(r.runs[0].errors.get('m'), { zh: '这里要 A，接进来的是 C', en: 'This needs A; it got C' })
 })
 
 test('→ introduction closes its assumption; an open one fails', () => {
@@ -144,7 +144,7 @@ test('→ introduction closes its assumption; an open one fails', () => {
   const leak = { tests: [{ goal: 'A' }] }
   const r = run(leak, proof({ i: ['impI', { A: 'A' }] }, ['i#body>goal']))
   assert.equal(r.pass, false)
-  assert.match(r.results[0].checks[0].reason.en, /still open/)
+  assert.match(r.runs[0].checks[0].reason.en, /still open/)
 })
 
 test('a box reads back what was made from its own assumption', () => {
@@ -157,14 +157,14 @@ test('∨ elimination needs both cases to agree', () => {
   const both = proof({ e: ['orE'], l: ['orI', { other: 'B', side: 'left' }, 'e/left'], r: ['orI', { other: 'A', side: 'right' }, 'e/right'] }, ['p>e.ab', 'e#left>l.a', 'l>e.left', 'e#right>r.a', 'r>e.right', 'e>goal'], { premises: ['p'] })
   assert.equal(run(level, both).pass, true)
   const apart = proof({ e: ['orE'], l: ['orI', { other: 'B', side: 'right' }, 'e/left'], r: ['orI', { other: 'A', side: 'right' }, 'e/right'] }, ['p>e.ab', 'e#left>l.a', 'l>e.left', 'e#right>r.a', 'r>e.right', 'e>goal'], { premises: ['p'] })
-  assert.match(run(level, apart).results[0].errors.get('e').en, /different/)
+  assert.match(run(level, apart).runs[0].errors.get('e').en, /different/)
 })
 
 test('∀ introduction refuses a variable an open hypothesis mentions', () => {
   const level = { tests: [{ premises: { p: 'P(x)' }, goal: '∀x. P(x)' }] }
   const r = run(level, proof({ g: ['allI', { x: 'x' }] }, ['p>g.body', 'g>goal'], { premises: ['p'] }))
   assert.equal(r.pass, false)
-  assert.match(r.results[0].errors.get('g').en, /not arbitrary/)
+  assert.match(r.runs[0].errors.get('g').en, /not arbitrary/)
 })
 
 // Chain as chapter 2 proves it: A → C from A → B and B → C, and the proof of A → A.
@@ -188,16 +188,16 @@ test('a lemma runs the proof that proved it, with its letters filled in, and its
   const detour = proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'], both: ['andI', {}, 'f'], e: ['andE', {}, 'f'], m2: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>both.a', 'm1>both.b', 'both>e.ab', 'q>m2.imp', 'e#left>m2.a', 'm2>f.body', 'f>goal'], { premises: ['p', 'q'] })
   for (const board of [chainProof, detour]) {
     const r = run({ ...level, proofs: chainBy(board) }, useChain)
-    assert.equal(r.pass, true, JSON.stringify(r.results[0].checks))
-    assert.equal(printTerm(r.results[0].outputs.goal.term), 'chain p q')
+    assert.equal(r.pass, true, JSON.stringify(r.runs[0].checks))
+    assert.equal(printTerm(r.runs[0].outputs.goal.term), 'chain p q')
   }
   // A kept proof that proves something else (A → B, from the first premise alone) gives nothing, and says whose proof.
   const other = proof({ f: ['impI', { A: 'A' }], m1: ['mp', {}, 'f'] }, ['p>m1.imp', 'f#body>m1.a', 'm1>f.body', 'f>goal'], { premises: ['p', 'q'] })
   const r = run({ ...level, proofs: chainBy(other) }, useChain)
   assert.equal(r.pass, false)
-  assert.match(r.results[0].errors.get('c').zh, /^「串联」照「证明」一关的证明来证，在这里证不出：证出的是「Rain ∨ Wind → Wet」/)
+  assert.match(r.runs[0].errors.get('c').zh, /^「串联」照「证明」一关的证明来证，在这里证不出：证出的是「Rain ∨ Wind → Wet」/)
   // So does a lemma with no proof.
-  assert.match(run({ ...level, proofs: {} }, useChain).results[0].errors.get('c').en, /has no proof/)
+  assert.match(run({ ...level, proofs: {} }, useChain).runs[0].errors.get('c').en, /has no proof/)
 })
 
 test('a proof that does not hold for an instance of its letters gives nothing there', () => {
@@ -211,7 +211,7 @@ test('a proof that does not hold for an instance of its letters gives nothing th
   assert.equal(at('¬∃y. Loves(y, b)', '∀y. ¬Loves(y, b)').pass, true)
   const clash = at('¬∃y. Loves(y, a)', '∀y. ¬Loves(y, a)')
   assert.equal(clash.pass, false)
-  assert.match(clash.results[0].errors.get('c').en, /runs the proof from “Proof”, which does not prove it here: a occurs in the open hypothesis/)
+  assert.match(clash.runs[0].errors.get('c').en, /runs the proof from “Proof”, which does not prove it here: a occurs in the open hypothesis/)
 })
 
 test('countermodels: Peirce has none classically, (A → B) → A has one, the quantifier swap has one', () => {

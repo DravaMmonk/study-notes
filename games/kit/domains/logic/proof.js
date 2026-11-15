@@ -565,7 +565,7 @@ export const LOGIC_TESTS = {
   runTest: (level, circuit, test) => {
     const consts = level.consts ?? []
     const run = runBoard(circuit, { parts: level.parts, bind: premisesOf(test, consts), ctx: { consts, notation: level.notation, subst: test.subst, exists: choicesOf(level).exists, lemmas: level.lemmas, proofs: level.proofs } })
-    return { ...run, outputs: { goal: run.outputs.goal } }
+    return { ...run, trace: [], outputs: { goal: run.outputs.goal } }
   },
   // A test may ask for the proof's term too (chapter 7): the same up to the names it binds.
   check: (level, test, outputs) => {

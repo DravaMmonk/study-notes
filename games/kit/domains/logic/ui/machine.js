@@ -4,6 +4,7 @@
 // parts running the boards that built them). A run goes through every test step by step, each card computing a step;
 // the results show the test's inputs, what it wants and what reaches the result. Values (equations, proof states,
 // clause sets, rules) read as lines of text.
+import { runOutputTests } from '../../../engine/test-run.js'
 import { L, T, tr } from '../../../shell/i18n.js'
 import { fn, tvar } from '../formula.js'
 import { say } from '../notation.js'
@@ -66,14 +67,7 @@ function wantOf(task, test) {
   return L(WANT[test.want ?? task.want])
 }
 
-/** Every test run step by step: its trace, its values, and why the result is not what it wants, if it is not. */
-const runLevel = (task, circuit) => ({
-  runs: task.tests.map((test) => {
-    const { trace, run } = MACHINE_TESTS.trace(task, circuit, test)
-    const [check] = MACHINE_TESTS.check(task, test, run.outputs)
-    return { ...run, trace, ...(check.pass ? {} : { fail: { why: check.reason } }) }
-  }),
-})
+const runLevel = (task, board, _parts, { traced = true } = {}) => runOutputTests(MACHINE_TESTS, task, board, { traced })
 
 /** What the results show of a test: the types and definitions it reads, its inputs, what it wants, the result. */
 const entries = ({ task, test, run }) => {
@@ -95,8 +89,7 @@ export const machineScreen = {
   context: (task, test) => ({ task, text: textOf(task, test) }),
   // A preset (a level's locked cards) stays on the board whatever is saved.
   ready: (board, _held, task) => withPreset(board, presetFor(task)),
-  score: (task, circuit) => MACHINE_TESTS.score(task, circuit),
-  readouts: (task, circuit) => [{ value: MACHINE_TESTS.score(task, circuit).steps, label: T('元件', 'Parts') }, task.budget !== undefined && { value: task.budget, label: T('最多') }],
+  readouts: (task, _circuit, { score }) => [{ value: score.steps, label: T('元件', 'Parts') }, task.budget !== undefined && { value: task.budget, label: T('最多') }],
   says: { go: T('运行全部测试'), done: T('全部通过', 'All passed') },
   log: true,
   canvas: { height: 150, emptyNote: T('从上方元件栏选择元件放到板上，从「输入」连到「结果」。') },

@@ -1,3 +1,4 @@
+import { failureOf } from '../test-run.js'
 import { failureText } from '../failure-text.js'
 // A circuit level as a blind player meets it (./play.js): the board as it opens, the parts in the tray with what the
 // components box says of them, the level's visible tests, and an attempt read as blueprint text exactly as the game's
@@ -149,7 +150,6 @@ export function tickPlay({ run, given, lanes, more = () => [], settings = {}, sh
   const word = (v, lang) => (typeof show(v) === 'object' ? show(v)[lang] : show(v))
   const testsOf = (task, solved) => (solved ? [...task.tests, ...task.hidden] : task.tests)
   const label = words.label
-  const failed = (r) => Boolean(r.fail || r.error)
   const text = (task, test, lang) => {
     const rows = [
       [lang === 'en' ? 'tick' : '拍', Array.from({ length: test.ticks }, (_, t) => String(t))],
@@ -180,9 +180,9 @@ export function tickPlay({ run, given, lanes, more = () => [], settings = {}, sh
     run: ({ game, level: { source: task }, solved }, board) => {
       const { partOf } = game.circuit
       const shown = run({ ...task, tests: testsOf(task, solved) }, board, partOf)
-      const tests = untilFail(shown.runs.map((r, k) => ({ label: label(k), pass: !failed(r), says: r.error ?? r.final ?? failureText(r.fail) })))
+      const tests = untilFail(shown.runs.map((r, k) => ({ label: label(k), pass: !failureOf(r), says: r.error ?? r.final ?? failureText(r.fail) })))
       const n = task.hidden.length
-      const hidden = solved || !n ? null : run({ ...task, tests: task.hidden }, board, partOf).runs.filter(failed).length
+      const hidden = solved || !n ? null : run({ ...task, tests: task.hidden }, board, partOf).runs.filter(failureOf).length
       return {
         tests,
         hidden: hidden === null ? null : { count: n, failed: hidden, says: words.failed(hidden, n) },

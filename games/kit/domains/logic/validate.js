@@ -29,10 +29,6 @@ import { say } from './notation.js'
 import { presetIds } from './course.js'
 
 const compare = (inspect, level) => checkWorks(inspect, { reference: level.solution, naive: level.naive })
-const gateReport = (level, work) => {
-  const run = checkGates(level, work)
-  return { ...run, fail: run.pass ? null : { why: 'gate checks failed' } }
-}
 const reportNaive = (out, { id: level }, naive) => {
   if (naive) out.push({ level, fail: !naive.ok, text: `  naive ${naive.ok ? 'fails' : 'PASSES (bad)'}` })
 }
@@ -97,14 +93,14 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
   for (const level of levels.filter((l) => l.kind === 'gates')) {
     out.push(...memo(level.id, `gates ${level.task ?? 0}`, () => {
       const out = []
-      const { reference: good, naive } = compare((work) => gateReport(level, work), level)
-      out.push({ level: level.id, fail: !good.ok, text: `${level.id} ${keyOf(level.title)}: circuit ${good.ok ? 'PASS' : 'FAIL'} [${good.gates} gates]` })
+      const { reference: good, naive } = compare((work) => checkGates(level, work), level)
+      out.push({ level: level.id, fail: !good.ok, text: `${level.id} ${keyOf(level.title)}: circuit ${good.ok ? 'PASS' : 'FAIL'} [${good.score.steps} gates]` })
       reportNaive(out, level, naive)
       // The gate a level builds runs its board (gates.js builtGates): alone, fed the level's letters, it passes the level.
       if (level.builds && level.gates[level.builds]) {
         const { letters } = rowsFor(level)
         const alone = { nodes: [...startGates(level).nodes, { id: 'x', type: level.builds, params: {} }], wires: [...letters.map((l, k) => ({ from: l, to: 'x', port: level.gates[level.builds].ports[k] })), { from: 'x', to: 'out', port: 'in' }] }
-        if (!checkWorks((work) => gateReport({ ...level, budget: undefined }, work), { built: alone }).built.ok) out.push({ level: level.id, fail: true, text: `${level.id}: the gate ${level.builds}, alone, does not give its sentence` })
+        if (!checkWorks((work) => checkGates({ ...level, budget: undefined }, work), { built: alone }).built.ok) out.push({ level: level.id, fail: true, text: `${level.id}: the gate ${level.builds}, alone, does not give its sentence` })
       }
       return out
     }))
@@ -164,7 +160,7 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
       const missing = [...new Set(level.solution.nodes.filter((n) => !presetIds(level).includes(n.id)).map((n) => n.type).filter((t) => !holds.has(t) && !(level.task > 0 && t === builder.get(level.id))))]
       if (missing.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${missing.join(', ')}, which the level cannot have yet` })
       const { reference: good, naive } = compare((work) => runOutputTests(MACHINE_TESTS, level, work), level)
-      out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: machine ${good.pass ? 'PASS' : `FAIL ${good.results.filter((r) => !r.pass).map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} cards]` })
+      out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: machine ${good.pass ? 'PASS' : `FAIL ${good.runs.filter((r) => !r.pass).map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} cards]` })
       reportNaive(out, level, naive)
       if (level.budget !== undefined && good.score.steps > level.budget) out.push({ level: level.id, fail: true, text: `${level.id}: the solution breaks its budget` })
       return out
@@ -234,7 +230,7 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
       const alone = { nodes: [...startProof(level).nodes, card], wires: [...names.map((name, k) => ({ from: name, to: 'x', port: `p${k}` })), { from: 'x', to: 'goal', port: 'in' }] }
       out.push(...memo(level.id, `lemma ${type} ${key} ${level.task ?? 0}`, () => {
         const { built: run } = checkWorks((work) => runOutputTests(LOGIC_TESTS, level, work), { built: alone })
-        const failed = run.results[run.fail?.check]
+        const failed = run.runs[run.fail?.check]
         return failed ? [{ level: level.id, fail: true, text: `${level.id}: the lemma ${type}${key ? ` (${key})` : ''}, alone, does not give its statement: ${keyOf(failed.errors.get('x') ?? failed.checks[0].reason)}` }] : []
       }))
     }
@@ -292,7 +288,7 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
       const banned = level.solution.nodes.filter((n) => level.without?.includes(n.type)).map((n) => n.type)
       if (banned.length) out.push({ level: level.id, fail: true, text: `${level.id}: the solution uses ${banned.join(', ')}, which the level holds back` })
       const { reference: good, naive } = compare((work) => runOutputTests(LOGIC_TESTS, level, work), level)
-      out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: solution ${good.pass ? 'PASS' : `FAIL ${good.results.map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} steps]` })
+      out.push({ level: level.id, fail: !good.pass, text: `${level.id} ${keyOf(level.title)}: solution ${good.pass ? 'PASS' : `FAIL ${good.runs.map((r) => keyOf(r.checks[0].reason)).join('; ')}`} [${good.score.steps} steps]` })
       reportNaive(out, level, naive)
       return out
     }))

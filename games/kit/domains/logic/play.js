@@ -11,7 +11,7 @@
 import { circuitPlay, untilFail } from '../../engine/play/circuit.js'
 import { gateShape } from './blueprint.js'
 import { parse } from './formula.js'
-import { checkGates, overBudget, rowsFor, startGates } from './gates.js'
+import { checkGates, rowsFor, startGates } from './gates.js'
 import { gatesPlayFor } from './plays.js'
 import { say } from './notation.js'
 import { T } from '../../shell/i18n.js'
@@ -49,17 +49,17 @@ const gates = circuitPlay({
     const showTarget = gatesPlayFor(L).target === 'shown'
     const { letters } = rowsFor(L)
     const rowText = (r, lang) => letters.map((l) => `${l}=${TF(r.row[l], lang)}`).join(', ')
-    const tests = untilFail(checked.results.map((r, k) => ({
+    const tests = untilFail(checked.runs.map((r, k) => ({
       label: T(`第 ${k + 1} 行（${rowText(r, 'zh')}）`, `Row ${k + 1} (${rowText(r, 'en')})`),
       pass: r.pass,
       says: r.pass ? null : T(`这一行的结果错误：电路输出 ${TF(r.got, 'zh')}${showTarget ? `，应当是 ${TF(r.want, 'zh')}` : ''}。`, `This row is wrong: the circuit outputs ${TF(r.got, 'en')}${showTarget ? `; it should be ${TF(r.want, 'en')}` : ''}.`),
     })))
-    const over = checked.results.every((r) => r.pass) && checked.overBudget
+    const over = checked.runs.every((r) => r.pass) && checked.constraint
     return {
       tests,
-      says: over ? [overBudget(L, graph)] : checked.pass ? [T('每一行都正确：这块电路算出了这句话的完整真值表。')] : [],
+      says: over ? [checked.constraint] : checked.pass ? [T('每一行都正确：这块电路算出了这句话的完整真值表。')] : [],
       pass: checked.pass,
-      score: { steps: checked.gates },
+      score: checked.score,
     }
   },
 })

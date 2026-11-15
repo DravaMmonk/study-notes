@@ -4,6 +4,7 @@
 // test's premises, the goal and what reaches it. A card holds the schema's letters and shows them as the test's
 // sentences: its sentences are built in the language of the level's own (choices.js), its choices worked out by the
 // domain's resources on the test on view.
+import { runOutputTests } from '../../../engine/test-run.js'
 import { L, T } from '../../../shell/i18n.js'
 import { parse, replaceAtoms, same } from '../formula.js'
 import { say } from '../notation.js'
@@ -32,14 +33,7 @@ function show(v, { task, test }) {
   return hyps.length ? both(`${f.zh}（依赖 ${hyps.map((h) => h.zh).join('；')}）`, `${f.en} (from ${hyps.map((h) => h.en).join('; ')})`) : f
 }
 
-/** Every test run: its values, and why the goal does not stand, if it does not. */
-const runLevel = (task, circuit) => ({
-  runs: task.tests.map((test) => {
-    const run = LOGIC_TESTS.runTest(task, circuit, test)
-    const [check] = LOGIC_TESTS.check(task, test, run.outputs)
-    return { ...run, trace: [], ...(check.pass ? {} : { fail: { why: check.reason } }) }
-  }),
-})
+const runLevel = (task, board) => runOutputTests(LOGIC_TESTS, task, board)
 
 /** What the results show of a test: its premises, and the goal against what reaches it. */
 const entries = ({ task, test, run }) => {
@@ -69,8 +63,7 @@ export const proofScreen = {
   context: (task, test) => ({ task, text: textOf(task, test) }),
   // A script the proof follows, a line each, indented as its blocks are.
   told: (task, test) => (task.script ? scriptLines(task.script, (t) => textOf(task, test)(parse(t, { consts: [...(task.consts ?? []), ...(task.things ?? [])] }))).map(([depth, text]) => ({ text: `${'  '.repeat(depth)}${text}` })) : []),
-  score: (task, circuit) => LOGIC_TESTS.score(task, circuit),
-  readouts: (task, circuit) => [{ value: LOGIC_TESTS.score(task, circuit).steps, label: T('步数') }],
+  readouts: (_task, _circuit, { score }) => [{ value: score.steps, label: T('步数') }],
   says: { done: T('证明完毕') },
   canvas: { height: 150, emptyNote: T('从上方元件栏选择规则放到板上，再把元件右侧的圆点连到另一元件左侧的圆点。') },
 }

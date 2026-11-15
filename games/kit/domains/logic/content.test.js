@@ -205,7 +205,7 @@ test('a lemma runs the proof the player passed its level with, a level of tasks 
   syncOwn({ chain: read(['f = impI[A=A](body: m1) {', '  body {', '    m1 = mp(p, f.body)', '  }', '}', 'goal <- f'], chain) })
   const broken = run('useChain', 0)
   assert.equal(broken.pass, false)
-  assert.match(broken.results[0].errors.get('c').zh, /^「串联」照「接起来」一关的证明来证，在这里证不出/)
+  assert.match(broken.runs[0].errors.get('c').zh, /^「串联」照「接起来」一关的证明来证，在这里证不出/)
   // Half's two shapes are the two tasks of the level that builds it: useHalf's first task runs the first one's board
   // alone.
   const empty = (one) => ({ nodes: startProof(one).nodes, wires: [] })
