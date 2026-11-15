@@ -54,9 +54,9 @@ test('bulk edits are one operation a level, and the levels an edit does not fit 
   assert.deepEqual(bulkMove(['x', 'y', 'z'], { era: 1, at: 0 }).map((op) => op.to), [{ era: 1, at: 0 }, { after: 'x' }, { after: 'y' }])
   assert.deepEqual(bulkMove(['x', 'y'], { branch: 'p', era: 1, at: 0 }).map((op) => op.to), [{ branch: 'p', era: 1, at: 0 }, { after: 'x' }])
   // Each move lands where it says: the levels end up together, in order.
-  let eras = [{ id: 1, levels: ['a', 'b', 'x', 'c', 'y'] }]
-  for (const op of bulkMove(['y', 'x'], { after: 'a' })) eras = putIn(takeOut(eras, op.level).eras, op.level, op.to)
-  assert.deepEqual(eras[0].levels, ['a', 'y', 'x', 'b', 'c'])
+  let eras = [{ id: 1, levels: [{ id: 'a' }, { id: 'b' }, { id: 'x' }, { id: 'c' }, { id: 'y' }] }]
+  for (const op of bulkMove(['y', 'x'], { after: 'a' })) eras = putIn(takeOut(eras, op.level).eras, { id: op.level }, op.to)
+  assert.deepEqual(eraLevels(eras[0]), ['a', 'y', 'x', 'b', 'c'])
 })
 
 // Every domain's starter game, as content.js assembles it; and one opened for operations in a temp games folder.
@@ -95,7 +95,7 @@ test('on every starter: a bulk edit of its first era’s levels runs as a change
 })
 
 const CONTENT = {
-  id: 'toy', title: { en: '玩具' }, eras: [{ id: 1, title: { en: '第一章' }, levels: ['a', 'b'] }],
+  id: 'toy', title: { en: '玩具' }, eras: [{ id: 1, title: { en: '第一章' }, levels: [{ id: 'a' }, { id: 'b' }] }],
   levels: LEVELS, glossary: { groups: [], entries: [{ id: 'adder', title: { en: '加法器' }, body: [] }] },
 }
 

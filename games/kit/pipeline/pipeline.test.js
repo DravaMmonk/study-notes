@@ -115,10 +115,10 @@ test('the eras a blueprint lays out: routes and optional levels', () => {
   bp.eras[0].series.push(series('other', [slot('1-8', { uses: ['reg'] })], { parallel: 'p' }))
   bp.eras[0].series.push(series('top', [slot('N1', { role: 'intro', uses: ['counter'] })], { kind: 'topic', after: '1-5' }))
   const [era] = erasOf(bp)
-  assert.deepEqual(era.levels, ['1-1', '1-2', '1-3', '1-4', '1-5', '1-8', 'N1'])
+  assert.deepEqual(era.levels.map(({ id }) => id), ['1-1', '1-2', '1-3', '1-4', '1-5', '1-8', 'N1'])
   assert.deepEqual(layout([era]).requires.get('1-8'), ['1-3'])
   assert.deepEqual(layout([era]).requires.get('N1'), ['1-5'])
-  assert.deepEqual(era.optional, ['N1'])
+  assert.deepEqual(era.levels.filter(({ optional }) => optional), [{ id: 'N1', optional: true }])
 })
 
 test('a slot renamed with its level, wherever the blueprint names it', () => {
@@ -180,7 +180,10 @@ test('conformance: the level that brings a point links its entry, opened there',
 
 
 test('serial chapters are review candidates; optional topics do not count as required parallel routes', () => {
-  const serial = { id: 1, levels: ['a', 'b', 'c'], links: [{ from: 'a', to: 'b' }, { from: 'a', to: 'c' }], optional: ['c'] }
+  const serial = {
+    id: 1, levels: [{ id: 'a' }, { id: 'b' }, { id: 'c', optional: true }],
+    links: [{ from: 'a', to: 'b' }, { from: 'a', to: 'c' }],
+  }
   const found = (eras) => {
     const { requires } = layout(eras)
     return lintPedagogy({ levels: [], eras }, { blueprints: [], course: { before: (a, b) => requires.get(b).includes(a) } }).filter((f) => f.rule === 'pd-serial-chapter')
@@ -189,8 +192,8 @@ test('serial chapters are review candidates; optional topics do not count as req
   assert.equal(reports.length, 1)
   assert.equal(reports[0].at, 'era 1')
   assert.equal(reports[0].report, true, 'a serial shape is not proof of a bad dependency')
-  assert.deepEqual(found([{ id: 1, levels: [] }, { id: 2, levels: ['a'] }]), [])
-  assert.deepEqual(found([{ ...serial, levels: ['a', 'b', 'join', 'c'], links: [{ from: 'a', to: 'join' }, { from: 'b', to: 'join' }] }]), [])
+  assert.deepEqual(found([{ id: 1, levels: [] }, { id: 2, levels: [{ id: 'a' }] }]), [])
+  assert.deepEqual(found([{ ...serial, levels: [{ id: 'a' }, { id: 'b' }, { id: 'join' }, { id: 'c', optional: true }], links: [{ from: 'a', to: 'join' }, { from: 'b', to: 'join' }] }]), [])
 })
 
 test('terminology review inspects both task overrides and glossary bodies through the schema', async () => {

@@ -142,18 +142,14 @@ export function checkContent({ vocabulary: domainVocabulary, languages = null, n
   if (!gameProblems.length && game.eras) {
     const placed = new Set()
     for (const [e, era] of game.eras.entries()) {
-      const local = new Set(eraLevels(era))
       const prefix = `game.json.eras[${e}]`
       for (const id of eraLevels(era)) {
         if (placed.has(id)) out.push({ at: prefix, says: `level "${id}" is placed twice` })
         placed.add(id)
       }
-      for (const id of era.optional ?? []) {
-        if (!local.has(id)) out.push({ at: `${prefix}.optional`, says: `level "${id}" is outside this chapter` })
-      }
     }
     for (const [e, era] of game.eras.entries()) {
-      const local = new Set(era.levels), pairs = new Set()
+      const local = new Set(eraLevels(era)), pairs = new Set()
       for (const [k, { from, to }] of (era.links ?? []).entries()) {
         const at = `game.json.eras[${e}].links[${k}]`
         const key = JSON.stringify([from, to])

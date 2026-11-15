@@ -78,7 +78,7 @@ export default function tableGame(content) {
   const eraOf = new Map(ERAS.flatMap((era, e) => eraLevels(era).map((id) => [id, e])))
   const robotFilters = (progress) => ERAS.flatMap((era, e) => {
     if (!era.machine) return []
-    const first = era.levels[0]
+    const first = era.levels[0]?.id
     const keys = new Set([...LEVELS.filter((L) => L.unlock && eraOf.get(L.id) <= e).map((L) => L.unlock), ...primitives.filter((p) => p.at.some((id) => eraOf.get(id) <= e)).map((p) => p.key)])
     const robot = ROBOTS[era.machine]
     return [{ key: era.machine, name: robot.name, icon: robot.look, keys, lock: progress.all || progress.solved.includes(first) ? null : LABELS.get(first) }]

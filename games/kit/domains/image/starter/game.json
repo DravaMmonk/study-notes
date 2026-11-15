@@ -1,6 +1,6 @@
 {
   "domain": "image",
-  "vocabulary": 22,
+  "vocabulary": 23,
   "title": { "en": "__title__", "zh": "__title__" },
   "kicker": { "en": "In development", "zh": "开发中" },
   "lede": {
@@ -33,9 +33,9 @@
         }
       },
       "levels": [
-        "0-1",
-        "0-2",
-        "0-3"
+        {"id": "0-1"},
+        {"id": "0-2"},
+        {"id": "0-3"}
       ],
       "links": [
         {

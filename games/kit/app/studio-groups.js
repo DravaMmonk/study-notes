@@ -2,6 +2,7 @@
 import { randomUUID } from 'node:crypto'
 import { readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { eraLevels } from '../course.js'
 import { gameDirectory, readGameConfig } from '../engine/content-node.js'
 import { S, validate } from '../engine/schema.js'
 import { withLock } from '../engine/ops/log.js'
@@ -35,7 +36,7 @@ export const studioGroups = (root, known) => ({
       if (JSON.stringify(readGroups(file)) !== JSON.stringify(base)) throw new Error('Groups changed on disk. Reload Studio before saving.')
 
       const { game: config } = readGameConfig(id, root)
-      const levels = new Set(config.eras.flatMap((era) => era.levels))
+      const levels = new Set(config.eras.flatMap(eraLevels))
       const problems = validate(GROUPS, groups, { levels })
       if (problems.length) throw new Error(problems.map(({ at, says }) => `${at}: ${says}`).join('\n'))
       const ids = new Set(), members = new Set()

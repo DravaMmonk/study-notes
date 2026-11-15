@@ -7,7 +7,7 @@ import { dependencies, dot, mermaid } from './deps.js'
 import { rebuilt } from './match.js'
 
 const wires = (...pairs) => pairs.map(([from, to, required]) => ({ from, to, ...(required && { required: true }) }))
-const serial = (...levels) => ({ levels, links: levels.slice(1).map((to, i) => ({ from: levels[i], to })) })
+const serial = (...levels) => ({ levels: levels.map((id) => ({ id })), links: levels.slice(1).map((to, i) => ({ from: levels[i], to })) })
 
 /**
  * A course from a sketch: eras of level ids; per level what it adds, builds and its reference uses (`uses`), its
@@ -59,7 +59,7 @@ test('an idea keeps working inside a built part, and other branches bring nothin
     1: { adds: ['a'], uses: ['a'] }, 2: { adds: ['b'], builds: 'P', uses: ['a', 'b'] }, x: { adds: ['c'], uses: ['c'] }, y: { adds: ['d'], uses: ['d'] },
     z: { uses: ['P', 'c'] }, w: { uses: ['d'] },
   }
-  const eras = [{ levels: ['1','2','x','z','y','w'], links: wires(['1','2'], ['2','x'], ['x','z'], ['2','y'], ['y','w']) }]
+  const eras = [{ levels: [{ id: '1' }, { id: '2' }, { id: 'x' }, { id: 'z' }, { id: 'y' }, { id: 'w' }], links: wires(['1','2'], ['2','x'], ['x','z'], ['2','y'], ['y','w']) }]
   assert.deepEqual(idle(sketch(eras, spec)), [])
   // Without P, a waits for z behind b and c.
   assert.deepEqual(idle(sketch(eras, { ...spec, 2: { adds: ['b'], uses: ['b'] }, z: { uses: ['a', 'b', 'c'] } })), ['a@1'])
@@ -82,7 +82,7 @@ const TRIPLE = board([{ id: 'x', type: 'a' }, { id: 'y', type: 'b', params: { k:
 
 test('a level starts only from a board it has seen', () => {
   const rules = (course, rule) => audit(course).filter((f) => f.rule === rule).map((f) => `${f.part}@${f.level}`)
-  const eras = [{ levels: ['a1','a2','a3','t1','t2','t3'], links: wires(['a1','a2'], ['a2','a3'], ['a1','t1'], ['t1','t2',true], ['t2','t3',true]), optional: ['t1','t2','t3'] }]
+  const eras = [{ levels: [{ id: 'a1' }, { id: 'a2' }, { id: 'a3' }, { id: 't1', optional: true }, { id: 't2', optional: true }, { id: 't3', optional: true }], links: wires(['a1','a2'], ['a2','a3'], ['a1','t1'], ['t1','t2',true], ['t2','t3',true]) }]
   const carries = (l) => ({ a3: ['a1'], t2: ['a3'] })[l.id] ?? []
   assert.deepEqual(rules(sketch(eras, {}, { carries }), 'carry-unseen'), ['a3@t2'])
 
@@ -120,7 +120,7 @@ test('the part dependency graph: where each part comes in, what a built part is 
     1: { adds: ['a'], uses: ['a'] }, 2: { adds: ['b'], builds: 'P', uses: ['a', 'b', 'a'] },
     t1: { builds: 'Q', uses: ['P', 'b'] }, 3: { uses: ['P'] },
   }
-  const graph = dependencies(sketch([{ ...serial('1', '2', 't1'), optional: ['t1'] }, { title: { zh: '二', en: 'Two' }, levels: ['3'], links: wires(['2', '3']) }], spec))
+  const graph = dependencies(sketch([{ ...serial('1', '2', 't1'), levels: [{ id: '1' }, { id: '2' }, { id: 't1', optional: true }] }, { title: { zh: '二', en: 'Two' }, levels: [{ id: '3' }], links: wires(['2', '3']) }], spec))
   assert.deepEqual(graph.parts.map((p) => [p.key, p.built, p.at, p.era, p.optional, p.uses]), [
     ['a', false, ['1'], 1, false, ['1', '2']],
     ['b', false, ['2'], 1, false, ['2', 't1']],
@@ -168,7 +168,7 @@ test('only staged tasks exceeding the open-part limit are crowded', () => {
 test('a level holds, of the parts met before it, those its tray lists, in the tray’s order; another tray keeps its own', () => {
   const trays = { gates: ['b', 'a'], proof: ['c', 'x', 'd'] }
   const spec = { 1: { adds: ['a'], tray: 'gates' }, 2: { adds: ['b'], tray: 'gates' }, 3: { adds: ['c'], tray: 'proof' }, 4: { builds: 'x', uses: ['c'], tray: 'proof' }, 5: { adds: ['d'], tray: 'proof', uses: ['d'] }, 6: { tray: 'gates', uses: ['a'] } }
-  const course = sketch([serial('1', '2', '3', '4'), { levels: ['5', '6'], links: wires(['4', '5'], ['5', '6']) }], spec, { trays, tray: (l) => spec[l.id]?.tray ?? null })
+  const course = sketch([serial('1', '2', '3', '4'), { levels: [{ id: '5' }, { id: '6' }], links: wires(['4', '5'], ['5', '6']) }], spec, { trays, tray: (l) => spec[l.id]?.tray ?? null })
   assert.deepEqual(reach(course, { id: '5' }), ['c', 'x', 'd'])
   // The gates come back on the next truth circuit, though proof levels came in between.
   assert.deepEqual(reach(course, { id: '6' }), ['b', 'a'])
@@ -233,9 +233,8 @@ test('a task holds its level’s part once a task before it has built it; the ta
 
 test('parallel routes, optional unlocks, numeric labels are independent', () => {
   const era = {
-    id: 0, levels: ['start', 'a', 'c', 'b', 'd', 'join', 'extra', 'last'],
-    links: wires(['start','a'], ['start','c'], ['a','b'], ['c','d'], ['b','join'], ['d','join'], ['a','extra'], ['c','extra'], ['extra','last',true]),
-    optional: ['b', 'extra', 'last'],
+    id: 0, levels: [{ id: 'start' }, { id: 'a' }, { id: 'c' }, { id: 'b', optional: true }, { id: 'd' }, { id: 'join' }, { id: 'extra', optional: true }, { id: 'last', optional: true }],
+    links: wires(['start','a'], ['start','c'], ['a','b'], ['c','d'], ['b','join'], ['d','join'], ['a','extra'], ['c','extra'], ['extra','last',true])
   }
   const { place, requires, required } = layout([era])
   assert.deepEqual(requires.get('join'), ['b', 'd'])

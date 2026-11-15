@@ -17,6 +17,7 @@ import {
   referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, taskOptionsOf, tickValue, tickValues, toggled,
 } from './form.js'
 import { lintText } from '../pipeline/lint.js'
+import { eraLevels } from '../course.js'
 import { courseGroups, courseTree, stays } from './tree.js'
 import { fieldDiff } from './diff.js'
 import { lacking } from '../engine/text.js'
@@ -124,30 +125,32 @@ test('a level’s boards, its reference, its texts; which schemas hold levels', 
 })
 
 const ERAS = [
-  { id: 1, levels: ['a', 'b', 'c'] },
-  { id: 2, levels: ['i'] },
+  { id: 1, levels: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] },
+  { id: 2, levels: [{ id: 'i' }] },
 ]
 
 test('sidebar group order is independent of the course placement slots', () => {
   const tree = courseTree(ERAS)
   const [one] = tree.eras
   assert.deepEqual(one.slots, [{ era: 1, at: 0 }, { after: 'a' }, { after: 'b' }, { after: 'c' }])
-  assert.deepEqual(courseGroups(ERAS.flatMap(({ levels }) => levels), [{ title: 'G', code: 'G', levels: ['c', 'a', 'i'] }])
+  assert.deepEqual(courseGroups(ERAS.flatMap(eraLevels), [{ title: 'G', code: 'G', levels: ['c', 'a', 'i'] }])
     .map((group) => [group.code, group.levels]), [['G', ['a', 'c', 'i']], [undefined, ['b']]])
-  for (const to of one.slots) assert.doesNotThrow(() => putIn(takeOut(ERAS, 'i').eras, 'i', to))
+  for (const to of one.slots) assert.doesNotThrow(() => putIn(takeOut(ERAS, 'i').eras, { id: 'i' }, to))
   assert.equal(stays(tree, 'a', { era: 1, at: 0 }), true)
   assert.equal(stays(tree, 'c', { after: 'b' }), true)
   assert.equal(stays(tree, 'a', { after: 'c' }), false)
 })
 
 test('a changed file reads field by field: texts and boards whole, objects and lists looked into', () => {
-  const before = { title: { en: '甲' }, tests: [{ input: 1 }, { input: 2 }], solution: ['x', 'y'], eras: [{ levels: ['a', 'b'] }] }
-  const after = { title: { en: '乙' }, tests: [{ input: 1 }, { input: 3 }], solution: ['x', 'z'], eras: [{ levels: ['b', 'a', 'c'] }], note: 'n' }
+  const before = { title: { en: '甲' }, tests: [{ input: 1 }, { input: 2 }], solution: ['x', 'y'], eras: [{ levels: [{ id: 'a' }, { id: 'b' }] }] }
+  const after = { title: { en: '乙' }, tests: [{ input: 1 }, { input: 3 }], solution: ['x', 'z'], eras: [{ levels: [{ id: 'b' }, { id: 'a' }, { id: 'c' }] }], note: 'n' }
   assert.deepEqual(fieldDiff(before, after), [
     { path: ['title'], before: { en: '甲' }, after: { en: '乙' }, as: 'text' },
     { path: ['tests', 1, 'input'], before: 2, after: 3, as: 'value' },
     { path: ['solution'], before: ['x', 'y'], after: ['x', 'z'], as: 'lines' },
-    { path: ['eras', 0, 'levels'], before: ['a', 'b'], after: ['b', 'a', 'c'], as: 'lines' },
+    { path: ['eras', 0, 'levels', 0], before: { id: 'a' }, after: undefined, as: 'value' },
+    { path: ['eras', 0, 'levels', 1], before: undefined, after: { id: 'a' }, as: 'value' },
+    { path: ['eras', 0, 'levels', 2], before: undefined, after: { id: 'c' }, as: 'value' },
     { path: ['note'], before: undefined, after: 'n', as: 'value' },
   ])
   assert.deepEqual(fieldDiff(undefined, { a: 1 }), [{ path: [], before: undefined, after: { a: 1 }, as: 'value' }])

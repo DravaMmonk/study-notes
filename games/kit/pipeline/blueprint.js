@@ -180,8 +180,8 @@ export function erasOf(bp) {
     for (const link of links) if (optionalSet.has(link.from)) link.required = true
     return {
       id: era.id, title: era.title, question: era.question,
-      levels: [...path.flatMap(({ lanes }) => lanes.flat()), ...optional], links,
-      ...(optional.length && { optional }),
+      levels: [...path.flatMap(({ lanes }) => lanes.flat().map((id) => ({ id }))), ...optional.map((id) => ({ id, optional: true }))],
+      links,
     }
   })
 }

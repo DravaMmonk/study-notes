@@ -33,7 +33,7 @@ const GAME = {
   eras: [{
     id: 'ground',
     machine: 'prover',
-    levels: ['given', 'apply', 'suppose'],
+    levels: [{ id: 'given' }, { id: 'apply' }, { id: 'suppose' }],
     links: [{ from: 'given', to: 'apply' }, { from: 'apply', to: 'suppose' }],
     chapter: { title: T('The foundation'), question: T('What can be built from Apply and the assumption box alone?') },
   }],

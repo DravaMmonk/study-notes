@@ -79,8 +79,7 @@ export function lintPedagogy(content, spec) {
 
   // A chapter whose required levels each wait for the prior required level has no choice of order.
   for (const era of content.eras ?? []) {
-    const optional = new Set(era.optional)
-    const main = era.levels.filter((id) => !optional.has(id))
+    const main = era.levels.filter(({ optional }) => !optional).map(({ id }) => id)
     const ordered = main.length > 1 && main.slice(1).every((id, i) => spec.course.before(main[i], id))
     if (ordered) say('pd-serial-chapter', `era ${era.id}`, 'the main path is wholly serial; justify its concept/part dependencies or identify independent required routes', true)
   }

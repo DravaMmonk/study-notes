@@ -1,6 +1,6 @@
 {
   "domain": "table",
-  "vocabulary": 5,
+  "vocabulary": 6,
   "title": {
     "en": "__title__",
     "zh": "__title__"
@@ -34,10 +34,10 @@
         }
       },
       "levels": [
-        "copy",
-        "merge",
-        "stamp",
-        "rocks"
+        {"id": "copy"},
+        {"id": "merge"},
+        {"id": "stamp"},
+        {"id": "rocks"}
       ],
       "links": [
         {

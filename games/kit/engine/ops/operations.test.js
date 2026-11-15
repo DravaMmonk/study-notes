@@ -43,7 +43,7 @@ function toy() {
   put('game.json', {
     package: 'toy',
     domain: 'toy', vocabulary: 1, title: { en: 'Toy' },
-    eras: [{ id: 'one', levels: ['a1', 'a2', 'a3'], links: [{ from: 'a1', to: 'a2' }, { from: 'a1', to: 'a3' }], optional: ['a3'] }, { id: 'two', levels: ['b1', 'b2', 'c1'], links: [{ from: 'b1', to: 'c1' }, { from: 'a3', to: 'b1' }] }],
+    eras: [{ id: 'one', levels: [{ id: 'a1' }, { id: 'a2' }, { id: 'a3', optional: true }], links: [{ from: 'a1', to: 'a2' }, { from: 'a1', to: 'a3' }] }, { id: 'two', levels: [{ id: 'b1' }, { id: 'b2' }, { id: 'c1' }], links: [{ from: 'b1', to: 'c1' }, { from: 'a3', to: 'b1' }] }],
     carry: { x: 'a2' },
   })
   put('glossary.json', { groups: [{ id: 'g', title: 'G' }], entries: [{ id: 'e', group: 'g', title: { en: 'E' }, body: ['see <level-ref to="a2"></level-ref>'], at: 'a2' }] })
@@ -103,12 +103,11 @@ test('level.blueprint writes a board as blueprint text, and only a board', () =>
 test('level.move takes a level out of a branch and puts it anywhere', () => {
   const { ws } = toy()
   const done = roundTrip(ws, 'level.move', { level: 'a3', to: { before: 'b2' } })
-  assert.deepEqual(ws.game.eras[1].levels, ['b1', 'a3', 'b2', 'c1'])
-  assert.deepEqual(ws.game.eras[1].optional, ['a3'])
+  assert.deepEqual(ws.game.eras[1].levels, [{ id: 'b1' }, { id: 'a3', optional: true }, { id: 'b2' }, { id: 'c1' }])
   assert.match(done.says, /era one, level #3 → era two, level #2/)
   roundTrip(ws, 'level.move', { level: 'a2', to: { era: 'two', at: 0 } })
   // Moving preserves the prerequisite wires.
-  assert.deepEqual(ws.game.eras[0].levels, ['a1'])
+  assert.deepEqual(eraLevels(ws.game.eras[0]), ['a1'])
   roundTrip(ws, 'level.move', { level: 'a1', to: { after: 'b2' } })
   roundTrip(ws, 'level.move', { level: 'b2', to: { era: 'two' } })
   assert.deepEqual(ws.game.eras[1].links, [{ from: 'b1', to: 'c1' }, { from: 'a3', to: 'b1' }, { from: 'a1', to: 'a3' }, { from: 'a1', to: 'a2' }])
@@ -119,7 +118,7 @@ test('level.rename renames the file and every reference', () => {
   const { ws } = toy()
   roundTrip(ws, 'level.rename', { level: 'a2', to: 'two' })
   assert.ok(ws.levels.has('two') && !ws.levels.has('a2'))
-  assert.deepEqual(ws.game.eras[0].levels, ['a1', 'two', 'a3'])
+  assert.deepEqual(eraLevels(ws.game.eras[0]), ['a1', 'two', 'a3'])
   assert.deepEqual(ws.game.eras[0].links[0], { from: 'a1', to: 'two' })
   assert.deepEqual(ws.game.carry, { x: 'two' })
   assert.equal(level(ws, 'b1').from, 'two')
@@ -133,7 +132,7 @@ test('level.rename renames the file and every reference', () => {
 test('level.add puts a new level in; level.remove refuses while anything names the level', () => {
   const { ws } = toy()
   roundTrip(ws, 'level.add', { level: 'n1', data: { title: 'N' }, to: { after: 'a1' } })
-  assert.deepEqual(ws.game.eras[0].levels, ['a1', 'n1', 'a2', 'a3'])
+  assert.deepEqual(eraLevels(ws.game.eras[0]), ['a1', 'n1', 'a2', 'a3'])
   roundTrip(ws, 'level.remove', { level: 'n1' })
   assert.throws(() => run(ws, 'level.remove', { level: 'a2' }), /still named at game.json carry.x, glossary.json entries\[0\].at, glossary.json entries\[0\].body\[0\], levels\/b1.json from, levels\/b1.json brief.en/)
   roundTrip(ws, 'level.remove', { level: 'c1' })
@@ -288,7 +287,7 @@ function partsToy() {
   mkdirSync(join(root, 'packages', 'ptoy', 'levels'), { recursive: true })
   const put = (file, value) => writeFileSync(join(root, file === 'game.json' ? 'games' : 'packages', 'ptoy', file), `${JSON.stringify(value, null, 2)}\n`)
   mkdirSync(join(root, 'games', 'ptoy'), { recursive: true })
-  put('game.json', { package: 'ptoy', domain: 'ptoy', vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], eras: [{ id: 'one', levels: ['a1'] }] })
+  put('game.json', { package: 'ptoy', domain: 'ptoy', vocabulary: 1, title: { en: 'Toy' }, primitives: ['sum'], eras: [{ id: 'one', levels: [{ id: 'a1' }] }] })
   put('glossary.json', { groups: [], entries: [] })
   put('pieces.json', { parts: { sum } })
   put('levels/a1.json', { title: 'A', brief: { en: '用 <part-ref to="sum"></part-ref>' }, adds: ['sum'], solution: ['s = sum(a, b)', 'out <- s'] })

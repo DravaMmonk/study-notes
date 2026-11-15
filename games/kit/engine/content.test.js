@@ -39,8 +39,8 @@ test('course edits reject circular prerequisites', () => {
     glossary: { groups: [], entries: [] },
     levels: ['start', 'a', 'b', 'next'].map((id) => ({ id, mode: 'read', text: id })),
     eras: [
-      { id: 'one', levels: ['start', 'a', 'b'], links: [{ from: 'b', to: 'a' }, { from: 'a', to: 'b' }] },
-      { id: 'two', levels: ['next'] },
+      { id: 'one', levels: [{ id: 'start' }, { id: 'a' }, { id: 'b' }], links: [{ from: 'b', to: 'a' }, { from: 'a', to: 'b' }] },
+      { id: 'two', levels: [{ id: 'next' }] },
     ],
   }
   assert.deepEqual(checkContent({ vocabulary }, content), [

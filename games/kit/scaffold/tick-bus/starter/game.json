@@ -1,6 +1,6 @@
 {
   "domain": "__name__",
-  "vocabulary": 17,
+  "vocabulary": 18,
   "title": { "en": "__title__", "zh": "__title__" },
   "kicker": { "en": "In development", "zh": "开发中" },
   "lede": {
@@ -21,8 +21,8 @@
         "zh": "线上每一拍有一位：怎样听它，怎样说？"
       },
       "levels": [
-        "1-1",
-        "1-2"
+        {"id": "1-1"},
+        {"id": "1-2"}
       ],
       "links": [
         {

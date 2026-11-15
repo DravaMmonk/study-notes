@@ -1,15 +1,15 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { layout } from '../course.js'
+import { eraLevels, layout } from '../course.js'
 import { boardGeometry, linkKey, wiringBoard, wiringRefusal } from './arrangement.js'
 
 test('a group filter keeps individual ports and links to external levels', () => {
   const era = {
-    id: 1, levels: ['a', 'b', 'c', 'd'],
+    id: 1, levels: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }],
     links: [{ from: 'x', to: 'a' }, { from: 'a', to: 'b' }, { from: 'a', to: 'c' }, { from: 'b', to: 'd' }, { from: 'c', to: 'd' }],
   }
-  const { requires } = layout([{ id: 0, levels: ['x'] }, era])
-  const outer = wiringBoard(era.levels, [], requires, era.links)
+  const { requires } = layout([{ id: 0, levels: [{ id: 'x' }] }, era])
+  const outer = wiringBoard(eraLevels(era), [], requires, era.links)
   const inner = wiringBoard(['x', 'a', 'b', 'd'], [], requires, era.links)
   const nodes = (board) => new Map(board.rows.flat().map((node) => [node.id, node]))
   assert.equal(nodes(outer).get('x').portal, true)

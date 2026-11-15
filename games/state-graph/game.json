@@ -1,7 +1,7 @@
 {
   "package": "state-graph",
   "domain": "table",
-  "vocabulary": 5,
+  "vocabulary": 6,
   "title": { "en": "State Graph", "zh": "状态之图" },
   "kicker": { "en": "Dynamic programming puzzles, from scratch", "zh": "从零开始的动态规划解谜" },
   "lede": {
@@ -41,7 +41,7 @@
           "zh": "用小问题的答案，拼出大问题的答案。"
         }
       },
-      "levels": ["trace", "lastStep", "city"],
+      "levels": [{ "id": "trace" }, { "id": "lastStep" }, { "id": "city" }],
       "links": [{ "from": "trace", "to": "lastStep" }, { "from": "lastStep", "to": "city" }]
     },
     {
@@ -54,24 +54,23 @@
           "zh": "机器人在每一格上运行同一块电路板；拼好的电路板会变成元件。"
         }
       },
-      "optional": ["seamline", "seamslant", "seam", "carve", "lawn"],
       "levels": [
-        "copy",
-        "confluence",
-        "stamp",
-        "rocks",
-        "cheapest",
-        "reach",
-        "slantcost",
-        "slant",
-        "maxcoins",
-        "pascal",
-        "pits",
-        "seamline",
-        "seamslant",
-        "seam",
-        "carve",
-        "lawn"
+        { "id": "copy" },
+        { "id": "confluence" },
+        { "id": "stamp" },
+        { "id": "rocks" },
+        { "id": "cheapest" },
+        { "id": "reach" },
+        { "id": "slantcost" },
+        { "id": "slant" },
+        { "id": "maxcoins" },
+        { "id": "pascal" },
+        { "id": "pits" },
+        { "id": "seamline", "optional": true },
+        { "id": "seamslant", "optional": true },
+        { "id": "seam", "optional": true },
+        { "id": "carve", "optional": true },
+        { "id": "lawn", "optional": true }
       ],
       "links": [
         { "from": "city", "to": "copy" },
@@ -105,22 +104,21 @@
           "zh": "看得更远：两步之外的格子；看得更全：表头上的两个词；还能换个方向扫。"
         }
       },
-      "optional": ["replace", "edit", "spell", "parity", "localalign", "piles"],
       "levels": [
-        "stairs",
-        "order",
-        "nim",
-        "link",
-        "lcs",
-        "palin",
-        "brokenstairs",
-        "lps",
-        "replace",
-        "edit",
-        "spell",
-        "parity",
-        "localalign",
-        "piles"
+        { "id": "stairs" },
+        { "id": "order" },
+        { "id": "nim" },
+        { "id": "link" },
+        { "id": "lcs" },
+        { "id": "palin" },
+        { "id": "brokenstairs" },
+        { "id": "lps" },
+        { "id": "replace", "optional": true },
+        { "id": "edit", "optional": true },
+        { "id": "spell", "optional": true },
+        { "id": "parity", "optional": true },
+        { "id": "localalign", "optional": true },
+        { "id": "piles", "optional": true }
       ],
       "links": [
         { "from": "pits", "to": "stairs" },
@@ -147,19 +145,18 @@
         "title": { "en": "A longer arm", "zh": "伸长手臂" },
         "desc": { "en": "A telescopic arm reaches a cell however far away.", "zh": "伸缩臂能够到任意远的一格。" }
       },
-      "optional": ["pack", "knaptable", "knapmany", "knapmix", "coinways", "roll"],
       "levels": [
-        "frog",
-        "frogfar",
-        "tagging",
-        "safefrog",
-        "forward",
-        "pack",
-        "knaptable",
-        "knapmany",
-        "knapmix",
-        "coinways",
-        "roll"
+        { "id": "frog" },
+        { "id": "frogfar" },
+        { "id": "tagging" },
+        { "id": "safefrog" },
+        { "id": "forward" },
+        { "id": "pack", "optional": true },
+        { "id": "knaptable", "optional": true },
+        { "id": "knapmany", "optional": true },
+        { "id": "knapmix", "optional": true },
+        { "id": "coinways", "optional": true },
+        { "id": "roll", "optional": true }
       ],
       "links": [
         { "from": "brokenstairs", "to": "frog" },
@@ -186,18 +183,17 @@
           "zh": "扫描臂扫过一整段格子，来路的数量不再固定。"
         }
       },
-      "optional": ["wordbreak", "wordcost", "segment", "maxsub"],
       "levels": [
-        "prefix",
-        "rising",
-        "stones",
-        "change",
-        "twoorders",
-        "parse",
-        "wordbreak",
-        "wordcost",
-        "segment",
-        "maxsub"
+        { "id": "prefix" },
+        { "id": "rising" },
+        { "id": "stones" },
+        { "id": "change" },
+        { "id": "twoorders" },
+        { "id": "parse" },
+        { "id": "wordbreak", "optional": true },
+        { "id": "wordcost", "optional": true },
+        { "id": "segment", "optional": true },
+        { "id": "maxsub", "optional": true }
       ],
       "links": [
         { "from": "safefrog", "to": "prefix" },
@@ -223,8 +219,17 @@
           "zh": "一个数记不住的时候，就多记一件事。"
         }
       },
-      "optional": ["twokeys", "threekeys", "enough", "ring"],
-      "levels": ["robber", "breach", "keydoor", "stock1", "cooldown", "twokeys", "threekeys", "enough", "ring"],
+      "levels": [
+        { "id": "robber" },
+        { "id": "breach" },
+        { "id": "keydoor" },
+        { "id": "stock1" },
+        { "id": "cooldown" },
+        { "id": "twokeys", "optional": true },
+        { "id": "threekeys", "optional": true },
+        { "id": "enough", "optional": true },
+        { "id": "ring", "optional": true }
+      ],
       "links": [
         { "from": "parse", "to": "robber" },
         { "from": "change", "to": "robber" },
@@ -245,8 +250,14 @@
         "title": { "en": "Scan until it settles", "zh": "扫到不再变" },
         "desc": { "en": "When the arrows loop round, scan again and again.", "zh": "箭头绕成了圈，就一遍一遍地扫。" }
       },
-      "optional": ["treasure", "slip", "ice"],
-      "levels": ["loop", "value", "arrows", "treasure", "slip", "ice"],
+      "levels": [
+        { "id": "loop" },
+        { "id": "value" },
+        { "id": "arrows" },
+        { "id": "treasure", "optional": true },
+        { "id": "slip", "optional": true },
+        { "id": "ice", "optional": true }
+      ],
       "links": [
         { "from": "cooldown", "to": "loop" },
         { "from": "loop", "to": "value" },

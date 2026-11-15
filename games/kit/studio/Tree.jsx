@@ -22,7 +22,8 @@ export default function Tree({ game, content, entries, at, selectedTask, picked,
     setGroupFolds((old) => ({ ...old, [game]: [...foldedGroups] }))
   }
   const rows = groupView ? groups.flatMap(({ id, levels }) => foldedGroups.has(id ?? '') ? [] : levels) : order
-  const optional = useMemo(() => new Set(tree.eras.flatMap(({ era }) => era.optional ?? [])), [tree])
+  const optional = useMemo(() => new Set(tree.eras.flatMap(({ era }) =>
+    era.levels.filter((entry) => entry.optional).map(({ id }) => id))), [tree])
   const byId = useMemo(() => new Map(content.levels.map((l) => [l.id, l])), [content])
   const labelOf = useMemo(() => new Map((labels ?? []).map((l) => [l.id, l.label])), [labels])
   const [folds, setFolds] = usePref('folded-eras', {})
@@ -191,7 +192,7 @@ export default function Tree({ game, content, entries, at, selectedTask, picked,
             </div>
             {!shut && (
               <div className="tree-levels">
-                {list(value.levels, slots, title)}
+                {list(eraLevels(value), slots, title)}
               </div>
             )}
           </section>

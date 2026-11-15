@@ -93,13 +93,13 @@ export const RULE_TEXT = {
   'difficulty-spike': 'a required level whose blind-play attempts stand out against its neighbours on the tree (engine/play/stats.js)',
 }
 
-export const eraLevels = (era) => era.levels
+export const eraLevels = (era) => era.levels.map(({ id }) => id)
 
 /** Numeric positions follow the chapter's ordered list. */
 export function levelLabels(eras) {
   return new Map(eras.flatMap((era, e) => {
     const chapter = typeof era.id === 'number' ? era.id : e
-    return era.levels.map((id, i) => [id, `${chapter}-${i + 1}`])
+    return eraLevels(era).map((id, i) => [id, `${chapter}-${i + 1}`])
   }))
 }
 
@@ -134,12 +134,11 @@ export function layout(eras, { notes = false } = {}) {
   const place = new Map(), requires = new Map(), tracks = new Map()
   const incoming = new Map()
   for (const era of eras) {
-    const optional = new Set(era.optional)
-    for (const id of era.levels) {
-      place.set(id, { era: era.id, optional: optional.has(id) })
+    for (const { id, optional = false } of era.levels) {
+      place.set(id, { era: era.id, optional })
       incoming.set(id, [])
     }
-    tracks.set(era.id, era.levels)
+    tracks.set(era.id, eraLevels(era))
   }
   if (!notes) for (const era of eras) for (const link of era.links ?? []) incoming.get(link.to)?.push(link)
   for (const [id, links] of incoming) requires.set(id, links.map(({ from }) => from))
@@ -374,7 +373,7 @@ export function isCore(course, level) {
   if (!at) return true
   const own = course.levels[course.index.get(level.id)]
   const era = course.eras.find((e) => e.id === at.era)
-  return era.levels[0] === level.id || (own.unlocks ?? []).length > 0 || fresh(course, own).size > 0
+  return era.levels[0]?.id === level.id || (own.unlocks ?? []).length > 0 || fresh(course, own).size > 0
 }
 
 /** Every broken rule, as { rule, level, part, text }, in play order. */

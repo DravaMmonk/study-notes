@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { ArrowLeft, ListOrdered, Save, Trash2 } from 'lucide-react'
-import { layout } from '../course.js'
+import { eraLevels, layout } from '../course.js'
 import { L, tr } from '../shell/i18n.js'
 import { Picker } from './Picker.jsx'
 import ArrangementBoard from './ArrangementBoard.jsx'
@@ -29,7 +29,7 @@ export default function Arrangement({ content, groups, at, options, pending, sav
   const [notice, setNotice] = useState('')
   const group = groups.find(({ id }) => id === scope?.group)
   const pins = group || scope?.era === era?.id ? scope?.pins : null
-  const board = useMemo(() => era && wiringBoard(group ? group.levels.filter((id) => place.has(id)) : era.levels, pins ?? [], requires, links), [era, group, place, pins, requires, links])
+  const board = useMemo(() => era && wiringBoard(group ? group.levels.filter((id) => place.has(id)) : eraLevels(era), pins ?? [], requires, links), [era, group, place, pins, requires, links])
   if (!era) return <p className="studio-loading">{tr('没有章节', 'No chapters')}</p>
   const picked = board.hosted.has(armed) ? armed : null
   const wire = board.edges.find((edge) => linkKey(edge) === highlight)
@@ -115,8 +115,9 @@ export default function Arrangement({ content, groups, at, options, pending, sav
           <label>
             <input type="checkbox" checked={place.get(selected).optional} disabled={pending} onChange={(e) => {
               const chapter = indices.get(place.get(selected).era)
-              const optional = eras[chapter].optional ?? []
-              setField(['eras', chapter, 'optional'], e.target.checked ? [...optional, selected] : optional.filter((id) => id !== selected))
+              const levelIndex = eras[chapter].levels.findIndex(({ id }) => id === selected)
+              const path = ['eras', chapter, 'levels', levelIndex, 'optional']
+              onEdit(e.target.checked ? { op: 'game.set', path, value: true } : { op: 'game.unset', path })
             }} />
             {tr('可选', 'Optional')}
           </label>
@@ -130,7 +131,7 @@ export default function Arrangement({ content, groups, at, options, pending, sav
           : !wire && !selected ? tr('拖动关卡调整视图，从输出接到输入添加依赖。', 'Drag levels to arrange the view. Connect an output to an input to add a prerequisite.') : '')}</p>
       </div>
       {save.dirty && <p className={`arrange-saved ${save.problems.length ? 'is-error' : ''}`} role="status">
-        {save.problems[0] ?? tr('保存后依赖变更才会生效。', 'Save to apply prerequisite changes.')}
+        {save.problems[0] ?? tr('保存后编排变更才会生效。', 'Save to apply course changes.')}
       </p>}
       {save.said && <p className={`arrange-saved ${save.said.ok ? '' : 'is-error'}`} role="status">
         {save.said.ok ? tr('已保存到 game.json。', 'Saved to game.json.') : save.said.text}

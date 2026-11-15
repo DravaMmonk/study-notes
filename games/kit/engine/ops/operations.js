@@ -149,7 +149,7 @@ export const OPERATIONS = {
     apply(ws, { level, data, to }) {
       if (ws.levels.has(level)) fail(`there is a level ${level} already`)
       ws.levels.set(level, data)
-      if (to) ws.game = { ...ws.game, eras: putIn(ws.game.eras, level, to) }
+      if (to) ws.game = { ...ws.game, eras: putIn(ws.game.eras, { id: level }, to) }
       return { says: `${level}: added${to ? ` at ${describe(ws.game.eras, locate(ws.game.eras, level))}` : ''}`, inverse: [{ op: 'level.remove', level }] }
     },
   },
@@ -503,4 +503,4 @@ export const OPERATIONS = {
 }
 
 // Chapter placement, optional flags and incident wires are removed with the level.
-const isOwnPlace = (path) => path[0] === 'eras' && ['levels', 'optional', 'links'].includes(path[2])
+const isOwnPlace = (path) => path[0] === 'eras' && ['levels', 'links'].includes(path[2])

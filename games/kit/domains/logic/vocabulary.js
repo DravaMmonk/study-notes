@@ -249,7 +249,7 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 10,
+  version: 11,
   removes: [COURSE_SCHEMA_REMOVAL],
   kinds: {
     part: PART_ITEMS,

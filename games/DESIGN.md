@@ -26,7 +26,7 @@
 每章在 `game.json.eras` 里配置路线和可选关。
 
 - `levels` 列出本章的关卡及编号顺序。`links` 写从前置关到后续关的 `{ from, to }`。多条线接入同一关时要满足全部前置。跨章连线写在目标关所在章。
-- `optional` 列出本章的可选关卡。默认可以跳过作为前置的可选关，改等它之前的前置。要明确要求通过可选前置，在那条连线上写 `required: true`。关内任务的 `optional` 独立于关卡标签。
+- 在关卡条目中写 `optional: true` 标记可选关，省略时为必修。默认可以跳过作为前置的可选关，改等它之前的前置。要明确要求通过可选前置，在那条连线上写 `required: true`。关内任务的 `optional` 独立于关卡标签。
 - 一关从另一关通过时的作品继续，用关卡内容的 `carry` 引用对应先修。
 
 **存档按任务记。** 外壳存下的（`kit/shell/progress.js`，浏览器里 `<游戏 id>.v2`）分两层：关卡层面的是通过的关（`solved`，后来多了任务也不收回；它的某个任务的谜题变了才收回）、得分（`best`）；谜题层面的全部按**任务 key** 记：每个任务的板和它的几块存档（`data`、`slots`）、通过了哪些任务（`passed`）、元件跑的那块板（`built`）。任务 key 就是任务的 id（第 4 节），每个领域的关都是一串任务、每个任务都必须有 id（契约检查）；只有一个任务的关，任务 id 通常就是关的 id。所以任务在关内换位置、插进新任务、挪进别的关、几关合成一关，存下的都跟着任务走。
@@ -38,7 +38,10 @@
 ```js
 {
   id: 2,
-  levels: ['intro', 'probe', 'light', 'join', 'detail', 'extension'],
+  levels: [
+    { id: 'intro' }, { id: 'probe' }, { id: 'light' }, { id: 'join' },
+    { id: 'detail', optional: true }, { id: 'extension', optional: true },
+  ],
   links: [
     { from: 'intro', to: 'probe' },
     { from: 'intro', to: 'light' },
@@ -47,7 +50,6 @@
     { from: 'join', to: 'detail' },
     { from: 'detail', to: 'extension', required: true },
   ],
-  optional: ['detail', 'extension'],
 }
 ```
 
