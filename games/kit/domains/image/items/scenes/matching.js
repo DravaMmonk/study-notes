@@ -5,8 +5,7 @@ import { S } from '../../../../engine/schema.js'
 import { fromFn, image, map, random, zip, row } from '../../engine/image.js'
 import { peaksOf, sobelGradient } from '../../engine/filters.js'
 import { homographyDLT, project } from '../../engine/match.js'
-import { NODE_TYPES } from '../../engine/nodes.js'
-import { pairsOf, warp } from '../../engine/parts/matching.js'
+import { houghGrid, pairsOf, warp } from '../../engine/parts/matching.js'
 import { picture } from '../pictures.js'
 import { T as t } from '../../../../shell/i18n.js'
 
@@ -125,7 +124,7 @@ export const MATCHING = {
     make: ({ lanes, specks }) => {
       const fs = lanes.map((l) => onLine(...l))
       const img = fromFn(16, 16, (x, y) => (fs.some((f) => f(x, y)) || specks.some(([sx, sy]) => sx === x && sy === y) ? 0.9 : 0.1))
-      return { inputs: { in: img }, expected: { out: peaksOf(map(NODE_TYPES.hough.eval({ in: img }), (v) => v / 8)) } }
+      return { inputs: { in: img }, expected: { out: peaksOf(map(houghGrid(img), (v) => v / 8)) } }
     },
   },
   clutter: {

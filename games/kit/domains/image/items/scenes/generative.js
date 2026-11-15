@@ -3,8 +3,7 @@
 // noise, and an old photo restored without knowing the noise.
 import { S } from '../../../../engine/schema.js'
 import { GLYPHS, fromFn, image, patterns, random, zip, row } from '../../engine/image.js'
-import { NODE_TYPES } from '../../engine/nodes.js'
-import { blob, blobAt, gaussian } from '../../engine/parts/generative.js'
+import { blob, blobAt, encodeBlobCentre, gaussian } from '../../engine/parts/generative.js'
 import { LETTER } from '../pictures.js'
 import { T as t } from '../../../../shell/i18n.js'
 
@@ -12,7 +11,6 @@ const num = S.num()
 const XY = S.list(num, { min: 2, about: t('斑点的中心 (x, y)') })
 const Z = S.list(num, { min: 2, about: t('潜空间里的两个数') })
 
-const centreOf = (img) => NODE_TYPES.dg_encoder.eval({ in: img }).data
 // The latent code μ + σ·ε, drawn as a blob.
 const drawn = (mu, sigma, e) => blobAt(mu[0] + sigma[0] * e[0], mu[1] + sigma[1] * e[1])
 
@@ -31,7 +29,7 @@ export const GENERATIVE = {
     make: ({ a: [ax, ay], b: [bx, by], t: w }) => {
       const a = blob(ax, ay)
       const b = blob(bx, by)
-      const [za, zb] = [centreOf(a), centreOf(b)]
+      const [za, zb] = [encodeBlobCentre(a).data, encodeBlobCentre(b).data]
       return { inputs: { a, b, t: image(1, 1, w) }, expected: { out: blobAt((1 - w) * za[0] + w * zb[0], (1 - w) * za[1] + w * zb[1]) } }
     },
   },

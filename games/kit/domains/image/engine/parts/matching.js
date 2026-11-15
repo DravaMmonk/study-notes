@@ -11,6 +11,11 @@ export const pointsOf = (img) => {
   for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) if (img.data[y * img.w + x] > 0.5) points.push([x, y])
   return points
 }
+export function houghGrid(img) {
+  const { nT, nR, votes } = houghAccumulate(pointsOf(img), 180 / HOUGH_BINS, 2, Math.ceil(Math.hypot(img.w, img.h)))
+  return { w: nT, h: nR, data: votes }
+}
+
 // Pairs of points as a row of x, y, x′, y′ four at a time.
 export const pairsOf = (signal) => Array.from({ length: Math.floor(signal.w / 4) }, (_, i) => ({ from: [signal.data[4 * i], signal.data[4 * i + 1]], to: [signal.data[4 * i + 2], signal.data[4 * i + 3]] }))
 const reprojection = (H, { from, to }) => Math.hypot(...project(H, ...from).map((v, i) => v - to[i]))
@@ -49,10 +54,7 @@ export const MATCHING = {
       en: 'Every point brighter than 0.5 votes for each line x·cosθ + y·sinθ = ρ through it: across is θ (16 cells, 0° … 180°), down is ρ (2 pixels a cell)',
     },
     inputs: ['in'],
-    eval: ({ in: a }) => {
-      const acc = houghAccumulate(pointsOf(a), 180 / HOUGH_BINS, 2, Math.ceil(Math.hypot(a.w, a.h)))
-      return { w: acc.nT, h: acc.nR, data: acc.votes }
-    },
+    eval: ({ in: a }) => houghGrid(a),
     cost: HOUGH_BINS,
     unlock: 'hough',
   },

@@ -4,8 +4,7 @@
 import { S } from '../../../../engine/schema.js'
 import { fromFn, image, map, random, zip, row } from '../../engine/image.js'
 import { gradientMagnitude } from '../../engine/filters.js'
-import { NODE_TYPES } from '../../engine/nodes.js'
-import { CURVES } from '../../engine/parts/light.js'
+import { CURVES, lambertShade, sensorReading } from '../../engine/parts/light.js'
 import { compose } from '../../engine/colour.js'
 import { picture } from '../pictures.js'
 import { T as t } from '../../../../shell/i18n.js'
@@ -60,11 +59,11 @@ const normalsOf = (h) => {
   }
   return [0, 1, 2].map((k) => fromFn(N, N, (x, y) => at(x, y)[k]))
 }
-const shaded = (normals, albedo, l) => NODE_TYPES.shade.eval({ nx: normals[0], ny: normals[1], nz: normals[2], albedo }, { lx: l[0], ly: l[1], lz: l[2] })
+const shaded = ([nx, ny, nz], albedo, lamp) => lambertShade(nx, ny, nz, albedo, lamp)
 
 /* ---------- spectra ---------- */
 
-const reading = (spectrum) => Object.fromEntries([['ro', 'R'], ['go', 'G'], ['bo', 'B']].map(([out, channel]) => [out, NODE_TYPES.sense.eval({ in: spectrum }, { channel })]))
+const reading = (spectrum) => Object.fromEntries([['ro', 'R'], ['go', 'G'], ['bo', 'B']].map(([out, channel]) => [out, sensorReading(spectrum, channel)]))
 // A spectrum every sensor reads as 0: a fixed wiggle with the three curves taken out of it, at most 0.3.
 const METAMER = (() => {
   const basis = []

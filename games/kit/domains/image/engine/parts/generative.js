@@ -22,13 +22,13 @@ export function profiles(img) {
   }
   return bins
 }
-export function enrow(img, w, k) {
+export function encode(img, w, k) {
   if (img.w !== 16 || img.h !== 16) throw new Error('编码器要一张 16×16 的图')
   const bins = profiles(img)
   return row(Array.from({ length: k }, (_, j) => bins.reduce((sum, b, i) => sum + b * w[j * 16 + i], 0)))
 }
 // The decoder draws one blob; where it goes is a linear function of the code: p = A·z + b.
-export function derow(z, w) {
+export function decode(z, w) {
   if (z.h !== 1 || z.w > MAX_CODE) throw new Error('解码器要接编码（一行数字）')
   const k = z.w
   let px = w[6]
@@ -52,6 +52,20 @@ export function gaussian(next) {
   const u = Math.max(1e-9, next())
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * next())
 }
+// Estimate the blob centre in latent units, using only pixels brighter than 0.3.
+export function encodeBlobCentre(img) {
+  let total = 0
+  let sx = 0
+  let sy = 0
+  for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) {
+    const v = Math.max(0, img.data[y * img.w + x] - 0.3)
+    total += v
+    sx += v * x
+    sy += v * y
+  }
+  return row([(sx / total - 7.5) / UNIT, (sy / total - 7.5) / UNIT])
+}
+
 export const GENERATIVE = {
   dg_encode: {
     label: { zh: '编码器', en: 'Encoder' },
@@ -62,7 +76,7 @@ export const GENERATIVE = {
       // Hidden from the card (its flag is never earned) but still trained: 48 weights.
       { key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, unlock: 'dg-weights-hidden', default: ENCODER_START },
     ],
-    eval: ({ in: a }, p) => enrow(a, p.w ?? ENCODER_START, Number(p.k ?? 1)),
+    eval: ({ in: a }, p) => encode(a, p.w ?? ENCODER_START, Number(p.k ?? 1)),
     cost: 16,
     unlock: 'dg-autoencoder',
   },
@@ -71,28 +85,15 @@ export const GENERATIVE = {
     description: { zh: '由那几个数画回一张图（权重靠训练）', en: 'Draws an image back from those numbers (weights come from training)' },
     inputs: ['in'],
     params: [{ key: 'w', label: { zh: '权重', en: 'Weights' }, kind: 'kernel', learnable: true, unlock: 'dg-weights-hidden', default: DECODER_START }],
-    eval: ({ in: z }, p) => derow(z, p.w ?? DECODER_START),
+    eval: ({ in: z }, p) => decode(z, p.w ?? DECODER_START),
     cost: 16,
     unlock: 'dg-autoencoder',
   },
-  // What a trained encoder for the blob family gives: where the blob is, in latent units (the trained decoder's
-  // inverse). It reads the centre of the blob's bright core, ignoring anything dimmer than 0.3.
   dg_encoder: {
     label: { zh: '编码器（已训练）', en: 'Encoder (trained)' },
     description: { zh: '一个斑点 → 两个数：它在左右、上下的位置', en: 'One blob → two numbers: where it is left–right and up–down' },
     inputs: ['in'],
-    eval: ({ in: a }) => {
-      let total = 0
-      let sx = 0
-      let sy = 0
-      for (let y = 0; y < a.h; y++) for (let x = 0; x < a.w; x++) {
-        const v = Math.max(0, a.data[y * a.w + x] - 0.3)
-        total += v
-        sx += v * x
-        sy += v * y
-      }
-      return row([(sx / total - 7.5) / UNIT, (sy / total - 7.5) / UNIT])
-    },
+    eval: ({ in: a }) => encodeBlobCentre(a),
     cost: 16,
     unlock: 'dg-decoder',
   },
