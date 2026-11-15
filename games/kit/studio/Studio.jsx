@@ -38,6 +38,7 @@ import { itemOf } from './worklist.js'
 import { paletteIndex } from './palette.js'
 import { bulkMove } from './bulk.js'
 import { usePref } from './prefs.js'
+import { confirmDelete } from './delete.js'
 import PanelResizer from './PanelResizer.jsx'
 import Tree from './Tree.jsx'
 import Search from './Search.jsx'
@@ -305,6 +306,17 @@ export default function Studio() {
   const openTreeItem = (next, keep) => {
     select(next, keep)
     pickField(selectionPath(next))
+  }
+  const removeLevel = (level) => {
+    if (savingRef.current || !confirmDelete(level)) return
+    edit({ op: 'level.remove', level })
+    select(null)
+    if (play?.level === level) { setPlay(null); setPageTask(0); setGo(null) }
+  }
+  const discard = () => {
+    if (!window.confirm(tr('确定放弃所有待定操作吗？', 'Discard all pending operations?'))) return
+    setOps([])
+    setRedo([])
   }
   /** Find a field in the inspector. Search results keep the current workspace tab. */
   const jump = (level, path, file = null, { stayOnTab = false } = {}) => {
@@ -608,7 +620,7 @@ export default function Studio() {
     ['previous', tr('上一处检查结果'), 'Shift+F8', () => window.dispatchEvent(new CustomEvent('studio:finding', { detail: -1 }))],
     ...(ops.length ? [['drop', tr('去掉最后一个待定操作'), `${MOD}+Z`, () => back(ops.length - 1)]] : []),
     ...(redo.length ? [['redo', tr('放回去掉的操作'), `${MOD}+Shift+Z`, again]] : []),
-    ...(ops.length ? [['review', tr(`看 ${ops.length} 个待定操作`, `Review ${ops.length} pending`), '', () => setTab('review')], ['discard', tr('全部放弃'), '', () => setOps([])]] : []),
+    ...(ops.length ? [['review', tr(`看 ${ops.length} 个待定操作`, `Review ${ops.length} pending`), '', () => setTab('review')], ['discard', tr('全部放弃'), '', discard]] : []),
     ['tree', tr('收起或打开左栏'), 'Alt+[', () => togglePanel('tree')],
     ['audit', tr('收起或打开检查栏'), 'Alt+]', () => togglePanel('audit')],
     ['side', tr('收起或打开侧栏'), 'Alt+\\', () => togglePanel('side')],
@@ -728,7 +740,7 @@ export default function Studio() {
                     onEdit={edit} onMove={(id) => { setSide('tree'); setLayout((value) => ({ ...value, treeOpen: true })); setMoving([id]) }} />
                 )}
                 {tab === 'groups' && <CourseGroups key={game} model={groupModel} options={groupOptions} />}
-                {tab === 'fields' && <Editor content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onCopy={(era) => { setCopyScope(era); setTab('copy') }} />}
+                {tab === 'fields' && <Editor content={content} base={base} vocab={vocab} at={at} picked={pickedIds} field={field} places={places} names={names} levelOptions={levelOptions} playOrder={playOrder} onEdit={edit} onOps={addOps} onSelect={select} onPick={(path) => pickField(path)} onPlay={playFrom} onMove={setMoving} onRemoveLevel={removeLevel} onCopy={(era) => { setCopyScope(era); setTab('copy') }} />}
                 {tab === 'copy' && (
                   <article className="editor is-wide">
                     <CopyTable content={content} vocabulary={vocab.vocabulary} scope={scope} setScope={setCopyScope} order={playOrder} names={names} places={places} onEdit={edit} onJump={(row) => jump(row.file.level ?? null, row.path, row.file.glossary ? 'glossary' : row.file.parts ? 'pieces' : row.file.level ? null : 'game')} />
@@ -738,8 +750,8 @@ export default function Studio() {
                 {tab === 'review' && (
                   <Review
                     ops={ops} redo={redo} result={result} shown={shown} why={why} setWhy={setWhy} said={said}
-                    onRemove={(k) => { setOps((list) => list.filter((_, i) => i !== k)); setRedo([]) }} onBack={back} onRedo={again}
-                    onDiscard={() => { setOps([]); setRedo([]) }} onOpen={(cs) => { setOps(cs.ops); setRedo([]); setWhy(cs.why ?? '') }} onApply={apply} onUndo={undo} onSelect={(lvl) => { select({ level: lvl }); setTab('page') }}
+                    onRemove={(k) => { if (confirmDelete(ops[k].op)) { setOps((list) => list.filter((_, i) => i !== k)); setRedo([]) } }} onBack={back} onRedo={again}
+                    onDiscard={discard} onOpen={(cs) => { setOps(cs.ops); setRedo([]); setWhy(cs.why ?? '') }} onApply={apply} onUndo={undo} onSelect={(lvl) => { select({ level: lvl }); setTab('page') }}
                   />
                 )}
               </div>
@@ -752,7 +764,7 @@ export default function Studio() {
           </main>
           <PanelResizer side="side" size={layout.side} open={layout.sideOpen} {...resizer} />
           <aside className="studio-side">
-            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} pendingFace={pendingFace} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} onRemoveSelection={() => select(null)} />}
+            {sideCtx && <Inspector content={content} vocab={vocab} at={sideFile} field={field} pendingFace={pendingFace} ctx={sideCtx} places={places} onEdit={edit} onOps={addOps} onPick={(path) => pickField(path)} onLevel={(lvl, path) => { select({ level: lvl }); pickField(path) }} onRemoveLevel={removeLevel} onRemoveSelection={() => select(null)} />}
           </aside>
           {layout.auditOpen && <PanelResizer side="audit" size={layout.audit} open {...resizer} />}
           <aside className="studio-audit">

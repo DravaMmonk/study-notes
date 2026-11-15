@@ -11,7 +11,7 @@ export default function SourceEditor({ source, onApply }) {
       return
     }
     try {
-      onApply(JSON.parse(draft.text))
+      if (onApply(JSON.parse(draft.text)) === false) return
       setDraft(null)
       setError('')
     } catch (error) {

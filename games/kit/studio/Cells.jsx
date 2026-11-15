@@ -10,6 +10,7 @@ import { tr } from '../shell/i18n.js'
 import { finiteExtent } from '../engine/number.js'
 import { usePointerSession } from '../views/usePointerSession.js'
 import { blank, cellText, cellValue, gridRows, gridValue, nullable, pastedCells, tableOf, tableValue, tickValue, tickValues, toggled } from './form.js'
+import { confirmDelete } from './delete.js'
 
 /** Focus the cell at (r, c) of the table holding `from`. */
 const focusCell = (from, r, c) => from.closest('table')?.querySelector(`[data-r="${r}"][data-c="${c}"]`)?.focus()
@@ -146,7 +147,7 @@ function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded
               {Array.from({ length: width }, (_, c) => (
                 <th key={c} scope="col">
                   <span>{header ? header[c] : c}</span>
-                  {removeCol && width > 1 && <button type="button" className="cell-x" onClick={() => removeCol(c)} aria-label={tr(`去掉第 ${c} 列`, `Remove column ${c}`)}><X size={10} /></button>}
+                  {removeCol && width > 1 && <button type="button" className="cell-x" onClick={() => { if (confirmDelete()) removeCol(c) }} aria-label={tr(`去掉第 ${c} 列`, `Remove column ${c}`)}><X size={10} /></button>}
                 </th>
               ))}
             </tr>
@@ -158,7 +159,7 @@ function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded
               {!one && (
                 <th scope="row">
                   <span>{rowHeads ? rowHeads[r] : r}</span>
-                  {removeRow && <button type="button" className="cell-x" onClick={() => removeRow(r)} aria-label={tr(`去掉第 ${r} 行`, `Remove row ${r}`)}><X size={10} /></button>}
+                  {removeRow && <button type="button" className="cell-x" onClick={() => { if (confirmDelete()) removeRow(r) }} aria-label={tr(`去掉第 ${r} 行`, `Remove row ${r}`)}><X size={10} /></button>}
                 </th>
               )}
               {Array.from({ length: width }, (_, c) => (
@@ -166,7 +167,7 @@ function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded
                   <Cell value={row[c]} schema={colSchema(c)} r={r} c={c} onSet={(v) => set(r, c, v)} onPaste={(block) => paste(r, c, block)} style={shade(row[c], range)} label={`${label} ${r},${c}`} />
                 </td>
               ))}
-              {one && removeCol && row.length > 0 && <td><button type="button" className="cell-add" onClick={() => removeCol(row.length - 1)} aria-label={tr('去掉最后一个')}><Minus size={12} /></button></td>}
+              {one && removeCol && row.length > 0 && <td><button type="button" className="cell-add" onClick={() => { if (confirmDelete()) removeCol(row.length - 1) }} aria-label={tr('去掉最后一个')}><Minus size={12} /></button></td>}
             </tr>
           ))}
         </tbody>
@@ -273,13 +274,16 @@ function TickRow({ values, cell, onSet, head = null, onRemove = null, label }) {
     if (e.key === 'ArrowRight') go(k + 1)
     else if (e.key === 'ArrowLeft') go(k - 1)
     else if (e.key === ' ') { e.preventDefault(); commit(k, toggled(values[k])) }
-    else if ((e.key === 'Delete' || e.key === 'Backspace') && empty) { e.preventDefault(); commit(k, null) }
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && empty) {
+      e.preventDefault()
+      if (!e.repeat && values[k] !== null && confirmDelete()) commit(k, null)
+    }
     else if (/^\d$/.test(e.key) && cellValue(cell, e.key) !== undefined && cell.type !== 'oneOf') setEditing(k)
     else if (e.key === '0' || e.key === '1') commit(k, Number(e.key))
   }
   return (
     <div className="tick-row">
-      {head !== null && <span className="tick-head">{head}{onRemove && <button type="button" className="cell-x" onClick={onRemove} aria-label={tr('去掉这一行')}><X size={10} /></button>}</span>}
+      {head !== null && <span className="tick-head">{head}{onRemove && <button type="button" className="cell-x" onClick={() => { if (confirmDelete(head)) onRemove() }} aria-label={tr('去掉这一行')}><X size={10} /></button>}</span>}
       <div className="ticks" role="group" aria-label={label} onPointerDown={(event) => begin(event, toggle)}>
         {shown.map((v, k) => (editing === k ? (
           <input
@@ -300,7 +304,7 @@ function TickRow({ values, cell, onSet, head = null, onRemove = null, label }) {
       </div>
       <span className="tick-len">
         <AddMenu options={[{ value: 'tick', label: tr('一拍', 'Tick') }]} onPick={() => onSet([...values, values.at(-1) ?? 0])} />
-        <button type="button" className="cell-add" disabled={!values.length} onClick={() => onSet(values.slice(0, -1))} aria-label={tr('少一拍')}><Minus size={11} /></button>
+        <button type="button" className="cell-add" disabled={!values.length} onClick={() => { if (confirmDelete()) onSet(values.slice(0, -1)) }} aria-label={tr('少一拍')}><Minus size={11} /></button>
         <small>{values.length}</small>
       </span>
     </div>

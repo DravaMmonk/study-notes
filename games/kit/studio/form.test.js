@@ -3,6 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { creationChoices, taskListOps } from './form.js'
 import { sourceOps } from './source.js'
+import { removesContent } from './delete.js'
 import { S } from '../engine/schema.js'
 import { taskLevel } from '../engine/tasks.js'
 
@@ -54,4 +55,13 @@ test('JSON editing preserves existing types and uses task operations for identit
   assert.deepEqual(edit(['tasks', 0, 'id'], 'renamed'), [{ op: 'task.rename', task: 'first', to: 'renamed' }])
   assert.throws(() => edit(['tasks', 0, 'kind'], 'b'), /change its type|类型/)
   assert.throws(() => edit(['tasks', 0, 'value'], 'text'), /whole number/)
+})
+
+test('source deletion detection distinguishes removed fields and items from edits and moves', () => {
+  const a = { id: 'a', note: 'A' }
+  const b = { id: 'b', extra: true }
+  assert.equal(removesContent({ tasks: [a, b] }, { tasks: [b, { ...a, note: 'Updated' }] }), false)
+  assert.equal(removesContent({ tasks: [a, b] }, { tasks: [b, { id: 'c' }] }), true)
+  assert.equal(removesContent({ tasks: [a, b] }, { tasks: [a, { id: 'b' }] }), true)
+  assert.equal(removesContent({ names: ['a', 'b'] }, { names: ['a'] }), true)
 })
