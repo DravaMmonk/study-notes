@@ -3,15 +3,9 @@
 import { S } from '../../../engine/schema.js'
 import { benchRun } from '../../../engine/bench.js'
 import { keyOf, T as t } from '../../../shell/i18n.js'
-import { random } from '../engine/image.js'
+import { approximateNormal, random } from '../engine/image.js'
 import { lineGap, lineThrough, ransacLine } from '../engine/match.js'
 
-
-const gauss = (next) => {
-  let s = 0
-  for (let i = 0; i < 6; i++) s += next()
-  return (s - 3) * Math.SQRT2
-}
 
 /** k ≥ log(1 − P) / log(1 − pⁿ), the number of rounds for a chance P of drawing n inliers at least once. */
 export const ransacRounds = (p, n = 2, P = 0.99) => Math.ceil(Math.log(1 - P) / Math.log(1 - p ** n))
@@ -32,7 +26,7 @@ export function ransacBench({ n, sigma, trials, tol }) {
     const truth = lineThrough([-dy * off, dx * off], [-dy * off + dx, dx * off + dy])
     for (let i = 0; i < inliers; i++) {
       const s = (next() - 0.5) * 34
-      const e = gauss(next) * sigma
+      const e = approximateNormal(next) * sigma
       points.push([-dy * off + dx * s - dy * e, dx * off + dy * s + dx * e])
     }
     while (points.length < n) points.push([(next() - 0.5) * 44, (next() - 0.5) * 44])

@@ -7,6 +7,8 @@ import { deepFreeze } from '../../engine/content.js'
 import { readContent } from '../../engine/content-node.js'
 import { boxBlur3, gradientMagnitude, horizontalDifference, sobelGradient, squaredGradient } from './engine/filters.js'
 import { at, fromFn } from './engine/image.js'
+import { ransacLine, robustHomography } from './engine/match.js'
+import { MATCHING } from './engine/parts/matching.js'
 import { outputImages } from './engine/graph.js'
 import { picture } from './items/pictures.js'
 import { constraintOf, depthOf } from './items/constraints.js'
@@ -40,6 +42,17 @@ test('shared neighbourhood filters preserve signs, scaling and edge padding', ()
   assert.equal(at(squaredGradient(ramp), 1, 1), 20)
   assert.ok(Math.abs(at(boxBlur3(ramp), 1, 1) - 6) < 1e-6)
   assert.deepEqual(Array.from(horizontalDifference(ramp).data.slice(0, 3)), [2, 2, -4])
+})
+
+test('line and homography estimation stop before sampling when there are too few points', () => {
+  const next = () => assert.fail('not enough points to sample')
+  assert.equal(ransacLine([], 10, 1, next), null)
+  assert.equal(ransacLine([[0, 0]], 10, 1, next), null)
+  const tooFew = [[0, 0], [1, 0], [0, 1]].map((point) => ({ from: point, to: point }))
+  assert.equal(robustHomography(tooFew, 10, next), null)
+  assert.throws(() => MATCHING.homography.eval({ pairs: { w: 4, data: [0, 0, 0, 0] } }, { k: 10 }), /do not fix a homography/)
+  const onePoint = fromFn(2, 2, (x, y) => Number(!x && !y))
+  assert.deepEqual(Array.from(MATCHING.ransac.eval({ in: onePoint }, { k: 10 }).data), [0, 0, 0, 0])
 })
 
 test('blueprint text reads into a board and writes back the same', () => {

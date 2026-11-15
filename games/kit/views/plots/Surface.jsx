@@ -1,5 +1,5 @@
 import { tr } from '../../shell/i18n.js'
-import { mix, rgba, token, useCanvas } from './paint.js'
+import { mix, rgba, token, useCanvas } from '../canvas.js'
 import { rangeOf } from './range.js'
 
 // A grey grid as a landscape seen from above at an angle (the view `surface`, games/DESIGN.md 6.9): each cell's

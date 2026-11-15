@@ -146,6 +146,13 @@ export function random(seed) {
   }
 }
 
+/** Approximate unit-variance Gaussian noise using six draws from a seeded uniform generator. */
+export function approximateNormal(next) {
+  let sum = 0
+  for (let i = 0; i < 6; i++) sum += next()
+  return (sum - 3) * Math.SQRT2
+}
+
 export const patterns = {
   blank: (v = 0) => image(SIZE, SIZE, v),
   impulse: (x = 7, y = 7, v = 1) => fromFn(SIZE, SIZE, (px, py) => (px === x && py === y ? v : 0)),

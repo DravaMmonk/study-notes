@@ -2,21 +2,17 @@ import { useMemo } from 'react'
 import { Check, X } from 'lucide-react'
 import { L, keyOf, tr } from '../../../../shell/i18n.js'
 import { Knob } from '../../../../shell/bench/items.jsx'
+import { distanceToLine, pointAlongLine } from '../../engine/match.js'
+import { linePath } from './matchDraw.js'
 import './match.css'
 
 // The consensus bench's pictures (bench model `ransac`). One trial of the case on show, its best round drawn over the
 // points; and a card per outlier ratio with its own rounds knob, the budget marked on the track, the success rate and
 // every trial as a cell (tap one to see it). The trial on show is the bench's `trial` (ui).
 
-function linePath(line, reach = 40) {
-  const { nx, ny, c } = line
-  return `M${c * nx - ny * reach} ${c * ny + nx * reach} L${c * nx + ny * reach} ${c * ny - nx * reach}`
-}
-
 function bandPath(line, delta, reach = 40) {
-  const { nx, ny, c } = line
-  const at = (offset, along) => `${(c + offset) * nx - ny * along} ${(c + offset) * ny + nx * along}`
-  return `M${at(-delta, -reach)} L${at(-delta, reach)} L${at(delta, reach)} L${at(delta, -reach)} Z`
+  const at = (along, offset) => pointAlongLine(line, along, offset).join(' ')
+  return `M${at(-reach, -delta)} L${at(reach, -delta)} L${at(reach, delta)} L${at(-reach, delta)} Z`
 }
 
 export function RansacTrial({ ctx }) {
@@ -26,7 +22,7 @@ export function RansacTrial({ ctx }) {
   const index = ctx.ui.trial ?? 0
   const trial = useMemo(() => m.trial(stage, index + 1, k[ctx.caseIndex], delta), [m, stage, index, k, ctx.caseIndex, delta])
   const sampleLine = trial.result?.sample
-  const near = (p) => sampleLine && Math.abs(sampleLine.nx * p[0] + sampleLine.ny * p[1] - sampleLine.c) < delta
+  const near = (p) => sampleLine && distanceToLine(sampleLine, p) < delta
   const sample = trial.result ? trial.result.sampleIndex.map((i) => trial.points[i]) : []
   return (
     <figure className="mb mb-ransac-stage">
@@ -37,9 +33,9 @@ export function RansacTrial({ ctx }) {
         </defs>
         <g clipPath="url(#mb-ransac-clip)">
           {sampleLine && <path className="mb-band" d={bandPath(sampleLine, delta)} />}
-          <path className="mb-target" d={linePath(trial.truth)} />
+          <path className="mb-target" d={linePath(trial.truth, 40)} />
           {trial.points.map((p, i) => <circle key={i} className={`mb-dot ${near(p) ? 'is-in' : 'is-out'}`} cx={p[0]} cy={p[1]} r={0.55} />)}
-          {trial.result && <path className={`mb-found ${trial.ok ? '' : 'is-wrong'}`} d={linePath(trial.result.line)} />}
+          {trial.result && <path className={`mb-found ${trial.ok ? '' : 'is-wrong'}`} d={linePath(trial.result.line, 40)} />}
           {sample.map((p, i) => <circle key={`s${i}`} className="mb-sample" cx={p[0]} cy={p[1]} r={1.5} />)}
         </g>
       </svg>

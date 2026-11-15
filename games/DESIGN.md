@@ -438,6 +438,8 @@ opens them to show the resulting feedback.
 
 `npm run check` 对每个参数台跑模型项的 `verify`。检查某组旋钮能否过关时，用界面也调用的 `benchRun`，按当前阶段和每个情形计算模型结果及目标判定。`passingSettings` 用相同的判定逐个试设定。领域可以额外验证课程要求，例如霍夫粗分箱把两条线合并、RANSAC 的天真设置未达标。
 
+霍夫和 RANSAC 共用图像领域里的直线坐标与有种子的点噪声。RANSAC 的点是否着色为内点由拟合使用的距离决定。内核的 `views/canvas.js` 提供像素画布和主题颜色，网格预览、霍夫累加器与图像配准共用像素写入。图像电路只在点样本足够时开始抽样。
+
 
 ### 6.5 机制目录
 

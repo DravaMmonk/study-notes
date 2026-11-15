@@ -2,7 +2,7 @@
 // picture by one. Points come from a mask's bright pixels; a homography travels as a 1×9 row and pairs of points as a
 // row of x, y, x′, y′ four at a time.
 import { fromFn, random, row } from '../image.js'
-import { distanceToLine, homographyDLT, houghAccumulate, invert3, project, ransacLine } from '../match.js'
+import { distanceToLine, houghAccumulate, invert3, project, ransacLine, robustHomography } from '../match.js'
 
 const HOUGH_BINS = 16
 
@@ -18,23 +18,6 @@ export function houghGrid(img) {
 
 // Pairs of points as a row of x, y, x′, y′ four at a time.
 export const pairsOf = (signal) => Array.from({ length: Math.floor(signal.w / 4) }, (_, i) => ({ from: [signal.data[4 * i], signal.data[4 * i + 1]], to: [signal.data[4 * i + 2], signal.data[4 * i + 3]] }))
-const reprojection = (H, { from, to }) => Math.hypot(...project(H, ...from).map((v, i) => v - to[i]))
-function robustHomography(pairs, k, next) {
-  if (!k) return homographyDLT(pairs)
-  let best = null
-  for (let round = 0; round < k; round++) {
-    const pick = []
-    while (pick.length < 4) {
-      const i = Math.floor(next() * pairs.length)
-      if (!pick.includes(i)) pick.push(i)
-    }
-    const H = homographyDLT(pick.map((i) => pairs[i]))
-    if (!H) continue
-    const inliers = pairs.filter((pair) => reprojection(H, pair) < 1.5)
-    if (!best || inliers.length > best.length) best = inliers
-  }
-  return best && best.length >= 4 ? homographyDLT(best) : null
-}
 // The picture `onto` with `img` carried there by H, sampling the nearest pixel; 0 where it falls outside `img`.
 export function warp(img, H, onto) {
   const back = invert3(H)
