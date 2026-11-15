@@ -47,6 +47,33 @@ test('a workshop snapshot is reusable wherever all its exact base settings are a
   assert.equal(runBoard(from(piece.id), { parts: workshopParts(library, resolve), bind: { in: 5 } }).outputs.out, 10)
 })
 
+test('workshop compatibility follows resolved settings and executable checks across catalogs', () => {
+  const declaration = {
+    inputs: [{ name: 'in' }],
+    compute: 'multiply(in, $factor)',
+    checks: [{ holds: 'positive($factor)', say: { en: 'Use a positive factor.' } }],
+  }
+  const setting = { control: 'number', default: 2, min: 1, max: 8 }
+  const catalog = (id, definition, part = declaration) => ({
+    settings: { [id]: definition },
+    parts: { multiply: { ...part, settings: [{ key: 'factor', setting: id }] } },
+  })
+  const identityFor = (file) => (type) => workshopIdentity('math', file, type)
+  const original = identityFor(catalog('original', setting))
+  const piece = take(base(), { identity: original })
+  const accepts = (file) => workshopAvailable(piece, {
+    domain: 'math', identity: identityFor(file), types: new Set(['multiply']), has: () => true, allows: () => true, resolve,
+  })
+  assert.ok(accepts(catalog('renamed', { ...setting, label: 'Gain', stepper: true }, {
+    ...declaration, inputs: [{ name: 'in', label: 'Signal' }],
+    checks: [{ holds: declaration.checks[0].holds, say: { en: 'Gain must be positive.' } }],
+  })))
+  assert.ok(!accepts(catalog('original', { control: 'toggle', default: true })))
+  assert.ok(!accepts(catalog('original', { ...setting, default: 3 })))
+  assert.ok(!accepts(catalog('original', { ...setting, max: 6 })))
+  assert.ok(!accepts(catalog('original', setting, { ...declaration, checks: [] })))
+})
+
 test('publishing an upgrade hides the earlier automatic version and leaves saved instances runnable', () => {
   const earlier = take(base())
   const upgrade = take(base(3), { scope: 'user_upgrade' })

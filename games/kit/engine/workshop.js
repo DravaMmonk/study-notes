@@ -1,5 +1,8 @@
 // Player-owned circuit artifacts. Versions are immutable; the visible library points at the latest publication.
 import { packed, source } from './boards.js'
+import { canonicalJson } from './json-value.js'
+import { defaultOf } from './parts/define.js'
+import { resolveSettings } from './pieces.js'
 import { sourceOf, splitSource } from './wire-source.js'
 import { trayMembers } from './trays.js'
 
@@ -47,16 +50,24 @@ export const trayKey = (game, name) => JSON.stringify([game, name])
 export const workshopInTray = (piece, tray, types) => piece.tray === tray
   || ((!piece.tray || JSON.parse(piece.tray)[0] !== JSON.parse(tray)[0]) && piece.requirements.every(({ type }) => types.has(type)))
 
-// Text and display metadata can differ between compatible games.
-const mechanics = ({ compute, keeps, nulls, inputs, outputs, regions, settings }) => ({
-  compute, keeps, nulls, inputs: inputs?.map(({ name, optional }) => [name, optional]),
-  outputs: outputs?.map(({ name }) => name), regions: regions?.map(({ name, opens, closes, when }) => [name, opens, closes, when]), settings,
-})
-
 /** Include the domain's operations and the piece's executable declaration in its identity. */
 export function workshopIdentity(domain, definitions, type) {
   const definition = definitions?.parts?.[type]
-  return JSON.stringify([domain, type, definition ? mechanics(definition) : null])
+  if (!definition) return canonicalJson([domain, type, null])
+  const { compute, keeps, nulls, inputs, outputs, regions, checks } = definition
+  // Resolve catalog references before comparing the settings used by the circuit.
+  const settings = resolveSettings(definitions, definition).map((setting) => {
+    const { key, control, optional, integer, min, max, options, from } = setting
+    return { key, control, default: defaultOf(setting), optional, integer, min, max,
+      options: options?.map(({ value }) => value), from }
+  })
+  return canonicalJson([domain, type, {
+    compute, keeps, nulls, settings,
+    inputs: inputs?.map(({ name, optional }) => [name, optional]),
+    outputs: outputs?.map(({ name }) => name),
+    regions: regions?.map(({ name, opens, closes, gives, when }) => [name, opens, closes, gives, when]),
+    checks: checks?.map(({ holds }) => holds),
+  }])
 }
 
 /** Snapshot the board's executable interface, including nested implementations and their base requirements. */

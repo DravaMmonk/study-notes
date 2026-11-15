@@ -32,6 +32,7 @@ import { implementationProblems } from './parts/dependencies.js'
 import { makesPieces, PARTS_FILE } from './parts/schema.js'
 import { configurationFiles, hasCatalogSource } from './content.js'
 import { catalogTextProblems } from './content-text.js'
+import { canonicalJson } from './json-value.js'
 
 /** A game's encyclopedia (the shell's glossary): groups, and entries opening at a level (`at`) and linking others. */
 export const GLOSSARY = S.obj({
@@ -56,9 +57,6 @@ export function defineVocabulary({ domain, version, kinds, game, level, language
 /** The vocabulary as plain data: its kinds and items with what they are and their parameters, and the content schemas. */
 export const describe = (vocabulary) => JSON.parse(JSON.stringify(vocabulary))
 
-// A canonical text of a value: its keys sorted, so the same subtree reads the same wherever it is.
-const canonical = (v) => (Array.isArray(v) ? `[${v.map(canonical).join(',')}]` : v && typeof v === 'object' ? `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${canonical(v[k])}`).join(',')}}` : JSON.stringify(v))
-
 /**
  * A version's printing as it is kept (versions/<n>.json): describe(vocabulary) with every subtree that recurs (the
  * same field schema under many cases) written once in `shared` and named { $: index } where it stands. Text, one
@@ -70,7 +68,7 @@ export function snapshotText(vocabulary) {
   const pack = (v) => {
     if (!v || typeof v !== 'object') return v
     const out = Array.isArray(v) ? v.map(pack) : Object.fromEntries(Object.entries(v).map(([k, x]) => [k, pack(x)]))
-    const key = canonical(out)
+    const key = canonicalJson(out)
     if (key.length <= 80) return out
     if (!index.has(key)) { index.set(key, shared.length); shared.push(out) }
     return { $: index.get(key) }
