@@ -9,7 +9,7 @@ import { failureText } from '../failure-text.js'
 //
 //   board(ctx)          → { start, parts, types }   the board the level opens on (preset, carried or upgraded board
 //                         included), the editor's description of its nodes (../../circuit/model.js parts: inputs, role,
-//                         removable, outputs, frames, text, refuse; no drawing), and the part types the tray offers
+//                         outputs, frames, text, refuse; no drawing), and the part types the tray offers
 //   key(ctx, type)      → the components box key of a part type (game.parts.all), for its name and description; or
 //   part(ctx, type)     → { name, desc } when the tray words a part its own way (a family of models as one entry, say)
 //   settings?(ctx, type)→ [{ key, values?: [v], about? }] what can be set on a part, as its card offers it
@@ -29,7 +29,7 @@ import { failureText } from '../failure-text.js'
 // ./play.js renders it.
 
 import { print, read } from '../../circuit/text.js'
-import { outputsOf } from '../../circuit/model.js'
+import { isPart, outputsOf } from '../../circuit/model.js'
 import { runTestGroups, splitTests, TEST_WORDS } from '../tests.js'
 import { valueText } from '../views.js'
 import { T } from '../../shell/i18n.js'
@@ -98,8 +98,7 @@ function palette(ctx, hook, parts, types) {
 /** The given nodes of a board, as text can name them: what to write into, what to read from. */
 function givens(board) {
   const { start, parts } = board
-  const placed = (n) => (parts.removable ? parts.removable(n) : parts.role(n) === 'part')
-  return start.nodes.filter((n) => !placed(n)).map((n) => ({ id: n.id, role: parts.role(n), inputs: parts.inputs(n), outputs: outputsOf(parts, n).map((o) => o.key).filter((k) => k !== null), sets: parts.text?.sets?.(n) ?? [] }))
+  return start.nodes.filter((n) => !isPart(parts, n)).map((n) => ({ id: n.id, role: parts.role(n), inputs: parts.inputs(n), outputs: outputsOf(parts, n).map((o) => o.key).filter((k) => k !== null), sets: parts.text?.sets?.(n) ?? [] }))
 }
 
 /** The same circuit view, opening work and usable types as the level screen. */
@@ -107,7 +106,7 @@ export function playBoard({ game, level: { source: task }, progress, flags }) {
   const view = game.circuit.forTask(task)
   view.syncOwn(progress.built, progress)
   const { types } = view.offerIn(task, flags)
-  return { start: view.opening(task, progress.built, undefined, progress), parts: view.board.wiring(task, view), types }
+  return { start: view.opening(task, progress), parts: view.board.wiring(task, view), types }
 }
 
 /** A play hook for a circuit domain (see the top of this file). */
@@ -133,8 +132,8 @@ export function circuitPlay(hook) {
       const result = read(text, board.start, board.parts, board.types)
       if (result.errors) return { pass: false, refused: result.errors.map((e) => T(e.zh, e.en)), parts: [] }
       const graph = result.graph
-      const placed = (n) => (board.parts.removable ? board.parts.removable(n) : board.parts.role(n) === 'part')
-      return { ...hook.run(ctx, graph), board: hook.keep ? hook.keep(ctx, graph) : graph, parts: [...new Set(graph.nodes.filter(placed).map((n) => n.type))].sort() }
+      const types = [...new Set(graph.nodes.filter((n) => isPart(board.parts, n)).map((n) => n.type))].sort()
+      return { ...hook.run(ctx, graph), board: hook.keep ? hook.keep(ctx, graph) : graph, parts: types }
     },
   }
 }

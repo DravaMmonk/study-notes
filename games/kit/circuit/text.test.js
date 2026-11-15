@@ -92,10 +92,19 @@ test('what reading refuses, by line', () => {
   assert.deepEqual(errs('n = not(s.mid)\ns = split(Rain)'), [[1, 'Line 1: “s” has no output “mid”.']])
   assert.deepEqual(errs('a = and(b, Rain)\nb = and(a, Rain)').map(([l]) => l), [2])
   assert.deepEqual(errs('Rain = not()'), [[1, 'Line 1: “Rain” is given by the level; its type cannot change.']])
+  assert.match(errs('f = box() {\n  body {\n    Rain()\n  }\n}')[0][1], /Line 3: .*must stay on the main board/)
   assert.deepEqual(errs('n = nöt(Rain)'), [[1, 'Line 1: Only ASCII characters; found “ö”.']])
   assert.deepEqual(errs('n = not(Rain'), [[1, 'Line 1: It ends too soon; “)” is missing.']])
   // A value made in a box is seen only inside it.
   assert.equal(errs('f = box(body: m) {\n  body {\n    m = and(f.body, Rain)\n  }\n}\nout <- m')[0][0], 6)
+})
+
+test('a blueprint cannot declare an extra fixed input or output even if it is in the type list', () => {
+  const fresh = { nodes: given, wires: [] }
+  for (const type of ['in', 'out']) {
+    const result = read(`extra = ${type}()`, fresh, parts, [...TYPES, type])
+    assert.match(result.errors[0].en, /Line 1: .*supplied by the level/)
+  }
 })
 
 test('a setting called value is a setting like any other', () => {

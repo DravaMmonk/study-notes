@@ -401,11 +401,17 @@ must not translate the game root or hide the run bar; map pages retain normal do
 Phone result drawers start folded, including circuit levels. The player can expand them manually; Run/Step/Check
 opens them to show the resulting feedback.
 
+电路课程统一按 `carries` 找本关上一任务，或按 `carry` 找指定关的最后一项任务。开板时读取已通过的作品，并由当前玩法核对它能否接到本任务的固定端口。完整游戏页和笔记嵌入页只传当前任务的存档，继承由电路课程处理。《证明完毕》的续证任务沿用上一段的证明卡和有效接线，使用本段给定的前提和目标。
+
+关卡提供的输入和输出留在主板上。蓝图可接线并填写它们开放的设置，例如机器人的传感器选择。预置元件按普通元件写进蓝图，关卡在导入时保留它的锁定状态。编辑器的删除与清板都依据内核的元件角色和预置保护判定。
+
 ### 6.4 参数台
 
 **电路拼不出来的机制用参数台**（机体的物理传感器、连续信号的采样、几万步的训练、几百次随机试验、一场对抗）：玩家不接线，只转旋钮、按按钮，看模拟怎么变。所有参数台是同一个界面（`kit/shell/bench/Bench.jsx`），数据和判定在 `kit/engine/bench.js`（node 下也能跑，`npm run check` 用它）。它放在内核，因为参数台不属于哪个专题：网络（窗口、重传）、总线（位时间）都会有。
 
 《视觉完备》2-3、2-4 的频率探针是图像领域的参数台模型 `bench.model: probe`。0-2、0-6 的黑箱探针是 `kind: probe` 玩法，玩家通过切换测试图和检查输入输出选择黑箱操作。两种玩法共用 `workshop` 的页面和内核的像素显示，分别用参数目标和选择答案判定。
+
+波形参数台、频率探针、电路波形件和测试场景从图像领域的 `engine/waves.js` 取波形和采样点。频率探针从画出的乘积曲线取样计算平均值。采样台用 `engine/fourier.js` 里的逐轴变换重建曲线，图像频谱的行与列也用这个变换。
 
 一关的参数台全是数据，选领域的项、填参数：
 
@@ -572,6 +578,8 @@ Studio 分隔条、工作台尺寸和手机底部面板共用指针会话。拖�
 | `list` | 依次选几项 | `options`，或 `from` | 选了的选项，按选的先后 |
 | `tree` | 拼一句 | `optional`（可以不填） | 一句话的文字：屏幕给出这个任务、这个测试的语言（`CircuitScreen` 的 `language`），词序条拼出（`strip/TreePick.jsx`） |
 | `custom` | 自定义 | `widget`（领域 `widget` 种类的一项）、`params`（合那一项的 schema） | 那一项说 |
+
+卡片的数字输入和卷积核权重直接传递数字。桌面的方向键、配置的加减按钮与 Studio 数字字段使用同一套步进和边界规则。桌面手输与手机小键盘也共用分数和科学计数的解析。
 
 设置定义统一放在顶层 `settings`。件用 `{ key, setting }` 引用一项定义，`key` 是写入蓝图和存档的本地键。Studio 左栏的「设置」独立创建、编辑、复制、改名和删除定义，并列出使用它的件。件的设置区选择已有定义与本地键；改名同步更新引用，定义有引用时拒绝删除。件菜单、设置控件及引用的选项都由内核提供。每份定义包含：`label`、`about`（悬停和单子里的一行说明）、`options` 的每一项也可以有 `about`（这个选项做什么：一句完整的话），`default`、`when`（只读设置的式子，为真时才出现：`eq($axis, 'x')`）、`fixed`（只显示，玩家不能改）。`select`、`buttons`、`list` 的选项可以不写出来，写 `from`：一个式子，由领域的资源按卡片接进来的值算出 `[{ value, label }]`（资源这时看到屏幕给的 `context`：任务、测试的文字和这张卡）——《证明完毕》里任取框能取的名字、等量代换能换的位置都是这样算出来的。一份设置可以给好几个元件用（vision 的「图外假设」「空间轴」），也给搭出的件用（它在 `pieces.json` 那一项的 `settings`）。选项的 `{ value, label?, icon?, about? }` 里，`label` 不写就显示 `value`。课程可以只放出一部分选项（vision 的 `configurations`）：只剩一个选项时这个设置不再画出来，值就是它。
 

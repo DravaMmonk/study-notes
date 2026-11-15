@@ -18,7 +18,6 @@
 //   inputs(node) → [port]       role(node) → 'source' | 'sink' | 'part'      label(node) → text
 //   portLabel(node, port) → text   family(node) → string   icon(node) → Component
 //   refuse(graph, from, to, port) → null, or a { zh, en } reason the wire is not allowed
-//   removable?(node) → whether the player may take it off the board (default: a part)
 //   valueView?(node) → the view a card uses for its value; hasSettings?(node) → it draws setting controls
 //   packed?(node)    → whether it is a packed part: one that runs a circuit the player built (its family chip drawn solid)
 //   defaults?(type) → initial settings for a part imported from a blueprint
@@ -67,12 +66,15 @@ export function connect(graph, id, port, from) {
   return { ...graph, wires: from ? [...wires, { from, to: id, port }] : wires }
 }
 
-/** A card the editor offers to remove (ordinary parts, and movable inputs in some games). */
-export const canRemoveCard = (parts, node, locked) => Boolean(node && !locked.has(node.id) && (parts.removable ? parts.removable(node) : parts.role(node) === 'part'))
+/** A circuit part, including one the level preset, as opposed to a fixed input or output. */
+export const isPart = (parts, node) => Boolean(node && parts.role(node) === 'part')
+
+/** A part the player can remove from this board. */
+export const canRemoveCard = (parts, node, locked) => isPart(parts, node) && !locked.has(node.id)
 
 /** Remove a card, any cards inside it and their wires, unless the level presets any of them. */
-export function removeNode(graph, id) {
-  if (lockedCards(graph).has(id)) return graph
+export function removeNode(graph, parts, id) {
+  if (!canRemoveCard(parts, byId(graph, id), lockedCards(graph))) return graph
   const gone = frameTree(graph.nodes).included([id])
   return { ...graph, nodes: graph.nodes.filter((n) => !gone.has(n.id)), wires: graph.wires.filter((w) => !gone.has(srcNode(w.from)) && !gone.has(w.to)) }
 }
@@ -182,7 +184,7 @@ export function layout(graph, parts) {
   const nodes = [...ordered, ...pending].map((id) => byNode.get(id))
   return {
     sources: graph.nodes.filter((n) => parts.role(n) === 'source'),
-    steps: nodes.filter((n) => parts.role(n) === 'part'),
+    steps: nodes.filter((n) => isPart(parts, n)),
     sinks: graph.nodes.filter((n) => parts.role(n) === 'sink'),
   }
 }

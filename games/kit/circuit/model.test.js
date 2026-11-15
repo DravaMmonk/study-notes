@@ -42,14 +42,15 @@ test('a preset goes onto a board locked, where the board already has its parts',
 })
 
 test('a change keeps the locked parts and wires, and nothing else of the old board', () => {
+  const parts = { role: (n) => n.type === 'in' ? 'source' : n.type === 'out' ? 'sink' : 'part' }
   const started = withPreset(board, preset)
   const free = connect({ ...started, nodes: [...started.nodes, { id: 'q', type: 'x' }] }, 'p', 'in', 'in')
-  assert.equal(removeNode(free, 'p'), free)
+  for (const id of ['in', 'out', 'p', 'missing']) assert.equal(removeNode(free, parts, id), free)
   const gone = keepLocked(free, { ...free, nodes: free.nodes.filter((node) => node.id !== 'p'), wires: [] })
   assert.ok(gone.nodes.some((n) => n.id === 'p' && n.locked))
   assert.ok(gone.wires.some((w) => w.from === 'p' && w.locked))
   assert.ok(!gone.wires.some((w) => w.to === 'p' && w.port === 'in'))
-  assert.ok(keepLocked(free, removeNode(free, 'q')).nodes.every((n) => n.id !== 'q'))
+  assert.ok(keepLocked(free, removeNode(free, parts, 'q')).nodes.every((n) => n.id !== 'q'))
   const rewired = keepLocked(free, connect(free, 'out', 'in', 'in'))
   assert.deepEqual(rewired.wires.filter((w) => w.to === 'out'), [{ from: 'p', to: 'out', port: 'in', locked: true }])
 })

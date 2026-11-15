@@ -31,9 +31,11 @@ import { packed, withSettings } from './boards.js'
 import { defineParts } from './parts/define.js'
 import { formed } from './forms.js'
 import { taskLevels } from './tasks.js'
+import { previousCircuitTask } from './board-view.js'
 import { trayIn } from './trays.js'
 import { defineCourse, eraLevels, holds as holding, layout, offer, readItem } from '../course.js'
 import { T as t } from '../shell/i18n.js'
+import { inheritedBoard } from '../shell/progress.js'
 
 export function circuitCourse(content, { board, parts, read: readOwn = (task) => task, test: readTest = (t) => t, kinds = {}, holds = false, unwanted = () => [] }) {
   const { eras, trays, primitives, levels, concept = {}, replaces = {} } = content
@@ -275,9 +277,10 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
     carried: new Set(LEVELS.flatMap((L) => played.get(L.id).map((T) => T.carry)).filter(Boolean)),
     // The board a task opens on: the board of the level it carries on from (the player's, else its last task's
     // reference), or its fixed cards alone.
-    opening: (task, built = {}, previous = null) => {
-      const from = task.carry ? played.get(task.carry)?.at(-1) : task.carries ? played.get(task.id)?.[task.task - 1] : null
-      const b = fits(previous, from) ? previous : passedBoard(from, built)
+    opening: (task, progress) => {
+      const from = previousCircuitTask(task, (id) => played.get(id))
+      const kept = progress && inheritedBoard(progress, from)
+      const b = fits(kept, from) ? kept : passedBoard(from, progress?.built ?? {})
       if (!b) return board.startBoard(task)
       const carried = board.carriedOnto(task, b, forTask(task))
       const ids = new Set(carried.nodes.map((n) => n.id))
@@ -292,7 +295,7 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
       const chain = []
       const seen = new Set([task.taskId])
       const visit = (current) => {
-        const previous = current.carry ? played.get(current.carry)?.at(-1) : current.carries ? played.get(current.id)?.[current.task - 1] : null
+        const previous = previousCircuitTask(current, (id) => played.get(id))
         if (!previous || seen.has(previous.taskId)) return
         seen.add(previous.taskId)
         visit(previous)

@@ -1,10 +1,10 @@
 import { dependencyOrder, indexEdges } from '../graph.js'
 import { sourceOf, splitSource, srcNode, wireEdges } from '../engine/wire-source.js'
 import { cardPosition, flowSpots } from './layout.js'
-import { byId, hasOutput, inPort, spotIn, wirePortRefusal, wireRefusal } from './model.js'
+import { byId, hasOutput, inPort, isPart, spotIn, wirePortRefusal, wireRefusal } from './model.js'
 import { isFixed, keepFixedSettings, keepLocked, lockedCards, PRESET_PORT_REFUSAL } from './presets.js'
 import { sameJson } from '../engine/json-value.js'
-import { regionAddress, regionProblems, regionsOf } from './regions.js'
+import { regionAddress, regionProblems, regionsOf, terminalRegionProblem } from './regions.js'
 
 // A board as plain ASCII text: what the player copies out of a level, keeps in a notepad or sends on, and pastes back
 // (a blueprint). It says what the board computes and nothing about how it is laid out:
@@ -28,10 +28,9 @@ import { regionAddress, regionProblems, regionsOf } from './regions.js'
 //   parts.text.value(node, key, v) → v spelled in ASCII        parts.text.read(node, key, v) → v as the game keeps it
 //   parts.text.check(node, key, v) → { zh, en } | null for an invalid value
 //   parts.text.settings(node) → [field] the fields a placed part accepts
-//   parts.text.sets(node) → [field]   what the player sets on a node the level gives (an input card's picks: 'value',
-//                                     and 'type' when its kind can change); such a node is written out with them
-// A node the player may not remove (parts.removable, else every part may go) is given by the level: never declared,
-// only wired to, unless it has settings of its own.
+//   parts.text.sets(node) → [field] what the player can set on an input or output the level gives (sensor picks)
+// A blueprint declares parts. The level supplies the inputs and outputs; the text connects them and can list
+// settings they expose. Preset parts are written as parts, with their locks supplied by the level on import.
 
 const WORD = /^[A-Za-z_][A-Za-z0-9_-]*$/
 const NUMBER = /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/
@@ -55,7 +54,6 @@ export function printSource(from) {
 
 /** What a node is set to: its params. */
 const settingsOf = (node) => node.params ?? {}
-const placed = (parts, node) => (parts.removable ? parts.removable(node) : parts.role(node) === 'part')
 const regionNames = (parts, node) => regionsOf(parts, node).map((region) => region.name)
 
 /** Node ids, each after what it reads; what a frame's regions make for it does not count (it is written inside it). */
@@ -86,13 +84,13 @@ export function print(graph, parts, head = {}) {
     // A wire into a port the node does not list is written by name, so nothing is lost (reading it back says why).
     const named = [...regions.filter((r) => wired.has(r)), ...[...wired.keys()].filter((p) => !ports.includes(p))]
     const args = [...plain.slice(0, last + 1).map((p) => (wired.has(p) ? printSource(wired.get(p)) : '_')), ...named.map((r) => `${name(r)}: ${printSource(wired.get(r))}`)]
-    const type = fields && !fields.includes('type') ? '' : ` = ${name(node.type)}`
+    const type = fields ? '' : ` = ${name(node.type)}`
     return `${pad}${name(node.id)}${type}${set.length ? `[${set.join(', ')}]` : ''}(${args.join(', ')})`
   }
   const block = (scope, pad) => {
     for (const id of ids) {
       const node = byId(graph, id)
-      if (!placed(parts, node) || (node.in ?? null) !== scope) continue
+      if (!isPart(parts, node) || (node.in ?? null) !== scope) continue
       const regions = regionNames(parts, node)
       if (!regions.some((r) => graph.nodes.some((n) => n.in === regionAddress(id, r)))) {
         lines.push(statement(node, pad))
@@ -111,13 +109,13 @@ export function print(graph, parts, head = {}) {
   // Nodes the level gives: first those with settings of their own, written out with them; then the wires into the rest.
   for (const id of ids) {
     const node = byId(graph, id)
-    const fields = placed(parts, node) ? [] : parts.text?.sets?.(node) ?? []
+    const fields = isPart(parts, node) ? [] : parts.text?.sets?.(node) ?? []
     if (fields.length) lines.push(statement(node, '', fields))
   }
   block(null, '')
   for (const id of ids) {
     const node = byId(graph, id)
-    if (placed(parts, node) || (parts.text?.sets?.(node) ?? []).length) continue
+    if (isPart(parts, node) || (parts.text?.sets?.(node) ?? []).length) continue
     const ports = parts.inputs(node)
     for (const w of into(id)) lines.push(`${w.port === ports[0] ? name(id) : `${name(id)}.${name(w.port)}`} <- ${printSource(w.from)}`)
   }
@@ -315,7 +313,7 @@ export function read(text, graph, parts, types) {
   const unread = (node, key, v) => (parts.text?.read ? parts.text.read(node, key, v) : v)
   const beforeById = new Map(graph.nodes.map((node) => [node.id, node]))
   const protectedIds = lockedCards(graph)
-  const nodes = graph.nodes.filter((n) => !placed(parts, n)).map((n) => ({ ...n }))
+  const nodes = graph.nodes.filter((n) => !isPart(parts, n)).map((n) => ({ ...n }))
   // Statements refused (by index) and the nodes they leave out: their wires say nothing more.
   const failed = new Set()
   const missing = new Set()
@@ -348,16 +346,19 @@ export function read(text, graph, parts, types) {
       refuse(st, `「${st.id}」是关卡摆好的，不能改它的类型或所在区域。`, `“${st.id}” is placed by the level; its type and region are fixed.`)
       continue
     }
-    const given = before && !placed(parts, before) ? nodes.find((n) => n.id === st.id) : null
+    const given = before && !isPart(parts, before) ? nodes.find((n) => n.id === st.id) : null
     if (given) {
+      const problem = terminalRegionProblem(parts, given, st.in)
+      if (problem) {
+        refuse(st, problem.zh, problem.en)
+        continue
+      }
       const fields = parts.text?.sets?.(given) ?? []
-      const wants = [...(st.type !== undefined && st.type !== given.type ? ['type'] : []), ...Object.keys(st.settings)]
-      const stray = wants.filter((f) => !fields.includes(f))
+      const stray = [...(st.type !== undefined && st.type !== given.type ? ['type'] : []), ...Object.keys(st.settings).filter((f) => !fields.includes(f))]
       if (stray.length) {
         refuse(st, `「${st.id}」是关卡给的，不能改它的 ${stray.join('、')}。`, `“${st.id}” is given by the level; its ${stray.join(', ')} cannot change.`)
         continue
       }
-      if (st.type !== undefined) given.type = st.type
       const settings = readSettings(st, given, locked)
       if (settings && Object.keys(settings).length) given.params = { ...given.params, ...settings }
       continue
@@ -372,6 +373,10 @@ export function read(text, graph, parts, types) {
       continue
     }
     const node = { id: st.id, type }
+    if (!isPart(parts, node)) {
+      refuse(st, `「${type}」由关卡提供，不能另放一张。`, `“${type}” is supplied by the level; an extra card cannot be placed.`)
+      continue
+    }
     const keys = parts.text?.settings?.(node)
     const stray = Object.keys(st.settings).find((key) => keys && !keys.includes(key))
     if (stray !== undefined) {
@@ -396,12 +401,12 @@ export function read(text, graph, parts, types) {
   for (const node of out.nodes) {
     // A new card in a frame's region takes the next free cell of it; one on the board itself is placed once the
     // wires are read, where they lead (layout.js flowSpots).
-    if (node.x === undefined && placed(parts, node) && node.in) {
+    if (node.x === undefined && isPart(parts, node) && node.in) {
       const [x, y] = spotIn(out, node.in)
       Object.assign(node, { x, y })
     }
   }
-  const fresh = out.nodes.filter((n) => n.x === undefined && placed(parts, n))
+  const fresh = out.nodes.filter((n) => n.x === undefined && isPart(parts, n))
   const preset = new Map(out.wires.map((wire) => [inPort(wire.to, wire.port), wire]))
   const written = new Set()
   for (const w of parsed.wires) {
@@ -420,7 +425,7 @@ export function read(text, graph, parts, types) {
     const from = byId(out, fromId)
     // A given node that can give what the wire takes but is not giving it yet (a sensor not switched on) is switched
     // on for it: the text says what the board reads.
-    const opened = from && !placed(parts, from) && !hasOutput(parts, from, outKey) && parts.text?.opens?.(from, outKey)
+    const opened = from && !isPart(parts, from) && !hasOutput(parts, from, outKey) && parts.text?.opens?.(from, outKey)
     if (opened) from.params = keepFixedSettings(from, opened)
     const connection = { from: w.from, to: w.to, port }
     const address = inPort(w.to, port)

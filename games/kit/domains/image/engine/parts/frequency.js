@@ -1,10 +1,10 @@
 // Parts for frequency (视觉完备 chapter 2): a wave of 32 points, the spectrum, a low-pass in the frequency domain and
 // multiplying a picture's frequencies by a gain picture.
-import { fromFn } from '../image.js'
+import { row } from '../image.js'
 import { applyGain, lowpass, magnitudeSpectrum } from '../fourier.js'
+import { sampleAt, sinusoid } from '../waves.js'
 
 const N = 32
-const TAU = 2 * Math.PI
 
 export const FREQUENCY = {
   fqWave: {
@@ -15,11 +15,7 @@ export const FREQUENCY = {
       { key: 'k', label: { zh: '频率 k', en: 'Frequency k' }, kind: 'number', min: 0, max: 16, step: 1, default: 1 },
       { key: 'form', label: { zh: '形状', en: 'Shape' }, kind: 'select', options: [['cos', 'cos'], ['sin', 'sin']], default: 'cos' },
     ],
-    eval: (_, p) => {
-      const k = Number(p.k ?? 1)
-      const f = p.form === 'sin' ? Math.sin : Math.cos
-      return fromFn(N, 1, (x) => f((TAU * k * x) / N))
-    },
+    eval: (_, p) => row(sampleAt(sinusoid(Number(p.k ?? 1), p.form), N)),
     cost: 2,
     unlock: 'wave',
   },

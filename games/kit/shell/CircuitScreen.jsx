@@ -8,7 +8,7 @@ import { stagesOf } from '../engine/stages.js'
 import { CircuitBoard } from 'lucide-react'
 import { MISSING } from '../engine/circuit.js'
 import { traceSteps, viewAt } from '../engine/trace.js'
-import { isCircuitBoard, outputsOf } from '../circuit/model.js'
+import { outputsOf } from '../circuit/model.js'
 import { isFixed } from '../circuit/presets.js'
 import { runTestGroups, TEST_WORDS } from '../engine/tests.js'
 import CircuitLevel, { useLevelBoard, useLevelRun } from './CircuitLevel.jsx'
@@ -29,7 +29,6 @@ import { lookupBoard } from '../circuit/packed-boards.js'
 import { definedItem } from './parts/faces.jsx'
 import { optionsOf } from '../engine/parts/define.js'
 import { useEdit } from './edit.js'
-import NumberField from './NumberField.jsx'
 import { PHONE, useMedia } from './useMedia.js'
 import Readouts from './Readouts.jsx'
 import CircuitCheckTable from './plays/CircuitCheckTable.jsx'
@@ -91,17 +90,6 @@ import './training.css'
 const reportedFailure = (run) => run.error ?? (run.final ? null : failureText(run.fail))
 const finalFailure = (run) => run.fail?.at?.tick === undefined ? reportedFailure(run) : run.error
 
-/** A number typed on a card: a keypad on a phone (NumberField). */
-function CardNumber({ label, value, onChange }) {
-  const phone = useMedia(PHONE)
-  return (
-    <label className="cs-field">
-      <span>{L(label)}</span>
-      <NumberField label={label} value={value} phone={phone} onChange={onChange} />
-    </label>
-  )
-}
-
 /** A setting picked from a list, on a card. */
 function CardField({ label, value, options, onChange, disabled }) {
   return (
@@ -138,15 +126,11 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
   const { shown: palette, folded, types } = useMemo(() => circuit.offerIn(level, flags), [circuit, level, flags])
   const held = useMemo(() => new Set(types), [types])
   const hold = (b) => (ready ? ready(b, held, level) : b)
-  // A task that goes on from the task before (`carries`) opens on that board, its ports swapped for its own, unless
-  // its new starter parts are added without replacing the inherited work.
-  const opening = () => circuit.opening(level, progress.built, undefined, progress)
+  const opening = () => circuit.opening(level, progress)
   const fitted = (saved) => {
-    const inherited = isCircuitBoard(saved) && level.carries && !progress.data[entry.key]
-    const candidate = inherited ? circuit.opening(level, progress.built, saved, progress) : saved
-    if (kind.fits(candidate, level, circuit)) {
-      const prepared = hold(candidate)
-      if (prepared === candidate || kind.fits(prepared, level, circuit)) return prepared
+    if (kind.fits(saved, level, circuit)) {
+      const prepared = hold(saved)
+      if (prepared === saved || kind.fits(prepared, level, circuit)) return prepared
     }
     return hold(opening())
   }
