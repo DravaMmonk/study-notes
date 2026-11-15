@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { relativeCell, pixel, pixelText } from '../engine/grid.js'
+import { pixelText, readCell } from '../engine/grid.js'
 import GridView, { GridPicture } from '../views/grid/GridView.jsx'
 import { useMark } from './edit.js'
 import { L, keyOf, tr } from './i18n.js'
@@ -15,6 +15,8 @@ export function gridProbeScreen(rangeFor) {
     const [point, setPoint] = useState(null)
     const { input } = examples[active]
     const output = useMemo(() => run(input), [run, input])
+    const inputRead = point && readCell(point, point.source, input)
+    const outputRead = point && readCell(point, point.source, output)
     const select = (index) => {
       setActive(index)
       setPoint(null)
@@ -24,19 +26,14 @@ export function gridProbeScreen(rangeFor) {
       setRejected(null)
       onSolve()
     }
-    const figure = (value, label) => {
-      const at = point && relativeCell(point, point.source, value)
+    const figure = (value, label, reading) => {
       const pick = (x, y) => setPoint({ x, y, source: value })
       return (
         <figure>
-          <GridView value={value} range={rangeFor(value)} label={label} cell={176 / value.w} grid mark={at} onPick={pick} onHover={pick} />
+          <GridView value={value} range={rangeFor(value)} label={label} cell={176 / value.w} grid mark={reading} onPick={pick} onHover={pick} />
           <figcaption>{label}</figcaption>
         </figure>
       )
-    }
-    const at = (value) => {
-      const { x, y } = relativeCell(point, point.source, value)
-      return pixelText(pixel(value, x, y), 3)
     }
 
     return (
@@ -50,12 +47,12 @@ export function gridProbeScreen(rangeFor) {
           ))}
         </div>
         <div className="probe-machine">
-          {figure(input, tr('输入', 'Input'))}
+          {figure(input, tr('输入', 'Input'), inputRead)}
           <div className="probe-box" aria-hidden="true">？？？</div>
-          {figure(output, tr('输出', 'Output'))}
+          {figure(output, tr('输出', 'Output'), outputRead)}
         </div>
         <p className="pixel-probe" aria-live="polite">
-          {point ? <>{tr(`第 ${point.x + 1} 列、第 ${point.y + 1} 行：`, `Column ${point.x + 1}, row ${point.y + 1}: `)}{tr('输入 ')}<b>{at(input)}</b>{tr('，输出 ')}<b>{at(output)}</b></>
+          {point ? <>{tr(`第 ${point.x + 1} 列、第 ${point.y + 1} 行：`, `Column ${point.x + 1}, row ${point.y + 1}: `)}{tr('输入 ')}<b>{pixelText(inputRead.value, 3)}</b>{tr('，输出 ')}<b>{pixelText(outputRead.value, 3)}</b></>
             : tr('点击图中的格子（电脑上也可将鼠标悬停在格子上），读取它的数值。')}
         </p>
         <div className="probe-question">

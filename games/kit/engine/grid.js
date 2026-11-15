@@ -18,9 +18,11 @@ export const display = (v) => Math.min(1, Math.max(0, v))
 /** A cell's number as a grid writes it in the cell: up to two decimals (./number.js). */
 export const cellNumber = (v) => numberText(v, 2)
 
-/** Read a cell at the same relative position in another grid, even when their sizes differ. */
-export function relativeCell({ x, y }, source, target) {
-  return { x: Math.floor((x + 0.5) * target.w / source.w), y: Math.floor((y + 0.5) * target.h / source.h) }
+/** Read the cell that contains the selected cell's centre in relative grid coordinates. */
+export function readCell({ x, y }, source, target) {
+  const col = Math.floor((x + 0.5) * target.w / source.w)
+  const row = Math.floor((y + 0.5) * target.h / source.h)
+  return { x: col, y: row, value: pixel(target, col, row) }
 }
 
 /** A full reading of a grey or RGB cell. */

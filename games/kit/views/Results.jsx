@@ -1,4 +1,4 @@
-import { isGrid, pixel, pixelText, relativeCell } from '../engine/grid.js'
+import { isGrid, pixel, pixelText, readCell } from '../engine/grid.js'
 import { VIEWS } from '../engine/views.js'
 import { L, T } from '../shell/i18n.js'
 import Timeline from '../shell/Timeline.jsx'
@@ -50,9 +50,9 @@ function Chip({ entry, text }) {
 
 function linkedReading(readings, source, x, y) {
   return readings.map(({ key, label, grid }) => {
-    const { x: col, y: row } = relativeCell({ x, y }, source, grid)
+    const { x: col, y: row, value } = readCell({ x, y }, source, grid)
     const at = grid.w === source.w && grid.h === source.h ? '' : ` (${col}, ${row})`
-    return <span key={key}>{label}{at} {pixelText(pixel(grid, col, row))}</span>
+    return <span key={key}>{label}{at} {pixelText(value)}</span>
   })
 }
 
