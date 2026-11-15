@@ -3,7 +3,7 @@ import { useRef, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { iconOf } from '../shell/parts/icons.js'
-import { OptionList, useDismiss } from './Picker.jsx'
+import { OptionList } from './Picker.jsx'
 import { taskOptionsOf } from './form.js'
 import { pieceGroups } from './pieces.js'
 import { builtPart, pieceCreationOptions } from '../engine/parts/schema.js'
@@ -20,7 +20,6 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
   const parts = Object.entries(file.parts ?? {})
   const [adding, setAdding] = useState(null)
   const box = useRef(null)
-  useDismiss(box, adding !== null, () => setAdding(null))
   const tasks = levelOptions ? taskOptionsOf(levelOptions) : []
   const choices = pieceCreationOptions(vocabulary, tasks).map((option) => ({ ...option, label: L(option.label) }))
   const add = (data) => {
@@ -69,7 +68,7 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
         <button type="button" className="parts-add" onClick={() => setAdding(adding ? null : 'type')} aria-expanded={adding !== null} aria-haspopup="dialog">
           <Plus size={13} aria-hidden="true" />{tr('新增', 'Add')}
         </button>
-        {adding && <OptionList key={adding} options={adding === 'task' ? tasks : choices} value={null}
+        {adding && <OptionList key={adding} anchor={box} options={adding === 'task' ? tasks : choices} value={null}
           onPick={adding === 'task' ? build : pickType} onClose={() => setAdding(null)} />}
       </div>
     </nav>

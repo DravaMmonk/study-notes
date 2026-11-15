@@ -6,7 +6,7 @@ import { readShow } from '../engine/views.js'
 import Show from '../views/Show.jsx'
 import { useMark } from './edit.js'
 import { AddMark } from './EditMarks.jsx'
-import { useOverlayKeys } from './useOverlayKeys.js'
+import { useOverlay } from './useOverlay.js'
 
 // A level's introduction, or a task's (`step`: its name): a few pages to read before playing, each with an optional picture
 // the game draws (its IntroFigure). It opens by itself the first time and again from the bar. On a phone it is a
@@ -17,7 +17,7 @@ export default function IntroSheet({ game, level, pages, marks = [], step, theme
   const mark = useMark()
   const last = page === pages.length - 1
 
-  const overlay = useOverlayKeys(onClose, {
+  const overlay = useOverlay(onClose, {
     active: pages.length > 0,
     onKey(event) {
       if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return false

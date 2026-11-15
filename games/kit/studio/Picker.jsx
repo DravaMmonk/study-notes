@@ -2,10 +2,10 @@
 // its parameters, its group), a row of buttons when there are only a few short options, and chips for a list of
 // choices. Options: [{ value, label?, title?, about?, group?, params? }] (label: what the value shows as, a level's
 // number; title: its name; about: the vocabulary's words for it).
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { ChevronDown, Plus, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
-import { useOverlayKeys } from '../shell/useOverlayKeys.js'
+import { useOverlay } from '../shell/useOverlay.js'
 import { useListCursor } from './useListCursor.js'
 
 const words = (v) => (v && typeof v === 'object' ? `${v.zh ?? ''} ${v.en ?? ''}` : String(v ?? ''))
@@ -13,20 +13,10 @@ const words = (v) => (v && typeof v === 'object' ? `${v.zh ?? ''} ${v.en ?? ''}`
 const head = (o) => (o ? `${o.label ?? String(o.value)}${o.title ? ` ${L(o.title)}` : ''}` : '')
 const paramsOf = (o) => (o.params?.type === 'obj' ? Object.keys(o.params.fields) : o.params ? [o.params.type] : [])
 
-/** Closes when a pointer goes down outside `ref`. */
-export function useDismiss(ref, open, close) {
-  useEffect(() => {
-    if (!open) return undefined
-    const down = (e) => { if (!e.composedPath().includes(ref.current)) close() }
-    window.addEventListener('pointerdown', down)
-    return () => window.removeEventListener('pointerdown', down)
-  }, [ref, open, close])
-}
-
 /** The popover's list: a search box (starting at `query`) over every word of each option, arrows and Enter to pick, Escape to leave. */
-export function OptionList({ options, value, onPick, onClose, autoFocus = true, query: first = '' }) {
+export function OptionList({ options, value, onPick, onClose, anchor, onOutside = onClose, autoFocus = true, query: first = '' }) {
   const [query, setQuery] = useState(first)
-  const overlay = useOverlayKeys(onClose)
+  const overlay = useOverlay(onClose, { onOutside, anchor: () => anchor.current })
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase()
     return q ? options.filter((o) => `${o.value} ${o.label ?? ''} ${words(o.title)} ${words(o.about)} ${words(o.group)}`.toLowerCase().includes(q)) : options
@@ -65,7 +55,6 @@ export function OptionList({ options, value, onPick, onClose, autoFocus = true, 
 export function Picker({ options, value, onPick, label = '', placeholder = '—' }) {
   const [open, setOpen] = useState(false)
   const box = useRef(null)
-  useDismiss(box, open, () => setOpen(false))
   const picked = options.find((o) => o.value === value)
   return (
     <div className="pick" ref={box}>
@@ -77,7 +66,7 @@ export function Picker({ options, value, onPick, label = '', placeholder = '—'
         {picked?.about && <span className="pick-about">{L(picked.about)}</span>}
         <ChevronDown size={14} aria-hidden="true" />
       </button>
-      {open && <OptionList options={options} value={value} onPick={(v) => { setOpen(false); onPick(v) }} onClose={() => setOpen(false)} />}
+      {open && <OptionList anchor={box} options={options} value={value} onPick={(v) => { setOpen(false); onPick(v) }} onClose={() => setOpen(false)} />}
     </div>
   )
 }
@@ -103,7 +92,6 @@ export function Choice({ options, value, onPick, label }) {
 export function Chips({ options, values, onSet, label }) {
   const [open, setOpen] = useState(false)
   const box = useRef(null)
-  useDismiss(box, open, () => setOpen(false))
   const byValue = new Map(options.map((o) => [o.value, o]))
   return (
     <div className="chips" ref={box}>
@@ -114,7 +102,7 @@ export function Chips({ options, values, onSet, label }) {
         </span>
       ))}
       <button type="button" className="chip-add" onClick={() => setOpen(!open)} aria-label={`${label} +`}><Plus size={13} aria-hidden="true" /></button>
-      {open && <OptionList options={options.filter((o) => !values.includes(o.value))} value={null} onPick={(v) => { setOpen(false); onSet([...values, v]) }} onClose={() => setOpen(false)} />}
+      {open && <OptionList anchor={box} options={options.filter((o) => !values.includes(o.value))} value={null} onPick={(v) => { setOpen(false); onSet([...values, v]) }} onClose={() => setOpen(false)} />}
     </div>
   )
 }

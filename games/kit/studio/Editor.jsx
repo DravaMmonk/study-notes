@@ -10,7 +10,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowRightLeft, ChevronRight, Copy, Play, CirclePlay, Trash2 } from 'lucide-react'
 import { L, getLang, tr } from '../shell/i18n.js'
-import { useWorkspaceKeys } from '../shell/useOverlayKeys.js'
+import { useWorkspaceKeys } from '../shell/useOverlay.js'
 import { getAt, showPath } from '../engine/ops/edit.js'
 import { blank, fieldAt, fileForm, formOf, gameFields, opFor, placeFindings, sectionsOf } from './form.js'
 import { holdsLevels } from '../engine/schema.js'

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 import { tr } from './i18n.js'
 import { EntriesSize, SHEET } from './Entries.jsx'
-import { useOverlayKeys } from './useOverlayKeys.js'
+import { useOverlay } from './useOverlay.js'
 import { usePointerSession } from '../views/usePointerSession.js'
 import './sheet.css'
 
@@ -11,7 +11,7 @@ import './sheet.css'
 export default function Sheet({ title, onClose, children, footer, actions }) {
   const [drag, setDrag] = useState(0)
   const { track } = usePointerSession()
-  const overlay = useOverlayKeys(onClose)
+  const overlay = useOverlay(onClose)
   const swipe = (event) => {
     if (event.button !== 0 || !event.isPrimary) return
     const start = event.clientY

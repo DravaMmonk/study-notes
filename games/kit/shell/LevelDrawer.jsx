@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { ChevronDown, PanelLeftClose } from 'lucide-react'
 import { L, tr } from './i18n.js'
 import { LevelTree, NeededNote, useNeeded } from './LevelMap.jsx'
-import { useOverlayKeys } from './useOverlayKeys.js'
+import { useOverlay } from './useOverlay.js'
 
 // The level drawer, pulled out from the left over a level: every chapter as its level tree (the map's, compact), the
 // current chapter open and the current level marked. Picking a level switches to it directly, without the map.
@@ -11,7 +11,7 @@ export default function LevelDrawer({ game, current, solved, all, onOpen, onClos
   const chapterOf = levels.find((level) => level.id === current)?.chapter
   const [openChapters, setOpenChapters] = useState(() => new Set([chapterOf]))
   const list = useRef(null)
-  const overlay = useOverlayKeys(onClose)
+  const overlay = useOverlay(onClose)
   // A locked level lights up what it waits for; the chapters holding those open.
   const needed = useNeeded(game, solved, all)
   useEffect(() => {

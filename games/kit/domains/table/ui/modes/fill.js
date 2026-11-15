@@ -6,7 +6,7 @@ import { E, W } from '../../model/scene.js'
 import { tr, lazy } from '../../lang.js'
 import { boardDrawing } from '../scene.js'
 import { buzz, typing, useVerdict } from '../../../../shell/useBoardInteraction.jsx'
-import { useWorkspaceKeys } from '../../../../shell/useOverlayKeys.js'
+import { useWorkspaceKeys } from '../../../../shell/useOverlay.js'
 import { L as text } from '../../../../shell/i18n.js'
 import { WORDS } from '../../../../shell/words.js'
 

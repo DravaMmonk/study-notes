@@ -3,7 +3,7 @@ import { L, keyOf, tr } from './i18n.js'
 import { Markup } from './Markup.jsx'
 import { readShow } from '../engine/views.js'
 import Show from '../views/Show.jsx'
-import { useOverlayKeys } from './useOverlayKeys.js'
+import { useOverlay } from './useOverlay.js'
 
 // Content text: bilingual pairs or a list of them; blank lines separate explanation and formula paragraphs.
 function Paragraphs({ text }) {
@@ -14,7 +14,7 @@ function Paragraphs({ text }) {
 /** A plain dialog: a mono title, lines of text, buttons; the last button is the primary one. `top`: over every other
  *  overlay (a reference clicked inside one). */
 export function Dialog({ title, lines, actions, intro, top, onClose }) {
-  const overlay = useOverlayKeys(onClose)
+  const overlay = useOverlay(onClose)
   return (
     <div ref={overlay} className={`dialog-scrim ${top ? 'is-top' : ''}`}>
       <div className={`dialog ${intro ? 'is-intro' : ''}`} role="dialog" aria-modal="true" aria-label={title}>
@@ -32,7 +32,7 @@ export function Dialog({ title, lines, actions, intro, top, onClose }) {
 
 /** A task of a level passed (GameShell tasks): what it taught, and the way on to the next task. */
 export function TaskDoneDialog({ game, level, task, index, next, revisit, onStay, onNext }) {
-  const overlay = useOverlayKeys(onStay)
+  const overlay = useOverlay(onStay)
   return (
     <div ref={overlay} className="dialog-scrim">
       <div className="dialog is-solved" role="dialog" aria-modal="true" aria-label={tr('任务完成')}>
@@ -51,7 +51,7 @@ export function TaskDoneDialog({ game, level, task, index, next, revisit, onStay
 
 /** A level passed: what it taught, what it unlocked, its key idea, and the way back to the map. */
 export function SolvedDialog({ game, level, onStay, onExit }) {
-  const overlay = useOverlayKeys(onStay)
+  const overlay = useOverlay(onStay)
   const unlocked = game.unlocked(level)
   const note = game.note(level)
   // What else passing it gives, as the game says it: a label and its lines (rules declared, a sentence's skeleton…).
@@ -96,7 +96,7 @@ export function SolvedDialog({ game, level, onStay, onExit }) {
 /** A run that did not pass: what went wrong (`extra`, more to show under it, is markup or a React element), and from
  *  the second miss on, the level's hint. */
 export function FailDialog({ fail, fails, onClose }) {
-  const overlay = useOverlayKeys(onClose)
+  const overlay = useOverlay(onClose)
   const hint = fail.hint
   return (
     <div ref={overlay} className="dialog-scrim">

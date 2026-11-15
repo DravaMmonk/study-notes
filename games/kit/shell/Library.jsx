@@ -1,7 +1,7 @@
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { ArrowLeft, Lock, Search, X } from 'lucide-react'
 import { L, tr } from './i18n.js'
-import { useOverlayKeys } from './useOverlayKeys.js'
+import { useOverlay } from './useOverlay.js'
 
 // A book of entries, after the encyclopedia in Turing Complete: entries by group on the left, the open entry on the
 // right; on a phone, the list and then one entry at a time. The encyclopedia and the components box are both one.
@@ -72,7 +72,7 @@ export default function Library({ title, subtitle, label, groups, initial, lastK
     }
     nav.current?.querySelector('.wiki-item.is-current')?.scrollIntoView({ block: 'center' })
   }, [current])
-  const overlay = useOverlayKeys(onClose)
+  const overlay = useOverlay(onClose)
 
   const show = (id, fromList = false) => {
     clicked.current = fromList && id !== current

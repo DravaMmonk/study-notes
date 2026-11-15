@@ -1,9 +1,9 @@
-import { createContext, useContext, useEffect, useRef, useState } from 'react'
+import { createContext, useContext, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ArrowUpFromLine, Check, ChevronDown, ClipboardPaste, Copy, FileText, Layers, Pencil, Plus, X } from 'lucide-react'
 import { Dialog } from '../shell/Dialogs.jsx'
 import { tr } from '../shell/i18n.js'
-import { useOverlayKeys } from '../shell/useOverlayKeys.js'
+import { useOverlay } from '../shell/useOverlay.js'
 import BlueprintDialog from './BlueprintDialog.jsx'
 import { print } from './text.js'
 
@@ -32,22 +32,25 @@ export default function SaveSlots({ phone = false, board = null }) {
   const [dropping, setDropping] = useState(null) // the slot asked about before it goes
   const [text, setText] = useState(null) // the blueprint dialog: 'show' | 'read'
   const root = useRef(null)
-  const menu = useOverlayKeys(() => {
-    if (naming === null) setOpen(false)
-    else setNaming(null)
-  }, { active: Boolean(slots) && open })
-  useEffect(() => {
-    if (!open) return undefined
-    const away = (event) => !root.current?.contains(event.target) && setOpen(false)
-    document.addEventListener('pointerdown', away)
-    return () => document.removeEventListener('pointerdown', away)
-  }, [open])
-  if (!slots) return null
-
+  const nameInput = useRef(null)
   const close = () => {
     setOpen(false)
     setNaming(null)
   }
+  const menu = useOverlay(() => {
+    if (naming === null) close()
+    else setNaming(null)
+  }, {
+    active: Boolean(slots) && open,
+    anchor: () => root.current,
+    onOutside: () => {
+      // Commit an active rename before unmounting its input.
+      nameInput.current?.blur()
+      close()
+    },
+  })
+  if (!slots) return null
+
   const act = (f) => () => {
     close()
     f()
@@ -72,6 +75,7 @@ export default function SaveSlots({ phone = false, board = null }) {
               <li key={slot.no} className={k === slots.at ? 'is-current' : ''}>
                 {naming === k ? (
                   <input
+                    ref={nameInput}
                     className="slots-name"
                     autoFocus
                     defaultValue={slot.name}

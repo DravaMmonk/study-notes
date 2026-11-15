@@ -3,12 +3,12 @@ import { createPortal } from 'react-dom'
 import { L, tr } from './i18n.js'
 import { numberKey, numberValue } from './number-entry.js'
 import { numberText } from '../engine/number.js'
-import { useOverlayKeys } from './useOverlayKeys.js'
+import { useOverlay } from './useOverlay.js'
 
 function NumberPad({ label, value, onCancel, onCommit, onNext }) {
   const [draft,setDraft] = useState({text:String(value),replace:true})
   const root = useRef(null)
-  const overlay = useOverlayKeys(onCancel)
+  const overlay = useOverlay(onCancel)
   useEffect(()=>{root.current?.focus()},[])
   const parsed = numberValue(draft.text)
   const press=(key)=>setDraft((s)=>numberKey(s,key))

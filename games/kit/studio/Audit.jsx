@@ -6,7 +6,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ChevronUp } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
-import { useWorkspaceKeys } from '../shell/useOverlayKeys.js'
+import { useWorkspaceKeys } from '../shell/useOverlay.js'
 import { SEVERITIES, filterItems, stepIn, tally } from './worklist.js'
 import { usePref } from './prefs.js'
 

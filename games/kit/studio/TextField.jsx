@@ -232,6 +232,7 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
     }
   }, [text])
   const box = useRef(null)
+  const tools = useRef(null)
   const [linking, setLinking] = useState(null) // the picker's first search while it is open
   const set = useCallback((text) => {
     pending.current = text
@@ -253,11 +254,11 @@ export function TextField({ value, onSet, label, field = '', names, findings = [
     }} className={`field-text ${all.length ? 'has-findings' : ''} ${compact ? 'is-compact' : ''}`}>
       <Side value={draft} onChange={set} names={names} lang={lang} label={label} placeholder={placeholder} api={box} onLink={setLinking} />
       {names && (
-        <div className="text-tools">
+        <div className="text-tools" ref={tools}>
           <button type="button" className="text-link" onPointerDown={(e) => e.preventDefault()} onClick={() => setLinking(linking === null ? '' : null)} aria-label={tr('插入链接')} title={tr(`插入链接（${MOD}+L 或 [[）`, `Insert a link (${MOD}+L or [[)`)}><Link2 size={13} aria-hidden="true" /></button>
           {linking !== null && (
             <OptionList
-              options={options} value={null} query={linking} onClose={close}
+              options={options} value={null} query={linking} anchor={tools} onClose={close} onOutside={() => setLinking(null)}
               onPick={(v) => {
                 setLinking(null)
                 const [kind, ...id] = v.split(':')

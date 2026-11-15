@@ -13,7 +13,7 @@ import { boardDrawing } from './scene.js'
 import { robotDrawing } from './robotDrawing.js'
 import { probeValues, tutorialFailure } from './circuitRun.js'
 import { buzz, typing, useToast, useVerdict } from '../../../shell/useBoardInteraction.jsx'
-import { useWorkspaceKeys } from '../../../shell/useOverlayKeys.js'
+import { useWorkspaceKeys } from '../../../shell/useOverlay.js'
 import { L, T } from '../../../shell/i18n.js'
 
 const empty = { typed: {}, robot: null, selected: null, input: '', focus: null, bench: false }

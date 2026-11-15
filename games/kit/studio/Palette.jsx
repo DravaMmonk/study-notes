@@ -3,7 +3,7 @@
 // it in the same box.
 import { useMemo, useState } from 'react'
 import { tr } from '../shell/i18n.js'
-import { useOverlayKeys } from '../shell/useOverlayKeys.js'
+import { useOverlay } from '../shell/useOverlay.js'
 import { rankPalette } from './palette.js'
 import { useListCursor } from './useListCursor.js'
 
@@ -13,7 +13,7 @@ const SHOWN = 80
 export default function Palette({ items, onRun, onClose }) {
   const [typed, setTyped] = useState('')
   const [asking, setAsking] = useState(null) // an action waiting for its word
-  const overlay = useOverlayKeys(() => {
+  const overlay = useOverlay(() => {
     if (asking) {
       setAsking(null)
       setTyped('')

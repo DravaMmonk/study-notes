@@ -1,14 +1,14 @@
 import { useEffect, useEffectEvent, useLayoutEffect, useRef } from 'react'
-import { registerOverlay, topOverlay } from '../overlay-keys.js'
+import { registerOverlay, topOverlay } from '../overlays.js'
 
-/** Put the returned ref on the positioned overlay so its layer also sets its keyboard order. */
-export function useOverlayKeys(onClose, { active = true, onKey } = {}) {
+/** Put the ref on the positioned overlay. Its optional anchor is also inside for pointer dismissal. */
+export function useOverlay(onClose, { active = true, onKey, onOutside, anchor } = {}) {
   const root = useRef(null)
-  const keys = useRef(null)
-  keys.current = { onClose, onKey }
+  const controls = useRef(null)
+  controls.current = { onClose, onKey, onOutside, anchor }
   useLayoutEffect(() => {
     const node = root.current
-    if (active && node) return registerOverlay(node, () => keys.current)
+    if (active && node) return registerOverlay(node, () => controls.current)
   }, [active])
   return root
 }

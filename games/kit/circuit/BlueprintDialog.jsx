@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, Copy, Download, FileUp } from 'lucide-react'
-import { useOverlayKeys } from '../shell/useOverlayKeys.js'
+import { useOverlay } from '../shell/useOverlay.js'
 import { tr } from '../shell/i18n.js'
 import { headOf, print, read } from './text.js'
 
@@ -20,7 +20,7 @@ export default function BlueprintDialog({ board, head, mode, onClose }) {
   const [copied, setCopied] = useState(false)
   const file = useRef(null)
   const box = useRef(null)
-  const overlay = useOverlayKeys(onClose)
+  const overlay = useOverlay(onClose)
 
   const copy = async () => {
     try {
