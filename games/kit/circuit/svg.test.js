@@ -10,10 +10,10 @@ const rect = (svg, id) => {
 }
 
 test('every part a box, the level’s nodes at the edges, each part after what it reads', () => {
-  const svg = boardSvg(['a = read[file="src/cart.js"]()', 'k = concat(issue, a)', 'm = model(k)', 'repo <- m'], { title: 'factory 1-3' })
+  const svg = boardSvg(['a = read[file="src/cart.js"]()', 'k = concat(issue, a)', 'm = model(k)', 'repo <- m'], { title: 'sample 1-3' })
   assert.match(svg, /^<svg xmlns="http:\/\/www.w3.org\/2000\/svg"[^>]* viewBox="0 0 \d+ \d+"/)
   assert.deepEqual(nodes(svg).sort(), ['a', 'issue', 'k', 'm', 'repo'])
-  assert.ok(svg.includes('>factory 1-3<') && svg.includes('file=src/cart.js'))
+  assert.ok(svg.includes('>sample 1-3<') && svg.includes('file=src/cart.js'))
   assert.ok(rect(svg, 'issue').x < rect(svg, 'a').x, 'the level’s input on the left')
   assert.ok(rect(svg, 'a').x < rect(svg, 'k').x && rect(svg, 'k').x < rect(svg, 'm').x && rect(svg, 'm').x < rect(svg, 'repo').x)
   assert.equal(svg.match(/class="bp-wire"/g).length, 4)

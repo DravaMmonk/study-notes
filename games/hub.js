@@ -11,7 +11,6 @@ import { mountBoxy } from './boxy/boxy.js';
 import { mountPress } from './press/press.js';
 import { mountDetach } from './detach/detach.js';
 import { mountStick } from './stick/stick.js';
-import { mountLoop } from './loop/loop.js';
 import { mountWire } from './wire/wire.js';
 import { mountShear } from './shear/shear.js';
 import { mountEngine } from './engine/engine.js';
@@ -19,8 +18,8 @@ import { mountEngine } from './engine/engine.js';
 // Card art: each game's illustration, mounted live into its row. The anatomy-kit figures are built into plain modules
 // for this page (each folder's build.mjs): State Graph's robot Boxy, Vision Complete's filter press, Q.E.D.'s Detach
 // press, Syntax Graph's composing stick, The Difference Engine's engine and The Linear Grid's shear rack; Software
-// Factory's agent loop and From One Wire's point-to-point link are plain line drawings.
-const ART = { grid: mountBoxy, pipeline: mountPress, detach: mountDetach, stick: mountStick, loop: mountLoop, wire: mountWire, shear: mountShear, engine: mountEngine };
+// From One Wire's point-to-point link is a plain line drawing.
+const ART = { grid: mountBoxy, pipeline: mountPress, detach: mountDetach, stick: mountStick, wire: mountWire, shear: mountShear, engine: mountEngine };
 let unmount = [];
 
 function render() {

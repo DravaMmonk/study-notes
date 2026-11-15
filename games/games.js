@@ -43,15 +43,6 @@ export const GAMES = [
     page: { icon: 'M32 14v14M32 28 17 48M32 28l15 20', description: '句法之图 Syntax Graph：拆开计算机论文里的长难句。Taking apart the long sentences of computer science papers.' },
   },
   {
-    id: 'factory', href: 'factory/index.html', title: '软件工厂', en: 'Software Factory', topic: { zh: '编码 agent', en: 'Coding Agents' },
-    desc: {
-      zh: '从一次模型调用开始，亲手决定它看到什么、能做什么、什么时候算做完：先替它拿文件，再让它自己读、自己找、改到测试通过，搭出一个自己修 issue 的编码 agent。',
-      en: 'Starting from one model call, decide what it sees, what it may do and when it is done: fetch its files for it, then let it read and look for itself until the tests pass, and build a coding agent that fixes issues on its own.',
-    },
-    levels: 16, art: 'loop', dev: true,
-    page: { icon: 'M20 22a12 12 0 1 1 0 20M20 22l-4 6M20 22l7 2', description: '软件工厂 Software Factory：从一次模型调用搭起编码 agent。A coding agent built up from one model call.' },
-  },
-  {
     id: 'network', href: 'network/index.html', title: '从一根线开始', en: 'From One Wire', topic: { zh: '计算机网络', en: 'Computer Networks' },
     desc: { zh: '一根线，一拍一位，还会出错。从传一位话开始，一层层搭出自己的网卡。', en: 'One wire, one bit a tick, and some bits go wrong. Start by passing a bit on, and build a network adapter of your own, layer by layer.' },
     levels: 34, art: 'wire', dev: true,
