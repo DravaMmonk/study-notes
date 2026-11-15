@@ -1,7 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { imageCourse } from './course.js'
-import { outputImages } from './engine/graph.js'
 import { image } from './engine/image.js'
 import { tidyImageBoard } from './engine/board.js'
 
@@ -17,7 +16,7 @@ input.data.set([2, 4])
 const run = (lines) => {
   const graph = kit.fromText(lines)
   const result = kit.evaluate(graph, { in: input })
-  return { values: outputImages(graph, result.values).out?.data, errors: result.errors, graph }
+  return { values: result.outputs.out?.data, errors: result.errors, graph }
 }
 
 test('arithmetic uses a constant on the selected side and exposes only the other input', () => {

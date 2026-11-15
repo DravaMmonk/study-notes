@@ -43,17 +43,14 @@ const show = (value) => isGrid(value)
 export function imageCircuit(image, boards, cards) {
   const { kit } = image
   return {
-    course: () => boards, cards, play: { runLevel: kit.runLevel, entries, show },
+    course: () => boards,
+    cards,
+    play: { runLevel: (task, graph, _partOf, options) => kit.runLevel(task, graph, options), entries, show },
     canvas: { height: 220 },
     fresh: startBoard,
     ready: (board) => tidyImageBoard(kit, board),
     keep: (task, board) => image.publishedBy(task.key).length ? { ...board, passed: { nodes: board.nodes, wires: board.wires } } : null,
     valueViews: (task, node, value) => viewsOf(task, value, node.type === 'input' ? 'in' : node.type === 'output' ? 'out' : 'mid'),
-    trace(board, test) {
-      const trace = []
-      kit.evaluate(board, test.inputs, null, trace)
-      return trace
-    },
     readouts(_task, _board, report) {
       const { score } = report
       return [{ value: score.nodes, label: T('元件', 'Parts') }, { value: score.cost, label: T('计算量') },

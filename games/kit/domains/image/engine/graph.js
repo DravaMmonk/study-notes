@@ -20,10 +20,6 @@ export function prepare(ins, node, part) {
   return out
 }
 
-export function outputImages(graph, values) {
-  return Object.fromEntries(graph.nodes.filter((node) => node.type === 'output').map((node) => [node.params.name, values.get(node.id)]))
-}
-
 // Tests a level trains on, and the new samples it keeps back to check that the training generalises.
 export const trainingTests = (level) => level.tests.filter((test) => test.train !== false)
 export const checkingTests = (level) => level.tests.filter((test) => test.train === false)
@@ -33,7 +29,7 @@ const wrapped = new WeakMap()
 
 /**
  * Running boards over a course's part table (`types`: NODE_TYPES and the parts its levels pack, own.js): partOf(type),
- * evaluate(graph, inputs, variant?), placedNodes, score, runLevel(level, graph), lossOn, trainStep, hasLearnable.
+ * evaluate(graph, inputs, variant?), placedNodes, score, runLevel(level, graph, { traced? }), lossOn, trainStep, hasLearnable.
  */
 export function runnerOf(types) {
   // The parts as the shared engine (../../../engine/circuit.js) reads them. A part here is written as
@@ -91,16 +87,19 @@ export function runnerOf(types) {
 
   // How a test runs and is judged, for the shared engine's level runs (../../../engine/test-run.js).
   const IMAGE_TESTS = {
-    runTest: (level, graph, test) => {
-      const { values, errors } = evaluate(graph, test.inputs)
-      return { values, errors, outputs: outputImages(graph, values) }
+    runTest: (_level, graph, test, { traced }) => {
+      if (!traced) return evaluate(graph, test.inputs)
+      const trace = []
+      return { ...evaluate(graph, test.inputs, null, trace), trace }
     },
     check: (level, test, outputs) => Object.entries(test.expected).map(([name, expected]) => ({ name, ...compare(outputs[name], expected, test.check ?? level.check) })),
     score: (level, graph, results) => score(graph, results[0]?.values),
   }
 
-  // Run every test of a level against a graph.
-  const runLevel = (level, graph) => runOutputTests(IMAGE_TESTS, level, graph)
+  // Only a board with packed parts needs a trace to display their internal values.
+  const runLevel = (level, graph, { traced = false } = {}) => runOutputTests(IMAGE_TESTS, level, graph, {
+    traced: traced && graph.nodes.some(({ type }) => types[type]?.circuitOf),
+  })
 
   // The mean squared error of a graph over some tests. A training-only part (one with `variants`) makes that many
   // copies of every test, and the error counts them all.
@@ -110,8 +109,7 @@ export function runnerOf(types) {
     let count = 0
     for (const test of tests) {
       for (let v = 0; v < copies; v++) {
-        const { values } = evaluate(graph, test.inputs, copies > 1 ? v : null)
-        const outputs = outputImages(graph, values)
+        const { outputs } = evaluate(graph, test.inputs, copies > 1 ? v : null)
         for (const [name, expected] of Object.entries(test.expected)) {
           const actual = outputs[name]
           if (!actual || actual.w !== expected.w || actual.h !== expected.h || (actual.c ?? 1) !== (expected.c ?? 1)) return Infinity

@@ -9,7 +9,6 @@ import { boxBlur3, gradientMagnitude, horizontalDifference, sobelGradient, squar
 import { at, fromFn } from './engine/image.js'
 import { ransacLine, robustHomography } from './engine/match.js'
 import { MATCHING } from './engine/parts/matching.js'
-import { outputImages } from './engine/graph.js'
 import { picture } from './items/pictures.js'
 import { constraintOf, depthOf } from './items/constraints.js'
 import { imageCourse } from './course.js'
@@ -90,7 +89,7 @@ test('a packed part runs the circuit the player passed its level with, in its ow
   const input = { in: picture('square') }
   const runOf = (course) => {
     const { solution } = course.levelById.use.tasks[0]
-    return () => Array.from(outputImages(solution, course.kit.evaluate(solution, input).values).out.data)
+    return () => Array.from(course.kit.evaluate(solution, input).outputs.out.data)
   }
   const run = runOf(image)
   const reference = run()
@@ -105,6 +104,17 @@ test('a packed part runs the circuit the player passed its level with, in its ow
   assert.deepEqual(run(), reference)
   image.syncOwn(passed(image.levelById.wide.tasks[0].solution))
   assert.deepEqual(run(), reference)
+})
+
+test('a packed image trace and its test verdict share the evaluated output', () => {
+  const task = image.levelById.use.tasks[0]
+  const [run] = image.kit.runLevel(task, task.solution, { traced: true }).runs
+  const inside = run.trace?.find(({ path, id }) => path?.[0] === 'p' && id === 'h')
+  assert.ok(inside)
+  assert.equal(inside.value, run.outputs.out)
+  assert.equal(image.kit.runLevel(task, task.solution).runs[0].trace, undefined)
+  const direct = image.levelById.wide.tasks[0]
+  assert.equal(image.kit.runLevel(direct, direct.solution, { traced: true }).runs[0].trace, undefined)
 })
 
 // The domain's starter read frozen: a write into its content anywhere in the read throws.
