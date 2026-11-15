@@ -13,9 +13,8 @@ const words = (v) => (v && typeof v === 'object' ? `${v.zh ?? ''} ${v.en ?? ''}`
 const head = (o) => (o ? `${o.label ?? String(o.value)}${o.title ? ` ${L(o.title)}` : ''}` : '')
 const paramsOf = (o) => (o.params?.type === 'obj' ? Object.keys(o.params.fields) : o.params ? [o.params.type] : [])
 
-/** The popover's list: a search box (starting at `query`) over every word of each option, arrows and Enter to pick, Escape to leave. */
-export function OptionList({ options, value, onPick, onClose, anchor, onOutside = onClose, floating = false, searchable = true, autoFocus = true, query: first = '' }) {
-  const [query, setQuery] = useState(first)
+/** Anchor a picker to its trigger, keeping its overlay within the panel and viewport. */
+export function usePickerPopup(anchor, onClose, { onOutside = onClose, floating = true, fullWidth = true } = {}) {
   const overlay = useOverlay(onClose, { onOutside, anchor: () => anchor.current })
   useLayoutEffect(() => {
     if (!floating) return undefined
@@ -25,9 +24,9 @@ export function OptionList({ options, value, onPick, onClose, anchor, onOutside 
       const rect = trigger.getBoundingClientRect()
       const panel = trigger.closest('.studio-tree, .studio-side')?.getBoundingClientRect()
       const maxWidth = Math.min(460, (panel?.width ?? window.innerWidth) - 16)
-      node.style.width = searchable ? `${maxWidth}px` : 'max-content'
+      node.style.width = fullWidth ? `${maxWidth}px` : 'max-content'
       node.style.maxWidth = `${maxWidth}px`
-      const width = searchable ? maxWidth : node.getBoundingClientRect().width
+      const width = fullWidth ? maxWidth : node.getBoundingClientRect().width
       const spaceBelow = window.innerHeight - rect.bottom - 8
       const openAbove = spaceBelow < 220 && rect.top > spaceBelow
       Object.assign(node.style, {
@@ -44,7 +43,14 @@ export function OptionList({ options, value, onPick, onClose, anchor, onOutside 
       window.removeEventListener('resize', position)
       window.removeEventListener('scroll', position, true)
     }
-  }, [anchor, floating, overlay, searchable])
+  }, [anchor, floating, overlay, fullWidth])
+  return overlay
+}
+
+/** The popover's list: a search box (starting at `query`) over every word of each option, arrows and Enter to pick, Escape to leave. */
+export function OptionList({ options, value, onPick, onClose, anchor, onOutside = onClose, floating = false, searchable = true, autoFocus = true, query: first = '' }) {
+  const [query, setQuery] = useState(first)
+  const overlay = usePickerPopup(anchor, onClose, { onOutside, floating, fullWidth: searchable })
   const shown = useMemo(() => {
     const q = searchable ? query.trim().toLowerCase() : ''
     return q ? options.filter((o) => `${o.value} ${o.label ?? ''} ${words(o.title)} ${words(o.about)} ${words(o.group)}`.toLowerCase().includes(q)) : options

@@ -34,8 +34,8 @@ function Row({ name, field, about, picked, findings, before, onPick }) {
   const found = foundUnder(findings, field.path)
   const on = picked === key || (picked?.startsWith(key) && /^[.[]/.test(picked.slice(key.length)))
   return (
-    <button type="button" className={`row ${on ? 'is-on' : ''} ${found ? 'is-wrong' : ''}`} data-path={key} onClick={() => onPick(field.path)} title={about ? L(about) : undefined}>
-      <span className="row-key">{name}{changed && <i className="row-dot" aria-label={tr('改过')} />}</span>
+    <button type="button" className={`row ${on ? 'is-on' : ''} ${found ? 'is-wrong' : ''}`} data-path={key} onClick={() => onPick(field.path)}>
+      <span className="row-key" title={about ? L(about) : undefined}>{name}{changed && <i className="row-dot" aria-label={tr('改过')} />}</span>
       <span className="row-sum">{sumOf(field) || '—'}</span>
       {found > 0 && <b className="row-found">{found}</b>}
     </button>
