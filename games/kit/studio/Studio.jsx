@@ -20,7 +20,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Command, ListTree, Search as SearchIcon, Shapes, SlidersHorizontal } from 'lucide-react'
 import { GAMES } from '../../games.js'
 import { mountBarMenus } from '../menu.js'
-import { L, getLang, tr } from '../shell/i18n.js'
+import { L, T, getLang, tr } from '../shell/i18n.js'
 import { useWorkspaceKeys } from '../shell/useOverlay.js'
 import { eraLevels } from '../course.js'
 import { find, shapeAt } from '../engine/schema.js'
@@ -32,7 +32,8 @@ import { findTask } from '../engine/tasks.js'
 import { addFor, markOf, markPath } from './marks.js'
 import { withParts } from '../engine/parts/define.js'
 import { DEFAULT_VIEWS } from '../shell/parts/PartFace.jsx'
-import PartsList from './PartsList.jsx'
+import PartsList, { freeName } from './PartsList.jsx'
+import { AddMenu } from './Picker.jsx'
 import SettingsList from './SettingsList.jsx'
 import { itemOf } from './worklist.js'
 import { paletteIndex } from './palette.js'
@@ -511,6 +512,26 @@ export default function Studio() {
     select({ level: to.level })
     pickField(['tasks', to.after ? rest.findIndex((x) => x.id === to.after) + 1 : rest.length])
   }
+  const addLevel = (action) => {
+    const source = content.levels.find((entry) => entry.id === at?.level)
+    const era = content.eras[at?.era ?? 0]
+    if (!source && !era) return
+    const taken = new Set(content.levels.flatMap((level) => [level.id, ...(level.tasks ?? []).map((task) => task.id)]))
+    const level = freeName([...taken], 'level')
+    const draft = action === 'copy' && source
+      ? structuredClone(source)
+      : { ...blank(vocab.vocabulary.level, { vocabulary: vocab.vocabulary, levels: playOrder, lang }), title: T('新关卡', 'New level') }
+    delete draft.id
+    if (draft.tasks) draft.tasks = draft.tasks.map((task) => {
+      if (draft.tasks.length === 1) return { ...task, id: level }
+      const id = freeName([...taken], `${level}_`)
+      taken.add(id)
+      return { ...task, id }
+    })
+    const to = source ? { after: source.id } : { era: era.id }
+    edit({ op: 'level.add', level, data: draft, to })
+    openTreeItem({ level })
+  }
   const duplicate = (level, id) => {
     const { id: _, ...value } = content.levels.find((l) => l.id === level)
     edit({ op: 'level.add', level: id, data: value, to: { after: level } })
@@ -675,7 +696,13 @@ export default function Studio() {
               ? <PartsList content={content} vocabulary={vocab.vocabulary} levelOptions={levelOptions} order={playOrder} earned={earnedAt} at={at} found={(type) => places.filter((p) => p.file === 'parts' && p.path?.[1] === type).length} onSelect={select} onEdit={edit} />
               : side === 'search'
               ? <Search content={content} vocabulary={vocab.vocabulary} onAdd={addOps} onJump={(level, path, file) => jump(level, path, file, { stayOnTab: true })} />
-              : <Tree game={game} content={content} entries={groupModel.groups} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask} />}
+              : <>
+                  <div className="sidebar-add"><AddMenu options={[
+                    ...(content.eras.length ? [{ value: 'blank', label: tr('空白关卡', 'Blank level') }] : []),
+                    ...(at?.level && content.levels.some((level) => level.id === at.level) ? [{ value: 'copy', label: tr('复制所选关卡', 'Duplicate selected level') }] : []),
+                  ]} onPick={addLevel} /></div>
+                  <Tree game={game} content={content} entries={groupModel.groups} at={at} selectedTask={field?.path?.[0] === 'tasks' ? field.path[1] ?? null : null} picked={picked} setPicked={setPicked} onSelect={openTreeItem} moving={moving} setMoving={setMoving} onMove={move} labels={rawNames?.levels} onTask={(task) => onTaskGo({ task })} onTaskMove={moveTask} />
+                </>}
           </aside>
           <PanelResizer side="tree" size={layout.tree} open={layout.treeOpen} {...resizer} />
           <main className="studio-main">

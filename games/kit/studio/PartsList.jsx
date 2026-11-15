@@ -1,9 +1,7 @@
 // The game's pieces, grouped by tray and sorted by when the course gives them. The kernel supplies creation options.
-import { useRef, useState } from 'react'
-import { Plus } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { iconOf } from '../shell/parts/icons.js'
-import { OptionList } from './Picker.jsx'
+import { AddMenu } from './Picker.jsx'
 import { taskOptionsOf } from './form.js'
 import { pieceGroups } from './pieces.js'
 import { builtPart, pieceCreationOptions } from '../engine/parts/schema.js'
@@ -18,29 +16,23 @@ export const freeName = (taken, stem) => {
 export default function PartsList({ content, vocabulary, levelOptions, order = [], earned = new Map(), at, found, onSelect, onEdit }) {
   const file = content.partDefs ?? { parts: {} }
   const parts = Object.entries(file.parts ?? {})
-  const [adding, setAdding] = useState(null)
-  const box = useRef(null)
   const tasks = levelOptions ? taskOptionsOf(levelOptions) : []
-  const choices = pieceCreationOptions(vocabulary, tasks).map((option) => ({ ...option, label: L(option.label) }))
+  const choices = pieceCreationOptions(vocabulary, tasks).map((option) => ({
+    ...option, label: L(option.label),
+    ...(option.value === 'task' && { children: tasks.map((task) => ({ ...task, value: `task:${task.value}` })) }),
+  }))
   const add = (data) => {
     const type = freeName(parts.map(([t]) => t), 'part')
     onEdit({ op: 'piece.add', piece: type, data })
     onSelect({ part: type })
   }
-  const build = (task) => {
-    setAdding(null)
-    const picked = tasks.find((o) => o.value === task)
-    const type = freeName(parts.map(([t]) => t), 'piece')
-    onEdit({ op: 'piece.add', piece: type, data: builtPart(task, picked?.title && L(picked.title)) })
-    onSelect({ part: type })
-  }
-  const pickType = (type) => {
-    if (type === 'task') {
-      setAdding('task')
-      return
+  const create = (value) => {
+    if (value.startsWith('task:')) {
+      const task = tasks.find((option) => option.value === value.slice('task:'.length))
+      add(builtPart(task.value, task.title && L(task.title)))
+    } else {
+      add(choices.find((option) => option.value === value).data)
     }
-    setAdding(null)
-    add(choices.find(({ value }) => value === type).data)
   }
   const groups = pieceGroups(parts.map(([t]) => t), { trays: content.trays, at: (type) => earned.get(type) ?? null, order, primitives: content.primitives ?? [] })
   const row = (type) => {
@@ -58,19 +50,13 @@ export default function PartsList({ content, vocabulary, levelOptions, order = [
   }
   return (
     <nav className="parts-list" aria-label={tr('件', 'Pieces')}>
+      <div className="sidebar-add"><AddMenu options={choices} onPick={create} /></div>
       {groups.map((g) => (
         <section key={g.tray ?? ''} className="parts-group">
           {groups.length > 1 && (g.tray ? <span className="parts-tray">{g.tray}</span> : <hr className="parts-rule" />)}
           {g.types.map(row)}
         </section>
       ))}
-      <div className="parts-adds" ref={box}>
-        <button type="button" className="parts-add" onClick={() => setAdding(adding ? null : 'type')} aria-expanded={adding !== null} aria-haspopup="dialog">
-          <Plus size={13} aria-hidden="true" />{tr('新增', 'Add')}
-        </button>
-        {adding && <OptionList key={adding} anchor={box} options={adding === 'task' ? tasks : choices} value={null}
-          onPick={adding === 'task' ? build : pickType} onClose={() => setAdding(null)} />}
-      </div>
     </nav>
   )
 }

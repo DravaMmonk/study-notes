@@ -9,13 +9,13 @@
 //   <Inspector content base vocab at field ctx onEdit onOps onPick onClose onLevel />
 //   at: the file shown ({ level } | { game: true } | { parts: true }: pieces.json, with root: [collection, id] | { glossary: true }); field: { path } | { missing: text } | null
 import { useEffect, useRef } from 'react'
-import { ArrowDown, ArrowUp, ArrowRightLeft, ChevronRight, Copy, MousePointerClick, Plus, Trash2, X } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowRightLeft, ChevronRight, Copy, MousePointerClick, Trash2, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { getAt, setAt, showPath } from '../engine/ops/edit.js'
 import { blank, fieldAt, fileForm, moved, opFor, placeFindings, taskListOps } from './form.js'
 import { Field } from './Fields.jsx'
 import { SettingUsers } from './PartFields.jsx'
-import { Picker } from './Picker.jsx'
+import { AddMenu, Picker } from './Picker.jsx'
 
 export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, onEdit, onOps, onPick, onClose, onLevel }) {
   const { vocabulary } = vocab
@@ -36,6 +36,13 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   while (shown && !hit && typeof held.at(-1) === 'number') {
     held = held.slice(0, -1)
     hit = fieldAt(shown.form, held)
+  }
+  const openCrumb = (path) => {
+    const target = getAt(shown?.value, path)
+    if (!longConfig(target) || window.confirm(tr(
+      '这段配置较长，打开可能需要一些时间。是否继续？',
+      'This configuration is large and may take a while to open. Continue?',
+    ))) onPick(path)
   }
   const tasked = Boolean(at?.level)
   const edit = (path, change, type) => {
@@ -67,7 +74,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   if (field.missing || !hit) {
     return (
       <div className="insp">
-        <Head path={root} file={file} root={root} onPick={onPick} onClose={onClose} />
+        <Head path={root} file={file} onPick={openCrumb} onClose={onClose} />
         <p className="insp-note">{field.missing ? tr(`「${field.missing}」不是这一关内容里的字段：它由领域生成，在「字段」里找它的来源。`, `“${field.missing}” is no field of the level’s content: the domain makes it; find where it comes from in the fields.`) : tr('这个字段已经不在了。')}</p>
       </div>
     )
@@ -81,8 +88,8 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   const ctxHere = { ...ctx, findings, partDefs }
   return (
     <div className="insp">
-      <Head path={path} file={file} root={root} onPick={onPick} onClose={onClose} />
-      {root[0] === 'settings' && <SettingUsers file={partDefs} id={root[1]} onPiece={ctx.onPiece} />}
+      <Head path={path} file={file} onPick={openCrumb} onClose={onClose} />
+      {path[0] === 'settings' && typeof path[1] === 'string' && <SettingUsers file={partDefs} id={path[1]} onPiece={ctx.onPiece} />}
       {optional && (
         <div className="insp-tools">
           <span>{tr('可选的字段')}</span>
@@ -105,7 +112,8 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
         {hit.absent ? (
           <div className="insp-absent">
             {hit.absent.about && <p className="insp-about">{L(hit.absent.about)}</p>}
-            <button type="button" className="kit-btn is-label" onClick={() => edit(hit.absent.path, { set: blank(hit.absent.schema, { vocabulary, levels: order }) }, hit.absent.schema.type)}><Plus size={13} aria-hidden="true" />{tr(`加上 ${hit.absent.key}`, `Add ${hit.absent.key}`)}</button>
+            <AddMenu options={[{ value: hit.absent.key }]}
+              onPick={() => edit(hit.absent.path, { set: blank(hit.absent.schema, { vocabulary, levels: order }) }, hit.absent.schema.type)} />
           </div>
         ) : (
           <>
@@ -150,19 +158,38 @@ function TaskTools({ content, level, tasks, k, ctx, onEdit, onOps, onPick, onLev
   )
 }
 
-/** Each breadcrumb opens a field, starting at the selected record or the file root. */
-function Head({ path, file, root, onPick, onClose }) {
-  const steps = path.slice(root.length).map((k, i) => ({ k, at: path.slice(0, root.length + i + 1) }))
+/** Stop counting once rendering the value would exceed the inspector's normal size. */
+function longConfig(value) {
+  const pending = [value]
+  let budget = 1200
+  while (pending.length && budget > 0) {
+    const next = pending.pop()
+    budget -= typeof next === 'string' ? Math.max(1, next.length / 36) : 1
+    if (next && typeof next === 'object') {
+      const children = Object.values(next)
+      if (children.length > budget) return true
+      pending.push(...children)
+    }
+  }
+  return budget <= 0
+}
+
+/** Breadcrumbs always start at the original JSON file. */
+function Head({ path, file, onPick, onClose }) {
+  const name = file.level ? `levels/${file.level}.json` : file.parts ? 'pieces.json' : file.glossary ? 'glossary.json' : 'game.json'
   return (
     <header className="insp-head">
       <nav className="insp-path" aria-label={tr('字段的位置')}>
-        <button type="button" className="insp-crumb" onClick={() => onPick(root)} disabled={!steps.length}>{root.at(-1) ?? file.level ?? (file.parts ? 'pieces.json' : file.glossary ? 'glossary.json' : 'game.json')}</button>
-        {steps.map(({ k, at }) => (
-          <span key={showPath(at)} className="insp-step">
-            <ChevronRight size={11} aria-hidden="true" />
-            <button type="button" className="insp-crumb" onClick={() => onPick(at)} disabled={at.length === path.length}>{typeof k === 'number' ? k + 1 : k}</button>
-          </span>
-        ))}
+        <button type="button" className="insp-crumb" onClick={() => onPick([])} disabled={!path.length}>{name}</button>
+        {path.map((k, i) => {
+          const at = path.slice(0, i + 1)
+          return (
+            <span key={showPath(at)} className="insp-step">
+              <ChevronRight size={11} aria-hidden="true" />
+              <button type="button" className="insp-crumb" onClick={() => onPick(at)} disabled={at.length === path.length}>{typeof k === 'number' ? k + 1 : k}</button>
+            </span>
+          )
+        })}
       </nav>
       <button type="button" className="insp-close" onClick={onClose} aria-label={tr('关上')}><X size={13} /></button>
     </header>

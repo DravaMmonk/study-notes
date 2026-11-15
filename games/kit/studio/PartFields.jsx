@@ -12,7 +12,7 @@ import { ICON_NAMES } from '../engine/parts/icons.js'
 import { validate } from '../engine/schema.js'
 import { ICONS } from '../shell/parts/icons.js'
 import { formOf } from './form.js'
-import { Picker } from './Picker.jsx'
+import { AddMenu } from './Picker.jsx'
 import { useDraft } from './draft.js'
 
 /** The part an expression at `path` belongs to in pieces.json, and whether it may read the part's inputs. */
@@ -102,7 +102,7 @@ export function AttachSetting({ field, ctx, onAttach }) {
     onAttach({ key, setting })
   }
   return options.length
-    ? <Picker options={options} onPick={pick} label={label} placeholder={label} />
+    ? <AddMenu options={options} onPick={pick} label={label} />
     : <button className="kit-btn is-label" type="button" onClick={ctx.onSettings}>{tr('打开设置管理', 'Open settings manager')}</button>
 }
 
@@ -119,6 +119,6 @@ export function SettingUsers({ file, id, onPiece }) {
 /** Add an optional field offered by the current engine schema. */
 export function AddFields({ fields, onAdd }) {
   const label = tr('添加字段', 'Add field')
-  return <Picker options={fields.map(({ key, about }) => ({ value: key, about }))}
-    onPick={(key) => onAdd(fields.find((field) => field.key === key))} label={label} placeholder={label} />
+  return <AddMenu options={fields.map(({ key, about }) => ({ value: key, about }))}
+    onPick={(key) => onAdd(fields.find((field) => field.key === key))} label={label} />
 }

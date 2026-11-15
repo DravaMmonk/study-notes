@@ -17,7 +17,7 @@ import { stepNumber } from '../shell/number-entry.js'
 import { boardSvg } from '../circuit/svg.js'
 import { showPath } from '../engine/ops/edit.js'
 import { blank, moved, recast, revertOf, shapeName, summaryOf, taskOptionsOf } from './form.js'
-import { Chips, Choice, Picker } from './Picker.jsx'
+import { AddKey, AddMenu, Chips, Picker } from './Picker.jsx'
 import { TextField } from './TextField.jsx'
 import { GridField, NumbersField, TableField, TicksField, WaveField } from './Cells.jsx'
 import { AddFields, AttachSetting, ExprField, IconField } from './PartFields.jsx'
@@ -144,7 +144,7 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
           <Picker options={field.options} value={field.value} onPick={set} label={tr('已有设置', 'Existing setting')} />
           <button type="button" className="kit-btn is-label" onClick={() => ctx.onSetting(field.value)} disabled={!ctx.onSetting || !field.options.some((o) => o.value === field.value)}>{tr('编辑设置', 'Edit setting')}</button>
         </div>
-        return <Choice options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.of === 'task' && ctx.levelOptions ? taskOptionsOf(ctx.levelOptions) : field.options} value={field.value} onPick={set} label={name} />
+        return <Picker options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.of === 'task' && ctx.levelOptions ? taskOptionsOf(ctx.levelOptions) : field.options} value={field.value} onPick={set} label={name} />
       case 'chips': return <Chips options={field.of === 'level' && ctx.levelOptions ? ctx.levelOptions : field.options} values={Array.isArray(field.value) ? field.value : []} onSet={set} label={name} />
       case 'board': return <BoardField field={field} onSet={set} ctx={ctx} label={name} />
       case 'grid': return <GridField field={field} onSet={set} label={name} />
@@ -184,20 +184,16 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
 export function TagChoice({ field, onEdit, ctx }) {
   return (
     <span className="field-tag">
-      {field.tags.map((tag) => <Choice key={tag.key} options={tag.options} value={tag.value} label={tag.key} onPick={(to) => onEdit(field.path, { set: recast(tag, field.value, to, ctx) }, 'obj')} />)}
+      {field.tags.map((tag) => <Picker key={tag.key} options={tag.options} value={tag.value} label={tag.key} onPick={(to) => onEdit(field.path, { set: recast(tag, field.value, to, ctx) }, 'obj')} />)}
     </span>
   )
 }
 
-/** An either's shapes, when it has several: switching starts the other shape blank. */
+/** Select a schema variant through the standard search picker. */
 export function Shapes({ field, onEdit, ctx }) {
-  return (
-    <span className="field-shapes">
-      {field.shapes.map((shape, k) => (
-        <button key={k} type="button" className={k === field.shape ? 'is-on' : ''} onClick={() => k !== field.shape && onEdit(field.path, { set: blank(shape, ctx) }, null)}>{shapeName(shape, field.shapes)}</button>
-      ))}
-    </span>
-  )
+  const options = field.shapes.map((shape, value) => ({ value, label: shapeName(shape, field.shapes) }))
+  return <Picker options={options} value={field.shape} label={tr('类型', 'Type')}
+    onPick={(index) => { if (index !== field.shape) onEdit(field.path, { set: blank(field.shapes[index], ctx) }, null) }} />
 }
 
 function CallField({ field, onEdit, ctx, label }) {
@@ -278,7 +274,18 @@ function ListField({ field, onEdit, ctx }) {
           </div>
         )
       })}
-      {field.bindings ? <AttachSetting field={field} ctx={ctx} onAttach={(binding) => put([...values, binding])} /> : <button type="button" className="field-add" onClick={() => onEdit([...field.path, items.length], { set: items.length ? structuredCopy(values.at(-1)) : blank(field.of, ctx) }, field.of.type)} aria-label={tr('加一项')}><Plus size={13} aria-hidden="true" /></button>}
+      {field.bindings ? <AttachSetting field={field} ctx={ctx} onAttach={(binding) => put([...values, binding])} /> : <AddMenu
+        options={[{ value: 'blank', label: tr('空白项', 'Blank item') }, ...(items.length ? [{ value: 'copy', label: tr('复制最后一项', 'Duplicate last item') }] : [])]}
+        onPick={(action) => {
+          setOpen((current) => new Set([...current, items.length]))
+          const item = action === 'copy' ? structuredCopy(values.at(-1)) : blank(field.of, ctx)
+          if (field.path.length === 1 && field.path[0] === 'tasks') {
+            const { id: _, ...draft } = item
+            put([...values, draft])
+          } else {
+            onEdit([...field.path, items.length], { set: item }, field.of.type)
+          }
+        }} />}
     </div>
   )
 }
@@ -286,13 +293,11 @@ function ListField({ field, onEdit, ctx }) {
 const structuredCopy = (v) => (v === undefined ? v : JSON.parse(JSON.stringify(v)))
 
 function MapField({ field, onEdit, ctx }) {
-  const [key, setKey] = useState('')
   return (
     <div className="field-list">
       {field.entries.map(({ key: k, field: f }) => <Field key={k} field={f} label={k} onEdit={onEdit} ctx={ctx} onRemove={() => onEdit(f.path, { unset: true }, null)} />)}
-      <form className="field-row new-key" onSubmit={(e) => { e.preventDefault(); if (key) onEdit([...field.path, key], { set: blank(field.of, ctx) }, field.of.type); setKey('') }}>
-        <input className="field-input is-key" value={key} onChange={(e) => setKey(e.target.value)} aria-label={tr('新的键')} placeholder="+" />
-      </form>
+      <AddKey taken={field.entries.map((entry) => entry.key)}
+        onAdd={(key) => onEdit([...field.path, key], { set: blank(field.of, ctx) }, field.of.type)} />
     </div>
   )
 }
@@ -316,17 +321,7 @@ export function ObjField({ field, onEdit, ctx, keys = null }) {
   return (
     <div className="field-obj">
       {runs.map((run) => (run.short && run.fields.length > 1 ? <div key={run.fields[0].key} className="field-grid">{run.fields.map(one)}</div> : run.fields.map(one)))}
-      {absent.length > 0 && (field.path[0] === 'parts' && field.path.length === 2 ? (
-        <AddFields fields={absent} onAdd={(f) => onEdit([...field.path, f.key], { set: blank(f.schema, ctx) }, f.schema.type)} />
-      ) : (
-        <div className="field-absent">
-          {absent.map((f) => (
-            <button key={f.key} type="button" title={f.about ? L(f.about) : undefined} onClick={() => onEdit([...field.path, f.key], { set: blank(f.schema, ctx) }, f.schema.type)}>
-              <Plus size={11} aria-hidden="true" />{f.key}
-            </button>
-          ))}
-        </div>
-      ))}
+      {absent.length > 0 && <AddFields fields={absent} onAdd={(f) => onEdit([...field.path, f.key], { set: blank(f.schema, ctx) }, f.schema.type)} />}
     </div>
   )
 }

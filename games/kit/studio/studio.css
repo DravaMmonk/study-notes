@@ -188,14 +188,6 @@ button.field-key { padding: 0; border: 0; background: none; text-align: left; cu
 .field-input.is-key { max-width: 12em; }
 .field-check { justify-self: start; width: 16px; height: 16px; margin: 4px 0; accent-color: var(--accent); }
 .field-tag { display: inline-flex; flex-wrap: wrap; gap: 4px; }
-.field-shapes { display: inline-flex; gap: 1px; }
-.field-shapes button { height: 18px; padding: 0 5px; border: 0; border-radius: 4px; color: var(--faint); background: none; font: var(--fs-mini)/1 var(--mono); cursor: pointer; }
-.field-shapes button.is-on { color: var(--ink); background: var(--hover); }
-.field-add { justify-self: start; width: 24px; height: 18px; display: grid; place-items: center; padding: 0; border: 1px dashed var(--rule); border-radius: 4px; color: var(--muted); background: none; cursor: pointer; }
-.field-add:hover:not(:disabled) { color: var(--ink); border-color: var(--ink); }
-.field-absent { display: flex; flex-wrap: wrap; gap: 3px; }
-.field-absent button { height: 18px; padding: 0 6px 0 4px; display: inline-flex; align-items: center; gap: 2px; border: 1px dashed var(--rule); border-radius: 9px; color: var(--muted); background: none; font: var(--fs-mini)/1 var(--mono); cursor: pointer; }
-.field-absent button:hover { color: var(--ink); border-color: var(--ink); }
 .field-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
 .field-bad { margin: 0; color: var(--fail); font: 11.5px/1.4 var(--mono); }
 /* Short fields several to a row. */
@@ -254,6 +246,7 @@ button.field-key { padding: 0; border: 0; background: none; text-align: left; cu
 .pick-name code { color: var(--faint); font: var(--fs-mini)/1 var(--mono); }
 .pick-about { min-width: 0; color: var(--muted); font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pick-pop { position: absolute; z-index: 20; top: calc(100% + 4px); left: 0; width: min(460px, 86vw); display: grid; grid-template-rows: auto minmax(0, 1fr); max-height: 360px; border-radius: 8px; background: var(--paper); box-shadow: var(--lift), 0 0 0 1px var(--hairline); }
+.pick-pop.is-floating { position: fixed; right: auto; }
 .pick-search { margin: 6px; height: 26px; padding: 0 8px; border: 0; border-radius: 6px; color: var(--ink); background: var(--hover); font: 12.5px/1 var(--sans); }
 .pick-search:focus { outline: 2px solid var(--accent); }
 .pick-list { margin: 0; padding: 0 4px 4px; list-style: none; overflow: auto; }
@@ -262,17 +255,16 @@ button.field-key { padding: 0; border: 0; background: none; text-align: left; cu
 .pick-item.is-at { background: var(--hover); }
 .pick-item.is-on .pick-name b::before { content: '✓ '; }
 .pick-item .pick-about { white-space: normal; }
-.pick-none { padding: 6px 8px; color: var(--faint); }
 .seg { display: inline-flex; justify-self: start; gap: 1px; padding: 2px; border-radius: 6px; background: var(--hover); }
 .seg button { min-width: 24px; height: 20px; padding: 0 7px; border: 0; border-radius: 4px; color: var(--muted); background: none; font: 600 11.5px/1 var(--mono); cursor: pointer; }
 .seg button.is-on { color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--hairline); }
+.pick-none { padding: 6px 8px; color: var(--faint); }
 .chips { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 3px; }
 .chip { height: 20px; padding: 0 2px 0 7px; display: inline-flex; align-items: center; gap: 3px; border: 0; border-radius: 10px; color: var(--ink); background: var(--paper); box-shadow: 0 0 0 1px var(--hairline); font: 11.5px/1 var(--mono); }
 button.chip { padding: 0 7px; cursor: pointer; }
 .chip.is-unknown { color: var(--fail); }
 .chip button { width: 16px; height: 16px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 8px; color: var(--faint); background: none; cursor: pointer; }
 .chip button:hover { color: var(--fail); background: var(--hover); }
-.chip-add { width: 22px; height: 20px; display: grid; place-items: center; padding: 0; border: 1px dashed var(--rule); border-radius: 10px; color: var(--muted); background: none; cursor: pointer; }
 
 /* Lists: items to drag, fold, copy and remove. */
 .list-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
@@ -590,23 +582,22 @@ ins { color: var(--ink); background: color-mix(in srgb, var(--status) 30%, trans
 .insp-move .pick-button { flex: 1; min-width: 0; }
 
 /* ---- parts (PartsList.jsx, PartFields.jsx) ---- */
+.sidebar-add { min-width: 0; padding: 6px; }
+.sidebar-add .pick { width: 100%; }
 .setting-users { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; padding: 6px 10px; border-bottom: 1px solid var(--line); color: var(--muted); font: var(--fs-mini) var(--mono); }
 .setting-users button { padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: none; cursor: pointer; }
 .setting-users button:hover { background: var(--hover); }
 .parts-list { display: grid; gap: 1px; padding: 6px; }
+.parts-list > .sidebar-add { padding: 0 0 4px; }
 .parts-row { min-height: var(--row); display: grid; grid-template-columns: 18px minmax(0, 1fr) auto auto; align-items: center; gap: 6px; padding: 2px 6px; border: 0; border-radius: 4px; color: var(--ink); background: none; text-align: left; font-size: var(--fs); cursor: pointer; }
 .parts-row:hover { background: var(--hover); }
 .parts-row.is-on { background: color-mix(in srgb, var(--accent) 16%, transparent); box-shadow: inset 2px 0 0 var(--accent); }
 .parts-row > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .parts-row code { color: var(--faint); font: 11px var(--mono); }
 .parts-row .family-chip { width: 18px; height: 18px; display: grid; place-items: center; border-radius: 4px; color: var(--muted); background: var(--canvas); }
-.parts-add { min-height: var(--row); display: flex; align-items: center; justify-content: center; gap: 4px; border: 1px dashed var(--line); border-radius: 4px; color: var(--faint); background: none; cursor: pointer; }
-.parts-add:hover { color: var(--ink); }
 .parts-group { display: grid; gap: 1px; }
 .parts-tray { padding: 6px 6px 2px; color: var(--faint); font: 11px var(--mono); }
 .parts-rule { margin: 6px 4px; border: 0; border-top: 1px solid var(--hairline); }
-.parts-adds { display: grid; gap: 4px; margin-top: 6px; }
-.parts-adds .pick-pop { position: static; width: 100%; max-height: 260px; }
 .field-expr { display: grid; gap: 4px; min-width: 0; }
 .expr-line { display: flex; gap: 4px; }
 .expr-line input { flex: 1 1 auto; min-width: 0; font-family: var(--mono); }

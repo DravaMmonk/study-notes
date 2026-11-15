@@ -4,7 +4,8 @@
 // from the cell, adding rows and columns as it needs), add and remove rows and columns. Every change sets the whole
 // value at the field's path: one operation, which the next change of the same field stands for (form.js pushOp).
 import { useEffect, useRef, useState } from 'react'
-import { Brush, Minus, Plus, X } from 'lucide-react'
+import { AddKey, AddMenu } from './Picker.jsx'
+import { Brush, Minus, X } from 'lucide-react'
 import { tr } from '../shell/i18n.js'
 import { finiteExtent } from '../engine/number.js'
 import { usePointerSession } from '../views/usePointerSession.js'
@@ -148,7 +149,6 @@ function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded
                   {removeCol && width > 1 && <button type="button" className="cell-x" onClick={() => removeCol(c)} aria-label={tr(`去掉第 ${c} 列`, `Remove column ${c}`)}><X size={10} /></button>}
                 </th>
               ))}
-              {addCol && <th><button type="button" className="cell-add" onClick={addCol} aria-label={tr('加一列')}><Plus size={12} /></button></th>}
             </tr>
           </thead>
         )}
@@ -166,13 +166,15 @@ function Sheet({ rows, colSchema, onRows, header = null, rowHeads = null, shaded
                   <Cell value={row[c]} schema={colSchema(c)} r={r} c={c} onSet={(v) => set(r, c, v)} onPaste={(block) => paste(r, c, block)} style={shade(row[c], range)} label={`${label} ${r},${c}`} />
                 </td>
               ))}
-              {one && addCol && <td><button type="button" className="cell-add" onClick={addCol} aria-label={tr('加一个')}><Plus size={12} /></button></td>}
               {one && removeCol && row.length > 0 && <td><button type="button" className="cell-add" onClick={() => removeCol(row.length - 1)} aria-label={tr('去掉最后一个')}><Minus size={12} /></button></td>}
             </tr>
           ))}
         </tbody>
       </table>
-      {addRow && <button type="button" className="cell-add is-row" onClick={addRow} aria-label={tr('加一行')}><Plus size={12} /></button>}
+      <AddMenu options={[
+        ...(addRow ? [{ value: 'row', label: tr('一行', 'Row') }] : []),
+        ...(addCol ? [{ value: 'column', label: one ? tr('一项', 'Item') : tr('一列', 'Column') }] : []),
+      ]} onPick={(choice) => (choice === 'row' ? addRow : addCol)()} />
     </div>
   )
 }
@@ -221,7 +223,6 @@ export function NumbersField({ field, onSet, label }) {
  * of keys and values.
  */
 export function TableField({ field, onSet, label }) {
-  const [key, setKey] = useState('')
   if (field.keyed) {
     const table = tableOf(field)
     const schema = field.columns[0].schema
@@ -232,7 +233,7 @@ export function TableField({ field, onSet, label }) {
           onRows={(rows) => onSet(tableValue(field, table, rows))}
           removeRow={(r) => onSet(tableValue(field, { ...table, heads: table.heads.filter((_, i) => i !== r) }, table.rows.filter((_, i) => i !== r)))}
         />
-        <NewKey value={key} setValue={setKey} taken={table.heads} onAdd={(k) => onSet({ ...field.value, [k]: blank(schema, {}) })} />
+        <AddKey taken={table.heads} onAdd={(k) => onSet({ ...field.value, [k]: blank(schema, {}) })} />
       </div>
     )
   }
@@ -249,16 +250,8 @@ export function TableField({ field, onSet, label }) {
         removeRow={(r) => onSet(items.filter((_, i) => i !== r))}
         removeCol={field.columns ? null : (j) => onSet(items.map((x) => Object.fromEntries(Object.entries(x).filter(([k]) => k !== columns[j].key))))}
       />
-      {!field.columns && <NewKey value={key} setValue={setKey} taken={columns.map((c) => c.key)} onAdd={(k) => onSet(items.map((x) => ({ ...x, [k]: blank(field.cell, {}) })))} />}
+      {!field.columns && <AddKey taken={columns.map((c) => c.key)} onAdd={(k) => onSet(items.map((x) => ({ ...x, [k]: blank(field.cell, {}) })))} />}
     </div>
-  )
-}
-
-function NewKey({ value, setValue, taken, onAdd }) {
-  return (
-    <form className="field-row new-key" onSubmit={(e) => { e.preventDefault(); if (value && !taken.includes(value)) onAdd(value); setValue('') }}>
-      <input className="field-input is-key" value={value} onChange={(e) => setValue(e.target.value)} aria-label={tr('新的键')} placeholder="+" />
-    </form>
   )
 }
 
@@ -306,7 +299,7 @@ function TickRow({ values, cell, onSet, head = null, onRemove = null, label }) {
         )))}
       </div>
       <span className="tick-len">
-        <button type="button" className="cell-add" onClick={() => onSet([...values, values.at(-1) ?? 0])} aria-label={tr('多一拍')}><Plus size={11} /></button>
+        <AddMenu options={[{ value: 'tick', label: tr('一拍', 'Tick') }]} onPick={() => onSet([...values, values.at(-1) ?? 0])} />
         <button type="button" className="cell-add" disabled={!values.length} onClick={() => onSet(values.slice(0, -1))} aria-label={tr('少一拍')}><Minus size={11} /></button>
         <small>{values.length}</small>
       </span>
@@ -335,7 +328,6 @@ export function TicksField({ field, onSet, label }) {
 
 /** A map of tick lists: one row a signal, the ticks lined up. */
 export function WaveField({ field, onEdit, label }) {
-  const [key, setKey] = useState('')
   const rows = Object.entries(field.value ?? {})
   const length = Math.max(0, ...rows.map(([, v]) => (Array.isArray(v) ? v.length : 0)))
   return (
@@ -348,7 +340,7 @@ export function WaveField({ field, onEdit, label }) {
           onRemove={() => onEdit([...field.path, k], { unset: true }, null)}
         />
       ))}
-      <NewKey value={key} setValue={setKey} taken={rows.map(([k]) => k)} onAdd={(k) => onEdit([...field.path, k], { set: Array.from({ length }, () => 0) }, 'list')} />
+      <AddKey taken={rows.map(([k]) => k)} onAdd={(k) => onEdit([...field.path, k], { set: Array.from({ length }, () => 0) }, 'list')} />
     </div>
   )
 }

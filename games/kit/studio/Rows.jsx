@@ -7,7 +7,6 @@
 //
 //   <Rows form keys? picked findings before onPick(path) onAdd(path, schema) />
 //   findings: Map(showPath → [says]); before(path) → [had, value]
-import { Plus } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { showPath } from '../engine/ops/edit.js'
 import { summaryOf } from './form.js'
@@ -66,17 +65,7 @@ export default function Rows({ form, keys = null, picked = null, findings, befor
           ))}
         </div>
       ) : <Row key={f.key} name={f.key} field={f.field} about={f.about ?? f.field.about} picked={picked} findings={findings} before={before} onPick={onPick} />))}
-      {absent.length > 0 && (form.path[0] === 'parts' && form.path.length === 2 ? (
-        <AddFields fields={absent} onAdd={(f) => onAdd([...form.path, f.key], f.schema)} />
-      ) : (
-        <div className="field-absent">
-          {absent.map((f) => (
-            <button key={f.key} type="button" title={f.about ? L(f.about) : undefined} onClick={() => onAdd([...form.path, f.key], f.schema)}>
-              <Plus size={11} aria-hidden="true" />{f.key}
-            </button>
-          ))}
-        </div>
-      ))}
+      {absent.length > 0 && <AddFields fields={absent} onAdd={(f) => onAdd([...form.path, f.key], f.schema)} />}
     </div>
   )
 }
