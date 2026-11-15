@@ -2,14 +2,15 @@
 // schema of its parameters, and the schemas of game.json and of one level. Content is these items and their
 // parameters, and nothing else: whatever a level needs that is not here is a new item, written in this domain.
 //
-// The items are implemented next to them: parts in parts.js, what a level wants in wants.js, the wires and the formats
+// The items are implemented next to them: the resources a game's parts.json computes with in ops.js, what a level wants in wants.js, the wires and the formats
 // their far ends speak in wire.js.
 
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
-import { GAME, NAME, PORT, REMOVES, levelSchema } from '../../engine/level-schema.js'
+import { GAME, NAME, PORT, levelSchema } from '../../engine/level-schema.js'
 import { FORMATS } from './wire.js'
 import { T as t } from '../../shell/i18n.js'
+import { OP_ITEMS } from './ops.js'
 
 const item = (about, params) => ({ about, ...(params ? { params } : {}) })
 
@@ -23,14 +24,12 @@ const INPUT = S.str({ about: t('这一关的一个输入的名字') })
 
 /* ---------- the parts ---------- */
 
-const PARTS = {
-  reg: item(t('读寄存卡：同名寄存卡里存的值，存入之前给初值')),
-  keep: item(t('存寄存卡：接入的值存进同名寄存卡，下一拍读得出')),
-  const: item(t('常数：设定的数')),
-  select: item(t('选择：条件为是或 1 给出「是」一路，否则「否」一路')),
-  add: item(t('相加：两个数之和')),
-  equal: item(t('相等：两个数相同时为是')),
-  bit: item(t('取位：8 位数 n 从最高位数起的第 i 位（i 从 0 起）')),
+// A game's parts are its parts.json, computing with the domain's resources (ops.js) and the kernel's registers,
+// coloured by family (ui/net.css).
+const FAMILIES = {
+  value: item(t('算数的元件')),
+  memory: item(t('读写寄存器的元件')),
+  logic: item(t('判断和挑选的元件')),
 }
 
 /* ---------- what an output or a wire out must be ---------- */
@@ -93,9 +92,9 @@ const LEVEL = levelSchema({
 
 export const vocabulary = defineVocabulary({
   domain: 'net',
-  version: 11,
-  removes: REMOVES,
-  kinds: { part: PARTS, want: WANTS },
+  version: 12,
+  removes: [{ at: 'kinds.part', why: 'a game\'s parts are its parts.json over the domain\'s engine resources (op)' }],
+  kinds: { op: OP_ITEMS, family: FAMILIES, want: WANTS },
   game: GAME,
   level: LEVEL,
 })

@@ -10,10 +10,9 @@
 // blueprints, wrong }: LEVELS, the levels as content writes them with their place in the course; played: level id →
 // its tasks read, each the level with the task's fields (and `task`, its index); `wrong`, what reading the content
 // found that its schema cannot say (a board that does not read, an output with nothing wanted).
-import { circuitCourse } from '../../engine/board-course.js'
+import { partsCourse } from '../../engine/board-course.js'
 import { bitsOf } from './line.js'
 import { board } from './board.js'
-import { PARTS } from './parts.js'
 import { wantOf } from './wants.js'
 
 /** A test as content writes it, its line read into values; it runs as many ticks as its line is long. */
@@ -29,5 +28,6 @@ export function __name__Course(content) {
     return testOf(t)
   }
   // A task's wants read; a built part keeps its own registers.
-  return circuitCourse(content, { board, parts: PARTS, read: (task) => ({ ...task, want: wantOf(task.want) }), test, holds: true })
+  // The parts are the game's parts.json over the domain's resources.
+  return partsCourse(content, {}, { board, read: (task) => ({ ...task, want: wantOf(task.want) }), test, holds: true })
 }

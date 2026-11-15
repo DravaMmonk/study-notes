@@ -10,10 +10,10 @@
 // Returns the course read (../../engine/board-course.js circuitCourse): LEVELS, played (level id → its tasks read),
 // CHAPTERS, course, partOf, BUILT, offerIn, opening, carried, syncOwn, blueprints, and `wrong`, what reading the content
 // found that its schema cannot say.
-import { circuitCourse } from '../../engine/board-course.js'
+import { partsCourse } from '../../engine/board-course.js'
 import { arrived, said } from './wire.js'
 import { board } from './board.js'
-import { PARTS } from './parts.js'
+import { OPS } from './ops.js'
 import { wantOf } from './wants.js'
 
 /** A test as content writes it, run out: what arrives on each wire in, tick by tick, and how many ticks it runs. */
@@ -47,5 +47,6 @@ export function netCourse(content) {
     return testOf(task, t)
   }
   // A built part keeps its own registers. The output that asks for the next byte of the queue is wanted of nothing.
-  return circuitCourse(content, { board, parts: PARTS, read, test, holds: true, unwanted: (task) => (task.pulls ? [task.pulls.next] : []) })
+  // The parts are the game's parts.json over the domain's resources.
+  return partsCourse(content, OPS, { board, read, test, holds: true, unwanted: (task) => (task.pulls ? [task.pulls.next] : []) })
 }

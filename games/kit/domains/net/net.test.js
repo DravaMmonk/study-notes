@@ -6,7 +6,9 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync, readdirSync } from 'node:fs'
 import { FLAG, FORMATS, arrived, bitsOf, checkOf, decode, encode, remainder, said, stuff, unstuff } from './wire.js'
-import { PARTS } from './parts.js'
+import { defineParts } from '../../engine/parts/define.js'
+import { readContent } from '../../engine/content-node.js'
+import { OPS } from './ops.js'
 import { board } from './board.js'
 import { primitivesOnly } from '../../engine/board-cards.js'
 import { cells, check, runLevel } from './run.js'
@@ -15,6 +17,9 @@ import { netCourse } from './course.js'
 import { assemble } from '../../engine/content.js'
 import domain from './domain.js'
 
+// The starter's parts (its parts.json), over the domain's resources.
+const STARTER = readContent('starter', import.meta.dirname).partDefs
+const { PARTS } = defineParts(STARTER, OPS)
 const plain = primitivesOnly(board, PARTS)
 const { carriedOnto, fromText, toText } = board
 const { partOf } = plain
@@ -115,7 +120,7 @@ test('a built part takes its level’s wires as ports', () => {
       ['1-2', lv('1-2', { wires: W(['x'], ['y']), tests: [{ wires: { x: { send: [{ bits: '1101' }] } } }], want: { y: { late: { wire: 'x', first: 0 } } }, solution: ['d = delay(x)', 'y <- d'] })],
     ],
     glossary: { groups: [], entries: [] },
-    partDefs: { parts: { delay: { name: 'delay', desc: 'd', inside: [{ task: '1-1' }] } } },
+    partDefs: { parts: { ...STARTER.parts, delay: { name: 'delay', desc: 'd', inside: [{ task: '1-1' }] } } },
   })
   const net = netCourse(content)
   assert.deepEqual(net.wrong, [])
@@ -151,6 +156,7 @@ test('the starter game passes its checks', async () => {
     game: json('game.json'),
     levels: readdirSync(new URL('levels/', dir)).map((f) => [f.slice(0, -5), json(`levels/${f}`)]),
     glossary: json('glossary.json'),
+    partDefs: json('parts.json'),
   })
   const lines = await domain.validate(domain.spec(content))
   assert.deepEqual(lines.filter((l) => l.fail), [])

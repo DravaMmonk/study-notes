@@ -2,16 +2,19 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { packed, sink, source } from './boards.js'
-import { boardNode, drive, hearing, reacting, register, runTicks, store } from './ticks.js'
+import { boardNode, drive, hearing, reacting, runTicks } from './ticks.js'
+import { defineParts } from './parts/define.js'
 
+// The registers as parts defined as data: reg reads one (0 until kept), bit too (1), set keeps one.
+const name = { key: 'reg', control: 'select', options: ['n', 'last', 'k'].map((value) => ({ value })) }
+const reading = (start) => ({ name: 'r', desc: 'd', icon: 'Box', family: 'f', inputs: [], settings: [name, { key: 'start', control: 'number', default: start }], compute: 'held($reg, $start)' })
+const REGISTERS = defineParts({ parts: { reg: reading(0), bit: reading(1), set: { name: 's', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'in' }], settings: [name], keeps: { input: 'in', register: 'reg' } } } }, {}).PARTS
 const PARTS = {
   input: source(),
   output: sink(),
   rx: hearing(),
   tx: drive(),
-  reg: register({ start: 0 }),
-  bit: register({ start: 1 }),
-  set: store(),
+  ...REGISTERS,
   one: { inputs: [], eval: () => 1 },
   add: { inputs: ['a', 'b'], eval: ({ a, b }) => a + b },
   min: { inputs: ['a', 'b'], eval: ({ a, b }) => Math.min(a, b) },
@@ -120,7 +123,10 @@ test('parts defined as data read and keep registers, and two packed counters cou
   const parts = { ...PARTS, out: sink() }
   const one = boardNode({ id: 'b', circuit: counter, parts })
   assert.deepEqual([0, 1, 2].map((t) => one.hear(t).outputs.out), [0, 1, 2])
-  // Unkept, a register holds its start; with none, 「—」.
+  // A register kept 「—」 holds it; unkept, its start; with none, 「—」.
+  const { BUILTINS } = await import('./parts/builtins.js')
+  assert.equal(BUILTINS.held.run(['A', 5], {}, { held: () => null }), null)
+  assert.equal(BUILTINS.held.run(['A', 5], {}, { held: () => undefined }), 5)
   assert.equal(PARTS.read.eval({}, { params: { reg: 'B', start: '' } }, {}), null)
   // Two counters packed on one board, each keeping its own A: one steps by 1, the other by 2.
   const step = { name: 'step', desc: 'd', icon: 'Box', family: 'f', inputs: [{ name: 'a' }, { name: 'by' }], compute: 'plus(a, by)' }

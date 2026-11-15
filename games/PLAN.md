@@ -33,6 +33,7 @@
 - 手机格位已按固定托盘确定尺寸。宽、高各自取最常见档位，空位与卡片顶边对齐。
 - D.5 已完成。《证明完毕》的门、推理规则和证明助手的元件是 `games/qed/parts.json` 的件，计算是领域的引擎资源（`gates.js` 不再有原始门，`proof.js` 的 `RULES`、`machine.js` 的 `MACHINE_PARTS` 只剩资源）；引理和规则元件由课程登记，搭出的元件是封装件。三种板都在内核的电路屏上玩：内核补了资源看得见卡片和区域、`parts.json` 的区域（框）和把区域当函数跑（`frames.js` 的 `runRegion`）、`tree` 和 `list` 两种设置控件、由资源算出的选项（`from`）、检验排成表、最后一条性质检验、成绩和读数、一张屏自己的课程视图（`board-view.js`）、过关单子上的几行字（`passed`）。`logic` 自写组件 0 行。检查输出只有 `i18n en` 的计数变了（2104 → 2236：搬进 `parts.json` 的文字都已译）。
 - F.1 已完成。每款游戏的件，基础的和搭出的，都是 `parts.json` 的一项：搭出的件写 `inside: [{ task, form?, label? }]`，口从被引用任务的板读出，哪一关搭出、打开它由引用反推（电路预设的 `board-course.js`、`image`、`logic` 的 `readBuilt`、`table`）。删掉的有关卡的 `builds`、`packs`、`unlock`、`fact`，game.json 的 `parts`、`lemmas`、`gates`、`machines`、`facts`、`revisions`，以及 `BUILT_TEXT`；词汇表删改由那一版的 `removes` 写明（决策七），`net`、`calculus`、`market`、`linear`、`signal`、`image`、`logic`、`table` 和两个电路模板各升一版，内容经操作集迁移。件有了 `card`、`revisions` 和引用的 `label`。元件箱和 studio 的元件页打开搭出的件时画出它跑的板。检查输出只有《证明完毕》的 `i18n en` 计数变了（2236 → 2253：证明助手元件的名字和说明从代码搬进内容）；搭出的门的口改按真值电路的字母命名。
+- F.2 已完成。按拍运行的基础元件也在各自游戏的 `parts.json`：内核的内建 `held(register, start)` 读寄存器，件的面 `keeps: { input, register }` 存寄存器（汇点，下一拍起生效，寄存器按封装路径分开），数字设置可以默认为「—」；`idle` 由可以不接的口覆盖。`net`、`calculus`、`market` 和逐拍总线模板的 `parts.js` 删掉，元件经操作集写进 `network`、`calculus`、`market` 和各 `starter/` 的 `parts.json`，领域只交引擎资源（`ops.js`；模板只用内建），词汇表各升一版并写明 `removes: kinds.part`；`ticks.js` 的 `register`、`store` 和外壳的 `registerCards` 删掉，`partsCourse` 是这类领域共用的课程读法。检查输出只有译文计数变了（`network` 291/299 → 313/321，`calculus` 238/238 → 253/253：元件的名字、说明和设置标签从代码搬进内容）。
 
 ## 约定
 
@@ -49,22 +50,6 @@
 - **参数台和它的模型**（《视觉完备》的十来个）：照现有逻辑走。去向是被别的玩法取代，或者单独做成一种更自由的关卡设计方式，另行决定。
 - `table`、`image` 两个原型领域自己的屏：只做基础件做完以后顺带落下来的部分，不专门迁。
 - 关卡的重新设计。本计划只对内容做机械改动（改字段名、补字段）。
-
----
-
-## 阶段 F　件统一登记在 `parts.json`
-
-### F.2 按拍运行的基础元件也写在 `parts.json`
-
-F.1 之后，每款游戏的登记表结构相同（内核的 `engine/parts/schema.js`），但覆盖面还不全：《从一根线开始》《差分机》《看不见的手》和逐拍总线模板的基础元件还写在领域代码里（`domains/{net,calculus,market}/parts.js`、`scaffold/tick-bus/parts.js`），因为它们按拍运行，寄存器（`reg`、`keep`：`engine/ticks.js` 的 `register`、`store`）和「只在选中时读」的元件（`select` 的 `idle`）在定义件的式子里写不出来。
-
-- 内核先补：定义件能读写寄存器。读的件用内核内建调用拿到寄存器此刻的值（找不到时给它的起始值），写的件用一个内核的面声明「把某个输入存进哪个寄存器，下一拍起生效」；寄存器名仍是件的设置，作用域照旧按封装路径分开（`ticks.js`、`boards.js` 的 `STATE`）。`idle`（这一拍不跑时给什么）也成为件的一个面，或者由 `nulls` 覆盖到，择其简单。这些都是内核机制，不带领域名字，单元测试只用测试里写的小内容。
-- 然后三个领域和模板的基础元件经操作集写进各自游戏的 `parts.json`（模板写进 `starter/parts.json`），领域只交它的引擎资源（`op`），`parts.js` 删掉；词汇表升版本，`removes` 写明删掉的东西。
-- 验收：
-  - 这三个领域和模板的 `parts.js` 不存在；`definesParts` 对它们成立，studio 的元件页能看、能改它们的每个基础元件。
-  - 每款游戏的检查输出不变（只允许译文计数变，按类别写进提交说明）。
-  - 三款游戏各在浏览器里玩通一关用到寄存器的关（桌面和手机），封装件里的寄存器仍各自独立（两个计数器各数各的）。
-- 不在这一条里：《软件工厂》（`agent`）的件全在代码里，留给阶段 6.5 整套重做；《句法之图》没有元件。
 
 ---
 

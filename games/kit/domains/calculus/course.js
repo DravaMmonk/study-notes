@@ -8,9 +8,8 @@
 // Returns the circuit base's course (../../engine/board-course.js circuitCourse) with the parts parts.json defines (`defs`,
 // `defaultsOf`); `wrong` is what reading the
 // content found that its schema cannot say (an input with too few terms, outputs of different lengths).
-import { circuitCourse } from '../../engine/board-course.js'
+import { partsCourse } from '../../engine/board-course.js'
 import { board } from './board.js'
-import { defineParts } from '../../engine/parts/define.js'
 import { OPS } from './ops.js'
 
 export function calculusCourse(content) {
@@ -23,6 +22,5 @@ export function calculusCourse(content) {
     return { inputs: {}, ...t, ticks }
   }
   // The parts are the game's parts.json over the domain's resources.
-  const { PARTS, defs, defaultsOf } = defineParts(content.partDefs, OPS)
-  return { ...circuitCourse(content, { board, parts: PARTS, test, holds: true }), defs, defaultsOf }
+  return partsCourse(content, OPS, { board, test, holds: true })
 }

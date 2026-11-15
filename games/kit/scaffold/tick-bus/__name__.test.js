@@ -4,13 +4,16 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { bitsOf, lineOf } from './line.js'
-import { PARTS } from './parts.js'
+import { defineParts } from '../../engine/parts/define.js'
+import { readContent } from '../../engine/content-node.js'
 import { board } from './board.js'
 import { primitivesOnly } from '../../engine/board-cards.js'
 import { runLevel } from './run.js'
 import { wantOf } from './wants.js'
 import domain from './domain.js'
 
+// The starter's parts (its parts.json), over the kernel's builtins.
+const { PARTS } = defineParts(readContent('starter', import.meta.dirname).partDefs, {})
 const plain = primitivesOnly(board, PARTS)
 const { fromText, toText } = board
 const { partOf } = plain
@@ -50,6 +53,7 @@ test('the starter game passes its checks', async () => {
     game: json('game.json'),
     levels: readdirSync(new URL('levels/', dir)).map((f) => [f.slice(0, -5), json(`levels/${f}`)]),
     glossary: json('glossary.json'),
+    partDefs: json('parts.json'),
   })
   const lines = await domain.validate(domain.spec(content))
   assert.deepEqual(lines.filter((l) => l.fail), [])

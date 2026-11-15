@@ -1,0 +1,58 @@
+{
+  "parts": {
+    "reg": {
+      "name": { "zh": "读寄存卡" },
+      "desc": { "zh": "给出同名寄存卡中存的值；尚未存入时，给出初值（「—」或设定的数）。" },
+      "icon": "ArrowUpFromLine",
+      "family": "memory",
+      "inputs": [],
+      "settings": [
+        {
+          "key": "reg",
+          "control": "select",
+          "label": { "zh": "名字" },
+          "options": [{ "value": "A" }, { "value": "B" }, { "value": "C" }, { "value": "D" }],
+          "default": "A"
+        },
+        { "key": "start", "control": "number", "label": { "zh": "初值" }, "default": null }
+      ],
+      "compute": "held($reg, $start)"
+    },
+    "keep": {
+      "name": { "zh": "存寄存卡" },
+      "desc": { "zh": "把接入的值存进同名寄存卡，从下一拍起可以读出。" },
+      "icon": "ArrowDownToLine",
+      "family": "memory",
+      "inputs": [{ "name": "in" }],
+      "settings": [
+        {
+          "key": "reg",
+          "control": "select",
+          "label": { "zh": "名字" },
+          "options": [{ "value": "A" }, { "value": "B" }, { "value": "C" }, { "value": "D" }],
+          "default": "A"
+        }
+      ],
+      "keeps": { "input": "in", "register": "reg" }
+    },
+    "const": {
+      "name": { "zh": "常数" },
+      "desc": { "zh": "始终给出设定的数。" },
+      "icon": "Hash",
+      "family": "value",
+      "inputs": [],
+      "settings": [
+        {
+          "key": "value",
+          "control": "number",
+          "label": { "zh": "数值" },
+          "min": 0,
+          "max": 32,
+          "integer": true,
+          "default": 0
+        }
+      ],
+      "compute": "$value"
+    }
+  }
+}

@@ -131,9 +131,9 @@ export function circuitPlay(hook) {
  *                        holds what an output should be, undefined where anything will do); `text` a value in words,
  *                        by default `show`'s
  *   more?(task, test, lang) → [line]   what the waveform says besides it (what is wanted in order, say)
- *   registers? { names, top }   the cards that keep registers and constants, as the screen offers them
- *                               (../../shell/CircuitScreen.jsx registerCards): reg and keep name one of `names`, reg
- *                               starts as 「—」, 0 or 1, const is a number from 0 to `top`
+ *   registers? { names, top }   the cards that keep registers and constants, in words: reg and keep name one of
+ *                               `names` (the registers the game's parts.json offers), reg starts as 「—」, 0 or 1,
+ *                               const is a number from 0 to `top`
  *   settings   { type: [{ key, values, about? }] } what can be set on the game's other primitives
  *   words      what the game calls its tests (../tests.js TEST_WORDS)
  */

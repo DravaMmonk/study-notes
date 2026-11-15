@@ -4,7 +4,6 @@
 // inputs, the queue's head, and what each output and wire out should be, tick by tick, or in order) — and an attempt
 // judged as a run judges it.
 import { tickPlay } from '../../engine/play/circuit.js'
-import { REGISTERS } from './parts.js'
 import { checked, runLevel, show } from './run.js'
 import { T } from '../../shell/i18n.js'
 
@@ -13,7 +12,8 @@ const word = (v, lang) => (typeof show(v) === 'object' ? show(v)[lang] : show(v)
 export const play = tickPlay({
   run: runLevel,
   show,
-  registers: { names: REGISTERS, top: 255 },
+  // What the text play offers of a register card: the registers parts.json's reg and keep name.
+  registers: { names: ['A', 'B', 'C', 'D', 'E', 'F'], top: 255 },
   given: (L) => T(
     [
       ...(L.wires?.in ?? []).map((w) => `${w.name}：进线「${w.label.zh}」，这一拍到达的位`),

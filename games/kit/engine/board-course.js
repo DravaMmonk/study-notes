@@ -16,7 +16,9 @@
 //       pieces { type: piece } the built pieces, as parts.json names and describes them
 //     A task holds the parts its level adds and those its own tasks up to it add (`adds`), and brings in (`fresh`)
 //     those it adds itself, the first task its level's too; its tray offers by them and by its own answer.
-//   definedCourse(content, { board, ops, read? }) → circuitCourse's, with { defs, defaultsOf }: the course of a domain
+//   partsCourse(content, ops, options) → circuitCourse's, with { defs, defaultsOf }: the course of a domain whose games
+//     define their parts as data (parts.json) over its engine resources `ops`, circuitCourse's options beside
+//   definedCourse(content, { board, ops, read? }) → partsCourse's: the course of a domain
 //     whose games define their own parts (parts.json, ./parts/define.js) over its engine resources `ops`, and whose
 //     tests give a value on every input and expect one of every output (`inputs`, `expect`); read(value, name, say) →
 //     a value as content writes it made a value on the wires
@@ -328,12 +330,20 @@ export function circuitCourse(content, { board, parts, read: readOwn = (task) =>
  * its tests giving a value on every input and expecting one of every output.
  */
 export function definedCourse(content, { board, ops, parts, read: readValue = (v) => v }) {
-  const { PARTS, defs, defaultsOf } = defineParts(content.partDefs, ops, parts)
   const test = (t, task, say) => {
     for (const o of task.outputs) if (t.expect[o.name] === undefined) say(`a test expects nothing of the output ${o.name}`)
     for (const i of task.inputs) if (t.inputs[i.name] === undefined) say(`a test gives nothing on the input ${i.name}`)
     const values = (given) => Object.fromEntries(Object.entries(given).map(([name, v]) => [name, readValue(v, name, say)]))
     return { ...t, inputs: values(t.inputs), expect: values(t.expect) }
   }
-  return { ...circuitCourse(content, { board, parts: PARTS, test }), defs, defaultsOf }
+  return partsCourse(content, ops, { board, parts, test })
+}
+
+/**
+ * The course of a domain whose games define their parts (content.partDefs: parts.json) over its engine resources `ops`
+ * (code parts `parts` beside them): circuitCourse's, its parts those, with { defs, defaultsOf }.
+ */
+export function partsCourse(content, ops, { parts, ...options }) {
+  const { PARTS, defs, defaultsOf } = defineParts(content.partDefs, ops, parts)
+  return { ...circuitCourse(content, { ...options, parts: PARTS }), defs, defaultsOf }
 }

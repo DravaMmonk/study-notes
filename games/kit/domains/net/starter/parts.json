@@ -1,0 +1,109 @@
+{
+  "parts": {
+    "reg": {
+      "name": { "zh": "读寄存卡" },
+      "desc": { "zh": "给出同名寄存卡中存的值；尚未存入时，给出初值（「—」或设定的数）。" },
+      "icon": "ArrowUpFromLine",
+      "family": "memory",
+      "inputs": [],
+      "settings": [
+        {
+          "key": "reg",
+          "control": "select",
+          "label": { "zh": "名字" },
+          "options": [
+            { "value": "A" },
+            { "value": "B" },
+            { "value": "C" },
+            { "value": "D" },
+            { "value": "E" },
+            { "value": "F" }
+          ],
+          "default": "A"
+        },
+        { "key": "start", "control": "number", "label": { "zh": "初值" }, "default": null }
+      ],
+      "compute": "held($reg, $start)"
+    },
+    "keep": {
+      "name": { "zh": "存寄存卡" },
+      "desc": { "zh": "把接入的值存进同名寄存卡，从下一拍起可以读出；接入的是「—」时也存进去，不接时不存，寄存卡留着原来的值。" },
+      "icon": "ArrowDownToLine",
+      "family": "memory",
+      "inputs": [{ "name": "in" }],
+      "settings": [
+        {
+          "key": "reg",
+          "control": "select",
+          "label": { "zh": "名字" },
+          "options": [
+            { "value": "A" },
+            { "value": "B" },
+            { "value": "C" },
+            { "value": "D" },
+            { "value": "E" },
+            { "value": "F" }
+          ],
+          "default": "A"
+        }
+      ],
+      "keeps": { "input": "in", "register": "reg" }
+    },
+    "const": {
+      "name": { "zh": "常数" },
+      "desc": { "zh": "始终给出设定的数。" },
+      "icon": "Hash",
+      "family": "value",
+      "inputs": [],
+      "settings": [
+        {
+          "key": "value",
+          "control": "number",
+          "label": { "zh": "数值" },
+          "min": 0,
+          "max": 255,
+          "integer": true,
+          "default": 0
+        }
+      ],
+      "compute": "$value"
+    },
+    "select": {
+      "name": { "zh": "选择" },
+      "desc": { "zh": "「条件」为「是」或 1 时给出「是」输入，为「否」或 0 时给出「否」输入，为「—」时给出「—」；未接线的输入读作「—」。" },
+      "icon": "Split",
+      "family": "logic",
+      "inputs": [
+        { "name": "if", "label": { "zh": "条件" }, "optional": true },
+        { "name": "yes", "label": { "zh": "是" }, "optional": true },
+        { "name": "no", "label": { "zh": "否" }, "optional": true }
+      ],
+      "nulls": "pass",
+      "compute": "select(if, yes, no)"
+    },
+    "add": {
+      "name": { "zh": "相加" },
+      "desc": { "zh": "给出两个数之和。只要有一个输入为「—」，就给出「—」。" },
+      "icon": "Plus",
+      "family": "value",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "add(a, b)"
+    },
+    "equal": {
+      "name": { "zh": "相等" },
+      "desc": { "zh": "两个数相同时给出「是」，否则给出「否」（「是」算作 1，「否」算作 0）。只要有一个输入为「—」，就给出「—」。" },
+      "icon": "Equal",
+      "family": "logic",
+      "inputs": [{ "name": "a" }, { "name": "b" }],
+      "compute": "equal(a, b)"
+    },
+    "bit": {
+      "name": { "zh": "取位" },
+      "desc": { "zh": "给出 8 位数「数」从最高位数起的第「位」位（第 0 位是最高位）；「位」不在 0 到 7 之间，或有一个输入为「—」时，给出「—」。" },
+      "icon": "Binary",
+      "family": "value",
+      "inputs": [{ "name": "n", "label": { "zh": "数" } }, { "name": "i", "label": { "zh": "位" } }],
+      "compute": "bit(n, i)"
+    }
+  }
+}

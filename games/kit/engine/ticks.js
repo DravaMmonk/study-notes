@@ -11,25 +11,11 @@
 //   hear  every card runs, the line given; the sinks that keep a register (`store`) set what it holds from the next
 //         tick on, and so does every card inside a packed part that holds registers (boards.js STATE)
 //
-// A register is read by a card with `params.reg` (register()) and written by a sink with the same `params.reg`
-// (store()); one never written holds `start`. Registers inside a packed part are its own (scoped by its path), so two
-// counters on one board count apart.
+// A register is read by a part computing held(register, start) and written by a part that keeps an input (`keeps`,
+// parts/define.js: a sink naming its register, register(node)); one never written holds `start`. Registers inside a
+// packed part are its own (scoped by its path), so two counters on one board count apart.
 import { Halt } from './circuit.js'
 import { runBoard } from './boards.js'
-
-/** A card giving what register `params.reg` holds (`start`, or start(node), until something is kept in it). */
-export const register = ({ start = null, ...extra } = {}) => ({
-  inputs: [],
-  ...extra,
-  eval: (_, node, ctx) => {
-    const held = ctx.held?.(`${ctx.scope ?? ''}${node.params?.reg}`)
-    if (held !== undefined) return held
-    return typeof start === 'function' ? start(node) : start
-  },
-})
-
-/** A sink keeping what reaches it in register `params.reg`, from the next tick on (`register(node)`: the register's name). */
-export const store = (extra = {}) => ({ inputs: ['in'], sink: true, store: true, eval: () => undefined, register: (node) => node.params?.reg, ...extra })
 
 /** A sink whose value the node says on the line this tick. */
 export const drive = (extra = {}) => ({ inputs: ['in'], sink: true, drive: true, eval: () => undefined, ...extra })

@@ -62,7 +62,7 @@ import StepLog from './StepLog.jsx'
 //   sample?(task, board) → the board's run on the task's `sample`, a tab after the tests, never judged (judged boards)
 //   ready?(board, held, task)   the board as the task holds it (held: the parts its tray holds), on opening and every
 //                         change (a preset locked back in…)
-//   settings?(node, set, ctx)  a card's own settings (CardField; registerCards for registers, constants and forms)
+//   settings?(node, set, ctx)  a card's own settings (CardField)
 //   defaults?(type)       a new card's settings
 //   portLabels?           { type: { port: label } }               defined?  the game's parts.json parts (CircuitLevel)
 //   inspect?(node, ctx)   what a defined part's detail shows of its values (by default, as its card)
@@ -111,33 +111,6 @@ export function CardField({ label, value, options, onChange }) {
       </select>
     </label>
   )
-}
-
-/**
- * The settings of the cards a tick board keeps registers with (../engine/ticks.js register, store), as a domain's
- * screen gives them: `reg` and `keep` name one of `registers`, `reg` has a start value (「—」, 0 or 1), `const` a number
- * from 0 to `top`, and a part with forms (`forms`: { type: { form: label } }) one of them. With `numbers`, a constant
- * and a start value are any number, typed (NumberField), and a start value is 0 until set. `numberConstants` and `numberStarts` give constants and optional register starts numeric fields. A new card's settings are
- * its defaults written in (the first register, 0, the first form), so the card shows them.
- */
-export function registerCards({ registers, top, forms = {}, numbers = false, numberConstants = false, numberStarts = false }) {
-  const names = registers.map((r) => [r, r])
-  const starts = [['', '—'], ['0', '0'], ['1', '1']]
-  const values = numbers || numberConstants ? [] : Array.from({ length: top + 1 }, (_, k) => [String(k), String(k)])
-  const first = (type) => Object.keys(forms[type])[0]
-  return {
-    defaults: (type) => (type === 'reg' ? { reg: registers[0], ...(numbers ? { start: '0' } : {}) } : type === 'keep' ? { reg: registers[0] } : type === 'const' ? { value: '0' } : forms[type] ? { form: first(type) } : {}),
-    settings: (node, set) => {
-      const p = node.params ?? {}
-      const reg = <CardField label={T('名字', 'Name')} value={p.reg ?? registers[0]} options={names} onChange={set('reg')} />
-      const start = numberStarts ? <><CardNumber label={T('初值')} value={p.start ?? ''} onChange={set('start')} /><button type="button" disabled={p.start === undefined || p.start === ''} onPointerDown={(event) => event.stopPropagation()} onClick={() => set('start')('')}>{L(T('清空初值', 'Clear initial value'))}</button></> : numbers ? <CardNumber label={T('初值')} value={p.start ?? ''} onChange={set('start')} /> : <CardField label={T('初值')} value={p.start ?? ''} options={starts} onChange={set('start')} />
-      if (node.type === 'reg') return <>{reg}{start}</>
-      if (node.type === 'keep') return reg
-      if (node.type === 'const') return numbers || numberConstants ? <CardNumber label={T('数值', 'Value')} value={p.value ?? '0'} onChange={set('value')} /> : <CardField label={T('数值', 'Value')} value={p.value ?? '0'} options={values} onChange={set('value')} />
-      if (forms[node.type]) return <CardField label={T('形状', 'Form')} value={p.form ?? first(node.type)} options={Object.entries(forms[node.type])} onChange={set('form')} />
-      return null
-    },
-  }
 }
 
 /** What a card shows of a value (the kit's card scene, ../views/Show.jsx, in the view kept for it: `of`), or why it
@@ -496,21 +469,19 @@ export default function CircuitScreen({ screen, course, cards, run: runOn, show:
  *   course(game) → the course read the screen plays (circuit-game.js: game.circuit)
  *   says, portLabels?, words?, judged?, canvas?, sample?, table?, told?, final?, score?, readouts?   as CircuitScreen
  *                takes them
- *   registers?   what registerCards takes: the settings of the cards a tick board keeps registers with
  *   scene?({ task, test, run, at }) → [{ part, ...props }]   the test's scene, each a kit part by name (SCENES:
  *                'chart' …) with the props it draws from
  *   parts?       { name: Component }, scene parts of the domain's own, for what the kit has no part for yet
  */
-export function circuitScreen({ play, registers, scene, parts = {}, course, ...declared }) {
+export function circuitScreen({ play, scene, parts = {}, course, ...declared }) {
   const played = { run: play.runLevel, entries: play.entries, show: play.show ?? valueText, once: play.once, check: play.check, cells: play.cells }
-  const fields = registers ? registerCards(registers) : {}
   const drawn = { ...SCENES, ...parts }
   const figure = scene && ((told) => (scene(told) ?? []).map(({ part, ...props }, k) => {
     const Part = drawn[part]
     return <Part key={k} {...props} />
   }))
   return function Screen(screen) {
-    return <CircuitScreen screen={screen} course={course(screen.game)} defined={screen.game.defined} {...played} {...declared} {...fields} figure={figure} />
+    return <CircuitScreen screen={screen} course={course(screen.game)} defined={screen.game.defined} {...played} {...declared} figure={figure} />
   }
 }
 

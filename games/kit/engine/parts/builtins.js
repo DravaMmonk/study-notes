@@ -31,7 +31,11 @@ export const BUILTINS = {
   over: { about: t('两数之商；除以 0 报错'), args: nums('a', 'b'), returns: 'num', run: ([a, b]) => (num(b) === 0 ? (() => { throw new PartError(t('除以 0')) })() : num(a) / num(b)) },
   round: { about: t('按 digits 位小数四舍五入'), args: nums('a'), returns: 'num', params: { type: 'obj', fields: { digits: { type: 'int', min: 0, max: 8, optional: true } } }, run: ([a], { digits = 0 }) => Number(num(a).toFixed(digits)) },
   // A register, as a tick run keeps it (../ticks.js): its name scoped by the packed part the card is in.
-  held: { about: t('寄存器 register 此刻存的值；还没存过时给 start'), args: args('register', 'start'), run: ([register, start], _named, ctx) => ctx?.held?.(`${ctx.scope ?? ''}${register}`) ?? start },
+  held: { about: t('寄存器 register 此刻存的值；还没存过时给 start'), args: args('register', 'start'), run: ([register, start], _named, ctx) => {
+    // A register kept 「—」 holds 「—」: only one never kept gives its start.
+    const held = ctx?.held?.(`${ctx.scope ?? ''}${register}`)
+    return held === undefined ? start : held
+  } },
   clamp: { about: t('限制在 lo 到 hi 之间'), args: nums('a', 'lo', 'hi'), returns: 'num', run: ([a, lo, hi]) => Math.min(num(hi), Math.max(num(lo), num(a))) },
 }
 
