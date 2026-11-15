@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createProgress, earnedUnlocks, firstTask, flagsIn, fresh, inheritedBoard, nextRequiredTask, passed, saved, skipOptionalTask, taskOpen, taskPassed } from './progress.js'
 import { passedLevelIn, recordSolution } from './progress.js'
-import { playedTask } from './played-task.js'
+import { playedTask, taskContext } from './played-task.js'
 import { addSlot, dropSlot } from './slots.js'
 
 const storage = new Map()
@@ -48,8 +48,8 @@ test('a mounted task saves and passes its own slot after another reader opens a 
   const page = createProgress({ id })
   const other = createProgress({ id })
   const level = { id: 'level', keeps: true, tasks: [{ key: 'work' }] }
-  const game = { byId: { level } }
-  const task = playedTask(game, page.load(), level, 0, { update: page.update })
+  const game = { byId: { level }, flagsOf: (p) => p.flags }
+  const { screen: task } = playedTask(taskContext(game, page.load(), level, 0), { update: page.update })
   other.update((p) => addSlot(p, 'work'))
   other.update((p) => saved(p, level, 0, 'second draft'))
 
@@ -122,6 +122,13 @@ test('all-unlocked inheritance uses the reference until the prerequisite is pass
   assert.equal(inheritedBoard({ ...fresh(), data: start.data }, task), undefined)
 })
 
+test('inheritance uses only judged work and never a skipped optional task in a solved level', () => {
+  const graph = { nodes: [{ id: 'ungraded' }], wires: [] }
+  const progress = { ...fresh(), solved: ['mixed'], data: { extra: graph, required: graph } }
+  assert.equal(inheritedBoard(progress, { id: 'mixed', key: 'required' }), undefined)
+  assert.equal(inheritedBoard({ ...progress, built: { extra: graph } }, { id: 'mixed', key: 'extra', optional: true }), undefined)
+})
+
 test('passing a carried task retains its passing circuit when the working board changes later', () => {
   const source = { id: 'source', tasks: [{ key: 'source-task' }], unlocks: [] }
   const target = { id: 'target', tasks: [{ key: 'target-task', source: { carry: 'source' } }], unlocks: [] }
@@ -166,8 +173,10 @@ test('optional tasks can be skipped without granting their rewards or appearing 
   assert.deepEqual(done.flags, ['level-part'])
   assert.deepEqual(earnedUnlocks(l, done), ['level-part'])
   assert.equal(taskPassed(g, done, 'mixed', 0), false)
+  assert.equal(taskContext(g, done, l, 0).solved, false)
   const extraDone = passed(g, done, l, 0)
   assert.equal(taskPassed(g, extraDone, 'mixed', 0), true)
+  assert.equal(taskContext(g, extraDone, l, 0).solved, true)
   assert.equal(flagsIn(g, extraDone, l, 1).has('extra-part'), true)
   assert.deepEqual(extraDone.flags, ['level-part', 'extra-part'])
   assert.deepEqual(extraDone.skippedTasks, [])

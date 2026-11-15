@@ -1,10 +1,22 @@
-import { recordPass, skipOptionalTask, taskKey, taskOpen, taskPassed } from './progress.js'
+import { flagsIn, recordPass, skipOptionalTask, taskKey, taskOpen, taskPassed } from './progress.js'
 import { saveSlot, slotsOf } from './slots.js'
 
-/** Resolve the screen's task, its navigation and the work it opens on. */
-export function playedTask(game, progress, level, at, { go, update } = {}) {
+/** The task, work and unlocks seen by browser screens and by text play. */
+export function taskContext(game, progress, level, at, fails = 0) {
+  return {
+    game, progress, task: at, fails,
+    level: { ...level, ...level.tasks[at] },
+    flags: flagsIn(game, progress, level, at),
+    saved: progress.data[taskKey(level, at)],
+    solved: taskPassed(game, progress, level.id, at),
+  }
+}
+
+/** Add browser navigation and actions bound to the slot actually opened. */
+export function playedTask(context, { go, update } = {}) {
+  const { game, progress, task: at } = context
+  const level = game.byId[context.level.id]
   const { tasks } = level
-  const task = tasks[at]
   const key = taskKey(level, at)
   const slots = slotsOf(progress, key)
   const slot = slots.list[slots.at].no
@@ -26,23 +38,24 @@ export function playedTask(game, progress, level, at, { go, update } = {}) {
     key,
     slots,
     slot,
-    played: { ...level, ...task, steps },
-    saved: progress.data[key],
-    solved: progress.solved.includes(level.id) || completed[at],
-    save: update && ((data) => update((p) => {
-      const index = slotIndex(slotsOf(p, key).list)
-      return index < 0 ? p : saveSlot(p, key, index, data)
-    })),
-    solve: update && ((score, work) => {
-      const done = update((p) => {
-        const current = slotsOf(p, key)
-        const index = slotIndex(current.list)
-        if (index < 0) return p
-        const draft = current.at === index ? p.data[key] : current.list[index].data
-        const next = work === undefined ? p : saveSlot(p, key, index, work)
-        return recordPass(game, next, level, at, score, work === undefined ? draft : work)
-      })
-      return slotIndex(slotsOf(done, key).list) < 0 ? null : done
-    }),
+    screen: {
+      ...context,
+      level: { ...context.level, steps },
+      save: update && ((data) => update((p) => {
+        const index = slotIndex(slotsOf(p, key).list)
+        return index < 0 ? p : saveSlot(p, key, index, data)
+      })),
+      solve: update && ((score, work) => {
+        const done = update((p) => {
+          const current = slotsOf(p, key)
+          const index = slotIndex(current.list)
+          if (index < 0) return p
+          const draft = current.at === index ? p.data[key] : current.list[index].data
+          const next = work === undefined ? p : saveSlot(p, key, index, work)
+          return recordPass(game, next, level, at, score, work === undefined ? draft : work)
+        })
+        return slotIndex(slotsOf(done, key).list) < 0 ? null : done
+      }),
+    },
   }
 }

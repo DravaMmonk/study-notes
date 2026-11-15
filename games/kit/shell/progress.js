@@ -131,8 +131,13 @@ export const fresh = () => ({ ...blank(), seenPower: true })
 /** Task k's key: the task's id (the shell level's task `key`). */
 export const taskKey = (level, k = 0) => level.tasks[k].key
 
-/** Whether task k of level `id` is passed (all of them once it is solved). */
-export const taskPassed = (game, p, id, k) => p.passed.includes(taskKey(game.byId[id], k)) || (!p.all && !game.byId[id].tasks[k].optional && p.solved.includes(id))
+const completedTask = (p, id, key, optional) => p.passed.includes(key) || (!p.all && !optional && p.solved.includes(id))
+
+/** Whether task k passed individually or is a required task in a normally completed level. */
+export const taskPassed = (game, p, id, k) => {
+  const task = game.byId[id].tasks[k]
+  return completedTask(p, id, task.key, task.optional)
+}
 
 /** Opening tasks is separate from completing them. */
 export const taskOpen = (game, p, id, k) => Boolean(p.all || taskPassed(game, p, id, k) || game.byId[id].tasks.slice(0, k).every((task, i) => task.optional || taskPassed(game, p, id, i)))
@@ -159,8 +164,8 @@ export function nextRequiredTask(game, p, id, current) {
 export function inheritedBoard(progress, task) {
   if (!task) return undefined
   const key = task.key ?? task.taskId
-  const completed = progress.passed.includes(key) || (!progress.all && progress.solved.includes(task.id))
-  const saved = completed && (progress.built?.[key] ?? progress.data?.[key])
+  const completed = completedTask(progress, task.source?.id ?? task.id, key, task.optional ?? task.source?.optional)
+  const saved = completed && progress.built?.[key]
   const board = saved?.nodes ? saved : progress.all ? (task.source?.solution ?? task.solution) : undefined
   return board?.nodes ? structuredClone(board) : undefined
 }

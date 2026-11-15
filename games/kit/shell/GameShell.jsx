@@ -12,8 +12,8 @@ import IntroSheet from './IntroSheet.jsx'
 import LevelMap from './LevelMap.jsx'
 import LevelDrawer from './LevelDrawer.jsx'
 import { setRefs } from './refs.js'
-import { earnedUnlocks, firstTask as openTask, flagsIn, nextRequiredTask, taskOpen } from './progress.js'
-import { playedTask } from './played-task.js'
+import { earnedUnlocks, firstTask as openTask, nextRequiredTask, taskOpen } from './progress.js'
+import { playedTask, taskContext } from './played-task.js'
 import { addSlot, dropSlot, openSlot, renameSlot, slotsOf } from './slots.js'
 import { SlotsContext } from '../circuit/SaveSlots.jsx'
 import { playFrame } from './viewport.js'
@@ -179,14 +179,15 @@ export default function GameShell({ game, store, author = null }) {
     setFailure(null)
     setFails(0)
   }
-  const task = level && playedTask(game, progress, level, taskAt, { go: goTask, update })
+  const context = useMemo(() => level && taskContext(game, progress, level, taskAt), [game, progress, level, taskAt])
+  const task = context && playedTask(context, { go: goTask, update })
   const key = task?.key ?? null
-  const played = task && { ...task.played, optionalLevel: Boolean(level.optional), skipLevel: () => open(null) }
+  const played = task && { ...task.screen.level, optionalLevel: Boolean(level.optional), skipLevel: () => open(null) }
 
   // What a level screen can do to the shell.
   // Keep each passed board; out-of-order play can finish a level on any task.
   const solve = (score, work) => {
-    const done = task.solve(score, work)
+    const done = task.screen.solve(score, work)
     if (!done) return
     setFailure(null)
     if (done.solved.includes(level.id)) setWon(level.id)
@@ -197,8 +198,6 @@ export default function GameShell({ game, store, author = null }) {
     setFails(count)
     setFailure({ info, fails: count })
   }
-  // A task has the flags of what the tasks before it in the level opened (`opens`).
-  const flags = useMemo(() => (level ? flagsIn(game, progress, level, taskAt) : new Set()), [game, progress, level, taskAt])
   // A reference in any text (refs.js): a level shows its number and title and asks before going there; a part or an
   // encyclopedia entry opens the box or the encyclopedia at it, or says where it opens while it is still locked.
   const [goTo, setGoTo] = useState(null)
@@ -313,7 +312,7 @@ export default function GameShell({ game, store, author = null }) {
   const workshop = workshopSources.find((source) => bench?.back && source.candidate.id === bench.back.id && source.at === bench.back.task && onTray(source))
     ?? workshopSources.find((source) => bench?.tray && onTray(source))
     ?? workshopSources[0]
-  const benchTask = bench && workshop ? playedTask(game, progress, workshop.candidate, workshop.at) : null
+  const benchTask = bench && workshop ? playedTask(taskContext(game, progress, workshop.candidate, workshop.at)) : null
   const benchTray = benchTask && (bench.tray ?? traysOf(workshop.task)[0] ?? '')
   const benchTrays = Object.keys(game.course?.trays ?? {}).filter((name) => workshopSources.some(({ task }) => traysOf(task).includes(name)))
   const titleMark = edit ? { 'data-edit': 'title', ...(same(edit, 'title', 'level') && { 'data-picked': '' }), onClickCapture: (e) => { e.stopPropagation(); edit.pick({ at: 'title', scope: 'level' }) } } : {}
@@ -394,7 +393,7 @@ export default function GameShell({ game, store, author = null }) {
             )}
             <EditContext.Provider value={edit}>
               {kind
-                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { key: `${level.id}#${runAt}#${game.stamp ?? ''}`, game, level: played, saved: task.saved, save: task.save, solved: task.solved, solve, fail, ...run, flags, progress, theme, phone, workshop: !author && game.workshop, onWorkshop: (tray) => openBench(tray, { id: level.id, task: taskAt }) })}</SlotsContext.Provider>
+                ? <SlotsContext.Provider value={slotsCtl}>{createElement(kind.Screen, { ...task.screen, key: `${level.id}#${runAt}#${game.stamp ?? ''}`, level: played, solve, fail, ...run, theme, phone, workshop: !author && game.workshop, onWorkshop: (tray) => openBench(tray, { id: level.id, task: taskAt }) })}</SlotsContext.Provider>
                 : <div className="board-loading">{tr('这类关卡尚在制作中。')}</div>}
             </EditContext.Provider>
           </div>
@@ -402,8 +401,7 @@ export default function GameShell({ game, store, author = null }) {
         {benchTask && (
           <div className="level-shell">
             {createElement(workshop.kind.Screen, {
-              key: `${benchTask.key}#${benchTray}`, game, level: benchTask.played, phone, progress, theme, workshop: game.workshop,
-              flags: flagsIn(game, progress, workshop.candidate, workshop.at),
+              ...benchTask.screen, key: `${benchTask.key}#${benchTray}`, phone, theme, workshop: game.workshop,
               workshopOnly: true, workshopTray: benchTray, workshopCarry: Boolean(bench.back),
             })}
           </div>

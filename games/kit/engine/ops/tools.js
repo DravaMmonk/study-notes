@@ -14,7 +14,8 @@ import { catalogReader } from '../catalogs.js'
 import { PROJECT_DIR, domainOf, readContent } from '../content-node.js'
 import { gameOf } from '../games.mjs'
 import { pieceFlow } from '../flow.js'
-import { flagsIn, fresh } from '../../shell/progress.js'
+import { fresh } from '../../shell/progress.js'
+import { taskContext } from '../../shell/played-task.js'
 import { drawDeps } from '../deps.js'
 import { boardSvg } from '../../circuit/svg.js'
 import { getAt, parsePath, showPath } from './edit.js'
@@ -232,7 +233,7 @@ export const TOOLS = {
       const at = shown.byId[level]
       // Every part met before the level is in the tray, as the studio's game plays it (unlock all).
       const progress = { ...fresh(), all: true }
-      const ctx = { game: shown, level: { ...at, ...at.tasks[task] }, flags: flagsIn(shown, progress, at, task), progress, solved: false, task, fails: 0 }
+      const ctx = taskContext(shown, progress, at, task)
       // A hook that cannot open the level without the boards a played session would have built says so.
       let opened
       let r

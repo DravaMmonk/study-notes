@@ -1,4 +1,4 @@
-import { earnedUnlocks, passedLevelIn } from './progress.js'
+import { earnedUnlocks, passedLevelIn, taskOpen } from './progress.js'
 // The game shell shared by every game in the study notes (React). A game is content on top of it: see defineGame.
 
 export { default as GameShell } from './GameShell.jsx'
@@ -135,8 +135,8 @@ export function defineGame(def) {
         const introduced = (part, id) => {
           const level = byId[id]
           if (!level || !isOpen(level, solved)) return false
-          if (!part.atTasks || solved.has(id)) return true
-          return level.tasks?.some((task, k) => part.atTasks.includes(task.key) && level.tasks.slice(0,k).every((prior) => prior.optional || progress.passed.includes(prior.key)))
+          if (!part.atTasks) return true
+          return level.tasks?.some((task, k) => part.atTasks.includes(task.key) && taskOpen(game, progress, id, k))
         }
         const met = def.parts.all.filter((part) => part.at?.some((id) => introduced(part, id)))
         return [...game.flagsOf(progress), ...met.map((part) => part.key)]
