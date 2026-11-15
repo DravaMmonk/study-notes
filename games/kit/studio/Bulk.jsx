@@ -5,11 +5,12 @@
 import { useMemo, useState } from 'react'
 import { ArrowRightLeft, Check } from 'lucide-react'
 import { tr } from '../shell/i18n.js'
-import { getAt, showPath } from '../engine/ops/edit.js'
+import { getAt, mergePatch, showPath } from '../engine/ops/edit.js'
 import { blank, formOf } from './form.js'
 import { bulkAdds, bulkPatch, bulkSet, bulkUnset, commonFields } from './bulk.js'
 import { Field } from './Fields.jsx'
 import { Chips } from './Picker.jsx'
+import { confirmDelete, removesContent } from './delete.js'
 
 export default function Bulk({ content, vocabulary, ids, ctx, onAdd, onMove, onSelect }) {
   const levels = useMemo(() => ids.map((id) => content.levels.find((l) => l.id === id)).filter(Boolean), [ids, content])
@@ -35,6 +36,17 @@ export default function Bulk({ content, vocabulary, ids, ctx, onAdd, onMove, onS
     patchValue = undefined
   }
   const form = field ? formOf(field.schema, value, { vocabulary, levels: content.levels.map((l) => l.id) }, [key]) : null
+  const submit = () => {
+    const removes = plan.ops.some(({ op, level, path, value, fields, remove }) => {
+      if (op === 'level.unset' || remove?.length) return true
+      const before = levels.find(({ id }) => id === level)
+      if (op === 'level.patch') return removesContent(before, mergePatch(before, fields))
+      return op === 'level.set' && removesContent(getAt(before, path), value)
+    })
+    if (removes && !confirmDelete()) return
+    onAdd(plan.ops)
+    setPlan(null)
+  }
   return (
     <article className="editor bulk">
       <header className="editor-head">
@@ -71,7 +83,7 @@ export default function Bulk({ content, vocabulary, ids, ctx, onAdd, onMove, onS
         <section className="bulk-plan">
           <ol className="review-ops">{plan.ops.map((op, k) => <li key={k}><code>{op.op}</code><span>{op.level} {op.path ? showPath(op.path) : ''}{op.add ? ` +${op.add.join(' +')}` : ''}{op.remove ? ` −${op.remove.join(' −')}` : ''}{op.fields ? ` ${Object.keys(op.fields).join(', ')}` : ''}</span></li>)}</ol>
           {plan.skipped.length > 0 && <ul className="bulk-skipped">{plan.skipped.map((s) => <li key={s.level}><code>{s.level}</code> {s.why}</li>)}</ul>}
-          <button type="button" className="kit-btn is-label is-solid review-apply" disabled={!plan.ops.length} onClick={() => { onAdd(plan.ops); setPlan(null) }}><Check size={14} aria-hidden="true" />{tr(`加入变更集（${plan.ops.length}）`, `Into the changeset (${plan.ops.length})`)}</button>
+          <button type="button" className="kit-btn is-label is-solid review-apply" disabled={!plan.ops.length} onClick={submit}><Check size={14} aria-hidden="true" />{tr(`加入变更集（${plan.ops.length}）`, `Into the changeset (${plan.ops.length})`)}</button>
         </section>
       )}
     </article>

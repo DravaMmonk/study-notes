@@ -7,6 +7,7 @@ import { ChevronDown, Plus, X } from 'lucide-react'
 import { L, tr } from '../shell/i18n.js'
 import { useOverlay } from '../shell/useOverlay.js'
 import { useListCursor } from './useListCursor.js'
+import { confirmDelete } from './delete.js'
 
 const words = (v) => (v && typeof v === 'object' ? `${v.zh ?? ''} ${v.en ?? ''}` : String(v ?? ''))
 /** What an option shows: its label (or value) and its title. */
@@ -160,7 +161,7 @@ export function Chips({ options, values, onSet, label }) {
       {values.map((v, k) => (
         <span key={`${v}-${k}`} className={`chip ${byValue.has(v) ? '' : 'is-unknown'}`} title={byValue.get(v)?.about ? L(byValue.get(v).about) : undefined}>
           {head(byValue.get(v)) || String(v)}
-          <button type="button" onClick={() => onSet(values.filter((_, i) => i !== k))} aria-label={tr('去掉')}><X size={11} /></button>
+          <button type="button" onClick={() => { if (confirmDelete(byValue.get(v)?.label ?? String(v))) onSet(values.filter((_, i) => i !== k)) }} aria-label={tr('去掉')}><X size={11} /></button>
         </span>
       ))}
       <AddMenu label={label ? `${tr('新增', 'Add')} · ${label}` : undefined} options={options.filter((o) => !values.includes(o.value))} onPick={(v) => onSet([...values, v])} />

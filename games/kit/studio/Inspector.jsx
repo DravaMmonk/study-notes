@@ -6,7 +6,7 @@
 // copied, taken out, moved into another level and renamed by the task operations, so what players kept of it follows
 // it. Picking another field, or another level, changes what it shows.
 //
-//   <Inspector content vocab at field ctx onEdit onOps onPick onLevel onRemoveSelection />
+//   <Inspector content vocab at field ctx onEdit onOps onPick onLevel onRemoveLevel onRemoveSelection />
 //   at: the file shown ({ level } | { game: true } | { parts: true }: pieces.json, with root: [collection, id] | { glossary: true }); field: { path } | { missing: text } | null
 import { useEffect, useRef } from 'react'
 import { ArrowDown, ArrowUp, ArrowRightLeft, Braces, ChevronRight, Copy, MousePointerClick, Trash2 } from 'lucide-react'
@@ -20,8 +20,9 @@ import { Picker } from './Picker.jsx'
 import { usePref } from './prefs.js'
 import SourceEditor from './SourceEditor.jsx'
 import { sourceOps } from './source.js'
+import { confirmDelete, removesContent } from './delete.js'
 
-export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, onEdit, onOps, onPick, onLevel, onRemoveSelection }) {
+export default function Inspector({ content, vocab, at, field, pendingFace, ctx, places, onEdit, onOps, onPick, onLevel, onRemoveLevel, onRemoveSelection }) {
   const [json, setJson] = usePref('inspector-json', false)
   const { vocabulary } = vocab
   const order = ctx.levels
@@ -78,7 +79,12 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
   const path = hit ? held : field.path ?? root
   const definition = hit?.field && root.length === 2 && path.length === 2 && root.every((key, i) => key === path[i])
   const inUse = definition && root[0] === 'settings' && settingReferences(partDefs, root[1]).length > 0
-  const remove = definition ? () => { edit(path, { unset: true }); onRemoveSelection() } : null
+  const removeDefinition = () => {
+    if (!confirmDelete(root[1])) return
+    edit(path, { unset: true })
+    onRemoveSelection()
+  }
+  const remove = tasked && !path.length && shown ? () => onRemoveLevel(at.level) : definition ? removeDefinition : null
   const header = <Head path={path} file={file} onPick={openCrumb} json={json} onToggleJson={() => setJson(!json)}
     about={L(hit?.entry?.about ?? hit?.field?.about ?? hit?.absent?.about)} onRemove={remove} inUse={inUse} />
   if (json) {
@@ -89,7 +95,12 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
           {!shown
             ? <p className="insp-about">{tr('这个字段没有 JSON 值。', 'This field has no JSON value.')}</p>
             : <SourceEditor key={JSON.stringify([content.id, at, path])} source={JSON.stringify(getAt(shown.value, path), null, 2) ?? ''}
-              onApply={(value) => onOps(sourceOps(file, shown.value, path, value, vocabulary, content.levels))} />}
+              onApply={(value) => {
+                const ops = sourceOps(file, shown.value, path, value, vocabulary, content.levels)
+                if (ops.length && removesContent(getAt(shown.value, path), value) && !confirmDelete()) return false
+                onOps(ops)
+                return true
+              }} />}
         </div>
       </div>
     )
@@ -117,7 +128,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
         <div className="insp-tools">
           <span>{tr('可选的字段')}</span>
           <span className="kit-spacer" />
-          <button type="button" onClick={() => { edit(path, { unset: true }, null); onPick(parent) }} title={tr('去掉这个字段')}><Trash2 size={13} /></button>
+          <button type="button" onClick={() => { if (confirmDelete(showPath(path))) { edit(path, { unset: true }, null); onPick(parent) } }} title={tr('去掉这个字段')}><Trash2 size={13} /></button>
         </div>
       )}
       {isTask && <TaskTools content={content} level={at.level} tasks={shown.value.tasks} k={last} ctx={ctx} onEdit={onEdit} onOps={onOps} onPick={onPick} onLevel={onLevel} />}
@@ -128,7 +139,7 @@ export default function Inspector({ content, vocab, at, field, pendingFace, ctx,
           <button type="button" disabled={last === 0} onClick={() => { edit(parent, { set: moved(list, last, last - 1) }, 'list'); onPick([...parent, last - 1]) }} title={tr('上移')}><ArrowUp size={13} /></button>
           <button type="button" disabled={last === list.length - 1} onClick={() => { edit(parent, { set: moved(list, last, last + 1) }, 'list'); onPick([...parent, last + 1]) }} title={tr('下移')}><ArrowDown size={13} /></button>
           {!(root[0] === 'parts' && path[2] === 'settings' && path.length === 4) && <button type="button" onClick={() => { edit(parent, { set: [...list.slice(0, last + 1), JSON.parse(JSON.stringify(list[last])), ...list.slice(last + 1)] }, 'list'); onPick([...parent, last + 1]) }} title={tr('复制一份')}><Copy size={13} /></button>}
-          <button type="button" onClick={() => { edit(path, { unset: true }, null); onPick(list.length > 1 ? [...parent, Math.max(0, last - 1)] : parent) }} title={tr('去掉')}><Trash2 size={13} /></button>
+          <button type="button" onClick={() => { if (confirmDelete(showPath(path))) { edit(path, { unset: true }, null); onPick(list.length > 1 ? [...parent, Math.max(0, last - 1)] : parent) } }} title={tr('去掉')}><Trash2 size={13} /></button>
         </div>
       )}
       <div className="insp-body" ref={body}>
@@ -155,6 +166,7 @@ function TaskTools({ content, level, tasks, k, ctx, onEdit, onOps, onPick, onLev
   const only = tasks.length === 1
   const others = (ctx.levelOptions ?? []).filter((o) => o.value !== level)
   const into = (to) => {
+    if (only && !window.confirm(tr(`确定移走任务并删除关卡「${level}」吗？`, `Move the task and delete level “${level}”?`))) return
     const ops = [{ op: 'task.move', task: task.id, to: { level: to } }, ...(only ? [{ op: 'level.remove', level }] : [])]
     onOps(ops)
     const n = content.levels.find((l) => l.id === to)?.tasks?.length ?? 0
@@ -167,7 +179,7 @@ function TaskTools({ content, level, tasks, k, ctx, onEdit, onOps, onPick, onLev
       <button type="button" disabled={k === 0} onClick={() => { onEdit({ op: 'task.move', task: task.id, to: { level, ...place(k - 1) } }); onPick(['tasks', k - 1]) }} title={tr('上移')}><ArrowUp size={13} /></button>
       <button type="button" disabled={k === tasks.length - 1} onClick={() => { onEdit({ op: 'task.move', task: task.id, to: { level, after: tasks[k + 1].id } }); onPick(['tasks', k + 1]) }} title={tr('下移')}><ArrowDown size={13} /></button>
       <button type="button" onClick={() => { const { id: _id, ...data } = task; onEdit({ op: 'task.add', level, data, after: task.id }); onPick(['tasks', k + 1]) }} title={tr('复制成新的任务')}><Copy size={13} /></button>
-      <button type="button" disabled={only} onClick={() => { onEdit({ op: 'task.remove', task: task.id }); onPick(['tasks', Math.max(0, k - 1)]) }} title={only ? tr('一关至少留一个任务') : tr('去掉这个任务')}><Trash2 size={13} /></button>
+      <button type="button" disabled={only} onClick={() => { if (confirmDelete(task.id)) { onEdit({ op: 'task.remove', task: task.id }); onPick(['tasks', Math.max(0, k - 1)]) } }} title={only ? tr('一关至少留一个任务') : tr('去掉这个任务')}><Trash2 size={13} /></button>
       <span className="insp-move" title={only ? tr('并进另一关：这一关只有这个任务，挪过去后删掉这一关') : tr('挪进另一关（排在它的任务最后）')}>
         <ArrowRightLeft size={13} aria-hidden="true" />
         <small>{only ? tr('并进') : tr('挪进')}</small>

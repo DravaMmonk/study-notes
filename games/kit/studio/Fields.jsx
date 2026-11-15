@@ -21,6 +21,7 @@ import { TextField } from './TextField.jsx'
 import { GridField, NumbersField, TableField, TicksField, WaveField } from './Cells.jsx'
 import { AddFields, AttachSetting, ExprField, IconField } from './PartFields.jsx'
 import { useDraft } from './draft.js'
+import { confirmDelete } from './delete.js'
 
 
 /** Grows with what it holds. */
@@ -167,7 +168,7 @@ export function Field({ field, label, onEdit, ctx, onRemove = null }) {
       {label !== null && <span className="field-key" title={field.about ? L(field.about) : undefined}>{label}</span>}
       {field.tags && <FieldTags tags={field.tags} />}
       {changed && <button type="button" className="field-undo" onClick={revert} title={tr('改回去')} aria-label={tr(`把 ${name} 改回去`, `Put ${name} back`)}><RotateCcw size={12} /></button>}
-      {onRemove && <button type="button" className="field-x" onClick={onRemove} aria-label={tr('去掉')}><X size={13} /></button>}
+      {onRemove && <button type="button" className="field-x" onClick={() => { if (confirmDelete(key)) onRemove() }} aria-label={tr('去掉')}><X size={13} /></button>}
     </div>
   )
   return (
@@ -206,6 +207,11 @@ function ListField({ field, onEdit, ctx }) {
   const [drag, setDrag] = useState(null)
   const [over, setOver] = useState(null)
   const put = (next) => onEdit(field.path, { set: next }, 'list')
+  const remove = (item, index) => {
+    if (!confirmDelete(item.value?.id ?? showPath(item.path))) return
+    if (tasks) put(values.filter((_, k) => k !== index))
+    else onEdit(item.path, { unset: true }, null)
+  }
   const duplicate = (item) => {
     const draft = structuredCopy(item)
     if (tasks) delete draft.id
@@ -252,7 +258,7 @@ function ListField({ field, onEdit, ctx }) {
               <span className="li-tools">
                 {!field.bindings && <button type="button" onClick={() => put([...values.slice(0, k + 1), duplicate(values[k]), ...values.slice(k + 1)])} aria-label={tr('复制这一项')}><Copy size={12} /></button>}
                 <button type="button" disabled={tasks && values.length === 1}
-                  onClick={() => tasks ? put(values.filter((_, index) => index !== k)) : onEdit(item.path, { unset: true }, null)}
+                  onClick={() => remove(item, k)}
                   aria-label={tr('去掉这一项')}><X size={13} /></button>
               </span>
             </div>

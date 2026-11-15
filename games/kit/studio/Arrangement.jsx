@@ -5,6 +5,7 @@ import { L, tr } from '../shell/i18n.js'
 import { Picker } from './Picker.jsx'
 import ArrangementBoard from './ArrangementBoard.jsx'
 import { linkKey, wiringBoard, wiringRefusal } from './arrangement.js'
+import { confirmDelete } from './delete.js'
 
 const nameOf = (era) => L(era.title ?? era.chapter?.title) ?? String(era.id)
 const message = (reason) => ({
@@ -65,7 +66,7 @@ export default function Arrangement({ content, groups, at, options, pending, sav
   }
   const chooseWire = (edge) => { resetWire(); setHighlight(linkKey(edge)) }
   const removeWire = () => {
-    if (!wire || pending) return
+    if (!wire || pending || !confirmDelete(`${wire.from} → ${wire.to}`)) return
     updateLink(wire, null)
     resetWire()
   }
@@ -75,7 +76,7 @@ export default function Arrangement({ content, groups, at, options, pending, sav
 
   return (
     <article className="arrange" onKeyDown={(event) => {
-      if (event.key === 'Delete' && wire && !event.target.matches('input, textarea, select, [contenteditable]')) {
+      if (event.key === 'Delete' && !event.repeat && wire && !event.target.matches('input, textarea, select, [contenteditable]')) {
         event.preventDefault()
         removeWire()
       }

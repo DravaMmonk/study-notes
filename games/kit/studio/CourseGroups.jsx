@@ -3,6 +3,7 @@ import { ChevronRight, Plus, Save, Trash2 } from 'lucide-react'
 import { getLang, L, tr } from '../shell/i18n.js'
 import { call } from './api.js'
 import { Chips } from './Picker.jsx'
+import { confirmDelete } from './delete.js'
 
 const EMPTY = []
 
@@ -93,7 +94,7 @@ export default function CourseGroups({ model, options }) {
                 <Chips label={tr('添加关卡', 'Add level')} options={options.filter(({ value }) => levels.includes(value) || !members.has(value))}
                   values={levels} onSet={(next) => change(id, { levels: next })} />
               </div>
-              <button type="button" className="kit-btn is-label" onClick={() => edit(draft.filter((group) => group.id !== id))}>
+              <button type="button" className="kit-btn is-label" onClick={() => { if (confirmDelete(name)) edit(draft.filter((group) => group.id !== id)) }}>
                 <Trash2 size={13} aria-hidden="true" />{tr('删除分组', 'Delete group')}
               </button>
             </fieldset>}
