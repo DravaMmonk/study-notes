@@ -1,7 +1,7 @@
 {
   "title": { "en": "Both ways round", "zh": "两个方向都对" },
   "tray": "gates",
-  "symbols": ["↔"],
+  "adds": ["formulaIff"],
   "intro": [
     {
       "t": {

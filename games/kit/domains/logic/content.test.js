@@ -4,6 +4,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { runBoard } from '../../engine/boards.js'
 import { logicCourse } from './course.js'
+import { chipsOf } from './formulaTree.js'
 import { parse } from './formula.js'
 import { render } from './notation.js'
 import { fromLines, gateShape, machineShape, proofShape, toLines } from './blueprint.js'
@@ -16,7 +17,7 @@ import domain from './domain.js'
 
 const L = (zh, en = zh) => ({ zh, en })
 // A level of one task (its id the level's): what it says once, then the task.
-const ONCE = ['title', 'intro', 'after', 'adds', 'fold', 'without', 'showcase', 'symbols']
+const ONCE = ['title', 'intro', 'after', 'adds', 'fold', 'without', 'showcase']
 const one = ({ id, ...fields }) => ({
   id,
   ...Object.fromEntries(Object.entries(fields).filter(([k]) => ONCE.includes(k))),
@@ -45,8 +46,8 @@ const CONTENT = {
   } },
   eras: [{ id: 'one', machine: null, foundation: ['or', 'chain', 'useChain', 'half', 'useHalf', 'eqSym', 'andDef', 'eqUse', 'eqTerm', 'rows', 'negate'], chapter: { title: L('c'), question: L('q') } }],
   levels: [
-    one({ id: 'or', kind: 'gates', symbols: ['∨'], title: L('or'), target: 'Rain ∨ Wind', brief: L('b'), solution: ['n1 = gNot(Rain)', 'n2 = gNot(Wind)', 'a = gAnd(n1, n2)', 'n3 = gNot(a)', 'out <- n3'] }),
-    proofLevel('chain', { title: L('接起来', 'Join them'), symbols: ['→', '∧', '∀'], tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }],
+    one({ id: 'or', kind: 'gates', adds: ['formulaOr'], title: L('or'), target: 'Rain ∨ Wind', brief: L('b'), solution: ['n1 = gNot(Rain)', 'n2 = gNot(Wind)', 'a = gAnd(n1, n2)', 'n3 = gNot(a)', 'out <- n3'] }),
+    proofLevel('chain', { title: L('接起来', 'Join them'), adds: ['formulaImplies', 'formulaAnd', 'formulaForall'], tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Rain', B: 'Wet', C: 'Slip' }],
       solution: box('f = impI[A=A](body: m2)', ['m1 = mp(p, f.body)', 'm2 = mp(q, m1)'], 'f') }),
     proofLevel('useChain', { tests: [{ premises: { p: 'A → B', q: 'B → C' }, goal: 'A → C' }], cases: [{ A: 'Wind', B: 'Wet', C: 'Slip' }], solution: ['c = chain(p, q)', 'goal <- c'] }),
     { id: 'half', title: L('half'), tasks: [
@@ -227,4 +228,19 @@ test('reading a game on the domain never writes into its content', () => {
   spec.syncOwn({})
   for (const shapes of Object.values(spec.logic.proofs)) for (const { board } of Object.values(shapes)) assert.ok(board().nodes)
   for (const gate of Object.values(spec.logic.gates)) assert.ok(gate.opens().circuit.nodes)
+})
+
+
+test('formula chips use the registered pieces and keep contextual names', () => {
+  const content = readContent('starter', import.meta.dirname)
+  const level = logicCourse(content).LEVELS.at(-1).tasks.at(-1)
+  const chips = chipsOf({
+    kind: 'translate', notation: level.notation, vocab: { preds: [['Rain', 0]], consts: [] },
+  })
+  const not = chips.find((chip) => chip.key === '¬')
+  const rain = chips.find((chip) => chip.key === 'P:Rain')
+  assert.equal(not.piece.type, 'formulaNot')
+  assert.equal(not.make().op, '¬')
+  assert.equal(rain.make().pred, 'Rain')
+  assert.ok(level.notation.symbols.includes('∨'))
 })

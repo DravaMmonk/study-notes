@@ -9,7 +9,6 @@ import { play } from './play.js'
 import { parse } from './formula.js'
 import { parseS, parseSide } from './schematic.js'
 import { parseTerm } from './pterm.js'
-import { builtPieces } from '../../engine/pieces.js'
 
 // The readers of the vocabulary's languages: why a text cannot be read, or null.
 const reads = (parser) => (text) => {
@@ -22,9 +21,8 @@ const reads = (parser) => (text) => {
 }
 const languages = { formula: reads(parse), side: reads(parseSide), condition: reads(parseS), term: reads(parseTerm) }
 
-// What a part's name may be (vocabulary.js PART): the vocabulary's parts, and the game's built pieces (lemmas, gates,
-// machine parts and equations).
-const names = (content) => ({ part: new Set([...Object.keys(vocabulary.kinds.part), ...Object.keys(builtPieces(content.partDefs))]) })
+// What a part's name may be (vocabulary.js PART): the vocabulary's parts and the pieces registered by the game.
+const names = (content) => ({ part: new Set([...Object.keys(vocabulary.kinds.part), ...Object.keys(content.partDefs?.parts ?? {})]) })
 
 /** A logic game's spec, as the checks read one (../../engine/checks.js). */
 function spec(content) {

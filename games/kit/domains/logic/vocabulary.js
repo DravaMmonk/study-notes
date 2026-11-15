@@ -8,6 +8,7 @@
 // and the proof-term forms in termTree.js. Sentences are text in the
 // notation formula.js and schematic.js read; a board is blueprint text (blueprint.js).
 
+import { formFor, symbolFor } from './stripPieces.js'
 import { S } from '../../engine/schema.js'
 import { defineVocabulary } from '../../engine/vocabulary.js'
 import { taskLevel } from '../../engine/tasks.js'
@@ -164,7 +165,6 @@ const COURSE = {
   adds: S.opt(S.list(PART, { section: 'course', about: t('这一关新带来的元件') })),
   tray: TRAY,
   without: S.opt(S.list(PART, { section: 'course', about: t('这一关不给的元件（一段证明不许用框）') })),
-  symbols: S.opt(S.list(S.oneOf(['¬', '∧', '∨', '→', '↔', '⊥', '∀', '∃']), { about: t('从这一关起在公式里出现的连接词') })),
   showcase: S.opt(S.text({ section: 'course', about: t('新元件第一次出现时只放它一个也算一关：它的用法抽象在哪里') })),
 }
 // How a task's sentences read and what it asks, said by the task or, for all its tasks, by its level.
@@ -230,7 +230,7 @@ const BY_KIND = {
     defs: S.opt(ids), types: S.opt(ids), stated: S.opt(S.list(S.str())),
   },
   term: {
-    premises: S.opt(PREMISES), goal: SENTENCE, answer: TERM, naive: S.opt(TERM), given: S.opt(TERM), forms: S.opt(S.list(S.ref('form'), { about: t('块里有哪些写法（不写：除 rfl、subst 外的全部）') })),
+    premises: S.opt(PREMISES), goal: SENTENCE, answer: TERM, naive: S.opt(TERM), given: S.opt(TERM), forms: S.opt(S.list(S.ref('part'), { about: t('块里有哪些写法（不写：除 rfl、subst 外的全部）') })),
     uses: S.opt(ids), stated: S.opt(S.list(S.str())), defs: S.opt(ids),
   },
   script: {
@@ -277,11 +277,11 @@ const GAME = S.obj({
 
 export const vocabulary = defineVocabulary({
   domain: 'logic',
-  version: 5,
-  // Built pieces are pieces.json entries whose inside refers to the tasks that build them (games/DIRECTION.md 24).
+  version: 6,
   removes: [
-    ...['game.lemmas', 'game.facts', 'game.gates', 'game.machines', 'game.revisions', 'level.builds', 'level.fact'].map((at) => ({ at, why: 'a built piece and its revisions are a parts.json entry whose inside refers to the tasks that build it' })),
-    ...Object.keys(BY_KIND).map((kind) => ({ at: `level.tasks.of.cases.${kind}.fact`, why: 'a proved equation is a parts.json entry whose inside refers to the task that proves it' })),
+    { at: 'level.symbols', why: 'register syntax pieces in pieces.json and introduce them through adds' },
+    { at: 'level.tasks.of.cases.term.forms', why: 'proof-term forms refer to registered strip pieces' },
+    { at: 'kinds.form', why: 'proof-term forms are marks on registered strip pieces' },
   ],
   kinds: {
     part: PART_ITEMS,
@@ -290,7 +290,8 @@ export const vocabulary = defineVocabulary({
     family: FAMILIES,
     kind: KINDS,
     want: WANTS,
-    form: FORMS,
+    mark: { ...Object.fromEntries(Object.entries(symbolFor).map(([mark, symbol]) => [mark, item(symbol)])),
+      ...Object.fromEntries(Object.entries(formFor).map(([mark, form]) => [mark, FORMS[form]])) },
   },
   game: GAME,
   level: LEVEL,

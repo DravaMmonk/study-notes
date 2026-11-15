@@ -6,14 +6,20 @@
 import { find, sectionOf, shapeAt } from './schema.js'
 import { PARTS_FILE } from './parts/schema.js'
 import { isText } from './i18n.js'
+import { editorOf } from './pieces.js'
 
 const PUZZLE = ['puzzle', 'tests']
 
 /** The fields of a level or a task (its id and its tasks aside) that make its puzzle, read by the shape `schema` gives it. */
-function puzzleOf(schema, value, vocabulary) {
+function puzzleOf(schema, value, vocabulary, courseField) {
   const shape = shapeAt(schema, value, [], { vocabulary })
   if (shape?.type !== 'obj') return value
-  return Object.fromEntries(Object.entries(value).filter(([k]) => k !== 'tasks' && k !== 'id' && shape.fields[k] && PUZZLE.includes(sectionOf(shape.fields[k]))))
+  return Object.fromEntries(Object.entries(value).flatMap(([key, field]) => {
+    if (key === 'id' || key === 'tasks' || !shape.fields[key]) return []
+    if (PUZZLE.includes(sectionOf(shape.fields[key]))) return [[key, field]]
+    const retained = courseField?.(key, field)
+    return retained ? [retained] : []
+  }))
 }
 
 /** FNV-1a, 32 bits, as 8 hex digits. */
@@ -23,14 +29,17 @@ function hash(text) {
   return (h >>> 0).toString(16).padStart(8, '0')
 }
 
-/** Each task's stamp and the level it is in, by task id: { [task]: { level, stamp } }, read through `vocabulary`. */
-export function taskStamps(vocabulary, content) {
+/** Each task's stamp and its level, keyed by task ID. A domain may include a course field's puzzle semantics. */
+export function taskStamps(vocabulary, content, { courseField } = {}) {
   const localizedFields = (schema, value) => new Set(find(schema, value, 'text', { vocabulary }).map((field) => field.value).filter(isText))
   const plain = (value, texts) => JSON.stringify(value, (_k, v) => (texts.has(v) ? undefined : v))
-  const parts = plain(content.partDefs ?? null, localizedFields(PARTS_FILE, content.partDefs))
+  // Strip labels are bound to the task's expression language. They do not change how a saved work is judged.
+  const strip = Object.values(content.partDefs?.parts ?? {}).filter((piece) => editorOf(piece) === 'strip')
+  const texts = localizedFields(PARTS_FILE, content.partDefs)
+  const parts = plain(content.partDefs ?? null, new Set([...texts, ...strip]))
   return Object.fromEntries(content.levels.flatMap((level) => {
     const texts = localizedFields(vocabulary.level, level)
-    const own = plain(puzzleOf(vocabulary.level, level, vocabulary), texts)
+    const own = plain(puzzleOf(vocabulary.level, level, vocabulary, courseField), texts)
     return level.tasks.map((task, k) => [task.id, { level: level.id, stamp: hash(`${own}${plain(puzzleOf(shapeAt(vocabulary.level, level, ['tasks', k], { vocabulary }), task, vocabulary), texts)}${parts}`) }])
   }))
 }

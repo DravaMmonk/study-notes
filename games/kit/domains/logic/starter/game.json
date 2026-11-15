@@ -1,6 +1,6 @@
 {
   "domain": "logic",
-  "vocabulary": 1,
+  "vocabulary": 6,
   "title": { "en": "__title__", "zh": "__title__" },
   "kicker": { "en": "In development", "zh": "开发中" },
   "lede": {

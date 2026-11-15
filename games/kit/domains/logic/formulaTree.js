@@ -81,6 +81,9 @@ export function chipsOf(level) {
   const quantifiers = QUANTIFIERS.filter((q) => level.notation.symbols.includes(q))
   const vars = level.vars ?? (level.kind === 'query' ? ['x', 'y', 'z'] : quantifiers.length ? ['x', 'y'] : [])
   const fns = level.vocab.fns ?? []
+  const pieces = level.notation.formulaPieces
+  const registered = (symbol) => pieces === undefined || Boolean(pieces[symbol])
+  const connectives = (level.connectives ?? CONNECTIVES).filter(registered)
   return [
     // A predicate (`leads`) can take a thing the line ends with as its first place.
     ...preds.map(([p, n]) => ({ key: `P:${p}`, kind: 'formula', group: 'pred', pred: p, places: n, leads: n > 0, make: () => atom(p, Array(n).fill(null)) })),
@@ -88,9 +91,9 @@ export function chipsOf(level) {
     // A function (s, plus) is a thing with a box for each of its things.
     ...fns.map(([f, n]) => ({ key: `f:${f}`, kind: 'term', group: 'name', name: f, places: n, make: () => fn(f, Array(n).fill(null)) })),
     ...vars.map((v) => ({ key: `v:${v}`, kind: 'term', group: 'var', text: v, make: () => tvar(v) })),
-    ...quantifiers.flatMap((q) => vars.filter((v) => level.kind !== 'query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),
+    ...quantifiers.filter(registered).flatMap((q) => vars.filter((v) => level.kind !== 'query' || v !== 'x').map((v) => ({ key: `${q}${v}`, kind: 'formula', group: 'quant', piece: pieces?.[q], text: `${q}${v}.`, make: () => (q === '∀' ? all : ex)(v, null) }))),
     // A connective between two sentences (`leads`) can take the sentence the line ends with as its first.
-    ...(level.connectives ?? CONNECTIVES).map((c) => ({ key: c, kind: 'formula', group: 'conn', text: c, leads: !['¬', '⊥'].includes(c), make: () => (c === '¬' ? not(null) : c === '⊥' ? BOT : bin(c, null, null)) })),
+    ...connectives.map((c) => ({ key: c, kind: 'formula', group: 'conn', piece: pieces?.[c], text: pieces?.[c]?.name ?? c, leads: !['¬', '⊥'].includes(c), make: () => (c === '¬' ? not(null) : c === '⊥' ? BOT : bin(c, null, null)) })),
   ]
 }
 

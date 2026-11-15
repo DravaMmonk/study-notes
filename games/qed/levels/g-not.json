@@ -1,7 +1,6 @@
 {
-  "symbols": ["¬"],
+  "adds": ["gNot", "formulaNot"],
   "title": { "en": "Not not raining", "zh": "不是不下雨" },
-  "adds": ["gNot"],
   "tray": "gates",
   "intro": [
     {

@@ -1,7 +1,7 @@
 {
   "title": { "en": "contradiction", "zh": "矛盾" },
   "tray": "proof",
-  "symbols": ["⊥"],
+  "adds": ["formulaFalse"],
   "intro": [
     {
       "t": {

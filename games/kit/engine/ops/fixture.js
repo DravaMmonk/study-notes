@@ -15,7 +15,7 @@ const ID = 'proofs'
 
 const GAME = {
   domain: 'logic',
-  vocabulary: 1,
+  vocabulary: 6,
   title: T('Proofs · Test'),
   kicker: T('Test'),
   lede: T('Proofs built from Apply and the assumption box.'),
@@ -49,9 +49,10 @@ const GLOSSARY = {
   }],
 }
 
-// Its parts (pieces.json): Apply and the assumption box over the domain's resources.
+// Its pieces: Apply, the assumption box and the implication key.
 const PARTS = {
   parts: {
+    formulaImplies: { editor: 'strip', mark: 'formulaImplies', icon: 'Rows3', name: '→', desc: T('Implication') },
     mp: { name: T('套用', 'Apply'), desc: T('由 A → B 和 A 得到 B。', 'From A → B and A, B.'), icon: 'GitFork', family: 'rule', inputs: [{ name: 'imp', label: T('A → B') }, { name: 'a', label: T('A') }], compute: 'mp(imp, a)' },
     impI: { name: T('假设框', 'Assumption box'), desc: T('框里假设 A，证出 B，得到 A → B。', 'Assume A inside, prove B, get A → B.'), icon: 'Box', family: 'box', inputs: [], settings: [{ key: 'A', control: 'tree', label: T('假设', 'Assume') }], regions: [{ name: 'body', label: T('框内', 'Inside'), opens: true, closes: true }], compute: 'impI(body)' },
   },
@@ -73,8 +74,7 @@ const LEVELS = {
   },
   apply: {
     title: T('Apply'),
-    symbols: ['→'],
-    adds: ['mp'],
+    adds: ['mp', 'formulaImplies'],
     after: T('Apply looks only at shape.'),
     tasks: [{
       id: 'apply',

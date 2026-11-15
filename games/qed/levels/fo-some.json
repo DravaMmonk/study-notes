@@ -1,6 +1,6 @@
 {
   "consts": ["h", "i", "j", "k", "l", "m", "n"],
-  "symbols": ["∃"],
+  "adds": ["formulaExists"],
   "title": { "en": "There exists ∃", "zh": "存在 ∃" },
   "intro": [
     {

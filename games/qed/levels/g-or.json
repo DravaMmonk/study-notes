@@ -1,5 +1,5 @@
 {
-  "symbols": ["∨"],
+  "adds": ["formulaOr"],
   "title": { "en": "Rain or wind", "zh": "下雨或者刮风" },
   "tray": "gates",
   "intro": [

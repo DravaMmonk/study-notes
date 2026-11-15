@@ -1,6 +1,6 @@
 {
   "consts": ["h", "i", "j", "k", "l", "m", "n"],
-  "symbols": ["∀"],
+  "adds": ["formulaForall"],
   "title": { "en": "For all ∀", "zh": "对所有 ∀" },
   "intro": [
     {

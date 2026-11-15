@@ -39,7 +39,7 @@ const TreeEditor = forwardRef(function TreeEditor({ tree, onChange, chips, langu
   const groups = language.groups.map(([key, label]) => ({
     key, label,
     chips: chips.filter((chip) => chip.group === key).map((chip) => ({
-      key: chip.key, family: key, text: language.chipText?.(chip) ?? chip.text, sub: chip.sub,
+      key: chip.key, family: key, text: language.chipText?.(chip) ?? chip.text, sub: chip.sub, piece: chip.piece,
     })),
   })).filter((group) => group.chips.length)
   const problem = language.problem?.(tree)

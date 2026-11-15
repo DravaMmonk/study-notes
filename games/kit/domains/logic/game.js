@@ -1,6 +1,7 @@
 // A logic game on the shared shell (../../shell), from its content (games/DESIGN.md 6.3): the course (course.js)
 // becomes the shell's game description, with the logic domain's screens (a proof on the circuit editor, a truth table,
 // a machine board …), its parts box of proved lemmas and built parts, and its map art.
+import { symbolStamp } from './stripPieces.js'
 import { declaredLines } from './iso.js'
 import { Braces, CircuitBoard, Cog, Cpu, FileSignature, Grid2x2Check, Languages, ScrollText, Search, SquareFunction, Workflow } from 'lucide-react'
 import './logic.css'
@@ -151,7 +152,8 @@ export default function logicGame(content) {
     bestLabel: (best) => (best.unit === 'cases' ? tr(`${best.steps} 条`, `${best.steps} cases`) : tr(`${best.steps} 步`, `${best.steps} steps`)),
   })
   game.logic = logic
-  game.defined = { of: (type) => logic.defs[type] ?? null, defaults: logic.defaultsOf, ops: OPS }
+  game.stampOptions = { courseField: symbolStamp(logic.strips) }
+  game.defined = { of: (type) => logic.defs[type] ?? logic.strips[type] ?? null, defaults: logic.defaultsOf, ops: OPS }
   game.workReferences = (entry, built) => {
     logic.syncOwn(built)
     return logic.workReferences(entry.task, entry.work)

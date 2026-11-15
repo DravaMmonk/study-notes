@@ -39,7 +39,11 @@ export function proofTerm(level) {
     judge: termJudge(level),
     premises: Object.entries(hyps).map(([name, formula]) => ({ name, text: text(formula) })),
     goal: text(goal),
-    chips: (tree) => chipsOf(scope, tree, level.forms),
+    chips: (tree) => chipsOf(scope, tree, level.forms).flatMap((chip) => {
+      if (chip.group !== 'form') return [chip]
+      const piece = level.termPieces[chip.key]
+      return piece ? [{ ...chip, piece, text: piece.name }] : []
+    }),
     language: languageOf(scope),
     passed: T('类型相符：这个证明项证明的正是这句话。'),
   }

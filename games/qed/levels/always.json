@@ -1,6 +1,6 @@
 {
   "title": { "en": "Always true", "zh": "永远成立" },
-  "symbols": ["→"],
+  "adds": ["formulaImplies"],
   "intro": [
     {
       "t": {

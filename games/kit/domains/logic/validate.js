@@ -21,7 +21,7 @@ import { SETTING_KINDS, choiceKey, choicesOf } from './choices.js'
 import { chipsFrom, chipsOf, missingChips } from './formulaTree.js'
 import { freeIn, parseTerm } from './pterm.js'
 import { termJudge } from './termTask.js'
-import { missingForms } from './termTree.js'
+import { BASIC, missingForms } from './termTree.js'
 import { checkGates, rowsFor, startGates } from './gates.js'
 import { checkIso, sentenceOf } from './iso.js'
 import { auditCaseProblems, runAudit } from './audit-cases.js'
@@ -171,12 +171,13 @@ export function validate({ levels: given, course, logic, memo = (_id, _name, f) 
       const offered = new Set([...Object.keys(level.premises ?? {}), ...consts, ...(level.uses ?? [])])
       const unoffered = [...freeIn(answer)].filter((n) => !offered.has(n))
       if (unoffered.length) out.push({ level: level.id, fail: true, text: `${level.id}: ${level.answer} names ${unoffered.join(', ')}, which no chip gives` })
-      const unbuilt = missingForms(answer, level.forms)
+      const forms = (level.forms ?? BASIC).filter((key) => level.termPieces[key])
+      const unbuilt = missingForms(answer, forms)
       if (unbuilt.length) out.push({ level: level.id, fail: true, text: `${level.id}: ${level.answer} uses forms no chip makes: ${unbuilt.join(', ')}` })
       if (naive?.ok === false) out.push({ level: level.id, fail: true, text: `${level.id}: the naive term ${level.naive} checks` })
       // A term handed over to mend is wrong to begin with, and can be built on with the chips.
       if (starter?.ok === false) out.push({ level: level.id, fail: true, text: `${level.id}: the given term ${level.given} already checks` })
-      if (level.given && missingForms(parseTerm(level.given), level.forms).length) out.push({ level: level.id, fail: true, text: `${level.id}: the given term ${level.given} uses forms no chip makes` })
+      if (level.given && missingForms(parseTerm(level.given), forms).length) out.push({ level: level.id, fail: true, text: `${level.id}: the given term ${level.given} uses forms no chip makes` })
       return out
     }))
   }

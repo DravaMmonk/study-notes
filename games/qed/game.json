@@ -1,6 +1,6 @@
 {
   "domain": "logic",
-  "vocabulary": 5,
+  "vocabulary": 6,
   "title": { "en": "Q.E.D.", "zh": "证明完毕" },
   "kicker": {
     "en": "In development · Build proofs and proof assistants as circuits",

@@ -1,7 +1,6 @@
 {
   "title": { "en": "Declaring ⊥", "zh": "声明 ⊥" },
-  "adds": ["botE"],
-  "symbols": ["⊥"],
+  "adds": ["botE", "formulaFalse"],
   "intro": [
     {
       "t": {
