@@ -5,7 +5,7 @@ import { eraLevels } from '../course.js'
 import { L, tr } from '../shell/i18n.js'
 import { courseGroups, courseTree, stays } from './tree.js'
 import SidebarListTools from './SidebarListTools.jsx'
-import { alphabetic, bySidebarName, sidebarSearch } from './sidebar-list.js'
+import { sidebarSearch, sidebarSortOptions, sortSidebarIds } from './sidebar-list.js'
 import { usePref } from './prefs.js'
 
 export default function Tree({ game, content, entries, at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, onTask, onTaskMove, addOptions, onAdd }) {
@@ -46,8 +46,8 @@ export default function Tree({ game, content, entries, at, selectedTask, picked,
       level?.tasks?.some((task) => matches(task.id, L(task.step)))
   }))
   const groupedRows = groups.map((group) => ({ ...group, levels: group.levels.filter((id) => visible.has(id)) }))
-  const alphabeticalRows = view === 'alphabetic' ? bySidebarName(visible, (id) => L(byId.get(id)?.title)) : []
-  const rows = view === 'alphabetic' ? alphabeticalRows : view === 'group'
+  const flat = view !== 'chapter' && view !== 'group'
+  const rows = flat ? sortSidebarIds(visible, view, (id) => L(byId.get(id)?.title)) : view === 'group'
     ? groupedRows.flatMap(({ id, levels }) => !filtering && foldedGroups.has(id ?? '') ? [] : levels)
     : tree.eras.flatMap(({ era }) => !filtering && !moving && folded.has(String(era.id)) ? [] : eraLevels(era).filter((id) => visible.has(id)))
 
@@ -178,9 +178,9 @@ export default function Tree({ game, content, entries, at, selectedTask, picked,
   return (
     <nav className="tree" aria-label={tr('课程')}>
       <SidebarListTools addOptions={addOptions} onAdd={onAdd} query={query} onQuery={setQuery}
-        sortOptions={[{ value: 'chapter', label: tr('按章节', 'By chapter') }, { value: 'group', label: tr('按分组', 'By group') }, alphabetic()]}
+        sortOptions={[{ value: 'chapter', label: tr('按章节', 'By chapter') }, { value: 'group', label: tr('按分组', 'By group') }, ...sidebarSortOptions()]}
         sort={sort} onSort={setSort} />
-      {view === 'alphabetic' ? <div className="tree-levels">{alphabeticalRows.map(row)}</div>
+      {flat ? <div className="tree-levels">{rows.map(row)}</div>
         : view === 'group' ? groupedRows.filter(({ levels }) => levels.length).map(({ id = '', title, code, levels }) => {
         const shut = !filtering && foldedGroups.has(id)
         return (
