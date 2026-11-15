@@ -938,7 +938,6 @@
       "id": "decision",
       "group": "rules",
       "title": { "zh": "判定程序" },
-      "at": "rf-eval",
       "body": [
         {
           "zh": "对一类问题里的每一个都能停下来、答对「是」还是「不是」的程序，叫<b>判定程序</b>。命题逻辑的永真式可以判定（把真值表算完）；线性算术、Presburger 算术也有判定程序。一阶逻辑整体没有。"
@@ -950,7 +949,6 @@
       "id": "reflection",
       "group": "rules",
       "title": { "zh": "反射" },
-      "at": "rf-decide",
       "body": [
         {
           "zh": "<b>反射</b>不留证书：把要判定的句子写成数据，写一个<wiki-ref to=\"decision\"></wiki-ref>，证明一次它是对的，以后每一题只要核把程序算出来，证明项就是 rfl。Lean 的 decide、Coq 的 ssreflect 走的是这条路。算得快慢看核怎么算，所以也有判定过程（比如 Lean 的 omega）是生成证明交给核去查。"
@@ -962,7 +960,6 @@
       "id": "curry-howard",
       "group": "types",
       "title": { "zh": "Curry–Howard 对应" },
-      "at": "t-app",
       "body": [
         {
           "zh": "<b>Curry–Howard 对应</b>：一句话就是一个类型，它的证明就是这个类型的一个程序（项）。「A → B」的证明是函数，「A ∧ B」的证明是一对，「A ∨ B」的证明是带标签的值，⊥ 是没有任何值的空类型，「¬A」就是「A → ⊥」；「∀x. …」的证明是吃一样东西的函数，「∃x. …」的证明是一样东西和关于它的证明配成的一对。"
@@ -980,7 +977,6 @@
       "id": "proof-term",
       "group": "types",
       "title": { "zh": "证明项" },
-      "at": "t-app",
       "body": [
         {
           "zh": "把一个证明写成一个式子，就是它的<b>证明项</b>：已知是名字，套用是 p q，假设框是 fun h => …，拼起来是 ⟨a, b⟩。按<wiki-ref to=\"curry-howard\"></wiki-ref>，它同时是一个程序，类型就是它证的那句话。证明项留下来，谁都可以拿另一个检查器复查。"
@@ -992,7 +988,6 @@
       "id": "lambda",
       "group": "types",
       "title": { "zh": "λ 抽象" },
-      "at": "t-lam",
       "body": [
         {
           "zh": "fun h => b（也写成 λ h => b）造一个函数：拿到一个 h，就给出 b。这叫 <b>λ 抽象</b>，是 Church 在 1930 年代的 λ 演算里的写法。假设框就是 λ：框里的假设是参数 h，框里的证明是函数体 b，框外得到 A → B 的证明。"
@@ -1004,7 +999,6 @@
       "id": "beta",
       "group": "types",
       "title": { "zh": "β 归约" },
-      "at": "t-beta",
       "body": [
         {
           "zh": "(fun h => b) a 算成「b 里的 h 换成 a」，这一步叫 <b>β 归约</b>，就是调用一个函数。证明里，一个<wiki-ref to=\"lambda\"></wiki-ref>刚造出来就被套用，是一处弯路；β 归约把它拿掉，证的还是同一句。"
@@ -1016,7 +1010,6 @@
       "id": "normal-form",
       "group": "types",
       "title": { "zh": "正规形式" },
-      "at": "t-beta",
       "body": [
         {
           "zh": "把证明项里的弯路（刚引入就消去）一处处拿掉，直到一处都不剩，得到的是<b>正规形式</b>。直觉主义逻辑的每个证明项都化得成正规形式，而且不管先拿哪一处，结果都一样（强正规化、合流）。正规的证明只用到要证的那句里出现过的东西，这是 Gentzen 和 Prawitz 证明论的出发点。"
@@ -1028,7 +1021,6 @@
       "id": "dep-function",
       "group": "types",
       "title": { "zh": "依赖函数" },
-      "at": "t-all",
       "body": [
         {
           "zh": "「∀x. P(x)」的证明是一个函数，参数不是证明，而是一样东西：给它 t，它还你 P(t) 的证明。结果的类型跟着参数变，所以叫<b>依赖函数</b>，它的类型写作 Π x, P x，Lean 里就写 ∀ x, P x。∃ 对应的是依赖的一对（Σ 类型）：一样东西，和它满足那句话的证明。"
@@ -1040,7 +1032,6 @@
       "id": "currying",
       "group": "types",
       "title": { "zh": "柯里化" },
-      "at": "t-wpair",
       "body": [
         {
           "zh": "吃一对的函数和一个一个吃的函数可以互相改写：A ∧ B → C 和 A → (B → C) 互相推得出。把前者换成后者叫<b>柯里化</b>，得名于 Haskell Curry。证明助手里多参数的函数和多前提的规则，都写成一个一个吃的样子。"
@@ -1100,7 +1091,6 @@
       "id": "motive",
       "group": "types",
       "title": { "zh": "动机" },
-      "at": "eq-rec",
       "body": [
         {
           "zh": "在 Lean 里，a = b 也是一个类型。造它只有 rfl（a = a），用它只有 Eq.rec，写作 h ▸ p：h 证 a = b，p 证一句关于 a 的话，就得到把其中几处 a 换成 b 的那句。换哪几处，由一个函数 fun x => … 说清，这个函数叫<b>动机</b>；Lean 多半能从要证的那句里把它读出来。对称、传递都由这两样拼出：h ▸ rfl、k ▸ h。"
@@ -1112,7 +1102,6 @@
       "id": "defeq",
       "group": "types",
       "title": { "zh": "定义相等" },
-      "at": "eq-defeq",
       "body": [
         {
           "zh": "核比较两个类型前，会按定义去算（展开定义、代入参数、β 归约），算出来一样的就算一样，这叫<b>定义相等</b>：1 + 1 = 2、0 + x = x 用 rfl 就证完，一个证明的类型也可以按它来换。哪些相等是定义相等，取决于定义是怎么写的。"
@@ -1124,7 +1113,6 @@
       "id": "propeq",
       "group": "types",
       "title": { "zh": "命题相等" },
-      "at": "eq-propeq",
       "body": [
         {
           "zh": "x + 0 = x 是对的，但加法按第一个数递归，x 不知道是几，核算不下去：它要用归纳证，这叫<b>命题相等</b>。用它换掉类型里的一处要写 ▸；<wiki-ref to=\"defeq\"></wiki-ref>不用写，核自己会算。Isabelle 的 HOL 没有定义相等这一层，所有相等都由规则证出，或者由化简器算出。"
@@ -1136,13 +1124,12 @@
       "id": "dependent",
       "group": "types",
       "title": { "zh": "依赖类型" },
-      "at": "dt-vec",
       "body": [
         {
           "zh": "<b>依赖类型</b>是依赖一个值的类型：Vec n 是长 n 的向量。「∀x. Vec x → Vec (S x)」这样的函数，结果的类型依赖参数。长度写在类型里，取空向量第一个这样的错在检查类型时就被拒绝。"
         },
         {
-          "zh": "这个游戏的向量只记长度，所以 Vec n 当作一句话，它的证明就是一个向量。Lean 里两者是分开的：Prop 里的证明只关心有没有，两个证明算同一个（证明无关性）；Type 里的值（数、列表、向量）才是程序算的东西。"
+          "zh": "Prop 里的证明只关心有没有，两个证明算同一个（证明无关性）；Type 里的值（数、列表、向量）才是程序算的东西。"
         }
       ],
       "see": ["dep-function", "implicit", "transport"]
@@ -1151,10 +1138,9 @@
       "id": "implicit",
       "group": "types",
       "title": { "zh": "隐式参数" },
-      "at": "dt-vec",
       "body": [
         {
-          "zh": "能从别的参数或要的类型里读出来、所以不用写的参数叫<b>隐式参数</b>：vcons 的长度 x 从向量的类型里就看得出。Lean 里写成 {x : nat}，由<wiki-ref to=\"unification\"></wiki-ref>填上；Isabelle 的类型推导做的是同一件事。"
+          "zh": "能从别的参数或要的类型里读出来、所以不用写的参数叫<b>隐式参数</b>。Lean 里写成 {x : nat}，由合一填上；Isabelle 的类型推导做的是同一件事。"
         }
       ],
       "see": ["dependent"]
@@ -1163,7 +1149,6 @@
       "id": "transport",
       "group": "types",
       "title": { "zh": "搬运" },
-      "at": "dt-transport",
       "body": [
         {
           "zh": "类型里的长度算不出一样时，要用一个等式把值<b>搬运</b>过去：h ▸ v 是同一个向量，换上一个相等的长度。这是<wiki-ref to=\"propeq\"></wiki-ref>的代价；Lean 的库里常常为此把定义换一种写法，让需要的相等变成定义相等。"
@@ -1316,7 +1301,6 @@
       "id": "scripts",
       "group": "assist",
       "title": { "zh": "结构化证明" },
-      "at": "sc-rows",
       "body": [
         {
           "zh": "Isabelle 的 Isar（Wenzel，1999 年起）把证明写成给人读的文本，叫<b>结构化证明</b>：have 先证一句，show 证出要证的那句，assume、fix、obtain 开出假设、任取的东西和拿出来的东西，proof … qed 是一块。每一句后面 by 的那个方法只负责一小步，系统检查每一句。Lean 的写法相近：have h : A := by …，show B，intro，obtain ⟨x, h⟩ := …，再加上把一串等式连起来的 calc。"
