@@ -1,3 +1,4 @@
+import { sameJson } from './json-value.js'
 import { playId } from './plays.js'
 // The domain contract (games/DESIGN.md 6.3): what a domain gives the kernel, checked mechanically. A domain that
 // passes it is one `npm run check`, the shell, and every tool built on them (the operation set, the MCP, the blind-play
@@ -110,7 +111,7 @@ export function vocabularyProblems(name, v) {
   }
   walk(v, 'vocabulary')
   for (const at of code.slice(0, 5)) say(`${at} is not data`)
-  if (!code.length && !same(describe(v), v)) say('it does not print as itself')
+  if (!code.length && !sameJson(describe(v), v)) say('it does not print as itself')
   return out
 }
 
@@ -119,7 +120,6 @@ export const plainBoard = (b) => ({
   nodes: b.nodes.map((n) => ({ id: n.id, type: n.type, params: n.params ?? {}, ...(n.in ? { in: n.in } : {}) })).sort((x, y) => (x.id < y.id ? -1 : 1)),
   wires: b.wires.map((w) => ({ from: w.from, to: w.to, port: String(w.port) })).sort((x, y) => (`${x.to}.${x.port}.${x.from}` < `${y.to}.${y.port}.${y.from}` ? -1 : 1)),
 })
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
 /** The course hooks (../course.js defineCourse) on every level, by the shape each must give. */
 function hookProblems(course) {
@@ -179,13 +179,13 @@ export function specProblems(domain, content, spec) {
   const given = new Set(['entry', 'group', ...Object.keys(domain.names?.(content) ?? {})])
   const kinds = new Set([domain.vocabulary.game, domain.vocabulary.level].flatMap((s) => [...schemasIn(s, '')].filter(([x]) => x.type === 'name').map(([x]) => x.kind)))
   for (const kind of kinds) if (!given.has(kind)) say(`its schemas name ${kind}s, which neither the kernel nor domain.js names(content) gives`)
-  if (!same(spec.title, content.title)) say('its title is not the content’s')
+  if (!sameJson(spec.title, content.title)) say('its title is not the content’s')
   if (!spec.course?.levels || !isFn(spec.course.before)) return [...out, 'spec: no course (../course.js defineCourse)']
   if (!Array.isArray(spec.levels)) return [...out, 'spec: levels is no list']
   const ids = spec.levels.map((l) => l.id)
   if (new Set(ids).size !== ids.length) say('a level id twice')
-  if (!same([...ids].sort(), content.levels.map((l) => l.id).sort())) say('its levels are not the content’s levels')
-  if (!same(spec.course.levels.map((l) => l.id), ids)) say('the course’s levels are not its levels, in play order')
+  if (!sameJson([...ids].sort(), content.levels.map((l) => l.id).sort())) say('its levels are not the content’s levels')
+  if (!sameJson(spec.course.levels.map((l) => l.id), ids)) say('the course’s levels are not its levels, in play order')
   for (const l of spec.levels) {
     if (!strings(l.requires ?? [])) say(`${l.id}: requires is not a list of level ids`)
     if (!isText(l.title)) say(`${l.id}: no title`)
@@ -232,8 +232,8 @@ export function blueprintProblems(spec) {
       continue
     }
     if (!strings(text)) out.push(`${at}: written, it is not a list of lines`)
-    else if (!same(plainBoard(back), plainBoard(board))) out.push(`${at}: read back, it is another board:\n${text.join('\n')}`)
-    else if (!same(write(back), text)) out.push(`${at}: written twice, it reads differently`)
+    else if (!sameJson(plainBoard(back), plainBoard(board))) out.push(`${at}: read back, it is another board:\n${text.join('\n')}`)
+    else if (!sameJson(write(back), text)) out.push(`${at}: written twice, it reads differently`)
   }
   return out
 }
@@ -250,7 +250,7 @@ function naiveInPlace(domain, content, keep) {
     if (!keep(level.id)) return level
     const next = { ...swap(level), tasks: level.tasks.map(swap) }
     const { id, ...fields } = next
-    if (same(next, level) || fits(domain.vocabulary.level, fields, { vocabulary: domain.vocabulary }).length) return level
+    if (sameJson(next, level) || fits(domain.vocabulary.level, fields, { vocabulary: domain.vocabulary }).length) return level
     changed.push(id)
     return next
   })
@@ -316,7 +316,7 @@ export function gameProblems(content, spec, game) {
   if (game.id !== content.id) say(`id ${game.id}, the content's is ${content.id}`)
   for (const key of ['title', 'kicker', 'lede']) if (!isText(game[key])) say(`no ${key}`)
   if (!Array.isArray(game.chapters) || !Array.isArray(game.levels)) return [...out, 'game.js: no chapters or no levels']
-  if (!same(game.levels.map((l) => l.id), spec.levels.map((l) => l.id))) say('its levels are not the spec’s, in play order')
+  if (!sameJson(game.levels.map((l) => l.id), spec.levels.map((l) => l.id))) say('its levels are not the spec’s, in play order')
   const chapters = new Set(game.chapters.map((c) => c.id))
   for (const l of game.levels) {
     if (!game.kinds?.[l.kind] || !isFn(game.kinds[l.kind].Screen)) say(`${l.id}: the kind ${l.kind} has no Screen`)
@@ -328,6 +328,6 @@ export function gameProblems(content, spec, game) {
   }
   const keys = (game.parts?.all ?? []).map((p) => p.key)
   if (new Set(keys).size !== keys.length) say('a part twice in the components box')
-  if (!same(game.glossary, content.glossary)) say('its encyclopedia is not the content’s glossary')
+  if (!sameJson(game.glossary, content.glossary)) say('its encyclopedia is not the content’s glossary')
   return out
 }

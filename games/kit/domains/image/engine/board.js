@@ -6,6 +6,7 @@
 // The level gives every board an `input` node for each of its inputs and an `output` node for each of its outputs,
 // each with its id and params.name the level's name for it ('in', 'out', 'scene'); every other node is a part, its
 // settings in params. A wire runs from a node into one of the ports of another.
+import { sameJson } from '../../../engine/json-value.js'
 import { parse, print } from '../../../circuit/text.js'
 import { srcNode } from '../../../circuit/model.js'
 import { parsePi, piText } from './pi.js'
@@ -57,8 +58,6 @@ export function startBoard({ inputs = ['in'], outputs = ['out'] }) {
   }
 }
 
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
-
 /**
  * Boards as blueprint text over a course's parts (nodes.js specsOf): BOARD_TEXT and BOARD_PARTS, how the shared
  * editors and ../../../circuit/text.js read the board; toText(board) and fromText(lines, io).
@@ -82,7 +81,7 @@ export function blueprintOf({ types, inputsOf, defaultParams, snapSetting }) {
   function toText(board) {
     const shown = (type, key, v) => {
       const param = (types[type]?.params ?? []).find((p) => p.key === key)
-      return Boolean(param?.buttons) || !same(v, defaultParams(type)[key])
+      return Boolean(param?.buttons) || !sameJson(v, defaultParams(type)[key])
     }
     const nodes = board.nodes.map((n) => (BOARD_PARTS.role(n) === 'part' ? { ...n, params: Object.fromEntries(Object.entries(n.params ?? {}).filter(([k, v]) => shown(n.type, k, v))) } : n))
     return print({ ...board, nodes }, BOARD_PARTS).split('\n').filter((line) => line && !line.startsWith('#')).map((line) => line.replace(/^([A-Za-z_][A-Za-z0-9_-]*)\.in <- /, '$1 <- '))

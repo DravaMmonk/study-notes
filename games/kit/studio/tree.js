@@ -6,6 +6,7 @@
 //   { eras: [{ era, at, paths: [{ path, items: [Item], slots }], topics: [{ topic, levels, slots }], challenges }] }
 //   Item: { level } | { parallel: [{ branch, levels, slots }] }
 //   slots: one more than the levels or items they sit between, slots[k] the place before the k-th (the last: the end)
+import { sameJson } from '../engine/json-value.js'
 import { PATHS } from '../engine/ops/place.js'
 
 const levelsOfItem = (item) => (typeof item === 'string' ? [item] : item.parallel.flatMap((b) => b.levels))
@@ -39,17 +40,16 @@ export function stays(tree, level, to) {
   for (const era of tree.eras) {
     for (const p of era.paths) {
       const k = p.items.findIndex((item) => item.level === level)
-      if (k >= 0 && same(p.slots[k], to)) return true
+      if (k >= 0 && sameJson(p.slots[k], to)) return true
       for (const item of p.items) for (const b of item.parallel ?? []) {
         const j = b.levels.indexOf(level)
-        if (j >= 0 && same(b.slots[j], to)) return true
+        if (j >= 0 && sameJson(b.slots[j], to)) return true
       }
     }
     for (const t of era.topics) {
       const j = t.levels.indexOf(level)
-      if (j >= 0 && same(t.slots[j], to)) return true
+      if (j >= 0 && sameJson(t.slots[j], to)) return true
     }
   }
   return false
 }
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)

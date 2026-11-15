@@ -9,6 +9,7 @@
 //   retype    a part replaced by another the task holds with the same ports
 //
 // Parts fixed on the board (the level's inputs and outputs), frames and what sits in them are left alone.
+import { sameJson } from './json-value.js'
 
 const idOf = (from) => (from.includes('#') ? from.slice(0, from.indexOf('#')) : from)
 const reads = (wire, id) => idOf(wire.from) === id
@@ -16,7 +17,7 @@ const reads = (wire, id) => idOf(wire.from) === id
 const portsOf = (part, node) => (typeof part.inputs === 'function' ? part.inputs(node) ?? [] : part.inputs ?? [])
 const symmetricOf = (part, node) => (typeof part.symmetric === 'function' ? part.symmetric(node) ?? [] : part.symmetric ?? [])
 const listed = (ports) => typeof ports !== 'function'
-const same = (a, b) => listed(a) && listed(b) && JSON.stringify(a ?? []) === JSON.stringify(b ?? [])
+const same = (a, b) => listed(a) && listed(b) && sameJson(a ?? [], b ?? [])
 
 /**
  * A part's settings as [{ key, options? | control, min?, max?, step? }], from whichever way its registry lists them: a

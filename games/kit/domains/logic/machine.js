@@ -37,6 +37,7 @@
 // whole list, in order. A rule list is a constant: it may be wired into a frame from outside. Until a level says
 // `backtrack`, a tactic gives only its first result; from then on, every result, and each card after it works on each
 // of them in turn (tactics.js).
+import { sameJson } from '../../engine/json-value.js'
 import { PartError } from '../../engine/circuit.js'
 import { packed, runBoard } from '../../engine/boards.js'
 import { FORMULA_TEXT, all, fn, subst, tvar } from './formula.js'
@@ -219,7 +220,6 @@ const repeat = {
     if (key) return v
     const round = ctx.region('body')
     const first = (x) => (x.kind === 'state' ? firstOf(x) : x)
-    const same2 = (a, b) => JSON.stringify(a) === JSON.stringify(b)
     let cur = first(v)
     for (let k = 0; k < 60; k++) {
       if ((cur.kind === 'clauses' && refuted(cur.set)) || (cur.kind === 'eqs' && cur.fail)) return cur
@@ -234,7 +234,7 @@ const repeat = {
         ctx.trace?.push({ id: node.id, key: null, round: k + 1, value: next, quiet: true })
       }
       if (next.kind === 'state' && next.error) return cur
-      if (same2(next, cur)) return cur
+      if (sameJson(next, cur)) return cur
       cur = next
     }
     throw fail('转了 60 圈还没停下来', 'Still changing after 60 rounds')

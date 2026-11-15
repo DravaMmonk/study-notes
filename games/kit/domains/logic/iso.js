@@ -39,6 +39,7 @@
 // situations alone cannot tell (a way's assumptions in order, [[sentence]]), take: the rule that takes it apart, when
 // it is not the plain cases (a family indexed by things, as =): { premises: [text], conclusion: text } in metavariables
 // (schematic.js), datatype: the type it declares (chapter 12, typeOf), whose rules the kernel makes (datatype.js) }.
+import { sameJson } from '../../engine/json-value.js'
 import { runBoard } from '../../engine/boards.js'
 import { atom, fn, meta, parse, show, subst as substF, tvar } from './formula.js'
 import { say } from './notation.js'
@@ -70,7 +71,7 @@ function subst(x, σ) {
 // σ extended so that `pattern`, with `vars` free, is `inst`; null when it cannot be.
 function match(pattern, inst, vars, σ) {
   if (pattern && pattern.t === 'var' && vars.has(pattern.name)) {
-    if (σ[pattern.name]) return JSON.stringify(σ[pattern.name]) === JSON.stringify(inst) ? σ : null
+    if (σ[pattern.name]) return sameJson(σ[pattern.name], inst) ? σ : null
     return { ...σ, [pattern.name]: inst }
   }
   if (Array.isArray(pattern)) {

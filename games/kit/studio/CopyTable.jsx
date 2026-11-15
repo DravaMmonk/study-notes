@@ -1,3 +1,4 @@
+import { sameJson } from '../engine/json-value.js'
 import { memo, useMemo, useState } from 'react'
 import { L, tr } from '../shell/i18n.js'
 import { useLang } from '../shell/useLang.js'
@@ -29,7 +30,7 @@ const CopyRow = memo(function CopyRow({ row, first, found, names, onEdit, onJump
     </div>
   )
 }, (a, b) => a.left === b.left && a.right === b.right && a.first === b.first && a.names === b.names
-  && a.onEdit === b.onEdit && JSON.stringify(a.row) === JSON.stringify(b.row) && a.found.join('\n') === b.found.join('\n'))
+  && a.onEdit === b.onEdit && sameJson(a.row, b.row) && a.found.join('\n') === b.found.join('\n'))
 
 export default function CopyTable({ content, vocabulary, scope, setScope, order, names, places, onEdit, onJump }) {
   const uiLang = useLang()

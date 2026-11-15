@@ -2,10 +2,10 @@
 // the review lists each and the changeset checks each): set a field, remove it, patch several, add or take parts from
 // what they bring in (adds), move them together. A level the edit does not fit is skipped with the reason, never
 // guessed at. Pure: the levels are content's ({ id, …fields }), the schemas the vocabulary's.
+import { sameJson } from '../engine/json-value.js'
 import { shapeAt } from '../engine/schema.js'
 import { getAt, parsePath } from '../engine/ops/edit.js'
 
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const bare = ({ id: _, ...level }) => level
 
 /** The fields every one of `levels` can hold (by its schema): [{ key, schema }] in the first level's schema order. */
@@ -31,7 +31,7 @@ export function bulkSet(vocabulary, levels, path, value) {
     const s = schemaAt(vocabulary, level, keys)
     if (!s) { skipped.push({ level: level.id, why: 'has no such field' }); continue }
     const old = getAt(level, keys)
-    if (same(old, value)) { skipped.push({ level: level.id, why: 'holds that already' }); continue }
+    if (sameJson(old, value)) { skipped.push({ level: level.id, why: 'holds that already' }); continue }
     if (keys.length > 1 && getAt(level, keys.slice(0, -1)) === undefined) { skipped.push({ level: level.id, why: 'has nothing to hold it' }); continue }
     if (s.type === 'text') {
       if (typeof value === 'string' || typeof old === 'string') ops.push({ op: 'text.set', level: level.id, path: keys, value })
@@ -60,7 +60,7 @@ export function bulkPatch(levels, fields) {
   const ops = []
   const skipped = []
   for (const level of levels) {
-    const changes = Object.entries(fields).some(([k, v]) => (v === null ? level[k] !== undefined : !same(level[k], v)))
+    const changes = Object.entries(fields).some(([k, v]) => (v === null ? level[k] !== undefined : !sameJson(level[k], v)))
     if (changes) ops.push({ op: 'level.patch', level: level.id, fields })
     else skipped.push({ level: level.id, why: 'holds that already' })
   }

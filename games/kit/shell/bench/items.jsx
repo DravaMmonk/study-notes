@@ -1,3 +1,4 @@
+import { sameJson } from '../../engine/json-value.js'
 import { ArrowRight, Check, Circle, RotateCcw, X } from 'lucide-react'
 import { formatValue, knobKind, needText, rowValue } from '../../engine/bench.js'
 import { GridPicture } from '../../views/grid/GridView.jsx'
@@ -76,7 +77,7 @@ function Knobs({ params, ctx }) {
 
 function Actions({ params, ctx }) {
   const actions = (ctx.bench.actions ?? []).map((a, i) => [a, i]).filter(([, i]) => !params.only || params.only.includes(i))
-  const atStart = (a) => a.reset.every((k) => JSON.stringify(ctx.values[k]) === JSON.stringify(ctx.start[k]))
+  const atStart = (a) => a.reset.every((k) => sameJson(ctx.values[k], ctx.start[k]))
   return (
     <div className="bk-row bench-actions">
       {actions.map(([a, i]) => (

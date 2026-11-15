@@ -1,3 +1,4 @@
+import { sameJson } from '../engine/json-value.js'
 import { cardWidth } from './card-size.js'
 import { useElementSize } from '../views/useElementSize.js'
 import { usePointerSession } from '../views/usePointerSession.js'
@@ -229,7 +230,7 @@ export default function CanvasEditor({ blocks = null, graph, onChange: given, re
       }
     }
     const next = { ports, sizes, offsets }
-    if (JSON.stringify(next) === JSON.stringify(geoRef.current)) return
+    if (sameJson(next, geoRef.current)) return
     geoRef.current = next
     setGeo(next)
   })

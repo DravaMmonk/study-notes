@@ -2,18 +2,18 @@
 // before and after, as the values that differ, each at its path. A text pair and a board (a list of lines) are compared
 // whole; objects are looked into key by key, lists item by item: the items a list keeps are left out, so an item added
 // (a save step appended), removed or moved shows alone, and items changed in place are looked into.
+import { sameJson } from '../engine/json-value.js'
 
 const isObj = (v) => v !== null && typeof v === 'object' && !Array.isArray(v)
 const isText = (v) => isObj(v) && typeof v.en === 'string' && Object.keys(v).length === 1
 const isLines = (v) => Array.isArray(v) && v.length > 0 && v.every((x) => typeof x === 'string')
-const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 
 /**
  * The fields that differ between `before` and `after` (either may be undefined: a file, a key or an item added or
  * removed), as [{ path, before, after, as: 'text' | 'lines' | 'value' }], in the order the after value lists them.
  */
 export function fieldDiff(before, after, path = []) {
-  if (same(before, after)) return []
+  if (sameJson(before, after)) return []
   const as = isText(before) || isText(after) ? 'text' : isLines(before) || isLines(after) ? 'lines' : 'value'
   if (as === 'value' && isObj(before) && isObj(after)) {
     const keys = [...new Set([...Object.keys(after), ...Object.keys(before)])]
@@ -31,9 +31,9 @@ export function fieldDiff(before, after, path = []) {
  */
 function listDiff(before, after, path) {
   let head = 0
-  while (head < before.length && head < after.length && same(before[head], after[head])) head++
+  while (head < before.length && head < after.length && sameJson(before[head], after[head])) head++
   let tail = 0
-  while (tail < before.length - head && tail < after.length - head && same(before.at(-1 - tail), after.at(-1 - tail))) tail++
+  while (tail < before.length - head && tail < after.length - head && sameJson(before.at(-1 - tail), after.at(-1 - tail))) tail++
   const a = before.slice(head, before.length - tail), b = after.slice(head, after.length - tail)
   const out = []
   let i = 0, j = 0
