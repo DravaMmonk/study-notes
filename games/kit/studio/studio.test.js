@@ -17,8 +17,7 @@ import {
   referenceFor, revertOf, sectionsOf, shapeName, shapeOf, summaryOf, tableOf, tableValue, textsOf, taskOptionsOf, tickValue, tickValues, toggled,
 } from './form.js'
 import { lintText } from '../pipeline/lint.js'
-import { eraLevels } from '../course.js'
-import { courseGroups, courseTree, stays } from './tree.js'
+import { courseTree, stays } from './tree.js'
 import { fieldDiff } from './diff.js'
 import { lacking } from '../engine/text.js'
 import { taskIdsOf } from '../engine/tasks.js'
@@ -129,12 +128,10 @@ const ERAS = [
   { id: 2, levels: [{ id: 'i' }] },
 ]
 
-test('sidebar group order is independent of the course placement slots', () => {
+test('the course sidebar offers a placement slot before and after ordered levels', () => {
   const tree = courseTree(ERAS)
   const [one] = tree.eras
   assert.deepEqual(one.slots, [{ era: 1, at: 0 }, { after: 'a' }, { after: 'b' }, { after: 'c' }])
-  assert.deepEqual(courseGroups(ERAS.flatMap(eraLevels), [{ title: 'G', code: 'G', levels: ['c', 'a', 'i'] }])
-    .map((group) => [group.code, group.levels]), [['G', ['a', 'c', 'i']], [undefined, ['b']]])
   for (const to of one.slots) assert.doesNotThrow(() => putIn(takeOut(ERAS, 'i').eras, { id: 'i' }, to))
   assert.equal(stays(tree, 'a', { era: 1, at: 0 }), true)
   assert.equal(stays(tree, 'c', { after: 'b' }), true)

@@ -28,13 +28,13 @@ import { replaceOps, searchContent } from './search.js'
 export const lacking = (tool, args) => Object.entries(tool.params).filter(([k, spec]) => !spec.endsWith('?') && args?.[k] === undefined).map(([k]) => k)
 
 // The tools use the repository layout, or a copy with games/ and packages/ under GAMES_ROOT.
-export const ROOT = process.env.GAMES_ROOT ?? PROJECT_DIR
+const ROOT = process.env.GAMES_ROOT ?? PROJECT_DIR
 const { GAMES } = await import(pathToFileURL(resolve(ROOT, 'games', 'games.js')).href)
 const listed = (id) => hubCount(readFileSync(resolve(ROOT, 'games', 'games.js'), 'utf8'), id)
 // The repository's games keep their checks between calls (../check-cache.js); a copy of them (GAMES_ROOT) is checked afresh.
 const kept = (id) => (process.env.GAMES_ROOT ? null : checkCache(id))
 const git = (...args) => execFileSync('git', ['-C', ROOT, ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
-export const known = (game) => {
+const known = (game) => {
   if (!GAMES.some((g) => g.id === game)) throw new Error(`no game ${game}; the games are ${GAMES.map((g) => g.id).join(', ')}`)
   return game
 }

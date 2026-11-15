@@ -17,11 +17,3 @@ export function stays(tree, level, to) {
     return index >= 0 && sameJson(slots[index], to)
   })
 }
-
-export function courseGroups(order, entries = []) {
-  const membership = new Map(entries.flatMap((group, i) => group.levels.map((id) => [id, i])))
-  const groups = entries.map(({ id, title, code }) => ({ id, title, code, levels: [] }))
-  const loose = []
-  for (const id of order) (groups[membership.get(id)]?.levels ?? loose).push(id)
-  return [...groups.filter((group) => group.levels.length), ...(loose.length ? [{ levels: loose }] : [])]
-}

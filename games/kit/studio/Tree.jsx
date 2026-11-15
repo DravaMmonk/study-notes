@@ -3,28 +3,21 @@ import { Fragment, useMemo, useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { eraLevels } from '../course.js'
 import { L, tr } from '../shell/i18n.js'
-import { courseGroups, courseTree, stays } from './tree.js'
+import { courseTree, stays } from './tree.js'
 import SidebarListTools from './SidebarListTools.jsx'
 import { sidebarSearch, sidebarSortOptions, sortSidebarIds } from './sidebar-list.js'
 import { usePref } from './prefs.js'
 
-export default function Tree({ game, content, entries, at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, onTask, onTaskMove, addOptions, onAdd }) {
+export default function Tree({ game, content, at, selectedTask, picked, setPicked, onSelect, moving, setMoving, onMove, labels = null, onTask, onTaskMove, addOptions, onAdd }) {
   const [taskDrag, setTaskDrag] = useState(null) // the id of the task being dragged
   const [taskOver, setTaskOver] = useState(null)
   const tree = useMemo(() => courseTree(content.eras ?? []), [content])
   const [query, setQuery] = useState('')
   const [sort, setSort] = usePref('course-list-sort', 'chapter')
-  const view = moving ? 'chapter' : sort
+  const sortOptions = [{ value: 'chapter', label: tr('按章节', 'By chapter') }, ...sidebarSortOptions()]
+  const view = !moving && sortOptions.some(({ value }) => value === sort) ? sort : 'chapter'
   const filtering = !moving && Boolean(query.trim())
   const order = useMemo(() => tree.eras.flatMap(({ era }) => eraLevels(era)), [tree])
-  const groups = useMemo(() => courseGroups(order, entries), [order, entries])
-  const [groupFolds, setGroupFolds] = usePref('folded-course-groups', {})
-  const foldedGroups = new Set(groupFolds[game] ?? [])
-  const toggleGroup = (id) => {
-    if (foldedGroups.has(id)) foldedGroups.delete(id)
-    else foldedGroups.add(id)
-    setGroupFolds((old) => ({ ...old, [game]: [...foldedGroups] }))
-  }
   const optional = useMemo(() => new Set(tree.eras.flatMap(({ era }) =>
     era.levels.filter((entry) => entry.optional).map(({ id }) => id))), [tree])
   const byId = useMemo(() => new Map(content.levels.map((l) => [l.id, l])), [content])
@@ -45,10 +38,8 @@ export default function Tree({ game, content, entries, at, selectedTask, picked,
     return matches(id, labelOf.get(id), L(level?.title)) ||
       level?.tasks?.some((task) => matches(task.id, L(task.step)))
   }))
-  const groupedRows = groups.map((group) => ({ ...group, levels: group.levels.filter((id) => visible.has(id)) }))
-  const flat = view !== 'chapter' && view !== 'group'
-  const rows = flat ? sortSidebarIds(visible, view, (id) => L(byId.get(id)?.title)) : view === 'group'
-    ? groupedRows.flatMap(({ id, levels }) => !filtering && foldedGroups.has(id ?? '') ? [] : levels)
+  const flat = view !== 'chapter'
+  const rows = flat ? sortSidebarIds(visible, view, (id) => L(byId.get(id)?.title))
     : tree.eras.flatMap(({ era }) => !filtering && !moving && folded.has(String(era.id)) ? [] : eraLevels(era).filter((id) => visible.has(id)))
 
   /** Pick by a click or a key: one level, one more (toggle), or the run from the level selected to it. */
@@ -178,21 +169,9 @@ export default function Tree({ game, content, entries, at, selectedTask, picked,
   return (
     <nav className="tree" aria-label={tr('课程')}>
       <SidebarListTools addOptions={addOptions} onAdd={onAdd} query={query} onQuery={setQuery}
-        sortOptions={[{ value: 'chapter', label: tr('按章节', 'By chapter') }, { value: 'group', label: tr('按分组', 'By group') }, ...sidebarSortOptions()]}
-        sort={sort} onSort={setSort} />
+        sortOptions={sortOptions} sort={view} onSort={setSort} />
       {flat ? <div className="tree-levels">{rows.map(row)}</div>
-        : view === 'group' ? groupedRows.filter(({ levels }) => levels.length).map(({ id = '', title, code, levels }) => {
-        const shut = !filtering && foldedGroups.has(id)
-        return (
-          <section className={`tree-group tree-era ${shut ? 'is-folded' : ''}`} key={id}>
-            <button type="button" className="tree-group-head" aria-expanded={!shut} onClick={() => toggleGroup(id)}>
-              <span className="tree-fold"><ChevronRight size={12} aria-hidden="true" /></span>
-              {code && <code>{code}</code>}{L(title) ?? tr('未分组', 'Ungrouped')}
-            </button>
-            {!shut && <div className="tree-levels">{levels.map(row)}</div>}
-          </section>
-        )
-      }) : tree.eras.map(({ era: value, at: e, slots }) => {
+        : tree.eras.map(({ era: value, at: e, slots }) => {
         const levels = eraLevels(value).filter((id) => visible.has(id))
         if (filtering && !levels.length) return null
         const shut = folded.has(String(value.id)) && !filtering && !moving

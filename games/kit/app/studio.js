@@ -15,7 +15,6 @@ import { readdirSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { Worker } from 'node:worker_threads'
 import { gameModule } from '../engine/game-module.js'
-import { studioGroups } from './studio-groups.js'
 
 const PREFIX = '/studio/api/'
 const DOMAINS = resolve(import.meta.dirname, '../domains')
@@ -112,10 +111,10 @@ export function studioApp() {
       }).join(', ')} }`
     },
     async configureServer(server) {
-      const { TOOLS, ROOT, known, lacking } = await import('../engine/ops/tools.js')
+      const { TOOLS, lacking } = await import('../engine/ops/tools.js')
       const { closeGames } = await import('../engine/games.mjs')
       const lane = worker()
-      server.middlewares.use(bridge({ ...TOOLS, studio_groups: studioGroups(ROOT, known) }, lacking, lane))
+      server.middlewares.use(bridge(TOOLS, lacking, lane))
       server.httpServer?.on('close', () => {
         lane.close()
         closeGames()

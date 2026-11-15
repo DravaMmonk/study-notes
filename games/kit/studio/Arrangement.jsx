@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ArrowLeft, ListOrdered, Save, Trash2 } from 'lucide-react'
+import { ListOrdered, Save, Trash2 } from 'lucide-react'
 import { eraLevels, layout } from '../course.js'
 import { L, tr } from '../shell/i18n.js'
 import { Picker } from './Picker.jsx'
@@ -14,7 +14,7 @@ const message = (reason) => ({
   cycle: tr('这条连线会形成循环依赖。', 'This wire would create a cycle.'),
 })[reason]
 
-export default function Arrangement({ content, groups, at, options, pending, save, onSelect, onEdit, onMove }) {
+export default function Arrangement({ content, at, options, pending, save, onSelect, onEdit, onMove }) {
   const { eras } = content
   const notes = content.mode === 'notes'
   const { place, requires } = useMemo(() => layout(eras), [eras])
@@ -28,9 +28,8 @@ export default function Arrangement({ content, groups, at, options, pending, sav
   const [armed, setArmed] = useState(null)
   const [highlight, setHighlight] = useState(null)
   const [notice, setNotice] = useState('')
-  const group = groups.find(({ id }) => id === scope?.group)
-  const pins = group || scope?.era === era?.id ? scope?.pins : null
-  const board = useMemo(() => era && wiringBoard(group ? group.levels.filter((id) => place.has(id)) : eraLevels(era), pins ?? [], requires, links), [era, group, place, pins, requires, links])
+  const pins = scope?.era === era?.id ? scope?.pins : null
+  const board = useMemo(() => era && wiringBoard(eraLevels(era), pins ?? [], requires, links), [era, pins, requires, links])
   if (!era) return <p className="studio-loading">{tr('没有章节', 'No chapters')}</p>
   const picked = board.hosted.has(armed) ? armed : null
   const wire = board.edges.find((edge) => linkKey(edge) === highlight)
@@ -40,10 +39,6 @@ export default function Arrangement({ content, groups, at, options, pending, sav
   }
   const label = (id) => <><code>{id}</code><span>{L(levels.get(id)?.title)}</span>{place.get(id)?.optional && <small>{tr('可选', 'Optional')}</small>}</>
   const resetWire = () => { setArmed(null); setHighlight(null); setNotice('') }
-  const open = (group = null) => {
-    resetWire()
-    setScope({ era: era.id, group, pins: [] })
-  }
   const setField = (path, values) => onEdit(values.length ? { op: 'game.set', path, value: values } : { op: 'game.unset', path })
   const updateLink = (link, value) => {
     const destination = indices.get(place.get(link.to).era)
@@ -70,7 +65,6 @@ export default function Arrangement({ content, groups, at, options, pending, sav
     updateLink(wire, null)
     resetWire()
   }
-  const groupOptions = groups.map(({ id, title, code }) => ({ value: id, label: code ?? L(title), ...(code && { title }) }))
   const outside = options.filter(({ value }) => place.has(value) && !board.hosted.has(value))
     .map(({ value, title, group }) => ({ value, label: value, title, group }))
 
@@ -86,14 +80,8 @@ export default function Arrangement({ content, groups, at, options, pending, sav
           onChange={(e) => { resetWire(); setScope(null); onSelect({ era: Number(e.target.value) }) }}>
           {eras.map((chapter, i) => <option key={chapter.id} value={i}>{nameOf(chapter)}</option>)}
         </select>
-        {group && (
-          <button type="button" className="kit-btn is-label" onClick={() => open()}>
-            <ArrowLeft size={13} aria-hidden="true" />{tr('返回章节', 'Back to chapter')}
-          </button>
-        )}
-        {groups.length > 0 && <Picker options={groupOptions} value={group?.id} label={tr('按分组筛选', 'Filter by group')} placeholder={tr('按分组筛选', 'Filter by group')} onPick={open} />}
         {outside.length > 0 && <Picker options={outside} label={tr('添加外部端口', 'Add external ports')} placeholder={tr('外部端口', 'External ports')}
-          onPick={(id) => setScope({ era: era.id, group: group?.id, pins: [...(pins ?? []), id] })} />}
+          onPick={(id) => setScope({ era: era.id, pins: [...(pins ?? []), id] })} />}
         <span className="kit-spacer" />
         <button type="button" className="kit-btn is-label arrange-save" disabled={!save.ready} onClick={save.apply}>
           <Save size={14} aria-hidden="true" />{save.saving ? tr('正在保存', 'Saving') : tr('保存变更', 'Save changes')}
@@ -137,7 +125,7 @@ export default function Arrangement({ content, groups, at, options, pending, sav
       {save.said && <p className={`arrange-saved ${save.said.ok ? '' : 'is-error'}`} role="status">
         {save.said.ok ? tr('已保存到 game.json。', 'Saved to game.json.') : save.said.text}
       </p>}
-      <ArrangementBoard key={group?.id ?? era.id} board={board} label={label} describe={describe} active={selected} picked={picked} wire={highlight} pending={pending}
+      <ArrangementBoard key={era.id} board={board} label={label} describe={describe} active={selected} picked={picked} wire={highlight} pending={pending}
         onLevel={(level) => { resetWire(); onSelect({ level }) }} onWire={chooseWire}
         onPick={(id) => { resetWire(); setArmed(picked === id ? null : id) }} onConnect={connect} onCancel={resetWire} />
     </article>
